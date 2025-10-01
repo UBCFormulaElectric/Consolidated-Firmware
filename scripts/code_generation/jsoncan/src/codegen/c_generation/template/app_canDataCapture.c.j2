@@ -59,6 +59,7 @@ void app_canDataCapture_init()
 
 bool app_dataCapture_needsLog(uint32_t msg_id, uint32_t time_ms)
 {
+    (void)time_ms; // in case we don't use it.
     switch (msg_id)
     {
         {%- for msg in messages %}
@@ -82,6 +83,7 @@ bool app_dataCapture_needsLog(uint32_t msg_id, uint32_t time_ms)
 
 bool app_dataCapture_needsTelem(uint32_t msg_id, uint32_t time_ms)
 {
+    (void)time_ms; // in case we don't use it.
     switch (msg_id)
     {
         {%- for msg in messages %}

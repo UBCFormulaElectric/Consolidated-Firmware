@@ -9,3 +9,5 @@ requests == 2.32.3
 pySerial == 3.5
 protobuf == 5.29.3
 crc
+zeroconf
+gunicorn
