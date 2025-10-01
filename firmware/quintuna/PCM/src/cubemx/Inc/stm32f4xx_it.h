@@ -1,12 +1,12 @@
 /* USER CODE BEGIN Header */
 /**
  ******************************************************************************
- * @file    stm32h7xx_it.h
+ * @file    stm32f4xx_it.h
  * @brief   This file contains the headers of the interrupt handlers.
  ******************************************************************************
  * @attention
  *
- * Copyright (c) 2024 STMicroelectronics.
+ * Copyright (c) 2025 STMicroelectronics.
  * All rights reserved.
  *
  * This software is licensed under terms that can be found in the LICENSE file
@@ -18,8 +18,8 @@
 /* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __STM32H7xx_IT_H
-#define __STM32H7xx_IT_H
+#ifndef __STM32F4xx_IT_H
+#define __STM32F4xx_IT_H
 
 #ifdef __cplusplus
 extern "C"
@@ -53,9 +53,9 @@ extern "C"
     void BusFault_Handler(void);
     void UsageFault_Handler(void);
     void DebugMon_Handler(void);
-    void FDCAN2_IT0_IRQHandler(void);
-    void FDCAN2_IT1_IRQHandler(void);
-    void TIM6_DAC_IRQHandler(void);
+    void SysTick_Handler(void);
+    void I2C1_EV_IRQHandler(void);
+    void I2C1_ER_IRQHandler(void);
     /* USER CODE BEGIN EFP */
 
     /* USER CODE END EFP */
@@ -64,4 +64,4 @@ extern "C"
 }
 #endif
 
-#endif /* __STM32H7xx_IT_H */
+#endif /* __STM32F4xx_IT_H */
