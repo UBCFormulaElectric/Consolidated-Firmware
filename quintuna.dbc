@@ -1,0 +1,1549 @@
+VERSION ""
+NS_:
+BS_:
+
+
+BU_: BMS Boot CRIT DAM DAMLogger Debug Elcon EMeter FSM INVFL INVFR INVRL INVRR RSM VC VCR DEBUG
+
+
+BO_ 400 BMS_Vitals: 1 BMS
+SG_ BMS_Heartbeat : 0|1@1+ (1,0) [0|1] "" CRIT,DAMLogger,VC,DEBUG
+SG_ BMS_State : 1|3@1+ (1,0) [0|7] "" CRIT,DAMLogger,VC,DEBUG
+
+BO_ 409 BMS_CommitInfo: 5 BMS
+SG_ BMS_Hash : 0|32@1+ (1,0) [0|4294967295] "" DAMLogger,DEBUG
+SG_ BMS_Clean : 32|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+
+BO_ 407 BMS_Debug: 7 BMS
+SG_ BMS_TxOverflowCount : 0|16@1+ (1,0) [0|65535] "" DAMLogger,DEBUG
+SG_ BMS_RxOverflowCount : 16|16@1+ (1,0) [0|65535] "" DAMLogger,DEBUG
+SG_ BMS_ResetReason : 32|3@1+ (1,0) [0|5] "" DAMLogger,DEBUG
+SG_ BMS_StackOverflowTask : 35|8@1+ (1,0) [0|255] "" DAMLogger,DEBUG
+SG_ BMS_WatchdogTimeoutTask : 43|8@1+ (1,0) [0|255] "" DAMLogger,DEBUG
+
+BO_ 410 BMS_LatchStatus: 1 BMS
+SG_ BMS_BmsCurrentlyOk : 0|1@1+ (1,0) [0|1] "" CRIT,DAM,DAMLogger,VC,DEBUG
+SG_ BMS_ImdCurrentlyOk : 1|1@1+ (1,0) [0|1] "" CRIT,DAM,DAMLogger,VC,DEBUG
+SG_ BMS_BspdCurrentlyOk : 2|1@1+ (1,0) [0|1] "" CRIT,DAM,DAMLogger,VC,DEBUG
+SG_ BMS_BmsLatchOk : 3|1@1+ (1,0) [0|1] "" CRIT,DAM,DAMLogger,VC,DEBUG
+SG_ BMS_ImdLatchOk : 4|1@1+ (1,0) [0|1] "" CRIT,DAM,DAMLogger,VC,DEBUG
+SG_ BMS_BspdLatchOk : 5|1@1+ (1,0) [0|1] "" CRIT,DAM,DAMLogger,VC,DEBUG
+
+BO_ 411 BMS_Contactors: 1 BMS
+SG_ BMS_IrPositive : 0|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ BMS_IrNegative : 1|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ BMS_PrechargeRelay : 2|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+
+BO_ 413 BMS_Charger: 1 BMS
+SG_ BMS_ChargerConnectedType : 0|2@1+ (1,0) [0|2] "" DAMLogger,DEBUG
+SG_ BMS_ChargingDone : 2|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_ChargingFaulted : 3|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+
+BO_ 412 BMS_TractiveSystem: 7 BMS
+SG_ BMS_TractiveSystemVoltage : 0|13@1+ (0.1,0) [0|600] "V" CRIT,DAMLogger,VC,DEBUG
+SG_ BMS_TractiveSystemCurrent : 13|13@1+ (0.1,-300) [-300|300] "A" CRIT,DAMLogger,VC,DEBUG
+SG_ BMS_TractiveSystemPower : 26|11@1+ (0.1,-100) [-100|100] "kW" CRIT,DAMLogger,VC,DEBUG
+SG_ BMS_AvailablePower : 37|17@1+ (1,0) [0|100000] "W" CRIT,DAMLogger,VC,DEBUG
+SG_ BMS_CurrentSensorOk : 54|1@1+ (1,0) [0|1] "" CRIT,DAMLogger,VC,DEBUG
+SG_ BMS_VoltageSensorOk : 55|1@1+ (1,0) [0|1] "" CRIT,DAMLogger,VC,DEBUG
+
+BO_ 414 BMS_BSPDStatus: 1 BMS
+SG_ BMS_BSPDCurrentThresholdExceeded : 0|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+
+BO_ 2550588916 BMS_ElconControls: 5 BMS
+SG_ BMS_MaxChargingVoltage : 7|16@0+ (0.1,0) [0|10000] "V" DAMLogger,Elcon,DEBUG
+SG_ BMS_MaxChargingCurrent : 23|16@0+ (0.1,0) [0|1000] "A" DAMLogger,Elcon,DEBUG
+SG_ BMS_StopCharging : 32|1@1+ (1,0) [0|1] "" DAMLogger,Elcon,DEBUG
+
+BO_ 455 BMS_HvBatteryProperties: 1 BMS
+SG_ BMS_HvBatterySoc : 0|8@1+ (1,0) [0|100] "%" DAMLogger,DEBUG
+
+BO_ 452 BMS_ImdStatus: 5 BMS
+SG_ BMS_ImdOkHs : 0|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_ImdTimeSincePowerOn : 1|14@1+ (1,0) [0|10000] "ms" DAMLogger,DEBUG
+SG_ BMS_ImdValidDutyCycle : 15|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_ImdCondition : 16|3@1+ (1,0) [0|6] "" DAMLogger,DEBUG
+SG_ BMS_ImdDutyCycle : 19|8@1+ (0.39215686274509803,0) [0|100] "%" DAMLogger,DEBUG
+SG_ BMS_ImdFrequency : 27|8@1+ (0.39215686274509803,0) [0|100] "Hz" DAMLogger,DEBUG
+
+BO_ 453 BMS_ImdData: 8 BMS
+SG_ BMS_ImdActiveFrequency : 0|3@1+ (1,0) [0|5] "" DAMLogger,DEBUG
+SG_ BMS_ImdInsulationMeasurementDcp10Hz : 3|20@1+ (0.1,0) [0|65535] "kOhm" DAMLogger,DEBUG
+SG_ BMS_ImdInsulationMeasurementDcp20Hz : 23|20@1+ (0.1,0) [0|65535] "kOhm" DAMLogger,DEBUG
+SG_ BMS_ImdSpeedStartStatus30Hz : 43|20@1+ (0.1,0) [0|65535] "" DAMLogger,DEBUG
+
+BO_ 122 BMS_PowerLimit: 5 BMS
+SG_ BMS_ChargePowerLimit : 0|17@1+ (1,0) [0|100000] "W" DAMLogger,VC,DEBUG
+SG_ BMS_DischargePowerLimit : 17|17@1+ (1,0) [0|100000] "W" DAMLogger,VC,DEBUG
+SG_ BMS_ChargePowerLimitCondition : 34|2@1+ (1,0) [0|3] "" DAMLogger,VC,DEBUG
+SG_ BMS_DischargePowerLimitCondition : 36|2@1+ (1,0) [0|3] "" DAMLogger,VC,DEBUG
+
+BO_ 459 BMS_CellVoltageStats_1: 5 BMS
+SG_ BMS_AvgCellVoltage : 0|13@1+ (0.001,0) [0|5] "V" CRIT,DAMLogger,VC,DEBUG
+SG_ BMS_MinCellVoltage : 13|13@1+ (0.001,0) [0|5] "V" CRIT,DAMLogger,VC,DEBUG
+SG_ BMS_MinCellVoltageSegment : 26|4@1+ (1,0) [0|9] "" CRIT,DAMLogger,VC,DEBUG
+SG_ BMS_MinCellVoltageIdx : 30|4@1+ (1,0) [0|13] "" CRIT,DAMLogger,VC,DEBUG
+
+BO_ 469 BMS_CellVoltageStats_2: 5 BMS
+SG_ BMS_PackVoltage : 0|16@1+ (0.01,100) [100|650] "V" DAMLogger,VC,DEBUG
+SG_ BMS_MaxCellVoltage : 16|13@1+ (0.001,0) [0|5] "V" DAMLogger,VC,DEBUG
+SG_ BMS_MaxCellVoltageSegment : 29|4@1+ (1,0) [0|9] "" DAMLogger,VC,DEBUG
+SG_ BMS_MaxCellVoltageIdx : 33|4@1+ (1,0) [0|13] "" DAMLogger,VC,DEBUG
+
+BO_ 463 BMS_CellTempStats: 6 BMS
+SG_ BMS_AvgCellTemp : 0|10@1+ (0.1,0) [0|100] "degC" CRIT,DAMLogger,VC,DEBUG
+SG_ BMS_MinCellTemp : 10|10@1+ (0.1,0) [0|100] "degC" CRIT,DAMLogger,VC,DEBUG
+SG_ BMS_MinCellTempSegment : 20|4@1+ (1,0) [0|9] "" CRIT,DAMLogger,VC,DEBUG
+SG_ BMS_MinCellTempIdx : 24|4@1+ (1,0) [0|13] "" CRIT,DAMLogger,VC,DEBUG
+SG_ BMS_MaxCellTemp : 28|10@1+ (0.1,0) [0|100] "degC" CRIT,DAMLogger,VC,DEBUG
+SG_ BMS_MaxCellTempSegment : 38|4@1+ (1,0) [0|9] "" CRIT,DAMLogger,VC,DEBUG
+SG_ BMS_MaxCellTempIdx : 42|4@1+ (1,0) [0|13] "" CRIT,DAMLogger,VC,DEBUG
+
+BO_ 464 BMS_AvgVoltageStats: 12 BMS
+SG_ BMS_Seg0_AvgVoltage : 0|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg1_AvgVoltage : 9|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg2_AvgVoltage : 18|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg3_AvgVoltage : 27|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg4_AvgVoltage : 36|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg5_AvgVoltage : 45|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg6_AvgVoltage : 54|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg7_AvgVoltage : 63|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg8_AvgVoltage : 72|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg9_AvgVoltage : 81|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+
+BO_ 465 BMS_AvgTempStats: 12 BMS
+SG_ BMS_Seg0_AvgTemp : 0|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg1_AvgTemp : 9|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg2_AvgTemp : 18|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg3_AvgTemp : 27|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg4_AvgTemp : 36|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg5_AvgTemp : 45|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg6_AvgTemp : 54|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg7_AvgTemp : 63|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg8_AvgTemp : 72|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg9_AvgTemp : 81|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+
+BO_ 466 BMS_Balancing: 3 BMS
+SG_ BMS_BalancingState : 0|2@1+ (1,0) [0|2] "" DAMLogger,DEBUG
+SG_ BMS_ImbalanceMagnitude : 2|10@1+ (0.001,0) [0|1] "V" DAMLogger,DEBUG
+SG_ BMS_BalancingLeaderSegment : 12|4@1+ (1,0) [0|9] "" DAMLogger,DEBUG
+SG_ BMS_BalancingLeaderCellIdx : 16|4@1+ (1,0) [0|13] "" DAMLogger,DEBUG
+
+BO_ 460 BMS_CellVoltages_Seg0_Seg3: 64 BMS
+SG_ BMS_Seg0_Cell0_Voltage : 0|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg0_Cell1_Voltage : 9|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg0_Cell2_Voltage : 18|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg0_Cell3_Voltage : 27|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg0_Cell4_Voltage : 36|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg0_Cell5_Voltage : 45|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg0_Cell6_Voltage : 54|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg0_Cell7_Voltage : 63|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg0_Cell8_Voltage : 72|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg0_Cell9_Voltage : 81|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg0_Cell10_Voltage : 90|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg0_Cell11_Voltage : 99|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg0_Cell12_Voltage : 108|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg0_Cell13_Voltage : 117|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg1_Cell0_Voltage : 126|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg1_Cell1_Voltage : 135|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg1_Cell2_Voltage : 144|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg1_Cell3_Voltage : 153|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg1_Cell4_Voltage : 162|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg1_Cell5_Voltage : 171|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg1_Cell6_Voltage : 180|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg1_Cell7_Voltage : 189|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg1_Cell8_Voltage : 198|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg1_Cell9_Voltage : 207|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg1_Cell10_Voltage : 216|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg1_Cell11_Voltage : 225|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg1_Cell12_Voltage : 234|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg1_Cell13_Voltage : 243|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg2_Cell0_Voltage : 252|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg2_Cell1_Voltage : 261|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg2_Cell2_Voltage : 270|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg2_Cell3_Voltage : 279|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg2_Cell4_Voltage : 288|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg2_Cell5_Voltage : 297|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg2_Cell6_Voltage : 306|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg2_Cell7_Voltage : 315|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg2_Cell8_Voltage : 324|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg2_Cell9_Voltage : 333|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg2_Cell10_Voltage : 342|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg2_Cell11_Voltage : 351|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg2_Cell12_Voltage : 360|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg2_Cell13_Voltage : 369|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg3_Cell0_Voltage : 378|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg3_Cell1_Voltage : 387|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg3_Cell2_Voltage : 396|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg3_Cell3_Voltage : 405|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg3_Cell4_Voltage : 414|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg3_Cell5_Voltage : 423|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg3_Cell6_Voltage : 432|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg3_Cell7_Voltage : 441|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg3_Cell8_Voltage : 450|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg3_Cell9_Voltage : 459|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg3_Cell10_Voltage : 468|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg3_Cell11_Voltage : 477|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg3_Cell12_Voltage : 486|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg3_Cell13_Voltage : 495|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+
+BO_ 461 BMS_CellVoltages_Seg4_Seg7: 64 BMS
+SG_ BMS_Seg4_Cell0_Voltage : 0|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg4_Cell1_Voltage : 9|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg4_Cell2_Voltage : 18|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg4_Cell3_Voltage : 27|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg4_Cell4_Voltage : 36|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg4_Cell5_Voltage : 45|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg4_Cell6_Voltage : 54|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg4_Cell7_Voltage : 63|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg4_Cell8_Voltage : 72|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg4_Cell9_Voltage : 81|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg4_Cell10_Voltage : 90|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg4_Cell11_Voltage : 99|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg4_Cell12_Voltage : 108|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg4_Cell13_Voltage : 117|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg5_Cell0_Voltage : 126|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg5_Cell1_Voltage : 135|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg5_Cell2_Voltage : 144|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg5_Cell3_Voltage : 153|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg5_Cell4_Voltage : 162|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg5_Cell5_Voltage : 171|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg5_Cell6_Voltage : 180|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg5_Cell7_Voltage : 189|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg5_Cell8_Voltage : 198|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg5_Cell9_Voltage : 207|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg5_Cell10_Voltage : 216|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg5_Cell11_Voltage : 225|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg5_Cell12_Voltage : 234|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg5_Cell13_Voltage : 243|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg6_Cell0_Voltage : 252|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg6_Cell1_Voltage : 261|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg6_Cell2_Voltage : 270|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg6_Cell3_Voltage : 279|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg6_Cell4_Voltage : 288|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg6_Cell5_Voltage : 297|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg6_Cell6_Voltage : 306|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg6_Cell7_Voltage : 315|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg6_Cell8_Voltage : 324|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg6_Cell9_Voltage : 333|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg6_Cell10_Voltage : 342|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg6_Cell11_Voltage : 351|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg6_Cell12_Voltage : 360|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg6_Cell13_Voltage : 369|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg7_Cell0_Voltage : 378|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg7_Cell1_Voltage : 387|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg7_Cell2_Voltage : 396|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg7_Cell3_Voltage : 405|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg7_Cell4_Voltage : 414|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg7_Cell5_Voltage : 423|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg7_Cell6_Voltage : 432|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg7_Cell7_Voltage : 441|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg7_Cell8_Voltage : 450|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg7_Cell9_Voltage : 459|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg7_Cell10_Voltage : 468|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg7_Cell11_Voltage : 477|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg7_Cell12_Voltage : 486|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg7_Cell13_Voltage : 495|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+
+BO_ 462 BMS_CellVoltages_Seg8_Seg9: 32 BMS
+SG_ BMS_Seg8_Cell0_Voltage : 0|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg8_Cell1_Voltage : 9|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg8_Cell2_Voltage : 18|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg8_Cell3_Voltage : 27|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg8_Cell4_Voltage : 36|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg8_Cell5_Voltage : 45|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg8_Cell6_Voltage : 54|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg8_Cell7_Voltage : 63|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg8_Cell8_Voltage : 72|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg8_Cell9_Voltage : 81|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg8_Cell10_Voltage : 90|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg8_Cell11_Voltage : 99|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg8_Cell12_Voltage : 108|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg8_Cell13_Voltage : 117|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg9_Cell0_Voltage : 126|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg9_Cell1_Voltage : 135|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg9_Cell2_Voltage : 144|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg9_Cell3_Voltage : 153|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg9_Cell4_Voltage : 162|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg9_Cell5_Voltage : 171|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg9_Cell6_Voltage : 180|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg9_Cell7_Voltage : 189|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg9_Cell8_Voltage : 198|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg9_Cell9_Voltage : 207|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg9_Cell10_Voltage : 216|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg9_Cell11_Voltage : 225|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg9_Cell12_Voltage : 234|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+SG_ BMS_Seg9_Cell13_Voltage : 243|9@1+ (0.01,2) [2|5] "V" DAMLogger,DEBUG
+
+BO_ 470 BMS_CellTemps_Seg0_Seg3: 64 BMS
+SG_ BMS_Seg0_Cell0_Temp : 0|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg0_Cell1_Temp : 9|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg0_Cell2_Temp : 18|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg0_Cell3_Temp : 27|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg0_Cell4_Temp : 36|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg0_Cell5_Temp : 45|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg0_Cell6_Temp : 54|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg0_Cell7_Temp : 63|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg0_Cell8_Temp : 72|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg0_Cell9_Temp : 81|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg0_Cell10_Temp : 90|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg0_Cell11_Temp : 99|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg0_Cell12_Temp : 108|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg0_Cell13_Temp : 117|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg1_Cell0_Temp : 126|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg1_Cell1_Temp : 135|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg1_Cell2_Temp : 144|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg1_Cell3_Temp : 153|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg1_Cell4_Temp : 162|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg1_Cell5_Temp : 171|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg1_Cell6_Temp : 180|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg1_Cell7_Temp : 189|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg1_Cell8_Temp : 198|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg1_Cell9_Temp : 207|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg1_Cell10_Temp : 216|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg1_Cell11_Temp : 225|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg1_Cell12_Temp : 234|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg1_Cell13_Temp : 243|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg2_Cell0_Temp : 252|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg2_Cell1_Temp : 261|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg2_Cell2_Temp : 270|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg2_Cell3_Temp : 279|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg2_Cell4_Temp : 288|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg2_Cell5_Temp : 297|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg2_Cell6_Temp : 306|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg2_Cell7_Temp : 315|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg2_Cell8_Temp : 324|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg2_Cell9_Temp : 333|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg2_Cell10_Temp : 342|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg2_Cell11_Temp : 351|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg2_Cell12_Temp : 360|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg2_Cell13_Temp : 369|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg3_Cell0_Temp : 378|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg3_Cell1_Temp : 387|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg3_Cell2_Temp : 396|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg3_Cell3_Temp : 405|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg3_Cell4_Temp : 414|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg3_Cell5_Temp : 423|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg3_Cell6_Temp : 432|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg3_Cell7_Temp : 441|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg3_Cell8_Temp : 450|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg3_Cell9_Temp : 459|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg3_Cell10_Temp : 468|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg3_Cell11_Temp : 477|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg3_Cell12_Temp : 486|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg3_Cell13_Temp : 495|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+
+BO_ 471 BMS_CellTemps_Seg4_Seg7: 64 BMS
+SG_ BMS_Seg4_Cell0_Temp : 0|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg4_Cell1_Temp : 9|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg4_Cell2_Temp : 18|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg4_Cell3_Temp : 27|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg4_Cell4_Temp : 36|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg4_Cell5_Temp : 45|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg4_Cell6_Temp : 54|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg4_Cell7_Temp : 63|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg4_Cell8_Temp : 72|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg4_Cell9_Temp : 81|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg4_Cell10_Temp : 90|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg4_Cell11_Temp : 99|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg4_Cell12_Temp : 108|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg4_Cell13_Temp : 117|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg5_Cell0_Temp : 126|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg5_Cell1_Temp : 135|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg5_Cell2_Temp : 144|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg5_Cell3_Temp : 153|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg5_Cell4_Temp : 162|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg5_Cell5_Temp : 171|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg5_Cell6_Temp : 180|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg5_Cell7_Temp : 189|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg5_Cell8_Temp : 198|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg5_Cell9_Temp : 207|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg5_Cell10_Temp : 216|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg5_Cell11_Temp : 225|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg5_Cell12_Temp : 234|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg5_Cell13_Temp : 243|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg6_Cell0_Temp : 252|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg6_Cell1_Temp : 261|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg6_Cell2_Temp : 270|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg6_Cell3_Temp : 279|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg6_Cell4_Temp : 288|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg6_Cell5_Temp : 297|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg6_Cell6_Temp : 306|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg6_Cell7_Temp : 315|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg6_Cell8_Temp : 324|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg6_Cell9_Temp : 333|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg6_Cell10_Temp : 342|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg6_Cell11_Temp : 351|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg6_Cell12_Temp : 360|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg6_Cell13_Temp : 369|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg7_Cell0_Temp : 378|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg7_Cell1_Temp : 387|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg7_Cell2_Temp : 396|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg7_Cell3_Temp : 405|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg7_Cell4_Temp : 414|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg7_Cell5_Temp : 423|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg7_Cell6_Temp : 432|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg7_Cell7_Temp : 441|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg7_Cell8_Temp : 450|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg7_Cell9_Temp : 459|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg7_Cell10_Temp : 468|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg7_Cell11_Temp : 477|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg7_Cell12_Temp : 486|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg7_Cell13_Temp : 495|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+
+BO_ 472 BMS_CellTemps_Seg8_Seg9: 32 BMS
+SG_ BMS_Seg8_Cell0_Temp : 0|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg8_Cell1_Temp : 9|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg8_Cell2_Temp : 18|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg8_Cell3_Temp : 27|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg8_Cell4_Temp : 36|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg8_Cell5_Temp : 45|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg8_Cell6_Temp : 54|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg8_Cell7_Temp : 63|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg8_Cell8_Temp : 72|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg8_Cell9_Temp : 81|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg8_Cell10_Temp : 90|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg8_Cell11_Temp : 99|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg8_Cell12_Temp : 108|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg8_Cell13_Temp : 117|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg9_Cell0_Temp : 126|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg9_Cell1_Temp : 135|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg9_Cell2_Temp : 144|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg9_Cell3_Temp : 153|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg9_Cell4_Temp : 162|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg9_Cell5_Temp : 171|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg9_Cell6_Temp : 180|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg9_Cell7_Temp : 189|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg9_Cell8_Temp : 198|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg9_Cell9_Temp : 207|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg9_Cell10_Temp : 216|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg9_Cell11_Temp : 225|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg9_Cell12_Temp : 234|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+SG_ BMS_Seg9_Cell13_Temp : 243|9@1+ (0.2,10) [10|70] "degC" DAMLogger,DEBUG
+
+BO_ 480 BMS_LtcOwc: 20 BMS
+SG_ BMS_Seg0_C0_OwcOk : 0|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg0_C1_OwcOk : 1|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg0_C2_OwcOk : 2|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg0_C3_OwcOk : 3|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg0_C4_OwcOk : 4|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg0_C5_OwcOk : 5|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg0_C6_OwcOk : 6|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg0_C7_OwcOk : 7|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg0_C8_OwcOk : 8|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg0_C9_OwcOk : 9|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg0_C10_OwcOk : 10|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg0_C11_OwcOk : 11|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg0_C12_OwcOk : 12|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg0_C13_OwcOk : 13|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg0_C14_OwcOk : 14|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg1_C0_OwcOk : 15|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg1_C1_OwcOk : 16|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg1_C2_OwcOk : 17|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg1_C3_OwcOk : 18|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg1_C4_OwcOk : 19|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg1_C5_OwcOk : 20|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg1_C6_OwcOk : 21|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg1_C7_OwcOk : 22|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg1_C8_OwcOk : 23|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg1_C9_OwcOk : 24|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg1_C10_OwcOk : 25|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg1_C11_OwcOk : 26|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg1_C12_OwcOk : 27|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg1_C13_OwcOk : 28|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg1_C14_OwcOk : 29|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg2_C0_OwcOk : 30|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg2_C1_OwcOk : 31|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg2_C2_OwcOk : 32|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg2_C3_OwcOk : 33|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg2_C4_OwcOk : 34|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg2_C5_OwcOk : 35|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg2_C6_OwcOk : 36|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg2_C7_OwcOk : 37|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg2_C8_OwcOk : 38|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg2_C9_OwcOk : 39|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg2_C10_OwcOk : 40|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg2_C11_OwcOk : 41|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg2_C12_OwcOk : 42|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg2_C13_OwcOk : 43|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg2_C14_OwcOk : 44|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg3_C0_OwcOk : 45|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg3_C1_OwcOk : 46|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg3_C2_OwcOk : 47|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg3_C3_OwcOk : 48|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg3_C4_OwcOk : 49|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg3_C5_OwcOk : 50|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg3_C6_OwcOk : 51|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg3_C7_OwcOk : 52|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg3_C8_OwcOk : 53|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg3_C9_OwcOk : 54|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg3_C10_OwcOk : 55|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg3_C11_OwcOk : 56|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg3_C12_OwcOk : 57|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg3_C13_OwcOk : 58|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg3_C14_OwcOk : 59|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg4_C0_OwcOk : 60|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg4_C1_OwcOk : 61|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg4_C2_OwcOk : 62|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg4_C3_OwcOk : 63|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg4_C4_OwcOk : 64|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg4_C5_OwcOk : 65|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg4_C6_OwcOk : 66|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg4_C7_OwcOk : 67|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg4_C8_OwcOk : 68|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg4_C9_OwcOk : 69|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg4_C10_OwcOk : 70|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg4_C11_OwcOk : 71|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg4_C12_OwcOk : 72|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg4_C13_OwcOk : 73|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg4_C14_OwcOk : 74|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg5_C0_OwcOk : 75|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg5_C1_OwcOk : 76|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg5_C2_OwcOk : 77|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg5_C3_OwcOk : 78|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg5_C4_OwcOk : 79|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg5_C5_OwcOk : 80|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg5_C6_OwcOk : 81|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg5_C7_OwcOk : 82|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg5_C8_OwcOk : 83|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg5_C9_OwcOk : 84|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg5_C10_OwcOk : 85|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg5_C11_OwcOk : 86|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg5_C12_OwcOk : 87|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg5_C13_OwcOk : 88|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg5_C14_OwcOk : 89|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg6_C0_OwcOk : 90|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg6_C1_OwcOk : 91|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg6_C2_OwcOk : 92|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg6_C3_OwcOk : 93|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg6_C4_OwcOk : 94|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg6_C5_OwcOk : 95|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg6_C6_OwcOk : 96|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg6_C7_OwcOk : 97|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg6_C8_OwcOk : 98|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg6_C9_OwcOk : 99|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg6_C10_OwcOk : 100|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg6_C11_OwcOk : 101|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg6_C12_OwcOk : 102|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg6_C13_OwcOk : 103|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg6_C14_OwcOk : 104|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg7_C0_OwcOk : 105|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg7_C1_OwcOk : 106|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg7_C2_OwcOk : 107|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg7_C3_OwcOk : 108|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg7_C4_OwcOk : 109|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg7_C5_OwcOk : 110|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg7_C6_OwcOk : 111|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg7_C7_OwcOk : 112|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg7_C8_OwcOk : 113|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg7_C9_OwcOk : 114|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg7_C10_OwcOk : 115|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg7_C11_OwcOk : 116|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg7_C12_OwcOk : 117|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg7_C13_OwcOk : 118|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg7_C14_OwcOk : 119|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg8_C0_OwcOk : 120|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg8_C1_OwcOk : 121|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg8_C2_OwcOk : 122|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg8_C3_OwcOk : 123|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg8_C4_OwcOk : 124|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg8_C5_OwcOk : 125|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg8_C6_OwcOk : 126|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg8_C7_OwcOk : 127|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg8_C8_OwcOk : 128|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg8_C9_OwcOk : 129|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg8_C10_OwcOk : 130|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg8_C11_OwcOk : 131|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg8_C12_OwcOk : 132|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg8_C13_OwcOk : 133|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg8_C14_OwcOk : 134|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg9_C0_OwcOk : 135|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg9_C1_OwcOk : 136|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg9_C2_OwcOk : 137|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg9_C3_OwcOk : 138|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg9_C4_OwcOk : 139|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg9_C5_OwcOk : 140|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg9_C6_OwcOk : 141|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg9_C7_OwcOk : 142|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg9_C8_OwcOk : 143|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg9_C9_OwcOk : 144|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg9_C10_OwcOk : 145|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg9_C11_OwcOk : 146|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg9_C12_OwcOk : 147|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg9_C13_OwcOk : 148|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg9_C14_OwcOk : 149|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+
+BO_ 481 BMS_LtcStatus: 48 BMS
+SG_ BMS_Seg0_CommOk : 0|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg0_Vref : 1|4@1+ (0.01,2.93) [2.93|3.08] "" DAMLogger,DEBUG
+SG_ BMS_Seg0_VrefOk : 5|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg0_Adc12Equal : 6|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg0_Adc23Equal : 7|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg0_RevisionCode : 8|4@1+ (1,0) [0|15] "" DAMLogger,DEBUG
+SG_ BMS_Seg0_AnalogSupplyOk : 12|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg0_AnalogSupply : 13|4@1+ (0.1,4.1) [4.1|5.6] "" DAMLogger,DEBUG
+SG_ BMS_Seg0_DigitalSupplyOk : 17|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg0_DigitalSupply : 18|4@1+ (0.1,2.7) [2.7|3.6] "" DAMLogger,DEBUG
+SG_ BMS_Seg0_ThermalOk : 22|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg0_DieTemp : 23|7@1+ (1,0) [0|100] "" DAMLogger,DEBUG
+SG_ BMS_Seg0_CellSelfTestOk : 30|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg0_AuxSelfTestOk : 31|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg0_StatusSelfTestOk : 32|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg0_MuxOk : 33|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg1_CommOk : 34|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg1_Vref : 35|4@1+ (0.01,2.93) [2.93|3.08] "" DAMLogger,DEBUG
+SG_ BMS_Seg1_VrefOk : 39|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg1_Adc12Equal : 40|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg1_Adc23Equal : 41|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg1_RevisionCode : 42|4@1+ (1,0) [0|15] "" DAMLogger,DEBUG
+SG_ BMS_Seg1_AnalogSupplyOk : 46|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg1_AnalogSupply : 47|4@1+ (0.1,4.1) [4.1|5.6] "" DAMLogger,DEBUG
+SG_ BMS_Seg1_DigitalSupplyOk : 51|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg1_DigitalSupply : 52|4@1+ (0.1,2.7) [2.7|3.6] "" DAMLogger,DEBUG
+SG_ BMS_Seg1_ThermalOk : 56|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg1_DieTemp : 57|7@1+ (1,0) [0|100] "" DAMLogger,DEBUG
+SG_ BMS_Seg1_CellSelfTestOk : 64|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg1_AuxSelfTestOk : 65|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg1_StatusSelfTestOk : 66|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg1_MuxOk : 67|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg2_CommOk : 68|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg2_Vref : 69|4@1+ (0.01,2.93) [2.93|3.08] "" DAMLogger,DEBUG
+SG_ BMS_Seg2_VrefOk : 73|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg2_Adc12Equal : 74|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg2_Adc23Equal : 75|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg2_RevisionCode : 76|4@1+ (1,0) [0|15] "" DAMLogger,DEBUG
+SG_ BMS_Seg2_AnalogSupplyOk : 80|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg2_AnalogSupply : 81|4@1+ (0.1,4.1) [4.1|5.6] "" DAMLogger,DEBUG
+SG_ BMS_Seg2_DigitalSupplyOk : 85|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg2_DigitalSupply : 86|4@1+ (0.1,2.7) [2.7|3.6] "" DAMLogger,DEBUG
+SG_ BMS_Seg2_ThermalOk : 90|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg2_DieTemp : 91|7@1+ (1,0) [0|100] "" DAMLogger,DEBUG
+SG_ BMS_Seg2_CellSelfTestOk : 98|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg2_AuxSelfTestOk : 99|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg2_StatusSelfTestOk : 100|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg2_MuxOk : 101|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg3_CommOk : 102|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg3_Vref : 103|4@1+ (0.01,2.93) [2.93|3.08] "" DAMLogger,DEBUG
+SG_ BMS_Seg3_VrefOk : 107|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg3_Adc12Equal : 108|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg3_Adc23Equal : 109|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg3_RevisionCode : 110|4@1+ (1,0) [0|15] "" DAMLogger,DEBUG
+SG_ BMS_Seg3_AnalogSupplyOk : 114|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg3_AnalogSupply : 115|4@1+ (0.1,4.1) [4.1|5.6] "" DAMLogger,DEBUG
+SG_ BMS_Seg3_DigitalSupplyOk : 119|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg3_DigitalSupply : 120|4@1+ (0.1,2.7) [2.7|3.6] "" DAMLogger,DEBUG
+SG_ BMS_Seg3_ThermalOk : 124|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg3_DieTemp : 125|7@1+ (1,0) [0|100] "" DAMLogger,DEBUG
+SG_ BMS_Seg3_CellSelfTestOk : 132|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg3_AuxSelfTestOk : 133|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg3_StatusSelfTestOk : 134|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg3_MuxOk : 135|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg4_CommOk : 136|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg4_Vref : 137|4@1+ (0.01,2.93) [2.93|3.08] "" DAMLogger,DEBUG
+SG_ BMS_Seg4_VrefOk : 141|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg4_Adc12Equal : 142|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg4_Adc23Equal : 143|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg4_RevisionCode : 144|4@1+ (1,0) [0|15] "" DAMLogger,DEBUG
+SG_ BMS_Seg4_AnalogSupplyOk : 148|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg4_AnalogSupply : 149|4@1+ (0.1,4.1) [4.1|5.6] "" DAMLogger,DEBUG
+SG_ BMS_Seg4_DigitalSupplyOk : 153|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg4_DigitalSupply : 154|4@1+ (0.1,2.7) [2.7|3.6] "" DAMLogger,DEBUG
+SG_ BMS_Seg4_ThermalOk : 158|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg4_DieTemp : 159|7@1+ (1,0) [0|100] "" DAMLogger,DEBUG
+SG_ BMS_Seg4_CellSelfTestOk : 166|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg4_AuxSelfTestOk : 167|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg4_StatusSelfTestOk : 168|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg4_MuxOk : 169|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg5_CommOk : 170|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg5_Vref : 171|4@1+ (0.01,2.93) [2.93|3.08] "" DAMLogger,DEBUG
+SG_ BMS_Seg5_VrefOk : 175|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg5_Adc12Equal : 176|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg5_Adc23Equal : 177|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg5_RevisionCode : 178|4@1+ (1,0) [0|15] "" DAMLogger,DEBUG
+SG_ BMS_Seg5_AnalogSupplyOk : 182|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg5_AnalogSupply : 183|4@1+ (0.1,4.1) [4.1|5.6] "" DAMLogger,DEBUG
+SG_ BMS_Seg5_DigitalSupplyOk : 187|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg5_DigitalSupply : 188|4@1+ (0.1,2.7) [2.7|3.6] "" DAMLogger,DEBUG
+SG_ BMS_Seg5_ThermalOk : 192|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg5_DieTemp : 193|7@1+ (1,0) [0|100] "" DAMLogger,DEBUG
+SG_ BMS_Seg5_CellSelfTestOk : 200|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg5_AuxSelfTestOk : 201|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg5_StatusSelfTestOk : 202|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg5_MuxOk : 203|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg6_CommOk : 204|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg6_Vref : 205|4@1+ (0.01,2.93) [2.93|3.08] "" DAMLogger,DEBUG
+SG_ BMS_Seg6_VrefOk : 209|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg6_Adc12Equal : 210|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg6_Adc23Equal : 211|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg6_RevisionCode : 212|4@1+ (1,0) [0|15] "" DAMLogger,DEBUG
+SG_ BMS_Seg6_AnalogSupplyOk : 216|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg6_AnalogSupply : 217|4@1+ (0.1,4.1) [4.1|5.6] "" DAMLogger,DEBUG
+SG_ BMS_Seg6_DigitalSupplyOk : 221|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg6_DigitalSupply : 222|4@1+ (0.1,2.7) [2.7|3.6] "" DAMLogger,DEBUG
+SG_ BMS_Seg6_ThermalOk : 226|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg6_DieTemp : 227|7@1+ (1,0) [0|100] "" DAMLogger,DEBUG
+SG_ BMS_Seg6_CellSelfTestOk : 234|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg6_AuxSelfTestOk : 235|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg6_StatusSelfTestOk : 236|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg6_MuxOk : 237|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg7_CommOk : 238|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg7_Vref : 239|4@1+ (0.01,2.93) [2.93|3.08] "" DAMLogger,DEBUG
+SG_ BMS_Seg7_VrefOk : 243|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg7_Adc12Equal : 244|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg7_Adc23Equal : 245|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg7_RevisionCode : 246|4@1+ (1,0) [0|15] "" DAMLogger,DEBUG
+SG_ BMS_Seg7_AnalogSupplyOk : 250|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg7_AnalogSupply : 251|4@1+ (0.1,4.1) [4.1|5.6] "" DAMLogger,DEBUG
+SG_ BMS_Seg7_DigitalSupplyOk : 255|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg7_DigitalSupply : 256|4@1+ (0.1,2.7) [2.7|3.6] "" DAMLogger,DEBUG
+SG_ BMS_Seg7_ThermalOk : 260|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg7_DieTemp : 261|7@1+ (1,0) [0|100] "" DAMLogger,DEBUG
+SG_ BMS_Seg7_CellSelfTestOk : 268|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg7_AuxSelfTestOk : 269|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg7_StatusSelfTestOk : 270|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg7_MuxOk : 271|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg8_CommOk : 272|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg8_Vref : 273|4@1+ (0.01,2.93) [2.93|3.08] "" DAMLogger,DEBUG
+SG_ BMS_Seg8_VrefOk : 277|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg8_Adc12Equal : 278|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg8_Adc23Equal : 279|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg8_RevisionCode : 280|4@1+ (1,0) [0|15] "" DAMLogger,DEBUG
+SG_ BMS_Seg8_AnalogSupplyOk : 284|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg8_AnalogSupply : 285|4@1+ (0.1,4.1) [4.1|5.6] "" DAMLogger,DEBUG
+SG_ BMS_Seg8_DigitalSupplyOk : 289|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg8_DigitalSupply : 290|4@1+ (0.1,2.7) [2.7|3.6] "" DAMLogger,DEBUG
+SG_ BMS_Seg8_ThermalOk : 294|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg8_DieTemp : 295|7@1+ (1,0) [0|100] "" DAMLogger,DEBUG
+SG_ BMS_Seg8_CellSelfTestOk : 302|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg8_AuxSelfTestOk : 303|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg8_StatusSelfTestOk : 304|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg8_MuxOk : 305|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg9_CommOk : 306|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg9_Vref : 307|4@1+ (0.01,2.93) [2.93|3.08] "" DAMLogger,DEBUG
+SG_ BMS_Seg9_VrefOk : 311|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg9_Adc12Equal : 312|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg9_Adc23Equal : 313|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg9_RevisionCode : 314|4@1+ (1,0) [0|15] "" DAMLogger,DEBUG
+SG_ BMS_Seg9_AnalogSupplyOk : 318|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg9_AnalogSupply : 319|4@1+ (0.1,4.1) [4.1|5.6] "" DAMLogger,DEBUG
+SG_ BMS_Seg9_DigitalSupplyOk : 323|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg9_DigitalSupply : 324|4@1+ (0.1,2.7) [2.7|3.6] "" DAMLogger,DEBUG
+SG_ BMS_Seg9_ThermalOk : 328|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg9_DieTemp : 329|7@1+ (1,0) [0|100] "" DAMLogger,DEBUG
+SG_ BMS_Seg9_CellSelfTestOk : 336|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg9_AuxSelfTestOk : 337|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg9_StatusSelfTestOk : 338|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ BMS_Seg9_MuxOk : 339|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+
+BO_ 454 BMS_BMSShdnNodeStatus: 1 BMS
+SG_ BMS_HVPShdnOKStatus : 0|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ BMS_HVNShdnOKStatus : 1|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+
+BO_ 477 BMS_OpenWireCheck: 1 BMS
+SG_ BMS_OpenWireCheckStatus : 0|1@1+ (1,0) [0|1] "" CRIT,DAMLogger,DEBUG
+
+BO_ 499 BMS_Bootup: 0 BMS
+
+BO_ 2281701376 Boot_VC: 5 Boot
+SG_ Boot_VC_Hash : 0|32@1+ (1,0) [0|4294967295] "" DAMLogger,DEBUG
+SG_ Boot_VC_Clean : 32|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ Boot_VC_Status : 33|2@1+ (1,0) [0|2] "" DAMLogger,DEBUG
+
+BO_ 2214592512 Boot_BMS: 5 Boot
+SG_ Boot_BMS_Hash : 0|32@1+ (1,0) [0|4294967295] "" DAMLogger,DEBUG
+SG_ Boot_BMS_Clean : 32|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ Boot_BMS_Status : 33|2@1+ (1,0) [0|2] "" DAMLogger,DEBUG
+
+BO_ 2483027968 Boot_RSM: 5 Boot
+SG_ Boot_RSM_Hash : 0|32@1+ (1,0) [0|4294967295] "" DAMLogger,DEBUG
+SG_ Boot_RSM_Clean : 32|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ Boot_RSM_Status : 33|2@1+ (1,0) [0|2] "" DAMLogger,DEBUG
+
+BO_ 2415919104 Boot_FSM: 5 Boot
+SG_ Boot_FSM_Hash : 0|32@1+ (1,0) [0|4294967295] "" DAMLogger,DEBUG
+SG_ Boot_FSM_Clean : 32|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ Boot_FSM_Status : 33|2@1+ (1,0) [0|2] "" DAMLogger,DEBUG
+
+BO_ 2550136832 Boot_CRIT: 5 Boot
+SG_ Boot_CRIT_Hash : 0|32@1+ (1,0) [0|4294967295] "" DAMLogger,DEBUG
+SG_ Boot_CRIT_Clean : 32|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ Boot_CRIT_Status : 33|2@1+ (1,0) [0|2] "" DAMLogger,DEBUG
+
+BO_ 2348810240 Boot_DAM: 5 Boot
+SG_ Boot_DAM_Hash : 0|32@1+ (1,0) [0|4294967295] "" DAMLogger,DEBUG
+SG_ Boot_DAM_Clean : 32|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ Boot_DAM_Status : 33|2@1+ (1,0) [0|2] "" DAMLogger,DEBUG
+
+BO_ 2684354560 Boot_H7Dev: 5 Boot
+SG_ Boot_H7Dev_Hash : 0|32@1+ (1,0) [0|4294967295] "" DAMLogger,DEBUG
+SG_ Boot_H7Dev_Clean : 32|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ Boot_H7Dev_Status : 33|2@1+ (1,0) [0|2] "" DAMLogger,DEBUG
+
+BO_ 900 CRIT_Vitals: 1 CRIT
+SG_ CRIT_Heartbeat : 0|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+
+BO_ 907 CRIT_Debug: 7 CRIT
+SG_ CRIT_TxOverflowCount : 0|16@1+ (1,0) [0|65535] "" DAMLogger,DEBUG
+SG_ CRIT_RxOverflowCount : 16|16@1+ (1,0) [0|65535] "" DAMLogger,DEBUG
+SG_ CRIT_ResetReason : 32|3@1+ (1,0) [0|5] "" DAMLogger,DEBUG
+SG_ CRIT_StackOverflowTask : 35|8@1+ (1,0) [0|255] "" DAMLogger,DEBUG
+SG_ CRIT_WatchdogTimeoutTask : 43|8@1+ (1,0) [0|255] "" DAMLogger,DEBUG
+
+BO_ 909 CRIT_CommitInfo: 5 CRIT
+SG_ CRIT_Hash : 0|32@1+ (1,0) [0|4294967295] "" DAMLogger,DEBUG
+SG_ CRIT_Clean : 32|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+
+BO_ 910 CRIT_Switches: 1 CRIT
+SG_ CRIT_StartSwitch : 0|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ CRIT_RegenSwitch : 1|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ CRIT_VanillaOverrideSwitch : 2|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ CRIT_LaunchControlSwitch : 3|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ CRIT_TelemSwitch : 4|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+
+BO_ 911 CRIT_DriveMode: 1 CRIT
+SG_ CRIT_DriveMode : 0|2@1+ (1,0) [0|3] "" DAMLogger,VC,DEBUG
+
+BO_ 914 CRIT_CRITShdnNodeStatus: 1 CRIT
+SG_ CRIT_CockpitEStopOKStatus : 0|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ CRIT_InertiaSenOKStatus : 1|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+
+BO_ 916 CRIT_WarningInfo: 1 CRIT
+SG_ CRIT_SuppressWarnings : 0|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+
+BO_ 999 CRIT_Bootup: 0 CRIT
+
+BO_ 800 DAM_Vitals: 1 DAM
+SG_ DAM_Heartbeat : 0|1@1+ (1,0) [0|1] "" CRIT,DAMLogger,VC,DEBUG
+
+BO_ 809 DAM_CommitInfo: 5 DAM
+SG_ DAM_Hash : 0|32@1+ (1,0) [0|4294967295] "" DAMLogger,DEBUG
+SG_ DAM_Clean : 32|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+
+BO_ 807 DAM_Debug: 7 DAM
+SG_ DAM_TxOverflowCount : 0|16@1+ (1,0) [0|65535] "" DAMLogger,DEBUG
+SG_ DAM_RxOverflowCount : 16|16@1+ (1,0) [0|65535] "" DAMLogger,DEBUG
+SG_ DAM_ResetReason : 32|3@1+ (1,0) [0|5] "" DAMLogger,DEBUG
+SG_ DAM_StackOverflowTask : 35|8@1+ (1,0) [0|255] "" DAMLogger,DEBUG
+SG_ DAM_WatchdogTimeoutTask : 43|8@1+ (1,0) [0|255] "" DAMLogger,DEBUG
+
+BO_ 810 DAM_ShdnNodeStatus: 1 DAM
+SG_ DAM_REStopOKStatus : 0|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ DAM_LEStopOKStatus : 1|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+
+BO_ 899 DAM_Bootup: 0 DAM
+
+BO_ 1001 Debug_CanMode: 1 Debug
+SG_ Debug_EnableDebugMode : 0|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,DEBUG
+
+BO_ 1002 Debug_Charging: 2 Debug
+SG_ Debug_StartCharging : 0|1@1+ (1,0) [0|1] "" BMS,DAMLogger,DEBUG
+SG_ Debug_ChargingCurrent : 1|8@1+ (0.1,0) [0|14] "A" BMS,DAMLogger,DEBUG
+
+BO_ 1003 Debug_CellBalancing: 5 Debug
+SG_ Debug_CellBalancingRequest : 0|1@1+ (1,0) [0|1] "" BMS,DAMLogger,DEBUG
+SG_ Debug_CellBalancingOverrideTarget : 1|1@1+ (1,0) [0|1] "" BMS,DAMLogger,DEBUG
+SG_ Debug_CellBalancingOverrideTargetValue : 2|14@1+ (0.0001,3) [3|4.2] "V" BMS,DAMLogger,DEBUG
+SG_ Debug_CellBalancingOverridePWM : 16|1@1+ (1,0) [0|1] "" BMS,DAMLogger,DEBUG
+SG_ Debug_CellBalancingOverridePWMFrequency : 17|10@1+ (0.1,0) [0|100] "Hz" BMS,DAMLogger,DEBUG
+SG_ Debug_CellBalancingOverridePWMDuty : 27|7@1+ (1,0) [0|100] "%" BMS,DAMLogger,DEBUG
+
+BO_ 1004 Debug_ResetSoc: 2 Debug
+SG_ Debug_ResetSoc_MinCellV : 0|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ Debug_ResetSoc_CustomEnable : 1|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ Debug_ResetSoc_CustomVal : 2|10@1+ (0.1,0) [0|100] "%" DAMLogger,DEBUG
+
+BO_ 1005 Debug_SetCoolantPump: 2 Debug
+SG_ Debug_SetCoolantPump_CustomEnable : 0|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ Debug_SetCoolantPump_CustomVal : 1|8@1+ (15.625,0) [0|2000] "L/H" DAMLogger,DEBUG
+
+BO_ 1006 Debug_SetBSPDTestCurrent: 1 Debug
+SG_ Debug_EnableTestCurrent : 0|1@1+ (1,0) [0|1] "" BMS,DAMLogger,DEBUG
+
+BO_ 2566869221 Elcon_Vitals: 5 Elcon
+SG_ Elcon_OutputVoltage : 7|16@0+ (0.1,0) [0|1000] "V" BMS,DAMLogger,DEBUG
+SG_ Elcon_OutputCurrent : 23|16@0+ (0.1,0) [0|1000] "A" BMS,DAMLogger,DEBUG
+SG_ Elcon_HardwareFailure : 32|1@1+ (1,0) [0|1] "" BMS,DAMLogger,DEBUG
+SG_ Elcon_ChargerOverTemperature : 33|1@1+ (1,0) [0|1] "" BMS,DAMLogger,DEBUG
+SG_ Elcon_InputVoltageError : 34|1@1+ (1,0) [0|1] "" BMS,DAMLogger,DEBUG
+SG_ Elcon_ChargingDisabled : 35|1@1+ (1,0) [0|1] "" BMS,DAMLogger,DEBUG
+SG_ Elcon_CommunicationTimeout : 36|1@1+ (1,0) [0|1] "" BMS,DAMLogger,DEBUG
+
+BO_ 269 EMeter_Measurement: 8 EMeter
+SG_ EMeter_MeasurementCurrent : 0|32@1+ (1,0) [0|4294967295] "A" DAMLogger,DEBUG
+SG_ EMeter_MeasurementVoltage : 32|32@1+ (1,0) [0|4294967295] "V" DAMLogger,DEBUG
+
+BO_ 1037 EMeter_Status: 5 EMeter
+SG_ EMeter_Violation : 0|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ EMeter_Logging : 1|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ EMeter_Energy : 4|32@1+ (1,0) [0|4294967295] "Whr" DAMLogger,DEBUG
+
+BO_ 1549 EMeter_Temperature: 8 EMeter
+SG_ EMeter_Signal0_1_2_3_4_5_6 : 0|3@1+ (1,0) [0|7] "" DAMLogger,DEBUG
+SG_ EMeter_NumSensor : 3|5@1+ (1,0) [0|31] "" DAMLogger,DEBUG
+SG_ EMeter_MinTemp : 8|8@1+ (1,0) [0|255] "" DAMLogger,DEBUG
+SG_ EMeter_MaxTemp : 16|8@1+ (1,0) [0|255] "" DAMLogger,DEBUG
+SG_ EMeter_Temp0_5_10_15_20_25_30 : 24|8@1+ (1,0) [0|255] "" DAMLogger,DEBUG
+SG_ EMeter_Temp1_6_11_16_21_26_31 : 32|8@1+ (1,0) [0|255] "" DAMLogger,DEBUG
+SG_ EMeter_Temp2_7_12_17_22_27 : 40|8@1+ (1,0) [0|255] "" DAMLogger,DEBUG
+SG_ EMeter_Temp3_8_13_18_23_28 : 48|8@1+ (1,0) [0|255] "" DAMLogger,DEBUG
+SG_ EMeter_Temp4_9_14_19_24_29 : 56|8@1+ (1,0) [0|255] "" DAMLogger,DEBUG
+
+BO_ 600 FSM_Vitals: 1 FSM
+SG_ FSM_Heartbeat : 0|1@1+ (1,0) [0|1] "" CRIT,DAMLogger,RSM,VC,DEBUG
+
+BO_ 608 FSM_Debug: 7 FSM
+SG_ FSM_TxOverflowCount : 0|16@1+ (1,0) [0|65535] "" DAMLogger,DEBUG
+SG_ FSM_RxOverflowCount : 16|16@1+ (1,0) [0|65535] "" DAMLogger,DEBUG
+SG_ FSM_ResetReason : 32|3@1+ (1,0) [0|5] "" DAMLogger,DEBUG
+SG_ FSM_StackOverflowTask : 35|8@1+ (1,0) [0|255] "" DAMLogger,DEBUG
+SG_ FSM_WatchdogTimeoutTask : 43|8@1+ (1,0) [0|255] "" DAMLogger,DEBUG
+
+BO_ 609 FSM_CommitInfo: 5 FSM
+SG_ FSM_Hash : 0|32@1+ (1,0) [0|4294967295] "" DAMLogger,DEBUG
+SG_ FSM_Clean : 32|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+
+BO_ 610 FSM_Steering: 2 FSM
+SG_ FSM_SteeringAngle : 0|12@1+ (0.1,-110) [-110|110] "deg" DAMLogger,VC,DEBUG
+
+BO_ 611 FSM_Apps: 5 FSM
+SG_ FSM_PappsMappedPedalPercentage : 0|10@1+ (0.1,0) [0|100] "%" DAMLogger,VC,DEBUG
+SG_ FSM_SappsMappedPedalPercentage : 10|10@1+ (0.1,0) [0|100] "%" DAMLogger,VC,DEBUG
+SG_ FSM_PappsRawPedalPercentage : 20|10@1+ (0.1,0) [0|100] "%" DAMLogger,VC,DEBUG
+SG_ FSM_SappsRawPedalPercentage : 30|10@1+ (0.1,0) [0|100] "%" DAMLogger,VC,DEBUG
+
+BO_ 612 FSM_Brake: 2 FSM
+SG_ FSM_FrontBrakePressure : 0|12@1+ (1,0) [0|2500] "psi" DAMLogger,RSM,VC,DEBUG
+SG_ FSM_BrakeActuated : 12|1@1+ (1,0) [0|1] "" DAMLogger,RSM,VC,DEBUG
+
+BO_ 613 FSM_Suspension: 3 FSM
+SG_ FSM_LeftSuspensionTravel : 0|9@1+ (0.1,0) [0|50] "cm" DAMLogger,DEBUG
+SG_ FSM_RightSuspensionTravel : 9|9@1+ (0.1,0) [0|50] "cm" DAMLogger,DEBUG
+
+BO_ 614 FSM_IMU: 7 FSM
+SG_ FSM_LinearAccelerationX : 0|9@1+ (0.1,-20) [-20|20] "m/s^2" DAMLogger,DEBUG
+SG_ FSM_LinearAccelerationY : 9|9@1+ (0.1,-20) [-20|20] "m/s^2" DAMLogger,DEBUG
+SG_ FSM_LinearAccelerationZ : 18|9@1+ (0.1,-20) [-20|20] "m/s^2" DAMLogger,DEBUG
+SG_ FSM_RollRate : 27|9@1+ (0.1,-20) [-20|20] "deg/s" DAMLogger,DEBUG
+SG_ FSM_PitchRate : 36|9@1+ (0.1,-20) [-20|20] "deg/s" DAMLogger,DEBUG
+SG_ FSM_YawRate : 45|9@1+ (0.1,-20) [-20|20] "deg/s" DAMLogger,DEBUG
+
+BO_ 615 FSM_ShdnNodeStatus: 1 FSM
+SG_ FSM_BOTSOKStatus : 0|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ FSM_COCKPITOKStatus : 1|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ FSM_FrontLeftILCKInertiaOKStatus : 2|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ FSM_FrontRightILCKOKStatus : 3|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+
+BO_ 699 FSM_Bootup: 0 FSM
+
+BO_ 643 INVFL_FLInverterInfo1: 8 INVFL
+SG_ INVFL_bReserve : 0|8@1+ (1,0) [0|255] "" DAMLogger,VC,DEBUG
+SG_ INVFL_bSystemReady : 8|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ INVFL_bError : 9|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ INVFL_bWarn : 10|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ INVFL_bQuitDcOn : 11|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ INVFL_bDcOn : 12|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ INVFL_bQuitInverterOn : 13|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ INVFL_bInverterOn : 14|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ INVFL_bDerating : 15|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ INVFL_ActualVelocity : 16|16@1- (1,0) [-32767|32766] "" DAMLogger,VC,DEBUG
+SG_ INVFL_RawCurrent : 32|16@1- (1,0) [-32767|32766] "A" DAMLogger,VC,DEBUG
+SG_ INVFL_ActualTorqueValue : 48|14@1+ (0.1,0) [0|1000] "" DAMLogger,VC,DEBUG
+
+BO_ 645 INVFL_FLInverterInfo2: 8 INVFL
+SG_ INVFL_MotorTemperature : 0|14@1+ (0.1,-1) [-1|1000] "" CRIT,DAMLogger,VC,DEBUG
+SG_ INVFL_InverterTemperature : 16|14@1+ (0.1,-1) [-1|1000] "" CRIT,DAMLogger,VC,DEBUG
+SG_ INVFL_ErrorInfo : 32|16@1+ (1,0) [0|65535] "" CRIT,DAMLogger,VC,DEBUG
+SG_ INVFL_IGBTTemperature : 48|14@1+ (0.1,-1) [-1|1000] "" CRIT,DAMLogger,VC,DEBUG
+
+BO_ 660 INVFL_FLInverterInfo3: 8 INVFL
+SG_ INVFL_MotorPeakCurrent : 0|32@1+ (1,0) [0|4294967295] "" DAMLogger,DEBUG
+SG_ INVFL_ConverterPeakCurrent : 32|32@1+ (1,0) [0|4294967295] "" DAMLogger,DEBUG
+
+BO_ 644 INVFR_FRInverterInfo1: 8 INVFR
+SG_ INVFR_bReserve : 0|8@1+ (1,0) [0|255] "" DAMLogger,VC,DEBUG
+SG_ INVFR_bSystemReady : 8|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ INVFR_bError : 9|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ INVFR_bWarn : 10|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ INVFR_bQuitDcOn : 11|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ INVFR_bDcOn : 12|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ INVFR_bQuitInverterOn : 13|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ INVFR_bInverterOn : 14|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ INVFR_bDerating : 15|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ INVFR_ActualVelocity : 16|16@1- (1,0) [-32767|32766] "" DAMLogger,VC,DEBUG
+SG_ INVFR_RawCurrent : 32|16@1- (1,0) [-32767|32766] "A" DAMLogger,VC,DEBUG
+SG_ INVFR_ActualTorqueValue : 48|14@1+ (0.1,0) [0|1000] "" DAMLogger,VC,DEBUG
+
+BO_ 646 INVFR_FRInverterInfo2: 8 INVFR
+SG_ INVFR_MotorTemperature : 0|14@1+ (0.1,-1) [-1|1000] "" CRIT,DAMLogger,VC,DEBUG
+SG_ INVFR_InverterTemperature : 16|14@1+ (0.1,-1) [-1|1000] "" CRIT,DAMLogger,VC,DEBUG
+SG_ INVFR_ErrorInfo : 32|16@1+ (1,0) [0|65535] "" CRIT,DAMLogger,VC,DEBUG
+SG_ INVFR_IGBTTemperature : 48|14@1+ (0.1,-1) [-1|1000] "" CRIT,DAMLogger,VC,DEBUG
+
+BO_ 661 INVFR_FRInverterInfo3: 8 INVFR
+SG_ INVFR_MotorPeakCurrent : 0|32@1+ (1,0) [0|4294967295] "" DAMLogger,DEBUG
+SG_ INVFR_ConverterPeakCurrent : 32|32@1+ (1,0) [0|4294967295] "" DAMLogger,DEBUG
+
+BO_ 647 INVRL_RLInverterInfo1: 8 INVRL
+SG_ INVRL_bReserve : 0|8@1+ (1,0) [0|255] "" DAMLogger,VC,DEBUG
+SG_ INVRL_bSystemReady : 8|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ INVRL_bError : 9|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ INVRL_bWarn : 10|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ INVRL_bQuitDcOn : 11|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ INVRL_bDcOn : 12|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ INVRL_bQuitInverterOn : 13|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ INVRL_bInverterOn : 14|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ INVRL_bDerating : 15|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ INVRL_ActualVelocity : 16|16@1- (1,0) [-32767|32766] "" DAMLogger,VC,DEBUG
+SG_ INVRL_RawCurrent : 32|16@1- (1,0) [-32767|32766] "A" DAMLogger,VC,DEBUG
+SG_ INVRL_ActualTorqueValue : 48|14@1+ (0.1,0) [0|1000] "" DAMLogger,VC,DEBUG
+
+BO_ 649 INVRL_RLInverterInfo2: 8 INVRL
+SG_ INVRL_MotorTemperature : 0|14@1+ (0.1,-1) [-1|1000] "" CRIT,DAMLogger,VC,DEBUG
+SG_ INVRL_InverterTemperature : 16|14@1+ (0.1,-1) [-1|1000] "" CRIT,DAMLogger,VC,DEBUG
+SG_ INVRL_ErrorInfo : 32|16@1+ (1,0) [0|65535] "" CRIT,DAMLogger,VC,DEBUG
+SG_ INVRL_IGBTTemperature : 48|14@1+ (0.1,-1) [-1|1000] "" CRIT,DAMLogger,VC,DEBUG
+
+BO_ 665 INVRL_RLInverterInfo3: 8 INVRL
+SG_ INVRL_MotorPeakCurrent : 0|32@1+ (1,0) [0|4294967295] "" DAMLogger,DEBUG
+SG_ INVRL_ConverterPeakCurrent : 32|32@1+ (1,0) [0|4294967295] "" DAMLogger,DEBUG
+
+BO_ 648 INVRR_RRInverterInfo1: 8 INVRR
+SG_ INVRR_bReserve : 0|8@1+ (1,0) [0|255] "" DAMLogger,VC,DEBUG
+SG_ INVRR_bSystemReady : 8|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ INVRR_bError : 9|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ INVRR_bWarn : 10|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ INVRR_bQuitDcOn : 11|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ INVRR_bDcOn : 12|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ INVRR_bQuitInverterOn : 13|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ INVRR_bInverterOn : 14|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ INVRR_bDerating : 15|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ INVRR_ActualVelocity : 16|16@1- (1,0) [-32767|32766] "" DAMLogger,VC,DEBUG
+SG_ INVRR_RawCurrent : 32|16@1- (1,0) [-32767|32766] "A" DAMLogger,VC,DEBUG
+SG_ INVRR_ActualTorqueValue : 48|14@1+ (0.1,0) [0|1000] "" DAMLogger,VC,DEBUG
+
+BO_ 656 INVRR_RRInverterInfo2: 8 INVRR
+SG_ INVRR_MotorTemperature : 0|14@1+ (0.1,-1) [-1|1000] "" CRIT,DAMLogger,VC,DEBUG
+SG_ INVRR_InverterTemperature : 16|14@1+ (0.1,-1) [-1|1000] "" CRIT,DAMLogger,VC,DEBUG
+SG_ INVRR_ErrorInfo : 32|16@1+ (1,0) [0|65535] "" CRIT,DAMLogger,VC,DEBUG
+SG_ INVRR_IGBTTemperature : 48|14@1+ (0.1,-1) [-1|1000] "" CRIT,DAMLogger,VC,DEBUG
+
+BO_ 664 INVRR_RRInverterInfo3: 8 INVRR
+SG_ INVRR_MotorPeakCurrent : 0|32@1+ (1,0) [0|4294967295] "" DAMLogger,DEBUG
+SG_ INVRR_ConverterPeakCurrent : 32|32@1+ (1,0) [0|4294967295] "" DAMLogger,DEBUG
+
+BO_ 700 RSM_Vitals: 1 RSM
+SG_ RSM_Heartbeat : 0|1@1+ (1,0) [0|1] "" CRIT,DAMLogger,VC,DEBUG
+
+BO_ 707 RSM_Debug: 7 RSM
+SG_ RSM_TxOverflowCount : 0|16@1+ (1,0) [0|65535] "" DAMLogger,DEBUG
+SG_ RSM_RxOverflowCount : 16|16@1+ (1,0) [0|65535] "" DAMLogger,DEBUG
+SG_ RSM_ResetReason : 32|3@1+ (1,0) [0|5] "" DAMLogger,DEBUG
+SG_ RSM_StackOverflowTask : 35|8@1+ (1,0) [0|255] "" DAMLogger,DEBUG
+SG_ RSM_WatchdogTimeoutTask : 43|8@1+ (1,0) [0|255] "" DAMLogger,DEBUG
+
+BO_ 709 RSM_CommitInfo: 5 RSM
+SG_ RSM_Hash : 0|32@1+ (1,0) [0|4294967295] "" DAMLogger,DEBUG
+SG_ RSM_Clean : 32|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+
+BO_ 710 RSM_Coolant: 2 RSM
+SG_ RSM_CoolantFlowRate : 0|10@1+ (0.1,0) [0|100] "L/min" DAMLogger,DEBUG
+
+BO_ 711 RSM_SuspensionTravel: 2 RSM
+SG_ RSM_RearRightSuspensionTravel : 0|8@1+ (0.1,-10) [-10|10] "cm" DAMLogger,DEBUG
+SG_ RSM_RearLeftSuspensionTravel : 8|8@1+ (0.1,-10) [-10|10] "cm" DAMLogger,DEBUG
+
+BO_ 712 RSM_IMU: 7 RSM
+SG_ RSM_LinearAccelerationInX : 0|9@1+ (0.1,-20) [-20|20] "m/s^2" DAMLogger,DEBUG
+SG_ RSM_LinearAccelerationInY : 9|9@1+ (0.1,-20) [-20|20] "m/s^2" DAMLogger,DEBUG
+SG_ RSM_LinearAccelerationInZ : 18|9@1+ (0.1,-20) [-20|20] "m/s^2" DAMLogger,DEBUG
+SG_ RSM_RollAngularAcceleration : 27|9@1+ (0.1,-20) [-20|20] "deg/s^2" DAMLogger,DEBUG
+SG_ RSM_PitchAngularAcceleration : 36|9@1+ (0.1,-20) [-20|20] "deg/s^2" DAMLogger,DEBUG
+SG_ RSM_YawAngularAcceleration : 45|9@1+ (0.1,-20) [-20|20] "deg/s^2" DAMLogger,DEBUG
+
+BO_ 713 RSM_Brakes: 2 RSM
+SG_ RSM_RearBrakePressure : 0|15@1+ (0.1,0) [0|2500] "psi" DAMLogger,DEBUG
+SG_ RSM_BrakeActuated : 15|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+
+BO_ 714 RSM_ShdnNodeStatus: 1 RSM
+SG_ RSM_RearLeftMotorInterlock : 0|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+
+BO_ 799 RSM_Bootup: 0 RSM
+
+BO_ 500 VC_Vitals: 2 VC
+SG_ VC_Heartbeat : 0|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,DEBUG
+SG_ VC_State : 1|4@1+ (1,0) [0|8] "" BMS,CRIT,DAM,DAMLogger,DEBUG
+SG_ VC_CanLoggingRemainingErrors : 5|4@1+ (1,0) [0|10] "" BMS,CRIT,DAM,DAMLogger,DEBUG
+SG_ VC_InverterState : 9|3@1+ (1,0) [0|4] "" BMS,CRIT,DAM,DAMLogger,DEBUG
+
+BO_ 509 VC_CommitInfo: 5 VC
+SG_ VC_Hash : 0|32@1+ (1,0) [0|4294967295] "" DAMLogger,DEBUG
+SG_ VC_Clean : 32|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+
+BO_ 507 VC_Debug: 7 VC
+SG_ VC_TxOverflowCount : 0|16@1+ (1,0) [0|65535] "" DAMLogger,DEBUG
+SG_ VC_RxOverflowCount : 16|16@1+ (1,0) [0|65535] "" DAMLogger,DEBUG
+SG_ VC_ResetReason : 32|3@1+ (1,0) [0|5] "" DAMLogger,DEBUG
+SG_ VC_StackOverflowTask : 35|8@1+ (1,0) [0|255] "" DAMLogger,DEBUG
+SG_ VC_WatchdogTimeoutTask : 43|8@1+ (1,0) [0|255] "" DAMLogger,DEBUG
+
+BO_ 508 VC_LoadTransfer: 6 VC
+SG_ VC_FrontLeftWheelVerticalForce : 0|10@1+ (1,0) [0|1000] "" DAMLogger,DEBUG
+SG_ VC_FrontRightWheelVerticalForce : 10|10@1+ (1,0) [0|1000] "" DAMLogger,DEBUG
+SG_ VC_RearLeftWheelVerticalForce : 20|10@1+ (1,0) [0|1000] "" DAMLogger,DEBUG
+SG_ VC_RearRightWheelVerticalForce : 30|10@1+ (1,0) [0|1000] "" DAMLogger,DEBUG
+SG_ VC_LoadTransferScalar : 40|6@1+ (0.1,-2) [-2|2] "" DAMLogger,DEBUG
+
+BO_ 510 VC_VehicleDynamics: 7 VC
+SG_ VC_RegenEnabled : 0|1@1+ (1,0) [0|1] "" CRIT,DAMLogger,DEBUG
+SG_ VC_TorqueVectoringEnabled : 1|1@1+ (1,0) [0|1] "" CRIT,DAMLogger,DEBUG
+SG_ VC_VehicleVelocity : 2|8@1+ (1,0) [0|255] "" CRIT,DAMLogger,DEBUG
+SG_ VC_ReferenceYawRate : 10|11@1+ (0.1,-100) [-100|100] "" CRIT,DAMLogger,DEBUG
+SG_ VC_CorrectionYawRate : 21|11@1+ (0.1,-100) [-100|100] "" CRIT,DAMLogger,DEBUG
+SG_ VC_FrontYawMoment : 32|11@1+ (0.1,-100) [-100|100] "" CRIT,DAMLogger,DEBUG
+SG_ VC_RearYawMoment : 43|11@1+ (0.1,-100) [-100|100] "" CRIT,DAMLogger,DEBUG
+
+BO_ 511 VC_GlobalShdnNodeStatus: 1 VC
+SG_ VC_FirstFaultNode : 0|4@1+ (1,0) [0|15] "" CRIT,DAMLogger,DEBUG
+
+BO_ 228 VC_ShdnNodeStatus: 1 VC
+SG_ VC_RearRightMotorInterlock : 0|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ VC_InertiaSwitch : 1|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ VC_TSMSOKStatus : 2|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ VC_MSDOrEMeterOKStatus : 3|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+
+BO_ 233 VC_ConnectorBoardEfuse: 4 VC
+SG_ VC_RsmTurnOnPump : 0|1@1+ (1,0) [0|1] "" DAMLogger,RSM,DEBUG
+SG_ VC_RearLeftPumpCurrent : 1|9@1+ (0.01,0) [0|5] "A" DAMLogger,RSM,DEBUG
+SG_ VC_RearLeftPumpStatus : 10|1@1+ (1,0) [0|1] "" DAMLogger,RSM,DEBUG
+SG_ VC_LeftRadiatorFanCurrent : 11|9@1+ (0.01,0) [0|5] "A" DAMLogger,RSM,DEBUG
+SG_ VC_LeftRadiatorFanStatus : 20|1@1+ (1,0) [0|1] "" DAMLogger,RSM,DEBUG
+SG_ VC_RightRadiatorFanCurrent : 21|9@1+ (0.01,0) [0|5] "A" DAMLogger,RSM,DEBUG
+SG_ VC_RightRadiatorFanStatus : 30|1@1+ (1,0) [0|1] "" DAMLogger,RSM,DEBUG
+
+BO_ 223 VC_EllipseStatus: 8 VC
+SG_ VC_EllipseGeneralStatusBitmask : 0|16@1+ (1,0) [0|65535] "" DAMLogger,DEBUG
+SG_ VC_EllipseComStatusBitmask : 16|32@1+ (1,0) [0|4294967295] "" DAMLogger,DEBUG
+SG_ VC_EllipseErrorCode : 48|5@1+ (1,0) [0|20] "" DAMLogger,DEBUG
+SG_ VC_EkfSolutionMode : 53|3@1+ (1,0) [0|4] "" DAMLogger,DEBUG
+SG_ VC_EllipseQueueOverflowCount : 56|8@1+ (1,0) [0|255] "" DAMLogger,DEBUG
+
+BO_ 209 VC_EllipseTime: 4 VC
+SG_ VC_EllipseTimestamp : 0|32@1+ (1,0) [0|4294967295] "us" DAMLogger,DEBUG
+
+BO_ 222 VC_EllipseEulerAngles: 5 VC
+SG_ VC_EulerAnglesRoll : 0|12@1+ (0.1,-180) [-180|180] "deg" DAMLogger,DEBUG
+SG_ VC_EulerAnglesPitch : 12|12@1+ (0.1,-180) [-180|180] "deg" DAMLogger,DEBUG
+SG_ VC_EulerAnglesYaw : 24|12@1+ (0.1,-180) [-180|180] "deg" DAMLogger,DEBUG
+
+BO_ 218 VC_EllipseEkfNavVelocity: 8 VC
+SG_ VC_VelocityNorth : 0|11@1+ (0.05,-35) [-35|35] "m/s" DAMLogger,DEBUG
+SG_ VC_VelocityNorthAccuracy : 11|9@1+ (0.1,0) [0|35] "m/s" DAMLogger,DEBUG
+SG_ VC_VelocityEast : 20|11@1+ (0.05,-35) [-35|35] "m/s" DAMLogger,DEBUG
+SG_ VC_VelocityEastAccuracy : 31|9@1+ (0.1,0) [0|35] "m/s" DAMLogger,DEBUG
+SG_ VC_VelocityDown : 40|11@1+ (0.05,-35) [-35|35] "m/s" DAMLogger,DEBUG
+SG_ VC_VelocityDownAccuracy : 51|9@1+ (0.1,0) [0|35] "m/s" DAMLogger,DEBUG
+
+BO_ 213 VC_PIDSlipRatio: 8 VC
+SG_ VC_PIDSlipRatioOutput : 0|8@1- (0.01,0) [-1|1] "" DAMLogger,DEBUG
+SG_ VC_PIDSlipRatioError : 8|16@1- (0.1,0) [-80|80] "" DAMLogger,DEBUG
+SG_ VC_PIDSlipRatioDerivative : 24|16@1- (0.1,0) [-160|160] "" DAMLogger,DEBUG
+SG_ VC_PIDSlipRatioIntegral : 40|24@1- (0.1,0) [-21474836|21474836] "" DAMLogger,DEBUG
+
+BO_ 214 VC_SlipRatios: 4 VC
+SG_ VC_SlipRatioRR : 0|8@1- (0.01,0) [-1|1] "" DAMLogger,DEBUG
+SG_ VC_SlipRatioRL : 8|8@1- (0.01,0) [-1|1] "" DAMLogger,DEBUG
+SG_ VC_SlipRatioFR : 16|8@1- (0.01,0) [-1|1] "" DAMLogger,DEBUG
+SG_ VC_SlipRatioFL : 24|8@1- (0.01,0) [-1|1] "" DAMLogger,DEBUG
+
+BO_ 216 VC_PowerLimit: 5 VC
+SG_ VC_TotalAllocatedPower : 0|11@1+ (0.1,0) [0|120] "" DAMLogger,DEBUG
+SG_ VC_RequestedPower : 11|11@1+ (0.1,0) [0|120] "" DAMLogger,DEBUG
+SG_ VC_PowerLimitValue : 22|11@1+ (0.1,0) [0|120] "" DAMLogger,DEBUG
+
+BO_ 225 VC_ImuData: 7 VC
+SG_ VC_ImuAccelerationX : 0|17@1+ (0.001,-50) [-50|50] "m/s^2" DAMLogger,DEBUG
+SG_ VC_ImuAccelerationY : 17|17@1+ (0.001,-50) [-50|50] "m/s^2" DAMLogger,DEBUG
+SG_ VC_ImuAccelerationZ : 34|17@1+ (0.001,-50) [-50|50] "m/s^2" DAMLogger,DEBUG
+
+BO_ 221 VC_MainBoardEfuse: 8 VC
+SG_ VC_FrontInvertersCurrent : 0|9@1+ (0.01,0) [0|5] "A" DAMLogger,DEBUG
+SG_ VC_FrontInvertersStatus : 9|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ VC_RSMCurrent : 10|11@1+ (0.01,0) [0|20] "A" DAMLogger,DEBUG
+SG_ VC_RSMStatus : 21|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ VC_BMSCurrent : 22|9@1+ (0.01,0) [0|5] "A" DAMLogger,DEBUG
+SG_ VC_BMSStatus : 31|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ VC_RearInvertersCurrent : 32|9@1+ (0.01,0) [0|5] "A" DAMLogger,DEBUG
+SG_ VC_RearInvertersStatus : 41|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ VC_DAMCurrent : 42|9@1+ (0.01,0) [0|5] "A" DAMLogger,DEBUG
+SG_ VC_DAMStatus : 51|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+SG_ VC_FrontCurrent : 52|9@1+ (0.01,0) [0|5] "A" DAMLogger,DEBUG
+SG_ VC_FrontStatus : 61|1@1+ (1,0) [0|1] "" DAMLogger,DEBUG
+
+BO_ 229 VC_PumpStatus: 2 VC
+SG_ VC_PumpFailure : 0|1@1+ (1,0) [0|1] "" DAMLogger,RSM,DEBUG
+SG_ VC_PumpRampUpSetPoint : 1|10@1+ (0.1,0) [0|100] "%" DAMLogger,RSM,DEBUG
+
+BO_ 227 VC_ImuAngularData: 5 VC
+SG_ VC_ImuAngularVelocityRoll : 0|13@1+ (0.1,-360) [-360|360] "deg/s" DAMLogger,DEBUG
+SG_ VC_ImuAngularVelocityPitch : 13|13@1+ (0.1,-360) [-360|360] "deg/s" DAMLogger,DEBUG
+SG_ VC_ImuAngularVelocityYaw : 26|13@1+ (0.1,-360) [-360|360] "deg/s" DAMLogger,DEBUG
+
+BO_ 231 VC_PedalPercentage: 2 VC
+SG_ VC_RegenMappedPedalPercentage : 0|11@1+ (0.1,-100) [-100|100] "%" DAMLogger,DEBUG
+
+BO_ 388 VC_INVFLSetPoints: 8 VC
+SG_ VC_INVFLReserve1 : 0|8@1+ (1,0) [0|255] "" DAMLogger,INVFL,DEBUG
+SG_ VC_INVFLbInverterOn : 8|1@1+ (1,0) [0|1] "" DAMLogger,INVFL,DEBUG
+SG_ VC_INVFLbDcOn : 9|1@1+ (1,0) [0|1] "" DAMLogger,INVFL,DEBUG
+SG_ VC_INVFLbEnable : 10|1@1+ (1,0) [0|1] "" DAMLogger,INVFL,DEBUG
+SG_ VC_INVFLbErrorReset : 11|1@1+ (1,0) [0|1] "" DAMLogger,INVFL,DEBUG
+SG_ VC_INVFLbReserve2 : 12|4@1+ (1,0) [0|15] "" DAMLogger,INVFL,DEBUG
+SG_ VC_INVFLTorqueSetpoint : 16|16@1- (1,0) [-32767|32766] "" DAMLogger,INVFL,DEBUG
+SG_ VC_INVFLTorqueLimitPositive : 32|16@1- (1,0) [-32767|32766] "" DAMLogger,INVFL,DEBUG
+SG_ VC_INVFLTorqueLimitNegative : 48|16@1- (1,0) [-32767|32766] "" DAMLogger,INVFL,DEBUG
+
+BO_ 389 VC_INVFRSetPoints: 8 VC
+SG_ VC_INVFRReserve1 : 0|8@1+ (1,0) [0|255] "" DAMLogger,INVFR,DEBUG
+SG_ VC_INVFRbInverterOn : 8|1@1+ (1,0) [0|1] "" DAMLogger,INVFR,DEBUG
+SG_ VC_INVFRbDcOn : 9|1@1+ (1,0) [0|1] "" DAMLogger,INVFR,DEBUG
+SG_ VC_INVFRbEnable : 10|1@1+ (1,0) [0|1] "" DAMLogger,INVFR,DEBUG
+SG_ VC_INVFRbErrorReset : 11|1@1+ (1,0) [0|1] "" DAMLogger,INVFR,DEBUG
+SG_ VC_INVFRbReserve2 : 12|4@1+ (1,0) [0|15] "" DAMLogger,INVFR,DEBUG
+SG_ VC_INVFRTorqueSetpoint : 16|16@1- (1,0) [-32767|32766] "" DAMLogger,INVFR,DEBUG
+SG_ VC_INVFRTorqueLimitPositive : 32|16@1- (1,0) [-32767|32766] "" DAMLogger,INVFR,DEBUG
+SG_ VC_INVFRTorqueLimitNegative : 48|16@1- (1,0) [-32767|32766] "" DAMLogger,INVFR,DEBUG
+
+BO_ 392 VC_INVRLSetPoints: 8 VC
+SG_ VC_INVRLbReserve1 : 0|8@1+ (1,0) [0|255] "" DAMLogger,INVRL,DEBUG
+SG_ VC_INVRLbInverterOn : 8|1@1+ (1,0) [0|1] "" DAMLogger,INVRL,DEBUG
+SG_ VC_INVRLbDcOn : 9|1@1+ (1,0) [0|1] "" DAMLogger,INVRL,DEBUG
+SG_ VC_INVRLbEnable : 10|1@1+ (1,0) [0|1] "" DAMLogger,INVRL,DEBUG
+SG_ VC_INVRLbErrorReset : 11|1@1+ (1,0) [0|1] "" DAMLogger,INVRL,DEBUG
+SG_ VC_INVRLbReserve2 : 12|4@1+ (1,0) [0|15] "" DAMLogger,INVRL,DEBUG
+SG_ VC_INVRLTorqueSetpoint : 16|16@1- (1,0) [-32767|32766] "" DAMLogger,INVRL,DEBUG
+SG_ VC_INVRLTorqueLimitPositive : 32|16@1- (1,0) [-32767|32766] "" DAMLogger,INVRL,DEBUG
+SG_ VC_INVRLTorqueLimitNegative : 48|16@1- (1,0) [-32767|32766] "" DAMLogger,INVRL,DEBUG
+
+BO_ 393 VC_INVRRSetPoints: 8 VC
+SG_ VC_INVRRbReserve1 : 0|8@1+ (1,0) [0|255] "" DAMLogger,INVRR,DEBUG
+SG_ VC_INVRRbInverterOn : 8|1@1+ (1,0) [0|1] "" DAMLogger,INVRR,DEBUG
+SG_ VC_INVRRbDcOn : 9|1@1+ (1,0) [0|1] "" DAMLogger,INVRR,DEBUG
+SG_ VC_INVRRbEnable : 10|1@1+ (1,0) [0|1] "" DAMLogger,INVRR,DEBUG
+SG_ VC_INVRRbErrorReset : 11|1@1+ (1,0) [0|1] "" DAMLogger,INVRR,DEBUG
+SG_ VC_INVRRbReserve2 : 12|4@1+ (1,0) [0|15] "" DAMLogger,INVRR,DEBUG
+SG_ VC_INVRRTorqueSetpoint : 16|16@1- (1,0) [-32767|32766] "" DAMLogger,INVRR,DEBUG
+SG_ VC_INVRRTorqueLimitPositive : 32|16@1- (1,0) [-32767|32766] "" DAMLogger,INVRR,DEBUG
+SG_ VC_INVRRTorqueLimitNegative : 48|16@1- (1,0) [-32767|32766] "" DAMLogger,INVRR,DEBUG
+
+BO_ 599 VC_Bootup: 0 VC
+
+BO_ 514 VC_PowerMonitoring: 8 VC
+SG_ VC_ChannelOneVoltage : 0|9@1+ (0.1,0.0) [0.0|32.0] "V" DAMLogger,DEBUG
+SG_ VC_ChannelTwoVoltage : 9|9@1+ (0.1,0.0) [0.0|32.0] "V" DAMLogger,DEBUG
+SG_ VC_ChannelOneCurrent : 18|8@1+ (0.1,0.0) [0.0|25.0] "A" DAMLogger,DEBUG
+SG_ VC_ChannelTwoCurrent : 26|8@1+ (0.1,0.0) [0.0|25.0] "A" DAMLogger,DEBUG
+SG_ VC_ChannelOnePower : 34|13@1+ (0.1,0.0) [0.0|800.0] "W" DAMLogger,DEBUG
+SG_ VC_ChannelTwoPower : 47|13@1+ (0.1,0.0) [0.0|800.0] "W" DAMLogger,DEBUG
+
+BO_ 234 VC_PCM: 1 VC
+SG_ VC_PcmRetryCount : 0|3@1+ (1,0) [0|5] "" DAMLogger,DEBUG
+
+BO_ 235 VC_DriveMode: 1 VC
+SG_ VC_VcDriveMode : 0|2@1+ (1,0) [0|3] "" DAMLogger,DEBUG
+
+BO_ 1600 VCR_Vitals: 1 VCR
+SG_ VCR_Heartbeat : 0|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+SG_ VCR_CanLoggingRemainingErrors : 1|4@1+ (1,0) [0|10] "" DAMLogger,VC,DEBUG
+
+BO_ 1609 VCR_CommitInfo: 5 VCR
+SG_ VCR_Hash : 0|32@1+ (1,0) [0|4294967295] "" DAMLogger,VC,DEBUG
+SG_ VCR_Clean : 32|1@1+ (1,0) [0|1] "" DAMLogger,VC,DEBUG
+
+BO_ 1607 VCR_Debug: 7 VCR
+SG_ VCR_TxOverflowCount : 0|16@1+ (1,0) [0|65535] "" DAMLogger,VC,DEBUG
+SG_ VCR_RxOverflowCount : 16|16@1+ (1,0) [0|65535] "" DAMLogger,VC,DEBUG
+SG_ VCR_ResetReason : 32|3@1+ (1,0) [0|5] "" DAMLogger,VC,DEBUG
+SG_ VCR_StackOverflowTask : 35|8@1+ (1,0) [0|255] "" DAMLogger,VC,DEBUG
+SG_ VCR_WatchdogTimeoutTask : 43|8@1+ (1,0) [0|255] "" DAMLogger,VC,DEBUG
+
+BO_ 1699 VCR_Bootup: 0 VCR
+
+BO_ 401 BMS_Warnings: 1 BMS
+SG_ BMS_Warning_CellUndervoltage : 0|1@1+ (1,0) [0|1] "" CRIT,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ BMS_Warning_CellOvervoltage : 1|1@1+ (1,0) [0|1] "" CRIT,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ BMS_Warning_CellOvertemp : 2|1@1+ (1,0) [0|1] "" CRIT,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ BMS_Warning_ModuleCommunicationError : 3|1@1+ (1,0) [0|1] "" CRIT,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+
+BO_ 402 BMS_Faults: 1 BMS
+SG_ BMS_Fault_CellUndervoltage : 0|1@1+ (1,0) [0|1] "" CRIT,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ BMS_Fault_CellOvervoltage : 1|1@1+ (1,0) [0|1] "" CRIT,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ BMS_Fault_CellOvertemp : 2|1@1+ (1,0) [0|1] "" CRIT,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ BMS_Fault_ModuleCommunicationError : 3|1@1+ (1,0) [0|1] "" CRIT,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+
+BO_ 403 BMS_WarningsCounts: 2 BMS
+SG_ BMS_Warning_CellUndervoltageCount : 0|3@1+ (1,0) [0|7] "" CRIT,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ BMS_Warning_CellOvervoltageCount : 3|3@1+ (1,0) [0|7] "" CRIT,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ BMS_Warning_CellOvertempCount : 6|3@1+ (1,0) [0|7] "" CRIT,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ BMS_Warning_ModuleCommunicationErrorCount : 9|3@1+ (1,0) [0|7] "" CRIT,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+
+BO_ 404 BMS_FaultsCounts: 2 BMS
+SG_ BMS_Fault_CellUndervoltageCount : 0|3@1+ (1,0) [0|7] "" CRIT,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ BMS_Fault_CellOvervoltageCount : 3|3@1+ (1,0) [0|7] "" CRIT,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ BMS_Fault_CellOvertempCount : 6|3@1+ (1,0) [0|7] "" CRIT,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ BMS_Fault_ModuleCommunicationErrorCount : 9|3@1+ (1,0) [0|7] "" CRIT,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+
+BO_ 405 BMS_Info: 1 BMS
+SG_ BMS_Info_StackOverflow : 0|1@1+ (1,0) [0|1] "" CRIT,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ BMS_Info_CriticalPrechargeFailure : 1|1@1+ (1,0) [0|1] "" CRIT,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ BMS_Info_WatchdogTimeout : 2|1@1+ (1,0) [0|1] "" CRIT,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+
+BO_ 406 BMS_InfoCounts: 2 BMS
+SG_ BMS_Info_StackOverflowCount : 0|3@1+ (1,0) [0|7] "" CRIT,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ BMS_Info_CriticalPrechargeFailureCount : 3|3@1+ (1,0) [0|7] "" CRIT,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ BMS_Info_WatchdogTimeoutCount : 6|3@1+ (1,0) [0|7] "" CRIT,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+
+BO_ 901 CRIT_Warnings: 0 CRIT
+
+BO_ 902 CRIT_Faults: 0 CRIT
+
+BO_ 903 CRIT_WarningsCounts: 0 CRIT
+
+BO_ 904 CRIT_FaultsCounts: 0 CRIT
+
+BO_ 905 CRIT_Info: 2 CRIT
+SG_ CRIT_Info_StackOverflow : 0|1@1+ (1,0) [0|1] "" BMS,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ CRIT_Info_WatchdogTimeout : 1|1@1+ (1,0) [0|1] "" BMS,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ CRIT_Info_TxOverflow : 2|1@1+ (1,0) [0|1] "" BMS,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ CRIT_Info_RxOverflow : 3|1@1+ (1,0) [0|1] "" BMS,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ CRIT_Info_MissingBMSHeartbeat : 4|1@1+ (1,0) [0|1] "" BMS,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ CRIT_Info_MissingFSMHeartbeat : 5|1@1+ (1,0) [0|1] "" BMS,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ CRIT_Info_MissingVCHeartbeat : 6|1@1+ (1,0) [0|1] "" BMS,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ CRIT_Info_MissingRSMHeartbeat : 7|1@1+ (1,0) [0|1] "" BMS,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ CRIT_Info_MissingDAMHeartbeat : 8|1@1+ (1,0) [0|1] "" BMS,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+
+BO_ 906 CRIT_InfoCounts: 4 CRIT
+SG_ CRIT_Info_StackOverflowCount : 0|3@1+ (1,0) [0|7] "" BMS,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ CRIT_Info_WatchdogTimeoutCount : 3|3@1+ (1,0) [0|7] "" BMS,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ CRIT_Info_TxOverflowCount : 6|3@1+ (1,0) [0|7] "" BMS,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ CRIT_Info_RxOverflowCount : 9|3@1+ (1,0) [0|7] "" BMS,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ CRIT_Info_MissingBMSHeartbeatCount : 12|3@1+ (1,0) [0|7] "" BMS,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ CRIT_Info_MissingFSMHeartbeatCount : 15|3@1+ (1,0) [0|7] "" BMS,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ CRIT_Info_MissingVCHeartbeatCount : 18|3@1+ (1,0) [0|7] "" BMS,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ CRIT_Info_MissingRSMHeartbeatCount : 21|3@1+ (1,0) [0|7] "" BMS,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ CRIT_Info_MissingDAMHeartbeatCount : 24|3@1+ (1,0) [0|7] "" BMS,DAM,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+
+BO_ 801 DAM_Warnings: 0 DAM
+
+BO_ 802 DAM_Faults: 0 DAM
+
+BO_ 803 DAM_WarningsCounts: 0 DAM
+
+BO_ 804 DAM_FaultsCounts: 0 DAM
+
+BO_ 805 DAM_Info: 1 DAM
+SG_ DAM_Info_StackOverflow : 0|1@1+ (1,0) [0|1] "" BMS,CRIT,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ DAM_Info_CanLoggingSdCardNotPresent : 1|1@1+ (1,0) [0|1] "" BMS,CRIT,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ DAM_Info_CanLoggingErrored : 2|1@1+ (1,0) [0|1] "" BMS,CRIT,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ DAM_Info_WatchdogTimeout : 3|1@1+ (1,0) [0|1] "" BMS,CRIT,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ DAM_Info_TxOverflow : 4|1@1+ (1,0) [0|1] "" BMS,CRIT,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ DAM_Info_RxOverflow : 5|1@1+ (1,0) [0|1] "" BMS,CRIT,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ DAM_Info_RegenNotAvailable : 6|1@1+ (1,0) [0|1] "" BMS,CRIT,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+
+BO_ 806 DAM_InfoCounts: 3 DAM
+SG_ DAM_Info_StackOverflowCount : 0|3@1+ (1,0) [0|7] "" BMS,CRIT,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ DAM_Info_CanLoggingSdCardNotPresentCount : 3|3@1+ (1,0) [0|7] "" BMS,CRIT,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ DAM_Info_CanLoggingErroredCount : 6|3@1+ (1,0) [0|7] "" BMS,CRIT,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ DAM_Info_WatchdogTimeoutCount : 9|3@1+ (1,0) [0|7] "" BMS,CRIT,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ DAM_Info_TxOverflowCount : 12|3@1+ (1,0) [0|7] "" BMS,CRIT,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ DAM_Info_RxOverflowCount : 15|3@1+ (1,0) [0|7] "" BMS,CRIT,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+SG_ DAM_Info_RegenNotAvailableCount : 18|3@1+ (1,0) [0|7] "" BMS,CRIT,DAMLogger,FSM,RSM,VC,VCR,DEBUG
+
+BO_ 601 FSM_Warnings: 1 FSM
+SG_ FSM_Warning_AppsDisagreement : 0|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,RSM,VC,VCR,DEBUG
+SG_ FSM_Warning_PappsOCSC : 1|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,RSM,VC,VCR,DEBUG
+SG_ FSM_Warning_SappsOCSC : 2|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,RSM,VC,VCR,DEBUG
+
+BO_ 602 FSM_Faults: 0 FSM
+
+BO_ 603 FSM_WarningsCounts: 2 FSM
+SG_ FSM_Warning_AppsDisagreementCount : 0|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,RSM,VC,VCR,DEBUG
+SG_ FSM_Warning_PappsOCSCCount : 3|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,RSM,VC,VCR,DEBUG
+SG_ FSM_Warning_SappsOCSCCount : 6|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,RSM,VC,VCR,DEBUG
+
+BO_ 604 FSM_FaultsCounts: 0 FSM
+
+BO_ 605 FSM_Info: 2 FSM
+SG_ FSM_Info_WatchdogTimeout : 0|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,RSM,VC,VCR,DEBUG
+SG_ FSM_Info_TxOverflow : 1|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,RSM,VC,VCR,DEBUG
+SG_ FSM_Info_RxOverflow : 2|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,RSM,VC,VCR,DEBUG
+SG_ FSM_Info_SteeringAngleOCSC : 3|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,RSM,VC,VCR,DEBUG
+SG_ FSM_Info_SteeringAngleOutOfRange : 4|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,RSM,VC,VCR,DEBUG
+SG_ FSM_Info_FrontBrakePressureOCSC : 5|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,RSM,VC,VCR,DEBUG
+SG_ FSM_Info_LeftSuspensionOCSC : 6|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,RSM,VC,VCR,DEBUG
+SG_ FSM_Info_RightSuspensionOCSC : 7|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,RSM,VC,VCR,DEBUG
+SG_ FSM_Info_StackOverflow : 8|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,RSM,VC,VCR,DEBUG
+SG_ FSM_Info_FrontBrakePressureOutOfRange : 9|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,RSM,VC,VCR,DEBUG
+
+BO_ 606 FSM_InfoCounts: 4 FSM
+SG_ FSM_Info_WatchdogTimeoutCount : 0|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,RSM,VC,VCR,DEBUG
+SG_ FSM_Info_TxOverflowCount : 3|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,RSM,VC,VCR,DEBUG
+SG_ FSM_Info_RxOverflowCount : 6|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,RSM,VC,VCR,DEBUG
+SG_ FSM_Info_SteeringAngleOCSCCount : 9|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,RSM,VC,VCR,DEBUG
+SG_ FSM_Info_SteeringAngleOutOfRangeCount : 12|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,RSM,VC,VCR,DEBUG
+SG_ FSM_Info_FrontBrakePressureOCSCCount : 15|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,RSM,VC,VCR,DEBUG
+SG_ FSM_Info_LeftSuspensionOCSCCount : 18|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,RSM,VC,VCR,DEBUG
+SG_ FSM_Info_RightSuspensionOCSCCount : 21|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,RSM,VC,VCR,DEBUG
+SG_ FSM_Info_StackOverflowCount : 24|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,RSM,VC,VCR,DEBUG
+SG_ FSM_Info_FrontBrakePressureOutOfRangeCount : 27|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,RSM,VC,VCR,DEBUG
+
+BO_ 701 RSM_Warnings: 0 RSM
+
+BO_ 702 RSM_Faults: 0 RSM
+
+BO_ 703 RSM_WarningsCounts: 0 RSM
+
+BO_ 704 RSM_FaultsCounts: 0 RSM
+
+BO_ 705 RSM_Info: 1 RSM
+SG_ RSM_Info_RearBrakePressureOutOfRange : 0|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,VC,VCR,DEBUG
+SG_ RSM_Info_FlowMeterUnderflow : 1|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,VC,VCR,DEBUG
+SG_ RSM_Info_FlowRateOutOfRange : 2|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,VC,VCR,DEBUG
+SG_ RSM_Info_RearLeftSuspension_OCSC : 3|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,VC,VCR,DEBUG
+SG_ RSM_Info_RearRightSuspension_OCSC : 4|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,VC,VCR,DEBUG
+SG_ RSM_Info_MissingFSMHeartbeat : 5|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,VC,VCR,DEBUG
+SG_ RSM_Info_StackOverflow : 6|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,VC,VCR,DEBUG
+SG_ RSM_Info_WatchdogTimeout : 7|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,VC,VCR,DEBUG
+
+BO_ 706 RSM_InfoCounts: 3 RSM
+SG_ RSM_Info_RearBrakePressureOutOfRangeCount : 0|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,VC,VCR,DEBUG
+SG_ RSM_Info_FlowMeterUnderflowCount : 3|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,VC,VCR,DEBUG
+SG_ RSM_Info_FlowRateOutOfRangeCount : 6|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,VC,VCR,DEBUG
+SG_ RSM_Info_RearLeftSuspension_OCSCCount : 9|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,VC,VCR,DEBUG
+SG_ RSM_Info_RearRightSuspension_OCSCCount : 12|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,VC,VCR,DEBUG
+SG_ RSM_Info_MissingFSMHeartbeatCount : 15|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,VC,VCR,DEBUG
+SG_ RSM_Info_StackOverflowCount : 18|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,VC,VCR,DEBUG
+SG_ RSM_Info_WatchdogTimeoutCount : 21|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,VC,VCR,DEBUG
+
+BO_ 501 VC_Warnings: 2 VC
+SG_ VC_Warning_PcmLvOvercurrentFault : 0|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Warning_SoftwareBspd : 1|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Warning_MissingCRITHeartbeat : 2|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Warning_MissingBMSHeartbeat : 3|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Warning_MissingFSMHeartbeat : 4|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Warning_FrontLeftInverterFault : 5|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Warning_FrontRightInverterFault : 6|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Warning_RearLeftInverterFault : 7|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Warning_RearRightInverterFault : 8|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+
+BO_ 502 VC_Faults: 0 VC
+
+BO_ 503 VC_WarningsCounts: 4 VC
+SG_ VC_Warning_PcmLvOvercurrentFaultCount : 0|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Warning_SoftwareBspdCount : 3|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Warning_MissingCRITHeartbeatCount : 6|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Warning_MissingBMSHeartbeatCount : 9|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Warning_MissingFSMHeartbeatCount : 12|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Warning_FrontLeftInverterFaultCount : 15|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Warning_FrontRightInverterFaultCount : 18|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Warning_RearLeftInverterFaultCount : 21|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Warning_RearRightInverterFaultCount : 24|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+
+BO_ 504 VC_FaultsCounts: 0 VC
+
+BO_ 505 VC_Info: 3 VC
+SG_ VC_Info_MissingRSMHeartbeat : 0|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Info_MissingVCRHeartbeat : 1|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Info_MissingDAMHeartbeat : 2|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Info_InverterRetry : 3|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Info_StackOverflow : 4|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Info_LvChargeFault : 5|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Info_BoostControllerFault : 6|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Info_ImuInitFailed : 7|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Info_FlowRateInputOutOfRange : 8|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Info_BatteryRailOvercurrentFault : 9|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Info_WatchdogTimeout : 10|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Info_TxOverflow : 11|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Info_RxOverflow : 12|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Info_RegenNotAvailable : 13|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Info_SbgInitFailed : 14|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Info_PcmUnderVoltage : 15|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Info_DriveModeOverride : 16|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+
+BO_ 506 VC_InfoCounts: 7 VC
+SG_ VC_Info_MissingRSMHeartbeatCount : 0|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Info_MissingVCRHeartbeatCount : 3|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Info_MissingDAMHeartbeatCount : 6|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Info_InverterRetryCount : 9|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Info_StackOverflowCount : 12|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Info_LvChargeFaultCount : 15|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Info_BoostControllerFaultCount : 18|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Info_ImuInitFailedCount : 21|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Info_FlowRateInputOutOfRangeCount : 24|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Info_BatteryRailOvercurrentFaultCount : 27|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Info_WatchdogTimeoutCount : 30|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Info_TxOverflowCount : 33|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Info_RxOverflowCount : 36|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Info_RegenNotAvailableCount : 39|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Info_SbgInitFailedCount : 42|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Info_PcmUnderVoltageCount : 45|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+SG_ VC_Info_DriveModeOverrideCount : 48|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VCR,DEBUG
+
+BO_ 1601 VCR_Warnings: 0 VCR
+
+BO_ 1602 VCR_Faults: 0 VCR
+
+BO_ 1603 VCR_WarningsCounts: 0 VCR
+
+BO_ 1604 VCR_FaultsCounts: 0 VCR
+
+BO_ 1605 VCR_Info: 1 VCR
+SG_ VCR_Info_WatchdogTimeout : 0|1@1+ (1,0) [0|1] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VC,DEBUG
+
+BO_ 1606 VCR_InfoCounts: 1 VCR
+SG_ VCR_Info_WatchdogTimeoutCount : 0|3@1+ (1,0) [0|7] "" BMS,CRIT,DAM,DAMLogger,FSM,RSM,VC,DEBUG
+
+
+
+BA_DEF_  "BusType" STRING ;
+BA_DEF_DEF_  "BusType" "CAN";
+BA_ "BusType" "CAN FD";
+
+
+VAL_ 400 BMS_State 0 "BMS_INIT_STATE" 1 "BMS_PRECHARGE_DRIVE_STATE" 2 "BMS_PRECHARGE_CHARGE_STATE" 3 "BMS_PRECHARGE_LATCH_STATE" 4 "BMS_DRIVE_STATE" 5 "BMS_CHARGE_STATE" 6 "BMS_BALANCING_STATE" 7 "BMS_FAULT_STATE";
+VAL_ 407 BMS_ResetReason 0 "CAN_RESET_REASON_UNKNOWN" 1 "CAN_RESET_REASON_WATCHDOG" 2 "CAN_RESET_REASON_SOFTWARE" 3 "CAN_RESET_REASON_POWER_ON" 4 "CAN_RESET_REASON_NRST_PIN" 5 "CAN_RESET_REASON_BROWN_OUT";
+VAL_ 411 BMS_IrPositive 0 "CONTACTOR_STATE_OPEN" 1 "CONTACTOR_STATE_CLOSED";
+VAL_ 411 BMS_IrNegative 0 "CONTACTOR_STATE_OPEN" 1 "CONTACTOR_STATE_CLOSED";
+VAL_ 411 BMS_PrechargeRelay 0 "CONTACTOR_STATE_OPEN" 1 "CONTACTOR_STATE_CLOSED";
+VAL_ 413 BMS_ChargerConnectedType 0 "CHARGER_DISCONNECTED" 1 "CHARGER_CONNECTED_EVSE" 2 "CHARGER_CONNECTED_WALL";
+VAL_ 452 BMS_ImdCondition 0 "IMD_CONDITION_SHORT_CIRCUIT" 1 "IMD_CONDITION_NORMAL" 2 "IMD_CONDITION_UNDERVOLTAGE_DETECTED" 3 "IMD_CONDITION_SST" 4 "IMD_CONDITION_DEVICE_ERROR" 5 "IMD_CONDITION_GROUND_FAULT" 6 "IMD_CONDITION_INVALID";
+VAL_ 453 BMS_ImdActiveFrequency 0 "IMD_0Hz" 1 "IMD_10Hz" 2 "IMD_20Hz" 3 "IMD_30Hz" 4 "IMD_40Hz" 5 "IMD_50Hz";
+VAL_ 122 BMS_ChargePowerLimitCondition 0 "NO_CHARGE_POWER_LIMIT" 1 "HIGH_TEMP_CHARGE_POWER_LIMIT" 2 "LOW_TEMP_CHARGE_POWER_LIMIT" 3 "HIGH_VOLT_CHARGE_POWER_LIMIT";
+VAL_ 122 BMS_DischargePowerLimitCondition 0 "NO_DISCHARGE_POWER_LIMIT" 1 "HIGH_TEMP_DISCHARGE_POWER_LIMIT" 2 "LOW_VOLT_DISCHARGE_POWER_LIMIT" 3 "LOW_SOC_DISCHARGE_POWER_LIMIT";
+VAL_ 466 BMS_BalancingState 0 "BALANCING_DISABLED" 1 "BALANCING_SETTLE" 2 "BALANCING_BALANCE";
+VAL_ 2281701376 Boot_VC_Status 0 "BOOT_STATUS_APP_VALID" 1 "BOOT_STATUS_APP_INVALID" 2 "BOOT_STATUS_NO_APP";
+VAL_ 2214592512 Boot_BMS_Status 0 "BOOT_STATUS_APP_VALID" 1 "BOOT_STATUS_APP_INVALID" 2 "BOOT_STATUS_NO_APP";
+VAL_ 2483027968 Boot_RSM_Status 0 "BOOT_STATUS_APP_VALID" 1 "BOOT_STATUS_APP_INVALID" 2 "BOOT_STATUS_NO_APP";
+VAL_ 2415919104 Boot_FSM_Status 0 "BOOT_STATUS_APP_VALID" 1 "BOOT_STATUS_APP_INVALID" 2 "BOOT_STATUS_NO_APP";
+VAL_ 2550136832 Boot_CRIT_Status 0 "BOOT_STATUS_APP_VALID" 1 "BOOT_STATUS_APP_INVALID" 2 "BOOT_STATUS_NO_APP";
+VAL_ 2348810240 Boot_DAM_Status 0 "BOOT_STATUS_APP_VALID" 1 "BOOT_STATUS_APP_INVALID" 2 "BOOT_STATUS_NO_APP";
+VAL_ 2684354560 Boot_H7Dev_Status 0 "BOOT_STATUS_APP_VALID" 1 "BOOT_STATUS_APP_INVALID" 2 "BOOT_STATUS_NO_APP";
+VAL_ 907 CRIT_ResetReason 0 "CAN_RESET_REASON_UNKNOWN" 1 "CAN_RESET_REASON_WATCHDOG" 2 "CAN_RESET_REASON_SOFTWARE" 3 "CAN_RESET_REASON_POWER_ON" 4 "CAN_RESET_REASON_NRST_PIN" 5 "CAN_RESET_REASON_BROWN_OUT";
+VAL_ 910 CRIT_StartSwitch 0 "SWITCH_OFF" 1 "SWITCH_ON";
+VAL_ 910 CRIT_RegenSwitch 0 "SWITCH_OFF" 1 "SWITCH_ON";
+VAL_ 910 CRIT_VanillaOverrideSwitch 0 "SWITCH_OFF" 1 "SWITCH_ON";
+VAL_ 910 CRIT_LaunchControlSwitch 0 "SWITCH_OFF" 1 "SWITCH_ON";
+VAL_ 910 CRIT_TelemSwitch 0 "SWITCH_OFF" 1 "SWITCH_ON";
+VAL_ 911 CRIT_DriveMode 0 "DRIVE_MODE_POWER" 1 "DRIVE_MODE_POWER_AND_ACTIVE" 2 "DRIVE_MODE_TV" 3 "DRIVE_MODE_COUNT";
+VAL_ 807 DAM_ResetReason 0 "CAN_RESET_REASON_UNKNOWN" 1 "CAN_RESET_REASON_WATCHDOG" 2 "CAN_RESET_REASON_SOFTWARE" 3 "CAN_RESET_REASON_POWER_ON" 4 "CAN_RESET_REASON_NRST_PIN" 5 "CAN_RESET_REASON_BROWN_OUT";
+VAL_ 608 FSM_ResetReason 0 "CAN_RESET_REASON_UNKNOWN" 1 "CAN_RESET_REASON_WATCHDOG" 2 "CAN_RESET_REASON_SOFTWARE" 3 "CAN_RESET_REASON_POWER_ON" 4 "CAN_RESET_REASON_NRST_PIN" 5 "CAN_RESET_REASON_BROWN_OUT";
+VAL_ 707 RSM_ResetReason 0 "CAN_RESET_REASON_UNKNOWN" 1 "CAN_RESET_REASON_WATCHDOG" 2 "CAN_RESET_REASON_SOFTWARE" 3 "CAN_RESET_REASON_POWER_ON" 4 "CAN_RESET_REASON_NRST_PIN" 5 "CAN_RESET_REASON_BROWN_OUT";
+VAL_ 500 VC_State 0 "VC_INIT_STATE" 1 "VC_INVERTER_ON_STATE" 2 "VC_BMS_ON_STATE" 3 "VC_PCM_ON_STATE" 4 "VC_HV_INIT_STATE" 5 "VC_HV_ON_STATE" 6 "VC_DRIVE_STATE" 7 "VC_DRIVE_WARNING_STATE" 8 "VC_FAULT_STATE";
+VAL_ 500 VC_InverterState 0 "INV_SYSTEM_READY" 1 "INV_DC_ON" 2 "INV_ENABLE" 3 "INV_INVERTER_ON" 4 "INV_READY_FOR_DRIVE";
+VAL_ 507 VC_ResetReason 0 "CAN_RESET_REASON_UNKNOWN" 1 "CAN_RESET_REASON_WATCHDOG" 2 "CAN_RESET_REASON_SOFTWARE" 3 "CAN_RESET_REASON_POWER_ON" 4 "CAN_RESET_REASON_NRST_PIN" 5 "CAN_RESET_REASON_BROWN_OUT";
+VAL_ 511 VC_FirstFaultNode 0 "SHDN_BMS_OK" 1 "SHDN_IMD_OK" 2 "SHDN_BSPD_OK" 3 "SHDN_HV_P_ILCK" 4 "SHDN_HV_N_ILCK" 5 "SHDN_MSD_EMETER_ILCK" 6 "SHDN_RL_ILCK" 7 "SHDN_RR_ILCK" 8 "SHDN_R_EStop" 9 "SHDN_L_EStop" 10 "SHDN_Cockpit_EStop" 11 "SHDN_BOTS" 12 "SHDN_FR_ILCK" 13 "SHDN_FL_INERTIA_ILCK" 14 "SHDN_TSMS" 15 "SHDN_OK";
+VAL_ 223 VC_EllipseErrorCode 0 "ELLIPSE_NO_ERROR" 1 "ELLIPSE_ERROR" 2 "ELLIPSE_NULL_POINTER" 3 "ELLIPSE_INVALID_CRC" 4 "ELLIPSE_INVALID_FRAME" 5 "ELLIPSE_TIME_OUT" 6 "ELLIPSE_WRITE_ERROR" 7 "ELLIPSE_READ_ERROR" 8 "ELLIPSE_BUFFER_OVERFLOW" 9 "ELLIPSE_INVALID_PARAMETER" 10 "ELLIPSE_NOT_READY" 11 "ELLIPSE_MALLOC_FAILED" 12 "ELLIPSE_CALIB_MAG_NOT_ENOUGH_POINTS" 13 "ELLIPSE_CALIB_MAG_INVALID_TAKE" 14 "ELLIPSE_CALIB_MAG_SATURATION" 15 "ELLIPSE_CALIB_MAG_POINTS_NOT_IN_A_PLANE" 16 "ELLIPSE_DEVICE_NOT_FOUND" 17 "ELLIPSE_OPERATION_CANCELLED" 18 "ELLIPSE_NOT_CONTINUOUS_FRAME" 19 "ELLIPSE_INCOMPATIBLE_HARDWARE" 20 "ELLIPSE_INVALID_VERSION";
+VAL_ 223 VC_EkfSolutionMode 0 "UNINITIALIZED" 1 "VERTICAL_GYRO" 2 "AHRS" 3 "VELOCITY" 4 "POSITION";
+VAL_ 235 VC_VcDriveMode 0 "DRIVE_MODE_POWER" 1 "DRIVE_MODE_POWER_AND_ACTIVE" 2 "DRIVE_MODE_TV" 3 "DRIVE_MODE_COUNT";
+VAL_ 1607 VCR_ResetReason 0 "CAN_RESET_REASON_UNKNOWN" 1 "CAN_RESET_REASON_WATCHDOG" 2 "CAN_RESET_REASON_SOFTWARE" 3 "CAN_RESET_REASON_POWER_ON" 4 "CAN_RESET_REASON_NRST_PIN" 5 "CAN_RESET_REASON_BROWN_OUT";
+
+

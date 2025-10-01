@@ -24,7 +24,7 @@
   "buses": [
     {
       "name": "can1",
-      "nodes": ["VCR", "VC", "BMS", "DAM", "DAMLogger", "Debug"],
+      "nodes": ["VCR", "VC", "BMS", "DAM", "DAMLogger", "Debug", "Boot"],
       "bus_speed": 1000,
       "modes": ["DEFAULT", "DEBUG"],
       "default_mode": "DEFAULT",
@@ -32,7 +32,7 @@
     },
     {
       "name": "can2",
-      "nodes": ["VCR", "VC", "FSM", "RSM", "CRIT", "Debug"],
+      "nodes": ["VCR", "VC", "FSM", "RSM", "CRIT", "Debug", "Boot"],
       "bus_speed": 1000,
       "modes": ["DEFAULT", "DEBUG"],
       "default_mode": "DEFAULT"

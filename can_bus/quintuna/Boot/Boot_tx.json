@@ -1,0 +1,107 @@
+{
+  "VC": {
+    "msg_id": 134217728,
+    "cycle_time": 100,
+    "signals": {
+      "VC_Hash": {
+        "bits": 32
+      },
+      "VC_Clean": {
+        "bits": 1
+      },
+      "VC_Status": {
+        "enum": "BootStatus"
+      }
+    }
+  },
+  "BMS": {
+    "msg_id": 67108864,
+    "cycle_time": 100,
+    "signals": {
+      "BMS_Hash": {
+        "bits": 32
+      },
+      "BMS_Clean": {
+        "bits": 1
+      },
+      "BMS_Status": {
+        "enum": "BootStatus"
+      }
+    }
+  },
+  "RSM": {
+    "msg_id": 335544320,
+    "cycle_time": 100,
+    "signals": {
+      "RSM_Hash": {
+        "bits": 32
+      },
+      "RSM_Clean": {
+        "bits": 1
+      },
+      "RSM_Status": {
+        "enum": "BootStatus"
+      }
+    }
+  },
+  "FSM": {
+    "msg_id": 268435456,
+    "cycle_time": 100,
+    "signals": {
+      "FSM_Hash": {
+        "bits": 32
+      },
+      "FSM_Clean": {
+        "bits": 1
+      },
+      "FSM_Status": {
+        "enum": "BootStatus"
+      }
+    }
+  },
+  "CRIT": {
+    "msg_id": 402653184,
+    "cycle_time": 100,
+    "signals": {
+      "CRIT_Hash": {
+        "bits": 32
+      },
+      "CRIT_Clean": {
+        "bits": 1
+      },
+      "CRIT_Status": {
+        "enum": "BootStatus"
+      }
+    }
+  },
+  "DAM": {
+    "msg_id": 201326592,
+    "cycle_time": 100,
+    "signals": {
+      "DAM_Hash": {
+        "bits": 32
+      },
+      "DAM_Clean": {
+        "bits": 1
+      },
+      "DAM_Status": {
+        "enum": "BootStatus"
+      }
+    }
+  },
+  "H7Dev": {
+    "msg_id": 536870912,
+    "cycle_time": 100,
+    "signals": {
+      "H7Dev_Hash": {
+        "bits": 32
+      },
+      "H7Dev_Clean": {
+        "bits": 1
+      },
+      "H7Dev_Status": {
+        "enum": "BootStatus"
+      }
+    }
+  }
+}
