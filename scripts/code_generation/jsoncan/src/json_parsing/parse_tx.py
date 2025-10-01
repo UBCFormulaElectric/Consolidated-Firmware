@@ -85,7 +85,7 @@ _tx_signal_schema = Schema(
 
 _tx_msg_schema = Schema(
     {
-        "msg_id": And(int, lambda x: 0 <= x < 2**29),
+        "msg_id": And(int, lambda x: 0 <= x <= 2**30 - 1),
         "signals": Or(
             {
                 str: _tx_signal_schema,
