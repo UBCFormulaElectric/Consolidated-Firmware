@@ -51,10 +51,36 @@ bool hw_flash_program(uint32_t address, uint8_t *buffer, uint32_t size)
 
 bool hw_flash_programFlashWord(uint32_t address, uint32_t *data)
 {
+    const int         MAX_RETRIES = 3;
+    HAL_StatusTypeDef status;
+
     HAL_FLASH_Unlock();
-    HAL_StatusTypeDef status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_FLASHWORD, address, (uint32_t)data);
+    for (int attempt = 0; attempt < MAX_RETRIES; attempt++)
+    {
+        // clear flash errors from previous attempts
+        if (attempt > 0)
+        {
+            __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_ALL_ERRORS_BANK1);
+        }
+
+        status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_FLASHWORD, address, (uint32_t)data);
+
+        if ((status == HAL_OK) && (memcmp((void *)address, data, FLASH_WORD_BYTES) == 0))
+        {
+            // verify contents in flash match what we programmed
+            HAL_FLASH_Lock();
+            return true;
+        }
+
+        // small delay between retries
+        for (uint8_t i = 0; i < 100; i++)
+        {
+            __ASM("nop");
+        }
+    }
     HAL_FLASH_Lock();
-    return status == HAL_OK;
+
+    return false;
 }
 
 #endif
