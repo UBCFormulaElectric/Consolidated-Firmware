@@ -1,5 +1,6 @@
 #include "hw_flash.h"
 #include "hw_hal.h"
+#include <stdint.h>
 #include <string.h>
 #include "hw_utils.h"
 
@@ -7,14 +8,13 @@
 
 #if defined(STM32F412Rx)
 
-static bool
-    hw_flash_verifyAndRetryScalar(uint32_t address, const void *data, uint32_t size, uint32_t type, uint32_t value)
+static bool hw_flash_verifyAndRetryScalar(uint32_t address, uint32_t data, uint32_t size, uint32_t type)
 {
     HAL_StatusTypeDef status;
 
     for (int attempt = 0; attempt < FLASH_MAX_RETRIES; attempt++)
     {
-        // clear flags from previous attemptss
+        // clear flags from previous attempts
         if (attempt > 0)
         {
             __HAL_FLASH_CLEAR_FLAG(
@@ -22,15 +22,15 @@ static bool
                 FLASH_FLAG_RDERR);
         }
 
-        status = HAL_FLASH_Program(type, address, value);
+        status = HAL_FLASH_Program(type, address, data);
 
-        // check if data was correctly written
-        if ((status == HAL_OK) && (memcmp((void *)address, data, size) == 0))
+        // verify contents match what we programmed
+        if ((status == HAL_OK) && (memcmp((void *)address, &data, size) == 0))
         {
             return true;
         }
 
-        // small delay between retries, idk why
+        // small delay between retries
         for (uint8_t i = 0; i < 100; i++)
         {
             __ASM("nop");
@@ -42,7 +42,7 @@ static bool
 bool hw_flash_programByte(uint32_t address, uint8_t data)
 {
     HAL_FLASH_Unlock();
-    bool ok = hw_flash_verifyAndRetryScalar(address, &data, sizeof(data), FLASH_TYPEPROGRAM_BYTE, data);
+    bool ok = hw_flash_verifyAndRetryScalar(address, data, sizeof(data), FLASH_TYPEPROGRAM_BYTE);
     HAL_FLASH_Lock();
     return ok;
 }
@@ -50,7 +50,7 @@ bool hw_flash_programByte(uint32_t address, uint8_t data)
 bool hw_flash_programHalfWord(uint32_t address, uint16_t data)
 {
     HAL_FLASH_Unlock();
-    bool ok = hw_flash_verifyAndRetryScalar(address, &data, sizeof(data), FLASH_TYPEPROGRAM_HALFWORD, data);
+    bool ok = hw_flash_verifyAndRetryScalar(address, data, sizeof(data), FLASH_TYPEPROGRAM_HALFWORD);
     HAL_FLASH_Lock();
     return ok;
 }
@@ -58,7 +58,7 @@ bool hw_flash_programHalfWord(uint32_t address, uint16_t data)
 bool hw_flash_programWord(uint32_t address, uint32_t data)
 {
     HAL_FLASH_Unlock();
-    bool ok = hw_flash_verifyAndRetryScalar(address, &data, sizeof(data), FLASH_TYPEPROGRAM_WORD, data);
+    bool ok = hw_flash_verifyAndRetryScalar(address, data, sizeof(data), FLASH_TYPEPROGRAM_WORD);
     HAL_FLASH_Lock();
     return ok;
 }
@@ -70,7 +70,7 @@ bool hw_flash_program(uint32_t address, uint8_t *buffer, uint32_t size)
 
     for (uint32_t i = 0; i < size; i++)
     {
-        if (!hw_flash_verifyAndRetryScalar(address + i, &buffer[i], 1, FLASH_TYPEPROGRAM_BYTE, buffer[i]))
+        if (!hw_flash_verifyAndRetryScalar(address + i, buffer[i], 1, FLASH_TYPEPROGRAM_BYTE))
         {
             status = false;
             break;
