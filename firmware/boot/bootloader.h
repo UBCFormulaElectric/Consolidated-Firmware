@@ -13,12 +13,13 @@
 #define PROGRAM_ID_LOWBITS (0x6)
 #define VERIFY_ID_LOWBITS (0x7)
 #define APP_VALIDITY_ID_LOWBITS (0x8)
+#define GO_TO_BOOT (0x9)
 
-void           bootloader_preInit(void);
-void           bootloader_init(void);
-_Noreturn void bootloader_runInterfaceTask(void);
-_Noreturn void bootloader_runTickTask(void);
-_Noreturn void bootloader_runCanTxTask(void);
+void bootloader_preInit(void);
+void bootloader_init(void);
+void bootloader_runInterfaceTask(void);
+void bootloader_runTickTask(void);
+void bootloader_runCanTxTask(void);
 
 void bootloader_boardSpecific_init(void);
 void bootloader_boardSpecific_tick(void);
