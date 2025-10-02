@@ -18,7 +18,7 @@ static bool hw_flash_retryFlash(uint32_t address, uint32_t data, uint32_t size, 
 bool hw_flash_programByte(uint32_t address, uint8_t data)
 {
     HAL_FLASH_Unlock();
-    bool ok = hw_flash_retryFlash(address, data, sizeof(data), FLASH_TYPEPROGRAM_BYTE);
+    const bool ok = hw_flash_retryFlash(address, data, sizeof(data), FLASH_TYPEPROGRAM_BYTE);
     HAL_FLASH_Lock();
     return ok;
 }
