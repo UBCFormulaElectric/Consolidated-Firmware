@@ -1131,16 +1131,10 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_WritePin(GPIOB, FR_STBY_REAR_Pin | FRONT_EN_Pin | RSM_EN_Pin | L_RAD_FAN_EN_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(RAD_FAN_FR_STBY_GPIO_Port, RAD_FAN_FR_STBY_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOC, RAD_FAN_FR_STBY_Pin | RR_PUMP_EN_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(RR_PUMP_EN_GPIO_Port, RR_PUMP_EN_Pin, GPIO_PIN_SET);
-
-    /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOD, PCM_EN_Pin | R_RAD_FAN_EN_Pin, GPIO_PIN_RESET);
-
-    /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOD, F_PUMP_EN_Pin | RL_PUMP_EN_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(GPIOD, PCM_EN_Pin | F_PUMP_EN_Pin | R_RAD_FAN_EN_Pin | RL_PUMP_EN_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pins : SB_SHDN_3V3_OUT_Pin INTERIA_3V3_OUT_Pin RL_PUMP_PGOOD_Pin */
     GPIO_InitStruct.Pin  = SB_SHDN_3V3_OUT_Pin | INTERIA_3V3_OUT_Pin | RL_PUMP_PGOOD_Pin;
