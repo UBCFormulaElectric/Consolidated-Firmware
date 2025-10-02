@@ -13,6 +13,7 @@
 #define PROGRAM_ID_LOWBITS (0x6)
 #define VERIFY_ID_LOWBITS (0x7)
 #define APP_VALIDITY_ID_LOWBITS (0x8)
+#define GO_TO_BOOT (0x9)
 
 void           bootloader_preInit(void);
 void           bootloader_init(void);
