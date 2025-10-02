@@ -84,7 +84,7 @@ void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutput
         }
         case DRIVE_MODE_POWER_AND_ACTIVE:
         {
-            if (!sensor_status.steeringOk)
+            if (!sensor_status.steeringOk) // TODO: NEED TO CHANGE THIS TO JUST TORQUE 0 
             {
                 app_canAlerts_VC_Info_DriveModeOverride_set(true);
                 app_vanillaDrive_run(apps_pedal_percentage, torqueOutputToMotors);
@@ -106,8 +106,7 @@ void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutput
             powerLimitingInputs.power_limit          = power_limit;
             powerLimitingInputs.torqueToMotors       = torqueOutputToMotors;
             powerLimitingInputs.total_requestedPower = app_totalPower(torqueOutputToMotors);
-            app_powerLimiting_torqueReduction(&powerLimitingInputs);
-            /// dont use torque allocation here
+            app_power_limiting_TestRun_Torque_Reduction(&powerLimitingInputs);            /// dont use torque allocation here
             app_canTx_VC_VcDriveMode_set(DRIVE_MODE_POWER_AND_ACTIVE);
             LOG_INFO("DriveHandling: Active Diff Power Limit Mode Active");
             break;
