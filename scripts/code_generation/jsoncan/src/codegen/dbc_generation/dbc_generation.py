@@ -119,18 +119,23 @@ class DbcGenerator:
         return DBC_ATTRIBUTE_DEFINITONS_TEMPLATE
 
     @staticmethod
+    def _process_msg_id(msg_id: int) -> int:
+        """
+        Process message ID to ensure it is in the correct format for DBC.
+        """
+        # The 31st bit needs to be set to indicate this message has an extended
+        # ID, otherwise CANoe doesn't decode it properly.
+        if msg_id >= 2**11:
+            msg_id |= 2**31
+        return msg_id
+
+    @staticmethod
     def _dbc_message(msg: CanMessage) -> str:
         """
         Format and return DBC message definition.
         """
-        # The 31st bit needs to be set to indicate this message has an extended
-        # ID, otherwise CANoe doesn't decode it properly.
-        id = msg.id
-        if msg.id >= 2**11:
-            id |= 2**31
-
         return DBC_MESSAGE_TEMPLATE.format(
-            id=id, name=msg.name, num_bytes=msg.dlc(), tx_node=msg.tx_node_name
+            id=DbcGenerator._process_msg_id(msg.id), name=msg.name, num_bytes=msg.dlc(), tx_node=msg.tx_node_name
         )
 
     @staticmethod
@@ -173,7 +178,7 @@ class DbcGenerator:
         Format and return DBC GenMsgCycleTime message attribute.
         """
         return DBC_ATTRIBUTE_TEMPLATE.format(
-            id=msg_id,
+            id=DbcGenerator._process_msg_id(msg_id),
             attr_name="GenMsgCycleTime",
             attr_operand="BO_",
             signal_name="",
@@ -186,7 +191,7 @@ class DbcGenerator:
         Format and return DBC GenSigStartValue signal attribute.
         """
         return DBC_ATTRIBUTE_TEMPLATE.format(
-            id=msg_id,
+            id=DbcGenerator._process_msg_id(msg_id),
             attr_name="GenSigStartValue",
             attr_operand="SG_",
             signal_name=signal.name,
@@ -206,5 +211,5 @@ class DbcGenerator:
         )
 
         return DBC_VALUE_TABLE_TEMPLATE.format(
-            id=msg_id, signal_name=signal.name, entries=entries_text
+            id=DbcGenerator._process_msg_id(msg_id), signal_name=signal.name, entries=entries_text
         )
