@@ -5,13 +5,14 @@
 #include "app_timer.h"
 #include "app_canUtils.h"
 
+#include "io_log.h"
 #include "io_pcm.h"
 
 #include <app_canAlerts.h>
 #include <sys/types.h>
 
 static PowerManagerConfig power_manager_state = {
-    .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
+    .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = false, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_RSM]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_BMS]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_R_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
@@ -60,13 +61,6 @@ static void pcmOnStateRunOnEntry(void)
 
 static void pcmOnStateRunOnTick100Hz(void)
 {
-    // TODO REMOVE
-    {
-        io_pcm_set(false);
-        app_stateMachine_setNextState(&hvInit_state);
-        return;
-    }
-
     const float pcm_curr_voltage = app_canTx_VC_ChannelOneVoltage_get();
 
     switch (state)
@@ -80,6 +74,7 @@ static void pcmOnStateRunOnTick100Hz(void)
                 case TIMER_STATE_RUNNING:
                     if (pcmOnDone(pcm_curr_voltage))
                     {
+                        LOG_INFO("PCM_ON -> hvInit transition");
                         app_stateMachine_setNextState(&hvInit_state);
                         return;
                     }
@@ -114,6 +109,7 @@ static void pcmOnStateRunOnTick100Hz(void)
     {
         app_canAlerts_VC_Info_PcmUnderVoltage_set(true);
         app_stateMachine_setNextState(&hvInit_state);
+        LOG_INFO("PCM max retries exceeded: PCM_ON -> hvInit");
     }
 }
 static void pcmOnStateRunOnExit(void)
