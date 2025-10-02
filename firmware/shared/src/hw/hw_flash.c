@@ -66,7 +66,7 @@ bool hw_flash_program(uint32_t address, uint8_t *buffer, uint32_t size)
 bool hw_flash_programFlashWord(uint32_t address, uint32_t *data)
 {
     HAL_FLASH_Unlock();
-    bool ok = hw_flash_retryFlash(address, (uint32_t)data, FLASH_WORD_BYTES, FLASH_TYPEPROGRAM_FLASHWORD);
+    const bool ok = hw_flash_retryFlash(address, (uint32_t)data, FLASH_WORD_BYTES, FLASH_TYPEPROGRAM_FLASHWORD);
     HAL_FLASH_Lock();
     return ok;
 }
