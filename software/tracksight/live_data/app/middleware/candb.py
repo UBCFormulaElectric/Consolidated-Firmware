@@ -4,7 +4,7 @@ import requests
 from time import time
 
 from jsoncan import JsonCanParser, CanDatabase
-from settings import CAR_NAME
+from settings import CAR_NAME, DOCKERIZED
 from logger import logger
 
 def _download_file(commit_sha, file, folder_path, save_dir):
@@ -74,7 +74,7 @@ def make_can_db(jsoncan_config_path: str) -> CanDatabase:
 # fetch_jsoncan_configs("e12121d", True)
 # can_db = CanDatabase()
 
-json_can_config_root = os.path.join(
+json_can_config_root = os.path.join("/", "can_bus", CAR_NAME) if DOCKERIZED else os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
     "..",
     "..",
@@ -87,7 +87,7 @@ json_can_config_root = os.path.join(
 
 if not os.path.lexists(json_can_config_root):
     raise Exception(
-        "json can path does not exist, did you pass correct CAN_NAME")
+        "json can path does not exist, did you pass correct CAR_NAME")
 
 live_can_db = make_can_db(json_can_config_root)
 # board_start_time: datetime.datetime = None
