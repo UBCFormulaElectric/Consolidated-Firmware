@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <string.h>
 #include "hw_utils.h"
+#include "FreeRTOS.h"
+#include "task.h"
 
 #define FLASH_MAX_RETRIES 3
 static bool hw_flash_retryFlash(uint32_t address, uint32_t data, uint32_t size, uint32_t type);
@@ -122,12 +124,6 @@ static bool hw_flash_retryFlash(uint32_t address, uint32_t data, uint32_t size, 
         if ((status == HAL_OK) && FLASH_VERIFY_OK(address, data, size))
         {
             return true;
-        }
-
-        // small delay between retries
-        for (uint8_t i = 0; i < 100; i++)
-        {
-            __ASM("nop");
         }
     }
     return false;
