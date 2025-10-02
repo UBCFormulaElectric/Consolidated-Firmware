@@ -8,6 +8,7 @@
 #include "app_utils.h"
 #include "app_canAlerts.h"
 #include "app_jsoncan.h"
+#include "app_canTx.h"
 
 // io
 #include "io_log.h"
@@ -28,14 +29,15 @@
 #include "hw_adcs.h"
 #include "hw_resetReason.h"
 #include "hw_usb.h"
+#include "hw_gpios.h"
 
-void tasks_preInit()
+void tasks_preInit(void)
 {
     hw_bootup_enableInterruptsForApp();
     hw_hardFaultHandler_init();
 }
 
-void tasks_init()
+void tasks_init(void)
 {
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("RSM reset!");
@@ -88,7 +90,7 @@ _Noreturn void tasks_runChimera(void)
     hw_chimera_v2_task(&chimera_v2_config);
 }
 
-_Noreturn void tasks_run1Hz()
+_Noreturn void tasks_run1Hz(void)
 {
     const uint32_t  period_ms                = 1000U;
     const uint32_t  watchdog_grace_period_ms = 50U;
@@ -110,7 +112,7 @@ _Noreturn void tasks_run1Hz()
     }
 }
 
-_Noreturn void tasks_run100Hz()
+_Noreturn void tasks_run100Hz(void)
 {
     const uint32_t  period_ms                = 10U;
     const uint32_t  watchdog_grace_period_ms = 2U;
@@ -123,6 +125,7 @@ _Noreturn void tasks_run100Hz()
         if (!hw_chimera_v2_enabled)
         {
             jobs_run100Hz_tick();
+            app_canTx_RSM_RearLeftMotorInterlock_set(hw_gpio_readPin(&rl_int_pin));
         }
 
         // Watchdog check-in must be the last function called before putting the task to sleep.
@@ -133,7 +136,7 @@ _Noreturn void tasks_run100Hz()
     }
 }
 
-_Noreturn void tasks_run1kHz()
+_Noreturn void tasks_run1kHz(void)
 {
     const uint32_t  period_ms                = 1U;
     const uint32_t  watchdog_grace_period_ms = 1U;
@@ -157,7 +160,7 @@ _Noreturn void tasks_run1kHz()
     }
 }
 
-void tasks_runCanTx()
+void tasks_runCanTx(void)
 {
     // Setup tasks.
     for (;;)
