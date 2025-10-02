@@ -356,10 +356,7 @@ void runInterfaceTask(void *argument)
 {
     /* USER CODE BEGIN runInterfaceTask */
     /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
+    bootloader_runInterfaceTask();
     /* USER CODE END runInterfaceTask */
 }
 
