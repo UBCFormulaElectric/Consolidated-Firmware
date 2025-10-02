@@ -34,7 +34,7 @@ bool hw_flash_programHalfWord(uint32_t address, uint16_t data)
 bool hw_flash_programWord(uint32_t address, uint32_t data)
 {
     HAL_FLASH_Unlock();
-    bool ok = hw_flash_retryFlash(address, data, sizeof(data), FLASH_TYPEPROGRAM_WORD);
+    const bool ok = hw_flash_retryFlash(address, data, sizeof(data), FLASH_TYPEPROGRAM_WORD);
     HAL_FLASH_Lock();
     return ok;
 }
