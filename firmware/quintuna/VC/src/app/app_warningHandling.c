@@ -6,37 +6,17 @@
 #include "app_canRx.h"
 #include "app_canTx.h"
 
-#include <stdbool.h>
-#include <stdint.h>
-
 #define APPS_BRAKE_DISAGREEMENT_TIME_TO_FAULT (10u)
 #define APPS_BRAKE_DISAGREEMENT_TIME_TO_CLEAR (10u)
 
 static Signal apps_brake_disagreement_signal;
-typedef enum
-{
-    INVERTER_FL,
-    INVERTER_FR,
-    INVERTER_RL,
-    INVERTER_RR,
-    NUM_INVERTERS
-} InverterConfig;
 
 bool app_warningHandling_boardWarningCheck(void)
 {
     return app_canAlerts_AnyBoardHasWarning();
 }
 
-typedef struct
-{
-    void (*can_enable_inv)(bool);
-    void (*can_invOn)(bool);
-    void (*can_dcOn)(bool);
-    uint32_t (*can_error_info)(void);
-    void (*error_reset)(bool);
-} InverterWarningHandling;
-
-static InverterWarningHandling inverter_reset_handle[NUM_INVERTERS] = {
+InverterWarningHandling inverter_reset_handle[NUM_INVERTERS] = {
     [INVERTER_FL] = { .can_enable_inv = app_canTx_VC_INVFLbEnable_set,
                       .can_invOn      = app_canTx_VC_INVFLbInverterOn_set,
                       .can_dcOn       = app_canTx_VC_INVFLbDcOn_set,
