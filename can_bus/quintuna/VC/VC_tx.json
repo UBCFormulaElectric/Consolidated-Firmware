@@ -172,13 +172,22 @@
       "RearLeftPumpStatus": {
         "bits": 1
       },
-      "LeftRadiatorFanCurrent": {
+      "RearRightPumpCurrent": {
         "resolution": 0.01,
         "min": 0,
         "max": 5,
         "unit": "A"
       },
-      "LeftRadiatorFanStatus": {
+      "RearRightPumpStatus": {
+        "bits": 1
+      },
+      "FrontPumpCurrent": {
+        "resolution": 0.01,
+        "min": 0,
+        "max": 5,
+        "unit": "A"
+      },
+      "FrontPumpStatus": {
         "bits": 1
       },
       "RightRadiatorFanCurrent": {

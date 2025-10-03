@@ -48,8 +48,3 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
     else if (hadc == adc2.hadc)
         hw_adcchip_updateCallback(&adc2);
 }
-
-void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
-{
-    LOG_INFO("Half CPLT ADC callback not implemented");
-}

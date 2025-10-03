@@ -163,8 +163,9 @@ void app_powerManager_EfuseProtocolTick_100Hz(void)
     app_canTx_VC_DAMStatus_set(io_loadswitch_isChannelEnabled(efuse_channels[EFUSE_CHANNEL_DAM]));
     app_canTx_VC_FrontStatus_set(io_loadswitch_isChannelEnabled(efuse_channels[EFUSE_CHANNEL_FRONT]));
     app_canTx_VC_RearLeftPumpStatus_set(io_loadswitch_isChannelEnabled(efuse_channels[EFUSE_CHANNEL_RL_PUMP]));
-    app_canTx_VC_LeftRadiatorFanStatus_set(io_loadswitch_isChannelEnabled(efuse_channels[EFUSE_CHANNEL_R_RAD]));
-    app_canTx_VC_RightRadiatorFanStatus_set(io_loadswitch_isChannelEnabled(efuse_channels[EFUSE_CHANNEL_RR_PUMP]));
+    app_canTx_VC_RearRightPumpStatus_set(io_loadswitch_isChannelEnabled(efuse_channels[EFUSE_CHANNEL_RR_PUMP]));
+    app_canTx_VC_FrontPumpStatus_set(io_loadswitch_isChannelEnabled(efuse_channels[EFUSE_CHANNEL_F_PUMP]));
+    app_canTx_VC_RightRadiatorFanStatus_set(io_loadswitch_isChannelEnabled(efuse_channels[EFUSE_CHANNEL_R_RAD]));
 
     app_canTx_VC_FrontInvertersCurrent_set(io_loadswitch_getChannelCurrent(efuse_channels[EFUSE_CHANNEL_F_INV]));
     app_canTx_VC_RearInvertersCurrent_set(io_loadswitch_getChannelCurrent(efuse_channels[EFUSE_CHANNEL_R_INV]));
@@ -173,8 +174,9 @@ void app_powerManager_EfuseProtocolTick_100Hz(void)
     app_canTx_VC_DAMCurrent_set(io_loadswitch_getChannelCurrent(efuse_channels[EFUSE_CHANNEL_DAM]));
     app_canTx_VC_FrontCurrent_set(io_loadswitch_getChannelCurrent(efuse_channels[EFUSE_CHANNEL_FRONT]));
     app_canTx_VC_RearLeftPumpCurrent_set(io_loadswitch_getChannelCurrent(efuse_channels[EFUSE_CHANNEL_RL_PUMP]));
-    app_canTx_VC_LeftRadiatorFanCurrent_set(io_loadswitch_getChannelCurrent(efuse_channels[EFUSE_CHANNEL_R_RAD]));
-    app_canTx_VC_RightRadiatorFanCurrent_set(io_loadswitch_getChannelCurrent(efuse_channels[EFUSE_CHANNEL_RR_PUMP]));
+    app_canTx_VC_RearRightPumpCurrent_set(io_loadswitch_getChannelCurrent(efuse_channels[EFUSE_CHANNEL_RR_PUMP]));
+    app_canTx_VC_FrontPumpCurrent_set(io_loadswitch_getChannelCurrent(efuse_channels[EFUSE_CHANNEL_F_PUMP]));
+    app_canTx_VC_RightRadiatorFanCurrent_set(io_loadswitch_getChannelCurrent(efuse_channels[EFUSE_CHANNEL_R_RAD]));
 }
 
 #ifdef TARGET_TEST

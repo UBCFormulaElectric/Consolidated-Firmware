@@ -54,7 +54,6 @@ extern "C"
     void UsageFault_Handler(void);
     void DebugMon_Handler(void);
     void DMA1_Stream0_IRQHandler(void);
-    void DMA1_Stream1_IRQHandler(void);
     void ADC_IRQHandler(void);
     void FDCAN1_IT0_IRQHandler(void);
     void FDCAN2_IT0_IRQHandler(void);
@@ -65,6 +64,7 @@ extern "C"
     void I2C2_EV_IRQHandler(void);
     void I2C2_ER_IRQHandler(void);
     void EXTI15_10_IRQHandler(void);
+    void DMA2_Stream0_IRQHandler(void);
     void I2C3_EV_IRQHandler(void);
     void I2C3_ER_IRQHandler(void);
     void OTG_HS_IRQHandler(void);
