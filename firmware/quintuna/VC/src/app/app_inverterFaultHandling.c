@@ -1,3 +1,6 @@
+typedef int make_iso_compilers_happy;
+
+#if 0
 #include <stdlib.h>
 #include "app_warningHandling.c"
 #define ARRAY_LEN(a) (sizeof(a)/sizeof((a)[0]))
@@ -87,3 +90,4 @@ fault_handler inv_error_handling(){
         }
     }
 }
+#endif
