@@ -1,13 +1,13 @@
 #include "app_powerManager.h"
 
 #include "app_timer.h"
-#include "io_loadswitches.h"
 #include "app_canAlerts.h"
+#include "app_canTx.h"
+#include "io_loadswitches.h"
 
 #include <stdbool.h>
 #include <stdint.h>
 #include <assert.h>
-#include <stddef.h>
 
 static PowerManagerConfig power_manager_state;
 static TimerChannel       sequencing_timer;
@@ -135,7 +135,7 @@ void app_powerManager_EfuseProtocolTick_100Hz(void)
                 }
                 // case 2: off and trying to turn on
                 // we update the efuse blown status here because this only shows up when we want it on
-                if (!is_efuse_ok(current_efuse_sequence)) // todo remove this state?
+                if (!is_efuse_ok((uint8_t)current_efuse_sequence)) // todo remove this state?
                 {
                     efuses_retry_state[current_efuse_sequence].retry_num++;
                 }
@@ -155,6 +155,26 @@ void app_powerManager_EfuseProtocolTick_100Hz(void)
             }
             break;
     }
+
+    app_canTx_VC_FrontInvertersStatus_set(io_loadswitch_isChannelEnabled(efuse_channels[EFUSE_CHANNEL_F_INV]));
+    app_canTx_VC_RearInvertersStatus_set(io_loadswitch_isChannelEnabled(efuse_channels[EFUSE_CHANNEL_R_INV]));
+    app_canTx_VC_RSMStatus_set(io_loadswitch_isChannelEnabled(efuse_channels[EFUSE_CHANNEL_RSM]));
+    app_canTx_VC_BMSStatus_set(io_loadswitch_isChannelEnabled(efuse_channels[EFUSE_CHANNEL_BMS]));
+    app_canTx_VC_DAMStatus_set(io_loadswitch_isChannelEnabled(efuse_channels[EFUSE_CHANNEL_DAM]));
+    app_canTx_VC_FrontStatus_set(io_loadswitch_isChannelEnabled(efuse_channels[EFUSE_CHANNEL_FRONT]));
+    app_canTx_VC_RearLeftPumpStatus_set(io_loadswitch_isChannelEnabled(efuse_channels[EFUSE_CHANNEL_RL_PUMP]));
+    app_canTx_VC_LeftRadiatorFanStatus_set(io_loadswitch_isChannelEnabled(efuse_channels[EFUSE_CHANNEL_R_RAD]));
+    app_canTx_VC_RightRadiatorFanStatus_set(io_loadswitch_isChannelEnabled(efuse_channels[EFUSE_CHANNEL_RR_PUMP]));
+
+    app_canTx_VC_FrontInvertersCurrent_set(io_loadswitch_getChannelCurrent(efuse_channels[EFUSE_CHANNEL_F_INV]));
+    app_canTx_VC_RearInvertersCurrent_set(io_loadswitch_getChannelCurrent(efuse_channels[EFUSE_CHANNEL_R_INV]));
+    app_canTx_VC_RSMCurrent_set(io_loadswitch_getChannelCurrent(efuse_channels[EFUSE_CHANNEL_RSM]));
+    app_canTx_VC_BMSCurrent_set(io_loadswitch_getChannelCurrent(efuse_channels[EFUSE_CHANNEL_BMS]));
+    app_canTx_VC_DAMCurrent_set(io_loadswitch_getChannelCurrent(efuse_channels[EFUSE_CHANNEL_DAM]));
+    app_canTx_VC_FrontCurrent_set(io_loadswitch_getChannelCurrent(efuse_channels[EFUSE_CHANNEL_FRONT]));
+    app_canTx_VC_RearLeftPumpCurrent_set(io_loadswitch_getChannelCurrent(efuse_channels[EFUSE_CHANNEL_RL_PUMP]));
+    app_canTx_VC_LeftRadiatorFanCurrent_set(io_loadswitch_getChannelCurrent(efuse_channels[EFUSE_CHANNEL_R_RAD]));
+    app_canTx_VC_RightRadiatorFanCurrent_set(io_loadswitch_getChannelCurrent(efuse_channels[EFUSE_CHANNEL_RR_PUMP]));
 }
 
 #ifdef TARGET_TEST

@@ -2,6 +2,8 @@
 #include "hw_adc.h"
 #include "main.h"
 
+#include <io_log.h>
+
 static uint16_t adc1_raw_adc_values[6];
 static uint16_t adc2_raw_adc_values[5];
 static float    adc1_adc_voltages[6];
@@ -45,4 +47,9 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
         hw_adcchip_updateCallback(&adc1);
     else if (hadc == adc2.hadc)
         hw_adcchip_updateCallback(&adc2);
+}
+
+void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
+{
+    LOG_INFO("Half CPLT ADC callback not implemented");
 }

@@ -53,6 +53,8 @@ extern "C"
     void BusFault_Handler(void);
     void UsageFault_Handler(void);
     void DebugMon_Handler(void);
+    void DMA1_Stream0_IRQHandler(void);
+    void DMA1_Stream1_IRQHandler(void);
     void ADC_IRQHandler(void);
     void FDCAN1_IT0_IRQHandler(void);
     void FDCAN2_IT0_IRQHandler(void);

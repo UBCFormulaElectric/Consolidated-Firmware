@@ -1,9 +1,12 @@
 #include "hw_adc.h"
 
 #include "app_utils.h"
+#include "hw_utils.h"
 
 #define SINGLE_ENDED_ADC_V_SCALE (3.3f)
 #define DIFFERENTIAL_ADC_V_SCALE (6.6f)
+
+static bool seen_error = false;
 
 static float
     rawAdcValueToVoltage(const ADC_HandleTypeDef *hadc, const bool is_differential, const uint16_t raw_adc_value)
@@ -50,12 +53,14 @@ static float
 
 void hw_adcchip_init(const AdcChip *adc_c)
 {
-    HAL_ADC_Start_DMA(adc_c->hadc, (uint32_t *)adc_c->raw_adc_values, adc_c->hadc->Init.NbrOfConversion);
+    LOG_IF_ERR(hw_utils_convertHalStatus(
+        HAL_ADC_Start_DMA(adc_c->hadc, (uint32_t *)adc_c->raw_adc_values, adc_c->hadc->Init.NbrOfConversion)));
     HAL_TIM_Base_Start(adc_c->htim);
 }
 
 void hw_adcchip_updateCallback(const AdcChip *adc_c)
 {
+    seen_error = false;
     for (uint16_t ch = 0; ch < adc_c->channel_count; ch++)
         adc_c->adc_voltages[ch] = rawAdcValueToVoltage(adc_c->hadc, adc_c->is_differential, adc_c->raw_adc_values[ch]);
 }
@@ -68,4 +73,35 @@ float *hw_adcchip_getChannel(const AdcChip *adc_c, const uint32_t channel)
 float hw_adc_getVoltage(const AdcChannel *c)
 {
     return *c->voltage;
+}
+
+void HAL_ADC_ErrorCallback(ADC_HandleTypeDef *hadc)
+{
+    if (seen_error)
+        return;
+
+    switch (hadc->ErrorCode)
+    {
+        case HAL_ADC_ERROR_NONE:
+            LOG_ERROR("ADC Error: None");
+            break;
+        case HAL_ADC_ERROR_INTERNAL:
+            LOG_ERROR("ADC Error: Internal");
+            break;
+        case HAL_ADC_ERROR_OVR:
+            LOG_ERROR("ADC Error: Overrun");
+            break;
+        case HAL_ADC_ERROR_DMA:
+            LOG_ERROR("ADC Error: DMA");
+            break;
+        default:
+            LOG_ERROR("ADC Error: Unknown, code %lu", hadc->ErrorCode);
+            break;
+    }
+    seen_error = true;
+}
+
+void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef *hadc)
+{
+    LOG_ERROR("Analog watchdog 1 callback in non-blocking mode.");
 }
