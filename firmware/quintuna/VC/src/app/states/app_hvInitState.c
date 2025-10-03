@@ -34,18 +34,20 @@ static PowerManagerConfig power_manager_state = {
 // static bool power_sequencing_done = false;
 // static bool ready_for_drive       = false;
 
-/*keeping track of whether this is requested from retry or not. 
-if it's the first time booting up then we need to go through 
+/*keeping track of whether this is requested from retry or not.
+if it's the first time booting up then we need to go through
 all the states but if it's from a retry then we know our DC is on*/
 static bool bringup_post_fault_retry = false;
 
 /*Start up sequence of the inverters once all the requirements are met*/
 static void hvInitStateRunOnEntry(void)
 {
-    if (bringup_post_fault_retry){
-    current_inverter_state = INV_DC_ON;
+    if (bringup_post_fault_retry)
+    {
+        current_inverter_state = INV_DC_ON;
     }
-    else{
+    else
+    {
         current_inverter_state = INV_SYSTEM_READY;
     }
 

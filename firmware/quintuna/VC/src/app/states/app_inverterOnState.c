@@ -24,8 +24,8 @@ static void inverterOnStateRunOnEntry(void)
 {
     app_canTx_VC_State_set(VC_INVERTER_ON_STATE);
     app_powerManager_updateConfig(power_manager_state);
-    //I think I will add retry false on exit for the fault handling instead of retry reset here everytime 
-    //app_canAlerts_VC_Info_InverterRetry_set(false);
+    // I think I will add retry false on exit for the fault handling instead of retry reset here everytime
+    // app_canAlerts_VC_Info_InverterRetry_set(false);
 }
 
 static void inverterOnStateRunOnTick100Hz(void)
@@ -38,9 +38,9 @@ static void inverterOnStateRunOnTick100Hz(void)
     {
         app_stateMachine_setNextState(&bmsOn_state);
     }
-    //else if{
-        // If we have been in this state for too long and the inverters are not responding we go to fault handling
-        //TODO add a timer here so it waits a bit before faulting out
+    // else if{
+    //  If we have been in this state for too long and the inverters are not responding we go to fault handling
+    // TODO add a timer here so it waits a bit before faulting out
     //     app_stateMachine_setNextState(&faultHandling_state);
     // }
 }

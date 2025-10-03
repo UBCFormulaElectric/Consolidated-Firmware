@@ -3,7 +3,7 @@ typedef int make_iso_compilers_happy;
 #if 0
 #include <stdlib.h>
 #include "app_warningHandling.c"
-#define ARRAY_LEN(a) (sizeof(a)/sizeof((a)[0]))
+#define ARRAY_LEN(a) (sizeof(a) / sizeof((a)[0]))
 
 /*just a pointer that points to a function that takes in a uint32_t and a pointer so we can 
 change the type passed in (only passing in the type that contains the error code) const is there to ensure the handler 
