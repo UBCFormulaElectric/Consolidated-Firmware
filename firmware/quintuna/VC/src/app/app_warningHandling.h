@@ -1,8 +1,7 @@
 #pragma once
 #include "stdbool.h"
-#include <stdint.h>   // for uint32_t
-#include <stdbool.h>  // for bool
-
+#include <stdint.h>  // for uint32_t
+#include <stdbool.h> // for bool
 
 typedef enum
 {
@@ -23,7 +22,7 @@ typedef enum
     INV_FAULT_RETRY,
     INV_FAULT_LOCKOUT,
     INV_FAULT_RECOVERED,
-}    VCInverterFaults;
+} VCInverterFaults;
 typedef struct
 {
     void (*can_enable_inv)(bool);
