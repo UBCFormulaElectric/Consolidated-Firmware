@@ -25,9 +25,17 @@ static float
             full_scale = MAX_10_BITS_VALUE;
             break;
         case ADC_RESOLUTION_12B:
+#ifdef STM32F412Rx
         default:
+#endif
             full_scale = MAX_12_BITS_VALUE;
             break;
+#ifdef STM32H733xx
+        case ADC_RESOLUTION_16B:
+        default:
+            full_scale = MAX_16_BITS_VALUE;
+            break;
+#endif
     }
 
     // Taken from the STM32 manual, the formula to convert the raw ADC
