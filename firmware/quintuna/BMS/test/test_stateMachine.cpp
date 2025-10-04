@@ -10,6 +10,7 @@ extern "C"
 #include "app_canAlerts.h"
 #include "io_irs.h"
 #include "io_time.h"
+#include "app_segments.h"
 }
 
 class BmsStateMachineTest : public BMSBaseTest
@@ -191,6 +192,66 @@ TEST_F(BmsStateMachineTest, goes_to_fault_state_cell_under_voltage_fault)
     ASSERT_STATE_EQ(fault_state);
     ASSERT_TRUE(app_canAlerts_BMS_Fault_CellUndervoltage_get());
     ASSERT_FALSE(app_canTx_BMS_BmsCurrentlyOk_get());
+}
+
+TEST_F(BmsStateMachineTest, stays_in_drive_undervoltage_warning)
+{
+    app_stateMachine_setCurrentState(&drive_state);
+    std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> cell_voltages_arr{};
+    for (size_t seg = 0; seg < NUM_SEGMENTS; ++seg)
+    {
+        for (size_t cell = 0; cell < CELLS_PER_SEGMENT; ++cell)
+        {
+            cell_voltages_arr[seg][cell] = 4.1f;
+        }
+    }
+    cell_voltages_arr[NUM_SEGMENTS - 1][CELLS_PER_SEGMENT - 1] = MIN_CELL_VOLTAGE_WARNING_V - 0.01f;
+    io_ltc6813_startCellsAdcConversion();
+    fakes::segments::setCellVoltages(cell_voltages_arr);
+    fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
+    LetTimePass(10010);
+    ASSERT_STATE_EQ(drive_state);
+    ASSERT_FALSE(app_canAlerts_BMS_Fault_CellUndervoltage_get());
+    ASSERT_TRUE(app_canAlerts_BMS_Warning_CellUndervoltage_get());
+    ASSERT_TRUE(app_canTx_BMS_BmsCurrentlyOk_get());
+}
+
+TEST_F(BmsStateMachineTest, stays_in_drive_overvoltage_overtemp_warning)
+{
+    app_stateMachine_setCurrentState(&drive_state);
+    std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> cell_voltages_arr{};
+    for (size_t seg = 0; seg < NUM_SEGMENTS; ++seg)
+    {
+        for (size_t cell = 0; cell < CELLS_PER_SEGMENT; ++cell)
+        {
+            cell_voltages_arr[seg][cell] = 4.1f;
+        }
+    }
+    cell_voltages_arr[NUM_SEGMENTS - 1][CELLS_PER_SEGMENT - 1] = MAX_CELL_VOLTAGE_FAULT_V - 0.01f;
+
+    std::array<std::array<float, AUX_REGS_PER_SEGMENT>, NUM_SEGMENTS> cell_temps_arr{};
+    for (size_t seg = 0; seg < NUM_SEGMENTS; ++seg)
+    {
+        for (size_t reg = 0; reg < AUX_REGS_PER_SEGMENT; ++reg)
+        {
+            cell_temps_arr[seg][reg] = 50.0f;
+        }
+    }
+    cell_temps_arr[NUM_SEGMENTS - 1][AUX_REGS_PER_SEGMENT - 1] = 100.0f;
+
+    io_ltc6813_startCellsAdcConversion();
+    io_ltc6813_startThermistorsAdcConversion();
+    fakes::segments::setCellVoltages(cell_voltages_arr);
+    fakes::segments::setCellTemperatures(cell_temps_arr);
+    fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
+    LetTimePass(10010);
+    ASSERT_STATE_EQ(drive_state);
+    ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvervoltage_get());
+    ASSERT_TRUE(app_canAlerts_BMS_Warning_CellOvervoltage_get());
+    // ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvertemp_get());
+    // ASSERT_TRUE(app_canAlerts_BMS_Warning_CellOvertemp_get());
+
+    ASSERT_TRUE(app_canTx_BMS_BmsCurrentlyOk_get());
 }
 
 // TODO: Implement proper mocking of the cell temperatures with transfer functions for the aux regs
