@@ -1,1 +1,12 @@
-{}
+{
+    "BmsState": {
+        "BMS_INIT_STATE": 0,
+        "BMS_PRECHARGE_DRIVE_STATE": 1,
+        "BMS_PRECHARGE_CHARGE_STATE": 2,
+        "BMS_PRECHARGE_LATCH_STATE": 3,
+        "BMS_DRIVE_STATE": 4,
+        "BMS_CHARGE_STATE": 5,
+        "BMS_BALANCING_STATE": 6,
+        "BMS_FAULT_STATE": 7
+    }
+}
