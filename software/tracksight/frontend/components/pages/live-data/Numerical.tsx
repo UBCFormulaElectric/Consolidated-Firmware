@@ -74,6 +74,11 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
     const [zoomLevel, setZoomLevel] = useState(100);
     // track if user has manually panned (to prevent auto-follow)
     const [isManuallyPanning, setIsManuallyPanning] = useState(false);
+    // store the absolute time window when in manual mode to prevent shifting
+    const frozenTimeWindow = useRef<{
+      startTime: number;
+      endTime: number;
+    } | null>(null);
 
     // Track signals this component instance subscribed to for proper cleanup
     const componentSubscriptions = useRef<Set<string>>(new Set());
@@ -230,20 +235,63 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
     const handleMouseDown = useCallback(
       (e: React.MouseEvent) => {
         setIsDragging(true);
+
+        // capture current time window when entering manual mode
+        if (!isManuallyPanning) {
+          const timestamps = uplotData[0] as number[];
+          if (timestamps && timestamps.length > 0) {
+            const latestTime = timestamps[timestamps.length - 1];
+            const earliestTime = timestamps[0];
+            const totalTimeRange = latestTime - earliestTime;
+            const zoomFactor = 100 / zoomLevel;
+            const visibleTimeRange = totalTimeRange * zoomFactor;
+            const timePerPixel =
+              visibleTimeRange /
+              (typeof window !== "undefined" ? window.innerWidth - 100 : 1200);
+            const timeOffset = panOffset * timePerPixel;
+
+            frozenTimeWindow.current = {
+              endTime: latestTime - timeOffset,
+              startTime: latestTime - timeOffset - visibleTimeRange,
+            };
+          }
+        }
+
         setIsManuallyPanning(true);
         dragStart.current = { x: e.clientX, offset: panOffset };
       },
-      [panOffset]
+      [panOffset, isManuallyPanning, uplotData, zoomLevel]
     );
 
     const handleMouseMove = useCallback(
       (e: MouseEvent) => {
-        if (!isDragging) return;
+        if (!isDragging || !frozenTimeWindow.current) return;
         const dx = e.clientX - dragStart.current.x;
-        // Invert dx so dragging right moves view left (toward older data)
+
+        // calculate time shift based on pixel movement
+        const timestamps = uplotData[0] as number[];
+        if (timestamps && timestamps.length > 0) {
+          const chartWidth =
+            typeof window !== "undefined" ? window.innerWidth - 100 : 1200;
+          const currentTimeRange =
+            frozenTimeWindow.current.endTime -
+            frozenTimeWindow.current.startTime;
+          const timePerPixel = currentTimeRange / chartWidth;
+          const timeShift = dx * timePerPixel;
+
+          // update frozen window
+          const baseWindow = {
+            endTime: frozenTimeWindow.current.endTime + timeShift,
+            startTime: frozenTimeWindow.current.startTime + timeShift,
+          };
+
+          frozenTimeWindow.current = baseWindow;
+          dragStart.current.x = e.clientX; 
+        }
+
         setPanOffset(dragStart.current.offset - dx);
       },
-      [isDragging]
+      [isDragging, uplotData]
     );
 
     const handleMouseUp = useCallback(() => {
@@ -304,7 +352,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
               <input
                 type="range"
                 min={10}
-                max={1000}
+                max={10000}
                 step={10}
                 value={zoomLevel}
                 onChange={(e) => setZoomLevel(+e.target.value)}
@@ -322,6 +370,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
                   onClick={() => {
                     setPanOffset(0);
                     setIsManuallyPanning(false);
+                    frozenTimeWindow.current = null;
                   }}
                   className="px-3 py-1 bg-blue-500 text-white opacity-80 rounded-lg transition duration-150 ease-in-out hover:cursor-pointer hover:scale-105 hover:bg-blue-600 hover:opacity-100"
                 >
@@ -450,6 +499,9 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
               }))}
               panOffset={panOffset}
               zoomLevel={zoomLevel}
+              frozenTimeWindow={
+                isManuallyPanning ? frozenTimeWindow.current : null
+              }
             />
           </div>
         )}
