@@ -1,0 +1,69 @@
+{
+  "forwarders": [
+    {
+      "forwarder": "VC",
+      "bus1": "InvCAN",
+      "bus2": "FDCAN"
+    },
+    {
+      "forwarder": "BMS",
+      "bus1": "FDCAN",
+      "bus2": "charger"
+    }
+  ],
+  "buses": [
+    {
+      "name": "FDCAN",
+      "nodes": [
+        "VC",
+        "BMS",
+        "DAM",
+        "CRIT",
+        "FSM",
+        "RSM",
+        "DAMLogger",
+        "Debug",
+        "Boot"
+      ],
+      "bus_speed": 1000,
+      "modes": [
+        "DEFAULT",
+        "DEBUG"
+      ],
+      "default_mode": "DEFAULT",
+      "fd": true
+    },
+    {
+      "name": "InvCAN",
+      "nodes": [
+        "INVFR",
+        "INVFL",
+        "INVRR",
+        "INVRL",
+        "EMeter"
+      ],
+      "bus_speed": 1000,
+      "modes": [
+        "DEFAULT",
+        "DEBUG"
+      ],
+      "default_mode": "DEFAULT"
+    },
+    {
+      "name": "charger",
+      "nodes": [
+        "BMS",
+        "Elcon"
+      ],
+      "bus_speed": 500,
+      "modes": [
+        "DEFAULT",
+        "DEBUG"
+      ],
+      "default_mode": "DEFAULT"
+    }
+  ],
+  "loggers": [
+    "DAMLogger"
+  ]
+}
