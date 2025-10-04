@@ -23,23 +23,24 @@
 #define PWM_DEFAULT_DUTY_PC (50U)                     // 50%
 #define PWM_MAXIMUM_FREQUENCY_HZ (1000 / PWM_TICK_MS) // 2Hz
 
-static TimerChannel   settle_timer;
-static TimerChannel   balance_timer;
-static TimerChannel   period_timer;
-static TimerChannel   on_timer;
+static TimerChannel settle_timer;
+static TimerChannel balance_timer;
+static TimerChannel period_timer;
+static TimerChannel on_timer;
 
 static bool           discharge_candidates[NUM_SEGMENTS][CELLS_PER_SEGMENT];
-static bool           discharge_off[NUM_SEGMENTS][CELLS_PER_SEGMENT] = {false};
+static bool           discharge_off[NUM_SEGMENTS][CELLS_PER_SEGMENT] = { false };
 static BalancingState state;
 
-static void pwmTimerConfig(void) {
+static void pwmTimerConfig(void)
+{
     const bool override = app_canRx_Debug_CellBalancingOverridePWM_get();
     float      freq_hz  = override ? app_canRx_Debug_CellBalancingOverridePWMFrequency_get() : PWM_DEFAULT_FREQUENCY_HZ;
     uint32_t   duty_pc  = override ? app_canRx_Debug_CellBalancingOverridePWMDuty_get() : PWM_DEFAULT_DUTY_PC;
 
-    uint32_t   period_ms = (uint32_t)(1000.0f / freq_hz);
-    uint32_t   on_time_ms = (uint32_t)((duty_pc / 100.0f) * period_ms);
-    uint32_t   total_pulses = BALANCE_PERIOD_MS / period_ms;
+    uint32_t period_ms    = (uint32_t)(1000.0f / freq_hz);
+    uint32_t on_time_ms   = (uint32_t)(((float)duty_pc / 100.0f) * (float)period_ms);
+    uint32_t total_pulses = BALANCE_PERIOD_MS / period_ms;
 
     app_timer_init(&period_timer, period_ms);
     app_timer_restart(&period_timer);
@@ -48,15 +49,23 @@ static void pwmTimerConfig(void) {
     app_timer_restart(&on_timer);
 }
 
-static void updateCellsToBalance(void) {
-    for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++) {
-        for (uint8_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++) {
+static void updateCellsToBalance(void)
+{
+    for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
+    {
+        for (uint8_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
+        {
             bool should_balance = false;
-            if (segment == min_cell_voltage.segment && cell == min_cell_voltage.cell) {
+            if (segment == min_cell_voltage.segment && cell == min_cell_voltage.cell)
+            {
                 should_balance = false;
-            } else if (IS_EXIT_ERR(cell_voltage_success[segment][cell])) {
+            }
+            else if (IS_EXIT_ERR(cell_voltage_success[segment][cell]))
+            {
                 should_balance = false;
-            } else {
+            }
+            else
+            {
                 const float delta = cell_voltages[segment][cell] - min_cell_voltage.value;
                 should_balance    = (delta >= DISCHARGE_THRESHOLD_V);
             }
@@ -65,12 +74,14 @@ static void updateCellsToBalance(void) {
     }
 }
 
-static void disableBalance(void){
+static void disableBalance(void)
+{
     app_timer_stop(&on_timer);
     app_segments_setBalanceConfig((const bool(*)[CELLS_PER_SEGMENT])discharge_off);
 }
 
-static void enableBalance(void) {
+static void enableBalance(void)
+{
     app_segments_setBalanceConfig((const bool(*)[CELLS_PER_SEGMENT])discharge_candidates);
 }
 
@@ -121,24 +132,29 @@ void app_segments_balancingTick(bool enable)
         }
         case BALANCING_BALANCE:
         {
-            if (!enable) {
+            if (!enable)
+            {
                 app_canTx_BMS_BalancingLeaderSegment_set(0);
                 app_canTx_BMS_BalancingLeaderCellIdx_set(0);
                 disableBalance();
                 state = BALANCING_DISABLED;
                 LOG_INFO("Balancing: Disabled");
-
-            } else if (app_timer_updateAndGetState(&balance_timer) == TIMER_STATE_EXPIRED) {
+            }
+            else if (app_timer_updateAndGetState(&balance_timer) == TIMER_STATE_EXPIRED)
+            {
                 disableBalance();
                 app_timer_restart(&settle_timer);
                 state = BALANCING_SETTLE;
                 LOG_INFO("Balancing: Discharged, letting cells settle for 1min");
-
-            } else if (app_timer_updateAndGetState(&period_timer) == TIMER_STATE_EXPIRED) {
+            }
+            else if (app_timer_updateAndGetState(&period_timer) == TIMER_STATE_EXPIRED)
+            {
+                enableBalance();
                 app_timer_restart(&on_timer);
                 app_timer_restart(&period_timer);
-
-            } else if (app_timer_updateAndGetState(&on_timer) == TIMER_STATE_EXPIRED) {
+            }
+            else if (app_timer_updateAndGetState(&on_timer) == TIMER_STATE_EXPIRED)
+            {
                 disableBalance();
             }
 

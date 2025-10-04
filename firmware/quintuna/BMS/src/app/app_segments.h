@@ -196,8 +196,6 @@ bool app_segments_checkFaults(void);
 
 void app_segments_balancingInit(void);
 void app_segments_balancingTick(bool enabled);
-bool app_segments_balancingHasCandidates(void);
-bool app_segments_balancing_isPhaseActive(void);
 
 /**
  * @file segments/app_segments_getters.c
