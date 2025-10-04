@@ -12,7 +12,6 @@
 #include <stdint.h>
 #include "app_vehicleDynamicsConstants.h"
 #include "io_log.h"
-#include "app_inverterBringup.h"
 
 #define INV_QUIT_TIMEOUT_MS (10 * 1000)
 #define NO_TORQUE 0.0
