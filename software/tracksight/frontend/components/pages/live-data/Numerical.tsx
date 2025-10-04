@@ -6,8 +6,14 @@ import { PlusButton } from "@/components/shared/PlusButton";
 import { SignalType } from "@/hooks/SignalConfig";
 import { useSignals, useDataVersion } from "@/hooks/SignalContext";
 import { formatWithMs } from "@/lib/dateformat";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import UPlotChart from "@/components/shared/UPlotChart";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import CanvasChart from "@/components/shared/CanvasChart";
 
 interface DynamicSignalGraphProps {
   signalName: string;
@@ -30,17 +36,25 @@ const signalColors = [
 
 const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
   ({ signalName, onDelete }) => {
-  const { isPaused, horizontalScale, setHorizontalScale } = usePausePlay();
-  // Single context access (removed enum mixing & duplicate calls)
-  const signalsCtx = useSignals() as any;
-  const dataVersion = useDataVersion();
-  const { activeSignals, subscribeToSignal, unsubscribeFromSignal, getNumericalData } = signalsCtx;
+    const { isPaused, horizontalScale, setHorizontalScale } = usePausePlay();
+    // Single context access (removed enum mixing & duplicate calls)
+    const signalsCtx = useSignals() as any;
+    const dataVersion = useDataVersion();
+    const {
+      activeSignals,
+      subscribeToSignal,
+      unsubscribeFromSignal,
+      getNumericalData,
+    } = signalsCtx;
 
-  // TODO: hook up availableSignals metadata (currently only fetched in DropdownSearch on demand)
-  const availableSignals: any[] = useMemo(() => [], []);
-  // Only numerical data now
-  const numericalData: any[] = useMemo(() => getNumericalData(), [getNumericalData, dataVersion]);
-  const isLoadingSignals = false;
+    // TODO: hook up availableSignals metadata (currently only fetched in DropdownSearch on demand)
+    const availableSignals: any[] = useMemo(() => [], []);
+    // Only numerical data now
+    const numericalData: any[] = useMemo(
+      () => getNumericalData(),
+      [getNumericalData, dataVersion]
+    );
+    const isLoadingSignals = false;
 
     const [chartHeight, setChartHeight] = useState(256);
     const [searchTerm, setSearchTerm] = useState("");
@@ -50,8 +64,8 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
       left: 0,
     });
     const buttonRef = useRef<HTMLDivElement>(null);
-  const chartContainerRef = useRef<HTMLDivElement>(null);
-  // Removed horizontal scroll virtualization state
+    const chartContainerRef = useRef<HTMLDivElement>(null);
+    // Removed horizontal scroll virtualization state
 
     // Track signals this component instance subscribed to for proper cleanup
     const componentSubscriptions = useRef<Set<string>>(new Set());
@@ -68,8 +82,14 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
     // Build sparse aligned arrays for uPlot: [x[], ...y[]]
     const uplotData = React.useMemo(() => {
       const MAX_POINTS = 8000;
-      const filtered = numericalData.filter((d) => thisGraphSignals.includes(d.name as string));
-      if (filtered.length === 0) return [[], ...thisGraphSignals.map(() => [])] as [number[], ...(Array<(number|null)[]>)] ;
+      const filtered = numericalData.filter((d) =>
+        thisGraphSignals.includes(d.name as string)
+      );
+      if (filtered.length === 0)
+        return [[], ...thisGraphSignals.map(() => [])] as [
+          number[],
+          ...Array<(number | null)[]>
+        ];
 
       // Per-signal timestamp -> value map and union X
       const perSig = new Map<string, Map<number, number>>();
@@ -77,7 +97,8 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
       const xSet = new Set<number>();
       for (const d of filtered) {
         const sig = d.name as string;
-        const t = typeof d.time === "number" ? d.time : new Date(d.time).getTime();
+        const t =
+          typeof d.time === "number" ? d.time : new Date(d.time).getTime();
         const v = typeof d.value === "number" ? d.value : Number(d.value);
         if (!Number.isFinite(v)) continue;
         perSig.get(sig)!.set(t, v);
@@ -88,20 +109,21 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
         const step = x.length / MAX_POINTS;
         const down: number[] = [];
         for (let i = 0; i < MAX_POINTS; i++) down.push(x[Math.floor(i * step)]);
-        if (down[down.length - 1] !== x[x.length - 1]) down[down.length - 1] = x[x.length - 1];
+        if (down[down.length - 1] !== x[x.length - 1])
+          down[down.length - 1] = x[x.length - 1];
         x = down;
       }
-      const ys: Array<(number|null)[]> = [];
+      const ys: Array<(number | null)[]> = [];
       for (const sig of thisGraphSignals) {
         const m = perSig.get(sig)!;
-        const arr: (number|null)[] = new Array(x.length);
+        const arr: (number | null)[] = new Array(x.length);
         for (let i = 0; i < x.length; i++) {
           const t = x[i];
           arr[i] = m.has(t) ? (m.get(t) as number) : null;
         }
         ys.push(arr);
       }
-      return [x, ...ys] as [number[], ...(Array<(number|null)[]>)];
+      return [x, ...ys] as [number[], ...Array<(number | null)[]>];
     }, [numericalData, thisGraphSignals]);
 
     const numericalSignals = thisGraphSignals;
@@ -120,20 +142,23 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
 
     const pixelPerPoint = 50;
 
-  // Simplified: total points = rendered chart points
-  const totalDataPoints = (uplotData[0] as number[]).length;
+    // Simplified: total points = rendered chart points
+    const totalDataPoints = (uplotData[0] as number[]).length;
 
-  // Width simply scales with number of points shown
-  const totalWidth = Math.max(totalDataPoints * pixelPerPoint, 100) * (horizontalScale / 100);
-  const chartWidth = totalWidth;
+    // Width simply scales with number of points shown
+    const totalWidth =
+      Math.max(totalDataPoints * pixelPerPoint, 100) * (horizontalScale / 100);
+    const chartWidth = totalWidth;
 
-  // No offset needed without virtualization
-  const chartOffset = 0;
+    // No offset needed without virtualization
+    const chartOffset = 0;
 
     const handleSelect = useCallback(
       (name: string) => {
         if (process.env.NODE_ENV !== "production") {
-          console.log(`[ui] Numerical add ${name} -> subscribe & attach to this graph`);
+          console.log(
+            `[ui] Numerical add ${name} -> subscribe & attach to this graph`
+          );
         }
         subscribeToSignal(name, SignalType.Numerical);
         componentSubscriptions.current.add(name);
@@ -147,7 +172,9 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
     const handleUnsub = useCallback(
       (name: string) => {
         if (process.env.NODE_ENV !== "production") {
-          console.log(`[ui] Numerical remove ${name} -> unsubscribe (chip click)`);
+          console.log(
+            `[ui] Numerical remove ${name} -> unsubscribe (chip click)`
+          );
         }
         unsubscribeFromSignal(name);
         componentSubscriptions.current.delete(name);
@@ -158,7 +185,10 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
 
     const handleDelete = useCallback(() => {
       if (process.env.NODE_ENV !== "production") {
-        console.log(`[ui] Numerical delete graph -> unsubscribe all owned signals`, Array.from(componentSubscriptions.current));
+        console.log(
+          `[ui] Numerical delete graph -> unsubscribe all owned signals`,
+          Array.from(componentSubscriptions.current)
+        );
       }
       // Unsubscribe all signals that this component had subscribed to
       Array.from(componentSubscriptions.current).forEach((n) => {
@@ -173,7 +203,9 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
       // Subscribe to the initial signal if provided
       if (signalName && !componentSubscriptions.current.has(signalName)) {
         if (process.env.NODE_ENV !== "production") {
-          console.log(`[ui] Numerical mount with initial ${signalName} -> subscribe`);
+          console.log(
+            `[ui] Numerical mount with initial ${signalName} -> subscribe`
+          );
         }
         subscribeToSignal(signalName, SignalType.Numerical);
         componentSubscriptions.current.add(signalName);
@@ -192,10 +224,10 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
       };
     }, [signalName]); // Only depend on signalName, not the functions
 
-  // Removed scroll listener logic
+    // Removed scroll listener logic
 
-  // Debug info disabled after removing virtualization
-  const debugInfo = null;
+    // Debug info disabled after removing virtualization
+    const debugInfo = null;
 
     return (
       <div className="mb-6 p-4 block w-full relative">
@@ -332,7 +364,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
           </div>
         </div>
 
-  {totalDataPoints === 0 ? (
+        {totalDataPoints === 0 ? (
           <div className="w-full h-[256px] flex items-center justify-center text-gray-500">
             No data
           </div>
@@ -354,27 +386,14 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
                   top: 0,
                 }}
               >
-                <UPlotChart
-                  data={uplotData as [number[], ...(Array<(number|null)[]>)]}
+                <CanvasChart
+                  data={uplotData as [number[], ...Array<(number | null)[]>]}
                   width={chartWidth}
                   height={chartHeight}
-                  series={numericalSignals.map((sig, i) => ({ label: sig, color: signalColors[i % signalColors.length] }))}
-                  options={{
-                    // Make uPlot lighter by disabling interactive features
-                    legend: { show: false },
-                    cursor: {
-                      show: false,
-                      x: false,
-                      y: false,
-                      drag: { x: false, y: false, setScale: false },
-                      // Disable proximity calculations for focus/hover
-                      focus: { prox: -1 },
-                      hover: { prox: null },
-                    },
-                    // Optional: on HiDPI (retina) this reduces pixel work. Enable if you want extra speed.
-                    // pxRatio: 1,
-                  }}
-                  spanGaps
+                  series={numericalSignals.map((sig, i) => ({
+                    label: sig,
+                    color: signalColors[i % signalColors.length],
+                  }))}
                 />
               </div>
             </div>
@@ -385,7 +404,6 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
   }
 );
 
-// Add display name for better debugging
 NumericalGraphComponent.displayName = "NumericalGraphComponent";
 
 export default NumericalGraphComponent;
