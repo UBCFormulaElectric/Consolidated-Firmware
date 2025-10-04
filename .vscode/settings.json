@@ -11,5 +11,12 @@
     "--compile-commands-dir=build_fw_dev",
     // "--compile-commands-dir=build_fw_test",
     "--query-driver=/usr/local/bin/arm-none-eabi-gcc"
-  ]
+  ],
+  "files.associations": {
+    "bootloader_VC.C": "cpp",
+    "io_efuse.h": "c",
+    "io_efuse_st.h": "c",
+    "io_efuse_datatypes.h": "c",
+    "io_efuse_ti.h": "c"
+  }
 }

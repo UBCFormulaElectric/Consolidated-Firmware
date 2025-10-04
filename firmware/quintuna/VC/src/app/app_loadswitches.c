@@ -4,9 +4,8 @@
 #include <stddef.h>
 #include <assert.h>
 
-#include "io_loadswitch.h"
 #include "app_canTx.h"
-#include "io_loadswitches.h"
+#include "io_efuses.h"
 
 static void (*const efuse_enabled_can_setters[NUM_EFUSE_CHANNELS])(bool) = {
     [EFUSE_CHANNEL_F_INV]   = app_canTx_VC_FrontInvertersStatus_set,
@@ -35,8 +34,8 @@ void app_efuse_broadcast(void)
     // run through each efuse, and broadcast the channel status and current
     for (int efuse = 0; efuse < NUM_EFUSE_CHANNELS; efuse += 1)
     {
-        const bool  enabled = io_loadswitch_isChannelEnabled(efuse_channels[efuse]);
-        const float current = io_loadswitch_getChannelCurrent(efuse_channels[efuse]);
+        const bool  enabled = io_efuse_isChannelEnabled(efuse_channels[efuse]);
+        const float current = io_efuse_getChannelCurrent(efuse_channels[efuse]);
 
         assert(efuse_enabled_can_setters[efuse] != NULL);
         efuse_enabled_can_setters[efuse](enabled);
