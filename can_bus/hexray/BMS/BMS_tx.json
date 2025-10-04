@@ -1,1 +1,15 @@
-{}
+{
+    "Vitals": {
+        "msg_id": 400,
+        "cycle_time": 10,
+        "description": "Vitals message for the BMS.",
+        "signals": {
+            "Heartbeat": {
+                "bits": 1
+            },
+            "State": {
+                "enum": "BmsState"
+            }
+        }
+    }
+}
