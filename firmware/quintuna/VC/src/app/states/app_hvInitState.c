@@ -12,7 +12,6 @@
 #include <stdint.h>
 #include "app_vehicleDynamicsConstants.h"
 #include "io_log.h"
-#include "app_inverterBringup.h"
 
 #define INV_QUIT_TIMEOUT_MS (10 * 1000)
 #define NO_TORQUE 0.0
@@ -90,8 +89,6 @@ static void hvInitStateRunOnTick100Hz(void)
             {
                 LOG_INFO("inv_system_ready -> inv_error_retry");
                 current_inverter_state = INV_ERROR_RETRY;
-                app_timer_stop(&start_up_timer);
-                app_stateMachine_setNextState(&inverter_retry_state);
             }
             break;
         }
@@ -163,6 +160,9 @@ static void hvInitStateRunOnTick100Hz(void)
                 app_stateMachine_setNextState(&hv_state);
             }
             break;
+        case INV_ERROR_RETRY:
+            app_timer_stop(&start_up_timer);
+            app_stateMachine_setNextState(&inverter_retry_state);
 
         default:
             break;
