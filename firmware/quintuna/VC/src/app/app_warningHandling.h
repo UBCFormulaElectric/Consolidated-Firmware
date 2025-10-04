@@ -1,7 +1,6 @@
 #pragma once
 #include "stdbool.h"
 #include <stdint.h>
-#include <stdbool.h>
 
 typedef enum
 {
@@ -32,14 +31,17 @@ typedef struct
     void (*error_reset)(bool);
 } InverterWarningHandling;
 
-extern InverterWarningHandling inverter_reset_handle[NUM_INVERTERS];
+extern InverterWarningHandling inverter_handle_FL;
+extern InverterWarningHandling inverter_handle_FR;
+extern InverterWarningHandling inverter_handle_RL;
+extern InverterWarningHandling inverter_handle_RR;
 
 // board warnings
 bool app_warningHandling_boardWarningCheck(void);
 
 // inverters
 bool app_warningHandling_inverterStatus(void);
-void app_warningHandling_inverterReset(void);
+// void app_warningHandling_inverterReset(void);
 
 // bspd
 void app_softwareBspd_init(void);

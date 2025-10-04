@@ -1,20 +1,16 @@
-#include "app_stateMachine.h"
 #include "app_states.h"
 #include "app_powerManager.h"
 #include "app_timer.h"
-#include "app_canAlerts.h"
 #include "app_warningHandling.h"
-#include "io_loadswitches.h"
+#include "app_canUtils.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
-#include "app_canUtils.h"
-#include <stdbool.h>
-#include <stdint.h>
+#include "app_canAlerts.h"
 #include "io_log.h"
 
 static VCInverterFaults   current_inverter_fault_state;
 static uint16_t           retry_counter       = 0;
-static PowerManagerConfig power_manager_state = {
+static const PowerManagerConfig power_manager_state = {
     .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_RSM]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_BMS]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
@@ -26,17 +22,17 @@ static PowerManagerConfig power_manager_state = {
 };
 
 /*routine for resetting errors from the AMK datasheet*/
-static inline void inverter_retry_routine(InverterConfig inverter)
+static void inverter_retry_routine(InverterWarningHandling handle)
 {
-    inverter_reset_handle[inverter].can_invOn(false);
-    inverter_reset_handle[inverter].can_dcOn(false);
-    inverter_reset_handle[inverter].can_enable_inv(false);
-    inverter_reset_handle[inverter].error_reset(true);
+    handle.can_invOn(false);
+    handle.can_dcOn(false);
+    handle.can_enable_inv(false);
+    handle.error_reset(true);
     return;
 }
 
 // Only retry on the faulted inverter to speed up the recovery process
-static inline void inverter_fault_retry(InverterConfig inverter)
+static void inverter_fault_retry(InverterConfig inverter)
 {
     switch (inverter)
     {
@@ -44,25 +40,25 @@ static inline void inverter_fault_retry(InverterConfig inverter)
             /* cast then act on FR */
             app_canTx_VC_INVFRbErrorReset_set(true);
             app_canAlerts_VC_Warning_FrontRightInverterFault_set(true);
-            inverter_retry_routine(INVERTER_FR);
+            inverter_retry_routine(inverter_handle_FR);
             break;
 
         case INVERTER_FL:
             app_canTx_VC_INVFLbErrorReset_set(true);
             app_canAlerts_VC_Warning_FrontLeftInverterFault_set(true);
-            inverter_retry_routine(INVERTER_FL);
+            inverter_retry_routine(inverter_handle_FL);
             break;
 
         case INVERTER_RR:
             app_canTx_VC_INVRRbErrorReset_set(true);
             app_canAlerts_VC_Warning_RearRightInverterFault_set(true);
-            inverter_retry_routine(INVERTER_RR);
+            inverter_retry_routine(inverter_handle_RR);
             break;
 
         case INVERTER_RL:
             app_canTx_VC_INVRLbErrorReset_set(true);
             app_canAlerts_VC_Warning_RearLeftInverterFault_set(true);
-            inverter_retry_routine(INVERTER_RL);
+            inverter_retry_routine(inverter_handle_RL);
             break;
 
         default:
@@ -72,7 +68,7 @@ static inline void inverter_fault_retry(InverterConfig inverter)
 
 /*Lockout error just means don't retry you need to power cycle
 add any new exceptions error codes here if you don't want retry*/
-static inline bool is_lockout_code(uint32_t code)
+static bool is_lockout_code(uint32_t code)
 {
     switch (code)
     {
@@ -85,7 +81,7 @@ static inline bool is_lockout_code(uint32_t code)
     }
 }
 
-static inline bool inv_bError(InverterConfig inv)
+static bool inv_bError(InverterConfig inv)
 {
     switch (inv)
     {
@@ -102,7 +98,7 @@ static inline bool inv_bError(InverterConfig inv)
     }
 }
 
-static void faultHandlingStateRunOnEntry(void)
+static void InverterFaultHandlingStateRunOnEntry(void)
 {
     app_powerManager_updateConfig(power_manager_state);
     app_canTx_VC_State_set(VC_FAULT_STATE);
@@ -112,12 +108,13 @@ static void faultHandlingStateRunOnEntry(void)
     // app_timer_init(&start_up_timer, FAULT_TIMEOUT_MS);
 }
 
-static void FaultHandlingStateRunOnTick100Hz(void)
+static void InverterFaultHandlingStateRunOnTick100Hz(void)
 {
     switch (current_inverter_fault_state)
     {
         case INV_FAULT_RETRY:
         {
+            LOG_INFO("inverter is retrying, retry number: %u", retry_counter);
             retry_counter++;
             bool any_faulted = false;
             bool any_lockout = false;
@@ -152,10 +149,13 @@ static void FaultHandlingStateRunOnTick100Hz(void)
         case INV_FAULT_LOCKOUT:
             // Do nothing here no retry by design; wait for manual action or power cycle also toggling off retry since
             // it doesn't make sense to retry here
+            LOG_INFO("inverter is locked out need to power cycle, retry number: %u", retry_counter);
+
             app_canAlerts_VC_Info_InverterRetry_set(false);
             return;
 
         case INV_FAULT_RECOVERED:
+            LOG_INFO("fault recovered on retry number: %u", retry_counter);
             app_canAlerts_VC_Info_InverterRetry_set(false);
 
             // jumping back to Hvinit instead of first state DC is alrady on
@@ -167,7 +167,7 @@ static void FaultHandlingStateRunOnTick100Hz(void)
     }
 }
 
-static void faultHandlingStateRunOnExit(void)
+static void InverterfaultHandlingStateRunOnExit(void)
 {
     // We are setting back this to zero meaning that we either succedded in reseting the inverters or out reset protocl
     // didnt work so we are going back to init
@@ -180,6 +180,6 @@ static void faultHandlingStateRunOnExit(void)
 }
 
 State inverter_retry_state = { .name              = "Handling State",
-                               .run_on_entry      = faultHandlingStateRunOnEntry,
-                               .run_on_tick_100Hz = FaultHandlingStateRunOnTick100Hz,
-                               .run_on_exit       = faultHandlingStateRunOnExit };
+                               .run_on_entry      = InverterFaultHandlingStateRunOnEntry,
+                               .run_on_tick_100Hz = InverterFaultHandlingStateRunOnTick100Hz,
+                               .run_on_exit       = InverterfaultHandlingStateRunOnExit };
