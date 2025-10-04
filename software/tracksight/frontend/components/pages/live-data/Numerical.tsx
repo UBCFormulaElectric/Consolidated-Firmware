@@ -94,7 +94,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
 
     // Build sparse aligned arrays for uPlot: [x[], ...y[]]
     const uplotData = React.useMemo(() => {
-      const MAX_POINTS = 8000;
+      const MAX_POINTS = 10000;
       const filtered = numericalData.filter((d) =>
         thisGraphSignals.includes(d.name as string)
       );
@@ -245,14 +245,11 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
             const totalTimeRange = latestTime - earliestTime;
             const zoomFactor = 100 / zoomLevel;
             const visibleTimeRange = totalTimeRange * zoomFactor;
-            const timePerPixel =
-              visibleTimeRange /
-              (typeof window !== "undefined" ? window.innerWidth - 100 : 1200);
-            const timeOffset = panOffset * timePerPixel;
 
+            // In auto-follow mode (panOffset = 0), we show from (latestTime - visibleTimeRange) to latestTime
             frozenTimeWindow.current = {
-              endTime: latestTime - timeOffset,
-              startTime: latestTime - timeOffset - visibleTimeRange,
+              startTime: latestTime - visibleTimeRange,
+              endTime: latestTime,
             };
           }
         }
@@ -286,7 +283,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
           };
 
           frozenTimeWindow.current = baseWindow;
-          dragStart.current.x = e.clientX; 
+          dragStart.current.x = e.clientX;
         }
 
         setPanOffset(dragStart.current.offset - dx);
@@ -315,6 +312,28 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
         setPanOffset(0);
       }
     }, [isManuallyPanning, dataVersion]); // Reset when data updates and not manually panning
+
+    // update frozen time window when zoom changes in manual mode
+    useEffect(() => {
+      if (isManuallyPanning && frozenTimeWindow.current) {
+        const currentWindow = frozenTimeWindow.current;
+        const rightEdgeTime = currentWindow.endTime; // right edge fixed
+
+        // new range based on zoom level
+        const timestamps = uplotData[0] as number[];
+        if (timestamps && timestamps.length > 0) {
+          const totalTimeRange =
+            timestamps[timestamps.length - 1] - timestamps[0];
+          const zoomFactor = 100 / zoomLevel;
+          const newRange = totalTimeRange * zoomFactor;
+
+          frozenTimeWindow.current = {
+            startTime: rightEdgeTime - newRange,
+            endTime: rightEdgeTime,
+          };
+        }
+      }
+    }, [zoomLevel, isManuallyPanning, uplotData]);
 
     return (
       <div className="mb-6 p-4 block w-full relative">
