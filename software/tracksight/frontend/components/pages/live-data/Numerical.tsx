@@ -36,7 +36,7 @@ const signalColors = [
 
 const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
   ({ signalName, onDelete }) => {
-    const { isPaused, horizontalScale, setHorizontalScale } = usePausePlay();
+    const { isPaused } = usePausePlay();
     // Single context access (removed enum mixing & duplicate calls)
     const signalsCtx = useSignals() as any;
     const dataVersion = useDataVersion();
@@ -65,7 +65,13 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
     });
     const buttonRef = useRef<HTMLDivElement>(null);
     const chartContainerRef = useRef<HTMLDivElement>(null);
-    // Removed horizontal scroll virtualization state
+
+    // pan state is offset in pixels from the right edge (latest data)
+    const [panOffset, setPanOffset] = useState(0);
+    const [isDragging, setIsDragging] = useState(false);
+    const dragStart = useRef({ x: 0, offset: 0 });
+    // the zoom state controls how much time is visible (higher = more zoomed in)
+    const [zoomLevel, setZoomLevel] = useState(100);
 
     // Track signals this component instance subscribed to for proper cleanup
     const componentSubscriptions = useRef<Set<string>>(new Set());
@@ -140,18 +146,12 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
       );
     }, [availableOptions, searchTerm]);
 
-    const pixelPerPoint = 50;
-
-    // Simplified: total points = rendered chart points
     const totalDataPoints = (uplotData[0] as number[]).length;
 
-    // Width simply scales with number of points shown
-    const totalWidth =
-      Math.max(totalDataPoints * pixelPerPoint, 100) * (horizontalScale / 100);
-    const chartWidth = totalWidth;
-
-    // No offset needed without virtualization
-    const chartOffset = 0;
+    // Fixed width - use container width or full viewport width
+    const chartWidth =
+      typeof window !== "undefined" ? window.innerWidth - 100 : 1200;
+    const totalWidth = chartWidth;
 
     const handleSelect = useCallback(
       (name: string) => {
@@ -224,10 +224,46 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
       };
     }, [signalName]); // Only depend on signalName, not the functions
 
-    // Removed scroll listener logic
+    // Mouse event handlers for panning
+    const handleMouseDown = useCallback(
+      (e: React.MouseEvent) => {
+        setIsDragging(true);
+        dragStart.current = { x: e.clientX, offset: panOffset };
+      },
+      [panOffset]
+    );
 
-    // Debug info disabled after removing virtualization
-    const debugInfo = null;
+    const handleMouseMove = useCallback(
+      (e: MouseEvent) => {
+        if (!isDragging) return;
+        const dx = e.clientX - dragStart.current.x;
+        // Invert dx so dragging right moves view left (toward older data)
+        setPanOffset(dragStart.current.offset - dx);
+      },
+      [isDragging]
+    );
+
+    const handleMouseUp = useCallback(() => {
+      setIsDragging(false);
+    }, []);
+
+    useEffect(() => {
+      if (isDragging) {
+        window.addEventListener("mousemove", handleMouseMove);
+        window.addEventListener("mouseup", handleMouseUp);
+        return () => {
+          window.removeEventListener("mousemove", handleMouseMove);
+          window.removeEventListener("mouseup", handleMouseUp);
+        };
+      }
+    }, [isDragging, handleMouseMove, handleMouseUp]);
+
+    // Reset pan when not paused to follow latest data
+    useEffect(() => {
+      if (!isPaused) {
+        setPanOffset(0);
+      }
+    }, [isPaused]);
 
     return (
       <div className="mb-6 p-4 block w-full relative">
@@ -261,16 +297,31 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
               />
             </div>
             <div className="flex flex-col">
-              <label className="text-sm">
-                Horizontal Scale: {horizontalScale}%
-              </label>
+              <label className="text-sm">Zoom: {zoomLevel}%</label>
               <input
                 type="range"
-                min={1}
+                min={10}
                 max={1000}
-                value={horizontalScale}
-                onChange={(e) => setHorizontalScale(+e.target.value)}
+                step={10}
+                value={zoomLevel}
+                onChange={(e) => setZoomLevel(+e.target.value)}
               />
+            </div>
+            <div className="flex flex-col">
+              <label className="text-sm">
+                Pan:{" "}
+                {isPaused
+                  ? `${Math.round(panOffset)}px from latest`
+                  : "Following live data"}
+              </label>
+              {isPaused && (
+                <button
+                  onClick={() => setPanOffset(0)}
+                  className="px-3 py-1 bg-blue-500 text-white opacity-80 rounded-lg transition duration-150 ease-in-out hover:cursor-pointer hover:scale-105 hover:bg-blue-600 hover:opacity-100"
+                >
+                  Reset to Latest
+                </button>
+              )}
             </div>
           </div>
 
@@ -357,10 +408,12 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
             )}
           </div>
 
-          {/* Debug info for viewport windowing */}
+          {/* Debug info */}
           <div className="text-xs text-gray-500 mb-4 space-y-1 bg-gray-50 p-2 rounded border">
             <div>Total points: {totalDataPoints}</div>
-            <div>Chart Offset: {Math.round(chartOffset)}px</div>
+            <div>Zoom: {zoomLevel}%</div>
+            <div>Pan Offset: {Math.round(panOffset)}px</div>
+            <div>Chart Width: {chartWidth}px</div>
           </div>
         </div>
 
@@ -369,35 +422,29 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
             No data
           </div>
         ) : (
-          <>
-            <div
-              ref={chartContainerRef}
-              style={{
-                width: totalWidth,
-                height: chartHeight,
-                transition: "width 100ms ease-out",
-                position: "relative",
-              }}
-            >
-              <div
-                style={{
-                  position: "absolute",
-                  left: chartOffset,
-                  top: 0,
-                }}
-              >
-                <CanvasChart
-                  data={uplotData as [number[], ...Array<(number | null)[]>]}
-                  width={chartWidth}
-                  height={chartHeight}
-                  series={numericalSignals.map((sig, i) => ({
-                    label: sig,
-                    color: signalColors[i % signalColors.length],
-                  }))}
-                />
-              </div>
-            </div>
-          </>
+          <div
+            ref={chartContainerRef}
+            onMouseDown={handleMouseDown}
+            style={{
+              width: chartWidth,
+              height: chartHeight,
+              position: "relative",
+              cursor: isDragging ? "grabbing" : "grab",
+              overflow: "hidden",
+            }}
+          >
+            <CanvasChart
+              data={uplotData as [number[], ...Array<(number | null)[]>]}
+              width={chartWidth}
+              height={chartHeight}
+              series={numericalSignals.map((sig, i) => ({
+                label: sig,
+                color: signalColors[i % signalColors.length],
+              }))}
+              panOffset={panOffset}
+              zoomLevel={zoomLevel}
+            />
+          </div>
         )}
       </div>
     );

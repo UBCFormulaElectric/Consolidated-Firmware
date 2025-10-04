@@ -17,6 +17,8 @@ type CanvasChartProps = {
   series: SeriesMeta[];
   width: number;
   height: number;
+  panOffset?: number;
+  zoomLevel?: number;
 };
 
 // first index where timestamp >= targetTime
@@ -68,31 +70,11 @@ export default function CanvasChart({
   series,
   width,
   height,
+  panOffset = 0,
+  zoomLevel = 100,
 }: CanvasChartProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animationFrameId = useRef<number | null>(null);
-
-  // initial time range from data
-  const initialStartTime = data[0]?.[0] ?? 0;
-  const initialEndTime = data[0]?.[data[0].length - 1] ?? initialStartTime;
-
-  const [view, setView] = useState({
-    startTime: initialStartTime,
-    endTime: initialEndTime,
-  });
-
-  /*useEffect(() => {
-    const [timestamps] = data;
-    if (!timestamps || timestamps.length === 0) return;
-
-    const latestTime = timestamps[timestamps.length - 1];
-    const earliestTime = timestamps[0];
-
-    setView({
-      startTime: earliestTime,
-      endTime: latestTime,
-    });
-  }, [data]);*/
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -133,24 +115,34 @@ export default function CanvasChart({
       const chartWidth = width - padding.left - padding.right;
       const chartHeight = height - padding.top - padding.bottom;
 
-      const rect = canvas.getBoundingClientRect();
-
       const latestTime = timestamps[timestamps.length - 1];
       const earliestTime = timestamps[0];
+      const totalTimeRange = latestTime - earliestTime;
+
+      // visible time window based on zoom and panOffset
+      const zoomFactor = 100 / zoomLevel; // zoomLevel: 100 = show all data, 200 = show half the data (2x zoom), 50 = show double (0.5x zoom) etc.
+      const visibleTimeRange = totalTimeRange * zoomFactor;
+
+      // panOffset is in pixels from the right edge (latest data)
+      const timePerPixel = visibleTimeRange / chartWidth;
+      const timeOffset = panOffset * timePerPixel;
+
+      const visibleEndTime = latestTime - timeOffset;
+      const visibleStartTime = visibleEndTime - visibleTimeRange;
 
       const startIndex = binarySearchForFirstVisibleIndex(
         timestamps,
-        view.startTime
+        visibleStartTime
       );
 
       const endIndex = binarySearchForLastVisibleIndex(
         timestamps,
-        view.endTime
+        visibleEndTime
       );
 
       // data ranges - only use visible range
-      const minTime = view.startTime;
-      const maxTime = view.endTime;
+      const minTime = visibleStartTime;
+      const maxTime = visibleEndTime;
 
       let minValue = Infinity;
       let maxValue = -Infinity;
@@ -178,12 +170,6 @@ export default function CanvasChart({
         );
       };
 
-      const xToTime = (x: number) => {
-        return (
-          minTime + ((x - padding.left) / chartWidth) * (maxTime - minTime)
-        );
-      };
-
       const valueToY = (value: number) => {
         return (
           padding.top +
@@ -191,42 +177,6 @@ export default function CanvasChart({
           ((value - minValue) / (maxValue - minValue)) * chartHeight
         );
       };
-
-      setView({
-        //startTime: xToTime(rect.left),
-        startTime: timestamps[0],
-        endTime: timestamps[timestamps.length - 1],
-        //endTime: xToTime(rect.right),
-      });
-
-      const left = canvas.getBoundingClientRect().left;
-      console.log(left);
-
-      context.strokeStyle = "#00ff0dff";
-      context.lineWidth = 4;
-      context.beginPath();
-      context.moveTo(
-        -canvas.getBoundingClientRect().left + padding.left,
-        padding.top
-      );
-      context.lineTo(
-        -canvas.getBoundingClientRect().left + padding.left,
-        height - padding.bottom
-      );
-      context.stroke();
-
-      // testing transformations
-      const ttX = timeToX(timestamps[0]);
-      const ttT = xToTime(ttX);
-      //jconsole.log(ttX);
-      //console.log(ttT);
-
-      /*const boundToTime = xToTime(
-        canvas.getBoundingClientRect().left + padding.left
-      );*/
-
-      //console.log(boundToTime);
-      //console.log(ttT - boundToTime);
 
       context.strokeStyle = "#333";
       context.lineWidth = 1;
@@ -306,7 +256,7 @@ export default function CanvasChart({
         cancelAnimationFrame(animationFrameId.current);
       }
     };
-  }, [data, series, width, height]);
+  }, [data, series, width, height, panOffset, zoomLevel]);
 
   return (
     <canvas
