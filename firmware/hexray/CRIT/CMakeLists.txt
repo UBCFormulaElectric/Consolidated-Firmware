@@ -71,8 +71,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
-    target_link_libraries("hexray_CRIT_app.elf" PRIVATE "hexray_CRIT_stm32cube" "hexray_CRIT_stm32cube_hal"
-            "hexray_CRIT_commit_info" "m")
+    target_link_libraries("hexray_CRIT_app.elf" PRIVATE "hexray_CRIT_stm32cube" "hexray_CRIT_stm32cube_hal" "hexray_CRIT_commit_info" "hexray_CRIT_jsoncan" "m")
 
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
@@ -107,5 +106,5 @@ elseif ("${TARGET}" STREQUAL "test")
             "${HEADERS_TO_FAKE}"
     )
 
-    target_link_libraries("hexray_CRIT_test" PRIVATE "hexray_CRIT_fakes" "hexray_CRIT_commit_info")
+    target_link_libraries("hexray_CRIT_test" PRIVATE "hexray_CRIT_fakes" "hexray_CRIT_commit_info" "hexray_CRIT_jsoncan")
 endif ()

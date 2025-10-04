@@ -71,8 +71,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
-    target_link_libraries("hexray_RSM_app.elf" PRIVATE "hexray_RSM_stm32cube" "hexray_RSM_stm32cube_hal"
-            "hexray_RSM_commit_info" "m")
+    target_link_libraries("hexray_RSM_app.elf" PRIVATE "hexray_RSM_stm32cube" "hexray_RSM_stm32cube_hal" "hexray_RSM_commit_info" "hexray_RSM_jsoncan" "m")
 
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
