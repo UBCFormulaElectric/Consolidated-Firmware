@@ -1,7 +1,7 @@
 #pragma once
 #include "stdbool.h"
-#include <stdint.h>  // for uint32_t
-#include <stdbool.h> // for bool
+#include <stdint.h>
+#include <stdbool.h>
 
 typedef enum
 {
