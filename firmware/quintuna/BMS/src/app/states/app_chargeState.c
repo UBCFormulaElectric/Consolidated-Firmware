@@ -177,7 +177,8 @@ static void app_chargeStateRunOnEntry(void)
 
 static void app_chargeStateRunOnTick100Hz(void)
 {
-    // const ChargerConnectedType charger_connection_status = CHARGER_CONNECTED_EVSE; //
+    // TODO: Fix charger connection status reading
+    // const ChargerConnectedType charger_connection_status = CHARGER_CONNECTED_EVSE;
     // io_charger_getConnectionStatus();
     const bool extShutdown = io_irs_negativeState() == CONTACTOR_STATE_OPEN;
     const bool chargerConn = true; // (charger_connection_status == CHARGER_CONNECTED_EVSE || CHARGER_CONNECTED_WALL);

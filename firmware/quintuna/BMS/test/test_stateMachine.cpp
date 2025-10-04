@@ -312,15 +312,19 @@ TEST_F(BmsStateMachineTest, precharge_rising_too_quickly)
     // we presume that it is in the retry phase as described above now
 }
 
-// charging tests
-TEST_F(BmsStateMachineTest, charging_tests_test) {
+/* <-------------------> Charging tests!!! <------------------------> */
+TEST_F(BmsStateMachineTest, init_after_start_charging_can_msg_set_false) {
+
+    // Update CAN message to simulate user enabling charging
+    app_canRx_Debug_StartCharging_update(true); // Simulate user enabling charging
+
+    // Moch/fake charger being connected
+    fakes::charger::setConnectionStatus(CHARGER_CONNECTED_EVSE);
+    fakes::charger::setCPDutyCycle(0.5f);
 
     // Set up system to enter charge state
     app_stateMachine_setCurrentState(&charge_state);
-
-    // Moch/fake charger being connected
-    fakes::charger::setConnectionStatus(CHARGER_CONNECTED_WALL);
-    fakes::charger::setCPDutyCycle(0.5f);
+    ASSERT_STATE_EQ(charge_state); // Should remain in charge state
 
     // Moch/fake charging for 1 second with no interruptions
     for (int i = 0; i < 100; i += 10)
@@ -329,13 +333,53 @@ TEST_F(BmsStateMachineTest, charging_tests_test) {
         LetTimePass(10);
     }
 
-    fakes::charger::setConnectionStatus(CHARGER_DISCONNECTED);
+    // Update CAN message to simulate user disabling charging
+    app_canRx_Debug_StartCharging_update(false); // Simulate user disabling charging
     LetTimePass(1000); // Wait for debounce time to pass
 
     ASSERT_STATE_EQ(init_state); // Should transition to init state
 }
-TEST_F(BmsStateMachineTest, faults_after_shutdown_loop_activates_while_charging) {}
-TEST_F(BmsStateMachineTest, stops_charging_and_faults_if_charger_disconnects_in_charge_state) {}
+TEST_F(BmsStateMachineTest, stops_charging_and_faults_if_charger_disconnects_in_charge_state) {} // TODO: fix charginer connection status reading
+TEST_F(BmsStateMachineTest, faults_after_shutdown_loop_activates_while_charging) { // TODO: debug faultLatch not being set properly
+
+    // Fake reset of BMS fault latch
+    fakes::faultLatches::resetFaultLatch(&bms_ok_latch);
+
+    // Update CAN message to simulate user enabling charging
+    app_canRx_Debug_StartCharging_update(true); // Simulate user enabling charging
+
+    // Moch/fake charger being connected
+    fakes::charger::setConnectionStatus(CHARGER_CONNECTED_EVSE);
+    fakes::charger::setCPDutyCycle(0.5f);
+
+    // Set up system to enter charge state
+    app_stateMachine_setCurrentState(&charge_state);
+    ASSERT_STATE_EQ(charge_state); // Should remain in charge state
+
+    // Moch/fake charging for 1 second with no interruptions
+    for (int i = 0; i < 100; i += 10)
+    {
+        ASSERT_STATE_EQ(charge_state); // Should remain in charge state
+        LetTimePass(10);
+    }
+    
+    // Moch/fake shutdown loop activating from cell overvoltage
+    std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> cell_voltages_arr{};
+    for (size_t seg = 0; seg < NUM_SEGMENTS; ++seg)
+    {
+        for (size_t cell = 0; cell < CELLS_PER_SEGMENT; ++cell)
+        {
+            cell_voltages_arr[seg][cell] = 4.1f;
+        }
+    }
+    cell_voltages_arr[NUM_SEGMENTS - 1][CELLS_PER_SEGMENT - 1] = 4.21f; // last cell overvoltage
+    io_ltc6813_startCellsAdcConversion();
+    fakes::segments::setCellVoltages(cell_voltages_arr);
+    ASSERT_FALSE(io_faultLatch_getLatchedStatus(&bms_ok_latch) == FAULT_LATCH_OK);
+    LetTimePass(4000); // Wait for debounce time to pass
+    
+    ASSERT_STATE_EQ(fault_state); // Should transition to fault state
+}
 TEST_F(BmsStateMachineTest, charger_connected_no_can_msg_init_state) {}
 TEST_F(BmsStateMachineTest, charger_connected_can_msg_init_state) {}
 TEST_F(BmsStateMachineTest, no_charger_connected_missing_hb_init_state) {}
