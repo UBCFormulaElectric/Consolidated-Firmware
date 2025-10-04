@@ -16,7 +16,6 @@ StrEnum
 ntplib
 cantools
 schema
-# do TODO what's this
 gevent
 
 # Install in-house dependencies from GitHub
