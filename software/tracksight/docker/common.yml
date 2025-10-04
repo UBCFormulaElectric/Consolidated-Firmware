@@ -20,6 +20,7 @@ services:
       dockerfile: software/tracksight/live_data/Dockerfile
     ports:
       # Default port for Flask apps.
+      # MacOS users will need to disable AirDrop, as it takes up port 5000
       - "5000:5000"
     env_file: live_data.env
     volumes:
