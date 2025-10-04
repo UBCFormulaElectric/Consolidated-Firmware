@@ -1,11 +1,13 @@
-"use client"
+"use client";
 
-export default function Home() {
+import { SignalProvider } from "@/hooks/SignalContext";
+
+export default function LiveDataPage() {
   return (
-    <div className="h-screen grid place-items-center">
-      <div>
-        <h1 className="text-2xl font-bold mb-4">Tracksight Dashboard</h1>
+    <SignalProvider>
+      <div className="overflow-y-scroll p-12 min-h-screen w-screen">
+        Hello World!
       </div>
-    </div>
-  )
+    </SignalProvider>
+  );
 }
