@@ -1,5 +1,5 @@
 #include "app_pumpControl.h"
-#include "io_loadswitch.h"
+#include "io_efuses.h"
 #include "io_time.h"
 #include "io_loadswitches.h"
 #include <app_canTx.h>
@@ -40,9 +40,9 @@ static void pumpControl_stopFlow(void)
 void app_pumpControl_MonitorPumps(void)
 {
     time += 10;
-    const bool pumps_ok = io_TILoadswitch_pgood(&rl_pump_loadswitch);
+    const bool pumps_ok  = true
 
-    const bool pumps_enabled = io_loadswitch_isChannelEnabled(efuse_channels[EFUSE_CHANNEL_RL_PUMP]);
+    const bool pumps_enabled = true;
 
     bool ramp_up_pumps = pumps_ok && pumps_enabled;
 

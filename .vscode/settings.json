@@ -13,12 +13,10 @@
     "--query-driver=/usr/local/bin/arm-none-eabi-gcc"
   ],
   "files.associations": {
-    "app_utils.h": "c",
-    "io_potentiometer.h": "c",
-    "stdbool.h": "c",
-    "hw_i2cs.h": "c",
-    "stdint.h": "c",
-    "io_loadswitch.h": "c",
-    "assert.h": "c"
+    "bootloader_VC.C": "cpp",
+    "io_efuse.h": "c",
+    "io_efuse_st.h": "c",
+    "io_efuse_datatypes.h": "c",
+    "io_efuse_ti.h": "c"
   }
 }

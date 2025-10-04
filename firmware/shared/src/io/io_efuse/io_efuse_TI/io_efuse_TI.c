@@ -3,18 +3,18 @@
 #include <stdbool.h>
 #include <assert.h>
 
-static void io_TI_efuse_setChannel(const Efuse *channel, const bool enabled);
-static bool io_TI_efuse_isChannelEnabled(const Efuse *channel);
+static void  io_TI_efuse_setChannel(const Efuse *channel, const bool enabled);
+static bool  io_TI_efuse_isChannelEnabled(const Efuse *channel);
 static float io_TI_efuse_getChannelCurrent(const Efuse *channel);
-static void io_TI_efuse_Reset(const Efuse *efuse);
-static bool io_TI_efuse_pgood(const Efuse *efuse);
+static void  io_TI_efuse_Reset(const Efuse *efuse);
+// static bool io_TI_efuse_pgood(const Efuse *efuse);
 
 const TI_EfuseFunctons ti_efuse_functions = {
-    .set_channel = io_TI_efuse_setChannel,
-    .is_channel_enabled = io_TI_efuse_isChannelEnabled,
-    .get_channel_current = io_TI_efuse_getChannelCurrent,
-    .loadswitch_reset_set = NULL
-    .reset_efuse = io_TI_efuse_Reset,
+    .set_channel          = io_TI_efuse_setChannel,
+    .is_channel_enabled   = io_TI_efuse_isChannelEnabled,
+    .get_channel_current  = io_TI_efuse_getChannelCurrent,
+    .loadswitch_reset_set = NULL,
+    .reset_efuse          = io_TI_efuse_Reset,
 };
 
 static void io_TI_efuse_setChannel(const Efuse *channel, const bool enabled)
@@ -39,15 +39,14 @@ static float io_TI_efuse_getChannelCurrent(const Efuse *channel)
 static void io_TI_efuse_Reset(const Efuse *efuse)
 {
     assert(efuse->efuse != NULL);
-    assert(efuse->efuse->enable_gpio != NULL);
 
-    hw_gpio_writePin(efuse->efuse->enable_gpio, false);
-    hw_gpio_writePin(efuse->efuse->enable_gpio, true);
-    hw_gpio_writePin(efuse->efuse->enable_gpio, false);
+    hw_gpio_writePin(efuse->enable_gpio, false);
+    hw_gpio_writePin(efuse->enable_gpio, true);
+    hw_gpio_writePin(efuse->enable_gpio, false);
 }
 
-static bool io_TI_efuse_pgood(const Efuse *efuse)
-{
-    assert(efuse->pgood != NULL);
-    return hw_gpio_readPin(efuse->pgood);
-}
+// static bool io_TI_efuse_pgood(const Efuse *efuse)
+// {
+//     assert(efuse->pgood != NULL);
+//     return hw_gpio_readPin(efuse->pgood);
+// }
