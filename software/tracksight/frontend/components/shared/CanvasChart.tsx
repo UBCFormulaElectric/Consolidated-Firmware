@@ -19,6 +19,7 @@ type CanvasChartProps = {
   height: number;
   panOffset?: number;
   zoomLevel?: number;
+  frozenTimeWindow?: { startTime: number; endTime: number } | null;
 };
 
 // first index where timestamp >= targetTime
@@ -72,6 +73,7 @@ export default function CanvasChart({
   height,
   panOffset = 0,
   zoomLevel = 100,
+  frozenTimeWindow = null,
 }: CanvasChartProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animationFrameId = useRef<number | null>(null);
@@ -119,16 +121,26 @@ export default function CanvasChart({
       const earliestTime = timestamps[0];
       const totalTimeRange = latestTime - earliestTime;
 
-      // visible time window based on zoom and panOffset
-      const zoomFactor = 100 / zoomLevel; // zoomLevel: 100 = show all data, 200 = show half the data (2x zoom), 50 = show double (0.5x zoom) etc.
-      const visibleTimeRange = totalTimeRange * zoomFactor;
+      let visibleStartTime: number;
+      let visibleEndTime: number;
 
-      // panOffset is in pixels from the right edge (latest data)
-      const timePerPixel = visibleTimeRange / chartWidth;
-      const timeOffset = panOffset * timePerPixel;
+      if (frozenTimeWindow) {
+        // use the frozen time window when manually panning
+        visibleStartTime = frozenTimeWindow.startTime;
+        visibleEndTime = frozenTimeWindow.endTime;
+      } else {
+        // otherwise, calculate based on zoom and panOffset and auto follow
+        // zoomLevel: 100 = show all data, 200 = show half the data (2x zoom), 50 = show double (0.5x zoom) etc.
+        const zoomFactor = 100 / zoomLevel;
+        const visibleTimeRange = totalTimeRange * zoomFactor;
 
-      const visibleEndTime = latestTime - timeOffset;
-      const visibleStartTime = visibleEndTime - visibleTimeRange;
+        // panOffset is in pixels from the right edge (latest data)
+        const timePerPixel = visibleTimeRange / chartWidth;
+        const timeOffset = panOffset * timePerPixel;
+
+        visibleEndTime = latestTime - timeOffset;
+        visibleStartTime = visibleEndTime - visibleTimeRange;
+      }
 
       const startIndex = binarySearchForFirstVisibleIndex(
         timestamps,
@@ -256,7 +268,7 @@ export default function CanvasChart({
         cancelAnimationFrame(animationFrameId.current);
       }
     };
-  }, [data, series, width, height, panOffset, zoomLevel]);
+  }, [data, series, width, height, panOffset, zoomLevel, frozenTimeWindow]);
 
   return (
     <canvas
