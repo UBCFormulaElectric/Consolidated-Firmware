@@ -11,7 +11,7 @@ extern "C"
 
 static const RangeCheck flow_rate_in_range_check = {
     .min_value = MIN_FLOW_RATE_L_PER_MIN, 
-    .max_value = MAX_FLOW_RATE_L_PER_MIN, //QUESTION: Why don't I need to put flow_rate_in_range_check.min_value = ...
+    .max_value = MAX_FLOW_RATE_L_PER_MIN, 
 };
 static Signal flow_in_range_signal; 
 

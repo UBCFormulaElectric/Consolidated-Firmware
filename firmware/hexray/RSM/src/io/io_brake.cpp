@@ -25,11 +25,11 @@ bool io_brake_isActuated()
     return io_brake_getRearPressurePsi() > BRAKE_ACTUATED_THRESHOLD_PSI;
 }
 
-float io_brake_getRearPressurePsi()
-{
-    //function and address of bps_3v3 not initialized yet
-    return pressureFromVoltage(hw_adc_getVoltage(&bps_3v3));
-}
+// float io_brake_getRearPressurePsi()
+// {
+//     //function and address of bps_3v3 not initialized yet
+//     return pressureFromVoltage(hw_adc_getVoltage(&bps_3v3));
+// }
 
 // bool io_brake_OCSC()
 // {   
