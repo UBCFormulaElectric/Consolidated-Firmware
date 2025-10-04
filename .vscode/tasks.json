@@ -187,6 +187,24 @@
       ]
     },
     {
+      "label": "Build Embedded: BMS (Hexray)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "hexray_BMS_app.hex"
+      ]
+    },
+    {
+      "label": "Build Tests: BMS (Hexray)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "hexray_BMS_test"
+      ]
+    },
+    {
       "label": "Build Embedded: CRIT (Hexray)",
       "group": "build",
       "type": "cmake",
@@ -266,6 +284,24 @@
       "command": "build",
       "targets": [
         "hexray_RSM_test"
+      ]
+    },
+    {
+      "label": "Build Embedded: VC (Hexray)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "hexray_VC_app.hex"
+      ]
+    },
+    {
+      "label": "Build Tests: VC (Hexray)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "hexray_VC_test"
       ]
     },
     {

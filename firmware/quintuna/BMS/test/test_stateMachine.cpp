@@ -217,10 +217,11 @@ TEST_F(BmsStateMachineTest, goes_to_fault_state_cell_under_voltage_fault)
 
 // precharge tests
 // TODO set these values
-static constexpr float undervoltage = 200.0f, target_voltage = 600.0f;
+static constexpr float undervoltage = 200.0f, target_voltage = (float)(NUM_SEGMENTS * CELLS_PER_SEGMENT) * 4.2f;
 static constexpr int   too_fast_time = 20, just_good_time = 1220;
 
-static constexpr int precharge_timeout = 3000, precharge_cooldown = 1500;
+// Timeouts gotten from calculations of constants in app_precharge.c
+static constexpr int precharge_timeout = 7290, precharge_cooldown = 1000;
 static constexpr int timing_tolerance = 500;
 
 static constexpr int precharge_retries = 3;
