@@ -10,7 +10,9 @@ set(SYSTEM_SRCS ${JOBS_SRC} ${TASKS_SRC})
 set(SYSTEM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src" "${CMAKE_CURRENT_SOURCE_DIR}/boot")
 
 file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
-list(APPEND APP_SRCS)
+list(APPEND APP_SRCS
+        # "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
+)
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR_CPP}")
 
 file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
@@ -71,8 +73,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
-    target_link_libraries("hexray_BMS_app.elf" PRIVATE "hexray_BMS_stm32cube" "hexray_BMS_stm32cube_hal"
-            "hexray_BMS_commit_info" "m")
+    target_link_libraries("hexray_BMS_app.elf" PRIVATE "hexray_BMS_stm32cube" "hexray_BMS_stm32cube_hal" "hexray_BMS_jsoncan" "hexray_BMS_commit_info" "m")
 
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
