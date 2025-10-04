@@ -48,3 +48,5 @@ void app_efuse_broadcast(void)
         efuse_current_can_setters[efuse](current);
     }
 }
+
+void app_loadswitch_enableFa
