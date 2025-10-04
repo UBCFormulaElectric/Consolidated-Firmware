@@ -72,6 +72,8 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
     const dragStart = useRef({ x: 0, offset: 0 });
     // the zoom state controls how much time is visible (higher = more zoomed in)
     const [zoomLevel, setZoomLevel] = useState(100);
+    // track if user has manually panned (to prevent auto-follow)
+    const [isManuallyPanning, setIsManuallyPanning] = useState(false);
 
     // Track signals this component instance subscribed to for proper cleanup
     const componentSubscriptions = useRef<Set<string>>(new Set());
@@ -228,6 +230,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
     const handleMouseDown = useCallback(
       (e: React.MouseEvent) => {
         setIsDragging(true);
+        setIsManuallyPanning(true);
         dragStart.current = { x: e.clientX, offset: panOffset };
       },
       [panOffset]
@@ -258,12 +261,12 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
       }
     }, [isDragging, handleMouseMove, handleMouseUp]);
 
-    // Reset pan when not paused to follow latest data
+    // Reset pan to follow latest data only when not manually panning
     useEffect(() => {
-      if (!isPaused) {
+      if (!isManuallyPanning) {
         setPanOffset(0);
       }
-    }, [isPaused]);
+    }, [isManuallyPanning, dataVersion]); // Reset when data updates and not manually panning
 
     return (
       <div className="mb-6 p-4 block w-full relative">
@@ -310,16 +313,19 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
             <div className="flex flex-col">
               <label className="text-sm">
                 Pan:{" "}
-                {isPaused
-                  ? `${Math.round(panOffset)}px from latest`
-                  : "Following live data"}
+                {isManuallyPanning
+                  ? `Manual (${Math.round(panOffset)}px from latest)`
+                  : "Auto-following live data"}
               </label>
-              {isPaused && (
+              {isManuallyPanning && (
                 <button
-                  onClick={() => setPanOffset(0)}
+                  onClick={() => {
+                    setPanOffset(0);
+                    setIsManuallyPanning(false);
+                  }}
                   className="px-3 py-1 bg-blue-500 text-white opacity-80 rounded-lg transition duration-150 ease-in-out hover:cursor-pointer hover:scale-105 hover:bg-blue-600 hover:opacity-100"
                 >
-                  Reset to Latest
+                  Return to Auto-Follow
                 </button>
               )}
             </div>
@@ -413,6 +419,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
             <div>Total points: {totalDataPoints}</div>
             <div>Zoom: {zoomLevel}%</div>
             <div>Pan Offset: {Math.round(panOffset)}px</div>
+            <div>Mode: {isManuallyPanning ? "Manual Pan" : "Auto-Follow"}</div>
             <div>Chart Width: {chartWidth}px</div>
           </div>
         </div>
