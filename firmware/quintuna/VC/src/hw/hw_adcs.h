@@ -13,16 +13,16 @@
 // determines the order in which the DMA writes data to our raw_adc_values
 // buffer.
 
-extern const AdcChannel bms_i_sns;
-extern const AdcChannel front_i_sns;
-extern const AdcChannel dam_i_sns;
-extern const AdcChannel rsm_i_sns;
-extern const AdcChannel inv_r_pwr_i_sns;
-extern const AdcChannel inv_f_pwr_i_sns;
-extern const AdcChannel pump_rl_pwr_i_sns;
-extern const AdcChannel pump_rr_pwr_i_sns;
-extern const AdcChannel pump_f_pwr_i_sns;
-extern const AdcChannel l_rad_fan_i_sns;
-extern const AdcChannel r_rad_fan_i_sns;
+extern const AdcChannel bms_v_sns;
+extern const AdcChannel front_v_sns;
+extern const AdcChannel dam_v_sns;
+extern const AdcChannel rsm_v_sns;
+extern const AdcChannel inv_r_pwr_v_sns;
+extern const AdcChannel inv_f_pwr_v_sns;
+extern const AdcChannel pump_rl_pwr_v_sns;
+extern const AdcChannel pump_rr_pwr_v_sns;
+extern const AdcChannel pump_f_pwr_v_sns;
+extern const AdcChannel l_rad_fan_v_sns;
+extern const AdcChannel r_rad_fan_v_sns;
 
 void hw_adcs_chipsInit();

@@ -32,6 +32,8 @@ static RetryProtocol efuses_retry_state[NUM_EFUSE_CHANNELS] = {
     [EFUSE_CHANNEL_DAM]     = { .loadswitch.st = &front_loadswitch, .retry_num = 0 },
     [EFUSE_CHANNEL_FRONT]   = { .loadswitch.st = &front_loadswitch, .retry_num = 0 },
     [EFUSE_CHANNEL_RL_PUMP] = { .loadswitch.ti = &rl_pump_loadswitch, .retry_num = 0 },
+    [EFUSE_CHANNEL_RR_PUMP] = { .loadswitch.ti = &rr_pump_loadswitch, .retry_num = 0 },
+    [EFUSE_CHANNEL_F_PUMP] = { .loadswitch.ti = &f_pump_loadswitch, .retry_num = 0 },
     [EFUSE_CHANNEL_R_RAD]   = { .loadswitch.st = &rad_fan_loadswitch, .retry_num = 0 }
 };
 
