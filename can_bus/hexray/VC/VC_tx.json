@@ -1,1 +1,23 @@
-{}
+{
+    "Vitals": {
+        "msg_id": 500,
+        "cycle_time": 10,
+        "description": "VC Vital signals",
+        "signals": {
+            "Heartbeat": {
+                "bits": 1
+            },
+            "State": {
+                "enum": "VCState"
+            },
+            "CanLoggingRemainingErrors": {
+                "resolution": 1,
+                "min": 0,
+                "max": 10
+            },
+            "InverterState": {
+                "enum": "VCInverterState"
+            }
+        }
+    }
+}

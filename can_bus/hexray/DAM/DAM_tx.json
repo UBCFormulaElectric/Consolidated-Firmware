@@ -1,1 +1,12 @@
-{}
+{
+    "Vitals": {
+        "msg_id": 800,
+        "cycle_time": 100,
+        "description": "DAM Vital signals",
+        "signals": {
+            "Heartbeat": {
+                "bits": 1
+            }
+        }
+    }
+}
