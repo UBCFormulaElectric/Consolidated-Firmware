@@ -1,6 +1,9 @@
 #pragma once
 
 #include <stdbool.h>
+#include "io_efuse_datatypes.h"
+#include "io_efuse_ST/io_efuse_ST.h"
+#include "io_efuse_TI/io_efuse_TI.h"
 
 #define ADC_VOLTAGE_TO_CURRENT_A 1.720f
 
@@ -49,18 +52,10 @@ float io_efuse_getChannelCurrent(const Efuse *channel);
  * @param efuse
  * @param set
  */
-void io_efuse_reset_set(const ST_efuse *efuse, bool set);
+void io_efuse_reset_set(const Efuse *channel, bool set);
 
 /**
  * Reset the hardfault set by the efuse
  * @param efuse Reset the hardfault set by efuse
  */
-void io_efuse_Reset(const ST_efuse *efuse);
-
-
-/**
- * TI efuse pgood line status
- * @param efuse TI efuse in question
- * @return status of the pgood line
- */
-bool io_TIefuse_pgood(const TI_efuse *efuse);
+void io_efuse_reset(const Efuse *channel);

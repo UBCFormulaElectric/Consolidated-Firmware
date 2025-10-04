@@ -29,11 +29,13 @@ list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_led.c"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
         "${SHARED_IO_INCLUDE_DIR}/io_efuse/io_efuse.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_efuse/io_efuse_ST/io_efuse_ST.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_efuse/io_efuse_TI/io_efuse_TI.c"
         "${SHARED_IO_INCLUDE_DIR}/io_potentiometer.c"
         "${SHARED_IO_INCLUDE_DIR}/io_bootHandler.c"
         "${SHARED_IO_INCLUDE_DIR}/io_imu.c"
 )
-set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_QUINTUNA_DIR}")
+set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_efuse" "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_efuse/io_efuse_TI" "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_efuse/io_efuse_ST" "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_QUINTUNA_DIR}")
 
 file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c")
 list(APPEND HW_SRCS
