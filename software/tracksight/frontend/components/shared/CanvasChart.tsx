@@ -101,8 +101,6 @@ export default function CanvasChart({
     const context = canvas.getContext("2d");
     if (!context) return;
 
-    //console.log(canvas.getBoundingClientRect());
-
     const render = () => {
       /*naively, we find the starting index within our data array that
        falls under the startTime with Array.prototype.find() or for loop
@@ -135,13 +133,10 @@ export default function CanvasChart({
       const chartWidth = width - padding.left - padding.right;
       const chartHeight = height - padding.top - padding.bottom;
 
+      const rect = canvas.getBoundingClientRect();
+
       const latestTime = timestamps[timestamps.length - 1];
       const earliestTime = timestamps[0];
-
-      setView({
-        startTime: earliestTime,
-        endTime: latestTime,
-      });
 
       const startIndex = binarySearchForFirstVisibleIndex(
         timestamps,
@@ -183,6 +178,12 @@ export default function CanvasChart({
         );
       };
 
+      const xToTime = (x: number) => {
+        return (
+          minTime + ((x - padding.left) / chartWidth) * (maxTime - minTime)
+        );
+      };
+
       const valueToY = (value: number) => {
         return (
           padding.top +
@@ -190,6 +191,42 @@ export default function CanvasChart({
           ((value - minValue) / (maxValue - minValue)) * chartHeight
         );
       };
+
+      setView({
+        //startTime: xToTime(rect.left),
+        startTime: timestamps[0],
+        endTime: timestamps[timestamps.length - 1],
+        //endTime: xToTime(rect.right),
+      });
+
+      const left = canvas.getBoundingClientRect().left;
+      console.log(left);
+
+      context.strokeStyle = "#00ff0dff";
+      context.lineWidth = 4;
+      context.beginPath();
+      context.moveTo(
+        -canvas.getBoundingClientRect().left + padding.left,
+        padding.top
+      );
+      context.lineTo(
+        -canvas.getBoundingClientRect().left + padding.left,
+        height - padding.bottom
+      );
+      context.stroke();
+
+      // testing transformations
+      const ttX = timeToX(timestamps[0]);
+      const ttT = xToTime(ttX);
+      //jconsole.log(ttX);
+      //console.log(ttT);
+
+      /*const boundToTime = xToTime(
+        canvas.getBoundingClientRect().left + padding.left
+      );*/
+
+      //console.log(boundToTime);
+      //console.log(ttT - boundToTime);
 
       context.strokeStyle = "#333";
       context.lineWidth = 1;
@@ -238,7 +275,6 @@ export default function CanvasChart({
         let pathStarted = false;
 
         // only iterate through visible data points
-        // console.log(startIndex, endIndex);
         for (let i = startIndex; i <= endIndex; i++) {
           const time = timestamps[i];
           const value = dataPoints[i];
