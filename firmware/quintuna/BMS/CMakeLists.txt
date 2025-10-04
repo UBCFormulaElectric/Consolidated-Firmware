@@ -25,6 +25,7 @@ list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
         "${SHARED_IO_INCLUDE_DIR}/io_bootHandler.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_semaphore.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
 
@@ -69,9 +70,9 @@ if ("${TARGET}" STREQUAL "binary")
 
     set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/BMS.ioc")
     list(APPEND NO_CHECKS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_desc.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_cdc_if.c"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_desc.c"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_cdc_if.c"
     )
     embedded_no_checks("${NO_CHECKS}")
     generate_stm32cube_code("quintuna_BMS_stm32cube" "${IOC_PATH}" "${CUBEMX_SRCS}")
@@ -127,6 +128,7 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     target_link_libraries("quintuna_BMS_app.elf" PRIVATE "quintuna_BMS_stm32cube" "quintuna_BMS_stm32cube_hal" "quintuna_BMS_jsoncan" "quintuna_BMS_commit_info" "chimera_v2_proto_cm7")
+    target_compile_definitions("quintuna_BMS_app.elf" PUBLIC TARGET_HV_SUPPLY)
 
     if ("${BOOTLOAD}" STREQUAL "ON")
         # Bootloader files.
@@ -154,9 +156,13 @@ if ("${TARGET}" STREQUAL "binary")
     endif ()
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
-
-    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS})
-    set(INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test" ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
+    set(SHARED_FAKES
+            "${SHARED_FAKES_DIR}/io_canQueue.cpp"
+            "${SHARED_FAKES_DIR}/io_semaphore.cpp"
+            "${SHARED_FAKES_DIR}/io_time.cpp"
+    )
+    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${SHARED_FAKES})
+    set(INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test" ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_FAKES_DIR})
     compile_gtest_executable(
             "quintuna_BMS_test"
             "${SRCS}"
@@ -166,23 +172,14 @@ elseif ("${TARGET}" STREQUAL "test")
     # JSONCAN
     jsoncan_library(BMS quintuna "${CMAKE_CURRENT_BINARY_DIR}")
 
-    # FakeIO
-    set(HEADERS_TO_FAKE
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_tractiveSystem.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_irs.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_imd.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_faultLatch.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_bspdTest.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_bmsShdn.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_charger.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_fans.h"
-            "${SHARED_IO_INCLUDE_DIR}/io_time.h"
-    )
-    create_fake_library(
-            "quintuna_BMS_fakes"
-            "${HEADERS_TO_FAKE}"
+    #commit info
+    commit_info_library(
+            "quintuna_BMS_test"
+            "quintuna_BMS_commit_info"
+            "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    target_link_libraries("quintuna_BMS_test" PRIVATE "quintuna_BMS_jsoncan" "quintuna_BMS_fakes")
+    target_link_libraries("quintuna_BMS_test" PRIVATE "quintuna_BMS_jsoncan" "quintuna_BMS_jsoncan_fakes" "quintuna_BMS_commit_info")
+    target_compile_definitions("quintuna_BMS_test" PRIVATE STM32H733xx)
     target_compile_definitions("quintuna_BMS_test" PRIVATE STM32H733xx)
 endif ()

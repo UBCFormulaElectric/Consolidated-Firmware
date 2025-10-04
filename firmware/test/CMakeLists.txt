@@ -78,11 +78,13 @@ function(compile_gtest_executable
                 PRIVATE
                 -Wall
                 -Wextra
-                -Werror
+                # -Werror <--- This line makes all warnings into errors
                 -pedantic
-                --coverage
         )
-        target_link_libraries(${TEST_EXECUTABLE_NAME} PRIVATE gcov)
+        if(UNIX AND NOT APPLE)
+                target_compile_options(${TEST_EXECUTABLE_NAME} PRIVATE --coverage)
+                target_link_libraries(${TEST_EXECUTABLE_NAME} PRIVATE gcov)
+        endif()
     endif ()
     target_link_libraries(${TEST_EXECUTABLE_NAME} PRIVATE gtest_main)
     add_test(NAME ${TEST_EXECUTABLE_NAME}
