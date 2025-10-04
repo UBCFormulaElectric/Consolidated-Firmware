@@ -31,12 +31,16 @@ static TimerChannel on_timer;
 static bool           discharge_candidates[NUM_SEGMENTS][CELLS_PER_SEGMENT];
 static bool           discharge_off[NUM_SEGMENTS][CELLS_PER_SEGMENT] = { false };
 static BalancingState state;
+static float          target_voltage;
 
-static void pwmTimerConfig(void)
+static void balanceConfig(void)
 {
-    const bool override = app_canRx_Debug_CellBalancingOverridePWM_get();
-    float      freq_hz  = override ? app_canRx_Debug_CellBalancingOverridePWMFrequency_get() : PWM_DEFAULT_FREQUENCY_HZ;
-    uint32_t   duty_pc  = override ? app_canRx_Debug_CellBalancingOverridePWMDuty_get() : PWM_DEFAULT_DUTY_PC;
+    const bool override_pwm = app_canRx_Debug_CellBalancingOverridePWM_get();
+    float      freq_hz  = override_pwm ? app_canRx_Debug_CellBalancingOverridePWMFrequency_get() : PWM_DEFAULT_FREQUENCY_HZ;
+    uint32_t   duty_pc  = override_pwm ? app_canRx_Debug_CellBalancingOverridePWMDuty_get() : PWM_DEFAULT_DUTY_PC;
+
+    const bool override_target = app_canRx_Debug_CellBalancingOverrideTarget_get();
+    target_voltage = override_target ? app_canRx_Debug_CellBalancingOverrideTarget_get() : min_cell_voltage.value;
 
     uint32_t period_ms    = (uint32_t)(1000.0f / freq_hz);
     uint32_t on_time_ms   = (uint32_t)(((float)duty_pc / 100.0f) * (float)period_ms);
@@ -55,6 +59,7 @@ static void updateCellsToBalance(void)
     {
         for (uint8_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
         {
+            
             bool should_balance = false;
             if (segment == min_cell_voltage.segment && cell == min_cell_voltage.cell)
             {
@@ -66,7 +71,7 @@ static void updateCellsToBalance(void)
             }
             else
             {
-                const float delta = cell_voltages[segment][cell] - min_cell_voltage.value;
+                const float delta = cell_voltages[segment][cell] - target_voltage;
                 should_balance    = (delta >= DISCHARGE_THRESHOLD_V);
             }
             discharge_candidates[segment][cell] = should_balance;
@@ -120,9 +125,10 @@ void app_segments_balancingTick(bool enable)
                 app_canTx_BMS_BalancingLeaderSegment_set(min_cell_voltage.segment);
                 app_canTx_BMS_BalancingLeaderCellIdx_set(min_cell_voltage.cell);
 
+                balanceConfig();
                 updateCellsToBalance();
                 app_timer_restart(&balance_timer);
-                pwmTimerConfig();
+                enableBalance();
                 state = BALANCING_BALANCE;
 
                 LOG_INFO("Balancing: Cells settled, starting discharge for 5mins");
