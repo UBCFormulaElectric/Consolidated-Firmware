@@ -33,3 +33,4 @@ const Efuse *const efuse_channels[NUM_EFUSE_CHANNELS] = {
     [EFUSE_CHANNEL_DAM] = &dam_efuse,         [EFUSE_CHANNEL_FRONT] = &front_efuse,
     [EFUSE_CHANNEL_RL_PUMP] = &rl_pump_efuse, [EFUSE_CHANNEL_R_RAD] = &r_rad_fan_efuse
 };
+z`
