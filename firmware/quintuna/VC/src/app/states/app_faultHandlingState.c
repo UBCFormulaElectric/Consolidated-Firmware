@@ -11,7 +11,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "io_log.h"
-#include "app_inverterBringup.h"
 
 static VCInverterFaults   current_inverter_fault_state;
 static uint16_t           retry_counter       = 0;
