@@ -303,7 +303,7 @@ TEST_F(VCStateMachineTest, DriveStateRetrytoHvInit)
     ASSERT_STATE_EQ(drive_state);
 }
 
-/* ------------------------- HV STATE ------------------------------- */
+/* ------------------------- HV STATE -------------------------------*/
 TEST_F(VCStateMachineTest, EntryInitializesState)
 {
     SetStateWithEntry(&hv_state);
@@ -462,6 +462,18 @@ TEST_F(VCStateMachineTest, EntryInitializesPcmOn)
     // TODO: Re-enable PCM_ON state.
     EXPECT_FALSE(io_pcm_enabled());
 }
+
+/* ------------------------- INVERTER FAULT HANDLING STATE ------------------------------- */
+// Drive state to retry when only one inverter is faulted (interate through all 4)
+TEST_F(VCStateMachineTest, ) {}
+// Drive state to retry when more than 1 inverter faulted
+TEST_F(VCStateMachineTest, ) {}
+// Retry lockout when error codes given (iterate through all cases)
+TEST_F(VCStateMachineTest, ) {}
+// State changing to HV_init when fault is cleared
+TEST_F(VCStateMachineTest, ) {}
+// Returning to Retry state when fault has not recovered yet
+TEST_F(VCStateMachineTest, When not recovered the first time still retrying) {}
 
 /* ------------------------- PCM ON STATE ------------------------------- */
 TEST_F(VCStateMachineTest, GoodVoltageTransitionsToHvInit)
