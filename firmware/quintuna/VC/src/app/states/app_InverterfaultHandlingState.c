@@ -144,7 +144,6 @@ static void InverterFaultHandlingStateRunOnTick100Hz(void)
                     }
                 }
             }
-            break;
         }
 
         case INV_FAULT_LOCKOUT:

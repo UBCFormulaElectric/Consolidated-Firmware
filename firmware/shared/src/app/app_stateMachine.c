@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include "app_states.h"
 
 static const State *next_state;
 static const State *current_state;
@@ -61,6 +62,13 @@ void app_stateMachine_tickTransitionState(void)
     next_state = current_state;
 }
 
+void app_stateMachine_inverterFaultHandling(void)
+{
+    if (app_warningHandling_inverterStatus())
+    {
+        app_stateMachine_setNextState(&inverter_retry_state);
+    }
+}
 #ifdef TARGET_TEST
 void app_stateMachine_setCurrentState(const State *const state)
 {
