@@ -8,8 +8,14 @@
 #include "app_canAlerts.h"
 #include "io_log.h"
 
-static VCInverterFaults   current_inverter_fault_state;
-static uint16_t           retry_counter       = 0;
+#define TIMEOUT 300u
+
+static TimerChannel     stability_timer;
+static bool             retry_on  = false;
+static bool             recovered = false;
+static VCInverterFaults current_inverter_fault_state;
+static uint16_t         retry_counter = 0;
+
 static const PowerManagerConfig power_manager_state = {
     .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_RSM]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
@@ -28,42 +34,8 @@ static void inverter_retry_routine(InverterWarningHandling handle)
     handle.can_dcOn(false);
     handle.can_enable_inv(false);
     handle.error_reset(true);
+    handle.can_inv_warning(true);
     return;
-}
-
-// Only retry on the faulted inverter to speed up the recovery process
-static void inverter_fault_retry(InverterConfig inverter)
-{
-    switch (inverter)
-    {
-        case INVERTER_FR:
-            /* cast then act on FR */
-            app_canTx_VC_INVFRbErrorReset_set(true);
-            app_canAlerts_VC_Warning_FrontRightInverterFault_set(true);
-            inverter_retry_routine(inverter_handle_FR);
-            break;
-
-        case INVERTER_FL:
-            app_canTx_VC_INVFLbErrorReset_set(true);
-            app_canAlerts_VC_Warning_FrontLeftInverterFault_set(true);
-            inverter_retry_routine(inverter_handle_FL);
-            break;
-
-        case INVERTER_RR:
-            app_canTx_VC_INVRRbErrorReset_set(true);
-            app_canAlerts_VC_Warning_RearRightInverterFault_set(true);
-            inverter_retry_routine(inverter_handle_RR);
-            break;
-
-        case INVERTER_RL:
-            app_canTx_VC_INVRLbErrorReset_set(true);
-            app_canAlerts_VC_Warning_RearLeftInverterFault_set(true);
-            inverter_retry_routine(inverter_handle_RL);
-            break;
-
-        default:
-            break;
-    }
 }
 
 /*Lockout error just means don't retry you need to power cycle
@@ -81,31 +53,13 @@ static bool is_lockout_code(uint32_t code)
     }
 }
 
-static bool inv_bError(InverterConfig inv)
-{
-    switch (inv)
-    {
-        case INVERTER_FL:
-            return app_canRx_INVFL_bError_get();
-        case INVERTER_FR:
-            return app_canRx_INVFR_bError_get();
-        case INVERTER_RL:
-            return app_canRx_INVRL_bError_get();
-        case INVERTER_RR:
-            return app_canRx_INVRR_bError_get();
-        default:
-            return true;
-    }
-}
-
 static void InverterFaultHandlingStateRunOnEntry(void)
 {
     app_powerManager_updateConfig(power_manager_state);
     app_canTx_VC_State_set(VC_FAULT_STATE);
     app_canAlerts_VC_Info_InverterRetry_set(true);
+    app_timer_init(&stability_timer, TIMEOUT);
     current_inverter_fault_state = INV_FAULT_RETRY;
-    /*may not need this unless we wanna transition time out faults here too*/
-    // app_timer_init(&start_up_timer, FAULT_TIMEOUT_MS);
 }
 
 static void InverterFaultHandlingStateRunOnTick100Hz(void)
@@ -114,43 +68,88 @@ static void InverterFaultHandlingStateRunOnTick100Hz(void)
     {
         case INV_FAULT_RETRY:
         {
-            LOG_INFO("inverter is retrying, retry number: %u", retry_counter);
+            bool stable_recovery = false;
             retry_counter++;
-            bool any_faulted = false;
+            LOG_INFO("inverter is retrying, retry number: %u", retry_counter / 2600);
+            bool inv_faulted = false;
             bool any_lockout = false;
 
-            for (int i = 0; i < NUM_INVERTERS; ++i)
+            any_lockout |=
+                (is_lockout_code(inverter_handle_FL.can_error_info()) ||
+                 is_lockout_code(inverter_handle_FR.can_error_info()) ||
+                 is_lockout_code(inverter_handle_RL.can_error_info()) ||
+                 is_lockout_code(inverter_handle_RR.can_error_info()));
+            if (any_lockout)
             {
-                any_faulted |= inv_bError((InverterConfig)i);
-                any_lockout |= is_lockout_code(inverter_reset_handle[(InverterConfig)i].can_error_info());
-                if (any_lockout)
+                current_inverter_fault_state = INV_FAULT_LOCKOUT;
+                break;
+            }
+
+            if (inverter_handle_FL.can_error_bit())
+            {
+                app_timer_restart(&stability_timer);
+                inverter_retry_routine(inverter_handle_FL);
+                if (app_timer_getElapsedTime(&stability_timer) > 100u)
                 {
-                    current_inverter_fault_state = INV_FAULT_LOCKOUT;
-                    break;
-                }
-                if (any_faulted)
-                {
-                    inverter_fault_retry((InverterConfig)i);
-                    any_faulted = inv_bError((InverterConfig)i);
+                    inv_faulted = inverter_handle_FL.can_error_bit;
+                    if (!inv_faulted && app_timer_updateAndGetState(&stability_timer) == TIMER_STATE_EXPIRED)
+                    {
+                        current_inverter_fault_state = INV_FAULT_RECOVERED;
+                        break;
+                    }
                 }
             }
 
-            if (!any_faulted)
+            if (inverter_handle_FR.can_error_bit())
             {
-                current_inverter_fault_state = INV_FAULT_RECOVERED;
+                app_timer_restart(&stability_timer);
+                inverter_retry_routine(inverter_handle_FR);
+                if (app_timer_getElapsedTime(&stability_timer) > 100u)
+                {
+                    inv_faulted = inverter_handle_FR.can_error_bit;
+                    if (!inv_faulted && app_timer_updateAndGetState(&stability_timer) == TIMER_STATE_EXPIRED)
+                    {
+                        current_inverter_fault_state = INV_FAULT_RECOVERED;
+                        break;
+                    }
+                }
             }
-            else
+
+            if (inverter_handle_RL.can_error_bit())
             {
-                current_inverter_fault_state = INV_FAULT_RETRY;
+                app_timer_restart(&stability_timer);
+                inverter_retry_routine(inverter_handle_RL);
+                if (app_timer_getElapsedTime(&stability_timer) > 100u)
+                {
+                    inv_faulted = inverter_handle_RL.can_error_bit;
+                    if (!inv_faulted && app_timer_updateAndGetState(&stability_timer) == TIMER_STATE_EXPIRED)
+                    {
+                        current_inverter_fault_state = INV_FAULT_RECOVERED;
+                        break;
+                    }
+                }
             }
-            break;
+
+            if (inverter_handle_RR.can_error_bit())
+            {
+                app_timer_restart(&stability_timer);
+                inverter_retry_routine(inverter_handle_RR);
+                if (app_timer_getElapsedTime(&stability_timer) > 100u)
+                {
+                    inv_faulted = inverter_handle_RR.can_error_bit;
+                    if (!inv_faulted && app_timer_updateAndGetState(&stability_timer) == TIMER_STATE_EXPIRED)
+                    {
+                        current_inverter_fault_state = INV_FAULT_RECOVERED;
+                        break;
+                    }
+                }
+            }
         }
 
         case INV_FAULT_LOCKOUT:
             // Do nothing here no retry by design; wait for manual action or power cycle also toggling off retry since
             // it doesn't make sense to retry here
-            LOG_INFO("inverter is locked out need to power cycle, retry number: %u", retry_counter);
-
+            LOG_INFO("inverter is locked out need to power cycle");
             app_canAlerts_VC_Info_InverterRetry_set(false);
             return;
 
@@ -176,7 +175,6 @@ static void InverterfaultHandlingStateRunOnExit(void)
     app_canTx_VC_INVFRbErrorReset_set(false);
     app_canTx_VC_INVRLbErrorReset_set(false);
     app_canTx_VC_INVRRbErrorReset_set(false);
-    // app_timer_stop(&start_up_timer);
 }
 
 State inverter_retry_state = { .name              = "Handling State",

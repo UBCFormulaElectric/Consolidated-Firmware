@@ -100,6 +100,7 @@ void jobs_run100Hz_tick(void)
     app_heartbeatMonitor_checkIn(&hb_monitor);
     app_heartbeatMonitor_broadcastFaults(&hb_monitor);
 
+    app_stateMachine_inverterFaultHandling();
     app_stateMachine_tick100Hz();
 
     const TimerState air_minus_open_debounced = app_timer_runIfCondition(
