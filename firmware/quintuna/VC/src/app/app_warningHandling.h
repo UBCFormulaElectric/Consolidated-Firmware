@@ -29,6 +29,8 @@ typedef struct
     void (*can_dcOn)(bool);
     uint32_t (*can_error_info)(void);
     void (*error_reset)(bool);
+    bool (*can_error_bit)(void);
+    void (*can_inv_warning)(bool);
 } InverterWarningHandling;
 
 extern InverterWarningHandling inverter_handle_FL;

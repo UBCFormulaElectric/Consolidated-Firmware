@@ -17,32 +17,40 @@ bool app_warningHandling_boardWarningCheck(void)
 }
 
 InverterWarningHandling inverter_handle_FL = {
-    .can_enable_inv = app_canTx_VC_INVFLbEnable_set,
-    .can_invOn      = app_canTx_VC_INVFLbInverterOn_set,
-    .can_dcOn       = app_canTx_VC_INVFLbDcOn_set,
-    .can_error_info = app_canRx_INVFL_ErrorInfo_get,
-    .error_reset    = app_canTx_VC_INVFLbErrorReset_set,
+    .can_enable_inv  = app_canTx_VC_INVFLbEnable_set,
+    .can_invOn       = app_canTx_VC_INVFLbInverterOn_set,
+    .can_dcOn        = app_canTx_VC_INVFLbDcOn_set,
+    .can_error_info  = app_canRx_INVFL_ErrorInfo_get,
+    .error_reset     = app_canTx_VC_INVFLbErrorReset_set,
+    .can_error_bit   = app_canRx_INVFL_bError_get,
+    .can_inv_warning = app_canAlerts_VC_Warning_FrontLeftInverterFault_set,
 };
 InverterWarningHandling inverter_handle_FR = {
-    .can_enable_inv = app_canTx_VC_INVFRbEnable_set,
-    .can_invOn      = app_canTx_VC_INVFRbInverterOn_set,
-    .can_dcOn       = app_canTx_VC_INVFRbDcOn_set,
-    .can_error_info = app_canRx_INVFR_ErrorInfo_get,
-    .error_reset    = app_canTx_VC_INVFRbErrorReset_set,
+    .can_enable_inv  = app_canTx_VC_INVFRbEnable_set,
+    .can_invOn       = app_canTx_VC_INVFRbInverterOn_set,
+    .can_dcOn        = app_canTx_VC_INVFRbDcOn_set,
+    .can_error_info  = app_canRx_INVFR_ErrorInfo_get,
+    .error_reset     = app_canTx_VC_INVFRbErrorReset_set,
+    .can_error_bit   = app_canRx_INVFR_bError_get,
+    .can_inv_warning = app_canAlerts_VC_Warning_FrontRightInverterFault_set,
 };
 InverterWarningHandling inverter_handle_RL = {
-    .can_enable_inv = app_canTx_VC_INVRLbEnable_set,
-    .can_invOn      = app_canTx_VC_INVRLbInverterOn_set,
-    .can_dcOn       = app_canTx_VC_INVRLbDcOn_set,
-    .can_error_info = app_canRx_INVRL_ErrorInfo_get,
-    .error_reset    = app_canTx_VC_INVRLbErrorReset_set,
+    .can_enable_inv  = app_canTx_VC_INVRLbEnable_set,
+    .can_invOn       = app_canTx_VC_INVRLbInverterOn_set,
+    .can_dcOn        = app_canTx_VC_INVRLbDcOn_set,
+    .can_error_info  = app_canRx_INVRL_ErrorInfo_get,
+    .error_reset     = app_canTx_VC_INVRLbErrorReset_set,
+    .can_error_bit   = app_canRx_INVRL_bError_get,
+    .can_inv_warning = app_canAlerts_VC_Warning_RearLeftInverterFault_set,
 };
 InverterWarningHandling inverter_handle_RR = {
-    .can_enable_inv = app_canTx_VC_INVRRbEnable_set,
-    .can_invOn      = app_canTx_VC_INVRRbInverterOn_set,
-    .can_dcOn       = app_canTx_VC_INVRRbDcOn_set,
-    .can_error_info = app_canRx_INVRR_ErrorInfo_get,
-    .error_reset    = app_canTx_VC_INVRRbErrorReset_set,
+    .can_enable_inv  = app_canTx_VC_INVRRbEnable_set,
+    .can_invOn       = app_canTx_VC_INVRRbInverterOn_set,
+    .can_dcOn        = app_canTx_VC_INVRRbDcOn_set,
+    .can_error_info  = app_canRx_INVRR_ErrorInfo_get,
+    .error_reset     = app_canTx_VC_INVRRbErrorReset_set,
+    .can_error_bit   = app_canRx_INVRR_bError_get,
+    .can_inv_warning = app_canAlerts_VC_Warning_RearRightInverterFault_set,
 };
 
 bool app_warningHandling_inverterStatus(void)
