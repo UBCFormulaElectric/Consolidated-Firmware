@@ -1,10 +1,11 @@
 #include "app_pumpControl.hpp"
 #include "io_rPump.hpp"
-#include "app_canRx.hpp"
+extern "C"
+{
+    #include "app_canRx.h"
+}
 
-int app_canRx_VC_PumpRampUpSetPoint_get(){return 0;} //stub function
-
-void app_pumpControl_MonitorPumps();
+void app_pumpControl_MonitorPumps()
 {
     io_rPump_setPercentage(app_canRx_VC_PumpRampUpSetPoint_get());
 }

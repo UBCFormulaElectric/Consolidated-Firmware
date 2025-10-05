@@ -26,14 +26,4 @@ void app_coolant_broadcast()
     const RangeCheckStatusMetaData coolant_status = app_rangeCheck_getValue(&flow_rate_in_range_check, flow_val);
     app_canTx_RSM_CoolantFlowRate_set(flow_val); 
     app_canAlerts_RSM_Info_FlowRateOutOfRange_set(coolant_status.status != VALUE_IN_RANGE);
-
-    // Commented on Quintuna
-    // motor shutdown in flow rate check
-    // const bool  in_drive_state             = app_canRx_VC_State_get() == VC_DRIVE_STATE;
-    // SignalState flow_in_range_signal_state = app_signal_getState(
-    //  &flow_in_range_signal, coolant_status.status == VALUE_UNDERFLOW && in_drive_state,
-    // coolant_status.status == VALUE_IN_RANGE || !in_drive_state);
-
-    // TODO: check if ts work, apparently it didn't work last year
-    // app_canAlerts_RSM_Warning_FlowMeterUnderflow_set(flow_in_range_signal_state == SIGNAL_STATE_ACTIVE);
 }
