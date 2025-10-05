@@ -33,23 +33,10 @@ static PowerManagerConfig power_manager_state = {
 // static bool power_sequencing_done = false;
 // static bool ready_for_drive       = false;
 
-/*keeping track of whether this is requested from retry or not.
-if it's the first time booting up then we need to go through
-all the states but if it's from a retry then we know our DC is on*/
-static bool bringup_post_fault_retry = false;
-
 /*Start up sequence of the inverters once all the requirements are met*/
 static void hvInitStateRunOnEntry(void)
 {
-    if (bringup_post_fault_retry)
-    {
-        current_inverter_state = INV_DC_ON;
-    }
-    else
-    {
-        current_inverter_state = INV_SYSTEM_READY;
-    }
-
+    current_inverter_state = INV_SYSTEM_READY;
     app_canTx_VC_State_set(VC_HV_INIT_STATE);
     app_powerManager_updateConfig(power_manager_state);
     app_timer_init(&start_up_timer, INV_QUIT_TIMEOUT_MS);
@@ -151,18 +138,12 @@ static void hvInitStateRunOnTick100Hz(void)
             break;
         }
         case INV_READY_FOR_DRIVE:
-            if (bringup_post_fault_retry)
-            {
-                app_stateMachine_setNextState(&drive_state);
-            }
-            else
-            {
                 app_stateMachine_setNextState(&hv_state);
-            }
             break;
         case INV_ERROR_RETRY:
             app_timer_stop(&start_up_timer);
-            app_stateMachine_setNextState(&inverter_retry_state);
+            //Globalizing this
+            //app_stateMachine_setNextState(&inverter_retry_state);
 
         default:
             break;

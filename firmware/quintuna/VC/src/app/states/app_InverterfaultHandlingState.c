@@ -175,6 +175,7 @@ static void InverterfaultHandlingStateRunOnExit(void)
     app_canTx_VC_INVFRbErrorReset_set(false);
     app_canTx_VC_INVRLbErrorReset_set(false);
     app_canTx_VC_INVRRbErrorReset_set(false);
+    app_timer_stop(&stability_timer);
 }
 
 State inverter_retry_state = { .name              = "Handling State",
