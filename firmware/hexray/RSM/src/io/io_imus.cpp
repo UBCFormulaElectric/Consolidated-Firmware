@@ -1,3 +1,4 @@
+#include "io_imus.hpp"
 extern "C"
 {
     #include "io_imu.h" //QUESTION: In shared file, so do we keep as C code?

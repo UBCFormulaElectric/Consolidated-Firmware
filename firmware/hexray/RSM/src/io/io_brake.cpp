@@ -8,7 +8,6 @@
 
 //Max measurable pressure over sensors operating range
 // Psi per Volt: (Max Pressure - Min Pressure) / (Max Input Voltage - Min Input Voltage)
-//QUESTION: Why does 2500.0 = max - min pressure
 #define BRAKE_PSI_PER_VOLT (2500.0f / (BRAKE_PRESSURE_SC_THRESHOLD_V - BRAKE_PRESSURE_OC_THRESHOLD_V))
 
 

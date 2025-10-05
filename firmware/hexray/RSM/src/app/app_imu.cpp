@@ -1,6 +1,9 @@
 #include "app_imu.hpp"
-#include "io_imu.hpp"
-// #include "app_canTx.hpp" //Not created yet
+extern "C"
+{
+    #include "io_imu.h"
+    #include "app_canTx.h"
+}
 
 void app_imu_broadcast()
 {

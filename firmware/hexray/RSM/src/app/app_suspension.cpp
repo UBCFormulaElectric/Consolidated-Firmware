@@ -1,12 +1,10 @@
 #include "app_suspension.hpp"
 #include "io_suspension.hpp"
-// #include "app_canTx.hpp"
-// #include "app_canAlerts.hpp" //Not created yet
-
-void app_canAlerts_RSM_Info_RearRightSuspension_OCSC_set(int);
-void app_canAlerts_RSM_Info_RearLeftSuspension_OCSC_set(int);
-void app_canTx_RSM_RearLeftSuspensionTravel_set(int);
-void app_canTx_RSM_RearRightSuspensionTravel_set(int);
+extern "C"
+{
+    #include "app_canTx.h"
+    #include "app_canAlerts.h"
+}
 
 void app_suspension_broadcast()
 {
