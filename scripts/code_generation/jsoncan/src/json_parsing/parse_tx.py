@@ -202,11 +202,6 @@ def _get_parsed_can_signal(
             f"Signal '{signal_name}' has invalid payload representation, and could not be parsed."
         )
 
-    assert signed or min_val >= 0, (
-       f"Signal '{signal_name}' is not signed, but can attain a value of {min_val}."
-        "If you want to use a signed signal, set 'signed' to true in the signal definition."
-    )
-
     # Parse start value
     start_val = signal_json_data.get("start_value", min_val)
 
