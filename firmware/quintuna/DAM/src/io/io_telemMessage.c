@@ -14,15 +14,13 @@
 // create or grab the constants for the different modem and pins and such
 // Private Globals
 
-#define QUEUE_SIZE 52
+#define QUEUE_SIZE 100
 #define QUEUE_BYTES sizeof(CanMsg) * QUEUE_SIZE
-
+#define MAX_CAN_SIZE CAN_PAYLOAD_BYTES
 #define HEADER_SIZE 7
 #define MAX_FRAME_SIZE (HEADER_SIZE + 100)
 #define MAGIC_HIGH 0xAA
 #define MAGIC_LOW 0x55
-
-// UartDevice        *_2_4G_uart = NULL;
 
 // TX
 static bool               proto_status;
@@ -30,12 +28,6 @@ static uint8_t            proto_msg_length;
 static StaticQueue_t      queue_control_block;
 static uint8_t            queue_buf[QUEUE_BYTES];
 static osMessageQueueId_t message_queue_id;
-
-// RX
-
-static uint8_t  rx_buffer[MAX_FRAME_SIZE];
-static uint32_t rx_buffer_pos     = 0;
-static bool     message_available = false;
 
 TelemMessage t_message = TelemMessage_init_zero;
 
@@ -46,6 +38,12 @@ static const osMessageQueueAttr_t queue_attr = {
     .cb_size   = sizeof(StaticQueue_t),
     .mq_mem    = queue_buf,
     .mq_size   = QUEUE_BYTES,
+};
+
+struct MessageBody
+{
+    uint32_t *values;
+    size_t    count;
 };
 
 static bool init = false;
@@ -69,23 +67,42 @@ static bool telemMessage_appendHeader(uint8_t *frame_buffer, uint8_t *proto_buff
     return true;
 }
 
+bool encode_message_callback(pb_ostream_t *stream, const pb_field_t *field, void *const *arg)
+{
+    struct MessageBody *ctx = *arg;
+
+    for (size_t i = 0; i < ctx->count; ++i)
+    {
+        if (!pb_encode_tag_for_field(stream, field))
+            return false;
+        if (!pb_encode_varint(stream, ctx->values[i]))
+            return false;
+    }
+
+    return true;
+}
+
 static bool telemMessage_buildFrameFromRxMsg(const CanMsg *rx_msg, uint8_t *frame_buffer, uint8_t *frame_length)
 {
     uint8_t      proto_buffer[QUEUE_SIZE] = { 0 };
     pb_ostream_t stream                   = pb_ostream_from_buffer(proto_buffer, sizeof(proto_buffer));
 
-    if (rx_msg->dlc > 8)
+    if (rx_msg->dlc > MAX_CAN_SIZE)
         return false;
-    t_message.can_id     = (int32_t)(rx_msg->std_id);
-    t_message.message_0  = rx_msg->data.data8[0];
-    t_message.message_1  = rx_msg->data.data8[1];
-    t_message.message_2  = rx_msg->data.data8[2];
-    t_message.message_3  = rx_msg->data.data8[3];
-    t_message.message_4  = rx_msg->data.data8[4];
-    t_message.message_5  = rx_msg->data.data8[5];
-    t_message.message_6  = rx_msg->data.data8[6];
-    t_message.message_7  = rx_msg->data.data8[7];
-    t_message.time_stamp = (int32_t)rx_msg->timestamp;
+    // Fill in fields
+
+    t_message.can_id     = rx_msg->std_id;
+    t_message.time_stamp = rx_msg->timestamp;
+
+    uint32_t        size_align = rx_msg->dlc + (4 - rx_msg->dlc % 4);
+    static uint32_t body_copy[MAX_CAN_SIZE];
+    memcpy(body_copy, rx_msg->data.data32, size_align);
+
+    struct MessageBody encode_ctx = { .values = body_copy, .count = size_align / 4 };
+
+    // Fill in the message data
+    t_message.message.funcs.encode = encode_message_callback;
+    t_message.message.arg          = &encode_ctx;
 
     // Encode message into proto_buffer
     proto_status = pb_encode(&stream, TelemMessage_fields, &t_message);
@@ -101,13 +118,6 @@ static bool telemMessage_buildFrameFromRxMsg(const CanMsg *rx_msg, uint8_t *fram
         LOG_ERROR("Payload size exceeded maximum allowed size");
         return false;
     }
-
-    // padding required for crc function to not have concat issues
-    // uint8_t padded_length = (uint8_t)((proto_msg_length + 3u) & ~3u);
-    // if (padded_length > proto_msg_length)
-    // {
-    //     memset(&proto_buffer[proto_msg_length], 0, padded_length - proto_msg_length);
-    // }
 
     // Build frame
     if (!telemMessage_appendHeader(frame_buffer, proto_buffer, proto_msg_length))
@@ -125,20 +135,6 @@ void io_telemMessage_init()
     assert(message_queue_id != NULL);
     init = true;
     hw_gpio_writePin(&telem_pwr_en_pin, true);
-}
-
-// lol should this be here? is this exposed the right amount also? this is start time TX code
-void io_telemMessage_startTimeinit(CanMsg *msg, IoRtcTime start_time)
-{
-    CanMsg start_time_msg = {
-        .std_id = 0x999, // this id could change asking edwin!!!
-        .dlc    = 6,
-        .data   = { { start_time.year, start_time.month, start_time.day, start_time.hours, start_time.minutes,
-                      start_time.seconds } },
-        .timestamp =
-            io_time_getCurrentMs(), // note, this represents the timestamp of the current message NOT the basetime
-    };
-    *msg = start_time_msg;
 }
 
 bool io_telemMessage_pushMsgtoQueue(const CanMsg *rx_msg)

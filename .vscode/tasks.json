@@ -326,9 +326,7 @@
       "group": "build",
       "type": "cmake",
       "command": "build",
-      "targets": [
-        "can_bus_load_quintuna"
-      ]
+      "targets": ["can_bus_load_quintuna"]
     },
     {
       "label": "Run Telem Backend",
@@ -336,6 +334,6 @@
       "command": "python ${workspaceRoot}/software/tracksight/live_data/app/app.py",
       "group": "build",
       "options": {}
-    },
+    }
   ]
 }
