@@ -3,10 +3,10 @@
 #undef NDEBUG // TODO remove this in favour of always_assert (we would write this)
 #include <assert.h>
 #include <FreeRTOS.h>
-#include <cmsis_os2.h>
 #include <task.h>
 
 #include "io_time.h"
+#include "hw_utils.h"
 
 // The following filter IDs/masks must be used with 16-bit Filter Scale
 // (FSCx = 0) and Identifier Mask Mode (FBMx = 0). In this mode, the identifier
@@ -95,30 +95,26 @@ ExitCode hw_can_transmit(CanHandle *can_handle, CanMsg *msg)
     tx_header.TransmitGlobalTime = DISABLE;
 
     // Spin until a TX mailbox becomes available.
-    // for (uint32_t poll_count = 0; HAL_CAN_GetTxMailboxesFreeLevel(can_handle->hcan) == 0U;)
-    // {
-    //     // the polling is here because if the CAN mailbox is temporarily blocked, we don't want to incur the overhead
-    //     of
-    //     // context switching
-    //     if (poll_count <= 1000)
-    //     {
-    //         poll_count++;
-    //         continue;
-    //     }
-    //     assert(can_handle->transmit_task == NULL);
-    //     assert(osKernelGetState() == taskSCHEDULER_RUNNING && !xPortIsInsideInterrupt());
-    //     can_handle->transmit_task = xTaskGetCurrentTaskHandle();
-    //     // timeout just in case the tx complete interrupt does not fire properly?
-    //     const uint32_t num_notifs = ulTaskNotifyTake(pdTRUE, 1000);
-    //     UNUSED(num_notifs);
-    //     can_handle->transmit_task = NULL;
-    // }
+    for (uint32_t poll_count = 0; HAL_CAN_GetTxMailboxesFreeLevel(can_handle->hcan) == 0U;)
+    {
+        // the polling is here because if the CAN mailbox is temporarily blocked, we don't want to incur the overhead of
+        // context switching
+        if (poll_count <= 1000)
+        {
+            poll_count++;
+            continue;
+        }
+        assert(can_handle->transmit_task == NULL);
+        assert(osKernelGetState() == taskSCHEDULER_RUNNING && !xPortIsInsideInterrupt());
+        can_handle->transmit_task = xTaskGetCurrentTaskHandle();
+        // timeout just in case the tx complete interrupt does not fire properly?
+        const uint32_t num_notifs = ulTaskNotifyTake(pdTRUE, 1000);
+        UNUSED(num_notifs);
+        can_handle->transmit_task = NULL;
+    }
 
     // Indicates the mailbox used for transmission, not currently used.
     uint32_t mailbox = 0;
-
-    while (HAL_CAN_GetTxMailboxesFreeLevel(can_handle->hcan) == 0U)
-        ;
     return hw_utils_convertHalStatus(HAL_CAN_AddTxMessage(can_handle->hcan, &tx_header, msg->data.data8, &mailbox));
 }
 
@@ -169,4 +165,28 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
     handle_callback(hcan);
+}
+
+static void mailbox_complete_handler(CAN_HandleTypeDef *hcan)
+{
+    const CanHandle *can = hw_can_getHandle(hcan);
+    if (can->transmit_task == NULL)
+    {
+        return;
+    }
+    BaseType_t higherPriorityTaskWoken = pdFALSE;
+    vTaskNotifyGiveFromISR(can->transmit_task, &higherPriorityTaskWoken);
+    portYIELD_FROM_ISR(higherPriorityTaskWoken);
+}
+void HAL_CAN_TxMailbox0CompleteCallback(CAN_HandleTypeDef *hcan)
+{
+    mailbox_complete_handler(hcan);
+}
+void HAL_CAN_TxMailbox1CompleteCallback(CAN_HandleTypeDef *hcan)
+{
+    mailbox_complete_handler(hcan);
+}
+void HAL_CAN_TxMailbox2CompleteCallback(CAN_HandleTypeDef *hcan)
+{
+    mailbox_complete_handler(hcan);
 }
