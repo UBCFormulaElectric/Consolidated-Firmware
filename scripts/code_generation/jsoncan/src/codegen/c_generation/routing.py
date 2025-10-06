@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from re import M
 from typing import Dict, List, Optional, Set, Tuple
 
-from ...can_database import All, BusForwarder, CanBus, CanDatabase, CanNode
+from ...can_database import AllRxMsgs, BusForwarder, CanBus, CanDatabase, CanNode
 from ...json_parsing.parse_error import InvalidCanJson
 
 
@@ -321,7 +321,7 @@ def resolve_tx_rx_reroute(
         for rx_bus_name in rx_node.bus_names:
             rx_configs[rx_node.name].add_rx_bus(rx_bus_name)
 
-        if type(rx_node.rx_msgs_names) == All:
+        if type(rx_node.rx_msgs_names) == AllRxMsgs:
             # TODO generate a new function to do this? This is a nontrivial usage of state??
             #    but also it is very specific to this application
             rx_msgs_names = set(

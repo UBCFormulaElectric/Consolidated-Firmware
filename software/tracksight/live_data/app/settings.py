@@ -25,16 +25,18 @@ INFLUX_URL: LiteralString = os.environ.get(
 INFLUX_ORG: str | None = os.environ.get("INFLUXDB_ORG")
 INFLUX_TOKEN: str | None = os.environ.get("ADMIN_TOKEN")
 
-
-CAR_NAME: str | None = os.environ.get("CAR_NAME")
+if "CAR_NAME" not in os.environ:
+    raise KeyError("Environment variable 'CAR_NAME' is not set")
+CAR_NAME: str = os.environ["CAR_NAME"]
 
 # booting configure
-ENABLE_MOCK = str2bool(os.environ.get("ENABLE_MOCK"))
-ENABLE_WIRELESS = str2bool(os.environ.get("ENABLE_WIRELESS"))
+DATA_SOURCE = os.environ.get("DATA_SOURCE", "mock").upper()
 
 SERIAL_PORT = os.environ.get("SERIAL_PORT")
 DATA_FILE = os.environ.get("DATA_FILE")
 DEBUG = str2bool(os.environ.get("DEBUG"))
 
-SERVER_IP = os.environ.get("SERVER_IP", "192.168.137.1")
+SERVER_IP = os.environ.get("SERVER_IP", None)
 SERVER_DOMAIN_NAME = os.environ.get("SERVER_DOMAIN_NAME", "telem")
+
+LOG_LEVEL = os.environ.get("LOG_LEVEL", "DEBUG").upper()
