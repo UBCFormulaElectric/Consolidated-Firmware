@@ -1,13 +1,15 @@
 "use client";
 
-import { SignalProvider } from "@/hooks/SignalContext";
+import Card from "@/components/common/Card";
 
 export default function LiveDataPage() {
   return (
-    <SignalProvider>
-      <div className="overflow-y-scroll p-12 min-h-screen w-screen">
-        Hello World!
-      </div>
-    </SignalProvider>
+    <div className="overflow-y-scroll p-12 w-screen">
+      <Card
+        title="Battery Information"
+      >
+        Test Card
+      </Card>
+    </div>
   );
 }

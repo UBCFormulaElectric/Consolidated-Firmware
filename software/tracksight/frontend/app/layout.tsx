@@ -6,8 +6,7 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 const inter = Inter({ subsets: ["latin"] })
 
-import Sidebar from "@/components/shared/sidebar"
-import Providers from "./providers"
+import Sidebar from "@/components/common/Navbar"
 
 export const metadata: Metadata = {
   title: "Tracksight Dashboard",
@@ -21,11 +20,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <Providers>
-          <Sidebar />
-          <main className="min-h-screen bg-gray-100 mt-24 dark:bg-gray-900">{children}</main>
-        </Providers>
+      <body className={`${inter.className} bg-primary-200`}>
+        <Sidebar />
+        <main className="mt-24">{children}</main>
       </body>
     </html>
   )
