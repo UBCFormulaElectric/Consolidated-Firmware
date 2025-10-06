@@ -68,16 +68,19 @@ static uint32_t payload_size_from_dlc(const uint32_t dlc)
 
 TelemCanMsg io_telemMessage_buildCanMsg(const CanMsg *rx_msg, const float time_offset, uint8_t *size)
 {
-    TelemCanMsg telem_msg     = { 0 };
-    telem_msg.header          = io_telemMessage_buildHeader((uint8_t *)&telem_msg.msg, sizeof(telem_msg.msg));
+    TelemCanMsg telem_msg = { 0 };
+
+    const uint32_t can_payload_size = payload_size_from_dlc(rx_msg->dlc);
+    memset(telem_msg.msg.payload, 0, sizeof(telem_msg.msg.payload));
+    memcpy(telem_msg.msg.payload, rx_msg->data.data8, can_payload_size);
     telem_msg.msg.identifier  = TelemMesssageIds_CAN;
     telem_msg.msg.can_id      = rx_msg->std_id;
     telem_msg.msg.time_offset = time_offset;
 
-    const uint32_t payload_size = payload_size_from_dlc(rx_msg->dlc);
-    memcpy(telem_msg.msg.payload, rx_msg->data.data8, payload_size);
+    const uint8_t payload_size = (uint8_t)(sizeof(telem_msg.msg) - sizeof(telem_msg.msg.payload) + can_payload_size);
+    telem_msg.header           = io_telemMessage_buildHeader((uint8_t *)&telem_msg.msg, payload_size);
 
-    *size = (uint8_t)(sizeof(telem_msg) - sizeof(telem_msg.msg.payload) + payload_size);
+    *size = (uint8_t)(sizeof(telem_msg) - sizeof(telem_msg.msg.payload) + can_payload_size);
 
     return telem_msg;
 }

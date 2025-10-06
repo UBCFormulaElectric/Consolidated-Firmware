@@ -39,7 +39,7 @@ void io_telemMessageQueue_init(void)
     init = true;
 }
 
-bool io_telemMessage_pushMsgtoQueue(const CanMsg *rx_msg)
+bool io_telemMessageQueue_pushTx(const CanMsg *rx_msg)
 {
     assert(init);
 

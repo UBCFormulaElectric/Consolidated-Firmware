@@ -199,14 +199,13 @@ _Noreturn void tasks_runTelem(void)
 
     for (;;)
     {
-        CanMsg queue_out = io_telemMessageQueue_popTx();
-
-        uint8_t     can_msg_size;
-        TelemCanMsg can_msg = io_telemMessage_buildCanMsg(&queue_out, 0, &can_msg_size);
+        CanMsg      queue_out = io_telemMessageQueue_popTx();
+        uint8_t     full_msg_size;
+        TelemCanMsg can_msg = io_telemMessage_buildCanMsg(&queue_out, 0, &full_msg_size);
 
         // Start timing for measuring transmission speeds
         SEGGER_SYSVIEW_MarkStart(0);
-        LOG_ERROR_IF(hw_uart_transmit(&_900k_uart, (uint8_t *)&can_msg, can_msg_size));
+        LOG_IF_ERR(hw_uart_transmit(&_900k_uart, (uint8_t *)&can_msg, full_msg_size));
         SEGGER_SYSVIEW_MarkStop(0);
     }
 }

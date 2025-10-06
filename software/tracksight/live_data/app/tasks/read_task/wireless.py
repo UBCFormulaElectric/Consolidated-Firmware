@@ -22,7 +22,7 @@ from ntp import ntp_request
 
 _HEADER_SIZE = 7
 _MAGIC = b"\xaa\x55"
-_MAX_PAYLOAD_SIZE = 52  # this is arbitrary lmao
+_MAX_PAYLOAD_SIZE = 100  # this is arbitrary lmao
 # this is very interesting because CRC32 is an object which is of the correct type
 _CRC_CALCULATOR = Calculator(Crc32.CRC32) # type: ignore
 
@@ -43,9 +43,12 @@ def _calculate_message_timestamp(message_timestamp, base_time):
 
     return timestamp
 
+
+buffer = bytearray()
 # https://pyserial.readthedocs.io/en/latest/pyserial_api.html#:~:text=The%20network%20layer%20also%20has%20buffers.%20This%20means%20that%20flush()%2C%20reset_input_buffer()%20and%20reset_output_buffer()%20may%20work%20with%20additional%20delay.%20Likewise%20in_waiting%20returns%20the%20size%20of%20the%20data%20arrived%20at%20the%20objects%20internal%20buffer%20and%20excludes%20any%20bytes%20in%20the%20network%20buffers%20or%20any%20server%20side%20buffer.
 # TLDR is that there are internal buffers for read/write, so we won't drop packets
 def _read_packet(ser: serial.Serial):
+    global buffer
     """
     Read a packet from the serial port.
     Packets come in the following format:
@@ -53,12 +56,15 @@ def _read_packet(ser: serial.Serial):
     | 0xAA | 0x55 | payload_size (1 byte) | CRC32 (4 bytes) | payload (length of payload_size) |
     Returns (ONLY) the payload as bytes.
     """
-    buffer = bytearray()
+    first = True
     while True:
-        # merk the first byte automatically
-        # this is because when we come around it generally is because it was wrong
-        buffer = buffer[1:]
-
+        if first:
+            first = False
+        else:
+            # merk the first byte automatically
+            # this is because when we come around it generally is because it was wrong
+            buffer = buffer[1:]
+        
         # find the magic bytes
         while buffer[0:2] != _MAGIC:
             buffer = buffer [1:]  # remove the first byte if it is not magic
@@ -85,13 +91,13 @@ def _read_packet(ser: serial.Serial):
         total_length = _HEADER_SIZE + payload_length
         if len(buffer) < total_length:
             buffer += ser.read(total_length - len(buffer))  # read the rest of the packet
-        assert len(buffer) >= total_length, "Buffer should contain the full packet"
+        assert len(buffer) >= total_length, f"Buffer should contain at least {total_length} bytes"
  
         # CRC check
-        payload = bytes(buffer[_HEADER_SIZE:])
+        payload = bytes(buffer[_HEADER_SIZE:total_length]) # extract the payload
         calculated_checksum = _CRC_CALCULATOR.checksum(payload).to_bytes(4, byteorder="big").hex()
         expected_crc = (
-            int.from_bytes(buffer[3:7], byteorder="big")
+            int.from_bytes(buffer[3:7], byteorder="little")
             .to_bytes(4, byteorder="big")
             .hex()
         )  # Updated to read 32-bit CRC and cast to hex
@@ -99,13 +105,12 @@ def _read_packet(ser: serial.Serial):
             logger.error(f"CRC mismatch: computed {calculated_checksum}, expected {expected_crc}")
             continue # restart
 
-        if len(buffer) > total_length:
-            # NOTE that this is possible because payload_length could be unreliable
-            # and we could have read more bytes than expected
-            logger.warning(f"Buffer has more data than expected, {len(buffer) - total_length} bytes will be dropped")
-            # TODO add some mechanism of carrying over the (currently dropped) bytes
-            buffer = buffer[total_length:]
+        # NOTE that this is possible because payload_length could be unreliable
+        # and we could have read more bytes than expected
+        # logger.warning(f"Buffer has more data than expected, {len(buffer) - total_length} bytes will be dropped")
+        buffer = buffer[total_length:]
 
+        logger.debug("POGGERS!!!!!")
         return payload
 
 @dataclass

@@ -14,7 +14,7 @@ def get_serial(serial_port: str):
         raise ValueError("Wireless is not enabled. Cannot get serial port.")
 
     if serial_port not in _serial_port_map:
-        _serial_port_map[serial_port] = serial.Serial(serial_port, baudrate=57600, timeout=1)
+        _serial_port_map[serial_port] = serial.Serial(serial_port, baudrate=57600, timeout=None)
         _serial_port_map[serial_port].reset_input_buffer()  # Clear input buffer
         _serial_port_map[serial_port].reset_output_buffer()  # Clear output buffer
 
