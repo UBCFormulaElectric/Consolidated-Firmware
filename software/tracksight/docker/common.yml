@@ -1,6 +1,6 @@
 services:
   influx:
-    image: influxdb:2.7.6-alpine
+    image: influxdb:2-alpine
     ports:
       # Default port for Influx DB.
       - "8086:8086"
@@ -43,3 +43,9 @@ services:
     # depends_on:
     #   backend:
     #     condition: service_healthy
+  # grafana:
+  #   image: grafana/grafana-enterprise
+  #   container_name: grafana
+  #   restart: unless-stopped
+  #   ports:
+  #     - '3000:3000'
