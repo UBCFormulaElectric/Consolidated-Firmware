@@ -36,7 +36,8 @@
       "Decimal1": {
         "resolution": 0.1,
         "min": -100,
-        "max": 100
+        "max": 100,
+        "signed": true
       },
       "Decimal2": {
         "resolution": 0.01,
@@ -88,7 +89,8 @@
       "ClampDecimal": {
         "resolution": 0.1,
         "min": -100,
-        "max": 100
+        "max": 100,
+        "signed": true
       },
       "ClampInt": {
         "min": 100,
