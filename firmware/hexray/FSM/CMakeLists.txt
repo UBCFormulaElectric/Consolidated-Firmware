@@ -71,8 +71,8 @@ if ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
-    target_link_libraries("hexray_FSM_app.elf" PRIVATE "hexray_FSM_stm32cube" "hexray_FSM_stm32cube_hal"
-            "hexray_FSM_commit_info" "m")
+    target_link_libraries("hexray_FSM_app.elf" PRIVATE "hexray_FSM_stm32cube" "hexray_FSM_stm32cube_hal" "hexray_FSM_commit_info"
+            "hexray_FSM_jsoncan" "m")
 
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
@@ -107,5 +107,5 @@ elseif ("${TARGET}" STREQUAL "test")
             "${HEADERS_TO_FAKE}"
     )
 
-    target_link_libraries("hexray_FSM_test" PRIVATE "hexray_FSM_fakes" "hexray_FSM_commit_info")
+    target_link_libraries("hexray_FSM_test" PRIVATE "hexray_FSM_fakes" "hexray_FSM_commit_info" "hexray_FSM_jsoncan")
 endif ()
