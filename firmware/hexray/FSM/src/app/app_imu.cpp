@@ -1,8 +1,10 @@
 #include "app_imu.hpp"
-
-#include "io_imu.h"
-//#include "app_canTx.h"    ***********Implement later***********
-#include "io_log.h"
+extern "C"
+{
+    #include "io_imu.h"
+    #include "app_canTx.h"
+    #include "io_log.h"
+}
 
 void app_imu_broadcast(void)
 {
@@ -16,10 +18,10 @@ void app_imu_broadcast(void)
     LOG_IF_ERR(io_imu_getAngularVelocityPitch(&pitch_ang_vel));
     LOG_IF_ERR(io_imu_getAngularVelocityYaw(&yaw_ang_vel));
 
-    /*app_canTx_FSM_LinearAccelerationX_set(x_lin_accel);   ***********Implement later***********
+    app_canTx_FSM_LinearAccelerationX_set(x_lin_accel);
     app_canTx_FSM_LinearAccelerationY_set(y_lin_accel);
     app_canTx_FSM_LinearAccelerationZ_set(z_lin_accel);
     app_canTx_FSM_RollRate_set(roll_ang_vel);
     app_canTx_FSM_PitchRate_set(pitch_ang_vel);
-    app_canTx_FSM_YawRate_set(yaw_ang_vel);*/
+    app_canTx_FSM_YawRate_set(yaw_ang_vel);
 }

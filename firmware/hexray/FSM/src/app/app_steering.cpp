@@ -1,9 +1,12 @@
-#include "app_steering.h"
+#include "app_steering.hpp"
+extern "C"
+{
+    #include "app_canTx.h"
+    #include "app_rangeCheck.h"
+    #include "app_canAlerts.h"
+}
 
-#include "app_canTx.h"
-#include "app_rangeCheck.h"
-#include "app_canAlerts.h"
-#include "io_steering.h"
+#include "io_steering.hpp"
 
 static const RangeCheck steering_angle_in_range_check = {
     .min_value = MIN_STEERING_ANGLE_DEG,

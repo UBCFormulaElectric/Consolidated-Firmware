@@ -13,21 +13,18 @@
     "--query-driver=/usr/local/bin/arm-none-eabi-gcc"
   ],
   "files.associations": {
-    "main.h": "c",
-    "io_apps.h": "c",
-    "math.h": "c",
-    "app_apps.h": "c",
-    "stdbool.h": "c",
-    "hw_adcs.h": "c",
-    "io_brake.h": "c",
-    "hw_gpios.h": "c",
-    "app_imu.h": "c",
-    "io_imu.h": "c",
-    "io_log.h": "c",
-    "hw_i2c.h": "c",
-    "hw_i2cs.h": "c",
-    "assert.h": "c",
+    "hw_chimera_v2.h": "c",
+    "app_jsoncan.h": "c",
+    "hw_watchdog.h": "c",
     "cmsis_os.h": "c",
-    "usb_device.h": "c"
+    "app_signal.h": "c",
+    "app_shdnloopnode.h": "c",
+    "io_fsmshdn.h": "c",
+    "app_cantx.h": "c",
+    "app_rangecheck.h": "c",
+    "app_canalerts.h": "c",
+    "io_steering.h": "c",
+    "app_suspension.h": "c",
+    "io_suspension.h": "c"
   }
 }
