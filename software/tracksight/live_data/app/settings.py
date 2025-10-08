@@ -10,13 +10,12 @@ def get_env_bool(e: str):
 DOCKERIZED: bool = get_env_bool("DOCKERIZED")
 
 # App running on docker should have existing environment variables set up
-_DOTENV_PATH = Path(__file__).resolve().parent.parent / "live_data.env"
-if DOCKERIZED:
-    pass
-elif _DOTENV_PATH.exists():
-    load_dotenv(_DOTENV_PATH)
-else:
-    raise FileNotFoundError(f"Environment file not found at {_DOTENV_PATH}")
+if not DOCKERIZED:
+    _DOTENV_PATH = Path(__file__).resolve().parent.parent / "local_live_data.env"
+    if _DOTENV_PATH.exists():
+        load_dotenv(_DOTENV_PATH)
+    else:
+        raise FileNotFoundError(f"Environment file not found at {_DOTENV_PATH}")
 
 
 INFLUX_BUCKET: str = os.environ.get("INFLUXDB_BUCKET", "can_data")
@@ -29,8 +28,11 @@ if "CAR_NAME" not in os.environ:
 CAR_NAME: str = os.environ["CAR_NAME"]
 
 # booting configure
-DATA_SOURCE = os.environ.get("DATA_SOURCE", "mock").upper()
+DATA_SOURCE = os.environ.get("DATA_SOURCE").upper()
+ENABLE_MOCK = get_env_bool("ENABLE_MOCK")
+ENABLE_WIRELESS = get_env_bool("ENABLE_WIRELESS")
 
+BACKEND_PORT = int(os.environ.get("BACKEND_PORT"))
 SERIAL_PORT = os.environ.get("SERIAL_PORT")
 DATA_FILE = os.environ.get("DATA_FILE")
 DEBUG = get_env_bool("DEBUG")

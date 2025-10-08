@@ -2,8 +2,8 @@ services:
   influx:
     image: influxdb:2-alpine
     ports:
-      # Default port for Influx DB.
-      - "8086:8086"
+      # InfluxDB port is always 8086 internally
+      - "${INFLUXDB_PORT}:8086"
     env_file: influx.env
     healthcheck:
       # Ping server every 30s in case something breaks.
@@ -18,16 +18,22 @@ services:
     build:
       context: ../../../
       dockerfile: software/tracksight/live_data/Dockerfile
+    # Expose port from container
     ports:
-      # Default port for Flask apps.
-      # MacOS users will need to disable AirDrop, as it takes up port 5000
-      - "5000:5000"
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    # Pass common envs into container
+    environment:
+      BACKEND_PORT: ${BACKEND_PORT}
+      INFLUXDB_PORT: ${INFLUXDB_PORT}
     env_file: live_data.env
+    # TODO test serial port
+    # privileged: true
     volumes:
+      - /dev:/dev
       - ../live_data:/live_data
     healthcheck:
       # Ping server every 30s in case something breaks.
-      test: [ "CMD", "curl", "-f", "http://localhost:5000/api/health" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:${BACKEND_PORT}/api/health" ]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -38,9 +44,13 @@ services:
       influx:
         condition: service_healthy
   frontend:
-    build: ../frontend
+    build: 
+      context: ../../../
+      dockerfile: software/tracksight/frontend/Dockerfile
+    environment:
+      FRONTEND_PORT: ${FRONTEND_PORT}
     ports:
-      - "3000:3000"
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
     # depends_on:
     #   backend:
     #     condition: service_healthy
