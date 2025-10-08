@@ -6,7 +6,7 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 const inter = Inter({ subsets: ["latin"] })
 
-import Sidebar from "@/components/common/Navbar"
+import Sidebar from "@/components/Navbar"
 
 export const metadata: Metadata = {
   title: "Tracksight Dashboard",
