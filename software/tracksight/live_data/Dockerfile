@@ -8,5 +8,5 @@ COPY software/tracksight/live_data/requirements.txt .
 RUN pip3 install -r requirements.txt
 RUN rm requirements.txt
 
-EXPOSE 5000
+EXPOSE $BACKEND_PORT
 ENV DOCKERIZED=1

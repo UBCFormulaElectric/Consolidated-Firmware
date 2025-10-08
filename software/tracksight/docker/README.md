@@ -1,4 +1,9 @@
-# Philosphy
+# Docker
+
+### tl;dr/dgaf
+Run `docker-compose.sh <YourComposeFile.yml>`
+
+### Philosphy
 
 Docker containers here are used as a runtime environment for the code. This means that it carries the
 - networking configurations
