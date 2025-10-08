@@ -1,4 +1,5 @@
-import { Calendar, Pencil } from "lucide-react"
+import { Calendar } from "lucide-react"
+import EditModeToggle from "./EditModeToggle";
 
 const Navbar = () => (
   <nav className="fixed top-0 left-0 h-min z-50 border-primary-300 bg-primary-100 flex flex-col w-screen">
@@ -18,9 +19,7 @@ const Navbar = () => (
 
       {/** TODO(evan): Add pause / play button here */ }
 
-      <div>
-        <Pencil className="stroke-current hover:text-primary-900 hover:cursor-pointer" size={24} />
-      </div>
+      <EditModeToggle />
     </div>
 
     {/** TODO(evan): Add the universal timeline here */}
