@@ -69,7 +69,7 @@ static inline uint32_t unpackShiftRight(uint8_t input, uint8_t shift, uint8_t ma
 {% set offset_macro = "CANSIG_{}_{}_OFFSET" %}
 
 {% for msg in messages -%}
-{% set msg_big_name =  msg.scremming_snake_name() %} 
+{% set msg_big_name =  msg.screaming_snake_name() %} 
 // pack function for {{ msg.name }}
 void app_canUtils_{{ msg.name }}_pack(const {{ msg.name }}_Signals* const in_msg, uint8_t* const out_data)
 {
@@ -96,7 +96,7 @@ void app_canUtils_{{ msg.name }}_pack(const {{ msg.name }}_Signals* const in_msg
 {% endfor %}
 
 {% for msg in messages -%}
-{% set msg_big_name =  msg.scremming_snake_name() %}
+{% set msg_big_name =  msg.screaming_snake_name() %}
 
 // unpack function for {{ msg.name }}
 void app_canUtils_{{ msg.name }}_unpack(const uint8_t* const in_data, {{ msg.name }}_Signals* const out_msg)
@@ -108,7 +108,7 @@ void app_canUtils_{{ msg.name }}_unpack(const uint8_t* const in_data, {{ msg.nam
         return;
     }
     {% for signal in msg.signals %}
-    {%- set signal_big_name =  signal.scremming_snake_name() -%}
+    {%- set signal_big_name =  signal.screaming_snake_name() -%}
     {%- set DECORD_MACRO = "SIGNED_DECODE" if signal.signed else "CAN_DECODE" -%}
     uint32_t {{ signal.name }}_raw = 0; // Temporary raw variable for {{ signal.name }}
     {% for iteration in iterations(signal) -%}
