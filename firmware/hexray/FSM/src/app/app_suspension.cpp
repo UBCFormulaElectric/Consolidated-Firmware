@@ -1,7 +1,11 @@
-#include "app_suspension.h"
-#include "app_canTx.h"
-#include "app_canAlerts.h"
-#include "io_suspension.h"
+#include "app_suspension.hpp"
+extern "C"
+{
+    #include "app_canTx.h"
+    #include "app_canAlerts.h"
+}
+
+#include "io_suspension.hpp"
 
 void app_suspension_broadcast(void)
 {
