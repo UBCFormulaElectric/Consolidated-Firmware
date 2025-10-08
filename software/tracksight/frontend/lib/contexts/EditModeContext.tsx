@@ -1,15 +1,15 @@
-'use client'
+"use client";
 
 import React, { createContext, useContext, useState } from 'react'
 
-interface EditModeContextType {
+type EditModeContextType = {
   isEditMode: boolean
   toggleEditMode: () => void
 }
 
 const EditModeContext = createContext<EditModeContextType | undefined>(undefined)
 
-export function EditModeProvider({ children }: { children: React.ReactNode }) {
+const EditModeProvider = ({ children }: { children: React.ReactNode }) => {
   const [isEditMode, setIsEditMode] = useState(false)
 
   const toggleEditMode = () => {
@@ -28,7 +28,7 @@ export function EditModeProvider({ children }: { children: React.ReactNode }) {
   )
 }
 
-export function useEditMode() {
+const useEditMode = () => {
   const context = useContext(EditModeContext);
 
   if (context === undefined) {
@@ -37,3 +37,8 @@ export function useEditMode() {
 
   return context
 }
+
+export {
+    EditModeProvider,
+    useEditMode
+};
