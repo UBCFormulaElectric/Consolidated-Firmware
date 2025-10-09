@@ -20,9 +20,9 @@
 #include "hw_utils.h"
 #include "hw_hal.h"
 
-#ifdef STM32H733xx
+#if defined(STM32H733xx) || defined(STM32H563xx)
 #include "hw_fdcan.h"
-#elif STM32F412Rx
+#elif defined(STM32F412Rx)
 #include "hw_can.h"
 #else
 #error "Please define what MCU is used"
@@ -274,9 +274,9 @@ _Noreturn void bootloader_runCanTxTask(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx(&can_tx_queue);
-#ifdef STM32H733xx
+#if defined(STM32H733xx) || defined(STM32H563xx)
         LOG_IF_ERR(hw_fdcan_transmit(&can, &tx_msg));
-#elif STM32F412Rx
+#elif defined(STM32F412Rx)
         LOG_IF_ERR(hw_can_transmit(&can, &tx_msg));
 #endif
     }

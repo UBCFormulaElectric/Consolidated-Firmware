@@ -123,7 +123,7 @@ function(stm32h7_boot_binary
     )
 
     # Add bootloader-specific files.
-    list(APPEND SRCS "${BOOT_DIR}/bootloader.c" "${BOOT_DIR}/bootloader_h7.c")
+    list(APPEND SRCS "${BOOT_DIR}/bootloader.c" "${BOOT_DIR}/bootloader_hx.c")
     list(APPEND INCLUDE_DIRS "${BOOT_DIR}")
 
     # Add shared files.
@@ -137,7 +137,7 @@ function(stm32h7_boot_binary
             "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
-            "${SHARED_HW_INCLUDE_DIR}/hw_can_h7.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_can_hx.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
     )
@@ -149,6 +149,84 @@ function(stm32h7_boot_binary
 
     set(ARM_CORE "cm7")
     set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_boot.ld")
+    embedded_binary(
+            "${BOOT_NAME}"
+            "${SRCS}"
+            "${INCLUDE_DIRS}"
+            "${LINKER_SCRIPT}"
+            "${ARM_CORE}"
+    )
+    target_link_libraries("${BOOT_NAME}.elf" PRIVATE "${BOOT_NAME}_stm32cube" "${BOOT_NAME}_stm32cube_hal")
+    target_compile_definitions("${BOOT_NAME}.elf" PRIVATE "${CONFIG_DEFINE}")
+endfunction()
+
+message("  🔃 Registered stm32h7_boot_binary() function")
+function(stm32h5_boot_binary
+        BOOT_NAME
+        SRCS
+        CUBEMX_SRCS
+        INCLUDE_DIRS
+        CONFIG_DEFINE
+        IOC_PATH
+)
+    generate_stm32cube_code(
+            "${BOOT_NAME}_stm32cube"
+            "${IOC_PATH}"
+            "${CUBEMX_SRCS}"
+    )
+
+    set(STM32_HAL_SRCS
+            "stm32h5xx_hal_cortex.c"
+            "stm32h5xx_hal_dma_ex.c"
+            "stm32h5xx_hal_dma.c"
+            "stm32h5xx_hal_exti.c"
+            "stm32h5xx_hal_fdcan.c"
+            "stm32h5xx_hal_flash.c"
+            "stm32h5xx_hal_flash_ex.c"
+            "stm32h5xx_hal_gpio.c"
+            "stm32h5xx_hal_iwdg.c"
+            "stm32h5xx_hal_pwr_ex.c"
+            "stm32h5xx_hal_rcc_ex.c"
+            "stm32h5xx_hal_rcc.c"
+            "stm32h5xx_hal_tim_ex.c"
+            "stm32h5xx_hal_tim.c"
+            "stm32h5xx_hal.c"
+    )
+
+    stm32h563xx_cube_library(
+            "${BOOT_NAME}_stm32cube_hal"
+            "${STM32_HAL_SRCS}"
+            "${MD5_LOCATION}"
+            FALSE
+    )
+
+    # Add bootloader-specific files.
+    list(APPEND SRCS "${BOOT_DIR}/bootloader.c" "${BOOT_DIR}/bootloader_hx.c")
+    list(APPEND INCLUDE_DIRS "${BOOT_DIR}")
+
+    # Add shared files.
+    list(APPEND SRCS
+            "${SHARED_APP_INCLUDE_DIR}/app_crc32.c"
+            "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
+            "${SHARED_IO_INCLUDE_DIR}/io_time.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_flash.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_can_hx.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
+            "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
+    )
+    list(APPEND INCLUDE_DIRS
+            "${SHARED_APP_INCLUDE_DIR}"
+            "${SHARED_IO_INCLUDE_DIR}"
+            "${SHARED_HW_INCLUDE_DIR}"
+    )
+
+    set(ARM_CORE "cm33")
+    set(LINKER_SCRIPT "${LINKER_DIR}/stm32h563ritx/stm32h563ritx_boot.ld")
     embedded_binary(
             "${BOOT_NAME}"
             "${SRCS}"
