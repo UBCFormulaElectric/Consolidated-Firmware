@@ -1,8 +1,8 @@
 "use client";
 
 import React, { createContext, useContext, useState } from 'react'
-import type { Card } from '../types/DashboardCard';
-import type { Widget } from '../types/Widget';
+import type { Card } from '@/lib/types/DashboardCard';
+import type { Widget, WIDGET_TYPE } from '@/lib/types/Widget';
 
 type DashboardLayoutType = {
   cards: Card[]
@@ -13,8 +13,8 @@ type DashboardLayoutType = {
   // NOTE(evan): Might cause performance issues with keeping widget state together with
   //             card state, if it becomes an issue move to per-card widget state.
 
-  addWidget: (parentCard: Card, newWidget: Widget<any>) => void;
-  removeWidget: (parentCard: Card, widgetToRemove: Widget<any>) => void;
+  addWidget: (parentCard: Card, newWidget: Widget<WIDGET_TYPE>) => void;
+  removeWidget: (parentCard: Card, widgetToRemove: Widget<WIDGET_TYPE>) => void;
 }
 
 const DashboardLayoutContext = createContext<DashboardLayoutType | undefined>(undefined)
@@ -27,7 +27,7 @@ const DashboardLayoutProvider = ({ children }: { children: React.ReactNode }) =>
       title: "Battery Informat",
       widgets: [
         {
-          type: "stateTimline",
+          type: "stateTimeline",
           signals: ["VC_STATE_ONE", "VC_STATE_TWO", "VC_STATE_THREE", "VC_STATE_FOUR"],
           options: {
             colorPalette: [

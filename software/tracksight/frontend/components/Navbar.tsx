@@ -1,5 +1,6 @@
 import { Calendar } from "lucide-react"
-import EditModeToggle from "./EditModeToggle";
+
+import EditModeToggle from "@/components/EditModeToggle";
 
 const Navbar = () => (
   <nav className="fixed top-0 left-0 h-min z-50 border-primary-300 bg-primary-100 flex flex-col w-screen">
