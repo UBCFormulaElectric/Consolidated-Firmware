@@ -1,4 +1,4 @@
-import type { LegendItemRenderer } from "./Legend";
+import type { LegendItemRenderer } from "@/components/Legend";
 
 const ChipLegendItem: LegendItemRenderer = (props) => {
     const {

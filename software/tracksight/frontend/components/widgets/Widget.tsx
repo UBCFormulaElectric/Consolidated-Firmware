@@ -1,17 +1,19 @@
-import WidgetRenderer, { WidgetTypes } from "@/lib/types/Widget";
-import StateTimeline from "./StateTimeline";
+import WidgetRenderer, { WIDGET_TYPE } from "@/lib/types/Widget";
+import { WIDGET_SCHEMAS } from '@/lib/constants';
 
-const WIDGET_RENDERERS: Record<WidgetTypes, WidgetRenderer<any>> = {
-    stateTimline: StateTimeline,
-};
+const WIDGET_RENDERERS = Object.fromEntries(
+    WIDGET_SCHEMAS.map((schema) => (
+        [schema.type, schema.renderer]
+    ))
+)
 
-const Widget: WidgetRenderer<any> = (props) => {
+const Widget: WidgetRenderer<WIDGET_TYPE> = (props) => {
     const { type } = props;
 
     const Renderer = WIDGET_RENDERERS[type];
 
     if (!Renderer) {
-        console.error(`Attempted to render widget with non-existant type '${type}'`)
+        console.error(`Attempted to render widget with non-existant type '${type}'`);
 
         return;
     }
