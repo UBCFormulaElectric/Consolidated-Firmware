@@ -1,4 +1,4 @@
-import type { LegendItemRenderer } from "./Legend";
+import type { LegendItemRenderer } from "@/components/Legend";
 
 const LabelLegendItem: LegendItemRenderer = (props) => {
     const {

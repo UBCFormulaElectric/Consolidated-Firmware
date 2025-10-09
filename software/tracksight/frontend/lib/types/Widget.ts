@@ -1,18 +1,25 @@
-// TODO(evan): Make this convuluted unmaintainable generic type so this doesn't need to
-//             be written manually.
-type WidgetTypes = "stateTimline"
+import { WIDGET_SCHEMAS } from "@/lib/constants";
 
-type Widget<T extends Record<string, unknown>> = {
-    signals: string[];
-    type: WidgetTypes,
-    options: T;
+type WIDGET_TYPE = (
+    (typeof WIDGET_SCHEMAS)[number]["type"]
+);
+
+type WIDGET_OPTIONS = {
+    [A in WIDGET_TYPE]: Extract<(typeof WIDGET_SCHEMAS)[number], { type: A }>['options'];
 };
 
-type WidgetRenderer<T extends Record<string, unknown>> = React.FC<Widget<T>>;
+type Widget<Type extends WIDGET_TYPE> = {
+    signals: string[];
+    type: Type,
+    options: WIDGET_OPTIONS[Type];
+};
+
+type WidgetRenderer<Type extends WIDGET_TYPE> = React.FC<Widget<Type>>;
 
 export type {
     Widget,
-    WidgetTypes
+    WIDGET_TYPE,
+    WIDGET_OPTIONS
 };
 
 export default WidgetRenderer;

@@ -1,11 +1,7 @@
 import Widget from "@/lib/types/Widget";
-import Legend from "../Legend";
+import Legend from "@/components/Legend";
 
-type StateTimelineOptions = {
-    colorPalette: string[];
-}
-
-const StateTimeline: Widget<StateTimelineOptions> = (props) => {
+const StateTimeline: Widget<"stateTimeline"> = (props) => {
     const {
         signals,
         options

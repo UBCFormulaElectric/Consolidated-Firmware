@@ -1,8 +1,8 @@
-import { Widget } from "./Widget"
+import { Widget, WIDGET_TYPE } from "@/lib/types/Widget"
 
 type Card = {
     title: string,
-    widgets: Widget<any>[],
+    widgets: Widget<WIDGET_TYPE>[],
 }
 
 type CardRenderer = React.FC<Card>;

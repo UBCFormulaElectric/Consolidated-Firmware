@@ -1,8 +1,8 @@
 "use client";
 
 import { useDashboardLayout } from "@/lib/contexts/DashboardLayout"
-import Card from "./common/Card";
-import Widget from "./widgets/Widget";
+import Card from "@/components/common/Card";
+import Widget from "@/components/widgets/Widget";
 
 const LiveDataDashboard: React.FC = () => {
     const { cards } = useDashboardLayout();
