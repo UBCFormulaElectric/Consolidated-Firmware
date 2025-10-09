@@ -280,7 +280,8 @@ function(stm32h563xx_cube_library
     file(GLOB RTOS_SRCS
             "${FREERTOS_DIR}/*.c"
             "${FREERTOS_DIR}/CMSIS_RTOS_V2/cmsis_os2.c"
-            "${FREERTOS_DIR}/portable/GCC/ARM_CM33_NTZ/port.c"
+            "${FREERTOS_DIR}/portable/GCC/ARM_CM33_NTZ/non_secure/port.c"
+            "${FREERTOS_DIR}/portable/GCC/ARM_CM33_NTZ/non_secure/portasm.c"
             "${FREERTOS_DIR}/portable/MemMang/heap_4.c"
     )
 

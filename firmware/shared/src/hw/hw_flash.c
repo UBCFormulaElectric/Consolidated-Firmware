@@ -73,16 +73,31 @@ bool hw_flash_programFlashWord(uint32_t address, uint32_t *data)
     return ok;
 }
 
+#elif defined(STM32H563xx)
+
+#define FLASH_ERROR_FLAGS FLASH_FLAG_ALL_ERRORS
+#define FLASH_VERIFY_OK(address, data, size) (memcmp((void *)(address), (void *)(data), (size)) == 0)
+
+bool hw_flash_programFlashWord(uint32_t address, uint32_t *data)
+{
+    HAL_FLASH_Unlock();
+    const bool ok = hw_flash_retryFlash(address, (uint32_t)data, FLASH_WORD_BYTES, FLASH_TYPEPROGRAM_QUADWORD);
+    HAL_FLASH_Lock();
+    return ok;
+}
+
 #endif
 
 bool hw_flash_eraseSector(uint8_t sector)
 {
     FLASH_EraseInitTypeDef erase = {
-        .TypeErase    = FLASH_TYPEERASE_SECTORS,
-        .Banks        = FLASH_BANK_1,
-        .Sector       = sector,
-        .NbSectors    = 1,
+        .TypeErase = FLASH_TYPEERASE_SECTORS,
+        .Banks     = FLASH_BANK_1,
+        .Sector    = sector,
+        .NbSectors = 1,
+#if defined(STM32H763xx) || defined(STM32F412Rx)
         .VoltageRange = FLASH_VOLTAGE_RANGE_3 // For device operating range 2.7V to 3.6V
+#endif
     };
 
     uint32_t sector_error;

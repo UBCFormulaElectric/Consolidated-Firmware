@@ -12,11 +12,14 @@ file(GLOB EMBEDDED_SRCS
 )
 list(APPEND EMBEDDED_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
-        "${SHARED_IO_INCLUDE_DIR}/io_canLogging.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_bootHandler.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_can_hx.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_freeRtosConfigs.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
 )
 
 file(GLOB CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
@@ -31,6 +34,7 @@ set(EMBEDDED_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
         "${CMAKE_CURRENT_SOURCE_DIR}/src"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot"
 )
 
 IF ("${TARGET}" STREQUAL "binary")
@@ -69,6 +73,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "stm32h5xx_hal_rtc.c"
             "stm32h5xx_hal_pwr.c"
             "stm32h5xx_hal_pwr_ex.c"
+            "stm32h5xx_hal_flash"
     )
 
     stm32h563xx_cube_library(
@@ -93,7 +98,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
-    target_link_libraries("h5dev_app.elf" "h5dev_stm32cube" "h5dev_stm32cube_hal" "protobuf_library" "logfs_cm7")
+    target_link_libraries("h5dev_app.elf" "h5dev_stm32cube" "h5dev_stm32cube_hal")
 
     # Bootloader files.
     file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
@@ -107,7 +112,6 @@ IF ("${TARGET}" STREQUAL "binary")
             "h5dev"
             "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/h5dev_boot.ioc"
     )
-    embedded_no_checks("${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c")
     target_link_libraries("h5dev_boot.elf" PRIVATE "h5dev_commit_info")
 
     embedded_image(

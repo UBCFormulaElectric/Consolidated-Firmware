@@ -21,7 +21,10 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "hw_fdcan.h"
+#include "bootloader.h"
+#include "io_canQueue.h"
+#include "hw_error.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -44,7 +47,7 @@
 FDCAN_HandleTypeDef hfdcan1;
 
 /* USER CODE BEGIN PV */
-
+CanHandle can = { .hcan = &hfdcan1, .bus_num = 1, .receive_callback = io_canQueue_pushRx };
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -67,7 +70,7 @@ static void MX_FDCAN1_Init(void);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
+    bootloader_preInit();
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -90,7 +93,7 @@ int main(void)
     MX_GPIO_Init();
     MX_FDCAN1_Init();
     /* USER CODE BEGIN 2 */
-
+    bootloader_init();
     /* USER CODE END 2 */
 
     /* Infinite loop */
@@ -209,13 +212,25 @@ static void MX_FDCAN1_Init(void)
  */
 static void MX_GPIO_Init(void)
 {
+    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
     /* USER CODE BEGIN MX_GPIO_Init_1 */
 
     /* USER CODE END MX_GPIO_Init_1 */
 
     /* GPIO Ports Clock Enable */
     __HAL_RCC_GPIOH_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
+
+    /*Configure GPIO pin : LED_Pin */
+    GPIO_InitStruct.Pin   = LED_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_PULLDOWN;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
 
