@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useDisplayControl } from '@/components/shared/PausePlayControl'
-import { useSignals } from '@/lib/contexts/SignalContext'
+import { useSignals } from '@/hooks/SignalContext'
 
 export function useAutoscroll() {
     const { isAutoscrollEnabled, isPaused } = useDisplayControl()

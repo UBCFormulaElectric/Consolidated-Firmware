@@ -64,6 +64,6 @@ def delete_historical_file(file_name: str):
             historical_db.execute(
                 "DELETE FROM files WHERE file_name = ?", file_name)
             historical_db.commit()
-            return None, 200
+            return "", 200
         except Exception:
             return {"error": f"Failed to delete {file_name}"}, 500

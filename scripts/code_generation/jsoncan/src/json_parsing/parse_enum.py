@@ -1,7 +1,7 @@
 from schema import Schema, Or, SchemaError
 from typing import Dict
 from .parse_error import InvalidCanJson
-from ..can_database import CanEnum
+from ..can_signals import CanEnum
 from .parse_utils import load_json_file
 
 enum_schema = Schema(
