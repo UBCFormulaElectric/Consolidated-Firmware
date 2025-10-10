@@ -11,7 +11,7 @@
 typedef struct
 {
     CAN_HandleTypeDef *const hcan;
-    const uint8_t            bus_num; // TODO change this to jsoncan bus enum when jiajun is done
+    const uint8_t            bus_num;
     void (*const receive_callback)(const CanMsg *rx_msg);
     bool         ready;
     TaskHandle_t transmit_task;
