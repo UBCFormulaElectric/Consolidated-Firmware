@@ -82,11 +82,9 @@ void tasks_init(void)
         hw_bootup_setBootRequest(boot_request);
     }
 
-    CpuRunTimeStats cpu_info = {
-        .cpu_usage_max_setter = app_canTx_FSM_CoreCpuUsage_set,
-        .cpu_usage_setter = app_canTx_FSM_CoreCpuUsageMax_set
-    };
-    
+    CpuRunTimeStats cpu_info = { .cpu_usage_max_setter = app_canTx_FSM_CoreCpuUsage_set,
+                                 .cpu_usage_setter     = app_canTx_FSM_CoreCpuUsageMax_set };
+
     hw_runtimeStat_registerCpu(&cpu_info);
     jobs_init();
 
