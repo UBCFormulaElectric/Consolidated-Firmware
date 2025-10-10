@@ -18,6 +18,8 @@
     "hw_runtimestats.h": "c",
     "stm32f4xx_hal_exti.h": "c",
     "cmsis_os.h": "c",
-    "app_utils.h": "c"
+    "app_utils.h": "c",
+    "app_cantx.h": "c",
+    "stm32f4xx_hal_tim.h": "c"
   }
 }

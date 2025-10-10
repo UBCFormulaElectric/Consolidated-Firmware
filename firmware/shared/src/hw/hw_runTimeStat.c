@@ -1,3 +1,5 @@
+// Needed to ensure we are not running this does not compile for the bootloadeer binary
+
 #ifndef BOOTLOADER
 #include "hw_runTimeStat.h"
 #include "main.h"
@@ -9,10 +11,10 @@
 /*
  * Software defines
  */
-#define IDLE_TASK_INDEX  0U
-#define TMR_SVC_INDEX    1U
-#define NUM_FT_TASKS     2U
-#define NUM_TOTAL_TASKS  (NUM_FT_TASKS + NUM_OF_TASKS)
+#define IDLE_TASK_INDEX 0U
+#define TMR_SVC_INDEX 1U
+#define NUM_FT_TASKS 2U
+#define NUM_TOTAL_TASKS (NUM_FT_TASKS + NUM_OF_TASKS)
 
 /*
  * Global Variables
@@ -21,10 +23,8 @@ static TIM_HandleTypeDef *runTimeCounter;
 
 volatile unsigned long ulHighFrequencyTimerTick = 0;
 
-static TaskRuntimeStats *tasks_runtime_stat[NUM_TOTAL_TASKS] = { [IDLE_TASK_INDEX] =
-                                                                                 &(TaskRuntimeStats){ 0 },
-                                                                             [TMR_SVC_INDEX] =
-                                                                                 &(TaskRuntimeStats){ 0 } };
+static TaskRuntimeStats *tasks_runtime_stat
+    [NUM_TOTAL_TASKS] = { [IDLE_TASK_INDEX] = &(TaskRuntimeStats){ 0 }, [TMR_SVC_INDEX] = &(TaskRuntimeStats){ 0 } };
 // We are going to assume that from here forth all our processors are going
 // single core but if not make the following an array
 
@@ -36,7 +36,7 @@ static CpuRunTimeStats *cpu_runtime_stat;
 
 ExitCode hw_runTimeStat_init(TIM_HandleTypeDef *htim)
 {
-    if (NULL == htim)
+    if (htim == NULL)
     {
         return EXIT_CODE_INVALID_ARGS;
     }
@@ -48,7 +48,7 @@ ExitCode hw_runTimeStat_init(TIM_HandleTypeDef *htim)
 
 ExitCode hw_runtimeStat_registerCpu(CpuRunTimeStats *cpu_info)
 {
-    if (NULL == cpu_info->cpu_usage_max_setter || NULL == cpu_info->cpu_usage_setter)
+    if (cpu_info->cpu_usage_max_setter == NULL || cpu_info->cpu_usage_setter == NULL)
     {
         return EXIT_CODE_INVALID_ARGS;
     }
@@ -60,8 +60,8 @@ ExitCode hw_runtimeStat_registerCpu(CpuRunTimeStats *cpu_info)
 
 ExitCode hw_runTimeStat_registerTask(TaskRuntimeStats *task_info)
 {
-    if (NULL == task_info->cpu_usage_max_setter || NULL == task_info->cpu_usage_setter ||
-        NULL == task_info->stack_usage_max_setter || 0 != task_info->stack_size)
+    if (task_info->cpu_usage_max_setter == NULL || task_info->cpu_usage_setter == NULL ||
+        task_info->stack_usage_max_setter == NULL || task_info->stack_size != 0)
     {
         return EXIT_CODE_INVALID_ARGS;
     }
@@ -79,12 +79,15 @@ void hw_runTimeStat_hookCallBack(void)
 {
     TaskStatus_t runTimeStats[NUM_TOTAL_TASKS];
 
+    /* Get the task IDLE handle for processing the time spend outside of idle task*/
     TaskHandle_t idleHandle = xTaskGetIdleTaskHandle();
 
     uint32_t arraySize = uxTaskGetSystemState(runTimeStats, (UBaseType_t)NUM_TOTAL_TASKS, NULL);
 
-    // given each task that we get from the following getsystemstate call we are gonna calcualte the
-    // cpu usage and stack usage
+    /*
+     * Given each task that we get from the following getsystemstate call we are gonna calcualte the
+     * cpu usage and stack usage
+     */
 
     uint32_t idle_counter = 0;
 
@@ -95,7 +98,7 @@ void hw_runTimeStat_hookCallBack(void)
             idle_counter = runTimeStats[task].ulRunTimeCounter;
 
             // Calculate total current cpu usage and max cpu usage
-            cpu_runtime_stat->cpu_curr_usage = (float)idle_counter / (float)ulHighFrequencyTimerTick;
+            cpu_runtime_stat->cpu_curr_usage = 1.0f - ((float)idle_counter / (float)ulHighFrequencyTimerTick);
 
             cpu_runtime_stat->cpu_max_usage = MAX(cpu_runtime_stat->cpu_curr_usage, cpu_runtime_stat->cpu_max_usage);
             break;
@@ -105,7 +108,7 @@ void hw_runTimeStat_hookCallBack(void)
     for (uint32_t task = 0; task < arraySize; task++)
     {
         // get the idle time that we need to calculate the cpu usage associated
-        if (NULL != tasks_runtime_stat[task])
+        if (tasks_runtime_stat[task] != NULL)
         {
             if ((idle_counter + runTimeStats[task].ulRunTimeCounter) != 0)
             {
@@ -116,7 +119,7 @@ void hw_runTimeStat_hookCallBack(void)
                 tasks_runtime_stat[task]->cpu_max_usage =
                     MAX(tasks_runtime_stat[task]->cpu_max_usage, tasks_runtime_stat[task]->cpu_curr_usage);
             }
-            
+
             // Calculate max stack usage
             tasks_runtime_stat[task]->stack_usage_max =
                 (float)runTimeStats[task].usStackHighWaterMark / (float)tasks_runtime_stat[task]->stack_size;

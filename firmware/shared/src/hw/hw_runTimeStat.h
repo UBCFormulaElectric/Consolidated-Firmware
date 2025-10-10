@@ -6,7 +6,7 @@
 
 #ifdef STM32F412Rx
 #include "stm32f4xx_hal_tim.h"
-#elif STM32H7VG33
+#elif STM32H733xx
 #include "stm32h7xx_hal_tim.h"
 #endif
 
