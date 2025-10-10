@@ -46,50 +46,50 @@ void app_powerManager_updateConfig(const PowerManagerConfig new_power_manager_co
     power_manager_state.efuse_configs[EFUSE_CHANNEL_R_RAD].efuse_enable = !app_canAlerts_VC_Info_PcmUnderVoltage_get();
 }
 
-static bool STLoadswitch_Status(const ST_LoadSwitch *loadswitch)
-{
-    assert(loadswitch->efuse1 != NULL && loadswitch->efuse2 != NULL);
+// static bool STLoadswitch_Status(const ST_LoadSwitch *loadswitch)
+// {
+//     assert(loadswitch->efuse1 != NULL && loadswitch->efuse2 != NULL);
 
-    // Checking if ther is an overtemperature/short to ground condition
-    float vsenseh_efuse1 = io_loadswitch_getChannelCurrent(loadswitch->efuse1) / ADC_VOLTAGE_TO_CURRENT_A;
-    float vsenseh_efuse2 = io_loadswitch_getChannelCurrent(loadswitch->efuse2) / ADC_VOLTAGE_TO_CURRENT_A;
+//     // Checking if ther is an overtemperature/short to ground condition
+//     float vsenseh_efuse1 = io_loadswitch_getChannelCurrent(loadswitch->efuse1) / ADC_VOLTAGE_TO_CURRENT_A;
+//     float vsenseh_efuse2 = io_loadswitch_getChannelCurrent(loadswitch->efuse2) / ADC_VOLTAGE_TO_CURRENT_A;
 
-    if (io_loadswitch_isChannelEnabled(loadswitch->efuse1) && vsenseh_efuse1 >= 3.0f)
-    {
-        return false;
-    }
+//     if (io_loadswitch_isChannelEnabled(loadswitch->efuse1) && vsenseh_efuse1 >= 3.0f)
+//     {
+//         return false;
+//     }
 
-    if (io_loadswitch_isChannelEnabled(loadswitch->efuse2) && vsenseh_efuse2 >= 3.0f)
-    {
-        return false;
-    }
+//     if (io_loadswitch_isChannelEnabled(loadswitch->efuse2) && vsenseh_efuse2 >= 3.0f)
+//     {
+//         return false;
+//     }
 
-    // Checking if there is a short to VBAT condition
-    io_STloadswitch_reset_set(loadswitch, true);
+//     // Checking if there is a short to VBAT condition
+//     io_STloadswitch_reset_set(loadswitch, true);
 
-    if (!io_loadswitch_isChannelEnabled(loadswitch->efuse1) && vsenseh_efuse1 > 3.0f)
-    {
-        return false;
-    }
+//     if (!io_loadswitch_isChannelEnabled(loadswitch->efuse1) && vsenseh_efuse1 > 3.0f)
+//     {
+//         return false;
+//     }
 
-    if (!io_loadswitch_isChannelEnabled(loadswitch->efuse2) && vsenseh_efuse2 > 3.0f)
-    {
-        return false;
-    }
+//     if (!io_loadswitch_isChannelEnabled(loadswitch->efuse2) && vsenseh_efuse2 > 3.0f)
+//     {
+//         return false;
+//     }
 
-    // reset the stby reset gpio to low
-    io_STloadswitch_reset_set(loadswitch, false);
-    return true;
-}
+//     // reset the stby reset gpio to low
+//     io_STloadswitch_reset_set(loadswitch, false);
+//     return true;
+// }
 
-static bool is_efuse_ok(const uint8_t current_efuse_sequence)
-{
-    if (EFUSE_CHANNEL_RL_PUMP <= current_efuse_sequence && current_efuse_sequence <= EFUSE_CHANNEL_F_PUMP)
-    {
-        return io_TILoadswitch_pgood(efuses_retry_state[current_efuse_sequence].loadswitch.ti);
-    }
-    return STLoadswitch_Status(efuses_retry_state[current_efuse_sequence].loadswitch.st);
-}
+// bool is_efuse_ok(const uint8_t current_efuse_sequence)
+// {
+//     if (EFUSE_CHANNEL_RL_PUMP <= current_efuse_sequence && current_efuse_sequence <= EFUSE_CHANNEL_F_PUMP)
+//     {
+//         return io_TILoadswitch_pgood(efuses_retry_state[current_efuse_sequence].loadswitch.ti);
+//     }
+//     return STLoadswitch_Status(efuses_retry_state[current_efuse_sequence].loadswitch.st);
+// }
 
 void app_powerManager_EfuseProtocolTick_100Hz(void)
 {
@@ -135,10 +135,10 @@ void app_powerManager_EfuseProtocolTick_100Hz(void)
                 }
                 // case 2: off and trying to turn on
                 // we update the efuse blown status here because this only shows up when we want it on
-                if (!is_efuse_ok(current_efuse_sequence)) // todo remove this state?
-                {
-                    efuses_retry_state[current_efuse_sequence].retry_num++;
-                }
+                // if (!is_efuse_ok(current_efuse_sequence)) // todo remove this state?
+                // {
+                //     efuses_retry_state[current_efuse_sequence].retry_num++;
+                // }
 
                 // If we dont know the if the efuse is blown check if it is however if we know its already blown
                 // dont check After this is we begin power sequencing logic as we want to turn on the loads
