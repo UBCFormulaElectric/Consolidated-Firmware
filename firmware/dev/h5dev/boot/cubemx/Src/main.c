@@ -21,6 +21,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "cmsis_os.h"
+#include "FreeRTOS.h"
 #include "hw_fdcan.h"
 #include "bootloader.h"
 #include "io_canQueue.h"
@@ -47,7 +49,47 @@
 FDCAN_HandleTypeDef hfdcan1;
 
 /* USER CODE BEGIN PV */
+/* -------------------- GLOBAL VARIABLES -------------------------- */
 CanHandle can = { .hcan = &hfdcan1, .bus_num = 1, .receive_callback = io_canQueue_pushRx };
+
+/* -------------------- THREAD DEFINITIONS ------------------------ */
+/* Definitions for interfaceTask */
+osThreadId_t         interfaceTaskHandle;
+uint32_t             interfaceTaskBuffer[512];
+StaticTask_t         interfaceTaskControlBlock;
+const osThreadAttr_t interfaceTask_attributes = {
+    .name       = "interfaceTask",
+    .cb_mem     = &interfaceTaskControlBlock,
+    .cb_size    = sizeof(interfaceTaskControlBlock),
+    .stack_mem  = &interfaceTaskBuffer[0],
+    .stack_size = sizeof(interfaceTaskBuffer),
+    .priority   = (osPriority_t)osPriorityAboveNormal,
+};
+
+/* Definitions for tickTask */
+osThreadId_t         tickTaskHandle;
+uint32_t             tickTaskBuffer[512];
+StaticTask_t         tickTaskControlBlock;
+const osThreadAttr_t tickTask_attributes = {
+    .name       = "tickTask",
+    .cb_mem     = &tickTaskControlBlock,
+    .cb_size    = sizeof(tickTaskControlBlock),
+    .stack_mem  = &tickTaskBuffer[0],
+    .stack_size = sizeof(tickTaskBuffer),
+    .priority   = (osPriority_t)osPriorityNormal,
+};
+/* Definitions for canTxTask */
+osThreadId_t         canTxTaskHandle;
+uint32_t             canTxTaskBuffer[512];
+StaticTask_t         canTxTaskControlBlock;
+const osThreadAttr_t canTxTask_attributes = {
+    .name       = "canTxTask",
+    .cb_mem     = &canTxTaskControlBlock,
+    .cb_size    = sizeof(canTxTaskControlBlock),
+    .stack_mem  = &canTxTaskBuffer[0],
+    .stack_size = sizeof(canTxTaskBuffer),
+    .priority   = (osPriority_t)osPriorityBelowNormal,
+};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -55,7 +97,10 @@ void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_FDCAN1_Init(void);
 /* USER CODE BEGIN PFP */
-
+/* -------------------- TASK DECLARATIONS ------------------------ */
+void runInterfaceTask(void *argument);
+void runTickTask(void *argument);
+void runCanTxTask(void *argument);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -94,10 +139,26 @@ int main(void)
     MX_FDCAN1_Init();
     /* USER CODE BEGIN 2 */
     bootloader_init();
+
+    /* Init scheduler */
+    osKernelInitialize();
+
+    /* creation of interfaceTask */
+    interfaceTaskHandle = osThreadNew(runInterfaceTask, NULL, &interfaceTask_attributes);
+
+    /* creation of tickTask */
+    tickTaskHandle = osThreadNew(runTickTask, NULL, &tickTask_attributes);
+
+    /* creation of canTxTask */
+    canTxTaskHandle = osThreadNew(runCanTxTask, NULL, &canTxTask_attributes);
+
+    /* Start scheduler */
+    osKernelStart();
     /* USER CODE END 2 */
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
+    /* We should never get here as control is now taken by the scheduler */
     while (1)
     {
         /* USER CODE END WHILE */
@@ -238,7 +299,38 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+/**
+ * @brief  Function implementing the interfaceTask thread.
+ * @param  argument: Not used
+ * @retval None
+ */
+void runInterfaceTask(void *argument)
+{
+    /* Infinite loop */
+    bootloader_runInterfaceTask();
+}
 
+/**
+ * @brief Function implementing the tickTask thread.
+ * @param argument: Not used
+ * @retval None
+ */
+void runTickTask(void *argument)
+{
+    /* Infinite loop */
+    bootloader_runTickTask();
+}
+
+/**
+ * @brief Function implementing the canTxTask thread.
+ * @param argument: Not used
+ * @retval None
+ */
+void runCanTxTask(void *argument)
+{
+    /* Infinite loop */
+    bootloader_runCanTxTask();
+}
 /* USER CODE END 4 */
 
 /**

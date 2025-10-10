@@ -21,6 +21,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "cmsis_os.h"
+#include "FreeRTOS.h"
 #include "tasks.h"
 /* USER CODE END Includes */
 
@@ -44,7 +46,84 @@
 FDCAN_HandleTypeDef hfdcan1;
 
 /* USER CODE BEGIN PV */
+/* -------------------- THREAD DEFINITIONS ------------------------ */
+/* Definitions for Task100Hz */
+osThreadId_t         Task100HzHandle;
+uint32_t             Task100HzBuffer[512];
+StaticTask_t         Task100HzControlBlock;
+const osThreadAttr_t Task100Hz_attributes = {
+    .name       = "Task100Hz",
+    .cb_mem     = &Task100HzControlBlock,
+    .cb_size    = sizeof(Task100HzControlBlock),
+    .stack_mem  = &Task100HzBuffer[0],
+    .stack_size = sizeof(Task100HzBuffer),
+    .priority   = (osPriority_t)osPriorityHigh,
+};
 
+/* Definitions for Task1kHz */
+osThreadId_t         Task1kHzHandle;
+uint32_t             Task1kHzBuffer[512];
+StaticTask_t         Task1kHzControlBlock;
+const osThreadAttr_t Task1kHz_attributes = {
+    .name       = "Task1kHz",
+    .cb_mem     = &Task1kHzControlBlock,
+    .cb_size    = sizeof(Task1kHzControlBlock),
+    .stack_mem  = &Task1kHzBuffer[0],
+    .stack_size = sizeof(Task1kHzBuffer),
+    .priority   = (osPriority_t)osPriorityRealtime,
+};
+
+/* Definitions for Task1Hz */
+osThreadId_t         Task1HzHandle;
+uint32_t             Task1HzBuffer[512];
+StaticTask_t         Task1HzControlBlock;
+const osThreadAttr_t Task1Hz_attributes = {
+    .name       = "Task1Hz",
+    .cb_mem     = &Task1HzControlBlock,
+    .cb_size    = sizeof(Task1HzControlBlock),
+    .stack_mem  = &Task1HzBuffer[0],
+    .stack_size = sizeof(Task1HzBuffer),
+    .priority   = (osPriority_t)osPriorityAboveNormal,
+};
+
+/* Definitions for TaskCanFDTx */
+osThreadId_t         TaskCanFDTxHandle;
+uint32_t             TaskCanFDTxBuffer[512];
+StaticTask_t         TaskCanFDTxControlBlock;
+const osThreadAttr_t TaskCanFDTx_attributes = {
+    .name       = "TaskCanFDTx",
+    .cb_mem     = &TaskCanFDTxControlBlock,
+    .cb_size    = sizeof(TaskCanFDTxControlBlock),
+    .stack_mem  = &TaskCanFDTxBuffer[0],
+    .stack_size = sizeof(TaskCanFDTxBuffer),
+    .priority   = (osPriority_t)osPriorityBelowNormal,
+};
+
+/* Definitions for TaskCanRx */
+osThreadId_t         TaskCanRxHandle;
+uint32_t             TaskCanRxBuffer[512];
+StaticTask_t         TaskCanRxControlBlock;
+const osThreadAttr_t TaskCanRx_attributes = {
+    .name       = "TaskCanRx",
+    .cb_mem     = &TaskCanRxControlBlock,
+    .cb_size    = sizeof(TaskCanRxControlBlock),
+    .stack_mem  = &TaskCanRxBuffer[0],
+    .stack_size = sizeof(TaskCanRxBuffer),
+    .priority   = (osPriority_t)osPriorityBelowNormal,
+};
+
+/* Definitions for TaskChimera */
+osThreadId_t         TaskChimeraHandle;
+uint32_t             TaskChimeraBuffer[512];
+StaticTask_t         TaskChimeraControlBlock;
+const osThreadAttr_t TaskChimera_attributes = {
+    .name       = "TaskChimera",
+    .cb_mem     = &TaskChimeraControlBlock,
+    .cb_size    = sizeof(TaskChimeraControlBlock),
+    .stack_mem  = &TaskChimeraBuffer[0],
+    .stack_size = sizeof(TaskChimeraBuffer),
+    .priority   = (osPriority_t)osPriorityHigh,
+};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -52,7 +131,13 @@ void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_FDCAN1_Init(void);
 /* USER CODE BEGIN PFP */
-
+/* -------------------- TASK DECLARATIONS ------------------------ */
+void RunTask100Hz(void *argument);
+void RunCanFDTxTask(void *argument);
+void RunCanRxTask(void *argument);
+void RunTask1kHz(void *argument);
+void RunTask1Hz(void *argument);
+void RunTaskChimera(void *argument);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -67,7 +152,7 @@ static void MX_FDCAN1_Init(void);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
+    tasks_preInit();
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -91,10 +176,35 @@ int main(void)
     MX_FDCAN1_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
+
+    osKernelInitialize();
+
+    /* Create the thread(s) */
+    /* creation of Task100Hz */
+    Task100HzHandle = osThreadNew(RunTask100Hz, NULL, &Task100Hz_attributes);
+
+    /* creation of Task1kHz */
+    Task1kHzHandle = osThreadNew(RunTask1kHz, NULL, &Task1kHz_attributes);
+
+    /* creation of Task1Hz */
+    Task1HzHandle = osThreadNew(RunTask1Hz, NULL, &Task1Hz_attributes);
+
+    /* creation of TaskCanFDTx */
+    TaskCanFDTxHandle = osThreadNew(RunCanFDTxTask, NULL, &TaskCanFDTx_attributes);
+
+    /* creation of TaskCanRx */
+    TaskCanRxHandle = osThreadNew(RunCanRxTask, NULL, &TaskCanRx_attributes);
+
+    /* creation of TaskChimera */
+    TaskChimeraHandle = osThreadNew(RunTaskChimera, NULL, &TaskChimera_attributes);
+
+    /* Start scheduler */
+    osKernelStart();
     /* USER CODE END 2 */
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
+    /* We should never get here as control is now taken by the scheduler */
     while (1)
     {
         /* USER CODE END WHILE */
@@ -237,7 +347,66 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+/* -------------------- TASK DEFINITIONS ------------------------ */
+/**
+ * @brief  Function implementing the Task100Hz thread.
+ * @param  argument: Not used
+ * @retval None
+ */
+void RunTask100Hz(void *argument)
+{
+    tasks_run100Hz();
+}
 
+/**
+ * @brief Function implementing the TaskCanFDTx thread.
+ * @param argument: Not used
+ * @retval None
+ */
+void RunCanFDTxTask(void *argument)
+{
+    tasks_runCanFDTx();
+}
+
+/**
+ * @brief Function implementing the TaskCanRx thread.
+ * @param argument: Not used
+ * @retval None
+ */
+void RunCanRxTask(void *argument)
+{
+    tasks_runCanRx();
+}
+
+/**
+ * @brief Function implementing the Task1kHz thread.
+ * @param argument: Not used
+ * @retval None
+ */
+void RunTask1kHz(void *argument)
+{
+    tasks_run1kHz();
+}
+
+/**
+ * @brief Function implementing the Task1Hz thread.
+ * @param argument: Not used
+ * @retval None
+ */
+void RunTask1Hz(void *argument)
+{
+    tasks_run1Hz();
+}
+
+/**
+ * @brief Function implementing the TaskChimera thread.
+ * @param argument: Not used
+ * @retval None
+ */
+void RunTaskChimera(void *argument)
+{
+    tasks_runChimera();
+}
 /* USER CODE END 4 */
 
 /**

@@ -30,9 +30,10 @@
 
 #include "app_utils.h"
 
+// SYS tick timer
 extern TIM_HandleTypeDef htim6;
 
-// Need these to be created an initialized elsewhere
+// Need these to be created an initialized elsewhere (main.c)
 extern CanHandle can;
 
 void canRxQueueOverflowCallBack(const uint32_t unused)

@@ -37,7 +37,7 @@ void tasks_run1kHz()
 {
     forever {}
 }
-void tasks_runCanTx()
+void tasks_runCanFDTx()
 {
     forever {}
 }
