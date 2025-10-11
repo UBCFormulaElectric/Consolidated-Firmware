@@ -36,7 +36,9 @@ Notes
 #define LOG_PRINTF(format, ...) SEGGER_RTT_printf(0, format, ##__VA_ARGS__)
 #else
 #include <stdio.h>
-#define LOG_PRINTF(format, ...) printf(format, ##__VA_ARGS__)
+#define LOG_PRINTF(format, ...)    \
+    printf(format, ##__VA_ARGS__); \
+    fflush(stdout)
 #endif
 
 #define _LOG(level, format, ...) \
