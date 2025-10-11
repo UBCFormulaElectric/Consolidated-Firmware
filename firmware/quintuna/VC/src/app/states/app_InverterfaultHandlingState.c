@@ -144,23 +144,27 @@ static void InverterFaultHandlingStateRunOnTick100Hz(void)
                     }
                 }
             }
+            break;
         }
 
         case INV_FAULT_LOCKOUT:
+        {
             // Do nothing here no retry by design; wait for manual action or power cycle also toggling off retry since
             // it doesn't make sense to retry here
             LOG_INFO("inverter is locked out need to power cycle");
             app_canAlerts_VC_Info_InverterRetry_set(false);
             return;
+        }
 
         case INV_FAULT_RECOVERED:
+        {
             LOG_INFO("fault recovered on retry number: %u", retry_counter);
             app_canAlerts_VC_Info_InverterRetry_set(false);
 
             // jumping back to Hvinit instead of first state DC is alrady on
             app_stateMachine_setNextState(&hvInit_state);
             break;
-
+        }
         default:
             break;
     }
