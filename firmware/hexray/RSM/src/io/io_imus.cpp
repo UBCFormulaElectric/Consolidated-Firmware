@@ -1,8 +1,4 @@
 #include "io_imus.hpp"
-extern "C"
-{
-    #include "io_imu.h" //QUESTION: In shared file, so do we keep as C code?
-}
 
 #include "hw_i2cs.hpp" //Not yet created
 
@@ -14,5 +10,3 @@ const imuConfig imu_config = { .imu_i2c_handle = &imu_i2c,
                                .roll_offset    = 0.0f,
                                .pitch_offset   = 0.0f,
                                .yaw_offset     = 0.0f };
-
-//QUESTION: Not sure why the data is not working
