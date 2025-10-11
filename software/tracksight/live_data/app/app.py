@@ -1,6 +1,8 @@
 """
 Entrypoint to the telemetry backend
 """
+from multiprocessing import Process
+
 print("Starting app...")
 import time
 
@@ -67,13 +69,14 @@ def create_app():
         mock_thread = get_mock_task(sio)
     else:
         raise RuntimeError("Data source is not valid")
-    
+
     # Reading Thread
     ws_broadcast_thread = get_websocket_broadcast(sio)
     influx_logger_task = InfluxHandler.get_influx_logger_task(sio)
 
     if not DEBUG and SERVER_IP:  # only when debug is off because it in debug mode it will create a subprocess and run this again
-        register_mdns_service(SERVER_IP, SERVER_DOMAIN_NAME)
+        p = Process(target=register_mdns_service, args=(SERVER_IP, SERVER_DOMAIN_NAME))
+        p.start()
     return app
 
 if __name__ == "__main__":

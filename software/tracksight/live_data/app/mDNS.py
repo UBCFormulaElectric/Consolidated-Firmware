@@ -33,6 +33,6 @@ def register_mdns_service(ip: str, service_name: str):
 
 
 if __name__ == "__main__":
-    register_mdns_service(ip="192.168.1.126", service_name="testt_services")
+    register_mdns_service(ip="206.87.75.184", service_name="testt_services")
     while True:
         time.sleep(1)
