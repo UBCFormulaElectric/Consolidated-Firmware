@@ -16,8 +16,6 @@
 #include "app_driveHandling.h"
 #include "app_startSwitch.h"
 
-#define OFF 0
-
 static bool                    launch_control_switch_is_on;
 static bool                    regen_switch_is_on;
 static TorqueAllocationOutputs torqueOutputToMotors;
@@ -33,31 +31,21 @@ static PowerManagerConfig power_manager_state = {
                        [EFUSE_CHANNEL_R_RAD]   = { .efuse_enable = true, .timeout = 200, .max_retry = 5 } }
 };
 
-static bool driveStatePassPreCheck()
+static bool driveStatePassPreCheck(void)
 {
     // All states module checks for faults, and returns whether or not a fault was detected.
     // const WarningType warning_check = app_warningHandling_globalWarningCheck();
-    const bool inverter_warning = app_warningHandling_inverterStatus();
-    const bool board_warning    = app_warningHandling_boardWarningCheck();
-
-    // Make sure you can only turn on VD in init and not during drive, only able to turn off
-    const bool prev_regen_switch_val = regen_switch_is_on;
-    regen_switch_is_on               = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON && prev_regen_switch_val;
-
-    const bool prev_launch_control_switch_is_on = launch_control_switch_is_on;
-    launch_control_switch_is_on =
-        app_canRx_CRIT_LaunchControlSwitch_get() == SWITCH_ON && prev_launch_control_switch_is_on;
 
     // should take priority over inverter fault as this will set torque to 0 and then
     // inverter retry can happen the next time the user enters drive state if inverters have faulted
 
-    if (app_startSwitch_hasRisingEdge())
+    if (app_startSwitch_hasRisingEdge()) // wtf
     {
         app_stateMachine_setNextState(&hv_state);
         return false;
     }
 
-    if (inverter_warning)
+    if (app_warningHandling_inverterStatus())
     {
         app_canAlerts_VC_Info_InverterRetry_set(true);
         // Go to inverter on state to unset the fault on the inverters and restart the sequence
@@ -65,22 +53,9 @@ static bool driveStatePassPreCheck()
         return false;
     }
 
-    if (board_warning)
+    if (app_warningHandling_boardWarningCheck())
     {
         return false;
-    }
-
-    // Update Regen + TV LEDs
-    if (!regen_switch_is_on)
-    {
-        app_canTx_VC_RegenEnabled_set(false);
-        // TODO: sus can msg?
-        app_canTx_VC_Info_RegenNotAvailable_set(true);
-    }
-
-    if (!launch_control_switch_is_on)
-    {
-        app_canTx_VC_TorqueVectoringEnabled_set(false);
     }
 
     return true;
@@ -88,10 +63,6 @@ static bool driveStatePassPreCheck()
 
 static void runDrivingAlgorithm(const float apps_pedal_percentage)
 {
-    // Make sure you can only turn on VD in init and not during drive, only able to turn off
-    bool prev_regen_switch_val = regen_switch_is_on;
-    regen_switch_is_on         = app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON && prev_regen_switch_val;
-
     // bool prev_torque_vectoring_switch_val = torque_vectoring_switch_is_on;
     //  regen_switch_is_on = app_canRx_CRIT_VanillaOverrideSwitch_get() == SWITCH_ON &&
     //  prev_torque_vectoring_switch_val;
@@ -121,19 +92,6 @@ static void runDrivingAlgorithm(const float apps_pedal_percentage)
     app_torqueBroadCast(&torqueOutputToMotors);
 }
 
-static void app_switchInit(void)
-{
-    if (SWITCH_ON == app_canRx_CRIT_LaunchControlSwitch_get())
-    {
-        launch_control_switch_is_on = true;
-    }
-
-    if (SWITCH_ON == app_canRx_CRIT_RegenSwitch_get())
-    {
-        regen_switch_is_on = true;
-    }
-}
-
 static void app_enable_inv(void)
 {
     app_canTx_VC_INVFRbEnable_set(true);
@@ -152,29 +110,39 @@ static void app_enable_inv(void)
     app_canTx_VC_INVRRTorqueLimitNegative_set(-PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM));
 }
 
-static void driveStateRunOnEntry()
+static void driveStateRunOnEntry(void)
 {
     app_canTx_VC_State_set(VC_DRIVE_STATE);
     app_powerManager_updateConfig(power_manager_state);
     // Enable inverters
     app_enable_inv();
-    app_switchInit();
     app_reset_torqueToMotors(&torqueOutputToMotors);
     app_torqueVectoring_init();
+
+    // capture the state of the switches the moment you enter the drive state
+    launch_control_switch_is_on = SWITCH_ON == app_canRx_CRIT_LaunchControlSwitch_get();
+    regen_switch_is_on          = SWITCH_ON == app_canRx_CRIT_RegenSwitch_get();
 }
 
 static void driveStateRunOnTick100Hz(void)
 {
+    // Make sure you can only turn on VD in init and not during drive, only able to turn off
+    regen_switch_is_on &= app_canRx_CRIT_RegenSwitch_get() == SWITCH_ON;
+    launch_control_switch_is_on &= app_canRx_CRIT_LaunchControlSwitch_get() == SWITCH_ON;
+    // Update Regen + TV LEDs
+    app_canTx_VC_RegenEnabled_set(regen_switch_is_on);
+    app_canTx_VC_TorqueVectoringEnabled_set(launch_control_switch_is_on);
+
     // pedal mapped changed from [0, 100] to [0.0, 1.0]
-    float apps_pedal_percentage = (float)app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
+    float apps_pedal_percentage = app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
 
     // ensure precheck and software bspd are good
     if (!driveStatePassPreCheck() || app_warningHandling_checkSoftwareBspd(apps_pedal_percentage))
     {
-        app_canTx_VC_INVFRTorqueSetpoint_set(OFF);
-        app_canTx_VC_INVRRTorqueSetpoint_set(OFF);
-        app_canTx_VC_INVFLTorqueSetpoint_set(OFF);
-        app_canTx_VC_INVRLTorqueSetpoint_set(OFF);
+        app_canTx_VC_INVFRTorqueSetpoint_set(0);
+        app_canTx_VC_INVRRTorqueSetpoint_set(0);
+        app_canTx_VC_INVFLTorqueSetpoint_set(0);
+        app_canTx_VC_INVRLTorqueSetpoint_set(0);
         return;
     }
 
@@ -197,10 +165,10 @@ static void driveStateRunOnExit(void)
     app_canTx_VC_INVRRbEnable_set(false);
     app_canTx_VC_INVRLbEnable_set(false);
 
-    app_canTx_VC_INVFRTorqueSetpoint_set(OFF);
-    app_canTx_VC_INVRRTorqueSetpoint_set(OFF);
-    app_canTx_VC_INVFLTorqueSetpoint_set(OFF);
-    app_canTx_VC_INVRLTorqueSetpoint_set(OFF);
+    app_canTx_VC_INVFRTorqueSetpoint_set(0);
+    app_canTx_VC_INVRRTorqueSetpoint_set(0);
+    app_canTx_VC_INVFLTorqueSetpoint_set(0);
+    app_canTx_VC_INVRLTorqueSetpoint_set(0);
 
     app_reset_torqueToMotors(&torqueOutputToMotors);
 
