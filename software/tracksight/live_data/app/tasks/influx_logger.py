@@ -78,7 +78,7 @@ def _log_influx() -> None:
                 except Empty:
                     continue
 
-                logger.debug(f"Writing {signal.name} with value {signal.value} to InfluxDB at {INFLUX_URL}")
+                logger.debug(f"Writing {signal.name} with value {signal.value} to InfluxDB")
                 # write the signal to influxdb
                 write_api.write(
                     bucket=INFLUX_BUCKET,
