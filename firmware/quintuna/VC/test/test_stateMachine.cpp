@@ -487,16 +487,33 @@ TEST_F(VCStateMachineTest, InverterRetryMoreThanOneFaultedInverter) {
 
 // Retry lockout when error codes given (iterate through all cases)
 TEST_F(VCStateMachineTest, InverterFaultLockout) {
-
+    SetStateWithEntry(&inverter_retry_state);
+    app_canTx_VC_Warning_FrontLeftInverterFault_set(1);
+    ASSERT_STATE_EQ(inverter_retry_state);
 }
 
 // State changing to HV_init when fault is cleared
 TEST_F(VCStateMachineTest, InverterRetryRecovered) {
+    SetStateWithEntry(&hvInit_state);
+    LetTimePass(10); 
+    app_canTx_VC_Warning_FrontLeftInverterFault_set(1);
+    LetTimePass(10); 
+    ASSERT_STATE_EQ(inverter_retry_state);
+    app_canTx_VC_Warning_FrontLeftInverterFault_set(0)
+    LetTimePass(10); 
+    ASSERT_STATE_EQ(hvInit_state);
 
 }
 
 // Returning to Retry state when fault has not recovered yet
 TEST_F(VCStateMachineTest, InverterRetryNotRecovered) {
+    SetStateWithEntry(&hvInit_state);
+    LetTimePass(10); 
+    app_canTx_VC_Warning_FrontLeftInverterFault_set(1);
+    LetTimePass(10); 
+    ASSERT_STATE_EQ(inverter_retry_state);
+    LetTimePass(40); 
+    ASSERT_STATE_EQ(inverter_retry_state);
 
 }
 
