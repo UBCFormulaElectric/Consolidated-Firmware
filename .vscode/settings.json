@@ -11,5 +11,20 @@
     "--compile-commands-dir=build_fw_dev",
     // "--compile-commands-dir=build_fw_test",
     "--query-driver=/usr/local/bin/arm-none-eabi-gcc"
-  ]
+  ],
+  "files.associations": {
+    "hw_chimera_v2.h": "c",
+    "app_jsoncan.h": "c",
+    "hw_watchdog.h": "c",
+    "cmsis_os.h": "c",
+    "app_signal.h": "c",
+    "app_shdnloopnode.h": "c",
+    "io_fsmshdn.h": "c",
+    "app_cantx.h": "c",
+    "app_rangecheck.h": "c",
+    "app_canalerts.h": "c",
+    "io_steering.h": "c",
+    "app_suspension.h": "c",
+    "io_suspension.h": "c"
+  }
 }

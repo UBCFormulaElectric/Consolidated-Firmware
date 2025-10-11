@@ -1,6 +1,7 @@
-#include "tasks.h"
+#include "tasks.hpp"
 #include "jobs.hpp"
 #include "io_time.hpp"
+#include "app_utils.hpp"
 
 void tasks_preInit() {}
 void tasks_init()
