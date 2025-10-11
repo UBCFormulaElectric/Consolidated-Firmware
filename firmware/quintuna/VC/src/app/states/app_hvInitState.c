@@ -163,7 +163,6 @@ static void hvInitStateRunOnExit(void)
     app_canTx_VC_INVFRbErrorReset_set(false);
     app_canTx_VC_INVRLbErrorReset_set(false);
     app_canTx_VC_INVRRbErrorReset_set(false);
-    bringup_post_fault_retry = false;
 }
 
 State hvInit_state = { .name              = "HV INIT",

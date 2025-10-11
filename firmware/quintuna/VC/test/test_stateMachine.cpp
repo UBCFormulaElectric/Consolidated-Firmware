@@ -456,7 +456,7 @@ TEST_F(VCStateMachineTest, RegenSwitchOffSetsNotAvailable)
 
 TEST_F(VCStateMachineTest, EntryInitializesPcmOn)
 {
-    SetStateWithEntry(&pcmOn_state);
+    SetStateWithEntry(&pcmOn_state);s
     EXPECT_EQ(app_canTx_VC_State_get(), VC_PCM_ON_STATE);
     LetTimePass(10);
     // TODO: Re-enable PCM_ON state.
@@ -465,15 +465,40 @@ TEST_F(VCStateMachineTest, EntryInitializesPcmOn)
 
 /* ------------------------- INVERTER FAULT HANDLING STATE ------------------------------- */
 // Drive state to retry when only one inverter is faulted (interate through all 4)
-TEST_F(VCStateMachineTest, ) {}
+TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverter) {
+    SetStateWithEntry(&hvInit_state);
+    LetTimePass(10); 
+    app_canTx_VC_Warning_FrontLeftInverterFault_set(1);
+    LetTimePass(10); 
+    ASSERT_STATE_EQ(inverter_retry_state);
+}
+
 // Drive state to retry when more than 1 inverter faulted
-TEST_F(VCStateMachineTest, ) {}
+TEST_F(VCStateMachineTest, InverterRetryMoreThanOneFaultedInverter) {
+    SetStateWithEntry(&hvInit_state);
+    LetTimePass(10); 
+    app_canTx_VC_Warning_FrontLeftInverterFault_set(1);
+    app_canTx_VC_Warning_FrontRightInverterFault_set(1);
+    app_canTx_VC_Warning_RearLeftInverterFault_set(1);
+
+    LetTimePass(20); 
+    ASSERT_STATE_EQ(inverter_retry_state);
+}
+
 // Retry lockout when error codes given (iterate through all cases)
-TEST_F(VCStateMachineTest, ) {}
+TEST_F(VCStateMachineTest, InverterFaultLockout) {
+
+}
+
 // State changing to HV_init when fault is cleared
-TEST_F(VCStateMachineTest, ) {}
+TEST_F(VCStateMachineTest, InverterRetryRecovered) {
+
+}
+
 // Returning to Retry state when fault has not recovered yet
-TEST_F(VCStateMachineTest, When not recovered the first time still retrying) {}
+TEST_F(VCStateMachineTest, InverterRetryNotRecovered) {
+
+}
 
 /* ------------------------- PCM ON STATE ------------------------------- */
 TEST_F(VCStateMachineTest, GoodVoltageTransitionsToHvInit)

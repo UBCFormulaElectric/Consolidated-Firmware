@@ -22,6 +22,7 @@
 #include "app_heartbeatMonitors.h"
 #include "app_shdnLoop.h"
 #include "app_shdnLast.h"
+#include <app_warningHandling.h>
 
 // io
 #include "io_time.h"
@@ -47,6 +48,14 @@ static void can3_tx(const JsonCanMsg *tx_msg)
 {
     const CanMsg msg = app_jsoncan_copyToCanMsg(tx_msg);
     io_canQueue_pushTx(&can3_tx_queue, &msg);
+}
+
+void app_stateMachine_inverterFaultHandling (void)
+{
+    if (app_warningHandling_inverterStatus())
+    {
+        app_stateMachine_setNextState(&inverter_retry_state);
+    }
 }
 
 #define AIR_MINUS_OPEN_DEBOUNCE_MS (100U)
@@ -99,7 +108,6 @@ void jobs_run100Hz_tick(void)
 
     app_heartbeatMonitor_checkIn(&hb_monitor);
     app_heartbeatMonitor_broadcastFaults(&hb_monitor);
-
     app_stateMachine_inverterFaultHandling();
     app_stateMachine_tick100Hz();
 
