@@ -1,11 +1,11 @@
 MEMORY
 {
-  sram3_rtt        (xrw)  : ORIGIN = 0x30000000, LENGTH = 1K
-  ram              (xrw)  : ORIGIN = 0x30000400, LENGTH = 319K
-  boot_code        (rx)   : ORIGIN = 0x08000000, LENGTH = 128K
-  app_metadata     (rx)   : ORIGIN = 0x08020000, LENGTH = 1K
-  app_code         (rx)   : ORIGIN = 0x08020400, LENGTH = 895K
-  boot_request_ram (xrw)  : ORIGIN = 0x2003FFF0, LENGTH = 0x10 
+  sram3_rtt (xrw) : ORIGIN = 0x30000000, LENGTH = 2K
+  ram       (xrw) : ORIGIN = 0x30000800, LENGTH = 318K  /* was 319K */
+  boot_code (rx)  : ORIGIN = 0x08000000, LENGTH = 128K
+  app_metadata (rx): ORIGIN = 0x08020000, LENGTH = 1K
+  app_code  (rx)  : ORIGIN = 0x08020400, LENGTH = 895K
+  boot_request_ram (xrw): ORIGIN = 0x2003FFF0, LENGTH = 0x10
 }
 
 SECTIONS

@@ -3,8 +3,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define FLASH_WORD_BYTES (FLASH_NB_32BITWORD_IN_FLASHWORD * sizeof(uint32_t))
-
 #if defined(STM32F412Rx)
 
 /**
@@ -40,7 +38,9 @@ bool hw_flash_programWord(uint32_t address, uint32_t data);
  */
 bool hw_flash_program(uint32_t address, uint8_t *buffer, uint32_t size);
 
-#elif defined(STM32H733xx)
+#elif defined(STM32H733xx) || defined(STM32H563xx)
+#define FLASH_NB_32BITWORD_IN_FLASHWORD 8U                                    /* 256 bits */
+#define FLASH_WORD_BYTES (FLASH_NB_32BITWORD_IN_FLASHWORD * sizeof(uint32_t)) /* 32 bytes */
 
 /**
  * Write a "flash word" to flash, which is 32 bytes or 256 bits.

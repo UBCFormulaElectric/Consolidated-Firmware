@@ -2,9 +2,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#ifdef STM32F412Rx
+#if defined(STM32F412Rx)
 #define CAN_PAYLOAD_BYTES 8
-#elif STM32H733xx
+#elif defined(STM32H733xx) || defined(STM32H563xx)
 #define CAN_PAYLOAD_BYTES 64
 #else
 #error "Please define what MCU is used."

@@ -1,6 +1,5 @@
 #include "app_utils.h"
 #include "hw_fdcan.h"
-#include <stm32h7xx_hal_fdcan.h>
 #undef NDEBUG // TODO remove this in favour of always_assert
 #include <assert.h>
 #include <cmsis_os2.h>
@@ -11,19 +10,28 @@
 #include "io_log.h"
 #include "io_time.h"
 
+#if defined(STM32H733xx)
+#include <stm32h7xx_hal_fdcan.h>
+#elif defined(STM32H563xx)
+#include <stm32h5xx_hal_fdcan.h>
+#endif
+
 void hw_can_init(CanHandle *can_handle)
 {
     assert(!can_handle->ready);
     // Configure a single filter bank that accepts any message.
     FDCAN_FilterTypeDef filter;
-    filter.IdType           = FDCAN_EXTENDED_ID; // 29 bit ID
-    filter.FilterIndex      = 0;
-    filter.FilterType       = FDCAN_FILTER_MASK;
-    filter.FilterConfig     = FDCAN_FILTER_TO_RXFIFO0;
-    filter.FilterID1        = 0x00000000; // Standard CAN ID bits [28:0]
-    filter.FilterID2        = 0x1FFFFFFF; // Mask bits for Extended CAN ID
+    filter.IdType       = FDCAN_EXTENDED_ID; // 29 bit ID
+    filter.FilterIndex  = 0;
+    filter.FilterType   = FDCAN_FILTER_MASK;
+    filter.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;
+    filter.FilterID1    = 0x00000000; // Standard CAN ID bits [28:0]
+    filter.FilterID2    = 0x1FFFFFFF; // Mask bits for Extended CAN ID
+
+#if defined(STM32H753xx)
     filter.IsCalibrationMsg = 0;
     filter.RxBufferIndex    = 0;
+#endif
 
     // Configure and initialize hardware filter.
     assert(HAL_FDCAN_ConfigFilter(can_handle->hcan, &filter) == HAL_OK);
