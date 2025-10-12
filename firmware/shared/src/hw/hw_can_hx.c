@@ -2,13 +2,14 @@
 #include "hw_fdcan.h"
 #undef NDEBUG // TODO remove this in favour of always_assert
 #include <assert.h>
-#include <cmsis_os2.h>
 #include <FreeRTOS.h>
 #include <task.h>
 #include <string.h>
 
+#include "app_utils.h"
 #include "io_log.h"
 #include "io_time.h"
+#include "hw_utils.h"
 
 #if defined(STM32H733xx)
 #include <stm32h7xx_hal_fdcan.h>
@@ -28,35 +29,55 @@ void hw_can_init(CanHandle *can_handle)
     filter.FilterID1    = 0x00000000; // Standard CAN ID bits [28:0]
     filter.FilterID2    = 0x1FFFFFFF; // Mask bits for Extended CAN ID
 
+// Fields only enabled for H7
 #if defined(STM32H753xx)
     filter.IsCalibrationMsg = 0;
     filter.RxBufferIndex    = 0;
 #endif
 
-    // Configure and initialize hardware filter.
-    assert(HAL_FDCAN_ConfigFilter(can_handle->hcan, &filter) == HAL_OK);
+    const ExitCode configure_filter_status =
+        hw_utils_convertHalStatus(HAL_FDCAN_ConfigFilter(can_handle->hcan, &filter));
+    ASSERT_EXIT_OK(configure_filter_status);
 
     // Configure interrupt mode for CAN peripheral.
-    assert(
-        HAL_FDCAN_ActivateNotification(
-            can_handle->hcan, FDCAN_IT_RX_FIFO0_NEW_MESSAGE | FDCAN_IT_RX_FIFO1_NEW_MESSAGE | FDCAN_IT_BUS_OFF,
-            FDCAN_TX_BUFFER0) == HAL_OK);
+    const ExitCode configure_notis_ok = hw_utils_convertHalStatus(HAL_FDCAN_ActivateNotification(
+        can_handle->hcan,
+        FDCAN_IT_RX_FIFO0_NEW_MESSAGE | FDCAN_IT_RX_FIFO1_NEW_MESSAGE | FDCAN_IT_BUS_OFF | FDCAN_IT_TX_COMPLETE,
+        FDCAN_TX_BUFFER0));
+    ASSERT_EXIT_OK(configure_notis_ok);
 
     // Start the FDCAN peripheral.
-    assert(HAL_FDCAN_Start(can_handle->hcan) == HAL_OK);
+    const ExitCode start_status = hw_utils_convertHalStatus(HAL_FDCAN_Start(can_handle->hcan));
+    ASSERT_EXIT_OK(start_status);
     can_handle->ready = true;
 }
 
 void hw_can_deinit(const CanHandle *can_handle)
 {
-    assert(HAL_FDCAN_Stop(can_handle->hcan) == HAL_OK);
-    assert(HAL_FDCAN_DeInit(can_handle->hcan) == HAL_OK);
+    const ExitCode stop_status = HAL_FDCAN_Stop(can_handle->hcan) == HAL_OK;
+    ASSERT_EXIT_OK(stop_status);
+    const ExitCode deinit_status = HAL_FDCAN_DeInit(can_handle->hcan) == HAL_OK;
+    ASSERT_EXIT_OK(deinit_status);
 }
 
 static ExitCode tx(CanHandle *can_handle, FDCAN_TxHeaderTypeDef tx_header, CanMsg *msg)
 {
-    while (HAL_FDCAN_GetTxFifoFreeLevel(can_handle->hcan) == 0U)
-        ;
+    for (uint32_t poll = 0; HAL_FDCAN_GetTxFifoFreeLevel(can_handle->hcan) == 0U;)
+    {
+        // the polling is here because if the CAN mailbox is temporarily blocked, we don't want to incur the
+        // overhead of context switching
+        if (poll <= 1000)
+        {
+            poll++;
+            continue;
+        }
+        assert(can_handle->transmit_task == NULL);
+        assert(osKernelGetState() == taskSCHEDULER_RUNNING && !xPortIsInsideInterrupt());
+        can_handle->transmit_task = xTaskGetCurrentTaskHandle();
+        const uint32_t num_notifs = ulTaskNotifyTake(pdTRUE, 1000);
+        UNUSED(num_notifs);
+        can_handle->transmit_task = NULL;
+    }
     return hw_utils_convertHalStatus(HAL_FDCAN_AddMessageToTxFifoQ(can_handle->hcan, &tx_header, msg->data.data8));
 }
 
@@ -186,4 +207,16 @@ void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFif
     UNUSED(RxFifo1ITs);
     while (IS_EXIT_OK(handleCallback(hfdcan, FDCAN_RX_FIFO1)))
         ;
+}
+
+void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t BufferIndexes)
+{
+    const CanHandle *can = hw_can_getHandle(hfdcan);
+    if (can->transmit_task == NULL)
+    {
+        return;
+    }
+    BaseType_t higherPriorityTaskWoken = pdFALSE;
+    vTaskNotifyGiveFromISR(can->transmit_task, &higherPriorityTaskWoken);
+    portYIELD_FROM_ISR(higherPriorityTaskWoken);
 }
