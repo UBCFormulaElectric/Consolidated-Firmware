@@ -1,16 +1,19 @@
-import WidgetRenderer, { WIDGET_TYPE } from "@/lib/types/Widget";
-import { WIDGET_SCHEMAS } from '@/lib/constants';
+"use client";
 
-const WIDGET_RENDERERS = Object.fromEntries(
-    WIDGET_SCHEMAS.map((schema) => (
-        [schema.type, schema.renderer]
-    ))
-)
+import WidgetRenderer, { WIDGET_TYPE } from "@/lib/types/Widget";
+import { useEditMode } from "@/lib/contexts/EditModeContext";
+import getWidgetSchema from "@/lib/getWidgetSchema";
 
 const Widget: WidgetRenderer<WIDGET_TYPE> = (props) => {
     const { type } = props;
 
-    const Renderer = WIDGET_RENDERERS[type];
+    const { isEditMode } = useEditMode();
+
+    const widgetSchema = getWidgetSchema(type);
+
+    const Renderer = isEditMode
+        ? widgetSchema.editor
+        : widgetSchema.renderer;
 
     if (!Renderer) {
         console.error(`Attempted to render widget with non-existant type '${type}'`);

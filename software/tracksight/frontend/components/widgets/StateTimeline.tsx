@@ -1,5 +1,7 @@
 import Widget from "@/lib/types/Widget";
 import Legend from "@/components/Legend";
+import { useSignalMetadata } from "@/lib/contexts/SignalsContext";
+import { useEffect } from "react";
 
 const StateTimeline: Widget<"stateTimeline"> = (props) => {
     const {
@@ -10,6 +12,12 @@ const StateTimeline: Widget<"stateTimeline"> = (props) => {
     const {
         colorPalette
     } = options;
+
+    const signalMetadata = useSignalMetadata(signals[0]);
+
+    if (!signalMetadata) return;
+
+    const enumOptions = Object.values(signalMetadata?.enum?.items || {});
 
     // TODO(evan): Implement this when the renderer is done
     return (
@@ -24,7 +32,7 @@ const StateTimeline: Widget<"stateTimeline"> = (props) => {
                 }
             </div>
 
-            <Legend theme="label" signals={signals} colorPalette={colorPalette} />
+            <Legend theme="label" signals={enumOptions} colorPalette={colorPalette} />
         </div>
     )
 }
