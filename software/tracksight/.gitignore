@@ -45,3 +45,7 @@ backend/data_mf4/*
 
 *.env
 !*.template.env
+**/bin/
+**/lib/
+**/include/
+**/pyvenv.cfg
