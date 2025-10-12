@@ -41,16 +41,19 @@ const Legend: React.FC<LegendProps> = (props) => {
     const ItemRenderer = useMemo(() => LEGEND_ITEM_RENDERERS[theme], [theme]);
 
     return (
-        <div className="flex gap-4">
-            {
-                signals.map((signal, i) => (
-                    <ItemRenderer
-                        key={signal}
-                        content={signal}
-                        color={colorPalette[i]}
-                    />
-                ))
-            }
+        <div
+            className="grid w-full max-w-full gap-4 justify-evenly"
+            style={{
+            gridTemplateColumns: "repeat(auto-fit, 200px)",
+            }}
+        >
+            {signals.map((signal, i) => (
+            <ItemRenderer
+                key={signal}
+                content={signal}
+                color={colorPalette[i] || "#000000"}
+            />
+            ))}
         </div>
     )
 };

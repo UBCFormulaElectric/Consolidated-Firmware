@@ -24,11 +24,11 @@ const DashboardLayoutProvider = ({ children }: { children: React.ReactNode }) =>
     // TODO(evan): Remove this it's just temporary data, should be pulled from local storage
     //             or something similar
     {
-      title: "Battery Informat",
+      title: "Battery Information",
       widgets: [
         {
           type: "stateTimeline",
-          signals: ["VC_STATE_ONE", "VC_STATE_TWO", "VC_STATE_THREE", "VC_STATE_FOUR"],
+          signals: ["VC_State"],
           options: {
             colorPalette: [
               "#FF637E",
