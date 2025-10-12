@@ -51,7 +51,7 @@ static void can3_tx(const JsonCanMsg *tx_msg)
     io_canQueue_pushTx(&can3_tx_queue, &msg);
 }
 
-void app_stateMachine_inverterFaultHandling (void)
+void app_stateMachine_inverterFaultHandling(void)
 {
     if (app_warningHandling_inverterStatus())
     {

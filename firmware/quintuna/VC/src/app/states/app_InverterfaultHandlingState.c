@@ -11,10 +11,7 @@
 #define TIMEOUT 300u
 
 static TimerChannel     stability_timer;
-static bool             retry_on  = false;
-static bool             recovered = false;
 static VCInverterFaults current_inverter_fault_state;
-static uint16_t         retry_counter = 0;
 
 static const PowerManagerConfig power_manager_state = {
     .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
@@ -68,11 +65,11 @@ static void InverterFaultHandlingStateRunOnTick100Hz(void)
     {
         case INV_FAULT_RETRY:
         {
-            bool stable_recovery = false;
-            retry_counter++;
-            LOG_INFO("inverter is retrying, retry number: %u", retry_counter / 2600);
+            LOG_INFO("inverter entered fault state");
             bool inv_faulted = false;
             bool any_lockout = false;
+
+            LOG_INFO("checking for lockout");
 
             any_lockout |=
                 (is_lockout_code(inverter_handle_FL.can_error_info()) ||
@@ -85,6 +82,7 @@ static void InverterFaultHandlingStateRunOnTick100Hz(void)
                 break;
             }
 
+            LOG_INFO("checking for recovery");
             if (inverter_handle_FL.can_error_bit())
             {
                 app_timer_restart(&stability_timer);
@@ -151,14 +149,14 @@ static void InverterFaultHandlingStateRunOnTick100Hz(void)
         {
             // Do nothing here no retry by design; wait for manual action or power cycle also toggling off retry since
             // it doesn't make sense to retry here
-            LOG_INFO("inverter is locked out need to power cycle");
+            LOG_INFO("retry->inverter is locked out need to power cycle");
             app_canAlerts_VC_Info_InverterRetry_set(false);
             return;
         }
 
         case INV_FAULT_RECOVERED:
         {
-            LOG_INFO("fault recovered on retry number: %u", retry_counter);
+            LOG_INFO("retry -> fault recovered on retry");
             app_canAlerts_VC_Info_InverterRetry_set(false);
 
             // jumping back to Hvinit instead of first state DC is alrady on
