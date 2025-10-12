@@ -5,30 +5,6 @@
 #include "io_efuse_ST/io_efuse_ST.h"
 #include "io_efuse_TI/io_efuse_TI.h"
 
-#define ADC_VOLTAGE_TO_CURRENT_A 1.720f
-
-#ifndef TARGET_EMBEDDED
-typedef struct
-{
-    bool  enabled;
-    float current;
-    bool  simulate_fault;
-} Efuse;
-typedef struct
-{
-    const Efuse *efuse;
-    bool         pgood;
-} TI_efuse;
-typedef struct
-{
-    const Efuse *efuse1;
-    const Efuse *efuse2;
-
-    bool pgood;
-    bool set_stby_reset_gpio;
-} ST_efuse;
-#endif
-
 /**
  * Enable or disable the provided efuse channel.
  * @param channel Channel to enable/disable

@@ -19,7 +19,7 @@ typedef struct
     void (*loadswitch_reset_set)(const Efuse *channel, const bool set);
     void (*reset_efuse)(const Efuse *channel);
 
-} EfuseFunctons;
+} EfuseFunctions;
 
 typedef struct __Efuse
 {
@@ -31,5 +31,5 @@ typedef struct __Efuse
         TI_Efuse *ti;
     };
 
-    EfuseFunctons *efuse_functions;
+    EfuseFunctions *efuse_functions;
 } Efuse;

@@ -9,11 +9,11 @@ static float io_efuse_ST_getChannelCurrent(const Efuse *channel);
 static void  io_efuse_ST_reset_set(const Efuse *channel, const bool set);
 static void  io_efuse_ST_Reset(const Efuse *channel);
 
-const EfuseFunctons st_efuse_functions = { .set_channel          = io_efuse_ST_setChannel,
-                                           .is_channel_enabled   = io_efuse_ST_isChannelEnabled,
-                                           .get_channel_current  = io_efuse_ST_getChannelCurrent,
-                                           .loadswitch_reset_set = io_efuse_ST_reset_set,
-                                           .reset_efuse          = io_efuse_ST_Reset };
+const EfuseFunctions st_efuse_functions = { .set_channel          = io_efuse_ST_setChannel,
+                                            .is_channel_enabled   = io_efuse_ST_isChannelEnabled,
+                                            .get_channel_current  = io_efuse_ST_getChannelCurrent,
+                                            .loadswitch_reset_set = io_efuse_ST_reset_set,
+                                            .reset_efuse          = io_efuse_ST_Reset };
 
 static void io_efuse_ST_setChannel(const Efuse *channel, const bool enabled)
 {
