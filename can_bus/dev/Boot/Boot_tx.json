@@ -1,0 +1,166 @@
+{
+  "H5Dev_Status": {
+    "msg_id": 805306368,
+    "cycle_time": 100,
+    "signals": {
+      "H5Dev_Hash": {
+        "bits": 32
+      },
+      "H5Dev_Clean": {
+        "bits": 1
+      },
+      "H5Dev_Status": {
+        "enum": "BootStatus"
+      }
+    }
+  },
+  "H5Dev_SignalStart": {
+    "msg_id": 805306369,
+    "cycle_time": null,
+    "description": "Signals the start of a flashing sequence for H5Dev",
+    "signals": {}
+  },
+  "H5Dev_SignalStartACK": {
+    "msg_id": 805306360,
+    "cycle_time": null,
+    "description": "Acknowledges the receipt of a H5Dev_SignalStart",
+    "signals": {}
+  },
+  "H5Dev_UpdateGOTOAppCmd": {
+    "msg_id": 805306361,
+    "cycle_time": null,
+    "description": "Tells the H5Dev to jump to the application",
+    "signals": {}
+  },
+  "H5Dev_EraseSectorCmd": {
+    "msg_id": 805306362,
+    "cycle_time": null,
+    "description": "Designates which sector to erase",
+    "signals": {
+      "H5Dev_Erase_Sector": {
+        "bits": 8
+      }
+    }
+  },
+  "H5Dev_EraseSectorCompleteCmd": {
+    "msg_id": 805306363,
+    "cycle_time": null,
+    "description": "Acknowledges the completion of a sector erase",
+    "signals": {}
+  },
+  "H5Dev_ProgramIdCmd": {
+    "msg_id": 805306364,
+    "cycle_time": null,
+    "description": "Contains the data to program into the H5Dev",
+    "signals": {
+      "H5Dev_Program_Data_High": {
+        "bits": 32
+      },
+      "H5Dev_Program_Data_Low": {
+        "bits": 32
+      }
+    }
+  },
+  "H5Dev_VerifyIdCmd": {
+    "msg_id": 805306365,
+    "cycle_time": null,
+    "signals": {}
+  },
+  "H5Dev_AppValidity": {
+    "msg_id": 805306366,
+    "cycle_time": null,
+    "signals": {
+      "H5Dev_App_Validity": {
+        "enum": "BootStatus"
+      }
+    }
+  },
+  "H5Dev_GOTOBootCmd": {
+    "msg_id": 805306367,
+    "cycle_time": null,
+    "description": "Tells the H5Dev to jump to the bootloader",
+    "signals": {}
+  },
+  "H7Dev_Status": {
+    "msg_id": 536870912,
+    "cycle_time": 100,
+    "signals": {
+      "H7Dev_Hash": {
+        "bits": 32
+      },
+      "H7Dev_Clean": {
+        "bits": 1
+      },
+      "H7Dev_Status": {
+        "enum": "BootStatus"
+      }
+    }
+  },
+  "H7Dev_SignalStart": {
+    "msg_id": 536870913,
+    "cycle_time": null,
+    "description": "Signals the start of a flashing sequence for H7Dev",
+    "signals": {}
+  },
+  "H7Dev_SignalStartACK": {
+    "msg_id": 536870914,
+    "cycle_time": null,
+    "description": "Acknowledges the receipt of a H7Dev_SignalStart",
+    "signals": {}
+  },
+  "H7Dev_UpdateGOTOAppCmd": {
+    "msg_id": 536870915,
+    "cycle_time": null,
+    "description": "Tells the H7Dev to jump to the application",
+    "signals": {}
+  },
+  "H7Dev_EraseSectorCmd": {
+    "msg_id": 536870916,
+    "cycle_time": null,
+    "description": "Designates which sector to erase",
+    "signals": {
+      "H7Dev_Erase_Sector": {
+        "bits": 8
+      }
+    }
+  },
+  "H7Dev_EraseSectorCompleteCmd": {
+    "msg_id": 536870917,
+    "cycle_time": null,
+    "description": "Acknowledges the completion of a sector erase",
+    "signals": {}
+  },
+  "H7Dev_ProgramIdCmd": {
+    "msg_id": 536870918,
+    "cycle_time": null,
+    "description": "Contains the data to program into the H7Dev",
+    "signals": {
+      "H7Dev_Program_Data_High": {
+        "bits": 32
+      },
+      "H7Dev_Program_Data_Low": {
+        "bits": 32
+      }
+    }
+  },
+  "H7Dev_VerifyIdCmd": {
+    "msg_id": 536870919,
+    "cycle_time": null,
+    "signals": {}
+  },
+  "H7Dev_AppValidity": {
+    "msg_id": 536870920,
+    "cycle_time": null,
+    "signals": {
+      "H7Dev_App_Validity": {
+        "enum": "BootStatus"
+      }
+    }
+  },
+  "H7Dev_GOTOBootCmd": {
+    "msg_id": 536870921,
+    "cycle_time": null,
+    "description": "Tells the H7Dev to jump to the bootloader",
+    "signals": {}
+  }
+}

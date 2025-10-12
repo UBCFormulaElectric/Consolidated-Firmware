@@ -90,6 +90,9 @@ IF ("${TARGET}" STREQUAL "binary")
             TRUE
     )
 
+    # JSONCAN
+    jsoncan_embedded_library(H7 dev "${CMAKE_CURRENT_BINARY_DIR}")
+
     embedded_binary(
             "h7dev_app"
             "${EMBEDDED_SRCS}"
@@ -113,7 +116,7 @@ IF ("${TARGET}" STREQUAL "binary")
             TRUE
     )
 
-    target_link_libraries("h7dev_app.elf" "h7dev_stm32cube" "h7dev_stm32cube_hal" "protobuf_library" "logfs_cm7")
+    target_link_libraries("h7dev_app.elf" "h7dev_stm32cube" "h7dev_stm32cube_hal" "protobuf_library" "logfs_cm7" "dev_H7_jsoncan")
 
     # Bootloader files.
     file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")

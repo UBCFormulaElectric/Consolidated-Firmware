@@ -21,6 +21,8 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
+        "${SHARED_HW_INCLUDE_DIR}/hw_resetReason.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
 )
 
 file(GLOB CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
@@ -84,13 +86,16 @@ IF ("${TARGET}" STREQUAL "binary")
             FALSE
     )
 
+    # JSONCAN
+    jsoncan_embedded_library(H5 dev "${CMAKE_CURRENT_BINARY_DIR}")
+
     embedded_binary(
             "h5dev_app"
             "${EMBEDDED_SRCS}"
             "${EMBEDDED_INCLUDE_DIRS}"
             "${LINKER_SCRIPT}"
             "${ARM_CORE}"
-    )
+    ) 
 
     commit_info_library(
             "h5dev_app.elf"
@@ -99,7 +104,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
-    target_link_libraries("h5dev_app.elf" "h5dev_stm32cube" "h5dev_stm32cube_hal")
+    target_link_libraries("h5dev_app.elf" "h5dev_stm32cube" "h5dev_stm32cube_hal" "dev_H5_jsoncan")
 
     # Bootloader files.
     file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
