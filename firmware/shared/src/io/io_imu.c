@@ -29,6 +29,8 @@
 
 extern const imuConfig imu_config;
 
+static bool io_imu_ready = false;
+
 ExitCode io_imu_init(void)
 {
     RETURN_IF_ERR(hw_i2c_isTargetReady(imu_config.imu_i2c_handle));
@@ -131,6 +133,8 @@ ExitCode io_imu_init(void)
         gyro_config          = GYRO_CONFIG_RELOAD | GYRO_CONFIG_RESOLUTION;
     RETURN_IF_ERR(hw_i2c_memoryWrite(imu_config.imu_i2c_handle, XL_OUTPUT_RATE_REG, &acc_config, 1));
     RETURN_IF_ERR(hw_i2c_memoryWrite(imu_config.imu_i2c_handle, G_OUTPUT_RATE_REG, &gyro_config, 1));
+
+    io_imu_ready = true;
     return EXIT_CODE_OK;
 }
 
@@ -190,6 +194,8 @@ static float translate_acceleration_data(const uint8_t *acc_data)
 
 ExitCode io_imu_getLinearAccelerationX(float *x_acceleration)
 {
+    if (!io_imu_ready)
+        return EXIT_CODE_ERROR;
     uint8_t x_data[2];
     RETURN_IF_ERR(hw_i2c_memoryRead(imu_config.imu_i2c_handle, XL_X_LOW_BYTE_REG, x_data, 2));
 
@@ -200,6 +206,8 @@ ExitCode io_imu_getLinearAccelerationX(float *x_acceleration)
 
 ExitCode io_imu_getLinearAccelerationY(float *y_acceleration)
 {
+    if (!io_imu_ready)
+        return EXIT_CODE_ERROR;
     uint8_t y_data[2];
     RETURN_IF_ERR(hw_i2c_memoryRead(imu_config.imu_i2c_handle, XL_Y_LOW_BYTE_REG, y_data, 2));
 
@@ -210,6 +218,8 @@ ExitCode io_imu_getLinearAccelerationY(float *y_acceleration)
 
 ExitCode io_imu_getLinearAccelerationZ(float *z_acceleration)
 {
+    if (!io_imu_ready)
+        return EXIT_CODE_ERROR;
     uint8_t z_data[2];
     RETURN_IF_ERR(hw_i2c_memoryRead(imu_config.imu_i2c_handle, XL_Z_LOW_BYTE_REG, z_data, 2));
 
@@ -220,6 +230,8 @@ ExitCode io_imu_getLinearAccelerationZ(float *z_acceleration)
 
 ExitCode io_imu_getAngularVelocityRoll(float *roll_velocity)
 {
+    if (!io_imu_ready)
+        return EXIT_CODE_ERROR;
     uint8_t roll_data[2];
     RETURN_IF_ERR(hw_i2c_memoryRead(
         imu_config.imu_i2c_handle, G_ROLL_LOW_BYTE_REG, roll_data, 2)); // reading the high and low register
@@ -231,6 +243,8 @@ ExitCode io_imu_getAngularVelocityRoll(float *roll_velocity)
 
 ExitCode io_imu_getAngularVelocityPitch(float *pitch_velocity)
 {
+    if (!io_imu_ready)
+        return EXIT_CODE_ERROR;
     uint8_t pitch_data[2];
     RETURN_IF_ERR(hw_i2c_memoryRead(imu_config.imu_i2c_handle, G_PITCH_LOW_BYTE_REG, pitch_data, 2));
 
@@ -241,6 +255,8 @@ ExitCode io_imu_getAngularVelocityPitch(float *pitch_velocity)
 
 ExitCode io_imu_getAngularVelocityYaw(float *yaw_velocity)
 {
+    if (!io_imu_ready)
+        return EXIT_CODE_ERROR;
     uint8_t yaw_data[2];
     RETURN_IF_ERR(hw_i2c_memoryRead(imu_config.imu_i2c_handle, G_YAW_LOW_BYTE_REG, yaw_data, 2));
 
