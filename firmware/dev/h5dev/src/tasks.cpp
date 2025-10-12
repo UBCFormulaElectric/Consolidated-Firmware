@@ -1,16 +1,18 @@
 #include "main.h"
 #include "tasks.h"
 #include "io_time.hpp"
+#include "jobs.hpp"
 #include <assert.h>
 
 extern "C"
 {
-#include "app_jsoncan.h"
-#include "io_canQueue.h"
 #include "hw_fdcan.h"
 #include "hw_cans.h"
 #include "hw_bootup.h"
 #include "hw_resetReason.h"
+// #include "hw_chimera_v2.h"
+#include "io_canQueue.h"
+#include "app_jsoncan.h"
 }
 
 static CanTxQueue can_tx_queue;
@@ -47,23 +49,52 @@ void tasks_init()
         boot_request.context_value = 0;
         hw_bootup_setBootRequest(boot_request);
     }
+
+    jobs_init();
+    io_canTx_H5_Bootup_sendAperiodic();
 }
 
 void tasks_run1Hz()
 {
+    const uint32_t period_ms   = 1000U;
+    uint32_t       start_ticks = osKernelGetTickCount();
+
     forever
     {
+        // if (!hw_chimera_v2_enabled)
+        // {
+        jobs_run1Hz_tick();
+        // }
+
         const uint32_t start_time = io::time::getCurrentMs();
         io::time::delayUntil(start_time + 1000);
     }
 }
 void tasks_run100Hz()
 {
-    forever {}
+    const uint32_t period_ms   = 10U;
+    uint32_t       start_ticks = osKernelGetTickCount();
+
+    forever
+    {
+        jobs_run100Hz_tick();
+
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
 }
 void tasks_run1kHz()
 {
-    forever {}
+    const uint32_t period_ms   = 1U;
+    uint32_t       start_ticks = osKernelGetTickCount();
+
+    forever
+    {
+        jobs_run1kHz_tick();
+
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
 }
 void tasks_runCanFDTx()
 {
@@ -88,5 +119,7 @@ void tasks_runChimera()
     {
         CanMsg msg = io_canQueue_popTx(&can_tx_queue);
         hw_can_transmit(&fdcan, &msg);
+
+        // hw_chimera_v2_task(&chimera_v2_config);
     }
 }

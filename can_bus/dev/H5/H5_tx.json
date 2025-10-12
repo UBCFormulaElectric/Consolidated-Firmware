@@ -8,5 +8,11 @@
                 "bits": 1
             }
         }
+    },
+    "Bootup": {
+        "msg_id": 1299,
+        "cycle_time": null,
+        "description": "Async bootup message!",
+        "signals": {}
     }
 }
