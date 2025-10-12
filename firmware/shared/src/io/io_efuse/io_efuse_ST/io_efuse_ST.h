@@ -19,7 +19,8 @@ typedef struct __ST_Efuse
         uint8_t short_to_vbat : 1;
         uint8_t open_load_off_stat : 1;
         uint8_t negative_output_voltage_clamp : 1;
+        uint8_t padding : 2;
     } faults;
 } ST_Efuse;
 
-extern const EfuseFunctons st_efuse_functions;
+extern const EfuseFunctions st_efuse_functions;

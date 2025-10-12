@@ -9,7 +9,7 @@ static float io_TI_efuse_getChannelCurrent(const Efuse *channel);
 static void  io_TI_efuse_Reset(const Efuse *efuse);
 // static bool io_TI_efuse_pgood(const Efuse *efuse);
 
-const TI_EfuseFunctons ti_efuse_functions = {
+const EfuseFunctions ti_efuse_functions = {
     .set_channel          = io_TI_efuse_setChannel,
     .is_channel_enabled   = io_TI_efuse_isChannelEnabled,
     .get_channel_current  = io_TI_efuse_getChannelCurrent,
@@ -38,7 +38,7 @@ static float io_TI_efuse_getChannelCurrent(const Efuse *channel)
 
 static void io_TI_efuse_Reset(const Efuse *efuse)
 {
-    assert(efuse->efuse != NULL);
+    assert(efuse->enable_gpio != NULL);
 
     hw_gpio_writePin(efuse->enable_gpio, false);
     hw_gpio_writePin(efuse->enable_gpio, true);
