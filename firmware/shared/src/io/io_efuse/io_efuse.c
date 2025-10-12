@@ -1,4 +1,5 @@
 #include "io_efuse.h"
+#include "io_efuse_datatypes.h"
 #include "hw_gpio.h"
 #include <stdbool.h>
 #include <assert.h>

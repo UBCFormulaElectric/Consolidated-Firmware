@@ -11,4 +11,4 @@ typedef struct __TI_Efuse
     const Gpio *pgood;
 } TI_Efuse;
 
-extern const EfuseFunctons ti_efuse_functions;
+extern const EfuseFunctions ti_efuse_functions;
