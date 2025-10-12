@@ -6,12 +6,12 @@
 typedef struct
 {
     const I2cDevice *imu_i2c_handle;
-    float            x_accel_offset;
-    float            y_accel_offset;
-    float            z_accel_offset;
-    float            yaw_offset;
-    float            pitch_offset;
-    float            roll_offset;
+    double           x_accel_offset;
+    double           y_accel_offset;
+    double           z_accel_offset;
+    double           yaw_offset;
+    double           pitch_offset;
+    double           roll_offset;
 } imuConfig;
 #else
 #include "app_utils.h"
@@ -30,39 +30,39 @@ ExitCode io_imu_init(void);
  * @param x_acceleration value of x acceleration
  * @return if successful read
  */
-ExitCode io_imu_getLinearAccelerationX(float *x_acceleration);
+ExitCode io_imu_getLinearAccelerationX(double *x_acceleration);
 
 /**
  * @brief gets the linear acceleration in the y direction
  * @param y_acceleration value of y acceleration
  * @return if successful read
  */
-ExitCode io_imu_getLinearAccelerationY(float *y_acceleration);
+ExitCode io_imu_getLinearAccelerationY(double *y_acceleration);
 
 /**
  * @brief gets the linear acceleration in the y direction
  * @param z_acceleration value of z acceleration
  * @return if successful read
  */
-ExitCode io_imu_getLinearAccelerationZ(float *z_acceleration);
+ExitCode io_imu_getLinearAccelerationZ(double *z_acceleration);
 
 /**
  * @brief Gets the angular velocity in the roll direction
  * @param roll_velocity Pointer to store the roll angular velocity
  * @return True if the read is successful, false otherwise
  */
-ExitCode io_imu_getAngularVelocityRoll(float *roll_velocity);
+ExitCode io_imu_getAngularVelocityRoll(double *roll_velocity);
 
 /**
  * @brief Gets the angular velocity in the pitch direction
  * @param pitch_velocity Pointer to store the pitch angular velocity
  * @return True if the read is successful, false otherwise
  */
-ExitCode io_imu_getAngularVelocityPitch(float *pitch_velocity);
+ExitCode io_imu_getAngularVelocityPitch(double *pitch_velocity);
 
 /**
  * @brief Gets the angular velocity in the yaw direction
  * @param yaw_velocity Pointer to store the yaw angular velocity
  * @return True if the read is successful, false otherwise
  */
-ExitCode io_imu_getAngularVelocityYaw(float *yaw_velocity);
+ExitCode io_imu_getAngularVelocityYaw(double *yaw_velocity);

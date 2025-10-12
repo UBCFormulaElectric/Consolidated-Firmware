@@ -18,10 +18,7 @@
 #define MOTOR_NOT_SPINNING_SPEED_RPM 1000
 static TimerChannel           pid_timeout;
 static TractionControl_Inputs traction_control_inputs;
-// static TractionControl_Outputs    traction_control_outputs;
-static YawRateController yaw_rate_controller;
-
-// static bool run_traction_control = false;
+static YawRateController      yaw_rate_controller;
 
 // NOTE: Correction factor centered about 0.0f
 
@@ -29,8 +26,7 @@ static YawRateController yaw_rate_controller;
  * No PID for now.
  */
 
-static PID pid_power_correction;
-// static float                  pid_power_correction_factor = 0.0f;
+static PID                    pid_power_correction;
 static PID                    pid_traction_control;
 const ImuData                *imu_output;
 static TorqueAllocationInputs torqueAllocation = { .front_yaw_moment     = 0.0f,
@@ -43,7 +39,6 @@ static PID                    yrc_pid;
 static float accelerator_pedal_percent;
 static float battery_voltage;
 static float steering_angle_deg;
-// static float current_limit_based_max_power;
 
 void app_torqueVectoring_init(void)
 {
@@ -56,7 +51,7 @@ void app_torqueVectoring_init(void)
     app_timer_init(&pid_timeout, PID_TIMEOUT_ms);
 }
 // TODO: pass in the torque output pointer
-void app_torqueVectoring_run(const float accelerator_pedal_percentage)
+void app_torqueVectoring_run(const double accelerator_pedal_percentage)
 {
     // Read data from CAN
     // NOTE: Pedal percent CAN is in range 0.0-100.0%
@@ -71,6 +66,22 @@ void app_torqueVectoring_run(const float accelerator_pedal_percentage)
         app_torqueVectoring_handleAcceleration();
     }
 }
+
+/*
+ * Calculates the load transfer constant needed to distribute torque
+ * to all the wheels
+ */
+static float loadTransferConstant(const float long_accel)
+{
+    /************************************** following formula for Kmz on page 57*********************************/
+    const double load_transfer_scalar =
+        (CAR_MASS_AT_CG_KG * GRAVITY - WEIGHT_ACROSS_BODY * ACCELERATION_TERM_KMZ(((double)long_accel / GRAVITY))) /
+        (WEIGHT_ACROSS_BODY * ACCELERATION_TERM_KMZ(((double)long_accel / GRAVITY)));
+
+    app_canTx_VC_LoadTransferScalar_set((float)load_transfer_scalar);
+    return (float)load_transfer_scalar;
+}
+
 // Read data from CAN
 void app_torqueVectoring_handleAcceleration(void)
 {
@@ -91,7 +102,7 @@ void app_torqueVectoring_handleAcceleration(void)
     app_canTx_VC_CorrectionYawRate_set(app_yawRateController_getYawMoment());
 
     // imu load transfer calc
-    torqueAllocation.load_transfer_const = app_loadTransferConstant(imu_output->long_accel);
+    torqueAllocation.load_transfer_const = loadTransferConstant(imu_output->long_accel);
 
     // float desired_tot_yaw_moment          = app_yawRateController_getYawMoment();
     torqueAllocation.total_torque_request = accelerator_pedal_percent * (MAX_TORQUE_REQUEST_NM * 4);

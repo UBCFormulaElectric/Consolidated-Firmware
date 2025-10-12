@@ -390,7 +390,7 @@ TEST_F(VCStateMachineTest, RunAlgorithmSetsTorque)
     ASSERT_STATE_EQ(drive_state);
 
     // Expect torque = 0.5 * MAX_TORQUE_REQUEST_NM
-    int16_t expected = PEDAL_REMAPPING(0.5f * MAX_TORQUE_REQUEST_NM);
+    int16_t expected = NM_TO_INVERTER_TORQUE(0.5f * MAX_TORQUE_REQUEST_NM);
     ASSERT_EQ(app_canTx_VC_INVFRTorqueSetpoint_get(), expected);
     ASSERT_EQ(app_canTx_VC_INVFLTorqueSetpoint_get(), expected);
     ASSERT_EQ(app_canTx_VC_INVRRTorqueSetpoint_get(), expected);
