@@ -21,6 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "stm32h5xx_hal_pcd_ex.h"
 #include "cmsis_os.h"
 #include "FreeRTOS.h"
 #include "tasks.h"
