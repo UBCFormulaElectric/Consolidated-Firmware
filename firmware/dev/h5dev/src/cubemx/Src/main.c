@@ -45,6 +45,8 @@
 
 FDCAN_HandleTypeDef hfdcan1;
 
+PCD_HandleTypeDef hpcd_USB_DRD_FS;
+
 /* USER CODE BEGIN PV */
 /* -------------------- THREAD DEFINITIONS ------------------------ */
 /* Definitions for Task100Hz */
@@ -234,8 +236,9 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_CSI;
+    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI48 | RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_CSI;
     RCC_OscInitStruct.HSEState            = RCC_HSE_ON;
+    RCC_OscInitStruct.HSI48State          = RCC_HSI48_ON;
     RCC_OscInitStruct.CSIState            = RCC_CSI_ON;
     RCC_OscInitStruct.CSICalibrationValue = RCC_CSICALIBRATION_DEFAULT;
     RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
@@ -312,6 +315,58 @@ static void MX_FDCAN1_Init(void)
     /* USER CODE BEGIN FDCAN1_Init 2 */
 
     /* USER CODE END FDCAN1_Init 2 */
+}
+
+/**
+ * @brief USB Initialization Function
+ * @param None
+ * @retval None
+ */
+void MX_USB_PCD_Init(void)
+{
+    /* USER CODE BEGIN USB_Init 0 */
+
+    /* USER CODE END USB_Init 0 */
+
+    /* USER CODE BEGIN USB_Init 1 */
+
+    /* USER CODE END USB_Init 1 */
+    hpcd_USB_DRD_FS.Instance                      = USB_DRD_FS;
+    hpcd_USB_DRD_FS.Init.dev_endpoints            = 8;
+    hpcd_USB_DRD_FS.Init.speed                    = USBD_FS_SPEED;
+    hpcd_USB_DRD_FS.Init.phy_itface               = PCD_PHY_EMBEDDED;
+    hpcd_USB_DRD_FS.Init.Sof_enable               = DISABLE;
+    hpcd_USB_DRD_FS.Init.low_power_enable         = DISABLE;
+    hpcd_USB_DRD_FS.Init.lpm_enable               = DISABLE;
+    hpcd_USB_DRD_FS.Init.battery_charging_enable  = DISABLE;
+    hpcd_USB_DRD_FS.Init.vbus_sensing_enable      = DISABLE;
+    hpcd_USB_DRD_FS.Init.bulk_doublebuffer_enable = DISABLE;
+    hpcd_USB_DRD_FS.Init.iso_singlebuffer_enable  = DISABLE;
+    if (HAL_PCD_Init(&hpcd_USB_DRD_FS) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN USB_Init 2 */
+#if (USE_HAL_PCD_REGISTER_CALLBACKS == 1U)
+    /* Register USB PCD CallBacks */
+    HAL_PCD_RegisterCallback(&hpcd_USB_DRD_FS, HAL_PCD_SOF_CB_ID, PCD_SOFCallback);
+    HAL_PCD_RegisterCallback(&hpcd_USB_DRD_FS, HAL_PCD_SETUPSTAGE_CB_ID, PCD_SetupStageCallback);
+    HAL_PCD_RegisterCallback(&hpcd_USB_DRD_FS, HAL_PCD_RESET_CB_ID, PCD_ResetCallback);
+    HAL_PCD_RegisterCallback(&hpcd_USB_DRD_FS, HAL_PCD_SUSPEND_CB_ID, PCD_SuspendCallback);
+    HAL_PCD_RegisterCallback(&hpcd_USB_DRD_FS, HAL_PCD_RESUME_CB_ID, PCD_ResumeCallback);
+    HAL_PCD_RegisterCallback(&hpcd_USB_DRD_FS, HAL_PCD_CONNECT_CB_ID, PCD_ConnectCallback);
+    HAL_PCD_RegisterCallback(&hpcd_USB_DRD_FS, HAL_PCD_DISCONNECT_CB_ID, PCD_DisconnectCallback);
+
+    HAL_PCD_RegisterDataOutStageCallback(&hpcd_USB_DRD_FS, PCD_DataOutStageCallback);
+    HAL_PCD_RegisterDataInStageCallback(&hpcd_USB_DRD_FS, PCD_DataInStageCallback);
+    HAL_PCD_RegisterIsoOutIncpltCallback(&hpcd_USB_DRD_FS, PCD_ISOOUTIncompleteCallback);
+    HAL_PCD_RegisterIsoInIncpltCallback(&hpcd_USB_DRD_FS, PCD_ISOINIncompleteCallback);
+#endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
+    /* USER CODE BEGIN TxRx_HS_Configuration */
+    HAL_PCD_SetRxFiFo(&hpcd_USB_DRD_FS, 0x80);
+    HAL_PCD_SetTxFiFo(&hpcd_USB_DRD_FS, 0, 0x40);
+    HAL_PCD_SetTxFiFo(&hpcd_USB_DRD_FS, 1, 0x80);
+    /* USER CODE END USB_Init 2 */
 }
 
 /**

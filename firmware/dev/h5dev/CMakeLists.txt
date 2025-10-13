@@ -20,6 +20,7 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
         "${SHARED_HW_INCLUDE_DIR}/hw_resetReason.c"
         "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
@@ -83,7 +84,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "h5dev_stm32cube_hal"
             "${STM32_HAL_SRCS}"
             "${MD5_LOCATION}"
-            FALSE
+            TRUE
     )
 
     # JSONCAN
