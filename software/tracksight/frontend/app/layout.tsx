@@ -38,14 +38,14 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} bg-primary-200`}>
+      <body className={`${inter.className} bg-primary-200 pb-20 overflow-y-scroll`}>
         <SignalsMetadataProvider 
           apiBaseUrl={API_BASE_URL}
           initialData={initialSignalData}
         >
           <EditModeProvider>
             <Sidebar />
-            <main className="mt-24">{children}</main>
+            <main className="mt-24 pb-24 overflow-y-visible">{children}</main>
           </EditModeProvider>
         </SignalsMetadataProvider>
       </body>
