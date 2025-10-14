@@ -22,6 +22,7 @@
 #include "app_heartbeatMonitors.h"
 #include "app_shdnLoop.h"
 #include "app_shdnLast.h"
+#include "app_imu.h"
 
 // io
 #include "io_time.h"
@@ -122,6 +123,7 @@ void jobs_run100Hz_tick(void)
     app_shdnLast_broadcast();
     app_powerManager_EfuseProtocolTick_100Hz();
     app_pumpControl_MonitorPumps();
+    app_collect_imu_data();
     // app_sbgEllipse_broadcast();
 
     io_canTx_enqueue100HzMsgs();

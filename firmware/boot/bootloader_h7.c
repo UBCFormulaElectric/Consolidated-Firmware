@@ -13,8 +13,6 @@ const CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hfdcan)
     return &can;
 }
 
-#define FLASH_WORD_BYTES (FLASH_NB_32BITWORD_IN_FLASHWORD * sizeof(uint32_t))
-
 uint8_t program_buffer[FLASH_WORD_BYTES];
 
 void bootloader_boardSpecific_program(uint32_t address, uint64_t data)

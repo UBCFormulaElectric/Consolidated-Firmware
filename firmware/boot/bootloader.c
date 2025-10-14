@@ -234,6 +234,12 @@ _Noreturn void bootloader_runInterfaceTask(void)
             hw_bootup_setBootRequest(app_request);
             NVIC_SystemReset();
         }
+        else if (command.std_id == (BOARD_HIGHBITS | GO_TO_BOOT))
+        {
+            // Restart bootloader update state when receiving a GO_TO_BOOT command.
+            update_in_progress = false;
+            current_address    = (uint32_t)&__app_metadata_start__;
+        }
         else
         {
             LOG_ERROR("got stdid %X", command.std_id);

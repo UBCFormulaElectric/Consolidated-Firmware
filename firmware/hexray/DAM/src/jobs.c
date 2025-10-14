@@ -1,1 +1,0 @@
-int touching = 3;

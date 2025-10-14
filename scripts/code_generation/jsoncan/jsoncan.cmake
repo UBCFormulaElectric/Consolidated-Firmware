@@ -104,5 +104,7 @@ function(log_bus_load CAR)
     )
 endfunction()
 
+message("")
+message("Configuring JSONCAN")
 log_bus_load("quadruna")
 log_bus_load("quintuna")
