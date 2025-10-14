@@ -4,7 +4,8 @@
 #include <stdint.h>
 #include "hw_gpio.h"
 #include "hw_adc.h"
-#include "io_efuse/io_efuse_datatypes.h"
+
+typedef struct __EfuseFunctions EfuseFunctions;
 
 typedef struct __TI_Efuse
 {

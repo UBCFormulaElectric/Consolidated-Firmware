@@ -23,6 +23,15 @@ typedef enum
     EFUSE_CHANNEL_R_RAD,
 
     NUM_EFUSE_CHANNELS
-} LoadswitchChannel;
+} EfuseChannel;
 
-extern Efuse *const efuse_channels[NUM_EFUSE_CHANNELS];
+extern const Efuse *const efuse_channels[NUM_EFUSE_CHANNELS];
+
+extern const Efuse f_inv_efuse;
+extern const Efuse rsm_efuse;
+extern const Efuse bms_efuse;
+extern const Efuse r_inv_efuse;
+extern const Efuse dam_efuse;
+extern const Efuse front_efuse;
+extern const Efuse rl_pump_efuse;
+extern const Efuse r_rad_fan_efuse;
