@@ -10,12 +10,12 @@
 
 /**
  * Matrix
- * 
+ *
  * Used for all linear algebra related operations
- * 
+ *
  * mat array should be initialized as a single dimension array,
  * it is implemented this way for simplicity and cache optimization
- * 
+ *
  * rows and cols should be inputted as such
  */
 typedef struct
@@ -24,7 +24,6 @@ typedef struct
     uint32_t rows;
     uint32_t cols;
 } Matrix;
-
 
 /**
  * ================================

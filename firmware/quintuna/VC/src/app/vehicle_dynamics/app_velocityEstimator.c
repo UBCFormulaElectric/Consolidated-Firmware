@@ -17,31 +17,33 @@
 
 /**
  * For making a generalized ekf api:
- * estimation functions: app_velocityEstimator_init -> (app_ekf_init), app_velocityEstimator_run -> (app_ekf_run) should be implemented by the user 
- * internal ekf functions: state_transition, state_jacobian, measurement_func, measurement_jacobian all should be implemented by the user
+ * estimation functions: app_velocityEstimator_init -> (app_ekf_init), app_velocityEstimator_run -> (app_ekf_run) should
+ * be implemented by the user internal ekf functions: state_transition, state_jacobian, measurement_func,
+ * measurement_jacobian all should be implemented by the user
  *
  * things to figure out:
  * predict and update internally have matrices of fixed dimensions, should be dynamic
- * generalized velocity estimator -> (ekf) variables have fixed size, should be dynamic 
- * all app_math.h linear algebra functions can handle different sizes except for inverse, use cholesky decomp or something for this
+ * generalized velocity estimator -> (ekf) variables have fixed size, should be dynamic
+ * all app_math.h linear algebra functions can handle different sizes except for inverse, use cholesky decomp or
+ * something for this
  *
  * approaches/solutions:
  * there is a way to change the allocation of .mat to make it dynamic without malloc
- * 
+ *
  * create app_ekf api with ekf struct with the following members:
  * state estimate
- * covariance estimate, 
+ * covariance estimate,
  * State jacobian,
- * Measurement jacobian 
- * function pointers of internal ekf functions for user to implement, 
+ * Measurement jacobian
+ * function pointers of internal ekf functions for user to implement,
  * time step
- * 
+ *
  * ekf api will have predict and update functions which will call the internal ekf function via the function pointers
- * 
- * Some variables will be statically defined in their respective estimator files 
- * current internal ekf api functions signature may to change to include matrices to store result or they can be added as members to the ekf struct
- * it is up to the user to not violate matrix dimensions
- * 
+ *
+ * Some variables will be statically defined in their respective estimator files
+ * current internal ekf api functions signature may to change to include matrices to store result or they can be added
+ * as members to the ekf struct it is up to the user to not violate matrix dimensions
+ *
  * all the user has to do is define the internal ekf functions and call predict and update to run their estimator
  */
 
@@ -55,82 +57,28 @@
 static Matrix x = { .mat = (float[]){ 0.0f, 0.0f }, .rows = DIM, .cols = 1 };
 
 // covariance estimate shows accuracy of velocity estimate (EKF: P)
-static Matrix P = { 
-    .mat = (float[]){ 
-        0.0f, 0.0f, 
-        0.0f, 0.0f 
-    }, 
-    .rows = DIM, 
-    .cols = DIM 
-};
+static Matrix P = { .mat = (float[]){ 0.0f, 0.0f, 0.0f, 0.0f }, .rows = DIM, .cols = DIM };
 
 // state transition Jacobian (EKF: F_j)
-static Matrix F_j = { 
-    .mat = (float[]){ 
-        0.0f, 0.0f, 
-        0.0f, 0.0f 
-    }, 
-    .rows = DIM, 
-    .cols = DIM 
-};
+static Matrix F_j = { .mat = (float[]){ 0.0f, 0.0f, 0.0f, 0.0f }, .rows = DIM, .cols = DIM };
 
 // measurement Jacobian (EKF: H_j)
-static Matrix H_j = { 
-    .mat = (float[]){ 
-        0.0f, 0.0f, 
-        0.0f, 0.0f 
-    }, 
-    .rows = DIM, 
-    .cols = DIM 
-};
+static Matrix H_j = { .mat = (float[]){ 0.0f, 0.0f, 0.0f, 0.0f }, .rows = DIM, .cols = DIM };
 
 // predicted measurement (EKF: z_pred)
-static Matrix z_pred = { 
-    .mat = (float[]){ 
-        0.0f, 0.0f 
-    }, 
-    .rows = DIM, 
-    .cols = 1 
-};
+static Matrix z_pred = { .mat = (float[]){ 0.0f, 0.0f }, .rows = DIM, .cols = 1 };
 
 // process noise covariance (EKF: Q)
-static Matrix Q = { 
-    .mat = (float[]){ 
-        0.0f, 0.0f, 
-        0.0f, 0.0f 
-    }, 
-    .rows = DIM, 
-    .cols = DIM 
-};
+static Matrix Q = { .mat = (float[]){ 0.0f, 0.0f, 0.0f, 0.0f }, .rows = DIM, .cols = DIM };
 
 // measurement noise covariance for wheel speed (EKF: R_ws)
-static Matrix R_ws = { 
-    .mat = (float[]){ 
-        0.0f, 0.0f, 
-        0.0f, 0.0f 
-    }, 
-    .rows = DIM, 
-    .cols = DIM 
-};
+static Matrix R_ws = { .mat = (float[]){ 0.0f, 0.0f, 0.0f, 0.0f }, .rows = DIM, .cols = DIM };
 
 // measurement noise covariance for GPS (EKF: R_gps)
-static Matrix R_gps = { 
-    .mat = (float[]){ 
-        0.0f, 0.0f, 
-        0.0f, 0.0f 
-    }, 
-    .rows = DIM, 
-    .cols = DIM 
-};
+static Matrix R_gps = { .mat = (float[]){ 0.0f, 0.0f, 0.0f, 0.0f }, .rows = DIM, .cols = DIM };
 
 // Used for derivative calculation elements in order: {rr, rl, fr, fl}
-static Matrix measurement_ws_prev = { 
-    .mat = (float[]){ 
-        0.0f, 0.0f, 0.0f, 0.0f 
-    }, 
-    .rows = DIM, 
-    .cols = 1 
-};
+static Matrix measurement_ws_prev = { .mat = (float[]){ 0.0f, 0.0f, 0.0f, 0.0f }, .rows = DIM, .cols = 1 };
 
 static float time_step;
 
@@ -142,12 +90,12 @@ static float time_step;
 
 void app_velocityEstimator_init(VelocityEstimator_Config *config)
 {
-    x.mat            = config->state_estimate_init;
-    P.mat            = config->covariance_estimate_init;
-    Q.mat            = config->process_noise_cov;
-    R_ws.mat         = config->measurement_ws_noise_cov;
-    R_gps.mat        = config->measurement_gps_noise_cov;
-    time_step                     = config->time_step;
+    x.mat     = config->state_estimate_init;
+    P.mat     = config->covariance_estimate_init;
+    Q.mat     = config->process_noise_cov;
+    R_ws.mat  = config->measurement_ws_noise_cov;
+    R_gps.mat = config->measurement_gps_noise_cov;
+    time_step = config->time_step;
 }
 
 void app_velocityEstimator_run(VelocityEstimator_Inputs *inputs)
@@ -195,58 +143,50 @@ float *app_velocityEstimator_getCovariance()
 bool convertWheelSpeedToMeasurement(Matrix *measurement, VelocityEstimator_Inputs *inputs)
 {
     // element ordering: {rr, rl, fr, fl}
-    float v[4] = {
-        MOTOR_RPM_TO_MPS(inputs->rpm_rr),
-        MOTOR_RPM_TO_MPS(inputs->rpm_rl),
-        MOTOR_RPM_TO_MPS(inputs->rpm_fr),
-        MOTOR_RPM_TO_MPS(inputs->rpm_fl)
-    };
+    float v[4] = { MOTOR_RPM_TO_MPS(inputs->rpm_rr), MOTOR_RPM_TO_MPS(inputs->rpm_rl), MOTOR_RPM_TO_MPS(inputs->rpm_fr),
+                   MOTOR_RPM_TO_MPS(inputs->rpm_fl) };
 
     float yaw_rate    = inputs->yaw_rate_rad;
     float wheel_angle = inputs->wheel_angle_rad;
 
     // x velocity components
-    float vx[4] = {
-        v[0] + yaw_rate * TRACK_WIDTH_m,
-        v[1] - yaw_rate * TRACK_WIDTH_m,
-        v[2] * cosf(wheel_angle) + yaw_rate * TRACK_WIDTH_m,
-        v[3] * cosf(wheel_angle) - yaw_rate * TRACK_WIDTH_m
-    };
+    float vx[4] = { v[0] + yaw_rate * TRACK_WIDTH_m, v[1] - yaw_rate * TRACK_WIDTH_m,
+                    v[2] * cosf(wheel_angle) + yaw_rate * TRACK_WIDTH_m,
+                    v[3] * cosf(wheel_angle) - yaw_rate * TRACK_WIDTH_m };
 
     // y velocity components
-    float vy[4] = {
-        -yaw_rate * DIST_REAR_AXLE_CG - v[0],
-        -yaw_rate * DIST_REAR_AXLE_CG - v[1],
-        yaw_rate * DIST_FRONT_AXLE_CG - v[2] * sinf(wheel_angle),
-        yaw_rate * DIST_FRONT_AXLE_CG - v[3] * sinf(wheel_angle)
-    };
+    float vy[4] = { -yaw_rate * DIST_REAR_AXLE_CG - v[0], -yaw_rate * DIST_REAR_AXLE_CG - v[1],
+                    yaw_rate * DIST_FRONT_AXLE_CG - v[2] * sinf(wheel_angle),
+                    yaw_rate * DIST_FRONT_AXLE_CG - v[3] * sinf(wheel_angle) };
 
     float sum_vx = 0.0f, sum_vy = 0.0f;
-    int count = 0;
+    int   count = 0;
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++)
+    {
         // if (fabsf(v[i] - measurement_ws_prev.mat[i]) <= SPEED_CHECK_MPS) {
-            sum_vx += vx[i];
-            sum_vy += vy[i];
-            count++;
+        sum_vx += vx[i];
+        sum_vy += vy[i];
+        count++;
         // }
     }
 
     // store current speeds for next check
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++)
+    {
         measurement_ws_prev.mat[i] = v[i];
     }
 
     measurement->mat[0] = sum_vx / (float)count;
     measurement->mat[1] = sum_vy / (float)count;
 
-    if (count == 0) {
+    if (count == 0)
+    {
         return false; // all wheels failed derivative check
     }
 
     return true;
 }
-
 
 void setUpControlInputs(Matrix *control_inputs, VelocityEstimator_Inputs *inputs)
 {
@@ -298,7 +238,7 @@ void measurement_func(Matrix *state)
 void measurement_jacobian(Matrix *state)
 {
     UNUSED(state);
-    
+
     H_j.mat[0 * DIM + 0] = 1;
     H_j.mat[1 * DIM + 1] = 1;
 }
