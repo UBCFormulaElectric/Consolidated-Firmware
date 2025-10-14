@@ -1,7 +1,6 @@
 #include "app_pumpControl.h"
 #include "io_efuses.h"
 #include "io_time.h"
-#include "io_loadswitches.h"
 #include <app_canTx.h>
 
 #define SLOPE (0.5f)
@@ -40,11 +39,11 @@ static void pumpControl_stopFlow(void)
 void app_pumpControl_MonitorPumps(void)
 {
     time += 10;
-    const bool pumps_ok  = true
 
-    const bool pumps_enabled = true;
+    const bool pumps_ok      = io_efuse_pgood(&rl_pump_efuse);
+    const bool pumps_enabled = io_efuse_isChannelEnabled(&rl_pump_efuse);
 
-    bool ramp_up_pumps = pumps_ok && pumps_enabled;
+    const bool ramp_up_pumps = pumps_ok && pumps_enabled;
 
     if (ramp_up_pumps)
         pumpControl_rampUp();

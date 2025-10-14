@@ -40,21 +40,23 @@ void app_powerManager_EfuseProtocolTick_100Hz(void)
             // TODO: what the fuck
             __attribute__((fallthrough));
         case TIMER_STATE_IDLE:
-            for (LoadswitchChannel current_efuse_sequence = 0;
+            for (EfuseChannel current_efuse_sequence = 0;
                  current_efuse_sequence < NUM_EFUSE_CHANNELS &&
                  app_timer_updateAndGetState(&sequencing_timer) == TIMER_STATE_IDLE;
                  current_efuse_sequence++)
             {
+                const Efuse *channel = efuse_channels[current_efuse_sequence];
+
                 // check if the efuse is supposed to be on or off
                 const bool desired_efuse_state = power_manager_state.efuse_configs[current_efuse_sequence].efuse_enable;
-                if (io_efuse_isChannelEnabled(efuse_channels[current_efuse_sequence]) == desired_efuse_state)
+                if (io_efuse_isChannelEnabled(channel) == desired_efuse_state)
                 {
                     // efuse is fine
                     continue;
                 }
 
                 // todo check this when incrementing the efuse failure
-                if (efuses_retry_num[current_efuse_sequence].retry_num >
+                if (efuses_retry_num[current_efuse_sequence] >
                     power_manager_state.efuse_configs[current_efuse_sequence].max_retry)
                 {
                     // todo over the retry limit activities
@@ -65,15 +67,15 @@ void app_powerManager_EfuseProtocolTick_100Hz(void)
                 if (desired_efuse_state == false)
                 {
                     // case 1: on and trying to turn off
-                    io_efuse_setChannel(efuse_channels[current_efuse_sequence], desired_efuse_state);
+                    io_efuse_setChannel(channel, desired_efuse_state);
                     continue;
                 }
                 // case 2: off and trying to turn on
                 // we update the efuse blown status here because this only shows up when we want it on
-                // if (!is_efuse_ok(current_efuse_sequence)) // todo remove this state?
-                // {
-                //     efuses_retry_num[current_efuse_sequence].retry_num++;
-                // }
+                if (!io_efuse_ok(channel)) // todo remove this state?
+                {
+                    efuses_retry_num[current_efuse_sequence]++;
+                }
 
                 // If we dont know the if the efuse is blown check if it is however if we know its already blown
                 // dont check After this is we begin power sequencing logic as we want to turn on the loads
@@ -84,9 +86,7 @@ void app_powerManager_EfuseProtocolTick_100Hz(void)
                     app_timer_init(&sequencing_timer, efuse_retry_timeout);
                     app_timer_restart(&sequencing_timer);
                 }
-                io_efuse_setChannel(
-                    efuse_channels[current_efuse_sequence],
-                    power_manager_state.efuse_configs[current_efuse_sequence].efuse_enable);
+                io_efuse_setChannel(channel, power_manager_state.efuse_configs[current_efuse_sequence].efuse_enable);
             }
             break;
     }

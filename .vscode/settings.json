@@ -13,10 +13,10 @@
     "--query-driver=/usr/local/bin/arm-none-eabi-gcc"
   ],
   "files.associations": {
-    "bootloader_VC.C": "cpp",
+    "io_efuses.h": "c",
     "io_efuse.h": "c",
-    "io_efuse_st.h": "c",
     "io_efuse_datatypes.h": "c",
-    "io_efuse_ti.h": "c"
+    "app_vehicledynamicsconstants.h": "c",
+    "app_loadswitches.h": "c"
   }
 }
