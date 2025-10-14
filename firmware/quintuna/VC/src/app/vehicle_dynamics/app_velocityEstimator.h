@@ -126,10 +126,10 @@ void measurement_jacobian(Matrix *x);
 
 /**
  * Converts the wheel rpm into a vehicle velocity with x and y components
- * 
+ *
  * Additionally it performs a derivative check on each wheel and excludes it
  * from the calculation if it fails. If all wheels happen to fail it will
- * return false and the estimator will not use wheel speeds at all until 
+ * return false and the estimator will not use wheel speeds at all until
  * it passes at least 1 derivative check.
  */
 bool convertWheelSpeedToMeasurement(Matrix *measurement, VelocityEstimator_Inputs *inputs);
