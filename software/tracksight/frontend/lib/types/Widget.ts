@@ -1,4 +1,5 @@
 import { WIDGET_SCHEMAS } from "@/lib/constants";
+import { Card } from "./DashboardCard";
 
 type WIDGET_TYPE = (
     (typeof WIDGET_SCHEMAS)[number]["type"]
@@ -14,7 +15,11 @@ type Widget<Type extends WIDGET_TYPE> = {
     options: WIDGET_OPTIONS[Type];
 };
 
-type WidgetRenderer<Type extends WIDGET_TYPE> = React.FC<Widget<Type>>;
+type WidgetRendererProps<Type extends WIDGET_TYPE> = {
+    editWidget?: (newWidgetData: Partial<Widget<Type>>) => void;
+} & Widget<Type>;
+
+type WidgetRenderer<Type extends WIDGET_TYPE> = React.FC<WidgetRendererProps<Type>>;
 
 export type {
     Widget,
