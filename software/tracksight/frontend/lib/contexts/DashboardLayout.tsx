@@ -9,12 +9,14 @@ type DashboardLayoutType = {
 
   addCard: (newCard: Card) => void;
   removeCard: (cardToRemove: Card) => void;
+  editCard: (cardToEdit: Card, newCardData: Partial<Card>) => void;
 
   // NOTE(evan): Might cause performance issues with keeping widget state together with
   //             card state, if it becomes an issue move to per-card widget state.
 
   addWidget: (parentCard: Card, newWidget: Widget<WIDGET_TYPE>) => void;
   removeWidget: (parentCard: Card, widgetToRemove: Widget<WIDGET_TYPE>) => void;
+  editWidget: (parentCard: Card, widgetToEdit: Widget<WIDGET_TYPE>, newWidgetData: Partial<Widget<WIDGET_TYPE>>) => void;
 }
 
 const DashboardLayoutContext = createContext<DashboardLayoutType | undefined>(undefined)
@@ -57,6 +59,27 @@ const DashboardLayoutProvider = ({ children }: { children: React.ReactNode }) =>
     ));
   }, []);
 
+  const editCard: DashboardLayoutType['editCard'] = React.useCallback((cardToEdit, newCardData) => {
+    setCards((prev) => {
+      const cardIndex = prev.indexOf(cardToEdit);
+      
+      if (cardIndex === -1) {
+        console.warn("Card to edit not found");
+        return prev;
+      }
+      
+      const updatedCard = {
+        ...prev[cardIndex],
+        ...newCardData
+      };
+      
+      const newCards = [...prev];
+      newCards[cardIndex] = updatedCard;
+      
+      return newCards;
+    });
+  }, []);
+
   const addWidget: DashboardLayoutType['addWidget'] = React.useCallback((parentCard, newWidget) => {
     setCards((prev) => {
       parentCard.widgets.push(newWidget);
@@ -73,6 +96,24 @@ const DashboardLayoutProvider = ({ children }: { children: React.ReactNode }) =>
     });
   }, []);
 
+  const editWidget: DashboardLayoutType['editWidget'] = React.useCallback((parentCard, widgetToEdit, newWidgetData) => {
+    setCards((prev) => {
+      const widgetIndex = parentCard.widgets.indexOf(widgetToEdit);
+
+      if (widgetIndex === -1) {
+        console.warn("Widget to edit not found in parent card");
+        return prev;
+      }
+
+      parentCard.widgets[widgetIndex] = {
+        ...parentCard.widgets[widgetIndex],
+        ...newWidgetData
+      };
+      
+      return [...prev];
+    });
+  }, []);
+
   return (
     <DashboardLayoutContext.Provider
         value={{
@@ -80,9 +121,11 @@ const DashboardLayoutProvider = ({ children }: { children: React.ReactNode }) =>
 
           addCard,
           removeCard,
+          editCard,
 
           addWidget,
-          removeWidget
+          removeWidget,
+          editWidget
         }}
     >
       {children}

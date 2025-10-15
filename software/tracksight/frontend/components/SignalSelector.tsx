@@ -2,20 +2,20 @@
 
 import { useSignalsMetadataList } from "@/lib/contexts/SignalsContext";
 import { SignalMetadata } from "@/lib/types/Signal"
-import Selector from "./common/Selector";
+import Selector, { SelectorItemRenderer } from "./common/Selector";
 
 type SignalSelectorProps = {
     filter: (signal: SignalMetadata) => boolean;
 
     selectedSignal: SignalMetadata | null;
     onSelect: (signal: SignalMetadata) => void;
+
+    buttonElement: React.RefObject<HTMLElement>;
 }
 
-type SignalItemRendererProps = {
-    data: SignalMetadata;
-}
+const SignalItemRenderer: SelectorItemRenderer<SignalMetadata> = (props) => {
+    const { data, isSelected } = props;
 
-const SignalItemRenderer: React.FC<SignalItemRendererProps> = ({ data }) => {
     return (
         <div className="flex gap-2">
             <p>
@@ -34,7 +34,8 @@ const SignalSelector: React.FC<SignalSelectorProps> = (props) => {
     const {
         filter,
         selectedSignal,
-        onSelect
+        onSelect,
+        buttonElement,
     } = props;
 
     const { signalMetadata } = useSignalsMetadataList();
@@ -63,6 +64,8 @@ const SignalSelector: React.FC<SignalSelectorProps> = (props) => {
             selectedOption={selectedSignal}
             onSelect={onSelect}
             ItemRenderer={SignalItemRenderer}
+            getSearchableText={(signal) => `${signal.name} ${signal.unit || ""}`}
+            buttonElement={buttonElement}
         />
     );
 }

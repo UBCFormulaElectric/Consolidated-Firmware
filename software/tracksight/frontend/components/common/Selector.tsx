@@ -1,182 +1,296 @@
 "use client";
 
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 type SelectorCategory<T> = {
-    label: string;
-    next: SelectorCategoryNext<T>;
+  label: string;
+  next: SelectorCategoryNext<T>;
 }
 
 type SelectorCategoryNext<T> = (
-    () => (T | SelectorCategory<T>)[]
-        | (T | SelectorCategory<T>)[]
+  () => (T | SelectorCategory<T>)[]
+    | (T | SelectorCategory<T>)[]
 )
 
+type SelectorItemRenderer<T> = React.FC<{
+  data: T;
+  isSelected?: boolean;
+}>;
+
 type SelectorProps<T> = {
-    options: (SelectorCategory<T> | T)[];
+  options: (SelectorCategory<T> | T)[];
 
-    selectedOption: T | null;
-    onSelect: (option: T) => void;
+  selectedOption: T | null;
+  onSelect: (option: T) => void;
 
-    ItemRenderer: React.FC<{ data: T }>;
+  ItemRenderer: SelectorItemRenderer<T>;
+  getSearchableText: (item: T) => string;
+
+  buttonElement: React.RefObject<HTMLElement>;
 }
 
 const isSelectorCategory = <T extends any>(item: T | SelectorCategory<T>): item is SelectorCategory<T> => {
-    return (item as SelectorCategory<T>).label !== undefined;
-}
-
-const SelectorCategoryItem = <T extends any>(props: SelectorCategory<T> & {
-    onClick: () => void;
-}) => {
-    const { label, next } = props;
-
-    return (
-        <div onClick={props.onClick}>
-            {label}
-        </div>
-    );
-};
-
-const SelectorOptionItem = <T extends any>(props: {
-    option: T;
-    onClick: () => void;
-}) => {
-    const { option } = props;
-
-    return (
-        <div onClick={props.onClick}>
-            {String(option)}
-        </div>
-    );
+  return (item as SelectorCategory<T>).label !== undefined;
 }
 
 const Selector = <T extends any>(props: SelectorProps<T>) => {
-    const {
-        options,
-        selectedOption,
-        onSelect,
-        ItemRenderer
-    } = props;
+  const {
+    options,
+    selectedOption,
+    onSelect,
+    ItemRenderer,
+    getSearchableText,
+    buttonElement
+  } = props;
 
-    const [path, setPath] = useState<number[]>([]);
-    const [isOpen, setIsOpen] = useState(false);
+  const [path, setPath] = useState<number[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
-    // NOTE(evan): This stores the full set of options, with all next categories populated, at the current path.
-    //             This is updated whenever the path changes. We don't want this to trigger a re-render,
-    //             so we use a ref.
-    const populatedOptions = useRef<(SelectorCategory<T> | T)[]>(options);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-    // NOTE(evan): This stores the current options to be rendered, which is included within populatedOptions
-    //             at the path specified by `path`.
-    const [currentOptions, setCurrentOptions] = useState<(SelectorCategory<T> | T)[]>(options);
+  // NOTE(evan): This stores the full set of options, with all next categories populated, at the current path.
+  //             This is updated whenever the path changes. We don't want this to trigger a re-render,
+  //             so we use a ref.
+  const populatedOptions = useRef<(SelectorCategory<T> | T)[]>(options);
 
-    useEffect(() => {
-        // NOTE(evan): Populate the options at the level down from the current path.
-        let opts = options;
-        for (const index of path) {
-            const item = opts[index];
+  // NOTE(evan): This stores the current options to be rendered, which is included within populatedOptions
+  //             at the path specified by `path`.
+  const [currentOptions, setCurrentOptions] = useState<(SelectorCategory<T> | T)[]>(options);
 
-            if (!isSelectorCategory(item)) {
-                console.warn("Path leads to a non-category item.");
-                return;
-            }
+  useEffect(() => {
+    // NOTE(evan): Populate the options at the level down from the current path.
+    let opts = options;
+    for (const index of path) {
+      const item = opts[index];
 
-            if (typeof item.next === "function") {
-                opts[index] = {
-                    label: item.label,
-                    next: item.next()
-                } as unknown as SelectorCategory<T>;
+      if (!isSelectorCategory(item)) {
+        console.warn("Path leads to a non-category item.");
+        return;
+      }
 
-                continue;
-            }
+      if (typeof item.next === "function") {
+        opts[index] = {
+          label: item.label,
+          next: item.next()
+        } as unknown as SelectorCategory<T>;
 
-            opts = item.next;
+        continue;
+      }
+
+      opts = item.next;
+    }
+  }, [path, options]);
+
+  useEffect(() => {
+    let opts = populatedOptions.current;
+    for (const index of path) {
+      const item = opts[index];
+
+      if (!isSelectorCategory(item)) {
+        console.warn("Path leads to a non-category item.");
+        return;
+      }
+
+      opts = typeof item.next === "function" ? item.next() : item.next;
+    }
+
+    setCurrentOptions(opts);
+  }, [path, options]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // Close dropdown if clicking outside both the dropdown and button
+      if (
+        buttonElement.current && !buttonElement.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+        setSearchQuery("");
+        setPath([]);
+      }
+    }
+
+    const handleButtonClick = (event: MouseEvent) => {
+      if (
+        !buttonElement.current
+        || !buttonElement.current.contains(event.target as Node)
+        || (dropdownRef.current && dropdownRef.current.contains(event.target as Node))
+      ) return;
+
+      event.stopImmediatePropagation();
+
+      setIsOpen((prev) => {
+        if (prev) {
+          setSearchQuery("");
+          setPath([]);
         }
-    }, [path, options]);
+        
+        return !prev
+      });
+    }
 
-    useEffect(() => {
-        let opts = populatedOptions.current;
-        for (const index of path) {
-            const item = opts[index];
+    document.addEventListener("mousedown", handleClickOutside);
+    buttonElement.current?.addEventListener("click", handleButtonClick);
+    
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      buttonElement.current?.removeEventListener("click", handleButtonClick);
+    }
+  }, [buttonElement, dropdownRef]);
 
-            if (!isSelectorCategory(item)) {
-                console.warn("Path leads to a non-category item.");
-                return;
-            }
+  const flattenOptions = (opts: (SelectorCategory<T> | T)[], pathLabels: string[] = []): Array<{ item: T; path: string[] }> => {
+    const results: Array<{ item: T; path: string[] }> = [];
 
-            opts = typeof item.next === "function" ? item.next() : item.next;
-        }
+    for (const opt of opts) {
+      if (isSelectorCategory(opt)) {
+        const nextOpts = typeof opt.next === "function" ? opt.next() : opt.next;
+        results.push(...flattenOptions(nextOpts, [...pathLabels, opt.label]));
+      } else {
+        results.push({ item: opt, path: pathLabels });
+      }
+    }
 
-        setCurrentOptions(opts);
-    }, [path, options])
+    return results;
+  };
 
-    return (
-        <div className="relative">
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="px-4 py-2 border rounded w-48 overflow-ellipsis text-left"
-            >
-                {selectedOption ? <ItemRenderer data={selectedOption} /> : "Select an option"}
-            </button>
-            {isOpen && (
-                <div className="absolute z-10 mt-1 bg-white border rounded shadow-lg max-h-60 overflow-y-auto scrollbar-hidden">
-                    {
-                        path.length > 0 && (
-                            <div
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setPath(path.slice(0, -1));
-                                }}
-                                className="px-4 py-2 w-full cursor-pointer hover:bg-gray-100 flex justify-between font-medium sticky top-0 bg-white"
-                            >
-                                <div>
-                                    &lt;
-                                </div>
-                                <div>
-                                    Back
-                                </div>
-                            </div>
-                        )
+  const getFilteredOptions = (): Array<{ item: T; path: string[] }> => {
+    if (!searchQuery.trim()) {
+      return [];
+    }
+
+    const flattened = flattenOptions(options);
+    const lowerQuery = searchQuery.toLowerCase();
+
+    return flattened.filter(({ item, path }) => {
+      const itemText = getSearchableText(item).toLowerCase();
+      const pathText = path.join(" ").toLowerCase();
+      return itemText.includes(lowerQuery) || pathText.includes(lowerQuery);
+    });
+  };
+
+  const filteredOptions = searchQuery.trim() ? getFilteredOptions() : [];
+
+  return (
+    isOpen && (
+      <div
+        className="absolute min-w-96 z-10 top-full hover:cursor-auto mt-1 bg-white border rounded shadow-lg max-h-60 overflow-y-auto scrollbar-hidden"
+        ref={dropdownRef}
+      >
+        <div className="sticky h-14 top-0 bg-white border-b p-2 flex flex-row items-center gap-2">
+          {
+            path.length > 0
+              ? (
+                (
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setPath(path.slice(0, -1));
+                    }}
+                    className="p-1 pr-3 w-full border rounded cursor-pointer hover:bg-gray-100 flex justify-between items-center font-medium sticky top-0 bg-white"
+                  >
+                    <ChevronLeft size={16} />
+                    Back
+                  </div>
+                )
+              )
+              : (
+                <input
+                  type="text"
+                  placeholder="Search All..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    if (e.target.value.trim()) {
+                      setPath([]);
                     }
-                    {currentOptions.map((item, index) => {
-                        if (isSelectorCategory(item)) {
-                            return (
-                                <div
-                                    key={index}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setPath([...path, index]);
-                                    }}
-                                    className="px-4 py-2 min-w-48 cursor-pointer hover:bg-gray-100 flex justify-between"
-                                >
-                                    <div className="text-ellipsis">
-                                        {item.label}
-                                    </div>
-                                    <div>
-                                        &gt;
-                                    </div>
-                                </div>
-                            );
-                        }
-                        return (
-                            <div
-                                key={index}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    onSelect(item);
-                                    setPath([]);
-                                    setIsOpen(false);
-                                }}
-                                className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                            >
-                                <ItemRenderer data={item} />
-                            </div>
-                        );
-                    })}
-                </div>
-            )}
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                  className="w-full px-3 py-1 focus:outline-none border rounded"
+                />
+              )}
         </div>
+        {searchQuery.trim() ? (
+          // NOTE(evan): Show flattened search results
+          filteredOptions.length > 0 ? (
+            filteredOptions.map(({ item, path: itemPath }, index) => (
+              <div key={index} className="border-b last:border-b-0">
+                {itemPath.length > 0 && (
+                  <div className="px-4 pt-2 pb-1 text-xs text-gray-500">
+                    {itemPath.join(" / ")}
+                  </div>
+                )}
+                <div
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSelect(item);
+                    setSearchQuery("");
+                    setPath([]);
+                    setIsOpen(false);
+                  }}
+                  className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                >
+                  <ItemRenderer
+                    data={item}
+                    isSelected={selectedOption === item}
+                  />
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="px-4 py-2 text-gray-500">
+              No results found
+            </div>
+          )
+        ) : (
+          <>
+            {currentOptions.map((item, index) => {
+              if (isSelectorCategory(item)) {
+                return (
+                  <div
+                    key={index}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setPath([...path, index]);
+                    }}
+                    className="px-4 py-2 cursor-pointer hover:bg-gray-100 flex justify-between"
+                  >
+                    <div className="text-ellipsis">
+                      {item.label}
+                    </div>
+                    <ChevronRight size={16} />
+                  </div>
+                );
+              }
+              return (
+                <div
+                  key={index}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSelect(item);
+                    setPath([]);
+                    setIsOpen(false);
+                  }}
+                  className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                >
+                  <ItemRenderer
+                    data={item}
+                    isSelected={selectedOption === item}
+                  />
+                </div>
+              );
+            })}
+          </>
+        )}
+      </div>
     )
+  )
 }
+
+export type {
+  SelectorItemRenderer
+};
 
 export default Selector;

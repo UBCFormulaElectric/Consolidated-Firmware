@@ -42,17 +42,17 @@ const Legend: React.FC<LegendProps> = (props) => {
 
     return (
         <div
-            className="grid w-full max-w-full gap-4 justify-evenly"
+            className="grid w-full max-w-full gap-4"
             style={{
-            gridTemplateColumns: "repeat(auto-fit, 200px)",
+            gridTemplateColumns: "repeat(auto-fit, 250px)",
             }}
         >
             {signals.map((signal, i) => (
-            <ItemRenderer
-                key={signal}
-                content={signal}
-                color={colorPalette[i] || "#000000"}
-            />
+                <ItemRenderer
+                    key={signal}
+                    content={signal}
+                    color={colorPalette[i] || "#000000"}
+                />
             ))}
         </div>
     )
