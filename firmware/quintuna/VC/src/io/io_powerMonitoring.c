@@ -79,7 +79,7 @@ bool io_powerMonitoring_init(void)
     }
 
     uint8_t cmd = REG_REFRESH;
-    if (false == hw_i2c_transmit(&pwr_mtr, &cmd, 1))
+    if (IS_EXIT_ERR(hw_i2c_transmit(&pwr_mtr, &cmd, 1)))
     {
         return false;
     }
