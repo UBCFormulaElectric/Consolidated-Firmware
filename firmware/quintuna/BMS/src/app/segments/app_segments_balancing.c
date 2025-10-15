@@ -16,7 +16,7 @@
 // 4. Repeat!
 
 #define DISCHARGE_THRESHOLD_V (10 * 1e-3f)            // 10mV
-#define SETTLE_PERIOD_MS (30 * 1000)                  // 1min
+#define SETTLE_PERIOD_MS (30 * 1000)                  // 30s
 #define BALANCE_PERIOD_MS (5 * 60 * 1000)             // 5min
 #define PWM_TICK_MS (500U)                            // PWM resolution (500ms) is limited by tasks_runLtcVoltages
 #define PWM_DEFAULT_FREQUENCY_HZ (0.1F)               // 0.1Hz
@@ -26,7 +26,7 @@
 static TimerChannel settle_timer;
 static TimerChannel balance_timer;
 static TimerChannel period_timer;
-static TimerChannel on_timer;
+static TimerChannel pwm_duty_timer;
 
 static bool           discharge_candidates[NUM_SEGMENTS][CELLS_PER_SEGMENT];
 static bool           discharge_off[NUM_SEGMENTS][CELLS_PER_SEGMENT] = { false };
@@ -49,8 +49,8 @@ static void balanceConfig(void)
     app_timer_init(&period_timer, period_ms);
     app_timer_restart(&period_timer);
 
-    app_timer_init(&on_timer, on_time_ms);
-    app_timer_restart(&on_timer);
+    app_timer_init(&pwm_duty_timer, on_time_ms);
+    app_timer_restart(&pwm_duty_timer);
 }
 
 static void updateCellsToBalance(void)
@@ -81,8 +81,8 @@ static void updateCellsToBalance(void)
 
 static void disableBalance(void)
 {
-    app_timer_stop(&on_timer);
     app_segments_setBalanceConfig((const bool(*)[CELLS_PER_SEGMENT])discharge_off);
+    memset(discharge_candidates, false, sizeof(discharge_candidates));
 }
 
 static void enableBalance(void)
@@ -151,15 +151,15 @@ void app_segments_balancingTick(bool enable)
                 disableBalance();
                 app_timer_restart(&settle_timer);
                 state = BALANCING_SETTLE;
-                LOG_INFO("Balancing: Discharged, letting cells settle for 1min");
+                LOG_INFO("Balancing: Discharged, letting cells settle for 30s");
             }
             else if (app_timer_updateAndGetState(&period_timer) == TIMER_STATE_EXPIRED)
             {
                 enableBalance();
-                app_timer_restart(&on_timer);
+                app_timer_restart(&pwm_duty_timer);
                 app_timer_restart(&period_timer);
             }
-            else if (app_timer_updateAndGetState(&on_timer) == TIMER_STATE_EXPIRED)
+            else if (app_timer_updateAndGetState(&pwm_duty_timer) == TIMER_STATE_EXPIRED)
             {
                 disableBalance();
             }
