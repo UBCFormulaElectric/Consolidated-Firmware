@@ -23,6 +23,8 @@ from urllib3.exceptions import NewConnectionError
 
 from tasks.stop_signal import should_run
 
+if INFLUX_URL is None:
+    raise Exception("No Influx URL Provided")
 if INFLUX_ORG is None:
     raise Exception("No Influx Organization Provided")
 if INFLUX_TOKEN is None:
