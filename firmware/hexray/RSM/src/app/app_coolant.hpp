@@ -7,4 +7,4 @@
 #define FLOW_METER_TIME_TO_CLEAR 1000U
 
 void app_coolant_init();
-void app_coolant_broadcase();
+void app_coolant_broadcast();
