@@ -45,10 +45,7 @@ static void balanceConfig(void)
     uint32_t on_time_ms = (uint32_t)(((float)duty_pc / 100.0f) * (float)period_ms);
 
     app_timer_init(&period_timer, period_ms);
-    app_timer_restart(&period_timer);
-
     app_timer_init(&pwm_duty_timer, on_time_ms);
-    app_timer_restart(&pwm_duty_timer);
 }
 
 static void updateCellsToBalance(void)
@@ -80,6 +77,7 @@ static void disableBalance(void)
 {
     bool discharge_off[NUM_SEGMENTS][CELLS_PER_SEGMENT] = { false };
     app_segments_setBalanceConfig((const bool(*)[CELLS_PER_SEGMENT])discharge_off);
+
 }
 
 static void enableBalance(void)
@@ -124,6 +122,8 @@ void app_segments_balancingTick(bool enable)
 
                 balanceConfig();
                 updateCellsToBalance();
+                app_timer_restart(&pwm_duty_timer);
+                app_timer_restart(&period_timer);
                 app_timer_restart(&balance_timer);
                 enableBalance();
                 state = BALANCING_BALANCE;
@@ -152,6 +152,7 @@ void app_segments_balancingTick(bool enable)
             }
             else if (app_timer_updateAndGetState(&period_timer) == TIMER_STATE_EXPIRED)
             {
+                balanceConfig();
                 enableBalance();
                 app_timer_restart(&pwm_duty_timer);
                 app_timer_restart(&period_timer);
