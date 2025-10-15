@@ -1,10 +1,10 @@
-import Widget from "@/lib/types/Widget";
-import getWidgetSchema from "@/lib/getWidgetSchema";
+"use client";
+
 import { useSignalMetadata } from "@/lib/contexts/SignalsContext";
-import SignalSelector from "../SignalSelector";
-import isEnumSignal from "@/lib/isEnumSignal";
-import { useRef } from "react";
-import { ChevronDown } from "lucide-react";
+import getWidgetSchema from "@/lib/getWidgetSchema";
+import Widget from "@/lib/types/Widget";
+import EnumValueEditor from "@/components/widgets/EnumValueEditor";
+import EnumSignalSelector from "@/components/widgets/EnumSignalSelector";
 
 const StateTimelineEditor: Widget<"stateTimeline"> = (props) => {
   const {
@@ -15,9 +15,7 @@ const StateTimelineEditor: Widget<"stateTimeline"> = (props) => {
   } = props;
 
   const signalMetadata = useSignalMetadata(signals[0]);
-  const enumOptions = Object.values(signalMetadata?.enum || {});
-
-  const signalDropdownRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
+  const enumOptions = Object.values(signalMetadata?.enum?.items || {});
 
   const {
     colorPalette
@@ -30,26 +28,16 @@ const StateTimelineEditor: Widget<"stateTimeline"> = (props) => {
       <div className="text-xl font-medium">
         {widgetSchema.name}
       </div>
-      <div className="ml-2 pl-2 border-l-2 border-gray-200">
-        <div className="font-medium text-lg flex flex-row gap-2 items-center">
-          Signal:
-          <div className="font-normal text-base flex flex-row gap-2 relative select-none hover:cursor-pointer" ref={signalDropdownRef}>
-            {signalMetadata ? signalMetadata.name : "No signal selected"}
-            <ChevronDown size={16} />
-            <SignalSelector
-              filter={isEnumSignal}
-              selectedSignal={signalMetadata || null}
-              onSelect={(signal) => {
-                if (!editWidget) return;
+      <div className="ml-2 pl-2 border-l-2 border-gray-200 flex flex-col gap-2">
+        <EnumSignalSelector
+          currentSignal={signals[0]}
+          editWidget={editWidget}
+        />
 
-                editWidget({
-                  signals: [signal.name]
-                })
-              }}
-              buttonElement={signalDropdownRef}
-            />
-          </div>
-        </div>
+        <EnumValueEditor
+          enumOptions={enumOptions}
+          colorPalette={colorPalette}
+        />
       </div>
     </div>
   )
