@@ -15,8 +15,10 @@ type Widget<Type extends WIDGET_TYPE> = {
     options: WIDGET_OPTIONS[Type];
 };
 
+type EditWidgetFunction<Type extends WIDGET_TYPE> = (newWidgetData: Partial<Widget<Type>>) => void;
+
 type WidgetRendererProps<Type extends WIDGET_TYPE> = {
-    editWidget?: (newWidgetData: Partial<Widget<Type>>) => void;
+    editWidget?: EditWidgetFunction<Type>;
 } & Widget<Type>;
 
 type WidgetRenderer<Type extends WIDGET_TYPE> = React.FC<WidgetRendererProps<Type>>;
@@ -24,7 +26,8 @@ type WidgetRenderer<Type extends WIDGET_TYPE> = React.FC<WidgetRendererProps<Typ
 export type {
     Widget,
     WIDGET_TYPE,
-    WIDGET_OPTIONS
+    WIDGET_OPTIONS,
+    EditWidgetFunction,
 };
 
 export default WidgetRenderer;
