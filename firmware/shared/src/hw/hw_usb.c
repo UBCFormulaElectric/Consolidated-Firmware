@@ -22,7 +22,7 @@ extern USBD_HandleTypeDef hUsbDeviceFS;
 extern USBD_HandleTypeDef hUsbDeviceHS;
 #define USB_DEVICE_HANDLER (hUsbDeviceHS)
 
-#elif defined(STM32H563xx)
+#elif defined(STM32H562xx)
 #define TRANSMIT(buf, len) (CDC_Transmit_FS(buf, len))
 extern USBD_HandleTypeDef hUsbDeviceFS;
 #define USB_DEVICE_HANDLER (hUsbDeviceFS)

@@ -51,7 +51,7 @@ ResetReason hw_resetReason_get(void)
     // Clear reset flags.
     RCC->RSR |= RCC_RSR_RMVF;
 
-#elif defined(STM32H563xx)
+#elif defined(STM32H562xx)
     const uint32_t rsr        = RCC->RSR;
     const bool     _low_power = rsr & RCC_RSR_LPWRRSTF;
     const bool     _wwdg      = rsr & RCC_RSR_WWDGRSTF;

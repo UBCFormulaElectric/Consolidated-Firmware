@@ -38,7 +38,7 @@ bool hw_flash_programWord(uint32_t address, uint32_t data);
  */
 bool hw_flash_program(uint32_t address, uint8_t *buffer, uint32_t size);
 
-#elif defined(STM32H733xx) || defined(STM32H563xx)
+#elif defined(STM32H733xx) || defined(STM32H562xx)
 #define FLASH_NB_32BITWORD_IN_FLASHWORD 8U                                    /* 256 bits */
 #define FLASH_WORD_BYTES (FLASH_NB_32BITWORD_IN_FLASHWORD * sizeof(uint32_t)) /* 32 bytes */
 

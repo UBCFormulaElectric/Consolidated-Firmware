@@ -4,7 +4,7 @@
 
 #if defined(STM32F412Rx)
 #define CAN_PAYLOAD_BYTES 8
-#elif defined(STM32H733xx) || defined(STM32H563xx)
+#elif defined(STM32H733xx) || defined(STM32H562xx)
 #define CAN_PAYLOAD_BYTES 64
 #else
 #error "Please define what MCU is used."

@@ -73,7 +73,7 @@ bool hw_flash_programFlashWord(uint32_t address, uint32_t *data)
     return ok;
 }
 
-#elif defined(STM32H563xx)
+#elif defined(STM32H562xx)
 
 #define FLASH_ERROR_FLAGS FLASH_FLAG_ALL_ERRORS
 #define FLASH_VERIFY_OK(address, data, size) (memcmp((void *)(address), (void *)(data), (size)) == 0)

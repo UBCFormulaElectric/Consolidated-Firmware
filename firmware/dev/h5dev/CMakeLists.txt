@@ -77,7 +77,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "stm32h5xx_hal_rtc.c"
             "stm32h5xx_hal_pwr.c"
             "stm32h5xx_hal_pwr_ex.c"
-            "stm32h5xx_hal_flash"
+            "stm32h5xx_hal_flash.c"
     )
 
     stm32h562xx_cube_library(

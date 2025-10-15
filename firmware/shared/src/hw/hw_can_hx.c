@@ -13,7 +13,7 @@
 
 #if defined(STM32H733xx)
 #include <stm32h7xx_hal_fdcan.h>
-#elif defined(STM32H563xx)
+#elif defined(STM32H562xx)
 #include <stm32h5xx_hal_fdcan.h>
 #endif
 

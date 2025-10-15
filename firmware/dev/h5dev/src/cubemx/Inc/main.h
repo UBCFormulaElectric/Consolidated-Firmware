@@ -37,12 +37,12 @@ extern "C"
 
     /* Exported types ------------------------------------------------------------*/
     /* USER CODE BEGIN ET */
-
+    extern FDCAN_HandleTypeDef hfdcan1;
     /* USER CODE END ET */
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
-    extern FDCAN_HandleTypeDef hfdcan1;
+
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/
@@ -52,14 +52,13 @@ extern "C"
 
     /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler(void);
-    void MX_USB_PCD_Init(void);
 
 /* USER CODE BEGIN EFP */
 
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define LED_Pin GPIO_PIN_13
+#define LED_Pin GPIO_PIN_14
 #define LED_GPIO_Port GPIOB
 
     /* USER CODE BEGIN Private defines */
