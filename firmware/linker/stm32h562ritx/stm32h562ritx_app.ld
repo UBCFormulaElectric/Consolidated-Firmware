@@ -1,4 +1,4 @@
-INCLUDE stm32h563ritx/stm32h563ritx_memory.ld
+INCLUDE stm32h562ritx/stm32h562ritx_memory.ld
 
 /* Entry Point */
 ENTRY(Reset_Handler)

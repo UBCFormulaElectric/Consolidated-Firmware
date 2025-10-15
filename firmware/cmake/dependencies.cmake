@@ -44,7 +44,7 @@ IF ("${TARGET}" STREQUAL "binary")
     CPMAddPackage(
             NAME STM32CUBEH5
             GITHUB_REPOSITORY UBCFormulaElectric/STM32CubeH5
-            GIT_TAG e7b7741210c219522cc5d3f64de665891d796afa
+            GIT_TAG d02f23d1a88c733635d28842c4e4b5549a7ad333
             GIT_SHALLOW TRUE
             DOWNLOAD_ONLY TRUE
     )
