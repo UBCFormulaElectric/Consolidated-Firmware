@@ -1,12 +1,22 @@
 "use client";
 
+import { useCallback } from "react";
+
+import type { WIDGET_TYPE, Widget as WidgetData } from "@/lib/types/Widget";
+import type { Card as CardData } from "@/lib/types/DashboardCard";
+
 import { useDashboardLayout } from "@/lib/contexts/DashboardLayout"
 import Card from "@/components/common/Card";
 import Widget from "@/components/widgets/Widget";
-import { useEditMode } from "@/lib/contexts/EditModeContext";
 
 const LiveDataDashboard: React.FC = () => {
-  const { cards } = useDashboardLayout();
+  const { cards, editWidget } = useDashboardLayout();
+
+  const createEditWidgetFunction = useCallback((parent: CardData, widget: WidgetData<WIDGET_TYPE>) => {
+    return (newWidgetData: Partial<WidgetData<WIDGET_TYPE>>) => {
+      editWidget(parent, widget, newWidgetData);
+    }
+  }, [editWidget]);
 
   return (
     <div className="flex flex-col w-full h-full">
@@ -17,7 +27,10 @@ const LiveDataDashboard: React.FC = () => {
           >
             {
               card.widgets.map((widget) => (
-                <Widget {...widget} />
+                <Widget
+                  {...widget}
+                  editWidget={createEditWidgetFunction(card, widget)}
+                />
               ))
             }
           </Card>
