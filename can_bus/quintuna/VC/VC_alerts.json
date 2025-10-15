@@ -73,9 +73,9 @@
       "id": 560,
       "description": "Boost controller has faulted."
     },
-    "ImuInitFailed": {
+    "ImuFault": {
       "id": 516,
-      "description": "Initializing the embedded IMU failed."
+      "description": "IMU has faulted (due to failed init or transaction)."
     },
     "FlowRateInputOutOfRange": {
       "id": 517,
