@@ -29,7 +29,6 @@ static TimerChannel period_timer;
 static TimerChannel pwm_duty_timer;
 
 static bool           discharge_candidates[NUM_SEGMENTS][CELLS_PER_SEGMENT];
-static bool           discharge_off[NUM_SEGMENTS][CELLS_PER_SEGMENT] = { false };
 static BalancingState state;
 static float          target_voltage;
 
@@ -79,8 +78,9 @@ static void updateCellsToBalance(void)
 
 static void disableBalance(void)
 {
+    bool discharge_off[NUM_SEGMENTS][CELLS_PER_SEGMENT] = { false };
     app_segments_setBalanceConfig((const bool(*)[CELLS_PER_SEGMENT])discharge_off);
-    memset(discharge_candidates, false, sizeof(discharge_candidates));
+
 }
 
 static void enableBalance(void)
