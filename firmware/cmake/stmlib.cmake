@@ -243,8 +243,8 @@ function(stm32h733xx_cube_library
     )
 endfunction()
 
-message("  🔃 Registered stm32h563xx_cube_library() function")
-function(stm32h563xx_cube_library
+message("  🔃 Registered stm32h562xx_cube_library() function")
+function(stm32h562xx_cube_library
         HAL_LIB_NAME
         HAL_SRCS
         IOC_CHECKSUM
@@ -299,7 +299,7 @@ function(stm32h563xx_cube_library
     list(APPEND SYSTEMVIEW_SRCS "${THIRD_PARTY_DIR}/sysview/sysviewConfig.c")
 
     # Startup assembly script.
-    set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H5xx/Source/Templates/gcc/startup_stm32h563xx.s")
+    set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H5xx/Source/Templates/gcc/startup_stm32h562xx.s")
 
     set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC})
 
@@ -332,6 +332,6 @@ function(stm32h563xx_cube_library
     target_compile_definitions(${HAL_LIB_NAME}
             INTERFACE
             USE_HAL_DRIVER
-            STM32H563xx
+            STM32H562xx
     )
 endfunction()

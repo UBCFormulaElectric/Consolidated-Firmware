@@ -193,7 +193,7 @@ function(stm32h5_boot_binary
             "stm32h5xx_hal.c"
     )
 
-    stm32h563xx_cube_library(
+    stm32h562xx_cube_library(
             "${BOOT_NAME}_stm32cube_hal"
             "${STM32_HAL_SRCS}"
             "${MD5_LOCATION}"
@@ -226,7 +226,7 @@ function(stm32h5_boot_binary
     )
 
     set(ARM_CORE "cm33")
-    set(LINKER_SCRIPT "${LINKER_DIR}/stm32h563ritx/stm32h563ritx_boot.ld")
+    set(LINKER_SCRIPT "${LINKER_DIR}/stm32h562ritx/stm32h562ritx_boot.ld")
     embedded_binary(
             "${BOOT_NAME}"
             "${SRCS}"

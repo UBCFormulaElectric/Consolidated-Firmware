@@ -3,7 +3,7 @@ message("⚙️ Configuring H5 Dev")
 
 set(ARM_CORE "cm33")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/h5dev.ioc")
-set(LINKER_SCRIPT "${LINKER_DIR}/stm32h563ritx/stm32h563ritx_app.ld")
+set(LINKER_SCRIPT "${LINKER_DIR}/stm32h562ritx/stm32h562ritx_app.ld")
 
 file(GLOB EMBEDDED_SRCS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
@@ -80,7 +80,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "stm32h5xx_hal_flash"
     )
 
-    stm32h563xx_cube_library(
+    stm32h562xx_cube_library(
             "h5dev_stm32cube_hal"
             "${STM32_HAL_SRCS}"
             "${MD5_LOCATION}"
