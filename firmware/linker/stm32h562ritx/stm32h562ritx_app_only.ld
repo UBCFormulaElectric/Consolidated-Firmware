@@ -7,7 +7,7 @@ _estack = ORIGIN(SRAM3) + LENGTH(SRAM3);
 _Min_Heap_Size = 0x0;    /* required amount of heap */
 _Min_Stack_Size = 0x400; /* required amount of stack */
 
-/* Define memory regions based on STM32H563 */
+/* Define memory regions based on STM32H562 */
 MEMORY
 {
   FLASH     (rx)  : ORIGIN = 0x08000000, LENGTH = 2048K

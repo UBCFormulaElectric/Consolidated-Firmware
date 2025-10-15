@@ -1,9 +1,8 @@
 /* USER CODE BEGIN Header */
 /**
  ******************************************************************************
- * @file         stm32h5xx_hal_msp.c
- * @brief        This file provides code for the MSP Initialization
- *               and de-Initialization codes.
+ * File Name          : freertos.c
+ * Description        : Code for freertos applications
  ******************************************************************************
  * @attention
  *
@@ -19,60 +18,41 @@
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
+#include "FreeRTOS.h"
+#include "task.h"
 #include "main.h"
+
+/* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN TD */
+/* USER CODE BEGIN PTD */
 
-/* USER CODE END TD */
+/* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN Define */
+/* USER CODE BEGIN PD */
 
-/* USER CODE END Define */
+/* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN Macro */
+/* USER CODE BEGIN PM */
 
-/* USER CODE END Macro */
+/* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-/* USER CODE BEGIN PV */
+/* USER CODE BEGIN Variables */
 
-/* USER CODE END PV */
+/* USER CODE END Variables */
 
 /* Private function prototypes -----------------------------------------------*/
-/* USER CODE BEGIN PFP */
+/* USER CODE BEGIN FunctionPrototypes */
 
-/* USER CODE END PFP */
+/* USER CODE END FunctionPrototypes */
 
-/* External functions --------------------------------------------------------*/
-/* USER CODE BEGIN ExternalFunctions */
+/* Private application code --------------------------------------------------*/
+/* USER CODE BEGIN Application */
 
-/* USER CODE END ExternalFunctions */
-
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
-/**
- * Initializes the Global MSP.
- */
-void HAL_MspInit(void)
-{
-    /* USER CODE BEGIN MspInit 0 */
-
-    /* USER CODE END MspInit 0 */
-
-    /* System interrupt init*/
-
-    /* USER CODE BEGIN MspInit 1 */
-
-    /* USER CODE END MspInit 1 */
-}
-
-/* USER CODE BEGIN 1 */
-
-/* USER CODE END 1 */
+/* USER CODE END Application */
