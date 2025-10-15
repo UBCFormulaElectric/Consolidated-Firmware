@@ -77,7 +77,6 @@ static void disableBalance(void)
 {
     bool discharge_off[NUM_SEGMENTS][CELLS_PER_SEGMENT] = { false };
     app_segments_setBalanceConfig((const bool(*)[CELLS_PER_SEGMENT])discharge_off);
-
 }
 
 static void enableBalance(void)
