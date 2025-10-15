@@ -36,15 +36,14 @@ static float          target_voltage;
 static void balanceConfig(void)
 {
     const bool override_pwm = app_canRx_Debug_CellBalancingOverridePWM_get();
-    float      freq_hz  = override_pwm ? app_canRx_Debug_CellBalancingOverridePWMFrequency_get() : PWM_DEFAULT_FREQUENCY_HZ;
-    uint32_t   duty_pc  = override_pwm ? app_canRx_Debug_CellBalancingOverridePWMDuty_get() : PWM_DEFAULT_DUTY_PC;
+    float freq_hz = override_pwm ? app_canRx_Debug_CellBalancingOverridePWMFrequency_get() : PWM_DEFAULT_FREQUENCY_HZ;
+    uint32_t duty_pc = override_pwm ? app_canRx_Debug_CellBalancingOverridePWMDuty_get() : PWM_DEFAULT_DUTY_PC;
 
     const bool override_target = app_canRx_Debug_CellBalancingOverrideTarget_get();
     target_voltage = override_target ? app_canRx_Debug_CellBalancingOverrideTarget_get() : min_cell_voltage.value;
 
-    uint32_t period_ms    = (uint32_t)(1000.0f / freq_hz);
-    uint32_t on_time_ms   = (uint32_t)(((float)duty_pc / 100.0f) * (float)period_ms);
-    uint32_t total_pulses = BALANCE_PERIOD_MS / period_ms;
+    uint32_t period_ms  = (uint32_t)(1000.0f / freq_hz);
+    uint32_t on_time_ms = (uint32_t)(((float)duty_pc / 100.0f) * (float)period_ms);
 
     app_timer_init(&period_timer, period_ms);
     app_timer_restart(&period_timer);
@@ -59,7 +58,6 @@ static void updateCellsToBalance(void)
     {
         for (uint8_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
         {
-            
             bool should_balance = false;
             if (segment == min_cell_voltage.segment && cell == min_cell_voltage.cell)
             {
