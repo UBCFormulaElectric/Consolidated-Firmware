@@ -1,7 +1,9 @@
 #pragma once
 
-float io_suspension_getRLTravel();
-float io_suspension_getRRTravel();
-bool io_suspension_rl_OCSC(); 
-bool io_suspension_rr_OCSC();
-
+namespace io::suspension
+{
+    float getRLTravel();
+    float getRRTravel();
+    bool RR_OCSC();
+    bool RL_OCSC();
+}

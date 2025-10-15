@@ -4,4 +4,8 @@
 *Brake light control 
 val = value of the brake light
 */
-void io_brakeLight_set(bool val);
+
+namespace io::brakeLight
+{
+    void set(const bool val);
+}

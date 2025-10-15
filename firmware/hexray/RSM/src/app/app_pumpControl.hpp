@@ -1,3 +1,6 @@
 #pragma once
 
-void app_pumpControl_MonitorPumps();
+namespace app::pumpControl
+{
+    void monitorPumps();
+}

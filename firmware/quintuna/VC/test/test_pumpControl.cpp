@@ -46,7 +46,7 @@ TEST_F(VCPumpControlTest, RampUpFirstStep)
     EXPECT_FALSE(app_canTx_VC_PumpFailure_get());
 }
 
-TEST_F(VCPumpControlTest, RampUpTo100AndHold)
+TEST_F(VCPumpControlTest, RampUpTo100AndHold    )
 {
     // enable both inputs to the ramp logic
     rl_pump_loadswitch.pgood = true;

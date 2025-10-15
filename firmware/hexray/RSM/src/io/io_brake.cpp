@@ -10,6 +10,27 @@
 // Psi per Volt: (Max Pressure - Min Pressure) / (Max Input Voltage - Min Input Voltage)
 #define BRAKE_PSI_PER_VOLT (2500.0f / (BRAKE_PRESSURE_SC_THRESHOLD_V - BRAKE_PRESSURE_OC_THRESHOLD_V))
 
+namespace io::brake
+{
+    bool isActuated()
+    {
+        //Brake is actuated when Pressure is greater than threshold
+        return io_brake_getRearPressurePsi() > BRAKE_ACTUATED_THRESHOLD_PSI;
+    }
+
+
+    // float getRearPressurePsi()
+    // {
+    //     //function and address of bps_3v3 not initialized yet
+    //     return pressureFromVoltage(hw_adc_getVoltage(&bps_3v3));
+    // }
+
+    // bool OCSC()
+    // {   
+    //     //hw_gpio_readPin and &nbps_f_ocsc not initialized yet
+    //     return !hw_gpio_readPin(&nbps_f_ocsc);
+    // }
+}
 
 static float pressureFromVoltage(float voltage)
 {
@@ -17,21 +38,3 @@ static float pressureFromVoltage(float voltage)
     //Calculation: (ADC Voltage - Min Input Voltage) *PSI per volt
     return (BRAKE_PSI_PER_VOLT * (voltage - BRAKE_PRESSURE_OC_THRESHOLD_V));
 }
-
-bool io_brake_isActuated()
-{   
-    //Brake is actuated when Pressure is greater than threshold
-    return io_brake_getRearPressurePsi() > BRAKE_ACTUATED_THRESHOLD_PSI;
-}
-
-// float io_brake_getRearPressurePsi()
-// {
-//     //function and address of bps_3v3 not initialized yet
-//     return pressureFromVoltage(hw_adc_getVoltage(&bps_3v3));
-// }
-
-// bool io_brake_OCSC()
-// {   
-//     //hw_gpio_readPin and &nbps_f_ocsc not initialized yet
-//     return !hw_gpio_readPin(&nbps_f_ocsc);
-// }

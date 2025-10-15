@@ -1,3 +1,6 @@
 #pragma once
 
-void app_suspension_broadcast();
+namespace app::suspension
+{
+    void broadcast();
+}

@@ -5,7 +5,10 @@ extern "C"
     #include "app_canRx.h"
 }
 
-void app_pumpControl_MonitorPumps()
+namespace app::pumpControl
 {
-    io_rPump_setPercentage(app_canRx_VC_PumpRampUpSetPoint_get());
+    void monitorPumps()
+    {
+        io::rPump::setPercentage(app_canRx_VC_PumpRampUpSetPoint_get());
+    }
 }

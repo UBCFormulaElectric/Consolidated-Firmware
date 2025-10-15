@@ -1,3 +1,6 @@
 #pragma once
 
-float io_get_tireTemp();
+namespace io::tireTemp
+{
+    float get(); 
+}

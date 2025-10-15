@@ -9,21 +9,23 @@ extern "C"
 #define MIN_TIRE_TEMPERATURE_CELSIUS -20.0f
 #define MAX_TIRE_TEMPERATURE_CELSIUS 200.0f
 
-
-void app_tireTemp_broadcast()
+namespace app::tireTemp
 {
-    const float temperature = io_get_tireTemp();
+    const float temperature = io::tireTemp::get();
 
-    const bool tireTemp_outOfRange = (temperature >= MAX_TIRE_TEMPERATURE_CELSIUS) || (temperature <= MIN_TIRE_TEMPERATURE_CELSIUS);
+    const bool outOfRange = (temperature >= MAX_TIRE_TEMPERATURE_CELSIUS) || (temperature <= MIN_TIRE_TEMPERATURE_CELSIUS);
     
-    if (tireTemp_outOfRange == true)
+    void broadcast()
     {
-        app_canTx_RSM_Info_TireTempOutOfRange_set(tireTemp_outOfRange);
+        if (app::tireTemp::outOfRange == true)
+        {
+            app_canTx_RSM_Info_TireTempOutOfRange_set(app::tireTemp::outOfRange);
+        }
+        else
+        {
+            app_canTx_RSM_TireTemp_set(app::tireTemp::temperature);
+        }
     }
-    else
-    {
-        app_canTx_RSM_TireTemp_set(temperature);
-    }
-
-//how to add tireTemp_set and TempOutOfRange to CAN
 }
+
+//how to add tireTemp_set and TempOutOfRange to CAN?
