@@ -1,7 +1,4 @@
 #MicroXplorer Configuration settings - do not modify
-BOOTPATH.BootPathName=LEGACY
-BOOTPATH.IPParameters=BootPathName
-BOOTPATH.UserSelectedBootPath=LEGACY
 CAD.formats=
 CAD.pinconfig=
 CAD.provider=
