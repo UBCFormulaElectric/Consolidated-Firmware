@@ -1,4 +1,6 @@
 #pragma once
 
-void app_tireTemp_broadcast();
-
+namespace app::tireTemp
+{
+    void broadcast();
+}

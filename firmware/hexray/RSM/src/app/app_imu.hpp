@@ -1,3 +1,6 @@
 #pragma once
 
-void app_imu_broadcast();
+namespace app::imu
+{
+    void broadcast();
+}
