@@ -27,6 +27,7 @@
 #include "hw_bootup.h"
 #include "hw_adcs.h"
 #include "hw_resetReason.h"
+#include "hw_runTimeStat.h"
 
 void tasks_preInit(void)
 {
@@ -46,6 +47,8 @@ void tasks_init(void)
     ASSERT_EXIT_OK(hw_usb_init());
     hw_adcs_chipsInit();
     hw_can_init(&can);
+
+    hw_runTimeStat_init(&htim7);
 
     const ResetReason reset_reason = hw_resetReason_get();
     app_canTx_FSM_ResetReason_set((CanResetReason)reset_reason);
@@ -79,6 +82,10 @@ void tasks_init(void)
         hw_bootup_setBootRequest(boot_request);
     }
 
+    CpuRunTimeStats cpu_info = { .cpu_usage_max_setter = app_canTx_FSM_CoreCpuUsage_set,
+                                 .cpu_usage_setter     = app_canTx_FSM_CoreCpuUsageMax_set };
+
+    hw_runtimeStat_registerCpu(&cpu_info);
     jobs_init();
 
     io_canTx_FSM_Bootup_sendAperiodic();
@@ -91,10 +98,16 @@ _Noreturn void tasks_runChimera(void)
 
 void tasks_run1Hz(void)
 {
-    const uint32_t  period_ms                = 1000U;
-    const uint32_t  watchdog_grace_period_ms = 50U;
-    WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
+    const uint32_t   period_ms                = 1000U;
+    const uint32_t   watchdog_grace_period_ms = 50U;
+    WatchdogHandle  *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
+    TaskRuntimeStats task_run1hz              = { .task_index             = TASK_RUN1HZ,
+                                                  .stack_size             = 512,
+                                                  .cpu_usage_max_setter   = app_canTx_FSM_TaskRun1HzCpuUsageMax_set,
+                                                  .cpu_usage_setter       = app_canTx_FSM_TaskRun1HzCpuUsage_set,
+                                                  .stack_usage_max_setter = app_canTx_FSM_TaskRun1HzStackUsage_set };
 
+    hw_runTimeStat_registerTask(&task_run1hz);
     uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
     {
@@ -117,6 +130,14 @@ void tasks_run100Hz(void)
     const uint32_t  watchdog_grace_period_ms = 2U;
     WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
 
+    TaskRuntimeStats task_run100hz = { .task_index             = TASK_RUN100HZ,
+                                       .stack_size             = 512,
+                                       .cpu_usage_max_setter   = app_canTx_FSM_TaskRun1HzCpuUsageMax_set,
+                                       .cpu_usage_setter       = app_canTx_FSM_TaskRun1HzCpuUsage_set,
+                                       .stack_usage_max_setter = app_canTx_FSM_TaskRun1HzStackUsage_set };
+
+    hw_runTimeStat_registerTask(&task_run100hz);
+
     uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
     {
@@ -125,6 +146,7 @@ void tasks_run100Hz(void)
             jobs_run100Hz_tick();
         }
 
+        hw_runTimeStat_hookCallBack();
         // Watchdog check-in must be the last function called before putting the task to sleep.
         hw_watchdog_checkIn(watchdog);
 
@@ -140,7 +162,6 @@ void tasks_run1kHz(void)
     WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
-    tasks_init();
     for (;;)
     {
         hw_watchdog_checkForTimeouts();
@@ -158,9 +179,8 @@ void tasks_run1kHz(void)
     }
 }
 
-void tasks_runCanTx(void)
+void tasks_runCanTx()
 {
-    // Setup tasks.
     for (;;)
     {
         CanMsg msg = io_canQueue_popTx(&can_tx_queue);
@@ -178,13 +198,12 @@ void tasks_runCanRxCallback(const CanMsg *msg)
     }
 }
 
-void tasks_runCanRx(void)
+_Noreturn void tasks_runCanRx(void)
 {
-    // Setup tasks.
     for (;;)
     {
-        const CanMsg rx_msg      = io_canQueue_popRx();
-        JsonCanMsg   rx_json_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
-        io_canRx_updateRxTableWithMessage(&rx_json_msg);
+        const CanMsg rx_msg   = io_canQueue_popRx();
+        JsonCanMsg   json_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
+        io_canRx_updateRxTableWithMessage(&json_msg);
     }
 }

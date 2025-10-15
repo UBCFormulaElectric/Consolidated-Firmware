@@ -26,6 +26,7 @@
 #include "hw_cans.h"
 #include "hw_adcs.h"
 #include "hw_pwms.h"
+#include "hw_runTimeStat.h"
 #include "hw_hardFaultHandler.h"
 
 // chimera
