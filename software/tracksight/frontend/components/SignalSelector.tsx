@@ -1,5 +1,7 @@
 "use client";
 
+import React from 'react';
+
 import { useSignalsMetadataList } from "@/lib/contexts/SignalsMetadataContext";
 import { SignalMetadata } from "@/lib/types/Signal";
 import Selector, { SelectorItemRenderer } from "./common/Selector";

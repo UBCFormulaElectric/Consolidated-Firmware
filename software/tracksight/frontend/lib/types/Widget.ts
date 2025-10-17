@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { WIDGET_SCHEMAS } from "@/lib/widgetSchemas";
 
 type WIDGET_TYPE = (typeof WIDGET_SCHEMAS)[number]["type"];

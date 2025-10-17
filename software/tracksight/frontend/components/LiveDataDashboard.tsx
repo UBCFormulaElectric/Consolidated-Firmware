@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import React, { useCallback } from "react";
 
 import type { WIDGET_TYPE, Widget as WidgetData } from "@/lib/types/Widget";
 import type { Card as CardData } from "@/lib/types/DashboardCard";
