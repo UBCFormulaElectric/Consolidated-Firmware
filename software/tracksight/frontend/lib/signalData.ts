@@ -5,10 +5,10 @@
 //             stores.
 
 import { fetchSignalMetadata } from "@/lib/api/signals";
-import { API_BASE_URL, IS_DEBUG } from "@/lib/constants";
+import { API_BASE_URL, IS_DEBUG, IS_VERBOSE_DEBUG } from "@/lib/constants";
 import socket from "@/lib/realtime/socket";
-import subscribeToSignal from "@/lib/realtime/subscribeToSignal";
-import unsubscribeFromSignal from "@/lib/realtime/unsubscribeFromSignal";
+import subscribeToSignal from "@/lib/api/subscribeToSignal";
+import unsubscribeFromSignal from "@/lib/api/unsubscribeFromSignal";
 import { useEffect, useState } from "react";
 
 /**
@@ -91,6 +91,86 @@ const unsubscribeFromSignalData = (signalName: string) => {
   unsubscribeFromSignal(signalName);
 };
 
+type SignalPayload = {
+  value: number;
+  name: string;
+  time?: string;
+};
+
+// TODO(evan): Might want to move this into a zod schema or something later. Depends
+//             on how complex this data validation needs to be.
+/**
+ * Type guard to validate signal data payloads.
+ * 
+ * 
+ * @param data - The data to validate.
+ * @returns True if the data is a valid SignalPayload, false otherwise.
+ */
+const isValidSignalPayload = (data: unknown): data is SignalPayload => {
+  if (data == null || typeof data !== "object" || Array.isArray(data)) {
+    return false;
+  }
+
+  if (
+    !("value" in data)
+    || !("name" in data)
+  ) {
+    return false;
+  }
+
+  const {
+    value,
+    name
+  } = data;
+
+  if (
+    typeof value !== "number"
+    || typeof name !== "string"
+    || ("time" in data && typeof (data as any).time !== "string")
+  ) {
+    return false;
+  }
+
+  return true;
+};
+
+const handleData = (
+  data: unknown,
+) => {
+  if (!isValidSignalPayload(data)) {
+    console.warn("Received invalid signal data:", data);
+    return;
+  }
+
+  const { name } = data;
+
+
+  data.time ||= new Date().toISOString();
+  
+  IS_VERBOSE_DEBUG && console.groupCollapsed(
+    `%c[Handling Signal Data] %cSignal: %s`,
+    "color: #81a1c1; font-weight: bold;",
+    "color: #d08770;",
+    name
+  )
+
+  IS_VERBOSE_DEBUG && console.log(
+    `%cData: %o`,
+    "color: #d08770;",
+    data
+  );
+  
+  signalDataStore[name].push(data);
+
+  dataSubscribers.get(name)?.forEach((callback) => {
+    callback();
+  }); 
+
+  IS_VERBOSE_DEBUG && console.groupEnd();
+}
+
+socket.on("data", handleData);
+
 /**
  * Hook to get the data version for a list of signals, used to allow
  * for re-rendering without having to create new arrays which would
@@ -105,7 +185,7 @@ const useDataVersion = (signals: string[]) => {
     // NOTE(evan): When data for any of the subscribed signals updates, we increment
     //             the data version to trigger a re-render.
     const notify = () => {
-      IS_DEBUG &&
+      IS_VERBOSE_DEBUG &&
         console.log(
           `%c[Signal Data Update] %cSignals: ${signals.join(", ")}`,
           "color: #88c0d0; font-weight: bold;",
