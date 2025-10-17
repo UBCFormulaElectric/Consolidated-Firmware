@@ -16,6 +16,8 @@ type SignalSelectorProps = {
 const SignalItemRenderer: SelectorItemRenderer<SignalMetadata> = (props) => {
     const { data, isSelected } = props;
 
+    // TODO(evan): Add styling for selected state
+
     return (
         <div className="flex gap-2">
             <p>
