@@ -1,9 +1,10 @@
 import js from "@eslint/js";
-import globals from "globals";
-import tsParser from "@typescript-eslint/parser";
-import tsPlugin from "@typescript-eslint/eslint-plugin";
 import nextPlugin from "@next/eslint-plugin-next";
+import tsPlugin from "@typescript-eslint/eslint-plugin";
+import tsParser from "@typescript-eslint/parser";
 import eslintConfigPrettier from "eslint-config-prettier";
+import globals from "globals";
+import importAliasPlugin from "@limegrass/eslint-plugin-import-alias";
 
 export default [
     {
@@ -27,6 +28,7 @@ export default [
         plugins: {
             "@typescript-eslint": tsPlugin,
             "@next/next": nextPlugin,
+            "import-alias": importAliasPlugin,
         },
         rules: {
             "@typescript-eslint/explicit-module-boundary-types": "off",
@@ -34,11 +36,9 @@ export default [
                 "warn",
                 { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
             ],
-            "no-unused-vars": [
-                "warn",
-                { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
-            ],
+            "no-unused-vars": ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
             "react/jsx-key": "off",
+            "import-alias/import-alias": "error",
         },
     },
 ];

@@ -1,5 +1,5 @@
-import { API_BASE_URL, IS_DEBUG } from "../constants";
-import socket, { pendingUnsubscriptions } from "./socket";
+import { API_BASE_URL, IS_DEBUG } from "@/lib/constants";
+import socket, { pendingUnsubscriptions } from "@/lib/realtime/socket";
 
 const unsubscribeFromSignal = async (signalName: string) => {
   if (!socket.connected) {
