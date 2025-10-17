@@ -10,6 +10,7 @@ import socket from "@/lib/realtime/socket";
 import subscribeToSignal from "@/lib/api/subscribeToSignal";
 import unsubscribeFromSignal from "@/lib/api/unsubscribeFromSignal";
 import { useEffect, useState } from "react";
+import { sign } from "crypto";
 
 /**
  * Map to hold subscribers for data updates, keyed by signal name.
@@ -219,20 +220,26 @@ const useDataVersion = (signals: string[]) => {
  * The returned array reference never changes - it's mutated in place when data updates occur.
  * To trigger re-renders on data updates, use the `useDataVersion` hook alongside this.
  *
- * @param signalName - Name of the signal to subscribe to.
+ * @param signalNames - Array of signal names to subscribe to.
  *
- * @returns A stable reference to the signal's data array.
+ * @returns A stable reference to the signal's data arrays
  */
-const useSignalDataRef = (signalName: string): readonly any[] => {
+const useSignalDataRef = (signalNames: string[]): Record<string, readonly any[]> => {
   useEffect(() => {
-    subscribeToSignalData(signalName);
-
+    signalNames.forEach(subscribeToSignalData);
+  
     return () => {
-      unsubscribeFromSignalData(signalName);
+      signalNames.forEach(unsubscribeFromSignalData);
     };
-  }, [signalName]);
+  }, [signalNames]);
 
-  return signalDataStore[signalName];
+  const dataRef: Record<string, readonly any[]> = {};
+
+  signalNames.forEach((signalName) => {
+    dataRef[signalName] = signalDataStore[signalName];
+  });
+
+  return dataRef;
 };
 
 export { useDataVersion, useSignalDataRef };
