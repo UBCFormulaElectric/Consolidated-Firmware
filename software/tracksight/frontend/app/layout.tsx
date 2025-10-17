@@ -11,13 +11,12 @@ import { fetchSignalMetadata } from '@/lib/api/signals';
 const inter = Inter({ subsets: ["latin"] });
 
 import Sidebar from "@/components/Navbar"
+import { API_BASE_URL } from '@/lib/constants';
 
 export const metadata: Metadata = {
   title: "Tracksight Dashboard",
   description: "Monitoring and visualization dashboard for system data",
 }
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:5001/";
 
 export default async function RootLayout({
   children,
