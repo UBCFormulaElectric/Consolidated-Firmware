@@ -1,5 +1,4 @@
-import { WIDGET_SCHEMAS } from "@/lib/constants";
-import { Card } from "./DashboardCard";
+import { WIDGET_SCHEMAS } from "@/lib/widgetSchemas";
 
 type WIDGET_TYPE = (
     (typeof WIDGET_SCHEMAS)[number]["type"]
