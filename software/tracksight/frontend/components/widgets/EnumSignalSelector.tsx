@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { ChevronDown } from "lucide-react";
 
-import { useSignalMetadata } from "@/lib/contexts/SignalsContext";
+import { useSignalMetadata } from "@/lib/contexts/SignalsMetadataContext";
 import { EditWidgetFunction, WIDGET_TYPE } from "@/lib/types/Widget";
 import isEnumSignal from "@/lib/isEnumSignal";
 import SignalSelector from "../SignalSelector";

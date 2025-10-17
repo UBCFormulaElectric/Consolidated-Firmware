@@ -1,6 +1,6 @@
 "use client";
 
-import { useSignalMetadata } from "@/lib/contexts/SignalsContext";
+import { useSignalMetadata } from "@/lib/contexts/SignalsMetadataContext";
 import getWidgetSchema from "@/lib/getWidgetSchema";
 import Widget from "@/lib/types/Widget";
 import EnumValueEditor from "@/components/widgets/EnumValueEditor";
