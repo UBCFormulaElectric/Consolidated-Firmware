@@ -171,6 +171,8 @@ const Selector = <T extends any>(props: SelectorProps<T>) => {
 
   const filteredOptions = searchQuery.trim() ? getFilteredOptions() : [];
 
+  // TODO(evan): Completely redo the styling of this whole component.
+
   return (
     isOpen && (
       <div
