@@ -9,15 +9,15 @@ import { fetchSignalMetadata } from "@/lib/api/signals";
 import { API_BASE_URL, IS_DEBUG } from "@/lib/constants";
 import subscribeToSignal from "@/lib/realtime/subscribeToSignal";
 import unsubscribeFromSignal from "@/lib/realtime/unsubscribeFromSignal";
-import socket from '@/lib/realtime/socket';
+import socket from "@/lib/realtime/socket";
 
 /**
- * Map to hold subscribers for data updates, keyed by signal name. 
+ * Map to hold subscribers for data updates, keyed by signal name.
  */
 const dataSubscribers: Map<string, Set<() => void>> = new Map();
 
 /**
- * Map to hold number of subscribers for signal data updates, keyed by signal name. 
+ * Map to hold number of subscribers for signal data updates, keyed by signal name.
  * When the count reaches zero, we stop fetching data for that signal to save resources.
  */
 const signalDataSubscribers = new Map<string, number>();
@@ -32,126 +32,127 @@ const signalDataStore: Record<string, any[]> = {};
 const signals = fetchSignalMetadata(API_BASE_URL);
 
 signals
-    .then(metadataList => {
-        metadataList.forEach(metadata => {
-            signalDataStore[metadata.name] = [];
-        });
-    })
-    .catch(err => {
-        console.error("Failed to fetch signal metadata:", err);
+  .then((metadataList) => {
+    metadataList.forEach((metadata) => {
+      signalDataStore[metadata.name] = [];
     });
+  })
+  .catch((err) => {
+    console.error("Failed to fetch signal metadata:", err);
+  });
 
 const subscribeToSignalData = (signalName: string) => {
-    IS_DEBUG && console.log(
-        `%c[Added Signal Data Subscription] %cSignal: ${signalName}`,
-        'color: #ebcb8b; font-weight: bold;',
-        'color: #d08770;'
+  IS_DEBUG &&
+    console.log(
+      `%c[Added Signal Data Subscription] %cSignal: ${signalName}`,
+      "color: #ebcb8b; font-weight: bold;",
+      "color: #d08770;"
     );
 
-    const currentCount = signalDataSubscribers.get(signalName) || 0;
-    signalDataSubscribers.set(signalName, currentCount + 1);
+  const currentCount = signalDataSubscribers.get(signalName) || 0;
+  signalDataSubscribers.set(signalName, currentCount + 1);
 
-    if (currentCount !== 0) return;
+  if (currentCount !== 0) return;
 
-    IS_DEBUG && console.log(
-        `%c[Subscribe Signal Data] %cSignal: ${signalName}`,
-        'color: #a3be8c; font-weight: bold;',
-        'color: #d08770;'
+  IS_DEBUG &&
+    console.log(
+      `%c[Subscribe Signal Data] %cSignal: ${signalName}`,
+      "color: #a3be8c; font-weight: bold;",
+      "color: #d08770;"
     );
 
-    subscribeToSignal(signalName);
+  subscribeToSignal(signalName);
 };
 
 const unsubscribeFromSignalData = (signalName: string) => {
-    IS_DEBUG && console.log(
-        `%c[Removed Signal Data Subscription] %cSignal: ${signalName}`,
-        'color: #d08770; font-weight: bold;',
-        'color: #d08770;'
+  IS_DEBUG &&
+    console.log(
+      `%c[Removed Signal Data Subscription] %cSignal: ${signalName}`,
+      "color: #d08770; font-weight: bold;",
+      "color: #d08770;"
     );
 
-    const currentCount = signalDataSubscribers.get(signalName) || 0;
+  const currentCount = signalDataSubscribers.get(signalName) || 0;
 
-    if (currentCount > 1) {
-        signalDataSubscribers.set(signalName, currentCount - 1);
+  if (currentCount > 1) {
+    signalDataSubscribers.set(signalName, currentCount - 1);
 
-        return;
-    }
+    return;
+  }
 
-    IS_DEBUG && console.log(
-        `%c[Unsubscribe Signal Data] %cSignal: ${signalName}`,
-        'color: #bf616a; font-weight: bold;',
-        'color: #d08770;'
+  IS_DEBUG &&
+    console.log(
+      `%c[Unsubscribe Signal Data] %cSignal: ${signalName}`,
+      "color: #bf616a; font-weight: bold;",
+      "color: #d08770;"
     );
 
-    signalDataSubscribers.delete(signalName);
-    unsubscribeFromSignal(signalName);
+  signalDataSubscribers.delete(signalName);
+  unsubscribeFromSignal(signalName);
 };
 
 /**
  * Hook to get the data version for a list of signals, used to allow
  * for re-rendering without having to create new arrays which would
  * trigger unnecessary garbage collection.
- * 
+ *
  * @param signals - Array of signal names.
  */
 const useDataVersion = (signals: string[]) => {
-    const [dataVersion, setDataVersion] = useState(0);
+  const [dataVersion, setDataVersion] = useState(0);
 
-    useEffect(() => {
-        // NOTE(evan): When data for any of the subscribed signals updates, we increment
-        //             the data version to trigger a re-render.
-        const notify = () => {
-            IS_DEBUG && console.log(
-                `%c[Signal Data Update] %cSignals: ${signals.join(", ")}`,
-                'color: #88c0d0; font-weight: bold;',
-                'color: #d08770;'
-            );
+  useEffect(() => {
+    // NOTE(evan): When data for any of the subscribed signals updates, we increment
+    //             the data version to trigger a re-render.
+    const notify = () => {
+      IS_DEBUG &&
+        console.log(
+          `%c[Signal Data Update] %cSignals: ${signals.join(", ")}`,
+          "color: #88c0d0; font-weight: bold;",
+          "color: #d08770;"
+        );
 
-            setDataVersion(prev => prev + 1);
-        };
+      setDataVersion((prev) => prev + 1);
+    };
 
-        signals.forEach(signalName => {
-            if (!dataSubscribers.has(signalName)) {
-                dataSubscribers.set(signalName, new Set());
-            }
+    signals.forEach((signalName) => {
+      if (!dataSubscribers.has(signalName)) {
+        dataSubscribers.set(signalName, new Set());
+      }
 
-            dataSubscribers.get(signalName)!.add(notify);
-        });
+      dataSubscribers.get(signalName)!.add(notify);
+    });
 
-        return () => {
-            signals.forEach(signalName => {
-                dataSubscribers.get(signalName)?.delete(notify);
-            });
-        };
-    }, [signals]);
+    return () => {
+      signals.forEach((signalName) => {
+        dataSubscribers.get(signalName)?.delete(notify);
+      });
+    };
+  }, [signals]);
 
-    return dataVersion;
-}
+  return dataVersion;
+};
 
 /**
  * Hook that subscribes to signal data updates and returns a stable reference to the signal's data array.
- * 
+ *
  * The returned array reference never changes - it's mutated in place when data updates occur.
  * To trigger re-renders on data updates, use the `useDataVersion` hook alongside this.
- * 
+ *
  * @param signalName - Name of the signal to subscribe to.
- * 
+ *
  * @returns A stable reference to the signal's data array.
  */
 const useSignalDataRef = (signalName: string): readonly any[] => {
-    useEffect(() => {
-        subscribeToSignalData(signalName);
+  useEffect(() => {
+    subscribeToSignalData(signalName);
 
-        return () => {
-            unsubscribeFromSignalData(signalName);
-        };
-    }, [signalName]);
+    return () => {
+      unsubscribeFromSignalData(signalName);
+    };
+  }, [signalName]);
 
-    return signalDataStore[signalName];
-}
+  return signalDataStore[signalName];
+};
 
-export {
-    useSignalDataRef,
-    useDataVersion,
-}
-
+export { useSignalDataRef, useDataVersion };

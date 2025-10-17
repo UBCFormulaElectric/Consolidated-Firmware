@@ -1,8 +1,8 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { SignalMetadata, SignalMetadataMap } from '@/lib/types/Signal';
-import { fetchSignalMetadata } from '../api/signals';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { SignalMetadata, SignalMetadataMap } from "@/lib/types/Signal";
+import { fetchSignalMetadata } from "../api/signals";
 
 type SignalsMetadataContextType = {
   signalMetadata: SignalMetadataMap;
@@ -21,25 +21,21 @@ type SignalsProviderProps = {
   children: ReactNode;
   apiBaseUrl: string;
   initialData?: SignalMetadata[];
-}
+};
 
 const convertMetadataToMap = (data: SignalMetadata[] | undefined): SignalMetadataMap => {
   const map = new Map<string, SignalMetadata>();
 
   if (!data) return map;
 
-  data.forEach(signal => {
+  data.forEach((signal) => {
     map.set(signal.name, signal);
   });
 
   return map;
-}
+};
 
-const SignalsMetadataProvider = ({
-  children,
-  apiBaseUrl,
-  initialData
-}: SignalsProviderProps) => {
+const SignalsMetadataProvider = ({ children, apiBaseUrl, initialData }: SignalsProviderProps) => {
   const initialMap = React.useMemo(() => convertMetadataToMap(initialData), [initialData]);
 
   const [signalMetadata, setSignalMetadata] = useState<SignalMetadataMap>(initialMap);
@@ -53,7 +49,7 @@ const SignalsMetadataProvider = ({
 
       const newSignalMetadata = await fetchSignalMetadata(apiBaseUrl);
       const signalMap = convertMetadataToMap(newSignalMetadata);
-    
+
       setSignalMetadata(signalMap);
     } catch (err) {
       if (!(err instanceof Error)) {
@@ -89,7 +85,7 @@ const SignalsMetadataProvider = ({
 
         getSignalMetadata,
 
-        refetch: fetchSignals
+        refetch: fetchSignals,
       }}
     >
       {children}
@@ -101,7 +97,7 @@ const useSignalsMetadataList = () => {
   const context = useContext(SignalsMetadataContext);
 
   if (context === undefined) {
-    throw new Error('useSignals must be used within a SignalsProvider');
+    throw new Error("useSignals must be used within a SignalsProvider");
   }
 
   return context;
@@ -111,15 +107,10 @@ const useSignalMetadata = (signal: string) => {
   const context = useContext(SignalsMetadataContext);
 
   if (context === undefined) {
-    throw new Error('useSignalMetadata must be used within a SignalsProvider');
+    throw new Error("useSignalMetadata must be used within a SignalsProvider");
   }
 
-  return context.getSignalMetadata(signal);  
-}
+  return context.getSignalMetadata(signal);
+};
 
-export {
-  SignalsMetadataProvider,
-  
-  useSignalsMetadataList,
-  useSignalMetadata,
-}
+export { SignalsMetadataProvider, useSignalsMetadataList, useSignalMetadata };

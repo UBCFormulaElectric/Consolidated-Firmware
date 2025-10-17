@@ -1,11 +1,11 @@
 "use client";
 
-import React, { createContext, useContext, useState } from 'react'
-import type { Card } from '@/lib/types/DashboardCard';
-import type { Widget, WIDGET_TYPE } from '@/lib/types/Widget';
+import React, { createContext, useContext, useState } from "react";
+import type { Card } from "@/lib/types/DashboardCard";
+import type { Widget, WIDGET_TYPE } from "@/lib/types/Widget";
 
 type DashboardLayoutType = {
-  cards: Card[]
+  cards: Card[];
 
   addCard: (newCard: Card) => void;
   removeCard: (cardToRemove: Card) => void;
@@ -16,10 +16,14 @@ type DashboardLayoutType = {
 
   addWidget: (parentCard: Card, newWidget: Widget<WIDGET_TYPE>) => void;
   removeWidget: (parentCard: Card, widgetToRemove: Widget<WIDGET_TYPE>) => void;
-  editWidget: (parentCard: Card, widgetToEdit: Widget<WIDGET_TYPE>, newWidgetData: Partial<Widget<WIDGET_TYPE>>) => void;
-}
+  editWidget: (
+    parentCard: Card,
+    widgetToEdit: Widget<WIDGET_TYPE>,
+    newWidgetData: Partial<Widget<WIDGET_TYPE>>
+  ) => void;
+};
 
-const DashboardLayoutContext = createContext<DashboardLayoutType | undefined>(undefined)
+const DashboardLayoutContext = createContext<DashboardLayoutType | undefined>(undefined);
 
 const DashboardLayoutProvider = ({ children }: { children: React.ReactNode }) => {
   const [cards, setCards] = useState<Card[]>([
@@ -32,55 +36,46 @@ const DashboardLayoutProvider = ({ children }: { children: React.ReactNode }) =>
           type: "stateTimeline",
           signals: ["VC_State"],
           options: {
-            colorPalette: [
-              "#FF637E",
-              "#FFB86A",
-              "#05DF72",
-              "#51A2FF"
-            ]
-          }
-        }
-      ]
-    }
+            colorPalette: ["#FF637E", "#FFB86A", "#05DF72", "#51A2FF"],
+          },
+        },
+      ],
+    },
   ]);
 
   // NOTE(evan): Card and widget lengths should never be super large so these
   //             array recreations are permitable when changing states.
 
-  const addCard: DashboardLayoutType['addCard'] = React.useCallback((newCard) => {
-    setCards((prev) => (
-      [...prev, newCard]
-    ))
+  const addCard: DashboardLayoutType["addCard"] = React.useCallback((newCard) => {
+    setCards((prev) => [...prev, newCard]);
   }, []);
 
-  const removeCard: DashboardLayoutType['removeCard'] = React.useCallback((cardToRemove) => {
-    setCards((prev) => (
-      prev.toSpliced(prev.indexOf(cardToRemove), 1)
-    ));
+  const removeCard: DashboardLayoutType["removeCard"] = React.useCallback((cardToRemove) => {
+    setCards((prev) => prev.toSpliced(prev.indexOf(cardToRemove), 1));
   }, []);
 
-  const editCard: DashboardLayoutType['editCard'] = React.useCallback((cardToEdit, newCardData) => {
+  const editCard: DashboardLayoutType["editCard"] = React.useCallback((cardToEdit, newCardData) => {
     setCards((prev) => {
       const cardIndex = prev.indexOf(cardToEdit);
-      
+
       if (cardIndex === -1) {
         console.warn("Card to edit not found");
         return prev;
       }
-      
+
       const updatedCard = {
         ...prev[cardIndex],
-        ...newCardData
+        ...newCardData,
       };
-      
+
       const newCards = [...prev];
       newCards[cardIndex] = updatedCard;
-      
+
       return newCards;
     });
   }, []);
 
-  const addWidget: DashboardLayoutType['addWidget'] = React.useCallback((parentCard, newWidget) => {
+  const addWidget: DashboardLayoutType["addWidget"] = React.useCallback((parentCard, newWidget) => {
     setCards((prev) => {
       parentCard.widgets.push(newWidget);
 
@@ -88,62 +83,65 @@ const DashboardLayoutProvider = ({ children }: { children: React.ReactNode }) =>
     });
   }, []);
 
-  const removeWidget: DashboardLayoutType['removeWidget'] = React.useCallback((parentCard, widgetToRemove) => {
-    setCards((prev) => {
-      parentCard.widgets.splice(parentCard.widgets.indexOf(widgetToRemove), 1);
+  const removeWidget: DashboardLayoutType["removeWidget"] = React.useCallback(
+    (parentCard, widgetToRemove) => {
+      setCards((prev) => {
+        parentCard.widgets.splice(parentCard.widgets.indexOf(widgetToRemove), 1);
 
-      return [...prev];
-    });
-  }, []);
+        return [...prev];
+      });
+    },
+    []
+  );
 
-  const editWidget: DashboardLayoutType['editWidget'] = React.useCallback((parentCard, widgetToEdit, newWidgetData) => {
-    setCards((prev) => {
-      const widgetIndex = parentCard.widgets.indexOf(widgetToEdit);
+  const editWidget: DashboardLayoutType["editWidget"] = React.useCallback(
+    (parentCard, widgetToEdit, newWidgetData) => {
+      setCards((prev) => {
+        const widgetIndex = parentCard.widgets.indexOf(widgetToEdit);
 
-      if (widgetIndex === -1) {
-        console.warn("Widget to edit not found in parent card");
-        return prev;
-      }
+        if (widgetIndex === -1) {
+          console.warn("Widget to edit not found in parent card");
+          return prev;
+        }
 
-      parentCard.widgets[widgetIndex] = {
-        ...parentCard.widgets[widgetIndex],
-        ...newWidgetData
-      };
-      
-      return [...prev];
-    });
-  }, []);
+        parentCard.widgets[widgetIndex] = {
+          ...parentCard.widgets[widgetIndex],
+          ...newWidgetData,
+        };
+
+        return [...prev];
+      });
+    },
+    []
+  );
 
   return (
     <DashboardLayoutContext.Provider
-        value={{
-          cards,
+      value={{
+        cards,
 
-          addCard,
-          removeCard,
-          editCard,
+        addCard,
+        removeCard,
+        editCard,
 
-          addWidget,
-          removeWidget,
-          editWidget
-        }}
+        addWidget,
+        removeWidget,
+        editWidget,
+      }}
     >
       {children}
     </DashboardLayoutContext.Provider>
-  )
-}
+  );
+};
 
 const useDashboardLayout = () => {
   const context = useContext(DashboardLayoutContext);
 
   if (context === undefined) {
-    throw new Error('useDashboardLayout must be used within a DashboardLayoutProvider')
+    throw new Error("useDashboardLayout must be used within a DashboardLayoutProvider");
   }
 
-  return context
-}
-
-export {
-    DashboardLayoutProvider,
-    useDashboardLayout
+  return context;
 };
+
+export { DashboardLayoutProvider, useDashboardLayout };

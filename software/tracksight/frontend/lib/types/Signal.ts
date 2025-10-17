@@ -11,11 +11,8 @@ type SignalMetadata = {
   cycle_time_ms: number;
   id: number;
   msg_name: string;
-}
+};
 
 type SignalMetadataMap = Map<string, SignalMetadata>;
 
-export type {
-    SignalMetadata,
-    SignalMetadataMap
-}
+export type { SignalMetadata, SignalMetadataMap };
