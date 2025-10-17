@@ -1,6 +1,6 @@
 "use client";
 
-import { useSignalsMetadataList } from "@/lib/contexts/SignalsContext";
+import { useSignalsMetadataList } from "@/lib/contexts/SignalsMetadataContext";
 import { SignalMetadata } from "@/lib/types/Signal"
 import Selector, { SelectorItemRenderer } from "./common/Selector";
 
