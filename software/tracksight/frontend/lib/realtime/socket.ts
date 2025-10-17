@@ -1,8 +1,8 @@
 import io from "socket.io-client";
 
 import { API_BASE_URL, IS_DEBUG, MAX_RECCONECTION_ATTEMPTS } from "@/lib/constants";
-import subscribeToSignal from "@/lib/realtime/subscribeToSignal";
-import unsubscribeFromSignal from "@/lib/realtime/unsubscribeFromSignal";
+import subscribeToSignal from "@/lib/api/subscribeToSignal";
+import unsubscribeFromSignal from "@/lib/api/unsubscribeFromSignal";
 
 const socket = io(API_BASE_URL, {
   transports: ["websocket", "polling"],
