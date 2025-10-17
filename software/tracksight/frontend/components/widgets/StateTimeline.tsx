@@ -1,6 +1,6 @@
 import Widget from "@/lib/types/Widget";
 import Legend from "@/components/Legend";
-import { useSignalMetadata } from "@/lib/contexts/SignalsContext";
+import { useSignalMetadata } from "@/lib/contexts/SignalsMetadataContext";
 import { useEffect } from "react";
 
 const StateTimeline: Widget<"stateTimeline"> = (props) => {
