@@ -1,8 +1,8 @@
 "use client";
 
-import React, { createContext, useContext, useState } from "react";
 import type { Card } from "@/lib/types/DashboardCard";
 import type { Widget, WIDGET_TYPE } from "@/lib/types/Widget";
+import React, { createContext, useContext, useState } from "react";
 
 type DashboardLayoutType = {
   cards: Card[];

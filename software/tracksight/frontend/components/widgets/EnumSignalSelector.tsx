@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useRef } from "react";
 import { ChevronDown } from "lucide-react";
+import React, { useRef } from "react";
 
 import { useSignalMetadata } from "@/lib/contexts/SignalsMetadataContext";
-import { EditWidgetFunction, WIDGET_TYPE } from "@/lib/types/Widget";
 import isEnumSignal from "@/lib/isEnumSignal";
-import SignalSelector from "../SignalSelector";
+import { EditWidgetFunction, WIDGET_TYPE } from "@/lib/types/Widget";
+import SignalSelector from "@/components/SignalSelector";
 
 type EnumSignalSelectorProps = {
   currentSignal: string;

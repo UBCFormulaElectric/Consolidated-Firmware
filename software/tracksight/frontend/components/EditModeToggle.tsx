@@ -1,6 +1,6 @@
 "use client";
 
-import { Pencil, File } from "lucide-react";
+import { File, Pencil } from "lucide-react";
 
 import { useEditMode } from "@/lib/contexts/EditModeContext";
 

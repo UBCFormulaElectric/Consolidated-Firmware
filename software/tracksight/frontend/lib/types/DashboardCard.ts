@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 import { Widget, WIDGET_TYPE } from "@/lib/types/Widget";
 

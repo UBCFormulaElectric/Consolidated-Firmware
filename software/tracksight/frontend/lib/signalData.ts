@@ -4,12 +4,12 @@
 //             I just didn't want to name a file for these stupid global
 //             stores.
 
-import { useEffect, useState } from "react";
 import { fetchSignalMetadata } from "@/lib/api/signals";
 import { API_BASE_URL, IS_DEBUG } from "@/lib/constants";
+import socket from "@/lib/realtime/socket";
 import subscribeToSignal from "@/lib/realtime/subscribeToSignal";
 import unsubscribeFromSignal from "@/lib/realtime/unsubscribeFromSignal";
-import socket from "@/lib/realtime/socket";
+import { useEffect, useState } from "react";
 
 /**
  * Map to hold subscribers for data updates, keyed by signal name.
@@ -155,4 +155,4 @@ const useSignalDataRef = (signalName: string): readonly any[] => {
   return signalDataStore[signalName];
 };
 
-export { useSignalDataRef, useDataVersion };
+export { useDataVersion, useSignalDataRef };

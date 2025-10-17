@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 // TODO(evan): Add the ability for more items to be added to the header
 

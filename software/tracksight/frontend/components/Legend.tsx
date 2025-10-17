@@ -1,6 +1,6 @@
-import React, { useMemo } from "react";
 import ChipLegendRenderer from "@/components/ChipLegendItem";
 import LabelLegendItem from "@/components/LabelLegendItem";
+import React, { useMemo } from "react";
 
 type LegendThemes = "chip" | "label";
 

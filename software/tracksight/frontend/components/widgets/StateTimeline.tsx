@@ -1,9 +1,9 @@
 "use client";
 
-import Widget from "@/lib/types/Widget";
 import Legend from "@/components/Legend";
 import { useSignalMetadata } from "@/lib/contexts/SignalsMetadataContext";
 import { useDataVersion, useSignalDataRef } from "@/lib/signalData";
+import Widget from "@/lib/types/Widget";
 
 const StateTimeline: Widget<"stateTimeline"> = (props) => {
   const { signals, options } = props;
