@@ -3,7 +3,7 @@ import { DashboardLayoutProvider } from "@/lib/contexts/DashboardLayout";
 
 export default function LiveDataPage() {
   return (
-    <div className="p-12 w-screen overflow-y-visible">
+    <div className="w-screen overflow-y-visible p-12">
       <DashboardLayoutProvider>
         <LiveDataDashboard />
       </DashboardLayoutProvider>

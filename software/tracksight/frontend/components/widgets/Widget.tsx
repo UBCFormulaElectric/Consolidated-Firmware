@@ -5,27 +5,21 @@ import { useEditMode } from "@/lib/contexts/EditModeContext";
 import getWidgetSchema from "@/lib/getWidgetSchema";
 
 const Widget: WidgetRenderer<WIDGET_TYPE> = (props) => {
-    const { type } = props;
+  const { type } = props;
 
-    const { isEditMode } = useEditMode();
+  const { isEditMode } = useEditMode();
 
-    const widgetSchema = getWidgetSchema(type);
+  const widgetSchema = getWidgetSchema(type);
 
-    const Renderer = isEditMode
-        ? widgetSchema.editor
-        : widgetSchema.renderer;
+  const Renderer = isEditMode ? widgetSchema.editor : widgetSchema.renderer;
 
-    if (!Renderer) {
-        console.error(`Attempted to render widget with non-existant type '${type}'`);
+  if (!Renderer) {
+    console.error(`Attempted to render widget with non-existant type '${type}'`);
 
-        return;
-    }
+    return;
+  }
 
-    return (
-        <Renderer
-            {...props}
-        />
-    );
-}
+  return <Renderer {...props} />;
+};
 
 export default Widget;

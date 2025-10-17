@@ -1,6 +1,6 @@
 "use client";
 
-import { Pencil, File } from "lucide-react"
+import { Pencil, File } from "lucide-react";
 
 import { useEditMode } from "@/lib/contexts/EditModeContext";
 
@@ -11,13 +11,9 @@ const EditModeToggle = () => {
 
   return (
     <div className="hover:cursor-pointer">
-      <Icon
-        className="stroke-current hover:text-primary-900"
-        onClick={toggleEditMode}
-        size={24}
-      />
+      <Icon className="hover:text-primary-900 stroke-current" onClick={toggleEditMode} size={24} />
     </div>
-  )
-}
+  );
+};
 
 export default EditModeToggle;

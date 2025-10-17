@@ -14,7 +14,6 @@
   --color-primary-900: var(--color-gray-900);
 }
 
-
 @layer base {
   :root {
     @apply text-xs;
