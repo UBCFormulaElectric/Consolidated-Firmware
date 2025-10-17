@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import ChipLegendRenderer from "@/components/ChipLegendItem";
 import LabelLegendItem from "@/components/LabelLegendItem";
 
@@ -7,6 +7,7 @@ type LegendThemes = "chip" | "label";
 type LegendProps = {
   theme: LegendThemes;
 
+  // TODO(evan): Implement editable legends
   editable?: boolean;
   onAddSignal?: (signal: string) => void;
   onRemoveSignal?: (signal: string) => void;
