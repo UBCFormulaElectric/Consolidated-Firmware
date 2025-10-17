@@ -6,7 +6,10 @@
 
 import { useEffect, useState } from "react";
 import { fetchSignalMetadata } from "@/lib/api/signals";
-import { API_BASE_URL } from "@/lib/constants";
+import { API_BASE_URL, IS_DEBUG } from "@/lib/constants";
+import subscribeToSignal from "@/lib/realtime/subscribeToSignal";
+import unsubscribeFromSignal from "@/lib/realtime/unsubscribeFromSignal";
+import socket from '@/lib/realtime/socket';
 
 /**
  * Map to hold subscribers for data updates, keyed by signal name. 
@@ -39,15 +42,33 @@ signals
     });
 
 const subscribeToSignalData = (signalName: string) => {
+    IS_DEBUG && console.log(
+        `%c[Added Signal Data Subscription] %cSignal: ${signalName}`,
+        'color: #ebcb8b; font-weight: bold;',
+        'color: #d08770;'
+    );
+
     const currentCount = signalDataSubscribers.get(signalName) || 0;
     signalDataSubscribers.set(signalName, currentCount + 1);
 
-    if (currentCount === 0) {
-        // TODO(evan): Start fetching data for this signal.
-    }
+    if (currentCount !== 0) return;
+
+    IS_DEBUG && console.log(
+        `%c[Subscribe Signal Data] %cSignal: ${signalName}`,
+        'color: #a3be8c; font-weight: bold;',
+        'color: #d08770;'
+    );
+
+    subscribeToSignal(signalName);
 };
 
 const unsubscribeFromSignalData = (signalName: string) => {
+    IS_DEBUG && console.log(
+        `%c[Removed Signal Data Subscription] %cSignal: ${signalName}`,
+        'color: #d08770; font-weight: bold;',
+        'color: #d08770;'
+    );
+
     const currentCount = signalDataSubscribers.get(signalName) || 0;
 
     if (currentCount > 1) {
@@ -56,7 +77,14 @@ const unsubscribeFromSignalData = (signalName: string) => {
         return;
     }
 
+    IS_DEBUG && console.log(
+        `%c[Unsubscribe Signal Data] %cSignal: ${signalName}`,
+        'color: #bf616a; font-weight: bold;',
+        'color: #d08770;'
+    );
+
     signalDataSubscribers.delete(signalName);
+    unsubscribeFromSignal(signalName);
 };
 
 /**
@@ -72,7 +100,15 @@ const useDataVersion = (signals: string[]) => {
     useEffect(() => {
         // NOTE(evan): When data for any of the subscribed signals updates, we increment
         //             the data version to trigger a re-render.
-        const notify = () => setDataVersion(prev => prev + 1);
+        const notify = () => {
+            IS_DEBUG && console.log(
+                `%c[Signal Data Update] %cSignals: ${signals.join(", ")}`,
+                'color: #88c0d0; font-weight: bold;',
+                'color: #d08770;'
+            );
+
+            setDataVersion(prev => prev + 1);
+        };
 
         signals.forEach(signalName => {
             if (!dataSubscribers.has(signalName)) {
@@ -118,3 +154,4 @@ export {
     useSignalDataRef,
     useDataVersion,
 }
+

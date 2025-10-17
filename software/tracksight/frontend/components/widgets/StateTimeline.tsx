@@ -1,6 +1,9 @@
+"use client";
+
 import Widget from "@/lib/types/Widget";
 import Legend from "@/components/Legend";
 import { useSignalMetadata } from "@/lib/contexts/SignalsMetadataContext";
+import { useDataVersion, useSignalDataRef } from "@/lib/signalData";
 
 const StateTimeline: Widget<"stateTimeline"> = (props) => {
     const {
@@ -11,6 +14,9 @@ const StateTimeline: Widget<"stateTimeline"> = (props) => {
     const {
         colorPalette
     } = options;
+
+    const signalDataRef = useSignalDataRef(signals[0]);
+    const dataVersion = useDataVersion(signals);
 
     const signalMetadata = useSignalMetadata(signals[0]);
 
