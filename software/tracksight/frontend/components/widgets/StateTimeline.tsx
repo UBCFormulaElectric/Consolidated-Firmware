@@ -12,7 +12,7 @@ const StateTimeline: Widget<"stateTimeline"> = (props) => {
 
   const { colorPalette } = options;
 
-  const signalDataRef = useSignalDataRef(signals[0]);
+  const signalsDataRef = useSignalDataRef(signals);
   const dataVersion = useDataVersion(signals);
 
   const signalMetadata = useSignalMetadata(signals[0]);
@@ -34,7 +34,7 @@ const StateTimeline: Widget<"stateTimeline"> = (props) => {
     console.log(
       "%cSignal Data Ref: %o",
       "color: #d08770;",
-      signalDataRef
+      signalsDataRef
     );
     console.groupEnd();
   }, [dataVersion]);
