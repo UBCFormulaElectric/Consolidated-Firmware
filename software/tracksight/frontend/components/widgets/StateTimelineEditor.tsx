@@ -1,10 +1,10 @@
 "use client";
 
+import EnumSignalSelector from "@/components/widgets/EnumSignalSelector";
+import EnumValueEditor from "@/components/widgets/EnumValueEditor";
 import { useSignalMetadata } from "@/lib/contexts/SignalsMetadataContext";
 import getWidgetSchema from "@/lib/getWidgetSchema";
 import Widget from "@/lib/types/Widget";
-import EnumValueEditor from "@/components/widgets/EnumValueEditor";
-import EnumSignalSelector from "@/components/widgets/EnumSignalSelector";
 
 const StateTimelineEditor: Widget<"stateTimeline"> = (props) => {
   const { signals, options, type, editWidget } = props;

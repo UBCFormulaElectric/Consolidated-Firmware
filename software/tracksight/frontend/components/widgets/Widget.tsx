@@ -1,8 +1,8 @@
 "use client";
 
-import WidgetRenderer, { WIDGET_TYPE } from "@/lib/types/Widget";
 import { useEditMode } from "@/lib/contexts/EditModeContext";
 import getWidgetSchema from "@/lib/getWidgetSchema";
+import WidgetRenderer, { WIDGET_TYPE } from "@/lib/types/Widget";
 
 const Widget: WidgetRenderer<WIDGET_TYPE> = (props) => {
   const { type } = props;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 import { WIDGET_SCHEMAS } from "@/lib/widgetSchemas";
 
@@ -22,6 +22,6 @@ type WidgetRendererProps<Type extends WIDGET_TYPE> = {
 
 type WidgetRenderer<Type extends WIDGET_TYPE> = React.FC<WidgetRendererProps<Type>>;
 
-export type { Widget, WIDGET_TYPE, WIDGET_OPTIONS, EditWidgetFunction };
+export type { EditWidgetFunction, Widget, WIDGET_OPTIONS, WIDGET_TYPE };
 
 export default WidgetRenderer;

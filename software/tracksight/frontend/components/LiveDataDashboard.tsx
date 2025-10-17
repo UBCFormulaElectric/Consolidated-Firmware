@@ -2,12 +2,12 @@
 
 import React, { useCallback } from "react";
 
-import type { WIDGET_TYPE, Widget as WidgetData } from "@/lib/types/Widget";
 import type { Card as CardData } from "@/lib/types/DashboardCard";
+import type { WIDGET_TYPE, Widget as WidgetData } from "@/lib/types/Widget";
 
-import { useDashboardLayout } from "@/lib/contexts/DashboardLayout";
 import Card from "@/components/common/Card";
 import Widget from "@/components/widgets/Widget";
+import { useDashboardLayout } from "@/lib/contexts/DashboardLayout";
 
 const LiveDataDashboard: React.FC = () => {
   const { cards, editWidget } = useDashboardLayout();

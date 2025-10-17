@@ -1,12 +1,12 @@
 import "@/app/globals.css";
 
-import type React from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import type React from "react";
 
+import { fetchSignalMetadata } from "@/lib/api/signals";
 import { EditModeProvider } from "@/lib/contexts/EditModeContext";
 import { SignalsMetadataProvider } from "@/lib/contexts/SignalsMetadataContext";
-import { fetchSignalMetadata } from "@/lib/api/signals";
 
 const inter = Inter({ subsets: ["latin"] });
 
