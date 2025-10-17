@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import ChipLegendRenderer from "@/components/ChipLegendItem";
 import LabelLegendItem from "@/components/LabelLegendItem";
 
-type LegendThemes = 'chip' | 'label';
+type LegendThemes = "chip" | "label";
 
 type LegendProps = {
   theme: LegendThemes;
@@ -13,7 +13,7 @@ type LegendProps = {
 
   signals: string[];
   colorPalette: string[];
-}
+};
 
 type LegendItemRendererProps = {
   content: string;
@@ -21,14 +21,14 @@ type LegendItemRendererProps = {
 
   removable?: boolean;
   onRemoved?: () => {};
-}
+};
 
 export type LegendItemRenderer = React.FC<LegendItemRendererProps>;
 
 const LEGEND_ITEM_RENDERERS: Record<LegendThemes, LegendItemRenderer> = {
   chip: ChipLegendRenderer,
   label: LabelLegendItem,
-}
+};
 
 const Legend: React.FC<LegendProps> = (props) => {
   const {
@@ -48,15 +48,10 @@ const Legend: React.FC<LegendProps> = (props) => {
       }}
     >
       {signals.map((signal, i) => (
-        <ItemRenderer
-          key={signal}
-          content={signal}
-          color={colorPalette[i] || "#000000"}
-        />
+        <ItemRenderer key={signal} content={signal} color={colorPalette[i] || "#000000"} />
       ))}
     </div>
-  )
+  );
 };
 
 export default Legend;
-
