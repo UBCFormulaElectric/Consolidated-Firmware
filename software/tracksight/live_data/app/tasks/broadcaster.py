@@ -1,44 +1,22 @@
-import json
-from dataclasses import dataclass
-from datetime import datetime
 from queue import Empty, Queue
 from threading import Thread
 from time import time
-from typing import Any
-
-from api.socket import sio
+from flask_socketio import SocketIO
 from logger import logger
 
 # ours
 from middleware.candb import live_can_db
-from subtable import SUB_TABLE
-from tasks.influx_logger import InfluxCanMsg, influx_queue
+from tasks.influx_logger import influx_queue
+from CanMsg import CanMsg, CanSignal
 from tasks.stop_signal import should_run
+from sio import sio
+from middleware.subtable import get_subscribed_sids
 
-
-@dataclass
-class CanMsg:
-    can_id: int
-    can_value: bytearray
-    can_timestamp: datetime
-
-
-@dataclass
-class Signal:
-    name: str
-    value: Any
-    unit: str
-    timestamp: str
-
-    def toJSON(self) -> str:
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
-
-
-can_msg_queue = Queue()
+can_msg_queue: Queue[CanMsg] = Queue()
 
 
 def _send_data():
-    logger.info("Starting signal broadcaster thread")
+    logger.debug("Starting signal broadcaster thread")
     last_message = time()
     logged = False
     while should_run():
@@ -69,29 +47,31 @@ def _send_data():
         #             f"Could not fetch new commit information for quintuna at commit {canmsg.can_value.hex()}"
         #         )
         #         continue  # do not continue to parse this message
+        msg = live_can_db.get_message_by_id(canmsg.can_id)
+        if msg is None:
+            logger.warning(f"Received CAN message with unknown ID {canmsg.can_id}. Skipping.")
+            continue
+        for signal in msg.unpack(canmsg.can_value):
+            for sid in get_subscribed_sids(signal.name):
+                try:
+                    sio.emit(
+                        "data",
+                        {
+                            "name": signal.name,
+                            "value": signal.value,
+                            "timestamp": canmsg.can_timestamp.isoformat(),
+                        },
+                        to=sid,
+                    )
+                    logger.debug(f"Signal {signal.name}={signal.value} sent to sid {sid}")
+                except Exception as e:
+                    logger.error(f"Emit failed for sid {sid}: {e}")
 
-        for signal in live_can_db.unpack(canmsg.can_id, canmsg.can_value):
-            for sid, signal_names in SUB_TABLE.items():
-                if signal.name in signal_names:
-                    try:
-                        sio.emit(
-                            "data",
-                            {
-                                "name": signal.name,
-                                "value": signal.value,
-                                "timestamp": canmsg.can_timestamp.isoformat(),
-                            },
-                            to=sid,
-                        )
-                        logger.info(f"Data sent to sid {sid}")
-                    except Exception as e:
-                        logger.error(f"Emit failed for sid {sid}: {e}")
             # send to influx logger
-            # logger.info(f"Sending to influx logger: {signal.name} = {signal.value}")
             influx_queue.put(
-                InfluxCanMsg(signal.name, signal.value, canmsg.can_timestamp)
+                CanSignal(signal.name, signal.value, canmsg.can_timestamp)
             )
-    logger.info("Signal broadcaster thread stopped.")
+    logger.debug("Signal broadcaster thread stopped.")
 
-def get_websocket_broadcast() -> Thread:
-    return Thread(target=_send_data, daemon=True)
+def get_websocket_broadcast(sio: SocketIO) -> Thread:
+    return sio.start_background_task(_send_data)

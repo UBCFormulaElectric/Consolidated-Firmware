@@ -53,6 +53,10 @@ jobs:
             ioc_dir: firmware/quintuna/VC/src/cubemx
           - board: VCR
             ioc_dir: firmware/quintuna/VCR/src/cubemx
+          - board: PCM
+            ioc_dir: firmware/quintuna/PCM/src/cubemx
+          - board: BMS
+            ioc_dir: firmware/hexray/BMS/src/cubemx
           - board: CRIT
             ioc_dir: firmware/hexray/CRIT/src/cubemx
           - board: DAM
@@ -61,6 +65,8 @@ jobs:
             ioc_dir: firmware/hexray/FSM/src/cubemx
           - board: RSM
             ioc_dir: firmware/hexray/RSM/src/cubemx
+          - board: VC
+            ioc_dir: firmware/hexray/VC/src/cubemx
 
     # both packages shouldn't need to use python dependences that we need...
     #    container:
@@ -112,10 +118,13 @@ jobs:
           - board: quintuna_RSM.hex
           - board: quintuna_VC.hex
           - board: quintuna_VCR_app.elf
+          - board: quintuna_PCM_app.elf
+          - board: hexray_BMS_app.hex
           - board: hexray_CRIT_app.hex
           - board: hexray_DAM_app.hex
           - board: hexray_FSM_app.hex
           - board: hexray_RSM_app.hex
+          - board: hexray_VC_app.hex
 
     container:
       image: ubcformulaelectric/environment:arm_14
@@ -151,6 +160,8 @@ jobs:
           #  car: quintuna
           - board: VC
             car: quintuna
+          - board: BMS
+            car: hexray
           - board: CRIT
             car: hexray
           - board: DAM
@@ -158,6 +169,8 @@ jobs:
           - board: FSM
             car: hexray
           - board: RSM
+            car: hexray
+          - board: VC
             car: hexray
 
     container:

@@ -16,7 +16,7 @@
         "max": 10
       },
       "InverterState": {
-        "enum" : "VCInverterState"
+        "enum": "VCInverterState"
       }
     }
   },
@@ -56,7 +56,7 @@
     }
   },
   "LoadTransfer": {
-    "msg_id" : 508,
+    "msg_id": 508,
     "cycle_time": 100,
     "description": "Vehicle Load Info",
     "signals": {
@@ -83,7 +83,8 @@
       "LoadTransferScalar": {
         "min": -2,
         "max": 2,
-        "resolution": 0.1
+        "resolution": 0.1,
+        "signed": true
       }
     }
   },
@@ -101,28 +102,29 @@
       "VehicleVelocity": {
         "bits": 8
       },
-      "ReferenceYawRate":
-      {
+      "ReferenceYawRate": {
         "min": -100,
         "max": 100,
-        "resolution": 0.1
+        "resolution": 0.1,
+        "signed": true
       },
-      "CorrectionYawRate":
-      {
+      "CorrectionYawRate": {
         "min": -100,
         "max": 100,
-        "resolution": 0.1
+        "resolution": 0.1,
+        "signed": true
       },
-      "FrontYawMoment":
-      {
+      "FrontYawMoment": {
         "min": -100,
         "max": 100,
-        "resolution": 0.1
+        "resolution": 0.1,
+        "signed": true
       },
       "RearYawMoment": {
         "min": -100,
         "max": 100,
-        "resolution": 0.1
+        "resolution": 0.1,
+        "signed": true
       }
     }
   },
@@ -306,18 +308,21 @@
         "min": -180,
         "max": 180,
         "resolution": 0.1,
+        "signed": true,
         "unit": "deg"
       },
       "EulerAnglesPitch": {
         "min": -180,
         "max": 180,
         "resolution": 0.1,
+        "signed": true,
         "unit": "deg"
       },
       "EulerAnglesYaw": {
         "min": -180,
         "max": 180,
         "resolution": 0.1,
+        "signed": true,
         "unit": "deg"
       }
     }
@@ -328,40 +333,43 @@
     "description": "Car Velocity info",
     "signals": {
       "VelocityNorth": {
-          "resolution": 0.05,
-          "min": -35,
-          "max": 35,
-          "unit": "m/s"
+        "resolution": 0.05,
+        "signed": true,
+        "min": -35,
+        "max": 35,
+        "unit": "m/s"
       },
       "VelocityNorthAccuracy": {
-          "resolution": 0.1,
-          "min": 0,
-          "max": 35,
-          "unit": "m/s"
+        "resolution": 0.1,
+        "min": 0,
+        "max": 35,
+        "unit": "m/s"
       },
       "VelocityEast": {
-          "resolution": 0.05,
-          "min": -35,
-          "max": 35,
-          "unit": "m/s"
+        "resolution": 0.05,
+        "signed": true,
+        "min": -35,
+        "max": 35,
+        "unit": "m/s"
       },
       "VelocityEastAccuracy": {
-          "resolution": 0.1,
-          "min": 0,
-          "max": 35,
-          "unit": "m/s"
+        "resolution": 0.1,
+        "min": 0,
+        "max": 35,
+        "unit": "m/s"
       },
       "VelocityDown": {
-          "resolution": 0.05,
-          "min": -35,
-          "max": 35,
-          "unit": "m/s"
+        "resolution": 0.05,
+        "signed": true,
+        "min": -35,
+        "max": 35,
+        "unit": "m/s"
       },
       "VelocityDownAccuracy": {
-          "resolution": 0.1,
-          "min": 0,
-          "max": 35,
-          "unit": "m/s"
+        "resolution": 0.1,
+        "min": 0,
+        "max": 35,
+        "unit": "m/s"
       }
     }
   },
@@ -462,7 +470,7 @@
         "max": 120,
         "resolution": 0.1
       },
-      "PowerLimitValue" : {
+      "PowerLimitValue": {
         "min": 0,
         "max": 120,
         "resolution": 0.1
@@ -476,18 +484,21 @@
     "signals": {
       "ImuAccelerationX": {
         "resolution": 0.001,
+        "signed": true,
         "min": -50,
         "max": 50,
         "unit": "m/s^2"
       },
       "ImuAccelerationY": {
         "resolution": 0.001,
+        "signed": true,
         "min": -50,
         "max": 50,
         "unit": "m/s^2"
       },
       "ImuAccelerationZ": {
         "resolution": 0.001,
+        "signed": true,
         "min": -50,
         "max": 50,
         "unit": "m/s^2"
@@ -578,18 +589,21 @@
     "signals": {
       "ImuAngularVelocityRoll": {
         "resolution": 0.1,
+        "signed": true,
         "min": -360,
         "max": 360,
         "unit": "deg/s"
       },
       "ImuAngularVelocityPitch": {
         "resolution": 0.1,
+        "signed": true,
         "min": -360,
         "max": 360,
         "unit": "deg/s"
       },
       "ImuAngularVelocityYaw": {
         "resolution": 0.1,
+        "signed": true,
         "min": -360,
         "max": 360,
         "unit": "deg/s"
@@ -605,6 +619,7 @@
         "min": -100,
         "max": 100,
         "resolution": 0.1,
+        "signed": true,
         "unit": "%"
       }
     }
@@ -840,24 +855,20 @@
   },
   "PCM": {
     "msg_id": 234,
-    "cycle_time" : 100, 
-    "signals":
-    {
-      "PcmRetryCount":
-      {
-        "min" : 0,
-        "max" : 5,
+    "cycle_time": 100,
+    "signals": {
+      "PcmRetryCount": {
+        "min": 0,
+        "max": 5,
         "resolution": 1
       }
     }
   },
   "DriveMode": {
     "msg_id": 235,
-    "cycle_time" : 100, 
-    "signals":
-    {
-      "VcDriveMode":
-      {
+    "cycle_time": 100,
+    "signals": {
+      "VcDriveMode": {
         "enum": "DriveMode"
       }
     }

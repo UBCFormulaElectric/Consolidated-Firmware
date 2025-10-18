@@ -1,0 +1,12 @@
+{
+    "Vitals": {
+        "msg_id": 700,
+        "cycle_time": 100,
+        "description": "RSM vitals message.",
+        "signals": {
+            "Heartbeat": {
+                "bits": 1
+            }
+        }
+    }
+}
