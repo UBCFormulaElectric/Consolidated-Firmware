@@ -1,7 +1,7 @@
 "use client";
 
 import { useDisplayControl } from "@/components/shared/PausePlayControl";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { RowEditor, RowItem } from "./DropdownSearch";
 import DynamicSignalGraph from "./DynamicSignalGraph";
 import { InsertionBar } from "./InsertionBar";
@@ -55,32 +55,19 @@ const DynamicRowManager: React.FC = () => {
       const next = [...prev];
       next.splice(index, 0, {
         isOpen: false,
-        searchTerm: "",
         selectedSignal: undefined,
         hasCreatedComponent: false,
       });
       return next;
     });
   };
+  const toggleRow = useCallback((idx: number) => {
+    setRows((prev) => prev.map((r, i) => (i === idx ? { ...r, isOpen: !r.isOpen } : r)));
+  }, []);
 
-  const toggleRow = (idx: number) =>
-    setRows((prev) =>
-      prev.map((r, i) =>
-        i === idx ? { ...r, isOpen: !r.isOpen, searchTerm: "" } : r
-      )
-    );
-
-  const updateTerm = (idx: number, term: string) =>
-    setRows((prev) =>
-      prev.map((r, i) => (i === idx ? { ...r, searchTerm: term } : r))
-    );
-
-  const selectOpt = (idx: number, signalName: string) =>
-    setRows((prev) =>
-      prev.map((r, i) =>
-        i === idx ? { ...r, isOpen: false, selectedSignal: signalName } : r
-      )
-    );
+  const selectOpt = useCallback((idx: number, signalName: string) => {
+    setRows((prev) => prev.map((r, i) => (i === idx ? { ...r, isOpen: false, selectedSignal: signalName } : r)));
+  }, []);
 
   const deleteRow = (idx: number) => {
     // Remove any associated components first
@@ -101,7 +88,7 @@ const DynamicRowManager: React.FC = () => {
     );
   };
 
-  const createComponent = (idx: number, signalName: string) => {
+  const createComponent = useCallback((idx: number, signalName: string) => {
     // Mark the row as having created a component
     setRows((prev) =>
       prev.map((r, i) => (i === idx ? { ...r, hasCreatedComponent: true } : r))
@@ -115,7 +102,7 @@ const DynamicRowManager: React.FC = () => {
     };
 
     setCreatedComponents((prev) => [...prev, newComponent]);
-  };
+  }, []);
 
   const deleteComponent = (componentId: string) => {
     // Remove the component from the list
@@ -153,7 +140,6 @@ const DynamicRowManager: React.FC = () => {
               index={idx}
               row={row}
               onToggle={toggleRow}
-              onSearch={updateTerm}
               onSelect={selectOpt}
               onCreateComponent={createComponent}
               onDeleteRow={deleteRow}

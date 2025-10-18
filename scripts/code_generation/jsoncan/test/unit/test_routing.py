@@ -37,6 +37,7 @@ class RoutingTests(CDBTests):
             enums=self._shuffle_dict(self.cdb_valid.enums),
             collects_data=self._shuffle_dict(self.cdb_valid.collects_data),
             forwarding=self.cdb_valid.forwarding,
+            signals_to_msgs={}
         )
 
         random.shuffle(cdb_copy.forwarding)
