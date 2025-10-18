@@ -37,6 +37,7 @@ static void app_prechargeDriveStateRunOnTick100Hz(void)
             break;
         case PRECHARGE_STATE_SUCCESS:
             io_irs_setPositive(CONTACTOR_STATE_CLOSED);
+            app_stateMachine_setNextState(&drive_state);
             break;
         default:
             assert(0);
