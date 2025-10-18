@@ -1,8 +1,8 @@
 "use client";
 
+import { fetchSignalMetadata } from "@/lib/api/signals";
 import { SignalMetadata, SignalMetadataMap } from "@/lib/types/Signal";
 import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
-import { fetchSignalMetadata } from "@/lib/api/signals";
 
 type SignalsMetadataContextType = {
   signalMetadata: SignalMetadataMap;

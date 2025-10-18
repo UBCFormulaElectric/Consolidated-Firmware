@@ -2,9 +2,9 @@
 
 import React from "react";
 
+import Selector, { SelectorItemRenderer } from "@/components/common/Selector";
 import { useSignalsMetadataList } from "@/lib/contexts/SignalsMetadataContext";
 import { SignalMetadata } from "@/lib/types/Signal";
-import Selector, { SelectorItemRenderer } from "@/components/common/Selector";
 
 type SignalSelectorProps = {
   filter: (signal: SignalMetadata) => boolean;
