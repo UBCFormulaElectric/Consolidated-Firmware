@@ -1,5 +1,6 @@
 #include "hw_i2cs.h"
 
+// I2C_HandleTypeDef *rtc_i2c = &hi2c1;
 static I2cBus i2c_bus_1 = { .handle = &hi2c1 };
 
 const I2cDevice rtc_i2c = { .bus = &i2c_bus_1, .target_address = 0x68, .timeout_ms = 10000 };
