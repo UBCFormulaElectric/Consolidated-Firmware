@@ -7,10 +7,6 @@
 #include "app_canTx.h"
 #include "app_segments.h"
 
-#define NUM_SEG 10.0f
-#define NUM_CELLS_PER_SEG 14.0f
-#define CHARGING_CUTOFF_MAX_CELL_VOLTAGE 4.15f
-
 // Charger / pack constants
 // TODO: Change back if we ever get to 10 segments again
 // #define PACK_VOLTAGE_DC 581.0f // V – the battery pack’s nominal voltage (4.15V per cell * 14 cell per seg * 10 seg)
@@ -177,7 +173,8 @@ static void app_chargeStateRunOnEntry(void)
 
 static void app_chargeStateRunOnTick100Hz(void)
 {
-    // const ChargerConnectedType charger_connection_status = CHARGER_CONNECTED_EVSE; //
+    // TODO: Fix charger connection status reading
+    // const ChargerConnectedType charger_connection_status = CHARGER_CONNECTED_EVSE;
     // io_charger_getConnectionStatus();
     const bool extShutdown = io_irs_negativeState() == CONTACTOR_STATE_OPEN;
     const bool chargerConn = true; // (charger_connection_status == CHARGER_CONNECTED_EVSE || CHARGER_CONNECTED_WALL);
@@ -222,7 +219,7 @@ static void app_chargeStateRunOnTick100Hz(void)
      * if any cell has reached the cutoff voltge charging has completed
      */
     const float max_cell_voltage = app_segments_getMaxCellVoltage().value;
-    if (max_cell_voltage >= CHARGING_CUTOFF_MAX_CELL_VOLTAGE)
+    if (max_cell_voltage >= MAX_CELL_VOLTAGE_WARNING_V)
     {
         app_canTx_BMS_ChargingDone_set(true);
         app_stateMachine_setNextState(&init_state);

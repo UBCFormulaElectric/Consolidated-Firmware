@@ -50,4 +50,9 @@ namespace segments
     void SetAuxRegs(float voltage);
     void SetAuxReg(uint8_t segment, uint8_t cell, float voltage);
 } // namespace segments
+namespace charger
+{
+    void setConnectionStatus(ChargerConnectedType status);
+    void setCPDutyCycle(float duty_cycle);
+} // namespace charger
 } // namespace fakes

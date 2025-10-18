@@ -496,4 +496,16 @@ namespace segments
         aux_regs_storage[segment][cell] = static_cast<uint16_t>(voltage * 1000); // Not sure if conversion is correct
     }
 } // namespace segments
+
+namespace charger
+{
+    void setConnectionStatus(const ChargerConnectedType status)
+    {
+        connectionStatus = status;
+    }
+    void setCPDutyCycle(const float duty_cycle)
+    {
+        evse_dutyCycle = duty_cycle;
+    }
+} // namespace charger
 } // namespace fakes

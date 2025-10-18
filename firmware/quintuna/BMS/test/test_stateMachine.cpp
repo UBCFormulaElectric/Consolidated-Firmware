@@ -10,6 +10,7 @@ extern "C"
 #include "app_canAlerts.h"
 #include "io_irs.h"
 #include "io_time.h"
+#include "app_segments.h"
 }
 
 class BmsStateMachineTest : public BMSBaseTest
@@ -193,6 +194,66 @@ TEST_F(BmsStateMachineTest, goes_to_fault_state_cell_under_voltage_fault)
     ASSERT_FALSE(app_canTx_BMS_BmsCurrentlyOk_get());
 }
 
+TEST_F(BmsStateMachineTest, stays_in_drive_undervoltage_warning)
+{
+    app_stateMachine_setCurrentState(&drive_state);
+    std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> cell_voltages_arr{};
+    for (size_t seg = 0; seg < NUM_SEGMENTS; ++seg)
+    {
+        for (size_t cell = 0; cell < CELLS_PER_SEGMENT; ++cell)
+        {
+            cell_voltages_arr[seg][cell] = 4.1f;
+        }
+    }
+    cell_voltages_arr[NUM_SEGMENTS - 1][CELLS_PER_SEGMENT - 1] = MIN_CELL_VOLTAGE_WARNING_V - 0.01f;
+    io_ltc6813_startCellsAdcConversion();
+    fakes::segments::setCellVoltages(cell_voltages_arr);
+    fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
+    LetTimePass(10010);
+    ASSERT_STATE_EQ(drive_state);
+    ASSERT_FALSE(app_canAlerts_BMS_Fault_CellUndervoltage_get());
+    ASSERT_TRUE(app_canAlerts_BMS_Warning_CellUndervoltage_get());
+    ASSERT_TRUE(app_canTx_BMS_BmsCurrentlyOk_get());
+}
+
+TEST_F(BmsStateMachineTest, stays_in_drive_overvoltage_overtemp_warning)
+{
+    app_stateMachine_setCurrentState(&drive_state);
+    std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> cell_voltages_arr{};
+    for (size_t seg = 0; seg < NUM_SEGMENTS; ++seg)
+    {
+        for (size_t cell = 0; cell < CELLS_PER_SEGMENT; ++cell)
+        {
+            cell_voltages_arr[seg][cell] = 4.1f;
+        }
+    }
+    cell_voltages_arr[NUM_SEGMENTS - 1][CELLS_PER_SEGMENT - 1] = MAX_CELL_VOLTAGE_FAULT_V - 0.01f;
+
+    std::array<std::array<float, AUX_REGS_PER_SEGMENT>, NUM_SEGMENTS> cell_temps_arr{};
+    for (size_t seg = 0; seg < NUM_SEGMENTS; ++seg)
+    {
+        for (size_t reg = 0; reg < AUX_REGS_PER_SEGMENT; ++reg)
+        {
+            cell_temps_arr[seg][reg] = 50.0f;
+        }
+    }
+    cell_temps_arr[NUM_SEGMENTS - 1][AUX_REGS_PER_SEGMENT - 1] = 100.0f;
+
+    io_ltc6813_startCellsAdcConversion();
+    io_ltc6813_startThermistorsAdcConversion();
+    fakes::segments::setCellVoltages(cell_voltages_arr);
+    fakes::segments::setCellTemperatures(cell_temps_arr);
+    fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
+    LetTimePass(10010);
+    ASSERT_STATE_EQ(drive_state);
+    ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvervoltage_get());
+    ASSERT_TRUE(app_canAlerts_BMS_Warning_CellOvervoltage_get());
+    // ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvertemp_get());
+    // ASSERT_TRUE(app_canAlerts_BMS_Warning_CellOvertemp_get());
+
+    ASSERT_TRUE(app_canTx_BMS_BmsCurrentlyOk_get());
+}
+
 // TODO: Implement proper mocking of the cell temperatures with transfer functions for the aux regs
 // TEST_F(BmsStateMachineTest, goes_to_state_cell_over_temp_fault)
 // {
@@ -293,6 +354,7 @@ TEST_F(BmsStateMachineTest, precharge_retry_test_and_undervoltage_rising_slowly)
 TEST_F(BmsStateMachineTest, precharge_rising_too_quickly)
 {
     fakes::segments::setPackVoltageEvenly(target_voltage);
+    LetTimePass(500);
     fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
     fakes::tractiveSystem::setVoltage(0.0f);
     app_stateMachine_setCurrentState(&precharge_drive_state);
@@ -313,9 +375,79 @@ TEST_F(BmsStateMachineTest, precharge_rising_too_quickly)
     // we presume that it is in the retry phase as described above now
 }
 
-// charging tests
-TEST_F(BmsStateMachineTest, faults_after_shutdown_loop_activates_while_charging) {}
-TEST_F(BmsStateMachineTest, stops_charging_and_faults_if_charger_disconnects_in_charge_state) {}
+/* <-------------------> Charging tests!!! <------------------------> */
+TEST_F(BmsStateMachineTest, init_after_start_charging_can_msg_set_false)
+{
+    // Set pack voltage to just below charging cutoff voltage
+    fakes::segments::setPackVoltageEvenly((MAX_CELL_VOLTAGE_WARNING_V - 0.1f) * NUM_SEGMENTS * CELLS_PER_SEGMENT);
+    LetTimePass(500);
+
+    // Update CAN message to simulate user enabling charging
+    app_canRx_Debug_StartCharging_update(true); // Simulate user enabling charging
+
+    // Moch/fake charger being connected
+    fakes::charger::setConnectionStatus(CHARGER_CONNECTED_EVSE);
+    fakes::charger::setCPDutyCycle(0.5f);
+
+    // Set up system to enter charge state
+    app_stateMachine_setCurrentState(&charge_state);
+
+    // Moch/fake charging for 1 second with no interruptions
+    for (int i = 0; i < 100; i += 10)
+    {
+        ASSERT_STATE_EQ(charge_state); // Should remain in charge state
+        LetTimePass(10);
+    }
+
+    // Update CAN message to simulate user disabling charging
+    app_canRx_Debug_StartCharging_update(false); // Simulate user disabling charging
+    LetTimePass(1000);                           // Wait for debounce time to pass
+
+    ASSERT_STATE_EQ(init_state); // Should transition to init state
+}
+TEST_F(BmsStateMachineTest, stops_charging_and_faults_if_charger_disconnects_in_charge_state) {
+} // TODO: fix charginer connection status reading
+TEST_F(BmsStateMachineTest, faults_after_shutdown_loop_activates_while_charging)
+{ // TODO: debug faultLatch not being set properly
+
+    // Fake reset of BMS fault latch
+    fakes::faultLatches::resetFaultLatch(&bms_ok_latch);
+
+    // Update CAN message to simulate user enabling charging
+    app_canRx_Debug_StartCharging_update(true); // Simulate user enabling charging
+
+    // Moch/fake charger being connected
+    fakes::charger::setConnectionStatus(CHARGER_CONNECTED_EVSE);
+    fakes::charger::setCPDutyCycle(0.5f);
+
+    // Set up system to enter charge state
+    app_stateMachine_setCurrentState(&charge_state);
+    ASSERT_STATE_EQ(charge_state); // Should remain in charge state
+
+    // Moch/fake charging for 1 second with no interruptions
+    for (int i = 0; i < 100; i += 10)
+    {
+        ASSERT_STATE_EQ(charge_state); // Should remain in charge state
+        LetTimePass(10);
+    }
+
+    // Moch/fake shutdown loop activating from cell overvoltage
+    std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> cell_voltages_arr{};
+    for (size_t seg = 0; seg < NUM_SEGMENTS; ++seg)
+    {
+        for (size_t cell = 0; cell < CELLS_PER_SEGMENT; ++cell)
+        {
+            cell_voltages_arr[seg][cell] = 4.1f;
+        }
+    }
+    cell_voltages_arr[NUM_SEGMENTS - 1][CELLS_PER_SEGMENT - 1] = 4.21f; // last cell overvoltage
+    fakes::segments::setCellVoltages(cell_voltages_arr);
+    LetTimePass(500);  // Wait for ltc task broadcast function
+    LetTimePass(4000); // Wait for debounce time to pass
+    ASSERT_FALSE(io_faultLatch_getLatchedStatus(&bms_ok_latch) == FAULT_LATCH_OK);
+
+    ASSERT_STATE_EQ(fault_state); // Should transition to fault state
+}
 TEST_F(BmsStateMachineTest, charger_connected_no_can_msg_init_state) {}
 TEST_F(BmsStateMachineTest, charger_connected_can_msg_init_state) {}
 TEST_F(BmsStateMachineTest, no_charger_connected_missing_hb_init_state) {}
