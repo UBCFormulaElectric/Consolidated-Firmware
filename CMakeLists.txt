@@ -62,8 +62,6 @@ option(TARGET "The target to build for. Choose between \"binary\" and \"test\"."
 message("")
 message("⚙️ Configuring for \"${PLATFORM}\" platform and \"${TARGET}\" build target")
 IF ("${PLATFORM}" STREQUAL "firmware")
-    include(firmware/cmake/shared.cmake) # TODO move this
-
     # ======== Compiler ========
     IF ("${TARGET}" STREQUAL "binary")
         project("UBC Formula Electric Software" C CXX ASM)

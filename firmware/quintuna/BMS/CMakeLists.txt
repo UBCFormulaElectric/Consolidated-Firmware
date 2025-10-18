@@ -69,9 +69,9 @@ if ("${TARGET}" STREQUAL "binary")
 
     set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/BMS.ioc")
     list(APPEND NO_CHECKS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_desc.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_cdc_if.c"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_desc.c"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_cdc_if.c"
     )
     embedded_no_checks("${NO_CHECKS}")
     generate_stm32cube_code("quintuna_BMS_stm32cube" "${IOC_PATH}" "${CUBEMX_SRCS}")
@@ -123,7 +123,6 @@ if ("${TARGET}" STREQUAL "binary")
             "quintuna_BMS_app.elf"
             "quintuna_BMS_commit_info"
             "${CMAKE_CURRENT_BINARY_DIR}/app"
-            "${ARM_CORE}"
     )
 
     target_link_libraries("quintuna_BMS_app.elf" PRIVATE "quintuna_BMS_stm32cube" "quintuna_BMS_stm32cube_hal" "quintuna_BMS_jsoncan" "quintuna_BMS_commit_info" "chimera_v2_proto_cm7")

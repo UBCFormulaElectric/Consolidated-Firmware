@@ -39,6 +39,7 @@ if ("${TARGET}" STREQUAL "binary")
 
     set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/VC.ioc")
     list(APPEND NO_CHECKS
+            "${CUBEMX_SRCS}"
     )
     embedded_no_checks("${NO_CHECKS}")
     generate_stm32cube_code("hexray_VC_stm32cube" "${IOC_PATH}" "${CUBEMX_SRCS}")
@@ -68,7 +69,6 @@ if ("${TARGET}" STREQUAL "binary")
             "hexray_VC_app.elf"
             "hexray_VC_commit_info"
             "${CMAKE_CURRENT_BINARY_DIR}/app"
-            "${ARM_CORE}"
     )
 
     target_link_libraries("hexray_VC_app.elf" PRIVATE "hexray_VC_stm32cube" "hexray_VC_stm32cube_hal" "hexray_VC_commit_info" "hexray_VC_jsoncan" "m")

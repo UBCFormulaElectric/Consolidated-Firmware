@@ -4,6 +4,9 @@ ENDIF ()
 IF (NOT "${STM32LIB_CMAKE_INCLUDED}" STREQUAL "TRUE")
     message(FATAL_ERROR "❌ stm32lib.cmake must be included before embedded.cmake")
 ENDIF ()
+IF (NOT "${EMBEDDED_LIBS_INCLUDED}" STREQUAL "TRUE")
+    message(FATAL_ERROR "❌ embedded_libs.cmake must be included before embedded.cmake")
+ENDIF ()
 message("")
 message("💽 [embedded.cmake] Configuring Embedded Build")
 set(EMBEDDED_CMAKE_INCLUDED TRUE)
@@ -47,18 +50,10 @@ set(SHARED_COMPILER_FLAGS
         -fdata-sections
         -fno-common
         -fmessage-length=0
-        -Wall
-        -Werror
-        -Wextra
-        -pedantic
-        -Wdouble-promotion
-        -Wshadow
-        -Wundef
         -fstack-usage
-        -Wconversion
-        -Wno-unused-variable
-        -Wno-unused-parameter
 )
+list(APPEND SHARED_COMPILER_FLAGS ${SHARED_GNU_COMPILER_CHECKS})
+
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     list(APPEND SHARED_COMPILER_FLAGS
             -O0 # previously O0, idk why this breaks bootloader??

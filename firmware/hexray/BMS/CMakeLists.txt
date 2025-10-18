@@ -70,7 +70,6 @@ if ("${TARGET}" STREQUAL "binary")
             "hexray_BMS_app.elf"
             "hexray_BMS_commit_info"
             "${CMAKE_CURRENT_BINARY_DIR}/app"
-            "${ARM_CORE}"
     )
 
     target_link_libraries("hexray_BMS_app.elf" PRIVATE "hexray_BMS_stm32cube" "hexray_BMS_stm32cube_hal" "hexray_BMS_jsoncan" "hexray_BMS_commit_info" "m")
