@@ -1,0 +1,53 @@
+"use client";
+
+import Legend from "@/components/Legend";
+import { IS_VERBOSE_DEBUG } from "@/lib/constants";
+import { useSignalMetadata } from "@/lib/contexts/SignalsMetadataContext";
+import { useDataVersion, useSignalDataRef } from "@/lib/signalData";
+import Widget from "@/lib/types/Widget";
+import { useEffect } from "react";
+
+const StateTimeline: Widget<"stateTimeline"> = (props) => {
+  const { signals, options } = props;
+
+  const { colorPalette } = options;
+
+  const signalsDataRef = useSignalDataRef(signals);
+  const dataVersion = useDataVersion(signals);
+
+  const signalMetadata = useSignalMetadata(signals[0]);
+
+  if (!signalMetadata) return;
+
+  const enumOptions = Object.values(signalMetadata?.enum?.items || {});
+
+  useEffect(() => {
+    if (!IS_VERBOSE_DEBUG) return;
+
+    console.groupCollapsed("%c[StateTimeline]: Receieved new Data", "color: #81a1c1;");
+    console.log("%cSignals: %o", "color: #d08770;", signals);
+    console.log("%cData Version: %d", "color: #d08770;", dataVersion);
+    console.log("%cSignal Data Ref: %o", "color: #d08770;", signalsDataRef);
+    console.groupEnd();
+  }, [dataVersion]);
+
+  // TODO(evan): Implement this when the renderer is done
+  return (
+    <div className="flex flex-col gap-5">
+      <div className="relative flex h-6 w-full">
+        {signals.map((_, i) => (
+          <div
+            className="w-full"
+            style={{
+              backgroundColor: colorPalette[i],
+            }}
+          />
+        ))}
+      </div>
+
+      <Legend theme="label" signals={enumOptions} colorPalette={colorPalette} />
+    </div>
+  );
+};
+
+export default StateTimeline;
