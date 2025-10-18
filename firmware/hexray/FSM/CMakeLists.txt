@@ -69,7 +69,6 @@ if ("${TARGET}" STREQUAL "binary")
             "hexray_FSM_app.elf"
             "hexray_FSM_commit_info"
             "${CMAKE_CURRENT_BINARY_DIR}/app"
-            "${ARM_CORE}"
     )
 
     target_link_libraries("hexray_FSM_app.elf" PRIVATE "hexray_FSM_stm32cube" "hexray_FSM_stm32cube_hal" "hexray_FSM_commit_info"

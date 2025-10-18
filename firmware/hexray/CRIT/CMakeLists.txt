@@ -69,7 +69,6 @@ if ("${TARGET}" STREQUAL "binary")
             "hexray_CRIT_app.elf"
             "hexray_CRIT_commit_info"
             "${CMAKE_CURRENT_BINARY_DIR}/app"
-            "${ARM_CORE}"
     )
 
     target_link_libraries("hexray_CRIT_app.elf" PRIVATE "hexray_CRIT_stm32cube" "hexray_CRIT_stm32cube_hal" "hexray_CRIT_commit_info" "hexray_CRIT_jsoncan" "m")

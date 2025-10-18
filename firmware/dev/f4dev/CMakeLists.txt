@@ -93,7 +93,6 @@ IF ("${TARGET}" STREQUAL "binary")
             "f4dev.elf"
             "f4dev_commit_info"
             "${CMAKE_CURRENT_BINARY_DIR}/app"
-            "${ARM_CORE}"
     )
 
     target_link_libraries("f4dev.elf" "f4dev_stm32cube" "f4dev_stm32cube_hal" "f4dev_commit_info" "chimera_v2_proto_cm4")

@@ -102,7 +102,6 @@ IF ("${TARGET}" STREQUAL "binary")
             "h7dev_app.elf"
             "h7dev_commit_info"
             "${CMAKE_CURRENT_BINARY_DIR}/app"
-            "${ARM_CORE}"
     )
 
     embedded_library(

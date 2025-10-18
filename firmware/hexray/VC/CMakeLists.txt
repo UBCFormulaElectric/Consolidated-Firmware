@@ -68,7 +68,6 @@ if ("${TARGET}" STREQUAL "binary")
             "hexray_VC_app.elf"
             "hexray_VC_commit_info"
             "${CMAKE_CURRENT_BINARY_DIR}/app"
-            "${ARM_CORE}"
     )
 
     target_link_libraries("hexray_VC_app.elf" PRIVATE "hexray_VC_stm32cube" "hexray_VC_stm32cube_hal" "hexray_VC_commit_info" "hexray_VC_jsoncan" "m")

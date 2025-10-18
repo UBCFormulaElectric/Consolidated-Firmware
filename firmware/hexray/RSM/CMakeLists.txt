@@ -69,7 +69,6 @@ if ("${TARGET}" STREQUAL "binary")
             "hexray_RSM_app.elf"
             "hexray_RSM_commit_info"
             "${CMAKE_CURRENT_BINARY_DIR}/app"
-            "${ARM_CORE}"
     )
 
     target_link_libraries("hexray_RSM_app.elf" PRIVATE "hexray_RSM_stm32cube" "hexray_RSM_stm32cube_hal" "hexray_RSM_commit_info" "hexray_RSM_jsoncan" "m")

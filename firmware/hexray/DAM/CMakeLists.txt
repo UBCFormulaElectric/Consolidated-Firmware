@@ -69,7 +69,6 @@ if ("${TARGET}" STREQUAL "binary")
             "hexray_DAM_app.elf"
             "hexray_DAM_commit_info"
             "${CMAKE_CURRENT_BINARY_DIR}/app"
-            "${ARM_CORE}"
     )
 
     target_link_libraries("hexray_DAM_app.elf" PRIVATE "hexray_DAM_stm32cube" "hexray_DAM_stm32cube_hal" "hexray_DAM_commit_info" "hexray_DAM_jsoncan" "m")

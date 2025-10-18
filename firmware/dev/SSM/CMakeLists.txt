@@ -93,7 +93,6 @@ IF ("${TARGET}" STREQUAL "binary")
             "ssm.elf"
             "ssm_commit_info"
             "${CMAKE_CURRENT_BINARY_DIR}/app"
-            "${ARM_CORE}"
     )
 
     # Link.
