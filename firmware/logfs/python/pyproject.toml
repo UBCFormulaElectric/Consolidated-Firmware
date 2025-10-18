@@ -1,5 +1,5 @@
 [project]
-name = "logfs-python"
+name = "logfs"
 version = "0.1.0"
 description = "Python bindings for LogFS"
 requires-python = ">=3.9"

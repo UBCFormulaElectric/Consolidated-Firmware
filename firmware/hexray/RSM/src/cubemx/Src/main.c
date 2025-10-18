@@ -46,7 +46,8 @@
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
-void SystemClock_Config(void);
+void        SystemClock_Config(void);
+static void MX_GPIO_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -83,6 +84,7 @@ int main(void)
     /* USER CODE END SysInit */
 
     /* Initialize all configured peripherals */
+    MX_GPIO_Init();
     /* USER CODE BEGIN 2 */
 
     /* USER CODE END 2 */
@@ -109,7 +111,7 @@ void SystemClock_Config(void)
 
     /** Configure the main internal regulator output voltage
      */
-    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
+    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE0);
 
     while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY))
     {
@@ -118,11 +120,18 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI;
-    RCC_OscInitStruct.HSIState            = RCC_HSI_ON;
-    RCC_OscInitStruct.HSIDiv              = RCC_HSI_DIV2;
-    RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
-    RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_NONE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
+    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
+    RCC_OscInitStruct.PLL.PLLSource  = RCC_PLL1_SOURCE_HSE;
+    RCC_OscInitStruct.PLL.PLLM       = 1;
+    RCC_OscInitStruct.PLL.PLLN       = 62;
+    RCC_OscInitStruct.PLL.PLLP       = 2;
+    RCC_OscInitStruct.PLL.PLLQ       = 2;
+    RCC_OscInitStruct.PLL.PLLR       = 2;
+    RCC_OscInitStruct.PLL.PLLRGE     = RCC_PLL1_VCIRANGE_3;
+    RCC_OscInitStruct.PLL.PLLVCOSEL  = RCC_PLL1_VCORANGE_WIDE;
+    RCC_OscInitStruct.PLL.PLLFRACN   = 4096;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
         Error_Handler();
@@ -132,25 +141,66 @@ void SystemClock_Config(void)
      */
     RCC_ClkInitStruct.ClockType =
         RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2 | RCC_CLOCKTYPE_PCLK3;
-    RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_HSI;
+    RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
     RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
     RCC_ClkInitStruct.APB3CLKDivider = RCC_HCLK_DIV1;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
     {
         Error_Handler();
     }
 
     /** Configure the programming delay
      */
-    __HAL_FLASH_SET_PROGRAM_DELAY(FLASH_PROGRAMMING_DELAY_0);
+    __HAL_FLASH_SET_PROGRAM_DELAY(FLASH_PROGRAMMING_DELAY_2);
+}
+
+/**
+ * @brief GPIO Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_GPIO_Init(void)
+{
+    /* USER CODE BEGIN MX_GPIO_Init_1 */
+
+    /* USER CODE END MX_GPIO_Init_1 */
+
+    /* GPIO Ports Clock Enable */
+    __HAL_RCC_GPIOH_CLK_ENABLE();
+
+    /* USER CODE BEGIN MX_GPIO_Init_2 */
+
+    /* USER CODE END MX_GPIO_Init_2 */
 }
 
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
+
+/**
+ * @brief  Period elapsed callback in non blocking mode
+ * @note   This function is called  when TIM6 interrupt took place, inside
+ * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+ * a global variable "uwTick" used as application time base.
+ * @param  htim : TIM handle
+ * @retval None
+ */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+    /* USER CODE BEGIN Callback 0 */
+
+    /* USER CODE END Callback 0 */
+    if (htim->Instance == TIM6)
+    {
+        HAL_IncTick();
+    }
+    /* USER CODE BEGIN Callback 1 */
+
+    /* USER CODE END Callback 1 */
+}
 
 /**
  * @brief  This function is executed in case of error occurrence.
