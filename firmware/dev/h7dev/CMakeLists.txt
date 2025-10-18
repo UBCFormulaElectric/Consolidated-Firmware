@@ -39,7 +39,6 @@ set(EMBEDDED_INCLUDE_DIRS
         "${SHARED_APP_INCLUDE_DIR}"
         "${SHARED_IO_INCLUDE_DIR}"
         "${SHARED_HW_INCLUDE_DIR}"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
         "${CMAKE_CURRENT_SOURCE_DIR}/src"
@@ -51,7 +50,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "${IOC_PATH}"
             "${CUBEMX_SRCS}"
     )
-    embedded_no_checks("${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
+    embedded_no_checks("${CUBEMX_SRCS}")
 
     set(STM32_HAL_SRCS
             "stm32h7xx_hal_adc_ex.c"
