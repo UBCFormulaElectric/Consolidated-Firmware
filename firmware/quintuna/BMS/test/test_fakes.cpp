@@ -507,5 +507,5 @@ namespace charger
     {
         evse_dutyCycle = duty_cycle;
     }
-}
+} // namespace charger
 } // namespace fakes
