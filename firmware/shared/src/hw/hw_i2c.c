@@ -30,22 +30,22 @@ static ExitCode waitForNotification(const I2cDevice *device)
     return transaction_timed_out ? EXIT_CODE_TIMEOUT : EXIT_CODE_OK;
 }
 
-static void transactionCompleteHandler(I2C_HandleTypeDef *handle)
-{
-    const I2cBus *const bus = hw_i2c_getBusFromHandle(handle);
-    if (bus == NULL)
-    {
-        return;
-    }
+// static void transactionCompleteHandler(I2C_HandleTypeDef *handle)
+// {
+//     const I2cBus *const bus = hw_i2c_getBusFromHandle(handle);
+//     if (bus == NULL)
+//     {
+//         return;
+//     }
 
-    // Notify the task that started the I2C transaction, if there is a transaction in progress.
-    if (bus->task_in_progress != NULL)
-    {
-        BaseType_t higher_priority_task_woken = pdFALSE;
-        vTaskNotifyGiveFromISR(bus->task_in_progress, &higher_priority_task_woken);
-        portYIELD_FROM_ISR(higher_priority_task_woken);
-    }
-}
+//     // Notify the task that started the I2C transaction, if there is a transaction in progress.
+//     if (bus->task_in_progress != NULL)
+//     {
+//         BaseType_t higher_priority_task_woken = pdFALSE;
+//         vTaskNotifyGiveFromISR(bus->task_in_progress, &higher_priority_task_woken);
+//         portYIELD_FROM_ISR(higher_priority_task_woken);
+//     }
+// }
 
 ExitCode hw_i2c_isTargetReady(const I2cDevice *device)
 {
@@ -182,27 +182,27 @@ ExitCode
     return waitForNotification(device);
 }
 
-void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *handle)
-{
-    transactionCompleteHandler(handle);
-}
+// void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *handle)
+// {
+//     transactionCompleteHandler(handle);
+// }
 
-void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *handle)
-{
-    transactionCompleteHandler(handle);
-}
+// void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *handle)
+// {
+//     transactionCompleteHandler(handle);
+// }
 
-void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *handle)
-{
-    transactionCompleteHandler(handle);
-}
+// void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *handle)
+// {
+//     transactionCompleteHandler(handle);
+// }
 
-void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *handle)
-{
-    transactionCompleteHandler(handle);
-}
+// void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *handle)
+// {
+//     transactionCompleteHandler(handle);
+// }
 
-void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *handle)
-{
-    LOG_ERROR("I2C error with code: 0x%X", handle->ErrorCode);
-}
+// void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *handle)
+// {
+//     LOG_ERROR("I2C error with code: 0x%X", handle->ErrorCode);
+// }
