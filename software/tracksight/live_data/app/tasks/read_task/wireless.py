@@ -152,7 +152,7 @@ def _parse_telem_message(payload: bytes) -> Optional[TelemetryMessage]:
                 return None # Not enough data for CAN message
             return TelemetryMessage(CanPayload(
                 can_id=struct.unpack('<I', payload[1:5])[0],
-                can_time_offset=float.fromhex(payload[5:9].hex()), # NOTE single precision time offset
+                can_time_offset=struct.unpack('<f', payload[5:9])[0], # NOTE single precision time offset
                 can_payload=payload[9:],
             ))
         case TelemetryMessageType.NTP:
