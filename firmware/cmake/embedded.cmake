@@ -58,6 +58,28 @@ set(SHARED_COMPILER_FLAGS
         -Wconversion
         -Wno-unused-variable
         -Wno-unused-parameter
+
+        # perhaps we want to do reinterpret casts sometimes??
+        -Wcast-align
+        -Wcast-qual
+
+        -pedantic-errors
+        -Wfloat-equal
+        -Wformat
+        -Wformat=2
+        -Wimplicit
+        -Winline
+        -Wmissing-braces
+        -Wmissing-format-attribute
+        -Wmissing-include-dirs
+        -Wmissing-noreturn
+        -Wredundant-decls
+        # requires instrumentation
+        # -Wstack-protector
+        # -Wstrict-aliasing
+        # -Wstrict-aliasing=2
+        -Wswitch-default
+        -Wswitch-enum
 )
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     list(APPEND SHARED_COMPILER_FLAGS
