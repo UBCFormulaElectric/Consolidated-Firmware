@@ -69,7 +69,7 @@ def read_messages_from_file():
         # can_msg_queue.put(
         #     CanMsg(233, bytearray(os.urandom(8)), datetime.datetime.now()) # VC ConnectorBoardEfuse
         # )
-        time.sleep(0.1)
+        time.sleep(0.001)
     logger.debug("Mock read task stopped")
 
 def get_mock_task(sio: SocketIO) -> Thread:

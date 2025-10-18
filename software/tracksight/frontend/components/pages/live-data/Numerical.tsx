@@ -6,13 +6,21 @@ import { PlusButton } from "@/components/shared/PlusButton";
 import { SignalType } from "@/hooks/SignalConfig";
 import { useSignals, useDataVersion } from "@/hooks/SignalContext";
 import { formatWithMs } from "@/lib/dateformat";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import UPlotChart from "@/components/shared/UPlotChart";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import CanvasChart from "@/components/shared/CanvasChart";
 
 interface DynamicSignalGraphProps {
   signalName: string;
   onDelete: () => void;
 }
+
+type AlignedData = [number[], ...Array<(number | null)[]>];
 
 // Palette for numerical signals
 const signalColors = [
@@ -30,17 +38,25 @@ const signalColors = [
 
 const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
   ({ signalName, onDelete }) => {
-  const { isPaused, horizontalScale, setHorizontalScale } = usePausePlay();
-  // Single context access (removed enum mixing & duplicate calls)
-  const signalsCtx = useSignals() as any;
-  const dataVersion = useDataVersion();
-  const { activeSignals, subscribeToSignal, unsubscribeFromSignal, getNumericalData } = signalsCtx;
+    const { isPaused } = usePausePlay();
+    // Single context access (removed enum mixing & duplicate calls)
+    const signalsCtx = useSignals() as any;
+    const dataVersion = useDataVersion();
+    const {
+      activeSignals,
+      subscribeToSignal,
+      unsubscribeFromSignal,
+      getNumericalData,
+    } = signalsCtx;
 
-  // TODO: hook up availableSignals metadata (currently only fetched in DropdownSearch on demand)
-  const availableSignals: any[] = useMemo(() => [], []);
-  // Only numerical data now
-  const numericalData: any[] = useMemo(() => getNumericalData(), [getNumericalData, dataVersion]);
-  const isLoadingSignals = false;
+    // TODO: hook up availableSignals metadata (currently only fetched in DropdownSearch on demand)
+    const availableSignals: any[] = useMemo(() => [], []);
+    // Only numerical data now
+    const numericalData: any[] = useMemo(
+      () => getNumericalData(),
+      [getNumericalData, dataVersion]
+    );
+    const isLoadingSignals = false;
 
     const [chartHeight, setChartHeight] = useState(256);
     const [searchTerm, setSearchTerm] = useState("");
@@ -50,8 +66,21 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
       left: 0,
     });
     const buttonRef = useRef<HTMLDivElement>(null);
-  const chartContainerRef = useRef<HTMLDivElement>(null);
-  // Removed horizontal scroll virtualization state
+    const chartContainerRef = useRef<HTMLDivElement>(null);
+
+    // pan state is offset in pixels from the right edge (latest data)
+    const [panOffset, setPanOffset] = useState(0);
+    const [isDragging, setIsDragging] = useState(false);
+    const dragStart = useRef({ x: 0, offset: 0 });
+    // the zoom state controls how much time is visible (higher = more zoomed in)
+    const [zoomLevel, setZoomLevel] = useState(100);
+    // track if user has manually panned (to prevent auto-follow)
+    const [isManuallyPanning, setIsManuallyPanning] = useState(false);
+    // store the absolute time window when in manual mode to prevent shifting
+    const frozenTimeWindow = useRef<{
+      startTime: number;
+      endTime: number;
+    } | null>(null);
 
     // Track signals this component instance subscribed to for proper cleanup
     const componentSubscriptions = useRef<Set<string>>(new Set());
@@ -67,42 +96,68 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
 
     // Build sparse aligned arrays for uPlot: [x[], ...y[]]
     const uplotData = React.useMemo(() => {
-      const MAX_POINTS = 8000;
-      const filtered = numericalData.filter((d) => thisGraphSignals.includes(d.name as string));
-      if (filtered.length === 0) return [[], ...thisGraphSignals.map(() => [])] as [number[], ...(Array<(number|null)[]>)] ;
+      const filtered = numericalData.filter((d) =>
+        thisGraphSignals.includes(d.name as string)
+      );
+      if (filtered.length === 0)
+        return [[], ...thisGraphSignals.map(() => [])] as AlignedData;
 
-      // Per-signal timestamp -> value map and union X
+      console.log(filtered.length);
+
+      // Calculate visible window first
+      const allTimes = filtered.map((d) =>
+        typeof d.time === "number" ? d.time : new Date(d.time).getTime()
+      );
+      console.log(allTimes.length);
+
+      const latestTime = Math.max(...allTimes);
+      const earliestTime = Math.min(...allTimes);
+      const totalTimeRange = latestTime - earliestTime;
+      const zoomFactor = 100 / zoomLevel;
+      const visibleTimeRange = totalTimeRange * zoomFactor;
+
+      const windowStart =
+        frozenTimeWindow.current?.startTime || latestTime - visibleTimeRange;
+      const windowEnd = frozenTimeWindow.current?.endTime || latestTime;
+      const buffer = visibleTimeRange * 0.2; // 20% buffer
+
+      // Only process data within visible window + buffer
+      const windowedData = filtered.filter((d) => {
+        const t =
+          typeof d.time === "number" ? d.time : new Date(d.time).getTime();
+        return t >= windowStart - buffer && t <= windowEnd + buffer;
+      });
+
+      // Now align only the windowed data (much smaller dataset)
       const perSig = new Map<string, Map<number, number>>();
       thisGraphSignals.forEach((s) => perSig.set(s, new Map()));
       const xSet = new Set<number>();
-      for (const d of filtered) {
+
+      for (const d of windowedData) {
         const sig = d.name as string;
-        const t = typeof d.time === "number" ? d.time : new Date(d.time).getTime();
+        const t =
+          typeof d.time === "number" ? d.time : new Date(d.time).getTime();
         const v = typeof d.value === "number" ? d.value : Number(d.value);
         if (!Number.isFinite(v)) continue;
         perSig.get(sig)!.set(t, v);
         xSet.add(t);
       }
-      let x = Array.from(xSet).sort((a, b) => a - b);
-      if (x.length > MAX_POINTS) {
-        const step = x.length / MAX_POINTS;
-        const down: number[] = [];
-        for (let i = 0; i < MAX_POINTS; i++) down.push(x[Math.floor(i * step)]);
-        if (down[down.length - 1] !== x[x.length - 1]) down[down.length - 1] = x[x.length - 1];
-        x = down;
-      }
-      const ys: Array<(number|null)[]> = [];
+
+      // const x = Array.from(xSet).sort((a, b) => a - b);
+      const x = Array.from(xSet); //.sort((a, b) => a - b); // remove sort for performance
+
+      const ys: Array<(number | null)[]> = [];
       for (const sig of thisGraphSignals) {
         const m = perSig.get(sig)!;
-        const arr: (number|null)[] = new Array(x.length);
+        const arr: (number | null)[] = new Array(x.length);
         for (let i = 0; i < x.length; i++) {
           const t = x[i];
           arr[i] = m.has(t) ? (m.get(t) as number) : null;
         }
         ys.push(arr);
       }
-      return [x, ...ys] as [number[], ...(Array<(number|null)[]>)];
-    }, [numericalData, thisGraphSignals]);
+      return [x, ...ys] as AlignedData;
+    }, [numericalData, thisGraphSignals, zoomLevel, frozenTimeWindow.current]);
 
     const numericalSignals = thisGraphSignals;
 
@@ -118,22 +173,19 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
       );
     }, [availableOptions, searchTerm]);
 
-    const pixelPerPoint = 50;
+    const totalDataPoints = (uplotData[0] as number[]).length;
 
-  // Simplified: total points = rendered chart points
-  const totalDataPoints = (uplotData[0] as number[]).length;
-
-  // Width simply scales with number of points shown
-  const totalWidth = Math.max(totalDataPoints * pixelPerPoint, 100) * (horizontalScale / 100);
-  const chartWidth = totalWidth;
-
-  // No offset needed without virtualization
-  const chartOffset = 0;
+    // Fixed width - use container width or full viewport width
+    const chartWidth =
+      typeof window !== "undefined" ? window.innerWidth - 100 : 1200;
+    const totalWidth = chartWidth;
 
     const handleSelect = useCallback(
       (name: string) => {
         if (process.env.NODE_ENV !== "production") {
-          console.log(`[ui] Numerical add ${name} -> subscribe & attach to this graph`);
+          console.log(
+            `[ui] Numerical add ${name} -> subscribe & attach to this graph`
+          );
         }
         subscribeToSignal(name, SignalType.Numerical);
         componentSubscriptions.current.add(name);
@@ -147,7 +199,9 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
     const handleUnsub = useCallback(
       (name: string) => {
         if (process.env.NODE_ENV !== "production") {
-          console.log(`[ui] Numerical remove ${name} -> unsubscribe (chip click)`);
+          console.log(
+            `[ui] Numerical remove ${name} -> unsubscribe (chip click)`
+          );
         }
         unsubscribeFromSignal(name);
         componentSubscriptions.current.delete(name);
@@ -158,7 +212,10 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
 
     const handleDelete = useCallback(() => {
       if (process.env.NODE_ENV !== "production") {
-        console.log(`[ui] Numerical delete graph -> unsubscribe all owned signals`, Array.from(componentSubscriptions.current));
+        console.log(
+          `[ui] Numerical delete graph -> unsubscribe all owned signals`,
+          Array.from(componentSubscriptions.current)
+        );
       }
       // Unsubscribe all signals that this component had subscribed to
       Array.from(componentSubscriptions.current).forEach((n) => {
@@ -173,7 +230,9 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
       // Subscribe to the initial signal if provided
       if (signalName && !componentSubscriptions.current.has(signalName)) {
         if (process.env.NODE_ENV !== "production") {
-          console.log(`[ui] Numerical mount with initial ${signalName} -> subscribe`);
+          console.log(
+            `[ui] Numerical mount with initial ${signalName} -> subscribe`
+          );
         }
         subscribeToSignal(signalName, SignalType.Numerical);
         componentSubscriptions.current.add(signalName);
@@ -192,10 +251,109 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
       };
     }, [signalName]); // Only depend on signalName, not the functions
 
-  // Removed scroll listener logic
+    // Mouse event handlers for panning
+    const handleMouseDown = useCallback(
+      (e: React.MouseEvent) => {
+        setIsDragging(true);
 
-  // Debug info disabled after removing virtualization
-  const debugInfo = null;
+        // capture current time window when entering manual mode
+        if (!isManuallyPanning) {
+          const timestamps = uplotData[0] as number[];
+          if (timestamps && timestamps.length > 0) {
+            const latestTime = timestamps[timestamps.length - 1];
+            const earliestTime = timestamps[0];
+            const totalTimeRange = latestTime - earliestTime;
+            const zoomFactor = 100 / zoomLevel;
+            const visibleTimeRange = totalTimeRange * zoomFactor;
+
+            // In auto-follow mode (panOffset = 0), we show from (latestTime - visibleTimeRange) to latestTime
+            frozenTimeWindow.current = {
+              startTime: latestTime - visibleTimeRange,
+              endTime: latestTime,
+            };
+          }
+        }
+
+        setIsManuallyPanning(true);
+        dragStart.current = { x: e.clientX, offset: panOffset };
+      },
+      [panOffset, isManuallyPanning, uplotData, zoomLevel]
+    );
+
+    const handleMouseMove = useCallback(
+      (e: MouseEvent) => {
+        if (!isDragging || !frozenTimeWindow.current) return;
+        const dx = e.clientX - dragStart.current.x;
+
+        // calculate time shift based on pixel movement
+        const timestamps = uplotData[0] as number[];
+        if (timestamps && timestamps.length > 0) {
+          const chartWidth =
+            typeof window !== "undefined" ? window.innerWidth - 100 : 1200;
+          const currentTimeRange =
+            frozenTimeWindow.current.endTime -
+            frozenTimeWindow.current.startTime;
+          const timePerPixel = currentTimeRange / chartWidth;
+          const timeShift = dx * timePerPixel;
+
+          // update frozen window
+          const baseWindow = {
+            endTime: frozenTimeWindow.current.endTime + timeShift,
+            startTime: frozenTimeWindow.current.startTime + timeShift,
+          };
+
+          frozenTimeWindow.current = baseWindow;
+          dragStart.current.x = e.clientX;
+        }
+
+        setPanOffset(dragStart.current.offset - dx);
+      },
+      [isDragging, uplotData]
+    );
+
+    const handleMouseUp = useCallback(() => {
+      setIsDragging(false);
+    }, []);
+
+    useEffect(() => {
+      if (isDragging) {
+        window.addEventListener("mousemove", handleMouseMove);
+        window.addEventListener("mouseup", handleMouseUp);
+        return () => {
+          window.removeEventListener("mousemove", handleMouseMove);
+          window.removeEventListener("mouseup", handleMouseUp);
+        };
+      }
+    }, [isDragging, handleMouseMove, handleMouseUp]);
+
+    // Reset pan to follow latest data only when not manually panning
+    useEffect(() => {
+      if (!isManuallyPanning) {
+        setPanOffset(0);
+      }
+    }, [isManuallyPanning, dataVersion]); // Reset when data updates and not manually panning
+
+    // update frozen time window when zoom changes in manual mode
+    useEffect(() => {
+      if (isManuallyPanning && frozenTimeWindow.current) {
+        const currentWindow = frozenTimeWindow.current;
+        const rightEdgeTime = currentWindow.endTime; // right edge fixed
+
+        // new range based on zoom level
+        const timestamps = uplotData[0] as number[];
+        if (timestamps && timestamps.length > 0) {
+          const totalTimeRange =
+            timestamps[timestamps.length - 1] - timestamps[0];
+          const zoomFactor = 100 / zoomLevel;
+          const newRange = totalTimeRange * zoomFactor;
+
+          frozenTimeWindow.current = {
+            startTime: rightEdgeTime - newRange,
+            endTime: rightEdgeTime,
+          };
+        }
+      }
+    }, [zoomLevel, isManuallyPanning, uplotData]);
 
     return (
       <div className="mb-6 p-4 block w-full relative">
@@ -229,16 +387,35 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
               />
             </div>
             <div className="flex flex-col">
-              <label className="text-sm">
-                Horizontal Scale: {horizontalScale}%
-              </label>
+              <label className="text-sm">Zoom: {zoomLevel}%</label>
               <input
                 type="range"
-                min={1}
-                max={1000}
-                value={horizontalScale}
-                onChange={(e) => setHorizontalScale(+e.target.value)}
+                min={10}
+                max={10000}
+                step={10}
+                value={zoomLevel}
+                onChange={(e) => setZoomLevel(+e.target.value)}
               />
+            </div>
+            <div className="flex flex-col">
+              <label className="text-sm">
+                Pan:{" "}
+                {isManuallyPanning
+                  ? `Manual (${Math.round(panOffset)}px from latest)`
+                  : "Auto-following live data"}
+              </label>
+              {isManuallyPanning && (
+                <button
+                  onClick={() => {
+                    setPanOffset(0);
+                    setIsManuallyPanning(false);
+                    frozenTimeWindow.current = null;
+                  }}
+                  className="px-3 py-1 bg-blue-500 text-white opacity-80 rounded-lg transition duration-150 ease-in-out hover:cursor-pointer hover:scale-105 hover:bg-blue-600 hover:opacity-100"
+                >
+                  Return to Auto-Follow
+                </button>
+              )}
             </div>
           </div>
 
@@ -325,67 +502,53 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
             )}
           </div>
 
-          {/* Debug info for viewport windowing */}
+          {/* Debug info */}
           <div className="text-xs text-gray-500 mb-4 space-y-1 bg-gray-50 p-2 rounded border">
-            <div>Total points: {totalDataPoints}</div>
-            <div>Chart Offset: {Math.round(chartOffset)}px</div>
+            <div>Total points rendered: {totalDataPoints}</div>
+            <div>Zoom: {zoomLevel}%</div>
+            <div>Pan Offset: {Math.round(panOffset)}px</div>
+            <div>Mode: {isManuallyPanning ? "Manual Pan" : "Auto-Follow"}</div>
+            <div>Chart Width: {chartWidth}px</div>
           </div>
         </div>
 
-  {totalDataPoints === 0 ? (
+        {totalDataPoints === 0 ? (
           <div className="w-full h-[256px] flex items-center justify-center text-gray-500">
             No data
           </div>
         ) : (
-          <>
-            <div
-              ref={chartContainerRef}
-              style={{
-                width: totalWidth,
-                height: chartHeight,
-                transition: "width 100ms ease-out",
-                position: "relative",
-              }}
-            >
-              <div
-                style={{
-                  position: "absolute",
-                  left: chartOffset,
-                  top: 0,
-                }}
-              >
-                <UPlotChart
-                  data={uplotData as [number[], ...(Array<(number|null)[]>)]}
-                  width={chartWidth}
-                  height={chartHeight}
-                  series={numericalSignals.map((sig, i) => ({ label: sig, color: signalColors[i % signalColors.length] }))}
-                  options={{
-                    // Make uPlot lighter by disabling interactive features
-                    legend: { show: false },
-                    cursor: {
-                      show: false,
-                      x: false,
-                      y: false,
-                      drag: { x: false, y: false, setScale: false },
-                      // Disable proximity calculations for focus/hover
-                      focus: { prox: -1 },
-                      hover: { prox: null },
-                    },
-                    // Optional: on HiDPI (retina) this reduces pixel work. Enable if you want extra speed.
-                    // pxRatio: 1,
-                  }}
-                  spanGaps
-                />
-              </div>
-            </div>
-          </>
+          <div
+            ref={chartContainerRef}
+            onMouseDown={handleMouseDown}
+            style={{
+              width: chartWidth,
+              height: chartHeight,
+              position: "relative",
+              cursor: isDragging ? "grabbing" : "grab",
+              overflow: "hidden",
+            }}
+          >
+            <CanvasChart
+              data={uplotData as [number[], ...Array<(number | null)[]>]}
+              width={chartWidth}
+              height={chartHeight}
+              series={numericalSignals.map((sig, i) => ({
+                label: sig,
+                color: signalColors[i % signalColors.length],
+              }))}
+              panOffset={panOffset}
+              zoomLevel={zoomLevel}
+              frozenTimeWindow={
+                isManuallyPanning ? frozenTimeWindow.current : null
+              }
+            />
+          </div>
         )}
       </div>
     );
   }
 );
 
-// Add display name for better debugging
 NumericalGraphComponent.displayName = "NumericalGraphComponent";
 
 export default NumericalGraphComponent;
