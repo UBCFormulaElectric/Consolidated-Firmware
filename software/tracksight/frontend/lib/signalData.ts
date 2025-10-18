@@ -5,28 +5,31 @@
 //             stores.
 
 import { fetchSignalMetadata } from "@/lib/api/signals";
-import { API_BASE_URL, IS_DEBUG, IS_VERBOSE_DEBUG } from "@/lib/constants";
-import socket from "@/lib/realtime/socket";
 import subscribeToSignal from "@/lib/api/subscribeToSignal";
 import unsubscribeFromSignal from "@/lib/api/unsubscribeFromSignal";
+import { API_BASE_URL, IS_DEBUG, IS_VERBOSE_DEBUG } from "@/lib/constants";
+import socket from "@/lib/realtime/socket";
+import SignalDataReducer from "@/lib/types/SignalDataReducer";
 import { useEffect, useState } from "react";
-import { sign } from "crypto";
+
+type DataSubscriberCallback = (payload: ParsedSignalPayload) => void;
 
 /**
  * Map to hold subscribers for data updates, keyed by signal name.
  */
-const dataSubscribers: Map<string, Set<() => void>> = new Map();
-
-/**
- * Map to hold number of subscribers for signal data updates, keyed by signal name.
- * When the count reaches zero, we stop fetching data for that signal to save resources.
- */
-const signalDataSubscribers = new Map<string, number>();
+const dataSubscribers: Map<string, Set<DataSubscriberCallback>> = new Map();
 
 /**
  * Global store for signal data, keyed by signal name.
  */
-const signalDataStore: Record<string, any[]> = {};
+const signalDataStore: Record<string, ParsedSignalPayload[]> = {};
+
+type SignalDataStore<Reducers extends SignalDataReducer<unknown>> = Record<
+  string,
+  {
+    [Index in keyof Reducers]: Reducers[Index] extends SignalDataReducer<infer T> ? T : never;
+  }
+>;
 
 // NOTE(evan): Fill the signalDataStore with all of our known signals so that
 //             javascript can hopefully optimize access to the object.
@@ -42,7 +45,7 @@ signals
     console.error("Failed to fetch signal metadata:", err);
   });
 
-const subscribeToSignalData = (signalName: string) => {
+const subscribeToSignalData = (signalName: string, callback: DataSubscriberCallback) => {
   IS_DEBUG &&
     console.log(
       `%c[Added Signal Data Subscription] %cSignal: ${signalName}`,
@@ -50,10 +53,11 @@ const subscribeToSignalData = (signalName: string) => {
       "color: #d08770;"
     );
 
-  const currentCount = signalDataSubscribers.get(signalName) || 0;
-  signalDataSubscribers.set(signalName, currentCount + 1);
+  const currentSubscribers = dataSubscribers.get(signalName) || new Set();
+  currentSubscribers.add(callback);
+  dataSubscribers.set(signalName, currentSubscribers);
 
-  if (currentCount !== 0) return;
+  if (currentSubscribers.size > 1) return;
 
   IS_DEBUG &&
     console.log(
@@ -65,7 +69,7 @@ const subscribeToSignalData = (signalName: string) => {
   subscribeToSignal(signalName);
 };
 
-const unsubscribeFromSignalData = (signalName: string) => {
+const unsubscribeFromSignalData = (signalName: string, callback: DataSubscriberCallback) => {
   IS_DEBUG &&
     console.log(
       `%c[Removed Signal Data Subscription] %cSignal: ${signalName}`,
@@ -73,13 +77,13 @@ const unsubscribeFromSignalData = (signalName: string) => {
       "color: #d08770;"
     );
 
-  const currentCount = signalDataSubscribers.get(signalName) || 0;
+  const currentSubscribers = dataSubscribers.get(signalName);
 
-  if (currentCount > 1) {
-    signalDataSubscribers.set(signalName, currentCount - 1);
+  if (!currentSubscribers) return;
 
-    return;
-  }
+  currentSubscribers.delete(callback);
+
+  if (currentSubscribers.size > 0) return;
 
   IS_DEBUG &&
     console.log(
@@ -88,7 +92,7 @@ const unsubscribeFromSignalData = (signalName: string) => {
       "color: #d08770;"
     );
 
-  signalDataSubscribers.delete(signalName);
+  dataSubscribers.delete(signalName);
   unsubscribeFromSignal(signalName);
 };
 
@@ -98,12 +102,18 @@ type SignalPayload = {
   time?: string;
 };
 
+type ParsedSignalPayload = {
+  value: number;
+  signal: string;
+  time: Date;
+};
+
 // TODO(evan): Might want to move this into a zod schema or something later. Depends
 //             on how complex this data validation needs to be.
 /**
  * Type guard to validate signal data payloads.
- * 
- * 
+ *
+ *
  * @param data - The data to validate.
  * @returns True if the data is a valid SignalPayload, false otherwise.
  */
@@ -112,22 +122,16 @@ const isValidSignalPayload = (data: unknown): data is SignalPayload => {
     return false;
   }
 
-  if (
-    !("value" in data)
-    || !("name" in data)
-  ) {
+  if (!("value" in data) || !("name" in data)) {
     return false;
   }
 
-  const {
-    value,
-    name
-  } = data;
+  const { value, name } = data;
 
   if (
-    typeof value !== "number"
-    || typeof name !== "string"
-    || ("time" in data && typeof (data as any).time !== "string")
+    typeof value !== "number" ||
+    typeof name !== "string" ||
+    ("time" in data && typeof (data as any).time !== "string")
   ) {
     return false;
   }
@@ -135,9 +139,7 @@ const isValidSignalPayload = (data: unknown): data is SignalPayload => {
   return true;
 };
 
-const handleData = (
-  data: unknown,
-) => {
+const handleData = (data: unknown) => {
   if (!isValidSignalPayload(data)) {
     console.warn("Received invalid signal data:", data);
     return;
@@ -145,30 +147,30 @@ const handleData = (
 
   const { name } = data;
 
-
   data.time ||= new Date().toISOString();
-  
-  IS_VERBOSE_DEBUG && console.groupCollapsed(
-    `%c[Handling Signal Data] %cSignal: %s`,
-    "color: #81a1c1; font-weight: bold;",
-    "color: #d08770;",
-    name
-  )
 
-  IS_VERBOSE_DEBUG && console.log(
-    `%cData: %o`,
-    "color: #d08770;",
-    data
-  );
-  
-  signalDataStore[name].push(data);
+  IS_VERBOSE_DEBUG &&
+    console.groupCollapsed(
+      `%c[Handling Signal Data] %cSignal: %s`,
+      "color: #81a1c1; font-weight: bold;",
+      "color: #d08770;",
+      name
+    );
+
+  IS_VERBOSE_DEBUG && console.log(`%cData: %o`, "color: #d08770;", data);
+
+  const parsedData: ParsedSignalPayload = {
+    value: data.value,
+    signal: data.name,
+    time: new Date(data.time),
+  };
 
   dataSubscribers.get(name)?.forEach((callback) => {
-    callback();
-  }); 
+    callback(parsedData);
+  });
 
   IS_VERBOSE_DEBUG && console.groupEnd();
-}
+};
 
 socket.on("data", handleData);
 
@@ -197,21 +199,37 @@ const useDataVersion = (signals: string[]) => {
     };
 
     signals.forEach((signalName) => {
-      if (!dataSubscribers.has(signalName)) {
-        dataSubscribers.set(signalName, new Set());
-      }
-
-      dataSubscribers.get(signalName)!.add(notify);
+      subscribeToSignalData(signalName, notify);
     });
 
     return () => {
       signals.forEach((signalName) => {
-        dataSubscribers.get(signalName)?.delete(notify);
+        unsubscribeFromSignalData(signalName, notify);
       });
     };
   }, [signals]);
 
   return dataVersion;
+};
+
+const useSignalSubscription = (signalNames: string[]) => {
+  useEffect(() => {
+    const signalCallbacks: Record<string, DataSubscriberCallback> = {};
+
+    signalNames.forEach((signalName) => {
+      signalCallbacks[signalName] = (newData) => {
+        signalDataStore[signalName].push(newData);
+      };
+
+      subscribeToSignalData(signalName, signalCallbacks[signalName]);
+    });
+
+    return () => {
+      signalNames.forEach((signalName) => {
+        unsubscribeFromSignalData(signalName, signalCallbacks[signalName]);
+      });
+    };
+  }, [signalNames]);
 };
 
 /**
@@ -225,13 +243,7 @@ const useDataVersion = (signals: string[]) => {
  * @returns A stable reference to the signal's data arrays
  */
 const useSignalDataRef = (signalNames: string[]): Record<string, readonly any[]> => {
-  useEffect(() => {
-    signalNames.forEach(subscribeToSignalData);
-  
-    return () => {
-      signalNames.forEach(unsubscribeFromSignalData);
-    };
-  }, [signalNames]);
+  useSignalSubscription(signalNames);
 
   const dataRef: Record<string, readonly any[]> = {};
 
@@ -242,4 +254,27 @@ const useSignalDataRef = (signalNames: string[]): Record<string, readonly any[]>
   return dataRef;
 };
 
-export { useDataVersion, useSignalDataRef };
+/**
+ * TODO(evan): Write some good documentation here
+ */
+const useSignalDataRefWithReducers = <U, Reducer extends SignalDataReducer<U>>(
+  signalNames: string[],
+  reducer: Reducer,
+  initialValue: U
+): U => {
+  useSignalSubscription(signalNames);
+
+  let dataRef = initialValue;
+
+  signalNames.forEach((signalName) => {
+    subscribeToSignalData(signalName, (newData) => {
+      dataRef = reducer(newData, dataRef);
+    });
+  });
+
+  return dataRef;
+};
+
+export type { ParsedSignalPayload };
+
+export { useDataVersion, useSignalDataRef, useSignalDataRefWithReducers };

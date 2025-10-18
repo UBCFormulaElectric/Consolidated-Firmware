@@ -26,16 +26,8 @@ const StateTimeline: Widget<"stateTimeline"> = (props) => {
 
     console.groupCollapsed("%c[StateTimeline]: Receieved new Data", "color: #81a1c1;");
     console.log("%cSignals: %o", "color: #d08770;", signals);
-    console.log(
-      "%cData Version: %d",
-      "color: #d08770;",
-      dataVersion
-    );
-    console.log(
-      "%cSignal Data Ref: %o",
-      "color: #d08770;",
-      signalsDataRef
-    );
+    console.log("%cData Version: %d", "color: #d08770;", dataVersion);
+    console.log("%cSignal Data Ref: %o", "color: #d08770;", signalsDataRef);
     console.groupEnd();
   }, [dataVersion]);
 
