@@ -25,7 +25,7 @@ set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${SHARED_HW_INCLUDE_DI
 
 if ("${TARGET}" STREQUAL "binary")
     set(ARM_CORE "cm33")
-    set(LINKER_SCRIPT "${LINKER_DIR}/stm32h563ritx/stm32h563ritx_app_only.ld")
+    set(LINKER_SCRIPT "${LINKER_DIR}/stm32h562ritx/stm32h562ritx_app_only.ld")
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
 
@@ -51,9 +51,10 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h5xx_hal_cortex.c"
             "stm32h5xx_hal_exti.c"
             "stm32h5xx_hal_tim.c"
+            "stm32h5xx_hal_tim_ex.c"
     )
 
-    stm32h563xx_cube_library(
+    stm32h562xx_cube_library(
             "hexray_FSM_stm32cube_hal"
             "${STM32_HAL_SRCS}"
             "${MD5_LOCATION}"
@@ -71,8 +72,8 @@ if ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
-    target_link_libraries("hexray_FSM_app.elf" PRIVATE "hexray_FSM_stm32cube" "hexray_FSM_stm32cube_hal"
-            "hexray_FSM_commit_info" "m")
+    target_link_libraries("hexray_FSM_app.elf" PRIVATE "hexray_FSM_stm32cube" "hexray_FSM_stm32cube_hal" "hexray_FSM_commit_info"
+            "hexray_FSM_jsoncan" "m")
 
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
@@ -84,7 +85,7 @@ elseif ("${TARGET}" STREQUAL "test")
             "${INCLUDE_DIRS}"
     )
 
-    add_compile_definitions("hexray_FSM_test" PRIVATE STM32H563Rx)
+    add_compile_definitions("hexray_FSM_test" PRIVATE STM32H562Rx)
 
     # JSONCAN
     jsoncan_library(FSM hexray "${CMAKE_CURRENT_BINARY_DIR}")
@@ -107,5 +108,5 @@ elseif ("${TARGET}" STREQUAL "test")
             "${HEADERS_TO_FAKE}"
     )
 
-    target_link_libraries("hexray_FSM_test" PRIVATE "hexray_FSM_fakes" "hexray_FSM_commit_info")
+    target_link_libraries("hexray_FSM_test" PRIVATE "hexray_FSM_fakes" "hexray_FSM_commit_info" "hexray_FSM_jsoncan")
 endif ()

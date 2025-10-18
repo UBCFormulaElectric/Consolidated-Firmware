@@ -144,7 +144,7 @@ const osThreadAttr_t TaskTelem_attributes = {
     .cb_size    = sizeof(TaskTelemControlBlock),
     .stack_mem  = &TaskTelemBuffer[0],
     .stack_size = sizeof(TaskTelemBuffer),
-    .priority   = (osPriority_t)osPriorityLow,
+    .priority   = (osPriority_t)osPriorityNormal,
 };
 /* Definitions for TaskTelemRx */
 osThreadId_t         TaskTelemRxHandle;
@@ -666,10 +666,10 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_WritePin(GPIOE, TELEM_PWR_EN_Pin | BUZZER_PWR_EN_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(nTSIM_GRN_EN_GPIO_Port, nTSIM_GRN_EN_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(nTSIM_GRN_EN_GPIO_Port, nTSIM_GRN_EN_Pin, GPIO_PIN_SET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(TSIM_RED_EN_GPIO_Port, TSIM_RED_EN_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(TSIM_RED_EN_GPIO_Port, TSIM_RED_EN_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pins : LED_Pin BOOT_LED_Pin SD_FAIL_Pin */
     GPIO_InitStruct.Pin   = LED_Pin | BOOT_LED_Pin | SD_FAIL_Pin;
