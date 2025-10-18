@@ -11,5 +11,13 @@
     "--compile-commands-dir=build_fw_dev",
     // "--compile-commands-dir=build_fw_test",
     "--query-driver=/usr/local/bin/arm-none-eabi-gcc"
-  ]
+  ],
+  "files.associations": {
+    "io_imd.h": "c",
+    "app_states.h": "c",
+    "app_statemachine.h": "c",
+    "app_segments_internal.h": "c",
+    "app_segments.h": "c",
+    "io_ltc6813.h": "c"
+  }
 }
