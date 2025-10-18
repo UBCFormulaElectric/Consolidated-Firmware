@@ -3,6 +3,7 @@
 import type { Card } from "@/lib/types/DashboardCard";
 import type { Widget, WIDGET_TYPE } from "@/lib/types/Widget";
 import React, { createContext, useContext, useState } from "react";
+import { IS_DEBUG } from "@/lib/constants";
 
 type DashboardLayoutType = {
   cards: Card[];
@@ -55,32 +56,30 @@ const DashboardLayoutProvider = ({ children }: { children: React.ReactNode }) =>
   }, []);
 
   const editCard: DashboardLayoutType["editCard"] = React.useCallback((cardToEdit, newCardData) => {
-    setCards((prev) => {
-      const cardIndex = prev.indexOf(cardToEdit);
+    const cardIndex = cards.indexOf(cardToEdit);
 
-      if (cardIndex === -1) {
-        console.warn("Card to edit not found");
-        return prev;
-      }
+    if (cardIndex === -1) {
+      console.warn("Card to edit not found");
+      setCards(cards);
 
-      const updatedCard = {
-        ...prev[cardIndex],
-        ...newCardData,
-      };
+      return;
+    }
 
-      const newCards = [...prev];
-      newCards[cardIndex] = updatedCard;
+    const updatedCard = {
+      ...cards[cardIndex],
+      ...newCardData,
+    };
 
-      return newCards;
-    });
-  }, []);
+    const newCards = [...cards];
+    newCards[cardIndex] = updatedCard;
+
+    setCards(newCards);
+  }, [cards]);
 
   const addWidget: DashboardLayoutType["addWidget"] = React.useCallback((parentCard, newWidget) => {
-    setCards((prev) => {
-      parentCard.widgets.push(newWidget);
+    parentCard.widgets.push(newWidget);
 
-      return [...prev];
-    });
+    setCards((prev) => [...prev]);
   }, []);
 
   const removeWidget: DashboardLayoutType["removeWidget"] = React.useCallback(
@@ -96,12 +95,12 @@ const DashboardLayoutProvider = ({ children }: { children: React.ReactNode }) =>
 
   const editWidget: DashboardLayoutType["editWidget"] = React.useCallback(
     (parentCard, widgetToEdit, newWidgetData) => {
-      setCards((prev) => {
         const widgetIndex = parentCard.widgets.indexOf(widgetToEdit);
 
         if (widgetIndex === -1) {
-          console.warn("Widget to edit not found in parent card");
-          return prev;
+          IS_DEBUG && console.warn("Widget to edit not found in parent card");
+
+          return;
         }
 
         parentCard.widgets[widgetIndex] = {
@@ -109,10 +108,9 @@ const DashboardLayoutProvider = ({ children }: { children: React.ReactNode }) =>
           ...newWidgetData,
         };
 
-        return [...prev];
-      });
+        setCards([...cards]);
     },
-    []
+    [cards]
   );
 
   return (
