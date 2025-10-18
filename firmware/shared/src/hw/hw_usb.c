@@ -37,7 +37,7 @@ static const osMessageQueueAttr_t rx_queue_attr = { .name      = "USB RX Queue",
                                                     .mq_size   = sizeof(rx_queue_buffer) };
 static osMessageQueueId_t         rx_queue_id   = NULL;
 
-ExitCode hw_usb_init()
+ExitCode hw_usb_init(void)
 {
     if (rx_queue_id == NULL)
     {
@@ -51,7 +51,7 @@ ExitCode hw_usb_init()
     return EXIT_CODE_OK;
 }
 
-bool hw_usb_checkConnection()
+bool hw_usb_checkConnection(void)
 {
     return USB_DEVICE_HANDLER.dev_state == USBD_STATE_CONFIGURED;
 }
@@ -123,7 +123,7 @@ bool hw_usb_pushRxMsgToQueue(const uint8_t *msg, const uint32_t len)
 static bool         usb_connected = false;
 static TaskHandle_t usb_task      = NULL;
 
-void hw_usb_connect_callback()
+void hw_usb_connect_callback(void)
 {
     usb_connected = true;
     if (usb_task == NULL)
@@ -137,17 +137,17 @@ void hw_usb_connect_callback()
     portYIELD_FROM_ISR(higherPriorityTaskWoken);
 }
 
-void hw_usb_disconnect_callback()
+void hw_usb_disconnect_callback(void)
 {
     usb_connected = false;
 }
 
-bool hw_usb_connected()
+bool hw_usb_connected(void)
 {
     return usb_connected;
 }
 
-void hw_usb_waitForConnected()
+void hw_usb_waitForConnected(void)
 {
     if (usb_connected)
         return;
@@ -163,7 +163,7 @@ void hw_usb_waitForConnected()
 
 // EXAMPLES
 
-void hw_usb_transmit_example()
+_Noreturn void hw_usb_transmit_example(void)
 {
     // Init usb peripheral.
     int msg_count = 0;
@@ -181,7 +181,7 @@ void hw_usb_transmit_example()
     }
 }
 
-void hw_usb_receive_example()
+_Noreturn void hw_usb_receive_example(void)
 {
     // Dump the queue char by char.
     for (;;)

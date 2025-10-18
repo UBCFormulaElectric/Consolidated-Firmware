@@ -76,10 +76,7 @@ function(compile_gtest_executable
     else ()
         target_compile_options(${TEST_EXECUTABLE_NAME}
                 PRIVATE
-                -Wall
-                -Wextra
-                -Werror
-                -pedantic
+                ${SHARED_GNU_COMPILER_CHECKS}
                 --coverage
         )
         target_link_libraries(${TEST_EXECUTABLE_NAME} PRIVATE gcov)

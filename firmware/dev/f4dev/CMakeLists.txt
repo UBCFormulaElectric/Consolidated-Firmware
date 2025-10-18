@@ -6,7 +6,6 @@ set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/f4dev.ioc")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app_only.ld")
 
 set(HW_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/hw")
-set(IO_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/io")
 
 file(GLOB_RECURSE EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c")
 
@@ -34,7 +33,7 @@ list(APPEND EMBEDDED_SRCS
 )
 
 set(EMBEDDED_INCLUDE_DIRS
-        "${HW_INCLUDE_DIR}" "${IO_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
+        "${HW_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
         "${SHARED_IO_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR}"
 )
 
@@ -44,7 +43,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "${IOC_PATH}"
             "${CUBEMX_SRCS}"
     )
-    embedded_no_checks("${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
+    embedded_no_checks("${CUBEMX_SRCS}")
 
 
     set(STM32_HAL_SRCS

@@ -29,3 +29,36 @@ file(GLOB_RECURSE SHARED_HW_SRCS "${SHARED_HW_INCLUDE_DIR}/*.c")
 
 # Test Utils
 set(SHARED_TEST_UTILS_INCLUDE_DIRS "${SHARED_DIR}/test")
+
+set(SHARED_GNU_COMPILER_CHECKS
+        -Wall
+        -Werror
+        -Wextra
+        -pedantic
+        -Wdouble-promotion
+        -Wshadow
+        -Wundef
+        -Wconversion
+        -Wno-unused-variable
+        -Wno-unused-parameter
+        -pedantic-errors
+        -Wfloat-equal
+        -Wformat
+        -Wformat=2
+        -Wimplicit
+        -Winline
+        -Wmissing-braces
+        -Wmissing-format-attribute
+        -Wmissing-include-dirs
+        -Wmissing-noreturn
+        -Wredundant-decls
+        -Wswitch-default
+        -Wswitch-enum
+        # perhaps we want to do reinterpret casts sometimes??
+        #        -Wcast-align
+        #        -Wcast-qual
+        # requires instrumentation
+        # -Wstack-protector
+        # -Wstrict-aliasing
+        # -Wstrict-aliasing=2
+)

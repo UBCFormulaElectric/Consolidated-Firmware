@@ -50,40 +50,10 @@ set(SHARED_COMPILER_FLAGS
         -fdata-sections
         -fno-common
         -fmessage-length=0
-        -Wall
-        -Werror
-        -Wextra
-        -pedantic
-        -Wdouble-promotion
-        -Wshadow
-        -Wundef
         -fstack-usage
-        -Wconversion
-        -Wno-unused-variable
-        -Wno-unused-parameter
-
-        # perhaps we want to do reinterpret casts sometimes??
-        #        -Wcast-align
-        #        -Wcast-qual
-
-        -pedantic-errors
-        -Wfloat-equal
-        -Wformat
-        -Wformat=2
-        -Wimplicit
-        -Winline
-        -Wmissing-braces
-        -Wmissing-format-attribute
-        -Wmissing-include-dirs
-        -Wmissing-noreturn
-        -Wredundant-decls
-        # requires instrumentation
-        # -Wstack-protector
-        # -Wstrict-aliasing
-        # -Wstrict-aliasing=2
-        -Wswitch-default
-        -Wswitch-enum
 )
+list(APPEND SHARED_COMPILER_FLAGS ${SHARED_GNU_COMPILER_CHECKS})
+
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     list(APPEND SHARED_COMPILER_FLAGS
             -O0 # previously O0, idk why this breaks bootloader??
