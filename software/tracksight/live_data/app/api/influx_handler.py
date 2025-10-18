@@ -21,7 +21,8 @@ def get_csv_file(start_time: str, end_time: str):
 
     separator = ','
     query = f'from(bucket:"{INFLUX_BUCKET}")\
-        |> range(start: {start_time}, stop: {end_time})'
+        |> range(start: {start_time}, stop: {end_time})\
+        |> drop(columns: ["_start", "_stop"])'
 
     csv_results = None
     with get_influxdb_client() as client:
