@@ -103,6 +103,7 @@ void app_segments_balancingTick(bool enable)
             }
 
             break;
+            
         }
         case BALANCING_BALANCE:
         {
