@@ -142,6 +142,7 @@ class TelemetryMessageType(Enum):
     NTPDate = 0x03
     BaseTimeReg = 0x04
 
+# After packet check has been done, parse the telem message received from the car
 def _parse_telem_message(payload: bytes) -> Optional[TelemetryMessage]:
     """
     Converts the payload into a TelemetryMessage which is nice to handle
@@ -152,7 +153,7 @@ def _parse_telem_message(payload: bytes) -> Optional[TelemetryMessage]:
                 return None # Not enough data for CAN message
             return TelemetryMessage(CanPayload(
                 can_id=struct.unpack('<I', payload[1:5])[0],
-                can_time_offset=float.fromhex(payload[5:9].hex()), # NOTE single precision time offset
+                can_time_offset=struct.unpack('<f', payload[5:9])[0],  # Fixed: unpack little-endian float
                 can_payload=payload[9:],
             ))
         case TelemetryMessageType.NTP:
@@ -188,8 +189,10 @@ def _read_messages():
 
         message_received = _parse_telem_message(payload)
         if message_received is None:
+            # i think we here
             logger.error("Failed to parse telemetry message, skipping")
             continue
+
 
         match message_received.payload:
             case CanPayload():
