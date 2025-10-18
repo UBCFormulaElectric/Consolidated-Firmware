@@ -3,10 +3,10 @@
 import { ChevronDown } from "lucide-react";
 import React, { useRef } from "react";
 
+import SignalSelector from "@/components/SignalSelector";
 import { useSignalMetadata } from "@/lib/contexts/SignalsMetadataContext";
 import isEnumSignal from "@/lib/isEnumSignal";
 import { EditWidgetFunction, WIDGET_TYPE } from "@/lib/types/Widget";
-import SignalSelector from "@/components/SignalSelector";
 
 type EnumSignalSelectorProps = {
   currentSignal: string;
