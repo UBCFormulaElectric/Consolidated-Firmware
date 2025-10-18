@@ -1,5 +1,6 @@
 "use client";
 
+import { addFrames } from "plotly.js";
 import React, { useRef, useEffect, useState } from "react";
 
 type SeriesMeta = {
@@ -20,6 +21,7 @@ type CanvasChartProps = {
   panOffset?: number;
   zoomLevel?: number;
   frozenTimeWindow?: { startTime: number; endTime: number } | null;
+  downsampleThreshold?: number;
 };
 
 // first index where timestamp >= targetTime
@@ -74,6 +76,7 @@ export default function CanvasChart({
   panOffset = 0,
   zoomLevel = 100,
   frozenTimeWindow = null,
+  downsampleThreshold = 100000,
 }: CanvasChartProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animationFrameId = useRef<number | null>(null);
@@ -85,32 +88,45 @@ export default function CanvasChart({
     const context = canvas.getContext("2d");
     if (!context) return;
 
+    // downsample if needed
+    let dataToRender: AlignedData = data;
+    const [originalTimestamps] = data;
+    if (
+      downsampleThreshold &&
+      originalTimestamps &&
+      originalTimestamps.length > downsampleThreshold
+    ) {
+      const [timestamps, ...seriesData] = data;
+      const newTimestamps: number[] = [];
+      const newSeriesData = seriesData.map(() => [] as (number | null)[]);
+      const step = timestamps.length / downsampleThreshold;
+
+      for (let i = 0; i < downsampleThreshold; i++) {
+        const index = Math.floor(i * step);
+        newTimestamps.push(timestamps[index]);
+        seriesData.forEach((series, seriesIndex) => {
+          newSeriesData[seriesIndex].push(series[index]);
+        });
+      }
+      // last point is always included
+      if (
+        newTimestamps.length > 0 &&
+        timestamps.length > 0 &&
+        newTimestamps[newTimestamps.length - 1] !==
+          timestamps[timestamps.length - 1]
+      ) {
+        newTimestamps.push(timestamps[timestamps.length - 1]);
+        seriesData.forEach((series, seriesIndex) => {
+          newSeriesData[seriesIndex].push(series[series.length - 1]);
+        });
+      }
+      dataToRender = [newTimestamps, ...newSeriesData];
+    }
+
     const render = () => {
-      /*naively, we find the starting index within our data array that
-       falls under the startTime with Array.prototype.find() or for loop
-       but i'm not naive!!! binary search for o(log n)
-
-       anyway, here's a couple todos:
-
-       1. setup transformations (scaling, panning)
-       1a) figure out how to map data coordinates to canvas coordinates DONE
-            - calculate min/max of data range, and mapping it to canvas dimensions' width/height
-       
-        2. draw axes and gridlines DONE
-        2a) draw x and y axes, labels, gridlines DONE
-
-        3. draw the data series (skeleton function below) DONE
-
-        4. figure out wtf requestNextAnimationFrame is and how to use it DONE kinda
-
-        5. STRETCH GOAL which shouldn't be primary focus right now:
-        downspampling for zooming out. pre-process data to find smaller set of points
-        probably via LTTB or M4 or something idk
-       */
-
       context.clearRect(0, 0, width, height);
 
-      const [timestamps, ...seriesData] = data;
+      const [timestamps, ...seriesData] = dataToRender;
       if (!timestamps || timestamps.length === 0) return;
 
       const padding = { top: 20, right: 20, bottom: 40, left: 60 };

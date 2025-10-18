@@ -20,6 +20,8 @@ interface DynamicSignalGraphProps {
   onDelete: () => void;
 }
 
+type AlignedData = [number[], ...Array<(number | null)[]>];
+
 // Palette for numerical signals
 const signalColors = [
   "#ff4d4f",
@@ -94,21 +96,44 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
 
     // Build sparse aligned arrays for uPlot: [x[], ...y[]]
     const uplotData = React.useMemo(() => {
-      const MAX_POINTS = 10000;
       const filtered = numericalData.filter((d) =>
         thisGraphSignals.includes(d.name as string)
       );
       if (filtered.length === 0)
-        return [[], ...thisGraphSignals.map(() => [])] as [
-          number[],
-          ...Array<(number | null)[]>
-        ];
+        return [[], ...thisGraphSignals.map(() => [])] as AlignedData;
 
-      // Per-signal timestamp -> value map and union X
+      console.log(filtered.length);
+
+      // Calculate visible window first
+      const allTimes = filtered.map((d) =>
+        typeof d.time === "number" ? d.time : new Date(d.time).getTime()
+      );
+      console.log(allTimes.length);
+
+      const latestTime = Math.max(...allTimes);
+      const earliestTime = Math.min(...allTimes);
+      const totalTimeRange = latestTime - earliestTime;
+      const zoomFactor = 100 / zoomLevel;
+      const visibleTimeRange = totalTimeRange * zoomFactor;
+
+      const windowStart =
+        frozenTimeWindow.current?.startTime || latestTime - visibleTimeRange;
+      const windowEnd = frozenTimeWindow.current?.endTime || latestTime;
+      const buffer = visibleTimeRange * 0.2; // 20% buffer
+
+      // Only process data within visible window + buffer
+      const windowedData = filtered.filter((d) => {
+        const t =
+          typeof d.time === "number" ? d.time : new Date(d.time).getTime();
+        return t >= windowStart - buffer && t <= windowEnd + buffer;
+      });
+
+      // Now align only the windowed data (much smaller dataset)
       const perSig = new Map<string, Map<number, number>>();
       thisGraphSignals.forEach((s) => perSig.set(s, new Map()));
       const xSet = new Set<number>();
-      for (const d of filtered) {
+
+      for (const d of windowedData) {
         const sig = d.name as string;
         const t =
           typeof d.time === "number" ? d.time : new Date(d.time).getTime();
@@ -117,15 +142,10 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
         perSig.get(sig)!.set(t, v);
         xSet.add(t);
       }
-      let x = Array.from(xSet).sort((a, b) => a - b);
-      if (x.length > MAX_POINTS) {
-        const step = x.length / MAX_POINTS;
-        const down: number[] = [];
-        for (let i = 0; i < MAX_POINTS; i++) down.push(x[Math.floor(i * step)]);
-        if (down[down.length - 1] !== x[x.length - 1])
-          down[down.length - 1] = x[x.length - 1];
-        x = down;
-      }
+
+      // const x = Array.from(xSet).sort((a, b) => a - b);
+      const x = Array.from(xSet); //.sort((a, b) => a - b); // remove sort for performance
+
       const ys: Array<(number | null)[]> = [];
       for (const sig of thisGraphSignals) {
         const m = perSig.get(sig)!;
@@ -136,8 +156,8 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
         }
         ys.push(arr);
       }
-      return [x, ...ys] as [number[], ...Array<(number | null)[]>];
-    }, [numericalData, thisGraphSignals]);
+      return [x, ...ys] as AlignedData;
+    }, [numericalData, thisGraphSignals, zoomLevel, frozenTimeWindow.current]);
 
     const numericalSignals = thisGraphSignals;
 
@@ -484,7 +504,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
 
           {/* Debug info */}
           <div className="text-xs text-gray-500 mb-4 space-y-1 bg-gray-50 p-2 rounded border">
-            <div>Total points: {totalDataPoints}</div>
+            <div>Total points rendered: {totalDataPoints}</div>
             <div>Zoom: {zoomLevel}%</div>
             <div>Pan Offset: {Math.round(panOffset)}px</div>
             <div>Mode: {isManuallyPanning ? "Manual Pan" : "Auto-Follow"}</div>
