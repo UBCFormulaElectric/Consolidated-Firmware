@@ -21,7 +21,6 @@ function(stm32f4_boot_binary
             "${IOC_PATH}"
             "${CUBEMX_SRCS}"
     )
-    embedded_no_checks("${CUBEMX_SRCS}")
 
     set(STM32_HAL_SRCS
             "stm32f4xx_hal_can.c"
@@ -97,7 +96,6 @@ function(stm32h7_boot_binary
             "${IOC_PATH}"
             "${CUBEMX_SRCS}"
     )
-    embedded_no_checks("${CUBEMX_SRCS}")
 
     set(STM32_HAL_SRCS
             "stm32h7xx_hal_cortex.c"
