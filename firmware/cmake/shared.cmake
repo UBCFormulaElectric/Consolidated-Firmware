@@ -45,11 +45,10 @@ set(SHARED_GNU_COMPILER_CHECKS
         -Wfloat-equal
         -Wformat
         -Wformat=2
-        -Wimplicit
         -Winline
         -Wmissing-braces
         -Wmissing-format-attribute
-        -Wmissing-include-dirs
+        #        -Wmissing-include-dirs # disable for now?
         -Wmissing-noreturn
         -Wredundant-decls
         -Wswitch-default
