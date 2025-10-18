@@ -176,7 +176,7 @@
       "RearRightPumpCurrent": {
         "resolution": 0.01,
         "min": 0,
-        "max": 5,
+        "max": 10,
         "unit": "A"
       },
       "RearRightPumpStatus": {
@@ -185,7 +185,7 @@
       "FrontPumpCurrent": {
         "resolution": 0.01,
         "min": 0,
-        "max": 5,
+        "max": 10,
         "unit": "A"
       },
       "FrontPumpStatus": {

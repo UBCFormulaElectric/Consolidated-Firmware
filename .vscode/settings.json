@@ -17,6 +17,7 @@
     "io_efuse.h": "c",
     "io_efuse_datatypes.h": "c",
     "app_vehicledynamicsconstants.h": "c",
-    "app_loadswitches.h": "c"
+    "app_loadswitches.h": "c",
+    "io_efuse_st.h": "c"
   }
 }

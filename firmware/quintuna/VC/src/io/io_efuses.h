@@ -18,6 +18,8 @@ typedef enum
 
     // TI loadswitches
     EFUSE_CHANNEL_RL_PUMP,
+    EFUSE_CHANNEL_RR_PUMP, 
+    EFUSE_CHANNEL_F_PUMP,
 
     // Radiator Fan loadswitches
     EFUSE_CHANNEL_R_RAD,
@@ -34,4 +36,6 @@ extern const Efuse r_inv_efuse;
 extern const Efuse dam_efuse;
 extern const Efuse front_efuse;
 extern const Efuse rl_pump_efuse;
+extern const Efuse rr_pump_efuse;
+extern const Efuse f_pump_efuse;
 extern const Efuse r_rad_fan_efuse;

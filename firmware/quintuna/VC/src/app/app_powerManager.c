@@ -98,7 +98,7 @@ PowerManagerConfig app_powerManager_getConfig(void)
     return power_manager_state;
 }
 
-bool app_powerManager_getEfuse(const LoadswitchChannel channel)
+bool app_powerManager_getEfuse(EfuseChannel channel)
 {
     return power_manager_state.efuse_configs[channel].efuse_enable;
 }

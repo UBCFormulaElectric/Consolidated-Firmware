@@ -27,6 +27,7 @@
 #include "io_time.h"
 #include "io_sbgEllipse.h"
 #include "io_imu.h"
+#include "io_pumpControl.h"
 
 #include <app_canAlerts.h>
 #include <stdbool.h>
@@ -81,6 +82,8 @@ void jobs_init()
     app_canTx_VC_Heartbeat_set(true);
 
     app_timer_init(&air_minus_open_debounce_timer, AIR_MINUS_OPEN_DEBOUNCE_MS);
+
+    io_pumpControl_init();
 
     app_softwareBspd_init();
 }
