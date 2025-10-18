@@ -60,8 +60,8 @@ set(SHARED_COMPILER_FLAGS
         -Wno-unused-parameter
 
         # perhaps we want to do reinterpret casts sometimes??
-        -Wcast-align
-        -Wcast-qual
+        #        -Wcast-align
+        #        -Wcast-qual
 
         -pedantic-errors
         -Wfloat-equal
