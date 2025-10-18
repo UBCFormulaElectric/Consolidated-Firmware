@@ -65,7 +65,7 @@ hw::i2c::I2CDevice::I2CDevice(I2CBus &bus, uint8_t targetAddr, uint32_t timeoutM
         bus_.handle_, static_cast<uint16_t>(targetAddress_ << 1), NUM_DEVICE_READY_TRIALS, timeoutMs_));
 }
 
-ExitCode hw::i2c::I2CDevice::receive(uint8_t *rxBuffer, uint16_t size)
+[[nodiscard]] ExitCode hw::i2c::I2CDevice::receive(uint8_t *rxBuffer, uint16_t size)
 {
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
@@ -88,7 +88,7 @@ ExitCode hw::i2c::I2CDevice::receive(uint8_t *rxBuffer, uint16_t size)
     return waitForNotification();
 }
 
-ExitCode hw::i2c::I2CDevice::transmit(const uint8_t *txBuffer, uint16_t size)
+[[nodiscard]] ExitCode hw::i2c::I2CDevice::transmit(const uint8_t *txBuffer, uint16_t size)
 {
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
@@ -111,7 +111,7 @@ ExitCode hw::i2c::I2CDevice::transmit(const uint8_t *txBuffer, uint16_t size)
     return waitForNotification();
 }
 
-ExitCode hw::i2c::I2CDevice::memoryRead(uint16_t memAddr, uint8_t *rxBuffer, uint16_t size)
+[[nodiscard]] ExitCode hw::i2c::I2CDevice::memoryRead(uint16_t memAddr, uint8_t *rxBuffer, uint16_t size)
 {
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
@@ -135,7 +135,7 @@ ExitCode hw::i2c::I2CDevice::memoryRead(uint16_t memAddr, uint8_t *rxBuffer, uin
     return waitForNotification();
 }
 
-ExitCode hw::i2c::I2CDevice::memoryWrite(uint16_t memAddr, const uint8_t *txBuffer, uint16_t size)
+[[nodiscard]] ExitCode hw::i2c::I2CDevice::memoryWrite(uint16_t memAddr, const uint8_t *txBuffer, uint16_t size)
 {
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
