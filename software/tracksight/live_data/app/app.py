@@ -87,7 +87,7 @@ if __name__ == "__main__":
             app,
             debug=False,
             host="0.0.0.0", # 0.0.0.0 means to listen on all network interfaces (ethernet, wifi, etc.)
-            port=5001,
+            port=BACKEND_PORT,
         )
     except KeyboardInterrupt:
         # on keyboard interrupt, the above handles killing
