@@ -169,8 +169,10 @@ function(embedded_object_library
     ENDIF ()
 
     target_compile_definitions(${LIB_NAME} PRIVATE ${SHARED_COMPILER_DEFINES})
-    target_compile_options(${LIB_NAME} PRIVATE ${SHARED_COMPILER_FLAGS})
-    target_link_options(${LIB_NAME} PRIVATE ${SHARED_LINKER_FLAGS})
+    target_compile_options(${LIB_NAME} PRIVATE
+            ${SHARED_COMPILER_FLAGS}
+            -Wall
+    )
     embedded_arm_core_flags(${LIB_NAME} ${ARM_CORE})
 endfunction()
 

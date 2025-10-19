@@ -49,14 +49,14 @@ set(SHARED_GNU_COMPILER_CHECKS
         -Winline
         -Wmissing-braces
         -Wmissing-format-attribute
-        #        -Wmissing-include-dirs # disable for now?
+        -Wmissing-include-dirs # disable for now?
         -Wmissing-noreturn
         -Wredundant-decls
         -Wswitch-default
         -Wswitch-enum
         # perhaps we want to do reinterpret casts sometimes??
-        #        -Wcast-align
-        #        -Wcast-qual
+        # -Wcast-align
+        # -Wcast-qual
         # requires instrumentation
         # -Wstack-protector
         # -Wstrict-aliasing
