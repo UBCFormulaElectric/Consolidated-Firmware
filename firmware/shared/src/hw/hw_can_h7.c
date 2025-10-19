@@ -1,4 +1,4 @@
-#include "app_utils.h"
+#include "utils.h"
 #include "hw_fdcan.h"
 #include <stm32h7xx_hal_fdcan.h>
 #undef NDEBUG // TODO remove this in favour of always_assert
@@ -7,7 +7,7 @@
 #include <task.h>
 #include <string.h>
 
-#include "app_utils.h"
+#include "utils.h"
 #include "io_log.h"
 #include "io_time.h"
 #include "hw_utils.h"

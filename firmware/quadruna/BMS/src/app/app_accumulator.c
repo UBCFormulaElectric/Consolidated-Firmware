@@ -6,7 +6,7 @@
 #include "app_canAlerts.h"
 #include "app_math.h"
 #include "app_timer.h"
-#include "app_utils.h"
+#include "utils.h"
 #include "io_ltc6813.h"
 #include "io_log.h"
 #include "io_canTx.h"

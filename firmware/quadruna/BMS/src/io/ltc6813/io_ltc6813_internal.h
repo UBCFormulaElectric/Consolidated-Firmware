@@ -3,7 +3,7 @@
  * @note this file SHOULD NOT BE imported outside of ltc drivers.
  */
 #pragma once
-#include "app_utils.h"
+#include "utils.h"
 #include <stdint.h>
 #include <stdbool.h>
 

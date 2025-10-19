@@ -5,7 +5,7 @@
 #include <assert.h>
 #include "app_canUtils.h"
 #include "app_canTx.h"
-#include "app_utils.h"
+#include "utils.h"
 
 // PWM_TICKS_MAX also defined and explained in "hw_pwmInputs.c"
 #define IMD_FREQUENCY_TOLERANCE 2.0f

@@ -2,7 +2,7 @@
 #include "app_segments_internal.h"
 #include "app_thermistor.h"
 #include "app_thermistors.h"
-#include "app_utils.h"
+#include "utils.h"
 #include "io_ltc6813.h"
 #include <app_canTx.h>
 #include <string.h>

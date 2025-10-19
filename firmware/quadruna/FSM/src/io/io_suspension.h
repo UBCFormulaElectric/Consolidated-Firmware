@@ -11,7 +11,7 @@ typedef struct
 } SuspensionConfig;
 
 #else
-#include "app_utils.h"
+#include "utils.h"
 EMPTY_STRUCT(SuspensionConfig)
 #endif
 

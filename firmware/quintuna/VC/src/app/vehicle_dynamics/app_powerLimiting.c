@@ -4,7 +4,7 @@
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_vehicleDynamics.h"
-#include "app_utils.h"
+#include "utils.h"
 
 float app_totalPower(TorqueAllocationOutputs *torques)
 {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
-#include "app_utils.h"
+#include "utils.h"
 
 /**
  * Turn on the buzzer

@@ -1,5 +1,5 @@
 // TODO: make it so that configs are stored here, and are enforced
-#include "app_utils.h"
+#include "utils.h"
 #include "io_ltc6813.h"
 
 #include "io_ltc6813_internal.h"

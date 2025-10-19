@@ -1,7 +1,7 @@
 #include "app_chargeState.h"
 #include "states/app_allStates.h"
 #include "io_airs.h"
-#include "app_utils.h"
+#include "utils.h"
 #include "io_ltc6813.h"
 
 // 0.05C is standard for a boundary to consider full charge

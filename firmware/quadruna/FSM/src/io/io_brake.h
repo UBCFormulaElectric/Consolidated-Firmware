@@ -15,7 +15,7 @@ typedef struct
 } BrakeConfig;
 
 #else
-#include "app_utils.h"
+#include "utils.h"
 EMPTY_STRUCT(BrakeConfig)
 #endif
 

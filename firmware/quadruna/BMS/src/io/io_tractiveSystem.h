@@ -11,7 +11,7 @@ typedef struct
     const AdcChannel *ts_isense_low_res_channel;
 } TractiveSystemConfig;
 #else
-#include "app_utils.h"
+#include "utils.h"
 EMPTY_STRUCT(TractiveSystemConfig);
 #endif
 

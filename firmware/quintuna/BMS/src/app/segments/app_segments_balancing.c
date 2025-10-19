@@ -1,7 +1,7 @@
 #include "app_segments.h"
 #include "app_segments_internal.h"
 #include "app_timer.h"
-#include "app_utils.h"
+#include "utils.h"
 #include "io_log.h"
 #include "io_ltc6813.h"
 #include <app_canTx.h>

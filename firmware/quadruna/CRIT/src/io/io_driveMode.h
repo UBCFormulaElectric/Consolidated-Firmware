@@ -13,7 +13,7 @@ typedef struct
     const Gpio *const n_drive_mode_3_pin;
 } DriveMode;
 #else
-#include "app_utils.h"
+#include "utils.h"
 EMPTY_STRUCT(DriveMode);
 #endif
 

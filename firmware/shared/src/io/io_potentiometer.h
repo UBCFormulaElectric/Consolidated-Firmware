@@ -13,7 +13,7 @@ typedef struct
 } Potentiometer;
 
 #else
-#include "app_utils.h"
+#include "utils.h"
 EMPTY_STRUCT(Potentiometer)
 #endif
 

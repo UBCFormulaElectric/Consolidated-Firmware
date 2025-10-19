@@ -10,7 +10,7 @@
 
 extern "C"
 {
-#include "app_utils.h"
+#include "utils.h"
 #include "app_powerLimiting.h"
 #include "app_yawRateController.h"
 #include "app_vehicleDynamicsConstants.h"

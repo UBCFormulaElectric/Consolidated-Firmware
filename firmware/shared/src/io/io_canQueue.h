@@ -48,7 +48,7 @@ typedef struct
     bool                 init_complete;
 } CanTxQueue;
 #elif TARGET_TEST
-#include "app_utils.h"
+#include "utils.h"
 EMPTY_STRUCT(CanTxQueue)
 #endif
 

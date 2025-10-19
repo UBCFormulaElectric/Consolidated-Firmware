@@ -7,6 +7,8 @@
 #include "usbd_cdc_if.h"
 #include "io_log.h"
 
+#include <assert.h>
+
 // Select between FS or HS methods.
 // F4s (CM4s) only support FS (Full Speed), while H7s (CM7s) support HS (High Speed).
 // This macro exposes the USB_DEVICE_HANDLER macro (hUsbDeviceFS or hUsbDeviceHS),

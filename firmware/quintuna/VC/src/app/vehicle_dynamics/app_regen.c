@@ -10,7 +10,7 @@
 #include "app_canRx.h"
 #include "app_canTx.h"
 #include "app_units.h"
-#include "app_utils.h"
+#include "utils.h"
 
 /**
  * Stop regen < 5.0km/hr and start regen > 7.0km/hr

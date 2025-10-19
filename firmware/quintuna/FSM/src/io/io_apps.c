@@ -1,7 +1,7 @@
 #include "io_apps.h"
 #include "hw_adcs.h"
 #include <tgmath.h>
-#include "app_utils.h"
+#include "utils.h"
 
 //=====
 // Geometry and ADC Constants for Pedal Sensors -> PAPPS = primary apps, SAPPS = secondary apps (same as liam's

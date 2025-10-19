@@ -2,7 +2,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "app_utils.h"
+#include "utils.h"
 #include "hw_gpio.h"
 #include "main.h"
 

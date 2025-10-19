@@ -2,7 +2,7 @@
 
 // App
 #include "app_commitInfo.h"
-#include "app_utils.h"
+#include "utils.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_heartbeatMonitors.h"

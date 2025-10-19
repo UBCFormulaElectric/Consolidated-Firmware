@@ -2,7 +2,7 @@
 #include "app_vehicleDynamicsConstants.h"
 #include <math.h>
 #include "app_units.h"
-#include "app_utils.h"
+#include "utils.h"
 #include <stdlib.h>
 
 void app_activeDifferential_computeTorque(ActiveDifferential_Inputs *inputs, ActiveDifferential_Outputs *outputs)

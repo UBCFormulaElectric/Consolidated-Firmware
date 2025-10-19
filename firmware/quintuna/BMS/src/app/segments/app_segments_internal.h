@@ -1,7 +1,7 @@
 #pragma once
 
 #include "app_segments.h"
-#include "app_utils.h"
+#include "utils.h"
 #include "io_ltc6813.h"
 
 #define MAX_NUM_SEGMENTS (10U)

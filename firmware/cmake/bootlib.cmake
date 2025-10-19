@@ -16,30 +16,6 @@ function(stm32f4_boot_binary
         CONFIG_DEFINE
         IOC_PATH
 )
-    set(STM32_HAL_SRCS
-            "stm32f4xx_hal_can.c"
-            "stm32f4xx_hal_cortex.c"
-            "stm32f4xx_hal_exti.c"
-            "stm32f4xx_hal_flash.c"
-            "stm32f4xx_hal_flash_ex.c"
-            "stm32f4xx_hal_gpio.c"
-            "stm32f4xx_hal_rcc_ex.c"
-            "stm32f4xx_hal_rcc.c"
-            "stm32f4xx_hal_tim_ex.c"
-            "stm32f4xx_hal_tim.c"
-            "stm32f4xx_hal.c"
-    )
-
-    stm32f412rx_cube_library(
-            "${BOOT_NAME}_stm32cube_hal"
-            "${STM32_HAL_SRCS}"
-            "${IOC_PATH}"
-            "${CUBEMX_SRCS}"
-            "${INCLUDE_DIRS}"
-            FALSE
-            "${ARM_CORE}"
-    )
-
     # Add bootloader-specific files.
     list(APPEND SRCS "${BOOT_DIR}/bootloader.c" "${BOOT_DIR}/bootloader_f4.c")
     list(APPEND INCLUDE_DIRS "${BOOT_DIR}")
@@ -66,16 +42,38 @@ function(stm32f4_boot_binary
             "${SHARED_HW_INCLUDE_DIR}"
     )
 
-    set(ARM_CORE "cm4")
-    set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_boot.ld")
+
+    set(STM32_HAL_SRCS
+            "stm32f4xx_hal_can.c"
+            "stm32f4xx_hal_cortex.c"
+            "stm32f4xx_hal_exti.c"
+            "stm32f4xx_hal_flash.c"
+            "stm32f4xx_hal_flash_ex.c"
+            "stm32f4xx_hal_gpio.c"
+            "stm32f4xx_hal_rcc_ex.c"
+            "stm32f4xx_hal_rcc.c"
+            "stm32f4xx_hal_tim_ex.c"
+            "stm32f4xx_hal_tim.c"
+            "stm32f4xx_hal.c"
+    )
+    stm32f412rx_cube_library(
+            "${BOOT_NAME}_stm32"
+            "${STM32_HAL_SRCS}"
+            "${IOC_PATH}"
+            "${CUBEMX_SRCS}"
+            "${INCLUDE_DIRS}"
+            FALSE
+            "${ARM_CORE}"
+    )
+
     embedded_binary(
             "${BOOT_NAME}"
             "${SRCS}"
             "${INCLUDE_DIRS}"
-            "${LINKER_SCRIPT}"
-            "${ARM_CORE}"
+            "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_boot.ld"
+            "cm4"
     )
-    target_link_libraries("${BOOT_NAME}.elf" PRIVATE "${BOOT_NAME}_stm32cube" "${BOOT_NAME}_stm32cube_hal")
+    target_link_libraries("${BOOT_NAME}.elf" PRIVATE "${BOOT_NAME}_stm32")
     target_compile_definitions("${BOOT_NAME}.elf" PRIVATE "${CONFIG_DEFINE}")
 endfunction()
 
@@ -88,34 +86,6 @@ function(stm32h7_boot_binary
         CONFIG_DEFINE
         IOC_PATH
 )
-    set(STM32_HAL_SRCS
-            "stm32h7xx_hal_cortex.c"
-            "stm32h7xx_hal_dma_ex.c"
-            "stm32h7xx_hal_dma.c"
-            "stm32h7xx_hal_exti.c"
-            "stm32h7xx_hal_fdcan.c"
-            "stm32h7xx_hal_flash.c"
-            "stm32h7xx_hal_flash_ex.c"
-            "stm32h7xx_hal_gpio.c"
-            "stm32h7xx_hal_iwdg.c"
-            "stm32h7xx_hal_pwr_ex.c"
-            "stm32h7xx_hal_rcc_ex.c"
-            "stm32h7xx_hal_rcc.c"
-            "stm32h7xx_hal_tim_ex.c"
-            "stm32h7xx_hal_tim.c"
-            "stm32h7xx_hal.c"
-    )
-
-    stm32h733xx_cube_library(
-            "${BOOT_NAME}_stm32cube_hal"
-            "${STM32_HAL_SRCS}"
-            "${IOC_PATH}"
-            "${CUBEMX_SRCS}"
-            "${INCLUDE_DIRS}"
-            FALSE
-            "${ARM_CORE}"
-    )
-
     # Add bootloader-specific files.
     list(APPEND SRCS "${BOOT_DIR}/bootloader.c" "${BOOT_DIR}/bootloader_h7.c")
     list(APPEND INCLUDE_DIRS "${BOOT_DIR}")
@@ -141,15 +111,40 @@ function(stm32h7_boot_binary
             "${SHARED_HW_INCLUDE_DIR}"
     )
 
-    set(ARM_CORE "cm7")
-    set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_boot.ld")
+    set(STM32_HAL_SRCS
+            "stm32h7xx_hal_cortex.c"
+            "stm32h7xx_hal_dma_ex.c"
+            "stm32h7xx_hal_dma.c"
+            "stm32h7xx_hal_exti.c"
+            "stm32h7xx_hal_fdcan.c"
+            "stm32h7xx_hal_flash.c"
+            "stm32h7xx_hal_flash_ex.c"
+            "stm32h7xx_hal_gpio.c"
+            "stm32h7xx_hal_iwdg.c"
+            "stm32h7xx_hal_pwr_ex.c"
+            "stm32h7xx_hal_rcc_ex.c"
+            "stm32h7xx_hal_rcc.c"
+            "stm32h7xx_hal_tim_ex.c"
+            "stm32h7xx_hal_tim.c"
+            "stm32h7xx_hal.c"
+    )
+    stm32h733xx_cube_library(
+            "${BOOT_NAME}_stm32"
+            "${STM32_HAL_SRCS}"
+            "${IOC_PATH}"
+            "${CUBEMX_SRCS}"
+            "${INCLUDE_DIRS}"
+            FALSE
+            "${ARM_CORE}"
+    )
+
     embedded_binary(
             "${BOOT_NAME}"
             "${SRCS}"
             "${INCLUDE_DIRS}"
-            "${LINKER_SCRIPT}"
-            "${ARM_CORE}"
+            "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_boot.ld"
+            "cm7"
     )
-    target_link_libraries("${BOOT_NAME}.elf" PRIVATE "${BOOT_NAME}_stm32cube" "${BOOT_NAME}_stm32cube_hal")
+    target_link_libraries("${BOOT_NAME}.elf" PRIVATE "${BOOT_NAME}_stm32")
     target_compile_definitions("${BOOT_NAME}.elf" PRIVATE "${CONFIG_DEFINE}")
 endfunction()

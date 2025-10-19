@@ -11,7 +11,7 @@ typedef struct
     const bool  read_only; // Certain fault latches can only be read from.
 } FaultLatch;
 #else
-#include "app_utils.h"
+#include "utils.h"
 EMPTY_STRUCT(FaultLatch);
 #endif
 

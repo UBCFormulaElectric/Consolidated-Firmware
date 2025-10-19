@@ -14,7 +14,7 @@ typedef struct
     uint32_t    last_debounce_time; // raw state last changed
 } Switch;
 #else
-#include "app_utils.h"
+#include "utils.h"
 EMPTY_STRUCT(Switch);
 #endif
 

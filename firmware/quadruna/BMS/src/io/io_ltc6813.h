@@ -4,7 +4,7 @@
  * @note all implementation is in the ltc6813 directory
  */
 #pragma once
-#include "app_utils.h"
+#include "utils.h"
 #include <stdbool.h>
 #include <stdint.h>
 
