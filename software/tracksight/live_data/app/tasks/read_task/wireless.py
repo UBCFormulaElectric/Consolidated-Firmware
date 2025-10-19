@@ -148,12 +148,12 @@ def _parse_telem_message(payload: bytes) -> Optional[TelemetryMessage]:
     Converts the payload into a TelemetryMessage which is nice to handle
     """
     match payload[0]:
-        case TelemetryMessageType.CAN:
+        case TelemetryMessageType.CAN.value:
             if len(payload) < 9:
                 return None # Not enough data for CAN message
             return TelemetryMessage(CanPayload(
                 can_id=struct.unpack('<I', payload[1:5])[0],
-                can_time_offset=struct.unpack('<f', payload[5:9])[0],  # Fixed: unpack little-endian float
+                can_time_offset=struct.unpack('<f', payload[5:9])[0], 
                 can_payload=payload[9:],
             ))
         case TelemetryMessageType.NTP:
