@@ -7,7 +7,7 @@
 
 #include "io_log.h"
 
-#define QUEUE_SIZE 52
+#define QUEUE_SIZE 1000 /* Was 52 before */
 #define QUEUE_BYTES sizeof(CanMsg) * QUEUE_SIZE
 
 // TX
