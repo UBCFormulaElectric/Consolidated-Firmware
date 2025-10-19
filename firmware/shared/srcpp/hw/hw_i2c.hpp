@@ -1,6 +1,8 @@
 #pragma once
 
+#include <cstdint>
 #include <unordered_map>
+#include <span>
 #include "main.h"
 #include "app_utils.h"
 
@@ -13,7 +15,6 @@ class I2CBus
   public:
     explicit I2CBus(I2C_HandleTypeDef *handle);
     ~I2CBus(); // deinit I2C peripheral
-    static void    registerBus(I2CBus *bus);
     static I2CBus *getBusFromHandle(I2C_HandleTypeDef *handle);
     void           onTransactionCompleteFromISR();
 
@@ -38,42 +39,38 @@ class I2CDevice
 
     /**
      * @brief Receive data from the device connected to the given I2C interface.
-     * @param rx_buffer A pointer to the data buffer containing the data transmitted
+     * @param rx_buffer A data buffer containing the data transmitted
      * from the device connected to the I2C interface.
-     * @param rx_buffer_size The size of the rx_data buffer.
      * @return EXIT_CODE_OK if data is transmitted successfully.
      */
-    [[nodiscard]] ExitCode receive(uint8_t *rxBuffer, uint16_t size);
+    [[nodiscard]] ExitCode receive(std::span<uint8_t> rxBuffer);
 
     /**
      * @brief Transmit data to the device connected to the given I2C interface.
-     * @param tx_buffer A pointer to the data buffer containing the data transmitted
+     * @param tx_buffer A data buffer containing the data transmitted
      * to the device connected to the I2C interface.
-     * @param tx_buffer_size The size of the tx_data buffer.
      * @return EXIT_CODE_OK if data is transmitted successfully.
      */
-    [[nodiscard]] ExitCode transmit(const uint8_t *txBuffer, uint16_t size);
+    [[nodiscard]] ExitCode transmit(std::span<const uint8_t> txBuffer);
 
     /**
      * @brief Read an amount of data from a specific memory address
      * @param mem_addr The memory address that's going to be read
-     * @param mem_size The size of the memory address that's going to be read
-     * @param rx_buffer A pointer to the data buffer containing the data transmitted
+     * @param rx_buffer A data buffer containing the data transmitted
      * from the device connected to the I2C interface.
      * @param rx_buffer_size The size of the rx_data buffer.
      * @return EXIT_CODE_OK if data is transmitted successfully.
      */
-    [[nodiscard]] ExitCode memoryRead(uint16_t memAddr, uint8_t *rxBuffer, uint16_t size);
+    [[nodiscard]] ExitCode memoryRead(uint16_t memAddr, std::span<uint8_t> rxBuffer);
 
     /**
      * @brief Write an amount of data to a specific memory address
      * @param mem_addr The memory address that's going to be read
-     * @param tx_buffer A pointer to the data buffer containing the data transmitted
+     * @param tx_buffer A data buffer containing the data transmitted
      * to the device connected to the I2C interface.
-     * @param tx_buffer_size The size fo the tx_buffer.
      * @return EXIT_CODE_OK if data is read successfully.
      */
-    [[nodiscard]] ExitCode memoryWrite(uint16_t memAddr, const uint8_t *txBuffer, uint16_t size);
+    [[nodiscard]] ExitCode memoryWrite(uint16_t memAddr, std::span<const uint8_t> txBuffer);
 
   private:
     I2CBus  &bus_;
