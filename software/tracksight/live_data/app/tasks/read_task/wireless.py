@@ -110,7 +110,7 @@ def _read_packet(ser: serial.Serial):
         # logger.warning(f"Buffer has more data than expected, {len(buffer) - total_length} bytes will be dropped")
         buffer = buffer[total_length:]
 
-        logger.debug("POGGERS!!!!!")
+        #logger.debug("POGGERS!!!!!")
         return payload
 
 @dataclass
@@ -189,10 +189,8 @@ def _read_messages():
 
         message_received = _parse_telem_message(payload)
         if message_received is None:
-            # i think we here
             logger.error("Failed to parse telemetry message, skipping")
             continue
-
 
         match message_received.payload:
             case CanPayload():
