@@ -15,7 +15,7 @@ namespace io::brake
     bool isActuated()
     {
         //Brake is actuated when Pressure is greater than threshold
-        return io_brake_getRearPressurePsi() > BRAKE_ACTUATED_THRESHOLD_PSI;
+        return io::brake::getRearPressurePsi() > BRAKE_ACTUATED_THRESHOLD_PSI;
     }
 
 

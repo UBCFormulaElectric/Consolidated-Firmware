@@ -1,0 +1,5 @@
+
+namespace fakes::io::brake
+{
+   
+}

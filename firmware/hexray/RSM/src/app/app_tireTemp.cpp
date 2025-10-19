@@ -19,11 +19,11 @@ namespace app::tireTemp
     {
         if (app::tireTemp::outOfRange == true)
         {
-            app_canTx_RSM_Info_TireTempOutOfRange_set(app::tireTemp::outOfRange);
+            app_canTx_RSM_Info_RearTireTempOutOfRange_set(app::tireTemp::outOfRange);
         }
         else
         {
-            app_canTx_RSM_TireTemp_set(app::tireTemp::temperature);
+            app_canTx_RSM_TireTemperature_set(app::tireTemp::temperature);
         }
     }
 }

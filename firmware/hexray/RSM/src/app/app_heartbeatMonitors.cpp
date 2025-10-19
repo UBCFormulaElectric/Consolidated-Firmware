@@ -11,7 +11,7 @@ static HeartbeatBoard heartbeat_boards[1] = {
         .resetter     = app_canRx_FSM_Heartbeat_update,
         .fault_setter = app_canAlerts_RSM_Info_MissingFSMHeartbeat_set,
         .fault_getter = app_canAlerts_RSM_Info_MissingFSMHeartbeat_get,
-        .timeout_ms   = 3000,
+        .timeout_ms   = 3000
     }
 };
 
