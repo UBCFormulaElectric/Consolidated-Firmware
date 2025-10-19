@@ -39,12 +39,6 @@ if ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
-    set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/BMS.ioc")
-    list(APPEND NO_CHECKS
-    )
-    embedded_no_checks("${NO_CHECKS}")
-    generate_stm32cube_code("hexray_BMS_stm32cube" "${IOC_PATH}" "${CUBEMX_SRCS}")
-
     set(STM32_HAL_SRCS
             "stm32h7xx_hal.c"
             "stm32h7xx_hal_rcc.c"
@@ -54,12 +48,14 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_hal_exti.c"
             "stm32h7xx_hal_tim.c"
     )
-
     stm32h733xx_cube_library(
-            "hexray_BMS_stm32cube_hal"
+            "hexray_BMS_stm32"
             "${STM32_HAL_SRCS}"
-            "${MD5_LOCATION}"
-            False
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/BMS.ioc"
+            "${CUBEMX_SRCS}"
+            "${CUBEMX_INCLUDE_DIRS}"
+            FALSE
+            "${ARM_CORE}"
     )
 
     # JSONCAN
@@ -72,7 +68,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    target_link_libraries("hexray_BMS_app.elf" PRIVATE "hexray_BMS_stm32cube" "hexray_BMS_stm32cube_hal" "hexray_BMS_jsoncan" "hexray_BMS_commit_info" "m")
+    target_link_libraries("hexray_BMS_app.elf" PRIVATE "hexray_BMS_stm32" "hexray_BMS_jsoncan" "hexray_BMS_commit_info" "m")
 
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")

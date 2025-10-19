@@ -16,12 +16,6 @@ function(stm32f4_boot_binary
         CONFIG_DEFINE
         IOC_PATH
 )
-    generate_stm32cube_code(
-            "${BOOT_NAME}_stm32cube"
-            "${IOC_PATH}"
-            "${CUBEMX_SRCS}"
-    )
-
     set(STM32_HAL_SRCS
             "stm32f4xx_hal_can.c"
             "stm32f4xx_hal_cortex.c"
@@ -39,8 +33,11 @@ function(stm32f4_boot_binary
     stm32f412rx_cube_library(
             "${BOOT_NAME}_stm32cube_hal"
             "${STM32_HAL_SRCS}"
-            "${MD5_LOCATION}"
+            "${IOC_PATH}"
+            "${CUBEMX_SRCS}"
+            "${INCLUDE_DIRS}"
             FALSE
+            "${ARM_CORE}"
     )
 
     # Add bootloader-specific files.
@@ -91,12 +88,6 @@ function(stm32h7_boot_binary
         CONFIG_DEFINE
         IOC_PATH
 )
-    generate_stm32cube_code(
-            "${BOOT_NAME}_stm32cube"
-            "${IOC_PATH}"
-            "${CUBEMX_SRCS}"
-    )
-
     set(STM32_HAL_SRCS
             "stm32h7xx_hal_cortex.c"
             "stm32h7xx_hal_dma_ex.c"
@@ -118,8 +109,11 @@ function(stm32h7_boot_binary
     stm32h733xx_cube_library(
             "${BOOT_NAME}_stm32cube_hal"
             "${STM32_HAL_SRCS}"
-            "${MD5_LOCATION}"
+            "${IOC_PATH}"
+            "${CUBEMX_SRCS}"
+            "${INCLUDE_DIRS}"
             FALSE
+            "${ARM_CORE}"
     )
 
     # Add bootloader-specific files.

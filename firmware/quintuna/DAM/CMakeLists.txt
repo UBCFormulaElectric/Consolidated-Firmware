@@ -78,15 +78,6 @@ if ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
-    set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/DAM.ioc")
-    list(APPEND NO_CHECKS
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_desc.c"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_cdc_if.c"
-    )
-    embedded_no_checks("${NO_CHECKS}")
-    generate_stm32cube_code("quintuna_DAM_stm32cube" "${IOC_PATH}" "${CUBEMX_SRCS}")
-
     set(STM32_HAL_SRCS
             "stm32h7xx_hal.c"
             "stm32h7xx_hal_crc.c"
@@ -121,10 +112,13 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     stm32h733xx_cube_library(
-            "quintuna_DAM_stm32cube_hal"
+            "quintuna_DAM_stm32"
             "${STM32_HAL_SRCS}"
-            "${MD5_LOCATION}"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/DAM.ioc"
+            "${CUBEMX_SRCS}"
+            "${CUBEMX_INCLUDE_DIRS}"
             TRUE
+            "${ARM_CORE}"
     )
 
     # Generate the protobuf files.
@@ -149,10 +143,9 @@ if ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    target_link_libraries("quintuna_DAM_app.elf" PRIVATE "quintuna_DAM_stm32cube" "quintuna_DAM_stm32cube_hal" "quintuna_DAM_jsoncan" "quintuna_DAM_commit_info" "chimera_v2_proto_cm7" "telem_proto1" "logfs_cm7")
+    target_link_libraries("quintuna_DAM_app.elf" PRIVATE "quintuna_DAM_stm32" "quintuna_DAM_jsoncan" "quintuna_DAM_commit_info" "chimera_v2_proto_cm7" "telem_proto1" "logfs_cm7")
 
-    message("Bootloader: ${BOOTLOAD}")
-    # if ("${BOOTLOAD}" STREQUAL "ON")
+    # if ("${BOOTLOAD}" STREQUAL "ON") TODO configure bootloading optionality for DAM
     # Bootloader files.
     file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
     file(GLOB BOOT_CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")

@@ -78,15 +78,6 @@ if ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
-    set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/RSM.ioc")
-    list(APPEND NO_CHECKS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_desc.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_cdc_if.c"
-    )
-    embedded_no_checks("${NO_CHECKS}")
-    generate_stm32cube_code("quintuna_RSM_stm32cube" "${IOC_PATH}" "${CUBEMX_SRCS}")
-
     set(STM32_HAL_SRCS
             "stm32f4xx_hal_adc_ex.c"
             "stm32f4xx_hal_adc.c"
@@ -110,12 +101,14 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32f4xx_hal.c"
             "stm32f4xx_ll_usb.c"
     )
-
     stm32f412rx_cube_library(
-            "quintuna_RSM_stm32cube_hal"
+            "quintuna_RSM_stm32"
             "${STM32_HAL_SRCS}"
-            "${MD5_LOCATION}"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/RSM.ioc"
+            "${CUBEMX_SRCS}"
+            "${CUBEMX_INCLUDE_DIRS}"
             TRUE
+            "${ARM_CORE}"
     )
 
     # JSONCAN
@@ -128,7 +121,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    target_link_libraries("quintuna_RSM_app.elf" PRIVATE "quintuna_RSM_stm32cube" "quintuna_RSM_stm32cube_hal" "quintuna_RSM_jsoncan" "quintuna_RSM_commit_info" "chimera_v2_proto_cm4" m)
+    target_link_libraries("quintuna_RSM_app.elf" PRIVATE "quintuna_RSM_stm32" "quintuna_RSM_jsoncan" "quintuna_RSM_commit_info" "chimera_v2_proto_cm4" m)
 
     if ("${BOOTLOAD}" STREQUAL "ON")
         # Bootloader files.

@@ -83,7 +83,7 @@ IF ("${TARGET}" STREQUAL "binary")
     )
 
     generate_stm32cube_code(
-            "quadruna_BMS_stm32cube"
+
             "${IOC_PATH}"
             "${CUBEMX_SRCS}"
     )
@@ -117,7 +117,7 @@ IF ("${TARGET}" STREQUAL "binary")
     # Pass syscalls to the cube library so we can build without warnings.
     set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
     stm32h733xx_cube_library(
-            "quadruna_BMS_stm32cube_hal"
+            "quadruna_BMS_stm32"
             "${STM32_HAL_SRCS}"
             "${SYSCALLS}"
             "${MD5_LOCATION}"
@@ -134,7 +134,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    target_link_libraries("quadruna_BMS_app.elf" PRIVATE "quadruna_BMS_stm32cube" "quadruna_BMS_stm32cube_hal" "quadruna_BMS_jsoncan" "quadruna_BMS_commit_info" "debug_modules")
+    target_link_libraries("quadruna_BMS_app.elf" PRIVATE "quadruna_BMS_stm32" "quadruna_BMS_jsoncan" "quadruna_BMS_commit_info" "debug_modules")
     target_link_libraries("quadruna_BMS_boot.elf" PRIVATE "quadruna_BMS_commit_info")
 
     embedded_image(

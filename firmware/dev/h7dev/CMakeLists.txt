@@ -45,13 +45,6 @@ set(EMBEDDED_INCLUDE_DIRS
 )
 
 IF ("${TARGET}" STREQUAL "binary")
-    generate_stm32cube_code(
-            "h7dev_stm32cube"
-            "${IOC_PATH}"
-            "${CUBEMX_SRCS}"
-    )
-    embedded_no_checks("${CUBEMX_SRCS}")
-
     set(STM32_HAL_SRCS
             "stm32h7xx_hal_adc_ex.c"
             "stm32h7xx_hal_adc.c"
@@ -83,10 +76,13 @@ IF ("${TARGET}" STREQUAL "binary")
     )
 
     stm32h733xx_cube_library(
-            "h7dev_stm32cube_hal"
+            "h7dev_stm32"
             "${STM32_HAL_SRCS}"
-            "${MD5_LOCATION}"
+            "${IOC_PATH}"
+            "${CUBEMX_SRCS}"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
             TRUE
+            "${ARM_CORE}"
     )
 
     embedded_binary(
@@ -111,7 +107,7 @@ IF ("${TARGET}" STREQUAL "binary")
             TRUE
     )
 
-    target_link_libraries("h7dev_app.elf" "h7dev_stm32cube" "h7dev_stm32cube_hal" "protobuf_library" "logfs_cm7")
+    target_link_libraries("h7dev_app.elf" PRIVATE "h7dev_stm32" "protobuf_library" "logfs_cm7")
 
     # Bootloader files.
     file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")

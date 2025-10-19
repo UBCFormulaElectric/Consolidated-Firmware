@@ -81,7 +81,7 @@ IF ("${TARGET}" STREQUAL "binary")
 
     set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/CRIT.ioc")
     generate_stm32cube_code(
-            "quadruna_CRIT_stm32cube"
+
             "${IOC_PATH}"
             "${CUBEMX_SRCS}"
     )
@@ -108,7 +108,7 @@ IF ("${TARGET}" STREQUAL "binary")
     # Pass syscalls to the cube library so we can build without warnings.
     set(SYSCALLS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
     stm32f412rx_cube_library(
-            "quadruna_CRIT_stm32cube_hal"
+            "quadruna_CRIT_stm32"
             "${STM32_HAL_SRCS}"
             "${SYSCALLS}"
             "${MD5_LOCATION}"
@@ -125,7 +125,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    target_link_libraries("quadruna_CRIT_app.elf" PRIVATE "quadruna_CRIT_stm32cube" "quadruna_CRIT_stm32cube_hal" "quadruna_CRIT_jsoncan" "quadruna_CRIT_commit_info" "debug_modules")
+    target_link_libraries("quadruna_CRIT_app.elf" PRIVATE "quadruna_CRIT_stm32" "quadruna_CRIT_jsoncan" "quadruna_CRIT_commit_info" "debug_modules")
     target_link_libraries("quadruna_CRIT_boot.elf" PRIVATE "quadruna_CRIT_commit_info")
 
     embedded_image(

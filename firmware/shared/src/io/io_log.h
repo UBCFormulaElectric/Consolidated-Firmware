@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdio.h>
-#include "app_utils.h"
 
 /*
 This logging module users SEGGER Real-Time Transfer (RTT) for printf-style debugging.
@@ -45,10 +44,3 @@ Notes
 #define LOG_INFO(format, ...) _LOG(ANSI_BOLD_GREEN "INFO ", format, ##__VA_ARGS__)
 #define LOG_WARN(format, ...) _LOG(ANSI_BOLD_YELLOW "WARN ", format, ##__VA_ARGS__)
 #define LOG_ERROR(format, ...) _LOG(ANSI_BOLD_RED "ERROR", format, ##__VA_ARGS__)
-
-// Utility macro to log an error if the input returns false.
-#define LOG_ERROR_IF(f)                  \
-    if (!(f))                            \
-    {                                    \
-        LOG_ERROR(#f " returned false"); \
-    }

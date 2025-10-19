@@ -45,9 +45,6 @@ if ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
-    set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/PCM.ioc")
-    generate_stm32cube_code("quintuna_PCM_stm32cube" "${IOC_PATH}" "${CUBEMX_SRCS}")
-
     set(STM32_HAL_SRCS
             "stm32f4xx_hal_cortex.c"
             "stm32f4xx_hal_dma.c"
@@ -61,12 +58,15 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     stm32f412rx_cube_library(
-            "quintuna_PCM_stm32cube_hal"
+            "quintuna_PCM_stm32"
             "${STM32_HAL_SRCS}"
-            "${MD5_LOCATION}"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/PCM.ioc"
+            "${CUBEMX_SRCS}"
+            "${CUBEMX_INCLUDE_DIRS}"
             FALSE
+            "${ARM_CORE}"
     )
     embedded_no_checks("${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
 
-    target_link_libraries("quintuna_PCM_app.elf" PRIVATE "quintuna_PCM_stm32cube" "quintuna_PCM_stm32cube_hal")
+    target_link_libraries("quintuna_PCM_app.elf" PRIVATE "quintuna_PCM_stm32")
 endif ()

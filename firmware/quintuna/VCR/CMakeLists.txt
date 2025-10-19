@@ -58,10 +58,6 @@ if ("${TARGET}" STREQUAL "binary")
     #            "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/VCR_boot.ioc"
     #    )
 
-    set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/VCR.ioc")
-    embedded_no_checks("${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
-    generate_stm32cube_code("quintuna_VCR_stm32cube" "${IOC_PATH}" "${CUBEMX_SRCS}")
-
     # STM HAL Library
     set(STM32_HAL_SRCS
             "stm32h7xx_hal_cortex.c"
@@ -75,34 +71,35 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_hal_tim.c"
             "stm32h7xx_hal.c"
     )
-
     stm32h733xx_cube_library(
-            "quintuna_VCR_stm32cube_hal"
+            "quintuna_VCR_stm32"
             "${STM32_HAL_SRCS}"
-            "${MD5_LOCATION}"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/VCR.ioc"
+            "${CUBEMX_SRCS}"
+            "${CUBEMX_INCLUDE_DIRS}"
             FALSE
+            "${ARM_CORE}"
+
     )
 
     jsoncan_embedded_library(VCR quintuna "${CMAKE_CURRENT_BINARY_DIR}")
 
     #CommitInfo
     commit_info_library(
-               "quintuna_VCR_app.elf"
-               "quintuna_VCR_commit_info"
-               "${CMAKE_CURRENT_BINARY_DIR}/app"
-       )
+            "quintuna_VCR_app.elf"
+            "quintuna_VCR_commit_info"
+            "${CMAKE_CURRENT_BINARY_DIR}/app"
+    )
     target_compile_definitions("quintuna_VCR_app.elf" PRIVATE VCR)
     target_link_libraries("quintuna_VCR_app.elf" PRIVATE
-                "quintuna_VCR_stm32cube"
-                "quintuna_VCR_stm32cube_hal"
-                "quintuna_VCR_jsoncan"
-                "quintuna_VCR_commit_info")
+            "quintuna_VCR_stm32"
+            "quintuna_VCR_jsoncan"
+            "quintuna_VCR_commit_info")
     target_compile_definitions("quintuna_VCR_app.elf" PRIVATE NO_BOOTLOADER)
 
     # embedded_image(
     #         "quintuna_VCR"
     #         "quintuna_VCR_app.hex"
     #         "${CMAKE_CURRENT_BINARY_DIR}/quintuna_VCR_app.hex")
-
 elseif ("${TARGET}" STREQUAL "test")
 endif ()

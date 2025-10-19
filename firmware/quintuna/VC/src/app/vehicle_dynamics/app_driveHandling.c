@@ -128,6 +128,8 @@ void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutput
             }
             break;
         }
+        case DRIVE_MODE_COUNT:
+        case NUM_DRIVE_MODE_CHOICES:
         default:
             break;
     }

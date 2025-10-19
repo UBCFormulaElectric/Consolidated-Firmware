@@ -38,14 +38,6 @@ set(EMBEDDED_INCLUDE_DIRS
 )
 
 IF ("${TARGET}" STREQUAL "binary")
-    generate_stm32cube_code(
-            "f4dev_stm32cube"
-            "${IOC_PATH}"
-            "${CUBEMX_SRCS}"
-    )
-    embedded_no_checks("${CUBEMX_SRCS}")
-
-
     set(STM32_HAL_SRCS
             "stm32f4xx_hal_adc_ex.c"
             "stm32f4xx_hal_adc.c"
@@ -71,12 +63,14 @@ IF ("${TARGET}" STREQUAL "binary")
             "stm32f4xx_ll_usb.c"
             "stm32f4xx_hal_spi.c"
     )
-
     stm32f412rx_cube_library(
-            "f4dev_stm32cube_hal"
+            "f4dev_stm32"
             "${STM32_HAL_SRCS}"
-            "${MD5_LOCATION}"
+            "${IOC_PATH}"
+            "${CUBEMX_SRCS}"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
             TRUE
+            "${ARM_CORE}"
     )
 
     embedded_binary(
@@ -94,6 +88,6 @@ IF ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    target_link_libraries("f4dev.elf" "f4dev_stm32cube" "f4dev_stm32cube_hal" "f4dev_commit_info" "chimera_v2_proto_cm4")
+    target_link_libraries("f4dev.elf" PRIVATE "f4dev_stm32" "f4dev_commit_info" "chimera_v2_proto_cm4")
     target_compile_definitions("f4dev.elf" PRIVATE "HAL_SPI_MODULE_ENABLED")
 ENDIF ()

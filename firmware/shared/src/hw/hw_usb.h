@@ -1,6 +1,6 @@
 #pragma once
 
-#include "app_utils.h"
+#include "errorCodes.h"
 
 #include <stdint.h>
 #include <stdbool.h>

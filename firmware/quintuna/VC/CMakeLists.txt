@@ -68,15 +68,6 @@ if ("${TARGET}" STREQUAL "binary")
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
     embedded_binary("quintuna_VC_app" "${SRCS}" "${INCLUDE_DIRS}" "${LINKER_SCRIPT}" "${ARM_CORE}")
 
-    set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/VC.ioc")
-    list(APPEND NO_CHECKS
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_desc.c"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_cdc_if.c"
-    )
-    embedded_no_checks("${NO_CHECKS}")
-    generate_stm32cube_code("quintuna_VC_stm32cube" "${IOC_PATH}" "${CUBEMX_SRCS}")
-
     # STM HAL Library
     set(STM32_HAL_SRCS
             "stm32h7xx_hal_adc_ex.c"
@@ -103,11 +94,15 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_ll_usb.c"
     )
 
+    set(CUBE_LIBRARY_INCLUDE_DIRS ${CUBEMX_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
     stm32h733xx_cube_library(
-            "quintuna_VC_stm32cube_hal"
+            "quintuna_VC_stm32"
             "${STM32_HAL_SRCS}"
-            "${MD5_LOCATION}"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/VC.ioc"
+            "${CUBEMX_SRCS}"
+            "${CUBE_LIBRARY_INCLUDE_DIRS}"
             TRUE
+            "${ARM_CORE}"
     )
 
     # JSONCAN
@@ -121,8 +116,7 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     target_link_libraries("quintuna_VC_app.elf" PRIVATE
-            "quintuna_VC_stm32cube"
-            "quintuna_VC_stm32cube_hal"
+            "quintuna_VC_stm32"
             "quintuna_VC_jsoncan"
             "quintuna_VC_commit_info"
             "logfs_cm7"
