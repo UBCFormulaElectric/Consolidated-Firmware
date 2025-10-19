@@ -20,6 +20,8 @@
 #include "main.h"
 #include "cmsis_os.h"
 #include "usb_device.h"
+#include "io_canMsg.h"
+#include "io_telemMessageQueue.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -172,6 +174,7 @@ static void MX_I2C1_Init(void);
 static void MX_TIM15_Init(void);
 static void MX_IWDG1_Init(void);
 static void MX_CRC_Init(void);
+void        RunChimera(void *argument);
 void        RunTask100Hz(void *argument);
 void        RunCanTxTask(void *argument);
 void        RunCanRxTask(void *argument);
@@ -252,6 +255,24 @@ int main(void)
     /* Create the thread(s) */
     /* creation of Task100Hz */
     Task100HzHandle = osThreadNew(RunTask100Hz, NULL, &Task100Hz_attributes);
+
+    Task100HzHandle = osThreadNew(RunChimera, NULL, &TaskTelemRx_attributes);
+
+    // const CanMsg dummyRadioMsg = 
+    // {
+    //     .std_id = 1,
+    //     .dlc = 64,
+    //     .timestamp = 1,
+    //     .data.data8 = {0},
+    //     .bus = 1,
+    //     .is_fd = false
+    // };
+
+    // for (int i = 0; i < 10; i++)
+    // {
+    //     bool status = io_telemMessageQueue_pushTx(&dummyRadioMsg);
+    //     assert(status);
+    //}
 
     /* creation of TaskCanTx */
     TaskCanTxHandle = osThreadNew(RunCanTxTask, NULL, &TaskCanTx_attributes);
@@ -733,6 +754,14 @@ void RunTask100Hz(void *argument)
     /* USER CODE BEGIN 5 */
     /* Infinite loop */
     tasks_run100Hz();
+    /* USER CODE END 5 */
+}
+
+void RunChimera(void *argument)
+{
+    /* USER CODE BEGIN 5 */
+    /* Infinite loop */
+    tasks_runChimera();
     /* USER CODE END 5 */
 }
 

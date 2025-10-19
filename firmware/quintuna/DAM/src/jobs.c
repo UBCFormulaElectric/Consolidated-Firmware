@@ -76,15 +76,15 @@ void jobs_init(void)
 
 void jobs_run1Hz_tick(void)
 {
-    io_canTx_enqueue1HzMsgs();
+    // io_canTx_enqueue1HzMsgs();
 
-    const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
-    io_canTx_enableMode_can1(CAN1_MODE_DEBUG, debug_mode_enabled);
+    // const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
+    // io_canTx_enableMode_can1(CAN1_MODE_DEBUG, debug_mode_enabled);
 }
 
 void jobs_run100Hz_tick(void)
 {
-    io_canTx_enqueue100HzMsgs();
+    // io_canTx_enqueue100HzMsgs();
 
     const bool vc_drive_state = app_canRx_VC_State_get() == VC_DRIVE_STATE;
 
@@ -155,8 +155,8 @@ void jobs_run100Hz_tick(void)
 
 void jobs_run1kHz_tick(void)
 {
-    const uint32_t task_start_ms = io_time_getCurrentMs();
-    io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
+    // const uint32_t task_start_ms = io_time_getCurrentMs();
+    // io_canTx_enqueueOtherPeriodicMsgs(task_start_ms);
 }
 
 void jobs_runCanRx_tick(void)
@@ -184,7 +184,7 @@ void jobs_runCanRx_callBack(const CanMsg *rx_msg)
     {
         // Should make this log an error but it spams currently...
         // Consider doing a "num errors remaining" strategy like CAN logging.
-        io_telemMessageQueue_pushTx(rx_msg);
+        io_telemMessageQueue_pushTx(rx_msg); 
     }
     // check and process CAN msg for bootloader start msg
 }

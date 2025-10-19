@@ -4,6 +4,7 @@
 #include "jobs.h"
 #include "main.h"
 #include "cmsis_os.h"
+#include "hw_sd.h"
 
 #include "app_canTx.h"
 #include "app_utils.h"
@@ -18,6 +19,8 @@
 #include "io_telemMessageQueue.h"
 #include "io_telemRx.h"
 #include "io_canTx.h"
+#include "io_tsim.h"
+#include "io_canMsg.h"
 
 #include "hw_hardFaultHandler.h"
 #include "hw_cans.h"
@@ -32,6 +35,9 @@
 #include <hw_chimera_v2.h>
 #include <shared.pb.h>
 #include <hw_chimeraConfig_v2.h>
+#include <stdio.h>
+
+uint32_t queueElementCounter = 100;
 
 // Note: Need to declare this here (not at the top of main.h) since the name hcrc shadows other local variables that
 // include main.h (and the compiler doesn't like that for some reason).
@@ -110,7 +116,41 @@ void tasks_init(void)
 
 _Noreturn void tasks_runChimera(void)
 {
-    hw_chimera_v2_task(&chimera_v2_config);
+    // hw_chimera_v2_task(&chimera_v2_config);
+    io_tsim_set_green();
+
+    /* SD Card Write Test*/
+
+    // static uint8_t dummyData[10 * 512] = {0};
+
+    // for (int m = 0; m < 10; m++)
+    // {
+    //     SdCardStatus sdEraseStatus = hw_sd_erase(0, 10*1000);
+    //     assert(sdEraseStatus == SD_CARD_OK);
+
+    //     uint32_t start = io_time_getCurrentMs();
+    
+    //     // Write to SD card
+    //     for (int i = 0; i < 1000; i++)
+    //     {
+    //         SdCardStatus sdWriteStatus = hw_sd_write((uint8_t *)dummyData, 1 , 10);
+    //         assert(sdWriteStatus == SD_CARD_OK);
+    //     }
+        
+    //     uint32_t end = io_time_getCurrentMs();
+
+    //     // calculate diff and print
+    //     uint32_t elapsedTimeMs = end - start;
+    //     LOG_INFO("Elapsed time: %d milliseconds", elapsedTimeMs);
+    // }
+
+
+    /* Radio Transmit Message Test */
+
+    for(;;)
+    {
+
+    }
 }
 
 _Noreturn void tasks_run1Hz(void)
@@ -202,6 +242,8 @@ _Noreturn void tasks_runTelem(void)
         CanMsg      queue_out = io_telemMessageQueue_popTx();
         uint8_t     full_msg_size;
         TelemCanMsg can_msg = io_telemMessage_buildCanMsg(&queue_out, 0, &full_msg_size);
+        
+        LOG_INFO("Message timestamp: %d",queue_out.timestamp);
 
         // Start timing for measuring transmission speeds
         SEGGER_SYSVIEW_MarkStart(0);
