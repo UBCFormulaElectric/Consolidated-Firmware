@@ -153,12 +153,12 @@
   "TireSensor" : {
     "msg_id": 715,
     "cycle_time" : 100,
-    "description" :" tire sensor information",
+    "description" :" Tire sensor information",
     "signals" : {
       "TireTemperature" : {
         "resolution": 0.1,
-        "min": 0,
-        "max": 125,
+        "min": -20,
+        "max": 200,
         "unit": "°C"
       }
     }
