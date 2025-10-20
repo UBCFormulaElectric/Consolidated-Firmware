@@ -1,5 +1,8 @@
 #pragma once
 
+#include "io_log.h"
+#include <assert.h>
+
 typedef enum
 {
     EXIT_CODE_OK = 0,

@@ -27,7 +27,6 @@
 #include "io_charger.h"
 #include "io_fans.h"
 #include "io_faultLatch.h"
-#include "io_log.h"
 
 CanTxQueue can_tx_queue; // TODO there HAS to be a better location for this
 
