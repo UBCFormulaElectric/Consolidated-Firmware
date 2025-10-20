@@ -27,21 +27,28 @@ class VCBaseTest : public EcuTestBase
             fake::io_loadswitch::reset_stLoadswitch(const_cast<ST_LoadSwitch &>(stls));
         }
 
+        register_task(
+            [this]
+            {
+                if (suppress_heartbeat)
+                {
+                    app_canRx_BMS_Heartbeat_update(true);
+                    app_canRx_CRIT_Heartbeat_update(true);
+                    app_canRx_FSM_Heartbeat_update(true);
+                    app_canRx_RSM_Heartbeat_update(true);
+                }
+                jobs_run100Hz_tick();
+            },
+            10);
+        register_task(jobs_run1Hz_tick, 1000);
+
+        rl_pump_loadswitch.pgood = false;
+        auto *pumpEfuse          = const_cast<Efuse *>(efuse_channels[EFUSE_CHANNEL_RL_PUMP]);
+        pumpEfuse->enabled       = true;
+
         jobs_init();
     }
     void board_teardown() override {}
-    void tick_100hz() override
-    {
-        if (suppress_heartbeat)
-        {
-            app_canRx_BMS_Heartbeat_update(true);
-            app_canRx_CRIT_Heartbeat_update(true);
-            app_canRx_FSM_Heartbeat_update(true);
-            app_canRx_RSM_Heartbeat_update(true);
-        }
-        jobs_run100Hz_tick();
-    }
-    void tick_1hz() override { jobs_run1Hz_tick(); }
 
   public:
     bool suppress_heartbeat = false;
