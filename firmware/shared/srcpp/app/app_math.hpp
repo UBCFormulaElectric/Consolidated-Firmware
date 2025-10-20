@@ -11,6 +11,17 @@
 
 namespace app::math
 {
+/**
+ * Linear derating algorithm
+ * @param x Value on x axis
+ * @param max_y Value corresponding to 100% of the y value
+ * @param roll_off_x The value to begin derating the power
+ * @param limit_x The x value where you want y to be 0%
+ * @param derating_direction True if x needs to be decreased, False if x needs to be increased
+ * @return Linearly derated value
+ */
+float app_math_linearDerating(float x, float max_y, float roll_off_x, float limit_x, bool derating_direction);
+
 template <typename T, size_t ROWS, size_t COLS> class matrix
 {
     static constexpr std::size_t SIZE = ROWS * COLS;
@@ -18,7 +29,7 @@ template <typename T, size_t ROWS, size_t COLS> class matrix
 
   public:
     /**
-     * @brief Matrix instantiation using array
+     * @brief matrix instantiation using array
      * @param array in_mat
      * @return initialized matrix
      */
@@ -69,6 +80,18 @@ template <typename T, size_t ROWS, size_t COLS> class matrix
         return Z;
     }
 
+    friend inline matrix<T, ROWS, COLS> operator+(const T a, const matrix<T, ROWS, COLS> &X)
+    {
+        matrix<T, ROWS, COLS> Z{};
+
+        for (size_t i = 0; i < SIZE; i++)
+        {
+            Z[i] = a + X[i];
+        }
+
+        return Z;
+    }
+
     inline matrix<T, ROWS, COLS> operator-(const matrix<T, ROWS, COLS> &X) const
     {
         matrix<T, ROWS, COLS> Z{};
@@ -100,13 +123,13 @@ template <typename T, size_t ROWS, size_t COLS> class matrix
         return Z;
     }
 
-    inline matrix<T, ROWS, COLS> operator*(const T a) const
+    friend inline matrix<T, ROWS, COLS> operator*(const T a, const matrix<T, ROWS, COLS>& X)
     {
-        Matrix<T, ROWS, COLS> Z{};
+        matrix<T, ROWS, COLS> Z{};
 
         for (size_t i = 0; i < SIZE; i++)
         {
-            Z[i] = a * (*this)[i];
+            Z[i] = a * X[i];
         }
 
         return Z;
@@ -142,4 +165,3 @@ template <typename T, size_t ROWS, size_t COLS> class matrix
     // std::ostream& operator<<(std::ostream& out, const matrix<T, ROWS, COLS>& X)
 };
 } // namespace app::math
-

@@ -1,34 +1,87 @@
-#include "app_math.hpp"
 #include "app_velocityEstimator.hpp"
 
 extern "C"
 {
 #include "app_units.h"
-#include "app_units.h"
 #include "app_vehicleDynamicsConstants.h"
+#include "app_sbgEllipse.h"
 }
 
 using namespace app::math;
 
-namespace app::vehicleDynamics
+namespace app::vehicleDynamics::velocityEstimator
 {
 static constexpr bool  ENABLE_GPS_UPDATE          = true;
 static constexpr bool  ENABLE_WHEEL_SPEED_UPDATE  = true;
 static constexpr float SPEED_CHANGE_THRESHOLD_RPM = 1000.0f;
-static VelocityEstimator estimator;
 
 /**
- * Temporary C wrapper functions
+ * x, P, F_j, H_j, z_pred, and Q are universal for all EKFs
+ *
+ * Usually an EKF has a singular R, but here we have two R's (R_ws and R_gps)
+ * so we can perform two update steps with gps and wheelspeed, rather than just
+ * one of them
+ *
  */
-extern "C"
-{
-void app_velocityEstimator_step(VelocityEstimator_Inputs *inputs)
-{
-    estimator.step(*inputs);
-}
-}
+// State estimate vector
+static StateVector x{};
 
-void VelocityEstimator::step(VelocityEstimator_Inputs &inputs)
+// Covariance estimate
+static Matrix2x2 P{};
+
+// State transition Jacobian
+static Matrix2x2 F_j{};
+
+// Measurement Jacobian
+static Matrix2x2 H_j{};
+
+// Predicted measurement
+static StateVector z_pred{};
+
+// Process noise covariance
+static const Matrix2x2 Q{ 0.02f, 0.0f, 0.0f, 0.02f };
+
+// Measurement noise covariance for wheel speed
+static const Matrix2x2 R_ws{ 0.02f, 0.0f, 0.0f, 0.02f };
+
+// Measurement noise covariance for GPS {vx, vy}
+static const Matrix2x2 R_gps{ 0.02f, 0.0f, 0.0f, 0.02f };
+
+// Previous wheel speed measurements {rr, rl, fr, fl}
+static WheelSpeeds measurement_ws_prev{};
+
+/**
+ * The functions below exist in all EKF's and their implementation depends
+ * on the state space model and what you would like to estimate.
+ * Thus these should be user implementable in a general EKF API
+ */
+
+/**
+ * @brief Updates the state estimate vector based on the previous
+ * state and control inputs
+ * Equation: x_k|k-1 = f(x_{k-1|k-1}, u_k)
+ * x becomes x_k|k-1
+ * @param x_prev: previous state estimate x_{k-1|k-1},
+ * @param u: control inputs {accel x, accel y, yaw rate} u_k
+ */
+static void state_transition(const StateVector &x_prev, const ControlInput &u);
+
+static void state_jacobian(const StateVector &x_prev, const ControlInput &u);
+
+static void measurement_func(const StateVector &x_prev);
+
+static void measurement_jacobian(const StateVector &x_prev);
+
+static std::optional<StateVector> wheelSpeedsToBodyVelocity(
+    float rpm_rr,
+    float rpm_rl,
+    float rpm_fr,
+    float rpm_fl,
+    float yaw_rate,
+    float steering_angle,
+    bool  use_outlier_rejection);
+
+void app_velocityEstimator_step(VelocityEstimator_Inputs& inputs)
 {
     const ControlInput u = { inputs.accel_x, inputs.accel_y, inputs.yaw_rate_rad };
 
@@ -36,6 +89,7 @@ void VelocityEstimator::step(VelocityEstimator_Inputs &inputs)
 
     if constexpr (ENABLE_WHEEL_SPEED_UPDATE)
     {
+        // Update estimate with wheelspeed
         auto ws_meas = wheelSpeedsToBodyVelocity(
             inputs.rpm_rr, inputs.rpm_rl, inputs.rpm_fr, inputs.rpm_fl, inputs.yaw_rate_rad, inputs.wheel_angle_rad,
             false);
@@ -45,12 +99,16 @@ void VelocityEstimator::step(VelocityEstimator_Inputs &inputs)
 
     if constexpr (ENABLE_GPS_UPDATE)
     {
-        StateVector gps_meas = { inputs.gps_vx, inputs.gps_vy };
-        update(gps_meas, R_gps);
+        // Update estimate with GPS
+        if (app_sbgEllipse_getEkfSolutionMode() == POSITION)
+        {
+            StateVector gps_meas = { inputs.gps_vx, inputs.gps_vy };
+            update(gps_meas, R_gps);
+        }
     }
 }
 
-void VelocityEstimator::predict(const ControlInput &u)
+void predict(const ControlInput &u)
 {
     StateVector x_prev = x;
 
@@ -62,7 +120,7 @@ void VelocityEstimator::predict(const ControlInput &u)
     P = F_j * P * (~F_j) + Q;
 }
 
-void VelocityEstimator::update(const StateVector &z, const Matrix2x2 &R)
+void update(const StateVector &z, const Matrix2x2 &R)
 {
     // measurement prediction
     measurement_func(x);
@@ -72,7 +130,8 @@ void VelocityEstimator::update(const StateVector &z, const Matrix2x2 &R)
     Matrix2x2 S = H_j * P * (~H_j) + R;
 
     // kalman gain calculation
-    Matrix2x2 K = P * (~H_j) * S.inverse();
+    // remember to make S inverse here 
+    Matrix2x2 K = P * (~H_j) * S;
 
     // measurement residual calculation
     StateVector r = z - z_pred;
@@ -84,29 +143,49 @@ void VelocityEstimator::update(const StateVector &z, const Matrix2x2 &R)
     P = P - (K * H_j * P);
 }
 
-const StateVector &VelocityEstimator::getVelocity() const
+void reset()
+{
+    x                   = {};
+    P                   = {};
+    F_j                 = {};
+    H_j                 = {};
+    measurement_ws_prev = {};
+    z_pred              = {};
+}
+
+void reset(const StateVector &x_init, const Matrix2x2 &P_init)
+{
+    x                   = x_init;
+    P                   = P_init;
+    F_j                 = {};
+    H_j                 = {};
+    measurement_ws_prev = {};
+    z_pred              = {};
+}
+
+const StateVector &getVelocity()
 {
     return x;
 }
 
-const Matrix2x2 &VelocityEstimator::getCovariance() const
+const Matrix2x2 &getCovariance()
 {
     return P;
 }
 
-void VelocityEstimator::state_transition(const StateVector &x_prev, const ControlInput &u)
+static void state_transition(const StateVector &x_prev, const ControlInput &u)
 {
     x[0] = x_prev[0] + dt * (u[0] + x_prev[1] * u[2]);
     x[1] = x_prev[1] + dt * (u[1] - x_prev[0] * u[2]);
 }
 
-void VelocityEstimator::state_jacobian(const StateVector &x, const ControlInput &u)
+static void state_jacobian(const StateVector &x_prev, const ControlInput &u)
 {
     /**
      * This velocity estimator does not use the state vector (x)
      * to calculate the jacobian, others estimators may need to
      */
-    UNUSED(x);
+    UNUSED(x_prev);
 
     F_j(0, 0) = 1.0f;
     F_j(0, 1) = dt * u[2];
@@ -119,9 +198,9 @@ void VelocityEstimator::state_jacobian(const StateVector &x, const ControlInput 
  * In a different EKF and different model, the implementation of this function
  * would probably not be as trivial as this.
  */
-void VelocityEstimator::measurement_func(const StateVector &x)
+static void measurement_func(const StateVector &x_pred)
 {
-    z_pred = x;
+    z_pred = x_pred;
 }
 
 /**
@@ -129,19 +208,19 @@ void VelocityEstimator::measurement_func(const StateVector &x)
  * In a different EKF and different model, the implementation of this function
  * would probably not be as trivial as this.
  */
-void VelocityEstimator::measurement_jacobian(const StateVector &x)
+static void measurement_jacobian(const StateVector &x_pred)
 {
     /**
      * This velocity estimator does not use the state vector (x)
      * to calculate the jacobian, others estimators may need to
      */
-    UNUSED(x);
+    UNUSED(x_pred);
 
     H_j(0, 0) = 1.0f;
     H_j(1, 1) = 1.0f;
 }
 
-std::optional<StateVector> VelocityEstimator::wheelSpeedsToBodyVelocity(
+static std::optional<StateVector> wheelSpeedsToBodyVelocity(
     float rpm_rr,
     float rpm_rl,
     float rpm_fr,
@@ -159,7 +238,7 @@ std::optional<StateVector> VelocityEstimator::wheelSpeedsToBodyVelocity(
         return StateVector{ 0.0f, 0.0f };
     }
 
-    WheelSpeeds wheel_speeds_mps = MOTOR_RPM_TO_MPS(1.0f) * rpm_current;
+    WheelSpeeds wheel_speeds_mps = (float)MOTOR_RPM_TO_MPS(1.0f) * rpm_current;
 
     // Precompute trigonometric values
     const float cos_delta = std::cos(steering_angle);
@@ -171,24 +250,19 @@ std::optional<StateVector> VelocityEstimator::wheelSpeedsToBodyVelocity(
     const float dist_rear  = DIST_REAR_AXLE_CG;
 
     // Calculate velocity components for each wheel at CG
-    WheelSpeeds vx_components;
-    WheelSpeeds vy_components;
+    WheelSpeeds vx_components = {
+        wheel_speeds_mps[0] + yaw_rate * half_track,            
+        wheel_speeds_mps[1] - yaw_rate * half_track,            
+        wheel_speeds_mps[2] * cos_delta + yaw_rate * half_track,
+        wheel_speeds_mps[3] * cos_delta - yaw_rate * half_track 
+    };
 
-    // Rear right wheel
-    vx_components[0] = wheel_speeds_mps[0] + yaw_rate * half_track;
-    vy_components[0] = -yaw_rate * dist_rear;
-
-    // Rear left wheel
-    vx_components[1] = wheel_speeds_mps[1] - yaw_rate * half_track;
-    vy_components[1] = -yaw_rate * dist_rear;
-
-    // Front right wheel (with steering)
-    vx_components[2] = wheel_speeds_mps[2] * cos_delta + yaw_rate * half_track;
-    vy_components[2] = yaw_rate * dist_front - wheel_speeds_mps[2] * sin_delta;
-
-    // Front left wheel (with steering)
-    vx_components[3] = wheel_speeds_mps[3] * cos_delta - yaw_rate * half_track;
-    vy_components[3] = yaw_rate * dist_front - wheel_speeds_mps[3] * sin_delta;
+    WheelSpeeds vy_components = {
+        -yaw_rate * dist_rear,                                  
+        -yaw_rate * dist_rear,                                  
+        yaw_rate * dist_front - wheel_speeds_mps[2] * sin_delta,
+        yaw_rate * dist_front - wheel_speeds_mps[3] * sin_delta 
+    };
 
     // Average valid measurements
     float  sum_vx      = 0.0f;
@@ -224,4 +298,4 @@ std::optional<StateVector> VelocityEstimator::wheelSpeedsToBodyVelocity(
     return StateVector{ sum_vx / static_cast<float>(valid_count), sum_vy / static_cast<float>(valid_count) };
 }
 
-} // namespace app::vehicleDynamics
+} // namespace app::vehicleDynamics::velocityEstimator

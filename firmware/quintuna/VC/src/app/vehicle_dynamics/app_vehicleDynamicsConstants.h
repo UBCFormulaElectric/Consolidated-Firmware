@@ -1,12 +1,6 @@
 #pragma once
-<<<<<<< HEAD
 #include "app_pid.h"
 #include "app_yawRateController.h"
-=======
-// #include "app_pid.h"
-// #include "app_yawRateController.h"
-#include "app_velocityEstimator.h"
->>>>>>> 41a468488 (added constants)
 #include "app_units.h"
 
 // Constants
