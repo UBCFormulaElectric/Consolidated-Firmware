@@ -163,15 +163,15 @@ function(embedded_object_library
                 PUBLIC
                 ${LIB_INCLUDE_DIRS}
         )
-        target_compile_options(${LIB_NAME} PRIVATE -w)
     ELSE ()
         target_include_directories(${LIB_NAME} PUBLIC ${LIB_INCLUDE_DIRS})
+        target_compile_options(${LIB_NAME} PRIVATE -Werror)
     ENDIF ()
 
     target_compile_definitions(${LIB_NAME} PRIVATE ${SHARED_COMPILER_DEFINES})
     target_compile_options(${LIB_NAME} PRIVATE
             ${SHARED_COMPILER_FLAGS}
-            -Wall
+            ${SHARED_GNU_COMPILER_CHECKS}
     )
     embedded_arm_core_flags(${LIB_NAME} ${ARM_CORE})
 endfunction()
@@ -195,7 +195,7 @@ function(embedded_binary
     )
 
     target_compile_definitions(${ELF_NAME} PRIVATE ${SHARED_COMPILER_DEFINES})
-    target_compile_options(${ELF_NAME} PRIVATE ${SHARED_COMPILPER_FLAGS} -fsanitize=undefined ${SHARED_GNU_COMPILER_CHECKS})
+    target_compile_options(${ELF_NAME} PRIVATE ${SHARED_COMPILPER_FLAGS} -fsanitize=undefined ${SHARED_GNU_COMPILER_CHECKS} -Werror)
     target_link_options(${ELF_NAME} PRIVATE
             ${SHARED_LINKER_FLAGS}
             # binary specific linker flags

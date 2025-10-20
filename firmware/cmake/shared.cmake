@@ -34,7 +34,6 @@ set(SHARED_TEST_UTILS_INCLUDE_DIRS "${SHARED_DIR}/test")
 
 set(SHARED_GNU_COMPILER_CHECKS
         -Wall
-        -Werror
         -Wextra
         -pedantic
         -Wdouble-promotion

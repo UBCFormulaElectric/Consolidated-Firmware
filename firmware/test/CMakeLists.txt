@@ -77,6 +77,7 @@ function(compile_gtest_executable
         target_compile_options(${TEST_EXECUTABLE_NAME}
                 PRIVATE
                 ${SHARED_GNU_COMPILER_CHECKS}
+                -Werror
                 --coverage
         )
         target_link_libraries(${TEST_EXECUTABLE_NAME} PRIVATE gcov)
