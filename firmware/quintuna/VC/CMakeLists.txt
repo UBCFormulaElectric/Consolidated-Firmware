@@ -156,6 +156,7 @@ elseif ("${TARGET}" STREQUAL "test")
             "${SHARED_FAKES_DIR}/io_loadswitch.cpp"
             "${SHARED_FAKES_DIR}/io_canQueue.cpp"
             "${SHARED_FAKES_DIR}/io_bootHandler.cpp"
+            "${SHARED_FAKES_DIR}/io_time.cpp"
     )
     set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
     set(INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test"
@@ -179,16 +180,6 @@ elseif ("${TARGET}" STREQUAL "test")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    # FakeIO
-    set(HEADERS_TO_FAKE
-            #"${CMAKE_CURRENT_SOURCE_DIR}/src/io/"
-            "${SHARED_IO_INCLUDE_DIR}/io_time.h"
-    )
-    create_fake_library(
-            "quintuna_VC_fakes"
-            "${HEADERS_TO_FAKE}"
-    )
     target_compile_definitions("quintuna_VC_test" PRIVATE STM32H733xx)
-    target_link_libraries("quintuna_VC_test" PRIVATE "quintuna_VC_jsoncan" "quintuna_VC_fakes" "quintuna_VC_commit_info")
-    target_compile_definitions("quintuna_VC_test" PRIVATE STM32H733xx)
+    target_link_libraries("quintuna_VC_test" PRIVATE "quintuna_VC_jsoncan" "quintuna_VC_commit_info")
 endif ()

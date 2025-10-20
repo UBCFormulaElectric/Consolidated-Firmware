@@ -38,11 +38,48 @@ typedef enum
         }                               \
     }
 
-#define LOG_IF_ERR(err_expr)                                        \
-    {                                                               \
-        const ExitCode exit = err_expr;                             \
-        if (IS_EXIT_ERR(exit))                                      \
-        {                                                           \
-            LOG_ERROR(#err_expr " exited with an error: %d", exit); \
-        }                                                           \
+#define LOG_IF_ERR(err_expr)                                            \
+    {                                                                   \
+        const ExitCode exit = err_expr;                                 \
+        if (IS_EXIT_ERR(exit))                                          \
+        {                                                               \
+            const char *exit_str = NULL;                                \
+            switch (exit)                                               \
+            {                                                           \
+                case EXIT_CODE_INVALID_ARGS:                            \
+                    exit_str = "EXIT_CODE_INVALID_ARGS";                \
+                    break;                                              \
+                case EXIT_CODE_OUT_OF_RANGE:                            \
+                    exit_str = "EXIT_CODE_OUT_OF_RANGE";                \
+                    break;                                              \
+                case EXIT_CODE_TIMEOUT:                                 \
+                    exit_str = "EXIT_CODE_TIMEOUT";                     \
+                    break;                                              \
+                case EXIT_CODE_ERROR:                                   \
+                    exit_str = "EXIT_CODE_ERROR";                       \
+                    break;                                              \
+                case EXIT_CODE_BUSY:                                    \
+                    exit_str = "EXIT_CODE_BUSY";                        \
+                    break;                                              \
+                case EXIT_CODE_UNIMPLEMENTED:                           \
+                    exit_str = "EXIT_CODE_UNIMPLEMENTED";               \
+                    break;                                              \
+                case EXIT_CODE_RETRY_FAILED:                            \
+                    exit_str = "EXIT_CODE_RETRY_FAILED";                \
+                    break;                                              \
+                case EXIT_CODE_CHECKSUM_FAIL:                           \
+                    exit_str = "EXIT_CODE_CHECKSUM_FAIL";               \
+                    break;                                              \
+                case EXIT_INDETERMINATE:                                \
+                    exit_str = "EXIT_INDETERMINATE";                    \
+                    break;                                              \
+                case EXIT_CODE_OK:                                      \
+                    exit_str = "EXIT_CODE_OK";                          \
+                    break;                                              \
+                default:                                                \
+                    exit_str = "UNKNOWN_EXIT_CODE";                     \
+                    break;                                              \
+            }                                                           \
+            LOG_ERROR(#err_expr " exited with an error: %s", exit_str); \
+        }                                                               \
     }
