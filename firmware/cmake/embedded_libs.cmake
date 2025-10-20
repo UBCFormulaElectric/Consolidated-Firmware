@@ -18,8 +18,6 @@ function(commit_info_library
     )
 endfunction()
 
-set(CAN_DIR ${CMAKE_SOURCE_DIR}/can_bus)
-
 # Generates library ${CAR}_${BOARD}_jsoncan
 message("  🔃 Registered jsoncan_library() function")
 function(jsoncan_embedded_library BOARD CAR JSONCAN_DIR)
