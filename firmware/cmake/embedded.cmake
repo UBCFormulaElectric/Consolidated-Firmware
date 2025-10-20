@@ -92,7 +92,7 @@ function(embedded_arm_core_flags TARGET ARM_CORE)
         target_compile_options(${TARGET} PRIVATE ${CM7_FPU_FLAGS})
         target_link_options(${TARGET} PRIVATE ${CM7_FPU_FLAGS})
     ELSE ()
-        message(FATAL_ERROR "❌ Unsupported ARM core: ${TARGET_ARM_CORE}")
+        message(FATAL_ERROR "❌ Unsupported ARM core: ${ARM_CORE}")
     endif ()
 endfunction()
 
@@ -195,7 +195,7 @@ function(embedded_binary
     )
 
     target_compile_definitions(${ELF_NAME} PRIVATE ${SHARED_COMPILER_DEFINES})
-    target_compile_options(${ELF_NAME} PRIVATE ${SHARED_COMPILPER_FLAGS} -fsanitize=undefined ${SHARED_GNU_COMPILER_CHECKS} -Werror)
+    target_compile_options(${ELF_NAME} PRIVATE ${SHARED_COMPILER_FLAGS} -fsanitize=undefined ${SHARED_GNU_COMPILER_CHECKS} -Werror)
     target_link_options(${ELF_NAME} PRIVATE
             ${SHARED_LINKER_FLAGS}
             # binary specific linker flags
