@@ -74,7 +74,8 @@ TEST_F(VCPumpControlTest, StopWhenPowerGoodFalse)
 
 TEST_F(VCPumpControlTest, StopWhenChannelDisabled)
 {
-    GTEST_SKIP() << "This test does not make any sense because whether or not the pump is enabled/disabled here, the power manager will override that setting";
+    GTEST_SKIP() << "This test does not make any sense because whether or not the pump is enabled/disabled here, the "
+                    "power manager will override that setting";
     // pumps_ok=true, enabled=false → stopFlow()
     rl_pump_loadswitch.pgood = true;
     pumpEfuse()->enabled     = false;
