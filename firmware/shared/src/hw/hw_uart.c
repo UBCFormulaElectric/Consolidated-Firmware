@@ -1,5 +1,5 @@
 #include "hw_uart.h"
-#include "utils.h"
+#include "app_utils.h"
 #include "hw_utils.h"
 #include "io_log.h"
 #include <assert.h>

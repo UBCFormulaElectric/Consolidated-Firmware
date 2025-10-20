@@ -12,7 +12,7 @@ extern "C"
 #include "app_heartbeatMonitors.h"
 #include "app_stateMachine.h"
 #include "app_canUtils.h"
-#include "utils.h"
+#include "app_utils.h"
 #include "app_mainState.h"
 }
 

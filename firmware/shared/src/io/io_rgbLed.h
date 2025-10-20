@@ -11,7 +11,7 @@ typedef struct
     const Gpio blue_gpio;
 } RgbLed;
 #else
-#include "utils.h"
+#include "app_utils.h"
 EMPTY_STRUCT(RgbLed)
 #endif
 

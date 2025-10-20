@@ -6,7 +6,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "utils.h"
+#include "app_utils.h"
 #include "io_ltc6813.h"
 
 #define CMD_SIZE (2U) // 2 bytes

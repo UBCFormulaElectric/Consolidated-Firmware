@@ -1,6 +1,6 @@
 #include "io_ltc6813_internal.h"
 
-#include "utils.h"
+#include "app_utils.h"
 #include "io_log.h"
 #include "hw_spis.h"
 

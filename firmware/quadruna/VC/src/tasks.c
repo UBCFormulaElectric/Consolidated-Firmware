@@ -10,7 +10,7 @@
 
 #include "app_canAlerts.h"
 #include "app_canDataCapture.h"
-#include "utils.h"
+#include "app_utils.h"
 
 #include "io_log.h"
 #include "io_canLogging.h"

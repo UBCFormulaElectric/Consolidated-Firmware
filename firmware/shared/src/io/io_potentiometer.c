@@ -1,5 +1,5 @@
 #include "io_potentiometer.h"
-#include "utils.h"
+#include "app_utils.h"
 #include "hw_utils.h"
 #include "hw_i2cs.h"
 

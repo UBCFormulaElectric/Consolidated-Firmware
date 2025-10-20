@@ -10,7 +10,7 @@ typedef struct
 } SteeringConfig;
 
 #else
-#include "utils.h"
+#include "app_utils.h"
 EMPTY_STRUCT(SteeringConfig)
 #endif
 

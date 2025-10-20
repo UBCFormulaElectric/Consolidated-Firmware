@@ -11,7 +11,7 @@ typedef struct
     const Gpio *inertia_sen_ok_gpio;
 } CritShdnConfig;
 #else
-#include "utils.h"
+#include "app_utils.h"
 EMPTY_STRUCT(CritShdnConfig);
 #endif
 

@@ -28,7 +28,7 @@
 #error "Please define what MCU is used"
 #endif
 
-#include "utils.h"
+#include "app_utils.h"
 
 extern TIM_HandleTypeDef htim6;
 

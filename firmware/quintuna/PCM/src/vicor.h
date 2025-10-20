@@ -1,6 +1,6 @@
 #pragma once
 
-#include "utils.h"
+#include "app_utils.h"
 #include <stdbool.h>
 
 ExitCode vicor_operation(bool enable);

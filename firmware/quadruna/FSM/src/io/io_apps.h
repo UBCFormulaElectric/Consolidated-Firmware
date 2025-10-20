@@ -12,7 +12,7 @@ typedef struct
 } AppsConfig;
 
 #else
-#include "utils.h"
+#include "app_utils.h"
 EMPTY_STRUCT(AppsConfig)
 #endif
 /**

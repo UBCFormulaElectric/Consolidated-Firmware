@@ -4,7 +4,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include "app_canTx.h"
-#include "utils.h"
+#include "app_utils.h"
 
 #define HIGH_RES_MAX_CURRENT_READING (50.0f)
 

@@ -2,7 +2,7 @@
 #include "app_vehicleDynamicsConstants.h"
 #include <math.h>
 #include "app_units.h"
-#include "utils.h"
+#include "app_utils.h"
 
 // static float powerToTorque(
 //     const float power_kW,

@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "disk.h"
-#include "utils.h"
+#include "app_utils.h"
 #include <assert.h>
 
 inline static void logfs_init(LogFs *fs, const LogFsCfg *cfg)

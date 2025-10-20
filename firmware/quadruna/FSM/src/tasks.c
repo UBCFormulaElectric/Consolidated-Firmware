@@ -9,7 +9,7 @@
 #include "app_commitInfo.h"
 #include "app_apps.h"
 #include "app_stackWaterMarks.h"
-#include "utils.h"
+#include "app_utils.h"
 
 #include "app_jsoncan.h"
 #include "io_canRx.h"

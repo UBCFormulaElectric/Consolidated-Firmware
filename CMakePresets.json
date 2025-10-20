@@ -14,7 +14,7 @@
         "CMAKE_BUILD_TYPE": "Debug",
         "PLATFORM": "firmware",
         "TARGET": "binary",
-        "USE_COMMIT_INFO": "ON",
+        "USE_COMMIT_INFO": "OFF",
         "BOOTLOAD": "ON",
         "WATCHDOG": "ON"
       },

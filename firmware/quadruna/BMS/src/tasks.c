@@ -26,7 +26,7 @@
 #include "app_accumulator.h"
 #include "app_globals.h"
 #include "app_stateMachine.h"
-#include "utils.h"
+#include "app_utils.h"
 
 #include "shared.pb.h"
 

@@ -10,7 +10,7 @@
 #include "app_stateMachine.h"
 #include "app_mainState.h"
 #include "app_stackWaterMarks.h"
-#include "utils.h"
+#include "app_utils.h"
 // io
 #include "io_log.h"
 #include "io_chimera.h"

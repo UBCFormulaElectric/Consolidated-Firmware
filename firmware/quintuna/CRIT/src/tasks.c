@@ -8,7 +8,7 @@
 
 #include "app_canTx.h"
 #include "app_canAlerts.h"
-#include "utils.h"
+#include "app_utils.h"
 
 // io
 #include "io_log.h"

@@ -9,7 +9,7 @@ typedef struct
     const Gpio *gpio;
 } BinaryLed;
 #else
-#include "utils.h"
+#include "app_utils.h"
 EMPTY_STRUCT(BinaryLed);
 #endif
 

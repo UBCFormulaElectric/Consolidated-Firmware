@@ -1,7 +1,7 @@
 #include "states/app_allStates.h"
 #include "states/app_prechargeState.h"
 #include "states/app_inverterOnState.h"
-#include "utils.h"
+#include "app_utils.h"
 #include "app_timer.h"
 
 static TimerChannel timer;

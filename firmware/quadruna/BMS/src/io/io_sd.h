@@ -10,7 +10,7 @@ typedef struct
     const Gpio sd_present;
 } SdGpio;
 #else
-#include "utils.h"
+#include "app_utils.h"
 EMPTY_STRUCT(SdGpio);
 #endif
 

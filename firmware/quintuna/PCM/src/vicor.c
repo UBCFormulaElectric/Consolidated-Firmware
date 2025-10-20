@@ -1,5 +1,5 @@
 #include "vicor.h"
-#include "utils.h"
+#include "app_utils.h"
 #include "hw_i2c.h"
 #include <stdint.h>
 

@@ -24,7 +24,7 @@ void __ubsan_handle_vla_bound_not_positive(void *_data, void *bound);        // 
 void __ubsan_handle_pointer_overflow(void *_data, void *base, void *result); // NOLINT(*-reserved-identifier)
 
 #include "io_log.h"
-#include "utils.h"
+#include "app_utils.h"
 #include <stdbool.h>
 
 #define VALUE_LENGTH 40

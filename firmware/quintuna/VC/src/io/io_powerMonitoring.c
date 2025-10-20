@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "io_powerMonitoring.h"
-#include "utils.h"
+#include "app_utils.h"
 #include "app_canTx.h"
 #include "hw_i2c.h"
 #include "hw_i2cs.h"

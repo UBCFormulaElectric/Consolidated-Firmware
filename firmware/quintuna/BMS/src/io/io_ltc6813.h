@@ -6,7 +6,7 @@
 #pragma once
 #include <stdbool.h>
 #include <stdint.h>
-#include "utils.h"
+#include "app_utils.h"
 
 // Physical constants for our accumulator.
 #define NUM_SEGMENTS 8

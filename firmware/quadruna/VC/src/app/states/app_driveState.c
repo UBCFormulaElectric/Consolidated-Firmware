@@ -18,7 +18,7 @@
 #include "app_regen.h"
 #include "app_units.h"
 #include "app_signal.h"
-#include "utils.h"
+#include "app_utils.h"
 
 #define EFFICIENCY_ESTIMATE (0.80f)
 #define BUZZER_ON_DURATION_MS 2000

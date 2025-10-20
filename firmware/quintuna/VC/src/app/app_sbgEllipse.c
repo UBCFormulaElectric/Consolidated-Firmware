@@ -4,7 +4,7 @@
 #include "app_sbgEllipse.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
-#include "utils.h"
+#include "app_utils.h"
 #include "app_units.h"
 #include "app_vehicleDynamicsConstants.h"
 #include "io_log.h"
