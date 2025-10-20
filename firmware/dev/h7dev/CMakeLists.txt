@@ -69,18 +69,17 @@ IF ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_hal_pcd.c"
             "stm32h7xx_hal_pcd_ex.c"
             "stm32h7xx_ll_usb.c"
-            "stm32h7xx_ll_rtc.c"
             "stm32h7xx_hal_rtc.c"
             "stm32h7xx_hal_pwr.c"
             "stm32h7xx_hal_pwr_ex.c"
     )
-
+    set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc" "${CMAKE_CURRENT_SOURCE_DIR}/src")
     stm32h733xx_cube_library(
             "h7dev_stm32"
             "${STM32_HAL_SRCS}"
             "${IOC_PATH}"
             "${CUBEMX_SRCS}"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
+            "${CUBEMX_INCLUDE_DIRS}"
             TRUE
             "${ARM_CORE}"
     )
