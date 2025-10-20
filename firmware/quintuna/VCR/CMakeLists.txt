@@ -71,12 +71,13 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_hal_tim.c"
             "stm32h7xx_hal.c"
     )
+    set(CUBEMX_INCLUDES ${CUBEMX_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
     stm32h733xx_cube_library(
             "quintuna_VCR_stm32"
             "${STM32_HAL_SRCS}"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/VCR.ioc"
             "${CUBEMX_SRCS}"
-            "${CUBEMX_INCLUDE_DIRS}"
+            "${CUBEMX_INCLUDES}"
             FALSE
             "${ARM_CORE}"
 

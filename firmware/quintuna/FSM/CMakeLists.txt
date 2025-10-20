@@ -95,13 +95,13 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32f4xx_hal_pcd_ex.c"
             "stm32f4xx_ll_usb.c"
     )
-
+    set(CUBEMX_INCLUDES ${CUBEMX_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
     stm32f412rx_cube_library(
             "quintuna_FSM_stm32"
             "${STM32_HAL_SRCS}"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/FSM.ioc"
             "${CUBEMX_SRCS}"
-            "${CUBEMX_INCLUDE_DIRS}"
+            "${CUBEMX_INCLUDES}"
             TRUE
             "${ARM_CORE}"
     )

@@ -97,12 +97,13 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32f4xx_hal_i2c_ex.c"
             "stm32f4xx_hal_exti.c"
     )
+    set(CUBEMX_INCLUDES ${CUBEMX_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
     stm32f412rx_cube_library(
             "quintuna_CRIT_stm32"
             "${STM32_HAL_SRCS}"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/CRIT.ioc"
             "${CUBEMX_SRCS}"
-            "${CUBEMX_INCLUDE_DIRS}"
+            "${CUBEMX_INCLUDES}"
             TRUE
             "${ARM_CORE}"
     )

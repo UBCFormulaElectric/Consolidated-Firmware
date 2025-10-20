@@ -110,13 +110,13 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_ll_sdmmc.c"
             "stm32h7xx_ll_usb.c"
     )
-
+    set(CUBEMX_INCLUDES ${CUBEMX_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
     stm32h733xx_cube_library(
             "quintuna_DAM_stm32"
             "${STM32_HAL_SRCS}"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/DAM.ioc"
             "${CUBEMX_SRCS}"
-            "${CUBEMX_INCLUDE_DIRS}"
+            "${CUBEMX_INCLUDES}"
             TRUE
             "${ARM_CORE}"
     )
