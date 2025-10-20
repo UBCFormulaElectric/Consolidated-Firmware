@@ -143,28 +143,28 @@ ExitCode io_imu_init(void)
  * @param gyro_data Raw gyro data, must be 2 bytes long
  * @return Translated gyro data
  */
-static float translate_gyro_data(const uint8_t *gyro_data)
+static double translate_gyro_data(const uint8_t *gyro_data)
 {
 // Default gyroscope sensitivity for IMU is 8.75 mdeg/least significant digit
 #ifdef IMU_GYRO_RESOLUTION_125DPS
-#define GYRO_SENSITIVITY_MDEG (4.375f)
+#define GYRO_SENSITIVITY_MDEG (4.375)
 #endif
 #ifdef IMU_GYRO_RESOLUTION_250DPS
-#define GYRO_SENSITIVITY_MDEG (8.75f)
+#define GYRO_SENSITIVITY_MDEG (8.75)
 #endif
 #ifdef IMU_GYRO_RESOLUTION_500DPS
-#define GYRO_SENSITIVITY_MDEG (17.5f)
+#define GYRO_SENSITIVITY_MDEG (17.5)
 #endif
 #ifdef IMU_GYRO_RESOLUTION_1000DPS
-#define GYRO_SENSITIVITY_MDEG (35.0f)
+#define GYRO_SENSITIVITY_MDEG (35.0)
 #endif
 #ifdef IMU_GYRO_RESOLUTION_2000DPS
-#define GYRO_SENSITIVITY_MDEG (70.0f)
+#define GYRO_SENSITIVITY_MDEG (70.0)
 #endif
 
     // ReSharper disable once CppRedundantCastExpression
     const int16_t raw = (int16_t)(gyro_data[1] << 8 | gyro_data[0]);
-    return (float)raw * GYRO_SENSITIVITY_MDEG / 1000.0f;
+    return raw * GYRO_SENSITIVITY_MDEG / 1000.0;
 }
 
 /**
@@ -172,27 +172,27 @@ static float translate_gyro_data(const uint8_t *gyro_data)
  * @param acc_data Raw acceleration data, must be 2 bytes long
  * @return Translated acceleration data
  */
-static float translate_acceleration_data(const uint8_t *acc_data)
+static double translate_acceleration_data(const uint8_t *acc_data)
 {
 #ifdef IMU_ACC_RANGE_2G
-#define ACC_SENSITIVITY_MG (0.061f)
+#define ACC_SENSITIVITY_MG (0.061)
 #endif
 #ifdef IMU_ACC_RANGE_4G
-#define ACC_SENSITIVITY_MG (0.122f)
+#define ACC_SENSITIVITY_MG (0.122)
 #endif
 #ifdef IMU_ACC_RANGE_8G
-#define ACC_SENSITIVITY_MG (0.244f)
+#define ACC_SENSITIVITY_MG (0.244)
 #endif
 #ifdef IMU_ACC_RANGE_16G
-#define ACC_SENSITIVITY_MG (0.488f)
+#define ACC_SENSITIVITY_MG (0.488)
 #endif
 
     // ReSharper disable once CppRedundantCastExpression
     const int16_t raw = (int16_t)(acc_data[1] << 8 | acc_data[0]);
-    return (float)raw * ACC_SENSITIVITY_MG * 9.81f / 1000.0f;
+    return raw * ACC_SENSITIVITY_MG * 9.81 / 1000.0;
 }
 
-ExitCode io_imu_getLinearAccelerationX(float *x_acceleration)
+ExitCode io_imu_getLinearAccelerationX(double *x_acceleration)
 {
     if (!io_imu_ready)
         return EXIT_CODE_ERROR;
@@ -204,7 +204,7 @@ ExitCode io_imu_getLinearAccelerationX(float *x_acceleration)
     return EXIT_CODE_OK;
 }
 
-ExitCode io_imu_getLinearAccelerationY(float *y_acceleration)
+ExitCode io_imu_getLinearAccelerationY(double *y_acceleration)
 {
     if (!io_imu_ready)
         return EXIT_CODE_ERROR;
@@ -216,7 +216,7 @@ ExitCode io_imu_getLinearAccelerationY(float *y_acceleration)
     return EXIT_CODE_OK;
 }
 
-ExitCode io_imu_getLinearAccelerationZ(float *z_acceleration)
+ExitCode io_imu_getLinearAccelerationZ(double *z_acceleration)
 {
     if (!io_imu_ready)
         return EXIT_CODE_ERROR;
@@ -228,7 +228,7 @@ ExitCode io_imu_getLinearAccelerationZ(float *z_acceleration)
     return EXIT_CODE_OK;
 }
 
-ExitCode io_imu_getAngularVelocityRoll(float *roll_velocity)
+ExitCode io_imu_getAngularVelocityRoll(double *roll_velocity)
 {
     if (!io_imu_ready)
         return EXIT_CODE_ERROR;
@@ -241,7 +241,7 @@ ExitCode io_imu_getAngularVelocityRoll(float *roll_velocity)
     return EXIT_CODE_OK;
 }
 
-ExitCode io_imu_getAngularVelocityPitch(float *pitch_velocity)
+ExitCode io_imu_getAngularVelocityPitch(double *pitch_velocity)
 {
     if (!io_imu_ready)
         return EXIT_CODE_ERROR;
@@ -253,7 +253,7 @@ ExitCode io_imu_getAngularVelocityPitch(float *pitch_velocity)
     return EXIT_CODE_OK;
 }
 
-ExitCode io_imu_getAngularVelocityYaw(float *yaw_velocity)
+ExitCode io_imu_getAngularVelocityYaw(double *yaw_velocity)
 {
     if (!io_imu_ready)
         return EXIT_CODE_ERROR;

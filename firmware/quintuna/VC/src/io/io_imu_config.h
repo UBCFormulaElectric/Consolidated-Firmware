@@ -6,12 +6,12 @@
 #include "io_imu.h"
 typedef struct
 {
-    float long_accel;
-    float lat_accel;
-    float z_accel;
-    float yaw_rate;
-    float pitch_rate;
-    float roll_rate;
+    double long_accel;
+    double lat_accel;
+    double z_accel;
+    double yaw_rate;
+    double pitch_rate;
+    double roll_rate;
 } ImuData;
 
 extern const imuConfig imu_config;
