@@ -2,7 +2,6 @@
 #include "hw_pwms.h"
 #include "main.h"
 #include "io_time.h"
-#include <assert.h>
 
 #define PWM_TICKS_MAX 255
 
@@ -13,6 +12,9 @@ is broadcasted to CAN and the counter resets everytime the pwm signal from the
 IMD is received and turned into an IMD state to broadcast. When the counter reaches
 255 it will result in a 0 hz reading from the pwm signal. Usually if the IMD was not
 sending a frequency, it would not trigger the interrupt that updates IMD state
+
+// TODO there must be a smarter way to do this with timers
+// NOTE: I am breaking this by removing the timer callback
 */
 
 uint8_t io_imd_pwmCounterTick(void)
@@ -33,14 +35,6 @@ float io_imd_getFrequency(void)
 float io_imd_getDutyCycle(void)
 {
     return hw_pwmInput_getDutyCycle(&imd_pwm_input);
-}
-
-void io_imd_inputCaptureCallback(TIM_HandleTypeDef *htim)
-{
-    assert(htim == imd_pwm_input.htim);
-
-    hw_pwmInput_tick(&imd_pwm_input);
-    pwm_counter = 0; // Reset the ticks since the last pwm reading
 }
 
 uint32_t io_imd_getTimeSincePowerOn(void)
