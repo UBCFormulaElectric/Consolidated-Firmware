@@ -5,9 +5,7 @@ set(ARM_CORE "cm4")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/f4dev.ioc")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app_only.ld")
 
-set(HW_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/hw")
-
-file(GLOB_RECURSE EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c")
+file(GLOB_RECURSE EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c" "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.cpp")
 
 file(GLOB CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 list(REMOVE_ITEM CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/sysmem.c")
@@ -21,11 +19,11 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_spi.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_can_f4.c"
-        "${SHARED_IO_INCLUDE_DIR}/io_time.c"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_f4.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
         "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
+        #        "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_freeRtosConfigs.c"
@@ -33,8 +31,9 @@ list(APPEND EMBEDDED_SRCS
 )
 
 set(EMBEDDED_INCLUDE_DIRS
-        "${HW_INCLUDE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc" "${CMAKE_CURRENT_SOURCE_DIR}/src"
         "${SHARED_IO_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR}"
+        "${SHARED_IO_INCLUDE_DIR_CPP}" "${SHARED_HW_INCLUDE_DIR_CPP}" "${SHARED_APP_INCLUDE_DIR_CPP}"
 )
 
 IF ("${TARGET}" STREQUAL "binary")
@@ -63,12 +62,13 @@ IF ("${TARGET}" STREQUAL "binary")
             "stm32f4xx_ll_usb.c"
             "stm32f4xx_hal_spi.c"
     )
+    set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc" "${CMAKE_CURRENT_SOURCE_DIR}/src")
     stm32f412rx_cube_library(
             "f4dev_stm32"
             "${STM32_HAL_SRCS}"
             "${IOC_PATH}"
             "${CUBEMX_SRCS}"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
+            "${CUBEMX_INCLUDE_DIRS}"
             TRUE
             "${ARM_CORE}"
     )
@@ -89,5 +89,5 @@ IF ("${TARGET}" STREQUAL "binary")
     )
 
     target_link_libraries("f4dev.elf" PRIVATE "f4dev_stm32" "f4dev_commit_info" "chimera_v2_proto_cm4")
-    target_compile_definitions("f4dev.elf" PRIVATE "HAL_SPI_MODULE_ENABLED")
+    target_compile_definitions("f4dev.elf" PRIVATE "HAL_SPI_MODULE_ENABLED" NO_BOOTLOADER)
 ENDIF ()
