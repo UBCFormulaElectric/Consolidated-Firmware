@@ -68,12 +68,8 @@ function(stm32f412rx_cube_library
     # Set include directories for STM32Cube library.
     set(STM32CUBE_INCLUDE_DIRS
             ${CUBEMX_INCLUDE_DIRS}
-            "${SHARED_HW_INCLUDE_DIR}"
-            "${SHARED_IO_INCLUDE_DIR}"
-            "${SHARED_UTIL_INCLUDE_DIR}"
-            "${SHARED_HW_INCLUDE_DIR_CPP}"
-            "${SHARED_IO_INCLUDE_DIR_CPP}"
-            "${SHARED_UTIL_INCLUDE_DIR_CPP}"
+            ${SHARED_EMBEDDED_DIR_CPP}
+            ${SHARED_EMBEDDED_DIR}
 
             "${DRIVERS_DIR}/STM32F4xx_HAL_Driver/Inc"
             "${DRIVERS_DIR}/STM32F4xx_HAL_Driver/Inc/Legacy"
@@ -170,12 +166,8 @@ function(stm32h733xx_cube_library
     # Set include directories for STM32Cube library.
     set(STM32CUBE_INCLUDE_DIRS
             ${CUBEMX_INCLUDE_DIRS}
-            "${SHARED_HW_INCLUDE_DIR}"
-            "${SHARED_IO_INCLUDE_DIR}"
-            "${SHARED_UTIL_INCLUDE_DIR}"
-            "${SHARED_HW_INCLUDE_DIR_CPP}"
-            "${SHARED_IO_INCLUDE_DIR_CPP}"
-            "${SHARED_UTIL_INCLUDE_DIR_CPP}"
+            ${SHARED_EMBEDDED_DIR_CPP}
+            ${SHARED_EMBEDDED_DIR}
 
             "${DRIVERS_DIR}/STM32H7xx_HAL_Driver/Inc"
             "${DRIVERS_DIR}/STM32H7xx_HAL_Driver/Inc/Legacy"
@@ -275,12 +267,8 @@ function(stm32h562xx_cube_library
     # Set include directories for STM32Cube library.
     set(STM32CUBE_INCLUDE_DIRS
             ${CUBEMX_INCLUDE_DIRS}
-            "${SHARED_HW_INCLUDE_DIR}"
-            "${SHARED_IO_INCLUDE_DIR}"
-            "${SHARED_UTIL_INCLUDE_DIR}"
-            "${SHARED_HW_INCLUDE_DIR_CPP}"
-            "${SHARED_IO_INCLUDE_DIR_CPP}"
-            "${SHARED_UTIL_INCLUDE_DIR_CPP}"
+            ${SHARED_EMBEDDED_DIR_CPP}
+            ${SHARED_EMBEDDED_DIR}
 
             "${DRIVERS_DIR}/STM32H5xx_HAL_Driver/Inc"
             "${DRIVERS_DIR}/STM32H5xx_HAL_Driver/Inc/Legacy"
