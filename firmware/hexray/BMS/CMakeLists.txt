@@ -1,7 +1,7 @@
 message("")
 message("⚙️ Configuring BMS (Hexray)")
 
-file(GLOB CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
+file(GLOB CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
 
 set(JOBS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/jobs.cpp")
@@ -12,7 +12,7 @@ set(SYSTEM_INCLUDE_DIRS
         #        "${CMAKE_CURRENT_SOURCE_DIR}/boot"
 )
 
-file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
+file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS
         # "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
 )
@@ -21,7 +21,7 @@ set(APP_INCLUDE_DIRS
         "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR_CPP}"
 )
 
-file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
+file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
 )
@@ -30,7 +30,7 @@ set(IO_INCLUDE_DIRS
         "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_DIR_CPP}"
 )
 
-file(GLOB_RECURSE HW_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c")
+file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c")
 list(APPEND HW_SRCS)
 set(HW_INCLUDE_DIRS
         #        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -83,7 +83,7 @@ if ("${TARGET}" STREQUAL "binary")
     target_link_libraries("hexray_BMS_app.elf" PRIVATE "hexray_BMS_stm32" "hexray_BMS_jsoncan" "hexray_BMS_commit_info" "m")
 
 elseif ("${TARGET}" STREQUAL "test")
-    file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
+    file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS})
     set(INCLUDE_DIRS
             # "${CMAKE_CURRENT_SOURCE_DIR}/test"

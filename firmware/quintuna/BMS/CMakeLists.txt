@@ -1,7 +1,7 @@
 message("")
 message("⚙️ Configuring [BMS] (Quintuna)")
 
-file(GLOB CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
+file(GLOB CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
 
 set(JOBS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/jobs.c")
@@ -9,7 +9,7 @@ set(TASKS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.c")
 set(SYSTEM_SRCS ${JOBS_SRC} ${TASKS_SRC})
 set(SYSTEM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src" "${CMAKE_CURRENT_SOURCE_DIR}/boot")
 
-file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
+file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS
         "${SHARED_APP_INCLUDE_DIR}/app_thermistor.c"
         "${SHARED_APP_INCLUDE_DIR}/app_shdnLoopNode.c"
@@ -20,7 +20,7 @@ list(APPEND APP_SRCS
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
 
-file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
+file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
@@ -149,7 +149,7 @@ if ("${TARGET}" STREQUAL "binary")
         )
     endif ()
 elseif ("${TARGET}" STREQUAL "test")
-    file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
+    file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(SHARED_FAKES
             "${SHARED_FAKES_DIR}/io_canQueue.cpp"
             "${SHARED_FAKES_DIR}/io_semaphore.cpp"

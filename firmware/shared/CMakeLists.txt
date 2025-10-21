@@ -2,8 +2,9 @@ message("")
 message("⚙️ Configuring Shared")
 
 IF ("${TARGET}" STREQUAL "test")
+    file(GLOB_RECURSE CONFIGURE_DEPENDS SHARED_APP_SRCS "${SHARED_APP_INCLUDE_DIR}/*.c")
     # shared modules tests
-    file(GLOB_RECURSE SHARED_TEST_SRCS
+    file(GLOB_RECURSE CONFIGURE_DEPENDS SHARED_TEST_SRCS
             "${CMAKE_CURRENT_SOURCE_DIR}/test/*.c"
             "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp"
     )

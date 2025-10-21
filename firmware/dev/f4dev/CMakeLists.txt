@@ -5,9 +5,9 @@ set(ARM_CORE "cm4")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/f4dev.ioc")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app_only.ld")
 
-file(GLOB_RECURSE EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c" "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.cpp")
+file(GLOB_RECURSE CONFIGURE_DEPENDS EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c" "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.cpp")
 
-file(GLOB CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
+file(GLOB CONFIGURE_DEPENDS CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 list(REMOVE_ITEM CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/sysmem.c")
 
 # Shared sources.
