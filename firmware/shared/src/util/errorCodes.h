@@ -79,6 +79,7 @@ typedef enum
                 case EXIT_CODE_OK:                                      \
                     exit_str = "EXIT_CODE_OK";                          \
                     break;                                              \
+                case NUM_EXIT_CODES:                                    \
                 default:                                                \
                     exit_str = "UNKNOWN_EXIT_CODE";                     \
                     break;                                              \
