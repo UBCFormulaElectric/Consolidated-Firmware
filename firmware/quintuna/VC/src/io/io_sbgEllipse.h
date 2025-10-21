@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "errorCodes.h"
+#include "util_errorCodes.h"
 
 /* ------------------------------------ Typedefs ------------------------------------- */
 
