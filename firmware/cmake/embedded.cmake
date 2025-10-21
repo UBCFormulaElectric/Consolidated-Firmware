@@ -139,7 +139,7 @@ function(embedded_interface_library
                 INTERFACE
                 ${LIB_INCLUDE_DIRS}
         )
-        no_checks(${LIB_SRCS})
+        no_checks("${LIB_SRCS}")
     ELSE ()
         target_include_directories(${LIB_NAME} INTERFACE ${LIB_INCLUDE_DIRS})
     ENDIF ()
