@@ -8,7 +8,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
 set(CMAKE_COLOR_DIAGNOSTICS ON)
 # use this for debugging
-set(CMAKE_VERBOSE_MAKEFILE ON CACHE BOOL "ON" FORCE)
+set(CMAKE_VERBOSE_MAKEFILE OFF CACHE BOOL "OFF" FORCE)
 # Generates a comple_commands.json file which helps with VSCode intellisense
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_compile_definitions("DEBUG=$<CONFIG:Debug>")
