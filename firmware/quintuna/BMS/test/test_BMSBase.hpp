@@ -22,7 +22,7 @@ class BMSBaseTest : public EcuTestBase
         fakes::faultLatches::resetFaultLatch(&bspd_ok_latch);
         fakes::faultLatches::setCurrentStatus_resetCallCounts();
 
-        fakes::segments::setPackVoltageEvenly(3.8 * NUM_SEGMENTS * CELLS_PER_SEGMENT);
+        fakes::segments::setPackVoltageEvenly(3.8f * NUM_SEGMENTS * CELLS_PER_SEGMENT);
         fakes::segments::SetAuxRegs(15.0f); // Approx. 25C
 
         jobs_init();
@@ -36,6 +36,8 @@ class BMSBaseTest : public EcuTestBase
         register_task(jobs_runLTCVoltages, 500);
         register_task(jobs_runLTCDiagnostics, 500);
         register_task(jobs_runLTCTemperatures, 500);
+        // Allow time for all jobs to run at least once for things like voltage arrays to update
+        LetTimePass(1000);
     }
     void board_teardown() override {}
 

@@ -1,5 +1,6 @@
 #pragma once
 #include "io_ltc6813.h"
+#include <stdbool.h>
 
 /**
  * @file segments/app_segments_configs.c

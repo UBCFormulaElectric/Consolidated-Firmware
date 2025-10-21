@@ -6,6 +6,7 @@
 
 extern "C"
 {
+#include "app_utils.h"
 #include "io_time.h"
 }
 
@@ -32,7 +33,7 @@ extern "C"
 
     void io_ltc6813_readConfigurationRegisters(SegmentConfig configs[NUM_SEGMENTS], ExitCode success[NUM_SEGMENTS])
     {
-        for (int i = 0; i < NUM_SEGMENTS; i++)
+        for (size_t i = 0; i < NUM_SEGMENTS; i++)
         {
             configs[i] = segment_config[i];
             success[i] = EXIT_CODE_OK;
@@ -435,25 +436,25 @@ namespace segments
 {
     void setCellVoltages(const std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &voltages)
     {
-        for (int i = 0; i < NUM_SEGMENTS; i++)
+        for (size_t i = 0; i < NUM_SEGMENTS; i++)
         {
-            for (int j = 0; j < CELLS_PER_SEGMENT; j++)
+            for (size_t j = 0; j < CELLS_PER_SEGMENT; j++)
             {
-                voltage_regs[i][j] = static_cast<uint16_t>(voltages[i][j] * 1e4);
+                voltage_regs[i][j] = static_cast<uint16_t>(voltages[i][j] * 1e4f);
             }
         }
     }
 
-    void setCellVoltage(const size_t segment, const size_t cell, float voltage)
+    void setCellVoltage(const size_t segment, const size_t cell, const float voltage)
     {
-        voltage_regs[segment][cell] = static_cast<uint16_t>(voltage * 1e4);
+        voltage_regs[segment][cell] = static_cast<uint16_t>(voltage * 1e4f);
     }
 
     void setCellTemperatures(const std::array<std::array<float, AUX_REGS_PER_SEGMENT>, NUM_SEGMENTS> &temperatures)
     {
-        for (int i = 0; i < NUM_SEGMENTS; i++)
+        for (size_t i = 0; i < NUM_SEGMENTS; i++)
         {
-            for (int j = 0; j < AUX_REGS_PER_SEGMENT; j++)
+            for (size_t j = 0; j < AUX_REGS_PER_SEGMENT; j++)
             {
                 aux_regs_storage[i][j] =
                     static_cast<uint16_t>(temperatures[i][j] * 1000); // Not sure if conversion is correct
@@ -465,9 +466,9 @@ namespace segments
     {
         const float cell_voltage = pack_voltage / (NUM_SEGMENTS * CELLS_PER_SEGMENT);
         std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> v{};
-        for (int i = 0; i < NUM_SEGMENTS; i++)
+        for (size_t i = 0; i < NUM_SEGMENTS; i++)
         {
-            for (int j = 0; j < CELLS_PER_SEGMENT; j++)
+            for (size_t j = 0; j < CELLS_PER_SEGMENT; j++)
             {
                 v[i][j] = cell_voltage;
             }
@@ -482,9 +483,9 @@ namespace segments
 
     void SetAuxRegs(const float voltage)
     {
-        for (int i = 0; i < NUM_SEGMENTS; i++)
+        for (size_t i = 0; i < NUM_SEGMENTS; i++)
         {
-            for (int j = 0; j < AUX_REGS_PER_SEGMENT; j++)
+            for (size_t j = 0; j < AUX_REGS_PER_SEGMENT; j++)
             {
                 aux_regs_storage[i][j] = static_cast<uint16_t>(voltage * 1000); // Not sure if conversion is correct
             }
