@@ -139,10 +139,7 @@ function(embedded_interface_library
                 INTERFACE
                 ${LIB_INCLUDE_DIRS}
         )
-        set_source_files_properties(
-                ${LIB_SRCS}
-                PROPERTIES COMPILE_FLAGS "-w"
-        )
+        no_checks(${LIB_SRCS})
     ELSE ()
         target_include_directories(${LIB_NAME} INTERFACE ${LIB_INCLUDE_DIRS})
     ENDIF ()
@@ -255,32 +252,4 @@ function(embedded_image
             DEPENDS ${GENERATE_IMAGE_SCRIPT} ${APP_HEX_PATH} ${BOOT_HEX_PATH}
     )
     add_dependencies(${IMAGE_HEX} ${APP_HEX_TARGET} ${BOOT_HEX_TARGET})
-endfunction()
-
-function(embedded_no_checks SRCS)
-    set(unique_dirs "")  # Initialize empty list
-
-    foreach (file_path IN LISTS SRCS)
-        # Get absolute path to file
-        get_filename_component(abs_file_path "${file_path}" ABSOLUTE)
-
-        # Get directory of the file
-        get_filename_component(dir_path "${abs_file_path}" DIRECTORY)
-
-        # Get path relative to the CMake root
-        file(RELATIVE_PATH rel_path "${CMAKE_SOURCE_DIR}" "${dir_path}")
-
-        # Avoid duplicates
-        list(FIND unique_dirs "${rel_path}" found_index)
-        if (found_index EQUAL -1)
-            list(APPEND unique_dirs "${rel_path}")
-        endif ()
-    endforeach ()
-
-    list(LENGTH SRCS SRCS_LENGTH)
-    message("  🚫 [embedded.cmake, embedded_no_checks()] Disabling Warnings for ${SRCS_LENGTH} files under ${unique_dirs}")
-    set_source_files_properties(
-            ${SRCS}
-            PROPERTIES COMPILE_FLAGS "-w"
-    )
 endfunction()

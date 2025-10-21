@@ -63,7 +63,7 @@ IF ("${TARGET}" STREQUAL "binary")
     )
 
     # Don't check syscalls.
-    embedded_no_checks("${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
+    no_checks("${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
 
     stm32f412rx_cube_library(
             "ssm_stm32"

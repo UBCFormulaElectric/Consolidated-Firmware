@@ -146,10 +146,16 @@ static SensorStatus app_performSensorChecks(void)
     sensor_status.useTV = sensor_status.gpsOk && sensor_status.imuOk && sensor_status.steeringOk;
 
     if (!sensor_status.gpsOk)
+    {
         LOG_WARN("Sbg Ellipse not ok.");
+    }
     if (!sensor_status.imuOk)
+    {
         LOG_WARN("Imu not ok.");
+    }
     if (!sensor_status.steeringOk)
+    {
         LOG_WARN("Steering not ok");
+    }
     return sensor_status;
 }

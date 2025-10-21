@@ -50,3 +50,11 @@
     {                          \
         unsigned char _unused; \
     } name;
+
+#ifdef __cplusplus
+#define CFUNC extern "C"
+#define NORET [[noreturn]]
+#else
+#define CFUNC
+#define NORET _Noreturn
+#endif

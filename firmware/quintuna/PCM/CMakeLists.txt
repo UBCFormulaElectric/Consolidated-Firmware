@@ -75,7 +75,7 @@ if ("${TARGET}" STREQUAL "binary")
             FALSE
             "${ARM_CORE}"
     )
-    embedded_no_checks("${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
+    no_checks("${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
 
     target_link_libraries("quintuna_PCM_app.elf" PRIVATE "quintuna_PCM_stm32")
 endif ()

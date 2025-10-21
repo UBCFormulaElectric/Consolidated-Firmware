@@ -1,5 +1,5 @@
 message("")
-message("⚙️ [embedded_libs.cmake] Configuring library wrappers")
+message("⚙️ [test_libs.cmake] Configuring library wrappers")
 
 message("  🔃 Registered jsoncan_library() function")
 function(jsoncan_library BOARD CAR JSONCAN_DIR)
@@ -15,6 +15,7 @@ function(jsoncan_library BOARD CAR JSONCAN_DIR)
     )
     add_library(${JSONCAN_LIB} INTERFACE)
     target_sources(${JSONCAN_LIB} INTERFACE ${CAN_SRCS})
+    no_checks("${CAN_SRCS}")
     target_include_directories(${JSONCAN_LIB} INTERFACE "${CAN_INCLUDE_DIRS}")
 
     set(HEADERS_TO_FAKE

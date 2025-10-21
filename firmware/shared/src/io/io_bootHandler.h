@@ -1,4 +1,5 @@
 #pragma once
 #include "io_canMsg.h"
+#include "app_utils.h"
 
-void io_bootHandler_processBootRequest(const CanMsg *msg);
+NORET void io_bootHandler_processBootRequest(const CanMsg *msg);
