@@ -6,7 +6,7 @@
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app/heartbeatMonitors.h"
-#include "screens/app_screens.h"
+#include "app/screens/screens.h"
 #include "app/leds.h"
 #include "app/switches.h"
 #include "app/jsoncan.h"

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "io/canMsg.hpp"
-#include "errorCodes.hpp"
+#include "util/errorCodes.hpp"
 #include "hw/hal.h"
 #include "cmsis_os.h"
 

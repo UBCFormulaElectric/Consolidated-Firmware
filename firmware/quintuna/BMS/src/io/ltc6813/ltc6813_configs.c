@@ -3,7 +3,7 @@
 
 #include <string.h>
 
-#include "io/ltc6813_internal.h"
+#include "io/ltc6813/ltc6813_internal.h"
 
 ExitCode io_ltc6813_writeConfigurationRegisters(const SegmentConfig config[NUM_SEGMENTS])
 {

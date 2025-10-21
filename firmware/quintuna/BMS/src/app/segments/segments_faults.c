@@ -1,7 +1,7 @@
 #include "app/states/states.h"
 
 #include "app/segments.h"
-#include "app/segments_internal.h"
+#include "app/segments/segments_internal.h"
 #include "app/timer.h"
 #include "app_canAlerts.h"
 #include "app_canRx.h"

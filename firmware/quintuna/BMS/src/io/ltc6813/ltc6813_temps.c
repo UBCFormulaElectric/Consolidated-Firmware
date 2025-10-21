@@ -1,8 +1,8 @@
 #include "io/ltc6813.h"
-#include "io/ltc6813_internal.h"
+#include "io/ltc6813/ltc6813_internal.h"
 
 #include <assert.h>
-#include <io_log.h>
+#include "io/log.h"
 #include <stdint.h>
 
 static const uint16_t aux_reg_groups[AUX_REG_GROUPS] = { RDAUXA, RDAUXB, RDAUXC };

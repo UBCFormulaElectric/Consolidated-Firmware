@@ -1,5 +1,5 @@
 #include "io/ltc6813.h"
-#include "io/ltc6813_internal.h"
+#include "io/ltc6813/ltc6813_internal.h"
 
 #define MAX_NUM_ADC_COMPLETE_CHECKS (10U)
 #define ADC_CONV_INCOMPLETE (0xFF)

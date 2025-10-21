@@ -1,5 +1,5 @@
 #include "app/segments.h"
-#include "app/segments_internal.h"
+#include "app/segments/segments_internal.h"
 #include "app/thermistor.h"
 #include "app/thermistors.h"
 #include "app/utils.h"

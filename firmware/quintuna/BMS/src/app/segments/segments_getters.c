@@ -1,5 +1,5 @@
 #include "app/segments.h"
-#include "app/segments_internal.h"
+#include "app/segments/segments_internal.h"
 
 float app_segments_getPackVoltage(void)
 {

@@ -1,4 +1,4 @@
-#include "io/ltc6813_internal.h"
+#include "io/ltc6813/ltc6813_internal.h"
 
 #include <stdint.h>
 #include <string.h>

@@ -10,7 +10,7 @@ extern "C"
 // #include "hw/usb.hpp"
 // #include "hw/chimeraConfig_v2.hpp"
 // #include "hw/sd.hpp"
-#include "errorCodes.hpp"
+#include "util/errorCodes.hpp"
 
 // #include "hw/bootup.h"
 // #include "hw/uart.h"

@@ -1,7 +1,7 @@
 #include "io/rotary.h"
 #include "io/shift_register.h"
 
-#include "app/screens.h"
+#include "app/screens/screens.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 

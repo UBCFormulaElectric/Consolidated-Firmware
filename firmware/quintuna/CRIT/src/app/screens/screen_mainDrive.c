@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <math.h>
-#include "app/screens.h"
-#include "app/screen_defines.h"
+#include "app/screens/screens.h"
+#include "app/screens/screen_defines.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "io/shift_register.h"

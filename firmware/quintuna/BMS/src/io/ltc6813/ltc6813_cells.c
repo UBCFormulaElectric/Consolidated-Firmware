@@ -1,5 +1,5 @@
 #include "io/ltc6813.h"
-#include "io/ltc6813_internal.h"
+#include "io/ltc6813/ltc6813_internal.h"
 #include <stdint.h>
 
 static const uint16_t cv_read_cmds[VOLTAGE_REGISTER_GROUPS] = { RDCVA, RDCVB, RDCVC, RDCVD, RDCVE };
