@@ -10,12 +10,9 @@ function(commit_info_library
         OUTPUT_PATH
 )
     commit_info_generate_sources(${BIND_TARGET} ${OUTPUT_PATH})
-    embedded_interface_library(
-            "${LIB_NAME}"
-            "${COMMIT_INFO_SRC}"
-            "${COMMIT_INFO_INCLUDE_DIR}"
-            FALSE
-    )
+    add_library(${LIB_NAME} INTERFACE)
+    target_sources(${LIB_NAME} INTERFACE ${COMMIT_INFO_SRC})
+    target_include_directories(${LIB_NAME} INTERFACE ${COMMIT_INFO_INCLUDE_DIR})
 endfunction()
 
 # Generates library ${CAR}_${BOARD}_jsoncan
@@ -28,10 +25,9 @@ function(jsoncan_embedded_library BOARD CAR JSONCAN_DIR)
             "${CAN_DIR}/dbcs/${CAR}.dbc"
             "${CAN_DIR}/${CAR}"
     )
-    embedded_interface_library(
-            "${CAR}_${BOARD}_jsoncan"
-            "${CAN_SRCS}"
-            "${CAN_INCLUDE_DIRS}"
-            TRUE
-    )
+    add_library("${CAR}_${BOARD}_jsoncan" INTERFACE)
+    target_sources("${CAR}_${BOARD}_jsoncan" INTERFACE ${CAN_SRCS})
+    no_checks("${CAN_SRCS}")
+
+    target_include_directories("${CAR}_${BOARD}_jsoncan" SYSTEM INTERFACE ${CAN_INCLUDE_DIRS})
 endfunction()

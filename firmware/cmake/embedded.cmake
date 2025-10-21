@@ -124,27 +124,6 @@ function(embedded_library
     embedded_arm_core_flags(${LIB_NAME} ${ARM_CORE})
 endfunction()
 
-function(embedded_interface_library
-        LIB_NAME
-        LIB_SRCS
-        LIB_INCLUDE_DIRS
-        THIRD_PARTY
-)
-    add_library(${LIB_NAME} INTERFACE)
-    target_sources(${LIB_NAME} INTERFACE ${LIB_SRCS})
-
-    IF (${THIRD_PARTY})
-        # Suppress header file warnings for third-party code by marking them as system includes
-        target_include_directories(${LIB_NAME} SYSTEM
-                INTERFACE
-                ${LIB_INCLUDE_DIRS}
-        )
-        no_checks("${LIB_SRCS}")
-    ELSE ()
-        target_include_directories(${LIB_NAME} INTERFACE ${LIB_INCLUDE_DIRS})
-    ENDIF ()
-endfunction()
-
 function(embedded_object_library
         LIB_NAME
         LIB_SRCS
