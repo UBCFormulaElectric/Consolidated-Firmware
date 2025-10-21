@@ -37,9 +37,8 @@ function(stm32f4_boot_binary
             "${SHARED_HW_INCLUDE_DIR}/freeRtosConfigs.c"
     )
     list(APPEND INCLUDE_DIRS
-            "${SHARED_APP_INCLUDE_DIR}"
-            "${SHARED_IO_INCLUDE_DIR}"
-            "${SHARED_HW_INCLUDE_DIR}"
+            ${SHARED_EMBEDDED_DIR}
+            "${SHARED_EMBEDDED_DIR_CPP}"
     )
 
 
@@ -106,9 +105,8 @@ function(stm32h7_boot_binary
             "${SHARED_HW_INCLUDE_DIR}/utils.c"
     )
     list(APPEND INCLUDE_DIRS
-            "${SHARED_APP_INCLUDE_DIR}"
-            "${SHARED_IO_INCLUDE_DIR}"
-            "${SHARED_HW_INCLUDE_DIR}"
+            "${SHARED_EMBEDDED_DIR}"
+            "${SHARED_EMBEDDED_DIR_CPP}"
     )
 
     set(STM32_HAL_SRCS
