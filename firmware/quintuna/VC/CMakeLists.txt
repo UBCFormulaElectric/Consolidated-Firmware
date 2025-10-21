@@ -150,17 +150,15 @@ if ("${TARGET}" STREQUAL "binary")
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(FAKE_SRCS
-            "${SHARED_FAKES_DIR}/io_imu.cpp"
-            "${SHARED_FAKES_DIR}/io_loadswitch.cpp"
-            "${SHARED_FAKES_DIR}/io_canQueue.cpp"
-            "${SHARED_FAKES_DIR}/io_bootHandler.cpp"
-            "${SHARED_FAKES_DIR}/io_time.cpp"
+            "${SHARED_FAKES_DIR}/io/imu.cpp"
+            "${SHARED_FAKES_DIR}/io/loadswitch.cpp"
+            "${SHARED_FAKES_DIR}/io/canQueue.cpp"
+            "${SHARED_FAKES_DIR}/io/bootHandler.cpp"
+            "${SHARED_FAKES_DIR}/io/time.cpp"
     )
     set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
-    set(INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test"
-            ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR}
-            ${SYSTEM_INCLUDE_DIRS} ${SHARED_FAKES_DIR}
-    )
+    set(INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test" ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS}
+            ${TEST_INCLUDE_DIRS} ${SHARED_EMBEDDED_DIR} ${SYSTEM_INCLUDE_DIRS} ${SHARED_FAKES_DIR})
     compile_gtest_executable(
             "quintuna_VC_test"
             "${SRCS}"
@@ -170,7 +168,6 @@ elseif ("${TARGET}" STREQUAL "test")
     # JSONCAN
     jsoncan_library(VC quintuna "${CMAKE_CURRENT_BINARY_DIR}")
 
-
     # CommitInfo
     commit_info_library(
             "quintuna_VC_test"
@@ -178,6 +175,6 @@ elseif ("${TARGET}" STREQUAL "test")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    target_compile_definitions("quintuna_VC_test" PRIVATE STM32H733xx)
     target_link_libraries("quintuna_VC_test" PRIVATE "quintuna_VC_jsoncan" "quintuna_VC_commit_info")
+    target_compile_definitions("quintuna_VC_test" PRIVATE STM32H733xx)
 endif ()

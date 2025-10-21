@@ -148,13 +148,13 @@ if ("${TARGET}" STREQUAL "binary")
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(SHARED_FAKES
-            "${SHARED_FAKES_DIR}/io_canQueue.cpp"
-            "${SHARED_FAKES_DIR}/io_semaphore.cpp"
-            "${SHARED_FAKES_DIR}/io_time.cpp"
+            "${SHARED_FAKES_DIR}/io/canQueue.cpp"
+            "${SHARED_FAKES_DIR}/io/semaphore.cpp"
+            "${SHARED_FAKES_DIR}/io/time.cpp"
     )
     set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${SHARED_FAKES})
-    set(INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test" ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR}
-            ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_FAKES_DIR})
+    set(INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test" ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS}
+            ${TEST_INCLUDE_DIRS} ${SHARED_EMBEDDED_DIR} ${SYSTEM_INCLUDE_DIRS} ${SHARED_FAKES_DIR})
     compile_gtest_executable(
             "quintuna_BMS_test"
             "${SRCS}"
@@ -172,6 +172,5 @@ elseif ("${TARGET}" STREQUAL "test")
     )
 
     target_link_libraries("quintuna_BMS_test" PRIVATE "quintuna_BMS_jsoncan" "quintuna_BMS_jsoncan_fakes" "quintuna_BMS_commit_info")
-    target_compile_definitions("quintuna_BMS_test" PRIVATE STM32H733xx)
     target_compile_definitions("quintuna_BMS_test" PRIVATE STM32H733xx)
 endif ()
