@@ -45,7 +45,7 @@ namespace io_sbgEllipse
 
 extern "C"
 {
-#include "io_loadswitches.h"
+#include "io/loadswitches.h"
     static Efuse f_inv_efuse{};
     static Efuse rsm_efuse{};
     static Efuse bms_efuse{};
@@ -76,7 +76,7 @@ extern "C"
                                                               &r_inv_efuse,   &dam_efuse,      &front_efuse,
                                                               &rl_pump_efuse, &r_rad_fan_efuse };
 
-#include "io_vcShdn.h"
+#include "io/vcShdn.h"
     bool io_vcShdn_TsmsFault_get(void)
     {
         return fake::io_vcShdn::tsmsFault;
@@ -94,12 +94,12 @@ extern "C"
         return fake::io_vcShdn::splitterBoxInterlockFault;
     }
 
-#include "io_canQueues.h"
+#include "io/canQueues.h"
     CanTxQueue can1_tx_queue;
     CanTxQueue can2_tx_queue;
     CanTxQueue can3_tx_queue;
 
-#include "io_pcm.h"
+#include "io/pcm.h"
     static bool pcm_enabled = false;
 
     void io_pcm_set(const bool enable)
@@ -111,7 +111,7 @@ extern "C"
         return pcm_enabled;
     }
 
-#include "io_powerMonitoring.h"
+#include "io/powerMonitoring.h"
     bool io_powerMonitoring_init(void)
     {
         return true;
@@ -134,7 +134,7 @@ extern "C"
         *power = 0.0f;
     }
 
-#include "io_sbgEllipse.h"
+#include "io/sbgEllipse.h"
     ExitCode io_sbgEllipse_init()
     {
         return EXIT_CODE_OK;

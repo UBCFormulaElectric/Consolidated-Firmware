@@ -1,4 +1,4 @@
-#include "hw_adc.h"
+#include "hw/adc.h"
 
 // TODO: Setup ADCs.
 const AdcChannel adc_tmp = { .voltage = 0 };

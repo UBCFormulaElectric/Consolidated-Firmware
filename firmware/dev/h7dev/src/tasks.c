@@ -2,12 +2,12 @@
 
 #include "SEGGER_SYSVIEW.h"
 #include "cmsis_os.h"
-#include "io_log.h"
-#include "hw_fdcan.h"
-#include "io_canQueue.h"
-#include "io_canLogging.h"
-#include "hw_hardFaultHandler.h"
-#include "io_fileSystem.h"
+#include "io/log.h"
+#include "hw/fdcan.h"
+#include "io/canQueue.h"
+#include "io/canLogging.h"
+#include "hw/hardFaultHandler.h"
+#include "io/fileSystem.h"
 #include "main.h"
 #include "fdcan_spam.h"
 #include <assert.h>

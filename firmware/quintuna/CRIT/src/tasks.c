@@ -1,29 +1,29 @@
 #include "tasks.h"
-#include "app_jsoncan.h"
+#include "app/jsoncan.h"
 #include "cmsis_os.h"
-#include "hw_watchdog.h"
+#include "hw/watchdog.h"
 #include "shared.pb.h"
 #include "jobs.h"
 #include "main.h"
 
 #include "app_canTx.h"
 #include "app_canAlerts.h"
-#include "app_utils.h"
+#include "app/utils.h"
 
 // io
-#include "io_log.h"
-#include "io_canQueue.h"
+#include "io/log.h"
+#include "io/canQueue.h"
 #include "io_canRx.h"
-#include "io_bootHandler.h"
+#include "io/bootHandler.h"
 
 // hw
-#include "hw_hardFaultHandler.h"
-#include "hw_cans.h"
-#include "hw_usb.h"
-#include "hw_bootup.h"
-#include "hw_chimera_v2.h"
-#include "hw_chimeraConfig_v2.h"
-#include "hw_resetReason.h"
+#include "hw/hardFaultHandler.h"
+#include "hw/cans.h"
+#include "hw/usb.h"
+#include "hw/bootup.h"
+#include "hw/chimera_v2.h"
+#include "hw/chimeraConfig_v2.h"
+#include "hw/resetReason.h"
 #include <cmsis_os2.h>
 
 void tasks_preInit()

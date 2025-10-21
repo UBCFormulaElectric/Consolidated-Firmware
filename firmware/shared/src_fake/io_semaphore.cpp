@@ -1,6 +1,6 @@
-#include "io_semaphoreFake.h"
+#include "io/semaphoreFake.h"
 
-#include "app_utils.h"
+#include "app/utils.h"
 #include <cassert>
 
 extern "C"

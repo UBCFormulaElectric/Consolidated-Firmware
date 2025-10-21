@@ -1,11 +1,11 @@
-#include "app_utils.h"
-#include "io_loadswitchFake.h"
+#include "app/utils.h"
+#include "io/loadswitchFake.h"
 
 #include <cassert>
 
 extern "C"
 {
-#include "io_loadswitches.h"
+#include "io/loadswitches.h"
 }
 
 namespace fake::io_loadswitch

@@ -14,27 +14,29 @@ set(SYSTEM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS
-        "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c")
-set(APP_INCLUDE_DIRS "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_QUINTUNA_DIR}")
+        "${SHARED_APP_INCLUDE_DIR}/jsoncan.c")
+set(APP_INCLUDE_DIRS
+        # "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
+)
 
 file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS
-        "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
-        "${SHARED_IO_INCLUDE_DIR}/io_time.c")
+        "${SHARED_IO_INCLUDE_DIR}/canQueue.c"
+        "${SHARED_IO_INCLUDE_DIR}/time.c")
 
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_QUINTUNA_DIR}")
 
 file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c")
 list(APPEND HW_SRCS
-        "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_can_h7.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_resetReason.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_freeRtosConfigs.c"
+        "${SHARED_HW_INCLUDE_DIR}/assert.c"
+        "${SHARED_HW_INCLUDE_DIR}/error.c"
+        "${SHARED_HW_INCLUDE_DIR}/ubsan.c"
+        "${SHARED_HW_INCLUDE_DIR}/can_h7.c"
+        "${SHARED_HW_INCLUDE_DIR}/hardFaultHandler.c"
+        "${SHARED_HW_INCLUDE_DIR}/utils.c"
+        "${SHARED_HW_INCLUDE_DIR}/resetReason.c"
+        "${SHARED_HW_INCLUDE_DIR}/watchdog.c"
+        "${SHARED_HW_INCLUDE_DIR}/freeRtosConfigs.c"
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}")
 

@@ -25,15 +25,15 @@
 #include <string.h>
 #include "tasks.h"
 
-#include "hw_bootup.h"
-#include "hw_uart.h"
-#include "hw_fdcan.h"
-#include "io_canQueue.h"
-#include "io_canLogging.h"
-#include "io_fileSystem.h"
-#include "hw_gpio.h"
-#include "hw_sd.h"
-#include "io_log.h"
+#include "hw/bootup.h"
+#include "hw/uart.h"
+#include "hw/fdcan.h"
+#include "io/canQueue.h"
+#include "io/canLogging.h"
+#include "io/fileSystem.h"
+#include "hw/gpio.h"
+#include "hw/sd.h"
+#include "io/log.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

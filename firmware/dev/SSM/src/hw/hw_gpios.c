@@ -1,7 +1,7 @@
 #include "main.h"
 
-#include "hw_gpios.h"
-#include "hw_gpio.h"
+#include "hw/gpios.h"
+#include "hw/gpio.h"
 
 const Gpio dout_1 = { .port = DOUT1_GPIO_Port, .pin = DOUT1_Pin };
 const Gpio dout_2 = { .port = DOUT2_GPIO_Port, .pin = DOUT2_Pin };

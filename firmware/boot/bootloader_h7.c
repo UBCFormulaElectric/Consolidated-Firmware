@@ -2,9 +2,9 @@
 #include <string.h>
 #include <stdint.h>
 #include <assert.h>
-#include "hw_flash.h"
-#include "hw_hal.h"
-#include "hw_fdcan.h"
+#include "hw/flash.h"
+#include "hw/hal.h"
+#include "hw/fdcan.h"
 
 extern CanHandle can;
 const CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hfdcan)

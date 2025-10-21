@@ -1,33 +1,33 @@
 #include "jobs.h"
 
 // can
-#include "io_canMsg.h"
-#include "io_canQueues.h"
-#include "app_jsoncan.h"
+#include "io/canMsg.h"
+#include "io/canQueues.h"
+#include "app/jsoncan.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "io_canTx.h"
 
 // app
-#include "states/app_states.h"
-#include "app_stateMachine.h"
-#include "app_timer.h"
-#include "app_pumpControl.h"
-#include "app_powerManager.h"
-#include "app_powerMonitoring.h"
+#include "states/states.h"
+#include "app/stateMachine.h"
+#include "app/timer.h"
+#include "app/pumpControl.h"
+#include "app/powerManager.h"
+#include "app/powerMonitoring.h"
 #include "app_commitInfo.h"
-#include "app_sbgEllipse.h"
-#include "app_warningHandling.h"
-#include "app_heartbeatMonitor.h"
-#include "app_heartbeatMonitors.h"
-#include "app_shdnLoop.h"
-#include "app_shdnLast.h"
-#include "app_imu.h"
+#include "app/sbgEllipse.h"
+#include "app/warningHandling.h"
+#include "app/heartbeatMonitor.h"
+#include "app/heartbeatMonitors.h"
+#include "app/shdnLoop.h"
+#include "app/shdnLast.h"
+#include "app/imu.h"
 
 // io
-#include "io_time.h"
-#include "io_sbgEllipse.h"
-#include "io_imu.h"
+#include "io/time.h"
+#include "io/sbgEllipse.h"
+#include "io/imu.h"
 
 #include <app_canAlerts.h>
 #include <stdbool.h>

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "io_canMsg.h"
-#include "io_canQueue.h"
+#include "io/canMsg.h"
+#include "io/canQueue.h"
 
 extern CanTxQueue can_tx_queue;
 

@@ -1,18 +1,18 @@
 #include "app_canUtils.h"
 #include "test_VCBase.hpp"
 #include "vcFakes.h"
-#include "io_imuFake.h"
+#include "io/imuFake.h"
 
 extern "C"
 {
-#include "app_stateMachine.h"
-#include "states/app_states.h"
-#include "app_startSwitch.h"
+#include "app/stateMachine.h"
+#include "app/states/states.h"
+#include "app/startSwitch.h"
 #include "app_canRx.h"
 #include "app_canTx.h"
 #include "app_canAlerts.h"
-#include "io_pcm.h"
-#include "app_vehicleDynamicsConstants.h"
+#include "io/pcm.h"
+#include "app/vehicle_dynamics/vehicleDynamicsConstants.h"
 }
 
 class VCStateMachineTest : public VCBaseTest

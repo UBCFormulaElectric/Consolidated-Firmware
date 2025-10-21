@@ -1,6 +1,6 @@
 #include "fdcan_spam.h"
 #include <stdint.h>
-#include "io_canQueue.h"
+#include "io/canQueue.h"
 #include "cmsis_os.h"
 
 void fd_can_demo_tick(CanTxQueue *can_tx_queue)

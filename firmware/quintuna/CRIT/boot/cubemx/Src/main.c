@@ -23,9 +23,9 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "bootloader.h"
-#include "hw_can.h"
-#include "hw_utils.h"
-#include "io_canQueue.h"
+#include "hw/can.h"
+#include "hw/utils.h"
+#include "io/canQueue.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

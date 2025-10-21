@@ -17,13 +17,13 @@ list(REMOVE_ITEM MAIN_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/sysmem.c"
 
 # Shared HW srcs.
 set(HW_SHARED_SRCS
-        "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_spi.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
+        "${SHARED_HW_INCLUDE_DIR}/usb.c"
+        "${SHARED_HW_INCLUDE_DIR}/gpio.c"
+        "${SHARED_HW_INCLUDE_DIR}/spi.c"
+        "${SHARED_HW_INCLUDE_DIR}/chimera_v2.c"
+        "${SHARED_HW_INCLUDE_DIR}/utils.c"
+        "${SHARED_HW_INCLUDE_DIR}/error.c"
+        "${SHARED_HW_INCLUDE_DIR}/ubsan.c"
 )
 
 # Collect include dirs and srcs.

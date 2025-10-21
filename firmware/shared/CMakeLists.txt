@@ -17,10 +17,10 @@ IF ("${TARGET}" STREQUAL "test")
 
     # io time :)
     set(HDRS_TO_FAKE
-            "${SHARED_IO_INCLUDE_DIR}/io_time.h"
-            "${SHARED_IO_INCLUDE_DIR}/io_led.h"
-            "${SHARED_IO_INCLUDE_DIR}/io_switch.h"
-            "${SHARED_IO_INCLUDE_DIR}/io_mechanicalLoad.h"
+            "${SHARED_IO_INCLUDE_DIR}/time.h"
+            "${SHARED_IO_INCLUDE_DIR}/led.h"
+            "${SHARED_IO_INCLUDE_DIR}/switch.h"
+            "${SHARED_IO_INCLUDE_DIR}/mechanicalLoad.h"
     )
     create_fake_library("shared_test_fakes" "${HDRS_TO_FAKE}")
 

@@ -22,8 +22,8 @@
 #include "usbd_cdc_if.h"
 
 /* USER CODE BEGIN INCLUDE */
-#include "hw_usb.h"
-#include "io_log.h"
+#include "hw/usb.h"
+#include "io/log.h"
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/

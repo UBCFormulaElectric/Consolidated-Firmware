@@ -32,7 +32,7 @@ extern "C"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "hw_error.h"
+#include "hw/error.h"
 #include "cmsis_os.h"
     /* USER CODE END Includes */
 

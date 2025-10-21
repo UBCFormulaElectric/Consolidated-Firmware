@@ -1,4 +1,4 @@
-#include "hw_sds.h"
+#include "hw/sds.h"
 #include "main.h"
 
 static const Gpio sd_present = { .pin = GPIO_PIN_8, .port = GPIOA };

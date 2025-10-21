@@ -6,8 +6,8 @@
 
 extern "C"
 {
-#include "app_utils.h"
-#include "io_time.h"
+#include "app/utils.h"
+#include "io/time.h"
 }
 
 struct FaultLatchParams
@@ -28,7 +28,7 @@ static std::unordered_map<FaultLatchParams, uint32_t> setCurrentStatus_call_coun
 
 extern "C"
 {
-#include "io_ltc6813.h"
+#include "io/ltc6813.h"
     static std::array<SegmentConfig, NUM_SEGMENTS> segment_config{};
 
     void io_ltc6813_readConfigurationRegisters(SegmentConfig configs[NUM_SEGMENTS], ExitCode success[NUM_SEGMENTS])
@@ -189,7 +189,7 @@ extern "C"
         return EXIT_CODE_OK;
     }
 
-#include "io_irs.h"
+#include "io/irs.h"
     static ContactorState positive_state = CONTACTOR_STATE_OPEN;
     void                  io_irs_setPositive(const ContactorState state)
     {
@@ -216,7 +216,7 @@ extern "C"
         return negative_state;
     }
 
-#include "io_tractiveSystem.h"
+#include "io/tractiveSystem.h"
     void io_tractiveSystem_init(void) {}
 
     static float tractiveSystemVoltage = 0.0f;
@@ -247,7 +247,7 @@ extern "C"
         return currentDiagState;
     }
 
-#include "io_charger.h"
+#include "io/charger.h"
     static ChargerConnectedType connectionStatus = CHARGER_DISCONNECTED;
     ChargerConnectedType        io_charger_getConnectionStatus()
     {
@@ -260,7 +260,7 @@ extern "C"
         return evse_dutyCycle;
     }
 
-#include "io_imd.h"
+#include "io/imd.h"
     static float imd_frequency = 0.0f;
     float        io_imd_getFrequency(void)
     {
@@ -288,7 +288,7 @@ extern "C"
         return pwm_counter;
     }
 
-#include "io_bmsShdn.h"
+#include "io/bmsShdn.h"
     bool io_bmsShdn_msd_shdn_sns_pin_get(void)
     {
         return false;
@@ -302,7 +302,7 @@ extern "C"
         return false;
     }
 
-#include "io_faultLatch.h"
+#include "io/faultLatch.h"
     // latches to operate on
     FaultLatch bms_ok_latch{ FAULT_LATCH_OK, FAULT_LATCH_OK, true, false };
     FaultLatch imd_ok_latch{ FAULT_LATCH_OK, FAULT_LATCH_OK, false, true };
@@ -322,7 +322,7 @@ extern "C"
         return latch->latched_state;
     }
 
-#include "io_bspdTest.h"
+#include "io/bspdTest.h"
     void io_bspdTest_enable(const bool enable)
     {
         UNUSED(enable);
@@ -349,7 +349,7 @@ extern "C"
         UNUSED(transmit_charger_msg_func);
     }
 
-#include "io_fans.h"
+#include "io/fans.h"
     void io_fans_tick(const bool enable)
     {
         (void)enable;

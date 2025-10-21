@@ -5,8 +5,8 @@ extern "C"
 {
 #include "app_canRx.h"
 #include "app_canTx.h"
-#include "app_vehicleDynamicsConstants.h"
-#include "app_driveHandling.h"
+#include "app/vehicle_dynamics/vehicleDynamicsConstants.h"
+#include "app/vehicle_dynamics/driveHandling.h"
 }
 
 #define EFFICIENCY_ESTIMATE (0.80f)

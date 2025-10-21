@@ -1,3 +1,3 @@
 #pragma once
 
-#include "hw_spi.h"
+#include "hw/spi.h"

@@ -2,5 +2,5 @@
 
 extern "C"
 {
-#include "io_semaphore.h"
+#include "io/semaphore.h"
 }

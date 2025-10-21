@@ -1,11 +1,11 @@
 #include "tasks.h"
-#include "app_utils.h"
-#include "hw_gpio.h"
+#include "app/utils.h"
+#include "hw/gpio.h"
 #include "main.h"
 #include <stdbool.h>
 #include "vicor.h"
-#include "io_log.h"
-#include "hw_hardFaultHandler.h"
+#include "io/log.h"
+#include "hw/hardFaultHandler.h"
 
 // Required by SysView
 void hw_sysviewConfig_sendSystemDesc(void)

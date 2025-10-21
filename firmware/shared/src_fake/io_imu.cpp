@@ -1,4 +1,4 @@
-#include "io_imuFake.h"
+#include "io/imuFake.h"
 
 namespace fakes::io_imu
 {
@@ -57,7 +57,7 @@ void         set_AngularVelocityYaw(const float yaw_velocity)
 
 extern "C"
 {
-#include "io_imu.h"
+#include "io/imu.h"
     ExitCode io_imu_init(void)
     {
         fakes::io_imu::initialized = true;

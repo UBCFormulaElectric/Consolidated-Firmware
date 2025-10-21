@@ -23,12 +23,12 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "hw_chimera_v2.h"
-#include "hw_chimeraConfig_v2.h"
+#include "hw/chimera_v2.h"
+#include "hw/chimeraConfig_v2.h"
 #include "shared.pb.h"
-#include "hw_usb.h"
-#include "hw_gpios.h"
-#include "io_log.h"
+#include "hw/usb.h"
+#include "hw/gpios.h"
+#include "io/log.h"
 
 /* USER CODE END Includes */
 

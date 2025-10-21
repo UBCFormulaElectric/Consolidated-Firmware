@@ -210,8 +210,8 @@ Now find the generated `usbd_cdc_if.c` file. At the top, include [`hw_usb.h`](..
 
 ```c
 /* USER CODE BEGIN INCLUDE */
-#include "hw_usb.h"
-#include "io_log.h"
+#include "hw/usb.h"
+#include "io/log.h"
 /* USER CODE END INCLUDE */
 ```
 
@@ -397,7 +397,7 @@ pins/ADC Channels. In the `hw` level of your board, create files called `hw_chim
 
 ```c
 #pragma once
-#include "hw_chimera_v2.h"
+#include "hw/chimera_v2.h"
 
 // Exposed Chimera V2 configs.
 extern hw_chimera_v2_Config chimera_v2_config;
@@ -410,9 +410,9 @@ Eg. On the CRIT,
 ```c
 #include "crit.pb.h"
 #include "shared.pb.h"
-#include "hw_gpios.h"
-#include "hw_spis.h"
-#include "hw_chimeraConfig_v2.h"
+#include "hw/gpios.h"
+#include "hw/spis.h"
+#include "hw/chimeraConfig_v2.h"
 
 // Chimera V2 enums to GPIO peripherals.
 const Gpio *id_to_gpio[] = { [crit_GpioNetName_GPIO_BOOT]                 = &boot,

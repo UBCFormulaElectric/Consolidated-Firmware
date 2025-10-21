@@ -1,14 +1,14 @@
 #pragma once
 #include "ecuTestBase.hpp"
-#include "io_loadswitchFake.h"
+#include "io/loadswitchFake.h"
 #include <array>
 
 extern "C"
 {
 #include "jobs.h"
-#include "io_loadswitches.h"
+#include "io/loadswitches.h"
 #include "app_canRx.h"
-#include "states/app_states.h"
+#include "app/states/states.h"
 }
 
 class VCBaseTest : public EcuTestBase

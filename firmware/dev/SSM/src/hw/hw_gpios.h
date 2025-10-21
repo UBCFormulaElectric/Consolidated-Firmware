@@ -1,5 +1,5 @@
 #pragma once
-#include "hw_gpio.h"
+#include "hw/gpio.h"
 
 /* D-OUT. */
 

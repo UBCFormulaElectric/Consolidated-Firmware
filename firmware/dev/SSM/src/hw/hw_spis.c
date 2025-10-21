@@ -1,4 +1,4 @@
-#include "hw_spis.h"
+#include "hw/spis.h"
 
 #define ISOSPI_TIMEOUT_MS (10U)
 #define DAC_TIMEOUT_MS (10U)

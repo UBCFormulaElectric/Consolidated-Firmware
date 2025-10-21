@@ -3,31 +3,31 @@
 
 #include "app_canTx.h"
 #include "app_canRx.h"
-#include "app_utils.h"
-#include "app_jsoncan.h"
+#include "app/utils.h"
+#include "app/jsoncan.h"
 #include "app_canAlerts.h"
 
-#include "io_log.h"
-#include "io_canQueue.h"
+#include "io/log.h"
+#include "io/canQueue.h"
 #include "io_canRx.h"
 #include "io_canTx.h"
-#include "io_canMsg.h"
-#include "io_semaphore.h"
+#include "io/canMsg.h"
+#include "io/semaphore.h"
 
 // hw
-#include "hw_usb.h"
-#include "hw_cans.h"
-#include "hw_adcs.h"
-#include "hw_pwms.h"
-#include "hw_hardFaultHandler.h"
-#include "hw_watchdog.h"
-#include "hw_bootup.h"
-#include "hw_gpios.h"
-#include "hw_resetReason.h"
+#include "hw/usb.h"
+#include "hw/cans.h"
+#include "hw/adcs.h"
+#include "hw/pwms.h"
+#include "hw/hardFaultHandler.h"
+#include "hw/watchdog.h"
+#include "hw/bootup.h"
+#include "hw/gpios.h"
+#include "hw/resetReason.h"
 
 // chimera
-#include "hw_chimeraConfig_v2.h"
-#include "hw_chimera_v2.h"
+#include "hw/chimeraConfig_v2.h"
+#include "hw/chimera_v2.h"
 
 #include <FreeRTOS.h>
 #include <cmsis_os2.h>

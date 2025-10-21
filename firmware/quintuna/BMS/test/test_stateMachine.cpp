@@ -4,13 +4,13 @@
 
 extern "C"
 {
-#include "states/app_states.h"
+#include "app/states/states.h"
 #include "app_canRx.h"
 #include "app_canTx.h"
 #include "app_canAlerts.h"
-#include "io_irs.h"
-#include "io_time.h"
-#include "app_segments.h"
+#include "io/irs.h"
+#include "io/time.h"
+#include "app/segments.h"
 }
 
 class BmsStateMachineTest : public BMSBaseTest

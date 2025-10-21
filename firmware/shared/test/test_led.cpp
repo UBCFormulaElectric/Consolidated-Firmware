@@ -2,7 +2,7 @@
 
 extern "C"
 {
-#include "io_led.h"
+#include "io/led.h"
 }
 
 #include "fake_io_led.hpp"

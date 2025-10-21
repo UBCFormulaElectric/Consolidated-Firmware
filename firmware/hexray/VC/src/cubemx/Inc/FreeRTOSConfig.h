@@ -172,7 +172,7 @@ standard names. */
 #define USE_CUSTOM_SYSTICK_HANDLER_IMPLEMENTATION 1
 
 /* USER CODE BEGIN Defines */
-#include "hw_freeRtosConfigs.h"
+#include "freeRtosConfigs.h"
 /* USER CODE END Defines */
 
 #endif /* FREERTOS_CONFIG_H */

@@ -1,6 +1,6 @@
 #include "bootloader.h"
-#include "hw_flash.h"
-#include "hw_can.h"
+#include "hw/flash.h"
+#include "hw/can.h"
 #include <assert.h>
 
 extern CanHandle can;

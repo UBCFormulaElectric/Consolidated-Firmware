@@ -1,8 +1,8 @@
 #include "ssm.pb.h"
 #include "shared.pb.h"
-#include "hw_gpios.h"
-#include "hw_spis.h"
-#include "hw_chimeraConfig_v2.h"
+#include "hw/gpios.h"
+#include "hw/spis.h"
+#include "hw/chimeraConfig_v2.h"
 
 // Chimera V2 enums to GPIO peripherals.
 const Gpio *id_to_gpio[] = {

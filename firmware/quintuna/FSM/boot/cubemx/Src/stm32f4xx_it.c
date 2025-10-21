@@ -23,7 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <SEGGER_SYSVIEW_FreeRTOS.h>
-#include "hw_hardFaultHandler.h"
+#include "hw/hardFaultHandler.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

@@ -1,6 +1,6 @@
 #include "vicor.h"
-#include "app_utils.h"
-#include "hw_i2c.h"
+#include "app/utils.h"
+#include "hw/i2c.h"
 #include <stdint.h>
 
 typedef enum

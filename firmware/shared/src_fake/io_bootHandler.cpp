@@ -2,7 +2,7 @@
 
 extern "C"
 {
-#include "io_bootHandler.h"
+#include "io/bootHandler.h"
     void io_bootHandler_processBootRequest(const CanMsg *msg)
     {
         (void)msg;

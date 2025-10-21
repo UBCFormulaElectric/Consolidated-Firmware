@@ -22,9 +22,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "hw_fdcan.h"
-#include "hw_error.h"
-#include "io_canQueue.h"
+#include "hw/fdcan.h"
+#include "hw/error.h"
+#include "io/canQueue.h"
 
 #include "bootloader.h"
 /* USER CODE END Includes */

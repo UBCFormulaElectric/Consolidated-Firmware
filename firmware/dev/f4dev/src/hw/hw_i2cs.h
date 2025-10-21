@@ -1,3 +1,3 @@
 #pragma once
 
-#include "hw_i2c.h"
+#include "hw/i2c.h"

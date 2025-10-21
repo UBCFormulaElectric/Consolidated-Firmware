@@ -1,0 +1,23 @@
+#include "hw/bootup.h"
+#include "hw/utils.h"
+#include "io/log.h"
+#include <assert.h>
+#include <cmsis_os.h>
+#include <projdefs.h>
+
+_Noreturn void vApplicationStackOverflowHook(TaskHandle_t xTask, signed char *pcTaskName)
+{
+    LOG_ERROR("Stack overflow detected in task %s, resetting...", pcTaskName);
+
+#ifndef NO_BOOTLOADER
+    TaskStatus_t status;
+    vTaskGetInfo(xTask, &status, pdFALSE, eRunning);
+    const BootRequest request = { .target        = BOOT_TARGET_APP,
+                                  .context       = BOOT_CONTEXT_STACK_OVERFLOW,
+                                  .context_value = status.xTaskNumber };
+    hw_bootup_setBootRequest(request);
+#endif
+
+    BREAK_IF_DEBUGGER_CONNECTED();
+    NVIC_SystemReset();
+}

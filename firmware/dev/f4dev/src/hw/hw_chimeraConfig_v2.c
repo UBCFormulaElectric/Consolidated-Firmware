@@ -1,9 +1,9 @@
 #include "f4dev.pb.h"
 #include "shared.pb.h"
-#include "hw_chimeraConfig_v2.h"
+#include "hw/chimeraConfig_v2.h"
 
-#include "hw_gpios.h"
-#include "hw_spis.h"
+#include "hw/gpios.h"
+#include "hw/spis.h"
 
 const Gpio *id_to_gpio[] = {
     [f4dev_GpioNetName_GPIO_6] = &gpio_6,

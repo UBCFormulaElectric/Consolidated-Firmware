@@ -1,17 +1,17 @@
 #include "jobs.h"
-#include "app_utils.h"
-#include "io_canMsg.h"
-#include "io_canQueue.h"
-#include "io_canQueues.h"
-#include "app_jsoncan.h"
+#include "app/utils.h"
+#include "io/canMsg.h"
+#include "io/canQueue.h"
+#include "io/canQueues.h"
+#include "app/jsoncan.h"
 #include <app_canTx.h>
 #include <io_canTx.h>
 #include <stdbool.h>
-#include "io_time.h"
+#include "io/time.h"
 #include "app_canRx.h"
 #include <app_commitInfo.h>
 #include <io_canReroute.h>
-#include "io_bootloaderReroute.h"
+#include "io/bootloaderReroute.h"
 #include <string.h>
 
 static void fd_can_tx(const JsonCanMsg *tx_msg)

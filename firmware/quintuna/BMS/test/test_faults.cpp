@@ -3,10 +3,10 @@
 
 extern "C"
 {
-#include "app_stateMachine.h"
-#include "io_ltc6813.h"
+#include "app/stateMachine.h"
+#include "io/ltc6813.h"
 #include "app_canAlerts.h"
-#include "app_segments.h"
+#include "app/segments.h"
 }
 
 class BmsFaultTest : public BMSBaseTest

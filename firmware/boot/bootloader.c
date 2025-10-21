@@ -1,7 +1,7 @@
 #include "bootloader.h"
-#include "app_crc32.h"
+#include "app/crc32.h"
 #include "bootloaderConfig.h"
-#include "hw_bootup.h"
+#include "hw/bootup.h"
 #include "main.h"
 
 #include <stdbool.h>
@@ -12,23 +12,23 @@
 #include "cmsis_os.h"
 
 #include "app_commitInfo.h"
-#include "io_canQueue.h"
-#include "io_log.h"
+#include "io/canQueue.h"
+#include "io/log.h"
 
-#include "hw_hardFaultHandler.h"
-#include "hw_flash.h"
-#include "hw_utils.h"
-#include "hw_hal.h"
+#include "hw/hardFaultHandler.h"
+#include "hw/flash.h"
+#include "hw/utils.h"
+#include "hw/hal.h"
 
 #ifdef STM32H733xx
-#include "hw_fdcan.h"
+#include "hw/fdcan.h"
 #elif STM32F412Rx
-#include "hw_can.h"
+#include "hw/can.h"
 #else
 #error "Please define what MCU is used"
 #endif
 
-#include "app_utils.h"
+#include "app/utils.h"
 
 extern TIM_HandleTypeDef htim6;
 

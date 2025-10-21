@@ -24,7 +24,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
-#include "hw_usb.h"
+#include "hw/usb.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

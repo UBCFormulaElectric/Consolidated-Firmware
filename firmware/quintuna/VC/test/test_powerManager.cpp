@@ -17,9 +17,9 @@ extern "C"
 
 extern "C"
 {
-#include "states/app_states.h"
+#include "app/states/states.h"
 #include "app_canRx.h"
-#include "io_loadswitches.h"
+#include "io/loadswitches.h"
 }
 
 class VCPowerManagerTest : public VCBaseTest

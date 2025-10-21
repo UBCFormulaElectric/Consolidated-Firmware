@@ -1,8 +1,8 @@
-#include "io_canQueueFake.h"
+#include "io/canQueueFake.h"
 
 extern "C"
 {
-#include "io_canQueue.h"
+#include "io/canQueue.h"
     void io_canQueue_initRx() {}
     void io_canQueue_initTx(CanTxQueue *queue)
     {

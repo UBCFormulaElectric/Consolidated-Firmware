@@ -24,9 +24,9 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
-#include "hw_error.h"
-#include "io_log.h"
-#include "hw_sd.h"
+#include "hw/error.h"
+#include "io/log.h"
+#include "hw/sd.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

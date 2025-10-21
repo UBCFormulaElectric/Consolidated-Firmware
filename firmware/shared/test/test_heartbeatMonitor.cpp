@@ -2,7 +2,7 @@
 #include "fake_io_time.hpp"
 extern "C"
 {
-#include "app_heartbeatBoard.h"
+#include "app/heartbeatBoard.h"
 }
 
 // fake can states

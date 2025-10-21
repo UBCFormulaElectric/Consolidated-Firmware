@@ -2,7 +2,7 @@
 
 extern "C"
 {
-#include "app_imd.h"
+#include "app/imd.h"
 }
 class BMSIMDTest : public BMSBaseTest
 {

@@ -2,8 +2,8 @@
 
 extern "C"
 {
-#include "app_pumpControl.h"
-#include "io_loadswitches.h"
+#include "app/pumpControl.h"
+#include "io/loadswitches.h"
 #include "app_canUtils.h"
 #include "app_canTx.h"
 #include "app_canRx.h"

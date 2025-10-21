@@ -3,7 +3,7 @@
 
 extern "C"
 {
-#include "app_math.h"
+#include "app/math.h"
 }
 
 TEST(VoltageSenseTest, tractive_system_voltage_calculation)

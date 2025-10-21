@@ -12,22 +12,22 @@ list(REMOVE_ITEM CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/sysmem.
 
 # Shared sources.
 list(APPEND EMBEDDED_SRCS
-        "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_spi.c"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_f4.cpp"
-        "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
-        "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
-        #        "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_freeRtosConfigs.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
+        "${SHARED_HW_INCLUDE_DIR}/sd.c"
+        "${SHARED_HW_INCLUDE_DIR}/uart.c"
+        "${SHARED_HW_INCLUDE_DIR}/usb.c"
+        "${SHARED_HW_INCLUDE_DIR}/adc.c"
+        "${SHARED_HW_INCLUDE_DIR}/gpio.c"
+        "${SHARED_HW_INCLUDE_DIR}/i2c.c"
+        "${SHARED_HW_INCLUDE_DIR}/spi.c"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/can_f4.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/time.cpp"
+        "${SHARED_IO_INCLUDE_DIR}/canQueue.c"
+        "${SHARED_HW_INCLUDE_DIR}/chimera_v2.c"
+        #        "${SHARED_HW_INCLUDE_DIR}/utils.c"
+        "${SHARED_HW_INCLUDE_DIR}/ubsan.c"
+        "${SHARED_HW_INCLUDE_DIR}/error.c"
+        "${SHARED_HW_INCLUDE_DIR}/freeRtosConfigs.c"
+        "${SHARED_HW_INCLUDE_DIR}/bootup.c"
 )
 
 set(EMBEDDED_INCLUDE_DIRS

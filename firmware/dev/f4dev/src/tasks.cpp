@@ -6,20 +6,20 @@ extern "C"
 }
 
 #include "usbd_cdc_if.h"
-#include "hw_can.hpp"
-// #include "hw_usb.hpp"
-// #include "hw_chimeraConfig_v2.hpp"
-// #include "hw_sd.hpp"
+#include "hw/can.hpp"
+// #include "hw/usb.hpp"
+// #include "hw/chimeraConfig_v2.hpp"
+// #include "hw/sd.hpp"
 #include "errorCodes.hpp"
 
-// #include "hw_bootup.h"
-// #include "hw_uart.h"
+// #include "hw/bootup.h"
+// #include "hw/uart.h"
 // #include "shared.pb.h"
 // #include "f4dev.pb.h"
-// #include "hw_gpio.h"
-// #include "hw_gpios.h"
-// #include "hw_adcs.h"
-// #include "io_log.h"
+// #include "hw/gpio.h"
+// #include "hw/gpios.h"
+// #include "hw/adcs.h"
+// #include "io/log.h"
 
 #include <cassert>
 

@@ -5,7 +5,7 @@
 extern "C"
 {
 #include "jobs.h"
-#include "states/app_states.h"
+#include "app/states/states.h"
 #include "app_canRx.h"
 #include "io_canRx.h"
 }

@@ -5,7 +5,7 @@
 
 extern "C"
 {
-#include "app_stateMachine.h"
+#include "app/stateMachine.h"
 }
 
 class BaseStateMachineTest : public testing::Test

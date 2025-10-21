@@ -2,7 +2,7 @@
 
 extern "C"
 {
-#include "io_loadswitch.h"
+#include "io/loadswitch.h"
 }
 
 namespace fake::io_loadswitch

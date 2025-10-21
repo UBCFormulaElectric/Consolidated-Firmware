@@ -4,8 +4,8 @@
 
 extern "C"
 {
-#include "app_signal.h"
-#include "app_timer.h"
+#include "app/signal.h"
+#include "app/timer.h"
 }
 
 class SignalTest : public testing::Test

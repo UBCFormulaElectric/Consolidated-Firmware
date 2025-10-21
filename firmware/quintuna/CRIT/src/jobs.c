@@ -2,25 +2,25 @@
 
 // App
 #include "app_commitInfo.h"
-#include "app_utils.h"
+#include "app/utils.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
-#include "app_heartbeatMonitors.h"
+#include "app/heartbeatMonitors.h"
 #include "screens/app_screens.h"
-#include "app_leds.h"
-#include "app_switches.h"
-#include "app_jsoncan.h"
+#include "app/leds.h"
+#include "app/switches.h"
+#include "app/jsoncan.h"
 
 // IO
-#include "io_bootHandler.h"
-#include "io_canMsg.h"
+#include "io/bootHandler.h"
+#include "io/canMsg.h"
 #include "io_canTx.h"
-#include "io_time.h"
-#include "io_canQueue.h"
-#include "io_shift_register.h"
+#include "io/time.h"
+#include "io/canQueue.h"
+#include "io/shift_register.h"
 
 // HW
-#include "hw_gpios.h"
+#include "hw/gpios.h"
 
 CanTxQueue can_tx_queue;
 

@@ -1,10 +1,10 @@
-#include "io_timeFake.hpp"
+#include "io/timeFake.hpp"
 
 static uint32_t current_time_ms = 0;
 
 extern "C"
 {
-#include "io_time.h"
+#include "io/time.h"
     uint32_t io_time_getCurrentMs()
     {
         return current_time_ms;

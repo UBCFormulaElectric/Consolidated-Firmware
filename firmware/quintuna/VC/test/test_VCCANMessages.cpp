@@ -2,7 +2,7 @@
 
 extern "C"
 {
-#include "states/app_states.h"
+#include "app/states/states.h"
 #include "app_canTx.h"
 }
 

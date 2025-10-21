@@ -5,9 +5,9 @@
 
 extern "C"
 {
-#include "io_irs.h"
-#include "io_faultLatch.h"
-#include "io_ltc6813.h"
+#include "io/irs.h"
+#include "io/faultLatch.h"
+#include "io/ltc6813.h"
 }
 
 namespace fakes
