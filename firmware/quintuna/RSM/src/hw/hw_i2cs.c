@@ -1,5 +1,6 @@
 #include "main.h"
 #include "hw_i2cs.h"
+#include <assert.h>
 
 static I2cBus i2c_bus_1 = { .handle = &hi2c1 };
 static I2cBus i2c_bus_3 = { .handle = &hi2c3 };

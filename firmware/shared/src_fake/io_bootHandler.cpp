@@ -6,6 +6,5 @@ extern "C"
     void io_bootHandler_processBootRequest(const CanMsg *msg)
     {
         (void)msg;
-        assert(false); // not allowed
     }
 }

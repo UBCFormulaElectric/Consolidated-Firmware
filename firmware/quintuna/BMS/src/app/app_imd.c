@@ -84,7 +84,7 @@ ImdCondition app_imd_getCondition()
 
             if (condition.pwm_encoding.valid_duty_cycle)
             {
-                if (pwm_duty_cycle == 5.0f)
+                if (pwm_duty_cycle - 5.0f < 0.001f)
                 {
                     // The formula for calculating the insulation resistance
                     // causes a div-by-zero if the duty cycle is 5%.
@@ -132,6 +132,7 @@ ImdCondition app_imd_getCondition()
                 (pwm_duty_cycle >= 47.5f && pwm_duty_cycle <= 52.5f) ? true : false;
             break;
         case IMD_CONDITION_INVALID:
+        case NUM_IMD_CONDITION_NAME_CHOICES:
         default:
             condition.pwm_encoding.valid_duty_cycle = false;
             break;
@@ -193,10 +194,11 @@ void app_imd_broadcast()
             app_canTx_BMS_ImdActiveFrequency_set(IMD_50Hz);
         }
         break;
+        case IMD_CONDITION_INVALID:
+        case NUM_IMD_CONDITION_NAME_CHOICES:
         default:
         {
             // Nothing to do for conditions that don't carry a payload
         }
-        break;
     }
 }

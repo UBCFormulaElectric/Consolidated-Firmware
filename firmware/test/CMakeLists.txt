@@ -50,6 +50,7 @@ function(create_fake_library
     message("  🔃 Creating fake library ${FAKE_LIB_NAME} with sources ${FAKE_SRCS}")
     add_library(${FAKE_LIB_NAME} INTERFACE)
     target_sources(${FAKE_LIB_NAME} INTERFACE ${FAKE_SRCS})
+    no_checks("${FAKE_SRCS}")
     target_include_directories(${FAKE_LIB_NAME} INTERFACE ${FAKEGEN_DIR} ${FAKE_HDR_DIRS})
 endfunction()
 
@@ -73,18 +74,16 @@ function(compile_gtest_executable
                 /W3
                 /WX
         )
-    else ()
+    elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         target_compile_options(${TEST_EXECUTABLE_NAME}
                 PRIVATE
-                -Wall
-                -Wextra
-                # -Werror <--- This line makes all warnings into errors
-                -pedantic
+                ${SHARED_GNU_COMPILER_CHECKS}
+                -Werror
         )
-        if(UNIX AND NOT APPLE)
-                target_compile_options(${TEST_EXECUTABLE_NAME} PRIVATE --coverage)
-                target_link_libraries(${TEST_EXECUTABLE_NAME} PRIVATE gcov)
-        endif()
+        target_compile_options(${TEST_EXECUTABLE_NAME} PRIVATE --coverage)
+        target_link_libraries(${TEST_EXECUTABLE_NAME} PRIVATE gcov)
+    else ()
+        message(WARNING "  ⚠️ Unsupported compiler for test executable ${TEST_EXECUTABLE_NAME}")
     endif ()
     target_link_libraries(${TEST_EXECUTABLE_NAME} PRIVATE gtest_main)
     add_test(NAME ${TEST_EXECUTABLE_NAME}

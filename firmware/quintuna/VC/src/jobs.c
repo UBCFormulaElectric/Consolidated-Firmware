@@ -116,6 +116,8 @@ void jobs_run100Hz_tick(void)
         case TIMER_STATE_EXPIRED:
             app_stateMachine_setNextState(&init_state);
             break;
+        default:
+            break;
     }
     app_stateMachine_tickTransitionState();
 

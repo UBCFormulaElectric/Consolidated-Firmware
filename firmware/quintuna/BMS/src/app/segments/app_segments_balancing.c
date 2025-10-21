@@ -125,6 +125,7 @@ void app_segments_balancingTick(bool enable)
             }
             break;
         }
+        case NUM_BALANCING_STATE_CHOICES:
         default:
         {
             // Should never get here!
