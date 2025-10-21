@@ -37,7 +37,7 @@ function(stm32f4_boot_binary
             "${SHARED_HW_INCLUDE_DIR}/freeRtosConfigs.c"
     )
     list(APPEND INCLUDE_DIRS
-            ${SHARED_EMBEDDED_DIR}
+            "${SHARED_EMBEDDED_DIR}"
             "${SHARED_EMBEDDED_DIR_CPP}"
     )
 
