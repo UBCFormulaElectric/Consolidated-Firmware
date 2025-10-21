@@ -5,11 +5,11 @@ set(ARM_CORE "cm4")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/f4dev.ioc")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app_only.ld")
 
-file(GLOB_RECURSE EMBEDDED_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c" "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.cpp")
-
 file(GLOB CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 list(REMOVE_ITEM CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/sysmem.c")
+set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc" "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
+file(GLOB_RECURSE EMBEDDED_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c" "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.cpp")
 # Shared sources.
 list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR}/sd.c"
@@ -23,17 +23,13 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/time.cpp"
         "${SHARED_IO_INCLUDE_DIR}/canQueue.c"
         "${SHARED_HW_INCLUDE_DIR}/chimera_v2.c"
-        #        "${SHARED_HW_INCLUDE_DIR}/utils.c"
+        # "${SHARED_HW_INCLUDE_DIR}/utils.c"
         "${SHARED_HW_INCLUDE_DIR}/ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/error.c"
         "${SHARED_HW_INCLUDE_DIR}/freeRtosConfigs.c"
         "${SHARED_HW_INCLUDE_DIR}/bootup.c"
 )
-
-set(EMBEDDED_INCLUDE_DIRS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc" "${CMAKE_CURRENT_SOURCE_DIR}/src"
-        "${SHARED_EMBEDDED_DIR}" "${SHARED_EMBEDDED_DIR_CPP}"
-)
+set(EMBEDDED_INCLUDE_DIRS ${CUBEMX_INCLUDE_DIRS} "${SHARED_EMBEDDED_DIR}" "${SHARED_EMBEDDED_DIR_CPP}")
 
 IF ("${TARGET}" STREQUAL "binary")
     set(STM32_HAL_SRCS
@@ -61,7 +57,6 @@ IF ("${TARGET}" STREQUAL "binary")
             "stm32f4xx_ll_usb.c"
             "stm32f4xx_hal_spi.c"
     )
-    set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc" "${CMAKE_CURRENT_SOURCE_DIR}/src")
     stm32f412rx_cube_library(
             "f4dev_stm32"
             "${STM32_HAL_SRCS}"

@@ -5,6 +5,9 @@ set(ARM_CORE "cm7")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/h7dev.ioc")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
 
+file(GLOB CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
+set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc" "${CMAKE_CURRENT_SOURCE_DIR}/src")
+
 file(GLOB EMBEDDED_SRCS CONFIGURE_DEPENDS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
@@ -27,22 +30,11 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR}/utils.c"
         "${SHARED_HW_INCLUDE_DIR}/freeRtosConfigs.c"
 )
-
-file(GLOB CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
+set(EMBEDDED_INCLUDE_DIRS "${SHARED_EMBEDDED_DIR}" ${CUBEMX_INCLUDE_DIR})
 
 nanopb_generate_cpp(PROTO_SRCS PROTO_HDRS sample.proto)
-
 set(SRCS ${PROTO_SRCS})
 set(HDRS ${CMAKE_CURRENT_BINARY_DIR} ${NANOPB_INCLUDE_DIRS})
-
-set(EMBEDDED_INCLUDE_DIRS
-        "${SHARED_APP_INCLUDE_DIR}"
-        "${SHARED_IO_INCLUDE_DIR}"
-        "${SHARED_HW_INCLUDE_DIR}"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src"
-)
 
 IF ("${TARGET}" STREQUAL "binary")
     set(STM32_HAL_SRCS
@@ -73,7 +65,6 @@ IF ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_hal_pwr.c"
             "stm32h7xx_hal_pwr_ex.c"
     )
-    set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc" "${CMAKE_CURRENT_SOURCE_DIR}/src")
     stm32h733xx_cube_library(
             "h7dev_stm32"
             "${STM32_HAL_SRCS}"
