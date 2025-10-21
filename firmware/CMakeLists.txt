@@ -1,5 +1,6 @@
 include(cmake/dependencies.cmake)
-include(cmake/shared.cmake)
+include(../scripts/code_generation/jsoncan/jsoncan.cmake)
+include(../scripts/code_generation/commit_info_gen/commit_info.cmake)
 
 IF ("${TARGET}" STREQUAL "binary")
     option(BOOTLOAD "Build the bootloader" OFF)

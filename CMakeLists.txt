@@ -41,9 +41,8 @@ ELSE ()
 ENDIF ()
 
 # ========== INCLUDES ==========
-include("python.cmake")
-include(scripts/code_generation/jsoncan/jsoncan.cmake)
-include(scripts/code_generation/commit_info_gen/commit_info.cmake)
+include(python.cmake)
+include(shared.cmake)
 
 # ======== Clang-Format ========
 set(FIX_FORMATTING_SCRIPT scripts/utilities/fix_formatting.py)
