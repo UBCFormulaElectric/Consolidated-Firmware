@@ -142,7 +142,7 @@ TEST(PackUnpackTests, test_signed_numbers)
             LSHIFT(ENCODE(1, 1, 0), 32),                            // RPM
         0 | LSHIFT(TWOS_COMP(ENCODE(1.0, 0.1, 0), 0xFFFF), 0) |     // Temp
             LSHIFT(TWOS_COMP(ENCODE(1, 1, 0), 0xFFFF), 32),         // RPM
-        0 | LSHIFT(ENCODE(3276.7f, 0.1f, 0), 0) |                   // Temp
+        0 | LSHIFT(ENCODE(3276.7, 0.1, 0), 0) |                     // Temp
             LSHIFT(ENCODE(32767, 1, 0), 32),                        // RPM
         0 | LSHIFT(TWOS_COMP(ENCODE(3276.8, 0.1, 0), 0xFFFF), 32) | // Temp
             LSHIFT(TWOS_COMP(ENCODE(32768, 1, 0), 0xFFFF), 0),      // RPM
