@@ -43,4 +43,5 @@ backend/mf4_logs/*
 backend/data/*
 backend/data_mf4/*
 
-.env
+*.env
+!*.template.env

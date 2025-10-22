@@ -94,6 +94,9 @@ static void drive_mode_update(void)
             data_buffer[7] = SEG_PATTERN_8;
             data_buffer[8] = SEG_PATTERN_8;
             break;
+        case DRIVE_MODE_COUNT:
+        case NUM_DRIVE_MODE_CHOICES:
+            break;
     }
 
     io_shift_register_updateSevenSegRegisters((uint8_t *)data_buffer);

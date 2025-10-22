@@ -19,10 +19,10 @@ from .src.can_database import (
     CanBus,
     CanAlert,
     CanNode,
-    CanEnum,
     CanSignal,
     CanAlertType,
-    CanSignalDatatype,
 )
+
+from .src.can_signals import CanEnum, CanSignalDatatype
 
 from .src.codegen.c_generation.routing import CanTxConfig, CanRxConfig, CanForward

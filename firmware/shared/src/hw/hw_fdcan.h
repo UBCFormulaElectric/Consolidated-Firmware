@@ -1,22 +1,19 @@
 #pragma once
 
-#include <cmsis_os.h>
-#include <stdint.h>
 #include <stdbool.h>
 #include "io_canMsg.h"
-#include "app_utils.h"
-#include "hw_utils.h"
-
-#ifdef TARGET_EMBEDDED
 #include "hw_hal.h"
+#include <cmsis_os.h>
+#include "errorCodes.h"
+
 // STM32 HAL CAN FD handle.
 typedef struct
 {
     FDCAN_HandleTypeDef *hcan;
     uint8_t              bus_num; // TODO change this to jsoncan bus enum when jiajun is done
     void (*const receive_callback)(const CanMsg *rx_msg);
-    bool ready;
-    // TaskHandle_t transmit_task;
+    bool         ready;
+    TaskHandle_t transmit_task;
 } CanHandle;
 /**
  * @attention THIS MUST BE DEFINED IN YOUR CONFIGURATIONS
@@ -24,7 +21,6 @@ typedef struct
  * @returns a pointer to a CanHandle object (the metadata associated with the STM32 HAL CAN object)
  */
 const CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hcan);
-#endif
 
 /**
  * Initialize CAN driver.
@@ -61,4 +57,4 @@ ExitCode hw_fdcan_transmit(CanHandle *can_handle, CanMsg *msg);
  * @param rx_fifo Which RX FIFO to receive a message from.
  * @return Whether or not the reception was successful.
  */
-ExitCode hw_fdcan_receive(const CanHandle *can_handle, const uint32_t rx_fifo, CanMsg *msg);
+ExitCode hw_fdcan_receive(const CanHandle *can_handle, uint32_t rx_fifo, CanMsg *msg);

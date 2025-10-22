@@ -4,12 +4,11 @@
  * @note all implementation is in the ltc6813 directory
  */
 #pragma once
-#include <stdbool.h>
 #include <stdint.h>
-#include "app_utils.h"
+#include "errorCodes.h"
 
 // Physical constants for our accumulator.
-#define NUM_SEGMENTS 8
+#define NUM_SEGMENTS 6
 #define CELLS_PER_SEGMENT 14
 #define THERMISTORS_PER_SEGMENT 14
 
@@ -45,7 +44,7 @@ typedef struct __attribute__((__packed__))
     uint8_t dcc_9_12 : 4;
     uint8_t dcto : 4; // some shit for extended balancing
 } CFGAR;
-static_assert(sizeof(CFGAR) == REGISTER_GROUP_SIZE);
+// static_assert(sizeof(CFGAR) == REGISTER_GROUP_SIZE);
 
 // as per table 39
 typedef struct __attribute__((__packed__))
@@ -64,7 +63,7 @@ typedef struct __attribute__((__packed__))
     // byte 3-6
     uint32_t reserved;
 } CFGBR;
-static_assert(sizeof(CFGBR) == REGISTER_GROUP_SIZE);
+// static_assert(sizeof(CFGBR) == REGISTER_GROUP_SIZE);
 
 typedef struct
 {

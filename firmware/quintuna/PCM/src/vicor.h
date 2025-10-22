@@ -1,7 +1,8 @@
 #pragma once
 
-#include "app_utils.h"
+#include <stdint.h>
 #include <stdbool.h>
+#include "errorCodes.h"
 
 ExitCode vicor_operation(bool enable);
 ExitCode vicor_clearFaults(void);

@@ -1,24 +1,11 @@
-from settings import CAR_NAME
-from jsoncan import JsonCanParser
-import datetime
 import os
 from concurrent.futures import ThreadPoolExecutor
-
 import requests
+from time import time
 
-# _dockerized = os.environ.get("DOCKERIZED") == "1"
-# if not _dockerized:
-#     import sys
-
-#     sys.path.insert(
-#         0,
-#         os.path.abspath(
-#             os.path.join(
-#                 os.path.dirname(__file__), "../../../../../scripts/code_generation/"
-#             )
-#         ),
-#     )
-
+from jsoncan import JsonCanParser, CanDatabase
+from settings import CAR_NAME, DOCKERIZED
+from logger import logger
 
 def _download_file(commit_sha, file, folder_path, save_dir):
     file_url = f"https://raw.githubusercontent.com/UBCFormulaElectric/Consolidated-Firmware/{commit_sha}/{file['path']}"
@@ -53,7 +40,7 @@ def fetch_jsoncan_configs(commit_sha: str, force=False) -> str:
     if _cached_commit_sha == commit_sha and os.path.exists(save_dir) and not force:
         # this is an important optimization as this is the hot branch
         # namely, every time a commit info message comes in, this runs
-        return
+        return save_dir
 
     folder_path = f"can_bus/{_car}"
     url = f"https://api.github.com/repos/UBCFormulaElectric/Consolidated-Firmware/git/trees/{commit_sha}?recursive=1"
@@ -78,11 +65,16 @@ def fetch_jsoncan_configs(commit_sha: str, force=False) -> str:
     _cached_commit_sha = commit_sha
     return save_dir
 
+def make_can_db(jsoncan_config_path: str) -> CanDatabase:
+    start = time()
+    out = JsonCanParser(jsoncan_config_path).make_database()
+    logger.info(f"Loaded CAN database in {time() - start:.2f} seconds from {jsoncan_config_path}")
+    return out
 
 # fetch_jsoncan_configs("e12121d", True)
 # can_db = CanDatabase()
 
-json_can_config_root = os.path.join(
+json_can_config_root = os.path.join("/", "can_bus", CAR_NAME) if DOCKERIZED else os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
     "..",
     "..",
@@ -95,17 +87,17 @@ json_can_config_root = os.path.join(
 
 if not os.path.lexists(json_can_config_root):
     raise Exception(
-        "json can path does not exist, did you pass correct CAN_NAME")
+        "json can path does not exist, did you pass correct CAR_NAME")
 
-live_can_db = JsonCanParser(json_can_config_root).make_database()
-board_start_time: datetime.datetime = None
+live_can_db = make_can_db(json_can_config_root)
+# board_start_time: datetime.datetime = None
 
 
 def update_can_db(path):
     global live_can_db
-    live_can_db = JsonCanParser(path).make_database()
+    live_can_db = make_can_db(path)
 
 
-def update_base_time(time: datetime.datetime):
-    global board_start_time
-    board_start_time = time
+# def update_base_time(time: datetime.datetime):
+#     global board_start_time
+#     board_start_time = time

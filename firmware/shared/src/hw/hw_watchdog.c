@@ -10,10 +10,10 @@
 #include "main.h"
 
 #ifdef STM32F412Rx
-extern IWDG_HandleTypeDef  hiwdg;
+// extern IWDG_HandleTypeDef  hiwdg;
 static IWDG_HandleTypeDef *iwdg_handle = &hiwdg;
 #elif STM32H733xx
-extern IWDG_HandleTypeDef  hiwdg1;
+// extern IWDG_HandleTypeDef  hiwdg1;
 static IWDG_HandleTypeDef *iwdg_handle = &hiwdg1;
 #else
 #error "Please define what MCU is used."

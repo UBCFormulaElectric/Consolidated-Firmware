@@ -1,20 +1,18 @@
 #pragma once
 
-#include <stdint.h>
-#include <stdbool.h>
 #include "io_canMsg.h"
-#include "app_utils.h"
-#include "hw_utils.h"
-
-#ifdef TARGET_EMBEDDED
+#include "errorCodes.h"
 #include "hw_hal.h"
+#include "cmsis_os.h"
+
 // STM32 HAL CAN handle.
 typedef struct
 {
     CAN_HandleTypeDef *const hcan;
-    const uint8_t            bus_num; // TODO change this to jsoncan bus enum when jiajun is done
+    const uint8_t            bus_num;
     void (*const receive_callback)(const CanMsg *rx_msg);
-    bool ready;
+    bool         ready;
+    TaskHandle_t transmit_task;
 } CanHandle;
 
 /**
@@ -23,7 +21,6 @@ typedef struct
  * @returns a pointer to a CanHandle object (the metadata associated with the STM32 HAL CAN object)
  */
 const CanHandle *hw_can_getHandle(const CAN_HandleTypeDef *hcan);
-#endif
 
 /**
  * Initialize CAN driver.
