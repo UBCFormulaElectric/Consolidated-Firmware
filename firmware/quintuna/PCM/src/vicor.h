@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "errorCodes.h"
+#include "util_errorCodes.h"
 
 ExitCode vicor_operation(bool enable);
 ExitCode vicor_clearFaults(void);
