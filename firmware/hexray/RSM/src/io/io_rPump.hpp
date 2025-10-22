@@ -1,11 +1,10 @@
 #pragma once
-extern "C"
-{
-    #include "app_utils.h"
-}
+
+#include "util_errorCodes.hpp"
 
 #ifdef TARGET_EMBEDDED
 #include "hw_i2cs.hpp" //Not created yet
+#endif 
 
 namespace io::rPump
 {
@@ -27,7 +26,6 @@ namespace io::rPump
     */
     ExitCode read(uint8_t *dest);
     
-    #endif 
 
     ExitCode setPercentage(float percentage);
     ExitCode readPercentage(float *dest);

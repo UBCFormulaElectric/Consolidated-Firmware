@@ -1,6 +1,6 @@
 #include "test_fakes.hpp"
-#include "app_brake.hpp"
-#include "app_tireTemp.hpp"
+#include "io_brake.hpp"
+#include "io_tireTemp.hpp"
 
 namespace fakes::io
 {
@@ -20,28 +20,29 @@ namespace fakes::io
 
         void set(const float temp)
         {
-            io::tireTemp::temperature = temp;
-        }
-
-        float get()
-        {
-            return(io::tireTemp::temperature);
+            temperature = temp;
         }
    }
 
 }
 
-namespace io {
-    namespace brake{
+namespace io 
+{
+    namespace brake
+    {
         float getRearPressurePsi()
         {
             return fakes::io::brake::rearPressurePsi;
         }
+    }
 
-        bool isActuated()
+    namespace tireTemp
+    {
+        float get()
         {
-        #define BRAKE_ACTUATED_THRESHOLD_PSI 200.0f
-            return fakes::io::brake::getRearPressurePsi() > BRAKE_ACTUATED_THRESHOLD_PSI;
+            return fakes::io::tireTemp::temperature;
         }
     }
+
+
 }

@@ -3,8 +3,6 @@
 
 #define BRAKE_PRESSURE_OC_THRESHOLD_V 0.33f //Change if under-voltage threshold is diff
 #define BRAKE_PRESSURE_SC_THRESHOLD_V 3.0f //Change if over-voltage threshold is diff
-#define BRAKE_ACTUATED_THRESHOLD_PSI 200.0f //Change if min pressure for brake to be considered actuated is diff
-
 
 //Max measurable pressure over sensors operating range
 // Psi per Volt: (Max Pressure - Min Pressure) / (Max Input Voltage - Min Input Voltage)
@@ -12,13 +10,6 @@
 
 namespace io::brake
 {
-    bool isActuated()
-    {
-        //Brake is actuated when Pressure is greater than threshold
-        return io::brake::getRearPressurePsi() > BRAKE_ACTUATED_THRESHOLD_PSI;
-    }
-
-
     float getRearPressurePsi();
     // {
     //     //function and address of bps_3v3 not initialized yet

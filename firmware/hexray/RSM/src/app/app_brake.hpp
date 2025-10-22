@@ -4,7 +4,7 @@
 * Broadcast brake info on CAN
 */
 
-namespace app:brake 
+namespace app::brake
 {
     void broadcast();
 }

@@ -4,13 +4,12 @@ namespace fakes::io
 {
    namespace brake
    { 
-     float getRearPressurePsi();
-     bool isActuated();
+     void setRearPressurePsi(float rear_PressurePsi);
    }
 
    namespace tireTemp
    {
-     float set();
+     void set(float temp);
    }
 
 }

@@ -2,6 +2,6 @@
 #include "app_tireTemp.hpp"
 extern "C"
 {
-    "app_canTx.h"
+#include "app_canTx.h"
 }
 

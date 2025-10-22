@@ -42,13 +42,14 @@
 #elif defined(__APPLE__) || defined(__linux__)
 #include <signal.h>
 #include <unistd.h>
-
+#if defined(__APPLE__)
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#endif
 static inline int IS_DEBUGGER_PRESENT(void)
 {
 #if defined(__APPLE__)
     // macOS: use sysctl to detect debugger
-#include <sys/types.h>
-#include <sys/sysctl.h>
     int               mib[4];
     struct kinfo_proc info;
     size_t            size = sizeof(info);

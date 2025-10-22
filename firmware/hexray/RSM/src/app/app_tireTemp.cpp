@@ -19,7 +19,7 @@ namespace app::tireTemp
     {
         if (app::tireTemp::outOfRange == true)
         {
-            app_canTx_RSM_Info_RearTireTempOutOfRange_set(app::tireTemp::outOfRange);
+            app_canTx_RSM_Info_TireTemperatureOutOfRange_set(app::tireTemp::outOfRange);
         }
         else
         {
@@ -27,5 +27,3 @@ namespace app::tireTemp
         }
     }
 }
-
-//how to add tireTemp_set and TempOutOfRange to CAN?
