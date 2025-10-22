@@ -12,6 +12,7 @@ type Widget<Type extends WIDGET_TYPE> = {
   signals: string[];
   type: Type;
   options: WIDGET_OPTIONS[Type];
+  id: string;
 };
 
 type EditWidgetFunction<Type extends WIDGET_TYPE> = (newWidgetData: Partial<Widget<Type>>) => void;

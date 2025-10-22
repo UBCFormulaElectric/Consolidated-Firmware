@@ -10,9 +10,9 @@ type DashboardLayoutType = {
   widgets: Widget<WIDGET_TYPE>[];
 
   addWidget: (newWidget: Widget<WIDGET_TYPE>) => void;
-  removeWidget: (widgetToRemove: Widget<WIDGET_TYPE>) => void;
+  removeWidget: (widgetToRemove: string) => void;
   editWidget: (
-    widgetToEdit: Widget<WIDGET_TYPE>,
+    widgetToEdit: string,
     newWidgetData: Partial<Widget<WIDGET_TYPE>>
   ) => void;
 };
@@ -29,6 +29,7 @@ const DashboardLayoutProvider = ({ children }: { children: React.ReactNode }) =>
       options: {
         colorPalette: ["#FF637E", "#FFB86A", "#05DF72", "#51A2FF"],
       },
+      id: "widget-1",
     },
     {
       type: "stateTimeline",
@@ -36,6 +37,7 @@ const DashboardLayoutProvider = ({ children }: { children: React.ReactNode }) =>
       options: {
         colorPalette: ["#FF637E", "#FFB86A", "#05DF72", "#51A2FF"],
       },
+      id: "widget-2",
     },
     {
       type: "stateTimeline",
@@ -43,6 +45,7 @@ const DashboardLayoutProvider = ({ children }: { children: React.ReactNode }) =>
       options: {
         colorPalette: ["#FF637E", "#FFB86A", "#05DF72", "#51A2FF"],
       },
+      id: "widget-3",
     },
     {
       type: "stateTimeline",
@@ -50,17 +53,20 @@ const DashboardLayoutProvider = ({ children }: { children: React.ReactNode }) =>
       options: {
         colorPalette: ["#FF637E", "#FFB86A", "#05DF72", "#51A2FF"],
       },
+      id: "widget-4",
     },
   ]);
 
   const addWidget: DashboardLayoutType["addWidget"] = React.useCallback((newWidget) => {
+    newWidget.id = crypto.randomUUID();
+
     setWidgets((prev) => [...prev, newWidget]);
   }, []);
 
   const removeWidget: DashboardLayoutType["removeWidget"] = React.useCallback(
     (widgetToRemove) => {
       setWidgets((prev) => {
-        const widgetIndex = prev.indexOf(widgetToRemove);
+        const widgetIndex = prev.findIndex((w) => w.id === widgetToRemove);
 
         if (widgetIndex === -1) {
           IS_DEBUG && console.warn("Widget to remove not found");
@@ -78,9 +84,9 @@ const DashboardLayoutProvider = ({ children }: { children: React.ReactNode }) =>
   );
 
   const editWidget: DashboardLayoutType["editWidget"] = React.useCallback(
-    (widgetToEdit, newWidgetData) => {
+    (widgetID, newWidgetData) => {
       setWidgets((prev) => {
-        const widgetIndex = prev.indexOf(widgetToEdit);
+        const widgetIndex = prev.findIndex((w) => w.id === widgetID);
 
         if (widgetIndex === -1) {
           IS_DEBUG && console.warn("Widget to edit not found");
@@ -104,6 +110,7 @@ const DashboardLayoutProvider = ({ children }: { children: React.ReactNode }) =>
     <DashboardLayoutContext.Provider
       value={{
         widgets,
+
 
         addWidget,
         removeWidget,

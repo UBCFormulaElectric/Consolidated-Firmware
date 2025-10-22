@@ -13,8 +13,8 @@ const LiveDataDashboard: React.FC = () => {
       className="flex h-full min-w-[200vw] flex-col gap-16"
       id="data-dashboard-container"
     >
-      {widgets.map((widget) => (
-        <div className="sticky left-0 w-screen">
+      {widgets.map((widget, index) => (
+        <div className="sticky left-0 w-screen" style={{ zIndex: widgets.length - index }}>
           <Widget {...widget} />
         </div>
       ))}
