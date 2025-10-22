@@ -34,7 +34,6 @@ namespace hw
 class PwmInput
 {
   private:
-
     enum class PwmMode
     {
         PWMINPUT,
@@ -62,7 +61,6 @@ class PwmInput
 
     PwmMode mode;
 
-
     /**
      * Set the frequency for the given PWM input
      * @param frequency_hz: Frequency, in Hz
@@ -74,7 +72,6 @@ class PwmInput
     };
 
   public:
-
     /* Complete PWM Input Constructor*/
     consteval explicit PwmInput(
         TIM_HandleTypeDef    *htim,
@@ -89,7 +86,9 @@ class PwmInput
         rising_edge_tim_channel(rising_edge_tim_channel),
         falling_edge_tim_channel(falling_edge_tim_channel),
         tim_auto_reload_reg(tim_auto_reload_reg),
-        mode(PwmMode::PWMINPUT) {}
+        mode(PwmMode::PWMINPUT)
+    {
+    }
 
     /* Frequency only PWM Input Constructor */
     consteval explicit PwmInput(
@@ -104,7 +103,9 @@ class PwmInput
         rising_edge_tim_channel(rising_edge_tim_channel),
         falling_edge_tim_channel(0),
         tim_auto_reload_reg(tim_auto_reload_reg),
-        mode(PwmMode::PWMFREQONLY) {}
+        mode(PwmMode::PWMFREQONLY)
+    {
+    }
 
     /**
      * Initialize a frequency-only PWM input using the given (hardware) timer
@@ -129,15 +130,9 @@ class PwmInput
      * Get the timer handle for the given PWM input
      * @return The timer handle for the given PWM input
      */
-    constexpr TIM_HandleTypeDef *get_timer_handle(void) const
-    {
-        return htim;
-    }
+    constexpr TIM_HandleTypeDef *get_timer_handle(void) const { return htim; }
 
-    constexpr HAL_TIM_ActiveChannel get_timer_activeChannel(void) const
-    {
-        return tim_active_channel;
-    }
+    constexpr HAL_TIM_ActiveChannel get_timer_activeChannel(void) const { return tim_active_channel; }
     /**
      * Check if the given PWM signal is active. If the sensor detects a DC signal
      * set the frequency to 0Hz.

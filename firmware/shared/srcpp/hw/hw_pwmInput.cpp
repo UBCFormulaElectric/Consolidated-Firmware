@@ -68,7 +68,8 @@ void PwmInput::tick(void)
         }
     }
 
-    if (mode == PwmMode::PWMINPUT){
+    if (mode == PwmMode::PWMINPUT)
+    {
         // Calculating duty cycle
         if (curr_rising_edge != 0)
         {
@@ -79,7 +80,7 @@ void PwmInput::tick(void)
     }
 }
 
-//TODO: change this to exit codes
+// TODO: change this to exit codes
 bool PwmInput::pwm_isActive(void)
 {
     // If the timer overflows twice without a rising edge, the PWM signal is
