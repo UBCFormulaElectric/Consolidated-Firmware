@@ -1,7 +1,5 @@
 import { Calendar } from "lucide-react";
 
-import EditModeToggle from "@/components/EditModeToggle";
-
 const Navbar = () => (
   <nav className="border-primary-300 bg-primary-100 fixed top-0 left-0 z-50 flex h-min w-screen flex-col">
     <div className="flex flex-row items-center justify-between border-b-2 border-inherit px-10 py-5 select-none">
@@ -15,8 +13,6 @@ const Navbar = () => (
       </div>
 
       {/** TODO(evan): Add pause / play button here */}
-
-      <EditModeToggle />
     </div>
 
     {/** TODO(evan): Add the universal timeline here */}
