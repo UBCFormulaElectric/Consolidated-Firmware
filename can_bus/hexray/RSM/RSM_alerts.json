@@ -39,6 +39,10 @@
     "WatchdogTimeout": {
       "id": 782,
       "description": "Watchdog timeout detected."
+    },
+    "TireTemperatureOutOfRange":{
+      "id": 715,
+      "description": "Tire Temperature Out of Sensor Range"
     }
   }
 }
