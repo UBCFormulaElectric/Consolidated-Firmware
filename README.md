@@ -1,5 +1,14 @@
+<img src="https://github.com/user-attachments/assets/64d7b3c9-c0af-4a89-bb48-cad103b336c5" alt="Formula E Logo" width="150"/>
+
 # Consolidated-Firmware
 A repository for all software and firmware from UBC Formula Electric. [![Binary and DBC Generation](https://github.com/UBCFormulaElectric/Consolidated-Firmware/actions/workflows/master_cd.yml/badge.svg)](https://github.com/UBCFormulaElectric/Consolidated-Firmware/actions/workflows/master_cd.yml)
+
+Brought to you by the students and alumni of the software team at UBC Formula Electric.
+
+<a href="https://github.com/UBCFormulaElectric/Consolidated-Firmware/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=UBCFormulaElectric/Consolidated-Firmware&max=40&columns=20"/>
+</a>
+
 ## Table of Contents
 - [Environment Setup](#environment-setup)
 - [Building](#building)
