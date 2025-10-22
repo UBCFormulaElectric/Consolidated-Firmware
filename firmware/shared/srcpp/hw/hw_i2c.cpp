@@ -6,8 +6,6 @@
 #define NUM_DEVICE_READY_TRIALS 5
 
 /* --------------------------------------------- I2CBus ------------------------------------------------ */
-hw::i2c::I2CBus::I2CBus(I2C_HandleTypeDef *handle) : handle_(handle) {}
-
 void hw::i2c::I2CBus::deinit() const
 {
     if (handle_ != nullptr)
@@ -27,12 +25,7 @@ void hw::i2c::I2CBus::onTransactionCompleteFromISR()
 }
 
 /* --------------------------------------------- I2CDevice ------------------------------------------------ */
-hw::i2c::I2CDevice::I2CDevice(I2CBus &bus, uint8_t targetAddr, uint32_t timeoutMs)
-  : bus_(bus), targetAddress_(targetAddr), timeoutMs_(timeoutMs)
-{
-}
-
-[[nodiscard]] ExitCode hw::i2c::I2CDevice::waitForNotification()
+ExitCode hw::i2c::I2CDevice::waitForNotification()
 {
     const uint32_t notified = ulTaskNotifyTake(pdTRUE, timeoutMs_);
     bus_.taskInProgress_    = nullptr;
@@ -47,13 +40,13 @@ hw::i2c::I2CDevice::I2CDevice(I2CBus &bus, uint8_t targetAddr, uint32_t timeoutM
     return ExitCode::EXIT_CODE_OK;
 }
 
-[[nodiscard]] ExitCode hw::i2c::I2CDevice::isTargetReady() const
+ExitCode hw::i2c::I2CDevice::isTargetReady() const
 {
     return hw_utils_convertHalStatus(HAL_I2C_IsDeviceReady(
         bus_.handle_, static_cast<uint16_t>(targetAddress_ << 1), NUM_DEVICE_READY_TRIALS, timeoutMs_));
 }
 
-[[nodiscard]] ExitCode hw::i2c::I2CDevice::receive(std::span<uint8_t> rxBuffer)
+ExitCode hw::i2c::I2CDevice::receive(std::span<uint8_t> rxBuffer)
 {
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
@@ -80,7 +73,7 @@ hw::i2c::I2CDevice::I2CDevice(I2CBus &bus, uint8_t targetAddr, uint32_t timeoutM
     return waitForNotification();
 }
 
-[[nodiscard]] ExitCode hw::i2c::I2CDevice::transmit(std::span<const uint8_t> txBuffer)
+ExitCode hw::i2c::I2CDevice::transmit(std::span<const uint8_t> txBuffer)
 {
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
@@ -107,7 +100,7 @@ hw::i2c::I2CDevice::I2CDevice(I2CBus &bus, uint8_t targetAddr, uint32_t timeoutM
     return waitForNotification();
 }
 
-[[nodiscard]] ExitCode hw::i2c::I2CDevice::memoryRead(uint16_t memAddr, std::span<uint8_t> rxBuffer)
+ExitCode hw::i2c::I2CDevice::memoryRead(uint16_t memAddr, std::span<uint8_t> rxBuffer)
 {
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
@@ -134,7 +127,7 @@ hw::i2c::I2CDevice::I2CDevice(I2CBus &bus, uint8_t targetAddr, uint32_t timeoutM
     return waitForNotification();
 }
 
-[[nodiscard]] ExitCode hw::i2c::I2CDevice::memoryWrite(uint16_t memAddr, std::span<const uint8_t> txBuffer)
+ExitCode hw::i2c::I2CDevice::memoryWrite(uint16_t memAddr, std::span<const uint8_t> txBuffer)
 {
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
@@ -164,25 +157,25 @@ hw::i2c::I2CDevice::I2CDevice(I2CBus &bus, uint8_t targetAddr, uint32_t timeoutM
 /* --------------------------------------------- HAL Callbacks ------------------------------------------------ */
 extern "C" void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *handle)
 {
-    auto &bus = hw::i2c::I2CBus::getBusFromHandle(handle);
+    auto &bus = hw::i2c::getBusFromHandle(handle);
     bus.onTransactionCompleteFromISR();
 }
 
 extern "C" void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *handle)
 {
-    auto &bus = hw::i2c::I2CBus::getBusFromHandle(handle);
+    auto &bus = hw::i2c::getBusFromHandle(handle);
     bus.onTransactionCompleteFromISR();
 }
 
 extern "C" void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *handle)
 {
-    auto &bus = hw::i2c::I2CBus::getBusFromHandle(handle);
+    auto &bus = hw::i2c::getBusFromHandle(handle);
     bus.onTransactionCompleteFromISR();
 }
 
 extern "C" void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *handle)
 {
-    auto &bus = hw::i2c::I2CBus::getBusFromHandle(handle);
+    auto &bus = hw::i2c::getBusFromHandle(handle);
     bus.onTransactionCompleteFromISR();
 }
 

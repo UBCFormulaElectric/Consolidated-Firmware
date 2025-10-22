@@ -14,9 +14,17 @@ class I2CBus
 {
   public:
     explicit I2CBus(I2C_HandleTypeDef *handle);
-    void                         deinit() const;
-    [[nodiscard]] static I2CBus &getBusFromHandle(const I2C_HandleTypeDef *handle);
-    void                         onTransactionCompleteFromISR();
+
+    /**
+     * @brief Deinitialize the I2C bus.
+     */
+    void deinit() const;
+
+    /**
+     * @brief Notify the task waiting on an I2C transaction from an ISR.
+     * Called by HAL I2C completion callbacks to signal that a transaction has finished.
+     */
+    void onTransactionCompleteFromISR();
 
   private:
     friend class I2CDevice;
@@ -78,4 +86,11 @@ class I2CDevice
 
     [[nodiscard]] ExitCode waitForNotification();
 };
+
+/**
+ * @brief Retrieve the I2CBus instance associated with a given HAL I2C handle.
+ * @param handle Pointer to a HAL I2C handle.
+ * @return Reference to the I2CBus corresponding to the handle.
+ */
+[[nodiscard]] I2CBus &getBusFromHandle(const I2C_HandleTypeDef *handle);
 } // namespace hw::i2c
