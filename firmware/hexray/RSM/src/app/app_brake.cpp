@@ -8,6 +8,7 @@ extern "C"
 
 #define MIN_BRAKE_PRESSURE_PSI 0.0f
 #define MAX_BRAKE_PRESSURE_PSI 1000.0f
+#define BRAKE_ACTUATED_THRESHOLD_PSI 200.0f //Change if min pressure for brake to be considered actuated is diff
 
 namespace app::brake
 {
@@ -21,5 +22,10 @@ namespace app::brake
 
         app_canTx_RSM_Info_RearBrakePressureOutOfRange_set(
         (rear_pressure >= MAX_BRAKE_PRESSURE_PSI) || (rear_pressure < MIN_BRAKE_PRESSURE_PSI)); 
+    }
+
+    bool isActuated()
+    {
+        return io::brake::getRearPressurePsi() > BRAKE_ACTUATED_THRESHOLD_PSI;
     }
 }
