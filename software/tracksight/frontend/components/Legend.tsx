@@ -8,7 +8,6 @@ type LegendProps = {
   theme: LegendThemes;
 
   // TODO(evan): Implement editable legends
-  editable?: boolean;
   onAddSignal?: (signal: string) => void;
   onRemoveSignal?: (signal: string) => void;
 
@@ -43,7 +42,7 @@ const Legend: React.FC<LegendProps> = (props) => {
 
   return (
     <div
-      className="grid w-full max-w-full gap-4"
+      className="grid w-full max-w-full gap-4 px-8"
       style={{
         gridTemplateColumns: "repeat(auto-fit, 250px)",
       }}
