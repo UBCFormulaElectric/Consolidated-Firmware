@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include "errorCodes.h"
+#include "util_errorCodes.h"
 
 // https://datasheet.ciiva.com/pdfs/VipMasterIC/IC/PHGL/PHGL-S-A0000776674/PHGL-S-A0000776674-1.pdf?src-supplier=IHS+Markit
 

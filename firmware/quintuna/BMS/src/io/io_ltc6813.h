@@ -5,7 +5,7 @@
  */
 #pragma once
 #include <stdint.h>
-#include "errorCodes.h"
+#include "util_errorCodes.h"
 
 // Physical constants for our accumulator.
 #define NUM_SEGMENTS 6

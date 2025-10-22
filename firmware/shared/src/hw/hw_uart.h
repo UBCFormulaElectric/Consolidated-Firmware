@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "cmsis_os.h"
-#include "errorCodes.h"
+#include "util_errorCodes.h"
 #include "hw_hal.h"
 
 // HAL UART type documentation pg 1161:

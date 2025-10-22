@@ -1,6 +1,6 @@
 #pragma once
 
-#include "utils.hpp"
+#include "util_utils.hpp"
 
 /*
 This logging module users SEGGER Real-Time Transfer (RTT) for printf-style debugging.
