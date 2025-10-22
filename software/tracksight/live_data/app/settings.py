@@ -40,4 +40,4 @@ DEBUG = get_env_bool("DEBUG")
 SERVER_IP = os.environ.get("SERVER_IP", None)
 SERVER_DOMAIN_NAME = os.environ.get("SERVER_DOMAIN_NAME", "telem")
 
-LOG_LEVEL = os.environ.get("LOG_LEVEL", "DEBUG").upper()
+LOG_LEVEL = os.environ.get("LOG_LEVEL", "CRITICAL").upper()
