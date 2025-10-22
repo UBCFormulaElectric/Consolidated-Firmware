@@ -14,7 +14,7 @@ typedef struct
     float            roll_offset;
 } imuConfig;
 #else
-#include "errorCodes.h"
+#include "util_errorCodes.h"
 #include "app_utils.h"
 EMPTY_STRUCT(imuConfig)
 #endif
