@@ -5,7 +5,6 @@ import { Inter } from "next/font/google";
 import type React from "react";
 
 import { fetchSignalMetadata } from "@/lib/api/signals";
-import { EditModeProvider } from "@/lib/contexts/EditModeContext";
 import { SignalsMetadataProvider } from "@/lib/contexts/SignalsMetadataContext";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -39,10 +38,8 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} bg-primary-200 overflow-y-scroll pb-20 m-0`}>
         <SignalsMetadataProvider apiBaseUrl={API_BASE_URL} initialData={initialSignalData}>
-          <EditModeProvider>
-            <Sidebar />
-            <main className="mt-24 overflow-y-visible py-12">{children}</main>
-          </EditModeProvider>
+          <Sidebar />
+          <main className="mt-24 overflow-y-visible py-12">{children}</main>
         </SignalsMetadataProvider>
       </body>
     </html>
