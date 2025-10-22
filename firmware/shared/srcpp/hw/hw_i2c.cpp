@@ -1,33 +1,19 @@
 #include <cassert>
 #include <cstdint>
 #include "hw_i2c.hpp"
-#include "hw_utils.h"
 #include "io_log.h"
 
 #define NUM_DEVICE_READY_TRIALS 5
 
-// Static global map for HAL CBs to find correct bus for a handle.
-std::unordered_map<I2C_HandleTypeDef *, hw::i2c::I2CBus *> hw::i2c::I2CBus::handle_to_bus_map_;
-
 /* --------------------------------------------- I2CBus ------------------------------------------------ */
-hw::i2c::I2CBus::I2CBus(I2C_HandleTypeDef *handle) : handle_(handle)
-{
-    assert(handle != nullptr);
-    handle_to_bus_map_[handle_] = this;
-}
+hw::i2c::I2CBus::I2CBus(I2C_HandleTypeDef *handle) : handle_(handle) {}
 
-hw::i2c::I2CBus::~I2CBus()
+void hw::i2c::I2CBus::deinit() const
 {
     if (handle_ != nullptr)
     {
         HAL_I2C_DeInit(handle_);
     }
-}
-
-hw::i2c::I2CBus *hw::i2c::I2CBus::getBusFromHandle(I2C_HandleTypeDef *handle)
-{
-    auto it = handle_to_bus_map_.find(handle);
-    return (it != handle_to_bus_map_.end()) ? it->second : nullptr;
 }
 
 void hw::i2c::I2CBus::onTransactionCompleteFromISR()
@@ -55,10 +41,10 @@ hw::i2c::I2CDevice::I2CDevice(I2CBus &bus, uint8_t targetAddr, uint32_t timeoutM
     {
         HAL_I2C_Master_Abort_IT(bus_.handle_, static_cast<uint16_t>(targetAddress_ << 1));
         LOG_WARN("I2C transaction timed out");
-        return EXIT_CODE_TIMEOUT;
+        return ExitCode::EXIT_CODE_TIMEOUT;
     }
 
-    return EXIT_CODE_OK;
+    return ExitCode::EXIT_CODE_OK;
 }
 
 [[nodiscard]] ExitCode hw::i2c::I2CDevice::isTargetReady() const
@@ -78,7 +64,7 @@ hw::i2c::I2CDevice::I2CDevice(I2CBus &bus, uint8_t targetAddr, uint32_t timeoutM
 
     if (bus_.taskInProgress_ != nullptr)
     {
-        return EXIT_CODE_BUSY;
+        return ExitCode::EXIT_CODE_BUSY;
     }
     bus_.taskInProgress_ = xTaskGetCurrentTaskHandle();
 
@@ -105,7 +91,7 @@ hw::i2c::I2CDevice::I2CDevice(I2CBus &bus, uint8_t targetAddr, uint32_t timeoutM
 
     if (bus_.taskInProgress_ != nullptr)
     {
-        return EXIT_CODE_BUSY;
+        return ExitCode::EXIT_CODE_BUSY;
     }
     bus_.taskInProgress_ = xTaskGetCurrentTaskHandle();
 
@@ -132,7 +118,7 @@ hw::i2c::I2CDevice::I2CDevice(I2CBus &bus, uint8_t targetAddr, uint32_t timeoutM
 
     if (bus_.taskInProgress_ != nullptr)
     {
-        return EXIT_CODE_BUSY;
+        return ExitCode::EXIT_CODE_BUSY;
     }
     bus_.taskInProgress_ = xTaskGetCurrentTaskHandle();
 
@@ -159,7 +145,7 @@ hw::i2c::I2CDevice::I2CDevice(I2CBus &bus, uint8_t targetAddr, uint32_t timeoutM
 
     if (bus_.taskInProgress_ != nullptr)
     {
-        return EXIT_CODE_BUSY;
+        return ExitCode::EXIT_CODE_BUSY;
     }
     bus_.taskInProgress_ = xTaskGetCurrentTaskHandle();
 
@@ -178,32 +164,28 @@ hw::i2c::I2CDevice::I2CDevice(I2CBus &bus, uint8_t targetAddr, uint32_t timeoutM
 /* --------------------------------------------- HAL Callbacks ------------------------------------------------ */
 extern "C" void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *handle)
 {
-    if (auto *bus = hw::i2c::I2CBus::getBusFromHandle(handle))
-    {
-        bus->onTransactionCompleteFromISR();
-    }
+    auto &bus = hw::i2c::I2CBus::getBusFromHandle(handle);
+    bus.onTransactionCompleteFromISR();
 }
+
 extern "C" void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *handle)
 {
-    if (auto *bus = hw::i2c::I2CBus::getBusFromHandle(handle))
-    {
-        bus->onTransactionCompleteFromISR();
-    }
+    auto &bus = hw::i2c::I2CBus::getBusFromHandle(handle);
+    bus.onTransactionCompleteFromISR();
 }
+
 extern "C" void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *handle)
 {
-    if (auto *bus = hw::i2c::I2CBus::getBusFromHandle(handle))
-    {
-        bus->onTransactionCompleteFromISR();
-    }
+    auto &bus = hw::i2c::I2CBus::getBusFromHandle(handle);
+    bus.onTransactionCompleteFromISR();
 }
+
 extern "C" void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *handle)
 {
-    if (auto *bus = hw::i2c::I2CBus::getBusFromHandle(handle))
-    {
-        bus->onTransactionCompleteFromISR();
-    }
+    auto &bus = hw::i2c::I2CBus::getBusFromHandle(handle);
+    bus.onTransactionCompleteFromISR();
 }
+
 extern "C" void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *handle)
 {
     LOG_ERROR("I2C error: 0x%X", handle->ErrorCode);

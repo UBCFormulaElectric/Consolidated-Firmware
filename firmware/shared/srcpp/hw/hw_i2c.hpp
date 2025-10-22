@@ -1,10 +1,10 @@
 #pragma once
 
 #include <cstdint>
-#include <unordered_map>
+#include <map>
 #include <span>
 #include "main.h"
-#include "app_utils.h"
+#include "hw_utils.hpp"
 
 namespace hw::i2c
 {
@@ -14,16 +14,15 @@ class I2CBus
 {
   public:
     explicit I2CBus(I2C_HandleTypeDef *handle);
-    ~I2CBus(); // deinit I2C peripheral
-    static I2CBus *getBusFromHandle(I2C_HandleTypeDef *handle);
-    void           onTransactionCompleteFromISR();
+    void                         deinit() const;
+    [[nodiscard]] static I2CBus &getBusFromHandle(const I2C_HandleTypeDef *handle);
+    void                         onTransactionCompleteFromISR();
 
   private:
     friend class I2CDevice;
 
-    I2C_HandleTypeDef                                       *handle_;
-    TaskHandle_t                                             taskInProgress_;
-    static std::unordered_map<I2C_HandleTypeDef *, I2CBus *> handle_to_bus_map_;
+    I2C_HandleTypeDef *handle_;
+    TaskHandle_t       taskInProgress_;
 };
 
 class I2CDevice
