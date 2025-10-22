@@ -25,15 +25,6 @@ float PwmInput::get_dutyCycle(void) const
 {
     return duty_cycle;
 }
-TIM_HandleTypeDef *PwmInput::get_timer_handle(void) const
-{
-    return htim;
-}
-
-HAL_TIM_ActiveChannel PwmInput::get_timer_activeChannel(void) const;
-{
-    return tim_active_channel;
-}
 
 void PwmInput::tick(void)
 {

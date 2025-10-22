@@ -76,7 +76,7 @@ class PwmInput
   public:
 
     /* Complete PWM Input Constructor*/
-    constexpr explicit PwmInput(
+    consteval explicit PwmInput(
         TIM_HandleTypeDef    *htim,
         HAL_TIM_ActiveChannel tim_active_channel,
         float                 tim_frequency_hz,
@@ -92,7 +92,7 @@ class PwmInput
         mode(PwmMode::PWMINPUT) {}
 
     /* Frequency only PWM Input Constructor */
-    constexpr explicit PwmInput(
+    consteval explicit PwmInput(
         TIM_HandleTypeDef    *htim,
         HAL_TIM_ActiveChannel tim_active_channel,
         float                 tim_frequency_hz,
@@ -129,10 +129,15 @@ class PwmInput
      * Get the timer handle for the given PWM input
      * @return The timer handle for the given PWM input
      */
-    TIM_HandleTypeDef *get_timer_handle(void) const;
+    constexpr TIM_HandleTypeDef *get_timer_handle(void) const
+    {
+        return htim;
+    }
 
-    HAL_TIM_ActiveChannel get_timer_activeChannel(void) const;
-
+    constexpr HAL_TIM_ActiveChannel get_timer_activeChannel(void) const
+    {
+        return tim_active_channel;
+    }
     /**
      * Check if the given PWM signal is active. If the sensor detects a DC signal
      * set the frequency to 0Hz.
