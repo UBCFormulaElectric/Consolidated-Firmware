@@ -19,7 +19,7 @@ namespace io::brake
     }
 
 
-    // float getRearPressurePsi()
+    float getRearPressurePsi();
     // {
     //     //function and address of bps_3v3 not initialized yet
     //     return pressureFromVoltage(hw_adc_getVoltage(&bps_3v3));
