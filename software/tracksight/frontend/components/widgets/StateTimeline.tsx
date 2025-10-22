@@ -6,11 +6,15 @@ import { useSignalMetadata } from "@/lib/contexts/SignalsMetadataContext";
 import { useDataVersion, useSignalDataRef } from "@/lib/signalData";
 import Widget from "@/lib/types/Widget";
 import { useEffect } from "react";
+import EnumSignalSelector from "./EnumSignalSelector";
+import { useDashboardLayout } from "@/lib/contexts/DashboardLayout";
 
 const StateTimeline: Widget<"stateTimeline"> = (props) => {
   const { signals, options } = props;
 
   const { colorPalette } = options;
+
+  const { editWidget } = useDashboardLayout();
 
   const signalsDataRef = useSignalDataRef(signals);
   const dataVersion = useDataVersion(signals);
@@ -34,7 +38,18 @@ const StateTimeline: Widget<"stateTimeline"> = (props) => {
   // TODO(evan): Implement this when the renderer is done
   return (
     <div className="flex flex-col gap-5">
-      <div className="relative flex h-6 w-full">
+      <div className="px-8">
+        <EnumSignalSelector
+          currentSignal={signals[0]}
+          onSignalChange={(newSignal) => {
+            editWidget(props.id, {
+              signals: [newSignal],
+            });
+          }}
+        />
+      </div>
+
+      <div className="relative flex h-6 w-full -z-50">
         {signals.map((_, i) => (
           <div
             className="w-full"

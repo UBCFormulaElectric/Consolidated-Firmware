@@ -6,15 +6,14 @@ import React, { useRef } from "react";
 import SignalSelector from "@/components/SignalSelector";
 import { useSignalMetadata } from "@/lib/contexts/SignalsMetadataContext";
 import isEnumSignal from "@/lib/isEnumSignal";
-import { EditWidgetFunction, WIDGET_TYPE } from "@/lib/types/Widget";
 
 type EnumSignalSelectorProps = {
   currentSignal: string;
-  editWidget: EditWidgetFunction<WIDGET_TYPE> | undefined;
+  onSignalChange?: (signalName: string) => void;
 };
 
 const EnumSignalSelector: React.FC<EnumSignalSelectorProps> = (props) => {
-  const { currentSignal, editWidget } = props;
+  const { currentSignal, onSignalChange } = props;
 
   const signalMetadata = useSignalMetadata(currentSignal);
   const signalDropdownRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
@@ -32,11 +31,9 @@ const EnumSignalSelector: React.FC<EnumSignalSelectorProps> = (props) => {
           filter={isEnumSignal}
           selectedSignal={signalMetadata || null}
           onSelect={(signal) => {
-            if (!editWidget) return;
+            if (!onSignalChange) return;
 
-            editWidget({
-              signals: [signal.name],
-            });
+            onSignalChange(signal.name);
           }}
           buttonElement={signalDropdownRef}
         />
