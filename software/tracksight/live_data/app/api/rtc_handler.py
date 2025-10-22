@@ -8,6 +8,7 @@ from middleware.serial_port import get_serial
 
 rtc = Blueprint("rtc", __name__)
 
+# NOTE deprecated by ntp.py
 @dataclass
 class RtcTime:
     """
