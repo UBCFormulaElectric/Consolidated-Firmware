@@ -51,8 +51,7 @@ set(SHARED_COMPILER_FLAGS
         -fno-common
         -fmessage-length=0
         -fstack-usage
-        -fno-rtti
-        -fno-exceptions
+        $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti -fno-exceptions>
 )
 
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
