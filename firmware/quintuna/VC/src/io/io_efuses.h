@@ -18,7 +18,7 @@ typedef enum
 
     // TI loadswitches
     EFUSE_CHANNEL_RL_PUMP,
-    EFUSE_CHANNEL_RR_PUMP, 
+    EFUSE_CHANNEL_RR_PUMP,
     EFUSE_CHANNEL_F_PUMP,
 
     // Radiator Fan loadswitches

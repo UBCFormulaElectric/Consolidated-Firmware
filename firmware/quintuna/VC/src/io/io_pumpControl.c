@@ -22,26 +22,14 @@ static PumpConfig *pump_table[PUMP_COUNT] = {
 
 void io_pumpControl_init(void)
 {
-    rr_pump_config = (PumpConfig){
-        .pot    = &pumps_pot,
-        .wiper  = WIPER1,
-        .invert = false,
-        .efuse  = &rr_pump_efuse
-    };
+    rr_pump_config = (PumpConfig){ .pot = &pumps_pot, .wiper = WIPER1, .invert = false, .efuse = &rr_pump_efuse };
 
-    f_pump_config = (PumpConfig){
-        .pot    = &pumps_pot,
-        .wiper  = WIPER0,
-        .invert = false,
-        .efuse  = &f_pump_efuse
-    };
+    f_pump_config = (PumpConfig){ .pot = &pumps_pot, .wiper = WIPER0, .invert = false, .efuse = &f_pump_efuse };
 
-    rl_pump_config = (PumpConfig){ 
-        .pot    = &pumps_pot,
-        .wiper  = WIPER0,
-        .invert = true, //rsm therefore invert 
-        .efuse  = &rl_pump_efuse
-    };
+    rl_pump_config = (PumpConfig){ .pot    = &pumps_pot,
+                                   .wiper  = WIPER0,
+                                   .invert = true, // rsm therefore invert
+                                   .efuse  = &rl_pump_efuse };
 
     io_pumps_registerConfig(pump_table, PUMP_COUNT);
 }

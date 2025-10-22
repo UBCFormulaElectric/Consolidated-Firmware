@@ -14,7 +14,7 @@ typedef enum
     RR_PUMP = 0,
     RL_PUMP,
     F_PUMP,
-    PUMP_COUNT 
+    PUMP_COUNT
 } PumpID;
 
 typedef struct
@@ -26,8 +26,8 @@ typedef struct
 } PumpConfig;
 
 /**
- * Initialize the table of pumps and ensure they have been created 
- * @param table table of pumps @param count the amount of pumps 
+ * Initialize the table of pumps and ensure they have been created
+ * @param table table of pumps @param count the amount of pumps
  */
 void io_pumps_init(const PumpConfig *table, size_t count);
 
@@ -40,14 +40,14 @@ void io_pumps_registerConfig(PumpConfig *const table[], size_t count);
 
 /**
  * Takes the requested percentage for the wiper and converts it into a hw_percentage and writes to the pot
- * @param id id of pump based on enum @param id user requested percentage 
+ * @param id id of pump based on enum @param id user requested percentage
  * @return pot being fed the percentage
  */
 ExitCode io_pump_setPercent(PumpID id, uint8_t percent);
 
 /**
  * Reads the resistance from the pot and displays as a logical_percent
- * @param id id of pump based on enum @param id 
+ * @param id id of pump based on enum @param id
  * @return logical_percent
  */
 ExitCode io_pump_getPercent(PumpID id, uint8_t *percent_out);

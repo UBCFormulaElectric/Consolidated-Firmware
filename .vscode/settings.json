@@ -11,13 +11,5 @@
     "--compile-commands-dir=build_fw_dev",
     // "--compile-commands-dir=build_fw_test",
     "--query-driver=/usr/local/bin/arm-none-eabi-gcc"
-  ],
-  "files.associations": {
-    "io_efuses.h": "c",
-    "io_efuse.h": "c",
-    "io_efuse_datatypes.h": "c",
-    "app_vehicledynamicsconstants.h": "c",
-    "app_loadswitches.h": "c",
-    "io_efuse_st.h": "c"
-  }
+  ]
 }

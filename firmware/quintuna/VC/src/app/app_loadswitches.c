@@ -48,4 +48,3 @@ void app_efuse_broadcast(void)
     }
 }
 
-// void app_loadswitch_enableFa
