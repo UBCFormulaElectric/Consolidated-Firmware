@@ -1,6 +1,8 @@
 """
 Entrypoint to the telemetry backend
 """
+from multiprocessing import Process
+
 print("Starting app...")
 import time
 
@@ -30,6 +32,7 @@ from api.files_handler import sd_api
 from api.rtc_handler import rtc
 from api.http import http
 from api.subtable_handler import sub_handler
+from api.influx_handler import influx_handler
 
 from mDNS import register_mdns_service
 
@@ -55,6 +58,7 @@ def create_app():
     app.register_blueprint(http)
     app.register_blueprint(rtc)
     app.register_blueprint(sub_handler)
+    app.register_blueprint(influx_handler)
 
     influx_start_time = time.time()
     # Setup the Message Populate Thread
@@ -67,13 +71,14 @@ def create_app():
         mock_thread = get_mock_task(sio)
     else:
         raise RuntimeError("Data source is not valid")
-    
+
     # Reading Thread
     ws_broadcast_thread = get_websocket_broadcast(sio)
     influx_logger_task = InfluxHandler.get_influx_logger_task(sio)
 
     if not DEBUG and SERVER_IP:  # only when debug is off because it in debug mode it will create a subprocess and run this again
-        register_mdns_service(SERVER_IP, SERVER_DOMAIN_NAME)
+        p = Process(target=register_mdns_service, args=(SERVER_IP, SERVER_DOMAIN_NAME))
+        p.start()
     return app
 
 if __name__ == "__main__":
@@ -84,7 +89,7 @@ if __name__ == "__main__":
             app,
             debug=False,
             host="0.0.0.0", # 0.0.0.0 means to listen on all network interfaces (ethernet, wifi, etc.)
-            port=5001,
+            port=BACKEND_PORT,
         )
     except KeyboardInterrupt:
         # on keyboard interrupt, the above handles killing

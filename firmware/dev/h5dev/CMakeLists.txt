@@ -42,13 +42,6 @@ set(EMBEDDED_INCLUDE_DIRS
 )
 
 IF ("${TARGET}" STREQUAL "binary")
-    generate_stm32cube_code(
-            "h5dev_stm32cube"
-            "${IOC_PATH}"
-            "${CUBEMX_SRCS}"
-    )
-    embedded_no_checks("${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
-
     set(STM32_HAL_SRCS
             "stm32h5xx_hal_adc_ex.c"
             "stm32h5xx_hal_adc.c"
@@ -73,18 +66,21 @@ IF ("${TARGET}" STREQUAL "binary")
             "stm32h5xx_hal_pcd.c"
             "stm32h5xx_hal_pcd_ex.c"
             "stm32h5xx_ll_usb.c"
-            "stm32h5xx_ll_rtc.c"
             "stm32h5xx_hal_rtc.c"
             "stm32h5xx_hal_pwr.c"
             "stm32h5xx_hal_pwr_ex.c"
             "stm32h5xx_hal_flash.c"
     )
 
+    set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc" "${CMAKE_CURRENT_SOURCE_DIR}/src")
     stm32h562xx_cube_library(
-            "h5dev_stm32cube_hal"
+            "h5dev_stm32"
             "${STM32_HAL_SRCS}"
-            "${MD5_LOCATION}"
+            "${IOC_PATH}"
+            "${CUBEMX_SRCS}"
+            "${CUBEMX_INCLUDE_DIRS}"
             TRUE
+            "${ARM_CORE}"
     )
 
     # JSONCAN
@@ -102,10 +98,9 @@ IF ("${TARGET}" STREQUAL "binary")
             "h5dev_app.elf"
             "h5dev_commit_info"
             "${CMAKE_CURRENT_BINARY_DIR}/app"
-            "${ARM_CORE}"
     )
 
-    target_link_libraries("h5dev_app.elf" "h5dev_stm32cube" "h5dev_stm32cube_hal" "dev_H5_jsoncan")
+    target_link_libraries("h5dev_app.elf" PRIVATE "h5dev_stm32" "dev_H5_jsoncan")
 
     # Bootloader files.
     file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")

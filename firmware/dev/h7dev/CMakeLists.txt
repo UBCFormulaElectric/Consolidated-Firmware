@@ -5,7 +5,7 @@ set(ARM_CORE "cm7")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/h7dev.ioc")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
 
-file(GLOB EMBEDDED_SRCS
+file(GLOB EMBEDDED_SRCS CONFIGURE_DEPENDS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
@@ -28,7 +28,7 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_freeRtosConfigs.c"
 )
 
-file(GLOB CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
+file(GLOB CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 
 nanopb_generate_cpp(PROTO_SRCS PROTO_HDRS sample.proto)
 
@@ -39,20 +39,12 @@ set(EMBEDDED_INCLUDE_DIRS
         "${SHARED_APP_INCLUDE_DIR}"
         "${SHARED_IO_INCLUDE_DIR}"
         "${SHARED_HW_INCLUDE_DIR}"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
         "${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
 
 IF ("${TARGET}" STREQUAL "binary")
-    generate_stm32cube_code(
-            "h7dev_stm32cube"
-            "${IOC_PATH}"
-            "${CUBEMX_SRCS}"
-    )
-    embedded_no_checks("${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
-
     set(STM32_HAL_SRCS
             "stm32h7xx_hal_adc_ex.c"
             "stm32h7xx_hal_adc.c"
@@ -77,17 +69,19 @@ IF ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_hal_pcd.c"
             "stm32h7xx_hal_pcd_ex.c"
             "stm32h7xx_ll_usb.c"
-            "stm32h7xx_ll_rtc.c"
             "stm32h7xx_hal_rtc.c"
             "stm32h7xx_hal_pwr.c"
             "stm32h7xx_hal_pwr_ex.c"
     )
-
+    set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc" "${CMAKE_CURRENT_SOURCE_DIR}/src")
     stm32h733xx_cube_library(
-            "h7dev_stm32cube_hal"
+            "h7dev_stm32"
             "${STM32_HAL_SRCS}"
-            "${MD5_LOCATION}"
+            "${IOC_PATH}"
+            "${CUBEMX_SRCS}"
+            "${CUBEMX_INCLUDE_DIRS}"
             TRUE
+            "${ARM_CORE}"
     )
 
     # JSONCAN
@@ -105,7 +99,6 @@ IF ("${TARGET}" STREQUAL "binary")
             "h7dev_app.elf"
             "h7dev_commit_info"
             "${CMAKE_CURRENT_BINARY_DIR}/app"
-            "${ARM_CORE}"
     )
 
     embedded_library(
@@ -116,11 +109,11 @@ IF ("${TARGET}" STREQUAL "binary")
             TRUE
     )
 
-    target_link_libraries("h7dev_app.elf" "h7dev_stm32cube" "h7dev_stm32cube_hal" "protobuf_library" "logfs_cm7" "dev_H7_jsoncan")
+    target_link_libraries("h7dev_app.elf" PRIVATE "h7dev_stm32" "protobuf_library" "logfs_cm7" "dev_H7_jsoncan")
 
     # Bootloader files.
-    file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
-    file(GLOB BOOT_CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
+    file(GLOB BOOT_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+    file(GLOB BOOT_CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
     set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
     stm32h7_boot_binary(
             "h7dev_boot"
@@ -130,7 +123,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "h7dev"
             "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/h7dev_boot.ioc"
     )
-    embedded_no_checks("${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c")
+    no_checks("${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c")
     target_link_libraries("h7dev_boot.elf" PRIVATE "h7dev_commit_info")
 
     embedded_image(

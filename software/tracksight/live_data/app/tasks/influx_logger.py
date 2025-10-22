@@ -10,40 +10,26 @@ link here: https://docs.influxdata.com/influxdb/v2/reference/config-options/
 
 from queue import Empty, Queue
 from threading import Thread
-
-# influx
 from flask_socketio import SocketIO
-import influxdb_client
+
+from influxdb import get_influxdb_client
+from influxdb_client import WritePrecision
 from influxdb_client.client.write_api import WriteOptions, WriteType
+from settings import INFLUX_URL, INFLUX_TOKEN, INFLUX_ORG, INFLUX_BUCKET, CAR_NAME
+
 # ours
 from CanMsg import CanSignal
 from logger import logger
-from settings import CAR_NAME, INFLUX_BUCKET, INFLUX_ORG, INFLUX_TOKEN, INFLUX_URL
 from urllib3.exceptions import NewConnectionError
 
 from tasks.stop_signal import should_run
-
-if INFLUX_ORG is None:
-    raise Exception("No Influx Organization Provided")
-if INFLUX_TOKEN is None:
-    raise Exception("No Token Provided for Influx")
-if CAR_NAME is None:
-    raise Exception("No Car Name is Provided")
-
 
 def setup():
     # Checks if the vehicle bucket exists, and if not, creates it
     logger.debug(
         f"Connecting to InfluxDB database at '{INFLUX_URL}' with token '{INFLUX_TOKEN}' and org '{INFLUX_ORG}'."
     )
-    if not INFLUX_ORG:
-        raise ValueError("INFLUX_ORG must be set in the environment variables.")
-    with influxdb_client.InfluxDBClient(
-        url=INFLUX_URL,
-        token=INFLUX_TOKEN,
-        org=INFLUX_ORG,
-        debug=False,
-    ) as _client:
+    with get_influxdb_client() as _client:
         logger.debug("Connected to InfluxDB successfully.")
         try:
             # creates the can_data bucket if it doesn't exist yet
@@ -65,9 +51,7 @@ influx_queue: Queue[CanSignal] = Queue()
 
 def _log_influx() -> None:
     logger.debug("Starting InfluxDB logger thread")
-    with influxdb_client.InfluxDBClient(
-        url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG, debug=False
-    ) as _client:
+    with get_influxdb_client() as _client:
         with _client.write_api(
             write_options=WriteOptions(
                 write_type=WriteType.synchronous, batch_size=10)
@@ -88,7 +72,7 @@ def _log_influx() -> None:
                         "fields": {signal.name: signal.value},
                         "time": signal.timestamp,
                     },
-                    write_precision=influxdb_client.WritePrecision.MS,
+                    write_precision=WritePrecision.MS,
                 )
     logger.debug("InfluxDB logger thread stopped.")
 
