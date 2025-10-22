@@ -70,16 +70,19 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
     // pan state is offset in pixels from the right edge (latest data)
     const [panOffset, setPanOffset] = useState(0);
     const [isDragging, setIsDragging] = useState(false);
-    const dragStart = useRef({ x: 0, offset: 0 });
+    const dragStart = useRef({ x: 0 });
     // the zoom state controls how much time is visible (higher = more zoomed in)
     const [zoomLevel, setZoomLevel] = useState(100);
-  const [timeTickCount, setTimeTickCount] = useState(6);
+    const [timeTickCount, setTimeTickCount] = useState(6);
     // track if user has manually panned (to prevent auto-follow)
     const [isManuallyPanning, setIsManuallyPanning] = useState(false);
-    // store the absolute time window when in manual mode to prevent shifting
-    const frozenTimeWindow = useRef<{
+    const [manualTimeWindow, setManualTimeWindow] = useState<{
       startTime: number;
       endTime: number;
+    } | null>(null);
+    const manualWindowMeta = useRef<{
+      baseRange: number;
+      baseZoom: number;
     } | null>(null);
 
     // Track signals this component instance subscribed to for proper cleanup
@@ -112,14 +115,19 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
 
       const latestTime = Math.max(...allTimes);
       const earliestTime = Math.min(...allTimes);
-      const totalTimeRange = latestTime - earliestTime;
+      const totalTimeRange = Math.max(latestTime - earliestTime, 1);
       const zoomFactor = 100 / zoomLevel;
-      const visibleTimeRange = totalTimeRange * zoomFactor;
+      const autoVisibleRange = Math.max(totalTimeRange * zoomFactor, 1);
 
-      const windowStart =
-        frozenTimeWindow.current?.startTime || latestTime - visibleTimeRange;
-      const windowEnd = frozenTimeWindow.current?.endTime || latestTime;
-      const buffer = visibleTimeRange * 0.2; // 20% buffer
+      const hasManualWindow = !!manualTimeWindow;
+      const windowEnd = hasManualWindow
+        ? manualTimeWindow!.endTime
+        : latestTime;
+      const windowStart = hasManualWindow
+        ? manualTimeWindow!.startTime
+        : Math.max(windowEnd - autoVisibleRange, earliestTime);
+      const effectiveRange = Math.max(windowEnd - windowStart, 1);
+      const buffer = effectiveRange * 0.2; // 20% buffer
 
       // Only process data within visible window + buffer
       const windowedData = filtered.filter((d) => {
@@ -157,7 +165,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
         ys.push(arr);
       }
       return [x, ...ys] as AlignedData;
-    }, [numericalData, thisGraphSignals, zoomLevel, frozenTimeWindow.current]);
+    }, [numericalData, thisGraphSignals, zoomLevel, manualTimeWindow]);
 
     const numericalSignals = thisGraphSignals;
 
@@ -178,7 +186,6 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
     // Fixed width - use container width or full viewport width
     const chartWidth =
       typeof window !== "undefined" ? window.innerWidth - 100 : 1200;
-    const totalWidth = chartWidth;
 
     const handleSelect = useCallback(
       (name: string) => {
@@ -255,60 +262,78 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
     const handleMouseDown = useCallback(
       (e: React.MouseEvent) => {
         setIsDragging(true);
+        dragStart.current.x = e.clientX;
 
-        // capture current time window when entering manual mode
-        if (!isManuallyPanning) {
+        let hasWindow = !!manualTimeWindow;
+
+        if (!manualTimeWindow) {
           const timestamps = uplotData[0] as number[];
           if (timestamps && timestamps.length > 0) {
-            const latestTime = timestamps[timestamps.length - 1];
-            const earliestTime = timestamps[0];
-            const totalTimeRange = latestTime - earliestTime;
-            const zoomFactor = 100 / zoomLevel;
-            const visibleTimeRange = totalTimeRange * zoomFactor;
-
-            // In auto-follow mode (panOffset = 0), we show from (latestTime - visibleTimeRange) to latestTime
-            frozenTimeWindow.current = {
-              startTime: latestTime - visibleTimeRange,
-              endTime: latestTime,
+            const latestTime = timestamps.reduce(
+              (max, value) => Math.max(max, value),
+              Number.NEGATIVE_INFINITY
+            );
+            const earliestTime = timestamps.reduce(
+              (min, value) => Math.min(min, value),
+              Number.POSITIVE_INFINITY
+            );
+            if (Number.isFinite(latestTime) && Number.isFinite(earliestTime)) {
+              const totalTimeRange = Math.max(latestTime - earliestTime, 1);
+              const zoomFactor = 100 / zoomLevel;
+              const autoVisibleRange = Math.max(totalTimeRange * zoomFactor, 1);
+              const startTime = Math.max(
+                latestTime - autoVisibleRange,
+                earliestTime
+              );
+              const endTime = Math.max(latestTime, startTime + 1);
+              const newWindow = { startTime, endTime };
+              setManualTimeWindow(newWindow);
+              manualWindowMeta.current = {
+                baseRange: Math.max(endTime - startTime, 1),
+                baseZoom: zoomLevel,
+              };
+              hasWindow = true;
+            }
+          }
+        } else if (!manualWindowMeta.current) {
+          const range = manualTimeWindow.endTime - manualTimeWindow.startTime;
+          if (Number.isFinite(range) && range > 0) {
+            manualWindowMeta.current = {
+              baseRange: Math.max(range, 1),
+              baseZoom: zoomLevel,
             };
           }
         }
 
-        setIsManuallyPanning(true);
-        dragStart.current = { x: e.clientX, offset: panOffset };
+        if (hasWindow) {
+          setIsManuallyPanning(true);
+        }
       },
-      [panOffset, isManuallyPanning, uplotData, zoomLevel]
+      [manualTimeWindow, uplotData, zoomLevel]
     );
 
     const handleMouseMove = useCallback(
       (e: MouseEvent) => {
-        if (!isDragging || !frozenTimeWindow.current) return;
+        if (!isDragging) return;
         const dx = e.clientX - dragStart.current.x;
+        if (dx === 0) return;
 
-        // calculate time shift based on pixel movement
-        const timestamps = uplotData[0] as number[];
-        if (timestamps && timestamps.length > 0) {
-          const chartWidth =
-            typeof window !== "undefined" ? window.innerWidth - 100 : 1200;
-          const currentTimeRange =
-            frozenTimeWindow.current.endTime -
-            frozenTimeWindow.current.startTime;
-          const timePerPixel = currentTimeRange / chartWidth;
+        dragStart.current.x = e.clientX;
+
+        setManualTimeWindow((prev) => {
+          if (!prev) return prev;
+          const range = prev.endTime - prev.startTime;
+          if (!Number.isFinite(range) || range <= 0) return prev;
+          const timePerPixel = range / chartWidth;
+          if (!Number.isFinite(timePerPixel) || timePerPixel === 0) return prev;
           const timeShift = dx * timePerPixel;
-
-          // update frozen window
-          const baseWindow = {
-            endTime: frozenTimeWindow.current.endTime + timeShift,
-            startTime: frozenTimeWindow.current.startTime + timeShift,
+          return {
+            startTime: prev.startTime + timeShift,
+            endTime: prev.endTime + timeShift,
           };
-
-          frozenTimeWindow.current = baseWindow;
-          dragStart.current.x = e.clientX;
-        }
-
-        setPanOffset(dragStart.current.offset - dx);
+        });
       },
-      [isDragging, uplotData]
+      [isDragging, chartWidth]
     );
 
     const handleMouseUp = useCallback(() => {
@@ -333,27 +358,87 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
       }
     }, [isManuallyPanning, dataVersion]); // Reset when data updates and not manually panning
 
-    // update frozen time window when zoom changes in manual mode
+    // reset manual window metadata when exiting manual mode
     useEffect(() => {
-      if (isManuallyPanning && frozenTimeWindow.current) {
-        const currentWindow = frozenTimeWindow.current;
-        const rightEdgeTime = currentWindow.endTime; // right edge fixed
-
-        // new range based on zoom level
-        const timestamps = uplotData[0] as number[];
-        if (timestamps && timestamps.length > 0) {
-          const totalTimeRange =
-            timestamps[timestamps.length - 1] - timestamps[0];
-          const zoomFactor = 100 / zoomLevel;
-          const newRange = totalTimeRange * zoomFactor;
-
-          frozenTimeWindow.current = {
-            startTime: rightEdgeTime - newRange,
-            endTime: rightEdgeTime,
-          };
+      if (!isManuallyPanning) {
+        if (manualTimeWindow) {
+          setManualTimeWindow(null);
         }
+        manualWindowMeta.current = null;
       }
-    }, [zoomLevel, isManuallyPanning, uplotData]);
+    }, [isManuallyPanning, manualTimeWindow]);
+
+    // keep metadata aligned with current manual window
+    useEffect(() => {
+      if (!isManuallyPanning || !manualTimeWindow) return;
+      const range = manualTimeWindow.endTime - manualTimeWindow.startTime;
+      if (!Number.isFinite(range) || range <= 0) return;
+      if (!manualWindowMeta.current) {
+        manualWindowMeta.current = {
+          baseRange: Math.max(range, 1),
+          baseZoom: zoomLevel,
+        };
+      } else {
+        manualWindowMeta.current.baseRange = Math.max(range, 1);
+      }
+    }, [isManuallyPanning, manualTimeWindow, zoomLevel]);
+
+    // adjust manual window span when zoom changes, keeping right edge fixed
+    useEffect(() => {
+      if (!isManuallyPanning || !manualTimeWindow || !manualWindowMeta.current)
+        return;
+
+      const { baseRange, baseZoom } = manualWindowMeta.current;
+      if (!Number.isFinite(baseRange) || baseRange <= 0) return;
+
+      const desiredRange = Math.max(baseRange * (baseZoom / zoomLevel), 1);
+      const currentRange =
+        manualTimeWindow.endTime - manualTimeWindow.startTime;
+
+      if (Math.abs(desiredRange - currentRange) < 0.5) {
+        manualWindowMeta.current = {
+          baseRange: desiredRange,
+          baseZoom: zoomLevel,
+        };
+        return;
+      }
+
+      setManualTimeWindow((prev) => {
+        if (!prev) return prev;
+        const rightEdgeTime = prev.endTime;
+        return {
+          startTime: rightEdgeTime - desiredRange,
+          endTime: rightEdgeTime,
+        };
+      });
+      manualWindowMeta.current = {
+        baseRange: desiredRange,
+        baseZoom: zoomLevel,
+      };
+    }, [zoomLevel, isManuallyPanning, manualTimeWindow]);
+
+    // derive pan offset from manual window vs latest data
+    useEffect(() => {
+      if (!isManuallyPanning || !manualTimeWindow) return;
+      const timestamps = uplotData[0] as number[];
+      if (!timestamps || timestamps.length === 0) return;
+
+      let latestTime = Number.NEGATIVE_INFINITY;
+      for (const value of timestamps) {
+        if (value > latestTime) latestTime = value;
+      }
+      if (!Number.isFinite(latestTime)) return;
+
+      const range = manualTimeWindow.endTime - manualTimeWindow.startTime;
+      if (!Number.isFinite(range) || range <= 0) return;
+
+      const timePerPixel = range / chartWidth;
+      if (!Number.isFinite(timePerPixel) || timePerPixel === 0) return;
+
+      const pxFromLatest =
+        (latestTime - manualTimeWindow.endTime) / timePerPixel;
+      setPanOffset(pxFromLatest);
+    }, [isManuallyPanning, manualTimeWindow, uplotData, chartWidth]);
 
     return (
       <div className="mb-6 p-4 block w-full relative">
@@ -398,9 +483,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
               />
             </div>
             <div className="flex flex-col">
-              <label className="text-sm">
-                Time Ticks: {timeTickCount}
-              </label>
+              <label className="text-sm">Time Ticks: {timeTickCount}</label>
               <input
                 type="range"
                 min={2}
@@ -422,7 +505,8 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
                   onClick={() => {
                     setPanOffset(0);
                     setIsManuallyPanning(false);
-                    frozenTimeWindow.current = null;
+                    setManualTimeWindow(null);
+                    manualWindowMeta.current = null;
                   }}
                   className="px-3 py-1 bg-blue-500 text-white opacity-80 rounded-lg transition duration-150 ease-in-out hover:cursor-pointer hover:scale-105 hover:bg-blue-600 hover:opacity-100"
                 >
@@ -551,9 +635,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
               }))}
               panOffset={panOffset}
               zoomLevel={zoomLevel}
-              frozenTimeWindow={
-                isManuallyPanning ? frozenTimeWindow.current : null
-              }
+              frozenTimeWindow={isManuallyPanning ? manualTimeWindow : null}
               timeTickCount={timeTickCount}
             />
           </div>
