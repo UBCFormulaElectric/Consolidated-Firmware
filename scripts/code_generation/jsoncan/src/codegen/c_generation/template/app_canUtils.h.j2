@@ -68,7 +68,7 @@ typedef enum
     {% for key, value in enum.items.items() -%}
     {{ value }} = {{ key }},
     {% endfor -%}
-    NUM_{{ enum.scremming_snake_name() }}_CHOICES = {{ enum.items.items() | length }},
+    NUM_{{ enum.screaming_snake_name() }}_CHOICES = {{ enum.items.items() | length }},
 } {{ enum.name }};
 {% endfor %}
 
@@ -86,9 +86,8 @@ typedef enum
 {% for message in messages %}
 typedef struct
 {
-    {%- if message.signals | length == 0 %}
-    // No signals in this message
-    char dummy;
+    {%- if message.signals|length == 0 %}
+    uint8_t _placeholder;
     {%- else %}
     {%- for signal in message.signals %}
     {{ signal.datatype() }} {{ signal.name }}_value;

@@ -24,7 +24,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
-#include "hw_gpios.h"
 #include "hw_error.h"
 #include "io_log.h"
 #include "hw_sd.h"
@@ -144,7 +143,7 @@ const osThreadAttr_t TaskTelem_attributes = {
     .cb_size    = sizeof(TaskTelemControlBlock),
     .stack_mem  = &TaskTelemBuffer[0],
     .stack_size = sizeof(TaskTelemBuffer),
-    .priority   = (osPriority_t)osPriorityLow,
+    .priority   = (osPriority_t)osPriorityNormal,
 };
 /* Definitions for TaskTelemRx */
 osThreadId_t         TaskTelemRxHandle;

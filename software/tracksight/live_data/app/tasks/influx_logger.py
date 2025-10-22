@@ -8,81 +8,62 @@ TODO: explore configuration options for the database
 link here: https://docs.influxdata.com/influxdb/v2/reference/config-options/
 """
 
-import datetime
-from dataclasses import dataclass
 from queue import Empty, Queue
 from threading import Thread
-# types
-from typing import NoReturn
+from flask_socketio import SocketIO
 
-# influx
-import influxdb_client
+from influxdb import get_influxdb_client
+from influxdb_client import WritePrecision
 from influxdb_client.client.write_api import WriteOptions, WriteType
+from settings import INFLUX_URL, INFLUX_TOKEN, INFLUX_ORG, INFLUX_BUCKET, CAR_NAME
+
 # ours
+from CanMsg import CanSignal
 from logger import logger
-from settings import (CAR_NAME, INFLUX_BUCKET, INFLUX_ORG, INFLUX_TOKEN,
-                      INFLUX_URL)
 from urllib3.exceptions import NewConnectionError
 
 from tasks.stop_signal import should_run
 
-if INFLUX_ORG is None:
-    raise Exception("No Influx Organization Provided")
-if INFLUX_TOKEN is None:
-    raise Exception("No Token Provided for Influx")
-if CAR_NAME is None:
-    raise Exception("No Car Name is Provided")
-
-
 def setup():
     # Checks if the vehicle bucket exists, and if not, creates it
-    logger.info(
-        f"Connecting to InfluxDB database at '{INFLUX_URL}' with token '{INFLUX_TOKEN}'."
+    logger.debug(
+        f"Connecting to InfluxDB database at '{INFLUX_URL}' with token '{INFLUX_TOKEN}' and org '{INFLUX_ORG}'."
     )
-    with influxdb_client.InfluxDBClient(
-        url=INFLUX_URL,
-        token=INFLUX_TOKEN,
-        org=INFLUX_ORG,
-        timeout=100_000_000,
-        debug=False,
-    ) as _client:
+    with get_influxdb_client() as _client:
+        logger.debug("Connected to InfluxDB successfully.")
         try:
             # creates the can_data bucket if it doesn't exist yet
+            logger.info(f"Checking if bucket '{INFLUX_BUCKET}' exists...")
             if (
                 _client.buckets_api().find_bucket_by_name(bucket_name=INFLUX_BUCKET)
                 is None
             ):
                 _client.buckets_api().create_bucket(bucket_name=INFLUX_BUCKET)
+                logger.info(f"Created bucket '{INFLUX_BUCKET}' successfully.")
+            else:
+                logger.info(f"Bucket '{INFLUX_BUCKET}' already exists.")
         except NewConnectionError:
             raise Exception(
                 "InfluxDB is not responding. Have you started the influx database docker container?"
             )
 
-
-@dataclass
-class InfluxCanMsg:
-    name: str
-    value: any
-    timestamp: datetime.datetime
-
-
-influx_queue = Queue()
-
+influx_queue: Queue[CanSignal] = Queue()
 
 def _log_influx() -> None:
-    logger.info("Starting InfluxDB logger thread")
-    with influxdb_client.InfluxDBClient(
-        url=INFLUX_URL, token=INFLUX_TOKEN, org=INFLUX_ORG, debug=False
-    ) as _client:
+    logger.debug("Starting InfluxDB logger thread")
+    with get_influxdb_client() as _client:
         with _client.write_api(
             write_options=WriteOptions(
                 write_type=WriteType.synchronous, batch_size=10)
         ) as write_api:
             while should_run():
                 try:
-                    signal: InfluxCanMsg = influx_queue.get(timeout=1)
+                    signal = influx_queue.get(timeout=1)
                 except Empty:
                     continue
+
+                logger.debug(f"Writing {signal.name} with value {signal.value} to InfluxDB")
+                # write the signal to influxdb
                 write_api.write(
                     bucket=INFLUX_BUCKET,
                     org=INFLUX_ORG,
@@ -91,13 +72,13 @@ def _log_influx() -> None:
                         "fields": {signal.name: signal.value},
                         "time": signal.timestamp,
                     },
-                    write_precision=influxdb_client.WritePrecision.MS,
+                    write_precision=WritePrecision.MS,
                 )
-    logger.info("InfluxDB logger thread stopped.")
+    logger.debug("InfluxDB logger thread stopped.")
 
 
-def get_influx_logger_task() -> Thread:
-    return Thread(target=_log_influx, daemon=True)
+def get_influx_logger_task(sio: SocketIO) -> Thread:
+    return sio.start_background_task(_log_influx)
 
 
 # def get_measurements(cls) -> list[str]:

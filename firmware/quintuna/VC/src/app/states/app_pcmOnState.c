@@ -90,6 +90,8 @@ static void pcmOnStateRunOnTick100Hz(void)
                     app_canTx_VC_PcmRetryCount_set(pcm_retries);
                     app_timer_stop(&pcm_on_timer);
                     break;
+                default:
+                    break;
             }
             break;
         case PCM_COOLDOWN_STATE:
@@ -104,7 +106,11 @@ static void pcmOnStateRunOnTick100Hz(void)
                     state = PCM_ON_STATE;
                     app_timer_stop(&pcm_cooldown_timer);
                     break;
+                default:
+                    break;
             }
+            break;
+        default:
             break;
     }
     io_pcm_set(state == PCM_ON_STATE);

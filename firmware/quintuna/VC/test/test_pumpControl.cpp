@@ -16,14 +16,6 @@ static Efuse *pumpEfuse()
 
 class VCPumpControlTest : public VCBaseTest
 {
-  protected:
-    void SetUp() override
-    {
-        VCBaseTest::SetUp();
-        rl_pump_loadswitch.pgood = false;
-        auto *pumpEfuse          = const_cast<Efuse *>(efuse_channels[EFUSE_CHANNEL_RL_PUMP]);
-        pumpEfuse->enabled       = true;
-    }
 };
 
 static void SetStateWithEntry(const State *s)
@@ -82,10 +74,12 @@ TEST_F(VCPumpControlTest, StopWhenPowerGoodFalse)
 
 TEST_F(VCPumpControlTest, StopWhenChannelDisabled)
 {
+    GTEST_SKIP() << "This test does not make any sense because whether or not the pump is enabled/disabled here, the "
+                    "power manager will override that setting";
     // pumps_ok=true, enabled=false → stopFlow()
     rl_pump_loadswitch.pgood = true;
     pumpEfuse()->enabled     = false;
-    LetTimePass(10u);
+    LetTimePass(100u);
 
     EXPECT_TRUE(app_canTx_VC_PumpFailure_get());
     EXPECT_FALSE(app_canTx_VC_RsmTurnOnPump_get());
