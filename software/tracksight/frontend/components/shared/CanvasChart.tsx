@@ -1,7 +1,6 @@
 "use client";
 
-import { addFrames } from "plotly.js";
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect } from "react";
 
 type SeriesMeta = {
   label: string;
@@ -22,6 +21,7 @@ type CanvasChartProps = {
   zoomLevel?: number;
   frozenTimeWindow?: { startTime: number; endTime: number } | null;
   downsampleThreshold?: number;
+  timeTickCount?: number;
 };
 
 // first index where timestamp >= targetTime
@@ -77,6 +77,7 @@ export default function CanvasChart({
   zoomLevel = 100,
   frozenTimeWindow = null,
   downsampleThreshold = 100000,
+  timeTickCount = 6,
 }: CanvasChartProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animationFrameId = useRef<number | null>(null);
@@ -123,13 +124,27 @@ export default function CanvasChart({
       dataToRender = [newTimestamps, ...newSeriesData];
     }
 
+    const timeFormatter = new Intl.DateTimeFormat(undefined, {
+      hour: "numeric",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    });
+
+    const dateFormatter = new Intl.DateTimeFormat(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+    });
+
     const render = () => {
       context.clearRect(0, 0, width, height);
 
       const [timestamps, ...seriesData] = dataToRender;
       if (!timestamps || timestamps.length === 0) return;
 
-      const padding = { top: 20, right: 20, bottom: 40, left: 60 };
+      const clampedTickCount = Math.max(1, Math.floor(timeTickCount));
+      const padding = { top: 20, right: 20, bottom: 56, left: 60 };
       const chartWidth = width - padding.left - padding.right;
       const chartHeight = height - padding.top - padding.bottom;
 
@@ -171,6 +186,8 @@ export default function CanvasChart({
       // data ranges - only use visible range
       const minTime = visibleStartTime;
       const maxTime = visibleEndTime;
+      const rawTimeRange = maxTime - minTime;
+      const timeRange = rawTimeRange <= 0 ? 1 : rawTimeRange;
 
       let minValue = Infinity;
       let maxValue = -Infinity;
@@ -193,9 +210,7 @@ export default function CanvasChart({
 
       // transformation functions
       const timeToX = (time: number) => {
-        return (
-          padding.left + ((time - minTime) / (maxTime - minTime)) * chartWidth
-        );
+        return padding.left + ((time - minTime) / timeRange) * chartWidth;
       };
 
       const valueToY = (value: number) => {
@@ -243,6 +258,32 @@ export default function CanvasChart({
         context.fillText(value.toFixed(2), padding.left - 5, y);
       }
 
+      // x-axis tick marks & labels
+      const numTimeTicks = clampedTickCount;
+      context.strokeStyle = "#999";
+      context.lineWidth = 1;
+      context.textAlign = "center";
+      context.textBaseline = "top";
+      context.fillStyle = "#ffffffff";
+
+      for (let i = 0; i <= numTimeTicks; i++) {
+        const timeValue = minTime + (timeRange / numTimeTicks) * i;
+        const x = timeToX(timeValue);
+
+        context.beginPath();
+        context.moveTo(x, height - padding.bottom);
+        context.lineTo(x, height - padding.bottom + 6);
+        context.stroke();
+
+        const dateObj = new Date(timeValue);
+        const msLabel = dateObj.getMilliseconds().toString().padStart(3, "0");
+        const timeLabel = `${timeFormatter.format(dateObj)}.${msLabel}`;
+        const dateLabel = dateFormatter.format(dateObj);
+
+        context.fillText(timeLabel, x, height - padding.bottom + 8);
+        context.fillText(dateLabel, x, height - padding.bottom + 24);
+      }
+
       // draw data series
       seriesData.forEach((dataPoints, seriesIndex) => {
         const meta = series[seriesIndex];
@@ -284,7 +325,16 @@ export default function CanvasChart({
         cancelAnimationFrame(animationFrameId.current);
       }
     };
-  }, [data, series, width, height, panOffset, zoomLevel, frozenTimeWindow]);
+  }, [
+    data,
+    series,
+    width,
+    height,
+    panOffset,
+    zoomLevel,
+    frozenTimeWindow,
+    timeTickCount,
+  ]);
 
   return (
     <canvas

@@ -17,7 +17,12 @@ def read_messages_from_file():
     Read messages from a file to simulate receiving from port. Used for testing front end
     """
     logger.debug("Starting mock read task")
+    #counter = 0
     while should_run():
+        #counter += 1
+
+        #if counter >= 500:
+            #break
         # Read the CSV file into a DataFrame
         # Iterate over each row (simulate message reception over time)
         # for _i, row in df.iterrows():

@@ -5,7 +5,6 @@ import { usePausePlay } from "@/components/shared/PausePlayControl";
 import { PlusButton } from "@/components/shared/PlusButton";
 import { SignalType } from "@/hooks/SignalConfig";
 import { useSignals, useDataVersion } from "@/hooks/SignalContext";
-import { formatWithMs } from "@/lib/dateformat";
 import React, {
   useCallback,
   useEffect,
@@ -74,6 +73,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
     const dragStart = useRef({ x: 0, offset: 0 });
     // the zoom state controls how much time is visible (higher = more zoomed in)
     const [zoomLevel, setZoomLevel] = useState(100);
+  const [timeTickCount, setTimeTickCount] = useState(6);
     // track if user has manually panned (to prevent auto-follow)
     const [isManuallyPanning, setIsManuallyPanning] = useState(false);
     // store the absolute time window when in manual mode to prevent shifting
@@ -399,6 +399,19 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
             </div>
             <div className="flex flex-col">
               <label className="text-sm">
+                Time Ticks: {timeTickCount}
+              </label>
+              <input
+                type="range"
+                min={2}
+                max={12}
+                step={1}
+                value={timeTickCount}
+                onChange={(e) => setTimeTickCount(+e.target.value)}
+              />
+            </div>
+            <div className="flex flex-col">
+              <label className="text-sm">
                 Pan:{" "}
                 {isManuallyPanning
                   ? `Manual (${Math.round(panOffset)}px from latest)`
@@ -541,6 +554,7 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
               frozenTimeWindow={
                 isManuallyPanning ? frozenTimeWindow.current : null
               }
+              timeTickCount={timeTickCount}
             />
           </div>
         )}
