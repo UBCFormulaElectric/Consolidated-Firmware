@@ -1,6 +1,6 @@
 #pragma once
 
-#include "app_utils.h"
+#include "errorCodes.h"
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -10,13 +10,13 @@
  * @returns whether the USB is ok to be used
  * @note you can call it multiple times
  */
-ExitCode hw_usb_init();
+ExitCode hw_usb_init(void);
 
 /**
  * @brief Check if the USB port is connected (in a "configured" state).
  * @return True if the port is connected, otherwise false.
  */
-bool hw_usb_checkConnection();
+bool hw_usb_checkConnection(void);
 
 /**
  * @brief Transmit a buffer over USB of arbritrary length.
@@ -47,19 +47,19 @@ bool hw_usb_pushRxMsgToQueue(const uint8_t *msg, uint32_t len); // TODO make thi
 /**
  * @brief Transmits "hello" repeatedly over USB.
  */
-void hw_usb_transmit_example();
+_Noreturn void hw_usb_transmit_example(void);
 
 /**
  * @brief Logs all received bytes as chars.
  */
-void hw_usb_receive_example();
+_Noreturn void hw_usb_receive_example(void);
 
 // CONNECTION HANDLER
 
 /**
  * Blocks the thread until the USB is connected
  */
-void hw_usb_waitForConnected();
+void hw_usb_waitForConnected(void);
 
 /**
  * @return Whether the USB is connected
@@ -67,14 +67,14 @@ void hw_usb_waitForConnected();
  * to verify that it is connected.
  * @note Use this in conjunction with hw_usb_waitForConnected to handle async USB behaviour
  */
-bool hw_usb_connected();
+bool hw_usb_connected(void);
 
 /**
  * @note IF YOU WANT TO USE USB CALLBACKS MAKE SURE TO PUT THIS IN HAL_PCD_ResumeCallback IN USBD_CONF.c (for now)
  */
-void hw_usb_connect_callback();
+void hw_usb_connect_callback(void);
 
 /**
  * @note IF YOU WANT TO USE USB CALLBACKS MAKE SURE TO PUT THIS IN HAL_PCD_SuspendCallback IN USBD_CONF.c (for now)
  */
-void hw_usb_disconnect_callback();
+void hw_usb_disconnect_callback(void);

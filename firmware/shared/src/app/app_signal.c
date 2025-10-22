@@ -13,7 +13,7 @@ void app_signal_init(Signal *signal, const uint32_t entry_time, const uint32_t e
     app_timer_init(&signal->exit_timer, exit_time);
 }
 
-SignalState app_signal_getState(Signal *signal, bool entry_condition_high, bool exit_condition_high)
+SignalState app_signal_getState(Signal *signal, const bool entry_condition_high, const bool exit_condition_high)
 {
     const TimerState entry_timer_state = app_timer_runIfCondition(&signal->entry_timer, entry_condition_high);
     const TimerState exit_timer_state  = app_timer_runIfCondition(&signal->exit_timer, exit_condition_high);

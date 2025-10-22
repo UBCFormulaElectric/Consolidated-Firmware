@@ -1,10 +1,8 @@
 #pragma once
 
-#include <stdbool.h>
-#include <stdint.h>
-#include "app_utils.h"
 #include "hw_gpio.h"
 #include "main.h"
+#include "errorCodes.h"
 
 typedef struct
 {
