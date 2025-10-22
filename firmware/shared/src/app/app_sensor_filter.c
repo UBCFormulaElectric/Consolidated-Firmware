@@ -19,7 +19,7 @@ void app_sensor_filter_iir_moving_average_init(IIRMovingAverageFilter *filter, u
     // Calculate alpha for equivalent window size
     // Formula: α = 2/(N+1) where N is equivalent window size
     // This provides similar smoothing characteristics to a moving average of N samples
-    filter->alpha = 2.0f / (equivalent_window_size + 1.0f);
+    filter->alpha = 2.0f / ((float)equivalent_window_size + 1.0f);
     filter->previous_output = initial_value;
     filter->initial_value = initial_value;
     filter->is_initialized = true;
