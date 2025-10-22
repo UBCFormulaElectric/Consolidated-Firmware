@@ -53,21 +53,17 @@ float app_sensor_filter_iir_moving_average_process(IIRMovingAverageFilter *filte
  */
 void app_sensor_filter_iir_moving_average_reset(IIRMovingAverageFilter *filter);
 
-/**
- * @brief Get current output of IIR Moving Average Filter
- * @param filter Pointer to filter structure
- * @return Current filtered output
- */
-float app_sensor_filter_iir_moving_average_get_output(const IIRMovingAverageFilter *filter);
 
 /**
  * @brief Initialize Exponential Filter
  * @param filter Pointer to filter structure
- * @param alpha Smoothing factor (0.0 to 1.0, higher = more responsive)
+ * @param cutoff_frequency The -3dB cutoff frequency in Hz
+ * @param sample_rate The rate at which data is sampled in Hz
  * @param initial_value Initial value for the filter
  */
 void app_sensor_filter_exponential_init(ExponentialFilter *filter, 
-                                        float alpha, 
+                                        float cutoff_frequency,
+                                        float sample_rate,
                                         float initial_value);
 
 /**
@@ -84,12 +80,6 @@ float app_sensor_filter_exponential_process(ExponentialFilter *filter, float inp
  */
 void app_sensor_filter_exponential_reset(ExponentialFilter *filter);
 
-/**
- * @brief Get current output of Exponential Filter
- * @param filter Pointer to filter structure
- * @return Current filtered output
- */
-float app_sensor_filter_exponential_get_output(const ExponentialFilter *filter);
 
 /**
  * @brief First-Order Butterworth IIR Filter
@@ -132,11 +122,3 @@ float app_sensor_filter_butterworth_process(ButterworthFilter *filter, float inp
  * @param filter Pointer to the filter structure
  */
 void app_sensor_filter_butterworth_reset(ButterworthFilter *filter);
-
-/**
- * @brief Get the current output of the Butterworth filter
- * @param filter Pointer to the filter structure
- * @return The current filtered output
- */
-float app_sensor_filter_butterworth_get_output(const ButterworthFilter *filter);
-
