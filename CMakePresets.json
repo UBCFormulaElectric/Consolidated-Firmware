@@ -14,11 +14,28 @@
         "CMAKE_BUILD_TYPE": "Debug",
         "PLATFORM": "firmware",
         "TARGET": "binary",
+        "FIRMWARE_TARGET": "dev",
         "USE_COMMIT_INFO": "ON",
         "BOOTLOAD": "ON",
         "WATCHDOG": "ON"
       },
       "binaryDir": "build_fw_dev"
+    },
+    {
+      "name": "FW Chimera",
+      "description": "Development build for the Firmware, including debug information and no optimizations.",
+      "inherits": "default",
+      "toolchainFile": "${sourceDir}/gcc-arm-none-eabi.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "PLATFORM": "firmware",
+        "TARGET": "binary",
+        "FIRMWARE_TARGET": "chimera",
+        "USE_COMMIT_INFO": "ON",
+        "BOOTLOAD": "ON",
+        "WATCHDOG": "ON"
+      },
+      "binaryDir": "build_fw_chimera"
     },
     {
       "name": "FW Deploy",
@@ -29,6 +46,7 @@
         "CMAKE_BUILD_TYPE": "Release",
         "PLATFORM": "firmware",
         "TARGET": "binary",
+        "FIRMWARE_TARGET": "dev",
         "USE_COMMIT_INFO": "ON",
         "BOOTLOAD": "ON",
         "WATCHDOG": "ON"
@@ -38,6 +56,11 @@
     {
       "name": "FW Dev Ninja",
       "inherits": "FW Dev",
+      "generator": "Ninja"
+    },
+    {
+      "name": "FW Chimera Ninja",
+      "inherits": "FW Chimera",
       "generator": "Ninja"
     },
     {
