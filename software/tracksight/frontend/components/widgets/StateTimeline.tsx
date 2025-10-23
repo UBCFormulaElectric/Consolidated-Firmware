@@ -6,7 +6,7 @@ import { useSignalMetadata } from "@/lib/contexts/SignalsMetadataContext";
 import { useDataVersion, useSignalDataRef } from "@/lib/signalData";
 import Widget from "@/lib/types/Widget";
 import { useEffect } from "react";
-import EnumSignalSelector from "./EnumSignalSelector";
+import EnumSignalSelector from "@/components/widgets/EnumSignalSelector";
 import { useDashboardLayout } from "@/lib/contexts/DashboardLayout";
 
 const StateTimeline: Widget<"stateTimeline"> = (props) => {
@@ -21,8 +21,6 @@ const StateTimeline: Widget<"stateTimeline"> = (props) => {
 
   const signalMetadata = useSignalMetadata(signals[0]);
 
-  if (!signalMetadata) return;
-
   const enumOptions = Object.values(signalMetadata?.enum?.items || {});
 
   useEffect(() => {
@@ -34,6 +32,8 @@ const StateTimeline: Widget<"stateTimeline"> = (props) => {
     console.log("%cSignal Data Ref: %o", "color: #d08770;", signalsDataRef);
     console.groupEnd();
   }, [dataVersion]);
+
+  if (!signalMetadata) return null;
 
   // TODO(evan): Implement this when the renderer is done
   return (

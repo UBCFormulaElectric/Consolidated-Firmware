@@ -4,6 +4,8 @@ import { fetchSignalMetadata } from "@/lib/api/signals";
 import { SignalMetadata, SignalMetadataMap } from "@/lib/types/Signal";
 import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
 
+import { API_BASE_URL } from "@/lib/constants";
+
 type SignalsMetadataContextType = {
   signalMetadata: SignalMetadataMap;
 
@@ -19,8 +21,6 @@ const SignalsMetadataContext = createContext<SignalsMetadataContextType | undefi
 
 type SignalsProviderProps = {
   children: ReactNode;
-  apiBaseUrl: string;
-  initialData?: SignalMetadata[];
 };
 
 const convertMetadataToMap = (data: SignalMetadata[] | undefined): SignalMetadataMap => {
@@ -35,11 +35,9 @@ const convertMetadataToMap = (data: SignalMetadata[] | undefined): SignalMetadat
   return map;
 };
 
-const SignalsMetadataProvider = ({ children, apiBaseUrl, initialData }: SignalsProviderProps) => {
-  const initialMap = React.useMemo(() => convertMetadataToMap(initialData), [initialData]);
-
-  const [signalMetadata, setSignalMetadata] = useState<SignalMetadataMap>(initialMap);
-  const [isLoading, setIsLoading] = useState(!initialData);
+const SignalsMetadataProvider = ({ children }: SignalsProviderProps) => {
+  const [signalMetadata, setSignalMetadata] = useState<SignalMetadataMap>(new Map());
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   const fetchSignals = React.useCallback(async () => {
@@ -47,7 +45,7 @@ const SignalsMetadataProvider = ({ children, apiBaseUrl, initialData }: SignalsP
       setIsLoading(true);
       setError(null);
 
-      const newSignalMetadata = await fetchSignalMetadata(apiBaseUrl);
+      const newSignalMetadata = await fetchSignalMetadata(API_BASE_URL);
       const signalMap = convertMetadataToMap(newSignalMetadata);
 
       setSignalMetadata(signalMap);
@@ -60,13 +58,11 @@ const SignalsMetadataProvider = ({ children, apiBaseUrl, initialData }: SignalsP
     } finally {
       setIsLoading(false);
     }
-  }, [apiBaseUrl]);
+  }, []);
 
   useEffect(() => {
-    if (initialData) return;
-
     fetchSignals();
-  }, [fetchSignals, initialData]);
+  }, [fetchSignals]);
 
   const getSignalMetadata = React.useCallback(
     (signalName: string): SignalMetadata | undefined => {

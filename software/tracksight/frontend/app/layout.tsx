@@ -4,13 +4,11 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import type React from "react";
 
-import { fetchSignalMetadata } from "@/lib/api/signals";
 import { SignalsMetadataProvider } from "@/lib/contexts/SignalsMetadataContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
-import Sidebar from "@/components/Navbar";
-import { API_BASE_URL } from "@/lib/constants";
+import Navbar from "@/components/Navbar";
 
 export const metadata: Metadata = {
   title: "Tracksight Dashboard",
@@ -22,23 +20,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  let initialSignalData;
-
-  try {
-    initialSignalData = await fetchSignalMetadata(API_BASE_URL);
-  } catch (error) {
-    console.error("Failed to preload signal metadata:", error);
-
-    // NOTE(evan): Continue rendering with undefined signal data, client can
-    //             take over and attempt to get the data.
-    initialSignalData = undefined;
-  }
-
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} bg-primary-200 overflow-y-scroll pb-20`}>
-        <SignalsMetadataProvider apiBaseUrl={API_BASE_URL} initialData={initialSignalData}>
-          <Sidebar />
+        <SignalsMetadataProvider>
+          <Navbar />
           <main className="mt-24 overflow-y-visible py-12">{children}</main>
         </SignalsMetadataProvider>
       </body>
