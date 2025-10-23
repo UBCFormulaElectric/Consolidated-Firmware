@@ -36,7 +36,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} bg-primary-200 overflow-y-scroll pb-20 m-0`}>
+      <body className={`${inter.className} bg-primary-200 overflow-y-scroll pb-20`}>
         <SignalsMetadataProvider apiBaseUrl={API_BASE_URL} initialData={initialSignalData}>
           <Sidebar />
           <main className="mt-24 overflow-y-visible py-12">{children}</main>
