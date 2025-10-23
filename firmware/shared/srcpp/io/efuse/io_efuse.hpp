@@ -17,12 +17,10 @@ namespace io::efuse
           Efuse(const hw::Gpio &enable_gpio, const hw::Adc &sns_adc_channel)
             : enable_gpio(enable_gpio), sns_adc_channel(sns_adc_channel) {}
           virtual ~Efuse()                             = default;
-          virtual void        setChannel(bool enabled) = 0;
-          virtual const bool  isChannelEnabled()       = 0;
-          virtual const float getChannelCurrent()      = 0;
-          virtual void        resetSet(bool set)       = 0;
+          void        setChannel(bool enabled);
+          const bool  isChannelEnabled();
+          const float getChannelCurrent();
           virtual void        reset()                  = 0;
-          virtual const bool  pgood()                  = 0;
           virtual const bool  ok()                     = 0;
     };
 }
