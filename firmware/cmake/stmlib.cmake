@@ -117,6 +117,7 @@ function(stm32f412rx_cube_library
 
     # Startup assembly script.
     set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f412rx.s")
+    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${CUBEMX_SRCS})
 
     if (USB_ENABLED)
         set(USB_MIDDLEWARE_DIR "${STM32CUBEF4_SOURCE_DIR}/Middlewares/ST/STM32_USB_Device_Library")
@@ -135,7 +136,7 @@ function(stm32f412rx_cube_library
     endif ()
 
     generate_stm32cube_code("${IOC_PATH}" "${HAL_LIB_NAME}")
-    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${CUBEMX_SRCS} ${MD5_LOCATION})
+    list(APPEND STM32CUBE_SRCS ${MD5_LOCATION})
     embedded_object_library(
             "${HAL_LIB_NAME}"
             "${STM32CUBE_SRCS}"
@@ -219,6 +220,7 @@ function(stm32h733xx_cube_library
 
     # Startup assembly script.
     set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H7xx/Source/Templates/gcc/startup_stm32h733xx.s")
+    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${CUBEMX_SRCS})
 
     # Handle usb srcs and include directories.
     # Currently, all our USB devices are of the Communications Device Class (CDC).
@@ -239,7 +241,7 @@ function(stm32h733xx_cube_library
     endif ()
 
     generate_stm32cube_code("${IOC_PATH}" "${HAL_LIB_NAME}")
-    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${CUBEMX_SRCS} ${MD5_LOCATION})
+    list(APPEND STM32CUBE_SRCS ${MD5_LOCATION})
     embedded_object_library(
             "${HAL_LIB_NAME}"
             "${STM32CUBE_SRCS}"
@@ -323,6 +325,7 @@ function(stm32h562xx_cube_library
 
     # Startup assembly script.
     set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H5xx/Source/Templates/gcc/startup_stm32h562xx.s")
+    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${CUBEMX_SRCS})
 
     # Handle usb srcs and include directories.
     # Currently, all our USB devices are of the Communications Device Class (CDC).
@@ -343,7 +346,7 @@ function(stm32h562xx_cube_library
     endif ()
 
     generate_stm32cube_code("${IOC_PATH}" "${HAL_LIB_NAME}")
-    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${CUBEMX_SRCS} ${MD5_LOCATION})
+    list(APPEND STM32CUBE_SRCS ${MD5_LOCATION})
     embedded_object_library(
             "${HAL_LIB_NAME}"
             "${STM32CUBE_SRCS}"
