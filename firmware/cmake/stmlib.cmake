@@ -48,8 +48,6 @@ function(generate_stm32cube_code IOC_PATH LIB_NAME)
 
             DEPENDS ${IOC_PATH}
     )
-
-    message("${OUTPUT_MD5_LOCATION}")
 endfunction()
 
 message("  🔃 Registered stm32f412rx_cube_library() function")
