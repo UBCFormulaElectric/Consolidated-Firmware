@@ -1,12 +1,7 @@
-import LiveDataDashboard from "@/components/LiveDataDashboard";
-import { DashboardLayoutProvider } from "@/lib/contexts/DashboardLayout";
-
-export default function LiveDataPage() {
+export default function HomePage() {
   return (
     <div className="w-screen overflow-y-visible">
-      <DashboardLayoutProvider>
-        <LiveDataDashboard />
-      </DashboardLayoutProvider>
+      Home Page
     </div>
   );
 }
