@@ -13,7 +13,7 @@ class I2CDevice;
 class I2CBus
 {
   public:
-    constexpr explicit I2CBus(I2C_HandleTypeDef *handle_in) : handle(handle_in) {};
+    constexpr explicit I2CBus(I2C_HandleTypeDef *handle_in) : handle(handle_in){};
 
     /**
      * @brief Deinitialize the I2C bus.
@@ -37,7 +37,7 @@ class I2CDevice
 {
   public:
     constexpr explicit I2CDevice(I2CBus &bus_in, uint8_t targetAddr_in, uint32_t timeoutMs_in)
-      : bus(bus_in), targetAddress(targetAddr_in), timeoutMs(timeoutMs_in) {};
+      : bus(bus_in), targetAddress(targetAddr_in), timeoutMs(timeoutMs_in){};
 
     /**
      * @brief Check if device connected to the given I2C interface is ready for communication.
