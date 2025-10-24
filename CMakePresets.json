@@ -23,17 +23,12 @@
     },
     {
       "name": "FW Chimera",
-      "description": "Development build for the Firmware, including debug information and no optimizations.",
-      "inherits": "default",
-      "toolchainFile": "${sourceDir}/gcc-arm-none-eabi.cmake",
+      "description": "Chimera build for the Firmware, including debug information.",
+      "inherits": "FW Dev",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
-        "PLATFORM": "firmware",
-        "TARGET": "binary",
         "FIRMWARE_TARGET": "chimera",
-        "USE_COMMIT_INFO": "ON",
-        "BOOTLOAD": "ON",
-        "WATCHDOG": "ON"
+        "BOOTLOAD": "OFF",
+        "WATCHDOG": "OFF"
       },
       "binaryDir": "build_fw_chimera"
     },
