@@ -13,7 +13,7 @@ class I2CDevice;
 class I2CBus
 {
   public:
-    constexpr explicit I2CBus(I2C_HandleTypeDef *handle) : handle_(handle){};
+    constexpr explicit I2CBus(I2C_HandleTypeDef *handle_in) : handle(handle_in) {};
 
     /**
      * @brief Deinitialize the I2C bus.
@@ -29,15 +29,15 @@ class I2CBus
   private:
     friend class I2CDevice;
 
-    I2C_HandleTypeDef *handle_;
-    TaskHandle_t       taskInProgress_;
+    I2C_HandleTypeDef *handle;
+    TaskHandle_t       taskInProgress;
 };
 
 class I2CDevice
 {
   public:
-    constexpr explicit I2CDevice(I2CBus &bus, uint8_t targetAddr, uint32_t timeoutMs)
-      : bus_(bus), targetAddress_(targetAddr), timeoutMs_(timeoutMs){};
+    constexpr explicit I2CDevice(I2CBus &bus_in, uint8_t targetAddr_in, uint32_t timeoutMs_in)
+      : bus(bus_in), targetAddress(targetAddr_in), timeoutMs(timeoutMs_in) {};
 
     /**
      * @brief Check if device connected to the given I2C interface is ready for communication.
@@ -81,9 +81,9 @@ class I2CDevice
     [[nodiscard]] ExitCode memoryWrite(uint16_t memAddr, std::span<const uint8_t> txBuffer);
 
   private:
-    I2CBus  &bus_;
-    uint8_t  targetAddress_;
-    uint32_t timeoutMs_;
+    I2CBus  &bus;
+    uint8_t  targetAddress;
+    uint32_t timeoutMs;
 
     [[nodiscard]] ExitCode waitForNotification();
 };
