@@ -16,12 +16,11 @@ void hw::i2c::I2CBus::deinit() const
 
 void hw::i2c::I2CBus::onTransactionCompleteFromISR()
 {
-    if (taskInProgress != nullptr)
-    {
-        BaseType_t higherPriorityTaskWoken = pdFALSE;
-        vTaskNotifyGiveFromISR(taskInProgress, &higherPriorityTaskWoken);
-        portYIELD_FROM_ISR(higherPriorityTaskWoken);
-    }
+    assert(taskInProgress != nullptr);
+
+    BaseType_t higherPriorityTaskWoken = pdFALSE;
+    vTaskNotifyGiveFromISR(taskInProgress, &higherPriorityTaskWoken);
+    portYIELD_FROM_ISR(higherPriorityTaskWoken);
 }
 
 /* --------------------------------------------- I2CDevice ------------------------------------------------ */
