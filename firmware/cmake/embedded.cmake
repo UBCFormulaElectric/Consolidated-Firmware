@@ -51,6 +51,8 @@ set(SHARED_COMPILER_FLAGS
         -fno-common
         -fmessage-length=0
         -fstack-usage
+        -nostdlib
+        -nodefaultlibs
         $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti -fno-exceptions>
 )
 
@@ -69,7 +71,6 @@ set(SHARED_LINKER_FLAGS
         -Wl,-gc-sections,--print-memory-usage
         -L${FIRMWARE_DIR}/linker
         -static
-        --specs=nano.specs
         --specs=nosys.specs
 )
 
@@ -172,7 +173,14 @@ function(embedded_binary
     )
 
     target_compile_definitions(${ELF_NAME} PRIVATE ${SHARED_COMPILER_DEFINES})
-    target_compile_options(${ELF_NAME} PRIVATE ${SHARED_COMPILER_FLAGS} -fsanitize=undefined ${SHARED_GNU_COMPILER_CHECKS} -Werror)
+    target_compile_options(${ELF_NAME} PRIVATE
+            ${SHARED_COMPILER_FLAGS}
+            ${SHARED_GNU_COMPILER_CHECKS} -Werror
+    )
+    IF (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+        target_compile_options(${ELF_NAME} PRIVATE -fsanitize=undefined)
+    ENDIF ()
+
     target_link_options(${ELF_NAME} PRIVATE
             ${SHARED_LINKER_FLAGS}
             # binary specific linker flags
