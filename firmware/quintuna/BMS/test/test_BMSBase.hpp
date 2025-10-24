@@ -1,30 +1,13 @@
 #pragma once
 #include "ecuTestBase.hpp"
-
-#include "test_fakes.h"
-#include "fake_io_irs.hpp"
-#include "fake_io_tractiveSystem.hpp"
-#include "fake_io_tractiveSystem.hpp"
-#include "fake_io_imd.hpp"
-#include "fake_io_faultLatch.hpp"
+#include "test_fakes.hpp"
 
 extern "C"
 {
 #include "jobs.h"
-#include "states/app_initState.h"
-#include "states/app_faultState.h"
-#include "states/app_chargeState.h"
-#include "states/app_prechargeLatchState.h"
-#include "states/app_prechargeDriveState.h"
-#include "states/app_prechargeChargeState.h"
-#include "states/app_driveState.h"
-#include "states/app_balancingState.h"
+#include "states/app_states.h"
 #include "app_canRx.h"
 #include "io_canRx.h"
-#include "jobs.h"
-#include "app_stateMachine.h"
-#include "app_segments.h"
-#include "app_imd.h"
 }
 
 #define LTC_CONVERSION_PERIOD_MS (1000U)
@@ -34,47 +17,29 @@ class BMSBaseTest : public EcuTestBase
   protected:
     void board_setup() override
     {
-        fakes::segments::SetPackVoltageEvenly(3.8 * NUM_SEGMENTS * CELLS_PER_SEGMENT);
-        fakes::segments::SetAuxRegs(1.5f); // Approx. 25C
+        fakes::faultLatches::resetFaultLatch(&bms_ok_latch);
+        fakes::faultLatches::resetFaultLatch(&imd_ok_latch);
+        fakes::faultLatches::resetFaultLatch(&bspd_ok_latch);
+        fakes::faultLatches::setCurrentStatus_resetCallCounts();
+
+        fakes::segments::setPackVoltageEvenly(3.8f * NUM_SEGMENTS * CELLS_PER_SEGMENT);
+        fakes::segments::SetAuxRegs(15.0f); // Approx. 25C
 
         jobs_init();
+        jobs_initLTCVoltages();
+        jobs_initLTCTemps();
+        jobs_initLTCDiagnostics();
+
+        register_task(jobs_run1Hz_tick, 1000);
+        register_task(jobs_run100Hz_tick, 10);
+        register_task(jobs_run1kHz_tick, 1);
+        register_task(jobs_runLTCVoltages, 500);
+        register_task(jobs_runLTCDiagnostics, 500);
+        register_task(jobs_runLTCTemperatures, 500);
+        // Allow time for all jobs to run at least once for things like voltage arrays to update
+        LetTimePass(1000);
     }
     void board_teardown() override {}
-    void tick_100hz() override
-    {
-        app_stateMachine_tick100Hz();
-        app_stateMachine_tickTransitionState();
-    }
-    void tick_1hz() override
-    {
-        jobs_run1Hz_tick();
-
-        // These run in a separate task on the micro but at 1Hz.
-
-        app_segments_runVoltageConversion();
-        app_segments_broadcastCellVoltages();
-        app_segments_broadcastVoltageStats();
-
-        app_segments_runAuxConversion();
-        app_segments_broadcastTempsVRef();
-        app_segments_broadcastTempStats();
-    }
-
-    void TearDown() override
-    {
-        fake_io_time_getCurrentMs_reset();
-        fake_io_tractiveSystem_getVoltage_reset();
-        fake_io_irs_isNegativeClosed_reset();
-        fake_io_irs_isPositiveClosed_reset();
-        fake_io_imd_getFrequency_reset();
-        fake_io_imd_getDutyCycle_reset();
-        fake_io_faultLatch_getCurrentStatus_reset();
-        fake_io_faultLatch_getLatchedStatus_reset();
-        fake_io_tractiveSystem_getCurrentHighResolution_reset();
-        fake_io_tractiveSystem_getCurrentLowResolution_reset();
-        fake_io_irs_closePositive_reset();
-        fake_io_faultLatch_setCurrentStatus_reset();
-    }
 
     void SetInitialState(const State *const initial_state)
     {
@@ -82,15 +47,12 @@ class BMSBaseTest : public EcuTestBase
         ASSERT_EQ(initial_state, app_stateMachine_getCurrentState());
     }
 
-    std::vector<const State *> GetAllStates(void)
+    std::vector<const State *> GetAllStates()
     {
-        return std::vector<const State *>{
-            app_initState_get(),           app_prechargeDriveState_get(), app_prechargeChargeState_get(),
-            app_prechargeLatchState_get(), app_driveState_get(),          app_chargeState_get(),
-            app_balancingState_get(),      app_faultState_get(),
-        };
+        return std::vector{ &init_state,        &precharge_drive_state, &precharge_charge_state, &precharge_latch_state,
+                            &drive_state,       &charge_state,          &balancing_state,        &fault_state,
+                            &charge_init_state, &charge_fault_state };
     }
-
     void SetImdCondition(const ImdConditionName condition_name)
     {
         const std::map<ImdConditionName, float> mapping{
@@ -98,12 +60,27 @@ class BMSBaseTest : public EcuTestBase
             { IMD_CONDITION_UNDERVOLTAGE_DETECTED, 20.0f }, { IMD_CONDITION_SST, 30.0f },
             { IMD_CONDITION_DEVICE_ERROR, 40.0f },          { IMD_CONDITION_GROUND_FAULT, 50.0f }
         };
-
-        fake_io_imd_getFrequency_returns(mapping.at(condition_name));
-        ASSERT_EQ(condition_name, app_imd_getCondition().name);
+        fakes::imd::setFrequency(mapping.at(condition_name));
     }
 };
 
-inline const FaultLatch bms_ok_latch  = {};
-inline const FaultLatch imd_ok_latch  = {};
-inline const FaultLatch bspd_ok_latch = {};
+struct StateMetadata
+{
+    const State *state;
+    BmsState     can_state;
+    bool         requires_irs_negative_closed;
+    bool         requires_fault;
+};
+
+constexpr inline std::array<StateMetadata, 10> state_metadata = { {
+    { &init_state, BMS_INIT_STATE, false, false },
+    { &fault_state, BMS_FAULT_STATE, false, true },
+    { &precharge_drive_state, BMS_PRECHARGE_DRIVE_STATE, true, false },
+    { &drive_state, BMS_DRIVE_STATE, true, false },
+    { &balancing_state, BMS_BALANCING_STATE, true, false },
+    { &precharge_latch_state, BMS_PRECHARGE_LATCH_STATE, true, false },
+    { &precharge_charge_state, BMS_PRECHARGE_CHARGE_STATE, true, false },
+    { &charge_state, BMS_CHARGE_STATE, true, false },
+    { &charge_init_state, BMS_CHARGE_INIT_STATE, true, false },
+    { &charge_fault_state, BMS_CHARGE_FAULT_STATE, true, false },
+} };

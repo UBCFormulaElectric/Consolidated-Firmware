@@ -4,8 +4,22 @@ flask-cors == 5.0.0
 python-dotenv == 1.0.1
 flask-socketio == 5.5.1
 pandas == 2.2.3
-git+https://github.com/UBCFormulaElectric/Consolidated-Firmware.git@telemMaster#egg=ubcfe-codegen&subdirectory=scripts/code_generation
 requests == 2.32.3
 pySerial == 3.5
 protobuf == 5.29.3
 crc
+zeroconf
+gunicorn
+protobuf==5.29.3
+psutil
+StrEnum
+ntplib
+cantools
+schema
+gevent
+
+# Install in-house dependencies from GitHub
+# jsonca
+git+https://github.com/UBCFormulaElectric/Consolidated-Firmware.git@jackyao/telem-backend-docker-fix#subdirectory=scripts/code_generation
+# logfs
+git+https://github.com/UBCFormulaElectric/Consolidated-Firmware.git@jackyao/telem-backend-docker-fix#subdirectory=firmware/logfs/python

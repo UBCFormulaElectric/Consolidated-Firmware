@@ -49,7 +49,7 @@
   },
   "LatchStatus": {
     "msg_id": 410,
-    "cycle_time": 100,
+    "cycle_time": 10,
     "description": "Latched faults for the BMS",
     "signals": {
       "BmsCurrentlyOk": {
@@ -74,7 +74,7 @@
   },
   "Contactors": {
     "msg_id": 411,
-    "cycle_time": 100,
+    "cycle_time": 10,
     "description": "BMS IR state statuses",
     "signals": {
       "IrPositive": {
@@ -106,7 +106,7 @@
   },
   "TractiveSystem": {
     "msg_id": 412,
-    "cycle_time": 100,
+    "cycle_time": 10,
     "description": "BMS Tractive System Data",
     "signals": {
       "TractiveSystemVoltage": {
@@ -117,12 +117,14 @@
       },
       "TractiveSystemCurrent": {
         "resolution": 0.1,
+        "signed": true,
         "min": -300,
         "max": 300,
         "unit": "A"
       },
       "TractiveSystemPower": {
         "resolution": 0.1,
+        "signed": true,
         "min": -100,
         "max": 100,
         "unit": "kW"
@@ -143,10 +145,16 @@
   },
   "BSPDStatus": {
     "msg_id": 414,
-    "cycle_time": 100,
+    "cycle_time": 10,
     "description": "BSPD Status",
     "signals": {
+      "BSPDBrakePressureThresholdExceeded": {
+        "bits": 1
+      },
       "BSPDCurrentThresholdExceeded": {
+        "bits": 1
+      },
+      "BSPDAccelBrakeOk": {
         "bits": 1
       }
     }
@@ -201,7 +209,7 @@
   },
   "ImdStatus": {
     "msg_id": 452,
-    "cycle_time": 100,
+    "cycle_time": 10,
     "description": "BMS IMD Messages",
     "signals": {
       "ImdOkHs": {

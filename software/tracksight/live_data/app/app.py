@@ -1,68 +1,102 @@
 """
 Entrypoint to the telemetry backend
 """
+from multiprocessing import Process
 
-import logging
+print("Starting app...")
+import time
+
+import_start_time = time.time()
+from gevent import monkey
+monkey.patch_all() # very important :)
+
+from settings import *
+from logger import logger
+
+from flask_app import app
+from sio import sio
+
+from threading import Thread
+from typing import Optional
 
 # tasks
 import tasks.influx_logger as InfluxHandler
-from api.http import api
-from api.socket import sio
-
-# apis
-from flask_app import app
-from logger import log_path, logger
-from mDNS import register_mdns_service
-from settings import *
 from tasks.broadcaster import get_websocket_broadcast
 from tasks.read_task.mock import get_mock_task
 from tasks.read_task.wireless import get_wireless_task
+from tasks.stop_signal import stop_run_signal
 
-# register blueprint for python
-app.register_blueprint(api, url_prefix="/api")
+# apis
+from api.historical_handler import historical_api
+from api.files_handler import sd_api
+from api.rtc_handler import rtc
+from api.http import http
+from api.subtable_handler import sub_handler
+from api.influx_handler import influx_handler
 
-# Note this must be done first as there are static level os.env gets
+from mDNS import register_mdns_service
 
-logger.setLevel(level=logging.DEBUG if DEBUG else logging.INFO)
-if DEBUG:
-    logging.basicConfig(level=logging.DEBUG)
-else:
-    logging.basicConfig(filename=log_path, level=logging.INFO)
+import_end_time = time.time()
+logger.debug(f"Importing took {import_end_time - import_start_time:.2f} seconds")
 
+# this thread populates the message queue(s) with real data from the car
+wireless_thread: Optional[Thread] = None
+# this thread populates the message queue(s) with mock data
+mock_thread: Optional[Thread] = None
+
+# this thread broadcasts the data to the frontend
+ws_broadcast_thread: Optional[Thread] = None
+# this thread logs the data to influxdb
+influx_logger_task: Optional[Thread] = None
+
+def create_app():
+    global wireless_thread, mock_thread, ws_broadcast_thread, influx_logger_task
+
+    # register blueprint for python
+    app.register_blueprint(sd_api)
+    app.register_blueprint(historical_api)
+    app.register_blueprint(http)
+    app.register_blueprint(rtc)
+    app.register_blueprint(sub_handler)
+    app.register_blueprint(influx_handler)
+
+    influx_start_time = time.time()
     # Setup the Message Populate Thread
-
-InfluxHandler.setup()
-
-wireless_thread = None
-if ENABLE_WIRELESS:
-    wireless_thread = get_wireless_task(SERIAL_PORT)
-
-mock_thread = None
-if ENABLE_MOCK:
     InfluxHandler.setup()
-    mock_thread = get_mock_task()
+    logger.debug(f"InfluxDB setup took {time.time() - influx_start_time:.2f} seconds")
 
-# Reading Thread
-broadcast_thread = get_websocket_broadcast()
-influx_logger_task = InfluxHandler.get_influx_logger_task()
+    if DATA_SOURCE == "WIRELESS":
+        wireless_thread = get_wireless_task(sio)
+    elif DATA_SOURCE == "MOCK":
+        mock_thread = get_mock_task(sio)
+    else:
+        raise RuntimeError("Data source is not valid")
 
-# Initialize the Socket.IO app with the main app.
-if ENABLE_WIRELESS:
-    wireless_thread.start()
-if ENABLE_MOCK:
-    mock_thread.start()
+    # Reading Thread
+    ws_broadcast_thread = get_websocket_broadcast(sio)
+    influx_logger_task = InfluxHandler.get_influx_logger_task(sio)
 
-broadcast_thread.start()
-influx_logger_task.start()
+    if not DEBUG and SERVER_IP:  # only when debug is off because it in debug mode it will create a subprocess and run this again
+        p = Process(target=register_mdns_service, args=(SERVER_IP, SERVER_DOMAIN_NAME))
+        p.start()
+    return app
 
-if(not DEBUG): # only when debug is off because it in debug mode it will create a subprocess and run this again
-    register_mdns_service(SERVER_IP, SERVER_DOMAIN_NAME)
-
-# please be adviced, that the 0.0.0.0 is strictly mandatory
-sio.run(
-    app,
-    debug=bool(DEBUG),
-    host="0.0.0.0",
-    port=5000,
-)
-# on keyboard interrupt, the above handles killing
+if __name__ == "__main__":
+    create_app() # cast to void :) we already have a reference
+    try:
+        logger.info("Starting Flask app with SocketIO. Running on port 5000.")
+        sio.run(
+            app,
+            debug=False,
+            host="0.0.0.0", # 0.0.0.0 means to listen on all network interfaces (ethernet, wifi, etc.)
+            port=BACKEND_PORT,
+        )
+    except KeyboardInterrupt:
+        # on keyboard interrupt, the above handles killing
+        logger.info("Keyboard Interrupt received, shutting down...")
+    finally:
+        stop_run_signal()
+        if wireless_thread: wireless_thread.join()
+        if mock_thread: mock_thread.join()
+        if ws_broadcast_thread: ws_broadcast_thread.join()
+        if influx_logger_task: influx_logger_task.join()

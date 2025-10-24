@@ -19,10 +19,6 @@ class VCStateMachineTest : public VCBaseTest
 {
 };
 
-#define ASSERT_STATE_EQ(expectedState)                            \
-    ASSERT_EQ(app_stateMachine_getCurrentState(), &expectedState) \
-        << "Expected state: " << expectedState.name << ", but got: " << app_stateMachine_getCurrentState()->name
-
 // Helper to set state and invoke its entry action
 static void SetStateWithEntry(const State *s)
 {
@@ -414,7 +410,7 @@ TEST_F(VCStateMachineTest, DisableVanillaEnterPower)
 
 TEST_F(VCStateMachineTest, DisableVanillaEnterPowerActiveDiff)
 {
-    app_canAlerts_VC_Info_ImuInitFailed_set(false);
+    app_canAlerts_VC_Info_ImuFault_set(false);
 
     SetStateWithEntry(&drive_state);
     app_canRx_CRIT_VanillaOverrideSwitch_update(SWITCH_OFF);
