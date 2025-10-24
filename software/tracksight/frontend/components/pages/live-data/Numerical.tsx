@@ -50,12 +50,10 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
 
     // TODO: hook up availableSignals metadata (currently only fetched in DropdownSearch on demand)
     const availableSignals: any[] = useMemo(() => [], []);
-    // Only numerical data now
     const numericalData: any[] = useMemo(
       () => getNumericalData(),
       [getNumericalData, dataVersion]
     );
-    const isLoadingSignals = false;
 
     const [chartHeight, setChartHeight] = useState(256);
     const [searchTerm, setSearchTerm] = useState("");
@@ -67,14 +65,11 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
     const buttonRef = useRef<HTMLDivElement>(null);
     const chartContainerRef = useRef<HTMLDivElement>(null);
 
-    // pan state is offset in pixels from the right edge (latest data)
     const [panOffset, setPanOffset] = useState(0);
     const [isDragging, setIsDragging] = useState(false);
     const dragStart = useRef({ x: 0 });
-    // the zoom state controls how much time is visible (higher = more zoomed in)
     const [zoomLevel, setZoomLevel] = useState(100);
     const [timeTickCount, setTimeTickCount] = useState(6);
-    // track if user has manually panned (to prevent auto-follow)
     const [isManuallyPanning, setIsManuallyPanning] = useState(false);
     const [manualTimeWindow, setManualTimeWindow] = useState<{
       startTime: number;
@@ -84,88 +79,82 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
       baseRange: number;
       baseZoom: number;
     } | null>(null);
+    const isLoadingSignals = false;
 
-    // Track signals this component instance subscribed to for proper cleanup
     const componentSubscriptions = useRef<Set<string>>(new Set());
-    // Force re-render when subscriptions change
     const [subscriptionVersion, setSubscriptionVersion] = useState(0);
 
-    // Get only the signals that this specific graph instance has subscribed to
-    const thisGraphSignals = React.useMemo(() => {
+    const thisGraphSignals = useMemo(() => {
       return Array.from(componentSubscriptions.current).filter(
         (sig) => isPaused || activeSignals.includes(sig)
       );
     }, [activeSignals, subscriptionVersion, isPaused]);
 
-    // Build sparse aligned arrays for uPlot: [x[], ...y[]]
-    const uplotData = React.useMemo(() => {
-      const filtered = numericalData.filter((d) =>
-        thisGraphSignals.includes(d.name as string)
-      );
-      if (filtered.length === 0)
+    const uplotData = useMemo(() => {
+      if (thisGraphSignals.length === 0) {
         return [[], ...thisGraphSignals.map(() => [])] as AlignedData;
+      }
 
-      console.log(filtered.length);
-
-      // Calculate visible window first
-      const allTimes = filtered.map((d) =>
-        typeof d.time === "number" ? d.time : new Date(d.time).getTime()
-      );
-      console.log(allTimes.length);
-
-      const latestTime = Math.max(...allTimes);
-      const earliestTime = Math.min(...allTimes);
-      const totalTimeRange = Math.max(latestTime - earliestTime, 1);
-      const zoomFactor = 100 / zoomLevel;
-      const autoVisibleRange = Math.max(totalTimeRange * zoomFactor, 1);
-
-      const hasManualWindow = !!manualTimeWindow;
-      const windowEnd = hasManualWindow
-        ? manualTimeWindow!.endTime
-        : latestTime;
-      const windowStart = hasManualWindow
-        ? manualTimeWindow!.startTime
-        : Math.max(windowEnd - autoVisibleRange, earliestTime);
-      const effectiveRange = Math.max(windowEnd - windowStart, 1);
-      const buffer = effectiveRange * 0.2; // 20% buffer
-
-      // Only process data within visible window + buffer
-      const windowedData = filtered.filter((d) => {
-        const t =
-          typeof d.time === "number" ? d.time : new Date(d.time).getTime();
-        return t >= windowStart - buffer && t <= windowEnd + buffer;
+      const timestamps: number[] = [];
+      const seriesBySignal = new Map<string, (number | null)[]>();
+      thisGraphSignals.forEach((sig) => {
+        seriesBySignal.set(sig, []);
       });
 
-      // Now align only the windowed data (much smaller dataset)
-      const perSig = new Map<string, Map<number, number>>();
-      thisGraphSignals.forEach((s) => perSig.set(s, new Map()));
-      const xSet = new Set<number>();
+      const indexByTimestamp = new Map<number, number>();
 
-      for (const d of windowedData) {
-        const sig = d.name as string;
-        const t =
-          typeof d.time === "number" ? d.time : new Date(d.time).getTime();
-        const v = typeof d.value === "number" ? d.value : Number(d.value);
-        if (!Number.isFinite(v)) continue;
-        perSig.get(sig)!.set(t, v);
-        xSet.add(t);
-      }
+      for (const entry of numericalData) {
+        const sig = entry.name as string;
+        if (!seriesBySignal.has(sig)) continue;
 
-      // const x = Array.from(xSet).sort((a, b) => a - b);
-      const x = Array.from(xSet); //.sort((a, b) => a - b); // remove sort for performance
+        const timestamp =
+          typeof entry.time === "number"
+            ? entry.time
+            : new Date(entry.time).getTime();
+        const rawValue =
+          typeof entry.value === "number" ? entry.value : Number(entry.value);
 
-      const ys: Array<(number | null)[]> = [];
-      for (const sig of thisGraphSignals) {
-        const m = perSig.get(sig)!;
-        const arr: (number | null)[] = new Array(x.length);
-        for (let i = 0; i < x.length; i++) {
-          const t = x[i];
-          arr[i] = m.has(t) ? (m.get(t) as number) : null;
+        if (!Number.isFinite(timestamp) || !Number.isFinite(rawValue)) continue;
+
+        let columnIndex = indexByTimestamp.get(timestamp);
+        if (columnIndex === undefined) {
+          columnIndex = timestamps.length;
+          indexByTimestamp.set(timestamp, columnIndex);
+          timestamps.push(timestamp);
+          seriesBySignal.forEach((arr) => arr.push(null));
         }
-        ys.push(arr);
+
+        const seriesArr = seriesBySignal.get(sig)!;
+        seriesArr[columnIndex] = rawValue;
       }
-      return [x, ...ys] as AlignedData;
-    }, [numericalData, thisGraphSignals, zoomLevel, manualTimeWindow]);
+
+      if (timestamps.length > 1) {
+        let isMonotonic = true;
+        for (let i = 1; i < timestamps.length; i++) {
+          if (timestamps[i] < timestamps[i - 1]) {
+            isMonotonic = false;
+            break;
+          }
+        }
+
+        if (!isMonotonic) {
+          const indices = timestamps.map((_, idx) => idx);
+          indices.sort((a, b) => timestamps[a] - timestamps[b]);
+
+          const sortedTimestamps = indices.map((idx) => timestamps[idx]);
+          const sortedSeries = thisGraphSignals.map((sig) => {
+            const arr = seriesBySignal.get(sig)!;
+            return indices.map((idx) => arr[idx]);
+          });
+          return [sortedTimestamps, ...sortedSeries] as AlignedData;
+        }
+      }
+
+      return [
+        timestamps,
+        ...thisGraphSignals.map((sig) => seriesBySignal.get(sig)!),
+      ] as AlignedData;
+    }, [numericalData, thisGraphSignals]);
 
     const numericalSignals = thisGraphSignals;
 
