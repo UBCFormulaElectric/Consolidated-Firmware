@@ -15,7 +15,7 @@ const ChipLegendItem: FC<ChipLegendItemProps> = (props) => {
 
   return (
     <div
-      className="relative flex w-min min-w-36 items-center gap-2 overflow-clip rounded-full border-1 px-2 py-1"
+      className="relative flex w-min items-center gap-2 overflow-clip rounded-full border-1 px-2 py-1"
       style={{
         borderColor: color,
       }}
@@ -46,12 +46,7 @@ const ChipLegend: FC<ChipLegendProps> = (props) => {
   } = props;
 
   return (
-    <div
-      className="grid w-full max-w-full gap-4 px-8"
-      style={{
-        gridTemplateColumns: "repeat(auto-fit, 250px)",
-      }}
-    >
+    <div className="flex flex-wrap w-full max-w-full gap-8 px-8">
       {signals.map((signal, i) => (
         <ChipLegendItem key={signal} content={signal} color={colorPalette[i] || "#000000"} />
       ))}
