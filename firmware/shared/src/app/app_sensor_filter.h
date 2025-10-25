@@ -6,27 +6,27 @@
 
 /**
  * @brief IIR Moving Average Filter
- * 
+ *
  * This filter provides an IIR approximation of a moving average filter.
  * It uses exponential smoothing with calculated alpha to approximate
  * the behavior of a moving average with specified window size.
- * 
+ *
  */
 
 typedef struct
 {
-    float alpha;              // Calculated smoothing factor
-    float previous_output;    // Previous filter output
-    float initial_value;      // Initial value for reset
-    bool is_initialized;      // Initialization flag
+    float alpha;           // Calculated smoothing factor
+    float previous_output; // Previous filter output
+    float initial_value;   // Initial value for reset
+    bool  is_initialized;  // Initialization flag
 } IIRMovingAverageFilter;
 
 typedef struct
 {
-    float alpha;              // Smoothing factor (0.0 to 1.0)
-    float previous_output;    // Previous filter output
-    float initial_value;      // Initial value for reset
-    bool is_initialized;      // Initialization flag
+    float alpha;           // Smoothing factor (0.0 to 1.0)
+    float previous_output; // Previous filter output
+    float initial_value;   // Initial value for reset
+    bool  is_initialized;  // Initialization flag
 } ExponentialFilter;
 
 /**
@@ -35,9 +35,10 @@ typedef struct
  * @param equivalent_window_size Equivalent window size for approximation
  * @param initial_value Initial value for the filter
  */
-void app_sensor_filter_iir_moving_average_init(IIRMovingAverageFilter *filter, 
-                                               uint32_t equivalent_window_size, 
-                                               float initial_value);
+void app_sensor_filter_iir_moving_average_init(
+    IIRMovingAverageFilter *filter,
+    uint32_t                equivalent_window_size,
+    float                   initial_value);
 
 /**
  * @brief Process input through IIR Moving Average Filter
@@ -53,7 +54,6 @@ float app_sensor_filter_iir_moving_average_process(IIRMovingAverageFilter *filte
  */
 void app_sensor_filter_iir_moving_average_reset(IIRMovingAverageFilter *filter);
 
-
 /**
  * @brief Initialize Exponential Filter
  * @param filter Pointer to filter structure
@@ -61,10 +61,11 @@ void app_sensor_filter_iir_moving_average_reset(IIRMovingAverageFilter *filter);
  * @param sample_rate The rate at which data is sampled in Hz
  * @param initial_value Initial value for the filter
  */
-void app_sensor_filter_exponential_init(ExponentialFilter *filter, 
-                                        float cutoff_frequency,
-                                        float sample_rate,
-                                        float initial_value);
+void app_sensor_filter_exponential_init(
+    ExponentialFilter *filter,
+    float              cutoff_frequency,
+    float              sample_rate,
+    float              initial_value);
 
 /**
  * @brief Process input through Exponential Filter
@@ -80,7 +81,6 @@ float app_sensor_filter_exponential_process(ExponentialFilter *filter, float inp
  */
 void app_sensor_filter_exponential_reset(ExponentialFilter *filter);
 
-
 /**
  * @brief First-Order Butterworth IIR Filter
  *
@@ -88,13 +88,13 @@ void app_sensor_filter_exponential_reset(ExponentialFilter *filter);
  */
 typedef struct
 {
-    float a1;               // Feedback coefficient
-    float b0;               // Feedforward coefficient
-    float b1;               // Feedforward coefficient
-    float previous_input;   // Previous input value
-    float previous_output;  // Previous filter output
-    float initial_value;    // Initial value for reset
-    bool is_initialized;    // Initialization flag
+    float a1;              // Feedback coefficient
+    float b0;              // Feedforward coefficient
+    float b1;              // Feedforward coefficient
+    float previous_input;  // Previous input value
+    float previous_output; // Previous filter output
+    float initial_value;   // Initial value for reset
+    bool  is_initialized;  // Initialization flag
 } ButterworthFilter;
 
 /**
@@ -104,10 +104,11 @@ typedef struct
  * @param sample_rate The rate at which data is sampled in Hz
  * @param initial_value The initial value for the filter
  */
-void app_sensor_filter_butterworth_init(ButterworthFilter *filter,
-                                        float cutoff_frequency,
-                                        float sample_rate,
-                                        float initial_value);
+void app_sensor_filter_butterworth_init(
+    ButterworthFilter *filter,
+    float              cutoff_frequency,
+    float              sample_rate,
+    float              initial_value);
 
 /**
  * @brief Process an input value through the Butterworth filter
