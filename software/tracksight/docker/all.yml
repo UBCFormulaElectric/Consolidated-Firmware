@@ -1,13 +1,13 @@
-name: tracksight-wireless
+name: tracksight-docker
 services:
   influx:
     extends:
       file: common.yml
       service: influx
-  live_data:
+  backend:
     extends:
       file: common.yml
-      service: live_data
+      service: backend
     command:
       [
         "python3",

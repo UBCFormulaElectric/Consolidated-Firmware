@@ -11,7 +11,7 @@ DOCKERIZED: bool = get_env_bool("DOCKERIZED")
 
 # App running on docker should have existing environment variables set up
 if not DOCKERIZED:
-    _DOTENV_PATH = Path(__file__).resolve().parent.parent / "local_live_data.env"
+    _DOTENV_PATH = Path(__file__).resolve().parent.parent / "local_backend.env"
     if _DOTENV_PATH.exists():
         load_dotenv(_DOTENV_PATH)
     else:

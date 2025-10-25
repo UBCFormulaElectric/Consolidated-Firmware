@@ -5,12 +5,13 @@
 Tracksight is used for inspecting CAN bus data from the car, and works in two modes: Either it pulls data from a local CSV data file, or it receives data wirelessly from the car in real-time. 
 
 This consists of 3 parts (each typically run inside of its own Docker container):
-1. The InfluxDB database. This is responsible for storing time-series data representing our CAN bus messages. Defaults to [http://localhost:3000](http://localhost:3000).
-2. The backend. The backend is a Python Flask app that provides data for the frontend, and is responsible for reading/writing data to the database. In log mode, the data is read from CSV log files, and in wireless telemetry, it receives data via from the car via a serial radio. Defaults to [http://localhost:5000](http://localhost:5000).
-3. The frontend. This is a [Next.js](https://nextjs.org/) project which uses  for plotting CAN data. Defaults to [http://localhost:8086](http://localhost:8086).
+1. **The frontend**. This is a [Next.js](https://nextjs.org/) project which uses  for plotting CAN data.
+2. **The backend**. The backend is a Python Flask app that provides data for the frontend, and is responsible for reading/writing data to the database. In log mode, the data is read from CSV log files, and in wireless telemetry, it receives data via from the car via a serial radio.
+3. **The database**. The database we are using is InfluxDB 2-alpin. This is responsible for storing time-series data representing our CAN bus messages.
 
 ## Frontend
 
+The frontend is found in `frontend/`.
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ### Getting Started
@@ -20,7 +21,7 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 2. Install packages with `yarn install` inside this directory.
 3. Run the development server: `yarn run dev`.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) (or whichever the specified port is) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
@@ -35,10 +36,40 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
 
-## Running with Docker
+## Backend
 
-Make sure you `yarn install` all packages for the frontend, and start Docker, before continuing. 
+This backend is found in `backend/`.
 
+### Getting started
+1. Make sure you have `Python 3.11.x+` installed.
+2. Install all the modules required by running `pip install -r requirements.txt`
+3. Setup up the environment variables by creating `local_backend.env` in the directory. Use `local_backend.template.env` for reference.
+4. Run `python app/app.py`
+
+By default, the backend endpoints should be hosted on [http://localhost:5000](http://localhost:5000). You can also verify the status of the backend by opening [http://localhost:5000/health](http://localhost:5000/health).
+
+## Database
+We recommend running an InfluxDB instance through Docker, but feel free to setting up locally for more persistence.
+
+### Getting started (with Docker)
+1. Make sure you have Docker Compose set up.
+2. In `docker/`, run `./docker-compose.sh db_only.yml`. This will build a Docker container with only InfluxDB instance.
+
+## Running the entire stack with Docker
+
+Outside of development (e.g. for deployment), the entire stack can be containerized in Docker, simplifying the setup.
+
+> **Note**\
+> Non-Linux machines running backend in Docker will not be able to connect to the serial port. This has to do with the hardware interface difference between Linux and non-Linux machines.
+
+### Getting started
+1. In `docker/`, set up the environment files by creating `X.env` file for each `X.template.env`.
+2. Run `./docker-compose.sh all.yml`. 
+
+You can configure your own `yml` and run that based on your needs.
+
+## Deprecated documentation
+> Documentation below may be relevant, but are outdated as they are intended for `legacy_backend`
 ### Log Mode
 
 This is the mode for using Tracksight to inspect CSV log files, parsed off of the vehicles SD card. These files are essentially a time-series list of the signals sent on the CAN bus, with 

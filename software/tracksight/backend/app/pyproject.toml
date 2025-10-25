@@ -1,4 +1,4 @@
 [project]
-name = "live_data"
+name = "backend"
 version = "0.1"
 dependencies = []
