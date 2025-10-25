@@ -1,24 +1,26 @@
-import React from 'react';
+import type { FC, FocusEvent, HTMLAttributes } from 'react';
 
-type EditableText = {
+type EditableTextProps = {
   onChange: (text: string) => void;
   placeholder?: string;
   initialText: string;
-};
+} & HTMLAttributes<HTMLInputElement>;
 
-const EditableText: React.FC<EditableText> = (props) => {
+const EditableText: FC<EditableTextProps> = (props) => {
   const {
     onChange,
     initialText = "",
     placeholder = "Click to edit",
+    ...rest
   } = props;
 
-  const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+  const handleBlur = (event: FocusEvent<HTMLInputElement>) => {
     onChange(event.target.value);
   };
 
   return (
     <input
+      {...rest}
       suppressContentEditableWarning
       onBlur={handleBlur}
       placeholder={placeholder}

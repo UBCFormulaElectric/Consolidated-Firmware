@@ -1,11 +1,11 @@
 "use client";
 
-import React from "react";
+import type { FC } from "react";
 
 import Widget from "@/components/widgets/Widget";
 import { useDashboardLayout } from "@/lib/contexts/DashboardLayout";
 
-const LiveDataDashboard: React.FC = () => {
+const LiveDataDashboard: FC = () => {
   const { widgets } = useDashboardLayout();
 
   return (

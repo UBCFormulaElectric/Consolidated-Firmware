@@ -1,4 +1,4 @@
-import React from "react";
+import type { FC } from "react";
 
 import { WIDGET_SCHEMAS } from "@/lib/widgetSchemas";
 
@@ -17,7 +17,7 @@ type Widget<Type extends WIDGET_TYPE> = {
 
 type EditWidgetFunction<Type extends WIDGET_TYPE> = (newWidgetData: Partial<Widget<Type>>) => void;
 
-type WidgetRenderer<Type extends WIDGET_TYPE> = React.FC<Widget<Type>>;
+type WidgetRenderer<Type extends WIDGET_TYPE> = FC<Widget<Type>>;
 
 export type { EditWidgetFunction, Widget, WIDGET_OPTIONS, WIDGET_TYPE };
 

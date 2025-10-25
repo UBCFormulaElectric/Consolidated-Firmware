@@ -2,7 +2,7 @@
 
 import { fetchSignalMetadata } from "@/lib/api/signals";
 import { SignalMetadata, SignalMetadataMap } from "@/lib/types/Signal";
-import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
+import React, { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
 
 import { API_BASE_URL } from "@/lib/constants";
 
@@ -40,7 +40,7 @@ const SignalsMetadataProvider = ({ children }: SignalsProviderProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchSignals = React.useCallback(async () => {
+  const fetchSignals = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
@@ -64,7 +64,7 @@ const SignalsMetadataProvider = ({ children }: SignalsProviderProps) => {
     fetchSignals();
   }, [fetchSignals]);
 
-  const getSignalMetadata = React.useCallback(
+  const getSignalMetadata = useCallback(
     (signalName: string): SignalMetadata | undefined => {
       return signalMetadata.get(signalName);
     },

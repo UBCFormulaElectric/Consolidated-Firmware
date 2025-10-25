@@ -1,6 +1,6 @@
 import ChipLegendRenderer from "@/components/ChipLegendItem";
 import LabelLegendItem from "@/components/LabelLegendItem";
-import React, { useMemo } from "react";
+import React, { FC, useMemo } from "react";
 
 type LegendThemes = "chip" | "label";
 
@@ -23,14 +23,14 @@ type LegendItemRendererProps = {
   onRemoved?: () => {};
 };
 
-export type LegendItemRenderer = React.FC<LegendItemRendererProps>;
+export type LegendItemRenderer = FC<LegendItemRendererProps>;
 
 const LEGEND_ITEM_RENDERERS: Record<LegendThemes, LegendItemRenderer> = {
   chip: ChipLegendRenderer,
   label: LabelLegendItem,
 };
 
-const Legend: React.FC<LegendProps> = (props) => {
+const Legend: FC<LegendProps> = (props) => {
   const {
     theme,
 

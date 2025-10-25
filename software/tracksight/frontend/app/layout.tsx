@@ -2,7 +2,7 @@ import "@/app/globals.css";
 
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import type React from "react";
+import type { ReactNode } from "react";
 
 import { SignalsMetadataProvider } from "@/lib/contexts/SignalsMetadataContext";
 
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
