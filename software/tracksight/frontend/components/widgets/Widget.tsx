@@ -1,16 +1,15 @@
 "use client";
 
 import StateTimeline from "@/components/widgets/StateTimeline";
-import { WidgetRenderer, WidgetType } from "@/lib/types/Widget";
+import { WidgetData, WidgetType } from "@/lib/types/Widget";
 
-const Widget: WidgetRenderer<WidgetType> = (props) => {
-  const { type } = props;
-
-  if (type === "stateTimeline") {
-    return <StateTimeline {...props} />;
+const Widget = (props: WidgetData<WidgetType>) => {
+  switch (props.type) {
+    case "stateTimeline":
+      return <StateTimeline {...props} />;
   }
 
-  throw new Error(`Unsupported widget type: ${type}`);
+  throw new Error(`Should be unreachable: Unsupported widget type: ${(props as any).type}`);
 };
 
 export default Widget;
