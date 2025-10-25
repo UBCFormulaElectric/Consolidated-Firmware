@@ -17,7 +17,7 @@ type DashboardLayoutType = {
   ) => void;
 };
 
-const DashboardLayoutContext = createContext<DashboardLayoutType | undefined>(undefined);
+const DashboardLayoutContext = createContext<DashboardLayoutType | null>(null);
 
 const DashboardLayoutProvider = ({ children }: { children: ReactNode }) => {
   const [widgets, setWidgets] = useState<Widget<WIDGET_TYPE>[]>([
@@ -125,7 +125,7 @@ const DashboardLayoutProvider = ({ children }: { children: ReactNode }) => {
 const useDashboardLayout = () => {
   const context = useContext(DashboardLayoutContext);
 
-  if (context === undefined) {
+  if (context === null) {
     throw new Error("useDashboardLayout must be used within a DashboardLayoutProvider");
   }
 
