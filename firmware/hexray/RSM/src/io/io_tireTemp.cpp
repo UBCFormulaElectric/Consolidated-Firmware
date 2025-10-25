@@ -6,5 +6,5 @@ extern "C"
 
 namespace io::tireTemp
 {
-    float get(){return 10;}.  //stub code
+    float get();
 }
