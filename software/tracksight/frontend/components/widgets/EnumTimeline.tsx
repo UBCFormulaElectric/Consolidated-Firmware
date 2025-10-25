@@ -9,7 +9,7 @@ import { useEffect } from "react";
 import EnumSignalSelector from "@/components/widgets/EnumSignalSelector";
 import { useDashboardLayout } from "@/lib/contexts/DashboardLayout";
 
-const StateTimeline: WidgetRenderer<"stateTimeline"> = (props) => {
+const EnumTimeline: WidgetRenderer<"enumTimeline"> = (props) => {
   const { signals, options } = props;
 
   const { colorPalette } = options;
@@ -65,4 +65,4 @@ const StateTimeline: WidgetRenderer<"stateTimeline"> = (props) => {
   );
 };
 
-export default StateTimeline;
+export default EnumTimeline;

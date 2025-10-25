@@ -1,7 +1,7 @@
 import type { FC } from "react";
 
 type WidgetSchema = {
-  type: "stateTimeline",
+  type: "enumTimeline",
   name: "Horizontal Stacked Bar",
   options: {
     colorPalette: string[],
