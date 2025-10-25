@@ -1,6 +1,6 @@
 "use client";
 
-import Legend from "@/components/Legend";
+import LabelLegend from "@/components/legends/LabelLegend";
 import { IS_VERBOSE_DEBUG } from "@/lib/constants";
 import { useSignalMetadata } from "@/lib/contexts/SignalsMetadataContext";
 import { useDataVersion, useSignalDataRef } from "@/lib/signalData";
@@ -60,7 +60,7 @@ const EnumTimeline: WidgetRenderer<"enumTimeline"> = (props) => {
         ))}
       </div>
 
-      <Legend theme="label" signals={enumOptions} colorPalette={colorPalette} />
+      <LabelLegend signals={enumOptions} colorPalette={colorPalette} />
     </div>
   );
 };
