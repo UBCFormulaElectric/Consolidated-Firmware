@@ -17,7 +17,7 @@ type SignalsMetadataContextType = {
   refetch: () => Promise<void>;
 };
 
-const SignalsMetadataContext = createContext<SignalsMetadataContextType | undefined>(undefined);
+const SignalsMetadataContext = createContext<SignalsMetadataContextType | null>(null);
 
 type SignalsProviderProps = {
   children: ReactNode;
@@ -92,7 +92,7 @@ const SignalsMetadataProvider = ({ children }: SignalsProviderProps) => {
 const useSignalsMetadataList = () => {
   const context = useContext(SignalsMetadataContext);
 
-  if (context === undefined) {
+  if (context === null) {
     throw new Error("useSignals must be used within a SignalsProvider");
   }
 
@@ -102,7 +102,7 @@ const useSignalsMetadataList = () => {
 const useSignalMetadata = (signal: string) => {
   const context = useContext(SignalsMetadataContext);
 
-  if (context === undefined) {
+  if (context === null) {
     throw new Error("useSignalMetadata must be used within a SignalsProvider");
   }
 
