@@ -49,7 +49,7 @@ const EnumTimeline: WidgetRenderer<"enumTimeline"> = (props) => {
         />
       </div>
 
-      <div className="relative flex h-6 w-full -z-50">
+      <div className="relative flex h-6 w-full">
         {signals.map((_, i) => (
           <div
             className="w-full"
