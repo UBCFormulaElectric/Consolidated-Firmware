@@ -24,7 +24,7 @@ const DashboardLayoutProvider = ({ children }: { children: ReactNode }) => {
     // TODO(evan): Remove this it's just temporary data, should be pulled from local storage
     //             or something similar
     {
-      type: "stateTimeline",
+      type: "enumTimeline",
       signals: ["VC_State"],
       options: {
         colorPalette: ["#FF637E", "#FFB86A", "#05DF72", "#51A2FF"],
@@ -32,7 +32,7 @@ const DashboardLayoutProvider = ({ children }: { children: ReactNode }) => {
       id: "widget-1",
     },
     {
-      type: "stateTimeline",
+      type: "enumTimeline",
       signals: ["VC_State"],
       options: {
         colorPalette: ["#FF637E", "#FFB86A", "#05DF72", "#51A2FF"],
@@ -40,7 +40,7 @@ const DashboardLayoutProvider = ({ children }: { children: ReactNode }) => {
       id: "widget-2",
     },
     {
-      type: "stateTimeline",
+      type: "enumTimeline",
       signals: ["VC_State"],
       options: {
         colorPalette: ["#FF637E", "#FFB86A", "#05DF72", "#51A2FF"],
@@ -48,7 +48,7 @@ const DashboardLayoutProvider = ({ children }: { children: ReactNode }) => {
       id: "widget-3",
     },
     {
-      type: "stateTimeline",
+      type: "enumTimeline",
       signals: ["VC_State"],
       options: {
         colorPalette: ["#FF637E", "#FFB86A", "#05DF72", "#51A2FF"],
