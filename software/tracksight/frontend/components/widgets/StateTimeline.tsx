@@ -4,12 +4,12 @@ import Legend from "@/components/Legend";
 import { IS_VERBOSE_DEBUG } from "@/lib/constants";
 import { useSignalMetadata } from "@/lib/contexts/SignalsMetadataContext";
 import { useDataVersion, useSignalDataRef } from "@/lib/signalData";
-import Widget from "@/lib/types/Widget";
+import { WidgetRenderer } from "@/lib/types/Widget";
 import { useEffect } from "react";
 import EnumSignalSelector from "@/components/widgets/EnumSignalSelector";
 import { useDashboardLayout } from "@/lib/contexts/DashboardLayout";
 
-const StateTimeline: Widget<"stateTimeline"> = (props) => {
+const StateTimeline: WidgetRenderer<"stateTimeline"> = (props) => {
   const { signals, options } = props;
 
   const { colorPalette } = options;
