@@ -2,7 +2,7 @@
 
 #include "hw_gpio.h"
 #include "main.h"
-#include "errorCodes.h"
+#include "util_errorCodes.h"
 
 typedef struct
 {

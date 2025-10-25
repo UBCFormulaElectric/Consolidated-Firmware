@@ -1,7 +1,7 @@
 #pragma once
 
 #include "hw_hal.hpp"
-#include "errorCodes.hpp"
+#include "util_errorCodes.hpp"
 
 #define TICK_TO_MS(tick) ((tick) * portTICK_PERIOD_MS)
 
