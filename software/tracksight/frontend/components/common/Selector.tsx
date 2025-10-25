@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { FC, RefObject, useEffect, useRef, useState } from "react";
 
 type SelectorCategory<T> = {
   label: string;
@@ -10,7 +10,7 @@ type SelectorCategory<T> = {
 
 type SelectorCategoryNext<T> = () => (T | SelectorCategory<T>)[] | (T | SelectorCategory<T>)[];
 
-type SelectorItemRenderer<T> = React.FC<{
+type SelectorItemRenderer<T> = FC<{
   data: T;
   isSelected?: boolean;
 }>;
@@ -24,7 +24,7 @@ type SelectorProps<T> = {
   ItemRenderer: SelectorItemRenderer<T>;
   getSearchableText: (item: T) => string;
 
-  buttonElement: React.RefObject<HTMLElement>;
+  buttonElement: RefObject<HTMLElement>;
 };
 
 const isSelectorCategory = <T extends any>(

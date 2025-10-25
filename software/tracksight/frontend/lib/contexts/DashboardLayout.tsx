@@ -1,7 +1,7 @@
 "use client";
 
 import type { Widget, WIDGET_TYPE } from "@/lib/types/Widget";
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, ReactNode, useCallback, useContext, useState } from "react";
 import { IS_DEBUG } from "@/lib/constants";
 
 type DashboardLayoutType = {
@@ -19,7 +19,7 @@ type DashboardLayoutType = {
 
 const DashboardLayoutContext = createContext<DashboardLayoutType | undefined>(undefined);
 
-const DashboardLayoutProvider = ({ children }: { children: React.ReactNode }) => {
+const DashboardLayoutProvider = ({ children }: { children: ReactNode }) => {
   const [widgets, setWidgets] = useState<Widget<WIDGET_TYPE>[]>([
     // TODO(evan): Remove this it's just temporary data, should be pulled from local storage
     //             or something similar
@@ -57,13 +57,13 @@ const DashboardLayoutProvider = ({ children }: { children: React.ReactNode }) =>
     },
   ]);
 
-  const addWidget: DashboardLayoutType["addWidget"] = React.useCallback((newWidget) => {
+  const addWidget: DashboardLayoutType["addWidget"] = useCallback((newWidget) => {
     newWidget.id = crypto.randomUUID();
 
     setWidgets((prev) => [...prev, newWidget]);
   }, []);
 
-  const removeWidget: DashboardLayoutType["removeWidget"] = React.useCallback(
+  const removeWidget: DashboardLayoutType["removeWidget"] = useCallback(
     (widgetToRemove) => {
       setWidgets((prev) => {
         const widgetIndex = prev.findIndex((w) => w.id === widgetToRemove);
@@ -83,7 +83,7 @@ const DashboardLayoutProvider = ({ children }: { children: React.ReactNode }) =>
     []
   );
 
-  const editWidget: DashboardLayoutType["editWidget"] = React.useCallback(
+  const editWidget: DashboardLayoutType["editWidget"] = useCallback(
     (widgetID, newWidgetData) => {
       setWidgets((prev) => {
         const widgetIndex = prev.findIndex((w) => w.id === widgetID);

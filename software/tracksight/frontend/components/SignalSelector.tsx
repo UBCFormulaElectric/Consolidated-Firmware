@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { FC, RefObject } from "react";
 
 import Selector, { SelectorItemRenderer } from "@/components/common/Selector";
 import { useSignalsMetadataList } from "@/lib/contexts/SignalsMetadataContext";
@@ -12,7 +12,7 @@ type SignalSelectorProps = {
   selectedSignal: SignalMetadata | null;
   onSelect: (signal: SignalMetadata) => void;
 
-  buttonElement: React.RefObject<HTMLElement>;
+  buttonElement: RefObject<HTMLElement>;
 };
 
 const SignalItemRenderer: SelectorItemRenderer<SignalMetadata> = (props) => {
@@ -28,7 +28,7 @@ const SignalItemRenderer: SelectorItemRenderer<SignalMetadata> = (props) => {
   );
 };
 
-const SignalSelector: React.FC<SignalSelectorProps> = (props) => {
+const SignalSelector: FC<SignalSelectorProps> = (props) => {
   const { filter, selectedSignal, onSelect, buttonElement } = props;
 
   const { signalMetadata } = useSignalsMetadataList();

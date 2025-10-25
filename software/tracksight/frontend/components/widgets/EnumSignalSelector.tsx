@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronDown } from "lucide-react";
-import React, { useRef } from "react";
+import React, { FC, RefObject, useRef } from "react";
 
 import SignalSelector from "@/components/SignalSelector";
 import { useSignalMetadata } from "@/lib/contexts/SignalsMetadataContext";
@@ -12,11 +12,11 @@ type EnumSignalSelectorProps = {
   onSignalChange?: (signalName: string) => void;
 };
 
-const EnumSignalSelector: React.FC<EnumSignalSelectorProps> = (props) => {
+const EnumSignalSelector: FC<EnumSignalSelectorProps> = (props) => {
   const { currentSignal, onSignalChange } = props;
 
   const signalMetadata = useSignalMetadata(currentSignal);
-  const signalDropdownRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
+  const signalDropdownRef = useRef<HTMLDivElement>(null) as RefObject<HTMLDivElement>;
 
   return (
     <div className="flex flex-row items-center gap-2 text-lg font-medium">
