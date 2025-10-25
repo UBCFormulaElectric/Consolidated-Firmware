@@ -38,9 +38,9 @@ bool hw_flash_programWord(uint32_t address, uint32_t data);
  */
 bool hw_flash_program(uint32_t address, uint8_t *buffer, uint32_t size);
 
-#elif defined(STM32H733xx) || defined(STM32H562xx)
-#define FLASH_NB_32BITWORD_IN_FLASHWORD 8U                                    /* 256 bits */
-#define FLASH_WORD_BYTES (FLASH_NB_32BITWORD_IN_FLASHWORD * sizeof(uint32_t)) /* 32 bytes */
+#elif defined(STM32H733xx)
+#define FLASH_NB_32BITWORD_IN_FLASHWORD 8U
+#define FLASH_WORD_BYTES (FLASH_NB_32BITWORD_IN_FLASHWORD * sizeof(uint32_t)) // 32 bytes (256 bits)
 
 /**
  * Write a "flash word" to flash, which is 32 bytes or 256 bits.
@@ -48,6 +48,20 @@ bool hw_flash_program(uint32_t address, uint8_t *buffer, uint32_t size);
  * STM32H733xx. Must be erased first.
  * @param address Address to write to.
  * @param data Data to write.
+ * @return True if successful, otherwise false.
+ */
+bool hw_flash_programFlashWord(uint32_t address, uint32_t *data);
+
+#elif defined(STM32H562xx)
+#define FLASH_BLOCKBASED_NB_REG 4U
+#define FLASH_WORD_BYTES (FLASH_BLOCKBASED_NB_REG * sizeof(uint32_t)) // 16 bytes (128 bits)
+
+/**
+ * Write a "flash quad word" to flash, which is 16 bytes or 128 bits.
+ * This is the largest amount of memory you can program at a time on the
+ * STM32H562xx. Must be erased first.
+ * @param address Address to write to.
+ * @param data pointer to data to write.
  * @return True if successful, otherwise false.
  */
 bool hw_flash_programFlashWord(uint32_t address, uint32_t *data);
