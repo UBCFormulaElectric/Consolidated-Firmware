@@ -12,13 +12,20 @@ MEMORY
 {
   FLASH     (rx)  : ORIGIN = 0x08000000, LENGTH = 2048K
   SRAM1_2   (xrw) : ORIGIN = 0x20000000, LENGTH = 256K   /* SRAM1 + SRAM2 */
-  SRAM3     (xrw) : ORIGIN = 0x30000000, LENGTH = 320K
+  SRAM3_RTT (xrw) : ORIGIN = 0x30000000, LENGTH = 2K
+  SRAM3     (xrw) : ORIGIN = 0x30000800, LENGTH = 318K
   BACKUPRAM (xrw) : ORIGIN = 0x38800000, LENGTH = 4K 
 }
 
 /* Output sections */
 SECTIONS
 {
+  /* SEGGER RTT buffer placement */
+  .rtt (NOLOAD) :
+  {
+    KEEP(*(.rtt))
+  } >SRAM3_RTT
+
   /* The startup code goes first into FLASH */
   .isr_vector :
   {
