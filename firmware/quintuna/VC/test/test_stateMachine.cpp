@@ -228,6 +228,11 @@ TEST_F(VCStateMachineTest, ReadyForDriveWithRetryFlagGoesToDriveState)
 
     // Go to drive state.
     LetTimePass(20);
+
+    app_canRx_FSM_BrakeActuated_update(true);
+    app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
+    LetTimePass(20);
+
     ASSERT_STATE_EQ(drive_state);
 }
 
@@ -250,14 +255,14 @@ TEST_F(VCStateMachineTest, DriveStateRetrytoHvInit)
     app_canRx_INVRL_bError_update(true);
     app_canRx_INVRR_bError_update(true);
 
-    LetTimePass(10);
+    LetTimePass(20);
 
     // Making sure that we are in hvInit and making sure that inverter flag is set
     ASSERT_EQ(app_canAlerts_VC_Info_InverterRetry_get(), true);
-    ASSERT_STATE_EQ(hvInit_state);
+    ASSERT_STATE_EQ(inverter_retry_state);
     ASSERT_EQ(app_canTx_VC_InverterState_get(), INV_SYSTEM_READY);
 
-    LetTimePass(10);
+    LetTimePass(20);
 
     // Mock the inverters to indicate that there fault has cleared
     app_canRx_INVFL_bError_update(false);
@@ -270,7 +275,7 @@ TEST_F(VCStateMachineTest, DriveStateRetrytoHvInit)
     app_canRx_INVFL_bSystemReady_update(true);
     app_canRx_INVFR_bSystemReady_update(true);
 
-    LetTimePass(10);
+    LetTimePass(100);
 
     // checking to see if we are transitioning correctly
     ASSERT_EQ(app_canTx_VC_InverterState_get(), INV_DC_ON);
@@ -280,7 +285,7 @@ TEST_F(VCStateMachineTest, DriveStateRetrytoHvInit)
     app_canRx_INVRR_bQuitDcOn_update(true);
     app_canRx_INVRL_bQuitDcOn_update(true);
 
-    LetTimePass(10);
+    LetTimePass(20);
 
     ASSERT_EQ(app_canTx_VC_InverterState_get(), INV_ENABLE);
 
@@ -300,10 +305,14 @@ TEST_F(VCStateMachineTest, DriveStateRetrytoHvInit)
     LetTimePass(10);
 
     ASSERT_EQ(app_canAlerts_VC_Info_InverterRetry_get(), false);
+    app_canRx_FSM_BrakeActuated_update(true);
+    app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
+    LetTimePass(20);
+
     ASSERT_STATE_EQ(drive_state);
 }
 
-/* ------------------------- HV STATE ------------------------------- */
+/* ------------------------- HV STATE -------------------------------*/
 TEST_F(VCStateMachineTest, EntryInitializesState)
 {
     SetStateWithEntry(&hv_state);
@@ -461,6 +470,63 @@ TEST_F(VCStateMachineTest, EntryInitializesPcmOn)
     LetTimePass(10);
     // TODO: Re-enable PCM_ON state.
     EXPECT_FALSE(io_pcm_enabled());
+}
+
+/* ------------------------- INVERTER FAULT HANDLING STATE ------------------------------- */
+// Drive state to retry when only one inverter is faulted (interate through all 4)
+TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverter)
+{
+    SetStateWithEntry(&hvInit_state);
+    LetTimePass(10);
+    app_canTx_VC_Warning_FrontLeftInverterFault_set(1);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(inverter_retry_state);
+}
+
+// Drive state to retry when more than 1 inverter faulted
+TEST_F(VCStateMachineTest, InverterRetryMoreThanOneFaultedInverter)
+{
+    SetStateWithEntry(&hvInit_state);
+    LetTimePass(10);
+    app_canTx_VC_Warning_FrontLeftInverterFault_set(true);
+    app_canTx_VC_Warning_FrontRightInverterFault_set(true);
+    app_canTx_VC_Warning_RearLeftInverterFault_set(true);
+
+    LetTimePass(20);
+    ASSERT_STATE_EQ(inverter_retry_state);
+}
+
+// Retry lockout when error codes given (iterate through all cases)
+TEST_F(VCStateMachineTest, InverterFaultLockout)
+{
+    SetStateWithEntry(&inverter_retry_state);
+    app_canTx_VC_Warning_FrontLeftInverterFault_set(true);
+    ASSERT_STATE_EQ(inverter_retry_state);
+}
+
+// State changing to HV_init when fault is cleared
+TEST_F(VCStateMachineTest, InverterRetryRecovered)
+{
+    SetStateWithEntry(&drive_state);
+    LetTimePass(10);
+    app_canTx_VC_Warning_FrontLeftInverterFault_set(true);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(inverter_retry_state);
+    app_canTx_VC_Warning_FrontLeftInverterFault_set(false);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(hvInit_state);
+}
+
+// Returning to Retry state when fault has not recovered yet
+TEST_F(VCStateMachineTest, InverterRetryNotRecovered)
+{
+    SetStateWithEntry(&hvInit_state);
+    LetTimePass(10);
+    app_canTx_VC_Warning_FrontLeftInverterFault_set(true);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(inverter_retry_state);
+    LetTimePass(40);
+    ASSERT_STATE_EQ(inverter_retry_state);
 }
 
 /* ------------------------- PCM ON STATE ------------------------------- */
