@@ -1,24 +1,26 @@
 import type { FC } from "react";
 
-import { WIDGET_SCHEMAS } from "@/lib/widgetSchemas";
-
-type WIDGET_TYPE = (typeof WIDGET_SCHEMAS)[number]["type"];
-
-type WIDGET_OPTIONS = {
-  [A in WIDGET_TYPE]: Extract<(typeof WIDGET_SCHEMAS)[number], { type: A }>["options"];
+type WidgetSchema = {
+  type: "stateTimeline",
+  name: "Horizontal Stacked Bar",
+  options: {
+    colorPalette: string[],
+  },
 };
 
-type Widget<Type extends WIDGET_TYPE> = {
+type WidgetType = WidgetSchema["type"];
+
+type WidgetData<Type extends WidgetType> = {
   signals: string[];
   type: Type;
-  options: WIDGET_OPTIONS[Type];
+  options: WidgetSchema["type"] extends Type ? WidgetSchema["options"] : never;
   id: string;
 };
 
-type EditWidgetFunction<Type extends WIDGET_TYPE> = (newWidgetData: Partial<Widget<Type>>) => void;
+type WidgetRenderer<Type extends WidgetType> = FC<WidgetData<Type>>;
 
-type WidgetRenderer<Type extends WIDGET_TYPE> = FC<Widget<Type>>;
-
-export type { EditWidgetFunction, Widget, WIDGET_OPTIONS, WIDGET_TYPE };
-
-export default WidgetRenderer;
+export type {
+  WidgetData,
+  WidgetType,
+  WidgetRenderer
+};

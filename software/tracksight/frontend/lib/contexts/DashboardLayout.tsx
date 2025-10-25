@@ -1,26 +1,26 @@
 "use client";
 
-import type { Widget, WIDGET_TYPE } from "@/lib/types/Widget";
+import type { WidgetData, WidgetType } from "@/lib/types/Widget";
 import React, { createContext, ReactNode, useCallback, useContext, useState } from "react";
 import { IS_DEBUG } from "@/lib/constants";
 
 type DashboardLayoutType = {
   // NOTE(evan): Might cause performance issues with keeping widget state together with
   //             card state, if it becomes an issue move to per-card widget state.
-  widgets: Widget<WIDGET_TYPE>[];
+  widgets: WidgetData<WidgetType>[];
 
-  addWidget: (newWidget: Widget<WIDGET_TYPE>) => void;
+  addWidget: (newWidget: WidgetData<WidgetType>) => void;
   removeWidget: (widgetToRemove: string) => void;
   editWidget: (
     widgetToEdit: string,
-    newWidgetData: Partial<Widget<WIDGET_TYPE>>
+    newWidgetData: Partial<WidgetData<WidgetType>>
   ) => void;
 };
 
 const DashboardLayoutContext = createContext<DashboardLayoutType | null>(null);
 
 const DashboardLayoutProvider = ({ children }: { children: ReactNode }) => {
-  const [widgets, setWidgets] = useState<Widget<WIDGET_TYPE>[]>([
+  const [widgets, setWidgets] = useState<WidgetData<WidgetType>[]>([
     // TODO(evan): Remove this it's just temporary data, should be pulled from local storage
     //             or something similar
     {

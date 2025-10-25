@@ -1,22 +1,16 @@
 "use client";
 
-import getWidgetSchema from "@/lib/getWidgetSchema";
-import WidgetRenderer, { WIDGET_TYPE } from "@/lib/types/Widget";
+import StateTimeline from "@/components/widgets/StateTimeline";
+import { WidgetRenderer, WidgetType } from "@/lib/types/Widget";
 
-const Widget: WidgetRenderer<WIDGET_TYPE> = (props) => {
+const Widget: WidgetRenderer<WidgetType> = (props) => {
   const { type } = props;
 
-  const widgetSchema = getWidgetSchema(type);
-
-  const Renderer = widgetSchema.renderer;
-
-  if (!Renderer) {
-    console.error(`Attempted to render widget with non-existant type '${type}'`);
-
-    return;
+  if (type === "stateTimeline") {
+    return <StateTimeline {...props} />;
   }
 
-  return <Renderer {...props} />;
+  throw new Error(`Unsupported widget type: ${type}`);
 };
 
 export default Widget;
