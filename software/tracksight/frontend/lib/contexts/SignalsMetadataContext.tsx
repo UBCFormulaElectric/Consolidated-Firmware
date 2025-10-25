@@ -1,13 +1,13 @@
 "use client";
 
 import { fetchSignalMetadata } from "@/lib/api/signals";
-import { SignalMetadata, SignalMetadataMap } from "@/lib/types/Signal";
+import { SignalMetadata } from "@/lib/types/Signal";
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
 
 import { API_BASE_URL } from "@/lib/constants";
 
 type SignalsMetadataContextType = {
-  signalMetadata: SignalMetadataMap;
+  signalMetadata: Map<string, SignalMetadata>;
 
   isLoading: boolean;
   error: Error | null;
@@ -23,7 +23,7 @@ type SignalsProviderProps = {
   children: ReactNode;
 };
 
-const convertMetadataToMap = (data: SignalMetadata[] | undefined): SignalMetadataMap => {
+const convertMetadataToMap = (data: SignalMetadata[] | undefined): Map<string, SignalMetadata> => {
   const map = new Map<string, SignalMetadata>();
 
   if (!data) return map;
@@ -36,7 +36,7 @@ const convertMetadataToMap = (data: SignalMetadata[] | undefined): SignalMetadat
 };
 
 const SignalsMetadataProvider = ({ children }: SignalsProviderProps) => {
-  const [signalMetadata, setSignalMetadata] = useState<SignalMetadataMap>(new Map());
+  const [signalMetadata, setSignalMetadata] = useState<Map<string, SignalMetadata>>(new Map());
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
