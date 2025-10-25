@@ -10,12 +10,10 @@ type WidgetSchema = {
 
 type WidgetType = WidgetSchema["type"];
 
-type WidgetData<Type extends WidgetType> = {
+type WidgetData<Type extends WidgetType = WidgetType> = {
   signals: string[];
-  type: Type;
-  options: WidgetSchema["type"] extends Type ? WidgetSchema["options"] : never;
   id: string;
-};
+} & Extract<WidgetSchema, { type: Type }>;
 
 type WidgetRenderer<Type extends WidgetType> = FC<WidgetData<Type>>;
 
