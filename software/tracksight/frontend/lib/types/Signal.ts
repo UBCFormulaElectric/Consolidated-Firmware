@@ -13,6 +13,4 @@ type SignalMetadata = {
   msg_name: string;
 };
 
-type SignalMetadataMap = Map<string, SignalMetadata>;
-
-export type { SignalMetadata, SignalMetadataMap };
+export type { SignalMetadata };
