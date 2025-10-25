@@ -39,12 +39,7 @@ const LabelLegend: FC<LabelLegendProps> = (props) => {
   } = props;
 
   return (
-    <div
-      className="grid w-full max-w-full gap-4 px-8"
-      style={{
-        gridTemplateColumns: "repeat(auto-fit, 250px)",
-      }}
-    >
+    <div className="flex flex-wrap w-full max-w-full gap-8 px-8">
       {signals.map((signal, i) => (
         <LabelLegendItem key={signal} content={signal} color={colorPalette[i] || "#000000"} />
       ))}
