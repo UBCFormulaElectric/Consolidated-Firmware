@@ -1,32 +1,33 @@
-import './globals.css'
+import "@/app/globals.css";
 
-import type React from "react"
-import type { Metadata } from "next"
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import type { ReactNode } from "react";
 
-import { Inter } from "next/font/google"
-const inter = Inter({ subsets: ["latin"] })
+import { SignalsMetadataProvider } from "@/lib/contexts/SignalsMetadataContext";
 
-import Sidebar from "@/components/shared/sidebar"
-import Providers from "./providers"
+const inter = Inter({ subsets: ["latin"] });
+
+import Navbar from "@/components/Navbar";
 
 export const metadata: Metadata = {
   title: "Tracksight Dashboard",
   description: "Monitoring and visualization dashboard for system data",
-}
+};
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: ReactNode;
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <Providers>
-          <Sidebar />
-          <main className="min-h-screen bg-gray-100 dark:bg-gray-900">{children}</main>
-        </Providers>
+      <body className={`${inter.className} bg-primary-200 overflow-y-scroll pb-20`}>
+        <SignalsMetadataProvider>
+          <Navbar />
+          <main className="mt-24 overflow-y-visible py-12">{children}</main>
+        </SignalsMetadataProvider>
       </body>
     </html>
-  )
+  );
 }
