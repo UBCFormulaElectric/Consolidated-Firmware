@@ -4,7 +4,7 @@
 #include "hw_gpio.hpp"
 #include "hw_adc.hpp"
 
-namespace io::efuse
+namespace io
 {
     class Efuse
     {
