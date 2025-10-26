@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include "io_efuse.hpp"
 
-namespace io::efuse
+namespace io
 {
     class ST_VND5_Efuse : public Efuse
     {
@@ -14,7 +14,7 @@ namespace io::efuse
               struct
               {
                   uint8_t overload : 1;
-                  uint8_t ovt_stp : 1;
+                  uint8_t ovt_stg : 1;
                   uint8_t under_voltage : 1;
                   uint8_t short_to_vbat : 1;
                   uint8_t open_load_off_stat : 1;
