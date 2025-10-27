@@ -5,7 +5,18 @@
 #include "app_canRx.h"
 #include "app_vehicleDynamics.h"
 #include "app_utils.h"
+#include "app_timer.h"
 
+//--------------Defines-----------------//
+#define MAX_CURRENT_LIMIT_A 175.0f 
+#define CONTINOUS_CURRENT_LIMIT_A 75.0f
+#define POWER_CALC(tractive_voltage, current) ((tractive_voltage) * (current) / 1000.0f)
+#define OVER_CURRENT_TIME_OUT_MS 3000 
+
+//--------------Static Variables-----------------//
+static TimerChannel quintuna_test_run_pl_timer; 
+
+//--------------Function Definitions-----------------//
 float app_totalPower(TorqueAllocationOutputs *torques)
 {
     return (float)(TORQUE_TO_POWER(torques->front_left_torque, fabsf((float)app_canRx_INVFL_ActualVelocity_get())) +
@@ -93,4 +104,34 @@ void app_powerLimiting_torqueReduction(PowerLimitingInputs *inputs)
         (float)CLAMP(inputs->torqueToMotors->rear_left_torque, MAX_REGEN_Nm, MAX_TORQUE_REQUEST_NM);
     inputs->torqueToMotors->rear_right_torque =
         (float)CLAMP(inputs->torqueToMotors->rear_right_torque, MAX_REGEN_Nm, MAX_TORQUE_REQUEST_NM);
+}
+
+// I know this doesn't look the prettiest but I was unsure where to put this
+
+void app_pwer_limiting_TestRun_OverCurrent_Timer_Init(void)
+{
+    app_timer_init(&quintuna_test_run_pl_timer, OVER_CURRENT_TIME_OUT_MS);
+}
+
+void app_power_limiting_TestRun_Torque_Reduction(PowerLimitingInputs *inputs)
+{
+    // Fatima mentioned the max voltage is 120 * 3 thus even with our max current draw of 175 A, we are well below our rules requirement of 80kw
+    // thus the check is not done here 
+    static float prev_curr_req  = 0.0f;
+    const float current_req = app_canRx_BMS_TractiveSystemCurrent_get();
+    const bool run_over_current_timer = prev_curr_req >= MAX_CURRENT_LIMIT_A && current_req >= MAX_CURRENT_LIMIT_A;
+
+    const bool over_current_warning = app_timer_runIfCondition(&quintuna_test_run_pl_timer, run_over_current_timer) == TIMER_STATE_EXPIRED;
+
+    // if we are hitting slow blow fuse req then bring current draw down to continous draw limit 
+    if(true == over_current_warning)
+    {
+        const float avg_torque_reduction =  (inputs->total_requestedPower - POWER_CALC(app_canRx_BMS_TractiveSystemVoltage_get(), CONTINOUS_CURRENT_LIMIT_A)) / app_totalWheelSpeed();
+        inputs->torqueToMotors->front_left_torque -= avg_torque_reduction; 
+        inputs->torqueToMotors->front_right_torque -= avg_torque_reduction;
+        inputs->torqueToMotors->rear_left_torque -= avg_torque_reduction; 
+        inputs->torqueToMotors->rear_right_torque -= avg_torque_reduction;
+    }
+
+    prev_curr_req = current_req; // for debouncing
 }
