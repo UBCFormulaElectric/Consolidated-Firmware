@@ -28,27 +28,30 @@ class VCPowerManagerTest : public VCBaseTest
 
 struct efuse_expected_state
 {
-    bool f_inv_efuse;
-    bool rsm_efuse;
-    bool bms_efuse;
-    bool r_inv_efuse;
-    bool dam_efuse;
-    bool front_efuse;
-    bool rl_pump_efuse;
-    bool l_rad_fan_efuse;
-    bool r_rad_fan_efuse;
+    bool                   f_inv_efuse;
+    bool                   rsm_efuse;
+    bool                   bms_efuse;
+    bool                   r_inv_efuse;
+    bool                   dam_efuse;
+    bool                   front_efuse;
+    bool                   rl_pump_efuse;
+    bool                   rr_pump_efuse;
+    bool f_pump_efuse bool l_rad_fan_efuse;
+    bool                   r_rad_fan_efuse;
 };
-#define check_efuses(                                                                                       \
-    f_inv_efuse, rsm_efuse, bms_efuse, r_inv_efuse, dam_efuse, front_efuse, rl_pump_efuse, l_rad_fan_efuse, \
-    r_rad_fan_efuse)                                                                                        \
-    ASSERT_EQ(inv_rsm_loadswitch.efuse1->enabled, f_inv_efuse);                                             \
-    ASSERT_EQ(inv_rsm_loadswitch.efuse2->enabled, rsm_efuse);                                               \
-    ASSERT_EQ(inv_bms_loadswitch.efuse1->enabled, bms_efuse);                                               \
-    ASSERT_EQ(inv_bms_loadswitch.efuse2->enabled, r_inv_efuse);                                             \
-    ASSERT_EQ(front_loadswitch.efuse1->enabled, dam_efuse);                                                 \
-    ASSERT_EQ(front_loadswitch.efuse2->enabled, front_efuse);                                               \
-    ASSERT_EQ(rl_pump_loadswitch.efuse->enabled, rl_pump_efuse);                                            \
-    ASSERT_EQ(rad_fan_loadswitch.efuse1->enabled, l_rad_fan_efuse);                                         \
+#define check_efuses(                                                                                    \
+    f_inv_efuse, rsm_efuse, bms_efuse, r_inv_efuse, dam_efuse, front_efuse, rl_pump_efuse, f_pump_efuse, \
+    rr_pump_efuse, l_rad_fan_efuse, r_rad_fan_efuse)                                                     \
+    ASSERT_EQ(inv_rsm_loadswitch.efuse1->enabled, f_inv_efuse);                                          \
+    ASSERT_EQ(inv_rsm_loadswitch.efuse2->enabled, rsm_efuse);                                            \
+    ASSERT_EQ(inv_bms_loadswitch.efuse1->enabled, bms_efuse);                                            \
+    ASSERT_EQ(inv_bms_loadswitch.efuse2->enabled, r_inv_efuse);                                          \
+    ASSERT_EQ(front_loadswitch.efuse1->enabled, dam_efuse);                                              \
+    ASSERT_EQ(front_loadswitch.efuse2->enabled, front_efuse);                                            \
+    ASSERT_EQ(rr_pump_efuse.efuse2->enabled, rr_efuse);                                                  \
+    ASSERT_EQ(rl_pump_loadswitch.efuse->enabled, rl_pump_efuse);                                         \
+    ASSERT_EQ(f_pump_loadswitch.efuse->enabled, f_pump_efuse);                                           \
+    ASSERT_EQ(rad_fan_loadswitch.efuse1->enabled, l_rad_fan_efuse);                                      \
     ASSERT_EQ(rad_fan_loadswitch.efuse2->enabled, r_rad_fan_efuse);
 
 // TEST_F(VCPowerManagerTest, test_sequencingStateMachine)
