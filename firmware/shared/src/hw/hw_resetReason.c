@@ -50,6 +50,18 @@ ResetReason hw_resetReason_get(void)
 
     // Clear reset flags.
     RCC->RSR |= RCC_RSR_RMVF;
+
+#elif defined(STM32H562xx)
+    const uint32_t rsr        = RCC->RSR;
+    const bool     _low_power = rsr & RCC_RSR_LPWRRSTF;
+    const bool     _wwdg      = rsr & RCC_RSR_WWDGRSTF;
+    const bool     iwdg       = rsr & RCC_RSR_IWDGRSTF;
+    const bool     software   = rsr & RCC_RSR_SFTRSTF;
+    const bool     power_on   = false; // Does not exist for H5
+    const bool     nrst_pin   = rsr & RCC_RSR_PINRSTF;
+    const bool     brown_out  = rsr & RCC_RSR_BORRSTF;
+
+    RCC->RSR |= RCC_RSR_RMVF; // clear all reset flags
 #endif
 
     // This order matters! Empirically, I've seen that:
