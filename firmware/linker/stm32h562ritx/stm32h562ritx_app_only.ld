@@ -2,7 +2,7 @@
 ENTRY(Reset_Handler)
 
 /* Define stack pointer at the top of SRAM3 */
-_estack = ORIGIN(SRAM3) + LENGTH(SRAM3);
+_estack = ORIGIN(SRAM1_2) + LENGTH(SRAM1_2);
 /* Define minimal heap and stack size */
 _Min_Heap_Size = 0x0;    /* required amount of heap */
 _Min_Stack_Size = 0x400; /* required amount of stack */
@@ -11,9 +11,9 @@ _Min_Stack_Size = 0x400; /* required amount of stack */
 MEMORY
 {
   FLASH     (rx)  : ORIGIN = 0x08000000, LENGTH = 2048K
-  SRAM1_2   (xrw) : ORIGIN = 0x20000000, LENGTH = 256K   /* SRAM1 + SRAM2 */
-  SRAM3_RTT (xrw) : ORIGIN = 0x30000000, LENGTH = 2K
-  SRAM3     (xrw) : ORIGIN = 0x30000800, LENGTH = 318K
+  SRAM1_2   (xrw) : ORIGIN = 0x20000000, LENGTH = 320K   /* SRAM1 + SRAM2 */
+  SRAM3     (xrw) : ORIGIN = 0x30000000, LENGTH = 316K
+  SRAM3_RTT (xrw) : ORIGIN = 0x3004F000, LENGTH = 4K
   BACKUPRAM (xrw) : ORIGIN = 0x38800000, LENGTH = 4K 
 }
 
@@ -106,7 +106,7 @@ SECTIONS
     *(.RamFunc*)
     . = ALIGN(4);
     _edata = .;
-  } >SRAM1_2
+  } >SRAM3
 
   /* Uninitialized data */
   .bss :
@@ -120,7 +120,7 @@ SECTIONS
     . = ALIGN(4);
     _ebss = .;
     __bss_end__ = _ebss;
-  } >SRAM1_2
+  } >SRAM3
 
   /* Heap and stack */
   ._user_heap_stack :

@@ -4,7 +4,7 @@ INCLUDE stm32h562ritx/stm32h562ritx_memory.ld
 ENTRY(Reset_Handler)
 
 /* Highest address of the user mode stack */
-_estack = ORIGIN(ram) + LENGTH(ram);    /* end of RAM */
+_estack = ORIGIN(sram1_2) + LENGTH(sram1_2);    /* end of RAM */
 
 /* Generate a link error if heap and stack don't fit into RAM */
 _Min_Heap_Size = 0x0;      /* required amount of heap  */
@@ -91,7 +91,7 @@ SECTIONS
     *(.RamFunc*)
     . = ALIGN(4);
     _edata = .;
-  } >ram
+  } >sram3
 
   .bss :
   {
@@ -104,7 +104,7 @@ SECTIONS
     . = ALIGN(4);
     _ebss = .;
     __bss_end__ = _ebss;
-  } >ram
+  } >sram3
 
   ._user_heap_stack :
   {
@@ -114,7 +114,7 @@ SECTIONS
     . = . + _Min_Heap_Size;
     . = . + _Min_Stack_Size;
     . = ALIGN(8);
-  } >ram
+  } >sram1_2
 
   /DISCARD/ :
   {
