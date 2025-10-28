@@ -1,9 +1,10 @@
 /* USER CODE BEGIN Header */
-//Cpp integration requirement 
+// Cpp integration requirement
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
-void CRIT_StartAllTasks(void);
+    void CRIT_StartAllTasks(void);
 #ifdef __cplusplus
 }
 #endif
@@ -141,7 +142,7 @@ int main(void)
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
-    CRIT_StartAllTasks();   // creates all tasks inshallah 
+    CRIT_StartAllTasks(); // creates all tasks inshallah
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
     /* USER CODE END RTOS_THREADS */
