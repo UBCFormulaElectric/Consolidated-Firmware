@@ -3,7 +3,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-void RTOSTHREAD_CreateTasks(void);
+void CRIT_StartAllTasks(void);
 #ifdef __cplusplus
 }
 #endif
@@ -28,6 +28,7 @@ void RTOSTHREAD_CreateTasks(void);
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "usb_device.h"
+#include "hw_rtosTaskHandler.cpp"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -140,7 +141,7 @@ int main(void)
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
-    RTOSTHREAD_CreateTasks();   // creates all tasks inshallah 
+    CRIT_StartAllTasks();   // creates all tasks inshallah 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
     /* USER CODE END RTOS_THREADS */
