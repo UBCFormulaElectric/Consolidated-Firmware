@@ -1,22 +1,24 @@
 #pragma once
-#include <cstdint.h>
+#include <cstdint>
+#include <cstddef>
 #include "cmsis_os2.h"
 
-template <size_t StackWords> class StaticTask
+// Template class wrapper for the RTOS declaration in main.c
+template <size_t StackWords, osPriority_t Priority, const char *Name> class StaticTask
 {
   public:
-    StaticTask(const char *name, osPriority_t priority, osThreadFunc_t func, void *arg = nullptr) : fn_(func), arg_(arg)
+    StaticTask(osThreadFunc_t func, void *arg = nullptr) : fn_(func), arg_(arg)
     {
         // good cpp practice is
-        attr_.name       = name;
+        attr_.name       = Name;
         attr_.cb_mem     = &cb_;
         attr_.cb_size    = sizeof(cb_);
         attr_.stack_mem  = stack_;
         attr_.stack_size = sizeof(stack_);
-        attr_.priority   = priority;
+        attr_.priority   = Priority;
     }
 
-    // this is before the kernel start but after the initializer
+    // Ran after the kernal is initialized where the board's task thread are generated
     osThreadId_t start()
     {
         id_ = osThreadNew(func_, arg_, &attr_);
@@ -32,4 +34,4 @@ template <size_t StackWords> class StaticTask
     osThreadId_t        id_{};
     osThreadFunc_t      fn_{};
     void               *arg_{};
-}
+};

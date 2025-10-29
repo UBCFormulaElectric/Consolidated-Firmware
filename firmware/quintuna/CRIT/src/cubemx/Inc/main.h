@@ -26,6 +26,10 @@
 extern "C"
 {
 #endif
+    void CRIT_StartAllTasks(void);
+#ifdef __cplusplus
+}
+#endif
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
