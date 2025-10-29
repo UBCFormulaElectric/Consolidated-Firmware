@@ -1,5 +1,6 @@
 # api blueprints
-from flask import Blueprint, jsonify
+from fnmatch import fnmatch
+from flask import Blueprint, jsonify, reqeust
 from middleware.candb import live_can_db
 http = Blueprint("util", __name__)
 
@@ -14,8 +15,23 @@ def hello_world():
 @http.route("/signal", methods=["GET"])
 def get_signal_metadata():
     """
-    Gets all the signals of the current parser
+    Gets all the signals of the current parser.
+    Pass signal names (glob) in `name` parameter separated by ','.
+    Inverse signal name selection with `exclude` parameter.
+
+    E.g. `/signal?name=INVFR_bError,*_bReserve&exclude`
+    - Excludes INVFR_bError. and anything that ends in _bReserve
     """
+    # parsing args
+    exclude = request.args.get("exclude") is not None
+    name_arg = request.args.get("name")
+    names = [n.strip() for n in name_arg.split(',')] if name_arg is not None else None
+
+    def condition(signal_name):
+        con = not names or any(fnmatch(signal_name, n) for n in names)
+        # xor
+        return con != exclude
+
     return jsonify([
         {
             "name": signal.name,
@@ -30,6 +46,7 @@ def get_signal_metadata():
         }
         for msg in live_can_db.msgs.values()
         for signal in msg.signals
+        if condition(signal.name)
     ]), 200
 
 @http.route("/signal/<signal_name>", methods=["GET"])
