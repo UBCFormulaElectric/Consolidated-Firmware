@@ -20,9 +20,10 @@ class BMSBaseTest : public EcuTestBase
         fakes::faultLatches::resetFaultLatch(&bms_ok_latch);
         fakes::faultLatches::resetFaultLatch(&imd_ok_latch);
         fakes::faultLatches::resetFaultLatch(&bspd_ok_latch);
+        fakes::faultLatches::setCurrentStatus_resetCallCounts();
 
-        fakes::segments::setPackVoltageEvenly(3.8 * NUM_SEGMENTS * CELLS_PER_SEGMENT);
-        fakes::segments::SetAuxRegs(1.5f); // Approx. 25C
+        fakes::segments::setPackVoltageEvenly(3.8f * NUM_SEGMENTS * CELLS_PER_SEGMENT);
+        fakes::segments::SetAuxRegs(15.0f); // Approx. 25C
 
         jobs_init();
         jobs_initLTCVoltages();
@@ -34,31 +35,11 @@ class BMSBaseTest : public EcuTestBase
         register_task(jobs_run1kHz_tick, 1);
         register_task(jobs_runLTCVoltages, 500);
         register_task(jobs_runLTCDiagnostics, 500);
-        register_task(jobs_runLTCTemperatures, 10000);
+        register_task(jobs_runLTCTemperatures, 500);
+        // Allow time for all jobs to run at least once for things like voltage arrays to update
+        LetTimePass(1000);
     }
     void board_teardown() override {}
-
-    static void tick_100hz()
-    {
-        jobs_runLTCTemperatures();
-        jobs_runLTCVoltages();
-        jobs_runLTCDiagnostics();
-
-        jobs_run100Hz_tick();
-    }
-    static void tick_1hz()
-    {
-        jobs_run1Hz_tick();
-
-        // These run in a separate task on the micro but at 1Hz.
-
-        // app_segments_runVoltageConversion();
-        // app_segments_broadcastCellVoltages();
-        // app_segments_broadcastVoltageStats();
-        // app_segments_runAuxConversion();
-        // app_segments_broadcastTempsVRef();
-        // app_segments_broadcastTempStats();
-    }
 
     void SetInitialState(const State *const initial_state)
     {

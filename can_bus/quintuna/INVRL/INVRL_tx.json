@@ -5,58 +5,58 @@
 		"signals": {
 			"bReserve": {
 				"start_bit": 0,
-				"bits" : 8
+				"bits": 8
 			},
 			"bSystemReady": {
 				"start_bit": 8,
-				"bits" : 1
+				"bits": 1
 			},
 			"bError": {
 				"start_bit": 9,
-				"bits" : 1
+				"bits": 1
 			},
 			"bWarn": {
 				"start_bit": 10,
-				"bits" : 1
+				"bits": 1
 			},
 			"bQuitDcOn": {
 				"start_bit": 11,
-				"bits" : 1
+				"bits": 1
 			},
 			"bDcOn": {
 				"start_bit": 12,
-				"bits" : 1
+				"bits": 1
 			},
 			"bQuitInverterOn": {
 				"start_bit": 13,
-				"bits" : 1
+				"bits": 1
 			},
 			"bInverterOn": {
 				"start_bit": 14,
-				"bits" : 1
+				"bits": 1
 			},
 			"bDerating": {
 				"start_bit": 15,
-				"bits" : 1
+				"bits": 1
 			},
 			"ActualVelocity": {
-				"start_bit" : 16,
-				"bits" : 16,
-				"signed" : true,
+				"start_bit": 16,
+				"bits": 16,
+				"signed": true,
 				"start_value": 0
 			},
 			"RawCurrent": {
-				"start_bit" : 32,
-				"bits" : 16,
-				"signed" : true,
-				"unit" : "A",
+				"start_bit": 32,
+				"bits": 16,
+				"signed": true,
+				"unit": "A",
 				"start_value": 0
 			},
-			"ActualTorqueValue":{
-				"start_bit" : 48,
-				"resolution" : 0.1,
-				"min":0,
-				"max":1000
+			"ActualTorqueValue": {
+				"start_bit": 48,
+				"resolution": 0.1,
+				"min": 0,
+				"max": 1000
 			}
 		}
 	},
@@ -65,40 +65,43 @@
 		"cycle_time": 5,
 		"signals": {
 			"MotorTemperature": {
-				"start_bit" : 0,
-				"resolution" : 0.1,
-				"min" : -1,
-				"max" : 1000
+				"start_bit": 0,
+				"resolution": 0.1,
+				"signed": true,
+				"min": -1,
+				"max": 1000
 			},
 			"InverterTemperature": {
-				"start_bit" : 16,
-				"resolution" : 0.1,
-				"min" : -1,
-				"max" : 1000
+				"start_bit": 16,
+				"resolution": 0.1,
+				"signed": true,
+				"min": -1,
+				"max": 1000
 			},
 			"ErrorInfo": {
-				"start_bit" : 32,
-				"bits" : 16
+				"start_bit": 32,
+				"bits": 16
 			},
 			"IGBTTemperature": {
-				"start_bit" : 48,
-				"resolution" : 0.1,
-				"min" : -1,
-				"max" : 1000
+				"start_bit": 48,
+				"resolution": 0.1,
+				"signed": true,
+				"min": -1,
+				"max": 1000
 			}
 		}
 	},
 	"RLInverterInfo3": {
-		"msg_id" : 665,
-		"cycle_time" : 5,
-		"signals" : {
+		"msg_id": 665,
+		"cycle_time": 5,
+		"signals": {
 			"MotorPeakCurrent": {
-				"start_bit" : 0,
-				"bits":32
+				"start_bit": 0,
+				"bits": 32
 			},
-			"ConverterPeakCurrent":{
-				"start_bit":32,
-				"bits":32
+			"ConverterPeakCurrent": {
+				"start_bit": 32,
+				"bits": 32
 			}
 		}
 	}

@@ -36,11 +36,7 @@ static void app_prechargeDriveStateRunOnTick100Hz(void)
             LOG_ERROR("precharge failed, retrying");
             break;
         case PRECHARGE_STATE_SUCCESS:
-            io_irs_setPositive(CONTACTOR_STATE_CLOSED); // i am not sure this is smart? cause if all states overrides
-                                                        // into fault state, does it close contactors in time?
-            // also on the other hand you want to close positive before you open precharge, so i guess?? but i think the
-            // time between the two should be very minimal since they get handled in the onentry and onexit of each
-            // state transition, which happens consecutively
+            io_irs_setPositive(CONTACTOR_STATE_CLOSED);
             app_stateMachine_setNextState(&drive_state);
             break;
         default:

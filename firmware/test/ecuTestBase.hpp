@@ -26,7 +26,7 @@ class EcuTestBase : public testing::Test
         auto operator<=>(const EcuTask &other) const { return next_run_time_ms <=> other.next_run_time_ms; }
     };
 
-    std::priority_queue<EcuTask> task_queue;
+    std::priority_queue<EcuTask, std::vector<EcuTask>, std::greater<>> task_queue;
 
   protected:
     void SetUp() final
@@ -58,7 +58,9 @@ class EcuTestBase : public testing::Test
         // t = 1ms rather than t = 0ms.
         current_time_ms = 1;
         fakes::time::setTime(current_time_ms);
+        assert(task_queue.empty());
         board_setup();
+        assert(!task_queue.empty());
     }
     void TearDown() final { board_teardown(); };
 
@@ -66,14 +68,15 @@ class EcuTestBase : public testing::Test
 
     void LetTimePass(const uint32_t time_ms)
     {
+        assert(!task_queue.empty());
         for (uint32_t ms = 0; ms < time_ms; ms++)
         {
-            while (task_queue.top().next_run_time_ms == current_time_ms)
+            while (task_queue.top().next_run_time_ms <= current_time_ms)
             {
                 EcuTask t = task_queue.top();
                 task_queue.pop();
                 t.task_function();
-                t.next_run_time_ms += t.task_period_ms;
+                t.next_run_time_ms = current_time_ms + t.task_period_ms;
                 task_queue.push(t);
             }
 
@@ -83,8 +86,8 @@ class EcuTestBase : public testing::Test
         }
     }
 
-    void register_task(const std::function<void()> &task_tick, const uint32_t task_period_ms)
+    void register_task(std::function<void()> task_tick, const uint32_t task_period_ms)
     {
-        task_queue.push({ 0, task_period_ms, task_tick });
+        task_queue.push({ 0, task_period_ms, std::move(task_tick) });
     }
 };

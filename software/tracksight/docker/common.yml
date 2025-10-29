@@ -1,9 +1,9 @@
 services:
   influx:
-    image: influxdb:2.7.6-alpine
+    image: influxdb:2-alpine
     ports:
-      # Default port for Influx DB.
-      - "8086:8086"
+      # InfluxDB port is always 8086 internally
+      - "${INFLUXDB_PORT}:8086"
     env_file: influx.env
     healthcheck:
       # Ping server every 30s in case something breaks.
@@ -14,19 +14,26 @@ services:
       # Ping at higher frequency at startup since dependant containers don't start until this one passes health check.
       start_period: 10s
       start_interval: 1s
-  live_data:
+  backend:
     build:
       context: ../../../
-      dockerfile: software/tracksight/live_data/Dockerfile
+      dockerfile: software/tracksight/backend/Dockerfile
+    # Expose port from container
     ports:
-      # Default port for Flask apps.
-      - "5000:5000"
-    env_file: live_data.env
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    # Pass common envs into container
+    environment:
+      BACKEND_PORT: ${BACKEND_PORT}
+      INFLUXDB_PORT: ${INFLUXDB_PORT}
+    env_file: backend.env
+    # TODO test serial port
+    # privileged: true
     volumes:
-      - ../live_data:/live_data
+      - /dev:/dev
+      - ../backend:/backend
     healthcheck:
       # Ping server every 30s in case something breaks.
-      test: [ "CMD", "curl", "-f", "http://localhost:5000/api/health" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:${BACKEND_PORT}/api/health" ]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -37,9 +44,19 @@ services:
       influx:
         condition: service_healthy
   frontend:
-    build: ../frontend
+    build: 
+      context: ../../../
+      dockerfile: software/tracksight/frontend/Dockerfile
+    environment:
+      FRONTEND_PORT: ${FRONTEND_PORT}
     ports:
-      - "3000:3000"
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
     # depends_on:
     #   backend:
     #     condition: service_healthy
+  # grafana:
+  #   image: grafana/grafana-enterprise
+  #   container_name: grafana
+  #   restart: unless-stopped
+  #   ports:
+  #     - '3000:3000'

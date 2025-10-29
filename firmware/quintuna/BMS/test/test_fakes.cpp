@@ -6,6 +6,7 @@
 
 extern "C"
 {
+#include "app_utils.h"
 #include "io_time.h"
 }
 
@@ -32,7 +33,7 @@ extern "C"
 
     void io_ltc6813_readConfigurationRegisters(SegmentConfig configs[NUM_SEGMENTS], ExitCode success[NUM_SEGMENTS])
     {
-        for (int i = 0; i < NUM_SEGMENTS; i++)
+        for (size_t i = 0; i < NUM_SEGMENTS; i++)
         {
             configs[i] = segment_config[i];
             success[i] = EXIT_CODE_OK;
@@ -108,21 +109,21 @@ extern "C"
         uint16_t aux_regs[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT],
         ExitCode comm_success[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT])
     {
-        // if (started_therm_adc_conversion || started_self_test_aux)
-        // {
-        //     memcpy(aux_regs, aux_regs_storage.data(), sizeof(uint16_t) * NUM_SEGMENTS * AUX_REGS_PER_SEGMENT);
-        // }
-        // else
-        // {
-        //     FAIL() << "Did not start thermistor ADC conversion";
-        // }
-        for (int i = 0; i < NUM_SEGMENTS; i++)
+        if (started_therm_adc_conversion || started_self_test_aux)
         {
-            for (int j = 0; j < AUX_REGS_PER_SEGMENT; j++)
+            memcpy(aux_regs, aux_regs_storage.data(), sizeof(uint16_t) * NUM_SEGMENTS * AUX_REGS_PER_SEGMENT);
+            for (int i = 0; i < NUM_SEGMENTS; i++)
             {
-                aux_regs[i][j]     = 0;
-                comm_success[i][j] = EXIT_CODE_OK;
+                for (int j = 0; j < AUX_REGS_PER_SEGMENT; j++)
+                {
+                    // aux_regs[i][j]     = 0;
+                    comm_success[i][j] = EXIT_CODE_OK;
+                }
             }
+        }
+        else
+        {
+            FAIL() << "Did not start thermistor ADC conversion";
         }
         started_therm_adc_conversion = false;
     }
@@ -303,9 +304,9 @@ extern "C"
 
 #include "io_faultLatch.h"
     // latches to operate on
-    FaultLatch bms_ok_latch{ FAULT_LATCH_OK, FAULT_LATCH_OK, false };
-    FaultLatch imd_ok_latch{ FAULT_LATCH_OK, FAULT_LATCH_OK, true };
-    FaultLatch bspd_ok_latch{ FAULT_LATCH_OK, FAULT_LATCH_OK, true };
+    FaultLatch bms_ok_latch{ FAULT_LATCH_OK, FAULT_LATCH_OK, true, false };
+    FaultLatch imd_ok_latch{ FAULT_LATCH_OK, FAULT_LATCH_OK, false, true };
+    FaultLatch bspd_ok_latch{ FAULT_LATCH_OK, FAULT_LATCH_OK, false, true };
 
     void io_faultLatch_setCurrentStatus(const FaultLatch *latch, const FaultLatchState status)
     {
@@ -398,6 +399,10 @@ namespace faultLatches
     }
     void updateFaultLatch(FaultLatch *latch, const FaultLatchState status)
     {
+        if (latch->latched_state == FAULT_LATCH_OK && status == FAULT_LATCH_FAULT)
+        {
+            setCurrentStatus_call_count[FaultLatchParams(const_cast<FaultLatch *>(latch), status)]++;
+        }
         latch->status        = status;
         latch->latched_state = latch->latched_state == FAULT_LATCH_OK ? status : FAULT_LATCH_FAULT;
     }
@@ -431,25 +436,25 @@ namespace segments
 {
     void setCellVoltages(const std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &voltages)
     {
-        for (int i = 0; i < NUM_SEGMENTS; i++)
+        for (size_t i = 0; i < NUM_SEGMENTS; i++)
         {
-            for (int j = 0; j < CELLS_PER_SEGMENT; j++)
+            for (size_t j = 0; j < CELLS_PER_SEGMENT; j++)
             {
-                voltage_regs[i][j] = static_cast<uint16_t>(voltages[i][j] * 1e4);
+                voltage_regs[i][j] = static_cast<uint16_t>(voltages[i][j] * 1e4f);
             }
         }
     }
 
-    void setCellVoltage(const size_t segment, const size_t cell, const uint16_t voltage)
+    void setCellVoltage(const size_t segment, const size_t cell, const float voltage)
     {
-        voltage_regs[segment][cell] = voltage;
+        voltage_regs[segment][cell] = static_cast<uint16_t>(voltage * 1e4f);
     }
 
     void setCellTemperatures(const std::array<std::array<float, AUX_REGS_PER_SEGMENT>, NUM_SEGMENTS> &temperatures)
     {
-        for (int i = 0; i < NUM_SEGMENTS; i++)
+        for (size_t i = 0; i < NUM_SEGMENTS; i++)
         {
-            for (int j = 0; j < AUX_REGS_PER_SEGMENT; j++)
+            for (size_t j = 0; j < AUX_REGS_PER_SEGMENT; j++)
             {
                 aux_regs_storage[i][j] =
                     static_cast<uint16_t>(temperatures[i][j] * 1000); // Not sure if conversion is correct
@@ -461,9 +466,9 @@ namespace segments
     {
         const float cell_voltage = pack_voltage / (NUM_SEGMENTS * CELLS_PER_SEGMENT);
         std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> v{};
-        for (int i = 0; i < NUM_SEGMENTS; i++)
+        for (size_t i = 0; i < NUM_SEGMENTS; i++)
         {
-            for (int j = 0; j < CELLS_PER_SEGMENT; j++)
+            for (size_t j = 0; j < CELLS_PER_SEGMENT; j++)
             {
                 v[i][j] = cell_voltage;
             }
@@ -478,9 +483,9 @@ namespace segments
 
     void SetAuxRegs(const float voltage)
     {
-        for (int i = 0; i < NUM_SEGMENTS; i++)
+        for (size_t i = 0; i < NUM_SEGMENTS; i++)
         {
-            for (int j = 0; j < AUX_REGS_PER_SEGMENT; j++)
+            for (size_t j = 0; j < AUX_REGS_PER_SEGMENT; j++)
             {
                 aux_regs_storage[i][j] = static_cast<uint16_t>(voltage * 1000); // Not sure if conversion is correct
             }
@@ -492,4 +497,16 @@ namespace segments
         aux_regs_storage[segment][cell] = static_cast<uint16_t>(voltage * 1000); // Not sure if conversion is correct
     }
 } // namespace segments
+
+namespace charger
+{
+    void setConnectionStatus(const ChargerConnectedType status)
+    {
+        connectionStatus = status;
+    }
+    void setCPDutyCycle(const float duty_cycle)
+    {
+        evse_dutyCycle = duty_cycle;
+    }
+} // namespace charger
 } // namespace fakes

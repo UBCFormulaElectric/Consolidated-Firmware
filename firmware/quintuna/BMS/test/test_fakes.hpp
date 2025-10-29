@@ -42,7 +42,7 @@ namespace imd
 namespace segments
 {
     void setCellVoltages(const std::array<std::array<float, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &voltages);
-    void setCellVoltage(size_t segment, size_t cell, uint16_t voltage);
+    void setCellVoltage(size_t segment, size_t cell, float voltage);
     void setPackVoltageEvenly(float pack_voltage);
     void setCellTemperatures(const std::array<std::array<float, AUX_REGS_PER_SEGMENT>, NUM_SEGMENTS> &temperatures);
 
@@ -50,4 +50,9 @@ namespace segments
     void SetAuxRegs(float voltage);
     void SetAuxReg(uint8_t segment, uint8_t cell, float voltage);
 } // namespace segments
+namespace charger
+{
+    void setConnectionStatus(ChargerConnectedType status);
+    void setCPDutyCycle(float duty_cycle);
+} // namespace charger
 } // namespace fakes

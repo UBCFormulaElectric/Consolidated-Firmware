@@ -8,7 +8,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
 set(CMAKE_COLOR_DIAGNOSTICS ON)
 # use this for debugging
-#set(CMAKE_VERBOSE_MAKEFILE on)
+#set(CMAKE_VERBOSE_MAKEFILE ON CACHE BOOL "ON" FORCE)
 # Generates a comple_commands.json file which helps with VSCode intellisense
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_compile_definitions("DEBUG=$<CONFIG:Debug>")
@@ -24,12 +24,6 @@ ENDIF ()
 
 # ======== Dependency Management Configs ========
 message("")
-option(HANDLE_DEPS "Build build on the server" OFF)
-IF (HANDLE_DEPS)
-    message("🏗️ CMake is now controlling the optional dependencies")
-ELSE ()
-    message("🏠 Completely using your dependencies")
-ENDIF ()
 include(get_cpm.cmake)
 message("✅ Downloaded CPM.cmake")
 
@@ -47,9 +41,8 @@ ELSE ()
 ENDIF ()
 
 # ========== INCLUDES ==========
-include("python.cmake")
-include(scripts/code_generation/jsoncan/jsoncan.cmake)
-include(scripts/code_generation/commit_info_gen/commit_info.cmake)
+include(python.cmake)
+include(shared.cmake)
 
 # ======== Clang-Format ========
 set(FIX_FORMATTING_SCRIPT scripts/utilities/fix_formatting.py)
@@ -68,11 +61,40 @@ option(TARGET "The target to build for. Choose between \"binary\" and \"test\"."
 message("")
 message("⚙️ Configuring for \"${PLATFORM}\" platform and \"${TARGET}\" build target")
 IF ("${PLATFORM}" STREQUAL "firmware")
-    include(firmware/cmake/shared.cmake)
     # ======== Compiler ========
     IF ("${TARGET}" STREQUAL "binary")
-        project("UBC Formula Electric Software" C ASM)
+        project("UBC Formula Electric Software" C CXX ASM)
+        IF (NOT (${CMAKE_C_COMPILER_ID} STREQUAL "GNU"))
+            message(FATAL_ERROR "❌ Unsupported compiler: ${CMAKE_C_COMPILER_ID}. Please use the ARM GCC toolchain.")
+        ELSE ()
+            message("  ✅ Using GNU Compiler")
+        ENDIF ()
+        IF (${CMAKE_C_COMPILER_VERSION} VERSION_LESS 10.0)
+            message(FATAL_ERROR "❌ Unsupported compiler version: ${CMAKE_C_COMPILER_VERSION}. Please use at least version 10.0 of the ARM GCC toolchain.")
+        ELSE ()
+            message("  ✅ Using GCC version ${CMAKE_C_COMPILER_VERSION}")
+        ENDIF ()
     ELSEIF ("${TARGET}" STREQUAL "test")
+        # Override AppleClang with Homebrew GCC for gcov support on macOS.
+        IF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
+            message("📌 Searching for latest Homebrew GCC for host-based unit tests")
+
+            file(GLOB HOMEBREW_GCC_CANDIDATES
+                    "/opt/homebrew/bin/gcc-[0-9]*"
+                    "/usr/local/bin/gcc-[0-9]*"
+            )
+
+            IF (HOMEBREW_GCC_CANDIDATES)
+                list(SORT HOMEBREW_GCC_CANDIDATES COMPARE NATURAL ORDER DESCENDING)
+                list(GET HOMEBREW_GCC_CANDIDATES 0 HOMEBREW_GCC)
+                string(REPLACE "gcc" "g++" HOMEBREW_GXX ${HOMEBREW_GCC})
+
+                set(CMAKE_C_COMPILER ${HOMEBREW_GCC} CACHE STRING "" FORCE)
+                set(CMAKE_CXX_COMPILER ${HOMEBREW_GXX} CACHE STRING "" FORCE)
+            ELSE ()
+                message(FATAL_ERROR "❌ No Homebrew GCC installation found. Please install with 'brew install gcc'")
+            ENDIF ()
+        ENDIF ()
         project("UBC Formula Electric Software" C CXX)
     ELSE ()
         message(FATAL_ERROR "❌ Please set the TARGET variable to 'deploy' or 'test'. To do this, set the -DTARGET=<target>")

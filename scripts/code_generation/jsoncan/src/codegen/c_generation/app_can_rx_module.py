@@ -1,6 +1,6 @@
 import jinja2 as j2
 
-from ...can_database import All, CanDatabase
+from ...can_database import AllRxMsgs, CanDatabase
 from .cmodule import CModule
 from .routing import CanRxConfig
 from .utils import load_template

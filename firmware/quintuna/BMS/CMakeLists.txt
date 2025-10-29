@@ -1,7 +1,7 @@
 message("")
 message("⚙️ Configuring [BMS] (Quintuna)")
 
-file(GLOB CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
+file(GLOB CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
 
 set(JOBS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/jobs.c")
@@ -9,7 +9,7 @@ set(TASKS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.c")
 set(SYSTEM_SRCS ${JOBS_SRC} ${TASKS_SRC})
 set(SYSTEM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src" "${CMAKE_CURRENT_SOURCE_DIR}/boot")
 
-file(GLOB_RECURSE APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
+file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS
         "${SHARED_APP_INCLUDE_DIR}/app_thermistor.c"
         "${SHARED_APP_INCLUDE_DIR}/app_shdnLoopNode.c"
@@ -20,7 +20,7 @@ list(APPEND APP_SRCS
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}")
 
-file(GLOB_RECURSE IO_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
+file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
@@ -65,17 +65,8 @@ if ("${TARGET}" STREQUAL "binary")
         set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app_only.ld")
     endif ()
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS})
-    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
+    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
     embedded_binary("quintuna_BMS_app" "${SRCS}" "${INCLUDE_DIRS}" "${LINKER_SCRIPT}" "${ARM_CORE}")
-
-    set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/BMS.ioc")
-    list(APPEND NO_CHECKS
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_desc.c"
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/usbd_cdc_if.c"
-    )
-    embedded_no_checks("${NO_CHECKS}")
-    generate_stm32cube_code("quintuna_BMS_stm32cube" "${IOC_PATH}" "${CUBEMX_SRCS}")
 
     set(STM32_HAL_SRCS
             "stm32h7xx_hal_adc_ex.c"
@@ -109,11 +100,15 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_hal_pcd_ex.c"
             "stm32h7xx_ll_usb.c"
     )
+    set(CUBEMX_INCLUDES ${CUBEMX_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
     stm32h733xx_cube_library(
-            "quintuna_BMS_stm32cube_hal"
+            "quintuna_BMS_stm32"
             "${STM32_HAL_SRCS}"
-            "${MD5_LOCATION}"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/BMS.ioc"
+            "${CUBEMX_SRCS}"
+            "${CUBEMX_INCLUDES}"
             TRUE
+            "${ARM_CORE}"
     )
 
     # JSONCAN
@@ -124,17 +119,17 @@ if ("${TARGET}" STREQUAL "binary")
             "quintuna_BMS_app.elf"
             "quintuna_BMS_commit_info"
             "${CMAKE_CURRENT_BINARY_DIR}/app"
-            "${ARM_CORE}"
     )
 
-    target_link_libraries("quintuna_BMS_app.elf" PRIVATE "quintuna_BMS_stm32cube" "quintuna_BMS_stm32cube_hal" "quintuna_BMS_jsoncan" "quintuna_BMS_commit_info" "chimera_v2_proto_cm7")
+    target_link_libraries("quintuna_BMS_app.elf" PRIVATE "quintuna_BMS_stm32" "quintuna_BMS_jsoncan" "quintuna_BMS_commit_info" "chimera_v2_proto_cm7")
+    target_compile_definitions("quintuna_BMS_app.elf" PUBLIC TARGET_HV_SUPPLY)
 
     if ("${BOOTLOAD}" STREQUAL "ON")
         # Bootloader files.
-        file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
-        file(GLOB BOOT_CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
+        file(GLOB BOOT_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+        file(GLOB BOOT_CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
         set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
-        embedded_no_checks("${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c")
+        no_checks("${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c")
         stm32h7_boot_binary(
                 "quintuna_BMS_boot"
                 "${BOOT_SRCS}"
@@ -154,14 +149,15 @@ if ("${TARGET}" STREQUAL "binary")
         )
     endif ()
 elseif ("${TARGET}" STREQUAL "test")
-    file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
+    file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(SHARED_FAKES
             "${SHARED_FAKES_DIR}/io_canQueue.cpp"
             "${SHARED_FAKES_DIR}/io_semaphore.cpp"
             "${SHARED_FAKES_DIR}/io_time.cpp"
     )
     set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${SHARED_FAKES})
-    set(INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test" ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_FAKES_DIR})
+    set(INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test" ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR}
+            ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_FAKES_DIR})
     compile_gtest_executable(
             "quintuna_BMS_test"
             "${SRCS}"

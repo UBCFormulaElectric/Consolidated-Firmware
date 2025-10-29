@@ -13,8 +13,8 @@ typedef struct
 {
     const Gpio *current_status_gpio;
     const Gpio *latch_status_gpio;
+    bool        inverted;
     const bool  read_only; // Certain fault latches can only be read from.
-    const bool  invert;
 } FaultLatch;
 
 extern const FaultLatch bms_ok_latch;
@@ -25,6 +25,7 @@ typedef struct
 {
     FaultLatchState status;
     FaultLatchState latched_state;
+    bool            inverted;
     const bool      read_only; // Certain fault latches can only be read from.
 } FaultLatch;
 
