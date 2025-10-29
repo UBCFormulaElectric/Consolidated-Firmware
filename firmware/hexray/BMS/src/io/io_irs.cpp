@@ -8,6 +8,7 @@ constexpr float IR_LOOP_GAIN = (1.0f / 20.0f);
 constexpr float IR_LOOP_SHUNT_RES = (1.0f / 75.0e-3f);
 
 namespace io::irs{
+    
     ContactorState negativeState(){
        
     }
