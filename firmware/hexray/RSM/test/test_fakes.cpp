@@ -19,11 +19,10 @@ namespace fakes::io
    namespace coolant
    {
         static float flowRate = 0.0f;
-        float setFlowRate(float flow_rate)
+        void setFlowRate(float flow_rate)
         {
             flowRate = flow_rate;
         }
-        //need init and out of range?
    }
 
    namespace suspension
