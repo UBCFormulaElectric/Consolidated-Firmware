@@ -14,6 +14,12 @@ class NotificationBar extends StatefulWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(100);
 }
 
+// Map warning message ids to icons
+// Make sure to map properly? like do messages contain all warnings?
+// I swear there should just be a static array of all the warnings
+// and then for which ones are on, just map them
+// to avoid duplicates
+
 class _NotificationBarState extends State<NotificationBar> {
 
   @override

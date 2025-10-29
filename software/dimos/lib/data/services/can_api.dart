@@ -4,6 +4,15 @@ import 'dart:isolate';
 import 'dart:io';
 
 // WE MIGHT NEED FFI AT THIS POINT
+// lowkey I remember how this works
+// we have this worker which listens for CAN messages on the socket
+// and triggers every single CAN function associated with this worker
+// AFTER parsing the message with JSON can -> our own dart struct
+// and then every can function reads the id of the message and chooses whether or not to update
+// and notify listeners
+// lowkey goated setup
+// worker parses (universal parse)
+// but callbacks all decide whether or not to trigger listeners
 
 class CanApiWorker {
   late SendPort _sendPort;

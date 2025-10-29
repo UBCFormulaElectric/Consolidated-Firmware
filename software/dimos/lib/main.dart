@@ -30,19 +30,22 @@ class _AppState extends State<App> {
   late CanApiWorker _canWorker;
   late SpeedInteger _speedInteger;
   late WarningsList _warningsList;
+  late StateOfCharge _stateOfCharge;
 
   @override
   void initState() {
     super.initState();
     _warningsList = WarningsList();
     _speedInteger = SpeedInteger();
+    _stateOfCharge = StateOfCharge();
     
     if (Platform.isWindows || Platform.isMacOS) {
       // have some basic dev api setup to introduce can
       _devWorker = DevApiWorker();
       _devWorker.start((data) {
         _warningsList.updateListDev(data);
-        _speedInteger.updateListDev(data);
+        _speedInteger.updateVarDev(data);
+        _stateOfCharge.updateVarDev(data);
       });
     } else if (Platform.isLinux) {
       // ACTUAL CAN setup
@@ -50,7 +53,7 @@ class _AppState extends State<App> {
       _canWorker = CanApiWorker();
       _canWorker.start((data) {
         _warningsList.updateListCan();
-        _speedInteger.updateListCan();
+        _speedInteger.updateVarCan();
       });
     }
   }
@@ -61,6 +64,7 @@ class _AppState extends State<App> {
       providers: [
         ChangeNotifierProvider(create: (_) => _warningsList),
         ChangeNotifierProvider(create: (_) => _speedInteger),
+        ChangeNotifierProvider(create: (_) => _stateOfCharge),
         ChangeNotifierProvider(create: (_) => RouterProvider())
       ],
       child: MaterialApp(
@@ -86,6 +90,7 @@ class _AppState extends State<App> {
 }
 
 Future<void> setupWindow() async {
+  // why is this dying on linux, i think some of these functions deadass dont work on linux
   await windowManager.ensureInitialized();
   windowManager.setTitleBarStyle(TitleBarStyle.normal);
 

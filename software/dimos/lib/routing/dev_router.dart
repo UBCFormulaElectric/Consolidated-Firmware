@@ -3,6 +3,9 @@ import 'package:dimos/ui/racing/racing_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+// Make a better router which hides/reveals onkeypressed
+// Not exactly sure about design for now
+
 class RouterProvider extends ChangeNotifier {
   Widget _currentPage = LVScreen();
 

@@ -3,6 +3,7 @@
 import 'package:dimos/ui/low_voltage/shutdown_loop.dart';
 import 'package:dimos/ui/notificationbar/notification_bar.dart';
 import 'package:dimos/ui/racing/racing_screen.dart';
+import 'package:dimos/ui/core/shared_widgets/Battery.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -29,13 +30,14 @@ class LVScreen extends StatelessWidget {
             spacing: 50,
             children: [
               Center(
-                child: Container( 
+                child: Container(
                   width: 200, 
                   height: 200,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.all(Radius.circular(15)),
-                    color: Colors.blue
-                  )
+                    color: const Color.fromARGB(255, 130, 174, 210)
+                  ),
+                  child: Battery(),
                 )
               ),
               Center(

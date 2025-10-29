@@ -31,14 +31,38 @@ class SpeedInteger extends ChangeNotifier {
   int _speed = 0;
   int get speed => _speed;
 
-  void updateListDev(String data) {
+  void updateVarDev(String data) {
     _speed += 1;
     notifyListeners();
   }
 
-  void updateListCan() {
+  void updateVarCan() {
     // JSON CAN calls + maybe mutex??
     // then ONLY notify if changes are made!!
+    // lokwey i totally forgot what I was thinking here
+    // rehash this dumbass
     _speed += 1;
+  }
+}
+
+
+/* Speed */
+class StateOfCharge extends ChangeNotifier {
+  double _soc = 100;
+  final double _maxSoc = 100;
+  double get soc => _soc;
+  double get maxSoc => _maxSoc;
+
+  void updateVarDev(String data) {
+    _soc -= 10;
+    notifyListeners();
+  }
+
+  void updateVarCan() {
+    // JSON CAN calls + maybe mutex??
+    // then ONLY notify if changes are made!!
+    // lokwey i totally forgot what I was thinking here
+    // rehash this dumbass
+    _soc -= 1;
   }
 }
