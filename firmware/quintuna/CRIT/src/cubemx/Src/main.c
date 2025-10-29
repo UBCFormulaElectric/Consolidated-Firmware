@@ -1,13 +1,4 @@
 /* USER CODE BEGIN Header */
-// Cpp integration requirement
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-    void CRIT_StartAllTasks(void);
-#ifdef __cplusplus
-}
-#endif
 
 /**
  ******************************************************************************
@@ -29,7 +20,6 @@ extern "C"
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "usb_device.h"
-#include "hw_rtosTaskHandler.cpp"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -37,7 +27,6 @@ extern "C"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
-typedef StaticTask_t osStaticThreadDef_t;
 /* USER CODE BEGIN PTD */
 
 /* USER CODE END PTD */
@@ -71,12 +60,6 @@ static void MX_CAN2_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_TIM12_Init(void);
 static void MX_IWDG_Init(void);
-void        StartTask1kHz(void *argument);
-void        RunTask1Hz(void *argument);
-void        RunTask100Hz(void *argument);
-void        RunTaskCanRx(void *argument);
-void        RunTaskCanTx(void *argument);
-void        RunTaskChimera(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -142,7 +125,7 @@ int main(void)
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
-    CRIT_StartAllTasks(); // creates all tasks inshallah
+    CRIT_StartAllTasks();
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
     /* USER CODE END RTOS_THREADS */
@@ -468,7 +451,6 @@ void StartTask1kHz(void *argument)
     /* init code for USB_DEVICE */
     MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
-    tasks_run1kHz();
     /* USER CODE END 5 */
 }
 
@@ -482,7 +464,6 @@ void StartTask1kHz(void *argument)
 void RunTask1Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask1Hz */
-    tasks_run1Hz();
     /* USER CODE END RunTask1Hz */
 }
 
@@ -496,7 +477,6 @@ void RunTask1Hz(void *argument)
 void RunTask100Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask100Hz */
-    tasks_run100Hz();
     /* USER CODE END RunTask100Hz */
 }
 
@@ -510,7 +490,6 @@ void RunTask100Hz(void *argument)
 void RunTaskCanRx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanRx */
-    tasks_runCanRx();
     /* USER CODE END RunTaskCanRx */
 }
 
@@ -524,7 +503,6 @@ void RunTaskCanRx(void *argument)
 void RunTaskCanTx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanTx */
-    tasks_runCanTx();
     /* USER CODE END RunTaskCanTx */
 }
 
@@ -539,7 +517,6 @@ void RunTaskChimera(void *argument)
 {
     /* USER CODE BEGIN RunTaskChimera */
     /* Infinite loop */
-    tasks_runChimera();
     /* USER CODE END RunTaskChimera */
 }
 
