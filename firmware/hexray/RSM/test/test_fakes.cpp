@@ -53,6 +53,46 @@ namespace fakes::io
         }
    }
 
+   namespace imu 
+   {
+        static float x_lin_accel;
+        static float y_lin_accel;
+        static float z_lin_accel;
+        static float roll_ang_vel;
+        static float pitch_ang_vel;
+        static float yaw_ang_vel;
+
+        void setLinearAccelerationX(float value)
+        {
+            x_lin_accel = value;
+        }
+
+        void setLinearAccelerationY(float value)
+        {
+            y_lin_accel = value;
+        }
+
+        void setLinearAccelerationZ(float value)
+        {
+            z_lin_accel = value;
+        }
+
+        void setAngularVelocityRoll(float value)
+        {
+            roll_ang_vel = value;
+        }
+
+        void setAngularVelocityPitch(float value)
+        {
+            pitch_ang_vel = value;
+        }
+
+        void setAngularVelocityYaw(float value)
+        {
+            yaw_ang_vel = value;
+        }
+   }
+
    namespace tireTemp
    {
         static float temperature = 0.0f;
@@ -62,7 +102,6 @@ namespace fakes::io
             temperature = temp;
         }
    }
-
 }
 
 namespace io 
@@ -95,15 +134,54 @@ namespace io
             return fakes::io::suspension::RRTravel;
         }
 
-        bool getRL_OCSC()
+        bool RL_OCSC()
         {
             return fakes::io::suspension::RLOCSC;
         }
 
-        bool getRR_OCSC()
+        bool RR_OCSC()
         {
             return fakes::io::suspension::RROCSC;
         }
+    }
+
+    namespace imu
+    {
+        void getLinearAccelerationX(float *value)
+        {
+            *value = fakes::io::imu::x_lin_accel;
+        }
+
+        void getLinearAccelerationY(float *value)
+        {
+            *value = fakes::io::imu::y_lin_accel;
+        }
+
+        void getLinearAccelerationZ(float *value)
+        {
+            *value = fakes::io::imu::z_lin_accel;
+        }
+
+        void getAngularVelocityRoll(float *value)
+        {
+            *value = fakes::io::imu::roll_ang_vel;
+        }
+
+        void getAngularVelocityPitch(float *value)
+        {
+            *value = fakes::io::imu::pitch_ang_vel;
+        }
+
+        void getAngularVelocityYaw(float *value)
+        {
+            *value = fakes::io::imu::yaw_ang_vel;
+        }
+    }
+
+
+    namespace rPump
+    {
+        void setPercentage(float); 
     }
 
     namespace tireTemp

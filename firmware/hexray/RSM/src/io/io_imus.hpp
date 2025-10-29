@@ -2,7 +2,7 @@
 
 extern "C"
 {
-    #include "io_imu.h" //QUESTION: In shared file, so do we keep as C code?
+    #include "io_imu.h" 
 }
 
-extern const imuConfig imu_config;
+extern const imuConfig imu_config; 

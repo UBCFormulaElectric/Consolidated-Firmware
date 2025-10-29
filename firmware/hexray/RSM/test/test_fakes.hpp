@@ -20,6 +20,17 @@ namespace fakes::io
       void setRL_OCSC(bool value);
    }
 
+   namespace imu
+   {
+      void setLinearAccelerationX(float value);
+      void setLinearAccelerationY(float value);
+      void setLinearAccelerationZ(float value);
+      void setAngularVelocityRoll(float value);
+      void setAngularVelocityPitch(float value);
+      void setAngularVelocityYaw(float value);
+   }
+
+   
    namespace tireTemp
    {
      void set(float temp);
