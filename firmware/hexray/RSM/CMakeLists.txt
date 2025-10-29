@@ -94,7 +94,7 @@ elseif ("${TARGET}" STREQUAL "test")
     set(INCLUDE_DIRS
             # "${CMAKE_CURRENT_SOURCE_DIR}/test"
             ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP}
-            ${SHARED_FAKES_DIR}
+            ${SHARED_FAKES_DIR} 
     )
     compile_gtest_executable(
             "hexray_RSM_test"
@@ -115,8 +115,7 @@ elseif ("${TARGET}" STREQUAL "test")
     )
 
     # FakeIO
-    set(HEADERS_TO_FAKE
-    )
+    set(HEADERS_TO_FAKE)
 
     file(GLOB TEST_IO_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.h")
     list(APPEND HEADERS_TO_FAKE ${TEST_IO_HDRS})

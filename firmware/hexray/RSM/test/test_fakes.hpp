@@ -9,7 +9,7 @@ namespace fakes::io
 
    namespace coolant
    {
-      float setFlowRate(float flow_rate);
+      void setFlowRate(float flow_rate);
    }
 
    namespace suspension

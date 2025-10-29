@@ -1,6 +1,6 @@
 #include "io_imus.hpp"
 
-#include "hw_i2cs.hpp" //Not yet created
+#include "hw_i2cs.hpp" 
 
 // TODO: set offset values
 const imuConfig imu_config = { .imu_i2c_handle = &imu_i2c,
