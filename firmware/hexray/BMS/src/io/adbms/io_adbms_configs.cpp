@@ -5,7 +5,7 @@
 #include <string.h>
 
 namespace io::adbms {
-    ExitCode writeConfigurationRegisters(const SegmentConfig config[io::NUM_SEGMENTS]) {
+    ExitCode io_adbms_writeConfigurationRegisters(const SegmentConfig config[io::NUM_SEGMENTS]) {
         uint16_t cfga_regs[io::NUM_SEGMENTS];
         uint16_t cfgb_regs[io::NUM_SEGMENTS];
 
@@ -20,7 +20,7 @@ namespace io::adbms {
         return EXIT_CODE_OK;
     }
     
-    void readConfigurationRegisters(SegmentConfig configs[io::NUM_SEGMENTS], ExitCode success[io::NUM_SEGMENTS]) {
+    void io_adbms_readConfigurationRegisters(SegmentConfig configs[io::NUM_SEGMENTS], ExitCode success[io::NUM_SEGMENTS]) {
         uint16_t regs_a[io::NUM_SEGMENTS];
         ExitCode success_a[io::NUM_SEGMENTS];
         io_adbms_readRegGroup(RDCFGA, regs_a, success_a);
