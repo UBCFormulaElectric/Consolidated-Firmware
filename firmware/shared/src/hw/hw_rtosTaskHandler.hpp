@@ -1,13 +1,13 @@
 #pragma once
 #include <cstdint.h>
-#include "ccmsis_os2.h"
+#include "cmsis_os2.h"
 
 template <size_t StackWords> class StaticTask
 {
   public:
-    StaticTask(const char *name, osPriority_t priority, osThreadFunc_t func, void *arg = nullptr) : fn_(fn), arg_(arg)
+    StaticTask(const char *name, osPriority_t priority, osThreadFunc_t func, void *arg = nullptr) : fn_(func), arg_(arg)
     {
-        // goot cpp practice is
+        // good cpp practice is
         attr_.name       = name;
         attr_.cb_mem     = &cb_;
         attr_.cb_size    = sizeof(cb_);
