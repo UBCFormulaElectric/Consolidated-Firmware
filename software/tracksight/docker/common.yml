@@ -49,6 +49,7 @@ services:
       dockerfile: software/tracksight/frontend/Dockerfile
     environment:
       FRONTEND_PORT: ${FRONTEND_PORT}
+      BACKEND_PORT: ${BACKEND_PORT}
     ports:
       - "${FRONTEND_PORT}:${FRONTEND_PORT}"
     # depends_on:
