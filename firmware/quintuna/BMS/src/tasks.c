@@ -71,7 +71,7 @@ SemaphoreHandle_t isospi_bus_access_lock;
 StaticSemaphore_t ltc_app_data_lock_buf;
 SemaphoreHandle_t ltc_app_data_lock;
 
-void tasks_runChimera(void)
+void tasks_runChimera(void *arg)
 {
     hw_chimera_v2_task(&chimera_v2_config);
 }
@@ -155,7 +155,7 @@ void tasks_init(void)
     io_canTx_BMS_Bootup_sendAperiodic();
 }
 
-void tasks_run1Hz(void)
+void tasks_run1Hz(void *arg)
 {
     const uint32_t  period_ms                = 1000U;
     const uint32_t  watchdog_grace_period_ms = 50U;
@@ -177,7 +177,7 @@ void tasks_run1Hz(void)
     }
 }
 
-void tasks_run100Hz(void)
+void tasks_run100Hz(void *arg)
 {
     const uint32_t  period_ms                = 10U;
     const uint32_t  watchdog_grace_period_ms = 2U;
@@ -208,7 +208,7 @@ void tasks_run100Hz(void)
     }
 }
 
-void tasks_run1kHz(void)
+void tasks_run1kHz(void *arg)
 {
     const uint32_t  period_ms                = 1U;
     const uint32_t  watchdog_grace_period_ms = 1U;
@@ -229,7 +229,7 @@ void tasks_run1kHz(void)
     }
 }
 
-void tasks_runCanTx(void)
+void tasks_runCanTx(void *arg)
 {
     for (;;)
     {
@@ -254,7 +254,7 @@ void tasks_runCanTx(void)
     }
 }
 
-void tasks_runCanRx(void)
+void tasks_runCanRx(void *arg)
 {
     for (;;)
     {
@@ -266,7 +266,7 @@ void tasks_runCanRx(void)
 
 // TODO: Add watchdogs to the LTC commands
 
-void tasks_runLtcVoltages(void)
+void tasks_runLtcVoltages(void *arg)
 {
     static const TickType_t period_ms = 500U; // 2Hz
 
@@ -316,7 +316,7 @@ void tasks_runLtcVoltages(void)
     }
 }
 
-void tasks_runLtcTemps(void)
+void tasks_runLtcTemps(void *arg)
 {
     static const TickType_t period_ms = 500U; // 2Hz
 
@@ -351,7 +351,7 @@ void tasks_runLtcTemps(void)
     }
 }
 
-void tasks_runLtcDiagnostics(void)
+void tasks_runLtcDiagnostics(void *arg)
 {
     static const TickType_t period_ms = 10000U; // Every 10s
 

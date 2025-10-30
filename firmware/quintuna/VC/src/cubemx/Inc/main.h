@@ -204,6 +204,9 @@ extern "C"
     /* USER CODE END Private defines */
 
 #ifdef __cplusplus
+#endif
+void VC_StartAllTasks(void);
+#ifdef __cplusplus
 }
 #endif
 

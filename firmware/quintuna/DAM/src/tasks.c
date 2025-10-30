@@ -108,12 +108,12 @@ void tasks_init(void)
     io_telemMessageQueue_init();
 }
 
-_Noreturn void tasks_runChimera(void)
+_Noreturn void tasks_runChimera(void *arg)
 {
     hw_chimera_v2_task(&chimera_v2_config);
 }
 
-_Noreturn void tasks_run1Hz(void)
+_Noreturn void tasks_run1Hz(void *arg)
 {
     const uint32_t  period_ms                = 1000U;
     const uint32_t  watchdog_grace_period_ms = 50U;
@@ -133,7 +133,7 @@ _Noreturn void tasks_run1Hz(void)
     }
 }
 
-_Noreturn void tasks_run100Hz(void)
+_Noreturn void tasks_run100Hz(void *arg)
 {
     const uint32_t  period_ms                = 10U;
     const uint32_t  watchdog_grace_period_ms = 2U;
@@ -153,7 +153,7 @@ _Noreturn void tasks_run100Hz(void)
     }
 }
 
-_Noreturn void tasks_run1kHz(void)
+_Noreturn void tasks_run1kHz(void *arg)
 {
     const uint32_t  period_ms                = 1U;
     const uint32_t  watchdog_grace_period_ms = 1U;
@@ -175,7 +175,7 @@ _Noreturn void tasks_run1kHz(void)
     }
 }
 
-_Noreturn void tasks_runCanTx(void)
+_Noreturn void tasks_runCanTx(void *arg)
 {
     for (;;)
     {
@@ -184,7 +184,7 @@ _Noreturn void tasks_runCanTx(void)
     }
 }
 
-_Noreturn void tasks_runCanRx(void)
+_Noreturn void tasks_runCanRx(void *arg)
 {
     for (;;)
     {
@@ -192,7 +192,7 @@ _Noreturn void tasks_runCanRx(void)
     }
 }
 
-_Noreturn void tasks_runTelem(void)
+_Noreturn void tasks_runTelem(void *arg)
 {
     BaseTimeRegMsg base_time_msg = io_telemMessage_buildBaseTimeRegMsg(&boot_time);
     hw_uart_transmit(&_900k_uart, (uint8_t *)&base_time_msg, sizeof(base_time_msg));
@@ -210,7 +210,7 @@ _Noreturn void tasks_runTelem(void)
     }
 }
 
-_Noreturn void tasks_runTelemRx(void)
+_Noreturn void tasks_runTelemRx(void *arg)
 {
     for (;;)
     {
@@ -219,7 +219,7 @@ _Noreturn void tasks_runTelemRx(void)
     }
 }
 
-_Noreturn void tasks_runLogging(void)
+_Noreturn void tasks_runLogging(void *arg)
 {
     static uint32_t write_count         = 0;
     static uint32_t message_batch_count = 0;
