@@ -61,102 +61,6 @@ TIM_HandleTypeDef htim15;
 
 UART_HandleTypeDef huart2;
 
-/* Definitions for Task100Hz */
-osThreadId_t         Task100HzHandle;
-uint32_t             Task100HzBuffer[8096];
-osStaticThreadDef_t  Task100HzControlBlock;
-const osThreadAttr_t Task100Hz_attributes = {
-    .name       = "Task100Hz",
-    .cb_mem     = &Task100HzControlBlock,
-    .cb_size    = sizeof(Task100HzControlBlock),
-    .stack_mem  = &Task100HzBuffer[0],
-    .stack_size = sizeof(Task100HzBuffer),
-    .priority   = (osPriority_t)osPriorityHigh,
-};
-/* Definitions for TaskCanTx */
-osThreadId_t         TaskCanTxHandle;
-uint32_t             canTxTaskBuffer[512];
-osStaticThreadDef_t  canTxTaskControlBlock;
-const osThreadAttr_t TaskCanTx_attributes = {
-    .name       = "TaskCanTx",
-    .cb_mem     = &canTxTaskControlBlock,
-    .cb_size    = sizeof(canTxTaskControlBlock),
-    .stack_mem  = &canTxTaskBuffer[0],
-    .stack_size = sizeof(canTxTaskBuffer),
-    .priority   = (osPriority_t)osPriorityBelowNormal,
-};
-/* Definitions for TaskCanRx */
-osThreadId_t         TaskCanRxHandle;
-uint32_t             canRxTaskBuffer[512];
-osStaticThreadDef_t  canRxTaskControlBlock;
-const osThreadAttr_t TaskCanRx_attributes = {
-    .name       = "TaskCanRx",
-    .cb_mem     = &canRxTaskControlBlock,
-    .cb_size    = sizeof(canRxTaskControlBlock),
-    .stack_mem  = &canRxTaskBuffer[0],
-    .stack_size = sizeof(canRxTaskBuffer),
-    .priority   = (osPriority_t)osPriorityBelowNormal,
-};
-/* Definitions for Task1kHz */
-osThreadId_t         Task1kHzHandle;
-uint32_t             Task1kHzBuffer[512];
-osStaticThreadDef_t  Task1kHzControlBlock;
-const osThreadAttr_t Task1kHz_attributes = {
-    .name       = "Task1kHz",
-    .cb_mem     = &Task1kHzControlBlock,
-    .cb_size    = sizeof(Task1kHzControlBlock),
-    .stack_mem  = &Task1kHzBuffer[0],
-    .stack_size = sizeof(Task1kHzBuffer),
-    .priority   = (osPriority_t)osPriorityRealtime,
-};
-/* Definitions for Task1Hz */
-osThreadId_t         Task1HzHandle;
-uint32_t             Task1HzBuffer[512];
-osStaticThreadDef_t  Task1HzControlBlock;
-const osThreadAttr_t Task1Hz_attributes = {
-    .name       = "Task1Hz",
-    .cb_mem     = &Task1HzControlBlock,
-    .cb_size    = sizeof(Task1HzControlBlock),
-    .stack_mem  = &Task1HzBuffer[0],
-    .stack_size = sizeof(Task1HzBuffer),
-    .priority   = (osPriority_t)osPriorityAboveNormal,
-};
-/* Definitions for TaskLogging */
-osThreadId_t         TaskLoggingHandle;
-uint32_t             TaskLoggingBuffer[1024];
-osStaticThreadDef_t  TaskLoggingControlBlock;
-const osThreadAttr_t TaskLogging_attributes = {
-    .name       = "TaskLogging",
-    .cb_mem     = &TaskLoggingControlBlock,
-    .cb_size    = sizeof(TaskLoggingControlBlock),
-    .stack_mem  = &TaskLoggingBuffer[0],
-    .stack_size = sizeof(TaskLoggingBuffer),
-    .priority   = (osPriority_t)osPriorityLow,
-};
-/* Definitions for TaskTelem */
-osThreadId_t         TaskTelemHandle;
-uint32_t             TaskTelemBuffer[512];
-osStaticThreadDef_t  TaskTelemControlBlock;
-const osThreadAttr_t TaskTelem_attributes = {
-    .name       = "TaskTelem",
-    .cb_mem     = &TaskTelemControlBlock,
-    .cb_size    = sizeof(TaskTelemControlBlock),
-    .stack_mem  = &TaskTelemBuffer[0],
-    .stack_size = sizeof(TaskTelemBuffer),
-    .priority   = (osPriority_t)osPriorityNormal,
-};
-/* Definitions for TaskTelemRx */
-osThreadId_t         TaskTelemRxHandle;
-uint32_t             TaskTelemRxBuffer[512];
-osStaticThreadDef_t  TaskTelemRxControlBlock;
-const osThreadAttr_t TaskTelemRx_attributes = {
-    .name       = "TaskTelemRx",
-    .cb_mem     = &TaskTelemRxControlBlock,
-    .cb_size    = sizeof(TaskTelemRxControlBlock),
-    .stack_mem  = &TaskTelemRxBuffer[0],
-    .stack_size = sizeof(TaskTelemRxBuffer),
-    .priority   = (osPriority_t)osPriorityLow,
-};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -171,14 +75,6 @@ static void MX_I2C1_Init(void);
 static void MX_TIM15_Init(void);
 static void MX_IWDG1_Init(void);
 static void MX_CRC_Init(void);
-void        RunTask100Hz(void *argument);
-void        RunCanTxTask(void *argument);
-void        RunCanRxTask(void *argument);
-void        RunTask1kHz(void *argument);
-void        RunTask1Hz(void *argument);
-void        RunTaskLogging(void *argument);
-void        RunTaskTelem(void *argument);
-void        RunTaskTelemRx(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -249,30 +145,7 @@ int main(void)
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
-    /* creation of Task100Hz */
-    Task100HzHandle = osThreadNew(RunTask100Hz, NULL, &Task100Hz_attributes);
-
-    /* creation of TaskCanTx */
-    TaskCanTxHandle = osThreadNew(RunCanTxTask, NULL, &TaskCanTx_attributes);
-
-    /* creation of TaskCanRx */
-    TaskCanRxHandle = osThreadNew(RunCanRxTask, NULL, &TaskCanRx_attributes);
-
-    /* creation of Task1kHz */
-    Task1kHzHandle = osThreadNew(RunTask1kHz, NULL, &Task1kHz_attributes);
-
-    /* creation of Task1Hz */
-    Task1HzHandle = osThreadNew(RunTask1Hz, NULL, &Task1Hz_attributes);
-
-    /* creation of TaskLogging */
-    TaskLoggingHandle = osThreadNew(RunTaskLogging, NULL, &TaskLogging_attributes);
-
-    /* creation of TaskTelem */
-    TaskTelemHandle = osThreadNew(RunTaskTelem, NULL, &TaskTelem_attributes);
-
-    /* creation of TaskTelemRx */
-    TaskTelemRxHandle = osThreadNew(RunTaskTelemRx, NULL, &TaskTelemRx_attributes);
-
+    DAM_StartAllTasks();
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
     /* USER CODE END RTOS_THREADS */
@@ -731,7 +604,6 @@ void RunTask100Hz(void *argument)
     MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
     /* Infinite loop */
-    tasks_run100Hz();
     /* USER CODE END 5 */
 }
 
@@ -746,7 +618,6 @@ void RunCanTxTask(void *argument)
 {
     /* USER CODE BEGIN RunCanTxTask */
     /* Infinite loop */
-    tasks_runCanTx();
     /* USER CODE END RunCanTxTask */
 }
 
@@ -761,7 +632,6 @@ void RunCanRxTask(void *argument)
 {
     /* USER CODE BEGIN RunCanRxTask */
     /* Infinite loop */
-    tasks_runCanRx();
     /* USER CODE END RunCanRxTask */
 }
 
@@ -776,7 +646,6 @@ void RunTask1kHz(void *argument)
 {
     /* USER CODE BEGIN RunTask1kHz */
     /* Infinite loop */
-    tasks_run1kHz();
     /* USER CODE END RunTask1kHz */
 }
 
@@ -791,7 +660,6 @@ void RunTask1Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask1Hz */
     /* Infinite loop */
-    tasks_run1Hz();
     /* USER CODE END RunTask1Hz */
 }
 
@@ -806,7 +674,6 @@ void RunTaskLogging(void *argument)
 {
     /* USER CODE BEGIN RunTaskLogging */
     /* Infinite loop */
-    tasks_runLogging();
     /* USER CODE END RunTaskLogging */
 }
 
@@ -821,7 +688,6 @@ void RunTaskTelem(void *argument)
 {
     /* USER CODE BEGIN RunTaskTelem */
     /* Infinite loop */
-    tasks_runTelem();
     /* USER CODE END RunTaskTelem */
 }
 
@@ -836,9 +702,6 @@ void RunTaskTelemRx(void *argument)
 {
     /* USER CODE BEGIN RunTaskTelemRx */
     /* Infinite loop */
-
-    tasks_runTelemRx();
-
     /* USER CODE END RunTaskTelemRx */
 }
 

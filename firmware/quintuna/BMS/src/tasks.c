@@ -110,7 +110,7 @@ void tasks_init(void)
     io_canTx_BMS_Bootup_sendAperiodic(); // TODO do this in jobs_init
 }
 
-void tasks_run1Hz(void)
+void tasks_run1Hz(void *arg)
 {
     const uint32_t  period_ms                = 1000U;
     const uint32_t  watchdog_grace_period_ms = 50U;
@@ -132,7 +132,7 @@ void tasks_run1Hz(void)
     }
 }
 
-void tasks_run100Hz(void)
+void tasks_run100Hz(void *arg)
 {
     const uint32_t  period_ms                = 10U;
     const uint32_t  watchdog_grace_period_ms = 2U;
@@ -154,7 +154,7 @@ void tasks_run100Hz(void)
     }
 }
 
-void tasks_run1kHz(void)
+void tasks_run1kHz(void *arg)
 {
     const uint32_t  period_ms                = 1U;
     const uint32_t  watchdog_grace_period_ms = 1U;
@@ -175,7 +175,7 @@ void tasks_run1kHz(void)
     }
 }
 
-void tasks_runCanTx(void)
+void tasks_runCanTx(void *arg)
 {
     for (;;)
     {
@@ -200,7 +200,7 @@ void tasks_runCanTx(void)
     }
 }
 
-void tasks_runCanRx(void)
+void tasks_runCanRx(void *arg)
 {
     for (;;)
     {
@@ -212,7 +212,7 @@ void tasks_runCanRx(void)
 
 // TODO: Add watchdogs to the LTC commands
 
-void tasks_runLtcVoltages(void)
+void tasks_runLtcVoltages(void *arg)
 {
 #ifdef TARGET_HV_SUPPLY
     for (;;)
@@ -230,7 +230,7 @@ void tasks_runLtcVoltages(void)
 #endif
 }
 
-void tasks_runLtcTemps(void)
+void tasks_runLtcTemps(void *arg)
 {
 #ifdef TARGET_HV_SUPPLY
     for (;;)
@@ -248,7 +248,7 @@ void tasks_runLtcTemps(void)
 #endif
 }
 
-void tasks_runLtcDiagnostics(void)
+void tasks_runLtcDiagnostics(void *arg)
 {
 #ifdef TARGET_HV_SUPPLY
     for (;;)

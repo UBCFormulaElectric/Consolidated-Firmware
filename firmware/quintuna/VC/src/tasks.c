@@ -83,12 +83,12 @@ void tasks_init(void)
     io_canTx_VC_Bootup_sendAperiodic();
 }
 
-_Noreturn void tasks_runChimera(void)
+_Noreturn void tasks_runChimera(void *arg)
 {
     hw_chimera_v2_task(&chimera_v2_config);
 }
 
-_Noreturn void tasks_run1Hz(void)
+_Noreturn void tasks_run1Hz(void *arg)
 {
     const uint32_t  period_ms                = 1000U;
     const uint32_t  watchdog_grace_period_ms = 50U;
@@ -111,7 +111,7 @@ _Noreturn void tasks_run1Hz(void)
     }
 }
 
-_Noreturn void tasks_run100Hz(void)
+_Noreturn void tasks_run100Hz(void *arg)
 {
     const uint32_t  period_ms                = 10U;
     const uint32_t  watchdog_grace_period_ms = 2U;
@@ -134,7 +134,7 @@ _Noreturn void tasks_run100Hz(void)
     }
 }
 
-_Noreturn void tasks_run1kHz(void)
+_Noreturn void tasks_run1kHz(void *arg)
 {
     const uint32_t  period_ms                = 1U;
     const uint32_t  watchdog_grace_period_ms = 1U;
@@ -159,7 +159,7 @@ _Noreturn void tasks_run1kHz(void)
     }
 }
 
-_Noreturn void tasks_runCan1Tx(void)
+_Noreturn void tasks_runCan1Tx(void *arg)
 {
     for (;;)
     {
@@ -168,7 +168,7 @@ _Noreturn void tasks_runCan1Tx(void)
     }
 }
 
-_Noreturn void tasks_runCan2Tx(void)
+_Noreturn void tasks_runCan2Tx(void *arg)
 {
     for (;;)
     {
@@ -177,7 +177,7 @@ _Noreturn void tasks_runCan2Tx(void)
     }
 }
 
-_Noreturn void tasks_runCan3Tx(void)
+_Noreturn void tasks_runCan3Tx(void *arg)
 {
     for (;;)
     {
@@ -186,7 +186,7 @@ _Noreturn void tasks_runCan3Tx(void)
     }
 }
 
-_Noreturn void tasks_runCanRx(void)
+_Noreturn void tasks_runCanRx(void *arg)
 {
     for (;;)
     {
@@ -196,7 +196,7 @@ _Noreturn void tasks_runCanRx(void)
     }
 }
 
-_Noreturn void tasks_batteryMonitoring(void)
+_Noreturn void tasks_batteryMonitoring(void *arg)
 {
     osDelay(osWaitForever);
     for (;;)
@@ -205,7 +205,7 @@ _Noreturn void tasks_batteryMonitoring(void)
     }
 }
 
-_Noreturn void tasks_powerMonitoring(void)
+_Noreturn void tasks_powerMonitoring(void *arg)
 {
     static const TickType_t period_ms   = 10;
     static uint32_t         start_ticks = 0;

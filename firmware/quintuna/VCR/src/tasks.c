@@ -60,7 +60,7 @@ void tasks_init()
     io_canTx_VCR_Bootup_sendAperiodic();
 }
 
-_Noreturn void tasks_run1Hz(void)
+_Noreturn void tasks_run1Hz(void *arg)
 {
     const uint32_t  period_ms                = 1000U;
     const uint32_t  watchdog_grace_period_ms = 50U;
@@ -81,7 +81,7 @@ _Noreturn void tasks_run1Hz(void)
     }
 }
 
-_Noreturn void tasks_run1kHz(void)
+_Noreturn void tasks_run1kHz(void *arg)
 {
     const uint32_t  period_ms                = 1U;
     const uint32_t  watchdog_grace_period_ms = 1U;
@@ -103,7 +103,7 @@ _Noreturn void tasks_run1kHz(void)
     }
 }
 
-_Noreturn void tasks_runCanFDTx(void)
+_Noreturn void tasks_runCanFDTx(void *arg)
 {
     for (;;)
     {
@@ -112,7 +112,7 @@ _Noreturn void tasks_runCanFDTx(void)
     }
 }
 
-_Noreturn void tasks_runCanSxTx(void)
+_Noreturn void tasks_runCanSxTx(void *arg)
 {
     for (;;)
     {
@@ -121,7 +121,7 @@ _Noreturn void tasks_runCanSxTx(void)
     }
 }
 
-_Noreturn void tasks_runCanInvTx(void)
+_Noreturn void tasks_runCanInvTx(void *arg)
 {
     for (;;)
     {
@@ -129,7 +129,7 @@ _Noreturn void tasks_runCanInvTx(void)
         hw_can_transmit(&inv_can, &tx_msg);
     }
 }
-_Noreturn void tasks_runcanRx(void)
+_Noreturn void tasks_runcanRx(void *arg)
 {
     for (;;)
     {
