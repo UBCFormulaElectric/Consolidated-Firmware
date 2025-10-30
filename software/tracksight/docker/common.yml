@@ -26,8 +26,8 @@ services:
       BACKEND_PORT: ${BACKEND_PORT}
       INFLUXDB_PORT: ${INFLUXDB_PORT}
     env_file: backend.env
-    # TODO test serial port
-    # privileged: true
+    # Privileged provides access to all serial ports, not need to pass serial port through
+    privileged: true
     volumes:
       - /dev:/dev
       - ../backend:/backend
