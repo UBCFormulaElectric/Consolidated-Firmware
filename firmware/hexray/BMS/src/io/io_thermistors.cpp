@@ -20,32 +20,34 @@ using namespace hw::gpios;
 
 namespace io::therm
 {
-    constexpr ThermistorLUT b57861s_lut = {
-        .starting_temp = 0U,
-        .resolution    = 5U,
-        .size          = SIZE_OF_TEMPERATURE_LUT,
-        .resistances   = lut_resistances.data(),
-    };
+    
+constexpr ThermistorLUT b57861s_lut = {
+    .starting_temp = 0U,
+    .resolution    = 5U,
+    .size          = SIZE_OF_TEMPERATURE_LUT,
+    .resistances   = lut_resistances.data(),
+};
 
-    bool muxSelect(const uint8_t channel)
+bool muxSelect(const uint8_t channel)
+{
+    if (channel > 7)
     {
-        if (channel > 7)
-        {
-            return false;
-        }
-
-        tsense_sel0_pin.writePin((channel >> 0) & 0x1);
-        tsense_sel1_pin.writePin((channel >> 1) & 0x1);
-        tsense_sel2_pin.writePin((channel >> 2) & 0x1);
-
-        return true;
+        return false;
     }
 
-    float readSelectedTemp(void)
-    {
-        const float raw_voltage           = aux_tsns.getVoltage();
-        const float thermistor_resistance = (raw_voltage * BIAS_RESISTOR_OHM) / (REFERENCE_VOLTAGE - raw_voltage);
+    tsense_sel0_pin.writePin((channel >> 0) & 0x1);
+    tsense_sel1_pin.writePin((channel >> 1) & 0x1);
+    tsense_sel2_pin.writePin((channel >> 2) & 0x1);
 
-        return app::thermistor::resistanceToTemp(thermistor_resistance, &b57861s_lut);
-    }
+    return true;
 }
+
+float readSelectedTemp(void)
+{
+    const float raw_voltage           = aux_tsns.getVoltage();
+    const float thermistor_resistance = (raw_voltage * BIAS_RESISTOR_OHM) / (REFERENCE_VOLTAGE - raw_voltage);
+
+    return app::thermistor::resistanceToTemp(thermistor_resistance, &b57861s_lut);
+}
+
+} // namespace io::therm
