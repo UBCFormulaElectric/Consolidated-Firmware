@@ -17,7 +17,12 @@ def read_messages_from_file():
     Read messages from a file to simulate receiving from port. Used for testing front end
     """
     logger.debug("Starting mock read task")
+    #counter = 0
     while should_run():
+        #counter += 1
+
+        #if counter >= 500:
+            #break
         # Read the CSV file into a DataFrame
         # Iterate over each row (simulate message reception over time)
         # for _i, row in df.iterrows():
@@ -69,7 +74,7 @@ def read_messages_from_file():
         # can_msg_queue.put(
         #     CanMsg(233, bytearray(os.urandom(8)), datetime.datetime.now()) # VC ConnectorBoardEfuse
         # )
-        time.sleep(0.1)
+        time.sleep(0.001)
     logger.debug("Mock read task stopped")
 
 def get_mock_task(sio: SocketIO) -> Thread:
