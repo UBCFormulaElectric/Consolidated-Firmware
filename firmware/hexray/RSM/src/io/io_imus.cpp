@@ -1,8 +1,8 @@
-#include "io_imu.h"
-#include "hw_i2cs.h"
+#include "io_imus.hpp"
+#include "hw_i2cs.hpp" 
 
 // TODO: set offset values
-const imuConfig imu_config = { .imu_i2c_handle = &imu_ix2c,
+const imuConfig imu_config = { .imu_i2c_handle = &imu_i2c,
                                .x_accel_offset = 0.0f,
                                .y_accel_offset = 0.0f,
                                .z_accel_offset = 0.0f,
