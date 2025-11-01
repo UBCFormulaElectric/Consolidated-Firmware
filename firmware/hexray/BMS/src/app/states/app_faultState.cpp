@@ -2,7 +2,8 @@
 
 #include "app_states.hpp"
 
-extern "C" {
+extern "C"
+{
 #include "app_precharge.h"
 #include "app_segments.h"
 #include "io_irs.h"
@@ -31,8 +32,7 @@ static void runOnTick100Hz()
 
     // const bool precharge_ok = !app_precharge_limitExceeded(); // Optional condition
 
-    const bool bms_fault_cleared =
-        (io_faultLatch_getLatchedStatus(&bms_ok_latch) == FAULT_LATCH_OK);
+    const bool bms_fault_cleared = (io_faultLatch_getLatchedStatus(&bms_ok_latch) == FAULT_LATCH_OK);
 
     if (acc_fault_cleared && bms_fault_cleared)
     {

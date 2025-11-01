@@ -2,7 +2,8 @@
 
 #include "app_states.hpp"
 
-extern "C" {
+extern "C"
+{
 #include "app_canRx.h"
 #include "app_canTx.h"
 #include "app_tractiveSystem.h"
@@ -12,7 +13,8 @@ extern "C" {
 #include "io_irs.h"
 }
 
-namespace app::states::initState {
+namespace app::states::initState
+{
 
 constexpr float TS_DISCHARGED_THRESHOLD_V = 10.0f;
 
@@ -47,8 +49,7 @@ void RunOnTick100Hz()
 
         const auto conn_status = io_charger_getConnectionStatus();
         const bool charger_connected =
-            (conn_status == CHARGER_CONNECTED_WALL) ||
-            (conn_status == CHARGER_CONNECTED_EVSE);
+            (conn_status == CHARGER_CONNECTED_WALL) || (conn_status == CHARGER_CONNECTED_EVSE);
 
         const bool precharge_for_driving  = (app_canRx_VC_State_get() == VC_BMS_ON_STATE);
         const bool cell_balancing_enabled = app_canRx_Debug_CellBalancingRequest_get();

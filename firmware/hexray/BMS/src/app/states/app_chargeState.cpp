@@ -3,7 +3,8 @@
 
 #include "app_states.hpp"
 
-extern "C" {
+extern "C"
+{
 #include "app_canUtils.h"
 #include "app_timer.h"
 #include "io_irs.h"
@@ -14,16 +15,18 @@ extern "C" {
 }
 
 // Charger/pack constants
-namespace {
+namespace
+{
 // TODO: Change back if we ever get to 10 segments again
-// constexpr float PACK_VOLTAGE_DC 581.0f // V – the battery pack’s nominal voltage (4.15V per cell * 14 cell per seg * 10 seg)
-constexpr float   PACK_VOLTAGE_DC      = 464.8f; // V – (4.15V * 14 cells/seg * 8 seg)
-constexpr float   CHARGER_EFFICIENCY   = 0.93f;  // 93% – average DC-side efficiency of the Elcon
-constexpr float   MAX_DC_CURRENT       = 13.0f;  // A – battery limit of DC output current
+// constexpr float PACK_VOLTAGE_DC 581.0f // V – the battery pack’s nominal voltage (4.15V per cell * 14 cell per seg *
+// 10 seg)
+constexpr float PACK_VOLTAGE_DC    = 464.8f; // V – (4.15V * 14 cells/seg * 8 seg)
+constexpr float CHARGER_EFFICIENCY = 0.93f;  // 93% – average DC-side efficiency of the Elcon
+constexpr float MAX_DC_CURRENT     = 13.0f;  // A – battery limit of DC output current
 
-constexpr float   VAC_MIN              = 208.0f; // V – lower end of typical North American grid
-constexpr float   VAC_MAX              = 240.0f; // V – upper end of typical North American grid
-constexpr float   CAC_MAX              = 32.0f;  // A – max current available of typical NA grid
+constexpr float VAC_MIN = 208.0f; // V – lower end of typical North American grid
+constexpr float VAC_MAX = 240.0f; // V – upper end of typical North American grid
+constexpr float CAC_MAX = 32.0f;  // A – max current available of typical NA grid
 
 constexpr uint32_t ELCON_ERR_DEBOUNCE_MS = 3000U; // 3 seconds
 } // namespace
@@ -153,8 +156,7 @@ static void runOnTick100Hz()
     const bool fault = extShutdown || !chargerConn || rx.hardwareFailure || rx.chargingStateFault ||
                        rx.overTemperature || rx.inputVoltageFault || rx.commTimeout;
 
-    const bool fault_latched =
-        (app_timer_runIfCondition(&elcon_err_debounce, fault) == TIMER_STATE_EXPIRED);
+    const bool fault_latched = (app_timer_runIfCondition(&elcon_err_debounce, fault) == TIMER_STATE_EXPIRED);
 
     if (fault_latched || !userEnable)
     {
@@ -178,7 +180,7 @@ static void runOnTick100Hz()
 
     // For now, command nominal pack voltage and a debug-selected current
     const ElconTx tx{
-        .maxVoltage_V = PACK_VOLTAGE_DC,                      // cap at 464.8V (8 segments)
+        .maxVoltage_V = PACK_VOLTAGE_DC, // cap at 464.8V (8 segments)
         // .maxCurrent_A = idc_range.idc_min,                 // conservative min DC current (when enabled)
         .maxCurrent_A = app_canRx_Debug_ChargingCurrent_get(), // debug-controlled current
         .stopCharging = !userEnable,
@@ -219,9 +221,12 @@ const State charge_state = {
 // Charge fault state implementation
 namespace app::states::chargeFaultState
 {
-static void runOnEntry()      { app_canTx_BMS_State_set(BMS_CHARGE_FAULT_STATE); }
-static void runOnTick100Hz()  {}
-static void runOnExit()       {}
+static void runOnEntry()
+{
+    app_canTx_BMS_State_set(BMS_CHARGE_FAULT_STATE);
+}
+static void runOnTick100Hz() {}
+static void runOnExit() {}
 } // namespace app::states::chargeFaultState
 
 const State charge_fault_state = {
@@ -234,9 +239,12 @@ const State charge_fault_state = {
 // Charge init state implementation
 namespace app::states::chargeInitState
 {
-static void runOnEntry()      { app_canTx_BMS_State_set(BMS_CHARGE_INIT_STATE); }
-static void runOnTick100Hz()  {}
-static void runOnExit()       {}
+static void runOnEntry()
+{
+    app_canTx_BMS_State_set(BMS_CHARGE_INIT_STATE);
+}
+static void runOnTick100Hz() {}
+static void runOnExit() {}
 } // namespace app::states::chargeInitState
 
 const State charge_init_state = {

@@ -4,7 +4,8 @@
 
 #include "app_states.hpp"
 
-extern "C" {
+extern "C"
+{
 #include "app_precharge.h"
 #include "io_irs.h"
 #include "app_canTx.h"
