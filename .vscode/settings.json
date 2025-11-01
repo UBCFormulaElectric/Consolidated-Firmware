@@ -11,5 +11,10 @@
     "--compile-commands-dir=build_fw_dev",
     // "--compile-commands-dir=build_fw_test",
     "--query-driver=/usr/local/bin/arm-none-eabi-gcc"
-  ]
+  ],
+  "files.associations": {
+    "app_canutils.h": "c",
+    "app_cantx.h": "c",
+    "io_irs.h": "c"
+  }
 }
