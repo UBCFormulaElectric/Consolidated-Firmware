@@ -20,6 +20,6 @@ gevent
 
 # Install in-house dependencies from GitHub
 # jsonca
-git+https://github.com/UBCFormulaElectric/Consolidated-Firmware.git@jackyao/telem-backend-docker-fix#subdirectory=scripts/code_generation
+git+https://github.com/UBCFormulaElectric/Consolidated-Firmware.git@master#subdirectory=scripts/code_generation
 # logfs
-git+https://github.com/UBCFormulaElectric/Consolidated-Firmware.git@jackyao/telem-backend-docker-fix#subdirectory=firmware/logfs/python
+git+https://github.com/UBCFormulaElectric/Consolidated-Firmware.git@master#subdirectory=firmware/logfs/python
