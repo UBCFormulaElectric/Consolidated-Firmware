@@ -32,26 +32,10 @@
   resolved "https://registry.npmjs.org/@date-fns/tz/-/tz-1.2.0.tgz"
   integrity sha512-LBrd7MiJZ9McsOgxqWX7AaxrDjcFVjWH/tIKJd7pnR7McaslGYOP1QmmiBXdJH/H/yLCT+rcQ7FaPBUxRGUtrg==
 
-"@emnapi/core@^1.4.3":
-  version "1.4.3"
-  dependencies:
-    "@emnapi/wasi-threads" "1.0.2"
-    tslib "^2.4.0"
-
-"@emnapi/runtime@^1.4.3":
-  version "1.4.3"
-  dependencies:
-    tslib "^2.4.0"
-
-"@emnapi/runtime@^1.4.4":
+"@emnapi/runtime@^1.4.3", "@emnapi/runtime@^1.4.4":
   version "1.4.5"
   resolved "https://registry.npmjs.org/@emnapi/runtime/-/runtime-1.4.5.tgz"
   integrity sha512-++LApOtY0pEEz1zrd9vy1/zXVaVJJ/EbAF3u0fXIzPJEDtnITsBGbbK0EkM72amhl/R5b+5xx0Y/QhcVOpuulg==
-  dependencies:
-    tslib "^2.4.0"
-
-"@emnapi/wasi-threads@^1.0.2", "@emnapi/wasi-threads@1.0.2":
-  version "1.0.2"
   dependencies:
     tslib "^2.4.0"
 
@@ -344,13 +328,6 @@
     quickselect "^2.0.0"
     rw "^1.3.3"
     tinyqueue "^3.0.0"
-
-"@napi-rs/wasm-runtime@^0.2.11":
-  version "0.2.11"
-  dependencies:
-    "@emnapi/core" "^1.4.3"
-    "@emnapi/runtime" "^1.4.3"
-    "@tybys/wasm-util" "^0.9.0"
 
 "@next/env@15.4.2":
   version "15.4.2"
@@ -1303,11 +1280,6 @@
   dependencies:
     "@turf/helpers" "^7.2.0"
     "@types/geojson" "^7946.0.10"
-
-"@tybys/wasm-util@^0.9.0":
-  version "0.9.0"
-  dependencies:
-    tslib "^2.4.0"
 
 "@types/d3-array@^3.0.3":
   version "3.2.1"
