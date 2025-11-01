@@ -1,4 +1,5 @@
 #pragma once
+#include "util_errorCodes.hpp"
 
 namespace fakes::io
 {
@@ -30,7 +31,11 @@ namespace fakes::io
       void setAngularVelocityYaw(float value);
    }
 
-   
+   namespace rPump
+   {
+      void setStatus(ExitCode value); 
+   }
+
    namespace tireTemp
    {
      void set(float temp);

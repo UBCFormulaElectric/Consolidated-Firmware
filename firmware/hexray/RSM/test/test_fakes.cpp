@@ -3,6 +3,7 @@
 #include "io_coolant.hpp"
 #include "io_suspension.hpp"
 #include "io_tireTemp.hpp"
+#include "util_errorCodes.hpp"
 
 namespace fakes::io
 {
@@ -93,6 +94,16 @@ namespace fakes::io
         }
    }
 
+   namespace rPump
+   {
+        static ExitCode status;
+
+        void setStatus(const ExitCode value)
+        {
+            status = value;
+        }
+   }
+
    namespace tireTemp
    {
         static float temperature = 0.0f;
@@ -178,10 +189,12 @@ namespace io
         }
     }
 
-
     namespace rPump
     {
-        void setPercentage(float); 
+        ExitCode setPercentage(float value)
+        {
+            return fakes::io::rPump::status; 
+        }
     }
 
     namespace tireTemp
