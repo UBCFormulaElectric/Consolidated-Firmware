@@ -42,9 +42,10 @@ void app_tractiveSystem_broadcast(void)
     const float ts_power_kw               = ts_voltage * ts_current * W_TO_KW;
     const bool  ts_voltage_sns_diag_state = io_tractiveSystem_getVoltageSnsDiagState();
     const bool  ts_current_sns_diag_state = io_tractiveSystem_getCurrentSnsDiagState();
-    const bool ts_overcurrent_warning = 
-        app_timer_runIfCondition(&overcurrent_warning_timer, 
-        !IS_IN_RANGE(MAX_TS_DISCHARGE_CURRENT_AMPS, MAX_TS_CHARGE_CURRENT_AMPS, ts_current)) == TIMER_STATE_RUNNING;
+    const bool  ts_overcurrent_warning =
+        app_timer_runIfCondition(
+            &overcurrent_warning_timer,
+            !IS_IN_RANGE(MAX_TS_DISCHARGE_CURRENT_AMPS, MAX_TS_CHARGE_CURRENT_AMPS, ts_current)) == TIMER_STATE_RUNNING;
 
     app_canTx_BMS_TractiveSystemVoltage_set(ts_voltage);
     app_canTx_BMS_TractiveSystemCurrent_set(ts_current);

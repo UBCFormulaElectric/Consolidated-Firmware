@@ -2,17 +2,18 @@
 
 #include <cassert>
 
-extern "C" {
 #include "app_states.hpp"
+
+extern "C"
+{
 #include "app_precharge.h"
-#include "app_timer.h"
 #include "io_irs.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "io_log.h"
 }
 
-namespace app::prechargeChargeState
+namespace app::states::prechargeChargeState
 {
 
 static void runOnEntry()
@@ -70,13 +71,11 @@ static void runOnExit()
     io_irs_setPrecharge(CONTACTOR_STATE_OPEN);
 }
 
-} // namespace app::prechargeChargeState
+} // namespace app::states::prechargeChargeState
 
-extern "C" {
 const State precharge_charge_state = {
     .name              = "PRECHARGE CHARGE",
-    .run_on_entry      = app::prechargeChargeState::runOnEntry,
-    .run_on_tick_100Hz = app::prechargeChargeState::runOnTick100Hz,
-    .run_on_exit       = app::prechargeChargeState::runOnExit,
+    .run_on_entry      = app::states::prechargeChargeState::runOnEntry,
+    .run_on_tick_100Hz = app::states::prechargeChargeState::runOnTick100Hz,
+    .run_on_exit       = app::states::prechargeChargeState::runOnExit,
 };
-}

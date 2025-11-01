@@ -3,7 +3,7 @@
 
 using namespace hw::gpios;
 
-namespace io::shdn 
+namespace io::shdn
 {
 
 bool msd_shdn_sns_pin_get(void)

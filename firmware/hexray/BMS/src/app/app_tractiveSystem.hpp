@@ -8,27 +8,27 @@
 #define MAX_TS_DISCHARGE_CURRENT_AMPS (MAX_TS_DISCHARGE_CURRENT_PER_CELL_AMPS * CELLS_IN_PARALLEL)
 #define MAX_TS_CHARGE_CURRENT_AMPS (MAX_TS_CHARGE_CURRENT_PER_CELL_AMPS * CELLS_IN_PARALLEL)
 
-namespace app::ts 
+namespace app::ts
 {
-    /**
-     * Init the app tractive system module.
-     */
-    void init();
+/**
+ * Init the app tractive system module.
+ */
+void init();
 
-    /**
-     * Get the TS voltage
-     * @return The voltage in (V)
-     */
-    float getVoltage();
+/**
+ * Get the TS voltage
+ * @return The voltage in (V)
+ */
+float getVoltage();
 
-    /**
-     * Get the TS current by choosing between the low and high resolutions
-     * @return The current in A
-     */
-    float getCurrent();
+/**
+ * Get the TS current by choosing between the low and high resolutions
+ * @return The current in A
+ */
+float getCurrent();
 
-    /**
-     * Broadcast state of the tractive system and overcurrent warning over CAN.
-     */
-    void broadcast();
-}
+/**
+ * Broadcast state of the tractive system and overcurrent warning over CAN.
+ */
+void broadcast();
+} // namespace app::ts

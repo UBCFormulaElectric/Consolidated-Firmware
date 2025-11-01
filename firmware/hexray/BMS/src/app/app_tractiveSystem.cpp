@@ -50,7 +50,6 @@ void broadcast() {
     app_canTx_BMS_VoltageSensorOk_set(ts_voltage_sns_diag_state);
     app_canTx_BMS_CurrentSensorOk_set(ts_current_sns_diag_state);
     app_canTx_BMS_Warning_TsOvercurrent_set(ts_overcurrent_warning);
-
 }
 
 } // namespace app::ts

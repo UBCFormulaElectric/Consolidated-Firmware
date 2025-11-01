@@ -3,8 +3,7 @@
 
 constexpr uint8_t MAX_RETRIES = 5;
 
-namespace io::fans {
-    void tick(bool enable) {
-
-    }
-}
+namespace io::fans
+{
+void tick(bool enable) {}
+} // namespace io::fans

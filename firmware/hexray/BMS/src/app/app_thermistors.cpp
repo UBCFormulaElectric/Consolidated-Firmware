@@ -3,11 +3,11 @@
 
 namespace
 {
-    constexpr std::array<const float, 201> adbms_thermistor_lut_buffer = {};
+constexpr std::array<const float, 201> adbms_thermistor_lut_buffer = {};
 }
 
 using namespace io::therm;
 namespace app::therm
 {
-    constexpr ThermistorLUT adbms_thermistor_lut();
+constexpr ThermistorLUT adbms_thermistor_lut();
 }
