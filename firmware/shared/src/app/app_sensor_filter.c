@@ -3,15 +3,19 @@
 //              https://tttapa.github.io/Pages/Mathematics/Systems-and-Control-Theory/Digital-filters/Exponential%20Moving%20Average/Exponential-Moving-Average.pdf
 //      The new alpha formula:
 //              https://tomroelandts.com/articles/low-pass-single-pole-iir-filter
-// IIR filter wrapper:
+// IIR filter wrapper: smoothing factor formula: https://www.wealthsimple.com/en-ca/learn/moving-average
+//                     this wrapper was created first as a learning exercise and doesn't have any practical benefits
+//                     over the actual IIR moving average filter only over a simple moving average filter.
 // Butterworth filter: https://www.electronics-tutorials.ws/filter/filter_8.html
 #include "app_sensor_filter.h"
 #include <assert.h>
 #include <string.h>
 #include "app_units.h"
 
-// IIR Moving Average Filter Implementation
-
+// IIR Moving Average Filter Implementation.
+// Not a pure recursive filter, it's an approximation that tries to mimic a moving average filter using IIR techniques.
+// It acts as a target spec; so giving a certain N is basically saying "act as a 5 sample moving average".
+// Window size is just used to approximate a good alpha value.
 void app_sensor_filter_iir_moving_average_init(
     IIRMovingAverageFilter *filter,
     uint32_t                equivalent_window_size,
@@ -45,7 +49,9 @@ float app_sensor_filter_iir_moving_average_process(IIRMovingAverageFilter *filte
 void app_sensor_filter_iir_moving_average_reset(IIRMovingAverageFilter *filter)
 {
     assert(filter != NULL);
+    assert(filter->is_initialized);
 
+    // Reset to initial state by restoring the initial value
     filter->previous_output = filter->initial_value;
 }
 
@@ -53,18 +59,38 @@ void app_sensor_filter_iir_moving_average_reset(IIRMovingAverageFilter *filter)
 
 void app_sensor_filter_exponential_init(
     ExponentialFilter *filter,
-    float              cutoff_frequency,
+    AlphaParameterType param_type,
+    float              param_value,
     float              sample_rate,
     float              initial_value)
 {
     assert(filter != NULL);
-    assert(cutoff_frequency > 0.0f);
-    assert(sample_rate > 0.0f);
 
-    // Calculate alpha from cutoff frequency
-    // Formula: α = 1 - exp(-2π * fc / fs)
-    // where fc is cutoff frequency and fs is sample rate
-    float alpha = 1.0f - expf(-2.0f * M_PI_F * cutoff_frequency / sample_rate);
+    float alpha;
+
+    switch (param_type)
+    {
+        case ALPHA_DIRECT:
+            // Use alpha value directly
+            assert(param_value >= 0.0f && param_value <= 1.0f);
+            alpha = param_value;
+            break;
+
+        case ALPHA_FROM_CUTOFF_FREQUENCY:
+            // Calculate alpha from cutoff frequency
+            assert(param_value > 0.0f); // cutoff_frequency
+            assert(sample_rate > 0.0f);
+            // Formula: α = 1 - exp(-2π * fc / fs)
+            // where fc is cutoff frequency and fs is sample rate
+            alpha = 1.0f - expf(-2.0f * M_PI_F * param_value / sample_rate);
+            break;
+
+        default:
+            // Invalid param type -> default to ALPHA_DIRECT
+            assert(param_value >= 0.0f && param_value <= 1.0f);
+            alpha = param_value;
+            break;
+    }
 
     filter->alpha           = alpha;
     filter->previous_output = initial_value;
@@ -87,7 +113,9 @@ float app_sensor_filter_exponential_process(ExponentialFilter *filter, float inp
 void app_sensor_filter_exponential_reset(ExponentialFilter *filter)
 {
     assert(filter != NULL);
+    assert(filter->is_initialized);
 
+    // Reset to initial state by restoring the initial value
     filter->previous_output = filter->initial_value;
 }
 
@@ -134,7 +162,9 @@ float app_sensor_filter_butterworth_process(ButterworthFilter *filter, float inp
 void app_sensor_filter_butterworth_reset(ButterworthFilter *filter)
 {
     assert(filter != NULL);
+    assert(filter->is_initialized);
 
+    // Reset to initial state by restoring the initial value
     filter->previous_input  = filter->initial_value;
     filter->previous_output = filter->initial_value;
 }

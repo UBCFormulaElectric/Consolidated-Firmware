@@ -5,6 +5,15 @@
 #include "app_utils.h"
 
 /**
+ * @brief Enumeration for alpha parameter specification type
+ */
+typedef enum
+{
+    ALPHA_DIRECT,               // Use alpha value directly
+    ALPHA_FROM_CUTOFF_FREQUENCY // Calculate alpha from cutoff frequency and sample rate
+} AlphaParameterType;
+
+/**
  * @brief IIR Moving Average Filter
  *
  * This filter provides an IIR approximation of a moving average filter.
@@ -17,7 +26,7 @@ typedef struct
 {
     float alpha;           // Calculated smoothing factor
     float previous_output; // Previous filter output
-    float initial_value;   // Initial value for reset
+    float initial_value;   // Initial value for reset functionality
     bool  is_initialized;  // Initialization flag
 } IIRMovingAverageFilter;
 
@@ -25,7 +34,7 @@ typedef struct
 {
     float alpha;           // Smoothing factor (0.0 to 1.0)
     float previous_output; // Previous filter output
-    float initial_value;   // Initial value for reset
+    float initial_value;   // Initial value for reset functionality
     bool  is_initialized;  // Initialization flag
 } ExponentialFilter;
 
@@ -57,13 +66,16 @@ void app_sensor_filter_iir_moving_average_reset(IIRMovingAverageFilter *filter);
 /**
  * @brief Initialize Exponential Filter
  * @param filter Pointer to filter structure
- * @param cutoff_frequency The -3dB cutoff frequency in Hz
- * @param sample_rate The rate at which data is sampled in Hz
+ * @param param_type Type of alpha param (ALPHA_DIRECT or ALPHA_FROM_CUTOFF_FREQUENCY)
+ * @param param_value If param_type is ALPHA_DIRECT: alpha value (0.0 to 1.0).
+ *                    If param_type is ALPHA_FROM_CUTOFF_FREQUENCY: cutoff frequency in Hz
+ * @param sample_rate Sample rate in Hz (only used when param_type is ALPHA_FROM_CUTOFF_FREQUENCY)
  * @param initial_value Initial value for the filter
  */
 void app_sensor_filter_exponential_init(
     ExponentialFilter *filter,
-    float              cutoff_frequency,
+    AlphaParameterType param_type,
+    float              param_value,
     float              sample_rate,
     float              initial_value);
 
@@ -93,7 +105,7 @@ typedef struct
     float b1;              // Feedforward coefficient
     float previous_input;  // Previous input value
     float previous_output; // Previous filter output
-    float initial_value;   // Initial value for reset
+    float initial_value;   // Initial value for reset functionality
     bool  is_initialized;  // Initialization flag
 } ButterworthFilter;
 
