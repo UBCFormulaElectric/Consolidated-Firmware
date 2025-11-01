@@ -192,9 +192,7 @@ extern "C"
 
     /* USER CODE END Private defines */
 
-#ifdef __cplusplus
-#endif
-    void BMS_StartAllTasks(void);
+    void BMS_StartAllTasks();
 #ifdef __cplusplus
 }
 #endif

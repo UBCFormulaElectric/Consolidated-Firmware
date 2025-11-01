@@ -1222,7 +1222,7 @@ void RunPwrMontr(void *argument)
     /* Infinite loop */
     for (;;)
     {
-        tasks_powerMonitoring();
+        tasks_powerMonitoring(argument);
     }
     /* USER CODE END RunPwrMontr */
 }

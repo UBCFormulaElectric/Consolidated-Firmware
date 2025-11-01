@@ -79,8 +79,6 @@ extern "C"
 
     /* USER CODE END Private defines */
 
-#ifdef __cplusplus
-#endif 
 void VCR_StartAllTasks(void);
 #ifdef __cplusplus
 }
