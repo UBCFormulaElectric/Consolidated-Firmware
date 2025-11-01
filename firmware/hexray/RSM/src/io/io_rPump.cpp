@@ -31,7 +31,7 @@ namespace io::rPump
     ExitCode setPercentage(float percentage)
     {
         percentage = CLAMP(percentage, 0.0f, 100.0f);
-        return io_rPump_write((uint8_t)((1.0f - percentage / 100.0f) * MAX_WIPER_VALUE));
+        return io::rPump::write((uint8_t)((1.0f - percentage / 100.0f) * MAX_WIPER_VALUE));
     }
 
     ExitCode readPercentage(float *dest)

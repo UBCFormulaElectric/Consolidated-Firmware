@@ -32,8 +32,8 @@ namespace app::coolant
     void broadcast()
     {
         const float flow_val = io::coolant::getFlowRate();
-        const RangeCheckStatusMetaData coolant_status = app_rangeCheck_getValue(&flow_rate_in_range_check, flow_val);
+        // const RangeCheckStatusMetaData coolant_status = app_rangeCheck_getValue(&flow_rate_in_range_check, flow_val);
         app_canTx_RSM_CoolantFlowRate_set(flow_val); 
-        app_canAlerts_RSM_Info_FlowRateOutOfRange_set(coolant_status.status != VALUE_IN_RANGE);
+    //     app_canAlerts_RSM_Info_FlowRateOutOfRange_set(coolant_status.status != VALUE_IN_RANGE);
     }
 }
