@@ -8,7 +8,8 @@
 #define MAX_TS_DISCHARGE_CURRENT_AMPS (MAX_TS_DISCHARGE_CURRENT_PER_CELL_AMPS * CELLS_IN_PARALLEL)
 #define MAX_TS_CHARGE_CURRENT_AMPS (MAX_TS_CHARGE_CURRENT_PER_CELL_AMPS * CELLS_IN_PARALLEL)
 
-namespace app::ts {
+namespace app::ts 
+{
     /**
      * Init the app tractive system module.
      */
