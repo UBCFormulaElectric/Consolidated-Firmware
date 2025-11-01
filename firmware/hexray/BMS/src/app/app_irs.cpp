@@ -6,8 +6,6 @@ extern "C" {
     #include "app_canUtils.h"
 }
 
-
-
 namespace app::irs{
     
     void broadcast(){

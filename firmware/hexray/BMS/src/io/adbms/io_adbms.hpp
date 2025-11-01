@@ -16,6 +16,10 @@ namespace io
         static constexpr uint8_t REGS_PER_GROUP = 3;
         static constexpr uint8_t REGISTER_GROUP_SIZE = 6; // 6 bytes
         
+        /**
+         * @file adbms/io_adbms_configs.cpp
+         */
+
         // as per table 55
         typedef struct
         {
@@ -76,13 +80,31 @@ namespace io
          * @param configs pointer to array of SegmentConfig structs to populate
          * @param success success of the operation
         */
-        void readConfigurationRegisters(SegmentConfig configs[io::NUM_SEGMENTS], uint8_t success[io::NUM_SEGMENTS]);
+        void io_adbms_readConfigurationRegisters(SegmentConfig configs[io::NUM_SEGMENTS], uint8_t success[io::NUM_SEGMENTS]);
 
         /**
          * Writes a configuration to all segments on the daisy chain.
          * @param config the configuration to write on the ADBMS
          * @return success of the operation
         */
-        ExitCode writeConfigurationRegisters(const SegmentConfig config[io::NUM_SEGMENTS]);
+        ExitCode io_adbms_writeConfigurationRegisters(const SegmentConfig config[io::NUM_SEGMENTS]);
+
+        /**
+         * @file adbms/io_adbms_balance.cpp
+        */
+
+        /**
+         * Sends a command to enable balancing
+         * @return success of operation
+         */
+        ExitCode io_adbms_sendBalanceCommand(void);
+
+        /**
+         * Send a command to disable balancing
+         * @return success of operation
+         */
+        ExitCode io_adbms_sendStopBalanceCommand(void);
+
+
     }
 }

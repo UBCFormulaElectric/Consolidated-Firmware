@@ -17,7 +17,7 @@
 static float getIdealPwmFrequency(const ImdConditionName condition_name)
 {
     assert(condition_name < NUM_OF_IMD_CONDITIONS);
-
+   
     // Key: IMD condition
     // Value: PWM output frequency
     static const float imd_frequency_lookup[NUM_OF_IMD_CONDITIONS] = {
