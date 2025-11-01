@@ -51,6 +51,6 @@ float readSelectedTemp(void)
 }
 <<<<<<< HEAD
 
-=======
+== == == =
 >>>>>>> ae0507814faf612faf031926cdab04369e0978d8
 } // namespace io::therm
