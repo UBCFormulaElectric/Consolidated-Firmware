@@ -1,7 +1,8 @@
 #include <cstddef>
 
-extern "C" {
 #include "app_states.hpp"
+
+extern "C" {
 #include "app_canRx.h"
 #include "app_canTx.h"
 #include "app_tractiveSystem.h"
@@ -11,7 +12,7 @@ extern "C" {
 #include "io_irs.h"
 }
 
-namespace app::initState {
+namespace app::states::initState {
 
 constexpr float TS_DISCHARGED_THRESHOLD_V = 10.0f;
 
@@ -67,13 +68,11 @@ void RunOnTick100Hz()
     }
 }
 
-} // namespace app::initState
+} // namespace app::states::initState
 
-extern "C" {
 const State init_state = {
     .name              = "INIT",
-    .run_on_entry      = app::initState::RunOnEntry,
-    .run_on_tick_100Hz = app::initState::RunOnTick100Hz,
+    .run_on_entry      = app::states::initState::RunOnEntry,
+    .run_on_tick_100Hz = app::states::initState::RunOnTick100Hz,
     .run_on_exit       = nullptr,
 };
-}

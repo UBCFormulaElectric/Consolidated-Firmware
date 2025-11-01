@@ -1,7 +1,8 @@
 #include <cstddef>
 
-extern "C" {
 #include "app_states.hpp"
+
+extern "C" {
 #include "app_precharge.h"
 #include "app_segments.h"
 #include "io_irs.h"
@@ -9,7 +10,7 @@ extern "C" {
 #include "app_canTx.h"
 }
 
-namespace app::faultState
+namespace app::states::faultState
 {
 
 static void runOnEntry()
@@ -39,13 +40,11 @@ static void runOnTick100Hz()
     }
 }
 
-} // namespace app::faultState
+} // namespace app::states::faultState
 
-extern "C" {
 const State fault_state = {
     .name              = "FAULT",
-    .run_on_entry      = app::faultState::runOnEntry,
-    .run_on_tick_100Hz = app::faultState::runOnTick100Hz,
+    .run_on_entry      = app::states::faultState::runOnEntry,
+    .run_on_tick_100Hz = app::states::faultState::runOnTick100Hz,
     .run_on_exit       = nullptr,
 };
-}

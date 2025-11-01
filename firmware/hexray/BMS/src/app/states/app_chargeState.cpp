@@ -1,9 +1,10 @@
 #include <cstddef>
 #include <cstdint>
 
+#include "app_states.hpp"
+
 extern "C" {
 #include "app_canUtils.h"
-#include "app_states.hpp"
 #include "app_timer.h"
 #include "io_irs.h"
 #include "io_charger.h"
@@ -28,7 +29,7 @@ constexpr uint32_t ELCON_ERR_DEBOUNCE_MS = 3000U; // 3 seconds
 } // namespace
 
 // Charge state implementation
-namespace app::chargeState
+namespace app::states::chargeState
 {
 
 struct ElconRx
@@ -206,47 +207,41 @@ static void runOnExit()
     buildTxFrame(tx);
 }
 
-} // namespace app::chargeState
+} // namespace app::states::chargeState
 
-extern "C" {
 const State charge_state = {
     .name              = "CHARGE",
-    .run_on_entry      = app::chargeState::runOnEntry,
-    .run_on_tick_100Hz = app::chargeState::runOnTick100Hz,
-    .run_on_exit       = app::chargeState::runOnExit,
+    .run_on_entry      = app::states::chargeState::runOnEntry,
+    .run_on_tick_100Hz = app::states::chargeState::runOnTick100Hz,
+    .run_on_exit       = app::states::chargeState::runOnExit,
 };
-}
 
 // Charge fault state implementation
-namespace app::chargeFaultState
+namespace app::states::chargeFaultState
 {
 static void runOnEntry()      { app_canTx_BMS_State_set(BMS_CHARGE_FAULT_STATE); }
 static void runOnTick100Hz()  {}
 static void runOnExit()       {}
-} // namespace app::chargeFaultState
+} // namespace app::states::chargeFaultState
 
-extern "C" {
 const State charge_fault_state = {
     .name              = "CHARGE FAULT",
-    .run_on_entry      = app::chargeFaultState::runOnEntry,
-    .run_on_tick_100Hz = app::chargeFaultState::runOnTick100Hz,
-    .run_on_exit       = app::chargeFaultState::runOnExit,
+    .run_on_entry      = app::states::chargeFaultState::runOnEntry,
+    .run_on_tick_100Hz = app::states::chargeFaultState::runOnTick100Hz,
+    .run_on_exit       = app::states::chargeFaultState::runOnExit,
 };
-}
 
 // Charge init state implementation
-namespace app::chargeInitState
+namespace app::states::chargeInitState
 {
 static void runOnEntry()      { app_canTx_BMS_State_set(BMS_CHARGE_INIT_STATE); }
 static void runOnTick100Hz()  {}
 static void runOnExit()       {}
-} // namespace app::chargeInitState
+} // namespace app::states::chargeInitState
 
-extern "C" {
 const State charge_init_state = {
     .name              = "CHARGE INIT",
-    .run_on_entry      = app::chargeInitState::runOnEntry,
-    .run_on_tick_100Hz = app::chargeInitState::runOnTick100Hz,
-    .run_on_exit       = app::chargeInitState::runOnExit,
+    .run_on_entry      = app::states::chargeInitState::runOnEntry,
+    .run_on_tick_100Hz = app::states::chargeInitState::runOnTick100Hz,
+    .run_on_exit       = app::states::chargeInitState::runOnExit,
 };
-}
