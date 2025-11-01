@@ -8,7 +8,7 @@ static StaticTask<512, osPriorityNormal, "TaskCanTx"> TaskCanTx{ "TaskCanTx", os
 static StaticTask<512, osPriorityLow, "TaskCanRx"> TaskCanRx{ "TaskCanRx", osPriorityLow, tasks_runCanRx };
 static StaticTask<512, osPriorityHigh, "TaskChimera"> TaskChimera{ "TaskChimera", osPriorityHigh, tasks_runChimera };
 
-extern "C" inline void RSM_StartAllTasks()
+extern "C" void RSM_StartAllTasks()
 {
     Task1kHz.start();
     Task100Hz.start();

@@ -7,7 +7,7 @@ static StaticTask<512, osPriorityNormal, "TaskCanRx"> TaskCanRx{ "TaskCanRx", os
 static StaticTask<512, osPriorityNormal, "TaskCanTx"> TaskCanTx{ "TaskCanTx", osPriorityNormal, tasks_runCanTx };
 static StaticTask<512, osPriorityHigh, "TaskChimera"> TaskChimera{ "TaskChimera", osPriorityHigh, tasks_runChimera };
 
-extern "C" inline void CRIT_StartAllTasks()
+extern "C" void CRIT_StartAllTasks()
 {
     Task1kHz.start();
     Task1Hz.start();

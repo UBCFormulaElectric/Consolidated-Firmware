@@ -10,7 +10,7 @@ static StaticTask<1024, osPriorityLow, "TaskLogging"> TaskLogging{ "TaskLogging"
 static StaticTask<512, osPriorityNormal, "TaskTelem"> TaskTelem{ "TaskTelem", osPriorityNormal, tasks_runTelem };
 static StaticTask<512, osPriorityLow, "TaskTelemRx"> TaskTelemRx{ "TaskTelemRx", osPriorityLow, tasks_runTelemRx };
 
-extern "C" inline void DAM_StartAllTasks()
+extern "C" void DAM_StartAllTasks()
 {
     Task100Hz.start();
     TaskCanTx.start();

@@ -11,15 +11,15 @@ static StaticTask<512, osPriorityNormal, "TaskLtcVoltages"> TaskLtcVoltages{ "Ta
 static StaticTask<512, osPriorityNormal, "TaskLtcTemps"> TaskLtcTemps{ "TaskLtcTemps", osPriorityNormal, tasks_runLtcTemps };
 static StaticTask<512, osPriorityNormal, "TaskLtcDiag"> TaskLtcDiag{ "TaskLtcDiag", osPriorityNormal, tasks_runLtcDiag };
 
-extern "C" inline void BMS_StartAllTasks()
+extern "C" void BMS_StartAllTasks(void)
 {
-    Task1kHz.start();
-    Task1Hz.start();
-    Task100Hz.start();
-    TaskCanRx.start();
-    TaskCanTx.start();
-    TaskChimera.start();
-    TaskLtcVoltages.start();
-    TaskLtcTemps.start();
-    TaskLtcDiag.start();
+    Task1kHz::start();
+    Task1Hz::start();
+    Task100Hz::start();
+    TaskCanRx::start();
+    TaskCanTx::start();
+    TaskChimera::start();
+    TaskLtcVoltages::start();
+    TaskLtcTemps::start();
+    TaskLtcDiag::start();
 }
