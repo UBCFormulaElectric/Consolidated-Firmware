@@ -17,6 +17,8 @@ TEST_F(RSMSuspensionTest, SuspensionTest)
     fakes::io::suspension::setRL_OCSC(false);
     fakes::io::suspension::setRR_OCSC(false);
 
+    LetTimePass(10);
+
     EXPECT_EQ(10, app_canTx_RSM_RearLeftSuspensionTravel_get());
     EXPECT_EQ(10, app_canTx_RSM_RearRightSuspensionTravel_get());
     EXPECT_FALSE(app_canTx_RSM_Info_RearLeftSuspension_OCSC_get());
