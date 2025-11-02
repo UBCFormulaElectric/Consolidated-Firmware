@@ -94,16 +94,6 @@ namespace fakes::io
         }
    }
 
-   namespace rPump
-   {
-        static ExitCode status;
-
-        void setStatus(const ExitCode value)
-        {
-            status = value;
-        }
-   }
-
    namespace tireTemp
    {
         static float temperature = 0.0f;
@@ -193,7 +183,7 @@ namespace io
     {
         ExitCode setPercentage(float value)
         {
-            return fakes::io::rPump::status; 
+            return ExitCode::EXIT_CODE_OK;
         }
     }
 
