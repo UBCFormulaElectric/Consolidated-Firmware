@@ -3,32 +3,17 @@
 
 void app_pid_init(PID *pid, const PID_Config *conf)
 {
-    pid->Kp                 = conf->Kp;
-    pid->Ki                 = conf->Ki;
-    pid->Kd                 = conf->Kd;
-    pid->Kb                 = conf->Kb;
-    pid->Kff                = conf->Kff;
-    pid->out_min            = conf->out_min;
-    pid->out_max            = conf->out_max;
-    pid->smoothing_coeff    = conf->smoothing_coeff;
-    pid->max_integral       = conf->max_integral;
-    pid->min_integral       = conf->min_integral;
-    pid->clamp_output       = conf->clamp_output;
-    pid->back_calculation   = conf->back_calculation;
-    pid->feed_forward       = conf->feed_forward;
-    
-    pid->prev_error         = 0.0f;
-    pid->prev_derivative    = 0.0f;
-    pid->prev_disturbance   = 0.0f;
-    pid->integral           = 0.0f;
-    pid->error              = 0.0f;
+    pid->Kp         = conf->Kp;
+    pid->Ki         = conf->Ki;
+    pid->Kd         = conf->Kd;
+    pid->prev_input = 0.0f;
+    pid->integral   = 0.0f;
+    pid->out_min    = conf->out_min;
+    pid->out_max    = conf->out_max;
 }
 
 /**
- * PID controller effort implementation with derivative-on-error and discrete time handling.  Includes:
- * - Integral Anti-wind up in the form of clamping and optional back calculation
- * - Derivative Filtering in the form of first order exponential smoothing
- * - Static Gain feed forward model
+ * PID controller effort implementation with derivative-on-measurement
  * @param pid data store
  * @param setpoint setpoint
  * @param input also "measurement"/"process variable"
@@ -37,50 +22,17 @@ void app_pid_init(PID *pid, const PID_Config *conf)
  */
 float app_pid_compute(PID *pid, const float setpoint, const float input, float disturbance)
 {
-
     pid->error = setpoint - input;
+    pid->integral += pid->error;
+    pid->derivative = (input - pid->prev_input);
+    pid->prev_input = input;
+    float output    = pid->Kp * pid->error + pid->Ki * pid->integral - pid->Kd * pid->derivative;
 
-    pid->integral += pid->error * pid->sample_time;
-    
-    //Conditional Anti-Windup 
-    if (pid->integral > pid->max_integral){
-        pid->integral = CLAMP(pid->integral, pid->min_integral, pid->max_integral);
-    }
-    
-    // First order exponential smoothing on derivative (https://en.wikipedia.org/wiki/Exponential_smoothing)
-    float raw_derivative = (pid->error - pid->prev_error) / pid->sample_time;
-    float filtered_derivative = pid->smoothing_coeff * raw_derivative + (1-pid->smoothing_coeff) * pid->prev_derivative;    
-    
-    //Feed Forward
-    float u_ff = 0;
-    if (pid->feed_forward) {  
-        u_ff = pid->Kff * disturbance;
-    }
-
-    float output = pid->Kp * pid->error + pid->Ki * pid->integral + pid->Kd * filtered_derivative + u_ff;
-
-    //Anti-Windup with back calculation (https://www.cds.caltech.edu/~murray/books/AM08/pdf/am08-pid_04Mar10.pdf) equation 10.16
-    if (pid->back_calculation ){
-        float out_clamp = CLAMP(output, pid->out_min, pid->out_max);
-        pid-> integral += pid->Kb*(out_clamp - output) * pid->sample_time;
-    }
-
-    if (pid->clamp_output){
-        output = CLAMP(output, pid->out_min, pid->out_max);
-    }
-
-    pid->prev_error = pid->error;
-    pid->prev_disturbance =  disturbance;
-    pid->prev_derivative = filtered_derivative;
-
+    output = CLAMP(output, pid->out_min, pid->out_max);
     return output;
-
 }
 
 void app_pid_requestReset(PID *pid)
 {
     pid->integral   = 0.0f;
-    pid->prev_derivative = 0.0f;
-    pid->prev_disturbance = 0.0f;
-    pid->prev_error = 0.0f;
 }
