@@ -1,11 +1,11 @@
 MEMORY
 {
-  sram3_rtt        (xrw)  : ORIGIN = 0x30000000, LENGTH = 1K
-  ram              (xrw)  : ORIGIN = 0x30000400, LENGTH = 319K
-  boot_code        (rx)   : ORIGIN = 0x08000000, LENGTH = 128K
-  app_metadata     (rx)   : ORIGIN = 0x08020000, LENGTH = 1K
-  app_code         (rx)   : ORIGIN = 0x08020400, LENGTH = 895K
-  boot_request_ram (xrw)  : ORIGIN = 0x2003FFF0, LENGTH = 0x10 
+  rtcram (xrw) : ORIGIN = 0x20000000,   LENGTH = 128K
+  ram (xrw) : ORIGIN = 0x24000000,   LENGTH = 0x4FFF0
+  boot_request_ram (xrw) : ORIGIN = 0x2404FFF0, LENGTH = 0x10
+  boot_code (rx) : ORIGIN = 0x8000000,    LENGTH = 128K
+  app_metadata (rx) : ORIGIN = 0x08020000, LENGTH = 1K
+  app_code (rx)  : ORIGIN = 0x08020400,   LENGTH = 1919K
 }
 
 SECTIONS
@@ -14,7 +14,7 @@ SECTIONS
   .rtt (NOLOAD) :
   {
     KEEP(*(.rtt))
-  } > sram3_rtt
+  } > rtcram
 
   /* Boot request section in RAM */
   .boot_request (NOLOAD) :
