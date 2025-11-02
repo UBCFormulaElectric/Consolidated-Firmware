@@ -1,76 +1,78 @@
 #include "app_pid.hpp"
 #include "io_time.hpp" // for io_time_getCurrentMs()
 
-
 namespace app
 {
-    PID::PID(const Config& conf) : Kp(conf.Kp), Ki(conf.Ki), Kd(conf.Kd), Kb(conf.Kb),
-        out_min(conf.out_min), out_max(conf.out_max),
-        back_calculation(conf.back_calculation),
+    PID::PID(const Config& conf) :
+        Kp(conf.Kp), Ki(conf.Ki), Kd(conf.Kd), Kb(conf.Kb), 
+        Kff(conf.Kff), smoothing_coeff(conf.smoothing_coeff),
+        out_min(conf.out_min), out_max(conf.out_max), min_integral(conf.min_integral), max_integral(conf.max_integral),
+        back_calculation(conf.back_calculation), feed_forward(conf.feed_forward), clamp_output(conf.clamp_output),
         sample_time(conf.sample_time)
     {
-        prev_time = io::time::getCurrentMs() - sample_time;
-        prev_derivative = 0;
+       
     }
 
     /**
-     * PID controller effort implementation with derivative-on-measurement and discrete time handling. Includes:
+     * PID controller effort implementation with derivative-on-error and discrete time handling. Includes:
      * - Integral Anti-wind up in the form of clamping and optional back calculation
-     * - Derivative Filtering in the form of
+     * - Derivative Filtering in the form of first order exponential smoothing
+     * - Static Gain feed forward model
      * @param setpoint setpoint
      * @param input also "measurement"/"process variable"
+     * @param disturbance feedforward/"disturbance" variable
      * @return controller output/"effort"
      */
 
-    float PID::compute(float setpoint, float input)
+    float PID::compute(float setpoint, float input, float disturbance)
     {
-        uint32_t current_time = io::time::getCurrentMs();
-        float dt = static_cast<float>(current_time - prev_time);
-        prev_time = current_time;
 
-        bool integrate = true; //Assume we want to integrate
+        error = setpoint - input;
+        
+        integral += error * sample_time;
 
-        if (dt >= sample_time || prev_output == 0.0f)
-        {
-            error = setpoint - input;
-
-            // For clamping (default anti-windup)
-            if (integrate)
-                integral += error * dt;
-            else
-                integral = 0;
-
-            float raw_derivative = (input - prev_input) / dt;
-            
-            // Derivative Filtering
-            float alpha = N/ (N + 1/sample_time);
-            float beta = Kd*N/(N + 1/sample_time);
-            filtered_derivative = alpha * prev_derivative - beta * (input - prev_input);
-
-            float u_calc = Kp * error + Ki * integral - Kd * filtered_derivative;
-            float u_actual = std::clamp(u_calc, out_min, out_max);
-
-            integrate = (u_calc == u_actual);
-
-            //for optional back calculation
-            if (back_calculation) {
-                integral += Kb * (u_actual - u_calc);
-            }   
-
-            prev_input = input;
-            prev_output = u_actual;
-            return u_actual;
+        //Conditional Anti-Windup
+        if (integral > max_integral){
+            integral = std::clamp(integral, min_integral, max_integral);
         }
-        else
-        {
-            return prev_output;
+        
+        // First order exponential smoothing (https://en.wikipedia.org/wiki/Exponential_smoothing)
+        float raw_derivative = (error - prev_error) / sample_time;
+        float filtered_derivative = smoothing_coeff * raw_derivative + (1 - smoothing_coeff) * prev_derivative; 
+
+        //Feed Forward
+        float u_ff = 0;
+        if (feed_forward) {
+            u_ff = Kff * disturbance;
         }
+        
+        float output = Kp * error + Ki * integral + Kd * filtered_derivative + u_ff;
+
+        //Anti-Windup with back calculation (https://www.cds.caltech.edu/~murray/books/AM08/pdf/am08-pid_04Mar10.pdf) equation 10.16
+        if (back_calculation) {
+            if(clamp_output){}
+            float out_clamp = std::clamp(output, out_min, out_max);
+            integral += Kb * (out_clamp - output) * sample_time;
+
+        }   
+        
+        if(clamp_output) {
+            output = std::clamp(output, out_min, out_max);
+        }
+        
+        prev_error = error;
+        prev_disturbance =  disturbance;
+        prev_derivative = filtered_derivative;
+
+        return output;
+        
     }
 
     void PID::reset()
     {
-        prev_input = 0.0f;
         integral = 0.0f;
-        prev_output = 0.0f;
+        prev_derivative = 0.0f;
+        prev_disturbance = 0.0f;
+        prev_error = 0.0f;
     }
 }
