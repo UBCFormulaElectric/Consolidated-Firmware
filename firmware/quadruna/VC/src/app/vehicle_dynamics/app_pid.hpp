@@ -1,6 +1,6 @@
 #pragma once
 #include <cstdint>
-#include <algorithm> // for std::clamp
+#include <algorithm>
 
 namespace app
 {
@@ -12,42 +12,51 @@ namespace app
                 float Ki;
                 float Kd;
                 float Kb;
-                float N;
+
+                float Kff;
+                float smoothing_coeff;
+
                 float out_min;
                 float out_max;
+                float max_integral;
+                float min_integral;
+                
+                bool clamp_output;
                 bool back_calculation;
+                bool feed_forward;
                 uint32_t sample_time;
             };
 
         explicit PID(const Config& conf);
 
-        float compute(float setpoint, float input);
+        float compute(float setpoint, float input, float disturbance);
         void reset();
 
         private:
-            // Gains
+            // Gains and coefficients
             float Kp;
             float Ki;
             float Kd;
             float Kb;
-            float N;
+            float Kff; //often the inverse of Kp
+            float smoothing_coeff;
 
             // Limits
             float out_min;
             float out_max;
+            float max_integral;
+            float min_integral;
 
             // Internal state
             float error = 0.0f;
-            float filtered_derivative = 0.0f;
             float integral = 0.0f;
-            float prev_input = 0.0f;
-            float prev_output = 0.0f;
             float prev_derivative = 0.0f;
-
-            bool back_calculation = false;
-
-            // Timing
-            uint32_t prev_time = 0;
-            uint32_t sample_time = 0;
+            float prev_disturbance = 0.0f;
+            float prev_error = 0.0f;
+            
+            bool clamp_output;
+            bool back_calculation;
+            bool feed_forward;
+            uint32_t sample_time;
     };
 }
