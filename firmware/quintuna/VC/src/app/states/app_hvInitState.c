@@ -8,6 +8,7 @@
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canUtils.h"
+#include "app_canUtils.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include "app_vehicleDynamicsConstants.h"
