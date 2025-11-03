@@ -8,7 +8,7 @@ static StaticTask<512, osPriorityHigh, "InvCanTxTask"> InvCanTxTask{ tasks_runCa
 static StaticTask<512, osPriorityNormal, "Task1Hz"> Task1Hz{ tasks_run1Hz };
 static StaticTask<512, osPriorityRealtime, "Task1kHz"> Task1kHz{ tasks_run1kHz };
 
-extern "C" void VCR_StartAllTasks()
+extern "C" void VCR_StartAllTasks(void)
 {
     FDCanTx.start();
     CanRx.start();

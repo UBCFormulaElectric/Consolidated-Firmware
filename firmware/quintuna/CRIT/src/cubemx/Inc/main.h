@@ -136,7 +136,7 @@ extern "C"
 
     /* USER CODE END Private defines */
 
-void CRIT_StartAllTasks();
+void CRIT_StartAllTasks(void);
 #ifdef __cplusplus
 }
 #endif
