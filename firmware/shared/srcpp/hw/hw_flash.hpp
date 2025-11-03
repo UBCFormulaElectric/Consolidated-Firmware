@@ -2,50 +2,26 @@
 
 #include <cstdint>
 #include <span>
+#include <stddef.h>
 #include "hw_utils.hpp"
+
+#if defined(STM32H733xx)
+constexpr size_t WORD_BYTES = 8U * sizeof(uint32_t); // 32B
+#elif defined(STM32H562xx)
+constexpr size_t WORD_BYTES = 4U * sizeof(uint32_t); // 16B
+#endif
 
 namespace hw::flash
 {
-
-#if defined(STM32F412Rx)
-enum class ProgramType : uint32_t
-{
-    Byte     = FLASH_TYPEPROGRAM_BYTE,
-    HalfWord = FLASH_TYPEPROGRAM_HALFWORD,
-    Word     = FLASH_TYPEPROGRAM_WORD
-};
-
-#elif defined(STM32H733xx)
-enum class ProgramType : uint32_t
-{
-    FlashWord = FLASH_TYPEPROGRAM_FLASHWORD
-};
-
-#elif defined(STM32H562xx)
-enum class ProgramType : uint32_t
-{
-    QuadWord = FLASH_TYPEPROGRAM_QUADWORD
-};
-#endif
-
 class Flash
 {
   public:
     /**
      * @brief Erase a flash sector or page.
-     * @param eraseStruct HAL erase struct with configured bank, type, and index.
+     * @param sector Sector to erase.
      * @return EXIT_CODE_OK on success, EXIT_CODE_ERROR on failure.
      */
-    static ExitCode eraseSector(FLASH_EraseInitTypeDef &eraseStruct);
-
-    /**
-     * @brief Write a 32-bit word to flash.
-     * @param address Flash address.
-     * @param value 32-bit data to write.
-     * @param type Programming mode (Word).
-     * @return EXIT_CODE_OK if verified, EXIT_CODE_ERROR otherwise.
-     */
-    static ExitCode programWord(const uint32_t address, const uint32_t value, const ProgramType type);
+    static ExitCode eraseSector(uint8_t sector);
 
     /**
      * @brief Write a contiguous buffer to flash.
@@ -53,22 +29,10 @@ class Flash
               H5: 16B
      * @param address Start flash address (aligned to word size).
      * @param buffer Data span to program.
-     * @param type Programming mode (FlashWord or QuadWord).
+     * @param type Flash program type (ex. FLASH_TYPEPROGRAM_FLASHWORD or FLASH_TYPEPROGRAM_QUADWORD).
      * @return EXIT_CODE_OK if verified, EXIT_CODE_ERROR otherwise.
      */
-    static ExitCode
-        programBuffer(const uint32_t address, const std::span<const std::byte> buffer, const ProgramType type);
-
-  private:
-    static constexpr int MAX_RETRIES = 5;
-    /**
-     * @brief Perform flash programming with retries and verification.
-     * @param address Flash address to write.
-     * @param bytes Data bytes to program.
-     * @param type Flash program type.
-     * @return EXIT_CODE_OK on success, EXIT_CODE_ERROR after retries fail.
-     */
-    static ExitCode
-        programRetry(const uint32_t address, const std::span<const std::byte> bytes, const ProgramType type);
+    template <size_t buffer_size>
+    static ExitCode programBuffer(const uint32_t address, const std::span<const std::byte, buffer_size> buffer);
 };
 } // namespace hw::flash
