@@ -27,9 +27,9 @@ class Flash
      * @brief Write a contiguous buffer to flash.
               H7: 32B
               H5: 16B
+     * @param buffer_size the size of buffer, either 16B or 32B.
      * @param address Start flash address (aligned to word size).
      * @param buffer Data span to program.
-     * @param type Flash program type (ex. FLASH_TYPEPROGRAM_FLASHWORD or FLASH_TYPEPROGRAM_QUADWORD).
      * @return EXIT_CODE_OK if verified, EXIT_CODE_ERROR otherwise.
      */
     template <size_t buffer_size>
