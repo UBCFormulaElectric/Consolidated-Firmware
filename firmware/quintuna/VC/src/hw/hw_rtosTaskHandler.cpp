@@ -12,7 +12,7 @@ static StaticTask<512, osPriorityBelowNormal, "TaskCan2Tx"> TaskCan2Tx{ tasks_ru
 static StaticTask<512, osPriorityBelowNormal, "TaskCan3Tx"> TaskCan3Tx{ tasks_runCan3Tx };
 static StaticTask<512, osPriorityAboveNormal2, "TaskPwrMontr"> TaskCanTx{ tasks_powerMonitoring };
 
-extern "C" void VC_StartAllTasks()
+extern "C" void VC_StartAllTasks(void)
 {
     Task100Hz.start();
     TaskCan1Tx.start();
