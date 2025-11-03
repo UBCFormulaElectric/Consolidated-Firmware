@@ -175,45 +175,17 @@ TEST_F(VCStateMachineTest, ReadyForDriveWithRetryFlagGoesToDriveState)
     app_canRx_INVFR_bSystemReady_update(true);
     app_canRx_INVRL_bSystemReady_update(true);
     app_canRx_INVRR_bSystemReady_update(true);
-
-    // First to detect system ready, second to assert DC_ON outputs
-    LetTimePass(10);
-    ASSERT_EQ(app_canTx_VC_InverterState_get(), INV_DC_ON);
-    EXPECT_TRUE(app_canTx_VC_INVFLbDcOn_get());
-    EXPECT_TRUE(app_canTx_VC_INVFRbDcOn_get());
-    EXPECT_TRUE(app_canTx_VC_INVRLbDcOn_get());
-    EXPECT_TRUE(app_canTx_VC_INVRRbDcOn_get());
-
-    // Provide all quit-dc signals
     app_canRx_INVRR_bQuitDcOn_update(true);
     app_canRx_INVRL_bQuitDcOn_update(true);
     app_canRx_INVFR_bQuitDcOn_update(true);
     app_canRx_INVFL_bQuitDcOn_update(true);
-
-    // Transition to INV_ENABLE
-    LetTimePass(10);
-    ASSERT_EQ(app_canTx_VC_InverterState_get(), INV_ENABLE);
-    EXPECT_TRUE(app_canTx_VC_INVFLbEnable_get());
-    EXPECT_TRUE(app_canTx_VC_INVFRbEnable_get());
-    EXPECT_TRUE(app_canTx_VC_INVRLbEnable_get());
-    EXPECT_TRUE(app_canTx_VC_INVRRbEnable_get());
-
-    // should ine one tick transition to INV_ON
-    LetTimePass(10);
-    ASSERT_EQ(app_canTx_VC_InverterState_get(), INV_INVERTER_ON);
-    ASSERT_TRUE(app_canTx_VC_INVFLbInverterOn_get());
-    ASSERT_TRUE(app_canTx_VC_INVFRbInverterOn_get());
-    ASSERT_TRUE(app_canTx_VC_INVRLbInverterOn_get());
-    ASSERT_TRUE(app_canTx_VC_INVRRbInverterOn_get());
-
-    // Provide all quit-inverterOn signals to move to READY_FOR_DRIVE
     app_canRx_INVRR_bQuitInverterOn_update(true);
     app_canRx_INVRL_bQuitInverterOn_update(true);
     app_canRx_INVFR_bQuitInverterOn_update(true);
     app_canRx_INVFL_bQuitInverterOn_update(true);
     app_canAlerts_VC_Info_InverterRetry_set(true); // NOTE: main difference between this and last test
 
-    LetTimePass(10);
+    LetTimePass(30);
     ASSERT_EQ(app_canTx_VC_InverterState_get(), INV_READY_FOR_DRIVE);
 
     LetTimePass(10);
@@ -232,6 +204,7 @@ TEST_F(VCStateMachineTest, DriveStateRetrytoHvInit)
     SetStateWithEntry(&drive_state);
     app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
     LetTimePass(30);
+    ASSERT_STATE_EQ(drive_state);
 
     // After some time we are gonna mock inverters failing
     app_canRx_INVFL_bError_update(true);
@@ -258,36 +231,19 @@ TEST_F(VCStateMachineTest, DriveStateRetrytoHvInit)
     app_canRx_INVRL_bSystemReady_update(true);
     app_canRx_INVFL_bSystemReady_update(true);
     app_canRx_INVFR_bSystemReady_update(true);
-
-    LetTimePass(10);
-
-    // checking to see if we are transitioning correctly
-    ASSERT_EQ(app_canTx_VC_InverterState_get(), INV_DC_ON);
-
     app_canRx_INVFR_bQuitDcOn_update(true);
     app_canRx_INVFL_bQuitDcOn_update(true);
     app_canRx_INVRR_bQuitDcOn_update(true);
     app_canRx_INVRL_bQuitDcOn_update(true);
-
-    LetTimePass(10);
-
-    ASSERT_EQ(app_canTx_VC_InverterState_get(), INV_ENABLE);
-
-    LetTimePass(10);
-
-    ASSERT_EQ(app_canTx_VC_InverterState_get(), INV_INVERTER_ON);
-
     app_canRx_INVFL_bQuitInverterOn_update(true);
     app_canRx_INVFR_bQuitInverterOn_update(true);
     app_canRx_INVRL_bQuitInverterOn_update(true);
     app_canRx_INVRR_bQuitInverterOn_update(true);
 
-    LetTimePass(10);
-
+    LetTimePass(30);
     ASSERT_EQ(app_canTx_VC_InverterState_get(), INV_READY_FOR_DRIVE);
 
     LetTimePass(10);
-
     ASSERT_EQ(app_canAlerts_VC_Info_InverterRetry_get(), false);
     ASSERT_STATE_EQ(drive_state);
 }

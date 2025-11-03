@@ -92,6 +92,7 @@ static void hvInitStateRunOnTick100Hz(void)
                 {
                     LOG_INFO("inv_system_ready -> inv_dc_on");
                     current_inverter_state = INV_DC_ON;
+                    retry_transition       = true;
                     app_timer_stop(&start_up_timer);
 
                     // Error reset should be set to false cause we were successful
@@ -119,12 +120,14 @@ static void hvInitStateRunOnTick100Hz(void)
                 {
                     LOG_INFO("inv_dc_on -> inv_enable");
                     current_inverter_state = INV_ENABLE;
+                    // retry_transition       = true; // TODO we need a tick in INV_ENABLE?
                     app_timer_stop(&start_up_timer);
                 }
                 else if (app_timer_runIfCondition(&start_up_timer, !inverter_dc_quit) == TIMER_STATE_EXPIRED)
                 {
                     LOG_INFO("dc quit timeout");
                     current_inverter_state = INV_SYSTEM_READY;
+                    retry_transition       = true;
                 }
 
                 break;
@@ -139,6 +142,7 @@ static void hvInitStateRunOnTick100Hz(void)
                 }
 
                 current_inverter_state = INV_INVERTER_ON;
+                // retry_transition       = true; // TODO if we did this might as well consolidate the states
                 break;
             }
             case INV_INVERTER_ON:
@@ -154,12 +158,14 @@ static void hvInitStateRunOnTick100Hz(void)
                 {
                     LOG_INFO("inv_on -> inv_ready_for_drive");
                     current_inverter_state = INV_READY_FOR_DRIVE;
+                    retry_transition       = true;
                     app_timer_stop(&start_up_timer);
                 }
                 else if (app_timer_runIfCondition(&start_up_timer, !inverter_invOn_quit) == TIMER_STATE_EXPIRED)
                 {
                     LOG_INFO("inv on quit timeout");
                     current_inverter_state = INV_SYSTEM_READY;
+                    retry_transition       = true;
                 }
 
                 break;
