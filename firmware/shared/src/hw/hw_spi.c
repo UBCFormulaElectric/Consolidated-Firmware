@@ -6,7 +6,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include <util_errorCodes.h>
 
 static ExitCode waitForNotification(const SpiDevice *device)
 {
