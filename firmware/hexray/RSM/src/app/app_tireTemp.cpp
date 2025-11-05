@@ -16,14 +16,7 @@ namespace app::tireTemp
         const float temperature = io::tireTemp::get();
     
         const bool outOfRange = (temperature >= MAX_TIRE_TEMPERATURE_CELSIUS) || (temperature <= MIN_TIRE_TEMPERATURE_CELSIUS);
-
-        if (outOfRange == true)
-        {
-            app_canTx_RSM_Info_TireTemperatureOutOfRange_set(outOfRange);
-        }
-        else
-        {
-            app_canTx_RSM_TireTemperature_set(temperature);
-        }
+        app_canTx_RSM_Info_TireTemperatureOutOfRange_set(outOfRange);
+        app_canTx_RSM_TireTemperature_set(outOfRange ? 0 : temperature);
     }
 }
