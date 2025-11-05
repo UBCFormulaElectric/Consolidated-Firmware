@@ -66,8 +66,7 @@ ExitCode Flash::programFlash(uint32_t address, std::span<const std::byte, 32> bu
     return programFlashRetry(address, buffer);
 }
 
-template <size_t buffer_size>
-ExitCode Flash::programFlashRetry(const uint32_t address, const std::span<const std::byte, buffer_size> buffer)
+ExitCode Flash::programFlashRetry(const uint32_t address, const std::span<const std::byte> buffer)
 {
     ExitCode status = ExitCode::EXIT_CODE_BUSY;
 

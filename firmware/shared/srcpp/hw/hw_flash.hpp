@@ -36,7 +36,6 @@ class Flash
     ExitCode programFlash(uint32_t address, std::span<const std::byte, 32> buffer);
 
   private:
-    template <size_t buffer_size>
-    static ExitCode programFlashRetry(const uint32_t address, const std::span<const std::byte, buffer_size> buffer);
+    static ExitCode programFlashRetry(const uint32_t address, const std::span<const std::byte> buffer);
 };
 } // namespace hw::flash
