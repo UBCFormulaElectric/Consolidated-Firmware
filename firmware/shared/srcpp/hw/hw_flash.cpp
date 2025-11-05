@@ -35,7 +35,8 @@ static FLASH_EraseInitTypeDef eraseStruct      = {
 ExitCode Flash::eraseSector(uint8_t sector)
 {
 #if defined(STM32H562xx)
-    eraseStruct.Banks = (sector / BANK_SECTOR_SIZE) ? FLASH_BANK_1 : FLASH_BANK_2; // [0, 127] Bank 1, [128, 255] Bank 2
+    assert(sector < (BANK_SECTOR_SIZE * 2));
+    eraseStruct.Banks = (sector < BANK_SECTOR_SIZE) ? FLASH_BANK_1 : FLASH_BANK_2; // [0, 127] Bank 1, [128, 255] Bank 2
     eraseStruct.Sector = sector % BANK_SECTOR_SIZE;
 #elif defined(STM32H733xx)
     eraseStruct.Sector = sector;
@@ -55,10 +56,19 @@ ExitCode Flash::eraseSector(uint8_t sector)
     return hw_utils_convertHalStatus(halStatus);
 }
 
-template <size_t buffer_size>
-ExitCode Flash::programBuffer(const uint32_t address, const std::span<const std::byte, buffer_size> buffer)
+ExitCode Flash::programFlash(uint32_t address, std::span<const std::byte, 16> buffer)
 {
-    assert(buffer_size == WORD_BYTES);
+    return programFlashRetry(address, buffer);
+}
+
+ExitCode Flash::programFlash(uint32_t address, std::span<const std::byte, 32> buffer)
+{
+    return programFlashRetry(address, buffer);
+}
+
+template <size_t buffer_size>
+ExitCode Flash::programFlashRetry(const uint32_t address, const std::span<const std::byte, buffer_size> buffer)
+{
     ExitCode status = ExitCode::EXIT_CODE_BUSY;
 
     HAL_FLASH_Unlock();
