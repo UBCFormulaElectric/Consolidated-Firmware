@@ -11,18 +11,18 @@ namespace fakes::io
    {    
         static float rearPressurePsi = 0.0f;
 
-        void setRearPressurePsi(const float rear_PressurePsi)
+        void setRearPressurePsi(const float value)
         {
-            rearPressurePsi = rear_PressurePsi;
+            rearPressurePsi = value;
         }
    }
 
    namespace coolant
    {
         static float flowRate = 0.0f;
-        void setFlowRate(float flow_rate)
+        void setFlowRate(float value)
         {
-            flowRate = flow_rate;
+            flowRate = value;
         }
    }
 
@@ -98,9 +98,9 @@ namespace fakes::io
    {
         static float temperature = 0.0f;
 
-        void set(const float temp)
+        void set(const float value)
         {
-            temperature = temp;
+            temperature = value;
         }
    }
 }

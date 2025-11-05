@@ -14,7 +14,7 @@ TEST_F(RSMCoolantTest, getFlowRate)
 {
     fakes::io::coolant::setFlowRate(10);
 
-    LetTimePass(10);
+    LetTimePass(100);
 
     EXPECT_EQ(10, app_canTx_RSM_CoolantFlowRate_get());
     EXPECT_FALSE(app_canTx_RSM_Info_FlowRateOutOfRange_get());

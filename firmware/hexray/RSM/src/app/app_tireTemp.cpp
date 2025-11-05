@@ -10,20 +10,20 @@ extern "C"
 #define MAX_TIRE_TEMPERATURE_CELSIUS 200.0f
 
 namespace app::tireTemp
-{
-    const float temperature = io::tireTemp::get();
-
-    const bool outOfRange = (temperature >= MAX_TIRE_TEMPERATURE_CELSIUS) || (temperature <= MIN_TIRE_TEMPERATURE_CELSIUS);
-    
+{    
     void broadcast()
     {
-        if (app::tireTemp::outOfRange == true)
+        const float temperature = io::tireTemp::get();
+    
+        const bool outOfRange = (temperature >= MAX_TIRE_TEMPERATURE_CELSIUS) || (temperature <= MIN_TIRE_TEMPERATURE_CELSIUS);
+
+        if (outOfRange == true)
         {
-            app_canTx_RSM_Info_TireTemperatureOutOfRange_set(app::tireTemp::outOfRange);
+            app_canTx_RSM_Info_TireTemperatureOutOfRange_set(outOfRange);
         }
         else
         {
-            app_canTx_RSM_TireTemperature_set(app::tireTemp::temperature);
+            app_canTx_RSM_TireTemperature_set(temperature);
         }
     }
 }

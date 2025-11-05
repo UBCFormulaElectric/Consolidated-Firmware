@@ -20,8 +20,8 @@ namespace app::brake
     
     void broadcast()
     {
-        const bool brake_pressed = app::brake::isActuated();
         const float rear_pressure = io::brake::getRearPressurePsi();
+        const bool brake_pressed = app::brake::isActuated();
 
         app_canTx_RSM_BrakeActuated_set(brake_pressed); 
         app_canTx_RSM_RearBrakePressure_set((uint32_t)roundf(rear_pressure));
