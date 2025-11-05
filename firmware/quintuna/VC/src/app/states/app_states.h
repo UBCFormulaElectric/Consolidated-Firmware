@@ -11,4 +11,4 @@ extern State hvInit_state;
 extern State hv_state;
 
 extern State drive_state;
-extern State inverter_retry_state;
+extern State inverter_fault_handling_state;

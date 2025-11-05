@@ -56,9 +56,9 @@ void app_stateMachine_inverterFaultHandling(void)
     if (!app_warningHandling_inverterStatus())
         return;
 
-    if (app_stateMachine_getCurrentState() != &inverter_retry_state)
+    if (app_stateMachine_getCurrentState() != &inverter_fault_handling_state)
     {
-        app_stateMachine_setNextState(&inverter_retry_state);
+        app_stateMachine_setNextState(&inverter_fault_handling_state);
     }
 }
 

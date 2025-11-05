@@ -62,7 +62,7 @@ static bool is_lockout_code(uint32_t code)
 static void InverterFaultHandlingStateRunOnEntry(void)
 {
     app_powerManager_updateConfig(power_manager_state);
-    app_canTx_VC_State_set(VC_FAULT_STATE);
+    app_canTx_VC_State_set(VC_INV_FAUTLED);
     app_canAlerts_VC_Info_InverterRetry_set(true);
     app_timer_init(&retry_timer, TIMEOUT);
     pulse_high                   = false;
@@ -195,7 +195,7 @@ static void InverterfaultHandlingStateRunOnExit(void)
     cycle_active = false;
 }
 
-State inverter_retry_state = { .name              = "Handling State",
+State inverter_fault_handling_state = { .name              = "Retry State",
                                .run_on_entry      = InverterFaultHandlingStateRunOnEntry,
                                .run_on_tick_100Hz = InverterFaultHandlingStateRunOnTick100Hz,
                                .run_on_exit       = InverterfaultHandlingStateRunOnExit };

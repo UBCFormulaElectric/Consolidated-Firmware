@@ -144,7 +144,7 @@ static void hvInitStateRunOnTick100Hz(void)
         case INV_ERROR_RETRY:
             app_timer_stop(&start_up_timer);
             // Globalizing this
-            // app_stateMachine_setNextState(&inverter_retry_state);
+            // app_stateMachine_setNextState(&inverter_fault_handling_state);
 
         default:
             break;

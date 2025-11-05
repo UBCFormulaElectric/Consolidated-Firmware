@@ -33,10 +33,10 @@ typedef struct
     void (*can_inv_warning)(bool);
 } InverterWarningHandling;
 
-extern InverterWarningHandling inverter_handle_FL;
-extern InverterWarningHandling inverter_handle_FR;
-extern InverterWarningHandling inverter_handle_RL;
-extern InverterWarningHandling inverter_handle_RR;
+extern const InverterWarningHandling inverter_handle_FL;
+extern const InverterWarningHandling inverter_handle_FR;
+extern const InverterWarningHandling inverter_handle_RL;
+extern const InverterWarningHandling inverter_handle_RR;
 
 // board warnings
 bool app_warningHandling_boardWarningCheck(void);

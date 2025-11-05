@@ -62,7 +62,7 @@ static bool driveStatePassPreCheck()
         app_canAlerts_VC_Info_InverterRetry_set(true);
         // Go to inverter on state to unset the fault on the inverters and restart the sequence
         // globalizing this
-        // app_stateMachine_setNextState(&inverter_retry_state);
+        // app_stateMachine_setNextState(&inverter_fault_handling_state);
         return false;
     }
 
