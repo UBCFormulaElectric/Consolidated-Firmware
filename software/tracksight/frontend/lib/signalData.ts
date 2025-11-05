@@ -1,16 +1,12 @@
 "use client";
 
-// TODO(evan): All these functions should be split into separate files.
-//             I just didn't want to name a file for these stupid global
-//             stores.
-
 import { fetchSignalMetadata } from "@/lib/api/signals";
 import subscribeToSignal from "@/lib/api/subscribeToSignal";
 import unsubscribeFromSignal from "@/lib/api/unsubscribeFromSignal";
 import { API_BASE_URL, IS_DEBUG, IS_VERBOSE_DEBUG } from "@/lib/constants";
 import socket from "@/lib/realtime/socket";
 import SignalDataReducer from "@/lib/types/SignalDataReducer";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 type DataSubscriberCallback = (payload: ParsedSignalPayload) => void;
 
@@ -23,13 +19,6 @@ const dataSubscribers: Map<string, Set<DataSubscriberCallback>> = new Map();
  * Global store for signal data, keyed by signal name.
  */
 const signalDataStore: Record<string, ParsedSignalPayload[]> = {};
-
-type SignalDataStore<Reducers extends SignalDataReducer<unknown>> = Record<
-  string,
-  {
-    [Index in keyof Reducers]: Reducers[Index] extends SignalDataReducer<infer T> ? T : never;
-  }
->;
 
 // NOTE(evan): Fill the signalDataStore with all of our known signals so that
 //             javascript can hopefully optimize access to the object.
@@ -174,44 +163,6 @@ const handleData = (data: unknown) => {
 
 socket.on("data", handleData);
 
-/**
- * Hook to get the data version for a list of signals, used to allow
- * for re-rendering without having to create new arrays which would
- * trigger unnecessary garbage collection.
- *
- * @param signals - Array of signal names.
- */
-const useDataVersion = (signals: string[]) => {
-  const [dataVersion, setDataVersion] = useState(0);
-
-  useEffect(() => {
-    // NOTE(evan): When data for any of the subscribed signals updates, we increment
-    //             the data version to trigger a re-render.
-    const notify = () => {
-      IS_VERBOSE_DEBUG &&
-        console.log(
-          `%c[Signal Data Update] %cSignals: ${signals.join(", ")}`,
-          "color: #88c0d0; font-weight: bold;",
-          "color: #d08770;"
-        );
-
-      setDataVersion((prev) => prev + 1);
-    };
-
-    signals.forEach((signalName) => {
-      subscribeToSignalData(signalName, notify);
-    });
-
-    return () => {
-      signals.forEach((signalName) => {
-        unsubscribeFromSignalData(signalName, notify);
-      });
-    };
-  }, [signals]);
-
-  return dataVersion;
-};
-
 const useSignalSubscription = (signalNames: string[]) => {
   useEffect(() => {
     const signalCallbacks: Record<string, DataSubscriberCallback> = {};
@@ -277,5 +228,5 @@ const useSignalDataRefWithReducers = <U, Reducer extends SignalDataReducer<U>>(
 
 export type { ParsedSignalPayload };
 
-export { useDataVersion, useSignalDataRef, useSignalDataRefWithReducers };
+export { useSignalDataRef, useSignalDataRefWithReducers };
 

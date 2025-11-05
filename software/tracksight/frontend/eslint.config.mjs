@@ -36,7 +36,7 @@ export default [
         "warn",
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
       ],
-      "no-unused-vars": ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
+      "no-unused-vars": "off",
       "react/jsx-key": "off",
       "import-alias/import-alias": "error",
     },
