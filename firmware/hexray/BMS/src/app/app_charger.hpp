@@ -1,6 +1,6 @@
 #pragma once
 
-namespace app {
+namespace app::charger {
 
 /**
  * Charger utilities
@@ -13,4 +13,4 @@ public:
      */
     static float getAvailableCurrent();
 };
-} // namespace app
+} // namespace app::charger

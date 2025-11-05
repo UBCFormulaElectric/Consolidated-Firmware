@@ -3,14 +3,14 @@
 
 #include "io_charger.hpp"
 
-namespace app
+namespace app::charger
 {
 class Charger
 {
 public:
     static float getAvailableCurrent()
     {
-        const float evseDutyCycle = io_charger_getCPDutyCycle();
+        const float evseDutyCycle = io::charger::getCPDutyCycle();
 
         if (evseDutyCycle >= 0.1f && evseDutyCycle <= 0.85f)
         {
@@ -24,4 +24,4 @@ public:
         return 0.0f; // Sentinel value for invalid/critical conditions
     }
 };
-} // namespace app
+} // namespace app::charger

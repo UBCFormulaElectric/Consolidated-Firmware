@@ -6,7 +6,6 @@
 #include "app_tractiveSystem.hpp"
 
 extern "C" {
-#include "app_tractiveSystem.h"
 #include "io_irs.h"
 #include "app_canAlerts.h"
 #include "app_segments.h"
@@ -87,7 +86,7 @@ State poll(bool precharge_for_charging)
     }
 
     precharge_limit_exceeded = (num_precharge_failures >= MAX_PRECHARGE_ATTEMPTS);
-    app_canAlerts_BMS_Info_CriticalPrechargeFailure_set(precharge_limit_exceeded);
+    app::canAlterts::BMS_Info_CriticalPrechargeFailure_set(precharge_limit_exceeded);
 
     // Fault handling
     if (has_precharge_fault)
