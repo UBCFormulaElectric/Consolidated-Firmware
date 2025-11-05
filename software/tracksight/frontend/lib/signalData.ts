@@ -1,8 +1,7 @@
 "use client";
 
 import { fetchSignalMetadata } from "@/lib/api/signals";
-import subscribeToSignal from "@/lib/api/subscribeToSignal";
-import unsubscribeFromSignal from "@/lib/api/unsubscribeFromSignal";
+import { subscribeToSignal, unsubscribeFromSignal } from "@/lib/api/signalSubscriptions";
 import { API_BASE_URL, IS_DEBUG, IS_VERBOSE_DEBUG } from "@/lib/constants";
 import socket from "@/lib/realtime/socket";
 import SignalDataReducer from "@/lib/types/SignalDataReducer";

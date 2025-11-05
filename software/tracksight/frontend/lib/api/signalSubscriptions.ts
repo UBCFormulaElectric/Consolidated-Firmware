@@ -28,4 +28,32 @@ const subscribeToSignal = async (signalName: string) => {
   return response.json();
 };
 
-export default subscribeToSignal;
+const unsubscribeFromSignal = async (signalName: string) => {
+  if (!socket.connected) {
+    IS_DEBUG &&
+      console.log(
+        `%c[Unsubscribe] %cSocket not connected, caching unsubscription for: ${signalName}`,
+        "color: #ebcb8b; font-weight: bold;",
+        "color: #d08770;"
+      );
+  }
+
+  const response = await fetch(`${API_BASE_URL}/unsubscribe`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      sid: socket.id,
+      signal: signalName,
+    }),
+  });
+
+  return response.json();
+};
+
+export {
+  subscribeToSignal,
+  unsubscribeFromSignal,
+};
+
