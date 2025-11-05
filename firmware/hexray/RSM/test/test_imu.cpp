@@ -19,7 +19,7 @@ TEST_F(RSMImuTest, Acceleration_Velocity_Test)
     fakes::io::imu::setAngularVelocityPitch(10);
     fakes::io::imu::setAngularVelocityYaw(10);
 
-    LetTimePass(10);
+    LetTimePass(100);
 
     EXPECT_EQ(10, app_canTx_RSM_LinearAccelerationInX_get());
     EXPECT_EQ(10, app_canTx_RSM_LinearAccelerationInY_get());

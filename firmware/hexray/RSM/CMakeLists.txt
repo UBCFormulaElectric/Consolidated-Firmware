@@ -16,7 +16,7 @@ file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/ap
 list(APPEND APP_SRCS
         "${SHARED_APP_INCLUDE_DIR}/app_signal.c"
         "${SHARED_APP_INCLUDE_DIR}/app_timer.c"
-        # "${SHARED_APP_INCLUDE_DIR}/app_rangeCheck.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_rangeCheck.c"
 )
 set(APP_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
@@ -94,7 +94,7 @@ elseif ("${TARGET}" STREQUAL "test")
     set(INCLUDE_DIRS
             # "${CMAKE_CURRENT_SOURCE_DIR}/test"
             ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR} ${SHARED_UTIL_INCLUDE_DIR_CPP}
-            ${SHARED_FAKES_DIR} 
+            ${SHARED_FAKES_DIR} ${SHARED_TEST_INCLUDE_DIR}
     )
     compile_gtest_executable(
             "hexray_RSM_test"
