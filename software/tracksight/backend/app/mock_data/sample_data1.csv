@@ -1,2 +1,2 @@
-Time Stamp,Can ID,Data
-9/14/2023 8:00,111,1
+can_signal,can_value
+111,00

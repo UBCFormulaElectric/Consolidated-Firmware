@@ -33,7 +33,6 @@ extern "C"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "hw_error.h"
-#include "cmsis_os.h"
 #include "cmsis_os2.h"
     /* USER CODE END Includes */
 

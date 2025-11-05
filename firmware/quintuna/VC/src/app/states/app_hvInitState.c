@@ -154,6 +154,7 @@ static void hvInitStateRunOnTick100Hz(void)
             }
             break;
 
+        case NUM_VC_INVERTER_STATE_CHOICES:
         default:
             break;
     }

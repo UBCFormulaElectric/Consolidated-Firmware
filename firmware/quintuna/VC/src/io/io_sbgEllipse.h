@@ -1,9 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-#include <stdbool.h>
-
-#include "app_utils.h"
+#include "util_errorCodes.h"
 
 /* ------------------------------------ Typedefs ------------------------------------- */
 

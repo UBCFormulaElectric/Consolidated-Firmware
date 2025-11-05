@@ -43,7 +43,12 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
-    extern I2C_HandleTypeDef hi2c3;
+    extern I2C_HandleTypeDef  hi2c3;
+    extern ADC_HandleTypeDef  hadc1;
+    extern CAN_HandleTypeDef  hcan1;
+    extern CAN_HandleTypeDef  hcan2;
+    extern SD_HandleTypeDef   hsd;
+    extern UART_HandleTypeDef huart2;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/

@@ -63,7 +63,7 @@ void app_torqueVectoring_run(const float accelerator_pedal_percentage)
     accelerator_pedal_percent = accelerator_pedal_percentage;
     battery_voltage           = app_canRx_BMS_TractiveSystemVoltage_get();
     steering_angle_deg        = app_canRx_FSM_SteeringAngle_get();
-    imu_output                = app_get_imu_struct();
+    imu_output                = app_imu_getData();
     // current_limit_based_max_power = app_canRx_BMS_current_limit();
 
     if (accelerator_pedal_percent > 0.0f)

@@ -17,6 +17,7 @@ if ("${TARGET}" STREQUAL "binary")
             quintuna_RSM.hex
             quintuna_VC.hex
             quintuna_VCR_app.elf
+            quintuna_PCM_app.elf
             f4dev.elf
             h7dev.hex
     )

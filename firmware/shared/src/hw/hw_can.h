@@ -1,12 +1,10 @@
 #pragma once
 
-#include <stdint.h>
-#include <stdbool.h>
 #include "io_canMsg.h"
-#include "app_utils.h"
-
-#include <cmsis_os.h>
+#include "util_errorCodes.h"
 #include "hw_hal.h"
+#include "cmsis_os.h"
+
 // STM32 HAL CAN handle.
 typedef struct
 {

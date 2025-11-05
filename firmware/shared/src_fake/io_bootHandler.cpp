@@ -3,8 +3,8 @@
 extern "C"
 {
 #include "io_bootHandler.h"
-    void io_bootHandler_processBootRequest()
+    void io_bootHandler_processBootRequest(const CanMsg *msg)
     {
-        assert(false); // not allowed
+        (void)msg;
     }
 }

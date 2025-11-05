@@ -56,10 +56,13 @@ TEST_F(JsonCanTablesTest, test_tx_basic_signals)
     // ReSharper disable once CppCompileTimeConstantCanBeReplacedWithBooleanConstant
     app_canTx_ECU1_Boolean2_set(0xFF); // NOLINT(*-use-bool-literals)
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
     app_canTx_ECU1_Enum_set(static_cast<EnumExample>(0xFF));
     app_canTx_ECU1_UInt8_set(0xFFFFFFFF);
     app_canTx_ECU1_UInt16_set(0xFFFFFFFF);
     app_canTx_ECU1_UInt32_set(0xFFFFFFFF);
+#pragma GCC diagnostic pop
 
     {
         const ECU1_BasicSignalTypes_Signals *data = app_canTx_ECU1_BasicSignalTypes_getData();
@@ -75,8 +78,8 @@ TEST_F(JsonCanTablesTest, test_tx_basic_signals)
 TEST_F(JsonCanTablesTest, test_tx_decimals)
 {
     // Normal test.
-    app_canTx_ECU1_Decimal1_set(-54.78);
-    app_canTx_ECU1_Decimal2_set(2.891);
+    app_canTx_ECU1_Decimal1_set(-54.78f);
+    app_canTx_ECU1_Decimal2_set(2.891f);
 
     {
         const ECU1_DecimalNumbers_Signals *data = app_canTx_ECU1_DecimalNumbers_getData();

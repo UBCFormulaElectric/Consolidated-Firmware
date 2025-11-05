@@ -27,7 +27,7 @@ class IoCanRerouteModule(CModule):
 
     def header_template(self):
         if self._node_reroutes is None:
-            return ""
+            return "typedef int empty;"
         j2_env = j2.Environment(
             loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"]
         )
@@ -36,7 +36,7 @@ class IoCanRerouteModule(CModule):
 
     def source_template(self):
         if self._node_reroutes is None:
-            return ""
+            return "typedef int empty;"
         j2_env = j2.Environment(
             loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"]
         )

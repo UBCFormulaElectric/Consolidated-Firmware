@@ -148,7 +148,13 @@
     "cycle_time": 10,
     "description": "BSPD Status",
     "signals": {
+      "BSPDBrakePressureThresholdExceeded": {
+        "bits": 1
+      },
       "BSPDCurrentThresholdExceeded": {
+        "bits": 1
+      },
+      "BSPDAccelBrakeOk": {
         "bits": 1
       }
     }
