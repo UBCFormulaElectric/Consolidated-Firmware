@@ -1,12 +1,12 @@
 "use client";
 
 import LabelLegend from "@/components/legends/LabelLegend";
-import { WidgetRenderer } from "@/lib/types/Widget";
+import { WidgetData } from "@/lib/types/Widget";
 import EnumSignalSelector from "@/components/widgets/EnumSignalSelector";
 import { useDashboardLayout } from "@/lib/contexts/DashboardLayout";
 import useSignalMetadata from "@/lib/hooks/useSignalMetadata";
 
-const EnumTimeline: WidgetRenderer<"enumTimeline"> = (props) => {
+function EnumTimeline(props: WidgetData<"enumTimeline">) {
   const { signals, options } = props;
 
   const { colorPalette } = options;
@@ -76,6 +76,6 @@ const EnumTimeline: WidgetRenderer<"enumTimeline"> = (props) => {
       <LabelLegend signals={enumOptions} colorPalette={colorPalette} />
     </div>
   );
-};
+}
 
 export default EnumTimeline;

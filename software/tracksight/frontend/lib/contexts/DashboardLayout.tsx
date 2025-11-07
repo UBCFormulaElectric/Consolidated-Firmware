@@ -19,7 +19,7 @@ type DashboardLayoutType = {
 
 const DashboardLayoutContext = createContext<DashboardLayoutType | null>(null);
 
-const DashboardLayoutProvider = ({ children }: { children: ReactNode }) => {
+function DashboardLayoutProvider({ children }: { children: ReactNode }) {
   const [widgets, setWidgets] = useState<WidgetData<WidgetType>[]>([
     // TODO(evan): Remove this it's just temporary data, should be pulled from local storage
     //             or something similar

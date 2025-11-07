@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronDown } from "lucide-react";
-import React, { FC, RefObject, useRef } from "react";
+import React, { RefObject, useRef } from "react";
 
 import SignalSelector from "@/components/SignalSelector";
 import useSignalMetadata from "@/lib/hooks/useSignalMetadata";
@@ -12,7 +12,7 @@ type EnumSignalSelectorProps = {
   onSignalChange?: (signalName: string) => void;
 };
 
-const EnumSignalSelector: FC<EnumSignalSelectorProps> = (props) => {
+function EnumSignalSelector(props: EnumSignalSelectorProps) {
   const { currentSignal, onSignalChange } = props;
 
   const signalMetadata = useSignalMetadata(currentSignal);
@@ -48,6 +48,6 @@ const EnumSignalSelector: FC<EnumSignalSelectorProps> = (props) => {
       </div>
     </div>
   );
-};
+}
 
 export default EnumSignalSelector;

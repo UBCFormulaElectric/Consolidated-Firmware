@@ -1,5 +1,3 @@
-import { FC } from "react";
-
 type ChipLegendProps = {
   signals: string[];
   colorPalette: string[];
@@ -10,7 +8,7 @@ type ChipLegendItemProps = {
     color: string;
 };
 
-const ChipLegendItem: FC<ChipLegendItemProps> = (props) => {
+function ChipLegendItem(props: ChipLegendItemProps) {
   const { content, color } = props;
 
   return (
@@ -37,9 +35,9 @@ const ChipLegendItem: FC<ChipLegendItemProps> = (props) => {
       <p className="text-primary-900">{content}</p>
     </div>
   );
-};
+}
 
-const ChipLegend: FC<ChipLegendProps> = (props) => {
+function ChipLegend(props: ChipLegendProps) {
   const {
     signals,
     colorPalette,
@@ -52,6 +50,6 @@ const ChipLegend: FC<ChipLegendProps> = (props) => {
       ))}
     </div>
   );
-};
+}
 
 export default ChipLegend;

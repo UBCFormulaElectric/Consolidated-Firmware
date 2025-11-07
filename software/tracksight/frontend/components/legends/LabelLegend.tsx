@@ -1,5 +1,3 @@
-import { FC } from "react";
-
 type LabelLegendProps = {
   signals: string[];
   colorPalette: string[];
@@ -10,7 +8,7 @@ type LabelLegendItemProps = {
   color: string;
 };
 
-const LabelLegendItem: FC<LabelLegendItemProps> = (props) => {
+function LabelLegendItem(props: LabelLegendItemProps) {
   const { content, color } = props;
 
   return (
@@ -30,9 +28,9 @@ const LabelLegendItem: FC<LabelLegendItemProps> = (props) => {
       <p className="text-primary-900 font-extralight">{content}</p>
     </div>
   );
-};
+}
 
-const LabelLegend: FC<LabelLegendProps> = (props) => {
+function LabelLegend(props: LabelLegendProps) {
   const {
     signals,
     colorPalette,
@@ -45,6 +43,6 @@ const LabelLegend: FC<LabelLegendProps> = (props) => {
       ))}
     </div>
   );
-};
+}
 
 export default LabelLegend;

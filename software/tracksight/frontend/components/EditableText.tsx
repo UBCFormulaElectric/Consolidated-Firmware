@@ -1,4 +1,4 @@
-import type { FC, FocusEvent, HTMLAttributes } from 'react';
+import type { FocusEvent, HTMLAttributes } from 'react';
 
 type EditableTextProps = {
   onChange: (text: string) => void;
@@ -6,7 +6,7 @@ type EditableTextProps = {
   initialText: string;
 } & HTMLAttributes<HTMLInputElement>;
 
-const EditableText: FC<EditableTextProps> = (props) => {
+function EditableText(props: EditableTextProps) {
   const {
     onChange,
     initialText = "",

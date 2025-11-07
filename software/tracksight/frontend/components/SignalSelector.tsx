@@ -1,9 +1,8 @@
 "use client";
 
-import React, { FC, RefObject } from "react";
+import React, { RefObject } from "react";
 
-import Selector, { SelectorItemRenderer } from "@/components/common/Selector";
-import useSignalMetadata from "@/lib/hooks/useSignalMetadata";
+import Selector from "@/components/common/Selector";
 import { SignalMetadata } from "@/lib/types/Signal";
 import useSignalMetadataList from "@/lib/hooks/useSignalMetadataList";
 
@@ -16,8 +15,8 @@ type SignalSelectorProps = {
   buttonElement: RefObject<HTMLElement>;
 };
 
-const SignalItemRenderer: SelectorItemRenderer<SignalMetadata> = (props) => {
-  const { data, isSelected } = props;
+function SignalItemRenderer(props: { data: SignalMetadata; isSelected?: boolean }) {
+  const { data } = props;
 
   // TODO(evan): Add styling for selected state
 
@@ -27,9 +26,9 @@ const SignalItemRenderer: SelectorItemRenderer<SignalMetadata> = (props) => {
       {data.unit && <p className="text-gray-500">({data.unit})</p>}
     </div>
   );
-};
+}
 
-const SignalSelector: FC<SignalSelectorProps> = (props) => {
+function SignalSelector(props: SignalSelectorProps) {
   const { filter, selectedSignal, onSelect, buttonElement } = props;
 
   const signalMetadata = useSignalMetadataList("*");
@@ -68,6 +67,6 @@ const SignalSelector: FC<SignalSelectorProps> = (props) => {
       buttonElement={buttonElement}
     />
   );
-};
+}
 
 export default SignalSelector;

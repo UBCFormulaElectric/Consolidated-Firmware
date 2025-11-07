@@ -33,7 +33,7 @@ const isSelectorCategory = <T extends any>(
   return (item as SelectorCategory<T>).label !== undefined;
 };
 
-const Selector = <T extends any>(props: SelectorProps<T>) => {
+function Selector<T extends any>(props: SelectorProps<T>) {
   const { options, selectedOption, onSelect, ItemRenderer, getSearchableText, buttonElement } =
     props;
 
@@ -267,7 +267,7 @@ const Selector = <T extends any>(props: SelectorProps<T>) => {
       </div>
     )
   );
-};
+}
 
 export type { SelectorItemRenderer };
 

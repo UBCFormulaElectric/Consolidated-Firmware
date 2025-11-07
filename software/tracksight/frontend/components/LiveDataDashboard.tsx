@@ -1,12 +1,11 @@
 "use client";
 
-import type { FC } from "react";
 import { useRef } from "react";
 
 import Widget from "@/components/widgets/Widget";
 import { useDashboardLayout } from "@/lib/contexts/DashboardLayout";
 
-const LiveDataDashboard: FC = () => {
+function LiveDataDashboard() {
   const { widgets } = useDashboardLayout();
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -23,6 +22,6 @@ const LiveDataDashboard: FC = () => {
       ))}
     </div>
   );
-};
+}
 
 export default LiveDataDashboard;
