@@ -55,6 +55,14 @@ const DashboardLayoutProvider = ({ children }: { children: ReactNode }) => {
       },
       id: "widget-4",
     },
+    {
+      type: "enumTimeline",
+      signals: ["invalid_signal_name"],
+      options: {
+        colorPalette: ["#FF637E", "#FFB86A", "#05DF72", "#51A2FF"],
+      },
+      id: "widget-4",
+    },
   ]);
 
   const addWidget: DashboardLayoutType["addWidget"] = useCallback((newWidget) => {

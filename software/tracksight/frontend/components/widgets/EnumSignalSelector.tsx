@@ -4,7 +4,7 @@ import { ChevronDown } from "lucide-react";
 import React, { FC, RefObject, useRef } from "react";
 
 import SignalSelector from "@/components/SignalSelector";
-import { useSignalMetadata } from "@/lib/contexts/SignalsMetadataContext";
+import useSignalMetadata from "@/lib/hooks/useSignalMetadata";
 import isEnumSignal from "@/lib/isEnumSignal";
 
 type EnumSignalSelectorProps = {
@@ -18,6 +18,14 @@ const EnumSignalSelector: FC<EnumSignalSelectorProps> = (props) => {
   const signalMetadata = useSignalMetadata(currentSignal);
   const signalDropdownRef = useRef<HTMLDivElement>(null) as RefObject<HTMLDivElement>;
 
+  if (signalMetadata.isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (signalMetadata.error) {
+    return <div>Error loading signal metadata.</div>;
+  }
+
   return (
     <div className="flex flex-row items-center gap-2 text-lg font-medium">
       Signal:
@@ -25,11 +33,11 @@ const EnumSignalSelector: FC<EnumSignalSelectorProps> = (props) => {
         className="relative flex flex-row gap-2 text-base font-normal select-none hover:cursor-pointer"
         ref={signalDropdownRef}
       >
-        {signalMetadata ? signalMetadata.name : "No signal selected"}
+        {signalMetadata ? signalMetadata.data?.name : "Select Signal"}
         <ChevronDown size={16} />
         <SignalSelector
           filter={isEnumSignal}
-          selectedSignal={signalMetadata || null}
+          selectedSignal={signalMetadata.data || null}
           onSelect={(signal) => {
             if (!onSignalChange) return;
 

@@ -3,8 +3,9 @@
 import React, { FC, RefObject } from "react";
 
 import Selector, { SelectorItemRenderer } from "@/components/common/Selector";
-import { useSignalsMetadataList } from "@/lib/contexts/SignalsMetadataContext";
+import useSignalMetadata from "@/lib/hooks/useSignalMetadata";
 import { SignalMetadata } from "@/lib/types/Signal";
+import useSignalMetadataList from "@/lib/hooks/useSignalMetadataList";
 
 type SignalSelectorProps = {
   filter: (signal: SignalMetadata) => boolean;
@@ -31,9 +32,13 @@ const SignalItemRenderer: SelectorItemRenderer<SignalMetadata> = (props) => {
 const SignalSelector: FC<SignalSelectorProps> = (props) => {
   const { filter, selectedSignal, onSelect, buttonElement } = props;
 
-  const { signalMetadata } = useSignalsMetadataList();
+  const signalMetadata = useSignalMetadataList("*");
 
-  const filteredSignals = Array.from(signalMetadata.values().filter(filter));
+  if (signalMetadata.isLoading || !signalMetadata.data) {
+    return <div>Loading...</div>;
+  }
+
+  const filteredSignals = Array.from(signalMetadata.data.values().filter(filter));
 
   const signalCategories = filteredSignals.reduce(
     (categories, signal) => {
