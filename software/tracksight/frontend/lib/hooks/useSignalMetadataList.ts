@@ -3,6 +3,12 @@ import { useQuery } from '@tanstack/react-query';
 import { API_BASE_URL } from '@/lib/constants';
 import { SignalMetadata } from '@/lib/types/Signal';
 
+/**
+ * Hook to fetch metadata for multiple signals matching a selector pattern.
+ * 
+ * @param signalSelector - A selector pattern to match signals (e.g., "motor_*")
+ * @returns React Query result with an array of signal metadata
+ */
 const useSignalMetadataList = (signalSelector: string) => {
   return useQuery({
     queryKey: ['signal-metadata', signalSelector],
@@ -19,7 +25,7 @@ const useSignalMetadataList = (signalSelector: string) => {
         throw new Error(`No signals found for selector: ${signalSelector}`);
       }
 
-      return new Promise<SignalMetadata[]>((resolve) => resolve(data));
+      return data;
     },
     retryOnMount: false,
     retry: (failureCount, error) => {

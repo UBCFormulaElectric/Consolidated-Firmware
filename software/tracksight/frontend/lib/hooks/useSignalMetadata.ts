@@ -3,6 +3,12 @@ import { useQuery } from '@tanstack/react-query';
 import { API_BASE_URL } from '@/lib/constants';
 import { SignalMetadata } from '@/lib/types/Signal';
 
+/**
+ * Hook to fetch metadata for a specific signal.
+ * 
+ * @param signalName - The name of the signal to fetch metadata for
+ * @returns React Query result with the signal metadata
+ */
 const useSignalMetadata = (signalName: string) => {
   return useQuery({
     queryKey: ['signal-metadata', signalName],

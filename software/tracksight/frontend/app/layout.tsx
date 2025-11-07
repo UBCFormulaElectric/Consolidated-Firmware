@@ -24,7 +24,7 @@ export default async function RootLayout({
       <body className={`${inter.className} bg-primary-200 overflow-y-scroll pb-20`}>
         <QueryProvider>
           <Navbar />
-          <main className="mt-24 overflow-y-visible py-12">{children}</main>
+          <main className="mt-24 py-12">{children}</main>
         </QueryProvider>
       </body>
     </html>
