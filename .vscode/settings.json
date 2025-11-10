@@ -25,6 +25,13 @@
     "app_canalerts.h": "c",
     "io_steering.h": "c",
     "app_suspension.h": "c",
-    "io_suspension.h": "c"
+    "io_suspension.h": "c",
+    "hw_chimeraconfig_v2.h": "c",
+    "util_errorcodes.h": "c",
+    "cstdint": "cpp",
+    "format": "cpp",
+    "queue": "cpp",
+    "thread": "cpp",
+    "vector": "cpp"
   }
 }

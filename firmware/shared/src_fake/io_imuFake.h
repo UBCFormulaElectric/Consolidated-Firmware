@@ -1,6 +1,6 @@
 #pragma once
 
-namespace fakes::io_imu
+namespace fakes::io::imu
 {
 void reset_init();
 bool get_init();

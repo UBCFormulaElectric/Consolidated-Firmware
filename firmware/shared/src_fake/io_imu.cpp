@@ -1,6 +1,6 @@
 #include "io_imuFake.h"
 
-namespace fakes::io_imu
+namespace fakes::io::imu
 {
 static bool initialized = false;
 void        reset_init()
@@ -60,37 +60,37 @@ extern "C"
 #include "io_imu.h"
     ExitCode io_imu_init(void)
     {
-        fakes::io_imu::initialized = true;
+        fakes::io::imu::initialized = true;
         return EXIT_CODE_OK;
     }
     ExitCode io_imu_getLinearAccelerationX(float *x_acceleration)
     {
-        *x_acceleration = fakes::io_imu::_x_acceleration;
+        *x_acceleration = fakes::io::imu::_x_acceleration;
         return EXIT_CODE_OK;
     }
     ExitCode io_imu_getLinearAccelerationY(float *y_acceleration)
     {
-        *y_acceleration = fakes::io_imu::_y_acceleration;
+        *y_acceleration = fakes::io::imu::_y_acceleration;
         return EXIT_CODE_OK;
     }
     ExitCode io_imu_getLinearAccelerationZ(float *z_acceleration)
     {
-        *z_acceleration = fakes::io_imu::_z_acceleration;
+        *z_acceleration = fakes::io::imu::_z_acceleration;
         return EXIT_CODE_OK;
     }
     ExitCode io_imu_getAngularVelocityRoll(float *roll_velocity)
     {
-        *roll_velocity = fakes::io_imu::_roll_velocity;
+        *roll_velocity = fakes::io::imu::_roll_velocity;
         return EXIT_CODE_OK;
     }
     ExitCode io_imu_getAngularVelocityPitch(float *pitch_velocity)
     {
-        *pitch_velocity = fakes::io_imu::_pitch_velocity;
+        *pitch_velocity = fakes::io::imu::_pitch_velocity;
         return EXIT_CODE_OK;
     }
     ExitCode io_imu_getAngularVelocityYaw(float *yaw_velocity)
     {
-        *yaw_velocity = fakes::io_imu::_yaw_velocity;
+        *yaw_velocity = fakes::io::imu::_yaw_velocity;
         return EXIT_CODE_OK;
     }
 }

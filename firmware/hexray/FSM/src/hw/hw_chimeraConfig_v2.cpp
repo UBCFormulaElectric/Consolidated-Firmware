@@ -1,10 +1,10 @@
 #include "fsm.pb.h"
 #include "shared.pb.h"
-#include "hw_chimeraConfig_v2.h"
+#include "hw_chimeraConfig_v2.hpp"
 
-#include "hw_gpios.h"
-#include "hw_i2cs.h"
-#include "hw_adcs.h"
+#include "hw_gpios.hpp"
+#include "hw_i2cs.hpp"
+#include "hw_adcs.hpp"
 
 const Gpio *id_to_gpio[] = {
     [fsm_GpioNetName_GPIO_BOTS_3v3] = &bots_3v3,           [fsm_GpioNetName_GPIO_COCKPIT_SHDN_3v3] = &cockpit_shdn_3v3,

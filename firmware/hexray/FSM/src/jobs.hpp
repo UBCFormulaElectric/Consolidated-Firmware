@@ -1,7 +1,5 @@
 #pragma once
 
-
-
 /**
  * Anything that needs to be initialized for unit testing must be put here
  */

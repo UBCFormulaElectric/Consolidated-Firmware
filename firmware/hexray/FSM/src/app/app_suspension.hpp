@@ -1,6 +1,8 @@
 #pragma once
 
-/**
- * Suspension on CAN BUS Broadcast Function
- */
-void app_suspension_broadcast(void);
+namespace app::suspension{
+    /**
+     * Suspension on CAN BUS Broadcast Function
+     */
+    void broadcast(void);
+}
