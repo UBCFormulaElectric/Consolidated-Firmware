@@ -1,12 +1,24 @@
 #pragma once
 
-typedef struct TorqueAllocationOutputs
+#include "app_dynamicsEstimation_datatypes.h"
+
+/** 
+ *  Shared datatypes across torque vectoring
+ */
+
+
+typedef struct
 {
-    double torque_fl;
-    double torque_fr;
-    double torque_rl;
-    double torque_rr;
-} TorqueAllocationOutputs;
+    bool imuOk : true;
+    bool steeringOk : true;
+    bool gpsOk : true;
+    bool useTV : true;
+} SensorStatus;
+
+typedef struct{
+    
+}
+
 
 // typedef struct RegenBraking_Inputs
 // {
