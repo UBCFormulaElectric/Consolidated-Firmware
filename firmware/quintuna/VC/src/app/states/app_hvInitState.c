@@ -31,9 +31,6 @@ static PowerManagerConfig power_manager_state = {
                        [EFUSE_CHANNEL_R_RAD]   = { .efuse_enable = true, .timeout = 200, .max_retry = 5 } }
 };
 
-// static bool power_sequencing_done = false;
-// static bool ready_for_drive       = false;
-
 /*Start up sequence of the inverters once all the requirements are met*/
 static void hvInitStateRunOnEntry(void)
 {
@@ -154,13 +151,6 @@ static void hvInitStateRunOnExit(void)
     current_inverter_state = INV_SYSTEM_READY;
     app_timer_stop(&start_up_timer);
     app_canAlerts_VC_Info_InverterRetry_set(false);
-
-    // We are setting back this to zero meaning that we either succedded in reseting the inverters or out reset protocl
-    // didnt work so we are going back to init
-    // app_canTx_VC_INVFLbErrorReset_set(false);
-    // app_canTx_VC_INVFRbErrorReset_set(false);
-    // app_canTx_VC_INVRLbErrorReset_set(false);
-    // app_canTx_VC_INVRRbErrorReset_set(false);
 }
 
 State hvInit_state = { .name              = "HV INIT",

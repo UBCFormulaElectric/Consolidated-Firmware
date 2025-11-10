@@ -31,20 +31,19 @@ typedef struct
     void (*error_reset)(bool);
     bool (*can_error_bit)(void);
     void (*can_inv_warning)(bool);
-} InverterWarningHandling;
+} InverterHandle;
 
-extern const InverterWarningHandling inverter_handle_FL;
-extern const InverterWarningHandling inverter_handle_FR;
-extern const InverterWarningHandling inverter_handle_RL;
-extern const InverterWarningHandling inverter_handle_RR;
+extern const InverterHandle inverter_handle_FL;
+extern const InverterHandle inverter_handle_FR;
+extern const InverterHandle inverter_handle_RL;
+extern const InverterHandle inverter_handle_RR;
 
 // board warnings
-bool app_warningHandling_boardWarningCheck(void);
+bool app_inverter_boardWarningCheck(void);
 
 // inverters
-bool app_warningHandling_inverterStatus(void);
-// void app_warningHandling_inverterReset(void);
+bool app_inverter_inverterStatus(void);
 
 // bspd
 void app_softwareBspd_init(void);
-bool app_warningHandling_checkSoftwareBspd(float papps_pedal_percentage);
+bool app_inverter_checkSoftwareBspd(float papps_pedal_percentage);

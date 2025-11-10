@@ -52,7 +52,7 @@ static void can3_tx(const JsonCanMsg *tx_msg)
 
 void app_stateMachine_inverterFaultHandling(void)
 {
-    if (!app_warningHandling_inverterStatus())
+    if (!app_inverter_inverterStatus())
         return;
 
     if (app_stateMachine_getCurrentState() != &inverter_fault_handling_state)

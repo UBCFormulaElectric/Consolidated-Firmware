@@ -30,10 +30,9 @@ static void hvStateRunOnEntry(void)
 
 static void hvStateRunOnTick100Hz(void)
 {
-    // const bool curr_start_switch_on     = app_canRx_CRIT_StartSwitch_get();
-    // const bool was_start_switch_enabled = !prev_start_switch_pos && curr_start_switch_on;
+    // Conditions for entering drive state: minimum 50% braking and start switch
+    // TODO: change this to a faster method after fault recovery
     const bool is_brake_actuated = app_canRx_FSM_BrakeActuated_get();
-    // const bool inverters_warning = app_warningHandling_inverterStatus();
     if (is_brake_actuated && app_startSwitch_hasRisingEdge())
     {
         // Transition to drive state when start-up conditions are passed (see

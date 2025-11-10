@@ -1,7 +1,5 @@
 #include "app_inverter.h"
-
 #include "app_signal.h"
-
 #include "app_canAlerts.h"
 #include "app_canRx.h"
 #include "app_canTx.h"
@@ -9,7 +7,7 @@
 #define APPS_BRAKE_DISAGREEMENT_TIME_TO_FAULT (10u)
 #define APPS_BRAKE_DISAGREEMENT_TIME_TO_CLEAR (10u)
 
-const InverterWarningHandling inverter_handle_FL = {
+const InverterHandle inverter_handle_FL = {
     .can_enable_inv  = app_canTx_VC_INVFLbEnable_set,
     .can_invOn       = app_canTx_VC_INVFLbInverterOn_set,
     .can_dcOn        = app_canTx_VC_INVFLbDcOn_set,
@@ -18,7 +16,7 @@ const InverterWarningHandling inverter_handle_FL = {
     .can_error_bit   = app_canRx_INVFL_bError_get,
     .can_inv_warning = app_canAlerts_VC_Warning_FrontLeftInverterFault_set,
 };
-const InverterWarningHandling inverter_handle_FR = {
+const InverterHandle inverter_handle_FR = {
     .can_enable_inv  = app_canTx_VC_INVFRbEnable_set,
     .can_invOn       = app_canTx_VC_INVFRbInverterOn_set,
     .can_dcOn        = app_canTx_VC_INVFRbDcOn_set,
@@ -27,7 +25,7 @@ const InverterWarningHandling inverter_handle_FR = {
     .can_error_bit   = app_canRx_INVFR_bError_get,
     .can_inv_warning = app_canAlerts_VC_Warning_FrontRightInverterFault_set,
 };
-const InverterWarningHandling inverter_handle_RL = {
+const InverterHandle inverter_handle_RL = {
     .can_enable_inv  = app_canTx_VC_INVRLbEnable_set,
     .can_invOn       = app_canTx_VC_INVRLbInverterOn_set,
     .can_dcOn        = app_canTx_VC_INVRLbDcOn_set,
@@ -36,7 +34,7 @@ const InverterWarningHandling inverter_handle_RL = {
     .can_error_bit   = app_canRx_INVRL_bError_get,
     .can_inv_warning = app_canAlerts_VC_Warning_RearLeftInverterFault_set,
 };
-const InverterWarningHandling inverter_handle_RR = {
+const InverterHandle inverter_handle_RR = {
     .can_enable_inv  = app_canTx_VC_INVRRbEnable_set,
     .can_invOn       = app_canTx_VC_INVRRbInverterOn_set,
     .can_dcOn        = app_canTx_VC_INVRRbDcOn_set,
@@ -48,12 +46,12 @@ const InverterWarningHandling inverter_handle_RR = {
 
 static Signal apps_brake_disagreement_signal;
 
-bool app_warningHandling_boardWarningCheck(void)
+bool app_inverter_boardWarningCheck(void)
 {
     return app_canAlerts_AnyBoardHasWarning();
 }
 
-bool app_warningHandling_inverterStatus(void)
+bool app_inverter_inverterStatus(void)
 {
     const bool invrr_error = app_canRx_INVRR_bError_get() == true;
     const bool invrl_error = app_canRx_INVRL_bError_get() == true;
@@ -69,7 +67,7 @@ bool app_warningHandling_inverterStatus(void)
 }
 
 // TODO: integrate with warnings (will have to make compatible with regen)
-bool app_warningHandling_checkSoftwareBspd(float papps_pedal_percentage)
+bool app_inverter_checkSoftwareBspd(float papps_pedal_percentage)
 {
     // Accelerator Brake Plausibility (bad user input safety issues)
     // Protect against brake/apps active at same time

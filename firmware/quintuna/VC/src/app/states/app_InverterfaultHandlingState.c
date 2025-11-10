@@ -13,8 +13,7 @@
 
 static VCInverterFaults current_inverter_fault_state;
 static TimerChannel     retry_timer;
-static bool             pulse_high   = false; // are we currently holding ErrorReset=1?
-static bool             cycle_active = false; // are we in a retry cycle window?
+static bool             retry_cycle_active = false;
 
 static const PowerManagerConfig power_manager_state = {
     .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
@@ -28,18 +27,20 @@ static const PowerManagerConfig power_manager_state = {
 };
 
 /*routine for resetting errors from the AMK datasheet*/
-static void inverter_start_retry_routine(InverterWarningHandling handle)
+static void inverter_start_retry_routine(InverterHandle handle)
 {
     // Start retry cycle if faulted
     if (handle.can_error_bit())
     {
         handle.can_invOn(false);
         handle.can_enable_inv(false);
-        handle.error_reset(true);
         handle.can_inv_warning(true);
+        handle.error_reset(true);
     }
 }
-static void end_retry_cycle(InverterWarningHandling handle)
+
+/*turns the retry cycle off*/
+static void end_retry_cycle(InverterHandle handle)
 {
     handle.error_reset(false);
 }
@@ -65,8 +66,7 @@ static void InverterFaultHandlingStateRunOnEntry(void)
     app_canTx_VC_State_set(VC_INV_FAUTLED);
     app_canAlerts_VC_Info_InverterRetry_set(true);
     app_timer_init(&retry_timer, TIMEOUT);
-    pulse_high                   = false;
-    cycle_active                 = false;
+    retry_cycle_active           = false;
     current_inverter_fault_state = INV_FAULT_RETRY;
 }
 
@@ -88,8 +88,7 @@ static void InverterFaultHandlingStateRunOnTick100Hz(void)
                 end_retry_cycle(inverter_handle_FR);
                 end_retry_cycle(inverter_handle_RL);
                 end_retry_cycle(inverter_handle_RR);
-                pulse_high   = false;
-                cycle_active = false;
+                retry_cycle_active = false;
 
                 LOG_INFO("retry -> lockout detected; holding in fault (no retries)");
                 current_inverter_fault_state = INV_FAULT_LOCKOUT;
@@ -109,12 +108,11 @@ static void InverterFaultHandlingStateRunOnTick100Hz(void)
                 break;
             }
 
-            // Start a new retry cycle (pulse ErrorReset=1) if none is active
-            if (!cycle_active)
+            // Start a new retry cycle is fault persist after 1000 ms of retrying
+            if (!retry_cycle_active)
             {
-                // Preconditions for AMK remove-error: Enable=0, InverterOn=0, setpoints=0 (you already zero torque)
                 if (fl_fault)
-                    inverter_start_retry_routine(inverter_handle_FL); // sets invOn=0, enable=0, error_reset=1
+                    inverter_start_retry_routine(inverter_handle_FL);
                 if (fr_fault)
                     inverter_start_retry_routine(inverter_handle_FR);
                 if (rl_fault)
@@ -123,33 +121,28 @@ static void InverterFaultHandlingStateRunOnTick100Hz(void)
                     inverter_start_retry_routine(inverter_handle_RR);
 
                 app_timer_restart(&retry_timer);
-                pulse_high   = true; // holding ErrorReset=1 now
-                cycle_active = true; // this attempt window is active
-                break;               // give the pulse a tick to go out on CAN
+                retry_cycle_active = true;
+                break;
             }
 
             // timing of a cycle
-            const uint32_t dt = app_timer_getElapsedTime(&retry_timer);
+            const uint32_t time_elapsed = app_timer_getElapsedTime(&retry_timer);
 
-            // After ~100 ms, drop ErrorReset=0 for all
-            //
-            if (pulse_high && dt > TIMEOUT)
+            if (retry_cycle_active && time_elapsed > TIMEOUT)
             {
+                // First end the retry cycle
                 end_retry_cycle(inverter_handle_FL);
                 end_retry_cycle(inverter_handle_FR);
                 end_retry_cycle(inverter_handle_RL);
                 end_retry_cycle(inverter_handle_RR);
-                pulse_high = false;
-            }
 
-            // After TIMEOUT window check for recovery and retry if needed
-            if (dt > TIMEOUT)
-            {
+                // Check the error bits
                 const bool fl_now = inverter_handle_FL.can_error_bit();
                 const bool fr_now = inverter_handle_FR.can_error_bit();
                 const bool rl_now = inverter_handle_RL.can_error_bit();
                 const bool rr_now = inverter_handle_RR.can_error_bit();
 
+                // If there are faults wait to
                 if (!fl_now && !fr_now && !rl_now && !rr_now)
                 {
                     LOG_INFO("retry -> recovered after pulse window");
@@ -157,8 +150,8 @@ static void InverterFaultHandlingStateRunOnTick100Hz(void)
                 }
                 else
                 {
-                    // Some inverter still faulted keep retrying
-                    cycle_active = false;
+                    // Some inverter still faulted keep retrying in next cycle
+                    retry_cycle_active = false;
                 }
             }
             break;
@@ -192,8 +185,7 @@ static void InverterfaultHandlingStateRunOnExit(void)
     app_canTx_VC_INVRLbErrorReset_set(false);
     app_canTx_VC_INVRRbErrorReset_set(false);
     app_timer_stop(&retry_timer);
-    pulse_high   = false;
-    cycle_active = false;
+    retry_cycle_active = false;
 }
 
 State inverter_fault_handling_state = { .name              = "Retry State",
