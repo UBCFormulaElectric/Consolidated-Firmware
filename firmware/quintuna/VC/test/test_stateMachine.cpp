@@ -276,28 +276,27 @@ TEST_F(VCStateMachineTest, DriveStateRetrytoHvInit)
     app_canRx_INVFR_bQuitDcOn_update(true);
     app_canRx_INVRL_bQuitDcOn_update(true);
     app_canRx_INVRR_bQuitDcOn_update(true);
-    hvInit_state.run_on_tick_100Hz();
-    hvInit_state.run_on_tick_100Hz();
 
     // INVERTER_ON quits
     app_canRx_INVFL_bQuitInverterOn_update(true);
     app_canRx_INVFR_bQuitInverterOn_update(true);
     app_canRx_INVRL_bQuitInverterOn_update(true);
     app_canRx_INVRR_bQuitInverterOn_update(true);
-    hvInit_state.run_on_tick_100Hz();
 
-    // brake + start rising edge
-    app_canRx_FSM_BrakeActuated_update(true);
+    // // brake + start rising edge
     app_canRx_CRIT_StartSwitch_update(SWITCH_OFF);
-    (void)app_startSwitch_hasRisingEdge();
-    app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
-    (void)app_startSwitch_hasRisingEdge();
+    app_canRx_FSM_BrakeActuated_update(true);
 
-    LetTimePass(10);
+    LetTimePass(100);
+    ASSERT_STATE_EQ(hv_state);
+
+    // Qualify DRIVE (rising edge + brake)
+    app_canRx_FSM_BrakeActuated_update(true);
+    app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
+
+    LetTimePass(100);
     ASSERT_STATE_EQ(drive_state);
 
-    LetTimePass(10);
-    // retry flag should be off if recovered
     ASSERT_FALSE(app_canAlerts_VC_Info_InverterRetry_get());
 }
 
@@ -482,6 +481,8 @@ TEST_F(VCStateMachineTest, InverterRetryMoreThanOneFaultedInverter)
     app_canRx_INVFL_bError_update(true);
     app_canRx_INVFR_bError_update(true);
     app_canRx_INVRL_bError_update(true);
+    app_canRx_INVRR_bError_update(true);
+
     LetTimePass(10);
     ASSERT_STATE_EQ(inverter_fault_handling_state);
 }
@@ -491,6 +492,8 @@ TEST_F(VCStateMachineTest, InverterFaultLockout)
 {
     SetStateWithEntry(&inverter_fault_handling_state);
     app_canTx_VC_Warning_FrontLeftInverterFault_set(true);
+    app_canRx_INVFL_ErrorInfo_update(259u);
+    LetTimePass(100);
     ASSERT_STATE_EQ(inverter_fault_handling_state);
 }
 
@@ -505,38 +508,46 @@ TEST_F(VCStateMachineTest, InverterRetryRecovered)
     // Recover the fault
     app_canRx_INVFL_bError_update(false);
 
+    // INVERTER_ON quits
+    app_canRx_INVFL_bQuitInverterOn_update(true);
+    app_canRx_INVFR_bQuitInverterOn_update(true);
+    app_canRx_INVRL_bQuitInverterOn_update(true);
+    app_canRx_INVRR_bQuitInverterOn_update(true);
+
     // Re-enter HV_INIT path: set all systemReady
     app_canRx_INVFL_bSystemReady_update(true);
     app_canRx_INVFR_bSystemReady_update(true);
     app_canRx_INVRL_bSystemReady_update(true);
     app_canRx_INVRR_bSystemReady_update(true);
-    hvInit_state.run_on_tick_100Hz();
 
     // DC_ON quits
     app_canRx_INVFL_bQuitDcOn_update(true);
     app_canRx_INVFR_bQuitDcOn_update(true);
     app_canRx_INVRL_bQuitDcOn_update(true);
     app_canRx_INVRR_bQuitDcOn_update(true);
-    hvInit_state.run_on_tick_100Hz();
-    hvInit_state.run_on_tick_100Hz();
 
-    // INVERTER_ON quits
-    app_canRx_INVFL_bQuitInverterOn_update(true);
-    app_canRx_INVFR_bQuitInverterOn_update(true);
-    app_canRx_INVRL_bQuitInverterOn_update(true);
+    // INV_ENABLE set
+    app_canTx_VC_INVFLbEnable_set(true);
+    app_canTx_VC_INVFRbEnable_set(true);
+    app_canTx_VC_INVRLbEnable_set(true);
+    app_canTx_VC_INVRRbEnable_set(true);
+
+    // INV_ON set to enter hv
     app_canRx_INVRR_bQuitInverterOn_update(true);
-    hvInit_state.run_on_tick_100Hz();
+    app_canRx_INVRL_bQuitInverterOn_update(true);
+    app_canRx_INVFR_bQuitInverterOn_update(true);
+    app_canRx_INVFL_bQuitInverterOn_update(true);
+
+    LetTimePass(100);
+    ASSERT_STATE_EQ(hv_state);
 
     // Qualify DRIVE (rising edge + brake)
     app_canRx_FSM_BrakeActuated_update(true);
-    app_canRx_CRIT_StartSwitch_update(SWITCH_OFF);
-    (void)app_startSwitch_hasRisingEdge();
     app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
-    (void)app_startSwitch_hasRisingEdge();
 
-    LetTimePass(20);
+    LetTimePass(100);
     ASSERT_STATE_EQ(drive_state);
-    LetTimePass(10);
+
     ASSERT_FALSE(app_canAlerts_VC_Info_InverterRetry_get());
 }
 

@@ -2,7 +2,7 @@
 #include "app_states.h"
 #include "app_powerManager.h"
 #include "app_startSwitch.h"
-#include "app_warningHandling.h"
+#include "app_inverter.h"
 #include "io_loadswitches.h"
 #include <app_canAlerts.h>
 #include <app_canTx.h>

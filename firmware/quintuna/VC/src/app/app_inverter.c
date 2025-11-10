@@ -1,4 +1,4 @@
-#include "app_warningHandling.h"
+#include "app_inverter.h"
 
 #include "app_signal.h"
 
@@ -52,7 +52,6 @@ bool app_warningHandling_boardWarningCheck(void)
 {
     return app_canAlerts_AnyBoardHasWarning();
 }
-
 
 bool app_warningHandling_inverterStatus(void)
 {

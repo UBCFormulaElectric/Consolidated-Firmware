@@ -17,13 +17,12 @@
 #include "app_powerMonitoring.h"
 #include "app_commitInfo.h"
 #include "app_sbgEllipse.h"
-#include "app_warningHandling.h"
+#include "app_inverter.h"
 #include "app_heartbeatMonitor.h"
 #include "app_heartbeatMonitors.h"
 #include "app_shdnLoop.h"
 #include "app_shdnLast.h"
 #include "app_imu.h"
-#include "app_warningHandling.h"
 
 // io
 #include "io_time.h"

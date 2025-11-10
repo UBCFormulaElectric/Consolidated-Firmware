@@ -1,14 +1,15 @@
 #include "app_states.h"
 #include "app_powerManager.h"
 #include "app_timer.h"
-#include "app_warningHandling.h"
+#include "app_inverter.h"
 #include "app_canUtils.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 #include "io_log.h"
 
-#define TIMEOUT 300u
+// Retry window time
+#define TIMEOUT 1000u
 
 static VCInverterFaults current_inverter_fault_state;
 static TimerChannel     retry_timer;
@@ -27,9 +28,9 @@ static const PowerManagerConfig power_manager_state = {
 };
 
 /*routine for resetting errors from the AMK datasheet*/
-static void inverter_retry_routine(InverterWarningHandling handle)
+static void inverter_start_retry_routine(InverterWarningHandling handle)
 {
-    // start pulse if faulted
+    // Start retry cycle if faulted
     if (handle.can_error_bit())
     {
         handle.can_invOn(false);
@@ -38,9 +39,8 @@ static void inverter_retry_routine(InverterWarningHandling handle)
         handle.can_inv_warning(true);
     }
 }
-static void end_retry_pulse(InverterWarningHandling handle)
+static void end_retry_cycle(InverterWarningHandling handle)
 {
-    // drop reset unconditionally; harmless if it was low/falling edge
     handle.error_reset(false);
 }
 
@@ -84,10 +84,10 @@ static void InverterFaultHandlingStateRunOnTick100Hz(void)
 
             if (any_lockout)
             {
-                end_retry_pulse(inverter_handle_FL);
-                end_retry_pulse(inverter_handle_FR);
-                end_retry_pulse(inverter_handle_RL);
-                end_retry_pulse(inverter_handle_RR);
+                end_retry_cycle(inverter_handle_FL);
+                end_retry_cycle(inverter_handle_FR);
+                end_retry_cycle(inverter_handle_RL);
+                end_retry_cycle(inverter_handle_RR);
                 pulse_high   = false;
                 cycle_active = false;
 
@@ -114,13 +114,13 @@ static void InverterFaultHandlingStateRunOnTick100Hz(void)
             {
                 // Preconditions for AMK remove-error: Enable=0, InverterOn=0, setpoints=0 (you already zero torque)
                 if (fl_fault)
-                    inverter_retry_routine(inverter_handle_FL); // sets invOn=0, enable=0, error_reset=1
+                    inverter_start_retry_routine(inverter_handle_FL); // sets invOn=0, enable=0, error_reset=1
                 if (fr_fault)
-                    inverter_retry_routine(inverter_handle_FR);
+                    inverter_start_retry_routine(inverter_handle_FR);
                 if (rl_fault)
-                    inverter_retry_routine(inverter_handle_RL);
+                    inverter_start_retry_routine(inverter_handle_RL);
                 if (rr_fault)
-                    inverter_retry_routine(inverter_handle_RR);
+                    inverter_start_retry_routine(inverter_handle_RR);
 
                 app_timer_restart(&retry_timer);
                 pulse_high   = true; // holding ErrorReset=1 now
@@ -132,12 +132,13 @@ static void InverterFaultHandlingStateRunOnTick100Hz(void)
             const uint32_t dt = app_timer_getElapsedTime(&retry_timer);
 
             // After ~100 ms, drop ErrorReset=0 for all
-            if (pulse_high && dt > 100u)
+            //
+            if (pulse_high && dt > TIMEOUT)
             {
-                end_retry_pulse(inverter_handle_FL);
-                end_retry_pulse(inverter_handle_FR);
-                end_retry_pulse(inverter_handle_RL);
-                end_retry_pulse(inverter_handle_RR);
+                end_retry_cycle(inverter_handle_FL);
+                end_retry_cycle(inverter_handle_FR);
+                end_retry_cycle(inverter_handle_RL);
+                end_retry_cycle(inverter_handle_RR);
                 pulse_high = false;
             }
 
@@ -196,6 +197,6 @@ static void InverterfaultHandlingStateRunOnExit(void)
 }
 
 State inverter_fault_handling_state = { .name              = "Retry State",
-                               .run_on_entry      = InverterFaultHandlingStateRunOnEntry,
-                               .run_on_tick_100Hz = InverterFaultHandlingStateRunOnTick100Hz,
-                               .run_on_exit       = InverterfaultHandlingStateRunOnExit };
+                                        .run_on_entry      = InverterFaultHandlingStateRunOnEntry,
+                                        .run_on_tick_100Hz = InverterFaultHandlingStateRunOnTick100Hz,
+                                        .run_on_exit       = InverterfaultHandlingStateRunOnExit };

@@ -3,7 +3,7 @@
 #include "app_powerManager.h"
 #include "app_timer.h"
 #include "app_canAlerts.h"
-#include "app_warningHandling.h"
+#include "app_inverter.h"
 #include "io_loadswitches.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
@@ -143,9 +143,6 @@ static void hvInitStateRunOnTick100Hz(void)
             break;
         case INV_ERROR_RETRY:
             app_timer_stop(&start_up_timer);
-            // Globalizing this
-            // app_stateMachine_setNextState(&inverter_fault_handling_state);
-
         default:
             break;
     }
@@ -160,10 +157,10 @@ static void hvInitStateRunOnExit(void)
 
     // We are setting back this to zero meaning that we either succedded in reseting the inverters or out reset protocl
     // didnt work so we are going back to init
-    app_canTx_VC_INVFLbErrorReset_set(false);
-    app_canTx_VC_INVFRbErrorReset_set(false);
-    app_canTx_VC_INVRLbErrorReset_set(false);
-    app_canTx_VC_INVRRbErrorReset_set(false);
+    // app_canTx_VC_INVFLbErrorReset_set(false);
+    // app_canTx_VC_INVFRbErrorReset_set(false);
+    // app_canTx_VC_INVRLbErrorReset_set(false);
+    // app_canTx_VC_INVRRbErrorReset_set(false);
 }
 
 State hvInit_state = { .name              = "HV INIT",
