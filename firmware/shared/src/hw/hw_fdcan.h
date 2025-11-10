@@ -2,10 +2,10 @@
 
 #include <stdbool.h>
 #include "io_canMsg.h"
-#include "app_utils.h"
-
 #include "hw_hal.h"
 #include <cmsis_os.h>
+#include "util_errorCodes.h"
+
 // STM32 HAL CAN FD handle.
 typedef struct
 {

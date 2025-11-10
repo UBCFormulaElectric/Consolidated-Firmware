@@ -170,25 +170,3 @@ struct pointer_overflow_data
 {
     struct source_location location;
 };
-
-void __ubsan_handle_add_overflow(void *data, void *lhs, void *rhs);
-void __ubsan_handle_sub_overflow(void *data, void *lhs, void *rhs);
-void __ubsan_handle_mul_overflow(void *data, void *lhs, void *rhs);
-void __ubsan_handle_negate_overflow(void *_data, void *old_val);
-// void __ubsan_handle_divrem_overflow(void *_data, void *lhs, void *rhs);
-
-// void __ubsan_handle_implicit_conversion(void *_data, void *lhs, void *rhs);
-// void __ubsan_handle_type_mismatch(struct type_mismatch_data *data, void *ptr);
-void __ubsan_handle_type_mismatch_v1(void *_data, void *ptr);
-void __ubsan_handle_out_of_bounds(void *_data, void *index);
-void __ubsan_handle_shift_out_of_bounds(void *_data, void *lhs, void *rhs);
-// void __ubsan_handle_builtin_unreachable(void *_data);
-void __ubsan_handle_load_invalid_value(void *_data, void *val);
-// void __ubsan_handle_alignment_assumption(void *_data, unsigned long ptr, unsigned long align, unsigned long offset);
-
-/*
- * Not handled by linux
- */
-void __ubsan_handle_nonnull_arg(void *_data);
-void __ubsan_handle_vla_bound_not_positive(void *_data, void *bound);
-void __ubsan_handle_pointer_overflow(void *_data, void *base, void *result);

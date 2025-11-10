@@ -10,6 +10,7 @@
 #include "app_activeDifferential.h"
 #include "app_canRx.h"
 #include "app_sbgEllipse.h"
+#include "app_imu.h"
 
 #define EFFICIENCY_ESTIMATE (0.80f)
 
@@ -128,6 +129,8 @@ void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutput
             }
             break;
         }
+        case DRIVE_MODE_COUNT:
+        case NUM_DRIVE_MODE_CHOICES:
         default:
             break;
     }
@@ -135,19 +138,31 @@ void app_driveMode_run(const float apps_pedal_percentage, TorqueAllocationOutput
 
 static SensorStatus app_performSensorChecks(void)
 {
-    SensorStatus sensor_status;
+    SensorStatus     sensor_status;
+    const ImuFaults *imu_faults = app_imu_getFaultData();
+
     sensor_status.gpsOk =
         !(app_canAlerts_VC_Info_SbgInitFailed_get() || app_sbgEllipse_getEkfSolutionMode() != POSITION);
-    sensor_status.imuOk = !app_canAlerts_VC_Info_ImuInitFailed_get();
+
+    // TODO: Update TV algo to use these specific faults for waterfalling
+    sensor_status.imuOk = imu_faults->long_accel_fault && imu_faults->lat_accel_fault && imu_faults->yaw_rate_fault;
+
     sensor_status.steeringOk =
         !(app_canRx_FSM_Info_SteeringAngleOCSC_get() || app_canRx_FSM_Info_SteeringAngleOutOfRange_get());
+
     sensor_status.useTV = sensor_status.gpsOk && sensor_status.imuOk && sensor_status.steeringOk;
 
     if (!sensor_status.gpsOk)
+    {
         LOG_WARN("Sbg Ellipse not ok.");
+    }
     if (!sensor_status.imuOk)
+    {
         LOG_WARN("Imu not ok.");
+    }
     if (!sensor_status.steeringOk)
+    {
         LOG_WARN("Steering not ok");
+    }
     return sensor_status;
 }

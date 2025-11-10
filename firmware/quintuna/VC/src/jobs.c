@@ -82,8 +82,9 @@ void jobs_init()
     // const ExitCode exitSbg = io_sbgEllipse_init();
     // app_canTx_VC_Info_SbgInitFailed_set(IS_EXIT_OK(exitSbg));
 
-    const ExitCode exitImu = io_imu_init();
-    app_canAlerts_VC_Info_ImuInitFailed_set(IS_EXIT_OK(exitImu));
+    io_imu_init();
+    // const ExitCode exitImu = io_imu_init();
+    // app_canAlerts_VC_Info_ImuInitFailed_set(IS_EXIT_ERR(exitImu));
 
     app_heartbeatMonitor_init(&hb_monitor);
     app_stateMachine_init(&init_state);
@@ -127,6 +128,8 @@ void jobs_run100Hz_tick(void)
         case TIMER_STATE_EXPIRED:
             app_stateMachine_setNextState(&init_state);
             break;
+        default:
+            break;
     }
     app_stateMachine_tickTransitionState();
 
@@ -134,7 +137,7 @@ void jobs_run100Hz_tick(void)
     app_shdnLast_broadcast();
     app_powerManager_EfuseProtocolTick_100Hz();
     app_pumpControl_MonitorPumps();
-    app_collect_imu_data();
+    app_imu_broadcast();
     // app_sbgEllipse_broadcast();
 
     io_canTx_enqueue100HzMsgs();

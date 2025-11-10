@@ -8,11 +8,11 @@ set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app_only.ld")
 
 # HW.
 set(HW_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/hw")
-file(GLOB_RECURSE HW_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c")
+file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c")
 
 # Main.
 set(MAIN_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
-file(GLOB_RECURSE MAIN_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
+file(GLOB_RECURSE MAIN_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 list(REMOVE_ITEM MAIN_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/sysmem.c")
 
 # Shared HW srcs.
@@ -35,13 +35,6 @@ set(EMBEDDED_SRCS "${HW_SRCS}" "${IO_SRCS}" "${HW_SHARED_SRCS}")
 
 # Only binary targets supported for SSM.
 IF ("${TARGET}" STREQUAL "binary")
-    # STM code.
-    generate_stm32cube_code(
-            "ssm_stm32cube"
-            "${IOC_PATH}"
-            "${MAIN_SRCS}"
-    )
-
     # Collect HAL.
     set(STM32_HAL_SRCS
             "stm32f4xx_hal_adc_ex.c"
@@ -70,13 +63,16 @@ IF ("${TARGET}" STREQUAL "binary")
     )
 
     # Don't check syscalls.
-    embedded_no_checks("${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
+    no_checks("${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/syscalls.c")
 
     stm32f412rx_cube_library(
-            "ssm_stm32cube_hal"
+            "ssm_stm32"
             "${STM32_HAL_SRCS}"
-            "${MD5_LOCATION}"
+            "${IOC_PATH}"
+            "${MAIN_SRCS}"
+            "${MAIN_INCLUDE_DIR}"
             TRUE
+            "${ARM_CORE}"
     )
 
     # Setup binary target.
@@ -93,9 +89,8 @@ IF ("${TARGET}" STREQUAL "binary")
             "ssm.elf"
             "ssm_commit_info"
             "${CMAKE_CURRENT_BINARY_DIR}/app"
-            "${ARM_CORE}"
     )
 
     # Link.
-    target_link_libraries("ssm.elf" "ssm_stm32cube" "ssm_stm32cube_hal" "ssm_commit_info" "chimera_v2_proto_cm4")
+    target_link_libraries("ssm.elf" PRIVATE "ssm_stm32" "ssm_commit_info" "chimera_v2_proto_cm4")
 ENDIF ()

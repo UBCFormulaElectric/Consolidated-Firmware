@@ -409,7 +409,7 @@ TEST_F(VCStateMachineTest, DisableVanillaEnterPower)
 
 TEST_F(VCStateMachineTest, DisableVanillaEnterPowerActiveDiff)
 {
-    app_canAlerts_VC_Info_ImuInitFailed_set(false);
+    app_canAlerts_VC_Info_ImuFault_set(false);
 
     SetStateWithEntry(&drive_state);
     app_canRx_CRIT_VanillaOverrideSwitch_update(SWITCH_OFF);

@@ -3,6 +3,10 @@
 #include "app_canTx.h"
 #include <stdbool.h>
 
-void app_collect_imu_data();
+void app_imu_init();
 
-const ImuData *app_get_imu_struct();
+void app_imu_broadcast();
+
+const ImuData *app_imu_getData();
+
+const ImuFaults *app_imu_getFaultData();
