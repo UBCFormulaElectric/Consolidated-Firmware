@@ -140,6 +140,7 @@ static void hvInitStateRunOnTick100Hz(void)
             break;
         case INV_ERROR_RETRY:
             app_timer_stop(&start_up_timer);
+        case NUM_VC_INVERTER_STATE_CHOICES:
         default:
             break;
     }
