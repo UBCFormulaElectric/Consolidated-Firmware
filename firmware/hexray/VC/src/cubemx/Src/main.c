@@ -18,10 +18,10 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "cmsis_os.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "cmsis_os2.h"
 
 /* USER CODE END Includes */
 
@@ -119,9 +119,9 @@ int main(void)
     /* Create the thread(s) */
     /* creation of defaultTask */
     defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
-
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
+    VC_StartAllTasks();
     /* USER CODE END RTOS_THREADS */
 
     /* USER CODE BEGIN RTOS_EVENTS */

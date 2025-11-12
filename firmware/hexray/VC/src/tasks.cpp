@@ -8,7 +8,7 @@ void tasks_init()
     jobs_init();
 }
 
-void tasks_run1Hz()
+void tasks_run1Hz(void *arg)
 {
     forever
     {
@@ -17,29 +17,22 @@ void tasks_run1Hz()
         io::time::delayUntil(start_time + 1000);
     }
 }
-void tasks_run100Hz()
+void tasks_run100Hz(void *arg)
 {
     forever
     {
         jobs_run100Hz_tick();
     }
 }
-void tasks_run1kHz()
+void tasks_run1kHz(void *arg)
 {
     forever
     {
         jobs_run1kHz_tick();
     }
 }
-void tasks_runCanTx()
-{
-    forever {}
-}
-void tasks_runCanRx()
-{
-    forever {}
-}
-void tasks_runChimera()
+
+void tasks_runChimera(void *arg)
 {
     forever {}
 }

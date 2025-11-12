@@ -52,7 +52,7 @@ extern "C"
 
     /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler(void);
-
+    void BMS_StartAllTasks(void);
     /* USER CODE BEGIN EFP */
 
     /* USER CODE END EFP */

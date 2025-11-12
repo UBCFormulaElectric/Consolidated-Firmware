@@ -119,9 +119,9 @@ int main(void)
     /* Create the thread(s) */
     /* creation of defaultTask */
     defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
-
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
+    BMS_StartAllTasks();
     /* USER CODE END RTOS_THREADS */
 
     /* USER CODE BEGIN RTOS_EVENTS */
