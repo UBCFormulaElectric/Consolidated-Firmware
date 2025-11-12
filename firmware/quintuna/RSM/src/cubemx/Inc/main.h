@@ -127,7 +127,7 @@ extern "C"
     /* USER CODE BEGIN Private defines */
 
     /* USER CODE END Private defines */
-void RSM_StartAllTasks(void);
+    void RSM_StartAllTasks(void);
 #ifdef __cplusplus
 }
 #endif
