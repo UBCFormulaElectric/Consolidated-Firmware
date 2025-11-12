@@ -62,7 +62,7 @@ void io_adbms_readRegGroup(
  * @param regs Buffer containing the register values to write
  * @param comm_sucess success of operation
  */
-void io_adbms_writeRegGroup(
+ExitCode io_adbms_writeRegGroup(
     uint16_t       cmd,
     const uint16_t regs[io::NUM_SEGMENTS][io::adbms::REGS_PER_GROUP],
     ExitCode       comm_success[io::NUM_SEGMENTS]);

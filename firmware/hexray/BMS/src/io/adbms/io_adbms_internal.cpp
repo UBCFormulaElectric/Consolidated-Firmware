@@ -63,6 +63,9 @@ void io_adbms_readRegGroup(
     RegGroupPayload  rx_buffer[io::NUM_SEGMENTS];
 }
 
-void io_adbms_writeRegGroup(uint16_t cmd, uint16_t regs[io::NUM_SEGMENTS][io::adbms::REGS_PER_GROUP]) {}
+ExitCode io_adbms_writeRegGroup(uint16_t cmd, uint16_t regs[io::NUM_SEGMENTS][io::adbms::REGS_PER_GROUP])
+{
+    return EXIT_CODE_OK; //stub
+}
 
 } // namespace io::adbms

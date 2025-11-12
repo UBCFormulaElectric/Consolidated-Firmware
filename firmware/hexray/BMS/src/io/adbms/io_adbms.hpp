@@ -80,8 +80,7 @@ namespace adbms
      * @param configs pointer to array of SegmentConfig structs to populate
      * @param success success of the operation
      */
-    void
-        io_adbms_readConfigurationRegisters(SegmentConfig configs[io::NUM_SEGMENTS], uint8_t success[io::NUM_SEGMENTS]);
+    void io_adbms_readConfigurationRegisters(SegmentConfig configs[io::NUM_SEGMENTS], uint8_t success[io::NUM_SEGMENTS]);
 
     /**
      * Writes a configuration to all segments on the daisy chain.

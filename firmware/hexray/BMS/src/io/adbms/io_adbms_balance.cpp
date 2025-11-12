@@ -3,10 +3,10 @@
 
 ExitCode io_adbms_sendBalanceCommand(void)
 {
-    return io_adbms_sendCommand(io::UNMUTE);
+    return io::adbms::io_adbms_sendCommand(io::adbms::UNMUTE);
 }
 
 ExitCode io_adbms_sendStopBalanceCommand(void)
 {
-    return io_adbms_sendCommand(io::MUTE);
+    return io::adbms::io_adbms_sendCommand(io::adbms::MUTE);
 }
