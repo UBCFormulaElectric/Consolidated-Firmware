@@ -52,27 +52,3 @@ void tasks_runChimera(void *arg)
         jobs_runChimera_tick();
     }
 }
-
-void tasks_runLtcVoltages(void *arg)
-{
-    forever
-    {
-        jobs_initLTCVoltages();
-    }
-}
-
-void tasks_runLtcTemps(void *arg)
-{
-    forever
-    {
-        jobs_initLTCTemps();
-    }
-}
-
-void tasks_runLtcDiagnostics(void *arg)
-{
-    forever
-    {
-        jobs_initLTCDiagnostics();
-    }
-}

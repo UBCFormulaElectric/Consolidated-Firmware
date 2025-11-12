@@ -87,7 +87,7 @@ int main(void)
     MX_GPIO_Init();
     /* USER CODE BEGIN 2 */
     osKernelInitialize();
-    CRIT_StartAllTasks();
+    DAM_StartAllTasks();
     osKernelStart();
 
     /* USER CODE END 2 */
