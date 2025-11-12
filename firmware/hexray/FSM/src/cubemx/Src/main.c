@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "cmsis_os.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -86,7 +86,9 @@ int main(void)
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
     /* USER CODE BEGIN 2 */
-
+    osKernelInitialize();
+    CRIT_StartAllTasks();
+    osKernelStart();
     /* USER CODE END 2 */
 
     /* Infinite loop */
