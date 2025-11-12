@@ -203,7 +203,7 @@ extern "C"
 
     /* USER CODE END Private defines */
 
-void VC_StartAllTasks(void);
+    void VC_StartAllTasks(void);
 #ifdef __cplusplus
 }
 #endif

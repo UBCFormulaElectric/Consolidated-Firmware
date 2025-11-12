@@ -1155,7 +1155,8 @@ void RunTaskLtcDiag(void *argument)
 // {
 //     /* USER CODE BEGIN RunTaskInit */
 //     // Some init code needs to run *after* the scheduler has started. The mechanism here is this task is the highest
-//     // priority, but also needs to block all other tasks since if it yields then other tasks might jump in before init
+//     // priority, but also needs to block all other tasks since if it yields then other tasks might jump in before
+//     init
 //     // is complete. This is accomplished with task notifications.
 //     // TODO: Will need to think about this a bit harder when we re-enable the watchdog...
 //     tasks_init();

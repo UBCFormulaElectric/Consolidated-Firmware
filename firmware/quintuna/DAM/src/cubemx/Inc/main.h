@@ -118,7 +118,7 @@ extern "C"
 
     /* USER CODE END Private defines */
 
-void DAM_StartAllTasks(void);
+    void DAM_StartAllTasks(void);
 #ifdef __cplusplus
 }
 #endif

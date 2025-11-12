@@ -36,7 +36,7 @@
 // Define this guy to use CAN2 for talking to the Elcon.
 // #define CHARGER_CAN
 
-void tasks_runChimera(void)
+void tasks_runChimera(void *arg)
 {
     hw_chimera_v2_task(&chimera_v2_config);
 }
