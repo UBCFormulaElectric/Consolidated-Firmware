@@ -4,7 +4,7 @@ flask-cors == 5.0.0
 python-dotenv == 1.0.1
 flask-socketio == 5.5.1
 pandas == 2.2.3
-requests == 2.32.3
+requests == 2.32.4
 pySerial == 3.5
 protobuf == 5.29.3
 crc
