@@ -35,14 +35,14 @@ void tasks_runCanTx(void *arg)
 {
     forever
     {
-        jobs_runCanTx();
+        jobs_runCanTx_tick();
     }
 }
 void tasks_runCanRx(void *arg)
 {
     forever
     {
-        jobs_runCaRx();
+        jobs_runCanTx_tick();
     }
 }
 void tasks_runChimera(void *arg)

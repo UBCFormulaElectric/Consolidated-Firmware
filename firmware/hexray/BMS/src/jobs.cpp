@@ -5,5 +5,5 @@ void jobs_run1Hz_tick() {}
 void jobs_run100Hz_tick() {}
 void jobs_run1kHz_tick() {}
 void jobs_runCanTx_tick() {}
-void jobs_runCaRx() {}
+void jobs_runCaRx_tick() {}
 void jobs_runChimera_tick() {}

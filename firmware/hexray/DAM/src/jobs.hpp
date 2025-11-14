@@ -7,3 +7,5 @@ void jobs_run1kHz_tick(void);
 void jobs_runLogging_tick(void);
 void jobs_runTelem_tick(void);
 void jobs_runTelemRx(void);
+void jobs_runCanTx_tick(void);
+void jobs_runCanRx_tick(void);

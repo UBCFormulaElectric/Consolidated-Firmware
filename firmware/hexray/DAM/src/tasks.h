@@ -9,3 +9,5 @@ CFUNC NORET void tasks_run1kHz(void *arg);
 CFUNC NORET void tasks_runLogging(void *arg);
 CFUNC NORET void tasks_runTelem(void *arg);
 CFUNC NORET void tasks_runTelemRx(void *arg);
+CFUNC NORET void tasks_runCanTx(void *arg);
+CFUNC NORET void tasks_runCanRx(void *arg);

@@ -12,9 +12,9 @@ void tasks_run1Hz(void *arg)
 {
     forever
     {
-        const uint32_t start_time = io::time::getCurrentMs();
+        // const uint32_t start_time = io::time::getCurrentMs();
         jobs_run1Hz_tick();
-        io::time::delayUntil(start_time + 1000);
+        // io::time::delayUntil(start_time + 1000);
     }
 }
 void tasks_run100Hz(void *arg)
