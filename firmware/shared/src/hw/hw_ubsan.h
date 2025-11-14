@@ -5,6 +5,10 @@
 #pragma once
 #include <stdint.h>
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*
  * ABI defined by Clang's UBSAN enum SanitizerHandler:
  * https://github.com/llvm/llvm-project/blob/release/16.x/clang/lib/CodeGen/CodeGenFunction.h#L113
@@ -170,3 +174,7 @@ struct pointer_overflow_data
 {
     struct source_location location;
 };
+
+#ifdef __cplusplus
+}
+#endif
