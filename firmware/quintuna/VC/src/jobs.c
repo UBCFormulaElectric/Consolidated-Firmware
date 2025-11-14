@@ -17,7 +17,7 @@
 #include "app_powerMonitoring.h"
 #include "app_commitInfo.h"
 #include "app_sbgEllipse.h"
-#include "app_warningHandling.h"
+#include "app_inverter.h"
 #include "app_heartbeatMonitor.h"
 #include "app_heartbeatMonitors.h"
 #include "app_shdnLoop.h"
@@ -48,6 +48,17 @@ static void can3_tx(const JsonCanMsg *tx_msg)
 {
     const CanMsg msg = app_jsoncan_copyToCanMsg(tx_msg);
     io_canQueue_pushTx(&can3_tx_queue, &msg);
+}
+
+void app_stateMachine_inverterFaultHandling(void)
+{
+    if (!app_inverter_inverterStatus())
+        return;
+
+    if (app_stateMachine_getCurrentState() != &inverter_fault_handling_state)
+    {
+        app_stateMachine_setNextState(&inverter_fault_handling_state);
+    }
 }
 
 #define AIR_MINUS_OPEN_DEBOUNCE_MS (100U)
@@ -101,7 +112,7 @@ void jobs_run100Hz_tick(void)
 
     app_heartbeatMonitor_checkIn(&hb_monitor);
     app_heartbeatMonitor_broadcastFaults(&hb_monitor);
-
+    app_stateMachine_inverterFaultHandling();
     app_stateMachine_tick100Hz();
 
     const TimerState air_minus_open_debounced = app_timer_runIfCondition(
