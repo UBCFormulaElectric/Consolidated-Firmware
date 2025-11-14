@@ -63,6 +63,126 @@ TIM_HandleTypeDef htim3;
 
 UART_HandleTypeDef huart8;
 
+/* Definitions for Task100Hz */
+osThreadId_t         Task100HzHandle;
+uint32_t             Task100HzBuffer[8096];
+osStaticThreadDef_t  Task100HzControlBlock;
+const osThreadAttr_t Task100Hz_attributes = {
+    .name       = "Task100Hz",
+    .cb_mem     = &Task100HzControlBlock,
+    .cb_size    = sizeof(Task100HzControlBlock),
+    .stack_mem  = &Task100HzBuffer[0],
+    .stack_size = sizeof(Task100HzBuffer),
+    .priority   = (osPriority_t)osPriorityHigh,
+};
+/* Definitions for TaskCan1Tx */
+osThreadId_t         TaskCan1TxHandle;
+uint32_t             TaskCanTxBuffer[512];
+osStaticThreadDef_t  TaskCanTxControlBlock;
+const osThreadAttr_t TaskCan1Tx_attributes = {
+    .name       = "TaskCan1Tx",
+    .cb_mem     = &TaskCanTxControlBlock,
+    .cb_size    = sizeof(TaskCanTxControlBlock),
+    .stack_mem  = &TaskCanTxBuffer[0],
+    .stack_size = sizeof(TaskCanTxBuffer),
+    .priority   = (osPriority_t)osPriorityBelowNormal,
+};
+/* Definitions for TaskCanRx */
+osThreadId_t         TaskCanRxHandle;
+uint32_t             TaskCanRxBuffer[512];
+osStaticThreadDef_t  TaskCanRxControlBlock;
+const osThreadAttr_t TaskCanRx_attributes = {
+    .name       = "TaskCanRx",
+    .cb_mem     = &TaskCanRxControlBlock,
+    .cb_size    = sizeof(TaskCanRxControlBlock),
+    .stack_mem  = &TaskCanRxBuffer[0],
+    .stack_size = sizeof(TaskCanRxBuffer),
+    .priority   = (osPriority_t)osPriorityBelowNormal,
+};
+/* Definitions for Task1kHz */
+osThreadId_t         Task1kHzHandle;
+uint32_t             Task1kHzBuffer[512];
+osStaticThreadDef_t  Task1kHzControlBlock;
+const osThreadAttr_t Task1kHz_attributes = {
+    .name       = "Task1kHz",
+    .cb_mem     = &Task1kHzControlBlock,
+    .cb_size    = sizeof(Task1kHzControlBlock),
+    .stack_mem  = &Task1kHzBuffer[0],
+    .stack_size = sizeof(Task1kHzBuffer),
+    .priority   = (osPriority_t)osPriorityRealtime,
+};
+/* Definitions for Task1Hz */
+osThreadId_t         Task1HzHandle;
+uint32_t             Task1HzBuffer[512];
+osStaticThreadDef_t  Task1HzControlBlock;
+const osThreadAttr_t Task1Hz_attributes = {
+    .name       = "Task1Hz",
+    .cb_mem     = &Task1HzControlBlock,
+    .cb_size    = sizeof(Task1HzControlBlock),
+    .stack_mem  = &Task1HzBuffer[0],
+    .stack_size = sizeof(Task1HzBuffer),
+    .priority   = (osPriority_t)osPriorityAboveNormal,
+};
+/* Definitions for TaskBtrMonitor */
+osThreadId_t         TaskBtrMonitorHandle;
+uint32_t             TaskBatteryMoniBuffer[512];
+osStaticThreadDef_t  TaskBatteryMoniControlBlock;
+const osThreadAttr_t TaskBtrMonitor_attributes = {
+    .name       = "TaskBtrMonitor",
+    .cb_mem     = &TaskBatteryMoniControlBlock,
+    .cb_size    = sizeof(TaskBatteryMoniControlBlock),
+    .stack_mem  = &TaskBatteryMoniBuffer[0],
+    .stack_size = sizeof(TaskBatteryMoniBuffer),
+    .priority   = (osPriority_t)osPriorityLow,
+};
+/* Definitions for TaskChimera */
+osThreadId_t         TaskChimeraHandle;
+uint32_t             TaskChimeraBuffer[512];
+osStaticThreadDef_t  TaskChimeraControlBlock;
+const osThreadAttr_t TaskChimera_attributes = {
+    .name       = "TaskChimera",
+    .cb_mem     = &TaskChimeraControlBlock,
+    .cb_size    = sizeof(TaskChimeraControlBlock),
+    .stack_mem  = &TaskChimeraBuffer[0],
+    .stack_size = sizeof(TaskChimeraBuffer),
+    .priority   = (osPriority_t)osPriorityHigh,
+};
+/* Definitions for TaskCan2Tx */
+osThreadId_t         TaskCan2TxHandle;
+uint32_t             TaskCan2TxBuffer[512];
+osStaticThreadDef_t  TaskCan2TxControlBlock;
+const osThreadAttr_t TaskCan2Tx_attributes = {
+    .name       = "TaskCan2Tx",
+    .cb_mem     = &TaskCan2TxControlBlock,
+    .cb_size    = sizeof(TaskCan2TxControlBlock),
+    .stack_mem  = &TaskCan2TxBuffer[0],
+    .stack_size = sizeof(TaskCan2TxBuffer),
+    .priority   = (osPriority_t)osPriorityBelowNormal,
+};
+/* Definitions for TaskCan3Tx */
+osThreadId_t         TaskCan3TxHandle;
+uint32_t             TaskCan3TxBuffer[512];
+osStaticThreadDef_t  TaskCan3TxControlBlock;
+const osThreadAttr_t TaskCan3Tx_attributes = {
+    .name       = "TaskCan3Tx",
+    .cb_mem     = &TaskCan3TxControlBlock,
+    .cb_size    = sizeof(TaskCan3TxControlBlock),
+    .stack_mem  = &TaskCan3TxBuffer[0],
+    .stack_size = sizeof(TaskCan3TxBuffer),
+    .priority   = (osPriority_t)osPriorityBelowNormal,
+};
+/* Definitions for TaskPwrMontr */
+osThreadId_t         TaskPwrMontrHandle;
+uint32_t             TaskPwrMontrBuffer[512];
+osStaticThreadDef_t  TaskPwrMontrControlBlock;
+const osThreadAttr_t TaskPwrMontr_attributes = {
+    .name       = "TaskPwrMontr",
+    .cb_mem     = &TaskPwrMontrControlBlock,
+    .cb_size    = sizeof(TaskPwrMontrControlBlock),
+    .stack_mem  = &TaskPwrMontrBuffer[0],
+    .stack_size = sizeof(TaskPwrMontrBuffer),
+    .priority   = (osPriority_t)osPriorityAboveNormal2,
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -83,6 +203,17 @@ static void MX_I2C5_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_ADC2_Init(void);
 static void MX_IWDG1_Init(void);
+void        RunTask100Hz(void *argument);
+void        RunCan1TxTask(void *argument);
+void        RunCanRxTask(void *argument);
+void        RunTask1kHz(void *argument);
+void        RunTask1Hz(void *argument);
+void        RunTaskBtrMonitor(void *argument);
+void        RunTaskChimera(void *argument);
+void        RunCan2TxTask(void *argument);
+void        RunTask3TxTask(void *argument);
+void        RunPwrMontr(void *argument);
+
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -161,7 +292,35 @@ int main(void)
 
     /* Create the thread(s) */
     /* creation of Task100Hz */
-    VC_StartAllTasks();
+    Task100HzHandle = osThreadNew(RunTask100Hz, NULL, &Task100Hz_attributes);
+
+    /* creation of TaskCan1Tx */
+    TaskCan1TxHandle = osThreadNew(RunCan1TxTask, NULL, &TaskCan1Tx_attributes);
+
+    /* creation of TaskCanRx */
+    TaskCanRxHandle = osThreadNew(RunCanRxTask, NULL, &TaskCanRx_attributes);
+
+    /* creation of Task1kHz */
+    Task1kHzHandle = osThreadNew(RunTask1kHz, NULL, &Task1kHz_attributes);
+
+    /* creation of Task1Hz */
+    Task1HzHandle = osThreadNew(RunTask1Hz, NULL, &Task1Hz_attributes);
+
+    /* creation of TaskBtrMonitor */
+    TaskBtrMonitorHandle = osThreadNew(RunTaskBtrMonitor, NULL, &TaskBtrMonitor_attributes);
+
+    /* creation of TaskChimera */
+    TaskChimeraHandle = osThreadNew(RunTaskChimera, NULL, &TaskChimera_attributes);
+
+    /* creation of TaskCan2Tx */
+    TaskCan2TxHandle = osThreadNew(RunCan2TxTask, NULL, &TaskCan2Tx_attributes);
+
+    /* creation of TaskCan3Tx */
+    TaskCan3TxHandle = osThreadNew(RunTask3TxTask, NULL, &TaskCan3Tx_attributes);
+
+    /* creation of TaskPwrMontr */
+    TaskPwrMontrHandle = osThreadNew(RunPwrMontr, NULL, &TaskPwrMontr_attributes);
+
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
     /* USER CODE END RTOS_THREADS */
@@ -1102,6 +1261,7 @@ void RunTask100Hz(void *argument)
     /* init code for USB_DEVICE */
     MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
+    tasks_run100Hz();
     /* USER CODE END 5 */
 }
 
@@ -1115,6 +1275,7 @@ void RunTask100Hz(void *argument)
 void RunCan1TxTask(void *argument)
 {
     /* USER CODE BEGIN RunCan1TxTask */
+    tasks_runCan1Tx();
     /* USER CODE END RunCan1TxTask */
 }
 
@@ -1128,6 +1289,7 @@ void RunCan1TxTask(void *argument)
 void RunCanRxTask(void *argument)
 {
     /* USER CODE BEGIN RunCanRxTask */
+    tasks_runCanRx();
     /* USER CODE END RunCanRxTask */
 }
 
@@ -1141,6 +1303,7 @@ void RunCanRxTask(void *argument)
 void RunTask1kHz(void *argument)
 {
     /* USER CODE BEGIN RunTask1kHz */
+    tasks_run1kHz();
     /* USER CODE END RunTask1kHz */
 }
 
@@ -1154,6 +1317,7 @@ void RunTask1kHz(void *argument)
 void RunTask1Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask1Hz */
+    tasks_run1Hz();
     /* USER CODE END RunTask1Hz */
 }
 
@@ -1167,6 +1331,7 @@ void RunTask1Hz(void *argument)
 void RunTaskBtrMonitor(void *argument)
 {
     /* USER CODE BEGIN RunTaskBtrMonitor */
+    tasks_batteryMonitoring();
     /* USER CODE END RunTaskBtrMonitor */
 }
 
@@ -1180,6 +1345,7 @@ void RunTaskBtrMonitor(void *argument)
 void RunTaskChimera(void *argument)
 {
     /* USER CODE BEGIN RunTaskChimera */
+    tasks_runChimera();
     /* USER CODE END RunTaskChimera */
 }
 
@@ -1193,6 +1359,7 @@ void RunTaskChimera(void *argument)
 void RunCan2TxTask(void *argument)
 {
     /* USER CODE BEGIN RunCan2TxTask */
+    tasks_runCan2Tx();
     /* USER CODE END RunCan2TxTask */
 }
 
@@ -1206,6 +1373,7 @@ void RunCan2TxTask(void *argument)
 void RunTask3TxTask(void *argument)
 {
     /* USER CODE BEGIN RunTask3TxTask */
+    tasks_runCan3Tx();
     /* USER CODE END RunTask3TxTask */
 }
 
@@ -1222,7 +1390,7 @@ void RunPwrMontr(void *argument)
     /* Infinite loop */
     for (;;)
     {
-        tasks_powerMonitoring(argument);
+        tasks_powerMonitoring();
     }
     /* USER CODE END RunPwrMontr */
 }

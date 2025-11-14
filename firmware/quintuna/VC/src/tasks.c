@@ -83,12 +83,12 @@ void tasks_init(void)
     io_canTx_VC_Bootup_sendAperiodic();
 }
 
-_Noreturn void tasks_runChimera(void *arg)
+_Noreturn void tasks_runChimera(void)
 {
     hw_chimera_v2_task(&chimera_v2_config);
 }
 
-_Noreturn void tasks_run1Hz(void *arg)
+_Noreturn void tasks_run1Hz(void)
 {
     const uint32_t  period_ms                = 1000U;
     const uint32_t  watchdog_grace_period_ms = 50U;
@@ -111,7 +111,7 @@ _Noreturn void tasks_run1Hz(void *arg)
     }
 }
 
-_Noreturn void tasks_run100Hz(void *arg)
+_Noreturn void tasks_run100Hz(void)
 {
     const uint32_t  period_ms                = 10U;
     const uint32_t  watchdog_grace_period_ms = 2U;
@@ -134,7 +134,7 @@ _Noreturn void tasks_run100Hz(void *arg)
     }
 }
 
-_Noreturn void tasks_run1kHz(void *arg)
+_Noreturn void tasks_run1kHz(void)
 {
     const uint32_t  period_ms                = 1U;
     const uint32_t  watchdog_grace_period_ms = 1U;
@@ -159,7 +159,7 @@ _Noreturn void tasks_run1kHz(void *arg)
     }
 }
 
-_Noreturn void tasks_runCan1Tx(void *arg)
+_Noreturn void tasks_runCan1Tx(void)
 {
     for (;;)
     {
@@ -168,7 +168,7 @@ _Noreturn void tasks_runCan1Tx(void *arg)
     }
 }
 
-_Noreturn void tasks_runCan2Tx(void *arg)
+_Noreturn void tasks_runCan2Tx(void)
 {
     for (;;)
     {
@@ -177,7 +177,7 @@ _Noreturn void tasks_runCan2Tx(void *arg)
     }
 }
 
-_Noreturn void tasks_runCan3Tx(void *arg)
+_Noreturn void tasks_runCan3Tx(void)
 {
     for (;;)
     {
@@ -186,7 +186,7 @@ _Noreturn void tasks_runCan3Tx(void *arg)
     }
 }
 
-_Noreturn void tasks_runCanRx(void *arg)
+_Noreturn void tasks_runCanRx(void)
 {
     for (;;)
     {
@@ -196,7 +196,7 @@ _Noreturn void tasks_runCanRx(void *arg)
     }
 }
 
-_Noreturn void tasks_batteryMonitoring(void *arg)
+_Noreturn void tasks_batteryMonitoring(void)
 {
     osDelay(osWaitForever);
     for (;;)
@@ -205,7 +205,7 @@ _Noreturn void tasks_batteryMonitoring(void *arg)
     }
 }
 
-_Noreturn void tasks_powerMonitoring(void *arg)
+_Noreturn void tasks_powerMonitoring(void)
 {
     static const TickType_t period_ms   = 10;
     static uint32_t         start_ticks = 0;

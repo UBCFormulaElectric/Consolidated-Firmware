@@ -36,7 +36,7 @@
 // Define this guy to use CAN2 for talking to the Elcon.
 // #define CHARGER_CAN
 
-void tasks_runChimera(void *arg)
+void tasks_runChimera(void)
 {
     hw_chimera_v2_task(&chimera_v2_config);
 }
@@ -110,7 +110,7 @@ void tasks_init(void)
     io_canTx_BMS_Bootup_sendAperiodic(); // TODO do this in jobs_init
 }
 
-void tasks_run1Hz(void *arg)
+void tasks_run1Hz(void)
 {
     const uint32_t  period_ms                = 1000U;
     const uint32_t  watchdog_grace_period_ms = 50U;
@@ -132,7 +132,7 @@ void tasks_run1Hz(void *arg)
     }
 }
 
-void tasks_run100Hz(void *arg)
+void tasks_run100Hz(void)
 {
     const uint32_t  period_ms                = 10U;
     const uint32_t  watchdog_grace_period_ms = 2U;
@@ -154,7 +154,7 @@ void tasks_run100Hz(void *arg)
     }
 }
 
-void tasks_run1kHz(void *arg)
+void tasks_run1kHz(void)
 {
     const uint32_t  period_ms                = 1U;
     const uint32_t  watchdog_grace_period_ms = 1U;
@@ -175,7 +175,7 @@ void tasks_run1kHz(void *arg)
     }
 }
 
-void tasks_runCanTx(void *arg)
+void tasks_runCanTx(void)
 {
     for (;;)
     {
@@ -200,7 +200,7 @@ void tasks_runCanTx(void *arg)
     }
 }
 
-void tasks_runCanRx(void *arg)
+void tasks_runCanRx(void)
 {
     for (;;)
     {
@@ -212,7 +212,7 @@ void tasks_runCanRx(void *arg)
 
 // TODO: Add watchdogs to the LTC commands
 
-void tasks_runLtcVoltages(void *arg)
+void tasks_runLtcVoltages(void)
 {
 #ifdef TARGET_HV_SUPPLY
     for (;;)
@@ -230,7 +230,7 @@ void tasks_runLtcVoltages(void *arg)
 #endif
 }
 
-void tasks_runLtcTemps(void *arg)
+void tasks_runLtcTemps(void)
 {
 #ifdef TARGET_HV_SUPPLY
     for (;;)
@@ -248,7 +248,7 @@ void tasks_runLtcTemps(void *arg)
 #endif
 }
 
-void tasks_runLtcDiagnostics(void *arg)
+void tasks_runLtcDiagnostics(void)
 {
 #ifdef TARGET_HV_SUPPLY
     for (;;)

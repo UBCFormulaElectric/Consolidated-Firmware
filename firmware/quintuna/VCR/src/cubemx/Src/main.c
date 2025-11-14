@@ -50,6 +50,78 @@ FDCAN_HandleTypeDef hfdcan3;
 
 IWDG_HandleTypeDef hiwdg1;
 
+/* Definitions for FDCanTx */
+osThreadId_t         FDCanTxHandle;
+uint32_t             FDCanTXBuffer[512];
+osStaticThreadDef_t  FDCanTXControlBlock;
+const osThreadAttr_t FDCanTx_attributes = {
+    .name       = "FDCanTx",
+    .cb_mem     = &FDCanTXControlBlock,
+    .cb_size    = sizeof(FDCanTXControlBlock),
+    .stack_mem  = &FDCanTXBuffer[0],
+    .stack_size = sizeof(FDCanTXBuffer),
+    .priority   = (osPriority_t)osPriorityNormal,
+};
+/* Definitions for CanRx */
+osThreadId_t         CanRxHandle;
+uint32_t             CanRxBuffer[512];
+osStaticThreadDef_t  CanRxControlBlock;
+const osThreadAttr_t CanRx_attributes = {
+    .name       = "CanRx",
+    .cb_mem     = &CanRxControlBlock,
+    .cb_size    = sizeof(CanRxControlBlock),
+    .stack_mem  = &CanRxBuffer[0],
+    .stack_size = sizeof(CanRxBuffer),
+    .priority   = (osPriority_t)osPriorityNormal,
+};
+/* Definitions for SxCanTxTask */
+osThreadId_t         SxCanTxTaskHandle;
+uint32_t             SxCanTxBuffer[512];
+osStaticThreadDef_t  SxCanTxControlBlock;
+const osThreadAttr_t SxCanTxTask_attributes = {
+    .name       = "SxCanTxTask",
+    .cb_mem     = &SxCanTxControlBlock,
+    .cb_size    = sizeof(SxCanTxControlBlock),
+    .stack_mem  = &SxCanTxBuffer[0],
+    .stack_size = sizeof(SxCanTxBuffer),
+    .priority   = (osPriority_t)osPriorityHigh,
+};
+/* Definitions for InvCanTxTask */
+osThreadId_t         InvCanTxTaskHandle;
+uint32_t             InvCanTxBuffer[512];
+osStaticThreadDef_t  InvCanTxControlBlock;
+const osThreadAttr_t InvCanTxTask_attributes = {
+    .name       = "InvCanTxTask",
+    .cb_mem     = &InvCanTxControlBlock,
+    .cb_size    = sizeof(InvCanTxControlBlock),
+    .stack_mem  = &InvCanTxBuffer[0],
+    .stack_size = sizeof(InvCanTxBuffer),
+    .priority   = (osPriority_t)osPriorityHigh,
+};
+/* Definitions for Task1Hz */
+osThreadId_t         Task1HzHandle;
+uint32_t             Task1HzBuffer[512];
+osStaticThreadDef_t  Task1HzControlBlock;
+const osThreadAttr_t Task1Hz_attributes = {
+    .name       = "Task1Hz",
+    .cb_mem     = &Task1HzControlBlock,
+    .cb_size    = sizeof(Task1HzControlBlock),
+    .stack_mem  = &Task1HzBuffer[0],
+    .stack_size = sizeof(Task1HzBuffer),
+    .priority   = (osPriority_t)osPriorityNormal,
+};
+/* Definitions for Task1kHz */
+osThreadId_t         Task1kHzHandle;
+uint32_t             Task1kHzBuffer[512];
+osStaticThreadDef_t  Task1kHzControlBlock;
+const osThreadAttr_t Task1kHz_attributes = {
+    .name       = "Task1kHz",
+    .cb_mem     = &Task1kHzControlBlock,
+    .cb_size    = sizeof(Task1kHzControlBlock),
+    .stack_mem  = &Task1kHzBuffer[0],
+    .stack_size = sizeof(Task1kHzBuffer),
+    .priority   = (osPriority_t)osPriorityRealtime,
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -62,6 +134,12 @@ static void MX_FDCAN1_Init(void);
 static void MX_FDCAN2_Init(void);
 static void MX_FDCAN3_Init(void);
 static void MX_IWDG1_Init(void);
+void        StartFDCanTxTask(void *argument);
+void        StartCanRxTask(void *argument);
+void        StartSxCanTx(void *argument);
+void        StartInvCanTx(void *argument);
+void        StartTask1Hz(void *argument);
+void        StartTask1kHz(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -131,9 +209,26 @@ int main(void)
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
+    /* creation of FDCanTx */
+    FDCanTxHandle = osThreadNew(StartFDCanTxTask, NULL, &FDCanTx_attributes);
+
+    /* creation of CanRx */
+    CanRxHandle = osThreadNew(StartCanRxTask, NULL, &CanRx_attributes);
+
+    /* creation of SxCanTxTask */
+    SxCanTxTaskHandle = osThreadNew(StartSxCanTx, NULL, &SxCanTxTask_attributes);
+
+    /* creation of InvCanTxTask */
+    InvCanTxTaskHandle = osThreadNew(StartInvCanTx, NULL, &InvCanTxTask_attributes);
+
+    /* creation of Task1Hz */
+    Task1HzHandle = osThreadNew(StartTask1Hz, NULL, &Task1Hz_attributes);
+
+    /* creation of Task1kHz */
+    Task1kHzHandle = osThreadNew(StartTask1kHz, NULL, &Task1kHz_attributes);
+
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
-    VCR_StartAllTasks();
     /* USER CODE END RTOS_THREADS */
 
     /* USER CODE BEGIN RTOS_EVENTS */
@@ -478,6 +573,7 @@ static void MX_GPIO_Init(void)
 void StartFDCanTxTask(void *argument)
 {
     /* USER CODE BEGIN 5 */
+    tasks_runCanFDTx();
     /* USER CODE END 5 */
 }
 
@@ -491,6 +587,7 @@ void StartFDCanTxTask(void *argument)
 void StartCanRxTask(void *argument)
 {
     /* USER CODE BEGIN StartCanRxTask */
+    tasks_runcanRx();
     /* USER CODE END StartCanRxTask */
 }
 
@@ -505,6 +602,7 @@ void StartSxCanTx(void *argument)
 {
     /* USER CODE BEGIN StartSxCanTx */
     /* Infinite loop */
+    tasks_runCanSxTx();
     /* USER CODE END StartSxCanTx */
 }
 
@@ -519,6 +617,7 @@ void StartInvCanTx(void *argument)
 {
     /* USER CODE BEGIN StartInvCanTx */
     /* Infinite loop */
+    tasks_runCanInvTx();
     /* USER CODE END StartInvCanTx */
 }
 
@@ -533,6 +632,7 @@ void StartTask1Hz(void *argument)
 {
     /* USER CODE BEGIN StartTask1Hz */
     /* Infinite loop */
+    tasks_run1Hz();
     /* USER CODE END StartTask1Hz */
 }
 
@@ -547,6 +647,7 @@ void StartTask1kHz(void *argument)
 {
     /* USER CODE BEGIN StartTask1kHz */
     /* Infinite loop */
+    tasks_run1kHz();
     /* USER CODE END StartTask1kHz */
 }
 

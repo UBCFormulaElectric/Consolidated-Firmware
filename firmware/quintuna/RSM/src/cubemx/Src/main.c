@@ -56,6 +56,79 @@ IWDG_HandleTypeDef hiwdg;
 
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim4;
+
+/* Definitions for Task1KHz */
+osThreadId_t         Task1KHzHandle;
+uint32_t             Task1KHzBuffer[512];
+osStaticThreadDef_t  Task1KHzControlBlock;
+const osThreadAttr_t Task1KHz_attributes = {
+    .name       = "Task1KHz",
+    .cb_mem     = &Task1KHzControlBlock,
+    .cb_size    = sizeof(Task1KHzControlBlock),
+    .stack_mem  = &Task1KHzBuffer[0],
+    .stack_size = sizeof(Task1KHzBuffer),
+    .priority   = (osPriority_t)osPriorityRealtime,
+};
+/* Definitions for Task100Hz */
+osThreadId_t         Task100HzHandle;
+uint32_t             Task100HzBuffer[512];
+osStaticThreadDef_t  Task100HzControlBlock;
+const osThreadAttr_t Task100Hz_attributes = {
+    .name       = "Task100Hz",
+    .cb_mem     = &Task100HzControlBlock,
+    .cb_size    = sizeof(Task100HzControlBlock),
+    .stack_mem  = &Task100HzBuffer[0],
+    .stack_size = sizeof(Task100HzBuffer),
+    .priority   = (osPriority_t)osPriorityHigh,
+};
+/* Definitions for Task1Hz */
+osThreadId_t         Task1HzHandle;
+uint32_t             Task1HzBuffer[512];
+osStaticThreadDef_t  Task1HzControlBlock;
+const osThreadAttr_t Task1Hz_attributes = {
+    .name       = "Task1Hz",
+    .cb_mem     = &Task1HzControlBlock,
+    .cb_size    = sizeof(Task1HzControlBlock),
+    .stack_mem  = &Task1HzBuffer[0],
+    .stack_size = sizeof(Task1HzBuffer),
+    .priority   = (osPriority_t)osPriorityAboveNormal,
+};
+/* Definitions for TaskCanTx */
+osThreadId_t         TaskCanTxHandle;
+uint32_t             TaskCanTxBuffer[512];
+osStaticThreadDef_t  TaskCanTxControlBlock;
+const osThreadAttr_t TaskCanTx_attributes = {
+    .name       = "TaskCanTx",
+    .cb_mem     = &TaskCanTxControlBlock,
+    .cb_size    = sizeof(TaskCanTxControlBlock),
+    .stack_mem  = &TaskCanTxBuffer[0],
+    .stack_size = sizeof(TaskCanTxBuffer),
+    .priority   = (osPriority_t)osPriorityNormal,
+};
+/* Definitions for TaskCanRx */
+osThreadId_t         TaskCanRxHandle;
+uint32_t             TaskCanRxBuffer[512];
+osStaticThreadDef_t  TaskCanRxControlBlock;
+const osThreadAttr_t TaskCanRx_attributes = {
+    .name       = "TaskCanRx",
+    .cb_mem     = &TaskCanRxControlBlock,
+    .cb_size    = sizeof(TaskCanRxControlBlock),
+    .stack_mem  = &TaskCanRxBuffer[0],
+    .stack_size = sizeof(TaskCanRxBuffer),
+    .priority   = (osPriority_t)osPriorityLow,
+};
+/* Definitions for TaskChimera */
+osThreadId_t         TaskChimeraHandle;
+uint32_t             TaskChimeraBuffer[512];
+osStaticThreadDef_t  TaskChimeraControlBlock;
+const osThreadAttr_t TaskChimera_attributes = {
+    .name       = "TaskChimera",
+    .cb_mem     = &TaskChimeraControlBlock,
+    .cb_size    = sizeof(TaskChimeraControlBlock),
+    .stack_mem  = &TaskChimeraBuffer[0],
+    .stack_size = sizeof(TaskChimeraBuffer),
+    .priority   = (osPriority_t)osPriorityHigh,
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -71,6 +144,13 @@ static void MX_I2C3_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_IWDG_Init(void);
+void        RunTask1KHz(void *argument);
+void        RunTask100Hz(void *argument);
+void        RunTask1Hz(void *argument);
+void        RunTaskCanTx(void *argument);
+void        RunTaskCanRx(void *argument);
+void        RunTaskChimera(void *argument);
+
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -140,11 +220,26 @@ int main(void)
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
+    /* creation of Task1KHz */
+    Task1KHzHandle = osThreadNew(RunTask1KHz, NULL, &Task1KHz_attributes);
+
+    /* creation of Task100Hz */
+    Task100HzHandle = osThreadNew(RunTask100Hz, NULL, &Task100Hz_attributes);
+
+    /* creation of Task1Hz */
+    Task1HzHandle = osThreadNew(RunTask1Hz, NULL, &Task1Hz_attributes);
+
+    /* creation of TaskCanTx */
+    TaskCanTxHandle = osThreadNew(RunTaskCanTx, NULL, &TaskCanTx_attributes);
+
+    /* creation of TaskCanRx */
+    TaskCanRxHandle = osThreadNew(RunTaskCanRx, NULL, &TaskCanRx_attributes);
+
+    /* creation of TaskChimera */
+    TaskChimeraHandle = osThreadNew(RunTaskChimera, NULL, &TaskChimera_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
-    RSM_StartAllTasks();
-
     /* USER CODE END RTOS_THREADS */
 
     /* USER CODE BEGIN RTOS_EVENTS */
@@ -155,6 +250,7 @@ int main(void)
     osKernelStart();
 
     /* We should never get here as control is now taken by the scheduler */
+
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
     while (1)
@@ -609,6 +705,7 @@ void RunTask1KHz(void *argument)
     /* init code for USB_DEVICE */
     MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 5 */
+    tasks_run1kHz();
     /* USER CODE END 5 */
 }
 
@@ -622,6 +719,7 @@ void RunTask1KHz(void *argument)
 void RunTask100Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask100Hz */
+    tasks_run100Hz();
     /* USER CODE END RunTask100Hz */
 }
 
@@ -635,6 +733,7 @@ void RunTask100Hz(void *argument)
 void RunTask1Hz(void *argument)
 {
     /* USER CODE BEGIN RunTask1Hz */
+    tasks_run1Hz();
     /* USER CODE END RunTask1Hz */
 }
 
@@ -648,6 +747,7 @@ void RunTask1Hz(void *argument)
 void RunTaskCanTx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanTx */
+    tasks_runCanTx();
     /* USER CODE END RunTaskCanTx */
 }
 
@@ -661,6 +761,7 @@ void RunTaskCanTx(void *argument)
 void RunTaskCanRx(void *argument)
 {
     /* USER CODE BEGIN RunTaskCanRx */
+    tasks_runCanRx();
     /* USER CODE END RunTaskCanRx */
 }
 
@@ -675,6 +776,7 @@ void RunTaskChimera(void *argument)
 {
     /* USER CODE BEGIN RunTaskChimera */
     /* Infinite loop */
+    tasks_runChimera();
     /* USER CODE END RunTaskChimera */
 }
 
