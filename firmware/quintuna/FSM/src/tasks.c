@@ -84,12 +84,12 @@ void tasks_init(void)
     io_canTx_FSM_Bootup_sendAperiodic();
 }
 
-_Noreturn void tasks_runChimera(void *arg)
+_Noreturn void tasks_runChimera(void)
 {
     hw_chimera_v2_task(&chimera_v2_config);
 }
 
-void tasks_run1Hz(void *arg)
+void tasks_run1Hz(void)
 {
     const uint32_t  period_ms                = 1000U;
     const uint32_t  watchdog_grace_period_ms = 50U;
@@ -111,7 +111,7 @@ void tasks_run1Hz(void *arg)
     }
 }
 
-void tasks_run100Hz(void *arg)
+void tasks_run100Hz(void)
 {
     const uint32_t  period_ms                = 10U;
     const uint32_t  watchdog_grace_period_ms = 2U;
@@ -133,7 +133,7 @@ void tasks_run100Hz(void *arg)
     }
 }
 
-void tasks_run1kHz(void *arg)
+void tasks_run1kHz(void)
 {
     const uint32_t  period_ms                = 1U;
     const uint32_t  watchdog_grace_period_ms = 1U;
@@ -158,7 +158,7 @@ void tasks_run1kHz(void *arg)
     }
 }
 
-void tasks_runCanTx(void *arg)
+void tasks_runCanTx(void)
 {
     // Setup tasks.
     for (;;)
@@ -178,7 +178,7 @@ void tasks_runCanRxCallback(const CanMsg *msg)
     }
 }
 
-void tasks_runCanRx(void *arg)
+void tasks_runCanRx(void)
 {
     // Setup tasks.
     for (;;)
