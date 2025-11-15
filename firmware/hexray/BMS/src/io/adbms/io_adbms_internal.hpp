@@ -5,6 +5,7 @@
 
 namespace io::adbms
 {
+
 // Write configuration register commands.
 constexpr uint16_t WRCFGA = 0x0001;
 constexpr uint16_t WRCFGB = 0x0024;
