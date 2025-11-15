@@ -160,6 +160,19 @@ const osThreadAttr_t TaskTelemRx_attributes = {
     .stack_size = sizeof(TaskTelemRxBuffer),
     .priority   = (osPriority_t)osPriorityLow,
 };
+
+/* Definitions for chimera */
+osThreadId_t         TaskChimeraHandle;
+uint32_t             TaskChimeraBuffer[512];
+osStaticThreadDef_t  TaskChimeraControlBlock;
+const osThreadAttr_t TaskChimera_attributes = {
+    .name       = "TaskChimera",
+    .cb_mem     = &TaskChimeraControlBlock,
+    .cb_size    = sizeof(TaskChimeraControlBlock),
+    .stack_mem  = &TaskChimeraBuffer[0],
+    .stack_size = sizeof(TaskChimeraBuffer),
+    .priority   = (osPriority_t)osPriorityAboveNormal,
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -254,9 +267,9 @@ int main(void)
 
     /* Create the thread(s) */
     /* creation of Task100Hz */
-    Task100HzHandle = osThreadNew(RunTask100Hz, NULL, &Task100Hz_attributes);
+   // Task100HzHandle = osThreadNew(RunTask100Hz, NULL, &Task100Hz_attributes);
 
-    Task100HzHandle = osThreadNew(RunChimera, NULL, &TaskTelemRx_attributes);
+    TaskChimeraHandle = osThreadNew(RunChimera, NULL, &TaskChimera_attributes);  // High priority level
 
     // const CanMsg dummyRadioMsg = 
     // {
@@ -273,7 +286,6 @@ int main(void)
     //     bool status = io_telemMessageQueue_pushTx(&dummyRadioMsg);
     //     assert(status);
     //}
-
     /* creation of TaskCanTx */
     TaskCanTxHandle = osThreadNew(RunCanTxTask, NULL, &TaskCanTx_attributes);
 

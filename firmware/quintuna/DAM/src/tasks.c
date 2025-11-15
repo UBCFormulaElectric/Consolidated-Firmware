@@ -21,6 +21,7 @@
 #include "io_canTx.h"
 #include "io_tsim.h"
 #include "io_canMsg.h"
+#include "io_fileSystem.h"
 
 #include "hw_hardFaultHandler.h"
 #include "hw_cans.h"
@@ -36,8 +37,6 @@
 #include <shared.pb.h>
 #include <hw_chimeraConfig_v2.h>
 #include <stdio.h>
-
-uint32_t queueElementCounter = 100;
 
 // Note: Need to declare this here (not at the top of main.h) since the name hcrc shadows other local variables that
 // include main.h (and the compiler doesn't like that for some reason).
@@ -117,16 +116,25 @@ void tasks_init(void)
 _Noreturn void tasks_runChimera(void)
 {
     // hw_chimera_v2_task(&chimera_v2_config);
-    io_tsim_set_green();
+    //io_tsim_set_green();
 
-    /* SD Card Write Test*/
+    /* =================== SD Card Write Test  - Writing raw bytes =================== */
 
-    // static uint8_t dummyData[10 * 512] = {0};
+    // static uint8_t dummyData[10 * 512]; 
+
+    // for (uint8_t block = 0; block < 10; block++)
+    // { 
+    //     uint8_t pattern = (block % 2 == 0) ? 0xAA : 0x55; 
+    //     for (uint16_t i = 0; i < 512; i++) 
+    //     { 
+    //         dummyData[block * 512 + i] = pattern; 
+    //     } 
+    // }
 
     // for (int m = 0; m < 10; m++)
     // {
-    //     SdCardStatus sdEraseStatus = hw_sd_erase(0, 10*1000);
-    //     assert(sdEraseStatus == SD_CARD_OK);
+    //     // SdCardStatus sdEraseStatus = hw_sd_erase(0, 10*1000); // Formatting
+    //     // assert(sdEraseStatus == SD_CARD_OK);
 
     //     uint32_t start = io_time_getCurrentMs();
     
@@ -145,7 +153,21 @@ _Noreturn void tasks_runChimera(void)
     // }
 
 
-    /* Radio Transmit Message Test */
+    /* =================== SD Card Write Tests - Writing using logfs =================== */
+
+    char msg[] = "hello world"; 
+
+    uint32_t returned_fd;
+    FileSystemError status = io_fileSystem_open("/test2.txt", &returned_fd);
+    assert(status == FILE_OK);
+
+    FileSystemError status2 = io_fileSystem_write(returned_fd, &msg, 10);
+    assert(status2 == FILE_OK);
+
+    FileSystemError status3 = io_fileSystem_sync(returned_fd);
+    assert(status3 == FILE_OK);
+
+    LOG_INFO("Done.\n");
 
     for(;;)
     {
@@ -155,6 +177,7 @@ _Noreturn void tasks_runChimera(void)
 
 _Noreturn void tasks_run1Hz(void)
 {
+    osDelay(osWaitForever);
     const uint32_t  period_ms                = 1000U;
     const uint32_t  watchdog_grace_period_ms = 50U;
     WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
@@ -175,6 +198,7 @@ _Noreturn void tasks_run1Hz(void)
 
 _Noreturn void tasks_run100Hz(void)
 {
+    osDelay(osWaitForever);
     const uint32_t  period_ms                = 10U;
     const uint32_t  watchdog_grace_period_ms = 2U;
     WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
@@ -195,6 +219,7 @@ _Noreturn void tasks_run100Hz(void)
 
 _Noreturn void tasks_run1kHz(void)
 {
+    osDelay(osWaitForever);
     const uint32_t  period_ms                = 1U;
     const uint32_t  watchdog_grace_period_ms = 1U;
     WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
@@ -217,6 +242,7 @@ _Noreturn void tasks_run1kHz(void)
 
 _Noreturn void tasks_runCanTx(void)
 {
+    osDelay(osWaitForever);
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx(&can_tx_queue);
@@ -226,6 +252,7 @@ _Noreturn void tasks_runCanTx(void)
 
 _Noreturn void tasks_runCanRx(void)
 {
+    osDelay(osWaitForever);
     for (;;)
     {
         jobs_runCanRx_tick();
@@ -234,6 +261,7 @@ _Noreturn void tasks_runCanRx(void)
 
 _Noreturn void tasks_runTelem(void)
 {
+    osDelay(osWaitForever);
     BaseTimeRegMsg base_time_msg = io_telemMessage_buildBaseTimeRegMsg(&boot_time);
     hw_uart_transmit(&_900k_uart, (uint8_t *)&base_time_msg, sizeof(base_time_msg));
 
@@ -254,6 +282,7 @@ _Noreturn void tasks_runTelem(void)
 
 _Noreturn void tasks_runTelemRx(void)
 {
+    osDelay(osWaitForever);
     for (;;)
     {
         // set rtc time from telem rx data
@@ -263,6 +292,7 @@ _Noreturn void tasks_runTelemRx(void)
 
 _Noreturn void tasks_runLogging(void)
 {
+    osDelay(osWaitForever);
     static uint32_t write_count         = 0;
     static uint32_t message_batch_count = 0;
 
