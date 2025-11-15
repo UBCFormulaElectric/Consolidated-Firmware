@@ -5,15 +5,18 @@ import DynamicRowManager from "@/components/shared/DynamicRowManager";
 import ConnectionStatus from "@/components/pages/live-data/ConnectionStatus";
 import SyncedGraphContainer from "@/components/shared/SyncedGraphContainer";
 import { SignalProvider } from "@/hooks/SignalContext";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function LiveDataPage() {
+  const [scrollProgress, setScrollProgress] = useState<number>(0);
+
   return (
     <SignalProvider>
       <div
         className="overflow-x-scroll pt-24 min-h-screen"
         onScroll={(e) => {
-          console.log(e.target.scrollLeft);
+          setScrollProgress(e.currentTarget.scrollLeft);
+          console.log(e.currentTarget.scrollLeft);
         }}
       >
         <div style={{ width: "3000px" }}>
@@ -30,7 +33,7 @@ export default function LiveDataPage() {
             </h2>
             <DynamicRowManager />
 
-            <SyncedGraphContainer />
+            <SyncedGraphContainer scroll={scrollProgress} />
             {/* big orange boy
             <div className="bg-orange-500 h-24 right-0 absolute" style={{ width: "500px" }} />
             */}

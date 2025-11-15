@@ -1,6 +1,6 @@
 # api blueprints
 from fnmatch import fnmatch
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request 
 from middleware.candb import live_can_db
 http = Blueprint("util", __name__)
 
