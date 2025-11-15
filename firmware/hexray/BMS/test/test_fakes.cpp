@@ -13,8 +13,8 @@ extern "C"
 
 struct FaultLatchParams
 {
-    FaultLatch     *arg0;
-    FaultLatchState arg1;
+    io::faultLatch::FaultLatch     *arg0;
+    io::faultLatch::FaultLatchState arg1;
 
     bool operator==(const FaultLatchParams &other) const { return arg0 == other.arg0 && arg1 == other.arg1; }
 };
@@ -22,7 +22,7 @@ template <> struct std::hash<FaultLatchParams>
 {
     std::size_t operator()(const FaultLatchParams &params) const noexcept
     {
-        return hash<const FaultLatch *>()(params.arg0) ^ hash<FaultLatchState>()(params.arg1);
+        return hash<const io::faultLatch::FaultLatch *>()(params.arg0) ^ hash<io::faultLatch::FaultLatchState>()(params.arg1);
     }
 };
 static std::unordered_map<FaultLatchParams, uint32_t> setCurrentStatus_call_count;

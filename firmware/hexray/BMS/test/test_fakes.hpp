@@ -12,14 +12,14 @@ namespace irs
 {
     void setNegativeState(ContactorState state);
 }
-namespace tractiveSystem
+namespace ts
 {
     void setVoltage(float voltage);
     void setCurrentHighResolution(float current);
     void setCurrentLowResolution(float current);
     void setVoltageDiagState(bool state);
     void setCurrentDiagState(bool state);
-} // namespace tractiveSystem
+} // namespace ts
 
 namespace faultLatches
 {
