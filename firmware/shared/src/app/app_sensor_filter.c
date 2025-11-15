@@ -15,17 +15,9 @@
 #include <string.h>
 #include "app_units.h"
 
-// Include CMSIS-DSP for optimized biquad filter processing
-#ifdef ARM_MATH_CM4
-#include "arm_math.h"
-#elif defined(ARM_MATH_CM7)
-#include "arm_math.h"
-#elif defined(ARM_MATH_CM33)
-#include "arm_math.h"
-#else
-// Fallback: define float32_t if CMSIS-DSP not available
+// Using CMSIS Core(M) - standard float type for filter processing
+// No DSP library required as implementation is manual
 typedef float float32_t;
-#endif
 
 #define Q_INV 1.41421356237f
 
@@ -186,7 +178,7 @@ void app_sensor_filter_butterworth_reset(ButterworthFilter *filter)
     filter->previous_output = filter->initial_value;
 }
 
-// Second-Order Butterworth Biquad Filter Implementation using CMSIS-DSP
+// Second-Order Butterworth Biquad Filter Implementation using CMSIS Core(M)
 // Based on bilinear transform method for 2nd order Butterworth lowpass filter
 // References:
 // - Bilinear transformation: https://drive.google.com/file/d/1DWD-mlCiXZQRKY8twKZ-w1JyBcgIiOFM/view?usp=sharing,
@@ -247,11 +239,11 @@ float app_sensor_filter_butterworth_biquad_process(ButterworthBiquadFilter *filt
     assert(filter->is_initialized);
 
     // Direct Form II Transposed implementation
-    // CMSIS-DSP structure (arm_biquad_cascade_df2T)
+    // Compatible with CMSIS Core(M) architecture
 
     // --------- IGNORE PERSONAL NOTES ---------------------
     // The implementation is optimized for single sample processing to match the existing API pattern
-    // For block processing of multiple samples, consider using arm_biquad_cascade_df2T_f32 directly
+    // For block processing of multiple samples, consider processing multiple samples in a loop
     // -----------------------------------------------------
 
     // Filter equations:

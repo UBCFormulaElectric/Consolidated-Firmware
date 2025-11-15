@@ -137,10 +137,10 @@ float app_sensor_filter_butterworth_process(ButterworthFilter *filter, float inp
 void app_sensor_filter_butterworth_reset(ButterworthFilter *filter);
 
 /**
- * @brief Second-Order Butterworth IIR Biquad Filter using CMSIS-DSP
+ * @brief Second-Order Butterworth IIR Biquad Filter using CMSIS Core(M)
  *
  * A high-performance low-pass filter with a maximally flat passband.
- * Uses CMSIS-DSP library for optimized ARM Cortex-M processing.
+ * Uses CMSIS Core(M) compatible implementation for ARM Cortex-M processing.
  * This filter provides better performance and accuracy than the first-order version.
  */
 typedef struct
