@@ -135,3 +135,45 @@ float app_sensor_filter_butterworth_process(ButterworthFilter *filter, float inp
  * @param filter Pointer to the filter structure
  */
 void app_sensor_filter_butterworth_reset(ButterworthFilter *filter);
+
+/**
+ * @brief Second-Order Butterworth IIR Biquad Filter using CMSIS-DSP
+ *
+ * A high-performance low-pass filter with a maximally flat passband.
+ * Uses CMSIS-DSP library for optimized ARM Cortex-M processing.
+ * This filter provides better performance and accuracy than the first-order version.
+ */
+typedef struct
+{
+    float coeffs[5];        // Filter coefficients: {b0, b1, b2, a1, a2}
+    float state[2];         // State variables: {d1, d2} for Direct Form II Transposed
+    float initial_value;    // Initial value for reset functionality
+    bool  is_initialized;   // Initialization flag
+} ButterworthBiquadFilter;
+
+/**
+ * @brief Initialize Second-Order Butterworth Biquad Filter
+ * @param filter Pointer to the filter structure
+ * @param cutoff_frequency The -3dB cutoff frequency in Hz
+ * @param sample_rate The rate at which data is sampled in Hz
+ * @param initial_value The initial value for the filter
+ */
+void app_sensor_filter_butterworth_biquad_init(
+    ButterworthBiquadFilter *filter,
+    float                    cutoff_frequency,
+    float                    sample_rate,
+    float                    initial_value);
+
+/**
+ * @brief Process an input value through the Butterworth biquad filter
+ * @param filter Pointer to the filter structure
+ * @param input The new input sample
+ * @return The filtered output
+ */
+float app_sensor_filter_butterworth_biquad_process(ButterworthBiquadFilter *filter, float input);
+
+/**
+ * @brief Reset the Butterworth biquad filter to its initial state
+ * @param filter Pointer to the filter structure
+ */
+void app_sensor_filter_butterworth_biquad_reset(ButterworthBiquadFilter *filter);

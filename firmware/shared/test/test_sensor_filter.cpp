@@ -274,3 +274,298 @@ TEST_F(SensorFilterTest, Butterworth_CoefficientCalculation)
     // b0 should equal b1 for first-order Butterworth
     EXPECT_NEAR(filter.b0, filter.b1, 0.01f);
 }
+
+// Test Butterworth Biquad Filter
+TEST_F(SensorFilterTest, ButterworthBiquad_BasicFunctionality)
+{
+    ButterworthBiquadFilter filter{};
+
+    // Initialize with cutoff frequency 1Hz and sample rate 10Hz
+    app_sensor_filter_butterworth_biquad_init(&filter, 1.0f, 10.0f, 0.0f);
+
+    // Verify initialization
+    EXPECT_TRUE(filter.is_initialized);
+    EXPECT_NEAR(filter.state[0], 0.0f, 0.001f); // Initial value was 0.0
+    EXPECT_NEAR(filter.state[1], 0.0f, 0.001f);
+
+    // Test processing samples
+    float output1 = app_sensor_filter_butterworth_biquad_process(&filter, 10.0f);
+    EXPECT_GT(output1, 0.0f);
+    EXPECT_LT(output1, 10.0f); // Should be filtered
+
+    float output2 = app_sensor_filter_butterworth_biquad_process(&filter, 20.0f);
+    EXPECT_GT(output2, output1); // Should be increasing towards input
+}
+
+TEST_F(SensorFilterTest, ButterworthBiquad_Reset)
+{
+    ButterworthBiquadFilter filter{};
+
+    app_sensor_filter_butterworth_biquad_init(&filter, 1.0f, 10.0f, 5.0f);
+
+    // Process some samples
+    app_sensor_filter_butterworth_biquad_process(&filter, 10.0f);
+    app_sensor_filter_butterworth_biquad_process(&filter, 20.0f);
+
+    // Verify state changed
+    EXPECT_NE(filter.state[0], 5.0f);
+    EXPECT_NE(filter.state[1], 5.0f);
+
+    // Reset
+    app_sensor_filter_butterworth_biquad_reset(&filter);
+
+    // After reset, state should be restored to initial value
+    EXPECT_NEAR(filter.state[0], 5.0f, 0.001f);
+    EXPECT_NEAR(filter.state[1], 5.0f, 0.001f);
+
+    // After reset, processing the initial value multiple times should converge to it
+    // (The filter still applies its equations, so it won't immediately output the initial value)
+    float output = 0.0f;
+    for (int i = 0; i < 20; i++)
+    {
+        output = app_sensor_filter_butterworth_biquad_process(&filter, 5.0f);
+    }
+    // After many samples of the same value, should converge to that value
+    EXPECT_NEAR(output, 5.0f, 0.1f);
+}
+
+TEST_F(SensorFilterTest, ButterworthBiquad_DifferentCutoffFrequencies)
+{
+    ButterworthBiquadFilter fast_filter{}, slow_filter{};
+
+    // Fast filter (higher cutoff frequency, but must be < sample_rate/2)
+    app_sensor_filter_butterworth_biquad_init(&fast_filter, 4.5f, 10.0f, 0.0f);
+
+    // Slow filter (lower cutoff frequency)
+    app_sensor_filter_butterworth_biquad_init(&slow_filter, 0.5f, 10.0f, 0.0f);
+
+    // Test with step input
+    float input = 10.0f;
+
+    float fast_output = app_sensor_filter_butterworth_biquad_process(&fast_filter, input);
+    float slow_output = app_sensor_filter_butterworth_biquad_process(&slow_filter, input);
+
+    // Fast filter should be closer to the input (responds faster)
+    EXPECT_GT(fast_output, slow_output);
+}
+
+TEST_F(SensorFilterTest, ButterworthBiquad_CoefficientCalculation)
+{
+    ButterworthBiquadFilter filter{};
+
+    // Test coefficient calculation for 1Hz cutoff, 10Hz sample rate
+    app_sensor_filter_butterworth_biquad_init(&filter, 1.0f, 10.0f, 0.0f);
+
+    // Coefficients should be valid (b0, b1, b2, a1, a2)
+    EXPECT_GT(filter.coeffs[0], 0.0f); // b0 > 0
+    EXPECT_GT(filter.coeffs[1], 0.0f); // b1 > 0
+    EXPECT_GT(filter.coeffs[2], 0.0f); // b2 > 0
+
+    // For 2nd order Butterworth, b0 = b2 (symmetry)
+    EXPECT_NEAR(filter.coeffs[0], filter.coeffs[2], 0.01f);
+
+    // b1 should be 2*b0 (from the formula)
+    EXPECT_NEAR(filter.coeffs[1], 2.0f * filter.coeffs[0], 0.01f);
+
+    // a1 and a2 should be reasonable values
+    EXPECT_LT(std::abs(filter.coeffs[3]), 2.0f); // |a1| < 2 for stability
+    EXPECT_LT(std::abs(filter.coeffs[4]), 2.0f); // |a2| < 2 for stability
+}
+
+TEST_F(SensorFilterTest, ButterworthBiquad_StepResponse)
+{
+    ButterworthBiquadFilter filter{};
+
+    // Initialize with cutoff frequency 1Hz and sample rate 10Hz
+    app_sensor_filter_butterworth_biquad_init(&filter, 1.0f, 10.0f, 0.0f);
+
+    // Apply step input (constant value)
+    float step_value = 10.0f;
+    float max_output = 0.0f;
+    float min_output_after_start = 1000.0f; // Large initial value
+
+    // Process multiple samples to reach steady state
+    for (int i = 0; i < 100; i++)
+    {
+        float output = app_sensor_filter_butterworth_biquad_process(&filter, step_value);
+        
+        // Track max and min
+        if (output > max_output)
+        {
+            max_output = output;
+        }
+        if (i > 5 && output < min_output_after_start)
+        {
+            min_output_after_start = output;
+        }
+    }
+
+    // Key properties of a 2nd order Butterworth step response:
+    // 1. Should converge to the step value (DC gain = 1.0)
+    // 2. Should not significantly overshoot (butterworth filters shoot to upto 5% then decay)
+    
+    // Check convergence: output should be close to step value
+    // Allow 3-10% overshoot
+    EXPECT_GT(max_output, step_value * 1.03f); 
+    EXPECT_LT(max_output, step_value * 1.10f);
+}
+
+TEST_F(SensorFilterTest, ButterworthBiquad_DCGain)
+{
+    ButterworthBiquadFilter filter{};
+
+    // Initialize with cutoff frequency 1Hz and sample rate 10Hz
+    app_sensor_filter_butterworth_biquad_init(&filter, 1.0f, 10.0f, 0.0f);
+
+    // Apply constant DC input
+    float dc_value = 5.0f;
+
+    // Process many samples to reach steady state
+    float output = 0.0f;
+    for (int i = 0; i < 100; i++)
+    {
+        output = app_sensor_filter_butterworth_biquad_process(&filter, dc_value);
+    }
+
+    // DC gain should be 1.0 (passes DC through)
+    EXPECT_NEAR(output, dc_value, 0.1f);
+}
+
+TEST_F(SensorFilterTest, ButterworthBiquad_InitialValueHandling)
+{
+    ButterworthBiquadFilter filter{};
+
+    // Initialize with non-zero initial value
+    float initial_value = 7.5f;
+    app_sensor_filter_butterworth_biquad_init(&filter, 1.0f, 10.0f, initial_value);
+
+    // State should be initialized to initial value
+    EXPECT_NEAR(filter.state[0], initial_value, 0.001f);
+    EXPECT_NEAR(filter.state[1], initial_value, 0.001f);
+    EXPECT_NEAR(filter.initial_value, initial_value, 0.001f);
+
+    // First sample should be influenced by initial value
+    float output = app_sensor_filter_butterworth_biquad_process(&filter, 10.0f);
+    EXPECT_GT(output, initial_value); // Should move towards input
+    EXPECT_LT(output, 10.0f);          // But not reach it immediately
+}
+
+TEST_F(SensorFilterTest, ButterworthBiquad_MultipleInitializations)
+{
+    ButterworthBiquadFilter filter{};
+
+    // Initialize with first set of parameters
+    app_sensor_filter_butterworth_biquad_init(&filter, 1.0f, 10.0f, 0.0f);
+    float coeffs1[5];
+    for (int i = 0; i < 5; i++)
+    {
+        coeffs1[i] = filter.coeffs[i];
+    }
+
+    // Process some samples
+    app_sensor_filter_butterworth_biquad_process(&filter, 10.0f);
+    app_sensor_filter_butterworth_biquad_process(&filter, 20.0f);
+
+    // Re-initialize with different parameters
+    app_sensor_filter_butterworth_biquad_init(&filter, 2.0f, 10.0f, 0.0f);
+
+    // Coefficients should be different
+    bool coeffs_different = false;
+    for (int i = 0; i < 5; i++)
+    {
+        if (std::abs(filter.coeffs[i] - coeffs1[i]) > 0.001f)
+        {
+            coeffs_different = true;
+            break;
+        }
+    }
+    EXPECT_TRUE(coeffs_different);
+
+    // State should be reset to initial value
+    EXPECT_NEAR(filter.state[0], 0.0f, 0.001f);
+    EXPECT_NEAR(filter.state[1], 0.0f, 0.001f);
+}
+
+TEST_F(SensorFilterTest, ButterworthBiquad_FilteringBehavior)
+{
+    ButterworthBiquadFilter filter{};
+
+    // Initialize with low cutoff frequency (strong filtering)
+    float cutoff = 0.5f;
+    float sample_rate = 10.0f;
+    app_sensor_filter_butterworth_biquad_init(&filter, cutoff, sample_rate, 0.0f);
+
+    // Apply alternating high/low values (simulating high frequency noise)
+    float high_value = 10.0f;
+    float low_value = 0.0f;
+
+    // Process alternating samples
+    float outputs[10];
+    for (int i = 0; i < 10; i++)
+    {
+        float input = (i % 2 == 0) ? high_value : low_value;
+        outputs[i] = app_sensor_filter_butterworth_biquad_process(&filter, input);
+    }
+
+    // Filtered output should be smoother (less variation)
+    // The difference between consecutive outputs should be smaller than the input variation
+    float max_output_diff = 0.0f;
+    for (int i = 1; i < 10; i++)
+    {
+        float diff = std::abs(outputs[i] - outputs[i - 1]);
+        if (diff > max_output_diff)
+        {
+            max_output_diff = diff;
+        }
+    }
+
+    // Output variation should be less than input variation (10.0)
+    EXPECT_LT(max_output_diff, high_value - low_value);
+}
+
+TEST_F(SensorFilterTest, ButterworthBiquad_NyquistCriterion)
+{
+    ButterworthBiquadFilter filter{};
+
+    // Test that filter rejects frequencies above Nyquist (sample_rate/2)
+    // This is enforced by assertion in init, but we test valid cases
+
+    // Valid: cutoff < sample_rate/2
+    app_sensor_filter_butterworth_biquad_init(&filter, 4.0f, 10.0f, 0.0f);
+    EXPECT_TRUE(filter.is_initialized);
+
+    // Valid: cutoff close to but less than sample_rate/2
+    app_sensor_filter_butterworth_biquad_init(&filter, 4.9f, 10.0f, 0.0f);
+    EXPECT_TRUE(filter.is_initialized);
+}
+
+TEST_F(SensorFilterTest, ButterworthBiquad_StateConsistency)
+{
+    ButterworthBiquadFilter filter{};
+
+    app_sensor_filter_butterworth_biquad_init(&filter, 1.0f, 10.0f, 0.0f);
+
+    // Process a sequence of samples
+    float inputs[] = {1.0f, 2.0f, 3.0f, 4.0f, 5.0f};
+    float outputs[5];
+
+    for (int i = 0; i < 5; i++)
+    {
+        outputs[i] = app_sensor_filter_butterworth_biquad_process(&filter, inputs[i]);
+    }
+
+    // Reset and process same sequence again
+    app_sensor_filter_butterworth_biquad_reset(&filter);
+    float outputs2[5];
+
+    for (int i = 0; i < 5; i++)
+    {
+        outputs2[i] = app_sensor_filter_butterworth_biquad_process(&filter, inputs[i]);
+    }
+
+    // Outputs should be identical (deterministic behavior)
+    for (int i = 0; i < 5; i++)
+    {
+        EXPECT_NEAR(outputs[i], outputs2[i], 0.001f);
+    }
+}

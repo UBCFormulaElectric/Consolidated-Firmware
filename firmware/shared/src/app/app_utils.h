@@ -18,6 +18,7 @@
 #define CLAMP(x, min, max) (MAX(MIN(x, max), min))
 #define CLAMP_TO_ONE(x) (((x) <= 0) ? 1 : ((x) > 1 ? 1 : (x))) // initialize to 1 if value is <=0
 #define SQUARE(x) ((x) * (x))
+#define SQRT(x) (sqrt(x))
 
 #define MAX_4_BITS_VALUE (uint32_t)(15)
 #define MAX_6_BITS_VALUE (uint32_t)(63)
