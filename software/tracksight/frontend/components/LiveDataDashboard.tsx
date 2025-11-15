@@ -11,15 +11,17 @@ function LiveDataDashboard() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div
-      className="flex h-full min-w-[200vw] flex-col gap-16"
-      ref={containerRef}
-    >
-      {widgets.map((widget, index) => (
-        <div className="sticky left-0 w-screen" style={{ zIndex: widgets.length - index }}>
-          <Widget {...widget} />
-        </div>
-      ))}
+    <div className="w-full h-fit overflow-x-scroll scrollbar-hidden overscroll-x-none">
+      <div
+        className="flex h-full min-w-[200vw] flex-col gap-16"
+        ref={containerRef}
+      >
+        {widgets.map((widget, index) => (
+          <div className="sticky left-0 w-screen" style={{ zIndex: widgets.length - index }}>
+            <Widget {...widget} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

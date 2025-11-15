@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { API_BASE_URL } from "@/lib/constants";
 import { SignalMetadata } from "@/lib/types/Signal";
@@ -10,6 +10,8 @@ import { SignalMetadata } from "@/lib/types/Signal";
  * @returns React Query result with an array of signal metadata
  */
 const useSignalMetadataList = (signalSelector: string) => {
+  const queryClient = useQueryClient();
+
   return useQuery({
     queryKey: ["signal-metadata", signalSelector],
     queryFn: async () => {
@@ -26,6 +28,12 @@ const useSignalMetadataList = (signalSelector: string) => {
       if (data.length === 0) {
         throw new Error(`No signals found for selector: ${signalSelector}`);
       }
+
+      data.forEach((signal) => {
+        // NOTE(evan): Cache individual signal metadata to prevent flashing when switching between
+        //             individual signals with the selector.
+        queryClient.setQueryData(["signal-metadata", signal.name], signal);
+      });
 
       return data;
     },

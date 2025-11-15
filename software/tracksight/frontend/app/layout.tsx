@@ -21,7 +21,7 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} bg-primary-200 overflow-y-scroll pb-20`}>
+      <body className={`${inter.className} bg-primary-200 overflow-y-scroll scrollbar-hidden w-screen h-screen pb-20`}>
         <QueryProvider>
           <Navbar />
           <main className="mt-24 py-12">{children}</main>
