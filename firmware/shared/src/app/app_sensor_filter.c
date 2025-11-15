@@ -17,7 +17,7 @@
 
 // Include CMSIS-DSP for optimized biquad filter processing
 #ifdef ARM_MATH_CM4
-#include "arm_math.h"   
+#include "arm_math.h"
 #elif defined(ARM_MATH_CM7)
 #include "arm_math.h"
 #elif defined(ARM_MATH_CM33)
