@@ -18,6 +18,7 @@ type CanvasChartProps = {
   width: number;
   height: number;
   panOffset?: number;
+  scrollProgress?: number;
   zoomLevel?: number;
   frozenTimeWindow?: { startTime: number; endTime: number } | null;
   downsampleThreshold?: number;
@@ -74,6 +75,7 @@ export default function CanvasChart({
   width,
   height,
   panOffset = 0,
+  scrollProgress = 1,
   zoomLevel = 100,
   frozenTimeWindow = null,
   downsampleThreshold = 100000,
@@ -165,13 +167,40 @@ export default function CanvasChart({
         // zoomLevel: 100 = show all data, 200 = show half the data (2x zoom), 50 = show double (0.5x zoom) etc.
         const zoomFactor = 100 / zoomLevel;
         const visibleTimeRange = totalTimeRange * zoomFactor;
+        const normalizedScroll =
+          typeof scrollProgress === "number" && Number.isFinite(scrollProgress)
+            ? Math.min(Math.max(scrollProgress, 0), 1)
+            : null;
 
-        // panOffset is in pixels from the right edge (latest data)
-        const timePerPixel = visibleTimeRange / chartWidth;
-        const timeOffset = panOffset * timePerPixel;
+        if (normalizedScroll !== null) {
+          const maxStartOffset = Math.max(totalTimeRange - visibleTimeRange, 0);
+          const startOffset = maxStartOffset * normalizedScroll;
+          visibleStartTime = earliestTime + startOffset;
+          visibleEndTime = visibleStartTime + visibleTimeRange;
+        } else {
+          // panOffset is in pixels from the right edge (latest data)
+          const timePerPixel = visibleTimeRange / chartWidth;
+          const timeOffset = panOffset * timePerPixel;
 
-        visibleEndTime = latestTime - timeOffset;
-        visibleStartTime = visibleEndTime - visibleTimeRange;
+          visibleEndTime = latestTime - timeOffset;
+          visibleStartTime = visibleEndTime - visibleTimeRange;
+        }
+      }
+
+      if (!frozenTimeWindow) {
+        if (visibleStartTime < earliestTime) {
+          const delta = earliestTime - visibleStartTime;
+          visibleStartTime = earliestTime;
+          visibleEndTime += delta;
+        }
+        if (visibleEndTime > latestTime) {
+          const delta = visibleEndTime - latestTime;
+          visibleEndTime = latestTime;
+          visibleStartTime -= delta;
+        }
+        if (visibleStartTime < earliestTime) {
+          visibleStartTime = earliestTime;
+        }
       }
 
       const startIndex = binarySearchForFirstVisibleIndex(
@@ -483,6 +512,7 @@ export default function CanvasChart({
     width,
     height,
     panOffset,
+    scrollProgress,
     zoomLevel,
     frozenTimeWindow,
     timeTickCount,

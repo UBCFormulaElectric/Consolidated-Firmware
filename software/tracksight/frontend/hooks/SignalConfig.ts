@@ -296,7 +296,7 @@ export const getAlertSignalType = (name: string): AlertSignalType | null => {
   return null;
 };
 
-const backend_port: number = process.env.BACKEND_PORT ? parseInt(process.env.BACKEND_PORT) : 5000;
+const backend_port: number = process.env.NEXT_PUBLIC_BACKEND_PORT ? parseInt(process.env.NEXT_PUBLIC_BACKEND_PORT) : 5000;
 // Default maximum number of data points to keep
 export const DEFAULT_MAX_DATA_POINTS = 1000; // lowk we wanna keep it all
 export const BACKEND_URL =

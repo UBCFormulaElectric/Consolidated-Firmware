@@ -1,153 +1,251 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
-const MIN_VALUE = 1;
-const MAX_VALUE = 100;
-const WINDOW_SIZE = 10; // How many numbers to show at once
-const TOTAL_DATA_ITEMS = MAX_VALUE - MIN_VALUE + 1;
+type SyncedGraphScrollContextValue = {
+  progress: number;
+  setProgress: (next: number) => void;
+};
+
+const SyncedGraphScrollContext =
+  createContext<SyncedGraphScrollContextValue | null>(null);
+
+const DEFAULT_SCROLL_WIDTH = 4000;
+const DEFAULT_STRIP_HEIGHT = 64;
+const SCROLL_LABEL = "Scroll timeline";
+
+type ScrollControllerProps = {
+  onScrollChange: (nextProgress: number) => void;
+  progress: number;
+  scrollWidth?: number;
+  style?: React.CSSProperties;
+};
+
+const clamp01 = (value: number) => Math.min(Math.max(value, 0), 1);
 
 function ScrollController({
   onScrollChange,
+  progress,
+  scrollWidth = DEFAULT_SCROLL_WIDTH,
   style,
-}: {
-  onScrollChange: (newStart: number) => void;
-  style?: React.CSSProperties;
-}) {
-  // use 3000px as an arbitrary large width for the inner div to create a long scroll range
-  const innerScrollWidth = 3000;
+}: ScrollControllerProps) {
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const isSyncingRef = useRef(false);
 
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const { scrollLeft, scrollWidth, clientWidth } = e.currentTarget;
+  const handleScroll = useCallback(
+    (event: React.UIEvent<HTMLDivElement>) => {
+      if (isSyncingRef.current) {
+        return;
+      }
 
-    console.log(scrollLeft, scrollWidth, clientWidth);
+      const { scrollLeft, scrollWidth, clientWidth } = event.currentTarget;
+      const maxScrollLeft = Math.max(scrollWidth - clientWidth, 1);
+      const progressValue = clamp01(scrollLeft / maxScrollLeft);
+      onScrollChange(progressValue);
+    },
+    [onScrollChange]
+  );
 
-    const maxScrollLeft = scrollWidth - clientWidth;
+  useEffect(() => {
+    const node = scrollRef.current;
+    if (!node) return;
 
-    if (maxScrollLeft === 0) {
-      onScrollChange(0);
+    const maxScrollLeft = Math.max(node.scrollWidth - node.clientWidth, 0);
+    const desiredScrollLeft = maxScrollLeft * clamp01(progress);
+
+    if (Math.abs(node.scrollLeft - desiredScrollLeft) < 1) {
       return;
     }
 
-    const scrollPercentage = scrollLeft / maxScrollLeft;
-
-    onScrollChange(scrollPercentage);
-    console.log("Scroll Percentage:", scrollPercentage);
-  };
+    isSyncingRef.current = true;
+    node.scrollLeft = desiredScrollLeft;
+    // release sync lock on next frame to keep user scroll responsive
+    requestAnimationFrame(() => {
+      isSyncingRef.current = false;
+    });
+  }, [progress]);
 
   return (
     <div
-      //className="invisible-scrollbar" // For the WebKit CSS rule
+      aria-hidden="true"
+      ref={scrollRef}
       onScroll={handleScroll}
       style={{
-        ...style, // receives position: 'absolute', zIndex, etc.
+        ...style,
         overflowX: "scroll",
         overflowY: "hidden",
         cursor: "ew-resize",
-        background: "transparent",
-        //scrollbarWidth: 'none',
-        //msOverflowStyle: 'none',
+        WebkitOverflowScrolling: "touch",
       }}
     >
-      {/* This is the invisible, wide child that creates the scrollbar */}
-      <div style={{ width: `${innerScrollWidth}px`, height: "1px" }}></div>
+      <div
+        style={{
+          width: `${scrollWidth}px`,
+          height: "1px",
+          pointerEvents: "none",
+        }}
+      />
     </div>
   );
 }
 
-function DataVisualizer({
-  title,
-  range,
-  windowSize,
-  progress,
-}: {
-  title: string;
-  range: [number, number];
-  windowSize: number;
-  progress: number;
-}) {
-  const [min, max] = range;
-  const totalDataItems = max - min + 1;
-
-  const actualWindowSize = Math.min(windowSize, totalDataItems);
-  const possibleStartPositions = totalDataItems - actualWindowSize + 1;
-
-  const startIndex = Math.round(progress * possibleStartPositions);
-  const visibleStart = min + startIndex;
-
-  const numbers = [];
-  const end = visibleStart + actualWindowSize;
-
-  for (let i = visibleStart; i < end; i++) {
-    numbers.push(i);
+export function useSyncedGraphScroll() {
+  const ctx = useContext(SyncedGraphScrollContext);
+  if (!ctx) {
+    throw new Error(
+      "useSyncedGraphScroll must be used within a SyncedGraphContainer"
+    );
   }
+  return ctx;
+}
+
+type SyncedGraphContainerProps = {
+  children: React.ReactNode;
+  className?: string;
+  scrollStripHeight?: number;
+  scrollWidth?: number;
+  scrollLabel?: string;
+};
+
+export default function SyncedGraphContainer({
+  children,
+  className,
+  scrollStripHeight = DEFAULT_STRIP_HEIGHT,
+  scrollWidth = DEFAULT_SCROLL_WIDTH,
+  scrollLabel = SCROLL_LABEL,
+}: SyncedGraphContainerProps) {
+  const [progress, setProgress] = useState(1);
+  const rafRef = useRef<number | null>(null);
+  const pendingRef = useRef(progress);
+  const latestRef = useRef(progress);
+
+  const scheduleProgressUpdate = useCallback((next: number) => {
+    const clamped = clamp01(next);
+    pendingRef.current = clamped;
+
+    if (Math.abs(clamped - latestRef.current) < 0.0005) {
+      return;
+    }
+
+    if (rafRef.current !== null) {
+      return;
+    }
+
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = null;
+      latestRef.current = pendingRef.current;
+      setProgress(pendingRef.current);
+    });
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, []);
+
+  const applyDelta = useCallback(
+    (deltaPixels: number) => {
+      if (deltaPixels === 0) return;
+      const deltaProgress = deltaPixels / scrollWidth;
+      const base = pendingRef.current;
+      const next = base + deltaProgress;
+      scheduleProgressUpdate(next);
+    },
+    [scrollWidth, scheduleProgressUpdate]
+  );
+
+  const handleWheel = useCallback(
+    (event: React.WheelEvent<HTMLDivElement>) => {
+      const horizontalDelta =
+        Math.abs(event.deltaX) >= Math.abs(event.deltaY)
+          ? event.deltaX
+          : event.shiftKey
+          ? event.deltaY
+          : 0;
+
+      if (horizontalDelta === 0) {
+        return;
+      }
+
+      event.preventDefault();
+      applyDelta(horizontalDelta);
+    },
+    [applyDelta]
+  );
+
+  const contextValue = useMemo<SyncedGraphScrollContextValue>(
+    () => ({
+      progress,
+      setProgress: scheduleProgressUpdate,
+    }),
+    [progress, scheduleProgressUpdate]
+  );
+
+  const containerClassName = ["relative w-full", className]
+    .filter(Boolean)
+    .join(" ");
+
+  const trackHeight = Math.max(scrollStripHeight - 32, 16);
 
   return (
-    <div
-      style={{
-        borderRadius: "8px",
-        padding: "16px",
-        margin: "16px 0",
-        background: "#000000ff",
-        overflow: "hidden",
-      }}
-      className="pointer-events-none select-none"
-    >
-      <h3>{title}</h3>
-      <p>
-        Showing range:{" "}
-        <strong>
-          {visibleStart} - {end - 1}
-        </strong>
-      </p>
-      <div style={{ display: "flex", gap: "5px" }}>
-        {numbers.map((num) => (
+    <SyncedGraphScrollContext.Provider value={contextValue}>
+      <div
+        className={containerClassName}
+        style={{ paddingTop: scrollStripHeight }}
+        onWheel={handleWheel}
+      >
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            height: scrollStripHeight,
+            zIndex: 30,
+            padding: "8px 16px",
+            pointerEvents: "none",
+            display: "flex",
+            flexDirection: "column",
+            gap: 6,
+          }}
+        >
           <div
-            key={num}
             style={{
-              flex: "1 0 50px", // Grow, don't shrink, base 50px
-              textAlign: "center",
-              padding: "10px",
-              background: "#e7f3ff",
-              border: "1px solid #b3d7ff",
-              borderRadius: "4px",
-              fontWeight: "bold",
-              color: "black",
+              fontSize: 11,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              color: "rgba(226,232,240,0.78)",
             }}
           >
-            {num}
+            {scrollLabel}
           </div>
-        ))}
+          <div style={{ pointerEvents: "auto" }}>
+            <ScrollController
+              progress={progress}
+              onScrollChange={scheduleProgressUpdate}
+              scrollWidth={scrollWidth}
+              style={{
+                height: trackHeight,
+                borderRadius: 999,
+                border: "1px solid rgba(148,163,184,0.4)",
+                background: "rgba(30,41,59,0.55)",
+                boxShadow:
+                  "inset 0 0 0 1px rgba(15,23,42,0.35), 0 4px 12px rgba(15,23,42,0.25)",
+              }}
+            />
+          </div>
+        </div>
+        <div>{children}</div>
       </div>
-    </div>
-  );
-}
-
-export default function SyncedGraphContainer() {
-  const [scrollProgress, setScrollProgress] = useState(0);
-
-  const handleProgressUpdate = (newProgress: number) => {
-    setScrollProgress(newProgress);
-  };
-
-  return (
-    <>
-      <DataVisualizer
-        title="Graph 1"
-        range={[1, 100]}
-        windowSize={10}
-        progress={scrollProgress}
-      />
-      <DataVisualizer
-        title="Graph 2"
-        range={[50, 200]}
-        windowSize={20}
-        progress={scrollProgress}
-      />
-      <DataVisualizer
-        title="Graph 3"
-        range={[1, 30]}
-        windowSize={5}
-        progress={scrollProgress}
-      />
-    </>
+    </SyncedGraphScrollContext.Provider>
   );
 }
