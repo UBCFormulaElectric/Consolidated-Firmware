@@ -4,7 +4,7 @@
 #include <FreeRTOS.h>
 #include <task.h>
 
-#include"usbd_cdc_if.h"
+#include "usbd_cdc_if.h"
 #include "io_log.h"
 
 #include <assert.h>
