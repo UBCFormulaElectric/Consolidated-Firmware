@@ -75,7 +75,7 @@ ExitCode hw_spi_transmitThenReceive(
     {
         // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
         enableNss(device);
-        const bool exit = hw_utils_convertHalStatus(HAL_SPI_TransmitReceive(
+        const ExitCode exit = hw_utils_convertHalStatus(HAL_SPI_TransmitReceive(
             device->bus->handle, padded_tx_buffer, padded_rx_buffer, combined_size, device->timeout_ms));
         disableNss(device);
 
@@ -166,8 +166,8 @@ ExitCode hw_spi_receive(const SpiDevice *device, uint8_t *rx_buffer, const uint1
     {
         // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
         enableNss(device);
-        const bool status =
-            HAL_SPI_Receive(device->bus->handle, rx_buffer, rx_buffer_size, device->timeout_ms) == HAL_OK;
+        const ExitCode status = hw_utils_convertHalStatus(
+            HAL_SPI_Receive(device->bus->handle, rx_buffer, rx_buffer_size, device->timeout_ms));
         disableNss(device);
         return status;
     }
