@@ -1,1 +1,48 @@
-{}
+{
+  "warnings_id": 701,
+  "faults_id": 702,
+  "warnings_counts_id": 703,
+  "faults_counts_id": 704,
+  "info_id": 705,
+  "info_counts_id": 706,
+  "warnings": {},
+  "faults": {},
+  "info": {
+    "RearBrakePressureOutOfRange": {
+      "id": 782,
+      "description": "Rear brake pressure out of range."
+    },
+    "FlowMeterUnderflow": {
+      "id": 785,
+      "description": "Flow meter underflow"
+    },
+    "FlowRateOutOfRange": {
+      "id": 786,
+      "description": "Coolant flow out of range"
+    },
+    "RearLeftSuspension_OCSC": {
+      "id": 784,
+      "description": "Rear left suspension open or short circuit"
+    },
+    "RearRightSuspension_OCSC": {
+      "id": 783,
+      "description": "Rear right suspension open or short circuit"
+    },
+    "MissingFSMHeartbeat": {
+      "id": 781,
+      "description": "Missing FSM heartbeat"
+    },
+    "StackOverflow": {
+      "id": 750,
+      "description": "An RTOS task stack overflowed on the previous boot cycle."
+    },
+    "WatchdogTimeout": {
+      "id": 782,
+      "description": "Watchdog timeout detected."
+    },
+    "TireTemperatureOutOfRange":{
+      "id": 715,
+      "description": "Tire Temperature Out of Sensor Range"
+    }
+  }
+}

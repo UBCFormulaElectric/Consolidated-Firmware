@@ -19,5 +19,31 @@
                 "enum": "VCInverterState"
             }
         }
+    },
+    "ConnectorBoardEfuse":{
+        "msg_id": 233,
+        "cycle_time": 100,
+        "description": "Efuse info for RL Pump/RR Pump/F pump/L Rad/R Rad efuses.",
+        "signals": {
+            "RsmTurnOnPump": {
+                "bits": 1
+            }
+        }
+    },
+      "PumpStatus": {
+    "msg_id": 229,
+    "cycle_time": 10,
+    "description": "All pump descriptions",
+    "signals": {
+      "PumpFailure": {
+        "bits": 1
+      },
+      "PumpRampUpSetPoint": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      }
     }
+  }
 }
