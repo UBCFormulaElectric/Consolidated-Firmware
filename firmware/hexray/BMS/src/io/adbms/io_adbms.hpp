@@ -80,15 +80,14 @@ namespace adbms
      * @param configs pointer to array of SegmentConfig structs to populate
      * @param success success of the operation
      */
-    void
-        io_adbms_readConfigurationRegisters(SegmentConfig configs[io::NUM_SEGMENTS], uint8_t success[io::NUM_SEGMENTS]);
+    void readConfigurationRegisters(SegmentConfig configs[io::NUM_SEGMENTS], uint8_t success[io::NUM_SEGMENTS]);
 
     /**
      * Writes a configuration to all segments on the daisy chain.
      * @param config the configuration to write on the ADBMS
      * @return success of the operation
      */
-    ExitCode io_adbms_writeConfigurationRegisters(const SegmentConfig config[io::NUM_SEGMENTS]);
+    ExitCode writeConfigurationRegisters(const SegmentConfig config[io::NUM_SEGMENTS]);
 
     /**
      * @file adbms/io_adbms_balance.cpp
@@ -98,13 +97,13 @@ namespace adbms
      * Sends a command to enable balancing
      * @return success of operation
      */
-    ExitCode io_adbms_sendBalanceCommand(void);
+    ExitCode sendBalanceCommand(void);
 
     /**
      * Send a command to disable balancing
      * @return success of operation
      */
-    ExitCode io_adbms_sendStopBalanceCommand(void);
+    ExitCode sendStopBalanceCommand(void);
 
 } // namespace adbms
 } // namespace io

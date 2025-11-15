@@ -87,19 +87,19 @@ static bool checkDataPec(const uint8_t *data, const uint8_t len, const uint16_t 
 
 namespace io::adbms
 {
-ExitCode io_adbms_sendCommand(const uint16_t command)
+ExitCode sendCommand(const uint16_t command)
 {
     const CmdPayload tx_cmd = buildTxCmd(command);
     return hw_spi_transmit(&adbms_spi_ls, (uint8_t *)&tx_cmd, sizeof(tx_cmd));
 }
 
-ExitCode io_adbms_poll(uint16_t cmd, uint8_t *poll_buf, uint16_t poll_buf_len)
+ExitCode poll(uint16_t cmd, uint8_t *poll_buf, uint16_t poll_buf_len)
 {
     const CmdPayload tx_cmd = buildTxCmd(cmd);
     return hw_spi_transmitThenReceive(&adbms_spi_ls, (uint8_t *)&tx_cmd, sizeof(tx_cmd), poll_buf, poll_buf_len);
 }
 
-void io_adbms_readRegGroup(
+void readRegGroup(
     uint16_t cmd,
     uint16_t regs[io::NUM_SEGMENTS][io::adbms::REGS_PER_GROUP],
     ExitCode comm_success[io::NUM_SEGMENTS])
@@ -142,7 +142,7 @@ void io_adbms_readRegGroup(
     }
 }
 
-ExitCode io_adbms_writeRegGroup(uint16_t cmd, uint16_t regs[io::NUM_SEGMENTS][io::adbms::REGS_PER_GROUP])
+ExitCode writeRegGroup(uint16_t cmd, uint16_t regs[io::NUM_SEGMENTS][io::adbms::REGS_PER_GROUP])
 {
     struct
     {
