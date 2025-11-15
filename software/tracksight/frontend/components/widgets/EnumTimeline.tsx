@@ -61,7 +61,7 @@ function EnumTimeline(props: WidgetData<"enumTimeline">) {
           }}
         />
       </div>
-  
+
       <div className="relative flex h-6 w-full">
         {signals.map((_, i) => (
           <div
@@ -72,7 +72,7 @@ function EnumTimeline(props: WidgetData<"enumTimeline">) {
           />
         ))}
       </div>
-  
+
       <LabelLegend signals={enumOptions} colorPalette={colorPalette} />
     </div>
   );

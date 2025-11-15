@@ -39,5 +39,6 @@
     "prettier-plugin-organize-imports": "^4.3.0",
     "prettier-plugin-tailwindcss": "^0.7.1",
     "typescript": "^5"
-  }
+  },
+  "packageManager": "yarn@1.22.21+sha1.1959a18351b811cdeedbd484a8f86c3cc3bbaf72"
 }

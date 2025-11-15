@@ -1,17 +1,17 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery } from "@tanstack/react-query";
 
-import { API_BASE_URL } from '@/lib/constants';
-import { SignalMetadata } from '@/lib/types/Signal';
+import { API_BASE_URL } from "@/lib/constants";
+import { SignalMetadata } from "@/lib/types/Signal";
 
 /**
  * Hook to fetch metadata for a specific signal.
- * 
+ *
  * @param signalName - The name of the signal to fetch metadata for
  * @returns React Query result with the signal metadata
  */
 const useSignalMetadata = (signalName: string) => {
   return useQuery({
-    queryKey: ['signal-metadata', signalName],
+    queryKey: ["signal-metadata", signalName],
     queryFn: async () => {
       const response = await fetch(`${API_BASE_URL}/signal?name=${encodeURIComponent(signalName)}`);
 
@@ -19,7 +19,7 @@ const useSignalMetadata = (signalName: string) => {
         throw new Error(`Failed to fetch signals: ${response.statusText}`);
       }
 
-      const json = await response.json() as SignalMetadata[];
+      const json = (await response.json()) as SignalMetadata[];
 
       const signal = json.find((s) => s.name === signalName);
 
@@ -31,14 +31,13 @@ const useSignalMetadata = (signalName: string) => {
     },
     retryOnMount: false,
     retry: (failureCount, error) => {
-      if (error instanceof Error && error.message.includes('Signal not found')) {
+      if (error instanceof Error && error.message.includes("Signal not found")) {
         return false;
       }
 
       return failureCount < 2;
-    }
-  })
+    },
+  });
 };
 
 export default useSignalMetadata;
-

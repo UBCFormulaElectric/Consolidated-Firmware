@@ -1,19 +1,7 @@
-import { API_BASE_URL, IS_DEBUG } from "@/lib/constants";
-import socket, { pendingSubscriptions } from "@/lib/realtime/socket";
+import { API_BASE_URL } from "@/lib/constants";
+import socket from "@/lib/realtime/socket";
 
 const subscribeToSignal = async (signalName: string) => {
-  if (!socket.connected) {
-    IS_DEBUG &&
-      console.log(
-        `%c[Subscribe] %cSocket not connected, caching subscription for: ${signalName}`,
-        "color: #ebcb8b; font-weight: bold;",
-        "color: #d08770;"
-      );
-
-    pendingSubscriptions.add(signalName);
-    return { cached: true };
-  }
-
   const response = await fetch(`${API_BASE_URL}/subscribe`, {
     method: "POST",
     headers: {
@@ -25,19 +13,14 @@ const subscribeToSignal = async (signalName: string) => {
     }),
   });
 
+  if (!response.ok) {
+    throw new Error(`Failed to subscribe to signal: ${signalName}`);
+  }
+
   return response.json();
 };
 
 const unsubscribeFromSignal = async (signalName: string) => {
-  if (!socket.connected) {
-    IS_DEBUG &&
-      console.log(
-        `%c[Unsubscribe] %cSocket not connected, caching unsubscription for: ${signalName}`,
-        "color: #ebcb8b; font-weight: bold;",
-        "color: #d08770;"
-      );
-  }
-
   const response = await fetch(`${API_BASE_URL}/unsubscribe`, {
     method: "POST",
     headers: {
@@ -49,11 +32,11 @@ const unsubscribeFromSignal = async (signalName: string) => {
     }),
   });
 
+  if (!response.ok) {
+    throw new Error(`Failed to unsubscribe from signal: ${signalName}`);
+  }
+
   return response.json();
 };
 
-export {
-  subscribeToSignal,
-  unsubscribeFromSignal,
-};
-
+export { subscribeToSignal, unsubscribeFromSignal };

@@ -1,8 +1,6 @@
-"use client";
-
-import { fetchSignalMetadata } from "@/lib/api/signals";
-import { subscribeToSignal, unsubscribeFromSignal } from "@/lib/api/signalSubscriptions";
-import { API_BASE_URL, IS_DEBUG, IS_VERBOSE_DEBUG } from "@/lib/constants";
+import { IS_VERBOSE_DEBUG } from "@/lib/constants";
+import useSubscribeToSignal from "@/lib/mutations/useSubscribeToSignal";
+import useUnsubscribeToSignal from "@/lib/mutations/useUnsubscribeToSignal";
 import socket from "@/lib/realtime/socket";
 import SignalDataReducer from "@/lib/types/SignalDataReducer";
 import { useEffect } from "react";
@@ -19,52 +17,15 @@ const dataSubscribers: Map<string, Set<DataSubscriberCallback>> = new Map();
  */
 const signalDataStore: Record<string, ParsedSignalPayload[]> = {};
 
-// NOTE(evan): Fill the signalDataStore with all of our known signals so that
-//             javascript can hopefully optimize access to the object.
-const signals = fetchSignalMetadata(API_BASE_URL);
-
-signals
-  .then((metadataList) => {
-    metadataList.forEach((metadata) => {
-      signalDataStore[metadata.name] = [];
-    });
-  })
-  .catch((err) => {
-    console.error("Failed to fetch signal metadata:", err);
-  });
-
-const subscribeToSignalData = (signalName: string, callback: DataSubscriberCallback) => {
-  IS_DEBUG &&
-    console.log(
-      `%c[Added Signal Data Subscription] %cSignal: ${signalName}`,
-      "color: #ebcb8b; font-weight: bold;",
-      "color: #d08770;"
-    );
-
+const registerSignalDataCallback = (signalName: string, callback: DataSubscriberCallback) => {
   const currentSubscribers = dataSubscribers.get(signalName) || new Set();
   currentSubscribers.add(callback);
   dataSubscribers.set(signalName, currentSubscribers);
 
   if (currentSubscribers.size > 1) return;
-
-  IS_DEBUG &&
-    console.log(
-      `%c[Subscribe Signal Data] %cSignal: ${signalName}`,
-      "color: #a3be8c; font-weight: bold;",
-      "color: #d08770;"
-    );
-
-  subscribeToSignal(signalName);
 };
 
-const unsubscribeFromSignalData = (signalName: string, callback: DataSubscriberCallback) => {
-  IS_DEBUG &&
-    console.log(
-      `%c[Removed Signal Data Subscription] %cSignal: ${signalName}`,
-      "color: #d08770; font-weight: bold;",
-      "color: #d08770;"
-    );
-
+const unregisterSignalDataCallback = (signalName: string, callback: DataSubscriberCallback) => {
   const currentSubscribers = dataSubscribers.get(signalName);
 
   if (!currentSubscribers) return;
@@ -73,15 +34,7 @@ const unsubscribeFromSignalData = (signalName: string, callback: DataSubscriberC
 
   if (currentSubscribers.size > 0) return;
 
-  IS_DEBUG &&
-    console.log(
-      `%c[Unsubscribe Signal Data] %cSignal: ${signalName}`,
-      "color: #bf616a; font-weight: bold;",
-      "color: #d08770;"
-    );
-
   dataSubscribers.delete(signalName);
-  unsubscribeFromSignal(signalName);
 };
 
 type SignalPayload = {
@@ -163,6 +116,9 @@ const handleData = (data: unknown) => {
 socket.on("data", handleData);
 
 const useSignalSubscription = (signalNames: string[]) => {
+  const subscribeMutation = useSubscribeToSignal();
+  const unsubscribeMutaiton = useUnsubscribeToSignal();
+
   useEffect(() => {
     const signalCallbacks: Record<string, DataSubscriberCallback> = {};
 
@@ -171,29 +127,46 @@ const useSignalSubscription = (signalNames: string[]) => {
         signalDataStore[signalName].push(newData);
       };
 
-      subscribeToSignalData(signalName, signalCallbacks[signalName]);
+      subscribeMutation.mutate(signalName, {
+        onSuccess: () => {
+          registerSignalDataCallback(signalName, signalCallbacks[signalName]);
+        },
+      });
     });
 
     return () => {
       signalNames.forEach((signalName) => {
-        unsubscribeFromSignalData(signalName, signalCallbacks[signalName]);
+        unsubscribeMutaiton.mutate(signalName, {
+          onSuccess: () => {
+            unregisterSignalDataCallback(signalName, signalCallbacks[signalName]);
+          },
+          // TODO(evan): Present an error to the user if unsubscription fails because the component
+          //             is unmounting and they won't see it in the UI.
+        });
       });
     };
   }, [signalNames]);
+
+  return {
+    subscriptionStatus: subscribeMutation.status,
+    subscribeError: subscribeMutation.error,
+
+    unsubscriptionStatus: unsubscribeMutaiton.status,
+    unsubscribeError: unsubscribeMutaiton.error,
+  };
 };
 
 /**
  * Hook that subscribes to signal data updates and returns a stable reference to the signal's data array.
  *
  * The returned array reference never changes - it's mutated in place when data updates occur.
- * To trigger re-renders on data updates, use the `useDataVersion` hook alongside this.
  *
  * @param signalNames - Array of signal names to subscribe to.
  *
- * @returns A stable reference to the signal's data arrays
+ * @returns An object containing subscription status, errors, and the data reference.
  */
-const useSignalDataRef = (signalNames: string[]): Record<string, readonly any[]> => {
-  useSignalSubscription(signalNames);
+const useSignalDataRef = (signalNames: string[]) => {
+  const { subscriptionStatus, subscribeError } = useSignalSubscription(signalNames);
 
   const dataRef: Record<string, readonly any[]> = {};
 
@@ -201,31 +174,59 @@ const useSignalDataRef = (signalNames: string[]): Record<string, readonly any[]>
     dataRef[signalName] = signalDataStore[signalName];
   });
 
-  return dataRef;
+  return {
+    subscriptionStatus,
+    subscribeError,
+
+    dataRef,
+  } as const;
 };
 
 /**
- * TODO(evan): Write some good documentation here
+ * Hook that subscribes to signal data updates and applies a reducer function to accumulate data.
+ *
+ * The returned array reference never changes - it's mutated in place when data updates occur.
+ *
+ * @param signalNames - Array of signal names to subscribe to.
+ * @param reducer - Reducer function to apply to incoming data.
+ * @param initialValue - Initial value for the reducer.
+ * @returns An object containing subscription status, errors, and the accumulated data reference.
  */
 const useSignalDataRefWithReducers = <U, Reducer extends SignalDataReducer<U>>(
   signalNames: string[],
   reducer: Reducer,
   initialValue: U
-): U => {
-  useSignalSubscription(signalNames);
+) => {
+  const { subscriptionStatus, subscribeError } = useSignalSubscription(signalNames);
 
   let dataRef = initialValue;
 
-  signalNames.forEach((signalName) => {
-    subscribeToSignalData(signalName, (newData) => {
+  useEffect(() => {
+    const reducerCallback = (newData: ParsedSignalPayload) => {
       dataRef = reducer(newData, dataRef);
-    });
-  });
+    };
 
-  return dataRef;
+    signalNames.forEach((signalName) => {
+      registerSignalDataCallback(signalName, reducerCallback);
+    });
+
+    return () => {
+      signalNames.forEach((signalName) => {
+        unregisterSignalDataCallback(signalName, reducerCallback);
+        // TODO(evan): Present an error to the user if unsubscription fails because the component
+        //             is unmounting and they won't see it in the UI.
+      });
+    };
+  }, []);
+
+  return {
+    subscriptionStatus,
+    subscribeError,
+
+    dataRef,
+  } as const;
 };
 
 export type { ParsedSignalPayload };
 
 export { useSignalDataRef, useSignalDataRefWithReducers };
-
