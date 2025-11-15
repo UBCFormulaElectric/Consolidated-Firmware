@@ -6,35 +6,57 @@
 #include <string>
 #include "timers.h"
 // Template class wrapper for the RTOS declaration in main.c
-template <size_t StackWords, osPriority_t Priority, const char *Name> class StaticTask
+//template <size_t StackWords, osPriority_t Priority, const char *Name> class StaticTask
+/* Definitions for canTxTask */
+// osThreadId_t         canTxTaskHandle;
+// uint32_t             canTxTaskBuffer[512];
+// osStaticThreadDef_t  canTxTaskControlBlock;
+// const osThreadAttr_t canTxTask_attributes = {
+//     .name       = "canTxTask",
+//     .cb_mem     = &canTxTaskControlBlock,
+//     .cb_size    = sizeof(canTxTaskControlBlock),
+//     .stack_mem  = &canTxTaskBuffer[0],
+//     .stack_size = sizeof(canTxTaskBuffer),
+//     .priority   = (osPriority_t)osPriorityBelowNormal,
+// };
+
+namespace hw::rtos
 {
-  public:
-    StaticTask(osThreadFunc_t func, void *arg = nullptr) : fn_(func), arg_(arg)
-    {
-        // good cpp practice is
-        attr_.name       = Name;
+  class StaticTask{
+    public:
+      constexpr explicit StaticTask(uint32_t *stack_mem,
+                                    size_t  stack_words, 
+                                    osPriority_t priority, 
+                                    const char *name, 
+                                    osThreadFunc_t func, 
+                                    void *arg = nullptr)
+        : size_(stack_mem), stack_(stack_words), prio_(priority), name_(name), fn_(func), arg_(arg){
+        // Runtime osThreadAttr_t assignments
+        attr_.name       = name_;
         attr_.cb_mem     = &cb_;
         attr_.cb_size    = sizeof(cb_);
-        attr_.stack_mem  = stack_;
-        attr_.stack_size = sizeof(stack_);
-
-        attr_.priority = Priority;
+        attr_.stack_mem  = size_;
+        attr_.stack_size = stack_ * sizeof(uint32_t);
+        attr_.priority   = prio_;
     }
-
-    // Ran after the kernal is initialized where the board's task thread are generated
+        
     osThreadId_t start()
     {
         id_ = osThreadNew(fn_, arg_, &attr_);
         return id_;
     }
-
     osThreadId_t id() const { return id_; }
 
-  private:
-    alignas(8) uint32_t stack_[StackWords];
-    StaticTask_t   cb_{};
-    osThreadAttr_t attr_{};
-    osThreadId_t   id_{};
-    osThreadFunc_t fn_{};
-    void          *arg_{};
-};
+    private:
+      uint32_t *const size_;
+      const size_t stack_;
+      const osPriority_t   prio_;
+      const char    *name_;
+      osThreadFunc_t fn_;
+      void          *arg_;
+      osThreadId_t   id_{}; 
+      StaticTask_t   cb_{};
+      osThreadAttr_t attr_{};
+  };
+} // namespace  hw::rtos
+
