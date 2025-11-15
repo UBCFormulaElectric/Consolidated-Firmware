@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev ${PORT:+-p $PORT}",
+    "dev": "next dev ${FRONTEND_PORT:+-p $FRONTEND_PORT}",
     "build": "next build",
-    "start": "next start ${PORT:+-p $PORT}",
+    "start": "next start ${FRONTEND_PORT:+-p $FRONTEND_PORT}",
     "lint": "next lint"
   },
   "dependencies": {
