@@ -183,7 +183,7 @@ SECTIONS
     . = . + _Min_Heap_Size;
     . = . + _Min_Stack_Size;
     . = ALIGN(8);
-  } >sram1_2
+  } >ram
 
   /* Remove information from the compiler libraries */
   /DISCARD/ :

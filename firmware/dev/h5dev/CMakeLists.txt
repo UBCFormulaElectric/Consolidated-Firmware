@@ -5,7 +5,7 @@ set(ARM_CORE "cm33")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/h5dev.ioc")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32h562ritx/stm32h562ritx_app.ld")
 
-file(GLOB EMBEDDED_SRCS
+file(GLOB EMBEDDED_SRCS CONFIGURE_DEPENDS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
@@ -20,13 +20,12 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
         "${SHARED_HW_INCLUDE_DIR}/hw_resetReason.c"
         "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
 )
 
-file(GLOB CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
+file(GLOB CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 
 set(EMBEDDED_INCLUDE_DIRS
         "${SHARED_APP_INCLUDE_DIR}"
@@ -78,7 +77,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "${IOC_PATH}"
             "${CUBEMX_SRCS}"
             "${CUBEMX_INCLUDE_DIRS}"
-            TRUE
+            FALSE
             "${ARM_CORE}"
     )
 

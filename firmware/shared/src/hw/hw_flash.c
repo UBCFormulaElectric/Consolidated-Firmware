@@ -6,7 +6,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#define FLASH_MAX_RETRIES 5
+#define FLASH_MAX_RETRIES 3
 static bool hw_flash_retryFlash(uint32_t address, uint32_t data, uint32_t size, uint32_t type);
 
 #if defined(STM32F412Rx)
@@ -114,7 +114,7 @@ bool hw_flash_eraseSector(uint8_t sector)
  *
  * @param address Destination flash address.
  * @param data  F4: literal flash value.
-                H5/7: address to data buffer with flash values.
+                H7: address to data buffer with flash values.
  * @param size Number of bytes expected to be written.
  * @param type HAL flash program type (BYTE/HALFWORD/WORD for F4, FLASHWORD for H7).
  *

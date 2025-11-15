@@ -4,7 +4,7 @@
 #include <FreeRTOS.h>
 #include <task.h>
 
-#include "usbd_cdc_if.h"
+#include"usbd_cdc_if.h"
 #include "io_log.h"
 
 #include <assert.h>
@@ -18,17 +18,10 @@
 #define TRANSMIT(buf, len) (CDC_Transmit_FS(buf, len))
 extern USBD_HandleTypeDef hUsbDeviceFS;
 #define USB_DEVICE_HANDLER (hUsbDeviceFS)
-
 #elif defined(STM32H733xx)
 #define TRANSMIT(buf, len) (CDC_Transmit_HS(buf, len))
 extern USBD_HandleTypeDef hUsbDeviceHS;
 #define USB_DEVICE_HANDLER (hUsbDeviceHS)
-
-#elif defined(STM32H562xx)
-#define TRANSMIT(buf, len) (CDC_Transmit_FS(buf, len))
-extern USBD_HandleTypeDef hUsbDeviceFS;
-#define USB_DEVICE_HANDLER (hUsbDeviceFS)
-
 #else
 #error Either STM32H733xx or STM32F412Rx must be defined, \
         so that hw_usb knows which handlers to use.
