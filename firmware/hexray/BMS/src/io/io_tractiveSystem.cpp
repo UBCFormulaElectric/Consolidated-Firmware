@@ -1,6 +1,7 @@
 #include "io_tractiveSystem.hpp"
 
-extern "C" {
+extern "C"
+{
 #include "hw_adcs.h"
 #include "hw_gpios.h"
 #include "hw_hal.h"
@@ -11,7 +12,8 @@ extern "C" {
 
 // Percent error used to compensate for resistor errors. Determined from testing with the HW
 // TODO: Test with HW to determine compensation
-namespace io::ts {
+namespace io::ts
+{
 constexpr float R_ERROR_COMPENSATION = 1.0f;
 
 // Isolated amplifier gain
@@ -45,7 +47,6 @@ constexpr float OUTPUT2_DISCHARGING_ERROR_SLOPE  = 0.2417f;
 constexpr float OUTPUT2_DISCHARGING_ERROR_OFFSET = 2.3634f;
 constexpr float OUTPUT2_CHARGING_ERROR_SLOPE     = 0.2324f;
 constexpr float OUTPUT2_CHARGING_ERROR_OFFSET    = 2.4038f;
-
 
 float getVoltage(void)
 {
@@ -87,8 +88,7 @@ float getVoltage(void)
     }
     else
     {
-        const float real_voltage =
-            ts_vsense * R_ERROR_COMPENSATION / (TS_VOLTAGE_DIV * AMPLIFIER_GAIN);
+        const float real_voltage = ts_vsense * R_ERROR_COMPENSATION / (TS_VOLTAGE_DIV * AMPLIFIER_GAIN);
         return real_voltage;
     }
 }
@@ -138,8 +138,7 @@ float getCurrentHighestResolution(void)
     }
     else
     {
-        high_res_curr_calibration =
-            high_res_current * OUTPUT1_CHARGING_ERROR_SLOPE + OUTPUT1_CHARGING_ERROR_OFFSET;
+        high_res_curr_calibration = high_res_current * OUTPUT1_CHARGING_ERROR_SLOPE + OUTPUT1_CHARGING_ERROR_OFFSET;
     }
 
     return -(high_res_current + high_res_curr_calibration);
@@ -185,13 +184,11 @@ float getCurrentLowResolution(void)
     float low_res_curr_calibration = 0.0f;
     if (low_res_current > -0.2f)
     {
-        low_res_curr_calibration =
-            low_res_current * OUTPUT2_DISCHARGING_ERROR_SLOPE + OUTPUT2_DISCHARGING_ERROR_OFFSET;
+        low_res_curr_calibration = low_res_current * OUTPUT2_DISCHARGING_ERROR_SLOPE + OUTPUT2_DISCHARGING_ERROR_OFFSET;
     }
     else
     {
-        low_res_curr_calibration =
-            low_res_current * OUTPUT2_CHARGING_ERROR_SLOPE + OUTPUT2_CHARGING_ERROR_OFFSET;
+        low_res_curr_calibration = low_res_current * OUTPUT2_CHARGING_ERROR_SLOPE + OUTPUT2_CHARGING_ERROR_OFFSET;
     }
 
     return -(low_res_current + low_res_curr_calibration);

@@ -7,7 +7,7 @@ namespace app::charger
 {
 class Charger
 {
-public:
+  public:
     static float getAvailableCurrent()
     {
         const float evseDutyCycle = io::charger::getCPDutyCycle();

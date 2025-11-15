@@ -21,8 +21,8 @@ enum class FaultLatchState : std::uint8_t
 
 struct FaultLatch
 {
-    const Gpio* current_status_gpio;
-    const Gpio* latch_status_gpio;
+    const Gpio *current_status_gpio;
+    const Gpio *latch_status_gpio;
     bool        inverted;
     const bool  read_only; // Certain fault latches can only be read from.
 };
@@ -52,19 +52,19 @@ extern FaultLatch bspd_ok_latch;
  * @param latch Fault latch instance.
  * @param status whether or not to set a fault
  */
-void setCurrentStatus(const FaultLatch* latch, FaultLatchState status);
+void setCurrentStatus(const FaultLatch *latch, FaultLatchState status);
 
 /**
  * Return whether or not there is currently a fault.
  * @param latch Fault latch instance.
  * @returns True = there is currently NOT a fault.
  */
-FaultLatchState getCurrentStatus(const FaultLatch* latch);
+FaultLatchState getCurrentStatus(const FaultLatch *latch);
 
 /**
  * Return whether or not the fault latch is OK.
  * @param latch Fault latch instance.
  * @returns True = fault has NOT been latched.
  */
-FaultLatchState getLatchedStatus(const FaultLatch* latch);
+FaultLatchState getLatchedStatus(const FaultLatch *latch);
 } // namespace io::faultLatch

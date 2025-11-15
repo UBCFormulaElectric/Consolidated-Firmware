@@ -1,6 +1,7 @@
 #pragma once
 
-namespace io::ts {
+namespace io::ts
+{
 
 /**
  * Initialize the tractive system driver.

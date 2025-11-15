@@ -1,11 +1,9 @@
 #include "io_charger.hpp"
+#include "hw_gpios.hpp"
+#include "hw_pwms.hpp"
 
-extern "C" {
-#include "hw_pwms.h"
-#include "hw_gpios.h"
-}
-
-namespace io::charger {
+namespace io::charger
+{
 
 ChargerConnectedType getConnectionStatus()
 {

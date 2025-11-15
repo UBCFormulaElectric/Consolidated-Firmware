@@ -5,14 +5,17 @@
 #include "app_timer.hpp"
 #include "app_tractiveSystem.hpp"
 
-extern "C" {
+extern "C"
+{
 #include "io_irs.h"
 #include "app_canAlerts.h"
 #include "app_segments.h"
 }
 
-namespace app::precharge {
-namespace {
+namespace app::precharge
+{
+namespace
+{
     Timer lower_bound_timer;
     Timer upper_bound_timer;
     Timer cooldown_timer;
@@ -58,7 +61,7 @@ State poll(bool precharge_for_charging)
     const float ts_voltage = app::ts::getVoltage();
 
 #ifdef TARGET_HV_SUPPLY
-    #define HV_SUPPLY_VOLTAGE (588.0f)
+#define HV_SUPPLY_VOLTAGE (588.0f)
     const float threshold_voltage = HV_SUPPLY_VOLTAGE * PRECHARGE_ACC_V_THRESHOLD;
 #else
     const float threshold_voltage = app_segments_getPackVoltage() * PRECHARGE_ACC_V_THRESHOLD;
@@ -67,12 +70,10 @@ State poll(bool precharge_for_charging)
     const bool is_air_negative_open = (io_irs_negativeState() == CONTACTOR_STATE_OPEN);
 
     const bool is_ts_rising_slowly =
-        (ts_voltage < threshold_voltage) &&
-        (upper_bound_timer.updateAndGetState() == Timer::TimerState::EXPIRED);
+        (ts_voltage < threshold_voltage) && (upper_bound_timer.updateAndGetState() == Timer::TimerState::EXPIRED);
 
     const bool is_ts_rising_quickly =
-        (ts_voltage > threshold_voltage) &&
-        (lower_bound_timer.updateAndGetState() == Timer::TimerState::RUNNING);
+        (ts_voltage > threshold_voltage) && (lower_bound_timer.updateAndGetState() == Timer::TimerState::RUNNING);
 
     // For charging we only consider "rising slowly" as a fault; otherwise consider both.
     bool has_precharge_fault =
