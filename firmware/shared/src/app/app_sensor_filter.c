@@ -16,7 +16,11 @@
 #include "app_units.h"
 
 // Include CMSIS-DSP for optimized biquad filter processing
-#ifdef ARM_MATH_CM4
+// Only include arm_math.h in embedded builds, not in test builds
+#ifdef TARGET_TEST
+// Fallback: define float32_t if CMSIS-DSP not available (test builds)
+typedef float float32_t;
+#elif defined(ARM_MATH_CM4)
 #include "arm_math.h"
 #elif defined(ARM_MATH_CM7)
 #include "arm_math.h"
