@@ -133,9 +133,6 @@ _Noreturn void tasks_runChimera(void)
 
     // for (int m = 0; m < 10; m++)
     // {
-    //     // SdCardStatus sdEraseStatus = hw_sd_erase(0, 10*1000); // Formatting
-    //     // assert(sdEraseStatus == SD_CARD_OK);
-
     //     uint32_t start = io_time_getCurrentMs();
     
     //     // Write to SD card
@@ -151,7 +148,6 @@ _Noreturn void tasks_runChimera(void)
     //     uint32_t elapsedTimeMs = end - start;
     //     LOG_INFO("Elapsed time: %d milliseconds", elapsedTimeMs);
     // }
-
 
     /* =================== SD Card Write Tests - Writing using logfs =================== */
 
@@ -268,6 +264,7 @@ _Noreturn void tasks_runTelem(void)
     for (;;)
     {
         CanMsg      queue_out = io_telemMessageQueue_popTx();
+        queueElementCounter--;
         uint8_t     full_msg_size;
         TelemCanMsg can_msg = io_telemMessage_buildCanMsg(&queue_out, 0, &full_msg_size);
         

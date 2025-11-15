@@ -268,7 +268,6 @@ int main(void)
     /* Create the thread(s) */
     /* creation of Task100Hz */
    // Task100HzHandle = osThreadNew(RunTask100Hz, NULL, &Task100Hz_attributes);
-
     TaskChimeraHandle = osThreadNew(RunChimera, NULL, &TaskChimera_attributes);  // High priority level
 
     // const CanMsg dummyRadioMsg = 
@@ -286,6 +285,7 @@ int main(void)
     //     bool status = io_telemMessageQueue_pushTx(&dummyRadioMsg);
     //     assert(status);
     //}
+
     /* creation of TaskCanTx */
     TaskCanTxHandle = osThreadNew(RunCanTxTask, NULL, &TaskCanTx_attributes);
 
