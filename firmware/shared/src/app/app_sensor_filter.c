@@ -7,7 +7,8 @@
 //                     this wrapper was created first as a learning exercise and doesn't have any practical benefits
 //                     over the actual IIR moving average filter only over a simple moving average filter.
 // Butterworth filter: https://www.electronics-tutorials.ws/filter/filter_8.html
-// 2nd order Butterworth biquad: https://www.dsprelated.com/freebooks/filters/Example_Second_Order_Butterworth_Lowpass.html
+// 2nd order Butterworth biquad:
+// https://www.dsprelated.com/freebooks/filters/Example_Second_Order_Butterworth_Lowpass.html
 //                               https://www.mathworks.com/help/signal/ref/butter.html
 #include "app_sensor_filter.h"
 #include <assert.h>
@@ -188,7 +189,8 @@ void app_sensor_filter_butterworth_reset(ButterworthFilter *filter)
 // Second-Order Butterworth Biquad Filter Implementation using CMSIS-DSP
 // Based on bilinear transform method for 2nd order Butterworth lowpass filter
 // References:
-// - Bilinear transformation: https://drive.google.com/file/d/1DWD-mlCiXZQRKY8twKZ-w1JyBcgIiOFM/view?usp=sharing, https://drive.google.com/file/d/1N4QLeThiRkMvv1Coa4Jz7XBrzQYjDaYG/view?usp=sharing
+// - Bilinear transformation: https://drive.google.com/file/d/1DWD-mlCiXZQRKY8twKZ-w1JyBcgIiOFM/view?usp=sharing,
+// https://drive.google.com/file/d/1N4QLeThiRkMvv1Coa4Jz7XBrzQYjDaYG/view?usp=sharing
 // - https://www.dsprelated.com/freebooks/filters/Example_Second_Order_Butterworth_Lowpass.html
 // - https://www.mathworks.com/help/signal/ref/butter.html
 
@@ -206,11 +208,11 @@ void app_sensor_filter_butterworth_biquad_init(
     // Calculate pre-warped frequency for bilinear transform
     // K = tan(π·fc/fs) where fc is cutoff frequency and fs is sample rate
     // This pre-warping compensates for frequency warping in the bilinear transform
-    float K = tanf(M_PI_F * cutoff_frequency / sample_rate);
+    float K         = tanf(M_PI_F * cutoff_frequency / sample_rate);
     float K_squared = SQUARE(K);
 
     // For 2nd order Butterworth filter: Q = 1/√2 ≈ 0.707106781
-    const float Q_inv = Q_INV;                 // 1/Q = √2 for Butterworth
+    const float Q_inv = Q_INV; // 1/Q = √2 for Butterworth
 
     // Calculate denominator: 1 + √2·K + K²
     // This comes from the bilinear transform of the analog Butterworth prototype
@@ -218,10 +220,10 @@ void app_sensor_filter_butterworth_biquad_init(
 
     // Calculate filter coefficients for Direct Form II Transposed
     // Format: {b0, b1, b2, a1, a2}
-    filter->coeffs[0] = K_squared / denominator;                    // b0
-    filter->coeffs[1] = 2.0f * K_squared / denominator;            // b1
-    filter->coeffs[2] = K_squared / denominator;                   // b2
-    filter->coeffs[3] = 2.0f * (K_squared - 1.0f) / denominator;  // a1 (stored positive, negated in processing)
+    filter->coeffs[0] = K_squared / denominator;                      // b0
+    filter->coeffs[1] = 2.0f * K_squared / denominator;               // b1
+    filter->coeffs[2] = K_squared / denominator;                      // b2
+    filter->coeffs[3] = 2.0f * (K_squared - 1.0f) / denominator;      // a1 (stored positive, negated in processing)
     filter->coeffs[4] = (1.0f - Q_inv * K + K_squared) / denominator; // a2 (stored positive, negated in processing)
 
     // Initialize state variables to zero

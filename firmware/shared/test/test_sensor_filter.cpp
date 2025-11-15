@@ -380,15 +380,15 @@ TEST_F(SensorFilterTest, ButterworthBiquad_StepResponse)
     app_sensor_filter_butterworth_biquad_init(&filter, 1.0f, 10.0f, 0.0f);
 
     // Apply step input (constant value)
-    float step_value = 10.0f;
-    float max_output = 0.0f;
+    float step_value             = 10.0f;
+    float max_output             = 0.0f;
     float min_output_after_start = 1000.0f; // Large initial value
 
     // Process multiple samples to reach steady state
     for (int i = 0; i < 100; i++)
     {
         float output = app_sensor_filter_butterworth_biquad_process(&filter, step_value);
-        
+
         // Track max and min
         if (output > max_output)
         {
@@ -403,10 +403,10 @@ TEST_F(SensorFilterTest, ButterworthBiquad_StepResponse)
     // Key properties of a 2nd order Butterworth step response:
     // 1. Should converge to the step value (DC gain = 1.0)
     // 2. Should not significantly overshoot (butterworth filters shoot to upto 5% then decay)
-    
+
     // Check convergence: output should be close to step value
     // Allow 3-10% overshoot
-    EXPECT_GT(max_output, step_value * 1.03f); 
+    EXPECT_GT(max_output, step_value * 1.03f);
     EXPECT_LT(max_output, step_value * 1.10f);
 }
 
@@ -447,7 +447,7 @@ TEST_F(SensorFilterTest, ButterworthBiquad_InitialValueHandling)
     // First sample should be influenced by initial value
     float output = app_sensor_filter_butterworth_biquad_process(&filter, 10.0f);
     EXPECT_GT(output, initial_value); // Should move towards input
-    EXPECT_LT(output, 10.0f);          // But not reach it immediately
+    EXPECT_LT(output, 10.0f);         // But not reach it immediately
 }
 
 TEST_F(SensorFilterTest, ButterworthBiquad_MultipleInitializations)
@@ -491,20 +491,20 @@ TEST_F(SensorFilterTest, ButterworthBiquad_FilteringBehavior)
     ButterworthBiquadFilter filter{};
 
     // Initialize with low cutoff frequency (strong filtering)
-    float cutoff = 0.5f;
+    float cutoff      = 0.5f;
     float sample_rate = 10.0f;
     app_sensor_filter_butterworth_biquad_init(&filter, cutoff, sample_rate, 0.0f);
 
     // Apply alternating high/low values (simulating high frequency noise)
     float high_value = 10.0f;
-    float low_value = 0.0f;
+    float low_value  = 0.0f;
 
     // Process alternating samples
     float outputs[10];
     for (int i = 0; i < 10; i++)
     {
         float input = (i % 2 == 0) ? high_value : low_value;
-        outputs[i] = app_sensor_filter_butterworth_biquad_process(&filter, input);
+        outputs[i]  = app_sensor_filter_butterworth_biquad_process(&filter, input);
     }
 
     // Filtered output should be smoother (less variation)
@@ -546,7 +546,7 @@ TEST_F(SensorFilterTest, ButterworthBiquad_StateConsistency)
     app_sensor_filter_butterworth_biquad_init(&filter, 1.0f, 10.0f, 0.0f);
 
     // Process a sequence of samples
-    float inputs[] = {1.0f, 2.0f, 3.0f, 4.0f, 5.0f};
+    float inputs[] = { 1.0f, 2.0f, 3.0f, 4.0f, 5.0f };
     float outputs[5];
 
     for (int i = 0; i < 5; i++)

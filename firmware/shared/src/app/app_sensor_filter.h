@@ -145,10 +145,10 @@ void app_sensor_filter_butterworth_reset(ButterworthFilter *filter);
  */
 typedef struct
 {
-    float coeffs[5];        // Filter coefficients: {b0, b1, b2, a1, a2}
-    float state[2];         // State variables: {d1, d2} for Direct Form II Transposed
-    float initial_value;    // Initial value for reset functionality
-    bool  is_initialized;   // Initialization flag
+    float coeffs[5];      // Filter coefficients: {b0, b1, b2, a1, a2}
+    float state[2];       // State variables: {d1, d2} for Direct Form II Transposed
+    float initial_value;  // Initial value for reset functionality
+    bool  is_initialized; // Initialization flag
 } ButterworthBiquadFilter;
 
 /**
