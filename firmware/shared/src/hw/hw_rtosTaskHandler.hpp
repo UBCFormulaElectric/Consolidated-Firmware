@@ -5,32 +5,19 @@
 #include "FreeRTOS.h"
 #include <string>
 #include "timers.h"
-// Template class wrapper for the RTOS declaration in main.c
-//template <size_t StackWords, osPriority_t Priority, const char *Name> class StaticTask
-/* Definitions for canTxTask */
-// osThreadId_t         canTxTaskHandle;
-// uint32_t             canTxTaskBuffer[512];
-// osStaticThreadDef_t  canTxTaskControlBlock;
-// const osThreadAttr_t canTxTask_attributes = {
-//     .name       = "canTxTask",
-//     .cb_mem     = &canTxTaskControlBlock,
-//     .cb_size    = sizeof(canTxTaskControlBlock),
-//     .stack_mem  = &canTxTaskBuffer[0],
-//     .stack_size = sizeof(canTxTaskBuffer),
-//     .priority   = (osPriority_t)osPriorityBelowNormal,
-// };
-
 namespace hw::rtos
 {
-  class StaticTask{
-    public:
-      constexpr explicit StaticTask(uint32_t *stack_mem,
-                                    size_t  stack_words, 
-                                    osPriority_t priority, 
-                                    const char *name, 
-                                    osThreadFunc_t func, 
-                                    void *arg = nullptr)
-        : size_(stack_mem), stack_(stack_words), prio_(priority), name_(name), fn_(func), arg_(arg){
+class StaticTask
+{
+  public:
+    constexpr explicit StaticTask(
+        uint32_t      *stack_mem,
+        size_t         stack_words,
+        osPriority_t   priority,
+        const char    *name,
+        osThreadFunc_t func)
+      : size_(stack_mem), stack_(stack_words), prio_(priority), name_(name), fn_(func)
+    {
         // Runtime osThreadAttr_t assignments
         attr_.name       = name_;
         attr_.cb_mem     = &cb_;
@@ -39,24 +26,22 @@ namespace hw::rtos
         attr_.stack_size = stack_ * sizeof(uint32_t);
         attr_.priority   = prio_;
     }
-        
+
     osThreadId_t start()
     {
-        id_ = osThreadNew(fn_, arg_, &attr_);
+        id_ = osThreadNew(fn_, nullptr, &attr_);
         return id_;
     }
     osThreadId_t id() const { return id_; }
 
-    private:
-      uint32_t *const size_;
-      const size_t stack_;
-      const osPriority_t   prio_;
-      const char    *name_;
-      osThreadFunc_t fn_;
-      void          *arg_;
-      osThreadId_t   id_{}; 
-      StaticTask_t   cb_{};
-      osThreadAttr_t attr_{};
-  };
+  private:
+    uint32_t *const    size_;
+    const size_t       stack_;
+    const osPriority_t prio_;
+    const char        *name_;
+    osThreadFunc_t     fn_;
+    osThreadId_t       id_{};
+    StaticTask_t       cb_{};
+    osThreadAttr_t     attr_{};
+};
 } // namespace  hw::rtos
-
