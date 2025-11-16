@@ -1,6 +1,19 @@
 #include "tasks.h"
 #include "jobs.hpp"
 #include "io_time.hpp"
+#include "hw_rtosTaskHandler.hpp"
+
+// Define Stack sizes with multiples of 8 bytes required by ARM
+alignas(8) static uint32_t Task100HzStack[8096];
+alignas(8) static uint32_t Task1kHzStack[512];
+alignas(8) static uint32_t Task1HzStack[512];
+alignas(8) static uint32_t TaskChimeraStack[512];
+
+// Define the task with StaticTask Class
+static hw::rtos::StaticTask Task100Hz(Task100HzStack, 8096, osPriorityHigh, "Task100Hz", tasks_run100Hz);
+static hw::rtos::StaticTask Task1kHz(Task1kHzStack, 512, osPriorityRealtime, "Task1kHz", tasks_run1kHz);
+static hw::rtos::StaticTask Task1Hz(Task1HzStack, 512, osPriorityAboveNormal, "Task1Hz", tasks_run1Hz);
+static hw::rtos::StaticTask TaskChimera(TaskChimeraStack, 512, osPriorityHigh, "TaskChimera", tasks_runChimera);
 
 void tasks_preInit() {}
 void tasks_init()
@@ -8,7 +21,7 @@ void tasks_init()
     jobs_init();
 }
 
-void tasks_run1Hz()
+void tasks_run1Hz(void *arg)
 {
     forever
     {
@@ -17,29 +30,30 @@ void tasks_run1Hz()
         io::time::delayUntil(start_time + 1000);
     }
 }
-void tasks_run100Hz()
+void tasks_run100Hz(void *arg)
 {
     forever
     {
         jobs_run100Hz_tick();
     }
 }
-void tasks_run1kHz()
+void tasks_run1kHz(void *arg)
 {
     forever
     {
         jobs_run1kHz_tick();
     }
 }
-void tasks_runCanTx()
+
+void tasks_runChimera(void *arg)
 {
     forever {}
 }
-void tasks_runCanRx()
+
+CFUNC void VC_StartAllTasks(void)
 {
-    forever {}
-}
-void tasks_runChimera()
-{
-    forever {}
+    Task100Hz.start();
+    Task1kHz.start();
+    Task1Hz.start();
+    TaskChimera.start();
 }
