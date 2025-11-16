@@ -378,6 +378,56 @@ namespace bspdtest
     }
 } // namespace bspdtest
 
+namespace adbms
+{
+    bool started_therm_adc_conversion = false;
+    bool started_cell_adc_conversion  = false;
+
+    ExitCode sendCommand(const uint16_t command)
+    {
+        UNUSED(command);
+        return EXIT_CODE_OK;
+    }
+
+    ExitCode poll(uint16_t cmd, uint8_t *poll_buf, uint16_t poll_buf_len)
+    {
+        UNUSED(cmd);
+        std::memset(poll_buf, 0, poll_buf_len);
+        return EXIT_CODE_OK;
+    }
+
+    void readRegGroup(
+        uint16_t cmd,
+        uint16_t regs[NUM_SEGMENTS][adbms::REGS_PER_GROUP],
+        ExitCode comm_success[NUM_SEGMENTS])
+    {
+        UNUSED(cmd);
+        std::memset(regs, 0, NUM_SEGMENTS * adbms::REGS_PER_GROUP * sizeof(uint16_t));
+        for (size_t i = 0; i < NUM_SEGMENTS; i++)
+        {
+            comm_success[i] = EXIT_CODE_OK;
+        }
+    }
+
+    ExitCode writeRegGroup(uint16_t cmd, uint16_t regs[NUM_SEGMENTS][adbms::REGS_PER_GROUP])
+    {
+        UNUSED(cmd);
+        UNUSED(regs);
+        return EXIT_CODE_OK;
+    }
+
+    ExitCode sendBalanceCommand(void)
+    {
+        return EXIT_CODE_OK;
+    }
+
+    ExitCode sendStopBalanceCommand(void)
+    {
+        return EXIT_CODE_OK;
+    }
+} // namespace adbms
+
+
 } // namespace io
 
 namespace fakes

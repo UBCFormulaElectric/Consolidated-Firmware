@@ -1,12 +1,15 @@
 #include "io_adbms.hpp"
 #include "io_adbms_internal.hpp"
 
-ExitCode io_adbms_sendBalanceCommand(void)
+namespace io::adbms
 {
-    return io::adbms::io_adbms_sendCommand(io::adbms::UNMUTE);
+ExitCode sendBalanceCommand(void)
+{
+    return io::adbms::sendCommand(io::adbms::UNMUTE);
 }
 
-ExitCode io_adbms_sendStopBalanceCommand(void)
+ExitCode sendStopBalanceCommand(void)
 {
-    return io::adbms::io_adbms_sendCommand(io::adbms::MUTE);
+    return io::adbms::sendCommand(io::adbms::MUTE);
+}
 }

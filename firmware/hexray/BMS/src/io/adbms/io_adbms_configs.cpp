@@ -6,7 +6,7 @@
 
 namespace io::adbms
 {
-ExitCode io_adbms_writeConfigurationRegisters(const SegmentConfig config[io::NUM_SEGMENTS])
+ExitCode writeConfigurationRegisters(const SegmentConfig config[io::NUM_SEGMENTS])
 {
     uint16_t cfga_regs[io::NUM_SEGMENTS];
     uint16_t cfgb_regs[io::NUM_SEGMENTS];
@@ -18,20 +18,20 @@ ExitCode io_adbms_writeConfigurationRegisters(const SegmentConfig config[io::NUM
     }
 
     // Write to configuration registers
-    RETURN_IF_ERR(io_adbms_writeRegGroup(WRCFGA, cfga_regs));
-    RETURN_IF_ERR(io_adbms_writeRegGroup(WRCFGB, cfgb_regs));
+    RETURN_IF_ERR(io::adbms::writeRegGroup(WRCFGA, cfga_regs));
+    RETURN_IF_ERR(io::adbms::writeRegGroup(WRCFGB, cfgb_regs));
     return EXIT_CODE_OK;
 }
 
-void io_adbms_readConfigurationRegisters(SegmentConfig configs[io::NUM_SEGMENTS], ExitCode success[io::NUM_SEGMENTS])
+void readConfigurationRegisters(SegmentConfig configs[io::NUM_SEGMENTS], ExitCode success[io::NUM_SEGMENTS])
 {
-    uint16_t regs_a[io::NUM_SEGMENTS];
+    uint16_t regs_a[io::NUM_SEGMENTS][io::adbms::REGS_PER_GROUP];
     ExitCode success_a[io::NUM_SEGMENTS];
-    io_adbms_readRegGroup(RDCFGA, regs_a, success_a);
+    io::adbms::readRegGroup(RDCFGA, regs_a, success_a);
 
-    uint16_t regs_b[io::NUM_SEGMENTS];
+    uint16_t regs_b[io::NUM_SEGMENTS][io::adbms::REGS_PER_GROUP];
     ExitCode success_b[io::NUM_SEGMENTS];
-    io_adbms_readRegGroup(RDCFGB, regs_b, success_b);
+    io::adbms::readRegGroup(RDCFGB, regs_b, success_b);
 
     for (uint8_t seg_idx = 0U; seg_idx < NUM_SEGMENTS; seg_idx++)
     {
