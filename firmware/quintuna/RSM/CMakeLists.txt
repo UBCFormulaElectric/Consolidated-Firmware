@@ -34,6 +34,7 @@ set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DI
 file(GLOB_RECURSE HW_SRCS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
 )
+list(FILTER HW_SRCS EXCLUDE REGEX ".*/hw_chimeraConfig_v2\\.c$")
 list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
@@ -47,13 +48,18 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_resetReason.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_freeRtosConfigs.c"
 )
+if ("${FIRMWARE_TARGET}" STREQUAL "chimera")
+    list(APPEND HW_SRCS
+        "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/hw_chimeraConfig_v2.c"
+    )
+endif()
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
         "${CMAKE_CURRENT_SOURCE_DIR}/src"
@@ -122,7 +128,10 @@ if ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    target_link_libraries("quintuna_RSM_app.elf" PRIVATE "quintuna_RSM_stm32" "quintuna_RSM_jsoncan" "quintuna_RSM_commit_info" "chimera_v2_proto_cm4" m)
+    target_link_libraries("quintuna_RSM_app.elf" PRIVATE "quintuna_RSM_stm32" "quintuna_RSM_jsoncan" "quintuna_RSM_commit_info" m)
+    if ("${FIRMWARE_TARGET}" STREQUAL "chimera")
+        target_link_libraries("quintuna_RSM_app.elf" PRIVATE "chimera_v2_proto_cm4")
+    endif()
 
     if ("${BOOTLOAD}" STREQUAL "ON")
         # Bootloader files.

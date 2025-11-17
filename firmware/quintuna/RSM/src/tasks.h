@@ -10,4 +10,6 @@ _Noreturn void tasks_runCanRx(void);
 _Noreturn void tasks_run1kHz(void);
 _Noreturn void tasks_run1Hz(void);
 void           tasks_runCanRxCallback(const CanMsg *msg);
+#ifdef USE_CHIMERA
 _Noreturn void tasks_runChimera(void);
+#endif

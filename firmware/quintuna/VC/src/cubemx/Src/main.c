@@ -135,6 +135,7 @@ const osThreadAttr_t TaskBtrMonitor_attributes = {
     .stack_size = sizeof(TaskBatteryMoniBuffer),
     .priority   = (osPriority_t)osPriorityLow,
 };
+#ifdef USE_CHIMERA
 /* Definitions for TaskChimera */
 osThreadId_t         TaskChimeraHandle;
 uint32_t             TaskChimeraBuffer[512];
@@ -147,6 +148,7 @@ const osThreadAttr_t TaskChimera_attributes = {
     .stack_size = sizeof(TaskChimeraBuffer),
     .priority   = (osPriority_t)osPriorityHigh,
 };
+#endif
 /* Definitions for TaskCan2Tx */
 osThreadId_t         TaskCan2TxHandle;
 uint32_t             TaskCan2TxBuffer[512];
@@ -209,7 +211,9 @@ void        RunCanRxTask(void *argument);
 void        RunTask1kHz(void *argument);
 void        RunTask1Hz(void *argument);
 void        RunTaskBtrMonitor(void *argument);
+#ifdef USE_CHIMERA
 void        RunTaskChimera(void *argument);
+#endif
 void        RunCan2TxTask(void *argument);
 void        RunTask3TxTask(void *argument);
 void        RunPwrMontr(void *argument);
@@ -309,8 +313,10 @@ int main(void)
     /* creation of TaskBtrMonitor */
     TaskBtrMonitorHandle = osThreadNew(RunTaskBtrMonitor, NULL, &TaskBtrMonitor_attributes);
 
+#ifdef USE_CHIMERA
     /* creation of TaskChimera */
     TaskChimeraHandle = osThreadNew(RunTaskChimera, NULL, &TaskChimera_attributes);
+#endif
 
     /* creation of TaskCan2Tx */
     TaskCan2TxHandle = osThreadNew(RunCan2TxTask, NULL, &TaskCan2Tx_attributes);
@@ -1335,6 +1341,7 @@ void RunTaskBtrMonitor(void *argument)
     /* USER CODE END RunTaskBtrMonitor */
 }
 
+#ifdef USE_CHIMERA
 /* USER CODE BEGIN Header_RunTaskChimera */
 /**
  * @brief Function implementing the TaskChimera thread.
@@ -1348,6 +1355,7 @@ void RunTaskChimera(void *argument)
     tasks_runChimera();
     /* USER CODE END RunTaskChimera */
 }
+#endif
 
 /* USER CODE BEGIN Header_RunCan2TxTask */
 /**

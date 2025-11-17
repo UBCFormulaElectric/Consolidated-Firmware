@@ -16,9 +16,11 @@
 #include "io_bootHandler.h"
 
 #include "app_jsoncan.h"
+#ifdef USE_CHIMERA
 // chimera
 #include "hw_chimera_v2.h"
 #include "hw_chimeraConfig_v2.h"
+#endif
 
 // hw
 #include "hw_hardFaultHandler.h"
@@ -84,10 +86,12 @@ void tasks_init(void)
     io_canTx_FSM_Bootup_sendAperiodic();
 }
 
+#ifdef USE_CHIMERA
 _Noreturn void tasks_runChimera(void)
 {
     hw_chimera_v2_task(&chimera_v2_config);
 }
+#endif
 
 void tasks_run1Hz(void)
 {
@@ -98,7 +102,9 @@ void tasks_run1Hz(void)
     uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
     {
+#ifdef USE_CHIMERA
         if (!hw_chimera_v2_enabled)
+#endif
         {
             jobs_run1Hz_tick();
         }
@@ -120,7 +126,9 @@ void tasks_run100Hz(void)
     uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
     {
+#ifdef USE_CHIMERA
         if (!hw_chimera_v2_enabled)
+#endif
         {
             jobs_run100Hz_tick();
         }
@@ -145,7 +153,9 @@ void tasks_run1kHz(void)
     {
         hw_watchdog_checkForTimeouts();
 
+#ifdef USE_CHIMERA
         if (!hw_chimera_v2_enabled)
+#endif
         {
             jobs_run1kHz_tick();
         }

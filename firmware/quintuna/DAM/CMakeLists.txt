@@ -35,6 +35,7 @@ set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DI
 file(GLOB_RECURSE HW_SRCS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
 )
+list(FILTER HW_SRCS EXCLUDE REGEX ".*/hw_chimeraConfig_v2\\.c$")
 list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
@@ -47,7 +48,6 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_can_h7.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
@@ -55,6 +55,12 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_freeRtosConfigs.c"
 )
+if ("${FIRMWARE_TARGET}" STREQUAL "chimera")
+    list(APPEND HW_SRCS
+        "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/hw_chimeraConfig_v2.c"
+    )
+endif()
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
         "${SHARED_HW_INCLUDE_DIR}"
@@ -143,7 +149,10 @@ if ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    target_link_libraries("quintuna_DAM_app.elf" PRIVATE "quintuna_DAM_stm32" "quintuna_DAM_jsoncan" "quintuna_DAM_commit_info" "chimera_v2_proto_cm7" "telem_proto1" "logfs_cm7")
+    target_link_libraries("quintuna_DAM_app.elf" PRIVATE "quintuna_DAM_stm32" "quintuna_DAM_jsoncan" "quintuna_DAM_commit_info" "telem_proto1" "logfs_cm7")
+    if ("${FIRMWARE_TARGET}" STREQUAL "chimera")
+        target_link_libraries("quintuna_DAM_app.elf" PRIVATE "chimera_v2_proto_cm7")
+    endif()
 
     # if ("${BOOTLOAD}" STREQUAL "ON") TODO configure bootloading optionality for DAM
     # Bootloader files.

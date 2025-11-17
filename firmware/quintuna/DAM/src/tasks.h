@@ -11,4 +11,6 @@ _Noreturn void tasks_runCanRx(void);
 _Noreturn void tasks_runTelem(void);
 _Noreturn void tasks_runTelemRx(void);
 _Noreturn void tasks_runLogging(void);
+#ifdef USE_CHIMERA
 _Noreturn void tasks_runChimera(void);
+#endif

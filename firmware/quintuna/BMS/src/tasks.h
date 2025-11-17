@@ -7,7 +7,9 @@ _Noreturn void tasks_run100Hz(void);
 _Noreturn void tasks_run1kHz(void);
 _Noreturn void tasks_runCanTx(void);
 _Noreturn void tasks_runCanRx(void);
+#ifdef USE_CHIMERA
 _Noreturn void tasks_runChimera(void);
+#endif
 _Noreturn void tasks_runLtcVoltages(void);
 _Noreturn void tasks_runLtcTemps(void);
 _Noreturn void tasks_runLtcDiagnostics(void);
