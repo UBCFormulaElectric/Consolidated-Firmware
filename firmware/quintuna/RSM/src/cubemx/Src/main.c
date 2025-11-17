@@ -152,7 +152,7 @@ void        RunTask1Hz(void *argument);
 void        RunTaskCanTx(void *argument);
 void        RunTaskCanRx(void *argument);
 #ifdef USE_CHIMERA
-void        RunTaskChimera(void *argument);
+void RunTaskChimera(void *argument);
 #endif
 
 /* USER CODE BEGIN PFP */

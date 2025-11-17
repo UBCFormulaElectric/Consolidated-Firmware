@@ -212,11 +212,11 @@ void        RunTask1kHz(void *argument);
 void        RunTask1Hz(void *argument);
 void        RunTaskBtrMonitor(void *argument);
 #ifdef USE_CHIMERA
-void        RunTaskChimera(void *argument);
+void RunTaskChimera(void *argument);
 #endif
-void        RunCan2TxTask(void *argument);
-void        RunTask3TxTask(void *argument);
-void        RunPwrMontr(void *argument);
+void RunCan2TxTask(void *argument);
+void RunTask3TxTask(void *argument);
+void RunPwrMontr(void *argument);
 
 /* USER CODE BEGIN PFP */
 
