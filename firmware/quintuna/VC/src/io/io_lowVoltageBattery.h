@@ -6,24 +6,7 @@
 #include "hw_gpios.h"
 #include "hw_i2cs.h"
 #endif
-typedef enum
-{
-    ACCUMULATED_CHARGE_COMMAND = 0x0076
-} charge_cmd_t;
 
-typedef enum
-{
-    BATTERY_STATUS = 0x12,
-    CONTROL_STATUS = 0x00
-} commands;
-typedef enum
-{
-    CELL0_VOLTAGE_COMMAND = 0x14,
-    CELL1_VOLTAGE_COMMAND = 0x16,
-    CELL2_VOLTAGE_COMMAND = 0x1A,
-    CELL4_VOLTAGE_COMMAND = 0x1C,
-    STACK_VOLTAGE_COMMAND = 0x34
-} voltage_cmd_t;
 /**
  * @brief Initializes the low-voltage battery monitoring system.
  *
@@ -54,7 +37,6 @@ uint16_t io_lowVoltageBattery_get_voltage(voltage_cmd_t voltage_cell);
  */
 void io_lowVoltageBattery_completeAlert(uint16_t GPIO_pin);
 
-
 /**
  * @brief Function to obtain the battery status from the chip
  *
@@ -62,7 +44,6 @@ void io_lowVoltageBattery_completeAlert(uint16_t GPIO_pin);
  * @return Exitcode to say whether the transaction was succesful or not
  */
 ExitCode io_lowvoltageBattery_batteryStatus(Battery_Status *bat_status);
-
 
 /**
  * @brief Function to obtain the battery status from the chip
