@@ -25,6 +25,7 @@
 #include "hw_bootup.h"
 #include "hw_gpios.h"
 #include "hw_resetReason.h"
+#include "hw_runTimeStat.h"
 
 // chimera
 #include "hw_chimeraConfig_v2.h"
@@ -105,6 +106,11 @@ void tasks_init(void)
 
     // Shutdown loop power comes from a load switch on the BMS.
     hw_gpio_writePin(&shdn_en_pin, true);
+
+    CpuRunTimeStats cpu_info = { .cpu_usage_max_setter = app_canTx_FSM_CoreCpuUsage_set,
+                                 .cpu_usage_setter     = app_canTx_FSM_CoreCpuUsageMax_set };
+
+    hw_runtimeStat_registerCpu(&cpu_info);
 
     jobs_init();
 

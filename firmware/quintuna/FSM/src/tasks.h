@@ -9,8 +9,9 @@ typedef enum TaskIndex_e
     TASK_RUNCANRX   = 2,
     TASK_RUN10HZ    = 3,
     TASK_RUN1HZ     = 4,
-    TASK_RUNCHIMERA = 5,
-    NUM_OF_TASKS    = 6
+    TASK_RUN1KHZ    = 5,
+    TASK_RUNCHIMERA = 6,
+    NUM_OF_TASKS    = 7
 } TaskIndex_e;
 
 void           tasks_preInit();

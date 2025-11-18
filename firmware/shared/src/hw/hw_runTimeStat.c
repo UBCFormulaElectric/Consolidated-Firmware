@@ -7,6 +7,7 @@
 #include <cmsis_os.h>
 #include "app_utils.h"
 #include "tasks.h"
+#include "util_errorCodes.h"
 
 /*
  * Software defines

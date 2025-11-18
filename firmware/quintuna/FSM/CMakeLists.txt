@@ -136,7 +136,6 @@ if ("${TARGET}" STREQUAL "binary")
                 "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/FSM_boot.ioc"
         )
         target_link_libraries("quintuna_FSM_boot.elf" PRIVATE "quintuna_FSM_commit_info")
-        target_compile_definitions("quintuna_FSM_boot.elf" PRIVATE BOOTLOADER)
 
         embedded_image(
                 "quintuna_FSM"

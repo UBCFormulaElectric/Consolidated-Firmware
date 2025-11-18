@@ -25,6 +25,43 @@
       }
     }
   },
+  "CPUDataLogInfo" :{
+    "msg_id" : 408,
+    "cycle_time" : 100,
+    "description" : "RSM cpu and stack information",
+    "signals" : {
+      "CoreCpuUsageMax" : {
+        "resolution" : 0.1,
+        "min": 0,
+        "max" : 100,
+        "unit" : "%"
+      },
+      "CoreCpuUsage" : {
+        "resolution" : 0.1,
+        "min": 0,
+        "max" : 100,
+        "unit" : "%"
+      },
+      "TaskRun1HzCpuUsageMax" : {
+        "resolution" : 0.1,
+        "min": 0,
+        "max" : 100,
+        "unit" : "%"
+      },
+      "TaskRun1HzCpuUsage" : {
+        "resolution" : 0.1,
+        "min": 0,
+        "max" : 100,
+        "unit" : "%"
+      },
+      "TaskRun1HzStackUsage" : {
+        "resolution" : 0.1,
+        "min": 0,
+        "max" : 100,
+        "unit" : "%"
+      }
+    }
+  },
   "Debug": {
     "msg_id": 407,
     "cycle_time": 1000,

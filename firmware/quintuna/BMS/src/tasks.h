@@ -1,6 +1,5 @@
 #pragma once
 
-
 typedef enum TaskIndex_e
 {
     TASK_RUN100HZ          = 0,
