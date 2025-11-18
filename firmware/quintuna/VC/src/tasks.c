@@ -12,6 +12,7 @@
 #include "app_jsoncan.h"
 
 #include "io_log.h"
+#include "io_time.h"
 #include "io_canQueues.h"
 // hw
 #include "hw_usb.h"

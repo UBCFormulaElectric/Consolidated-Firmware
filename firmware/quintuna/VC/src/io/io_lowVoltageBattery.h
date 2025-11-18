@@ -1,7 +1,7 @@
 #pragma once
 
 #include "app_utils.h"
-#include "io_lowVoltageBatReg.h"
+#include "io_lowVoltageBattery_datatypes.h"
 #ifdef TARGET_EMBEDDED
 #include "hw_gpios.h"
 #include "hw_i2cs.h"

@@ -811,7 +811,7 @@ static void MX_I2C2_Init(void)
 
     /* USER CODE END I2C2_Init 1 */
     hi2c2.Instance              = I2C2;
-    hi2c2.Init.Timing           = 0x00C04AF0;
+    hi2c2.Init.Timing           = 0x20A0C4DF;
     hi2c2.Init.OwnAddress1      = 0;
     hi2c2.Init.AddressingMode   = I2C_ADDRESSINGMODE_7BIT;
     hi2c2.Init.DualAddressMode  = I2C_DUALADDRESS_DISABLE;
@@ -826,7 +826,7 @@ static void MX_I2C2_Init(void)
 
     /** Configure Analogue filter
      */
-    if (HAL_I2CEx_ConfigAnalogFilter(&hi2c2, I2C_ANALOGFILTER_DISABLE) != HAL_OK)
+    if (HAL_I2CEx_ConfigAnalogFilter(&hi2c2, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
     {
         Error_Handler();
     }
@@ -1397,7 +1397,7 @@ void RunPwrMontr(void *argument)
 
 /**
  * @brief  Period elapsed callback in non blocking mode
- * @note   This function is called  when TIM6 interrupt took place, inside
+ * @note   This function is called  when TIM2 interrupt took place, inside
  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
  * a global variable "uwTick" used as application time base.
  * @param  htim : TIM handle
@@ -1408,7 +1408,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     /* USER CODE BEGIN Callback 0 */
 
     /* USER CODE END Callback 0 */
-    if (htim->Instance == TIM6)
+    if (htim->Instance == TIM2)
     {
         HAL_IncTick();
     }
