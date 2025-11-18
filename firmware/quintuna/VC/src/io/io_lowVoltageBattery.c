@@ -158,7 +158,7 @@ ExitCode io_lowVoltageBattery_init(void)
     // Put the chip into config update mode
     RETURN_IF_ERR(send_subcommand((uint16_t)0x0090))
 
-    //RETURN_IF_ERR(io_lowVoltageBattery_SafetyStatusCheck())
+    // RETURN_IF_ERR(io_lowVoltageBattery_SafetyStatusCheck())
 
     // ask for control status
     // for now leave as void but I am going to change this later
@@ -243,7 +243,7 @@ double io_lowVoltageBattery_get_SOC(void)
     //     return -1.0;
     // }
     return 0.0;
-    //return (charge / HardwareConfig.q_full) * HardwareConfig.percentage_factor;
+    // return (charge / HardwareConfig.q_full) * HardwareConfig.percentage_factor;
 }
 
 /**
