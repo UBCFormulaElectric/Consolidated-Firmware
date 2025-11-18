@@ -42,19 +42,18 @@ typedef struct __attribute__((packed))
     uint8_t OCD1 : 1;  // Overcurrent in discharge 1
     uint8_t OCD2 : 1;  // Overcurrent in discharge 2
     uint8_t SCD : 1;   // Short Circuit in Discharge
-} SafteyStatusA;        // alerts associated with the battery chip
-
+} SafteyStatusA;       // alerts associated with the battery chip
 
 typedef struct __attribute__((packed))
 {
     uint8_t UTC : 1;
     uint8_t UTD : 1;
     uint8_t UTINT : 1;
-    uint8_t RSVD :1;
+    uint8_t RSVD : 1;
     uint8_t OTC : 1;
     uint8_t OTD : 1;
     uint8_t OTINT : 1;
-    uint8_t OTF : 1;  
+    uint8_t OTF : 1;
 } SafteyStatusB;
 
 typedef struct __attribute__((packed))
@@ -62,7 +61,7 @@ typedef struct __attribute__((packed))
     uint8_t RSVD1 : 1;
     uint8_t RSVD2 : 1;
     uint8_t RSVD3 : 1;
-    uint8_t PTOS :1;
+    uint8_t PTOS : 1;
     uint8_t COVL : 1;
     uint8_t OCDL : 1;
     uint8_t SCDL : 1;
@@ -71,24 +70,23 @@ typedef struct __attribute__((packed))
 
 typedef struct __attribute__((packed))
 {
-
-    uint8_t WAKE : 1; 
-    uint8_t ADSCAN : 1; 
-    uint8_t CB : 1;   
-    uint8_t FUSE : 1; 
+    uint8_t WAKE : 1;
+    uint8_t ADSCAN : 1;
+    uint8_t CB : 1;
+    uint8_t FUSE : 1;
     uint8_t SHUTV : 1;
-    uint8_t XDSG : 1;  
-    uint8_t XCHG : 1;  
-    uint8_t FULLSCAN : 1; 
-    
-    uint8_t RSVD: 1;
+    uint8_t XDSG : 1;
+    uint8_t XCHG : 1;
+    uint8_t FULLSCAN : 1;
+
+    uint8_t RSVD : 1;
     uint8_t INITCOMP : 1;
     uint8_t INITSTART : 1;
-    uint8_t MSK_PFALERT :1;
+    uint8_t MSK_PFALERT : 1;
     uint8_t MSK_SFALERT : 1;
-    uint8_t PF :1;
-    uint8_t SSA :1;
-    uint8_t SSBC : 1;  
+    uint8_t PF : 1;
+    uint8_t SSA : 1;
+    uint8_t SSBC : 1;
 } AlertStatus;
 
 typedef enum
@@ -103,6 +101,16 @@ typedef enum
     ALARM_STATUS_REG    = 0x62
 } register_address_t;
 
+typedef enum
+{
+    SAFTEY_ALERT_A   = 0x02,
+    SAFTEY_STATUS_A  = 0x03,
+    SAFTEY_ALERT_B   = 0x04,
+    SAFTEY_STATUS_B  = 0x05,
+    SAFTEY_ALERT_C   = 0x06,
+    SAFTEY_STATUS_C  = 0x07,
+    ALARM_RAW_STATUS = 0x64
+} saftey_register;
 
 typedef enum
 {
@@ -120,6 +128,25 @@ typedef enum
     OCD1_THRESHOLD         = 0x9282,
     OCD_RECOVERY_THRESHOLD = 0x928D
 } protection_t;
+
+typedef enum
+{
+    ACCUMULATED_CHARGE_COMMAND = 0x0076
+} charge_cmd_t;
+
+typedef enum
+{
+    BATTERY_STATUS = 0x12,
+    CONTROL_STATUS = 0x00
+} commands;
+typedef enum
+{
+    CELL0_VOLTAGE_COMMAND = 0x14,
+    CELL1_VOLTAGE_COMMAND = 0x16,
+    CELL2_VOLTAGE_COMMAND = 0x1A,
+    CELL4_VOLTAGE_COMMAND = 0x1C,
+    STACK_VOLTAGE_COMMAND = 0x34
+} voltage_cmd_t;
 
 typedef struct
 {
