@@ -11,15 +11,5 @@
     "--compile-commands-dir=build_fw_dev",
     // "--compile-commands-dir=build_fw_test",
     "--query-driver=/usr/local/bin/arm-none-eabi-gcc"
-  ],
-  "files.associations": {
-    "system_error": "c",
-    "rsm.pb.h": "c",
-    "hw_runtimestats.h": "c",
-    "stm32f4xx_hal_exti.h": "c",
-    "cmsis_os.h": "c",
-    "app_utils.h": "c",
-    "app_cantx.h": "c",
-    "stm32f4xx_hal_tim.h": "c"
-  }
+  ]
 }
