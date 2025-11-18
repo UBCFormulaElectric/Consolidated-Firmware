@@ -14,6 +14,14 @@
  */
 ExitCode io_lowVoltageBattery_init();
 
+
+/**
+ * @brief OTP the low-voltage battery monitoring system.
+ *
+ * @return true if initialization was successful; false otherwise.
+ */
+ExitCode io_lowVoltageBattery_OTP(void);
+
 /**
  * @brief Gets the battery state-of-charge (SOC) as a percentage.
  *

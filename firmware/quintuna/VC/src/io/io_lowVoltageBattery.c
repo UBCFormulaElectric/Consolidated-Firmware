@@ -201,6 +201,11 @@ ExitCode io_lowVoltageBattery_init(void)
     return EXIT_CODE_OK;
 }
 
+
+ExitCode io_lowVoltageBattery_OTP(void){
+    return EXIT_CODE_OK;
+}
+
 /**
  * @brief Gets the battery state-of-charge (SOC) as a percentage.
  *
