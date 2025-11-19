@@ -1,5 +1,6 @@
 #include "app_pid.h"
 #include "app_utils.h"
+#include <assert.h>
 
 void app_pid_init(PID *pid, const PID_Config *conf)
 {
@@ -13,6 +14,7 @@ void app_pid_init(PID *pid, const PID_Config *conf)
     pid->smoothing_coeff    = conf->smoothing_coeff;
     pid->max_integral       = conf->max_integral;
     pid->min_integral       = conf->min_integral;
+    pid->clamp_integral     = conf->clamp_integral;
     pid->clamp_output       = conf->clamp_output;
     pid->back_calculation   = conf->back_calculation;
     pid->feed_forward       = conf->feed_forward;
@@ -22,10 +24,15 @@ void app_pid_init(PID *pid, const PID_Config *conf)
     pid->prev_disturbance   = 0.0f;
     pid->integral           = 0.0f;
     pid->error              = 0.0f;
+
+    assert(pid->out_min > pid-> out_min);
+    assert(pid->max_integral > pid->min_integral);
+    assert(pid->sample_time > 0);
 }
 
 /**
- * PID controller effort implementation with derivative-on-error and discrete time handling.  Includes:
+ * PID controller effort implementation with derivative-on-error and discrete time handling. Make sure to Scale 
+ * your inputs accordingly.Includes:
  * - Integral Anti-wind up in the form of clamping and optional back calculation
  * - Derivative Filtering in the form of first order exponential smoothing
  * - Static Gain feed forward model
@@ -43,9 +50,7 @@ float app_pid_compute(PID *pid, const float setpoint, const float input, float d
     pid->integral += pid->error * pid->sample_time;
     
     //Conditional Anti-Windup 
-    if (pid->integral > pid->max_integral){
-        pid->integral = CLAMP(pid->integral, pid->min_integral, pid->max_integral);
-    }
+    if (pid->clamp_integral) pid->integral = CLAMP(pid->integral, pid->min_integral, pid->max_integral);
     
     // First order exponential smoothing on derivative (https://en.wikipedia.org/wiki/Exponential_smoothing)
     float raw_derivative = (pid->error - pid->prev_error) / pid->sample_time;
@@ -53,7 +58,7 @@ float app_pid_compute(PID *pid, const float setpoint, const float input, float d
     
     //Feed Forward
     float u_ff = 0;
-    if (pid->feed_forward) {  
+    if (pid->feed_forward) { 
         u_ff = pid->Kff * disturbance;
     }
 
@@ -62,7 +67,7 @@ float app_pid_compute(PID *pid, const float setpoint, const float input, float d
     //Anti-Windup with back calculation (https://www.cds.caltech.edu/~murray/books/AM08/pdf/am08-pid_04Mar10.pdf) equation 10.16
     if (pid->back_calculation ){
         float out_clamp = CLAMP(output, pid->out_min, pid->out_max);
-        pid-> integral += pid->Kb*(out_clamp - output) * pid->sample_time;
+        pid->integral += pid->Kb * (out_clamp - output) * pid->sample_time;
     }
 
     if (pid->clamp_output){

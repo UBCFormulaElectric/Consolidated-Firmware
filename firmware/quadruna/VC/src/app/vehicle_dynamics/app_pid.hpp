@@ -16,12 +16,13 @@ namespace app
                 float Kff;
                 float smoothing_coeff;
 
-                float out_min;
                 float out_max;
+                float out_min;
                 float max_integral;
                 float min_integral;
                 
                 bool clamp_output;
+                bool clamp_integral;
                 bool back_calculation;
                 bool feed_forward;
                 uint32_t sample_time;
@@ -42,8 +43,8 @@ namespace app
             float smoothing_coeff;
 
             // Limits
-            float out_min;
             float out_max;
+            float out_min;
             float max_integral;
             float min_integral;
 
@@ -55,6 +56,7 @@ namespace app
             float prev_error = 0.0f;
             
             bool clamp_output;
+            bool clamp_integral;
             bool back_calculation;
             bool feed_forward;
             uint32_t sample_time;

@@ -1,5 +1,7 @@
 #include "app_pid.hpp"
 #include "io_time.hpp" // for io_time_getCurrentMs()
+#include <stdexcept>
+#include <assert.h>
 
 namespace app
 {
@@ -7,10 +9,11 @@ namespace app
         Kp(conf.Kp), Ki(conf.Ki), Kd(conf.Kd), Kb(conf.Kb), 
         Kff(conf.Kff), smoothing_coeff(conf.smoothing_coeff),
         out_min(conf.out_min), out_max(conf.out_max), min_integral(conf.min_integral), max_integral(conf.max_integral),
-        back_calculation(conf.back_calculation), feed_forward(conf.feed_forward), clamp_output(conf.clamp_output),
+        back_calculation(conf.back_calculation), feed_forward(conf.feed_forward), clamp_output(conf.clamp_output), clamp_integral(conf.clamp_integral),
         sample_time(conf.sample_time)
     {
-       
+        assert(out_max > out_min);
+        assert(max_integral > min_integral);
     }
 
     /**
@@ -24,7 +27,7 @@ namespace app
      * @return controller output/"effort"
      */
 
-    float PID::compute(float setpoint, float input, float disturbance)
+    float PID::compute(float setpoint, float input, float disturbance = 0.0)
     {
 
         error = setpoint - input;

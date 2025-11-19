@@ -13,8 +13,8 @@ typedef struct
     float smoothing_coeff;
 
     //Limits
-    float out_min;
     float out_max;
+    float out_min;
     float max_integral;
     float min_integral;
 
@@ -26,6 +26,7 @@ typedef struct
     float prev_error;
 
     bool clamp_output;
+    bool clamp_integral;
     bool back_calculation;
     bool feed_forward;
     uint32_t sample_time;
@@ -41,12 +42,13 @@ typedef struct
     const float Kff;
     const float smoothing_coeff;
 
-    const float out_min;
     const float out_max;
+    const float out_min;
     const float max_integral;
     const float min_integral;
 
     const bool clamp_output;
+    const bool clamp_integral;
     const bool back_calculation;
     const bool feed_forward;
     const uint32_t sample_time;
