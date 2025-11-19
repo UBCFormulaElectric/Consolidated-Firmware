@@ -20,7 +20,7 @@ class FSMBaseTest : public EcuTestBase
     }
     void tick_1hz()
     {
-        //int i = 0;
+        // int i = 0;
     }
 
   public:

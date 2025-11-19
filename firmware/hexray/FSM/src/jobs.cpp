@@ -5,15 +5,16 @@
 #include "app_imu.hpp"
 #include "app_steering.hpp"
 #include "app_suspension.hpp"
-//#include "app_shdnLoopNode.hpp"
-//void io_canTx_enqueue100HzMsgs();
+// #include "app_shdnLoopNode.hpp"
+// void io_canTx_enqueue100HzMsgs();
 
 void jobs_init() {}
-void jobs_run1Hz_tick() {
+void jobs_run1Hz_tick()
+{
     app::apps::broadcast();
     app::brake::broadcast();
     app::imu::broadcast();
-    //app::shdnLoop::broadcast();
+    // app::shdnLoop::broadcast();
     app::steering::broadcast();
     app::suspension::broadcast();
 }

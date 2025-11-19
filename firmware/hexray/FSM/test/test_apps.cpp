@@ -1,23 +1,26 @@
 #include "fsmMocks.hpp"
 #include "test_FSMBase.hpp"
 
-extern "C" {
-    #include "app_canTx.h"
-    #include "app_canAlerts.h"
+extern "C"
+{
+#include "app_canTx.h"
+#include "app_canAlerts.h"
 }
 
-// TEST NOT COMPLETED: 
+// TEST NOT COMPLETED:
 // Test values are not accurate, App logic is not yet finalized
 
-class AppsModuleTest : public FSMBaseTest{
+class AppsModuleTest : public FSMBaseTest
+{
 };
 
 /*
 1) Normal Operation
-2) 
+2)
 */
 
-TEST_F(AppsModuleTest, Normal_AppsConditions) {
+TEST_F(AppsModuleTest, Normal_AppsConditions)
+{
     fakes::io::apps::setPrimaryPressure(30.0f);
     fakes::io::apps::setPrimaryOCSC(false);
     fakes::io::apps::setSecondaryPressure(25.0f);
@@ -35,7 +38,8 @@ TEST_F(AppsModuleTest, Normal_AppsConditions) {
     EXPECT_EQ(app_canTx_FSM_SappsMappedPedalPercentage_get(), 25.0f);
 }
 
-TEST_F(AppsModuleTest, OCSC_1) {
+TEST_F(AppsModuleTest, OCSC_1)
+{
     // Both Apps are OCSC
     fakes::io::apps::setPrimaryPressure(30.0f);
     fakes::io::apps::setPrimaryOCSC(true);
@@ -54,7 +58,8 @@ TEST_F(AppsModuleTest, OCSC_1) {
     EXPECT_EQ(app_canTx_FSM_SappsMappedPedalPercentage_get(), 0.0f);
 }
 
-TEST_F(AppsModuleTest, OCSC_2) {
+TEST_F(AppsModuleTest, OCSC_2)
+{
     // One of the Apps is OCSC
     fakes::io::apps::setPrimaryPressure(30.0f);
     fakes::io::apps::setPrimaryOCSC(true);
@@ -73,7 +78,8 @@ TEST_F(AppsModuleTest, OCSC_2) {
     EXPECT_EQ(app_canTx_FSM_SappsMappedPedalPercentage_get(), 0.0f);
 }
 
-TEST_F(AppsModuleTest, AppsDisagreement_1) {
+TEST_F(AppsModuleTest, AppsDisagreement_1)
+{
     // Primary > Secondary Apps
     fakes::io::apps::setPrimaryPressure(30.0f);
     fakes::io::apps::setPrimaryOCSC(false);
@@ -92,7 +98,8 @@ TEST_F(AppsModuleTest, AppsDisagreement_1) {
     EXPECT_EQ(app_canTx_FSM_SappsMappedPedalPercentage_get(), 0.0f);
 }
 
-TEST_F(AppsModuleTest, AppsDisagreement_2) {
+TEST_F(AppsModuleTest, AppsDisagreement_2)
+{
     // Primary > Secondary Apps
     fakes::io::apps::setPrimaryPressure(10.0f);
     fakes::io::apps::setPrimaryOCSC(false);
@@ -111,7 +118,8 @@ TEST_F(AppsModuleTest, AppsDisagreement_2) {
     EXPECT_EQ(app_canTx_FSM_SappsMappedPedalPercentage_get(), 0.0f);
 }
 
-TEST_F(AppsModuleTest, AppsDisagreement_CANOverFlow) {
+TEST_F(AppsModuleTest, AppsDisagreement_CANOverFlow)
+{
     // Primary > Secondary Apps, CAN Overflow
     fakes::io::apps::setPrimaryPressure(120.0f);
     fakes::io::apps::setPrimaryOCSC(false);
@@ -130,7 +138,8 @@ TEST_F(AppsModuleTest, AppsDisagreement_CANOverFlow) {
     EXPECT_EQ(app_canTx_FSM_SappsMappedPedalPercentage_get(), 0.0f);
 }
 
-TEST_F(AppsModuleTest, AppsDisagreement_CANUnderFlow) {
+TEST_F(AppsModuleTest, AppsDisagreement_CANUnderFlow)
+{
     // Negative Value; Primary < Secondary Apps; CAN Underflow
     fakes::io::apps::setPrimaryPressure(-30.0f);
     fakes::io::apps::setPrimaryOCSC(false);
@@ -149,7 +158,8 @@ TEST_F(AppsModuleTest, AppsDisagreement_CANUnderFlow) {
     EXPECT_EQ(app_canTx_FSM_SappsMappedPedalPercentage_get(), 0.0f);
 }
 
-TEST_F(AppsModuleTest, CANOverFlow) {
+TEST_F(AppsModuleTest, CANOverFlow)
+{
     // Primary > Secondary Apps, CAN Overflow
     fakes::io::apps::setPrimaryPressure(105.0f);
     fakes::io::apps::setPrimaryOCSC(false);
@@ -168,7 +178,8 @@ TEST_F(AppsModuleTest, CANOverFlow) {
     EXPECT_EQ(app_canTx_FSM_SappsMappedPedalPercentage_get(), 95.0f);
 }
 
-TEST_F(AppsModuleTest, CANUnderFlow) {
+TEST_F(AppsModuleTest, CANUnderFlow)
+{
     // Primary < Secondary Apps, CAN Underflow
     fakes::io::apps::setPrimaryPressure(-5.0f);
     fakes::io::apps::setPrimaryOCSC(false);
@@ -187,7 +198,8 @@ TEST_F(AppsModuleTest, CANUnderFlow) {
     EXPECT_EQ(app_canTx_FSM_SappsMappedPedalPercentage_get(), 5.0f);
 }
 
-TEST_F(AppsModuleTest, Multiple_Faults_1) {
+TEST_F(AppsModuleTest, Multiple_Faults_1)
+{
     // AppsDisagreement; OCSC
     fakes::io::apps::setPrimaryPressure(30.0f);
     fakes::io::apps::setPrimaryOCSC(true);
@@ -206,7 +218,8 @@ TEST_F(AppsModuleTest, Multiple_Faults_1) {
     EXPECT_EQ(app_canTx_FSM_SappsMappedPedalPercentage_get(), 0.0f);
 }
 
-TEST_F(AppsModuleTest, Multiple_Faults_2) {
+TEST_F(AppsModuleTest, Multiple_Faults_2)
+{
     // AppsDisagreement; OCSC
     fakes::io::apps::setPrimaryPressure(100.0f);
     fakes::io::apps::setPrimaryOCSC(true);
@@ -225,7 +238,8 @@ TEST_F(AppsModuleTest, Multiple_Faults_2) {
     EXPECT_EQ(app_canTx_FSM_SappsMappedPedalPercentage_get(), 0.0f);
 }
 
-TEST_F(AppsModuleTest, Multiple_Faults_3) {
+TEST_F(AppsModuleTest, Multiple_Faults_3)
+{
     // AppsDisagreement; OCSC; CAN Overflow
     fakes::io::apps::setPrimaryPressure(200.0f);
     fakes::io::apps::setPrimaryOCSC(false);
@@ -244,7 +258,8 @@ TEST_F(AppsModuleTest, Multiple_Faults_3) {
     EXPECT_EQ(app_canTx_FSM_SappsMappedPedalPercentage_get(), 0.0f);
 }
 
-TEST_F(AppsModuleTest, Multiple_Faults_4) {
+TEST_F(AppsModuleTest, Multiple_Faults_4)
+{
     // AppsDisagreement; OCSC; CAN UnderFlow
     fakes::io::apps::setPrimaryPressure(-50.0f);
     fakes::io::apps::setPrimaryOCSC(true);

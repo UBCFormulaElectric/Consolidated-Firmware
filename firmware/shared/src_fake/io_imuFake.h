@@ -10,4 +10,4 @@ void set_LinearAccelerationZ(float z_acceleration);
 void set_AngularVelocityRoll(float roll_velocity);
 void set_AngularVelocityPitch(float pitch_velocity);
 void set_AngularVelocityYaw(float yaw_velocity);
-} // namespace fakes::io_imu
+} // namespace fakes::io::imu

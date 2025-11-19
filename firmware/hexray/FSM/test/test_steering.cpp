@@ -1,11 +1,13 @@
 #include "fsmMocks.hpp"
 #include "test_FSMBase.hpp"
-extern "C" {
+extern "C"
+{
 #include "app_canTx.h"
 #include "app_canAlerts.h"
 }
 
-class SteeringModuleTest : public FSMBaseTest{
+class SteeringModuleTest : public FSMBaseTest
+{
 };
 
 TEST_F(SteeringModuleTest, Normal_SteeringConditions_1)
@@ -22,7 +24,7 @@ TEST_F(SteeringModuleTest, Normal_SteeringConditions_1)
 
 TEST_F(SteeringModuleTest, Normal_SteeringConditions_2)
 {
-    fakes::io::steering::setAngleDegrees(95.0f);    // Edge Case: Postive MAX Angle
+    fakes::io::steering::setAngleDegrees(95.0f); // Edge Case: Postive MAX Angle
     fakes::io::steering::setOCSC(false);
 
     LetTimePass(100);
@@ -34,7 +36,7 @@ TEST_F(SteeringModuleTest, Normal_SteeringConditions_2)
 
 TEST_F(SteeringModuleTest, Normal_SteeringConditions_3)
 {
-    fakes::io::steering::setAngleDegrees(-95.0f);   // Edge Case: Negative MAX Angle
+    fakes::io::steering::setAngleDegrees(-95.0f); // Edge Case: Negative MAX Angle
     fakes::io::steering::setOCSC(false);
 
     LetTimePass(100);

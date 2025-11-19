@@ -7,7 +7,8 @@ extern "C"
 #include "app_canAlerts.h"
 }
 
-class BrakeModuleTest : public FSMBaseTest{
+class BrakeModuleTest : public FSMBaseTest
+{
 };
 
 TEST_F(BrakeModuleTest, Normal_BrakeConditions_1)
@@ -55,7 +56,7 @@ TEST_F(BrakeModuleTest, Brake_Released)
 TEST_F(BrakeModuleTest, PSIOutOfRange_OverFlow)
 {
     fakes::io::brake::setBrakeActuated(true);
-    fakes::io::brake::setFrontPressurePsi(2200.0f); //Positive Psi, WITHIN CAN threshold psi
+    fakes::io::brake::setFrontPressurePsi(2200.0f); // Positive Psi, WITHIN CAN threshold psi
     fakes::io::brake::setOCSC(false);
 
     LetTimePass(100);
@@ -69,7 +70,7 @@ TEST_F(BrakeModuleTest, PSIOutOfRange_OverFlow)
 TEST_F(BrakeModuleTest, PSIOutOfRange_CANOverFlow)
 {
     fakes::io::brake::setBrakeActuated(true);
-    fakes::io::brake::setFrontPressurePsi(3000.0f); //Positive Psi, LARGER than CAN threshold psi(2500)
+    fakes::io::brake::setFrontPressurePsi(3000.0f); // Positive Psi, LARGER than CAN threshold psi(2500)
     fakes::io::brake::setOCSC(false);
 
     LetTimePass(100);
@@ -98,7 +99,7 @@ TEST_F(BrakeModuleTest, Multiple_Faults_1)
 {
     fakes::io::brake::setBrakeActuated(true);
     fakes::io::brake::setFrontPressurePsi(1500.0f); //  Brake Actuated, Over PSI
-    fakes::io::brake::setOCSC(true);    //  Opened or Shorted Circuit
+    fakes::io::brake::setOCSC(true);                //  Opened or Shorted Circuit
 
     LetTimePass(100);
 
@@ -112,7 +113,7 @@ TEST_F(BrakeModuleTest, Multiple_Faults_2)
 {
     fakes::io::brake::setBrakeActuated(false);
     fakes::io::brake::setFrontPressurePsi(-100.0f); //  Brake NOT Actuated, Negative PSI
-    fakes::io::brake::setOCSC(true);    //  Opened or Shorted Circuit
+    fakes::io::brake::setOCSC(true);                //  Opened or Shorted Circuit
 
     LetTimePass(100);
 

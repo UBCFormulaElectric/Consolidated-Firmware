@@ -67,5 +67,5 @@ class VCBaseTest : public EcuTestBase
         { &hvInit_state, VC_HV_INIT_STATE },
         { &hv_state, VC_HV_ON_STATE },
         { &drive_state, VC_DRIVE_STATE },
-    }};
+    } };
 };

@@ -53,7 +53,7 @@ void         set_AngularVelocityYaw(const float yaw_velocity)
     // Set the angular velocity in the yaw direction
     _yaw_velocity = yaw_velocity;
 }
-} // namespace fakes::io_imu
+} // namespace fakes::io::imu
 
 extern "C"
 {
