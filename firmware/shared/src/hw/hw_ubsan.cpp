@@ -1,27 +1,29 @@
 #include <cstdint>
 #include <cstddef>
-extern "C" {
+extern "C"
+{
 #include "hw_error.h"
 #include "hw_ubsan.h"
 #include "io_log.h"
 #include "app_utils.h"
 
-void __ubsan_handle_add_overflow(void *data, void *lhs, void *rhs); // NOLINT(*-reserved-identifier)
-void __ubsan_handle_sub_overflow(void *data, void *lhs, void *rhs); // NOLINT(*-reserved-identifier)
-void __ubsan_handle_mul_overflow(void *data, void *lhs, void *rhs); // NOLINT(*-reserved-identifier)
-void __ubsan_handle_negate_overflow(void *_data, void *old_val);    // NOLINT(*-reserved-identifier)
-[[noreturn]] void __ubsan_handle_type_mismatch_v1(void *_data, void *ptr);          // NOLINT(*-reserved-identifier)
-void          __ubsan_handle_out_of_bounds(void *_data, void *index);               // NOLINT(*-reserved-identifier)
-void          __ubsan_handle_shift_out_of_bounds(void *_data, void *lhs, void *rhs);// NOLINT(*-reserved-identifier)
-void __ubsan_handle_load_invalid_value(void *_data, void *val);                     // NOLINT(*-reserved-identifier)
-void __ubsan_handle_nonnull_arg(void *_data);                                // NOLINT(*-reserved-identifier)
-void __ubsan_handle_vla_bound_not_positive(void *_data, void *bound);        // NOLINT(*-reserved-identifier)
-void __ubsan_handle_pointer_overflow(void *_data, void *base, void *result); // NOLINT(*-reserved-identifier)
+    void              __ubsan_handle_add_overflow(void *data, void *lhs, void *rhs); // NOLINT(*-reserved-identifier)
+    void              __ubsan_handle_sub_overflow(void *data, void *lhs, void *rhs); // NOLINT(*-reserved-identifier)
+    void              __ubsan_handle_mul_overflow(void *data, void *lhs, void *rhs); // NOLINT(*-reserved-identifier)
+    void              __ubsan_handle_negate_overflow(void *_data, void *old_val);    // NOLINT(*-reserved-identifier)
+    [[noreturn]] void __ubsan_handle_type_mismatch_v1(void *_data, void *ptr);       // NOLINT(*-reserved-identifier)
+    void              __ubsan_handle_out_of_bounds(void *_data, void *index);        // NOLINT(*-reserved-identifier)
+    void __ubsan_handle_shift_out_of_bounds(void *_data, void *lhs, void *rhs);      // NOLINT(*-reserved-identifier)
+    void __ubsan_handle_load_invalid_value(void *_data, void *val);                  // NOLINT(*-reserved-identifier)
+    void __ubsan_handle_nonnull_arg(void *_data);                                    // NOLINT(*-reserved-identifier)
+    void __ubsan_handle_vla_bound_not_positive(void *_data, void *bound);            // NOLINT(*-reserved-identifier)
+    void __ubsan_handle_pointer_overflow(void *_data, void *base, void *result);     // NOLINT(*-reserved-identifier)
 } // externC end
 
-#define VALUE_LENGTH 40 
-static int test_and_set_bit(const int bit, unsigned long *addr){
-        const unsigned long mask = 1UL << bit;
+#define VALUE_LENGTH 40
+static int test_and_set_bit(const int bit, unsigned long *addr)
+{
+    const unsigned long mask = 1UL << bit;
     const int           old  = (*addr & mask) != 0; // Test old value
     *addr |= mask;                                  // Set the bit
     return old;
