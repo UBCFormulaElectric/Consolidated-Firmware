@@ -20,14 +20,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 
-#if defined(STM32H733xx) 
 #include "stm32h7xx.h"
 #include "stm32h7xx_hal.h"
-
-#elif defined (STM32H562xx)
-#include "stm32h5xx.h"
-#include "stm32h5xx_hal.h"
-#endif
 
 #include "usbd_def.h"
 #include "usbd_core.h"

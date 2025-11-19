@@ -6,6 +6,7 @@ list(APPEND CUBEMX_SRCS "${SHARED_EMBEDDED_DIR_CPP}/hw/usb/usbd_desc.c")
 set(CUBEMX_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
         "${SHARED_HW_INCLUDE_DIR_CPP}/usb"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/USB"
         "${CMAKE_CURRENT_SOURCE_DIR}/hw")
 
 set(JOBS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/jobs.cpp")
@@ -69,7 +70,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/RSM.ioc"
             "${CUBEMX_SRCS}"
             "${CUBEMX_INCLUDE_DIRS}"
-            FALSE
+            TRUE
             "${ARM_CORE}"
     )
 
