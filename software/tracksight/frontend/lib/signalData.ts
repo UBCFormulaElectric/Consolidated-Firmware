@@ -2,10 +2,15 @@ import { IS_VERBOSE_DEBUG } from "@/lib/constants";
 import useSubscribeToSignal from "@/lib/mutations/useSubscribeToSignal";
 import useUnsubscribeToSignal from "@/lib/mutations/useUnsubscribeToSignal";
 import socket from "@/lib/realtime/socket";
-import SignalDataReducer from "@/lib/types/SignalDataReducer";
 import { useEffect } from "react";
 
 type DataSubscriberCallback = (payload: ParsedSignalPayload) => void;
+
+/**
+ * Reducer function for processing incoming signal data. The previous data
+ * should not be recreated instead mutated for performance reasons.
+ */
+type SignalDataReducer<T> = (newData: ParsedSignalPayload, prev: T) => T;
 
 /**
  * Map to hold subscribers for data updates, keyed by signal name.
@@ -227,6 +232,6 @@ const useSignalDataRefWithReducers = <U, Reducer extends SignalDataReducer<U>>(
   } as const;
 };
 
-export type { ParsedSignalPayload };
+export type { ParsedSignalPayload, SignalDataReducer };
 
 export { useSignalDataRef, useSignalDataRefWithReducers };

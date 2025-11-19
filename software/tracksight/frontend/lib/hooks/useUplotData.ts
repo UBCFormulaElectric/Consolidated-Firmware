@@ -1,5 +1,8 @@
-import { ParsedSignalPayload, useSignalDataRefWithReducers } from "@/lib/signalData";
-import SignalDataReducer from "@/lib/types/SignalDataReducer";
+import {
+  ParsedSignalPayload,
+  SignalDataReducer,
+  useSignalDataRefWithReducers,
+} from "@/lib/signalData";
 
 // TODO(evan): Add better documentation to the functions here
 
