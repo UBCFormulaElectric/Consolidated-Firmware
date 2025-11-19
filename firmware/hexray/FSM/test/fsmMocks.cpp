@@ -81,12 +81,11 @@ namespace fakes::io // Set all the fake values using functions here
             rightOCSC = ocsc;
         }
     } // namespace suspension
-
 } // namespace fake::io
 
 namespace io // Define the mocked functions here
 {
-    namespace apps {
+        namespace apps {
         void init()
         {
         // Do nothing
@@ -132,22 +131,19 @@ namespace io // Define the mocked functions here
     } // namespace brake
 
     namespace fsmShdn {
-        bool COCKPIT_SHDN_OK_get() {
+        bool BOTS_SHDN_OK_get(void) {
             return true;
         }
-
-        bool BOTS_SHDN_OK_get() {
+        bool COCKPIT_SHDN_OK_get(void) {
             return true;
         }
-
-        bool FL_SHDN_OK_get() {
+        bool FL_SHDN_OK_get(void) {
             return true;
         }
-
-        bool FR_SHDN_OK_get() {
+        bool FR_SHDN_OK_get(void) {
             return true;
         }
-    } // namespace fsmShdn
+    }
 
     namespace steering {
         float getAngleDegrees(void)

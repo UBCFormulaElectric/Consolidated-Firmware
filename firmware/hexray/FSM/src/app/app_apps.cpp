@@ -42,7 +42,6 @@ namespace app::apps {
         app_canAlerts_FSM_Warning_PappsOCSC_set(papps_ocsc_active);
         app_canAlerts_FSM_Warning_SappsOCSC_set(sapps_ocsc_active);
 
-        // Primary and Secondary pedal disagreement check-- everything below this line needs to fixed
         const float       papps_sapps_diff = fabsf(papps_pedal_percentage - sapps_pedal_percentage);
         const SignalState papps_sapps_disagreement_signal_state =
             app_signal_getState(&papps_sapps_disagreement_signal, (papps_sapps_diff) > 10.f, (papps_sapps_diff) <= 10.f);

@@ -32,6 +32,8 @@
     "format": "cpp",
     "queue": "cpp",
     "thread": "cpp",
-    "vector": "cpp"
+    "vector": "cpp",
+    "app_imu.h": "c",
+    "io_imu_config.h": "c"
   }
 }

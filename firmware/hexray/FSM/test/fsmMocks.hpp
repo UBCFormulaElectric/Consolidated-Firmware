@@ -12,6 +12,12 @@ namespace fakes::io
         void setFrontPressurePsi(float psi);
         void setOCSC(bool ocsc);
     } // namespace brake
+    namespace fsmShdn {
+        bool BOTS_SHDN_OK_get(void);
+        bool COCKPIT_SHDN_OK_get(void);
+        bool FL_SHDN_OK_get(void);
+        bool FR_SHDN_OK_get(void);
+    }
     namespace steering {
         void setAngleDegrees(float angle);
         void setOCSC(bool o);
