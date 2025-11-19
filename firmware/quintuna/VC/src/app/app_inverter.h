@@ -47,3 +47,4 @@ bool app_inverter_inverterStatus(void);
 // bspd
 void app_softwareBspd_init(void);
 bool app_inverter_checkSoftwareBspd(float papps_pedal_percentage);
+void app_stateMachine_inverterFaultHandling(void);

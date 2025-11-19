@@ -126,9 +126,9 @@ static void InverterFaultHandlingStateRunOnTick100Hz(void)
             }
 
             // timing of a cycle
-            const uint32_t time_elapsed = app_timer_getElapsedTime(&retry_timer);
+            const TimerState timer_state = app_timer_updateAndGetState(&retry_timer);
 
-            if (retry_cycle_active && time_elapsed > TIMEOUT)
+            if (retry_cycle_active && timer_state == TIMER_STATE_EXPIRED)
             {
                 // First end the retry cycle
                 end_retry_cycle(inverter_handle_FL);

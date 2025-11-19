@@ -3,6 +3,7 @@
 #include "app_canAlerts.h"
 #include "app_canRx.h"
 #include "app_canTx.h"
+#include "states/app_states.h"
 
 #define APPS_BRAKE_DISAGREEMENT_TIME_TO_FAULT (10u)
 #define APPS_BRAKE_DISAGREEMENT_TIME_TO_CLEAR (10u)
@@ -101,4 +102,15 @@ void app_softwareBspd_init(void)
 {
     app_signal_init(
         &apps_brake_disagreement_signal, APPS_BRAKE_DISAGREEMENT_TIME_TO_FAULT, APPS_BRAKE_DISAGREEMENT_TIME_TO_CLEAR);
+}
+
+void app_stateMachine_inverterFaultHandling(void)
+{
+    if (!app_inverter_inverterStatus())
+        return;
+
+    if (app_stateMachine_getCurrentState() != &inverter_fault_handling_state)
+    {
+        app_stateMachine_setNextState(&inverter_fault_handling_state);
+    }
 }
