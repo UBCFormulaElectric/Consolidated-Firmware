@@ -34,7 +34,9 @@ const isEnumSignalMetadata = (signal: SignalMetadata): signal is EnumSignalMetad
 
 const isAlertSignalMetadata = (signal: SignalMetadata): signal is AlertSignalMetadata => {
   return (
-    (signal as AlertSignalMetadata).min_val === 0 && (signal as AlertSignalMetadata).max_val === 1
+    (signal as AlertSignalMetadata).min_val === 0 &&
+    (signal as AlertSignalMetadata).max_val === 1 &&
+    !isEnumSignalMetadata(signal)
   );
 };
 
