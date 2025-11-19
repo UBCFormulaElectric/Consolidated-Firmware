@@ -2,5 +2,5 @@
 
 namespace app::imu
 {
-    void broadcast();
+void broadcast();
 }

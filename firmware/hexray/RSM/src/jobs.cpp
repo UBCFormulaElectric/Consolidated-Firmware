@@ -5,16 +5,14 @@
 #include "app_suspension.hpp"
 #include "app_tireTemp.hpp"
 
-
 void jobs_init() {}
-void jobs_run1Hz_tick() 
+void jobs_run1Hz_tick()
 {
     app::brake::broadcast();
     app::coolant::broadcast();
     app::imu::broadcast();
     app::suspension::broadcast();
     app::tireTemp::broadcast();
-
 }
 void jobs_run100Hz_tick() {}
 void jobs_run1kHz_tick() {}

@@ -2,9 +2,8 @@
 
 extern "C"
 {
-    #include "io_led.h"
+#include "io_led.h"
 }
 
-
 extern const BinaryLed brake_light;
-extern const BinaryLed led; 
+extern const BinaryLed led;

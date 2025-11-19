@@ -2,5 +2,5 @@
 
 namespace app::suspension
 {
-    void broadcast();
+void broadcast();
 }

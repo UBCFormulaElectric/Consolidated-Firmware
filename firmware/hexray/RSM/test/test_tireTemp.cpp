@@ -7,8 +7,9 @@ extern "C"
 #include "app_canTx.h"
 }
 
-class RSMTireTempTest: public RSMBaseTest
-{};
+class RSMTireTempTest : public RSMBaseTest
+{
+};
 
 TEST_F(RSMTireTempTest, FindTireTemp)
 {

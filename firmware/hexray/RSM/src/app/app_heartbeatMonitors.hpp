@@ -2,7 +2,7 @@
 
 extern "C"
 {
-    #include "app_heartbeatMonitor.h"
+#include "app_heartbeatMonitor.h"
 }
 
-extern const HeartbeatMonitor hb_monitor; 
+extern const HeartbeatMonitor hb_monitor;

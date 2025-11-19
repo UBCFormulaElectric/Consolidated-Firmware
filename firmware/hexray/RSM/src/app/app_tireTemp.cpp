@@ -3,20 +3,21 @@
 
 extern "C"
 {
-    #include "app_canTx.h"
+#include "app_canTx.h"
 }
 
 #define MIN_TIRE_TEMPERATURE_CELSIUS -20.0f
 #define MAX_TIRE_TEMPERATURE_CELSIUS 200.0f
 
 namespace app::tireTemp
-{    
-    void broadcast()
-    {
-        const float temperature = io::tireTemp::get();
-    
-        const bool outOfRange = (temperature >= MAX_TIRE_TEMPERATURE_CELSIUS) || (temperature <= MIN_TIRE_TEMPERATURE_CELSIUS);
-        app_canTx_RSM_Info_TireTemperatureOutOfRange_set(outOfRange);
-        app_canTx_RSM_TireTemperature_set(outOfRange ? 0 : temperature);
-    }
+{
+void broadcast()
+{
+    const float temperature = io::tireTemp::get();
+
+    const bool outOfRange =
+        (temperature >= MAX_TIRE_TEMPERATURE_CELSIUS) || (temperature <= MIN_TIRE_TEMPERATURE_CELSIUS);
+    app_canTx_RSM_Info_TireTemperatureOutOfRange_set(outOfRange);
+    app_canTx_RSM_TireTemperature_set(outOfRange ? 0 : temperature);
 }
+} // namespace app::tireTemp

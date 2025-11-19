@@ -4,11 +4,12 @@
 
 extern "C"
 {
-    #include "app_canTx.h"
+#include "app_canTx.h"
 }
 
 class RSMCoolantTest : public RSMBaseTest
-{};
+{
+};
 
 TEST_F(RSMCoolantTest, getFlowRate)
 {

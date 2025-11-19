@@ -6,5 +6,5 @@
 
 namespace io::tireTemp
 {
-    float get();
+float get();
 }

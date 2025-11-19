@@ -5,13 +5,12 @@
 
 extern "C"
 {
-    #include "app_canTx.h"
+#include "app_canTx.h"
 }
 
-
-
 class RSMImuTest : public RSMBaseTest
-{};
+{
+};
 
 TEST_F(RSMImuTest, Acceleration_Velocity_Test)
 {
@@ -30,5 +29,4 @@ TEST_F(RSMImuTest, Acceleration_Velocity_Test)
     EXPECT_EQ(10, app_canTx_RSM_RollAngularAcceleration_get());
     EXPECT_EQ(10, app_canTx_RSM_PitchAngularAcceleration_get());
     EXPECT_EQ(10, app_canTx_RSM_YawAngularAcceleration_get());
-    
 }

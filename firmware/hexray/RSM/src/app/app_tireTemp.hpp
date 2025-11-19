@@ -2,5 +2,5 @@
 
 namespace app::tireTemp
 {
-    void broadcast();
+void broadcast();
 }
