@@ -17,7 +17,7 @@ typedef struct
 #include "util_errorCodes.hpp"
 extern "C"
 {
-    #include "app_utils.h"
+#include "app_utils.h"
 }
 
 EMPTY_STRUCT(imuConfig)
@@ -25,59 +25,59 @@ EMPTY_STRUCT(imuConfig)
 
 namespace io::imu
 {
-    /**
-    * @brief turns on the accelerometer sensor on the imu to high perf mode
-    * @return true if the write to turn on accelerometer is successful,
-    * false otherwise
-    */
-    ExitCode init(void);
+/**
+ * @brief turns on the accelerometer sensor on the imu to high perf mode
+ * @return true if the write to turn on accelerometer is successful,
+ * false otherwise
+ */
+ExitCode init(void);
 
-    /**
-    * @brief gets the linear acceleration in the x direction
-    * @param x_acceleration value of x acceleration
-    * @return if successful read
-    */
-    ExitCode getLinearAccelerationX(float *x_acceleration);
+/**
+ * @brief gets the linear acceleration in the x direction
+ * @param x_acceleration value of x acceleration
+ * @return if successful read
+ */
+ExitCode getLinearAccelerationX(float *x_acceleration);
 
-    /**
-    * @brief gets the linear acceleration in the y direction
-    * @param y_acceleration value of y acceleration
-    * @return if successful read
-    */
-    ExitCode getLinearAccelerationY(float *y_acceleration);
+/**
+ * @brief gets the linear acceleration in the y direction
+ * @param y_acceleration value of y acceleration
+ * @return if successful read
+ */
+ExitCode getLinearAccelerationY(float *y_acceleration);
 
-    /**
-    * @brief gets the linear acceleration in the y direction
-    * @param z_acceleration value of z acceleration
-    * @return if successful read
-    */
-    ExitCode getLinearAccelerationZ(float *z_acceleration);
+/**
+ * @brief gets the linear acceleration in the y direction
+ * @param z_acceleration value of z acceleration
+ * @return if successful read
+ */
+ExitCode getLinearAccelerationZ(float *z_acceleration);
 
-    /**
-    * @brief Gets the angular velocity in the roll direction
-    * @param roll_velocity Pointer to store the roll angular velocity
-    * @return True if the read is successful, false otherwise
-    */
-    ExitCode getAngularVelocityRoll(float *roll_velocity);
+/**
+ * @brief Gets the angular velocity in the roll direction
+ * @param roll_velocity Pointer to store the roll angular velocity
+ * @return True if the read is successful, false otherwise
+ */
+ExitCode getAngularVelocityRoll(float *roll_velocity);
 
-    /**
-    * @brief Gets the angular velocity in the pitch direction
-    * @param pitch_velocity Pointer to store the pitch angular velocity
-    * @return True if the read is successful, false otherwise
-    */
-    ExitCode getAngularVelocityPitch(float *pitch_velocity);
+/**
+ * @brief Gets the angular velocity in the pitch direction
+ * @param pitch_velocity Pointer to store the pitch angular velocity
+ * @return True if the read is successful, false otherwise
+ */
+ExitCode getAngularVelocityPitch(float *pitch_velocity);
 
-    /**
-    * @brief Gets the angular velocity in the yaw direction
-    * @param yaw_velocity Pointer to store the yaw angular velocity
-    * @return True if the read is successful, false otherwise
-    */
-    ExitCode getAngularVelocityYaw(float *yaw_velocity);
+/**
+ * @brief Gets the angular velocity in the yaw direction
+ * @param yaw_velocity Pointer to store the yaw angular velocity
+ * @return True if the read is successful, false otherwise
+ */
+ExitCode getAngularVelocityYaw(float *yaw_velocity);
 
-    /**
-    * @brief Gets the Fault status of the IMU due to
-    * initialization or transactions
-    * @return True if IMU has faulted
-    */
-    bool getFaultStatus();
-}
+/**
+ * @brief Gets the Fault status of the IMU due to
+ * initialization or transactions
+ * @return True if IMU has faulted
+ */
+bool getFaultStatus();
+} // namespace io::imu

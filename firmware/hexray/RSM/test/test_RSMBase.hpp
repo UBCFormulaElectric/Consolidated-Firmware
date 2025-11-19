@@ -3,7 +3,7 @@
 #include "ecuTestBase.hpp"
 #include "jobs.hpp"
 
-class RSMBaseTest: public EcuTestBase
+class RSMBaseTest : public EcuTestBase
 {
     void board_setup() override
     {
