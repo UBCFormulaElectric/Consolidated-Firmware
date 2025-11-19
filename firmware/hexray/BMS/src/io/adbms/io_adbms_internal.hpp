@@ -6,6 +6,19 @@
 namespace io::adbms
 {
 
+// ADC conversion commands.
+constexpr uint16_t RD    = (0x00 << 8);                       // 1 to enable redundant conversion (C-ADC and S-ADC)
+constexpr uint16_t CONT  = (0x00 << 7);                       // 1 to enable continuous conversion mode
+constexpr uint16_t DCP   = (0x00 << 4);                       // 1 to enable discharge/balance during conversion
+constexpr uint16_t RSTF  = (0x00 << 3);                       // 1 to reset IIR filter
+constexpr uint16_t C_ADC = (0x0260 | RD | CONT | DCP | RSTF); // Start cell voltage ADC conversion
+
+// Clear registers commands.
+constexpr uint16_t CLRCELL = 0x0711; // Cells
+
+// Poll status commands.
+constexpr uint16_t PLADC = 0x0718; // Poll Any ADC Status
+
 // Write configuration register commands.
 constexpr uint16_t WRCFGA = 0x0001;
 constexpr uint16_t WRCFGB = 0x0024;
@@ -63,8 +76,5 @@ void readRegGroup(
  * @param regs Buffer containing the register values to write
  * @param comm_sucess success of operation
  */
-ExitCode writeRegGroup(
-    uint16_t       cmd,
-    const uint16_t regs[io::NUM_SEGMENTS][io::adbms::REGS_PER_GROUP],
-    ExitCode       comm_success[io::NUM_SEGMENTS]);
+ExitCode writeRegGroup(uint16_t cmd, const uint16_t regs[io::NUM_SEGMENTS][io::adbms::REGS_PER_GROUP]);
 } // namespace io::adbms

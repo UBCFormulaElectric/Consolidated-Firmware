@@ -4,7 +4,7 @@
 #include "io_irs.hpp"
 #include "io_time.hpp"
 
-extern "C" 
+extern "C"
 {
 #include "app_canRx.h"
 #include "app_canTx.h"
@@ -18,7 +18,8 @@ class BmsStateMachineTest : public BMSBaseTest
 
 // Precharge tests
 
-TEST_F(BmsStateMachineTest, enter_precharge_drive_when_vc_bms_on_and_negative_closed) {
+TEST_F(BmsStateMachineTest, enter_precharge_drive_when_vc_bms_on_and_negative_closed)
+{
     ASSERT_STATE_EQ(init_state);
 
     fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
@@ -58,9 +59,8 @@ TEST_F(BmsStateMachineTest, no_precharge_drive_if_charging_requested)
 
     app_canRx_VC_State_update(VC_BMS_ON_STATE);
     fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
-    app_canRx_Debug_StartCharging_update(true); 
+    app_canRx_Debug_StartCharging_update(true);
     LetTimePass(20);
 
     ASSERT_STATE_EQ(init_state);
 }
-

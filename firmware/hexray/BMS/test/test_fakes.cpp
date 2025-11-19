@@ -22,7 +22,8 @@ template <> struct std::hash<FaultLatchParams>
 {
     std::size_t operator()(const FaultLatchParams &params) const noexcept
     {
-        return hash<const io::faultLatch::FaultLatch *>()(params.arg0) ^ hash<io::faultLatch::FaultLatchState>()(params.arg1);
+        return hash<const io::faultLatch::FaultLatch *>()(params.arg0) ^
+               hash<io::faultLatch::FaultLatchState>()(params.arg1);
     }
 };
 static std::unordered_map<FaultLatchParams, uint32_t> setCurrentStatus_call_count;
@@ -426,7 +427,6 @@ namespace adbms
         return EXIT_CODE_OK;
     }
 } // namespace adbms
-
 
 } // namespace io
 

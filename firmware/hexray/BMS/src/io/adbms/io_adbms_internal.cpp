@@ -50,7 +50,7 @@ static uint16_t calculatePec15(uint16_t command)
 // Mask to keep PEC10 to 10 bits
 #define PEC10_MASK 0x03FF
 
-static uint16_t calculatePec10(const uint8_t* data, size_t len)
+static uint16_t calculatePec10(const uint8_t *data, size_t len)
 {
     uint16_t remainder = PEC10_INIT;
 
@@ -108,7 +108,7 @@ void readRegGroup(
     RegGroupPayload  rx_buffer[io::NUM_SEGMENTS];
     const ExitCode   tx_status = hw_spi_transmitThenReceive(
         &adbms_spi_ls, (uint8_t *)&tx_cmd, sizeof(tx_cmd), (uint8_t *)rx_buffer, sizeof(rx_buffer));
-    
+
     if (IS_EXIT_ERR(tx_status))
     {
         for (uint8_t segment = 0; segment < io::NUM_SEGMENTS; segment++)
@@ -123,7 +123,7 @@ void readRegGroup(
     {
         const RegGroupPayload *segment_data = &rx_buffer[segment];
         const uint8_t         *data_bytes   = (const uint8_t *)segment_data->regs;
-        const size_t          data_len     = sizeof(segment_data->regs);
+        const size_t           data_len     = sizeof(segment_data->regs);
 
         if (checkDataPec(data_bytes, data_len, segment_data->pec10))
         {
@@ -161,8 +161,8 @@ ExitCode writeRegGroup(uint16_t cmd, uint16_t regs[io::NUM_SEGMENTS][io::adbms::
         }
 
         // Calculate PEC10 for this segment's data
-        const uint8_t *data_bytes = (const uint8_t *)tx_buffer.payload[segment].regs;
-        const size_t  data_len   = sizeof(tx_buffer.payload[segment].regs);
+        const uint8_t *data_bytes        = (const uint8_t *)tx_buffer.payload[segment].regs;
+        const size_t   data_len          = sizeof(tx_buffer.payload[segment].regs);
         tx_buffer.payload[segment].pec10 = calculatePec10(data_bytes, data_len);
     }
 
