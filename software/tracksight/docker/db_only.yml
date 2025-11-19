@@ -1,4 +1,4 @@
-name: tracksight-wireless
+name: tracksight-db
 services:
   influx:
     extends:

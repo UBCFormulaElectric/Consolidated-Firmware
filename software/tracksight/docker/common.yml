@@ -14,10 +14,10 @@ services:
       # Ping at higher frequency at startup since dependant containers don't start until this one passes health check.
       start_period: 10s
       start_interval: 1s
-  live_data:
+  backend:
     build:
       context: ../../../
-      dockerfile: software/tracksight/live_data/Dockerfile
+      dockerfile: software/tracksight/backend/Dockerfile
     # Expose port from container
     ports:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
@@ -25,12 +25,12 @@ services:
     environment:
       BACKEND_PORT: ${BACKEND_PORT}
       INFLUXDB_PORT: ${INFLUXDB_PORT}
-    env_file: live_data.env
-    # TODO test serial port
-    # privileged: true
+    env_file: backend.env
+    # Privileged provides access to all serial ports, not need to pass serial port through
+    privileged: true
     volumes:
       - /dev:/dev
-      - ../live_data:/live_data
+      - ../backend:/backend
     healthcheck:
       # Ping server every 30s in case something breaks.
       test: [ "CMD", "curl", "-f", "http://localhost:${BACKEND_PORT}/api/health" ]
@@ -49,6 +49,7 @@ services:
       dockerfile: software/tracksight/frontend/Dockerfile
     environment:
       FRONTEND_PORT: ${FRONTEND_PORT}
+      BACKEND_PORT: ${BACKEND_PORT}
     ports:
       - "${FRONTEND_PORT}:${FRONTEND_PORT}"
     # depends_on:
