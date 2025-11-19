@@ -1,5 +1,6 @@
 #include "app_pid.h"
 #include "app_utils.h"
+#include <assert.h>
 
 void app_pid_init(PID *pid, const PID_Config *conf)
 {
