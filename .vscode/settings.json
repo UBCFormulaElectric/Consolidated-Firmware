@@ -11,5 +11,13 @@
     "--compile-commands-dir=build_fw_dev",
     // "--compile-commands-dir=build_fw_test",
     "--query-driver=/usr/local/bin/arm-none-eabi-gcc"
-  ]
+  ],
+  "files.associations": {
+    "stm32h5xx.h": "c",
+    "usbd_def.h": "c",
+    "stm32h7xx.h": "c",
+    "stm32h5xx_hal.h": "c",
+    "stm32h7xx_hal.h": "c",
+    "hw_usb.h": "c"
+  }
 }
