@@ -2,6 +2,7 @@
 #include "io_adbms.hpp"
 
 #include "hw_spi.h"
+#include "hw_spis.hpp"
 
 struct CmdPayload
 {
