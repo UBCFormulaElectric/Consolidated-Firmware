@@ -65,12 +65,15 @@ def create_app():
     InfluxHandler.setup()
     logger.debug(f"InfluxDB setup took {time.time() - influx_start_time:.2f} seconds")
 
-    if DATA_SOURCE == "WIRELESS":
-        wireless_thread = get_wireless_task(sio)
-    elif DATA_SOURCE == "MOCK":
-        mock_thread = get_mock_task(sio)
-    else:
-        raise RuntimeError("Data source is not valid")
+    match DATA_SOURCE:
+        case "WIRELESS":
+            wireless_thread = get_wireless_task(sio)
+        case "MOCK":
+            mock_thread = get_mock_task(sio)
+        case "IDLE":
+            pass
+        case _:
+            raise RuntimeError("Data source is not valid")
 
     # Reading Thread
     ws_broadcast_thread = get_websocket_broadcast(sio)
