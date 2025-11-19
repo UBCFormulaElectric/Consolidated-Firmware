@@ -39,6 +39,7 @@ function SignalSelector(props: SignalSelectorProps) {
 
   const filteredSignals = Array.from(signalMetadata.data.values().filter(filter));
 
+  // TODO(evan): Fetch this from the backend when the api route is ready
   const signalCategories = filteredSignals.reduce(
     (categories, signal) => {
       const category = signal.tx_node || "Uncategorized";

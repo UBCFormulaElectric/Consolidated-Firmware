@@ -1,11 +1,9 @@
-"use client";
-
 import { ChevronDown } from "lucide-react";
 import React, { RefObject, useRef } from "react";
 
 import SignalSelector from "@/components/SignalSelector";
 import useSignalMetadata from "@/lib/hooks/useSignalMetadata";
-import isEnumSignal from "@/lib/isEnumSignal";
+import { isEnumSignalMetadata } from "@/lib/types/Signal";
 
 type EnumSignalSelectorProps = {
   currentSignal: string;
@@ -36,7 +34,7 @@ function EnumSignalSelector(props: EnumSignalSelectorProps) {
         {signalMetadata ? signalMetadata.data?.name : "Select Signal"}
         <ChevronDown size={16} />
         <SignalSelector
-          filter={isEnumSignal}
+          filter={isEnumSignalMetadata}
           selectedSignal={signalMetadata.data || null}
           onSelect={(signal) => {
             if (!onSignalChange) return;
