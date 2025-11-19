@@ -156,6 +156,45 @@ namespace io
         }
     }
 
+    namespace imu
+    {
+        ExitCode getLinearAccelerationX(float *value)
+        {
+            *value = fakes::io::imu::x_lin_accel;
+            return fakes::io::imu::imu_faults.x_lin_accel_fault;
+        }
+
+        ExitCode getLinearAccelerationY(float *value)
+        {
+            *value = fakes::io::imu::y_lin_accel;
+            return fakes::io::imu::imu_faults.y_lin_accel_fault;
+        }
+
+        ExitCode getLinearAccelerationZ(float *value)
+        {
+            *value = fakes::io::imu::z_lin_accel;
+            return fakes::io::imu::imu_faults.z_lin_accel_fault;
+        }
+
+        ExitCode getAngularVelocityRoll(float *value)
+        {
+            *value = fakes::io::imu::roll_ang_vel;
+            return fakes::io::imu::imu_faults.roll_ang_vel_fault;
+        }
+
+        ExitCode getAngularVelocityPitch(float *value)
+        {
+            *value = fakes::io::imu::pitch_ang_vel;
+            return fakes::io::imu::imu_faults.pitch_ang_vel_fault;
+        }
+
+        ExitCode getAngularVelocityYaw(float *value)
+        {
+            *value = fakes::io::imu::yaw_ang_vel;
+            return fakes::io::imu::imu_faults.yaw_ang_vel_fault;
+        }
+    }
+
     namespace rPump
     {
         ExitCode setPercentage(float value)
@@ -173,40 +212,4 @@ namespace io
     }
 }
 
-
-ExitCode io_imu_getLinearAccelerationX(float *value)
-{
-    *value = fakes::io::imu::x_lin_accel;
-    return fakes::io::imu::imu_faults.x_lin_accel_fault;
-}
-
-ExitCode io_imu_getLinearAccelerationY(float *value)
-{
-    *value = fakes::io::imu::y_lin_accel;
-    return fakes::io::imu::imu_faults.y_lin_accel_fault;
-}
-
-ExitCode io_imu_getLinearAccelerationZ(float *value)
-{
-    *value = fakes::io::imu::z_lin_accel;
-    return fakes::io::imu::imu_faults.z_lin_accel_fault;
-}
-
-ExitCode io_imu_getAngularVelocityRoll(float *value)
-{
-    *value = fakes::io::imu::roll_ang_vel;
-    return fakes::io::imu::imu_faults.roll_ang_vel_fault;
-}
-
-ExitCode io_imu_getAngularVelocityPitch(float *value)
-{
-    *value = fakes::io::imu::pitch_ang_vel;
-    return fakes::io::imu::imu_faults.pitch_ang_vel_fault;
-}
-
-ExitCode io_imu_getAngularVelocityYaw(float *value)
-{
-    *value = fakes::io::imu::yaw_ang_vel;
-    return fakes::io::imu::imu_faults.yaw_ang_vel_fault;
-}
 

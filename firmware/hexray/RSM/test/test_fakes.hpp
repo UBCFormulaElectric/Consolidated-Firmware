@@ -23,12 +23,12 @@ namespace fakes::io
 
    namespace imu
    {
-      void setLinearAccelerationX(float value);
-      void setLinearAccelerationY(float value);
-      void setLinearAccelerationZ(float value);
-      void setAngularVelocityRoll(float value);
-      void setAngularVelocityPitch(float value);
-      void setAngularVelocityYaw(float value);
+      void setLinearAccelerationX(float value, ExitCode status);
+      void setLinearAccelerationY(float value, ExitCode status);
+      void setLinearAccelerationZ(float value, ExitCode status);
+      void setAngularVelocityRoll(float value, ExitCode status);
+      void setAngularVelocityPitch(float value, ExitCode status);
+      void setAngularVelocityYaw(float value, ExitCode status);
    }
 
    namespace rPump

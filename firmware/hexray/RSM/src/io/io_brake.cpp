@@ -1,5 +1,7 @@
 #include "io_brake.hpp"
+#ifdef TARGET_EMBEDDED
 #include "hw_adc.hpp"
+#endif
 
 #define BRAKE_PRESSURE_OC_THRESHOLD_V 0.33f //Change if under-voltage threshold is diff
 #define BRAKE_PRESSURE_SC_THRESHOLD_V 3.0f //Change if over-voltage threshold is diff
