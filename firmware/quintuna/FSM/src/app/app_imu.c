@@ -1,5 +1,5 @@
 #include "app_imu.h"
-
+#include "util_errorCodes.h"
 #include "io_imu.h"
 #include "app_canTx.h"
 #include "io_log.h"

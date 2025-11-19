@@ -1,23 +1,26 @@
 #include <gtest/gtest.h>
 #include "test/test_RSMBase.hpp"
 #include "test_fakes.hpp"
+#include "util_errorCodes.hpp"
 
 extern "C"
 {
     #include "app_canTx.h"
 }
 
+
+
 class RSMImuTest : public RSMBaseTest
 {};
 
 TEST_F(RSMImuTest, Acceleration_Velocity_Test)
 {
-    fakes::io::imu::setLinearAccelerationX(10);
-    fakes::io::imu::setLinearAccelerationY(10);
-    fakes::io::imu::setLinearAccelerationZ(10);
-    fakes::io::imu::setAngularVelocityRoll(10);
-    fakes::io::imu::setAngularVelocityPitch(10);
-    fakes::io::imu::setAngularVelocityYaw(10);
+    fakes::io::imu::setLinearAccelerationX(10, ExitCode::EXIT_CODE_OK);
+    fakes::io::imu::setLinearAccelerationY(10, ExitCode::EXIT_CODE_OK);
+    fakes::io::imu::setLinearAccelerationZ(10, ExitCode::EXIT_CODE_OK);
+    fakes::io::imu::setAngularVelocityRoll(10, ExitCode::EXIT_CODE_OK);
+    fakes::io::imu::setAngularVelocityPitch(10, ExitCode::EXIT_CODE_OK);
+    fakes::io::imu::setAngularVelocityYaw(10, ExitCode::EXIT_CODE_OK);
 
     LetTimePass(100);
 
@@ -27,6 +30,5 @@ TEST_F(RSMImuTest, Acceleration_Velocity_Test)
     EXPECT_EQ(10, app_canTx_RSM_RollAngularAcceleration_get());
     EXPECT_EQ(10, app_canTx_RSM_PitchAngularAcceleration_get());
     EXPECT_EQ(10, app_canTx_RSM_YawAngularAcceleration_get());
-
     
 }

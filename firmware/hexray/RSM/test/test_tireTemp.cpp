@@ -12,10 +12,10 @@ class RSMTireTempTest: public RSMBaseTest
 
 TEST_F(RSMTireTempTest, FindTireTemp)
 {
-    fakes::io::tireTemp::set(100);
+    fakes::io::tireTemp::set(50);
 
     LetTimePass(100);
 
-    EXPECT_EQ(100, app_canTx_RSM_TireTemperature_get());
+    EXPECT_EQ(50, app_canTx_RSM_TireTemperature_get());
     EXPECT_FALSE(app_canTx_RSM_Info_TireTemperatureOutOfRange_get());
 }
