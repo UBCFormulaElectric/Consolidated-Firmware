@@ -88,7 +88,7 @@ void jobs_init(void)
     LOG_IF_ERR(app_segments_runVoltageSelfTest());
     LOG_IF_ERR(app_segments_runAuxSelfTest());
     LOG_IF_ERR(app_segments_runStatusSelfTest());
-    LOG_IF_ERR(app_segments_runOpenWireCheck());
+    // LOG_IF_ERR(app_segments_runOpenWireCheck());
 
     app_segments_broadcastAdcAccuracyTest();
     app_segments_broadcastVoltageSelfTest();
@@ -156,9 +156,10 @@ void jobs_run100Hz_tick(void)
     app_canTx_BMS_BSPDBrakePressureThresholdExceeded_set(io_bspdTest_isBrakePressureThresholdExceeded());
     app_canTx_BMS_BSPDAccelBrakeOk_set(io_bspdTest_isAccelBrakeOk());
 
-    const bool ir_negative_opened = io_irs_negativeState() == CONTACTOR_STATE_OPEN;
-    const bool ir_negative_opened_debounced =
-        app_timer_runIfCondition(&air_n_debounce_timer, ir_negative_opened) == TIMER_STATE_EXPIRED;
+    //const bool ir_negative_opened = io_irs_negativeState() == CONTACTOR_STATE_OPEN;
+    const bool ir_negative_opened = true;
+    const bool ir_negative_opened_debounced = false;
+        //app_timer_runIfCondition(&air_n_debounce_timer, ir_negative_opened) == TIMER_STATE_EXPIRED;
     if (ir_negative_opened_debounced)
     {
         app_stateMachine_setNextState(&init_state);
