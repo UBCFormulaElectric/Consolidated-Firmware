@@ -63,8 +63,8 @@ def get_signal():
     `start` - Start time for query (RFC3339 format)
     `end` - End time for query (RFC3339 format)
 
-    E.g. `/signal?name=INVFR_bError,*_bReserve&exclude&start=2025-11-01T00:00:00Z&end=2025-11-01T01:00:00Z`
-    - Excludes INVFR_bError and anything that ends in _bReserve, between Nov 1, 2025 00:00 to Nov 1, 2025 01:00
+    E.g. `/signal?name=INVFR_bError&start=2025-11-01&end=2025-11-01T01:00:00`
+    - Matches exactly `INVFR_bError` between Nov 1, 2025 00:00 to Nov 1, 2025 01:00
     """
     # parsing args
     name_arg = request.args.get("name")
@@ -75,8 +75,8 @@ def get_signal():
     try:
         query = get_timed_query(
             bucket=INFLUX_BUCKET,
-            start_time=start,
-            end_time=end
+            start=start,
+            end=end
         )
     except BadTimeFormat as btf:
         return f"bad time: {btf}", 400

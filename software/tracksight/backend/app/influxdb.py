@@ -1,4 +1,4 @@
-import re
+from datetime import datetime, date, timedelta
 import influxdb_client
 from influxdb_client.client.influxdb_client import InfluxDBClient
 from settings import INFLUX_URL, INFLUX_TOKEN, INFLUX_ORG, CAR_NAME
@@ -17,15 +17,26 @@ DEFAULT_TIME_INTERVAL = "5m"
 class BadTimeFormat(Exception):
     pass
 
-# verify date format to prevent arbitrary queries
-# something like <YYYY>-<MM>-<DD>T<HH>:<MM>:<SS>Z
-# thanks chatgpt
-RFC3339_REGEX = re.compile(
-    r"^\d{4}-\d{2}-\d{2}"
-    r"(T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?)?$"
-)
+FLUX_TIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
+DATE_FORMATS = [
+    "%Y-%m-%dT%H:%M:%S",
+    "%Y-%m-%dT%H:%M", 
+    "%Y-%m-%dT%H", 
+    "%Y-%m-%d", 
+]
 
-def get_timed_query(bucket:str, start_time: str = None, end_time: str = None) -> str:
+def parse_time(time: str) -> date:
+    """
+    Takes a string and attempts to parse into the formats
+    """
+    for f in DATE_FORMATS:
+        try:
+            return datetime.strptime(time, f)
+        except:
+            continue
+    raise BadTimeFormat(f"Unable to parse time: {time}")
+
+def get_timed_query(bucket:str, start: str = None, end: str = None) -> str:
     """
     Returns InfluxDB time range query string for given start and end time.
 
@@ -34,22 +45,21 @@ def get_timed_query(bucket:str, start_time: str = None, end_time: str = None) ->
     Throws BadTimeFormat if time format is invalid
     """
 
+    start_time: date | None = parse_time(start) if start else None
+    end_time: date | None = parse_time(end) if end else None
+    default_interval = timedelta(minutes=5)
+
     # unless both start and end are provided,
     # return data in 5 minute interval relative to whichever is given or now
     # check end time first
     if not end_time:
-        end_time = f"{start_time} + 5m" if start_time else "now()" #TODO fix the time
-    elif not RFC3339_REGEX.match(end_time):
-        raise BadTimeFormat(f"Invalid end time format, must be RFC3339: {end_time}")
+        end_time = start_time + default_interval if start_time else datetime.now()
 
-    # check start time
     if not start_time:
-        start_time = "-5m"
-    elif not RFC3339_REGEX.match(start_time):
-        raise BadTimeFormat(f"Invalid start time format, must be RFC3339: {start_time}")
+        start_time = end_time - default_interval
 
     return f'from(bucket:"{bucket}")\
-        |> range(start: {start_time}, stop: {end_time})\
+        |> range(start: {start_time.strftime(FLUX_TIME_FORMAT)}, stop: {end_time.strftime(FLUX_TIME_FORMAT)})\
         |> drop(columns: ["_start", "_stop"])'
 
 def get_influxdb_client() -> InfluxDBClient:
