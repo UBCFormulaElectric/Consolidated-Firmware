@@ -15,6 +15,8 @@ def index():
 def hello_world():
     return "<p>Hello, World!</p>"
 
+#TODO, probably move the signals out from http to somewhere else
+
 @http.route("/signal/nodes", methods=["GET"])
 def get_nodes():
     """
@@ -34,7 +36,7 @@ def get_signal_metadata():
     def condition(signal_name):
         return not name_arg or re.search(name_arg, signal_name)
 
-    return jsonify([
+    return jsonify({signal.name:
         {
             "name": signal.name,
             "min_val": signal.min_val,
@@ -49,7 +51,7 @@ def get_signal_metadata():
         for msg in live_can_db.msgs.values()
         for signal in msg.signals
         if condition(signal.name)
-    ]), 200
+    }), 200
 
 @http.route("/signal", methods=["GET"])
 def get_signal():
