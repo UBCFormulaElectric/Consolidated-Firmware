@@ -1,6 +1,5 @@
 # api blueprints
-from fnmatch import fnmatch
-import json
+import re
 from flask import Blueprint, jsonify, request
 from middleware.candb import live_can_db
 from influxdb import BadTimeFormat, get_influxdb_client, get_timed_query
@@ -16,35 +15,24 @@ def index():
 def hello_world():
     return "<p>Hello, World!</p>"
 
-def get_names(arg: str | None) -> list[str] | None:
-    """
-    Returns string argument separated by comma as list of string
-    """
-    if arg is None:
-        return None
-    return [n.strip() for n in arg.split(',')]
-
 @http.route("/signal/nodes", methods=["GET"])
 def get_nodes():
     """
-    Gets the list of all nodes in the current parser.
+    Gets the list of all nodes (str) in the current parser.
     """
     return jsonify(list(live_can_db.nodes.keys())), 200
-
 
 @http.route("/signal/metadata", methods=["GET"])
 def get_signal_metadata():
     """
     Gets metadata of the signal of the current parser.
-    Pass signal names (glob) in `name` parameter separated by ','.
+    Pass signal names (regex) in `name` parameter.
     E.g. `/signal?name=INVFR_bError,*_bReserve`
     """
     name_arg = request.args.get("name")
-    names = get_names(name_arg)
 
     def condition(signal_name):
-        con = not names or any(fnmatch(signal_name, n) for n in names)
-        return con
+        return not name_arg or re.search(name_arg, signal_name)
 
     return jsonify([
         {
@@ -80,7 +68,6 @@ def get_signal():
     """
     # parsing args
     name_arg = request.args.get("name")
-    names = get_names(name_arg) #TODO remove globbing maybe
     start = request.args.get("start")
     end = request.args.get("end")
 
@@ -94,7 +81,7 @@ def get_signal():
     except BadTimeFormat as btf:
         return f"bad time: {btf}", 400
 
-    if names:
+    if name_arg:
         # i love arbitrary query execution!!!!
         query += f'|> filter(fn: (r) => r._field =~ /^{name_arg}$/)'
 
@@ -106,7 +93,6 @@ def get_signal():
             results = client.query_api().query(query=query)
         except ApiException as ae:
             return f"bad query: {ae}", 400
-
 
     measurement_names = []
     for table in results:
