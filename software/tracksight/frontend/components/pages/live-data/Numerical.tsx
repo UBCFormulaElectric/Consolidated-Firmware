@@ -73,7 +73,14 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
       setProgress: setScrollProgress,
       zoomLevel,
       setZoomLevel,
+      hoverTimestamp,
+      setHoverTimestamp,
+      registerTimeRange,
+      unregisterTimeRange,
+      globalTimeRange,
     } = useSyncedGraphScroll();
+
+    const graphId = useMemo(() => Math.random().toString(36).slice(2), []);
 
     const isLoadingSignals = false;
 
@@ -216,6 +223,18 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
 
     const totalDataPoints = (uplotData[0] as number[]).length;
 
+    useEffect(() => {
+      const timestamps = uplotData[0] as number[];
+      if (timestamps && timestamps.length > 0) {
+        const min = timestamps[0];
+        const max = timestamps[timestamps.length - 1];
+        registerTimeRange(graphId, min, max);
+      } else {
+        unregisterTimeRange(graphId);
+      }
+      return () => unregisterTimeRange(graphId);
+    }, [uplotData, graphId, registerTimeRange, unregisterTimeRange]);
+
     // Fixed width - use container width or full viewport width
     const chartWidth =
       typeof window !== "undefined" ? window.innerWidth - 100 : 1200;
@@ -339,6 +358,15 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
                 className="px-3 py-1 bg-blue-500 text-white opacity-80 rounded-lg transition duration-150 ease-in-out hover:cursor-pointer hover:scale-105 hover:bg-blue-600 hover:opacity-100"
               >
                 Jump to Latest
+              </button>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-sm">Zoom: {zoomLevel}%</label>
+              <button
+                onClick={() => setZoomLevel(100)}
+                className="w-32 px-3 py-1 bg-blue-500 text-white opacity-80 rounded-lg transition duration-150 ease-in-out hover:cursor-pointer hover:scale-105 hover:bg-blue-600 hover:opacity-100"
+              >
+                Reset Zoom
               </button>
             </div>
           </div>
@@ -468,10 +496,12 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
                 color: signalColors[i % signalColors.length],
               }))}
               zoomLevel={zoomLevel}
-              onZoomChange={(z) =>
-                setZoomLevel(Math.min(Math.max(z, 10), 10000))
-              }
+              onZoomChange={(z) => setZoomLevel(Math.max(z, 100))}
               scrollProgress={scrollProgress}
+              hoverTimestamp={hoverTimestamp}
+              onHoverTimestampChange={setHoverTimestamp}
+              domainStart={globalTimeRange?.min}
+              domainEnd={globalTimeRange?.max}
             />
           </div>
         )}

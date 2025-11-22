@@ -39,6 +39,10 @@ type CanvasChartProps = {
   downsampleThreshold?: number;
   timeTickCount?: number;
   onZoomChange?: (newZoom: number) => void;
+  hoverTimestamp?: number | null;
+  onHoverTimestampChange?: (timestamp: number | null) => void;
+  domainStart?: number;
+  domainEnd?: number;
 };
 
 const ENUM_COLORS = [
@@ -109,6 +113,10 @@ export default function CanvasChart({
   downsampleThreshold = 100000,
   timeTickCount = 6,
   onZoomChange,
+  hoverTimestamp: externalHoverTimestamp,
+  onHoverTimestampChange,
+  domainStart,
+  domainEnd,
 }: CanvasChartProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animationFrameId = useRef<number | null>(null);
@@ -116,6 +124,12 @@ export default function CanvasChart({
   const tooltipBufferRef = useRef<string[]>([]);
   const timeFormatterRef = useRef<Intl.DateTimeFormat | null>(null);
   const dateFormatterRef = useRef<Intl.DateTimeFormat | null>(null);
+  const layoutRef = useRef<{
+    minTime: number;
+    timeRange: number;
+    chartWidth: number;
+    paddingLeft: number;
+  } | null>(null);
 
   const preparedData = useMemo<PreparedChartData>(() => {
     if (!data || data.length === 0) {
@@ -322,8 +336,10 @@ export default function CanvasChart({
       const chartWidth = width - padding.left - padding.right;
       const chartHeight = Math.max(0, height - numericalTop - padding.bottom);
 
-      const latestTime = timestamps[timestamps.length - 1];
-      const earliestTime = timestamps[0];
+      const latestTime =
+        domainEnd !== undefined ? domainEnd : timestamps[timestamps.length - 1];
+      const earliestTime =
+        domainStart !== undefined ? domainStart : timestamps[0];
       const totalTimeRange = latestTime - earliestTime;
 
       let visibleStartTime: number;
@@ -392,6 +408,13 @@ export default function CanvasChart({
 
       const timeToX = (time: number) => {
         return padding.left + ((time - minTime) / timeRange) * chartWidth;
+      };
+
+      layoutRef.current = {
+        minTime,
+        timeRange,
+        chartWidth,
+        paddingLeft: padding.left,
       };
 
       // --- RENDER ENUMS ---
@@ -705,7 +728,12 @@ export default function CanvasChart({
       }
 
       // hover interaction (vertical line, points, and tooltip)
+      let activeHoverX: number | null = null;
+      let activeHoverY: number | null = null;
+      let activeHoverTimestamp: number | null = null;
+
       const hover = hoverPixelRef.current;
+
       if (hover) {
         const withinX =
           hover.x >= padding.left && hover.x <= width - padding.right;
@@ -713,173 +741,193 @@ export default function CanvasChart({
           hover.y >= padding.top && hover.y <= height - padding.bottom;
 
         if (withinX && withinY) {
-          const hoverTime =
+          activeHoverX = hover.x;
+          activeHoverY = hover.y;
+
+          const calculatedTime =
             minTime + ((hover.x - padding.left) / chartWidth) * timeRange;
+          activeHoverTimestamp = calculatedTime;
+        }
+      } else if (
+        externalHoverTimestamp !== null &&
+        externalHoverTimestamp !== undefined
+      ) {
+        if (
+          externalHoverTimestamp >= minTime &&
+          externalHoverTimestamp <= maxTime
+        ) {
+          activeHoverTimestamp = externalHoverTimestamp;
+          activeHoverX = timeToX(externalHoverTimestamp);
+          activeHoverY = padding.top + 50;
+        }
+      }
 
-          const clampIndex = (idx: number) =>
-            Math.min(Math.max(idx, startIndex), endIndex);
+      if (activeHoverX !== null && activeHoverTimestamp !== null) {
+        const hoverX = activeHoverX;
+        const hoverTime = activeHoverTimestamp;
 
-          let low = startIndex;
-          let high = endIndex;
-          while (low <= high) {
-            const mid = Math.floor((low + high) / 2);
-            if (timestamps[mid] < hoverTime) {
-              low = mid + 1;
-            } else {
-              high = mid - 1;
-            }
+        const clampIndex = (idx: number) =>
+          Math.min(Math.max(idx, startIndex), endIndex);
+
+        let low = startIndex;
+        let high = endIndex;
+        while (low <= high) {
+          const mid = Math.floor((low + high) / 2);
+          if (timestamps[mid] < hoverTime) {
+            low = mid + 1;
+          } else {
+            high = mid - 1;
           }
+        }
 
-          const rightCandidate = clampIndex(low);
-          const leftCandidate = clampIndex(low - 1);
+        const rightCandidate = clampIndex(low);
+        const leftCandidate = clampIndex(low - 1);
 
-          let nearestIndex = rightCandidate;
+        let nearestIndex = rightCandidate;
+        if (
+          Math.abs(timestamps[leftCandidate] - hoverTime) <
+          Math.abs(timestamps[nearestIndex] - hoverTime)
+        ) {
+          nearestIndex = leftCandidate;
+        }
+
+        const snappedTimestamp = timestamps[nearestIndex];
+        const snappedX = timeToX(snappedTimestamp);
+
+        // Use snapped X for drawing
+        const drawX = snappedX;
+
+        context.save();
+        context.setLineDash([4, 4]);
+        context.strokeStyle = "rgba(255,255,255,0.6)";
+        context.lineWidth = 1;
+        context.beginPath();
+        context.moveTo(drawX, padding.top);
+        context.lineTo(drawX, height - padding.bottom);
+        context.stroke();
+        context.setLineDash([]);
+
+        const tooltipLines = tooltipBufferRef.current;
+        tooltipLines.length = 0;
+        const hoverDate = new Date(snappedTimestamp);
+        const ms = hoverDate.getMilliseconds().toString().padStart(3, "0");
+        tooltipLines.push(
+          `${dateFormatter.format(hoverDate)} ${timeFormatter.format(
+            hoverDate
+          )}.${ms}`
+        );
+
+        // collect unified enum values for legend color mapping
+        const allEnumValues = new Set<string>();
+        enumSeriesIndices.forEach((idx) => {
+          uniqueEnumValues[idx]?.forEach((v) => allEnumValues.add(v));
+        });
+        const sortedAllEnums = Array.from(allEnumValues).sort();
+
+        let firstPointY: number | null = null;
+
+        seriesData.forEach((points, idx) => {
+          const value = points[nearestIndex];
+          if (value === null || value === undefined) return;
+
+          // Draw point for numerical
           if (
-            Math.abs(timestamps[leftCandidate] - hoverTime) <
-            Math.abs(timestamps[nearestIndex] - hoverTime)
+            typeof value === "number" &&
+            hasNumerical &&
+            numericalSeriesIndices.includes(idx)
           ) {
-            nearestIndex = leftCandidate;
+            let y = 0;
+            if (
+              numericalSeriesIndices.includes(idx) &&
+              Number.isFinite(minValue) &&
+              Number.isFinite(maxValue)
+            ) {
+              // Re-calculate Y based on numerical bounds
+              y =
+                numericalTop +
+                chartHeight -
+                ((value - minValue) / (maxValue - minValue)) * chartHeight;
+
+              if (firstPointY === null) firstPointY = y;
+
+              const color = series[idx]?.color || "#4f46e5";
+              context.beginPath();
+              context.fillStyle = color;
+              context.strokeStyle = "#ffffff";
+              context.lineWidth = 1.5;
+              context.arc(drawX, y, 4, 0, Math.PI * 2);
+              context.fill();
+              context.stroke();
+            }
           }
 
-          const hoverTimestamp = timestamps[nearestIndex];
-          const hoverX = timeToX(hoverTimestamp);
+          let displayValue = "";
+          if (typeof value === "number") {
+            displayValue = value.toFixed(2);
+          } else {
+            displayValue = String(value);
+          }
 
-          context.save();
-          context.setLineDash([4, 4]);
-          context.strokeStyle = "rgba(255,255,255,0.6)";
-          context.lineWidth = 1;
-          context.beginPath();
-          context.moveTo(hoverX, padding.top);
-          context.lineTo(hoverX, height - padding.bottom);
-          context.stroke();
-          context.setLineDash([]);
-
-          const tooltipLines = tooltipBufferRef.current;
-          tooltipLines.length = 0;
-          const hoverDate = new Date(hoverTimestamp);
-          const ms = hoverDate.getMilliseconds().toString().padStart(3, "0");
           tooltipLines.push(
-            `${dateFormatter.format(hoverDate)} ${timeFormatter.format(
-              hoverDate
-            )}.${ms}`
+            `${series[idx]?.label ?? `Series ${idx + 1}`}: ${displayValue}`
           );
+        });
 
-          // collect unified enum values for legend color mapping
-          const allEnumValues = new Set<string>();
-          enumSeriesIndices.forEach((idx) => {
-            uniqueEnumValues[idx]?.forEach((v) => allEnumValues.add(v));
-          });
-          const sortedAllEnums = Array.from(allEnumValues).sort();
-
-          seriesData.forEach((points, idx) => {
-            const value = points[nearestIndex];
-            if (value === null || value === undefined) return;
-
-            // Draw point for numerical
-            if (
-              typeof value === "number" &&
-              hasNumerical &&
-              numericalSeriesIndices.includes(idx)
-            ) {
-              // Recalculate ranges locally for tooltip positioning (expensive but accurate)
-              // Optimization: Use cached y if possible or simplified calculation
-              // Re-using the min/max calculated above for numerical
-
-              let localMin = Infinity;
-              let localMax = -Infinity;
-
-              numericalSeriesIndices.forEach((sIdx) => {
-                // ... (reuse min/max logic or assume global min/max from render pass)
-                // For simplicity, let's reuse the computed minValue/maxValue from the render scope
-                // but we need to be careful if this code block is inside the render function (it is).
-              });
-
-              // Note: We are inside render(), so we can access minValue/maxValue computed for numerical section.
-              // But we need to check if they are finite
-              let y = 0;
-              if (
-                numericalSeriesIndices.includes(idx) &&
-                Number.isFinite(minValue) &&
-                Number.isFinite(maxValue)
-              ) {
-                // Re-calculate Y based on numerical bounds
-                y =
-                  numericalTop +
-                  chartHeight -
-                  ((value - minValue) / (maxValue - minValue)) * chartHeight;
-
-                const color = series[idx]?.color || "#4f46e5";
-                context.beginPath();
-                context.fillStyle = color;
-                context.strokeStyle = "#ffffff";
-                context.lineWidth = 1.5;
-                context.arc(hoverX, y, 4, 0, Math.PI * 2);
-                context.fill();
-                context.stroke();
-              }
-            }
-
-            let displayValue = "";
-            if (typeof value === "number") {
-              displayValue = value.toFixed(2);
-            } else {
-              displayValue = String(value);
-            }
-
-            tooltipLines.push(
-              `${series[idx]?.label ?? `Series ${idx + 1}`}: ${displayValue}`
+        if (tooltipLines.length > 0) {
+          const font = "12px sans-serif";
+          context.font = font;
+          const lineHeight = 16;
+          const horizontalPadding = 10;
+          const verticalPadding = 8;
+          let tooltipWidth = 0;
+          tooltipLines.forEach((line) => {
+            tooltipWidth = Math.max(
+              tooltipWidth,
+              context.measureText(line).width
             );
           });
+          tooltipWidth += horizontalPadding * 2;
+          const tooltipHeight =
+            tooltipLines.length * lineHeight + verticalPadding;
 
-          if (tooltipLines.length > 0) {
-            const font = "12px sans-serif";
-            context.font = font;
-            const lineHeight = 16;
-            const horizontalPadding = 10;
-            const verticalPadding = 8;
-            let tooltipWidth = 0;
-            tooltipLines.forEach((line) => {
-              tooltipWidth = Math.max(
-                tooltipWidth,
-                context.measureText(line).width
-              );
-            });
-            tooltipWidth += horizontalPadding * 2;
-            const tooltipHeight =
-              tooltipLines.length * lineHeight + verticalPadding;
-
-            let tooltipX = hoverX + 10;
-            if (tooltipX + tooltipWidth > width - padding.right) {
-              tooltipX = hoverX - 10 - tooltipWidth;
-            }
-
-            let tooltipY = hover.y - tooltipHeight / 2;
-            const minY = padding.top;
-            const maxY = height - padding.bottom - tooltipHeight;
-            tooltipY = Math.min(Math.max(tooltipY, minY), maxY);
-
-            context.fillStyle = "rgba(17, 24, 39, 0.85)";
-            context.fillRect(tooltipX, tooltipY, tooltipWidth, tooltipHeight);
-
-            context.strokeStyle = "rgba(255, 255, 255, 0.25)";
-            context.lineWidth = 1;
-            context.strokeRect(tooltipX, tooltipY, tooltipWidth, tooltipHeight);
-
-            context.fillStyle = "#ffffff";
-            context.textAlign = "left";
-            context.textBaseline = "top";
-
-            tooltipLines.forEach((line, idx) => {
-              context.fillText(
-                line,
-                tooltipX + horizontalPadding,
-                tooltipY + verticalPadding / 2 + idx * lineHeight
-              );
-            });
+          let tooltipX = drawX + 10;
+          if (tooltipX + tooltipWidth > width - padding.right) {
+            tooltipX = drawX - 10 - tooltipWidth;
           }
 
-          context.restore();
+          // determine tooltip Y
+          let tooltipY = activeHoverY ?? padding.top + 20;
+          if (!hover && firstPointY !== null) {
+            tooltipY = firstPointY - tooltipHeight / 2;
+          } else if (!hover) {
+            tooltipY = padding.top + 20;
+          }
+
+          const minY = padding.top;
+          const maxY = height - padding.bottom - tooltipHeight;
+          tooltipY = Math.min(Math.max(tooltipY, minY), maxY);
+
+          context.fillStyle = "rgba(17, 24, 39, 0.85)";
+          context.fillRect(tooltipX, tooltipY, tooltipWidth, tooltipHeight);
+
+          context.strokeStyle = "rgba(255, 255, 255, 0.25)";
+          context.lineWidth = 1;
+          context.strokeRect(tooltipX, tooltipY, tooltipWidth, tooltipHeight);
+
+          context.fillStyle = "#ffffff";
+          context.textAlign = "left";
+          context.textBaseline = "top";
+
+          tooltipLines.forEach((line, idx) => {
+            context.fillText(
+              line,
+              tooltipX + horizontalPadding,
+              tooltipY + verticalPadding / 2 + idx * lineHeight
+            );
+          });
         }
+
+        context.restore();
       }
 
       animationFrameId.current = requestAnimationFrame(render);
@@ -909,15 +957,27 @@ export default function CanvasChart({
 
     const handleMouseMove = (event: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
-      hoverPixelRef.current = {
-        x: event.clientX - rect.left,
-        y: event.clientY - rect.top,
-      };
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      hoverPixelRef.current = { x, y };
+
+      if (layoutRef.current && onHoverTimestampChange) {
+        const { minTime, timeRange, chartWidth, paddingLeft } =
+          layoutRef.current;
+        if (chartWidth > 0) {
+          const calculatedTime =
+            minTime + ((x - paddingLeft) / chartWidth) * timeRange;
+          onHoverTimestampChange(calculatedTime);
+        }
+      }
       scheduleRender();
     };
 
     const handleMouseLeave = () => {
       hoverPixelRef.current = null;
+      if (onHoverTimestampChange) {
+        onHoverTimestampChange(null);
+      }
       scheduleRender();
     };
 
@@ -948,6 +1008,10 @@ export default function CanvasChart({
     frozenTimeWindow,
     timeTickCount,
     onZoomChange,
+    externalHoverTimestamp,
+    onHoverTimestampChange,
+    domainStart,
+    domainEnd,
   ]);
 
   return (

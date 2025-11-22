@@ -13,6 +13,11 @@ type SyncedGraphScrollContextValue = {
   setProgress: (next: number) => void;
   zoomLevel: number;
   setZoomLevel: (next: number) => void;
+  hoverTimestamp: number | null;
+  setHoverTimestamp: (ts: number | null) => void;
+  registerTimeRange: (id: string, min: number, max: number) => void;
+  unregisterTimeRange: (id: string) => void;
+  globalTimeRange: { min: number; max: number } | null;
 };
 
 const SyncedGraphScrollContext =
@@ -124,6 +129,11 @@ export default function SyncedGraphContainer({
 }: SyncedGraphContainerProps) {
   const [progress, setProgress] = useState(1);
   const [zoomLevel, setZoomLevel] = useState(100);
+  const [hoverTimestamp, setHoverTimestamp] = useState<number | null>(null);
+  const [timeRanges, setTimeRanges] = useState<
+    Map<string, { min: number; max: number }>
+  >(new Map());
+
   const rafRef = useRef<number | null>(null);
   const pendingRef = useRef(progress);
   const latestRef = useRef(progress);
@@ -185,14 +195,69 @@ export default function SyncedGraphContainer({
     [applyDelta]
   );
 
+  const registerTimeRange = useCallback(
+    (id: string, min: number, max: number) => {
+      setTimeRanges((prev) => {
+        const current = prev.get(id);
+        // only update if changed significantly to avoid too many re-renders
+        // precision of 1ms is fine
+        if (
+          current &&
+          Math.abs(current.min - min) < 1 &&
+          Math.abs(current.max - max) < 1
+        ) {
+          return prev;
+        }
+        const next = new Map(prev);
+        next.set(id, { min, max });
+        return next;
+      });
+    },
+    []
+  );
+
+  const unregisterTimeRange = useCallback((id: string) => {
+    setTimeRanges((prev) => {
+      if (!prev.has(id)) return prev;
+      const next = new Map(prev);
+      next.delete(id);
+      return next;
+    });
+  }, []);
+
+  const globalTimeRange = useMemo(() => {
+    if (timeRanges.size === 0) return null;
+    let min = Infinity;
+    let max = -Infinity;
+    for (const range of timeRanges.values()) {
+      if (range.min < min) min = range.min;
+      if (range.max > max) max = range.max;
+    }
+    if (min === Infinity || max === -Infinity) return null;
+    return { min, max };
+  }, [timeRanges]);
+
   const contextValue = useMemo<SyncedGraphScrollContextValue>(
     () => ({
       progress,
       setProgress: scheduleProgressUpdate,
       zoomLevel,
       setZoomLevel,
+      hoverTimestamp,
+      setHoverTimestamp,
+      registerTimeRange,
+      unregisterTimeRange,
+      globalTimeRange,
     }),
-    [progress, scheduleProgressUpdate, zoomLevel]
+    [
+      progress,
+      scheduleProgressUpdate,
+      zoomLevel,
+      hoverTimestamp,
+      registerTimeRange,
+      unregisterTimeRange,
+      globalTimeRange,
+    ]
   );
 
   const containerClassName = ["relative w-full", className]
