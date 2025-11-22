@@ -9,24 +9,25 @@ import { SignalMetadata } from "@/lib/types/Signal";
  * @param signalName - The name of the signal to fetch metadata for
  * @returns React Query result with the signal metadata
  */
-const useSignalMetadata = (signalName: string) => {
+export default function useSignalMetadata(signalName: string | null) {
   return useQuery({
     queryKey: ["signal-metadata", signalName],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE_URL}/signal?name=${encodeURIComponent(signalName)}`);
+      if (signalName === null) {
+        return null;
+      }
 
+      const response = await fetch(`${API_BASE_URL}/signal?name=${encodeURIComponent(signalName)}`);
       if (!response.ok) {
         throw new Error(`Failed to fetch signals: ${response.statusText}`);
       }
 
+      // TODO when the query/find signal endpoints are seperated, change this to recieve a single SignalMetadata object
       const json = (await response.json()) as SignalMetadata[];
-
       const signal = json.find((s) => s.name === signalName);
-
       if (!signal) {
         throw new Error(`Signal not found: ${signalName}`);
       }
-
       return signal;
     },
     retryOnMount: false,
@@ -38,6 +39,4 @@ const useSignalMetadata = (signalName: string) => {
       return failureCount < 2;
     },
   });
-};
-
-export default useSignalMetadata;
+}

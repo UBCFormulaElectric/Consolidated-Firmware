@@ -2,27 +2,20 @@ import { ChevronDown } from "lucide-react";
 import React, { RefObject, useRef } from "react";
 
 import SignalSelector from "@/components/SignalSelector";
-import useSignalMetadata from "@/lib/hooks/useSignalMetadata";
-import { isEnumSignalMetadata } from "@/lib/types/Signal";
+import { useQueryEnumSignalMetadata } from "@/lib/hooks/useQuerySignalMetadata";
 
-type EnumSignalSelectorProps = {
-  currentSignal: string;
+function EnumSignalSelector({ currentSignal, onSignalChange }: {
+  currentSignal: string | null;
   onSignalChange?: (signalName: string) => void;
-};
-
-function EnumSignalSelector(props: EnumSignalSelectorProps) {
-  const { currentSignal, onSignalChange } = props;
-
-  const signalMetadata = useSignalMetadata(currentSignal);
-  const signalDropdownRef = useRef<HTMLDivElement>(null) as RefObject<HTMLDivElement>;
-
-  if (signalMetadata.isLoading) {
+}) {
+  const { isPending, error, data } = useQueryEnumSignalMetadata();
+  if (isPending) {
     return <div>Loading...</div>;
   }
-
-  if (signalMetadata.error) {
-    return <div>Error loading signal metadata.</div>;
+  if (error) {
+    return <div>Error loading signals</div>;
   }
+  const signalDropdownRef = useRef<HTMLDivElement>(null);
 
   return (
     <div className="flex flex-row items-center gap-2 text-lg font-medium">
@@ -31,17 +24,14 @@ function EnumSignalSelector(props: EnumSignalSelectorProps) {
         className="relative flex flex-row gap-2 text-base font-normal select-none hover:cursor-pointer"
         ref={signalDropdownRef}
       >
-        {signalMetadata ? signalMetadata.data?.name : "Select Signal"}
+        {currentSignal ?? "Select Signal"}
         <ChevronDown size={16} />
-        <SignalSelector
-          filter={isEnumSignalMetadata}
-          selectedSignal={signalMetadata.data || null}
+        <SignalSelector signals={data} selectedSignal={currentSignal}
+          buttonElement={signalDropdownRef as RefObject<HTMLElement>}
           onSelect={(signal) => {
             if (!onSignalChange) return;
-
             onSignalChange(signal.name);
           }}
-          buttonElement={signalDropdownRef}
         />
       </div>
     </div>

@@ -5,9 +5,16 @@ type CommonSignalMetadata = {
   id: number;
 };
 
-type EnumSignalMetadata = CommonSignalMetadata & {
+export enum SignalType {
+  ENUM = "enum",
+  NUMERICAL = "numerical",
+  ALERT = "alert",
+}
+
+export type EnumSignalMetadata = CommonSignalMetadata & {
+  type: SignalType.ENUM;
   enum: {
-    items: Record<number, string>;
+    items: Record<number, string>; // maps raw value to enum display name
     name: string;
   };
   min_val: number;
@@ -15,37 +22,28 @@ type EnumSignalMetadata = CommonSignalMetadata & {
   cycle_time_ms: number | null;
 };
 
-type NumericalSignalMetadata = CommonSignalMetadata & {
+export type NumericalSignalMetadata = CommonSignalMetadata & {
+  type: SignalType.NUMERICAL;
   min_val: number;
   max_val: number;
   unit: "" | string;
   cycle_time_ms: number | null;
 };
 
-type AlertSignalMetadata = CommonSignalMetadata & {
+export type AlertSignalMetadata = CommonSignalMetadata & {
+  type: SignalType.ALERT;
   min_val: 0;
   max_val: 1;
   cycle_time_ms: number | null;
 };
 
-const isEnumSignalMetadata = (signal: SignalMetadata): signal is EnumSignalMetadata => {
-  return (signal as EnumSignalMetadata).enum !== null;
+export const isEnumSignalMetadata = (signal: SignalMetadata): signal is EnumSignalMetadata => {
+  return signal.type === SignalType.ENUM;
 };
-
-const isAlertSignalMetadata = (signal: SignalMetadata): signal is AlertSignalMetadata => {
-  return (
-    (signal as AlertSignalMetadata).min_val === 0 &&
-    (signal as AlertSignalMetadata).max_val === 1 &&
-    !isEnumSignalMetadata(signal)
-  );
+export const isAlertSignalMetadata = (signal: SignalMetadata): signal is AlertSignalMetadata => {
+  return signal.type === SignalType.ALERT;
 };
-
-const isNumericalSignalMetadata = (signal: SignalMetadata): signal is NumericalSignalMetadata => {
-  return !isEnumSignalMetadata(signal) && !isAlertSignalMetadata(signal);
+export const isNumericalSignalMetadata = (signal: SignalMetadata): signal is NumericalSignalMetadata => {
+  return signal.type === SignalType.NUMERICAL;
 };
-
-type SignalMetadata = EnumSignalMetadata | NumericalSignalMetadata | AlertSignalMetadata;
-
-export type { SignalMetadata };
-
-export { isAlertSignalMetadata, isEnumSignalMetadata, isNumericalSignalMetadata };
+export type SignalMetadata = EnumSignalMetadata | NumericalSignalMetadata | AlertSignalMetadata;

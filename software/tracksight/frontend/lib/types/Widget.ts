@@ -1,23 +1,24 @@
+import { SignalType } from "@/lib/types/Signal";
 import type { FC } from "react";
 
-type WidgetSchema = {
-  type: "enumTimeline",
+type WidgetDataBase = {
+  id: string;
+}
+
+interface enumProps {
+  type: SignalType.ENUM;
+  signal: string | null;
   options: {
     colorPalette: string[],
-  },
-};
+  };
+}
+export type WidgetDataEnum = WidgetDataBase & enumProps;
 
-type WidgetType = WidgetSchema["type"];
-
-type WidgetData<Type extends WidgetType = WidgetType> = {
+interface numericalProps {
+  type: SignalType.NUMERICAL;
   signals: string[];
-  id: string;
-} & Extract<WidgetSchema, { type: Type }>;
+}
+export type WidgetDataNumerical = WidgetDataBase & numericalProps;
 
-type WidgetRenderer<Type extends WidgetType> = FC<WidgetData<Type>>;
-
-export type {
-  WidgetData,
-  WidgetType,
-  WidgetRenderer
-};
+export type WidgetData = WidgetDataEnum | WidgetDataNumerical;
+export type WidgetRenderer = FC<WidgetData>;

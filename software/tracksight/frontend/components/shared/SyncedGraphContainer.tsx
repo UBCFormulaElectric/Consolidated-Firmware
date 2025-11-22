@@ -112,21 +112,19 @@ export function useSyncedGraphScroll() {
   return ctx;
 }
 
-type SyncedGraphContainerProps = {
-  children: React.ReactNode;
-  className?: string;
-  scrollStripHeight?: number;
-  scrollWidth?: number;
-  scrollLabel?: string;
-};
-
 export default function SyncedGraphContainer({
   children,
   className,
   scrollStripHeight = DEFAULT_STRIP_HEIGHT,
   scrollWidth = DEFAULT_SCROLL_WIDTH,
   scrollLabel = SCROLL_LABEL,
-}: SyncedGraphContainerProps) {
+}: {
+  children: React.ReactNode;
+  className?: string;
+  scrollStripHeight?: number;
+  scrollWidth?: number;
+  scrollLabel?: string;
+}) {
   const [progress, setProgress] = useState(1);
   const [zoomLevel, setZoomLevel] = useState(100);
   const [hoverTimestamp, setHoverTimestamp] = useState<number | null>(null);
@@ -155,9 +153,7 @@ export default function SyncedGraphContainer({
       latestRef.current = pendingRef.current;
       setProgress(pendingRef.current);
     });
-  }, []);
 
-  useEffect(() => {
     return () => {
       if (rafRef.current !== null) {
         cancelAnimationFrame(rafRef.current);
@@ -182,8 +178,8 @@ export default function SyncedGraphContainer({
         Math.abs(event.deltaX) >= Math.abs(event.deltaY)
           ? event.deltaX
           : event.shiftKey
-          ? event.deltaY
-          : 0;
+            ? event.deltaY
+            : 0;
 
       if (horizontalDelta === 0) {
         return;
@@ -260,45 +256,24 @@ export default function SyncedGraphContainer({
     ]
   );
 
-  const containerClassName = ["relative w-full", className]
-    .filter(Boolean)
-    .join(" ");
-
   const trackHeight = Math.max(scrollStripHeight - 32, 16);
 
   return (
     <SyncedGraphScrollContext.Provider value={contextValue}>
-      <div
-        className={containerClassName}
-        style={{ paddingTop: scrollStripHeight }}
-        onWheel={handleWheel}
-      >
-        <div
+      <div className={`relative w-full ${className}`} style={{ paddingTop: scrollStripHeight }} onWheel={handleWheel}>
+        <div className="absolute top-0 left-0 right-0 flex flex-col gap-2 pointer-events-none"
           style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
             height: scrollStripHeight,
             zIndex: 30,
             padding: "8px 16px",
-            pointerEvents: "none",
-            display: "flex",
-            flexDirection: "column",
-            gap: 6,
           }}
         >
-          <div
-            style={{
-              fontSize: 11,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              color: "rgba(226,232,240,0.78)",
-            }}
+          <div className="uppercase text-md"
+            style={{ letterSpacing: "0.08em", color: "rgba(226,232,240,0.78)" }}
           >
             {scrollLabel}
           </div>
-          <div style={{ pointerEvents: "auto" }}>
+          <div className="pointer-events-auto">
             <ScrollController
               progress={progress}
               onScrollChange={scheduleProgressUpdate}
