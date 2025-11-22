@@ -5,11 +5,16 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import { RowEditor, RowItem } from "./DropdownSearch";
 import DynamicSignalGraph from "./DynamicSignalGraph";
 import { InsertionBar } from "./InsertionBar";
+import MockGraph, {
+  MockGraphConfig,
+} from "@/components/pages/live-data/MockGraph";
 
 interface CreatedComponent {
   id: string;
-  signalName: string;
+  signalName?: string;
   rowIndex: number;
+  isMock?: boolean;
+  mockConfig?: MockGraphConfig;
 }
 
 const DynamicRowManager: React.FC = () => {
@@ -62,11 +67,17 @@ const DynamicRowManager: React.FC = () => {
     });
   };
   const toggleRow = useCallback((idx: number) => {
-    setRows((prev) => prev.map((r, i) => (i === idx ? { ...r, isOpen: !r.isOpen } : r)));
+    setRows((prev) =>
+      prev.map((r, i) => (i === idx ? { ...r, isOpen: !r.isOpen } : r))
+    );
   }, []);
 
   const selectOpt = useCallback((idx: number, signalName: string) => {
-    setRows((prev) => prev.map((r, i) => (i === idx ? { ...r, isOpen: false, selectedSignal: signalName } : r)));
+    setRows((prev) =>
+      prev.map((r, i) =>
+        i === idx ? { ...r, isOpen: false, selectedSignal: signalName } : r
+      )
+    );
   }, []);
 
   const deleteRow = (idx: number) => {
@@ -99,10 +110,32 @@ const DynamicRowManager: React.FC = () => {
       id: `${signalName}-${Date.now()}`,
       signalName,
       rowIndex: idx,
+      isMock: false,
     };
 
     setCreatedComponents((prev) => [...prev, newComponent]);
   }, []);
+
+  const createMockComponent = useCallback(
+    (idx: number, config: MockGraphConfig) => {
+      // Mark the row as having created a component
+      setRows((prev) =>
+        prev.map((r, i) =>
+          i === idx ? { ...r, hasCreatedComponent: true } : r
+        )
+      );
+
+      const newComponent: CreatedComponent = {
+        id: `MOCK-${config.signalName}-${Date.now()}`,
+        rowIndex: idx,
+        isMock: true,
+        mockConfig: config,
+      };
+
+      setCreatedComponents((prev) => [...prev, newComponent]);
+    },
+    []
+  );
 
   const deleteComponent = (componentId: string) => {
     // Remove the component from the list
@@ -125,13 +158,21 @@ const DynamicRowManager: React.FC = () => {
     <div className="">
       <div className="overflow-x-scroll" ref={scrollContainerRef}>
         <div className="sticky inline-block min-w-[calc(100vw)] pb-10">
-          {createdComponents.map((component) => (
-            <DynamicSignalGraph
-              key={component.id}
-              signalName={component.signalName}
-              onDelete={() => deleteComponent(component.id)}
-            />
-          ))}
+          {createdComponents.map((component) =>
+            component.isMock && component.mockConfig ? (
+              <MockGraph
+                key={component.id}
+                config={component.mockConfig}
+                onDelete={() => deleteComponent(component.id)}
+              />
+            ) : (
+              <DynamicSignalGraph
+                key={component.id}
+                signalName={component.signalName!}
+                onDelete={() => deleteComponent(component.id)}
+              />
+            )
+          )}
 
           {/* Render insertion rows */}
           {rows.map((row, idx) => (
@@ -150,7 +191,29 @@ const DynamicRowManager: React.FC = () => {
           {(rows.length === 0 ||
             rows[rows.length - 1]?.hasCreatedComponent) && (
             <div className="pb-8">
-              <InsertionBar onInsert={() => addRow(rows.length)} />
+              <InsertionBar
+                onInsert={() => addRow(rows.length)}
+                onInsertMock={(config) => {
+                  const newIndex = rows.length;
+
+                  setRows((prev) => [
+                    ...prev,
+                    {
+                      isOpen: false,
+                      selectedSignal: undefined,
+                      hasCreatedComponent: true,
+                    },
+                  ]);
+
+                  const newComponent: CreatedComponent = {
+                    id: `MOCK-${config.signalName}-${Date.now()}`,
+                    rowIndex: newIndex,
+                    isMock: true,
+                    mockConfig: config,
+                  };
+                  setCreatedComponents((prev) => [...prev, newComponent]);
+                }}
+              />
             </div>
           )}
         </div>

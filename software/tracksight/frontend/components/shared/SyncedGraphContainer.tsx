@@ -11,6 +11,8 @@ import React, {
 type SyncedGraphScrollContextValue = {
   progress: number;
   setProgress: (next: number) => void;
+  zoomLevel: number;
+  setZoomLevel: (next: number) => void;
 };
 
 const SyncedGraphScrollContext =
@@ -121,6 +123,7 @@ export default function SyncedGraphContainer({
   scrollLabel = SCROLL_LABEL,
 }: SyncedGraphContainerProps) {
   const [progress, setProgress] = useState(1);
+  const [zoomLevel, setZoomLevel] = useState(100);
   const rafRef = useRef<number | null>(null);
   const pendingRef = useRef(progress);
   const latestRef = useRef(progress);
@@ -186,8 +189,10 @@ export default function SyncedGraphContainer({
     () => ({
       progress,
       setProgress: scheduleProgressUpdate,
+      zoomLevel,
+      setZoomLevel,
     }),
-    [progress, scheduleProgressUpdate]
+    [progress, scheduleProgressUpdate, zoomLevel]
   );
 
   const containerClassName = ["relative w-full", className]

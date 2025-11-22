@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useMemo } from "react";
 
 type SeriesMeta = {
   label: string;
@@ -10,7 +10,22 @@ type SeriesMeta = {
 // data format is an array where:
 // -first element is an array of x-axis timestamps
 // - subsequent elements are arrays of y-axis values for each series
-type AlignedData = [number[], ...Array<(number | null)[]>];
+type AlignedData = [number[], ...Array<(number | string | null)[]>];
+
+type ChunkStats = {
+  min: number[];
+  max: number[];
+};
+
+type PreparedChartData = {
+  timestamps: number[];
+  seriesData: Array<(number | string | null)[]>;
+  chunkSize: number;
+  chunkStats: ChunkStats[];
+  enumSeriesIndices: number[]; // indices of series that are enums
+  numericalSeriesIndices: number[]; // indices of series that are numerical
+  uniqueEnumValues: Record<number, string[]>; // map of series index to unique enum values
+};
 
 type CanvasChartProps = {
   data: AlignedData;
@@ -23,7 +38,20 @@ type CanvasChartProps = {
   frozenTimeWindow?: { startTime: number; endTime: number } | null;
   downsampleThreshold?: number;
   timeTickCount?: number;
+  onZoomChange?: (newZoom: number) => void;
 };
+
+const ENUM_COLORS = [
+  "#FF3B2F",
+  "#FFCC02",
+  "#FF9500",
+  "#35C759",
+  "#007AFF",
+  "#5856D6",
+  "#AF52DE",
+  "#FF2D55",
+];
+const NA_COLOR = "#E5E7EB";
 
 // first index where timestamp >= targetTime
 function binarySearchForFirstVisibleIndex(
@@ -80,10 +108,161 @@ export default function CanvasChart({
   frozenTimeWindow = null,
   downsampleThreshold = 100000,
   timeTickCount = 6,
+  onZoomChange,
 }: CanvasChartProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animationFrameId = useRef<number | null>(null);
   const hoverPixelRef = useRef<{ x: number; y: number } | null>(null);
+  const tooltipBufferRef = useRef<string[]>([]);
+  const timeFormatterRef = useRef<Intl.DateTimeFormat | null>(null);
+  const dateFormatterRef = useRef<Intl.DateTimeFormat | null>(null);
+
+  const preparedData = useMemo<PreparedChartData>(() => {
+    if (!data || data.length === 0) {
+      return {
+        timestamps: [],
+        seriesData: [],
+        chunkSize: 0,
+        chunkStats: [],
+        enumSeriesIndices: [],
+        numericalSeriesIndices: [],
+        uniqueEnumValues: {},
+      };
+    }
+
+    const [originalTimestamps, ...originalSeries] = data;
+    const timestamps = originalTimestamps ?? [];
+
+    if (!timestamps || timestamps.length === 0) {
+      return {
+        timestamps: [],
+        seriesData: [],
+        chunkSize: 0,
+        chunkStats: [],
+        enumSeriesIndices: [],
+        numericalSeriesIndices: [],
+        uniqueEnumValues: {},
+      };
+    }
+
+    let workingTimestamps: number[] = timestamps;
+    let workingSeries: Array<(number | string | null)[]> = originalSeries;
+
+    const enumSeriesIndices: number[] = [];
+    const numericalSeriesIndices: number[] = [];
+    const uniqueEnumValues: Record<number, Set<string>> = {};
+
+    workingSeries.forEach((s, idx) => {
+      let isEnum = false;
+      for (const val of s) {
+        if (val !== null && val !== undefined) {
+          if (typeof val === "string") {
+            isEnum = true;
+          }
+          break;
+        }
+      }
+
+      if (isEnum) {
+        enumSeriesIndices.push(idx);
+        uniqueEnumValues[idx] = new Set<string>();
+        s.forEach((val) => {
+          if (typeof val === "string") {
+            uniqueEnumValues[idx].add(val);
+          }
+        });
+      } else {
+        numericalSeriesIndices.push(idx);
+      }
+    });
+
+    if (downsampleThreshold && workingTimestamps.length > downsampleThreshold) {
+      const newTimestamps: number[] = [];
+      const newSeriesData = workingSeries.map(
+        () => [] as (number | string | null)[]
+      );
+      const step = workingTimestamps.length / downsampleThreshold;
+
+      for (let i = 0; i < downsampleThreshold; i++) {
+        const index = Math.floor(i * step);
+        newTimestamps.push(workingTimestamps[index]);
+        workingSeries.forEach((seriesPoints, seriesIndex) => {
+          newSeriesData[seriesIndex].push(seriesPoints[index]);
+        });
+      }
+
+      if (
+        newTimestamps.length > 0 &&
+        workingTimestamps.length > 0 &&
+        newTimestamps[newTimestamps.length - 1] !==
+          workingTimestamps[workingTimestamps.length - 1]
+      ) {
+        newTimestamps.push(workingTimestamps[workingTimestamps.length - 1]);
+        workingSeries.forEach((seriesPoints, seriesIndex) => {
+          const source = seriesPoints[seriesPoints.length - 1];
+          newSeriesData[seriesIndex].push(source);
+        });
+      }
+
+      workingTimestamps = newTimestamps;
+      workingSeries = newSeriesData;
+    }
+
+    const chunkSize =
+      workingTimestamps.length > 0
+        ? Math.max(32, Math.ceil(workingTimestamps.length / 512))
+        : 0;
+    const chunkStats: ChunkStats[] = workingSeries.map(() => ({
+      min: [],
+      max: [],
+    }));
+
+    if (chunkSize > 0) {
+      const chunkCount = Math.ceil(workingTimestamps.length / chunkSize);
+      workingSeries.forEach((seriesPoints, seriesIndex) => {
+        if (enumSeriesIndices.includes(seriesIndex)) return;
+
+        const stats = chunkStats[seriesIndex];
+        for (let chunkIdx = 0; chunkIdx < chunkCount; chunkIdx++) {
+          const start = chunkIdx * chunkSize;
+          const end = Math.min(start + chunkSize, workingTimestamps.length);
+          let chunkMin = Infinity;
+          let chunkMax = -Infinity;
+
+          for (let i = start; i < end; i++) {
+            const value = seriesPoints[i];
+            if (
+              value === null ||
+              value === undefined ||
+              typeof value === "string"
+            )
+              continue;
+            if (value < chunkMin) chunkMin = value;
+            if (value > chunkMax) chunkMax = value;
+          }
+
+          stats.min[chunkIdx] = chunkMin;
+          stats.max[chunkIdx] = chunkMax;
+        }
+      });
+    }
+
+    const uniqueEnumValuesRecord: Record<number, string[]> = {};
+    Object.keys(uniqueEnumValues).forEach((k) => {
+      const key = Number(k);
+      uniqueEnumValuesRecord[key] = Array.from(uniqueEnumValues[key]).sort();
+    });
+
+    return {
+      timestamps: workingTimestamps,
+      seriesData: workingSeries,
+      chunkSize,
+      chunkStats,
+      enumSeriesIndices,
+      numericalSeriesIndices,
+      uniqueEnumValues: uniqueEnumValuesRecord,
+    };
+  }, [data, downsampleThreshold]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -92,64 +271,56 @@ export default function CanvasChart({
     const context = canvas.getContext("2d");
     if (!context) return;
 
-    // downsample if needed
-    let dataToRender: AlignedData = data;
-    const [originalTimestamps] = data;
-    if (
-      downsampleThreshold &&
-      originalTimestamps &&
-      originalTimestamps.length > downsampleThreshold
-    ) {
-      const [timestamps, ...seriesData] = data;
-      const newTimestamps: number[] = [];
-      const newSeriesData = seriesData.map(() => [] as (number | null)[]);
-      const step = timestamps.length / downsampleThreshold;
-
-      for (let i = 0; i < downsampleThreshold; i++) {
-        const index = Math.floor(i * step);
-        newTimestamps.push(timestamps[index]);
-        seriesData.forEach((series, seriesIndex) => {
-          newSeriesData[seriesIndex].push(series[index]);
-        });
-      }
-      // last point is always included
-      if (
-        newTimestamps.length > 0 &&
-        timestamps.length > 0 &&
-        newTimestamps[newTimestamps.length - 1] !==
-          timestamps[timestamps.length - 1]
-      ) {
-        newTimestamps.push(timestamps[timestamps.length - 1]);
-        seriesData.forEach((series, seriesIndex) => {
-          newSeriesData[seriesIndex].push(series[series.length - 1]);
-        });
-      }
-      dataToRender = [newTimestamps, ...newSeriesData];
+    if (!timeFormatterRef.current) {
+      timeFormatterRef.current = new Intl.DateTimeFormat(undefined, {
+        hour: "numeric",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
+      });
     }
 
-    const timeFormatter = new Intl.DateTimeFormat(undefined, {
-      hour: "numeric",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: true,
-    });
+    if (!dateFormatterRef.current) {
+      dateFormatterRef.current = new Intl.DateTimeFormat(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+      });
+    }
 
-    const dateFormatter = new Intl.DateTimeFormat(undefined, {
-      year: "numeric",
-      month: "short",
-      day: "2-digit",
-    });
+    const timeFormatter = timeFormatterRef.current;
+    const dateFormatter = dateFormatterRef.current;
 
     const render = () => {
       context.clearRect(0, 0, width, height);
 
-      const [timestamps, ...seriesData] = dataToRender;
+      const {
+        timestamps,
+        seriesData,
+        chunkSize,
+        chunkStats,
+        enumSeriesIndices,
+        numericalSeriesIndices,
+        uniqueEnumValues,
+      } = preparedData;
       if (!timestamps || timestamps.length === 0) return;
 
       const clampedTickCount = Math.max(1, Math.floor(timeTickCount));
       const padding = { top: 20, right: 20, bottom: 56, left: 60 };
+
+      const ENUM_STRIP_HEIGHT = 20;
+      const ENUM_STRIP_GAP = 10;
+      const LEGEND_HEIGHT = enumSeriesIndices.length > 0 ? 30 : 0;
+      const enumSectionHeight =
+        enumSeriesIndices.length > 0
+          ? enumSeriesIndices.length * (ENUM_STRIP_HEIGHT + ENUM_STRIP_GAP) +
+            LEGEND_HEIGHT +
+            10
+          : 0;
+
+      const numericalTop = padding.top + enumSectionHeight;
       const chartWidth = width - padding.left - padding.right;
-      const chartHeight = height - padding.top - padding.bottom;
+      const chartHeight = Math.max(0, height - numericalTop - padding.bottom);
 
       const latestTime = timestamps[timestamps.length - 1];
       const earliestTime = timestamps[0];
@@ -219,76 +390,266 @@ export default function CanvasChart({
       const rawTimeRange = maxTime - minTime;
       const timeRange = rawTimeRange <= 0 ? 1 : rawTimeRange;
 
-      let minValue = Infinity;
-      let maxValue = -Infinity;
-      // only calculate min/max for visible data points
-      seriesData.forEach((dataPoints) => {
-        for (let i = startIndex; i <= endIndex; i++) {
-          const val = dataPoints[i];
-          if (val !== null) {
-            minValue = Math.min(minValue, val);
-            maxValue = Math.max(maxValue, val);
-          }
-        }
-      });
-
-      // edge case where all values are the same
-      if (minValue === maxValue) {
-        minValue -= 1;
-        maxValue += 1;
-      }
-
-      // transformation functions
       const timeToX = (time: number) => {
         return padding.left + ((time - minTime) / timeRange) * chartWidth;
       };
 
-      const valueToY = (value: number) => {
-        return (
-          padding.top +
-          chartHeight -
-          ((value - minValue) / (maxValue - minValue)) * chartHeight
-        );
-      };
+      // --- RENDER ENUMS ---
+      if (enumSeriesIndices.length > 0) {
+        // legend
+        context.textAlign = "left";
+        context.textBaseline = "top";
+        context.font = "10px sans-serif";
 
-      context.strokeStyle = "#333";
-      context.lineWidth = 1;
-      context.beginPath();
+        let legendX = padding.left;
+        const legendY = padding.top;
 
-      // y-axis
-      context.moveTo(padding.left, padding.top);
-      context.lineTo(padding.left, height - padding.bottom);
+        const allEnumValues = new Set<string>();
+        enumSeriesIndices.forEach((idx) => {
+          uniqueEnumValues[idx]?.forEach((v) => allEnumValues.add(v));
+        });
+        const sortedAllEnums = Array.from(allEnumValues).sort();
 
-      // x-axis
-      context.lineTo(width - padding.right, height - padding.bottom);
-      context.stroke();
+        sortedAllEnums.forEach((val, i) => {
+          const color =
+            val === "N/A" ? NA_COLOR : ENUM_COLORS[i % ENUM_COLORS.length];
 
-      // grid lines
-      context.strokeStyle = "#e0e0e0";
-      context.lineWidth = 0.5;
-      const numGridLines = 5;
-      for (let i = 0; i <= numGridLines; i++) {
-        const y = padding.top + (chartHeight / numGridLines) * i;
+          context.fillStyle = color;
+          context.fillRect(legendX, legendY, 10, 10);
+
+          context.fillStyle = "#ffffff"; // Assuming dark background based on numerical chart
+          context.fillText(val, legendX + 14, legendY);
+
+          const textWidth = context.measureText(val).width;
+          legendX += 14 + textWidth + 15;
+        });
+
+        let currentStripY = padding.top + LEGEND_HEIGHT;
+
+        enumSeriesIndices.forEach((seriesIndex) => {
+          const dataPoints = seriesData[seriesIndex];
+          context.fillStyle = series[seriesIndex]?.color || "#ffffff";
+          context.textAlign = "right";
+          context.textBaseline = "middle";
+          context.fillText(
+            series[seriesIndex].label,
+            padding.left - 10,
+            currentStripY + ENUM_STRIP_HEIGHT / 2
+          );
+
+          for (let i = startIndex; i <= endIndex; i++) {
+            const time = timestamps[i];
+            const value = dataPoints[i] as string | null;
+
+            if (value === null) continue;
+
+            let endTime =
+              i < timestamps.length - 1
+                ? timestamps[i + 1]
+                : time + timeRange * 0.01;
+            if (endTime > maxTime) endTime = maxTime;
+
+            const startX = Math.max(padding.left, timeToX(time));
+            const endX = Math.min(width - padding.right, timeToX(endTime));
+            const barWidth = endX - startX;
+
+            if (barWidth < 0.5) continue;
+
+            const valIndex = sortedAllEnums.indexOf(value);
+            const color =
+              value === "N/A"
+                ? NA_COLOR
+                : ENUM_COLORS[valIndex % ENUM_COLORS.length];
+
+            context.fillStyle = color;
+            context.fillRect(
+              startX,
+              currentStripY,
+              barWidth,
+              ENUM_STRIP_HEIGHT
+            );
+          }
+
+          currentStripY += ENUM_STRIP_HEIGHT + ENUM_STRIP_GAP;
+        });
+      }
+
+      // --- RENDER NUMERICAL ---
+      const hasNumerical = numericalSeriesIndices.length > 0;
+      let minValue = Infinity;
+      let maxValue = -Infinity;
+
+      if (hasNumerical) {
+        const computeVisibleRange = (
+          dataPoints: (number | string | null)[],
+          stats?: ChunkStats
+        ) => {
+          if (startIndex > endIndex) return { min: Infinity, max: -Infinity };
+
+          const windowSize = endIndex - startIndex + 1;
+          const shouldUseChunks =
+            chunkSize > 0 && stats && windowSize > chunkSize * 2;
+
+          let localMin = Infinity;
+          let localMax = -Infinity;
+
+          if (!shouldUseChunks) {
+            for (let i = startIndex; i <= endIndex; i++) {
+              const value = dataPoints[i];
+              if (
+                value === null ||
+                value === undefined ||
+                typeof value === "string"
+              )
+                continue;
+              if (value < localMin) localMin = value;
+              if (value > localMax) localMax = value;
+            }
+            return { min: localMin, max: localMax };
+          }
+
+          const startChunk = Math.floor(startIndex / chunkSize);
+          const endChunk = Math.floor(endIndex / chunkSize);
+
+          const scanRange = (from: number, to: number) => {
+            for (let i = from; i <= to; i++) {
+              const value = dataPoints[i];
+              if (
+                value === null ||
+                value === undefined ||
+                typeof value === "string"
+              )
+                continue;
+              if (value < localMin) localMin = value;
+              if (value > localMax) localMax = value;
+            }
+          };
+
+          const startChunkEnd = Math.min(
+            (startChunk + 1) * chunkSize - 1,
+            endIndex
+          );
+          scanRange(startIndex, startChunkEnd);
+
+          if (endChunk > startChunk + 1) {
+            for (let chunk = startChunk + 1; chunk <= endChunk - 1; chunk++) {
+              const chunkMin = stats.min[chunk];
+              const chunkMax = stats.max[chunk];
+              if (Number.isFinite(chunkMin) && chunkMin < localMin) {
+                localMin = chunkMin;
+              }
+              if (Number.isFinite(chunkMax) && chunkMax > localMax) {
+                localMax = chunkMax;
+              }
+            }
+          }
+
+          const tailStart = Math.max(endChunk * chunkSize, startChunkEnd + 1);
+          if (tailStart <= endIndex) {
+            scanRange(tailStart, endIndex);
+          }
+
+          return { min: localMin, max: localMax };
+        };
+
+        numericalSeriesIndices.forEach((seriesIndex) => {
+          const dataPoints = seriesData[seriesIndex];
+          const stats = chunkStats[seriesIndex];
+          const { min, max } = computeVisibleRange(dataPoints, stats);
+          if (!Number.isFinite(min) || !Number.isFinite(max)) {
+            return;
+          }
+          minValue = Math.min(minValue, min);
+          maxValue = Math.max(maxValue, max);
+        });
+
+        // edge case where all values are the same
+        if (minValue === maxValue) {
+          minValue -= 1;
+          maxValue += 1;
+        }
+
+        const valueToY = (value: number) => {
+          return (
+            numericalTop +
+            chartHeight -
+            ((value - minValue) / (maxValue - minValue)) * chartHeight
+          );
+        };
+
+        context.strokeStyle = "#333";
+        context.lineWidth = 1;
         context.beginPath();
-        context.moveTo(padding.left, y);
-        context.lineTo(width - padding.right, y);
+
+        // y-axis
+        context.moveTo(padding.left, numericalTop);
+        context.lineTo(padding.left, numericalTop + chartHeight);
+
+        // x-axis
+        context.lineTo(width - padding.right, numericalTop + chartHeight);
         context.stroke();
-      }
 
-      // axis labels
-      context.fillStyle = "#ffffffff";
-      context.font = "12px sans-serif";
-      context.textAlign = "right";
-      context.textBaseline = "middle";
+        // grid lines
+        context.strokeStyle = "#e0e0e0";
+        context.lineWidth = 0.5;
+        const numGridLines = 5;
+        for (let i = 0; i <= numGridLines; i++) {
+          const y = numericalTop + (chartHeight / numGridLines) * i;
+          context.beginPath();
+          context.moveTo(padding.left, y);
+          context.lineTo(width - padding.right, y);
+          context.stroke();
+        }
 
-      // y-axis labels
-      for (let i = 0; i <= numGridLines; i++) {
-        const value = maxValue - ((maxValue - minValue) / numGridLines) * i;
-        const y = padding.top + (chartHeight / numGridLines) * i;
-        context.fillText(value.toFixed(2), padding.left - 5, y);
-      }
+        // axis labels
+        context.fillStyle = "#ffffffff";
+        context.font = "12px sans-serif";
+        context.textAlign = "right";
+        context.textBaseline = "middle";
 
-      // x-axis tick marks & labels
+        // y-axis labels
+        for (let i = 0; i <= numGridLines; i++) {
+          const value = maxValue - ((maxValue - minValue) / numGridLines) * i;
+          const y = numericalTop + (chartHeight / numGridLines) * i;
+          context.fillText(value.toFixed(2), padding.left - 5, y);
+        }
+
+        // draw data series
+        numericalSeriesIndices.forEach((seriesIndex) => {
+          const dataPoints = seriesData[seriesIndex];
+          const meta = series[seriesIndex];
+          context.strokeStyle = meta?.color || "#000";
+          context.lineWidth = 2;
+          context.beginPath();
+
+          let pathStarted = false;
+
+          // only iterate through visible data points
+          for (let i = startIndex; i <= endIndex; i++) {
+            const time = timestamps[i];
+            const value = dataPoints[i];
+
+            if (value === null || typeof value !== "number") {
+              pathStarted = false;
+              continue;
+            }
+
+            const x = timeToX(time);
+            const y = valueToY(value);
+
+            if (!pathStarted) {
+              context.moveTo(x, y);
+              pathStarted = true;
+            } else {
+              context.lineTo(x, y);
+            }
+          }
+
+          context.stroke();
+        });
+      } // end hasNumerical
+
+      // x-axis tick marks & labels (Shared for both)
       const numTimeTicks = clampedTickCount;
       context.strokeStyle = "#999";
       context.lineWidth = 1;
@@ -296,16 +657,45 @@ export default function CanvasChart({
       context.textBaseline = "top";
       context.fillStyle = "#ffffffff";
 
-      for (let i = 0; i <= numTimeTicks; i++) {
-        const timeValue = minTime + (timeRange / numTimeTicks) * i;
-        const x = timeToX(timeValue);
+      const niceNumber = (range: number, round: boolean) => {
+        const exponent = Math.floor(Math.log10(range));
+        const fraction = range / Math.pow(10, exponent);
+        let niceFraction;
 
-        context.beginPath();
-        context.moveTo(x, height - padding.bottom);
-        context.lineTo(x, height - padding.bottom + 6);
-        context.stroke();
+        if (round) {
+          if (fraction < 1.5) niceFraction = 1;
+          else if (fraction < 3) niceFraction = 2;
+          else if (fraction < 7) niceFraction = 5;
+          else niceFraction = 10;
+        } else {
+          if (fraction <= 1) niceFraction = 1;
+          else if (fraction <= 2) niceFraction = 2;
+          else if (fraction <= 5) niceFraction = 5;
+          else niceFraction = 10;
+        }
+        return niceFraction * Math.pow(10, exponent);
+      };
 
-        const dateObj = new Date(timeValue);
+      const tickSpacing = niceNumber(timeRange / numTimeTicks, true);
+      const firstTick = Math.floor(minTime / tickSpacing) * tickSpacing;
+      const lastTick = Math.ceil(maxTime / tickSpacing) * tickSpacing;
+
+      context.beginPath();
+      for (let tick = firstTick; tick <= lastTick; tick += tickSpacing) {
+        const x = timeToX(tick);
+        if (x >= padding.left && x <= width - padding.right) {
+          context.moveTo(x, height - padding.bottom);
+          context.lineTo(x, height - padding.bottom + 6);
+        }
+      }
+      context.stroke();
+
+      for (let tick = firstTick; tick <= lastTick; tick += tickSpacing) {
+        const x = timeToX(tick);
+
+        if (x < padding.left - 10 || x > width - padding.right + 10) continue;
+
+        const dateObj = new Date(tick);
         const msLabel = dateObj.getMilliseconds().toString().padStart(3, "0");
         const timeLabel = `${timeFormatter.format(dateObj)}.${msLabel}`;
         const dateLabel = dateFormatter.format(dateObj);
@@ -313,39 +703,6 @@ export default function CanvasChart({
         context.fillText(timeLabel, x, height - padding.bottom + 8);
         context.fillText(dateLabel, x, height - padding.bottom + 24);
       }
-
-      // draw data series
-      seriesData.forEach((dataPoints, seriesIndex) => {
-        const meta = series[seriesIndex];
-        context.strokeStyle = meta?.color || "#000";
-        context.lineWidth = 2;
-        context.beginPath();
-
-        let pathStarted = false;
-
-        // only iterate through visible data points
-        for (let i = startIndex; i <= endIndex; i++) {
-          const time = timestamps[i];
-          const value = dataPoints[i];
-
-          if (value === null) {
-            pathStarted = false;
-            continue;
-          }
-
-          const x = timeToX(time);
-          const y = valueToY(value);
-
-          if (!pathStarted) {
-            context.moveTo(x, y);
-            pathStarted = true;
-          } else {
-            context.lineTo(x, y);
-          }
-        }
-
-        context.stroke();
-      });
 
       // hover interaction (vertical line, points, and tooltip)
       const hover = hoverPixelRef.current;
@@ -397,7 +754,8 @@ export default function CanvasChart({
           context.stroke();
           context.setLineDash([]);
 
-          const tooltipLines: string[] = [];
+          const tooltipLines = tooltipBufferRef.current;
+          tooltipLines.length = 0;
           const hoverDate = new Date(hoverTimestamp);
           const ms = hoverDate.getMilliseconds().toString().padStart(3, "0");
           tooltipLines.push(
@@ -406,24 +764,70 @@ export default function CanvasChart({
             )}.${ms}`
           );
 
+          // collect unified enum values for legend color mapping
+          const allEnumValues = new Set<string>();
+          enumSeriesIndices.forEach((idx) => {
+            uniqueEnumValues[idx]?.forEach((v) => allEnumValues.add(v));
+          });
+          const sortedAllEnums = Array.from(allEnumValues).sort();
+
           seriesData.forEach((points, idx) => {
             const value = points[nearestIndex];
             if (value === null || value === undefined) return;
-            const y = valueToY(value);
-            const color = series[idx]?.color || "#4f46e5";
 
-            context.beginPath();
-            context.fillStyle = color;
-            context.strokeStyle = "#ffffff";
-            context.lineWidth = 1.5;
-            context.arc(hoverX, y, 4, 0, Math.PI * 2);
-            context.fill();
-            context.stroke();
+            // Draw point for numerical
+            if (
+              typeof value === "number" &&
+              hasNumerical &&
+              numericalSeriesIndices.includes(idx)
+            ) {
+              // Recalculate ranges locally for tooltip positioning (expensive but accurate)
+              // Optimization: Use cached y if possible or simplified calculation
+              // Re-using the min/max calculated above for numerical
+
+              let localMin = Infinity;
+              let localMax = -Infinity;
+
+              numericalSeriesIndices.forEach((sIdx) => {
+                // ... (reuse min/max logic or assume global min/max from render pass)
+                // For simplicity, let's reuse the computed minValue/maxValue from the render scope
+                // but we need to be careful if this code block is inside the render function (it is).
+              });
+
+              // Note: We are inside render(), so we can access minValue/maxValue computed for numerical section.
+              // But we need to check if they are finite
+              let y = 0;
+              if (
+                numericalSeriesIndices.includes(idx) &&
+                Number.isFinite(minValue) &&
+                Number.isFinite(maxValue)
+              ) {
+                // Re-calculate Y based on numerical bounds
+                y =
+                  numericalTop +
+                  chartHeight -
+                  ((value - minValue) / (maxValue - minValue)) * chartHeight;
+
+                const color = series[idx]?.color || "#4f46e5";
+                context.beginPath();
+                context.fillStyle = color;
+                context.strokeStyle = "#ffffff";
+                context.lineWidth = 1.5;
+                context.arc(hoverX, y, 4, 0, Math.PI * 2);
+                context.fill();
+                context.stroke();
+              }
+            }
+
+            let displayValue = "";
+            if (typeof value === "number") {
+              displayValue = value.toFixed(2);
+            } else {
+              displayValue = String(value);
+            }
 
             tooltipLines.push(
-              `${series[idx]?.label ?? `Series ${idx + 1}`}: ${value.toFixed(
-                2
-              )}`
+              `${series[idx]?.label ?? `Series ${idx + 1}`}: ${displayValue}`
             );
           });
 
@@ -481,33 +885,60 @@ export default function CanvasChart({
       animationFrameId.current = requestAnimationFrame(render);
     };
 
+    const scheduleRender = () => {
+      if (animationFrameId.current !== null) return;
+      animationFrameId.current = requestAnimationFrame(() => {
+        animationFrameId.current = null;
+        render();
+      });
+    };
+
+    const handleWheel = (event: WheelEvent) => {
+      if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
+        event.preventDefault();
+      }
+
+      if (event.ctrlKey && onZoomChange) {
+        event.preventDefault();
+        const sensitivity = 0.005;
+        const delta = -event.deltaY * sensitivity * zoomLevel;
+        const newZoom = zoomLevel + delta;
+        onZoomChange(newZoom);
+      }
+    };
+
     const handleMouseMove = (event: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
       hoverPixelRef.current = {
         x: event.clientX - rect.left,
         y: event.clientY - rect.top,
       };
+      scheduleRender();
     };
 
     const handleMouseLeave = () => {
       hoverPixelRef.current = null;
+      scheduleRender();
     };
+
+    render();
 
     canvas.addEventListener("mousemove", handleMouseMove);
     canvas.addEventListener("mouseleave", handleMouseLeave);
-
-    animationFrameId.current = requestAnimationFrame(render);
+    canvas.addEventListener("wheel", handleWheel, { passive: false });
 
     return () => {
       if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current);
+        animationFrameId.current = null;
       }
       canvas.removeEventListener("mousemove", handleMouseMove);
       canvas.removeEventListener("mouseleave", handleMouseLeave);
+      canvas.removeEventListener("wheel", handleWheel);
       hoverPixelRef.current = null;
     };
   }, [
-    data,
+    preparedData,
     series,
     width,
     height,
@@ -516,6 +947,7 @@ export default function CanvasChart({
     zoomLevel,
     frozenTimeWindow,
     timeTickCount,
+    onZoomChange,
   ]);
 
   return (

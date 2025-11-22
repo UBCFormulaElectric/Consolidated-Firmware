@@ -20,7 +20,10 @@ interface DynamicSignalGraphProps {
   onDelete: () => void;
 }
 
-type AlignedData = [number[], ...Array<(number | null)[]>];
+// data format is an array where:
+// -first element is an array of x-axis timestamps
+// - subsequent elements are arrays of y-axis values for each series
+type AlignedData = [number[], ...Array<(number | string | null)[]>];
 
 // Palette for numerical signals
 const signalColors = [
@@ -46,14 +49,14 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
       activeSignals,
       subscribeToSignal,
       unsubscribeFromSignal,
-      getNumericalData,
+      getAllData,
     } = signalsCtx;
 
     // TODO: hook up availableSignals metadata (currently only fetched in DropdownSearch on demand)
     const availableSignals: any[] = useMemo(() => [], []);
-    const numericalData: any[] = useMemo(
-      () => getNumericalData(),
-      [getNumericalData, dataVersion]
+    const allData: any[] = useMemo(
+      () => getAllData(),
+      [getAllData, dataVersion]
     );
 
     const [chartHeight, setChartHeight] = useState(256);
@@ -65,12 +68,20 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
     });
     const buttonRef = useRef<HTMLDivElement>(null);
 
-    const [zoomLevel, setZoomLevel] = useState(100);
-    const [timeTickCount, setTimeTickCount] = useState(6);
+    const {
+      progress: scrollProgress,
+      setProgress: setScrollProgress,
+      zoomLevel,
+      setZoomLevel,
+    } = useSyncedGraphScroll();
+
     const isLoadingSignals = false;
 
-    const { progress: scrollProgress, setProgress: setScrollProgress } =
-      useSyncedGraphScroll();
+    const uplotBuildCount = useRef(0);
+    const lastBuildMetaRef = useRef<{ points: number; signals: number }>({
+      points: 0,
+      signals: 0,
+    });
 
     const componentSubscriptions = useRef<Set<string>>(new Set());
     const [subscriptionVersion, setSubscriptionVersion] = useState(0);
@@ -82,19 +93,26 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
     }, [activeSignals, subscriptionVersion, isPaused]);
 
     const uplotData = useMemo(() => {
+      const buildStart =
+        typeof performance !== "undefined" ? performance.now() : 0;
+
       if (thisGraphSignals.length === 0) {
+        if (process.env.NODE_ENV !== "production") {
+          uplotBuildCount.current += 1;
+          lastBuildMetaRef.current = { points: 0, signals: 0 };
+        }
         return [[], ...thisGraphSignals.map(() => [])] as AlignedData;
       }
 
       const timestamps: number[] = [];
-      const seriesBySignal = new Map<string, (number | null)[]>();
+      const seriesBySignal = new Map<string, (number | string | null)[]>();
       thisGraphSignals.forEach((sig) => {
         seriesBySignal.set(sig, []);
       });
 
       const indexByTimestamp = new Map<number, number>();
 
-      for (const entry of numericalData) {
+      for (const entry of allData) {
         const sig = entry.name as string;
         if (!seriesBySignal.has(sig)) continue;
 
@@ -102,10 +120,22 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
           typeof entry.time === "number"
             ? entry.time
             : new Date(entry.time).getTime();
-        const rawValue =
-          typeof entry.value === "number" ? entry.value : Number(entry.value);
 
-        if (!Number.isFinite(timestamp) || !Number.isFinite(rawValue)) continue;
+        let rawValue: number | string | null = entry.value;
+
+        if (rawValue !== null && rawValue !== undefined) {
+          if (typeof rawValue !== "number" && typeof rawValue !== "string") {
+            rawValue = Number(rawValue);
+          }
+          // If it's a number but NaN, skip it?
+          if (typeof rawValue === "number" && !Number.isFinite(rawValue))
+            continue;
+        } else {
+          // Keep nulls?
+          // If null, we can render it as null
+        }
+
+        if (!Number.isFinite(timestamp)) continue;
 
         let columnIndex = indexByTimestamp.get(timestamp);
         if (columnIndex === undefined) {
@@ -141,11 +171,34 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
         }
       }
 
-      return [
+      const aligned = [
         timestamps,
         ...thisGraphSignals.map((sig) => seriesBySignal.get(sig)!),
       ] as AlignedData;
-    }, [numericalData, thisGraphSignals]);
+
+      if (process.env.NODE_ENV !== "production") {
+        uplotBuildCount.current += 1;
+        const buildDuration =
+          typeof performance !== "undefined"
+            ? performance.now() - buildStart
+            : 0;
+        lastBuildMetaRef.current = {
+          points: timestamps.length,
+          signals: thisGraphSignals.length,
+        };
+        if (uplotBuildCount.current % 25 === 1) {
+          console.debug(
+            `[perf] numerical uplotData rebuilt x${uplotBuildCount.current} (${
+              timestamps.length
+            } pts, ${
+              thisGraphSignals.length
+            } signals) in ${buildDuration.toFixed(2)}ms`
+          );
+        }
+      }
+
+      return aligned;
+    }, [allData, thisGraphSignals]);
 
     const numericalSignals = thisGraphSignals;
 
@@ -243,6 +296,9 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
       setScrollProgress(1);
     }, [setScrollProgress]);
 
+    const lastBuildMeta = lastBuildMetaRef.current;
+    const buildCountSnapshot = uplotBuildCount.current;
+
     return (
       <div className="mb-6 p-4 block w-full relative">
         {isPaused && (
@@ -272,28 +328,6 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
                 step={50}
                 value={chartHeight}
                 onChange={(e) => setChartHeight(+e.target.value)}
-              />
-            </div>
-            <div className="flex flex-col">
-              <label className="text-sm">Zoom: {zoomLevel}%</label>
-              <input
-                type="range"
-                min={10}
-                max={10000}
-                step={10}
-                value={zoomLevel}
-                onChange={(e) => setZoomLevel(+e.target.value)}
-              />
-            </div>
-            <div className="flex flex-col">
-              <label className="text-sm">Time Ticks: {timeTickCount}</label>
-              <input
-                type="range"
-                min={2}
-                max={12}
-                step={1}
-                value={timeTickCount}
-                onChange={(e) => setTimeTickCount(+e.target.value)}
               />
             </div>
             <div className="flex flex-col gap-1">
@@ -398,6 +432,15 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
             <div>Zoom: {zoomLevel}%</div>
             <div>Scroll Progress: {(scrollProgress * 100).toFixed(1)}%</div>
             <div>Chart Width: {chartWidth}px</div>
+            {process.env.NODE_ENV !== "production" && (
+              <>
+                <div>uplot rebuilds (dev only): {buildCountSnapshot} times</div>
+                <div>
+                  Last rebuild size: {lastBuildMeta.points} pts /{" "}
+                  {lastBuildMeta.signals} signals
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -415,7 +458,9 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
             }}
           >
             <CanvasChart
-              data={uplotData as [number[], ...Array<(number | null)[]>]}
+              data={
+                uplotData as [number[], ...Array<(number | string | null)[]>]
+              }
               width={chartWidth}
               height={chartHeight}
               series={numericalSignals.map((sig, i) => ({
@@ -423,7 +468,9 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
                 color: signalColors[i % signalColors.length],
               }))}
               zoomLevel={zoomLevel}
-              timeTickCount={timeTickCount}
+              onZoomChange={(z) =>
+                setZoomLevel(Math.min(Math.max(z, 10), 10000))
+              }
               scrollProgress={scrollProgress}
             />
           </div>

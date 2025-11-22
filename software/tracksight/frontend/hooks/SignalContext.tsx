@@ -5,13 +5,21 @@
 "use client";
 
 import { useDisplayControl } from "@/components/shared/PausePlayControl";
-import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { BACKEND_URL, DataPoint, DEBUG, SignalType } from "./SignalConfig";
 
 import { useSocket } from "./signals/useSocket";
 import { useSignalData } from "./signals/useSignalData";
 import { useSubscribers } from "./signals/useSubscribers";
-
 
 // TODO move this to the specific components which need signals
 // function useAvailableSignals() {
@@ -41,7 +49,7 @@ import { useSubscribers } from "./signals/useSubscribers";
 function handleData(
   data: any,
   isSubscribed: (signal_name: string) => boolean,
-  addDataPoint: (dataPoint: DataPoint) => void,
+  addDataPoint: (dataPoint: DataPoint) => void
 ) {
   DEBUG && console.log("Received data:", data);
 
@@ -62,7 +70,11 @@ function handleData(
   // Check if this signal is an enumeration signal using pattern matching
   if (DEBUG) {
     const isEnum = /state|mode|enum|status/.test(name.toLowerCase());
-    console.log(`Signal ${name}: isEnum=${isEnum}, value=${data.value} (${typeof data.value})`);
+    console.log(
+      `Signal ${name}: isEnum=${isEnum}, value=${
+        data.value
+      } (${typeof data.value})`
+    );
   }
 
   // Handle enum signals (convert numeric values to strings for display)
@@ -160,7 +172,10 @@ const dataVersionStore = (() => {
 })();
 
 export function useDataVersion() {
-  return useSyncExternalStore(dataVersionStore.subscribe, dataVersionStore.getSnapshot);
+  return useSyncExternalStore(
+    dataVersionStore.subscribe,
+    dataVersionStore.getSnapshot
+  );
 }
 
 // Create the context
@@ -211,10 +226,11 @@ export function SignalProvider({ children }: { children: ReactNode }) {
   //   return types;
   // }, [availableSignalQuery.data]);
   // Incrementing version triggers re-render of any consumer that uses data via context (by reading a hidden span attr)
-  const { dataStore, addDataPoint, pruneSignalData, pruneData, clearAllData } = useSignalData(() => {
-    // notify only subscribers who opt-in via useDataVersion()
-    dataVersionStore.bump();
-  });
+  const { dataStore, addDataPoint, pruneSignalData, pruneData, clearAllData } =
+    useSignalData(() => {
+      // notify only subscribers who opt-in via useDataVersion()
+      dataVersionStore.bump();
+    });
   const socket = useSocket();
   // Connection status needs a state
   // Important: start as disconnected for deterministic SSR/CSR markup
@@ -234,10 +250,18 @@ export function SignalProvider({ children }: { children: ReactNode }) {
   const reconnectSocket = useCallback(() => {
     if (!socket.connected) socket.connect();
   }, [socket]);
-  const { activeSignals, subscribeToSignal, unsubscribeFromSignal, getSignalRefCount, isSubscribed, clearAllSubscriptions } = useSubscribers(socket, pruneSignalData, clearAllData);
+  const {
+    activeSignals,
+    subscribeToSignal,
+    unsubscribeFromSignal,
+    getSignalRefCount,
+    isSubscribed,
+    clearAllSubscriptions,
+  } = useSubscribers(socket, pruneSignalData, clearAllData);
   // handling new data
   useEffect(() => {
-    const data_handler = (data: any) => handleData(data, isSubscribed, addDataPoint);
+    const data_handler = (data: any) =>
+      handleData(data, isSubscribed, addDataPoint);
     socket.on("data", data_handler);
     return () => {
       socket.off("data", data_handler);
@@ -253,8 +277,12 @@ export function SignalProvider({ children }: { children: ReactNode }) {
 
     const send_command = isPaused ? "pause" : "play";
     const endpoint = `${BACKEND_URL}/${sid}/${send_command}`;
-    if (DEBUG) console.log(`Sending ${send_command} command to backend for sid ${sid}`);
-    fetch(endpoint, { method: "POST" }).catch((e) => DEBUG && console.warn("Pause/Play request failed", e));
+    // can somebody shoot me with a gun? thanks - jaden
+    if (DEBUG)
+      console.log(`Sending ${send_command} command to backend for sid ${sid}`);
+    fetch(endpoint, { method: "POST" }).catch(
+      (e) => DEBUG && console.warn("Pause/Play request failed", e)
+    );
   }, [socket.connected, socket.id, isPaused]);
   // DOWN BADDDDD
   // const getEnumValues = useCallback((name: string) => enumMetadata[name] ? Object.values(enumMetadata[name]) : [], [enumMetadata]);
@@ -272,7 +300,8 @@ export function SignalProvider({ children }: { children: ReactNode }) {
     <SignalContext.Provider
       value={useMemo(() => {
         // stabilize data accessors; they read from refs and never need to change
-        const getSignalData = (signalName: string) => dataStore.current.getSignalData(signalName);
+        const getSignalData = (signalName: string) =>
+          dataStore.current.getSignalData(signalName);
         const getAllData = () => dataStore.current.getAllData();
         const getNumericalData = () => dataStore.current.getNumericalData();
         const getEnumData = () => dataStore.current.getEnumData();
@@ -299,7 +328,13 @@ export function SignalProvider({ children }: { children: ReactNode }) {
           // getSignalData,
           // getDataCount,
         };
-      }, [socketConnected, reconnectSocket, activeSignals, subscribeToSignal, unsubscribeFromSignal])}
+      }, [
+        socketConnected,
+        reconnectSocket,
+        activeSignals,
+        subscribeToSignal,
+        unsubscribeFromSignal,
+      ])}
     >
       {children}
     </SignalContext.Provider>
