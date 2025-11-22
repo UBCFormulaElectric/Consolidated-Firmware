@@ -9,14 +9,14 @@ function EnumSignalSelector({ currentSignal, onSignalChange }: {
   onSignalChange?: (signalName: string) => void;
 }) {
   const { isPending, error, data } = useQueryEnumSignalMetadata();
+  const signalDropdownRef = useRef<HTMLDivElement>(null);
+
   if (isPending) {
     return <div>Loading...</div>;
   }
   if (error) {
     return <div>Error loading signals</div>;
   }
-  const signalDropdownRef = useRef<HTMLDivElement>(null);
-
   return (
     <div className="flex flex-row items-center gap-2 text-lg font-medium">
       Signal:
