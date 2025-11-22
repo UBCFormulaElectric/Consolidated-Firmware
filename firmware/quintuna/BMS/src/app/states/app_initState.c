@@ -24,8 +24,8 @@ static void initStateRunOnEntry(void)
 
 static void initStateRunOnTick100Hz(void)
 {
-    //const bool irs_negative_closed = io_irs_negativeState() == CONTACTOR_STATE_CLOSED;
     const bool irs_negative_closed = true;
+    //io_irs_negativeState() == CONTACTOR_STATE_CLOSED;
     const bool ts_discharged       = app_tractiveSystem_getVoltage() < TS_DISCHARGED_THRESHOLD_V;
 
     // ONLY RUN THIS WHEN CELLS HAVE HAD TIME TO SETTLE

@@ -156,10 +156,9 @@ void jobs_run100Hz_tick(void)
     app_canTx_BMS_BSPDBrakePressureThresholdExceeded_set(io_bspdTest_isBrakePressureThresholdExceeded());
     app_canTx_BMS_BSPDAccelBrakeOk_set(io_bspdTest_isAccelBrakeOk());
 
-    //const bool ir_negative_opened = io_irs_negativeState() == CONTACTOR_STATE_OPEN;
-    const bool ir_negative_opened = true;
+    const bool ir_negative_opened = io_irs_negativeState() == CONTACTOR_STATE_OPEN;
     const bool ir_negative_opened_debounced = false;
-        //app_timer_runIfCondition(&air_n_debounce_timer, ir_negative_opened) == TIMER_STATE_EXPIRED;
+    //app_timer_runIfCondition(&air_n_debounce_timer, ir_negative_opened) == TIMER_STATE_EXPIRED;
     if (ir_negative_opened_debounced)
     {
         app_stateMachine_setNextState(&init_state);
