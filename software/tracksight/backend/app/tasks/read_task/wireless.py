@@ -2,7 +2,7 @@
 Note: make sure to keep this file updated with the firmware
 """
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import struct
 from threading import Thread
 from typing import Optional, Union
@@ -214,10 +214,10 @@ def _read_messages():
                 t1, t2 = ntp_request(0)
 
                 def pack_ntp(t: float) -> bytes:
-                    dt = datetime.fromtimestamp(ntp_to_system_time(t), datetime.timezone.utc)
+                    dt = datetime.fromtimestamp(ntp_to_system_time(t), timezone.utc)
                     return struct.pack('<BBB', dt.hour, dt.minute, dt.second) + struct.pack('<I', dt.microsecond)
 
-                payload = pack_ntp(t1) + pack_ntp(t2)
+                payload = b'\xFF' + b'\x02' + pack_ntp(t1) + pack_ntp(t2)
                 ser.write(payload)
             case NTPDateMessage():
                 # Handle NTPDate message
@@ -228,7 +228,7 @@ def _read_messages():
             case BaseTimeRegMessage(date_payload):
                 # Handle BaseTimeReg message
                 # Note that it should already be in UTC when received
-                base_time = date_payload 
+                base_time = date_payload
                 logger.info(f"Base time received: {base_time}")
             case _:
                 logger.error(f"Unknown message type: {type(message_received.payload)}")

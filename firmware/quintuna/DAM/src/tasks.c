@@ -197,9 +197,6 @@ _Noreturn void tasks_runTelem(void)
     BaseTimeRegMsg base_time_msg = io_telemMessage_buildBaseTimeRegMsg(&boot_time);
     hw_uart_transmit(&_900k_uart, (uint8_t *)&base_time_msg, sizeof(base_time_msg));
 
-    NtpTimeMsg ntp = io_telemMessage_buildNtpTimeMsg(67);
-    hw_uart_transmit(&_900k_uart, (uint8_t *)&ntp, sizeof(ntp));
-
     for (;;)
     {
         CanMsg      queue_out = io_telemMessageQueue_popTx();

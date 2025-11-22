@@ -47,6 +47,7 @@ typedef struct __attribute__((packed))
 {
     uint8_t  identifier;
     uint8_t  id;
+    // TODO
 } NtpTimeMsgBody;
 
 typedef struct __attribute__((packed))

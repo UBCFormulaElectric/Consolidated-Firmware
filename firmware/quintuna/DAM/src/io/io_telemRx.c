@@ -13,7 +13,9 @@ void           io_telemRx()
     ExitCode c = hw_uart_receive_pooling(&_900k_uart, data, BUFFER_SIZE);
     if (c != EXIT_CODE_OK)
         return;
-    if (data[0] == 0xFF && data[1] == 0x01)
+    if (data[0] != 0xFF)
+        return;
+    else if (data[1] == 0x01)
     {
         // Extract the time data from the received data
         received_time_data.seconds  = data[2];
@@ -27,5 +29,13 @@ void           io_telemRx()
         io_rtc_setTime(&received_time_data);
         IoRtcTime time;
         io_rtc_readTime(&time);
+    } 
+    else if (data[1] == 0x02)
+    {
+        //TODO NTP handling
+        LOG_INFO("Received NTP data over Telem Rx - ID: %d", data[2]);
+        for (int i = 2; i <= 9; ++i) {
+            LOG_INFO("data[%d] = 0x%02X (%u)", i, data[i], data[i]);
+        }
     }
 }
