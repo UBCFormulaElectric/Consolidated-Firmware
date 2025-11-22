@@ -3,7 +3,7 @@
 import { useSyncedGraphScroll } from "@/components/shared/SyncedGraphContainer";
 import React, { useEffect, useState, useMemo } from "react";
 import CanvasChart from "@/components/shared/CanvasChart";
-import { usePausePlay } from "@/components/shared/PausePlayControl";
+import { usePausePlay, PausePlayButton } from "@/components/shared/PausePlayControl";
 import { SignalType } from "@/hooks/SignalConfig";
 import { PlusButton } from "@/components/shared/PlusButton";
 
@@ -123,22 +123,6 @@ const MockGraph: React.FC<MockGraphProps> = React.memo(
           const val = generateRandomValue(cfg.type, now, idx);
 
           setData((prev) => {
-            // Append new timestamp
-            // Only append timestamp if it's new (multiple intervals might fire close together)
-            // For simplicity, we can just trust the interval for now, but ideally we sync to a single clock.
-            // Actually, with multiple intervals, they fire separately.
-            // If we just append 'now', we might get out of order or duplicate timestamps if we are not careful,
-            // but since we append to the end, it should be roughly monotonic.
-            // BETTER APPROACH:
-            // Only the 'first' config drives the timestamp generation?
-            // Or just push the current timestamp and nulls for others?
-
-            // Current approach:
-            // 1. Create new timestamp
-            // 2. Add value for current signal
-            // 3. Add null for all other signals
-            // This creates sparse data but it works.
-
             const newTimestamps = [...prev.timestamps, now];
             const newSeries = { ...prev.series };
 
@@ -298,6 +282,7 @@ const MockGraph: React.FC<MockGraphProps> = React.memo(
         <div className="sticky left-0 block w-[50vw] animate-none overscroll-contain z-40">
           <div className="flex items-center gap-2 mb-4">
             <h3 className="font-semibold">Mock Graph Container</h3>
+            <PausePlayButton />
             <button
               onClick={onDelete}
               className="w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-sm font-bold transition-colors"
@@ -456,7 +441,6 @@ const MockGraph: React.FC<MockGraphProps> = React.memo(
           <div className="text-xs text-gray-500 mb-4 space-y-1 bg-gray-50 p-2 rounded border">
             <div>Total points: {totalDataPoints}</div>
             <div>Points in view: {visiblePointsCount}</div>
-            <div>Zoom: {zoomLevel}%</div>
             <div>Scroll Progress: {(scrollProgress * 100).toFixed(1)}%</div>
           </div>
         </div>

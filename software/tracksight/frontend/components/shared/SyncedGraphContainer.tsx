@@ -172,8 +172,10 @@ export default function SyncedGraphContainer({
     [scrollWidth, scheduleProgressUpdate]
   );
 
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
   const handleWheel = useCallback(
-    (event: React.WheelEvent<HTMLDivElement>) => {
+    (event: WheelEvent) => {
       const horizontalDelta =
         Math.abs(event.deltaX) >= Math.abs(event.deltaY)
           ? event.deltaX
@@ -190,6 +192,17 @@ export default function SyncedGraphContainer({
     },
     [applyDelta]
   );
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    container.addEventListener("wheel", handleWheel, { passive: false });
+
+    return () => {
+      container.removeEventListener("wheel", handleWheel);
+    };
+  }, [handleWheel]);
 
   const registerTimeRange = useCallback(
     (id: string, min: number, max: number) => {
@@ -260,7 +273,7 @@ export default function SyncedGraphContainer({
 
   return (
     <SyncedGraphScrollContext.Provider value={contextValue}>
-      <div className={`relative w-full ${className}`} style={{ paddingTop: scrollStripHeight }} onWheel={handleWheel}>
+      <div ref={containerRef} className={`relative w-full ${className}`} style={{ paddingTop: scrollStripHeight }}>
         <div className="absolute top-0 left-0 right-0 flex flex-col gap-2 pointer-events-none"
           style={{
             height: scrollStripHeight,

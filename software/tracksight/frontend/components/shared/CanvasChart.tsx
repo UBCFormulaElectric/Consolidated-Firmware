@@ -625,7 +625,7 @@ export default function CanvasChart({
         }
 
         // axis labels
-        context.fillStyle = "#ffffffff";
+        context.fillStyle = "#000000";
         context.font = "12px sans-serif";
         context.textAlign = "right";
         context.textBaseline = "middle";
@@ -678,7 +678,7 @@ export default function CanvasChart({
       context.lineWidth = 1;
       context.textAlign = "center";
       context.textBaseline = "top";
-      context.fillStyle = "#ffffffff";
+      context.fillStyle = "#000000";
 
       const niceNumber = (range: number, round: boolean) => {
         const exponent = Math.floor(Math.log10(range));
