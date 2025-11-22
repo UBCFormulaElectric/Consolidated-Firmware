@@ -12,11 +12,12 @@
 
 namespace io::brake
 {
-float getRearPressurePsi();
-// {
-//     //function and address of bps_3v3 not initialized yet
-//     return pressureFromVoltage(hw_adc_getVoltage(&bps_3v3));
-// }
+float getRearPressurePsi()
+{
+    // function and address of bps_3v3 not initialized yet
+    //  return pressureFromVoltage(hw_adc_getVoltage(&bps_3v3));
+    return 0;
+}
 
 // bool OCSC()
 // {
@@ -25,9 +26,9 @@ float getRearPressurePsi();
 // }
 } // namespace io::brake
 
-static float pressureFromVoltage(float voltage)
-{
-    // Sensor's effective input range is reduced by the voltage threshold??
-    // Calculation: (ADC Voltage - Min Input Voltage) *PSI per volt
-    return (BRAKE_PSI_PER_VOLT * (voltage - BRAKE_PRESSURE_OC_THRESHOLD_V));
-}
+// static float pressureFromVoltage(float voltage)
+// {
+//     // Sensor's effective input range is reduced by the voltage threshold??
+//     // Calculation: (ADC Voltage - Min Input Voltage) *PSI per volt
+//     return (BRAKE_PSI_PER_VOLT * (voltage - BRAKE_PRESSURE_OC_THRESHOLD_V));
+// }B

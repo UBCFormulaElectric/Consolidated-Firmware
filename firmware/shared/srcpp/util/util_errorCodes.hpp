@@ -18,15 +18,15 @@ enum class ExitCode
     NUM_EXIT_CODES,
 };
 
-inline bool IS_EXIT_OK(const ExitCode code)
+inline bool IS_EXIT_OK(ExitCode code)
 {
     return code == ExitCode::EXIT_CODE_OK;
 }
-inline bool IS_EXIT_ERR(const ExitCode code)
+inline bool IS_EXIT_ERR(ExitCode code)
 {
     return code != ExitCode::EXIT_CODE_OK;
 }
-inline void ASSERT_EXIT_OK(const ExitCode code)
+inline void ASSERT_EXIT_OK(ExitCode code)
 {
     assert(code == ExitCode::EXIT_CODE_OK);
 }

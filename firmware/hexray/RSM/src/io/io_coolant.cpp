@@ -5,18 +5,6 @@
 
 #define FREQ_TO_LITERS_PER_MINUTE 7.5f
 
-int hw_pwmInputFreqOnly_init(int *ptr)
-{
-    return 0;
-}
-int hw_pwmInputFreqOnly_getFrequency(int *ptr)
-{
-    return 0;
-}
-bool hw_pwmInputFreqOnly_checkIfPwmIsActive(int *ptr)
-{
-    return true;
-}
 int *flow_meter_5v5    = (int *)1;
 int *flow_meter_config = (int *)1;
 
@@ -25,17 +13,20 @@ namespace io::coolant
 void init()
 {
     // could have diff flow meter, thus diff address
-    hw_pwmInputFreqOnly_init(&flow_meter_5v5, &flow_meter_config);
+    // hw_pwmInputFreqOnly_init(&flow_meter_5v5, &flow_meter_config);
 }
 
 float getFlowRate()
 {
-    const float freq_read = hw_pwmInputFreqOnly_getFrequency(&flow_meter_5v5);
-    return freq_read * FREQ_TO_LITERS_PER_MINUTE;
+    // const float freq_read = hw_pwmInputFreqOnly_getFrequency(&flow_meter_5v5);
+    // return freq_read * FREQ_TO_LITERS_PER_MINUTE;
+    return 0;
 }
 
 void checkIfFlowMeterActive()
 {
-    hw_pwmInputFreqOnly_checkIfPwmIsActive(&flow_meter_5v5);
+    // hw_pwmInputFreqOnly_checkIfPwmIsActive(&flow_meter_5v5);
 }
 } // namespace io::coolant
+
+// namespace io::coolant
