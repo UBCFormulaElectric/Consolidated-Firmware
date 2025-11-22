@@ -121,22 +121,25 @@ _Noreturn void tasks_runChimera(void)
 
     /* =================== SD Card Write Test  - Writing raw bytes =================== */
 
-    static uint8_t dummyData[10 * 512 * 20] = {0};  // 10 blocks, 20 times
+    uint32_t tick_freq = osKernelGetTickFreq(); // ticks per second
+    uint32_t ticks_2ms = (2 * tick_freq) / 1000; // convert 2 ms into ticks
+    if (ticks_2ms == 0) ticks_2ms = 1; // ensure minimum delay of 1 tick
 
-    // for (int m = 0; m < 10; m++)
-    // {
-        uint32_t start = io_time_getCurrentMs();
+    uint32_t num_repetitions = 50;
+    static uint8_t dummyData[10 * 512] = {0};  // 10 blocks of 512 bytes each
+
+    uint32_t start = io_time_getCurrentMs();
+
+    for (uint32_t i = 0; i < num_repetitions; i++)
+    {
+        SdCardStatus sdWriteStatus = hw_sd_write((uint8_t *)dummyData, i * 10, 10);
+        assert(sdWriteStatus == SD_CARD_OK);
+        osDelay(ticks_2ms);
+    }
     
-        // for (int i = 0; i < 1000; i++) // Can't do this anymore
-        // {
-            SdCardStatus sdWriteStatus = hw_sd_write((uint8_t *)dummyData, 1 , 10 * 20);
-            assert(sdWriteStatus == SD_CARD_OK);
-        // }
-        
-        uint32_t end = io_time_getCurrentMs();
-        uint32_t elapsedTimeMs = end - start;
-        LOG_INFO("Elapsed time: %d milliseconds", elapsedTimeMs);
-    // }
+    uint32_t end = io_time_getCurrentMs();
+    uint32_t elapsedTimeMs = (end - start) - (2 * num_repetitions);
+    LOG_INFO("Elapsed time: %d milliseconds\n", elapsedTimeMs);
 
     /* =================== SD Card Write Tests - Writing using logfs =================== */
 
@@ -161,7 +164,6 @@ _Noreturn void tasks_runChimera(void)
     for(;;)
     {
         hw_watchdog_checkIn(watchdog);
-
     }
 }
 
