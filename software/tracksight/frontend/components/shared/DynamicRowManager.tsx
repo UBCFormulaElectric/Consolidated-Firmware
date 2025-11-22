@@ -5,9 +5,7 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import { RowEditor, RowItem } from "./DropdownSearch";
 import DynamicSignalGraph from "./DynamicSignalGraph";
 import { InsertionBar } from "./InsertionBar";
-import MockGraph, {
-  MockGraphConfig,
-} from "@/components/pages/live-data/MockGraph";
+import MockGraph, { MockGraphConfig } from "@/components/pages/live-data/MockGraph";
 
 interface CreatedComponent {
   id: string;
@@ -190,32 +188,32 @@ const DynamicRowManager: React.FC = () => {
           {/* Only show the insertion bar if there are no rows or the last row has created a component */}
           {(rows.length === 0 ||
             rows[rows.length - 1]?.hasCreatedComponent) && (
-            <div className="pb-8">
-              <InsertionBar
-                onInsert={() => addRow(rows.length)}
-                onInsertMock={(config) => {
-                  const newIndex = rows.length;
+              <div className="pb-8">
+                <InsertionBar
+                  onInsert={() => addRow(rows.length)}
+                  onInsertMock={(config) => {
+                    const newIndex = rows.length;
 
-                  setRows((prev) => [
-                    ...prev,
-                    {
-                      isOpen: false,
-                      selectedSignal: undefined,
-                      hasCreatedComponent: true,
-                    },
-                  ]);
+                    setRows((prev) => [
+                      ...prev,
+                      {
+                        isOpen: false,
+                        selectedSignal: undefined,
+                        hasCreatedComponent: true,
+                      },
+                    ]);
 
-                  const newComponent: CreatedComponent = {
-                    id: `MOCK-${config.signalName}-${Date.now()}`,
-                    rowIndex: newIndex,
-                    isMock: true,
-                    mockConfig: config,
-                  };
-                  setCreatedComponents((prev) => [...prev, newComponent]);
-                }}
-              />
-            </div>
-          )}
+                    const newComponent: CreatedComponent = {
+                      id: `MOCK-${config.signalName}-${Date.now()}`,
+                      rowIndex: newIndex,
+                      isMock: true,
+                      mockConfig: config,
+                    };
+                    setCreatedComponents((prev) => [...prev, newComponent]);
+                  }}
+                />
+              </div>
+            )}
         </div>
       </div>
       {/* Render all created components first */}

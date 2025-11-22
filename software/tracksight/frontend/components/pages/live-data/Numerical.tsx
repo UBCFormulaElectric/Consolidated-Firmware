@@ -1,8 +1,8 @@
 // numerical.tsx
 "use client";
 
-import { usePausePlay } from "@/components/shared/PausePlayControl";
-import { PlusButton } from "@/components/shared/PlusButton";
+// import { usePausePlay } from "@/components/shared/PausePlayControl";
+// import { PlusButton } from "@/components/shared/PlusButton";
 import { useSyncedGraphScroll } from "@/components/shared/SyncedGraphContainer";
 import { SignalType } from "@/hooks/SignalConfig";
 import { useSignals, useDataVersion } from "@/hooks/SignalContext";
@@ -195,10 +195,8 @@ const NumericalGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
         };
         if (uplotBuildCount.current % 25 === 1) {
           console.debug(
-            `[perf] numerical uplotData rebuilt x${uplotBuildCount.current} (${
-              timestamps.length
-            } pts, ${
-              thisGraphSignals.length
+            `[perf] numerical uplotData rebuilt x${uplotBuildCount.current} (${timestamps.length
+            } pts, ${thisGraphSignals.length
             } signals) in ${buildDuration.toFixed(2)}ms`
           );
         }

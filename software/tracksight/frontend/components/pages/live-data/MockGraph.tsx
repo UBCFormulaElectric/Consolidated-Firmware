@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncedGraphScroll } from "@/components/shared/SyncedGraphContainer";
-import React, { useEffect, useRef, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import CanvasChart from "@/components/shared/CanvasChart";
 import { usePausePlay } from "@/components/shared/PausePlayControl";
 import { SignalType } from "@/hooks/SignalConfig";
