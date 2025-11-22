@@ -115,58 +115,52 @@ void tasks_init(void)
 
 _Noreturn void tasks_runChimera(void)
 {
+    LOG_INFO("Entered runChimera()");
     // hw_chimera_v2_task(&chimera_v2_config);
     //io_tsim_set_green();
 
     /* =================== SD Card Write Test  - Writing raw bytes =================== */
 
-    // static uint8_t dummyData[10 * 512]; 
-
-    // for (uint8_t block = 0; block < 10; block++)
-    // { 
-    //     uint8_t pattern = (block % 2 == 0) ? 0xAA : 0x55; 
-    //     for (uint16_t i = 0; i < 512; i++) 
-    //     { 
-    //         dummyData[block * 512 + i] = pattern; 
-    //     } 
-    // }
+    static uint8_t dummyData[10 * 512 * 20] = {0};  // 10 blocks, 20 times
 
     // for (int m = 0; m < 10; m++)
     // {
-    //     uint32_t start = io_time_getCurrentMs();
+        uint32_t start = io_time_getCurrentMs();
     
-    //     // Write to SD card
-    //     for (int i = 0; i < 1000; i++)
-    //     {
-    //         SdCardStatus sdWriteStatus = hw_sd_write((uint8_t *)dummyData, 1 , 10);
-    //         assert(sdWriteStatus == SD_CARD_OK);
-    //     }
+        // for (int i = 0; i < 1000; i++) // Can't do this anymore
+        // {
+            SdCardStatus sdWriteStatus = hw_sd_write((uint8_t *)dummyData, 1 , 10 * 20);
+            assert(sdWriteStatus == SD_CARD_OK);
+        // }
         
-    //     uint32_t end = io_time_getCurrentMs();
-
-    //     // calculate diff and print
-    //     uint32_t elapsedTimeMs = end - start;
-    //     LOG_INFO("Elapsed time: %d milliseconds", elapsedTimeMs);
+        uint32_t end = io_time_getCurrentMs();
+        uint32_t elapsedTimeMs = end - start;
+        LOG_INFO("Elapsed time: %d milliseconds", elapsedTimeMs);
     // }
 
     /* =================== SD Card Write Tests - Writing using logfs =================== */
 
-    char msg[] = "hello world"; 
+    // char msg[] = "hello world"; 
 
-    uint32_t returned_fd;
-    FileSystemError status = io_fileSystem_open("/test2.txt", &returned_fd);
-    assert(status == FILE_OK);
+    // uint32_t returned_fd;
+    // FileSystemError status = io_fileSystem_open("/test2.txt", &returned_fd);
+    // assert(status == FILE_OK);
 
-    FileSystemError status2 = io_fileSystem_write(returned_fd, &msg, 10);
-    assert(status2 == FILE_OK);
+    // FileSystemError status2 = io_fileSystem_write(returned_fd, &msg, 10);
+    // assert(status2 == FILE_OK);
 
-    FileSystemError status3 = io_fileSystem_sync(returned_fd);
-    assert(status3 == FILE_OK);
+    // FileSystemError status3 = io_fileSystem_sync(returned_fd);
+    // assert(status3 == FILE_OK);
 
-    LOG_INFO("Done.\n");
+    // LOG_INFO("Done.\n");
+
+    const uint32_t  period_ms                = 1000U;
+    const uint32_t  watchdog_grace_period_ms = 50U;
+    WatchdogHandle *watchdog= hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
 
     for(;;)
     {
+        hw_watchdog_checkIn(watchdog);
 
     }
 }
@@ -264,7 +258,6 @@ _Noreturn void tasks_runTelem(void)
     for (;;)
     {
         CanMsg      queue_out = io_telemMessageQueue_popTx();
-        queueElementCounter--;
         uint8_t     full_msg_size;
         TelemCanMsg can_msg = io_telemMessage_buildCanMsg(&queue_out, 0, &full_msg_size);
         
