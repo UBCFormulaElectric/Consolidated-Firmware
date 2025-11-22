@@ -3,7 +3,7 @@ message("⚙️ Configuring H5 Dev")
 
 set(ARM_CORE "cm33")
 set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/h5dev.ioc")
-set(LINKER_SCRIPT "${LINKER_DIR}/stm32h562ritx/stm32h562ritx_app.ld")
+set(LINKER_SCRIPT "${LINKER_DIR}/stm32h562ritx/stm32h562ritx_app_only.ld")
 
 file(GLOB EMBEDDED_SRCS CONFIGURE_DEPENDS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
@@ -101,24 +101,24 @@ IF ("${TARGET}" STREQUAL "binary")
     target_link_libraries("h5dev_app.elf" PRIVATE "h5dev_stm32" "dev_H5_jsoncan")
 
     # Bootloader files.
-    file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
-    file(GLOB BOOT_CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
-    set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
-    stm32h5_boot_binary(
-            "h5dev_boot"
-            "${BOOT_SRCS}"
-            "${BOOT_CUBEMX_SRCS}"
-            "${BOOT_INCLUDE_DIRS}"
-            "h5dev"
-            "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/h5dev_boot.ioc"
-    )
-    target_link_libraries("h5dev_boot.elf" PRIVATE "h5dev_commit_info")
+#     file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+#     file(GLOB BOOT_CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
+#     set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
+#     stm32h5_boot_binary(
+#             "h5dev_boot"
+#             "${BOOT_SRCS}"
+#             "${BOOT_CUBEMX_SRCS}"
+#             "${BOOT_INCLUDE_DIRS}"
+#             "h5dev"
+#             "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/h5dev_boot.ioc"
+#     )
+#     target_link_libraries("h5dev_boot.elf" PRIVATE "h5dev_commit_info")
 
-    embedded_image(
-            "h5dev"
-            "h5dev_app.hex"
-            "${CMAKE_CURRENT_BINARY_DIR}/h5dev_app.hex"
-            "h5dev_boot.hex"
-            "${CMAKE_CURRENT_BINARY_DIR}/h5dev_boot.hex"
-    )
+#     embedded_image(
+#             "h5dev"
+#             "h5dev_app.hex"
+#             "${CMAKE_CURRENT_BINARY_DIR}/h5dev_app.hex"
+#             "h5dev_boot.hex"
+#             "${CMAKE_CURRENT_BINARY_DIR}/h5dev_boot.hex"
+#     )
 ENDIF ()

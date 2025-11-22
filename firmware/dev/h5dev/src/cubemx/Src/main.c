@@ -43,8 +43,6 @@
 
 FDCAN_HandleTypeDef hfdcan1;
 
-PCD_HandleTypeDef hpcd_USB_DRD_FS;
-
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -53,7 +51,6 @@ PCD_HandleTypeDef hpcd_USB_DRD_FS;
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_FDCAN1_Init(void);
-static void MX_USB_PCD_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -92,7 +89,6 @@ int main(void)
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
     MX_FDCAN1_Init();
-    MX_USB_PCD_Init();
     /* USER CODE BEGIN 2 */
 
     /* USER CODE END 2 */
@@ -104,6 +100,11 @@ int main(void)
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
+        HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
+        HAL_Delay(1000);
+
+        HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
+        HAL_Delay(1000);
     }
     /* USER CODE END 3 */
 }
@@ -128,19 +129,19 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI48 | RCC_OSCILLATORTYPE_HSE;
-    RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
-    RCC_OscInitStruct.HSI48State     = RCC_HSI48_ON;
-    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
-    RCC_OscInitStruct.PLL.PLLSource  = RCC_PLL1_SOURCE_HSE;
-    RCC_OscInitStruct.PLL.PLLM       = 1;
-    RCC_OscInitStruct.PLL.PLLN       = 62;
-    RCC_OscInitStruct.PLL.PLLP       = 2;
-    RCC_OscInitStruct.PLL.PLLQ       = 2;
-    RCC_OscInitStruct.PLL.PLLR       = 2;
-    RCC_OscInitStruct.PLL.PLLRGE     = RCC_PLL1_VCIRANGE_3;
-    RCC_OscInitStruct.PLL.PLLVCOSEL  = RCC_PLL1_VCORANGE_WIDE;
-    RCC_OscInitStruct.PLL.PLLFRACN   = 4096;
+    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_CSI;
+    RCC_OscInitStruct.CSIState            = RCC_CSI_ON;
+    RCC_OscInitStruct.CSICalibrationValue = RCC_CSICALIBRATION_DEFAULT;
+    RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
+    RCC_OscInitStruct.PLL.PLLSource       = RCC_PLL1_SOURCE_CSI;
+    RCC_OscInitStruct.PLL.PLLM            = 1;
+    RCC_OscInitStruct.PLL.PLLN            = 125;
+    RCC_OscInitStruct.PLL.PLLP            = 2;
+    RCC_OscInitStruct.PLL.PLLQ            = 2;
+    RCC_OscInitStruct.PLL.PLLR            = 2;
+    RCC_OscInitStruct.PLL.PLLRGE          = RCC_PLL1_VCIRANGE_2;
+    RCC_OscInitStruct.PLL.PLLVCOSEL       = RCC_PLL1_VCORANGE_WIDE;
+    RCC_OscInitStruct.PLL.PLLFRACN        = 0;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
         Error_Handler();
@@ -187,9 +188,9 @@ static void MX_FDCAN1_Init(void)
     hfdcan1.Init.AutoRetransmission   = DISABLE;
     hfdcan1.Init.TransmitPause        = DISABLE;
     hfdcan1.Init.ProtocolException    = DISABLE;
-    hfdcan1.Init.NominalPrescaler     = 16;
+    hfdcan1.Init.NominalPrescaler     = 1;
     hfdcan1.Init.NominalSyncJumpWidth = 1;
-    hfdcan1.Init.NominalTimeSeg1      = 1;
+    hfdcan1.Init.NominalTimeSeg1      = 6;
     hfdcan1.Init.NominalTimeSeg2      = 1;
     hfdcan1.Init.DataPrescaler        = 1;
     hfdcan1.Init.DataSyncJumpWidth    = 1;
@@ -208,40 +209,6 @@ static void MX_FDCAN1_Init(void)
 }
 
 /**
- * @brief USB Initialization Function
- * @param None
- * @retval None
- */
-static void MX_USB_PCD_Init(void)
-{
-    /* USER CODE BEGIN USB_Init 0 */
-
-    /* USER CODE END USB_Init 0 */
-
-    /* USER CODE BEGIN USB_Init 1 */
-
-    /* USER CODE END USB_Init 1 */
-    hpcd_USB_DRD_FS.Instance                      = USB_DRD_FS;
-    hpcd_USB_DRD_FS.Init.dev_endpoints            = 8;
-    hpcd_USB_DRD_FS.Init.speed                    = USBD_FS_SPEED;
-    hpcd_USB_DRD_FS.Init.phy_itface               = PCD_PHY_EMBEDDED;
-    hpcd_USB_DRD_FS.Init.Sof_enable               = DISABLE;
-    hpcd_USB_DRD_FS.Init.low_power_enable         = DISABLE;
-    hpcd_USB_DRD_FS.Init.lpm_enable               = DISABLE;
-    hpcd_USB_DRD_FS.Init.battery_charging_enable  = DISABLE;
-    hpcd_USB_DRD_FS.Init.vbus_sensing_enable      = DISABLE;
-    hpcd_USB_DRD_FS.Init.bulk_doublebuffer_enable = DISABLE;
-    hpcd_USB_DRD_FS.Init.iso_singlebuffer_enable  = DISABLE;
-    if (HAL_PCD_Init(&hpcd_USB_DRD_FS) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN USB_Init 2 */
-
-    /* USER CODE END USB_Init 2 */
-}
-
-/**
  * @brief GPIO Initialization Function
  * @param None
  * @retval None
@@ -255,18 +222,18 @@ static void MX_GPIO_Init(void)
 
     /* GPIO Ports Clock Enable */
     __HAL_RCC_GPIOH_CLK_ENABLE();
-    __HAL_RCC_GPIOB_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOB, LED_Pin | BOOT_Pin, GPIO_PIN_RESET);
 
-    /*Configure GPIO pin : LED_Pin */
-    GPIO_InitStruct.Pin   = LED_Pin;
+    /*Configure GPIO pins : LED_Pin BOOT_Pin */
+    GPIO_InitStruct.Pin   = LED_Pin | BOOT_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
 

@@ -56,7 +56,6 @@
 
 /* External variables --------------------------------------------------------*/
 extern FDCAN_HandleTypeDef hfdcan1;
-extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
 extern TIM_HandleTypeDef   htim6;
 
 /* USER CODE BEGIN EV */
@@ -87,7 +86,6 @@ void NMI_Handler(void)
 void HardFault_Handler(void)
 {
     /* USER CODE BEGIN HardFault_IRQn 0 */
-
     /* USER CODE END HardFault_IRQn 0 */
     while (1)
     {
@@ -162,6 +160,19 @@ void DebugMon_Handler(void)
 /******************************************************************************/
 
 /**
+ * @brief This function handles RCC non-secure global interrupt.
+ */
+void RCC_IRQHandler(void)
+{
+    /* USER CODE BEGIN RCC_IRQn 0 */
+
+    /* USER CODE END RCC_IRQn 0 */
+    /* USER CODE BEGIN RCC_IRQn 1 */
+
+    /* USER CODE END RCC_IRQn 1 */
+}
+
+/**
  * @brief This function handles FDCAN1 interrupt 0.
  */
 void FDCAN1_IT0_IRQHandler(void)
@@ -201,20 +212,6 @@ void TIM6_IRQHandler(void)
     /* USER CODE BEGIN TIM6_IRQn 1 */
 
     /* USER CODE END TIM6_IRQn 1 */
-}
-
-/**
- * @brief This function handles USB FS global interrupt.
- */
-void USB_DRD_FS_IRQHandler(void)
-{
-    /* USER CODE BEGIN USB_DRD_FS_IRQn 0 */
-
-    /* USER CODE END USB_DRD_FS_IRQn 0 */
-    HAL_PCD_IRQHandler(&hpcd_USB_DRD_FS);
-    /* USER CODE BEGIN USB_DRD_FS_IRQn 1 */
-
-    /* USER CODE END USB_DRD_FS_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

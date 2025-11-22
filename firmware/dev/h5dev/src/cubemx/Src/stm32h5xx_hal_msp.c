@@ -68,6 +68,11 @@ void HAL_MspInit(void)
 
     /* System interrupt init*/
 
+    /* Peripheral interrupt init */
+    /* RCC_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(RCC_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(RCC_IRQn);
+
     /* USER CODE BEGIN MspInit 1 */
 
     /* USER CODE END MspInit 1 */
@@ -92,7 +97,7 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
         /** Initializes the peripherals clock
          */
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_FDCAN;
-        PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_HSE;
+        PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_PLL1Q;
         if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
         {
             Error_Handler();
@@ -152,67 +157,6 @@ void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef *hfdcan)
         /* USER CODE BEGIN FDCAN1_MspDeInit 1 */
 
         /* USER CODE END FDCAN1_MspDeInit 1 */
-    }
-}
-
-/**
- * @brief PCD MSP Initialization
- * This function configures the hardware resources used in this example
- * @param hpcd: PCD handle pointer
- * @retval None
- */
-void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
-{
-    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
-    if (hpcd->Instance == USB_DRD_FS)
-    {
-        /* USER CODE BEGIN USB_DRD_FS_MspInit 0 */
-
-        /* USER CODE END USB_DRD_FS_MspInit 0 */
-
-        /** Initializes the peripherals clock
-         */
-        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USB;
-        PeriphClkInitStruct.UsbClockSelection    = RCC_USBCLKSOURCE_HSI48;
-        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
-        {
-            Error_Handler();
-        }
-
-        /* Enable VDDUSB */
-        HAL_PWREx_EnableVddUSB();
-        /* Peripheral clock enable */
-        __HAL_RCC_USB_CLK_ENABLE();
-        /* USB_DRD_FS interrupt Init */
-        HAL_NVIC_SetPriority(USB_DRD_FS_IRQn, 0, 0);
-        HAL_NVIC_EnableIRQ(USB_DRD_FS_IRQn);
-        /* USER CODE BEGIN USB_DRD_FS_MspInit 1 */
-
-        /* USER CODE END USB_DRD_FS_MspInit 1 */
-    }
-}
-
-/**
- * @brief PCD MSP De-Initialization
- * This function freeze the hardware resources used in this example
- * @param hpcd: PCD handle pointer
- * @retval None
- */
-void HAL_PCD_MspDeInit(PCD_HandleTypeDef *hpcd)
-{
-    if (hpcd->Instance == USB_DRD_FS)
-    {
-        /* USER CODE BEGIN USB_DRD_FS_MspDeInit 0 */
-
-        /* USER CODE END USB_DRD_FS_MspDeInit 0 */
-        /* Peripheral clock disable */
-        __HAL_RCC_USB_CLK_DISABLE();
-
-        /* USB_DRD_FS interrupt DeInit */
-        HAL_NVIC_DisableIRQ(USB_DRD_FS_IRQn);
-        /* USER CODE BEGIN USB_DRD_FS_MspDeInit 1 */
-
-        /* USER CODE END USB_DRD_FS_MspDeInit 1 */
     }
 }
 

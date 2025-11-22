@@ -165,7 +165,7 @@
       "type": "cmake",
       "command": "build",
       "targets": [
-        "h5dev.hex"
+        "h5dev_app.hex"
       ]
     },
     {

@@ -39,8 +39,7 @@ ENTRY(Reset_Handler)
 /* Memories definition */
 MEMORY
 {
-  RTCRAM (xrw)    : ORIGIN = 0x20000000,   LENGTH = 128K
-  RAM    (xrw)    : ORIGIN = 0x24000000,    LENGTH = 512K
+  RAM    (xrw)    : ORIGIN = 0x20000000,    LENGTH = 640K
   FLASH    (rx)    : ORIGIN = 0x8000000,    LENGTH = 2048K
 }
 /* Highest address of the user mode stack */
@@ -59,12 +58,6 @@ SECTIONS
     KEEP(*(.isr_vector)) /* Startup code */
     . = ALIGN(4);
   } >FLASH
-
-  /* DEDICATED SPOT FOR RTT */
-  .rtt (NOLOAD) :
-  {
-    KEEP(*(.rtt))
-  } >RTCRAM
 
   /* The program code and other data into "FLASH" Rom type memory */
   .text :

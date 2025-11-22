@@ -12,9 +12,9 @@
 #include "hw_utils.h"
 
 #if defined(STM32H733xx)
-#include <stm32h7xx_hal_fdcan.h>
+#include "stm32h7xx_hal_fdcan.h"
 #elif defined(STM32H562xx)
-#include <stm32h5xx_hal_fdcan.h>
+#include "stm32h5xx_hal_fdcan.h"
 #endif
 
 void hw_can_init(CanHandle *can_handle)
