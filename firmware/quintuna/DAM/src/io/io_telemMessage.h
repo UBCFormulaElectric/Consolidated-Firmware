@@ -17,6 +17,9 @@ TelemMessageHeader io_telemMessage_buildHeader(const uint8_t *payload, uint8_t p
 
 // layer 3
 
+/**
+ * Base Time
+ */
 typedef struct __attribute__((packed))
 {
     uint8_t  identifier;
@@ -37,6 +40,26 @@ typedef struct __attribute__((packed))
 
 BaseTimeRegMsg io_telemMessage_buildBaseTimeRegMsg(const IoRtcTime *rtc_time);
 
+/**
+ * NTP
+ */
+typedef struct __attribute__((packed))
+{
+    uint8_t  identifier;
+    uint8_t  id;
+} NtpTimeMsgBody;
+
+typedef struct __attribute__((packed))
+{
+    TelemMessageHeader header;
+    NtpTimeMsgBody msg;
+} NtpTimeMsg;
+
+NtpTimeMsg io_telemMessage_buildNtpTimeMsg(const uint8_t id);
+
+/**
+ * CAN
+ */
 typedef struct __attribute__((packed))
 {
     uint8_t  identifier;

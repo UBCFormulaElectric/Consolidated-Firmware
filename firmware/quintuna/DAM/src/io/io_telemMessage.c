@@ -50,6 +50,15 @@ BaseTimeRegMsg io_telemMessage_buildBaseTimeRegMsg(const IoRtcTime *rtc_time)
     return base_time_msg;
 }
 
+NtpTimeMsg io_telemMessage_buildNtpTimeMsg(const uint8_t id)
+{
+    NtpTimeMsg ntp_time_msg = {
+        .msg = { .identifier = TelemMesssageIds_NTP, .id = id }
+    };
+    ntp_time_msg.header = io_telemMessage_buildHeader((uint8_t *)&ntp_time_msg.msg, sizeof(ntp_time_msg.msg));
+    return ntp_time_msg;
+}
+
 static uint32_t payload_size_from_dlc(const uint32_t dlc)
 {
     if (dlc <= 8)

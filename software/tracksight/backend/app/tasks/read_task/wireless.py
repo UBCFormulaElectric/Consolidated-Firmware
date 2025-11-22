@@ -114,27 +114,26 @@ def _read_packet(ser: serial.Serial):
         return payload
 
 @dataclass
-class CanPayload:
+class TelemetryMessage:
+    pass
+
+@dataclass
+class CanMessage(TelemetryMessage):
     can_id: int
     can_time_offset: float
     can_payload: bytes
 
 @dataclass
-class NTPDateMessage:
+class NTPDateMessage(TelemetryMessage):
     pass
 
 @dataclass
-class NTPTimeMessage:
-    pass
+class NTPTimeMessage(TelemetryMessage):
+    id: int
 
 @dataclass
-class BaseTimeRegMessage:
-    payload: datetime.datetime
-
-@dataclass
-class TelemetryMessage:
-    payload: Union[CanPayload, NTPTimeMessage, NTPDateMessage, BaseTimeRegMessage]
-
+class BaseTimeRegMessage(TelemetryMessage):
+    date_payload: datetime.datetime
 
 class TelemetryMessageType(Enum):
     CAN = 0x01
@@ -151,17 +150,21 @@ def _parse_telem_message(payload: bytes) -> Optional[TelemetryMessage]:
         case TelemetryMessageType.CAN.value:
             if len(payload) < 9:
                 return None # Not enough data for CAN message
-            return TelemetryMessage(CanPayload(
+            return CanMessage(
                 can_id=struct.unpack('<I', payload[1:5])[0],
                 can_time_offset=struct.unpack('<f', payload[5:9])[0], 
                 can_payload=payload[9:],
-            ))
-        case TelemetryMessageType.NTP:
-            return TelemetryMessage(NTPTimeMessage())
-        case TelemetryMessageType.NTPDate:
-            return TelemetryMessage(NTPDateMessage())
-        case TelemetryMessageType.BaseTimeReg:
-            return TelemetryMessage(BaseTimeRegMessage(datetime.datetime(
+            )
+        case TelemetryMessageType.NTP.value:
+            if len(payload) < 2:
+                return None # Not enough data for NTP message
+            return NTPTimeMessage(id=payload[1])
+        case TelemetryMessageType.NTPDate.value:
+            return NTPDateMessage()
+        case TelemetryMessageType.BaseTimeReg.value:
+            if len(payload) < 11:
+                return None # Not enough data for BaseTimeReg message
+            return BaseTimeRegMessage(datetime.datetime(
                 year=int(payload[1]) + 2000,  # need to offset this as on firmware side it is 0-99
                 month=int(payload[2]),
                 day=int(payload[3]),
@@ -169,7 +172,7 @@ def _parse_telem_message(payload: bytes) -> Optional[TelemetryMessage]:
                 minute=int(payload[5]),
                 second=int(payload[6]),
                 microsecond=struct.unpack('<I', payload[7:11])[0]
-            )))
+            ))
         case _:
             return None
 
@@ -182,31 +185,31 @@ def _read_messages():
     ser = get_serial(SERIAL_PORT)
     logger.debug("Read messages thread started.")
 
-    base_time = None
+    base_time: datetime = None
 
     while should_run():
         payload = _read_packet(ser)
 
-        message_received = _parse_telem_message(payload)
+        message_received: TelemetryMessage | None = _parse_telem_message(payload)
         if message_received is None:
             logger.error("Failed to parse telemetry message, skipping")
             continue
 
-        match message_received.payload:
-            case CanPayload():
-                can_payload = message_received.payload
+        match message_received:
+            case CanMessage(can_id, can_time_offset, can_payload):
                 if not base_time:
                     # we do not know the base time so skip
-                    logger.error(f"Got message {can_payload.can_id} but no base time, hence will not be pushed into queue")
+                    logger.error(f"Got message {can_id} but no base time, hence will not be pushed into queue")
                     continue
-                timestamp = _calculate_message_timestamp(can_payload.can_time_offset, base_time)
+                timestamp = _calculate_message_timestamp(can_time_offset, base_time)
                 # Handle CAN message
                 can_msg_queue.put(CanMsg(
-                    can_id=can_payload.can_id,
+                    can_id=can_id,
                     can_timestamp=timestamp,
-                    can_value=can_payload.can_payload
+                    can_value=can_payload
                 ))
-            case NTPTimeMessage():
+            case NTPTimeMessage(id):
+                print(f"ntp received {id}")
                 # Handle NTP message
                 t1, t2 = ntp_request(0)
                 t1_dt, t2_dt = datetime.datetime.fromtimestamp(ntp_to_system_time(t1), datetime.timezone.utc), \
@@ -220,10 +223,10 @@ def _read_messages():
                 year, month, date, day = today.year, today.month, today.day, today.weekday()
                 payload = struct.pack('<B', year - 2000, month, date, day)
                 ser.write(payload)
-            case BaseTimeRegMessage(payload):
+            case BaseTimeRegMessage(date_payload):
                 # Handle BaseTimeReg message
                 # Note that it should already be in UTC when received
-                base_time = payload 
+                base_time = date_payload 
                 logger.info(f"Base time received: {base_time}")
             case _:
                 logger.error(f"Unknown message type: {type(message_received.payload)}")
