@@ -229,10 +229,10 @@ function(stm32h733xx_cube_library
     if (USB_ENABLED)
         set(USB_MIDDLEWARE_DIR "${STM32CUBEH7_SOURCE_DIR}/Middlewares/ST/STM32_USB_Device_Library")
         list(APPEND STM32CUBE_SRCS
-                "${USB_MIDDLEWARE_DIR}/Class/CDC/Src/usbd_cdc.c"
-                "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_core.c"
-                "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_ctlreq.c"
-                "${USB_MIDDLEWARE_DIR}/Core/Src/usbd_ioreq.c"
+                #"${USB_MIDDLEWARE_DIR}/Class/CDC/Src/usbd_cdc.c"
+                #"${USB_MIDDLEWARE_DIR}/Core/Src/usbd_core.c"
+                #"${USB_MIDDLEWARE_DIR}/Core/Src/usbd_ctlreq.c"
+                #"${USB_MIDDLEWARE_DIR}/Core/Src/usbd_ioreq.c"
         )
         list(APPEND STM32CUBE_INCLUDE_DIRS
                 "${USB_MIDDLEWARE_DIR}/Core/Inc"
