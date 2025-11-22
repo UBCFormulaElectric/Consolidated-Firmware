@@ -1,6 +1,6 @@
 "use client";
 
-import AlertBoard from "@/components/shared/AlertBoard/AlertBoard";
+// import AlertBoard from "@/components/shared/AlertBoard/AlertBoard";
 import DynamicRowManager from "@/components/shared/DynamicRowManager";
 import ConnectionStatus from "@/components/pages/live-data/ConnectionStatus";
 import SyncedGraphContainer from "@/components/shared/SyncedGraphContainer";
@@ -27,5 +27,17 @@ export default function LiveDataPage() {
         </div>
       </div>
     </SignalProvider>
+
+    // EVANS CHANGES
+    // import LiveDataDashboard from "@/components/LiveDataDashboard";
+    // import { DashboardLayoutProvider } from "@/lib/contexts/DashboardLayout";
+
+    // export default function LiveDataPage() {
+    //   return (
+    //     <div className="w-screen">
+    //       <DashboardLayoutProvider>
+    //         <LiveDataDashboard />
+    //       </DashboardLayoutProvider>
+    //     </div>
   );
 }
