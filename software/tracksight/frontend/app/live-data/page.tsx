@@ -8,12 +8,22 @@ import { DisplayControlProvider } from "@/components/shared/PausePlayControl";
 import SyncedGraphContainer from "@/components/shared/SyncedGraphContainer";
 import { SignalProvider } from "@/hooks/SignalContext";
 import DynamicRowManager from "@/components/shared/DynamicRowManager";
+import { WidgetAdder } from "@/components/shared/WidgetAdder";
 import { Widget } from "./Widget";
 import useWidgetManager from "./useWidgetManager";
 
 export default function LiveDataPage() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { widgets, setEnumSignal, appendNumSignal, removeNumSignal } = useWidgetManager();
+  const { 
+    widgets, 
+    setEnumSignal, 
+    appendNumSignal, 
+    removeNumSignal,
+    removeWidget,
+    updateMockConfig,
+    appendWidget
+  } = useWidgetManager();
+  
   return (
     <div>
       <DisplayControlProvider> {/* not so sure actually (OLD) */}
@@ -35,8 +45,11 @@ export default function LiveDataPage() {
                   setEnumSignal={setEnumSignal}
                   appendNumSignal={appendNumSignal}
                   removeNumSignal={removeNumSignal}
+                  removeWidget={removeWidget}
+                  updateMockConfig={updateMockConfig}
                   key={widgetData.id} />
                 )}
+                <WidgetAdder onAddWidget={appendWidget} />
                 <DynamicRowManager />
               </SyncedGraphContainer>
             </div>

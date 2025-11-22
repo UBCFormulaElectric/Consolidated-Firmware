@@ -20,5 +20,18 @@ interface numericalProps {
 }
 export type WidgetDataNumerical = WidgetDataBase & numericalProps;
 
-export type WidgetData = WidgetDataEnum | WidgetDataNumerical;
+export interface MockGraphConfig {
+  type: "numerical" | "enumeration";
+  delay: number; // ms
+  initialPoints: number;
+  signalName: string;
+}
+
+interface mockProps {
+    type: SignalType.MOCK;
+    configs: MockGraphConfig[];
+}
+export type WidgetDataMock = WidgetDataBase & mockProps;
+
+export type WidgetData = WidgetDataEnum | WidgetDataNumerical | WidgetDataMock;
 export type WidgetRenderer = FC<WidgetData>;
