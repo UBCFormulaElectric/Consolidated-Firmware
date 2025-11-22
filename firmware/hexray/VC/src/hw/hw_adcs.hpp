@@ -15,7 +15,7 @@ namespace vc::hw::adcs{
             }
     private: 
     static 
-    
-
-    }
+    uint16_t static AdcBuffer[AdcBufferSize];
+    float  static VoltageBuffer[AdcBufferSize];
+    };
 } //namespace vc::hw::adcs
