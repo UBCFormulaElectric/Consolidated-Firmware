@@ -42,7 +42,6 @@ const InverterHandle inverter_handle_RR = {
     .can_inv_warning = app_canAlerts_VC_Warning_RearRightInverterFault_set,
 };
 
-
 bool app_inverter_inverterStatus(void)
 {
     const bool invrr_error = app_canRx_INVRR_bError_get() == true;

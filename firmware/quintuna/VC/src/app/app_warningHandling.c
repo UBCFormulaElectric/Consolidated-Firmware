@@ -7,7 +7,6 @@
 #define APPS_BRAKE_DISAGREEMENT_TIME_TO_FAULT (10u)
 #define APPS_BRAKE_DISAGREEMENT_TIME_TO_CLEAR (10u)
 
-
 static Signal apps_brake_disagreement_signal;
 
 bool app_warningHandlin_boardWarningCheck(void)
@@ -41,4 +40,3 @@ void app_softwareBspd_init(void)
     app_signal_init(
         &apps_brake_disagreement_signal, APPS_BRAKE_DISAGREEMENT_TIME_TO_FAULT, APPS_BRAKE_DISAGREEMENT_TIME_TO_CLEAR);
 }
-
