@@ -2,7 +2,7 @@
 Note: make sure to keep this file updated with the firmware
 """
 from dataclasses import dataclass
-import datetime
+from datetime import datetime, timedelta
 import struct
 from threading import Thread
 from typing import Optional, Union
@@ -30,13 +30,13 @@ _CRC_CALCULATOR = Calculator(Crc32.CRC32) # type: ignore
 def _calculate_message_timestamp(message_timestamp, base_time):
     if message_timestamp > 0:
         # Convert milliseconds to seconds and create a timedelta
-        delta = datetime.timedelta(milliseconds=message_timestamp)
+        delta = timedelta(milliseconds=message_timestamp)
         timestamp = base_time + delta
         # logger.debug(
         #     f"Message timestamp: {message_timestamp}ms, calculated time: {timestamp}"
         # )
     else:
-        timestamp = datetime.datetime.now()
+        timestamp = datetime.now()
         logger.warning(
             f"Invalid timestamp received: {message_timestamp}, using current time"
         )
@@ -133,7 +133,7 @@ class NTPTimeMessage(TelemetryMessage):
 
 @dataclass
 class BaseTimeRegMessage(TelemetryMessage):
-    date_payload: datetime.datetime
+    date_payload: datetime
 
 class TelemetryMessageType(Enum):
     CAN = 0x01
@@ -164,7 +164,7 @@ def _parse_telem_message(payload: bytes) -> Optional[TelemetryMessage]:
         case TelemetryMessageType.BaseTimeReg.value:
             if len(payload) < 11:
                 return None # Not enough data for BaseTimeReg message
-            return BaseTimeRegMessage(datetime.datetime(
+            return BaseTimeRegMessage(datetime(
                 year=int(payload[1]) + 2000,  # need to offset this as on firmware side it is 0-99
                 month=int(payload[2]),
                 day=int(payload[3]),
@@ -212,16 +212,18 @@ def _read_messages():
                 print(f"ntp received {id}")
                 # Handle NTP message
                 t1, t2 = ntp_request(0)
-                t1_dt, t2_dt = datetime.datetime.fromtimestamp(ntp_to_system_time(t1), datetime.timezone.utc), \
-                      datetime.datetime.fromtimestamp(ntp_to_system_time(t2), datetime.timezone.utc)
-                payload = struct.pack('<B', t1_dt.hour, t1_dt.minute, t1_dt.second) + struct.pack('<I', t1_dt.microsecond) + \
-                    struct.pack('<B', t2_dt.hour, t2_dt.minute, t2_dt.second) + struct.pack('<I', t2_dt.microsecond)
+
+                def pack_ntp(t: float) -> bytes:
+                    dt = datetime.fromtimestamp(ntp_to_system_time(t), datetime.timezone.utc)
+                    return struct.pack('<BBB', dt.hour, dt.minute, dt.second) + struct.pack('<I', dt.microsecond)
+
+                payload = pack_ntp(t1) + pack_ntp(t2)
                 ser.write(payload)
             case NTPDateMessage():
                 # Handle NTPDate message
-                today = datetime.datetime.now(datetime.timezone.utc)
+                today = datetime.now(datetime.timezone.utc)
                 year, month, date, day = today.year, today.month, today.day, today.weekday()
-                payload = struct.pack('<B', year - 2000, month, date, day)
+                payload = struct.pack('<BBBB', year - 2000, month, date, day)
                 ser.write(payload)
             case BaseTimeRegMessage(date_payload):
                 # Handle BaseTimeReg message
