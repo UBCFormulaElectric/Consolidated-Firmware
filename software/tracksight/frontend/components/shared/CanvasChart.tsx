@@ -830,7 +830,6 @@ export default function CanvasChart({
           const value = points[nearestIndex];
           if (value === null || value === undefined) return;
 
-          // Draw point for numerical
           if (
             typeof value === "number" &&
             hasNumerical &&
@@ -842,7 +841,6 @@ export default function CanvasChart({
               Number.isFinite(minValue) &&
               Number.isFinite(maxValue)
             ) {
-              // Re-calculate Y based on numerical bounds
               y =
                 numericalTop +
                 chartHeight -
@@ -896,12 +894,7 @@ export default function CanvasChart({
           }
 
           // determine tooltip Y
-          let tooltipY = activeHoverY ?? padding.top + 20;
-          if (!hover && firstPointY !== null) {
-            tooltipY = firstPointY - tooltipHeight / 2;
-          } else if (!hover) {
-            tooltipY = padding.top + 20;
-          }
+          let tooltipY = padding.top + 20;
 
           const minY = padding.top;
           const maxY = height - padding.bottom - tooltipHeight;
