@@ -15,6 +15,7 @@
 #include "app_torqueDistribution.h"
 #include "app_driveHandling.h"
 #include "app_startSwitch.h"
+#include "app_warningHandling.h"
 
 #define OFF 0
 
@@ -37,7 +38,7 @@ static bool driveStatePassPreCheck()
 {
     // All states module checks for faults, and returns whether or not a fault was detected.
     const bool inverter_warning = app_inverter_inverterStatus();
-    const bool board_warning    = app_inverter_boardWarningCheck();
+    const bool board_warning    = app_warningHandlin_boardWarningCheck();
 
     // Make sure you can only turn on VD in init and not during drive, only able to turn off
     const bool prev_regen_switch_val = regen_switch_is_on;
@@ -167,7 +168,7 @@ static void driveStateRunOnTick100Hz(void)
     float apps_pedal_percentage = (float)app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
 
     // ensure precheck and software bspd are good
-    if (!driveStatePassPreCheck() || app_inverter_checkSoftwareBspd(apps_pedal_percentage))
+    if (!driveStatePassPreCheck() || app_warningHandlin_checkSoftwareBspd(apps_pedal_percentage))
     {
         app_canTx_VC_INVFRTorqueSetpoint_set(OFF);
         app_canTx_VC_INVRRTorqueSetpoint_set(OFF);

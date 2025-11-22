@@ -23,6 +23,7 @@
 #include "app_shdnLoop.h"
 #include "app_shdnLast.h"
 #include "app_imu.h"
+#include "app_warningHandling.h"
 
 // io
 #include "io_time.h"
