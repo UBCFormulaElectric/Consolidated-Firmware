@@ -71,8 +71,7 @@ function handleData(
   if (DEBUG) {
     const isEnum = /state|mode|enum|status/.test(name.toLowerCase());
     console.log(
-      `Signal ${name}: isEnum=${isEnum}, value=${
-        data.value
+      `Signal ${name}: isEnum=${isEnum}, value=${data.value
       } (${typeof data.value})`
     );
   }
