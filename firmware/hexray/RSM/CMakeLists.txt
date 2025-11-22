@@ -29,11 +29,8 @@ set(IO_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
         "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_DIR_CPP}"
 )
-
-file(GLOB_RECURSE HW_SRCS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp"
-)
-list(APPEND HW_SRCS)
+list(APPEND HW_SRCS
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_i2c.cpp")
 set(HW_INCLUDE_DIRS
         #        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
         "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR_CPP}"
@@ -62,6 +59,11 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h5xx_hal_exti.c"
             "stm32h5xx_hal_tim.c"
             "stm32h5xx_hal_tim_ex.c"
+            "stm32h5xx_hal_i2c.c"
+            "stm32h5xx_hal_i2c_ex.c"
+            "stm32h5xx_hal_adc.c"
+            "stm32h5xx_hal_adc_ex.c"
+            "stm32h5xx_hal_gpio.c"
     )
     stm32h562xx_cube_library(
             "hexray_RSM_stm32"

@@ -15,10 +15,8 @@ extern "C"
 #define FLOW_METER_TIME_TO_FAULT 1000U
 #define FLOW_METER_TIME_TO_CLEAR 1000U
 
-static const RangeCheck flow_rate_in_range_check = {
-    .min_value = MIN_FLOW_RATE_L_PER_MIN,
-    .max_value = MAX_FLOW_RATE_L_PER_MIN,
-};
+static const RangeCheck flow_rate_in_range_check = { nullptr, MIN_FLOW_RATE_L_PER_MIN, MAX_FLOW_RATE_L_PER_MIN };
+
 static Signal flow_in_range_signal;
 
 namespace app::coolant

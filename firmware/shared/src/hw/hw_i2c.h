@@ -2,7 +2,6 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "main.h"
 #include "util_errorCodes.h"
 #include "cmsis_os.h"
 

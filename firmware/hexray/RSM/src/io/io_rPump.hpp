@@ -3,7 +3,7 @@
 #include "util_errorCodes.hpp"
 
 #ifdef TARGET_EMBEDDED
-#include "hw_i2cs.hpp" //Not created yet
+// #include "hw_i2cs.hpp" //Not created yet
 #endif
 
 namespace io::rPump

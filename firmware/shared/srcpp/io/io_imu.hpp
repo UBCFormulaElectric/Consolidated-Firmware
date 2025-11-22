@@ -1,17 +1,17 @@
 #pragma once
 #include <stdbool.h>
 #ifdef TARGET_EMBEDDED
-#include "hw_i2c.h"
+#include "hw_i2c.hpp"
 
 typedef struct
 {
-    const I2cDevice *imu_i2c_handle;
-    float            x_accel_offset;
-    float            y_accel_offset;
-    float            z_accel_offset;
-    float            yaw_offset;
-    float            pitch_offset;
-    float            roll_offset;
+    const hw::i2c::I2CDevice *imu_i2c_handle;
+    float                     x_accel_offset;
+    float                     y_accel_offset;
+    float                     z_accel_offset;
+    float                     yaw_offset;
+    float                     pitch_offset;
+    float                     roll_offset;
 } imuConfig;
 #else
 #include "util_errorCodes.hpp"
