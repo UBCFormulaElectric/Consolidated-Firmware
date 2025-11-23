@@ -57,7 +57,7 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-
+extern SPI_HandleTypeDef hspi4;
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -181,6 +181,20 @@ void SysTick_Handler(void)
 /* For the available peripheral interrupt handler names,                      */
 /* please refer to the startup file (startup_stm32h7xx.s).                    */
 /******************************************************************************/
+
+/**
+ * @brief This function handles SPI4 global interrupt.
+ */
+void SPI4_IRQHandler(void)
+{
+    /* USER CODE BEGIN SPI4_IRQn 0 */
+
+    /* USER CODE END SPI4_IRQn 0 */
+    HAL_SPI_IRQHandler(&hspi4);
+    /* USER CODE BEGIN SPI4_IRQn 1 */
+
+    /* USER CODE END SPI4_IRQn 1 */
+}
 
 /* USER CODE BEGIN 1 */
 

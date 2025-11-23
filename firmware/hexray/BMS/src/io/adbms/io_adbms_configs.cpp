@@ -1,5 +1,4 @@
 #include "io_adbms.hpp"
-#include "util_errorCodes.h"
 #include "io_adbms_internal.hpp"
 
 #include <string.h>
@@ -8,8 +7,8 @@ namespace io::adbms
 {
 ExitCode writeConfigurationRegisters(const SegmentConfig config[io::NUM_SEGMENTS])
 {
-    uint16_t cfga_regs[io::NUM_SEGMENTS];
-    uint16_t cfgb_regs[io::NUM_SEGMENTS];
+    uint16_t cfga_regs[io::NUM_SEGMENTS][io::adbms::REGS_PER_GROUP];
+    uint16_t cfgb_regs[io::NUM_SEGMENTS][io::adbms::REGS_PER_GROUP];
 
     for (uint8_t seg_idx = 0U; seg_idx < io::NUM_SEGMENTS; seg_idx++)
     {

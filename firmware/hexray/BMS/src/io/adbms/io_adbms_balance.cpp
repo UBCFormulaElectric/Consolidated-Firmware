@@ -12,4 +12,4 @@ ExitCode sendStopBalanceCommand(void)
 {
     return io::adbms::sendCommand(io::adbms::MUTE);
 }
-}
+} // namespace io::adbms

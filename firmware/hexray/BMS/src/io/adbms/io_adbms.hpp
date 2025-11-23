@@ -13,8 +13,9 @@ static constexpr uint8_t CELLS_PER_SEGMENTS      = 14;
 static constexpr uint8_t THERMISTORS_PER_SEGMENT = 14;
 namespace adbms
 {
-    static constexpr uint8_t REGS_PER_GROUP      = 3;
-    static constexpr uint8_t REGISTER_GROUP_SIZE = 6; // 6 bytes
+    static constexpr uint8_t REGS_PER_GROUP          = 3;
+    static constexpr uint8_t REGISTER_GROUP_SIZE     = 6; // 6 bytes
+    static constexpr uint8_t VOLTAGE_REGISTER_GROUPS = 6;
 
     /**
      * @file adbms/io_adbms_configs.cpp
@@ -104,6 +105,40 @@ namespace adbms
      * @return success of operation
      */
     ExitCode sendStopBalanceCommand(void);
+
+    /**
+     * @file io_adbms_cells.cpp
+     */
+
+    /**
+     * Gets the value of the cell voltage registers, shares success of operation
+     * @param cell_voltage_regs value of the cell voltage registers
+     * @param comm_success success of operation on a certain segment and register group
+     */
+    void readVoltageRegisters(
+        uint16_t cell_voltage_regs[io::NUM_SEGMENTS][io::CELLS_PER_SEGMENTS],
+        ExitCode comm_success[io::NUM_SEGMENTS][io::CELLS_PER_SEGMENTS]);
+
+    /**
+     * sends a command to read all voltages from all segments
+     * @return success of the operation
+     */
+    ExitCode startCellsAdcConversion(void);
+
+    /**
+     * @file ltc6813/io_ltc6813_utils.c
+     */
+
+    /**
+     * Wake up LTCs. Sends a dummy command (RDCFGA). See "Waking Up the Serial Interface" in the datasheet.
+     */
+    void wakeup(void);
+
+    /**
+     * polls the LTC6813 for the completion of the ADC conversions
+     * @return success of the operation
+     */
+    ExitCode pollAdcConversions(void);
 
 } // namespace adbms
 } // namespace io
