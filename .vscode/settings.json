@@ -11,11 +11,5 @@
     "--compile-commands-dir=build_fw_dev",
     // "--compile-commands-dir=build_fw_test",
     "--query-driver=/usr/local/bin/arm-none-eabi-gcc"
-  ],
-  "files.associations": {
-    "hw_gpios.h": "c",
-    "io_telemmessagequeue.h": "c",
-    "stdbool.h": "c",
-    "io_canmsg.h": "c"
-  }
+  ]
 }
