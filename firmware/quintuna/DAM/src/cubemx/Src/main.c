@@ -20,8 +20,6 @@
 #include "main.h"
 #include "cmsis_os.h"
 #include "usb_device.h"
-#include "io_canMsg.h"
-#include "io_telemMessageQueue.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -266,10 +264,10 @@ int main(void)
 
     /* Create the thread(s) */
     /* creation of Task100Hz */
-   // Task100HzHandle = osThreadNew(RunTask100Hz, NULL, &Task100Hz_attributes);
-    TaskChimeraHandle = osThreadNew(RunChimera, NULL, &TaskChimera_attributes);  // High priority level
+    // Task100HzHandle = osThreadNew(RunTask100Hz, NULL, &Task100Hz_attributes);
+    TaskChimeraHandle = osThreadNew(RunChimera, NULL, &TaskChimera_attributes); // High priority level
 
-    // const CanMsg dummyRadioMsg = 
+    // const CanMsg dummyRadioMsg =
     // {
     //     .std_id = 1,
     //     .dlc = 64,
