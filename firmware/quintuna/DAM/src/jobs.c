@@ -186,7 +186,7 @@ void jobs_runCanRx_callBack(const CanMsg *rx_msg)
     {
         // Should make this log an error but it spams currently...
         // Consider doing a "num errors remaining" strategy like CAN logging.
-        io_telemMessageQueue_pushTx(rx_msg); 
+        io_telemMessageQueue_pushTx(rx_msg);
     }
     // check and process CAN msg for bootloader start msg
 }

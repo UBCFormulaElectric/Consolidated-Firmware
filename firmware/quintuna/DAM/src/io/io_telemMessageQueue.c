@@ -40,7 +40,7 @@ void io_telemMessageQueue_init(void)
 
     /* Uncomment below block to init some dummy CAN messages to the queue first (Used for radio testing) */
 
-    // CanMsg dummyRadioMsg = 
+    // CanMsg dummyRadioMsg =
     // {
     //     .std_id = 1,
     //     .dlc = 15,

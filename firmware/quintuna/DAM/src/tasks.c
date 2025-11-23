@@ -57,7 +57,49 @@ void tasks_preInitWatchdog(void)
     sprintf(
         boot_time_string, "20%02d-%02d-%02dT%02d-%02d-%02d", boot_time.year, boot_time.month, boot_time.day,
         boot_time.hours, boot_time.minutes, boot_time.seconds);
-    io_canLogging_init(boot_time_string);
+    // io_canLogging_init(boot_time_string);
+}
+
+static void test_sd_card(void)
+{
+    /* =================== SD Card Write Test  - Writing raw bytes =================== */
+    uint32_t num_repetitions = 50;
+#define NUM_BLOCKS (64)
+    static uint8_t dummyData[NUM_BLOCKS * 512] = { 0 }; // 10 blocks of 512 bytes each
+    uint32_t       start                       = io_time_getCurrentMs();
+    for (uint32_t i = 0; i < num_repetitions; i++)
+    {
+        SdCardStatus sdWriteStatus = hw_sd_write(dummyData, i * NUM_BLOCKS, NUM_BLOCKS);
+        assert(sdWriteStatus == SD_CARD_OK);
+        osDelay(2);
+    }
+    uint32_t end           = io_time_getCurrentMs();
+    uint32_t elapsedTimeMs = end - start - 2 * num_repetitions;
+    LOG_INFO("Elapsed time: %d milliseconds\n", elapsedTimeMs);
+
+    /* =================== SD Card Write Tests - Writing using logfs =================== */
+
+    // char msg[] = "hello world";
+
+    // uint32_t returned_fd;
+    // FileSystemError status = io_fileSystem_open("/test2.txt", &returned_fd);
+    // assert(status == FILE_OK);
+
+    // FileSystemError status2 = io_fileSystem_write(returned_fd, &msg, 10);
+    // assert(status2 == FILE_OK);
+
+    // FileSystemError status3 = io_fileSystem_sync(returned_fd);
+    // assert(status3 == FILE_OK);
+
+    // LOG_INFO("Done.\n");
+
+    // const uint32_t  period_ms                = 1000U;
+    // const uint32_t  watchdog_grace_period_ms = 50U;
+    // WatchdogHandle *watchdog= hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
+    // for (;;)
+    // {
+    //     hw_watchdog_checkIn(watchdog);
+    // }
 }
 
 void tasks_init(void)
@@ -115,60 +157,13 @@ void tasks_init(void)
 
 _Noreturn void tasks_runChimera(void)
 {
-    LOG_INFO("Entered runChimera()");
-    // hw_chimera_v2_task(&chimera_v2_config);
-    //io_tsim_set_green();
-
-    /* =================== SD Card Write Test  - Writing raw bytes =================== */
-
-    uint32_t tick_freq = osKernelGetTickFreq(); // ticks per second
-    uint32_t ticks_2ms = (2 * tick_freq) / 1000; // convert 2 ms into ticks
-    if (ticks_2ms == 0) ticks_2ms = 1; // ensure minimum delay of 1 tick
-
-    uint32_t num_repetitions = 50;
-    static uint8_t dummyData[10 * 512] = {0};  // 10 blocks of 512 bytes each
-
-    uint32_t start = io_time_getCurrentMs();
-
-    for (uint32_t i = 0; i < num_repetitions; i++)
-    {
-        SdCardStatus sdWriteStatus = hw_sd_write((uint8_t *)dummyData, i * 10, 10);
-        assert(sdWriteStatus == SD_CARD_OK);
-        osDelay(ticks_2ms);
-    }
-    
-    uint32_t end = io_time_getCurrentMs();
-    uint32_t elapsedTimeMs = (end - start) - (2 * num_repetitions);
-    LOG_INFO("Elapsed time: %d milliseconds\n", elapsedTimeMs);
-
-    /* =================== SD Card Write Tests - Writing using logfs =================== */
-
-    // char msg[] = "hello world"; 
-
-    // uint32_t returned_fd;
-    // FileSystemError status = io_fileSystem_open("/test2.txt", &returned_fd);
-    // assert(status == FILE_OK);
-
-    // FileSystemError status2 = io_fileSystem_write(returned_fd, &msg, 10);
-    // assert(status2 == FILE_OK);
-
-    // FileSystemError status3 = io_fileSystem_sync(returned_fd);
-    // assert(status3 == FILE_OK);
-
-    // LOG_INFO("Done.\n");
-
-    const uint32_t  period_ms                = 1000U;
-    const uint32_t  watchdog_grace_period_ms = 50U;
-    WatchdogHandle *watchdog= hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
-
-    for(;;)
-    {
-        hw_watchdog_checkIn(watchdog);
-    }
+    osDelay(osWaitForever);
+    hw_chimera_v2_task(&chimera_v2_config);
 }
 
 _Noreturn void tasks_run1Hz(void)
 {
+    test_sd_card();
     osDelay(osWaitForever);
     const uint32_t  period_ms                = 1000U;
     const uint32_t  watchdog_grace_period_ms = 50U;
@@ -262,8 +257,8 @@ _Noreturn void tasks_runTelem(void)
         CanMsg      queue_out = io_telemMessageQueue_popTx();
         uint8_t     full_msg_size;
         TelemCanMsg can_msg = io_telemMessage_buildCanMsg(&queue_out, 0, &full_msg_size);
-        
-        LOG_INFO("Message timestamp: %d",queue_out.timestamp);
+
+        LOG_INFO("Message timestamp: %d", queue_out.timestamp);
 
         // Start timing for measuring transmission speeds
         SEGGER_SYSVIEW_MarkStart(0);

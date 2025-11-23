@@ -143,7 +143,7 @@ const osThreadAttr_t TaskTelem_attributes = {
     .cb_size    = sizeof(TaskTelemControlBlock),
     .stack_mem  = &TaskTelemBuffer[0],
     .stack_size = sizeof(TaskTelemBuffer),
-    .priority   = (osPriority_t)osPriorityNormal,
+    .priority   = (osPriority_t)osPriorityLow,
 };
 /* Definitions for TaskTelemRx */
 osThreadId_t         TaskTelemRxHandle;
@@ -157,25 +157,13 @@ const osThreadAttr_t TaskTelemRx_attributes = {
     .stack_size = sizeof(TaskTelemRxBuffer),
     .priority   = (osPriority_t)osPriorityLow,
 };
-
-/* Definitions for chimera */
-osThreadId_t         TaskChimeraHandle;
-uint32_t             TaskChimeraBuffer[512];
-osStaticThreadDef_t  TaskChimeraControlBlock;
-const osThreadAttr_t TaskChimera_attributes = {
-    .name       = "TaskChimera",
-    .cb_mem     = &TaskChimeraControlBlock,
-    .cb_size    = sizeof(TaskChimeraControlBlock),
-    .stack_mem  = &TaskChimeraBuffer[0],
-    .stack_size = sizeof(TaskChimeraBuffer),
-    .priority   = (osPriority_t)osPriorityAboveNormal,
-};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
+void        PeriphCommonClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_SDMMC1_SD_Init(void);
 static void MX_FDCAN2_Init(void);
@@ -184,7 +172,6 @@ static void MX_I2C1_Init(void);
 static void MX_TIM15_Init(void);
 static void MX_IWDG1_Init(void);
 static void MX_CRC_Init(void);
-void        RunChimera(void *argument);
 void        RunTask100Hz(void *argument);
 void        RunCanTxTask(void *argument);
 void        RunCanRxTask(void *argument);
@@ -225,6 +212,9 @@ int main(void)
     /* Configure the system clock */
     SystemClock_Config();
 
+    /* Configure the peripherals common clocks */
+    PeriphCommonClock_Config();
+
     /* USER CODE BEGIN SysInit */
 
     /* USER CODE END SysInit */
@@ -264,24 +254,7 @@ int main(void)
 
     /* Create the thread(s) */
     /* creation of Task100Hz */
-    // Task100HzHandle = osThreadNew(RunTask100Hz, NULL, &Task100Hz_attributes);
-    TaskChimeraHandle = osThreadNew(RunChimera, NULL, &TaskChimera_attributes); // High priority level
-
-    // const CanMsg dummyRadioMsg =
-    // {
-    //     .std_id = 1,
-    //     .dlc = 64,
-    //     .timestamp = 1,
-    //     .data.data8 = {0},
-    //     .bus = 1,
-    //     .is_fd = false
-    // };
-
-    // for (int i = 0; i < 10; i++)
-    // {
-    //     bool status = io_telemMessageQueue_pushTx(&dummyRadioMsg);
-    //     assert(status);
-    //}
+    Task100HzHandle = osThreadNew(RunTask100Hz, NULL, &Task100Hz_attributes);
 
     /* creation of TaskCanTx */
     TaskCanTxHandle = osThreadNew(RunCanTxTask, NULL, &TaskCanTx_attributes);
@@ -383,6 +356,33 @@ void SystemClock_Config(void)
     RCC_ClkInitStruct.APB4CLKDivider = RCC_APB4_DIV2;
 
     if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
+    {
+        Error_Handler();
+    }
+}
+
+/**
+ * @brief Peripherals Common Clock Configuration
+ * @retval None
+ */
+void PeriphCommonClock_Config(void)
+{
+    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
+
+    /** Initializes the peripherals clock
+     */
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SDMMC | RCC_PERIPHCLK_FDCAN;
+    PeriphClkInitStruct.PLL2.PLL2M           = 1;
+    PeriphClkInitStruct.PLL2.PLL2N           = 48;
+    PeriphClkInitStruct.PLL2.PLL2P           = 2;
+    PeriphClkInitStruct.PLL2.PLL2Q           = 4;
+    PeriphClkInitStruct.PLL2.PLL2R           = 2;
+    PeriphClkInitStruct.PLL2.PLL2RGE         = RCC_PLL2VCIRANGE_3;
+    PeriphClkInitStruct.PLL2.PLL2VCOSEL      = RCC_PLL2VCOWIDE;
+    PeriphClkInitStruct.PLL2.PLL2FRACN       = 0;
+    PeriphClkInitStruct.SdmmcClockSelection  = RCC_SDMMCCLKSOURCE_PLL2;
+    PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_PLL2;
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
     {
         Error_Handler();
     }
@@ -763,14 +763,6 @@ void RunTask100Hz(void *argument)
     /* USER CODE BEGIN 5 */
     /* Infinite loop */
     tasks_run100Hz();
-    /* USER CODE END 5 */
-}
-
-void RunChimera(void *argument)
-{
-    /* USER CODE BEGIN 5 */
-    /* Infinite loop */
-    tasks_runChimera();
     /* USER CODE END 5 */
 }
 

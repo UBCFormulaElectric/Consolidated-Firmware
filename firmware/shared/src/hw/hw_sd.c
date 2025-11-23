@@ -3,6 +3,7 @@
 #include "hw_sd.h"
 #include "hw_utils.h"
 
+#include <SEGGER_SYSVIEW.h>
 #include <assert.h>
 #include <stdbool.h>
 

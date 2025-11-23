@@ -128,31 +128,12 @@ void HAL_CRC_MspDeInit(CRC_HandleTypeDef *hcrc)
  */
 void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
 {
-    GPIO_InitTypeDef         GPIO_InitStruct     = { 0 };
-    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
+    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
     if (hfdcan->Instance == FDCAN2)
     {
         /* USER CODE BEGIN FDCAN2_MspInit 0 */
 
         /* USER CODE END FDCAN2_MspInit 0 */
-
-        /** Initializes the peripherals clock
-         */
-        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_FDCAN;
-        PeriphClkInitStruct.PLL2.PLL2M           = 1;
-        PeriphClkInitStruct.PLL2.PLL2N           = 24;
-        PeriphClkInitStruct.PLL2.PLL2P           = 2;
-        PeriphClkInitStruct.PLL2.PLL2Q           = 2;
-        PeriphClkInitStruct.PLL2.PLL2R           = 2;
-        PeriphClkInitStruct.PLL2.PLL2RGE         = RCC_PLL2VCIRANGE_3;
-        PeriphClkInitStruct.PLL2.PLL2VCOSEL      = RCC_PLL2VCOWIDE;
-        PeriphClkInitStruct.PLL2.PLL2FRACN       = 0;
-        PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_PLL2;
-        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
-        {
-            Error_Handler();
-        }
-
         /* Peripheral clock enable */
         __HAL_RCC_FDCAN_CLK_ENABLE();
 
@@ -301,23 +282,12 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef *hi2c)
  */
 void HAL_SD_MspInit(SD_HandleTypeDef *hsd)
 {
-    GPIO_InitTypeDef         GPIO_InitStruct     = { 0 };
-    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
+    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
     if (hsd->Instance == SDMMC1)
     {
         /* USER CODE BEGIN SDMMC1_MspInit 0 */
 
         /* USER CODE END SDMMC1_MspInit 0 */
-
-        /** Initializes the peripherals clock
-         */
-        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SDMMC;
-        PeriphClkInitStruct.SdmmcClockSelection  = RCC_SDMMCCLKSOURCE_PLL;
-        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
-        {
-            Error_Handler();
-        }
-
         /* Peripheral clock enable */
         __HAL_RCC_SDMMC1_CLK_ENABLE();
 

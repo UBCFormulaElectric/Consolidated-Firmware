@@ -64,7 +64,7 @@ if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 else ()
     list(APPEND SHARED_COMPILER_FLAGS
             -Os
-            -g0
+            -g3
     )
 endif ()
 set(SHARED_LINKER_FLAGS
