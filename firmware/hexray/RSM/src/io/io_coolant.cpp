@@ -27,6 +27,6 @@ void checkIfFlowMeterActive()
 {
     // hw_pwmInputFreqOnly_checkIfPwmIsActive(&flow_meter_5v5);
 }
-} // namespace io::coolant
+} 
 
 // namespace io::coolant
