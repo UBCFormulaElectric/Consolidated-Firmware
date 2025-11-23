@@ -2,7 +2,6 @@
 #include <cstdint>
 #include "hw_i2c.hpp"
 
-
 #define NUM_DEVICE_READY_TRIALS 5
 
 /* --------------------------------------------- I2CBus ------------------------------------------------ */

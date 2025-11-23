@@ -1,6 +1,7 @@
 #pragma once
-extern "C" {
-    #include "app_utils.h"
+extern "C"
+{
+#include "app_utils.h"
 }
 #include <array>
 
