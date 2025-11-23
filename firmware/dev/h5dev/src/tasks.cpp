@@ -3,6 +3,7 @@
 #include "io_time.hpp"
 #include "jobs.hpp"
 #include <assert.h>
+#include "hw_hardFaultHandler.hpp"
 
 extern "C"
 {
@@ -10,7 +11,6 @@ extern "C"
 #include "hw_cans.h"
 #include "hw_bootup.h"
 #include "hw_resetReason.h"
-// #include "hw_chimera_v2.h"
 #include "io_canQueue.h"
 #include "app_jsoncan.h"
 }
@@ -26,7 +26,10 @@ void tasks_init()
 
     __HAL_DBGMCU_FREEZE_IWDG();
 
+    hw_hardFaultHandler_init();
     hw_can_init(&fdcan);
+    io_canQueue_initRx();
+    io_canQueue_initTx(&can_tx_queue);
     // LOG_IF_ERR(hw_usb_init());
 
     // Check for watchdog timeout on a previous boot cycle.

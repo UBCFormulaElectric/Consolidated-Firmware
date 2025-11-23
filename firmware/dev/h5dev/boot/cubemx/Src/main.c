@@ -241,21 +241,21 @@ static void MX_FDCAN1_Init(void)
     /* USER CODE END FDCAN1_Init 1 */
     hfdcan1.Instance                  = FDCAN1;
     hfdcan1.Init.ClockDivider         = FDCAN_CLOCK_DIV1;
-    hfdcan1.Init.FrameFormat          = FDCAN_FRAME_CLASSIC;
+    hfdcan1.Init.FrameFormat          = FDCAN_FRAME_FD_NO_BRS;
     hfdcan1.Init.Mode                 = FDCAN_MODE_NORMAL;
-    hfdcan1.Init.AutoRetransmission   = DISABLE;
+    hfdcan1.Init.AutoRetransmission   = ENABLE;
     hfdcan1.Init.TransmitPause        = DISABLE;
     hfdcan1.Init.ProtocolException    = DISABLE;
-    hfdcan1.Init.NominalPrescaler     = 16;
-    hfdcan1.Init.NominalSyncJumpWidth = 1;
-    hfdcan1.Init.NominalTimeSeg1      = 1;
-    hfdcan1.Init.NominalTimeSeg2      = 1;
-    hfdcan1.Init.DataPrescaler        = 1;
-    hfdcan1.Init.DataSyncJumpWidth    = 1;
-    hfdcan1.Init.DataTimeSeg1         = 1;
-    hfdcan1.Init.DataTimeSeg2         = 1;
-    hfdcan1.Init.StdFiltersNbr        = 0;
-    hfdcan1.Init.ExtFiltersNbr        = 0;
+    hfdcan1.Init.NominalPrescaler     = 6;
+    hfdcan1.Init.NominalSyncJumpWidth = 2;
+    hfdcan1.Init.NominalTimeSeg1      = 13;
+    hfdcan1.Init.NominalTimeSeg2      = 2;
+    hfdcan1.Init.DataPrescaler        = 3;
+    hfdcan1.Init.DataSyncJumpWidth    = 2;
+    hfdcan1.Init.DataTimeSeg1         = 5;
+    hfdcan1.Init.DataTimeSeg2         = 2;
+    hfdcan1.Init.StdFiltersNbr        = 1;
+    hfdcan1.Init.ExtFiltersNbr        = 1;
     hfdcan1.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
     if (HAL_FDCAN_Init(&hfdcan1) != HAL_OK)
     {
@@ -280,17 +280,18 @@ static void MX_GPIO_Init(void)
 
     /* GPIO Ports Clock Enable */
     __HAL_RCC_GPIOH_CLK_ENABLE();
+    __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOB, LED_Pin | BOOT_Pin, GPIO_PIN_RESET);
 
-    /*Configure GPIO pin : LED_Pin */
-    GPIO_InitStruct.Pin   = LED_Pin;
+    /*Configure GPIO pins : LED_Pin BOOT_Pin */
+    GPIO_InitStruct.Pin   = LED_Pin | BOOT_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
 

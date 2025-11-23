@@ -480,8 +480,9 @@
     {
       "name": "Debug Embedded: h5dev",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/dev/h5dev/h5dev_app.hex",
+      "executable": "build_fw_dev/firmware/dev/h5dev/h5dev.hex",
       "symbolFiles": [
+        "build_fw_dev/firmware/dev/h5dev/h5dev_boot.elf",
         "build_fw_dev/firmware/dev/h5dev/h5dev_app.elf"
       ],
       "preLaunchTask": "Build Embedded: h5dev",

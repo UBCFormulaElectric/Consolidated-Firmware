@@ -21,7 +21,11 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "cmsis_os.h"
+#include "FreeRTOS.h"
+#include "tasks.h"
+#include <cmsis_os2.h>
+#include <stm32h5xx_hal.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -44,7 +48,18 @@
 FDCAN_HandleTypeDef hfdcan1;
 
 /* USER CODE BEGIN PV */
-
+/* Definitions for defaultTask */
+osThreadId_t         defaultTaskHandle;
+__attribute__((aligned(8))) uint32_t defaultTaskBuffer[512];
+__attribute__((aligned(8))) StaticTask_t defaultTaskControlBlock;
+const osThreadAttr_t defaultTask_attributes = {
+    .name       = "defaultTask",
+    .cb_mem     = &defaultTaskControlBlock,
+    .cb_size    = sizeof(defaultTaskControlBlock),
+    .stack_mem  = &defaultTaskBuffer[0],
+    .stack_size = sizeof(defaultTaskBuffer),
+    .priority   = (osPriority_t)osPriorityAboveNormal,
+};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -52,7 +67,8 @@ void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_FDCAN1_Init(void);
 /* USER CODE BEGIN PFP */
-
+/* -------------------- TASK DECLARATIONS ------------------------ */
+void rundefaultTask(void *argument);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -76,7 +92,6 @@ int main(void)
     HAL_Init();
 
     /* USER CODE BEGIN Init */
-
     /* USER CODE END Init */
 
     /* Configure the system clock */
@@ -90,7 +105,16 @@ int main(void)
     MX_GPIO_Init();
     MX_FDCAN1_Init();
     /* USER CODE BEGIN 2 */
+    tasks_init();
 
+    /* Init scheduler */
+    osKernelInitialize();
+
+    /* creation of defaultTask */
+    defaultTaskHandle = osThreadNew(rundefaultTask, NULL, &defaultTask_attributes);
+
+    /* Start scheduler */
+    osKernelStart();
     /* USER CODE END 2 */
 
     /* Infinite loop */
@@ -98,13 +122,7 @@ int main(void)
     while (1)
     {
         /* USER CODE END WHILE */
-
         /* USER CODE BEGIN 3 */
-        HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
-        HAL_Delay(1000);
-
-        HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
-        HAL_Delay(1000);
     }
     /* USER CODE END 3 */
 }
@@ -129,19 +147,18 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_CSI;
-    RCC_OscInitStruct.CSIState            = RCC_CSI_ON;
-    RCC_OscInitStruct.CSICalibrationValue = RCC_CSICALIBRATION_DEFAULT;
-    RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
-    RCC_OscInitStruct.PLL.PLLSource       = RCC_PLL1_SOURCE_CSI;
-    RCC_OscInitStruct.PLL.PLLM            = 1;
-    RCC_OscInitStruct.PLL.PLLN            = 125;
-    RCC_OscInitStruct.PLL.PLLP            = 2;
-    RCC_OscInitStruct.PLL.PLLQ            = 2;
-    RCC_OscInitStruct.PLL.PLLR            = 2;
-    RCC_OscInitStruct.PLL.PLLRGE          = RCC_PLL1_VCIRANGE_2;
-    RCC_OscInitStruct.PLL.PLLVCOSEL       = RCC_PLL1_VCORANGE_WIDE;
-    RCC_OscInitStruct.PLL.PLLFRACN        = 0;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
+    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
+    RCC_OscInitStruct.PLL.PLLSource  = RCC_PLL1_SOURCE_HSE;
+    RCC_OscInitStruct.PLL.PLLM       = 1;
+    RCC_OscInitStruct.PLL.PLLN       = 62;
+    RCC_OscInitStruct.PLL.PLLP       = 2;
+    RCC_OscInitStruct.PLL.PLLQ       = 2;
+    RCC_OscInitStruct.PLL.PLLR       = 2;
+    RCC_OscInitStruct.PLL.PLLRGE     = RCC_PLL1_VCIRANGE_3;
+    RCC_OscInitStruct.PLL.PLLVCOSEL  = RCC_PLL1_VCORANGE_WIDE;
+    RCC_OscInitStruct.PLL.PLLFRACN   = 4096;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
         Error_Handler();
@@ -183,21 +200,21 @@ static void MX_FDCAN1_Init(void)
     /* USER CODE END FDCAN1_Init 1 */
     hfdcan1.Instance                  = FDCAN1;
     hfdcan1.Init.ClockDivider         = FDCAN_CLOCK_DIV1;
-    hfdcan1.Init.FrameFormat          = FDCAN_FRAME_CLASSIC;
+    hfdcan1.Init.FrameFormat          = FDCAN_FRAME_FD_NO_BRS;
     hfdcan1.Init.Mode                 = FDCAN_MODE_NORMAL;
-    hfdcan1.Init.AutoRetransmission   = DISABLE;
+    hfdcan1.Init.AutoRetransmission   = ENABLE;
     hfdcan1.Init.TransmitPause        = DISABLE;
     hfdcan1.Init.ProtocolException    = DISABLE;
-    hfdcan1.Init.NominalPrescaler     = 1;
-    hfdcan1.Init.NominalSyncJumpWidth = 1;
-    hfdcan1.Init.NominalTimeSeg1      = 6;
-    hfdcan1.Init.NominalTimeSeg2      = 1;
-    hfdcan1.Init.DataPrescaler        = 1;
-    hfdcan1.Init.DataSyncJumpWidth    = 1;
-    hfdcan1.Init.DataTimeSeg1         = 1;
-    hfdcan1.Init.DataTimeSeg2         = 1;
-    hfdcan1.Init.StdFiltersNbr        = 0;
-    hfdcan1.Init.ExtFiltersNbr        = 0;
+    hfdcan1.Init.NominalPrescaler     = 6;
+    hfdcan1.Init.NominalSyncJumpWidth = 2;
+    hfdcan1.Init.NominalTimeSeg1      = 13;
+    hfdcan1.Init.NominalTimeSeg2      = 2;
+    hfdcan1.Init.DataPrescaler        = 3;
+    hfdcan1.Init.DataSyncJumpWidth    = 2;
+    hfdcan1.Init.DataTimeSeg1         = 5;
+    hfdcan1.Init.DataTimeSeg2         = 2;
+    hfdcan1.Init.StdFiltersNbr        = 1;
+    hfdcan1.Init.ExtFiltersNbr        = 1;
     hfdcan1.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
     if (HAL_FDCAN_Init(&hfdcan1) != HAL_OK)
     {
@@ -241,6 +258,23 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+/**
+ * @brief  Function implementing the defaultTask thread.
+ * @param  argument: Not used
+ * @retval None
+ */
+void rundefaultTask(void *argument)
+{
+    /* Infinite loop */
+    for (;;)
+    {
+        HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
+        osDelay(10);
+
+        HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
+        osDelay(10);
+    }
+}
 
 /* USER CODE END 4 */
 
