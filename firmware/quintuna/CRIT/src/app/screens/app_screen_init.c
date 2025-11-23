@@ -132,6 +132,7 @@ static void init_update(void)
             data_buffer[0] = SEG_PATTERN_O;
             data_buffer[1] = SEG_PATTERN_K;
             break;
+        case NUM_SHUTDOWN_NODE_CHOICES:
         default:
             // leave all segments blank
             break;

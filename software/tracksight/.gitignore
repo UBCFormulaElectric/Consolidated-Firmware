@@ -43,4 +43,10 @@ backend/mf4_logs/*
 backend/data/*
 backend/data_mf4/*
 
-.env
+*.env
+!*.template.env
+**/bin/
+/live_data/lib/
+**/include/
+**/pyvenv.cfg
+

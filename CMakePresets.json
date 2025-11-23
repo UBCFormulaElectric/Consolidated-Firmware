@@ -60,7 +60,8 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "PLATFORM": "firmware",
-        "TARGET": "test"
+        "TARGET": "test",
+        "USE_COMMIT_INFO": "MINIMAL"
       },
       "binaryDir": "build_fw_test"
     },

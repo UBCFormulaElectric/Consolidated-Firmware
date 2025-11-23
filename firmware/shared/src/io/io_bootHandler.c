@@ -26,5 +26,7 @@ void io_bootHandler_processBootRequest(const CanMsg *msg)
         }
 
         NVIC_SystemReset();
+        for (;;)
+            ;
     }
 }

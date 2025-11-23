@@ -1,0 +1,6 @@
+name: tracksight-db
+services:
+  influx:
+    extends:
+      file: common.yml
+      service: influx

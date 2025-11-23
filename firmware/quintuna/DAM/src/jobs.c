@@ -95,6 +95,8 @@ void jobs_run100Hz_tick(void)
         case TIMER_STATE_RUNNING:
             io_enable_buzzer();
             break;
+        case TIMER_STATE_IDLE:
+        case TIMER_STATE_EXPIRED:
         default:
             io_disable_buzzer();
             break;
