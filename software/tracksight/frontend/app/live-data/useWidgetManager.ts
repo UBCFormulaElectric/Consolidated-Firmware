@@ -31,7 +31,8 @@ export default function useWidgetManager() {
 							colorPalette: ["#FF637E", "#FFB86A", "#05DF72", "#51A2FF"],
 						},
 						signal: "VC_State",
-						id: crypto.randomUUID(), // this should be okay?
+						// id: crypto.randomUUID(), // this should be okay?
+						id: Math.floor(Math.random() * 1000000)
 					}
 				]);
 			}
@@ -46,7 +47,8 @@ export default function useWidgetManager() {
 	}, [widgets, isInitialized]);
 
 	const appendWidget = useCallback((newWidget: WidgetData) => {
-		newWidget.id = crypto.randomUUID();
+		// newWidget.id = crypto.randomUUID();
+		newWidget.id = Math.floor(Math.random() * 10000000)
 		setWidgets((prev) => [...prev, newWidget]);
 	}, []);
 
