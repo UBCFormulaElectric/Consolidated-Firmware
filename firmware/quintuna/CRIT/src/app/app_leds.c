@@ -67,6 +67,7 @@
                 led_value &= ~(1u << prefix##_G_BIT);                                     \
                 led_value &= ~(1u << prefix##_B_BIT);                                     \
                 break;                                                                    \
+            case BOARD_LED_STATUS_NOT_IMPLEMENTED:                                        \
             default:                                                                      \
                 break;                                                                    \
         }                                                                                 \
@@ -105,6 +106,17 @@ static BoardLEDStatus worstBoardStatus(CanNode board)
         case DAM_NODE:
             missing = app_canAlerts_CRIT_Info_MissingDAMHeartbeat_get();
             break;
+        case BOOT_NODE:
+        case CRIT_NODE:
+        case DAMLOGGER_NODE:
+        case DEBUG_NODE:
+        case ELCON_NODE:
+        case EMETER_NODE:
+        case INVFL_NODE:
+        case INVFR_NODE:
+        case INVRL_NODE:
+        case INVRR_NODE:
+        case VCR_NODE:
         default:
             missing = false;
             break;
