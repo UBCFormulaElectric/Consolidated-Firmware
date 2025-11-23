@@ -14,7 +14,9 @@ static volatile bool dma_tx_completed = true;
 
 #define OFFSET_SIZE_VALID(offset, size) (offset % HW_DEVICE_SECTOR_SIZE == 0 && size % HW_DEVICE_SECTOR_SIZE == 0)
 
-#define CHECK_SD_PRESENT() if(!hw_sd_present()) return hw::SdCardStatus::SD_CARD_ERROR;
+#define CHECK_SD_PRESENT() \
+    if (!hw_sd_present())  \
+        return hw::SdCardStatus::SD_CARD_ERROR;
 
 SdCardStatus SdCard::hw_sd_read(uint8_t *pdata, const uint32_t block_addr, const uint32_t num_blocks)
 {
@@ -25,7 +27,8 @@ SdCardStatus SdCard::hw_sd_read(uint8_t *pdata, const uint32_t block_addr, const
     return (SdCardStatus)status;
 }
 
-SdCardStatus SdCard::hw_sd_readOffset(uint8_t *pdata, const uint32_t block_addr, const uint32_t offset, const uint32_t size)
+SdCardStatus
+    SdCard::hw_sd_readOffset(uint8_t *pdata, const uint32_t block_addr, const uint32_t offset, const uint32_t size)
 {
     if (size == 0)
         return hw::SdCardStatus::SD_CARD_OK;
@@ -43,7 +46,8 @@ SdCardStatus SdCard::hw_sd_write(uint8_t *pdata, const uint32_t block_addr, cons
     return (SdCardStatus)status;
 }
 
-SdCardStatus SdCard::hw_sd_writeOffset(uint8_t *pdata, const uint32_t block_addr, const uint32_t offset, const uint32_t size)
+SdCardStatus
+    SdCard::hw_sd_writeOffset(uint8_t *pdata, const uint32_t block_addr, const uint32_t offset, const uint32_t size)
 {
     if (size == 0)
         return hw::SdCardStatus::SD_CARD_OK;
@@ -73,7 +77,8 @@ SdCardStatus SdCard::hw_sd_writeDma(uint8_t *pdata, const uint32_t block_addr, c
     return (SdCardStatus)HAL_SD_WriteBlocks_DMA(sd1.hsd, pdata, block_addr, num_blocks);
 }
 
-// Based on the hardware design: if the sd card is inserted, the gpio will be shorted to ground. Otherwise it will be pulled up
+// Based on the hardware design: if the sd card is inserted, the gpio will be shorted to ground. Otherwise it will be
+// pulled up
 bool SdCard::hw_sd_present(void)
 {
     return !hw::sd1.present_gpio->readPin();
@@ -90,36 +95,35 @@ SdCardStatus SdCard::hw_sd_abort(void)
 
 } // namespace hw
 
-
 /* HAL callbacks are not inside hw namespace */
 
-using hw::sd1;
 using hw::dma_tx_completed;
+using hw::sd1;
 
-extern "C" 
+extern "C"
 {
-void HAL_SD_TxCpltCallback(SD_HandleTypeDef *hsd)
-{
-    assert(hsd == sd1.hsd);
-    dma_tx_completed = true;
-}
+    void HAL_SD_TxCpltCallback(SD_HandleTypeDef *hsd)
+    {
+        assert(hsd == sd1.hsd);
+        dma_tx_completed = true;
+    }
 
-void HAL_SD_RxCpltCallback(SD_HandleTypeDef *hsd)
-{
-    assert(hsd == sd1.hsd);
-    dma_tx_completed = true;
-}
+    void HAL_SD_RxCpltCallback(SD_HandleTypeDef *hsd)
+    {
+        assert(hsd == sd1.hsd);
+        dma_tx_completed = true;
+    }
 
-void HAL_SD_ErrorCallback(SD_HandleTypeDef *hsd)
-{
-    assert(hsd == sd1.hsd);
-    dma_tx_completed = true;
-}
+    void HAL_SD_ErrorCallback(SD_HandleTypeDef *hsd)
+    {
+        assert(hsd == sd1.hsd);
+        dma_tx_completed = true;
+    }
 
-void HAL_SD_AbortCallback(SD_HandleTypeDef *hsd)
-{
-    assert(hsd == sd1.hsd);
-    dma_tx_completed = true;
-}
+    void HAL_SD_AbortCallback(SD_HandleTypeDef *hsd)
+    {
+        assert(hsd == sd1.hsd);
+        dma_tx_completed = true;
+    }
 
 } // extern C
