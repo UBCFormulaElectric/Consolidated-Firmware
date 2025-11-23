@@ -1,5 +1,3 @@
-#pragma once
-
 #include "app_precharge.hpp"
 #include "io_irs.hpp"
 #include "app_stateMachine.hpp"
@@ -55,7 +53,7 @@ static void prechargeDriveStateRunOnExit()
 }
 } // namespace app::states::perchargeDriveState
 
-const State precharge_drive_state = {
+const app::State precharge_drive_state = {
     .name              = "PRECHARGE DRIVE",
     .run_on_entry      = app::states::perchargeDriveState::prechargeDriveStateRunOnEntry,
     .run_on_tick_100Hz = app::states::perchargeDriveState::prechargeDriveStateRunOnTick100Hz,

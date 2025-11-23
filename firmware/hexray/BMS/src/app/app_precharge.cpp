@@ -4,12 +4,12 @@
 #include "app_precharge.hpp"
 #include "app_timer.hpp"
 #include "app_tractiveSystem.hpp"
+#include "io_irs.hpp"
+// #include "app_segments.hpp"
 
 extern "C"
 {
-#include "io_irs.h"
 #include "app_canAlerts.h"
-#include "app_segments.h"
 }
 
 namespace app::precharge
@@ -87,7 +87,7 @@ State poll(bool precharge_for_charging)
     }
 
     precharge_limit_exceeded = (num_precharge_failures >= MAX_PRECHARGE_ATTEMPTS);
-    app::canAlterts::BMS_Info_CriticalPrechargeFailure_set(precharge_limit_exceeded);
+    app::canAlerts::BMS_Info_CriticalPrechargeFailure_set(precharge_limit_exceeded);
 
     // Fault handling
     if (has_precharge_fault)

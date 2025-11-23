@@ -11,7 +11,7 @@ extern "C"
 
 #include "states/app_states.hpp"
 #include "app_precharge.hpp"
-#include "app_segments.hpp"
+// #include "app_segments.hpp"
 #include "app_commitInfo.hpp"
 #include "app_timer.hpp"
 #include "app_imd.hpp"

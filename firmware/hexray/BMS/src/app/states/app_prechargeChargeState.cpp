@@ -3,14 +3,14 @@
 #include <cassert>
 
 #include "app_states.hpp"
+#include "app_precharge.hpp"
+#include "io_irs.hpp"
+#include "io_log.hpp"
 
 extern "C"
 {
-#include "app_precharge.h"
-#include "io_irs.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
-#include "io_log.h"
 }
 
 namespace app::states::prechargeChargeState
@@ -20,25 +20,25 @@ static void runOnEntry()
 {
     app_canTx_BMS_State_set(BMS_PRECHARGE_CHARGE_STATE);
 
-    app_precharge_init();
-    app_precharge_restart();
+    app::precharge::init();
+    app::precharge::restart();
 }
 
 static void runOnTick100Hz()
 {
-    switch (app_precharge_poll(false))
+    switch (app::precharge::poll(false))
     {
-        case PRECHARGE_STATE_RUNNING:
-            io_irs_setPrecharge(CONTACTOR_STATE_OPEN);
+        case app::precharge::State::RUNNING:
+            io::irs::setPrecharge(CONTACTOR_STATE_OPEN);
             break;
 
-        case PRECHARGE_STATE_COOLDOWN:
-            io_irs_setPrecharge(CONTACTOR_STATE_CLOSED);
+        case app::precharge::State::COOLDOWN:
+            io::irs::setPrecharge(CONTACTOR_STATE_CLOSED);
             break;
 
-        case PRECHARGE_STATE_FAILED_CRITICAL:
+        case app::precharge::State::FAILED_CRITICAL:
             // Precharge failed multiple times, abort charging
-            io_irs_setPrecharge(CONTACTOR_STATE_OPEN);
+            io::irs::setPrecharge(CONTACTOR_STATE_OPEN);
 
             // Prevent unintended re-entry into charge state
             app_canRx_Debug_StartCharging_update(false);
@@ -46,14 +46,14 @@ static void runOnTick100Hz()
             app::StateMachine::set_next_state(&precharge_latch_state);
             break;
 
-        case PRECHARGE_STATE_FAILED:
-            io_irs_setPrecharge(CONTACTOR_STATE_OPEN);
+        case app::precharge::State::FAILED:
+            io::irs::setPrecharge(CONTACTOR_STATE_OPEN);
             LOG_ERROR("Precharge failed, retrying");
             break;
 
-        case PRECHARGE_STATE_SUCCESS:
+        case app::precharge::State::SUCCESS:
             // Precharge succeeded → close AIR+ and move to charge init
-            io_irs_setPositive(CONTACTOR_STATE_CLOSED);
+            io::irs::setPositive(CONTACTOR_STATE_CLOSED);
             app::StateMachine::set_next_state(&charge_init_state);
             break;
 
@@ -68,12 +68,12 @@ static void runOnTick100Hz()
 
 static void runOnExit()
 {
-    io_irs_setPrecharge(CONTACTOR_STATE_OPEN);
+    io::irs::setPrecharge(CONTACTOR_STATE_OPEN);
 }
 
 } // namespace app::states::prechargeChargeState
 
-const State precharge_charge_state = {
+const app::State precharge_charge_state = {
     .name              = "PRECHARGE CHARGE",
     .run_on_entry      = app::states::prechargeChargeState::runOnEntry,
     .run_on_tick_100Hz = app::states::prechargeChargeState::runOnTick100Hz,

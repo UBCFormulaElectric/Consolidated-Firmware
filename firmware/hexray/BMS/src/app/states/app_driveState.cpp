@@ -24,7 +24,7 @@ static void driveStateRunOnExit()
 
 } // namespace app::states::driveState
 
-const State drive_state = {
+const app::State drive_state = {
     .name              = "DRIVE",
     .run_on_entry      = app::states::driveState::driveStateRunOnEntry,
     .run_on_tick_100Hz = app::states::driveState::driveStateRunOnTick100Hz,

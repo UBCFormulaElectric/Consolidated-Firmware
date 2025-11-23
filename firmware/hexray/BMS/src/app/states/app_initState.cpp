@@ -1,16 +1,15 @@
 #include <cstddef>
 
 #include "app_states.hpp"
+#include "app_tractiveSystem.hpp"
+#include "io_irs.hpp"
+#include "io_charger.hpp"
 
 extern "C"
 {
 #include "app_canRx.h"
 #include "app_canTx.h"
-#include "app_tractiveSystem.h"
 #include "app_canUtils.h"
-#include "app_soc.h"
-#include "io_charger.h"
-#include "io_irs.h"
 }
 
 namespace app::states::initState
@@ -25,13 +24,13 @@ void RunOnEntry()
     // AIR+ opens upon entering init state.
     // Should always be opened at this point from other states; this is only for redundancy
     // since we really don't want AIR+ closed in init.
-    io_irs_setPositive(CONTACTOR_STATE_OPEN);
+    io::irs::setPositive(CONTACTOR_STATE_OPEN);
 }
 
 void RunOnTick100Hz()
 {
-    const bool irs_negative_closed = (io_irs_negativeState() == CONTACTOR_STATE_CLOSED);
-    const bool ts_discharged       = (app_tractiveSystem_getVoltage() < TS_DISCHARGED_THRESHOLD_V);
+    const bool irs_negative_closed = (io::irs::negativeState() == CONTACTOR_STATE_CLOSED);
+    const bool ts_discharged       = (app::ts::getVoltage() < TS_DISCHARGED_THRESHOLD_V);
 
     // ONLY RUN THIS WHEN CELLS HAVE HAD TIME TO SETTLE
     // if (app_canRx_Debug_ResetSoc_MinCellV_get())
@@ -71,7 +70,7 @@ void RunOnTick100Hz()
 
 } // namespace app::states::initState
 
-const State init_state = {
+const app::State init_state = {
     .name              = "INIT",
     .run_on_entry      = app::states::initState::RunOnEntry,
     .run_on_tick_100Hz = app::states::initState::RunOnTick100Hz,

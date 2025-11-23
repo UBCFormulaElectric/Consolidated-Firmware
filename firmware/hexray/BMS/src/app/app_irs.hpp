@@ -6,5 +6,5 @@ namespace app::irs
 /**
  * Broadcast IRs status over CAN.
  */
-void broadcast() {}
+void broadcast();
 } // namespace app::irs

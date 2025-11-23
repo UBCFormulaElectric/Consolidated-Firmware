@@ -1,3 +1,3 @@
 #pragma once
 
-#include "app_thermistor.hpp"
+// #include "app_thermistor.hpp"

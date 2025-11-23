@@ -32,7 +32,7 @@ static void balancingStateRunOnExit()
 }
 } // namespace app::balancingState
 
-const State balancing_state = {
+const app::State balancing_state = {
     .name              = "BALANCING",
     .run_on_entry      = app::balancingState::balancingStateRunOnEntry,
     .run_on_tick_100Hz = app::balancingState::balancingStateRunOnTick100Hz,

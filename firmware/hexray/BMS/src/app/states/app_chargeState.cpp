@@ -2,16 +2,16 @@
 #include <cstdint>
 
 #include "app_states.hpp"
+#include "app_timer.hpp"
+#include "io_irs.hpp"
+#include "io_charger.hpp"
+// #include "app_segments.hpp"
 
 extern "C"
 {
 #include "app_canUtils.h"
-#include "app_timer.h"
-#include "io_irs.h"
-#include "io_charger.h"
 #include "app_canRx.h"
 #include "app_canTx.h"
-#include "app_segments.h"
 }
 
 // Charger/pack constants
@@ -247,7 +247,7 @@ static void runOnTick100Hz() {}
 static void runOnExit() {}
 } // namespace app::states::chargeInitState
 
-const State charge_init_state = {
+const app::State charge_init_state = {
     .name              = "CHARGE INIT",
     .run_on_entry      = app::states::chargeInitState::runOnEntry,
     .run_on_tick_100Hz = app::states::chargeInitState::runOnTick100Hz,
