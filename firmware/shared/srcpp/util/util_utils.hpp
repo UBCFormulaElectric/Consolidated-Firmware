@@ -37,6 +37,9 @@
 #if defined(_WIN32)
 #include <windows.h>
 #include <intrin.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #define IS_DEBUGGER_PRESENT() (IsDebuggerPresent() != 0)
 #define DEBUG_BREAK() __debugbreak()
 #elif defined(__APPLE__) || defined(__linux__)
