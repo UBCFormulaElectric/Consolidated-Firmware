@@ -1,6 +1,7 @@
 #include <cassert>
 #include <cstdint>
 #include "hw_i2c.hpp"
+#include "io_log.hpp"
 
 #define NUM_DEVICE_READY_TRIALS 5
 

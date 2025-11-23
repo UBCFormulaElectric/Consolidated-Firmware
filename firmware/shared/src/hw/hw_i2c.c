@@ -1,7 +1,7 @@
 #include "hw_i2c.h"
 #include "app_utils.h"
 #include "hw_utils.h"
-#include ""
+#include "io_log.h"
 
 /* NOTE: Task notifications are used in this driver, since according to FreeRTOS docs they are a faster alternative to
  * binary semaphores.

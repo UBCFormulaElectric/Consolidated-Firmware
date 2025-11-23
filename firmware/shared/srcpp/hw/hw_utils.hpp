@@ -11,7 +11,7 @@
     {                                                     \
         __asm__ __volatile__("bkpt #0");                  \
     }
-
+//SWITCHED INLINE TO STATIC BUT MIGHT NEED TO CHANGE BACK
 static ExitCode hw_utils_convertHalStatus(const HAL_StatusTypeDef status)
 {
     switch (status)
