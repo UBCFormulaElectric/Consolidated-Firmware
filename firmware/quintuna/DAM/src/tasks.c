@@ -63,19 +63,21 @@ void tasks_preInitWatchdog(void)
 static void test_sd_card(void)
 {
     /* =================== SD Card Write Test  - Writing raw bytes =================== */
-    uint32_t num_repetitions = 50;
+    const uint32_t num_repetitions = 50;
 #define NUM_BLOCKS (64)
     static uint8_t dummyData[NUM_BLOCKS * 512] = { 0 }; // 10 blocks of 512 bytes each
-    uint32_t       start                       = io_time_getCurrentMs();
+    const uint32_t start                       = io_time_getCurrentMs();
     for (uint32_t i = 0; i < num_repetitions; i++)
     {
-        SdCardStatus sdWriteStatus = hw_sd_write(dummyData, i * NUM_BLOCKS, NUM_BLOCKS);
+        const SdCardStatus sdWriteStatus = hw_sd_write(dummyData, i * NUM_BLOCKS, NUM_BLOCKS);
         assert(sdWriteStatus == SD_CARD_OK);
         osDelay(2);
     }
-    uint32_t end           = io_time_getCurrentMs();
-    uint32_t elapsedTimeMs = end - start - 2 * num_repetitions;
-    LOG_INFO("Elapsed time: %d milliseconds\n", elapsedTimeMs);
+    const uint32_t end           = io_time_getCurrentMs();
+    const uint32_t elapsedTimeMs = end - start - 2 * num_repetitions;
+    const uint32_t bytes_written = num_repetitions * NUM_BLOCKS * 512;
+    const double   bytes_per_ms  = bytes_written * 1.0 / (elapsedTimeMs * 1.0);
+    LOG_INFO("Wrote %d bytes in %d ms (%.2f KB/s)\n", bytes_written, elapsedTimeMs, bytes_per_ms);
 
     /* =================== SD Card Write Tests - Writing using logfs =================== */
 
