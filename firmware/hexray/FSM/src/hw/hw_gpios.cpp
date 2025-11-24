@@ -1,7 +1,6 @@
 #include "hw_gpios.hpp"
 #include "main.h"
 
-
 const Gpio bots_3v3         = { .port = BOTS_3V3_GPIO_Port, .pin = BOTS_3V3_Pin };
 const Gpio cockpit_shdn_3v3 = { .port = COCKPIT_SHDN_3V3_GPIO_Port, .pin = COCKPIT_SHDN_3V3_Pin };
 const Gpio imu_int1         = { .port = IMU_INT1_GPIO_Port, .pin = IMU_INT1_Pin };
