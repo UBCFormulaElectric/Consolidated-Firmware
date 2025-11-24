@@ -7,8 +7,9 @@
 #define ADC_VOLTAGE_TO_CURRENT_A 1.720f
 
 typedef struct __Efuse          Efuse;
-typedef struct __ST_Efuse       ST_Efuse;
-typedef struct __TI_Efuse       TI_Efuse;
+typedef struct __ST_VND5_Efuse  ST_VND5_Efuse;
+typedef struct __TI_TPS25_Efuse TI_TPS25_Efuse;
+typedef struct __TI_TPS28_Efuse TI_TPS28_Efuse;
 typedef struct __EfuseFunctions EfuseFunctions;
 
 struct __EfuseFunctions
@@ -28,8 +29,9 @@ struct __Efuse
     const AdcChannel *sns_adc_channel;
     union
     {
-        ST_Efuse *st;
-        TI_Efuse *ti;
+        ST_VND5_Efuse  *st_vnd5;
+        TI_TPS25_Efuse *ti_tps25;
+        TI_TPS28_Efuse *ti_tps28;
     };
 
     const EfuseFunctions *efuse_functions;
