@@ -1,4 +1,7 @@
-#include "SEGGER_SYSVIEW.h"
+extern "C" {
+    #include "SEGGER_SYSVIEW.h"
+}
+
 
 void hw_sysviewConfig_sendSystemDesc(void)
 {

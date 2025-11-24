@@ -34,6 +34,9 @@
     "thread": "cpp",
     "vector": "cpp",
     "app_imu.h": "c",
-    "io_imu_config.h": "c"
+    "io_imu_config.h": "c",
+    "hw_hal.h": "c",
+    "hw_i2cs.h": "c",
+    "hw_i2c.h": "c"
   }
 }

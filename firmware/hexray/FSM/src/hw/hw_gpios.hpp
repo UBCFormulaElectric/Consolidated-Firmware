@@ -1,5 +1,7 @@
 #pragma once
+extern "C" {  
 #include "hw_gpio.h"
+}
 
 extern const Gpio bots_3v3;
 extern const Gpio cockpit_shdn_3v3;

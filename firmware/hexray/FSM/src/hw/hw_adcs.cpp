@@ -1,5 +1,8 @@
-#include "hw_adcs.h"
-#include "main.h"
+extern "C" {
+    #include "hw_adcs.h"
+    #include "main.h"
+}
+
 
 static uint16_t adc1_raw_adc_values[6];
 static float    adc1_adc_voltages[6];
