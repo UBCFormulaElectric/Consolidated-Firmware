@@ -1,7 +1,5 @@
 #include "hw_gpios.hpp"
-extern "C" {
-    #include "main.h"
-}
+#include "main.h"
 
 
 const Gpio bots_3v3         = { .port = BOTS_3V3_GPIO_Port, .pin = BOTS_3V3_Pin };

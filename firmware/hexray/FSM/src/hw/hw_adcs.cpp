@@ -1,7 +1,5 @@
-extern "C" {
-    #include "hw_adcs.h"
-    #include "main.h"
-}
+#include "hw_adcs.h"
+#include "main.h"
 
 
 static uint16_t adc1_raw_adc_values[6];

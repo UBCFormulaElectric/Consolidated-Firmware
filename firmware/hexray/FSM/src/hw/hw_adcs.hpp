@@ -1,7 +1,5 @@
 #pragma once
-extern "C" {
-    #include "hw_adc.h"
-}
+#include "hw_adc.h"
 
 // In STM32 terminology, each ADC pin corresponds to an ADC channel (See:
 // ADCEx_channels). If there are multiple ADC channels being measured, the ADC

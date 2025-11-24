@@ -1,10 +1,7 @@
 #include "hw_cans.hpp"
-#include "tasks.hpp"
-
-extern "C" {
-    #include "main.h"
-    #include <assert.h>
-}
+#include "tasks.h"
+#include "main.h"
+#include <assert.h>
 
 
 CanHandle can = { .hcan = &hcan2, .bus_num = 0, .receive_callback = tasks_runCanRxCallback };

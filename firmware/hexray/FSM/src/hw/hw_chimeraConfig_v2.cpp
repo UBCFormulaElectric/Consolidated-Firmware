@@ -1,7 +1,5 @@
-extern "C" {
-    #include "fsm.pb.h"
-    #include "shared.pb.h"
-}
+#include "fsm.pb.h"
+#include "shared.pb.h"
 
 #include "hw_chimeraConfig_v2.hpp"
 #include "hw_gpios.hpp"

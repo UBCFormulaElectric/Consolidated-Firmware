@@ -1,7 +1,5 @@
 #include "hw_i2cs.hpp"
-extern "C" {
-    #include <assert.h>
-}
+#include <assert.h>
 
 I2C_HandleTypeDef hi2c1; // Should be in main.c????? just to make the code compile for now
 I2cBus            i2c_bus_1 = { .handle = &hi2c1 };
