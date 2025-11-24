@@ -7,9 +7,9 @@
 
 typedef struct __EfuseFunctions EfuseFunctions;
 
-typedef struct __TI_Efuse
+typedef struct __TI_TPS25_Efuse
 {
     const Gpio *pgood;
-} TI_Efuse;
+} TI_TPS25_Efuse;
 
-extern const EfuseFunctions ti_efuse_functions;
+extern const EfuseFunctions TI_TPS25_Efuse_functions;

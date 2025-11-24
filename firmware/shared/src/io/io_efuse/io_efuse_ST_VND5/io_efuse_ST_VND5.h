@@ -7,7 +7,7 @@
 
 typedef struct __EfuseFunctions EfuseFunctions;
 
-typedef struct __ST_Efuse
+typedef struct __ST_VND5_Efuse
 {
     const Gpio *stby_reset_gpio;
 
@@ -26,6 +26,6 @@ typedef struct __ST_Efuse
         } flags;
         uint8_t raw;
     } faults;
-} ST_Efuse;
+} ST_VND5_Efuse;
 
-extern const EfuseFunctions st_efuse_functions;
+extern const EfuseFunctions ST_VND5_Efuse_functions;
