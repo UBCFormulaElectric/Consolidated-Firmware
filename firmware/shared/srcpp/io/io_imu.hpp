@@ -1,7 +1,6 @@
 #pragma once
 
-#include "hw_spi.h"
-#include "hw_spis.h"
+#include "hw_spi.hpp"
 
 #include "util_errorCodes.hpp"
 
