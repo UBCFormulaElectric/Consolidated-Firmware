@@ -1,4 +1,4 @@
-#pragma once
-#include "hw_can.h"
+// #pragma once
+// #include "hw_can.h"
 
-extern CanHandle can;
+// extern CanHandle can;
