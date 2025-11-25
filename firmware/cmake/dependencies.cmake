@@ -56,7 +56,7 @@ IF ("${TARGET}" STREQUAL "binary")
             DOWNLOAD_ONLY TRUE
     )
 
-    # SBG Systems library: Contains the SBG Systems API for interfacing with the Inertial Measurement Unit (IMU).
+    # SBG Systems library: Contains the SBG Systems API for interfacing with the SBG Ellipse GPS/GNSS.
     CPMAddPackage(
             NAME SBG_ECOM
             GITHUB_REPOSITORY SBG-Systems/sbgECom
@@ -64,6 +64,16 @@ IF ("${TARGET}" STREQUAL "binary")
             GIT_SHALLOW TRUE
             DOWNLOAD_ONLY TRUE
     )
+
+    # CMSIS-DSP library: Contains an API for ARM optimized math functions.
+    CPMAddPackage(
+            NAME CMSIS_DSP
+            GITHUB_REPOSITORY ARM-software/CMSIS-DSP
+            GIT_TAG 2977b92b3051eceb6d5484bf76501dbd34114588
+            GIT_SHALLOW TRUE
+            DOWNLOAD_ONLY TRUE
+    )
+
 ELSEIF ("${TARGET}" STREQUAL "test")
     # Fetch GoogleTest for unit testing.
     CPMAddPackage(
