@@ -19,6 +19,7 @@
 #include "hw_hardFaultHandler.h"
 #include "hw_cans.h"
 #include "hw_adcs.h"
+#include "hw_runTimeStat.h"
 
 // chimera
 #include "hw_chimeraConfig_v2.h"
@@ -78,6 +79,11 @@ void tasks_init(void)
         hw_bootup_setBootRequest(boot_request);
     }
 
+    CpuRunTimeStats cpu_info = { .cpu_usage_max_setter = app_canTx_VC_CoreCpuUsage_set,
+                                 .cpu_usage_setter     = app_canTx_VC_CoreCpuUsageMax_set };
+
+    hw_runtimeStat_registerCpu(&cpu_info);
+
     jobs_init();
 
     io_canTx_VC_Bootup_sendAperiodic();
@@ -94,6 +100,13 @@ _Noreturn void tasks_run1Hz(void)
     const uint32_t  watchdog_grace_period_ms = 50U;
     WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
 
+    TaskRuntimeStats task_run1Hz = { .task_index             = TASK_RUN1HZ,
+                                     .stack_size             = 512,
+                                     .cpu_usage_max_setter   = app_canTx_VC_TaskRun1HzCpuUsageMax_set,
+                                     .cpu_usage_setter       = app_canTx_VC_TaskRun1HzCpuUsage_set,
+                                     .stack_usage_max_setter = app_canTx_VC_TaskRun1HzStackUsage_set };
+    
+    hw_runTimeStat_registerTask(&task_run1Hz);
     uint32_t start_ticks = osKernelGetTickCount();
 
     for (;;)
@@ -117,6 +130,12 @@ _Noreturn void tasks_run100Hz(void)
     const uint32_t  watchdog_grace_period_ms = 2U;
     WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
 
+    TaskRuntimeStats task_run100Hz = { .task_index             = TASK_RUN100HZ,
+                                       .stack_size             = 512,
+                                       .cpu_usage_max_setter   = app_canTx_VC_TaskRun100HzCpuUsageMax_set,
+                                       .cpu_usage_setter       = app_canTx_VC_TaskRun100HzCpuUsage_set,
+                                       .stack_usage_max_setter = app_canTx_VC_TaskRun100HzStackUsage_set };
+    hw_runTimeStat_registerTask(&task_run100Hz);
     uint32_t start_ticks = osKernelGetTickCount();
 
     for (;;)
@@ -140,7 +159,14 @@ _Noreturn void tasks_run1kHz(void)
     const uint32_t  watchdog_grace_period_ms = 1U;
     WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
 
-    uint32_t start_ticks = osKernelGetTickCount();
+    TaskRuntimeStats task_run1kHz = { .task_index             = TASK_RUN1KHZ,
+                                      .stack_size             = 512,
+                                      .cpu_usage_max_setter   = app_canTx_VC_TaskRun1kHzCpuUsageMax_set,
+                                      .cpu_usage_setter       = app_canTx_VC_TaskRun1kHzCpuUsage_set,
+                                      .stack_usage_max_setter = app_canTx_VC_TaskRun1kHzStackUsage_set };
+
+    hw_runTimeStat_registerTask(&task_run1kHz);
+    uint32_t         start_ticks  = osKernelGetTickCount();
 
     for (;;)
     {
@@ -161,6 +187,14 @@ _Noreturn void tasks_run1kHz(void)
 
 _Noreturn void tasks_runCan1Tx(void)
 {
+    TaskRuntimeStats task_runcantx1 = { .task_index             = TASK_RUNCAN1TX,
+                                        .stack_size             = 512,
+                                        .cpu_usage_max_setter   = app_canTx_VC_TaskRunCanTx1CpuUsageMax_set,
+                                        .cpu_usage_setter       = app_canTx_VC_TaskRunCanTx1CpuUsage_set,
+                                        .stack_usage_max_setter = app_canTx_VC_TaskRunCanTx1StackUsage_set };
+
+    hw_runTimeStat_registerTask(&task_runcantx1);
+
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx(&can1_tx_queue);
@@ -170,6 +204,14 @@ _Noreturn void tasks_runCan1Tx(void)
 
 _Noreturn void tasks_runCan2Tx(void)
 {
+    TaskRuntimeStats task_runcantx2 = { .task_index             = TASK_RUNCAN2TX,
+                                        .stack_size             = 512,
+                                        .cpu_usage_max_setter   = app_canTx_VC_TaskRunCanTx2CpuUsageMax_set,
+                                        .cpu_usage_setter       = app_canTx_VC_TaskRunCanTx2CpuUsage_set,
+                                        .stack_usage_max_setter = app_canTx_VC_TaskRunCanTx2StackUsage_set };
+
+    hw_runTimeStat_registerTask(&task_runcantx2);
+
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx(&can2_tx_queue);
@@ -179,6 +221,14 @@ _Noreturn void tasks_runCan2Tx(void)
 
 _Noreturn void tasks_runCan3Tx(void)
 {
+    TaskRuntimeStats task_runcantx3 = { .task_index             = TASK_RUNCAN3TX,
+                                        .stack_size             = 512,
+                                        .cpu_usage_max_setter   = app_canTx_VC_TaskRunCanTx3CpuUsageMax_set,
+                                        .cpu_usage_setter       = app_canTx_VC_TaskRunCanTx3CpuUsage_set,
+                                        .stack_usage_max_setter = app_canTx_VC_TaskRunCanTx3StackUsage_set };
+
+    hw_runTimeStat_registerTask(&task_runcantx3);
+
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx(&can3_tx_queue);
@@ -188,6 +238,13 @@ _Noreturn void tasks_runCan3Tx(void)
 
 _Noreturn void tasks_runCanRx(void)
 {
+    TaskRuntimeStats task_runcanrx = { .task_index             = TASK_RUNCANRX,
+                                       .stack_size             = 512,
+                                       .cpu_usage_max_setter   = app_canTx_VC_TaskRunCanRxCpuUsageMax_set,
+                                       .cpu_usage_setter       = app_canTx_VC_TaskRunCanRxCpuUsage_set,
+                                       .stack_usage_max_setter = app_canTx_VC_TaskRunCanRxStackUsage_set };
+    hw_runTimeStat_registerTask(&task_runcanrx);
+
     for (;;)
     {
         const CanMsg rx_msg       = io_canQueue_popRx();
@@ -198,6 +255,15 @@ _Noreturn void tasks_runCanRx(void)
 
 _Noreturn void tasks_batteryMonitoring(void)
 {
+    TaskRuntimeStats task_runbatterymonitor = { .task_index = TASK_BATTERYMONITORING,
+                                                .stack_size = 512,
+                                                .cpu_usage_max_setter =
+                                                    app_canTx_VC_TaskRunBatteryMonitorCpuUsageMax_set,
+                                                .cpu_usage_setter = app_canTx_VC_TaskRunBatteryMonitorCpuUsage_set,
+                                                .stack_usage_max_setter =
+                                                    app_canTx_VC_TaskRunBatteryMonitorStackUsage_set };
+    hw_runTimeStat_registerTask(&task_runbatterymonitor);
+
     osDelay(osWaitForever);
     for (;;)
     {
@@ -209,7 +275,16 @@ _Noreturn void tasks_powerMonitoring(void)
 {
     static const TickType_t period_ms   = 10;
     static uint32_t         start_ticks = 0;
-    start_ticks                         = osKernelGetTickCount();
+
+    TaskRuntimeStats task_runpowermonitor = { .task_index           = TASK_POWERMONITORING,
+                                              .stack_size           = 512,
+                                              .cpu_usage_max_setter = app_canTx_VC_TaskRunPowerMonitorCpuUsageMax_set,
+                                              .cpu_usage_setter     = app_canTx_VC_TaskRunPowerMonitorCpuUsage_set,
+                                              .stack_usage_max_setter =
+                                                  app_canTx_VC_TaskRunPowerMonitorStackUsage_set };
+    hw_runTimeStat_registerTask(&task_runpowermonitor);
+
+    start_ticks                           = osKernelGetTickCount();
 
     for (;;)
     {
