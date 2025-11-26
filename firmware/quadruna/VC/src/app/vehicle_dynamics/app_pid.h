@@ -1,8 +1,7 @@
 #pragma once
 
 typedef struct
-{   
-    //Gains and Coefficients
+{
     float Kp;
     float Ki;
     float Kd;

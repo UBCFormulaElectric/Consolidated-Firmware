@@ -1,4 +1,5 @@
 #include "app_pid.hpp"
+#include <stdexcept>
 #include <assert.h>
 
 namespace app
@@ -99,4 +100,4 @@ float PID::getDerivative()
     return derivative;
 }
 
-} 
+}

@@ -46,6 +46,7 @@ void app_pid_init(PID *pid, const PID_Config *conf)
  */
 float app_pid_compute(PID *pid, const float setpoint, const float input, float disturbance)
 {
+
     pid->error = setpoint - input;
 
     pid->integral += pid->error * pid->sample_time;
@@ -85,6 +86,7 @@ float app_pid_compute(PID *pid, const float setpoint, const float input, float d
     pid->prev_derivative  = derivative;
 
     return output;
+
 }
 
 void app_pid_requestReset(PID *pid)

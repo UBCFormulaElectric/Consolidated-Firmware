@@ -1,6 +1,5 @@
 #include "app_pid.h"
 #include "app_utils.h"
-#include <assert.h>
 
 void app_pid_init(PID *pid, const PID_Config *conf)
 {
@@ -18,10 +17,9 @@ void app_pid_init(PID *pid, const PID_Config *conf)
  * @param pid data store
  * @param setpoint setpoint
  * @param input also "measurement"/"process variable"
- * @param disturbance feedforward/"disturbance" variable
  * @return controller output/"effort"
  */
-float app_pid_compute(PID *pid, const float setpoint, const float input, float disturbance)
+float app_pid_compute(PID *pid, const float setpoint, const float input)
 {
     pid->error = setpoint - input;
     pid->integral += pid->error;
@@ -35,5 +33,6 @@ float app_pid_compute(PID *pid, const float setpoint, const float input, float d
 
 void app_pid_requestReset(PID *pid)
 {
+    pid->prev_input = 0.0f;
     pid->integral   = 0.0f;
 }

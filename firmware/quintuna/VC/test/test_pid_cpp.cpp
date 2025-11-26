@@ -25,7 +25,7 @@ class PIDFixture : public ::testing::Test
         cfg.clamp_integral   = false;
         cfg.back_calculation = false;
         cfg.feed_forward     = false;
-        cfg.sample_time      = 1; // discrete step unit
+        cfg.sample_time      = 1.0f; // discrete step unit
     }
     app::PID::Config cfg;
 };
@@ -44,15 +44,16 @@ TEST_F(PIDFixture, zero_error_zero_output)
 TEST_F(PIDFixture, one_time_step_classic)
 {
     cfg.Kp              = 0.5f;
-    cfg.Ki              = 0.1f;
-    cfg.Kd              = 0.1f;
+    cfg.Ki              = 0.0025f;
+    cfg.Kd              = 25.0f;
+    cfg.sample_time     = 100.0f; 
     cfg.smoothing_coeff = 1.0f;
     PID pid(cfg);
 
-    float setpoint = 3.0f;
+    float setpoint = 2.0f;
     float input    = 1.0f;
     float out      = pid.compute(setpoint, input, 0.0f);
-    EXPECT_NEAR(out, 1.4, 1e-6f);
+    EXPECT_NEAR(out, 1.0, 1e-6f);
 }
 
 TEST_F(PIDFixture, clamped_output_stability)
@@ -115,8 +116,8 @@ TEST_F(PIDFixture, back_calculation_antiwindup_test)
     cfg.smoothing_coeff  = 0.0;
     cfg.out_max          = 10.0f;
     cfg.out_min          = -10.0f;
-    cfg.max_integral     = 7.0f;
-    cfg.min_integral     = -7.0f;
+    cfg.max_integral     = 14.0f;
+    cfg.min_integral     = -14.0f;
     cfg.clamp_output     = true;
     cfg.clamp_integral   = false;
     cfg.back_calculation = true;
