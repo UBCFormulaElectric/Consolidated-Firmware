@@ -86,6 +86,7 @@ float app_pid_compute(PID *pid, const float setpoint, const float input, float d
     pid->prev_derivative  = derivative;
 
     return output;
+
 }
 
 void app_pid_requestReset(PID *pid)
