@@ -1,6 +1,8 @@
 #include "app_imd.hpp"
+#include "io_imd.hpp"
 #include <cassert>
 #include <cmath>
+#include <algorithm>
 
 extern "C"
 {
@@ -42,15 +44,16 @@ static float getIdealPwmFrequency(const ImdConditionName condition_name)
 static ImdConditionName estimateConditionName(const float frequency)
 {
     ImdConditionName condition_name = IMD_CONDITION_INVALID;
-    for (ImdConditionName i = 0U; i < NUM_OF_IMD_CONDITIONS; i++)
+    for (int i = 0; i < NUM_OF_IMD_CONDITIONS; i++)
     {
-        const float ideal       = getIdealPwmFrequency(i);
-        const float lower_bound = fmax(0.0f, ideal - IMD_FREQUENCY_TOLERANCE);
+        ImdConditionName condition = static_cast<ImdConditionName>(i);
+        const float ideal       = getIdealPwmFrequency(condition);
+        const float lower_bound = fmaxf(0.0f, ideal - IMD_FREQUENCY_TOLERANCE);
         const float upper_bound = ideal + IMD_FREQUENCY_TOLERANCE;
 
         if (frequency >= lower_bound && frequency <= upper_bound)
         {
-            condition_name = i;
+            condition_name = condition;
             break;
         }
     }
@@ -88,8 +91,8 @@ ImdCondition getCondition()
                 }
                 else
                 {
-                    const uint16_t resistance = (uint16_t)(1080.0f / (pwm_duty_cycle / 100.0f - 0.05f) - 1200.0f);
-                    condition.payload.insulation_measurement_dcp_kohms = MIN(resistance, 50000);
+                    const uint16_t resistance = static_cast<uint16_t>((1080.0f / (pwm_duty_cycle / 100.0f - 0.05f)) - 1200.0f);
+                    condition.payload.insulation_measurement_dcp_kohms = std::min(resistance, static_cast<uint16_t>(50000));              
                 }
             }
         }
@@ -121,6 +124,7 @@ ImdCondition getCondition()
         }
         break;
         case IMD_CONDITION_INVALID:
+        case NUM_IMD_CONDITION_NAME_CHOICES:
         default:
         {
             condition.valid_duty_cycle = false;
@@ -166,7 +170,7 @@ void broadcast()
         break;
         case IMD_CONDITION_SST:
         {
-            app_canTx_BMS_ImdSpeedStartStatus30Hz_set(condition.payload.speed_start_status);
+            app_canTx_BMS_ImdSpeedStartStatus30Hz_set((float)condition.payload.speed_start_status);
             app_canTx_BMS_ImdActiveFrequency_set(IMD_30Hz);
         }
         break;
@@ -181,6 +185,7 @@ void broadcast()
         }
         break;
         case IMD_CONDITION_INVALID:
+        case NUM_IMD_CONDITION_NAME_CHOICES:
         default:
         {
             // Do nothing
