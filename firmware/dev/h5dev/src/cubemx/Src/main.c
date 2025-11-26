@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "cmsis_os2.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -48,27 +49,16 @@
 FDCAN_HandleTypeDef hfdcan1;
 
 /* USER CODE BEGIN PV */
-/* Definitions for defaultTask */
-osThreadId_t         defaultTaskHandle;
-__attribute__((aligned(8))) uint32_t defaultTaskBuffer[512];
-__attribute__((aligned(8))) StaticTask_t defaultTaskControlBlock;
-const osThreadAttr_t defaultTask_attributes = {
-    .name       = "defaultTask",
-    .cb_mem     = &defaultTaskControlBlock,
-    .cb_size    = sizeof(defaultTaskControlBlock),
-    .stack_mem  = &defaultTaskBuffer[0],
-    .stack_size = sizeof(defaultTaskBuffer),
-    .priority   = (osPriority_t)osPriorityAboveNormal,
-};
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
+void        MX_FREERTOS_Init(void);
 static void MX_GPIO_Init(void);
 static void MX_FDCAN1_Init(void);
 /* USER CODE BEGIN PFP */
-/* -------------------- TASK DECLARATIONS ------------------------ */
-void rundefaultTask(void *argument);
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -105,23 +95,25 @@ int main(void)
     MX_GPIO_Init();
     MX_FDCAN1_Init();
     /* USER CODE BEGIN 2 */
-    tasks_init();
+    // tasks_init();
+    /* USER CODE END 2 */
 
     /* Init scheduler */
     osKernelInitialize();
-
-    /* creation of defaultTask */
-    defaultTaskHandle = osThreadNew(rundefaultTask, NULL, &defaultTask_attributes);
+    /* Call init function for freertos objects (in app_freertos.c) */
+    MX_FREERTOS_Init();
 
     /* Start scheduler */
     osKernelStart();
-    /* USER CODE END 2 */
+
+    /* We should never get here as control is now taken by the scheduler */
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
     while (1)
     {
         /* USER CODE END WHILE */
+
         /* USER CODE BEGIN 3 */
     }
     /* USER CODE END 3 */
@@ -258,23 +250,6 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-/**
- * @brief  Function implementing the defaultTask thread.
- * @param  argument: Not used
- * @retval None
- */
-void rundefaultTask(void *argument)
-{
-    /* Infinite loop */
-    for (;;)
-    {
-        HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
-        osDelay(10);
-
-        HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
-        osDelay(10);
-    }
-}
 
 /* USER CODE END 4 */
 

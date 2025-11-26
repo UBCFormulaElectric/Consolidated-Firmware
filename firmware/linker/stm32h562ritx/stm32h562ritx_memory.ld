@@ -1,7 +1,7 @@
 MEMORY
 {
   rtcram (xrw) : ORIGIN = 0x20000000,   LENGTH = 128K
-  ram (xrw) : ORIGIN = 0x20020000,   LENGTH = 0x7FFF0
+  ram (xrw) : ORIGIN = 0x20020000,   LENGTH = 0x7FFE0
   boot_request_ram (xrw) : ORIGIN = 0x2009FFF0, LENGTH = 0x10
   boot_code (rx) : ORIGIN = 0x8000000,    LENGTH = 128K
   app_metadata (rx) : ORIGIN = 0x8020000, LENGTH = 1K

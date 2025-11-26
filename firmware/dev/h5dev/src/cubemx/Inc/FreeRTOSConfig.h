@@ -28,8 +28,8 @@
  */
 /* USER CODE END Header */
 
-#ifndef FREERTOS_CONFIG_H
-#define FREERTOS_CONFIG_H
+#ifndef __FREERTOS_CONFIG_H
+#define __FREERTOS_CONFIG_H
 
 /*-----------------------------------------------------------
  * Application specific definitions.
@@ -48,7 +48,7 @@
 /* USER CODE END Includes */
 
 /* Ensure definitions are only used by the compiler, and not by the assembler. */
-#if defined(__ICCARM__) || defined(__CC_ARM) || defined(__GNUC__)
+#if defined(__ICCARM__) || defined(__ARMCC_VERSION) || defined(__GNUC__)
 #include <stdint.h>
 extern uint32_t SystemCoreClock;
 #endif
@@ -56,9 +56,11 @@ extern uint32_t SystemCoreClock;
 #define CMSIS_device_header "stm32h5xx.h"
 #endif /* CMSIS_device_header */
 
+/*-------------------- STM32H5 specific defines -------------------*/
+#define configENABLE_TRUSTZONE 0
+#define configRUN_FREERTOS_SECURE_ONLY 0
 #define configENABLE_FPU 0
 #define configENABLE_MPU 0
-
 #define configUSE_PREEMPTION 1
 #define configSUPPORT_STATIC_ALLOCATION 1
 #define configSUPPORT_DYNAMIC_ALLOCATION 1
@@ -68,7 +70,8 @@ extern uint32_t SystemCoreClock;
 #define configTICK_RATE_HZ ((TickType_t)1000)
 #define configMAX_PRIORITIES (56)
 #define configMINIMAL_STACK_SIZE ((uint16_t)128)
-#define configTOTAL_HEAP_SIZE ((size_t)15360)
+#define configTOTAL_HEAP_SIZE ((size_t)8192)
+#define configSTACK_ALLOCATION_FROM_SEPARATE_HEAP 0
 #define configMAX_TASK_NAME_LEN (16)
 #define configUSE_TRACE_FACILITY 1
 #define configUSE_16_BIT_TICKS 0
@@ -77,13 +80,17 @@ extern uint32_t SystemCoreClock;
 #define configUSE_RECURSIVE_MUTEXES 1
 #define configUSE_COUNTING_SEMAPHORES 1
 #define configUSE_PORT_OPTIMISED_TASK_SELECTION 0
-#define configENABLE_TRUSTZONE 0
-#define configOVERRIDE_DEFAULT_TICK_CONFIGURATION 1
+#define configUSE_TASK_NOTIFICATIONS 1
+#define configHEAP_CLEAR_MEMORY_ON_FREE 0
+#define configUSE_MINI_LIST_ITEM 1
+#define configUSE_SB_COMPLETED_CALLBACK 0
 /* USER CODE BEGIN MESSAGE_BUFFER_LENGTH_TYPE */
 /* Defaults to size_t for backward compatibility, but can be changed
    if lengths will always be less than the number of bytes in a size_t. */
 #define configMESSAGE_BUFFER_LENGTH_TYPE size_t
 /* USER CODE END MESSAGE_BUFFER_LENGTH_TYPE */
+
+#define configRUN_TIME_COUNTER_TYPE size_t
 
 /* Co-routine definitions. */
 #define configUSE_CO_ROUTINES 0
@@ -93,7 +100,7 @@ extern uint32_t SystemCoreClock;
 #define configUSE_TIMERS 1
 #define configTIMER_TASK_PRIORITY (2)
 #define configTIMER_QUEUE_LENGTH 10
-#define configTIMER_TASK_STACK_DEPTH 256
+#define configTIMER_TASK_STACK_DEPTH 128
 
 /* CMSIS-RTOS V2 flags */
 #define configUSE_OS2_THREAD_SUSPEND_RESUME 1
@@ -110,24 +117,19 @@ to exclude the API function. */
 #define INCLUDE_vTaskDelete 1
 #define INCLUDE_vTaskCleanUpResources 0
 #define INCLUDE_vTaskSuspend 1
-#define INCLUDE_vTaskDelayUntil 1
+#define INCLUDE_xTaskDelayUntil 1
 #define INCLUDE_vTaskDelay 1
 #define INCLUDE_xTaskGetSchedulerState 1
 #define INCLUDE_xTimerPendFunctionCall 1
 #define INCLUDE_xQueueGetMutexHolder 1
+#define INCLUDE_xSemaphoreGetMutexHolder 1
 #define INCLUDE_uxTaskGetStackHighWaterMark 1
 #define INCLUDE_xTaskGetCurrentTaskHandle 1
 #define INCLUDE_eTaskGetState 1
 
-/*
- * The CMSIS-RTOS V2 FreeRTOS wrapper is dependent on the heap implementation used
- * by the application thus the correct define need to be enabled below
- */
-#define USE_FreeRTOS_HEAP_4
-
 /* Cortex-M specific definitions. */
 #ifdef __NVIC_PRIO_BITS
-/* __BVIC_PRIO_BITS will be specified when CMSIS is being used. */
+/* __NVIC_PRIO_BITS will be specified when CMSIS is being used. */
 #define configPRIO_BITS __NVIC_PRIO_BITS
 #else
 #define configPRIO_BITS 4
@@ -162,19 +164,12 @@ header file. */
     }
 /* USER CODE END 1 */
 
-/* Definitions that map the FreeRTOS port interrupt handlers to their CMSIS
-standard names. */
-#define vPortSVCHandler SVC_Handler
-#define xPortPendSVHandler PendSV_Handler
-
-/* IMPORTANT: After 10.3.1 update, Systick_Handler comes from NVIC (if SYS timebase = systick), otherwise from
- * cmsis_os2.c */
-
-#define USE_CUSTOM_SYSTICK_HANDLER_IMPLEMENTATION 1
+#define SysTick_Handler xPortSysTickHandler
 
 /* USER CODE BEGIN Defines */
+#define USE_CUSTOM_SYSTICK_HANDLER_IMPLEMENTATION 0
 /* Section where parameter definitions can be added (for instance, to override default ones in FreeRTOS.h) */
 #include "hw_freeRtosConfigs.h"
 /* USER CODE END Defines */
 
-#endif /* FREERTOS_CONFIG_H */
+#endif /* __FREERTOS_CONFIG_H */
