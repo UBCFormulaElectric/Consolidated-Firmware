@@ -1,26 +1,37 @@
 #include <cstdint>
 #include <cstddef>
+#include "io_log.hpp"
+
 extern "C"
 {
 #include "hw_error.h"
 #include "hw_ubsan.h"
-#include "io_log.h"
-#include "app_utils.h"
 
-    void              __ubsan_handle_add_overflow(void *data, void *lhs, void *rhs); // NOLINT(*-reserved-identifier)
-    void              __ubsan_handle_sub_overflow(void *data, void *lhs, void *rhs); // NOLINT(*-reserved-identifier)
-    void              __ubsan_handle_mul_overflow(void *data, void *lhs, void *rhs); // NOLINT(*-reserved-identifier)
-    void              __ubsan_handle_negate_overflow(void *_data, void *old_val);    // NOLINT(*-reserved-identifier)
-    [[noreturn]] void __ubsan_handle_type_mismatch_v1(void *_data, void *ptr);       // NOLINT(*-reserved-identifier)
-    void              __ubsan_handle_out_of_bounds(void *_data, void *index);        // NOLINT(*-reserved-identifier)
-    void __ubsan_handle_shift_out_of_bounds(void *_data, void *lhs, void *rhs);      // NOLINT(*-reserved-identifier)
-    void __ubsan_handle_load_invalid_value(void *_data, void *val);                  // NOLINT(*-reserved-identifier)
-    void __ubsan_handle_nonnull_arg(void *_data);                                    // NOLINT(*-reserved-identifier)
-    void __ubsan_handle_vla_bound_not_positive(void *_data, void *bound);            // NOLINT(*-reserved-identifier)
-    void __ubsan_handle_pointer_overflow(void *_data, void *base, void *result);     // NOLINT(*-reserved-identifier)
-} // externC end
+    void __ubsan_handle_add_overflow(void *data, void *lhs, void *rhs);        // NOLINT(*-reserved-identifier)
+    void __ubsan_handle_sub_overflow(void *data, void *lhs, void *rhs);        // NOLINT(*-reserved-identifier)
+    void __ubsan_handle_mul_overflow(void *data, void *lhs, void *rhs);        // NOLINT(*-reserved-identifier)
+    void __ubsan_handle_negate_overflow(void *_data, void *old_val);           // NOLINT(*-reserved-identifier)
+    [[noreturn]] void __ubsan_haqndle_type_mismatch_v1(void *_data, void *ptr);        // NOLINT(*-reserved-identifier)
+    void __ubsan_handle_out_of_bounds(void *_data, void *index);               // NOLINT(*-reserved-identifier)
+    void __ubsan_handle_shift_out_of_bounds(void *_data, void *lhs, void *rhs); // NOLINT(*-reserved-identifier)
+    void __ubsan_handle_load_invalid_value(void *_data, void *val);            // NOLINT(*-reserved-identifier)
+    void __ubsan_handle_nonnull_arg(void *_data);                              // NOLINT(*-reserved-identifier)
+    void __ubsan_handle_vla_bound_not_positive(void *_data, void *bound);      // NOLINT(*-reserved-identifier)
+    void __ubsan_handle_pointer_overflow(void *_data, void *base, void *result); // NOLINT(*-reserved-identifier)
+    #ifndef MIN
+    #define MIN(a, b) (((a) < (b)) ? (a) : (b))
+    #endif
+
+} // extern "C"
 
 #define VALUE_LENGTH 40
+
+
+// constexpr uint64_t MIN(uint64_t a, uint64_t b) {
+//         return ((a) < (b)) ? (a) : (b);
+// }
+
+
 static int test_and_set_bit(const int bit, unsigned long *addr)
 {
     const unsigned long mask = 1UL << bit;
@@ -255,17 +266,17 @@ static void print_source_location(const char *prefix, const struct source_locati
     LOG_ERROR("%s %s:%d:%d", prefix, loc->file_name, loc->line & LINE_MASK, loc->column & COLUMN_MASK);
 }
 // NOLINTBEGIN(bugprone-reserved-identifier)
-#define REGISTER_OVERFLOW_HANDLER(handler_name, op)     \
-    void handler_name(void *data, void *lhs, void *rhs) \
-    {                                                   \
-        handle_overflow(data, lhs, rhs, op);            \
+#define REGISTER_OVERFLOW_HANDLER(handler_name, op)                        \
+    void handler_name(void *data, void *lhs, void *rhs)                    \
+    {                                                                      \
+        handle_overflow(static_cast<overflow_data *>(data), lhs, rhs, op); \
     }
 REGISTER_OVERFLOW_HANDLER(__ubsan_handle_add_overflow, '+')
 REGISTER_OVERFLOW_HANDLER(__ubsan_handle_sub_overflow, '-')
 REGISTER_OVERFLOW_HANDLER(__ubsan_handle_mul_overflow, '*')
 void __ubsan_handle_negate_overflow(void *_data, void *old_val)
 {
-    struct overflow_data *data = _data;
+    auto *data = static_cast<overflow_data *>(_data);
     if (suppress_report(&data->location))
     {
         return;
@@ -281,19 +292,20 @@ void __ubsan_handle_negate_overflow(void *_data, void *old_val)
 
 // void __ubsan_handle_implicit_conversion(void *_data, void *lhs, void *rhs) {}
 // void __ubsan_handle_type_mismatch(struct type_mismatch_data *data, void *ptr) {}
-void __ubsan_handle_type_mismatch_v1(void *_data, void *ptr)
-{
-    struct type_mismatch_data_v1          *data        = _data;
-    const struct type_mismatch_data_common common_data = { .location        = &data->location,
-                                                           .type            = data->type,
-                                                           .alignment       = 1UL << data->log_alignment,
-                                                           .type_check_kind = data->type_check_kind };
+[[noreturn]] void __ubsan_handle_type_mismatch_v1(void *_data, void *ptr)
+{   auto *data = static_cast<type_mismatch_data_v1 *>(_data);
+    const type_mismatch_data_common common_data {
+        &data->location,
+        data->type,
+        1UL << data->log_alignment,
+        data->type_check_kind
+};
     ubsan_type_mismatch_common(&common_data, (unsigned long)ptr);
     hw_error(data->location.file_name, (int)data->location.line, "type-mismatch");
 }
 void __ubsan_handle_out_of_bounds(void *_data, void *index)
 {
-    struct out_of_bounds_data *data = _data;
+    auto *data = static_cast<out_of_bounds_data *>(_data);
     if (suppress_report(&data->location))
     {
         return;
@@ -306,7 +318,7 @@ void __ubsan_handle_out_of_bounds(void *_data, void *index)
 }
 void __ubsan_handle_shift_out_of_bounds(void *_data, void *lhs, void *rhs)
 {
-    struct shift_out_of_bounds_data *data     = _data;
+    auto *data = static_cast<shift_out_of_bounds_data *>(_data);
     const struct type_descriptor    *rhs_type = data->rhs_type;
     struct type_descriptor          *lhs_type = data->lhs_type;
 
@@ -343,7 +355,7 @@ void __ubsan_handle_shift_out_of_bounds(void *_data, void *lhs, void *rhs)
 // void __ubsan_handle_builtin_unreachable(void *_data);
 void __ubsan_handle_load_invalid_value(void *_data, void *val)
 {
-    struct invalid_value_data *data = _data;
+    auto *data = static_cast<invalid_value_data *>(_data);
     if (suppress_report(&data->location))
         return;
     ubsan_prologue(&data->location, "invalid-load");
@@ -364,7 +376,8 @@ void __ubsan_handle_load_invalid_value(void *_data, void *val)
  */
 void __ubsan_handle_nonnull_arg(void *_data)
 {
-    struct nonnull_arg_data *data = _data;
+    auto *data = static_cast<nonnull_arg_data *>(_data);
+
     if (suppress_report(&data->location))
     {
         return;
@@ -381,7 +394,7 @@ void __ubsan_handle_nonnull_arg(void *_data)
  */
 void __ubsan_handle_vla_bound_not_positive(void *_data, void *bound)
 {
-    struct vla_bound_data *data = _data;
+    auto *data = static_cast<vla_bound_data *>(_data);
     if (suppress_report(&data->location))
     {
         return;
@@ -396,10 +409,10 @@ void __ubsan_handle_vla_bound_not_positive(void *_data, void *bound)
 
 void __ubsan_handle_pointer_overflow(void *_data, void *base, void *result)
 {
-    struct pointer_overflow_data *data = _data;
+    auto *data = static_cast<pointer_overflow_data *>(_data);
     if (suppress_report(&data->location))
         return;
-    struct source_location Loc = data->location;
+    //struct source_location Loc = data->location;
 
     ubsan_prologue(&data->location, "pointer-overflow");
     if (base == 0 && result == 0)
