@@ -11,7 +11,8 @@ typedef enum TaskIndex_e
     TASK_RUNLTCVOLTAGES    = 6,
     TASK_RUNLTCTEMPS       = 7,
     TASK_RUNLTCDIAGNOSTICS = 8,
-    NUM_OF_TASKS           = 9
+    TASK_RUN1KHZ           = 9,
+    NUM_OF_TASKS           = 10
 } TaskIndex_e;
 
 void           tasks_preInit(void);
