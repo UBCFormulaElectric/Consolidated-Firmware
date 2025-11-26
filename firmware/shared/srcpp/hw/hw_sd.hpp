@@ -37,21 +37,23 @@ class SdCard
 
     inline SdCardStatus CHECK_SD_PRESENT()
     {
-        if (!sd_present())  
-          return hw::SdCardStatus::SD_CARD_ERROR;
+        if (!sd_present())
+            return hw::SdCardStatus::SD_CARD_ERROR;
     }
 
   public:
     /* Constructor */
-    constexpr SdCard(SD_HandleTypeDef* hsd, uint32_t timeout, const Gpio* present_gpio)
-      : hsd(hsd), timeout(timeout), present_gpio(present_gpio) {}
+    constexpr SdCard(SD_HandleTypeDef *hsd, uint32_t timeout, const Gpio *present_gpio)
+      : hsd(hsd), timeout(timeout), present_gpio(present_gpio)
+    {
+    }
 
     /* Getters for private fields */
-    SD_HandleTypeDef* getHsd() const { return hsd; }
+    SD_HandleTypeDef *getHsd() const { return hsd; }
 
     uint32_t getTimeout() const { return timeout; }
 
-    const Gpio* getPresentGpio() const { return present_gpio; }
+    const Gpio *getPresentGpio() const { return present_gpio; }
 
     /**
      * @brief   Read from sd card. The data size will be num_blocks * BlockSize
@@ -121,7 +123,7 @@ class SdCard
      */
     SdCardStatus abort(void);
 
-      /**
+    /**
      * @brief  Returns the SD status depending on the HAL status
      * @param  hal_status HAL status
      * @retval SD status

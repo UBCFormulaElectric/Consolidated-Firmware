@@ -25,7 +25,8 @@ SdCardStatus SdCard::read(std::span<uint8_t> pdata, const uint32_t block_addr, c
     return getSdStatus(status);
 }
 
-SdCardStatus SdCard::readOffset(std::span<uint8_t> pdata, const uint32_t block_addr, const uint32_t offset, const uint32_t size)
+SdCardStatus
+    SdCard::readOffset(std::span<uint8_t> pdata, const uint32_t block_addr, const uint32_t offset, const uint32_t size)
 {
     if (size == 0)
         return hw::SdCardStatus::SD_CARD_OK;
@@ -47,7 +48,8 @@ SdCardStatus SdCard::write(std::span<uint8_t> pdata, const uint32_t block_addr, 
     return getSdStatus(status);
 }
 
-SdCardStatus SdCard::writeOffset(std::span<uint8_t> pdata, const uint32_t block_addr, const uint32_t offset, const uint32_t size)
+SdCardStatus
+    SdCard::writeOffset(std::span<uint8_t> pdata, const uint32_t block_addr, const uint32_t offset, const uint32_t size)
 {
     if (size == 0)
         return hw::SdCardStatus::SD_CARD_OK;
@@ -81,7 +83,8 @@ SdCardStatus SdCard::writeDma(std::span<uint8_t> pdata, const uint32_t block_add
     return getSdStatus(HAL_SD_WriteBlocks_DMA(sd1.hsd, pdata.data(), block_addr, num_blocks));
 }
 
-// Based on the hardware design: if the sd card is inserted, the gpio will be shorted to ground. Otherwise it will be pulled up
+// Based on the hardware design: if the sd card is inserted, the gpio will be shorted to ground. Otherwise it will be
+// pulled up
 bool SdCard::sd_present(void)
 {
     return !hw::sd1.present_gpio->readPin();
