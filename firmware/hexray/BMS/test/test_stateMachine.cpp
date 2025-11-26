@@ -3,20 +3,26 @@
 #include "states/app_states.hpp"
 #include "io_irs.hpp"
 #include "io_time.hpp"
+#include "app.segments.hpp"
 
 extern "C"
 {
 #include "app_canRx.h"
 #include "app_canTx.h"
 #include "app_canAlerts.h"
-#include "app_segments.h" //switch to hpp
 }
 
 class BmsStateMachineTest : public BMSBaseTest
 {
 };
 
-// Precharge drive tests
+static constexpr int target_voltage = (float)(NUM_SEGMENTS * CELLS_PER_SEGMENT) * 4.2f; // V
+static constexpr int undervoltage = 200.0f; // V
+static constexpr int tolerance_time = 500; //ms
+static constexpr int latch_timeout = PRECHARGE_LATCH_TIMEOUT_MS + 100; // ms
+
+
+// Init-PrechargeDrive tests
 
 TEST_F(BmsStateMachineTest, enter_precharge_drive) {
     ASSERT_STATE_EQ(init_state);
@@ -25,7 +31,7 @@ TEST_F(BmsStateMachineTest, enter_precharge_drive) {
     app_canRx_VC_State_update(VC_BMS_ON_STATE);
     app_canRx_Debug_StartCharging_update(false);
     fakes::charger::setConnectionStatus(CHARGER_DISCONNECTED);
-    LetTimePass(20);
+    LetTimePass(10);
 
     ASSERT_STATE_EQ(precharge_drive_state);
     ASSERT_EQ(io_irs_prechargeState(), CONTACTOR_STATE_CLOSED);
@@ -37,7 +43,7 @@ TEST_F(BmsStateMachineTest, no_precharge_drive_if_negative_open)
 {
     app_canRx_VC_State_update(VC_BMS_ON_STATE);
     fakes::irs::setNegativeState(CONTACTOR_STATE_OPEN);
-    LetTimePass(20);
+    LetTimePass(10);
 
     ASSERT_STATE_EQ(init_state);
 }
@@ -46,7 +52,7 @@ TEST_F(BmsStateMachineTest, no_precharge_drive_if_vc_state_not_bms_on)
 {
     app_canRx_VC_State_update(VC_INIT_STATE);
     fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
-    LetTimePass(20);
+    LetTimePass(10);
 
     ASSERT_STATE_EQ(init_state);
 }
@@ -56,13 +62,167 @@ TEST_F(BmsStateMachineTest, no_precharge_drive_if_charging_requested)
     app_canRx_VC_State_update(VC_BMS_ON_STATE);
     fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
     app_canRx_Debug_StartCharging_update(true);
-    LetTimePass(20);
+    LetTimePass(10);
 
     ASSERT_STATE_EQ(init_state);
 }
 
-static constexpr int precharge_too_fast_time = 20; // ms
-static constexpr int precharge_just_good_time = 1220; // ms
-static constexpr int precharge_too_slow_time = 7290; // ms
+// PrechargeDrive-Drive tests
 
-static constexpr int precharge_cooldown_time = 1000; // ms
+TEST_F(BmsStateMachineTest, precharge_drive_success)
+{
+    fakes::segments::setPackVoltageEvenly(target_voltage);
+    fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
+    fakes::tractiveSystem::setVoltage(0.0f);
+    app_stateMachine_setCurrentState(&precharge_drive_state);
+    LetTimePass(10);
+
+    for(int i = 0; i < PRECHARGE_COMPLETION_MS; i += 10)
+    {
+        ASSERT_STATE_EQ(precharge_drive_state);
+        ASSERT_EQ(io_irs_prechargeState(), CONTACTOR_STATE_CLOSED);
+        ASSERT_EQ(app_canTx_BMS_PrechargeRelay_get(), CONTACTOR_STATE_CLOSED);
+        LetTimePass(10);
+    }
+
+    fakes::tractiveSystem::setVoltage(target_voltage);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(drive_state);
+    ASSERT_EQ(io_irs_prechargeState(), CONTACTOR_STATE_OPEN);
+    ASSERT_EQ(app_canTx_BMS_PrechargeRelay_get(), CONTACTOR_STATE_OPEN);
+} 
+
+TEST_F(BmsStateMachineTest, precharge_rises_too_slowly_then_latches_after_max_retries)
+{
+    fakes::segments::setPackVoltageEvenly(target_voltage);
+    fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
+    fakes::tractiveSystem::setVoltage(undervoltage);
+    app_stateMachine_setCurrentState(&precharge_drive_state);
+    LetTimePass(10);
+
+    for (int retry = 0; retry < MAX_PRECHARGE_ATTEMPTS; retry++)
+    {
+        int closed_time = 0;
+        while (io_irs_prechargeState() == CONTACTOR_STATE_CLOSED &&
+               closed_time < PRECHARGE_COMPLETION_UPPER_BOUND + tolerance_time)
+        {
+            ASSERT_STATE_EQ(precharge_drive_state);
+            ASSERT_EQ(app_canTx_BMS_PrechargeRelay_get(), CONTACTOR_STATE_CLOSED);
+            LetTimePass(10);
+            closed_time += 10;
+        }
+        ASSERT_NEAR(closed_time, PRECHARGE_COMPLETION_UPPER_BOUND, 100)
+            << "Precharge relay stayed closed for " << closed_time
+            << "ms (expected ~" << PRECHARGE_COMPLETION_UPPER_BOUND << "ms)"
+            << ", time=" << io_time_getCurrentMs();
+
+        if (retry == MAX_PRECHARGE_ATTEMPTS - 1)
+            break;
+
+        int open_time = 0;
+        while (io_irs_prechargeState() == CONTACTOR_STATE_OPEN &&
+               open_time < PRECHARGE_COOLDOWN_TIME + tolerance_time)
+        {
+            ASSERT_EQ(app_canTx_BMS_PrechargeRelay_get(), CONTACTOR_STATE_OPEN);
+            LetTimePass(10);
+            open_time += 10;
+        }
+        ASSERT_NEAR(open_time, PRECHARGE_COOLDOWN_TIME, 100)
+            << "Precharge relay stayed open for " << open_time
+            << "ms (expected ~" << PRECHARGE_COOLDOWN_TIME << "ms)"
+            << ", time=" << io_time_getCurrentMs();
+    }
+    ASSERT_STATE_EQ(precharge_latch_state);
+}
+
+TEST_F(BmsStateMachineTest, precharge_rises_too_quickly_then_latches_after_max_retries)
+{
+    fakes::segments::setPackVoltageEvenly(target_voltage);
+    fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
+    fakes::tractiveSystem::setVoltage(undervoltage);
+    app_stateMachine_setCurrentState(&precharge_drive_state);
+    LetTimePass(10);
+
+    for (int retry = 0; retry < MAX_PRECHARGE_ATTEMPTS; retry++)
+    {
+        int closed_time = 0;
+        while (closed_time < PRECHARGE_COMPLETION_LOWER_BOUND - tolerance_time)
+        {
+            ASSERT_STATE_EQ(precharge_drive_state);
+            ASSERT_EQ(io_irs_prechargeState(), CONTACTOR_STATE_CLOSED);
+            LetTimePass(10);
+            closed_time += 10;
+        }
+         ASSERT_LT(closed_time, PRECHARGE_COMPLETION_LOWER_BOUND);
+            << "Precharge relay stayed closed for " << closed_time
+            << "ms (expected ~" << PRECHARGE_COMPLETION_LOWER_BOUND - tolerance_time << "ms)"
+            << ", time=" << io_time_getCurrentMs();
+
+        fakes::tractiveSystem::setVoltage(target_voltage);
+        LetTimePass(10);
+        ASSERT_NE(io_irs_prechargeState(), CONTACTOR_STATE_CLOSED);
+
+        if (retry == MAX_PRECHARGE_ATTEMPTS - 1)
+            break;
+
+        int open_time = 0;
+        while (open_time < PRECHARGE_COOLDOWN_TIME)
+        {
+            ASSERT_EQ(io_irs_prechargeState(), CONTACTOR_STATE_OPEN);
+            LetTimePass(10);
+            open_time += 10;
+        }
+        ASSERT_NEAR(open_time, PRECHARGE_COOLDOWN_TIME, 100)
+            << "Precharge relay stayed open for " << open_time
+            << "ms (expected ~" << PRECHARGE_COOLDOWN_TIME << "ms)"
+            << ", time=" << io_time_getCurrentMs();
+    }
+    ASSERT_STATE_EQ(precharge_latch_state);
+}
+
+// PrechargeLatch-Init test
+
+
+TEST_F(BmsStateMachineTest, precharge_latch_timouts_to_init) {
+    fakes::segments::setPackVoltageEvenly(target_voltage);
+    fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
+    fakes::tractiveSystem::setVoltage(undervoltage);
+    app_stateMachine_setCurrentState(&precharge_latch_state);
+    LetTimePass(latch_timeout);
+
+    ASSERT_STATE_EQ(init_state);
+}
+
+// Init-Balance tests
+
+TEST_F(BmsStateMachineTest, enter_balance)
+{
+    ASSERT_STATE_EQ(init_state);
+    fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
+    app_canRx_Debug_CellBalancingRequest_update(true);
+    LetTimePass(10);
+    
+    ASSERT_STATE_EQ(balancing_state);
+    EXPECT_TRUE(app_canRx_Debug_CellBalancingRequest_get());
+}
+
+TEST_F(BmsStateMachineTest, exit_balance)
+{
+    SetInitialState(&balancing_state);
+    app_canRx_Debug_CellBalancingRequest_update(false);
+    LetTimePass(10);
+
+    ASSERT_STATE_EQ(init_state);
+}
+
+
+TEST_F(BmsStateMachineTest, exits_balance_when_negative_opens_and_clears_request_on_exit)
+{
+    SetInitialState(&balancing_state);
+    app_canRx_Debug_CellBalancingRequest_update(true);
+    fakes::irs::setNegativeState(CONTACTOR_STATE_OPEN);
+    LetTimePass(10);
+
+    ASSERT_STATE_EQ(init_state);
+    EXPECT_FALSE(app_canRx_Debug_CellBalancingRequest_get());
+}
