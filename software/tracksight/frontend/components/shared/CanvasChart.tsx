@@ -101,6 +101,39 @@ function binarySearchForLastVisibleIndex(
   return result;
 }
 
+// first enum index where the enum's end time (timestamps[i+1]) >= targetTime
+function binarySearchForFirstEnumIndex(
+  timestamps: number[],
+  targetTime: number
+): number {
+  if (timestamps.length === 0) return 0;
+  
+  let left = 0;
+  let right = timestamps.length - 1;
+  let result = timestamps.length - 1;
+
+  while (left <= right) {
+    const mid = Math.floor((left + right) / 2);
+    
+    let overlaps = false;
+    
+    if (mid < timestamps.length - 1) {
+      overlaps = timestamps[mid + 1] >= targetTime;
+    } else {
+      overlaps = true;
+    }
+    
+    if (overlaps) {
+      result = mid;
+      right = mid - 1;
+    } else {
+      left = mid + 1;
+    }
+  }
+
+  return result;
+}
+
 export default function CanvasChart({
   data,
   series,
@@ -460,17 +493,23 @@ export default function CanvasChart({
             currentStripY + ENUM_STRIP_HEIGHT / 2
           );
 
-          for (let i = startIndex; i <= endIndex; i++) {
+          const enumStartIndex = binarySearchForFirstEnumIndex(
+            timestamps,
+            visibleStartTime
+          );
+
+          for (let i = enumStartIndex; i <= endIndex; i++) {
             const time = timestamps[i];
             const value = dataPoints[i] as string | null;
 
             if (value === null) continue;
 
-            let endTime =
-              i < timestamps.length - 1
-                ? timestamps[i + 1]
-                : time + timeRange * 0.01;
-            if (endTime > maxTime) endTime = maxTime;
+            let endTime: number;
+            if (i === endIndex) {
+              endTime = visibleEndTime;
+            } else {
+              endTime = timestamps[i + 1];
+            }
 
             const startX = Math.max(padding.left, timeToX(time));
             const endX = Math.min(width - padding.right, timeToX(endTime));

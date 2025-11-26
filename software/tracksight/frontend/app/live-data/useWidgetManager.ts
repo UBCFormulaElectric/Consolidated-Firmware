@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { SignalType } from "@/lib/types/Signal";
 import { MockGraphConfig, WidgetData } from "@/lib/types/Widget";
 import { IS_DEBUG } from "@/lib/constants";
+import { v4 as uuidv4 } from 'uuid';
 
 const LOCAL_STORAGE_KEY = "tracksight_widgets_config_v1";
 
@@ -31,8 +32,7 @@ export default function useWidgetManager() {
 							colorPalette: ["#FF637E", "#FFB86A", "#05DF72", "#51A2FF"],
 						},
 						signal: "VC_State",
-						// id: crypto.randomUUID(), // this should be okay?
-						id: Math.floor(Math.random() * 1000000)
+						id: uuidv4(),
 					}
 				]);
 			}
@@ -47,8 +47,7 @@ export default function useWidgetManager() {
 	}, [widgets, isInitialized]);
 
 	const appendWidget = useCallback((newWidget: WidgetData) => {
-		// newWidget.id = crypto.randomUUID();
-		newWidget.id = Math.floor(Math.random() * 10000000)
+		newWidget.id = uuidv4();
 		setWidgets((prev) => [...prev, newWidget]);
 	}, []);
 

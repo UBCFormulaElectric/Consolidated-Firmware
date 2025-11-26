@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import CanvasChart from "@/components/shared/CanvasChart";
 import { usePausePlay, PausePlayButton } from "@/components/shared/PausePlayControl";
 import { PlusButton } from "@/components/shared/PlusButton";
 import { useSyncedGraphScroll } from "@/components/shared/SyncedGraphContainer";
 import { MockGraphConfig, WidgetDataMock } from "@/lib/types/Widget";
+import { dataTagErrorSymbol } from "@tanstack/react-query";
 
 enum MockSignalType {
   Numerical = "numerical",
@@ -43,10 +44,21 @@ const MockWidget: React.FC<MockWidgetProps> = React.memo(
     );
     const [newSignalDelay, setNewSignalDelay] = useState(100);
 
-    const [data, setData] = useState<{
+    /*const [data, setData] = useState<{
+      timestamps: number[];
+      series: Record<string, (number | string | null)[]>;
+    }>({ timestamps: [], series: {} });*/
+
+    const dataRef = useRef<{
       timestamps: number[];
       series: Record<string, (number | string | null)[]>;
     }>({ timestamps: [], series: {} });
+
+    // dirty flag to indicate that the data is not up to date
+    const isDirtyRef = useRef(false);
+    const isLiveRef = useRef(true);
+
+    const [tick, setTick] = useState(0);
 
     const [chartHeight, setChartHeight] = useState(256);
     const {
@@ -61,16 +73,22 @@ const MockWidget: React.FC<MockWidgetProps> = React.memo(
       globalTimeRange,
     } = useSyncedGraphScroll();
 
+    useEffect(() => {
+      isLiveRef.current = scrollProgress >= 0.99;
+    }, [scrollProgress]);
+
     const graphId = widgetData.id;
 
     useEffect(() => {
-      if (data.timestamps.length > 0) {
-        const min = data.timestamps[0];
-        const max = data.timestamps[data.timestamps.length - 1];
+      const ts = dataRef.current.timestamps;
+      if(ts.length > 0) {
+        const min = ts[0];
+        const max = ts[ts.length - 1];
         registerTimeRange(graphId, min, max);
       }
       return () => unregisterTimeRange(graphId);
-    }, [data.timestamps, graphId, registerTimeRange, unregisterTimeRange]);
+      //eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [tick, graphId, registerTimeRange, unregisterTimeRange]); //udpate on tick
 
     const generateRandomValue = (
       type: string,
@@ -103,7 +121,7 @@ const MockWidget: React.FC<MockWidgetProps> = React.memo(
           const now = Date.now();
           const val = generateRandomValue(cfg.type, now, idx);
 
-          setData((prev) => {
+          /*setData((prev) => {
             const newTimestamps = [...prev.timestamps, now];
             const newSeries = { ...prev.series };
 
@@ -129,6 +147,26 @@ const MockWidget: React.FC<MockWidgetProps> = React.memo(
             });
 
             return { timestamps: newTimestamps, series: newSeries };
+          });*/
+          const store = dataRef.current;
+
+          configs.forEach((c) => {
+            if (!store.series[c.signalName]) {
+              store.series[c.signalName] = new Array(store.timestamps.length).fill(null);
+            }
+          });
+
+          isDirtyRef.current = true;
+          store.timestamps.push(now);
+
+          Object.keys(store.series).forEach((key) => {
+            if (key === cfg.signalName) {
+              store.series[key].push(val);
+            } else {
+              const arr = store.series[key];
+              const lastVal = arr.length > 0 ? arr[arr.length - 1] : null;
+              arr.push(lastVal);
+            }
           });
         }, cfg.delay);
         intervals.push(interval);
@@ -137,15 +175,35 @@ const MockWidget: React.FC<MockWidgetProps> = React.memo(
       return () => intervals.forEach(clearInterval);
     }, [configs, isPaused]);
 
+    useEffect(() => {
+      let frameId: number;
+      const loop = () => {
+        frameId = requestAnimationFrame(loop);
+        if(isDirtyRef.current && isLiveRef.current) {
+          setTick(t => t + 1);
+          isDirtyRef.current = false;
+        }
+      };
+      frameId = requestAnimationFrame(loop);
+      return () => cancelAnimationFrame(frameId);
+    }, []);
+
     const chartData = useMemo<
       [number[], ...Array<(number | string | null)[]>]
     >(() => {
-      const seriesArrays = configs.map((c) => data.series[c.signalName] || []);
-      if (data.timestamps.length === 0) {
+      //const seriesArrays = configs.map((c) => data.series[c.signalName] || []);
+      //if (data.timestamps.length === 0) {
+      // read from ref ontick
+      const {timestamps, series} = dataRef.current;
+      const seriesArrays = configs.map((c) => series[c.signalName] || []);
+
+      if (timestamps.length === 0) {
           return [[], ...configs.map(() => [])];
       }
-      return [data.timestamps, ...seriesArrays];
-    }, [data, configs]);
+      //return [data.timestamps, ...seriesArrays];
+    //}, [data, configs]);
+    return [timestamps, ...seriesArrays];
+  }, [tick, configs]); // dependency now tick instead of data
 
     const handleSnapToLatest = () => setScrollProgress(1);
 
@@ -165,11 +223,14 @@ const MockWidget: React.FC<MockWidgetProps> = React.memo(
       };
 
       // initialize data series for the new signal with nulls
-      setData((prev) => {
+      /*setData((prev) => {
         const newSeries = { ...prev.series };
         newSeries[name] = new Array(prev.timestamps.length).fill(null);
         return { ...prev, series: newSeries };
-      });
+      });*/
+
+      const store = dataRef.current;
+      store.series[name] = new Array(store.timestamps.length).fill(null);
 
       updateMockConfig(widgetData.id, (prev) => [...prev, newConfig]);
       setShowAddModal(false);
@@ -183,20 +244,27 @@ const MockWidget: React.FC<MockWidgetProps> = React.memo(
         return;
       }
       updateMockConfig(widgetData.id, (prev) => prev.filter((c) => c.signalName !== name));
-      setData((prev) => {
+      /*setData((prev) => {
         const nextSeries = { ...prev.series };
         delete nextSeries[name];
         return { ...prev, series: nextSeries };
-      });
+      });*/
+      if(dataRef.current.series[name]) {
+        delete dataRef.current.series[name];
+      }
     };
 
     const visiblePointsCount = React.useMemo(() => {
        // ... simplified visible points logic or just use timestamps.length if lazy ...
        // reusing logic from MockGraph.tsx would be verbose but good for accuracy
-       return data.timestamps.length; 
-    }, [data.timestamps]);
+       //return data.timestamps.length; 
+    //}, [data.timestamps]);
 
-    const totalDataPoints = data.timestamps.length;
+    //const totalDataPoints = data.timestamps.length;
+    return dataRef.current.timestamps.length;
+  }, [tick]);
+  
+  const totalDataPoints = dataRef.current.timestamps.length;
 
     return (
       <div className="mb-6 p-4 block w-full relative">
