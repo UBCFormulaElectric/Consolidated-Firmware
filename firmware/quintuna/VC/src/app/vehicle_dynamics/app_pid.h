@@ -30,10 +30,6 @@ typedef struct
     bool  clamp_integral;
     bool  back_calculation;
     bool  feed_forward;
-    bool  clamp_output;
-    bool  clamp_integral;
-    bool  back_calculation;
-    bool  feed_forward;
     float sample_time;
 } PID;
 
@@ -52,10 +48,6 @@ typedef struct
     const float max_integral;
     const float min_integral;
 
-    const bool  clamp_output;
-    const bool  clamp_integral;
-    const bool  back_calculation;
-    const bool  feed_forward;
     const bool  clamp_output;
     const bool  clamp_integral;
     const bool  back_calculation;
