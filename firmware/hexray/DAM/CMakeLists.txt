@@ -38,6 +38,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/usb/usbd_cdc_if.c"
         "${SHARED_HW_INCLUDE_DIR_CPP}/usb/usb_device.c"
         "${SHARED_HW_INCLUDE_DIR_CPP}/usb/usbd_conf.c"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/usb/h5/usbd_conf.c"
         "${SHARED_HW_INCLUDE_DIR_CPP}/usb/usbd_desc.c"
 )
 set(HW_INCLUDE_DIRS
