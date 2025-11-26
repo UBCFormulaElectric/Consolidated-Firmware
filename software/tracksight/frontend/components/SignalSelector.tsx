@@ -31,7 +31,7 @@ function SignalItemRenderer(props: { data: SignalMetadata; isSelected?: boolean 
 function SignalSelector(props: SignalSelectorProps) {
   const { filter, selectedSignal, onSelect, buttonElement } = props;
 
-  const signalMetadata = useSignalMetadataList("*");
+  const signalMetadata = useSignalMetadataList(".*");
 
   if (signalMetadata.isLoading || !signalMetadata.data) {
     return <div>Loading...</div>;

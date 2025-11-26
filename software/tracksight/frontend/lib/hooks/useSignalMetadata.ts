@@ -13,15 +13,17 @@ const useSignalMetadata = (signalName: string) => {
   return useQuery({
     queryKey: ["signal-metadata", signalName],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE_URL}/signal?name=${encodeURIComponent(signalName)}`);
+      const response = await fetch(
+        `${API_BASE_URL}signal/metadata?name=${encodeURIComponent(signalName)}`
+      );
 
       if (!response.ok) {
         throw new Error(`Failed to fetch signals: ${response.statusText}`);
       }
 
-      const json = (await response.json()) as SignalMetadata[];
+      const json = (await response.json()) as Record<string, SignalMetadata>;
 
-      const signal = json.find((s) => s.name === signalName);
+      const signal = json[signalName];
 
       if (!signal) {
         throw new Error(`Signal not found: ${signalName}`);
