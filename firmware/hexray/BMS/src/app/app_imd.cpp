@@ -1,11 +1,11 @@
 #include "app_imd.hpp"
-#include <assert.h>
+#include <cassert>
+#include <cmath>
 
 extern "C"
 {
 #include "app_canUtils.h"
 #include "app_canTx.h"
-#include "app_utils.h"
 }
 
 constexpr int   NUM_OF_IMD_CONDITIONS   = 6;
@@ -45,7 +45,7 @@ static ImdConditionName estimateConditionName(const float frequency)
     for (ImdConditionName i = 0U; i < NUM_OF_IMD_CONDITIONS; i++)
     {
         const float ideal       = getIdealPwmFrequency(i);
-        const float lower_bound = MAX(0.0f, ideal - IMD_FREQUENCY_TOLERANCE);
+        const float lower_bound = fmax(0.0f, ideal - IMD_FREQUENCY_TOLERANCE);
         const float upper_bound = ideal + IMD_FREQUENCY_TOLERANCE;
 
         if (frequency >= lower_bound && frequency <= upper_bound)
