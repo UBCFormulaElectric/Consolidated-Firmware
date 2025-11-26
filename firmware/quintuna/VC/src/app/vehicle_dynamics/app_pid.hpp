@@ -25,13 +25,15 @@ namespace app
                 bool clamp_integral;
                 bool back_calculation;
                 bool feed_forward;
-                uint32_t sample_time;
+                float sample_time;
             };
 
         explicit PID(const Config& conf);
 
         float compute(float setpoint, float input, float disturbance);
         void reset();
+        float getIntegral();
+        float getDerivative();
 
         private:
             // Gains and coefficients
@@ -40,7 +42,7 @@ namespace app
             float Kd;
             float Kb;
             float Kff; //often the inverse of Kp
-            float smoothing_coeff;
+            float smoothing_coeff; //set to 1 for no smoothing
 
             // Limits
             float out_max;
@@ -51,6 +53,7 @@ namespace app
             // Internal state
             float error = 0.0f;
             float integral = 0.0f;
+            float derivative = 0.0f;
             float prev_derivative = 0.0f;
             float prev_disturbance = 0.0f;
             float prev_error = 0.0f;
@@ -59,6 +62,6 @@ namespace app
             bool clamp_integral;
             bool back_calculation;
             bool feed_forward;
-            uint32_t sample_time;
+            float sample_time;
     };
 }
