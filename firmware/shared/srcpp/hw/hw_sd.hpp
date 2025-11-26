@@ -9,8 +9,9 @@
 #include "stm32h5xx_hal_sd_ex.h"
 
 #include <cstdint>
+#include <span>
 
-#define HW_DEVICE_SECTOR_SIZE 512
+constexpr int HW_DEVICE_SECTOR_SIZE = 512;
 
 namespace hw
 {
@@ -24,10 +25,33 @@ enum class SdCardStatus
 
 class SdCard
 {
+  private:
+    SD_HandleTypeDef *hsd;          /* HAL SD handle that holds the state of the SD card */
+    uint32_t          timeout;      /* the timeout for the SD card operations */
+    const Gpio       *present_gpio; /* gpio for sd_cd */
+
+    inline bool OFFSET_SIZE_VALID(uint32_t offset, uint32_t size)
+    {
+        return (offset % HW_DEVICE_SECTOR_SIZE == 0) && (size % HW_DEVICE_SECTOR_SIZE == 0);
+    }
+
+    inline SdCardStatus CHECK_SD_PRESENT()
+    {
+        if (!sd_present())  
+          return hw::SdCardStatus::SD_CARD_ERROR;
+    }
+
   public:
-    SD_HandleTypeDef *hsd;          // the HAL SD handle that will hold the state of the SD card
-    uint32_t          timeout;      // the timeout for the SD card operations
-    const Gpio       *present_gpio; // gpio for sd_cd
+    /* Constructor */
+    constexpr SdCard(SD_HandleTypeDef* hsd, uint32_t timeout, const Gpio* present_gpio)
+      : hsd(hsd), timeout(timeout), present_gpio(present_gpio) {}
+
+    /* Getters for private fields */
+    SD_HandleTypeDef* getHsd() const { return hsd; }
+
+    uint32_t getTimeout() const { return timeout; }
+
+    const Gpio* getPresentGpio() const { return present_gpio; }
 
     /**
      * @brief   Read from sd card. The data size will be num_blocks * BlockSize
@@ -38,7 +62,7 @@ class SdCard
      * @return  the SdCardStatus of the opeation
      *
      */
-    SdCardStatus hw_sd_read(uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
+    SdCardStatus read(std::span<uint8_t> pdata, uint32_t block_addr, uint32_t num_blocks);
 
     /**
      * @brief   Write to the sd card. The data size will be num_blocks * BlockSize
@@ -50,8 +74,8 @@ class SdCard
      * @return  the SdCardStatus status of the opeation
      *
      */
-    SdCardStatus hw_sd_write(uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
-    SdCardStatus hw_sd_writeDma(uint8_t *pdata, uint32_t block_addr, uint32_t num_blocks);
+    SdCardStatus write(std::span<uint8_t> pdata, uint32_t block_addr, uint32_t num_blocks);
+    SdCardStatus writeDma(std::span<uint8_t> pdata, uint32_t block_addr, uint32_t num_blocks);
 
     /**
      * @brief   Read interface with offset and size argument, interface for littlefs
@@ -63,7 +87,7 @@ class SdCard
      * @return  the SdCardStatus of the opeation
      *
      */
-    SdCardStatus hw_sd_readOffset(uint8_t *pdata, uint32_t block_addr, uint32_t offset, uint32_t size);
+    SdCardStatus readOffset(std::span<uint8_t> pdata, uint32_t block_addr, uint32_t offset, uint32_t size);
 
     /**
      * @brief   Write interface with offset and size, interface for littlefs
@@ -75,7 +99,7 @@ class SdCard
      * @return  the SdCardStatus of the opeation
      *
      */
-    SdCardStatus hw_sd_writeOffset(uint8_t *pdata, uint32_t block_addr, uint32_t offset, uint32_t size);
+    SdCardStatus writeOffset(std::span<uint8_t> pdata, uint32_t block_addr, uint32_t offset, uint32_t size);
 
     /**
      * @brief  Erase data from the sd card [start_addr, end_addr], inclusive
@@ -83,18 +107,25 @@ class SdCard
      * @param  end_addr end of block index
      * @return the SdCardStatus of the opeation
      */
-    SdCardStatus hw_sd_erase(uint32_t start_addr, uint32_t end_addr);
+    SdCardStatus erase(uint32_t start_addr, uint32_t end_addr);
 
     /**
      * @brief  Detect if the sd card is present.
      * @return True if the card is inserted, false otherwise
      */
-    bool hw_sd_present(void);
+    bool sd_present(void);
 
     /**
      * @brief   Abort the current operation
      * @return  the SdCardStatus of the opeation
      */
-    SdCardStatus hw_sd_abort(void);
+    SdCardStatus abort(void);
+
+      /**
+     * @brief  Returns the SD status depending on the HAL status
+     * @param  hal_status HAL status
+     * @retval SD status
+     */
+    SdCardStatus getSdStatus(HAL_StatusTypeDef hal_status);
 };
 } // namespace hw
