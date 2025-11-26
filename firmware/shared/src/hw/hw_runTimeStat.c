@@ -1,6 +1,5 @@
 // Needed to ensure we are not running this does not compile for the bootloadeer binary
 
-#ifndef BOOTLOADER
 #include "hw_runTimeStat.h"
 #include "main.h"
 #include <string.h>
@@ -137,9 +136,3 @@ unsigned long getRunTimeCounterValue(void)
 {
     return ulHighFrequencyTimerTick;
 }
-
-#else
-
-void hw_runTimeStat_hookCallBack(void) {}
-
-#endif

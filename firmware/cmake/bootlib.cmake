@@ -35,7 +35,6 @@ function(stm32f4_boot_binary
             "${SHARED_HW_INCLUDE_DIR}/hw_can_f4.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_freeRtosConfigs.c"
-            "${SHARED_HW_INCLUDE_DIR}/hw_runTimeStat.c"
     )
     list(APPEND INCLUDE_DIRS
             "${SHARED_APP_INCLUDE_DIR}"
@@ -150,6 +149,4 @@ function(stm32h7_boot_binary
     )
     target_link_libraries("${BOOT_NAME}.elf" PRIVATE "${BOOT_NAME}_stm32")
     target_compile_definitions("${BOOT_NAME}.elf" PRIVATE "${CONFIG_DEFINE}")
-    target_compile_definitions("${BOOT_NAME}.elf" PRIVATE BOOTLOADER)
-
 endfunction()
