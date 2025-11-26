@@ -177,9 +177,9 @@ function(embedded_binary
             ${SHARED_COMPILER_FLAGS}
             ${SHARED_GNU_COMPILER_CHECKS} -Werror
     )
-    # IF (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    #     target_compile_options(${ELF_NAME} PRIVATE -fsanitize=undefined)
-    # ENDIF ()
+    IF (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+        target_compile_options(${ELF_NAME} PRIVATE -fsanitize=undefined)
+    ENDIF ()
 
     target_link_options(${ELF_NAME} PRIVATE
             ${SHARED_LINKER_FLAGS}
