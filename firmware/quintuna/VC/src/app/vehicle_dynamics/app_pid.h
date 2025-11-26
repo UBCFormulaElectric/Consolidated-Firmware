@@ -3,22 +3,22 @@
 #include <stdbool.h>
 
 typedef struct
-{   
-    //Gains and Coefficients
+{
+    // Gains and Coefficients
     float Kp;
     float Ki;
     float Kd;
     float Kb;
-    float Kff; //often the inverse of Kp
+    float Kff; // often the inverse of Kp
     float smoothing_coeff;
 
-    //Limits
+    // Limits
     float out_max;
     float out_min;
     float max_integral;
     float min_integral;
 
-    //Internal State
+    // Internal State
     float error;
     float integral;
     float derivative;
@@ -30,10 +30,10 @@ typedef struct
     bool  clamp_integral;
     bool  back_calculation;
     bool  feed_forward;
-    bool clamp_output;
-    bool clamp_integral;
-    bool back_calculation;
-    bool feed_forward;
+    bool  clamp_output;
+    bool  clamp_integral;
+    bool  back_calculation;
+    bool  feed_forward;
     float sample_time;
 } PID;
 
@@ -56,14 +56,14 @@ typedef struct
     const bool  clamp_integral;
     const bool  back_calculation;
     const bool  feed_forward;
-    const bool clamp_output;
-    const bool clamp_integral;
-    const bool back_calculation;
-    const bool feed_forward;
+    const bool  clamp_output;
+    const bool  clamp_integral;
+    const bool  back_calculation;
+    const bool  feed_forward;
     const float sample_time;
 } PID_Config;
 
 void app_pid_init(PID *pid, const PID_Config *conf);
 
 float app_pid_compute(PID *pid, float setpoint, float input, float disturbance);
-void app_pid_requestReset(PID *pid);
+void  app_pid_requestReset(PID *pid);
