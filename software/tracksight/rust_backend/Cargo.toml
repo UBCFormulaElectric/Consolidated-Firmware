@@ -5,3 +5,6 @@ edition = "2024"
 
 [dependencies]
 serialport = "4.0"
+ctrlc = "3.5"
+tokio = { version = "1", features = ["full"] }
+tokio-serial = "5"
