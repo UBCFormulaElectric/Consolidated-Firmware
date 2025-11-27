@@ -2,18 +2,37 @@ use serialport::SerialPort;
 use std::io::{Error, ErrorKind};
 use std::time::Duration;
 
+use super::thread_signal_handler::should_run;
+use super::can_data_handler::CanMessage;
+use super::clock_handler::TimeMessage;
+
 /**
  * Handling serial signals from radio.
  */
-pub fn run_serial_tasks() {
-    let mut serialport = serialport::new("/dev/ttyUSB0", 9600)
-        .timeout(Duration::from_millis(10))
-        .open()
-        .expect("Failed to open serial port");
+pub fn run_serial_task() {
+    // TODO use tokio to not block a core when reading from serial port
+    let serial_port_builder = serialport::new(
+            "/dev/ttyUSB0",
+            9600
+        )
+        .timeout(Duration::from_millis(10));
 
+    let mut serial_port = match serial_port_builder.open() {
+        Ok(port) => port,
+        Err(e) => {
+            eprintln!("Failed to open serial port: {}", e);
+            return;
+        }
+    };
+
+    // have a should run check
     loop {
+        if !should_run() {
+            break;
+        }
+
         // TODO i love unwrapping
-        let packet = match read_packet(&mut serialport) {
+        let packet = match read_packet(&mut serial_port) {
             Ok(p)   => p,
             Err(_)  => continue,
         };
@@ -22,25 +41,32 @@ pub fn run_serial_tasks() {
             Ok(m)   => m,
             Err(_)  => continue,
         };
+
+        match message {
+            CanMessage { 
+                can_id, 
+                can_time_offset, 
+                can_payload 
+            } => {
+                // TODO handle CAN message
+                println!("Received CAN Message: ID: {}, Time Offset: {}, Payload: {:?}", can_id, can_time_offset, can_payload);
+            },
+            TimeMessage::NTPTimeMessage => {
+                // TODO handle NTP time message
+            },
+            TimeMessage::NTPDateMessage => {
+                // TODO handle NTP date message
+            },
+            TimeMessage::BaseTimeRegMessage { base_time } => {
+                // TODO handle base time register message
+            },
+        }
     }
 }
 
 const MAGIC: [u8; 2] = [0xaa, 0x55];
 const HEADER_SIZE: usize = 7;
 const MAX_PAYLOAD_SIZE: usize = 100;
-
-enum TelemetryMessage {
-    CanMessage {
-        can_id: u32,
-        can_time_offset: f32,
-        can_payload: Vec<u8>,
-    },
-    NTPTimeMessage,
-    NTPDateMessage,
-    BaseTimeRegMessage {
-        base_time: u32, // TODO some time format
-    }
-}
 
 enum TelemetryMessageType {
     CanMessage,
@@ -70,7 +96,7 @@ fn read_packet(serial_port: &mut Box<dyn SerialPort>) -> Result<Vec<u8>, Error> 
 
     loop {
         while index < 2 {
-            // TODO error handling
+            // TODO timeout retry/error handling
             index += serial_port.read(&mut header_buffer[index..])?
         }
         if header_buffer[0..2] == MAGIC {
@@ -108,24 +134,24 @@ fn read_packet(serial_port: &mut Box<dyn SerialPort>) -> Result<Vec<u8>, Error> 
     return Ok(payload_buffer);
 }
 
-fn parse_telem_message(payload: Vec<u8>) -> Result<TelemetryMessage, ()> {
+fn parse_telem_message(payload: Vec<u8>) -> Result<someT, ()> {
     let message_type = TelemetryMessageType::try_from(payload[0])?;
-    let parsed_message: TelemetryMessage = match message_type {
+    let parsed_message: someT = match message_type {
         TelemetryMessageType::CanMessage => {
             let can_id = u32::from_le_bytes([payload[1], payload[2], payload[3], payload[4]]);
             let can_time_offset = f32::from_le_bytes([payload[5], payload[6], payload[7], payload[8]]);
             let can_payload = payload[9..].to_vec();
-            TelemetryMessage::CanMessage {
+            CanMessage {
                 can_id,
                 can_time_offset,
                 can_payload,
             }
         },
-        TelemetryMessageType::NTPTimeMessage => TelemetryMessage::NTPTimeMessage,
-        TelemetryMessageType::NTPDateMessage => TelemetryMessage::NTPDateMessage,
+        TelemetryMessageType::NTPTimeMessage => TimeMessage::NTPTimeMessage,
+        TelemetryMessageType::NTPDateMessage => TimeMessage::NTPDateMessage,
         TelemetryMessageType::BaseTimeRegMessage => {
             let base_time = u32::from_le_bytes([payload[1], payload[2], payload[3], payload[4]]);
-            TelemetryMessage::BaseTimeRegMessage {
+            TimeMessage::BaseTimeRegMessage {
                 base_time,
             }
         }
