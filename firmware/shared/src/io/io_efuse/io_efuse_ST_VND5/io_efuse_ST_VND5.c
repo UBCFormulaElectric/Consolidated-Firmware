@@ -84,7 +84,7 @@ static bool io_efuse_ST_ok(const Efuse *efuse)
     uint8_t fault_table_idx  = 0x00U | ((uint8_t)((fault_reset_stby << 1) | (channelEnabled)));
 
     // Setting faults for st_vnd5 efuse
-    // TODO: these probably are not correct they must be fixed
+    // TODO: Verify these
     if (fault_table_idx == L_L)
     {
         efuse->st_vnd5->faults.flags.overload                      = APPROX_EQUAL_FLOAT(voltage, 0.0f, V_THRES);
@@ -123,5 +123,6 @@ static bool io_efuse_ST_ok(const Efuse *efuse)
     // check if any flag is set, then return the status
     uint8_t flags = efuse->st_vnd5->faults.raw & ST_VND5_Efuse_FAULT_FLAGS;
 
+    // TODO: Do we want to return a boolean or should we just return the faults union and add additional methods to check specific faults
     return !(flags > 0);
 }

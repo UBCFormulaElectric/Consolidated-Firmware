@@ -67,7 +67,7 @@ static float io_TI_TPS28_Efuse_getChannelCurrent(const Efuse *channel)
     assert(current_sense != NULL);
     return hw_adc_getVoltage(current_sense) * ADC_VOLTAGE_TO_CURRENT_A;
 }
-
+// TODO: verify reset function
 static void io_TI_TPS28_Efuse_reset(const Efuse *efuse)
 {
     assert(efuse->enable_gpio != NULL);
