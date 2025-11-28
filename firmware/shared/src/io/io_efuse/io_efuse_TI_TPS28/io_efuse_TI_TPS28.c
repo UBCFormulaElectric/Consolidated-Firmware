@@ -11,15 +11,15 @@
  */
 
 /**
- * The Current limit (I_LIM) is set attaching the ILIM pinto a pulldown resistor. 
- * 
+ * The Current limit (I_LIM) is set attaching the ILIM pinto a pulldown resistor.
+ *
  * The pulldown resistor must be between 10kOhm - 50kOhm
  * The current limit ration K_CL is:
  *      40 A*kOhm - 60 A*kOhm (Rev A or C)
  *      80 A*kOhm - 120 A*kOhm (Rev B, D, or C)
  */
 
-#define R_PD 24.9f //kOhm
+#define R_PD 24.9f // kOhm
 // TODO: is this actualy a linear interpolation??
 #define K_CL (((60.0f - 40.0f) / (50.0f - 10.0f)) * R_PD) // A*kOhm
 #define I_LIM (K_CL / R_PD)
@@ -83,7 +83,7 @@ static bool io_TI_TPS28_Efuse_ok(const Efuse *efuse)
 
     bool  channel_enabled = io_TI_TPS28_Efuse_isChannelEnabled(efuse);
     bool  diag_enabled    = hw_gpio_readPin(efuse->ti_tps28->diag_en_gpio);
-    float voltage = io_TI_TPS28_Efuse_getChannelCurrent(efuse) / ADC_VOLTAGE_TO_CURRENT_A;
+    float voltage         = io_TI_TPS28_Efuse_getChannelCurrent(efuse) / ADC_VOLTAGE_TO_CURRENT_A;
 
     /**
      * Note: Table 8.2 DIAG_EN Logic Table
@@ -96,7 +96,6 @@ static bool io_TI_TPS28_Efuse_ok(const Efuse *efuse)
      * TODO: but Table 8-3 contradicts this
      */
 
-    
     // if diagnostics are not enabled, only check TSD and ILIM
     bool is_faulted = hw_gpio_readPin(efuse->ti_tps28->fault_gpio);
     if (diag_enabled)
@@ -104,7 +103,7 @@ static bool io_TI_TPS28_Efuse_ok(const Efuse *efuse)
         if (is_faulted)
         {
             // Determine specific faults
-            efuse->ti_tps28->faults.flags.overcurrent = 
+            efuse->ti_tps28->faults.flags.overcurrent =
                 (channel_enabled && IS_IN_RANGE(V_SNSFH_MIN, V_SNSFH_MAX, voltage));
             efuse->ti_tps28->faults.flags.thermal_shdn =
                 (channel_enabled && IS_IN_RANGE(V_SNSFH_MIN, V_SNSFH_MAX, voltage));

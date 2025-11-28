@@ -123,6 +123,7 @@ static bool io_efuse_ST_ok(const Efuse *efuse)
     // check if any flag is set, then return the status
     uint8_t flags = efuse->st_vnd5->faults.raw & ST_VND5_Efuse_FAULT_FLAGS;
 
-    // TODO: Do we want to return a boolean or should we just return the faults union and add additional methods to check specific faults
+    // TODO: Do we want to return a boolean or should we just return the faults union and add additional methods to
+    // check specific faults
     return !(flags > 0);
 }
