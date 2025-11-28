@@ -22,7 +22,7 @@ extern "C"
 
 namespace io
 {
-static constexpr float R_PD  = 24.9f; // kOhm
+static constexpr float R_PD = 24.9f; // kOhm
 // TODO: is this actualy a linear interpolation??
 static constexpr float K_CL  = (((60.0f - 40.0f) / (50.0f - 10.0f)) * R_PD); // A*kOhm
 static constexpr float I_LIM = (K_CL / R_PD);
@@ -72,9 +72,8 @@ const bool TI_TPS28_Efuse::ok()
     {
         if (is_faulted)
         {
-            this->faults.flags.overcurrent = (channel_enabled && IS_IN_RANGE(V_SNSFH_MIN, V_SNSFH_MAX, voltage));
-            this->faults.flags.thermal_shdn =
-                (channel_enabled && IS_IN_RANGE(V_SNSFH_MIN, V_SNSFH_MAX, voltage));
+            this->faults.flags.overcurrent  = (channel_enabled && IS_IN_RANGE(V_SNSFH_MIN, V_SNSFH_MAX, voltage));
+            this->faults.flags.thermal_shdn = (channel_enabled && IS_IN_RANGE(V_SNSFH_MIN, V_SNSFH_MAX, voltage));
         }
         else
         {

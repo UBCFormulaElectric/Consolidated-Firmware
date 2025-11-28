@@ -43,15 +43,15 @@ void ST_VND5_Efuse::resetSet(const bool set)
     this->stby_reset_gpio.writePin(set);
 }
 
-// TODO: Do we want to return a boolean or should we just return the faults union and add additional methods to check specific faults
+// TODO: Do we want to return a boolean or should we just return the faults union and add additional methods to check
+// specific faults
 const bool ST_VND5_Efuse::ok()
 {
-    const float  voltage          = this->getChannelCurrent() / ADC_VOLTAGE_TO_CURRENT_A;
-    const bool   channel_enabled  = this->isChannelEnabled();
-    const bool   fault_reset_stby = this->stby_reset_gpio.readPin();
+    const float   voltage          = this->getChannelCurrent() / ADC_VOLTAGE_TO_CURRENT_A;
+    const bool    channel_enabled  = this->isChannelEnabled();
+    const bool    fault_reset_stby = this->stby_reset_gpio.readPin();
     const uint8_t fault_table_idx =
-        static_cast<uint8_t>((static_cast<uint8_t>(fault_reset_stby) << 1U) |
-                             static_cast<uint8_t>(channel_enabled));
+        static_cast<uint8_t>((static_cast<uint8_t>(fault_reset_stby) << 1U) | static_cast<uint8_t>(channel_enabled));
 
     // Setting faults for st_vnd5 efuse
     // TODO: verify these
