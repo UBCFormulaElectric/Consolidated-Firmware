@@ -5,7 +5,7 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import { RowEditor, RowItem } from "./DropdownSearch";
 import DynamicSignalGraph from "./DynamicSignalGraph";
 import { InsertionBar } from "./InsertionBar";
-import MockGraph, { MockGraphConfig } from "@/components/pages/live-data/MockGraph";
+import MockGraph, { MockGraphConfig } from "@/components/widgets/MockGraph";
 
 interface CreatedComponent {
   id: string;
@@ -166,8 +166,8 @@ const DynamicRowManager: React.FC = () => {
               </div>
               <div className="ml-3">
                 <p className="text-sm text-yellow-700">
-                  <strong>Legacy Row System:</strong> This section uses the old row-based system. 
-                  Graphs created here are <strong>not persisted</strong> and will be lost on page refresh. 
+                  <strong>Legacy Row System:</strong> This section uses the old row-based system.
+                  Graphs created here are <strong>not persisted</strong> and will be lost on page refresh.
                   Use the widget system above (with the + button) for persistent widgets.
                 </p>
               </div>
