@@ -9,8 +9,8 @@ import SyncedGraphContainer from "@/components/shared/SyncedGraphContainer";
 import { SignalProvider } from "@/lib/contexts/SignalContext";
 import DynamicRowManager from "@/components/shared/DynamicRowManager";
 import { WidgetAdder } from "@/components/shared/WidgetAdder";
-import { Widget } from "./Widget";
-import useWidgetManager from "./useWidgetManager";
+import { Widget } from "@/components/widgets/Widget";
+import useWidgetManager from "@/components/widgets/useWidgetManager";
 
 export default function LiveDataPage() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -26,6 +26,8 @@ export default function LiveDataPage() {
 
   return (
     <div>
+      {/** TODO(evan): Add pause / play button here */}
+      {/** TODO(evan): Add the universal timeline here */}
       <DisplayControlProvider> {/* not so sure actually (OLD) */}
         <SignalProvider> {/* provides signal data (OLD) */}
           <div className="pt-24 min-h-screen">
