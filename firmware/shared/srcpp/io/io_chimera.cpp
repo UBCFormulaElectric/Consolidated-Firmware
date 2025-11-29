@@ -89,7 +89,7 @@ void msgRxCallback()
     {
         DebugMessage msg       = DebugMessage_init_zero;
         pb_istream_t in_stream = pb_istream_from_buffer(data, rx_packet_size);
-        const bool decode_ok = pb_decode(&in_stream, DebugMessage_fields, &msg);
+        const bool   decode_ok = pb_decode(&in_stream, DebugMessage_fields, &msg);
         assert(decode_ok);
 
         switch (msg.which_payload)
@@ -125,7 +125,7 @@ void msgRxCallback()
 
         // Encode and send reply.
         pb_ostream_t out_stream = pb_ostream_from_buffer(data, sizeof(data));
-        cosnt bool encode_ok = pb_encode(&out_stream, DebugMessage_fields, &msg);
+        cosnt bool   encode_ok  = pb_encode(&out_stream, DebugMessage_fields, &msg);
         assert(encode_ok);
         auto tx_packet_size = (uint8_t)out_stream.bytes_written;
 
