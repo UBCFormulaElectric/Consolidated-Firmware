@@ -6,11 +6,6 @@
 
 #include "io_time.hpp"
 
-extern "C"
-{
-#include "app_utils.h"
-}
-
 struct FaultLatchParams
 {
     io::faultLatch::FaultLatch     *arg0;

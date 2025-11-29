@@ -1,11 +1,8 @@
 #include "app_tractiveSystem.hpp"
 #include "app_timer.hpp"
+#include "app_math.hpp"
 #include "io_tractiveSystem.hpp"
 
-extern "C"
-{
-    #include "app_utils.h"
-}
 #define HIGH_RES_MAX_CURRENT_READING 50.0f
 #define W_TO_KW 1.0e-3f
 
@@ -45,8 +42,8 @@ void broadcast()
     const float ts_current  = getCurrent();
     const float ts_power_kw = ts_voltage * ts_current * W_TO_KW;
 
-    const bool ts_voltage_sns_diag_state = io_tractiveSystem_getVoltageSnsDiagState();
-    const bool ts_current_sns_diag_state = io_tractiveSystem_getCurrentSnsDiagState();
+    const bool ts_voltage_sns_diag_state = io::ts::getVoltageSnsDiagState();
+    const bool ts_current_sns_diag_state = io::ts::getCurrentSnsDiagState();
     const bool ts_overcurrent_warning =
         overcurrent_warning_timer.runIfCondition(!IS_IN_RANGE(
             MAX_TS_DISCHARGE_CURRENT_AMPS, MAX_TS_CHARGE_CURRENT_AMPS, ts_current)) == Timer::TimerState::RUNNING;
