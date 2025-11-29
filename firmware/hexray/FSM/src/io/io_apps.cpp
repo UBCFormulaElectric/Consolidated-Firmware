@@ -79,13 +79,13 @@
 // {
 //     // Pre-calculate the rest (unpressed) angle and the maximum angle (difference between rest and fully pressed) for
 //     // each sensor.
-//     papps_rest_angle = calcAppsAngle(PAPPS_COS_LAW_COEFFICIENT, PAPPS_LENGTH_UNPRESSED_MM, PAPPS_COS_LAW_DENOMINATOR);
-//     papps_max_angle =
+//     papps_rest_angle = calcAppsAngle(PAPPS_COS_LAW_COEFFICIENT, PAPPS_LENGTH_UNPRESSED_MM,
+//     PAPPS_COS_LAW_DENOMINATOR); papps_max_angle =
 //         papps_rest_angle -
 //         calcAppsAngle(PAPPS_COS_LAW_COEFFICIENT, PAPPS_LENGTH_FULLY_PRESSED_MM, PAPPS_COS_LAW_DENOMINATOR);
 
-//     sapps_rest_angle = calcAppsAngle(SAPPS_COS_LAW_COEFFICIENT, SAPPS_LENGTH_UNPRESSED_MM, SAPPS_COS_LAW_DENOMINATOR);
-//     sapps_max_angle =
+//     sapps_rest_angle = calcAppsAngle(SAPPS_COS_LAW_COEFFICIENT, SAPPS_LENGTH_UNPRESSED_MM,
+//     SAPPS_COS_LAW_DENOMINATOR); sapps_max_angle =
 //         sapps_rest_angle -
 //         calcAppsAngle(SAPPS_COS_LAW_COEFFICIENT, SAPPS_LENGTH_FULLY_PRESSED_MM, SAPPS_COS_LAW_DENOMINATOR);
 // }
@@ -109,8 +109,8 @@
 //     }
 
 //     // Scale the percentage to account for the dead zone.
-//     const float pedal_percentage = (100.0f / (100.0f - DEAD_ZONE_PERCENT)) * (pedal_percentage_raw - DEAD_ZONE_PERCENT);
-//     return CLAMP(pedal_percentage, 0.0f, 100.0f);
+//     const float pedal_percentage = (100.0f / (100.0f - DEAD_ZONE_PERCENT)) * (pedal_percentage_raw -
+//     DEAD_ZONE_PERCENT); return CLAMP(pedal_percentage, 0.0f, 100.0f);
 // }
 
 // bool isPrimaryOCSC(void)
@@ -138,8 +138,8 @@
 //     }
 
 //     // Scale the percentage to account for the dead zone.
-//     const float pedal_percentage = (100.0f / (100.0f - DEAD_ZONE_PERCENT)) * (pedal_percentage_raw - DEAD_ZONE_PERCENT);
-//     return CLAMP(pedal_percentage, 0.0f, 100.0f);
+//     const float pedal_percentage = (100.0f / (100.0f - DEAD_ZONE_PERCENT)) * (pedal_percentage_raw -
+//     DEAD_ZONE_PERCENT); return CLAMP(pedal_percentage, 0.0f, 100.0f);
 // }
 
 // bool isSecondaryOCSC(void)
