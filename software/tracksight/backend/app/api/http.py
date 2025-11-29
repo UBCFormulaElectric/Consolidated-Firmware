@@ -13,7 +13,7 @@ def index():
 def hello_world():
     return "<p>Hello, World!</p>"
 
-def build_signal(msg: CanMessage, signal: CanSignal) -> dict:
+  def build_signal(msg: CanMessage, signal: CanSignal) -> dict:
     if signal.enum:
         return {
             "name": signal.name,
