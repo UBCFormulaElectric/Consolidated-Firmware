@@ -4,7 +4,7 @@ import React, { useEffect, useState, useMemo, useRef } from "react";
 import CanvasChart from "@/components/widgets/CanvasChart";
 import { usePausePlay, PausePlayButton } from "@/components/PausePlayControl";
 import { PlusButton } from "@/components/PlusButton";
-import { useSyncedGraphScroll } from "@/components/SyncedGraphContainer";
+import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { MockGraphConfig, WidgetDataMock } from "@/lib/types/Widget";
 import { dataTagErrorSymbol } from "@tanstack/react-query";
 
@@ -71,7 +71,7 @@ const MockWidget: React.FC<MockWidgetProps> = React.memo(
       registerTimeRange,
       unregisterTimeRange,
       globalTimeRange,
-    } = useSyncedGraphScroll();
+    } = useSyncedGraph();
 
     useEffect(() => {
       isLiveRef.current = scrollProgress >= 0.99;
