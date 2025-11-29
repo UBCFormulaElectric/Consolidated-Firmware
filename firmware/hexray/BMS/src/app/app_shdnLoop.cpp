@@ -1,6 +1,11 @@
 #include <array>
 #include "app_shdnLoop.hpp"
+
+#ifdef TARGET_EMBEDDED
 #include "io_shdnLoopNode.hpp"
+#elif
+
+#endif
 
 using namespace io::shdn;
 namespace
