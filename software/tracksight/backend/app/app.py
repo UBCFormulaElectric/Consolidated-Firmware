@@ -60,10 +60,11 @@ def create_app():
     app.register_blueprint(sub_handler)
     app.register_blueprint(signal_handler)
 
-    influx_start_time = time.time()
-    # Setup the Message Populate Thread
-    InfluxHandler.setup()
-    logger.debug(f"InfluxDB setup took {time.time() - influx_start_time:.2f} seconds")
+    if INFLUX_ON:
+        influx_start_time = time.time()
+        # Setup the Message Populate Thread
+        InfluxHandler.setup()
+        logger.debug(f"InfluxDB setup took {time.time() - influx_start_time:.2f} seconds")
 
     match DATA_SOURCE:
         case "WIRELESS":
