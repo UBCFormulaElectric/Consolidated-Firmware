@@ -224,7 +224,7 @@ void tasks_runLtcVoltages(void)
     {
         const uint32_t start_ticks = osKernelGetTickCount();
         jobs_runLTCVoltages();
-        LOG_INFO("LTC voltage period remaining: %dms", start_ticks + period_ms - osKernelGetTickCount());
+        //LOG_INFO("LTC voltage period remaining: %dms", start_ticks + period_ms - osKernelGetTickCount());
         osDelayUntil(start_ticks + period_ms);
     }
 #endif
@@ -242,7 +242,7 @@ void tasks_runLtcTemps(void)
     {
         const uint32_t start_ticks = osKernelGetTickCount();
         jobs_runLTCTemperatures();
-        LOG_INFO("LTC temp period remaining: %dms", start_ticks + period_ms - osKernelGetTickCount());
+        //LOG_INFO("LTC temp period remaining: %dms", start_ticks + period_ms - osKernelGetTickCount());
         osDelayUntil(start_ticks + period_ms);
     }
 #endif
