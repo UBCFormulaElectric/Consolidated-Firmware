@@ -151,9 +151,9 @@ export default function useWidgetManager() {
 				if (widget.type !== SignalType.MOCK) {
 					return prev;
 				}
-				
+
 				const newConfigs = updater(widget.configs);
-				
+
 				const newWidgets = [...prev];
 				newWidgets[widgetIndex] = {
 					...widget,
