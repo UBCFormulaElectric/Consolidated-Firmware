@@ -1,8 +1,5 @@
 #include "io_steering.hpp"
-extern "C"
-{
-#include "hw_adcs.h"
-}
+#include "hw_adcs.hpp"
 #include "hw_gpios.hpp"
 
 // Voltage thresholds for the steering sensor (in Volts)

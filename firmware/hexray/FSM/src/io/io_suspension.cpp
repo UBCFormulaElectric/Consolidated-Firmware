@@ -1,6 +1,6 @@
-#include "io_suspension.h"
-#include "hw_adcs.h"
-#include "hw_gpios.h"
+#include "io_suspension.hpp"
+#include "hw_adcs.hpp"
+#include "hw_gpios.hpp"
 
 namespace io::suspension
 {
