@@ -4,7 +4,7 @@
 
 "use client";
 
-import { useDisplayControl } from "@/components/shared/PausePlayControl";
+import { useDisplayControl } from "@/components/PausePlayControl";
 import {
   createContext,
   ReactNode,

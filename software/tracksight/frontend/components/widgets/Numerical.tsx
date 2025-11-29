@@ -1,9 +1,9 @@
 // numerical.tsx
 "use client";
 
-import { usePausePlay } from "@/components/shared/PausePlayControl";
-import { PlusButton } from "@/components/shared/PlusButton";
-import { useSyncedGraphScroll } from "@/components/shared/SyncedGraphContainer";
+import { usePausePlay } from "@/components/PausePlayControl";
+import { PlusButton } from "@/components/PlusButton";
+import { useSyncedGraphScroll } from "@/components/SyncedGraphContainer";
 import { SignalType } from "@/lib/SignalConfig";
 import { useSignals, useDataVersion } from "@/lib/contexts/SignalContext";
 import React, {

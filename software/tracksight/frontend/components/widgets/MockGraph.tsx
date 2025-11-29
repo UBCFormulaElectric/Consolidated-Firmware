@@ -1,11 +1,11 @@
 "use client";
 
-import { useSyncedGraphScroll } from "@/components/shared/SyncedGraphContainer";
+import { useSyncedGraphScroll } from "@/components/SyncedGraphContainer";
 import React, { useEffect, useState, useMemo } from "react";
 import CanvasChart from "@/components/widgets/CanvasChart";
-import { usePausePlay, PausePlayButton } from "@/components/shared/PausePlayControl";
+import { usePausePlay, PausePlayButton } from "@/components/PausePlayControl";
 import { SignalType } from "@/lib/SignalConfig";
-import { PlusButton } from "@/components/shared/PlusButton";
+import { PlusButton } from "@/components/PlusButton";
 
 interface MockGraphProps {
   onDelete: () => void;

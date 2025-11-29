@@ -2,10 +2,10 @@
 
 // import AlertBoard from "@/components/shared/AlertBoard/AlertBoard";
 // import ConnectionStatus from "@/components/pages/live-data/ConnectionStatus";
-import { DisplayControlProvider } from "@/components/shared/PausePlayControl";
-import SyncedGraphContainer from "@/components/shared/SyncedGraphContainer";
+import { DisplayControlProvider } from "@/components/PausePlayControl";
+import SyncedGraphContainer from "@/components/SyncedGraphContainer";
 import { SignalProvider } from "@/lib/contexts/SignalContext";
-import { WidgetAdder } from "@/components/shared/WidgetAdder";
+import { WidgetAdder } from "@/components/WidgetAdder";
 import { Widget } from "@/components/widgets/Widget";
 import useWidgetManager from "@/components/widgets/useWidgetManager";
 

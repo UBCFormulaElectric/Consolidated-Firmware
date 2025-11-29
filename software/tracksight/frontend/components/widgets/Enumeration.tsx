@@ -1,7 +1,7 @@
 // enumeration.tsx
 "use client";
 
-import { usePausePlay } from "@/components/shared/PausePlayControl";
+import { usePausePlay } from "@/components/PausePlayControl";
 import { SignalType } from "@/lib/SignalConfig";
 import { useSignals, useDataVersion } from "@/lib/contexts/SignalContext";
 import { formatWithMs } from "@/lib/dateformat";

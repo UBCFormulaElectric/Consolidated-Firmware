@@ -1,12 +1,4 @@
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 
 type SyncedGraphScrollContextValue = {
   progress: number;
@@ -27,16 +19,13 @@ const DEFAULT_SCROLL_WIDTH = 4000;
 const DEFAULT_STRIP_HEIGHT = 64;
 const SCROLL_LABEL = "Scroll timeline";
 
-type ScrollControllerProps = {
+const clamp01 = (value: number) => Math.min(Math.max(value, 0), 1);
+function ScrollController({ onScrollChange, progress, scrollWidth = DEFAULT_SCROLL_WIDTH, style, }: {
   onScrollChange: (nextProgress: number) => void;
   progress: number;
   scrollWidth?: number;
   style?: React.CSSProperties;
-};
-
-const clamp01 = (value: number) => Math.min(Math.max(value, 0), 1);
-
-function ScrollController({ onScrollChange, progress, scrollWidth = DEFAULT_SCROLL_WIDTH, style, }: ScrollControllerProps) {
+}) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const isSyncingRef = useRef(false);
 
@@ -81,9 +70,7 @@ function ScrollController({ onScrollChange, progress, scrollWidth = DEFAULT_SCRO
 export function useSyncedGraphScroll() {
   const ctx = useContext(SyncedGraphScrollContext);
   if (!ctx) {
-    throw new Error(
-      "useSyncedGraphScroll must be used within a SyncedGraphContainer"
-    );
+    throw new Error("useSyncedGraphScroll must be used within a SyncedGraphContainer");
   }
   return ctx;
 }
@@ -154,9 +141,7 @@ export default function SyncedGraphContainer({
     const container = containerRef.current;
     if (!container) return;
     container.addEventListener("wheel", handleWheel, { passive: false });
-    return () => {
-      container.removeEventListener("wheel", handleWheel);
-    };
+    return () => { container.removeEventListener("wheel", handleWheel); };
   }, [handleWheel]);
 
   const registerTimeRange = useCallback((id: string, min: number, max: number) => {
