@@ -13,55 +13,14 @@ typedef enum
     ALPHA_FROM_CUTOFF_FREQUENCY // Calculate alpha from cutoff frequency and sample rate
 } AlphaParameterType;
 
-/**
- * @brief IIR Moving Average Filter
- *
- * This filter provides an IIR approximation of a moving average filter.
- * It uses exponential smoothing with calculated alpha to approximate
- * the behavior of a moving average with specified window size.
- *
- */
-
-typedef struct
-{
-    float alpha;           // Calculated smoothing factor
-    float previous_output; // Previous filter output
-    float initial_value;   // Initial value for reset functionality
-    bool  is_initialized;  // Initialization flag
-} IIRMovingAverageFilter;
-
 typedef struct
 {
     float alpha;           // Smoothing factor (0.0 to 1.0)
     float previous_output; // Previous filter output
+    float previous_input;  // Previous input value (for reset functionality)
     float initial_value;   // Initial value for reset functionality
     bool  is_initialized;  // Initialization flag
 } ExponentialFilter;
-
-/**
- * @brief Initialize IIR Moving Average Filter
- * @param filter Pointer to filter structure
- * @param equivalent_window_size Equivalent window size for approximation
- * @param initial_value Initial value for the filter
- */
-void app_sensor_filter_iir_moving_average_init(
-    IIRMovingAverageFilter *filter,
-    uint32_t                equivalent_window_size,
-    float                   initial_value);
-
-/**
- * @brief Process input through IIR Moving Average Filter
- * @param filter Pointer to filter structure
- * @param input New input sample
- * @return Filtered output
- */
-float app_sensor_filter_iir_moving_average_process(IIRMovingAverageFilter *filter, float input);
-
-/**
- * @brief Reset IIR Moving Average Filter to initial state
- * @param filter Pointer to filter structure
- */
-void app_sensor_filter_iir_moving_average_reset(IIRMovingAverageFilter *filter);
 
 /**
  * @brief Initialize Exponential Filter
@@ -88,7 +47,7 @@ void app_sensor_filter_exponential_init(
 float app_sensor_filter_exponential_process(ExponentialFilter *filter, float input);
 
 /**
- * @brief Reset Exponential Filter to initial state
+ * @brief Reset Exponential Filter to previous input states
  * @param filter Pointer to filter structure
  */
 void app_sensor_filter_exponential_reset(ExponentialFilter *filter);
@@ -137,16 +96,14 @@ float app_sensor_filter_butterworth_process(ButterworthFilter *filter, float inp
 void app_sensor_filter_butterworth_reset(ButterworthFilter *filter);
 
 /**
- * @brief Second-Order Butterworth IIR Biquad Filter using CMSIS Core(M)
+ * @brief Second-Order Butterworth IIR Biquad Filter
  *
- * A high-performance low-pass filter with a maximally flat passband.
- * Uses CMSIS Core(M) compatible implementation for ARM Cortex-M processing.
- * This filter provides better performance and accuracy than the first-order version.
  */
 typedef struct
 {
     float coeffs[5];      // Filter coefficients: {b0, b1, b2, a1, a2}
-    float state[2];       // State variables: {d1, d2} for Direct Form II Transposed
+    float state[4];       // State variables for Direct Form I: {x[n-1], x[n-2], y[n-1], y[n-2]}
+    float previous_input; // Previous input value (for reset functionality)
     float initial_value;  // Initial value for reset functionality
     bool  is_initialized; // Initialization flag
 } ButterworthBiquadFilter;
@@ -173,7 +130,7 @@ void app_sensor_filter_butterworth_biquad_init(
 float app_sensor_filter_butterworth_biquad_process(ButterworthBiquadFilter *filter, float input);
 
 /**
- * @brief Reset the Butterworth biquad filter to its initial state
+ * @brief Reset the Butterworth biquad filter to its previous input state
  * @param filter Pointer to the filter structure
  */
 void app_sensor_filter_butterworth_biquad_reset(ButterworthBiquadFilter *filter);
