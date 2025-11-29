@@ -11,6 +11,19 @@ export const signalColors = [
 	"#ffec3d",
 ];
 
+// const signalColors = [
+// 	"#ff4d4f",
+// 	"#ffa940",
+// 	"#36cfc9",
+// 	"#597ef7",
+// 	"#73d13d",
+// 	"#ff85c0",
+// 	"#9254de",
+// 	"#ffc069",
+// 	"#69c0ff",
+// 	"#ffec3d",
+// ];
+
 export const ENUM_COLORS = [
 	"#FF3B2F",
 	"#FFCC02",
