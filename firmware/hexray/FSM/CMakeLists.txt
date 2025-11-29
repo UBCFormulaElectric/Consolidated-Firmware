@@ -40,7 +40,7 @@ file(GLOB_RECURSE HW_SRCS
 )
 list(APPEND HW_SRCS)
 set(HW_INCLUDE_DIRS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
+        #"${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
         "${SHARED_HW_INCLUDE_DIR}" 
         "${SHARED_HW_INCLUDE_DIR_CPP}"
 )
