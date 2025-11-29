@@ -2,9 +2,9 @@
 
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import CanvasChart from "@/components/widgets/CanvasChart";
-import { usePausePlay, PausePlayButton } from "@/components/shared/PausePlayControl";
-import { PlusButton } from "@/components/shared/PlusButton";
-import { useSyncedGraphScroll } from "@/components/shared/SyncedGraphContainer";
+import { usePausePlay, PausePlayButton } from "@/components/PausePlayControl";
+import { PlusButton } from "@/components/PlusButton";
+import { useSyncedGraphScroll } from "@/components/SyncedGraphContainer";
 import { MockGraphConfig, WidgetDataMock } from "@/lib/types/Widget";
 import { dataTagErrorSymbol } from "@tanstack/react-query";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useDisplayControl } from "@/components/shared/PausePlayControl";
+import { useDisplayControl } from "@/components/PausePlayControl";
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { RowEditor, RowItem } from "./DropdownSearch";
 import DynamicSignalGraph from "./DynamicSignalGraph";
