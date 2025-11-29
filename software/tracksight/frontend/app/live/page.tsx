@@ -24,6 +24,7 @@ export default function LiveDataPage() {
     <DisplayControlProvider> {/* not so sure actually (OLD) */}
       <SignalProvider> {/* provides signal data (OLD) */}
         <SyncedGraphContainer>
+          <div className="h-96"></div>
           {/** TODO(evan): Add pause / play button here */}
           {/** TODO(evan): Add the universal timeline here */}
           {/* TODO rework alerts */}

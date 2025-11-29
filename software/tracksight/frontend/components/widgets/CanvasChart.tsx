@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect, useMemo } from "react";
+import { useRef, useEffect, useMemo } from "react";
 
 type SeriesMeta = {
   label: string;
@@ -10,7 +10,10 @@ type SeriesMeta = {
 // data format is an array where:
 // -first element is an array of x-axis timestamps
 // - subsequent elements are arrays of y-axis values for each series
-type AlignedData = [number[], ...Array<(number | string | null)[]>];
+interface AlignedData {
+  timestamps: number[];
+  series: Array<(number | string | null)[]>;
+};
 
 type ChunkStats = {
   min: number[];
@@ -26,36 +29,6 @@ type PreparedChartData = {
   numericalSeriesIndices: number[]; // indices of series that are numerical
   uniqueEnumValues: Record<number, string[]>; // map of series index to unique enum values
 };
-
-type CanvasChartProps = {
-  data: AlignedData;
-  series: SeriesMeta[];
-  width: number;
-  height: number;
-  panOffset?: number;
-  scrollProgress?: number;
-  zoomLevel?: number;
-  frozenTimeWindow?: { startTime: number; endTime: number } | null;
-  downsampleThreshold?: number;
-  timeTickCount?: number;
-  onZoomChange?: (newZoom: number) => void;
-  hoverTimestamp?: number | null;
-  onHoverTimestampChange?: (timestamp: number | null) => void;
-  domainStart?: number;
-  domainEnd?: number;
-};
-
-const ENUM_COLORS = [
-  "#FF3B2F",
-  "#FFCC02",
-  "#FF9500",
-  "#35C759",
-  "#007AFF",
-  "#5856D6",
-  "#AF52DE",
-  "#FF2D55",
-];
-const NA_COLOR = "#E5E7EB";
 
 // first index where timestamp >= targetTime
 function binarySearchForFirstVisibleIndex(
@@ -107,22 +80,22 @@ function binarySearchForFirstEnumIndex(
   targetTime: number
 ): number {
   if (timestamps.length === 0) return 0;
-  
+
   let left = 0;
   let right = timestamps.length - 1;
   let result = timestamps.length - 1;
 
   while (left <= right) {
     const mid = Math.floor((left + right) / 2);
-    
+
     let overlaps = false;
-    
+
     if (mid < timestamps.length - 1) {
       overlaps = timestamps[mid + 1] >= targetTime;
     } else {
       overlaps = true;
     }
-    
+
     if (overlaps) {
       result = mid;
       right = mid - 1;
@@ -135,22 +108,24 @@ function binarySearchForFirstEnumIndex(
 }
 
 export default function CanvasChart({
-  data,
-  series,
-  width,
-  height,
-  panOffset = 0,
-  scrollProgress = 1,
-  zoomLevel = 100,
-  frozenTimeWindow = null,
-  downsampleThreshold = 100000,
-  timeTickCount = 6,
-  onZoomChange,
-  hoverTimestamp: externalHoverTimestamp,
-  onHoverTimestampChange,
-  domainStart,
-  domainEnd,
-}: CanvasChartProps) {
+  data, series, height, panOffset = 0, scrollProgress = 1, zoomLevel = 100, frozenTimeWindow = null,
+  downsampleThreshold = 100000, timeTickCount = 6, hoverTimestamp: externalHoverTimestamp,
+  onHoverTimestampChange, domainStart, domainEnd,
+}: {
+  data: AlignedData;
+  series: SeriesMeta[];
+  height: number;
+  panOffset?: number;
+  scrollProgress?: number;
+  zoomLevel?: number;
+  frozenTimeWindow?: { startTime: number; endTime: number } | null;
+  downsampleThreshold?: number;
+  timeTickCount?: number;
+  hoverTimestamp?: number | null;
+  onHoverTimestampChange?: (timestamp: number | null) => void;
+  domainStart?: number;
+  domainEnd?: number;
+}) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animationFrameId = useRef<number | null>(null);
   const hoverPixelRef = useRef<{ x: number; y: number } | null>(null);
@@ -242,7 +217,7 @@ export default function CanvasChart({
         newTimestamps.length > 0 &&
         workingTimestamps.length > 0 &&
         newTimestamps[newTimestamps.length - 1] !==
-          workingTimestamps[workingTimestamps.length - 1]
+        workingTimestamps[workingTimestamps.length - 1]
       ) {
         newTimestamps.push(workingTimestamps[workingTimestamps.length - 1]);
         workingSeries.forEach((seriesPoints, seriesIndex) => {
@@ -361,8 +336,8 @@ export default function CanvasChart({
       const enumSectionHeight =
         enumSeriesIndices.length > 0
           ? enumSeriesIndices.length * (ENUM_STRIP_HEIGHT + ENUM_STRIP_GAP) +
-            LEGEND_HEIGHT +
-            10
+          LEGEND_HEIGHT +
+          10
           : 0;
 
       const numericalTop = padding.top + enumSectionHeight;

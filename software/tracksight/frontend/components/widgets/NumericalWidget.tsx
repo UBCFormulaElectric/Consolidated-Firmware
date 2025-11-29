@@ -2,7 +2,7 @@
 
 import { usePausePlay } from "@/components/PausePlayControl";
 import { PlusButton } from "@/components/PlusButton";
-import { useSyncedGraphScroll } from "@/components/SyncedGraphContainer";
+import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { SignalType } from "@/lib/SignalConfig";
 import { useSignals, useDataVersion } from "@/lib/contexts/SignalContext";
 import { WidgetDataNumerical } from "@/lib/types/Widget";
@@ -82,7 +82,7 @@ const NumericalWidget: React.FC<NumericalWidgetProps> = React.memo(
       registerTimeRange,
       unregisterTimeRange,
       globalTimeRange,
-    } = useSyncedGraphScroll();
+    } = useSyncedGraph();
 
     const graphId = widgetData.id;
 
