@@ -73,7 +73,6 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h5xx_hal_tim_ex.c"
             "stm32h5xx_hal_i2c.c"
             "stm32h5xx_hal_i2c_ex.c"
-            "stm32h5xx_hal_can.c"
             "stm32h5xx_hal_fdcan.c"
     )
     stm32h562xx_cube_library(

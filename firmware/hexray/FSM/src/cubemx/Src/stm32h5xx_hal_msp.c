@@ -234,6 +234,80 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
 }
 
 /**
+ * @brief FDCAN MSP Initialization
+ * This function configures the hardware resources used in this example
+ * @param hfdcan: FDCAN handle pointer
+ * @retval None
+ */
+void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
+{
+    GPIO_InitTypeDef         GPIO_InitStruct     = { 0 };
+    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
+    if (hfdcan->Instance == FDCAN1)
+    {
+        /* USER CODE BEGIN FDCAN1_MspInit 0 */
+
+        /* USER CODE END FDCAN1_MspInit 0 */
+
+        /** Initializes the peripherals clock
+         */
+        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_FDCAN;
+        PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_HSE;
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+        {
+            Error_Handler();
+        }
+
+        /* Peripheral clock enable */
+        __HAL_RCC_FDCAN_CLK_ENABLE();
+
+        __HAL_RCC_GPIOA_CLK_ENABLE();
+        /**FDCAN1 GPIO Configuration
+        PA11     ------> FDCAN1_RX
+        PA12     ------> FDCAN1_TX
+        */
+        GPIO_InitStruct.Pin       = GPIO_PIN_11 | GPIO_PIN_12;
+        GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+        GPIO_InitStruct.Pull      = GPIO_NOPULL;
+        GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
+        GPIO_InitStruct.Alternate = GPIO_AF9_FDCAN1;
+        HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+        /* USER CODE BEGIN FDCAN1_MspInit 1 */
+
+        /* USER CODE END FDCAN1_MspInit 1 */
+    }
+}
+
+/**
+ * @brief FDCAN MSP De-Initialization
+ * This function freeze the hardware resources used in this example
+ * @param hfdcan: FDCAN handle pointer
+ * @retval None
+ */
+void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef *hfdcan)
+{
+    if (hfdcan->Instance == FDCAN1)
+    {
+        /* USER CODE BEGIN FDCAN1_MspDeInit 0 */
+
+        /* USER CODE END FDCAN1_MspDeInit 0 */
+        /* Peripheral clock disable */
+        __HAL_RCC_FDCAN_CLK_DISABLE();
+
+        /**FDCAN1 GPIO Configuration
+        PA11     ------> FDCAN1_RX
+        PA12     ------> FDCAN1_TX
+        */
+        HAL_GPIO_DeInit(GPIOA, GPIO_PIN_11 | GPIO_PIN_12);
+
+        /* USER CODE BEGIN FDCAN1_MspDeInit 1 */
+
+        /* USER CODE END FDCAN1_MspDeInit 1 */
+    }
+}
+
+/**
  * @brief I2C MSP Initialization
  * This function configures the hardware resources used in this example
  * @param hi2c: I2C handle pointer
