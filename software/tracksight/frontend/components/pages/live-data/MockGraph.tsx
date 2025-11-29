@@ -4,7 +4,7 @@ import { useSyncedGraphScroll } from "@/components/shared/SyncedGraphContainer";
 import React, { useEffect, useState, useMemo } from "react";
 import CanvasChart from "@/components/shared/CanvasChart";
 import { usePausePlay, PausePlayButton } from "@/components/shared/PausePlayControl";
-import { SignalType } from "@/hooks/SignalConfig";
+import { SignalType } from "@/lib/SignalConfig";
 import { PlusButton } from "@/components/shared/PlusButton";
 
 interface MockGraphProps {

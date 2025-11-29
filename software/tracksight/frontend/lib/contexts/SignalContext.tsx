@@ -15,11 +15,11 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
-import { BACKEND_URL, DataPoint, DEBUG, SignalType } from "./SignalConfig";
+import { BACKEND_URL, DataPoint, DEBUG, SignalType } from "../SignalConfig";
 
-import { useSocket } from "./signals/useSocket";
-import { useSignalData } from "./signals/useSignalData";
-import { useSubscribers } from "./signals/useSubscribers";
+import { useSocket } from "@/lib/hooks/signals/useSocket";
+import { useSignalData } from "@/lib/hooks/signals/useSignalData";
+import { useSubscribers } from "@/lib/hooks/signals/useSubscribers";
 
 // TODO move this to the specific components which need signals
 // function useAvailableSignals() {

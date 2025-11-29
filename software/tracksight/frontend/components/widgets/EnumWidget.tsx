@@ -7,10 +7,10 @@ import useSignalMetadata from "@/lib/hooks/useSignalMetadata";
 import { useMemo, useEffect, useRef } from "react";
 import { EnumSignalMetadata, SignalType } from "@/lib/types/Signal";
 import { usePausePlay } from "@/components/shared/PausePlayControl";
-import { useSignals, useDataVersion } from "@/hooks/SignalContext";
+import { useSignals, useDataVersion } from "@/lib/contexts/SignalContext";
 import { formatWithMs } from "@/lib/dateformat";
 
-const NA_COLOR = "#E5E7EB"; 
+const NA_COLOR = "#E5E7EB";
 
 function EnumWidgetBody({ signalName, setSignalName, signalMetadata, colorPalette }: {
   setSignalName: (name: string) => void;
@@ -29,7 +29,7 @@ function EnumWidgetBody({ signalName, setSignalName, signalMetadata, colorPalett
     getEnumData,
   } = useSignals() as any;
   const dataVersion = useDataVersion();
-  
+
   const signals = useMemo(() => signalMetadata ? Object.values(signalMetadata.enum.items) : [], [signalMetadata]);
 
   const enumData: any[] = useMemo(
@@ -39,7 +39,7 @@ function EnumWidgetBody({ signalName, setSignalName, signalMetadata, colorPalett
 
   useEffect(() => {
     if (signalName) {
-      subscribeToSignal(signalName, "enumeration"); 
+      subscribeToSignal(signalName, "enumeration");
     }
     return () => {
       if (signalName) {
@@ -82,16 +82,16 @@ function EnumWidgetBody({ signalName, setSignalName, signalMetadata, colorPalett
     return bars.filter((_, idx) => idx % maxLabels === 0);
   }, [bars]);
 
-    // helper to find color for a state
-    const getColorForState = (state: string) => {
-      if (state === "N/A") return NA_COLOR;
-      if (!signalMetadata) return colorPalette[0];
-      
-      const index = Object.values(signalMetadata.enum.items).indexOf(state);
-      if (index !== -1) {
-          return colorPalette[index % colorPalette.length];
-      }
-      return colorPalette[0];
+  // helper to find color for a state
+  const getColorForState = (state: string) => {
+    if (state === "N/A") return NA_COLOR;
+    if (!signalMetadata) return colorPalette[0];
+
+    const index = Object.values(signalMetadata.enum.items).indexOf(state);
+    if (index !== -1) {
+      return colorPalette[index % colorPalette.length];
+    }
+    return colorPalette[0];
   };
 
   return (
@@ -100,24 +100,24 @@ function EnumWidgetBody({ signalName, setSignalName, signalMetadata, colorPalett
         <EnumSignalSelector currentSignal={signalName} onSignalChange={setSignalName} />
       </div>
       <LabelLegend signals={signals} colorPalette={colorPalette} />
-      
-      <div className="p-4 w-full overflow-x-auto">
-         {/* Controls */}
-         <div className="mb-2">
-              <label className="text-sm mr-2">
-                Horizontal Scale: {horizontalScale}%
-              </label>
-              <input
-                type="range"
-                min={1}
-                max={1000}
-                value={horizontalScale}
-                onChange={(e) => setHorizontalScale(+e.target.value)}
-              />
-         </div>
 
-         {/* Chart */}
-         {chartData.length === 0 ? (
+      <div className="p-4 w-full overflow-x-auto">
+        {/* Controls */}
+        <div className="mb-2">
+          <label className="text-sm mr-2">
+            Horizontal Scale: {horizontalScale}%
+          </label>
+          <input
+            type="range"
+            min={1}
+            max={1000}
+            value={horizontalScale}
+            onChange={(e) => setHorizontalScale(+e.target.value)}
+          />
+        </div>
+
+        {/* Chart */}
+        {chartData.length === 0 ? (
           <div className="w-full h-[24px] flex items-center justify-center text-gray-500">
             No data
           </div>
@@ -127,7 +127,7 @@ function EnumWidgetBody({ signalName, setSignalName, signalMetadata, colorPalett
             style={{
               width,
               transition: "width 100ms ease-out",
-            //   marginLeft: "60px", 
+              //   marginLeft: "60px", 
             }}
           >
             <div className="h-6 flex flex-row flex-nowrap">

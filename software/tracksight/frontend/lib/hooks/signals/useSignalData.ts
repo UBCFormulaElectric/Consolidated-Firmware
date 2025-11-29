@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from "react";
-import { DataPoint, DEBUG, DEFAULT_MAX_DATA_POINTS, SignalDataStore } from "../SignalConfig";
+import { DataPoint, DEBUG, DEFAULT_MAX_DATA_POINTS, SignalDataStore } from "@/lib/SignalConfig";
 
 // Optional onFlush callback notifies when a batch has been flushed so consumers can trigger re-render.
 export function useSignalData(onFlush?: () => void) {

@@ -6,7 +6,7 @@
 import { useRef } from "react";
 import { DisplayControlProvider } from "@/components/shared/PausePlayControl";
 import SyncedGraphContainer from "@/components/shared/SyncedGraphContainer";
-import { SignalProvider } from "@/hooks/SignalContext";
+import { SignalProvider } from "@/lib/contexts/SignalContext";
 import DynamicRowManager from "@/components/shared/DynamicRowManager";
 import { WidgetAdder } from "@/components/shared/WidgetAdder";
 import { Widget } from "./Widget";
@@ -14,16 +14,16 @@ import useWidgetManager from "./useWidgetManager";
 
 export default function LiveDataPage() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { 
-    widgets, 
-    setEnumSignal, 
-    appendNumSignal, 
+  const {
+    widgets,
+    setEnumSignal,
+    appendNumSignal,
     removeNumSignal,
     removeWidget,
     updateMockConfig,
     appendWidget
   } = useWidgetManager();
-  
+
   return (
     <div>
       <DisplayControlProvider> {/* not so sure actually (OLD) */}

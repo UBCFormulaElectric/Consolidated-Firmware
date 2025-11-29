@@ -3,8 +3,8 @@
 import { usePausePlay } from "@/components/shared/PausePlayControl";
 import { PlusButton } from "@/components/shared/PlusButton";
 import { useSyncedGraphScroll } from "@/components/shared/SyncedGraphContainer";
-import { SignalType } from "@/hooks/SignalConfig";
-import { useSignals, useDataVersion } from "@/hooks/SignalContext";
+import { SignalType } from "@/lib/SignalConfig";
+import { useSignals, useDataVersion } from "@/lib/contexts/SignalContext";
 import { WidgetDataNumerical } from "@/lib/types/Widget";
 import React, {
   useCallback,
@@ -38,13 +38,13 @@ interface NumericalWidgetProps {
   widgetData: WidgetDataNumerical;
   appendNumSignal: (widgetId: string, newSignal: string) => void;
   removeNumSignal: (widgetId: string, signalToRemove: string) => void;
-  onDelete?: () => void; 
+  onDelete?: () => void;
 }
 
 const NumericalWidget: React.FC<NumericalWidgetProps> = React.memo(
   ({ widgetData, appendNumSignal, removeNumSignal, onDelete }) => {
     const { isPaused } = usePausePlay();
-    
+
     const signalsCtx = useSignals() as any;
     const dataVersion = useDataVersion();
     const {
@@ -57,7 +57,7 @@ const NumericalWidget: React.FC<NumericalWidgetProps> = React.memo(
     // TODO: hook up availableSignals metadata (currently only fetched in DropdownSearch on demand)
     // In a real implementation this should come from a metadata hook
     const availableSignals: any[] = useMemo(() => [], []);
-    
+
     const allData: any[] = useMemo(
       () => getAllData(),
       [getAllData, dataVersion]
@@ -98,10 +98,10 @@ const NumericalWidget: React.FC<NumericalWidgetProps> = React.memo(
       widgetData.signals.forEach(sig => {
         subscribeToSignal(sig, SignalType.Numerical);
       });
-      
+
       return () => {
         widgetData.signals.forEach(sig => {
-           unsubscribeFromSignal(sig);
+          unsubscribeFromSignal(sig);
         });
       };
     }, [widgetData.signals, subscribeToSignal, unsubscribeFromSignal]);
@@ -280,13 +280,13 @@ const NumericalWidget: React.FC<NumericalWidgetProps> = React.memo(
           <div className="flex items-center gap-2 mb-4">
             <h3 className="font-semibold">Numerical Graph</h3>
             {onDelete && (
-                <button
+              <button
                 onClick={onDelete}
                 className="w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-sm font-bold transition-colors"
                 title="Remove this graph"
-                >
+              >
                 ×
-                </button>
+              </button>
             )}
           </div>
 
@@ -346,72 +346,72 @@ const NumericalWidget: React.FC<NumericalWidgetProps> = React.memo(
                 </button>
               );
             })}
-            
-             <div ref={buttonRef} className="relative z-50">
-                <PlusButton
-                  onClick={() => {
-                    if (buttonRef.current) {
-                      const rect = buttonRef.current.getBoundingClientRect();
-                      setDropdownPosition({
-                        top: rect.bottom + window.scrollY + 4,
-                        left: rect.left + window.scrollX,
-                      });
-                    }
-                    setIsSearchOpen((o) => !o);
+
+            <div ref={buttonRef} className="relative z-50">
+              <PlusButton
+                onClick={() => {
+                  if (buttonRef.current) {
+                    const rect = buttonRef.current.getBoundingClientRect();
+                    setDropdownPosition({
+                      top: rect.bottom + window.scrollY + 4,
+                      left: rect.left + window.scrollX,
+                    });
+                  }
+                  setIsSearchOpen((o) => !o);
+                }}
+                variant="rowSide"
+              />
+              {isSearchOpen && (
+                <div
+                  className="fixed bg-white border rounded shadow w-64 p-2 z-[9999]"
+                  style={{
+                    top: dropdownPosition.top,
+                    left: dropdownPosition.left,
                   }}
-                  variant="rowSide"
-                />
-                {isSearchOpen && (
-                  <div
-                    className="fixed bg-white border rounded shadow w-64 p-2 z-[9999]"
-                    style={{
-                      top: dropdownPosition.top,
-                      left: dropdownPosition.left,
+                >
+                  <input
+                    type="text"
+                    placeholder="Search or type signal name..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && searchTerm) {
+                        handleSelect(searchTerm);
+                      }
                     }}
-                  >
-                    <input
-                      type="text"
-                      placeholder="Search or type signal name..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      onKeyDown={(e) => {
-                          if (e.key === 'Enter' && searchTerm) {
-                              handleSelect(searchTerm);
-                          }
-                      }}
-                      autoFocus
-                      className="w-full mb-2 px-2 py-1 border rounded"
-                    />
-                    <div className="max-h-32 overflow-auto">
-                      {isLoadingSignals ? (
-                        <div className="px-2 py-1 text-gray-500">
-                          Loading...
-                        </div>
-                      ) : filteredSignals.length === 0 ? (
-                        <div 
-                            className="px-2 py-1 hover:bg-gray-100 cursor-pointer text-blue-600"
-                            onClick={() => searchTerm && handleSelect(searchTerm)}
+                    autoFocus
+                    className="w-full mb-2 px-2 py-1 border rounded"
+                  />
+                  <div className="max-h-32 overflow-auto">
+                    {isLoadingSignals ? (
+                      <div className="px-2 py-1 text-gray-500">
+                        Loading...
+                      </div>
+                    ) : filteredSignals.length === 0 ? (
+                      <div
+                        className="px-2 py-1 hover:bg-gray-100 cursor-pointer text-blue-600"
+                        onClick={() => searchTerm && handleSelect(searchTerm)}
+                      >
+                        Add "{searchTerm}"
+                      </div>
+                    ) : (
+                      filteredSignals.map((s) => (
+                        <div
+                          key={s.name}
+                          onClick={() => handleSelect(s.name)}
+                          className="px-2 py-1 hover:bg-gray-100 cursor-pointer"
                         >
-                          Add "{searchTerm}"
-                        </div>
-                      ) : (
-                        filteredSignals.map((s) => (
-                          <div
-                            key={s.name}
-                            onClick={() => handleSelect(s.name)}
-                            className="px-2 py-1 hover:bg-gray-100 cursor-pointer"
-                          >
-                            <div className="font-medium">{s.name}</div>
-                            <div className="text-xs text-gray-500">
-                              {s.unit}
-                            </div>
+                          <div className="font-medium">{s.name}</div>
+                          <div className="text-xs text-gray-500">
+                            {s.unit}
                           </div>
-                        ))
-                      )}
-                    </div>
+                        </div>
+                      ))
+                    )}
                   </div>
-                )}
-              </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Debug info */}

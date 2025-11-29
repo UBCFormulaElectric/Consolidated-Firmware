@@ -2,8 +2,8 @@
 "use client";
 
 import { usePausePlay } from "@/components/shared/PausePlayControl";
-import { SignalType } from "@/hooks/SignalConfig";
-import { useSignals, useDataVersion } from "@/hooks/SignalContext";
+import { SignalType } from "@/lib/SignalConfig";
+import { useSignals, useDataVersion } from "@/lib/contexts/SignalContext";
 import { formatWithMs } from "@/lib/dateformat";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 
@@ -213,9 +213,9 @@ const EnumerationGraphComponent: React.FC<DynamicSignalGraphProps> = React.memo(
                   bar.state === "N/A"
                     ? NA_COLOR
                     : stateColors[
-                        Math.max(enumVals.indexOf(label), 0) %
-                          stateColors.length
-                      ];
+                    Math.max(enumVals.indexOf(label), 0) %
+                    stateColors.length
+                    ];
 
                 // Calculate end time for the current bar
                 const endTime =

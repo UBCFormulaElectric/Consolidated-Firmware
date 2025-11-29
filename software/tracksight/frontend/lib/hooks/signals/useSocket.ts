@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { io, Socket } from "socket.io-client";
-import { BACKEND_URL, DEBUG, MAX_RECONNECT_ATTEMPTS } from "../SignalConfig";
+import { BACKEND_URL, DEBUG, MAX_RECONNECT_ATTEMPTS } from "@/lib/SignalConfig";
 
 // Module-level singleton to survive re-mounts/HMR and avoid duplicate connections
 let sharedSocket: Socket | null = null;

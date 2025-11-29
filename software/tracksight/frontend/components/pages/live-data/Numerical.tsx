@@ -4,8 +4,8 @@
 // import { usePausePlay } from "@/components/shared/PausePlayControl";
 // import { PlusButton } from "@/components/shared/PlusButton";
 import { useSyncedGraphScroll } from "@/components/shared/SyncedGraphContainer";
-import { SignalType } from "@/hooks/SignalConfig";
-import { useSignals, useDataVersion } from "@/hooks/SignalContext";
+import { SignalType } from "@/lib/SignalConfig";
+import { useSignals, useDataVersion } from "@/lib/contexts/SignalContext";
 import React, {
   useCallback,
   useEffect,
