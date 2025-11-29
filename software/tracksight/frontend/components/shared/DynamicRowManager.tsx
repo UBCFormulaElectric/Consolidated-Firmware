@@ -17,9 +17,7 @@ interface CreatedComponent {
 
 const DynamicRowManager: React.FC = () => {
   const [rows, setRows] = useState<RowItem[]>([]);
-  const [createdComponents, setCreatedComponents] = useState<
-    CreatedComponent[]
-  >([]);
+  const [createdComponents, setCreatedComponents] = useState<CreatedComponent[]>([]);
 
   // Autoscroll functionality
   const { isAutoscrollEnabled, isPaused } = useDisplayControl();

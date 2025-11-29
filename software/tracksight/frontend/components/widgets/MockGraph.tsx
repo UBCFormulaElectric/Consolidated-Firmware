@@ -2,7 +2,7 @@
 
 import { useSyncedGraphScroll } from "@/components/shared/SyncedGraphContainer";
 import React, { useEffect, useState, useMemo } from "react";
-import CanvasChart from "@/components/shared/CanvasChart";
+import CanvasChart from "@/components/widgets/CanvasChart";
 import { usePausePlay, PausePlayButton } from "@/components/shared/PausePlayControl";
 import { SignalType } from "@/lib/SignalConfig";
 import { PlusButton } from "@/components/shared/PlusButton";
