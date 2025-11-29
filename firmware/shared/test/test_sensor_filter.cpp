@@ -191,7 +191,7 @@ TEST_F(SensorFilterTest, Butterworth_CoefficientCalculation)
     // Coefficients should be valid
     EXPECT_GT(filter.b0, 0.0f);
     EXPECT_GT(filter.b1, 0.0f);
-    
+
     // For a first-order lowpass filter, the pole should be inside the unit circle
     // a1 should satisfy -1 < a1 < 1 for stability
     EXPECT_LT(filter.a1, 1.0f);
@@ -243,7 +243,7 @@ TEST_F(SensorFilterTest, Butterworth_StepResponse)
     // First-order Butterworth should converge to the step value (DC gain = 1.0)
     // With the corrected sign, the filter should be stable and converge correctly
     EXPECT_NEAR(output, step_value, 0.1f);
-    
+
     // Output should be increasing (monotonic for first-order)
     // Verify it's approaching the step value
     EXPECT_GT(output, step_value * 0.9f);
@@ -256,30 +256,30 @@ TEST_F(SensorFilterTest, Butterworth_Stability)
 
     // Test with different cutoff frequencies to ensure stability
     float sample_rate = 10.0f;
-    
+
     // Test various cutoff frequencies
-    float cutoffs[] = {0.1f, 0.5f, 1.0f, 2.0f, 4.0f};
-    
+    float cutoffs[] = { 0.1f, 0.5f, 1.0f, 2.0f, 4.0f };
+
     for (float cutoff : cutoffs)
     {
         app_sensor_filter_butterworth_init(&filter, cutoff, sample_rate, 0.0f);
-        
+
         // a1 should be in stable range: -1 < a1 < 1
         EXPECT_LT(filter.a1, 1.0f);
         EXPECT_GT(filter.a1, -1.0f);
-        
+
         // Process many samples with constant input to verify stability
-        float input = 10.0f;
+        float input       = 10.0f;
         float prev_output = 0.0f;
-        bool converged = false;
-        
+        bool  converged   = false;
+
         for (int i = 0; i < 100; i++)
         {
             float output = app_sensor_filter_butterworth_process(&filter, input);
-            
+
             // Check that output is bounded (not growing unbounded)
             EXPECT_LT(std::abs(output), input * 10.0f); // Should not exceed 10x input
-            
+
             // Check convergence after many samples
             if (i > 50)
             {
@@ -291,7 +291,7 @@ TEST_F(SensorFilterTest, Butterworth_Stability)
             }
             prev_output = output;
         }
-        
+
         // Filter should converge to input value (DC gain = 1.0)
         EXPECT_TRUE(converged);
         EXPECT_NEAR(prev_output, input, 0.5f);

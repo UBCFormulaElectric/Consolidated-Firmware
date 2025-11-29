@@ -17,7 +17,6 @@ typedef float float32_t;
 //  https://blog.mbedded.ninja/programming/signal-processing/digital-filters/exponential-moving-average-ema-filter/
 //  https://tttapa.github.io/Pages/Mathematics/Systems-and-Control-Theory/Digital-filters/Exponential%20Moving%20Average/Exponential-Moving-Average.pdf
 
-
 void app_sensor_filter_exponential_init(
     ExponentialFilter *filter,
     AlphaParameterType param_type,
@@ -88,9 +87,11 @@ void app_sensor_filter_exponential_reset(ExponentialFilter *filter)
 // Butterworth filter logic: https://www.electronics-tutorials.ws/filter/filter_8.html
 // Coefficient source: https://tttapa.github.io/Arduino-Filters/Doxygen/d4/d40/Butterworth_8hpp_source.html
 // Bilinear transformation: https://en.wikipedia.org/wiki/Bilinear_transform
-//                        : https://drive.google.com/file/d/1N4QLeThiRkMvv1Coa4Jz7XBrzQYjDaYG/view?usp=sharing (page 505 of document)
-//                        : https://drive.google.com/file/d/1DWD-mlCiXZQRKY8twKZ-w1JyBcgIiOFM/view?usp=sharing (page 678)
-// IIR basic formula and general IIR filter design: https://ethz.ch/content/dam/ethz/special-interest/mavt/dynamic-systems-n-control/idsc-dam/Lectures/Signals-and-Systems/Lectures/Lecture%20Notes%209.pdf
+//                        : https://drive.google.com/file/d/1N4QLeThiRkMvv1Coa4Jz7XBrzQYjDaYG/view?usp=sharing (page 505
+//                        of document) :
+//                        https://drive.google.com/file/d/1DWD-mlCiXZQRKY8twKZ-w1JyBcgIiOFM/view?usp=sharing (page 678)
+// IIR basic formula and general IIR filter design:
+// https://ethz.ch/content/dam/ethz/special-interest/mavt/dynamic-systems-n-control/idsc-dam/Lectures/Signals-and-Systems/Lectures/Lecture%20Notes%209.pdf
 
 void app_sensor_filter_butterworth_init(
     ButterworthFilter *filter,
@@ -164,12 +165,12 @@ void app_sensor_filter_butterworth_biquad_init(
     assert(filter != NULL);
     assert(cutoff_frequency > 0.0f);
     assert(sample_rate > 0.0f);
-// Nyquist-Shannon sampling theorem: https://www.mathworks.com/discovery/nyquist-theorem.html
+    // Nyquist-Shannon sampling theorem: https://www.mathworks.com/discovery/nyquist-theorem.html
     assert(cutoff_frequency < sample_rate / 2.0f); // Nyquist-Shannon criteria
 
     // Calculate pre-warped frequency for bilinear transform
 
-// Reference of formulae: https://www.earlevel.com/main/2011/01/02/biquad-formulas/
+    // Reference of formulae: https://www.earlevel.com/main/2011/01/02/biquad-formulas/
     // K = tan(π·fc/fs) where fc is cutoff frequency and fs is sample rate
     // This pre-warping compensates for frequency warping in the bilinear transform
     float K         = tanf(M_PI_F * cutoff_frequency / sample_rate);
@@ -198,7 +199,7 @@ void app_sensor_filter_butterworth_biquad_init(
     filter->state[3] = initial_value; // y[n-2]
 
     // Set initial value for reset functionality
-    filter->initial_value = initial_value;
+    filter->initial_value  = initial_value;
     filter->previous_input = initial_value;
 
     filter->is_initialized = true;
@@ -214,18 +215,18 @@ float app_sensor_filter_butterworth_biquad_process(ButterworthBiquadFilter *filt
     // State variables: state[0] = x[n-1], state[1] = x[n-2], state[2] = y[n-1], state[3] = y[n-2]
 
     // Calculate output using current input and delayed inputs/outputs
-    float output = filter->coeffs[0] * input                    // b0*x[n]
-                  + filter->coeffs[1] * filter->state[0]        // b1*x[n-1]
-                  + filter->coeffs[2] * filter->state[1]        // b2*x[n-2]
-                  - filter->coeffs[3] * filter->state[2]        // -a1*y[n-1]
-                  - filter->coeffs[4] * filter->state[3];       // -a2*y[n-2]
+    float output = filter->coeffs[0] * input               // b0*x[n]
+                   + filter->coeffs[1] * filter->state[0]  // b1*x[n-1]
+                   + filter->coeffs[2] * filter->state[1]  // b2*x[n-2]
+                   - filter->coeffs[3] * filter->state[2]  // -a1*y[n-1]
+                   - filter->coeffs[4] * filter->state[3]; // -a2*y[n-2]
 
     // Update state variables (shift delay line)
-    filter->state[1] = filter->state[0];  // x[n-2] = x[n-1]
-    filter->state[0] = input;             // x[n-1] = x[n]
-    filter->state[3] = filter->state[2];   // y[n-2] = y[n-1]
-    filter->state[2] = output;            // y[n-1] = y[n]
-    
+    filter->state[1] = filter->state[0]; // x[n-2] = x[n-1]
+    filter->state[0] = input;            // x[n-1] = x[n]
+    filter->state[3] = filter->state[2]; // y[n-2] = y[n-1]
+    filter->state[2] = output;           // y[n-1] = y[n]
+
     filter->previous_input = input;
 
     return output;
@@ -240,8 +241,8 @@ void app_sensor_filter_butterworth_biquad_reset(ButterworthBiquadFilter *filter)
     // For Direct Form I, set all state variables to the previous input value
     // This approximates steady state where all delayed inputs and outputs equal the constant input
     float reset_value = filter->previous_input;
-    filter->state[0] = reset_value; // x[n-1]
-    filter->state[1] = reset_value; // x[n-2]
-    filter->state[2] = reset_value; // y[n-1]
-    filter->state[3] = reset_value; // y[n-2]
+    filter->state[0]  = reset_value; // x[n-1]
+    filter->state[1]  = reset_value; // x[n-2]
+    filter->state[2]  = reset_value; // y[n-1]
+    filter->state[3]  = reset_value; // y[n-2]
 }
