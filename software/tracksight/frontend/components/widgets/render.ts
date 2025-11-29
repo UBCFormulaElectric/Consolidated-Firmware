@@ -129,9 +129,9 @@ export default function render(
 	frozenTimeWindow: { startTime: number; endTime: number; } | null,
 	timeTickCount: number,
 	externalHoverTimestamp: number | null,
-	layoutRef: RefObject<ChartLayout | null>,
 	hoverPixelRef: RefObject<{ x: number; y: number; } | null>,
 	tooltipBufferRef: RefObject<string[]>,
+	layoutRef: RefObject<ChartLayout | null>,
 	domainStart?: number,
 	domainEnd?: number
 ) {
