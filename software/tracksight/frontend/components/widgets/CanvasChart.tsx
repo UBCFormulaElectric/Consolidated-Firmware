@@ -2,12 +2,12 @@
 
 import { useRef, useEffect, useMemo, useCallback } from "react";
 import { MouseEvent as MouseEvent_React } from "react";
-import render, { ChartLayout, PreparedChartData, SeriesMeta } from "./render";
+import render, { ChartLayout, ChunkStats, PreparedChartData, SeriesMeta } from "./render";
 
 // data format is an array where:
 // -first element is an array of x-axis timestamps
 // - subsequent elements are arrays of y-axis values for each series
-interface AlignedData {
+export interface AlignedData {
   timestamps: number[];
   series: Array<(number | string | null)[]>;
 };
@@ -20,7 +20,7 @@ export default function CanvasChart({
   data: AlignedData; series: SeriesMeta[];
   height: number; panOffset?: number; scrollProgress?: number; zoomLevel?: number;
   frozenTimeWindow?: { startTime: number; endTime: number } | null;
-  downsampleThreshold?: number; timeTickCount?: number; hoverTimestamp?: number | null;
+  downsampleThreshold?: number; timeTickCount?: number; hoverTimestamp: number | null;
   onHoverTimestampChange?: (timestamp: number | null) => void;
   domainStart?: number; domainEnd?: number;
 }) {
@@ -31,7 +31,7 @@ export default function CanvasChart({
   const layoutRef = useRef<ChartLayout | null>(null);
 
   const preparedData = useMemo<PreparedChartData>(() => {
-    if (!data || data.length === 0) {
+    if (!data) {
       return {
         timestamps: [],
         seriesData: [],
@@ -43,7 +43,7 @@ export default function CanvasChart({
       };
     }
 
-    const [originalTimestamps, ...originalSeries] = data;
+    const { timestamps: originalTimestamps, series: originalSeries } = data;
     const timestamps = originalTimestamps ?? [];
 
     if (!timestamps || timestamps.length === 0) {

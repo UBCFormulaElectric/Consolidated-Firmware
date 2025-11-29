@@ -2,7 +2,7 @@
 
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { useEffect, useState, useMemo, memo } from "react";
-import CanvasChart from "@/components/widgets/CanvasChart";
+import CanvasChart, { AlignedData } from "@/components/widgets/CanvasChart";
 import { usePausePlay, PausePlayButton } from "@/components/PausePlayControl";
 import { SignalType } from "@/lib/SignalConfig";
 import { PlusButton } from "@/components/PlusButton";
@@ -126,14 +126,10 @@ const MockGraph = memo(({ onDelete, config }: {
     return () => intervals.forEach(clearInterval);
   }, [configs, isPaused]);
 
-  const chartData = useMemo<
-    [number[], ...Array<(number | string | null)[]>]
-  >(() => {
-    const seriesArrays = configs.map((c) => data.series[c.signalName] || []);
-    return [data.timestamps, ...seriesArrays];
-  }, [data, configs]);
-
-  // const handleSnapToLatest = () => setScrollProgress(1);
+  const chartData = useMemo<AlignedData>(() => ({
+    timestamps: data.timestamps,
+    series: configs.map((c) => data.series[c.signalName] || [])
+  }), [data, configs]);
 
   const handleAddSignal = (e: React.FormEvent) => {
     e.preventDefault();
@@ -325,7 +321,7 @@ const MockGraph = memo(({ onDelete, config }: {
 
             {showAddModal && (
               <div
-                className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]"
+                className="fixed inset-0 bg-black/50 flex items-center justify-center z-100"
                 onClick={() => setShowAddModal(false)}
               >
                 <div
