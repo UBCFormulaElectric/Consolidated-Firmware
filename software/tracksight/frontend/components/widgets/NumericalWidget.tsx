@@ -13,7 +13,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import CanvasChart from "@/components/shared/CanvasChart";
+import CanvasChart from "@/components/widgets/CanvasChart";
 
 // data format is an array where:
 // -first element is an array of x-axis timestamps

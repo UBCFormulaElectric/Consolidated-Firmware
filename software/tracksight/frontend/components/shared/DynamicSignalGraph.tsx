@@ -1,7 +1,7 @@
 // DynamicSignalGraph.tsx
 'use client';
 
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import NumericalGraphComponent from '@/components/widgets/Numerical';
 import EnumerationGraphComponent from '@/components/widgets/Enumeration';
 import { useSignals } from '@/lib/contexts/SignalContext';

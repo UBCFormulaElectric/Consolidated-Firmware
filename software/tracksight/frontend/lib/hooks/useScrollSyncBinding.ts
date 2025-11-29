@@ -4,7 +4,7 @@ import {
   getScrollChannelSnapshot,
   setWindowDurationMs,
   subscribeScrollChannel,
-} from "@/components/shared/scroll-sync/store";
+} from "@/components/widgets/scroll-sync/store";
 
 type ScrollState = ReturnType<typeof getScrollChannelSnapshot>;
 
