@@ -2,8 +2,8 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import NumericalGraphComponent from '@/components/pages/live-data/Numerical';
-import EnumerationGraphComponent from '@/components/pages/live-data/Enumeration';
+import NumericalGraphComponent from '@/components/widgets/Numerical';
+import EnumerationGraphComponent from '@/components/widgets/Enumeration';
 import { useSignals } from '@/lib/contexts/SignalContext';
 
 interface DynamicSignalGraphProps {

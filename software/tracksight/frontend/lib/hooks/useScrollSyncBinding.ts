@@ -28,11 +28,11 @@ function computeWindow(
   if (!timestamps || timestamps.length === 0) {
     return options.requireData === false
       ? {
-          startTime: 0,
-          endTime: state.windowDurationMs,
-          channelProgress: state.progress,
-          channelWindowMs: state.windowDurationMs,
-        }
+        startTime: 0,
+        endTime: state.windowDurationMs,
+        channelProgress: state.progress,
+        channelWindowMs: state.windowDurationMs,
+      }
       : null;
   }
 

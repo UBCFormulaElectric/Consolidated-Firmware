@@ -81,7 +81,7 @@ const MockWidget: React.FC<MockWidgetProps> = React.memo(
 
     useEffect(() => {
       const ts = dataRef.current.timestamps;
-      if(ts.length > 0) {
+      if (ts.length > 0) {
         const min = ts[0];
         const max = ts[ts.length - 1];
         registerTimeRange(graphId, min, max);
@@ -179,7 +179,7 @@ const MockWidget: React.FC<MockWidgetProps> = React.memo(
       let frameId: number;
       const loop = () => {
         frameId = requestAnimationFrame(loop);
-        if(isDirtyRef.current && isLiveRef.current) {
+        if (isDirtyRef.current && isLiveRef.current) {
           setTick(t => t + 1);
           isDirtyRef.current = false;
         }
@@ -194,16 +194,16 @@ const MockWidget: React.FC<MockWidgetProps> = React.memo(
       //const seriesArrays = configs.map((c) => data.series[c.signalName] || []);
       //if (data.timestamps.length === 0) {
       // read from ref ontick
-      const {timestamps, series} = dataRef.current;
+      const { timestamps, series } = dataRef.current;
       const seriesArrays = configs.map((c) => series[c.signalName] || []);
 
       if (timestamps.length === 0) {
-          return [[], ...configs.map(() => [])];
+        return [[], ...configs.map(() => [])];
       }
       //return [data.timestamps, ...seriesArrays];
-    //}, [data, configs]);
-    return [timestamps, ...seriesArrays];
-  }, [tick, configs]); // dependency now tick instead of data
+      //}, [data, configs]);
+      return [timestamps, ...seriesArrays];
+    }, [tick, configs]); // dependency now tick instead of data
 
     const handleSnapToLatest = () => setScrollProgress(1);
 
@@ -249,22 +249,22 @@ const MockWidget: React.FC<MockWidgetProps> = React.memo(
         delete nextSeries[name];
         return { ...prev, series: nextSeries };
       });*/
-      if(dataRef.current.series[name]) {
+      if (dataRef.current.series[name]) {
         delete dataRef.current.series[name];
       }
     };
 
     const visiblePointsCount = React.useMemo(() => {
-       // ... simplified visible points logic or just use timestamps.length if lazy ...
-       // reusing logic from MockGraph.tsx would be verbose but good for accuracy
-       //return data.timestamps.length; 
-    //}, [data.timestamps]);
+      // ... simplified visible points logic or just use timestamps.length if lazy ...
+      // reusing logic from MockGraph.tsx would be verbose but good for accuracy
+      //return data.timestamps.length; 
+      //}, [data.timestamps]);
 
-    //const totalDataPoints = data.timestamps.length;
-    return dataRef.current.timestamps.length;
-  }, [tick]);
-  
-  const totalDataPoints = dataRef.current.timestamps.length;
+      //const totalDataPoints = data.timestamps.length;
+      return dataRef.current.timestamps.length;
+    }, [tick]);
+
+    const totalDataPoints = dataRef.current.timestamps.length;
 
     return (
       <div className="mb-6 p-4 block w-full relative">
