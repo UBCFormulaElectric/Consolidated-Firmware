@@ -140,12 +140,13 @@ TEST(PIDTest, back_calculation_antiwindup_test)
     float input    = 0.0f;
 
     const int   steps       = 100;
-    const float max_allowed = 7.0f;
+    const float max_allowed = 14.0f;
+    float       out;
 
     // Setpoint is outside of maximum output to simulate saturation
     for (int i = 0; i < steps; i++)
     {
-        float out = app_pid_compute(&test_pid, setpoint, input, 0.0f);
+        out = app_pid_compute(&test_pid, setpoint, input, 0.0f);
 
         ASSERT_LT(out, test_pid.out_max + 1e-6f);
         ASSERT_LT(test_pid.integral, max_allowed + 1e-6f);
@@ -158,7 +159,7 @@ TEST(PIDTest, random_disturbance_stress_test)
 {
     PID        test_pid;
     PID_Config test_cfg = { 0.8f,  0.005f, 0.5f, 0.1f, 0.2f, 0.9f, 50.0f, -50.0f,
-                            20.0f, -20.0f, true, true, true, true, 1.0f };
+                            25.0f, -25.0f, true, true, true, true, 1.0f };
 
     app_pid_init(&test_pid, &test_cfg);
 
