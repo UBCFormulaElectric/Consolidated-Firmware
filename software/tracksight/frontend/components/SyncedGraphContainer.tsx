@@ -6,7 +6,9 @@ type SyncedGraphContext = {
   timeRangeRef: RefObject<TimeRange | null>;
   setTimeRange: (tr: TimeRange) => void;
 };
+// eslint-disable-next-line no-redeclare
 const SyncedGraphContext = createContext<SyncedGraphContext | null>(null);
+
 export function useSyncedGraph() {
   const ctx = useContext(SyncedGraphContext);
   if (!ctx) {

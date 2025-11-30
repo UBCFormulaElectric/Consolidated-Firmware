@@ -12,14 +12,6 @@ enum MockSignalType {
   Enumeration = "enumeration",
 }
 
-// jack yaoi
-
-interface MockWidgetProps {
-  widgetData: WidgetDataMock;
-  updateMockConfig: (widgetId: string, updater: (prevConfigs: MockGraphConfig[]) => MockGraphConfig[]) => void;
-  onDelete: () => void;
-}
-
 const generateRandomValue = (
   type: string,
   time: number,
@@ -38,7 +30,12 @@ const generateRandomValue = (
   }
 };
 
-const MockWidget = memo(({ widgetData, updateMockConfig, onDelete }: MockWidgetProps) => {
+const MockWidget = memo(({ widgetData, updateMockConfig, onDelete }: 
+  { widgetData: WidgetDataMock, updateMockConfig: 
+    (widgetId: string, 
+      updater: (prevConfigs: MockGraphConfig[]) => MockGraphConfig[]) => void, 
+      onDelete: () => void }
+    ) => {
   const { isPaused } = usePausePlay();
   const configs = widgetData.configs;
 
@@ -51,8 +48,6 @@ const MockWidget = memo(({ widgetData, updateMockConfig, onDelete }: MockWidgetP
     timestamps: number[];
     series: Record<string, (number | string | null)[]>;
   }>({ timestamps: [], series: {} });
-
-  const [tick, setTick] = useState(0);
 
   const [chartHeight, setChartHeight] = useState(256);
   // const { hoverTimestamp, scalePxPerSecRef, setTimeRange, timeRangeRef } = useSyncedGraph();
@@ -125,36 +120,8 @@ const MockWidget = memo(({ widgetData, updateMockConfig, onDelete }: MockWidgetP
       timestamps,
       series: seriesArrays,
     }
-  }, [tick, configs, isPaused]); // dependency now tick instead of data
-
-  // Kickstart render when play is pressed and update when data arrives
-  /*const lastDataLengthRef = useRef(0);
-  useEffect(() => {
-    if (isPaused) {
-      // Reset tracking when paused
-      lastDataLengthRef.current = dataRef.current.timestamps.length;
-      return;
-    }
-    
-    // Increment tick once when play starts to trigger initial render
-    setTick((t) => t + 1);
-    lastDataLengthRef.current = dataRef.current.timestamps.length;
-    
-    // Check periodically for new data (to trigger chart recalculation)
-    const checkDataLength = () => {
-      const currentLength = dataRef.current.timestamps.length;
-      if (currentLength !== lastDataLengthRef.current) {
-        lastDataLengthRef.current = currentLength;
-        setTick((t) => t + 1);
-      }
-    };
-    
-    // Check every 5 seconds (balance between responsiveness and avoiding too many React updates)
-    const interval = setInterval(checkDataLength, 5000);
-    
-    return () => clearInterval(interval);
-  }, [isPaused]);*/
-
+  }, [configs, isPaused]); 
+  
   const handleAddSignal = useCallback((e: FormEvent) => {
     e.preventDefault();
     const name = newSignalName.trim() || `Signal ${configs.length + 1}`;
@@ -169,13 +136,6 @@ const MockWidget = memo(({ widgetData, updateMockConfig, onDelete }: MockWidgetP
       delay: newSignalDelay,
       initialPoints: 0,
     };
-
-    // initialize data series for the new signal with nulls
-    /*setData((prev) => {
-      const newSeries = { ...prev.series };
-      newSeries[name] = new Array(prev.timestamps.length).fill(null);
-      return { ...prev, series: newSeries };
-    });*/
 
     const store = dataRef.current;
     store.series[name] = new Array(store.timestamps.length).fill(null);
@@ -192,11 +152,6 @@ const MockWidget = memo(({ widgetData, updateMockConfig, onDelete }: MockWidgetP
       return;
     }
     updateMockConfig(widgetData.id, (prev) => prev.filter((c) => c.signalName !== name));
-    /*setData((prev) => {
-      const nextSeries = { ...prev.series };
-      delete nextSeries[name];
-      return { ...prev, series: nextSeries };
-    });*/
     if (dataRef.current.series[name]) {
       delete dataRef.current.series[name];
     }
