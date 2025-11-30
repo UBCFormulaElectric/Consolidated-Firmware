@@ -69,7 +69,6 @@ float app_pid_compute(PID *pid, const float setpoint, const float input, float d
     {
         float out_clamp = CLAMP(output, pid->out_min, pid->out_max);
         pid->integral += pid->Kb * (out_clamp - output);
-        pid->integral += pid->Kb * (out_clamp - output);
     }
 
     if (pid->clamp_output)
