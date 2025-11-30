@@ -1,23 +1,37 @@
+import { SignalType } from "@/lib/types/Signal";
 import type { FC } from "react";
 
-type WidgetSchema = {
-  type: "enumTimeline",
+type WidgetDataBase = {
+  id: string;
+}
+
+interface enumProps {
+  type: SignalType.ENUM;
+  signal: string | null;
   options: {
     colorPalette: string[],
-  },
-};
+  };
+}
+export type WidgetDataEnum = WidgetDataBase & enumProps;
 
-type WidgetType = WidgetSchema["type"];
-
-type WidgetData<Type extends WidgetType = WidgetType> = {
+interface numericalProps {
+  type: SignalType.NUMERICAL;
   signals: string[];
-  id: string;
-} & Extract<WidgetSchema, { type: Type }>;
+}
+export type WidgetDataNumerical = WidgetDataBase & numericalProps;
 
-type WidgetRenderer<Type extends WidgetType> = FC<WidgetData<Type>>;
+export interface MockGraphConfig {
+  type: "numerical" | "enumeration";
+  delay: number; // ms
+  initialPoints: number;
+  signalName: string;
+}
 
-export type {
-  WidgetData,
-  WidgetType,
-  WidgetRenderer
-};
+interface mockProps {
+    type: SignalType.MOCK;
+    configs: MockGraphConfig[];
+}
+export type WidgetDataMock = WidgetDataBase & mockProps;
+
+export type WidgetData = WidgetDataEnum | WidgetDataNumerical | WidgetDataMock;
+export type WidgetRenderer = FC<WidgetData>;

@@ -1,7 +1,7 @@
 from datetime import datetime, date, timedelta
 import influxdb_client
 from influxdb_client.client.influxdb_client import InfluxDBClient
-from settings import INFLUX_URL, INFLUX_TOKEN, INFLUX_ORG, CAR_NAME
+from settings import INFLUX_ON, INFLUX_URL, INFLUX_TOKEN, INFLUX_ORG, CAR_NAME
 
 if INFLUX_URL is None:
     raise Exception("No Influx URL Provided")
@@ -67,6 +67,8 @@ def get_influxdb_client() -> InfluxDBClient:
     Returns InfluxDB client with configured settings
     Use with context window, i.e. `with get_influxdb_client() as client:...`
     """
+    if INFLUX_ON:
+        raise Exception("InfluxDB is turned off in settings")
     return influxdb_client.InfluxDBClient(
         url=INFLUX_URL,
         token=INFLUX_TOKEN,
