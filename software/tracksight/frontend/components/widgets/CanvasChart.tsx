@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef, useEffect, useMemo, useCallback } from "react";
+import { useRef, useEffect, useMemo, useCallback, useState } from "react";
 import { MouseEvent as MouseEvent_React } from "react";
-import render, { ChartLayout, ChunkStats, PreparedChartData, SeriesMeta } from "./render";
+import render, { ChartLayout, ChunkStats, PreparedChartData, SeriesMeta } from "@/components/widgets/render";
 
 // data format is an array where:
 // -first element is an array of x-axis timestamps
@@ -30,6 +30,25 @@ export default function CanvasChart({
   const tooltipBufferRef = useRef<string[]>([]);
   const layoutRef = useRef<ChartLayout | null>(null);
 
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  // handle resize of the container
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.contentRect) {
+          setContainerWidth(entry.contentRect.width);
+        }
+      }
+    });
+
+    observer.observe(canvas);
+    return () => observer.disconnect();
+  }, []);
+
   const preparedData = useMemo<PreparedChartData>(() => {
     if (!data) {
       return {
@@ -45,18 +64,6 @@ export default function CanvasChart({
 
     const { timestamps: originalTimestamps, series: originalSeries } = data;
     const timestamps = originalTimestamps ?? [];
-
-    if (!timestamps || timestamps.length === 0) {
-      return {
-        timestamps: [],
-        seriesData: [],
-        chunkSize: 0,
-        chunkStats: [],
-        enumSeriesIndices: [],
-        numericalSeriesIndices: [],
-        uniqueEnumValues: {},
-      };
-    }
 
     let workingTimestamps: number[] = timestamps;
     let workingSeries: Array<(number | string | null)[]> = originalSeries;
@@ -182,8 +189,15 @@ export default function CanvasChart({
     if (!canvas) return;
     const context = canvas.getContext("2d");
     if (!context) return;
+    
     const render_call = () => {
-      render(context, canvas.width, canvas.height, preparedData, series,
+      const dpr = window.devicePixelRatio || 1;
+
+      // transform to the original size
+      context.setTransform(1, 0, 0, 1, 0, 0);
+      context.scale(dpr, dpr);
+
+      render(context, containerWidth, height, preparedData, series,
         panOffset, scrollProgress, zoomLevel, frozenTimeWindow, timeTickCount,
         externalHoverTimestamp, hoverPixelRef, tooltipBufferRef, layoutRef, domainStart, domainEnd);
       animationFrameId.current = requestAnimationFrame(render_call);
@@ -191,12 +205,13 @@ export default function CanvasChart({
     animationFrameId.current = requestAnimationFrame(render_call);
     return () => {
       if (animationFrameId.current === null)
-        throw new Error("animationFrameId.current should not be null here");
+        // throw new Error("animationFrameId.current should not be null here");
+        return; 
       cancelAnimationFrame(animationFrameId.current);
       animationFrameId.current = null;
       hoverPixelRef.current = null;
     };
-  }, [preparedData, series, height, panOffset, scrollProgress, zoomLevel, frozenTimeWindow, timeTickCount,
+  }, [preparedData, series, height, containerWidth, panOffset, scrollProgress, zoomLevel, frozenTimeWindow, timeTickCount,
     externalHoverTimestamp, onHoverTimestampChange, domainStart, domainEnd]);
 
   const handleMouseMove = useCallback((event: MouseEvent_React<HTMLCanvasElement, MouseEvent>) => {
@@ -225,8 +240,20 @@ export default function CanvasChart({
     }
   }, []);
 
+  if (containerWidth === 0) {
+    return <canvas className="block w-full" ref={canvasRef} style={{ height }} />;
+  }
+
+  // get dpr from window 
+  const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
+
   return (
-    <canvas className="block w-full" ref={canvasRef} height={height}
+    <canvas
+      className="block w-full"
+      ref={canvasRef}
+      width={containerWidth * dpr}
+      height={height * dpr}
+      style={{ width: "100%", height: height }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     />
