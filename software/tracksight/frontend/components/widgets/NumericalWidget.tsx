@@ -41,7 +41,11 @@ interface NumericalWidgetProps {
   onDelete?: () => void;
 }
 
-const NumericalWidget: React.FC<NumericalWidgetProps> = React.memo(
+export default function NumericalWidget() {
+  return <div>wip</div>;
+}
+
+/*const NumericalWidget: React.FC<NumericalWidgetProps> = React.memo(
   ({ widgetData, appendNumSignal, removeNumSignal, onDelete }) => {
     const { isPaused } = usePausePlay();
 
@@ -414,7 +418,7 @@ const NumericalWidget: React.FC<NumericalWidgetProps> = React.memo(
             </div>
           </div>
 
-          {/* Debug info */}
+          {/* Debug info *}
           <div className="text-xs text-gray-500 mb-4 space-y-1 bg-gray-50 p-2 rounded border">
             <div>Total points rendered: {totalDataPoints}</div>
             <div>Zoom: {zoomLevel}%</div>
@@ -472,5 +476,5 @@ const NumericalWidget: React.FC<NumericalWidgetProps> = React.memo(
 
 NumericalWidget.displayName = "NumericalWidget";
 
-export default NumericalWidget;
+export default NumericalWidget;*/
 
