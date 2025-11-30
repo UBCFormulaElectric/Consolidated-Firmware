@@ -4,9 +4,11 @@
 #include "hw_gpio.hpp"
 #include "hw_utils.hpp"
 
+#ifdef STM32H562xx
 #include "stm32h5xx_hal.h"
 #include "stm32h5xx_hal_sd.h"
 #include "stm32h5xx_hal_sd_ex.h"
+#endif
 
 #include <cstdint>
 #include <span>
@@ -15,30 +17,23 @@ constexpr int HW_DEVICE_SECTOR_SIZE = 512;
 
 namespace hw
 {
-enum class SdCardStatus
-{
-    SD_CARD_OK      = HAL_OK,
-    SD_CARD_ERROR   = HAL_ERROR,
-    SD_CARD_BUSY    = HAL_BUSY,
-    SD_CARD_TIMEOUT = HAL_TIMEOUT
-};
-
 class SdCard
 {
   private:
     SD_HandleTypeDef *hsd;          /* HAL SD handle that holds the state of the SD card */
     uint32_t          timeout;      /* the timeout for the SD card operations */
     const Gpio       *present_gpio; /* gpio for sd_cd */
+    volatile bool     dma_tx_completed = true;
 
-    inline bool OFFSET_SIZE_VALID(uint32_t offset, uint32_t size)
+    static inline bool OFFSET_SIZE_VALID(uint32_t offset, uint32_t size)
     {
         return (offset % HW_DEVICE_SECTOR_SIZE == 0) && (size % HW_DEVICE_SECTOR_SIZE == 0);
     }
 
-    inline SdCardStatus CHECK_SD_PRESENT()
+    inline ExitCode CHECK_SD_PRESENT()
     {
-        if (!sd_present())
-            return hw::SdCardStatus::SD_CARD_ERROR;
+        if (!sdPresent())
+            return ExitCode::EXIT_CODE_ERROR;
     }
 
   public:
@@ -55,79 +50,78 @@ class SdCard
 
     const Gpio *getPresentGpio() const { return present_gpio; }
 
-    /**
-     * @brief   Read from sd card. The data size will be num_blocks * BlockSize
-     * @param   pdata the base addr where the read data store to;
-     *                should reserve [pdata, pdata + num_blocks * BlockSize] of memory space
-     * @param   block_addr the index of the block on sd card; must be greater then 0
-     * @param   num_blocks number of block you want to read
-     * @return  the SdCardStatus of the opeation
-     *
-     */
-    SdCardStatus read(std::span<uint8_t> pdata, uint32_t block_addr, uint32_t num_blocks);
+    /* Setters for private fields */
+    void setDmaTxCompleted(bool value) { dma_tx_completed = value; }
 
     /**
-     * @brief   Write to the sd card. The data size will be num_blocks * BlockSize
-     * @param   sd the state struct of sd card
-     * @param   pdata the base addr where to write data;
-     *                should reserve [pdata, pdata+num_blocks * BlockSize] of memory space
+     * @brief   Read from sd card.
+     * @param   pdata the span where the read data is stored;
+     *                should reserve [pdata, pdata + num_blocks * HW_DEVICE_SECTOR_SIZE] of memory space
      * @param   block_addr the index of the block on sd card; must be greater then 0
-     * @param   num_blocks number of block you want to write
-     * @return  the SdCardStatus status of the opeation
+     * @return  the ExitCode of the opeation
      *
      */
-    SdCardStatus write(std::span<uint8_t> pdata, uint32_t block_addr, uint32_t num_blocks);
-    SdCardStatus writeDma(std::span<uint8_t> pdata, uint32_t block_addr, uint32_t num_blocks);
+    ExitCode read(std::span<uint8_t> pdata, uint32_t block_addr);
+
+    /**
+     * @brief   Write to the sd card.
+     * @param   pdata the span with data to write;
+     *                should reserve [pdata, pdata+num_blocks * HW_DEVICE_SECTOR_SIZE] of memory space
+     * @param   block_addr the index of the block on sd card; must be greater then 0
+     * @return  the ExitCode of the opeation
+     *
+     */
+    ExitCode write(std::span<uint8_t> pdata, uint32_t block_addr);
+    ExitCode writeDma(std::span<uint8_t> pdata, uint32_t block_addr);
 
     /**
      * @brief   Read interface with offset and size argument, interface for littlefs
-     * @param   pdata the base addr where data write to;
+     * @param   pdata the span where the read data is stored;
      *                the data in the address space [pdata, pdata + size] will be copied to sd card
      * @param   block_addr the index of the block on sd card; must greater then 0
-     * @param   offset offset within a block; must be divisible by BLOCK_SIZE
-     * @param   size   must be divisible by BLOCK_SIZE
-     * @return  the SdCardStatus of the opeation
+     * @param   offset offset within a block; must be divisible by HW_DEVICE_SECTOR_SIZE
+     * @return  the ExitCode of the opeation
      *
      */
-    SdCardStatus readOffset(std::span<uint8_t> pdata, uint32_t block_addr, uint32_t offset, uint32_t size);
+    ExitCode readOffset(std::span<uint8_t> pdata, uint32_t block_addr, uint32_t offset);
 
     /**
      * @brief   Write interface with offset and size, interface for littlefs
-     * @param   pdata the base addr where data write to;
+     * @param   pdata the span with data to write;
      *                the data in the address space [pdata, pdata + size] will be copied to sd card
      * @param   block_addr the index of the block on sd card; must be greater then 0
-     * @param   offset offset within a block; must be divisible by BLOCK_SIZE
-     * @param   size   bytes of the data write to size; must be divisible by BLOCK_SIZE
-     * @return  the SdCardStatus of the opeation
+     * @param   offset offset within a block; must be divisible by HW_DEVICE_SECTOR_SIZE
+     * @return  the ExitCode of the opeation
      *
      */
-    SdCardStatus writeOffset(std::span<uint8_t> pdata, uint32_t block_addr, uint32_t offset, uint32_t size);
+    ExitCode writeOffset(std::span<uint8_t> pdata, uint32_t block_addr, uint32_t offset);
 
     /**
      * @brief  Erase data from the sd card [start_addr, end_addr], inclusive
      * @param  start_addr  start of block index
      * @param  end_addr end of block index
-     * @return the SdCardStatus of the opeation
+     * @return the ExitCode of the opeation
      */
-    SdCardStatus erase(uint32_t start_addr, uint32_t end_addr);
+    ExitCode erase(uint32_t start_addr, uint32_t end_addr);
 
     /**
      * @brief  Detect if the sd card is present.
      * @return True if the card is inserted, false otherwise
      */
-    bool sd_present(void);
+    bool sdPresent(void);
 
     /**
      * @brief   Abort the current operation
      * @return  the SdCardStatus of the opeation
      */
-    SdCardStatus abort(void);
-
-    /**
-     * @brief  Returns the SD status depending on the HAL status
-     * @param  hal_status HAL status
-     * @retval SD status
-     */
-    SdCardStatus getSdStatus(HAL_StatusTypeDef hal_status);
+    ExitCode abort(void);
 };
+
+/**
+ * @brief   Return the SdCard instance with the matching handle
+ * @param   hsd  the SD handle
+ * @return  the SdCard instance
+ */
+static SdCard *getSdFromHandle(SD_HandleTypeDef *hsd);
+
 } // namespace hw
