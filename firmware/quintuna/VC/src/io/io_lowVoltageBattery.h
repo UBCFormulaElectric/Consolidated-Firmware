@@ -14,7 +14,6 @@
  */
 ExitCode io_lowVoltageBattery_init();
 
-
 /**
  * @brief OTP the low-voltage battery monitoring system.
  *

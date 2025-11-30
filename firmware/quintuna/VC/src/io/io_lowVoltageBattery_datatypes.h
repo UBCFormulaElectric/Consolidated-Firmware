@@ -2,6 +2,57 @@
 
 #include <stdint.h>
 
+#define REG_SUBCOMMAND (0x3E)
+#define REG_DATA_BUFFER (0x40)
+#define REG_CHECKSUM (0x60)
+#define REG_RESPONSE_LENGTH (0x61)
+#define ALARM_PIN_CONFIG (0x56)
+#define ALARM_ENABLE_REG (0x66)
+#define ALARM_STATUS_REG (0x62)
+
+#define SAFTEY_ALERT_A (0x02)
+#define SAFTEY_STATUS_A (0x03)
+#define SAFTEY_ALERT_B (0x04)
+#define SAFTEY_STATUS_B (0x05)
+#define SAFTEY_ALERT_C (0x06)
+#define SAFTEY_STATUS_C (0x07)
+#define ALARM_RAW_STATUS (0x64)
+#define FET_STATUS (0x7F)
+
+#define BATTERY_STATUS (0x12)
+#define CONTROL_STATUS (0x00)
+
+#define CELL0_VOLTAGE_COMMAND (0x14)
+#define CELL1_VOLTAGE_COMMAND (0x16)
+#define CELL2_VOLTAGE_COMMAND (0x1A)
+#define CELL4_VOLTAGE_COMMAND (0x1C)
+#define STACK_VOLTAGE_COMMAND (0x34)
+
+#define CONFIG_UPDATE_COMMAND (0x0090)
+#define CONFIG_UPDATE_EXIT_COMMAND (0x0092)
+#define OTP_COMMAND (0x00F4)
+#define OTP_WR_CHECK (0x00A0)
+#define OTP_WR (0x00A1)
+
+#define ACCUMULATED_CHARGE_COMMAND (0x0076)
+
+#define ENABLED_PROTECTIONS_A (0x9256)
+#define ENABLED_PROTECTIONS_B (0x9262)
+#define OV_THRESHOLD (0x9278)
+#define UV_THRESHOLD (0x9275)
+#define OV_DELAY (0x9279)
+#define UV_DELAY (0x9276)
+#define OV_RECOVERY_HYSTERESIS (0x927C)
+#define UV_RECOVERY_HYSTERESIS (0x927B)
+#define SCD_THRESHOLD (0x9286)
+#define OCD1_DELAY (0x9283)
+#define OCD1_THRESHOLD (0x9282)
+#define OCD_RECOVERY_THRESHOLD (0x928D)
+
+#define ALARM_CLEAR_CMD (0x01)
+#define ALARM_PIN_INTERRUPT_CONFIG (0x02)
+#define ALARM_ENABLE_VALUE (0x82)
+
 typedef struct __attribute__((packed))
 {
     uint8_t CFGUPDATE : 1;
@@ -90,87 +141,11 @@ typedef struct __attribute__((packed))
     uint8_t SSBC : 1;
 } AlertStatus;
 
-typedef enum
-{
-    BQ76922_I2C_ADDR    = 0x10,
-    REG_SUBCOMMAND      = 0x3E,
-    REG_DATA_BUFFER     = 0x40,
-    REG_CHECKSUM        = 0x60,
-    REG_RESPONSE_LENGTH = 0x61,
-    ALERT_PIN_CONFIG    = 0x56,
-    ALARM_ENABLE_REG    = 0x66,
-    ALARM_STATUS_REG    = 0x62
-} register_address_t;
-
-typedef enum
-{
-    SAFTEY_ALERT_A   = 0x02,
-    SAFTEY_STATUS_A  = 0x03,
-    SAFTEY_ALERT_B   = 0x04,
-    SAFTEY_STATUS_B  = 0x05,
-    SAFTEY_ALERT_C   = 0x06,
-    SAFTEY_STATUS_C  = 0x07,
-    ALARM_RAW_STATUS = 0x64
-} saftey_register;
-
-typedef enum
-{
-    ENABLED_PROTECTIONS_A  = 0x9256,
-    ENABLED_PROTECTIONS_B  = 0x9262,
-    OV_THRESHOLD           = 0x9278,
-    UV_THRESHOLD           = 0x9275,
-    OV_DELAY               = 0x9279,
-    UV_DELAY               = 0x9276,
-    OV_RECOVERY_HYSTERESIS = 0x927C,
-    UV_RECOVERY_HYSTERESIS = 0x927B,
-    SCD_THRESHOLD          = 0x9286,
-    OTC_THRESHOLD          = 0x929A,
-    OCD1_DELAY             = 0x9283,
-    OCD1_THRESHOLD         = 0x9282,
-    OCD_RECOVERY_THRESHOLD = 0x928D
-} protection_t;
-
-typedef enum
-{
-    ACCUMULATED_CHARGE_COMMAND = 0x0076
-} charge_cmd_t;
-
-typedef enum
-{
-    BATTERY_STATUS = 0x12,
-    CONTROL_STATUS = 0x00
-} commands;
-typedef enum
-{
-    CELL0_VOLTAGE_COMMAND = 0x14,
-    CELL1_VOLTAGE_COMMAND = 0x16,
-    CELL2_VOLTAGE_COMMAND = 0x1A,
-    CELL4_VOLTAGE_COMMAND = 0x1C,
-    STACK_VOLTAGE_COMMAND = 0x34
-} voltage_cmd_t;
-
 typedef struct
 {
     uint8_t response_buffer[32];
     uint8_t length;
 } Subcommand_Response;
-
-typedef enum
-{
-    CONFIG_UPDATE_COMMAND      = 0x0090,
-    CONFIG_UPDATE_EXIT_COMMAND = 0x0092,
-    OTP_COMMAND                = 0x00F4,
-    OTP_WR_CHECK               = 0x00A0,
-    OTP_WR                     = 0x00A1
-} config_cmd_t;
-
-typedef enum
-{
-    ALARM_CLEAR_CMD            = 0x01,
-    ALERT_ACTIVE_LOW_BIT       = 5,    // Bit position for active-low configuration
-    ALERT_PIN_INTERRUPT_CONFIG = 0x02, // ALERT pin configured as an interrupt output
-    ALARM_ENABLE_VALUE         = 0x82  // Enable ADC scan alerts
-} alarm_config_t;
 
 typedef enum
 {

@@ -201,8 +201,8 @@ ExitCode io_lowVoltageBattery_init(void)
     return EXIT_CODE_OK;
 }
 
-
-ExitCode io_lowVoltageBattery_OTP(void){
+ExitCode io_lowVoltageBattery_OTP(void)
+{
     return EXIT_CODE_OK;
 }
 
