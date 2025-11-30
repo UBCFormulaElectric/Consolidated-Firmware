@@ -171,6 +171,15 @@ void SystemClock_Config(void)
         Error_Handler();
     }
 
+    /* Select SysTick source clock */
+    HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
+
+    /* Re-Initialize Tick with new clock source */
+    if (HAL_InitTick(TICK_INT_PRIORITY) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
     /** Configure the programming delay
      */
     __HAL_FLASH_SET_PROGRAM_DELAY(FLASH_PROGRAMMING_DELAY_2);

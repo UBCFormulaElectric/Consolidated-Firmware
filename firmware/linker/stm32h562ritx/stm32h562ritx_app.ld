@@ -194,10 +194,4 @@ SECTIONS
   }
 
   .ARM.attributes 0 : { *(.ARM.attributes) }
-
-  /* DEDICATED SPOT FOR RTT */
-  .rtt (NOLOAD) :
-  {
-    KEEP(*(.rtt))
-  } >ram
 }
