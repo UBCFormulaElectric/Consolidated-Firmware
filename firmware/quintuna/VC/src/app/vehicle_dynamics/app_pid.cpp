@@ -47,6 +47,7 @@ float PID::compute(float setpoint, float input, float disturbance = 0.0f)
     // First order exponential smoothing (https://en.wikipedia.org/wiki/Exponential_smoothing)
     float raw_derivative = (error - prev_error) / sample_time;
     derivative           = smoothing_coeff * raw_derivative + (1 - smoothing_coeff) * prev_derivative;
+    derivative           = smoothing_coeff * raw_derivative + (1 - smoothing_coeff) * prev_derivative;
 
     // Feed Forward
     float u_ff = 0.0f;
