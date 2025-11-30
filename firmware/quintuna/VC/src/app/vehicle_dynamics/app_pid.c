@@ -30,7 +30,6 @@ void app_pid_init(PID *pid, const PID_Config *conf)
     assert(pid->out_max >= pid->out_min);
     assert(pid->max_integral >= pid->min_integral);
     assert(pid->sample_time > 0);
-    return;
 }
 
 /**
@@ -69,6 +68,7 @@ float app_pid_compute(PID *pid, const float setpoint, const float input, float d
     if (pid->back_calculation)
     {
         float out_clamp = CLAMP(output, pid->out_min, pid->out_max);
+        pid->integral += pid->Kb * (out_clamp - output);
         pid->integral += pid->Kb * (out_clamp - output);
     }
 
