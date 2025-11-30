@@ -1,5 +1,5 @@
 import { RefObject } from "react";
-import { ENUM_COLORS, NA_COLOR } from "./signalColors";
+import { ENUM_COLORS, NA_COLOR } from "@/components/widgets/signalColors";
 
 // first index where timestamp >= targetTime
 function binarySearchForFirstVisibleIndex(

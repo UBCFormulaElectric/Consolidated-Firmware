@@ -1,17 +1,18 @@
 "use client";
 
-import { useEffect, useState, useMemo, useRef, memo, FormEvent, use, useCallback } from "react";
+import { useEffect, useState, useMemo, useRef, memo, FormEvent, useCallback } from "react";
 import CanvasChart, { AlignedData } from "@/components/widgets/CanvasChart";
 import { usePausePlay, PausePlayButton } from "@/components/PausePlayControl";
 import { PlusButton } from "@/components/PlusButton";
-import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { MockGraphConfig, WidgetDataMock } from "@/lib/types/Widget";
-import { signalColors } from "./signalColors";
+import { signalColors } from "@/components/widgets/signalColors";
 
 enum MockSignalType {
   Numerical = "numerical",
   Enumeration = "enumeration",
 }
+
+// jack yaoi
 
 interface MockWidgetProps {
   widgetData: WidgetDataMock;
@@ -37,7 +38,7 @@ const generateRandomValue = (
   }
 };
 
-const MockWidget: React.FC<MockWidgetProps> = memo(({ widgetData, updateMockConfig, onDelete }) => {
+const MockWidget = memo(({ widgetData, updateMockConfig, onDelete }: MockWidgetProps) => {
   const { isPaused } = usePausePlay();
   const configs = widgetData.configs;
 
@@ -54,9 +55,9 @@ const MockWidget: React.FC<MockWidgetProps> = memo(({ widgetData, updateMockConf
   const [tick, setTick] = useState(0);
 
   const [chartHeight, setChartHeight] = useState(256);
-  const { hoverTimestamp, scalePxPerSecRef, setTimeRange, timeRangeRef } = useSyncedGraph();
+  // const { hoverTimestamp, scalePxPerSecRef, setTimeRange, timeRangeRef } = useSyncedGraph();
 
-  const graphId = widgetData.id;
+  // const graphId = widgetData.id;
 
   // TODO: could add initialPoints loop here (but this is very optional)
   // it'd just be what we use in MockGraph.tsx
@@ -64,40 +65,13 @@ const MockWidget: React.FC<MockWidgetProps> = memo(({ widgetData, updateMockConf
   useEffect(() => {
     if (isPaused) return;
 
-    const intervals: NodeJS.Timeout[] = [];
+    const intervals: ReturnType<typeof setInterval>[] = [];
 
     configs.forEach((cfg, idx) => {
       const interval = setInterval(() => {
         const now = Date.now();
         const val = generateRandomValue(cfg.type, now, idx);
 
-        /*setData((prev) => {
-          const newTimestamps = [...prev.timestamps, now];
-          const newSeries = { ...prev.series };
-
-          configs.forEach((c) => {
-            if (!newSeries[c.signalName]) {
-              newSeries[c.signalName] = new Array(
-                prev.timestamps.length
-              ).fill(null);
-            }
-          });
-
-          Object.keys(newSeries).forEach((key) => {
-            if (key === cfg.signalName) {
-              newSeries[key] = [...newSeries[key], val];
-            } else {
-              // zero order hold
-              const lastVal =
-                newSeries[key].length > 0
-                  ? newSeries[key][newSeries[key].length - 1]
-                  : null;
-              newSeries[key] = [...newSeries[key], lastVal];
-            }
-          });
-
-          return { timestamps: newTimestamps, series: newSeries };
-        });*/
         const store = dataRef.current;
 
         configs.forEach((c) => {
@@ -130,19 +104,56 @@ const MockWidget: React.FC<MockWidgetProps> = memo(({ widgetData, updateMockConf
     const loop = () => {
       frameId = requestAnimationFrame(loop);
     };
+
     frameId = requestAnimationFrame(loop);
+
     return () => cancelAnimationFrame(frameId);
-  }, []);
+  }, [isPaused]);
 
   const chartData = useMemo<AlignedData>(() => {
     const { timestamps, series } = dataRef.current;
-    const seriesArrays = configs.map((c) => series[c.signalName] || []);
-    if (timestamps.length === 0) return { timestamps: [], series: [] };
+
+    configs.forEach((c) => {
+      if (!series[c.signalName]) {
+        series[c.signalName] = new Array(timestamps.length).fill(null);
+      }
+    });
+
+    const seriesArrays = configs.map((c) => series[c.signalName]);
+    // if (timestamps.length === 0) return { timestamps: [], series: [] };
     return {
       timestamps,
       series: seriesArrays,
     }
-  }, [tick, configs]); // dependency now tick instead of data
+  }, [tick, configs, isPaused]); // dependency now tick instead of data
+
+  // Kickstart render when play is pressed and update when data arrives
+  /*const lastDataLengthRef = useRef(0);
+  useEffect(() => {
+    if (isPaused) {
+      // Reset tracking when paused
+      lastDataLengthRef.current = dataRef.current.timestamps.length;
+      return;
+    }
+    
+    // Increment tick once when play starts to trigger initial render
+    setTick((t) => t + 1);
+    lastDataLengthRef.current = dataRef.current.timestamps.length;
+    
+    // Check periodically for new data (to trigger chart recalculation)
+    const checkDataLength = () => {
+      const currentLength = dataRef.current.timestamps.length;
+      if (currentLength !== lastDataLengthRef.current) {
+        lastDataLengthRef.current = currentLength;
+        setTick((t) => t + 1);
+      }
+    };
+    
+    // Check every 5 seconds (balance between responsiveness and avoiding too many React updates)
+    const interval = setInterval(checkDataLength, 5000);
+    
+    return () => clearInterval(interval);
+  }, [isPaused]);*/
 
   const handleAddSignal = useCallback((e: FormEvent) => {
     e.preventDefault();
@@ -190,16 +201,6 @@ const MockWidget: React.FC<MockWidgetProps> = memo(({ widgetData, updateMockConf
       delete dataRef.current.series[name];
     }
   }, []);
-
-  const visiblePointsCount = useMemo(() => {
-    // ... simplified visible points logic or just use timestamps.length if lazy ...
-    // reusing logic from MockGraph.tsx would be verbose but good for accuracy
-    //return data.timestamps.length; 
-    //}, [data.timestamps]);
-
-    //const totalDataPoints = data.timestamps.length;
-    return dataRef.current.timestamps.length;
-  }, [tick]);
 
   const totalDataPoints = dataRef.current.timestamps.length;
 
