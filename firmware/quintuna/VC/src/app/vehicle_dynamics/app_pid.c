@@ -1,7 +1,6 @@
 #include "app_pid.h"
 #include "app_utils.h"
 #include <assert.h>
-#include <assert.h>
 
 void app_pid_init(PID *pid, const PID_Config *conf)
 {
@@ -28,9 +27,10 @@ void app_pid_init(PID *pid, const PID_Config *conf)
     pid->integral         = 0.0f;
     pid->error            = 0.0f;
 
-    assert(pid->out_min > pid->out_min);
-    assert(pid->max_integral > pid->min_integral);
+    assert(pid->out_max >= pid->out_min);
+    assert(pid->max_integral >= pid->min_integral);
     assert(pid->sample_time > 0);
+    return;
 }
 
 /**
@@ -51,10 +51,6 @@ float app_pid_compute(PID *pid, const float setpoint, const float input, float d
 
     pid->integral += pid->error * pid->sample_time;
 
-    // Conditional Anti-Windup
-    if (pid->clamp_integral)
-        pid->integral = CLAMP(pid->integral, pid->min_integral, pid->max_integral);
-
     // First order exponential smoothing on derivative (https://en.wikipedia.org/wiki/Exponential_smoothing)
     float raw_derivative = (pid->error - pid->prev_error) / pid->sample_time;
     float derivative     = pid->smoothing_coeff * raw_derivative + (1 - pid->smoothing_coeff) * pid->prev_derivative;
@@ -73,14 +69,17 @@ float app_pid_compute(PID *pid, const float setpoint, const float input, float d
     if (pid->back_calculation)
     {
         float out_clamp = CLAMP(output, pid->out_min, pid->out_max);
-        pid->integral += pid->sample_time * pid->Ki * pid->error + pid->Kb * (out_clamp - output);
+        pid->integral += pid->Kb * (out_clamp - output);
     }
 
     if (pid->clamp_output)
     {
         output = CLAMP(output, pid->out_min, pid->out_max);
     }
-
+    // Conditional Anti-Windup
+    if (pid->clamp_integral){
+        pid->integral = CLAMP(pid->integral, pid->min_integral, pid->max_integral);
+    }
     pid->prev_error       = pid->error;
     pid->prev_disturbance = disturbance;
     pid->prev_derivative  = derivative;

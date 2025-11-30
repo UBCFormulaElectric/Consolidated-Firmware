@@ -115,8 +115,8 @@ TEST_F(PIDFixture, back_calculation_antiwindup_test)
     cfg.smoothing_coeff  = 0.0;
     cfg.out_max          = 10.0f;
     cfg.out_min          = -10.0f;
-    cfg.max_integral     = 7.0f;
-    cfg.min_integral     = -7.0f;
+    cfg.max_integral     = 14.0f;
+    cfg.min_integral     = -14.0f;
     cfg.clamp_output     = true;
     cfg.clamp_integral   = false;
     cfg.back_calculation = true;

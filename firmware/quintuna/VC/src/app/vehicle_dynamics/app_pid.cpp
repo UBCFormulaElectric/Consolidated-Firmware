@@ -21,8 +21,9 @@ PID::PID(const Config &conf)
     feed_forward(conf.feed_forward),
     sample_time(conf.sample_time)
 {
-    assert(out_max > out_min);
-    assert(max_integral > min_integral);
+    assert(out_max >= out_min);
+    assert(max_integral >= min_integral);
+    assert(sample_time > 0);
 }
 
 /**
@@ -43,15 +44,9 @@ float PID::compute(float setpoint, float input, float disturbance = 0.0)
 
     integral += error * sample_time;
 
-    // Conditional Anti-Windup
-    if (clamp_integral)
-    {
-        integral = std::clamp(integral, min_integral, max_integral);
-    }
-
     // First order exponential smoothing (https://en.wikipedia.org/wiki/Exponential_smoothing)
     float raw_derivative = (error - prev_error) / sample_time;
-    derivative           = smoothing_coeff * raw_derivative + (1 - smoothing_coeff) * prev_derivative;
+    derivative = smoothing_coeff * raw_derivative + (1 - smoothing_coeff) * prev_derivative;
 
     // Feed Forward
     float u_ff = 0;
@@ -67,12 +62,17 @@ float PID::compute(float setpoint, float input, float disturbance = 0.0)
     if (back_calculation)
     {
         float out_clamp = std::clamp(output, out_min, out_max);
-        integral += sample_time * Ki * error + Kb * (out_clamp - output);
+        integral += Kb * (out_clamp - output);
     }
 
     if (clamp_output)
     {
         output = std::clamp(output, out_min, out_max);
+    }
+    // Conditional Anti-Windup
+    if (clamp_integral)
+    {
+        integral = std::clamp(integral, min_integral, max_integral);
     }
 
     prev_error       = error;
@@ -100,4 +100,4 @@ float PID::getDerivative()
     return derivative;
 }
 
-} // namespace app
+} 
