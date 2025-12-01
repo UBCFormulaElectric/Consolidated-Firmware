@@ -10,7 +10,6 @@
 
 // app
 #include "states/app_states.h"
-#include "app_stateMachine.h"
 #include "app_timer.h"
 #include "app_pumpControl.h"
 #include "app_powerManager.h"
@@ -29,6 +28,7 @@
 #include "io_time.h"
 #include "io_sbgEllipse.h"
 #include "io_imu.h"
+#include "io_log.h"
 
 #include <app_canAlerts.h>
 #include <stdbool.h>

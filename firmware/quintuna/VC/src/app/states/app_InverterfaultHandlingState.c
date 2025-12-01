@@ -14,17 +14,7 @@
 static VCInverterFaults current_inverter_fault_state;
 static TimerChannel     retry_timer;
 static bool             retry_cycle_active = false;
-
-static const PowerManagerConfig power_manager_state = {
-    .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
-                       [EFUSE_CHANNEL_RSM]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
-                       [EFUSE_CHANNEL_BMS]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
-                       [EFUSE_CHANNEL_R_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
-                       [EFUSE_CHANNEL_DAM]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
-                       [EFUSE_CHANNEL_FRONT]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
-                       [EFUSE_CHANNEL_RL_PUMP] = { .efuse_enable = true, .timeout = 200, .max_retry = 5 },
-                       [EFUSE_CHANNEL_R_RAD]   = { .efuse_enable = true, .timeout = 200, .max_retry = 5 } }
-};
+static const State     *state_recovering_to;
 
 /*routine for resetting errors from the AMK datasheet*/
 static void inverter_start_retry_routine(InverterHandle handle)
@@ -51,9 +41,11 @@ static bool is_lockout_code(uint32_t code)
 {
     switch (code)
     {
-        case 259u:
-        case 1342u:
-        case 2311u:
+        case 259u:  // Deallocation of MNU out of function
+        case 1342u: // System run-up aborted
+        case 2311u: // Controller enable (RF) is withdrawn internally (Encoder error)
+        case 3871u: // Communication error with the supply
+        case 1100u: //  Short-circuit / overload digital outputs
             return true;
         default:
             return false;
@@ -62,14 +54,17 @@ static bool is_lockout_code(uint32_t code)
 
 static void InverterFaultHandlingStateRunOnEntry(void)
 {
-    app_powerManager_updateConfig(power_manager_state);
     app_canTx_VC_State_set(VC_INV_FAUTLED);
     app_canAlerts_VC_Info_InverterRetry_set(true);
     app_timer_init(&retry_timer, TIMEOUT);
     retry_cycle_active           = false;
     current_inverter_fault_state = INV_FAULT_RETRY;
+    // Taking the state that was before the fault occured the first time
+    if (state_before_fault_locked)
+    {
+        state_recovering_to = state_to_recover_after_fault;
+    }
 }
-
 static void InverterFaultHandlingStateRunOnTick100Hz(void)
 {
     switch (current_inverter_fault_state)
@@ -161,14 +156,16 @@ static void InverterFaultHandlingStateRunOnTick100Hz(void)
         {
             // No retries needs hw reset
             app_canAlerts_VC_Info_InverterRetry_set(false);
+            // Ensuring we are in a hard fault state so the BMS contactors open
+            app_canTx_VC_State_set(VC_FAULT_STATE);
             return;
         }
 
         case INV_FAULT_RECOVERED:
         {
-            // Clear retry indicator and back to hvInit
+            // Clear retry indicator and back to the state it came from
             app_canAlerts_VC_Info_InverterRetry_set(false);
-            app_stateMachine_setNextState(&hvInit_state);
+            app_stateMachine_setNextState(state_recovering_to);
             break;
         }
 

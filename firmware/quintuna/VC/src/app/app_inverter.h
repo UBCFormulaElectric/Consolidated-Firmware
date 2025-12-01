@@ -1,7 +1,10 @@
 #pragma once
 #include "stdbool.h"
 #include <stdint.h>
+#include "app_stateMachine.h"
 
+extern const State *state_to_recover_after_fault;
+extern bool         state_before_fault_locked;
 typedef enum
 {
     CAN_ISSUES = 3587,
