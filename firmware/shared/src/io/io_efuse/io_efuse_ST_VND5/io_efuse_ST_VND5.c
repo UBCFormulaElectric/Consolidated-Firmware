@@ -1,16 +1,22 @@
-#include "app_utils.h"
-#include "io_efuse_ST_VND5.h"
-#include "io_efuse/io_efuse_datatypes.h"
-#include "hw_gpio.h"
 #include <stdbool.h>
 #include <assert.h>
+
+#include "app_utils.h"
+
+#include "io_efuse_ST_VND5.h"
+#include "io_efuse/io_efuse_datatypes.h"
+
+#include "hw_gpio.h"
+
+#include "util_errorCodes.h"
 
 /**
  * ST_VND5 Efuse Datasheet:
  * https://octopart.com/datasheet/vnd5t100ajtr-e-stmicroelectronics-21218840
  */
 
-#define NOMINAL_V 3.0f
+// TODO: Characterize this voltage
+#define NOMINAL_V 3.3f
 // Vsenseh lower threshold
 #define V_SENSE_H_L 7.5f
 // Vsenseh upper threshold
@@ -31,7 +37,7 @@ static bool  io_efuse_ST_isChannelEnabled(const Efuse *channel);
 static float io_efuse_ST_getChannelCurrent(const Efuse *channel);
 static void  io_efuse_ST_reset_set(const Efuse *channel, bool set);
 static void  io_efuse_ST_reset(const Efuse *channel);
-static bool  io_efuse_ST_ok(const Efuse *efuse);
+static ExitCode  io_efuse_ST_ok(const Efuse *efuse);
 
 const EfuseFunctions ST_VND5_Efuse_functions = { .set_channel          = io_efuse_ST_setChannel,
                                                  .is_channel_enabled   = io_efuse_ST_isChannelEnabled,
@@ -39,7 +45,8 @@ const EfuseFunctions ST_VND5_Efuse_functions = { .set_channel          = io_efus
                                                  .loadswitch_reset_set = io_efuse_ST_reset_set,
                                                  .reset_efuse          = io_efuse_ST_reset,
                                                  .pgood                = NULL,
-                                                 .efuse_ok             = io_efuse_ST_ok };
+                                                 .efuse_ok             = io_efuse_ST_ok,
+                                                 .set_diagnostics = NULL };
 
 static void io_efuse_ST_setChannel(const Efuse *channel, bool enabled)
 {
@@ -74,7 +81,7 @@ static void io_efuse_ST_reset(const Efuse *channel)
     hw_gpio_writePin(channel->st_vnd5->stby_reset_gpio, false);
 }
 
-static bool io_efuse_ST_ok(const Efuse *efuse)
+static ExitCode io_efuse_ST_ok(const Efuse *efuse)
 {
     assert(efuse != NULL);
 
@@ -84,46 +91,43 @@ static bool io_efuse_ST_ok(const Efuse *efuse)
     uint8_t fault_table_idx  = 0x00U | ((uint8_t)((fault_reset_stby << 1) | (channelEnabled)));
 
     // Setting faults for st_vnd5 efuse
-    // TODO: Verify these
-    if (fault_table_idx == L_L)
+    switch (fault_table_idx)
     {
+    case L_L:
         efuse->st_vnd5->faults.flags.overload                      = APPROX_EQUAL_FLOAT(voltage, 0.0f, V_THRES);
         efuse->st_vnd5->faults.flags.ovt_stp                       = APPROX_EQUAL_FLOAT(voltage, 0.0f, V_THRES);
         efuse->st_vnd5->faults.flags.short_to_vbat                 = APPROX_EQUAL_FLOAT(voltage, 0.0f, V_THRES);
         efuse->st_vnd5->faults.flags.open_load_off_stat            = APPROX_EQUAL_FLOAT(voltage, 0.0f, V_THRES);
         efuse->st_vnd5->faults.flags.negative_output_voltage_clamp = APPROX_EQUAL_FLOAT(voltage, 0.0f, V_THRES);
-    }
-    else if (fault_table_idx == L_H)
-    {
+        break;
+    case L_H:
         efuse->st_vnd5->faults.flags.overload           = APPROX_EQUAL_FLOAT(voltage, NOMINAL_V, V_THRES);
         efuse->st_vnd5->faults.flags.ovt_stp            = IS_IN_RANGE(V_SENSE_H_L, V_SENSE_H_H, voltage);
         efuse->st_vnd5->faults.flags.short_to_vbat      = APPROX_EQUAL_FLOAT(voltage, NOMINAL_V, V_THRES);
         efuse->st_vnd5->faults.flags.open_load_off_stat = APPROX_EQUAL_FLOAT(voltage, 0.0f, V_THRES);
         // efuse->st_vnd5->faults.flags.negative_output_voltage_clamp = (voltage <= 0.0f);
-    }
-    else if (fault_table_idx == H_L)
-    {
+        break;
+    case H_L:
         efuse->st_vnd5->faults.flags.overload                      = APPROX_EQUAL_FLOAT(voltage, 0.0f, V_THRES);
         efuse->st_vnd5->faults.flags.ovt_stp                       = APPROX_EQUAL_FLOAT(voltage, 0.0f, V_THRES);
         efuse->st_vnd5->faults.flags.short_to_vbat                 = IS_IN_RANGE(V_SENSE_H_L, V_SENSE_H_H, voltage);
         efuse->st_vnd5->faults.flags.open_load_off_stat            = IS_IN_RANGE(V_SENSE_H_L, V_SENSE_H_H, voltage);
         efuse->st_vnd5->faults.flags.negative_output_voltage_clamp = APPROX_EQUAL_FLOAT(voltage, 0.0f, V_THRES);
-    }
-    else if (fault_table_idx == H_H)
-    {
+        break;
+    case H_H:
         efuse->st_vnd5->faults.flags.overload           = APPROX_EQUAL_FLOAT(voltage, NOMINAL_V, V_THRES);
         efuse->st_vnd5->faults.flags.ovt_stp            = IS_IN_RANGE(V_SENSE_H_L, V_SENSE_H_H, voltage);
         efuse->st_vnd5->faults.flags.short_to_vbat      = APPROX_EQUAL_FLOAT(voltage, NOMINAL_V, V_THRES);
         efuse->st_vnd5->faults.flags.open_load_off_stat = APPROX_EQUAL_FLOAT(voltage, 0.0f, V_THRES);
         // efuse->st_vnd5->faults.flags.negative_output_voltage_clamp = (voltage <= 0.0f);
+        break;
+    default:
+        break;
     }
 
+    // This fault is the same for all conditions
     efuse->st_vnd5->faults.flags.under_voltage = APPROX_EQUAL_FLOAT(voltage, 0.0f, V_THRES);
 
     // check if any flag is set, then return the status
-    uint8_t flags = efuse->st_vnd5->faults.raw & ST_VND5_Efuse_FAULT_FLAGS;
-
-    // TODO: Do we want to return a boolean or should we just return the faults union and add additional methods to
-    // check specific faults
-    return !(flags > 0);
+    return ((efuse->st_vnd5->faults.raw & ST_VND5_Efuse_FAULT_FLAGS) > 0) ? EXIT_CODE_ERROR : EXIT_CODE_OK;
 }

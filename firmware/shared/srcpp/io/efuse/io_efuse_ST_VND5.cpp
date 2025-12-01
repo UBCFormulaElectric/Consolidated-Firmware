@@ -23,14 +23,6 @@ static constexpr uint8_t L_H = 0x01U;
 static constexpr uint8_t H_L = 0x02U;
 static constexpr uint8_t H_H = 0x03U;
 
-ST_VND5_Efuse::ST_VND5_Efuse(
-    const hw::Gpio &enable_gpio,
-    const hw::Adc  &sns_adc_channel,
-    const hw::Gpio &stby_reset_gpio)
-  : Efuse(enable_gpio, sns_adc_channel), stby_reset_gpio(stby_reset_gpio), faults{}
-{
-}
-
 void ST_VND5_Efuse::reset()
 {
     this->stby_reset_gpio.writePin(false);
@@ -45,7 +37,7 @@ void ST_VND5_Efuse::resetSet(const bool set)
 
 // TODO: Do we want to return a boolean or should we just return the faults union and add additional methods to check
 // specific faults
-const bool ST_VND5_Efuse::ok()
+bool ST_VND5_Efuse::ok()
 {
     const float   voltage          = this->getChannelCurrent() / ADC_VOLTAGE_TO_CURRENT_A;
     const bool    channel_enabled  = this->isChannelEnabled();

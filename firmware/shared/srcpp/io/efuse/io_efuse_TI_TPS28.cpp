@@ -32,15 +32,6 @@ static constexpr float V_SNSFH_MIN = 3.5f;
 static constexpr float V_SNSFH     = 3.95f;
 static constexpr float V_SNSFH_MAX = 4.4f;
 
-TI_TPS28_Efuse::TI_TPS28_Efuse(
-    const hw::Gpio &enable_gpio,
-    const hw::Adc  &sns_adc_channel,
-    const hw::Gpio &fault_gpio,
-    const hw::Gpio &diag_en_gpio)
-  : Efuse(enable_gpio, sns_adc_channel), fault_gpio(fault_gpio), diag_en_gpio(diag_en_gpio), faults{}
-{
-}
-
 // TODO: verify reset function
 void TI_TPS28_Efuse::reset()
 {
@@ -49,7 +40,7 @@ void TI_TPS28_Efuse::reset()
     this->enable_gpio.writePin(false);
 }
 
-const bool TI_TPS28_Efuse::ok()
+bool TI_TPS28_Efuse::ok()
 {
     const bool  channel_enabled = this->isChannelEnabled();
     const bool  diag_enabled    = this->diag_en_gpio.readPin();

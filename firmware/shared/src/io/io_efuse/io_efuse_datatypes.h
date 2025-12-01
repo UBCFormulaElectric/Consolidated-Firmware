@@ -4,6 +4,8 @@
 #include "hw_gpio.h"
 #include "hw_adc.h"
 
+#include "util_errorCodes.h"
+
 #define ADC_VOLTAGE_TO_CURRENT_A 1.720f
 
 typedef struct __Efuse          Efuse;
@@ -20,7 +22,8 @@ struct __EfuseFunctions
     void (*loadswitch_reset_set)(const Efuse *channel, bool set);
     void (*reset_efuse)(const Efuse *channel);
     bool (*pgood)(const Efuse *channel);
-    bool (*efuse_ok)(const Efuse *efuse);
+    ExitCode (*efuse_ok)(const Efuse *efuse);
+    bool (*set_diagnostics)(const Efuse *efuse, bool enabled);
 };
 
 struct __Efuse

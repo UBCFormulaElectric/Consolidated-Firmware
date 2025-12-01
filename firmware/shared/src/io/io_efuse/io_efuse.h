@@ -51,3 +51,10 @@ bool io_efuse_pgood(const Efuse *channel);
  * @return True if status is ok, False otherwise
  */
 bool io_efuse_ok(const Efuse *efuse);
+
+/**
+ * Enable or disable the provided efuse diagnostics.
+ * @param efuse Channel to enable/disable
+ * @param enabled Enable if enabled is true, disable if false
+ */
+void io_efuse_setDiagnostics(const Efuse *efuse, bool enabled);
