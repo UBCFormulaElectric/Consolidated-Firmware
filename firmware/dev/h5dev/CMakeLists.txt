@@ -66,6 +66,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "stm32h5xx_hal_pcd_ex.c"
             "stm32h5xx_ll_usb.c"
             "stm32h5xx_hal_rtc.c"
+            "stm32h5xx_hal_rtc_ex.c"
             "stm32h5xx_hal_pwr.c"
             "stm32h5xx_hal_pwr_ex.c"
             "stm32h5xx_hal_flash.c"
@@ -91,7 +92,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "${EMBEDDED_INCLUDE_DIRS}"
             "${LINKER_SCRIPT}"
             "${ARM_CORE}"
-    ) 
+    )
 
     commit_info_library(
             "h5dev_app.elf"
