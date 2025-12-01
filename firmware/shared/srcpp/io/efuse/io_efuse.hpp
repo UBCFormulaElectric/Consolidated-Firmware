@@ -14,15 +14,24 @@ class Efuse
     const hw::Adc         &sns_adc_channel;
 
   public:
-    Efuse(const hw::Gpio &enable_gpio, const hw::Adc &sns_adc_channel)
-      : enable_gpio(enable_gpio), sns_adc_channel(sns_adc_channel)
+    explicit consteval Efuse(const hw::Gpio &in_enable_gpio, const hw::Adc &in_sns_adc_channel)
+      : enable_gpio(in_enable_gpio), sns_adc_channel(in_sns_adc_channel)
     {
     }
     virtual ~Efuse() = default;
-    void               setChannel(bool enabled);
-    const bool         isChannelEnabled();
-    const float        getChannelCurrent();
+    void               setChannel(bool enabled)
+    {
+      enable_gpio.writePin(enabled);
+    }
+    bool         isChannelEnabled() const
+    {
+      return this->enable_gpio.readPin();
+    }
+    float        getChannelCurrent()
+    {
+      return this->sns_adc_channel.getVoltage() * ADC_VOLTAGE_TO_CURRENT_A;
+    }
     virtual void       reset() = 0;
-    virtual const bool ok()    = 0;
+    virtual bool ok()    = 0;
 };
 } // namespace io

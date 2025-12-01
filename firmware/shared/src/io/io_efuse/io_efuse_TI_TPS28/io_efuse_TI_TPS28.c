@@ -11,17 +11,17 @@
  */
 
 /**
- * The Current limit (I_LIM) is set attaching the ILIM pinto a pulldown resistor.
+ * The Current limit (I_LIM) is set attaching the ILIM pin to a pulldown resistor.
  *
  * The pulldown resistor must be between 10kOhm - 50kOhm
- * The current limit ration K_CL is:
+ * The current limit ratio K_CL is:
  *      40 A*kOhm - 60 A*kOhm (Rev A or C)
  *      80 A*kOhm - 120 A*kOhm (Rev B, D, or C)
  */
 
 #define R_PD 24.9f // kOhm
-// TODO: is this actualy a linear interpolation??
-#define K_CL (((60.0f - 40.0f) / (50.0f - 10.0f)) * R_PD) // A*kOhm
+// TODO: is this actualy a linear interpolation and which revision are we??
+#define K_CL ((((60.0f - 40.0f) / (50.0f - 10.0f)) * R_PD) + 35.0f) // A*kOhm
 #define I_LIM (K_CL / R_PD)
 
 // There are different V_SNSFH thresholds if DIAG_EN gpio is set to LOw (3.3V) or HIGH (5V)
@@ -34,6 +34,7 @@ static bool  io_TI_TPS28_Efuse_isChannelEnabled(const Efuse *channel);
 static float io_TI_TPS28_Efuse_getChannelCurrent(const Efuse *channel);
 static void  io_TI_TPS28_Efuse_reset(const Efuse *efuse);
 static bool  io_TI_TPS28_Efuse_pgood(const Efuse *efuse);
+static ExitCode io_TI_TPS28_Efuse_ok(const Efuse *efuse);
 
 const EfuseFunctions TI_TPS28_Efuse_functions = { .set_channel          = io_TI_TPS28_Efuse_setChannel,
                                                   .is_channel_enabled   = io_TI_TPS28_Efuse_isChannelEnabled,
@@ -41,7 +42,8 @@ const EfuseFunctions TI_TPS28_Efuse_functions = { .set_channel          = io_TI_
                                                   .loadswitch_reset_set = NULL,
                                                   .reset_efuse          = io_TI_TPS28_Efuse_reset,
                                                   .pgood                = NULL,
-                                                  .efuse_ok             = io_TI_TPS28_Efuse_ok };
+                                                  .efuse_ok             = io_TI_TPS28_Efuse_ok,
+                                                  .set_diagnostics = io_TI_TPS28_Efuse_setDiagnostics };
 
 static void io_TI_TPS28_Efuse_setChannel(const Efuse *channel, bool enabled)
 {
@@ -61,6 +63,12 @@ static bool io_TI_TPS28_Efuse_isDiagEnabled(const Efuse *channel)
     return hw_gpio_readPin(channel->ti_tps28->diag_en_gpio);
 }
 
+static bool io_TI_TPS28_Efuse_setDiagnostics(const Efuse *efuse, bool enabled)
+{
+    assert(efuse->ti_tps28->diag_en_gpio != NULL);
+    hw_gpio_writePin(efuse->ti_tps28->diag_en_gpio, enabled);
+}
+
 static float io_TI_TPS28_Efuse_getChannelCurrent(const Efuse *channel)
 {
     const AdcChannel *current_sense = channel->sns_adc_channel;
@@ -77,7 +85,7 @@ static void io_TI_TPS28_Efuse_reset(const Efuse *efuse)
     hw_gpio_writePin(efuse->enable_gpio, false);
 }
 
-static bool io_TI_TPS28_Efuse_ok(const Efuse *efuse)
+static ExitCode io_TI_TPS28_Efuse_ok(const Efuse *efuse)
 {
     assert(efuse != NULL);
 
@@ -115,8 +123,11 @@ static bool io_TI_TPS28_Efuse_ok(const Efuse *efuse)
     }
     else
     {
+        // TODO: is there a different way to check diagnostics when diag_enabled is low or is it the same way??
         efuse->ti_tps28->faults.raw = 0x03;
     }
 
-    return !(efuse->ti_tps28->faults.raw > 0);
+    return (efuse->ti_tps28->faults.raw > 0) ? EXIT_CODE_OK : EXIT_CODE_ERROR;
 }
+
+static void io

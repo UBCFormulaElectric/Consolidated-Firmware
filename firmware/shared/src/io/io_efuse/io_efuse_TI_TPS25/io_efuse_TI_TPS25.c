@@ -9,6 +9,7 @@ static bool  io_TI_TPS25_Efuse_isChannelEnabled(const Efuse *channel);
 static float io_TI_TPS25_Efuse_getChannelCurrent(const Efuse *channel);
 static void  io_TI_TPS25_Efuse_reset(const Efuse *efuse);
 static bool  io_TI_TPS25_Efuse_pgood(const Efuse *efuse);
+static ExitCode io_TI_TPS25_Efuse_ok(const Efuse *efuse);
 
 const EfuseFunctions TI_TPS25_Efuse_functions = { .set_channel          = io_TI_TPS25_Efuse_setChannel,
                                                   .is_channel_enabled   = io_TI_TPS25_Efuse_isChannelEnabled,
@@ -16,7 +17,8 @@ const EfuseFunctions TI_TPS25_Efuse_functions = { .set_channel          = io_TI_
                                                   .loadswitch_reset_set = NULL,
                                                   .reset_efuse          = io_TI_TPS25_Efuse_reset,
                                                   .pgood                = io_TI_TPS25_Efuse_pgood,
-                                                  .efuse_ok             = io_TI_TPS25_Efuse_pgood };
+                                                  .efuse_ok             = io_TI_TPS25_Efuse_ok,
+                                                  .set_diagnostics = NULL };
 
 static void io_TI_TPS25_Efuse_setChannel(const Efuse *channel, bool enabled)
 {
@@ -50,4 +52,9 @@ static bool io_TI_TPS25_Efuse_pgood(const Efuse *efuse)
 {
     assert(efuse->ti_tps25->pgood != NULL);
     return hw_gpio_readPin(efuse->ti_tps25->pgood);
+}
+
+static ExitCode io_TI_TPS25_Efuse_ok(const Efuse *efuse)
+{
+    return io_TI_TPS25_Efuse_pgood(efuse) ? EXIT_CODE_OK : EXIT_CODE_OK;
 }

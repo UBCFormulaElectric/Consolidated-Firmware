@@ -48,5 +48,13 @@ bool io_efuse_pgood(const Efuse *channel)
 bool io_efuse_ok(const Efuse *efuse)
 {
     assert(efuse != NULL);
-    return efuse->efuse_functions->efuse_ok(efuse);
+    return IS_EXIT_OK(efuse->efuse_functions->efuse_ok(efuse));
+}
+
+void io_efuse_setDiagnostics(const Efuse *efuse, bool enabled)
+{
+    assert(efuse != NULL);
+    assert(efuse->efuse_functions->set_diagnostics != NULL);
+
+    efuse->efuse_functions->set_diagnostics(efuse, enabled);
 }
