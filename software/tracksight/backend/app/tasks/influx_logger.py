@@ -15,7 +15,7 @@ from flask_socketio import SocketIO
 from influxdb import get_influxdb_client
 from influxdb_client import WritePrecision
 from influxdb_client.client.write_api import WriteOptions, WriteType
-from settings import INFLUX_URL, INFLUX_TOKEN, INFLUX_ORG, INFLUX_BUCKET, CAR_NAME
+from settings import INFLUX_ON, INFLUX_URL, INFLUX_TOKEN, INFLUX_ORG, INFLUX_BUCKET, CAR_NAME
 
 # ours
 from CanMsg import CanSignal
@@ -60,6 +60,9 @@ def _log_influx() -> None:
                 try:
                     signal = influx_queue.get(timeout=1)
                 except Empty:
+                    continue
+
+                if not INFLUX_ON:
                     continue
 
                 logger.debug(f"Writing {signal.name} with value {signal.value} to InfluxDB")
