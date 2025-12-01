@@ -19,19 +19,10 @@ class Efuse
     {
     }
     virtual ~Efuse() = default;
-    void               setChannel(bool enabled)
-    {
-      enable_gpio.writePin(enabled);
-    }
-    bool         isChannelEnabled() const
-    {
-      return this->enable_gpio.readPin();
-    }
-    float        getChannelCurrent()
-    {
-      return this->sns_adc_channel.getVoltage() * ADC_VOLTAGE_TO_CURRENT_A;
-    }
-    virtual void       reset() = 0;
+    void         setChannel(bool enabled) { enable_gpio.writePin(enabled); }
+    bool         isChannelEnabled() const { return this->enable_gpio.readPin(); }
+    float        getChannelCurrent() { return this->sns_adc_channel.getVoltage() * ADC_VOLTAGE_TO_CURRENT_A; }
+    virtual void reset() = 0;
     virtual bool ok()    = 0;
 };
 } // namespace io
