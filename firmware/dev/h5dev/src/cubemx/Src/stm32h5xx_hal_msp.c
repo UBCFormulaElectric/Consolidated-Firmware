@@ -172,6 +172,61 @@ void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef *hfdcan)
     }
 }
 
+/**
+ * @brief RTC MSP Initialization
+ * This function configures the hardware resources used in this example
+ * @param hrtc: RTC handle pointer
+ * @retval None
+ */
+void HAL_RTC_MspInit(RTC_HandleTypeDef *hrtc)
+{
+    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
+    if (hrtc->Instance == RTC)
+    {
+        /* USER CODE BEGIN RTC_MspInit 0 */
+
+        /* USER CODE END RTC_MspInit 0 */
+
+        /** Initializes the peripherals clock
+         */
+        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
+        PeriphClkInitStruct.RTCClockSelection    = RCC_RTCCLKSOURCE_LSI;
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+        {
+            Error_Handler();
+        }
+
+        /* Peripheral clock enable */
+        __HAL_RCC_RTC_ENABLE();
+        __HAL_RCC_RTCAPB_CLK_ENABLE();
+        /* USER CODE BEGIN RTC_MspInit 1 */
+
+        /* USER CODE END RTC_MspInit 1 */
+    }
+}
+
+/**
+ * @brief RTC MSP De-Initialization
+ * This function freeze the hardware resources used in this example
+ * @param hrtc: RTC handle pointer
+ * @retval None
+ */
+void HAL_RTC_MspDeInit(RTC_HandleTypeDef *hrtc)
+{
+    if (hrtc->Instance == RTC)
+    {
+        /* USER CODE BEGIN RTC_MspDeInit 0 */
+
+        /* USER CODE END RTC_MspDeInit 0 */
+        /* Peripheral clock disable */
+        __HAL_RCC_RTC_DISABLE();
+        __HAL_RCC_RTCAPB_CLK_DISABLE();
+        /* USER CODE BEGIN RTC_MspDeInit 1 */
+
+        /* USER CODE END RTC_MspDeInit 1 */
+    }
+}
+
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */
