@@ -59,11 +59,7 @@ static void InverterFaultHandlingStateRunOnEntry(void)
     app_timer_init(&retry_timer, TIMEOUT);
     retry_cycle_active           = false;
     current_inverter_fault_state = INV_FAULT_RETRY;
-    // Taking the state that was before the fault occured the first time
-    if (state_before_fault_locked)
-    {
-        state_recovering_to = state_to_recover_after_fault;
-    }
+    state_recovering_to          = state_to_recover_after_fault;
 }
 static void InverterFaultHandlingStateRunOnTick100Hz(void)
 {

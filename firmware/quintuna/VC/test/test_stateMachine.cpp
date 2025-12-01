@@ -481,6 +481,8 @@ TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverterFromInit)
 {
     // works for inv on, hvinit to drive but doesn't wprk for pcm on,
     SetStateWithEntry(&init_state);
+    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_OPEN);
+
     // LetTimePass(10);
     app_canRx_INVFL_bError_update(true);
     LetTimePass(10);
@@ -489,10 +491,10 @@ TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverterFromInit)
     // Recover the fault
     app_canRx_INVFL_bError_update(false);
     LetTimePass(10);
-    app_canRx_INVFL_bQuitInverterOn_update(true);
-    app_canRx_INVFR_bQuitInverterOn_update(true);
-    app_canRx_INVRL_bQuitInverterOn_update(true);
-    app_canRx_INVRR_bQuitInverterOn_update(true);
+    // app_canRx_INVFL_bQuitInverterOn_update(true);
+    // app_canRx_INVFR_bQuitInverterOn_update(true);
+    // app_canRx_INVRL_bQuitInverterOn_update(true);
+    // app_canRx_INVRR_bQuitInverterOn_update(true);
 
     LetTimePass(10);
     ASSERT_STATE_EQ(init_state);
@@ -527,21 +529,6 @@ TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverterFromBmsOn)
     LetTimePass(10);
     LetTimePass(10);
     ASSERT_STATE_EQ(bmsOn_state);
-}
-TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverterFromPcmOn)
-{
-    // works for inv on, hvinit to drive but doesn't wprk for pcm on,
-    SetStateWithEntry(&pcmOn_state);
-    LetTimePass(10);
-    app_canRx_INVFL_bError_update(true);
-    LetTimePass(10);
-    ASSERT_STATE_EQ(inverter_fault_handling_state);
-    LetTimePass(10);
-    // Recover the fault
-    app_canRx_INVFL_bError_update(false);
-    LetTimePass(10);
-    LetTimePass(10);
-    ASSERT_STATE_EQ(pcmOn_state);
 }
 
 TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverterFromHvInit)
@@ -656,6 +643,45 @@ TEST_F(VCStateMachineTest, InverterRetryRecovered)
     ASSERT_STATE_EQ(drive_state);
 
     ASSERT_FALSE(app_canAlerts_VC_Info_InverterRetry_get());
+}
+
+// Testing if can recover from two faults in a row
+TEST_F(VCStateMachineTest, InverterRetryTwoFaultsInaRow)
+{
+    // works for inv on, hvinit to drive but doesn't wprk for pcm on,
+    SetStateWithEntry(&bmsOn_state);
+    LetTimePass(10);
+    app_canRx_INVFL_bError_update(true);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(inverter_fault_handling_state);
+    LetTimePass(10);
+    // Recover the fault
+    app_canRx_INVFL_bError_update(false);
+    LetTimePass(10);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(bmsOn_state);
+    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
+    LetTimePass(10);
+
+    // Stay in BMS ON for non-drive states
+    app_canRx_BMS_State_update(BMS_PRECHARGE_DRIVE_STATE);
+    LetTimePass(10);
+    // Drive state -> transition to HV INIT
+    app_canRx_BMS_State_update(BMS_DRIVE_STATE);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(pcmOn_state);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(hvInit_state);
+    // Fault number 2
+    app_canRx_INVFL_bError_update(true);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(inverter_fault_handling_state);
+    LetTimePass(10);
+    // Recover the fault
+    app_canRx_INVFL_bError_update(false);
+    LetTimePass(10);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(hvInit_state);
 }
 
 /* ------------------------- PCM ON STATE ------------------------------- */

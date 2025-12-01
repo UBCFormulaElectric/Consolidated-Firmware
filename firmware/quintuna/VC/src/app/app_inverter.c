@@ -7,7 +7,6 @@
 #include "io_log.h"
 
 const State *state_to_recover_after_fault;
-bool state_before_fault_locked = false; // internal flag so the variable can be mutable until we actually have a faults
 
 const InverterHandle inverter_handle_FL = {
     .can_enable_inv  = app_canTx_VC_INVFLbEnable_set,
@@ -63,15 +62,12 @@ bool app_inverter_inverterStatus(void)
 
 void app_stateMachine_inverterFaultHandling(void)
 {
-    // No fault dont do anything and keep resetting the lock to false
-    if (!app_inverter_inverterStatus())
+    const State *curr = app_stateMachine_getCurrentState();
+
+    if (!app_inverter_inverterStatus() || curr == &inverter_fault_handling_state)
     {
-        state_before_fault_locked = false;
         return;
     }
-
-    // First time we see a fault while in some other state
-    const State *curr = app_stateMachine_getCurrentState();
 
     // We do not want to go back to HV or Drive while we haven't passed HV_INIT again
     if (curr == &hv_state || curr == &drive_state)
@@ -82,9 +78,6 @@ void app_stateMachine_inverterFaultHandling(void)
     {
         state_to_recover_after_fault = curr;
     }
-
-    // We have a fault so we can lock in the  state we want to recover to
-    state_before_fault_locked = true;
 
     LOG_INFO("inverter state in appinv %s", state_to_recover_after_fault->name);
     app_stateMachine_setNextState(&inverter_fault_handling_state);
