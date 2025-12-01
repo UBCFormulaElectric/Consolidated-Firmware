@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "configurations": [
+  "configurations": [ 
     {
       "name": "Debug Pytest",
       "type": "python",
@@ -524,7 +524,7 @@
       "name": "Debug Tests: BMS (Hexray)",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceRoot}/build_fw_test/firmware/hexray/BMS/hexray_VC_test",
+      "program": "${workspaceRoot}/build_fw_test/firmware/hexray/BMS/hexray_BMS_test",
       "cwd": "${workspaceRoot}",
       "preLaunchTask": "Build Tests: BMS (Hexray)",
       "linux": {
@@ -575,7 +575,7 @@
       "osx": {
         "MIMode": "lldb"
       }
-    }
+    },
     {
       "name": "Debug Tests: FSM (Hexray)",
       "type": "cppdbg",

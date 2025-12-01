@@ -1,1 +1,14 @@
-{}
+{
+  "SwitchState": {
+    "SWITCH_OFF": 0,
+    "SWITCH_ON": 1
+  },
+  "CanResetReason": {
+    "CAN_RESET_REASON_UNKNOWN": 0,
+    "CAN_RESET_REASON_WATCHDOG": 1,
+    "CAN_RESET_REASON_SOFTWARE": 2,
+    "CAN_RESET_REASON_POWER_ON": 3,
+    "CAN_RESET_REASON_NRST_PIN": 4,
+    "CAN_RESET_REASON_BROWN_OUT": 5
+  }
+}
