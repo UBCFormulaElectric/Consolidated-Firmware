@@ -2,7 +2,7 @@
 #include "tasks.h"
 #include "io_time.hpp"
 #include "jobs.hpp"
-#include <assert.h>
+#include <cassert>
 #include "hw_hardFaultHandler.hpp"
 
 extern "C"
@@ -33,14 +33,12 @@ void tasks_init()
     // LOG_IF_ERR(hw_usb_init());
 
     // Check for watchdog timeout on a previous boot cycle.
-    const ResetReason reset_reason = hw_resetReason_get();
-    if (reset_reason == RESET_REASON_WATCHDOG)
+    if (const ResetReason reset_reason = hw_resetReason_get(); reset_reason == RESET_REASON_WATCHDOG)
     {
         LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
     }
 
-    BootRequest boot_request = hw_bootup_getBootRequest();
-    if (boot_request.context != BOOT_CONTEXT_NONE)
+    if (BootRequest boot_request = hw_bootup_getBootRequest(); boot_request.context != BOOT_CONTEXT_NONE)
     {
         if (boot_request.context == BOOT_CONTEXT_STACK_OVERFLOW)
         {
@@ -59,44 +57,38 @@ void tasks_init()
 
 void tasks_run1Hz()
 {
-    const uint32_t period_ms   = 1000U;
-    uint32_t       start_ticks = osKernelGetTickCount();
-
+    uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
+        constexpr uint32_t period_ms = 1000U;
         // if (!hw_chimera_v2_enabled)
         // {
         jobs_run1Hz_tick();
         // }
-
-        const uint32_t start_time = io::time::getCurrentMs();
-        io::time::delayUntil(start_time + 1000);
+        start_ticks += period_ms;
+        io::time::delayUntil(start_ticks);
     }
 }
 void tasks_run100Hz()
 {
-    const uint32_t period_ms   = 10U;
-    uint32_t       start_ticks = osKernelGetTickCount();
-
+    uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
+        constexpr uint32_t period_ms = 10U;
         jobs_run100Hz_tick();
-
         start_ticks += period_ms;
-        osDelayUntil(start_ticks);
+        io::time::delayUntil(start_ticks);
     }
 }
 void tasks_run1kHz()
 {
-    const uint32_t period_ms   = 1U;
-    uint32_t       start_ticks = osKernelGetTickCount();
-
+    uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
+        constexpr uint32_t period_ms = 1U;
         jobs_run1kHz_tick();
-
         start_ticks += period_ms;
-        osDelayUntil(start_ticks);
+        io::time::delayUntil(start_ticks);
     }
 }
 void tasks_runCanFDTx()
