@@ -22,11 +22,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "cmsis_os.h"
-#include "FreeRTOS.h"
 #include "tasks.h"
-#include <cmsis_os2.h>
-#include <stm32h5xx_hal.h>
+#include "hw_error.hpp"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
