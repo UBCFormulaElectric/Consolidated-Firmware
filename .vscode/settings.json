@@ -1,0 +1,16 @@
+{
+  "json.schemas": [
+    {
+      "fileMatch": ["/can_bus/json/**/*tx.json"],
+      "url": "/can_bus/json/schema_tx.json"
+    }
+  ],
+  "cmake.configureOnEdit": false,
+  "cmake.configureOnOpen": false,
+  "clangd.arguments": [
+    "--compile-commands-dir=build_fw_dev",
+    // "--compile-commands-dir=build_fw_test",
+    "--query-driver=/usr/local/bin/arm-none-eabi-gcc"
+  ],
+  "cortex-debug.variableUseNaturalFormat": false,
+}
