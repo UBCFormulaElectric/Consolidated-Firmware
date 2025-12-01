@@ -54,7 +54,7 @@ class StateOfCharge extends ChangeNotifier {
   double get maxSoc => _maxSoc;
 
   void updateVarDev(String data) {
-    _soc -= 10;
+    _soc -= 5;
     notifyListeners();
   }
 
@@ -64,5 +64,24 @@ class StateOfCharge extends ChangeNotifier {
     // lokwey i totally forgot what I was thinking here
     // rehash this dumbass
     _soc -= 1;
+  }
+}
+
+/* Shutdown Loop */
+class ShutdownLoop extends ChangeNotifier {
+  List _nodes = [];
+  List get nodes => _nodes;
+
+  void updateVarDev(String data) {
+    _nodes.add("BSPD");
+    notifyListeners();
+  }
+
+  void updateVarCan() {
+    // JSON CAN calls + maybe mutex??
+    // then ONLY notify if changes are made!!
+    // lokwey i totally forgot what I was thinking here
+    // rehash this dumbass
+    _nodes.add("BSPD");
   }
 }

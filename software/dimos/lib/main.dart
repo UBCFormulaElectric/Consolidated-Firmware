@@ -25,12 +25,17 @@ class App extends StatefulWidget {
   State<App> createState() => _AppState();
 }
 
+// pretty sure provider passing all the way the down
+// and also does not change depending on which root you pass it down
+// alsoing initing all the listeners and shit is optimal here
+
 class _AppState extends State<App> {
   late DevApiWorker _devWorker;
   late CanApiWorker _canWorker;
   late SpeedInteger _speedInteger;
   late WarningsList _warningsList;
   late StateOfCharge _stateOfCharge;
+  late ShutdownLoop _shutdownLoop;
 
   @override
   void initState() {
@@ -38,6 +43,7 @@ class _AppState extends State<App> {
     _warningsList = WarningsList();
     _speedInteger = SpeedInteger();
     _stateOfCharge = StateOfCharge();
+    _shutdownLoop = ShutdownLoop();
     
     if (Platform.isWindows || Platform.isMacOS) {
       // have some basic dev api setup to introduce can
@@ -46,6 +52,7 @@ class _AppState extends State<App> {
         _warningsList.updateListDev(data);
         _speedInteger.updateVarDev(data);
         _stateOfCharge.updateVarDev(data);
+        _shutdownLoop.updateVarDev(data);
       });
     } else if (Platform.isLinux) {
       // ACTUAL CAN setup
@@ -54,6 +61,8 @@ class _AppState extends State<App> {
       _canWorker.start((data) {
         _warningsList.updateListCan();
         _speedInteger.updateVarCan();
+        _stateOfCharge.updateVarCan();
+        _shutdownLoop.updateVarCan();
       });
     }
   }

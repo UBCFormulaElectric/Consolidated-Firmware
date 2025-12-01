@@ -1,34 +1,36 @@
 /* Battery Widget */
 
+import 'package:dimos/ui/core/themes/themes.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dimos/data/services/can_variables.dart';
+import 'dart:math';
 
-class Battery extends StatefulWidget implements PreferredSizeWidget {
-  const Battery({super.key});
+// TODO: turn stateful widgets into stateless ones
 
-  @override
-  State<Battery> createState() => _BatteryState();
-
-  @override
-  Size get preferredSize => const Size.fromHeight(100);
-}
-
-class _BatteryState extends State<Battery> {
-
+class Battery extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // switch to selector later
-    return Consumer<StateOfCharge>(
-      builder: (context, stateOfCharge, child) {
+    final double soc = context.watch<StateOfCharge>().soc;
+    final double maxSoc = context.watch<StateOfCharge>().maxSoc;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Choose the smaller of width/height so it fits squarely
+        final size = min(constraints.maxWidth, constraints.maxHeight);
+        final stroke = size * 0.05; // stroke scales with size
+
         return Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CircularProgressIndicator.adaptive(
-                value: stateOfCharge.soc / stateOfCharge.maxSoc
-              ),
-            ],
+          child: SizedBox(
+            // w fix
+            width: size/2,
+            height: size/2,
+            child: CircularProgressIndicator(
+              value: soc / maxSoc,
+              strokeWidth: stroke,
+              backgroundColor: AppColors.whiteTransparent,
+              color: soc > 20 ? const Color.fromARGB(255, 255, 255, 255) : Colors.red,
+            ),
           ),
         );
       },

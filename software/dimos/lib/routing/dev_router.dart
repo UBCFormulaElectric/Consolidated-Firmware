@@ -1,5 +1,8 @@
+import 'package:dimos/ui/braking/braking_screen.dart';
+import 'package:dimos/ui/debug/debug_screen.dart';
 import 'package:dimos/ui/low_voltage/lv_screen.dart';
 import 'package:dimos/ui/racing/racing_screen.dart';
+import 'package:dimos/ui/skidpad/skidpad_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -31,6 +34,18 @@ class RouterPanel extends StatelessWidget {
           ListTile(
             title: Text("Racing Page"),
             onTap: () => context.read<RouterProvider>().navigateTo(RacingScreen()),
+          ),
+          ListTile(
+            title: Text("Skidpad Page"),
+            onTap: () => context.read<RouterProvider>().navigateTo(SkidpadScreen()),
+          ),
+          ListTile(
+            title: Text("Braking Page"),
+            onTap: () => context.read<RouterProvider>().navigateTo(BrakingScreen()),
+          ),
+          ListTile(
+            title: Text("Debug Page"),
+            onTap: () => context.read<RouterProvider>().navigateTo(DebugScreen()),
           ),
         ],
       ),

@@ -25,19 +25,35 @@ class _NotificationBarState extends State<NotificationBar> {
   @override
   Widget build(BuildContext context) {
     // switch to selector later
-    return Consumer<WarningsList>(
-      builder: (context, warningsList, child) {
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          spacing: 10,
-          children: warningsList.warnings.map(
-            (item) => Text(
-              item,
-              style: const TextStyle(fontSize: 20, color: Colors.red),
-            ),
-          ).toList(),
-        );
-      },
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        // Background container
+        Container(
+          width: 400,
+          height: 30,
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(15)),
+            color: Color.fromARGB(255, 107, 107, 107),
+          ),
+        ),
+
+        // Warning texts on top
+        Consumer<WarningsList>(
+          builder: (context, warningsList, child) {
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: 10,
+              children: warningsList.warnings.map(
+                (item) => Text(
+                  item,
+                  style: const TextStyle(fontSize: 20, color: Colors.red),
+                ),
+              ).toList(),
+            );
+          },
+        ),
+      ],
     );
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:linux_can/linux_can.dart';
 import 'dart:async';
 import 'dart:isolate';
@@ -18,9 +20,15 @@ class CanApiWorker {
   late SendPort _sendPort;
 
   Future<void> start(Function(String) onDataReceived) async {
+    // very basic socket behaviour
+    // our recieve port on main thread
     final receivePort = ReceivePort();
+
+    // spawn separate thread with can_socket which listens and sends back to recieve port
     await Isolate.spawn(_worker, receivePort.sendPort);
 
+    // infinitely listen for messages
+    // V 2.0 -> send back messages
     receivePort.listen((message) {
       if (message is SendPort) {
         _sendPort = message;
@@ -30,13 +38,15 @@ class CanApiWorker {
     });
   }
 
+  // separate thread worker
   static void _worker(SendPort mainSendPort) async {
     final workerPort = ReceivePort();
     mainSendPort.send(workerPort.sendPort);
 
     final linuxcan = LinuxCan.instance;
 
-    // Find the CAN interface with name `can0`.
+    // Find the CAN interface with name `can0`
+    // make sure to rename can_socket to can0
     final device = linuxcan.devices.singleWhere((device) => device.networkInterface.name == 'can0');
 
     // We need the interface to be up and running for most purposes.
