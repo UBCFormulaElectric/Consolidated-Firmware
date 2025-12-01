@@ -4,7 +4,7 @@
 import React, { useMemo } from 'react';
 import NumericalGraphComponent from '@/components/pages/live-data/Numerical';
 import EnumerationGraphComponent from '@/components/pages/live-data/Enumeration';
-import { useSignals } from '@/hooks/SignalContext';
+import { useSignals } from '@/lib/contexts/SignalContext';
 
 interface DynamicSignalGraphProps {
   signalName: string;
