@@ -11,7 +11,7 @@ void TI_TPS25_Efuse::reset()
     this->enable_gpio.writePin(false);
 }
 
-bool TI_TPS25_Efuse::pgood() const 
+bool TI_TPS25_Efuse::pgood() const
 {
     return this->pgood_gpio.readPin();
 }

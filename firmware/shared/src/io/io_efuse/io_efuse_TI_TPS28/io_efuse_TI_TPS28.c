@@ -29,11 +29,11 @@
 #define V_SNSFH 3.95f
 #define V_SNSFH_MAX 4.4f
 
-static void  io_TI_TPS28_Efuse_setChannel(const Efuse *channel, bool enabled);
-static bool  io_TI_TPS28_Efuse_isChannelEnabled(const Efuse *channel);
-static float io_TI_TPS28_Efuse_getChannelCurrent(const Efuse *channel);
-static void  io_TI_TPS28_Efuse_reset(const Efuse *efuse);
-static bool  io_TI_TPS28_Efuse_pgood(const Efuse *efuse);
+static void     io_TI_TPS28_Efuse_setChannel(const Efuse *channel, bool enabled);
+static bool     io_TI_TPS28_Efuse_isChannelEnabled(const Efuse *channel);
+static float    io_TI_TPS28_Efuse_getChannelCurrent(const Efuse *channel);
+static void     io_TI_TPS28_Efuse_reset(const Efuse *efuse);
+static bool     io_TI_TPS28_Efuse_pgood(const Efuse *efuse);
 static ExitCode io_TI_TPS28_Efuse_ok(const Efuse *efuse);
 
 const EfuseFunctions TI_TPS28_Efuse_functions = { .set_channel          = io_TI_TPS28_Efuse_setChannel,
@@ -43,7 +43,7 @@ const EfuseFunctions TI_TPS28_Efuse_functions = { .set_channel          = io_TI_
                                                   .reset_efuse          = io_TI_TPS28_Efuse_reset,
                                                   .pgood                = NULL,
                                                   .efuse_ok             = io_TI_TPS28_Efuse_ok,
-                                                  .set_diagnostics = io_TI_TPS28_Efuse_setDiagnostics };
+                                                  .set_diagnostics      = io_TI_TPS28_Efuse_setDiagnostics };
 
 static void io_TI_TPS28_Efuse_setChannel(const Efuse *channel, bool enabled)
 {

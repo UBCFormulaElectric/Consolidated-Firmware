@@ -29,10 +29,11 @@ class ST_VND5_Efuse final : public Efuse
         const hw::Gpio &in_enable_gpio,
         const hw::Adc  &in_sns_adc_channel,
         const hw::Gpio &in_stby_reset_gpio)
-        : Efuse(in_enable_gpio, in_sns_adc_channel), stby_reset_gpio(in_stby_reset_gpio)
-        {}
-    void       reset() override final;
-    void       resetSet(const bool set);
+      : Efuse(in_enable_gpio, in_sns_adc_channel), stby_reset_gpio(in_stby_reset_gpio)
+    {
+    }
+    void reset() override final;
+    void resetSet(const bool set);
     bool ok() override final;
 };
 } // namespace io

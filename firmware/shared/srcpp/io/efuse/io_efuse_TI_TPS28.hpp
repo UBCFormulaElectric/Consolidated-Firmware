@@ -29,9 +29,10 @@ class TI_TPS28_Efuse final : public Efuse
         const hw::Adc  &in_sns_adc_channel,
         const hw::Gpio &in_fault_gpio,
         const hw::Gpio &in_diag_en_gpio)
-        : Efuse(in_enable_gpio, in_sns_adc_channel), fault_gpio(in_fault_gpio), diag_en_gpio(in_diag_en_gpio)
-        {}
-    void       reset() override final;
+      : Efuse(in_enable_gpio, in_sns_adc_channel), fault_gpio(in_fault_gpio), diag_en_gpio(in_diag_en_gpio)
+    {
+    }
+    void reset() override final;
     bool ok() override final;
 };
 } // namespace io
