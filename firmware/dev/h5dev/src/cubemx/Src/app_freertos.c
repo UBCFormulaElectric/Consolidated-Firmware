@@ -22,7 +22,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <stm32h5xx_hal_rtc.h>
+#include "io_log.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -113,10 +114,12 @@ void StartDefaultTask(void *argument)
     /* Infinite loop */
     for (;;)
     {
-        HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
-        osDelay(1000);
-
-        HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
+        HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+        RTC_TimeTypeDef         time;
+        RTC_DateTypeDef         date;
+        const HAL_StatusTypeDef status   = HAL_RTC_GetTime(&hrtc, &time, RTC_FORMAT_BIN);
+        const HAL_StatusTypeDef status_2 = HAL_RTC_GetDate(&hrtc, &date, RTC_FORMAT_BIN);
+        LOG_INFO("%d:%d:%d (%d)", time.Hours, time.Minutes, time.Seconds, status);
         osDelay(1000);
     }
     /* USER CODE END TaskDefault */

@@ -24,9 +24,9 @@ void tasks_init()
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("h5dev reset!");
 
-#ifndef WATCHDOG_DISABLED
+    // #ifndef WATCHDOG_DISABLED
     __HAL_DBGMCU_FREEZE_IWDG();
-#endif
+    // #endif
 
     hw_hardFaultHandler_init();
     hw_can_init(&fdcan);

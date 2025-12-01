@@ -38,6 +38,8 @@ extern "C"
     /* Exported types ------------------------------------------------------------*/
     /* USER CODE BEGIN ET */
     extern FDCAN_HandleTypeDef hfdcan1;
+    extern IWDG_HandleTypeDef  hiwdg;
+    extern RTC_HandleTypeDef   hrtc;
     /* USER CODE END ET */
 
     /* Exported constants --------------------------------------------------------*/
