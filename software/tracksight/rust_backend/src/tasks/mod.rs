@@ -1,5 +1,4 @@
 pub mod serial_handler;
 pub mod thread_signal_handler;
-
-mod can_data_handler;
-mod telem_message;
+pub mod can_data_handler;
+pub mod telem_message;
