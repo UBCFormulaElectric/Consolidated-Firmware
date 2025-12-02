@@ -1,15 +1,23 @@
 use std::thread::{self, JoinHandle};
 use ctrlc;
+use std::sync::mpsc::channel;
 
 mod tasks;
+use tasks::telem_message::CanMessage;
 use tasks::thread_signal_handler::stop_threads;
 use tasks::serial_handler::run_serial_task;
+use tasks::can_data_handler::run_influx_task;
 
 fn main() {
     let mut handles: Vec<JoinHandle<()>> = vec![];
 
-    // start serial
-    handles.push(thread::spawn(run_serial_task));
+    // this is equivalent to queue in old backend
+    let (sender, receiver) = channel::<CanMessage>();
+
+    // start tasks
+    // TODO use tokio to not block a core when reading from serial port
+    handles.push(thread::spawn(move || { run_serial_task(sender.clone()) }));
+    handles.push(thread::spawn(move || { run_influx_task(receiver) }));
 
 
     // handle termination signal
