@@ -8,3 +8,4 @@ serialport = "4.0"
 ctrlc = "3.5"
 tokio = { version = "1", features = ["full"] }
 tokio-serial = "5"
+influxdb2 = "0.5"

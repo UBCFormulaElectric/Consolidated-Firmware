@@ -1,5 +1,6 @@
 use serialport::SerialPort;
 use std::io::{Error, ErrorKind};
+use std::sync::mpsc::Sender;
 use std::time::Duration;
 
 use super::thread_signal_handler::should_run;
@@ -8,8 +9,7 @@ use super::telem_message::{TelemetryMessage, CanMessage, NTPTimeMessage, NTPDate
 /**
  * Handling serial signals from radio.
  */
-pub fn run_serial_task() {
-    // TODO use tokio to not block a core when reading from serial port
+pub fn run_serial_task(can_queue_sender: Sender<CanMessage>) {
     let serial_port_builder = serialport::new(
             "/dev/ttyUSB0",
             9600
@@ -43,11 +43,11 @@ pub fn run_serial_task() {
         };
 
         match telem_message {
-            TelemetryMessage::Can { body: CanMessage { 
-                can_id, can_time_offset, can_payload 
-            } } => {
-                // TODO handle CAN message
+            TelemetryMessage::Can { body } => {
+                let CanMessage { can_id, can_time_offset, can_payload } = &body;
                 println!("Received CAN Message: ID: {}, Time Offset: {}, Payload: {:?}", can_id, can_time_offset, can_payload);
+                // TODO error handling
+                can_queue_sender.send(body).unwrap();
             },
             TelemetryMessage::NTPTime { body } => {
                 // TODO handle NTP time message
