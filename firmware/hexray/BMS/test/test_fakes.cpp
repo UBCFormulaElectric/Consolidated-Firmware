@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstring>
 #include <gtest/gtest.h>
+#include <cmath>
 
 #include "io_time.hpp"
 
@@ -525,8 +526,10 @@ namespace segments
         {
             for (size_t j = 0; j < AUX_REGS_PER_SEGMENT; j++)
             {
-                aux_regs_storage[i][j] =
-                    static_cast<uint16_t>(temperatures[i][j] * 1000); // Not sure if conversion is correct
+                float T_k = temperatures[i][j] + 273.15;
+                float k = -3610 * (1/T_k - 1/298.15);
+
+                aux_regs_storage[i][j] = static_cast<uint16_t>(3/(1+exp2f(k)));
             }
         }
     }
