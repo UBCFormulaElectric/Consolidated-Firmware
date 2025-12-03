@@ -46,7 +46,7 @@ void RunOnTick100Hz()
     {
         const bool external_charging_request = app_canRx_Debug_StartCharging_get();
 
-        const auto conn_status = io_charger_getConnectionStatus();
+        const auto conn_status = io::charger::getConnectionStatus();
         const bool charger_connected =
             (conn_status == CHARGER_CONNECTED_WALL) || (conn_status == CHARGER_CONNECTED_EVSE);
 
@@ -55,7 +55,7 @@ void RunOnTick100Hz()
 
         if (external_charging_request && charger_connected)
         {
-            app::StateMachine::set_next_state&precharge_charge_state);
+            app::StateMachine::set_next_state(&precharge_charge_state);
         }
         else if (precharge_for_driving)
         {
@@ -73,6 +73,7 @@ void RunOnTick100Hz()
 const app::State init_state = {
     .name              = "INIT",
     .run_on_entry      = app::states::initState::RunOnEntry,
+    .run_on_tick_1Hz    = nullptr,
     .run_on_tick_100Hz = app::states::initState::RunOnTick100Hz,
     .run_on_exit       = nullptr,
 };

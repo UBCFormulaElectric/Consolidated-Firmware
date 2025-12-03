@@ -125,7 +125,7 @@ static void buildTxFrame(const ElconTx &cmd)
 //     return range;
 // }
 
-static TimerChannel elcon_err_debounce;
+static app::Timer elcon_err_debounce(ELCON_ERR_DEBOUNCE_MS);
 
 // --------------------------------- CHARGE state ---------------------------------------
 
@@ -138,16 +138,14 @@ static void runOnEntry()
     app_canTx_BMS_ChargingDone_set(false);
 
     // Close AIR+ to enable HV path
-    io_irs_setPositive(CONTACTOR_STATE_CLOSED);
-
-    app_timer_init(&elcon_err_debounce, ELCON_ERR_DEBOUNCE_MS);
+    io::irs::setPositive(CONTACTOR_STATE_CLOSED);
 }
 
 static void runOnTick100Hz()
 {
     // TODO: Fix charger connection status reading
     // const ChargerConnectedType charger_connection_status = io_charger_getConnectionStatus();
-    const bool extShutdown = (io_irs_negativeState() == CONTACTOR_STATE_OPEN);
+    const bool extShutdown = (io::irs::negativeState() == CONTACTOR_STATE_OPEN);
     const bool chargerConn = true; // (charger_connection_status == CHARGER_CONNECTED_EVSE || CHARGER_CONNECTED_WALL);
     const bool userEnable  = app_canRx_Debug_StartCharging_get();
 

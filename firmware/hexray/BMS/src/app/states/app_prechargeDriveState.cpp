@@ -1,3 +1,4 @@
+#include <cassert>
 #include "app_precharge.hpp"
 #include "io_irs.hpp"
 #include "app_stateMachine.hpp"
@@ -23,21 +24,21 @@ static void prechargeDriveStateRunOnTick100Hz()
 {
     switch (app::precharge::poll(false))
     {
-        case PRECHARGE_STATE_COOLDOWN:
+        case app::precharge::State::COOLDOWN:
             io::irs::setPrecharge(CONTACTOR_STATE_OPEN);
             break;
-        case PRECHARGE_STATE_RUNNING:
+        case app::precharge::State::RUNNING:
             io::irs::setPrecharge(CONTACTOR_STATE_CLOSED);
             break;
-        case PRECHARGE_STATE_FAILED_CRITICAL: // precharge failed multiple times
+        case app::precharge::State::FAILED_CRITICAL: // precharge failed multiple times
             io::irs::setPrecharge(CONTACTOR_STATE_OPEN);
             app::StateMachine::set_next_state(&precharge_latch_state);
             break;
-        case PRECHARGE_STATE_FAILED:
+        case app::precharge::State::FAILED:
             io::irs::setPrecharge(CONTACTOR_STATE_OPEN);
             LOG_ERROR("precharge failed, retrying");
             break;
-        case PRECHARGE_STATE_SUCCESS:
+        case app::precharge::State::SUCCESS:
             io::irs::setPositive(CONTACTOR_STATE_CLOSED);
             app::StateMachine::set_next_state(&drive_state);
             break;
@@ -56,6 +57,7 @@ static void prechargeDriveStateRunOnExit()
 const app::State precharge_drive_state = {
     .name              = "PRECHARGE DRIVE",
     .run_on_entry      = app::states::perchargeDriveState::prechargeDriveStateRunOnEntry,
+    .run_on_tick_1Hz    = nullptr,
     .run_on_tick_100Hz = app::states::perchargeDriveState::prechargeDriveStateRunOnTick100Hz,
     .run_on_exit       = app::states::perchargeDriveState::prechargeDriveStateRunOnExit,
 };

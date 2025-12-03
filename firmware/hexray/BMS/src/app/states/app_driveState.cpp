@@ -27,6 +27,7 @@ static void driveStateRunOnExit()
 const app::State drive_state = {
     .name              = "DRIVE",
     .run_on_entry      = app::states::driveState::driveStateRunOnEntry,
+    .run_on_tick_1Hz    = nullptr,
     .run_on_tick_100Hz = app::states::driveState::driveStateRunOnTick100Hz,
     .run_on_exit       = app::states::driveState::driveStateRunOnExit,
 };

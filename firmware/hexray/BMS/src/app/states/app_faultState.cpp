@@ -45,6 +45,7 @@ static void runOnTick100Hz()
 const app::State fault_state = {
     .name              = "FAULT",
     .run_on_entry      = app::states::faultState::runOnEntry,
+    .run_on_tick_1Hz    = nullptr,
     .run_on_tick_100Hz = app::states::faultState::runOnTick100Hz,
     .run_on_exit       = nullptr,
 };

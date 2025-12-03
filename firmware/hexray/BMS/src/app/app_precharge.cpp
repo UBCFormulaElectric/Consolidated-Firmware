@@ -16,15 +16,13 @@ namespace app::precharge
 {
 namespace
 {
-    Timer lower_bound_timer;
-    Timer upper_bound_timer;
-    Timer cooldown_timer;
+    Timer lower_bound_timer(PRECHARGE_COMPLETION_LOWER_BOUND);
+    Timer upper_bound_timer(PRECHARGE_COMPLETION_UPPER_BOUND);
+    Timer cooldown_timer(PRECHARGE_COOLDOWN_MS);
 
     bool    precharge_limit_exceeded = false;
     uint8_t num_precharge_failures   = 0U;
-
-    // 1 second cooldown after precharge failure
-    constexpr uint32_t PRECHARGE_COOLDOWN_TIME = 1000U;
+    
 } // namespace
 
 void init()
@@ -64,10 +62,10 @@ State poll(bool precharge_for_charging)
 #define HV_SUPPLY_VOLTAGE (588.0f)
     const float threshold_voltage = HV_SUPPLY_VOLTAGE * PRECHARGE_ACC_V_THRESHOLD;
 #else
-    const float threshold_voltage = app_segments_getPackVoltage() * PRECHARGE_ACC_V_THRESHOLD;
+    const float threshold_voltage = app::segments::getPackVoltage() * PRECHARGE_ACC_V_THRESHOLD;
 #endif
 
-    const bool is_air_negative_open = (io_irs_negativeState() == CONTACTOR_STATE_OPEN);
+    const bool is_air_negative_open = (io::irs::negativeState() == CONTACTOR_STATE_OPEN);
 
     const bool is_ts_rising_slowly =
         (ts_voltage < threshold_voltage) && (upper_bound_timer.updateAndGetState() == Timer::TimerState::EXPIRED);

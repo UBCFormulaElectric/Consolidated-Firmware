@@ -90,11 +90,12 @@ elseif ("${TARGET}" STREQUAL "test")
             "${SHARED_FAKES_DIR}/io_canQueue.cpp"
             "${SHARED_FAKES_DIR}/io_semaphore.cpp"
             "${SHARED_FAKES_DIR}/io_timer.cpp"
+            "${SHARED_FAKES_DIR}/io_shdnLoopNode.cpp"
     )
     set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS})
     set(INCLUDE_DIRS
             "${CMAKE_CURRENT_SOURCE_DIR}/test"
-            ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP}
+            ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP} ${SHARED_FAKES_DIR}
     )
     compile_gtest_executable(
             "hexray_BMS_test"
