@@ -120,8 +120,8 @@ class SdCard
 /**
  * @brief   Return the SdCard instance with the matching handle
  * @param   hsd  the SD handle
- * @return  the SdCard instance
+ * @return  the SdCard instance as a reference
  */
-SdCard *getSdFromHandle(SD_HandleTypeDef *hsd);
+SdCard& getSdFromHandle(SD_HandleTypeDef *hsd);
 
 } // namespace hw

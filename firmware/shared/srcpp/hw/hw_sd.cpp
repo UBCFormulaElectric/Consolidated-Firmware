@@ -93,30 +93,25 @@ extern "C"
 {
     void HAL_SD_TxCpltCallback(SD_HandleTypeDef *hsd)
     {
-        hw::SdCard *sd = hw::getSdFromHandle(hsd);
-        if (sd)
-            sd->setDmaTxCompleted(true);
+        hw::SdCard &sd = hw::getSdFromHandle(hsd);
+        sd.setDmaTxCompleted(true);
     }
 
     void HAL_SD_RxCpltCallback(SD_HandleTypeDef *hsd)
     {
-        hw::SdCard *sd = hw::getSdFromHandle(hsd);
-        if (sd)
-            sd->setDmaTxCompleted(true);
+        hw::SdCard &sd = hw::getSdFromHandle(hsd);
+        sd.setDmaRxCompleted(true);
     }
 
     void HAL_SD_ErrorCallback(SD_HandleTypeDef *hsd)
     {
-        hw::SdCard *sd = hw::getSdFromHandle(hsd);
-        if (sd)
-            sd->setDmaTxCompleted(true);
+        hw::SdCard &sd = hw::getSdFromHandle(hsd);
+        sd.setDmaTxCompleted(true);
     }
 
     void HAL_SD_AbortCallback(SD_HandleTypeDef *hsd)
     {
-        hw::SdCard *sd = hw::getSdFromHandle(hsd);
-        if (sd)
-            sd->setDmaTxCompleted(true);
+        hw::SdCard &sd = hw::getSdFromHandle(hsd);
+        sd.setDmaTxCompleted(true);
     }
-
 } // extern C
