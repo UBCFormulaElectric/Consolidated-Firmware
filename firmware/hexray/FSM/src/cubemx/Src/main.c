@@ -43,6 +43,10 @@
 ADC_HandleTypeDef hadc1;
 ADC_HandleTypeDef hadc2;
 
+I2C_HandleTypeDef hi2c1;
+
+I2S_HandleTypeDef hi2s1;
+
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -52,6 +56,8 @@ void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_ADC2_Init(void);
+static void MX_I2C1_Init(void);
+static void MX_I2S1_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -91,6 +97,8 @@ int main(void)
     MX_GPIO_Init();
     MX_ADC1_Init();
     MX_ADC2_Init();
+    MX_I2C1_Init();
+    MX_I2S1_Init();
     /* USER CODE BEGIN 2 */
 
     /* USER CODE END 2 */
@@ -126,11 +134,22 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI;
+    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_CSI;
     RCC_OscInitStruct.HSIState            = RCC_HSI_ON;
     RCC_OscInitStruct.HSIDiv              = RCC_HSI_DIV2;
     RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
-    RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_NONE;
+    RCC_OscInitStruct.CSIState            = RCC_CSI_ON;
+    RCC_OscInitStruct.CSICalibrationValue = RCC_CSICALIBRATION_DEFAULT;
+    RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
+    RCC_OscInitStruct.PLL.PLLSource       = RCC_PLL1_SOURCE_CSI;
+    RCC_OscInitStruct.PLL.PLLM            = 1;
+    RCC_OscInitStruct.PLL.PLLN            = 129;
+    RCC_OscInitStruct.PLL.PLLP            = 2;
+    RCC_OscInitStruct.PLL.PLLQ            = 2;
+    RCC_OscInitStruct.PLL.PLLR            = 2;
+    RCC_OscInitStruct.PLL.PLLRGE          = RCC_PLL1_VCIRANGE_2;
+    RCC_OscInitStruct.PLL.PLLVCOSEL       = RCC_PLL1_VCORANGE_WIDE;
+    RCC_OscInitStruct.PLL.PLLFRACN        = 0;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
         Error_Handler();
@@ -268,6 +287,86 @@ static void MX_ADC2_Init(void)
     /* USER CODE BEGIN ADC2_Init 2 */
 
     /* USER CODE END ADC2_Init 2 */
+}
+
+/**
+ * @brief I2C1 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_I2C1_Init(void)
+{
+    /* USER CODE BEGIN I2C1_Init 0 */
+
+    /* USER CODE END I2C1_Init 0 */
+
+    /* USER CODE BEGIN I2C1_Init 1 */
+
+    /* USER CODE END I2C1_Init 1 */
+    hi2c1.Instance              = I2C1;
+    hi2c1.Init.Timing           = 0x00707CBB;
+    hi2c1.Init.OwnAddress1      = 0;
+    hi2c1.Init.AddressingMode   = I2C_ADDRESSINGMODE_7BIT;
+    hi2c1.Init.DualAddressMode  = I2C_DUALADDRESS_DISABLE;
+    hi2c1.Init.OwnAddress2      = 0;
+    hi2c1.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
+    hi2c1.Init.GeneralCallMode  = I2C_GENERALCALL_DISABLE;
+    hi2c1.Init.NoStretchMode    = I2C_NOSTRETCH_DISABLE;
+    if (HAL_I2C_Init(&hi2c1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure Analogue filter
+     */
+    if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure Digital filter
+     */
+    if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN I2C1_Init 2 */
+
+    /* USER CODE END I2C1_Init 2 */
+}
+
+/**
+ * @brief I2S1 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_I2S1_Init(void)
+{
+    /* USER CODE BEGIN I2S1_Init 0 */
+
+    /* USER CODE END I2S1_Init 0 */
+
+    /* USER CODE BEGIN I2S1_Init 1 */
+
+    /* USER CODE END I2S1_Init 1 */
+    hi2s1.Instance                = SPI1;
+    hi2s1.Init.Mode               = I2S_MODE_MASTER_FULLDUPLEX;
+    hi2s1.Init.Standard           = I2S_STANDARD_PHILIPS;
+    hi2s1.Init.DataFormat         = I2S_DATAFORMAT_16B;
+    hi2s1.Init.MCLKOutput         = I2S_MCLKOUTPUT_DISABLE;
+    hi2s1.Init.AudioFreq          = I2S_AUDIOFREQ_8K;
+    hi2s1.Init.CPOL               = I2S_CPOL_LOW;
+    hi2s1.Init.FirstBit           = I2S_FIRSTBIT_MSB;
+    hi2s1.Init.WSInversion        = I2S_WS_INVERSION_DISABLE;
+    hi2s1.Init.Data24BitAlignment = I2S_DATA_24BIT_ALIGNMENT_RIGHT;
+    hi2s1.Init.MasterKeepIOState  = I2S_MASTER_KEEP_IO_STATE_DISABLE;
+    if (HAL_I2S_Init(&hi2s1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN I2S1_Init 2 */
+
+    /* USER CODE END I2S1_Init 2 */
 }
 
 /**
