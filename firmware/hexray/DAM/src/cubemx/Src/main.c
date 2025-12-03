@@ -21,6 +21,10 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "usbd_core.h"
+#include "usbd_cdc.h"
+#include "usbd_cdc_if.h"
+#include "usbd_desc.h"
 
 /* USER CODE END Includes */
 
@@ -42,6 +46,9 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+uint8_t CDC_EpAdd_Inst[3] = {CDC_IN_EP, CDC_OUT_EP, CDC_CMD_EP};
+USBD_HandleTypeDef hUsbDeviceFS;
+uint8_t CDC_InstID = 0;
 
 /* USER CODE END PV */
 
@@ -86,6 +93,21 @@ int main(void)
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
     /* USER CODE BEGIN 2 */
+
+    if (USBD_Init(&hUsbDeviceFS, &FS_Desc, 0) != USBD_OK) {
+        Error_Handler();
+    }
+
+    if (USBD_RegisterClass(&hUsbDeviceFS, &USBD_CDC) != USBD_OK) {
+        Error_Handler();
+    }
+
+    if (USBD_CDC_RegisterInterface(&hUsbDeviceFS, &USBD_Interface_fops_FS) != USBD_OK) {
+        Error_Handler();
+    }
+
+/* Start USB Device */
+USBD_Start(&hUsbDeviceFS);
 
     /* USER CODE END 2 */
 

@@ -109,6 +109,8 @@ uint8_t UserTxBufferHS[APP_TX_DATA_SIZE];
  */
 
 extern USBD_HandleTypeDef hUsbDeviceHS;
+extern uint8_t CDC_InstID; //for more than one instance of cdc, yet we dont have that rn but its more safe 
+
 
 /* USER CODE BEGIN EXPORTED_VARIABLES */
 

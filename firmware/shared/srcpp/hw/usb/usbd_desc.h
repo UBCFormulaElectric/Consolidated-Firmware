@@ -16,7 +16,9 @@ extern "C"
 
 #if defined (STM32H733xx)
     extern USBD_DescriptorsTypeDef HS_Desc;
+    extern USBD_DescriptorsTypeDef CDC_Desc;
 #elif defined (STM32H562xx)
+    extern USBD_DescriptorsTypeDef FS_Desc;
     extern USBD_DescriptorsTypeDef CDC_Desc;
 #endif
 

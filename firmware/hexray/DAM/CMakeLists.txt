@@ -35,11 +35,11 @@ set(IO_INCLUDE_DIRS
 #HW
 file(GLOB_RECURSE HW_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c")
 list(APPEND HW_SRCS
-        "${SHARED_HW_INCLUDE_DIR_CPP}/usb/usbd_cdc_if.c"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/usb/usb_device.c"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/usb/usbd_conf.c"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/usb/hw_usb.c"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/usb/h5/usbd_cdc_if.c"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/usb/h5/usb_device.c"
         "${SHARED_HW_INCLUDE_DIR_CPP}/usb/h5/usbd_conf.c"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/usb/usbd_desc.c"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/usb/h5/usbd_desc.c"
 )
 set(HW_INCLUDE_DIRS
         #        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"

@@ -1,14 +1,37 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "usbd_core.h"
-#include "usbd_hid.h"
 #include "usbd_cdc.h"
 #include "usbd_conf.h"
-
 #include "stm32h5xx.h"
 #include "stm32h5xx_hal.h"
 
 extern PCD_HandleTypeDef hpcd_USB_DRD_FS;
+
+
+USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
+{
+	USBD_StatusTypeDef usb_status = USBD_OK;
+	switch (hal_status)
+	{
+	case HAL_OK :
+		usb_status = USBD_OK;
+		break;
+	case HAL_ERROR :
+		usb_status = USBD_FAIL;
+		break;
+	case HAL_BUSY :
+		usb_status = USBD_BUSY;
+		break;
+	case HAL_TIMEOUT :
+		usb_status = USBD_FAIL;
+		break;
+	default :
+		usb_status = USBD_FAIL;
+		break;
+	}
+	return usb_status;
+}
 
 void HAL_PCD_SetupStageCallback(PCD_HandleTypeDef *hpcd)
 {
@@ -46,24 +69,36 @@ void HAL_PCD_DisconnectCallback(PCD_HandleTypeDef *hpcd)
 {
   USBD_LL_DevDisconnected((USBD_HandleTypeDef*)hpcd->pData);
 }
-
 USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
 {
-	/* Link the driver to the stack */
-	pdev->pData  = &hpcd_USB_DRD_FS;
-	hpcd_USB_DRD_FS.pData = pdev;
-	/* Initialize LL Driver */
-	MX_USB_PCD_Init();
-	/* Control Endpoints */
-	HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x00 , PCD_SNG_BUF, 0x20);
-	HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x80 , PCD_SNG_BUF, 0x60);
-	/* HID Endpoints */
-	HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , HID_EPIN_ADDR , PCD_SNG_BUF, 0xA0);
-	/* CDC Endpoints */
-	HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , CDC_OUT_EP , PCD_SNG_BUF, 0xE0);
-	HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , CDC_IN_EP , PCD_SNG_BUF, 0x120);
-	HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , CDC_CMD_EP , PCD_SNG_BUF, 0x140);
-	return USBD_OK;
+    /* Link USB Device <-> PCD */
+    pdev->pData = &hpcd_USB_DRD_FS;
+    hpcd_USB_DRD_FS.pData = pdev;
+
+    /* Configure PCD instance */
+    hpcd_USB_DRD_FS.Instance = USB_DRD_FS;
+    hpcd_USB_DRD_FS.Init.dev_endpoints = 8;
+    hpcd_USB_DRD_FS.Init.speed = PCD_SPEED_FULL;
+    hpcd_USB_DRD_FS.Init.phy_itface = PCD_PHY_EMBEDDED;
+    hpcd_USB_DRD_FS.Init.Sof_enable = ENABLE;
+    hpcd_USB_DRD_FS.Init.low_power_enable = DISABLE;
+    hpcd_USB_DRD_FS.Init.lpm_enable = DISABLE;
+    hpcd_USB_DRD_FS.Init.battery_charging_enable = DISABLE;
+    hpcd_USB_DRD_FS.Init.vbus_sensing_enable = DISABLE;
+
+    if (HAL_PCD_Init(&hpcd_USB_DRD_FS) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /* PMA buffer configuration */
+    HAL_PCDEx_PMAConfig(&hpcd_USB_DRD_FS, 0x00, PCD_SNG_BUF, 0x20);  /* EP0 OUT */
+    HAL_PCDEx_PMAConfig(&hpcd_USB_DRD_FS, 0x80, PCD_SNG_BUF, 0x60);  /* EP0 IN */
+    HAL_PCDEx_PMAConfig(&hpcd_USB_DRD_FS, CDC_OUT_EP, PCD_SNG_BUF, 0xA0);
+    HAL_PCDEx_PMAConfig(&hpcd_USB_DRD_FS, CDC_IN_EP,  PCD_SNG_BUF, 0xE0);
+    HAL_PCDEx_PMAConfig(&hpcd_USB_DRD_FS, CDC_CMD_EP, PCD_SNG_BUF, 0x120);
+
+    return USBD_OK;
 }
 USBD_StatusTypeDef USBD_LL_DeInit(USBD_HandleTypeDef *pdev)
 {
@@ -156,7 +191,7 @@ uint32_t USBD_LL_GetRxDataSize(USBD_HandleTypeDef *pdev, uint8_t ep_addr)
 void *USBD_static_malloc(uint32_t size)
 {
 	UNUSED(size);
-	static uint32_t mem[(sizeof(USBD_HID_HandleTypeDef) / 4) + 1]; /* On 32-bit boundary */
+	static uint32_t mem[(sizeof(USBD_CDC_HandleTypeDef) / 4) + 1]; /* On 32-bit boundary */
 	return mem;
 }
 void USBD_static_free(void *p)
@@ -166,28 +201,4 @@ void USBD_static_free(void *p)
 void USBD_LL_Delay(uint32_t Delay)
 {
      HAL_Delay(Delay);
-}
-
-USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
-{
-	USBD_StatusTypeDef usb_status = USBD_OK;
-	switch (hal_status)
-	{
-	case HAL_OK :
-		usb_status = USBD_OK;
-		break;
-	case HAL_ERROR :
-		usb_status = USBD_FAIL;
-		break;
-	case HAL_BUSY :
-		usb_status = USBD_BUSY;
-		break;
-	case HAL_TIMEOUT :
-		usb_status = USBD_FAIL;
-		break;
-	default :
-		usb_status = USBD_FAIL;
-		break;
-	}
-	return usb_status;
 }

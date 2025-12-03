@@ -2,7 +2,6 @@ message("")
 message("⚙️ Configuring VC (Hexray)")
 
 file(GLOB CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
-list(APPEND CUBEMX_SRCS "${SHARED_EMBEDDED_DIR_CPP}/hw/usb/usbd_desc.c")
 set(CUBEMX_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
         "${SHARED_HW_INCLUDE_DIR_CPP}/usb"
@@ -34,7 +33,8 @@ set(IO_INCLUDE_DIRS
 )
 
 file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c")
-list(APPEND HW_SRCS)
+list(APPEND HW_SRCS
+)
 set(HW_INCLUDE_DIRS
         #        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
         "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR_CPP}"
