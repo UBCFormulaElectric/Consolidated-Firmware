@@ -1,9 +1,13 @@
+#include "main.h"
+
+#ifndef HAL_SPI_MODULE_ENABLED
+#error "HAL_SPI_MODULE_ENABLED must be defined and set to 1"
+#endif
 #pragma once
 
 #include <cstdint>
 #include <span>
 #include <array>
-#include "main.h"
 #include "hw_utils.hpp"
 #include "hw_gpio.hpp"
 
