@@ -53,22 +53,26 @@ void hw_can_init(CanHandle *can_handle)
     filter.SlaveStartFilterBank = 0;
 
     // Configure and initialize hardware filter.
-    assert(HAL_CAN_ConfigFilter(can_handle->hcan, &filter) == HAL_OK);
+    const HAL_StatusTypeDef config_filter_res = HAL_CAN_ConfigFilter(can_handle->hcan, &filter);
+    assert(config_filter_res == HAL_OK);
 
     // Configure interrupt mode for CAN peripheral.
-    assert(
-        HAL_CAN_ActivateNotification(
-            can_handle->hcan, CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING | CAN_IT_BUSOFF) == HAL_OK);
+    const HAL_StatusTypeDef can_activate_notis_res = HAL_CAN_ActivateNotification(
+        can_handle->hcan, CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING | CAN_IT_BUSOFF);
+    assert(can_activate_notis_res == HAL_OK);
 
     // Start the CAN peripheral.
-    assert(HAL_CAN_Start(can_handle->hcan) == HAL_OK);
+    const HAL_StatusTypeDef can_start_status = HAL_CAN_Start(can_handle->hcan) == HAL_OK;
+    assert(can_start_status == HAL_OK);
     can_handle->ready = true;
 }
 
 void hw_can_deinit(const CanHandle *can_handle)
 {
-    assert(HAL_CAN_Stop(can_handle->hcan) == HAL_OK);
-    assert(HAL_CAN_DeInit(can_handle->hcan) == HAL_OK);
+    const HAL_StatusTypeDef stop_status = HAL_CAN_Stop(can_handle->hcan);
+    assert(stop_status == HAL_OK);
+    const HAL_StatusTypeDef deinit_status = HAL_CAN_DeInit(can_handle->hcan);
+    assert(deinit_status == HAL_OK);
 }
 
 // NOTE this design assumes that there is only one task calling this function

@@ -477,6 +477,47 @@
         ]
       }
     },
+    {
+      "name": "Debug Embedded: h5dev",
+      "cwd": "${workspaceRoot}",
+      "executable": "build_fw_dev/firmware/dev/h5dev/h5dev.hex",
+      "symbolFiles": [
+        "build_fw_dev/firmware/dev/h5dev/h5dev_boot.elf",
+        "build_fw_dev/firmware/dev/h5dev/h5dev_app.elf",
+      ],
+      "preLaunchTask": "Build Embedded: h5dev",
+      // cortex configurations
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "jlink",
+      "linux": {
+        "serverpath": "JLinkGDBServerCLExe"
+      },
+      "osx": {
+        "serverpath": "JLinkGDBServer"
+      },
+      "windows": {
+        "serverpath": "JLinkGDBServerCL"
+      },
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
+      "device": "STM32H562RI",
+      "interface": "swd",
+      "showDevDebugOutput": "none",
+      "rttConfig": {
+        "enabled": true,
+        "address": "auto",
+        "decoders": [
+          {
+            "label": "Debug logs: H5Dev",
+            "port": 0,
+            "type": "console"
+          }
+        ]
+      }
+    },
     // ========== TESTS ==========
     {
       "name": "Debug Tests: VC (Quintuna)",
