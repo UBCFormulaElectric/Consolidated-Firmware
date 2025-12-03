@@ -11,7 +11,7 @@ DOCKERIZED: bool = get_env_bool("DOCKERIZED")
 
 # App running on docker should have existing environment variables set up
 if not DOCKERIZED:
-    _DOTENV_PATH = Path(__file__).resolve().parent.parent / "local_live_data.env"
+    _DOTENV_PATH = Path(__file__).resolve().parent.parent / "local_backend.env"
     if _DOTENV_PATH.exists():
         load_dotenv(_DOTENV_PATH)
     else:
@@ -21,7 +21,7 @@ if not DOCKERIZED:
 INFLUX_BUCKET: str = os.environ.get("INFLUXDB_BUCKET", "can_data")
 INFLUX_URL: str | None = os.environ.get("INFLUXDB_URL")
 INFLUX_ORG: str | None = os.environ.get("INFLUXDB_ORG")
-INFLUX_TOKEN: str | None = os.environ.get("ADMIN_TOKEN")
+INFLUX_TOKEN: str | None = os.environ.get("INFLUX_TOKEN")
 
 if "CAR_NAME" not in os.environ:
     raise KeyError("Environment variable 'CAR_NAME' is not set")
