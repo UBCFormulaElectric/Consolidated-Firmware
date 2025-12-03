@@ -32,7 +32,7 @@ from api.files_handler import sd_api
 from api.rtc_handler import rtc
 from api.http import http
 from api.subtable_handler import sub_handler
-from api.influx_handler import influx_handler
+from api.signal_handler import signal_handler
 
 from mDNS import register_mdns_service
 
@@ -58,12 +58,13 @@ def create_app():
     app.register_blueprint(http)
     app.register_blueprint(rtc)
     app.register_blueprint(sub_handler)
-    app.register_blueprint(influx_handler)
+    app.register_blueprint(signal_handler)
 
-    influx_start_time = time.time()
-    # Setup the Message Populate Thread
-    InfluxHandler.setup()
-    logger.debug(f"InfluxDB setup took {time.time() - influx_start_time:.2f} seconds")
+    if INFLUX_ON:
+        influx_start_time = time.time()
+        # Setup the Message Populate Thread
+        InfluxHandler.setup()
+        logger.debug(f"InfluxDB setup took {time.time() - influx_start_time:.2f} seconds")
 
     match DATA_SOURCE:
         case "WIRELESS":

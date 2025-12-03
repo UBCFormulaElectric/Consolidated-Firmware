@@ -22,7 +22,7 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_can_h7.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_can_hx.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_freeRtosConfigs.c"
@@ -84,6 +84,9 @@ IF ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
+    # JSONCAN
+    jsoncan_embedded_library(H7 dev "${CMAKE_CURRENT_BINARY_DIR}")
+
     embedded_binary(
             "h7dev_app"
             "${EMBEDDED_SRCS}"
@@ -106,7 +109,7 @@ IF ("${TARGET}" STREQUAL "binary")
             TRUE
     )
 
-    target_link_libraries("h7dev_app.elf" PRIVATE "h7dev_stm32" "protobuf_library" "logfs_cm7")
+    target_link_libraries("h7dev_app.elf" PRIVATE "h7dev_stm32" "protobuf_library" "logfs_cm7" "dev_H7_jsoncan")
 
     # Bootloader files.
     file(GLOB BOOT_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
