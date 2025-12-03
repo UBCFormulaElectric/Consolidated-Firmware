@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useState, ReactNode } from 'react'
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { Play, Pause } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -16,11 +16,31 @@ interface DisplayControlContextType {
 
 const DisplayControlContext = createContext<DisplayControlContextType | undefined>(undefined)
 
+const PAUSE_STATE_STORAGE_KEY = "tracksight_pause_state_v1";
+
+// retain pause state between refreshes
+function loadPauseStateFromStorage(): boolean {
+  if (typeof window === "undefined") return true; 
+  const saved = localStorage.getItem(PAUSE_STATE_STORAGE_KEY);
+  if (saved === null) return true; 
+  try {
+    return JSON.parse(saved); 
+  } catch {
+    return true; 
+  }
+}
+
 // Provider component to wrap the entire app
 export function DisplayControlProvider({ children }: { children: ReactNode }) {
-  const [isPaused, setIsPaused] = useState(true) // Start in paused state
+  const [isPaused, setIsPaused] = useState(() => loadPauseStateFromStorage());
   const [horizontalScale, setHorizontalScale] = useState(100) // Default to 100%
   const [isAutoscrollEnabled, setIsAutoscrollEnabled] = useState(false) // Default to disabled
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(PAUSE_STATE_STORAGE_KEY, JSON.stringify(isPaused));
+    }
+  }, [isPaused]);
 
   const togglePause = () => {
     setIsPaused(prev => !prev)
