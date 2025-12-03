@@ -1,0 +1,32 @@
+#include "io_coolant.hpp"
+// #include "hw_pwmInputFreqOnly.hpp"
+// #include "hw_pwms.hpp"          // 3 of them not created yet
+// #include ""
+
+#define FREQ_TO_LITERS_PER_MINUTE 7.5f
+
+int *flow_meter_5v5    = (int *)1;
+int *flow_meter_config = (int *)1;
+
+namespace io::coolant
+{
+void init()
+{
+    // could have diff flow meter, thus diff address
+    // hw_pwmInputFreqOnly_init(&flow_meter_5v5, &flow_meter_config);
+}
+
+float getFlowRate()
+{
+    // const float freq_read = hw_pwmInputFreqOnly_getFrequency(&flow_meter_5v5);
+    // return freq_read * FREQ_TO_LITERS_PER_MINUTE;
+    return 0;
+}
+
+void checkIfFlowMeterActive()
+{
+    // hw_pwmInputFreqOnly_checkIfPwmIsActive(&flow_meter_5v5);
+}
+} // namespace io::coolant
+
+// namespace io::coolant

@@ -1,6 +1,8 @@
 #pragma once
-
-#include "app_utils.hpp"
+extern "C"
+{
+#include "app_utils.h"
+}
 #include <array>
 
 #ifdef TARGET_EMBEDDED

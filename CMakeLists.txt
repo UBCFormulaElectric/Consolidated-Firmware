@@ -82,6 +82,7 @@ IF ("${PLATFORM}" STREQUAL "firmware")
             file(GLOB HOMEBREW_GCC_CANDIDATES
                     "/opt/homebrew/bin/gcc-[0-9]*"
                     "/usr/local/bin/gcc-[0-9]*"
+                    "/usr/bin/gcc"
             )
 
             IF (HOMEBREW_GCC_CANDIDATES)

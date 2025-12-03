@@ -8,5 +8,21 @@
                 "bits": 1
             }
         }
+    },
+    "Brake": {
+    "msg_id": 612,
+    "cycle_time": 10,
+    "description": "Front and rear brake pressures",
+    "signals": {
+      "FrontBrakePressure": {
+        "resolution": 1,
+        "min": 0,
+        "max": 2500,
+        "unit": "psi"
+      },
+      "BrakeActuated": {
+        "bits": 1
+      }
     }
+  }
 }
