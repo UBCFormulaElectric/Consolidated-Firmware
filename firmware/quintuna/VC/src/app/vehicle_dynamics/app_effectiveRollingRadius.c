@@ -2,7 +2,11 @@
 #include "app_vehicleDynamicsConstants.h"
 #include <math.h>
 
-float app_effectiveRollingRadius_compute(const float v_x_body, const float v_y_body, const float steer_angle_deg, const float frequency_hz)
+float app_effectiveRollingRadius_compute(
+    const float v_x_body,
+    const float v_y_body,
+    const float steer_angle_deg,
+    const float frequency_hz)
 {
     // Check for invalid frequency to avoid division by zero
     if (frequency_hz <= 0.0f)
@@ -26,5 +30,3 @@ float app_effectiveRollingRadius_compute(const float v_x_body, const float v_y_b
 
     return effective_radius;
 }
-
-

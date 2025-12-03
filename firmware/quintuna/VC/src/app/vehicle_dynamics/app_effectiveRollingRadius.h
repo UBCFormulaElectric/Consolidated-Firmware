@@ -21,5 +21,3 @@
  * @return Effective rolling tire radius in meters, or 0.0f if frequency is invalid
  */
 float app_effectiveRollingRadius_compute(float v_x_body, float v_y_body, float steer_angle_deg, float frequency_hz);
-
-
