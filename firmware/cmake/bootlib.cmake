@@ -75,7 +75,6 @@ function(stm32f4_boot_binary
     )
     target_link_libraries("${BOOT_NAME}.elf" PRIVATE "${BOOT_NAME}_stm32")
     target_compile_definitions("${BOOT_NAME}.elf" PRIVATE "${CONFIG_DEFINE}")
-    target_compile_definitions("${BOOT_NAME}.elf" PRIVATE BOOTLOADER)
 
 endfunction()
 

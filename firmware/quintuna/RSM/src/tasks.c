@@ -228,15 +228,10 @@ _Noreturn void tasks_runCanRx(void)
                                        .stack_usage_max_setter = app_canTx_RSM_TaskRunCanRxStackUsage_set };
 
     hw_runTimeStat_registerTask(&task_runcanrx);
-
-    const uint32_t period_ms   = 1U;
-    uint32_t       start_ticks = osKernelGetTickCount();
     for (;;)
     {
         const CanMsg rx_msg   = io_canQueue_popRx();
         JsonCanMsg   json_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
         io_canRx_updateRxTableWithMessage(&json_msg);
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
     }
 }

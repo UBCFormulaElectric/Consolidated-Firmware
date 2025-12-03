@@ -53,7 +53,7 @@ void                   hw_hardFaultHandler_logInfo(uint32_t *fault_stack)
     bfar  = SCB->BFAR;
     mmfar = SCB->MMFAR;
 
-    // BREAK_IF_DEBUGGER_CONNECTED();
+    BREAK_IF_DEBUGGER_CONNECTED();
 
     for (;;)
     {
