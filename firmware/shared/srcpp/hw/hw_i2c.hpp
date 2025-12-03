@@ -3,8 +3,14 @@
 #include <cstdint>
 #include <map>
 #include <span>
-#include "main.h"
 #include "hw_utils.hpp"
+#include "main.h"
+extern "C"
+{
+#include "cmsis_os2.h"
+#include "FreeRTOS.h"
+#include "task.h"
+}
 
 namespace hw::i2c
 {

@@ -287,7 +287,7 @@ function(stm32h562xx_cube_library
             "${DRIVERS_DIR}/STM32H5xx_HAL_Driver/Inc/Legacy"
             "${FREERTOS_DIR}/include"
             "${FREERTOS_DIR}/CMSIS_RTOS_V2"
-            "${FREERTOS_DIR}/portable/GCC/ARM_CM33/non_secure"
+            "${FREERTOS_DIR}/portable/GCC/ARM_CM33_NTZ/non_secure"
             "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H5xx/Include"
             "${DRIVERS_DIR}/CMSIS/Include"
             "${THIRD_PARTY_DIR}/freertos"
@@ -308,6 +308,7 @@ function(stm32h562xx_cube_library
             "${FREERTOS_DIR}/*.c"
             "${FREERTOS_DIR}/CMSIS_RTOS_V2/cmsis_os2.c"
             "${FREERTOS_DIR}/portable/GCC/ARM_CM33_NTZ/port.c"
+            "${FREERTOS_DIR}/portable/GCC/ARM_CM33_NTZ/portasm.c"
             "${FREERTOS_DIR}/portable/MemMang/heap_4.c"
     )
 
