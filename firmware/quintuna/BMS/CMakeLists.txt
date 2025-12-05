@@ -41,7 +41,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_can_h7.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_can_hx.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_pwmInput.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"

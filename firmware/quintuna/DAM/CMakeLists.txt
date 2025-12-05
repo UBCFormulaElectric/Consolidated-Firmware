@@ -45,7 +45,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_can_h7.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_can_hx.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"

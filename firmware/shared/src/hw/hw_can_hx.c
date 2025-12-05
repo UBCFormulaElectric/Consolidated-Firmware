@@ -1,6 +1,5 @@
 #include "app_utils.h"
 #include "hw_fdcan.h"
-#include <stm32h7xx_hal_fdcan.h>
 #undef NDEBUG // TODO remove this in favour of always_assert
 #include <assert.h>
 #include <FreeRTOS.h>
@@ -12,19 +11,30 @@
 #include "io_time.h"
 #include "hw_utils.h"
 
+#if defined(STM32H733xx)
+#include "stm32h7xx_hal_fdcan.h"
+#elif defined(STM32H562xx)
+#include "stm32h5xx_hal_fdcan.h"
+#endif
+
 void hw_can_init(CanHandle *can_handle)
 {
     assert(!can_handle->ready);
     // Configure a single filter bank that accepts any message.
     FDCAN_FilterTypeDef filter;
-    filter.IdType           = FDCAN_EXTENDED_ID; // 29 bit ID
-    filter.FilterIndex      = 0;
-    filter.FilterType       = FDCAN_FILTER_MASK;
-    filter.FilterConfig     = FDCAN_FILTER_TO_RXFIFO0;
-    filter.FilterID1        = 0x00000000; // Standard CAN ID bits [28:0]
-    filter.FilterID2        = 0x1FFFFFFF; // Mask bits for Extended CAN ID
+    filter.IdType       = FDCAN_EXTENDED_ID; // 29 bit ID
+    filter.FilterIndex  = 0;
+    filter.FilterType   = FDCAN_FILTER_MASK;
+    filter.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;
+    filter.FilterID1    = 0x00000000; // Standard CAN ID bits [28:0]
+    filter.FilterID2    = 0x1FFFFFFF; // Mask bits for Extended CAN ID
+
+// Fields only enabled for H7
+#if defined(STM32H753xx)
     filter.IsCalibrationMsg = 0;
     filter.RxBufferIndex    = 0;
+#endif
+
     const ExitCode configure_filter_status =
         hw_utils_convertHalStatus(HAL_FDCAN_ConfigFilter(can_handle->hcan, &filter));
     ASSERT_EXIT_OK(configure_filter_status);
