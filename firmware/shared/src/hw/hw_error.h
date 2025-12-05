@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 // This is a "hack" taken from the ST forum to do the following:
 //
 // - Replace "Error_Handler(void)" with "Error_Handler(void)" (no effect)
@@ -11,4 +15,8 @@
 #define Error_Handler0() hw_error(__FILE__, __LINE__, __func__)
 #define Error_Handler1(unused) Error_Handler(unused)
 
-_Noreturn void hw_error(const char *file, int line, const char *func);
+    _Noreturn void hw_error(const char *file, int line, const char *func);
+
+#ifdef __cplusplus
+}
+#endif

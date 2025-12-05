@@ -29,7 +29,9 @@ set(IO_INCLUDE_DIRS
 file(GLOB_RECURSE HW_SRCS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
 )
-list(APPEND HW_SRCS)
+list(APPEND HW_SRCS
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_ubsan.cpp"
+)
 set(HW_INCLUDE_DIRS
         #        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
         "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR_CPP}"
