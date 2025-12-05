@@ -34,7 +34,8 @@ file(GLOB_RECURSE HW_SRCS
 )
 list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_spi.c"
+        # "${SHARED_HW_INCLUDE_DIR}/hw_spi.c"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_spi.cpp"
         "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
@@ -55,6 +56,7 @@ list(APPEND HW_SRCS
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
         "${SHARED_HW_INCLUDE_DIR}"
+        "${SHARED_HW_INCLUDE_DIR_CPP}"
 )
 
 if ("${TARGET}" STREQUAL "binary")
