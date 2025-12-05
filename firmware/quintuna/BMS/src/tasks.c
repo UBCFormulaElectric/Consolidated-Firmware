@@ -25,9 +25,11 @@
 #include "hw_gpios.h"
 #include "hw_resetReason.h"
 
+#ifdef USE_CHIMERA
 // chimera
 #include "hw_chimeraConfig_v2.h"
 #include "hw_chimera_v2.h"
+#endif
 
 #include <FreeRTOS.h>
 #include <cmsis_os2.h>
@@ -36,10 +38,12 @@
 // Define this guy to use CAN2 for talking to the Elcon.
 // #define CHARGER_CAN
 
+#ifdef USE_CHIMERA
 void tasks_runChimera(void)
 {
     hw_chimera_v2_task(&chimera_v2_config);
 }
+#endif
 
 void tasks_preInit(void)
 {
@@ -119,7 +123,9 @@ void tasks_run1Hz(void)
     uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
     {
+#ifdef USE_CHIMERA
         if (!hw_chimera_v2_enabled)
+#endif
         {
             jobs_run1Hz_tick();
         }
@@ -141,7 +147,9 @@ void tasks_run100Hz(void)
     uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
     {
+#ifdef USE_CHIMERA
         if (!hw_chimera_v2_enabled)
+#endif
         {
             jobs_run100Hz_tick();
         }
