@@ -57,12 +57,13 @@ void can::init() const
     filter.SlaveStartFilterBank = 0;
 
     // Configure and initialize hardware filter.
-    assert(HAL_CAN_ConfigFilter(hcan, &filter) == HAL_OK);
+    const HAL_StatusTypeDef config_filter_status = HAL_CAN_ConfigFilter(hcan, &filter);
+    assert(config_filter_status == HAL_OK);
 
     // Configure interrupt mode for CAN peripheral.
-    assert(
-        HAL_CAN_ActivateNotification(hcan, CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING | CAN_IT_BUSOFF) ==
-        HAL_OK);
+    const HAL_StatusTypeDef interrupt_status =
+        HAL_CAN_ActivateNotification(hcan, CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING | CAN_IT_BUSOFF);
+    assert(interrupt_status == HAL_OK);
 
     // Start the CAN peripheral.
     assert(HAL_CAN_Start(hcan) == HAL_OK);

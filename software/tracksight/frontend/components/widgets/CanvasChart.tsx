@@ -174,7 +174,6 @@ export default function CanvasChart({
     if (!canvas) return;
     const context = canvas.getContext("2d");
     if (!context) return;
-
     const render_call = () => {
       const dpr = window.devicePixelRatio || 1;
 
