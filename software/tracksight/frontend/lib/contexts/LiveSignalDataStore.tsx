@@ -1,19 +1,24 @@
-import { SignalDataStoreProvider, type GenericSignalStore } from "./SignalDataStore";
-import socket from "../realtime/socket";
-import useUnsubscribeToSignal from "../mutations/useUnsubscribeToSignal";
-import useSubscribeToSignal from "../mutations/useSubscribeToSignal";
-import { useRef } from "react";
+import { CircularBuffer, SignalDataStoreProvider, type GenericSignalStore } from "@/lib/contexts/SignalDataStore";
+import socket from "@/lib/realtime/socket";
+import useUnsubscribeToSignal from "@/lib/mutations/useUnsubscribeToSignal";
+import useSubscribeToSignal from "@/lib/mutations/useSubscribeToSignal";
+import React, { memo, useRef } from "react";
 
-type SignalSubscriptionFn = (signalName: string, options?: { onSuccess?: () => void, onError: (error: unknown) => void }) => void;
+const MAX_ELEMENTS_IN_BUFFER = 500000;
 
 class LiveSignalDataStore implements GenericSignalStore {
   private subscriberCounts: { [signalName: string]: number };
   private liveData: { [signalName: string]: ReturnType<GenericSignalStore['getReferenceToSignal']> };
 
-  private subscribeToSignal: SignalSubscriptionFn;
-  private unsubscribeFromSignal: SignalSubscriptionFn;
+  private subscribeToSignal: ReturnType<typeof useSubscribeToSignal>;
+  private unsubscribeFromSignal: ReturnType<typeof useUnsubscribeToSignal>;
 
-  constructor(subscribeToSignal: SignalSubscriptionFn, unsubscribeFromSignal: SignalSubscriptionFn) {
+  // NOTE(evan): Might be unnecessary but it stops the double rendering creating multiple instances
+  private static instance: LiveSignalDataStore | null = null;
+
+  constructor(subscribeToSignal: ReturnType<typeof useSubscribeToSignal>, unsubscribeFromSignal: ReturnType<typeof useUnsubscribeToSignal>) {
+    LiveSignalDataStore.instance = this;
+
     this.subscriberCounts = {};
     this.liveData = {};
 
@@ -29,28 +34,41 @@ class LiveSignalDataStore implements GenericSignalStore {
         return;
       }
 
-      this.liveData[signalName].data.push(payload);
+      this.liveData[signalName].data.timePoints.push(time);
+      this.liveData[signalName].data.values.push(value);
     });
+  }
+
+  static getInstance(subscribeToSignal: ReturnType<typeof useSubscribeToSignal>, unsubscribeFromSignal: ReturnType<typeof useUnsubscribeToSignal>) {
+    if (!LiveSignalDataStore.instance) {
+      LiveSignalDataStore.instance = new LiveSignalDataStore(subscribeToSignal, unsubscribeFromSignal);
+    }
+
+    return LiveSignalDataStore.instance;
   }
 
   getReferenceToSignal(signalName: string) {
     if (!this.liveData[signalName]) {
       this.liveData[signalName] = {
-        data: [],
+        data: {
+          timePoints: new CircularBuffer(MAX_ELEMENTS_IN_BUFFER),
+          values: new CircularBuffer(MAX_ELEMENTS_IN_BUFFER),
+        },
         error: null,
         isSubscribed: false,
       }
 
       this.subscriberCounts[signalName] = 0;
 
-      this.subscribeToSignal(signalName, {
-        onSuccess: () => {
-          this.liveData[signalName].isSubscribed = true;
-        },
+      this.subscribeToSignal.mutate(signalName, {
         onError: (error) => {
           this.liveData[signalName].error = error;
         }
       });
+
+      if (!this.liveData[signalName].error) {
+        this.liveData[signalName].isSubscribed = true;
+      }
     }
 
     this.subscriberCounts[signalName] += 1;
@@ -65,26 +83,29 @@ class LiveSignalDataStore implements GenericSignalStore {
 
     if (this.subscriberCounts[signalName] > 0) return;
 
-    this.unsubscribeFromSignal(signalName, {
-      onSuccess: () => {
-        delete this.liveData[signalName];
-        delete this.subscriberCounts[signalName];
-      },
+    this.unsubscribeFromSignal.mutate(signalName, {
       onError: (error) => {
         console.error(`Error unsubscribing from signal ${signalName}:`, error);
         this.subscriberCounts[signalName] = 1;
       }
     });
+
+    if (this.subscriberCounts[signalName] !== 0) return;
+
+    delete this.liveData[signalName];
+    delete this.subscriberCounts[signalName];
   }
 }
 
-const LiveSignalDataStoreProvider = ({ children }: { children: React.ReactNode }) => {
+const LiveSignalDataStoreProvider = memo(({ children }: { children: React.ReactNode }) => {
   const subscribeToSignalMutation = useSubscribeToSignal();
   const unsubscribeFromSignalMutation = useUnsubscribeToSignal();
 
-  const liveSignalStore = useRef(new LiveSignalDataStore(
-    subscribeToSignalMutation.mutate,
-    unsubscribeFromSignalMutation.mutate
+  console.log("Creating LiveSignalDataStoreProvider");
+
+  const liveSignalStore = useRef(LiveSignalDataStore.getInstance(
+    subscribeToSignalMutation,
+    unsubscribeFromSignalMutation
   ));
 
   return (
@@ -92,7 +113,7 @@ const LiveSignalDataStoreProvider = ({ children }: { children: React.ReactNode }
       {children}
     </SignalDataStoreProvider>
   );
-};
+});
 
 export { LiveSignalDataStoreProvider };
 

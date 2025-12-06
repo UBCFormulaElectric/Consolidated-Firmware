@@ -1,13 +1,49 @@
 "use client";
 
-import { createContext, RefObject, ReactNode, useContext, useEffect } from "react";
+import { createContext, RefObject, ReactNode, useContext, useEffect, useRef } from "react";
+
+export class CircularBuffer {
+  private buffer: Uint32Array;
+
+  private head: number = 0;
+  private length: number = 0;
+
+  constructor(size: number) {
+    this.buffer = new Uint32Array(size);
+  }
+
+  size() {
+    return this.length;
+  }
+
+  push(value: number) {
+    const writeIndex = (this.head + this.length) % this.buffer.length;
+    this.buffer[writeIndex] = value;
+
+    if (this.length < this.buffer.length) {
+      this.length++;
+      return;
+    }
+
+    this.head = (this.head + 1) % this.buffer.length;
+  }
+
+  get(index: number) {
+    if (index < 0 || index >= this.length) {
+      return undefined;
+    }
+
+    const bufferIndex = (this.head + index) % this.buffer.length;
+    return this.buffer[bufferIndex];
+  }
+}
 
 interface GenericSignalStore {
   getReferenceToSignal: (signalName: string) => {
     data: {
-      time: number;
-      value: number;
-    }[];
+      timePoints: CircularBuffer;
+      values: CircularBuffer;
+    },
     error: unknown | null;
     isSubscribed: boolean;
   };
@@ -39,6 +75,7 @@ const useSignalDataStore = (signalName: string) => {
   }
 
   const { signalStore } = context;
+  const cachedReferenceRef = useRef<ReturnType<GenericSignalStore['getReferenceToSignal']> | null>(null);
 
   useEffect(() => {
     return () => {
@@ -46,7 +83,11 @@ const useSignalDataStore = (signalName: string) => {
     };
   }, [signalName, signalStore]);
 
-  return signalStore.current.getReferenceToSignal(signalName);
+  if (!cachedReferenceRef.current) {
+    cachedReferenceRef.current = signalStore.current.getReferenceToSignal(signalName);
+  }
+
+  return cachedReferenceRef.current;
 }
 
 export type { GenericSignalStore };
