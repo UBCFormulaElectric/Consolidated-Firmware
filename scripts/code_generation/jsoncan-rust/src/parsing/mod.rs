@@ -195,19 +195,13 @@ fn add_tx_msg(
 }
 
 impl JsonCanParser {
+    /**
+     * Parses JSON data
+     * can_data_dir: Location of all the json files
+     */
     pub fn new(can_data_dir: String) -> Result<Self, ParseError> {
-        // Parses JSON data
-        // can_data_dir: Location of all the json files
-
         let node_names: Vec<String> = list_nodes_from_folders(&can_data_dir);
-        // let busses: HashMap<String, CanBus> = HashMap::new();
-
-        // parse the bus config
         let (busses, forwarding, loggers) = parse_bus_data(&can_data_dir, &node_names);
-
-        // let _collects_data = {
-        //     node_name: node_name in loggers for node_name in node_names
-        // }
         let collects_data: HashMap<String, bool> = node_names
             .iter()
             .map(|node_name| (node_name.clone(), loggers.contains(&node_name)))
@@ -310,8 +304,8 @@ impl JsonCanParser {
         //                     continue
         //                 self._add_rx_msg(alert_msg.name, other_rx_node_name)
 
-        //         # CONSISTENCY TODO work this in?
-        //         # self._consistency_check()
+        // CONSISTENCY TODO work this in?
+        // consistency_check()
 
         Ok(JsonCanParser {
             can_data_dir,

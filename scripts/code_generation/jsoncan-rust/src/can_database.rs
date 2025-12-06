@@ -150,7 +150,7 @@ pub struct CanDatabase {
     // collects_data[node_name] is true if this node collects data
     pub collects_data: std::collections::HashMap<String, bool>,
     // signals_to_msgs[signal_name] gives the message that contains the signal
-    pub signals_to_msgs: std::collections::HashMap<String, CanMessage>,
+    pub signals_to_msgs: std::collections::HashMap<String, &CanMessage>,
 
     // this must be global state rather than local (node) state as the common usecase is navigation
     // which requires global information
