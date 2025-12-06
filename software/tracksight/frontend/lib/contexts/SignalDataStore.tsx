@@ -83,11 +83,12 @@ const useSignalDataStore = (signalName: string) => {
     };
   }, [signalName, signalStore]);
 
-  if (!cachedReferenceRef.current) {
+  useEffect(() => {
     cachedReferenceRef.current = signalStore.current.getReferenceToSignal(signalName);
-  }
+  }, [signalName]);
 
-  return cachedReferenceRef.current;
+
+  return cachedReferenceRef;
 }
 
 export type { GenericSignalStore };

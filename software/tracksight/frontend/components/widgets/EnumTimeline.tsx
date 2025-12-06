@@ -6,7 +6,7 @@ import EnumSignalSelector from "@/components/widgets/EnumSignalSelector";
 import { useDashboardLayout } from "@/lib/contexts/DashboardLayout";
 import useSignalMetadata from "@/lib/hooks/useSignalMetadata";
 import { useSignalDataStore } from "@/lib/contexts/SignalDataStore";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { isEnumSignalMetadata } from "@/lib/types/Signal";
 
 function EnumTimeline(props: WidgetData<"enumTimeline">) {
@@ -16,14 +16,9 @@ function EnumTimeline(props: WidgetData<"enumTimeline">) {
 
   const { editWidget } = useDashboardLayout();
 
-  const [dataVersion, setDataVersion] = useState(0);
-  const data = useSignalDataStore(signals[0]);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  useEffect(() => {
-    setInterval(() => {
-      setDataVersion((prev) => prev + 1);
-    }, 100);
-  }, []);
+  const data = useSignalDataStore(signals[0]);
 
   const signalMetadata = useSignalMetadata(signals[0] ?? "");
 
@@ -85,45 +80,13 @@ function EnumTimeline(props: WidgetData<"enumTimeline">) {
       </div>
 
       <div className="relative flex h-6 w-full">
-        {
-          // NOTE(evan): This is just here for my personal testing ignore how horrible
-          Array.from({ length: data.data.values.size() }, (_, i) => {
-            const previousPoint = data.data.values.get(i - 1);
-            const lengthPerElement = 100 / Math.max(data.data.values.size(), 1);
-            let widthPercent = lengthPerElement;
-
-            if (previousPoint === undefined || previousPoint != data.data.values.get(i)) {
-              let lengthOfSegment = 1;
-
-              while (data.data.values.get(i + lengthOfSegment) === data.data.values.get(i)) {
-                lengthOfSegment += 1;
-              }
-
-              widthPercent = lengthOfSegment * lengthPerElement;
-            } else {
-              return null;
-            }
-
-            const value = data.data.values.get(i);
-
-            if (value === undefined) return null;
-
-            const enumOption = enumOptions[value];
-            const color = colorPalette[value % colorPalette.length];
-
-            return (
-              <div
-                key={i}
-                className="h-full"
-                style={{
-                  width: `${widthPercent}%`,
-                  backgroundColor: color,
-                  display: "inline-block",
-                }}
-              />
-            );
-          })
-        }
+        <canvas
+          className="w-full"
+          style={{
+            backgroundColor: "lightgray",
+          }}
+          ref={canvasRef}
+        ></canvas>
       </div>
 
       <LabelLegend signals={enumOptions} colorPalette={colorPalette} />
