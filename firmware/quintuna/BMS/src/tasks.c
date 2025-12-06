@@ -217,14 +217,14 @@ void tasks_runLtcVoltages(void)
 #ifdef TARGET_HV_SUPPLY
     for (;;)
         osDelay(osWaitForever);
-#elif
+#else
     static const TickType_t period_ms = 500U; // 2Hz
     jobs_initLTCVoltages();
     for (;;)
     {
         const uint32_t start_ticks = osKernelGetTickCount();
         jobs_runLTCVoltages();
-        LOG_INFO("LTC voltage period remaining: %dms", start_ticks + period_ms - osKernelGetTickCount());
+        //LOG_INFO("LTC voltage period remaining: %dms", start_ticks + period_ms - osKernelGetTickCount());
         osDelayUntil(start_ticks + period_ms);
     }
 #endif
@@ -235,14 +235,14 @@ void tasks_runLtcTemps(void)
 #ifdef TARGET_HV_SUPPLY
     for (;;)
         osDelay(osWaitForever);
-#elif
+#else
     static const TickType_t period_ms = 500U; // 2Hz
     jobs_initLTCTemps();
     for (;;)
     {
         const uint32_t start_ticks = osKernelGetTickCount();
         jobs_runLTCTemperatures();
-        LOG_INFO("LTC temp period remaining: %dms", start_ticks + period_ms - osKernelGetTickCount());
+        //LOG_INFO("LTC temp period remaining: %dms", start_ticks + period_ms - osKernelGetTickCount());
         osDelayUntil(start_ticks + period_ms);
     }
 #endif
@@ -253,7 +253,7 @@ void tasks_runLtcDiagnostics(void)
 #ifdef TARGET_HV_SUPPLY
     for (;;)
         osDelay(osWaitForever);
-#elif
+#else
     static const TickType_t period_ms = 10000U; // Every 10s
     jobs_initLTCDiagnostics();
     for (;;)
