@@ -3,6 +3,7 @@
 import { useRef, useEffect, useMemo, useCallback, useState } from "react";
 import { MouseEvent as MouseEvent_React } from "react";
 import render, { ChartLayout, ChunkStats, PreparedChartData, SeriesMeta } from "@/components/widgets/render";
+import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 
 // data format is an array where:
 // -first element is an array of x-axis timestamps
@@ -13,16 +14,13 @@ export interface AlignedData {
 };
 
 export default function CanvasChart({
-  data, series, height, panOffset = 0, scrollProgress = 1, zoomLevel = 100, frozenTimeWindow = null,
-  downsampleThreshold = 100000, timeTickCount = 6, hoverTimestamp: externalHoverTimestamp,
-  onHoverTimestampChange, domainStart, domainEnd,
+  data, series, height, timeTickCount = 6,
+  onHoverTimestampChange,
 }: {
   data: AlignedData; series: SeriesMeta[];
-  height: number; panOffset?: number; scrollProgress?: number; zoomLevel?: number;
-  frozenTimeWindow?: { startTime: number; endTime: number } | null;
-  downsampleThreshold?: number; timeTickCount?: number; hoverTimestamp: number | null;
+  height: number;
+  timeTickCount?: number;
   onHoverTimestampChange?: (timestamp: number | null) => void;
-  domainStart?: number; domainEnd?: number;
 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animationFrameId = useRef<number | null>(null);
@@ -30,7 +28,25 @@ export default function CanvasChart({
   const tooltipBufferRef = useRef<string[]>([]);
   const layoutRef = useRef<ChartLayout | null>(null);
 
+  const { scalePxPerSecRef, timeRangeRef, scrollLeftRef, hoverTimestamp: externalHoverTimestampRef, setTimeRange } = useSyncedGraph();
+
   const [containerWidth, setContainerWidth] = useState(0);
+
+  const timestamps = data?.timestamps;
+  const firstTimestamp = timestamps && timestamps.length > 0 ? timestamps[0] : null;
+  const lastTimestamp = timestamps && timestamps.length > 0 ? timestamps[timestamps.length - 1] : null;
+
+  // Update global time range based on data
+  useEffect(() => {
+    if (firstTimestamp === null || lastTimestamp === null) return;
+    if (firstTimestamp >= lastTimestamp) return;
+
+    const current = timeRangeRef.current;
+    // Update if range is different or not set yet
+    if (!current || current.min !== firstTimestamp || current.max !== lastTimestamp) {
+      setTimeRange({ min: firstTimestamp, max: lastTimestamp });
+    }
+  }, [firstTimestamp, lastTimestamp, setTimeRange, timeRangeRef]);
 
   // handle resize of the container
   useEffect(() => {
@@ -96,38 +112,6 @@ export default function CanvasChart({
       }
     });
 
-    if (downsampleThreshold && workingTimestamps.length > downsampleThreshold) {
-      const newTimestamps: number[] = [];
-      const newSeriesData = workingSeries.map(
-        () => [] as (number | string | null)[]
-      );
-      const step = workingTimestamps.length / downsampleThreshold;
-
-      for (let i = 0; i < downsampleThreshold; i++) {
-        const index = Math.floor(i * step);
-        newTimestamps.push(workingTimestamps[index]);
-        workingSeries.forEach((seriesPoints, seriesIndex) => {
-          newSeriesData[seriesIndex].push(seriesPoints[index]);
-        });
-      }
-
-      if (
-        newTimestamps.length > 0 &&
-        workingTimestamps.length > 0 &&
-        newTimestamps[newTimestamps.length - 1] !==
-        workingTimestamps[workingTimestamps.length - 1]
-      ) {
-        newTimestamps.push(workingTimestamps[workingTimestamps.length - 1]);
-        workingSeries.forEach((seriesPoints, seriesIndex) => {
-          const source = seriesPoints[seriesPoints.length - 1];
-          newSeriesData[seriesIndex].push(source);
-        });
-      }
-
-      workingTimestamps = newTimestamps;
-      workingSeries = newSeriesData;
-    }
-
     const chunkSize =
       workingTimestamps.length > 0
         ? Math.max(32, Math.ceil(workingTimestamps.length / 512))
@@ -182,7 +166,7 @@ export default function CanvasChart({
       numericalSeriesIndices,
       uniqueEnumValues: uniqueEnumValuesRecord,
     };
-  }, [data, downsampleThreshold]);
+  }, [data]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -197,22 +181,34 @@ export default function CanvasChart({
       context.setTransform(1, 0, 0, 1, 0, 0);
       context.scale(dpr, dpr);
 
-      render(context, containerWidth, height, preparedData, series,
-        panOffset, scrollProgress, zoomLevel, frozenTimeWindow, timeTickCount,
-        externalHoverTimestamp, hoverPixelRef, tooltipBufferRef, layoutRef, domainStart, domainEnd);
+      const scrollLeft = scrollLeftRef.current;
+      const scale = scalePxPerSecRef.current;
+      const globalTimeRange = timeRangeRef.current;
+      const externalHoverTimestamp = externalHoverTimestampRef.current;
+
+      if (globalTimeRange) {
+        const visibleStartTime = globalTimeRange.min + (scrollLeft / scale);
+        const visibleEndTime = visibleStartTime + (containerWidth / scale);
+        
+        const visibleTimeRange = { min: visibleStartTime, max: visibleEndTime };
+
+        render(context, containerWidth, height, preparedData, series,
+           timeTickCount,
+          externalHoverTimestamp, hoverPixelRef, tooltipBufferRef, layoutRef, 
+          visibleTimeRange);
+      }
+      
       animationFrameId.current = requestAnimationFrame(render_call);
     }
     animationFrameId.current = requestAnimationFrame(render_call);
     return () => {
       if (animationFrameId.current === null)
-        // throw new Error("animationFrameId.current should not be null here");
         return; 
       cancelAnimationFrame(animationFrameId.current);
       animationFrameId.current = null;
-      hoverPixelRef.current = null;
     };
-  }, [preparedData, series, height, containerWidth, panOffset, scrollProgress, zoomLevel, frozenTimeWindow, timeTickCount,
-    externalHoverTimestamp, onHoverTimestampChange, domainStart, domainEnd]);
+  }, [preparedData, series, height, containerWidth, timeTickCount,
+    onHoverTimestampChange, scalePxPerSecRef, timeRangeRef, scrollLeftRef, externalHoverTimestampRef]);
 
   const handleMouseMove = useCallback((event: MouseEvent_React<HTMLCanvasElement, MouseEvent>) => {
     const canvas = canvasRef.current;
@@ -231,14 +227,14 @@ export default function CanvasChart({
         onHoverTimestampChange(calculatedTime);
       }
     }
-  }, []);
+  }, [onHoverTimestampChange]);
 
   const handleMouseLeave = useCallback(() => {
     hoverPixelRef.current = null;
     if (onHoverTimestampChange) {
       onHoverTimestampChange(null);
     }
-  }, []);
+  }, [onHoverTimestampChange]);
 
   if (containerWidth === 0) {
     return <canvas className="block w-full" ref={canvasRef} style={{ height }} />;

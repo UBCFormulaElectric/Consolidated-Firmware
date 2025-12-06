@@ -1,10 +1,11 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, RefObject } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, RefObject, ReactNode } from "react";
 
-type SyncedGraphContext = {
+export type SyncedGraphContext = {
   scalePxPerSecRef: RefObject<number>;
   hoverTimestamp: RefObject<number | null>;
   timeRangeRef: RefObject<TimeRange | null>;
   setTimeRange: (tr: TimeRange) => void;
+  scrollLeftRef: RefObject<number>;
 };
 // eslint-disable-next-line no-redeclare
 const SyncedGraphContext = createContext<SyncedGraphContext | null>(null);
@@ -17,13 +18,13 @@ export function useSyncedGraph() {
   return ctx;
 }
 
-interface TimeRange {
+export interface TimeRange {
   min: number;
   max: number;
 }
 
-const MIN_SCALE_PX_PER_SEC = 10;
-const MAX_SCALE_PX_PER_SEC = 1000;
+const MIN_SCALE_PX_PER_SEC = 0;
+const MAX_SCALE_PX_PER_SEC = 10000;
 
 function useZoomManager(containerRef: RefObject<HTMLDivElement | null>) {
   const [scalePxPerSec, setScalePxPerSec] = useState(100);
@@ -33,7 +34,7 @@ function useZoomManager(containerRef: RefObject<HTMLDivElement | null>) {
       return;
     }
     event.preventDefault();
-    const deltaScale = event.deltaY * -0.001; // invert for natural zoom
+    const deltaScale = event.deltaY * -0.005; // invert for natural zoom 
     if (deltaScale === 0) return;
 
     // deltaScale usually in {-1,1}
@@ -43,43 +44,86 @@ function useZoomManager(containerRef: RefObject<HTMLDivElement | null>) {
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
+    
     window.addEventListener("wheel", handleWheelZoom, { passive: false });
     return () => {
       window.removeEventListener("wheel", handleWheelZoom);
     };
-  }, [handleWheelZoom]);
+  }, [handleWheelZoom, containerRef]);
 
   return scalePxPerSec;
 }
 
-export default function SyncedGraphContainer({ children }: { children: React.ReactNode }) {
+export default function SyncedGraphContainer({ children }: { children: ReactNode }) {
   const hoverTimestamp = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const scrollLeftRef = useRef<number>(0);
+  const [viewportWidth, setViewportWidth] = useState(0);
 
-  const [timeRange, setTimeRange] = useState<TimeRange | null>({ min: 0, max: 60 });
+  const [timeRange, setTimeRange] = useState<TimeRange | null>(null);
   const timeRangeRef = useRef(timeRange);
   useEffect(() => { timeRangeRef.current = timeRange; }, [timeRange]);
 
   // zoom management
   const scalePxPerSec = useZoomManager(containerRef);
   const scalePxPerSecRef = useRef<number>(scalePxPerSec);
+  
   const graphWidthPx = useMemo(() => {
     scalePxPerSecRef.current = scalePxPerSec;
     return timeRange ? scalePxPerSec * (timeRange.max - timeRange.min) : null;
   }, [timeRange, scalePxPerSec]);
 
+  // Handle scroll events
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      scrollLeftRef.current = container.scrollLeft;
+    };
+
+    container.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      container.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  // Measure viewport width for sticky container
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.contentRect) {
+          setViewportWidth(entry.contentRect.width);
+        }
+      }
+    });
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
+
   const CTXVAL = useMemo<SyncedGraphContext>(() => ({
     scalePxPerSecRef,
     hoverTimestamp,
     timeRangeRef,
-    setTimeRange
+    setTimeRange,
+    scrollLeftRef
   }), [setTimeRange]);
 
   return (
     <SyncedGraphContext.Provider value={CTXVAL}>
-      <div className="min-w-full min-h-60" style={{ width: graphWidthPx || 4000 }} ref={containerRef}>
-        <div className="sticky w-screen left-0">
-          {children}
+      <div 
+        className="w-full overflow-x-auto overflow-y-hidden" 
+        ref={containerRef}
+      >
+        <div style={{ width: graphWidthPx || '100%', minWidth: '100%' }} className="relative">
+          <div 
+            className="sticky left-0 top-0" 
+            style={{ width: viewportWidth > 0 ? viewportWidth : '100%' }}
+          >
+            {children}
+          </div>
         </div>
       </div>
     </SyncedGraphContext.Provider >
