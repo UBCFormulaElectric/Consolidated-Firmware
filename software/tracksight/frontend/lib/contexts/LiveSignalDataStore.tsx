@@ -4,29 +4,26 @@ import useUnsubscribeToSignal from "@/lib/mutations/useUnsubscribeToSignal";
 import useSubscribeToSignal from "@/lib/mutations/useSubscribeToSignal";
 import React, { memo, useRef } from "react";
 
-const MAX_ELEMENTS_IN_BUFFER = 500000;
+const MAX_ELEMENTS_IN_BUFFER = 5000;
 
 class LiveSignalDataStore implements GenericSignalStore {
   private subscriberCounts: { [signalName: string]: number };
   private liveData: { [signalName: string]: ReturnType<GenericSignalStore['getReferenceToSignal']> };
 
-  private subscribeToSignal: ReturnType<typeof useSubscribeToSignal>;
-  private unsubscribeFromSignal: ReturnType<typeof useUnsubscribeToSignal>;
+  private subscribeToSignal: ReturnType<typeof useSubscribeToSignal> | null = null;
+  private unsubscribeFromSignal: ReturnType<typeof useUnsubscribeToSignal> | null = null;
 
   // NOTE(evan): Might be unnecessary but it stops the double rendering creating multiple instances
   private static instance: LiveSignalDataStore | null = null;
 
-  constructor(subscribeToSignal: ReturnType<typeof useSubscribeToSignal>, unsubscribeFromSignal: ReturnType<typeof useUnsubscribeToSignal>) {
+  constructor() {
     LiveSignalDataStore.instance = this;
 
     this.subscriberCounts = {};
     this.liveData = {};
 
-    this.subscribeToSignal = subscribeToSignal;
-    this.unsubscribeFromSignal = unsubscribeFromSignal;
-
     socket.on("data", (payload) => {
-      const { name: signalName, time, value } = payload;
+      const { name: signalName, timestamp, value } = payload;
 
       if (!this.liveData[signalName]) {
         console.error(`Received data for unsubscribed signal: ${signalName}`);
@@ -34,17 +31,22 @@ class LiveSignalDataStore implements GenericSignalStore {
         return;
       }
 
-      this.liveData[signalName].data.timePoints.push(time);
+      this.liveData[signalName].data.timePoints.push(new Date(timestamp).getTime());
       this.liveData[signalName].data.values.push(value);
     });
   }
 
-  static getInstance(subscribeToSignal: ReturnType<typeof useSubscribeToSignal>, unsubscribeFromSignal: ReturnType<typeof useUnsubscribeToSignal>) {
+  static getInstance() {
     if (!LiveSignalDataStore.instance) {
-      LiveSignalDataStore.instance = new LiveSignalDataStore(subscribeToSignal, unsubscribeFromSignal);
+      LiveSignalDataStore.instance = new LiveSignalDataStore();
     }
 
     return LiveSignalDataStore.instance;
+  }
+
+  updateMutations(subscribeToSignal: ReturnType<typeof useSubscribeToSignal>, unsubscribeFromSignal: ReturnType<typeof useUnsubscribeToSignal>) {
+    this.subscribeToSignal = subscribeToSignal;
+    this.unsubscribeFromSignal = unsubscribeFromSignal;
   }
 
   getReferenceToSignal(signalName: string) {
@@ -60,15 +62,18 @@ class LiveSignalDataStore implements GenericSignalStore {
 
       this.subscriberCounts[signalName] = 0;
 
-      this.subscribeToSignal.mutate(signalName, {
+      this.subscribeToSignal?.mutate(signalName, {
+        onSuccess: () => {
+          if (!this.liveData[signalName]) return;
+
+          this.liveData[signalName].isSubscribed = true;
+        },
         onError: (error) => {
+          if (!this.liveData[signalName]) return;
+
           this.liveData[signalName].error = error;
         }
       });
-
-      if (!this.liveData[signalName].error) {
-        this.liveData[signalName].isSubscribed = true;
-      }
     }
 
     this.subscriberCounts[signalName] += 1;
@@ -83,17 +88,24 @@ class LiveSignalDataStore implements GenericSignalStore {
 
     if (this.subscriberCounts[signalName] > 0) return;
 
-    this.unsubscribeFromSignal.mutate(signalName, {
+    if (this.liveData[signalName]) {
+      this.liveData[signalName].isSubscribed = false;
+    }
+
+    this.unsubscribeFromSignal?.mutate(signalName, {
+      onSuccess: () => {
+        if (this.subscriberCounts[signalName] !== 0) return;
+
+        delete this.liveData[signalName];
+        delete this.subscriberCounts[signalName];
+      },
       onError: (error) => {
         console.error(`Error unsubscribing from signal ${signalName}:`, error);
+        if (this.subscriberCounts[signalName] !== 0) return;
+
         this.subscriberCounts[signalName] = 1;
       }
     });
-
-    if (this.subscriberCounts[signalName] !== 0) return;
-
-    delete this.liveData[signalName];
-    delete this.subscriberCounts[signalName];
   }
 }
 
@@ -101,12 +113,9 @@ const LiveSignalDataStoreProvider = memo(({ children }: { children: React.ReactN
   const subscribeToSignalMutation = useSubscribeToSignal();
   const unsubscribeFromSignalMutation = useUnsubscribeToSignal();
 
-  console.log("Creating LiveSignalDataStoreProvider");
+  const liveSignalStore = useRef(LiveSignalDataStore.getInstance());
 
-  const liveSignalStore = useRef(LiveSignalDataStore.getInstance(
-    subscribeToSignalMutation,
-    unsubscribeFromSignalMutation
-  ));
+  liveSignalStore.current.updateMutations(subscribeToSignalMutation, unsubscribeFromSignalMutation);
 
   return (
     <SignalDataStoreProvider signalStore={liveSignalStore}>
