@@ -46,7 +46,7 @@ TEST_F(PIDFixture, one_time_step_classic)
     cfg.Kp              = 0.5f;
     cfg.Ki              = 0.0025f;
     cfg.Kd              = 25.0f;
-    cfg.sample_time     = 100.0f; 
+    cfg.sample_time     = 100.0f;
     cfg.smoothing_coeff = 1.0f;
     PID pid(cfg);
 
