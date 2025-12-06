@@ -12,6 +12,7 @@
     // "--compile-commands-dir=build_fw_test",
     "--query-driver=/usr/local/bin/arm-none-eabi-gcc"
   ],
+<<<<<<< HEAD
   "files.associations": {
     "hw_chimera_v2.h": "c",
     "app_jsoncan.h": "c",
@@ -36,4 +37,7 @@
     "app_imu.h": "c",
     "io_imu_config.h": "c",
   }
+=======
+  "cortex-debug.variableUseNaturalFormat": false,
+>>>>>>> master
 }
