@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { PlusButton } from "./PlusButton";
+import { PlusButton } from "@/components/PlusButton";
 import { SignalType } from "@/lib/types/Signal";
 import { WidgetData, MockGraphConfig } from "@/lib/types/Widget";
 

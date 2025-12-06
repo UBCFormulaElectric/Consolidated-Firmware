@@ -37,16 +37,16 @@ export default function CanvasChart({
   const lastTimestamp = timestamps && timestamps.length > 0 ? timestamps[timestamps.length - 1] : null;
 
   // Update global time range based on data
-  useEffect(() => {
-    if (firstTimestamp === null || lastTimestamp === null) return;
-    if (firstTimestamp >= lastTimestamp) return;
+  // useEffect(() => {
+  //   if (firstTimestamp === null || lastTimestamp === null) return;
+  //   if (firstTimestamp >= lastTimestamp) return;
 
-    const current = timeRangeRef.current;
-    // Update if range is different or not set yet
-    if (!current || current.min !== firstTimestamp || current.max !== lastTimestamp) {
-      setTimeRange({ min: firstTimestamp, max: lastTimestamp });
-    }
-  }, [firstTimestamp, lastTimestamp, setTimeRange, timeRangeRef]);
+  //   const current = timeRangeRef.current;
+  //   // Update if range is different or not set yet
+  //   if (!current || current.min !== firstTimestamp || current.max !== lastTimestamp) {
+  //     setTimeRange({ min: firstTimestamp, max: lastTimestamp });
+  //   }
+  // }, [firstTimestamp, lastTimestamp, setTimeRange, timeRangeRef]);
 
   // handle resize of the container
   useEffect(() => {
@@ -169,6 +169,7 @@ export default function CanvasChart({
   }, [data]);
 
   useEffect(() => {
+    console.log("called useEffect");
     const canvas = canvasRef.current;
     if (!canvas) return;
     const context = canvas.getContext("2d");

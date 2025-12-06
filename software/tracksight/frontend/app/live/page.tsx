@@ -24,7 +24,7 @@ export default function LiveDataPage() {
     <DisplayControlProvider> {/* not so sure actually (OLD) */}
       <SignalProvider> {/* provides signal data (OLD) */}
         <SyncedGraphContainer>
-          <div className="h-96"></div>
+          <div className="h-48"></div>
           {/** TODO(evan): Add pause / play button here */}
           {/** TODO(evan): Add the universal timeline here */}
           {/* TODO rework alerts */}
@@ -42,6 +42,7 @@ export default function LiveDataPage() {
             key={widgetData.id} />
           )}
           <WidgetAdder onAddWidget={appendWidget} />
+          <div className="h-48"></div>
           {/* <DynamicRowManager /> */}
         </SyncedGraphContainer>
       </SignalProvider >

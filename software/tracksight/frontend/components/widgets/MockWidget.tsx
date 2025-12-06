@@ -6,6 +6,7 @@ import { usePausePlay, PausePlayButton } from "@/components/PausePlayControl";
 import { PlusButton } from "@/components/PlusButton";
 import { MockGraphConfig, WidgetDataMock } from "@/lib/types/Widget";
 import { signalColors } from "@/components/widgets/signalColors";
+import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 
 enum MockSignalType {
   Numerical = "numerical",
@@ -50,7 +51,8 @@ const MockWidget = memo(({ widgetData, updateMockConfig, onDelete }:
   }>({ timestamps: [], series: {} });
 
   const [chartHeight, setChartHeight] = useState(256);
-  // const { hoverTimestamp, scalePxPerSecRef, setTimeRange, timeRangeRef } = useSyncedGraph();
+
+  const { setTimeRange, scrollLeftRef } = useSyncedGraph(); // because this widget is also doing the data generation
 
   // const graphId = widgetData.id;
 
@@ -77,6 +79,14 @@ const MockWidget = memo(({ widgetData, updateMockConfig, onDelete }:
 
         //isDirtyRef.current = true;
         store.timestamps.push(now);
+
+        if (store.timestamps.length > 0) {
+          // console.log("scrollleft", scrollLeftRef.current);
+          setTimeRange({
+            min: store.timestamps[0],
+            max: store.timestamps[store.timestamps.length - 1]
+          });
+        }
 
         Object.keys(store.series).forEach((key) => {
           if (key === cfg.signalName) {
