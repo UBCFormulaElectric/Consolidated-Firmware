@@ -154,7 +154,7 @@ static void runOnTick100Hz()
     const bool fault = extShutdown || !chargerConn || rx.hardwareFailure || rx.chargingStateFault ||
                        rx.overTemperature || rx.inputVoltageFault || rx.commTimeout;
 
-    const bool fault_latched = (app_timer_runIfCondition(&elcon_err_debounce, fault) == TIMER_STATE_EXPIRED);
+    const bool fault_latched = (elcon_err_debounce.runIfCondition(fault) == app::Timer::TimerState::EXPIRED);
 
     if (fault_latched || !userEnable)
     {
@@ -197,7 +197,7 @@ static void runOnTick100Hz()
 static void runOnExit()
 {
     // Open AIR+ on exit from charging
-    io_irs_setPositive(CONTACTOR_STATE_OPEN);
+    io::irs::setPositive(CONTACTOR_STATE_OPEN);
 
     // Ensure we don't unintentionally re-enter charge state
     app_canRx_Debug_StartCharging_update(false);
@@ -209,7 +209,7 @@ static void runOnExit()
 
 } // namespace app::states::chargeState
 
-const State charge_state = {
+const app::State charge_state = {
     .name              = "CHARGE",
     .run_on_entry      = app::states::chargeState::runOnEntry,
     .run_on_tick_100Hz = app::states::chargeState::runOnTick100Hz,
@@ -227,7 +227,7 @@ static void runOnTick100Hz() {}
 static void runOnExit() {}
 } // namespace app::states::chargeFaultState
 
-const State charge_fault_state = {
+const app::State charge_fault_state = {
     .name              = "CHARGE FAULT",
     .run_on_entry      = app::states::chargeFaultState::runOnEntry,
     .run_on_tick_100Hz = app::states::chargeFaultState::runOnTick100Hz,

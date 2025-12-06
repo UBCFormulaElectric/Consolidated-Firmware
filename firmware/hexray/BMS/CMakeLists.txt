@@ -118,9 +118,6 @@ elseif ("${TARGET}" STREQUAL "test")
     # FakeIO
     set(HEADERS_TO_FAKE
     )
-
-    file(GLOB TEST_IO_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.hpp")
-    list(APPEND HEADERS_TO_FAKE ${TEST_IO_HDRS})
     create_fake_library(
             "hexray_BMS_fakes"
             "${HEADERS_TO_FAKE}"
