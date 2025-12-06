@@ -52,7 +52,7 @@ const MockWidget = memo(({ widgetData, updateMockConfig, onDelete }:
 
   const [chartHeight, setChartHeight] = useState(256);
 
-  const { setTimeRange, scrollLeftRef } = useSyncedGraph(); // because this widget is also doing the data generation
+  const { setTimeRange, timeRangeRef } = useSyncedGraph(); // because this widget is also doing the data generation
 
   // const graphId = widgetData.id;
 
@@ -83,8 +83,8 @@ const MockWidget = memo(({ widgetData, updateMockConfig, onDelete }:
         if (store.timestamps.length > 0) {
           // console.log("scrollleft", scrollLeftRef.current);
           setTimeRange({
-            min: store.timestamps[0],
-            max: store.timestamps[store.timestamps.length - 1]
+            min: Math.min(store.timestamps[0], timeRangeRef.current?.min ?? store.timestamps[0]),
+            max: Math.max(store.timestamps[store.timestamps.length - 1], timeRangeRef.current?.max ?? store.timestamps[store.timestamps.length - 1])
           });
         }
 
@@ -154,7 +154,7 @@ const MockWidget = memo(({ widgetData, updateMockConfig, onDelete }:
     setShowAddModal(false);
     setNewSignalName("");
     setNewSignalType(MockSignalType.Numerical);
-  }, []);
+  }, [configs, newSignalName, newSignalType, newSignalDelay, updateMockConfig, widgetData.id]);
 
   const handleRemoveSignal = useCallback((name: string) => {
     if (configs.length <= 1) {
@@ -165,7 +165,7 @@ const MockWidget = memo(({ widgetData, updateMockConfig, onDelete }:
     if (dataRef.current.series[name]) {
       delete dataRef.current.series[name];
     }
-  }, []);
+  }, [configs, onDelete, updateMockConfig, widgetData.id]);
 
   const totalDataPoints = dataRef.current.timestamps.length;
 
@@ -302,8 +302,6 @@ const MockWidget = memo(({ widgetData, updateMockConfig, onDelete }:
                         onChange={(e) =>
                           setNewSignalDelay(Number(e.target.value))
                         }
-                        min="1"
-                        max="5000"
                         className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
                       />
                     </div>
