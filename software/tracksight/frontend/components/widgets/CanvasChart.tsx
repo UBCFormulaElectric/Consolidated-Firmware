@@ -174,7 +174,7 @@ export default function CanvasChart({
     if (!canvas) return;
     const context = canvas.getContext("2d");
     if (!context) return;
-    
+
     const render_call = () => {
       const dpr = window.devicePixelRatio || 1;
 
@@ -190,21 +190,21 @@ export default function CanvasChart({
       if (globalTimeRange) {
         const visibleStartTime = globalTimeRange.min + (scrollLeft / scale);
         const visibleEndTime = visibleStartTime + (containerWidth / scale);
-        
+
         const visibleTimeRange = { min: visibleStartTime, max: visibleEndTime };
 
         render(context, containerWidth, height, preparedData, series,
-           timeTickCount,
-          externalHoverTimestamp, hoverPixelRef, tooltipBufferRef, layoutRef, 
+          timeTickCount,
+          externalHoverTimestamp, hoverPixelRef, tooltipBufferRef, layoutRef,
           visibleTimeRange);
       }
-      
+
       animationFrameId.current = requestAnimationFrame(render_call);
     }
     animationFrameId.current = requestAnimationFrame(render_call);
     return () => {
       if (animationFrameId.current === null)
-        return; 
+        return;
       cancelAnimationFrame(animationFrameId.current);
       animationFrameId.current = null;
     };

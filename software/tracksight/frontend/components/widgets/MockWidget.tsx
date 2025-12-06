@@ -343,7 +343,6 @@ const MockWidget = memo(({ widgetData, updateMockConfig, onDelete }:
             label: c.signalName,
             color: signalColors[idx % signalColors.length],
           }))}
-          hoverTimestamp={null}
         />
       </div>
     </div>

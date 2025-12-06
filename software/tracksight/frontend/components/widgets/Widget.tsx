@@ -6,10 +6,10 @@ import { SignalType } from "@/lib/types/Signal";
 import { MockGraphConfig, WidgetData } from "@/lib/types/Widget";
 import { useCallback } from "react";
 
-export function Widget({ 
-	widgetData, 
-	setEnumSignal, 
-	appendNumSignal, 
+export function Widget({
+	widgetData,
+	setEnumSignal,
+	appendNumSignal,
 	removeNumSignal,
 	updateMockConfig,
 	removeWidget
@@ -37,7 +37,7 @@ export function Widget({
 				setEnumSignal={setEnumSignalCurried}
 				key={widgetData.id} />;
 		case SignalType.NUMERICAL:
-			return <NumericalWidget 
+			return <NumericalWidget
 				widgetData={widgetData}
 				appendNumSignal={appendNumSignal}
 				removeNumSignal={removeNumSignal}
