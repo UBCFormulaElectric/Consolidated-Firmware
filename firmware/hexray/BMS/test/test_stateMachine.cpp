@@ -312,8 +312,23 @@ TEST_F(BmsStateMachineTest, drive_to_fault_from_board_faults)
 {
     fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
     SetInitialState(&drive_state);
-    app_canTx_VC_State_set(VC_FAULT_STATE);
+    app_canAlerts_AnyBoardHasFault_set(true);
+    LetTimePass(10);
 
+    ASSERT_STATE_EQ(fault_state);
+}
+
+TEST_F(BmsStateMachineTest, drive_to_fault_on_overtemp)
+{
+    fakes::irs::setNegativeState(CONTACTOR_STATE_CLOSED);
+    SetInitialState(&drive_state);
+
+    fakes::segments::setPackVoltageEvenly(MAX_CELL_VOLTAGE_FAULT_V - 0.1f);
+    fakes::segments::setCellTemperatures(const int &temperatures)
+
+    LetTimePass(10);
+
+    ASSERT_STATE_EQ(fault_state);
 }
 
 

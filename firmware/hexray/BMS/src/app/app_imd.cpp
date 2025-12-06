@@ -64,11 +64,9 @@ ImdCondition getCondition()
 {
     const float   pwm_frequency          = io::imd::getFrequency();
     const float   pwm_duty_cycle         = io::imd::getDutyCycle();
-    const uint8_t ticks_since_pwm_update = io::imd::pwmCounterTick();
 
     ImdCondition condition{};
-    condition.name =
-        (ticks_since_pwm_update == UINT8_MAX) ? IMD_CONDITION_SHORT_CIRCUIT : estimateConditionName(pwm_frequency);
+    condition.name = (pwm_frequency < 0.001f) ? IMD_CONDITION_SHORT_CIRCUIT : estimateConditionName(pwm_frequency);
 
     // Decode the information encoded in the PWM frequency and duty cycle
     switch (condition.name)
