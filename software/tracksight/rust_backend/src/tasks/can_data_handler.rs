@@ -1,19 +1,33 @@
 use std::sync::mpsc::Receiver;
+use influxdb2::Client;
+use influxdb2::models::DataPoint;
 
+use crate::config::CONFIG;
 use crate::tasks::telem_message::CanMessage;
 use crate::tasks::thread_signal_handler::should_run;
 
 /**
- * Handling serial signals from radio.
+ * After serial_handler parses the can messages,
+ * this task will handle "distributing" the data to
+ * both the socket clients and influxdb
  */
-pub fn run_influx_task(can_queue_receiver: Receiver<CanMessage>) {
+pub fn run_broadcaster_task(can_queue_receiver: Receiver<CanMessage>) {
+    // TODO consider splitting this task for client handling and influxdb into two tasks
+
+    let influx_client = Client::new(
+        &CONFIG.influxdb_url,
+        &CONFIG.influxdb_org,
+        &CONFIG.influxdb_token
+    );
+    
     loop {
         if !should_run() {
             break;
         }
         match can_queue_receiver.recv() {
-            Ok(message) => {
-                // TODO Process the message
+            Ok(CanMessage {can_id, can_time_offset, can_payload }) => {
+                // TODO Process the message using jsoncan
+
             },
             Err(_) => break, // Channel has closed, no possible senders left
         }

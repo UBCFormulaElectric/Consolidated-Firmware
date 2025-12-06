@@ -120,6 +120,7 @@ fn parse_telem_message(payload: Vec<u8>) -> Result<TelemetryMessage, ()> {
         // TODO magic numbers
         0x01 => {
             let can_id = u32::from_le_bytes([payload[1], payload[2], payload[3], payload[4]]);
+            // TODO use RTC and NTP time instead of whatever this is
             let can_time_offset = f32::from_le_bytes([payload[5], payload[6], payload[7], payload[8]]);
             let can_payload = payload[9..].to_vec();
             TelemetryMessage::Can {

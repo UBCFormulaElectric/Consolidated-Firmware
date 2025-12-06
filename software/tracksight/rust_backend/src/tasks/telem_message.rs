@@ -34,9 +34,12 @@ pub struct BaseTimeRegMessage {
     pub base_time: u32, // TODO some time format
 }
 
+/**
+ * Message passed through serial
+ */
 pub struct CanMessage {
     pub can_id: u32,
-    pub can_time_offset: f32,
+    pub can_time_offset: f32, // should deprecate this field when we establish RTC and NTP
     pub can_payload: Vec<u8>,
 }
 
@@ -49,4 +52,13 @@ impl CanMessage {
             self.can_payload
         )
     }
+}
+
+/**
+ * Parsed from CanMessage payload, represents a single signal
+ */
+pub struct CanSignal {
+    pub name: String,
+    pub value: f64,
+    pub timestamp: u64, // todo time format
 }
