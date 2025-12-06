@@ -134,8 +134,6 @@ TEST(PIDTest, back_calculation_antiwindup_test)
     PID        test_pid;
     PID_Config test_cfg = { 2.0f, 2.0f,  0.0f, 0.5f,  0.0f, 0.9f,  10.0f, -10.0f,
                             1e6f, -1e6f, true, false, true, false, 1.0f };
-    // kp, ki, kd, kb, kff, smoothing_coeff, out_max, out_min, max_integral, min_integral, clamp_output?,
-    // clamp_integral?, back_calculation?, feed_forward?, sample_time
     app_pid_init(&test_pid, &test_cfg);
 
     float setpoint = 11.0f;

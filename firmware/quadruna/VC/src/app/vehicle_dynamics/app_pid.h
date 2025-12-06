@@ -24,5 +24,6 @@ typedef struct
 
 void app_pid_init(PID *pid, const PID_Config *conf);
 
-float app_pid_compute(PID *pid, float setpoint, float input, float disturbance);
+float app_pid_compute(PID *pid, float setpoint, float input);
+
 void app_pid_requestReset(PID *pid);
