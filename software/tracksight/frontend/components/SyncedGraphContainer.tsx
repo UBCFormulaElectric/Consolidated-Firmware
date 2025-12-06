@@ -45,7 +45,7 @@ function useZoomManager(containerRef: RefObject<HTMLDivElement | null>) {
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-    
+
     window.addEventListener("wheel", handleWheelZoom, { passive: false });
     return () => {
       window.removeEventListener("wheel", handleWheelZoom);
@@ -61,11 +61,11 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
   const contentRef = useRef<HTMLDivElement | null>(null); // Renamed from containerRef, this one grows
   const scrollLeftRef = useRef<number>(0);
   const timeRangeRef = useRef<TimeRange | null>(null);
-  
+
   // zoom management (attach wheel listener to the scroll container)
   const scalePxPerSec = useZoomManager(scrollContainerRef);
   const scalePxPerSecRef = useRef<number>(scalePxPerSec);
-  
+
   const updateGraphWidth = useCallback(() => {
     const tr = timeRangeRef.current;
     if (contentRef.current && tr) {
@@ -133,16 +133,12 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
   return (
     <SyncedGraphContext.Provider value={CTXVAL}>
       {/* outer wrapper handles overflow/scrolling; this the viewport */}
-      <div 
-        ref={scrollContainerRef} 
-        className="w-full overflow-x-auto overflow-y-hidden"
+      <div
+        ref={scrollContainerRef}
+        className="w-full overflow-x-auto overflow-y-hidden min-h-screen pt-14"
       >
         {/* inner content grows in width */}
-        <div 
-          ref={contentRef}
-          className="min-w-full min-h-60 relative" 
-          style={{ width: 4000 }}
-        >
+        <div ref={contentRef} className="min-w-full min-h-60 relative">
           <div className="sticky left-0 top-0 w-screen">
             {children}
           </div>
