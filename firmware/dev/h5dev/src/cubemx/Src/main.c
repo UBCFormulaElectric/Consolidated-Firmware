@@ -24,6 +24,11 @@
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
 #include "hw_error.hpp"
+#include "usbd_core.h"
+#include "usbd_cdc.h"
+#include "usbd_cdc_if.h"
+#include "usbd_desc.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -49,8 +54,12 @@ IWDG_HandleTypeDef hiwdg;
 
 RTC_HandleTypeDef hrtc;
 
-/* USER CODE BEGIN PV */
+PCD_HandleTypeDef hpcd_USB_DRD_FS;
 
+/* USER CODE BEGIN PV */
+uint8_t                   CDC_EpAdd_Inst[3] = { CDC_IN_EP, CDC_OUT_EP, CDC_CMD_EP };
+extern USBD_HandleTypeDef hUsbDeviceFS;
+uint8_t                   CDC_InstID = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -60,6 +69,7 @@ static void MX_GPIO_Init(void);
 static void MX_FDCAN1_Init(void);
 static void MX_IWDG_Init(void);
 static void MX_RTC_Init(void);
+static void MX_USB_PCD_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -99,8 +109,28 @@ int main(void)
     MX_FDCAN1_Init();
     MX_IWDG_Init();
     MX_RTC_Init();
+    MX_USB_PCD_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
+    MX_USB_PCD_Init();
+
+    if (USBD_Init(&hUsbDeviceFS, &FS_Desc, 0) != USBD_OK)
+    {
+        Error_Handler();
+    }
+
+    if (USBD_RegisterClass(&hUsbDeviceFS, &USBD_CDC) != USBD_OK)
+    {
+        Error_Handler();
+    }
+
+    if (USBD_CDC_RegisterInterface(&hUsbDeviceFS, &USBD_Interface_fops_FS) != USBD_OK)
+    {
+        Error_Handler();
+    }
+
+    /* Start USB Device */
+    USBD_Start(&hUsbDeviceFS);
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -144,9 +174,10 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI48 | RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
     RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
+    RCC_OscInitStruct.HSI48State     = RCC_HSI48_ON;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLL1_SOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 1;
@@ -304,6 +335,40 @@ static void MX_RTC_Init(void)
     /* USER CODE BEGIN RTC_Init 2 */
 
     /* USER CODE END RTC_Init 2 */
+}
+
+/**
+ * @brief USB Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_USB_PCD_Init(void)
+{
+    /* USER CODE BEGIN USB_Init 0 */
+
+    /* USER CODE END USB_Init 0 */
+
+    /* USER CODE BEGIN USB_Init 1 */
+
+    /* USER CODE END USB_Init 1 */
+    hpcd_USB_DRD_FS.Instance                      = USB_DRD_FS;
+    hpcd_USB_DRD_FS.Init.dev_endpoints            = 8;
+    hpcd_USB_DRD_FS.Init.speed                    = USBD_FS_SPEED;
+    hpcd_USB_DRD_FS.Init.phy_itface               = PCD_PHY_EMBEDDED;
+    hpcd_USB_DRD_FS.Init.Sof_enable               = DISABLE;
+    hpcd_USB_DRD_FS.Init.low_power_enable         = DISABLE;
+    hpcd_USB_DRD_FS.Init.lpm_enable               = DISABLE;
+    hpcd_USB_DRD_FS.Init.battery_charging_enable  = DISABLE;
+    hpcd_USB_DRD_FS.Init.vbus_sensing_enable      = DISABLE;
+    hpcd_USB_DRD_FS.Init.bulk_doublebuffer_enable = DISABLE;
+    hpcd_USB_DRD_FS.Init.iso_singlebuffer_enable  = DISABLE;
+    if (HAL_PCD_Init(&hpcd_USB_DRD_FS) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN USB_Init 2 */
+
+    /* USER CODE END USB_Init 2 */
 }
 
 /**
