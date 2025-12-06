@@ -3,9 +3,9 @@ message("⚙️ Configuring DAM (Hexray)")
 
 file(GLOB CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 set(CUBEMX_INCLUDE_DIRS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
-        "${CMAKE_CURRENT_SOURCE_DIR}/hw"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/usb"
+"${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
+"${CMAKE_CURRENT_SOURCE_DIR}/hw"
+"${SHARED_HW_INCLUDE_DIR_CPP}/usb"
 )
 
 set(JOBS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/jobs.cpp")

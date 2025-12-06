@@ -2,7 +2,8 @@ message("")
 message("⚙️ Configuring BMS (Hexray)")
 
 file(GLOB CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
-set(CUBEMX_INCLUDE_DIRS)
+set(CUBEMX_INCLUDE_DIRS
+"${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
 
 set(JOBS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/jobs.cpp")
 set(TASKS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.cpp")
@@ -31,12 +32,7 @@ set(IO_INCLUDE_DIRS
 )
 
 file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c")
-list(APPEND HW_SRCS
-        "${SHARED_HW_INCLUDE_DIR_CPP}/usb/h5/usbd_cdc_if.c"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/usb/h5/usb_device.c"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/usb/h5/usbd_conf.c"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/usb/h5/usbd_desc.c"
-)
+list(APPEND HW_SRCS)
 set(HW_INCLUDE_DIRS
         #        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
         "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR_CPP}"
