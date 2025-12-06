@@ -1,5 +1,6 @@
 import { RefObject } from "react";
 import { ENUM_COLORS, NA_COLOR } from "@/components/widgets/signalColors";
+import { TimeRange } from "@/components/SyncedGraphContainer";
 
 // first index where timestamp >= targetTime
 function binarySearchForFirstVisibleIndex(
@@ -123,17 +124,12 @@ export default function render(
 	width: number, height: number,
 	preparedData: PreparedChartData,
 	series: SeriesMeta[],
-	panOffset: number,
-	scrollProgress: number | null,
-	zoomLevel: number,
-	frozenTimeWindow: { startTime: number; endTime: number; } | null,
 	timeTickCount: number,
 	externalHoverTimestamp: number | null,
 	hoverPixelRef: RefObject<{ x: number; y: number; } | null>,
 	tooltipBufferRef: RefObject<string[]>,
 	layoutRef: RefObject<ChartLayout | null>,
-	domainStart?: number,
-	domainEnd?: number
+	visibleTimeRange: { min: number; max: number },
 ) {
 	context.clearRect(0, 0, width, height);
 
@@ -158,56 +154,10 @@ export default function render(
 	const chartWidth = width - padding.left - padding.right;
 	const chartHeight = Math.max(0, height - numericalTop - padding.bottom);
 
-	const latestTime = domainEnd !== undefined ? domainEnd : timestamps[timestamps.length - 1];
-	const earliestTime = domainStart !== undefined ? domainStart : timestamps[0];
-	const totalTimeRange = latestTime - earliestTime;
-
-	let visibleStartTime: number;
-	let visibleEndTime: number;
-
-	if (frozenTimeWindow) {
-		// use the frozen time window when manually panning
-		visibleStartTime = frozenTimeWindow.startTime;
-		visibleEndTime = frozenTimeWindow.endTime;
-	} else {
-		// otherwise, calculate based on zoom and panOffset and auto follow
-		// zoomLevel: 100 = show all data, 200 = show half the data (2x zoom), 50 = show double (0.5x zoom) etc.
-		const zoomFactor = 100 / zoomLevel;
-		const visibleTimeRange = totalTimeRange * zoomFactor;
-		const normalizedScroll = typeof scrollProgress === "number" && Number.isFinite(scrollProgress)
-			? Math.min(Math.max(scrollProgress, 0), 1)
-			: null;
-
-		if (normalizedScroll !== null) {
-			const maxStartOffset = Math.max(totalTimeRange - visibleTimeRange, 0);
-			const startOffset = maxStartOffset * normalizedScroll;
-			visibleStartTime = earliestTime + startOffset;
-			visibleEndTime = visibleStartTime + visibleTimeRange;
-		} else {
-			// panOffset is in pixels from the right edge (latest data)
-			const timePerPixel = visibleTimeRange / chartWidth;
-			const timeOffset = panOffset * timePerPixel;
-
-			visibleEndTime = latestTime - timeOffset;
-			visibleStartTime = visibleEndTime - visibleTimeRange;
-		}
-	}
-
-	if (!frozenTimeWindow) {
-		if (visibleStartTime < earliestTime) {
-			const delta = earliestTime - visibleStartTime;
-			visibleStartTime = earliestTime;
-			visibleEndTime += delta;
-		}
-		if (visibleEndTime > latestTime) {
-			const delta = visibleEndTime - latestTime;
-			visibleEndTime = latestTime;
-			visibleStartTime -= delta;
-		}
-		if (visibleStartTime < earliestTime) {
-			visibleStartTime = earliestTime;
-		}
-	}
+    const visibleStartTime = visibleTimeRange.min;
+    const visibleEndTime = visibleTimeRange.max;
+	console.log("visibleStartTime", visibleStartTime);
+	console.log("visibleEndTime", visibleEndTime);
 
 	const startIndex = binarySearchForFirstVisibleIndex(
 		timestamps,
@@ -548,7 +498,6 @@ export default function render(
 
 	// hover interaction (vertical line, points, and tooltip)
 	let activeHoverX: number | null = null;
-	let activeHoverY: number | null = null;
 	let activeHoverTimestamp: number | null = null;
 
 	const hover = hoverPixelRef.current;
@@ -559,7 +508,6 @@ export default function render(
 
 		if (withinX && withinY) {
 			activeHoverX = hover.x;
-			activeHoverY = hover.y;
 
 			const calculatedTime = minTime + ((hover.x - padding.left) / chartWidth) * timeRange;
 			activeHoverTimestamp = calculatedTime;
@@ -570,12 +518,12 @@ export default function render(
 			externalHoverTimestamp <= maxTime) {
 			activeHoverTimestamp = externalHoverTimestamp;
 			activeHoverX = timeToX(externalHoverTimestamp);
-			activeHoverY = padding.top + 50;
+			// activeHoverY = padding.top + 50;
 		}
 	}
 
 	if (activeHoverX !== null && activeHoverTimestamp !== null) {
-		const hoverX = activeHoverX;
+		// const hoverX = activeHoverX;
 		const hoverTime = activeHoverTimestamp;
 
 		const clampIndex = (idx: number) => Math.min(Math.max(idx, startIndex), endIndex);
@@ -627,11 +575,11 @@ export default function render(
 		);
 
 		// collect unified enum values for legend color mapping
-		const allEnumValues = new Set<string>();
+		/*const allEnumValues = new Set<string>();
 		enumSeriesIndices.forEach((idx) => {
 			uniqueEnumValues[idx]?.forEach((v) => allEnumValues.add(v));
 		});
-		const sortedAllEnums = Array.from(allEnumValues).sort();
+		const sortedAllEnums = Array.from(allEnumValues).sort();*/
 
 		let firstPointY: number | null = null;
 
