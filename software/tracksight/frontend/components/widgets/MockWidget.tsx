@@ -31,12 +31,14 @@ const generateRandomValue = (
   }
 };
 
-const MockWidget = memo(({ widgetData, updateMockConfig, onDelete }: 
-  { widgetData: WidgetDataMock, updateMockConfig: 
-    (widgetId: string, 
-      updater: (prevConfigs: MockGraphConfig[]) => MockGraphConfig[]) => void, 
-      onDelete: () => void }
-    ) => {
+const MockWidget = memo(({ widgetData, updateMockConfig, onDelete }:
+  {
+    widgetData: WidgetDataMock, updateMockConfig:
+    (widgetId: string,
+      updater: (prevConfigs: MockGraphConfig[]) => MockGraphConfig[]) => void,
+    onDelete: () => void
+  }
+) => {
   const { isPaused } = usePausePlay();
   const configs = widgetData.configs;
 
@@ -130,8 +132,8 @@ const MockWidget = memo(({ widgetData, updateMockConfig, onDelete }:
       timestamps,
       series: seriesArrays,
     }
-  }, [configs, isPaused]); 
-  
+  }, [configs, isPaused]);
+
   const handleAddSignal = useCallback((e: FormEvent) => {
     e.preventDefault();
     const name = newSignalName.trim() || `Signal ${configs.length + 1}`;
@@ -170,7 +172,7 @@ const MockWidget = memo(({ widgetData, updateMockConfig, onDelete }:
   const totalDataPoints = dataRef.current.timestamps.length;
 
   return (
-    <div className="mb-6 p-4 block w-full relative">
+    <div className="mb-6 p-4 block w-full relative border border-red-500">
       <div className="sticky left-0 block w-[50vw] animate-none overscroll-contain z-40">
         <div className="flex items-center gap-2 mb-4">
           <h3 className="font-semibold">Mock Graph Container (Widget)</h3>
