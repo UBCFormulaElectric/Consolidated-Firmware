@@ -40,6 +40,8 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/usb/h5/usb_device.c"
         "${SHARED_HW_INCLUDE_DIR_CPP}/usb/h5/usbd_conf.c"
         "${SHARED_HW_INCLUDE_DIR_CPP}/usb/h5/usbd_desc.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
 )
 set(HW_INCLUDE_DIRS
         #        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -61,8 +63,12 @@ if ("${TARGET}" STREQUAL "binary")
 
     set(STM32_HAL_SRCS
             "stm32h5xx_hal.c"
+            "stm32h5xx_hal_gpio.c"
+            "stm32h5xx_hal_pcd.c"
             "stm32h5xx_hal_rcc.c"
             "stm32h5xx_hal_rcc_ex.c"
+            "stm32h5xx_ll_usb.c"
+            "stm32h5xx_hal_pcd_ex.c"
             "stm32h5xx_hal_pwr_ex.c"
             "stm32h5xx_hal_cortex.c"
             "stm32h5xx_hal_exti.c"

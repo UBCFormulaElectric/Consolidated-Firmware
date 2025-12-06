@@ -25,7 +25,8 @@
 
 /* USER CODE BEGIN INCLUDE */
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include "hw_usb_config.hpp"
@@ -156,12 +157,16 @@ uint8_t *USBD_FS_GetBOSDescriptor(USBD_SpeedTypeDef speed, uint16_t *length);
  * @{
  */
 
-USBD_DescriptorsTypeDef FS_Desc = { USBD_FS_DeviceDescriptor,          USBD_FS_LangIDStrDescriptor,
-                                    USBD_FS_ManufacturerStrDescriptor, USBD_FS_ProductStrDescriptor,
-                                    USBD_FS_SerialStrDescriptor,       USBD_FS_ConfigStrDescriptor,
+USBD_DescriptorsTypeDef FS_Desc = { USBD_FS_DeviceDescriptor,
+                                    USBD_FS_LangIDStrDescriptor,
+                                    USBD_FS_ManufacturerStrDescriptor,
+                                    USBD_FS_ProductStrDescriptor,
+                                    USBD_FS_SerialStrDescriptor,
+                                    USBD_FS_ConfigStrDescriptor,
                                     USBD_FS_InterfaceStrDescriptor
 #if ((USBD_LPM_ENABLED == 1U) || (USBD_CLASS_BOS_ENABLED == 1))
-                                    , USBD_FS_GetBOSDescriptor
+                                    ,
+                                    USBD_FS_GetBOSDescriptor
 #endif
 };
 

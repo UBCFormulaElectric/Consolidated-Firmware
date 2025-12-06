@@ -14,16 +14,16 @@ extern "C"
 
 #define USB_SIZ_STRING_SERIAL 0x1A
 
-#if defined (STM32H733xx)
+#if defined(STM32H733xx)
     extern USBD_DescriptorsTypeDef HS_Desc;
     extern USBD_DescriptorsTypeDef CDC_Desc;
-#elif defined (STM32H562xx)
-    extern USBD_DescriptorsTypeDef FS_Desc;
-    extern USBD_DescriptorsTypeDef CDC_Desc;
+#elif defined(STM32H562xx)
+extern USBD_DescriptorsTypeDef FS_Desc;
+extern USBD_DescriptorsTypeDef CDC_Desc;
 #endif
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif 
+#endif

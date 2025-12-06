@@ -25,7 +25,8 @@
 
 /* USER CODE BEGIN INCLUDE */
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include "hw_usb_config.hpp"

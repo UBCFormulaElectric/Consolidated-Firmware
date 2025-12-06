@@ -28,9 +28,8 @@
 #include "usbd_cdc.h"
 #include "usbd_conf.c"
 
-
 /* USER CODE BEGIN Includes */
-//#include "hw_usb.h" (COMMENTED OUT FOR NOW, FIX LATER)
+// #include "hw_usb.h" (COMMENTED OUT FOR NOW, FIX LATER)
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
