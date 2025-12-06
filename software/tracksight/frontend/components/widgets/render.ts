@@ -136,7 +136,8 @@ export default function render(
 	const {
 		timestamps, seriesData, chunkSize, chunkStats, enumSeriesIndices, numericalSeriesIndices, uniqueEnumValues,
 	} = preparedData;
-	if (!timestamps || timestamps.length === 0) return;
+
+	//if (!timestamps || timestamps.length === 0) return;
 
 	const clampedTickCount = Math.max(1, Math.floor(timeTickCount));
 	const padding = { top: 20, right: 20, bottom: 56, left: 60 };
@@ -156,8 +157,6 @@ export default function render(
 
     const visibleStartTime = visibleTimeRange.min;
     const visibleEndTime = visibleTimeRange.max;
-	console.log("visibleStartTime", visibleStartTime);
-	console.log("visibleEndTime", visibleEndTime);
 
 	const startIndex = binarySearchForFirstVisibleIndex(
 		timestamps,
