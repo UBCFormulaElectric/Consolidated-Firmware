@@ -11,6 +11,7 @@ export default function useWidgetManager() {
 	// used to initialize widgets from localStorage
 	const [isInitialized, setIsInitialized] = useState(false);
 
+	// recover from local storage on mount
 	useEffect(() => {
 		if (typeof window !== "undefined") {
 			const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -24,17 +25,6 @@ export default function useWidgetManager() {
 				} catch (e) {
 					console.error("Failed to load widgets from local storage", e);
 				}
-			} else {
-				setWidgets([
-					{
-						type: SignalType.ENUM,
-						options: {
-							colorPalette: ["#FF637E", "#FFB86A", "#05DF72", "#51A2FF"],
-						},
-						signal: "VC_State",
-						id: uuidv4(),
-					}
-				]);
 			}
 			setIsInitialized(true);
 		}
