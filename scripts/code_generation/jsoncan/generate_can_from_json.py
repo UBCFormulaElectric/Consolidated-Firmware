@@ -38,8 +38,8 @@ def write_text(text: str, output_path: str) -> None:
         os.makedirs(output_dir)
 
     # Write file to disk
-    with open(os.path.join(output_dir, output_name), "w") as fout:
-        fout.write(text)
+    with open(os.path.join(output_dir, output_name), "w") as cpp_file:
+        cpp_file.write(text)
 
 
 def generate_can_from_json(
@@ -89,7 +89,7 @@ def generate_can_from_json(
     for module, module_path in modules:
         module_full_path = os.path.join(output_dir, module_path)
         write_text(module.header_template(), module_full_path + ".h")
-        write_text(module.source_template(), module_full_path + ".c")
+        write_text(module.source_template(), module_full_path + ".cpp")
 
 
 if __name__ == "__main__":

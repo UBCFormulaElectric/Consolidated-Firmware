@@ -1,0 +1,106 @@
+/**
+ * @note This file is auto-generated. Do not modify!
+ */
+// clang-format off
+
+#pragma once
+
+/* ------------------------------- Includes ------------------------------- */
+
+#include <stdint.h>
+#include <stdbool.h>
+
+/* -------------------------------- Macros -------------------------------- */
+
+// Msg IDs
+{% for message in all_messages -%}
+#define {{ message.id_macro() }} ({{ message.id }}U)
+{% endfor %}
+
+// Msg lengths (in bytes)
+{% for message in messages -%}
+#define {{ message.dlc_macro() }} ({{ message.dlc() }})
+{% endfor %}
+
+// Periodic msg cycle times (in MS)
+{% for message in messages -%}
+{% if message.cycle_time -%}
+#define {{ message.cycle_time_macro() }} ({{ message.cycle_time }}) 
+{%- endif %}
+{% endfor %}
+
+// Signal starting values
+{% for msg in messages -%}
+// {{msg.name}}
+{% for signal in msg.signals -%}
+#define {{ signal.start_val_macro() }} ({{ signal.start_val }})
+{%- if signal.unit and signal.unit != "" -%}// {{ signal.unit }} {%- endif %}
+{% endfor %}
+{% endfor %}
+// Scale/offset values for encoding/decoding signals
+{% for msg in messages -%}
+// {{msg.name}}
+{% for signal in msg.signals -%}
+#define {{ signal.scale_macro() }} ({{ signal.scale }})
+{%- if signal.unit and signal.unit != "" -%}// {{ signal.unit }} {%- endif %}
+#define {{ signal.offset_macro() }} ({{ signal.offset }})
+{%- if signal.unit and signal.unit != "" -%}// {{ signal.unit }} {%- endif %}
+{% endfor %}
+{% endfor %}
+
+
+// Min/max allowed values for signals
+{% for msg in messages -%}
+// {{msg.name}}
+{% for signal in msg.signals -%}
+#define {{ signal.min_val_macro() }} ({{ signal.min_val }})
+{%- if signal.unit and signal.unit != "" -%}// {{ signal.unit }} {%- endif %}
+#define {{ signal.max_val_macro() }} ({{ signal.max_val }})
+{%- if signal.unit and signal.unit != "" -%}// {{ signal.unit }} {%- endif %}
+{% endfor %}
+{% endfor %}
+
+
+/* -------------------------------- Enums --------------------------------- */
+{%- for enum in enums %}
+typedef enum
+{
+    {% for key, value in enum.items.items() -%}
+    {{ value }} = {{ key }},
+    {% endfor -%}
+    NUM_{{ enum.screaming_snake_name() }}_CHOICES = {{ enum.items.items() | length }},
+} {{ enum.name }};
+{% endfor %}
+
+
+typedef enum
+{
+    {%- for node_name in nodes %}
+    {{node_name.upper()}}_NODE = {{loop.index}},
+    {%- endfor %}
+} CanNode;
+
+
+/* ------------------------------- Structs -------------------------------- */
+
+{% for message in messages %}
+typedef struct
+{
+    {%- if message.signals|length == 0 %}
+    uint8_t _placeholder;
+    {%- else %}
+    {%- for signal in message.signals %}
+    {{ signal.datatype() }} {{ signal.name }}_value;
+    {%- endfor %}
+    {%- endif %}
+} {{ message.name }}_Signals;
+{% endfor %}
+
+/* ------------------------- Function Prototypes -------------------------- */
+
+{% for message in messages %}
+void app_canUtils_{{ message.name }}_pack(const {{ message.name }}_Signals* in_msg, uint8_t* out_data);
+{%- endfor %}
+{% for message in messages %}
+void app_canUtils_{{ message.name }}_unpack(const uint8_t* in_data, {{ message.name }}_Signals* out_msg);
+{%- endfor %}
