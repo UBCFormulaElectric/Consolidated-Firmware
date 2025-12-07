@@ -1,3 +1,5 @@
+use std::collections::{ HashSet, HashMap };
+
 pub struct CanBus {
     pub name: String,
     pub bus_speed: u32,
@@ -11,7 +13,7 @@ pub struct CanBus {
 
 pub enum RxMsgNames {
     AllRxMsgs,
-    SomeRxMsgs(std::collections::HashSet<String>),
+    SomeRxMsgs(HashSet<String>),
 }
 
 //     struct for fully describing a CAN node.
@@ -84,6 +86,8 @@ fn bits_to_bytes(bits: u32) -> u32 {
     (bits + 7) / 8
 }
 
+const ALLOWABLE_MSG_LENGTHS: [u32; 16] =
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64];
 impl CanMessage {
     pub fn dlc(&self) -> u32 {
         // Length of payload, in bytes.
@@ -99,8 +103,6 @@ impl CanMessage {
                 .expect("Message has signals (already checked length > 0)"),
         );
 
-        static ALLOWABLE_MSG_LENGTHS: [u32; 16] =
-            [0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64];
         for length in ALLOWABLE_MSG_LENGTHS.iter() {
             if *length >= useful_length {
                 return *length;
@@ -133,24 +135,24 @@ pub struct CanEnum {
     name: String,
     description: String,
     // mapping from enum name to value
-    values: std::collections::HashMap<String, u32>,
+    values: HashMap<String, u32>,
 }
 
 pub struct CanDatabase {
     // nodes[node_name] gives metadata for node_name
-    pub nodes: std::collections::HashMap<String, CanNode>,
+    pub nodes: HashMap<String, CanNode>,
     // buses[bus_name] gives metadata for bus_name
-    pub buses: std::collections::HashMap<String, CanBus>,
+    pub buses: HashMap<String, CanBus>,
     // msgs[msg_name] gives metadata for msg_name
-    pub msgs: std::collections::HashMap<String, CanMessage>,
+    pub msgs: HashMap<String, CanMessage>,
     // alerts[node_name] gives a list of alerts on that node
-    pub alerts: std::collections::HashMap<String, Vec<CanAlert>>,
+    pub alerts: HashMap<String, Vec<CanAlert>>,
     // enums[enum_name] gives metadata for enum_name
-    pub enums: std::collections::HashMap<String, CanEnum>,
+    pub enums: HashMap<String, CanEnum>,
     // collects_data[node_name] is true if this node collects data
-    pub collects_data: std::collections::HashMap<String, bool>,
+    pub collects_data: HashMap<String, bool>,
     // signals_to_msgs[signal_name] gives the message that contains the signal
-    pub signals_to_msgs: std::collections::HashMap<String, &CanMessage>,
+    pub signals_to_msgs: HashMap<String, &CanMessage>,
 
     // this must be global state rather than local (node) state as the common usecase is navigation
     // which requires global information

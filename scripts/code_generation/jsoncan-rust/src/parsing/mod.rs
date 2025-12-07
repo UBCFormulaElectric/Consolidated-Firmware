@@ -57,13 +57,13 @@ pub struct JsonCanParser {
     //     ]  # _collects_data[node_name] = True if the node collects data
     //     _signals_to_msgs: Dict[str, CanMessage]  # _signals_to_msgs[signal_name] gives the metadata for the message that contains the signal
     can_data_dir: String,
-    nodes: std::collections::HashMap<String, CanNode>,
-    busses: std::collections::HashMap<String, CanBus>,
-    msgs: std::collections::HashMap<String, CanMessage>,
-    alerts: std::collections::HashMap<String, Vec<CanAlert>>,
-    enums: std::collections::HashMap<String, CanEnum>,
-    collects_data: std::collections::HashMap<String, bool>,
-    signals_to_msgs: std::collections::HashMap<String, CanMessage>,
+    nodes: HashMap<String, CanNode>,
+    busses: HashMap<String, CanBus>,
+    msgs: HashMap<String, CanMessage>,
+    alerts: HashMap<String, Vec<CanAlert>>,
+    enums: HashMap<String, CanEnum>,
+    collects_data: HashMap<String, bool>,
+    signals_to_msgs: HashMap<String, CanMessage>,
 }
 
 // def list_nodes_from_folders(can_data_dir: str) -> list[str]:

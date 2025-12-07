@@ -1,10 +1,10 @@
 use clap::Parser;
+use parsing::ParseError;
 
 mod can_database;
 mod codegen;
 mod parsing;
 
-use can_database::CanDatabase;
 use parsing::JsonCanParser;
 
 /// Simple program to greet a person
@@ -23,9 +23,9 @@ struct Args {
     only_dbc: bool,
 }
 
-fn report_error_and_exit(e: parsing::ParseError) -> ! {
+fn report_error_and_exit(e: ParseError) -> ! {
     match e {
-        parsing::ParseError::DuplicateTxMsgName {
+        ParseError::DuplicateTxMsgName {
             tx_node_name,
             msg_name,
             msg2_name,
@@ -35,7 +35,7 @@ fn report_error_and_exit(e: parsing::ParseError) -> ! {
                 msg_name, tx_node_name, msg2_name
             );
         }
-        parsing::ParseError::DuplicateTxMsgID {
+        ParseError::DuplicateTxMsgID {
             tx_node_name,
             msg_name,
             msg2_name,
@@ -45,7 +45,7 @@ fn report_error_and_exit(e: parsing::ParseError) -> ! {
                 msg_name, tx_node_name, msg2_name
             );
         }
-        parsing::ParseError::DuplicateTxSignalName {
+        ParseError::DuplicateTxSignalName {
             signal_name,
             msg_name,
             msg2_name,
@@ -55,7 +55,7 @@ fn report_error_and_exit(e: parsing::ParseError) -> ! {
                 signal_name, msg_name, msg2_name
             );
         }
-        parsing::ParseError::TxFDUnsupported {
+        ParseError::TxFDUnsupported {
             fd_msg_name,
             non_fd_node_name,
         } => {
