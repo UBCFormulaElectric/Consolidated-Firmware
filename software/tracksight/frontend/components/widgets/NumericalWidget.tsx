@@ -1,8 +1,8 @@
 "use client";
 
-import { usePausePlay } from "@/components/shared/PausePlayControl";
-import { PlusButton } from "@/components/shared/PlusButton";
-import { useSyncedGraphScroll } from "@/components/shared/SyncedGraphContainer";
+import { usePausePlay } from "@/components/PausePlayControl";
+import { PlusButton } from "@/components/PlusButton";
+import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { SignalType } from "@/lib/SignalConfig";
 import { useSignals, useDataVersion } from "@/lib/contexts/SignalContext";
 import { WidgetDataNumerical } from "@/lib/types/Widget";
@@ -13,7 +13,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import CanvasChart from "@/components/shared/CanvasChart";
+import CanvasChart from "@/components/widgets/CanvasChart";
 
 // data format is an array where:
 // -first element is an array of x-axis timestamps
@@ -41,7 +41,11 @@ interface NumericalWidgetProps {
   onDelete?: () => void;
 }
 
-const NumericalWidget: React.FC<NumericalWidgetProps> = React.memo(
+export default function NumericalWidget() {
+  return <div>wip</div>;
+}
+
+/*const NumericalWidget: React.FC<NumericalWidgetProps> = React.memo(
   ({ widgetData, appendNumSignal, removeNumSignal, onDelete }) => {
     const { isPaused } = usePausePlay();
 
@@ -82,7 +86,7 @@ const NumericalWidget: React.FC<NumericalWidgetProps> = React.memo(
       registerTimeRange,
       unregisterTimeRange,
       globalTimeRange,
-    } = useSyncedGraphScroll();
+    } = useSyncedGraph();
 
     const graphId = widgetData.id;
 
@@ -414,7 +418,7 @@ const NumericalWidget: React.FC<NumericalWidgetProps> = React.memo(
             </div>
           </div>
 
-          {/* Debug info */}
+          {/* Debug info *}
           <div className="text-xs text-gray-500 mb-4 space-y-1 bg-gray-50 p-2 rounded border">
             <div>Total points rendered: {totalDataPoints}</div>
             <div>Zoom: {zoomLevel}%</div>
@@ -472,5 +476,5 @@ const NumericalWidget: React.FC<NumericalWidgetProps> = React.memo(
 
 NumericalWidget.displayName = "NumericalWidget";
 
-export default NumericalWidget;
+export default NumericalWidget;*/
 

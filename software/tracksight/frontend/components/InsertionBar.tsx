@@ -2,21 +2,26 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { PlusButton } from "./PlusButton";
-import { SignalType } from "@/lib/types/Signal";
-import { WidgetData, MockGraphConfig } from "@/lib/types/Widget";
+import { SignalType } from "@/lib/SignalConfig";
+import { MockGraphConfig } from "./widgets/MockGraph";
 
-interface WidgetAdderProps {
-  onAddWidget: (widget: WidgetData) => void;
+interface InsertionBarProps {
+  onInsert: () => void;
+  onInsertMock: (config: MockGraphConfig) => void;
 }
 
-export const WidgetAdder: React.FC<WidgetAdderProps> = ({ onAddWidget }) => {
+export const InsertionBar: React.FC<InsertionBarProps> = ({
+  onInsert,
+  onInsertMock,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showMockModal, setShowMockModal] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const [mockName, setMockName] = useState("Mock Signal");
-  const [mockType, setMockType] = useState<"numerical" | "enumeration">("numerical");
+  const [mockType, setMockType] = useState<SignalType>(SignalType.Numerical);
   const [mockDelay, setMockDelay] = useState(100);
+  const [mockInitialPoints, setMockInitialPoints] = useState(100);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -28,73 +33,41 @@ export const WidgetAdder: React.FC<WidgetAdderProps> = ({ onAddWidget }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleAddEnum = () => {
-    onAddWidget({
-      type: SignalType.ENUM,
-      signal: null,
-      options: {
-        colorPalette: ["#FF637E", "#FFB86A", "#05DF72", "#51A2FF"],
-      },
-      id: "", 
-    });
-    setIsOpen(false);
-  };
-
-  const handleAddNumerical = () => {
-    onAddWidget({
-      type: SignalType.NUMERICAL,
-      signals: [],
-      id: "", 
-    });
-    setIsOpen(false);
-  };
-
   const handleMockSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const config: MockGraphConfig = {
+    onInsertMock({
       signalName: mockName,
       type: mockType,
       delay: mockDelay,
-      initialPoints: 0,
-    };
-    onAddWidget({
-      type: SignalType.MOCK,
-      configs: [config],
-      id: "", 
+      initialPoints: mockInitialPoints,
     });
     setShowMockModal(false);
     setIsOpen(false);
-    setMockName("Mock Signal");
-    setMockType("numerical");
-    setMockDelay(100);
   };
 
   return (
-    <div className="sticky inline-block left-[50vw] z-50 mb-4">
+    <div className="sticky inline-block left-[50vw] z-50">
       <div className="relative inline-block" ref={menuRef}>
         <div onClick={() => setIsOpen(!isOpen)} className="cursor-pointer">
           <PlusButton />
         </div>
 
         {isOpen && !showMockModal && (
-          <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-50">
+          <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-50">
             <button
-              onClick={handleAddEnum}
+              onClick={() => {
+                onInsert();
+                setIsOpen(false);
+              }}
               className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
             >
-              Add Enum Widget
-            </button>
-            <button
-              onClick={handleAddNumerical}
-              className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700 border-t border-gray-100"
-            >
-              Add Numerical Widget
+              Add Signal Graph
             </button>
             <button
               onClick={() => setShowMockModal(true)}
               className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700 border-t border-gray-100"
             >
-              Add Mock Widget (Debug)
+              Add Mock Graph (Debug)
             </button>
           </div>
         )}
@@ -102,17 +75,10 @@ export const WidgetAdder: React.FC<WidgetAdderProps> = ({ onAddWidget }) => {
         {showMockModal && (
           <div
             className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowMockModal(false);
-              setIsOpen(false);
-            }}
+            onClick={(e) => e.stopPropagation()}
           >
-            <div
-              className="bg-white rounded-lg shadow-xl p-6 w-96 max-w-full m-4"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h3 className="text-lg font-bold mb-4">Configure Mock Widget</h3>
+            <div className="bg-white rounded-lg shadow-xl p-6 w-96 max-w-full m-4">
+              <h3 className="text-lg font-bold mb-4">Configure Mock Graph</h3>
               <form onSubmit={handleMockSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -132,11 +98,11 @@ export const WidgetAdder: React.FC<WidgetAdderProps> = ({ onAddWidget }) => {
                   </label>
                   <select
                     value={mockType}
-                    onChange={(e) => setMockType(e.target.value as "numerical" | "enumeration")}
+                    onChange={(e) => setMockType(e.target.value as SignalType)}
                     className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
                   >
-                    <option value="numerical">Numerical</option>
-                    <option value="enumeration">Enumeration</option>
+                    <option value={SignalType.Numerical}>Numerical</option>
+                    <option value={SignalType.Enumeration}>Enumeration</option>
                   </select>
                 </div>
                 <div>
@@ -147,18 +113,28 @@ export const WidgetAdder: React.FC<WidgetAdderProps> = ({ onAddWidget }) => {
                     type="number"
                     value={mockDelay}
                     onChange={(e) => setMockDelay(Number(e.target.value))}
-                    min="1"
+                    min="0"
                     max="5000"
+                    className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Initial Points
+                  </label>
+                  <input
+                    type="number"
+                    value={mockInitialPoints}
+                    onChange={(e) =>
+                      setMockInitialPoints(Number(e.target.value))
+                    }
                     className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
                   />
                 </div>
                 <div className="flex justify-end gap-2 pt-2">
                   <button
                     type="button"
-                    onClick={() => {
-                      setShowMockModal(false);
-                      setIsOpen(false);
-                    }}
+                    onClick={() => setShowMockModal(false)}
                     className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded"
                   >
                     Cancel
@@ -167,7 +143,7 @@ export const WidgetAdder: React.FC<WidgetAdderProps> = ({ onAddWidget }) => {
                     type="submit"
                     className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded"
                   >
-                    Create Widget
+                    Create Graph
                   </button>
                 </div>
               </form>
@@ -178,4 +154,3 @@ export const WidgetAdder: React.FC<WidgetAdderProps> = ({ onAddWidget }) => {
     </div>
   );
 };
-

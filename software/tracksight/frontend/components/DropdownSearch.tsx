@@ -2,7 +2,7 @@
 
 import { X } from "lucide-react";
 import React, { useMemo, useState, useEffect, useRef, useCallback } from "react";
-import { PlusButton } from "./PlusButton";
+import { PlusButton } from "@/components/PlusButton";
 import { DEBUG, BACKEND_URL, SignalMeta } from "@/lib/SignalConfig";
 
 // Internal extension with pre-lowercased fields to avoid per-keystroke toLowerCase allocations
@@ -102,7 +102,6 @@ const RowEditorInner: React.FC<RowEditorProps> = ({
       fetchSignals();
     }
     return () => abortRef.current?.abort();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [row.isOpen, hasFetched]);
 
   // Filter signals based on debounced search term

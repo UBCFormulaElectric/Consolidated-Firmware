@@ -6,7 +6,7 @@ import EnumSignalSelector from "@/components/widgets/EnumSignalSelector";
 import useSignalMetadata from "@/lib/hooks/useSignalMetadata";
 import { useMemo, useEffect, useRef } from "react";
 import { EnumSignalMetadata, SignalType } from "@/lib/types/Signal";
-import { usePausePlay } from "@/components/shared/PausePlayControl";
+import { usePausePlay } from "@/components/PausePlayControl";
 import { useSignals, useDataVersion } from "@/lib/contexts/SignalContext";
 import { formatWithMs } from "@/lib/dateformat";
 
