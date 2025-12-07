@@ -68,12 +68,12 @@ class StateOfCharge extends ChangeNotifier {
 }
 
 /* Shutdown Loop */
-class ShutdownLoop extends ChangeNotifier {
-  List _nodes = [];
-  List get nodes => _nodes;
+class ShutdownLoopNodes extends ChangeNotifier {
+  final List _nodes = ["BSPD"];
+  String get lastNode => _nodes.last;
 
   void updateVarDev(String data) {
-    _nodes.add("BSPD");
+    _nodes.add("BMS");
     notifyListeners();
   }
 
@@ -82,6 +82,6 @@ class ShutdownLoop extends ChangeNotifier {
     // then ONLY notify if changes are made!!
     // lokwey i totally forgot what I was thinking here
     // rehash this dumbass
-    _nodes.add("BSPD");
+    _nodes.add("BMS");
   }
 }

@@ -1,6 +1,8 @@
 // ShutdownLoop Widget
 
 import 'package:flutter/material.dart';
+import 'package:dimos/data/services/can_variables.dart';
+import 'package:provider/provider.dart';
 
 class ShutdownLoop extends StatelessWidget {
   // a basic solution to this is to make various svg images
@@ -31,12 +33,20 @@ class ShutdownLoop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String lastNode = context.watch<ShutdownLoopNodes>().lastNode;
     return Container(
       width: 200, 
       height: 200,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(15)),
         color: Colors.green
+      ),
+      child: Text(node_to_svg[lastNode],
+        style: const TextStyle(
+            fontSize: 80,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+        ),
       )
     );
   }

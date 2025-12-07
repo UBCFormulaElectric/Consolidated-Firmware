@@ -35,7 +35,7 @@ class _AppState extends State<App> {
   late SpeedInteger _speedInteger;
   late WarningsList _warningsList;
   late StateOfCharge _stateOfCharge;
-  late ShutdownLoop _shutdownLoop;
+  late ShutdownLoopNodes _shutdownLoopNodes;
 
   @override
   void initState() {
@@ -43,7 +43,7 @@ class _AppState extends State<App> {
     _warningsList = WarningsList();
     _speedInteger = SpeedInteger();
     _stateOfCharge = StateOfCharge();
-    _shutdownLoop = ShutdownLoop();
+    _shutdownLoopNodes = ShutdownLoopNodes();
     
     if (Platform.isWindows || Platform.isMacOS) {
       // have some basic dev api setup to introduce can
@@ -52,7 +52,7 @@ class _AppState extends State<App> {
         _warningsList.updateListDev(data);
         _speedInteger.updateVarDev(data);
         _stateOfCharge.updateVarDev(data);
-        _shutdownLoop.updateVarDev(data);
+        _shutdownLoopNodes.updateVarDev(data);
       });
     } else if (Platform.isLinux) {
       // ACTUAL CAN setup
@@ -62,7 +62,7 @@ class _AppState extends State<App> {
         _warningsList.updateListCan();
         _speedInteger.updateVarCan();
         _stateOfCharge.updateVarCan();
-        _shutdownLoop.updateVarCan();
+        _shutdownLoopNodes.updateVarCan();
       });
     }
   }
@@ -74,6 +74,7 @@ class _AppState extends State<App> {
         ChangeNotifierProvider(create: (_) => _warningsList),
         ChangeNotifierProvider(create: (_) => _speedInteger),
         ChangeNotifierProvider(create: (_) => _stateOfCharge),
+        ChangeNotifierProvider(create: (_) => _shutdownLoopNodes),
         ChangeNotifierProvider(create: (_) => RouterProvider())
       ],
       child: MaterialApp(
