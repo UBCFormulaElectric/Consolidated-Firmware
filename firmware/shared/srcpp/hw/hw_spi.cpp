@@ -2,6 +2,7 @@
 #include <cstring>
 #include "hw_spi.hpp"
 #include "io_log.hpp"
+#include "hw_utils.hpp"
 
 using namespace hw::spi;
 

@@ -10,7 +10,7 @@
 #include "FreeRTOS.h"
 #include "cmsis_os2.h"
 #include "task.h"
-#include "hw_utils.hpp"
+#include "util_errorCodes.hpp"
 #include "hw_gpio.hpp"
 
 namespace hw::spi
