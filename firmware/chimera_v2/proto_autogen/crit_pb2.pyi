@@ -32,8 +32,6 @@ class _GpioNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._En
     GPIO_REGEN_SIG: _GpioNetName.ValueType
     GPIO_LED_RCK: _GpioNetName.ValueType
     GPIO_SEVEN_SEG_RCK: _GpioNetName.ValueType
-    GPIO_LED_DIMMING: _GpioNetName.ValueType
-    GPIO_SEVEN_SEG_DIMMING: _GpioNetName.ValueType
     GPIO_LED_SERIN: _GpioNetName.ValueType
     GPIO_SEVEN_SEG_SERIN: _GpioNetName.ValueType
     GPIO_LED_SRCK: _GpioNetName.ValueType
@@ -54,8 +52,6 @@ GPIO_TORQUE_VECTORING_SIG: GpioNetName.ValueType
 GPIO_REGEN_SIG: GpioNetName.ValueType
 GPIO_LED_RCK: GpioNetName.ValueType
 GPIO_SEVEN_SEG_RCK: GpioNetName.ValueType
-GPIO_LED_DIMMING: GpioNetName.ValueType
-GPIO_SEVEN_SEG_DIMMING: GpioNetName.ValueType
 GPIO_LED_SERIN: GpioNetName.ValueType
 GPIO_SEVEN_SEG_SERIN: GpioNetName.ValueType
 GPIO_LED_SRCK: GpioNetName.ValueType

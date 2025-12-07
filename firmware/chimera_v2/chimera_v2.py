@@ -19,6 +19,7 @@ import proto_autogen.rsm_pb2
 import proto_autogen.ssm_pb2
 import proto_autogen.crit_pb2
 import proto_autogen.dam_pb2
+import proto_autogen.h5dev_pb2
 
 # Pyvisa Peripherals.
 from load_bank import *
@@ -545,6 +546,15 @@ class BMS(_Board):
             board_module=proto_autogen.bms_pb2,
         )
 
+class F5Dev(_Board):
+    def __init__(self):
+        """Create an interface to an F5Dev board."""
+
+        super().__init__(
+            usb_device=_UsbDevice(product="ssm"),
+            net_name_tag="ssm_net_name",
+            board_module=proto_autogen.h5dev_pb2,
+        )
 
 class RSM(_Board):
     def __init__(self):
