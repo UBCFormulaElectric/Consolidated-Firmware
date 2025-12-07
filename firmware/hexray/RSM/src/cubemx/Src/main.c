@@ -48,8 +48,6 @@ I2C_HandleTypeDef hi2c2;
 
 SPI_HandleTypeDef hspi3;
 
-HCD_HandleTypeDef hhcd_USB_DRD_FS;
-
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -61,7 +59,6 @@ static void MX_ADC1_Init(void);
 static void MX_FDCAN1_Init(void);
 static void MX_I2C2_Init(void);
 static void MX_SPI3_Init(void);
-static void MX_USB_HCD_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -103,7 +100,6 @@ int main(void)
     MX_FDCAN1_Init();
     MX_I2C2_Init();
     MX_SPI3_Init();
-    MX_USB_HCD_Init();
     /* USER CODE BEGIN 2 */
 
     /* USER CODE END 2 */
@@ -139,9 +135,8 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI48 | RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_OFF;
-    RCC_OscInitStruct.HSI48State     = RCC_HSI48_ON;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLL1_SOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 1;
@@ -200,11 +195,11 @@ static void MX_ADC1_Init(void)
     hadc1.Init.ClockPrescaler        = ADC_CLOCK_ASYNC_DIV4;
     hadc1.Init.Resolution            = ADC_RESOLUTION_12B;
     hadc1.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
-    hadc1.Init.ScanConvMode          = ADC_SCAN_DISABLE;
-    hadc1.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
+    hadc1.Init.ScanConvMode          = ADC_SCAN_ENABLE;
+    hadc1.Init.EOCSelection          = ADC_EOC_SEQ_CONV;
     hadc1.Init.LowPowerAutoWait      = DISABLE;
     hadc1.Init.ContinuousConvMode    = DISABLE;
-    hadc1.Init.NbrOfConversion       = 1;
+    hadc1.Init.NbrOfConversion       = 5;
     hadc1.Init.DiscontinuousConvMode = DISABLE;
     hadc1.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
     hadc1.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
@@ -219,12 +214,48 @@ static void MX_ADC1_Init(void)
 
     /** Configure Regular Channel
      */
-    sConfig.Channel      = ADC_CHANNEL_19;
+    sConfig.Channel      = ADC_CHANNEL_0;
     sConfig.Rank         = ADC_REGULAR_RANK_1;
     sConfig.SamplingTime = ADC_SAMPLETIME_2CYCLES_5;
     sConfig.SingleDiff   = ADC_SINGLE_ENDED;
     sConfig.OffsetNumber = ADC_OFFSET_NONE;
     sConfig.Offset       = 0;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure Regular Channel
+     */
+    sConfig.Channel = ADC_CHANNEL_19;
+    sConfig.Rank    = ADC_REGULAR_RANK_2;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure Regular Channel
+     */
+    sConfig.Channel = ADC_CHANNEL_3;
+    sConfig.Rank    = ADC_REGULAR_RANK_3;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure Regular Channel
+     */
+    sConfig.Channel = ADC_CHANNEL_12;
+    sConfig.Rank    = ADC_REGULAR_RANK_4;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure Regular Channel
+     */
+    sConfig.Channel = ADC_CHANNEL_14;
+    sConfig.Rank    = ADC_REGULAR_RANK_5;
     if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
     {
         Error_Handler();
@@ -368,39 +399,6 @@ static void MX_SPI3_Init(void)
 }
 
 /**
- * @brief USB Initialization Function
- * @param None
- * @retval None
- */
-static void MX_USB_HCD_Init(void)
-{
-    /* USER CODE BEGIN USB_Init 0 */
-
-    /* USER CODE END USB_Init 0 */
-
-    /* USER CODE BEGIN USB_Init 1 */
-
-    /* USER CODE END USB_Init 1 */
-    hhcd_USB_DRD_FS.Instance                      = USB_DRD_FS;
-    hhcd_USB_DRD_FS.Init.dev_endpoints            = 8;
-    hhcd_USB_DRD_FS.Init.Host_channels            = 8;
-    hhcd_USB_DRD_FS.Init.speed                    = USBD_FS_SPEED;
-    hhcd_USB_DRD_FS.Init.phy_itface               = HCD_PHY_EMBEDDED;
-    hhcd_USB_DRD_FS.Init.Sof_enable               = DISABLE;
-    hhcd_USB_DRD_FS.Init.low_power_enable         = DISABLE;
-    hhcd_USB_DRD_FS.Init.vbus_sensing_enable      = DISABLE;
-    hhcd_USB_DRD_FS.Init.bulk_doublebuffer_enable = DISABLE;
-    hhcd_USB_DRD_FS.Init.iso_singlebuffer_enable  = DISABLE;
-    if (HAL_HCD_Init(&hhcd_USB_DRD_FS) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN USB_Init 2 */
-
-    /* USER CODE END USB_Init 2 */
-}
-
-/**
  * @brief GPIO Initialization Function
  * @param None
  * @retval None
@@ -467,6 +465,14 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(BRAKE_LIGHT_EV_3V3_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : PA11 PA12 */
+    GPIO_InitStruct.Pin       = GPIO_PIN_11 | GPIO_PIN_12;
+    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull      = GPIO_NOPULL;
+    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Alternate = GPIO_AF10_USB;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     /*Configure GPIO pin : D_P_PULLUP_Pin */
     GPIO_InitStruct.Pin   = D_P_PULLUP_Pin;

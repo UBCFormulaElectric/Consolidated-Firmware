@@ -1,15 +1,29 @@
-// #include "hw_adcs.hpp"
-// #include <cstdint>
-// #include "main.h"
+#include "hw_adc.hpp"
+#include "hw_adcs.hpp"
+#include "main.h"
 
-// namespace hw
-// {
-// hw::AdcChip.AdcChip(&hadc1, &htim2);
+namespace hw::adcs
+{
+    #define NUM_ADC_CHANNELS 5
+    AdcChip<NUM_ADC_CHANNELS> Adc_Chip(&hadc1, &htim2);
 
-// hw::AdcChip.init();
+    void chipsInit()
+    {
+        Adc_Chip.init();
+    }
 
-// hw::AdcChip.update_callback();
+    const float *lc3_out             = Adc_Chip.getChannel(0);
+    const float *susp_travel_rl_3v3  = Adc_Chip.getChannel(1);
+    const float *susp_travel_rr_3v3  = Adc_Chip.getChannel(2);
+    const float *bps_3v3             = Adc_Chip.getChannel(3);
+    const float *nBSPD_brake_pressed = Adc_Chip.getChannel(4);
 
-// const susp_travel_rr_3v3 = hw::AdcChip.getChannel(0);
-// const susp_travel_rl_3v3 = hw::AdcChip.getChannel(1);
-// } // namespace hw
+} // namespace hw::adcs
+
+extern "C"
+{
+    void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+    {
+        hw::adcs::Adc_Chip.update_callback();
+    }
+}

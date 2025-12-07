@@ -391,61 +391,6 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
     }
 }
 
-/**
- * @brief HCD MSP Initialization
- * This function configures the hardware resources used in this example
- * @param hhcd: HCD handle pointer
- * @retval None
- */
-void HAL_HCD_MspInit(HCD_HandleTypeDef *hhcd)
-{
-    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
-    if (hhcd->Instance == USB_DRD_FS)
-    {
-        /* USER CODE BEGIN USB_DRD_FS_MspInit 0 */
-
-        /* USER CODE END USB_DRD_FS_MspInit 0 */
-
-        /** Initializes the peripherals clock
-         */
-        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USB;
-        PeriphClkInitStruct.UsbClockSelection    = RCC_USBCLKSOURCE_HSI48;
-        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
-        {
-            Error_Handler();
-        }
-
-        /* Enable VDDUSB */
-        HAL_PWREx_EnableVddUSB();
-        /* Peripheral clock enable */
-        __HAL_RCC_USB_CLK_ENABLE();
-        /* USER CODE BEGIN USB_DRD_FS_MspInit 1 */
-
-        /* USER CODE END USB_DRD_FS_MspInit 1 */
-    }
-}
-
-/**
- * @brief HCD MSP De-Initialization
- * This function freeze the hardware resources used in this example
- * @param hhcd: HCD handle pointer
- * @retval None
- */
-void HAL_HCD_MspDeInit(HCD_HandleTypeDef *hhcd)
-{
-    if (hhcd->Instance == USB_DRD_FS)
-    {
-        /* USER CODE BEGIN USB_DRD_FS_MspDeInit 0 */
-
-        /* USER CODE END USB_DRD_FS_MspDeInit 0 */
-        /* Peripheral clock disable */
-        __HAL_RCC_USB_CLK_DISABLE();
-        /* USER CODE BEGIN USB_DRD_FS_MspDeInit 1 */
-
-        /* USER CODE END USB_DRD_FS_MspDeInit 1 */
-    }
-}
-
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */
