@@ -1,4 +1,5 @@
-#include "app_vehicleDynamicsConstants.h"
+#include "app_vd_constants.h"
+#include "app_pid.h"
 
 extern const PID_Config               PID_POWER_CORRECTION_CONFIG;
 extern const PID_Config               PID_TRACTION_CONTROL_CONFIG;

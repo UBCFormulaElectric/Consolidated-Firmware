@@ -1,81 +1,90 @@
 #include "app_powerLimiting.h"
-
-#include "app_vehicleDynamicsConstants.h"
+#include "app_vd_constants.h"
+#include "app_powerLimiting_datatypes.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
-#include "app_vehicleDynamics.h"
 #include "app_utils.h"
+#include "app_vd_datatypes.h"
 
-#include <math.h>
+/************************* Macros *****************************/
+#define TOTAL_WHEEL_RPM(fl_rpm, fr_rpm, rl_rpm, rr_rpm) ((double)((fl_rpm) + (fr_rpm) + (rl_rpm) + (rr_rpm)))
 
-static float sumWheelSpeed(void)
+/************************* Private Function Prototypes *****************************/
+static void app_powerLimiting_getInputs(VD_TorqueToInv torques, VD_WheelRpms wheel_rpms); 
+static double app_powerLimiting_calcTorqueReduction(powerLimiting_inputs in, powerLimiting_outputs out);
+static void app_powerLimiting_broadCast(powerLimiting_outputs out)
+static inline double app_powerLimiting_calcMaxPower(bool isRegen_on);
+static inline double app_powerLimiting_calcTotalPower( VD_TorqueToInv requested_torques , VD_WheelRpms rpms);
+static inline bool app_powerLimiting_limitingRequired(double requested_power, double power_limit);
+
+/************************* Global Functions *****************************/
+
+powerLimiting_outputs app_powerLimiting(VD_TorqueToInv torques, VD_WheelRpms wheel_rpms)
 {
-    return fabsf((float)app_canRx_INVFL_ActualVelocity_get()) + fabsf((float)app_canRx_INVFR_ActualVelocity_get()) +
-           fabsf((float)app_canRx_INVRL_ActualVelocity_get()) + fabsf((float)app_canRx_INVRR_ActualVelocity_get());
+    const powerLimiting_inputs in = app_powerLimiting_getInputs( torques, wheel_rpms);
+    
+    const powerLimiting_outputs out = {
+        .total_requested_power = app_powerLimiting_calcTotalPower(in.torques, in.wheel_rpms),
+        .power_limit = app_powerLimiting_calcMaxPower(in.isRegen_on),
+        .per_wheel_torque_reduction = app_powerLimiting_calcTorqueReduction(in, out)
+    };
+
+    app_powerLimiting_broadCast(out);
+    return out; 
 }
 
-double app_totalPower(const TorqueAllocationOutputs *torques)
+
+/************************* Private Function Declaration *****************************/
+static powerLimiting_inputs app_powerLimiting_getInputs(VD_TorqueToInv requested_torques, VD_WheelRpms wheel_rpms)
 {
-    return TORQUE_TO_POWER(torques->torque_fl, fabs(app_canRx_INVFL_ActualVelocity_get())) +
-           TORQUE_TO_POWER(torques->torque_fr, fabs(app_canRx_INVFR_ActualVelocity_get())) +
-           TORQUE_TO_POWER(torques->torque_rl, fabs(app_canRx_INVRL_ActualVelocity_get())) +
-           TORQUE_TO_POWER(torques->torque_rr, fabs(app_canRx_INVRR_ActualVelocity_get()));
+    const powerLimiting_inputs inputs = {
+        .torques = requested_torques,
+        .wheel_rpms = wheel_rpms,
+        .isRegen_on = SWITCH_ON == app_canRx_CRIT_RegenSwitch_get(),
+        .bms_power_limit =  inputs.isRegen_on ? app_canRx_BMS_ChargePowerLimit_get() : app_canRx_BMS_DischargePowerLimit_get(),
+    };
+
+    return inputs; 
+
 }
 
-double app_powerLimiting_computeMaxPower(const bool isRegenOn)
-{ /**
-   *  AMK INVERTER DOES TEMPERATURE BASED LIMITING... USING THAT TEMP > 40 starts derating && TEMP > 60  = inverter off
-   */
-    // ============== Calculate max powers =================
-    // TODO: CONFIRM REGEN POWER LIMIT
-    // TODO: LOOK INTO BMS DERATED POWER LIMIT, USE IT TO VALIDATE CURRENT LIMIT
-    const double bms_power_limit_kW =
-        isRegenOn ? app_canRx_BMS_ChargePowerLimit_get() : app_canRx_BMS_DischargePowerLimit_get();
-    const double abs_p_max  = isRegenOn ? POWER_LIMIT_REGEN_kW : RULES_BASED_POWER_LIMIT_KW;
-    const double powerLimit = fmin(bms_power_limit_kW, abs_p_max);
+static void app_powerLimiting_broadCast(powerLimiting_outputs out)
+{
+    app_canTx_VC_TotalRequestedPower_set(out.total_requested_power);
+    app_canTx_VC_PowerLimit_set(out.power_limit);
+    app_canTx_VC_PerWheelTorqueReduction_set(out.per_wheel_torque_reduction);
 
-    app_canTx_VC_PowerLimitValue_set((float)powerLimit);
-    return powerLimit;
 }
 
-void app_powerLimiting_torqueReduction(
-    const bool               is_regen_mode,
-    TorqueAllocationOutputs *torqueToMotors,
-    const double             total_requestedPower,
-    const double             power_limit,
-    const double             derating_value)
+/************************* Helper Function Declaration *****************************/
+
+static inline double app_powerLimiting_calcTorqueReduction(powerLimiting_inputs in, powerLimiting_outputs out)
 {
-    const float torque_negative_max_Nm = MIN4(
-        torqueToMotors->torque_fl, torqueToMotors->torque_fr, torqueToMotors->torque_rl, torqueToMotors->torque_rr);
-    const float avg_max_neg_torque = POWER_TO_TORQUE(power_limit, sumWheelSpeed());
+    // TODO: regen power limiting and regen handling
 
-    float scale = CLAMP_TO_ONE(derating_value);
-
-    if (is_regen_mode)
+    // the idea now is that all modulation of torque will mow be the responsibility of the torque allocator alone, there for power limiting, yaw, slip and dynamics est just provide it the info it 
+    // needs to allocate torque
+    double output = 0.0;
+    if(out.total_requested_power > in.bms_power_limit)
     {
-        // If regen torque exceeds limit, scale all torque proportionally
-        if (torque_negative_max_Nm < -avg_max_neg_torque)
-        {
-            scale *= -avg_max_neg_torque / torque_negative_max_Nm;
-        }
-
-        torqueToMotors->torque_fl *= scale;
-        torqueToMotors->torque_fr *= scale;
-        torqueToMotors->torque_rl *= scale;
-        torqueToMotors->torque_rr *= scale;
-    }
-    else if (total_requestedPower > power_limit)
-    {
-        const float torque_reduction = POWER_TO_TORQUE((total_requestedPower - power_limit), sumWheelSpeed());
-
-        torqueToMotors->torque_fl -= torque_reduction;
-        torqueToMotors->torque_fr -= torque_reduction;
-        torqueToMotors->torque_rl -= torque_reduction;
-        torqueToMotors->torque_rr -= torque_reduction;
+        const double total_wheel_rpm = TOTAL_WHEEL_RPM(in.wheel_rpms.wheel_rpm_fl, in.wheel_rpms.wheel_rpm_fr, in.wheel_rpms.wheel_rpm_rl, in.wheel_rpms.wheel_rpm_rr);
+        output = POWER_TO_TORQUE(out.total_requested_power - out.power_limit, total_wheel_rpm);
     }
 
-    torqueToMotors->torque_fl = CLAMP(torqueToMotors->torque_fl, MAX_REGEN_Nm, MAX_TORQUE_REQUEST_NM);
-    torqueToMotors->torque_fr = CLAMP(torqueToMotors->torque_fr, MAX_REGEN_Nm, MAX_TORQUE_REQUEST_NM);
-    torqueToMotors->torque_rl = CLAMP(torqueToMotors->torque_rl, MAX_REGEN_Nm, MAX_TORQUE_REQUEST_NM);
-    torqueToMotors->torque_rr = CLAMP(torqueToMotors->torque_rr, MAX_REGEN_Nm, MAX_TORQUE_REQUEST_NM);
+    return output;
+
+}
+
+static inline double app_powerLimiting_calcTotalPower( VD_TorqueToInv requested_torques , VD_WheelRpms rpms)
+{
+    return TORQUE_TO_POWER(requested_torques.torque_fl, rpms.wheel_rpm_fl) + 
+           TORQUE_TO_POWER(requested_torques.torque_fl, rpms.wheel_rpm_fl) + 
+           TORQUE_TO_POWER(requested_torques.torque_fl, rpms.wheel_rpm_fl) +
+           TORQUE_TO_POWER(requested_torques.torque_fl, rpms.wheel_rpm_fl);
+}
+
+static inline double app_powerLimiting_calcMaxPower(bool isRegen_on)
+{
+    const double abs_p_max  = inputs.isRegen_on ? POWER_LIMIT_REGEN_kW : RULES_BASED_POWER_LIMIT_KW;
+    return fmin(inputs.bms_power_limit, abs_p_max);
 }

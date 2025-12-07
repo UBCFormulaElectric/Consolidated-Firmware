@@ -5,50 +5,77 @@
 #include "io_imu_config.h"
 #include "app_pid.h"
 #include "app_units.h"
+#include "app_vd_datatypes.h"
+#include "app_sbgEllipse.h"
 
 typedef struct
 {
-    // Slip Ratio
-    double SR_fl;
-    double SR_fr;
-    double SR_rl; 
-    double SR_rr;
-    // Slip Angle
+    double fric_coeff_fl;
+    double fric_coeff_fr;
+    double fric_coeff_rl;
+    double fric_coeff_rr; 
+} road_tire_fric_coeff;
+typedef struct {
+    double normalized_vx_fl;
+    double normalized_vx_fr;
+    double normalized_vx_rl;
+    double normalized_vx_rr;
+} longitudinal_vehicle_speed;
+
+typedef struct{
+    double wheel_speed_fl;
+    double wheel_speed_fr;
+    double wheel_speed_rl;
+    double wheel_speed_rr;
+} speeds;
+
+typedef struct{
     double SA_fl;
     double SA_fr;
     double SA_rl; 
     double SA_rr; 
-    // effective radius
+} slip_angles;
+
+typedef struct
+{
     double eff_rad_fl;
     double eff_rad_fr;
     double eff_rad_rl;
     double eff_rad_rr; 
-    // Normal forces
-    double Fz_fl;
-    double Fz_fr;
-    double Fz_rl;
-    double Fz_rr;
-}  VD_tire_info; 
+} eff_rads;
+
+typedef  struct
+{
+    double front_body_slip; 
+    double rear_body_slip; 
+} body_slip_angles;
+typedef struct
+{
+    slip_ratios slip_ratios;
+    slip_angles slip_angles;
+    eff_rads    eff_rads;
+    tire_forces normal_forces;
+    road_tire_fric_coeff tire_fric_coeffs; 
+}  tire_info; 
 
 typedef struct
 {
-    double wheel_speed_fl;
-    double wheel_speed_fr; 
-    double wheel_speed_rl;
-    double wheel_speed_rr; 
-    double vehicle_speed;
+    speeds        wheel_speeds; 
+    longitudinal_vehicle_speed wheel_center_vx;
     const ImuData *imu_data;
-} VD_dynamicsEst_inputs;
+    vehicle_velocity_components vel_components;
+} dynamicsEst_inputs;
 
 
 typedef struct
 {
     double lat_loadTransfer; 
     double long_loadTransfer; 
-    VD_tire_info tireModel;
+    tire_info tireModel;
+    body_slip_angles axle_body_slip;
     double Fx_drag; // TODO: Future consideration for drag force
     double Fz_down_force; // TODO: Future consideration for down force
-} VD_dynamicsEst_outputs; // not sure what to name this yet ... originally had it as tire
+} dynamicsEst_outputs; // not sure what to name this yet ... originally had it as tire
                        // model when normal forces were in it but decided to take that out 
                        // as too many structs in structs
 

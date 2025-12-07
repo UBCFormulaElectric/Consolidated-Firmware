@@ -128,12 +128,19 @@ void app_sbgEllipse_broadcast()
 //     velocity->down = 0;
 // }
 
-float app_sbgEllipse_getVehicleVelocity(void)
+// TOOD: create a struct  or make more getter containing velocity vecotr along with Vx and Vy compoenents.
+vehicle_velocity_components app_sbgEllipse_getVehicleVelocity(void)
 {
-    return vehicle_velocity;
+    return (vehicle_velocity_components){
+        .vehicle_vel_vx = io_sbgEllipse_getEkfNavVelocityData()->north, // TODO: replace with body vel
+        .vehicle_vel_vy = io_sbgEllipse_getEkfNavVelocityData()->east, // TODO: replace with body vel
+        .vehicle_vel    = vehicle_velocity
+    };
 }
 
 VcEkfStatus app_sbgEllipse_getEkfSolutionMode(void)
 {
     return ekf_solution_mode;
 }
+
+// TODO: if we cannot get SBG to output body velocity directly, get it to output heading or quanternions so we can rotate ourselves

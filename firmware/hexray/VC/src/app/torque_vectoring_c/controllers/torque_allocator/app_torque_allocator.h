@@ -10,11 +10,3 @@
 #include "app_torqueVectoring.h"
 #include "app_sbgEllipse.h"
 #include "io_log.h"
-
-typedef struct TorqueAllocationOutputs
-{
-    double torque_fl;
-    double torque_fr;
-    double torque_rl;
-    double torque_rr;
-} TorqueAllocationOutputs_t;

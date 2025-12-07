@@ -66,4 +66,6 @@
 #define POWER_TO_TORQUE(power, rpm)                  \
     (((power) * POWER_TO_TORQUE_CONVERSION_FACTOR) / \
      ((fmaxf(rpm, 0.1)) / (GEAR_RATIO))) // Doing this for no division by 0, and assuming rpm is always positive
-#define SLIP_RATIO(wheel_speed, vehicle_speed) ((double)(MAX((wheel_speed), (vehicle_speed)) - MIN((wheel_speed), (vehicle_speed))) / MAX((wheel_speed), (vehicle_speed)))
+
+// Eqn 14.11. from RCVD 
+#define SLIP_RATIO(wheel_speed, vehicle_speed, slip_angle) (((wheel_speed) - (vehicle_speed * cos(slip_angle))) / ((vehicle_speed * cos(slip_angle))))

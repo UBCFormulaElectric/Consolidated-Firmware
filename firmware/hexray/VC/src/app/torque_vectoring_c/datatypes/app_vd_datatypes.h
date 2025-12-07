@@ -1,6 +1,5 @@
 #pragma once
-
-#include "app_dynamicsEstimation_datatypes.h"
+#include <stdbool.h>
 
 /** 
  *  Shared datatypes across torque vectoring
@@ -13,12 +12,37 @@ typedef struct
     bool steeringOk : true;
     bool gpsOk : true;
     bool useTV : true;
-} SensorStatus;
-
+} VD_SensorStatus;
 typedef struct{
-    
-}
+    double torque_fl; 
+    double torque_fr; 
+    double torque_rl; 
+    double torque_rr; 
+} VD_TorqueToInv;
 
+typedef struct
+{
+    double wheel_rpm_fl;
+    double wheel_rpm_fr;
+    double wheel_rpm_rl;
+    double wheel_rpm_rr;
+} VD_WheelRpms; 
+
+typedef struct
+{
+    double Fz_fl;
+    double Fz_fr;
+    double Fz_rl;
+    double Fz_rr;
+} tire_forces;
+
+typedef struct 
+{
+    double fl;
+    double fr;
+    double rl; 
+    double rr; 
+} slip_ratios;
 
 // typedef struct RegenBraking_Inputs
 // {

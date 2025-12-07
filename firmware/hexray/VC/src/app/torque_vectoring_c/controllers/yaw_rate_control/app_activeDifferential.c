@@ -3,7 +3,6 @@
 #include "app_units.h"
 
 #include <math.h>
-
 static float wheelAngleToSpeedDelta(const float wheel_angle_deg)
 {
     // equation below derived from https://ieeexplore.ieee.org/document/6635706 equation 11
