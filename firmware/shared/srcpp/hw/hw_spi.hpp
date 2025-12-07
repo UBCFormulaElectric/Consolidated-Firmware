@@ -5,9 +5,11 @@
 #endif
 #pragma once
 
-#include <cstdint>
 #include <span>
 #include <array>
+#include "FreeRTOS.h"
+#include "cmsis_os2.h"
+#include "task.h"
 #include "hw_utils.hpp"
 #include "hw_gpio.hpp"
 
@@ -19,6 +21,7 @@ class SpiBus
 {
   public:
     constexpr explicit SpiBus(SPI_HandleTypeDef &handle_in) : handle(handle_in) {}
+    SPI_HandleTypeDef &handle;
 
     /**
      * @brief Deinitialize the SPI bus.
@@ -33,8 +36,7 @@ class SpiBus
   private:
     friend class SpiDevice;
 
-    SPI_HandleTypeDef &handle;
-    TaskHandle_t       taskInProgress{ nullptr }; // Task currently performing a transaction.
+    TaskHandle_t taskInProgress{ nullptr }; // Task currently performing a transaction.
 };
 
 class SpiDevice

@@ -38,6 +38,7 @@ extern "C"
     /* Exported types ------------------------------------------------------------*/
     /* USER CODE BEGIN ET */
     extern FDCAN_HandleTypeDef hfdcan1;
+    extern SPI_HandleTypeDef   hspi1;
     /* USER CODE END ET */
 
     /* Exported constants --------------------------------------------------------*/
@@ -58,6 +59,22 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define SLAVE_MOSI_Pin GPIO_PIN_1
+#define SLAVE_MOSI_GPIO_Port GPIOC
+#define SLAVE_MISO_Pin GPIO_PIN_2
+#define SLAVE_MISO_GPIO_Port GPIOC
+#define SLAVE_NSS_Pin GPIO_PIN_3
+#define SLAVE_NSS_GPIO_Port GPIOA
+#define MASTER_NSS_Pin GPIO_PIN_4
+#define MASTER_NSS_GPIO_Port GPIOA
+#define MASTER_CLK_Pin GPIO_PIN_5
+#define MASTER_CLK_GPIO_Port GPIOA
+#define MASTER_MISO_Pin GPIO_PIN_6
+#define MASTER_MISO_GPIO_Port GPIOA
+#define MASTER_MOSI_Pin GPIO_PIN_7
+#define MASTER_MOSI_GPIO_Port GPIOA
+#define SLAVE_CLK_Pin GPIO_PIN_9
+#define SLAVE_CLK_GPIO_Port GPIOA
 #define SWDIO_Pin GPIO_PIN_13
 #define SWDIO_GPIO_Port GPIOA
 #define SWCLK_Pin GPIO_PIN_14

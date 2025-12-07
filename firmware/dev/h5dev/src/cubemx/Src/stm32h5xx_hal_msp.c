@@ -227,6 +227,129 @@ void HAL_RTC_MspDeInit(RTC_HandleTypeDef *hrtc)
     }
 }
 
+/**
+ * @brief SPI MSP Initialization
+ * This function configures the hardware resources used in this example
+ * @param hspi: SPI handle pointer
+ * @retval None
+ */
+void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
+{
+    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
+    if (hspi->Instance == SPI1)
+    {
+        /* USER CODE BEGIN SPI1_MspInit 0 */
+
+        /* USER CODE END SPI1_MspInit 0 */
+        /* Peripheral clock enable */
+        __HAL_RCC_SPI1_CLK_ENABLE();
+
+        __HAL_RCC_GPIOA_CLK_ENABLE();
+        /**SPI1 GPIO Configuration
+        PA4     ------> SPI1_NSS
+        PA5     ------> SPI1_SCK
+        PA6     ------> SPI1_MISO
+        PA7     ------> SPI1_MOSI
+        */
+        GPIO_InitStruct.Pin       = MASTER_NSS_Pin | MASTER_CLK_Pin | MASTER_MISO_Pin | MASTER_MOSI_Pin;
+        GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+        GPIO_InitStruct.Pull      = GPIO_NOPULL;
+        GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
+        GPIO_InitStruct.Alternate = GPIO_AF5_SPI1;
+        HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+        /* USER CODE BEGIN SPI1_MspInit 1 */
+
+        /* USER CODE END SPI1_MspInit 1 */
+    }
+    else if (hspi->Instance == SPI2)
+    {
+        /* USER CODE BEGIN SPI2_MspInit 0 */
+
+        /* USER CODE END SPI2_MspInit 0 */
+        /* Peripheral clock enable */
+        __HAL_RCC_SPI2_CLK_ENABLE();
+
+        __HAL_RCC_GPIOC_CLK_ENABLE();
+        __HAL_RCC_GPIOA_CLK_ENABLE();
+        /**SPI2 GPIO Configuration
+        PC1     ------> SPI2_MOSI
+        PC2     ------> SPI2_MISO
+        PA3     ------> SPI2_NSS
+        PA9     ------> SPI2_SCK
+        */
+        GPIO_InitStruct.Pin       = SLAVE_MOSI_Pin | SLAVE_MISO_Pin;
+        GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+        GPIO_InitStruct.Pull      = GPIO_NOPULL;
+        GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
+        GPIO_InitStruct.Alternate = GPIO_AF5_SPI2;
+        HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+        GPIO_InitStruct.Pin       = SLAVE_NSS_Pin | SLAVE_CLK_Pin;
+        GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+        GPIO_InitStruct.Pull      = GPIO_NOPULL;
+        GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
+        GPIO_InitStruct.Alternate = GPIO_AF5_SPI2;
+        HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+        /* USER CODE BEGIN SPI2_MspInit 1 */
+
+        /* USER CODE END SPI2_MspInit 1 */
+    }
+}
+
+/**
+ * @brief SPI MSP De-Initialization
+ * This function freeze the hardware resources used in this example
+ * @param hspi: SPI handle pointer
+ * @retval None
+ */
+void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
+{
+    if (hspi->Instance == SPI1)
+    {
+        /* USER CODE BEGIN SPI1_MspDeInit 0 */
+
+        /* USER CODE END SPI1_MspDeInit 0 */
+        /* Peripheral clock disable */
+        __HAL_RCC_SPI1_CLK_DISABLE();
+
+        /**SPI1 GPIO Configuration
+        PA4     ------> SPI1_NSS
+        PA5     ------> SPI1_SCK
+        PA6     ------> SPI1_MISO
+        PA7     ------> SPI1_MOSI
+        */
+        HAL_GPIO_DeInit(GPIOA, MASTER_NSS_Pin | MASTER_CLK_Pin | MASTER_MISO_Pin | MASTER_MOSI_Pin);
+
+        /* USER CODE BEGIN SPI1_MspDeInit 1 */
+
+        /* USER CODE END SPI1_MspDeInit 1 */
+    }
+    else if (hspi->Instance == SPI2)
+    {
+        /* USER CODE BEGIN SPI2_MspDeInit 0 */
+
+        /* USER CODE END SPI2_MspDeInit 0 */
+        /* Peripheral clock disable */
+        __HAL_RCC_SPI2_CLK_DISABLE();
+
+        /**SPI2 GPIO Configuration
+        PC1     ------> SPI2_MOSI
+        PC2     ------> SPI2_MISO
+        PA3     ------> SPI2_NSS
+        PA9     ------> SPI2_SCK
+        */
+        HAL_GPIO_DeInit(GPIOC, SLAVE_MOSI_Pin | SLAVE_MISO_Pin);
+
+        HAL_GPIO_DeInit(GPIOA, SLAVE_NSS_Pin | SLAVE_CLK_Pin);
+
+        /* USER CODE BEGIN SPI2_MspDeInit 1 */
+
+        /* USER CODE END SPI2_MspDeInit 1 */
+    }
+}
+
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */

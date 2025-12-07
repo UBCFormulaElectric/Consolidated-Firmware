@@ -7,9 +7,8 @@
 
 extern "C"
 {
-#include "hw_fdcan.h"
-#include "hw_cans.h"
 #include "hw_bootup.h"
+#include "hw_cans.h"
 #include "hw_resetReason.h"
 #include "io_canQueue.h"
 #include "app_jsoncan.h"
@@ -17,7 +16,10 @@ extern "C"
 
 static CanTxQueue can_tx_queue;
 
-void tasks_preInit() {}
+void tasks_preInit()
+{
+    hw_bootup_enableInterruptsForApp();
+}
 
 void tasks_init()
 {
@@ -97,25 +99,25 @@ void tasks_runCanFDTx()
 {
     forever
     {
-        CanMsg msg = io_canQueue_popTx(&can_tx_queue);
-        LOG_IF_ERR(hw_can_transmit(&fdcan, &msg));
+        // CanMsg msg = io_canQueue_popTx(&can_tx_queue);
+        // LOG_IF_ERR(hw_can_transmit(&fdcan, &msg));
     }
 }
 void tasks_runCanRx()
 {
     forever
     {
-        CanMsg     rx_msg         = io_canQueue_popRx();
-        JsonCanMsg jsoncan_rx_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
-        io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
+        // CanMsg     rx_msg         = io_canQueue_popRx();
+        // JsonCanMsg jsoncan_rx_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
+        // io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
     }
 }
 void tasks_runChimera()
 {
     forever
     {
-        CanMsg msg = io_canQueue_popTx(&can_tx_queue);
-        hw_can_transmit(&fdcan, &msg);
+        // CanMsg msg = io_canQueue_popTx(&can_tx_queue);
+        // hw_can_transmit(&fdcan, &msg);
 
         // hw_chimera_v2_task(&chimera_v2_config);
     }
