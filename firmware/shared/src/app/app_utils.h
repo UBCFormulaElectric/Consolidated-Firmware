@@ -2,10 +2,6 @@
 #include <math.h>
 #include <assert.h>
 #include "io_log.h"
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 #define NUM_ELEMENTS_IN_ARRAY(array_pointer) sizeof(array_pointer) / sizeof(array_pointer[0])
 
 #ifndef MIN
@@ -60,7 +56,3 @@ extern "C"
 #else
 #define CFUNC
 #define NORET _Noreturn
-#endif
-#ifdef __cplusplus
-}
-#endif

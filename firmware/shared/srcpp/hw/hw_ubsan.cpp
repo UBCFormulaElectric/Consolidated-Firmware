@@ -1,10 +1,10 @@
 #include <cstdint>
 #include <cstddef>
 #include "io_log.hpp"
+#include "hw_error.hpp"
 
 extern "C"
 {
-#include "hw_error.h"
 #include "hw_ubsan.h"
 
     void              __ubsan_handle_add_overflow(void *data, void *lhs, void *rhs); // NOLINT(*-reserved-identifier)
