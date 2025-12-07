@@ -59,12 +59,6 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define SLAVE_MOSI_Pin GPIO_PIN_1
-#define SLAVE_MOSI_GPIO_Port GPIOC
-#define SLAVE_MISO_Pin GPIO_PIN_2
-#define SLAVE_MISO_GPIO_Port GPIOC
-#define SLAVE_NSS_Pin GPIO_PIN_3
-#define SLAVE_NSS_GPIO_Port GPIOA
 #define MASTER_NSS_Pin GPIO_PIN_4
 #define MASTER_NSS_GPIO_Port GPIOA
 #define MASTER_CLK_Pin GPIO_PIN_5

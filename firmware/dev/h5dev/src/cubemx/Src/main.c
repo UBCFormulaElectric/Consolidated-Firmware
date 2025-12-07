@@ -50,7 +50,6 @@ IWDG_HandleTypeDef hiwdg;
 RTC_HandleTypeDef hrtc;
 
 SPI_HandleTypeDef hspi1;
-SPI_HandleTypeDef hspi2;
 
 /* USER CODE BEGIN PV */
 
@@ -58,14 +57,12 @@ SPI_HandleTypeDef hspi2;
 
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
-void        PeriphCommonClock_Config(void);
 void        MX_FREERTOS_Init(void);
 static void MX_GPIO_Init(void);
 static void MX_FDCAN1_Init(void);
 static void MX_IWDG_Init(void);
 static void MX_RTC_Init(void);
 static void MX_SPI1_Init(void);
-static void MX_SPI2_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -96,9 +93,6 @@ int main(void)
     /* Configure the system clock */
     SystemClock_Config();
 
-    /* Configure the peripherals common clocks */
-    PeriphCommonClock_Config();
-
     /* USER CODE BEGIN SysInit */
 
     /* USER CODE END SysInit */
@@ -109,7 +103,6 @@ int main(void)
     MX_IWDG_Init();
     MX_RTC_Init();
     MX_SPI1_Init();
-    MX_SPI2_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
     /* USER CODE END 2 */
@@ -202,35 +195,6 @@ void SystemClock_Config(void)
     /** Configure the programming delay
      */
     __HAL_FLASH_SET_PROGRAM_DELAY(FLASH_PROGRAMMING_DELAY_2);
-}
-
-/**
- * @brief Peripherals Common Clock Configuration
- * @retval None
- */
-void PeriphCommonClock_Config(void)
-{
-    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
-
-    /** Initializes the peripherals clock
-     */
-    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SPI1 | RCC_PERIPHCLK_SPI2;
-    PeriphClkInitStruct.PLL3.PLL3Source      = RCC_PLL3_SOURCE_CSI;
-    PeriphClkInitStruct.PLL3.PLL3M           = 1;
-    PeriphClkInitStruct.PLL3.PLL3N           = 37;
-    PeriphClkInitStruct.PLL3.PLL3P           = 50;
-    PeriphClkInitStruct.PLL3.PLL3Q           = 2;
-    PeriphClkInitStruct.PLL3.PLL3R           = 2;
-    PeriphClkInitStruct.PLL3.PLL3RGE         = RCC_PLL3_VCIRANGE_0;
-    PeriphClkInitStruct.PLL3.PLL3VCOSEL      = RCC_PLL3_VCORANGE_MEDIUM;
-    PeriphClkInitStruct.PLL3.PLL3FRACN       = 4096;
-    PeriphClkInitStruct.PLL3.PLL3ClockOut    = RCC_PLL3_DIVP;
-    PeriphClkInitStruct.Spi1ClockSelection   = RCC_SPI1CLKSOURCE_PLL3P;
-    PeriphClkInitStruct.Spi2ClockSelection   = RCC_SPI2CLKSOURCE_PLL3P;
-    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
-    {
-        Error_Handler();
-    }
 }
 
 /**
@@ -395,51 +359,6 @@ static void MX_SPI1_Init(void)
 }
 
 /**
- * @brief SPI2 Initialization Function
- * @param None
- * @retval None
- */
-static void MX_SPI2_Init(void)
-{
-    /* USER CODE BEGIN SPI2_Init 0 */
-
-    /* USER CODE END SPI2_Init 0 */
-
-    /* USER CODE BEGIN SPI2_Init 1 */
-
-    /* USER CODE END SPI2_Init 1 */
-    /* SPI2 parameter configuration*/
-    hspi2.Instance                     = SPI2;
-    hspi2.Init.Mode                    = SPI_MODE_SLAVE;
-    hspi2.Init.Direction               = SPI_DIRECTION_2LINES;
-    hspi2.Init.DataSize                = SPI_DATASIZE_8BIT;
-    hspi2.Init.CLKPolarity             = SPI_POLARITY_LOW;
-    hspi2.Init.CLKPhase                = SPI_PHASE_1EDGE;
-    hspi2.Init.NSS                     = SPI_NSS_HARD_INPUT;
-    hspi2.Init.FirstBit                = SPI_FIRSTBIT_MSB;
-    hspi2.Init.TIMode                  = SPI_TIMODE_DISABLE;
-    hspi2.Init.CRCCalculation          = SPI_CRCCALCULATION_DISABLE;
-    hspi2.Init.CRCPolynomial           = 0x7;
-    hspi2.Init.NSSPMode                = SPI_NSS_PULSE_DISABLE;
-    hspi2.Init.NSSPolarity             = SPI_NSS_POLARITY_LOW;
-    hspi2.Init.FifoThreshold           = SPI_FIFO_THRESHOLD_01DATA;
-    hspi2.Init.MasterSSIdleness        = SPI_MASTER_SS_IDLENESS_00CYCLE;
-    hspi2.Init.MasterInterDataIdleness = SPI_MASTER_INTERDATA_IDLENESS_00CYCLE;
-    hspi2.Init.MasterReceiverAutoSusp  = SPI_MASTER_RX_AUTOSUSP_DISABLE;
-    hspi2.Init.MasterKeepIOState       = SPI_MASTER_KEEP_IO_STATE_DISABLE;
-    hspi2.Init.IOSwap                  = SPI_IO_SWAP_DISABLE;
-    hspi2.Init.ReadyMasterManagement   = SPI_RDY_MASTER_MANAGEMENT_INTERNALLY;
-    hspi2.Init.ReadyPolarity           = SPI_RDY_POLARITY_HIGH;
-    if (HAL_SPI_Init(&hspi2) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN SPI2_Init 2 */
-
-    /* USER CODE END SPI2_Init 2 */
-}
-
-/**
  * @brief GPIO Initialization Function
  * @param None
  * @retval None
@@ -459,6 +378,14 @@ static void MX_GPIO_Init(void)
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOB, LED_Pin | BOOT_Pin, GPIO_PIN_RESET);
+
+    /*Configure GPIO pin : SLAVE_CLK_Pin */
+    GPIO_InitStruct.Pin       = SLAVE_CLK_Pin;
+    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull      = GPIO_NOPULL;
+    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Alternate = GPIO_AF5_SPI2;
+    HAL_GPIO_Init(SLAVE_CLK_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pins : LED_Pin BOOT_Pin */
     GPIO_InitStruct.Pin   = LED_Pin | BOOT_Pin;
