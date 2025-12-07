@@ -56,3 +56,4 @@
 #else
 #define CFUNC
 #define NORET _Noreturn
+#endif

@@ -4,7 +4,6 @@
  */
 #pragma once
 #include <stdint.h>
-
 #ifdef __cplusplus
 extern "C"
 {
@@ -69,7 +68,7 @@ extern "C"
     {
         uint16_t type_kind;
         uint16_t type_info;
-        char     type_name[];
+        char     type_name[1];
     };
 
     struct source_location
@@ -82,7 +81,7 @@ extern "C"
             {
                 uint32_t line;
                 uint32_t column;
-            };
+            } row_col;
         };
     };
 
