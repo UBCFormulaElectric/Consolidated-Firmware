@@ -1,3 +1,4 @@
+use crate::parsing::JsonCanParser;
 use std::collections::{HashMap, HashSet};
 
 pub struct CanBus {
@@ -138,10 +139,9 @@ pub struct CanAlert {
 
 #[derive(Clone)]
 pub struct CanEnum {
-    name: String,
-    description: String,
+    pub name: String,
     // mapping from enum name to value
-    values: HashMap<String, u32>,
+    pub values: HashMap<String, u32>,
 }
 
 impl CanEnum {
@@ -159,6 +159,12 @@ impl CanEnum {
         // Calculate minimum value of this enum
         todo!()
     }
+}
+
+pub struct BusForwarder {
+    pub bus1: String,
+    pub bus2: String,
+    pub forwarder_name: String,
 }
 
 pub struct CanDatabase {
@@ -179,5 +185,5 @@ pub struct CanDatabase {
 
     // this must be global state rather than local (node) state as the common usecase is navigation
     // which requires global information
-    // pub forwarding: Vec<BusForwarder>,
+    pub forwarding: Vec<BusForwarder>,
 }

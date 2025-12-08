@@ -5,7 +5,7 @@ mod parse_rx;
 mod parse_tx;
 
 use crate::can_database::{
-    CanAlert, CanBus, CanDatabase, CanEnum, CanMessage, CanNode, RxMsgNames,
+    BusForwarder, CanAlert, CanBus, CanDatabase, CanEnum, CanMessage, CanNode, RxMsgNames,
 };
 use std::collections::{HashMap, HashSet};
 
@@ -18,13 +18,13 @@ use parse_tx::parse_tx_data;
 pub enum ParseError {
     DuplicateTxMsgName {
         tx_node_name: String,
-        msg_name: String,
-        msg2_name: String,
+        tx_msg_name_1: String,
+        tx_msg_name_2: String,
     },
     DuplicateTxMsgID {
         tx_node_name: String,
-        msg_name: String,
-        msg2_name: String,
+        tx_msg_name_1: String,
+        tx_msg_name_2: String,
     },
     TxFDUnsupported {
         fd_msg_name: String,
@@ -32,8 +32,24 @@ pub enum ParseError {
     },
     DuplicateTxSignalName {
         signal_name: String,
-        msg_name: String,
-        msg2_name: String,
+        tx_msg_name_1: String,
+        tx_msg_name_2: String,
+    },
+    RxMsgNotFound {
+        rx_node_name: String,
+        rx_msg_name: String,
+    },
+    RxLoopback {
+        rx_node_name: String,
+        rx_msg_name: String,
+    },
+    RxFDUnsupported {
+        fd_msg_name: String,
+        non_fd_node_name: String,
+    },
+    RxDuplicate {
+        rx_node_name: String,
+        rx_msg_name: String,
     },
 }
 
@@ -58,14 +74,13 @@ pub struct JsonCanParser {
     //         str, bool
     //     ]  # _collects_data[node_name] = True if the node collects data
     //     _signals_to_msgs: Dict[str, CanMessage]  # _signals_to_msgs[signal_name] gives the metadata for the message that contains the signal
-    can_data_dir: String,
     nodes: HashMap<String, CanNode>,
     busses: HashMap<String, CanBus>,
     msgs: HashMap<String, CanMessage>,
     alerts: HashMap<String, Vec<CanAlert>>,
     enums: HashMap<String, CanEnum>,
     collects_data: HashMap<String, bool>,
-    signals_to_msgs: HashMap<String, CanMessage>,
+    forwarding: Vec<BusForwarder>,
 }
 
 // def list_nodes_from_folders(can_data_dir: str) -> list[str]:
@@ -93,49 +108,72 @@ fn list_nodes_from_folders(can_data_dir: &String) -> Vec<String> {
     node_names
 }
 
-fn add_rx_msg(msg_name: &String, rx_node_name: &String) {}
-//     def _add_rx_msg(self, msg_name: str, rx_node_name: str) -> None:
-//         """
-//         This function registers a message which is to be received by a node on the bus
+fn add_rx_msg(
+    rx_msg_name: &String,
+    rx_node_name: &String,
+    msgs: &HashMap<String, CanMessage>,
+    nodes: &mut HashMap<String, CanNode>,
+) -> Result<(), ParseError> {
+    // This function registers a message which is to be received by a node on the bus
 
-//         Note that this function does not know
-//         1. which bus the sender will tx will send the message on
-//         2. which bus the receiver will rx the message on
+    // Note that this function does not know
+    // 1. which bus the sender will tx will send the message on
+    // 2. which bus the receiver will rx the message on
 
-//         This function
-//         1. enters the current node into the list of nodes that the message is rx'd by
-//         2. adds the message name to the list of messages received by the given node
-//         """
-//         # if we are already listening to all, we don't need to register this specific message
-//         # in particular, this is useful for alerts which will blindly make everyone accept them
-//         if type(self._nodes[rx_node_name].rx_msgs_names) == AllRxMsgs:
-//             return
+    // This function
+    // 1. enters the current node into the list of nodes that the message is rx'd by
+    // 2. adds the message name to the list of messages received by the given node
+    //         # if we are already listening to all, we don't need to register this specific message
+    //         # in particular, this is useful for alerts which will blindly make everyone accept them
+    //         if type(self._nodes[rx_node_name].rx_msgs_names) == AllRxMsgs:
+    //             return
 
-//         # Check if this message is defined
-//         if msg_name not in self._msgs:
-//             raise InvalidCanJson(
-//                 f"Message '{msg_name}' received by '{rx_node_name}' is not defined. Make sure it is correctly defined in the TX JSON."
-//             )
+    // Check if this message is defined
+    let rx_msg = match msgs.get(rx_msg_name) {
+        Some(msg) => msg,
+        None => {
+            return Err(ParseError::RxMsgNotFound {
+                rx_node_name: rx_node_name.clone(),
+                rx_msg_name: rx_msg_name.clone(),
+            });
+        }
+    };
+    if rx_msg.tx_node_name == *rx_node_name {
+        return Err(ParseError::RxLoopback {
+            rx_node_name: rx_node_name.clone(),
+            rx_msg_name: rx_msg_name.clone(),
+        });
+    }
 
-//         rx_msg = self._msgs[msg_name]
-//         if rx_msg.tx_node_name == rx_node_name:
-//             raise InvalidCanJson(
-//                 f"{rx_node_name} cannot both transmit and receive {msg_name}"
-//             )
+    if rx_msg.requires_fd() && !nodes.get(rx_node_name).expect("Node should exist").fd {
+        return Err(ParseError::RxFDUnsupported {
+            fd_msg_name: rx_msg_name.clone(),
+            non_fd_node_name: rx_node_name.clone(),
+        });
+    }
 
-//         # we already check if self._nodes[rx_node_name].rx_msgs_names is AllRxMsgs
-//         if msg_name in self._nodes[rx_node_name].rx_msgs_names: # type: ignore
-//             raise InvalidCanJson(
-//                 f"Message {msg_name} is already registered to be received by node {rx_node_name}"
-//             )
+    let node = nodes.get_mut(rx_node_name).expect("Node should exist??");
+    match &mut node.rx_msgs_names {
+        RxMsgNames::All => {
+            // this cannot happen because we checked for it earlier
+            panic!(
+                "Node '{}' is already set to receive all messages, cannot add specific message '{}'",
+                rx_node_name, rx_msg_name
+            );
+        }
+        RxMsgNames::RxMesgs(msg_names) => {
+            if msg_names.contains(rx_msg_name) {
+                return Err(ParseError::RxDuplicate {
+                    rx_node_name: rx_node_name.clone(),
+                    rx_msg_name: rx_msg_name.clone(),
+                });
+            }
+            msg_names.insert(rx_msg_name.clone());
+        }
+    }
 
-//         if rx_msg.requires_fd() and not self._nodes[rx_node_name].fd:
-//             raise InvalidCanJson(
-//                 f"Message '{msg_name}' is an FD message, but an RX node '{rx_node_name}' isn't FD-capable and so can't receive it!"
-//             )
-
-//         # we already check if self._nodes[rx_node_name].rx_msgs_names is AllRxMsgs
-//         self._nodes[rx_node_name].rx_msgs_names.add(msg_name) # type: ignore
+    Ok(())
+}
 
 // TODO perhaps add a version which takes a list of msgs idk tho cuz this is not well parallelized
 fn add_tx_msg(
@@ -158,16 +196,16 @@ fn add_tx_msg(
         // if msgs.contains_key(&msg.name) {
         return Err(ParseError::DuplicateTxMsgName {
             tx_node_name: tx_node_name.clone(),
-            msg_name: msg.name.clone(),
-            msg2_name: dup_msg.name.clone(),
+            tx_msg_name_1: msg.name.clone(),
+            tx_msg_name_2: dup_msg.name.clone(),
         });
     }
 
     if let Some(dup_msg) = msgs.values().find(|m| m.id == msg.id) {
         return Err(ParseError::DuplicateTxMsgID {
             tx_node_name: tx_node_name.clone(),
-            msg_name: msg.name.clone(),
-            msg2_name: dup_msg.name.clone(),
+            tx_msg_name_1: msg.name.clone(),
+            tx_msg_name_2: dup_msg.name.clone(),
         });
     }
 
@@ -179,15 +217,17 @@ fn add_tx_msg(
     }
 
     // register the message with the database of all messages
+
+    // TODO figure out how to find conflicting signal names across messages
     // for signal in msgs.get(&msg.name).unwrap().signals.iter() {
-    //     // register the signal with the database of all signals
-    //     if let Some(dup_msg) = signal_name_to_msgs.get(&signal.name) {
-    //         return Err(ParseError::DuplicateTxSignalName {
-    //             signal_name: signal.name.clone(),
-    //             msg_name: msg.name.clone(),
-    //             msg2_name: dup_msg.name.clone(),
-    //         });
-    //     }
+    // register the signal with the database of all signals
+    // if let Some(dup_msg) = signal_name_to_msgs.get(&signal.name) {
+    //     return Err(ParseError::DuplicateTxSignalName {
+    //         signal_name: signal.name.clone(),
+    //         msg_name: msg.name.clone(),
+    //         msg2_name: dup_msg.name.clone(),
+    //     });
+    // }
     // TODO learn lifetimes lmao
     // signal_name_to_msgs.insert(signal.name.clone(), msgs.get(&msg.name).unwrap());
     // }
@@ -277,7 +317,9 @@ impl JsonCanParser {
                 }
                 RxMsgNames::RxMesgs(msg_names) => {
                     for msg_name in msg_names {
-                        add_rx_msg(&msg_name, &rx_node_name);
+                        if let Err(e) = add_rx_msg(&msg_name, &rx_node_name, &msgs, &mut nodes) {
+                            return Err(e);
+                        }
                     }
                 }
             }
@@ -334,7 +376,11 @@ impl JsonCanParser {
                     if tx_node_name == *other_rx_node_name {
                         continue;
                     }
-                    add_rx_msg(&alert_msg_name, other_rx_node_name);
+                    if let Err(e) =
+                        add_rx_msg(&alert_msg_name, other_rx_node_name, &msgs, &mut nodes)
+                    {
+                        return Err(e);
+                    }
                 }
             }
         }
@@ -343,27 +389,107 @@ impl JsonCanParser {
         // consistency_check()
 
         Ok(JsonCanParser {
-            can_data_dir,
             nodes,
             busses,
             enums,
             msgs,
             collects_data,
+            forwarding,
             alerts,
-            signals_to_msgs: HashMap::new(),
         })
     }
+}
 
-    pub fn make_database(&self) -> CanDatabase {
-        CanDatabase {
-            nodes: self.nodes,
-            buses: self.busses,
-            msgs: self.msgs,
-            alerts: self.alerts,
-            enums: self.enums,
-            collects_data: self.collects_data,
-            signals_to_msgs: self.signals_to_msgs,
-            forwarding: vec![],
+pub fn make_database_from_parser(parser: JsonCanParser) -> CanDatabase {
+    CanDatabase {
+        nodes: parser.nodes,
+        buses: parser.busses,
+        msgs: parser.msgs,
+        alerts: parser.alerts,
+        enums: parser.enums,
+        collects_data: parser.collects_data,
+        // signals_to_msgs: self.signals_to_msgs,
+        forwarding: parser.forwarding,
+    }
+}
+
+pub fn report_parse_err_exit(e: ParseError) -> ! {
+    match e {
+        ParseError::DuplicateTxMsgName {
+            tx_node_name,
+            tx_msg_name_1: msg_name,
+            tx_msg_name_2: msg2_name,
+        } => {
+            eprintln!(
+                "Error: Duplicate transmitted message name '{}' found in nodes '{}' and '{}'. Message names must be unique across all transmitting nodes.",
+                msg_name, tx_node_name, msg2_name
+            );
+        }
+        ParseError::DuplicateTxMsgID {
+            tx_node_name,
+            tx_msg_name_1: msg_name,
+            tx_msg_name_2: msg2_name,
+        } => {
+            eprintln!(
+                "Error: Duplicate transmitted message ID found for message '{}' in nodes '{}' and '{}'. Message IDs must be unique across all transmitting nodes.",
+                msg_name, tx_node_name, msg2_name
+            );
+        }
+        ParseError::DuplicateTxSignalName {
+            signal_name,
+            tx_msg_name_1: msg_name,
+            tx_msg_name_2: msg2_name,
+        } => {
+            eprintln!(
+                "Error: Duplicate transmitted signal name '{}' found in messages '{}' and '{}'. Signal names must be unique across all transmitted messages.",
+                signal_name, msg_name, msg2_name
+            );
+        }
+        ParseError::TxFDUnsupported {
+            fd_msg_name,
+            non_fd_node_name,
+        } => {
+            eprintln!(
+                "Error: Message '{}' is configured as CAN FD but node '{}' does not support CAN FD. All transmitting nodes for a message must support CAN FD if the message is CAN FD.",
+                fd_msg_name, non_fd_node_name
+            );
+        }
+        ParseError::RxMsgNotFound {
+            rx_node_name,
+            rx_msg_name: msg_name,
+        } => {
+            eprint!(
+                "Message '{}' received by '{}' is not defined. Make sure it is correctly defined in the TX JSON.",
+                msg_name, rx_node_name
+            );
+        }
+        ParseError::RxLoopback {
+            rx_node_name,
+            rx_msg_name,
+        } => {
+            eprint!(
+                "'{}' cannot both transmit and receive '{}'",
+                rx_node_name, rx_msg_name
+            )
+        }
+        ParseError::RxFDUnsupported {
+            fd_msg_name,
+            non_fd_node_name,
+        } => {
+            eprint!(
+                "Message '{}' is an FD message, but an RX node '{}' isn't FD-capable and so can't receive it!",
+                fd_msg_name, non_fd_node_name
+            )
+        }
+        ParseError::RxDuplicate {
+            rx_node_name,
+            rx_msg_name,
+        } => {
+            eprint!(
+                "Message '{}' is already registered to be received by node '{}'",
+                rx_msg_name, rx_node_name
+            )
         }
     }
+    std::process::exit(1);
 }
