@@ -42,12 +42,12 @@ const Gpio *id_to_gpio[] = {
 
 // Chimera V2 enums to GPIO peripherals.
 const AdcChannel *id_to_adc[] = {
-    [vc_AdcNetName_ADC_F_PUMP]    = &pump_f_pwr_i_sns,
-    [vc_AdcNetName_ADC_RR_PUMP]   = &pump_rr_pwr_i_sns,
     [vc_AdcNetName_ADC_DAM]       = &dam_i_sns,
     [vc_AdcNetName_ADC_L_RAD_FAN] = &l_rad_fan_i_sns,
     [vc_AdcNetName_ADC_R_RAD_FAN] = &r_rad_fan_i_sns,
     [vc_AdcNetName_ADC_RL_PUMP]   = &pump_rl_pwr_i_sns,
+    [vc_AdcNetName_ADC_RR_PUMP]   = &pump_rr_pwr_i_sns,
+    [vc_AdcNetName_ADC_F_PUMP]    = &pump_f_pwr_i_sns,
     [vc_AdcNetName_ADC_F_INV]     = &inv_f_pwr_i_sns,
     [vc_AdcNetName_ADC_R_INV]     = &inv_r_pwr_i_sns,
     [vc_AdcNetName_ADC_BMS]       = &bms_i_sns,
