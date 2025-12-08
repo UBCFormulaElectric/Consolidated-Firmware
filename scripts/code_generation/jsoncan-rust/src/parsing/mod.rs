@@ -83,11 +83,6 @@ pub struct JsonCanParser {
     forwarding: Vec<BusForwarder>,
 }
 
-// def list_nodes_from_folders(can_data_dir: str) -> list[str]:
-//     """
-//     """
-//     return [f.name for f in os.scandir(can_data_dir) if f.is_dir()]
-
 // From a specified directory, creates empty CanNode objects for each represented nodes (from folders)
 fn list_nodes_from_folders(can_data_dir: &String) -> Vec<String> {
     let mut node_names: Vec<String> = Vec::new();
