@@ -27,33 +27,40 @@ pub struct CanNode {
     pub fd: bool,
 }
 
+pub enum CanSignalType {
+    Numerical,
+    Enum,
+}
+
 pub struct CanSignal {
     // Name of this CAN signal
     pub name: String,
     // Start bit of this signal in the message payload
-    pub start_bit: u32,
+    pub start_bit: u8,
     // Number of bits used to represent this signal in the message payload
-    pub bits: u32,
+    pub bits: u8,
     // Scaling factor for encoding/decoding this signal
     pub scale: f64,
     // Offset for encoding/decoding this signal
     pub offset: f64,
     // Minimum allowed value for this signal
-    pub min_val: f64,
+    pub min: f64,
     // Maximum allowed value for this signal
-    pub max_val: f64,
+    pub max: f64,
     // Default starting value, None if doesn't specify one
-    pub start_val: Option<f64>,
+    pub start_val: f64,
     // enum: Optional[CanEnum]  # Value table, None if doesn't specify one
     pub enum_name: Option<String>,
     // Unit of this signal
-    pub unit: String,
+    pub unit: Option<String>,
     // Whether or not signal is represented as signed or unsigned
     pub signed: bool,
     // Description of this signal
-    pub description: String,
+    pub description: Option<String>,
     // Whether or not this signal is big-endian
     pub big_endian: bool, // TODO: Add tests for big endianness
+
+    pub signal_type: CanSignalType,
 }
 
 pub struct CanMessage {
@@ -62,7 +69,7 @@ pub struct CanMessage {
     // Message ID
     pub id: u32,
     // Message description
-    pub description: String,
+    pub description: Option<String>,
     // Interval that this message should be transmitted at, if periodic. None if aperiodic.
     pub cycle_time: Option<u32>,
     // All signals that make up this message
@@ -135,6 +142,23 @@ pub struct CanEnum {
     description: String,
     // mapping from enum name to value
     values: HashMap<String, u32>,
+}
+
+impl CanEnum {
+    pub fn bits(&self) -> u8 {
+        // Calculate number of bits needed to represent this enum
+        todo!()
+    }
+
+    pub fn max_value(&self) -> u32 {
+        // Calculate maximum value of this enum
+        todo!()
+    }
+
+    pub fn min_value(&self) -> u32 {
+        // Calculate minimum value of this enum
+        todo!()
+    }
 }
 
 pub struct CanDatabase {
