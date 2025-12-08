@@ -324,26 +324,30 @@ fn parse_tx_msg(
 
 pub fn parse_tx_data(
     can_data_dir: &String,
-    node_name: &String,
+    tx_node_name: &String,
     node_enums: &HashMap<String, CanEnum>,
     shared_enums: &HashMap<String, CanEnum>,
 ) -> Vec<CanMessage> {
     // load json file
-    let file_path = format!("{}/{}/{}_tx.json", can_data_dir, node_name, node_name);
+    let file_path = format!("{}/{}/{}_tx.json", can_data_dir, tx_node_name, tx_node_name);
     let file_content = std::fs::read_to_string(file_path).expect(&format!(
         "Failed to read TX JSON file for node {}",
-        node_name
+        tx_node_name
     ));
 
-    let json_tx_msgs: HashMap<String, JsonTxMsg> = serde_json::from_str(&file_content).expect(
-        &format!("Failed to parse TX JSON file for node {}", node_name),
-    ); // maps message name to message data
+    let json_tx_msgs: HashMap<String, JsonTxMsg> = match serde_json::from_str(&file_content) {
+        Ok(data) => data,
+        Err(e) => panic!(
+            "Failed to parse TX JSON file for node {}: {}",
+            tx_node_name, e
+        ),
+    }; // maps message name to message data
 
     // convert to CanMessage structs
     let can_messages: Vec<CanMessage> = json_tx_msgs
         .into_iter()
         .filter(|(_, msg)| !msg.disabled.unwrap_or(false))
-        .map(|(name, msg)| parse_tx_msg(name, msg, node_name, &node_enums, &shared_enums))
+        .map(|(name, msg)| parse_tx_msg(name, msg, tx_node_name, &node_enums, &shared_enums))
         .collect();
     can_messages
 }

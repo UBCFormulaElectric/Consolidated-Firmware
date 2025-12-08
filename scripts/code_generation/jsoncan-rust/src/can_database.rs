@@ -12,8 +12,8 @@ pub struct CanBus {
 }
 
 pub enum RxMsgNames {
-    AllRxMsgs,
-    SomeRxMsgs(HashSet<String>), // TODO check if we need this to be a set? not a vector
+    All,
+    RxMesgs(HashSet<String>), // TODO check if we need this to be a set? not a vector
 }
 
 //     struct for fully describing a CAN node.

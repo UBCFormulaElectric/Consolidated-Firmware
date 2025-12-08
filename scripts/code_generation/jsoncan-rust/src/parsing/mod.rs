@@ -237,7 +237,7 @@ impl JsonCanParser {
                     CanNode {
                         name: node_name.clone(),
                         bus_names: bus_names,
-                        rx_msgs_names: RxMsgNames::SomeRxMsgs(HashSet::new()),
+                        rx_msgs_names: RxMsgNames::RxMesgs(HashSet::new()),
                         fd: fd,
                     },
                 );
@@ -271,11 +271,11 @@ impl JsonCanParser {
         for rx_node_name in &node_names {
             let bus_rx_msgs_json = parse_json_rx_data(&can_data_dir, &rx_node_name);
             match bus_rx_msgs_json {
-                RxMsgNames::AllRxMsgs => {
+                RxMsgNames::All => {
                     let node = nodes.get_mut(rx_node_name).expect("Node not found??");
-                    node.rx_msgs_names = RxMsgNames::AllRxMsgs;
+                    node.rx_msgs_names = RxMsgNames::All;
                 }
-                RxMsgNames::SomeRxMsgs(msg_names) => {
+                RxMsgNames::RxMesgs(msg_names) => {
                     for msg_name in msg_names {
                         add_rx_msg(&msg_name, &rx_node_name);
                     }
