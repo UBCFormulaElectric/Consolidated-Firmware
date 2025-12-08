@@ -1,4 +1,3 @@
-use crate::parsing::JsonCanParser;
 use std::collections::{HashMap, HashSet};
 
 pub struct CanBus {
@@ -31,6 +30,7 @@ pub struct CanNode {
 pub enum CanSignalType {
     Numerical,
     Enum,
+    Alert,
 }
 
 pub struct CanSignal {
@@ -131,10 +131,10 @@ pub enum CanAlertType {
 }
 
 pub struct CanAlert {
-    name: String,
-    alert_type: CanAlertType,
-    id: u32,
-    description: String,
+    pub name: String,
+    pub alert_type: CanAlertType,
+    pub id: u32,
+    pub description: String,
 }
 
 #[derive(Clone)]
