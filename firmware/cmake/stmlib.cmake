@@ -310,6 +310,7 @@ function(stm32h562xx_cube_library
             "${FREERTOS_DIR}/portable/GCC/ARM_CM33_NTZ/non_secure/port.c"
             "${FREERTOS_DIR}/portable/GCC/ARM_CM33_NTZ/non_secure/portasm.c"
             "${FREERTOS_DIR}/portable/MemMang/heap_4.c"
+
     )
 
     # SEGGER SystemView sources.
