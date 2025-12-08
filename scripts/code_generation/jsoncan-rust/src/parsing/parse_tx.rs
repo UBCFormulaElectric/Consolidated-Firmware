@@ -282,7 +282,7 @@ fn parse_tx_msg(
 
         // Mark a signal's bits as occupied, by inserting the signal's name
         for idx in signal.start_bit as usize..(signal.start_bit + signal.bits) as usize {
-            if idx < 0 || idx >= MAX_LEN_BITS {
+            if idx >= MAX_LEN_BITS {
                 panic!(
                     "Signal '{}' in '{}' is requesting to put a bit at invalid position {}. Messages have a maximum length of 64 bytes.",
                     signal.name, msg_name, idx
