@@ -1,4 +1,4 @@
-use std::collections::{ HashSet, HashMap };
+use std::collections::{HashMap, HashSet};
 
 pub struct CanBus {
     pub name: String,
@@ -13,7 +13,7 @@ pub struct CanBus {
 
 pub enum RxMsgNames {
     AllRxMsgs,
-    SomeRxMsgs(HashSet<String>),
+    SomeRxMsgs(HashSet<String>), // TODO check if we need this to be a set? not a vector
 }
 
 //     struct for fully describing a CAN node.
@@ -86,8 +86,7 @@ fn bits_to_bytes(bits: u32) -> u32 {
     (bits + 7) / 8
 }
 
-const ALLOWABLE_MSG_LENGTHS: [u32; 16] =
-    [0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64];
+const ALLOWABLE_MSG_LENGTHS: [u32; 16] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64];
 impl CanMessage {
     pub fn dlc(&self) -> u32 {
         // Length of payload, in bytes.
