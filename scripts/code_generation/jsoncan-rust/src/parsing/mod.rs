@@ -74,13 +74,13 @@ pub struct JsonCanParser {
     //         str, bool
     //     ]  # _collects_data[node_name] = True if the node collects data
     //     _signals_to_msgs: Dict[str, CanMessage]  # _signals_to_msgs[signal_name] gives the metadata for the message that contains the signal
-    nodes: HashMap<String, CanNode>,
-    busses: HashMap<String, CanBus>,
-    msgs: HashMap<String, CanMessage>,
-    alerts: HashMap<String, Vec<CanAlert>>,
-    enums: HashMap<String, CanEnum>,
-    collects_data: HashMap<String, bool>,
-    forwarding: Vec<BusForwarder>,
+    pub nodes: HashMap<String, CanNode>,
+    pub busses: HashMap<String, CanBus>,
+    pub msgs: HashMap<String, CanMessage>,
+    pub alerts: HashMap<String, Vec<CanAlert>>,
+    pub enums: HashMap<String, CanEnum>,
+    pub collects_data: HashMap<String, bool>,
+    pub forwarding: Vec<BusForwarder>,
 }
 
 // From a specified directory, creates empty CanNode objects for each represented nodes (from folders)
@@ -392,19 +392,6 @@ impl JsonCanParser {
             forwarding,
             alerts,
         })
-    }
-}
-
-pub fn make_database_from_parser(parser: JsonCanParser) -> CanDatabase {
-    CanDatabase {
-        nodes: parser.nodes,
-        buses: parser.busses,
-        msgs: parser.msgs,
-        alerts: parser.alerts,
-        enums: parser.enums,
-        collects_data: parser.collects_data,
-        // signals_to_msgs: self.signals_to_msgs,
-        forwarding: parser.forwarding,
     }
 }
 

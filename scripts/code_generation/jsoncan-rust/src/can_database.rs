@@ -1,5 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
+use crate::parsing::JsonCanParser;
+
 pub struct CanBus {
     pub name: String,
     pub bus_speed: u32,
@@ -186,4 +188,19 @@ pub struct CanDatabase {
     // this must be global state rather than local (node) state as the common usecase is navigation
     // which requires global information
     pub forwarding: Vec<BusForwarder>,
+}
+
+impl CanDatabase {
+    pub fn from(parser: JsonCanParser) -> Self {
+        CanDatabase {
+            nodes: parser.nodes,
+            buses: parser.busses,
+            msgs: parser.msgs,
+            alerts: parser.alerts,
+            enums: parser.enums,
+            collects_data: parser.collects_data,
+            // signals_to_msgs: self.signals_to_msgs,
+            forwarding: parser.forwarding,
+        }
+    }
 }

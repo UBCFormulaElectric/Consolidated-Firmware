@@ -12,7 +12,6 @@ use clap::Parser;
 use codegen::cpp::CModule;
 use parsing::{JsonCanParser, make_database_from_parser, report_parse_err_exit};
 
-/// Simple program to greet a person
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
