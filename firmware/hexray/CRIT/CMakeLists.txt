@@ -82,7 +82,7 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     target_link_libraries("hexray_CRIT_app.elf" PRIVATE "hexray_CRIT_stm32" "hexray_CRIT_commit_info" "hexray_CRIT_jsoncan" "m")
-
+    target_compile_definitions("hexray_CRIT_app.elf" PRIVATE CRIT)
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS})

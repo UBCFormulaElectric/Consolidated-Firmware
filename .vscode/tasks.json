@@ -160,6 +160,15 @@
       ]
     },
     {
+      "label": "Build Embedded: h5dev",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "h5dev.hex"
+      ]
+    },
+    {
       "label": "Build Embedded: SSM",
       "group": "build",
       "type": "cmake",
