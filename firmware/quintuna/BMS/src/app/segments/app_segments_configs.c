@@ -2,7 +2,7 @@
 #include "app_segments_internal.h"
 #include "app_utils.h"
 
-#define NUM_CONFIG_SYNC_TRIES 20
+#define NUM_CONFIG_SYNC_TRIES 5
 #define VUV (0x619U) // 2.5V Under-voltage threshold = (VUV + 1) * 16 * 100uV
 #define VOV (0xA41U) // 4.2V Over-voltage threshold = VOV * 16 * 100uV
 
