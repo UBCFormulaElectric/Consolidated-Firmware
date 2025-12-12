@@ -10,24 +10,25 @@
 
 // app
 #include "states/app_states.h"
-#include "app_stateMachine.h"
 #include "app_timer.h"
 #include "app_pumpControl.h"
 #include "app_powerManager.h"
 #include "app_powerMonitoring.h"
 #include "app_commitInfo.h"
 #include "app_sbgEllipse.h"
-#include "app_warningHandling.h"
+#include "app_inverter.h"
 #include "app_heartbeatMonitor.h"
 #include "app_heartbeatMonitors.h"
 #include "app_shdnLoop.h"
 #include "app_shdnLast.h"
 #include "app_imu.h"
+#include "app_warningHandling.h"
 
 // io
 #include "io_time.h"
 #include "io_sbgEllipse.h"
 #include "io_imu.h"
+#include "io_log.h"
 
 #include <app_canAlerts.h>
 #include <stdbool.h>
@@ -101,7 +102,7 @@ void jobs_run100Hz_tick(void)
 
     app_heartbeatMonitor_checkIn(&hb_monitor);
     app_heartbeatMonitor_broadcastFaults(&hb_monitor);
-
+    app_stateMachine_inverterFaultHandling();
     app_stateMachine_tick100Hz();
 
     const TimerState air_minus_open_debounced = app_timer_runIfCondition(
