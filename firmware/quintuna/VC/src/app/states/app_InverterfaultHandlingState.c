@@ -8,7 +8,6 @@
 #include "app_canAlerts.h"
 #include "io_log.h"
 
-
 // Retry window time
 #define TIMEOUT 1000u
 
@@ -138,8 +137,8 @@ static void InverterFaultHandlingStateRunOnTick100Hz(void)
             app_canAlerts_VC_Info_InverterRetry_set(false);
 
             // Ensuring we are in a hard fault state and open BMS contactors
-            //app_canTx_VC_State_set(VC_INV_LOCKOUT_STATE);
-            app_canTx_VC_State_set(VC_FAULT_STATE);
+            app_canTx_VC_Fault_InvLockoutFault_set(true);
+            app_canTx_VC_State_set(VC_INV_LOCKOUT_STATE);
             return;
         }
 
