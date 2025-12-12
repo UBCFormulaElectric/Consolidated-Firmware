@@ -9,7 +9,8 @@
     "VC_DRIVE_STATE": 6,
     "VC_DRIVE_WARNING_STATE": 7,
     "VC_FAULT_STATE": 8,
-    "VC_INV_FAUTLED": 9
+    "VC_INV_FAUTLED": 9,
+    "VC_INV_LOCKOUT_STATE": 10
   },
   "TsimColor": {
     "TSIM_RED": 0,
