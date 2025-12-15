@@ -123,6 +123,7 @@ const osThreadAttr_t Task1Hz_attributes = {
     .stack_size = sizeof(Task1HzBuffer),
     .priority   = (osPriority_t)osPriorityAboveNormal,
 };
+#ifdef USE_CHIMERA
 /* Definitions for TaskChimera */
 osThreadId_t         TaskChimeraHandle;
 uint32_t             TaskChimeraBuffer[512];
@@ -135,6 +136,7 @@ const osThreadAttr_t TaskChimera_attributes = {
     .stack_size = sizeof(TaskChimeraBuffer),
     .priority   = (osPriority_t)osPriorityHigh,
 };
+#endif
 /* Definitions for TaskLtcVoltages */
 osThreadId_t         TaskLtcVoltagesHandle;
 uint32_t             TaskLtcVoltagesBuffer[512];
@@ -208,11 +210,13 @@ void        RunTaskCanRx(void *argument);
 void        RunTaskCanTx(void *argument);
 void        RunTask1kHz(void *argument);
 void        RunTask1Hz(void *argument);
-void        RunTaskChimera(void *argument);
-void        RunTaskLtcVoltages(void *argument);
-void        RunTaskLtcTemps(void *argument);
-void        RunTaskLtcDiag(void *argument);
-void        RunTaskInit(void *argument);
+#ifdef USE_CHIMERA
+void RunTaskChimera(void *argument);
+#endif
+void RunTaskLtcVoltages(void *argument);
+void RunTaskLtcTemps(void *argument);
+void RunTaskLtcDiag(void *argument);
+void RunTaskInit(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -303,8 +307,10 @@ int main(void)
     /* creation of Task1Hz */
     Task1HzHandle = osThreadNew(RunTask1Hz, NULL, &Task1Hz_attributes);
 
+#ifdef USE_CHIMERA
     /* creation of TaskChimera */
     TaskChimeraHandle = osThreadNew(RunTaskChimera, NULL, &TaskChimera_attributes);
+#endif
 
     /* creation of TaskLtcVoltages */
     TaskLtcVoltagesHandle = osThreadNew(RunTaskLtcVoltages, NULL, &TaskLtcVoltages_attributes);
@@ -1241,6 +1247,7 @@ void RunTask1Hz(void *argument)
     /* USER CODE END RunTask1Hz */
 }
 
+#ifdef USE_CHIMERA
 /* USER CODE BEGIN Header_RunTaskChimera */
 /**
  * @brief Function implementing the TaskChimera thread.
@@ -1255,6 +1262,7 @@ void RunTaskChimera(void *argument)
     tasks_runChimera();
     /* USER CODE END RunTaskChimera */
 }
+#endif
 
 /* USER CODE BEGIN Header_RunTaskLtcVoltages */
 /**
@@ -1319,7 +1327,9 @@ void RunTaskInit(void *argument)
 
     xTaskNotifyGive(Task1kHzHandle);
     xTaskNotifyGive(Task100HzHandle);
+#ifdef USE_CHIMERA
     xTaskNotifyGive(TaskChimeraHandle);
+#endif
     xTaskNotifyGive(Task1HzHandle);
     xTaskNotifyGive(TaskLtcVoltagesHandle);
     xTaskNotifyGive(TaskLtcTempsHandle);

@@ -2,7 +2,6 @@
 #include "app_jsoncan.h"
 #include "cmsis_os.h"
 #include "hw_watchdog.h"
-#include "shared.pb.h"
 #include "jobs.h"
 #include "main.h"
 
@@ -21,10 +20,14 @@
 #include "hw_cans.h"
 #include "hw_usb.h"
 #include "hw_bootup.h"
-#include "hw_chimera_v2.h"
-#include "hw_chimeraConfig_v2.h"
 #include "hw_resetReason.h"
 #include <cmsis_os2.h>
+
+#ifdef USE_CHIMERA
+#include "hw_chimera_v2.h"
+#include <shared.pb.h>
+#include "hw_chimeraConfig_v2.h"
+#endif
 
 void tasks_preInit()
 {
@@ -81,10 +84,12 @@ void tasks_init()
     io_canTx_CRIT_Bootup_sendAperiodic();
 }
 
+#ifdef USE_CHIMERA
 _Noreturn void tasks_runChimera(void)
 {
     hw_chimera_v2_task(&chimera_v2_config);
 }
+#endif
 
 void tasks_runCanTx()
 {
@@ -116,7 +121,9 @@ void tasks_run1Hz()
     uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
     {
+#ifdef USE_CHIMERA
         if (!hw_chimera_v2_enabled)
+#endif
         {
             jobs_run1Hz_tick();
         }
@@ -138,7 +145,9 @@ void tasks_run100Hz()
     uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
     {
+#ifdef USE_CHIMERA
         if (!hw_chimera_v2_enabled)
+#endif
         {
             jobs_run100Hz_tick();
         }
@@ -162,7 +171,9 @@ void tasks_run1kHz()
     {
         hw_watchdog_checkForTimeouts();
 
+#ifdef USE_CHIMERA
         if (!hw_chimera_v2_enabled)
+#endif
         {
             jobs_run1kHz_tick();
         }

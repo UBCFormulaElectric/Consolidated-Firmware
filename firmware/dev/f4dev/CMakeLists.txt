@@ -6,6 +6,11 @@ set(IOC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/f4dev.ioc")
 set(LINKER_SCRIPT "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app_only.ld")
 
 file(GLOB_RECURSE EMBEDDED_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c" "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.cpp")
+if(NOT USE_CHIMERA)
+    list(REMOVE_ITEM EMBEDDED_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/hw_chimeraConfig_v2.c")
+endif()
+
+list(FILTER HW_SRCS EXCLUDE REGEX ".*/hw_chimeraConfig_v2\\.c$")
 
 file(GLOB CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 list(REMOVE_ITEM CUBEMX_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/sysmem.c")
@@ -22,13 +27,18 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_f4.cpp"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
         "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
         #        "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_freeRtosConfigs.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
 )
+
+if ("${FIRMWARE_TARGET}" STREQUAL "chimera")
+    list(APPEND EMBEDDED_SRCS
+            "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
+    )
+endif ()
 
 set(EMBEDDED_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc" "${CMAKE_CURRENT_SOURCE_DIR}/src"
@@ -88,6 +98,9 @@ IF ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    target_link_libraries("f4dev.elf" PRIVATE "f4dev_stm32" "f4dev_commit_info" "chimera_v2_proto_cm4")
+    target_link_libraries("f4dev.elf" PRIVATE "f4dev_stm32" "f4dev_commit_info")
+    if ("${FIRMWARE_TARGET}" STREQUAL "chimera")
+        target_link_libraries("f4dev.elf" PRIVATE "chimera_v2_proto_cm4")
+    endif ()
     target_compile_definitions("f4dev.elf" PRIVATE "HAL_SPI_MODULE_ENABLED" NO_BOOTLOADER)
 ENDIF ()
