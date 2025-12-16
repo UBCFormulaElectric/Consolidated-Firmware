@@ -3,7 +3,7 @@
 import { X } from "lucide-react";
 import React, { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import { PlusButton } from "./PlusButton";
-import { DEBUG, BACKEND_URL, SignalMeta } from "@/hooks/SignalConfig";
+import { DEBUG, BACKEND_URL, SignalMeta } from "@/lib/SignalConfig";
 
 // Internal extension with pre-lowercased fields to avoid per-keystroke toLowerCase allocations
 interface SignalMetaWithLC extends SignalMeta {

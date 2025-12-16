@@ -39,6 +39,8 @@ jobs:
             ioc_dir: firmware/dev/f4dev/src/cubemx
           - board: h7dev
             ioc_dir: firmware/dev/h7dev/src/cubemx
+          - board: h5dev
+            ioc_dir: firmware/dev/h5dev/src/cubemx
           - board: BMS
             ioc_dir: firmware/quintuna/BMS/src/cubemx
           - board: CRIT
@@ -111,6 +113,7 @@ jobs:
         include:
           - board: f4dev.elf
           - board: h7dev.hex
+          - board: h5dev.hex
           - board: quintuna_BMS.hex
           - board: quintuna_CRIT.hex
           - board: quintuna_DAM.hex
