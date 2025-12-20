@@ -1,4 +1,3 @@
-
 #include "app_warningHandling.h"
 #include "app_signal.h"
 #include "app_canAlerts.h"
