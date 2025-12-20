@@ -162,6 +162,7 @@ static void InverterfaultHandlingStateRunOnExit(void)
     app_canTx_VC_INVFRbErrorReset_set(false);
     app_canTx_VC_INVRLbErrorReset_set(false);
     app_canTx_VC_INVRRbErrorReset_set(false);
+    app_canTx_VC_Fault_InvLockoutFault_set(false);
     app_timer_stop(&retry_timer);
     retry_cycle_active = false;
 }
