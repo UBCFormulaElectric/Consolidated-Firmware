@@ -10,6 +10,6 @@ ExitCode sendBalanceCommand(void)
 
 ExitCode sendStopBalanceCommand(void)
 {
-    return io::adbms::sendCommand(io::adbms::MUTE);
+    return io::adbms::sendCommand(MUTE);
 }
 } // namespace io::adbms
