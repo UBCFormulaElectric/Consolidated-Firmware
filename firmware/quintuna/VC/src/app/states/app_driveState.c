@@ -6,7 +6,7 @@
 #include "app_utils.h"
 #include "app_canAlerts.h"
 #include "app_powerManager.h"
-#include "app_warningHandling.h"
+#include "app_inverter.h"
 
 #include "app_regen.h"
 #include "app_vehicleDynamicsConstants.h"
@@ -15,6 +15,7 @@
 #include "app_torqueDistribution.h"
 #include "app_driveHandling.h"
 #include "app_startSwitch.h"
+#include "app_warningHandling.h"
 
 #define OFF 0
 
@@ -23,7 +24,7 @@ static bool                    regen_switch_is_on;
 static TorqueAllocationOutputs torqueOutputToMotors;
 
 static PowerManagerConfig power_manager_state = {
-    .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
+    .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = false, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_RSM]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_BMS]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_R_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
@@ -36,9 +37,8 @@ static PowerManagerConfig power_manager_state = {
 static bool driveStatePassPreCheck()
 {
     // All states module checks for faults, and returns whether or not a fault was detected.
-    // const WarningType warning_check = app_warningHandling_globalWarningCheck();
-    const bool inverter_warning = app_warningHandling_inverterStatus();
-    const bool board_warning    = app_warningHandling_boardWarningCheck();
+    const bool inverter_warning = app_inverter_inverterStatus();
+    const bool board_warning    = app_warningHandlin_boardWarningCheck();
 
     // Make sure you can only turn on VD in init and not during drive, only able to turn off
     const bool prev_regen_switch_val = regen_switch_is_on;
@@ -61,7 +61,6 @@ static bool driveStatePassPreCheck()
     {
         app_canAlerts_VC_Info_InverterRetry_set(true);
         // Go to inverter on state to unset the fault on the inverters and restart the sequence
-        app_stateMachine_setNextState(&hvInit_state);
         return false;
     }
 
@@ -169,7 +168,7 @@ static void driveStateRunOnTick100Hz(void)
     float apps_pedal_percentage = (float)app_canRx_FSM_PappsMappedPedalPercentage_get() * 0.01f;
 
     // ensure precheck and software bspd are good
-    if (!driveStatePassPreCheck() || app_warningHandling_checkSoftwareBspd(apps_pedal_percentage))
+    if (!driveStatePassPreCheck() || app_warningHandlin_checkSoftwareBspd(apps_pedal_percentage))
     {
         app_canTx_VC_INVFRTorqueSetpoint_set(OFF);
         app_canTx_VC_INVRRTorqueSetpoint_set(OFF);

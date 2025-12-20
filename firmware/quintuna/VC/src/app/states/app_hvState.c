@@ -2,7 +2,7 @@
 #include "app_states.h"
 #include "app_powerManager.h"
 #include "app_startSwitch.h"
-#include "app_warningHandling.h"
+#include "app_inverter.h"
 #include "io_loadswitches.h"
 #include <app_canAlerts.h>
 #include <app_canTx.h>
@@ -11,7 +11,7 @@
 #include <stdbool.h>
 
 static PowerManagerConfig power_manager_state = {
-    .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
+    .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = false, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_RSM]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_BMS]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_R_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
@@ -30,10 +30,9 @@ static void hvStateRunOnEntry(void)
 
 static void hvStateRunOnTick100Hz(void)
 {
-    // const bool curr_start_switch_on     = app_canRx_CRIT_StartSwitch_get();
-    // const bool was_start_switch_enabled = !prev_start_switch_pos && curr_start_switch_on;
+    // Conditions for entering drive state: minimum 50% braking and start switch
+    // TODO: change this to a faster method after fault recovery
     const bool is_brake_actuated = app_canRx_FSM_BrakeActuated_get();
-    // const bool inverters_warning = app_warningHandling_inverterStatus();
     if (is_brake_actuated && app_startSwitch_hasRisingEdge())
     {
         // Transition to drive state when start-up conditions are passed (see

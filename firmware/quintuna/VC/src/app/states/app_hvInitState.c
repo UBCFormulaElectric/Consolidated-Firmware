@@ -3,10 +3,11 @@
 #include "app_powerManager.h"
 #include "app_timer.h"
 #include "app_canAlerts.h"
-#include "app_warningHandling.h"
+#include "app_inverter.h"
 #include "io_loadswitches.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
+#include "app_canUtils.h"
 #include "app_canUtils.h"
 #include <stdbool.h>
 #include <stdint.h>
@@ -20,7 +21,7 @@ static VCInverterState current_inverter_state;
 static TimerChannel    start_up_timer;
 
 static PowerManagerConfig power_manager_state = {
-    .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
+    .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = false, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_RSM]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_BMS]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_R_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
@@ -30,14 +31,12 @@ static PowerManagerConfig power_manager_state = {
                        [EFUSE_CHANNEL_R_RAD]   = { .efuse_enable = true, .timeout = 200, .max_retry = 5 } }
 };
 
-// static bool power_sequencing_done = false;
-// static bool ready_for_drive       = false;
-
+/*Start up sequence of the inverters once all the requirements are met*/
 static void hvInitStateRunOnEntry(void)
 {
+    current_inverter_state = INV_SYSTEM_READY;
     app_canTx_VC_State_set(VC_HV_INIT_STATE);
     app_powerManager_updateConfig(power_manager_state);
-    current_inverter_state = INV_SYSTEM_READY;
     app_timer_init(&start_up_timer, INV_QUIT_TIMEOUT_MS);
 
     app_canTx_VC_INVFRTorqueSetpoint_set(0);
@@ -70,16 +69,11 @@ static void hvInitStateRunOnTick100Hz(void)
                 LOG_INFO("inv_system_ready -> inv_dc_on");
                 current_inverter_state = INV_DC_ON;
                 app_timer_stop(&start_up_timer);
-
-                // Error reset should be set to false cause we were successful
-                app_canTx_VC_INVFLbErrorReset_set(false);
-                app_canTx_VC_INVFRbErrorReset_set(false);
-                app_canTx_VC_INVRLbErrorReset_set(false);
-                app_canTx_VC_INVRRbErrorReset_set(false);
             }
             else if (app_canAlerts_VC_Info_InverterRetry_get())
             {
-                app_warningHandling_inverterReset();
+                LOG_INFO("inv_system_ready -> inv_error_retry");
+                current_inverter_state = INV_ERROR_RETRY;
             }
             break;
         }
@@ -142,18 +136,10 @@ static void hvInitStateRunOnTick100Hz(void)
             break;
         }
         case INV_READY_FOR_DRIVE:
-            if (app_canAlerts_VC_Info_InverterRetry_get())
-            {
-                app_warningHandling_inverterStatus();
-                app_canAlerts_VC_Info_InverterRetry_set(false);
-                app_stateMachine_setNextState(&drive_state);
-            }
-            else
-            {
-                app_stateMachine_setNextState(&hv_state);
-            }
+            app_stateMachine_setNextState(&hv_state);
             break;
-
+        case INV_ERROR_RETRY:
+            app_timer_stop(&start_up_timer);
         case NUM_VC_INVERTER_STATE_CHOICES:
         default:
             break;
@@ -166,13 +152,6 @@ static void hvInitStateRunOnExit(void)
     current_inverter_state = INV_SYSTEM_READY;
     app_timer_stop(&start_up_timer);
     app_canAlerts_VC_Info_InverterRetry_set(false);
-
-    // We are setting back this to zero meaning that we either succedded in reseting the inverters or out reset protocl
-    // didnt work so we are going back to init
-    app_canTx_VC_INVFLbErrorReset_set(false);
-    app_canTx_VC_INVFRbErrorReset_set(false);
-    app_canTx_VC_INVRLbErrorReset_set(false);
-    app_canTx_VC_INVRRbErrorReset_set(false);
 }
 
 State hvInit_state = { .name              = "HV INIT",
