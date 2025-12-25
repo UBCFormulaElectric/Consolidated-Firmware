@@ -2,7 +2,7 @@
 #include "hw_gpio.hpp"
 #include "main.h"
 
-//still need to reload cubemx folder to change brake_light_EV into brake_light_en
+//still need to reload cubemx file so brake_light_EV -> _en
 namespace hw
 {
     Gpio brake_ocsc_ok(BRAKE_OCSC_OK_3V3_GPIO_Port, BRAKE_OCSC_OK_3V3_Pin);
