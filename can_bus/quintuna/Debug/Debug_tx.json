@@ -103,5 +103,20 @@
         "bits": 1
       }
     }
+  },
+  "GearBoxBreaking": {
+    "msg_id": 1007,
+    "cycle_time": 100,
+    "description": "Enable Gearbox Breakin Mode",
+    "signals": {
+      "EnableBreakinMode": {
+        "bits": 1
+      },
+      "VelocitySetpoint": {
+        "resolution": 0.1,
+        "min": -18000,
+        "max": 18000,
+        "unit": "1/rpm"}
+    }
   }
 }

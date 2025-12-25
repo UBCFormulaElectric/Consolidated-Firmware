@@ -91,18 +91,18 @@ void app_torqueBroadCast(TorqueAllocationOutputs *torqueToMotors)
     //     app_canTx_VC_INVRRTorqueSetpoint_set(
     //         CLAMP(PEDAL_REMAPPING(torqueToMotors->rear_right_torque), PEDAL_REMAPPING(-MAX_TORQUE_REQUEST_NM),
     //         PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
-    app_canTx_VC_INVFLTorqueSetpoint_set(CLAMP(
-        PEDAL_REMAPPING(torqueToMotors->front_left_torque), PEDAL_REMAPPING(MAX_REGEN_Nm),
-        PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
-    app_canTx_VC_INVFRTorqueSetpoint_set(CLAMP(
-        PEDAL_REMAPPING(torqueToMotors->front_right_torque), PEDAL_REMAPPING(MAX_REGEN_Nm),
-        PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
-    app_canTx_VC_INVRLTorqueSetpoint_set(CLAMP(
-        PEDAL_REMAPPING(torqueToMotors->rear_left_torque), PEDAL_REMAPPING(MAX_REGEN_Nm),
-        PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
-    app_canTx_VC_INVRRTorqueSetpoint_set(CLAMP(
-        PEDAL_REMAPPING(torqueToMotors->rear_right_torque), PEDAL_REMAPPING(MAX_REGEN_Nm),
-        PEDAL_REMAPPING(MAX_TORQUE_REQUEST_NM)));
+    if(app_canRx_Debug_EnableBreakinMode_get()){
+        app_canTx_VC_INVFLTorqueSetpoint_set((int32_t)app_canRx_Debug_VelocitySetpoint_get());
+        app_canTx_VC_INVFRTorqueSetpoint_set((int32_t)app_canRx_Debug_VelocitySetpoint_get());
+        app_canTx_VC_INVRLTorqueSetpoint_set((int32_t)app_canRx_Debug_VelocitySetpoint_get());
+        app_canTx_VC_INVRRTorqueSetpoint_set((int32_t)app_canRx_Debug_VelocitySetpoint_get()); 
+    }
+    else{
+        app_canTx_VC_INVFLTorqueSetpoint_set(0);
+        app_canTx_VC_INVFRTorqueSetpoint_set(0);
+        app_canTx_VC_INVRLTorqueSetpoint_set(0);
+        app_canTx_VC_INVRRTorqueSetpoint_set(0); 
+    }
 }
 
 // TorqueAllocationOutputs *app_get_torqueToMotors()

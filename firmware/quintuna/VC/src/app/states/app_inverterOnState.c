@@ -10,7 +10,7 @@
 #include <stdbool.h>
 
 static PowerManagerConfig power_manager_state = {
-    .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
+    .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = false, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_RSM]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_BMS]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_R_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
@@ -30,8 +30,8 @@ static void inverterOnStateRunOnTick100Hz(void)
 {
     // here we need to check if the inverters are alive and are sending us active can messages
 
-    const bool inverters_bsystemReady = app_canRx_INVFL_bSystemReady_get() && app_canRx_INVFR_bSystemReady_get() &&
-                                        app_canRx_INVRL_bSystemReady_get() && app_canRx_INVRR_bSystemReady_get();
+    const bool inverters_bsystemReady = //app_canRx_INVFL_bSystemReady_get() && app_canRx_INVFR_bSystemReady_get() &&
+                                        app_canRx_INVRL_bSystemReady_get(); //&& app_canRx_INVRR_bSystemReady_get();
     if (inverters_bsystemReady)
     {
         app_stateMachine_setNextState(&bmsOn_state);

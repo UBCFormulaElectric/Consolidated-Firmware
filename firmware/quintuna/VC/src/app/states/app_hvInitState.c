@@ -21,7 +21,7 @@ static VCInverterState current_inverter_state;
 static TimerChannel    start_up_timer;
 
 static PowerManagerConfig power_manager_state = {
-    .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
+    .efuse_configs = { [EFUSE_CHANNEL_F_INV]   = { .efuse_enable = false, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_RSM]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_BMS]     = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
                        [EFUSE_CHANNEL_R_INV]   = { .efuse_enable = true, .timeout = 0, .max_retry = 5 },
@@ -61,7 +61,7 @@ static void hvInitStateRunOnTick100Hz(void)
     {
         case INV_SYSTEM_READY:
         {
-            const bool inv_systemReady = app_canRx_INVFL_bSystemReady_get() && app_canRx_INVFR_bSystemReady_get() &&
+            const bool inv_systemReady = //app_canRx_INVFL_bSystemReady_get() && app_canRx_INVFR_bSystemReady_get() &&
                                          app_canRx_INVRL_bSystemReady_get() && app_canRx_INVRR_bSystemReady_get();
 
             if (inv_systemReady)
@@ -79,13 +79,13 @@ static void hvInitStateRunOnTick100Hz(void)
         }
         case INV_DC_ON:
         {
-            app_canTx_VC_INVFLbDcOn_set(true);
-            app_canTx_VC_INVFRbDcOn_set(true);
+            //app_canTx_VC_INVFLbDcOn_set(true);
+            //app_canTx_VC_INVFRbDcOn_set(true);
             app_canTx_VC_INVRRbDcOn_set(true);
             app_canTx_VC_INVRLbDcOn_set(true);
 
-            const bool inverter_dc_quit = app_canRx_INVRR_bQuitDcOn_get() && app_canRx_INVRL_bQuitDcOn_get() &&
-                                          app_canRx_INVFR_bQuitDcOn_get() && app_canRx_INVFL_bQuitDcOn_get();
+            const bool inverter_dc_quit = app_canRx_INVRR_bQuitDcOn_get() && app_canRx_INVRL_bQuitDcOn_get();// &&
+                                          //app_canRx_INVFR_bQuitDcOn_get() && app_canRx_INVFL_bQuitDcOn_get();
 
             if (inverter_dc_quit)
             {
@@ -103,8 +103,8 @@ static void hvInitStateRunOnTick100Hz(void)
         }
         case INV_ENABLE:
         {
-            app_canTx_VC_INVFLbEnable_set(true);
-            app_canTx_VC_INVFRbEnable_set(true);
+            //app_canTx_VC_INVFLbEnable_set(true);
+            //app_canTx_VC_INVFRbEnable_set(true);
             app_canTx_VC_INVRLbEnable_set(true);
             app_canTx_VC_INVRRbEnable_set(true);
             current_inverter_state = INV_INVERTER_ON;
@@ -112,14 +112,14 @@ static void hvInitStateRunOnTick100Hz(void)
         }
         case INV_INVERTER_ON:
         {
-            app_canTx_VC_INVFLbInverterOn_set(true);
-            app_canTx_VC_INVFRbInverterOn_set(true);
+            //app_canTx_VC_INVFLbInverterOn_set(true);
+            //app_canTx_VC_INVFRbInverterOn_set(true);
             app_canTx_VC_INVRRbInverterOn_set(true);
             app_canTx_VC_INVRLbInverterOn_set(true);
 
             const bool inverter_invOn_quit =
-                app_canRx_INVRR_bQuitInverterOn_get() && app_canRx_INVRL_bQuitInverterOn_get() &&
-                app_canRx_INVFR_bQuitInverterOn_get() && app_canRx_INVFL_bQuitInverterOn_get();
+                app_canRx_INVRR_bQuitInverterOn_get() && app_canRx_INVRL_bQuitInverterOn_get();// &&
+               // app_canRx_INVFR_bQuitInverterOn_get() && app_canRx_INVFL_bQuitInverterOn_get();
 
             if (inverter_invOn_quit)
             {

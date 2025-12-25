@@ -11,6 +11,7 @@
 #include "app_canRx.h"
 #include "app_sbgEllipse.h"
 #include "app_imu.h"
+#include <io_log.h>
 
 #define EFFICIENCY_ESTIMATE (0.80f)
 
@@ -26,19 +27,19 @@ void app_vanillaDrive_run(const float apps_pedal_percentage, TorqueAllocationOut
     const float motor_speed_fl_rpm  = fabsf((float)app_canRx_INVFL_ActualVelocity_get());
     const float motor_speed_rr_rpm  = fabsf((float)app_canRx_INVRR_ActualVelocity_get());
     const float motor_speed_rl_rpm  = fabsf((float)app_canRx_INVRL_ActualVelocity_get());
-    float       bms_torque_limit    = MAX_TORQUE_REQUEST_NM;
+    // float       bms_torque_limit    = MAX_TORQUE_REQUEST_NM;
 
-    if ((motor_speed_fr_rpm + motor_speed_fl_rpm + motor_speed_rr_rpm + motor_speed_rl_rpm) > 0.0f)
-    {
-        // Estimate the maximum torque request to draw the maximum power available from the BMS
-        const float available_output_power_w  = bms_available_power * EFFICIENCY_ESTIMATE;
-        const float combined_motor_speed_rads = RPM_TO_RADS(motor_speed_fr_rpm) + RPM_TO_RADS(motor_speed_fl_rpm) +
-                                                RPM_TO_RADS(motor_speed_rr_rpm) + RPM_TO_RADS(motor_speed_rl_rpm);
-        bms_torque_limit = MIN(available_output_power_w / combined_motor_speed_rads, MAX_TORQUE_REQUEST_NM);
-    }
+    // if ((motor_speed_fr_rpm + motor_speed_fl_rpm + motor_speed_rr_rpm + motor_speed_rl_rpm) > 0.0f)
+    // {
+    //     // Estimate the maximum torque request to draw the maximum power available from the BMS
+    //     const float available_output_power_w  = bms_available_power * EFFICIENCY_ESTIMATE;
+    //     const float combined_motor_speed_rads = RPM_TO_RADS(motor_speed_fr_rpm) + RPM_TO_RADS(motor_speed_fl_rpm) +
+    //                                             RPM_TO_RADS(motor_speed_rr_rpm) + RPM_TO_RADS(motor_speed_rl_rpm);
+    //     bms_torque_limit = MIN(available_output_power_w / combined_motor_speed_rads, MAX_TORQUE_REQUEST_NM);
+    // }
 
     // Calculate the maximum torque request, according to the BMS available power
-    const float max_bms_torque_request = apps_pedal_percentage * bms_torque_limit;
+    const float max_bms_torque_request = apps_pedal_percentage * MAX_TORQUE_REQUEST_NM;
 
     const float pedal_based_torque = apps_pedal_percentage * MAX_TORQUE_REQUEST_NM;
 
