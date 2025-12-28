@@ -281,9 +281,9 @@ static void MX_FDCAN1_Init(void)
     /* USER CODE END FDCAN1_Init 1 */
     hfdcan1.Instance                  = FDCAN1;
     hfdcan1.Init.ClockDivider         = FDCAN_CLOCK_DIV1;
-    hfdcan1.Init.FrameFormat          = FDCAN_FRAME_CLASSIC;
+    hfdcan1.Init.FrameFormat          = FDCAN_FRAME_FD_BRS;
     hfdcan1.Init.Mode                 = FDCAN_MODE_NORMAL;
-    hfdcan1.Init.AutoRetransmission   = DISABLE;
+    hfdcan1.Init.AutoRetransmission   = ENABLE;
     hfdcan1.Init.TransmitPause        = DISABLE;
     hfdcan1.Init.ProtocolException    = DISABLE;
     hfdcan1.Init.NominalPrescaler     = 16;
@@ -420,7 +420,7 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_WritePin(GPIOC, IMU_CS_Pin | IMU_FSYNC_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(BRAKE_LIGHT_EV_3V3_GPIO_Port, BRAKE_LIGHT_EV_3V3_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(BRAKE_LIGHT_EN_3V3_GPIO_Port, BRAKE_LIGHT_EN_3V3_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(D_P_PULLUP_GPIO_Port, D_P_PULLUP_Pin, GPIO_PIN_RESET);
@@ -459,12 +459,12 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(IMU_INT_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : BRAKE_LIGHT_EV_3V3_Pin */
-    GPIO_InitStruct.Pin   = BRAKE_LIGHT_EV_3V3_Pin;
+    /*Configure GPIO pin : BRAKE_LIGHT_EN_3V3_Pin */
+    GPIO_InitStruct.Pin   = BRAKE_LIGHT_EN_3V3_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(BRAKE_LIGHT_EV_3V3_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(BRAKE_LIGHT_EN_3V3_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pins : PA11 PA12 */
     GPIO_InitStruct.Pin       = GPIO_PIN_11 | GPIO_PIN_12;
