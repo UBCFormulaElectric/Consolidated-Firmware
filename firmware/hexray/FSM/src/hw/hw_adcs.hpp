@@ -1,5 +1,5 @@
 #pragma once
-#include "hw_adc.h"
+#include "hw_adc.hpp"
 
 // In STM32 terminology, each ADC pin corresponds to an ADC channel (See:
 // ADCEx_channels). If there are multiple ADC channels being measured, the ADC
@@ -12,11 +12,16 @@
 // determines the order in which the DMA writes data to our raw_adc_values
 // buffer.
 
-extern const AdcChannel susp_fl;
-extern const AdcChannel susp_fr;
-extern const AdcChannel apps2;
-extern const AdcChannel bps_f;
-extern const AdcChannel str_angle;
-extern const AdcChannel apps1;
+namespace hw::adcs
+{
+extern AdcChip<6> adc1;
 
-void hw_adcs_chipsInit();
+void chipsInit();
+
+extern Adc susp_fl;
+extern Adc susp_fr;
+extern Adc apps2;
+extern Adc bps_f;
+extern Adc str_angle;
+extern Adc apps1;
+} // namespace hw::adcs

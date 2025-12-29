@@ -1,29 +1,31 @@
+#include "hw_adc.hpp"
 #include "hw_adcs.hpp"
 #include "main.h"
 
-static uint16_t adc1_raw_adc_values[6];
-static float    adc1_adc_voltages[6];
-static AdcChip  adc1 = { .hadc            = &hadc1,
-                         .htim            = &htim2,
-                         .raw_adc_values  = adc1_raw_adc_values,
-                         .adc_voltages    = adc1_adc_voltages,
-                         .channel_count   = 6,
-                         .is_differential = false };
+#define NUM_ADC_CHANNELS 6 // Number of channels being measured by adc1
 
-const AdcChannel susp_fl   = { .voltage = &adc1_adc_voltages[0] };
-const AdcChannel susp_fr   = { .voltage = &adc1_adc_voltages[1] };
-const AdcChannel apps2     = { .voltage = &adc1_adc_voltages[2] };
-const AdcChannel bps_f     = { .voltage = &adc1_adc_voltages[3] };
-const AdcChannel str_angle = { .voltage = &adc1_adc_voltages[4] };
-const AdcChannel apps1     = { .voltage = &adc1_adc_voltages[5] };
-
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+namespace hw::adcs
 {
-    if (hadc == adc1.hadc)
-        hw_adcchip_updateCallback(&adc1);
-}
+AdcChip<NUM_ADC_CHANNELS> adc1 = AdcChip<NUM_ADC_CHANNELS>(&hadc1, &htim2);
 
-void hw_adcs_chipsInit(void)
+void chipsInit(void)
 {
-    hw_adcchip_init(&adc1);
+    adc1.init();
+} // Do I need this function? Can't I just call adc1.init() directly?
+
+Adc susp_fl   = Adc(adc1.getChannel(0));
+Adc susp_fr   = Adc(adc1.getChannel(1));
+Adc apps2     = Adc(adc1.getChannel(2));
+Adc bps_f     = Adc(adc1.getChannel(3));
+Adc str_angle = Adc(adc1.getChannel(4));
+Adc apps1     = Adc(adc1.getChannel(5));
+} // namespace hw::adcs
+
+extern "C"
+{
+    void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+    {
+        if (hadc == adc1.hadc)
+            adc1.update_callback();
+    }
 }
