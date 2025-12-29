@@ -110,13 +110,3 @@ void tasks_runCanRx()
         io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
     }
 }
-void tasks_runChimera()
-{
-    forever
-    {
-        CanMsg msg = io_canQueue_popTx(&can_tx_queue);
-        hw_can_transmit(&fdcan, &msg);
-
-        // hw_chimera_v2_task(&chimera_v2_config);
-    }
-}

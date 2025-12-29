@@ -1,4 +1,4 @@
-#include "fsm.pb.h"
+/*#include "h5dev.pb.h"
 #include "shared.pb.h"
 #include "hw_chimeraConfig_v2.h"
 
@@ -27,3 +27,4 @@ hw_chimera_v2_Config chimera_v2_config = { .gpio_net_name_tag = GpioNetName_fsm_
                                            .id_to_adc         = id_to_adc,
                                            .i2c_net_name_tag  = I2cNetName_fsm_net_name_tag,
                                            .id_to_i2c         = id_to_i2c };
+*/

@@ -23,6 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
+#include "hw_usb.h"
 #include "hw_error.hpp"
 #include "usbd_core.h"
 #include "usbd_cdc.h"
@@ -133,20 +134,22 @@ int main(void)
     USBD_Start(&hUsbDeviceFS);
     /* USER CODE END 2 */
 
-    /* Init scheduler */
     osKernelInitialize();
-    /* Call init function for freertos objects (in app_freertos.c) */
-    MX_FREERTOS_Init();
-
-    /* Start scheduler */
-    osKernelStart();
-
-    /* We should never get here as control is now taken by the scheduler */
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
-    while (1)
+    for (;;)
     {
+        if (hw_usb_checkConnection())
+        {
+            HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
+        }
+        else
+        {
+            HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
+        }
+
+        HAL_Delay(1);
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
