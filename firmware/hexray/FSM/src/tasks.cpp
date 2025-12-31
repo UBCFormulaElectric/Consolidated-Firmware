@@ -43,3 +43,7 @@ void tasks_runChimera()
 {
     forever {}
 }
+void tasks_runCanRxCallback(const io::CanMsg *msg)
+{
+    // ??
+}

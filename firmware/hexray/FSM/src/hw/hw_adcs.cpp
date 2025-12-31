@@ -1,8 +1,8 @@
-#include "hw_adc.hpp"
 #include "hw_adcs.hpp"
+extern "C"
+{
 #include "main.h"
-
-#define NUM_ADC_CHANNELS 6 // Number of channels being measured by adc1
+}
 
 namespace hw::adcs
 {
@@ -21,11 +21,8 @@ Adc str_angle = Adc(adc1.getChannel(4));
 Adc apps1     = Adc(adc1.getChannel(5));
 } // namespace hw::adcs
 
-extern "C"
+extern "C" void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
-    void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
-    {
-        if (hadc == adc1.hadc)
-            adc1.update_callback();
-    }
+    if (hadc == hw::adcs::adc1.gethadc()) // Is this check necessary?
+        hw::adcs::adc1.update_callback();
 }

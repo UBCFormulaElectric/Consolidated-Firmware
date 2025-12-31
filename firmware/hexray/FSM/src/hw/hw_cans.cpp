@@ -1,12 +1,26 @@
 #include "hw_cans.hpp"
 #include "tasks.hpp"
-#include "main.h"
-#include <assert.h>
-
-CanHandle can = { .hcan = &hcan2, .bus_num = 0, .receive_callback = tasks_runCanRxCallback };
-
-const CanHandle *hw_can_getHandle(const CAN_HandleTypeDef *hcan)
+extern "C"
 {
-    assert(hcan == can.hcan);
-    return &can;
+    #include "main.h"
+    #include <assert.h>
 }
+
+namespace hw::cans
+{
+    can fdcan1 = can(
+        hfdcan1,
+        0,
+        tasks_runCanRxCallback
+    );
+} // namespace hw::cans
+
+namespace hw{
+    const can &hw_can_getHandle(const FDCAN_HandleTypeDef *hcan) // Shared HW CAN Header file should change to use FDCAN???
+    {
+        assert(hcan == hw::cans::fdcan1.getHcan());
+        return hw::cans::fdcan1;
+    }
+} // namespace hw
+
+

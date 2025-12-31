@@ -1,4 +1,7 @@
 #pragma once
-#include "hw_can.h"
+#include "hw_can.hpp"
 
-extern CanHandle can;
+namespace hw::cans
+{
+extern can fdcan1;
+} // namespace hw::cans
