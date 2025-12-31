@@ -53,11 +53,33 @@ extern "C"
     /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler(void);
 
-    /* USER CODE BEGIN EFP */
+/* USER CODE BEGIN EFP */
 
-    /* USER CODE END EFP */
+/* USER CODE END EFP */
 
-    /* Private defines -----------------------------------------------------------*/
+/* Private defines -----------------------------------------------------------*/
+#define R_INV_SNS_Pin GPIO_PIN_1
+#define R_INV_SNS_GPIO_Port GPIOA
+#define F_INV_SNS_Pin GPIO_PIN_2
+#define F_INV_SNS_GPIO_Port GPIOA
+#define BMS_SNS_s__Pin GPIO_PIN_3
+#define BMS_SNS_s__GPIO_Port GPIOA
+#define RSM_SNS_Pin GPIO_PIN_4
+#define RSM_SNS_GPIO_Port GPIOA
+#define DAM_SNS_Pin GPIO_PIN_4
+#define DAM_SNS_GPIO_Port GPIOC
+#define RR_PUMP_I_SNS_Pin GPIO_PIN_5
+#define RR_PUMP_I_SNS_GPIO_Port GPIOC
+#define RL_PUMP_I_SNS_Pin GPIO_PIN_0
+#define RL_PUMP_I_SNS_GPIO_Port GPIOB
+#define R_RAD_FAN_I_SNS_Pin GPIO_PIN_1
+#define R_RAD_FAN_I_SNS_GPIO_Port GPIOB
+#define L_RAD_FAN_I_SNS_Pin GPIO_PIN_11
+#define L_RAD_FAN_I_SNS_GPIO_Port GPIOB
+#define CAN_VEH_RX_Pin GPIO_PIN_0
+#define CAN_VEH_RX_GPIO_Port GPIOD
+#define CAN_VEH_TX_Pin GPIO_PIN_1
+#define CAN_VEH_TX_GPIO_Port GPIOD
 
     /* USER CODE BEGIN Private defines */
 
