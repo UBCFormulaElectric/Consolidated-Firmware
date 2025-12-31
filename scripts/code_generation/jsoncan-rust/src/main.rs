@@ -7,10 +7,10 @@ mod test;
 
 use std::path::Path;
 
-use crate::{dbcgen::DbcGenerator, reroute::resolve_tx_rx_reroute};
+use crate::{can_database::CanDatabase, dbcgen::DbcGenerator, reroute::resolve_tx_rx_reroute};
 use clap::Parser;
 use codegen::cpp::CModule;
-use parsing::{JsonCanParser, make_database_from_parser, report_parse_err_exit};
+use parsing::{JsonCanParser, report_parse_err_exit};
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -31,7 +31,7 @@ fn main() {
     let args = Args::parse();
 
     // Parse JSON
-    let can_db = make_database_from_parser(match JsonCanParser::new(args.can_data_dir) {
+    let can_db = CanDatabase::from(match JsonCanParser::new(args.can_data_dir) {
         Err(e) => report_parse_err_exit(e),
         Ok(p) => p,
     });

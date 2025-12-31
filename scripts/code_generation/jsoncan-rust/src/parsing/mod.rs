@@ -320,19 +320,7 @@ impl JsonCanParser {
             }
         }
 
-        //         # PARSE ALERTS DATA
-        //         self._alerts = {}
-        //         alert_msgs: List[CanMessage] = []
-        //         for node_name in node_names:
-        //             # Parse ALERTS
-        //             alerts_json = parse_alert_data(can_data_dir, node_name)
-        //             # since they are optional
-        //             if alerts_json is None:
-        //                 continue
-        //             node_alert_msgs, alerts = alerts_json
-        //             assert len(node_alert_msgs) == 6, "Alert messages should be 6"
-        //             self._alerts[node_name] = alerts
-
+        // PARSE ALERTS DATA
         let mut alerts: HashMap<String, Vec<CanAlert>> = HashMap::new();
         let mut nodes_alert_msgs: HashMap<String, Vec<CanMessage>> = HashMap::new();
         for tx_node_name in &node_names {
