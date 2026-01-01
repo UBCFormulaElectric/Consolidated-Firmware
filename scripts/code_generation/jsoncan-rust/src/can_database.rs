@@ -39,9 +39,9 @@ pub struct CanSignal {
     // Name of this CAN signal
     pub name: String,
     // Start bit of this signal in the message payload
-    pub start_bit: u8,
+    pub start_bit: u16,
     // Number of bits used to represent this signal in the message payload
-    pub bits: u8,
+    pub bits: u16,
     // Scaling factor for encoding/decoding this signal
     pub scale: f64,
     // Offset for encoding/decoding this signal
@@ -91,14 +91,14 @@ pub struct CanMessage {
     pub modes: Option<Vec<String>>,
 }
 
-fn bits_to_bytes(bits: u8) -> u8 {
+fn bits_to_bytes(bits: u16) -> u16 {
     //  Get number of bytes needed to store bits number of bits.
     (bits + 7) / 8
 }
 
-const ALLOWABLE_MSG_LENGTHS: [u8; 16] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64];
+const ALLOWABLE_MSG_LENGTHS: [u16; 16] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64];
 impl CanMessage {
-    pub fn dlc(&self) -> u8 {
+    pub fn dlc(&self) -> u16 {
         // Length of payload, in bytes.
         if self.signals.len() == 0 {
             return 0;
@@ -147,19 +147,28 @@ pub struct CanEnum {
 }
 
 impl CanEnum {
-    pub fn bits(&self) -> u8 {
+    pub fn bits(&self) -> u16 {
         // Calculate number of bits needed to represent this enum
-        todo!()
+        let max_value = self.max_value();
+        for bits in 1u16..=32 {
+            if max_value < (1 << bits) {
+                return bits;
+            }
+        }
+        panic!("Enum has a value that is too large to represent in 32 bits");
     }
 
     pub fn max_value(&self) -> u32 {
-        // Calculate maximum value of this enum
-        todo!()
+        return self
+            .values
+            .values()
+            .cloned()
+            .max()
+            .expect("Enum has at least one value");
     }
 
     pub fn min_value(&self) -> u32 {
-        // Calculate minimum value of this enum
-        todo!()
+        0
     }
 }
 

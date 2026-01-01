@@ -10,7 +10,7 @@ use std::path::Path;
 use crate::{can_database::CanDatabase, dbcgen::DbcGenerator, reroute::resolve_tx_rx_reroute};
 use clap::Parser;
 use codegen::cpp::CModule;
-use parsing::{JsonCanParser, report_parse_err_exit};
+use parsing::JsonCanParser;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -31,10 +31,7 @@ fn main() {
     let args = Args::parse();
 
     // Parse JSON
-    let can_db = CanDatabase::from(match JsonCanParser::new(args.can_data_dir) {
-        Err(e) => report_parse_err_exit(e),
-        Ok(p) => p,
-    });
+    let can_db = CanDatabase::from(JsonCanParser::new(args.can_data_dir).unwrap());
 
     let (tx_configs, rx_configs, reroute_config) = resolve_tx_rx_reroute(&can_db);
 

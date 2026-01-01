@@ -3,29 +3,40 @@ use serde::Deserialize;
 use std::collections::HashMap;
 
 #[derive(Deserialize)]
+#[serde(untagged)]
 enum JsonTxSignal {
     ScaleOffsetBits {
         min: f64,
         max: f64,
         scale: f64,
         offset: f64,
-        bits: u8,
+        bits: u16,
         // SHARED
+        #[serde(default)]
         unit: Option<String>,
-        start_bit: Option<u8>,
+        #[serde(default)]
+        start_bit: Option<u16>,
+        #[serde(default)]
         signed: Option<bool>,
+        #[serde(default)]
         big_endian: Option<bool>,
+        #[serde(default)]
         start_value: Option<f64>,
     },
     BitsMinMax {
-        bits: u8,
+        bits: u16,
         min: f64,
         max: f64,
         // SHARED
+        #[serde(default)]
         unit: Option<String>,
-        start_bit: Option<u8>,
+        #[serde(default)]
+        start_bit: Option<u16>,
+        #[serde(default)]
         signed: Option<bool>,
+        #[serde(default)]
         big_endian: Option<bool>,
+        #[serde(default)]
         start_value: Option<f64>,
     },
     ResolutionMinMax {
@@ -33,25 +44,39 @@ enum JsonTxSignal {
         min: f64,
         max: f64,
         // SHARED
+        #[serde(default)]
         unit: Option<String>,
-        start_bit: Option<u8>,
+        #[serde(default)]
+        start_bit: Option<u16>,
+        #[serde(default)]
         signed: Option<bool>,
+        #[serde(default)]
         big_endian: Option<bool>,
+        #[serde(default)]
         start_value: Option<f64>,
     },
     Enum {
+        #[serde(rename = "enum")]
         enum_name: String,
+        #[serde(default)]
         start_value: Option<f64>,
-        start_bit: Option<u8>,
+        #[serde(default)]
+        start_bit: Option<u16>,
     },
     Bits {
-        bits: u8,
+        bits: u16,
+        #[serde(default)]
         scale: Option<f64>,
         // SHARED
+        #[serde(default)]
         unit: Option<String>,
-        start_bit: Option<u8>,
+        #[serde(default)]
+        start_bit: Option<u16>,
+        #[serde(default)]
         signed: Option<bool>,
+        #[serde(default)]
         big_endian: Option<bool>,
+        #[serde(default)]
         start_value: Option<f64>,
     },
 }
@@ -74,7 +99,7 @@ struct JsonTxMsg {
     data_capture: Option<JsonDataCapture>,
 }
 
-fn calculate_scale_offset(min: f64, max: f64, bits: u8) -> (f64, f64) {
+fn calculate_scale_offset(min: f64, max: f64, bits: u16) -> (f64, f64) {
     // return scale, offset
     ((max - min) / (2f64.powi(bits as i32) - 1.0), min)
 }
@@ -85,7 +110,7 @@ fn parse_signal(
     signal: JsonTxSignal,
     node_enums: &HashMap<String, CanEnum>,
     shared_enums: &HashMap<String, CanEnum>,
-    next_available_bit: u8,
+    next_available_bit: u16,
 ) -> CanSignal {
     // TODO description
     match signal {
@@ -156,7 +181,7 @@ fn parse_signal(
         } => CanSignal {
             name: signal_name,
             start_bit: start_bit.unwrap_or(next_available_bit),
-            bits: ((max - min) / resolution).log2().ceil() as u8,
+            bits: ((max - min) / resolution).log2().ceil() as u16,
             scale: resolution,
             offset: min,
             min,
@@ -247,7 +272,7 @@ fn parse_tx_msg(
 
     // Placeholder function to convert JsonTxSignal to CanSignal
     let mut signals: Vec<CanSignal> = Vec::new();
-    let mut next_available_bit = 0;
+    let mut next_available_bit: u16 = 0;
     let mut occupied_bits: Vec<Option<String>> = vec![None; MAX_LEN_BITS];
 
     // bombastic side eye
@@ -281,7 +306,7 @@ fn parse_tx_msg(
         );
 
         // Mark a signal's bits as occupied, by inserting the signal's name
-        for idx in signal.start_bit as usize..(signal.start_bit + signal.bits) as usize {
+        for idx in (signal.start_bit as usize)..((signal.start_bit + signal.bits) as usize) {
             if idx >= MAX_LEN_BITS {
                 panic!(
                     "Signal '{}' in '{}' is requesting to put a bit at invalid position {}. Messages have a maximum length of 64 bytes.",

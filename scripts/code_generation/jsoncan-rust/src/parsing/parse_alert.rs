@@ -36,7 +36,7 @@ fn parse_node_alert_signals(
 
     let mut signals: Vec<CanSignal> = Vec::new();
     let mut meta_data: HashMap<String, AlertMetaData> = HashMap::new();
-    let mut bit_pos: u8 = 0;
+    let mut bit_pos: u16 = 0;
 
     for (alerts_name, alerts_entry) in alerts {
         let alert_type_name = match alert_type {

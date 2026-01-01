@@ -1,21 +1,26 @@
 use std::collections::HashMap;
 use std::hash::Hash;
 
-use crate::{can_database::CanDatabase, parsing::JsonCanParser};
-fn setup() -> (CanDatabase) {
-    let cdb = match JsonCanParser::new("./json_configs/valid_json1".to_string()) {
-        Ok(parser) => CanDatabase::from(parser),
-        Err(_) => panic!("Failed to create parser"),
-    };
+use crate::{
+    can_database::CanDatabase,
+    parsing::{JsonCanParser, ParseError},
+};
 
-    return (cdb);
+fn setup() -> Result<CanDatabase, ParseError> {
+    let _can_data_dir = std::path::Path::new(file!()).parent().unwrap();
+    Ok(CanDatabase::from(JsonCanParser::new(format!(
+        "{}/json_configs/valid_json1",
+        _can_data_dir.display()
+    ))?))
 }
 
-pub fn assert_setequal<T, I1, I2>(iter1: I1, iter2: I2) -> bool
+fn assert_setequal<S, T, I1, I2>(iter1: I1, iter2: I2) -> bool
 where
+    S: Eq + Hash,
     T: Eq + Hash,
-    I1: Iterator<Item = T>,
+    I1: Iterator<Item = S>,
     I2: Iterator<Item = T>,
+    HashMap<S, i32>: PartialEq<HashMap<T, i32>>,
 {
     let mut counts1 = HashMap::new();
     for item in iter1 {
@@ -32,25 +37,61 @@ where
 
 #[cfg(test)]
 mod node_tests {
+    use crate::can_database::CanDatabase;
+
     // These tests check that nodes are created correctly.
-    use super::*;
+    use super::{assert_setequal, setup};
     use std::collections::HashSet;
 
-    // fn get_message_from_ecu() {}
-    //     def get_messages_from_ecu(self, ecu_name: str) -> Set[str]:
-    //         raw = [
-    //             msg.name
-    //             for msg in self.cdb_valid.msgs.values()
-    //             if msg.tx_node_name == ecu_name
-    //         ]
-    //         setted = set(raw)
-    //         self.assertEqual(len(raw), len(setted))
-    //         return setted
+    static ECU1_MSGS: [&str; 6] = [
+        "ECU1_BasicSignalTypes",
+        "ECU1_DecimalNumbers",
+        "ECU1_DbcMatching",
+        "ECU1_MinMaxClamping",
+        "ECU1_Debug_Only",
+        "ECU1_LongMessage",
+    ];
+    static ECU1_ALERTS: [&str; 6] = [
+        "ECU1_Warnings",
+        "ECU1_WarningsCounts",
+        "ECU1_Faults",
+        "ECU1_FaultsCounts",
+        "ECU1_Info",
+        "ECU1_InfoCounts",
+    ];
+    // static ECU2_MSGS: [&str; 1] = ["ECU2_BasicSignalTypes"];
+    static ECU3_MSGS: [&str; 1] = ["ECU3_TEST"];
+    static ECU3_ALERTS: [&str; 6] = [
+        "ECU3_Warnings",
+        "ECU3_WarningsCounts",
+        "ECU3_Faults",
+        "ECU3_FaultsCounts",
+        "ECU3_Info",
+        "ECU3_InfoCounts",
+    ];
+    static ECU4_MSGS: [&str; 1] = ["ECU4_TEST"];
+    static ECU4_ALERTS: [&str; 6] = [
+        "ECU4_Warnings",
+        "ECU4_WarningsCounts",
+        "ECU4_Faults",
+        "ECU4_FaultsCounts",
+        "ECU4_Info",
+        "ECU4_InfoCounts",
+    ];
+    static ECU5_MSGS: [&str; 1] = ["ECU5_TEST"];
+    static ECU5_ALERTS: [&str; 6] = [
+        "ECU5_Warnings",
+        "ECU5_WarningsCounts",
+        "ECU5_Faults",
+        "ECU5_FaultsCounts",
+        "ECU5_Info",
+        "ECU5_InfoCounts",
+    ];
 
     #[test]
     fn test_all_nodes_present() {
         // Checks that ECU1-5 are the only nodes present in the database.
-        let (cdb) = setup();
+        let cdb = setup().unwrap();
         assert_setequal(
             cdb.nodes.keys(),
             [
@@ -66,7 +107,7 @@ mod node_tests {
 
     #[test]
     fn test_node_on_busses() {
-        let (cdb) = setup();
+        let cdb = setup().unwrap();
         assert_setequal(
             cdb.nodes.get("ECU1").unwrap().bus_names.iter(),
             ["can1".to_string(), "can3".to_string()].iter(),
@@ -89,63 +130,108 @@ mod node_tests {
         );
     }
 
+    fn get_messages_from_ecu(cdb: &CanDatabase, node_name: &str) -> HashSet<String> {
+        cdb.msgs
+            .iter()
+            .filter(|(_msg_name, msg)| msg.tx_node_name == node_name)
+            .map(|(msg_name, _msg)| msg_name.clone())
+            .collect::<HashSet<String>>()
+    }
+
     #[test]
     fn test_all_tx_messages_present() {
         // Checks that all tx/rx messages are present
-        let (cdb) = setup();
+        let cdb = setup().unwrap();
+
+        assert_setequal(
+            get_messages_from_ecu(&cdb, "ECU1").into_iter(),
+            ECU1_MSGS
+                .iter()
+                .chain(ECU1_ALERTS.iter())
+                .map(|s| s.to_string()),
+        );
+        assert_setequal(
+            get_messages_from_ecu(&cdb, "ECU3").into_iter(),
+            ECU3_MSGS
+                .iter()
+                .chain(ECU3_ALERTS.iter())
+                .map(|s| s.to_string()),
+        );
+        assert_setequal(
+            get_messages_from_ecu(&cdb, "ECU4").into_iter(),
+            ECU4_MSGS
+                .iter()
+                .chain(ECU4_ALERTS.iter())
+                .map(|s| s.to_string()),
+        );
+        assert_setequal(
+            get_messages_from_ecu(&cdb, "ECU5").into_iter(),
+            ECU5_MSGS
+                .iter()
+                .chain(ECU5_ALERTS.iter())
+                .map(|s| s.to_string()),
+        );
     }
-    //     def test_all_tx_messages_present(self):
-    //         """
-    //         :return:
-    //         """
-    //         self.assertSetEqual(
-    //             self.get_messages_from_ecu("ECU1"), self.ecu1_msgs | self.ec1_alerts
-    //         )
-    //         self.assertSetEqual(self.get_messages_from_ecu("ECU2"), self.ecu2_msgs)
-    //         self.assertSetEqual(
-    //             self.get_messages_from_ecu("ECU3"), self.ecu3_msgs | self.ecu3_alerts
-    //         )
-    //         self.assertSetEqual(
-    //             self.get_messages_from_ecu("ECU4"), self.ecu4_msgs | self.ecu4_alerts
-    //         )
-    //         self.assertSetEqual(
-    //             self.get_messages_from_ecu("ECU5"), self.ecu5_msgs | self.ecu5_alerts
-    //         )
 }
 
 #[cfg(test)]
 mod bus_tests {
     use super::*;
-    //     def test_busses_present(self):
-    //         self.assertSetEqual(set(self.cdb_valid.buses.keys()), {"can1", "can2", "can3"})
 
-    //     def test_bus1_properties(self):
-    //         can1 = self.cdb_valid.buses["can1"]
-    //         self.assertEqual(can1.name, "can1")
-    //         self.assertEqual(can1.bus_speed, 4000)
-    //         self.assertEqual(can1.fd, True)
-    //         self.assertEqual(can1.default_mode, "default")
-    //         self.assertSetEqual(set(can1.modes), {"default", "debug"})
+    #[test]
+    fn teset_busses_present() {
+        let cdb = setup().unwrap();
+        assert_setequal(
+            cdb.buses.keys(),
+            ["can1".to_string(), "can2".to_string(), "can3".to_string()].iter(),
+        );
+    }
 
-    //     def test_bus2_properties(self):
-    //         can2 = self.cdb_valid.buses["can2"]
-    //         self.assertEqual(can2.name, "can2")
-    //         self.assertEqual(can2.bus_speed, 1000)
-    //         self.assertEqual(can2.fd, False)
-    //         self.assertEqual(can2.default_mode, "default")
-    //         self.assertSetEqual(set(can2.modes), {"default", "debug"})
+    #[test]
+    fn test_bus1_properties() {
+        let cdb = setup().unwrap();
+        let can1 = cdb.buses.get("can1").unwrap();
+        assert_eq!(can1.name, "can1");
+        assert_eq!(can1.bus_speed, 4000);
+        assert_eq!(can1.fd, true);
+        assert_eq!(can1.default_mode, "default");
+        assert_setequal(
+            can1.modes.iter(),
+            ["default".to_string(), "debug".to_string()].iter(),
+        );
+    }
 
-    //     def test_bus3_properties(self):
-    //         can3 = self.cdb_valid.buses["can3"]
-    //         self.assertEqual(can3.name, "can3")
-    //         self.assertEqual(can3.bus_speed, 500)
-    //         self.assertEqual(can3.fd, False)
-    //         self.assertEqual(can3.default_mode, "default")
-    //         self.assertSetEqual(set(can3.modes), {"default", "debug"})
+    #[test]
+    fn test_bus2_properties() {
+        let cdb = setup().unwrap();
+        let can2 = cdb.buses.get("can2").unwrap();
+        assert_eq!(can2.name, "can2");
+        assert_eq!(can2.bus_speed, 1000);
+        assert_eq!(can2.fd, false);
+        assert_eq!(can2.default_mode, "default");
+        assert_setequal(
+            can2.modes.iter(),
+            ["default".to_string(), "debug".to_string()].iter(),
+        );
+    }
+
+    #[test]
+    fn test_bus3_properties() {
+        let cdb = setup().unwrap();
+        let can3 = cdb.buses.get("can3").unwrap();
+        assert_eq!(can3.name, "can3");
+        assert_eq!(can3.bus_speed, 500);
+        assert_eq!(can3.fd, false);
+        assert_eq!(can3.default_mode, "default");
+        assert_setequal(
+            can3.modes.iter(),
+            ["default".to_string(), "debug".to_string()].iter(),
+        );
+    }
 }
 
 mod consistency_check_tests {
-    use super::*;
+    // use super::*;
     //     def test_check_consistency(self):
     //         # check forign keys for each objects
     //         # check if the name or id are overlapping

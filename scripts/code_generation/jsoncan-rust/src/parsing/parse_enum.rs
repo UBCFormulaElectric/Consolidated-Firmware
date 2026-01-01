@@ -26,10 +26,13 @@ fn parse_enum(enum_data_path: String) -> HashMap<String, CanEnum> {
     enums
 }
 
-pub fn parse_shared_enums(can_data_dir: &String) -> HashMap<String, CanEnum> {
+pub fn parse_shared_enums(can_data_dir: &str) -> HashMap<String, CanEnum> {
     parse_enum(format!("{}/shared_enum.json", can_data_dir))
 }
 
 pub fn parse_node_enum_data(can_data_dir: &String, node_name: &String) -> HashMap<String, CanEnum> {
-    parse_enum(format!("{}/{}.json", can_data_dir, node_name))
+    parse_enum(format!(
+        "{}/{}/{}_enum.json",
+        can_data_dir, node_name, node_name
+    ))
 }
