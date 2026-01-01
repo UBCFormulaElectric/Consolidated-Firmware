@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::parsing::JsonCanParser;
+use crate::parsing::{JsonCanParser, ParseError};
 
 pub struct CanBus {
     pub name: String,
@@ -15,7 +15,7 @@ pub struct CanBus {
 
 pub enum RxMsgNames {
     All,
-    RxMesgs(HashSet<String>), // TODO check if we need this to be a set? not a vector
+    RxMsgs(HashSet<String>), // TODO check if we need this to be a set? not a vector
 }
 
 //     struct for fully describing a CAN node.
@@ -26,7 +26,52 @@ pub struct CanNode {
     // busses which the node is attached to, foreign key into CanDatabase.msgs
     pub bus_names: Vec<String>,
     pub rx_msgs_names: RxMsgNames, // list of messages that it is listening
-    pub fd: bool,
+}
+
+impl CanNode {
+    pub fn add_rx_msg(&mut self, rx_msg: &CanMessage) -> Result<(), ParseError> {
+        // This function registers a message which is to be received by a node on the bus
+
+        // Note that this function does not know
+        // 1. which bus the sender will tx will send the message on
+        // 2. which bus the receiver will rx the message on
+
+        // This function
+        // 1. enters the current node into the list of nodes that the message is rx'd by
+        // 2. adds the message name to the list of messages received by the given node
+        //         # if we are already listening to all, we don't need to register this specific message
+        //         # in particular, this is useful for alerts which will blindly make everyone accept them
+        //         if type(self._nodes[rx_node_name].rx_msgs_names) == AllRxMsgs:
+        //             return
+
+        if rx_msg.tx_node_name == *self.name {
+            return Err(ParseError::RxLoopback {
+                rx_node_name: self.name.clone(),
+                rx_msg_name: rx_msg.name.clone(),
+            });
+        }
+
+        match &mut self.rx_msgs_names {
+            RxMsgNames::All => {
+                // this cannot happen because we checked for it earlier
+                panic!(
+                    "Node '{}' is already set to receive all messages, cannot add specific message '{}'",
+                    self.name, rx_msg.name
+                );
+            }
+            RxMsgNames::RxMsgs(msg_names) => {
+                if msg_names.contains(&rx_msg.name) {
+                    return Err(ParseError::RxDuplicate {
+                        rx_node_name: self.name.clone(),
+                        rx_msg_name: rx_msg.name.clone(),
+                    });
+                }
+                msg_names.insert(rx_msg.name.clone());
+            }
+        }
+
+        Ok(())
+    }
 }
 
 pub enum CanSignalType {

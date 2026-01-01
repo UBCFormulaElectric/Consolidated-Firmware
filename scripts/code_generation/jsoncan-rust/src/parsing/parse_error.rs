@@ -11,10 +11,6 @@ pub enum ParseError {
         tx_node_name_2: String,
         tx_msg_name: String,
     },
-    TxFDUnsupported {
-        fd_msg_name: String,
-        non_fd_node_name: String,
-    },
     DuplicateTxSignalName {
         signal_name: String,
         tx_msg_name_1: String,
@@ -27,10 +23,6 @@ pub enum ParseError {
     RxLoopback {
         rx_node_name: String,
         rx_msg_name: String,
-    },
-    RxFDUnsupported {
-        fd_msg_name: String,
-        non_fd_node_name: String,
     },
     RxDuplicate {
         rx_node_name: String,
@@ -68,14 +60,6 @@ impl Debug for ParseError {
                 "Duplicate transmitted signal name '{}' found in messages '{}' and '{}'. Signal names must be unique across all transmitted messages.",
                 signal_name, tx_msg_name_1, tx_msg_name_2
             )?,
-            ParseError::TxFDUnsupported {
-                fd_msg_name,
-                non_fd_node_name,
-            } => write!(
-                f,
-                "Message '{}' is configured as CAN FD but node '{}' does not support CAN FD. All transmitting nodes for a message must support CAN FD if the message is CAN FD.",
-                fd_msg_name, non_fd_node_name
-            )?,
             ParseError::RxMsgNotFound {
                 rx_node_name,
                 rx_msg_name: msg_name,
@@ -91,14 +75,6 @@ impl Debug for ParseError {
                 f,
                 "'{}' cannot both transmit and receive '{}'",
                 rx_node_name, rx_msg_name
-            )?,
-            ParseError::RxFDUnsupported {
-                fd_msg_name,
-                non_fd_node_name,
-            } => write!(
-                f,
-                "Message '{}' is an FD message, but an RX node '{}' isn't FD-capable and so can't receive it!",
-                fd_msg_name, non_fd_node_name
             )?,
             ParseError::RxDuplicate {
                 rx_node_name,

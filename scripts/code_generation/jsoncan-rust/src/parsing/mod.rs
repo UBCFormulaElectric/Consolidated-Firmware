@@ -24,27 +24,21 @@ use parse_tx::parse_tx_data;
 //         - duplication checks are not interpretation
 //     Other functions consist the logical representation
 pub struct JsonCanParser {
-    // class JsonCanParser:
-    //     # popoulate these for CanDatabase
-    //     _nodes: Dict[str, CanNode]  # _nodes[node_name] gives metadata for node_name
-    //     _busses: Dict[str, CanBus]  # _bus_config[bus_name] gives metadata for bus_name
-    //     _msgs: Dict[str, CanMessage]  # _msgs[msg_name] gives metadata for msg_name
-    //     _alerts: Dict[
-    //         str, List[CanAlert]
-    //     ]  # _alerts[node_name] = dict[CanAlert, AlertsEntry]
-    //     _forwarding: List[BusForwarder]  # _forwarding[bus_name] gives metadata for bus_name
-    //     _enums: Dict[str, CanEnum]  # _enums[enum_name] gives metadata for enum_name
-    //     _collects_data: Dict[
-    //         str, bool
-    //     ]  # _collects_data[node_name] = True if the node collects data
-    //     _signals_to_msgs: Dict[str, CanMessage]  # _signals_to_msgs[signal_name] gives the metadata for the message that contains the signal
+    // nodes[node_name] gives metadata for node_name
     pub nodes: HashMap<String, CanNode>,
+    // busses[bus_name] gives metadata for bus_name
     pub busses: HashMap<String, CanBus>,
+    // _msgs[msg_name] gives metadata for msg_name
     pub msgs: HashMap<String, CanMessage>,
+    // _alerts[node_name] = dict[CanAlert, AlertsEntry]
     pub alerts: HashMap<String, Vec<CanAlert>>,
+    // _enums[enum_name] gives metadata for enum_name
     pub enums: HashMap<String, CanEnum>,
+    // _collects_data[node_name] = True if the node collects data
     pub collects_data: HashMap<String, bool>,
+    // _forwarding[bus_name] gives metadata for bus_name
     pub forwarding: Vec<BusForwarder>,
+    // _signals_to_msgs[signal_name] gives the metadata for the message that contains the signal
 }
 
 // From a specified directory, creates empty CanNode objects for each represented nodes (from folders)
@@ -67,78 +61,11 @@ fn list_nodes_from_folders(can_data_dir: &String) -> Vec<String> {
     node_names
 }
 
-fn add_rx_msg(
-    rx_msg_name: &String,
-    rx_node_name: &String,
-    msgs: &HashMap<String, CanMessage>,
-    nodes: &mut HashMap<String, CanNode>,
-) -> Result<(), ParseError> {
-    // This function registers a message which is to be received by a node on the bus
-
-    // Note that this function does not know
-    // 1. which bus the sender will tx will send the message on
-    // 2. which bus the receiver will rx the message on
-
-    // This function
-    // 1. enters the current node into the list of nodes that the message is rx'd by
-    // 2. adds the message name to the list of messages received by the given node
-    //         # if we are already listening to all, we don't need to register this specific message
-    //         # in particular, this is useful for alerts which will blindly make everyone accept them
-    //         if type(self._nodes[rx_node_name].rx_msgs_names) == AllRxMsgs:
-    //             return
-
-    // Check if this message is defined
-    let rx_msg = match msgs.get(rx_msg_name) {
-        Some(msg) => msg,
-        None => {
-            return Err(ParseError::RxMsgNotFound {
-                rx_node_name: rx_node_name.clone(),
-                rx_msg_name: rx_msg_name.clone(),
-            });
-        }
-    };
-    if rx_msg.tx_node_name == *rx_node_name {
-        return Err(ParseError::RxLoopback {
-            rx_node_name: rx_node_name.clone(),
-            rx_msg_name: rx_msg_name.clone(),
-        });
-    }
-
-    if rx_msg.requires_fd() && !nodes.get(rx_node_name).expect("Node should exist").fd {
-        return Err(ParseError::RxFDUnsupported {
-            fd_msg_name: rx_msg_name.clone(),
-            non_fd_node_name: rx_node_name.clone(),
-        });
-    }
-
-    let node = nodes.get_mut(rx_node_name).expect("Node should exist??");
-    match &mut node.rx_msgs_names {
-        RxMsgNames::All => {
-            // this cannot happen because we checked for it earlier
-            panic!(
-                "Node '{}' is already set to receive all messages, cannot add specific message '{}'",
-                rx_node_name, rx_msg_name
-            );
-        }
-        RxMsgNames::RxMesgs(msg_names) => {
-            if msg_names.contains(rx_msg_name) {
-                return Err(ParseError::RxDuplicate {
-                    rx_node_name: rx_node_name.clone(),
-                    rx_msg_name: rx_msg_name.clone(),
-                });
-            }
-            msg_names.insert(rx_msg_name.clone());
-        }
-    }
-
-    Ok(())
-}
-
 // TODO perhaps add a version which takes a list of msgs idk tho cuz this is not well parallelized
 fn add_tx_msg(
     msg: CanMessage,
     tx_node_name: &String,
-    tx_node: &CanNode,
+    // tx_node: &CanNode,
     msgs: &mut HashMap<String, CanMessage>,
     // signal_name_to_msgs: &mut HashMap<String, &CanMessage>,
 ) -> Result<(), ParseError> {
@@ -168,12 +95,13 @@ fn add_tx_msg(
         });
     }
 
-    if msg.requires_fd() && !tx_node.fd {
-        return Err(ParseError::TxFDUnsupported {
-            fd_msg_name: msg.name.clone(),
-            non_fd_node_name: tx_node_name.clone(),
-        });
-    }
+    // TODO determine if a message is FD compatible when it is routed
+    // if msg.requires_fd() && !tx_node.fd {
+    //     return Err(ParseError::TxFDUnsupported {
+    //         fd_msg_name: msg.name.clone(),
+    //         non_fd_node_name: tx_node_name.clone(),
+    //     });
+    // }
 
     // register the message with the database of all messages
 
@@ -212,7 +140,7 @@ impl JsonCanParser {
         let mut nodes: HashMap<String, CanNode> = node_names
             .iter()
             .map(|node_name| {
-                let bus_names: Vec<String> = busses
+                let bus_names_with_node: Vec<String> = busses
                     .iter()
                     .filter_map(|(bus_name, bus)| {
                         if bus.node_names.contains(node_name) {
@@ -223,21 +151,18 @@ impl JsonCanParser {
                     })
                     .collect();
 
-                if bus_names.len() == 0 {
-                    panic!("Node {} has no bus", node_name);
-                }
-
-                let fd: bool = busses
-                    .values()
-                    .any(|bus| bus.node_names.contains(node_name) && bus.fd);
+                assert!(
+                    bus_names_with_node.len() > 0,
+                    "Node '{}' must be on at least one bus",
+                    node_name
+                );
 
                 return (
                     node_name.clone(),
                     CanNode {
                         name: node_name.clone(),
-                        bus_names: bus_names,
-                        rx_msgs_names: RxMsgNames::RxMesgs(HashSet::new()),
-                        fd: fd,
+                        bus_names: bus_names_with_node,
+                        rx_msgs_names: RxMsgNames::RxMsgs(HashSet::new()),
                     },
                 );
             })
@@ -246,39 +171,36 @@ impl JsonCanParser {
         // PARSE TX JSON DATA
         // collect shared enums outside of loop
         let shared_enums: HashMap<String, CanEnum> = parse_shared_enums(&can_data_dir);
-        let mut enums: HashMap<String, CanEnum> = shared_enums.clone();
+        let mut enums: HashMap<String, CanEnum> = HashMap::new(); // PREVIOUSLY shared_enums.clone(); maybe merge them at end?
         // populate this boy
         let mut msgs: HashMap<String, CanMessage> = HashMap::new();
         // let mut signal_name_to_msgs: HashMap<String, &CanMessage> = HashMap::new();
-        for node_name in &node_names {
-            let node_enums = parse_node_enum_data(&can_data_dir, &node_name);
+        for tx_node_name in &node_names {
+            let node_enums = parse_node_enum_data(&can_data_dir, &tx_node_name);
             enums.extend(node_enums.clone());
-            for tx_msg in parse_tx_data(&can_data_dir, &node_name, &node_enums, &shared_enums) {
-                if let Err(e) = add_tx_msg(
-                    tx_msg,
-                    &node_name,
-                    nodes
-                        .get(node_name)
-                        .expect("Node should exist, we just created it lmao"),
-                    &mut msgs,
-                ) {
-                    return Err(e);
-                }
+            for tx_msg in parse_tx_data(&can_data_dir, &tx_node_name, &node_enums, &shared_enums) {
+                add_tx_msg(tx_msg, &tx_node_name, &mut msgs)?
             }
         }
 
         for rx_node_name in &node_names {
-            let bus_rx_msgs_json = parse_json_rx_data(&can_data_dir, &rx_node_name);
-            match bus_rx_msgs_json {
+            let rx_node = nodes.get_mut(rx_node_name).expect("Node not found??");
+            match parse_json_rx_data(&can_data_dir, &rx_node_name) {
                 RxMsgNames::All => {
-                    let node = nodes.get_mut(rx_node_name).expect("Node not found??");
-                    node.rx_msgs_names = RxMsgNames::All;
+                    rx_node.rx_msgs_names = RxMsgNames::All;
                 }
-                RxMsgNames::RxMesgs(msg_names) => {
+                RxMsgNames::RxMsgs(msg_names) => {
                     for msg_name in msg_names {
-                        if let Err(e) = add_rx_msg(&msg_name, &rx_node_name, &msgs, &mut nodes) {
-                            return Err(e);
-                        }
+                        let rx_msg: &CanMessage = match msgs.get(&msg_name) {
+                            Some(msg) => msg,
+                            None => {
+                                return Err(ParseError::RxMsgNotFound {
+                                    rx_node_name: rx_node_name.clone(),
+                                    rx_msg_name: msg_name,
+                                });
+                            }
+                        };
+                        rx_node.add_rx_msg(rx_msg)?
                     }
                 }
             }
@@ -307,28 +229,19 @@ impl JsonCanParser {
         for (tx_node_name, alert_msgs) in nodes_alert_msgs {
             for alert_msg in alert_msgs {
                 let alert_msg_name = alert_msg.name.clone();
-
                 // register the message with the database of all messages
-                if let Err(e) = add_tx_msg(
-                    alert_msg,
-                    &tx_node_name,
-                    nodes
-                        .get(&tx_node_name)
-                        .expect("Node should exist, we just created it lmao"),
-                    &mut msgs,
-                ) {
-                    return Err(e);
-                }
-
+                add_tx_msg(alert_msg, &tx_node_name, &mut msgs)?;
+                let alert_msg: &CanMessage = msgs
+                    .get(&alert_msg_name)
+                    .expect("literally look at the above line");
                 for other_rx_node_name in &alert_boards {
                     if tx_node_name == *other_rx_node_name {
                         continue;
                     }
-                    if let Err(e) =
-                        add_rx_msg(&alert_msg_name, other_rx_node_name, &msgs, &mut nodes)
-                    {
-                        return Err(e);
-                    }
+                    nodes
+                        .get_mut(other_rx_node_name)
+                        .expect("Node should exist??")
+                        .add_rx_msg(alert_msg)?;
                 }
             }
         }

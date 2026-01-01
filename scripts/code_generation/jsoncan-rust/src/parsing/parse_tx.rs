@@ -372,7 +372,15 @@ pub fn parse_tx_data(
     let can_messages: Vec<CanMessage> = json_tx_msgs
         .into_iter()
         .filter(|(_, msg)| !msg.disabled.unwrap_or(false))
-        .map(|(name, msg)| parse_tx_msg(name, msg, tx_node_name, &node_enums, &shared_enums))
+        .map(|(name, msg)| {
+            parse_tx_msg(
+                format!("{}_{}", tx_node_name, name),
+                msg,
+                tx_node_name,
+                &node_enums,
+                &shared_enums,
+            )
+        })
         .collect();
     can_messages
 }

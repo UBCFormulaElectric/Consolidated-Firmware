@@ -2,6 +2,7 @@ use crate::can_database::RxMsgNames;
 use serde::Deserialize;
 
 #[derive(Deserialize)]
+#[serde(untagged)]
 enum JsonRxEntry {
     All(String),
     RxMsgs(Vec<String>),
@@ -13,7 +14,7 @@ struct JsonRxData {
 }
 
 pub fn parse_json_rx_data(can_data_dir: &str, rx_node_name: &str) -> RxMsgNames {
-    let file_path = format!("{}/{}/{}_tx.json", can_data_dir, rx_node_name, rx_node_name);
+    let file_path = format!("{}/{}/{}_rx.json", can_data_dir, rx_node_name, rx_node_name);
     let file_content = std::fs::read_to_string(file_path).expect(&format!(
         "Failed to read TX JSON file for node {}",
         rx_node_name
@@ -35,6 +36,6 @@ pub fn parse_json_rx_data(can_data_dir: &str, rx_node_name: &str) -> RxMsgNames 
             );
             RxMsgNames::All
         }
-        JsonRxEntry::RxMsgs(msg_list) => RxMsgNames::RxMesgs(msg_list.into_iter().collect()),
+        JsonRxEntry::RxMsgs(msg_list) => RxMsgNames::RxMsgs(msg_list.into_iter().collect()),
     }
 }
