@@ -22,7 +22,7 @@ struct AlertsSchema {
     info: HashMap<String, AlertEntrySchema>,
 }
 
-struct JsonAlert {
+pub struct JsonAlert {
     pub id: u32,
     pub count_id: u32,
     pub alerts: Vec<CanAlert>,

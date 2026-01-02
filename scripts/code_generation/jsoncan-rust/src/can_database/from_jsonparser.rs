@@ -421,7 +421,7 @@ impl CanDatabase {
                     tx_node_name: node.name.clone(),
                     modes: msg.modes,
                     signals,
-                });
+                })?;
             }
 
             if let Some(alerts) = node.alerts {

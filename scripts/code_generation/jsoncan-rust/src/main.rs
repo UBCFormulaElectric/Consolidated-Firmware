@@ -5,12 +5,14 @@ mod parsing;
 mod reroute;
 mod test;
 
+use clap::Parser;
 use std::path::Path;
 
-use crate::{can_database::CanDatabase, dbcgen::DbcGenerator, reroute::resolve_tx_rx_reroute};
-use clap::Parser;
+use can_database::CanDatabase;
 use codegen::cpp::CModule;
+use dbcgen::DbcGenerator;
 use parsing::JsonCanParser;
+use reroute::resolve_tx_rx_reroute;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]

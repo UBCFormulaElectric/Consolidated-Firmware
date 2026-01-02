@@ -16,7 +16,7 @@ use parse_tx::{JsonCanMessage, parse_tx_data};
 
 pub static DEFAULT_BUS_MODE: &str = "default";
 
-struct JsonNode {
+pub struct JsonNode {
     pub name: String,
     pub collects_data: bool,
     pub enums: Vec<CanEnum>,
