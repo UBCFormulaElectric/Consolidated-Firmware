@@ -7,24 +7,19 @@ fn parse_enum(enum_data_path: String) -> Vec<CanEnum> {
         "Failed to read '{}'. Ensure it exists and is readable.",
         enum_data_path
     ));
-
     // parse json
     let enums_json: HashMap<String, HashMap<String, u32>> = match serde_json::from_str(&data) {
         Ok(value) => value,
-        Err(e) => panic!("Failed to parse shared_enum.json: {}", e),
+        Err(e) => panic!("Failed to parse {}: {}", enum_data_path, e),
     };
 
-    // let mut enums: HashMap<String, CanEnum> = HashMap::new();
-    let mut enums: Vec<CanEnum> = Vec::new();
-    for (enum_name, values_map) in enums_json {
-        let can_enum = CanEnum {
-            name: enum_name.clone(),
+    enums_json
+        .into_iter()
+        .map(|(enum_name, values_map)| CanEnum {
+            name: enum_name,
             values: values_map,
-        };
-        enums.push(can_enum);
-    }
-
-    enums
+        })
+        .collect()
 }
 
 pub fn parse_shared_enums(can_data_dir: &str) -> Vec<CanEnum> {

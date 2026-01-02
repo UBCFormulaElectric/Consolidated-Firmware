@@ -1,14 +1,14 @@
 use crate::can_database::{BusForwarder, CanBus};
 
 #[derive(serde::Deserialize)]
-struct JsonBusForwarder {
+struct BusForwarderSchema {
     forwarder: String,
     bus1: String,
     bus2: String,
 }
 
 #[derive(serde::Deserialize)]
-struct JsonBusData {
+struct BusDataSchema {
     name: String,
     bus_speed: u32,
     modes: Vec<String>,
@@ -18,9 +18,9 @@ struct JsonBusData {
 }
 
 #[derive(serde::Deserialize)]
-struct JsonBus {
-    forwarders: Vec<JsonBusForwarder>,
-    buses: Vec<JsonBusData>,
+struct BusSchema {
+    forwarders: Vec<BusForwarderSchema>,
+    buses: Vec<BusDataSchema>,
     loggers: Option<Vec<String>>,
 }
 
@@ -34,7 +34,8 @@ pub fn parse_bus_data(
         can_data_dir
     ));
 
-    let json_bus: JsonBus = serde_json::from_str(&file_content).expect("Failed to parse bus.json");
+    let json_bus: BusSchema =
+        serde_json::from_str(&file_content).expect("Failed to parse bus.json");
 
     // dynamic validation of bus data
     let busses: Vec<CanBus> = json_bus

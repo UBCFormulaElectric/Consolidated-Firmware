@@ -1,8 +1,8 @@
 use crate::can_database::{CanAlert, CanAlertType};
-use std::{collections::HashMap, vec};
+use std::collections::HashMap;
 
 #[derive(serde::Deserialize)]
-struct AlertMetaData {
+struct AlertEntrySchema {
     id: u32,
     description: String,
     #[serde(default)]
@@ -10,31 +10,31 @@ struct AlertMetaData {
 }
 
 #[derive(serde::Deserialize)]
-struct AlertsJson {
+struct AlertsSchema {
     warnings_id: u32,
     warnings_counts_id: u32,
     faults_id: u32,
     faults_counts_id: u32,
     info_id: u32,
     info_counts_id: u32,
-    warnings: HashMap<String, AlertMetaData>,
-    faults: HashMap<String, AlertMetaData>,
-    info: HashMap<String, AlertMetaData>,
+    warnings: HashMap<String, AlertEntrySchema>,
+    faults: HashMap<String, AlertEntrySchema>,
+    info: HashMap<String, AlertEntrySchema>,
 }
 
-struct Alert {
+struct JsonAlert {
     pub id: u32,
     pub count_id: u32,
     pub alerts: Vec<CanAlert>,
 }
 
-pub struct JsonAlert {
-    pub infos: Alert,
-    pub warnings: Alert,
-    pub faults: Alert,
+pub struct JsonAlerts {
+    pub infos: JsonAlert,
+    pub warnings: JsonAlert,
+    pub faults: JsonAlert,
 }
 
-pub fn parse_alert_data(can_data_dir: &String, node_name: &String) -> Option<JsonAlert> {
+pub fn parse_alert_data(can_data_dir: &String, node_name: &String) -> Option<JsonAlerts> {
     let file_path = format!("{}/{}/{}_alerts.json", can_data_dir, node_name, node_name);
     let file_content = match std::fs::read_to_string(file_path) {
         Ok(s) => s,
@@ -47,7 +47,7 @@ pub fn parse_alert_data(can_data_dir: &String, node_name: &String) -> Option<Jso
         },
     };
 
-    let alerts_json: AlertsJson = match serde_json::from_str(&file_content) {
+    let alerts_json: AlertsSchema = match serde_json::from_str(&file_content) {
         Ok(v) => v,
         Err(e) => panic!(
             "Alerts JSON file is not valid JSON for node {}: {}",
@@ -112,18 +112,18 @@ pub fn parse_alert_data(can_data_dir: &String, node_name: &String) -> Option<Jso
         );
     }
 
-    Some(JsonAlert {
-        infos: Alert {
+    Some(JsonAlerts {
+        infos: JsonAlert {
             id: alerts_json.info_id,
             count_id: alerts_json.info_counts_id,
             alerts: info,
         },
-        warnings: Alert {
+        warnings: JsonAlert {
             id: alerts_json.warnings_id,
             count_id: alerts_json.warnings_counts_id,
             alerts: warnings,
         },
-        faults: Alert {
+        faults: JsonAlert {
             id: alerts_json.faults_id,
             count_id: alerts_json.faults_counts_id,
             alerts: faults,

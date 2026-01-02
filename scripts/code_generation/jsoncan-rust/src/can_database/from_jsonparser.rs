@@ -5,7 +5,7 @@ use crate::{
         CanAlert, CanAlertType, CanDatabase, CanEnum, CanMessage, CanNode, CanSignal,
         CanSignalType, error::CanDBError,
     },
-    parsing::{DEFAULT_BUS_MODE, JsonAlert, JsonCanParser, JsonTxSignal},
+    parsing::{DEFAULT_BUS_MODE, JsonAlerts, JsonCanParser, JsonTxSignal},
 };
 
 fn calculate_scale_offset(min: f64, max: f64, bits: u16) -> (f64, f64) {
@@ -283,7 +283,7 @@ fn parse_node_alert_signals(
     return (signals, vec![]);
 }
 
-fn generate_node_alert_msgs(node_name: &String, alerts_json: &JsonAlert) -> [CanMessage; 6] {
+fn generate_node_alert_msgs(node_name: &String, alerts_json: &JsonAlerts) -> [CanMessage; 6] {
     // Check alert messages ID are unique
     let warnings_name = format!("{}_Warnings", node_name);
     let faults_name = format!("{}_Faults", node_name);
