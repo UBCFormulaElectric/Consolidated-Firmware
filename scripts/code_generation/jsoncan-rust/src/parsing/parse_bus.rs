@@ -1,5 +1,4 @@
 use crate::can_database::{BusForwarder, CanBus};
-use std::collections::HashMap;
 
 #[derive(serde::Deserialize)]
 struct JsonBusForwarder {
@@ -28,7 +27,7 @@ struct JsonBus {
 pub fn parse_bus_data(
     can_data_dir: &String,
     node_names: &Vec<String>,
-) -> (HashMap<String, CanBus>, Vec<BusForwarder>, Vec<String>) {
+) -> (Vec<CanBus>, Vec<BusForwarder>, Vec<String>) {
     let file_path = format!("{}/bus.json", can_data_dir);
     let file_content = std::fs::read_to_string(file_path).expect(&format!(
         "Failed to read bus.json in CAN data directory {}",
@@ -38,7 +37,7 @@ pub fn parse_bus_data(
     let json_bus: JsonBus = serde_json::from_str(&file_content).expect("Failed to parse bus.json");
 
     // dynamic validation of bus data
-    let busses: HashMap<String, CanBus> = json_bus
+    let busses: Vec<CanBus> = json_bus
         .buses
         .into_iter()
         .map(|bus| {
@@ -53,17 +52,14 @@ pub fn parse_bus_data(
                     panic!("Node '{}' is not defined in the node JSON.", node);
                 }
             }
-            (
-                bus.name.clone(),
-                CanBus {
-                    name: bus.name,
-                    bus_speed: bus.bus_speed,
-                    modes: bus.modes,
-                    default_mode: bus.default_mode,
-                    node_names: bus.nodes,
-                    fd: bus.fd.unwrap_or(false),
-                },
-            )
+            CanBus {
+                name: bus.name,
+                bus_speed: bus.bus_speed,
+                modes: bus.modes,
+                default_mode: bus.default_mode,
+                node_names: bus.nodes,
+                fd: bus.fd.unwrap_or(false),
+            }
         })
         .collect();
 
@@ -71,10 +67,10 @@ pub fn parse_bus_data(
         .forwarders
         .into_iter()
         .map(|forwarder| {
-            if !busses.contains_key(&forwarder.bus1) {
+            if !busses.iter().any(|bus| bus.name == forwarder.bus1) {
                 panic!("Bus '{}' is not defined in the bus JSON.", forwarder.bus1);
             }
-            if !busses.contains_key(&forwarder.bus2) {
+            if !busses.iter().any(|bus| bus.name == forwarder.bus2) {
                 panic!("Bus '{}' is not defined in the bus JSON.", forwarder.bus2);
             }
             if !node_names.contains(&forwarder.forwarder) {
@@ -84,14 +80,14 @@ pub fn parse_bus_data(
                 );
             }
             BusForwarder {
-                bus1: forwarder.bus1,
-                bus2: forwarder.bus2,
+                bus1_name: forwarder.bus1,
+                bus2_name: forwarder.bus2,
                 forwarder_name: forwarder.forwarder,
             }
         })
         .collect();
 
-    let loggers = match json_bus.loggers {
+    let logger_node_names = match json_bus.loggers {
         Some(logger_list) => {
             for logger in &logger_list {
                 if !node_names.contains(logger) {
@@ -103,5 +99,5 @@ pub fn parse_bus_data(
         None => Vec::new(),
     };
 
-    return (busses, forwarders, loggers);
+    return (busses, forwarders, logger_node_names);
 }
