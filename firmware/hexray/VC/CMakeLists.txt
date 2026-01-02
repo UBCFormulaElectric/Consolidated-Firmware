@@ -52,13 +52,22 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     set(STM32_HAL_SRCS
+            "stm32h7xx_hal_adc_ex.c"
+            "stm32h7xx_hal_adc.c"
             "stm32h7xx_hal.c"
             "stm32h7xx_hal_rcc.c"
             "stm32h7xx_hal_rcc_ex.c"
             "stm32h7xx_hal_pwr_ex.c"
             "stm32h7xx_hal_cortex.c"
+            "stm32h7xx_hal_dma_ex.c"
+            "stm32h7xx_hal_dma.c"
             "stm32h7xx_hal_exti.c"
+            "stm32h7xx_hal_fdcan.c"
+            "stm32h7xx_hal_gpio.c"
+            "stm32h7xx_hal_pcd.c"
+            "stm32h7xx_hal_pcd_ex.c"
             "stm32h7xx_hal_tim.c"
+            "stm32h7xx_ll_usb.c"
     )
     stm32h733xx_cube_library(
             "hexray_VC_stm32"

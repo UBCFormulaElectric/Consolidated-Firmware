@@ -110,7 +110,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         PC5     ------> ADC1_INP8
         PB0     ------> ADC1_INP9
         */
-        GPIO_InitStruct.Pin  = R_INV_SNS_Pin | BMS_SNS_s__Pin;
+        GPIO_InitStruct.Pin  = R_INV_SNS_Pin | BMS_SNS_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -191,7 +191,7 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
         PC5     ------> ADC1_INP8
         PB0     ------> ADC1_INP9
         */
-        HAL_GPIO_DeInit(GPIOA, R_INV_SNS_Pin | BMS_SNS_s__Pin);
+        HAL_GPIO_DeInit(GPIOA, R_INV_SNS_Pin | BMS_SNS_Pin);
 
         HAL_GPIO_DeInit(GPIOC, DAM_SNS_Pin | RR_PUMP_I_SNS_Pin);
 
@@ -228,6 +228,8 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
     }
 }
 
+static uint32_t HAL_RCC_FDCAN_CLK_ENABLED = 0;
+
 /**
  * @brief FDCAN MSP Initialization
  * This function configures the hardware resources used in this example
@@ -254,7 +256,11 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
         }
 
         /* Peripheral clock enable */
-        __HAL_RCC_FDCAN_CLK_ENABLE();
+        HAL_RCC_FDCAN_CLK_ENABLED++;
+        if (HAL_RCC_FDCAN_CLK_ENABLED == 1)
+        {
+            __HAL_RCC_FDCAN_CLK_ENABLE();
+        }
 
         __HAL_RCC_GPIOD_CLK_ENABLE();
         /**FDCAN1 GPIO Configuration
@@ -272,6 +278,44 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
 
         /* USER CODE END FDCAN1_MspInit 1 */
     }
+    else if (hfdcan->Instance == FDCAN3)
+    {
+        /* USER CODE BEGIN FDCAN3_MspInit 0 */
+
+        /* USER CODE END FDCAN3_MspInit 0 */
+
+        /** Initializes the peripherals clock
+         */
+        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_FDCAN;
+        PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_PLL;
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+        {
+            Error_Handler();
+        }
+
+        /* Peripheral clock enable */
+        HAL_RCC_FDCAN_CLK_ENABLED++;
+        if (HAL_RCC_FDCAN_CLK_ENABLED == 1)
+        {
+            __HAL_RCC_FDCAN_CLK_ENABLE();
+        }
+
+        __HAL_RCC_GPIOD_CLK_ENABLE();
+        /**FDCAN3 GPIO Configuration
+        PD12     ------> FDCAN3_RX
+        PD13     ------> FDCAN3_TX
+        */
+        GPIO_InitStruct.Pin       = CAN_INV_RX_Pin | CAN_INV_TX_Pin;
+        GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+        GPIO_InitStruct.Pull      = GPIO_NOPULL;
+        GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
+        GPIO_InitStruct.Alternate = GPIO_AF5_FDCAN3;
+        HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+        /* USER CODE BEGIN FDCAN3_MspInit 1 */
+
+        /* USER CODE END FDCAN3_MspInit 1 */
+    }
 }
 
 /**
@@ -288,7 +332,11 @@ void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef *hfdcan)
 
         /* USER CODE END FDCAN1_MspDeInit 0 */
         /* Peripheral clock disable */
-        __HAL_RCC_FDCAN_CLK_DISABLE();
+        HAL_RCC_FDCAN_CLK_ENABLED--;
+        if (HAL_RCC_FDCAN_CLK_ENABLED == 0)
+        {
+            __HAL_RCC_FDCAN_CLK_DISABLE();
+        }
 
         /**FDCAN1 GPIO Configuration
         PD0     ------> FDCAN1_RX
@@ -299,6 +347,28 @@ void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef *hfdcan)
         /* USER CODE BEGIN FDCAN1_MspDeInit 1 */
 
         /* USER CODE END FDCAN1_MspDeInit 1 */
+    }
+    else if (hfdcan->Instance == FDCAN3)
+    {
+        /* USER CODE BEGIN FDCAN3_MspDeInit 0 */
+
+        /* USER CODE END FDCAN3_MspDeInit 0 */
+        /* Peripheral clock disable */
+        HAL_RCC_FDCAN_CLK_ENABLED--;
+        if (HAL_RCC_FDCAN_CLK_ENABLED == 0)
+        {
+            __HAL_RCC_FDCAN_CLK_DISABLE();
+        }
+
+        /**FDCAN3 GPIO Configuration
+        PD12     ------> FDCAN3_RX
+        PD13     ------> FDCAN3_TX
+        */
+        HAL_GPIO_DeInit(GPIOD, CAN_INV_RX_Pin | CAN_INV_TX_Pin);
+
+        /* USER CODE BEGIN FDCAN3_MspDeInit 1 */
+
+        /* USER CODE END FDCAN3_MspDeInit 1 */
     }
 }
 
