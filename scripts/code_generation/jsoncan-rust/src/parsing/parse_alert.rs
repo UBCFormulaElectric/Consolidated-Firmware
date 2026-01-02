@@ -22,7 +22,19 @@ struct AlertsJson {
     info: HashMap<String, AlertMetaData>,
 }
 
-pub fn parse_alert_data(can_data_dir: &String, node_name: &String) -> Option<Vec<CanAlert>> {
+struct Alert {
+    pub id: u32,
+    pub count_id: u32,
+    pub alerts: Vec<CanAlert>,
+}
+
+pub struct JsonAlert {
+    pub infos: Alert,
+    pub warnings: Alert,
+    pub faults: Alert,
+}
+
+pub fn parse_alert_data(can_data_dir: &String, node_name: &String) -> Option<JsonAlert> {
     let file_path = format!("{}/{}/{}_alerts.json", can_data_dir, node_name, node_name);
     let file_content = match std::fs::read_to_string(file_path) {
         Ok(s) => s,
@@ -100,10 +112,21 @@ pub fn parse_alert_data(can_data_dir: &String, node_name: &String) -> Option<Vec
         );
     }
 
-    let mut can_alerts: Vec<CanAlert> = vec![];
-    can_alerts.extend(faults);
-    can_alerts.extend(warnings);
-    can_alerts.extend(info);
-
-    return Some(can_alerts);
+    Some(JsonAlert {
+        infos: Alert {
+            id: alerts_json.info_id,
+            count_id: alerts_json.info_counts_id,
+            alerts: info,
+        },
+        warnings: Alert {
+            id: alerts_json.warnings_id,
+            count_id: alerts_json.warnings_counts_id,
+            alerts: warnings,
+        },
+        faults: Alert {
+            id: alerts_json.faults_id,
+            count_id: alerts_json.faults_counts_id,
+            alerts: faults,
+        },
+    })
 }

@@ -36,6 +36,6 @@ pub fn parse_json_rx_data(can_data_dir: &str, rx_node_name: &str) -> RxMsgNames 
             );
             RxMsgNames::All
         }
-        JsonRxEntry::RxMsgs(msg_list) => RxMsgNames::RxMsgs(msg_list.into_iter().collect()),
+        JsonRxEntry::RxMsgs(msg_list) => RxMsgNames::RxMsgs(msg_list),
     }
 }

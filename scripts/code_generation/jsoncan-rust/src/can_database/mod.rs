@@ -125,9 +125,13 @@ pub struct CanDatabase {
 }
 
 impl CanDatabase {
-    pub fn new(buses: Vec<CanBus>, nodes: Vec<CanNode>, forwarding: Vec<BusForwarder>) -> Self {
+    pub fn new(
+        buses: Vec<CanBus>,
+        nodes: Vec<CanNode>,
+        forwarding: Vec<BusForwarder>,
+    ) -> Result<Self, CanDBError> {
         let conn = Connection::open_in_memory().unwrap();
-        conn.execute(
+        match conn.execute(
             "CREATE TABLE IF NOT EXISTS messages (
 				name TEXT NOT NULL,
 				id INTEGER PRIMARY KEY NOT NULL,
@@ -139,11 +143,15 @@ impl CanDatabase {
 				modes TEXT NOT NULL
 			)",
             [],
-        )
-        .unwrap();
+        ) {
+            Ok(_) => {}
+            Err(e) => {
+                return Err(CanDBError::SqlLiteError(e));
+            }
+        }
 
         // create table for signals
-        conn.execute(
+        match conn.execute(
             "CREATE TABLE IF NOT EXISTS signals (
 				name TEXT NOT NULL,
 				message_id INTEGER NOT NULL,
@@ -163,15 +171,19 @@ impl CanDatabase {
 				FOREIGN KEY(message_id) REFERENCES messages(id)
 			)",
             [],
-        )
-        .unwrap();
+        ) {
+            Ok(_) => {}
+            Err(e) => {
+                return Err(CanDBError::SqlLiteError(e));
+            }
+        }
 
-        CanDatabase {
+        Ok(CanDatabase {
             conn,
             buses,
             nodes,
             forwarding,
-        }
+        })
     }
 
     // TODO perhaps add a version which takes a list of msgs idk tho cuz this is not well parallelized

@@ -4,8 +4,9 @@ mod parse_enum;
 mod parse_rx;
 mod parse_tx;
 
-use crate::can_database::{BusForwarder, CanAlert, CanBus, CanEnum, RxMsgNames};
+use crate::can_database::{BusForwarder, CanBus, CanEnum, RxMsgNames};
 
+pub use parse_alert::JsonAlert;
 use parse_alert::parse_alert_data;
 use parse_bus::parse_bus_data;
 use parse_enum::{parse_node_enum_data, parse_shared_enums};
@@ -13,11 +14,13 @@ use parse_rx::parse_json_rx_data;
 pub use parse_tx::JsonTxSignal;
 use parse_tx::{JsonCanMessage, parse_tx_data};
 
-struct ParseNode {
+pub static DEFAULT_BUS_MODE: &str = "default";
+
+struct JsonNode {
     pub name: String,
     pub collects_data: bool,
     pub enums: Vec<CanEnum>,
-    pub alerts: Vec<CanAlert>,
+    pub alerts: Option<JsonAlert>,
     pub tx_msgs: Vec<JsonCanMessage>,
     pub rx_msgs: RxMsgNames,
 }
@@ -29,7 +32,7 @@ struct ParseNode {
 //         - duplication checks are not interpretation
 //     Other functions consist the logical representation
 pub struct JsonCanParser {
-    pub nodes: Vec<ParseNode>,
+    pub nodes: Vec<JsonNode>,
     pub buses: Vec<CanBus>,
     pub shared_enums: Vec<CanEnum>,
     pub forwarding: Vec<BusForwarder>,
@@ -68,7 +71,7 @@ impl JsonCanParser {
         let (busses, forwarding, loggers) = parse_bus_data(&can_data_dir, &node_names);
 
         // create node objects for each node
-        let nodes: Vec<ParseNode> = node_names
+        let nodes: Vec<JsonNode> = node_names
             .iter()
             .map(|node_name| {
                 let bus_names_with_node = busses.iter().filter_map(|bus| {
@@ -84,12 +87,12 @@ impl JsonCanParser {
                     node_name
                 );
 
-                let alert_data = parse_alert_data(&can_data_dir, node_name);
-                return ParseNode {
+                let alerts = parse_alert_data(&can_data_dir, node_name);
+                return JsonNode {
                     name: node_name.clone(),
                     collects_data: loggers.contains(node_name),
                     enums: parse_node_enum_data(&can_data_dir, &node_name),
-                    alerts: alert_data.unwrap_or_else(|| vec![]),
+                    alerts,
                     rx_msgs: parse_json_rx_data(&can_data_dir, &node_name),
                     tx_msgs: parse_tx_data(&can_data_dir, &node_name),
                 };

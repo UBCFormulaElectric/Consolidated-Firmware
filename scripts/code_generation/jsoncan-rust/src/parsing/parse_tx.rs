@@ -1,6 +1,8 @@
 use serde::Deserialize;
 use std::collections::HashMap;
 
+use crate::parsing::DEFAULT_BUS_MODE;
+
 #[derive(Deserialize)]
 #[serde(untagged)]
 pub enum JsonTxSignal {
@@ -151,7 +153,7 @@ pub fn parse_tx_data(can_data_dir: &String, tx_node_name: &String) -> Vec<JsonCa
                 },
                 modes: match &msg.allowed_modes {
                     Some(modes) => modes.clone(),
-                    None => vec!["default".to_string()] // TODO revisit default behaviour?
+                    None => vec![DEFAULT_BUS_MODE.to_string()] // TODO revisit default behaviour?
                 },
             }
         })
