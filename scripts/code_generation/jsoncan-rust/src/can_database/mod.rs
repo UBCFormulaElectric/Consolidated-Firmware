@@ -1,5 +1,5 @@
 pub mod error;
-mod from;
+mod from_jsonparser;
 mod types;
 
 use error::CanDBError;
