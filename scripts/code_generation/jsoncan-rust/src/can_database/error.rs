@@ -42,7 +42,7 @@ impl Debug for CanDBError {
                 f,
                 "Duplicate transmitted message name '{}' found in nodes '{}' and '{}'. Message names must be unique across all transmitting nodes.",
                 tx_msg_name, tx_node_name_1, tx_node_name_2,
-            )?,
+            ),
             CanDBError::DuplicateTxMsgID {
                 tx_msg_name,
                 tx_node_name_1,
@@ -51,7 +51,7 @@ impl Debug for CanDBError {
                 f,
                 "Duplicate transmitted message ID found for message '{}' in nodes '{}' and '{}'. Message IDs must be unique across all transmitting nodes.",
                 tx_msg_name, tx_node_name_1, tx_node_name_2,
-            )?,
+            ),
             CanDBError::DuplicateTxSignalName {
                 signal_name,
                 tx_msg_name_1,
@@ -60,7 +60,7 @@ impl Debug for CanDBError {
                 f,
                 "Duplicate transmitted signal name '{}' found in messages '{}' and '{}'. Signal names must be unique across all transmitted messages.",
                 signal_name, tx_msg_name_1, tx_msg_name_2
-            )?,
+            ),
             CanDBError::RxMsgNotFound {
                 rx_node_name,
                 rx_msg_name: msg_name,
@@ -68,7 +68,7 @@ impl Debug for CanDBError {
                 f,
                 "Message '{}' received by '{}' is not defined. Make sure it is correctly defined in the TX JSON.",
                 msg_name, rx_node_name
-            )?,
+            ),
             CanDBError::RxLoopback {
                 rx_node_name,
                 rx_msg_name,
@@ -76,7 +76,7 @@ impl Debug for CanDBError {
                 f,
                 "'{}' cannot both transmit and receive '{}'",
                 rx_node_name, rx_msg_name
-            )?,
+            ),
             CanDBError::RxDuplicate {
                 rx_node_name,
                 rx_msg_name,
@@ -84,9 +84,8 @@ impl Debug for CanDBError {
                 f,
                 "Message '{}' is already registered to be received by node '{}'",
                 rx_msg_name, rx_node_name
-            )?,
-            CanDBError::SqlLiteError(error) => write!(f, "SQLite error: {}", error)?,
+            ),
+            CanDBError::SqlLiteError(error) => write!(f, "SQLite error: {}", error),
         }
-        Ok(())
     }
 }

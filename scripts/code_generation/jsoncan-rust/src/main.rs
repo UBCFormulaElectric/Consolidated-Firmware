@@ -9,10 +9,15 @@ use clap::Parser;
 use std::path::Path;
 
 use can_database::CanDatabase;
-use codegen::cpp::CModule;
+use codegen::cpp::CPPModule;
 use dbcgen::DbcGenerator;
 use parsing::JsonCanParser;
 use reroute::resolve_tx_rx_reroute;
+
+use crate::codegen::cpp::{
+    AppCanAlertsModule, AppCanDataCaptureModule, AppCanRxModule, AppCanTxModule, AppCanUtilsModule,
+    IoCanRerouteModule, IoCanRxModule, IoCanTxModule,
+};
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -55,13 +60,13 @@ fn main() {
         panic!("Board {} not found in CAN database.", args.board);
     }
 
-    let modules: Vec<(CModule, String)> = vec![
+    let modules: Vec<(CPPModule, String)> = vec![
         (
-            CModule::AppCanUtilsModule {
+            CPPModule::AppCanUtilsModule(AppCanUtilsModule {
                 can_db: &can_db,
                 tx_config: &tx_configs[&args.board],
                 rx_config: &rx_configs[&args.board],
-            },
+            }),
             Path::new("app")
                 .join("app_canUtils")
                 .to_str()
@@ -69,10 +74,10 @@ fn main() {
                 .to_string(),
         ),
         (
-            CModule::AppCanTxModule {
+            CPPModule::AppCanTxModule(AppCanTxModule {
                 can_db: &can_db,
                 tx_config: &tx_configs[&args.board],
-            },
+            }),
             Path::new("app")
                 .join("app_canTx")
                 .to_str()
@@ -80,10 +85,10 @@ fn main() {
                 .to_string(),
         ),
         (
-            CModule::AppCanAlertsModule {
+            CPPModule::AppCanAlertsModule(AppCanAlertsModule {
                 can_db: &can_db,
                 board: &args.board,
-            },
+            }),
             Path::new("app")
                 .join("app_canAlerts")
                 .to_str()
@@ -91,7 +96,7 @@ fn main() {
                 .to_string(),
         ),
         (
-            CModule::AppCanDataCaptureModule { can_db: &can_db },
+            CPPModule::AppCanDataCaptureModule(AppCanDataCaptureModule { can_db: &can_db }),
             Path::new("app")
                 .join("app_canDataCapture")
                 .to_str()
@@ -99,11 +104,11 @@ fn main() {
                 .to_string(),
         ),
         (
-            CModule::AppCanRxModule {
+            CPPModule::AppCanRxModule(AppCanRxModule {
                 can_db: &can_db,
                 board: &args.board,
                 rx_config: &rx_configs[&args.board],
-            },
+            }),
             Path::new("app")
                 .join("app_canRx")
                 .to_str()
@@ -111,11 +116,11 @@ fn main() {
                 .to_string(),
         ),
         (
-            CModule::IoCanTxModule {
+            CPPModule::IoCanTxModule(IoCanTxModule {
                 can_db: &can_db,
                 board: &args.board,
                 tx_config: &tx_configs[&args.board],
-            },
+            }),
             Path::new("io")
                 .join("io_canTx")
                 .to_str()
@@ -123,11 +128,11 @@ fn main() {
                 .to_string(),
         ),
         (
-            CModule::IoCanRxModule {
+            CPPModule::IoCanRxModule(IoCanRxModule {
                 can_db: &can_db,
                 board: &args.board,
                 rx_config: &rx_configs[&args.board],
-            },
+            }),
             Path::new("io")
                 .join("io_canRx")
                 .to_str()
@@ -135,13 +140,13 @@ fn main() {
                 .to_string(),
         ),
         (
-            CModule::IoCanRerouteModule {
+            CPPModule::IoCanRerouteModule(IoCanRerouteModule {
                 can_db: &can_db,
                 board: &args.board,
                 reroute_config: &reroute_config
                     .get(&args.board)
                     .expect("Reroute config not found for board"),
-            },
+            }),
             Path::new("io")
                 .join("io_canReroute")
                 .to_str()

@@ -426,7 +426,7 @@ impl CanDatabase {
 
             if let Some(alerts) = node.alerts {
                 for msg in generate_node_alert_msgs(&node.name, &alerts) {
-                    db.add_tx_msg(msg);
+                    db.add_tx_msg(msg)?;
                 }
             }
         }
