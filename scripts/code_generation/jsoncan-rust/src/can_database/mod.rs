@@ -1,19 +1,10 @@
+pub mod error;
 mod from;
 mod types;
 
+use error::CanDBError;
 use rusqlite::Connection;
 pub use types::*;
-
-enum CanDBError {
-    RxLoopback {
-        rx_node_name: String,
-        rx_msg_name: String,
-    },
-    RxDuplicate {
-        rx_node_name: String,
-        rx_msg_name: String,
-    },
-}
 
 impl CanNode {
     pub fn add_rx_msg(&mut self, rx_msg: &CanMessage) -> Result<(), CanDBError> {
@@ -127,19 +118,10 @@ pub struct CanDatabase {
     pub nodes: Vec<CanNode>,
     pub buses: Vec<CanBus>,
     pub forwarding: Vec<BusForwarder>,
-    // OLD!!!
-    // nodes[node_name] gives metadata for node_name
-    // buses[bus_name] gives metadata for bus_name
-    // msgs[msg_id] gives metadata for msg_name
-    // pub msgs: HashMap<u32, CanMessage>,
     // alerts[node_name] gives a list of alerts on that node
     // pub alerts: HashMap<String, Vec<CanAlert>>,
     // enums[enum_name] gives metadata for enum_name
     // pub enums: HashMap<String, CanEnum>,
-    // collects_data[node_name] is true if this node collects data
-    // pub collects_data: HashMap<String, bool>,
-    // signals_to_msgs[signal_name] gives the message that contains the signal
-    // pub signals_to_msgs: HashMap<String, &CanMessage>,
 }
 
 impl CanDatabase {
@@ -193,7 +175,7 @@ impl CanDatabase {
     }
 
     // TODO perhaps add a version which takes a list of msgs idk tho cuz this is not well parallelized
-    pub fn add_tx_msg(self: &Self, msg: CanMessage) -> rusqlite::Result<()> {
+    pub fn add_tx_msg(self: &Self, msg: CanMessage) -> Result<(), CanDBError> {
         // This function registers a new message, transmitted by a node on the bus
         //
         // It
@@ -245,7 +227,7 @@ impl CanDatabase {
         // signal_name_to_msgs.insert(signal.name.clone(), msgs.get(&msg.name).unwrap());
         // }
 
-        self.conn.execute(
+        match self.conn.execute(
             "INSERT INTO messages (name, id, description, cycle_time, log_cycle_time, telem_cycle_time, tx_node_name, modes) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
             [
                 &msg.name,
@@ -257,7 +239,12 @@ impl CanDatabase {
                 &msg.tx_node_name,
                 &serde_json::to_string(&msg.modes).unwrap()
             ],
-        )?;
+        ) {
+            Ok(_) => {}
+            Err(e) => {
+                return Err(CanDBError::SqlLiteError(e));
+            }
+        }
 
         let msg_id = msg.id;
         for signal in msg.signals.iter() {
@@ -267,8 +254,8 @@ impl CanDatabase {
         Ok(())
     }
 
-    pub fn add_signal(self: &Self, msg_id: &u32, signal: &CanSignal) -> rusqlite::Result<usize> {
-        self.conn.execute(
+    pub fn add_signal(self: &Self, msg_id: &u32, signal: &CanSignal) -> Result<(), CanDBError> {
+        match self.conn.execute(
             "INSERT INTO signals (name, message_id, start_bit, bits, scale, offset, min, max, start_val, enum_name, unit, signed, description, big_endian, signal_type) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)",
             [
                 &signal.name,
@@ -288,5 +275,9 @@ impl CanDatabase {
                 &(signal.signal_type.clone() as u32).to_string(),
             ],
         )
+    {
+            Ok(_) => Ok(()),
+            Err(e) => Err(CanDBError::SqlLiteError(e)),
+        }
     }
 }

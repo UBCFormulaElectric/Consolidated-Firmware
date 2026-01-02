@@ -1,7 +1,9 @@
 use std::collections::HashMap;
 
 use crate::{
-    can_database::{CanDatabase, CanEnum, CanMessage, CanNode, CanSignal, CanSignalType},
+    can_database::{
+        CanDatabase, CanEnum, CanMessage, CanNode, CanSignal, CanSignalType, error::CanDBError,
+    },
     parsing::{JsonCanParser, JsonTxSignal},
 };
 
@@ -240,7 +242,7 @@ fn parse_tx_msg_signals(
 }
 
 impl CanDatabase {
-    pub fn from(parser: JsonCanParser) -> Self {
+    pub fn from(parser: JsonCanParser) -> Result<Self, CanDBError> {
         let can_nodes = parser
             .nodes
             .iter()
@@ -280,6 +282,6 @@ impl CanDatabase {
             // node.
         }
 
-        return db;
+        Ok(db)
     }
 }

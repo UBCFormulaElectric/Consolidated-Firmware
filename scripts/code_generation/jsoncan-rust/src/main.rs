@@ -31,7 +31,7 @@ fn main() {
     let args = Args::parse();
 
     // Parse JSON
-    let can_db = CanDatabase::from(JsonCanParser::new(args.can_data_dir).unwrap());
+    let can_db = CanDatabase::from(JsonCanParser::new(args.can_data_dir)).unwrap();
 
     let (tx_configs, rx_configs, reroute_config) = resolve_tx_rx_reroute(&can_db);
 

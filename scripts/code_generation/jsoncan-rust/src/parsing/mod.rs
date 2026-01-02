@@ -1,7 +1,6 @@
 mod parse_alert;
 mod parse_bus;
 mod parse_enum;
-pub mod parse_error;
 mod parse_rx;
 mod parse_tx;
 
@@ -10,7 +9,6 @@ use crate::can_database::{BusForwarder, CanAlert, CanBus, CanEnum, RxMsgNames};
 use parse_alert::parse_alert_data;
 use parse_bus::parse_bus_data;
 use parse_enum::{parse_node_enum_data, parse_shared_enums};
-pub use parse_error::ParseError;
 use parse_rx::parse_json_rx_data;
 pub use parse_tx::JsonTxSignal;
 use parse_tx::{JsonCanMessage, parse_tx_data};
@@ -65,7 +63,7 @@ impl JsonCanParser {
      * Note that this function does not do any consistency checking between nodes, busses, messages, etc.
      * This will only happen at the point of the CanDatabase creation, this only tells us that the JSON files are syntactically valid and can be parsed into data structures
      */
-    pub fn new(can_data_dir: String) -> Result<Self, ParseError> {
+    pub fn new(can_data_dir: String) -> Self {
         let node_names: Vec<String> = list_nodes_from_folders(&can_data_dir);
         let (busses, forwarding, loggers) = parse_bus_data(&can_data_dir, &node_names);
 
@@ -98,11 +96,11 @@ impl JsonCanParser {
             })
             .collect();
 
-        Ok(Self {
+        Self {
             nodes,
             buses: busses,
             shared_enums: parse_shared_enums(&can_data_dir),
             forwarding,
-        })
+        }
     }
 }
