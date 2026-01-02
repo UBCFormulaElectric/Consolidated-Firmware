@@ -12,9 +12,9 @@ pub struct CanBus {
 }
 
 #[derive(Clone)]
-pub enum RxMsgIDs {
+pub enum RxMsgNames {
     All,
-    RxMsgs(Vec<u32>),
+    RxMsgs(Vec<String>),
 }
 
 //     struct for fully describing a CAN node.
@@ -22,7 +22,7 @@ pub enum RxMsgIDs {
 pub struct CanNode {
     // Name of this CAN node
     pub name: String,
-    pub rx_msgs_names: RxMsgIDs, // list of messages that it is listening
+    pub rx_msgs_names: RxMsgNames, // list of messages that it is listening
     pub collects_data: bool,
 }
 

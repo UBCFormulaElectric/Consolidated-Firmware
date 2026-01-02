@@ -39,21 +39,21 @@ impl CanNode {
         }
 
         match &mut self.rx_msgs_names {
-            RxMsgIDs::All => {
+            RxMsgNames::All => {
                 // this cannot happen because we checked for it earlier
                 panic!(
                     "Node '{}' is already set to receive all messages, cannot add specific message '{}'",
                     self.name, rx_msg.name
                 );
             }
-            RxMsgIDs::RxMsgs(msg_names) => {
-                if msg_names.contains(&rx_msg.id) {
+            RxMsgNames::RxMsgs(msg_names) => {
+                if msg_names.contains(&rx_msg.name) {
                     return Err(CanDBError::RxDuplicate {
                         rx_node_name: self.name.clone(),
                         rx_msg_name: rx_msg.name.clone(),
                     });
                 }
-                msg_names.push(rx_msg.id);
+                msg_names.push(rx_msg.name.clone());
             }
         }
 

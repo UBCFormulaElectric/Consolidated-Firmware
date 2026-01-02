@@ -5,7 +5,7 @@ pub mod parse_error;
 mod parse_rx;
 mod parse_tx;
 
-use crate::can_database::{BusForwarder, CanAlert, CanBus, CanEnum, RxMsgIDs};
+use crate::can_database::{BusForwarder, CanAlert, CanBus, CanEnum, RxMsgNames};
 
 use parse_alert::parse_alert_data;
 use parse_bus::parse_bus_data;
@@ -21,7 +21,7 @@ struct ParseNode {
     pub enums: Vec<CanEnum>,
     pub alerts: Vec<CanAlert>,
     pub tx_msgs: Vec<JsonCanMessage>,
-    pub rx_msgs: RxMsgIDs,
+    pub rx_msgs: RxMsgNames,
 }
 
 //  A few notes about this class

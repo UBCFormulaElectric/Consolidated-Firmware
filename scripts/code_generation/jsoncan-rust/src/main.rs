@@ -44,7 +44,12 @@ fn main() {
         return;
     }
 
-    if !can_db.nodes.contains_key(&args.board) {
+    if can_db
+        .nodes
+        .iter()
+        .find(|node| node.name == args.board)
+        .is_none()
+    {
         panic!("Board {} not found in CAN database.", args.board);
     }
 
