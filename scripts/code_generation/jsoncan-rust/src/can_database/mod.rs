@@ -385,4 +385,64 @@ impl CanDatabase {
             }
         }
     }
+
+    pub fn get_tx_node_for_message_name(self: &Self, message_name: &str) -> Option<String> {
+        let mut s = self
+            .conn
+            .prepare("SELECT tx_node_name FROM messages WHERE name = ?1")
+            .unwrap();
+
+        match s.query_row([message_name], |row| row.get(0)) {
+            Ok(tx_node_name) => Some(tx_node_name),
+            Err(_) => None,
+        }
+    }
+
+    pub fn get_all_rx_msgs_for(self: &Self, node_name: &str) -> Vec<String> {
+        let mut s = self
+            .conn
+            .prepare("SELECT name FROM messages WHERE tx_node_name != ?1")
+            .unwrap();
+
+        s.query_map([node_name], |row| Ok(row.get::<_, String>(0)?))
+            .unwrap()
+            .map(|res| res.unwrap())
+            .collect()
+    }
+
+    pub fn get_message_by_name(self: &Self, message_name: &str) -> Result<CanMessage, CanDBError> {
+        let mut s = self
+            .conn
+            .prepare("SELECT * FROM messages WHERE name = ?1")
+            .unwrap();
+
+        match s.query_row([message_name], |row| {
+            Ok(CanMessage {
+                name: row.get(0)?,
+                id: row.get(1)?,
+                description: row.get(2)?,
+                cycle_time: row.get(3)?,
+                log_cycle_time: row.get(4)?,
+                telem_cycle_time: row.get(5)?,
+                tx_node_name: row.get(6)?,
+                modes: serde_json::from_str::<Vec<String>>(&row.get::<_, String>(7)?).unwrap(),
+                signals: self.get_signals_for_message(row.get(1)?).unwrap(),
+            })
+        }) {
+            Ok(msg) => Ok(msg),
+            Err(e) => Err(CanDBError::SqlLiteError(e)),
+        }
+    }
+
+    pub fn get_message_id_by_name(self: &Self, message_name: &str) -> Result<u32, CanDBError> {
+        let mut s = self
+            .conn
+            .prepare("SELECT id FROM messages WHERE name = ?1")
+            .unwrap();
+
+        match s.query_row([message_name], |row| row.get(0)) {
+            Ok(msg_id) => Ok(msg_id),
+            Err(e) => Err(CanDBError::SqlLiteError(e)),
+        }
+    }
 }

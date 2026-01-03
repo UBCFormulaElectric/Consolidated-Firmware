@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+#[derive(PartialEq)]
 pub struct CanBus {
     pub name: String,
     pub bus_speed: u32,

@@ -16,6 +16,10 @@ pub use io_canreroute::IoCanRerouteModule;
 pub use io_canrx::IoCanRxModule;
 pub use io_cantx::IoCanTxModule;
 
+use crate::can_database::{CanMessage, CanSignal};
+
+use convert_case::{Case, Casing};
+
 trait CPPGenerator {
     fn header_template(&self) -> String;
     fn source_template(&self) -> String;
@@ -56,5 +60,49 @@ impl CPPModule<'_> {
             CPPModule::IoCanRxModule(module) => module.source_template(),
             CPPModule::IoCanRerouteModule(module) => module.source_template(),
         }
+    }
+}
+
+impl CanSignal {
+    fn snake_name(self: &Self) -> String {
+        self.name.to_case(Case::Snake)
+    }
+
+    fn screaming_snake_name(self: &Self) -> String {
+        self.name.to_case(Case::Snake).to_uppercase()
+    }
+
+    pub fn start_val_macro(self: &Self) -> String {
+        format!("CANSIG_{}_START_VAL", self.snake_name().to_uppercase())
+    }
+
+    pub fn max_val_macro(self: &Self) -> String {
+        format!("CANSIG_{}_MAX_VAL", self.snake_name().to_uppercase())
+    }
+
+    pub fn min_val_macro(self: &Self) -> String {
+        format!("CANSIG_{}_MIN_VAL", self.snake_name().to_uppercase())
+    }
+
+    pub fn scale_macro(self: &Self) -> String {
+        format!("CANSIG_{}_SCALE", self.snake_name().to_uppercase())
+    }
+
+    pub fn offset_macro(self: &Self) -> String {
+        format!("CANSIG_{}_OFFSET", self.snake_name().to_uppercase())
+    }
+
+    pub fn datatype(self: &Self) -> String {
+        todo!()
+    }
+
+    pub fn representation(self: &Self) -> String {
+        todo!()
+    }
+}
+
+impl CanMessage {
+    fn c_type(self: &Self) -> String {
+        format!("{}_Signals", self.name)
     }
 }

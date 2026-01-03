@@ -8,3 +8,5 @@ clap = { version = "4.5.53", features = ["derive"] }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.145"
 rusqlite = { version = "0.38.0", features = ["bundled"] }
+askama = "0.15.1"
+convert_case = "0.10.0"
