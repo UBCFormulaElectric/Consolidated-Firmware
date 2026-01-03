@@ -1,6 +1,6 @@
 #include "hw_adcs.h"
 #include "hw_gpios.h"
-#include "hw_i2cs.h"
+// #include "hw_i2cs.h"
 #include "io_efuses.h"
 #include "io_efuse/io_efuse_ST_VND5/io_efuse_ST_VND5.h"
 #include "io_efuse/io_efuse_TI_TPS25/io_efuse_TI_TPS25.h"

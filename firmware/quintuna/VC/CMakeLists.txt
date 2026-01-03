@@ -31,9 +31,7 @@ list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_efuse/io_efuse.c"
         "${SHARED_IO_INCLUDE_DIR}/io_efuse/io_efuse_ST_VND5/io_efuse_ST_VND5.c"
         "${SHARED_IO_INCLUDE_DIR}/io_efuse/io_efuse_TI_TPS25/io_efuse_TI_TPS25.c"
-        "${SHARED_IO_INCLUDE_DIR}/io_potentiometer.c"
         "${SHARED_IO_INCLUDE_DIR}/io_bootHandler.c"
-        "${SHARED_IO_INCLUDE_DIR}/io_imu.c"
 )
 set(IO_INCLUDE_DIRS 
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io" 
@@ -52,17 +50,32 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_can_hx.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_resetReason.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_freeRtosConfigs.c"
+)
+
+# Explicitly drop peripherals that are removed from the IOC
+list(REMOVE_ITEM IO_SRCS
+        "${SHARED_IO_INCLUDE_DIR}/io_potentiometer.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_imu.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_imu_config.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_sbgEllipse.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_powerMonitoring.c"
+)
+list(REMOVE_ITEM HW_SRCS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/hw_i2cs.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/hw_uarts.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/hw_cans.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/hw_chimeraConfig_v2.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
+)
+list(REMOVE_ITEM APP_SRCS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app/app_powerMonitoring.c"
 )
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}")
 
@@ -85,7 +98,7 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_hal_dma_ex.c"
             "stm32h7xx_hal_dma.c"
             "stm32h7xx_hal_exti.c"
-            "stm32h7xx_hal_fdcan.c"
+        #     "stm32h7xx_hal_fdcan.c"
             "stm32h7xx_hal_gpio.c"
             "stm32h7xx_hal_iwdg.c"
             "stm32h7xx_hal_pwr_ex.c"
@@ -93,11 +106,11 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_hal_rcc.c"
             "stm32h7xx_hal_tim_ex.c"
             "stm32h7xx_hal_tim.c"
-            "stm32h7xx_hal_uart_ex.c"
-            "stm32h7xx_hal_uart.c"
+        #     "stm32h7xx_hal_uart_ex.c"
+        #     "stm32h7xx_hal_uart.c"
             "stm32h7xx_hal.c"
-            "stm32h7xx_hal_i2c.c"
-            "stm32h7xx_hal_i2c_ex.c"
+        #     "stm32h7xx_hal_i2c.c"
+        #     "stm32h7xx_hal_i2c_ex.c"
             "stm32h7xx_hal_pcd.c"
             "stm32h7xx_hal_pcd_ex.c"
             "stm32h7xx_ll_usb.c"

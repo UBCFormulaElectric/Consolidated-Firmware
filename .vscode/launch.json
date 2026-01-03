@@ -30,10 +30,10 @@
     {
       "name": "Debug Embedded: VC (Quintuna)",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/quintuna/VC/quintuna_VC.hex",
+      "executable": "build_fw_dev/firmware/quintuna/VC/quintuna_VC_app.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_dev/firmware/quintuna/VC/quintuna_VC_boot.elf",
+        //"build_fw_dev/firmware/quintuna/VC/quintuna_VC_boot.elf",
         "build_fw_dev/firmware/quintuna/VC/quintuna_VC_app.elf"
       ],
       "preLaunchTask": "Build Embedded: VC (Quintuna)",
@@ -56,7 +56,7 @@
       ],
       "device": "STM32H733VG",
       "interface": "swd",
-      "showDevDebugOutput": "none",
+      "showDevDebugOutput": "raw",
       "rttConfig": {
         "enabled": true,
         "address": "auto",
