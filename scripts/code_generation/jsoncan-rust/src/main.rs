@@ -45,7 +45,7 @@ fn main() {
     // Generate DBC file
     write_text(
         DbcGenerator::new(&can_db, &rx_configs).source(),
-        args.dbc_output,
+        &args.dbc_output,
     );
     if args.only_dbc {
         return;
@@ -74,10 +74,7 @@ fn main() {
                 .to_string(),
         ),
         (
-            CPPModule::AppCanTxModule(AppCanTxModule {
-                can_db: &can_db,
-                tx_config: &tx_configs[&args.board],
-            }),
+            CPPModule::AppCanTxModule(AppCanTxModule::new(&can_db, &args.board)),
             Path::new("app")
                 .join("app_canTx")
                 .to_str()
@@ -104,11 +101,11 @@ fn main() {
                 .to_string(),
         ),
         (
-            CPPModule::AppCanRxModule(AppCanRxModule {
-                can_db: &can_db,
-                board: &args.board,
-                rx_config: &rx_configs[&args.board],
-            }),
+            CPPModule::AppCanRxModule(AppCanRxModule::new(
+                &can_db,
+                &args.board,
+                &rx_configs[&args.board],
+            )),
             Path::new("app")
                 .join("app_canRx")
                 .to_str()
@@ -143,9 +140,10 @@ fn main() {
             CPPModule::IoCanRerouteModule(IoCanRerouteModule {
                 can_db: &can_db,
                 board: &args.board,
-                reroute_config: &reroute_config
-                    .get(&args.board)
-                    .expect("Reroute config not found for board"),
+                // reroute_config: &reroute_config
+                //     .get(&args.board)
+                //     .expect("Reroute config not found for board"),
+                reroute_config: todo!(),
             }),
             Path::new("io")
                 .join("io_canReroute")
@@ -158,25 +156,23 @@ fn main() {
     for (module, module_path) in modules {
         let module_full_path = Path::new(&args.output_dir).join(module_path);
         write_text(
-            module.header_template(),
+            module.header_template().unwrap(),
             module_full_path
                 .with_extension("h")
                 .to_str()
-                .expect("Invalid path")
-                .to_string(),
+                .expect("Invalid path"),
         );
         write_text(
-            module.source_template(),
+            module.source_template().unwrap(),
             module_full_path
                 .with_extension("c")
                 .to_str()
-                .expect("Invalid path")
-                .to_string(),
+                .expect("Invalid path"),
         );
     }
 }
 
-fn write_text(contents: String, path: String) {
+fn write_text(contents: String, path: &str) {
     let output_folder = std::path::Path::new(&path)
         .parent()
         .expect("Failed to get parent directory");

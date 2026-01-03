@@ -1,5 +1,5 @@
 use crate::can_database::{BusForwarder, CanBus, CanDatabase, CanNode, RxMsgNames};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 pub struct CanRxConfig {
     map_by_bus: HashMap<String, Vec<u32>>,
@@ -21,24 +21,34 @@ impl CanRxConfig {
             .push(msg_id);
         // self.map_by_msg.insert(msg_id, bus_name);
     }
+
+    pub fn get_all_msgs(self: &Self) -> Vec<u32> {
+        let s: HashSet<u32> = self.map_by_bus.values().flatten().cloned().collect();
+        s.into_iter().collect()
+    }
 }
 
 pub struct CanTxConfig {
-    msgs_for_bus: HashMap<String, Vec<u32>>,
+    map_by_bus: HashMap<String, Vec<u32>>,
 }
 
 impl CanTxConfig {
     pub fn new() -> Self {
         CanTxConfig {
-            msgs_for_bus: HashMap::new(),
+            map_by_bus: HashMap::new(),
         }
     }
 
     pub fn add_bus_to_msg(self: &mut Self, msg_id: u32, bus_name: &String) {
-        self.msgs_for_bus
+        self.map_by_bus
             .entry(bus_name.clone())
             .or_insert(Vec::new())
             .push(msg_id);
+    }
+
+    pub fn get_all_msgs(self: &Self) -> Vec<u32> {
+        let s: HashSet<u32> = self.map_by_bus.values().flatten().cloned().collect();
+        s.into_iter().collect()
     }
 }
 

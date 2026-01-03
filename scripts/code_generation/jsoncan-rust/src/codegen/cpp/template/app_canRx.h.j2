@@ -17,7 +17,8 @@
 void app_canRx_init(void);
 
 /* --------- UPDATE --------- */
-{% for msg in messages %}
+{%- for rx_messages in boards_messages.values() %}
+{% for msg in rx_messages %}
 {%- for signal in msg.signals %}
 /**
  * Update value stored in RX table of signal {{ signal.name }} in msg {{ msg.name }}.
@@ -25,14 +26,17 @@ void app_canRx_init(void);
 void app_canRx_{{ signal.name }}_update({{ signal.datatype() }} value);
 {%- endfor %}
 {%- endfor %}
+{%- endfor %}
 
 /* --------- GET --------- */
-{% for msg in messages %}
+{% for rx_messages in boards_messages.values() %}
+{% for msg in rx_messages %}
 {%- for signal in msg.signals %}
 /**
  * Get value stored in RX table of signal {{ signal.name }} in msg {{ msg.name }}.
  */
 {{ signal.datatype() }} app_canRx_{{ signal.name }}_get(void);
+{%- endfor %}
 {%- endfor %}
 {%- endfor %}
 

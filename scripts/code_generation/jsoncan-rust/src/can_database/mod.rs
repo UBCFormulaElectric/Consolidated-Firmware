@@ -445,4 +445,28 @@ impl CanDatabase {
             Err(e) => Err(CanDBError::SqlLiteError(e)),
         }
     }
+
+    pub fn get_message_by_id(self: &Self, message_id: u32) -> Result<CanMessage, CanDBError> {
+        let mut s = self
+            .conn
+            .prepare("SELECT * FROM messages WHERE id = ?1")
+            .unwrap();
+
+        match s.query_row([message_id], |row| {
+            Ok(CanMessage {
+                name: row.get(0)?,
+                id: row.get(1)?,
+                description: row.get(2)?,
+                cycle_time: row.get(3)?,
+                log_cycle_time: row.get(4)?,
+                telem_cycle_time: row.get(5)?,
+                tx_node_name: row.get(6)?,
+                modes: serde_json::from_str::<Vec<String>>(&row.get::<_, String>(7)?).unwrap(),
+                signals: self.get_signals_for_message(row.get(1)?).unwrap(),
+            })
+        }) {
+            Ok(msg) => Ok(msg),
+            Err(e) => Err(CanDBError::SqlLiteError(e)),
+        }
+    }
 }

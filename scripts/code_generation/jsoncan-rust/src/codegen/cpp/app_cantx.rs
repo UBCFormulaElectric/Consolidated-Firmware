@@ -3,49 +3,43 @@ use askama::Template;
 use crate::{
     can_database::{CanDatabase, CanMessage},
     codegen::cpp::CPPGenerator,
-    reroute::CanTxConfig,
 };
 
 #[derive(Template)]
 #[template(path = "../src/codegen/cpp/template/app_canTx.c.j2")]
-struct AppCanTxModuleSource {
-    tx_messages: Vec<CanMessage>,
+struct AppCanTxModuleSource<'a> {
+    tx_messages: &'a Vec<CanMessage>,
 }
 
 #[derive(Template)]
 #[template(path = "../src/codegen/cpp/template/app_canTx.h.j2")]
-struct AppCanTxModuleHeader {
+struct AppCanTxModuleHeader<'a> {
+    tx_messages: &'a Vec<CanMessage>,
+}
+
+pub struct AppCanTxModule {
     tx_messages: Vec<CanMessage>,
 }
 
-pub struct AppCanTxModule<'a> {
-    pub can_db: &'a CanDatabase,
-    pub tx_config: &'a CanTxConfig,
+impl AppCanTxModule {
+    pub fn new(can_db: &CanDatabase, node_name: &String) -> Self {
+        Self {
+            tx_messages: can_db.get_message_by_node(node_name).unwrap(),
+        }
+    }
 }
 
-impl CPPGenerator for AppCanTxModule<'_> {
-    fn header_template(&self) -> String {
-        // let tx_messages: Vec<CanMessage> = self
-        //     .can_db.
-        // .messages
-        // .values()
-        // .filter(|msg| self.tx_config.tx_message_ids.contains(&msg.id))
-        // .cloned()
-        // .collect::<Vec<CanMessage>>();
-
-        // let tx_messages = self.tx_config.
-
-        AppCanTxModuleHeader { tx_messages }.render().unwrap()
+impl CPPGenerator for AppCanTxModule {
+    fn header_template(&self) -> Result<String, askama::Error> {
+        AppCanTxModuleHeader {
+            tx_messages: &self.tx_messages,
+        }
+        .render()
     }
-    fn source_template(&self) -> String {
-        let tx_messages: Vec<CanMessage> = self
-            .can_db
-            .messages
-            .values()
-            .filter(|msg| self.tx_config.tx_message_ids.contains(&msg.id))
-            .cloned()
-            .collect::<Vec<CanMessage>>();
-
-        AppCanTxModuleSource { tx_messages }.render().unwrap()
+    fn source_template(&self) -> Result<String, askama::Error> {
+        AppCanTxModuleSource {
+            tx_messages: &self.tx_messages,
+        }
+        .render()
     }
 }

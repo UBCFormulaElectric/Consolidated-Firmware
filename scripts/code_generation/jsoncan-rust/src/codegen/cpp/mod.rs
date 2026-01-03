@@ -21,8 +21,8 @@ use crate::can_database::{CanMessage, CanSignal};
 use convert_case::{Case, Casing};
 
 trait CPPGenerator {
-    fn header_template(&self) -> String;
-    fn source_template(&self) -> String;
+    fn header_template(&self) -> Result<String, askama::Error>;
+    fn source_template(&self) -> Result<String, askama::Error>;
 }
 
 pub enum CPPModule<'a> {
@@ -37,7 +37,7 @@ pub enum CPPModule<'a> {
 }
 
 impl CPPModule<'_> {
-    pub fn header_template(&self) -> String {
+    pub fn header_template(&self) -> Result<String, askama::Error> {
         match self {
             CPPModule::AppCanUtilsModule(module) => module.header_template(),
             CPPModule::AppCanTxModule(module) => module.header_template(),
@@ -49,7 +49,7 @@ impl CPPModule<'_> {
             CPPModule::IoCanRerouteModule(module) => module.header_template(),
         }
     }
-    pub fn source_template(&self) -> String {
+    pub fn source_template(&self) -> Result<String, askama::Error> {
         match self {
             CPPModule::AppCanUtilsModule(module) => module.source_template(),
             CPPModule::AppCanTxModule(module) => module.source_template(),

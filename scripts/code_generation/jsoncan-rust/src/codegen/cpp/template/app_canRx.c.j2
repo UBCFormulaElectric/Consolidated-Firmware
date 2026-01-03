@@ -17,9 +17,11 @@
  */
 typedef struct
 {
-    {%- if messages | length > 0 %}
-    {%- for msg in messages %}
+    {%- if boards_messages.values().len() > 0 %}
+    {%- for rx_messages in boards_messages.values() %}
+    {%- for msg in rx_messages %}
     {{ msg.c_type() }} {{ msg.name }}_signals;
+    {%- endfor %}
     {%- endfor %}
     {%- else %}
     // No messages defined
@@ -38,15 +40,18 @@ void app_canRx_init()
 {
     memset(&rx_table, 0, sizeof({{node}}_RxMsgs));
     // Initialize all signals to Start-up value
-    {%- for msg in messages %}
+    {%- for rx_messages in boards_messages.values() %}
+    {%- for msg in rx_messages %}
     {%- for signal in msg.signals %}
     app_canRx_{{ signal.name }}_update({{ signal.start_val_macro() }});
+    {%- endfor %}
     {%- endfor %}
     {%- endfor %}
 }
 
 /* ------- UPDATE -------- */
-{% for msg in messages %}
+{%- for rx_messages in boards_messages.values() %}
+{% for msg in rx_messages %}
 {%- for signal in msg.signals %}
 void app_canRx_{{ signal.name }}_update({{ signal.datatype() }} value)
 {
@@ -57,30 +62,29 @@ void app_canRx_{{ signal.name }}_update({{ signal.datatype() }} value)
     }
     {%- endif %}
     // Clamp value to min/max
-    {%- if signal.max_val is defined %}
     if (value >= {{ signal.max_val_macro() }})
     {
         value = {{ signal.max_val_macro() }};
     }
-    {%- endif %}
-    {%- if signal.min_val is defined %}
     if (value <= {{ signal.min_val_macro() }})
     {
         value = {{ signal.min_val_macro() }};
     }
-    {%- endif %}
     rx_table.{{ msg.name }}_signals.{{ signal.name }}_value = value; // Set value
 }
 {%- endfor %}
 {%- endfor %}
+{%- endfor %}
 
 /* ------- GET -------- */
-{% for msg in messages %}
+{%- for rx_messages in boards_messages.values() %}
+{% for msg in rx_messages %}
 {%- for signal in msg.signals %}
 {{ signal.datatype() }} app_canRx_{{ signal.name }}_get()
 {
     return rx_table.{{ msg.name }}_signals.{{ signal.name }}_value;
 }
+{%- endfor %}
 {%- endfor %}
 {%- endfor %}
 
@@ -89,8 +93,8 @@ void app_canRx_clear_board_rx_table(CanNode board)
     switch(board)
     {
         {%- for board in boards_messages.keys() %}
-            {%- if board.upper() != node.upper() %}
-        case {{ board.upper() }}_NODE:
+            {%- if board.to_uppercase() != node.to_uppercase() %}
+        case {{ board.to_uppercase() }}_NODE:
             {%- for msg in boards_messages[board] %}
                 {%- for signal in msg.signals %}
             app_canRx_{{ signal.name }}_update({{ signal.start_val_macro() }});
@@ -99,7 +103,7 @@ void app_canRx_clear_board_rx_table(CanNode board)
             break;
             {%- endif %}
         {%- endfor %}
-        case {{ node.upper() }}_NODE: // Do nothing, this is the current node :)
+        case {{ node.to_uppercase() }}_NODE: // Do nothing, this is the current node :)
         default:
             break;
     }
