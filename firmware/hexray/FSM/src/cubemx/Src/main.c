@@ -500,13 +500,13 @@ static void MX_GPIO_Init(void)
     __HAL_RCC_GPIOD_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(IMU_CS_GPIO_Port, IMU_CS_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOD, GPIO_PIN_2, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOB, DEBUG_LED_Pin | BOOT_LED_Pin | IMU_FSYNC_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin : PC13 */
     GPIO_InitStruct.Pin  = GPIO_PIN_13;
@@ -514,31 +514,26 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PC0 PC1 PC2 PC3
-                             PC10 PC11 */
-    GPIO_InitStruct.Pin  = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_10 | GPIO_PIN_11;
+    /*Configure GPIO pins : BOTS_3V3_Pin COCKPIT_SHDN_3V3_Pin FR_INT_3V3_Pin FL_INT_3V3_Pin
+                             nSUSP_FL_OCSC_Pin nSUSP_FR_OCSC_Pin */
+    GPIO_InitStruct.Pin =
+        BOTS_3V3_Pin | COCKPIT_SHDN_3V3_Pin | FR_INT_3V3_Pin | FL_INT_3V3_Pin | nSUSP_FL_OCSC_Pin | nSUSP_FR_OCSC_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : PA0 */
-    GPIO_InitStruct.Pin  = GPIO_PIN_0;
-    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : PA2 PA3 */
-    GPIO_InitStruct.Pin  = GPIO_PIN_2 | GPIO_PIN_3;
+    /*Configure GPIO pins : nBPS_F_OCSC_Pin nSTR_ANGLE_OCSC_Pin */
+    GPIO_InitStruct.Pin  = nBPS_F_OCSC_Pin | nSTR_ANGLE_OCSC_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : PA4 */
-    GPIO_InitStruct.Pin   = GPIO_PIN_4;
+    /*Configure GPIO pin : IMU_CS_Pin */
+    GPIO_InitStruct.Pin   = IMU_CS_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    HAL_GPIO_Init(IMU_CS_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pin : PD2 */
     GPIO_InitStruct.Pin   = GPIO_PIN_2;
@@ -547,8 +542,8 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PB4 PB5 PB6 */
-    GPIO_InitStruct.Pin   = GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6;
+    /*Configure GPIO pins : DEBUG_LED_Pin BOOT_LED_Pin IMU_FSYNC_Pin */
+    GPIO_InitStruct.Pin   = DEBUG_LED_Pin | BOOT_LED_Pin | IMU_FSYNC_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

@@ -8,10 +8,10 @@ namespace hw::adcs
 {
 AdcChip<NUM_ADC_CHANNELS> adc1 = AdcChip<NUM_ADC_CHANNELS>(&hadc1, &htim2);
 
-void chipsInit(void)
+void chipsInit(void) // Do I need this function? Can't I just call adc1.init() directly?
 {
     adc1.init();
-} // Do I need this function? Can't I just call adc1.init() directly?
+}
 
 Adc susp_fl   = Adc(adc1.getChannel(0));
 Adc susp_fr   = Adc(adc1.getChannel(1));

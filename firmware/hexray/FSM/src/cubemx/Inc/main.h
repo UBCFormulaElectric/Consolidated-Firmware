@@ -53,11 +53,35 @@ extern "C"
     /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler(void);
 
-    /* USER CODE BEGIN EFP */
+/* USER CODE BEGIN EFP */
 
-    /* USER CODE END EFP */
+/* USER CODE END EFP */
 
-    /* Private defines -----------------------------------------------------------*/
+/* Private defines -----------------------------------------------------------*/
+#define BOTS_3V3_Pin GPIO_PIN_0
+#define BOTS_3V3_GPIO_Port GPIOC
+#define COCKPIT_SHDN_3V3_Pin GPIO_PIN_1
+#define COCKPIT_SHDN_3V3_GPIO_Port GPIOC
+#define FR_INT_3V3_Pin GPIO_PIN_2
+#define FR_INT_3V3_GPIO_Port GPIOC
+#define FL_INT_3V3_Pin GPIO_PIN_3
+#define FL_INT_3V3_GPIO_Port GPIOC
+#define nBPS_F_OCSC_Pin GPIO_PIN_2
+#define nBPS_F_OCSC_GPIO_Port GPIOA
+#define nSTR_ANGLE_OCSC_Pin GPIO_PIN_3
+#define nSTR_ANGLE_OCSC_GPIO_Port GPIOA
+#define IMU_CS_Pin GPIO_PIN_4
+#define IMU_CS_GPIO_Port GPIOA
+#define nSUSP_FL_OCSC_Pin GPIO_PIN_10
+#define nSUSP_FL_OCSC_GPIO_Port GPIOC
+#define nSUSP_FR_OCSC_Pin GPIO_PIN_11
+#define nSUSP_FR_OCSC_GPIO_Port GPIOC
+#define DEBUG_LED_Pin GPIO_PIN_4
+#define DEBUG_LED_GPIO_Port GPIOB
+#define BOOT_LED_Pin GPIO_PIN_5
+#define BOOT_LED_GPIO_Port GPIOB
+#define IMU_FSYNC_Pin GPIO_PIN_6
+#define IMU_FSYNC_GPIO_Port GPIOB
 
     /* USER CODE BEGIN Private defines */
 
