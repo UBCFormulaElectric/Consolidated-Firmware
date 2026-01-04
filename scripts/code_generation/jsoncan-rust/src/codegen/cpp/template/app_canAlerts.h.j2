@@ -23,7 +23,7 @@ typedef struct
 /* ------------------------- Function Prototypes -------------------------- */
 
 /* ----------- Infos -----------*/
-{%- for info in tx_info %}
+{%- for info in node_tx_alerts.info %}
 /**
  * Set or clear {{info.name}} for {{node_name}}.
  */
@@ -36,7 +36,7 @@ bool app_canAlerts_{{info.name}}_get(void);
 {%- endfor %}
 
 /* ----------- Warnings -----------*/
-{%- for warning in tx_warnings %}
+{%- for warning in node_tx_alerts.warnings %}
 /**
  * Set or clear {{warning.name}} for {{node_name}}.
  */
@@ -48,7 +48,7 @@ bool app_canAlerts_{{warning.name}}_get(void);
 {%- endfor %}
 
 /* ----------- Faults -----------*/
-{%- for fault in tx_faults %}
+{%- for fault in node_tx_alerts.faults %}
 /**
  * Set or clear {{fault.name}} for {{node_name}}.
  */

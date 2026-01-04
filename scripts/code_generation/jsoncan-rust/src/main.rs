@@ -82,10 +82,7 @@ fn main() {
                 .to_string(),
         ),
         (
-            CPPModule::AppCanAlertsModule(AppCanAlertsModule {
-                can_db: &can_db,
-                board: &args.board,
-            }),
+            CPPModule::AppCanAlertsModule(AppCanAlertsModule::new(&can_db, &args.board)),
             Path::new("app")
                 .join("app_canAlerts")
                 .to_str()

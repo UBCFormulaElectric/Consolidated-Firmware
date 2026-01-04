@@ -395,10 +395,11 @@ impl CanDatabase {
                 name: n.name.clone(),
                 rx_msgs_names: n.rx_msgs.clone(),
                 collects_data: n.collects_data,
+                alerts: n.alerts.clone(),
             })
             .collect();
 
-        let db = CanDatabase::new(parser.buses, can_nodes, parser.forwarding)?;
+        let mut db = CanDatabase::new(parser.buses, can_nodes, parser.forwarding)?;
 
         // resolve all tx messages
         for node in parser.nodes {

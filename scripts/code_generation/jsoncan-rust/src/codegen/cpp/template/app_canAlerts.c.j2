@@ -41,12 +41,11 @@ bool app_canAlerts_BoardHasInfo(CanNode board)
     switch (board)
     {
         {%- for (board_name, board_alerts) in node_name_and_alerts %}
-        {% set board_infos = board_alerts | selectattr("alert_type", "equalto", CanAlertType.INFO) | list -%}
         case {{board_name.to_uppercase()}}_NODE :
         {
-            {%- if board_infos | length > 0 %}
+            {%- if board_alerts.info.len() > 0 %}
             return (
-                {%- for alert in board_infos %}
+                {%- for alert in board_alerts.info %}
                 {%- if board_name == node_name -%}
                 app_canTx_{{ alert.name }}_get()
                 {%- else -%}
@@ -69,12 +68,11 @@ bool app_canAlerts_BoardHasWarning(CanNode board)
     switch (board)
     {
         {%- for (board_name, board_alerts) in node_name_and_alerts %}
-        {% set board_warnings = board_alerts | selectattr("alert_type", "equalto", CanAlertType.WARNING) | list -%}
         case {{board_name.to_uppercase()}}_NODE :
         {
-            {%- if board_warnings | length > 0 %}
+            {%- if board_alerts.warnings.len() > 0 %}
             return (
-                {%- for alert in board_warnings %}
+                {%- for alert in board_alerts.warnings %}
                 {%- if board_name == node_name -%}
                 app_canTx_{{ alert.name }}_get()
                 {%- else -%}
@@ -97,12 +95,11 @@ bool app_canAlerts_BoardHasFault(CanNode board)
     switch (board)
     {
         {%- for (board_name, board_alerts) in node_name_and_alerts %}
-        {% set board_faults = board_alerts | selectattr("alert_type", "equalto", CanAlertType.FAULT) | list -%}
         case {{board_name.to_uppercase()}}_NODE :
         {
-            {%- if board_faults | length > 0 %}
+            {%- if board_alerts.faults.len() > 0 %}
             return (
-                {%- for alert in board_faults %}
+                {%- for alert in board_alerts.faults %}
                 {%- if board_name == node_name -%}
                 app_canTx_{{ alert.name }}_get()
                 {%- else -%}
@@ -158,8 +155,7 @@ uint8_t app_canAlerts_InfoInfo(Alert_Info *alert_array)
     uint8_t element_num = 0;
     {%- for (board_name, board_alerts) in node_name_and_alerts %}
     // {{board_name}} infos info
-    {%- for alert in board_alerts %}
-    {%- if alert.alert_type == CanAlertType.INFO %}
+    {%- for alert in board_alerts.info %}
     {%- if board_name == node_name %}
     if (app_canTx_{{ alert.name }}_get())
     {% else %}
@@ -171,7 +167,6 @@ uint8_t app_canAlerts_InfoInfo(Alert_Info *alert_array)
         alert_array[element_num].id = {{ alert.id }};
         element_num++;
     }
-    {%- endif %}
     {%- endfor %}
     {%- endfor %}
     return element_num;
@@ -182,8 +177,7 @@ uint8_t app_canAlerts_WarningInfo(Alert_Info *alert_array)
     uint8_t element_num = 0;
     {%- for (board_name, board_alerts) in node_name_and_alerts %}
     // {{ board_name }} warnings info
-    {%- for alert in board_alerts %}
-    {%- if alert.alert_type == CanAlertType.WARNING %}
+    {%- for alert in board_alerts.warnings %}
     {%- if board_name == node_name %}
     if (app_canTx_{{ alert.name }}_get())
     {% else %}
@@ -195,7 +189,6 @@ uint8_t app_canAlerts_WarningInfo(Alert_Info *alert_array)
         alert_array[element_num].id = {{ alert.id }};
         element_num++;
     }
-    {%- endif %}
     {%- endfor %}
     {%- endfor %}
     return element_num;
@@ -206,8 +199,7 @@ uint8_t app_canAlerts_FaultInfo(Alert_Info *alert_array)
     uint8_t element_num = 0;
     {%- for (board_name, board_alerts) in node_name_and_alerts %}
     // {{ board_name }} faults info
-    {%- for alert in board_alerts %}
-    {%- if alert.alert_type == CanAlertType.FAULT %}
+    {%- for alert in board_alerts.faults %}
     {%- if board_name == node_name %}
     if (app_canTx_{{ alert.name }}_get())
     {% else %}
@@ -219,7 +211,6 @@ uint8_t app_canAlerts_FaultInfo(Alert_Info *alert_array)
         alert_array[element_num].id = {{ alert.id }};
         element_num++;
     }
-    {%- endif %}
     {%- endfor %}
     {%- endfor %}
     return element_num;

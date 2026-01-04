@@ -68,13 +68,13 @@ impl JsonCanParser {
      */
     pub fn new(can_data_dir: String) -> Self {
         let node_names: Vec<String> = list_nodes_from_folders(&can_data_dir);
-        let (busses, forwarding, loggers) = parse_bus_data(&can_data_dir, &node_names);
+        let (buses, forwarding, loggers) = parse_bus_data(&can_data_dir, &node_names);
 
         // create node objects for each node
         let nodes: Vec<JsonNode> = node_names
             .iter()
             .map(|node_name| {
-                let bus_names_with_node = busses.iter().filter_map(|bus| {
+                let bus_names_with_node = buses.iter().filter_map(|bus| {
                     if bus.node_names.contains(node_name) {
                         Some(&bus.name)
                     } else {
@@ -87,12 +87,11 @@ impl JsonCanParser {
                     node_name
                 );
 
-                let alerts = parse_alert_data(&can_data_dir, node_name);
                 return JsonNode {
                     name: node_name.clone(),
                     collects_data: loggers.contains(node_name),
                     enums: parse_node_enum_data(&can_data_dir, &node_name),
-                    alerts,
+                    alerts: parse_alert_data(&can_data_dir, &node_name),
                     rx_msgs: parse_json_rx_data(&can_data_dir, &node_name),
                     tx_msgs: parse_tx_data(&can_data_dir, &node_name),
                 };
@@ -101,7 +100,7 @@ impl JsonCanParser {
 
         Self {
             nodes,
-            buses: busses,
+            buses,
             shared_enums: parse_shared_enums(&can_data_dir),
             forwarding,
         }

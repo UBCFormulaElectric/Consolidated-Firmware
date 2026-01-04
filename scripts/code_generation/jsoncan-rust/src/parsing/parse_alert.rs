@@ -22,12 +22,14 @@ struct AlertsSchema {
     info: HashMap<String, AlertEntrySchema>,
 }
 
+#[derive(Clone)]
 pub struct JsonAlert {
     pub id: u32,
     pub count_id: u32,
     pub alerts: Vec<CanAlert>,
 }
 
+#[derive(Clone)]
 pub struct JsonAlerts {
     pub infos: JsonAlert,
     pub warnings: JsonAlert,

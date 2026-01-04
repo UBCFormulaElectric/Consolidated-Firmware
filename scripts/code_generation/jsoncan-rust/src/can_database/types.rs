@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use crate::parsing::JsonAlerts;
+
 #[derive(PartialEq)]
 pub struct CanBus {
     pub name: String,
@@ -25,6 +27,7 @@ pub struct CanNode {
     pub name: String,
     pub rx_msgs_names: RxMsgNames, // list of messages that it is listening
     pub collects_data: bool,
+    pub alerts: Option<JsonAlerts>,
 }
 
 #[derive(Clone)]
@@ -89,12 +92,14 @@ pub struct CanMessage {
     pub modes: Vec<String>,
 }
 
+#[derive(Clone)]
 pub enum CanAlertType {
     Warning,
     Fault,
     Info,
 }
 
+#[derive(Clone)]
 pub struct CanAlert {
     pub name: String,
     pub alert_type: CanAlertType,

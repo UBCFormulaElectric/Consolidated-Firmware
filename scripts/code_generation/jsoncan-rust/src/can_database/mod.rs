@@ -187,7 +187,7 @@ impl CanDatabase {
     }
 
     // TODO perhaps add a version which takes a list of msgs idk tho cuz this is not well parallelized
-    pub fn add_tx_msg(self: &Self, msg: CanMessage) -> Result<(), CanDBError> {
+    pub fn add_tx_msg(self: &mut Self, msg: CanMessage) -> Result<(), CanDBError> {
         // This function registers a new message, transmitted by a node on the bus
         //
         // It
@@ -266,7 +266,7 @@ impl CanDatabase {
         Ok(())
     }
 
-    pub fn add_signal(self: &Self, msg_id: &u32, signal: &CanSignal) -> Result<(), CanDBError> {
+    pub fn add_signal(self: &mut Self, msg_id: &u32, signal: &CanSignal) -> Result<(), CanDBError> {
         match self.conn.execute(
             "INSERT INTO signals (name, message_id, start_bit, bits, scale, offset, min, max, start_val, enum_name, unit, signed, description, big_endian, signal_type) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)",
             [
