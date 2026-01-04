@@ -28,7 +28,7 @@ pub struct IoCanTxModule<'a> {
     node_buses: Vec<&'a CanBus>,
     fd: bool,
 }
-impl IoCanRxModule<'_> {
+impl IoCanTxModule<'_> {
     pub fn new<'a>(
         can_db: &'a CanDatabase,
         board: &'a String,
