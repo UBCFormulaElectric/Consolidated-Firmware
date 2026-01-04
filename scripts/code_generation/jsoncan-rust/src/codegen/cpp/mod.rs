@@ -27,7 +27,7 @@ trait CPPGenerator {
 
 pub enum CPPModule<'a> {
     AppCanUtilsModule(AppCanUtilsModule<'a>),
-    AppCanTxModule(AppCanTxModule<'a>),
+    AppCanTxModule(AppCanTxModule),
     AppCanAlertsModule(AppCanAlertsModule<'a>),
     AppCanDataCaptureModule(AppCanDataCaptureModule<'a>),
     AppCanRxModule(AppCanRxModule<'a>),

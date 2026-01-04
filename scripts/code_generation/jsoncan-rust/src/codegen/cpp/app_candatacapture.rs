@@ -5,10 +5,10 @@ pub struct AppCanDataCaptureModule<'a> {
 }
 
 impl CPPGenerator for AppCanDataCaptureModule<'_> {
-    fn header_template(&self) -> String {
+    fn header_template(&self) -> Result<String, askama::Error> {
         todo!()
     }
-    fn source_template(&self) -> String {
+    fn source_template(&self) -> Result<String, askama::Error> {
         todo!()
     }
 }
