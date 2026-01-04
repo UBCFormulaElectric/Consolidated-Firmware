@@ -62,11 +62,7 @@ fn main() {
 
     let modules: Vec<(CPPModule, String)> = vec![
         (
-            CPPModule::AppCanUtilsModule(AppCanUtilsModule::new(
-                &can_db,
-                &tx_configs[&args.board],
-                &rx_configs[&args.board],
-            )),
+            CPPModule::AppCanUtilsModule(AppCanUtilsModule::new(&can_db)),
             Path::new("app")
                 .join("app_canUtils")
                 .to_str()
