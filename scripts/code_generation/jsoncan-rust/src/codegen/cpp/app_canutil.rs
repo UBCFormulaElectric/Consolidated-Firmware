@@ -16,10 +16,10 @@ struct Iteration {
 
 #[derive(Template)]
 #[template(path = "../src/codegen/cpp/template/app_canUtils.c.j2")]
-struct AppCanUtilsModuleSource {
-    messages: Vec<CanMessage>,
+struct AppCanUtilsModuleSource<'a> {
+    messages: &'a Vec<CanMessage>,
 }
-impl AppCanUtilsModuleSource {
+impl AppCanUtilsModuleSource<'_> {
     fn signal_placement_comment(self: &Self, msg: &CanMessage) -> std::string::String {
         let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
@@ -143,6 +143,9 @@ impl CPPGenerator for AppCanUtilsModule<'_> {
         .render()
     }
     fn source_template(&self) -> Result<String, askama::Error> {
-        AppCanUtilsModuleSource { messages: todo!() }.render()
+        AppCanUtilsModuleSource {
+            messages: &self.messages,
+        }
+        .render()
     }
 }
