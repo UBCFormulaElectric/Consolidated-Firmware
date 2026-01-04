@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::{
     can_database::{
         CanAlert, CanAlertType, CanDatabase, CanEnum, CanMessage, CanNode, CanSignal,
-        CanSignalType, error::CanDBError,
+        CanSignalType, GroupedAlerts, error::CanDBError,
     },
     parsing::{DEFAULT_BUS_MODE, JsonAlerts, JsonCanParser, JsonTxSignal},
 };
@@ -393,9 +393,13 @@ impl CanDatabase {
             .iter()
             .map(|n| CanNode {
                 name: n.name.clone(),
-                rx_msgs_names: n.rx_msgs.clone(),
+                rx_msgs_names: n.rx_msgs.clone(), // TODO this does not get checked for validity
                 collects_data: n.collects_data,
-                alerts: n.alerts.clone(),
+                alerts: n.alerts.as_ref().map(|a| GroupedAlerts {
+                    info: a.infos.alerts.clone(),
+                    warnings: a.warnings.alerts.clone(),
+                    faults: a.faults.alerts.clone(),
+                }),
                 enums: n.enums.clone(),
             })
             .collect();

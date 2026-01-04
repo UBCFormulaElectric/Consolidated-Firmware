@@ -1,7 +1,5 @@
 use std::collections::HashMap;
 
-use crate::parsing::JsonAlerts;
-
 #[derive(PartialEq)]
 pub struct CanBus {
     pub name: String,
@@ -20,6 +18,12 @@ pub enum RxMsgNames {
     RxMsgs(Vec<String>),
 }
 
+pub struct GroupedAlerts {
+    pub info: Vec<CanAlert>,
+    pub warnings: Vec<CanAlert>,
+    pub faults: Vec<CanAlert>,
+}
+
 //     struct for fully describing a CAN node.
 //     Each CanNode object should be able to independently generate (notwithstanding foreign keys) all code related to that node
 pub struct CanNode {
@@ -27,7 +31,7 @@ pub struct CanNode {
     pub name: String,
     pub rx_msgs_names: RxMsgNames, // list of messages that it is listening
     pub collects_data: bool,
-    pub alerts: Option<JsonAlerts>,
+    pub alerts: Option<GroupedAlerts>,
     pub enums: Vec<CanEnum>,
 }
 

@@ -1,15 +1,9 @@
 use askama::Template;
 
 use crate::{
-    can_database::{CanAlert, CanDatabase},
+    can_database::{CanAlert, CanDatabase, GroupedAlerts},
     codegen::cpp::CPPGenerator,
 };
-
-struct GroupedAlerts {
-    info: Vec<CanAlert>,
-    warnings: Vec<CanAlert>,
-    faults: Vec<CanAlert>,
-}
 
 impl GroupedAlerts {
     pub fn flatten(self: &Self) -> Vec<CanAlert> {
@@ -25,7 +19,7 @@ impl GroupedAlerts {
 #[template(path = "../src/codegen/cpp/template/app_canAlerts.c.j2")]
 struct AppCanAlertsModuleSource<'a> {
     node_tx_alerts: Vec<CanAlert>,
-    node_name_and_alerts: &'a Vec<(String, GroupedAlerts)>,
+    node_name_and_alerts: &'a Vec<(String, &'a GroupedAlerts)>,
     node_name: &'a String,
 }
 
@@ -38,11 +32,11 @@ struct AppCanAlertsModuleHeader<'a> {
 
 pub struct AppCanAlertsModule<'a> {
     node_name: &'a String,
-    node_name_and_alerts: Vec<(String, GroupedAlerts)>,
+    node_name_and_alerts: Vec<(String, &'a GroupedAlerts)>,
 }
 
 impl AppCanAlertsModule<'_> {
-    pub fn new<'a>(can_db: &CanDatabase, node_name: &'a String) -> AppCanAlertsModule<'a> {
+    pub fn new<'a>(can_db: &'a CanDatabase, node_name: &'a String) -> AppCanAlertsModule<'a> {
         assert!(
             can_db
                 .nodes
@@ -60,14 +54,7 @@ impl AppCanAlertsModule<'_> {
                 .nodes
                 .iter()
                 .filter_map(|n| match n.alerts {
-                    Some(ref alerts) => Some((
-                        n.name.clone(),
-                        GroupedAlerts {
-                            info: alerts.infos.alerts.clone(),
-                            warnings: alerts.warnings.alerts.clone(),
-                            faults: alerts.faults.alerts.clone(),
-                        },
-                    )),
+                    Some(ref alerts) => Some((n.name.clone(), alerts)),
                     None => None,
                 })
                 .collect(),

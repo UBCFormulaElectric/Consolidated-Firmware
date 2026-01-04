@@ -2,7 +2,7 @@ use askama::Template;
 
 use crate::{
     can_database::{CanBus, CanDatabase, CanMessage},
-    codegen::cpp::{CPPGenerator, IoCanRxModule},
+    codegen::cpp::CPPGenerator,
     reroute::CanTxConfig,
 };
 
@@ -16,14 +16,12 @@ struct IoCanTxModuleSource<'a> {
 #[derive(Template)]
 #[template(path = "../src/codegen/cpp/template/io_canTx.h.j2")]
 struct IoCanTxModuleHeader<'a> {
-    node: &'a String,
     node_buses: &'a Vec<&'a CanBus>,
     messages: &'a Vec<(CanMessage, Vec<String>)>,
     fd: bool,
 }
 
 pub struct IoCanTxModule<'a> {
-    board: &'a String,
     messages: Vec<(CanMessage, Vec<String>)>,
     node_buses: Vec<&'a CanBus>,
     fd: bool,
@@ -40,7 +38,6 @@ impl IoCanTxModule<'_> {
             .filter(|b| b.node_names.contains(board))
             .collect();
         IoCanTxModule {
-            board,
             messages: tx_config
                 .get_all()
                 .iter()
@@ -55,7 +52,6 @@ impl IoCanTxModule<'_> {
 impl CPPGenerator for IoCanTxModule<'_> {
     fn header_template(&self) -> Result<String, askama::Error> {
         IoCanTxModuleHeader {
-            node: self.board,
             messages: &self.messages,
             fd: self.fd,
             node_buses: &self.node_buses,
