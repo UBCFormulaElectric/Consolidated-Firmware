@@ -104,23 +104,15 @@ struct AppCanUtilsModuleHeader<'a> {
     enums: &'a Vec<CanEnum>,
 }
 
-pub struct AppCanUtilsModule<'a> {
-    tx_config: &'a CanTxConfig,
-    rx_config: &'a CanRxConfig,
+pub struct AppCanUtilsModule {
     messages: Vec<CanMessage>,
     node_names: Vec<String>,
     enums: Vec<CanEnum>,
 }
 
-impl AppCanUtilsModule<'_> {
-    pub fn new<'a>(
-        can_db: &CanDatabase,
-        tx_config: &'a CanTxConfig,
-        rx_config: &'a CanRxConfig,
-    ) -> AppCanUtilsModule<'a> {
+impl AppCanUtilsModule {
+    pub fn new(can_db: &CanDatabase) -> AppCanUtilsModule {
         AppCanUtilsModule {
-            tx_config,
-            rx_config,
             messages: can_db.get_all_msgs().expect("surely"),
             node_names: can_db.nodes.iter().map(|n| n.name.clone()).collect(),
             enums: can_db
@@ -133,7 +125,7 @@ impl AppCanUtilsModule<'_> {
     }
 }
 
-impl CPPGenerator for AppCanUtilsModule<'_> {
+impl CPPGenerator for AppCanUtilsModule {
     fn header_template(&self) -> Result<String, askama::Error> {
         AppCanUtilsModuleHeader {
             messages: &self.messages,
