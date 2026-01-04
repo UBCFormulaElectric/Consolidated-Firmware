@@ -10,3 +10,4 @@ tokio = { version = "1", features = ["full"] }
 tokio-serial = "5"
 influxdb2 = "0.5"
 dotenv = "0.15"
+crc = "3.0.0"
