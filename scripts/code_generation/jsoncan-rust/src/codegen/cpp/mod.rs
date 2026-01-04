@@ -36,8 +36,8 @@ pub enum CPPModule<'a> {
     IoCanRerouteModule(IoCanRerouteModule<'a>),
 }
 
-impl CPPModule<'_> {
-    pub fn header_template(&self) -> Result<String, askama::Error> {
+impl CPPGenerator for CPPModule<'_> {
+    fn header_template(&self) -> Result<String, askama::Error> {
         match self {
             CPPModule::AppCanUtilsModule(module) => module.header_template(),
             CPPModule::AppCanTxModule(module) => module.header_template(),
@@ -49,7 +49,7 @@ impl CPPModule<'_> {
             CPPModule::IoCanRerouteModule(module) => module.header_template(),
         }
     }
-    pub fn source_template(&self) -> Result<String, askama::Error> {
+    fn source_template(&self) -> Result<String, askama::Error> {
         match self {
             CPPModule::AppCanUtilsModule(module) => module.source_template(),
             CPPModule::AppCanTxModule(module) => module.source_template(),
