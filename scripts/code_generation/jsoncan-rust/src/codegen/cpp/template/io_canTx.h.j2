@@ -35,19 +35,17 @@ typedef struct
 // BUS ENUMS
 typedef enum
 {
-    {%- for bus_name in node_bus_names %}
-    {%- set bus = bus_config[bus_name] %}
+    {%- for bus in node_buses %}
     Bus_{{bus.name}} = {{loop.index0}},
     {%- endfor %}
 } BusEnum;
 
 // MODE ENUMS
-{%- for bus_name in node_bus_names %}
-{% set bus = bus_config[bus_name] %}
+{%- for bus in node_buses %}
 typedef enum
 {
     {%- for mode in bus.modes %}
-    {{bus.name.upper()}}_MODE_{{mode}} = 1 << {{loop.index0}},
+    {{bus.name.to_uppercase()}}_MODE_{{mode}} = 1 << {{loop.index0}},
     {%- endfor %}
 } {{bus.name}}Mode;
 {% endfor %}
@@ -60,17 +58,15 @@ typedef enum
  * Initialize the IO CAN TX module.
  */
 void io_canTx_init(
-    {%- for bus_name in node_bus_names %}
-    {%- set bus = bus_config[bus_name] -%}
-    void (*transmit_{{bus.name}}_msg_func)(const JsonCanMsg*) {%- if not loop.last -%}, {%- endif %}
+    {%- for bus in node_buses %}
+    void (*transmit_{{bus.name}}_msg_func)(const JsonCanMsg*) {%- if !loop.last -%}, {%- endif %}
     {%- endfor %}
 );
 
 /**
  * Enable or disable a mode (only messages allowed for the enabled modes transmitted on the bus).
  */
-{%- for bus_name in node_bus_names %}
-{%- set bus = bus_config[bus_name] %}
+{%- for bus in node_buses %}
 void io_canTx_enableMode_{{bus.name}}({{bus.name}}Mode mode, bool enable);
 {%- endfor %}
 
@@ -90,6 +86,6 @@ void io_canTx_enqueue100HzMsgs(void);
 void io_canTx_enqueueOtherPeriodicMsgs(uint32_t time_ms);
 
 // send aperiodic messages
-{%- for msg in messages if msg.cycle_time == None %}
+{%- for (msg, _) in messages if msg.cycle_time == None %}
 void io_canTx_{{msg.name}}_sendAperiodic();
 {%- endfor %}

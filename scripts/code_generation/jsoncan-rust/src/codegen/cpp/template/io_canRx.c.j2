@@ -11,20 +11,16 @@
 
 /* ------------------------- Function Definitions ------------------------- */
 // each bus has its own filter function
-{% for bus_name in node_bus_names %}
+{% for (bus_name, messages) in messages_on_busses -%}
 bool io_canRx_filterMessageId_{{bus_name}}(uint32_t std_id)
 {
-    bool is_found = false;
     switch (std_id)
     {
-        {%- if not rx_config.empty_bus(bus_name) %}
-        {%- for msg_name in rx_config.get_msgs_on_bus(bus_name) %}
-        case {{msg_map[msg_name].id_macro()}}:
+        {%- if messages.len() > 0 %}
+        {%- for msg in messages %}
+        case {{msg.id_macro()}}:
         {%- endfor %}
-        {
-            is_found = true;
-            break;
-        }
+            return true;
         {%- endif %}
         default:
         {
@@ -32,8 +28,7 @@ bool io_canRx_filterMessageId_{{bus_name}}(uint32_t std_id)
             break;
         }
     }
-    
-    return is_found;
+    return false;
 }
 {% endfor %}
 
@@ -42,8 +37,8 @@ void io_canRx_updateRxTableWithMessage(JsonCanMsg* msg)
 {
     switch (msg->std_id)
     {
-        {%- for msg_name in rx_config.get_all_rx_msgs_names() %}
-        {% set msg = msg_map[msg_name] %}
+        {%- for (bus_name, messages) in messages_on_busses %}
+        {%- for msg in messages %}
         case {{msg.id_macro()}}:
         {
             {{msg.name}}_Signals out_msg;
@@ -54,6 +49,7 @@ void io_canRx_updateRxTableWithMessage(JsonCanMsg* msg)
             {%- endfor %}
             break;
         }
+        {%- endfor %}
         {%- endfor %}
         default:
         {

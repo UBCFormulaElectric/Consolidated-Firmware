@@ -16,8 +16,8 @@
 /**
  * Returns true if {{node}} receives the specified message ID.
  */
-{% for bus in node_bus_names -%}
-bool io_canRx_filterMessageId_{{bus}}(uint32_t std_id);
+{% for (bus_name, _) in messages_on_busses -%}
+bool io_canRx_filterMessageId_{{bus_name}}(uint32_t std_id);
 {%  endfor  %}
 
 /**

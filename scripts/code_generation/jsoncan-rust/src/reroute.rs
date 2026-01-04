@@ -26,6 +26,17 @@ impl CanRxConfig {
         let s: HashSet<u32> = self.map_by_bus.values().flatten().cloned().collect();
         s.into_iter().collect()
     }
+
+    pub fn get_all_busses(self: &Self) -> Vec<String> {
+        self.map_by_bus.keys().cloned().collect()
+    }
+
+    pub fn get_msgs_on_bus(self: &Self, bus_name: &String) -> Vec<u32> {
+        if let Some(msgs) = self.map_by_bus.get(bus_name) {
+            return msgs.clone();
+        }
+        Vec::new()
+    }
 }
 
 pub struct CanTxConfig {
@@ -49,6 +60,19 @@ impl CanTxConfig {
     pub fn get_all_msgs(self: &Self) -> Vec<u32> {
         let s: HashSet<u32> = self.map_by_bus.values().flatten().cloned().collect();
         s.into_iter().collect()
+    }
+
+    pub fn get_all(self: &Self) -> Vec<(u32, Vec<String>)> {
+        let mut msg_to_busses: HashMap<u32, Vec<String>> = HashMap::new();
+        for (bus_name, msg_ids) in &self.map_by_bus {
+            for msg_id in msg_ids {
+                msg_to_busses
+                    .entry(*msg_id)
+                    .or_insert(Vec::new())
+                    .push(bus_name.clone());
+            }
+        }
+        msg_to_busses.into_iter().collect()
     }
 }
 

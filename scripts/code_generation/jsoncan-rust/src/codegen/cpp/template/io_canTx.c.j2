@@ -25,15 +25,15 @@ void io_canTx_set_lockfunction(
 #endif
 
 /* --------------------------- Static Variables --------------------------- */
-{% for bus in node_bus_names %}
-static uint32_t can_mode_{{bus}};
-static void (*transmit_func_{{bus}})(const JsonCanMsg* tx_msg);
+{% for bus in node_buses %}
+static uint32_t can_mode_{{bus.name}};
+static void (*transmit_func_{{bus.name}})(const JsonCanMsg* tx_msg);
 {% endfor %}
 
 /* --------------------- Static Function Definitions ---------------------- */
 
-{% for msg in messages %}
-{%- if msg.cycle_time != None -%}
+{% for (msg, busses) in messages %}
+{%- if msg.cycle_time.is_some() -%}
 static void io_canTx_{{msg.name}}_sendPeriodic()
 {%- else -%}
 void io_canTx_{{msg.name}}_sendAperiodic()
@@ -50,15 +50,11 @@ void io_canTx_{{msg.name}}_sendAperiodic()
     #ifdef THREAD_SAFE_CAN_PACKING
     unlock();
     #endif
-    {%- for msg_bus_name in busses_for_msg(msg.name) %}
+    {%- for msg_bus_name in busses %}
     if (
-    {%- if msg.modes == None %}
-        can_mode_{{msg_bus_name}} & ({{msg_bus_name.upper()}}_MODE_{{bus_config[msg_bus_name].default_mode}})
-    {%- else %}
     {%- for mode in msg.modes %}
-        can_mode_{{msg_bus_name}} & ({{msg_bus_name.upper()}}_MODE_{{mode}})
+        can_mode_{{msg_bus_name}} & ({{msg_bus_name.to_uppercase()}}_MODE_{{mode}})
     {%- endfor %}
-    {% endif %}
     )
     {
         transmit_func_{{msg_bus_name}}(&tx_msg);
@@ -71,27 +67,27 @@ void io_canTx_{{msg.name}}_sendAperiodic()
 /* --------------------- Public Function Definitions ---------------------- */
 
 void io_canTx_init( 
-    {% for bus_name in node_bus_names -%}
-    void (*transmit_{{bus_name}}_msg_func)(const JsonCanMsg*) {%- if not loop.last -%}, {%- endif -%}
+    {% for bus in node_buses -%}
+    void (*transmit_{{bus.name}}_msg_func)(const JsonCanMsg*) {%- if !loop.last -%}, {%- endif -%}
     {%- endfor %}
 )
 {
-    {%- for bus_name in node_bus_names %}
-    transmit_func_{{bus_name}} = transmit_{{bus_name}}_msg_func;
+    {%- for bus in node_buses %}
+    transmit_func_{{bus.name}} = transmit_{{bus.name}}_msg_func;
     {%- endfor %}
 }
 
 
-{% for bus_name in node_bus_names -%}
-void io_canTx_enableMode_{{bus_name}}({{bus_name}}Mode mode, bool enable)
+{% for bus in node_buses -%}
+void io_canTx_enableMode_{{bus.name}}({{bus.name}}Mode mode, bool enable)
 {
     if (enable)
     {
-        can_mode_{{bus_name}} |= (uint32_t)mode; // Enable mode
+        can_mode_{{bus.name}} |= (uint32_t)mode; // Enable mode
     }
     else
     {
-        can_mode_{{bus_name}} &= ~((uint32_t)mode); // Disable mode
+        can_mode_{{bus.name}} &= ~((uint32_t)mode); // Disable mode
     }
 }
 {%- endfor %}
@@ -100,21 +96,21 @@ void io_canTx_enableMode_{{bus_name}}({{bus_name}}Mode mode, bool enable)
 
 void io_canTx_enqueue1HzMsgs()
 {
-    {% for msg in messages if msg.cycle_time == 1000 -%}
+    {% for (msg, busses) in messages if msg.cycle_time.is_some() && msg.cycle_time.unwrap() == 1000 -%}
     io_canTx_{{ msg.name }}_sendPeriodic();
     {%- endfor %}
 }
 
 void io_canTx_enqueue100HzMsgs()
 {
-    {%- for msg in messages if msg.cycle_time == 10 %}
+    {%- for (msg, busses) in messages if msg.cycle_time.is_some() && msg.cycle_time.unwrap() == 10 %}
     io_canTx_{{ msg.name }}_sendPeriodic();
     {%- endfor %}
 }
 
 void io_canTx_enqueueOtherPeriodicMsgs(uint32_t time_ms)
 {
-    {%- for msg in messages if msg.cycle_time != 1000 and msg.cycle_time != 10 and msg.cycle_time != None %}
+    {%- for (msg, busses) in messages if msg.cycle_time.is_some() && msg.cycle_time.unwrap() != 1000 && msg.cycle_time.unwrap() != 10 %}
     if (time_ms % {{msg.cycle_time_macro()}} == 0)
     {
         io_canTx_{{msg.name}}_sendPeriodic();

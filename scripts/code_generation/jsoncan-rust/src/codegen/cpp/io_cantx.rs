@@ -1,16 +1,72 @@
-use crate::{can_database::CanDatabase, codegen::cpp::CPPGenerator, reroute::CanTxConfig};
+use askama::Template;
+
+use crate::{
+    can_database::{CanBus, CanDatabase, CanMessage},
+    codegen::cpp::{CPPGenerator, IoCanRxModule},
+    reroute::CanTxConfig,
+};
+
+#[derive(Template)]
+#[template(path = "../src/codegen/cpp/template/io_canTx.c.j2")]
+struct IoCanTxModuleSource<'a> {
+    node_buses: &'a Vec<&'a CanBus>,
+    messages: &'a Vec<(CanMessage, Vec<String>)>,
+}
+
+#[derive(Template)]
+#[template(path = "../src/codegen/cpp/template/io_canTx.h.j2")]
+struct IoCanTxModuleHeader<'a> {
+    node: &'a String,
+    node_buses: &'a Vec<&'a CanBus>,
+    messages: &'a Vec<(CanMessage, Vec<String>)>,
+    fd: bool,
+}
 
 pub struct IoCanTxModule<'a> {
-    pub can_db: &'a CanDatabase,
-    pub board: &'a String,
-    pub tx_config: &'a CanTxConfig,
+    board: &'a String,
+    messages: Vec<(CanMessage, Vec<String>)>,
+    node_buses: Vec<&'a CanBus>,
+    fd: bool,
+}
+impl IoCanRxModule<'_> {
+    pub fn new<'a>(
+        can_db: &'a CanDatabase,
+        board: &'a String,
+        tx_config: &'a CanTxConfig,
+    ) -> IoCanTxModule<'a> {
+        let node_buses: Vec<&'a CanBus> = can_db
+            .buses
+            .iter()
+            .filter(|b| b.node_names.contains(board))
+            .collect();
+        IoCanTxModule {
+            board,
+            messages: tx_config
+                .get_all()
+                .iter()
+                .map(|(m_id, busses)| (can_db.get_message_by_id(*m_id).unwrap(), busses.clone()))
+                .collect(),
+            fd: node_buses.iter().any(|b| b.fd),
+            node_buses,
+        }
+    }
 }
 
 impl CPPGenerator for IoCanTxModule<'_> {
     fn header_template(&self) -> Result<String, askama::Error> {
-        todo!()
+        IoCanTxModuleHeader {
+            node: self.board,
+            messages: &self.messages,
+            fd: self.fd,
+            node_buses: &self.node_buses,
+        }
+        .render()
     }
     fn source_template(&self) -> Result<String, askama::Error> {
-        todo!()
+        IoCanTxModuleSource {
+            node_buses: &self.node_buses,
+            messages: &self.messages,
+        }
+        .render()
     }
 }
