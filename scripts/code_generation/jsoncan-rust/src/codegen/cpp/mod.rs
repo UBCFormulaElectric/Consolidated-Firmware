@@ -20,7 +20,7 @@ use crate::can_database::{CanMessage, CanSignal};
 
 use convert_case::{Case, Casing};
 
-trait CPPGenerator {
+pub trait CPPGenerator {
     fn header_template(&self) -> Result<String, askama::Error>;
     fn source_template(&self) -> Result<String, askama::Error>;
 }

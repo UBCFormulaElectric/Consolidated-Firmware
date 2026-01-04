@@ -16,7 +16,7 @@ use reroute::resolve_tx_rx_reroute;
 
 use crate::codegen::cpp::{
     AppCanAlertsModule, AppCanDataCaptureModule, AppCanRxModule, AppCanTxModule, AppCanUtilsModule,
-    IoCanRerouteModule, IoCanRxModule, IoCanTxModule,
+    CPPGenerator, IoCanRerouteModule, IoCanRxModule, IoCanTxModule,
 };
 
 #[derive(Parser, Debug)]
