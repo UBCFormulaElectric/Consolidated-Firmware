@@ -106,11 +106,11 @@ fn main() {
                 .to_string(),
         ),
         (
-            CPPModule::IoCanTxModule(IoCanTxModule {
-                can_db: &can_db,
-                board: &args.board,
-                tx_config: &tx_configs[&args.board],
-            }),
+            CPPModule::IoCanTxModule(IoCanTxModule::new(
+                &can_db,
+                &args.board,
+                &tx_configs[&args.board],
+            )),
             Path::new("io")
                 .join("io_canTx")
                 .to_str()
@@ -118,11 +118,11 @@ fn main() {
                 .to_string(),
         ),
         (
-            CPPModule::IoCanRxModule(IoCanRxModule {
-                can_db: &can_db,
-                board: &args.board,
-                rx_config: &rx_configs[&args.board],
-            }),
+            CPPModule::IoCanRxModule(IoCanRxModule::new(
+                &can_db,
+                &rx_configs[&args.board],
+                &args.board,
+            )),
             Path::new("io")
                 .join("io_canRx")
                 .to_str()
