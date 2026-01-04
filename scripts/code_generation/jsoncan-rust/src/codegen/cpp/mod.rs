@@ -26,7 +26,7 @@ trait CPPGenerator {
 }
 
 pub enum CPPModule<'a> {
-    AppCanUtilsModule(AppCanUtilsModule<'a>),
+    AppCanUtilsModule(AppCanUtilsModule),
     AppCanTxModule(AppCanTxModule),
     AppCanAlertsModule(AppCanAlertsModule<'a>),
     AppCanDataCaptureModule(AppCanDataCaptureModule),
@@ -101,6 +101,10 @@ impl CanSignal {
     }
 }
 
+pub fn id_macro(name: &str) -> String {
+    format!("CAN_MSG_{}_ID", name.to_case(Case::Snake).to_uppercase())
+}
+
 impl CanMessage {
     fn c_type(self: &Self) -> String {
         format!("{}_Signals", self.name)
@@ -115,7 +119,7 @@ impl CanMessage {
     }
 
     pub fn id_macro(&self) -> String {
-        format!("CAN_MSG_{}_ID", self.snake_name().to_uppercase())
+        id_macro(&self.name)
     }
 
     pub fn dlc_macro(&self) -> String {

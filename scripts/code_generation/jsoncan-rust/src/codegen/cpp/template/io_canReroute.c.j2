@@ -19,32 +19,32 @@
     Call 2. function in the canRx callback
  #}
 
-{%- for bus in node_bus_names %}
-static void (*transmit_func_{{bus}})(const JsonCanMsg* tx_msg);
+{%- for bus in node_busses %}
+static void (*transmit_func_{{bus.name}})(const JsonCanMsg* tx_msg);
 {%- endfor %}
 
 
 void io_canReroute_init( 
-{%- for bus in node_bus_names %}
-    void (*transmit_func_{{bus}}_in)(const JsonCanMsg*) {%- if not loop.last -%}, {%- endif %}
-    {%- endfor %}
+{%- for bus in node_busses %}
+    void (*transmit_func_{{bus.name}}_in)(const JsonCanMsg*) {%- if !loop.last -%}, {%- endif %}
+{%- endfor %}
 )
 {
-    {%- for bus in node_bus_names %}
-    transmit_func_{{bus}} = transmit_func_{{bus}}_in;
+    {%- for bus in node_busses %}
+    transmit_func_{{bus.name}} = transmit_func_{{bus.name}}_in;
     {%- endfor %}
 }
 
-{% for bus_reroute in bus_name_and_reroutes %}
-void io_canReroute_{{bus_reroute.bus_name}}(const JsonCanMsg* rx_msg)
+{% for from_bus in node_busses %}
+void io_canReroute_{{from_bus.name}}(const JsonCanMsg* rx_msg)
 {
     switch(rx_msg->std_id)
     {
-        {%- for msg_reroute in bus_reroute.reroutes %}
-        case {{ msg_reroute.msg.id_macro() }}:
+        {%- for (msg_id, busses) in reroutes.get_forwards_for_bus(from_bus.name) %}
+        case {{ id_macro(msg_id) }}:
         {
-            {%- for to_bus in msg_reroute.to_busses %}
-            transmit_func_{{to_bus}}(rx_msg);
+            {%- for bus_name in busses %}
+            transmit_func_{{bus_name}}(rx_msg);
             {%- endfor %}
             break;
         }

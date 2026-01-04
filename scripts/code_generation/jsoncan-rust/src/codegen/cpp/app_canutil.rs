@@ -3,7 +3,6 @@ use askama::Template;
 use crate::{
     can_database::{CanDatabase, CanEnum, CanMessage, CanSignal},
     codegen::cpp::CPPGenerator,
-    reroute::{CanRxConfig, CanTxConfig},
 };
 
 struct Iteration {

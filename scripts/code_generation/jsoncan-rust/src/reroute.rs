@@ -53,8 +53,8 @@ impl CanTxConfig {
 }
 
 pub struct CanForward {
-    // config[(source_bus, destination_bus)] = [msg_id1, msg_id2, ...]
-    config: HashMap<(String, String), Vec<u32>>,
+    // config[source_bus][destination_bus] = [msg_id1, msg_id2, ...]
+    config: HashMap<String, HashMap<String, Vec<u32>>>,
 }
 
 impl CanForward {
@@ -66,9 +66,28 @@ impl CanForward {
 
     pub fn add_msg_to_forward(self: &mut Self, msg_id: u32, from_bus: &String, to_bus: &String) {
         self.config
-            .entry((from_bus.clone(), to_bus.clone()))
+            .entry(from_bus.clone())
+            .or_insert(HashMap::new())
+            .entry(to_bus.clone())
             .or_insert(Vec::new())
             .push(msg_id);
+    }
+
+    // returns list of [(msg_id, busses)]
+    pub fn get_forwards_for_bus(self: &Self, bus: &String) -> Vec<(u32, Vec<String>)> {
+        if let Some(dest_map) = self.config.get(bus) {
+            let mut msg_to_busses: HashMap<u32, Vec<String>> = HashMap::new();
+            for (dest_bus, msg_ids) in dest_map {
+                for msg_id in msg_ids {
+                    msg_to_busses
+                        .entry(*msg_id)
+                        .or_insert(Vec::new())
+                        .push(dest_bus.clone());
+                }
+            }
+            return msg_to_busses.into_iter().collect();
+        }
+        Vec::new()
     }
 }
 

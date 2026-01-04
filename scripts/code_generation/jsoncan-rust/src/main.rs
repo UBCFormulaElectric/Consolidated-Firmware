@@ -130,14 +130,11 @@ fn main() {
                 .to_string(),
         ),
         (
-            CPPModule::IoCanRerouteModule(IoCanRerouteModule {
-                can_db: &can_db,
-                board: &args.board,
-                // reroute_config: &reroute_config
-                //     .get(&args.board)
-                //     .expect("Reroute config not found for board"),
-                reroute_config: todo!(),
-            }),
+            CPPModule::IoCanRerouteModule(IoCanRerouteModule::new(
+                &can_db,
+                &args.board,
+                &reroute_config[&args.board],
+            )),
             Path::new("io")
                 .join("io_canReroute")
                 .to_str()

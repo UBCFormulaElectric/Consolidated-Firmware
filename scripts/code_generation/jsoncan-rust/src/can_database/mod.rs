@@ -384,6 +384,18 @@ impl CanDatabase {
         }
     }
 
+    pub fn get_message_name_by_id(self: &Self, message_id: u32) -> Result<String, CanDBError> {
+        let mut s = self
+            .conn
+            .prepare("SELECT name FROM messages WHERE id = ?1")
+            .unwrap();
+
+        match s.query_row([message_id], |row| row.get(0)) {
+            Ok(msg_name) => Ok(msg_name),
+            Err(e) => Err(CanDBError::SqlLiteError(e)),
+        }
+    }
+
     pub fn get_message_by_id(self: &Self, message_id: u32) -> Result<CanMessage, CanDBError> {
         let mut s = self
             .conn
