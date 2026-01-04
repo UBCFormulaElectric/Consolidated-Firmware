@@ -28,6 +28,7 @@ pub struct CanNode {
     pub rx_msgs_names: RxMsgNames, // list of messages that it is listening
     pub collects_data: bool,
     pub alerts: Option<JsonAlerts>,
+    pub enums: Vec<CanEnum>,
 }
 
 #[derive(Clone)]
@@ -92,6 +93,40 @@ pub struct CanMessage {
     pub modes: Vec<String>,
 }
 
+const ALLOWABLE_MSG_LENGTHS: [u16; 16] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64];
+fn bits_to_bytes(bits: u16) -> u16 {
+    //  Get number of bytes needed to store bits number of bits.
+    (bits + 7) / 8
+}
+impl CanMessage {
+    pub fn dlc(&self) -> u16 {
+        // Length of payload, in bytes.
+        if self.signals.len() == 0 {
+            return 0;
+        }
+
+        let useful_length = bits_to_bytes(
+            self.signals
+                .iter()
+                .map(|signal| signal.start_bit + signal.bits)
+                .max()
+                .expect("Message has signals (already checked length > 0)"),
+        );
+
+        for length in ALLOWABLE_MSG_LENGTHS.iter() {
+            if *length >= useful_length {
+                return *length;
+            }
+        }
+
+        panic!("This message was created with an invalid DLC!");
+    }
+
+    pub fn requires_fd(&self) -> bool {
+        self.dlc() > 8
+    }
+}
+
 #[derive(Clone)]
 pub enum CanAlertType {
     Warning,
@@ -112,6 +147,32 @@ pub struct CanEnum {
     pub name: String,
     // mapping from enum name to value
     pub values: HashMap<String, u32>,
+}
+
+impl CanEnum {
+    pub fn bits(&self) -> u16 {
+        // Calculate number of bits needed to represent this enum
+        let max_value = self.max_value();
+        for bits in 1u16..=32 {
+            if max_value < (1 << bits) {
+                return bits;
+            }
+        }
+        panic!("Enum has a value that is too large to represent in 32 bits");
+    }
+
+    pub fn max_value(&self) -> u32 {
+        return self
+            .values
+            .values()
+            .cloned()
+            .max()
+            .expect("Enum has at least one value");
+    }
+
+    pub fn min_value(&self) -> u32 {
+        0
+    }
 }
 
 pub struct BusForwarder {

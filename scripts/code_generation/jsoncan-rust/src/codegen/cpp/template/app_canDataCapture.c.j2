@@ -13,27 +13,27 @@
 
 
 {%- for msg in messages %}
-{%- if msg.log_cycle_time != None and msg.log_cycle_time != msg.cycle_time %}
-#define {{ msg.name }}_LOG_CYCLE_TIME ({{ msg.log_cycle_time }})
+{%- if msg.log_cycle_time.is_some() && msg.log_cycle_time != msg.cycle_time %}
+#define {{ msg.name }}_LOG_CYCLE_TIME ({{ msg.log_cycle_time.unwrap() }})
 {%- endif %}
 {%- endfor %}
 
 {%- for msg in messages %}
-{%- if msg.telem_cycle_time != None and msg.telem_cycle_time != msg.cycle_time %}
-#define {{msg.name}}_TELEM_CYCLE_TIME ({{msg.telem_cycle_time}})
+{%- if msg.telem_cycle_time.is_some() && msg.telem_cycle_time != msg.cycle_time %}
+#define {{msg.name}}_TELEM_CYCLE_TIME ({{msg.telem_cycle_time.unwrap()}})
 {%- endif %}
 {%- endfor %}
 
 /* -------------------------- Private Variables --------------------------- */
 
 {%- for msg in messages %}
-{%- if msg.log_cycle_time != None and msg.log_cycle_time != msg.cycle_time %}
+{%- if msg.log_cycle_time.is_some() && msg.log_cycle_time != msg.cycle_time %}
 static uint32_t {{msg.name}}_next_log_time_ms;
 {%- endif %}
 {%- endfor %}
 
 {%- for msg in messages %}
-{%- if msg.telem_cycle_time != None and msg.telem_cycle_time != msg.cycle_time %}
+{%- if msg.telem_cycle_time.is_some() && msg.telem_cycle_time != msg.cycle_time %}
 static uint32_t {{msg.name}}_next_telem_time_ms;
 {%- endif %}
 {%- endfor %}
@@ -44,14 +44,14 @@ void app_canDataCapture_init()
 {
     // Reset next log capture times.
     {%- for msg in messages %}
-    {%- if msg.log_cycle_time != None and msg.log_cycle_time != msg.cycle_time %}
+    {%- if msg.log_cycle_time.is_some() && msg.log_cycle_time != msg.cycle_time %}
     {{msg.name}}_next_log_time_ms = 0U;
     {%- endif %}
     {%- endfor %}
     
     // Reset next telem capture times.
     {%- for msg in messages %}
-    {%- if msg.telem_cycle_time != None and msg.telem_cycle_time != msg.cycle_time %}
+    {%- if msg.telem_cycle_time.is_some() && msg.telem_cycle_time != msg.cycle_time %}
     {{msg.name}}_next_telem_time_ms = 0U;
     {%- endif %}
     {%- endfor %}
@@ -63,7 +63,7 @@ bool app_dataCapture_needsLog(uint32_t msg_id, uint32_t time_ms)
     switch (msg_id)
     {
         {%- for msg in messages %}
-        {%- if msg.log_cycle_time != None %}
+        {%- if msg.log_cycle_time.is_some() %}
         case {{msg.id_macro()}}:
         {
         {%- if msg.log_cycle_time != msg.cycle_time %}
@@ -87,13 +87,13 @@ bool app_dataCapture_needsTelem(uint32_t msg_id, uint32_t time_ms)
     switch (msg_id)
     {
         {%- for msg in messages %}
-        {%- if msg.telem_cycle_time != None %}
+        {%- if msg.telem_cycle_time.is_some() %}
         case {{msg.id_macro()}}:
         {
         {%- if msg.telem_cycle_time != msg.cycle_time %}
             if (time_ms > {{msg.name}}_next_log_time_ms)
             {
-                // Capture msg and increment variable.
+                // Capture msg && increment variable.
                 {{msg.name}}_next_log_time_ms = time_ms + {{msg.name}}_TELEM_CYCLE_TIME;
                 return true;
             }

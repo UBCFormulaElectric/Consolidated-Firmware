@@ -82,14 +82,29 @@ void app_canUtils_{{ msg.name }}_pack(const {{ msg.name }}_Signals* const in_msg
     }
     
     {% for signal in msg.signals %}
-    {%- set raw_type =  "int32_t" if signal.signed else "uint32_t" -%}
-    {%- set DECORD_MACRO = "CAN_SIGNED_ENCODE" if signal.signed else "CAN_ENCODE" -%}
+    {%- decl raw_type -%}
+    {%-if signal.signed -%}
+    {%- let raw_type = "int32_t" -%}
+    {%- else -%}
+    {%- let raw_type = "uint32_t" -%}
+    {%- endif -%}
+    {%- decl decord_macro -%}
+    {%- if signal.signed -%}
+        {%- let decord_macro = "CAN_SIGNED_ENCODE" -%}
+    {%- else -%}
+        {%- let decord_macro = "CAN_ENCODE" -%}
+    {%- endif -%}
     // Pack {{ signal.bits }}-bit signal {{ signal.name }} into payload at [ bit {{ signal.start_bit }} to bit {{ signal.start_bit + signal.bits }} ).
     const {{ signal.datatype() }} {{ signal.name }}_val = in_msg->{{ signal.name }}_value;
-    const {{ raw_type }} {{ signal.name }}_raw = {{ DECORD_MACRO }}({{ signal.name }}_val, {{ signal.scale_macro() }}, {{ signal.offset_macro() }}, {{ raw_type }});
+    const {{ raw_type }} {{ signal.name }}_raw = {{ decord_macro }}({{ signal.name }}_val, {{ signal.scale_macro() }}, {{ signal.offset_macro() }}, {{ raw_type }});
     {% for iteration in iterations(signal) -%}
-    {%- set packShift = "packShiftRight" if iteration.shift >= 0 else "packShiftLeft" -%}
-    out_data[{{ iteration.starting_byte }}] |= {{ packShift }}({{ signal.name }}_raw, {{ iteration.shift | abs }}, {{ iteration.mask_text }});   // Packs bits {{ iteration.comment_data }} of byte {{ iteration.starting_byte }}
+    {%- decl packShift -%}
+    {%- if iteration.shift >= 0 -%}
+    {%- let packShift = "packShiftRight" -%}
+    {%- else -%}
+    {%- let packShift = "packShiftLeft" -%}
+    {%- endif -%}
+    out_data[{{ iteration.starting_byte }}] |= {{ packShift }}({{ signal.name }}_raw, {{ iteration.shift }}, {{ iteration.mask_text }});   // Packs bits {{ iteration.comment_data }} of byte {{ iteration.starting_byte }}
     {% endfor %}
     {% endfor %}
 }
@@ -109,11 +124,21 @@ void app_canUtils_{{ msg.name }}_unpack(const uint8_t* const in_data, {{ msg.nam
     }
     {% for signal in msg.signals %}
     {%- set signal_big_name =  signal.screaming_snake_name() -%}
-    {%- set DECORD_MACRO = "SIGNED_DECODE" if signal.signed else "CAN_DECODE" -%}
+    {%- decl decord_macro -%}
+    {%- if signal.signed -%}
+    {%- let decord_macro = "CAN_SIGNED_ENCODE" -%}
+    {%- else -%}
+    {%- let decord_macro = "CAN_ENCODE" -%}
+    {%- endif -%}
     uint32_t {{ signal.name }}_raw = 0; // Temporary raw variable for {{ signal.name }}
     {% for iteration in iterations(signal) -%}
-    {%- set unpackShift = "unpackShiftLeft" if iteration.shift >= 0 else "unpackShiftRight" -%}
-    {{ signal.name }}_raw |= {{ unpackShift }}(in_data[{{ iteration.starting_byte }}], {{ iteration.shift | abs }}, {{ iteration.mask_text }}); // Unpacks bits {{ iteration.comment_data }} from byte {{ iteration.starting_byte }}
+    {%- decl unpackShift -%}
+    {%- if iteration.shift >= 0 -%}
+    {%- let unpackShift = "unpackShiftRight" -%}
+    {%- else -%}
+    {%- let unpackShift = "unpackShiftLeft" -%}
+    {%- endif -%}
+    {{ signal.name }}_raw |= {{ unpackShift }}(in_data[{{ iteration.starting_byte }}], {{ iteration.shift }}, {{ iteration.mask_text }}); // Unpacks bits {{ iteration.comment_data }} from byte {{ iteration.starting_byte }}
     {% endfor -%}
     {%- if signal.signed -%}
     const int {{ signal.name }}_signed = SIGNED_DECODE({{ signal.name }}_raw, {{ signal.bits }}, {{ max_uint_for_bits(signal.bits) }});

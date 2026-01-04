@@ -52,76 +52,12 @@ impl CanNode {
     }
 }
 
-fn bits_to_bytes(bits: u16) -> u16 {
-    //  Get number of bytes needed to store bits number of bits.
-    (bits + 7) / 8
-}
-
-const ALLOWABLE_MSG_LENGTHS: [u16; 16] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64];
-impl CanMessage {
-    pub fn dlc(&self) -> u16 {
-        // Length of payload, in bytes.
-        if self.signals.len() == 0 {
-            return 0;
-        }
-
-        let useful_length = bits_to_bytes(
-            self.signals
-                .iter()
-                .map(|signal| signal.start_bit + signal.bits)
-                .max()
-                .expect("Message has signals (already checked length > 0)"),
-        );
-
-        for length in ALLOWABLE_MSG_LENGTHS.iter() {
-            if *length >= useful_length {
-                return *length;
-            }
-        }
-
-        panic!("This message was created with an invalid DLC!");
-    }
-
-    pub fn requires_fd(&self) -> bool {
-        self.dlc() > 8
-    }
-}
-
-impl CanEnum {
-    pub fn bits(&self) -> u16 {
-        // Calculate number of bits needed to represent this enum
-        let max_value = self.max_value();
-        for bits in 1u16..=32 {
-            if max_value < (1 << bits) {
-                return bits;
-            }
-        }
-        panic!("Enum has a value that is too large to represent in 32 bits");
-    }
-
-    pub fn max_value(&self) -> u32 {
-        return self
-            .values
-            .values()
-            .cloned()
-            .max()
-            .expect("Enum has at least one value");
-    }
-
-    pub fn min_value(&self) -> u32 {
-        0
-    }
-}
-
 pub struct CanDatabase {
     conn: rusqlite::Connection,
     pub nodes: Vec<CanNode>,
     pub buses: Vec<CanBus>,
     pub forwarding: Vec<BusForwarder>,
-    // alerts[node_name] gives a list of alerts on that node
-    // pub alerts: HashMap<String, Vec<CanAlert>>,
-    // enums[enum_name] gives metadata for enum_name
-    // pub enums: HashMap<String, CanEnum>,
+    pub shared_enums: Vec<CanEnum>,
 }
 
 impl CanDatabase {
@@ -129,6 +65,7 @@ impl CanDatabase {
         buses: Vec<CanBus>,
         nodes: Vec<CanNode>,
         forwarding: Vec<BusForwarder>,
+        shared_enums: Vec<CanEnum>,
     ) -> Result<Self, CanDBError> {
         let conn = Connection::open_in_memory().unwrap();
         match conn.execute(
@@ -183,6 +120,7 @@ impl CanDatabase {
             buses,
             nodes,
             forwarding,
+            shared_enums,
         })
     }
 
@@ -467,6 +405,27 @@ impl CanDatabase {
         }) {
             Ok(msg) => Ok(msg),
             Err(e) => Err(CanDBError::SqlLiteError(e)),
+        }
+    }
+
+    pub fn get_all_msgs(self: &Self) -> Result<Vec<CanMessage>, CanDBError> {
+        let mut s = self.conn.prepare("SELECT * FROM messages").unwrap();
+
+        match s.query_map([], |row| {
+            Ok(CanMessage {
+                name: row.get(0)?,
+                id: row.get(1)?,
+                description: row.get(2)?,
+                cycle_time: row.get(3)?,
+                log_cycle_time: row.get(4)?,
+                telem_cycle_time: row.get(5)?,
+                tx_node_name: row.get(6)?,
+                modes: serde_json::from_str::<Vec<String>>(&row.get::<_, String>(7)?).unwrap(),
+                signals: self.get_signals_for_message(row.get(1)?).unwrap(),
+            })
+        }) {
+            Err(e) => Err(CanDBError::SqlLiteError(e)),
+            Ok(k) => Ok(k.map(|res| res.unwrap()).collect()),
         }
     }
 }

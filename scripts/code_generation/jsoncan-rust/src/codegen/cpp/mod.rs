@@ -16,7 +16,7 @@ pub use io_canreroute::IoCanRerouteModule;
 pub use io_canrx::IoCanRxModule;
 pub use io_cantx::IoCanTxModule;
 
-use crate::can_database::{CanMessage, CanSignal};
+use crate::can_database::{CanEnum, CanMessage, CanSignal};
 
 use convert_case::{Case, Casing};
 
@@ -29,7 +29,7 @@ pub enum CPPModule<'a> {
     AppCanUtilsModule(AppCanUtilsModule<'a>),
     AppCanTxModule(AppCanTxModule),
     AppCanAlertsModule(AppCanAlertsModule<'a>),
-    AppCanDataCaptureModule(AppCanDataCaptureModule<'a>),
+    AppCanDataCaptureModule(AppCanDataCaptureModule),
     AppCanRxModule(AppCanRxModule<'a>),
     IoCanTxModule(IoCanTxModule<'a>),
     IoCanRxModule(IoCanRxModule<'a>),
@@ -104,5 +104,31 @@ impl CanSignal {
 impl CanMessage {
     fn c_type(self: &Self) -> String {
         format!("{}_Signals", self.name)
+    }
+
+    fn snake_name(&self) -> String {
+        self.name.to_case(Case::Snake)
+    }
+
+    fn screaming_snake_name(&self) -> String {
+        self.name.to_case(Case::Snake).to_uppercase()
+    }
+
+    pub fn id_macro(&self) -> String {
+        format!("CAN_MSG_{}_ID", self.snake_name().to_uppercase())
+    }
+
+    pub fn dlc_macro(&self) -> String {
+        format!("CAN_MSG_{}_DLC", self.snake_name().to_uppercase())
+    }
+
+    pub fn cycle_time_macro(&self) -> String {
+        format!("CAN_MSG_{}_CYCLE_TIME_MS", self.snake_name().to_uppercase())
+    }
+}
+
+impl CanEnum {
+    fn screaming_snake_name(self: &Self) -> String {
+        self.name.to_case(Case::Snake).to_uppercase()
     }
 }
