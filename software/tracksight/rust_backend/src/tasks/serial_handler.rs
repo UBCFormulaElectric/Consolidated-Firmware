@@ -2,6 +2,7 @@ use serialport::SerialPort;
 use std::io::{Error, ErrorKind};
 use std::sync::mpsc::Sender;
 use std::time::Duration;
+use crc::{Crc, CRC_32_ISCSI};
 
 use super::thread_signal_handler::should_run;
 use super::telem_message::{TelemetryMessage, CanMessage, NTPTimeMessage, NTPDateMessage, BaseTimeRegMessage};
@@ -65,6 +66,9 @@ pub fn run_serial_task(can_queue_sender: Sender<CanMessage>) {
 const MAGIC: [u8; 2] = [0xaa, 0x55];
 const HEADER_SIZE: usize = 7;
 const MAX_PAYLOAD_SIZE: usize = 100;
+// calc is short for calculator
+// for those new to the chat
+const CRC32_CALC: Crc<u32> = Crc::<u32>::new(&CRC_32_ISCSI);
 
 fn read_packet(serial_port: &mut Box<dyn SerialPort>) -> Result<Vec<u8>, Error> {
     let mut header_buffer = [0x0; HEADER_SIZE];
@@ -106,8 +110,16 @@ fn read_packet(serial_port: &mut Box<dyn SerialPort>) -> Result<Vec<u8>, Error> 
         index += serial_port.read(&mut payload_buffer[index..])?
     }
 
-    // checksum
-    // TODO implement checksum verification
+    // checksum, probably works
+    let expected_crc = u32::from_le_bytes(header_buffer[3..7].try_into().unwrap_or_default());
+    let calculated_crc: u32 = CRC32_CALC.checksum(&payload_buffer);
+
+    if expected_crc != calculated_crc {
+        return Err(Error::new(
+            ErrorKind::InvalidData,
+            "CRC mismatch",
+        ));
+    }
 
     return Ok(payload_buffer);
 }
