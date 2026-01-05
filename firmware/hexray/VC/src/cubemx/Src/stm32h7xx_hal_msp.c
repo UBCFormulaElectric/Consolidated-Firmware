@@ -100,10 +100,12 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
             __HAL_RCC_ADC12_CLK_ENABLE();
         }
 
-        __HAL_RCC_GPIOA_CLK_ENABLE();
         __HAL_RCC_GPIOC_CLK_ENABLE();
+        __HAL_RCC_GPIOA_CLK_ENABLE();
         __HAL_RCC_GPIOB_CLK_ENABLE();
         /**ADC1 GPIO Configuration
+        PC0     ------> ADC1_INP10
+        PA0     ------> ADC1_INP16
         PA1     ------> ADC1_INP17
         PA3     ------> ADC1_INP15
         PA4     ------> ADC1_INP18
@@ -111,15 +113,15 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         PC5     ------> ADC1_INP8
         PB0     ------> ADC1_INP9
         */
-        GPIO_InitStruct.Pin  = R_INV_SNS_Pin | BMS_SNS_Pin | RSM_SNS_Pin;
-        GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-        GPIO_InitStruct.Pull = GPIO_NOPULL;
-        HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-        GPIO_InitStruct.Pin  = DAM_SNS_Pin | RR_PUMP_I_SNS_Pin;
+        GPIO_InitStruct.Pin  = L_RAD_FAN_I_SNS_Pin | DAM_SNS_Pin | RR_PUMP_I_SNS_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+        GPIO_InitStruct.Pin  = FRONT_SNS_Pin | R_INV_SNS_Pin | BMS_SNS_Pin | RSM_SNS_Pin;
+        GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+        GPIO_InitStruct.Pull = GPIO_NOPULL;
+        HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
         GPIO_InitStruct.Pin  = RL_PUMP_I_SNS_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
@@ -142,24 +144,25 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
             __HAL_RCC_ADC12_CLK_ENABLE();
         }
 
-        __HAL_RCC_GPIOA_CLK_ENABLE();
         __HAL_RCC_GPIOC_CLK_ENABLE();
+        __HAL_RCC_GPIOA_CLK_ENABLE();
         __HAL_RCC_GPIOB_CLK_ENABLE();
         /**ADC2 GPIO Configuration
+        PC1     ------> ADC2_INP11
         PA2     ------> ADC2_INP14
         PA4     ------> ADC2_INP18
         PC4     ------> ADC2_INP4
         PB1     ------> ADC2_INP5
         */
+        GPIO_InitStruct.Pin  = MISC_FUSE_SNS_Pin | DAM_SNS_Pin;
+        GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+        GPIO_InitStruct.Pull = GPIO_NOPULL;
+        HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
         GPIO_InitStruct.Pin  = F_INV_SNS_Pin | RSM_SNS_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-        GPIO_InitStruct.Pin  = DAM_SNS_Pin;
-        GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-        GPIO_InitStruct.Pull = GPIO_NOPULL;
-        HAL_GPIO_Init(DAM_SNS_GPIO_Port, &GPIO_InitStruct);
 
         GPIO_InitStruct.Pin  = R_RAD_FAN_I_SNS_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
@@ -193,6 +196,8 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
         }
 
         /**ADC1 GPIO Configuration
+        PC0     ------> ADC1_INP10
+        PA0     ------> ADC1_INP16
         PA1     ------> ADC1_INP17
         PA3     ------> ADC1_INP15
         PA4     ------> ADC1_INP18
@@ -200,9 +205,9 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
         PC5     ------> ADC1_INP8
         PB0     ------> ADC1_INP9
         */
-        HAL_GPIO_DeInit(GPIOA, R_INV_SNS_Pin | BMS_SNS_Pin | RSM_SNS_Pin);
+        HAL_GPIO_DeInit(GPIOC, L_RAD_FAN_I_SNS_Pin | DAM_SNS_Pin | RR_PUMP_I_SNS_Pin);
 
-        HAL_GPIO_DeInit(GPIOC, DAM_SNS_Pin | RR_PUMP_I_SNS_Pin);
+        HAL_GPIO_DeInit(GPIOA, FRONT_SNS_Pin | R_INV_SNS_Pin | BMS_SNS_Pin | RSM_SNS_Pin);
 
         HAL_GPIO_DeInit(RL_PUMP_I_SNS_GPIO_Port, RL_PUMP_I_SNS_Pin);
 
@@ -223,14 +228,15 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
         }
 
         /**ADC2 GPIO Configuration
+        PC1     ------> ADC2_INP11
         PA2     ------> ADC2_INP14
         PA4     ------> ADC2_INP18
         PC4     ------> ADC2_INP4
         PB1     ------> ADC2_INP5
         */
-        HAL_GPIO_DeInit(GPIOA, F_INV_SNS_Pin | RSM_SNS_Pin);
+        HAL_GPIO_DeInit(GPIOC, MISC_FUSE_SNS_Pin | DAM_SNS_Pin);
 
-        HAL_GPIO_DeInit(DAM_SNS_GPIO_Port, DAM_SNS_Pin);
+        HAL_GPIO_DeInit(GPIOA, F_INV_SNS_Pin | RSM_SNS_Pin);
 
         HAL_GPIO_DeInit(R_RAD_FAN_I_SNS_GPIO_Port, R_RAD_FAN_I_SNS_Pin);
 
