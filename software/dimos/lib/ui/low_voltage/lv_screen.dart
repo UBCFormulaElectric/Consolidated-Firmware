@@ -27,7 +27,7 @@ class LVScreen extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
-            spacing: 50,
+            spacing: 20,
             children: [
               Center(
                 child: Container(
@@ -35,7 +35,7 @@ class LVScreen extends StatelessWidget {
                   height: 200,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.all(Radius.circular(15)),
-                    color: const Color.fromARGB(255, 130, 174, 210)
+                    color: const Color(0xFF002D67)
                   ),
                   child: Battery(),
                 )
@@ -50,6 +50,13 @@ class LVScreen extends StatelessWidget {
                   ),
                   child: SvgPicture.asset('assets/fe_logo.svg')
                 )
+              ),
+              Text("UBC Formula Electric",
+                style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                ),
               )
             ]
           ),
