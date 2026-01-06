@@ -1,66 +1,64 @@
 use serialport::SerialPort;
+use tokio::select;
+use tokio::sync::broadcast;
+use tokio::sync::mpsc;
 use std::io::{Error, ErrorKind};
-use std::sync::mpsc::Sender;
 use std::time::Duration;
 use crc::{Crc, CRC_32_ISCSI};
 
-use super::thread_signal_handler::should_run;
+use crate::config::CONFIG;
 use super::telem_message::{TelemetryMessage, CanMessage, NTPTimeMessage, NTPDateMessage, BaseTimeRegMessage};
 
 /**
  * Handling serial signals from radio.
  */
-pub fn run_serial_task(can_queue_sender: Sender<CanMessage>) {
-    let serial_port_builder = serialport::new(
-            "/dev/ttyUSB0",
-            9600
-        )
-        .timeout(Duration::from_millis(10));
+pub async fn run_serial_task(mut shutdown_rx: broadcast::Receiver<()>, can_queue_sender: broadcast::Sender<CanMessage>) {
+    let (packet_tx, mut packet_rx) = mpsc::channel::<Vec<u8>>(32);
 
-    let mut serial_port = match serial_port_builder.open() {
-        Ok(port) => port,
-        Err(e) => {
-            eprintln!("Failed to open serial port: {}", e);
-            return;
-        }
-    };
+    println!("Serial task started.");
 
-    // have a should run check
+    // spawn blocking packet reader
+    // the reader thread will allow the handler thread to be async
+    let packet_reader = tokio::task::spawn_blocking(move || packet_reader_handler(packet_tx));
+
+    // loop select check for shutdown signal
+    // if shutdown signal, select block breaks loop early
     loop {
-        if !should_run() {
-            break;
-        }
+        select! {
+            _ = shutdown_rx.recv() => {
+                println!("Shutting down serial task.");
+                break;
+            }
+            Some(packet) = packet_rx.recv() => {
+                // todo should also probably check for closed channels and close thread
+                // TODO better handling error
+                let telem_message = match parse_telem_message(packet) {
+                    Ok(m)   => m,
+                    Err(_)  => continue,
+                };
 
-        // TODO i love unwrapping
-        let packet = match read_packet(&mut serial_port) {
-            Ok(p)   => p,
-            Err(_)  => continue,
-        };
-
-        // TODO better handling error
-        let telem_message = match parse_telem_message(packet) {
-            Ok(m)   => m,
-            Err(_)  => continue,
-        };
-
-        match telem_message {
-            TelemetryMessage::Can { body } => {
-                let CanMessage { can_id, can_time_offset, can_payload } = &body;
-                println!("Received CAN Message: ID: {}, Time Offset: {}, Payload: {:?}", can_id, can_time_offset, can_payload);
-                // TODO error handling
-                can_queue_sender.send(body).unwrap();
-            },
-            TelemetryMessage::NTPTime { body } => {
-                // TODO handle NTP time message
-            },
-            TelemetryMessage::NTPDate { body } => {
-                // TODO handle NTP date message
-            },
-            TelemetryMessage::BaseTimeReg { body } => {
-                // TODO handle base time register message
-            },
+                match telem_message {
+                    TelemetryMessage::Can { body } => {
+                        let CanMessage { can_id, can_time_offset, can_payload } = &body;
+                        println!("Received CAN Message: ID: {}, Time Offset: {}, Payload: {:?}", can_id, can_time_offset, can_payload);
+                        // TODO error handling
+                        can_queue_sender.send(body).unwrap();
+                    },
+                    TelemetryMessage::NTPTime { body } => {
+                        // TODO handle NTP time message
+                    },
+                    TelemetryMessage::NTPDate { body } => {
+                        // TODO handle NTP date message
+                    },
+                    TelemetryMessage::BaseTimeReg { body } => {
+                        // TODO handle base time register message
+                    },
+                }
+            }
         }
     }
+
+    packet_reader.await.ok();
 }
 
 const MAGIC: [u8; 2] = [0xaa, 0x55];
@@ -69,6 +67,33 @@ const MAX_PAYLOAD_SIZE: usize = 100;
 // calc is short for calculator
 // for those new to the chat
 const CRC32_CALC: Crc<u32> = Crc::<u32>::new(&CRC_32_ISCSI);
+
+/**
+ * Blocking handler that reads packets and sends it to the handler
+ * This separate blocking thread is needed for optimal multithreading with tokio
+ */
+fn packet_reader_handler(packet_tx: mpsc::Sender<Vec<u8>>) {   
+    let mut serial_port = serialport::new(
+        &CONFIG.serial_port,
+        CONFIG.serial_baud_rate
+    )
+    .timeout(Duration::from_millis(100)) // i love magic numbers
+    .open()
+    .expect("Failed to open serial port");
+
+    loop {
+        match read_packet(&mut serial_port) {
+            // I don't think blocking send is an issue here.. probably...
+            Ok(p) => {
+                match packet_tx.blocking_send(p) {
+                    Ok(_) => {},
+                    Err(_) => break, // receiver has closed, exit thread
+                }
+            },
+            Err(_)  => continue,
+        };
+    }
+}
 
 fn read_packet(serial_port: &mut Box<dyn SerialPort>) -> Result<Vec<u8>, Error> {
     let mut header_buffer = [0x0; HEADER_SIZE];

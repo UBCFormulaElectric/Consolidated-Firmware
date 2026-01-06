@@ -1,17 +1,16 @@
-use std::sync::mpsc::Receiver;
+use tokio::sync::broadcast::Receiver;
 use influxdb2::Client;
-use influxdb2::models::DataPoint;
+use tokio::select;
 
 use crate::config::CONFIG;
 use crate::tasks::telem_message::CanMessage;
-use crate::tasks::thread_signal_handler::should_run;
 
 /**
  * After serial_handler parses the can messages,
  * this task will handle "distributing" the data to
  * both the socket clients and influxdb
  */
-pub fn run_broadcaster_task(can_queue_receiver: Receiver<CanMessage>) {
+pub async fn run_broadcaster_task(mut shutdown_signal: Receiver<()>, mut can_queue_receiver: Receiver<CanMessage>) {
     // TODO consider splitting this task for client handling and influxdb into two tasks
 
     let influx_client = Client::new(
@@ -19,17 +18,22 @@ pub fn run_broadcaster_task(can_queue_receiver: Receiver<CanMessage>) {
         &CONFIG.influxdb_org,
         &CONFIG.influxdb_token
     );
-    
-    loop {
-        if !should_run() {
-            break;
-        }
-        match can_queue_receiver.recv() {
-            Ok(CanMessage {can_id, can_time_offset, can_payload }) => {
-                // TODO Process the message using jsoncan
 
-            },
-            Err(_) => break, // Channel has closed, no possible senders left
+    println!("Broadcaster task started.");
+    
+    // loop select check for shutdown signal
+    // if shutdown signal, select block breaks loop early
+    loop {
+        select! {
+            _ = shutdown_signal.recv() => {
+                println!("Shutting down broadcaster task.");
+                break;
+            }
+            Ok(can) = can_queue_receiver.recv() => {
+                // todo should also probably check for closed channels and close thread
+                let CanMessage { can_id, can_time_offset, can_payload } = can;
+                // todo handle
+            }
         }
     }
 }
