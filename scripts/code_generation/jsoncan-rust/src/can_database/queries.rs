@@ -94,18 +94,6 @@ impl CanDatabase {
         }
     }
 
-    pub fn get_tx_node_for_message_name(self: &Self, message_name: &str) -> Option<String> {
-        let mut s = self
-            .conn
-            .prepare("SELECT tx_node_name FROM messages WHERE name = ?1")
-            .unwrap();
-
-        match s.query_row([message_name], |row| row.get(0)) {
-            Ok(tx_node_name) => Some(tx_node_name),
-            Err(_) => None,
-        }
-    }
-
     pub fn get_all_rx_msgs_for(self: &Self, node_name: &str) -> Vec<String> {
         let mut s = self
             .conn
@@ -138,18 +126,6 @@ impl CanDatabase {
             })
         }) {
             Ok(msg) => Ok(msg),
-            Err(e) => Err(CanDBError::SqlLiteError(e)),
-        }
-    }
-
-    pub fn get_message_id_by_name(self: &Self, message_name: &str) -> Result<u32, CanDBError> {
-        let mut s = self
-            .conn
-            .prepare("SELECT id FROM messages WHERE name = ?1")
-            .unwrap();
-
-        match s.query_row([message_name], |row| row.get(0)) {
-            Ok(msg_id) => Ok(msg_id),
             Err(e) => Err(CanDBError::SqlLiteError(e)),
         }
     }

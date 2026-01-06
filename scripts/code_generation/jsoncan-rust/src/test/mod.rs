@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::fmt::Debug;
 use std::hash::Hash;
 
 use crate::{
@@ -14,10 +15,10 @@ fn setup() -> Result<CanDatabase, CanDBError> {
     )))
 }
 
-fn assert_setequal<S, T, I1, I2>(iter1: I1, iter2: I2) -> bool
+fn assert_setequal<S, T, I1, I2>(iter1: I1, iter2: I2)
 where
-    S: Eq + PartialEq + Hash,
-    T: Eq + PartialEq + Hash,
+    S: Eq + PartialEq + Hash + Debug,
+    T: Eq + PartialEq + Hash + Debug,
     I1: Iterator<Item = S>,
     I2: Iterator<Item = T>,
     HashMap<S, i32>: PartialEq<HashMap<T, i32>>,
@@ -32,16 +33,13 @@ where
         *counts2.entry(item).or_insert(0) += 1;
     }
 
-    counts1 == counts2
+    assert!(counts1 == counts2, "{:?} {:?}", counts1, counts2)
 }
 
 #[cfg(test)]
 mod node_tests {
-    use crate::can_database::CanDatabase;
-
     // These tests check that nodes are created correctly.
     use super::{assert_setequal, setup};
-    use std::collections::HashSet;
 
     static ECU1_MSGS: [&str; 6] = [
         "ECU1_BasicSignalTypes",
