@@ -36,8 +36,10 @@ pub struct BaseTimeRegMessage {
 
 /**
  * Message passed through serial
+ * Define with default cloning behaviour, as fields are more or less primitives
  */
-pub struct CanMessage {
+#[derive(Clone, Debug)]
+ pub struct CanMessage {
     pub can_id: u32,
     pub can_time_offset: f32, // should deprecate this field when we establish RTC and NTP
     pub can_payload: Vec<u8>,

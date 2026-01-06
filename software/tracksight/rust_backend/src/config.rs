@@ -3,6 +3,8 @@ use std::sync::LazyLock;
 use dotenv::{ dotenv, from_filename};
 
 pub struct Config {
+    pub serial_port: String,
+    pub serial_baud_rate: u32,
     pub influxdb_url: String,
     pub influxdb_org: String,
     pub influxdb_token: String,
@@ -18,6 +20,9 @@ fn load_env_file() -> Config {
 
     from_filename(DEFAULT_BACKEND_ENV_FILE)
         .expect(&format!("{} file not found, could not load env file!", DEFAULT_BACKEND_ENV_FILE));
+
+    let serial_port: String = var("SERIAL_PORT")
+        .expect("SERIAL_PORT is missing!");
 
     let influxdb_url: String = var("INFLUXDB_URL")
         .expect("INFLUXDB_URL is missing!");
@@ -37,6 +42,8 @@ fn load_env_file() -> Config {
     );
 
     return Config {
+        serial_port: serial_port,
+        serial_baud_rate: 9600, // hardcoded baudrate, probably wont ever change this
         influxdb_url: influxdb_url,
         influxdb_org: influxdb_org,
         influxdb_token: influxdb_token,

@@ -1,44 +1,45 @@
-use std::thread::{self, JoinHandle};
 use ctrlc;
-use std::sync::mpsc::channel;
+use std::sync::atomic::{AtomicUsize, Ordering};
+use tokio::sync::broadcast::channel;
+use tokio::task::{JoinSet};
 
 mod config;
 
 mod tasks;
 use tasks::telem_message::CanMessage;
-use tasks::thread_signal_handler::stop_threads;
 use tasks::serial_handler::run_serial_task;
 use tasks::can_data_handler::run_broadcaster_task;
 
-
-fn main() {
-    let mut handles: Vec<JoinHandle<()>> = vec![];
+#[tokio::main]
+async fn main() {
+    let mut tasks = JoinSet::new();
+    let (shutdown_tx, _) = channel(1);
 
     // this is equivalent to queue in old backend
-    let (sender, receiver) = channel::<CanMessage>();
+    // use broadcast instead of mpsc, probably only one serial source but multiple consumers
+    // idk what to define buffer size
+    let (can_queue_tx, _) = channel::<CanMessage>(32);
 
     // start tasks
-    // TODO use tokio to not block a core when reading from serial port
-    handles.push(thread::spawn(move || { run_serial_task(sender.clone()) }));
-    handles.push(thread::spawn(move || { run_broadcaster_task(receiver) }));
-
+    tasks.spawn(run_broadcaster_task(shutdown_tx.subscribe(), can_queue_tx.subscribe()));
+    tasks.spawn(run_serial_task(shutdown_tx.subscribe(), can_queue_tx));
 
     // handle termination signal
-    let interrupt_count = std::sync::atomic::AtomicUsize::new(0);
+    let interrupt_count = AtomicUsize::new(0);
     ctrlc::set_handler(move || {
-        let count = interrupt_count.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+        let count = interrupt_count.fetch_add(1, Ordering::SeqCst);
         if count >= 1 {
             eprintln!("Force exiting...");
             std::process::exit(1);
         }
         eprintln!("Interrupt received! Cleaning up...");
-        stop_threads();
+        shutdown_tx.send(()).ok();
     }).expect("Error setting Ctrl-C handler");
 
-    // prevent main from exiting
-    for handle in handles {
-        if handle.join().is_err() {
-            eprintln!("A thread has panicked!");
+    // wait for tasks to clean up
+    while let Some(res) = tasks.join_next().await {
+        if let Err(err) = res {
+            eprintln!("Task failed to clean up: {err}");
         }
     }
 
