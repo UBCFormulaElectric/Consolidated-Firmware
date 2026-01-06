@@ -137,10 +137,6 @@ impl CanMessage {
             self.id
         }
     }
-
-    pub fn is_periodic(&self) -> bool {
-        self.cycle_time.is_some()
-    }
 }
 
 #[derive(Clone)]

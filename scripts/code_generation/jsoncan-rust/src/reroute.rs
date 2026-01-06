@@ -70,11 +70,6 @@ impl CanTxConfig {
             .push(msg_id);
     }
 
-    pub fn get_all_msgs(self: &Self) -> Vec<u32> {
-        let s: HashSet<u32> = self.map_by_bus.values().flatten().cloned().collect();
-        s.into_iter().collect()
-    }
-
     pub fn get_all(self: &Self) -> Vec<(u32, Vec<String>)> {
         let mut msg_to_busses: HashMap<u32, Vec<String>> = HashMap::new();
         for (bus_name, msg_ids) in &self.map_by_bus {
