@@ -37,6 +37,19 @@ impl CanRxConfig {
         }
         Vec::new()
     }
+
+    pub fn get_busses_for_msg(self: &Self, msg_id: u32) -> Vec<String> {
+        self.map_by_bus
+            .iter()
+            .filter_map(|(bus_name, msg_ids)| {
+                if msg_ids.contains(&msg_id) {
+                    Some(bus_name.clone())
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
 }
 
 pub struct CanTxConfig {

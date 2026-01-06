@@ -231,4 +231,13 @@ impl CanDatabase {
             Err(e) => Err(CanDBError::SqlLiteError(e)),
         }
     }
+
+    pub fn get_enum(self: &Self, enum_name: &str) -> Option<CanEnum> {
+        self.nodes
+            .iter()
+            .flat_map(|n| n.enums.iter())
+            .chain(self.shared_enums.iter())
+            .find(|e| e.name == enum_name)
+            .cloned()
+    }
 }

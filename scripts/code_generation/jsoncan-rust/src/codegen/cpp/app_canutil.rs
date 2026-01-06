@@ -42,11 +42,11 @@ impl AppCanUtilsModuleSource<'_> {
                 .join("|")
         );
         if msg.dlc() == 0 {
-            return "(0 data bytes)".to_string();
+            "(0 data bytes)".to_string()
         } else if msg.dlc() == 1 {
-            return format!("{} (1 data byte)", placement_part);
+            format!("{} (1 data byte)", placement_part)
         } else {
-            return format!("{} ({} data bytes)", placement_part, msg.dlc());
+            format!("{} ({} data bytes)", placement_part, msg.dlc())
         }
     }
 

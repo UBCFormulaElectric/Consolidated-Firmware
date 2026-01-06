@@ -44,7 +44,7 @@ fn main() {
 
     // Generate DBC file
     write_text(
-        DbcGenerator::new(&can_db, &rx_configs).source(),
+        DbcGenerator::new(&can_db, &rx_configs).source().unwrap(),
         &args.dbc_output,
     );
     if args.only_dbc {

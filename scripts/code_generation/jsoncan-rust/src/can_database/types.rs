@@ -129,6 +129,18 @@ impl CanMessage {
     pub fn requires_fd(&self) -> bool {
         self.dlc() > 8
     }
+
+    pub fn dbc_id(&self) -> u32 {
+        if self.id >= 1 << 11 {
+            self.id | (1 << 31)
+        } else {
+            self.id
+        }
+    }
+
+    pub fn is_periodic(&self) -> bool {
+        self.cycle_time.is_some()
+    }
 }
 
 #[derive(Clone)]
