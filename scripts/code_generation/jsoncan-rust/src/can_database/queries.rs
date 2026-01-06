@@ -17,8 +17,8 @@ impl CanDatabase {
                 id: row.get(1)?,
                 description: row.get(2)?,
                 cycle_time: row.get(3)?,
-                log_cycle_time: row.get(4)?,
-                telem_cycle_time: row.get(5)?,
+                log_cycle_time: row.get(4).unwrap_or_default(), // INCREDIBLY SUS
+                telem_cycle_time: row.get(5).unwrap_or_default(), // INCREDIBLY SUSSY
                 tx_node_name: row.get(6)?,
                 modes: serde_json::from_str::<Vec<String>>(&row.get::<_, String>(7)?).unwrap(),
                 signals: self.get_signals_for_message(row.get(1)?).unwrap(),

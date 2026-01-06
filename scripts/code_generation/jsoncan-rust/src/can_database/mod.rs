@@ -70,7 +70,7 @@ impl CanDatabase {
     ) -> Result<Self, CanDBError> {
         let conn = Connection::open_in_memory().unwrap();
         match conn.execute(
-            "CREATE TABLE IF NOT EXISTS messages (
+            "CREATE TABLE messages (
 				name TEXT NOT NULL,
 				id INTEGER PRIMARY KEY NOT NULL,
 				description TEXT,
@@ -90,7 +90,7 @@ impl CanDatabase {
 
         // create table for signals
         match conn.execute(
-            "CREATE TABLE IF NOT EXISTS signals (
+            "CREATE TABLE signals (
 				name TEXT NOT NULL,
 				message_id INTEGER NOT NULL,
 				start_bit INTEGER NOT NULL,
