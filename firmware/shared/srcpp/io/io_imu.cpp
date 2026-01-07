@@ -24,15 +24,15 @@ static constexpr uint8_t CONFIG         = 0x1A;
 static constexpr uint8_t GYRO_CONFIG    = 0x1B;
 static constexpr uint8_t ACCEL_CONFIG   = 0x1C;
 static constexpr uint8_t ACCEL_CONFIG_2 = 0x1D;
-static constexpr uint8_t LP_MODE_CFG    = 0x1E;
+static constexpr uint8_t LP_MODE_CONFIG = 0x1E;
 static constexpr uint8_t ACCEL_WOM_THR  = 0x1F;
 
 // FIFO and Interrupt Registers
-static constexpr uint8_t FIFO_EN     = 0x23;
-static constexpr uint8_t FSYNC_INT   = 0x36;
-static constexpr uint8_t INT_PIN_CFG = 0x37;
-static constexpr uint8_t INT_ENABLE  = 0x38;
-static constexpr uint8_t INT_STATUS  = 0x3A;
+static constexpr uint8_t FIFO_EN        = 0x23;
+static constexpr uint8_t FSYNC_INT      = 0x36;
+static constexpr uint8_t INT_PIN_CONFIG = 0x37;
+static constexpr uint8_t INT_ENABLE     = 0x38;
+static constexpr uint8_t INT_STATUS     = 0x3A;
 
 // Accelerometer Output Registers
 static constexpr uint8_t ACCEL_XOUT_H = 0x3B;
@@ -67,7 +67,8 @@ static constexpr uint8_t FIFO_COUNTL = 0x73;
 static constexpr uint8_t FIFO_R_W    = 0x74;
 
 // Device Identification
-static constexpr uint8_t WHO_AM_I = 0x75;
+static constexpr uint8_t WHO_AM_I     = 0x75;
+static constexpr uint8_t WHO_AM_I_VAL = 0xF8;
 
 // Accelerometer Offset Registers
 static constexpr uint8_t XA_OFFSET_H = 0x77;
@@ -77,138 +78,232 @@ static constexpr uint8_t YA_OFFSET_L = 0x7B;
 static constexpr uint8_t ZA_OFFSET_H = 0x7D;
 static constexpr uint8_t ZA_OFFSET_L = 0x7E;
 
-// Expected WHO_AM_I Value
-static constexpr uint8_t WHO_AM_I_VALUE = 0xF8;
-
-static constexpr Config       config;
-static constexpr GyroConfig   gyro_config;
-static constexpr AccelConfig  accel_config;
-static constexpr AccelConfig2 accel_config2;
-static constexpr LpModeCfg    lp_mode_cfg;
-static constexpr FifoEn       fifo_en;
-static constexpr IntPinCfg    int_pin_cfg;
-static constexpr IntEnable    int_enable;
-static constexpr UserCtrl     user_ctrl;
-static constexpr PwrMgmt1     pwr_mgmt1;
-static constexpr PwrMgmt2     pwr_mgmt2;
-
-inline constexpr uint8_t WRITE_REG(uint8_t reg_addr)
+inline constexpr uint8_t WRITE_IMU_REG(uint8_t reg_addr)
 {
     return static_cast<uint8_t>(reg_addr & (~0x80));
 }
 
-inline constexpr uint8_t READ_REG(uint8_t reg_addr)
+inline constexpr uint8_t READ_IMU_REG(uint8_t reg_addr)
 {
     return static_cast<uint8_t>(reg_addr | 0x80U);
 }
 
-Imu::Imu(const SpiDevice &in_imu_spi_handle)
-  : imu_spi_handle(in_imu_spi_handle){ config.G_ }
-
-    ExitCode Imu::getAccelX(float &accel_x)
+inline constexpr float Imu::translateAccelData(uint8_t data_h, uint8_t data_l)
 {
-    std::array<const uint8_t, 1> tx = { READ_REG(ACCEL_XOUT_H) };
+    int16_t raw = static_cast<int16_t>((data_h << 8) | data_l);
+    return static_cast<uint8_t>(raw / accel_sensitivity);
+}
+
+inline constexpr float Imu::translateGyroData(uint8_t data_h, uint8_t data_l)
+{
+    int16_t raw = static_cast<int16_t>((data_h << 8) | data_l);
+    return static_cast<uint8_t>(raw / gyro_sensitivity);
+}
+
+inline constexpr float Imu::translateTempData(uint8_t data_h, uint8_t data_l)
+{
+    int16_t raw = static_cast<int16_t>((data_h << 8) | data_l);
+    return static_cast<uint8_t>((raw / 326.8f) + 25.0f);
+}
+
+ExitCode Imu::init()
+{
+    // Check if we are able to communicate to the IMU
+    std::array<const uint8_t, 1> tx_check = { { READ_IMU_REG(WHO_AM_I) } };
+    std::array<uint8_t, 1>       rx;
+
+    ExitCode exit = imu_spi_handle.transmitThenReceive(tx_check, rx);
+
+    if (rx[0] != WHO_AM_I_VAL || (IS_EXIT_OK(exit) == false))
+        return exit;
+
+    // Send configs to IMU
+    uint8_t      smplrt_div;
+    Config       config;
+    GyroConfig   gyro_config;
+    AccelConfig  accel_config;
+    AccelConfig2 accel_config2;
+    LpModeConfig lp_mode_config;
+    IntPinConfig int_pin_config;
+    FifoEn       fifo_en;
+    IntEnable    int_enable;
+    UserCtrl     user_ctrl;
+    PwrMgmt1     pwr_mgmt1;
+    PwrMgmt2     pwr_mgmt2;
+
+    accel_config.FS_SEL = static_cast<uint8_t>(accel_scale);
+    gyro_config.FS_SEL  = static_cast<uint8_t>(gyro_scale);
+    smplrt_div          = filter_config.accel_dlpf_cutoff;
+
+    if (this->filter_config.enable_accel_dlpf == true)
+    {
+        accel_config2.FCHOICE_B  = 0;
+        accel_config2.A_DLPF_CFG = static_cast<uint8_t>(filter_config.accel_dlpf_cutoff);
+    }
+
+    if (this->filter_config.enable_gyro_dlpf == true)
+    {
+        gyro_config.FCHOICE_B = 0;
+        config.G_DLPF_CFG     = static_cast<uint8_t>(filter_config.gyro_dlpf_cutoff);
+    }
+
+    std::array<const uint8_t, 24> tx_config = {
+        WRITE_IMU_REG(SMPLRT_DIV),     smplrt_div,     WRITE_IMU_REG(CONFIG),         config,
+        WRITE_IMU_REG(GYRO_CONFIG),    gyro_config,    WRITE_IMU_REG(ACCEL_CONFIG),   accel_config,
+        WRITE_IMU_REG(ACCEL_CONFIG_2), accel_config2,  WRITE_IMU_REG(LP_MODE_CONFIG), lp_mode_config,
+        WRITE_IMU_REG(INT_PIN_CONFIG), int_pin_config, WRITE_IMU_REG(FIFO_EN),        fifo_en,
+        WRITE_IMU_REG(INT_ENABLE),     int_enable,     WRITE_IMU_REG(USER_CTRL),      user_ctrl,
+        WRITE_IMU_REG(PWR_MGMT_1),     pwr_mgmt1,      WRITE_IMU_REG(PWR_MGMT_2),     pwr_mgmt2
+    };
+
+    exit               = imu_spi_handle.transmit(tx_config);
+    this->is_imu_ready = IS_EXIT_OK(exit);
+
+    return exit;
+}
+
+ExitCode Imu::getAccelX(float &accel_x)
+{
+    if (this->is_imu_ready == false)
+        return ExitCode::EXIT_CODE_ERROR;
+
+    std::array<const uint8_t, 1> tx = { { READ_IMU_REG(ACCEL_XOUT_H) } };
     std::array<uint8_t, 2>       rx{};
 
     ExitCode exit = imu_spi_handle.transmitThenReceive(tx, rx);
 
-    int16_t raw_data = static_cast<int16_t>((rx[0] << 8U) | rx[1]);
-    accel_x          = translateAccelData(raw_data);
+    accel_x = translateAccelData(rx[0], rx[1]);
+    ;
 
     return exit;
 }
 
 ExitCode Imu::getAccelY(float &accel_y)
 {
-    std::array<const uint8_t, 1> tx = { READ_REG(ACCEL_YOUT_H) };
+    if (this->is_imu_ready == false)
+        return ExitCode::EXIT_CODE_ERROR;
+
+    std::array<const uint8_t, 1> tx = { { READ_IMU_REG(ACCEL_YOUT_H) } };
     std::array<uint8_t, 2>       rx{};
 
     ExitCode exit = imu_spi_handle.transmitThenReceive(tx, rx);
 
-    int16_t raw_data = static_cast<int16_t>((rx[0] << 8U) | rx[1]);
-    accel_y          = translateAccelData(raw_data);
+    accel_y = translateAccelData(rx[0], rx[1]);
+    ;
 
     return exit;
 }
 
 ExitCode Imu::getAccelZ(float &accel_z)
 {
-    std::array<const uint8_t, 1> tx = { READ_REG(ACCEL_ZOUT_H) };
+    if (this->is_imu_ready == false)
+        return ExitCode::EXIT_CODE_ERROR;
+
+    std::array<const uint8_t, 1> tx = { { READ_IMU_REG(ACCEL_ZOUT_H) } };
     std::array<uint8_t, 2>       rx{};
 
     ExitCode exit = imu_spi_handle.transmitThenReceive(tx, rx);
 
-    int16_t raw_data = static_cast<int16_t>((rx[0] << 8U) | rx[1]);
-    accel_z          = translateAccelData(raw_data);
+    accel_z = translateAccelData(rx[0], rx[1]);
+    ;
 
     return exit;
 }
 
 ExitCode Imu::getGyroX(float &gyro_x)
 {
-    std::array<const uint8_t, 1> tx = { READ_REG(GYRO_XOUT_H) };
+    if (this->is_imu_ready == false)
+        return ExitCode::EXIT_CODE_ERROR;
+
+    std::array<const uint8_t, 1> tx = { { READ_IMU_REG(GYRO_XOUT_H) } };
     std::array<uint8_t, 2>       rx{};
 
     ExitCode exit = imu_spi_handle.transmitThenReceive(tx, rx);
 
-    int16_t raw_data = static_cast<int16_t>((rx[0] << 8U) | rx[1]);
-    gyro_x           = translateAccelData(raw_data);
+    gyro_x = translateGyroData(rx[0], rx[1]);
+    ;
 
     return exit;
 }
 
 ExitCode Imu::getGyroY(float &gyro_y)
 {
-    std::array<const uint8_t, 1> tx = { READ_REG(GYRO_YOUT_H) };
+    if (this->is_imu_ready == false)
+        return ExitCode::EXIT_CODE_ERROR;
+
+    std::array<const uint8_t, 1> tx = { { READ_IMU_REG(GYRO_YOUT_H) } };
     std::array<uint8_t, 2>       rx{};
 
     ExitCode exit = imu_spi_handle.transmitThenReceive(tx, rx);
 
-    int16_t raw_data = static_cast<int16_t>((rx[0] << 8U) | rx[1]);
-    gyro_y           = translateAccelData(raw_data);
+    gyro_y = translateGyroData(rx[0], rx[1]);
+    ;
 
     return exit;
 }
 
 ExitCode Imu::getGyroZ(float &gyro_z)
 {
-    std::array<const uint8_t, 1> tx = { READ_REG(GYRO_ZOUT_H) };
+    if (this->is_imu_ready == false)
+        return ExitCode::EXIT_CODE_ERROR;
+
+    std::array<const uint8_t, 1> tx = { { READ_IMU_REG(GYRO_ZOUT_H) } };
     std::array<uint8_t, 2>       rx{};
 
     ExitCode exit = imu_spi_handle.transmitThenReceive(tx, rx);
 
-    int16_t raw_data = static_cast<int16_t>((rx[0] << 8U) | rx[1]);
-    gyro_z           = translateAccelData(raw_data);
+    gyro_z = translateGyroData(rx[0], rx[1]);
+    ;
 
     return exit;
 }
 
-ExitCode Imu::getTemp(float &temp) {}
+ExitCode Imu::getTemp(float &temp)
+{
+    if (this->is_imu_ready == false)
+        return ExitCode::EXIT_CODE_ERROR;
+
+    std::array<const uint8_t, 1> tx = { { READ_IMU_REG(GYRO_ZOUT_H) } };
+    std::array<uint8_t, 2>       rx{};
+
+    ExitCode exit = imu_spi_handle.transmitThenReceive(tx, rx);
+
+    temp = translateTempData(rx[0], rx[1]);
+    ;
+
+    return exit;
+}
 
 ExitCode Imu::getAccelAll(AccelData &data)
 {
-    std::array<const uint8_t, 1> tx = { READ_REG(ACCEL_XOUT_H) };
+    if (this->is_imu_ready == false)
+        return ExitCode::EXIT_CODE_ERROR;
+
+    std::array<const uint8_t, 1> tx = { { READ_IMU_REG(ACCEL_XOUT_H) } };
     std::array<uint8_t, 6>       rx{};
 
     ExitCode exit = imu_spi_handle.transmitThenReceive(tx, rx);
 
-    data.x = translateAccelData(static_cast<int16_t>((rx[0] << 8U) | rx[1]));
-    data.y = translateAccelData(static_cast<int16_t>((rx[2] << 8U) | rx[3]));
-    data.z = translateAccelData(static_cast<int16_t>((rx[4] << 8U) | rx[5]));
+    data.x = translateAccelData(rx[0], rx[1]);
+    data.y = translateAccelData(rx[2], rx[3]);
+    data.z = translateAccelData(rx[4], rx[5]);
 
     return exit;
 }
 
 ExitCode Imu::getGyroAll(GyroData &data)
 {
-    std::array<const uint8_t, 1> tx = { READ_REG(GYRO_XOUT_H) };
+    if (this->is_imu_ready == false)
+        return ExitCode::EXIT_CODE_ERROR;
+
+    std::array<const uint8_t, 1> tx = { { READ_IMU_REG(GYRO_XOUT_H) } };
     std::array<uint8_t, 6>       rx{};
 
     ExitCode exit = imu_spi_handle.transmitThenReceive(tx, rx);
 
-    data.x = translateAccelData(static_cast<int16_t>((rx[0] << 8U) | rx[1]));
-    data.y = translateAccelData(static_cast<int16_t>((rx[2] << 8U) | rx[3]));
-    data.z = translateAccelData(static_cast<int16_t>((rx[4] << 8U) | rx[5]));
+    data.x = translateAccelData(rx[0], rx[1]);
+    data.y = translateAccelData(rx[2], rx[3]);
+    data.z = translateAccelData(rx[4], rx[5]);
 
     return exit;
 }

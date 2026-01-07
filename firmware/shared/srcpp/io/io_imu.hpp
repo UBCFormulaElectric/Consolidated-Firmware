@@ -1,80 +1,68 @@
 #pragma once
 
 #include "hw_spi.hpp"
-#include "hw_spis.hpp"
 
 #include "util_errorCodes.hpp"
 
 /**
+ * IMU Datasheet: https://invensense.tdk.com/wp-content/uploads/2021/11/DS-000409-IAM-20680HP-v1.2-Typ.pdf
+ */
+
+/**
  * Default Behaviour:
- * 
- * Digital Filtering Disabled
+ *
+ * Accel and Gyro Filtering Disabled
+ * Accel ODR = 4kHz
+ * Gyro ODR = 32kHz
+ *
  * FIFO Disabled
  * FSYNC Disabled
  * Low Power Mode Disabled
  * WOM Disabled
- * 
+ *
  * Interrupts Push Pull and Latching until Read
  * Data Ready Interrupt Enabled
  * Accel Scale +-4G
- * Gyro Scale +-500dps
+ * Gyro Scale +-250dps
  */
 
 namespace io::imu
 {
-enum : uint8_t
-{
-    GYRO_DPS_250 = 0x0U,
-    GYRO_DPS_500,
-    GYRO_DPS_1000,
-    GYRO_DPS_1250,
-} GyroScale;
-
-enum : uint8_t
-{
-    ACCEL_G_2 = 0x0U,
-    ACCEL_G_4,
-    ACCEL_G_8,
-    ACCEL_G_16,
-} AccelScale;
-
 // Register 25: SMPLRT_DIV
 // Divides the internal sample rate (see CONFIG) to generate the sample
-// rate that controls sensor data output rate, FIFO sample rate.
-// SAMPLE_RATE = INTERNAL_SAMPLE_RATE / (1 + SMPLRT_DIV)
-typedef struct
-{
-    uint8_t SMPLRT_DIV;
-} SampleRateDiv;
+// rate that controls sensor data output rate (ODR), FIFO sample rate.
+// ODR = INTERNAL_SAMPLE_RATE / (1 + SMPLRT_DIV)
+// Note: does not do anything if DLPFs for Accel and Gyro are disabled (disabled via FCHOICE_B in GyroConfig and
+// AccelConfig2) Set directly in init as it has a single bitfield
 
 // Register 26: CONFIG
 typedef struct __attribute__((packed))
 {
     uint8_t G_DLPF_CFG : 3   = 0; // [2:0] Gyroscope Low Pass Filter setting
     uint8_t EXT_SYNC_SET : 3 = 0; // [5:3] Frame Sync bit location in Temp data (0=disabled)
-    uint8_t FIFO_MODE : 1    = 1; // [6] 0=Overwrite old data, 1=Stop when full
+    uint8_t FIFO_MODE : 1    = 0; // [6] 0=Overwrite old data, 1=Stop when full
     uint8_t RSVD : 1         = 0; // [7] Reserved
 } Config;
 
 // Register 27: GYRO_CONFIG
 typedef struct __attribute__((packed))
 {
-    uint8_t   FCHOICE_B : 2 = 1;            // [1:0] Used to bypass DLPF (0=Enable DLPF, 1-3=Bypass)
-    uint8_t   RSVD : 1      = 0;            // [2] Reserved
-    GyroScale FS_SEL : 2    = GYRO_DPS_500; // [4:3] Full Scale Range (0=250, 1=500, 2=1000, 3=2000 dps)
-    uint8_t   ZG_ST : 1     = 0;            // [5] Z Gyro Self-Test
-    uint8_t   YG_ST : 1     = 0;            // [6] Y Gyro Self-Test
-    uint8_t   XG_ST : 1     = 0;            // [7] X Gyro Self-Test
+    uint8_t FCHOICE_B : 2 = 1; // [1:0] Used to bypass DLPF (0=Enable DLPF, 1-3=Bypass)
+    uint8_t RSVD : 1      = 0; // [2] Reserved
+    uint8_t FS_SEL : 2    = 0; // [4:3] Full Scale Range (0=250, 1=500, 2=1000, 3=2000 dps)
+    uint8_t ZG_ST : 1     = 0; // [5] Z Gyro Self-Test
+    uint8_t YG_ST : 1     = 0; // [6] Y Gyro Self-Test
+    uint8_t XG_ST : 1     = 0; // [7] X Gyro Self-Test
 } GyroConfig;
 
 // Register 28: ACCEL_CONFIG
 typedef struct __attribute__((packed))
 {
-    uint8_t    RSVD : 3   = 0;         // [2:0] Reserved
-    AccelScale FS_SEL : 2 = ACCEL_G_4; // [4:3] Full Scale Range (0=2g, 1=4g, 2=8g, 3=16g)
-    uint8_t    ZA_ST : 1  = 0;         // [5] Z Accel Self-Test
-    uint8_t    YA_ST : 1  = 0;         // [6] Y Accel Self-Test
-    uint8_t    XA_ST : 1  = 0;         // [7] X Accel Self-Test
+    uint8_t RSVD : 3   = 0; // [2:0] Reserved
+    uint8_t FS_SEL : 2 = 1; // [4:3] Full Scale Range (0=2g, 1=4g, 2=8g, 3=16g)
+    uint8_t ZA_ST : 1  = 0; // [5] Z Accel Self-Test
+    uint8_t YA_ST : 1  = 0; // [6] Y Accel Self-Test
+    uint8_t XA_ST : 1  = 0; // [7] X Accel Self-Test
 } AccelConfig;
 
 // Register 29: ACCEL_CONFIG2
@@ -91,8 +79,8 @@ typedef struct __attribute__((packed))
 {
     uint8_t A_WOM_ODR_CTRL : 4 = 11; // [3:0] Accel Wake on Motion config
     uint8_t G_AVG_CFG : 3      = 0;  // [6:4] Averaging filter config for gyro
-    uint8_t GYRO_CYCLE : 3     = 0;  // [7] Enable Gyro Low Power
-} LpModeCfg;
+    uint8_t GYRO_CYCLE : 1     = 0;  // [7] Enable Gyro Low Power
+} LpModeConfig;
 
 // Register 35: FIFO_EN
 typedef struct __attribute__((packed))
@@ -115,7 +103,7 @@ typedef struct __attribute__((packed))
     uint8_t LATCH_INT_EN : 1 = 1; // [5] 1=Latch until clear, 0=50us pulse
     uint8_t OPEN : 1         = 0; // [6] 1=Open Drain, 0=Push-Pull
     uint8_t INT_ACTL : 1     = 0; // [7] 1=Active Low, 0=Active High
-} IntPinCfg;
+} IntPinConfig;
 
 // Register 56: INT_ENABLE
 typedef struct __attribute__((packed))
@@ -123,7 +111,7 @@ typedef struct __attribute__((packed))
     uint8_t DATA_RDY_INT_EN : 1   = 1; // [0] Data Ready Interrupt
     uint8_t RSVD : 1              = 0; // [1]
     uint8_t GDRIVE_INT_EN : 1     = 0; // [3] Gyroscope drive system ready interrupt
-    uint8_t RSVD : 1              = 0; // [4]
+    uint8_t RSVD2 : 1             = 0; // [4]
     uint8_t FIFO_OFLOW_INT_EN : 1 = 0; // [5] FIFO Overflow Interrupt
     uint8_t WOM_INT_EN : 2        = 0; // [7:6]
 } IntEnable;
@@ -167,30 +155,150 @@ typedef struct __attribute__((packed))
 
 class Imu
 {
-  private:
-    typedef struct
-    {
-        float x, y, z;
-    } ImuData;
-
-    const hw::spi::SpiDevice &imu_spi_handle;
-
-    inline constexpr float accel_scale;
-    inline constexpr float gyro_scale;
-    inline constexpr float temp_scale;
-
-    inline constexpr float translateAccelData(int16_t data);
-    inline constexpr float translateGyroData(int16_t data);
-    inline constexpr float translateTempData(int16_t &TempRawData);
-
   public:
-    using AccelData = ImuData;
-    using GyroData  = ImuData;
+    enum class GyroScale : uint8_t
+    {
+        GYRO_DPS_250 = 0x0U,
+        GYRO_DPS_500,
+        GYRO_DPS_1000,
+        GYRO_DPS_1250,
+    };
 
-    constexpr explicit Imu(const hw::spi::SpiDevice &in_imu_spi_handle) : imu_spi_handle(in_imu_spi_handle) {}
+    enum class AccelScale : uint8_t
+    {
+        ACCEL_G_2 = 0x0U,
+        ACCEL_G_4,
+        ACCEL_G_8,
+        ACCEL_G_16,
+    };
 
     /**
-     * @brief Get acceleration in the x acis
+     * Go to the IMU datasheet for more precise frequencies
+     * Page 35 for GYRO, Page 36 for ACCEL
+     *
+     * 1st frequency represents Cuttoff Frequency
+     * 2nd Frequency represents Noise frequencies passed through (realistic)
+     */
+    enum class GyroDlpfConfig : uint8_t
+    {
+        BW_250HZ_NOISE_306HZ = 0x0U, // Internal Base Rate = 8kHz
+        BW_176HZ_NOISE_177HZ,        // Internal Base Rate = 1kHz
+        BW_92HZ_NOISE_108HZ,         // Internal Base Rate = 1kHz
+        BW_41HZ_NOISE_59HZ,          // Internal Base Rate = 1kHz
+        BW_20HZ_NOISE_31HZ,          // Internal Base Rate = 1kHz
+        BW_10HZ_NOISE_16HZ,          // Internal Base Rate = 1kHz
+        BW_5HZ_NOISE_8HZ,            // Internal Base Rate = 1kHz
+        BW_3KHZ_NOISE_3KHZ,          // Internal Base Rate = 8kHz
+    };
+
+    enum class AccelDlpfConfig : uint8_t
+    {
+        BW_218HZ_NOISE_235HZ = 0x1U, // Internal Base Rate = 4kHz
+        BW_99HZ_NOISE_121HZ,         // Internal Base Rate = 1kHz
+        BW_44HZ_NOISE_62HZ,          // Internal Base Rate = 1kHz
+        BW_21HZ_NOISE_31HZ,          // Internal Base Rate = 1kHz
+        BW_10HZ_NOISE_16HZ,          // Internal Base Rate = 1kHz
+        BW_5HZ_NOISE_8HZ,            // Internal Base Rate = 1kHz
+        BW_420HZ_NOISE_442HZ,        // Internal Base Rate = 1kHz
+    };
+
+    /**
+     * IMU Filter Configuration
+     *
+     * Enable/Disable accelerometer and gyroscope low pass filters
+     * Adjust cutoff frequency of their respectie low pass filters
+     *
+     * Adjust ODR via Sample Rate Divider (Output Data Rate of IMU), where:
+     *
+     * ODR = Internal Base Rate / (1 + Sample Rate Divider)
+     * Look at Internal Base Rates for the Accelerometer and Gryoscope depending
+     * on cutoff frequency above
+     *
+     * Default Behaviour:
+     * Accel and Gyro DLPF disabled
+     * Cutoff frequencies specified below if enabled
+     * if enabled: Accel and Gyro ODR = 100Hz
+     * if disabled: Accel ODR = 4kHz | Gyro ODR = 32kHz
+     */
+    typedef struct
+    {
+        bool            enable_accel_dlpf = false;
+        bool            enable_gyro_dlpf  = false;
+        AccelDlpfConfig accel_dlpf_cutoff = AccelDlpfConfig::BW_44HZ_NOISE_62HZ;
+        GyroDlpfConfig  gyro_dlpf_cutoff  = GyroDlpfConfig::BW_41HZ_NOISE_59HZ;
+        uint8_t         sample_rate_div   = 9;
+    } ImuFilterConfig;
+
+    using AccelData = struct
+    {
+        float x, y, z;
+    };
+    using GyroData = struct
+    {
+        float x, y, z;
+    };
+
+  private:
+    hw::spi::SpiDevice &imu_spi_handle;
+
+    // Adjust scaling for all
+    static constexpr AccelScale accel_scale = AccelScale::ACCEL_G_4;
+    static constexpr GyroScale  gyro_scale  = GyroScale::GYRO_DPS_250;
+
+    static constexpr float accel_sensitivity = []()
+    {
+        switch (accel_scale)
+        {
+            case AccelScale::ACCEL_G_2:
+                return 16384.0f;
+            case AccelScale::ACCEL_G_4:
+                return 8192.0f;
+            case AccelScale::ACCEL_G_8:
+                return 4096.0f;
+            case AccelScale::ACCEL_G_16:
+                return 2048.0f;
+            default:
+                return 8192.0f;
+        }
+    }();
+
+    static constexpr float gyro_sensitivity = []()
+    {
+        switch (gyro_scale)
+        {
+            case GyroScale::GYRO_DPS_250:
+                return 131.0f;
+            case GyroScale::GYRO_DPS_500:
+                return 65.5f;
+            case GyroScale::GYRO_DPS_1000:
+                return 32.8f;
+            case GyroScale::GYRO_DPS_1250:
+                return 16.4f;
+            default:
+                return 131.0f;
+        }
+    }();
+    static constexpr float temp_scale = 326.8f;
+
+    ImuFilterConfig filter_config;
+    bool            is_imu_ready = false;
+
+    inline constexpr float translateAccelData(uint8_t data_h, uint8_t data_l);
+    inline constexpr float translateGyroData(uint8_t data_h, uint8_t data_l);
+    inline constexpr float translateTempData(uint8_t data_h, uint8_t data_l);
+
+    ExitCode getInertialData(std::span<const uint8_t> tx, std::span<uint8_t> rx);
+
+  public:
+    constexpr explicit Imu(hw::spi::SpiDevice &in_imu_spi_handle, ImuFilterConfig &in_filter_config)
+      : imu_spi_handle(in_imu_spi_handle), filter_config(in_filter_config)
+    {
+    }
+    constexpr explicit Imu(hw::spi::SpiDevice &in_imu_spi_handle) : imu_spi_handle(in_imu_spi_handle) {}
+
+    [[nodiscard]] ExitCode init();
+    /**
+     * @brief Get acceleration in the x axis
      * @param accel_x
      *
      * @return ExitCode OK for success, otherwise fail
