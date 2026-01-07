@@ -3,7 +3,7 @@
  * @brief This file contains the interface to the ADBMS driver
  */
 #pragma once
-#include <stdint.h>
+#include <cstdint>
 #include "util_errorCodes.h"
 
 namespace io
@@ -13,9 +13,9 @@ static constexpr uint8_t CELLS_PER_SEGMENTS      = 14;
 static constexpr uint8_t THERMISTORS_PER_SEGMENT = 14;
 namespace adbms
 {
-    static constexpr uint8_t REGS_PER_GROUP          = 3;
-    static constexpr uint8_t REGISTER_GROUP_SIZE     = 6; // 6 bytes
-    static constexpr uint8_t VOLTAGE_REGISTER_GROUPS = 6;
+    static constexpr uint8_t REGS_PER_GROUP          = 3; // 3 x 16-bit = 6 bytes
+    static constexpr uint8_t REGISTER_GROUP_SIZE     = 6; // bytes
+    static constexpr uint8_t VOLTAGE_REGISTER_GROUPS = 5; // A..E only (F not used; 14 cells measured)
 
     /**
      * @file adbms/io_adbms_configs.cpp
@@ -25,29 +25,29 @@ namespace adbms
     typedef struct
     {
         // byte 1
-        uint8_t cth : 3;    // C-ADC vs. S-ADC comparison voltage threshold
-        uint8_t : 4;        // unused bits
-        uint8_t ref_on : 1; // reference powered up, enables REFUP state
+        uint8_t cth      : 3; // C-ADC vs. S-ADC comparison voltage threshold
+        uint8_t          : 4; // unused bits
+        uint8_t ref_on   : 1; // reference powered up, enables REFUP state
         // byte 2
-        uint8_t flag_d; // asserts flags in Status Reg C for latent fault detection (pg. 70)
+        uint8_t flag_d;      // asserts flags in Status Reg C for latent fault detection (pg. 70)
         // byte 3
-        uint8_t : 3;
-        uint8_t owa : 3;     // open wire soak times
-        uint8_t owrng : 1;   // soak time range
-        uint8_t soak_on : 1; // enables soak on AUX ADCs
+        uint8_t          : 3;
+        uint8_t owa      : 3; // open wire soak times
+        uint8_t owrng    : 1; // soak time range
+        uint8_t soak_on  : 1; // enables soak on AUX ADCs
         // byte 4
-        uint8_t gpio_1_8;
+        uint8_t gpio_1_8;     // GPIOx pin control
         // byte 5
-        uint8_t gpio_9_10 : 2;
-        uint8_t : 6;
+        uint8_t gpio_9_10: 2; // GPIOx pin control
+        uint8_t          : 6; // unused bits
         // byte 6
-        uint8_t fc : 3;      // IIR filter parameter, see table 21
-        uint8_t comm_bk : 1; // communication break, propagation communication prevention
-        uint8_t mute_st : 1; // 1 = mute is active, dischargeing disabled
-        uint8_t snap_st : 1; // 1 = snapshot is activated, result registers are frozen
+        uint8_t fc       : 3; // IIR filter parameter, see table 21
+        uint8_t comm_bk  : 1; // communication break, propagation communication prevention
+        uint8_t mute_st  : 1; // 1 = mute is active, dischargeing disabled
+        uint8_t snap_st  : 1; // 1 = snapshot is activated, result registers are frozen
         uint8_t : 2;
-    } CFGAR;
-    static_assert(sizeof(CFGAR) == adbms::REGISTER_GROUP_SIZE);
+    } CFGA;
+    static_assert(sizeof(CFGA) == adbms::REGISTER_GROUP_SIZE);
 
     // as per table 56
     typedef struct
