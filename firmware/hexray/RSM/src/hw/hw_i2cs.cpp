@@ -1,6 +1,7 @@
 #include "hw_i2cs.hpp"
 #include "hw_i2c.hpp"
 #include "main.h"
+#include <stm32h5xx_hal_spi.h>
 
 //main.h not linking and hi2c2 from main.c not linking
 //do I need init functions? I would need to use HAL functions though
@@ -15,4 +16,5 @@ namespace hw::i2c
         assert(handle == &hi2c2);
         return i2c_bus_2;
     }
+
 }

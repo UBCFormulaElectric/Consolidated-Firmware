@@ -3,7 +3,7 @@
 #include "main.h"
 
 //do I need to include readpin/writepin functions from hw_gpio.hpp?
-namespace hw
+namespace hw::gpio
 {
 const Gpio brake_ocsc_ok(BRAKE_OCSC_OK_3V3_GPIO_Port, BRAKE_OCSC_OK_3V3_Pin);
 const Gpio rl_int(RL_INT_3V3_SENS_GPIO_Port, RL_INT_3V3_SENS_Pin);

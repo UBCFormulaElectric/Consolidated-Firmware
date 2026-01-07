@@ -1,7 +1,7 @@
 #pragma once
 #include "hw_gpio.hpp"
 
-namespace hw
+namespace hw::gpio
 {
 extern const Gpio brake_ocsc_ok;
 extern const Gpio susp_travel_rl_ocsc;
