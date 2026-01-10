@@ -129,5 +129,3 @@ static ExitCode io_TI_TPS28_Efuse_ok(const Efuse *efuse)
 
     return (efuse->ti_tps28->faults.raw > 0) ? EXIT_CODE_OK : EXIT_CODE_ERROR;
 }
-
-static void io
