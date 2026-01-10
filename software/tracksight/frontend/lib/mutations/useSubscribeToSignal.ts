@@ -9,7 +9,7 @@ const useSubscribeToSignal = () => {
         await new Promise((resolve) => setTimeout(resolve, 100));
       }
 
-      return subscribeToSignal(signalName);
+      return await subscribeToSignal(signalName);
     },
   });
 };
