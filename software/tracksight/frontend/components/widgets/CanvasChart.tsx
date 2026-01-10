@@ -1,4 +1,5 @@
 "use client";
+// note to self: updatemockconfig -> mockwidgets, then pass setwidgets in
 
 import { useRef, useEffect, useMemo, useCallback, useState } from "react";
 import { MouseEvent as MouseEvent_React } from "react";
