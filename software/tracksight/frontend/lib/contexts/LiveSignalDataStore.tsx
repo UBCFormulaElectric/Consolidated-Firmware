@@ -57,17 +57,12 @@ class LiveSignalDataStore implements GenericSignalStore {
           values: new CircularBuffer(MAX_ELEMENTS_IN_BUFFER),
         },
         error: null,
-        isSubscribed: false,
+        isSubscribed: true,
       }
 
       this.subscriberCounts[signalName] = 0;
 
       this.subscribeToSignal?.mutate(signalName, {
-        onSuccess: () => {
-          if (!this.liveData[signalName]) return;
-
-          this.liveData[signalName].isSubscribed = true;
-        },
         onError: (error) => {
           if (!this.liveData[signalName]) return;
 

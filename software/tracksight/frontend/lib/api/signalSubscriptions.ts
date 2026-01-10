@@ -36,7 +36,7 @@ const unsubscribeFromSignal = async (signalName: string) => {
     throw new Error(`Failed to unsubscribe from signal: ${signalName}`);
   }
 
-  return response.json();
+  return await response.json();
 };
 
 export { subscribeToSignal, unsubscribeFromSignal };

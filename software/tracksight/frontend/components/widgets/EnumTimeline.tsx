@@ -6,7 +6,7 @@ import EnumSignalSelector from "@/components/widgets/EnumSignalSelector";
 import { useDashboardLayout } from "@/lib/contexts/DashboardLayout";
 import useSignalMetadata from "@/lib/hooks/useSignalMetadata";
 import { useSignalDataStore } from "@/lib/contexts/SignalDataStore";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { isEnumSignalMetadata } from "@/lib/types/Signal";
 
 function EnumTimeline(props: WidgetData<"enumTimeline">) {

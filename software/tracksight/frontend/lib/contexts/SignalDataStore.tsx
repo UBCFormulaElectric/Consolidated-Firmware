@@ -79,13 +79,17 @@ const useSignalDataStore = (signalName: string) => {
 
   useEffect(() => {
     return () => {
+      if (!signalStore.current) return;
+
       signalStore.current.purgeReferenceToSignal(signalName);
     };
-  }, [signalName, signalStore]);
+  }, [signalName, signalStore.current]);
 
   useEffect(() => {
+    if (!signalStore.current) return;
+
     cachedReferenceRef.current = signalStore.current.getReferenceToSignal(signalName);
-  }, [signalName]);
+  }, [signalName, signalStore.current]);
 
 
   return cachedReferenceRef;
