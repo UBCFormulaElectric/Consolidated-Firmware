@@ -13,11 +13,12 @@ use tasks::can_data_handler::run_broadcaster_task;
 #[tokio::main]
 async fn main() {
     let mut tasks = JoinSet::new();
+    // shutdown signal for threads
     let (shutdown_tx, _) = channel(1);
 
     // this is equivalent to queue in old backend
     // use broadcast instead of mpsc, probably only one serial source but multiple consumers
-    // idk what to define buffer size
+    // TODO figure out buffer size
     let (can_queue_tx, _) = channel::<CanMessage>(32);
 
     // start tasks
