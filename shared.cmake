@@ -44,6 +44,10 @@ set(SHARED_GNU_COMPILER_CHECKS
         -Wfloat-equal
         -Wformat
         -Wformat=2
+<<<<<<< HEAD
+=======
+        # -Winline
+>>>>>>> master
         -Wmissing-braces
         -Wmissing-format-attribute
         -Wmissing-include-dirs # disable for now?

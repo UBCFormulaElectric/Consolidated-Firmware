@@ -2,7 +2,6 @@
 #include <math.h>
 #include <assert.h>
 #include "io_log.h"
-
 #define NUM_ELEMENTS_IN_ARRAY(array_pointer) sizeof(array_pointer) / sizeof(array_pointer[0])
 
 #ifndef MIN
@@ -18,6 +17,7 @@
 #define CLAMP(x, min, max) (MAX(MIN(x, max), min))
 #define CLAMP_TO_ONE(x) (((x) <= 0) ? 1 : ((x) > 1 ? 1 : (x))) // initialize to 1 if value is <=0
 #define SQUARE(x) ((x) * (x))
+#define SQRT(x) (sqrt(x))
 
 #define MAX_4_BITS_VALUE (uint32_t)(15)
 #define MAX_6_BITS_VALUE (uint32_t)(63)
