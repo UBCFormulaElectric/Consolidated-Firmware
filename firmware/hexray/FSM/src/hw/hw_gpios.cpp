@@ -1,11 +1,9 @@
 #include "hw_gpios.hpp"
-#include "main.h"
 
 namespace hw::gpios
 {
 const Gpio bots_3v3         = Gpio(BOTS_3V3_GPIO_Port, BOTS_3V3_Pin);
 const Gpio cockpit_shdn_3v3 = Gpio(COCKPIT_SHDN_3V3_GPIO_Port, COCKPIT_SHDN_3V3_Pin);
-const Gpio imu_cs           = Gpio(IMU_CS_GPIO_Port, IMU_CS_Pin);       // imu_int1
 const Gpio imu_fsync        = Gpio(IMU_FSYNC_GPIO_Port, IMU_FSYNC_Pin); // imu_int2
 const Gpio nsusp_fl_ocsc    = Gpio(nSUSP_FL_OCSC_GPIO_Port, nSUSP_FL_OCSC_Pin);
 const Gpio nsusp_fr_ocsc    = Gpio(nSUSP_FR_OCSC_GPIO_Port, nSUSP_FR_OCSC_Pin);

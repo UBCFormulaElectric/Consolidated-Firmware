@@ -72,6 +72,12 @@ extern "C"
 #define nSTR_ANGLE_OCSC_GPIO_Port GPIOA
 #define IMU_CS_Pin GPIO_PIN_4
 #define IMU_CS_GPIO_Port GPIOA
+#define IMU_SPC_Pin GPIO_PIN_5
+#define IMU_SPC_GPIO_Port GPIOA
+#define IMU_SDO_Pin GPIO_PIN_6
+#define IMU_SDO_GPIO_Port GPIOA
+#define IMU_SDI_Pin GPIO_PIN_7
+#define IMU_SDI_GPIO_Port GPIOA
 #define nSUSP_FL_OCSC_Pin GPIO_PIN_10
 #define nSUSP_FL_OCSC_GPIO_Port GPIOC
 #define nSUSP_FR_OCSC_Pin GPIO_PIN_11
