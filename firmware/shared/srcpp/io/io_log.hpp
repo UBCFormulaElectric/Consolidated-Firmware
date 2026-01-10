@@ -1,6 +1,6 @@
 #pragma once
 
-#include "app_utils.hpp"
+#include "util_utils.hpp"
 
 /*
 This logging module users SEGGER Real-Time Transfer (RTT) for printf-style debugging.
@@ -44,5 +44,3 @@ Notes
 #define LOG_INFO(format, ...) _LOG(ANSI_BOLD_GREEN "INFO ", format, ##__VA_ARGS__)
 #define LOG_WARN(format, ...) _LOG(ANSI_BOLD_YELLOW "WARN ", format, ##__VA_ARGS__)
 #define LOG_ERROR(format, ...) _LOG(ANSI_BOLD_RED "ERROR", format, ##__VA_ARGS__)
-
-void LOG_ALL_FAULTS();

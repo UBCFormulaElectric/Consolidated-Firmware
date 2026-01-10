@@ -130,10 +130,6 @@ extern "C"
 #define RL_PUMP_EN_GPIO_Port GPIOD
 #define SWO1_Pin GPIO_PIN_3
 #define SWO1_GPIO_Port GPIOB
-#define CAN3_RX_Pin GPIO_PIN_5
-#define CAN3_RX_GPIO_Port GPIOB
-#define CAN3_TX_Pin GPIO_PIN_6
-#define CAN3_TX_GPIO_Port GPIOB
 #define L_RAD_FAN_EN_Pin GPIO_PIN_7
 #define L_RAD_FAN_EN_GPIO_Port GPIOB
 

@@ -1,0 +1,334 @@
+#include "test_BMSBase.hpp"
+#include "test_fakes.hpp"
+
+extern "C"
+{
+#include "app_stateMachine.h"
+#include "io_ltc6813.h"
+#include "app_canAlerts.h"
+#include "app_segments.h"
+}
+
+class BmsFaultTest : public BMSBaseTest
+{
+};
+
+// TODO: Variants for warnings. Also, comm error and open wire check.
+
+TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overvoltage)
+{
+    for (constexpr bool debounce_expires[2] = { true, false }; const bool debounce_expire : debounce_expires)
+    {
+        // Test that any cell can cause an overvoltage fault
+        for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
+        {
+            for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
+            {
+                // Reset test
+                TearDown();
+                SetUp();
+
+                // Let accumulator startup count expire
+                LetTimePass(1000);
+                ASSERT_STATE_EQ(init_state);
+                ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvervoltage_get());
+
+                // Set cell voltage critically high.
+                fakes::segments::setCellVoltage(segment, cell, MAX_CELL_VOLTAGE_FAULT_V + 0.1f);
+                LetTimePass(OVER_VOLTAGE_DEBOUNCE_FAULT_MS);
+
+                if (debounce_expire)
+                {
+                    // Let fault debounce expire, fault should be set.
+                    LetTimePass(LTC_CONVERSION_PERIOD_MS);
+                    ASSERT_STATE_EQ(fault_state);
+                    ASSERT_TRUE(app_canAlerts_BMS_Fault_CellOvervoltage_get());
+                    fakes::faultLatches::updateFaultLatch(&bms_ok_latch, FAULT_LATCH_FAULT);
+
+                    LetTimePass(1000);
+                    ASSERT_STATE_EQ(fault_state);
+                    ASSERT_TRUE(app_canAlerts_BMS_Fault_CellOvervoltage_get());
+
+                    // Clear fault, should transition back to init.
+                    fakes::segments::setCellVoltage(segment, cell, MAX_CELL_VOLTAGE_FAULT_V - 0.1f);
+                    LetTimePass(LTC_CONVERSION_PERIOD_MS);
+
+                    // Waits until fault latch reset button is pressed.
+                    LetTimePass(1000);
+                    ASSERT_STATE_EQ(fault_state);
+                    ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvervoltage_get());
+
+                    fakes::faultLatches::resetFaultLatch(&bms_ok_latch);
+                    LetTimePass(10);
+                    ASSERT_STATE_EQ(init_state);
+                    ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvervoltage_get());
+                }
+                else
+                {
+                    // Clear fault before it expires, fault should not set.
+                    fakes::segments::setCellVoltage(segment, cell, MAX_CELL_VOLTAGE_FAULT_V - 0.1f);
+                    LetTimePass(LTC_CONVERSION_PERIOD_MS);
+
+                    ASSERT_STATE_EQ(init_state);
+                    ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvervoltage_get());
+
+                    LetTimePass(1000);
+                    ASSERT_STATE_EQ(init_state);
+                    ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvervoltage_get());
+                }
+            }
+        }
+    }
+}
+
+TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_undervoltage)
+{
+    for (constexpr bool debounce_expires[2] = { true, false }; const bool debounce_expire : debounce_expires)
+    {
+        // Test that any cell can cause an undervoltage fault
+        for (uint8_t segment = 0; segment < NUM_SEGMENTS; segment++)
+        {
+            for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
+            {
+                // Reset test
+                TearDown();
+                SetUp();
+
+                // Let accumulator startup count expire
+                LetTimePass(1000);
+                ASSERT_STATE_EQ(init_state);
+                ASSERT_FALSE(app_canAlerts_BMS_Fault_CellUndervoltage_get());
+
+                // Set cell voltage critically low.
+                fakes::segments::setCellVoltage(segment, cell, MIN_CELL_VOLTAGE_FAULT_V - 0.1f);
+                LetTimePass(UNDER_VOLTAGE_DEBOUNCE_FAULT_MS);
+
+                if (debounce_expire)
+                {
+                    // Let fault debounce expire, fault should be set.
+                    LetTimePass(LTC_CONVERSION_PERIOD_MS);
+                    ASSERT_STATE_EQ(fault_state);
+                    ASSERT_TRUE(app_canAlerts_BMS_Fault_CellUndervoltage_get());
+                    fakes::faultLatches::updateFaultLatch(&bms_ok_latch, FAULT_LATCH_FAULT);
+
+                    LetTimePass(1000);
+                    ASSERT_STATE_EQ(fault_state);
+                    ASSERT_TRUE(app_canAlerts_BMS_Fault_CellUndervoltage_get());
+
+                    // Clear fault, should transition back to init.
+                    fakes::segments::setCellVoltage(segment, cell, MIN_CELL_VOLTAGE_FAULT_V + 0.1f);
+                    LetTimePass(LTC_CONVERSION_PERIOD_MS);
+
+                    // Waits until fault latch reset button is pressed.
+                    LetTimePass(1000);
+                    ASSERT_STATE_EQ(fault_state);
+                    ASSERT_FALSE(app_canAlerts_BMS_Fault_CellUndervoltage_get());
+
+                    fakes::faultLatches::resetFaultLatch(&bms_ok_latch);
+                    LetTimePass(10);
+                    ASSERT_STATE_EQ(init_state);
+                    ASSERT_FALSE(app_canAlerts_BMS_Fault_CellUndervoltage_get());
+                }
+                else
+                {
+                    // Clear fault before it expires, fault should not set.
+                    fakes::segments::setCellVoltage(segment, cell, MIN_CELL_VOLTAGE_FAULT_V + 0.1f);
+                    LetTimePass(LTC_CONVERSION_PERIOD_MS);
+
+                    LetTimePass(10);
+                    ASSERT_STATE_EQ(init_state);
+                    ASSERT_FALSE(app_canAlerts_BMS_Fault_CellUndervoltage_get());
+
+                    LetTimePass(1000);
+                    ASSERT_STATE_EQ(init_state);
+                    ASSERT_FALSE(app_canAlerts_BMS_Fault_CellUndervoltage_get());
+                }
+            }
+        }
+    }
+}
+
+TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overtemp_init_state)
+{
+    for (constexpr bool debounce_expires[2] = { true, false }; const bool debounce_expire : debounce_expires)
+    {
+        // Reset test
+        TearDown();
+        SetUp();
+
+        // Let accumulator startup count expire
+        LetTimePass(1000);
+        ASSERT_STATE_EQ(init_state);
+        ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvertemp_get());
+
+        // Set cell temp critically high.
+        fakes::segments::SetAuxReg(0, 0, 5.0f); // Approx. 70C
+        LetTimePass(OVER_TEMP_DEBOUNCE_FAULT_MS);
+
+        if (debounce_expire)
+        {
+            // Let fault debounce expire, fault should be set.
+            LetTimePass(LTC_CONVERSION_PERIOD_MS);
+            ASSERT_STATE_EQ(fault_state);
+            ASSERT_TRUE(app_canAlerts_BMS_Fault_CellOvertemp_get());
+            fakes::faultLatches::updateFaultLatch(&bms_ok_latch, FAULT_LATCH_FAULT);
+
+            LetTimePass(1000);
+            ASSERT_STATE_EQ(fault_state);
+            ASSERT_TRUE(app_canAlerts_BMS_Fault_CellOvertemp_get());
+
+            // Clear fault, should transition back to init.
+            fakes::segments::SetAuxReg(0, 0, 15.0f);
+            LetTimePass(LTC_CONVERSION_PERIOD_MS);
+
+            // Waits until fault latch reset button is pressed.
+            LetTimePass(1000);
+            ASSERT_STATE_EQ(fault_state);
+            ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvertemp_get());
+
+            fakes::faultLatches::resetFaultLatch(&bms_ok_latch);
+            LetTimePass(10);
+            ASSERT_STATE_EQ(init_state);
+            ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvertemp_get());
+        }
+        else
+        {
+            // Clear fault before it expires, fault should not set.
+            fakes::segments::SetAuxReg(0, 0, 1.5f);
+            LetTimePass(LTC_CONVERSION_PERIOD_MS);
+
+            ASSERT_STATE_EQ(init_state);
+            ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvertemp_get());
+
+            LetTimePass(1000);
+            ASSERT_STATE_EQ(init_state);
+            ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvertemp_get());
+        }
+    }
+}
+
+// TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overtemp_charge_state)
+// {
+//     const bool debounce_expires[2] = { true, false };
+//     for (int i = 0; i < sizeof(debounce_expires); i++)
+//     {
+//         // Reset test
+//         TearDown();
+//         SetUp();
+
+//         // Set charger conditions such that charger faults do not trigger
+//         app_canRx_BRUSA_IsConnected_update(true);
+//         fake_io_airs_isNegativeClosed_returns(true);
+//         app_canRx_BRUSA_Error_update(false);
+//         globals->disable_charger_connected_hb_check = true;
+
+//         SetInitialState(app_chargeState_get());
+//         app_canRx_Debug_StartCharging_update(true);
+
+//         // Let accumulator startup count expire
+//         LetTimePass(1000);
+//         ASSERT_EQ(app_chargeState_get(), app_stateMachine_getCurrentState());
+//         ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvertemp_get());
+
+//         // In Charge state acceptible temp range is (0, 45)
+//         fake_io_ltc6813CellTemps_getMaxTempDegC_returnsForAnyArgs(MAX_CELL_CHARGE_TEMP_DEGC + 1.0f);
+//         LetTimePass(OVER_TEMP_DEBOUNCE_DURATION_MS);
+
+//         if (debounce_expires[i])
+//         {
+//             // Let fault debounce expire, fault should be set.
+//             LetTimePass(10);
+//             ASSERT_STATE_EQ(fault_state);
+//             ASSERT_TRUE(app_canAlerts_BMS_Fault_CellOvertemp_get());
+
+//             // Confirm stays in fault indefinitely
+//             LetTimePass(1000);
+//             ASSERT_STATE_EQ(fault_state);
+//             ASSERT_TRUE(app_canAlerts_BMS_Fault_CellOvertemp_get());
+
+//             // Clear fault, should transition back to init
+//             fake_io_ltc6813CellTemps_getMaxTempDegC_returnsForAnyArgs(MAX_CELL_CHARGE_TEMP_DEGC - 1.0f);
+//             fake_io_airs_isNegativeClosed_returns(false); // Negative contactor has to open to go back to init
+//             LetTimePass(10);
+//             ASSERT_STATE_EQ(init_state);
+//             ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvertemp_get());
+//         }
+//         else
+//         {
+//             // Clear fault before it expires, fault should not set.
+//             fake_io_ltc6813CellTemps_getMaxTempDegC_returnsForAnyArgs(MAX_CELL_CHARGE_TEMP_DEGC - 1.0f);
+//             LetTimePass(10);
+//             ASSERT_EQ(app_chargeState_get(), app_stateMachine_getCurrentState());
+//             ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvertemp_get());
+
+//             LetTimePass(1000);
+//             ASSERT_EQ(app_chargeState_get(), app_stateMachine_getCurrentState());
+//             ASSERT_FALSE(app_canAlerts_BMS_Fault_CellOvertemp_get());
+//         }
+//     }
+// }
+
+// TEST_F(BmsFaultTest, check_state_transition_fault_state_precharge_fault)
+// {
+//     SetInitialState(init_state);
+
+//     // reset ts_voltage to 0 so state will transition from init to pre-charge
+//     fake_io_tractiveSystem_getVoltage_returns(0);
+
+//     for (int i = 1; i <= 3; i++)
+//     {
+//         // Close negative contactor with charger disconnected, precharge should start
+//         app_canRx_BRUSA_IsConnected_update(false);
+//         fake_io_airs_isNegativeClosed_returns(true);
+//         app_canRx_Debug_StartCharging_update(false);
+//         LetTimePass(210U);
+//         ASSERT_EQ(app_prechargeState_get(), app_stateMachine_getCurrentState())
+//             << "Given " << app_stateMachine_getCurrentState()->name << ", expected to be precharge state";
+//         ASSERT_FALSE(app_canAlerts_BMS_Fault_PrechargeFailure_get());
+
+//         // 3.8V nominal cell voltage * total # of cells to give estimate of nominal pack voltage
+//         // trying to fool precahrge into thinking that ts_voltage is rising too quickly
+//         fake_io_tractiveSystem_getVoltage_returns(3.8f * ACCUMULATOR_NUM_SERIES_CELLS_TOTAL);
+
+//         LetTimePass(210U);
+
+//         if (i < 3)
+//         {
+//             // 3x precharge attempts haven't been exceeded, so back to init
+//             ASSERT_STATE_EQ(init_state);
+//             ASSERT_FALSE(app_canAlerts_BMS_Fault_PrechargeFailure_get());
+
+//             // reset ts_voltage to 0 so state will transition from init to pre-charge
+//             fake_io_tractiveSystem_getVoltage_returns(0);
+//         }
+//         else
+//         {
+//             // 3x precharge attempts have failed, so back transition to fault state indefinitely
+//             ASSERT_STATE_EQ(fault_state);
+//             ASSERT_TRUE(app_canAlerts_BMS_Fault_PrechargeFailure_get());
+//             LetTimePass(1000U);
+//             ASSERT_STATE_EQ(fault_state);
+//             ASSERT_TRUE(app_canAlerts_BMS_Fault_PrechargeFailure_get());
+
+//             // Can't transition out of fault state due to precharge failure!
+//         }
+//     }
+// }
+
+TEST_F(BmsFaultTest, check_state_transition_to_fault_disables_bms_ok)
+{
+    // Let accumulator startup count expire
+    LetTimePass(1000);
+    ASSERT_STATE_EQ(init_state);
+    ASSERT_EQ(fakes::faultLatches::setCurrentStatus_getCallsWithArgs(&bms_ok_latch, FAULT_LATCH_OK), 0);
+    ASSERT_EQ(fakes::faultLatches::setCurrentStatus_getCallsWithArgs(&bms_ok_latch, FAULT_LATCH_FAULT), 0);
+
+    // Set cell voltage critically high and confirm fault is set
+    fakes::segments::setCellVoltage(0, 0, MAX_CELL_VOLTAGE_FAULT_V + 0.1f);
+    LetTimePass(OVER_VOLTAGE_DEBOUNCE_FAULT_MS + LTC_CONVERSION_PERIOD_MS);
+    ASSERT_STATE_EQ(fault_state);
+
+    // BMS OK status should be disabled upon entering fault state, which is latched in hardware
+    ASSERT_EQ(fakes::faultLatches::setCurrentStatus_getCallsWithArgs(&bms_ok_latch, FAULT_LATCH_OK), 0);
+    ASSERT_EQ(fakes::faultLatches::setCurrentStatus_getCallsWithArgs(&bms_ok_latch, FAULT_LATCH_FAULT), 1);
+}

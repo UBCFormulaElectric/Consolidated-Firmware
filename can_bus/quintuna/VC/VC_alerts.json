@@ -1,13 +1,38 @@
 {
   "faults_id": 502,
   "faults_counts_id": 504,
-  "faults": {},
+  "faults": {
+    "InvLockoutFault": {
+      "id": 503,
+      "description": "One of the inverters has a critical fault impacting VC."
+    },
+    "VcBoardFaulted": {
+      "id": 504,
+      "description": "VC board is faulted."
+    }
+  },
   "warnings_id": 501,
   "warnings_counts_id": 503,
   "warnings": {
+    "PcmLvOvercurrentFault": {
+      "id": 558,
+      "description": "LV rail from the HV DCDC was overcurrent."
+    },
     "SoftwareBspd": {
       "id": 564,
       "description": "Brakes and apps are active at same time."
+    },
+    "MissingCRITHeartbeat": {
+      "id": 554,
+      "description": "Missing heartbeat signal from the CRIT."
+    },
+    "MissingBMSHeartbeat": {
+      "id": 551,
+      "description": "Missing heartbeat signal from the BMS."
+    },
+    "MissingFSMHeartbeat": {
+      "id": 552,
+      "description": "Missing heartbeat signal from the FSM."
     },
     "FrontLeftInverterFault": {
       "id": 555,
@@ -29,6 +54,18 @@
   "info_id": 505,
   "info_counts_id": 506,
   "info": {
+    "MissingRSMHeartbeat": {
+      "id": 553,
+      "description": "Missing heartbeat signal from the RSM."
+    },
+    "MissingVCRHeartbeat": {
+      "id": 567,
+      "description": "Missing heartbeat signal from the VCR."
+    },
+    "MissingDAMHeartbeat": {
+      "id": 567,
+      "description": "Missing heartbeat signal from the VCR."
+    },
     "InverterRetry": {
       "id": 553,
       "description": "Inverter fault occured in drive state"
@@ -45,9 +82,9 @@
       "id": 560,
       "description": "Boost controller has faulted."
     },
-    "ImuInitFailed": {
+    "ImuFault": {
       "id": 516,
-      "description": "Initializing the embedded IMU failed."
+      "description": "IMU has faulted (due to failed init or transaction)."
     },
     "FlowRateInputOutOfRange": {
       "id": 517,
@@ -80,6 +117,10 @@
     "PcmUnderVoltage": {
       "id": 566,
       "description": "PCM voltage under 18 volts"
+    },
+    "DriveModeOverride": {
+      "id": 567,
+      "description": "Override requested drive mode to vanilla if sensor fails"
     }
   }
 }

@@ -41,6 +41,10 @@
     "StackOverflow": {
       "id": 650,
       "description": "An RTOS task stack overflowed on the previous boot cycle."
+    },
+    "FrontBrakePressureOutOfRange": {
+      "id": 611,
+      "description": "Front brake pressure out of range."
     }
   },
   "warnings": {

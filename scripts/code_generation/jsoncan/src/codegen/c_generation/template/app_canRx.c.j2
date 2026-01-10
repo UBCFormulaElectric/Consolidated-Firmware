@@ -17,9 +17,14 @@
  */
 typedef struct
 {
+    {%- if messages | length > 0 %}
     {%- for msg in messages %}
     {{ msg.c_type() }} {{ msg.name }}_signals;
     {%- endfor %}
+    {%- else %}
+    // No messages defined
+    char _pad;
+    {%- endif %}
 } {{node}}_RxMsgs;
 
 
@@ -94,6 +99,7 @@ void app_canRx_clear_board_rx_table(CanNode board)
             break;
             {%- endif %}
         {%- endfor %}
+        case {{ node.upper() }}_NODE: // Do nothing, this is the current node :)
         default:
             break;
     }

@@ -18,10 +18,11 @@
 #include "io_fileSystem.h"
 #include "app_jsoncan.h"
 #include "io_canMsg.h"
-#include "io_time.h"
+#include "io_canTx.h"
 #include "io_telemMessage.h"
-#include "io_telemBaseTime.h"
-#include "io_log.h"
+#include "io_telemMessageQueue.h"
+#include "io_time.h"
+#include "io_shdn_loop.h"
 
 #include "hw_resetReason.h"
 
@@ -47,20 +48,18 @@ static void can1_tx(const JsonCanMsg *tx_msg)
     {
         // Should make this log an error but it spams currently...
         // Consider doing a "num errors remaining" strategy like CAN logging.
-        io_telemMessage_pushMsgtoQueue(&msg);
+        io_telemMessageQueue_pushTx(&msg);
     }
 }
 
-void jobs_init()
+void jobs_init(void)
 {
     io_canTx_init(can1_tx);
     io_canTx_enableMode_can1(CAN1_MODE_DEFAULT, true);
     io_canQueue_initRx();
     io_canQueue_initTx(&can_tx_queue);
-    io_telemMessage_init();
     io_rtc_init();
     io_tsim_set_off();
-    io_telemBaseTimeInit();
 
     app_canTx_DAM_Hash_set(GIT_COMMIT_HASH);
     app_canTx_DAM_Clean_set(GIT_COMMIT_CLEAN);
@@ -81,8 +80,6 @@ void jobs_run1Hz_tick(void)
 
     const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
     io_canTx_enableMode_can1(CAN1_MODE_DEBUG, debug_mode_enabled);
-    //
-    io_telemBaseTimeSend();
 }
 
 void jobs_run100Hz_tick(void)
@@ -98,6 +95,8 @@ void jobs_run100Hz_tick(void)
         case TIMER_STATE_RUNNING:
             io_enable_buzzer();
             break;
+        case TIMER_STATE_IDLE:
+        case TIMER_STATE_EXPIRED:
         default:
             io_disable_buzzer();
             break;
@@ -150,6 +149,10 @@ void jobs_run100Hz_tick(void)
                 break;
         }
     }
+
+    // Set shutdown node status.
+    app_canTx_DAM_REStopOKStatus_set(io_r_shdn_pin_is_high());
+    app_canTx_DAM_LEStopOKStatus_set(io_l_shdn_pin_is_high());
 }
 
 void jobs_run1kHz_tick(void)
@@ -183,7 +186,7 @@ void jobs_runCanRx_callBack(const CanMsg *rx_msg)
     {
         // Should make this log an error but it spams currently...
         // Consider doing a "num errors remaining" strategy like CAN logging.
-        io_telemMessage_pushMsgtoQueue(rx_msg);
+        io_telemMessageQueue_pushTx(rx_msg);
     }
     // check and process CAN msg for bootloader start msg
 }

@@ -1,13 +1,7 @@
 {
-  "Bootup": {
-    "msg_id": 616,
-    "cycle_time": null,
-    "description": "Async bootup message!",
-    "signals": {}
-  },
   "Vitals": {
     "msg_id": 600,
-    "cycle_time": 10,
+    "cycle_time": 100,
     "description": "FSM vitals message.",
     "signals": {
       "Heartbeat": {
@@ -57,6 +51,7 @@
     "signals": {
       "SteeringAngle": {
         "resolution": 0.1,
+        "signed": true,
         "min": -110,
         "max": 110,
         "unit": "deg"
@@ -136,36 +131,42 @@
     "signals": {
       "LinearAccelerationX": {
         "resolution": 0.1,
+        "signed": true,
         "min": -20,
         "max": 20,
         "unit": "m/s^2"
       },
       "LinearAccelerationY": {
         "resolution": 0.1,
+        "signed": true,
         "min": -20,
         "max": 20,
         "unit": "m/s^2"
       },
       "LinearAccelerationZ": {
         "resolution": 0.1,
+        "signed": true,
         "min": -20,
         "max": 20,
         "unit": "m/s^2"
       },
       "RollRate": {
         "resolution": 0.1,
+        "signed": true,
         "min": -20,
         "max": 20,
         "unit": "deg/s"
       },
       "PitchRate": {
         "resolution": 0.1,
+        "signed": true,
         "min": -20,
         "max": 20,
         "unit": "deg/s"
       },
       "YawRate": {
         "resolution": 0.1,
+        "signed": true,
         "min": -20,
         "max": 20,
         "unit": "deg/s"
@@ -183,12 +184,18 @@
       "COCKPITOKStatus": {
         "bits": 1
       },
-      "FrontLeftILCKOKStatus": {
+      "FrontLeftILCKInertiaOKStatus": {
         "bits": 1
       },
       "FrontRightILCKOKStatus": {
         "bits": 1
       }
     }
+  },
+  "Bootup": {
+    "msg_id": 699,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
   }
 }

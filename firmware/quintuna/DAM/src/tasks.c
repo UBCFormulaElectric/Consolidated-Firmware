@@ -7,24 +7,26 @@
 
 #include "app_canTx.h"
 #include "app_utils.h"
+#include "app_jsoncan.h"
 #include "app_canAlerts.h"
 
 #include "io_log.h"
 #include "io_canQueue.h"
 #include "io_canLogging.h"
 #include "io_fileSystem.h"
-#include "io_buzzer.h"
 #include "io_telemMessage.h"
+#include "io_telemMessageQueue.h"
 #include "io_telemRx.h"
-#include "io_time.h"
 #include "io_canTx.h"
 
 #include "hw_hardFaultHandler.h"
 #include "hw_cans.h"
 #include "hw_usb.h"
-#include "hw_gpios.h"
 #include "hw_crc.h"
+#include "hw_gpios.h"
 #include "hw_resetReason.h"
+#include "hw_uarts.h"
+#include "io_time.h"
 
 #include <cmsis_os2.h>
 #include <hw_chimera_v2.h>
@@ -46,7 +48,7 @@ void tasks_preInit(void)
 
 void tasks_preInitWatchdog(void)
 {
-    ExitCode status = io_rtc_readTime(&boot_time);
+    ASSERT_EXIT_OK(io_rtc_readTime(&boot_time));
     sprintf(
         boot_time_string, "20%02d-%02d-%02dT%02d-%02d-%02d", boot_time.year, boot_time.month, boot_time.day,
         boot_time.hours, boot_time.minutes, boot_time.seconds);
@@ -101,6 +103,9 @@ void tasks_init(void)
     jobs_init();
 
     io_canTx_DAM_Bootup_sendAperiodic();
+
+    hw_gpio_writePin(&telem_pwr_en_pin, true);
+    io_telemMessageQueue_init();
 }
 
 _Noreturn void tasks_runChimera(void)
@@ -140,8 +145,6 @@ _Noreturn void tasks_run100Hz(void)
         if (!hw_chimera_v2_enabled)
             jobs_run100Hz_tick();
 
-        // io_telemMessage_pushMsgtoQueue(&fake_msg);
-
         // Watchdog check-in must be the last function called before putting the task to sleep.
         hw_watchdog_checkIn(watchdog);
 
@@ -177,11 +180,7 @@ _Noreturn void tasks_runCanTx(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx(&can_tx_queue);
-        // LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
-        // LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
-        // ToDo: check if this is needed and investigate why is_fd is not a bool
-
-        hw_fdcan_transmit(&can1, &tx_msg);
+        LOG_IF_ERR(hw_fdcan_transmit(&can1, &tx_msg));
     }
 }
 
@@ -195,9 +194,19 @@ _Noreturn void tasks_runCanRx(void)
 
 _Noreturn void tasks_runTelem(void)
 {
+    BaseTimeRegMsg base_time_msg = io_telemMessage_buildBaseTimeRegMsg(&boot_time);
+    hw_uart_transmit(&_900k_uart, (uint8_t *)&base_time_msg, sizeof(base_time_msg));
+
     for (;;)
     {
-        io_telemMessage_broadcastMsgFromQueue();
+        CanMsg      queue_out = io_telemMessageQueue_popTx();
+        uint8_t     full_msg_size;
+        TelemCanMsg can_msg = io_telemMessage_buildCanMsg(&queue_out, 0, &full_msg_size);
+
+        // Start timing for measuring transmission speeds
+        SEGGER_SYSVIEW_MarkStart(0);
+        LOG_IF_ERR(hw_uart_transmit(&_900k_uart, (uint8_t *)&can_msg, full_msg_size));
+        SEGGER_SYSVIEW_MarkStop(0);
     }
 }
 

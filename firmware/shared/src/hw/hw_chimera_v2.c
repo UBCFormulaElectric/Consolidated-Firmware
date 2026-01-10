@@ -12,7 +12,7 @@
 
 // Maximum size for the output rpc content we support (length specified by 2 bytes, so 2^16 - 1).
 // Yes, this is 65kb of RAM - it's a lot, but doable.
-#define OUT_BUFFER_SIZE (0xffff)
+#define OUT_BUFFER_SIZE (0xfff)
 static pb_byte_t out_buffer[OUT_BUFFER_SIZE];
 
 bool hw_chimera_v2_enabled = false;

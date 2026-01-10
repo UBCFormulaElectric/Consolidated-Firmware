@@ -23,6 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "bootloader.h"
+#include "hw_error.h"
 #include "hw_fdcan.h"
 #include "io_canQueue.h"
 /* USER CODE END Includes */
@@ -45,7 +46,7 @@ typedef StaticTask_t osStaticThreadDef_t;
 
 /* Private variables ---------------------------------------------------------*/
 
-FDCAN_HandleTypeDef hfdcan1;
+FDCAN_HandleTypeDef hfdcan2;
 
 /* Definitions for interfaceTask */
 osThreadId_t         interfaceTaskHandle;
@@ -90,7 +91,7 @@ const osThreadAttr_t canTxTask_attributes = {
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_FDCAN1_Init(void);
+static void MX_FDCAN2_Init(void);
 void        runInterfaceTask(void *argument);
 void        runTickTask(void *argument);
 void        runCanTxTask(void *argument);
@@ -101,7 +102,7 @@ void        runCanTxTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-CanHandle can = { .hcan = &hfdcan1, .bus_num = 2, .receive_callback = io_canQueue_pushRx };
+CanHandle can = { .hcan = &hfdcan2, .bus_num = 2, .receive_callback = io_canQueue_pushRx };
 /* USER CODE END 0 */
 
 /**
@@ -132,7 +133,7 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
-    MX_FDCAN1_Init();
+    MX_FDCAN2_Init();
     /* USER CODE BEGIN 2 */
     bootloader_init();
     /* USER CODE END 2 */
@@ -178,6 +179,7 @@ int main(void)
     osKernelStart();
 
     /* We should never get here as control is now taken by the scheduler */
+
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
     while (1)
@@ -204,7 +206,7 @@ void SystemClock_Config(void)
 
     /** Configure the main internal regulator output voltage
      */
-    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
+    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE0);
 
     while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY))
     {
@@ -218,7 +220,7 @@ void SystemClock_Config(void)
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 1;
-    RCC_OscInitStruct.PLL.PLLN       = 24;
+    RCC_OscInitStruct.PLL.PLLN       = 64;
     RCC_OscInitStruct.PLL.PLLP       = 1;
     RCC_OscInitStruct.PLL.PLLQ       = 4;
     RCC_OscInitStruct.PLL.PLLR       = 2;
@@ -236,67 +238,67 @@ void SystemClock_Config(void)
                                   RCC_CLOCKTYPE_PCLK2 | RCC_CLOCKTYPE_D3PCLK1 | RCC_CLOCKTYPE_D1PCLK1;
     RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
     RCC_ClkInitStruct.SYSCLKDivider  = RCC_SYSCLK_DIV2;
-    RCC_ClkInitStruct.AHBCLKDivider  = RCC_HCLK_DIV2;
+    RCC_ClkInitStruct.AHBCLKDivider  = RCC_HCLK_DIV1;
     RCC_ClkInitStruct.APB3CLKDivider = RCC_APB3_DIV2;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_APB1_DIV2;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_APB2_DIV2;
     RCC_ClkInitStruct.APB4CLKDivider = RCC_APB4_DIV2;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
     {
         Error_Handler();
     }
 }
 
 /**
- * @brief FDCAN1 Initialization Function
+ * @brief FDCAN2 Initialization Function
  * @param None
  * @retval None
  */
-static void MX_FDCAN1_Init(void)
+static void MX_FDCAN2_Init(void)
 {
-    /* USER CODE BEGIN FDCAN1_Init 0 */
+    /* USER CODE BEGIN FDCAN2_Init 0 */
 
-    /* USER CODE END FDCAN1_Init 0 */
+    /* USER CODE END FDCAN2_Init 0 */
 
-    /* USER CODE BEGIN FDCAN1_Init 1 */
+    /* USER CODE BEGIN FDCAN2_Init 1 */
 
-    /* USER CODE END FDCAN1_Init 1 */
-    hfdcan1.Instance                  = FDCAN1;
-    hfdcan1.Init.FrameFormat          = FDCAN_FRAME_CLASSIC;
-    hfdcan1.Init.Mode                 = FDCAN_MODE_NORMAL;
-    hfdcan1.Init.AutoRetransmission   = ENABLE;
-    hfdcan1.Init.TransmitPause        = DISABLE;
-    hfdcan1.Init.ProtocolException    = DISABLE;
-    hfdcan1.Init.NominalPrescaler     = 3;
-    hfdcan1.Init.NominalSyncJumpWidth = 2;
-    hfdcan1.Init.NominalTimeSeg1      = 13;
-    hfdcan1.Init.NominalTimeSeg2      = 2;
-    hfdcan1.Init.DataPrescaler        = 3;
-    hfdcan1.Init.DataSyncJumpWidth    = 2;
-    hfdcan1.Init.DataTimeSeg1         = 5;
-    hfdcan1.Init.DataTimeSeg2         = 2;
-    hfdcan1.Init.MessageRAMOffset     = 0;
-    hfdcan1.Init.StdFiltersNbr        = 1;
-    hfdcan1.Init.ExtFiltersNbr        = 1;
-    hfdcan1.Init.RxFifo0ElmtsNbr      = 1;
-    hfdcan1.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_64;
-    hfdcan1.Init.RxFifo1ElmtsNbr      = 0;
-    hfdcan1.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_64;
-    hfdcan1.Init.RxBuffersNbr         = 0;
-    hfdcan1.Init.RxBufferSize         = FDCAN_DATA_BYTES_64;
-    hfdcan1.Init.TxEventsNbr          = 0;
-    hfdcan1.Init.TxBuffersNbr         = 0;
-    hfdcan1.Init.TxFifoQueueElmtsNbr  = 1;
-    hfdcan1.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
-    hfdcan1.Init.TxElmtSize           = FDCAN_DATA_BYTES_64;
-    if (HAL_FDCAN_Init(&hfdcan1) != HAL_OK)
+    /* USER CODE END FDCAN2_Init 1 */
+    hfdcan2.Instance                  = FDCAN2;
+    hfdcan2.Init.FrameFormat          = FDCAN_FRAME_FD_NO_BRS;
+    hfdcan2.Init.Mode                 = FDCAN_MODE_NORMAL;
+    hfdcan2.Init.AutoRetransmission   = ENABLE;
+    hfdcan2.Init.TransmitPause        = DISABLE;
+    hfdcan2.Init.ProtocolException    = DISABLE;
+    hfdcan2.Init.NominalPrescaler     = 6;
+    hfdcan2.Init.NominalSyncJumpWidth = 2;
+    hfdcan2.Init.NominalTimeSeg1      = 13;
+    hfdcan2.Init.NominalTimeSeg2      = 2;
+    hfdcan2.Init.DataPrescaler        = 3;
+    hfdcan2.Init.DataSyncJumpWidth    = 2;
+    hfdcan2.Init.DataTimeSeg1         = 5;
+    hfdcan2.Init.DataTimeSeg2         = 2;
+    hfdcan2.Init.MessageRAMOffset     = 0;
+    hfdcan2.Init.StdFiltersNbr        = 1;
+    hfdcan2.Init.ExtFiltersNbr        = 1;
+    hfdcan2.Init.RxFifo0ElmtsNbr      = 32;
+    hfdcan2.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_64;
+    hfdcan2.Init.RxFifo1ElmtsNbr      = 0;
+    hfdcan2.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_64;
+    hfdcan2.Init.RxBuffersNbr         = 0;
+    hfdcan2.Init.RxBufferSize         = FDCAN_DATA_BYTES_64;
+    hfdcan2.Init.TxEventsNbr          = 0;
+    hfdcan2.Init.TxBuffersNbr         = 0;
+    hfdcan2.Init.TxFifoQueueElmtsNbr  = 32;
+    hfdcan2.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
+    hfdcan2.Init.TxElmtSize           = FDCAN_DATA_BYTES_64;
+    if (HAL_FDCAN_Init(&hfdcan2) != HAL_OK)
     {
         Error_Handler();
     }
-    /* USER CODE BEGIN FDCAN1_Init 2 */
+    /* USER CODE BEGIN FDCAN2_Init 2 */
 
-    /* USER CODE END FDCAN1_Init 2 */
+    /* USER CODE END FDCAN2_Init 2 */
 }
 
 /**
@@ -311,73 +313,19 @@ static void MX_GPIO_Init(void)
     /* USER CODE END MX_GPIO_Init_1 */
 
     /* GPIO Ports Clock Enable */
-    __HAL_RCC_GPIOE_CLK_ENABLE();
-    __HAL_RCC_GPIOC_CLK_ENABLE();
     __HAL_RCC_GPIOH_CLK_ENABLE();
-    __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
-    __HAL_RCC_GPIOD_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(
-        GPIOE,
-        INV_R_PWR_EN_Pin | INV_R_PROGRA_Pin | INV_L_PROGR_Pin | SHDN_PWR_EN_Pin | INV_L_PWR_EN_Pin | FR_STBY3E1_Pin,
-        GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOC, LED_Pin | BOOT_LED_Pin, GPIO_PIN_RESET);
 
-    /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOC, FR_STBY3_Pin | LV_PWR_EN_Pin | FR_STBY2_Pin, GPIO_PIN_RESET);
-
-    /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOA, BUZZER_PWR_EN_Pin | LED_Pin | TELEM_PWR_EN_Pin, GPIO_PIN_RESET);
-
-    /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(nPCM_EN_GPIO_Port, nPCM_EN_Pin, GPIO_PIN_SET);
-
-    /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOD, PUMP_PWR_E_Pin | _900K_GPI_Pin | AUX_PWR_EN_Pin, GPIO_PIN_RESET);
-
-    /*Configure GPIO pins : INV_R_PWR_EN_Pin INV_R_PROGRA_Pin INV_L_PROGR_Pin SHDN_PWR_EN_Pin
-                             INV_L_PWR_EN_Pin FR_STBY3E1_Pin */
-    GPIO_InitStruct.Pin =
-        INV_R_PWR_EN_Pin | INV_R_PROGRA_Pin | INV_L_PROGR_Pin | SHDN_PWR_EN_Pin | INV_L_PWR_EN_Pin | FR_STBY3E1_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : FR_STBY3_Pin LV_PWR_EN_Pin FR_STBY2_Pin */
-    GPIO_InitStruct.Pin   = FR_STBY3_Pin | LV_PWR_EN_Pin | FR_STBY2_Pin;
+    /*Configure GPIO pins : LED_Pin BOOT_LED_Pin */
+    GPIO_InitStruct.Pin   = LED_Pin | BOOT_LED_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : BUZZER_PWR_EN_Pin LED_Pin TELEM_PWR_EN_Pin */
-    GPIO_InitStruct.Pin   = BUZZER_PWR_EN_Pin | LED_Pin | TELEM_PWR_EN_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : nPCM_EN_Pin */
-    GPIO_InitStruct.Pin   = nPCM_EN_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(nPCM_EN_GPIO_Port, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : PUMP_PWR_E_Pin _900K_GPI_Pin AUX_PWR_EN_Pin */
-    GPIO_InitStruct.Pin   = PUMP_PWR_E_Pin | _900K_GPI_Pin | AUX_PWR_EN_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : nBOOT_EN_Pin */
-    GPIO_InitStruct.Pin  = nBOOT_EN_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_PULLUP;
-    HAL_GPIO_Init(nBOOT_EN_GPIO_Port, &GPIO_InitStruct);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
     /* USER CODE END MX_GPIO_Init_2 */
@@ -397,11 +345,7 @@ static void MX_GPIO_Init(void)
 void runInterfaceTask(void *argument)
 {
     /* USER CODE BEGIN 5 */
-    /* Infinite loop */
-    for (;;)
-    {
-        bootloader_runInterfaceTask();
-    }
+    bootloader_runInterfaceTask();
     /* USER CODE END 5 */
 }
 
@@ -416,10 +360,7 @@ void runTickTask(void *argument)
 {
     /* USER CODE BEGIN runTickTask */
     /* Infinite loop */
-    for (;;)
-    {
-        bootloader_runTickTask();
-    }
+    bootloader_runTickTask();
     /* USER CODE END runTickTask */
 }
 
@@ -434,10 +375,7 @@ void runCanTxTask(void *argument)
 {
     /* USER CODE BEGIN runCanTxTask */
     /* Infinite loop */
-    for (;;)
-    {
-        bootloader_runCanTxTask();
-    }
+    bootloader_runCanTxTask();
     /* USER CODE END runCanTxTask */
 }
 

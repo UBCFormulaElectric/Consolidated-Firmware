@@ -1,14 +1,8 @@
 {
-  "Bootup": {
-    "msg_id": 1611,
-    "cycle_time": null,
-    "description": "Async bootup message!",
-    "signals": {}
-  },
   "Vitals": {
     "msg_id": 1600,
     "cycle_time": 1000,
-    "description": "VC Vital signals",
+    "description": "VCR Vital signals",
     "signals": {
       "Heartbeat": {
         "bits": 1
@@ -23,7 +17,7 @@
   "CommitInfo": {
     "msg_id": 1609,
     "cycle_time": 1000,
-    "description": "VC Commit Info",
+    "description": "VCR Commit Info",
     "signals": {
       "Hash": {
         "bits": 32
@@ -36,7 +30,7 @@
   "Debug": {
     "msg_id": 1607,
     "cycle_time": 1000,
-    "description": "VC Debug Signals",
+    "description": "VCR Debug Signals",
     "signals": {
       "TxOverflowCount": {
         "bits": 16
@@ -54,5 +48,11 @@
         "bits": 8
       }
     }
+  },
+  "Bootup": {
+    "msg_id": 1699,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
   }
 }

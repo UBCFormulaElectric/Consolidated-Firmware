@@ -1,10 +1,8 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Quintuna DAM Debug" type="com.jetbrains.cidr.embedded.customgdbserver.type" factoryName="com.jetbrains.cidr.embedded.customgdbserver.factory" PROGRAM_PARAMS="-device &quot;STM32H733VG&quot; -if swd -speed 8000 -port 27356 -nogui -singlerun" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="UBC Formula Electric Software" TARGET_NAME="quintuna_DAM.hex" CONFIG_NAME="FW Dev Edwin" version="1" RUN_TARGET_PROJECT_NAME="UBC Formula Electric Software" RUN_TARGET_NAME="quintuna_DAM_app.elf">
+  <configuration default="false" name="Quintuna DAM Debug" type="com.jetbrains.cidr.embedded.customgdbserver.type" factoryName="com.jetbrains.cidr.embedded.customgdbserver.factory" PROGRAM_PARAMS="-device &quot;STM32H733VG&quot; -if swd -speed 8000 -port 27356 -nogui -singlerun" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="UBC Formula Electric Software" TARGET_NAME="quintuna_DAM.hex" CONFIG_NAME="FW Dev Ninja" version="1" RUN_TARGET_PROJECT_NAME="UBC Formula Electric Software" RUN_TARGET_NAME="quintuna_DAM_app.elf">
     <custom-gdb-server version="1" gdb-connect="tcp::27356" executable="JLinkGDBServerCL" warmup-ms="0" download-type="NONE" reset-cmd="monitor reset" reset-type="AFTER_DOWNLOAD">
       <debugger kind="GDB">C:\Program Files (x86)\GNU Arm Embedded Toolchain\10 2021.10\bin\arm-none-eabi-gdb.exe</debugger>
     </custom-gdb-server>
-    <method v="2">
-      <option name="CLION.COMPOUND.BUILD" enabled="true" />
-    </method>
+    <method v="2" />
   </configuration>
 </component>
