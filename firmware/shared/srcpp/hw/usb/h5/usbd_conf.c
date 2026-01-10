@@ -74,21 +74,8 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
     pdev->pData           = &hpcd_USB_DRD_FS;
     hpcd_USB_DRD_FS.pData = pdev;
 
-    /* Configure PCD instance */
-    hpcd_USB_DRD_FS.Instance                     = USB_DRD_FS;
-    hpcd_USB_DRD_FS.Init.dev_endpoints           = 8;
-    hpcd_USB_DRD_FS.Init.speed                   = PCD_SPEED_FULL;
-    hpcd_USB_DRD_FS.Init.phy_itface              = PCD_PHY_EMBEDDED;
-    hpcd_USB_DRD_FS.Init.Sof_enable              = ENABLE;
-    hpcd_USB_DRD_FS.Init.low_power_enable        = DISABLE;
-    hpcd_USB_DRD_FS.Init.lpm_enable              = DISABLE;
-    hpcd_USB_DRD_FS.Init.battery_charging_enable = DISABLE;
-    hpcd_USB_DRD_FS.Init.vbus_sensing_enable     = DISABLE;
-
-    if (HAL_PCD_Init(&hpcd_USB_DRD_FS) != HAL_OK)
-    {
-        Error_Handler();
-    }
+    /* Initialize LL Driver */
+    MX_USB_PCD_Init();
 
     /* PMA buffer configuration */
     HAL_PCDEx_PMAConfig(&hpcd_USB_DRD_FS, 0x00, PCD_SNG_BUF, 0x20); /* EP0 OUT */

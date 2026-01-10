@@ -29,6 +29,7 @@
 #include "usbd_cdc.h"
 #include "usbd_cdc_if.h"
 #include "usbd_desc.h"
+#include "util_errorCodes.h"
 
 /* USER CODE END Includes */
 
@@ -57,7 +58,7 @@ RTC_HandleTypeDef hrtc;
 
 SPI_HandleTypeDef hspi1;
 
-/* USER CODE BEGIN PV */
+PCD_HandleTypeDef hpcd_USB_DRD_FS;
 
 /* USER CODE BEGIN PV */
 uint8_t                   CDC_EpAdd_Inst[3] = { CDC_IN_EP, CDC_OUT_EP, CDC_CMD_EP };
@@ -74,7 +75,6 @@ static void MX_IWDG_Init(void);
 static void MX_RTC_Init(void);
 static void MX_SPI1_Init(void);
 /* USER CODE BEGIN PFP */
-
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -97,9 +97,6 @@ int main(void)
     /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
     HAL_Init();
 
-    /* USER CODE BEGIN Init */
-    /* USER CODE END Init */
-
     /* Configure the system clock */
     SystemClock_Config();
 
@@ -107,16 +104,21 @@ int main(void)
 
     /* USER CODE END SysInit */
 
+    /* Init scheduler */
+    osKernelInitialize();
+    /* USER CODE BEGIN Init */
+    if (hw_usb_init() != EXIT_CODE_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE END Init */
+
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
     MX_FDCAN1_Init();
     MX_IWDG_Init();
     MX_RTC_Init();
-<<<<<<< HEAD
-    MX_USB_PCD_Init();
-=======
     MX_SPI1_Init();
->>>>>>> master
     /* USER CODE BEGIN 2 */
     tasks_init();
 
@@ -139,7 +141,13 @@ int main(void)
     USBD_Start(&hUsbDeviceFS);
     /* USER CODE END 2 */
 
-    osKernelInitialize();
+    /* Call init function for freertos objects (in app_freertos.c) */
+    MX_FREERTOS_Init();
+
+    /* Start scheduler */
+    osKernelStart();
+
+    /* We should never get here as control is now taken by the scheduler */
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
@@ -170,6 +178,7 @@ void SystemClock_Config(void)
 {
     RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
     RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
+    RCC_CRSInitTypeDef RCC_CRSInitStruct = { 0 };
 
     /** Configure the main internal regulator output voltage
      */
@@ -182,9 +191,11 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_CSI;
+    RCC_OscInitStruct.OscillatorType =
+        RCC_OSCILLATORTYPE_HSI48 | RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_CSI;
     RCC_OscInitStruct.HSEState            = RCC_HSE_ON;
     RCC_OscInitStruct.LSIState            = RCC_LSI_ON;
+    RCC_OscInitStruct.HSI48State          = RCC_HSI48_ON;
     RCC_OscInitStruct.CSIState            = RCC_CSI_ON;
     RCC_OscInitStruct.CSICalibrationValue = RCC_CSICALIBRATION_DEFAULT;
     RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
@@ -216,6 +227,21 @@ void SystemClock_Config(void)
     {
         Error_Handler();
     }
+
+    /** Enable the CRS APB clock
+     */
+    __HAL_RCC_CRS_CLK_ENABLE();
+
+    /** Configures CRS
+     */
+    RCC_CRSInitStruct.Prescaler             = RCC_CRS_SYNC_DIV1;
+    RCC_CRSInitStruct.Source                = RCC_CRS_SYNC_SOURCE_USB;
+    RCC_CRSInitStruct.Polarity              = RCC_CRS_SYNC_POLARITY_RISING;
+    RCC_CRSInitStruct.ReloadValue           = __HAL_RCC_CRS_RELOADVALUE_CALCULATE(48000000, 1000);
+    RCC_CRSInitStruct.ErrorLimitValue       = 34;
+    RCC_CRSInitStruct.HSI48CalibrationValue = 32;
+
+    HAL_RCCEx_CRSConfig(&RCC_CRSInitStruct);
 
     /* Select SysTick source clock */
     HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
@@ -345,7 +371,8 @@ static void MX_RTC_Init(void)
 
     /* USER CODE END RTC_Init 2 */
 }
-/*
+
+/**
  * @brief SPI1 Initialization Function
  * @param None
  * @retval None
@@ -389,6 +416,40 @@ static void MX_SPI1_Init(void)
     /* USER CODE BEGIN SPI1_Init 2 */
 
     /* USER CODE END SPI1_Init 2 */
+}
+
+/**
+ * @brief USB Initialization Function
+ * @param None
+ * @retval None
+ */
+void MX_USB_PCD_Init(void)
+{
+    /* USER CODE BEGIN USB_Init 0 */
+
+    /* USER CODE END USB_Init 0 */
+
+    /* USER CODE BEGIN USB_Init 1 */
+
+    /* USER CODE END USB_Init 1 */
+    hpcd_USB_DRD_FS.Instance                      = USB_DRD_FS;
+    hpcd_USB_DRD_FS.Init.dev_endpoints            = 8;
+    hpcd_USB_DRD_FS.Init.speed                    = USBD_FS_SPEED;
+    hpcd_USB_DRD_FS.Init.phy_itface               = PCD_PHY_EMBEDDED;
+    hpcd_USB_DRD_FS.Init.Sof_enable               = DISABLE;
+    hpcd_USB_DRD_FS.Init.low_power_enable         = DISABLE;
+    hpcd_USB_DRD_FS.Init.lpm_enable               = DISABLE;
+    hpcd_USB_DRD_FS.Init.battery_charging_enable  = DISABLE;
+    hpcd_USB_DRD_FS.Init.vbus_sensing_enable      = DISABLE;
+    hpcd_USB_DRD_FS.Init.bulk_doublebuffer_enable = DISABLE;
+    hpcd_USB_DRD_FS.Init.iso_singlebuffer_enable  = DISABLE;
+    if (HAL_PCD_Init(&hpcd_USB_DRD_FS) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN USB_Init 2 */
+
+    /* USER CODE END USB_Init 2 */
 }
 
 /**

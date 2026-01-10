@@ -22,7 +22,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "main.h"
+#include "hw_usb.h"
+#include "util_errorCodes.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -110,15 +112,23 @@ void MX_FREERTOS_Init(void)
 void StartDefaultTask(void *argument)
 {
     /* USER CODE BEGIN TaskDefault */
+    uint8_t rx_byte = 0;
     /* Infinite loop */
     for (;;)
     {
-       /* HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
-        osDelay(1000);
-
-        HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET); */
-
-        osDelay(1000);
+        if (hw_usb_checkConnection())
+        {
+            HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
+            if (IS_EXIT_OK(hw_usb_receive(&rx_byte, 1000)))
+            {
+                hw_usb_transmit(&rx_byte, 1);
+            }
+        }
+        else
+        {
+            HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
+            osDelay(10);
+        }
     }
     /* USER CODE END TaskDefault */
 }
