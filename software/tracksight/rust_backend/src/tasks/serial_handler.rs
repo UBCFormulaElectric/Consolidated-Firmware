@@ -3,6 +3,9 @@ use tokio::select;
 use tokio::sync::broadcast;
 use tokio::sync::mpsc;
 use std::io::{Error, ErrorKind};
+use std::sync::Arc;
+use std::sync::atomic::AtomicBool;
+use std::sync::atomic::Ordering;
 use std::time::Duration;
 use crc::{Crc, CRC_32_ISCSI};
 
@@ -19,7 +22,11 @@ pub async fn run_serial_task(mut shutdown_rx: broadcast::Receiver<()>, can_queue
 
     // spawn blocking packet reader
     // the reader thread will allow the handler thread to be async
-    let packet_reader = tokio::task::spawn_blocking(move || packet_reader_handler(packet_tx));
+    let packet_reader_shutdown_flag = Arc::new(AtomicBool::new(false));
+    let packet_reader = tokio::task::spawn_blocking({
+        let shutdown_flag_clone = packet_reader_shutdown_flag.clone();
+        move || packet_reader_handler(shutdown_flag_clone, packet_tx)
+    });
 
     // loop select check for shutdown signal
     // if shutdown signal, select block breaks loop early
@@ -32,6 +39,7 @@ pub async fn run_serial_task(mut shutdown_rx: broadcast::Receiver<()>, can_queue
             Some(packet) = packet_rx.recv() => {
                 // todo should also probably check for closed channels and close thread
                 // TODO better handling error
+                println!("Received packet: {:x?}", &packet);
                 let telem_message = match parse_telem_message(packet) {
                     Ok(m)   => m,
                     Err(_)  => continue,
@@ -57,7 +65,7 @@ pub async fn run_serial_task(mut shutdown_rx: broadcast::Receiver<()>, can_queue
             }
         }
     }
-
+    packet_reader_shutdown_flag.store(true, Ordering::Release);
     packet_reader.await.ok();
 }
 
@@ -72,7 +80,7 @@ const CRC32_CALC: Crc<u32> = Crc::<u32>::new(&CRC_32_ISCSI);
  * Blocking handler that reads packets and sends it to the handler
  * This separate blocking thread is needed for optimal multithreading with tokio
  */
-fn packet_reader_handler(packet_tx: mpsc::Sender<Vec<u8>>) {   
+fn packet_reader_handler(shutdown_flag: Arc<AtomicBool>, packet_tx: mpsc::Sender<Vec<u8>>) {   
     let mut serial_port = serialport::new(
         &CONFIG.serial_port,
         CONFIG.serial_baud_rate
@@ -81,30 +89,30 @@ fn packet_reader_handler(packet_tx: mpsc::Sender<Vec<u8>>) {
     .open()
     .expect("Failed to open serial port");
 
-    loop {
+    while !shutdown_flag.load(Ordering::Acquire) {
         match read_packet(&mut serial_port) {
-            // I don't think blocking send is an issue here.. probably...
-            Ok(p) => {
-                match packet_tx.blocking_send(p) {
-                    Ok(_) => {},
-                    Err(_) => break, // receiver has closed, exit thread
-                }
+            Ok(p) => match packet_tx.blocking_send(p) {
+                Ok(_) => {},
+                Err(_) => break, // packet receiver closed, exit thread
             },
-            Err(_)  => continue,
-        };
+            Err(e) => {println!("{e}")}, // failed to read, continue
+        }
     }
 }
 
 fn read_packet(serial_port: &mut Box<dyn SerialPort>) -> Result<Vec<u8>, Error> {
     let mut header_buffer = [0x0; HEADER_SIZE];
     let mut index = 0;
-    // identify start of header
-    // keep reading until we find the magic bytes
 
     loop {
         while index < 2 {
-            // TODO timeout retry/error handling
-            index += serial_port.read(&mut header_buffer[index..])?
+            match serial_port.read(&mut header_buffer[index..]) {
+                Ok(n) => index += n,
+                Err(e) => return Err(e)
+            }
+
+            println!("header buffer: {:x?}", &header_buffer);
+            println!("magic: {:x?}", &MAGIC);
         }
         if header_buffer[0..2] == MAGIC {
             break;
@@ -112,10 +120,13 @@ fn read_packet(serial_port: &mut Box<dyn SerialPort>) -> Result<Vec<u8>, Error> 
         header_buffer.rotate_left(1);
         index -= 1;
     }
+    println!("Found packet header: {:x?}", &header_buffer[0..2]);
     // TODO should these be infinite loop?
     while index < HEADER_SIZE {
-        // TODO error handling
-        index += serial_port.read(&mut header_buffer[index..])?
+        match serial_port.read(&mut header_buffer[index..]) {
+            Ok(n) => index += n,
+            Err(e) => return Err(e)
+        }
     }
 
     let payload_length = header_buffer[2] as usize;
@@ -132,7 +143,10 @@ fn read_packet(serial_port: &mut Box<dyn SerialPort>) -> Result<Vec<u8>, Error> 
     let mut payload_buffer = vec![0u8; payload_length];
     while index < payload_length {
         // TODO error handling
-        index += serial_port.read(&mut payload_buffer[index..])?
+        match serial_port.read(&mut header_buffer[index..]) {
+            Ok(n) => index += n,
+            Err(e) => return Err(e)
+        }
     }
 
     // checksum, probably works
