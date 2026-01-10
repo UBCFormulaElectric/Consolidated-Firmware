@@ -17,7 +17,6 @@
 #define V_TO_SOC_LUT_SIZE (201U)
 #define LUT_BASE_SOC (0.0f)
 
-static uint16_t cell_monitor_settle_count = 0;
 // charge in cell in coulombs
 static double charge_c;
 
@@ -205,10 +204,6 @@ void app_soc_broadcast(void)
     {
         app_soc_updateSocStats();
     }
-    if (cell_monitor_settle_count < NUM_CYCLES_TO_SETTLE)
-    {
-        cell_monitor_settle_count++;
-    }
 }
 
 void app_soc_saveToSd(void)
@@ -217,7 +212,7 @@ void app_soc_saveToSd(void)
 
     if (min_soc < 0)
     {
-        if (cell_monitor_settle_count >= NUM_CYCLES_TO_SETTLE)
+        if (cell_monitor_settle_timer.state == TIMER_STATE_EXPIRED)
         {
             app_soc_resetSocFromVoltage();
         }
