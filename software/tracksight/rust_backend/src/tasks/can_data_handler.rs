@@ -11,6 +11,8 @@ use crate::tasks::telem_message::CanMessage;
  * both the socket clients and influxdb
  */
 pub async fn run_broadcaster_task(mut shutdown_signal: Receiver<()>, mut can_queue_receiver: Receiver<CanMessage>) {
+    println!("Broadcaster task started.");
+
     // TODO consider splitting this task for client handling and influxdb into two tasks
 
     let influx_client = Client::new(
@@ -19,7 +21,6 @@ pub async fn run_broadcaster_task(mut shutdown_signal: Receiver<()>, mut can_que
         &CONFIG.influxdb_token
     );
 
-    println!("Broadcaster task started.");
     
     // loop select check for shutdown signal
     // if shutdown signal, select block breaks loop early
