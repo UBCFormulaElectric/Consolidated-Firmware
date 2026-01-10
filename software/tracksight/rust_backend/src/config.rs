@@ -43,7 +43,7 @@ fn load_env_file() -> Config {
 
     return Config {
         serial_port: serial_port,
-        serial_baud_rate: 9600, // hardcoded baudrate, probably wont ever change this
+        serial_baud_rate: 57600, // hardcoded baudrate, probably wont ever change this
         influxdb_url: influxdb_url,
         influxdb_org: influxdb_org,
         influxdb_token: influxdb_token,

@@ -6,8 +6,8 @@ rust my beloved
 todo for backend
 [x] reading from serial and parsing
 [x] queuing can messages to push to influx
+[-] switch to using tokio (?)
 [ ] verify that serial messages can be processed
-[ ] switch to using tokio (?)
 [ ] interfacing with influxdb and pushing data through
 [ ] processing jsoncan to read metadata
 [ ] socket clients to publish data
