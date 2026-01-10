@@ -7,9 +7,8 @@
 
 extern "C"
 {
-#include "hw_fdcan.h"
-#include "hw_cans.h"
 #include "hw_bootup.h"
+#include "hw_cans.h"
 #include "hw_resetReason.h"
 #include "io_canQueue.h"
 #include "app_jsoncan.h"
@@ -17,7 +16,10 @@ extern "C"
 
 static CanTxQueue can_tx_queue;
 
-void tasks_preInit() {}
+void tasks_preInit()
+{
+    hw_bootup_enableInterruptsForApp();
+}
 
 void tasks_init()
 {

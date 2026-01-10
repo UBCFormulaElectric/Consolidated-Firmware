@@ -21,6 +21,7 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_spi.cpp"
         "${SHARED_HW_INCLUDE_DIR}/hw_resetReason.c"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
         "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
@@ -75,6 +76,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "stm32h5xx_hal_pwr.c"
             "stm32h5xx_hal_pwr_ex.c"
             "stm32h5xx_hal_flash.c"
+            "stm32h5xx_hal_spi.c"
     )
 
     set(CUBEMX_INCLUDE_DIRS 
