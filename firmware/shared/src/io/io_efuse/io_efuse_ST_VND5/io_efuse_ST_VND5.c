@@ -16,11 +16,12 @@
  */
 
 // TODO: Characterize this voltage
-#define NOMINAL_V 3.3f
+#define V_NOMINAL 3.3f
+// Analog sense output voltage in fault condition
 // Vsenseh lower threshold
-#define V_SENSE_H_L 7.5f
+#define V_SENSEH_L 7.5f
 // Vsenseh upper threshold
-#define V_SENSE_H_H 9.5f
+#define V_SENSEH_H 9.5f
 
 #define V_THRES 0.1f
 
@@ -101,23 +102,23 @@ static ExitCode io_efuse_ST_ok(const Efuse *efuse)
             efuse->st_vnd5->faults.flags.negative_output_voltage_clamp = APPROX_EQUAL_FLOAT(voltage, 0.0f, V_THRES);
             break;
         case L_H:
-            efuse->st_vnd5->faults.flags.overload           = APPROX_EQUAL_FLOAT(voltage, NOMINAL_V, V_THRES);
-            efuse->st_vnd5->faults.flags.ovt_stp            = IS_IN_RANGE(V_SENSE_H_L, V_SENSE_H_H, voltage);
-            efuse->st_vnd5->faults.flags.short_to_vbat      = APPROX_EQUAL_FLOAT(voltage, NOMINAL_V, V_THRES);
+            efuse->st_vnd5->faults.flags.overload           = (voltage > V_NOMINAL);
+            efuse->st_vnd5->faults.flags.ovt_stp            = IS_IN_RANGE(V_SENSEH_L, V_SENSEH_H, voltage);
+            efuse->st_vnd5->faults.flags.short_to_vbat      = (voltage < V_NOMINAL);
             efuse->st_vnd5->faults.flags.open_load_off_stat = APPROX_EQUAL_FLOAT(voltage, 0.0f, V_THRES);
             // efuse->st_vnd5->faults.flags.negative_output_voltage_clamp = (voltage <= 0.0f);
             break;
         case H_L:
             efuse->st_vnd5->faults.flags.overload                      = APPROX_EQUAL_FLOAT(voltage, 0.0f, V_THRES);
             efuse->st_vnd5->faults.flags.ovt_stp                       = APPROX_EQUAL_FLOAT(voltage, 0.0f, V_THRES);
-            efuse->st_vnd5->faults.flags.short_to_vbat                 = IS_IN_RANGE(V_SENSE_H_L, V_SENSE_H_H, voltage);
-            efuse->st_vnd5->faults.flags.open_load_off_stat            = IS_IN_RANGE(V_SENSE_H_L, V_SENSE_H_H, voltage);
+            efuse->st_vnd5->faults.flags.short_to_vbat                 = IS_IN_RANGE(V_SENSEH_L, V_SENSEH_H, voltage);
+            efuse->st_vnd5->faults.flags.open_load_off_stat            = IS_IN_RANGE(V_SENSEH_L, V_SENSEH_H, voltage);
             efuse->st_vnd5->faults.flags.negative_output_voltage_clamp = APPROX_EQUAL_FLOAT(voltage, 0.0f, V_THRES);
             break;
         case H_H:
-            efuse->st_vnd5->faults.flags.overload           = APPROX_EQUAL_FLOAT(voltage, NOMINAL_V, V_THRES);
-            efuse->st_vnd5->faults.flags.ovt_stp            = IS_IN_RANGE(V_SENSE_H_L, V_SENSE_H_H, voltage);
-            efuse->st_vnd5->faults.flags.short_to_vbat      = APPROX_EQUAL_FLOAT(voltage, NOMINAL_V, V_THRES);
+            efuse->st_vnd5->faults.flags.overload           = (voltage > V_NOMINAL);
+            efuse->st_vnd5->faults.flags.ovt_stp            = IS_IN_RANGE(V_SENSEH_L, V_SENSEH_H, voltage);
+            efuse->st_vnd5->faults.flags.short_to_vbat      = (voltage < V_NOMINAL);
             efuse->st_vnd5->faults.flags.open_load_off_stat = APPROX_EQUAL_FLOAT(voltage, 0.0f, V_THRES);
             // efuse->st_vnd5->faults.flags.negative_output_voltage_clamp = (voltage <= 0.0f);
             break;

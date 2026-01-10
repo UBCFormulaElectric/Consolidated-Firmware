@@ -19,9 +19,9 @@
  *      80 A*kOhm - 120 A*kOhm (Rev B, D, or C)
  */
 
-#define R_PD 24.9f // kOhm
+#define R_LIM 24.9f // kOhm
 // TODO: is this actualy a linear interpolation and which revision are we??
-#define K_CL ((((60.0f - 40.0f) / (50.0f - 10.0f)) * R_PD) + 35.0f) // A*kOhm
+#define K_CL ((((60.0f - 40.0f) / (50.0f - 10.0f)) * R_LIM) + 35.0f) // A*kOhm
 #define I_LIM (K_CL / R_PD)
 
 // There are different V_SNSFH thresholds if DIAG_EN gpio is set to LOw (3.3V) or HIGH (5V)
