@@ -89,3 +89,13 @@ bool app_soc_readSocFromSd(float *saved_soc_c);
  * @return false if write to SD fails
  */
 bool app_soc_writeSocToSd(float soc);
+
+/**
+ * @brief Broadcast SOC related CAN signals
+ */
+void app_soc_broadcast(void);
+
+/**
+ * @brief Get SOC and save to SD card if valid
+ */
+void app_soc_saveToSd(void);

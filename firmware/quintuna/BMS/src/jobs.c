@@ -66,9 +66,8 @@ void jobs_init(void)
     io_canTx_enableMode_charger(CHARGER_MODE_DEFAULT, true);
     io_canQueue_initRx();
     io_canQueue_initTx(&can_tx_queue);
-    // TODO: Uncomment after soc is tested
-    // app_soc_init();
-    // app_init_globals();
+    
+    app_soc_init();
 
     app_canTx_init();
     app_canRx_init();
@@ -112,74 +111,7 @@ void jobs_run1Hz_tick(void)
 {
     io_canTx_enqueue1HzMsgs();
 
-    // TODO: Unomment after soc is tested
-    // const float min_soc = app_soc_getMinSocCoulombs();
-    // if (min_soc < 0)
-    // {
-    //     if (globals->cell_monitor_settle_count >= NUM_CYCLES_TO_SETTLE)
-    //     {
-    //         app_soc_resetSocFromVoltage();
-    //     }
-    // }
-    // else
-    // {
-    //     // Send SD card write request via queue
-    //     SdRequest req = {
-    //         .type        = SD_REQ_WRITE_SOC,
-    //         .soc_value   = min_soc,
-    //         .done_sem    = NULL,
-    //         .success_ptr = NULL,
-    //         .result_ptr  = NULL,
-    //     };
-    //     io_sds_enqueue(&req);
-    // }
-}
-
-void jobs_run100Hz_tick(void)
-{
-    const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
-    io_canTx_enableMode_can1(CAN1_MODE_DEBUG, debug_mode_enabled);
-
-    app_heartbeatMonitor_checkIn(&hb_monitor);
-    app_heartbeatMonitor_broadcastFaults(&hb_monitor);
-
-    io_canTx_enqueue100HzMsgs();
-    app_shdnLoop_broadcast();
-
-    app_canTx_BMS_Heartbeat_set(true);
-
-    /**
-     * Update CAN signals for BMS latch statuses
-     */
-    // Wait for mega pr to fix this
-    // app_canTx_BMS_BmsOk_set(io_faultLatch_getCurrentStatus(&bms_ok_latch));
-    // app_canTx_BMS_ImdOk_set(io_faultLatch_getCurrentStatus(&imd_ok_latch));
-    // app_canTx_BMS_BspdOk_set(io_faultLatch_getCurrentStatus(&bspd_ok_latch));
-    // app_canTx_BMS_BmsLatchedFault_set(io_faultLatch_getLatchedStatus(&bms_ok_latch));
-    // app_canTx_BMS_ImdLatchedFault_set(io_faultLatch_getLatchedStatus(&imd_ok_latch));
-    // app_canTx_BMS_BspdLatchedFault_set(io_faultLatch_getLatchedStatus(&bspd_ok_latch));
-
-    // TODO: Uncomment after soc is tested
-    // app_canTx_BMS_Soc_set(app_soc_getMinSocPercent());
-    // if (io_irs_isNegativeClosed() && io_irs_isPositiveClosed())
-    // {
-    //     app_soc_updateSocStats();
-    // }
-    // if (globals->cell_monitor_settle_count < NUM_CYCLES_TO_SETTLE)
-    // {
-    //     globals->cell_monitor_settle_count++;
-    // }
-    /**
-     * add cell balancing check once cell balancing is enabled
-     */
-
-    /**
-     * add accumulator tasks once accumulator app is finished
-     */
-
-    /**
-     * add soc stat update once app soc is finished
-     */
+    app_soc_saveToSd();
 }
 
 void jobs_run100Hz_tick(void)
@@ -194,6 +126,7 @@ void jobs_run100Hz_tick(void)
     // app_heartbeatMonitor_checkIn(&hb_monitor);
     // app_heartbeatMonitor_broadcastFaults(&hb_monitor);
 
+    app_soc_broadcast();
     app_tractiveSystem_broadcast();
     app_imd_broadcast();
     app_shdnLoop_broadcast();

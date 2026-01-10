@@ -277,8 +277,7 @@ void tasks_runSdCard(void)
     for (;;)
     {
         const uint32_t start_ticks = osKernelGetTickCount();
-        // TODO uncomment when SoC and SD card are tested
-        // jobs_runSdCard_tick();
+        jobs_runSdCard_tick();
         osDelayUntil(start_ticks + period_ms);
     }
 }
