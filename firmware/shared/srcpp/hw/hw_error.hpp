@@ -14,8 +14,6 @@
 #ifdef __cplusplus
 extern "C"
 {
-#endif
     _Noreturn void hw_error(const char *file, int line, const char *func);
-#ifdef __cplusplus
 }
 #endif

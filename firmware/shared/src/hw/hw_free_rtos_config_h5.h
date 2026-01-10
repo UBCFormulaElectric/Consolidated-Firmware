@@ -28,8 +28,8 @@
  */
 /* USER CODE END Header */
 
-#ifndef FREERTOS_CONFIG_H
-#define FREERTOS_CONFIG_H
+#ifndef HW_FREERTOS_CONFIG_H5_H
+#define HW_FREERTOS_CONFIG_H5_H
 
 /*-----------------------------------------------------------
  * Application specific definitions.
@@ -54,7 +54,7 @@ extern uint32_t SystemCoreClock;
 void            xPortSysTickHandler(void);
 #endif
 #ifndef CMSIS_device_header
-#define CMSIS_device_header "stm32h7xx.h"
+#define CMSIS_device_header "stm32h5xx.h"
 #endif /* CMSIS_device_header */
 
 #define configENABLE_FPU 0

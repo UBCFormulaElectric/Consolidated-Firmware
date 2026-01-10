@@ -28,8 +28,8 @@
  */
 /* USER CODE END Header */
 
-#ifndef FREERTOS_CONFIG_H
-#define FREERTOS_CONFIG_H
+#ifndef HW_FREERTOS_CONFIG_H7_H
+#define HW_FREERTOS_CONFIG_H7_H
 
 /*-----------------------------------------------------------
  * Application specific definitions.

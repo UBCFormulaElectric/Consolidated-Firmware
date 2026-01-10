@@ -177,9 +177,18 @@ function(embedded_binary
             ${SHARED_COMPILER_FLAGS}
             ${SHARED_GNU_COMPILER_CHECKS} -Werror
     )
-    IF (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-        target_compile_options(${ELF_NAME} PRIVATE -fsanitize=undefined)
-    ENDIF ()
+IF (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    target_compile_options(${ELF_NAME} PRIVATE -fsanitize=undefined)
+ENDIF ()
+
+# excluduing ubssan from sanatization as it would not make senseto sanatize the runtime itself 
+set(UBSAN_RUNTIME_SRC "${CMAKE_SOURCE_DIR}/firmware/shared/srcpp/hw/hw_ubsan.cpp")
+
+set_property(SOURCE "${UBSAN_RUNTIME_SRC}" APPEND PROPERTY COMPILE_OPTIONS
+  -fno-sanitize=undefined
+  -Wno-error=suggest-attribute=noreturn
+  -Wno-suggest-attribute=noreturn
+)
 
     target_link_options(${ELF_NAME} PRIVATE
             ${SHARED_LINKER_FLAGS}
