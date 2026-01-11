@@ -10,6 +10,7 @@ pub struct Config {
     pub influxdb_token: String,
     pub influxdb_bucket: String,
     pub influxdb_measurement: String,
+    pub jsoncan_config_path: String,
 }
 
 pub static CONFIG: LazyLock<Config> = LazyLock::new(|| load_env_file());
@@ -36,10 +37,12 @@ fn load_env_file() -> Config {
     let influxdb_bucket: String = var("INFLUXDB_BUCKET")
         .expect("INFLUXDB_BUCKET is missing!");
 
-    let influxdb_measurement: String = format!(
+    let car_name = format!(
         "{}_live", 
         var("CAR_NAME").expect("CAR_NAME is missing!")
     );
+
+    let influxdb_measurement: String = format!("{car_name}_live");
 
     return Config {
         serial_port: serial_port,
@@ -49,5 +52,6 @@ fn load_env_file() -> Config {
         influxdb_token: influxdb_token,
         influxdb_bucket: influxdb_bucket,
         influxdb_measurement: influxdb_measurement,
+        jsoncan_config_path: format!("../../../can_bus/{car_name}"), // i love hardcoding
     }
 }
