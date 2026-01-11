@@ -276,7 +276,6 @@ function(stm32h562xx_cube_library
         CUBEMX_INCLUDE_DIRS
         USB_ENABLED
         ARM_CORE
-        USE_HEXRAY_FREERTOS_CONFIG
 )
     set(DRIVERS_DIR "${STM32CUBEH5_SOURCE_DIR}/Drivers")
     set(FREERTOS_DIR "${STM32CUBEH5_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source")
@@ -299,6 +298,7 @@ function(stm32h562xx_cube_library
             "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H5xx/Include"
             "${DRIVERS_DIR}/CMSIS/Include"
             "${THIRD_PARTY_DIR}/freertos"
+            "${THIRD_PARTY_DIR}/hexray_freertos"
 
             # SEGGER SystemView includes.
             "${THIRD_PARTY_DIR}/sysview"
