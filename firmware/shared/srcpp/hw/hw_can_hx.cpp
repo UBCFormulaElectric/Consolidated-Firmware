@@ -20,9 +20,9 @@ extern "C" {
 }
 #endif
 
-ExitCode hw::can::tx(USEDCAN_TxHeaderTypeDef &tx_header, io::CanMsg *msg) 
+ExitCode hw::fdcan::tx(FDCAN_TxHeaderTypeDef &tx_header, io::CanMsg *msg) 
 {
-    for (uint32_t poll = 0; HAL_FDCAN_GetTxFifoFreeLevel(hcan) == 0U;)
+    for (uint32_t poll = 0; HAL_FDCAN_GetTxFifoFreeLevel(hfdcan) == 0U;)
     {
         // the polling is here because if the CAN mailbox is temporarily blocked, we don't want to incur the
         // overhead of context switching
@@ -40,7 +40,7 @@ ExitCode hw::can::tx(USEDCAN_TxHeaderTypeDef &tx_header, io::CanMsg *msg)
     }
     return hw_utils_convertHalStatus(HAL_FDCAN_AddMessageToTxFifoQ(hcan, &tx_header, msg->data.data8));
 }
-void hw::can::init() const 
+void hw::fdcan::init() const 
 {
     assert(!ready);
     // Configure a single filter bank that accepts any message.
@@ -64,7 +64,7 @@ void hw::can::init() const
 
     // Configure interrupt mode for CAN peripheral.
     const ExitCode configure_notis_ok = hw_utils_convertHalStatus(HAL_FDCAN_ActivateNotification(
-        hcan,
+        hfdcan,
         FDCAN_IT_RX_FIFO0_NEW_MESSAGE | FDCAN_IT_RX_FIFO1_NEW_MESSAGE | FDCAN_IT_BUS_OFF | FDCAN_IT_TX_COMPLETE,
         FDCAN_TX_BUFFER0));
     ASSERT_EXIT_OK(configure_notis_ok);
@@ -75,13 +75,13 @@ void hw::can::init() const
     ready = true;
 }
 
-void hw::can::deinit() const 
+void hw::fdcan::deinit() const 
 {
     assert(HAL_FDCAN_Stop(hcan) == HAL_OK);
     assert(HAL_FDCAN_DeInit(hcan) == HAL_OK);
 }
 
-ExitCode hw::can::can_transmit(const io::CanMsg &msg) 
+ExitCode hw::fdcan::fdcan_transmit(const io::CanMsg &msg) 
 {
 
     assert(ready);
@@ -95,10 +95,10 @@ ExitCode hw::can::can_transmit(const io::CanMsg &msg)
     tx_header.FDFormat            = FDCAN_CLASSIC_CAN;
     tx_header.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
     tx_header.MessageMarker       = 0;
-    return tx(tx_header, const_cast<io::CanMsg *>(&msg));
+    return tx(tx_header, const_cast<io::fdcanMsg *>(&msg));
 }
 
-ExitCode hw::can::fdcan_transmit(const io::CanMsg &msg) 
+ExitCode hw::fdcan::fdcan_transmit(const io::CanMsg &msg) 
 {
     assert(ready);
 
@@ -136,7 +136,7 @@ ExitCode hw::can::fdcan_transmit(const io::CanMsg &msg)
         dlc = FDCAN_DLC_BYTES_64;
     }
 
-    USEDCAN_TxHeaderTypeDef tx_header;
+    FDCAN_TxHeaderTypeDef tx_header;
     tx_header.Identifier          = msg.std_id;
     tx_header.IdType              = (msg.std_id > MAX_11_BITS_VALUE) ? FDCAN_EXTENDED_ID : FDCAN_STANDARD_ID;
     tx_header.TxFrameType         = FDCAN_DATA_FRAME;
@@ -146,10 +146,10 @@ ExitCode hw::can::fdcan_transmit(const io::CanMsg &msg)
     tx_header.FDFormat            = FDCAN_FD_CAN;
     tx_header.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
     tx_header.MessageMarker       = 0;
-    return tx(tx_header, const_cast<io::CanMsg *>(&msg));
+    return tx(tx_header, const_cast<io::fdcanMsg *>(&msg));
 }
 
-ExitCode hw::can::receive(const uint32_t rx_fifo, io::CanMsg &msg) const 
+ExitCode hw::fdcan::receive(const uint32_t rx_fifo, io::CanMsg &msg) const 
 {
     assert(ready);
     FDCAN_RxHeaderTypeDef header;
@@ -183,9 +183,9 @@ CFUNC void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t E
 
 static ExitCode handleCallback(FDCAN_HandleTypeDef *hfdcan, uint8_t fifo)
 {
-    const hw::can &handle = hw::hw_can_getHandle(hfdcan);
+    const hw::fdcan &handle = hw::hw_can_getHandle(hfdcan);
 
-    io::CanMsg rx_msg;
+    io::fdcanMsg rx_msg;
 
     RETURN_IF_ERR_SILENT(handle.receive(fifo, rx_msg));
 
@@ -212,7 +212,7 @@ CFUNC void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t
 
 CFUNC void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t BufferIndexes)
 {
-    const hw::can &handle = hw::hw_can_getHandle(hfdcan);
+    const hw::fdcan &handle = hw::hw_can_getHandle(hfdcan);
     if (handle.transmit_task == NULL)
     {
         return;

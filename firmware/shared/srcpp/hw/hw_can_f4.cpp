@@ -40,7 +40,7 @@ static constexpr uint32_t MASKMODE_16_BIT_MASK_OPEN = INIT_MASKMODE_16BIT_FiRx(0
 namespace hw
 {
 
-ExitCode can::tx(USEDCAN_TxHeaderTypeDef &tx_header, io::CanMsg *msg)
+ExitCode can::tx(CAN_TxHeaderTypeDef &tx_header, io::CanMsg *msg)
 {
     // Spin until a TX mailbox becomes available.
     for (uint32_t poll_count = 0; HAL_CAN_GetTxMailboxesFreeLevel(hcan) == 0U;)
@@ -66,7 +66,7 @@ ExitCode can::tx(USEDCAN_TxHeaderTypeDef &tx_header, io::CanMsg *msg)
     return hw_utils_convertHalStatus(HAL_CAN_AddTxMessage(hcan, &tx_header, msg.data.data8, &mailbox));
 }
 
-void can::init() const
+void  can::init() const 
 {
     assert(!ready);
     // Configure a single filter bank that accepts any message.
@@ -157,7 +157,7 @@ ExitCode can::receive(const uint32_t rx_fifo, io::CanMsg &msg) const
 } // namespace hw
 
 // ReSharper disable once CppParameterMayBeConstPtrOrRef
-static void handle_callback(USEDCAN_HandleTypeDef *hcan)
+static void handle_callback(CAN_HandleTypeDef *hcan)
 {
     const hw::can &handle = hw::hw_can_getHandle(hcan);
 
