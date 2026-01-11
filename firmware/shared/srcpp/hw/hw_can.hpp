@@ -55,7 +55,7 @@ class BaseCan
 
     constexpr uint8_t            getBusNum() const { return bus_num; }
 };
-class can: private BaseCan 
+class can: public BaseCan 
 {
 
   CAN_HandleTypeDef *const hcan;
@@ -78,7 +78,7 @@ class can: private BaseCan
 
     ExitCode receive(const uint32_t rx_fifo, io::CanMsg &msg) const override final;
 };
-class fdcan: private BaseCan
+class fdcan: public BaseCan
 {
   FDCAN_HandleTypeDef *const hfdcan;
 
@@ -107,7 +107,7 @@ class fdcan: private BaseCan
  * @param hcan takes a handle to a STM32 HAL CAN object
  * @returns a pointer to a CanHandle object (the metadata associated with the STM32 HAL CAN object)
  */
-const can &hw_can_getHandle(const CAN_HandleTypeDef *hcan);
+const can &can_getHandle(const CAN_HandleTypeDef *hcan);
 
-const fdcan &hw_fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan);
+const fdcan &fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan);
 } // namespace hw

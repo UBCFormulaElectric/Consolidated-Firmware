@@ -159,7 +159,7 @@ ExitCode can::receive(const uint32_t rx_fifo, io::CanMsg &msg) const
 // ReSharper disable once CppParameterMayBeConstPtrOrRef
 static void handle_callback(CAN_HandleTypeDef *hcan)
 {
-    const hw::can &handle = hw::hw_can_getHandle(hcan);
+    const hw::can &handle = hw::can_getHandle(hcan);
 
     io::CanMsg rx_msg{};
     // if (IS_EXIT_ERR(hw_can_receive(handle, CAN_RX_FIFO0, &rx_msg)))
@@ -181,7 +181,7 @@ CFUNC void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
 
 static void mailbox_complete_handler(CAN_HandleTypeDef *hcan)
 {
-    const hw::can &can = hw::hw_can_getHandle(hcan);
+    const hw::can &can = hw::can_getHandle(hcan);
     if (can.transmit_task == nullptr)
     {
         return;

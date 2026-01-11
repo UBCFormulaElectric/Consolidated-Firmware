@@ -169,21 +169,21 @@ ExitCode hw::fdcan::receive(const uint32_t rx_fifo, io::CanMsg &msg) const
 
 CFUNC void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t ErrorStatusITs)
 {
-    LOG_INFO("FDCAN on bus %d detected on error %x", hw::hw_can_getHandle(hfdcan)->getBusNum(), ErrorStatusITs);
+    LOG_INFO("FDCAN on bus %d detected on error %x", hw::fdcan_getHandle(hfdcan)->getBusNum(), ErrorStatusITs);
     if ((ErrorStatusITs & FDCAN_IT_BUS_OFF) != RESET)
     {
         FDCAN_ProtocolStatusTypeDef protocolStatus;
         HAL_FDCAN_GetProtocolStatus(hfdcan, &protocolStatus);
         if (protocolStatus.BusOff)
         {
-            LOG_ERROR("FDCAN on bus %d is in BUS OFF state!", hw::hw_can_getHandle(hfdcan).getBusNum());
+            LOG_ERROR("FDCAN on bus %d is in BUS OFF state!", hw::fdcan_getHandle(hfdcan).getBusNum());
         }
     }
 }
 
 static ExitCode handleCallback(FDCAN_HandleTypeDef *hfdcan, uint8_t fifo)
 {
-    const hw::fdcan &handle = hw::hw_can_getHandle(hfdcan);
+    const hw::fdcan &handle = hw::fdcan_getHandle(hfdcan);
 
     io::fdcanMsg rx_msg;
 
@@ -212,7 +212,7 @@ CFUNC void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t
 
 CFUNC void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t BufferIndexes)
 {
-    const hw::fdcan &handle = hw::hw_can_getHandle(hfdcan);
+    const hw::fdcan &handle = hw::fdcan_getHandle(hfdcan);
     if (handle.transmit_task == NULL)
     {
         return;
