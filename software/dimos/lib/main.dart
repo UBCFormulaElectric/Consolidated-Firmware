@@ -36,6 +36,7 @@ class _AppState extends State<App> {
   late WarningsList _warningsList;
   late StateOfCharge _stateOfCharge;
   late ShutdownLoopNodes _shutdownLoopNodes;
+  late SkidVector _skidVector;
 
   @override
   void initState() {
@@ -44,6 +45,7 @@ class _AppState extends State<App> {
     _speedInteger = SpeedInteger();
     _stateOfCharge = StateOfCharge();
     _shutdownLoopNodes = ShutdownLoopNodes();
+    _skidVector = SkidVector();
     
     if (Platform.isWindows || Platform.isMacOS) {
       // have some basic dev api setup to introduce can
@@ -53,16 +55,16 @@ class _AppState extends State<App> {
         _speedInteger.updateVarDev(data);
         _stateOfCharge.updateVarDev(data);
         _shutdownLoopNodes.updateVarDev(data);
+        _skidVector.updateVarDev(data);
       });
     } else if (Platform.isLinux) {
-      // ACTUAL CAN setup
-      // doodoo for now
       _canWorker = CanApiWorker();
       _canWorker.start((data) {
         _warningsList.updateListCan();
         _speedInteger.updateVarCan();
         _stateOfCharge.updateVarCan();
         _shutdownLoopNodes.updateVarCan();
+        _skidVector.updateVarCan();
       });
     }
   }
@@ -75,6 +77,7 @@ class _AppState extends State<App> {
         ChangeNotifierProvider(create: (_) => _speedInteger),
         ChangeNotifierProvider(create: (_) => _stateOfCharge),
         ChangeNotifierProvider(create: (_) => _shutdownLoopNodes),
+        ChangeNotifierProvider(create: (_) => _skidVector),
         ChangeNotifierProvider(create: (_) => RouterProvider())
       ],
       child: MaterialApp(

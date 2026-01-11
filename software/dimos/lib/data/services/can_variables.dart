@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
@@ -73,7 +75,7 @@ class ShutdownLoopNodes extends ChangeNotifier {
   String get lastNode => _nodes.last;
 
   void updateVarDev(String data) {
-    _nodes.add("BMS");
+    _nodes.add("PCM");
     notifyListeners();
   }
 
@@ -83,5 +85,28 @@ class ShutdownLoopNodes extends ChangeNotifier {
     // lokwey i totally forgot what I was thinking here
     // rehash this dumbass
     _nodes.add("BMS");
+  }
+}
+
+/* Shutdown Loop */
+class SkidVector extends ChangeNotifier {
+  double _x = 1;
+  double _y = 1;
+  double get x => _x;
+  double get y => _y;
+  double get mag => sqrt(_x*_x + _y*_y);
+
+  void updateVarDev(String data) {
+    _y -= 0.25;
+    notifyListeners();
+  }
+
+  void updateVarCan() {
+    // JSON CAN calls + maybe mutex??
+    // then ONLY notify if changes are made!!
+    // lokwey i totally forgot what I was thinking here
+    // rehash this dumbass
+    _x += 1;
+    _y += 1;
   }
 }

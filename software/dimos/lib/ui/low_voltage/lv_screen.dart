@@ -10,9 +10,11 @@ import 'package:flutter_svg/flutter_svg.dart';
 /* Main Widget */
 class LVScreen extends StatelessWidget {
 
-  final Map<String, String> _svgMap = {
-    'logo': '../../../assets/fe_logo.svg'
-  };
+  // final Map<String, String> _svgMap = {
+  //   'logo': '../../../assets/fe_logo.svg'
+  // };
+
+  final String _logoPath = 'assets/fe_logo.svg';
 
   LVScreen({super.key});
 
@@ -48,7 +50,7 @@ class LVScreen extends StatelessWidget {
                     maxHeight: 200,
                     maxWidth: 200
                   ),
-                  child: SvgPicture.asset('assets/fe_logo.svg')
+                  child: SvgPicture.asset(_logoPath)
                 )
               ),
               Text("UBC Formula Electric",
