@@ -55,7 +55,6 @@ NVIC.SysTick_IRQn=true\:15\:0\:false\:false\:false\:false\:true\:false
 NVIC.TIM6_IRQn=true\:15\:0\:false\:false\:true\:false\:true\:true
 NVIC.TimeBase=TIM6_IRQn
 NVIC.TimeBaseIP=TIM6
-NVIC.USB_DRD_FS_IRQn=true\:0\:0\:false\:false\:true\:true\:true\:true
 NVIC.UsageFault_IRQn=true\:0\:0\:false\:false\:true\:false\:false\:false
 PA11.Mode=Device
 PA11.Signal=USB_DM

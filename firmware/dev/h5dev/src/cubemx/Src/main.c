@@ -135,7 +135,7 @@ int main(void)
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
-    while(1)
+    while (1)
     {
         /* USER CODE END WHILE */
 
