@@ -71,7 +71,7 @@ impl CanDatabase {
         let conn = Connection::open_in_memory().unwrap();
         match conn.execute(
             "CREATE TABLE messages (
-				name TEXT NOT NULL,
+				name TEXT UNIQUE NOT NULL,
 				id INTEGER PRIMARY KEY NOT NULL,
 				description TEXT,
 				cycle_time INTEGER,

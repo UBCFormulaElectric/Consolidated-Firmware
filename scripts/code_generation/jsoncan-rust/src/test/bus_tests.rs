@@ -1,7 +1,7 @@
 use crate::test::{assert_setequal, setup};
 
 #[test]
-fn teset_busses_present() {
+fn test_busses_present() {
     let cdb = setup().unwrap();
     assert_setequal(
         cdb.buses.iter().map(|bus| bus.name.clone()),
