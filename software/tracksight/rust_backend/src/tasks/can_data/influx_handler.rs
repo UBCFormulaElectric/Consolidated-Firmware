@@ -35,7 +35,7 @@ pub async fn run_influx_handler(mut shutdown_signal: Receiver<()>, mut can_queue
                         .field("can_payload", can_payload.iter().map(|b| *b as i64).collect::<Vec<i64>>())
                         .build().unwrap()
                 ];
-                influx_client.write(&CONFIG.influxdb_bucket,);
+                // influx_client.write(&CONFIG.influxdb_bucket,);
             }
         }
     }
