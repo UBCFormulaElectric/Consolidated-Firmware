@@ -80,7 +80,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${CUBEMX_INCLUDES}"
             FALSE
             "${ARM_CORE}"
-
+            FALSE
     )
 
     jsoncan_embedded_library(VCR quintuna "${CMAKE_CURRENT_BINARY_DIR}")

@@ -164,6 +164,7 @@ function(stm32h733xx_cube_library
         CUBEMX_INCLUDE_DIRS
         USB_ENABLED
         ARM_CORE
+        USE_HEXRAY_FREERTOS_CONFIG
 )
     set(DRIVERS_DIR "${STM32CUBEH7_SOURCE_DIR}/Drivers")
     set(FREERTOS_DIR "${STM32CUBEH7_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source")
@@ -193,6 +194,12 @@ function(stm32h733xx_cube_library
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Config"
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10"
     )
+
+    if(USE_HEXRAY_FREERTOS_CONFIG)
+        list(APPEND STM32CUBE_INCLUDE_DIRS
+                "${THIRD_PARTY_DIR}/hexray_freertos"
+        )
+    endif()
 
     # HAL sources.
     set(STM32_HAL_SRCS ${HAL_SRCS})
