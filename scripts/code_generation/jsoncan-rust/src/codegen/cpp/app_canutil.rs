@@ -112,7 +112,7 @@ pub struct AppCanUtilsModule {
 impl AppCanUtilsModule {
     pub fn new(can_db: &CanDatabase) -> AppCanUtilsModule {
         AppCanUtilsModule {
-            messages: can_db.get_all_msgs().expect("surely"),
+            messages: can_db.get_all_msgs().expect("get all msgs should not fail"),
             node_names: can_db.nodes.iter().map(|n| n.name.clone()).collect(),
             enums: can_db
                 .nodes

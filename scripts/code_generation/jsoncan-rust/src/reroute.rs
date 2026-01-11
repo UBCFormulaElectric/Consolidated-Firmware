@@ -123,7 +123,7 @@ impl CanForward {
     }
 }
 
-fn _simple_fast_fourier_transform_stochastic_gradient_descent<'cdb>(
+fn route_msg<'cdb>(
     can_db: &'cdb CanDatabase,
     tx_node_name: &String,
     rx_node_name: &String,
@@ -182,7 +182,7 @@ fn _simple_fast_fourier_transform_stochastic_gradient_descent<'cdb>(
     Err(())
 }
 
-fn penis_bbl(
+fn register_rx_msg(
     can_db: &CanDatabase,
     rx_node: &CanNode,
     msg_name: &String,
@@ -205,12 +205,8 @@ fn penis_bbl(
     // initial_node_tx_bus, final_node_rx_bus, rerouter_nodes = _fast_fourier_transform_stochastic_gradient_descent(
     //     adj_list, tx_node, rx_node);
     let (initial_node_tx_bus, final_node_rx_bus, reroute_node) =
-        _simple_fast_fourier_transform_stochastic_gradient_descent(
-            can_db,
-            &tx_node.name,
-            &rx_node.name,
-        )
-        .expect("Could not find a route between TX and RX nodes.");
+        route_msg(can_db, &tx_node.name, &rx_node.name)
+            .expect("Could not find a route between TX and RX nodes.");
 
     // process the calculation
     if let Some(rerouter) = reroute_node {
@@ -265,7 +261,7 @@ pub fn resolve_tx_rx_reroute(
         match &rx_node.rx_msgs_names {
             RxMsgNames::All => {
                 for msg_name in can_db.get_all_rx_msgs_for(&rx_node.name) {
-                    penis_bbl(
+                    register_rx_msg(
                         can_db,
                         rx_node,
                         &msg_name,
@@ -277,7 +273,7 @@ pub fn resolve_tx_rx_reroute(
             }
             RxMsgNames::RxMsgs(m) => {
                 for msg_name in m {
-                    penis_bbl(
+                    register_rx_msg(
                         can_db,
                         rx_node,
                         msg_name,

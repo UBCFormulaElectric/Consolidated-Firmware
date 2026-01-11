@@ -22,7 +22,7 @@ pub struct AppCanDataCaptureModule {
 impl AppCanDataCaptureModule {
     pub fn new(can_db: &CanDatabase, node_name: &str) -> Self {
         Self {
-            messages: can_db.get_message_by_node(node_name).expect("surely"),
+            messages: can_db.get_message_by_node(node_name).expect("Node not found"),
         }
     }
 }
