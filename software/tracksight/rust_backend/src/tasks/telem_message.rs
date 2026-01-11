@@ -26,6 +26,7 @@ pub enum TelemetryMessage {
 //     }
 // }
 
+
 pub struct NTPTimeMessage;
 
 pub struct NTPDateMessage;

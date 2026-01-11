@@ -1,11 +1,8 @@
 use serialport::SerialPort;
 use tokio::select;
-use tokio::sync::broadcast;
-use tokio::sync::mpsc;
+use tokio::sync::{broadcast, mpsc};
 use std::io::{Error, ErrorKind};
-use std::sync::Arc;
-use std::sync::atomic::AtomicBool;
-use std::sync::atomic::Ordering;
+use std::sync::{Arc, atomic::AtomicBool, atomic::Ordering};
 use std::time::Duration;
 use crc::{Crc, CRC_32_ISO_HDLC};
 
