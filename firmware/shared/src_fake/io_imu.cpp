@@ -1,96 +1,79 @@
-#include "io_imuFake.h"
+#include "util_errorCodes.hpp"
+#include "io_imu.hpp"
 
-namespace fakes::io_imu
-{
-static bool initialized = false;
-void        reset_init()
+using namespace io::imu;
+
+void Imu::reset_init()
 {
     initialized = false;
 }
-bool get_init()
+
+bool Imu::get_init()
 {
     return initialized;
 }
 
-static float _x_acceleration = 0.0f;
-void         set_LinearAccelerationX(const float x_acceleration)
+void Imu::set_AccelX(float accel_x)
 {
-    // Set the linear acceleration in the x direction
-    _x_acceleration = x_acceleration;
+    accel_x_fake = accel_x;
 }
 
-static float _y_acceleration = 0.0f;
-void         set_LinearAccelerationY(const float y_acceleration)
+void Imu::set_AccelY(float accel_y)
 {
-    // Set the linear acceleration in the y direction
-    _y_acceleration = y_acceleration;
+    accel_y_fake = accel_y;
 }
 
-static float _z_acceleration = 0.0f;
-void         set_LinearAccelerationZ(const float z_acceleration)
+void Imu::set_AccelZ(float accel_z)
 {
-    // Set the linear acceleration in the z direction
-    _z_acceleration = z_acceleration;
+    accel_z_fake = accel_z;
 }
 
-static float _roll_velocity = 0.0f;
-void         set_AngularVelocityRoll(const float roll_velocity)
+void Imu::set_GyroRoll(float gyro_x)
 {
-    // Set the angular velocity in the roll direction
-    _roll_velocity = roll_velocity;
+    gyro_x_fake = gyro_x;
+}
+void Imu::set_GyroPitch(float gyro_y)
+{
+    gyro_y_fake = gyro_y;
 }
 
-static float _pitch_velocity = 0.0f;
-void         set_AngularVelocityPitch(const float pitch_velocity)
+void Imu::set_GyroYaw(float gyro_z)
 {
-    // Set the angular velocity in the pitch direction
-    _pitch_velocity = pitch_velocity;
+    gyro_z_fake = gyro_z;
 }
 
-static float _yaw_velocity = 0.0f;
-void         set_AngularVelocityYaw(const float yaw_velocity)
+ExitCode Imu::init()
 {
-    // Set the angular velocity in the yaw direction
-    _yaw_velocity = yaw_velocity;
+    initialized = true;
+    return ExitCode::EXIT_CODE_OK;
 }
-} // namespace fakes::io_imu
-
-extern "C"
+ExitCode Imu::getAccelX(float &accel_x)
 {
-#include "io_imu.h"
-    ExitCode io_imu_init(void)
-    {
-        fakes::io_imu::initialized = true;
-        return EXIT_CODE_OK;
-    }
-    ExitCode io_imu_getLinearAccelerationX(float *x_acceleration)
-    {
-        *x_acceleration = fakes::io_imu::_x_acceleration;
-        return EXIT_CODE_OK;
-    }
-    ExitCode io_imu_getLinearAccelerationY(float *y_acceleration)
-    {
-        *y_acceleration = fakes::io_imu::_y_acceleration;
-        return EXIT_CODE_OK;
-    }
-    ExitCode io_imu_getLinearAccelerationZ(float *z_acceleration)
-    {
-        *z_acceleration = fakes::io_imu::_z_acceleration;
-        return EXIT_CODE_OK;
-    }
-    ExitCode io_imu_getAngularVelocityRoll(float *roll_velocity)
-    {
-        *roll_velocity = fakes::io_imu::_roll_velocity;
-        return EXIT_CODE_OK;
-    }
-    ExitCode io_imu_getAngularVelocityPitch(float *pitch_velocity)
-    {
-        *pitch_velocity = fakes::io_imu::_pitch_velocity;
-        return EXIT_CODE_OK;
-    }
-    ExitCode io_imu_getAngularVelocityYaw(float *yaw_velocity)
-    {
-        *yaw_velocity = fakes::io_imu::_yaw_velocity;
-        return EXIT_CODE_OK;
-    }
+    accel_x = accel_x_fake;
+    return ExitCode::EXIT_CODE_OK;
+}
+ExitCode Imu::getAccelY(float &accel_y)
+{
+    accel_y = accel_y_fake;
+    return ExitCode::EXIT_CODE_OK;
+}
+ExitCode Imu::getAccelZ(float &accel_z)
+{
+    accel_z = accel_z_fake;
+    return ExitCode::EXIT_CODE_OK;
+}
+ExitCode Imu::getGyroX(float &gyro_x)
+{
+    gyro_x = gyro_x_fake;
+    return ExitCode::EXIT_CODE_OK;
+}
+ExitCode Imu::getGyroY(float &gyro_y)
+{
+    gyro_y = gyro_y_fake;
+    return ExitCode::EXIT_CODE_OK;
+}
+ExitCode Imu::getGyroZ(float &gyro_z)
+{
+    gyro_z = gyro_z_fake;
+    return ExitCode::EXIT_CODE_OK;
 }

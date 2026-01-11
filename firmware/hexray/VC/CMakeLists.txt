@@ -22,6 +22,7 @@ set(APP_INCLUDE_DIRS
 file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_imu.cpp"
 )
 set(IO_INCLUDE_DIRS
         # "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
@@ -59,6 +60,8 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_hal_cortex.c"
             "stm32h7xx_hal_exti.c"
             "stm32h7xx_hal_tim.c"
+            "stm32h7xx_hal_spi.c"
+            "stm32h7xx_hal_gpio.c"
     )
     stm32h733xx_cube_library(
             "hexray_VC_stm32"
@@ -85,7 +88,9 @@ if ("${TARGET}" STREQUAL "binary")
     target_compile_definitions("hexray_VC_app.elf" PRIVATE VC)
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
-    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS})
+    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS}
+        "${SHARED_FAKES_DIR}/io_imu.cpp"
+        )
     set(INCLUDE_DIRS
             # "${CMAKE_CURRENT_SOURCE_DIR}/test"
             ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP}
