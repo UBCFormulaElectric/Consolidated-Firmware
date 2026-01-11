@@ -1,3 +1,4 @@
+use influxdb2::models::DataPoint;
 use tokio::sync::broadcast::Receiver;
 use influxdb2::Client;
 use tokio::select;
@@ -27,7 +28,14 @@ pub async fn run_influx_handler(mut shutdown_signal: Receiver<()>, mut can_queue
             Ok(can) = can_queue_receiver.recv() => {
                 // todo should also probably check for closed channels and close thread
                 let CanMessage { can_id, can_time_offset, can_payload } = can;
-                // todo handle
+                let influx_data = vec![
+                    DataPoint::builder(&CONFIG.influxdb_measurement)
+                        .tag("can_id", can_id.to_string())
+                        .field("can_time_offset", can_time_offset as i64)
+                        .field("can_payload", can_payload.iter().map(|b| *b as i64).collect::<Vec<i64>>())
+                        .build().unwrap()
+                ];
+                influx_client.write(&CONFIG.influxdb_bucket,);
             }
         }
     }
