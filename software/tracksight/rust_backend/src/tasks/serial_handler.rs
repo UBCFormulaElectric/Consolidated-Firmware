@@ -7,7 +7,7 @@ use std::sync::Arc;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
 use std::time::Duration;
-use crc::{Crc, CRC_32_ISCSI};
+use crc::{Crc, CRC_32_ISO_HDLC};
 
 use crate::config::CONFIG;
 use super::telem_message::{TelemetryMessage, CanMessage, NTPTimeMessage, NTPDateMessage, BaseTimeRegMessage};
@@ -16,9 +16,9 @@ use super::telem_message::{TelemetryMessage, CanMessage, NTPTimeMessage, NTPDate
  * Handling serial signals from radio.
  */
 pub async fn run_serial_task(mut shutdown_rx: broadcast::Receiver<()>, can_queue_sender: broadcast::Sender<CanMessage>) {
-    let (packet_tx, mut packet_rx) = mpsc::channel::<Vec<u8>>(32);
-
     println!("Serial task started.");
+    
+    let (packet_tx, mut packet_rx) = mpsc::channel::<Vec<u8>>(32);
 
     // spawn blocking packet reader
     // the reader thread will allow the handler thread to be async
@@ -42,13 +42,14 @@ pub async fn run_serial_task(mut shutdown_rx: broadcast::Receiver<()>, can_queue
                 println!("Received packet: {:x?}", &packet);
                 let telem_message = match parse_telem_message(packet) {
                     Ok(m)   => m,
-                    Err(_)  => continue,
+                    Err(_)  => {
+                        eprintln!("Failed to parse telemetry message.");
+                        continue;
+                    },
                 };
 
                 match telem_message {
                     TelemetryMessage::Can { body } => {
-                        let CanMessage { can_id, can_time_offset, can_payload } = &body;
-                        println!("Received CAN Message: ID: {}, Time Offset: {}, Payload: {:?}", can_id, can_time_offset, can_payload);
                         // TODO error handling
                         can_queue_sender.send(body).unwrap();
                     },
@@ -74,7 +75,7 @@ const HEADER_SIZE: usize = 7;
 const MAX_PAYLOAD_SIZE: usize = 100;
 // calc is short for calculator
 // for those new to the chat
-const CRC32_CALC: Crc<u32> = Crc::<u32>::new(&CRC_32_ISCSI);
+const CRC32_CALC: Crc<u32> = Crc::<u32>::new(&CRC_32_ISO_HDLC);
 
 /**
  * Blocking handler that reads packets and sends it to the handler
@@ -110,9 +111,6 @@ fn read_packet(serial_port: &mut Box<dyn SerialPort>) -> Result<Vec<u8>, Error> 
                 Ok(n) => index += n,
                 Err(e) => return Err(e)
             }
-
-            println!("header buffer: {:x?}", &header_buffer);
-            println!("magic: {:x?}", &MAGIC);
         }
         if header_buffer[0..2] == MAGIC {
             break;
@@ -120,8 +118,6 @@ fn read_packet(serial_port: &mut Box<dyn SerialPort>) -> Result<Vec<u8>, Error> 
         header_buffer.rotate_left(1);
         index -= 1;
     }
-    println!("Found packet header: {:x?}", &header_buffer[0..2]);
-    // TODO should these be infinite loop?
     while index < HEADER_SIZE {
         match serial_port.read(&mut header_buffer[index..]) {
             Ok(n) => index += n,
@@ -143,7 +139,7 @@ fn read_packet(serial_port: &mut Box<dyn SerialPort>) -> Result<Vec<u8>, Error> 
     let mut payload_buffer = vec![0u8; payload_length];
     while index < payload_length {
         // TODO error handling
-        match serial_port.read(&mut header_buffer[index..]) {
+        match serial_port.read(&mut &mut payload_buffer[index..]) {
             Ok(n) => index += n,
             Err(e) => return Err(e)
         }
@@ -163,9 +159,6 @@ fn read_packet(serial_port: &mut Box<dyn SerialPort>) -> Result<Vec<u8>, Error> 
     return Ok(payload_buffer);
 }
 
-/**
- * 
- */
 fn parse_telem_message(payload: Vec<u8>) -> Result<TelemetryMessage, ()> {
     let parsed_message: TelemetryMessage = match payload[0] {
         // TODO magic numbers

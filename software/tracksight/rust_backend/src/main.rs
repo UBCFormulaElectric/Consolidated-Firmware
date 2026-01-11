@@ -3,12 +3,17 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use tokio::sync::broadcast::channel;
 use tokio::task::{JoinSet};
 
-mod config;
 
+mod config;
 mod tasks;
 use tasks::telem_message::CanMessage;
+
+/**
+ * Handlers
+ */
 use tasks::serial_handler::run_serial_task;
-use tasks::can_data_handler::run_broadcaster_task;
+use tasks::live_data_handler::run_live_data_handler;
+use tasks::influx_handler::run_influx_handler;
 
 #[tokio::main]
 async fn main() {
@@ -22,7 +27,8 @@ async fn main() {
     let (can_queue_tx, _) = channel::<CanMessage>(32);
 
     // start tasks
-    tasks.spawn(run_broadcaster_task(shutdown_tx.subscribe(), can_queue_tx.subscribe()));
+    tasks.spawn(run_live_data_handler(shutdown_tx.subscribe(), can_queue_tx.subscribe()));
+    tasks.spawn(run_influx_handler(shutdown_tx.subscribe(), can_queue_tx.subscribe()));
     tasks.spawn(run_serial_task(shutdown_tx.subscribe(), can_queue_tx));
 
     // handle termination signal
