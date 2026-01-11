@@ -211,6 +211,7 @@ function(stm32h5_boot_binary
             "${INCLUDE_DIRS}"
             FALSE
             "${ARM_CORE}"
+            TRUE
     )
 
     embedded_binary(

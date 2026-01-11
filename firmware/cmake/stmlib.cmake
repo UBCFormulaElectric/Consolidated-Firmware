@@ -276,6 +276,7 @@ function(stm32h562xx_cube_library
         CUBEMX_INCLUDE_DIRS
         USB_ENABLED
         ARM_CORE
+        USE_HEXRAY_FREERTOS_CONFIG
 )
     set(DRIVERS_DIR "${STM32CUBEH5_SOURCE_DIR}/Drivers")
     set(FREERTOS_DIR "${STM32CUBEH5_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source")
