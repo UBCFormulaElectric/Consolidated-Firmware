@@ -37,6 +37,23 @@ void io_telemMessageQueue_init(void)
     assert(message_queue_id != NULL);
 
     init = true;
+
+    // CanMsg dummyRadioMsg =
+    // {
+    //     .std_id = 1,
+    //     .dlc = 15,
+    //     .timestamp = 1,
+    //     .data.data8 = {0},
+    //     .bus = 1,
+    //     .is_fd = false
+    // };
+
+    // for(uint32_t i = 0; i < 100; i++)
+    // {
+    //     dummyRadioMsg.timestamp = i;
+    //     bool status = io_telemMessageQueue_pushTx(&dummyRadioMsg);
+    //     assert(status);
+    // }
 }
 
 bool io_telemMessageQueue_pushTx(const CanMsg *rx_msg)
