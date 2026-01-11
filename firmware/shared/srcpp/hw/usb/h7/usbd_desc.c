@@ -24,16 +24,7 @@
 #include "usbd_conf.h"
 
 /* USER CODE BEGIN INCLUDE */
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
 #include "hw_usb_config.hpp"
-
-#ifdef __cplusplus
-}
-#endif
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/

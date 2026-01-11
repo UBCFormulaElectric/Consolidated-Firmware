@@ -26,7 +26,6 @@
 #include "usbd_def.h"
 #include "usbd_core.h"
 #include "usbd_cdc.h"
-#include "usbd_conf.c"
 
 /* USER CODE BEGIN Includes */
 // #include "hw_usb.h" (COMMENTED OUT FOR NOW, FIX LATER)

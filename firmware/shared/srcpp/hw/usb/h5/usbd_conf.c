@@ -2,35 +2,11 @@
 #include "main.h"
 #include "usbd_core.h"
 #include "usbd_cdc.h"
-#include "usbd_conf.h"
-#include "stm32h5xx.h"
-#include "stm32h5xx_hal.h"
 
 extern PCD_HandleTypeDef hpcd_USB_DRD_FS;
 
-USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
-{
-    USBD_StatusTypeDef usb_status = USBD_OK;
-    switch (hal_status)
-    {
-        case HAL_OK:
-            usb_status = USBD_OK;
-            break;
-        case HAL_ERROR:
-            usb_status = USBD_FAIL;
-            break;
-        case HAL_BUSY:
-            usb_status = USBD_BUSY;
-            break;
-        case HAL_TIMEOUT:
-            usb_status = USBD_FAIL;
-            break;
-        default:
-            usb_status = USBD_FAIL;
-            break;
-    }
-    return usb_status;
-}
+/* Private function prototypes -----------------------------------------------*/
+USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status);
 
 void HAL_PCD_SetupStageCallback(PCD_HandleTypeDef *hpcd)
 {
@@ -181,4 +157,28 @@ void USBD_static_free(void *p)
 void USBD_LL_Delay(uint32_t Delay)
 {
     HAL_Delay(Delay);
+}
+
+USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
+{
+    USBD_StatusTypeDef usb_status = USBD_OK;
+    switch (hal_status)
+    {
+        case HAL_OK:
+            usb_status = USBD_OK;
+            break;
+        case HAL_ERROR:
+            usb_status = USBD_FAIL;
+            break;
+        case HAL_BUSY:
+            usb_status = USBD_BUSY;
+            break;
+        case HAL_TIMEOUT:
+            usb_status = USBD_FAIL;
+            break;
+        default:
+            usb_status = USBD_FAIL;
+            break;
+    }
+    return usb_status;
 }

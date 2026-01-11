@@ -25,11 +25,11 @@
 #include "tasks.h"
 #include "hw_usb.h"
 #include "hw_error.hpp"
+#include "usb_device.h"
 #include "usbd_core.h"
 #include "usbd_cdc.h"
 #include "usbd_cdc_if.h"
 #include "usbd_desc.h"
-#include "util_errorCodes.h"
 
 /* USER CODE END Includes */
 
@@ -61,9 +61,7 @@ SPI_HandleTypeDef hspi1;
 PCD_HandleTypeDef hpcd_USB_DRD_FS;
 
 /* USER CODE BEGIN PV */
-uint8_t                   CDC_EpAdd_Inst[3] = { CDC_IN_EP, CDC_OUT_EP, CDC_CMD_EP };
 extern USBD_HandleTypeDef hUsbDeviceFS;
-uint8_t                   CDC_InstID = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -107,10 +105,7 @@ int main(void)
     /* Init scheduler */
     osKernelInitialize();
     /* USER CODE BEGIN Init */
-    if (hw_usb_init() != EXIT_CODE_OK)
-    {
-        Error_Handler();
-    }
+
     /* USER CODE END Init */
 
     /* Initialize all configured peripherals */
@@ -122,23 +117,12 @@ int main(void)
     /* USER CODE BEGIN 2 */
     tasks_init();
 
-    if (USBD_Init(&hUsbDeviceFS, &FS_Desc, 0) != USBD_OK)
+    if (hw_usb_init() != EXIT_CODE_OK)
     {
         Error_Handler();
     }
 
-    if (USBD_RegisterClass(&hUsbDeviceFS, &USBD_CDC) != USBD_OK)
-    {
-        Error_Handler();
-    }
-
-    if (USBD_CDC_RegisterInterface(&hUsbDeviceFS, &USBD_Interface_fops_FS) != USBD_OK)
-    {
-        Error_Handler();
-    }
-
-    /* Start USB Device */
-    USBD_Start(&hUsbDeviceFS);
+    MX_USB_DEVICE_Init();
     /* USER CODE END 2 */
 
     /* Call init function for freertos objects (in app_freertos.c) */
@@ -151,18 +135,8 @@ int main(void)
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
-    for (;;)
+    while(1)
     {
-        if (hw_usb_checkConnection())
-        {
-            HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
-        }
-        else
-        {
-            HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
-        }
-
-        HAL_Delay(1);
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */

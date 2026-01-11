@@ -1,5 +1,5 @@
-#ifndef __USBD_DESC__C__
-#define __USBD_DESC__C__
+#ifndef __USBD_DESC_H__
+#define __USBD_DESC_H__
 
 #ifdef __cplusplus
 extern "C"
