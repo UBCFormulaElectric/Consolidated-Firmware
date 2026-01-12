@@ -91,7 +91,7 @@ ExitCode hw::fdcan::can_transmit(const io::CanMsg &msg)
     tx_header.FDFormat            = FDCAN_CLASSIC_CAN;
     tx_header.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
     tx_header.MessageMarker       = 0;
-    return tx(tx_header, const_cast<io::fdcanMsg *>(&msg));
+    return tx(tx_header, const_cast<io::CanMsg *>(&msg));
 }
 
 ExitCode hw::fdcan::fdcan_transmit(const io::CanMsg &msg)
@@ -142,7 +142,7 @@ ExitCode hw::fdcan::fdcan_transmit(const io::CanMsg &msg)
     tx_header.FDFormat            = FDCAN_FD_CAN;
     tx_header.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
     tx_header.MessageMarker       = 0;
-    return tx(tx_header, const_cast<io::fdcanMsg *>(&msg));
+    return tx(tx_header, const_cast<io::CanMsg *>(&msg));
 }
 
 ExitCode hw::fdcan::receive(const uint32_t rx_fifo, io::CanMsg &msg) const
@@ -180,7 +180,7 @@ static ExitCode handleCallback(FDCAN_HandleTypeDef *hfdcan, uint8_t fifo)
 {
     const hw::fdcan &handle = hw::fdcan_getHandle(hfdcan);
 
-    io::fdcanMsg rx_msg;
+    io::CanMsg rx_msg;
 
     RETURN_IF_ERR_SILENT(handle.receive(fifo, rx_msg));
 
