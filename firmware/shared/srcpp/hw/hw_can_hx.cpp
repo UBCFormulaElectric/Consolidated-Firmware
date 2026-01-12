@@ -10,6 +10,11 @@
 #include "io_time.hpp"
 #include "hw_utils.hpp"
 
+extern "C"
+{
+    #include "app_utils.h"
+}
+
 #if defined(STM32H733xx)
 #include "stm32h7xx_hal_fdcan.h"
 #elif defined(STM32H562xx)
@@ -34,7 +39,7 @@ ExitCode hw::fdcan::tx(FDCAN_TxHeaderTypeDef &tx_header, io::CanMsg *msg)
         UNUSED(num_notifs);
         transmit_task = NULL;
     }
-    return hw_utils_convertHalStatus(HAL_FDCAN_AddMessageToTxFifoQ(hcan, &tx_header, msg->data.data8));
+    return hw_utils_convertHalStatus(HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &tx_header, msg->data.data8));
 }
 void hw::fdcan::init() const 
 {
@@ -55,7 +60,7 @@ void hw::fdcan::init() const
 #endif
 
     const ExitCode configure_filter_status = 
-        hw_utils_convertHalStatus(HAL_FDCAN_ConfigFilter(hcan, &filter));
+        hw_utils_convertHalStatus(HAL_FDCAN_ConfigFilter(hfdcan, &filter));
     ASSERT_EXIT_OK(configure_filter_status);
 
     // Configure interrupt mode for CAN peripheral.
@@ -66,18 +71,18 @@ void hw::fdcan::init() const
     ASSERT_EXIT_OK(configure_notis_ok);
 
     // Start the FDCAN peripheral.
-    const ExitCode start_status = hw_utils_convertHalStatus(HAL_FDCAN_Start(hcan));
+    const ExitCode start_status = hw_utils_convertHalStatus(HAL_FDCAN_Start(hfdcan));
     ASSERT_EXIT_OK(start_status);
     ready = true;
 }
 
 void hw::fdcan::deinit() const 
 {
-    assert(HAL_FDCAN_Stop(hcan) == HAL_OK);
-    assert(HAL_FDCAN_DeInit(hcan) == HAL_OK);
+    assert(HAL_FDCAN_Stop(hfdcan) == HAL_OK);
+    assert(HAL_FDCAN_DeInit(hfdcan) == HAL_OK);
 }
 
-ExitCode hw::fdcan::fdcan_transmit(const io::CanMsg &msg) 
+ExitCode hw::fdcan::can_transmit(const io::CanMsg &msg) 
 {
 
     assert(ready);
@@ -91,7 +96,7 @@ ExitCode hw::fdcan::fdcan_transmit(const io::CanMsg &msg)
     tx_header.FDFormat            = FDCAN_CLASSIC_CAN;
     tx_header.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
     tx_header.MessageMarker       = 0;
-    return tx(tx_header, const_cast<io::fdcanMsg *>(&msg));
+    return tx(tx_header, const_cast<io::CanMsg *>(&msg));
 }
 
 ExitCode hw::fdcan::fdcan_transmit(const io::CanMsg &msg) 
@@ -138,11 +143,11 @@ ExitCode hw::fdcan::fdcan_transmit(const io::CanMsg &msg)
     tx_header.TxFrameType         = FDCAN_DATA_FRAME;
     tx_header.DataLength          = dlc; // Data length code needs to be shifted by 16 bits.
     tx_header.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
-    tx_header.BitRateSwitch       = hcan->Init.FrameFormat == FDCAN_FRAME_FD_BRS ? FDCAN_BRS_ON : FDCAN_BRS_OFF;
+    tx_header.BitRateSwitch       = hfdcan->Init.FrameFormat == FDCAN_FRAME_FD_BRS ? FDCAN_BRS_ON : FDCAN_BRS_OFF;
     tx_header.FDFormat            = FDCAN_FD_CAN;
     tx_header.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
     tx_header.MessageMarker       = 0;
-    return tx(tx_header, const_cast<io::fdcanMsg *>(&msg));
+    return tx(tx_header, const_cast<io::CanMsg *>(&msg));
 }
 
 ExitCode hw::fdcan::receive(const uint32_t rx_fifo, io::CanMsg &msg) const 
@@ -151,7 +156,7 @@ ExitCode hw::fdcan::receive(const uint32_t rx_fifo, io::CanMsg &msg) const
     FDCAN_RxHeaderTypeDef header;
 
     RETURN_IF_ERR(
-        hw_utils_convertHalStatus(HAL_FDCAN_GetRxMessage(hcan, rx_fifo, &header, msg.data.data8)););
+        hw_utils_convertHalStatus(HAL_FDCAN_GetRxMessage(hfdcan, rx_fifo, &header, msg.data.data8)););
 
     // Copy metadata from HAL's CAN message struct into our custom CAN
     // message struct
@@ -165,7 +170,7 @@ ExitCode hw::fdcan::receive(const uint32_t rx_fifo, io::CanMsg &msg) const
 
 CFUNC void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t ErrorStatusITs)
 {
-    LOG_INFO("FDCAN on bus %d detected on error %x", hw::fdcan_getHandle(hfdcan)->getBusNum(), ErrorStatusITs);
+    LOG_INFO("FDCAN on bus %d detected on error %x", hw::fdcan_getHandle(hfdcan).getBusNum(), ErrorStatusITs);
     if ((ErrorStatusITs & FDCAN_IT_BUS_OFF) != RESET)
     {
         FDCAN_ProtocolStatusTypeDef protocolStatus;
@@ -181,7 +186,7 @@ static ExitCode handleCallback(FDCAN_HandleTypeDef *hfdcan, uint8_t fifo)
 {
     const hw::fdcan &handle = hw::fdcan_getHandle(hfdcan);
 
-    io::fdcanMsg rx_msg;
+    io::CanMsg rx_msg;
 
     RETURN_IF_ERR_SILENT(handle.receive(fifo, rx_msg));
 

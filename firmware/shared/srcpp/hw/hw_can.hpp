@@ -5,15 +5,22 @@
 #include "hw_hal.h"
 #include "cmsis_os.h"
 
+
+#if defined(STM32H733xx)
+#include "stm32h7xx_hal_fdcan.h"
+#elif defined(STM32H562xx)
+#include "stm32h5xx_hal_fdcan.h"
+#endif
+
 namespace hw
 {
 
 class BaseCan
 {
-    const uint8_t            bus_num;
 
   protected:
     mutable bool             ready = false;
+    const uint8_t            bus_num;
 
   public:
     void (*const receive_callback)(const io::CanMsg *rx_msg);
@@ -55,6 +62,13 @@ class BaseCan
 
     constexpr uint8_t            getBusNum() const { return bus_num; }
 };
+/**
+ * @attention THIS MUST BE DEFINED IN YOUR CONFIGURATIONS
+ * @param hcan takes a handle to a STM32 HAL CAN object
+ * @returns a pointer to a CanHandle object (the metadata associated with the STM32 HAL CAN object)
+ */
+
+#if defined(STM32F412Rx)
 class can: public BaseCan 
 {
 
@@ -78,10 +92,14 @@ class can: public BaseCan
 
     ExitCode receive(const uint32_t rx_fifo, io::CanMsg &msg) const override final;
 };
+
+const can &can_getHandle(const CAN_HandleTypeDef *hcan);
+#elif defined(STM32H733xx) or defined(STM32H562xx)
 class fdcan: public BaseCan
 {
   FDCAN_HandleTypeDef *const hfdcan;
-
+  private:
+    ExitCode tx(FDCAN_TxHeaderTypeDef &tx_header,io::CanMsg *msg);
   public:
     constexpr explicit fdcan(
         FDCAN_HandleTypeDef &hfdcan_in,
@@ -102,12 +120,6 @@ class fdcan: public BaseCan
     ExitCode receive(const uint32_t rx_fifo, io::CanMsg &msg) const override final;
 };
 
-/**
- * @attention THIS MUST BE DEFINED IN YOUR CONFIGURATIONS
- * @param hcan takes a handle to a STM32 HAL CAN object
- * @returns a pointer to a CanHandle object (the metadata associated with the STM32 HAL CAN object)
- */
-const can &can_getHandle(const CAN_HandleTypeDef *hcan);
-
 const fdcan &fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan);
+#endif
 } // namespace hw
