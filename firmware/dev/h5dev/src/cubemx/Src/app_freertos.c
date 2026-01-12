@@ -113,21 +113,24 @@ void StartDefaultTask(void *argument)
 {
     /* USER CODE BEGIN TaskDefault */
     uint8_t rx_byte = 0;
+    const uint8_t hello_msg[] = "h5dev cdc ok\r\n";
     /* Infinite loop */
     for (;;)
     {
         if (hw_usb_checkConnection())
         {
-            HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
-            if (IS_EXIT_OK(hw_usb_receive(&rx_byte, 1000)))
+            HAL_GPIO_WritePin(BOOT_GPIO_Port, BOOT_Pin, GPIO_PIN_SET);
+            (void)hw_usb_transmit((uint8_t *)hello_msg, sizeof(hello_msg) - 1U);
+            if (IS_EXIT_OK(hw_usb_receive(&rx_byte, 10)))
             {
-                hw_usb_transmit(&rx_byte, 1);
+                (void)hw_usb_transmit(&rx_byte, 1);
             }
+            osDelay(1000);
         }
         else
         {
-            HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
-            osDelay(10);
+            HAL_GPIO_WritePin(BOOT_GPIO_Port, BOOT_Pin, GPIO_PIN_RESET);
+            osDelay(250);
         }
     }
     /* USER CODE END TaskDefault */

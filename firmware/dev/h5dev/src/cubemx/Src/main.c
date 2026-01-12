@@ -24,12 +24,7 @@
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
 #include "hw_usb.h"
-#include "hw_error.hpp"
 #include "usb_device.h"
-#include "usbd_core.h"
-#include "usbd_cdc.h"
-#include "usbd_cdc_if.h"
-#include "usbd_desc.h"
 
 /* USER CODE END Includes */
 
@@ -61,7 +56,7 @@ SPI_HandleTypeDef hspi1;
 PCD_HandleTypeDef hpcd_USB_DRD_FS;
 
 /* USER CODE BEGIN PV */
-extern USBD_HandleTypeDef hUsbDeviceFS;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
