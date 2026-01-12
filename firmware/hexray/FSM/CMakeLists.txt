@@ -43,6 +43,8 @@ file(GLOB_RECURSE HW_SRCS
 )
 list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_ubsan.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
 )
 set(HW_INCLUDE_DIRS
         #"${CMAKE_CURRENT_SOURCE_DIR}/src/hw"

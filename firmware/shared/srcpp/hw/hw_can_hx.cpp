@@ -10,10 +10,7 @@
 #include "io_time.hpp"
 #include "hw_utils.hpp"
 
-extern "C"
-{
-    #include "app_utils.h"
-}
+#include "util_utils.hpp"
 
 #if defined(STM32H733xx)
 #include "stm32h7xx_hal_fdcan.h"
