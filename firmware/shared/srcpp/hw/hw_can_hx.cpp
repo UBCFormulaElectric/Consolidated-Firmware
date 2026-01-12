@@ -11,13 +11,9 @@
 #include "hw_utils.hpp"
 
 #if defined(STM32H733xx)
-extern "C" {
-    #include "stm32h7xx_hal_fdcan.h"
-}
+#include "stm32h7xx_hal_fdcan.h"
 #elif defined(STM32H562xx)
-extern "C" {
-    #include "stm32h5xx_hal_fdcan.h"
-}
+#include "stm32h5xx_hal_fdcan.h"
 #endif
 
 ExitCode hw::fdcan::tx(FDCAN_TxHeaderTypeDef &tx_header, io::CanMsg *msg) 
