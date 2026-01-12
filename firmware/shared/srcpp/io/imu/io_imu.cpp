@@ -1,5 +1,9 @@
 #include "io_imu.hpp"
 
+#ifdef TARGET_EMBEDDED
+#include "io_imu_config.hpp"
+#endif
+
 namespace io::imu
 {
 // Self-Test Registers
@@ -63,6 +67,7 @@ static constexpr uint8_t PWR_MGMT_2        = 0x6C;
 
 // FIFO Registers
 static constexpr uint8_t FIFO_COUNTH = 0x72;
+static constexpr uint8_t FIFO_COUNTH_MASK = 0x1F;
 static constexpr uint8_t FIFO_COUNTL = 0x73;
 static constexpr uint8_t FIFO_R_W    = 0x74;
 
@@ -118,23 +123,25 @@ ExitCode Imu::init()
     gyro_config.FS_SEL  = static_cast<uint8_t>(gyro_scale);
     smplrt_div          = filter_config.sample_rate_div;
 
-    if (this->filter_config.enable_accel_dlpf == true)
+    if (filter_config.enable_accel_dlpf == true)
     {
         accel_config2.FCHOICE_B  = 0;
         accel_config2.A_DLPF_CFG = static_cast<uint8_t>(filter_config.accel_dlpf_cutoff) & 0x07;
     }
 
-    if (this->filter_config.enable_gyro_dlpf == true)
+    if (filter_config.enable_gyro_dlpf == true)
     {
         gyro_config.FCHOICE_B = 0;
         config.G_DLPF_CFG     = static_cast<uint8_t>(filter_config.gyro_dlpf_cutoff) & 0x07;
     }
 
     // Fifo Config
-    if (fifo_config.enable_fifo())
+    if (fifo_config.enableFifo())
     {
+        assert(filter_config.getAccelOdrHz() == filter_config.getGyroOdrHz());
+        
         // Enable fifos
-        user_ctrl.FIFO_EN = static_cast<uint8_t>(fifo_config.enable_fifo()) & 0x01;
+        user_ctrl.FIFO_EN = static_cast<uint8_t>(fifo_config.enableFifo()) & 0x01;
         fifo_en.ACCEL_FIFO_EN = static_cast<uint8_t>(fifo_config.enable_accel_fifo) & 0x01;
         fifo_en.XG_FIFO_EN = static_cast<uint8_t>(fifo_config.enable_gyro_x_fifo) & 0x01;
         fifo_en.YG_FIFO_EN = static_cast<uint8_t>(fifo_config.enable_gyro_y_fifo) & 0x01;
@@ -147,7 +154,7 @@ ExitCode Imu::init()
     }
 
     std::array<const uint8_t, 24> tx_config = {
-        { WRITE_IMU_REG(SMPLRT_DIV),     std::bit_cast<uint8_t>(smplrt_div), // Use bit_cast!
+        { WRITE_IMU_REG(SMPLRT_DIV),     std::bit_cast<uint8_t>(smplrt_div),
           WRITE_IMU_REG(CONFIG),         std::bit_cast<uint8_t>(config),
           WRITE_IMU_REG(GYRO_CONFIG),    std::bit_cast<uint8_t>(gyro_config),
           WRITE_IMU_REG(ACCEL_CONFIG),   std::bit_cast<uint8_t>(accel_config),
@@ -162,14 +169,29 @@ ExitCode Imu::init()
     };
 
     exit               = imu_spi_handle.transmit(tx_config);
-    this->is_imu_ready = IS_EXIT_OK(exit);
+    is_imu_ready = IS_EXIT_OK(exit);
+
+    return exit;
+}
+
+ExitCode Imu::getFifoCount(uint16_t &fifo_count)
+{
+    if (is_imu_ready == false)
+        return ExitCode::EXIT_CODE_ERROR;
+    
+    std::array<const uint8_t, 1> tx {{ READ_IMU_REG(FIFO_COUNTH)}};
+    std::array<uint8_t, 2> rx{};
+
+    ExitCode exit = imu_spi_handle.transmitThenReceive(tx, rx);
+
+    fifo_count = static_cast<uint16_t>(((rx[0] & FIFO_COUNTH_MASK) << 8) | rx[1]);
 
     return exit;
 }
 
 ExitCode Imu::getAccelX(float &accel_x)
 {
-    if (this->is_imu_ready == false)
+    if (is_imu_ready == false)
         return ExitCode::EXIT_CODE_ERROR;
 
     std::array<const uint8_t, 1> tx = { { READ_IMU_REG(ACCEL_XOUT_H) } };
@@ -184,7 +206,7 @@ ExitCode Imu::getAccelX(float &accel_x)
 
 ExitCode Imu::getAccelY(float &accel_y)
 {
-    if (this->is_imu_ready == false)
+    if (is_imu_ready == false)
         return ExitCode::EXIT_CODE_ERROR;
 
     std::array<const uint8_t, 1> tx = { { READ_IMU_REG(ACCEL_YOUT_H) } };
@@ -199,7 +221,7 @@ ExitCode Imu::getAccelY(float &accel_y)
 
 ExitCode Imu::getAccelZ(float &accel_z)
 {
-    if (this->is_imu_ready == false)
+    if (is_imu_ready == false)
         return ExitCode::EXIT_CODE_ERROR;
 
     std::array<const uint8_t, 1> tx = { { READ_IMU_REG(ACCEL_ZOUT_H) } };
@@ -214,7 +236,7 @@ ExitCode Imu::getAccelZ(float &accel_z)
 
 ExitCode Imu::getGyroX(float &gyro_x)
 {
-    if (this->is_imu_ready == false)
+    if (is_imu_ready == false)
         return ExitCode::EXIT_CODE_ERROR;
 
     std::array<const uint8_t, 1> tx = { { READ_IMU_REG(GYRO_XOUT_H) } };
@@ -229,7 +251,7 @@ ExitCode Imu::getGyroX(float &gyro_x)
 
 ExitCode Imu::getGyroY(float &gyro_y)
 {
-    if (this->is_imu_ready == false)
+    if (is_imu_ready == false)
         return ExitCode::EXIT_CODE_ERROR;
 
     std::array<const uint8_t, 1> tx = { { READ_IMU_REG(GYRO_YOUT_H) } };
@@ -244,7 +266,7 @@ ExitCode Imu::getGyroY(float &gyro_y)
 
 ExitCode Imu::getGyroZ(float &gyro_z)
 {
-    if (this->is_imu_ready == false)
+    if (is_imu_ready == false)
         return ExitCode::EXIT_CODE_ERROR;
 
     std::array<const uint8_t, 1> tx = { { READ_IMU_REG(GYRO_ZOUT_H) } };
@@ -259,7 +281,7 @@ ExitCode Imu::getGyroZ(float &gyro_z)
 
 ExitCode Imu::getTemp(float &temp)
 {
-    if (this->is_imu_ready == false)
+    if (is_imu_ready == false)
         return ExitCode::EXIT_CODE_ERROR;
 
     std::array<const uint8_t, 1> tx = { { READ_IMU_REG(GYRO_ZOUT_H) } };
@@ -274,7 +296,7 @@ ExitCode Imu::getTemp(float &temp)
 
 ExitCode Imu::getAccelAll(AccelData &data)
 {
-    if (this->is_imu_ready == false)
+    if (is_imu_ready == false)
         return ExitCode::EXIT_CODE_ERROR;
 
     std::array<const uint8_t, 1> tx = { { READ_IMU_REG(ACCEL_XOUT_H) } };
@@ -291,7 +313,7 @@ ExitCode Imu::getAccelAll(AccelData &data)
 
 ExitCode Imu::getGyroAll(GyroData &data)
 {
-    if (this->is_imu_ready == false)
+    if (is_imu_ready == false)
         return ExitCode::EXIT_CODE_ERROR;
 
     std::array<const uint8_t, 1> tx = { { READ_IMU_REG(GYRO_XOUT_H) } };
