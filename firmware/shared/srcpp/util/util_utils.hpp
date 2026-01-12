@@ -19,6 +19,8 @@
         unsigned char _unused; \
     } name;
 
+#define NUM_ELEMENTS_IN_ARRAY(array_pointer) sizeof(array_pointer) / sizeof(array_pointer[0])
+
 constexpr auto MIN(auto a, auto b) { return (a < b) ? a : b; }
 constexpr auto MAX(auto a, auto b) { return (a > b) ? a : b; }
 constexpr auto CLAMP(auto x, auto min, auto max) { return MAX(MIN(x, max), min); }
