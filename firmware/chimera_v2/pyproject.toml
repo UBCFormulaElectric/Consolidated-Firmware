@@ -13,7 +13,10 @@ dependencies = [
     "pyvisa",
 
     # Data.
-    "pandas", "numpy"
+    "pandas", "numpy",
+
+    # Plotting.
+    "tabulate"
 ]
 
 [tool.setuptools]

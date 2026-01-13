@@ -2,11 +2,6 @@
 #include <stdint.h>
 #include "util_errorCodes.h"
 
-// https://datasheet.ciiva.com/pdfs/VipMasterIC/IC/PHGL/PHGL-S-A0000776674/PHGL-S-A0000776674-1.pdf?src-supplier=IHS+Markit
-
-// standard digital format, not BCD.
-// need to be converted to BCD format if needed.
-
 // only 24-hour mode is supported
 typedef struct
 {

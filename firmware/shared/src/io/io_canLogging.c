@@ -2,7 +2,6 @@
 
 #include <stdint.h>
 #include <string.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <assert.h>
 
@@ -103,7 +102,7 @@ void io_canLogging_recordMsgFromQueue(void)
     // 6. CRC8 checksum (1 byte)
 
     // Construct log header.
-    struct
+    const struct
     {
         uint8_t  magic;
         uint8_t  dlc;

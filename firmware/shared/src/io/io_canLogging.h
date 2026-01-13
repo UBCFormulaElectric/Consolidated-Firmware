@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include <stdbool.h>
 #include "io_canMsg.h"
 #include "io_rtc.h"
 
