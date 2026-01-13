@@ -9,7 +9,7 @@ use std::collections::HashMap;
 const DBC_DEFAULT_RECEIVER: &str = "DEBUG";
 
 #[derive(Template)]
-#[template(path = "../src/dbcgen/dbc.txt.j2")] // NOTE it is very important that the extension is txt otherwise the templater shits itself
+#[template(path = "dbc.txt.j2")] // NOTE it is very important that the extension is txt otherwise the templater shits itself
 struct DBCTemplate<'a> {
     can_db: &'a CanDatabase,
     nodes_list: &'a Vec<String>,

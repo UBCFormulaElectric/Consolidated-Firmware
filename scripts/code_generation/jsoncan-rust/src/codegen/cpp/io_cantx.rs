@@ -7,14 +7,14 @@ use crate::{
 };
 
 #[derive(Template)]
-#[template(path = "../src/codegen/cpp/template/io_canTx.c.j2")]
+#[template(path = "io_canTx.c.j2")]
 struct IoCanTxModuleSource<'a> {
     node_buses: &'a Vec<&'a CanBus>,
     messages: &'a Vec<(CanMessage, Vec<String>)>,
 }
 
 #[derive(Template)]
-#[template(path = "../src/codegen/cpp/template/io_canTx.h.j2")]
+#[template(path = "io_canTx.h.j2")]
 struct IoCanTxModuleHeader<'a> {
     node_buses: &'a Vec<&'a CanBus>,
     messages: &'a Vec<(CanMessage, Vec<String>)>,

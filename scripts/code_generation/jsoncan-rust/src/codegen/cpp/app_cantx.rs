@@ -6,13 +6,13 @@ use crate::{
 };
 
 #[derive(Template)]
-#[template(path = "../src/codegen/cpp/template/app_canTx.c.j2")]
+#[template(path = "app_canTx.c.j2")]
 struct AppCanTxModuleSource<'a> {
     tx_messages: &'a Vec<CanMessage>,
 }
 
 #[derive(Template)]
-#[template(path = "../src/codegen/cpp/template/app_canTx.h.j2")]
+#[template(path = "app_canTx.h.j2")]
 struct AppCanTxModuleHeader<'a> {
     tx_messages: &'a Vec<CanMessage>,
 }

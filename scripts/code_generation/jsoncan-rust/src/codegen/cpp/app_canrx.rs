@@ -8,14 +8,14 @@ use crate::{
 use askama::Template;
 
 #[derive(Template)]
-#[template(path = "../src/codegen/cpp/template/app_canRx.c.j2")]
+#[template(path = "app_canRx.c.j2")]
 struct AppCanRxModuleSource<'a> {
     node: &'a String,
     boards_messages: &'a HashMap<String, Vec<CanMessage>>, // maps messages to the board they came from
 }
 
 #[derive(Template)]
-#[template(path = "../src/codegen/cpp/template/app_canRx.h.j2")]
+#[template(path = "app_canRx.h.j2")]
 struct AppCanRxModuleHeader<'a> {
     boards_messages: &'a HashMap<String, Vec<CanMessage>>, // maps messages to the board they came from
 }

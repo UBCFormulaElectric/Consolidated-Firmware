@@ -7,7 +7,7 @@ use crate::{
 };
 
 #[derive(Template)]
-#[template(path = "../src/codegen/cpp/template/io_canReroute.c.j2")]
+#[template(path = "io_canReroute.c.j2")]
 struct IoCanRerouteModuleSource<'a> {
     can_db: &'a CanDatabase,
     node_busses: &'a Vec<&'a CanBus>,
@@ -21,7 +21,7 @@ impl IoCanRerouteModuleSource<'_> {
 }
 
 #[derive(Template)]
-#[template(path = "../src/codegen/cpp/template/io_canReroute.h.j2")]
+#[template(path = "io_canReroute.h.j2")]
 struct IoCanRerouteModuleHeader<'a> {
     node_busses: &'a Vec<&'a CanBus>,
 }

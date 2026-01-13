@@ -16,7 +16,7 @@ impl GroupedAlerts {
 }
 
 #[derive(Template)]
-#[template(path = "../src/codegen/cpp/template/app_canAlerts.c.j2")]
+#[template(path = "app_canAlerts.c.j2")]
 struct AppCanAlertsModuleSource<'a> {
     node_tx_alerts: Vec<CanAlert>,
     node_name_and_alerts: &'a Vec<(String, &'a GroupedAlerts)>,
@@ -24,7 +24,7 @@ struct AppCanAlertsModuleSource<'a> {
 }
 
 #[derive(Template)]
-#[template(path = "../src/codegen/cpp/template/app_canAlerts.h.j2")]
+#[template(path = "app_canAlerts.h.j2")]
 struct AppCanAlertsModuleHeader<'a> {
     node_tx_alerts: &'a GroupedAlerts,
     node_name: &'a String,

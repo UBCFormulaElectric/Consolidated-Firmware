@@ -14,7 +14,7 @@ struct Iteration {
 }
 
 #[derive(Template)]
-#[template(path = "../src/codegen/cpp/template/app_canUtils.c.j2")]
+#[template(path = "app_canUtils.c.j2")]
 struct AppCanUtilsModuleSource<'a> {
     messages: &'a Vec<CanMessage>,
 }
@@ -96,7 +96,7 @@ impl AppCanUtilsModuleSource<'_> {
 mod filters {}
 
 #[derive(Template)]
-#[template(path = "../src/codegen/cpp/template/app_canUtils.h.j2")]
+#[template(path = "app_canUtils.h.j2")]
 struct AppCanUtilsModuleHeader<'a> {
     messages: &'a Vec<CanMessage>,
     node_names: &'a Vec<String>,
