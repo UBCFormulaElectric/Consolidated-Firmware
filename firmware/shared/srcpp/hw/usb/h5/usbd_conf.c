@@ -158,7 +158,6 @@ void USBD_LL_Delay(uint32_t Delay)
 {
     HAL_Delay(Delay);
 }
-
 USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
 {
     USBD_StatusTypeDef usb_status = USBD_OK;

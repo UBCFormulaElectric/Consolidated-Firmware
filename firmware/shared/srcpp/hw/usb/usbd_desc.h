@@ -9,17 +9,16 @@ extern "C"
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_def.h"
 #define DEVICE_ID1 (UID_BASE)
-#define DEVICE_ID2 (UID_BASE + 0x4)
-#define DEVICE_ID3 (UID_BASE + 0x8)
+#define DEVICE_ID2 (UID_BASE + 0x4U)
+#define DEVICE_ID3 (UID_BASE + 0x8U)
 
-#define USB_SIZ_STRING_SERIAL 0x1A
+#define USB_SIZ_STRING_SERIAL 0x1AU
 
 #if defined(STM32H733xx)
     extern USBD_DescriptorsTypeDef HS_Desc;
     extern USBD_DescriptorsTypeDef CDC_Desc;
 #elif defined(STM32H562xx)
-extern USBD_DescriptorsTypeDef FS_Desc;
-extern USBD_DescriptorsTypeDef CDC_Desc;
+    extern USBD_DescriptorsTypeDef CDC_Desc;
 #endif
 
 #ifdef __cplusplus
@@ -27,3 +26,4 @@ extern USBD_DescriptorsTypeDef CDC_Desc;
 #endif
 
 #endif
+

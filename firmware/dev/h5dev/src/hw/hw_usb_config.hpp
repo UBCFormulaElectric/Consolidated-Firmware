@@ -1,3 +1,3 @@
 #pragma once
 
-#define USBD_PRODUCT_STRING_FS "dev"
+#define USBD_PRODUCT_FS_STRING "h5dev"

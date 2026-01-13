@@ -24,7 +24,10 @@
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
 #include "hw_usb.h"
-#include "usb_device.h"
+#include "usbd_core.h"
+#include "usbd_desc.h"
+#include "usbd_cdc.h"
+#include "usbd_cdc_if.h"
 
 /* USER CODE END Includes */
 
@@ -56,6 +59,8 @@ SPI_HandleTypeDef hspi1;
 PCD_HandleTypeDef hpcd_USB_DRD_FS;
 
 /* USER CODE BEGIN PV */
+USBD_HandleTypeDef hUsbDeviceFS;
+extern USBD_DescriptorsTypeDef Class_Desc;
 
 /* USER CODE END PV */
 
@@ -68,6 +73,7 @@ static void MX_IWDG_Init(void);
 static void MX_RTC_Init(void);
 static void MX_SPI1_Init(void);
 /* USER CODE BEGIN PFP */
+static void USB_Device_Init(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -117,16 +123,11 @@ int main(void)
         Error_Handler();
     }
 
-    MX_USB_DEVICE_Init();
+    USB_Device_Init();
     /* USER CODE END 2 */
 
-    /* Call init function for freertos objects (in app_freertos.c) */
     MX_FREERTOS_Init();
-
-    /* Start scheduler */
     osKernelStart();
-
-    /* We should never get here as control is now taken by the scheduler */
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
@@ -463,6 +464,27 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+static void USB_Device_Init(void)
+{
+    if (USBD_Init(&hUsbDeviceFS, &Class_Desc, USBD_SPEED_FULL) != USBD_OK)
+    {
+        Error_Handler();
+    }
+    if (USBD_RegisterClass(&hUsbDeviceFS, &USBD_CDC) != USBD_OK)
+    {
+        Error_Handler();
+    }
+    if (USBD_CDC_RegisterInterface(&hUsbDeviceFS, &USBD_Interface_fops_FS) != USBD_OK)
+    {
+        Error_Handler();
+    }
+    if (USBD_Start(&hUsbDeviceFS) != USBD_OK)
+    {
+        Error_Handler();
+    }
+
+    HAL_PWREx_EnableUSBVoltageDetector();
+}
 
 /* USER CODE END 4 */
 

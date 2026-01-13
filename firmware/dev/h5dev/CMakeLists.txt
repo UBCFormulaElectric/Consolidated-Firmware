@@ -27,7 +27,6 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
         "${SHARED_HW_INCLUDE_DIR_CPP}/usb/hw_usb.c"
         "${SHARED_HW_INCLUDE_DIR_CPP}/usb/h5/usbd_cdc_if.c"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/usb/h5/usb_device.c"
         "${SHARED_HW_INCLUDE_DIR_CPP}/usb/h5/usbd_conf.c"
         "${SHARED_HW_INCLUDE_DIR_CPP}/usb/h5/usbd_desc.c"
 )
@@ -113,6 +112,7 @@ IF ("${TARGET}" STREQUAL "binary")
     )
 
     target_link_libraries("h5dev_app.elf" PRIVATE "h5dev_stm32" "dev_H5_jsoncan")
+    target_compile_definitions("h5dev_app.elf" PRIVATE WATCHDOG_DISABLED)
 
     # Bootloader files.
     file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
