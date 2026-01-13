@@ -219,9 +219,9 @@ function(stm32h733xx_cube_library
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10"
     )
 
-    if (USE_HEXRAY_FREERTOS_CONFIG)
+    if (USE_HEXRAY_FREERTOS_CONFIG) # this is temporary during the transition
         list(APPEND STM32CUBE_INCLUDE_DIRS
-                "${THIRD_PARTY_DIR}/hexray_freertos"
+                "${THIRD_PARTY_DIR}/freertos/config"
         )
     endif ()
 
@@ -321,8 +321,7 @@ function(stm32h562xx_cube_library
             "${FREERTOS_DIR}/portable/GCC/ARM_CM33_NTZ/non_secure"
             "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H5xx/Include"
             "${DRIVERS_DIR}/CMSIS/Include"
-            "${THIRD_PARTY_DIR}/freertos"
-            "${THIRD_PARTY_DIR}/hexray_freertos"
+            "${THIRD_PARTY_DIR}/freertos/config"
 
             # SEGGER SystemView includes.
             "${THIRD_PARTY_DIR}/sysview"
@@ -342,7 +341,6 @@ function(stm32h562xx_cube_library
             "${FREERTOS_DIR}/portable/GCC/ARM_CM33_NTZ/non_secure/port.c"
             "${FREERTOS_DIR}/portable/GCC/ARM_CM33_NTZ/non_secure/portasm.c"
             "${FREERTOS_DIR}/portable/MemMang/heap_4.c"
-
     )
 
     # SEGGER SystemView sources.

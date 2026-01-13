@@ -152,7 +152,12 @@ function(embedded_binary
     )
     IF (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
         target_compile_options(${ELF_NAME} PRIVATE -fsanitize=undefined)
-        target_link_ubsan(${ELF_NAME} ${ARM_CORE})
+        set_property(SOURCE "${SHARED_HW_INCLUDE_DIR_CPP}/hw_ubsan.cpp" APPEND PROPERTY COMPILE_OPTIONS
+                -fno-sanitize=undefined
+                -Wno-error=suggest-attribute=noreturn
+                -Wno-suggest-attribute=noreturn
+        )
+        target_sources(${ELF_NAME} PRIVATE "${SHARED_HW_INCLUDE_DIR_CPP}/hw_ubsan.cpp")
     ENDIF ()
 
     target_link_options(${ELF_NAME} PRIVATE
