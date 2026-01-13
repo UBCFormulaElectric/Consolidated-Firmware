@@ -143,7 +143,7 @@ const osThreadAttr_t TaskTelem_attributes = {
     .cb_size    = sizeof(TaskTelemControlBlock),
     .stack_mem  = &TaskTelemBuffer[0],
     .stack_size = sizeof(TaskTelemBuffer),
-    .priority   = (osPriority_t)osPriorityNormal,
+    .priority   = (osPriority_t)osPriorityLow,
 };
 /* Definitions for TaskTelemRx */
 osThreadId_t         TaskTelemRxHandle;

@@ -43,15 +43,15 @@ void tasks_preInit(void)
     hw_bootup_enableInterruptsForApp();
 }
 
-void tasks_preInitWatchdog(void)
+static IoRtcTime boot_time;
+void             tasks_preInitWatchdog(void)
 {
     // Configure and initialize SEGGER SystemView.
     // NOTE: Needs to be done after clock config!
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("DAM reset!");
 
-    IoRtcTime boot_time;
-    const ExitCode  status = io_rtc_readTime(&boot_time);
+    const ExitCode status = io_rtc_readTime(&boot_time);
     ASSERT_EXIT_OK(status);
     io_canLogging_init(&boot_time);
 }

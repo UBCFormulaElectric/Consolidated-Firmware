@@ -90,7 +90,7 @@ void io_canLogging_recordMsgFromQueue(void)
     CHECK_ENABLED();
 
     // Assert here since we pass "wait forever" for a message. So it'll only fail if we've configured something wrong.
-    CanMsg msg = { 0 };
+    CanMsg           msg                  = { 0 };
     const osStatus_t message_queue_status = osMessageQueueGet(message_queue_id, &msg, NULL, osWaitForever);
     assert(message_queue_status == osOK);
 
