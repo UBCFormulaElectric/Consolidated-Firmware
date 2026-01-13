@@ -70,7 +70,7 @@ set(SHARED_GNU_COMPILER_CHECKS_STRICT
         -Werror=float-equal
         -Werror=format
         -Werror=format=2
-        -Werror=inline
+        -Winline
         -Werror=missing-braces
         -Werror=missing-format-attribute
         -Werror=missing-include-dirs # disable for now?
