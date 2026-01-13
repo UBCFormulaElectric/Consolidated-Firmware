@@ -1,4 +1,5 @@
 #pragma once
+#include "app_timer.h"
 #include "io_ltc6813.h"
 #include <stdbool.h>
 

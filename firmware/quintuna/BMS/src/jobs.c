@@ -66,7 +66,7 @@ void jobs_init(void)
     io_canTx_enableMode_charger(CHARGER_MODE_DEFAULT, true);
     io_canQueue_initRx();
     io_canQueue_initTx(&can_tx_queue);
-    
+
     app_soc_init();
 
     app_canTx_init();

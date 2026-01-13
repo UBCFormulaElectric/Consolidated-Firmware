@@ -9,14 +9,11 @@
 
 #include "io_log.h"
 #include "io_canQueue.h"
-<<<<<<< HEAD
 #include "io_sds.h"
-=======
 #include "io_canRx.h"
 #include "io_canTx.h"
 #include "io_canMsg.h"
 #include "io_semaphore.h"
->>>>>>> master
 
 // hw
 #include "hw_usb.h"
@@ -37,10 +34,11 @@
 #include <cmsis_os2.h>
 #include <portmacro.h>
 
-// Define this guy to use CAN2 for talking to the Elcon.
-// #define CHARGER_CAN
+    // Define this guy to use CAN2 for talking to the Elcon.
+    // #define CHARGER_CAN
 
-void tasks_runChimera(void)
+    void
+    tasks_runChimera(void)
 {
     hw_chimera_v2_task(&chimera_v2_config);
 }

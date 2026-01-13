@@ -33,5 +33,5 @@ typedef struct
 void               io_sds_queue_init(void);
 bool               io_sds_enqueue(SdRequest *req);
 osMessageQueueId_t io_sds_queue_handle(void);
-bool io_sds_readSocFromSd(float *saved_soc_c);
-bool io_sds_writeSocToSd(float soc);
+bool               io_sds_readSocFromSd(float *saved_soc_c);
+bool               io_sds_writeSocToSd(float soc);
