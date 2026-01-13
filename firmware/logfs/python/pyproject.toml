@@ -5,7 +5,8 @@ description = "Python bindings for LogFS"
 requires-python = ">=3.9"
 dependencies = [
     "tabulate",
-    "humanize"
+    "humanize",
+    "crc8"
 ]
 
 # this is equivalent to entry_points["console_scripts"]
