@@ -38,13 +38,12 @@ set(SHARED_GNU_COMPILER_CHECKS
         -Wshadow
         -Wundef
         -Wconversion
-        -Wno-unused-variable
-        -Wno-unused-parameter
+        -Wunused-variable
+        -Wunused-parameter
         -pedantic-errors
         -Wfloat-equal
         -Wformat
         -Wformat=2
-        # -Winline
         -Wmissing-braces
         -Wmissing-format-attribute
         -Wmissing-include-dirs # disable for now?
@@ -52,6 +51,33 @@ set(SHARED_GNU_COMPILER_CHECKS
         -Wredundant-decls
         -Wswitch-default
         -Wswitch-enum
+)
+set(SHARED_GNU_COMPILER_CHECKS_STRICT
+        -pedantic
+        -pedantic-errors
+        -Werror=all
+        -Werror=extra
+        -Werror=double-promotion
+        -Werror=shadow
+        -Werror=undef
+        -Werror=conversion
+        -Wno-error=unused-variable
+        -Wunused-variable
+        -Wno-error=unused-const-variable
+        -Wunused-const-variable
+        -Wno-error=unused-parameter
+        -Wunused-parameter
+        -Werror=float-equal
+        -Werror=format
+        -Werror=format=2
+        -Werror=inline
+        -Werror=missing-braces
+        -Werror=missing-format-attribute
+        -Werror=missing-include-dirs # disable for now?
+        -Werror=missing-noreturn
+        -Werror=redundant-decls
+        -Werror=switch-default
+        -Werror=switch-enum
         # perhaps we want to do reinterpret casts sometimes??
         # -Wcast-align
         # -Wcast-qual

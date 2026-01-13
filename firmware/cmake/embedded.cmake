@@ -141,16 +141,14 @@ function(embedded_object_library
                 PUBLIC
                 ${LIB_INCLUDE_DIRS}
         )
+        target_compile_options(${LIB_NAME} PRIVATE ${SHARED_GNU_COMPILER_CHECKS})
     ELSE ()
         target_include_directories(${LIB_NAME} PUBLIC ${LIB_INCLUDE_DIRS})
-        target_compile_options(${LIB_NAME} PRIVATE -Werror)
+        target_compile_options(${LIB_NAME} PRIVATE ${SHARED_GNU_COMPILER_CHECKS_STRICT})
     ENDIF ()
 
     target_compile_definitions(${LIB_NAME} PRIVATE ${SHARED_COMPILER_DEFINES})
-    target_compile_options(${LIB_NAME} PRIVATE
-            ${SHARED_COMPILER_FLAGS}
-            ${SHARED_GNU_COMPILER_CHECKS}
-    )
+    target_compile_options(${LIB_NAME} PRIVATE ${SHARED_COMPILER_FLAGS})
     embedded_arm_core_flags(${LIB_NAME} ${ARM_CORE})
 endfunction()
 
@@ -175,7 +173,7 @@ function(embedded_binary
     target_compile_definitions(${ELF_NAME} PRIVATE ${SHARED_COMPILER_DEFINES})
     target_compile_options(${ELF_NAME} PRIVATE
             ${SHARED_COMPILER_FLAGS}
-            ${SHARED_GNU_COMPILER_CHECKS} -Werror
+            ${SHARED_GNU_COMPILER_CHECKS_STRICT}
     )
     IF (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
         target_compile_options(${ELF_NAME} PRIVATE -fsanitize=undefined)
