@@ -267,7 +267,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "jsoncan-rust"
+name = "jsoncan_rust"
 version = "0.1.0"
 dependencies = [
  "askama",

@@ -1,7 +1,14 @@
 [package]
-name = "jsoncan-rust"
+name = "jsoncan_rust"
 version = "0.1.0"
 edition = "2024"
+default-run = "jsoncan_rust"
+
+[[bin]]
+name = "busload"
+
+[[bin]]
+name = "cppcodegen"
 
 [lib]
 path = "src/main.rs"
