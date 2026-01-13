@@ -39,31 +39,27 @@
 // include main.h (and the compiler doesn't like that for some reason).
 extern CRC_HandleTypeDef hcrc;
 
-IoRtcTime boot_time;
-char      boot_time_string[27]; // YYYY-MM-DDTHH:MM:SS
-
 void tasks_preInit(void)
 {
     hw_hardFaultHandler_init();
     hw_bootup_enableInterruptsForApp();
 }
 
-void tasks_preInitWatchdog(void)
-{
-    ASSERT_EXIT_OK(io_rtc_readTime(&boot_time));
-    sprintf(
-        boot_time_string, "20%02d-%02d-%02dT%02d-%02d-%02d", boot_time.year, boot_time.month, boot_time.day,
-        boot_time.hours, boot_time.minutes, boot_time.seconds);
-    io_canLogging_init(boot_time_string);
-}
-
-void tasks_init(void)
+static IoRtcTime boot_time;
+void             tasks_preInitWatchdog(void)
 {
     // Configure and initialize SEGGER SystemView.
     // NOTE: Needs to be done after clock config!
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("DAM reset!");
 
+    const ExitCode status = io_rtc_readTime(&boot_time);
+    ASSERT_EXIT_OK(status);
+    io_canLogging_init(&boot_time);
+}
+
+void tasks_init(void)
+{
     __HAL_DBGMCU_FREEZE_IWDG1();
 
     hw_can_init(&can1);
