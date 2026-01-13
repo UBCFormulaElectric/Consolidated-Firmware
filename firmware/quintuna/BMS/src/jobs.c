@@ -1,6 +1,5 @@
 #include "jobs.h"
 
-#include "app_globals.h"
 #include "app_soc.h"
 // app
 #include "states/app_states.h"

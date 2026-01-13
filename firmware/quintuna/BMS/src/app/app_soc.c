@@ -18,13 +18,13 @@
 #define LUT_BASE_SOC (0.0f)
 
 // charge in cell in coulombs
-static double charge_c;
+static double soc_charge_c;
 
 // Charge loss at time t-1
-static float prev_current_A;
+static float soc_prev_current_A;
 
 // Indicates if SOC from SD was corrupt at startup
-static bool is_corrupt;
+static bool soc_is_corrupt;
 
 static TimerChannel soc_timer;
 
@@ -102,11 +102,11 @@ float app_soc_getOcvFromSoc(float soc_percent)
 
 void app_soc_init(void)
 {
-    prev_current_A = 0.0f;
+    soc_prev_current_A = 0.0f;
 
     // SOC assumed corrupt until proven otherwise
-    is_corrupt = true;
-    charge_c   = -1;
+    soc_is_corrupt = true;
+    soc_charge_c   = -1;
 
     // A negative SOC value will indicate to app_soc_Create that saved SOC value is corrupted
     float saved_soc_c = -1.0f;
@@ -115,26 +115,26 @@ void app_soc_init(void)
     {
         if (IS_IN_RANGE(0.0f, SERIES_ELEMENT_FULL_CHARGE_C * 1.25f, saved_soc_c))
         {
-            charge_c   = (double)saved_soc_c;
-            is_corrupt = false;
+            soc_charge_c   = (double)saved_soc_c;
+            soc_is_corrupt = false;
         }
     }
 
     app_timer_init(&soc_timer, SOC_TIMER_DURATION);
     // TODO: uncommentt when can msg is added
-    app_canTx_BMS_SocCorrupt_set(is_corrupt);
+    app_canTx_BMS_SocCorrupt_set(soc_is_corrupt);
 }
 
 bool app_soc_getCorrupt(void)
 {
-    return is_corrupt;
+    return soc_is_corrupt;
 }
 
 void app_soc_updateSocStats(void)
 {
     // NOTE current sign is relative to current into the battery
-    double *charge_c     = &charge_c;
-    float  *prev_current = &prev_current_A;
+    double *charge_c     = &soc_charge_c;
+    float  *prev_current = &soc_prev_current_A;
     float   current      = app_tractiveSystem_getCurrent();
 
     double elapsed_time_s = (double)app_timer_getElapsedTime(&soc_timer) * MS_TO_S;
@@ -147,13 +147,13 @@ void app_soc_updateSocStats(void)
 float app_soc_getMinSocCoulombs(void)
 {
     // return SOC in Coulombs
-    return (float)charge_c;
+    return (float)soc_charge_c;
 }
 
 float app_soc_getMinSocPercent(void)
 {
     // return SOC in %
-    float soc_percent = ((float)charge_c / SERIES_ELEMENT_FULL_CHARGE_C) * 100.0f;
+    float soc_percent = ((float)soc_charge_c / SERIES_ELEMENT_FULL_CHARGE_C) * 100.0f;
     return soc_percent;
 }
 
@@ -165,26 +165,26 @@ float app_soc_getMinOcvFromSoc(void)
 
 void app_soc_resetSocFromVoltage(void)
 {
-    const float min_cell_voltage = app_segments_getMinCellVoltage();
-    const float soc_percent      = app_soc_getSocFromOcv(min_cell_voltage);
+    const CellParam min_cell_voltage = app_segments_getMinCellVoltage();
+    const float soc_percent      = app_soc_getSocFromOcv(min_cell_voltage.value);
 
     // convert from percent to coulombs
-    charge_c = (double)(SERIES_ELEMENT_FULL_CHARGE_C * soc_percent / 100.0f);
+    soc_charge_c = (double)(SERIES_ELEMENT_FULL_CHARGE_C * soc_percent / 100.0f);
 
     // Mark SOC as corrupt anytime SOC is reset
-    is_corrupt = true;
+    soc_is_corrupt = true;
     // TODO: uncomment when can msg is added
-    app_canTx_BMS_SocCorrupt_set(is_corrupt);
+    app_canTx_BMS_SocCorrupt_set(soc_is_corrupt);
 }
 
 void app_soc_resetSocCustomValue(float soc_percent)
 {
-    charge_c = (double)(soc_percent / 100.0f * SERIES_ELEMENT_FULL_CHARGE_C);
+    soc_charge_c = (double)(soc_percent / 100.0f * SERIES_ELEMENT_FULL_CHARGE_C);
 
     // Mark SOC as corrupt anytime SOC is reset
-    is_corrupt = true;
+    soc_is_corrupt = true;
     // TODO: uncomment when can msg is added
-    app_canTx_BMS_SocCorrupt_set(is_corrupt);
+    app_canTx_BMS_SocCorrupt_set(soc_is_corrupt);
 }
 
 bool app_soc_readSocFromSd(float *saved_soc_c)
@@ -200,7 +200,7 @@ bool app_soc_writeSocToSd(float soc)
 void app_soc_broadcast(void)
 {
     app_canTx_BMS_Soc_set(app_soc_getMinSocPercent());
-    if (io_irs_isNegativeClosed() && io_irs_isPositiveClosed())
+    if (io_irs_negativeState() == CONTACTOR_STATE_CLOSED && io_irs_positiveState() == CONTACTOR_STATE_CLOSED)
     {
         app_soc_updateSocStats();
     }
