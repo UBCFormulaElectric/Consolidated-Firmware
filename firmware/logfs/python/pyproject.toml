@@ -4,7 +4,8 @@ version = "0.1.0"
 description = "Python bindings for LogFS"
 requires-python = ">=3.9"
 dependencies = [
-    "tabulate"
+    "tabulate",
+    "humanize"
 ]
 
 # this is equivalent to entry_points["console_scripts"]
