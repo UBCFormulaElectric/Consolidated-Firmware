@@ -17,6 +17,7 @@ list(APPEND APP_SRCS
         "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
         "${SHARED_APP_INCLUDE_DIR}/app_signal.c"
         "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_crc8.c"
 )
 set(APP_INCLUDE_DIRS "${SHARED_APP_INCLUDE_DIR}")
 

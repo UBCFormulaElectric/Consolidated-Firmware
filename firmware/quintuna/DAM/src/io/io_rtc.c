@@ -1,8 +1,12 @@
 #include <stdint.h>
 #include "hw_i2cs.h"
 #include "io_rtc.h"
-#include "hw_gpios.h"
 #include "io_log.h"
+
+// https://datasheet.ciiva.com/pdfs/VipMasterIC/IC/PHGL/PHGL-S-A0000776674/PHGL-S-A0000776674-1.pdf?src-supplier=IHS+Markit
+
+// standard digital format, not BCD.
+// need to be converted to BCD format if needed.
 
 #define RTC_I2C_ADDR 0x68
 #define REG_CONTROL_1 0x00     // Control and status settings
@@ -271,12 +275,12 @@ typedef union
     TimerBValue_t timer_b_value; // Timer B Value Register struct
 } Register_t;
 
-static uint8_t integer_to_bcd(uint8_t value)
+static uint8_t integer_to_bcd(const uint8_t value)
 {
     return (uint8_t)((value / 10) << 4) | (value % 10);
 }
 
-static uint8_t bcd_to_integer(uint8_t value)
+static uint8_t bcd_to_integer(const uint8_t value)
 {
     return (uint8_t)((value >> 4) * 10 + (value & 0x0F));
 }

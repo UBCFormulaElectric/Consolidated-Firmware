@@ -11,6 +11,7 @@ file(GLOB EMBEDDED_SRCS CONFIGURE_DEPENDS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
 )
 list(APPEND EMBEDDED_SRCS
+        "${SHARED_APP_INCLUDE_DIR}/app_crc8.c"
         "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
         "${SHARED_IO_INCLUDE_DIR}/io_canLogging.c"
         "${SHARED_IO_INCLUDE_DIR}/io_fileSystem_logfs.c"
