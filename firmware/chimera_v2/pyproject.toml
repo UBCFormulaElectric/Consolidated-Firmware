@@ -14,9 +14,6 @@ dependencies = [
 
     # Data.
     "pandas", "numpy",
-
-    # Plotting.
-    "tabulate"
 ]
 
 [tool.setuptools]
