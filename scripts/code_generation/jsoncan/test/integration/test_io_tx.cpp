@@ -36,12 +36,13 @@ TEST_F(io_fixture, transmit_1hz_works)
 {
     static vector<JsonCanMsg> tx_msg_1, tx_msg_2, tx_msg_3;
     io_canTx_init(
-        [](const JsonCanMsg *msg) { tx_msg_1.push_back(*msg); }, [](const JsonCanMsg *msg)
-        { tx_msg_2.push_back(*msg); }, [](const JsonCanMsg *msg) { tx_msg_3.push_back(*msg); });
+        [](const JsonCanMsg *msg) { tx_msg_1.push_back(*msg); },
+        [](const JsonCanMsg *msg) { tx_msg_2.push_back(*msg); },
+        [](const JsonCanMsg *msg) { tx_msg_3.push_back(*msg); });
 
     io_canTx_enqueue1HzMsgs();
     {
-        constexpr array expected = { 106, 107, 108, 109, 111, 100, 103 };
+        constexpr array<uint32_t, 7> expected{ { 106, 107, 108, 109, 111, 100, 103 } };
         ASSERT_EQ(tx_msg_1.size(), expected.size());
         for (size_t i = 0; i < expected.size(); i++)
         {
@@ -49,7 +50,7 @@ TEST_F(io_fixture, transmit_1hz_works)
         }
     }
     {
-        constexpr array expected = { 100, 103 };
+        constexpr array<uint32_t, 2> expected{ { 100, 103 } };
         ASSERT_EQ(tx_msg_2.size(), expected.size());
         for (size_t i = 0; i < expected.size(); i++)
         {
@@ -70,8 +71,9 @@ TEST_F(io_fixture, transmit_100hz_works)
 {
     static vector<JsonCanMsg> tx_msg_1, tx_msg_2, tx_msg_3;
     io_canTx_init(
-        [](const JsonCanMsg *msg) { tx_msg_1.push_back(*msg); }, [](const JsonCanMsg *msg)
-        { tx_msg_2.push_back(*msg); }, [](const JsonCanMsg *msg) { tx_msg_3.push_back(*msg); });
+        [](const JsonCanMsg *msg) { tx_msg_1.push_back(*msg); },
+        [](const JsonCanMsg *msg) { tx_msg_2.push_back(*msg); },
+        [](const JsonCanMsg *msg) { tx_msg_3.push_back(*msg); });
 
     io_canTx_enqueue100HzMsgs();
     {
@@ -108,13 +110,14 @@ TEST_F(io_fixture, can_bus_mod_works)
 {
     static vector<JsonCanMsg> tx_msg_1, tx_msg_2, tx_msg_3;
     io_canTx_init(
-        [](const JsonCanMsg *msg) { tx_msg_1.push_back(*msg); }, [](const JsonCanMsg *msg)
-        { tx_msg_2.push_back(*msg); }, [](const JsonCanMsg *msg) { tx_msg_3.push_back(*msg); });
+        [](const JsonCanMsg *msg) { tx_msg_1.push_back(*msg); },
+        [](const JsonCanMsg *msg) { tx_msg_2.push_back(*msg); },
+        [](const JsonCanMsg *msg) { tx_msg_3.push_back(*msg); });
     io_canTx_enableMode_can1(CAN1_MODE_debug, true);
 
     io_canTx_enqueue1HzMsgs();
     {
-        constexpr array expected = { 106, 107, 108, 109, 110, 111, 100, 103 };
+        constexpr array<uint32_t, 8> expected{ { 106, 107, 108, 109, 110, 111, 100, 103 } };
         ASSERT_EQ(tx_msg_1.size(), expected.size());
         for (size_t i = 0; i < expected.size(); i++)
         {
@@ -122,7 +125,7 @@ TEST_F(io_fixture, can_bus_mod_works)
         }
     }
     {
-        constexpr array expected = { 100, 103 };
+        constexpr array<uint32_t, 2> expected{ { 100, 103 } };
         ASSERT_EQ(tx_msg_2.size(), expected.size());
         for (size_t i = 0; i < expected.size(); i++)
         {

@@ -5,6 +5,7 @@ add_subdirectory(RSM)
 add_subdirectory(VC)
 add_subdirectory(VCR)
 add_subdirectory(BMS)
+add_subdirectory(PCM)
 
 if ("${TARGET}" STREQUAL "binary")
     add_custom_target(quintuna_hexes)
@@ -16,6 +17,7 @@ if ("${TARGET}" STREQUAL "binary")
             quintuna_RSM.hex
             quintuna_VC.hex
             quintuna_VCR_app.elf
+            quintuna_PCM_app.elf
             f4dev.elf
             h7dev.hex
     )

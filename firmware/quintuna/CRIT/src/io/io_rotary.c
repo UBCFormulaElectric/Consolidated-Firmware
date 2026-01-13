@@ -110,6 +110,8 @@ static void rotary_update(void)
                 clockwise_turn = true;
             }
             break;
+        default:
+            break;
     }
 
     prev_state = state;

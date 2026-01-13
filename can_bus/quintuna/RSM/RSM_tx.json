@@ -63,12 +63,14 @@
     "signals": {
       "RearRightSuspensionTravel": {
         "resolution": 0.1,
+        "signed": true,
         "min": -10,
         "max": 10,
         "unit": "cm"
       },
       "RearLeftSuspensionTravel": {
         "resolution": 0.1,
+        "signed": true,
         "min": -10,
         "max": 10,
         "unit": "cm"
@@ -82,36 +84,42 @@
     "signals": {
       "LinearAccelerationInX": {
         "resolution": 0.1,
+        "signed": true,
         "min": -20,
         "max": 20,
         "unit": "m/s^2"
       },
       "LinearAccelerationInY": {
         "resolution": 0.1,
+        "signed": true,
         "min": -20,
         "max": 20,
         "unit": "m/s^2"
       },
       "LinearAccelerationInZ": {
         "resolution": 0.1,
+        "signed": true,
         "min": -20,
         "max": 20,
         "unit": "m/s^2"
       },
       "RollAngularAcceleration": {
         "resolution": 0.1,
+        "signed": true,
         "min": -20,
         "max": 20,
         "unit": "deg/s^2"
       },
       "PitchAngularAcceleration": {
         "resolution": 0.1,
+        "signed": true,
         "min": -20,
         "max": 20,
         "unit": "deg/s^2"
       },
       "YawAngularAcceleration": {
         "resolution": 0.1,
+        "signed": true,
         "min": -20,
         "max": 20,
         "unit": "deg/s^2"
@@ -121,13 +129,16 @@
   "Brakes": {
     "msg_id": 713,
     "cycle_time": 1000,
-    "description": "Brake data",
+    "description": "Front and rear brake pressures",
     "signals": {
-      "BrakePressure": {
+      "RearBrakePressure": {
         "resolution": 0.1,
         "min": 0,
-        "max": 100,
-        "unit": "bar"
+        "max": 2500,
+        "unit": "psi"
+      },
+      "BrakeActuated": {
+        "bits": 1
       }
     }
   },

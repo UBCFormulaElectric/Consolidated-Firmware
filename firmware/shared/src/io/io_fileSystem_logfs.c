@@ -97,6 +97,12 @@ static FileSystemError logfsErrorToFsError(const LogFsErr err)
         case LOGFS_ERR_INVALID_PATH:
         case LOGFS_ERR_NOT_OPEN:
             return FILE_ERROR_BAD_ARG;
+        // FOR THE FOUR BELOW, IDK WHAT TO RETURN
+        case LOGFS_ERR_UNMOUNTED:
+        case LOGFS_ERR_RD_ONLY:
+        case LOGFS_ERR_WR_ONLY:
+        case LOGFS_ERR_NO_MORE_FILES:
+            // END HERE
         default:
             return FILE_ERROR;
     }

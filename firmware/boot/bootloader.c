@@ -20,9 +20,9 @@
 #include "hw_utils.h"
 #include "hw_hal.h"
 
-#ifdef STM32H733xx
+#if defined(STM32H733xx) || defined(STM32H562xx)
 #include "hw_fdcan.h"
-#elif STM32F412Rx
+#elif defined(STM32F412Rx)
 #include "hw_can.h"
 #else
 #error "Please define what MCU is used"
@@ -30,21 +30,22 @@
 
 #include "app_utils.h"
 
+// SYS tick timer
 extern TIM_HandleTypeDef htim6;
 
-// Need these to be created an initialized elsewhere
+// Need these to be created an initialized elsewhere (main.c)
 extern CanHandle can;
 
 void canRxQueueOverflowCallBack(const uint32_t unused)
 {
     UNUSED(unused);
-    BREAK_IF_DEBUGGER_CONNECTED();
+    // BREAK_IF_DEBUGGER_CONNECTED();
 }
 
 void canTxQueueOverflowCallBack(const uint32_t unused)
 {
     UNUSED(unused);
-    BREAK_IF_DEBUGGER_CONNECTED();
+    // BREAK_IF_DEBUGGER_CONNECTED();
 }
 
 // App code block. Start/size included from the linker script.
@@ -234,6 +235,12 @@ _Noreturn void bootloader_runInterfaceTask(void)
             hw_bootup_setBootRequest(app_request);
             NVIC_SystemReset();
         }
+        else if (command.std_id == (BOARD_HIGHBITS | GO_TO_BOOT))
+        {
+            // Restart bootloader update state when receiving a GO_TO_BOOT command.
+            update_in_progress = false;
+            current_address    = (uint32_t)&__app_metadata_start__;
+        }
         else
         {
             LOG_ERROR("got stdid %X", command.std_id);
@@ -247,11 +254,14 @@ _Noreturn void bootloader_runTickTask(void)
 
     for (;;)
     {
-        // Broadcast a message at 1Hz so we can check status over CAN.
-        CanMsg status_msg         = { .std_id = BOARD_HIGHBITS | STATUS_10HZ_ID_LOWBITS, .dlc = 5 };
-        status_msg.data.data32[0] = GIT_COMMIT_HASH;
-        status_msg.data.data8[4]  = (uint8_t)(boot_status << 1) | GIT_COMMIT_CLEAN;
-        io_canQueue_pushTx(&can_tx_queue, &status_msg);
+        if (!update_in_progress)
+        {
+            // Broadcast a message at 1Hz so we can check status over CAN.
+            CanMsg status_msg         = { .std_id = BOARD_HIGHBITS | STATUS_10HZ_ID_LOWBITS, .dlc = 5 };
+            status_msg.data.data32[0] = GIT_COMMIT_HASH;
+            status_msg.data.data8[4]  = (uint8_t)(boot_status << 1) | GIT_COMMIT_CLEAN;
+            io_canQueue_pushTx(&can_tx_queue, &status_msg);
+        }
 
         bootloader_boardSpecific_tick();
 
@@ -265,9 +275,9 @@ _Noreturn void bootloader_runCanTxTask(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx(&can_tx_queue);
-#ifdef STM32H733xx
+#if defined(STM32H733xx) || defined(STM32H562xx)
         LOG_IF_ERR(hw_fdcan_transmit(&can, &tx_msg));
-#elif STM32F412Rx
+#elif defined(STM32F412Rx)
         LOG_IF_ERR(hw_can_transmit(&can, &tx_msg));
 #endif
     }

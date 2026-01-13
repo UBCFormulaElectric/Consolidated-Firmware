@@ -11,13 +11,12 @@ import math
 import pandas as pd
 from strenum import StrEnum
 
-from .utils import (
-    bits_for_uint,
-    bits_to_bytes,
-    is_int,
-    pascal_to_screaming_snake_case,
-    pascal_to_snake_case,
-)
+from cantools.database.can.message import Message as CanToolsMessage
+from cantools.database.can.signal import Signal as CanToolSignal
+from cantools.typechecking import EncodeInputType
+
+from .utils import bits_to_bytes, pascal_to_screaming_snake_case, pascal_to_snake_case
+from .can_signals import CanSignal, CanEnum
 
 logger = logging.getLogger(__name__)
 
@@ -39,162 +38,6 @@ class CanBus:
     def __hash__(self):
         return hash(self.name)
 
-
-@dataclass(frozen=True)
-class CanEnum:
-    """
-    Dataclass for fully describing a CAN value table.
-    Note: Minimum value is assumed to always be 0. TODO: Change this?
-    """
-
-    name: str
-    items: Dict[int, str]  # Dict of enum value to enum item name
-
-    def max_val(self) -> int:
-        """
-        Maximum value present in this value table's entries.
-        """
-        return max(self.items.keys())
-
-    @staticmethod
-    def min_val() -> int:
-        """
-        Minimum value present in this value table's entries.
-        """
-        return 0
-
-    def num_bits(self) -> int:
-        """
-        Number of bits needed to store this value table.
-        """
-        return bits_for_uint(self.max_val())
-
-    def snake_name(self):
-        return pascal_to_snake_case(self.name)
-
-    def scremming_snake_name(self):
-        return pascal_to_screaming_snake_case(self.name)
-
-    def __str__(self):
-        return self.name
-
-    def __hash__(self):
-        return hash(self.name)
-
-
-class CanSignalDatatype(StrEnum):
-    """
-    Enum for the possible primitive datatypes of a CAN signal.
-    """
-
-    BOOL = "bool"
-    INT = "int32_t"
-    UINT = "uint32_t"
-    FLOAT = "float"
-
-
-@dataclass(frozen=True)
-class CanSignal:
-    """
-    Dataclass for fully describing a CAN signal.
-    """
-
-    name: str  # Name of signal
-    start_bit: int  # Start bit of signal in payload
-    bits: int  # Number of bits to represent signal in payload, in bits
-    scale: float  # Scale for encoding/decoding
-    offset: float  # Offset for encoding/decoding
-    min_val: float  # Min allowed value
-    max_val: float  # Max allowed value
-    # Default starting value, None if doesn't specify one
-    start_val: Union[int, float]
-    enum: Optional[CanEnum]  # Value table, None if doesn't specify one
-    unit: str  # Signal's unit
-    signed: bool  # Whether or not signal is represented as signed or unsigned
-    description: str = "N/A"  # Description of signal
-    message: Optional[CanMessage] = None  # Message this signal belongs to
-    big_endian: bool = False  # TODO: Add tests for big endianness
-
-    def represent_as_integer(self):
-        """
-        If this signal holds integer or unsigned integer values only.
-        """
-        return is_int(self.scale) and is_int(self.offset)
-
-    def has_unit(self):
-        """
-        If this signal specifies a unit.
-        """
-        return self.unit != ""
-
-    def has_non_default_start_val(self):
-        """
-        If this signal specifies a starting value.
-        """
-        return self.start_val is not None
-
-    def representation(self):
-        """
-        How this signal will be represented in memory (specific to C).
-        For example, in C, enums and booleans are both stored internally as unsigned ints.
-        """
-        if self.enum:
-            return CanSignalDatatype.UINT
-        elif self.represent_as_integer():
-            if self.min_val >= 0:
-                return CanSignalDatatype.UINT
-            else:
-                return CanSignalDatatype.INT
-        else:
-            return CanSignalDatatype.FLOAT
-
-    def datatype(self):
-        """
-        The name the datatype this signal should be stored as (specific to C).
-        """
-        if self.enum:
-            return self.enum.name
-        elif (
-            self.min_val == 0
-            and self.max_val == 1
-            and self.scale == 1
-            and self.offset == 0
-        ):
-            return CanSignalDatatype.BOOL
-        elif self.represent_as_integer():
-            if self.min_val >= 0:
-                return CanSignalDatatype.UINT
-            else:
-                return CanSignalDatatype.INT
-        else:
-            return CanSignalDatatype.FLOAT
-
-    def snake_name(self):
-        return pascal_to_snake_case(self.name)
-
-    def scremming_snake_name(self):
-        return pascal_to_screaming_snake_case(self.name)
-
-    def start_val_macro(self):
-        return f"CANSIG_{self.snake_name().upper()}_START_VAL"
-
-    def max_val_macro(self):
-        return f"CANSIG_{self.snake_name().upper()}_MAX_VAL"
-
-    def min_val_macro(self):
-        return f"CANSIG_{self.snake_name().upper()}_MIN_VAL"
-
-    def scale_macro(self):
-        return f"CANSIG_{self.snake_name().upper()}_SCALE"
-
-    def offset_macro(self):
-        return f"CANSIG_{self.snake_name().upper()}_OFFSET"
-
-    def __str__(self):
-        return self.name
-
-    def __hash__(self):
-        return hash(self.name)
 
 
 @dataclass(frozen=True)
@@ -255,21 +98,74 @@ class CanMessage:
     def snake_name(self):
         return pascal_to_snake_case(self.name)
 
-    def scremming_snake_name(self):
+    def screaming_snake_name(self):
         return pascal_to_screaming_snake_case(self.name)
 
     # type of the message
-    def c_type(self):
+    def c_type(self) -> str:
         return self.name + "_Signals"
 
-    def id_macro(self):
+    def id_macro(self) -> str:
         return f"CAN_MSG_{self.snake_name().upper()}_ID"
 
-    def cycle_time_macro(self):
+    def cycle_time_macro(self) -> str:
         return f"CAN_MSG_{self.snake_name().upper()}_CYCLE_TIME_MS"
 
-    def dlc_macro(self):
+    def dlc_macro(self) -> str:
         return f"CAN_MSG_{self.snake_name().upper()}_DLC"
+
+    def build_cantools_message(self) -> CanToolsMessage:
+        return CanToolsMessage(
+            frame_id=self.id, name=self.name, length=self.dlc(),
+            signals=[CanToolSignal(
+                name=signal.name, start=signal.start_bit, length=signal.bits,
+                is_signed=signal.signed, minimum=signal.min_val, maximum=signal.max_val,
+                unit=signal.unit
+            ) for signal in self.signals]
+        )
+
+    def unpack(self, data: bytes) -> List[DecodedSignal]:
+        """
+        Unpack a CAN dataframe.
+        Returns a list of decoded signals as `DecodedSignal` objects.
+
+        TODO: Also add packing!
+        """
+        decoded_signals: List[DecodedSignal] = []
+        data_uint = int.from_bytes(data, byteorder="little", signed=False)
+
+        for signal in self.signals:
+            # Extract the bits representing the current signal.
+            data_shifted = data_uint >> signal.start_bit
+            bitmask = (1 << signal.bits) - 1
+            raw_value = data_shifted & bitmask
+
+            # Handle signed values via 2's complement
+            if signal.signed and (raw_value & (1 << (signal.bits - 1))):
+                raw_value = raw_value - (1 << signal.bits)
+
+            # Apply scale and offset
+            scaled_value = raw_value * signal.scale + signal.offset
+
+            # Initialize decoded signal
+            decoded = DecodedSignal(name=signal.name, value=scaled_value)
+
+            if signal.unit:
+                decoded.unit = signal.unit
+
+            if signal.enum:
+                enum_label = signal.enum.items.get(int(scaled_value))
+                if enum_label is None:
+                    logger.warning( f"Signal value '{scaled_value}' not found in enum '{signal.enum.name}' for signal '{signal.name}'.")
+                    continue
+                decoded.label = enum_label
+            decoded_signals.append(decoded)
+
+        return decoded_signals
+
+    def pack(self, data: EncodeInputType) -> bytes:
+        ctm = self.build_cantools_message()
+        return ctm.encode(data)
 
     def __str__(self):
         return self.name
@@ -300,7 +196,7 @@ class CanAlert:
     description: str
 
 
-class All:
+class AllRxMsgs:
     pass
 
 
@@ -314,13 +210,13 @@ class CanNode:
     name: str  # Name of this CAN node
     # busses which the node is attached to, foreign key into CanDatabase.msgs
     bus_names: List[str]
-    rx_msgs_names: Set[str] | All  # list of messages that it is listening
+    rx_msgs_names: Set[str] | AllRxMsgs  # list of messages that it is listening
     fd: bool
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.name)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
@@ -361,6 +257,8 @@ class CanDatabase:
     enums: Dict[str, CanEnum]  # enums[enum_name] gives metadata for enum_name
     # collects_data[node_name] is true if this node collects data
     collects_data: Dict[str, bool]
+    # signals_to_msgs[signal_name] gives the message that contains the signal
+    signals_to_msgs: Dict[str, CanMessage]
 
     # this must be global state rather than local (node) state as the common usecase is navigation
     # which requires global information

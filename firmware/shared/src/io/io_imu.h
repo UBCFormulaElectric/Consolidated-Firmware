@@ -1,5 +1,4 @@
 #pragma once
-
 #include <stdbool.h>
 #ifdef TARGET_EMBEDDED
 #include "hw_i2c.h"
@@ -15,6 +14,7 @@ typedef struct
     float            roll_offset;
 } imuConfig;
 #else
+#include "util_errorCodes.h"
 #include "app_utils.h"
 EMPTY_STRUCT(imuConfig)
 #endif
@@ -67,3 +67,10 @@ ExitCode io_imu_getAngularVelocityPitch(float *pitch_velocity);
  * @return True if the read is successful, false otherwise
  */
 ExitCode io_imu_getAngularVelocityYaw(float *yaw_velocity);
+
+/**
+ * @brief Gets the Fault status of the IMU due to
+ * initialization or transactions
+ * @return True if IMU has faulted
+ */
+bool io_imu_getFaultStatus();

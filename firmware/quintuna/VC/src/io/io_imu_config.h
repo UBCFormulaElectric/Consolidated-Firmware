@@ -14,4 +14,14 @@ typedef struct
     float roll_rate;
 } ImuData;
 
+typedef struct
+{
+    ExitCode long_accel_fault;
+    ExitCode lat_accel_fault;
+    ExitCode z_accel_fault;
+    ExitCode yaw_rate_fault;
+    ExitCode pitch_rate_fault;
+    ExitCode roll_rate_fault;
+} ImuFaults;
+
 extern const imuConfig imu_config;

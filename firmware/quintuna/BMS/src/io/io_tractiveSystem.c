@@ -1,6 +1,8 @@
 #include "io_tractiveSystem.h"
 #include "hw_adcs.h"
+#include "hw_gpios.h"
 #include "hw_hal.h"
+#include "hw_gpios.h"
 #include <assert.h>
 #include <math.h>
 
@@ -31,15 +33,15 @@
 
 // Current Sensor error calibration parameters (based on experimental data)
 // TODO: Rerun sensor calibration with new mounting
-#define OUTPUT1_DISCHARGING_ERROR_SLOPE (0.0f)
-#define OUTPUT1_DISCHARGING_ERROR_OFFSET (0.0f)
-#define OUTPUT1_CHARGING_ERROR_SLOPE (0.0f)
-#define OUTPUT1_CHARGING_ERROR_OFFSET (0.0f)
+#define OUTPUT1_DISCHARGING_ERROR_SLOPE (0.5028f)
+#define OUTPUT1_DISCHARGING_ERROR_OFFSET (-0.0894f)
+#define OUTPUT1_CHARGING_ERROR_SLOPE (0.5045f)
+#define OUTPUT1_CHARGING_ERROR_OFFSET (-0.2677f)
 
-#define OUTPUT2_DISCHARGING_ERROR_SLOPE (0.0f)
-#define OUTPUT2_DISCHARGING_ERROR_OFFSET (0.0f)
-#define OUTPUT2_CHARGING_ERROR_SLOPE (0.0f)
-#define OUTPUT2_CHARGING_ERROR_OFFSET (0.0f)
+#define OUTPUT2_DISCHARGING_ERROR_SLOPE (0.2417f)
+#define OUTPUT2_DISCHARGING_ERROR_OFFSET (2.3634f)
+#define OUTPUT2_CHARGING_ERROR_SLOPE (0.2324f)
+#define OUTPUT2_CHARGING_ERROR_OFFSET (2.4038f)
 
 float io_tractiveSystem_getVoltage(void)
 {
@@ -186,4 +188,14 @@ float io_tractiveSystem_getCurrentLowResolution(void)
     }
 
     return -(low_res_current + low_res_curr_calibration);
+}
+
+bool io_tractiveSystem_getVoltageSnsDiagState(void)
+{
+    return hw_gpio_readPin(&diag_ts_pin);
+}
+
+bool io_tractiveSystem_getCurrentSnsDiagState(void)
+{
+    return hw_gpio_readPin(&ts_isense_ocsc_ok_pin);
 }

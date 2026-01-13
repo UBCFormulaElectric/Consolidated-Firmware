@@ -34,13 +34,14 @@ void app_yawRateController_computeRefYawRate(YawRateController *yrc)
      *
      * r_ref = (vehicle_velocity * wheel_angle) / (wheel_base + ku * vehicle_velocity^2)
      */
+    // TODO: add clamp in here to prevent steering out of range being an issue
     ref_yaw_rate_rad = (yrc->vehicle_velocity_mps * yrc->wheel_angle_rad) /
                        ((WHEELBASE_mm * MM_TO_M) + (yrc->ku * SQUARE(yrc->vehicle_velocity_mps)));
 }
 
 void app_yawRateController_pidCompute(YawRateController *yrc)
 {
-    yaw_moment = app_pid_compute(yrc->pid, ref_yaw_rate_rad, yrc->real_yaw_rate_rad);
+    yaw_moment = app_pid_compute(yrc->pid, ref_yaw_rate_rad, yrc->real_yaw_rate_rad, 0.0f);
 }
 
 void app_yawRateController_run(YawRateController *yrc)

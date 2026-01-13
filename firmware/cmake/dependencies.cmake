@@ -40,6 +40,15 @@ IF ("${TARGET}" STREQUAL "binary")
             DOWNLOAD_ONLY TRUE
     )
 
+    # STM32H5Cube firmware package: Contains STM32 HAL drivers and FreeRTOS with the CMSIS-RTOS v2 API.
+    CPMAddPackage(
+            NAME STM32CUBEH5
+            GITHUB_REPOSITORY UBCFormulaElectric/STM32CubeH5
+            GIT_TAG d02f23d1a88c733635d28842c4e4b5549a7ad333
+            GIT_SHALLOW TRUE
+            DOWNLOAD_ONLY TRUE
+    )
+
     # SEGGER SystemView for RTT Logging and SystemView profiling
     CPMAddPackage(
             NAME SEGGER_SYSTEMVIEW

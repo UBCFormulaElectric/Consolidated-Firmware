@@ -91,7 +91,8 @@ void io_canLogging_recordMsgFromQueue(void)
 
     // Assert here since we pass "wait forever" for a message. So it'll only fail if we've configured something wrong.
     CanMsg msg = { 0 };
-    assert(osMessageQueueGet(message_queue_id, &msg, NULL, osWaitForever) == osOK);
+    const osStatus_t message_queue_status = osMessageQueueGet(message_queue_id, &msg, NULL, osWaitForever);
+    assert(message_queue_status == osOK);
 
     // Message log payload:
     // 1. Magic number 0xBA (1 byte)

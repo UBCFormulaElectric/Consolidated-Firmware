@@ -2,8 +2,9 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "app_utils.h"
 #include "main.h"
+#include "util_errorCodes.h"
+#include "cmsis_os.h"
 
 typedef struct
 {

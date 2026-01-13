@@ -49,7 +49,7 @@
   },
   "LatchStatus": {
     "msg_id": 410,
-    "cycle_time": 100,
+    "cycle_time": 10,
     "description": "Latched faults for the BMS",
     "signals": {
       "BmsCurrentlyOk": {
@@ -74,7 +74,7 @@
   },
   "Contactors": {
     "msg_id": 411,
-    "cycle_time": 100,
+    "cycle_time": 10,
     "description": "BMS IR state statuses",
     "signals": {
       "IrPositive": {
@@ -93,8 +93,8 @@
     "cycle_time": 100,
     "description": "Charger infomation for the BMS to broadcast to other boards",
     "signals": {
-      "ChargerConnected": {
-        "bits": 1
+      "ChargerConnectedType": {
+        "enum": "ChargerConnectedType"
       },
       "ChargingDone": {
         "bits": 1
@@ -106,7 +106,7 @@
   },
   "TractiveSystem": {
     "msg_id": 412,
-    "cycle_time": 100,
+    "cycle_time": 10,
     "description": "BMS Tractive System Data",
     "signals": {
       "TractiveSystemVoltage": {
@@ -117,12 +117,14 @@
       },
       "TractiveSystemCurrent": {
         "resolution": 0.1,
+        "signed": true,
         "min": -300,
         "max": 300,
         "unit": "A"
       },
       "TractiveSystemPower": {
         "resolution": 0.1,
+        "signed": true,
         "min": -100,
         "max": 100,
         "unit": "kW"
@@ -133,7 +135,26 @@
         "max": 100000,
         "unit": "W"
       },
+      "CurrentSensorOk": {
+        "bits": 1
+      },
+      "VoltageSensorOk": {
+        "bits": 1
+      }
+    }
+  },
+  "BSPDStatus": {
+    "msg_id": 414,
+    "cycle_time": 10,
+    "description": "BSPD Status",
+    "signals": {
+      "BSPDBrakePressureThresholdExceeded": {
+        "bits": 1
+      },
       "BSPDCurrentThresholdExceeded": {
+        "bits": 1
+      },
+      "BSPDAccelBrakeOk": {
         "bits": 1
       }
     }
@@ -188,7 +209,7 @@
   },
   "ImdStatus": {
     "msg_id": 452,
-    "cycle_time": 100,
+    "cycle_time": 10,
     "description": "BMS IMD Messages",
     "signals": {
       "ImdOkHs": {
@@ -247,17 +268,36 @@
       }
     }
   },
-  "CellVoltageStats": {
+  "PowerLimit": {
+    "msg_id": 122,
+    "cycle_time": 10,
+    "description": "BMS Power Limit",
+    "signals": {
+      "ChargePowerLimit": {
+        "resolution": 1,
+        "min": 0,
+        "max": 100000,
+        "unit": "W"
+      },
+      "DischargePowerLimit": {
+        "resolution": 1,
+        "min": 0,
+        "max": 100000,
+        "unit": "W"
+      },
+      "ChargePowerLimitCondition": {
+        "enum": "ChargePowerLimitCondition"
+      },
+      "DischargePowerLimitCondition": {
+        "enum": "DischargePowerLimitCondition"
+      }
+    }
+  },
+  "CellVoltageStats_1": {
     "msg_id": 459,
     "cycle_time": 1000,
     "description": "BMS cell voltage stats",
     "signals": {
-      "PackVoltage": {
-        "resolution": 0.01,
-        "min": 0,
-        "max": 650,
-        "unit": "V"
-      },
       "AvgCellVoltage": {
         "resolution": 0.001,
         "min": 0,
@@ -279,6 +319,19 @@
         "resolution": 1,
         "min": 0,
         "max": 13
+      }
+    }
+  },
+  "CellVoltageStats_2": {
+    "msg_id": 469,
+    "cycle_time": 1000,
+    "description": "BMS cell voltage stats",
+    "signals": {
+      "PackVoltage": {
+        "resolution": 0.01,
+        "min": 100,
+        "max": 650,
+        "unit": "V"
       },
       "MaxCellVoltage": {
         "resolution": 0.001,
@@ -3288,6 +3341,16 @@
         "bits": 1
       },
       "HVNShdnOKStatus": {
+        "bits": 1
+      }
+    }
+  },
+  "OpenWireCheck": {
+    "msg_id": 477,
+    "cycle_time": 100,
+    "description": "Open wire check status",
+    "signals": {
+      "OpenWireCheckStatus": {
         "bits": 1
       }
     }

@@ -10,13 +10,13 @@
 #include "app_steering.h"
 #include "app_shdnLoop.h"
 #include "app_suspension.h"
+#include "app_utils.h"
 // io
 #include "io_time.h"
 #include "io_canTx.h"
 #include "io_canQueue.h"
 #include "io_imu.h"
 #include "io_log.h"
-#include "app_jsoncan.h"
 
 CanTxQueue can_tx_queue;
 
@@ -35,9 +35,7 @@ void jobs_init(void)
     io_canQueue_initTx(&can_tx_queue);
     app_canTx_init();
     app_canRx_init();
-
-    LOG_ERROR_IF(io_imu_init());
-
+    LOG_IF_ERR(io_imu_init());
     app_apps_init();
 
     app_canTx_FSM_Hash_set(GIT_COMMIT_HASH);

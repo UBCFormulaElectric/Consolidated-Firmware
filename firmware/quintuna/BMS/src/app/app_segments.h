@@ -1,5 +1,6 @@
 #pragma once
 #include "io_ltc6813.h"
+#include <stdbool.h>
 
 /**
  * @file segments/app_segments_configs.c
@@ -156,6 +157,24 @@ void app_segments_broadcastTempStats(void);
 /**
  * @file segments/app_segments_faults.c
  */
+
+#define MAX_CELL_VOLTAGE_WARNING_V (4.17f)
+#define MIN_CELL_VOLTAGE_WARNING_V (2.7f)
+#define MAX_CELL_TEMP_WARNING_V (59.0f)
+
+#define OVER_VOLTAGE_DEBOUNCE_WARNING_MS (1000)
+#define UNDER_VOLTAGE_DEBOUNCE_WARNING_MS (1000)
+#define OVER_TEMP_DEBOUNCE_WARNING_MS (1000)
+#define COMM_ERR_DEBOUNCE_WARNING_MS (1000)
+
+#define MAX_CELL_VOLTAGE_FAULT_V (4.2f)
+#define MIN_CELL_VOLTAGE_FAULT_V (2.5f)
+#define MAX_CELL_TEMP_FAULT_V (60.0f)
+
+#define OVER_VOLTAGE_DEBOUNCE_FAULT_MS (3000)
+#define UNDER_VOLTAGE_DEBOUNCE_FAULT_MS (3000)
+#define OVER_TEMP_DEBOUNCE_FAULT_MS (3000)
+#define COMM_ERR_DEBOUNCE_FAULT_MS (3000)
 
 /**
  * Init faults module (init debounce timers).
