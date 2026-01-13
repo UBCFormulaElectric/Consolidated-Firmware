@@ -1,0 +1,182 @@
+{
+  "BasicSignalTypes": {
+    "msg_id": 106,
+    "cycle_time": 1000,
+    "description": "N/A",
+    "signals": {
+      "Boolean1": {
+        "bits": 1
+      },
+      "Boolean2": {
+        "bits": 1
+      },
+      "Enum": {
+        "enum": "EnumExample"
+      },
+      "UInt8": {
+        "bits": 8
+      },
+      "UInt16": {
+        "bits": 16
+      },
+      "UInt32": {
+        "bits": 32
+      }
+    },
+    "data_capture": {
+      "log_cycle_time": 100,
+      "telem_cycle_time": 1000
+    }
+  },
+  "DecimalNumbers": {
+    "msg_id": 107,
+    "cycle_time": 1000,
+    "description": "N/A",
+    "signals": {
+      "Decimal1": {
+        "resolution": 0.1,
+        "min": -100,
+        "max": 100
+      },
+      "Decimal2": {
+        "resolution": 0.01,
+        "min": 2,
+        "max": 3
+      }
+    },
+    "data_capture": {
+      "log_cycle_time": 1000,
+      "telem_cycle_time": 1000
+    }
+  },
+  "DbcMatching": {
+    "msg_id": 108,
+    "cycle_time": 1000,
+    "description": "N/A",
+    "signals": {
+      "DbcMatchingTemp": {
+        "start_bit": 0,
+        "bits": 16,
+        "signed": true,
+        "scale": 0.1,
+        "offset": 0,
+        "min": -3276.8,
+        "max": 3276.7,
+        "unit": "degC"
+      },
+      "DbcMatchingRpm": {
+        "start_bit": 32,
+        "bits": 16,
+        "signed": true,
+        "scale": 1,
+        "offset": 0,
+        "min": -32768,
+        "max": 32767,
+        "unit": "rpm"
+      }
+    },
+    "data_capture": {
+      "log_cycle_time": 1000,
+      "telem_cycle_time": 1000
+    }
+  },
+  "MinMaxClamping": {
+    "msg_id": 109,
+    "cycle_time": 1000,
+    "description": "N/A",
+    "signals": {
+      "ClampDecimal": {
+        "resolution": 0.1,
+        "min": -100,
+        "max": 100
+      },
+      "ClampInt": {
+        "min": 100,
+        "max": 200,
+        "resolution": 1
+      },
+      "ClampEnum": {
+        "enum": "EnumExample"
+      },
+      "ClampBoolean": {
+        "bits": 1
+      }
+    },
+    "data_capture": {
+      "log_cycle_time": 1000,
+      "telem_cycle_time": 1000
+    }
+  },
+  "Debug_Only": {
+    "msg_id": 110,
+    "cycle_time": 1000,
+    "description": "N/A",
+    "allowed_modes": [
+      "debug"
+    ],
+    "signals": {
+      "DebugOnlySignal": {
+        "bits": 8
+      }
+    }
+  },
+  "LongMessage": {
+    "msg_id": 111,
+    "cycle_time": 1000,
+    "description": "N/A",
+    "signals": {
+      "Int1": {
+        "bits": 32
+      },
+      "Int2": {
+        "bits": 32
+      },
+      "Int3": {
+        "bits": 32
+      },
+      "Int4": {
+        "bits": 32
+      },
+      "Int5": {
+        "bits": 32
+      },
+      "Int6": {
+        "bits": 32
+      },
+      "Int7": {
+        "bits": 32
+      },
+      "Int8": {
+        "bits": 32
+      },
+      "Int9": {
+        "bits": 32
+      },
+      "Int10": {
+        "bits": 32
+      },
+      "Int11": {
+        "bits": 32
+      },
+      "Int12": {
+        "bits": 32
+      },
+      "Int13": {
+        "bits": 32
+      },
+      "Int14": {
+        "bits": 32
+      },
+      "Int15": {
+        "bits": 32
+      },
+      "Int16": {
+        "bits": 32
+      }
+    },
+    "data_capture": {
+      "log_cycle_time": 1000,
+      "telem_cycle_time": 1000
+    }
+  }
+}
