@@ -65,19 +65,23 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
     const scrollLeftRef = useRef<number>(0);
     const timeRangeRef = useRef<TimeRange | null>(null);
 
+    const offsetRef = useRef<number>(0);
+
     // zoom management (attach wheel listener to the scroll container)
     const scalePxPerSec = useZoomManager(scrollContainerRef);
     const scalePxPerSecRef = useRef<number>(scalePxPerSec);
 
     const updateGraphWidth = useCallback(() => {
         const tr = timeRangeRef.current;
-        if (contentRef.current && tr) {
+        const container = scrollContainerRef.current;
+        if (contentRef.current && tr && container) {
             const width = scalePxPerSecRef.current * (tr.max - tr.min) + RIGHT_PAD; // extra padding by 1min
+            const containerWidth = container.clientWidth;
 
-            console.log(width - RIGHT_PAD);
+            scrollLeftRef.current = (width - RIGHT_PAD - 50 > containerWidth) ? width - RIGHT_PAD + 50 - containerWidth : 0;
+            offsetRef.current = scrollLeftRef.current;
 
-            scrollLeftRef.current = (width - RIGHT_PAD - 30 > innerWidth) ? width - RIGHT_PAD - 30 - innerWidth : 0;
-
+            container.scrollLeft = scrollLeftRef.current;
             contentRef.current.style.width = `${width}px`;
         }
     }, []);
@@ -93,9 +97,6 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
         const current = timeRangeRef.current;
         if (!current || current.min !== tr.min || current.max !== tr.max) {
             timeRangeRef.current = tr;
-
-
-
             updateGraphWidth();
         }
     }, [updateGraphWidth]);
@@ -108,6 +109,8 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
 
         const handleScroll = () => {
             if (!isPaused) return;
+            console.log("scrollLeft", container.scrollLeft, "scrollLeftRef", scrollLeftRef.current, "offset", offsetRef.current);
+            // scrollLeftRef.current = container.scrollLeft + offsetRef.current;
             scrollLeftRef.current = container.scrollLeft;
         };
 

@@ -169,7 +169,6 @@ export default function CanvasChart({
     }, [data]);
 
     useEffect(() => {
-        console.log("called useEffect");
         const canvas = canvasRef.current;
         if (!canvas) return;
         const context = canvas.getContext("2d");
