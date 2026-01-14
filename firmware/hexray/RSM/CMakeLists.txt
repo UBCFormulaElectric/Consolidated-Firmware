@@ -2,7 +2,10 @@ message("")
 message("⚙️ Configuring RSM (Hexray)")
 
 file(GLOB CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
-set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
+set(CUBEMX_INCLUDE_DIRS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
+)
 
 set(JOBS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/jobs.cpp")
 set(TASKS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.cpp")
@@ -30,7 +33,9 @@ set(IO_INCLUDE_DIRS
         "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_DIR_CPP}"
 )
 list(APPEND HW_SRCS
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_i2c.cpp")
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_i2c.cpp"
+        "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
+)
 set(HW_INCLUDE_DIRS
         #        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
         "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR_CPP}"
