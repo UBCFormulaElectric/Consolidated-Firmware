@@ -2,6 +2,7 @@
 
 #include "util_errorCodes.hpp"
 #include <stdint.h>
+#include <span>
 
 namespace hw::usb
 {

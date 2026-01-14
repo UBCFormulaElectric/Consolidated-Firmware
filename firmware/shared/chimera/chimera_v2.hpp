@@ -33,7 +33,7 @@ namespace chimera_v2
 class config
 {
   public:
-    virtual ~config() = default;
+    virtual ~config() = 0;
 
 #ifdef HAL_GPIO_MODULE_ENABLED
   protected:
