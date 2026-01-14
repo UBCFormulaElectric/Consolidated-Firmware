@@ -15,7 +15,7 @@ static pb_byte_t out_buffer[OUT_BUFFER_SIZE];
 
 constexpr size_t MAX_PAYLOAD_SIZE = 64;
 
-namespace hw::chimera_v2
+namespace chimera_v2
 {
 bool enabled = false;
 
@@ -350,7 +350,7 @@ static bool handleContent(const config &c, uint8_t *content, uint16_t length)
     _LOG_PRINTF("\n");
 
     // Transmit.
-    if (IS_EXIT_ERR(usb::transmit({ response_packet, response_packet_size })))
+    if (IS_EXIT_ERR(hw::usb::transmit({ response_packet, response_packet_size })))
     {
         LOG_ERROR("Chimera: Error transmitting response packet.");
         error_occurred = true;
@@ -377,7 +377,7 @@ static void tick(const config &config)
     uint8_t length_bytes[2] = { 0, 0 };
     for (uint8_t idx = 0; idx < 2; idx++)
     {
-        if (IS_EXIT_ERR(usb::receive({ length_bytes, 1 }, USB_REQUEST_TIMEOUT_MS)))
+        if (IS_EXIT_ERR(hw::usb::receive({ length_bytes, 1 }, USB_REQUEST_TIMEOUT_MS)))
         {
             // If we don't receive length bytes, stop processing.
             return;
@@ -391,7 +391,7 @@ static void tick(const config &config)
 
     // Receive content.
     uint8_t content[64]; // TODO fix
-    if (IS_EXIT_ERR(usb::receive({ content, length }, USB_REQUEST_TIMEOUT_MS)))
+    if (IS_EXIT_ERR(hw::usb::receive({ content, length }, USB_REQUEST_TIMEOUT_MS)))
     {
         return;
     }
@@ -415,7 +415,7 @@ _Noreturn void task(const config &c)
     for (;;)
     {
         // block until USB connected is ok
-        usb::waitForConnected();
+        hw::usb::waitForConnected();
         LOG_INFO("[CHIMERA] USB CONNECTED!");
 
         // For some reason that makes no sense: When I was turning on the BMS after a power cycle,
@@ -424,7 +424,7 @@ _Noreturn void task(const config &c)
         // hw_chimera_v2_enabled = true;
 
         // Otherwise tick.
-        while (usb::connected())
+        while (hw::usb::connected())
         {
             tick(c);
         }
@@ -432,4 +432,4 @@ _Noreturn void task(const config &c)
         enabled = false;
     }
 }
-} // namespace hw::chimera_v2
+} // namespace chimera_v2

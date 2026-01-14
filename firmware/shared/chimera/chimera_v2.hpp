@@ -25,7 +25,7 @@ extern "C"
 #include "hw_spi.hpp"
 #endif
 
-namespace hw::chimera_v2
+namespace chimera_v2
 {
 // Configuration needed ro run chimera.
 // Exposes mappings from net names to peripherals,
@@ -42,7 +42,7 @@ class config
 
   public:
     // A table of Protobuf-generated net names to GPIO peripherals.
-    virtual std::optional<std::reference_wrapper<const Gpio>> id_to_gpio(const _GpioNetName *gnn) const;
+    virtual std::optional<std::reference_wrapper<const hw::Gpio>> id_to_gpio(const _GpioNetName *gnn) const;
 #endif
 
 #ifdef HAL_ADC_MODULE_ENABLED
@@ -63,7 +63,7 @@ class config
   public:
     // A table of Protobuf-generated net names to I2C peripherals.
     // virtual const hw::i2c::I2CDevice &id_to_i2c();
-    virtual std::optional<std::reference_wrapper<const i2c::I2CDevice>> id_to_i2c(const _I2cNetName *inn) const;
+    virtual std::optional<std::reference_wrapper<const hw::i2c::I2CDevice>> id_to_i2c(const _I2cNetName *inn) const;
 #endif
 
 #ifdef HAL_SPI_MODULE_ENABLED
@@ -87,4 +87,4 @@ extern bool enabled;
  * @param c Collection of protobuf enum to peripheral tables and net name tags.
  */
 _Noreturn void task(const config &c);
-} // namespace hw::chimera_v2
+} // namespace chimera_v2
