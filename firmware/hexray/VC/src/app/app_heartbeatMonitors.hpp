@@ -2,7 +2,8 @@
 #include <cstdint>
 #include <cstddef>
 #include "app_heartbeatMonitor.h"
-namespace vc::app::faultHandling {
+
+namespace vc::app::heartbeat_monitors {
 class HeartbeatMonitor{
     public: 
     constexpr explicit HeartbeatBoard(const char *name, bool *getter, void *resetter, void *fault_setter, 
@@ -23,4 +24,5 @@ class HeartbeatMonitor{
 
 }
 //extern const HeartbeatMonitor hb_monitor;
-} // namespace vc::app::faultHandling
+
+} // namespace vc::app::heartbeat_monitors
