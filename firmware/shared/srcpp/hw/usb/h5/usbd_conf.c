@@ -1,7 +1,10 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "stm32h5xx_hal.h"
+#include "stm32h5xx_hal_pcd.h"
 #include "usbd_core.h"
 #include "usbd_cdc.h"
+#include "hw_usb.h"
 
 extern PCD_HandleTypeDef hpcd_USB_DRD_FS;
 
@@ -35,6 +38,23 @@ void HAL_PCD_ResetCallback(PCD_HandleTypeDef *hpcd)
     USBD_LL_SetSpeed((USBD_HandleTypeDef *)hpcd->pData, speed);
     /* Reset Device. */
     USBD_LL_Reset((USBD_HandleTypeDef *)hpcd->pData);
+}
+void HAL_PCD_SuspendCallback(PCD_HandleTypeDef *hpcd)
+{
+    USBD_LL_Suspend((USBD_HandleTypeDef *)hpcd->pData);
+    #ifdef __HAL_PCD_GATE_PHYCLOCK
+    __HAL_PCD_GATE_PHYCLOCK(hpcd);
+    #endif
+    hw_usb_disconnect_callback();
+    if (hpcd->Init.low_power_enable)
+    {
+        SCB->SCR |= (uint32_t)(SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk);
+    }
+}
+void HAL_PCD_ResumeCallback(PCD_HandleTypeDef *hpcd)
+{
+    hw_usb_connect_callback();
+    USBD_LL_Resume((USBD_HandleTypeDef *)hpcd->pData);
 }
 void HAL_PCD_ConnectCallback(PCD_HandleTypeDef *hpcd)
 {

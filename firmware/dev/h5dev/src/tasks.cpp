@@ -24,7 +24,7 @@ void tasks_preInit()
 void tasks_init()
 {
     SEGGER_SYSVIEW_Conf();
-    LOG_INFO("h5dev reset!");
+    //LOG_INFO("h5dev reset!"); 
 
 #ifndef WATCHDOG_DISABLED
     __HAL_DBGMCU_FREEZE_IWDG();
@@ -37,10 +37,10 @@ void tasks_init()
     // LOG_IF_ERR(hw_usb_init());
 
     // Check for watchdog timeout on a previous boot cycle.
-    if (const ResetReason reset_reason = hw_resetReason_get(); reset_reason == RESET_REASON_WATCHDOG)
+    /*if (const ResetReason reset_reason = hw_resetReason_get(); reset_reason == RESET_REASON_WATCHDOG)
     {
         LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
-    }
+    } */
 
     if (BootRequest boot_request = hw_bootup_getBootRequest(); boot_request.context != BOOT_CONTEXT_NONE)
     {

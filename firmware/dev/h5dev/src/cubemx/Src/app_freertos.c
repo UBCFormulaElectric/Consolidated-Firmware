@@ -113,7 +113,6 @@ void StartDefaultTask(void *argument)
 {
     /* USER CODE BEGIN TaskDefault */
     uint8_t rx_byte = 0;
-    const uint8_t hello_msg[] = "h5dev cdc ok\r\n";
     bool usb_was_configured = false;
     /* Infinite loop */
     for (;;)
@@ -121,25 +120,21 @@ void StartDefaultTask(void *argument)
         const bool usb_configured = hw_usb_checkConnection();
         if (usb_configured && !usb_was_configured)
         {
-            LOG_INFO("USB configured");
+            LOG_INFO("usb configured :)");
         }
-        else if (!usb_configured && usb_was_configured)
-        {
-            LOG_WARN("USB disconnected");
-        }
+
         usb_was_configured = usb_configured;
 
         if (usb_configured)
         {
-            HAL_GPIO_TogglePin(BOOT_GPIO_Port, BOOT_Pin);
-            const uint16_t hello_len = (uint16_t)(sizeof(hello_msg) - 1U);
-            const ExitCode tx_status = hw_usb_transmit((uint8_t *)hello_msg, hello_len);
-            LOG_INFO("USB TX hello status=%d len=%u", (int)tx_status, (unsigned)hello_len);
-            if (IS_EXIT_OK(hw_usb_receive(&rx_byte, 10)))
+            if (IS_EXIT_OK(hw_usb_receive(&rx_byte, 500)))
             {
                 (void)hw_usb_transmit(&rx_byte, 1);
-                LOG_INFO("USB RX byte=0x%02X", (unsigned)rx_byte);
+                LOG_INFO("usb rx byte = 0x%02X", (unsigned)rx_byte);
+                HAL_GPIO_WritePin(BOOT_GPIO_Port, BOOT_Pin, GPIO_PIN_SET);
             }
+            osDelay(1000);
+            HAL_GPIO_WritePin(BOOT_GPIO_Port, BOOT_Pin, GPIO_PIN_RESET);
             osDelay(500);
         }
         else
