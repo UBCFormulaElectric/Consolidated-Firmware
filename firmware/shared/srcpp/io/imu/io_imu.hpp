@@ -127,6 +127,14 @@ class Imu
         }
     };
 
+    /**
+     * TODO: ADD Fifo after research
+     * Considering polling 3 IMUs secquentially:
+     * 
+     * So far it seems like 2000Hz ODR produces optimal phase delay (~1.47ms)
+     * Number of bytes to poll in total = 720 bytes
+     * RAM Buffer size 240 Bytes < MAX SPI BUFFER SIZE
+     */
     enum class FifoSize : uint8_t
     {
         SIZE_512B = 0x0U,
@@ -218,7 +226,7 @@ class Imu
     static constexpr float temp_scale = 326.8f;
 
     ImuFilterConfig filter_config;
-    ImuFifoConfig   fifo_config;
+    // ImuFifoConfig   fifo_config;
     bool            is_imu_ready = false;
 
     inline constexpr float translateAccelData(uint8_t data_h, uint8_t data_l)
@@ -243,8 +251,8 @@ class Imu
 
   public:
     #ifdef TARGET_EMBEDDED
-    constexpr explicit Imu(hw::spi::SpiDevice &in_imu_spi_handle, ImuFilterConfig &in_filter_config, ImuFifoConfig &in_fifo_config)
-      : imu_spi_handle(in_imu_spi_handle), filter_config(in_filter_config), fifo_config(in_fifo_config)
+    constexpr explicit Imu(hw::spi::SpiDevice &in_imu_spi_handle, ImuFilterConfig &in_filter_config)
+      : imu_spi_handle(in_imu_spi_handle), filter_config(in_filter_config)
     {
     }
     constexpr explicit Imu(hw::spi::SpiDevice &in_imu_spi_handle) : imu_spi_handle(in_imu_spi_handle) {}

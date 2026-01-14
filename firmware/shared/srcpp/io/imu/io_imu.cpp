@@ -1,8 +1,7 @@
-#include "io_imu.hpp"
+#include <array>
 
-#ifdef TARGET_EMBEDDED
+#include "io_imu.hpp"
 #include "io_imu_config.hpp"
-#endif
 
 namespace io::imu
 {
@@ -136,22 +135,23 @@ ExitCode Imu::init()
     }
 
     // Fifo Config
-    if (fifo_config.enableFifo())
-    {
-        assert(filter_config.getAccelOdrHz() == filter_config.getGyroOdrHz());
+    // TODO: Add Fifo after research
+    // if (fifo_config.enableFifo())
+    // {
+    //     assert(filter_config.getAccelOdrHz() == filter_config.getGyroOdrHz());
         
-        // Enable fifos
-        user_ctrl.FIFO_EN = static_cast<uint8_t>(fifo_config.enableFifo()) & 0x01;
-        fifo_en.ACCEL_FIFO_EN = static_cast<uint8_t>(fifo_config.enable_accel_fifo) & 0x01;
-        fifo_en.XG_FIFO_EN = static_cast<uint8_t>(fifo_config.enable_gyro_x_fifo) & 0x01;
-        fifo_en.YG_FIFO_EN = static_cast<uint8_t>(fifo_config.enable_gyro_y_fifo) & 0x01;
-        fifo_en.ZG_FIFO_EN = static_cast<uint8_t>(fifo_config.enable_gyro_z_fifo) & 0x01;
+    //     // Enable fifos
+    //     user_ctrl.FIFO_EN = static_cast<uint8_t>(fifo_config.enableFifo()) & 0x01;
+    //     fifo_en.ACCEL_FIFO_EN = static_cast<uint8_t>(fifo_config.enable_accel_fifo) & 0x01;
+    //     fifo_en.XG_FIFO_EN = static_cast<uint8_t>(fifo_config.enable_gyro_x_fifo) & 0x01;
+    //     fifo_en.YG_FIFO_EN = static_cast<uint8_t>(fifo_config.enable_gyro_y_fifo) & 0x01;
+    //     fifo_en.ZG_FIFO_EN = static_cast<uint8_t>(fifo_config.enable_gyro_z_fifo) & 0x01;
 
-        // Configure Fifo
-        config.FIFO_MODE = static_cast<uint8_t>(fifo_config.fifo_mode) & 0x01;
-        accel_config2.FIFO_SIZE = static_cast<uint8_t>(fifo_config.fifo_size) & 0x03;
-        int_enable.FIFO_OFLOW_INT_EN = static_cast<uint8_t>(fifo_config.fifo_overflow_int_enable) & 0x01;
-    }
+    //     // Configure Fifo
+    //     config.FIFO_MODE = static_cast<uint8_t>(fifo_config.fifo_mode) & 0x01;
+    //     accel_config2.FIFO_SIZE = static_cast<uint8_t>(fifo_config.fifo_size) & 0x03;
+    //     int_enable.FIFO_OFLOW_INT_EN = static_cast<uint8_t>(fifo_config.fifo_overflow_int_enable) & 0x01;
+    // }
 
     std::array<const uint8_t, 24> tx_config = {
         { WRITE_IMU_REG(SMPLRT_DIV),     std::bit_cast<uint8_t>(smplrt_div),
@@ -174,20 +174,20 @@ ExitCode Imu::init()
     return exit;
 }
 
-ExitCode Imu::getFifoCount(uint16_t &fifo_count)
-{
-    if (is_imu_ready == false)
-        return ExitCode::EXIT_CODE_ERROR;
+// ExitCode Imu::getFifoCount(uint16_t &fifo_count)
+// {
+//     if (is_imu_ready == false)
+//         return ExitCode::EXIT_CODE_ERROR;
     
-    std::array<const uint8_t, 1> tx {{ READ_IMU_REG(FIFO_COUNTH)}};
-    std::array<uint8_t, 2> rx{};
+//     std::array<const uint8_t, 1> tx {{ READ_IMU_REG(FIFO_COUNTH)}};
+//     std::array<uint8_t, 2> rx{};
 
-    ExitCode exit = imu_spi_handle.transmitThenReceive(tx, rx);
+//     ExitCode exit = imu_spi_handle.transmitThenReceive(tx, rx);
 
-    fifo_count = static_cast<uint16_t>(((rx[0] & FIFO_COUNTH_MASK) << 8) | rx[1]);
+//     fifo_count = static_cast<uint16_t>(((rx[0] & FIFO_COUNTH_MASK) << 8) | rx[1]);
 
-    return exit;
-}
+//     return exit;
+// }
 
 ExitCode Imu::getAccelX(float &accel_x)
 {
