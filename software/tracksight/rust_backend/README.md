@@ -8,8 +8,9 @@ todo for backend
 [x] queuing can messages to push to influx
 [x] switch to using tokio (?)
 [x] verify that serial messages can be processed
+[ ] processing jsoncan to read metadata - deserialize bytes
+[ ] implementing client subscription map
 [ ] interfacing with influxdb and pushing data through
-[ ] processing jsoncan to read metadata
 [ ] socket clients to publish data
 [ ] proper error handling in backend and using optimal threading or whatnot
 [ ] implementing api endpoints
