@@ -10,10 +10,6 @@ static hw::rtos::StaticTask<512>  Task1Hz(osPriorityAboveNormal, "Task1Hz", task
 static hw::rtos::StaticTask<512>  TaskChimera(osPriorityHigh, "TaskChimera", tasks_runChimera);
 
 void tasks_preInit() {}
-void tasks_init()
-{
-    jobs_init();
-}
 
 void tasks_run1Hz(void *arg)
 {
@@ -44,10 +40,18 @@ void tasks_runChimera(void *arg)
     forever {}
 }
 
-CFUNC void VC_StartAllTasks(void)
+void VC_StartAllTasks(void)
 {
     Task100Hz.start();
     Task1kHz.start();
     Task1Hz.start();
     TaskChimera.start();
+}
+
+CFUNC void tasks_init()
+{
+    jobs_init();
+    osKernelInitialize();
+    VC_StartAllTasks();
+    osKernelStart();
 }

@@ -43,19 +43,12 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* Definitions for defaultTask */
-osThreadId_t         defaultTaskHandle;
-const osThreadAttr_t defaultTask_attributes = {
-    .name       = "defaultTask",
-    .stack_size = 128 * 4,
-    .priority   = (osPriority_t)osPriorityNormal,
-};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-void StartDefaultTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -98,7 +91,6 @@ int main(void)
     /* USER CODE END 2 */
 
     /* Init scheduler */
-    osKernelInitialize();
 
     /* USER CODE BEGIN RTOS_MUTEX */
     /* add mutexes, ... */
@@ -110,6 +102,7 @@ int main(void)
 
     /* USER CODE BEGIN RTOS_TIMERS */
     /* start timers, add new ones, ... */
+    tasks_init();
     /* USER CODE END RTOS_TIMERS */
 
     /* USER CODE BEGIN RTOS_QUEUES */
@@ -118,10 +111,8 @@ int main(void)
 
     /* Create the thread(s) */
     /* creation of defaultTask */
-    defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
-    VC_StartAllTasks();
     /* USER CODE END RTOS_THREADS */
 
     /* USER CODE BEGIN RTOS_EVENTS */
@@ -129,7 +120,6 @@ int main(void)
     /* USER CODE END RTOS_EVENTS */
 
     /* Start scheduler */
-    osKernelStart();
 
     /* We should never get here as control is now taken by the scheduler */
 
@@ -206,16 +196,6 @@ void SystemClock_Config(void)
  * @retval None
  */
 /* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void *argument)
-{
-    /* USER CODE BEGIN 5 */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
-    /* USER CODE END 5 */
-}
 
 /**
  * @brief  This function is executed in case of error occurrence.

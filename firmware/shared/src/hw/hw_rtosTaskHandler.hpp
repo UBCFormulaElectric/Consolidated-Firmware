@@ -20,8 +20,7 @@ template <size_t StackWords> class StaticTask
         attr_.cb_size    = sizeof(cb_);
         attr_.stack_mem  = stack_;
         attr_.stack_size = StackWords * sizeof(uint32_t);
-        ;
-        attr_.priority = prio_;
+        attr_.priority   = prio_;
     }
 
     osThreadId_t start()

@@ -14,10 +14,6 @@ static hw::rtos::StaticTask<512>  TaskTelem(osPriorityHigh, "TaskTelem", tasks_r
 static hw::rtos::StaticTask<512>  TaskTelemRx(osPriorityHigh, "TaskTelemRx", tasks_runTelemRx);
 
 void tasks_preInit() {}
-void tasks_init()
-{
-    jobs_init();
-}
 
 void tasks_run1Hz(void *arg)
 {
@@ -80,7 +76,7 @@ void tasks_runCanRx(void *arg)
     }
 }
 
-CFUNC void DAM_StartAllTasks(void)
+void DAM_StartAllTasks(void)
 {
     Task100Hz.start();
     TaskCanTx.start();
@@ -90,4 +86,12 @@ CFUNC void DAM_StartAllTasks(void)
     TaskLogging.start();
     TaskTelem.start();
     TaskTelemRx.start();
+}
+
+CFUNC void tasks_init()
+{
+    jobs_init();
+    osKernelInitialize();
+    DAM_StartAllTasks();
+    osKernelStart();
 }

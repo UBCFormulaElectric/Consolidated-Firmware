@@ -12,10 +12,6 @@ static hw::rtos::StaticTask<512> TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_
 static hw::rtos::StaticTask<512> TaskChimera(osPriorityHigh, "TaskChimera", tasks_runChimera);
 
 void tasks_preInit() {}
-void tasks_init()
-{
-    jobs_init();
-}
 
 void tasks_run1Hz(void *arg)
 {
@@ -62,7 +58,8 @@ void tasks_runChimera(void *arg)
     }
 }
 
-CFUNC void FSM_StartAllTasks(void)
+// CFUNC void FSM_StartAllTasks(void)
+void FSM_StartAllTasks(void)
 {
     Task1kHz.start();
     Task100Hz.start();
@@ -70,4 +67,12 @@ CFUNC void FSM_StartAllTasks(void)
     TaskCanTx.start();
     TaskCanRx.start();
     TaskChimera.start();
+}
+
+CFUNC void tasks_init()
+{
+    jobs_init();
+    osKernelInitialize();
+    FSM_StartAllTasks();
+    osKernelStart();
 }
