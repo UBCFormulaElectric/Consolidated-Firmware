@@ -16,7 +16,7 @@ export default function LiveDataPage() {
     appendNumSignal,
     removeNumSignal,
     removeWidget,
-    updateMockConfig,
+    updateWidget,
     appendWidget
   } = useWidgetManager();
 
@@ -37,7 +37,7 @@ export default function LiveDataPage() {
             appendNumSignal={appendNumSignal}
             removeNumSignal={removeNumSignal}
             removeWidget={removeWidget}
-            updateMockConfig={updateMockConfig}
+            updateWidget={updateWidget}
             key={widgetData.id} />
           )}
           <WidgetAdder onAddWidget={appendWidget} />

@@ -4,9 +4,10 @@ import { useEffect, useState, useMemo, useRef, memo, FormEvent, useCallback } fr
 import CanvasChart, { AlignedData } from "@/components/widgets/CanvasChart";
 import { usePausePlay, PausePlayButton } from "@/components/PausePlayControl";
 import { PlusButton } from "@/components/PlusButton";
-import { MockGraphConfig, WidgetDataMock } from "@/lib/types/Widget";
+import { MockGraphConfig, WidgetDataMock, WidgetData } from "@/lib/types/Widget";
 import { signalColors } from "@/components/widgets/signalColors";
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
+import { SignalType } from "@/lib/types/Signal";
 
 enum MockSignalType {
   Numerical = "numerical",
@@ -31,11 +32,10 @@ const generateRandomValue = (
   }
 };
 
-const MockWidget = memo(({ widgetData, updateMockConfig, onDelete }:
+const MockWidget = memo(({ widgetData, updateWidget, onDelete }:
   {
-    widgetData: WidgetDataMock, updateMockConfig:
-    (widgetId: string,
-      updater: (prevConfigs: MockGraphConfig[]) => MockGraphConfig[]) => void,
+    widgetData: WidgetDataMock, 
+    updateWidget: (widgetId: string, updater: (prevWidget: WidgetData) => WidgetData) => void,
     onDelete: () => void
   }
 ) => {
@@ -152,22 +152,34 @@ const MockWidget = memo(({ widgetData, updateMockConfig, onDelete }:
     const store = dataRef.current;
     store.series[name] = new Array(store.timestamps.length).fill(null);
 
-    updateMockConfig(widgetData.id, (prev) => [...prev, newConfig]);
+    updateWidget(widgetData.id, (prev) => {
+      if (prev.type === SignalType.MOCK) {
+        return { ...prev, configs: [...prev.configs, newConfig] };
+      }
+      return prev;
+    });
+
     setShowAddModal(false);
     setNewSignalName("");
     setNewSignalType(MockSignalType.Numerical);
-  }, [configs, newSignalName, newSignalType, newSignalDelay, updateMockConfig, widgetData.id]);
+  }, [configs, newSignalName, newSignalType, newSignalDelay, updateWidget, widgetData.id]);
 
   const handleRemoveSignal = useCallback((name: string) => {
     if (configs.length <= 1) {
       onDelete();
       return;
     }
-    updateMockConfig(widgetData.id, (prev) => prev.filter((c) => c.signalName !== name));
+    updateWidget(widgetData.id, (prev) => {
+      if (prev.type === SignalType.MOCK) {
+        return { ...prev, configs: prev.configs.filter((c) => c.signalName !== name) };
+      }
+      return prev;
+    });
+
     if (dataRef.current.series[name]) {
       delete dataRef.current.series[name];
     }
-  }, [configs, onDelete, updateMockConfig, widgetData.id]);
+  }, [configs, onDelete, updateWidget, widgetData.id]);
 
   const totalDataPoints = dataRef.current.timestamps.length;
 
@@ -198,26 +210,6 @@ const MockWidget = memo(({ widgetData, updateMockConfig, onDelete }:
               onChange={(e) => setChartHeight(+e.target.value)}
             />
           </div>
-          {/* <div className="flex flex-col gap-1">
-            <label className="text-sm">
-              Scroll Position: {(scrollProgress * 100).toFixed(1)}%
-            </label>
-            <button
-              onClick={handleSnapToLatest}
-              className="px-3 py-1 bg-blue-500 text-white opacity-80 rounded-lg transition duration-150 ease-in-out hover:cursor-pointer hover:scale-105 hover:bg-blue-600 hover:opacity-100"
-            >
-              Jump to Latest
-            </button>
-          </div> */}
-          {/* <div className="flex flex-col gap-1">
-            <label className="text-sm">Zoom: {zoomLevel}%</label>
-            <button
-              onClick={() => setZoomLevel(100)}
-              className="w-32 px-3 py-1 bg-blue-500 text-white opacity-80 rounded-lg transition duration-150 ease-in-out hover:cursor-pointer hover:scale-105 hover:bg-blue-600 hover:opacity-100"
-            >
-              Reset Zoom
-            </button>
-          </div> */}
         </div>
 
         <div className="flex flex-wrap items-center gap-3 mb-4">

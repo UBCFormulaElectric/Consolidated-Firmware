@@ -130,28 +130,21 @@ export default function useWidgetManager() {
 		}, []
 	);
 
-	const updateMockConfig = useCallback(
-		(widgetID: string, updater: (prevConfigs: MockGraphConfig[]) => MockGraphConfig[]) => {
+	const updateWidget = useCallback(
+		(widgetID: string, updater: (prevWidget: WidgetData) => WidgetData) => {
 			setWidgets((prev) => {
 				const widgetIndex = prev.findIndex((w) => w.id === widgetID);
 				if (widgetIndex === -1) {
+					IS_DEBUG && console.warn("Widget to update not found");
 					return prev;
 				}
-				const widget = prev[widgetIndex];
-				if (widget.type !== SignalType.MOCK) {
-					return prev;
-				}
-
-				const newConfigs = updater(widget.configs);
 
 				const newWidgets = [...prev];
-				newWidgets[widgetIndex] = {
-					...widget,
-					configs: newConfigs
-				};
+				newWidgets[widgetIndex] = updater(newWidgets[widgetIndex]);
 				return newWidgets;
 			});
-		}, []
+		},
+		[]
 	);
 
 	return {
@@ -161,6 +154,6 @@ export default function useWidgetManager() {
 		setEnumSignal,
 		appendNumSignal,
 		removeNumSignal,
-		updateMockConfig
+		updateWidget
 	};
 }

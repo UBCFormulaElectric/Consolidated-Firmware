@@ -29,8 +29,7 @@ export default function CanvasChart({
   const tooltipBufferRef = useRef<string[]>([]);
   const layoutRef = useRef<ChartLayout | null>(null);
 
-  const { scalePxPerSecRef, timeRangeRef, scrollLeftRef, hoverTimestamp: externalHoverTimestampRef, setTimeRange } = useSyncedGraph();
-
+ const { scalePxPerSecRef, timeRangeRef, scrollLeftRef, hoverTimestamp: externalHoverTimestampRef, setTimeRange } = useSyncedGraph();
   const [containerWidth, setContainerWidth] = useState(0);
 
   const timestamps = data?.timestamps;
