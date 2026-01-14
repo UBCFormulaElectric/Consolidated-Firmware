@@ -62,7 +62,7 @@ void hw_can_init(CanHandle *can_handle)
     assert(can_activate_notis_res == HAL_OK);
 
     // Start the CAN peripheral.
-    const HAL_StatusTypeDef can_start_status = HAL_CAN_Start(can_handle->hcan) == HAL_OK;
+    const HAL_StatusTypeDef can_start_status = HAL_CAN_Start(can_handle->hcan);
     assert(can_start_status == HAL_OK);
     can_handle->ready = true;
 }
