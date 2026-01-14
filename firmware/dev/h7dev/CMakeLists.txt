@@ -21,7 +21,6 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_can_hx.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
@@ -83,6 +82,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "${CUBEMX_INCLUDE_DIRS}"
             TRUE
             "${ARM_CORE}"
+            TRUE
     )
 
     # JSONCAN

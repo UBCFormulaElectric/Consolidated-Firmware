@@ -51,7 +51,6 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_resetReason.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_freeRtosConfigs.c"
@@ -126,6 +125,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${CUBEMX_INCLUDES}"
             TRUE
             "${ARM_CORE}"
+            FALSE
     )
 
     # Generate the protobuf files.
