@@ -37,7 +37,6 @@ list(APPEND IO_SRCS
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_QUINTUNA_DIR}")
 
 file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c")
-list(FILTER HW_SRCS EXCLUDE REGEX ".*/hw_chimeraConfig_v2\\.c$")
 list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
@@ -51,18 +50,17 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_can_hx.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_resetReason.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_freeRtosConfigs.c"
 )
-if ("${FIRMWARE_TARGET}" STREQUAL "chimera")
-    list(APPEND HW_SRCS
-        "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/hw_chimeraConfig_v2.c"
-    )
-endif()
+#if ("${FIRMWARE_TARGET}" STREQUAL "chimera")
+#    list(APPEND HW_SRCS
+#        "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
+#        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/hw_chimeraConfig_v2.c"
+#    )
+#endif()
 set(HW_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw" "${CMAKE_CURRENT_SOURCE_DIR}/src" "${SHARED_HW_INCLUDE_DIR}")
 
 if ("${TARGET}" STREQUAL "binary")
@@ -129,9 +127,9 @@ if ("${TARGET}" STREQUAL "binary")
             "logfs_cm7"
             "sbg_ecom_cm7"
             m)
-    if ("${FIRMWARE_TARGET}" STREQUAL "chimera")
-        target_link_libraries("quintuna_VC_app.elf" PRIVATE "chimera_v2_proto_cm7")
-    endif()
+    #    if ("${FIRMWARE_TARGET}" STREQUAL "chimera")
+    #        target_link_libraries("quintuna_VC_app.elf" PRIVATE "chimera_v2_proto_cm7")
+    #    endif ()
 
 
     if ("${BOOTLOAD}" STREQUAL "ON")

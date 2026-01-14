@@ -12,6 +12,7 @@ set(TEST_DIR "${FIRMWARE_DIR}/test")
 set(SCRIPTS_DIR "${CMAKE_SOURCE_DIR}/scripts")
 set(CAN_DIR ${CMAKE_SOURCE_DIR}/can_bus)
 
+set(SHARED_CHIMERA_DIR "${SHARED_DIR}/chimera")
 # C shared code
 set(SHARED_EMBEDDED_DIR "${SHARED_DIR}/src")
 set(SHARED_APP_INCLUDE_DIR "${SHARED_EMBEDDED_DIR}/app")

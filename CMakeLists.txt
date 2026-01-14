@@ -58,7 +58,6 @@ ENDIF ()
 # ======== Code Time ========
 option(PLATFORM "The platform to build for, either \"firmware\" or \"dimos\"" "firmware")
 option(TARGET "The target to build for. Choose between \"binary\" and \"test\"." "binary")
-option(FIRMWARE_TARGET "The firmware target to build for. Choose between \"dev\" and \"chimera\"." "dev")
 message("")
 message("⚙️ Configuring for \"${PLATFORM}\" platform and \"${TARGET}\" build target")
 IF ("${PLATFORM}" STREQUAL "firmware")

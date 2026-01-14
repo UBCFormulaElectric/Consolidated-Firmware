@@ -10,6 +10,7 @@ IF ("${TARGET}" STREQUAL "binary")
     include(cmake/embedded.cmake)
     include(cmake/bootlib.cmake)
     include(cmake/sbgecomlib.cmake)
+    include(cmake/chimeralib.cmake)
     add_compile_definitions(TARGET_EMBEDDED)
 ELSEIF ("${TARGET}" STREQUAL "test")
     include(cmake/test_libs.cmake)
@@ -33,16 +34,12 @@ ELSEIF ("${TARGET}" STREQUAL "test")
     enable_testing()
 ENDIF ()
 
-
+# libraries
 add_subdirectory(third_party)
 add_subdirectory(shared)
-IF ("${TARGET}" STREQUAL "binary")
-    add_subdirectory(dev)
-    IF ("${FIRMWARE_TARGET}" STREQUAL "chimera")
-        add_subdirectory(chimera_v2)
-	    add_compile_definitions(USE_CHIMERA)
-    ENDIF ()
-ENDIF ()
 add_subdirectory(logfs)
+
+# board binaries
+add_subdirectory(dev)
 add_subdirectory(quintuna)
 add_subdirectory(hexray)
