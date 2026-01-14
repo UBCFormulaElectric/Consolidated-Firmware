@@ -185,7 +185,7 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
         /** Initializes the peripherals clock
          */
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_FDCAN;
-        PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_HSE;
+        PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_PLL1Q;
         if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
         {
             Error_Handler();
@@ -396,6 +396,162 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
         /* USER CODE BEGIN SPI3_MspDeInit 1 */
 
         /* USER CODE END SPI3_MspDeInit 1 */
+    }
+}
+
+/**
+ * @brief TIM_Base MSP Initialization
+ * This function configures the hardware resources used in this example
+ * @param htim_base: TIM_Base handle pointer
+ * @retval None
+ */
+void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim_base)
+{
+    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
+    if (htim_base->Instance == TIM1)
+    {
+        /* USER CODE BEGIN TIM1_MspInit 0 */
+
+        /* USER CODE END TIM1_MspInit 0 */
+        /* Peripheral clock enable */
+        __HAL_RCC_TIM1_CLK_ENABLE();
+
+        __HAL_RCC_GPIOA_CLK_ENABLE();
+        /**TIM1 GPIO Configuration
+        PA8     ------> TIM1_CH1
+        */
+        GPIO_InitStruct.Pin       = FLOW_METER_5V5_Pin;
+        GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+        GPIO_InitStruct.Pull      = GPIO_NOPULL;
+        GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
+        GPIO_InitStruct.Alternate = GPIO_AF1_TIM1;
+        HAL_GPIO_Init(FLOW_METER_5V5_GPIO_Port, &GPIO_InitStruct);
+
+        /* USER CODE BEGIN TIM1_MspInit 1 */
+
+        /* USER CODE END TIM1_MspInit 1 */
+    }
+    else if (htim_base->Instance == TIM3)
+    {
+        /* USER CODE BEGIN TIM3_MspInit 0 */
+
+        /* USER CODE END TIM3_MspInit 0 */
+        /* Peripheral clock enable */
+        __HAL_RCC_TIM3_CLK_ENABLE();
+
+        __HAL_RCC_GPIOB_CLK_ENABLE();
+        /**TIM3 GPIO Configuration
+        PB5     ------> TIM3_CH2
+        */
+        GPIO_InitStruct.Pin       = GPIO_PIN_5;
+        GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+        GPIO_InitStruct.Pull      = GPIO_NOPULL;
+        GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
+        GPIO_InitStruct.Alternate = GPIO_AF2_TIM3;
+        HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+        /* USER CODE BEGIN TIM3_MspInit 1 */
+
+        /* USER CODE END TIM3_MspInit 1 */
+    }
+}
+
+/**
+ * @brief TIM_Base MSP De-Initialization
+ * This function freeze the hardware resources used in this example
+ * @param htim_base: TIM_Base handle pointer
+ * @retval None
+ */
+void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef *htim_base)
+{
+    if (htim_base->Instance == TIM1)
+    {
+        /* USER CODE BEGIN TIM1_MspDeInit 0 */
+
+        /* USER CODE END TIM1_MspDeInit 0 */
+        /* Peripheral clock disable */
+        __HAL_RCC_TIM1_CLK_DISABLE();
+
+        /**TIM1 GPIO Configuration
+        PA8     ------> TIM1_CH1
+        */
+        HAL_GPIO_DeInit(FLOW_METER_5V5_GPIO_Port, FLOW_METER_5V5_Pin);
+
+        /* USER CODE BEGIN TIM1_MspDeInit 1 */
+
+        /* USER CODE END TIM1_MspDeInit 1 */
+    }
+    else if (htim_base->Instance == TIM3)
+    {
+        /* USER CODE BEGIN TIM3_MspDeInit 0 */
+
+        /* USER CODE END TIM3_MspDeInit 0 */
+        /* Peripheral clock disable */
+        __HAL_RCC_TIM3_CLK_DISABLE();
+
+        /**TIM3 GPIO Configuration
+        PB5     ------> TIM3_CH2
+        */
+        HAL_GPIO_DeInit(GPIOB, GPIO_PIN_5);
+
+        /* USER CODE BEGIN TIM3_MspDeInit 1 */
+
+        /* USER CODE END TIM3_MspDeInit 1 */
+    }
+}
+
+/**
+ * @brief HCD MSP Initialization
+ * This function configures the hardware resources used in this example
+ * @param hhcd: HCD handle pointer
+ * @retval None
+ */
+void HAL_HCD_MspInit(HCD_HandleTypeDef *hhcd)
+{
+    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
+    if (hhcd->Instance == USB_DRD_FS)
+    {
+        /* USER CODE BEGIN USB_DRD_FS_MspInit 0 */
+
+        /* USER CODE END USB_DRD_FS_MspInit 0 */
+
+        /** Initializes the peripherals clock
+         */
+        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USB;
+        PeriphClkInitStruct.UsbClockSelection    = RCC_USBCLKSOURCE_HSI48;
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+        {
+            Error_Handler();
+        }
+
+        /* Enable VDDUSB */
+        HAL_PWREx_EnableVddUSB();
+        /* Peripheral clock enable */
+        __HAL_RCC_USB_CLK_ENABLE();
+        /* USER CODE BEGIN USB_DRD_FS_MspInit 1 */
+
+        /* USER CODE END USB_DRD_FS_MspInit 1 */
+    }
+}
+
+/**
+ * @brief HCD MSP De-Initialization
+ * This function freeze the hardware resources used in this example
+ * @param hhcd: HCD handle pointer
+ * @retval None
+ */
+void HAL_HCD_MspDeInit(HCD_HandleTypeDef *hhcd)
+{
+    if (hhcd->Instance == USB_DRD_FS)
+    {
+        /* USER CODE BEGIN USB_DRD_FS_MspDeInit 0 */
+
+        /* USER CODE END USB_DRD_FS_MspDeInit 0 */
+        /* Peripheral clock disable */
+        __HAL_RCC_USB_CLK_DISABLE();
+        /* USER CODE BEGIN USB_DRD_FS_MspDeInit 1 */
+
+        /* USER CODE END USB_DRD_FS_MspDeInit 1 */
     }
 }
 

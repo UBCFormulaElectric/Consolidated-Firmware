@@ -13,4 +13,4 @@ extern const Gpio imu_cs;
 extern const Gpio imu_int;
 extern const Gpio imu_fsync;
 extern const Gpio d_p_pullup;
-} // namespace hw
+} // namespace hw::gpio

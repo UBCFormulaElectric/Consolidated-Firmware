@@ -53,8 +53,12 @@ extern "C"
     /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler(void);
 
-/* USER CODE BEGIN EFP */
-
+    /* USER CODE BEGIN EFP */
+    extern ADC_HandleTypeDef   hadc1;
+    extern FDCAN_HandleTypeDef hfdcan1;
+    extern I2C_HandleTypeDef   hi2c2;
+    extern SPI_HandleTypeDef   hspi3;
+    extern TIM_HandleTypeDef   htim3;
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
@@ -86,8 +90,8 @@ extern "C"
 #define IMU_INT_GPIO_Port GPIOC
 #define IMU_FSYNC_Pin GPIO_PIN_8
 #define IMU_FSYNC_GPIO_Port GPIOC
-#define FLOW_METER_5V_Pin GPIO_PIN_8
-#define FLOW_METER_5V_GPIO_Port GPIOA
+#define FLOW_METER_5V5_Pin GPIO_PIN_8
+#define FLOW_METER_5V5_GPIO_Port GPIOA
 #define BRAKE_LIGHT_EN_3V3_Pin GPIO_PIN_9
 #define BRAKE_LIGHT_EN_3V3_GPIO_Port GPIOA
 #define IMU_SPC_Pin GPIO_PIN_10

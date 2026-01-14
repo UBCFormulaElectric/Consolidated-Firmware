@@ -10,6 +10,17 @@
   "clangd.arguments": [
     "--compile-commands-dir=build_fw_dev",
     // "--compile-commands-dir=build_fw_test",
-    "--query-driver=/Applications/ArmGNUToolchain/14.3.rel1/arm-none-eabi/bin/arm-none-eabi-g++"
-  ]
+    "--query-driver=/usr/local/bin/arm-none-eabi-gcc"
+  ],
+  "files.associations": {
+    "hw_adcs.h": "c",
+    "io_imu.h": "c",
+    "io_led.h": "c",
+    "hw_i2cs.h": "c",
+    "io_potentiometer.h": "c",
+    "hw_gpios.h": "c",
+    "app_cantx.h": "c",
+    "app_rangecheck.h": "c",
+    "app_signal.h": "c"
+  }
 }

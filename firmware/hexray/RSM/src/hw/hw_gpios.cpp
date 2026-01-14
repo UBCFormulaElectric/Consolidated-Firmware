@@ -2,7 +2,6 @@
 #include "hw_gpio.hpp"
 #include "main.h"
 
-//do I need to include readpin/writepin functions from hw_gpio.hpp?
 namespace hw::gpio
 {
 const Gpio brake_ocsc_ok(BRAKE_OCSC_OK_3V3_GPIO_Port, BRAKE_OCSC_OK_3V3_Pin);
@@ -16,4 +15,4 @@ const Gpio imu_cs(IMU_CS_GPIO_Port, IMU_CS_Pin);
 const Gpio imu_int(IMU_INT_GPIO_Port, IMU_INT_Pin);
 const Gpio imu_fsync(IMU_FSYNC_GPIO_Port, IMU_FSYNC_Pin);
 const Gpio d_p_pullup(D_P_PULLUP_GPIO_Port, D_P_PULLUP_Pin);
-} // namespace hw
+} // namespace hw::gpio

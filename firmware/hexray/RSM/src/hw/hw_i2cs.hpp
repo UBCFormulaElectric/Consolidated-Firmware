@@ -4,6 +4,6 @@
 
 namespace hw::i2c
 {
-    extern I2CBus i2c_bus_2;
-    I2CBus &getBusFromHandle(const I2C_HandleTypeDef *handle);
-}
+extern I2CBus i2c_bus_2;
+I2CBus       &getBusFromHandle(const I2C_HandleTypeDef *handle);
+} // namespace hw::i2c
