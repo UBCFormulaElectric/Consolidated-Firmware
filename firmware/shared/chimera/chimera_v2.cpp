@@ -15,25 +15,24 @@ static pb_byte_t out_buffer[OUT_BUFFER_SIZE];
 
 constexpr size_t MAX_PAYLOAD_SIZE = 64;
 
-bool hw_chimera_v2_enabled = false;
+namespace hw::chimera_v2
+{
+bool enabled = false;
 
 /**
  * @brief Evaluate a Chimera V2 request.
- * @param config Collection of protobuf enum to peripheral tables and net name tags.
+ * @param c Collection of protobuf enum to peripheral tables and net name tags.
  * @param request Request from the Chimera V2 python client.
  * @param response Pointer to the response struct to write the result to.
  * @return True if success, otherwise false.
  */
-static bool hw_chimera_v2_evaluateRequest(
-    const chimera_v2_config &config,
-    const ChimeraV2Request  &request,
-    ChimeraV2Response       &response)
+static bool evaluateRequest(const config &c, const ChimeraV2Request &request, ChimeraV2Response &response)
 {
     // Empty provided response pointer.
     constexpr ChimeraV2Response init = ChimeraV2Response_init_zero;
     response                         = init;
 
-/* GPIO commands. */
+    /* GPIO commands. */
 #ifdef HAL_GPIO_MODULE_ENABLED
     if (request.which_payload == ChimeraV2Request_gpio_read_tag)
     {
@@ -41,7 +40,7 @@ static bool hw_chimera_v2_evaluateRequest(
         const GpioReadRequest *payload = &request.payload.gpio_read;
 
         // GPIO read.
-        const auto gpio = config.id_to_gpio(&payload->net_name);
+        const auto gpio = c.id_to_gpio(&payload->net_name);
         if (!gpio.has_value())
         {
             LOG_ERROR("Chimera: Error fetching GPIO peripheral.");
@@ -57,7 +56,7 @@ static bool hw_chimera_v2_evaluateRequest(
         const GpioWriteRequest *payload = &request.payload.gpio_write;
 
         // GPIO write.
-        const auto gpio = config.id_to_gpio(&payload->net_name);
+        const auto gpio = c.id_to_gpio(&payload->net_name);
         if (!gpio.has_value())
         {
             LOG_ERROR("Chimera: Error fetching GPIO peripheral.");
@@ -80,7 +79,7 @@ static bool hw_chimera_v2_evaluateRequest(
 
         // ADC read.
         // const AdcChannel *adc_channel = hw_chimera_v2_getAdc(config, &payload->net_name);
-        const auto adc_channel = config.id_to_adc(&payload->net_name);
+        const auto adc_channel = c.id_to_adc(&payload->net_name);
         if (!adc_channel.has_value())
         {
             LOG_ERROR("Chimera: Error fetching ADC peripheral.");
@@ -101,7 +100,7 @@ static bool hw_chimera_v2_evaluateRequest(
 
         // I2C ready check.
         // const I2cDevice *device = hw_chimera_v2_getI2c(config, &payload->net_name);
-        const auto device = config.id_to_i2c(&payload->net_name);
+        const auto device = c.id_to_i2c(&payload->net_name);
         if (!device.has_value())
         {
             LOG_ERROR("Chimera: Error fetching I2C peripheral.");
@@ -116,7 +115,7 @@ static bool hw_chimera_v2_evaluateRequest(
     {
         // Extract payload
         const I2cTransmitRequest *payload = &request.payload.i2c_transmit;
-        const auto                device  = config.id_to_i2c(&payload->net_name);
+        const auto                device  = c.id_to_i2c(&payload->net_name);
         if (!device.has_value())
         {
             LOG_ERROR("Chimera: Error fetching I2C peripheral.");
@@ -134,7 +133,7 @@ static bool hw_chimera_v2_evaluateRequest(
     {
         // Extract payload
         const I2cMemoryWriteRequest *payload = &request.payload.i2c_memory_write;
-        const auto                   device  = config.id_to_i2c(&payload->net_name);
+        const auto                   device  = c.id_to_i2c(&payload->net_name);
         if (!device.has_value())
         {
             LOG_ERROR("Chimera: Error fetching I2C peripheral.");
@@ -153,7 +152,7 @@ static bool hw_chimera_v2_evaluateRequest(
         // Extract payload
         const I2cReceiveRequest *payload = &request.payload.i2c_receive;
 
-        const auto device = config.id_to_i2c(&payload->net_name);
+        const auto device = c.id_to_i2c(&payload->net_name);
         if (!device.has_value())
         {
             LOG_ERROR("Chimera: Error fetching I2C peripheral.");
@@ -182,7 +181,7 @@ static bool hw_chimera_v2_evaluateRequest(
     {
         // Extract payload
         const I2cMemoryReadRequest *payload = &request.payload.i2c_memory_read;
-        const auto                  device  = config.id_to_i2c(&payload->net_name);
+        const auto                  device  = c.id_to_i2c(&payload->net_name);
         if (!device.has_value())
         {
             LOG_ERROR("Chimera: Error fetching I2C peripheral.");
@@ -212,7 +211,7 @@ static bool hw_chimera_v2_evaluateRequest(
     {
         // Extract payload.
         const SpiReceiveRequest *payload = &request.payload.spi_receive;
-        const auto               device  = config.id_to_spi(&payload->net_name);
+        const auto               device  = c.id_to_spi(&payload->net_name);
         if (!device.has_value())
         {
             LOG_ERROR("Chimera: Error fetching SPI peripheral.");
@@ -238,7 +237,7 @@ static bool hw_chimera_v2_evaluateRequest(
     {
         // Extract payload.
         const SpiTransmitRequest *payload = &request.payload.spi_transmit;
-        const auto                device  = config.id_to_spi(&payload->net_name);
+        const auto                device  = c.id_to_spi(&payload->net_name);
         if (!device.has_value())
         {
             LOG_ERROR("Chimera: Error fetching SPI peripheral.");
@@ -257,7 +256,7 @@ static bool hw_chimera_v2_evaluateRequest(
     {
         // Extract payload.
         const SpiTransactionRequest *payload = &request.payload.spi_transaction;
-        const auto                   device  = config.id_to_spi(&payload->net_name);
+        const auto                   device  = c.id_to_spi(&payload->net_name);
         if (!device.has_value())
         {
             LOG_ERROR("Chimera: Error fetching SPI peripheral.");
@@ -294,12 +293,12 @@ static bool hw_chimera_v2_evaluateRequest(
 
 /**
  * @brief Handle the content of a Chimera V2 message (parse, evaluate, respond).
- * @param config Collection of protobuf enum to peripheral tables and net name tags.
+ * @param c Collection of protobuf enum to peripheral tables and net name tags.
  * @param content Content buffer to handle.
  * @param length Length of content buffer.
  * @return True if success, otherwise false.
  */
-static bool hw_chimera_v2_handleContent(const chimera_v2_config &config, uint8_t *content, uint16_t length)
+static bool handleContent(const config &c, uint8_t *content, uint16_t length)
 {
     // Keep track if an error occured.
     // We do this instead of immediate returns,
@@ -319,7 +318,7 @@ static bool hw_chimera_v2_handleContent(const chimera_v2_config &config, uint8_t
     }
 
     // Evaluate request.
-    if (!hw_chimera_v2_evaluateRequest(config, request, response))
+    if (!evaluateRequest(c, request, response))
     {
         LOG_ERROR("Chimera: Error evaluating request.");
         error_occurred = true;
@@ -351,7 +350,7 @@ static bool hw_chimera_v2_handleContent(const chimera_v2_config &config, uint8_t
     _LOG_PRINTF("\n");
 
     // Transmit.
-    if (IS_EXIT_ERR(hw::usb::transmit({ response_packet, response_packet_size })))
+    if (IS_EXIT_ERR(usb::transmit({ response_packet, response_packet_size })))
     {
         LOG_ERROR("Chimera: Error transmitting response packet.");
         error_occurred = true;
@@ -365,11 +364,11 @@ static bool hw_chimera_v2_handleContent(const chimera_v2_config &config, uint8_t
  * @param config Collection of protobuf enum to peripheral tables and net name tags.
  * @return True if success, otherwise false.
  */
-static void hw_chimera_v2_tick(const chimera_v2_config &config)
+static void tick(const config &config)
 {
-// Milliseconds to wait on every usb request.
-// NOTE: this cannot be forever as we need to check periodically when chimera is running
-// whether USB has been disconnected
+    // Milliseconds to wait on every usb request.
+    // NOTE: this cannot be forever as we need to check periodically when chimera is running
+    // whether USB has been disconnected
 #define USB_REQUEST_TIMEOUT_MS (1000)
     // CHIMERA Packet Format:
     // [ length low byte  | length high byte | content bytes    | ... ]
@@ -378,7 +377,7 @@ static void hw_chimera_v2_tick(const chimera_v2_config &config)
     uint8_t length_bytes[2] = { 0, 0 };
     for (uint8_t idx = 0; idx < 2; idx++)
     {
-        if (IS_EXIT_ERR(hw::usb::receive({ length_bytes, 1 }, USB_REQUEST_TIMEOUT_MS)))
+        if (IS_EXIT_ERR(usb::receive({ length_bytes, 1 }, USB_REQUEST_TIMEOUT_MS)))
         {
             // If we don't receive length bytes, stop processing.
             return;
@@ -392,7 +391,7 @@ static void hw_chimera_v2_tick(const chimera_v2_config &config)
 
     // Receive content.
     uint8_t content[64]; // TODO fix
-    if (IS_EXIT_ERR(hw::usb::receive({ content, length }, USB_REQUEST_TIMEOUT_MS)))
+    if (IS_EXIT_ERR(usb::receive({ content, length }, USB_REQUEST_TIMEOUT_MS)))
     {
         return;
     }
@@ -402,13 +401,13 @@ static void hw_chimera_v2_tick(const chimera_v2_config &config)
         _LOG_PRINTF("%02x ", content[i]);
 
     // Parse content and return response.
-    if (!hw_chimera_v2_handleContent(config, content, length))
+    if (!handleContent(config, content, length))
     {
         LOG_ERROR("Chimera: Error processing request.");
     }
 }
 
-_Noreturn void hw_chimera_v2_task(const chimera_v2_config &config)
+_Noreturn void task(const config &c)
 {
     osDelay(0xFFFFFFFF);
 
@@ -416,7 +415,7 @@ _Noreturn void hw_chimera_v2_task(const chimera_v2_config &config)
     for (;;)
     {
         // block until USB connected is ok
-        hw::usb::waitForConnected();
+        usb::waitForConnected();
         LOG_INFO("[CHIMERA] USB CONNECTED!");
 
         // For some reason that makes no sense: When I was turning on the BMS after a power cycle,
@@ -425,11 +424,12 @@ _Noreturn void hw_chimera_v2_task(const chimera_v2_config &config)
         // hw_chimera_v2_enabled = true;
 
         // Otherwise tick.
-        while (hw::usb::connected())
+        while (usb::connected())
         {
-            hw_chimera_v2_tick(config);
+            tick(c);
         }
         LOG_INFO("[CHIMERA] USB DISCONNECTED!");
-        hw_chimera_v2_enabled = false;
+        enabled = false;
     }
 }
+} // namespace hw::chimera_v2

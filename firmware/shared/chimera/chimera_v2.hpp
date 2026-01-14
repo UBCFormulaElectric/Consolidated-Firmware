@@ -25,13 +25,15 @@ extern "C"
 #include "hw_spi.hpp"
 #endif
 
+namespace hw::chimera_v2
+{
 // Configuration needed ro run chimera.
 // Exposes mappings from net names to peripherals,
 // and board-specific tags for each peripheral type.
-class chimera_v2_config
+class config
 {
   public:
-    virtual ~chimera_v2_config() = default;
+    virtual ~config() = default;
 
 #ifdef HAL_GPIO_MODULE_ENABLED
   protected:
@@ -40,7 +42,7 @@ class chimera_v2_config
 
   public:
     // A table of Protobuf-generated net names to GPIO peripherals.
-    virtual std::optional<std::reference_wrapper<const hw::Gpio>> id_to_gpio(const _GpioNetName *gnn) const;
+    virtual std::optional<std::reference_wrapper<const Gpio>> id_to_gpio(const _GpioNetName *gnn) const;
 #endif
 
 #ifdef HAL_ADC_MODULE_ENABLED
@@ -61,7 +63,7 @@ class chimera_v2_config
   public:
     // A table of Protobuf-generated net names to I2C peripherals.
     // virtual const hw::i2c::I2CDevice &id_to_i2c();
-    virtual std::optional<std::reference_wrapper<const hw::i2c::I2CDevice>> id_to_i2c(const _I2cNetName *inn) const;
+    virtual std::optional<std::reference_wrapper<const i2c::I2CDevice>> id_to_i2c(const _I2cNetName *inn) const;
 #endif
 
 #ifdef HAL_SPI_MODULE_ENABLED
@@ -78,10 +80,11 @@ class chimera_v2_config
 /**
  * @brief A flag set internally by chimera indicating if it is running, exposed to block other jobs.
  */
-extern bool hw_chimera_v2_enabled;
+extern bool enabled;
 
 /**
  * @brief The main Chimera task loop, should be ran in it's own thread.
- * @param config Collection of protobuf enum to peripheral tables and net name tags.
+ * @param c Collection of protobuf enum to peripheral tables and net name tags.
  */
-_Noreturn void hw_chimera_v2_task(const chimera_v2_config &config);
+_Noreturn void task(const config &c);
+} // namespace hw::chimera_v2

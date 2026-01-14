@@ -31,7 +31,7 @@ const CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hfdcan)
     return &can;
 }
 
-void tasks_init()
+void chimera_Task()
 {
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("h7dev reset!");

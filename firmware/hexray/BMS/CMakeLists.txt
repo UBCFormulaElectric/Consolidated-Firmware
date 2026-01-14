@@ -7,10 +7,7 @@ set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
 set(JOBS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/jobs.cpp")
 set(TASKS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.cpp")
 set(SYSTEM_SRCS ${JOBS_SRC} ${TASKS_SRC})
-set(SYSTEM_INCLUDE_DIRS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src"
-        #        "${CMAKE_CURRENT_SOURCE_DIR}/boot"
-)
+set(SYSTEM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS
@@ -33,6 +30,8 @@ set(IO_INCLUDE_DIRS
 file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c")
 list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_gpio.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_i2c.cpp"
 )
 set(HW_INCLUDE_DIRS
         #        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -65,13 +64,17 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_hal_cortex.c"
             "stm32h7xx_hal_exti.c"
             "stm32h7xx_hal_tim.c"
+            "stm32h7xx_hal_gpio.c"
+            "stm32h7xx_hal_i2c.c"
+            "stm32h7xx_hal_dma.c"
     )
+    set(CUBEMX_INCLUDES ${CUBEMX_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
     stm32h733xx_cube_library(
             "hexray_BMS_stm32"
             "${STM32_HAL_SRCS}"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/BMS.ioc"
             "${CUBEMX_SRCS}"
-            "${CUBEMX_INCLUDE_DIRS}"
+            "${CUBEMX_INCLUDES}"
             FALSE
             "${ARM_CORE}"
             TRUE

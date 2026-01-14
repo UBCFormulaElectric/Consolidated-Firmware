@@ -1,9 +1,10 @@
 #pragma once
 
-#include <cstdint>
 #include <span>
-#include "main.h"
+
 #include "hw_utils.hpp"
+#include "FreeRTOS.h"
+#include "task.h"
 
 namespace hw::i2c
 {
@@ -23,7 +24,7 @@ class I2CBus
      * @brief Notify the task waiting on an I2C transaction from an ISR.
      * Called by HAL I2C completion callbacks to signal that a transaction has finished.
      */
-    void onTransactionCompleteFromISR();
+    void onTransactionCompleteFromISR() const;
 
   private:
     friend class I2CDevice;
@@ -82,7 +83,7 @@ class I2CDevice
     uint8_t  targetAddress;
     uint32_t timeoutMs;
 
-    [[nodiscard]] ExitCode waitForNotification();
+    [[nodiscard]] ExitCode waitForNotification() const;
 };
 
 /**
