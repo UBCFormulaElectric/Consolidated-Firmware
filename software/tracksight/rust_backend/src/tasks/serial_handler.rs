@@ -7,12 +7,12 @@ use std::time::Duration;
 use crc::{Crc, CRC_32_ISO_HDLC};
 
 use crate::config::CONFIG;
-use super::telem_message::{TelemetryMessage, CanMessage, NTPTimeMessage, NTPDateMessage, BaseTimeRegMessage};
+use super::telem_message::{TelemetryMessage, CanPayload, NTPTimeMessage, NTPDateMessage, BaseTimeRegMessage};
 
 /**
  * Handling serial signals from radio.
  */
-pub async fn run_serial_task(mut shutdown_rx: broadcast::Receiver<()>, can_queue_sender: broadcast::Sender<CanMessage>) {
+pub async fn run_serial_task(mut shutdown_rx: broadcast::Receiver<()>, can_queue_sender: broadcast::Sender<CanPayload>) {
     println!("Serial task started.");
     
     let (packet_tx, mut packet_rx) = mpsc::channel::<Vec<u8>>(32);
@@ -165,10 +165,10 @@ fn parse_telem_message(payload: Vec<u8>) -> Result<TelemetryMessage, ()> {
             let can_time_offset = f32::from_le_bytes([payload[5], payload[6], payload[7], payload[8]]);
             let can_payload = payload[9..].to_vec();
             TelemetryMessage::Can {
-                body: CanMessage {
+                body: CanPayload {
                     can_id,
                     can_time_offset,
-                    can_payload,
+                    payload: can_payload,
                 }
             }
         },

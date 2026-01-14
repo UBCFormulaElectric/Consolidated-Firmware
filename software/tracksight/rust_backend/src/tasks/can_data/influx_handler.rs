@@ -4,13 +4,15 @@ use influxdb2::Client;
 use tokio::select;
 
 use crate::config::CONFIG;
-use crate::tasks::telem_message::CanMessage;
+use crate::tasks::telem_message::CanPayload;
+
+use jsoncan_rust::can_database::CanMessage;
 
 /**
  * After serial_handler parses the can messages,
  * this task consumes the messages and writes them to influxdb
  */
-pub async fn run_influx_handler(mut shutdown_signal: Receiver<()>, mut can_queue_receiver: Receiver<CanMessage>) {
+pub async fn run_influx_handler(mut shutdown_signal: Receiver<()>, mut can_queue_receiver: Receiver<()>) {
     println!("Influx task started.");
 
     let influx_client = Client::new(
@@ -25,16 +27,16 @@ pub async fn run_influx_handler(mut shutdown_signal: Receiver<()>, mut can_queue
                 println!("Shutting down influx handler task.");
                 break;
             }
-            Ok(can) = can_queue_receiver.recv() => {
+            _ = can_queue_receiver.recv() => {
                 // todo should also probably check for closed channels and close thread
-                let CanMessage { can_id, can_time_offset, can_payload } = can;
-                let influx_data = vec![
-                    DataPoint::builder(&CONFIG.influxdb_measurement)
-                        .tag("can_id", can_id.to_string())
-                        .field("can_time_offset", can_time_offset as i64)
-                        .field("can_payload", can_payload.iter().map(|b| *b as i64).collect::<Vec<i64>>())
-                        .build().unwrap()
-                ];
+                // let CanMessage { can_id, can_time_offset, can_payload } = can;
+                // let influx_data = vec![
+                //     DataPoint::builder(&CONFIG.influxdb_measurement)
+                //         .tag("can_id", can_id.to_string())
+                //         .field("can_time_offset", can_time_offset as i64)
+                //         .field("can_payload", can_payload.iter().map(|b| *b as i64).collect::<Vec<i64>>())
+                //         .build().unwrap()
+                // ];
                 // influx_client.write(&CONFIG.influxdb_bucket,);
             }
         }
