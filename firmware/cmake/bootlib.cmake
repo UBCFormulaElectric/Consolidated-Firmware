@@ -31,7 +31,6 @@ function(stm32f4_boot_binary
             "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
-            "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_can_f4.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_freeRtosConfigs.c"
@@ -102,7 +101,6 @@ function(stm32h7_boot_binary
             "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_can_hx.c"
-            "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
     )
     list(APPEND INCLUDE_DIRS
@@ -136,7 +134,7 @@ function(stm32h7_boot_binary
             "${INCLUDE_DIRS}"
             FALSE
             "${ARM_CORE}"
-s            TRUE
+            s TRUE
     )
 
     embedded_binary(
@@ -176,7 +174,6 @@ function(stm32h5_boot_binary
             "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_can_hx.c"
-            "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
     )
     list(APPEND INCLUDE_DIRS
@@ -184,7 +181,7 @@ function(stm32h5_boot_binary
             "${SHARED_IO_INCLUDE_DIR}"
             "${SHARED_HW_INCLUDE_DIR}"
     )
-    
+
     set(STM32_HAL_SRCS
             "stm32h5xx_hal_cortex.c"
             "stm32h5xx_hal_dma_ex.c"
@@ -220,7 +217,7 @@ function(stm32h5_boot_binary
             "${LINKER_DIR}/stm32h562ritx/stm32h562ritx_boot.ld"
             "cm33"
     )
-    
+
     target_link_libraries("${BOOT_NAME}.elf" PRIVATE "${BOOT_NAME}_stm32")
     target_compile_definitions("${BOOT_NAME}.elf" PRIVATE "${CONFIG_DEFINE}")
 endfunction()
