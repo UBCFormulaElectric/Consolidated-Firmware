@@ -6,5 +6,5 @@
 
 namespace hw
 {
-PwmInput pwm(&htim3, HAL_TIM_ACTIVE_CHANNEL_2, );
+PwmInput pwm(&htim1, HAL_TIM_ACTIVE_CHANNEL_1, );
 }
