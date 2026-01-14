@@ -1,9 +1,9 @@
 #include "hw_cans.hpp"
 #include "tasks.hpp"
+#include <cassert>
 extern "C"
 {
 #include "main.h"
-#include <assert.h>
 }
 
 namespace hw::cans

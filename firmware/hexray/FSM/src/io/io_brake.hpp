@@ -1,7 +1,5 @@
 #pragma once
 
-#include <stdbool.h>
-
 namespace io::brake
 {
 /**

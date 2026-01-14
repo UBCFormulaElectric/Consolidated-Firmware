@@ -1,7 +1,7 @@
 #include "io_apps.hpp"
 #include "hw_adcs.hpp"
-#include <tgmath.h>
-#include "app_utils.h"
+#include "app_math.hpp"
+#include <cmath>
 
 //=====
 // Geometry and ADC Constants for Pedal Sensors -> PAPPS = primary apps, SAPPS = secondary apps (same as liam's
@@ -72,7 +72,7 @@ static float calcAppsAngle(const float cos_law_coefficient, const float pot_len,
     const float value = cos_law_coefficient - pot_len * pot_len / cos_law_denominator;
     const float acos_input =
         CLAMP(value, -1.0f, 1.0f); // where c is represented indirectly via the measured length (pot_len)
-    return acosf(acos_input);
+    return acos(acos_input);
 }
 
 void init()
@@ -93,7 +93,7 @@ void init()
 float getPrimary(void)
 {
     // Read the primary sensor voltage.
-    const float pedal_voltage = hw_adc_getVoltage(&apps1);
+    const float pedal_voltage = hw::adcs::apps1.getVoltage();
     // Convert voltage reading to a potentiometer length (in mm).
     const float pot_len_mm = RAW_VOLTAGE_TO_LEN_MM(pedal_voltage);
     // Compute the angle difference from the rest (unpressed) position.
@@ -115,14 +115,14 @@ float getPrimary(void)
 
 bool isPrimaryOCSC(void)
 {
-    const float pedal_voltage = hw_adc_getVoltage(&apps1);
+    const float pedal_voltage = hw::adcs::apps1.getVoltage();
     return !(PAPPS_MIN_V <= pedal_voltage && pedal_voltage <= PAPPS_MAX_V);
 }
 
 float getSecondary(void)
 {
     // Read the secondary sensor voltage.
-    const float pedal_voltage = hw_adc_getVoltage(&apps2);
+    const float pedal_voltage = hw::adcs::apps2.getVoltage();
     // Convert voltage reading to a potentiometer length (in mm).
     const float pot_len_mm = RAW_VOLTAGE_TO_LEN_MM(pedal_voltage);
     // Compute the angle difference from the rest (unpressed) position.
@@ -144,7 +144,7 @@ float getSecondary(void)
 
 bool isSecondaryOCSC(void)
 {
-    const float pedal_voltage = hw_adc_getVoltage(&apps2);
+    const float pedal_voltage = hw::adcs::apps2.getVoltage();
     return !(SAPPS_MIN_V <= pedal_voltage && pedal_voltage <= SAPPS_MAX_V);
 }
 } // namespace io::apps

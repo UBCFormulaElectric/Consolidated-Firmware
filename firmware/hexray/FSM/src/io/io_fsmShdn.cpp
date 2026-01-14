@@ -5,21 +5,21 @@ namespace io::fsmShdn
 {
 bool COCKPIT_SHDN_OK_get(void)
 {
-    return hw_gpio_readPin(&cockpit_shdn_3v3);
+    return hw::gpios::cockpit_shdn_3v3.readPin();
 }
 
 bool BOTS_SHDN_OK_get(void)
 {
-    return hw_gpio_readPin(&bots_3v3);
+    return hw::gpios::bots_3v3.readPin();
 }
 
 bool FL_SHDN_OK_get(void)
 {
-    return hw_gpio_readPin(&fl_int_3v3);
+    return hw::gpios::fl_int_3v3.readPin();
 }
 
 bool FR_SHDN_OK_get(void)
 {
-    return hw_gpio_readPin(&fr_int_3v3);
+    return hw::gpios::fr_int_3v3.readPin();
 }
 } // namespace io::fsmShdn

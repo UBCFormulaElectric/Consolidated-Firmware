@@ -1,5 +1,4 @@
 #pragma once
-#include <stdbool.h>
 
 namespace io::suspension
 {

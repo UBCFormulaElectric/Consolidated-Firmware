@@ -14,13 +14,13 @@ namespace io::steering
 {
 float getAngleDegrees(void)
 {
-    const float steering_voltage = hw_adc_getVoltage(&str_angle); // Get the ADC voltage for the steering sensor.
+    const float steering_voltage = hw::adcs::str_angle.getVoltage(); // Get the ADC voltage for the steering sensor.
     return DEGREE_PER_VOLT *
            (steering_voltage - STEERING_ANGLE_VOLTAGE_OFFSET); // Calculate and return the steering angle in degrees.
 }
 
 bool sensorOCSC(void)
 {
-    return !hw_gpio_readPin(&nstr_angle_ocsc);
+    return !hw::gpios::nstr_angle_ocsc.readPin();
 }
 } // namespace io::steering

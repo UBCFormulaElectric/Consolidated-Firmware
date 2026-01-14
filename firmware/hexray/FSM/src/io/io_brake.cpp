@@ -28,11 +28,11 @@ bool isActuated(void)
 
 float getFrontPressurePsi(void)
 {
-    return pressureFromVoltage(hw_adc_getVoltage(&bps_f));
+    return pressureFromVoltage(hw::adcs::bps_f.getVoltage());
 }
 
 bool OCSC(void)
 {
-    return !hw_gpio_readPin(&nbps_f_ocsc);
+    return !hw::gpios::nbps_f_ocsc.readPin();
 }
 } // namespace io::brake
