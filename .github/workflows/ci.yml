@@ -39,6 +39,8 @@ jobs:
             ioc_dir: firmware/dev/f4dev/src/cubemx
           - board: h7dev
             ioc_dir: firmware/dev/h7dev/src/cubemx
+          - board: h5dev
+            ioc_dir: firmware/dev/h5dev/src/cubemx
           - board: BMS
             ioc_dir: firmware/quintuna/BMS/src/cubemx
           - board: CRIT
@@ -111,6 +113,7 @@ jobs:
         include:
           - board: f4dev.elf
           - board: h7dev.hex
+          - board: h5dev.hex
           - board: quintuna_BMS.hex
           - board: quintuna_CRIT.hex
           - board: quintuna_DAM.hex
@@ -325,3 +328,18 @@ jobs:
         run: |
           cd $BUILD_DIR/scripts/code_generation/jsoncan/test/integration
           valgrind --tool=memcheck --leak-check=yes ./jsoncan_test
+
+  test-rust-jsoncan:
+    env:
+      CARGO_TERM_COLOR: always
+    name: Test Rust JSONCAN
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup update stable && rustup default stable
+      - name: Build Rust JSONCAN
+        working-directory: ./scripts/code_generation/jsoncan-rust
+        run: cargo build --verbose
+      - name: Test Rust JSONCAN
+        working-directory: ./scripts/code_generation/jsoncan-rust
+        run: cargo test --verbose

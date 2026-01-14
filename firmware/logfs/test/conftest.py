@@ -1,11 +1,10 @@
 from typing import Optional
 import pytest
 from logfs import LogFs, LogFsDisk, LogFsRamDisk, LogFsUnixDisk
+import random
+import string
 
-
-SD_BLOCK_SIZE = 512
 FS_SIZE_BYTES = 2 * 1024 * 1024  # 1 MB
-FS_WRITE_CYCLES = 0
 
 
 class LogFsTestDisk:
@@ -29,31 +28,28 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         type=str,
         help="Path to block device to run test suite on (will format the disk!).",
     )
-    parser.addoption(
-        "--block_size",
-        action="store",
-        default=None,
-        required=False,
-        type=int,
-        help="Path to block device to run test suite on (will format the disk!).",
-    )
 
 
-@pytest.fixture
+@pytest.fixture(params=[128, 512, 1024])
 def block_size(request: pytest.FixtureRequest) -> int:
     if request.config.getoption("disk") is not None:
         # If we're testing on a physical disk, need to use 512 byte block size.
-        return SD_BLOCK_SIZE
-    elif block_size := request.config.getoption("block_size"):
-        return block_size
+        return 512
     else:
-        # Default to 512 bytes
-        return SD_BLOCK_SIZE
+        # We only ever use this on an SD card with 512 byte block size, but
+        # testing with different sizes will hopefully catch some bugs in the
+        # filesystem.
+        return request.param
 
 
 @pytest.fixture
 def block_count(block_size: int) -> int:
     return FS_SIZE_BYTES // block_size
+
+
+@pytest.fixture(params=[0, 1, 10, 100])
+def write_cycles(request: pytest.FixtureRequest) -> int:
+    return request.param
 
 
 @pytest.fixture
@@ -76,12 +72,18 @@ def test_disk(disk: LogFsDisk) -> LogFsTestDisk:
 
 
 @pytest.fixture
-def fs(disk: LogFsDisk, block_size: int, block_count: int) -> LogFs:
+def fs(disk: LogFsDisk, block_size: int, block_count: int, write_cycles: int) -> LogFs:
     return LogFs(
         block_size=block_size,
         block_count=block_count,
-        write_cycles=FS_WRITE_CYCLES,
+        write_cycles=write_cycles,
         rd_only=False,
         disk=disk,
         format=True,
     )
+
+
+def random_data(size_bytes: int) -> bytes:
+    data = "".join(random.choices(string.ascii_uppercase + string.digits, k=size_bytes))
+    data = data.encode()
+    return data

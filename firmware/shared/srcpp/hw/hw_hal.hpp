@@ -15,5 +15,7 @@
 #include <stm32h5xx.h>
 #elif defined(STM32H733xx)
 #include <stm32h7xx.h>
+#elif defined(STM32H562xx)
+#include <stm32h5xx.h>
 
 #endif
