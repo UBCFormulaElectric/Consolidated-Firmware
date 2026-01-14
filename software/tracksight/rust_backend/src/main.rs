@@ -6,13 +6,16 @@ use tokio::task::{JoinSet};
 
 mod config;
 mod tasks;
-use tasks::telem_message::CanMessage;
+use tasks::telem_message::CanPayload;
 
 use tasks::serial_handler::run_serial_task;
 use tasks::can_data_handler::run_can_data_handler;
 
 #[tokio::main]
 async fn main() {
+    // shutdown signal for threads
+    let (shutdown_tx, shutdown_rx) = channel(1);
+
     // handle termination signal
     let interrupt_count = AtomicUsize::new(0);
     ctrlc::set_handler(move || {
@@ -25,22 +28,17 @@ async fn main() {
         shutdown_tx.send(()).ok();
     }).expect("Error setting Ctrl-C handler");
 
-
-    /**
-     * Setup channels and tasks
-     */
+    // setup task manager
     let mut tasks = JoinSet::new();
-    // shutdown signal for threads
-    let (shutdown_tx, _) = channel(1);
 
     // this is equivalent to queue in old backend
     // use broadcast instead of mpsc, probably only one serial source but multiple consumers
     // TODO figure out buffer size
-    let (can_queue_tx, can_queue_rx) = channel::<CanMessage>(32);
+    let (can_queue_tx, can_queue_rx) = channel::<CanPayload>(32);
 
     // start tasks
-    tasks.spawn(run_can_data_handler(shutdown_tx.subscribe(), can_queue_rx));
-    tasks.spawn(run_serial_task(shutdown_tx.subscribe(), can_queue_tx));
+    tasks.spawn(run_can_data_handler(shutdown_rx.resubscribe(), can_queue_rx));
+    tasks.spawn(run_serial_task(shutdown_rx.resubscribe(), can_queue_tx));
 
     // wait for tasks to clean up
     while let Some(res) = tasks.join_next().await {

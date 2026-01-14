@@ -1,6 +1,6 @@
 pub enum TelemetryMessage {
     Can {
-        body: CanMessage,
+        body: CanPayload,
     },
     NTPTime {
         body: NTPTimeMessage,
@@ -40,25 +40,25 @@ pub struct BaseTimeRegMessage {
  * Define with default cloning behaviour, as fields are more or less primitives
  */
 #[derive(Clone, Debug)]
- pub struct CanMessage {
+ pub struct CanPayload {
     pub can_id: u32,
     pub can_time_offset: f32, // should deprecate this field when we establish RTC and NTP
-    pub can_payload: Vec<u8>,
+    pub payload: Vec<u8>,
 }
 
-impl CanMessage {
+impl CanPayload {
     fn to_json(&self) -> String {
         format!(
             r#"{{"can_id": {},"can_time_offset": {},"can_payload": {:?}}}"#,
             self.can_id,
             self.can_time_offset,
-            self.can_payload
+            self.payload
         )
     }
 }
 
 /**
- * Parsed from CanMessage payload, represents a single signal
+ * Parsed from CanPayload payload, represents a single signal
  */
 pub struct CanSignal {
     pub name: String,
