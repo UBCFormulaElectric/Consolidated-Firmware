@@ -7,6 +7,7 @@ extern "C" {
 
 }
 
+namespace vc::app::heartbeat_monitors {
 static HeartbeatBoard heartbeat_boards[6] = {
     // bms
     { false, false, {}, 200,
@@ -49,3 +50,6 @@ app_canAlerts_VC_Info_MissingRSMHeartbeat_get,
 };
 
 const HeartbeatMonitor hb_monitor = { .boards = heartbeat_boards, .board_count = 6, .block_faults = false };
+?
+
+}  // namespace vc::app::heartbeat_monitors
