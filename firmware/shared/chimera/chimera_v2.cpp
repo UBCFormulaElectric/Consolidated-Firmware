@@ -347,11 +347,11 @@ static bool hw_chimera_v2_handleContent(const chimera_v2_config &config, uint8_t
     LOG_INFO("Chimera: Sending response packet of size %d.", response_packet_size);
     LOG_INFO("Chimera: Response packet:");
     for (int i = 0; i < response_packet_size; i += 1)
-        LOG_PRINTF("%02x ", response_packet[i]);
-    LOG_PRINTF("\n");
+        _LOG_PRINTF("%02x ", response_packet[i]);
+    _LOG_PRINTF("\n");
 
     // Transmit.
-    if (IS_EXIT_ERR(hw_usb_transmit(response_packet, response_packet_size)))
+    if (IS_EXIT_ERR(hw::usb::transmit({ response_packet, response_packet_size })))
     {
         LOG_ERROR("Chimera: Error transmitting response packet.");
         error_occurred = true;
@@ -378,7 +378,7 @@ static void hw_chimera_v2_tick(const chimera_v2_config &config)
     uint8_t length_bytes[2] = { 0, 0 };
     for (uint8_t idx = 0; idx < 2; idx++)
     {
-        if (IS_EXIT_ERR(hw_usb_receive(length_bytes + idx, USB_REQUEST_TIMEOUT_MS)))
+        if (IS_EXIT_ERR(hw::usb::receive({ length_bytes, 1 }, USB_REQUEST_TIMEOUT_MS)))
         {
             // If we don't receive length bytes, stop processing.
             return;
@@ -392,17 +392,14 @@ static void hw_chimera_v2_tick(const chimera_v2_config &config)
 
     // Receive content.
     uint8_t content[64]; // TODO fix
-    for (uint16_t idx = 0; idx < length; idx++)
+    if (IS_EXIT_ERR(hw::usb::receive({ content, length }, USB_REQUEST_TIMEOUT_MS)))
     {
-        if (IS_EXIT_ERR(hw_usb_receive(&content[idx], USB_REQUEST_TIMEOUT_MS)))
-        {
-            return;
-        }
+        return;
     }
 
     // Print bytes.
     for (int i = 0; i < length; i += 1)
-        LOG_PRINTF("%02x ", content[i]);
+        _LOG_PRINTF("%02x ", content[i]);
 
     // Parse content and return response.
     if (!hw_chimera_v2_handleContent(config, content, length))
@@ -419,7 +416,7 @@ _Noreturn void hw_chimera_v2_task(const chimera_v2_config &config)
     for (;;)
     {
         // block until USB connected is ok
-        hw_usb_waitForConnected();
+        hw::usb::waitForConnected();
         LOG_INFO("[CHIMERA] USB CONNECTED!");
 
         // For some reason that makes no sense: When I was turning on the BMS after a power cycle,
@@ -428,7 +425,7 @@ _Noreturn void hw_chimera_v2_task(const chimera_v2_config &config)
         // hw_chimera_v2_enabled = true;
 
         // Otherwise tick.
-        while (hw_usb_connected())
+        while (hw::usb::connected())
         {
             hw_chimera_v2_tick(config);
         }
