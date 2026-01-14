@@ -52,7 +52,7 @@ extern "C"
 
     /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler(void);
-
+    void tasks_init(void);
     /* USER CODE BEGIN EFP */
     extern ADC_HandleTypeDef   hadc1;
     extern FDCAN_HandleTypeDef hfdcan1;

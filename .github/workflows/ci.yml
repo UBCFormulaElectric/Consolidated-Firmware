@@ -328,3 +328,18 @@ jobs:
         run: |
           cd $BUILD_DIR/scripts/code_generation/jsoncan/test/integration
           valgrind --tool=memcheck --leak-check=yes ./jsoncan_test
+
+  test-rust-jsoncan:
+    env:
+      CARGO_TERM_COLOR: always
+    name: Test Rust JSONCAN
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup update stable && rustup default stable
+      - name: Build Rust JSONCAN
+        working-directory: ./scripts/code_generation/jsoncan-rust
+        run: cargo build --verbose
+      - name: Test Rust JSONCAN
+        working-directory: ./scripts/code_generation/jsoncan-rust
+        run: cargo test --verbose
