@@ -1,4 +1,7 @@
 #include "tasks.h"
+
+#include "hw_error.hpp"
+#include "hw_hardFaultHandler.hpp"
 #include "jobs.hpp"
 #include "io_time.hpp"
 #include "hw_rtosTaskHandler.hpp"
@@ -58,7 +61,10 @@ void BMS_StartAllTasks()
     TaskCanTx.start();
 }
 
-void tasks_preInit() {}
+void tasks_preInit()
+{
+    hw_hardFaultHandler_init();
+}
 
 void tasks_init()
 {
@@ -66,4 +72,5 @@ void tasks_init()
     osKernelInitialize();
     BMS_StartAllTasks();
     osKernelStart();
+    Error_Handler();
 }
