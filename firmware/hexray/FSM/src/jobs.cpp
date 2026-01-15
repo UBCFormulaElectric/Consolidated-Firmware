@@ -1,4 +1,5 @@
 #include "jobs.hpp"
+#include "hw_bootup.hpp"
 
 void jobs_init() {}
 void jobs_run1Hz_tick() {}
