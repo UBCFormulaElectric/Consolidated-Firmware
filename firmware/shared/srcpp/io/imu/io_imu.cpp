@@ -82,12 +82,12 @@ static constexpr uint8_t YA_OFFSET_L = 0x7B;
 static constexpr uint8_t ZA_OFFSET_H = 0x7D;
 static constexpr uint8_t ZA_OFFSET_L = 0x7E;
 
-inline constexpr uint8_t WRITE_IMU_REG(uint8_t reg_addr)
+static constexpr uint8_t WRITE_IMU_REG(uint8_t reg_addr)
 {
     return static_cast<uint8_t>(reg_addr & (~0x80));
 }
 
-inline constexpr uint8_t READ_IMU_REG(uint8_t reg_addr)
+static constexpr uint8_t READ_IMU_REG(uint8_t reg_addr)
 {
     return static_cast<uint8_t>(reg_addr | 0x80U);
 }
@@ -100,7 +100,7 @@ ExitCode Imu::init()
 
     ExitCode exit = imu_spi_handle.transmitThenReceive(tx_check, rx);
 
-    if (rx[0] != WHO_AM_I_VAL || (IS_EXIT_OK(exit) == false))
+    if ((IS_EXIT_OK(exit) == false) || rx[0] != WHO_AM_I_VAL)
         return exit;
 
     // Send configs to IMU
