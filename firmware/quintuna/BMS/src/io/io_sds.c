@@ -6,8 +6,6 @@
 #include <stdbool.h>
 #include <string.h>
 
-#define SD_QUEUE_LENGTH 1
-
 #define NUM_SOC_BYTES (4U)
 #define NUM_SOC_CRC_BYTES (4U)
 
@@ -26,28 +24,6 @@
         (array)[2] = (uint8_t)((value) >> 8);  \
         (array)[3] = (uint8_t)(value);         \
     } while (0)
-
-static osMessageQueueId_t sdcardQueueHandle = NULL;
-
-void io_sds_queue_init(void)
-{
-    if (sdcardQueueHandle == NULL)
-    {
-        sdcardQueueHandle = osMessageQueueNew(SD_QUEUE_LENGTH, sizeof(SdRequest), NULL);
-    }
-}
-
-bool io_sds_enqueue(SdRequest *req)
-{
-    if (sdcardQueueHandle == NULL)
-        return false;
-    return osMessageQueuePut(sdcardQueueHandle, req, 0, 0) == osOK;
-}
-
-osMessageQueueId_t io_sds_queue_handle(void)
-{
-    return sdcardQueueHandle;
-}
 
 bool io_sds_checkSdPresent(void)
 {

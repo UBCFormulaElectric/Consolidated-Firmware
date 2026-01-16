@@ -1,3 +1,4 @@
+#include "main.h"
 #include "app_segments.h"
 #include "app_soc.h"
 #include "app_math.h"
@@ -121,7 +122,6 @@ void app_soc_init(void)
     }
 
     app_timer_init(&soc_timer, SOC_TIMER_DURATION);
-    // TODO: uncommentt when can msg is added
     app_canTx_BMS_SocCorrupt_set(soc_is_corrupt);
 }
 
@@ -166,7 +166,7 @@ float app_soc_getMinOcvFromSoc(void)
 void app_soc_resetSocFromVoltage(void)
 {
     const CellParam min_cell_voltage = app_segments_getMinCellVoltage();
-    const float soc_percent      = app_soc_getSocFromOcv(min_cell_voltage.value);
+    const float     soc_percent      = app_soc_getSocFromOcv(min_cell_voltage.value);
 
     // convert from percent to coulombs
     soc_charge_c = (double)(SERIES_ELEMENT_FULL_CHARGE_C * soc_percent / 100.0f);
@@ -208,7 +208,7 @@ void app_soc_broadcast(void)
 
 void app_soc_saveToSd(void)
 {
-    float min_soc = app_soc_getMinSocCoulombs();
+    float min_soc = app_soc_getMinSocPercent();
 
     if (min_soc < 0)
     {
@@ -219,14 +219,7 @@ void app_soc_saveToSd(void)
     }
     else
     {
-        // Send SD card write request via queue
-        SdRequest req = {
-            .type        = SD_REQ_WRITE_SOC,
-            .soc_value   = min_soc,
-            .done_sem    = NULL,
-            .success_ptr = NULL,
-            .result_ptr  = NULL,
-        };
-        io_sds_enqueue(&req);
+        uint32_t min_soc_rounded = (uint32_t)(min_soc * 100.0f); // Convert to hundredths of a percent
+        xTaskNotify(TaskSDCardHandle, min_soc_rounded, eSetValueWithOverwrite);
     }
 }

@@ -1,7 +1,8 @@
 #include "jobs.h"
 
-#include "app_soc.h"
+#include <limits.h>
 // app
+#include "app_soc.h"
 #include "states/app_states.h"
 #include "app_precharge.h"
 #include "app_segments.h"
@@ -332,26 +333,10 @@ void jobs_canRxCallback(const CanMsg *rx_msg)
 
 void jobs_runSdCard_tick(void)
 {
-    SdRequest          req;
-    osMessageQueueId_t queue = io_sds_queue_handle();
-    if (queue && osMessageQueueGet(queue, &req, NULL, 0) == osOK)
+    uint32_t   rounded_soc;
+    const TickType_t timeout = 0;
+    if (xTaskNotifyWait(0, ULONG_MAX, &rounded_soc, timeout) == pdTRUE)
     {
-        bool success = false;
-        switch (req.type)
-        {
-            case SD_REQ_WRITE_SOC:
-                success = app_soc_writeSocToSd(req.soc_value);
-                break;
-            case SD_REQ_READ_SOC:
-                if (req.result_ptr)
-                    success = app_soc_readSocFromSd(req.result_ptr);
-                break;
-            default:
-                break;
-        }
-        if (req.success_ptr)
-            *(req.success_ptr) = success;
-        if (req.done_sem)
-            osSemaphoreRelease(req.done_sem);
+        app_soc_writeSocToSd((float)rounded_soc / 100.0f);
     }
 }
