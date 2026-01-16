@@ -4,7 +4,6 @@
 extern "C" {
 #include "app_canRx.h"
 #include "app_canAlerts.h"
-
 }
 
 namespace vc::app::heartbeat_monitors {
@@ -51,5 +50,5 @@ app_canAlerts_VC_Info_MissingRSMHeartbeat_get,
 
 const HeartbeatMonitor hb_monitor = { .boards = heartbeat_boards, .board_count = 6, .block_faults = false };
 ?
-
-}  // namespace vc::app::heartbeat_monitors
+}
+} // namespace vc::app::heartbeat_monitors
