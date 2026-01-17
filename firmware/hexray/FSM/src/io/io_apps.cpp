@@ -4,11 +4,6 @@
 #include "app_utils.h"
 namespace io::apps
 {
-static float calcAppsAngle(const float cos_law_coefficient, const float pot_len, const float cos_law_denominator)
-{
-    return NULL;
-}
-
 void init() {}
 
 float getPrimary(void)
