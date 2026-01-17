@@ -65,7 +65,7 @@ class BaseCan
  */
 
 #if defined(STM32F412Rx)
-class can : public BaseCan
+class can final : public BaseCan
 {
     CAN_HandleTypeDef *const hcan;
 
@@ -81,18 +81,18 @@ class can : public BaseCan
 
     constexpr CAN_HandleTypeDef *getHcan() const { return hcan; }
 
-    void init() const override final;
+    void init() const override;
 
-    void deinit() const override final;
+    void deinit() const override;
 
-    ExitCode can_transmit(const io::CanMsg &msg) override final;
+    ExitCode can_transmit(const io::CanMsg &msg) override;
 
-    ExitCode receive(const uint32_t rx_fifo, io::CanMsg &msg) const override final;
+    ExitCode receive(const uint32_t rx_fifo, io::CanMsg &msg) const override;
 };
 
 const can &can_getHandle(const CAN_HandleTypeDef *hcan);
 #elif defined(STM32H733xx) or defined(STM32H562xx)
-class fdcan : public BaseCan
+class fdcan final : public BaseCan
 {
     FDCAN_HandleTypeDef *const hfdcan;
 
@@ -108,15 +108,15 @@ class fdcan : public BaseCan
 
     constexpr FDCAN_HandleTypeDef *getHfdcan() const { return hfdcan; }
 
-    void init() const override final;
+    void init() const override;
 
-    void deinit() const override final;
+    void deinit() const override;
 
-    ExitCode can_transmit(const io::CanMsg &msg) override final;
+    ExitCode can_transmit(const io::CanMsg &msg) override;
 
     ExitCode fdcan_transmit(const io::CanMsg &msg);
 
-    ExitCode receive(const uint32_t rx_fifo, io::CanMsg &msg) const override final;
+    ExitCode receive(const uint32_t rx_fifo, io::CanMsg &msg) const override;
 };
 
 const fdcan &fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan);
