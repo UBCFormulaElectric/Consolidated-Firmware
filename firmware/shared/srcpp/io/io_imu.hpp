@@ -186,8 +186,8 @@ class Imu
     // ExitCode getFifoCount(uint16_t &fifo_count);
 
   public:
-#ifdef TARGET_EMBEDDED    
-  constexpr explicit Imu(
+#ifdef TARGET_EMBEDDED
+    constexpr explicit Imu(
         hw::spi::SpiDevice    &in_imu_spi_handle,
         const ImuFilterConfig &in_filter_config = ImuFilterConfig{})
       : imu_spi_handle(in_imu_spi_handle), filter_config(in_filter_config)
