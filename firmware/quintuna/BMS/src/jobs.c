@@ -321,21 +321,10 @@ void jobs_runLTCDiagnostics(void)
     io_semaphore_give(&ltc_app_data_lock);
 }
 
-void jobs_canRxCallback(const CanMsg *rx_msg)
-{
-    if (io_canRx_filterMessageId_can1(rx_msg->std_id))
-    {
-        io_canQueue_pushRx(rx_msg);
-    }
-
-    io_bootHandler_processBootRequest(rx_msg);
-}
-
 void jobs_runSdCard_tick(void)
 {
-    uint32_t   rounded_soc;
-    const TickType_t timeout = 0;
-    if (xTaskNotifyWait(0, ULONG_MAX, &rounded_soc, timeout) == pdTRUE)
+    uint32_t rounded_soc;
+    if (xTaskNotifyWait(0, ULONG_MAX, &rounded_soc, 0) == pdTRUE)
     {
         app_soc_writeSocToSd((float)rounded_soc / 100.0f);
     }
