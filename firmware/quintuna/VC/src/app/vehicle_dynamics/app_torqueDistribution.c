@@ -46,7 +46,7 @@ void app_torqueAllocation(TorqueAllocationInputs *inputs, TorqueAllocationOutput
     // previously did I believe this will work better with the imu as a left hand turn induces a counter clockwise yaw
     // moment
 
-    // Total toruqe is to be our torque request from pedal * 4. We will assume the pedal percentage applies to
+    // Total torque is to be our torque request from pedal * 4. We will assume the pedal percentage applies to
     // percentage of max torque of motor not of the car
 
     // potential divisino by 0 if load_transfer_const = -1, not sure what values are expected here but should add safety
