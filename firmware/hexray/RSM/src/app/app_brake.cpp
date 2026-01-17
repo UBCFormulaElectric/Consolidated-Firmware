@@ -6,9 +6,9 @@ extern "C"
 #include "app_canTx.h"
 }
 
-#define MIN_BRAKE_PRESSURE_PSI 0.0f
-#define MAX_BRAKE_PRESSURE_PSI 1000.0f
-#define BRAKE_ACTUATED_THRESHOLD_PSI 200.0f
+constexpr float MIN_BRAKE_PRESSURE_PSI = 0.0f;
+constexpr float MAX_BRAKE_PRESSURE_PSI = 1000.0f;
+constexpr float BRAKE_ACTUATED_THRESHOLD_PSI = 200.0f;
 
 namespace app::brake
 {

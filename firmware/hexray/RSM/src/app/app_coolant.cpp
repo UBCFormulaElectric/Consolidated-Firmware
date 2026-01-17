@@ -9,11 +9,11 @@ extern "C"
 
 #include "io_coolant.hpp"
 
-#define MIN_FLOW_RATE_L_PER_MIN 1.0f
-#define MAX_FLOW_RATE_L_PER_MIN 30.0f
+constexpr float MIN_FLOW_RATE_L_PER_MIN = 1.0f;
+constexpr float MAX_FLOW_RATE_L_PER_MIN = 30.0f;
 
-#define FLOW_METER_TIME_TO_FAULT 1000U
-#define FLOW_METER_TIME_TO_CLEAR 1000U
+constexpr uint32_t FLOW_METER_TIME_TO_FAULT = 1000U;
+constexpr uint32_t FLOW_METER_TIME_TO_CLEAR = 1000U;
 
 static const RangeCheck flow_rate_in_range_check = { nullptr, MIN_FLOW_RATE_L_PER_MIN, MAX_FLOW_RATE_L_PER_MIN };
 
