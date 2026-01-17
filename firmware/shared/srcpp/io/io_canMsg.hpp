@@ -2,9 +2,9 @@
 
 #include <cstdint>
 
-#if defined (STM32F412Rx)
+#if defined(STM32F412Rx)
 #define CAN_PAYLOAD_BYTES 8
-#elif defined (STM32H733xx) or defined (STM32H562xx)
+#elif defined(STM32H733xx) or defined(STM32H562xx)
 #define CAN_PAYLOAD_BYTES 64
 #else
 #error "Please define what MCU is used."

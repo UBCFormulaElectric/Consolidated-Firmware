@@ -5,7 +5,6 @@
 #include "hw_hal.h"
 #include "cmsis_os.h"
 
-
 #if defined(STM32H733xx)
 #include "stm32h7xx_hal_fdcan.h"
 #elif defined(STM32H562xx)
@@ -17,18 +16,15 @@ namespace hw
 
 class BaseCan
 {
-
   protected:
-    mutable bool             ready = false;
-    const uint8_t            bus_num;
+    mutable bool  ready = false;
+    const uint8_t bus_num;
 
   public:
     void (*const receive_callback)(const io::CanMsg *rx_msg);
     TaskHandle_t transmit_task = nullptr;
 
-    constexpr explicit BaseCan(
-        const uint8_t      bus_num_in,
-        void (*const receive_callback_in)(const io::CanMsg *rx_msg))
+    constexpr explicit BaseCan(const uint8_t bus_num_in, void (*const receive_callback_in)(const io::CanMsg *rx_msg))
       : bus_num(bus_num_in), receive_callback(receive_callback_in){};
 
     /**
@@ -60,7 +56,7 @@ class BaseCan
      */
     virtual ExitCode receive(uint32_t rx_fifo, io::CanMsg &msg) const = 0;
 
-    constexpr uint8_t            getBusNum() const { return bus_num; }
+    constexpr uint8_t getBusNum() const { return bus_num; }
 };
 /**
  * @attention THIS MUST BE DEFINED IN YOUR CONFIGURATIONS
@@ -69,12 +65,13 @@ class BaseCan
  */
 
 #if defined(STM32F412Rx)
-class can: public BaseCan 
+class can : public BaseCan
 {
+    CAN_HandleTypeDef *const hcan;
 
-  CAN_HandleTypeDef *const hcan;
   private:
-    ExitCode tx(CAN_TxHeaderTypeDef &tx_header,io::CanMsg *msg);
+    ExitCode tx(CAN_TxHeaderTypeDef &tx_header, io::CanMsg *msg);
+
   public:
     constexpr explicit can(
         CAN_HandleTypeDef &hcan_in,
@@ -85,7 +82,7 @@ class can: public BaseCan
     constexpr CAN_HandleTypeDef *getHcan() const { return hcan; }
 
     void init() const override final;
-    
+
     void deinit() const override final;
 
     ExitCode can_transmit(const io::CanMsg &msg) override final;
@@ -95,11 +92,13 @@ class can: public BaseCan
 
 const can &can_getHandle(const CAN_HandleTypeDef *hcan);
 #elif defined(STM32H733xx) or defined(STM32H562xx)
-class fdcan: public BaseCan
+class fdcan : public BaseCan
 {
-  FDCAN_HandleTypeDef *const hfdcan;
+    FDCAN_HandleTypeDef *const hfdcan;
+
   private:
-    ExitCode tx(FDCAN_TxHeaderTypeDef &tx_header,io::CanMsg *msg);
+    ExitCode tx(FDCAN_TxHeaderTypeDef &tx_header, io::CanMsg *msg);
+
   public:
     constexpr explicit fdcan(
         FDCAN_HandleTypeDef &hfdcan_in,
@@ -110,7 +109,7 @@ class fdcan: public BaseCan
     constexpr FDCAN_HandleTypeDef *getHfdcan() const { return hfdcan; }
 
     void init() const override final;
-    
+
     void deinit() const override final;
 
     ExitCode can_transmit(const io::CanMsg &msg) override final;

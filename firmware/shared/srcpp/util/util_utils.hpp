@@ -21,21 +21,66 @@
 
 #define NUM_ELEMENTS_IN_ARRAY(array_pointer) sizeof(array_pointer) / sizeof(array_pointer[0])
 
-constexpr auto MIN(auto a, auto b) { return (a < b) ? a : b; }
-constexpr auto MAX(auto a, auto b) { return (a > b) ? a : b; }
-constexpr auto CLAMP(auto x, auto min, auto max) { return MAX(MIN(x, max), min); }
-constexpr auto SQUARE(auto x) { return x * x; }
-constexpr auto SQRT(auto x) { return static_cast<decltype(x)>(sqrt(static_cast<double>(x))); }
-constexpr auto MIN3(auto x, auto y, auto z) { return MIN(MIN(x, y), z); }
-constexpr auto MIN4(auto w, auto x, auto y, auto z) { return MIN(MIN(MIN(w, x), y), z); }
-constexpr auto CLAMP_TO_ONE(auto x) { return (x <= 0) ? 1 : ((x > 1) ? 1 : x); }
-constexpr bool IS_BIT_SET(auto input, uint8_t bit) { return (bool)((uint8_t)(input >> bit) & 1U); }
-constexpr auto SET_BIT_HIGH(auto input, uint8_t bit) { return input | (1U << bit); }
-constexpr auto SET_BIT_LOW(auto input, uint8_t bit) { return input & ~(1U << bit); }
-constexpr bool APPROX_EQUAL(auto a, auto b, auto threshold) { return (std::fabs(a - b) < threshold); }
-constexpr bool APPROX_EQUAL_FLOAT(float a, float b, float threshold) { return (std::fabsf(a - b) < threshold); }
-constexpr bool IS_IN_RANGE(auto min, auto max, auto val) { return (val > min) && (val < max); }
-constexpr uint16_t CHANGE_WORD_ENDIANNESS(uint16_t word) { return static_cast<uint16_t>(((word >> 8U) | (word << 8U))); }
+constexpr auto MIN(auto a, auto b)
+{
+    return (a < b) ? a : b;
+}
+constexpr auto MAX(auto a, auto b)
+{
+    return (a > b) ? a : b;
+}
+constexpr auto CLAMP(auto x, auto min, auto max)
+{
+    return MAX(MIN(x, max), min);
+}
+constexpr auto SQUARE(auto x)
+{
+    return x * x;
+}
+constexpr auto SQRT(auto x)
+{
+    return static_cast<decltype(x)>(sqrt(static_cast<double>(x)));
+}
+constexpr auto MIN3(auto x, auto y, auto z)
+{
+    return MIN(MIN(x, y), z);
+}
+constexpr auto MIN4(auto w, auto x, auto y, auto z)
+{
+    return MIN(MIN(MIN(w, x), y), z);
+}
+constexpr auto CLAMP_TO_ONE(auto x)
+{
+    return (x <= 0) ? 1 : ((x > 1) ? 1 : x);
+}
+constexpr bool IS_BIT_SET(auto input, uint8_t bit)
+{
+    return (bool)((uint8_t)(input >> bit) & 1U);
+}
+constexpr auto SET_BIT_HIGH(auto input, uint8_t bit)
+{
+    return input | (1U << bit);
+}
+constexpr auto SET_BIT_LOW(auto input, uint8_t bit)
+{
+    return input & ~(1U << bit);
+}
+constexpr bool APPROX_EQUAL(auto a, auto b, auto threshold)
+{
+    return (std::fabs(a - b) < threshold);
+}
+constexpr bool APPROX_EQUAL_FLOAT(float a, float b, float threshold)
+{
+    return (std::fabsf(a - b) < threshold);
+}
+constexpr bool IS_IN_RANGE(auto min, auto max, auto val)
+{
+    return (val > min) && (val < max);
+}
+constexpr uint16_t CHANGE_WORD_ENDIANNESS(uint16_t word)
+{
+    return static_cast<uint16_t>(((word >> 8U) | (word << 8U)));
+}
 
 constexpr uint32_t MAX_4_BITS_VALUE  = static_cast<uint32_t>(15);
 constexpr uint32_t MAX_6_BITS_VALUE  = static_cast<uint32_t>(63);

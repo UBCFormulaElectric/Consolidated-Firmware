@@ -18,7 +18,7 @@
 #include "stm32h5xx_hal_fdcan.h"
 #endif
 
-ExitCode hw::fdcan::tx(FDCAN_TxHeaderTypeDef &tx_header, io::CanMsg *msg) 
+ExitCode hw::fdcan::tx(FDCAN_TxHeaderTypeDef &tx_header, io::CanMsg *msg)
 {
     for (uint32_t poll = 0; HAL_FDCAN_GetTxFifoFreeLevel(hfdcan) == 0U;)
     {
@@ -31,14 +31,14 @@ ExitCode hw::fdcan::tx(FDCAN_TxHeaderTypeDef &tx_header, io::CanMsg *msg)
         }
         assert(transmit_task == NULL);
         assert(osKernelGetState() == taskSCHEDULER_RUNNING && !xPortIsInsideInterrupt());
-        transmit_task = xTaskGetCurrentTaskHandle();
+        transmit_task             = xTaskGetCurrentTaskHandle();
         const uint32_t num_notifs = ulTaskNotifyTake(pdTRUE, 1000);
         UNUSED(num_notifs);
         transmit_task = NULL;
     }
     return hw_utils_convertHalStatus(HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &tx_header, msg->data.data8));
 }
-void hw::fdcan::init() const 
+void hw::fdcan::init() const
 {
     assert(!ready);
     // Configure a single filter bank that accepts any message.
@@ -53,17 +53,15 @@ void hw::fdcan::init() const
 // Fields only enabled for H7
 #if defined(STM32H753xx)
     filter.IsCalibrationMsg = 0;
-    filter.RxBufferIndex    = 0;    
+    filter.RxBufferIndex    = 0;
 #endif
 
-    const ExitCode configure_filter_status = 
-        hw_utils_convertHalStatus(HAL_FDCAN_ConfigFilter(hfdcan, &filter));
+    const ExitCode configure_filter_status = hw_utils_convertHalStatus(HAL_FDCAN_ConfigFilter(hfdcan, &filter));
     ASSERT_EXIT_OK(configure_filter_status);
 
     // Configure interrupt mode for CAN peripheral.
     const ExitCode configure_notis_ok = hw_utils_convertHalStatus(HAL_FDCAN_ActivateNotification(
-        hfdcan,
-        FDCAN_IT_RX_FIFO0_NEW_MESSAGE | FDCAN_IT_RX_FIFO1_NEW_MESSAGE | FDCAN_IT_BUS_OFF | FDCAN_IT_TX_COMPLETE,
+        hfdcan, FDCAN_IT_RX_FIFO0_NEW_MESSAGE | FDCAN_IT_RX_FIFO1_NEW_MESSAGE | FDCAN_IT_BUS_OFF | FDCAN_IT_TX_COMPLETE,
         FDCAN_TX_BUFFER0));
     ASSERT_EXIT_OK(configure_notis_ok);
 
@@ -73,15 +71,14 @@ void hw::fdcan::init() const
     ready = true;
 }
 
-void hw::fdcan::deinit() const 
+void hw::fdcan::deinit() const
 {
     assert(HAL_FDCAN_Stop(hfdcan) == HAL_OK);
     assert(HAL_FDCAN_DeInit(hfdcan) == HAL_OK);
 }
 
-ExitCode hw::fdcan::can_transmit(const io::CanMsg &msg) 
+ExitCode hw::fdcan::can_transmit(const io::CanMsg &msg)
 {
-
     assert(ready);
     FDCAN_TxHeaderTypeDef tx_header;
     tx_header.Identifier          = msg.std_id;
@@ -96,7 +93,7 @@ ExitCode hw::fdcan::can_transmit(const io::CanMsg &msg)
     return tx(tx_header, const_cast<io::CanMsg *>(&msg));
 }
 
-ExitCode hw::fdcan::fdcan_transmit(const io::CanMsg &msg) 
+ExitCode hw::fdcan::fdcan_transmit(const io::CanMsg &msg)
 {
     assert(ready);
 
@@ -147,13 +144,12 @@ ExitCode hw::fdcan::fdcan_transmit(const io::CanMsg &msg)
     return tx(tx_header, const_cast<io::CanMsg *>(&msg));
 }
 
-ExitCode hw::fdcan::receive(const uint32_t rx_fifo, io::CanMsg &msg) const 
+ExitCode hw::fdcan::receive(const uint32_t rx_fifo, io::CanMsg &msg) const
 {
     assert(ready);
     FDCAN_RxHeaderTypeDef header;
 
-    RETURN_IF_ERR(
-        hw_utils_convertHalStatus(HAL_FDCAN_GetRxMessage(hfdcan, rx_fifo, &header, msg.data.data8)););
+    RETURN_IF_ERR(hw_utils_convertHalStatus(HAL_FDCAN_GetRxMessage(hfdcan, rx_fifo, &header, msg.data.data8)););
 
     // Copy metadata from HAL's CAN message struct into our custom CAN
     // message struct
@@ -187,7 +183,8 @@ static ExitCode handleCallback(FDCAN_HandleTypeDef *hfdcan, uint8_t fifo)
 
     RETURN_IF_ERR_SILENT(handle.receive(fifo, rx_msg));
 
-    if(handle.receive_callback == nullptr) {
+    if (handle.receive_callback == nullptr)
+    {
         LOG_ERROR("CAN has no callback configured!");
         return ExitCode::EXIT_CODE_ERROR;
     }
@@ -199,13 +196,15 @@ static ExitCode handleCallback(FDCAN_HandleTypeDef *hfdcan, uint8_t fifo)
 CFUNC void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo0ITs)
 {
     UNUSED(RxFifo0ITs);
-    while (IS_EXIT_OK(handleCallback(hfdcan, FDCAN_RX_FIFO0)));
+    while (IS_EXIT_OK(handleCallback(hfdcan, FDCAN_RX_FIFO0)))
+        ;
 }
 
 CFUNC void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo1ITs)
 {
     UNUSED(RxFifo1ITs);
-    while (IS_EXIT_OK(handleCallback(hfdcan, FDCAN_RX_FIFO1)));
+    while (IS_EXIT_OK(handleCallback(hfdcan, FDCAN_RX_FIFO1)))
+        ;
 }
 
 CFUNC void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t BufferIndexes)
