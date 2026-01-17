@@ -66,7 +66,7 @@ ExitCode can::tx(CAN_TxHeaderTypeDef &tx_header, io::CanMsg *msg)
     return hw_utils_convertHalStatus(HAL_CAN_AddTxMessage(hcan, &tx_header, msg.data.data8, &mailbox));
 }
 
-void  can::init() const 
+void can::init() const
 {
     assert(!ready);
     // Configure a single filter bank that accepts any message.
