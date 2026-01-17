@@ -1,3 +1,4 @@
+// Just some dummy functions to pass the Github build checks, NEEDED TO IMPLEMENT THESE FUNCTIONS LATER
 extern "C"
 {
 #include "io_imu.h"
