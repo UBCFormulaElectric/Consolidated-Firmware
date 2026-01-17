@@ -35,11 +35,16 @@ set(IO_INCLUDE_DIRS
         "${SHARED_IO_INCLUDE_DIR_CPP}"
 )
 
+file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
+list(APPEND IO_SRCS
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
+)
+
 file(GLOB_RECURSE HW_SRCS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp"
 )
 list(APPEND HW_SRCS
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_ubsan.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
 )
 set(HW_INCLUDE_DIRS
         #"${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
