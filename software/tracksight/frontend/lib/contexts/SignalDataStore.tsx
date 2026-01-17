@@ -95,7 +95,42 @@ const useSignalDataStore = (signalName: string) => {
   return cachedReferenceRef;
 }
 
+const useSignalDataStores = (signalNames: string[]) => {
+  const context = useContext(SignalDataStoreContext);
+
+  if (context === null) {
+    throw new Error("useSignalDataStores must be used within a SignalDataStoreProvider");
+  }
+
+  const { signalStore } = context;
+  const cachedReferencesRef = useRef<Map<string, ReturnType<GenericSignalStore['getReferenceToSignal']>>>(new Map());
+
+  useEffect(() => {
+    return () => {
+      if (!signalStore.current) return;
+
+      signalNames.forEach((signalName) => {
+        signalStore.current!.purgeReferenceToSignal(signalName);
+      });
+    };
+  }, [signalNames, signalStore.current]);
+
+  useEffect(() => {
+    if (!signalStore.current) return;
+
+    signalNames.forEach((signalName) => {
+      if (!cachedReferencesRef.current.has(signalName)) {
+        const reference = signalStore.current!.getReferenceToSignal(signalName);
+        cachedReferencesRef.current.set(signalName, reference);
+      }
+    });
+  }, [signalNames, signalStore.current]);
+
+  return cachedReferencesRef;
+}
+
+
 export type { GenericSignalStore };
 
-export { SignalDataStoreProvider, useSignalDataStore };
+export { SignalDataStoreProvider, useSignalDataStore, useSignalDataStores };
 
