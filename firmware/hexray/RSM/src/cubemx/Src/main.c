@@ -462,6 +462,7 @@ static void MX_TIM1_Init(void)
     {
         Error_Handler();
     }
+    sConfigIC.ICPolarity  = TIM_INPUTCHANNELPOLARITY_FALLING;
     sConfigIC.ICSelection = TIM_ICSELECTION_INDIRECTTI;
     if (HAL_TIM_IC_ConfigChannel(&htim1, &sConfigIC, TIM_CHANNEL_2) != HAL_OK)
     {
@@ -485,6 +486,7 @@ static void MX_TIM3_Init(void)
 
     TIM_ClockConfigTypeDef  sClockSourceConfig = { 0 };
     TIM_MasterConfigTypeDef sMasterConfig      = { 0 };
+    TIM_OC_InitTypeDef      sConfigOC          = { 0 };
 
     /* USER CODE BEGIN TIM3_Init 1 */
 
@@ -504,9 +506,21 @@ static void MX_TIM3_Init(void)
     {
         Error_Handler();
     }
+    if (HAL_TIM_OC_Init(&htim3) != HAL_OK)
+    {
+        Error_Handler();
+    }
     sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
     sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
     if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sConfigOC.OCMode     = TIM_OCMODE_TIMING;
+    sConfigOC.Pulse      = 0;
+    sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+    sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+    if (HAL_TIM_OC_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
     {
         Error_Handler();
     }

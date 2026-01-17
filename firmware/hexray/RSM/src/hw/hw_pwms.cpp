@@ -3,16 +3,10 @@
 
 namespace hw::pwm
 {
-PwmInput flow_meter_config(&htim1, 
-             HAL_TIM_ACTIVE_CHANNEL_1,
-               TIM1_FREQUENCY,
-        TIM_CHANNEL_1,
-       TIM_CHANNEL_2,
-            TIM1_ARR
-);
+PwmInput flow_meter_config(&htim1, HAL_TIM_ACTIVE_CHANNEL_1, TIM1_FREQUENCY, TIM_CHANNEL_1, TIM_CHANNEL_2, TIM1_ARR);
 
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
     flow_meter_config.tick();
 }
-}
+} // namespace hw::pwm
