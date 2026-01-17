@@ -1,4 +1,4 @@
-use crate::can_database::{CanDatabase, CanMessage, CanSignal, CanSignalType, error::CanDBError};
+use crate::can_database::{CanDatabase, CanMessage, CanSignal, CanSignalType, DecodedSignal, error::CanDBError};
 
 impl CanDatabase {
     pub fn get_message_by_node(
@@ -185,5 +185,72 @@ impl CanDatabase {
             Err(e) => Err(CanDBError::SqlLiteError(e)),
             Ok(k) => Ok(k.map(|res| res.unwrap()).collect()),
         }
+    }
+
+    pub fn pack(&self) -> Vec<u8> {
+        todo!("Serializing or whatnot")
+    }
+
+    pub fn unpack(&self, msg_id: u32, data: Vec<u8>, timestamp: Option<std::time::SystemTime>) -> Vec<DecodedSignal> {
+        let msgs = match self.get_message_by_id(msg_id) {
+            Ok(m) => m,
+            Err(_) => {
+                eprintln!("Message ID {} not found in database", msg_id);
+                return Vec::new()
+            },
+        };
+
+        let mut decoded_signals: Vec<DecodedSignal> = Vec::new();
+
+        let data_uint: u32 = match data.try_into() {
+            Ok(d) => u32::from_le_bytes(d),
+            Err(_) => {
+                eprintln!("Failed to convert bytes to u32");
+                return Vec::new();
+            }
+        };
+
+        for signal in msgs.signals {
+            // Extract the bits representing the current signal.
+            let data_shifted = data_uint >> signal.start_bit;
+
+            let bitmask = (1 << signal.bits) - 1;
+            let raw_value = {
+                let val = data_shifted & bitmask;
+                // Handle signed values via 2's complement
+                if signal.signed && (val & (1 << (signal.bits - 1)) != 0) {
+                    val - (1 << signal.bits)
+                } else {
+                    val
+                }         
+            };
+
+            // Apply scaling and offset
+            let scaled_value = raw_value as f64 * signal.scale + signal.offset;
+
+            // Initialize decoded signal
+
+            let decoded = DecodedSignal {
+                name: signal.name,
+                value: scaled_value,
+                timestamp: timestamp,
+                unit: signal.unit,
+                label: signal.enum_name.as_deref().and_then(|enum_name| {
+                    self.get_enum(enum_name).and_then(|can_enum| {
+                        can_enum.values.iter()
+                            .find(|(_, val)| **val as f64 == scaled_value)
+                            .map(|(k, _)| k.clone())
+                    })
+                }),
+            };
+            
+            if decoded.label.is_none() {
+                continue;
+            }
+
+            decoded_signals.push(decoded);
+        }
+
+        return decoded_signals;
     }
 }
