@@ -40,6 +40,17 @@ pub async fn run_can_data_handler(mut shutdown_rx: broadcast::Receiver<()>, mut 
                 break;
             }
             Ok(can_payload) = can_queue_rx.recv() => {
+                let can_message = match can_db.get_message_by_id(can_payload.can_id) {
+                    Ok(c) => c,
+                    Err(_) => {
+                        eprintln!("Unknown CAN ID: {:X}", can_payload.can_id);
+                        continue;
+                    },
+                };
+
+                for signal in can_message.unpack(can_payload.payload) {
+                    // iterate through subscribers and send signal
+                }
             }
         }
     }
