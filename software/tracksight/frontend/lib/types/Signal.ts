@@ -12,6 +12,7 @@ type EnumSignalMetadata = CommonSignalMetadata & {
   };
   min_val: number;
   max_val: number;
+  unit: null;
   cycle_time_ms: number | null;
 };
 
@@ -25,6 +26,7 @@ type NumericalSignalMetadata = CommonSignalMetadata & {
 type AlertSignalMetadata = CommonSignalMetadata & {
   min_val: 0;
   max_val: 1;
+  unit: null;
   cycle_time_ms: number | null;
 };
 

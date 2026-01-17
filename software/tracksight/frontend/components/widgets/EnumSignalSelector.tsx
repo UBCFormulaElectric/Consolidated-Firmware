@@ -3,7 +3,7 @@ import React, { RefObject, useRef } from "react";
 
 import SignalSelector from "@/components/SignalSelector";
 import useSignalMetadata from "@/lib/hooks/useSignalMetadata";
-import { isEnumSignalMetadata } from "@/lib/types/Signal";
+import { isEnumSignalMetadata, SignalMetadata } from "@/lib/types/Signal";
 
 type EnumSignalSelectorProps = {
   currentSignal: string;
