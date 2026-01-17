@@ -1,13 +1,32 @@
 extern "C"
 {
 #include "io_imu.h"
-#include "hw_i2cs.h"
+    ExitCode io_imu_init(void)
+    {
+        return EXIT_CODE_OK;
+    }
+    ExitCode io_imu_getLinearAccelerationX(float *x_acceleration)
+    {
+        return EXIT_CODE_OK;
+    }
+    ExitCode io_imu_getLinearAccelerationY(float *y_acceleration)
+    {
+        return EXIT_CODE_OK;
+    }
+    ExitCode io_imu_getLinearAccelerationZ(float *z_acceleration)
+    {
+        return EXIT_CODE_OK;
+    }
+    ExitCode io_imu_getAngularVelocityRoll(float *roll_velocity)
+    {
+        return EXIT_CODE_OK;
+    }
+    ExitCode io_imu_getAngularVelocityPitch(float *pitch_velocity)
+    {
+        return EXIT_CODE_OK;
+    }
+    ExitCode io_imu_getAngularVelocityYaw(float *yaw_velocity)
+    {
+        return EXIT_CODE_OK;
+    }
 }
-
-const imuConfig imu_config = { .imu_i2c_handle = &imu_i2c, // TODO configure this
-                               .x_accel_offset = 0.0f,
-                               .y_accel_offset = 0.0f,
-                               .z_accel_offset = 0.0f,
-                               .roll_offset    = 0.0f,
-                               .pitch_offset   = 0.0f,
-                               .yaw_offset     = 0.0f };
