@@ -187,68 +187,11 @@ class Imu
     hw::spi::SpiDevice &imu_spi_handle;
     #endif
 
-    // Adjust scaling for all
-    static constexpr AccelScale accel_scale = AccelScale::ACCEL_G_4;
-    static constexpr GyroScale  gyro_scale  = GyroScale::GYRO_DPS_250;
-
-    static constexpr float accel_sensitivity = []()
-    {
-        switch (accel_scale)
-        {
-            case AccelScale::ACCEL_G_2:
-                return 16384.0f;
-            case AccelScale::ACCEL_G_4:
-                return 8192.0f;
-            case AccelScale::ACCEL_G_8:
-                return 4096.0f;
-            case AccelScale::ACCEL_G_16:
-                return 2048.0f;
-            default:
-                return 8192.0f;
-        }
-    }();
-
-    static constexpr float gyro_sensitivity = []()
-    {
-        switch (gyro_scale)
-        {
-            case GyroScale::GYRO_DPS_250:
-                return 131.0f;
-            case GyroScale::GYRO_DPS_500:
-                return 65.5f;
-            case GyroScale::GYRO_DPS_1000:
-                return 32.8f;
-            case GyroScale::GYRO_DPS_1250:
-                return 16.4f;
-            default:
-                return 131.0f;
-        }
-    }();
-    static constexpr float temp_scale = 326.8f;
-
     ImuFilterConfig filter_config;
     // ImuFifoConfig   fifo_config;
     bool            is_imu_ready = false;
 
-    static float translateAccelData(uint8_t data_h, uint8_t data_l)
-    {
-        int16_t raw = static_cast<int16_t>((data_h << 8) | data_l);
-        return static_cast<float>(raw / accel_sensitivity);
-    }
-
-    static float translateGyroData(uint8_t data_h, uint8_t data_l)
-    {
-        int16_t raw = static_cast<int16_t>((data_h << 8) | data_l);
-        return static_cast<float>(raw / gyro_sensitivity);
-    }
-
-    static float translateTempData(uint8_t data_h, uint8_t data_l)
-    {
-        int16_t raw = static_cast<int16_t>((data_h << 8) | data_l);
-        return static_cast<float>((raw / 326.8f) + 25.0f);
-    }
-
-    ExitCode getFifoCount(uint16_t &fifo_count);
+    // ExitCode getFifoCount(uint16_t &fifo_count);
 
   public:
     constexpr explicit Imu(hw::spi::SpiDevice &in_imu_spi_handle, const ImuFilterConfig &in_filter_config = ImuFilterConfig{})
