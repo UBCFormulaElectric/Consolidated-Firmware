@@ -3,11 +3,6 @@
 // #include "hw_gpios.hpp"
 namespace io::brake
 {
-static float pressureFromVoltage(float voltage)
-{
-    return 0;
-}
-
 bool isActuated(void)
 {
     return false;
