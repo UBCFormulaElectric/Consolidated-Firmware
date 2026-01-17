@@ -52,16 +52,21 @@ extern "C"
 
     /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler(void);
-    void tasks_init(void);
+
     /* USER CODE BEGIN EFP */
     extern ADC_HandleTypeDef   hadc1;
     extern FDCAN_HandleTypeDef hfdcan1;
     extern I2C_HandleTypeDef   hi2c2;
     extern SPI_HandleTypeDef   hspi3;
+    extern TIM_HandleTypeDef   htim1;
     extern TIM_HandleTypeDef   htim3;
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define TIMx_FREQUENCY 64000000
+#define TIM1_FREQUENCY 100
+#define TIM1_PRESCALER 64
+#define TIM1_ARR 1000
 #define BPS_R_3V3_Pin GPIO_PIN_2
 #define BPS_R_3V3_GPIO_Port GPIOC
 #define LC3_OUT_Pin GPIO_PIN_0

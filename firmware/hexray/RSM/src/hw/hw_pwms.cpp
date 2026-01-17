@@ -1,10 +1,18 @@
-#include "hw_pwmInput.hpp"
+#include "hw_pwms.hpp"
 #include "main.h"
 
-#define TIM_3_ARR 65535
-#define TIM_3_
-
-namespace hw
+namespace hw::pwm
 {
-PwmInput pwm(&htim1, HAL_TIM_ACTIVE_CHANNEL_1, );
+PwmInput flow_meter_config(&htim1, 
+             HAL_TIM_ACTIVE_CHANNEL_1,
+               TIM1_FREQUENCY,
+        TIM_CHANNEL_1,
+       TIM_CHANNEL_2,
+            TIM1_ARR
+);
+
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
+{
+    flow_meter_config.tick();
+}
 }

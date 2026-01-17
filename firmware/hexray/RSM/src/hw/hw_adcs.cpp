@@ -5,7 +5,7 @@
 namespace hw::adcs
 {
 #define NUM_ADC_CHANNELS 5
-AdcChip<NUM_ADC_CHANNELS> Adc_Chip(&hadc1, &htim2);
+AdcChip<NUM_ADC_CHANNELS> Adc_Chip(&hadc1, &htim3);
 
 void chipsInit()
 {
