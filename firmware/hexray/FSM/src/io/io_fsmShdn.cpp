@@ -23,4 +23,3 @@ bool FR_SHDN_OK_get(void)
     return false;
 }
 } // namespace io::fsmShdn
-

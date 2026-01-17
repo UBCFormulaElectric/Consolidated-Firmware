@@ -9,10 +9,7 @@ static float calcAppsAngle(const float cos_law_coefficient, const float pot_len,
     return NULL;
 }
 
-void init()
-{
-
-}
+void init() {}
 
 float getPrimary(void)
 {
