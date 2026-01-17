@@ -10,6 +10,7 @@
   "clangd.arguments": [
     "--compile-commands-dir=build_fw_dev",
     // "--compile-commands-dir=build_fw_test",
-    "--query-driver=/Applications/ArmGNUToolchain/14.3.rel1/arm-none-eabi/bin/arm-none-eabi-g++"
-  ]
+    "--query-driver=/usr/local/bin/arm-none-eabi-gcc"
+  ],
+  "cortex-debug.variableUseNaturalFormat": false,
 }
