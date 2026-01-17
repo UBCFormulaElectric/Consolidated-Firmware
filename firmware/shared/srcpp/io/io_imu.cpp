@@ -129,7 +129,7 @@ struct __attribute__((packed)) PwrMgmt2
     uint8_t FIFO_LP_EN : 1 = 0; // [7] Enable FIFO in low-power mode
 };
 
-    // Self-Test Registers
+// Self-Test Registers
 static constexpr uint8_t SELF_TEST_X_GYRO  = 0x00;
 static constexpr uint8_t SELF_TEST_Y_GYRO  = 0x01;
 static constexpr uint8_t SELF_TEST_Z_GYRO  = 0x02;
@@ -189,10 +189,10 @@ static constexpr uint8_t PWR_MGMT_1        = 0x6B;
 static constexpr uint8_t PWR_MGMT_2        = 0x6C;
 
 // FIFO Registers
-static constexpr uint8_t FIFO_COUNTH = 0x72;
+static constexpr uint8_t FIFO_COUNTH      = 0x72;
 static constexpr uint8_t FIFO_COUNTH_MASK = 0x1F;
-static constexpr uint8_t FIFO_COUNTL = 0x73;
-static constexpr uint8_t FIFO_R_W    = 0x74;
+static constexpr uint8_t FIFO_COUNTL      = 0x73;
+static constexpr uint8_t FIFO_R_W         = 0x74;
 
 // Device Identification
 static constexpr uint8_t WHO_AM_I     = 0x75;
@@ -321,7 +321,7 @@ ExitCode Imu::init()
     // if (fifo_config.enableFifo())
     // {
     //     assert(filter_config.getAccelOdrHz() == filter_config.getGyroOdrHz());
-        
+
     //     // Enable fifos
     //     user_ctrl.FIFO_EN = static_cast<uint8_t>(fifo_config.enableFifo()) & 0x01;
     //     fifo_en.ACCEL_FIFO_EN = static_cast<uint8_t>(fifo_config.enable_accel_fifo) & 0x01;
@@ -335,32 +335,30 @@ ExitCode Imu::init()
     //     int_enable.FIFO_OFLOW_INT_EN = static_cast<uint8_t>(fifo_config.fifo_overflow_int_enable) & 0x01;
     // }
 
-    std::array<const uint8_t, 24> tx_config = {
-        { WRITE_IMU_REG(SMPLRT_DIV),     std::bit_cast<uint8_t>(smplrt_div),
-          WRITE_IMU_REG(CONFIG),         std::bit_cast<uint8_t>(config),
-          WRITE_IMU_REG(GYRO_CONFIG),    std::bit_cast<uint8_t>(gyro_config),
-          WRITE_IMU_REG(ACCEL_CONFIG),   std::bit_cast<uint8_t>(accel_config),
-          WRITE_IMU_REG(ACCEL_CONFIG_2), std::bit_cast<uint8_t>(accel_config2),
-          WRITE_IMU_REG(LP_MODE_CONFIG), std::bit_cast<uint8_t>(lp_mode_config),
-          WRITE_IMU_REG(INT_PIN_CONFIG), std::bit_cast<uint8_t>(int_pin_config),
-          WRITE_IMU_REG(FIFO_EN),        std::bit_cast<uint8_t>(fifo_en),
-          WRITE_IMU_REG(INT_ENABLE),     std::bit_cast<uint8_t>(int_enable),
-          WRITE_IMU_REG(USER_CTRL),      std::bit_cast<uint8_t>(user_ctrl),
-          WRITE_IMU_REG(PWR_MGMT_1),     std::bit_cast<uint8_t>(pwr_mgmt1),
-          WRITE_IMU_REG(PWR_MGMT_2),     std::bit_cast<uint8_t>(pwr_mgmt2) }
-    };
+    std::array<const uint8_t, 24> tx_config = { { WRITE_IMU_REG(SMPLRT_DIV),     std::bit_cast<uint8_t>(smplrt_div),
+                                                  WRITE_IMU_REG(CONFIG),         std::bit_cast<uint8_t>(config),
+                                                  WRITE_IMU_REG(GYRO_CONFIG),    std::bit_cast<uint8_t>(gyro_config),
+                                                  WRITE_IMU_REG(ACCEL_CONFIG),   std::bit_cast<uint8_t>(accel_config),
+                                                  WRITE_IMU_REG(ACCEL_CONFIG_2), std::bit_cast<uint8_t>(accel_config2),
+                                                  WRITE_IMU_REG(LP_MODE_CONFIG), std::bit_cast<uint8_t>(lp_mode_config),
+                                                  WRITE_IMU_REG(INT_PIN_CONFIG), std::bit_cast<uint8_t>(int_pin_config),
+                                                  WRITE_IMU_REG(FIFO_EN),        std::bit_cast<uint8_t>(fifo_en),
+                                                  WRITE_IMU_REG(INT_ENABLE),     std::bit_cast<uint8_t>(int_enable),
+                                                  WRITE_IMU_REG(USER_CTRL),      std::bit_cast<uint8_t>(user_ctrl),
+                                                  WRITE_IMU_REG(PWR_MGMT_1),     std::bit_cast<uint8_t>(pwr_mgmt1),
+                                                  WRITE_IMU_REG(PWR_MGMT_2),     std::bit_cast<uint8_t>(pwr_mgmt2) } };
 
-    exit               = imu_spi_handle.transmit(tx_config);
+    exit         = imu_spi_handle.transmit(tx_config);
     is_imu_ready = IS_EXIT_OK(exit);
 
     return exit;
 }
 
 // ExitCode Imu::getFifoCount(uint16_t &fifo_count)
-// {    
+// {
 //     if (is_imu_ready == false)
 //         return ExitCode::EXIT_CODE_ERROR;
-    
+
 //     std::array<const uint8_t, 1> tx {{ READ_IMU_REG(FIFO_COUNTH)}};
 //     std::array<uint8_t, 2> rx{};
 

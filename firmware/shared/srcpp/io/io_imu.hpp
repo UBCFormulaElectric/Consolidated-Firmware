@@ -28,7 +28,6 @@
  * Gyro Scale +-250dps
  */
 
-
 enum class GyroScale : uint8_t
 {
     GYRO_DPS_250 = 0x0U,
@@ -86,8 +85,8 @@ enum class AccelDlpfConfig : uint8_t
  * ODR = Internal Base Rate / (1 + Sample Rate Divider)
  * Look at Internal Base Rates for the Accelerometer and Gryoscope depending
  * on cutoff frequency above
- * 
- * Note: If Fifo is enabled, Accel and Gyro ODR should be the same 
+ *
+ * Note: If Fifo is enabled, Accel and Gyro ODR should be the same
  * to prevent data duplication in the Fifo
  *
  * Default Behaviour:
@@ -108,11 +107,8 @@ struct ImuFilterConfig
     {
         return static_cast<uint16_t>(base_rate / (1U + sample_rate_div));
     }
-    
-    inline constexpr uint16_t getAccelOdrHz()
-    {
-        return (enable_accel_dlpf == true) ? calculateOdr(1000U) : 4000U;
-    }
+
+    inline constexpr uint16_t getAccelOdrHz() { return (enable_accel_dlpf == true) ? calculateOdr(1000U) : 4000U; }
 
     inline constexpr uint16_t getGyroOdrHz()
     {
@@ -126,7 +122,7 @@ struct ImuFilterConfig
 /**
  * TODO: ADD Fifo after research
  * Considering polling 3 IMUs secquentially:
- * 
+ *
  * So far it seems like 2000Hz ODR produces optimal phase delay (~1.47ms)
  * Number of bytes to poll in total = 720 bytes
  * RAM Buffer size 240 Bytes < MAX SPI BUFFER SIZE
@@ -142,29 +138,25 @@ enum class FifoSize : uint8_t
 struct ImuFifoConfig
 {
     // enable fifos
-    bool enable_accel_fifo = false;
+    bool enable_accel_fifo  = false;
     bool enable_gyro_x_fifo = false;
     bool enable_gyro_y_fifo = false;
     bool enable_gyro_z_fifo = false;
-    bool enable_temp_fifo = false;
+    bool enable_temp_fifo   = false;
     // fifo configuration
-    bool fifo_mode    = false; // false=Overwrite old data, true=Stop when full
-    FifoSize fifo_size = FifoSize::SIZE_512B; // Specifies FIFO Size
-    bool     fifo_overflow_int_enable = false; 
+    bool     fifo_mode                = false;               // false=Overwrite old data, true=Stop when full
+    FifoSize fifo_size                = FifoSize::SIZE_512B; // Specifies FIFO Size
+    bool     fifo_overflow_int_enable = false;
 
     inline constexpr bool enableFifo()
     {
-        return enable_accel_fifo || enable_gyro_x_fifo || enable_gyro_y_fifo || 
-        enable_gyro_z_fifo || enable_temp_fifo;
+        return enable_accel_fifo || enable_gyro_x_fifo || enable_gyro_y_fifo || enable_gyro_z_fifo || enable_temp_fifo;
     }
 
     inline constexpr size_t getFifoPacketSize() const
     {
-        return (enable_accel_fifo  ? 6 : 0) +
-            (enable_temp_fifo   ? 2 : 0) +
-            (enable_gyro_x_fifo ? 2 : 0) +
-            (enable_gyro_y_fifo ? 2 : 0) +
-            (enable_gyro_z_fifo ? 2 : 0);
+        return (enable_accel_fifo ? 6 : 0) + (enable_temp_fifo ? 2 : 0) + (enable_gyro_x_fifo ? 2 : 0) +
+               (enable_gyro_y_fifo ? 2 : 0) + (enable_gyro_z_fifo ? 2 : 0);
     }
 };
 
@@ -183,25 +175,27 @@ class Imu
     };
 
   private:
-    #ifdef TARGET_EMBEDDED
+#ifdef TARGET_EMBEDDED
     hw::spi::SpiDevice &imu_spi_handle;
-    #endif
+#endif
 
     ImuFilterConfig filter_config;
     // ImuFifoConfig   fifo_config;
-    bool            is_imu_ready = false;
+    bool is_imu_ready = false;
 
     // ExitCode getFifoCount(uint16_t &fifo_count);
 
   public:
-    constexpr explicit Imu(hw::spi::SpiDevice &in_imu_spi_handle, const ImuFilterConfig &in_filter_config = ImuFilterConfig{})
+    constexpr explicit Imu(
+        hw::spi::SpiDevice    &in_imu_spi_handle,
+        const ImuFilterConfig &in_filter_config = ImuFilterConfig{})
       : imu_spi_handle(in_imu_spi_handle), filter_config(in_filter_config)
     {
     }
 
-    #ifdef TARGET_TEST
+#ifdef TARGET_TEST
     constexpr explicit Imu() {}
-    #endif
+#endif
 
     constexpr explicit Imu() {}
 
@@ -225,8 +219,8 @@ class Imu
     ExitCode getAccelAll(AccelData &data);
     ExitCode getGyroAll(GyroData &data);
 
-    #ifdef TARGET_TEST
-    bool  initialized = false;
+#ifdef TARGET_TEST
+    bool  initialized  = false;
     float accel_x_fake = 0.0f, accel_y_fake = 0.0f, accel_z_fake = 0.0f, gyro_x_fake = 0.0f, gyro_y_fake = 0.0f,
           gyro_z_fake = 0.0f;
 
@@ -238,6 +232,6 @@ class Imu
     void set_GyroRoll(float gyro_x_fake);
     void set_GyroPitch(float gyro_y_fake);
     void set_GyroYaw(float gyro_z_fake);
-    #endif
+#endif
 };
 } // namespace io::imu
