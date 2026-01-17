@@ -1,13 +1,11 @@
 #pragma once
 #include "util_utils.hpp"
-// #include "io_canMsg.h"
 
-void             tasks_preInit();
-void             tasks_init();
-CFUNC NORET void tasks_run1Hz();
-CFUNC NORET void tasks_run100Hz();
-CFUNC NORET void tasks_run1kHz();
-CFUNC NORET void tasks_runCanTx();
-// void           tasks_runCanRxCallback(const CanMsg *msg);
-CFUNC NORET void tasks_runCanRx();
-CFUNC NORET void tasks_runChimera(void);
+CFUNC void       tasks_preInit(void);
+CFUNC void       tasks_init(void);
+CFUNC NORET void tasks_run1Hz(void *arg);
+CFUNC NORET void tasks_run100Hz(void *arg);
+CFUNC NORET void tasks_run1kHz(void *arg);
+CFUNC NORET void tasks_runCanTx(void *arg);
+CFUNC NORET void tasks_runCanRx(void *arg);
+CFUNC NORET void tasks_runChimera(void *arg);
