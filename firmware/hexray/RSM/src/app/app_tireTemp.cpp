@@ -6,8 +6,8 @@ extern "C"
 #include "app_canTx.h"
 }
 
-#define MIN_TIRE_TEMPERATURE_CELSIUS -20.0f
-#define MAX_TIRE_TEMPERATURE_CELSIUS 200.0f
+constexpr float MIN_TIRE_TEMPERATURE_CELSIUS = -20.0f;
+constexpr float MAX_TIRE_TEMPERATURE_CELSIUS = 200.0f;
 
 namespace app::tireTemp
 {
