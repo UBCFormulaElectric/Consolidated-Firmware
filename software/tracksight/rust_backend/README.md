@@ -5,7 +5,7 @@ rust my beloved
 
 todo for backend
 [x] reading from serial and parsing
-[x] queuing can messages to push to influx
+[x] set up channels between handlers
 [x] switch to using tokio (?)
 [x] verify that serial messages can be processed
 [ ] processing jsoncan to read metadata - deserialize bytes
@@ -14,6 +14,7 @@ todo for backend
 [ ] socket clients to publish data
 [ ] proper error handling in backend and using optimal threading or whatnot
 [ ] implementing api endpoints
+[ ] implementing ntp and base time syncing
 ...
 
 ##### processing can signals

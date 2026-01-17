@@ -1,5 +1,7 @@
 use ctrlc;
 use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::Arc;
+use dashmap::DashMap;
 use tokio::sync::broadcast::channel;
 use tokio::task::{JoinSet};
 
@@ -35,6 +37,10 @@ async fn main() {
     // use broadcast instead of mpsc, probably only one serial source but multiple consumers
     // TODO figure out buffer size
     let (can_queue_tx, can_queue_rx) = channel::<CanPayload>(32);
+
+    // track which clients subscribe to which signals
+    // maps signal name to client ids
+    let subscribers = Arc::new(DashMap<String, Vec<String>>);
 
     // start tasks
     tasks.spawn(run_can_data_handler(shutdown_rx.resubscribe(), can_queue_rx));

@@ -241,3 +241,12 @@ impl CanDatabase {
             .cloned()
     }
 }
+
+#[derive(Clone)]
+pub struct DecodedSignal {
+    pub name: String,
+    pub value: f64,
+    pub timestamp: Option<std::time::SystemTime>,
+    pub label: Option<String>,
+    pub unit: Option<String>,
+}
