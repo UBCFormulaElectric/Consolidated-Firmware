@@ -40,6 +40,9 @@
 #define IS_DEBUGGER_PRESENT() (IsDebuggerPresent() != 0)
 #define DEBUG_BREAK() __debugbreak()
 #elif defined(__APPLE__) || defined(__linux__)
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
 #include <signal.h>
 #include <unistd.h>
 
