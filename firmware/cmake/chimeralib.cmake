@@ -5,7 +5,10 @@ add_subdirectory(chimera_v2/proto)
 
 message(" 🔃 Registered add_chimera_stm32f4() function")
 function(add_chimera_stm32f4 NAME SRCS INCLUDE_DIRS)
-    list(APPEND SRCS "${SHARED_CHIMERA_DIR}/chimera_v2.cpp")
+    list(APPEND SRCS
+            "${SHARED_CHIMERA_DIR}/chimera_v2.cpp"
+            #            "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
+    )
     list(APPEND INCLUDE_DIRS "${SHARED_CHIMERA_DIR}")
     embedded_binary(
             "${NAME}"
@@ -20,7 +23,10 @@ endfunction()
 
 message(" 🔃 Registered add_chimera_stm32h5() function")
 function(add_chimera_stm32h5 NAME SRCS)
-    list(APPEND SRCS "${SHARED_CHIMERA_DIR}/chimera_v2.cpp")
+    list(APPEND SRCS
+            "${SHARED_CHIMERA_DIR}/chimera_v2.cpp"
+            #            "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
+    )
     list(APPEND INCLUDE_DIRS "${SHARED_CHIMERA_DIR}")
     embedded_binary(
             "${NAME}"
@@ -35,7 +41,10 @@ endfunction()
 
 message(" 🔃 Registered add_chimera_stm32h7() function")
 function(add_chimera_stm32h7 NAME SRCS)
-    list(APPEND SRCS "${SHARED_CHIMERA_DIR}/chimera_v2.cpp")
+    list(APPEND SRCS
+            "${SHARED_CHIMERA_DIR}/chimera_v2.cpp"
+            #            "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
+    )
     list(APPEND INCLUDE_DIRS "${SHARED_CHIMERA_DIR}")
     embedded_binary(
             "${NAME}"
