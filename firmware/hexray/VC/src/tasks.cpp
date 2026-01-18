@@ -3,15 +3,7 @@
 #include "io_time.hpp"
 #include "hw_rtosTaskHandler.hpp"
 
-// Define the task with StaticTask Class
-static hw::rtos::StaticTask<8096> Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz);
-static hw::rtos::StaticTask<512>  Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz);
-static hw::rtos::StaticTask<512>  Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz);
-static hw::rtos::StaticTask<512>  TaskChimera(osPriorityHigh, "TaskChimera", tasks_runChimera);
-
-void tasks_preInit() {}
-
-void tasks_run1Hz(void *arg)
+[[noreturn]] static void tasks_run1Hz(void *arg)
 {
     forever
     {
@@ -20,14 +12,14 @@ void tasks_run1Hz(void *arg)
         io::time::delayUntil(start_time + 1000);
     }
 }
-void tasks_run100Hz(void *arg)
+[[noreturn]] static void tasks_run100Hz(void *arg)
 {
     forever
     {
         jobs_run100Hz_tick();
     }
 }
-void tasks_run1kHz(void *arg)
+[[noreturn]] static void tasks_run1kHz(void *arg)
 {
     forever
     {
@@ -35,23 +27,25 @@ void tasks_run1kHz(void *arg)
     }
 }
 
-void tasks_runChimera(void *arg)
-{
-    forever {}
-}
+// Define the task with StaticTask Class
+static hw::rtos::StaticTask<8096> Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz);
+static hw::rtos::StaticTask<512>  Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz);
+static hw::rtos::StaticTask<512>  Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz);
 
-void VC_StartAllTasks(void)
+static void VC_StartAllTasks()
 {
     Task100Hz.start();
     Task1kHz.start();
     Task1Hz.start();
-    TaskChimera.start();
 }
 
-CFUNC void tasks_init()
+void tasks_preInit() {}
+
+void tasks_init()
 {
     jobs_init();
     osKernelInitialize();
     VC_StartAllTasks();
     osKernelStart();
+    forever {}
 }
