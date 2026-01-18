@@ -24,6 +24,7 @@
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
 #include "hw_usb.h"
+#include "app_freertos.h"
 #include "usbd_core.h"
 #include "usbd_desc.h"
 #include "usbd_cdc.h"
@@ -66,7 +67,6 @@ extern USBD_DescriptorsTypeDef Class_Desc;
 
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
-void        MX_FREERTOS_Init(void);
 static void MX_GPIO_Init(void);
 static void MX_FDCAN1_Init(void);
 static void MX_IWDG_Init(void);
@@ -113,11 +113,8 @@ int main(void)
     /* USER CODE BEGIN 2 */
     tasks_init();
 
-    if (hw_usb_init() != EXIT_CODE_OK)
-    {
-        Error_Handler();
-    }
-
+    hw_usb_init();
+    MX_USB_PCD_Init();
     USB_Device_Init();
     /* USER CODE END 2 */
 
@@ -126,10 +123,11 @@ int main(void)
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
+    
     while (1)
     {
         /* USER CODE END WHILE */
-
+              
         /* USER CODE BEGIN 3 */
     }
     /* USER CODE END 3 */

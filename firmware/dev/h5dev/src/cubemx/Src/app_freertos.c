@@ -25,6 +25,7 @@
 #include "main.h"
 #include "hw_usb.h"
 #include "util_errorCodes.h"
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -111,10 +112,47 @@ void MX_FREERTOS_Init(void)
 /* USER CODE END Header_StartDefaultTask */
 void StartDefaultTask(void *argument)
 {
-    /* USER CODE BEGIN TaskDefault */
-    uint8_t rx_byte = 0;
-    bool usb_was_configured = false;
+    hw_usb_waitForConnected();
+    
+    LOG_INFO("usb configured...");
+    
+    int counter = 0;
+    bool was_connected = true;
+    
     /* Infinite loop */
+    for (;;)
+    {
+        bool usb_connected = hw_usb_checkConnection();
+        
+        if (usb_connected != was_connected)
+        {
+            if (usb_connected)
+            {
+                LOG_INFO("usb connected");
+            }
+            else
+            {
+                LOG_INFO("usb disconnected");
+            }
+            was_connected = usb_connected;
+        }
+
+        if (usb_connected)
+        {
+            char msg[32];
+            int len = snprintf(msg, sizeof(msg), "yo wsg\n", counter++);
+            
+            uint32_t result = hw_usb_transmit((uint8_t*)msg, len);
+            
+            if (IS_EXIT_OK(result))
+            {
+                //LOG_INFO("sent %d bytes: %s", len, msg);
+            }
+        }
+    }
+}
+/*
+    /* Infinite loop 
     for (;;)
     {
         const bool usb_configured = hw_usb_checkConnection();
@@ -142,9 +180,8 @@ void StartDefaultTask(void *argument)
             HAL_GPIO_WritePin(BOOT_GPIO_Port, BOOT_Pin, GPIO_PIN_RESET);
             osDelay(100);
         }
-    }
+    }*/
     /* USER CODE END TaskDefault */
-}
 
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */
