@@ -63,6 +63,8 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_hal_cortex.c"
             "stm32h7xx_hal_exti.c"
             "stm32h7xx_hal_tim.c"
+            "stm32h7xx_hal_spi.c"
+            "stm32h7xx_hal_gpio.c"
     )
     stm32h733xx_cube_library(
             "hexray_VC_stm32"
@@ -92,7 +94,9 @@ if ("${TARGET}" STREQUAL "binary")
     target_link_libraries("hexray_VC_chimera.elf" PRIVATE "hexray_VC_stm32")
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
-    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS})
+    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS}
+        "${SHARED_FAKES_DIR}/io_imuHexray.cpp"
+        )
     set(INCLUDE_DIRS
             # "${CMAKE_CURRENT_SOURCE_DIR}/test"
             ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP}
