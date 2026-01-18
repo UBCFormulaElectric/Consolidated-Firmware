@@ -11,16 +11,49 @@ class BrakingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double biasRatio = context.watch<BreakBias>().force/context.watch<BreakBias>().maxForce;
     // watch for break?
 
-    return Center(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
+    // fill the entire screen properly
+    return Scaffold(
+      body: Stack(
+        alignment: Alignment.center,
         children: [
-          Text("Breaking"),
+          Positioned.fill(
+            child: Row(
+              children: [
+                Expanded(
+                  child: Container(color: Colors.black),
+                ),
+                Expanded(
+                  child: Container(color: Colors.green),
+                ),
+              ],
+            ),
+          ),
+          Column(
+            children:[
+              Text(
+                biasRatio.toStringAsFixed(2),
+                style: const TextStyle(
+                  fontSize: 60,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              SizedBox(height:10),
+              Text(
+                "Break Bias",
+                style: const TextStyle(
+                  fontSize: 60,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ]
+          )
         ],
-      ),
+      )
     );
   }
 }

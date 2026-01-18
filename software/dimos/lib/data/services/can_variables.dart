@@ -110,3 +110,24 @@ class SkidVector extends ChangeNotifier {
     _y += 1;
   }
 }
+
+/* Shutdown Loop */
+class BreakBias extends ChangeNotifier {
+  double _force = 1;
+  final double _maxForce = 100;
+  double get force => _force;
+  double get maxForce => _maxForce;
+
+  void updateVarDev(String data) {
+    _force += 1;
+    notifyListeners();
+  }
+
+  void updateVarCan() {
+    // JSON CAN calls + maybe mutex??
+    // then ONLY notify if changes are made!!
+    // lokwey i totally forgot what I was thinking here
+    // rehash this dumbass
+    _force += 1;
+  }
+}
