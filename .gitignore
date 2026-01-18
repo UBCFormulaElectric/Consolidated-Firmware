@@ -140,6 +140,7 @@ build_fw_deploy
 build_fw_deploy_wsl
 build_fw_dev
 build_fw_dev_wsl
+build_fw_chimera
 build_fw_test
 build_fw_test_wsl
 
