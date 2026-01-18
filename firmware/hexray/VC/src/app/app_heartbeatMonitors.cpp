@@ -1,54 +1,44 @@
-#include "app_heartbeatMonitors.h"
+#include "app_heartbeatMonitor.hpp"
 
-// CAN
-extern "C" {
+// CAN for now
+extern "C"
+{
 #include "app_canRx.h"
 #include "app_canAlerts.h"
 }
 
-namespace vc::app::heartbeat_monitors {
-static HeartbeatBoard heartbeat_boards[6] = {
+namespace app::vc::heartbeatMonitors::heartbeatMonitors
+{
+static app::heartbeat::monitor<5> vc_hb_monitor(
     // bms
-    { false, false, {}, 200,
-        app_canRx_BMS_Heartbeat_get,
-       app_canRx_BMS_Heartbeat_update,
-      app_canAlerts_VC_Warning_MissingBMSHeartbeat_set,
-      app_canAlerts_VC_Warning_MissingBMSHeartbeat_get,
-      },
+    io::heartbeat::node(
+        getter       = app_canRx_BMS_Heartbeat_get,
+        resetter     = app_canRx_BMS_Heartbeat_update,
+        fault_getter = app_canAlerts_VC_Warning_MissingBMSHeartbeat_get,
+        fault_setter = app_canAlerts_VC_Warning_MissingBMSHeartbeat_set),
     // rsm
-    {     { false, false, {}, 200,
- app_canRx_RSM_Heartbeat_get,
-  app_canRx_RSM_Heartbeat_update,
- app_canAlerts_VC_Info_MissingRSMHeartbeat_set,
-app_canAlerts_VC_Info_MissingRSMHeartbeat_get,
-},
+    io::heartbeat::node(
+        getter       = app_canRx_RSM_Heartbeat_get,
+        resetter     = app_canRx_RSM_Heartbeat_update,
+        fault_getter = app_canAlerts_VC_Info_MissingRSMHeartbeat_get,
+        fault_setter = app_canAlerts_VC_Info_MissingRSMHeartbeat_set),
     // fsm
-    { .getter       = app_canRx_FSM_Heartbeat_get,
-      .resetter     = app_canRx_FSM_Heartbeat_update,
-      .fault_setter = app_canAlerts_VC_Warning_MissingFSMHeartbeat_set,
-      .fault_getter = app_canAlerts_VC_Warning_MissingFSMHeartbeat_get,
-      .timeout_ms   = 200 },
+    io::heartbeat::node(
+        getter       = app_canRx_FSM_Heartbeat_get,
+        resetter     = app_canRx_FSM_Heartbeat_update,
+        fault_getter = app_canAlerts_VC_Warning_MissingFSMHeartbeat_get,
+        fault_setter = app_canAlerts_VC_Warning_MissingFSMHeartbeat_set),
     // crit
-    { .getter       = app_canRx_CRIT_Heartbeat_get,
-      .resetter     = app_canRx_CRIT_Heartbeat_update,
-      .fault_setter = app_canAlerts_VC_Warning_MissingCRITHeartbeat_set,
-      .fault_getter = app_canAlerts_VC_Warning_MissingCRITHeartbeat_get,
-      .timeout_ms   = 200 },
-    // vcr
-    { .getter       = app_canRx_VCR_Heartbeat_get,
-      .resetter     = app_canRx_VCR_Heartbeat_update,
-      .fault_setter = app_canAlerts_VC_Info_MissingVCRHeartbeat_set,
-      .fault_getter = app_canAlerts_VC_Info_MissingVCRHeartbeat_get,
-      .timeout_ms   = 200 },
+    io::heartbeat::node(
+        getter       = app_canRx_CRIT_Heartbeat_get,
+        resetter     = app_canRx_CRIT_Heartbeat_update,
+        fault_getter = app_canAlerts_VC_Warning_MissingCRITHeartbeat_get,
+        fault_setter = app_canAlerts_VC_Warning_MissingCRITHeartbeat_set),
     // DAM
-    { .getter       = app_canRx_DAM_Heartbeat_get,
-      .resetter     = app_canRx_DAM_Heartbeat_update,
-      .fault_setter = app_canAlerts_VC_Info_MissingDAMHeartbeat_set,
-      .fault_getter = app_canAlerts_VC_Info_MissingDAMHeartbeat_get,
-      .timeout_ms   = 200 }
-};
+    io::heartbeat::node(
+        getter       = app_canRx_DAM_Heartbeat_get,
+        resetter     = app_canRx_DAM_Heartbeat_update,
+        fault_getter = app_canAlerts_VC_Info_MissingDAMHeartbeat_get,
+        fault_setter = app_canAlerts_VC_Info_MissingDAMHeartbeat_set), );
 
-const HeartbeatMonitor hb_monitor = { .boards = heartbeat_boards, .board_count = 6, .block_faults = false };
-?
-}
-} // namespace vc::app::heartbeat_monitors
+} // namespace app::vc::heartbeatMonitors::heartbeatMonitors
