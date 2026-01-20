@@ -1,21 +1,43 @@
-// 2nd order Butterworth biquad:
-// https://www.dsprelated.com/freebooks/filters/Example_Second_Order_Butterworth_Lowpass.html
-//                               https://www.mathworks.com/help/signal/ref/butter.html
+// Digital Filter Library:
+// find documentation @
+// https://ubcformulaelectric.atlassian.net/wiki/spaces/UFE/pages/939950081/Software+-+Documentation+-+Noise+Filters
+
 #include "app_sensor_filter.h"
 #include <assert.h>
 #include <string.h>
 #include "app_units.h"
 
-// Using CMSIS Core(M) - standard float type for filter processing
-// No DSP library required as implementation is manual
 typedef float float32_t;
 
+// Constant for Q inverse for 2nd order Butterworth filter (DON'T CHANGE)
 #define Q_INV 1.41421356237f
 
 // Exponential Filter Implementation
 // EMA filters resources:
 //  https://blog.mbedded.ninja/programming/signal-processing/digital-filters/exponential-moving-average-ema-filter/
 //  https://tttapa.github.io/Pages/Mathematics/Systems-and-Control-Theory/Digital-filters/Exponential%20Moving%20Average/Exponential-Moving-Average.pdf
+//
+// This filter has two modes of setting the alpha parameter:
+// 1) Directly specifying alpha (0.0 to 1.0)
+// 2) Calculating alpha from cutoff frequency and sample rate:
+//
+// app_sensor_filter_exponential_init(
+//     &filter,
+//     ALPHA_DIRECT,           // Use alpha directly
+//     0.2f,                   // alpha = 0.2 (20% new, 80% old)
+//     0.0f,                   // sample_rate not used
+//     0.0f                    // initial_value
+// );
+
+// OR
+
+// app_sensor_filter_exponential_init(
+//     &filter,
+//     ALPHA_FROM_CUTOFF_FREQUENCY,  // Calculate from frequency
+//     10.0f,                        // cutoff_frequency = 10 Hz
+//     100.0f,                       // sample_rate = 100 Hz
+//     0.0f                          // initial_value
+// );
 
 void app_sensor_filter_exponential_init(
     ExponentialFilter *filter,
@@ -148,7 +170,7 @@ void app_sensor_filter_butterworth_reset(ButterworthFilter *filter)
     filter->previous_output = filter->previous_input;
 }
 
-// Second-Order Butterworth Biquad Filter Implementation
+// Second-Order Butterworth DF1 Biquad Filter Implementation
 // Based on bilinear transform method for 2nd order Butterworth lowpass filter
 // References:
 // - Bilinear transformation: https://drive.google.com/file/d/1DWD-mlCiXZQRKY8twKZ-w1JyBcgIiOFM/view?usp=sharing,
@@ -169,7 +191,6 @@ void app_sensor_filter_butterworth_biquad_init(
     assert(cutoff_frequency < sample_rate / 2.0f); // Nyquist-Shannon criteria
 
     // Calculate pre-warped frequency for bilinear transform
-
     // Reference of formulae: https://www.earlevel.com/main/2011/01/02/biquad-formulas/
     // K = tan(π·fc/fs) where fc is cutoff frequency and fs is sample rate
     // This pre-warping compensates for frequency warping in the bilinear transform
