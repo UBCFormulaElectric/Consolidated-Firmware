@@ -37,20 +37,15 @@
  * Reference used: https://www.zotero.org/groups/5809911/vehicle_controls_2024/items/N4TQBR67/reader
  */
 
-#define DIST_FRONT_AXLE_CG  0.7                            // a in meters
+#define DIST_FRONT_AXLE_CG 0.7                               // a in meters
 #define DIST_REAR_AXLE_CG (WHEELBASE_m - DIST_FRONT_AXLE_CG) // b in meters
 #define WEIGHT_ACROSS_BODY (CAR_MASS_AT_CG_KG * GRAVITY / WHEELBASE_m)
 
 /************** Macros for finding normal forces on wheels based on diagram on page 21 ****************/
-#define REAR_CONST_LOAD \
-        (WEIGHT_ACROSS_BODY * DIST_FRONT_AXLE_CG / 2.0) // per wheel on axle
-#define FRONT_CONST_LOAD \
-        (WEIGHT_ACROSS_BODY * DIST_REAR_AXLE_CG / 2.0) // per wheel on axle
-#define LONG_LOAD_TRANSFER(long_accel) \
-    ((CAR_MASS_AT_CG_KG * (long_accel) * CG_HEIGHT_FROM_GROUND_M / WHEELBASE_m))
-#define LAT_LOAD_TRANSFER(lat_accel) \
-        (CAR_MASS_AT_CG_KG * lat_accel * CG_HEIGHT_FROM_GROUND_M / (2.0 * (TRACK_WIDTH_m)))
-
+#define REAR_CONST_LOAD (WEIGHT_ACROSS_BODY * DIST_FRONT_AXLE_CG / 2.0) // per wheel on axle
+#define FRONT_CONST_LOAD (WEIGHT_ACROSS_BODY * DIST_REAR_AXLE_CG / 2.0) // per wheel on axle
+#define LONG_LOAD_TRANSFER(long_accel) ((CAR_MASS_AT_CG_KG * (long_accel) * CG_HEIGHT_FROM_GROUND_M / WHEELBASE_m))
+#define LAT_LOAD_TRANSFER(lat_accel) (CAR_MASS_AT_CG_KG * lat_accel * CG_HEIGHT_FROM_GROUND_M / (2.0 * (TRACK_WIDTH_m)))
 
 /************** Macros for finding Kmz based on diagram on page 57 ****************/
 #define ACCELERATION_TERM_KMZ(long_accel) (DIST_FRONT_AXLE_CG + (long_accel) * CG_HEIGHT_FROM_GROUND_M / GRAVITY)
@@ -67,5 +62,6 @@
     (((power) * POWER_TO_TORQUE_CONVERSION_FACTOR) / \
      ((fmaxf(rpm, 0.1)) / (GEAR_RATIO))) // Doing this for no division by 0, and assuming rpm is always positive
 
-// Eqn 14.11. from RCVD 
-#define SLIP_RATIO(wheel_speed, vehicle_speed, slip_angle) (((wheel_speed) - (vehicle_speed * cos(slip_angle))) / ((vehicle_speed * cos(slip_angle))))
+// Eqn 14.11. from RCVD
+#define SLIP_RATIO(wheel_speed, vehicle_speed, slip_angle) \
+    (((wheel_speed) - (vehicle_speed * cos(slip_angle))) / ((vehicle_speed * cos(slip_angle))))

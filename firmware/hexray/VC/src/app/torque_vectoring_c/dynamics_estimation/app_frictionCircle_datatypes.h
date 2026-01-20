@@ -7,22 +7,19 @@
 
 typedef struct
 {
-    ImuData imu_data; 
-    double desired_yawRate;
-    double desired_yawMoment;
-    double vehicle_velocity; 
-    double body_slip;
+    ImuData              imu_data;
+    double               desired_yawRate;
+    double               desired_yawMoment;
+    double               vehicle_velocity;
+    double               body_slip;
     road_tire_fric_coeff tire_fric_coeffs;
-    normal_forces        tire_normal_forces;  
-}VD_frictionCircle_inputs; 
+    normal_forces        tire_normal_forces;
+} VD_frictionCircle_inputs;
 typedef struct
 {
     slip_ratios allowable_slip_ratio;
-    tire_forces required_Fy; 
+    tire_forces required_Fy;
     tire_forces avail_Fx;
     tire_forces maximum_tractive_forces;
-    
+
 } VD_frictionCircle_outputs;
-
-
-

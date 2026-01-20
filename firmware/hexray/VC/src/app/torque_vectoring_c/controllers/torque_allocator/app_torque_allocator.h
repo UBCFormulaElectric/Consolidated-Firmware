@@ -1,4 +1,4 @@
-#pragma once 
+#pragma once
 
 #include "app_canTx.h"
 #include "app_canRx.h"

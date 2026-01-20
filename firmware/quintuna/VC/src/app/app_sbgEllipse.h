@@ -6,9 +6,9 @@
 
 typedef struct
 {
-    double  vehicle_vel_vx; 
-    double  vehicle_vel_vy;
-    double  vehicle_vel;
+    double vehicle_vel_vx;
+    double vehicle_vel_vy;
+    double vehicle_vel;
 } vehicle_velocity_components;
 
 /*

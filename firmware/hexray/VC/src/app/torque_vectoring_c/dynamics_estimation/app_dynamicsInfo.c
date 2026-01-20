@@ -6,51 +6,48 @@
 #include "app_vd_datatypes.h"
 #include "app_sbgEllipse.h"
 
-
 /** Responsibilities
  * slip ratio estimation
  * slip angle estimation
  * drag force estimation
  * down force estimation
  * normal force estimation
- * 
+ *
  */
 
 /************************* Private Function Prototypes *****************************/
-static dynamicsEst_inputs app_dynamicsInfo_getInputs(void);
-static void app_dynamicsInfo_broadCast(dynamicsEst_outputs out);
-static inline normal_forces app_dynamicsInfo_calcNormalForce(double lat_load_tf, double long_load_tf);
-static inline double app_dynamicsInfo_calcLatLoadTransfer(float lat_accel);
-static inline double app_dynamicsInfo_calcLongLoadTransfer(float long_accel);
-static inline slip_ratios app_dynamicsInfo_calcSlipRatio(dynamicsEst_inputs in, slip_angles slip_angles);
+static dynamicsEst_inputs      app_dynamicsInfo_getInputs(void);
+static void                    app_dynamicsInfo_broadCast(dynamicsEst_outputs out);
+static inline normal_forces    app_dynamicsInfo_calcNormalForce(double lat_load_tf, double long_load_tf);
+static inline double           app_dynamicsInfo_calcLatLoadTransfer(float lat_accel);
+static inline double           app_dynamicsInfo_calcLongLoadTransfer(float long_accel);
+static inline slip_ratios      app_dynamicsInfo_calcSlipRatio(dynamicsEst_inputs in, slip_angles slip_angles);
 static inline body_slip_angles app_dynamicsInfo_calcBodySideSlip(dynamicsEst_inputs in);
-// TODOs 
-static inline slip_angles app_dynamicsInfo_calcSlipAngle(void);
-static inline eff_rads app_dynamicsInfo_calcEffectiveRadius(void);
-static inline double app_dynamicsInfo_calcDragForce(void);
-static inline double app_dynamicsInfo_calcDownForce(void);
+// TODOs
+static inline slip_angles   app_dynamicsInfo_calcSlipAngle(void);
+static inline eff_rads      app_dynamicsInfo_calcEffectiveRadius(void);
+static inline double        app_dynamicsInfo_calcDragForce(void);
+static inline double        app_dynamicsInfo_calcDownForce(void);
 static road_tire_fric_coeff app_dynamicsInfo_calcFrictionCoeff();
-
-
 
 /************************* Global Function Definition *****************************/
 
 dynamicsEst_outputs app_dynamicsInfo_estimate(VD_WheelRpms wheel_rpms)
 {
-    const dynamicsEst_inputs in =  app_dynamicsInfo_getInputs(wheel_rpms);
+    const dynamicsEst_inputs in = app_dynamicsInfo_getInputs(wheel_rpms);
 
     const dynamicsEst_outputs out = {
-        .lat_loadTransfer = app_dynamicsInfo_calcLatLoadTransfer(in.imu_data->lat_accel),
-        .long_loadTransfer = app_dynamicsInfo_calcLongLoadTransfer(in.imu_data->long_accel),
-        .Fx_drag = app_dynamicsInfo_calcDragForce(),
-        .Fz_down_force = app_dynamicsInfo_calcDownForce(),
-        .tireModel.normal_forces = app_dynamicsInfo_calcNormalForce(out.lat_loadTransfer, out.long_loadTransfer),
-        .tireModel.slip_angles =  app_dynamicsInfo_calcSlipAngle(),
-        .tireModel.slip_ratios = app_dynamicsInfo_calcSlipRatio(in, out.tireModel.slip_angles),
-        .tireModel.eff_rads = app_dynamicsInfo_calcEffectiveRadius(),
+        .lat_loadTransfer           = app_dynamicsInfo_calcLatLoadTransfer(in.imu_data->lat_accel),
+        .long_loadTransfer          = app_dynamicsInfo_calcLongLoadTransfer(in.imu_data->long_accel),
+        .Fx_drag                    = app_dynamicsInfo_calcDragForce(),
+        .Fz_down_force              = app_dynamicsInfo_calcDownForce(),
+        .tireModel.normal_forces    = app_dynamicsInfo_calcNormalForce(out.lat_loadTransfer, out.long_loadTransfer),
+        .tireModel.slip_angles      = app_dynamicsInfo_calcSlipAngle(),
+        .tireModel.slip_ratios      = app_dynamicsInfo_calcSlipRatio(in, out.tireModel.slip_angles),
+        .tireModel.eff_rads         = app_dynamicsInfo_calcEffectiveRadius(),
         .tireModel.tire_fric_coeffs = app_dynamicsInfo_calcFrictionCoeff(),
-        .axle_body_slip = app_dynamicsInfo_calcBodySideSlip(in)
-    }; 
+        .axle_body_slip             = app_dynamicsInfo_calcBodySideSlip(in)
+    };
     app_dynamicsInfo_broadCast(out);
 
     return out;
@@ -80,7 +77,7 @@ static dynamicsEst_inputs app_dynamicsInfo_getInputs(VD_WheelRpms wheel_rpms, Im
         .vehicle_velocity = app_sbgEllipse_getVehicleVelocity(),
         
     };
-    return inputs; 
+    return inputs;
 }
 
 static void app_dynamicsInfo_broadCast(dynamicsEst_outputs out)
@@ -109,31 +106,24 @@ static void app_dynamicsInfo_broadCast(dynamicsEst_outputs out)
 
     app_canTx_VC_Lat_load_transfer(out.lat_loadTransfer);
     app_canTx_VC_Long_load_transfer(out.long_loadTransfer);
-
-
 }
 
 // TODO: Implement this
 static road_tire_fric_coeff app_dynamicsInfo_calcFrictionCoeff()
 {
-    return (road_tire_fric_coeff) {
-        .fric_coeff_fl = 0.85,
-        .fric_coeff_fr = 0.85,
-        .fric_coeff_rl = 0.85,
-        .fric_coeff_rr = 0.85,
+    return (road_tire_fric_coeff)
+    {
+        .fric_coeff_fl = 0.85, .fric_coeff_fr = 0.85, .fric_coeff_rl = 0.85, .fric_coeff_rr = 0.85,
     }
 }
 
 /************************* Helper Function Definition *****************************/
 static inline normal_forces app_dynamicsInfo_calcNormalForce(double lat_load_tf, double long_load_tf)
 {
-
-   return (normal_forces){
-    .fl = FRONT_CONST_LOAD - lat_load_tf - long_load_tf,
-    .fr = RONT_CONST_LOAD + lat_load_tf - long_load_tf,
-    .rl = REAR_CONST_LOAD - lat_load_tf + long_load_tf,
-    .rr = REAR_CONST_LOAD + lat_load_tf + long_load_tf
-   };
+    return (normal_forces){ .fl = FRONT_CONST_LOAD - lat_load_tf - long_load_tf,
+                            .fr = RONT_CONST_LOAD + lat_load_tf - long_load_tf,
+                            .rl = REAR_CONST_LOAD - lat_load_tf + long_load_tf,
+                            .rr = REAR_CONST_LOAD + lat_load_tf + long_load_tf };
 }
 
 static inline double app_dynamicsInfo_calcLatLoadTransfer(float lat_accel)
@@ -149,24 +139,25 @@ static inline double app_dynamicsInfo_calcLongLoadTransfer(void)
 // TODO: figure out how to calculate slip angle
 static inline slip_angles app_dynamicsInfo_calcSlipAngle(void)
 {
-    return (slip_angles){
-        .SA_fl = 0.0,
-        .SA_fr = 0.0,
-        .SA_rl = 0.0,
-        .SA_rr = 0.0
-    };
+    return (slip_angles){ .SA_fl = 0.0, .SA_fr = 0.0, .SA_rl = 0.0, .SA_rr = 0.0 };
 }
 
 static inline slip_ratios app_dynamicsInfo_calcSlipRatio(dynamicsEst_inputs in, slip_angles slip_angles)
 {
-   return (slip_ratios) {
-    .SR_fl = SLIP_RATIO(in.wheel_speeds.wheel_speed_fl, in.wheel_center_vx.normalized_vx_fl, in.imu_data.yaw_rate, slip_angles.SA_fl),
-    .SR_fr = SLIP_RATIO(in.wheel_speeds.wheel_speed_fr, in.wheel_center_vx.normalized_vx_fr, in.imu_data.yaw_rate, slip_angles.SA_fr),
-    .SR_rl = SLIP_RATIO(in.wheel_speeds.wheel_speed_rl, in.wheel_center_vx.normalized_vx_rl, in.imu_data.yaw_rate, slip_angles.SA_rl),
-    .SR_rr = SLIP_RATIO(in.wheel_speeds.wheel_speed_rr, in.wheel_center_vx.normalized_vx_rr, in.imu_data.yaw_rate, slip_angles.SA_rr)
-   };
+    return (slip_ratios){ .SR_fl = SLIP_RATIO(
+                              in.wheel_speeds.wheel_speed_fl, in.wheel_center_vx.normalized_vx_fl, in.imu_data.yaw_rate,
+                              slip_angles.SA_fl),
+                          .SR_fr = SLIP_RATIO(
+                              in.wheel_speeds.wheel_speed_fr, in.wheel_center_vx.normalized_vx_fr, in.imu_data.yaw_rate,
+                              slip_angles.SA_fr),
+                          .SR_rl = SLIP_RATIO(
+                              in.wheel_speeds.wheel_speed_rl, in.wheel_center_vx.normalized_vx_rl, in.imu_data.yaw_rate,
+                              slip_angles.SA_rl),
+                          .SR_rr = SLIP_RATIO(
+                              in.wheel_speeds.wheel_speed_rr, in.wheel_center_vx.normalized_vx_rr, in.imu_data.yaw_rate,
+                              slip_angles.SA_rr) };
 }
-// TODO: figure out how to calculate and use drag and down force 
+// TODO: figure out how to calculate and use drag and down force
 static inline double app_dynamicsInfo_calcDragForce(void)
 {
     return 0.0
@@ -180,8 +171,7 @@ static inline double app_dynamicsInfo_calcDownForce(void)
 // TODO: figure out how to find effective radius (to keep things consistent lets use empirical units so meters)
 static inline eff_rads app_dynamicsInfo_calcEffectiveRadius(void)
 {
-
-    return (eff_rads) {
+    return (eff_rads){
         .eff_rad_fl = IN_TO_M * WHEEL_DIAMETER_IN / 2,
         .eff_rad_fr = IN_TO_M * WHEEL_DIAMETER_IN / 2,
         .eff_rad_rl = IN_TO_M * WHEEL_DIAMETER_IN / 2,
@@ -193,12 +183,11 @@ static inline eff_rads app_dynamicsInfo_calcEffectiveRadius(void)
 // TODO: adjust wheel angle calculation based on actual steering model (reverse ackermann)
 static inline body_slip_angles app_dynamicsInfo_calcBodySideSlip(dynamicsEst_inputs in)
 {
-
     return (body_slip_angles)
     {
-        .front_body_slip = arctan((in.vel_components.vy + in.imu_data->yaw_rate * DIST_FRONT_AXLE_CG) / (in.vel_components.vx + 0.1)),
-        .rear_body_slip  = arctan((in.vel_components.vy - in.imu_data->yaw_rate * DIST_REAR_AXLE_CG) / (in.vel_components.vx + 0.1));
+        .front_body_slip =
+            arctan((in.vel_components.vy + in.imu_data->yaw_rate * DIST_FRONT_AXLE_CG) / (in.vel_components.vx + 0.1)),
+        .rear_body_slip =
+            arctan((in.vel_components.vy - in.imu_data->yaw_rate * DIST_REAR_AXLE_CG) / (in.vel_components.vx + 0.1));
     };
 }
-
-

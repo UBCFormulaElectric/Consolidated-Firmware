@@ -1,10 +1,9 @@
 #pragma once
 #include <stdbool.h>
 
-/** 
+/**
  *  Shared datatypes across torque vectoring
  */
-
 
 typedef struct
 {
@@ -13,11 +12,12 @@ typedef struct
     bool gpsOk : true;
     bool useTV : true;
 } VD_SensorStatus;
-typedef struct{
-    double torque_fl; 
-    double torque_fr; 
-    double torque_rl; 
-    double torque_rr; 
+typedef struct
+{
+    double torque_fl;
+    double torque_fr;
+    double torque_rl;
+    double torque_rr;
 } VD_TorqueToInv;
 
 typedef struct
@@ -26,7 +26,7 @@ typedef struct
     double wheel_rpm_fr;
     double wheel_rpm_rl;
     double wheel_rpm_rr;
-} VD_WheelRpms; 
+} VD_WheelRpms;
 
 typedef struct
 {
@@ -36,12 +36,12 @@ typedef struct
     double Fz_rr;
 } tire_forces;
 
-typedef struct 
+typedef struct
 {
     double fl;
     double fr;
-    double rl; 
-    double rr; 
+    double rl;
+    double rr;
 } slip_ratios;
 
 // typedef struct RegenBraking_Inputs
