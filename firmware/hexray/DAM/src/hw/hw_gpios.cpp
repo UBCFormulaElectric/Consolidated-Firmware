@@ -2,7 +2,7 @@
 
 extern "C"
 {
-    #include "main.h"
+#include "main.h"
 }
 
 using hw::Gpio;

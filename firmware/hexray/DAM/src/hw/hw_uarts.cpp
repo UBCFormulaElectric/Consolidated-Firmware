@@ -2,7 +2,7 @@
 
 extern "C"
 {
-    #include "main.h"
+#include "main.h"
 }
 
 UartDevice _900k_uart = { .config = {

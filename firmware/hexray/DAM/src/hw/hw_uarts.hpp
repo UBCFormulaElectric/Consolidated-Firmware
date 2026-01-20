@@ -3,5 +3,5 @@
 
 extern "C"
 {
-    #include <hw_uart.h>
+#include <hw_uart.h>
 }
