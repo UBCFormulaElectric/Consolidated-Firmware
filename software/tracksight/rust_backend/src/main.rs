@@ -1,7 +1,6 @@
 use ctrlc;
 use std::sync::atomic::{AtomicUsize, Ordering};
-use std::sync::Arc;
-use dashmap::DashMap;
+use tokio::sync::RwLock;
 use tokio::sync::broadcast::channel;
 use tokio::task::{JoinSet};
 
@@ -9,6 +8,7 @@ use tokio::task::{JoinSet};
 mod config;
 mod tasks;
 use tasks::telem_message::CanPayload;
+use tasks::api::subscriptions::Subscriptions;
 
 use tasks::serial_handler::run_serial_task;
 use tasks::can_data_handler::run_can_data_handler;
@@ -40,10 +40,10 @@ async fn main() {
 
     // track which clients subscribe to which signals
     // maps signal name to client ids
-    let subscribers = Arc::new(DashMap<String, Vec<String>>);
+    let subscriptions = RwLock::new(Subscriptions::new());
 
     // start tasks
-    tasks.spawn(run_can_data_handler(shutdown_rx.resubscribe(), can_queue_rx));
+    tasks.spawn(run_can_data_handler(shutdown_rx.resubscribe(), can_queue_rx, subscriptions));
     tasks.spawn(run_serial_task(shutdown_rx.resubscribe(), can_queue_tx));
 
     // wait for tasks to clean up
