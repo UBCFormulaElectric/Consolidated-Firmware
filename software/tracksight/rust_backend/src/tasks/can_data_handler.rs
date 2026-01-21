@@ -6,7 +6,7 @@ use super::can_data::influx_handler::run_influx_handler;
 use super::can_data::live_data_handler::run_live_data_handler;
 use super::telem_message::CanPayload;
 use crate::config::CONFIG;
-use crate::tasks::api::subscriptions::Subscriptions;
+use crate::tasks::client_api::subscriptions::Subscriptions;
 
 use jsoncan_rust::parsing::JsonCanParser;
 use jsoncan_rust::can_database::CanDatabase;
