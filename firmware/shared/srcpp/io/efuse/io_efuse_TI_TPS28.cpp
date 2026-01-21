@@ -23,14 +23,24 @@ extern "C"
 namespace io
 {
 static constexpr float R_PD = 24.9f; // kOhm
-// TODO: is this actualy a linear interpolation??
-static constexpr float K_CL  = (((60.0f - 40.0f) / (50.0f - 10.0f)) * R_PD); // A*kOhm
-static constexpr float I_LIM = (K_CL / R_PD);
+
+static constexpr float K_CL_MIN = 40.0f; // A*kOhm
+static constexpr float K_CL_TYP = 50.0f; // A*kOhm
+static constexpr float K_CL_MAX = 60.0f; // A*kOhm
+
+static constexpr float I_LIM_MIN = (K_CL_MIN / R_PD);
+static constexpr float I_LIM_TYP = (K_CL_TYP / R_PD);
+static constexpr float I_LIM_MAX = (K_CL_MAX / R_PD);
 
 // There are different V_SNSFH thresholds if DIAG_EN gpio is set to LOw (3.3V) or HIGH (5V)
 static constexpr float V_SNSFH_MIN = 3.5f;
 static constexpr float V_SNSFH     = 3.95f;
 static constexpr float V_SNSFH_MAX = 4.4f;
+
+void TI_TPS28_Efuse::enableDiagnostics(bool enable)
+{
+    this->diag_en_gpio.writePin(enable);
+}
 
 // TODO: verify reset function
 void TI_TPS28_Efuse::reset()
@@ -52,30 +62,22 @@ bool TI_TPS28_Efuse::ok()
      * If DIAG_EN is low, FAULT will continue to indicate
      * TSD (thermal_shdn) or ILIM (forgor what this is)
      *
-     * Thus we only dont check for overcurrent if it's disabled
-     *
-     * TODO: but Table 8-3 contradicts this
+     * So technically we read the same faults regardless if
+     * diag_en is asserted high or not. To be safe we will
+     * force
      */
 
     // if diagnostics are not enabled, only check TSD and ILIM
-    const bool is_faulted = this->fault_gpio.readPin();
-    if (diag_enabled)
+    // fault is asserted low
+    // TODO: Add back fault gpio
+    // const bool is_ok = this->fault_gpio.readPin();
+    const bool is_ok = true;
+    if (diag_enabled && (is_ok == false))
     {
-        if (is_faulted)
-        {
-            this->faults.flags.overcurrent  = (channel_enabled && IS_IN_RANGE(V_SNSFH_MIN, V_SNSFH_MAX, voltage));
-            this->faults.flags.thermal_shdn = (channel_enabled && IS_IN_RANGE(V_SNSFH_MIN, V_SNSFH_MAX, voltage));
-        }
-        else
-        {
-            this->faults.raw = 0x00U;
-        }
-    }
-    else
-    {
-        this->faults.raw = 0x03U;
+        this->faults.flags.overcurrent  = (channel_enabled && IS_IN_RANGE(V_SNSFH_MIN, V_SNSFH_MAX, voltage));
+        this->faults.flags.thermal_shdn = (channel_enabled && IS_IN_RANGE(V_SNSFH_MIN, V_SNSFH_MAX, voltage));
     }
 
-    return !(this->faults.raw > 0U);
+    return is_ok;
 }
 } // namespace io

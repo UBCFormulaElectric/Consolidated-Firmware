@@ -25,7 +25,7 @@ class ST_VND5_Efuse final : public Efuse
     } faults;
 
   public:
-    explicit consteval ST_VND5_Efuse(
+    explicit constexpr ST_VND5_Efuse(
         const hw::Gpio &in_enable_gpio,
         const hw::Adc  &in_sns_adc_channel,
         const hw::Gpio &in_stby_reset_gpio)

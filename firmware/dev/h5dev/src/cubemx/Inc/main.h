@@ -38,6 +38,8 @@ extern "C"
     /* Exported types ------------------------------------------------------------*/
     /* USER CODE BEGIN ET */
     extern FDCAN_HandleTypeDef hfdcan1;
+    extern ADC_HandleTypeDef   hadc1;
+    extern TIM_HandleTypeDef   htim3;
     /* USER CODE END ET */
 
     /* Exported constants --------------------------------------------------------*/
@@ -58,6 +60,12 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define EFUSE_I_SNS_Pin GPIO_PIN_1
+#define EFUSE_I_SNS_GPIO_Port GPIOA
+#define DIAG_EN_Pin GPIO_PIN_14
+#define DIAG_EN_GPIO_Port GPIOB
+#define EFUSE_EN_Pin GPIO_PIN_15
+#define EFUSE_EN_GPIO_Port GPIOB
 #define SWDIO_Pin GPIO_PIN_13
 #define SWDIO_GPIO_Port GPIOA
 #define SWCLK_Pin GPIO_PIN_14

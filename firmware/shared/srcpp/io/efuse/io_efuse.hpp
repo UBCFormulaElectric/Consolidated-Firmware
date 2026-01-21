@@ -14,7 +14,7 @@ class Efuse
     const hw::Adc         &sns_adc_channel;
 
   public:
-    explicit consteval Efuse(const hw::Gpio &in_enable_gpio, const hw::Adc &in_sns_adc_channel)
+    explicit constexpr Efuse(const hw::Gpio &in_enable_gpio, const hw::Adc &in_sns_adc_channel)
       : enable_gpio(in_enable_gpio), sns_adc_channel(in_sns_adc_channel)
     {
     }

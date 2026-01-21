@@ -11,7 +11,7 @@ class TI_TPS25_Efuse final : public Efuse
     const hw::Gpio &pgood_gpio;
 
   public:
-    explicit consteval TI_TPS25_Efuse(
+    explicit constexpr TI_TPS25_Efuse(
         const hw::Gpio &in_enable_gpio,
         const hw::Adc  &in_sns_adc_channel,
         const hw::Gpio &in_pgood)

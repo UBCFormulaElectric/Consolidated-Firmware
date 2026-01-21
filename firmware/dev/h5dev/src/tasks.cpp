@@ -73,14 +73,14 @@ void tasks_run1Hz()
 }
 void tasks_run100Hz()
 {
-    uint32_t start_ticks = osKernelGetTickCount();
-    forever
-    {
-        constexpr uint32_t period_ms = 10U;
-        jobs_run100Hz_tick();
-        start_ticks += period_ms;
-        io::time::delayUntil(start_ticks);
-    }
+    // uint32_t start_ticks = osKernelGetTickCount();
+    // forever
+    // {
+    // constexpr uint32_t period_ms = 10U;
+    jobs_run100Hz_tick();
+    // start_ticks += period_ms;
+    // io::time::delayUntil(start_ticks);
+    // }
 }
 void tasks_run1kHz()
 {
