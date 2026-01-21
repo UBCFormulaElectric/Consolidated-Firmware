@@ -78,7 +78,7 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
             const width = scalePxPerSecRef.current * (tr.max - tr.min) + RIGHT_PAD; // extra padding by 1min
             const containerWidth = container.clientWidth;
 
-            scrollLeftRef.current = (width - RIGHT_PAD - 50 > containerWidth) ? width - RIGHT_PAD + 50 - containerWidth : 0;
+            scrollLeftRef.current = (width - RIGHT_PAD + 15 > containerWidth) ? width - RIGHT_PAD + 15 - containerWidth : 0;
             offsetRef.current = scrollLeftRef.current;
 
             container.scrollLeft = scrollLeftRef.current;
@@ -109,8 +109,6 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
 
         const handleScroll = () => {
             if (!isPaused) return;
-            console.log("scrollLeft", container.scrollLeft, "scrollLeftRef", scrollLeftRef.current, "offset", offsetRef.current);
-            // scrollLeftRef.current = container.scrollLeft + offsetRef.current;
             scrollLeftRef.current = container.scrollLeft;
         };
 

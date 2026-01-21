@@ -24,10 +24,10 @@ const generateRandomValue = (
         return states[Math.floor(Math.random() * states.length)];
     } else {
         return (
-            Math.sin(time / 1000 + index) * 50 +
-            Math.random() * 10 +
-            50 +
-            index * 20
+            // Math.sin(time / 1000 + index) * 50 + Math.random() * 10 + 50 + index * 20
+            //val
+            Math.random() * (time % 10000) * (index * 1000)
+            // 50 + Math.random() * 10 + 50 + index * 20 * time
         );
     }
 };
