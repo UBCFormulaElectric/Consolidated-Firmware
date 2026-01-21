@@ -21,7 +21,7 @@
         }
     },
     "Vehicle_Forces":{
-        "msg_id": 501,
+        "msg_id": 507,
         "cycle_time": 10,
         "description":"Vehicle_Dynamics Info",
         "signals": {
@@ -179,6 +179,181 @@
                 "min": 0.0,
                 "max": 20,
                 "resolution": 0.01
+            },
+            "RequestedPower": {
+                "min": 0.0,
+                "max": 120.0,
+                "resolution": 0.1
+            },
+            "TotalAllocatedPower": {
+                "min": 0.0,
+                "max": 120.0,
+                "resolution": 0.1
+            }
+        }
+    },
+    "LoadTransfer": {
+        "msg_id": 508,
+        "cycle_time": 100,
+        "description": "Vehicle Load Info",
+        "signals": {
+            "LoadTransferScalar": {
+                "min": -2,
+                "max": 2,
+                "resolution": 0.1,
+                "signed": true
+            }
+        }
+    },
+    "VehicleDynamics": {
+        "msg_id": 510,
+        "cycle_time": 100,
+        "description": "Vehicle dynamics info",
+        "signals": {
+            "RegenEnabled": {
+                "bits": 1
+            },
+            "TorqueVectoringEnabled": {
+                "bits": 1
+            },
+            "ReferenceYawRate": {
+                "min": -100,
+                "max": 100,
+                "resolution": 0.1,
+                "signed": true
+            },
+            "CorrectionYawRate": {
+                "min": -100,
+                "max": 100,
+                "resolution": 0.1,
+                "signed": true
+            },
+            "FrontYawMoment": {
+                "min": -100,
+                "max": 100,
+                "resolution": 0.1,
+                "signed": true
+            },
+            "RearYawMoment": {
+                "min": -100,
+                "max": 100,
+                "resolution": 0.1,
+                "signed": true
+            }
+        }
+    },
+    "PedalPercentage": {
+        "msg_id": 231,
+        "cycle_time": 100,
+        "description": "Pedal percentage info",
+        "signals": {
+            "RegenMappedPedalPercentage": {
+                "min": -100,
+                "max": 100,
+                "resolution": 0.1,
+                "signed": true,
+                "unit": "%"
+            }
+        }
+    },
+    "FrictionCircle_FL": {
+        "msg_id": 511,
+        "cycle_time": 100,
+        "description": "Friction circle info front left",
+        "signals": {
+            "FrictionCircle_MaxTractiveForce_fl": {
+                "min": 0,
+                "max": 5000,
+                "resolution": 0.1
+            },
+            "FrictionCircle_Required_Fy_fl": {
+                "min": -5000,
+                "max": 5000,
+                "resolution": 0.1,
+                "signed": true
+            },
+            "FrictionCircle_Avail_Fx_fl": {
+                "min": 0,
+                "max": 5000,
+                "resolution": 0.1
+            }
+        }
+    },
+    "FrictionCircle_FR": {
+        "msg_id": 512,
+        "cycle_time": 100,
+        "description": "Friction circle info front right",
+        "signals": {
+            "FrictionCircle_MaxTractiveForce_fr": {
+                "min": 0,
+                "max": 5000,
+                "resolution": 0.1
+            },
+            "FrictionCircle_Required_Fy_fr": {
+                "min": -5000,
+                "max": 5000,
+                "resolution": 0.1,
+                "signed": true
+            },
+            "FrictionCircle_Avail_Fx_fr": {
+                "min": 0,
+                "max": 5000,
+                "resolution": 0.1
+            }
+        }
+    },
+    "FrictionCircle_RL": {
+        "msg_id": 513,
+        "cycle_time": 100,
+        "description": "Friction circle info rear left",
+        "signals": {
+            "FrictionCircle_MaxTractiveForce_rl": {
+                "min": 0,
+                "max": 5000,
+                "resolution": 0.1
+            },
+            "FrictionCircle_Required_Fy_rl": {
+                "min": -5000,
+                "max": 5000,
+                "resolution": 0.1,
+                "signed": true
+            },
+            "FrictionCircle_Avail_Fx_rl": {
+                "min": 0,
+                "max": 5000,
+                "resolution": 0.1
+            }
+        }
+    },
+    "FrictionCircle_RR": {
+        "msg_id": 514,
+        "cycle_time": 100,
+        "description": "Friction circle info rear right",
+        "signals": {
+            "FrictionCircle_MaxTractiveForce_rr": {
+                "min": 0,
+                "max": 5000,
+                "resolution": 0.1
+            },
+            "FrictionCircle_Required_Fy_rr": {
+                "min": -5000,
+                "max": 5000,
+                "resolution": 0.1,
+                "signed": true
+            },
+            "FrictionCircle_Avail_Fx_rr": {
+                "min": 0,
+                "max": 5000,
+                "resolution": 0.1
+            }
+        }
+    },
+    "DriveMode": {
+        "msg_id": 235,
+        "cycle_time": 100,
+        "signals": {
+            "VcDriveMode": {
+                "enum": "DriveMode"
             }
         }
     }

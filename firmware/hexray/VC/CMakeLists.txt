@@ -75,7 +75,9 @@ if ("${TARGET}" STREQUAL "binary")
 
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
-    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS})
+    # Include shared app sources (for app_timer, etc.)
+    file(GLOB_RECURSE SHARED_APP_SRCS "${SHARED_APP_INCLUDE_DIR}/*.c")
+    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${SHARED_APP_SRCS})
     set(INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test" ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
     compile_gtest_executable(
             "hexray_VC_test"
@@ -83,7 +85,7 @@ elseif ("${TARGET}" STREQUAL "test")
             "${INCLUDE_DIRS}"
     )
 
-    add_compile_definitions("hexray_VC_test" PRIVATE STM32h763Rx)
+    add_compile_definitions("hexray_VC_test" PRIVATE STM32h763Rx STM32H733xx)
 
     # JSONCAN
     jsoncan_library(VC hexray "${CMAKE_CURRENT_BINARY_DIR}")
@@ -97,10 +99,20 @@ elseif ("${TARGET}" STREQUAL "test")
 
     # FakeIO
     set(HEADERS_TO_FAKE
+            "${SHARED_IO_INCLUDE_DIR}/io_time.h"
     )
 
     file(GLOB TEST_IO_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.h")
     list(APPEND HEADERS_TO_FAKE ${TEST_IO_HDRS})
+    
+    # Fake app headers that need implementations for tests
+    file(GLOB TEST_APP_HDRS 
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app/app_pid.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app/app_imu.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app/app_sbgEllipse.h"
+    )
+    list(APPEND HEADERS_TO_FAKE ${TEST_APP_HDRS})
+    
     create_fake_library(
             "hexray_VC_fakes"
             "${HEADERS_TO_FAKE}"

@@ -183,6 +183,7 @@ uint8_t app_canAlerts_InfoInfo(Alert_Info *alert_array)
 uint8_t app_canAlerts_WarningInfo(Alert_Info *alert_array)
 {
     uint8_t element_num = 0;
+    (void)alert_array; // Suppress unused parameter warning
     {%- for board_name, board_alerts in node_name_and_alerts %}
     // {{ board_name }} warnings info
     {%- for alert in board_alerts %}
@@ -207,6 +208,7 @@ uint8_t app_canAlerts_WarningInfo(Alert_Info *alert_array)
 uint8_t app_canAlerts_FaultInfo(Alert_Info *alert_array)
 {
     uint8_t element_num = 0;
+    (void)alert_array; // Suppress unused parameter warning
     {%- for board_name, board_alerts in node_name_and_alerts %}
     // {{ board_name }} faults info
     {%- for alert in board_alerts %}

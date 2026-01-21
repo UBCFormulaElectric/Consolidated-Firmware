@@ -8,5 +8,45 @@
                 "bits": 1
             }
         }
+    },
+    "Steering": {
+        "msg_id": 610,
+        "cycle_time": 10,
+        "description": "Steering angle.",
+        "signals": {
+            "SteeringAngle": {
+                "resolution": 0.1,
+                "signed": true,
+                "min": -110,
+                "max": 110,
+                "unit": "deg"
+            }
+        }
+    },
+    "Apps": {
+        "msg_id": 611,
+        "cycle_time": 10,
+        "description": "Primary (P) and secondary (S) accelerator percentages.",
+        "signals": {
+            "PappsMappedPedalPercentage": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            }
+        }
+    },
+    "Info": {
+        "msg_id": 613,
+        "cycle_time": 10,
+        "description": "FSM Info signals",
+        "signals": {
+            "SteeringAngleOCSC": {
+                "bits": 1
+            },
+            "SteeringAngleOutOfRange": {
+                "bits": 1
+            }
+        }
     }
 }

@@ -27,14 +27,15 @@ void app_tractionControl_computeTorque(TractionControl_Inputs *inputs, TractionC
     float k              = app_pid_compute(pid, SLIP_RATIO_IDEAL, slip_ratio_max);
 
     // Send debug messages over CAN
-    app_canTx_VC_SlipRatioFL_set(slip_ratio_fl);
-    app_canTx_VC_SlipRatioFR_set(slip_ratio_fr);
-    app_canTx_VC_SlipRatioRL_set(slip_ratio_rl);
-    app_canTx_VC_SlipRatioRR_set(slip_ratio_rr);
-    app_canTx_VC_PIDSlipRatioOutput_set(k);
-    app_canTx_VC_PIDSlipRatioError_set(pid->error);
-    app_canTx_VC_PIDSlipRatioDerivative_set(pid->derivative);
-    app_canTx_VC_PIDSlipRatioIntegral_set(pid->integral);
+    app_canTx_VC_SlipRatio_fl_set(slip_ratio_fl);
+    app_canTx_VC_SlipRatio_fr_set(slip_ratio_fr);
+    app_canTx_VC_SlipRatio_rl_set(slip_ratio_rl);
+    app_canTx_VC_SlipRatio_rr_set(slip_ratio_rr);
+    // TODO: PID debug functions may not exist in hexray CAN definitions
+    // app_canTx_VC_PIDSlipRatioOutput_set(k);
+    // app_canTx_VC_PIDSlipRatioError_set(pid->error);
+    // app_canTx_VC_PIDSlipRatioDerivative_set(pid->derivative);
+    // app_canTx_VC_PIDSlipRatioIntegral_set(pid->integral);
 
     // NOTE: k strictly in range [-1 0] to prevent exceeding power limit
     outputs->torque_fl_final_Nm = (1.0f + k) * inputs->torque_fl_Nm;

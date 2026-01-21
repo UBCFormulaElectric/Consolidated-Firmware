@@ -12,8 +12,7 @@
 #include "app_imu.h"
 #include "app_units.h"
 #include "app_vehicleDynamicsConstants.h"
-#include "app_sbgEllipse.h"
-#include "app_torqueDistribution.h"
+#include "../app_torque_vectoring_cfg.h"
 
 #define MOTOR_NOT_SPINNING_SPEED_RPM 1000
 static TimerChannel           pid_timeout;
@@ -58,7 +57,7 @@ void app_torqueVectoring_run(const double accelerator_pedal_percentage)
     accelerator_pedal_percent = accelerator_pedal_percentage;
     battery_voltage           = app_canRx_BMS_TractiveSystemVoltage_get();
     steering_angle_deg        = app_canRx_FSM_SteeringAngle_get();
-    imu_output                = app_get_imu_struct();
+    imu_output                = app_imu_getData();
     // current_limit_based_max_power = app_canRx_BMS_current_limit();
 
     if (accelerator_pedal_percent > 0.0f)
@@ -94,7 +93,8 @@ void app_torqueVectoring_handleAcceleration(void)
 
     // Yaw Rate Controller
     yaw_rate_controller.wheel_angle_rad      = DEG_TO_RAD(steering_angle_deg * APPROX_STEERING_TO_WHEEL_ANGLE);
-    yaw_rate_controller.vehicle_velocity_mps = KMH_TO_MPS(app_sbgEllipse_getVehicleVelocity());
+    vehicle_velocity_components vel          = app_sbgEllipse_getVehicleVelocity();
+    yaw_rate_controller.vehicle_velocity_mps = KMH_TO_MPS(vel.vehicle_vel);
     yaw_rate_controller.real_yaw_rate_rad    = DEG_TO_RAD(imu_output->yaw_rate);
     app_yawRateController_run(&yaw_rate_controller);
 

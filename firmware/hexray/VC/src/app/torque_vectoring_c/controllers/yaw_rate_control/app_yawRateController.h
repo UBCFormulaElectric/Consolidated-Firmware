@@ -2,6 +2,10 @@
 
 #include "app_pid.h"
 
+// Forward declaration to avoid circular dependency
+struct VD_frictionCircle_inputs;
+typedef struct VD_frictionCircle_inputs VD_frictionCircle_inputs;
+
 /*
  * Yaw Rate Controller
  *
@@ -62,3 +66,8 @@ float app_yawRateController_getRefYawRateRad();
  * Get the generated yaw moment
  */
 float app_yawRateController_getYawMoment();
+
+/*
+ * Get friction circle inputs (stub - TODO: implement properly)
+ */
+VD_frictionCircle_inputs app_yawRateController_getFrictionCircleInputs(void);

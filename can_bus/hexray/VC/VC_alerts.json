@@ -1,1 +1,28 @@
-{}
+{
+    "faults_id": 516,
+    "faults_counts_id": 518,
+    "faults": {},
+    "warnings_id": 515,
+    "warnings_counts_id": 517,
+    "warnings": {},
+    "info_id": 519,
+    "info_counts_id": 520,
+    "info": {
+        "RegenNotAvailable": {
+            "id": 509,
+            "description": "Regen is not currently available."
+        },
+        "SbgInitFailed": {
+            "id": 565,
+            "description": "Initializing the SBG Ellipse GPS failed"
+        },
+        "ImuInitFailed": {
+            "id": 516,
+            "description": "Initializing the embedded IMU failed."
+        },
+        "DriveModeOverride": {
+            "id": 567,
+            "description": "Override requested drive mode to vanilla if sensor fails"
+        }
+    }
+}

@@ -2,6 +2,10 @@
 #include "app_vehicleDynamicsConstants.h"
 #include "app_units.h"
 #include "app_utils.h"
+#include "../../dynamics_estimation/app_frictionCircle_datatypes.h"
+#include "../../dynamics_estimation/app_dynamicsInfo_datatypes.h"
+#include "app_imu.h"
+#include "app_sbgEllipse.h"
 #include <math.h>
 
 /*
@@ -58,4 +62,24 @@ float app_yawRateController_getRefYawRateRad()
 float app_yawRateController_getYawMoment()
 {
     return yaw_moment;
+}
+
+// TODO: Implement properly - this is a stub
+VD_frictionCircle_inputs app_yawRateController_getFrictionCircleInputs(void)
+{
+    const ImuData              *imu_data_ptr = app_imu_getData();
+    ImuData                     imu_data     = *imu_data_ptr;
+    vehicle_velocity_components vel          = app_sbgEllipse_getVehicleVelocity();
+
+    return (
+        VD_frictionCircle_inputs){ .imu_data           = imu_data,
+                                   .desired_yawRate    = (double)ref_yaw_rate_rad,
+                                   .desired_yawMoment  = (double)yaw_moment,
+                                   .vehicle_velocity   = vel.vehicle_vel,
+                                   .body_slip          = 0.0,
+                                   .tire_fric_coeffs   = { .fric_coeff_fl = 0.85,
+                                                           .fric_coeff_fr = 0.85,
+                                                           .fric_coeff_rl = 0.85,
+                                                           .fric_coeff_rr = 0.85 },
+                                   .tire_normal_forces = { .Fz_fl = 0.0, .Fz_fr = 0.0, .Fz_rl = 0.0, .Fz_rr = 0.0 } };
 }

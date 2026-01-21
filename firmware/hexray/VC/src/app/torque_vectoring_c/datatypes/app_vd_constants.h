@@ -1,8 +1,14 @@
 #pragma once
 #include "app_pid.h"
-#include "app_yawRateController.h"
+#include "torque_vectoring_c/controllers/yaw_rate_control/app_yawRateController.h"
 #include "app_units.h"
 #include "math.h"
+
+// Include generated CAN utils first to ensure enums are defined before macros
+// This prevents macro/enum conflicts (SWITCH_OFF, DRIVE_MODE_POWER, etc.)
+// The generated header only includes standard headers, so it's safe to include here
+#include "app_canUtils.h"
+
 // Constants
 
 #define CAR_MASS_AT_CG_KG (300.0) // checked with suspension -- weight with driver
@@ -65,3 +71,29 @@
 // Eqn 14.11. from RCVD
 #define SLIP_RATIO(wheel_speed, vehicle_speed, slip_angle) \
     (((wheel_speed) - (vehicle_speed * cos(slip_angle))) / ((vehicle_speed * cos(slip_angle))))
+
+#define SLIP_RATIO_IDEAL 0.05
+
+// Switch state enum values (from CAN enum SwitchState)
+// Only define if not already defined (e.g., by generated enum)
+#ifndef SWITCH_OFF
+#define SWITCH_OFF 0
+#endif
+#ifndef SWITCH_ON
+#define SWITCH_ON 1
+#endif
+
+// Drive mode enum values (from CAN enum DriveMode)
+// Only define if not already defined (e.g., by generated enum)
+#ifndef DRIVE_MODE_POWER
+#define DRIVE_MODE_POWER 0
+#endif
+#ifndef DRIVE_MODE_POWER_AND_ACTIVE
+#define DRIVE_MODE_POWER_AND_ACTIVE 1
+#endif
+#ifndef DRIVE_MODE_TV
+#define DRIVE_MODE_TV 2
+#endif
+#ifndef DRIVE_MODE_COUNT
+#define DRIVE_MODE_COUNT 3
+#endif

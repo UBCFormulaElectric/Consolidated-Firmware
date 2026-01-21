@@ -1,6 +1,6 @@
 #pragma once
 
 #include "app_dynamicsInfo_datatypes.h"
-#include "app_vd_datatypes.h"
+#include "torque_vectoring_c/datatypes/app_vd_datatypes.h"
 
-VD_dynamicsEst_outputs app_dynamicsInfo_estimate(void);
+dynamicsEst_outputs app_dynamicsInfo_estimate(VD_WheelRpms wheel_rpms);

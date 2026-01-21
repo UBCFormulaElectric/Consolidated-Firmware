@@ -1,11 +1,11 @@
 #pragma once
 #include <stdlib.h>
-#include "app_frictionCircle_datatypes.h"
 #include "app_dynamicsInfo_datatypes.h"
-#include "io_imu_config.h"
-#include "app_vd_constants.h"
+#include "torque_vectoring_c/datatypes/app_vd_datatypes.h"
+#include "io/io_imu_config.h"
+#include "app_vehicleDynamicsConstants.h"
 
-typedef struct
+typedef struct VD_frictionCircle_inputs
 {
     ImuData              imu_data;
     double               desired_yawRate;
@@ -13,7 +13,7 @@ typedef struct
     double               vehicle_velocity;
     double               body_slip;
     road_tire_fric_coeff tire_fric_coeffs;
-    normal_forces        tire_normal_forces;
+    tire_forces          tire_normal_forces;
 } VD_frictionCircle_inputs;
 typedef struct
 {

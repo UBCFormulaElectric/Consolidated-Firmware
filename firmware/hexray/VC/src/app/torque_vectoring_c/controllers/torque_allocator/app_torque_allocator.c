@@ -9,7 +9,15 @@
 
 //----------------------- Global Functions -----------------------------------------------------//
 
-TorqueAllocationOutputs app_torque_allocator(void) {}
+TorqueAllocationOutputs app_torque_allocator(void)
+{
+    TorqueAllocationOutputs out = { 0 };
+    return out;
+}
 
 //----------------------- Static Function Definition -------------------------------------------//
-static SensorStatus check_sensors(void) {}
+static SensorStatus __attribute__((unused)) check_sensors(void)
+{
+    SensorStatus status = { 0 };
+    return status;
+}

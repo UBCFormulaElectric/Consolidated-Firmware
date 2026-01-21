@@ -1,1 +1,14 @@
-{}
+{
+	"RLInverterInfo1": {
+		"msg_id": 646,
+		"cycle_time": 5,
+		"signals": {
+			"ActualVelocity": {
+				"start_bit": 16,
+				"bits": 16,
+				"signed": true,
+				"start_value": 0
+			}
+		}
+	}
+}

@@ -8,5 +8,28 @@
                 "bits": 1
             }
         }
+    },
+    "Switches": {
+        "msg_id": 910,
+        "cycle_time": 100,
+        "description": "States of the switches on the CRIT.",
+        "signals": {
+            "RegenSwitch": {
+                "enum": "SwitchState"
+            },
+            "VanillaOverrideSwitch": {
+                "enum": "SwitchState"
+            }
+        }
+    },
+    "DriveMode": {
+        "msg_id": 911,
+        "cycle_time": 100,
+        "description": "Drive Mode.",
+        "signals": {
+            "DriveMode": {
+                "enum": "DriveMode"
+            }
+        }
     }
 }

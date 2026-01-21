@@ -5,7 +5,7 @@
 #include "io_imu_config.h"
 #include "app_pid.h"
 #include "app_units.h"
-#include "app_vd_datatypes.h"
+#include "torque_vectoring_c/datatypes/app_vd_datatypes.h"
 #include "app_sbgEllipse.h"
 
 typedef struct

@@ -6,6 +6,7 @@
 #include "app_regen.h"
 #include "app_activeDifferential.h"
 #include "app_vehicleDynamicsConstants.h"
+#include "app_vehicleDynamics.h"
 #include "app_powerLimiting.h"
 #include "app_torqueVectoring.h"
 #include "app_sbgEllipse.h"
@@ -13,23 +14,14 @@
 
 #include <math.h>
 
-typedef struct
-{
-    bool imuOk : 1;
-    bool steeringOk : 1;
-    bool gpsOk : 1;
-    bool useTV : 1;
-} SensorStatus;
-
 static SensorStatus check_sensors(void)
 {
     SensorStatus sensor_status;
     sensor_status.gpsOk =
         !(app_canAlerts_VC_Info_SbgInitFailed_get() || app_sbgEllipse_getEkfSolutionMode() != POSITION);
-    sensor_status.imuOk = !app_canAlerts_VC_Info_ImuInitFailed_get();
-    sensor_status.steeringOk =
-        !(app_canRx_FSM_Info_SteeringAngleOCSC_get() || app_canRx_FSM_Info_SteeringAngleOutOfRange_get());
-    sensor_status.useTV = sensor_status.gpsOk && sensor_status.imuOk && sensor_status.steeringOk;
+    sensor_status.imuOk      = !app_canAlerts_VC_Info_ImuInitFailed_get();
+    sensor_status.steeringOk = !(app_canRx_FSM_SteeringAngleOCSC_get() || app_canRx_FSM_SteeringAngleOutOfRange_get());
+    sensor_status.useTV      = sensor_status.gpsOk && sensor_status.imuOk && sensor_status.steeringOk;
 
     if (!sensor_status.gpsOk)
         LOG_WARN("Sbg Ellipse not ok.");
@@ -99,7 +91,7 @@ TorqueAllocationOutputs app_controls_calculateTorqueOutput(void)
             // potential division by 0 if load_transfer_const = -1, not sure what values are expected here but should
             // add safety
 
-            const static double F = TRACK_WIDTH_m / (WHEEL_DIAMETER_IN / 2.0 * 2.4) * GEAR_RATIO;
+            static const double F = TRACK_WIDTH_m / (WHEEL_DIAMETER_IN / 2.0 * 2.4) * GEAR_RATIO;
 
             const double load_transfer_const  = 1.0,
                          total_torque_request = apps_pedal_decimal * MAX_TORQUE_REQUEST_NM * 4, front_yaw_moment = 0.0,
@@ -109,18 +101,24 @@ TorqueAllocationOutputs app_controls_calculateTorqueOutput(void)
             app_canTx_VC_RearYawMoment_set((float)rear_yaw_moment);
             app_canTx_VC_FrontYawMoment_set((float)front_yaw_moment);
 
-            out.torque_fl = total_torque_request * load_transfer_const / (2 * (load_transfer_const + 1)) -
-                            front_yaw_moment / (2 * F);
-            out.torque_fr = out.torque_fl + front_yaw_moment / F;
-            out.torque_rl =
+            out.front_left_torque = total_torque_request * load_transfer_const / (2 * (load_transfer_const + 1)) -
+                                    front_yaw_moment / (2 * F);
+            out.front_right_torque = out.front_left_torque + front_yaw_moment / F;
+            out.rear_left_torque =
                 total_torque_request / 2 - total_torque_request * load_transfer_const / (2 * (load_transfer_const + 1));
-            out.torque_rr = out.torque_rl + rear_yaw_moment / F;
+            out.rear_right_torque = out.rear_left_torque + rear_yaw_moment / F;
 
             const double total_power    = app_totalPower(&out);
             const double power_limit_kw = app_powerLimiting_computeMaxPower(false);
             app_canTx_VC_RequestedPower_set((float)total_power);
             app_canTx_VC_TotalAllocatedPower_set((float)total_power);
-            app_powerLimiting_torqueReduction(false, &out, app_totalPower(&out), power_limit_kw, 0.0);
+
+            PowerLimitingInputs powerLimitingInputs = { .total_requestedPower = (float)total_power,
+                                                        .power_limit          = (float)power_limit_kw,
+                                                        .torqueToMotors       = &out,
+                                                        .is_regen_mode        = false,
+                                                        .derating_value       = 1.0f };
+            app_powerLimiting_torqueReduction(&powerLimitingInputs);
 
             app_canTx_VC_VcDriveMode_set(DRIVE_MODE_POWER);
             LOG_INFO("DriveHandling: PowerLimit Mode Active");
@@ -134,8 +132,14 @@ TorqueAllocationOutputs app_controls_calculateTorqueOutput(void)
                 break;
             }
             app_canAlerts_VC_Info_DriveModeOverride_set(false);
-            out = app_activeDifferential_computeTorque(wheel_angle, false, 0);
-            app_powerLimiting_torqueReduction(false, &out, app_totalPower(&out), power_limit, 0.0);
+            out = app_activeDifferential_computeTorque(0.0, wheel_angle, 0.0);
+
+            PowerLimitingInputs powerLimitingInputs = { .total_requestedPower = (float)app_totalPower(&out),
+                                                        .power_limit          = (float)power_limit,
+                                                        .torqueToMotors       = &out,
+                                                        .is_regen_mode        = false,
+                                                        .derating_value       = 1.0f };
+            app_powerLimiting_torqueReduction(&powerLimitingInputs);
             /// dont use torque allocation here
             app_canTx_VC_VcDriveMode_set(DRIVE_MODE_POWER_AND_ACTIVE);
             LOG_INFO("DriveHandling: Active Diff Power Limit Mode Active");
@@ -157,7 +161,7 @@ TorqueAllocationOutputs app_controls_calculateTorqueOutput(void)
             break;
     }
 
-    const double power_limit_torque_ub = app_powerLimiting_computeMaxTorque(false); // TODO
-    const double torque_request        = fmin(apps_pedal_decimal * MAX_TORQUE_REQUEST_NM, power_limit_torque_ub);
+    // TODO: implement app_powerLimiting_computeMaxTorque
+    const double torque_request = apps_pedal_decimal * MAX_TORQUE_REQUEST_NM;
     return (TorqueAllocationOutputs){ torque_request, torque_request, torque_request, torque_request };
 }

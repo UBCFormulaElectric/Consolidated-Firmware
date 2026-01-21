@@ -32,7 +32,13 @@ class IoCanRerouteModule(CModule):
             loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"]
         )
         template = j2_env.from_string(load_template("io_canReroute.h.j2"))
-        return template.render(node_bus_names=self._node_bus_names)
+        # Collect all bus names from reroutes (both from and to buses)
+        reroute_bus_names = set(self._node_bus_names)
+        for reroute in self._node_reroutes:
+            assert reroute.forwarder_name == self._node
+            reroute_bus_names.add(reroute.from_bus_name)
+            reroute_bus_names.add(reroute.to_bus_name)
+        return template.render(node_bus_names=sorted(reroute_bus_names))
 
     def source_template(self):
         if self._node_reroutes is None:
@@ -41,7 +47,15 @@ class IoCanRerouteModule(CModule):
             loader=j2.BaseLoader(), extensions=["jinja2.ext.loopcontrols"]
         )
         template = j2_env.from_string(load_template("io_canReroute.c.j2"))
-        m = {bus_name: defaultdict(list) for bus_name in self._node_bus_names}
+        # Collect all bus names from reroutes (both from and to buses)
+        # This includes buses the node forwards between, even if not directly connected
+        reroute_bus_names = set(self._node_bus_names)
+        for reroute in self._node_reroutes:
+            assert reroute.forwarder_name == self._node
+            reroute_bus_names.add(reroute.from_bus_name)
+            reroute_bus_names.add(reroute.to_bus_name)
+        
+        m = {bus_name: defaultdict(list) for bus_name in reroute_bus_names}
         for reroute in self._node_reroutes:
             assert reroute.forwarder_name == self._node
             m[reroute.from_bus_name][reroute.message_name].append(reroute.to_bus_name)
@@ -63,6 +77,6 @@ class IoCanRerouteModule(CModule):
             ]
           ) for bus_name in m]
         return template.render(
-            node_bus_names=self._node_bus_names,
+            node_bus_names=sorted(reroute_bus_names),
             bus_name_and_reroutes=bus_name_and_reroutes
         )

@@ -1,1 +1,12 @@
-{}
+{
+    "SwitchState": {
+        "SWITCH_OFF": 0,
+        "SWITCH_ON": 1
+    },
+    "DriveMode": {
+        "DRIVE_MODE_POWER": 0,
+        "DRIVE_MODE_POWER_AND_ACTIVE": 1,
+        "DRIVE_MODE_TV": 2,
+        "DRIVE_MODE_COUNT": 3
+    }
+}

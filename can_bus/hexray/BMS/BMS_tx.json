@@ -11,5 +11,82 @@
                 "enum": "BmsState"
             }
         }
+    },
+    "TractiveSystem": {
+        "msg_id": 412,
+        "cycle_time": 10,
+        "description": "BMS Tractive System Data",
+        "signals": {
+            "TractiveSystemVoltage": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 600,
+                "unit": "V"
+            }
+        }
+    },
+    "PowerLimit": {
+        "msg_id": 122,
+        "cycle_time": 10,
+        "description": "BMS Power Limit",
+        "signals": {
+            "ChargePowerLimit": {
+                "resolution": 1,
+                "min": 0,
+                "max": 100000,
+                "unit": "W"
+            },
+            "DischargePowerLimit": {
+                "resolution": 1,
+                "min": 0,
+                "max": 100000,
+                "unit": "W"
+            }
+        }
+    },
+    "CellTempStats": {
+        "msg_id": 463,
+        "cycle_time": 1000,
+        "description": "BMS cell temperature stats",
+        "signals": {
+            "MaxCellTemp": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "degC"
+            }
+        }
+    },
+    "CellVoltageStats_1": {
+        "msg_id": 459,
+        "cycle_time": 1000,
+        "description": "BMS cell voltage stats",
+        "signals": {
+            "AvgCellVoltage": {
+                "resolution": 0.001,
+                "min": 0,
+                "max": 5,
+                "unit": "V"
+            },
+            "MinCellVoltage": {
+                "resolution": 0.001,
+                "min": 0,
+                "max": 5,
+                "unit": "V"
+            }
+        }
+    },
+    "CellVoltageStats_2": {
+        "msg_id": 469,
+        "cycle_time": 1000,
+        "description": "BMS cell voltage stats",
+        "signals": {
+            "MaxCellVoltage": {
+                "resolution": 0.001,
+                "min": 0,
+                "max": 5,
+                "unit": "V"
+            }
+        }
     }
 }

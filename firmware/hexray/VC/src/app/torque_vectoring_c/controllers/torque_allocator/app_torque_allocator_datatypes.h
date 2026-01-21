@@ -1,4 +1,4 @@
-#include "app_vd_datatypes.h"
+#include "torque_vectoring_c/datatypes/app_vd_datatypes.h"
 
 typedef struct
 {
