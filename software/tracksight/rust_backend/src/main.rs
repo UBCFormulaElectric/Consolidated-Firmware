@@ -4,11 +4,10 @@ use tokio::sync::RwLock;
 use tokio::sync::broadcast::channel;
 use tokio::task::{JoinSet};
 
-
 mod config;
 mod tasks;
 use tasks::telem_message::CanPayload;
-use tasks::api::subscriptions::Subscriptions;
+use tasks::client_api::subscriptions::Subscriptions;
 
 use tasks::serial_handler::run_serial_task;
 use tasks::can_data_handler::run_can_data_handler;
