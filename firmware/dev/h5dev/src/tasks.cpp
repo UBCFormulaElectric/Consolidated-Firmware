@@ -13,13 +13,13 @@
 extern "C"
 {
 #include "hw_bootup.h"
-#include "hw_cans.h"
 #include "hw_resetReason.h"
 #include "io_canQueue.h"
 #include "app_jsoncan.h"
 }
 
-static CanTxQueue can_tx_queue;
+#include "hw_cans.hpp"
+#include "io_canMsgQueues.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
@@ -94,9 +94,9 @@ void tasks_init()
 #endif
 
     hw_hardFaultHandler_init();
-    hw_can_init(&fdcan);
-    io_canQueue_initRx();
-    io_canQueue_initTx(&can_tx_queue);
+    can_tx_queue.init();
+    can_rx_queue.init();    
+    fdcan.init();
     // LOG_IF_ERR(hw_usb_init());
 
     // Check for watchdog timeout on a previous boot cycle.

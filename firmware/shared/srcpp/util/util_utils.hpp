@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cmath>
 #include <cstdint>
 
 #define NUM_ELEMENTS_IN_ARRAY(array_pointer) sizeof(array_pointer) / sizeof(array_pointer[0])
