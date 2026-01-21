@@ -6,16 +6,14 @@ rust my beloved
 todo for backend
 [x] reading from serial and parsing
 [x] set up channels between handlers
-[x] switch to using tokio (?)
+[x] switch to using tokio threading
 [x] verify that serial messages can be processed
-[ ] processing jsoncan to read metadata - deserialize bytes
-[ ] implementing client subscription map
+[x] processing jsoncan to read metadata - deserialize bytes
+[ ] implementing client subscription map, socket server for clients to serve data
 [ ] interfacing with influxdb and pushing data through
-[ ] socket clients to publish data
-[ ] proper error handling in backend and using optimal threading or whatnot
+[ ] ensure proper error handling in backend and logging
 [ ] implementing api endpoints
-[ ] figure out the time offset basetime thing
-[ ] implementing ntp and base time syncing
+[ ] figure out the time offset basetime thing, implement ntp and base time syncing
 ...
 
 ##### processing can signals
