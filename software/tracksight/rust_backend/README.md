@@ -14,6 +14,7 @@ todo for backend
 [ ] socket clients to publish data
 [ ] proper error handling in backend and using optimal threading or whatnot
 [ ] implementing api endpoints
+[ ] figure out the time offset basetime thing
 [ ] implementing ntp and base time syncing
 ...
 

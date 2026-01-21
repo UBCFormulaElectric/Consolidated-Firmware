@@ -1,3 +1,5 @@
+use std::time::SystemTime;
+
 pub enum TelemetryMessage {
     Can {
         body: CanPayload,
@@ -42,26 +44,6 @@ pub struct BaseTimeRegMessage {
 #[derive(Clone, Debug)]
  pub struct CanPayload {
     pub can_id: u32,
-    pub can_time_offset: f32, // should deprecate this field when we establish RTC and NTP
+    pub can_timestamp: SystemTime, // should deprecate this field when we establish RTC and NTP
     pub payload: Vec<u8>,
-}
-
-impl CanPayload {
-    fn to_json(&self) -> String {
-        format!(
-            r#"{{"can_id": {},"can_time_offset": {},"can_payload": {:?}}}"#,
-            self.can_id,
-            self.can_time_offset,
-            self.payload
-        )
-    }
-}
-
-/**
- * Parsed from CanPayload payload, represents a single signal
- */
-pub struct CanSignal {
-    pub name: String,
-    pub value: f64,
-    pub timestamp: u64, // todo time format
 }

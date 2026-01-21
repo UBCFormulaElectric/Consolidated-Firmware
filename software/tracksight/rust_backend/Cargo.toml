@@ -11,5 +11,6 @@ tokio-serial = "5"
 influxdb2 = "0.5"
 dotenv = "0.15"
 crc = "3.0.0"
+rust_socketio = "0.6.0"
 
 jsoncan_rust = { path = "../../../scripts/code_generation/jsoncan-rust" }
