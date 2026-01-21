@@ -1,10 +1,7 @@
 #pragma once
 #include "util_errorCodes.hpp"
 
-namespace io::imus 
-{
-    extern io::imu::Imu imu_config();
-}
+extern io::imu::Imu imu_config();
 
 typedef struct
 {
