@@ -63,7 +63,7 @@ ExitCode hw_usb_transmit(uint8_t *msg, const uint16_t len)
     const uint8_t status = TRANSMIT(msg, len);
     if (status != USBD_OK)
     {
-        LOG_WARN("USB: Transmit handle returned %d status code instead of USBD_OK.", status);
+       //LOG_WARN("USB: Transmit handle returned %d status code instead of USBD_OK.", status);
         return EXIT_CODE_ERROR;
     }
     return EXIT_CODE_OK;

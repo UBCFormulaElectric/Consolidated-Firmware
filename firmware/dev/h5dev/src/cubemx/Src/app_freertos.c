@@ -124,7 +124,7 @@ void StartDefaultTask(void *argument)
     {
         bool usb_connected = hw_usb_checkConnection();
         
-        if (usb_connected != was_connected)
+        if (!usb_connected)
         {
             if (usb_connected)
             {
