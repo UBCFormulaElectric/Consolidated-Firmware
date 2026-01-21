@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { SignalType } from "@/lib/types/Signal";
-import { MockGraphConfig, WidgetData } from "@/lib/types/Widget";
+import { WidgetData } from "@/lib/types/Widget";
 import { IS_DEBUG } from "@/lib/constants";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -83,7 +83,7 @@ export default function useWidgetManager() {
                 if (widgetIndex === -1) {
                     IS_DEBUG && console.warn("Widget to edit not found");
                     return prev;
-              }
+                }
 
                 const newWidgets = [...prev];
                 if (newWidgets[widgetIndex].type !== SignalType.NUMERICAL) {

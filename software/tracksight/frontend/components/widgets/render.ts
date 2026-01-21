@@ -25,7 +25,6 @@ function binarySearchForFirstVisibleIndex(
         result = timestamps.length;
         console.log("!!!");
     }
-    console.log(result);
     return result;
 }
 
@@ -366,9 +365,7 @@ export default function render(
 
         const valueToY = (value: number) => {
             return (
-                numericalTop +
-                chartHeight -
-                ((value - minValue) / (maxValue - minValue)) * chartHeight
+                numericalTop + chartHeight - ((value - minValue) / (maxValue - minValue)) * chartHeight
             );
         };
 
@@ -409,18 +406,49 @@ export default function render(
             context.fillText(value.toFixed(2), padding.left - 5, y);
         }
 
+        context.save();
+        context.beginPath();
+        context.rect(padding.left, numericalTop, chartWidth, chartHeight);
+        context.clip();
+
         // draw data series
         numericalSeriesIndices.forEach((seriesIndex) => {
             const dataPoints = seriesData[seriesIndex];
             const meta = series[seriesIndex];
+
+            const drawStartIndex = Math.max(0, startIndex - 1);
+            const drawEndIndex = Math.min(timestamps.length - 1, endIndex + 1);
+
+            let loopStart = drawStartIndex;
+
+            // if the last point before is not on screen (i.e. start of data range has no data),
+            // then the line color is yellow for that segment.
+            if (drawStartIndex < startIndex && drawStartIndex + 1 <= drawEndIndex) {
+                const t0 = timestamps[drawStartIndex];
+                const v0 = dataPoints[drawStartIndex];
+                const t1 = timestamps[drawStartIndex + 1];
+                const v1 = dataPoints[drawStartIndex + 1];
+
+                if (typeof v0 === "number" && typeof v1 === "number") {
+                    context.beginPath();
+                    context.strokeStyle = "#EAB308"; // Yellow
+                    context.lineWidth = 2;
+                    context.moveTo(timeToX(t0), valueToY(v0));
+                    context.lineTo(timeToX(t1), valueToY(v1));
+                    context.stroke();
+
+                    loopStart = drawStartIndex + 1;
+                }
+            }
+
             context.strokeStyle = meta?.color || "#000";
             context.lineWidth = 2;
             context.beginPath();
 
             let pathStarted = false;
 
-            // only iterate through visible data points
-            for (let i = startIndex; i <= endIndex; i++) {
+            // only iterate through visible data points and last point before
+            for (let i = loopStart; i <= drawEndIndex; i++) {
                 const time = timestamps[i];
                 const value = dataPoints[i];
 
@@ -442,6 +470,8 @@ export default function render(
 
             context.stroke();
         });
+
+        context.restore();
     } // end hasNumerical
 
 
