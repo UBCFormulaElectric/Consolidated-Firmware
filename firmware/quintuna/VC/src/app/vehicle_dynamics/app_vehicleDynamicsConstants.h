@@ -57,7 +57,7 @@
 // DD5-14-10-POW motor is relative to their nominal torque (9.8 Nm) where 100% torque is 9.8. The motors are able to
 // output up to 21 Nm, this however cannot be a sustained behaviour. Note the message takes a int 16 that is essentially
 // your percentage of nominal torque * 1000
-#define PEDAL_REMAPPING(torque) ((int16_t)(((float)torque / NOMINAL_TORQUE_REQUEST_NM) * 1000.0f))
+#define PEDAL_REMAPPING(torque) ((int16_t)((torque / NOMINAL_TORQUE_REQUEST_NM) * 1000.0f))
 #define TORQUE_TO_POWER(torque, rpm) ((torque) * ((float)(rpm) / (GEAR_RATIO)) / (POWER_TO_TORQUE_CONVERSION_FACTOR))
 #define POWER_TO_TORQUE(power, rpm)                  \
     (((power) * POWER_TO_TORQUE_CONVERSION_FACTOR) / \

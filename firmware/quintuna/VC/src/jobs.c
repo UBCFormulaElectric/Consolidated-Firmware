@@ -71,7 +71,7 @@ void jobs_init()
     // const ExitCode exitSbg = io_sbgEllipse_init();
     // app_canTx_VC_Info_SbgInitFailed_set(IS_EXIT_OK(exitSbg));
 
-    // io_imu_init();
+    io_imu_init();
     // const ExitCode exitImu = io_imu_init();
     // app_canAlerts_VC_Info_ImuInitFailed_set(IS_EXIT_ERR(exitImu));
 
@@ -126,7 +126,7 @@ void jobs_run100Hz_tick(void)
     app_shdnLast_broadcast();
     app_powerManager_EfuseProtocolTick_100Hz();
     app_pumpControl_MonitorPumps();
-    // app_imu_broadcast();
+    app_imu_broadcast();
     // app_sbgEllipse_broadcast();
 
     io_canTx_enqueue100HzMsgs();
@@ -140,5 +140,5 @@ void jobs_run1kHz_tick(void)
 
 void jobs_runPowerMonitoring_tick(void)
 {
-    // app_powerMonitoring_update();
+    app_powerMonitoring_update();
 }

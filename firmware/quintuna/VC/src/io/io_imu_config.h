@@ -1,7 +1,7 @@
 #pragma once
 
 #ifdef TARGET_EMBEDDED
-// #include "hw_i2cs.h"
+#include "hw_i2cs.h"
 #endif
 #include "io_imu.h"
 typedef struct

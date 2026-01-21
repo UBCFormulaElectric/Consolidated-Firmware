@@ -111,7 +111,7 @@ extern "C"
         return pcm_enabled;
     }
 
-    // #include "io_powerMonitoring.h"
+#include "io_powerMonitoring.h"
     bool io_powerMonitoring_init(void)
     {
         return true;

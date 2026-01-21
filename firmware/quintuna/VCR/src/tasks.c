@@ -1,6 +1,6 @@
 #include "tasks.h"
 #include "app_utils.h"
-// #include "hw_cans.h"
+#include "hw_cans.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_resetReason.h"
 #include "hw_utils.h"
