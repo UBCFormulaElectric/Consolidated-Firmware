@@ -8,6 +8,8 @@ set(LINKER_SCRIPT "${LINKER_DIR}/stm32h562ritx/stm32h562ritx_app.ld")
 file(GLOB EMBEDDED_SRCS CONFIGURE_DEPENDS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
 )
 list(APPEND EMBEDDED_SRCS
@@ -36,6 +38,7 @@ set(EMBEDDED_INCLUDE_DIRS
         "${SHARED_HW_INCLUDE_DIR}"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
         "${CMAKE_CURRENT_SOURCE_DIR}/src"
         "${CMAKE_CURRENT_SOURCE_DIR}/boot"
 )

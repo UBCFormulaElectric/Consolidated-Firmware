@@ -58,17 +58,16 @@ extern "C"
 {
     forever
     {
-        CanMsg msg = io_canQueue_popTx(&can_tx_queue);
-        LOG_IF_ERR(hw_can_transmit(&fdcan, &msg));
+        io::CanMsg msg = can_tx_queue.popTxMsgFromQueue();
+        LOG_IF_ERR(fdcan1.fdcan_transmit(msg));
     }
 }
 [[noreturn]] static void tasks_runCanRx(void *arg)
 {
     forever
     {
-        CanMsg     rx_msg         = io_canQueue_popRx();
-        JsonCanMsg jsoncan_rx_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
-        io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
+        //io::CanMsg     rx_msg = can_rx_queue.popRxMsgFromQueue();
+        
     }
 }
 
@@ -96,7 +95,7 @@ void tasks_init()
     hw_hardFaultHandler_init();
     can_tx_queue.init();
     can_rx_queue.init();    
-    fdcan.init();
+    fdcan1.init();
     // LOG_IF_ERR(hw_usb_init());
 
     // Check for watchdog timeout on a previous boot cycle.

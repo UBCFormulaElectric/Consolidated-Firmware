@@ -11,6 +11,7 @@
 #include "hw_utils.hpp"
 
 #include "util_utils.hpp"
+#include "util_limits.hpp"
 
 #if defined(STM32H733xx)
 #include "stm32h7xx_hal_fdcan.h"

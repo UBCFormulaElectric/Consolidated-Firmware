@@ -1,4 +1,4 @@
 #pragma once
 #include <hw_can.hpp>
 
-extern hw::fdcan fdcan;
+extern hw::fdcan fdcan1;

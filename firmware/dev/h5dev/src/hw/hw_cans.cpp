@@ -8,14 +8,12 @@
 
 static void canRxCallback(const io::CanMsg *msg)
 {
-    io_bootHandler_processBootRequest(msg);
-    io::can_rx_queue.pushTxMsgToQueue(msg);
+    can_rx_queue.pushTxMsgToQueue(msg);
 }
 
-hw::fdcan fdcan = { .hfdcan = &hfdcan1, .bus_num = 0, .receive_callback = canRxCallback };
+hw::fdcan fdcan1(hfdcan1,0,canRxCallback);
 
-const hw::fdcan *hw_can_getHandle(const FDCAN_HandleTypeDef *hfdcan)
-{
-    assert(hfdcan == fdcan.getHfdcan());
-    return &fdcan;
+const hw::fdcan &hw::fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan){
+    assert(hfdcan == fdcan1.getHfdcan());
+    return fdcan1;
 }
