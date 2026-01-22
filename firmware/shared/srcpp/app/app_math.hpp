@@ -119,7 +119,7 @@ namespace app::math{
             friend constexpr matrix<T,R,C> operator+ (const matrix &mat_1, const matrix &mat_2) 
             {
                 matrix out; 
-                for(size_t i = 0; i < mat_1.mat_size; i++) out[i] = mat_1[i] + mat_2[i]
+                for(size_t i = 0; i < mat_1.mat_size; i++) out[i] = mat_1[i] + mat_2[i];
                 return out;
             }
 
@@ -160,7 +160,7 @@ namespace app::math{
             */
             friend matrix<T, R, C> operator*(const matrix& mat, const T scalar)
             {
-                assert(std::abs(s) > T(0));
+                assert(std::abs(scalar) > T(0));
                 matrix<T, R, C> out;
 
                 for(size_t i = 0; i < mat_size; ++i)
@@ -287,6 +287,6 @@ namespace app::math{
     };
     class autodiff {
         // to help with ekf
-    }
+    };
 
 }

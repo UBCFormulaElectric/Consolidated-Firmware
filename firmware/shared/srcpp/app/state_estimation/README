@@ -1,4 +1,6 @@
 Resources
 
 1. https://github.com/tpn/pdfs/blob/master/Understanding%20the%20Basis%20of%20the%20Kalman%20Filter%20Via%20a%20Simple%20and%20Intuitive%20Derivation%20(2012).pdf  -- great to develop a math based intuitive understanding of the kalman filter. Need some experience with math notation to follow
-2. https://simondlevy.github.io/ekf-tutorial/ -- more beginner friendly resource for kalman filters q
+2. https://simondlevy.github.io/ekf-tutorial/ -- more beginner friendly resource for extended kalman filters 
+3. https://www.youtube.com/watch?v=X42HqGthOqs&list=PLvKAPIGzFEr8n7WRx8RptZmC1rXeTzYtA&index=1 -- for understanding practical implementation 
+4. https://en.wikipedia.org/wiki/Kalman_filter -- nice overview of all the equations involved in the prediction, update and estimate steps in details for the kf
