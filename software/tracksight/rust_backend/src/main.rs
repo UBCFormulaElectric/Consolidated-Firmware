@@ -12,6 +12,8 @@ use tasks::client_api::subscriptions::Subscriptions;
 use tasks::serial_handler::run_serial_task;
 use tasks::can_data_handler::run_can_data_handler;
 
+use crate::tasks::api_handler::run_api_handler;
+
 #[tokio::main]
 async fn main() {
     // shutdown signal for threads
@@ -42,8 +44,9 @@ async fn main() {
     let subscriptions = RwLock::new(Subscriptions::new());
 
     // start tasks
-    tasks.spawn(run_can_data_handler(shutdown_rx.resubscribe(), can_queue_rx, subscriptions));
-    tasks.spawn(run_serial_task(shutdown_rx.resubscribe(), can_queue_tx));
+    tasks.spawn(run_api_handler(shutdown_rx.resubscribe()));
+    // tasks.spawn(run_can_data_handler(shutdown_rx.resubscribe(), can_queue_rx, subscriptions));
+    // tasks.spawn(run_serial_task(shutdown_rx.resubscribe(), can_queue_tx));
 
     // wait for tasks to clean up
     while let Some(res) = tasks.join_next().await {
