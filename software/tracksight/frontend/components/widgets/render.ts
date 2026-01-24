@@ -91,6 +91,8 @@ export interface ChunkStats {
 export interface SeriesMeta {
     label: string;
     color?: string;
+    min?: number;
+    max?: number;
 };
 
 export interface PreparedChartData {
@@ -339,16 +341,42 @@ export default function render(context: CanvasRenderingContext2D, width: number,
             return { min: localMin, max: localMax };
         };
 
+        // Check if any numerical series has fixed bounds
+        let sumMin = 0;
+        let sumMax = 0;
+        let count = 0;
+
+        let mv = Infinity;
+        let MV = -Infinity;
+
         numericalSeriesIndices.forEach((seriesIndex) => {
-            const dataPoints = seriesData[seriesIndex];
-            const stats = chunkStats[seriesIndex];
-            const { min, max } = computeVisibleRange(dataPoints, stats);
-            if (!Number.isFinite(min) || !Number.isFinite(max)) {
-                return;
+            const meta = series[seriesIndex];
+            if (meta && typeof meta.min === 'number' && typeof meta.max === 'number') {
+                sumMin += meta.min;
+                sumMax += meta.max;
+                mv = Math.min(mv, meta.min);
+                MV = Math.max(MV, meta.max);
+                count++;
             }
-            minValue = Math.min(minValue, min);
-            maxValue = Math.max(maxValue, max);
         });
+
+        if (count > 0) {
+            // Use average of fixed bounds
+            minValue = mv;//sumMin / count;
+            maxValue = MV;//sumMax / count;
+
+        } else {
+            numericalSeriesIndices.forEach((seriesIndex) => {
+                const dataPoints = seriesData[seriesIndex];
+                const stats = chunkStats[seriesIndex];
+                const { min, max } = computeVisibleRange(dataPoints, stats);
+                if (!Number.isFinite(min) || !Number.isFinite(max)) {
+                    return;
+                }
+                minValue = Math.min(minValue, min);
+                maxValue = Math.max(maxValue, max);
+            });
+        }
 
         // edge case where all values are the same
         if (minValue === maxValue) {

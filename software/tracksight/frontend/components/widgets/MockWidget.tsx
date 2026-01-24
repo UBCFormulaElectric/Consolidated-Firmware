@@ -17,12 +17,25 @@ enum MockSignalType {
 const generateRandomValue = (
     type: string,
     time: number,
-    index: number = 0
+    index: number = 0,
+    min?: number,
+    max?: number
 ) => {
     if (type === MockSignalType.Enumeration) {
         const states = ["IDLE", "ACTIVE", "ERROR", "WAITING", "CHARGING"];
         return states[Math.floor(Math.random() * states.length)];
     } else {
+        if (min !== undefined && max !== undefined) {
+            const range = max - min;
+            // Generate a wave within the range
+            const normalized = (Math.sin(time / 1000 + index) + 1) / 2; // 0 to 1
+            // Add some noise
+            const noise = (Math.random() - 0.5) * 0.1; // -0.05 to 0.05
+            let n = normalized + noise;
+            n = Math.max(0, Math.min(1, n));
+            return min + n * range;
+        }
+
         return (
             //Math.sin(time / 1000 + index) * 50 + Math.random() * 10 + 50 + index * 20 * (1 + time / 100000)
             Math.sin(time / 1000 + index) * 50 + Math.random() * 10 + 50 + index * 20
@@ -47,6 +60,8 @@ const MockWidget = memo(({ widgetData, updateWidget, onDelete }:
     const [newSignalName, setNewSignalName] = useState("");
     const [newSignalType, setNewSignalType] = useState<MockSignalType>(MockSignalType.Numerical);
     const [newSignalDelay, setNewSignalDelay] = useState(100);
+    const [newSignalMin, setNewSignalMin] = useState<number>(-10);
+    const [newSignalMax, setNewSignalMax] = useState<number>(10);
 
     const dataRef = useRef<{
         timestamps: number[];
@@ -70,7 +85,7 @@ const MockWidget = memo(({ widgetData, updateWidget, onDelete }:
         configs.forEach((cfg, idx) => {
             const interval = setInterval(() => {
                 const now = Date.now();
-                const val = generateRandomValue(cfg.type, now, idx);
+                const val = generateRandomValue(cfg.type, now, idx, cfg.min, cfg.max);
 
                 const store = dataRef.current;
 
@@ -146,6 +161,8 @@ const MockWidget = memo(({ widgetData, updateWidget, onDelete }:
             type: newSignalType, // "numerical" | "enumeration"
             delay: newSignalDelay,
             initialPoints: 0,
+            min: newSignalType === MockSignalType.Numerical ? newSignalMin : undefined,
+            max: newSignalType === MockSignalType.Numerical ? newSignalMax : undefined,
         };
 
         const store = dataRef.current;
@@ -161,7 +178,9 @@ const MockWidget = memo(({ widgetData, updateWidget, onDelete }:
         setShowAddModal(false);
         setNewSignalName("");
         setNewSignalType(MockSignalType.Numerical);
-    }, [configs, newSignalName, newSignalType, newSignalDelay, updateWidget, widgetData.id]);
+        setNewSignalMin(-10);
+        setNewSignalMax(10);
+    }, [configs, newSignalName, newSignalType, newSignalDelay, updateWidget, widgetData.id, newSignalMin, newSignalMax]);
 
     const handleRemoveSignal = useCallback((name: string) => {
         if (configs.length <= 1) {
@@ -285,6 +304,32 @@ const MockWidget = memo(({ widgetData, updateWidget, onDelete }:
                                                 </option>
                                             </select>
                                         </div>
+                                        {newSignalType === MockSignalType.Numerical && (
+                                            <div className="flex gap-4">
+                                                <div className="flex-1">
+                                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                        Min Value
+                                                    </label>
+                                                    <input
+                                                        type="number"
+                                                        value={newSignalMin}
+                                                        onChange={(e) => setNewSignalMin(Number(e.target.value))}
+                                                        className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
+                                                    />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                        Max Value
+                                                    </label>
+                                                    <input
+                                                        type="number"
+                                                        value={newSignalMax}
+                                                        onChange={(e) => setNewSignalMax(Number(e.target.value))}
+                                                        className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                                 Update Delay (ms)
@@ -331,6 +376,8 @@ const MockWidget = memo(({ widgetData, updateWidget, onDelete }:
                     series={configs.map((c, idx) => ({
                         label: c.signalName,
                         color: signalColors[idx % signalColors.length],
+                        min: c.min,
+                        max: c.max,
                     }))}
                 />
             </div>
