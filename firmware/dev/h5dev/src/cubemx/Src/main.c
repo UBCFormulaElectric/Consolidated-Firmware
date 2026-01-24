@@ -6,7 +6,7 @@
  ******************************************************************************
  * @attention
  *
- * Copyright (c) 2025 STMicroelectronics.
+ * Copyright (c) 2026 STMicroelectronics.
  * All rights reserved.
  *
  * This software is licensed under terms that can be found in the LICENSE file
@@ -18,7 +18,6 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "cmsis_os2.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -57,7 +56,6 @@ SPI_HandleTypeDef hspi1;
 
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
-void        MX_FREERTOS_Init(void);
 static void MX_GPIO_Init(void);
 static void MX_FDCAN1_Init(void);
 static void MX_IWDG_Init(void);
@@ -88,6 +86,7 @@ int main(void)
     HAL_Init();
 
     /* USER CODE BEGIN Init */
+
     /* USER CODE END Init */
 
     /* Configure the system clock */
@@ -106,16 +105,6 @@ int main(void)
     /* USER CODE BEGIN 2 */
     tasks_init();
     /* USER CODE END 2 */
-
-    /* Init scheduler */
-    osKernelInitialize();
-    /* Call init function for freertos objects (in app_freertos.c) */
-    MX_FREERTOS_Init();
-
-    /* Start scheduler */
-    osKernelStart();
-
-    /* We should never get here as control is now taken by the scheduler */
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
