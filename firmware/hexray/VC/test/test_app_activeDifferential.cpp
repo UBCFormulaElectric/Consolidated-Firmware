@@ -12,29 +12,7 @@ extern "C"
 #include "app_vd_constants.hpp"
 #include "app_units.h"
 
-// #region agent log
-// Debug: Verify test file is being compiled and executed
-// This simple test should always register if the file is compiled
-TEST(TestFileCompilation, VerifyTestFileIsCompiled)
-{
-    EXPECT_TRUE(true);
-    std::ofstream log_file(
-        "c:\\Users\\hitar\\OneDrive\\Desktop\\UBC FE\\Consolidated-Firmware\\.cursor\\debug.log", std::ios::app);
-    if (log_file.is_open())
-    {
-        auto now =
-            std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch())
-                .count();
-        log_file << "{\"id\":\"log_test_compiled\",\"timestamp\":" << now
-                 << ",\"location\":\"test_app_activeDifferential.cpp:17\",\"message\":\"Test file "
-                    "executed\",\"data\":{\"testName\":\"VerifyTestFileIsCompiled\"},\"sessionId\":\"debug-session\","
-                    "\"runId\":\"run1\",\"hypothesisId\":\"A\"}\n";
-        log_file.close();
-    }
-}
-// #endregion
-
-// Test constants - use macros from headers directly
+// Test constants
 // TRACK_WIDTH_m, WHEELBASE_m, GEAR_RATIO, APPROX_STEERING_TO_WHEEL_ANGLE are defined in headers
 constexpr double MAX_MOTOR_SPEED_RPM   = 6000.0;
 constexpr double MAX_MOTOR_SPEED_RAD_S = MAX_MOTOR_SPEED_RPM * M_PI / 30.0; // ~628.32 rad/s
