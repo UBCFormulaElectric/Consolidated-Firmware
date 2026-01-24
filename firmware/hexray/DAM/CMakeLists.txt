@@ -2,11 +2,7 @@ message("")
 message("⚙️ Configuring DAM (Hexray)")
 
 file(GLOB CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
-set(CUBEMX_INCLUDE_DIRS
-"${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
-"${CMAKE_CURRENT_SOURCE_DIR}/hw"
-"${SHARED_HW_INCLUDE_DIR_CPP}/usb"
-)
+set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
 
 set(JOBS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/jobs.cpp")
 set(TASKS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.cpp")
@@ -16,7 +12,6 @@ set(SYSTEM_INCLUDE_DIRS
         #        "${CMAKE_CURRENT_SOURCE_DIR}/boot"
 )
 
-#APP
 file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
 list(APPEND APP_SRCS)
 set(APP_INCLUDE_DIRS
@@ -24,7 +19,6 @@ set(APP_INCLUDE_DIRS
         "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR_CPP}"
 )
 
-#IO
 file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
 list(APPEND IO_SRCS)
 set(IO_INCLUDE_DIRS
@@ -32,22 +26,26 @@ set(IO_INCLUDE_DIRS
         "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_DIR_CPP}"
 )
 
-#HW
-file(GLOB_RECURSE HW_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c")
+file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
+list(APPEND IO_SRCS
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
+)
+
+file(GLOB_RECURSE HW_SRCS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
+)
 list(APPEND HW_SRCS
-        "${SHARED_HW_INCLUDE_DIR_CPP}/usb/hw_usb.c"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/usb/h5/usbd_cdc_if.c"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/usb/h5/usb_device.c"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/usb/h5/usbd_conf.c"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/usb/h5/usbd_desc.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_ubsan.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
 )
 set(HW_INCLUDE_DIRS
         #        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
         "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR_CPP}"
 )
+
+# chimera sources
+set(CHIMERA_SRCS ${HW_SRCS} "${CMAKE_CURRENT_SOURCE_DIR}/src/chimera.cpp")
+set(CHIMERA_INCLUDE_DIRS ${HW_INCLUDE_DIRS})
+
 if ("${TARGET}" STREQUAL "binary")
     set(ARM_CORE "cm33")
     set(LINKER_SCRIPT "${LINKER_DIR}/stm32h562ritx/stm32h562ritx_app_only.ld")
@@ -64,12 +62,8 @@ if ("${TARGET}" STREQUAL "binary")
 
     set(STM32_HAL_SRCS
             "stm32h5xx_hal.c"
-            "stm32h5xx_hal_gpio.c"
-            "stm32h5xx_hal_pcd.c"
             "stm32h5xx_hal_rcc.c"
             "stm32h5xx_hal_rcc_ex.c"
-            "stm32h5xx_ll_usb.c"
-            "stm32h5xx_hal_pcd_ex.c"
             "stm32h5xx_hal_pwr_ex.c"
             "stm32h5xx_hal_cortex.c"
             "stm32h5xx_hal_exti.c"
@@ -82,7 +76,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/DAM.ioc"
             "${CUBEMX_SRCS}"
             "${CUBEMX_INCLUDE_DIRS}"
-            TRUE
+            FALSE
             "${ARM_CORE}"
     )
 
@@ -98,6 +92,9 @@ if ("${TARGET}" STREQUAL "binary")
 
     target_link_libraries("hexray_DAM_app.elf" PRIVATE "hexray_DAM_stm32" "hexray_DAM_commit_info" "hexray_DAM_jsoncan" "m")
     target_compile_definitions("hexray_DAM_app.elf" PRIVATE DAM)
+
+    add_chimera_stm32h5("hexray_DAM_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}")
+    target_link_libraries("hexray_DAM_chimera.elf" PRIVATE "hexray_DAM_stm32")
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS})

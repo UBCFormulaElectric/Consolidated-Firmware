@@ -52,14 +52,12 @@ extern "C"
 
     /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler(void);
+    void tasks_init(void);
+    /* USER CODE BEGIN EFP */
 
-/* USER CODE BEGIN EFP */
+    /* USER CODE END EFP */
 
-/* USER CODE END EFP */
-
-/* Private defines -----------------------------------------------------------*/
-#define LED_Pin GPIO_PIN_1
-#define LED_GPIO_Port GPIOC
+    /* Private defines -----------------------------------------------------------*/
 
     /* USER CODE BEGIN Private defines */
 
