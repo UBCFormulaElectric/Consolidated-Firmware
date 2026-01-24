@@ -66,7 +66,7 @@ TEST_F(TestActiveDifferential, StraightDriving)
     TorqueAllocationOutputs result = app_activeDifferential_computeTorque(omega_v_ref, steering_angle_deg, omega_m_max);
 
     // All wheels should have the same speed
-    const double expected_motor_speed = omega_v_ref * GEAR_RATIO;
+    const double expected_motor_speed = omega_v_ref * static_cast<double>(GEAR_RATIO);
     EXPECT_NEAR(result.front_left_torque, expected_motor_speed, EPSILON);
     EXPECT_NEAR(result.front_right_torque, expected_motor_speed, EPSILON);
     EXPECT_NEAR(result.rear_left_torque, expected_motor_speed, EPSILON);
@@ -87,18 +87,20 @@ TEST_F(TestActiveDifferential, RightTurn)
     TorqueAllocationOutputs result = app_activeDifferential_computeTorque(omega_v_ref, steering_angle_deg, omega_m_max);
 
     // Convert steering wheel angle to wheel angle
-    const double delta = DEG_TO_RAD(steering_angle_deg * APPROX_STEERING_TO_WHEEL_ANGLE);
+    const double delta = static_cast<double>(
+        DEG_TO_RAD(static_cast<float>(steering_angle_deg) * static_cast<float>(APPROX_STEERING_TO_WHEEL_ANGLE)));
 
     // Compute expected wheel speed difference
-    const double delta_omega = (TRACK_WIDTH_m / WHEELBASE_m) * tan(delta) * omega_v_ref;
+    const double delta_omega =
+        (static_cast<double>(TRACK_WIDTH_m) / static_cast<double>(WHEELBASE_m)) * tan(delta) * omega_v_ref;
 
     // Left and right wheel references
     const double omega_L_wheel_ref = omega_v_ref + 0.5 * delta_omega;
     const double omega_R_wheel_ref = omega_v_ref - 0.5 * delta_omega;
 
     // Motor references
-    const double omega_L_motor_ref = GEAR_RATIO * omega_L_wheel_ref;
-    const double omega_R_motor_ref = GEAR_RATIO * omega_R_wheel_ref;
+    const double omega_L_motor_ref = static_cast<double>(GEAR_RATIO) * omega_L_wheel_ref;
+    const double omega_R_motor_ref = static_cast<double>(GEAR_RATIO) * omega_R_wheel_ref;
 
     // Right turn: left wheels are outer (faster), right wheels are inner (slower)
     EXPECT_NEAR(result.front_left_torque, omega_L_motor_ref, EPSILON);
@@ -125,18 +127,20 @@ TEST_F(TestActiveDifferential, LeftTurn)
     TorqueAllocationOutputs result = app_activeDifferential_computeTorque(omega_v_ref, steering_angle_deg, omega_m_max);
 
     // Convert steering wheel angle to wheel angle
-    const double delta = DEG_TO_RAD(steering_angle_deg * APPROX_STEERING_TO_WHEEL_ANGLE);
+    const double delta = static_cast<double>(
+        DEG_TO_RAD(static_cast<float>(steering_angle_deg) * static_cast<float>(APPROX_STEERING_TO_WHEEL_ANGLE)));
 
     // Compute expected wheel speed difference
-    const double delta_omega = (TRACK_WIDTH_m / WHEELBASE_m) * tan(delta) * omega_v_ref;
+    const double delta_omega =
+        (static_cast<double>(TRACK_WIDTH_m) / static_cast<double>(WHEELBASE_m)) * tan(delta) * omega_v_ref;
 
     // Left and right wheel references
     const double omega_L_wheel_ref = omega_v_ref + 0.5 * delta_omega;
     const double omega_R_wheel_ref = omega_v_ref - 0.5 * delta_omega;
 
     // Motor references
-    const double omega_L_motor_ref = GEAR_RATIO * omega_L_wheel_ref;
-    const double omega_R_motor_ref = GEAR_RATIO * omega_R_wheel_ref;
+    const double omega_L_motor_ref = static_cast<double>(GEAR_RATIO) * omega_L_wheel_ref;
+    const double omega_R_motor_ref = static_cast<double>(GEAR_RATIO) * omega_R_wheel_ref;
 
     // Left turn: right wheels are outer (faster), left wheels are inner (slower)
     EXPECT_NEAR(result.front_left_torque, omega_L_motor_ref, EPSILON);
@@ -306,12 +310,14 @@ TEST_F(TestActiveDifferential, SpeedLimitingDuringTurn)
     TorqueAllocationOutputs result = app_activeDifferential_computeTorque(omega_v_ref, steering_angle_deg, omega_m_max);
 
     // Convert steering wheel angle to wheel angle
-    const double delta                       = DEG_TO_RAD(steering_angle_deg * APPROX_STEERING_TO_WHEEL_ANGLE);
-    const double delta_omega                 = (TRACK_WIDTH_m / WHEELBASE_m) * tan(delta) * omega_v_ref;
+    const double delta = static_cast<double>(
+        DEG_TO_RAD(static_cast<float>(steering_angle_deg) * static_cast<float>(APPROX_STEERING_TO_WHEEL_ANGLE)));
+    const double delta_omega =
+        (static_cast<double>(TRACK_WIDTH_m) / static_cast<double>(WHEELBASE_m)) * tan(delta) * omega_v_ref;
     const double omega_L_wheel_ref           = omega_v_ref + 0.5 * delta_omega;
     const double omega_R_wheel_ref           = omega_v_ref - 0.5 * delta_omega;
-    const double omega_L_motor_ref_unclamped = GEAR_RATIO * omega_L_wheel_ref;
-    const double omega_R_motor_ref_unclamped = GEAR_RATIO * omega_R_wheel_ref;
+    const double omega_L_motor_ref_unclamped = static_cast<double>(GEAR_RATIO) * omega_L_wheel_ref;
+    const double omega_R_motor_ref_unclamped = static_cast<double>(GEAR_RATIO) * omega_R_wheel_ref;
 
     // Left wheels (outer) should be clamped if they exceed limit
     if (omega_L_motor_ref_unclamped > omega_m_max)
@@ -357,18 +363,20 @@ TEST_F(TestActiveDifferential, AlgorithmCorrectness)
     TorqueAllocationOutputs result = app_activeDifferential_computeTorque(omega_v_ref, steering_angle_deg, omega_m_max);
 
     // Convert steering wheel angle to wheel angle
-    const double delta = DEG_TO_RAD(steering_angle_deg * APPROX_STEERING_TO_WHEEL_ANGLE);
+    const double delta = static_cast<double>(
+        DEG_TO_RAD(static_cast<float>(steering_angle_deg) * static_cast<float>(APPROX_STEERING_TO_WHEEL_ANGLE)));
 
     // Compute expected wheel speed difference (Eq. 13)
-    const double delta_omega = (TRACK_WIDTH_m / WHEELBASE_m) * tan(delta) * omega_v_ref;
+    const double delta_omega =
+        (static_cast<double>(TRACK_WIDTH_m) / static_cast<double>(WHEELBASE_m)) * tan(delta) * omega_v_ref;
 
     // Left and right wheel references (Eq. 15-16)
     const double omega_L_wheel_ref = omega_v_ref + 0.5 * delta_omega;
     const double omega_R_wheel_ref = omega_v_ref - 0.5 * delta_omega;
 
     // Motor references (Eq. 17-18)
-    const double omega_L_motor_ref = GEAR_RATIO * omega_L_wheel_ref;
-    const double omega_R_motor_ref = GEAR_RATIO * omega_R_wheel_ref;
+    const double omega_L_motor_ref = static_cast<double>(GEAR_RATIO) * omega_L_wheel_ref;
+    const double omega_R_motor_ref = static_cast<double>(GEAR_RATIO) * omega_R_wheel_ref;
 
     // Verify results match expected calculations
     EXPECT_NEAR(result.front_left_torque, omega_L_motor_ref, EPSILON);
