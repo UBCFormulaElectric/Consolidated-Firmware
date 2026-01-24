@@ -31,26 +31,29 @@ class BrakingScreen extends StatelessWidget {
               ],
             ),
           ),
-          Column(
-            children:[
-              Text(
-                biasRatio.toStringAsFixed(2),
-                style: const TextStyle(
-                  fontSize: 60,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+          Positioned.fill(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children:[
+                Text(
+                  biasRatio.toStringAsFixed(2),
+                  style: const TextStyle(
+                    fontSize: 60,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
-              ),
-              SizedBox(height:10),
-              Text(
-                "Break Bias",
-                style: const TextStyle(
-                  fontSize: 60,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                SizedBox(height:10),
+                Text(
+                  "Break Bias",
+                  style: const TextStyle(
+                    fontSize: 60,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
-              ),
-            ]
+              ]
+            )
           )
         ],
       )

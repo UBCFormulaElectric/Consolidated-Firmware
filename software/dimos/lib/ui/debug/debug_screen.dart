@@ -11,15 +11,17 @@ class DebugScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // watch for g's
 
+    // might just watch for vars right now
+    final List debugVars = context.watch<DebugVars>().debugVars;
     return Center(
-      child: Row(
+      child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text("Debug"),
-        ],
+        spacing: 10,
+        children: debugVars
+          .map((s) => Text(s))
+          .toList(),
       ),
     );
   }

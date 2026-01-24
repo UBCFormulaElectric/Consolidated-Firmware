@@ -38,6 +38,7 @@ class _AppState extends State<App> {
   late ShutdownLoopNodes _shutdownLoopNodes;
   late SkidVector _skidVector;
   late BreakBias _breakBias;
+  late DebugVars _debugVars;
 
   @override
   void initState() {
@@ -48,7 +49,8 @@ class _AppState extends State<App> {
     _shutdownLoopNodes = ShutdownLoopNodes();
     _skidVector = SkidVector();
     _breakBias = BreakBias();
-    
+    _debugVars = DebugVars();
+
     if (Platform.isWindows || Platform.isMacOS) {
       // have some basic dev api setup to introduce can
       _devWorker = DevApiWorker();
@@ -59,6 +61,7 @@ class _AppState extends State<App> {
         _shutdownLoopNodes.updateVarDev(data);
         _skidVector.updateVarDev(data);
         _breakBias.updateVarDev(data);
+        _debugVars.updateVarDev(data);
       });
     } else if (Platform.isLinux) {
       _canWorker = CanApiWorker();
@@ -69,6 +72,7 @@ class _AppState extends State<App> {
         _shutdownLoopNodes.updateVarCan();
         _skidVector.updateVarCan();
         _breakBias.updateVarCan();
+        _debugVars.updateVarCan();
       });
     }
   }
@@ -83,6 +87,7 @@ class _AppState extends State<App> {
         ChangeNotifierProvider(create: (_) => _shutdownLoopNodes),
         ChangeNotifierProvider(create: (_) => _skidVector),
         ChangeNotifierProvider(create: (_) => _breakBias),
+        ChangeNotifierProvider(create: (_) => _debugVars),
         ChangeNotifierProvider(create: (_) => RouterProvider())
       ],
       child: MaterialApp(

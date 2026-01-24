@@ -131,3 +131,22 @@ class BreakBias extends ChangeNotifier {
     _force += 1;
   }
 }
+
+/* Debug Vars */
+class DebugVars extends ChangeNotifier {
+  final List _debugVars = <String>[];
+  List get debugVars => _debugVars;
+
+  void updateVarDev(String data) {
+    _debugVars.add("some var");
+    notifyListeners();
+  }
+
+  void updateVarCan() {
+    // JSON CAN calls + maybe mutex??
+    // then ONLY notify if changes are made!!
+    // lokwey i totally forgot what I was thinking here
+    // rehash this dumbass
+    _debugVars.add("CAN_UPDATE");
+  }
+}
