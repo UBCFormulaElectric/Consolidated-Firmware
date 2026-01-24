@@ -16,12 +16,12 @@ class ImuModulesTest : public FSMBaseTest
 
 TEST_F(ImuModulesTest, normal_imuConditions)
 {
-    fakes::io::imu::set_LinearAccelerationX(1.0f);
-    fakes::io::imu::set_LinearAccelerationY(2.0f);
-    fakes::io::imu::set_LinearAccelerationZ(3.0f);
-    fakes::io::imu::set_AngularVelocityRoll(0.1f);
-    fakes::io::imu::set_AngularVelocityPitch(0.2f);
-    fakes::io::imu::set_AngularVelocityYaw(0.3f);
+    fakes::io_imu::set_LinearAccelerationX(1.0f);
+    fakes::io_imu::set_LinearAccelerationY(2.0f);
+    fakes::io_imu::set_LinearAccelerationZ(3.0f);
+    fakes::io_imu::set_AngularVelocityRoll(0.1f);
+    fakes::io_imu::set_AngularVelocityPitch(0.2f);
+    fakes::io_imu::set_AngularVelocityYaw(0.3f);
 
     LetTimePass(100);
 

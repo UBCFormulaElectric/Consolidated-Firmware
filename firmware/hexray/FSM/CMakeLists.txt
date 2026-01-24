@@ -113,7 +113,7 @@ if ("${TARGET}" STREQUAL "binary")
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(FAKE_SRCS 
-        "${SHARED_FAKES_DIR}/io_imu.cpp"
+        "${SHARED_FAKES_DIR}/io_imuQuintuna.cpp"
         "${SHARED_FAKES_DIR}/io_time.cpp"
     )
     set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
