@@ -11,8 +11,8 @@ extern "C"
 
 constexpr uint8_t DISAGREEMENT_TIME_TO_FAULT = 10;
 constexpr uint8_t DISAGREEMENT_TIME_TO_CLEAR = 10;
-constexpr uint8_t OCSC_TIME_TO_FAULT = 10;
-constexpr uint8_t OCSC_TIME_TO_CLEAR = 10;
+constexpr uint8_t OCSC_TIME_TO_FAULT         = 10;
+constexpr uint8_t OCSC_TIME_TO_CLEAR         = 10;
 namespace app::apps
 {
 static Signal papps_ocsc_signal;
