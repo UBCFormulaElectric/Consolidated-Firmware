@@ -17,6 +17,7 @@ list(APPEND APP_SRCS
         "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
         "${SHARED_APP_INCLUDE_DIR}/app_signal.c"
         "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_crc8.c"
 )
 set(APP_INCLUDE_DIRS "${SHARED_APP_INCLUDE_DIR}")
 
@@ -44,13 +45,12 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_uart.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_can_h7.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_can_hx.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_crc.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_resetReason.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_freeRtosConfigs.c"
@@ -119,6 +119,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${CUBEMX_INCLUDES}"
             TRUE
             "${ARM_CORE}"
+            FALSE
     )
 
     # Generate the protobuf files.

@@ -15,7 +15,8 @@
 extern "C"
 {
 #endif
-    void hw_error(const char *file, int line, const char *func);
+
+    [[noreturn]] void hw_error(const char *file, int line, const char *func);
 #ifdef __cplusplus
 }
 #endif

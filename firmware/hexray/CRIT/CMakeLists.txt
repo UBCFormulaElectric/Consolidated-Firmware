@@ -23,13 +23,16 @@ file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/
 list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
 )
+
 set(IO_INCLUDE_DIRS
         # "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
         "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_DIR_CPP}"
 )
 
 file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c")
-list(APPEND HW_SRCS)
+list(APPEND HW_SRCS
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
+)
 set(HW_INCLUDE_DIRS
         #        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
         "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR_CPP}"
@@ -80,7 +83,7 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     target_link_libraries("hexray_CRIT_app.elf" PRIVATE "hexray_CRIT_stm32" "hexray_CRIT_commit_info" "hexray_CRIT_jsoncan" "m")
-
+    target_compile_definitions("hexray_CRIT_app.elf" PRIVATE CRIT)
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS})
