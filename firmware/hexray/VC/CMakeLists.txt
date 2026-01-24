@@ -37,6 +37,10 @@ set(HW_INCLUDE_DIRS
         "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR_CPP}"
 )
 
+# chimera sources
+set(CHIMERA_SRCS ${HW_SRCS} "${CMAKE_CURRENT_SOURCE_DIR}/src/chimera.cpp")
+set(CHIMERA_INCLUDE_DIRS ${HW_INCLUDE_DIRS})
+
 if ("${TARGET}" STREQUAL "binary")
     set(ARM_CORE "cm7")
     set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app_only.ld")
@@ -59,6 +63,8 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_hal_cortex.c"
             "stm32h7xx_hal_exti.c"
             "stm32h7xx_hal_tim.c"
+            "stm32h7xx_hal_spi.c"
+            "stm32h7xx_hal_gpio.c"
     )
     stm32h733xx_cube_library(
             "hexray_VC_stm32"
@@ -83,9 +89,14 @@ if ("${TARGET}" STREQUAL "binary")
 
     target_link_libraries("hexray_VC_app.elf" PRIVATE "hexray_VC_stm32" "hexray_VC_commit_info" "hexray_VC_jsoncan" "m")
     target_compile_definitions("hexray_VC_app.elf" PRIVATE VC)
+
+    add_chimera_stm32h7("hexray_VC_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}")
+    target_link_libraries("hexray_VC_chimera.elf" PRIVATE "hexray_VC_stm32")
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
-    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS})
+    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS}
+        "${SHARED_FAKES_DIR}/io_imuHexray.cpp"
+        )
     set(INCLUDE_DIRS
             # "${CMAKE_CURRENT_SOURCE_DIR}/test"
             ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP}

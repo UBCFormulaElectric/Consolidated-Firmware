@@ -10,6 +10,7 @@ IF ("${TARGET}" STREQUAL "binary")
     include(cmake/stmlib.cmake)
     include(cmake/bootlib.cmake)
     include(cmake/sbgecomlib.cmake)
+    include(cmake/chimeralib.cmake)
     add_compile_definitions(TARGET_EMBEDDED)
 ELSEIF ("${TARGET}" STREQUAL "test")
     include(cmake/test_libs.cmake)
@@ -33,14 +34,12 @@ ELSEIF ("${TARGET}" STREQUAL "test")
     enable_testing()
 ENDIF ()
 
-
+# libraries
 add_subdirectory(third_party)
 add_subdirectory(shared)
-IF ("${TARGET}" STREQUAL "binary")
-    #    add_subdirectory(chimera)
-    add_subdirectory(chimera_v2)
-ENDIF ()
 add_subdirectory(logfs)
-add_subdirectory(quintuna)
+
+# board binaries
 add_subdirectory(dev)
+add_subdirectory(quintuna)
 add_subdirectory(hexray)

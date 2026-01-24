@@ -50,6 +50,10 @@ set(HW_INCLUDE_DIRS
         "${SHARED_HW_INCLUDE_DIR_CPP}"
 )
 
+# chimera sources
+set(CHIMERA_SRCS ${HW_SRCS} "${CMAKE_CURRENT_SOURCE_DIR}/src/chimera.cpp")
+set(CHIMERA_INCLUDE_DIRS ${HW_INCLUDE_DIRS})
+
 if ("${TARGET}" STREQUAL "binary")
     set(ARM_CORE "cm33")
     set(LINKER_SCRIPT "${LINKER_DIR}/stm32h562ritx/stm32h562ritx_app_only.ld")
@@ -103,6 +107,9 @@ if ("${TARGET}" STREQUAL "binary")
     target_link_libraries("hexray_FSM_app.elf" PRIVATE "hexray_FSM_stm32" "hexray_FSM_commit_info"
             "hexray_FSM_jsoncan" "m")
     target_compile_definitions("hexray_FSM_app.elf" PRIVATE FSM)
+
+    add_chimera_stm32h5("hexray_FSM_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}")
+    target_link_libraries("hexray_FSM_chimera.elf" PRIVATE "hexray_FSM_stm32")
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(FAKE_SRCS 
