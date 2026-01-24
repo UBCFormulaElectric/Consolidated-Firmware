@@ -1,6 +1,6 @@
 #pragma once
 
-namespace fakes::io::imu
+namespace fakes::io_imu
 {
 void reset_init();
 bool get_init();
@@ -10,4 +10,4 @@ void set_AccelZ(float z_acceleration);
 void set_GyroRoll(float roll_velocity);
 void set_GyroPitch(float pitch_velocity);
 void set_GyroYaw(float yaw_velocity);
-} // namespace fakes::io::imu
+} // namespace fakes::io_imu
