@@ -7,7 +7,7 @@
  ******************************************************************************
  * @attention
  *
- * Copyright (c) 2025 STMicroelectronics.
+ * Copyright (c) 2026 STMicroelectronics.
  * All rights reserved.
  *
  * This software is licensed under terms that can be found in the LICENSE file
@@ -344,7 +344,7 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
         /* Peripheral clock enable */
         __HAL_RCC_USB_CLK_ENABLE();
         /* USB_DRD_FS interrupt Init */
-        HAL_NVIC_SetPriority(USB_DRD_FS_IRQn, 5, 0);
+        HAL_NVIC_SetPriority(USB_DRD_FS_IRQn, 0, 0);
         HAL_NVIC_EnableIRQ(USB_DRD_FS_IRQn);
         /* USER CODE BEGIN USB_DRD_FS_MspInit 1 */
 

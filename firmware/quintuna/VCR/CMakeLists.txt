@@ -28,7 +28,6 @@ file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/
 list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_can_hx.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
@@ -80,7 +79,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${CUBEMX_INCLUDES}"
             FALSE
             "${ARM_CORE}"
-
+            FALSE
     )
 
     jsoncan_embedded_library(VCR quintuna "${CMAKE_CURRENT_BINARY_DIR}")

@@ -18,7 +18,7 @@ extern "C"
     extern USBD_DescriptorsTypeDef HS_Desc;
     extern USBD_DescriptorsTypeDef CDC_Desc;
 #elif defined(STM32H562xx)
-    extern USBD_DescriptorsTypeDef CDC_Desc;
+extern USBD_DescriptorsTypeDef CDC_Desc;
 #endif
 
 #ifdef __cplusplus
@@ -26,4 +26,3 @@ extern "C"
 #endif
 
 #endif
-

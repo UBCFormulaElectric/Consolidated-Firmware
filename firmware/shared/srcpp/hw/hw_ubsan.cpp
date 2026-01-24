@@ -4,30 +4,24 @@
 #include "hw_error.hpp"
 #include "hw_ubsan.hpp"
 
+#include <algorithm>
+
 extern "C"
 {
-    void              __ubsan_handle_add_overflow(void *data, void *lhs, void *rhs); // NOLINT(*-reserved-identifier)
-    void              __ubsan_handle_sub_overflow(void *data, void *lhs, void *rhs); // NOLINT(*-reserved-identifier)
-    void              __ubsan_handle_mul_overflow(void *data, void *lhs, void *rhs); // NOLINT(*-reserved-identifier)
-    void              __ubsan_handle_negate_overflow(void *_data, void *old_val);    // NOLINT(*-reserved-identifier)
-    [[noreturn]] void __ubsan_haqndle_type_mismatch_v1(void *_data, void *ptr);      // NOLINT(*-reserved-identifier)
-    void              __ubsan_handle_out_of_bounds(void *_data, void *index);        // NOLINT(*-reserved-identifier)
-    void __ubsan_handle_shift_out_of_bounds(void *_data, void *lhs, void *rhs);      // NOLINT(*-reserved-identifier)
-    void __ubsan_handle_load_invalid_value(void *_data, void *val);                  // NOLINT(*-reserved-identifier)
-    void __ubsan_handle_nonnull_arg(void *_data);                                    // NOLINT(*-reserved-identifier)
-    void __ubsan_handle_vla_bound_not_positive(void *_data, void *bound);            // NOLINT(*-reserved-identifier)
-    void __ubsan_handle_pointer_overflow(void *_data, void *base, void *result);     // NOLINT(*-reserved-identifier)
-#ifndef MIN
-#define MIN(a, b) (((a) < (b)) ? (a) : (b))
-#endif
-
+    void __ubsan_handle_add_overflow(void *data, void *lhs, void *rhs);          // NOLINT(*-reserved-identifier)
+    void __ubsan_handle_sub_overflow(void *data, void *lhs, void *rhs);          // NOLINT(*-reserved-identifier)
+    void __ubsan_handle_mul_overflow(void *data, void *lhs, void *rhs);          // NOLINT(*-reserved-identifier)
+    void __ubsan_handle_negate_overflow(void *_data, void *old_val);             // NOLINT(*-reserved-identifier)
+    void __ubsan_handle_type_mismatch_v1(void *_data, void *ptr);                // NOLINT(*-reserved-identifier)
+    void __ubsan_handle_out_of_bounds(void *_data, void *index);                 // NOLINT(*-reserved-identifier)
+    void __ubsan_handle_shift_out_of_bounds(void *_data, void *lhs, void *rhs);  // NOLINT(*-reserved-identifier)
+    void __ubsan_handle_load_invalid_value(void *_data, void *val);              // NOLINT(*-reserved-identifier)
+    void __ubsan_handle_nonnull_arg(void *_data);                                // NOLINT(*-reserved-identifier)
+    void __ubsan_handle_vla_bound_not_positive(void *_data, void *bound);        // NOLINT(*-reserved-identifier)
+    void __ubsan_handle_pointer_overflow(void *_data, void *base, void *result); // NOLINT(*-reserved-identifier)
 } // extern "C"
 
 #define VALUE_LENGTH 40
-
-// constexpr uint64_t MIN(uint64_t a, uint64_t b) {
-//         return ((a) < (b)) ? (a) : (b);
-// }
 
 static int test_and_set_bit(const int bit, unsigned long *addr)
 {
@@ -36,60 +30,60 @@ static int test_and_set_bit(const int bit, unsigned long *addr)
     *addr |= mask;                                  // Set the bit
     return old;
 }
-static bool suppress_report(struct source_location *location)
+static bool suppress_report(source_location *location)
 {
 #define REPORTED_BIT 31
     return test_and_set_bit(REPORTED_BIT, &location->reported);
 }
-static bool type_is_int(const struct type_descriptor *type)
+static bool type_is_int(const type_descriptor *type)
 {
     return type->type_kind == type_kind_int;
 }
-static bool type_is_signed(const struct type_descriptor *type)
+static bool type_is_signed(const type_descriptor *type)
 {
     if (!type_is_int(type))
         LOG_WARN("type_is_signed called with a non-int type");
     return type->type_info & 1;
 }
-static unsigned type_bit_width(const struct type_descriptor *type)
+static unsigned type_bit_width(const type_descriptor *type)
 {
     return 1 << (type->type_info >> 1);
 }
-static bool is_inline_int(const struct type_descriptor *type)
+static bool is_inline_int(const type_descriptor *type)
 {
-    const unsigned inline_bits = sizeof(unsigned long) * 8;
-    const unsigned bits        = type_bit_width(type);
+    constexpr unsigned inline_bits = sizeof(unsigned long) * 8;
+    const unsigned     bits        = type_bit_width(type);
     if (!type_is_int(type))
         LOG_WARN("is_inline_int called with a non-int type");
 
     return bits <= inline_bits;
 }
-static int64_t get_signed_val(const struct type_descriptor *type, void *val)
+static int64_t get_signed_val(const type_descriptor *type, void *val)
 {
     if (is_inline_int(type))
     {
-        const unsigned      extra_bits = sizeof(int64_t) * 8 - type_bit_width(type);
-        const unsigned long ulong_val  = (unsigned long)val;
+        const unsigned extra_bits = sizeof(int64_t) * 8 - type_bit_width(type);
+        const auto     ulong_val  = reinterpret_cast<unsigned long>(val);
 
-        return ((int64_t)ulong_val) << extra_bits >> extra_bits;
+        return static_cast<int64_t>(ulong_val) << extra_bits >> extra_bits;
     }
 
     if (type_bit_width(type) == 64)
-        return *(int64_t *)val;
+        return *static_cast<int64_t *>(val);
 
-    return *(int64_t *)val;
+    return *static_cast<int64_t *>(val);
 }
-static uint64_t get_unsigned_val(const struct type_descriptor *type, void *val)
+static uint64_t get_unsigned_val(const type_descriptor *type, void *val)
 {
     if (is_inline_int(type))
-        return (unsigned long)val;
+        return reinterpret_cast<unsigned long>(val);
 
     if (type_bit_width(type) == 64)
-        return *(uint64_t *)val;
+        return *static_cast<uint64_t *>(val);
 
-    return *(uint64_t *)val;
+    return *static_cast<uint64_t *>(val);
 }
-static bool val_is_negative(const struct type_descriptor *type, void *val)
+static bool val_is_negative(const type_descriptor *type, void *val)
 {
     return type_is_signed(type) && get_signed_val(type, val) < 0;
 }
@@ -121,7 +115,7 @@ static void u64_to_str(const size_t size, char *buffer, uint64_t value)
         buffer[j] = temp[i - j - 1U];
     }
 
-    buffer[MIN(i, size - 1U)] = '\0'; // Null-terminate the string
+    buffer[std::min(i, size - 1U)] = '\0'; // Null-terminate the string
 }
 
 static void i64_to_str(const size_t size, char *buffer, const int64_t value)
@@ -133,16 +127,16 @@ static void i64_to_str(const size_t size, char *buffer, const int64_t value)
     if (value < 0)
     {
         buffer[0] = '-';
-        uvalue    = (uint64_t) - (value + 1) + 1; // Carefully negate to avoid overflow at INT64_MIN
+        uvalue    = static_cast<uint64_t>(-(value + 1)) + 1; // Carefully negate to avoid overflow at INT64_MIN
     }
     else
     {
-        uvalue = (uint64_t)value;
+        uvalue = static_cast<uint64_t>(value);
     }
     const size_t offset = value < 0 ? 1 : 0;
     u64_to_str(size - offset, buffer + offset, uvalue);
 }
-static void val_to_string(char *str, const size_t size, const struct type_descriptor *type, void *value)
+static void val_to_string(char *str, const size_t size, const type_descriptor *type, void *value)
 {
     if (!type_is_int(type))
     {
@@ -168,7 +162,7 @@ static void val_to_string(char *str, const size_t size, const struct type_descri
  */
 #define COLUMN_MASK (~0U)
 #define LINE_MASK (~(1U << REPORTED_BIT))
-static void ubsan_prologue(const struct source_location *loc, const char *reason)
+static void ubsan_prologue(const source_location *loc, const char *reason)
 {
     LOG_ERROR(
         "UBSAN: %s in %s:%d:%d", reason, loc->file_name, loc->row_col.line & LINE_MASK,
@@ -178,14 +172,14 @@ static void ubsan_prologue(const struct source_location *loc, const char *reason
 /**
  *  GENERALIZED HANDLERS
  */
-static void handle_overflow(struct overflow_data *data, void *lhs, void *rhs, const char op)
+static void handle_overflow(overflow_data *data, void *lhs, void *rhs, const char op)
 {
     if (suppress_report(&data->location))
     {
         return;
     }
 
-    struct type_descriptor *type = data->type;
+    type_descriptor *type = data->type;
 
     char lhs_val_str[VALUE_LENGTH];
     char rhs_val_str[VALUE_LENGTH];
@@ -195,29 +189,29 @@ static void handle_overflow(struct overflow_data *data, void *lhs, void *rhs, co
     const char *reason = type_is_signed(type) ? "signed-integer-overflow" : "unsigned-integer-overflow";
     ubsan_prologue(&data->location, reason);
     LOG_ERROR("%s %c %s cannot be represented in type %s", lhs_val_str, op, rhs_val_str, type->type_name);
-    hw_error(data->location.file_name, (int)data->location.row_col.line, reason);
+    hw_error(data->location.file_name, static_cast<int>(data->location.row_col.line), reason);
 }
 /**
  * HANDLING POINTER BUGS
  */
-static const char *const type_check_kinds[] = { "load of",
-                                                "store to",
-                                                "reference binding to",
-                                                "member access within",
-                                                "member call on",
-                                                "constructor call on",
-                                                "downcast of",
-                                                "downcast of" };
+static constexpr const char *const type_check_kinds[] = { "load of",
+                                                          "store to",
+                                                          "reference binding to",
+                                                          "member access within",
+                                                          "member call on",
+                                                          "constructor call on",
+                                                          "downcast of",
+                                                          "downcast of" };
 
-static void handle_null_ptr_deref(const struct type_mismatch_data_common *data)
+static void handle_null_ptr_deref(const type_mismatch_data_common *data)
 {
     if (suppress_report(data->location))
         return;
     ubsan_prologue(data->location, "null-ptr-deref");
     LOG_ERROR("%s null pointer of type %s", type_check_kinds[data->type_check_kind], data->type->type_name);
-    hw_error(data->location->file_name, (int)data->location->row_col.line, "null-ptr-deref");
+    hw_error(data->location->file_name, static_cast<int>(data->location->row_col.line), "null-ptr-deref");
 }
-static void handle_misaligned_access(const struct type_mismatch_data_common *data, const unsigned long ptr)
+static void handle_misaligned_access(const type_mismatch_data_common *data, const unsigned long ptr)
 {
     if (suppress_report(data->location))
         return;
@@ -226,18 +220,18 @@ static void handle_misaligned_access(const struct type_mismatch_data_common *dat
         "%s misaligned address %p for type %s", type_check_kinds[data->type_check_kind], (void *)ptr,
         data->type->type_name);
     LOG_ERROR("which requires %ld byte alignment", data->alignment);
-    hw_error(data->location->file_name, (int)data->location->row_col.line, "misaligned-access");
+    hw_error(data->location->file_name, static_cast<int>(data->location->row_col.line), "misaligned-access");
 }
-static void handle_object_size_mismatch(const struct type_mismatch_data_common *data, const unsigned long ptr)
+static void handle_object_size_mismatch(const type_mismatch_data_common *data, const unsigned long ptr)
 {
     if (suppress_report(data->location))
         return;
     ubsan_prologue(data->location, "object-size-mismatch");
     LOG_ERROR("%s address %p with insufficient space", type_check_kinds[data->type_check_kind], (void *)ptr);
     LOG_ERROR("for an object of type %s", data->type->type_name);
-    hw_error(data->location->file_name, (int)data->location->row_col.line, "object-size-mismatch");
+    hw_error(data->location->file_name, static_cast<int>(data->location->row_col.line), "object-size-mismatch");
 }
-static void ubsan_type_mismatch_common(const struct type_mismatch_data_common *data, unsigned long ptr)
+static void ubsan_type_mismatch_common(const type_mismatch_data_common *data, unsigned long ptr)
 {
 #define IS_ALIGNED(x, a) (((x) & ((typeof(x))(a)-1)) == 0)
     if (!ptr)
@@ -256,11 +250,11 @@ static void ubsan_type_mismatch_common(const struct type_mismatch_data_common *d
 /**
  * Location???
  */
-static bool location_is_valid(const struct source_location *loc)
+static bool location_is_valid(const source_location *loc)
 {
-    return loc->file_name != NULL;
+    return loc->file_name != nullptr;
 }
-static void print_source_location(const char *prefix, const struct source_location *loc)
+static void print_source_location(const char *prefix, const source_location *loc)
 {
     LOG_ERROR("%s %s:%d:%d", prefix, loc->file_name, loc->row_col.line & LINE_MASK, loc->row_col.column & COLUMN_MASK);
 }
@@ -285,19 +279,19 @@ void __ubsan_handle_negate_overflow(void *_data, void *old_val)
     ubsan_prologue(&data->location, "negation-overflow");
     val_to_string(old_val_str, sizeof(old_val_str), data->type, old_val);
     LOG_ERROR("negation of %s cannot be represented in type %s", old_val_str, data->type->type_name);
-    hw_error(data->location.file_name, (int)data->location.row_col.line, "negation-overflow");
+    hw_error(data->location.file_name, static_cast<int>(data->location.row_col.line), "negation-overflow");
 }
 // void __ubsan_handle_divrem_overflow(void *_data, void *lhs, void *rhs) {}
 
 // void __ubsan_handle_implicit_conversion(void *_data, void *lhs, void *rhs) {}
 // void __ubsan_handle_type_mismatch(struct type_mismatch_data *data, void *ptr) {}
-[[noreturn]] void __ubsan_haqndle_type_mismatch_v1(void *_data, void *ptr)
+void __ubsan_handle_type_mismatch_v1(void *_data, void *ptr)
 {
     auto                           *data = static_cast<type_mismatch_data_v1 *>(_data);
     const type_mismatch_data_common common_data{ &data->location, data->type, 1UL << data->log_alignment,
                                                  data->type_check_kind };
-    ubsan_type_mismatch_common(&common_data, (unsigned long)ptr);
-    hw_error(data->location.file_name, (int)data->location.row_col.line, "type-mismatch");
+    ubsan_type_mismatch_common(&common_data, reinterpret_cast<unsigned long>(ptr));
+    hw_error(data->location.file_name, static_cast<int>(data->location.row_col.line), "type-mismatch");
 }
 void __ubsan_handle_out_of_bounds(void *_data, void *index)
 {
@@ -310,13 +304,13 @@ void __ubsan_handle_out_of_bounds(void *_data, void *index)
     val_to_string(index_str, sizeof(index_str), data->index_type, index);
     ubsan_prologue(&data->location, "array-index-out-of-bounds");
     LOG_ERROR("index %s is out of range for type %s", index_str, data->array_type->type_name);
-    hw_error(data->location.file_name, (int)data->location.row_col.line, "array-index-out-of-bounds");
+    hw_error(data->location.file_name, static_cast<int>(data->location.row_col.line), "array-index-out-of-bounds");
 }
 void __ubsan_handle_shift_out_of_bounds(void *_data, void *lhs, void *rhs)
 {
-    auto                         *data     = static_cast<shift_out_of_bounds_data *>(_data);
-    const struct type_descriptor *rhs_type = data->rhs_type;
-    struct type_descriptor       *lhs_type = data->lhs_type;
+    auto                  *data     = static_cast<shift_out_of_bounds_data *>(_data);
+    const type_descriptor *rhs_type = data->rhs_type;
+    type_descriptor       *lhs_type = data->lhs_type;
 
     if (suppress_report(&data->location))
         return;
@@ -346,7 +340,7 @@ void __ubsan_handle_shift_out_of_bounds(void *_data, void *lhs, void *rhs)
         LOG_ERROR(
             "left shift of %s by %s places cannot be represented in type %s", lhs_str, rhs_str, lhs_type->type_name);
     }
-    hw_error(data->location.file_name, (int)data->location.row_col.line, "shift-out-of-bounds");
+    hw_error(data->location.file_name, static_cast<int>(data->location.row_col.line), "shift-out-of-bounds");
 }
 // void __ubsan_handle_builtin_unreachable(void *_data);
 void __ubsan_handle_load_invalid_value(void *_data, void *val)
@@ -358,7 +352,7 @@ void __ubsan_handle_load_invalid_value(void *_data, void *val)
     char val_str[VALUE_LENGTH];
     val_to_string(val_str, sizeof(val_str), data->type, val);
     LOG_ERROR("load of value %s is not a valid value for type %s\n", val_str, data->type->type_name);
-    hw_error(data->location.file_name, (int)data->location.row_col.line, "invalid-load");
+    hw_error(data->location.file_name, static_cast<int>(data->location.row_col.line), "invalid-load");
 }
 // void __ubsan_handle_alignment_assumption(void *_data, unsigned long ptr, unsigned long align, unsigned long offset)
 // {}
@@ -383,7 +377,7 @@ void __ubsan_handle_nonnull_arg(void *_data)
     LOG_ERROR("null pointer passed as argument %d, declared with nonnull attribute\n", data->arg_index);
     if (location_is_valid(&data->attr_location))
         print_source_location("nonnull attribute declared in ", &data->attr_location);
-    hw_error(data->location.file_name, (int)data->location.row_col.line, "nonnull-args");
+    hw_error(data->location.file_name, static_cast<int>(data->location.row_col.line), "nonnull-args");
 }
 /**
  * https://android.googlesource.com/kernel/msm/+/android-7.1.0_r0.2/lib/ubsan.c
@@ -400,7 +394,7 @@ void __ubsan_handle_vla_bound_not_positive(void *_data, void *bound)
     char bound_str[VALUE_LENGTH];
     val_to_string(bound_str, sizeof(bound_str), data->type, bound);
     LOG_ERROR("variable length array bound value %s <= 0\n", bound_str);
-    hw_error(data->location.file_name, (int)data->location.row_col.line, "vla-bound-not-positive");
+    hw_error(data->location.file_name, static_cast<int>(data->location.row_col.line), "vla-bound-not-positive");
 }
 
 void __ubsan_handle_pointer_overflow(void *_data, void *base, void *result)
@@ -411,19 +405,19 @@ void __ubsan_handle_pointer_overflow(void *_data, void *base, void *result)
     // struct source_location Loc = data->location;
 
     ubsan_prologue(&data->location, "pointer-overflow");
-    if (base == 0 && result == 0)
+    if (base == nullptr && result == nullptr)
     {
         LOG_ERROR("applying zero offset to null pointer");
     }
-    else if (base == NULL && result != NULL)
+    else if (base == nullptr && result != nullptr)
     {
         LOG_ERROR("applying non-zero offset %X to null pointer", result);
     }
-    else if (base != NULL && result == NULL)
+    else if (base != nullptr && result == nullptr)
     {
         LOG_ERROR("applying non-zero offset to non-null pointer %X produced null pointer", base);
     }
-    else if ((base != NULL) == (result != NULL))
+    else if ((base != nullptr) == (result != nullptr))
     {
         if (base > result)
         {
@@ -438,6 +432,6 @@ void __ubsan_handle_pointer_overflow(void *_data, void *base, void *result)
     {
         LOG_ERROR("pointer index expression with base %X overflowed to %X", base, result);
     }
-    hw_error(data->location.file_name, (int)(data)->location.row_col.line, "pointer-overflow");
+    hw_error(data->location.file_name, static_cast<int>((data)->location.row_col.line), "pointer-overflow");
 }
 // NOLINTEND(bugprone-reserved-identifier)

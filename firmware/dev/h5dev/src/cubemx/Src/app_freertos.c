@@ -63,6 +63,7 @@ const osThreadAttr_t TaskDefault_attributes = {
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
+void StartDefaultTask(void *argument);
 
 /* USER CODE END FunctionPrototypes */
 
@@ -112,19 +113,21 @@ void MX_FREERTOS_Init(void)
 /* USER CODE END Header_StartDefaultTask */
 void StartDefaultTask(void *argument)
 {
+    (void)argument;
+
     hw_usb_waitForConnected();
-    
+
     LOG_INFO("usb configured...");
-    
-    int counter = 0;
+
+    int  counter       = 0;
     bool was_connected = true;
-    
+
     /* Infinite loop */
     for (;;)
     {
         bool usb_connected = hw_usb_checkConnection();
-        
-        if (!usb_connected)
+
+        if (usb_connected != was_connected)
         {
             if (usb_connected)
             {
@@ -140,13 +143,17 @@ void StartDefaultTask(void *argument)
         if (usb_connected)
         {
             char msg[32];
-            int len = snprintf(msg, sizeof(msg), "yo wsg\n", counter++);
-            
-            uint32_t result = hw_usb_transmit((uint8_t*)msg, len);
-            
-            if (IS_EXIT_OK(result))
+            int  len = snprintf(msg, sizeof(msg), "yo wsg %d\n", counter++);
+
+            if (len > 0)
             {
-                //LOG_INFO("sent %d bytes: %s", len, msg);
+                uint16_t length = (uint16_t)len;
+                uint32_t result = hw_usb_transmit((uint8_t *)msg, length);
+
+                if (IS_EXIT_OK(result))
+                {
+                    // LOG_INFO("sent %d bytes: %s", len, msg);
+                }
             }
         }
     }

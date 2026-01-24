@@ -7,6 +7,7 @@
 #include "hw_usb.h"
 
 extern PCD_HandleTypeDef hpcd_USB_DRD_FS;
+void                    MX_USB_PCD_Init(void);
 
 /* Private function prototypes -----------------------------------------------*/
 USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status);
@@ -42,9 +43,9 @@ void HAL_PCD_ResetCallback(PCD_HandleTypeDef *hpcd)
 void HAL_PCD_SuspendCallback(PCD_HandleTypeDef *hpcd)
 {
     USBD_LL_Suspend((USBD_HandleTypeDef *)hpcd->pData);
-    #ifdef __HAL_PCD_GATE_PHYCLOCK
+#ifdef __HAL_PCD_GATE_PHYCLOCK
     __HAL_PCD_GATE_PHYCLOCK(hpcd);
-    #endif
+#endif
     hw_usb_disconnect_callback();
     if (hpcd->Init.low_power_enable)
     {

@@ -18,7 +18,6 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_can_hx.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_freeRtosConfigs.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_spi.cpp"
@@ -80,6 +79,7 @@ IF ("${TARGET}" STREQUAL "binary")
 
     set(CUBEMX_INCLUDE_DIRS 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc" 
+    "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc"
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
     "${SHARED_HW_INCLUDE_DIR_CPP}/usb")

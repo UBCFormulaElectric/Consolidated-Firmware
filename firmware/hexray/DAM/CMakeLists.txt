@@ -92,6 +92,9 @@ if ("${TARGET}" STREQUAL "binary")
 
     target_link_libraries("hexray_DAM_app.elf" PRIVATE "hexray_DAM_stm32" "hexray_DAM_commit_info" "hexray_DAM_jsoncan" "m")
     target_compile_definitions("hexray_DAM_app.elf" PRIVATE DAM)
+
+    add_chimera_stm32h5("hexray_DAM_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}")
+    target_link_libraries("hexray_DAM_chimera.elf" PRIVATE "hexray_DAM_stm32")
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS})

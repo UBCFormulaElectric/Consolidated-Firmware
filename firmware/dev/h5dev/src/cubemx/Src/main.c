@@ -6,7 +6,7 @@
  ******************************************************************************
  * @attention
  *
- * Copyright (c) 2025 STMicroelectronics.
+ * Copyright (c) 2026 STMicroelectronics.
  * All rights reserved.
  *
  * This software is licensed under terms that can be found in the LICENSE file
@@ -18,7 +18,6 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "cmsis_os2.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -60,7 +59,7 @@ SPI_HandleTypeDef hspi1;
 PCD_HandleTypeDef hpcd_USB_DRD_FS;
 
 /* USER CODE BEGIN PV */
-USBD_HandleTypeDef hUsbDeviceFS;
+USBD_HandleTypeDef             hUsbDeviceFS;
 extern USBD_DescriptorsTypeDef Class_Desc;
 
 /* USER CODE END PV */
@@ -72,6 +71,7 @@ static void MX_FDCAN1_Init(void);
 static void MX_IWDG_Init(void);
 static void MX_RTC_Init(void);
 static void MX_SPI1_Init(void);
+static void MX_USB_PCD_Init(void);
 /* USER CODE BEGIN PFP */
 static void USB_Device_Init(void);
 /* USER CODE END PFP */
@@ -96,6 +96,10 @@ int main(void)
     /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
     HAL_Init();
 
+    /* USER CODE BEGIN Init */
+
+    /* USER CODE END Init */
+
     /* Configure the system clock */
     SystemClock_Config();
 
@@ -103,13 +107,13 @@ int main(void)
 
     /* USER CODE END SysInit */
 
-    osKernelInitialize();
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
     MX_FDCAN1_Init();
-    //MX_IWDG_Init();
+    MX_IWDG_Init();
     MX_RTC_Init();
     MX_SPI1_Init();
+    MX_USB_PCD_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
 
@@ -118,16 +122,13 @@ int main(void)
     USB_Device_Init();
     /* USER CODE END 2 */
 
-    MX_FREERTOS_Init();
-    osKernelStart();
-
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
-    
+
     while (1)
     {
         /* USER CODE END WHILE */
-              
+
         /* USER CODE BEGIN 3 */
     }
     /* USER CODE END 3 */
@@ -141,7 +142,6 @@ void SystemClock_Config(void)
 {
     RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
     RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
-    RCC_CRSInitTypeDef RCC_CRSInitStruct = { 0 };
 
     /** Configure the main internal regulator output voltage
      */
@@ -190,21 +190,6 @@ void SystemClock_Config(void)
     {
         Error_Handler();
     }
-
-    /** Enable the CRS APB clock
-     */
-    __HAL_RCC_CRS_CLK_ENABLE();
-
-    /** Configures CRS
-     */
-    RCC_CRSInitStruct.Prescaler             = RCC_CRS_SYNC_DIV1;
-    RCC_CRSInitStruct.Source                = RCC_CRS_SYNC_SOURCE_USB;
-    RCC_CRSInitStruct.Polarity              = RCC_CRS_SYNC_POLARITY_RISING;
-    RCC_CRSInitStruct.ReloadValue           = __HAL_RCC_CRS_RELOADVALUE_CALCULATE(48000000, 1000);
-    RCC_CRSInitStruct.ErrorLimitValue       = 34;
-    RCC_CRSInitStruct.HSI48CalibrationValue = 32;
-
-    HAL_RCCEx_CRSConfig(&RCC_CRSInitStruct);
 
     /* Select SysTick source clock */
     HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
@@ -386,7 +371,7 @@ static void MX_SPI1_Init(void)
  * @param None
  * @retval None
  */
-void MX_USB_PCD_Init(void)
+static void MX_USB_PCD_Init(void)
 {
     /* USER CODE BEGIN USB_Init 0 */
 
@@ -459,7 +444,6 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 static void USB_Device_Init(void)
 {
-
     /*for new pr*/
     if (USBD_Init(&hUsbDeviceFS, &Class_Desc, USBD_SPEED_FULL) != USBD_OK)
     {

@@ -52,7 +52,6 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_can_hx.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_resetReason.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_freeRtosConfigs.c"
 )
@@ -103,6 +102,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${CUBEMX_INCLUDES}"
             TRUE
             "${ARM_CORE}"
+            FALSE
     )
 
     # JSONCAN
@@ -152,7 +152,7 @@ if ("${TARGET}" STREQUAL "binary")
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(FAKE_SRCS
-            "${SHARED_FAKES_DIR}/io_imu.cpp"
+            "${SHARED_FAKES_DIR}/io_imuQuintuna.cpp"
             "${SHARED_FAKES_DIR}/io_loadswitch.cpp"
             "${SHARED_FAKES_DIR}/io_canQueue.cpp"
             "${SHARED_FAKES_DIR}/io_bootHandler.cpp"
