@@ -201,20 +201,18 @@ impl CanDatabase {
         };
 
         let mut decoded_signals: Vec<DecodedSignal> = Vec::new();
+        
+        let mut buf = [0u8; 4];
+        let len = data.len().min(4);
+        buf[..len].copy_from_slice(&data[..len]);
 
-        let data_uint: u32 = match data.try_into() {
-            Ok(d) => u32::from_le_bytes(d),
-            Err(_) => {
-                eprintln!("Failed to convert bytes to u32");
-                return Vec::new();
-            }
-        };
+        let data_uint = u32::from_le_bytes(buf);
 
         for signal in msgs.signals {
             // Extract the bits representing the current signal.
-            let data_shifted = data_uint >> signal.start_bit;
+            let data_shifted = data_uint as u64 >> signal.start_bit;
 
-            let bitmask = (1 << signal.bits) - 1;
+            let bitmask = (1u64 << signal.bits) - 1;
             let raw_value = {
                 let val = data_shifted & bitmask;
                 // Handle signed values via 2's complement
