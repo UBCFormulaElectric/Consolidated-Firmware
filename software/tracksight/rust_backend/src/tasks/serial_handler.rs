@@ -13,7 +13,7 @@ use super::telem_message::{TelemetryMessage, CanPayload, NTPTimeMessage, NTPDate
  * Handling serial signals from radio.
  */
 pub async fn run_serial_task(mut shutdown_rx: broadcast::Receiver<()>, can_queue_sender: broadcast::Sender<CanPayload>) {
-    println!("Serial task started.");
+    println!("Serial handler task started.");
     
     let (packet_tx, mut packet_rx) = mpsc::channel::<Vec<u8>>(32);
 
@@ -48,7 +48,10 @@ pub async fn run_serial_task(mut shutdown_rx: broadcast::Receiver<()>, can_queue
                 match telem_message {
                     TelemetryMessage::Can { body } => {
                         // TODO error handling
-                        can_queue_sender.send(body).unwrap();
+                        if !can_queue_sender.send(body).is_ok() {
+                            eprintln!("Channel has closed");
+                            break;
+                        };
                     },
                     TelemetryMessage::NTPTime { body } => {
                         // TODO handle NTP time message
@@ -65,6 +68,7 @@ pub async fn run_serial_task(mut shutdown_rx: broadcast::Receiver<()>, can_queue
     }
     packet_reader_shutdown_flag.store(true, Ordering::Release);
     packet_reader.await.ok();
+    println!("Serial handler task ended.");
 }
 
 const MAGIC: [u8; 2] = [0xaa, 0x55];
