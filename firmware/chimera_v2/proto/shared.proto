@@ -24,7 +24,6 @@ import "bms.proto";
 import "dam.proto";
 import "fsm.proto";
 import "vc.proto";
-import "h5dev.proto";
 
 /* GPIOs */
 message GpioNetName {
@@ -37,7 +36,6 @@ message GpioNetName {
         fsm.GpioNetName fsm_net_name = 6;
         bms.GpioNetName bms_net_name = 7;
         vc.GpioNetName vc_net_name = 8;
-        h5dev.GpioNetName h5dev_net_name = 9;
     }
 }
 

@@ -1,8 +1,0 @@
-syntax = "proto3";
-
-package h5dev;
-
-enum GpioNetName { 
-      GPIO_NET_NAME_UNSPECIFIED = 0;
-      GPIO_LED = 1;
-}

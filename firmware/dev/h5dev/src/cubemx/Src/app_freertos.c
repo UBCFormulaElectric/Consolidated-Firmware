@@ -150,38 +150,8 @@ void StartDefaultTask(void *argument)
             }
         }
     }
-}
-/*
-    /* Infinite loop 
-    for (;;)
-    {
-        const bool usb_configured = hw_usb_checkConnection();
-        if (usb_configured && !usb_was_configured)
-        {
-            LOG_INFO("usb configured :)");
-        }
-
-        usb_was_configured = usb_configured;
-
-        if (usb_configured)
-        {
-            if (IS_EXIT_OK(hw_usb_receive(&rx_byte, 500)))
-            {
-                (void)hw_usb_transmit(&rx_byte, 1);
-                LOG_INFO("usb rx byte = 0x%02X", (unsigned)rx_byte);
-                HAL_GPIO_WritePin(BOOT_GPIO_Port, BOOT_Pin, GPIO_PIN_SET);
-            }
-            osDelay(1000);
-            HAL_GPIO_WritePin(BOOT_GPIO_Port, BOOT_Pin, GPIO_PIN_RESET);
-            osDelay(500);
-        }
-        else
-        {
-            HAL_GPIO_WritePin(BOOT_GPIO_Port, BOOT_Pin, GPIO_PIN_RESET);
-            osDelay(100);
-        }
-    }*/
     /* USER CODE END TaskDefault */
+}
 
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */
