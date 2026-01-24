@@ -56,7 +56,7 @@ class CanMsgQueue
 
   public:
     explicit CanMsgQueue(
-        const std::string &name,
+        const char *name,
         void (*in_tx_overflow_callback)(uint32_t),
         void (*in_rx_overflow_callback)(uint32_t),
         void (*in_tx_overflow_clear_callback)(),

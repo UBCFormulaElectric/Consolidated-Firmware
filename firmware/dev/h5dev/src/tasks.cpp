@@ -66,8 +66,7 @@ extern "C"
 {
     forever
     {
-        //io::CanMsg     rx_msg = can_rx_queue.popRxMsgFromQueue();
-        
+        // io::CanMsg     rx_msg = can_rx_queue.popRxMsgFromQueue();
     }
 }
 
@@ -94,7 +93,7 @@ void tasks_init()
 
     hw_hardFaultHandler_init();
     can_tx_queue.init();
-    can_rx_queue.init();    
+    can_rx_queue.init();
     fdcan1.init();
     // LOG_IF_ERR(hw_usb_init());
 
