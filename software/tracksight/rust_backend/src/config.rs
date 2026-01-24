@@ -37,6 +37,9 @@ fn load_env_file() -> Config {
 
     let influxdb_measurement: String = format!("{car_name}_live");
 
+    // i love hardcoding
+    let jsoncan_config_path: String = format!("../../../can_bus/{car_name}");
+
     let backend_port: u32 = get_var::<u32>("BACKEND_PORT");
 
     return Config {
@@ -47,7 +50,7 @@ fn load_env_file() -> Config {
         influxdb_token: influxdb_token,
         influxdb_bucket: influxdb_bucket,
         influxdb_measurement: influxdb_measurement,
-        jsoncan_config_path: format!("../../../can_bus/{car_name}"), // i love hardcoding
+        jsoncan_config_path: jsoncan_config_path,
         backend_port: backend_port
     }
 }
