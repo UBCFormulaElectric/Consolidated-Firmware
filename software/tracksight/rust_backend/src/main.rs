@@ -1,7 +1,7 @@
 use ctrlc;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use tokio::sync::RwLock;
-use tokio::sync::broadcast::channel;
+use tokio::sync::broadcast;
 use tokio::task::{JoinSet};
 
 mod config;
@@ -17,7 +17,7 @@ use crate::tasks::api_handler::run_api_handler;
 #[tokio::main]
 async fn main() {
     // shutdown signal for threads
-    let (shutdown_tx, shutdown_rx) = channel(1);
+    let (shutdown_tx, shutdown_rx) = broadcast::channel(1);
 
     // handle termination signal
     let interrupt_count = AtomicUsize::new(0);
@@ -37,7 +37,7 @@ async fn main() {
     // this is equivalent to queue in old backend
     // use broadcast instead of mpsc, probably only one serial source but multiple consumers
     // TODO figure out buffer size
-    let (can_queue_tx, can_queue_rx) = channel::<CanPayload>(32);
+    let (can_queue_tx, can_queue_rx) = broadcast::channel::<CanPayload>(32);
 
     // track which clients subscribe to which signals
     // maps signal name to client ids
@@ -45,8 +45,8 @@ async fn main() {
 
     // start tasks
     tasks.spawn(run_api_handler(shutdown_rx.resubscribe()));
-    // tasks.spawn(run_can_data_handler(shutdown_rx.resubscribe(), can_queue_rx, subscriptions));
-    // tasks.spawn(run_serial_task(shutdown_rx.resubscribe(), can_queue_tx));
+    tasks.spawn(run_can_data_handler(shutdown_rx.resubscribe(), can_queue_rx, subscriptions));
+    tasks.spawn(run_serial_task(shutdown_rx.resubscribe(), can_queue_tx));
 
     // wait for tasks to clean up
     while let Some(res) = tasks.join_next().await {
