@@ -1,5 +1,6 @@
 #include <cassert>
 #include <cstring>
+#include "cmsis_os2.h"
 #include "hw_spi.hpp"
 #include "io_log.hpp"
 #include "hw_utils.hpp"
@@ -14,7 +15,7 @@ void SpiBus::deinit() const
     HAL_SPI_DeInit(&handle);
 }
 
-void SpiBus::onTransactionCompleteFromISR()
+void SpiBus::onTransactionCompleteFromISR() const
 {
     assert(taskInProgress != nullptr);
 
@@ -34,13 +35,12 @@ void SpiDevice::disableNss() const
     nss.writePin(true);
 }
 
-ExitCode SpiDevice::waitForNotification()
+ExitCode SpiDevice::waitForNotification() const
 {
     const uint32_t num_notifications = ulTaskNotifyTake(pdTRUE, timeoutMs);
     bus.taskInProgress               = nullptr;
-    const bool transaction_timed_out = num_notifications == 0;
 
-    if (transaction_timed_out)
+    if (const bool transaction_timed_out = num_notifications; transaction_timed_out == 0)
     {
         // If the transaction didn't complete within the timeout, manually abort it.
         (void)HAL_SPI_Abort_IT(&bus.handle);
@@ -51,7 +51,7 @@ ExitCode SpiDevice::waitForNotification()
     return ExitCode::EXIT_CODE_OK;
 }
 
-ExitCode SpiDevice::transmit(std::span<const uint8_t> tx)
+ExitCode SpiDevice::transmit(std::span<const uint8_t> tx) const
 {
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
@@ -89,7 +89,7 @@ ExitCode SpiDevice::transmit(std::span<const uint8_t> tx)
     return exit;
 }
 
-ExitCode SpiDevice::receive(std::span<uint8_t> rx)
+ExitCode SpiDevice::receive(std::span<uint8_t> rx) const
 {
     if (bus.taskInProgress != nullptr || xPortIsInsideInterrupt())
     {
@@ -126,9 +126,9 @@ ExitCode SpiDevice::receive(std::span<uint8_t> rx)
     return exit;
 }
 
-[[nodiscard]] ExitCode SpiDevice::transmitThenReceive(std::span<const uint8_t> tx, std::span<uint8_t> rx)
+[[nodiscard]] ExitCode SpiDevice::transmitThenReceive(const std::span<const uint8_t> tx, std::span<uint8_t> rx) const
 {
-    const uint16_t combined = static_cast<uint16_t>(tx.size() + rx.size());
+    const auto combined = static_cast<uint16_t>(tx.size() + rx.size());
     if (combined > MAX_SPI_BUFFER)
     {
         return ExitCode::EXIT_CODE_INVALID_ARGS;
@@ -193,25 +193,25 @@ ExitCode SpiDevice::receive(std::span<uint8_t> rx)
 }
 
 /* ---------------------------- HAL callbacks --------------------------- */
-extern "C" void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *handle)
+extern "C" void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
 {
-    auto &bus = hw::spi::getBusFromHandle(handle);
+    const auto &bus = getBusFromHandle(hspi);
     bus.onTransactionCompleteFromISR();
 }
 
-extern "C" void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *handle)
+extern "C" void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
 {
-    auto &bus = hw::spi::getBusFromHandle(handle);
+    const auto &bus = getBusFromHandle(hspi);
     bus.onTransactionCompleteFromISR();
 }
 
-extern "C" void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *handle)
+extern "C" void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 {
-    auto &bus = hw::spi::getBusFromHandle(handle);
+    const auto &bus = getBusFromHandle(hspi);
     bus.onTransactionCompleteFromISR();
 }
 
-extern "C" void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *handle)
+extern "C" void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
 {
-    LOG_ERROR("SPI error: 0x%X", handle->ErrorCode);
+    LOG_ERROR("SPI error: 0x%X", hspi->ErrorCode);
 }

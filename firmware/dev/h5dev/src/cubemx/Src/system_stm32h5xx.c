@@ -257,8 +257,7 @@ void SystemInit(void)
 #ifdef VECT_TAB_SRAM
     SCB->VTOR = SRAM1_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM */
 #else
-    extern uint32_t __app_code_start__;        // NOLINT(*-reserved-identifier)
-    SCB->VTOR = (uint32_t)&__app_code_start__; /* Vector Table Relocation in Internal FLASH */
+    SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH */
 #endif /* VECT_TAB_SRAM */
 
     /* Check OPSR register to verify if there is an ongoing swap or option bytes update interrupted by a reset */

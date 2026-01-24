@@ -29,7 +29,6 @@ extern "C"
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32h5xx_hal.h"
-
     /* Private includes ----------------------------------------------------------*/
     /* USER CODE BEGIN Includes */
 
@@ -52,8 +51,14 @@ extern "C"
 
     /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler(void);
+<<<<<<< HEAD
 
 /* USER CODE BEGIN EFP */
+=======
+    // void FSM_StartAllTasks(void);
+    void tasks_init(void);
+    /* USER CODE BEGIN EFP */
+>>>>>>> master
 
 /* USER CODE END EFP */
 
