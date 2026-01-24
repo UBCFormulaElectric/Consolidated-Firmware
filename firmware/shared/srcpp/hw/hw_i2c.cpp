@@ -2,7 +2,7 @@
 #include <cstdint>
 
 #include "hw_i2c.hpp"
-#include "io_log.h"
+#include "io_log.hpp"
 #include "cmsis_os2.h"
 
 constexpr uint8_t NUM_DEVICE_READY_TRIALS = 5;
