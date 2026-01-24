@@ -24,7 +24,8 @@ const generateRandomValue = (
         return states[Math.floor(Math.random() * states.length)];
     } else {
         return (
-            Math.sin(time / 1000 + index) * 50 + Math.random() * 10 + 50 + index * 20 * (1 + time / 100000)
+            //Math.sin(time / 1000 + index) * 50 + Math.random() * 10 + 50 + index * 20 * (1 + time / 100000)
+            Math.sin(time / 1000 + index) * 50 + Math.random() * 10 + 50 + index * 20
             //val
             //Math.random() * (time % 10000) * (index * 1000)
             // 50 + Math.random() * 10 + 50 + index * 20 * time
@@ -319,10 +320,10 @@ const MockWidget = memo(({ widgetData, updateWidget, onDelete }:
                     </div>
                 </div>
 
-                {/* Debug info */}
+                {/* Debug info 
                 <div className="text-xs text-gray-500 mb-4 space-y-1 bg-gray-50 p-2 rounded border">
                     <div>Total points: {totalDataPoints}</div>
-                </div>
+                </div> */}
             </div>
 
             <div style={{ height: chartHeight }} className="overflow-hidden relative">

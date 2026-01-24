@@ -123,17 +123,10 @@ const dateFormatter = new Intl.DateTimeFormat(undefined, {
     day: "2-digit",
 });
 
-export default function render(
-    context: CanvasRenderingContext2D,
-    width: number, height: number,
-    preparedData: PreparedChartData,
-    series: SeriesMeta[],
-    timeTickCount: number,
-    externalHoverTimestamp: number | null,
-    hoverPixelRef: RefObject<{ x: number; y: number; } | null>,
-    tooltipBufferRef: RefObject<string[]>,
-    layoutRef: RefObject<ChartLayout | null>,
-    visibleTimeRange: { min: number; max: number },
+export default function render(context: CanvasRenderingContext2D, width: number, height: number, preparedData: PreparedChartData,
+    series: SeriesMeta[], timeTickCount: number, externalHoverTimestamp: number | null,
+    hoverPixelRef: RefObject<{ x: number; y: number; } | null>, tooltipBufferRef: RefObject<string[]>,
+    layoutRef: RefObject<ChartLayout | null>, visibleTimeRange: { min: number; max: number },
 ) {
     context.clearRect(0, 0, width, height);
 
@@ -363,6 +356,8 @@ export default function render(
             maxValue += 1;
         }
 
+        // console.log("Numerical value range:", minValue, maxValue);
+
         const valueToY = (value: number) => {
             return (
                 numericalTop + chartHeight - ((value - minValue) / (maxValue - minValue)) * chartHeight
@@ -552,12 +547,13 @@ export default function render(
             externalHoverTimestamp <= maxTime) {
             activeHoverTimestamp = externalHoverTimestamp;
             activeHoverX = timeToX(externalHoverTimestamp);
+
             // activeHoverY = padding.top + 50;
         }
     }
 
+    // render lines 
     if (activeHoverX !== null && activeHoverTimestamp !== null) {
-        // const hoverX = activeHoverX;
         const hoverTime = activeHoverTimestamp;
 
         const clampIndex = (idx: number) => Math.min(Math.max(idx, startIndex), endIndex);
@@ -617,21 +613,18 @@ export default function render(
 
         let firstPointY: number | null = null;
 
+        // TODO: optimize search by only looking at visible indices
         seriesData.forEach((points, idx) => {
+            console.log(seriesData[idx]);
             const value = points[nearestIndex];
             if (value === null || value === undefined) return;
 
-            if (typeof value === "number" &&
-                hasNumerical &&
-                numericalSeriesIndices.includes(idx)) {
+            if (typeof value === "number" && hasNumerical && numericalSeriesIndices.includes(idx)) {
                 let y = 0;
                 if (numericalSeriesIndices.includes(idx) &&
                     Number.isFinite(minValue) &&
                     Number.isFinite(maxValue)) {
-                    y =
-                        numericalTop +
-                        chartHeight -
-                        ((value - minValue) / (maxValue - minValue)) * chartHeight;
+                    y = numericalTop + chartHeight - ((value - minValue) / (maxValue - minValue)) * chartHeight;
 
                     if (firstPointY === null) firstPointY = y;
 

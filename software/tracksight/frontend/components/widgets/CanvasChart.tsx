@@ -23,6 +23,7 @@ export default function CanvasChart({
     timeTickCount?: number;
     onHoverTimestampChange?: (timestamp: number | null) => void;
 }) {
+
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const animationFrameId = useRef<number | null>(null);
     const hoverPixelRef = useRef<{ x: number; y: number } | null>(null);
@@ -217,23 +218,28 @@ export default function CanvasChart({
         const y = event.clientY - rect.top;
         hoverPixelRef.current = { x, y };
 
-        if (layoutRef.current && onHoverTimestampChange) {
+        if (layoutRef.current) {
             const { minTime, timeRange, chartWidth, paddingLeft } =
                 layoutRef.current;
             if (chartWidth > 0) {
-                const calculatedTime =
-                    minTime + ((x - paddingLeft) / chartWidth) * timeRange;
-                onHoverTimestampChange(calculatedTime);
+                const calculatedTime = minTime + ((x - paddingLeft) / chartWidth) * timeRange;
+
+                externalHoverTimestampRef.current = calculatedTime;
+
+                if (onHoverTimestampChange) {
+                    onHoverTimestampChange(calculatedTime);
+                }
             }
         }
-    }, [onHoverTimestampChange]);
+    }, [onHoverTimestampChange, externalHoverTimestampRef]);
 
     const handleMouseLeave = useCallback(() => {
         hoverPixelRef.current = null;
+        externalHoverTimestampRef.current = null;
         if (onHoverTimestampChange) {
             onHoverTimestampChange(null);
         }
-    }, [onHoverTimestampChange]);
+    }, [onHoverTimestampChange, externalHoverTimestampRef]);
 
     if (containerWidth === 0) {
         return <canvas className="block w-full" ref={canvasRef} style={{ height }} />;
