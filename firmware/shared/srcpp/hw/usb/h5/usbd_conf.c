@@ -7,7 +7,7 @@
 #include "hw_usb.h"
 
 extern PCD_HandleTypeDef hpcd_USB_DRD_FS;
-void                    MX_USB_PCD_Init(void);
+void                     MX_USB_PCD_Init(void);
 
 /* Private function prototypes -----------------------------------------------*/
 USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status);

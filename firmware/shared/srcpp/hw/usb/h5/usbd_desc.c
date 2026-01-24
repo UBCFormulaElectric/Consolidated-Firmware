@@ -102,8 +102,8 @@ __ALIGN_BEGIN uint8_t USBD_DeviceDesc[USB_LEN_DEV_DESC] __ALIGN_END = {
     USB_DESC_TYPE_DEVICE, /* bDescriptorType */
 #if ((USBD_LPM_ENABLED == 1) || (USBD_CLASS_BOS_ENABLED == 1))
     0x01,
-    /*bcdUSB */ /* changed to USB version 2.01
-                in order to support BOS Desc */
+/*bcdUSB */ /* changed to USB version 2.01
+            in order to support BOS Desc */
 #else
     0x00, /* bcdUSB */
 #endif /* (USBD_LPM_ENABLED == 1) || (USBD_CLASS_BOS_ENABLED == 1) */
