@@ -7,10 +7,10 @@ extern "C"
 {
 #include "app_canRx.h"
 #include "app_canTx.h"
-#include "app_activeDifferential.h"
-#include "torque_vectoring_c/datatypes/app_vd_constants.h"
-#include "app_units.h"
 }
+#include "app_activeDifferential.hpp"
+#include "app_vd_constants.hpp"
+#include "app_units.h"
 
 // #region agent log
 // Debug: Verify test file is being compiled and executed
@@ -40,8 +40,7 @@ constexpr double MAX_MOTOR_SPEED_RPM   = 6000.0;
 constexpr double MAX_MOTOR_SPEED_RAD_S = MAX_MOTOR_SPEED_RPM * M_PI / 30.0; // ~628.32 rad/s
 
 // Tolerance for floating point comparisons
-// Increased to accommodate floating-point precision errors from trigonometric operations
-constexpr double EPSILON = 2e-5;
+constexpr double EPSILON = 1e-3;
 
 class TestActiveDifferential : public testing::Test
 {

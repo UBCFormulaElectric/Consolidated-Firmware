@@ -16,7 +16,7 @@ file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/ap
 list(APPEND APP_SRCS)
 set(APP_INCLUDE_DIRS
         # "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
-        "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR_CPP}"
+        "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR_CPP}" "${CMAKE_CURRENT_SOURCE_DIR}/src/app/torque_vectoring/controllers/yaw_rate_control" "${CMAKE_CURRENT_SOURCE_DIR}/src/app/torque_vectoring/controllers" "${CMAKE_CURRENT_SOURCE_DIR}/src/app/torque_vectoring/datatypes" "${CMAKE_CURRENT_SOURCE_DIR}/src/app/torque_vectoring"
 )
 
 file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")

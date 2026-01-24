@@ -1,5 +1,5 @@
 #pragma once
-#include "app_vehicleDynamics.h"
+#include "app_vehicleDynamics.hpp"
 #include <stdbool.h>
 
 #ifdef __cplusplus
@@ -19,7 +19,7 @@ extern "C"
      * @return Motor speed references in rad/s (stored in TorqueAllocationOutputs structure)
      */
     TorqueAllocationOutputs
-        app_activeDifferential_computeTorque(double omega_v_ref, double steering_wheel_angle_deg, double omega_m_max);
+        app_activeDifferential_computeTorque(float omega_v_ref, float steering_wheel_angle_deg, float omega_m_max);
 
 #ifdef __cplusplus
 }
