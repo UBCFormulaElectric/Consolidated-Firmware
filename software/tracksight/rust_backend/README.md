@@ -10,6 +10,7 @@ todo for backend
 [x] verify that serial messages can be processed
 [x] processing jsoncan to read metadata - deserialize bytes
 [ ] implementing client subscription map, socket server for clients to serve data
+[ ] switch to tokio serial
 [ ] interfacing with influxdb and pushing data through
 [ ] ensure proper error handling in backend and logging
 [ ] implementing api endpoints
