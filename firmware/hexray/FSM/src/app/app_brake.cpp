@@ -5,8 +5,10 @@ extern "C"
 #include "app_canTx.h"
 #include "app_canAlerts.h"
 }
-
 #include <cmath>
+
+constexpr float MIN_BRAKE_PRESSURE_PSI = (0.0f);
+constexpr float MAX_BRAKE_PRESSURE_PSI = (1000.0f);
 namespace app::brake
 {
 void broadcast(void)
