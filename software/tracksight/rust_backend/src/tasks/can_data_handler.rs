@@ -66,6 +66,7 @@ pub async fn run_can_data_handler(
             }
         }
     }
+    println!("CAN data handler task ended.");
 
     // influx_handler_task.await;
     // live_data_handler_task.await;
