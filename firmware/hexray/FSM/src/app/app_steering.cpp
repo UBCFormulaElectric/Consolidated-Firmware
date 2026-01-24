@@ -8,12 +8,14 @@ extern "C"
 
 #include "io_steering.hpp"
 
-// TODO: angles need to be validated
-constexpr float MIN_STEERING_ANGLE_DEG = -95;
-constexpr float MAX_STEERING_ANGLE_DEG = 95;
+
 
 namespace app::steering
 {
+// TODO: angles need to be validated
+static constexpr float MIN_STEERING_ANGLE_DEG = -95;
+static constexpr float MAX_STEERING_ANGLE_DEG = 95;
+
 static const RangeCheck steering_angle_in_range_check = {
     .get_value = nullptr,
     .min_value = MIN_STEERING_ANGLE_DEG,
