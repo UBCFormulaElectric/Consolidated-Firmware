@@ -459,6 +459,8 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 static void USB_Device_Init(void)
 {
+
+    /*for new pr*/
     if (USBD_Init(&hUsbDeviceFS, &Class_Desc, USBD_SPEED_FULL) != USBD_OK)
     {
         Error_Handler();
