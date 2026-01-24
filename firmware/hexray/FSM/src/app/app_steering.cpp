@@ -8,8 +8,6 @@ extern "C"
 
 #include "io_steering.hpp"
 
-
-
 namespace app::steering
 {
 // TODO: angles need to be validated
