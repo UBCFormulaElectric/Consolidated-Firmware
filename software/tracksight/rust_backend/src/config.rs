@@ -11,6 +11,7 @@ pub struct Config {
     pub influxdb_bucket: String,
     pub influxdb_measurement: String,
     pub jsoncan_config_path: String,
+    pub backend_port: u32,
 }
 
 pub static CONFIG: LazyLock<Config> = LazyLock::new(|| load_env_file());
@@ -22,27 +23,21 @@ fn load_env_file() -> Config {
     from_filename(DEFAULT_BACKEND_ENV_FILE)
         .expect(&format!("{} file not found, could not load env file!", DEFAULT_BACKEND_ENV_FILE));
 
-    let serial_port: String = var("SERIAL_PORT")
-        .expect("SERIAL_PORT is missing!");
+    let serial_port: String = get_var::<String>("SERIAL_PORT");
 
-    let influxdb_url: String = var("INFLUXDB_URL")
-        .expect("INFLUXDB_URL is missing!");
+    let influxdb_url: String = get_var::<String>("INFLUXDB_URL");
 
-    let influxdb_org: String = var("INFLUXDB_ORG")
-        .expect("INFLUXDB_ORG is missing!");
+    let influxdb_org: String = get_var::<String>("INFLUXDB_ORG");
 
-    let influxdb_token: String = var("INFLUXDB_TOKEN")
-    .expect("INFLUXDB_TOKEN is missing!");
+    let influxdb_token: String = get_var::<String>("INFLUXDB_TOKEN");
     
-    let influxdb_bucket: String = var("INFLUXDB_BUCKET")
-        .expect("INFLUXDB_BUCKET is missing!");
+    let influxdb_bucket: String = get_var::<String>("INFLUXDB_BUCKET");
 
-    let car_name = format!(
-        "{}_live", 
-        var("CAR_NAME").expect("CAR_NAME is missing!")
-    );
+    let car_name = get_var::<String>("CAR_NAME");
 
     let influxdb_measurement: String = format!("{car_name}_live");
+
+    let backend_port: u32 = get_var::<u32>("BACKEND_PORT");
 
     return Config {
         serial_port: serial_port,
@@ -53,5 +48,13 @@ fn load_env_file() -> Config {
         influxdb_bucket: influxdb_bucket,
         influxdb_measurement: influxdb_measurement,
         jsoncan_config_path: format!("../../../can_bus/{car_name}"), // i love hardcoding
+        backend_port: backend_port
     }
+}
+
+fn get_var<T: std::str::FromStr>(env_key: &str) -> T {
+    return var(env_key)
+        .expect(&format!("{} is missing!", env_key))
+        .parse::<T>()
+        .ok().unwrap();
 }
