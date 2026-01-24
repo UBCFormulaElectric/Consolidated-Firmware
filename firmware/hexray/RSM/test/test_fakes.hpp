@@ -22,16 +22,6 @@ namespace suspension
     void setRL_OCSC(bool value);
 } // namespace suspension
 
-namespace imu
-{
-    void setAccelX(float value, ExitCode status);
-    void setAccelY(float value, ExitCode status);
-    void setAccelZ(float value, ExitCode status);
-    void setGyroX(float value, ExitCode status);
-    void setGyroY(float value, ExitCode status);
-    void setGyroZ(float value, ExitCode status);
-} // namespace imu
-
 namespace rPump
 {
     void setStatus(ExitCode value);
@@ -43,5 +33,3 @@ namespace tireTemp
 }
 
 } // namespace fakes::io
-
-extern io::imu::Imu imu_config;
