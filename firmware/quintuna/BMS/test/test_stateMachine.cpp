@@ -439,6 +439,9 @@ TEST_F(BmsStateMachineTest, faults_after_shutdown_loop_activates_while_charging)
         {
             cell_voltages_arr[seg][cell] = 4.1f;
         }
+        ASSERT_LE(abs(open_time - precharge_cooldown), 100) << "Expected precharge to be open for approximately "
+                                                            << precharge_cooldown << "ms, but was " << open_time << "ms"
+                                                            << ", time = " << io_time_getCurrentMs();
     }
     cell_voltages_arr[NUM_SEGMENTS - 1][CELLS_PER_SEGMENT - 1] = 4.21f; // last cell overvoltage
     fakes::segments::setCellVoltages(cell_voltages_arr);
