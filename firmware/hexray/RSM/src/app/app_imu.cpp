@@ -1,6 +1,5 @@
 #include "app_imu.hpp"
 #include "io_imus.hpp"
-#include "io_imu.hpp"
 #include "util_errorCodes.hpp"
 
 extern "C"
@@ -12,21 +11,21 @@ io::imu::Imu imu_config;
 
 namespace app::imu
 {
-static RSMImuFaults imu_faults = { .accel_x_fault = ExitCode::EXIT_CODE_ERROR,
-                                   .accel_y_fault = ExitCode::EXIT_CODE_ERROR,
-                                   .accel_z_fault = ExitCode::EXIT_CODE_ERROR,
-                                   .gyro_x_fault  = ExitCode::EXIT_CODE_ERROR,
-                                   .gyro_y_fault  = ExitCode::EXIT_CODE_ERROR,
-                                   .gyro_z_fault  = ExitCode::EXIT_CODE_ERROR };
-
+static RSMImuFaults imu_faults = { .accel_x_fault   = ExitCode::EXIT_CODE_ERROR,
+                                   .accel_y_fault   = ExitCode::EXIT_CODE_ERROR,
+                                   .accel_z_fault   = ExitCode::EXIT_CODE_ERROR,
+                                   .gyro_x_fault    = ExitCode::EXIT_CODE_ERROR,
+                                   .gyro_y_fault    = ExitCode::EXIT_CODE_ERROR,
+                                   .gyro_z_fault    = ExitCode::EXIT_CODE_ERROR };
+    
 void broadcast()
-{
-    float accel_x, accel_y, accel_z;
-    float gyro_x, gyro_y, gyro_z;
+{   
+    float accel_x{0}, accel_y{0}, accel_z{0};
+    float gyro_x{0}, gyro_y{0}, gyro_z{0};
 
-    imu_faults.accel_x_fault = imu_config.getAccelX(accel_x);
-    imu_faults.accel_y_fault = imu_config.getAccelY(accel_y);
-    imu_faults.accel_z_fault = imu_config.getAccelZ(accel_z);
+    imu_faults.accel_x_fault   = imu_config.getAccelX(accel_x);
+    imu_faults.accel_y_fault   = imu_config.getAccelY(accel_y);
+    imu_faults.accel_z_fault   = imu_config.getAccelZ(accel_z);
     imu_faults.gyro_x_fault  = imu_config.getGyroX(gyro_x);
     imu_faults.gyro_y_fault  = imu_config.getGyroY(gyro_y);
     imu_faults.gyro_z_fault  = imu_config.getGyroZ(gyro_z);

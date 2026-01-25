@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 #include "test/test_RSMBase.hpp"
-// #include "test_fakes.hpp"
-// #include "util_errorCodes.hpp"
 #include "io_imu.hpp"
 #include "app_imu.hpp"
+#include "test_fakes.hpp"
+#include "util_errorCodes.hpp"
 
 extern "C"
 {

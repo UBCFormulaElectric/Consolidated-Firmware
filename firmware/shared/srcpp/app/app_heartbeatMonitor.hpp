@@ -56,7 +56,7 @@ template <size_t NODE_COUNT> class monitor
 
             node->heartbeats_checked_in = board_status_good;
             node->status                = board_status_good || state == Timer::TimerState::RUNNING;
-            node->resetter();
+            node->resetter(false);
         }
     }
 
