@@ -1,15 +1,59 @@
 {
-    "Vitals": {
-        "msg_id": 600,
-        "cycle_time": 100,
-        "description": "FSM vitals message.",
-        "signals": {
-            "Heartbeat": {
-                "bits": 1
-            }
-        }
-    },
-    "Brake": {
+  "Vitals": {
+      "msg_id": 600,
+      "cycle_time": 100,
+      "description": "FSM vitals message.",
+      "signals": {
+          "Heartbeat": {
+              "bits": 1
+          }
+      }
+  },
+  "Steering": {
+    "msg_id": 610,
+    "cycle_time": 10,
+    "description": "Steering angle.",
+    "signals": {
+      "SteeringAngle": {
+        "resolution": 0.1,
+        "min": -110,
+        "max": 110,
+        "unit": "deg"
+      }
+    }
+  },
+  "Apps": {
+    "msg_id": 611,
+    "cycle_time": 10,
+    "description": "Primary (P) and secondary (S) accelerator percentages.",
+    "signals": {
+      "PappsMappedPedalPercentage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "SappsMappedPedalPercentage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "PappsRawPedalPercentage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "SappsRawPedalPercentage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      }
+    }
+  },
+  "Brake": {
     "msg_id": 612,
     "cycle_time": 10,
     "description": "Front and rear brake pressures",
@@ -21,6 +65,87 @@
         "unit": "psi"
       },
       "BrakeActuated": {
+        "bits": 1
+      }
+    }
+  },
+  "Suspension": {
+    "msg_id": 613,
+    "cycle_time": 100,
+    "description": "Suspension travel",
+    "signals": {
+      "LeftSuspensionTravel": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 50,
+        "unit": "cm"
+      },
+      "RightSuspensionTravel": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 50,
+        "unit": "cm"
+      }
+    }
+  },
+  "IMU": {
+    "msg_id": 614,
+    "cycle_time": 10,
+    "description": "IMU sensor data",
+    "signals": {
+      "LinearAccelerationX": {
+        "resolution": 0.1,
+        "min": -20,
+        "max": 20,
+        "unit": "m/s^2"
+      },
+      "LinearAccelerationY": {
+        "resolution": 0.1,
+        "min": -20,
+        "max": 20,
+        "unit": "m/s^2"
+      },
+      "LinearAccelerationZ": {
+        "resolution": 0.1,
+        "min": -20,
+        "max": 20,
+        "unit": "m/s^2"
+      },
+      "RollRate": {
+        "resolution": 0.1,
+        "min": -20,
+        "max": 20,
+        "unit": "deg/s"
+      },
+      "PitchRate": {
+        "resolution": 0.1,
+        "min": -20,
+        "max": 20,
+        "unit": "deg/s"
+      },
+      "YawRate": {
+        "resolution": 0.1,
+        "min": -20,
+        "max": 20,
+        "unit": "deg/s"
+      }
+    }
+  },
+  "ShdnNodeStatus": {
+    "msg_id": 615,
+    "cycle_time": 10,
+    "description": "FSM Shutdown Node Status",
+    "signals": {
+      "BOTSOKStatus": {
+        "bits": 1
+      },
+      "COCKPITOKStatus": {
+        "bits": 1
+      },
+      "FrontLeftILCKInertiaOKStatus": {
+        "bits": 1
+      },
+      "FrontRightILCKOKStatus": {
         "bits": 1
       }
     }
