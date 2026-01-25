@@ -31,6 +31,12 @@
 #define MAX_REGEN_Nm -15.0f
 #define MAX_BATTERY_TEMP 45
 #define POWER_LIMIT_REGEN_kW 17.0f // 17.64kW ~ 30A charge for molicel cells
+#define FRONTAL_AREA 0.94f // m^2 from aero team
+#define AIR_DENSITY 1.2205f // kg/m^3 
+#define COEFFICIENT_OF_LIFT 1.7f // from Aero team
+#define COP_REAR 0.68f // from Aero team
+#define COP_RIGHT 0.5f // from Aero/Suspension
+#define KMH_TO_MS 1.0f / 3.6f
 
 /**
  * Reference used: https://www.zotero.org/groups/5809911/vehicle_controls_2024/items/N4TQBR67/reader
@@ -39,6 +45,7 @@
 #define DIST_FRONT_AXLE_CG (0.837f)                          // a in meters
 #define DIST_REAR_AXLE_CG (WHEELBASE_m - DIST_FRONT_AXLE_CG) // b in meters
 #define WEIGHT_ACROSS_BODY (CAR_MASS_AT_CG_KG * GRAVITY / WHEELBASE_m)
+#define DOWNFORCE_CONSTANT (AIR_DENSITY * FRONTAL_AREA * COEFFICIENT_OF_LIFT / 2.0f)
 
 /************** Macros for finding vertical forces on wheels based on diagram on page 21 ****************/
 #define REAR_WEIGHT_DISTRIBUTION (WEIGHT_ACROSS_BODY * DIST_REAR_AXLE_CG)
@@ -46,6 +53,18 @@
     ((CAR_MASS_AT_CG_KG * (long_accel) * CG_HEIGHT_FROM_GROUND_m / WHEELBASE_m))
 #define LAT_ACCEL_TERM_VERTICAL_FORCE(lat_accel) \
     ((CAR_MASS_AT_CG_KG * (lat_accel) * CG_HEIGHT_FROM_GROUND_m / (2.0f * (TRACK_WIDTH_m))))
+#define DOWNFORCE_TERM_VERTICAL_FORCE(vehicle_velocity_kmh) \
+    ((DOWNFORCE_CONSTANT) * (vehicle_velocity_kmh * KMH_TO_MS) * (vehicle_velocity_kmh * KMH_TO_MS))
+#define DYNAMIC_COP_FRONT(long_accel) \
+    (1 - (COP_REAR))
+#define DYNAMIC_COP_REAR(long_accel) \
+    (COP_REAR)
+#define DYNAMIC_COP_LEFT(lat_accel) \
+    (COP_RIGHT)
+#define DYNAMIC_COP_RIGHT(lat_accel) \
+    (1 - (COP_RIGHT))
+
+
 
 /************** Macros for finding Kmz based on diagram on page 57 ****************/
 #define ACCELERATION_TERM_KMZ(long_accel) (DIST_FRONT_AXLE_CG + (long_accel) * CG_HEIGHT_FROM_GROUND_m / GRAVITY)
