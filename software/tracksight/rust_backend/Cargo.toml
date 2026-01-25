@@ -14,5 +14,6 @@ socketioxide = "0.18.1"
 influxdb2 = "0.5"
 dotenv = "0.15"
 crc = "3.0.0"
+serde_json = "1.0.145"
 
 jsoncan_rust = { path = "../../../scripts/code_generation/jsoncan-rust" }

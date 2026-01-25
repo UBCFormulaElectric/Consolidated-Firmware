@@ -1,4 +1,5 @@
 use ctrlc;
+use std::sync::Arc;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use tokio::sync::RwLock;
 use tokio::sync::broadcast;
@@ -7,10 +8,10 @@ use tokio::task::{JoinSet};
 mod config;
 mod tasks;
 use tasks::telem_message::CanPayload;
-use tasks::client_api::subscriptions::Subscriptions;
+use tasks::client_api::clients::Clients;
 
 use tasks::serial_handler::run_serial_task;
-use tasks::can_data_handler::run_can_data_handler;
+use tasks::can_data::can_data_handler::run_can_data_handler;
 
 use crate::tasks::api_handler::run_api_handler;
 
@@ -41,11 +42,11 @@ async fn main() {
 
     // track which clients subscribe to which signals
     // maps signal name to client ids
-    let subscriptions = RwLock::new(Subscriptions::new());
+    let clients = Arc::new(RwLock::new(Clients::new()));
 
     // start tasks
-    tasks.spawn(run_api_handler(shutdown_rx.resubscribe()));
-    tasks.spawn(run_can_data_handler(shutdown_rx.resubscribe(), can_queue_rx, subscriptions));
+    tasks.spawn(run_api_handler(shutdown_rx.resubscribe(), clients.clone()));
+    tasks.spawn(run_can_data_handler(shutdown_rx.resubscribe(), can_queue_rx, clients.clone()));
     tasks.spawn(run_serial_task(shutdown_rx.resubscribe(), can_queue_tx));
 
     // wait for tasks to clean up

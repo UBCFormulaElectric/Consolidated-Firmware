@@ -6,13 +6,13 @@ use tokio::select;
 use crate::config::CONFIG;
 use crate::tasks::telem_message::CanPayload;
 
-use jsoncan_rust::can_database::CanMessage;
+use jsoncan_rust::can_database::{CanMessage, DecodedSignal};
 
 /**
  * After serial_handler parses the can messages,
  * this task consumes the messages and writes them to influxdb
  */
-pub async fn run_influx_handler(mut shutdown_signal: Receiver<()>, mut can_queue_receiver: Receiver<()>) {
+pub async fn run_influx_handler(mut shutdown_signal: Receiver<()>, mut can_queue_receiver: Receiver<DecodedSignal>) {
     println!("Influx task started.");
 
     let influx_client = Client::new(
