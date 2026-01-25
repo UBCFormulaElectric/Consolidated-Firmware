@@ -24,9 +24,7 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_spi.cpp"
         "${SHARED_HW_INCLUDE_DIR}/hw_resetReason.c"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
-        "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
-        "${SHARED_IO_INCLUDE_DIR_CPP}/io_canMsgQueue.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_ubsan.cpp"
 )
 

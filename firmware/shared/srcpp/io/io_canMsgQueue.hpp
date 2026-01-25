@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <string>
 #include "hw_can.hpp"
 #include "cmsis_os.h"
 
@@ -28,39 +27,27 @@
 namespace io
 {
 // Sizes of CAN TX and RX queues.
-#define TX_QUEUE_SIZE 128
-#define RX_QUEUE_SIZE 128
-#define TX_QUEUE_BYTES (sizeof(CanMsg) * TX_QUEUE_SIZE)
-#define RX_QUEUE_BYTES (sizeof(CanMsg) * RX_QUEUE_SIZE)
 
+template<size_t QUEUE_SIZE = 128u>
 class CanMsgQueue
 {
-    osMessageQueueId_t tx_queue_id{};
-    osMessageQueueId_t rx_queue_id{};
-    StaticQueue_t      tx_queue_control_block{};
-    StaticQueue_t      rx_queue_control_block{};
-    uint8_t            tx_queue_buf[TX_QUEUE_BYTES]{};
-    uint8_t            rx_queue_buf[RX_QUEUE_BYTES]{};
+    constexpr static size_t QUEUE_SIZE_BYTES = sizeof(CanMsg) * QUEUE_SIZE;
+    osMessageQueueId_t queue_id{};
+    StaticQueue_t      queue_control_block{};
+    uint8_t            queue_buf[QUEUE_SIZE_BYTES]{};
 
-    void (*const tx_overflow_callback)(uint32_t){};
-    void (*const rx_overflow_callback)(uint32_t){};
-    void (*const tx_overflow_clear_callback)(){};
-    void (*const rx_overflow_clear_callback)(){};
+    void (*const overflow_callback)(uint32_t){};
+    void (*const overflow_clear_callback)(){};
 
-    uint32_t                   tx_overflow_count = 0;
-    uint32_t                   rx_overflow_count = 0;
-    bool                       tx_overflow_flag  = false;
-    bool                       rx_overflow_flag  = false;
-    const osMessageQueueAttr_t rx_queue_attr;
-    const osMessageQueueAttr_t tx_queue_attr;
+    uint32_t                   overflow_count = 0;
+    bool                       overflow_flag  = false;
+    const osMessageQueueAttr_t queue_attr;
 
   public:
     explicit CanMsgQueue(
         const char *name,
-        void (*in_tx_overflow_callback)(uint32_t),
-        void (*in_rx_overflow_callback)(uint32_t),
-        void (*in_tx_overflow_clear_callback)(),
-        void (*in_rx_overflow_clear_callback)());
+        void (*in_overflow_callback)(uint32_t),
+        void (*in_overflow_clear_callback)());
 
     /**
      * Initialize and start the CAN peripheral.
@@ -70,27 +57,66 @@ class CanMsgQueue
 
     /**
      * Enqueue a CAN msg to be transmitted on the bus.
-     * Does not block, calls `tx_overflow_callback` if queue is full.
+     * Does not block, calls `overflow_callback` if queue is full.
      * @param msg CAN msg to be TXed.
      */
-    void pushTxMsgToQueue(const CanMsg *msg);
+    void pushMsgToQueue(const CanMsg *msg);
 
     /**
-     * Pops a CAN msg from the TX queue. Blocks until a msg exists in the queue.
+     * Pops a CAN msg from the queue. Blocks until a msg exists in the queue.
      */
-    [[nodiscard]] CanMsg popTxMsgFromQueue() const;
-
-    /**
-     * Dequeue a received CAN msg. Blocks until a msg can be dequeued.
-     */
-    [[nodiscard]] CanMsg popRxMsgFromQueue() const;
-
-#ifdef TARGET_EMBEDDED
-    /**
-     * Callback fired by config-specific interrupts to receive a message from a given FIFO.
-     * @param rx_msg CAN msg to be populated by RXed msg.
-     */
-    void pushRxMsgToQueue(const CanMsg *rx_msg);
-#endif
+    [[nodiscard]] CanMsg popMsgFromQueue() const;
 };
+
+template<size_t QUEUE_SIZE>
+CanMsgQueue<QUEUE_SIZE>::CanMsgQueue(
+    const char* name,
+    void (*const in_overflow_callback)(uint32_t),
+    void (*const in_overflow_clear_callback)())
+  : overflow_callback(in_overflow_callback),
+    overflow_clear_callback(in_overflow_clear_callback),
+    queue_attr({
+        .name      = name,
+        .attr_bits = 0,
+        .cb_mem    = &this->queue_control_block,
+        .cb_size   = sizeof(StaticQueue_t),
+        .mq_mem    = this->queue_buf,
+        .mq_size   = QUEUE_SIZE_BYTES,
+    })
+{
+}
+
+template<size_t QUEUE_SIZE>
+void CanMsgQueue<QUEUE_SIZE>::init()
+{
+    this->queue_id = osMessageQueueNew(QUEUE_SIZE, sizeof(CanMsg), &this->queue_attr);
+}
+
+template<size_t QUEUE_SIZE>
+void CanMsgQueue<QUEUE_SIZE>::pushMsgToQueue(const CanMsg *msg)
+{
+    if (const osStatus_t s = osMessageQueuePut(this->queue_id, msg, 0, 0); s != osOK)
+    {
+        if (!this->overflow_flag)
+        {
+            LOG_WARN("%s overflow: %d", this->queue_attr.name, s);
+            this->overflow_flag = true;
+        }
+        this->overflow_callback(++this->overflow_count);
+    }
+    else
+    {
+        this->overflow_clear_callback();
+        this->overflow_flag = false;
+    }
+}
+
+template<size_t QUEUE_SIZE>
+[[nodiscard]] CanMsg CanMsgQueue<QUEUE_SIZE>::popMsgFromQueue() const
+{
+    CanMsg msg{};
+    const osStatus_t s = osMessageQueueGet(this->queue_id, &msg, NULL, osWaitForever);
+    assert(s == osOK);
+    return msg;
+}
 } // namespace io

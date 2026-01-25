@@ -8,7 +8,7 @@
 
 static void canRxCallback(const io::CanMsg *msg)
 {
-    can_rx_queue.pushTxMsgToQueue(msg);
+    can_rx_queue.pushMsgToQueue(msg);
 }
 
 hw::fdcan fdcan1(hfdcan1, 0, canRxCallback);
