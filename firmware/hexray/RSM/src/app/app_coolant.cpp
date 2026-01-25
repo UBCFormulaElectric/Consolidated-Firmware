@@ -14,7 +14,7 @@ static constexpr float MAX_FLOW_RATE_L_PER_MIN = 30.0f;
 
 static constexpr uint32_t FLOW_METER_TIME_TO_FAULT = 1000U;
 static constexpr uint32_t FLOW_METER_TIME_TO_CLEAR = 1000U;
-static const RangeCheck flow_rate_in_range_check = { nullptr, MIN_FLOW_RATE_L_PER_MIN, MAX_FLOW_RATE_L_PER_MIN };
+static const RangeCheck   flow_rate_in_range_check = { nullptr, MIN_FLOW_RATE_L_PER_MIN, MAX_FLOW_RATE_L_PER_MIN };
 
 static Signal flow_in_range_signal;
 

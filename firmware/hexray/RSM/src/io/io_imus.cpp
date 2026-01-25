@@ -1,6 +1,6 @@
 #include "io_imu.hpp"
 
-namespace io::imus 
+namespace io::imus
 {
-    io::imu::Imu imu_config();
+io::imu::Imu imu_config();
 }
