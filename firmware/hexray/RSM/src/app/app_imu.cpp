@@ -21,7 +21,7 @@ static RSMImuFaults imu_faults = { .accel_x_fault = ExitCode::EXIT_CODE_ERROR,
 
 void broadcast()
 {
-    #ifdef TARGET_TEST
+#ifdef TARGET_TEST
     float accel_x{ 0 }, accel_y{ 0 }, accel_z{ 0 };
     float gyro_x{ 0 }, gyro_y{ 0 }, gyro_z{ 0 };
 
@@ -48,6 +48,6 @@ void broadcast()
     app_canTx_RSM_RollAngularAcceleration_set(imu_gyro_data.x);
     app_canTx_RSM_PitchAngularAcceleration_set(imu_gyro_data.y);
     app_canTx_RSM_YawAngularAcceleration_set(imu_gyro_data.z);
-    #endif // TARGET_TEST
+#endif // TARGET_TEST
 }
 } // namespace app::imu
