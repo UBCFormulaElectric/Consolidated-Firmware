@@ -28,13 +28,12 @@ namespace io
 {
 // Sizes of CAN TX and RX queues.
 
-template<size_t QUEUE_SIZE = 128u>
-class CanMsgQueue
+template <size_t QUEUE_SIZE = 128u> class CanMsgQueue
 {
     constexpr static size_t QUEUE_SIZE_BYTES = sizeof(CanMsg) * QUEUE_SIZE;
-    osMessageQueueId_t queue_id{};
-    StaticQueue_t      queue_control_block{};
-    uint8_t            queue_buf[QUEUE_SIZE_BYTES]{};
+    osMessageQueueId_t      queue_id{};
+    StaticQueue_t           queue_control_block{};
+    uint8_t                 queue_buf[QUEUE_SIZE_BYTES]{};
 
     void (*const overflow_callback)(uint32_t){};
     void (*const overflow_clear_callback)(){};
@@ -68,9 +67,9 @@ class CanMsgQueue
     [[nodiscard]] CanMsg popMsgFromQueue() const;
 };
 
-template<size_t QUEUE_SIZE>
+template <size_t QUEUE_SIZE>
 CanMsgQueue<QUEUE_SIZE>::CanMsgQueue(
-    const char* name,
+    const char *name,
     void (*const in_overflow_callback)(uint32_t),
     void (*const in_overflow_clear_callback)())
   : overflow_callback(in_overflow_callback),
@@ -86,14 +85,12 @@ CanMsgQueue<QUEUE_SIZE>::CanMsgQueue(
 {
 }
 
-template<size_t QUEUE_SIZE>
-void CanMsgQueue<QUEUE_SIZE>::init()
+template <size_t QUEUE_SIZE> void CanMsgQueue<QUEUE_SIZE>::init()
 {
     this->queue_id = osMessageQueueNew(QUEUE_SIZE, sizeof(CanMsg), &this->queue_attr);
 }
 
-template<size_t QUEUE_SIZE>
-void CanMsgQueue<QUEUE_SIZE>::pushMsgToQueue(const CanMsg *msg)
+template <size_t QUEUE_SIZE> void CanMsgQueue<QUEUE_SIZE>::pushMsgToQueue(const CanMsg *msg)
 {
     if (const osStatus_t s = osMessageQueuePut(this->queue_id, msg, 0, 0); s != osOK)
     {
@@ -111,10 +108,9 @@ void CanMsgQueue<QUEUE_SIZE>::pushMsgToQueue(const CanMsg *msg)
     }
 }
 
-template<size_t QUEUE_SIZE>
-[[nodiscard]] CanMsg CanMsgQueue<QUEUE_SIZE>::popMsgFromQueue() const
+template <size_t QUEUE_SIZE> [[nodiscard]] CanMsg CanMsgQueue<QUEUE_SIZE>::popMsgFromQueue() const
 {
-    CanMsg msg{};
+    CanMsg           msg{};
     const osStatus_t s = osMessageQueueGet(this->queue_id, &msg, NULL, osWaitForever);
     assert(s == osOK);
     return msg;

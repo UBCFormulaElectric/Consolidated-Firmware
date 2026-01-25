@@ -6,10 +6,11 @@
 
 extern "C"
 {
-    #include "io_canRx.h"
+#include "io_canRx.h"
 }
 
-namespace app::jsoncan{
+namespace app::jsoncan
+{
 inline JsonCanMsg copyFromCanMsg(const io::CanMsg *msg)
 {
     JsonCanMsg tx_msg;

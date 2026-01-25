@@ -69,7 +69,7 @@ extern "C"
 {
     forever
     {
-        io::CanMsg   rx_msg = can_rx_queue.popMsgFromQueue();
+        io::CanMsg rx_msg      = can_rx_queue.popMsgFromQueue();
         JsonCanMsg jsoncan_msg = app::jsoncan::copyFromCanMsg(&rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_msg);
     }
