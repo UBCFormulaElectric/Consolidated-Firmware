@@ -258,7 +258,7 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
         /** Initializes the peripherals clock
          */
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_FDCAN;
-        PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_HSE;
+        PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_PLL1Q;
         if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
         {
             Error_Handler();
@@ -332,7 +332,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
         /** Initializes the peripherals clock
          */
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SPI1;
-        PeriphClkInitStruct.Spi1ClockSelection   = RCC_SPI1CLKSOURCE_PLL1Q;
+        PeriphClkInitStruct.Spi1ClockSelection   = RCC_SPI1CLKSOURCE_CLKP;
         if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
         {
             Error_Handler();
@@ -348,7 +348,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
         PA6     ------> SPI1_MISO
         PA7     ------> SPI1_MOSI
         */
-        GPIO_InitStruct.Pin       = IMU_CS_Pin | IMU_SPC_Pin | IMU_SDO_Pin | IMU_SDI_Pin;
+        GPIO_InitStruct.Pin       = IMU_CS_Pin | IMU_CSA5_Pin | IMU_SDI_Pin | IMU_SDO_Pin;
         GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
         GPIO_InitStruct.Pull      = GPIO_NOPULL;
         GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
@@ -383,7 +383,7 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
         PA6     ------> SPI1_MISO
         PA7     ------> SPI1_MOSI
         */
-        HAL_GPIO_DeInit(GPIOA, IMU_CS_Pin | IMU_SPC_Pin | IMU_SDO_Pin | IMU_SDI_Pin);
+        HAL_GPIO_DeInit(GPIOA, IMU_CS_Pin | IMU_CSA5_Pin | IMU_SDI_Pin | IMU_SDO_Pin);
 
         /* USER CODE BEGIN SPI1_MspDeInit 1 */
 

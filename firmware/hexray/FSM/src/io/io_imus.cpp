@@ -1,14 +1,7 @@
-#include "io_imu.h"
-
-#include "hw_i2cs.hpp"
+#include "io_imu.hpp"
+#include "hw_spis.hpp"
 
 namespace io::imus
 {
-const imuConfig imu_config = { .imu_i2c_handle = &imu_i2c, // TODO configure this
-                                .x_accel_offset = 0.0f,
-                                .y_accel_offset = 0.0f,
-                                .z_accel_offset = 0.0f,
-                               .roll_offset    = 0.0f,
-                               .pitch_offset   = 0.0f,
-                               .yaw_offset     = 0.0f };
+const io::imu::Imu imu_config(spi_device_master);
 }

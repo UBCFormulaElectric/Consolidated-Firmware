@@ -68,18 +68,3 @@ void tasks_init()
     osKernelStart();
     forever {}
 }
-<<<<<<< HEAD
-void tasks_runCanRx()
-{
-    forever {}
-}
-void tasks_runChimera()
-{
-    forever {}
-}
-void tasks_runCanRxCallback(const io::CanMsg *msg)
-{
-    // ??
-}
-=======
->>>>>>> master

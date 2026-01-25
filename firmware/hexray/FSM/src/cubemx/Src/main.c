@@ -58,6 +58,7 @@ PCD_HandleTypeDef hpcd_USB_DRD_FS;
 
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
+void        PeriphCommonClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_GPDMA1_Init(void);
 static void MX_ADC1_Init(void);
@@ -95,6 +96,9 @@ int main(void)
 
     /* Configure the system clock */
     SystemClock_Config();
+
+    /* Configure the peripherals common clocks */
+    PeriphCommonClock_Config();
 
     /* USER CODE BEGIN SysInit */
 
@@ -143,21 +147,17 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType =
-        RCC_OSCILLATORTYPE_HSI48 | RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_CSI;
-    RCC_OscInitStruct.HSEState            = RCC_HSE_ON;
-    RCC_OscInitStruct.HSIState            = RCC_HSI_ON;
-    RCC_OscInitStruct.HSIDiv              = RCC_HSI_DIV2;
-    RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI48 | RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_CSI;
+    RCC_OscInitStruct.LSIState            = RCC_LSI_ON;
     RCC_OscInitStruct.HSI48State          = RCC_HSI48_ON;
     RCC_OscInitStruct.CSIState            = RCC_CSI_ON;
     RCC_OscInitStruct.CSICalibrationValue = RCC_CSICALIBRATION_DEFAULT;
     RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource       = RCC_PLL1_SOURCE_CSI;
     RCC_OscInitStruct.PLL.PLLM            = 1;
-    RCC_OscInitStruct.PLL.PLLN            = 32;
+    RCC_OscInitStruct.PLL.PLLN            = 48;
     RCC_OscInitStruct.PLL.PLLP            = 2;
-    RCC_OscInitStruct.PLL.PLLQ            = 3;
+    RCC_OscInitStruct.PLL.PLLQ            = 2;
     RCC_OscInitStruct.PLL.PLLR            = 2;
     RCC_OscInitStruct.PLL.PLLRGE          = RCC_PLL1_VCIRANGE_2;
     RCC_OscInitStruct.PLL.PLLVCOSEL       = RCC_PLL1_VCORANGE_WIDE;
@@ -171,20 +171,38 @@ void SystemClock_Config(void)
      */
     RCC_ClkInitStruct.ClockType =
         RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2 | RCC_CLOCKTYPE_PCLK3;
-    RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_HSI;
+    RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
     RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
     RCC_ClkInitStruct.APB3CLKDivider = RCC_HCLK_DIV1;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
     {
         Error_Handler();
     }
 
     /** Configure the programming delay
      */
-    __HAL_FLASH_SET_PROGRAM_DELAY(FLASH_PROGRAMMING_DELAY_0);
+    __HAL_FLASH_SET_PROGRAM_DELAY(FLASH_PROGRAMMING_DELAY_2);
+}
+
+/**
+ * @brief Peripherals Common Clock Configuration
+ * @retval None
+ */
+void PeriphCommonClock_Config(void)
+{
+    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
+
+    /** Initializes the peripherals clock
+     */
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_CKPER;
+    PeriphClkInitStruct.CkperClockSelection  = RCC_CLKPSOURCE_HSI;
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+    {
+        Error_Handler();
+    }
 }
 
 /**
@@ -207,7 +225,7 @@ static void MX_ADC1_Init(void)
     /** Common config
      */
     hadc1.Instance                   = ADC1;
-    hadc1.Init.ClockPrescaler        = ADC_CLOCK_ASYNC_DIV1;
+    hadc1.Init.ClockPrescaler        = ADC_CLOCK_ASYNC_DIV2;
     hadc1.Init.Resolution            = ADC_RESOLUTION_12B;
     hadc1.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
     hadc1.Init.ScanConvMode          = ADC_SCAN_ENABLE;
@@ -310,16 +328,16 @@ static void MX_FDCAN1_Init(void)
     hfdcan1.Init.AutoRetransmission   = ENABLE;
     hfdcan1.Init.TransmitPause        = DISABLE;
     hfdcan1.Init.ProtocolException    = DISABLE;
-    hfdcan1.Init.NominalPrescaler     = 16;
-    hfdcan1.Init.NominalSyncJumpWidth = 1;
-    hfdcan1.Init.NominalTimeSeg1      = 1;
-    hfdcan1.Init.NominalTimeSeg2      = 1;
-    hfdcan1.Init.DataPrescaler        = 1;
-    hfdcan1.Init.DataSyncJumpWidth    = 1;
-    hfdcan1.Init.DataTimeSeg1         = 1;
-    hfdcan1.Init.DataTimeSeg2         = 1;
-    hfdcan1.Init.StdFiltersNbr        = 0;
-    hfdcan1.Init.ExtFiltersNbr        = 0;
+    hfdcan1.Init.NominalPrescaler     = 6;
+    hfdcan1.Init.NominalSyncJumpWidth = 2;
+    hfdcan1.Init.NominalTimeSeg1      = 13;
+    hfdcan1.Init.NominalTimeSeg2      = 2;
+    hfdcan1.Init.DataPrescaler        = 3;
+    hfdcan1.Init.DataSyncJumpWidth    = 2;
+    hfdcan1.Init.DataTimeSeg1         = 5;
+    hfdcan1.Init.DataTimeSeg2         = 2;
+    hfdcan1.Init.StdFiltersNbr        = 1;
+    hfdcan1.Init.ExtFiltersNbr        = 1;
     hfdcan1.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
     if (HAL_FDCAN_Init(&hfdcan1) != HAL_OK)
     {
@@ -377,7 +395,7 @@ static void MX_SPI1_Init(void)
     hspi1.Init.DataSize                = SPI_DATASIZE_4BIT;
     hspi1.Init.CLKPolarity             = SPI_POLARITY_LOW;
     hspi1.Init.CLKPhase                = SPI_PHASE_1EDGE;
-    hspi1.Init.NSS                     = SPI_NSS_HARD_OUTPUT;
+    hspi1.Init.NSS                     = SPI_NSS_HARD_INPUT;
     hspi1.Init.BaudRatePrescaler       = SPI_BAUDRATEPRESCALER_2;
     hspi1.Init.FirstBit                = SPI_FIRSTBIT_MSB;
     hspi1.Init.TIMode                  = SPI_TIMODE_DISABLE;
@@ -420,9 +438,9 @@ static void MX_TIM2_Init(void)
 
     /* USER CODE END TIM2_Init 1 */
     htim2.Instance               = TIM2;
-    htim2.Init.Prescaler         = 0;
+    htim2.Init.Prescaler         = 2480 - 1;
     htim2.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim2.Init.Period            = 4294967295;
+    htim2.Init.Period            = 999;
     htim2.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     if (HAL_TIM_Base_Init(&htim2) != HAL_OK)

@@ -75,7 +75,7 @@ template <size_t NUM_ADC_CHANNELS> class AdcChip
         for (uint16_t ch = 0; ch < NUM_ADC_CHANNELS; ch++)
             adc_voltages[ch] = rawAdcValueToVoltage(false, raw_adc_values[ch]);
     }
-    [[nodiscard]] const float             *getChannel(uint32_t channel) const { return &adc_voltages[channel]; }
+    [[nodiscard]] const float                 *getChannel(uint32_t channel) const { return &adc_voltages[channel]; }
     [[nodiscard]] constexpr ADC_HandleTypeDef *gethadc() const { return hadc; }
 };
 

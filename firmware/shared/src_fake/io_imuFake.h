@@ -4,14 +4,10 @@ namespace fakes::io::imu
 {
 void reset_init();
 bool get_init();
-void set_LinearAccelerationX(float x_acceleration);
-void set_LinearAccelerationY(float y_acceleration);
-void set_LinearAccelerationZ(float z_acceleration);
-void set_AngularVelocityRoll(float roll_velocity);
-void set_AngularVelocityPitch(float pitch_velocity);
-void set_AngularVelocityYaw(float yaw_velocity);
-<<<<<<< HEAD
+void set_AccelX(float x_acceleration);
+void set_AccelY(float y_acceleration);
+void set_AccelZ(float z_acceleration);
+void set_GyroRoll(float roll_velocity);
+void set_GyroPitch(float pitch_velocity);
+void set_GyroYaw(float yaw_velocity);
 } // namespace fakes::io::imu
-=======
-} // namespace fakes::io_imu
->>>>>>> master
