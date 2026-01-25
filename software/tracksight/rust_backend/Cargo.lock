@@ -208,6 +208,7 @@ dependencies = [
  "dotenv",
  "influxdb2",
  "jsoncan_rust",
+ "serde_json",
  "serialport",
  "socketioxide",
  "tokio",
