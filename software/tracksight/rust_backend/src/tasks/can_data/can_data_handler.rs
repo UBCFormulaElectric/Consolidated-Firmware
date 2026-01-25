@@ -1,15 +1,17 @@
+use std::sync::Arc;
 
-use tokio::{select};
+use tokio::{select, spawn};
 use tokio::sync::{RwLock, broadcast};
 
-use super::can_data::influx_handler::run_influx_handler;
-use super::can_data::live_data_handler::run_live_data_handler;
-use super::telem_message::CanPayload;
+use super::influx_handler::run_influx_handler;
+use super::live_data_handler::run_live_data_handler;
+use crate::tasks::telem_message::CanPayload;
 use crate::config::CONFIG;
-use crate::tasks::client_api::subscriptions::Subscriptions;
+use crate::tasks::client_api::clients::Clients;
 
 use jsoncan_rust::parsing::JsonCanParser;
 use jsoncan_rust::can_database::CanDatabase;
+use jsoncan_rust::can_database::DecodedSignal;
 
 /**
  * Consumes from serial handler
@@ -18,7 +20,7 @@ use jsoncan_rust::can_database::CanDatabase;
 pub async fn run_can_data_handler(
     mut shutdown_rx: broadcast::Receiver<()>, 
     mut can_queue_rx: broadcast::Receiver<CanPayload>,
-    subscriptions: RwLock<Subscriptions>
+    clients: Arc<RwLock<Clients>>
 ) {
     println!("CAN data handler task started.");
 
@@ -31,11 +33,11 @@ pub async fn run_can_data_handler(
         }
     };
 
-    // let (parsed_can_tx, _) = broadcast::channel::<can_database::CanMessage>(32);
+    let (decoded_signal_tx, _) = broadcast::channel::<DecodedSignal>(32);
 
     // parsed can signal consumers
-    // let influx_handler_task = spawn(run_influx_handler(shutdown_rx.resubscribe(), parsed_can_tx.subscribe()));
-    // let live_data_handler_task = spawn(run_live_data_handler(shutdown_rx.resubscribe(), parsed_can_tx.subscribe()));
+    let influx_handler_task = spawn(run_influx_handler(shutdown_rx.resubscribe(), decoded_signal_tx.subscribe()));
+    let live_data_handler_task = spawn(run_live_data_handler(shutdown_rx.resubscribe(), decoded_signal_tx.subscribe(), clients));
     
     loop {
         select! {
@@ -44,13 +46,6 @@ pub async fn run_can_data_handler(
                 break;
             }
             Ok(can_payload) = can_queue_rx.recv() => {
-                // let can_message = match can_db.get_message_by_id(can_payload.can_id) {
-                //     Ok(c) => c,
-                //     Err(_) => {
-                //         eprintln!("Unknown CAN ID: {:X}", can_payload.can_id);
-                //         continue;
-                //     },
-                // };
 
                 let decoded_signals = can_db.unpack(
                     can_payload.can_id, 
@@ -59,16 +54,17 @@ pub async fn run_can_data_handler(
                 );
 
                 for signal in decoded_signals {
-                    for client_id in subscriptions.read().await.get_clients_of_signal(signal.name) {
-                        // todo emit to client
+                    if !decoded_signal_tx.send(signal).is_ok() {
+                        eprintln!("Parsed can data signal consumers are all closed");
+                        break;
                     }
                 }
             }
         }
     }
+    
+    let _ = influx_handler_task.await;
+    let _ = live_data_handler_task.await;
     println!("CAN data handler task ended.");
-
-    // influx_handler_task.await;
-    // live_data_handler_task.await;
 }
 

@@ -36,7 +36,7 @@ pub async fn run_serial_task(mut shutdown_rx: broadcast::Receiver<()>, can_queue
             Some(packet) = packet_rx.recv() => {
                 // todo should also probably check for closed channels and close thread
                 // TODO better handling error
-                println!("Received packet: {:x?}", &packet);
+                // println!("Received packet: {:x?}", &packet);
                 let telem_message = match parse_telem_message(packet) {
                     Ok(m)   => m,
                     Err(_)  => {
@@ -87,7 +87,7 @@ fn packet_reader_handler(shutdown_flag: Arc<AtomicBool>, packet_tx: mpsc::Sender
         &CONFIG.serial_port,
         CONFIG.serial_baud_rate
     )
-    .timeout(Duration::from_millis(100)) // i love magic numbers
+    .timeout(Duration::from_millis(1000)) // i love magic numbers
     .open()
     .expect("Failed to open serial port");
 

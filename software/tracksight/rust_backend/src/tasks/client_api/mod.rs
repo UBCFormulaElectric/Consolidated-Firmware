@@ -1,1 +1,1 @@
-pub mod subscriptions;
+pub mod clients;
