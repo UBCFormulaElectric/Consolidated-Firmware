@@ -62,7 +62,7 @@ class CRITChimeraConfig : public chimera_v2::config
             case crit_SpiNetName_SEVEN_SEG:
                 return std::cref(seven_seg_device);
             case crit_SpiNetName_PWR_CHG:
-                 return std::cref(pwr_chg_device);
+                return std::cref(pwr_chg_device);
             default:
             case crit_SpiNetName_SPI_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified SPI net name");
@@ -79,7 +79,7 @@ class CRITChimeraConfig : public chimera_v2::config
     }
 } crit_config;
 
-void tasks_preInit() {}
+void              tasks_preInit() {}
 [[noreturn]] void tasks_run100Hz()
 {
     chimera_v2::task(crit_config);
