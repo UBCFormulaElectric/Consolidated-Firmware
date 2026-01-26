@@ -32,6 +32,9 @@ set(IO_INCLUDE_DIRS
 file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c")
 list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_gpio.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_spi.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmInput.cpp"
 )
 set(HW_INCLUDE_DIRS
         #        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -65,6 +68,13 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h5xx_hal_exti.c"
             "stm32h5xx_hal_tim.c"
             "stm32h5xx_hal_tim_ex.c"
+            "stm32h5xx_hal_gpio.c"
+            "stm32h5xx_hal_spi.c"
+            "stm32h5xx_ll_usb.c"
+            "stm32h5xx_hal_iwdg.c"
+            "stm32h5xx_hal_pcd.c"
+            "stm32h5xx_hal_pcd_ex.c"
+            "stm32h5xx_hal_fdcan.c"
     )
     stm32h562xx_cube_library(
             "hexray_CRIT_stm32"
