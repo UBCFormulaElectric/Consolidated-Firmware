@@ -18,10 +18,10 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "cmsis_os.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "cmsis_os2.h"
 
 /* USER CODE END Includes */
 
@@ -58,12 +58,6 @@ UART_HandleTypeDef huart8;
 PCD_HandleTypeDef hpcd_USB_OTG_HS;
 
 /* Definitions for defaultTask */
-osThreadId_t         defaultTaskHandle;
-const osThreadAttr_t defaultTask_attributes = {
-    .name       = "defaultTask",
-    .stack_size = 128 * 4,
-    .priority   = (osPriority_t)osPriorityNormal,
-};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -83,6 +77,7 @@ static void MX_SPI2_Init(void);
 static void MX_I2C5_Init(void);
 static void MX_UART8_Init(void);
 void        StartDefaultTask(void *argument);
+void        SystemClock_Config(void);
 
 /* USER CODE BEGIN PFP */
 
@@ -139,7 +134,6 @@ int main(void)
     /* USER CODE END 2 */
 
     /* Init scheduler */
-    osKernelInitialize();
 
     /* USER CODE BEGIN RTOS_MUTEX */
     /* add mutexes, ... */
@@ -151,6 +145,7 @@ int main(void)
 
     /* USER CODE BEGIN RTOS_TIMERS */
     /* start timers, add new ones, ... */
+    tasks_init();
     /* USER CODE END RTOS_TIMERS */
 
     /* USER CODE BEGIN RTOS_QUEUES */
@@ -159,8 +154,6 @@ int main(void)
 
     /* Create the thread(s) */
     /* creation of defaultTask */
-    defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
-
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
     /* USER CODE END RTOS_THREADS */
@@ -170,7 +163,6 @@ int main(void)
     /* USER CODE END RTOS_EVENTS */
 
     /* Start scheduler */
-    osKernelStart();
 
     /* We should never get here as control is now taken by the scheduler */
 
@@ -901,16 +893,6 @@ static void MX_GPIO_Init(void)
  * @retval None
  */
 /* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void *argument)
-{
-    /* USER CODE BEGIN 5 */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
-    /* USER CODE END 5 */
-}
 
 /**
  * @brief  This function is executed in case of error occurrence.

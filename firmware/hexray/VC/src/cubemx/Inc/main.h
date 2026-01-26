@@ -52,8 +52,8 @@ extern "C"
 
     /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler(void);
-
-/* USER CODE BEGIN EFP */
+    void tasks_init(void);
+    /* USER CODE BEGIN EFP */
 
 /* USER CODE END EFP */
 
