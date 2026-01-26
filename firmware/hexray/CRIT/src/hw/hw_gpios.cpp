@@ -11,5 +11,5 @@ hw::Gpio launch_control_sig(LAUNCH_CONTROL_SIG_GPIO_Port, LAUNCH_CONTROL_SIG_Pin
 hw::Gpio rot_s(ROT_S_GPIO_Port, ROT_S_Pin);
 hw::Gpio rot_b(ROT_B_GPIO_Port, ROT_B_Pin);
 hw::Gpio rot_a(ROT_A_GPIO_Port, ROT_A_Pin);
-
-hw::spi::SpiDevice pwr_chg_device
+hw::Gpio led_rck(LED_RCK_GPIO_Port, LED_RCK_Pin);
+hw::Gpio seven_seg_rck(_7SEG_RCK_GPIO_Port, _7SEG_RCK_Pin);
