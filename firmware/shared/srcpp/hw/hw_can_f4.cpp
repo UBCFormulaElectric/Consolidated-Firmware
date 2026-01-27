@@ -63,7 +63,7 @@ ExitCode can::tx(CAN_TxHeaderTypeDef &tx_header, io::CanMsg *msg)
 
     // Indicates the mailbox used for transmission, not currently used.
     uint32_t mailbox = 0;
-    return hw_utils_convertHalStatus(HAL_CAN_AddTxMessage(hcan, &tx_header, msg.data.data8, &mailbox));
+    return hw_utils_convertHalStatus(HAL_CAN_AddTxMessage(hcan, &tx_header, msg->data.data8, &mailbox));
 }
 
 void can::init() const
@@ -125,6 +125,8 @@ ExitCode can::can_transmit(const io::CanMsg &msg)
     // Enabling this gives us a tick-based timestamp which we do not need. Plus,
     // it would take up 2 bytes of the CAN payload. So we disable the timestamp.
     tx_header.TransmitGlobalTime = DISABLE;
+
+    return tx(tx_header, const_cast<io::CanMsg *>(&msg));
 }
 
 ExitCode can::receive(const uint32_t rx_fifo, io::CanMsg &msg) const

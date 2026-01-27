@@ -87,8 +87,6 @@ IF ("${TARGET}" STREQUAL "binary")
             "${ARM_CORE}"
     )
 
-    target_compile_definitions("h5dev_stm32" PRIVATE WATCHDOG_DISABLED)
-
     # JSONCAN
     jsoncan_embedded_library(H5 dev "${CMAKE_CURRENT_BINARY_DIR}")
 
