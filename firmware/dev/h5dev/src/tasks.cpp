@@ -62,7 +62,7 @@ extern "C"
     forever
     {
         io::CanMsg msg = can_tx_queue.popMsgFromQueue();
-        LOG_IF_ERR(fdcan1.can_transmit(msg));
+        LOG_IF_ERR(fdcan1.fdcan_transmit(msg));
     }
 }
 [[noreturn]] static void tasks_runCanRx(void *arg)
