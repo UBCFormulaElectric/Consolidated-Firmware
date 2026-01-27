@@ -184,12 +184,6 @@ static ExitCode handleCallback(FDCAN_HandleTypeDef *hfdcan, uint8_t fifo)
 
     RETURN_IF_ERR_SILENT(handle.receive(fifo, rx_msg));
 
-    if (handle.receive_callback == nullptr)
-    {
-        LOG_ERROR("CAN has no callback configured!");
-        return ExitCode::EXIT_CODE_ERROR;
-    }
-
     handle.receive_callback(&rx_msg);
     return ExitCode::EXIT_CODE_OK;
 }

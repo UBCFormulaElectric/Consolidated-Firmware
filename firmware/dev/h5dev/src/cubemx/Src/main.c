@@ -99,7 +99,7 @@ int main(void)
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
     MX_FDCAN1_Init();
-    //MX_IWDG_Init();
+    // MX_IWDG_Init();
     MX_RTC_Init();
     MX_SPI1_Init();
     /* USER CODE BEGIN 2 */

@@ -25,7 +25,10 @@ class BaseCan
     TaskHandle_t transmit_task = nullptr;
 
     constexpr explicit BaseCan(const uint8_t bus_num_in, void (*const receive_callback_in)(const io::CanMsg *rx_msg))
-      : bus_num(bus_num_in), receive_callback(receive_callback_in){};
+      : bus_num(bus_num_in), receive_callback(receive_callback_in)
+    {
+        assert(receive_callback != nullptr);
+    };
 
     /**
      * Initialize CAN driver.
