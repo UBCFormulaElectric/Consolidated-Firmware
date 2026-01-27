@@ -1,0 +1,104 @@
+/**
+ * @note This file is auto-generated. Do not modify!
+ */
+// clang-format off
+
+#pragma once
+
+/* ------------------------------- Includes ------------------------------- */
+
+#include <stdbool.h>
+#include <stdint.h>
+#include "app_canUtils.hpp"
+
+namespace app::can_alerts {
+/* -------------------------------- Enums --------------------------------- */
+
+struct Alert_Info
+{
+    char* description;
+    char* name;
+    uint16_t id;
+};
+
+/* ------------------------- Function Prototypes -------------------------- */
+
+/* ----------- Infos -----------*/
+{%- for info in node_tx_alerts.info %}
+/**
+ * Set or clear {{info.name}} for {{node_name}}.
+ */
+void set_{{info.name}}(bool set_alert);
+
+/**
+ * Return whether {{info.name}} transmitted by {{node_name}} is set.
+ */
+bool get_{{info.name}}(void);
+{%- endfor %}
+
+/* ----------- Warnings -----------*/
+{%- for warning in node_tx_alerts.warnings %}
+/**
+ * Set or clear {{warning.name}} for {{node_name}}.
+ */
+void set_{{warning.name}}(bool set_alert);
+/**
+ * Return whether {{warning.name}} transmitted by {{node_name}} is set.
+ */
+bool get_{{warning.name}}(void);
+{%- endfor %}
+
+/* ----------- Faults -----------*/
+{%- for fault in node_tx_alerts.faults %}
+/**
+ * Set or clear {{fault.name}} for {{node_name}}.
+ */
+void set_{{fault.name}}(bool set_alert);
+/**
+ * Return whether {{fault.name}} transmitted by {{node_name}} is set.
+ */
+bool get_{{fault.name}}(void);
+{%- endfor %}
+
+
+/**
+ * Return whether or not a board has set a info.
+ */
+bool BoardHasInfo(CanNode board);
+/**
+ * Return whether or not a board has set a warning.
+ */
+bool BoardHasWarning(CanNode board);
+/**
+ * Return whether or not a board has set a fault.
+ */
+bool BoardHasFault(CanNode board);
+
+
+/**
+ * Return whether or not any board has set a info.
+ */
+bool AnyBoardHasInfo(void);
+/**
+ * Return whether or not any board has set a warning.
+ */
+bool AnyBoardHasWarning(void);
+/**
+ * Return whether or not any board has set a fault.
+ */
+bool AnyBoardHasFault(void);
+
+
+/**
+ * Fetches the info info into alert_array, returns amount of elements in alert_array.
+ */
+uint8_t InfoInfo(Alert_Info *alert_array);
+/**
+ * Fetches the warning info into alert_array, returns amount of elements in alert_array.
+ */
+uint8_t WarningInfo(Alert_Info *alert_array);
+/**
+ * Fetches the fault info into alert_array, returns amount of elements in alert_array.
+ */
+uint8_t FaultInfo(Alert_Info *alert_array);
+}

@@ -7,14 +7,14 @@ pub mod io_canreroute;
 pub mod io_canrx;
 pub mod io_cantx;
 
-pub use app_canalerts::AppCanAlertsModule;
-pub use app_candatacapture::AppCanDataCaptureModule;
-pub use app_canrx::AppCanRxModule;
-pub use app_cantx::AppCanTxModule;
-pub use app_canutil::AppCanUtilsModule;
-pub use io_canreroute::IoCanRerouteModule;
-pub use io_canrx::IoCanRxModule;
-pub use io_cantx::IoCanTxModule;
+pub use app_canalerts::{AppCanAlertsModule, AppCanAlertsModuleCpp};
+pub use app_candatacapture::{AppCanDataCaptureModule, AppCanDataCaptureModuleCpp};
+pub use app_canrx::{AppCanRxModule, AppCanRxModuleCpp};
+pub use app_cantx::{AppCanTxModule, AppCanTxModuleCpp};
+pub use app_canutil::{AppCanUtilsModule, AppCanUtilsModuleCpp};
+pub use io_canreroute::{IoCanRerouteModule, IoCanRerouteModuleCpp};
+pub use io_canrx::{IoCanRxModule, IoCanRxModuleCpp};
+pub use io_cantx::{IoCanTxModule, IoCanTxModuleCpp};
 
 use crate::can_database::{CanMessage, CanSignal};
 
@@ -23,6 +23,7 @@ use convert_case::{Case, Casing};
 pub trait CPPGenerator {
     fn header_template(&self) -> Result<String, askama::Error>;
     fn source_template(&self) -> Result<String, askama::Error>;
+    fn file_stem(&self) -> String;
 }
 
 pub enum CPPModule<'a> {
@@ -37,6 +38,18 @@ pub enum CPPModule<'a> {
 }
 
 impl CPPGenerator for CPPModule<'_> {
+    fn file_stem(&self) -> String {
+        match self {
+            CPPModule::AppCanUtilsModule(module) => module.file_stem(),
+            CPPModule::AppCanTxModule(module) => module.file_stem(),
+            CPPModule::AppCanAlertsModule(module) => module.file_stem(),
+            CPPModule::AppCanDataCaptureModule(module) => module.file_stem(),
+            CPPModule::AppCanRxModule(module) => module.file_stem(),
+            CPPModule::IoCanTxModule(module) => module.file_stem(),
+            CPPModule::IoCanRxModule(module) => module.file_stem(),
+            CPPModule::IoCanRerouteModule(module) => module.file_stem(),
+        }
+    }
     fn header_template(&self) -> Result<String, askama::Error> {
         match self {
             CPPModule::AppCanUtilsModule(module) => module.header_template(),
@@ -59,6 +72,56 @@ impl CPPGenerator for CPPModule<'_> {
             CPPModule::IoCanTxModule(module) => module.source_template(),
             CPPModule::IoCanRxModule(module) => module.source_template(),
             CPPModule::IoCanRerouteModule(module) => module.source_template(),
+        }
+    }
+}
+
+pub enum CPPModuleCpp<'a> {
+    AppCanUtilsModule(AppCanUtilsModuleCpp),
+    AppCanTxModule(AppCanTxModuleCpp),
+    AppCanAlertsModule(AppCanAlertsModuleCpp<'a>),
+    AppCanDataCaptureModule(AppCanDataCaptureModuleCpp),
+    AppCanRxModule(AppCanRxModuleCpp<'a>),
+    IoCanTxModule(IoCanTxModuleCpp<'a>),
+    IoCanRxModule(IoCanRxModuleCpp<'a>),
+    IoCanRerouteModule(IoCanRerouteModuleCpp<'a>),
+}
+
+impl CPPGenerator for CPPModuleCpp<'_> {
+    fn file_stem(&self) -> String {
+        match self {
+            CPPModuleCpp::AppCanUtilsModule(module) => module.file_stem(),
+            CPPModuleCpp::AppCanTxModule(module) => module.file_stem(),
+            CPPModuleCpp::AppCanAlertsModule(module) => module.file_stem(),
+            CPPModuleCpp::AppCanDataCaptureModule(module) => module.file_stem(),
+            CPPModuleCpp::AppCanRxModule(module) => module.file_stem(),
+            CPPModuleCpp::IoCanTxModule(module) => module.file_stem(),
+            CPPModuleCpp::IoCanRxModule(module) => module.file_stem(),
+            CPPModuleCpp::IoCanRerouteModule(module) => module.file_stem(),
+        }
+    }
+    fn header_template(&self) -> Result<String, askama::Error> {
+        match self {
+            CPPModuleCpp::AppCanUtilsModule(module) => module.header_template(),
+            CPPModuleCpp::AppCanTxModule(module) => module.header_template(),
+            CPPModuleCpp::AppCanAlertsModule(module) => module.header_template(),
+            CPPModuleCpp::AppCanDataCaptureModule(module) => module.header_template(),
+            CPPModuleCpp::AppCanRxModule(module) => module.header_template(),
+            CPPModuleCpp::IoCanTxModule(module) => module.header_template(),
+            CPPModuleCpp::IoCanRxModule(module) => module.header_template(),
+            CPPModuleCpp::IoCanRerouteModule(module) => module.header_template(),
+        }
+    }
+    fn source_template(&self) -> Result<String, askama::Error> {
+        match self {
+            CPPModuleCpp::AppCanUtilsModule(module) => module.source_template(),
+            CPPModuleCpp::AppCanTxModule(module) => module.source_template(),
+            CPPModuleCpp::AppCanAlertsModule(module) => module.source_template(),
+            CPPModuleCpp::AppCanDataCaptureModule(module) => module.source_template(),
+            CPPModuleCpp::AppCanRxModule(module) => module.source_template(),
+            CPPModuleCpp::IoCanTxModule(module) => module.source_template(),
+            CPPModuleCpp::IoCanRxModule(module) => module.source_template(),
+            CPPModuleCpp::IoCanRerouteModule(module) => module.source_template(),
         }
     }
 }
@@ -93,11 +156,36 @@ impl CanSignal {
     }
 
     pub fn datatype(self: &Self) -> String {
-        todo!()
+        if self.is_float {
+            return "float".to_string();
+        }
+        if self.signed {
+            match self.bits {
+                8 => "int8_t".to_string(),
+                16 => "int16_t".to_string(),
+                32 => "int32_t".to_string(),
+                64 => "int64_t".to_string(),
+                _ => "int".to_string(), // Fallback for unusual bit lengths
+            }
+        } else {
+            match self.bits {
+                8 => "uint8_t".to_string(),
+                16 => "uint16_t".to_string(),
+                32 => "uint32_t".to_string(),
+                64 => "uint64_t".to_string(),
+                _ => "unsigned int".to_string(), // Fallback for unusual bit lengths
+            }
+        }
     }
 
     pub fn representation(self: &Self) -> String {
-        todo!()
+        if self.is_float {
+            return "float".to_string();
+        }
+        if self.signed {
+            return "int".to_string();
+        }
+        "uint".to_string()
     }
 }
 

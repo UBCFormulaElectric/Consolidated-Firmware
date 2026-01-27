@@ -1,0 +1,93 @@
+/**
+ * @note This file is auto-generated. Do not modify!
+ */
+// clang-format off
+
+#pragma once
+
+/* ------------------------------- Includes ------------------------------- */
+
+#include <stdint.h>
+#include <stdbool.h>
+#ifdef THREAD_SAFE_CAN_PACKING
+void io_canTx_set_lockfunction(
+    void (*lock)(void),
+    void (*unlock)(void)
+);
+#endif
+
+namespace io::can_tx {
+/* ------------------------------- Structs -------------------------------- */
+
+/**
+ * Standard CAN message type.
+ */
+struct JsonCanMsg
+{
+    uint32_t std_id;
+    uint32_t dlc;
+    uint8_t data[
+        {%- if fd -%}64
+        {%- else %}8{%- endif -%}
+    ];
+};
+
+/* -------------------------------- Enums --------------------------------- */
+// BUS ENUMS
+enum class BusEnum
+{
+    {%- for bus in node_buses %}
+    Bus_{{bus.name}} = {{loop.index0}},
+    {%- endfor %}
+};
+
+// MODE ENUMS
+{%- for bus in node_buses %}
+enum class {{bus.name}}Mode
+{
+    {%- for mode in bus.modes %}
+    {{bus.name.to_uppercase()}}_MODE_{{mode}} = 1 << {{loop.index0}},
+    {%- endfor %}
+};
+{% endfor %}
+
+
+
+/* ------------------------- Function Prototypes -------------------------- */
+
+/**
+ * Initialize the IO CAN TX module.
+ */
+void init(
+    {%- for bus in node_buses %}
+    void (*transmit_{{bus.name}}_msg_func)(const JsonCanMsg*) {%- if !loop.last -%}, {%- endif %}
+    {%- endfor %}
+);
+
+/**
+ * Enable or disable a mode (only messages allowed for the enabled modes transmitted on the bus).
+ */
+{%- for bus in node_buses %}
+void enableMode_{{bus.name}}({{bus.name}}Mode mode, bool enable);
+{%- endfor %}
+
+/**
+ * Enqueue periodic CAN msgs of period 1000ms.
+ */
+void enqueue1HzMsgs(void);
+
+/**
+ * Enqueue periodic CAN msgs of period 10ms.
+ */
+void enqueue100HzMsgs(void);
+
+/**
+ * Enqueue periodic CAN messages whose cycle time does is not suitable for other periodic sending functions.
+ */
+void enqueueOtherPeriodicMsgs(uint32_t time_ms);
+
+// send aperiodic messages
+{%- for (msg, _) in messages if msg.cycle_time == None %}
+void sendAperiodic_{{msg.name}}();
+{%- endfor %}
+}
