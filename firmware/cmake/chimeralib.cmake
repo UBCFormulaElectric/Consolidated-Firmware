@@ -33,7 +33,7 @@ function(add_chimera_stm32h5 NAME SRCS)
             "${SRCS}"
             "${INCLUDE_DIRS}"
             "${LINKER_DIR}/stm32h562ritx/stm32h562ritx_boot.ld"
-            "cm7"
+            "cm33"
     )
     target_link_libraries("${NAME}.elf" PRIVATE "chimera_v2_proto_cm7")
     target_compile_definitions("${NAME}.elf" PRIVATE "USE_CHIMERA")
@@ -51,7 +51,7 @@ function(add_chimera_stm32h7 NAME SRCS)
             "${SRCS}"
             "${INCLUDE_DIRS}"
             "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_boot.ld"
-            "cm33"
+            "cm7"
     )
     target_link_libraries("${NAME}.elf" PRIVATE "chimera_v2_proto_cm33")
     target_compile_definitions("${NAME}.elf" PRIVATE USE_CHIMERA)
