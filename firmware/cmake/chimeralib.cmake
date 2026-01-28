@@ -1,10 +1,11 @@
 message("")
 message("⚙️ [chimeralib.cmake] Configuring Chimera Executable functions")
 
-add_subdirectory(chimera_v2/proto)
+add_subdirectory(chimera_v2/proto/quintuna_proto)
+add_subdirectory(chimera_v2/proto/hexray_proto)
 
 message(" 🔃 Registered add_chimera_stm32f4() function")
-function(add_chimera_stm32f4 NAME SRCS INCLUDE_DIRS)
+function(add_chimera_stm32f4 NAME SRCS INCLUDE_DIRS CHIMERA_NAME)
     list(APPEND SRCS
             "${SHARED_CHIMERA_DIR}/chimera_v2.cpp"
             #            "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
@@ -17,12 +18,12 @@ function(add_chimera_stm32f4 NAME SRCS INCLUDE_DIRS)
             "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_boot.ld"
             "cm4"
     )
-    target_link_libraries("${NAME}.elf" PRIVATE "chimera_v2_proto_cm4")
+    target_link_libraries("${NAME}.elf" PRIVATE "${CHIMERA_NAME}")
     target_compile_definitions("${NAME}.elf" PRIVATE "USE_CHIMERA")
 endfunction()
 
 message(" 🔃 Registered add_chimera_stm32h5() function")
-function(add_chimera_stm32h5 NAME SRCS)
+function(add_chimera_stm32h5 NAME SRCS INCLUDE_DIRS CHIMERA_NAME)
     list(APPEND SRCS
             "${SHARED_CHIMERA_DIR}/chimera_v2.cpp"
             #            "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
@@ -33,14 +34,14 @@ function(add_chimera_stm32h5 NAME SRCS)
             "${SRCS}"
             "${INCLUDE_DIRS}"
             "${LINKER_DIR}/stm32h562ritx/stm32h562ritx_boot.ld"
-            "cm7"
+            "cm33"
     )
-    target_link_libraries("${NAME}.elf" PRIVATE "chimera_v2_proto_cm7")
+    target_link_libraries("${NAME}.elf" PRIVATE "${CHIMERA_NAME}")
     target_compile_definitions("${NAME}.elf" PRIVATE "USE_CHIMERA")
 endfunction()
 
 message(" 🔃 Registered add_chimera_stm32h7() function")
-function(add_chimera_stm32h7 NAME SRCS)
+function(add_chimera_stm32h7 NAME SRCS INCLUDE_DIRS CHIMERA_NAME)
     list(APPEND SRCS
             "${SHARED_CHIMERA_DIR}/chimera_v2.cpp"
             #            "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
@@ -51,8 +52,8 @@ function(add_chimera_stm32h7 NAME SRCS)
             "${SRCS}"
             "${INCLUDE_DIRS}"
             "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_boot.ld"
-            "cm33"
+            "cm7"
     )
-    target_link_libraries("${NAME}.elf" PRIVATE "chimera_v2_proto_cm33")
+    target_link_libraries("${NAME}.elf" PRIVATE "${CHIMERA_NAME}")
     target_compile_definitions("${NAME}.elf" PRIVATE USE_CHIMERA)
 endfunction()

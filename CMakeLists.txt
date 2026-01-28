@@ -82,6 +82,7 @@ IF ("${PLATFORM}" STREQUAL "firmware")
             file(GLOB HOMEBREW_GCC_CANDIDATES
                     "/opt/homebrew/bin/gcc-[0-9]*"
                     "/usr/local/bin/gcc-[0-9]*"
+                    "/usr/bin/gcc"
             )
 
             IF (HOMEBREW_GCC_CANDIDATES)
@@ -107,7 +108,7 @@ IF ("${PLATFORM}" STREQUAL "firmware")
     ENDIF ()
 ELSEIF ("${PLATFORM}" STREQUAL "dimos")
     project("UBC Formula Electric Software" VERSION 0.1 LANGUAGES C CXX)
-    add_subdirectory(software/dimos)
+    add_subdirectory(software/dimos_qt)
 ELSE ()
     message(FATAL_ERROR "❌ Please set the PLATFORM variable to 'firmware' or 'dimos'. To do this, set the -DPLATFORM=<platform>")
 ENDIF ()
