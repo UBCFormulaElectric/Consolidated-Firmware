@@ -12,8 +12,7 @@
 
 // Select between FS or HS methods.
 // F4s (CM4s) only support FS (Full Speed), while H7s (CM7s) support HS (High Speed).
-// This macro exposes the USB_DEVICE_HANDLER macro (hUsbDeviceFS or hUsbDeviceHS),
-// and the TRANSMIT macro (CDC_Transmit_FS or CDC_Transmit_HS).
+// This macro exposes the USB_DEVICE_HANDLER macro (hUsbDeviceFS or hUsbDeviceHS)
 // Everything is derived from usbd_cdc_if.h.
 #if defined(STM32H562xx)
 #define FS
@@ -25,15 +24,13 @@
 #endif
 
 #ifdef FS
-#define TRANSMIT(buf, len) (CDC_Transmit_FS(buf, static_cast<uint16_t>(len)))
 extern USBD_HandleTypeDef hUsbDeviceFS;
 #define USB_DEVICE_HANDLER (hUsbDeviceFS)
-#define DEVICE_FS 0
+#define DEVICE_ID 0 // DEVICE_FS
 #elif HS
-#define TRANSMIT(buf, len) (CDC_Transmit_HS(buf, len))
 extern USBD_HandleTypeDef hUsbDeviceHS;
 #define USB_DEVICE_HANDLER (hUsbDeviceHS)
-#define DEVICE_HS 1
+#define DEVICE_ID 1 // DEVICE_HS
 #endif
 
 static constexpr size_t                      APP_RX_DATA_SIZE = 2048;
@@ -44,7 +41,7 @@ static std::array<uint8_t, APP_TX_DATA_SIZE> UserTxBufferFS;
  * @brief  Initializes the CDC media low layer over the USB FS IP
  * @retval USBD_OK if all operations are OK else USBD_FAIL
  */
-static int8_t CDC_Init_FS()
+static int8_t CDC_Init()
 {
     USBD_CDC_SetTxBuffer(&USB_DEVICE_HANDLER, UserTxBufferFS.data(), 0);
     USBD_CDC_SetRxBuffer(&USB_DEVICE_HANDLER, UserRxBufferFS.data());
@@ -59,7 +56,7 @@ static int8_t CDC_Init_FS()
  */
 // ReSharper disable once CppParameterMayBeConstPtrOrRef
 static int8_t
-    CDC_Control_FS(const uint8_t cmd, uint8_t *const pbuf, const uint16_t length) // NOLINT(*-non-const-parameter)
+    CDC_Control(const uint8_t cmd, uint8_t *const pbuf, const uint16_t length) // NOLINT(*-non-const-parameter)
 {
     UNUSED(pbuf);
     UNUSED(length);
@@ -111,26 +108,12 @@ static int8_t
  * @param  Len: Number of data received (in bytes)
  * @retval Result of the operation: USBD_OK if all operations are OK else USBD_FAILL
  */
-static int8_t CDC_Receive_FS(uint8_t *Buf, uint32_t *Len) // NOLINT(*-non-const-parameter)
+static int8_t CDC_Receive(uint8_t *Buf, uint32_t *Len) // NOLINT(*-non-const-parameter)
 {
     hw::usb::receive({ Buf, *Len });
     USBD_CDC_SetRxBuffer(&USB_DEVICE_HANDLER, &Buf[0]);
     USBD_CDC_ReceivePacket(&USB_DEVICE_HANDLER);
     return USBD_OK;
-}
-/**
- * @brief  Data to send over USB IN endpoint are sent over CDC interface
- *         through this function.
- * @param  Buf: Buffer of data to be sent
- * @param  len: Number of data to be sent (in bytes)
- * @retval Result of the operation: USBD_OK if all operations are OK else USBD_FAIL or USBD_BUSY
- */
-static uint8_t CDC_Transmit_FS(uint8_t *Buf, const uint16_t len)
-{
-    if (static_cast<const USBD_CDC_HandleTypeDef *>(USB_DEVICE_HANDLER.pClassData)->TxState != 0)
-        return USBD_BUSY;
-    USBD_CDC_SetTxBuffer(&USB_DEVICE_HANDLER, Buf, len);
-    return USBD_CDC_TransmitPacket(&USB_DEVICE_HANDLER);
 }
 /**
  * @brief  CDC_TransmitCplt_FS, Data transmitted callback
@@ -144,7 +127,7 @@ static uint8_t CDC_Transmit_FS(uint8_t *Buf, const uint16_t len)
  */
 // ReSharper disable once CppParameterMayBeConstPtrOrRef
 static int8_t
-    CDC_TransmitCplt_FS(uint8_t *const Buf, uint32_t *const Len, const uint8_t epnum) // NOLINT(*-non-const-parameter)
+    CDC_TransmitCplt(uint8_t *const Buf, uint32_t *const Len, const uint8_t epnum) // NOLINT(*-non-const-parameter)
 {
     constexpr int8_t result = USBD_OK;
     const std::span  buffer(Buf, *Len);
@@ -152,8 +135,8 @@ static int8_t
     UNUSED(epnum);
     return result;
 }
-static USBD_CDC_ItfTypeDef USBD_Interface_fops_FS = {
-    CDC_Init_FS, [] {return static_cast<int8_t>(USBD_OK); }, CDC_Control_FS, CDC_Receive_FS, CDC_TransmitCplt_FS,
+static USBD_CDC_ItfTypeDef USBD_Interface_fops = {
+    CDC_Init, [] {return static_cast<int8_t>(USBD_OK); }, CDC_Control, CDC_Receive, CDC_TransmitCplt,
 };
 
 extern char *USBD_PRODUCT_STRING_FS; // TODO make clear this must be configured per board
@@ -292,16 +275,16 @@ static uint8_t *USBD_InterfaceStrDescriptor(const USBD_SpeedTypeDef speed, uint1
     return USBD_StrDesc;
 }
 
-static USBD_DescriptorsTypeDef desc = { USBD_DeviceDescriptor,
-                                        USBD_LangIDStrDescriptor,
-                                        USBD_ManufacturerStrDescriptor,
-                                        USBD_ProductStrDescriptor,
-                                        USBD_SerialStrDescriptor,
-                                        USBD_GetConfigurationStrDescriptor,
-                                        USBD_InterfaceStrDescriptor
+static USBD_DescriptorsTypeDef pdesc = { USBD_DeviceDescriptor,
+                                         USBD_LangIDStrDescriptor,
+                                         USBD_ManufacturerStrDescriptor,
+                                         USBD_ProductStrDescriptor,
+                                         USBD_SerialStrDescriptor,
+                                         USBD_GetConfigurationStrDescriptor,
+                                         USBD_InterfaceStrDescriptor
 #if (USBD_LPM_ENABLED == 1)
-                                        ,
-                                        USBD_FS_USR_BOSDescriptor
+                                         ,
+                                         USBD_FS_USR_BOSDescriptor
 #endif
 };
 
@@ -489,11 +472,11 @@ namespace hw::usb
 {
 ExitCode init()
 {
-    if (USBD_Init(&USB_DEVICE_HANDLER, &desc, DEVICE_FS) != USBD_OK)
+    if (USBD_Init(&USB_DEVICE_HANDLER, &pdesc, DEVICE_ID) != USBD_OK)
         return ExitCode::EXIT_CODE_ERROR;
     if (USBD_RegisterClass(&USB_DEVICE_HANDLER, &USBD_CDC) != USBD_OK)
         return ExitCode::EXIT_CODE_ERROR;
-    if (USBD_CDC_RegisterInterface(&USB_DEVICE_HANDLER, &USBD_Interface_fops_FS) != USBD_OK)
+    if (USBD_CDC_RegisterInterface(&USB_DEVICE_HANDLER, &USBD_Interface_fops) != USBD_OK)
         return ExitCode::EXIT_CODE_ERROR;
     if (USBD_Start(&USB_DEVICE_HANDLER) != USBD_OK)
         return ExitCode::EXIT_CODE_ERROR;
@@ -508,7 +491,10 @@ bool checkConnection()
 
 ExitCode transmit(std::span<uint8_t> msg)
 {
-    if (const uint8_t status = TRANSMIT(msg.data(), msg.size()); status != USBD_OK)
+    if (static_cast<const USBD_CDC_HandleTypeDef *>(USB_DEVICE_HANDLER.pClassData)->TxState != 0)
+        return ExitCode::EXIT_CODE_BUSY;
+    USBD_CDC_SetTxBuffer(&USB_DEVICE_HANDLER, msg.data(), msg.size());
+    if (const uint8_t status = USBD_CDC_TransmitPacket(&USB_DEVICE_HANDLER); status != USBD_OK)
     {
         // LOG_WARN("USB: Transmit handle returned %d status code instead of USBD_OK.", status);
         return ExitCode::EXIT_CODE_ERROR;
