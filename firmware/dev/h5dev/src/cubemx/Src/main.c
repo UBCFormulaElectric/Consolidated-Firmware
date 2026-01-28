@@ -23,12 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
 #include "hw_usb.h"
-#include "app_freertos.h"
-#include "usbd_core.h"
-#include "usbd_desc.h"
-#include "usbd_cdc.h"
-#include "usbd_cdc_if.h"
-
+#include "hw_error.hpp"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -59,9 +54,6 @@ SPI_HandleTypeDef hspi1;
 PCD_HandleTypeDef hpcd_USB_DRD_FS;
 
 /* USER CODE BEGIN PV */
-USBD_HandleTypeDef             hUsbDeviceFS;
-extern USBD_DescriptorsTypeDef Class_Desc;
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -73,7 +65,6 @@ static void MX_RTC_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_USB_PCD_Init(void);
 /* USER CODE BEGIN PFP */
-static void USB_Device_Init(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -116,10 +107,6 @@ int main(void)
     MX_USB_PCD_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
-
-    hw_usb_init();
-    MX_USB_PCD_Init();
-    USB_Device_Init();
     /* USER CODE END 2 */
 
     /* Infinite loop */
@@ -442,28 +429,6 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-static void USB_Device_Init(void)
-{
-    /*for new pr*/
-    if (USBD_Init(&hUsbDeviceFS, &Class_Desc, USBD_SPEED_FULL) != USBD_OK)
-    {
-        Error_Handler();
-    }
-    if (USBD_RegisterClass(&hUsbDeviceFS, &USBD_CDC) != USBD_OK)
-    {
-        Error_Handler();
-    }
-    if (USBD_CDC_RegisterInterface(&hUsbDeviceFS, &USBD_Interface_fops_FS) != USBD_OK)
-    {
-        Error_Handler();
-    }
-    if (USBD_Start(&hUsbDeviceFS) != USBD_OK)
-    {
-        Error_Handler();
-    }
-
-    HAL_PWREx_EnableUSBVoltageDetector();
-}
 
 /* USER CODE END 4 */
 

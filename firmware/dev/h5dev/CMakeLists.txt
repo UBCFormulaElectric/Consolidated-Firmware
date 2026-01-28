@@ -25,10 +25,7 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_resetReason.c"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
         "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/usb/hw_usb.c"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/usb/h5/usbd_cdc_if.c"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/usb/h5/usbd_conf.c"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/usb/h5/usbd_desc.c"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
 )
 
@@ -80,20 +77,19 @@ IF ("${TARGET}" STREQUAL "binary")
             "stm32h5xx_hal_spi.c"
     )
 
-    set(CUBEMX_INCLUDE_DIRS 
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc" 
-    "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
-    "${SHARED_HW_INCLUDE_DIR_CPP}/usb")
-
+    set(CUBEMX_INCLUDE_DIRS
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
+            "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
+    )
     stm32h562xx_cube_library(
             "h5dev_stm32"
             "${STM32_HAL_SRCS}"
             "${IOC_PATH}"
             "${CUBEMX_SRCS}"
             "${CUBEMX_INCLUDE_DIRS}"
-             TRUE
+            TRUE
             "${ARM_CORE}"
     )
 
@@ -115,7 +111,6 @@ IF ("${TARGET}" STREQUAL "binary")
     )
 
     target_link_libraries("h5dev_app.elf" PRIVATE "h5dev_stm32" "dev_H5_jsoncan")
-    target_compile_definitions("h5dev_app.elf" PRIVATE WATCHDOG_DISABLED)
 
     # Bootloader files.
     file(GLOB BOOT_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
