@@ -58,6 +58,8 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define tim_6_prescaler 256
+#define tim_6_period 1000
 #define SPI_SCK_Pin GPIO_PIN_2
 #define SPI_SCK_GPIO_Port GPIOE
 #define IR_P_EN_Pin GPIO_PIN_3
@@ -70,6 +72,8 @@ extern "C"
 #define SPI_MOSI_GPIO_Port GPIOE
 #define LEDR_Pin GPIO_PIN_13
 #define LEDR_GPIO_Port GPIOC
+#define SPI_C_LS_Pin GPIO_PIN_14
+#define SPI_C_LS_GPIO_Port GPIOC
 #define MSD_SHDN_SNS_Pin GPIO_PIN_0
 #define MSD_SHDN_SNS_GPIO_Port GPIOC
 #define HV_P_INTLCK_SNS_Pin GPIO_PIN_1
@@ -92,6 +96,8 @@ extern "C"
 #define TS_ISENSE_50A_GPIO_Port GPIOA
 #define FAN_ISNS_Pin GPIO_PIN_6
 #define FAN_ISNS_GPIO_Port GPIOA
+#define SHDN_SNS_Pin GPIO_PIN_7
+#define SHDN_SNS_GPIO_Port GPIOA
 #define nIMD_LATCH_Pin GPIO_PIN_4
 #define nIMD_LATCH_GPIO_Port GPIOC
 #define DIAG_Pin GPIO_PIN_5
@@ -130,12 +136,14 @@ extern "C"
 #define TS_ISENSE_OCSC_OK_3V3_GPIO_Port GPIOD
 #define SPI_CS_HS_Pin GPIO_PIN_14
 #define SPI_CS_HS_GPIO_Port GPIOD
+#define SD_CD_Pin GPIO_PIN_7
+#define SD_CD_GPIO_Port GPIOC
 #define SD_D0_Pin GPIO_PIN_8
 #define SD_D0_GPIO_Port GPIOC
 #define SD_D1_Pin GPIO_PIN_9
 #define SD_D1_GPIO_Port GPIOC
-#define SPI_CS_LS_Pin GPIO_PIN_8
-#define SPI_CS_LS_GPIO_Port GPIOA
+#define IMD_M_HS_3V3_Pin GPIO_PIN_8
+#define IMD_M_HS_3V3_GPIO_Port GPIOA
 #define USB_DM_Pin GPIO_PIN_11
 #define USB_DM_GPIO_Port GPIOA
 #define USB_DP_Pin GPIO_PIN_12

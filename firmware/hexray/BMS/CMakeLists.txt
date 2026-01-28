@@ -59,6 +59,29 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_hal_cortex.c"
             "stm32h7xx_hal_exti.c"
             "stm32h7xx_hal_tim.c"
+            "stm32h7xx_hal_gpio.c"
+            "stm32h7xx_hal_adc.c"
+
+            "stm32h7xx_hal_adc_ex.c"       # Fixes: HAL_ADCEx_MultiModeConfigChannel
+        "stm32h7xx_hal_tim_ex.c"       # Fixes: HAL_TIMEx_MasterConfigSynchronization
+        "stm32h7xx_hal_dma.c"          # Fixes: HAL_DMA_IRQHandler
+        
+        # --- Missing Peripherals (From your log) ---
+        "stm32h7xx_hal_crc.c"          # Fixes: HAL_CRC_Init
+        "stm32h7xx_hal_crc_ex.c"       
+        "stm32h7xx_hal_fdcan.c"        # Fixes: HAL_FDCAN_Init
+        "stm32h7xx_hal_spi.c"          # Fixes: HAL_SPI_Init
+        "stm32h7xx_hal_spi_ex.c"
+
+        # --- Missing SD Card (Must include LL driver) ---
+        "stm32h7xx_hal_sd.c"           # Fixes: HAL_SD_Init
+        "stm32h7xx_hal_sd_ex.c"
+        "stm32h7xx_ll_sdmmc.c"         # REQUIRED: HAL_SD relies on this
+
+        # --- Missing USB (Must include LL driver) ---
+        "stm32h7xx_hal_pcd.c"          # Fixes: HAL_PCD_Init
+        "stm32h7xx_hal_pcd_ex.c"
+        "stm32h7xx_ll_usb.c"           # REQUIRED: HAL_PCD relies on this
     )
     stm32h733xx_cube_library(
             "hexray_BMS_stm32"
