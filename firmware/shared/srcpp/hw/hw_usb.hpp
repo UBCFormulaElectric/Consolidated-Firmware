@@ -1,7 +1,7 @@
 #pragma once
 
 #include "util_errorCodes.hpp"
-#include <stdint.h>
+#include <cstdint>
 #include <span>
 
 namespace hw::usb
@@ -29,12 +29,12 @@ ExitCode transmit(std::span<uint8_t> msg);
 /**
  * @brief Receive data from the usb host.
  * @param dest A span to the destination buffer.
- * @param timeout_ms Maximum timeout to wait.
  * @return True if data is received successfully,
  *         false if an error occurred or the timeout has passed.
  * @note that this function will return one byte from the buffer
+ * @note NOTE THIS MUST BE PROVIDED EXTERNALLY!!!
  */
-ExitCode receive(std::span<uint8_t> dest, uint32_t timeout_ms);
+void receive(std::span<uint8_t> dest);
 
 // CONNECTION HANDLER
 

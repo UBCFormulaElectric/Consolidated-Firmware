@@ -13,9 +13,8 @@ extern "C"
 
 #if defined(STM32H733xx)
 #include "stm32h7xx.h"
-    // #define DEVICE_FS 0
-    // #define DEVICE_HS 1
-
+// #define DEVICE_FS 0
+// #define DEVICE_HS 1
 #elif defined(STM32H562xx)
 #include "stm32h5xx.h"
 // #define DEVICE_FS 0
