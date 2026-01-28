@@ -1,10 +1,15 @@
-#include "main.h"
 #include "tasks.h"
-#include "io_time.hpp"
-#include "jobs.hpp"
-#include <cassert>
-#include "hw_hardFaultHandler.hpp"
 
+#include <cassert>
+#include "main.h"
+#include "jobs.hpp"
+
+// io
+#include "io_time.hpp"
+// hw
+#include "hw_hardFaultHandler.hpp"
+#include "hw_rtosTaskHandler.hpp"
+// old deps
 extern "C"
 {
 #include "hw_bootup.h"
@@ -15,6 +20,64 @@ extern "C"
 }
 
 static CanTxQueue can_tx_queue;
+
+[[noreturn]] static void tasks_run1Hz(void *arg)
+{
+    uint32_t start_ticks = osKernelGetTickCount();
+    forever
+    {
+        constexpr uint32_t period_ms = 1000U;
+        jobs_run1Hz_tick();
+        start_ticks += period_ms;
+        io::time::delayUntil(start_ticks);
+    }
+}
+[[noreturn]] static void tasks_run100Hz(void *arg)
+{
+    uint32_t start_ticks = osKernelGetTickCount();
+    forever
+    {
+        constexpr uint32_t period_ms = 10U;
+        jobs_run100Hz_tick();
+        start_ticks += period_ms;
+        io::time::delayUntil(start_ticks);
+    }
+}
+[[noreturn]] static void tasks_run1kHz(void *arg)
+{
+    uint32_t start_ticks = osKernelGetTickCount();
+    forever
+    {
+        constexpr uint32_t period_ms = 1U;
+        jobs_run1kHz_tick();
+        start_ticks += period_ms;
+        io::time::delayUntil(start_ticks);
+    }
+}
+[[noreturn]] static void tasks_runCanTx(void *arg)
+{
+    forever
+    {
+        CanMsg msg = io_canQueue_popTx(&can_tx_queue);
+        LOG_IF_ERR(hw_can_transmit(&fdcan, &msg));
+    }
+}
+[[noreturn]] static void tasks_runCanRx(void *arg)
+{
+    forever
+    {
+        CanMsg     rx_msg         = io_canQueue_popRx();
+        JsonCanMsg jsoncan_rx_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
+        io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
+    }
+}
+
+// Define the task with StaticTask template class
+static hw::rtos::StaticTask<512> Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz);
+static hw::rtos::StaticTask<512> Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz);
+static hw::rtos::StaticTask<512> Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz);
+static hw::rtos::StaticTask<512> TaskCanRx(osPriorityBelowNormal, "TaskCanRx", tasks_runCanRx);
+static hw::rtos::StaticTask<512> TaskCanTx(osPriorityBelowNormal, "TaskCanTx", tasks_runCanTx);
 
 void tasks_preInit()
 {
@@ -57,68 +120,13 @@ void tasks_init()
 
     jobs_init();
     io_canTx_H5_Bootup_sendAperiodic();
-}
 
-void tasks_run1Hz()
-{
-    uint32_t start_ticks = osKernelGetTickCount();
-    forever
-    {
-        constexpr uint32_t period_ms = 1000U;
-        // if (!hw_chimera_v2_enabled)
-        // {
-        jobs_run1Hz_tick();
-        // }
-        start_ticks += period_ms;
-        io::time::delayUntil(start_ticks);
-    }
-}
-void tasks_run100Hz()
-{
-    uint32_t start_ticks = osKernelGetTickCount();
-    forever
-    {
-        constexpr uint32_t period_ms = 10U;
-        jobs_run100Hz_tick();
-        start_ticks += period_ms;
-        io::time::delayUntil(start_ticks);
-    }
-}
-void tasks_run1kHz()
-{
-    uint32_t start_ticks = osKernelGetTickCount();
-    forever
-    {
-        constexpr uint32_t period_ms = 1U;
-        jobs_run1kHz_tick();
-        start_ticks += period_ms;
-        io::time::delayUntil(start_ticks);
-    }
-}
-void tasks_runCanFDTx()
-{
-    forever
-    {
-        CanMsg msg = io_canQueue_popTx(&can_tx_queue);
-        LOG_IF_ERR(hw_can_transmit(&fdcan, &msg));
-    }
-}
-void tasks_runCanRx()
-{
-    forever
-    {
-        CanMsg     rx_msg         = io_canQueue_popRx();
-        JsonCanMsg jsoncan_rx_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
-        io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
-    }
-}
-void tasks_runChimera()
-{
-    forever
-    {
-        CanMsg msg = io_canQueue_popTx(&can_tx_queue);
-        hw_can_transmit(&fdcan, &msg);
-
-        // hw_chimera_v2_task(&chimera_v2_config);
-    }
+    osKernelInitialize();
+    Task1kHz.start();
+    Task100Hz.start();
+    Task1Hz.start();
+    TaskCanRx.start();
+    TaskCanTx.start();
+    osKernelStart();
+    forever {}
 }
