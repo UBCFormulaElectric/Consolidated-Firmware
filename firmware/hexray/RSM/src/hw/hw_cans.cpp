@@ -1,8 +1,7 @@
 #include "hw_cans.hpp"
 #include "main.h"
 #include "tasks.h"
-// do I need init or transmit/receive functions?
-//  main.h not linking check cmake?
+
 //  is bus number arbitrary?
 // why can i2c be hw::i2c but this cannot be hw::can
 namespace hw::cans
