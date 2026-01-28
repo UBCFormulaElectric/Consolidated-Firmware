@@ -156,7 +156,7 @@ impl CanSignal {
     }
 
     pub fn datatype(self: &Self) -> String {
-        if self.is_float {
+        if self.scale != 1.0 || self.offset != 0.0 {
             return "float".to_string();
         }
         if self.signed {
@@ -179,7 +179,7 @@ impl CanSignal {
     }
 
     pub fn representation(self: &Self) -> String {
-        if self.is_float {
+        if self.scale != 1.0 || self.offset != 0.0 {
             return "float".to_string();
         }
         if self.signed {
