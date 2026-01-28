@@ -99,7 +99,7 @@ if ("${TARGET}" STREQUAL "binary")
     target_link_libraries("hexray_CRIT_app.elf" PRIVATE "hexray_CRIT_stm32" "hexray_CRIT_commit_info" "hexray_CRIT_jsoncan" "m")
     target_compile_definitions("hexray_CRIT_app.elf" PRIVATE CRIT)
 
-    add_chimera_stm32h5("hexray_CRIT_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}")
+    add_chimera_stm32h5("hexray_CRIT_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}" "hexray_chimera_v2_proto_cm33")
     target_link_libraries("hexray_CRIT_chimera.elf" PRIVATE "hexray_CRIT_stm32")
     target_compile_definitions("hexray_CRIT_chimera.elf" PRIVATE "HAL_SPI_MODULE_ENABLED" )
 elseif ("${TARGET}" STREQUAL "test")

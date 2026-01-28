@@ -1,5 +1,5 @@
 message("")
-message("⚙️ Generating Chimera v2 Protobuf Sources")
+message("⚙️ Generating Quintuna Chimera v2 Protobuf Sources")
 
 # Generate srcs/headers.
 nanopb_generate_cpp(
@@ -11,9 +11,9 @@ set(SRCS ${PROTO_SRCS})
 set(HDRS ${CMAKE_CURRENT_BINARY_DIR} ${NANOPB_INCLUDE_DIRS})
 
 # Register library.
-message("  📚 Registering chimera_v2_proto_cm4/7 libraries")
+message("  📚 Registering Quintuna chimera_v2_proto_cm4/7 libraries")
 embedded_library(
-        "chimera_v2_proto_cm4"
+        "quintuna_chimera_v2_proto_cm4"
         "${SRCS}"
         "${HDRS}"
         "cm4"
@@ -21,7 +21,7 @@ embedded_library(
 )
 
 embedded_library(
-        "chimera_v2_proto_cm7"
+        "quintuna_chimera_v2_proto_cm7"
         "${SRCS}"
         "${HDRS}"
         "cm7"
@@ -29,7 +29,7 @@ embedded_library(
 )
 
 embedded_library(
-        "chimera_v2_proto_cm33"
+        "quintuna_chimera_v2_proto_cm33"
         "${SRCS}"
         "${HDRS}"
         "cm33"
