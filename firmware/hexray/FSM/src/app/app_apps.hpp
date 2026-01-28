@@ -1,9 +1,12 @@
 #pragma once
+<<<<<<< HEAD
 
 #define DISAGREEMENT_TIME_TO_FAULT (10U)
 #define DISAGREEMENT_TIME_TO_CLEAR (10U)
 #define OCSC_TIME_TO_FAULT (10U)
 #define OCSC_TIME_TO_CLEAR (10U)
+=======
+>>>>>>> master
 namespace app::apps
 {
 /**

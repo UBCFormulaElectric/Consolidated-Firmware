@@ -96,7 +96,7 @@ IF ("${TARGET}" STREQUAL "binary")
     target_link_libraries("f4dev.elf" PRIVATE "f4dev_stm32" "f4dev_commit_info")
     target_compile_definitions("f4dev.elf" PRIVATE "HAL_SPI_MODULE_ENABLED" NO_BOOTLOADER)
 
-    add_chimera_stm32f4("f4dev_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}")
+    add_chimera_stm32f4("f4dev_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}" "hexray_chimera_v2_proto_cm4")
     target_link_libraries("f4dev_chimera.elf" PRIVATE "f4dev_stm32" "f4dev_commit_info")
     target_compile_definitions("f4dev_chimera.elf" PRIVATE "HAL_SPI_MODULE_ENABLED")
 ENDIF ()

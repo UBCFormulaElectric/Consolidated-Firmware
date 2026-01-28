@@ -1,4 +1,5 @@
 #include "io_apps.hpp"
+<<<<<<< HEAD
 #include "hw_adcs.hpp"
 #include "app_math.hpp"
 #include <cmath>
@@ -111,16 +112,35 @@ float getPrimary(void)
     // Scale the percentage to account for the dead zone.
     const float pedal_percentage = (100.0f / (100.0f - DEAD_ZONE_PERCENT)) * (pedal_percentage_raw - DEAD_ZONE_PERCENT);
     return CLAMP(pedal_percentage, 0.0f, 100.0f);
+=======
+// #include "hw_adcs.hpp"
+#include <tgmath.h>
+#include "app_utils.h"
+
+// Just some dummy functions to pass the Github build checks, NEEDED TO IMPLEMENT THESE FUNCTIONS LATER
+namespace io::apps
+{
+void init() {}
+
+float getPrimary(void)
+{
+    return 0;
+>>>>>>> master
 }
 
 bool isPrimaryOCSC(void)
 {
+<<<<<<< HEAD
     const float pedal_voltage = hw::adcs::apps1.getVoltage();
     return !(PAPPS_MIN_V <= pedal_voltage && pedal_voltage <= PAPPS_MAX_V);
+=======
+    return false;
+>>>>>>> master
 }
 
 float getSecondary(void)
 {
+<<<<<<< HEAD
     // Read the secondary sensor voltage.
     const float pedal_voltage = hw::adcs::apps2.getVoltage();
     // Convert voltage reading to a potentiometer length (in mm).
@@ -140,11 +160,18 @@ float getSecondary(void)
     // Scale the percentage to account for the dead zone.
     const float pedal_percentage = (100.0f / (100.0f - DEAD_ZONE_PERCENT)) * (pedal_percentage_raw - DEAD_ZONE_PERCENT);
     return CLAMP(pedal_percentage, 0.0f, 100.0f);
+=======
+    return 0;
+>>>>>>> master
 }
 
 bool isSecondaryOCSC(void)
 {
+<<<<<<< HEAD
     const float pedal_voltage = hw::adcs::apps2.getVoltage();
     return !(SAPPS_MIN_V <= pedal_voltage && pedal_voltage <= SAPPS_MAX_V);
+=======
+    return false;
+>>>>>>> master
 }
 } // namespace io::apps

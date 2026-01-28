@@ -20,35 +20,34 @@ list(APPEND APP_SRCS
         "${SHARED_APP_INCLUDE_DIR}/app_rangeCheck.c"
 )
 set(APP_INCLUDE_DIRS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
-        "${SHARED_APP_INCLUDE_DIR}"
-        "${SHARED_APP_INCLUDE_DIR_CPP}"
+        # "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
+        "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR_CPP}"
 )
 
 file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.cpp")
-# list(APPEND IO_SRCS
-#         "${SHARED_IO_INCLUDE_DIR}/io_apps.c"
-# )
+list(APPEND IO_SRCS
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
+        "${SHARED_IO_INCLUDE_DIR}/io_time.c"
+)
 set(IO_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
         "${SHARED_IO_INCLUDE_DIR}" 
         "${SHARED_IO_INCLUDE_DIR_CPP}"
 )
 
-file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
-list(APPEND IO_SRCS
-        "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
-)
+
 
 file(GLOB_RECURSE HW_SRCS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp"
 )
 list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_ubsan.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
-        "${SHARED_HW_INCLUDE_DIR}" 
+        "${SHARED_HW_INCLUDE_DIR}"
         "${SHARED_HW_INCLUDE_DIR_CPP}"
 )
 
@@ -82,8 +81,6 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h5xx_hal_gpio.c"
             "stm32h5xx_hal_tim.c"
             "stm32h5xx_hal_tim_ex.c"
-            "stm32h5xx_hal_i2c.c"
-            "stm32h5xx_hal_i2c_ex.c"
             "stm32h5xx_hal_spi.c"
             "stm32h5xx_hal_spi_ex.c"
             "stm32h5xx_hal_fdcan.c"
@@ -112,7 +109,7 @@ if ("${TARGET}" STREQUAL "binary")
             "hexray_FSM_jsoncan" "m")
     target_compile_definitions("hexray_FSM_app.elf" PRIVATE FSM)
 
-    add_chimera_stm32h5("hexray_FSM_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}")
+    add_chimera_stm32h5("hexray_FSM_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}" "hexray_chimera_v2_proto_cm33")
     target_link_libraries("hexray_FSM_chimera.elf" PRIVATE "hexray_FSM_stm32")
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")

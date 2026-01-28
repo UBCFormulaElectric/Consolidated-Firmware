@@ -11,6 +11,14 @@ extern "C"
 
 namespace app::apps
 {
+<<<<<<< HEAD
+=======
+static constexpr uint8_t DISAGREEMENT_TIME_TO_FAULT = 10;
+static constexpr uint8_t DISAGREEMENT_TIME_TO_CLEAR = 10;
+static constexpr uint8_t OCSC_TIME_TO_FAULT         = 10;
+static constexpr uint8_t OCSC_TIME_TO_CLEAR         = 10;
+
+>>>>>>> master
 static Signal papps_ocsc_signal;
 static Signal sapps_ocsc_signal;
 static Signal papps_sapps_disagreement_signal;

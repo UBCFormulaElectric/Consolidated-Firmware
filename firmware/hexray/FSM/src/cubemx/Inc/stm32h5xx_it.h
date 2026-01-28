@@ -47,6 +47,7 @@ extern "C"
     /* USER CODE END EM */
 
     /* Exported functions prototypes ---------------------------------------------*/
+<<<<<<< HEAD
     void NMI_Handler(void);
     void HardFault_Handler(void);
     void MemManage_Handler(void);
@@ -58,6 +59,9 @@ extern "C"
     void SysTick_Handler(void);
     void GPDMA1_Channel0_IRQHandler(void);
     void ADC1_IRQHandler(void);
+=======
+
+>>>>>>> master
     /* USER CODE BEGIN EFP */
 
     /* USER CODE END EFP */

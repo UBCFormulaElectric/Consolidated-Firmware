@@ -1,4 +1,7 @@
-#include "tasks.hpp"
+extern "C"
+{
+#include "tasks.h"
+}
 #include "jobs.hpp"
 #include "io_time.hpp"
 #include "hw_rtosTaskHandler.hpp"
