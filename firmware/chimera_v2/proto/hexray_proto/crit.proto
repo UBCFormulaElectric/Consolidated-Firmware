@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package crit;
+
+enum GpioNetName {
+  GPIO_NET_NAME_UNSPECIFIED = 0;
+  GPIO_BOOT = 1;
+  GPIO_LED = 2;
+  GPIO_TELEM_SIG = 3;
+  GPIO_PUSH_DRIVE_SIG = 4;
+  GPIO_ROT_S = 5;
+  GPIO_ROT_B = 6;
+  GPIO_ROT_A = 7;
+  GPIO_LAUNCH_CONTROL_SIG = 8;
+  GPIO_TORQUE_VECTORING_SIG = 9;
+  GPIO_REGEN_SIG = 10;
+}
+
+enum SpiNetName{
+  SPI_NET_NAME_UNSPECIFIED = 0;
+  LED = 1;
+  SEVEN_SEG = 2;
+  PWR_CHG = 3;
+}
