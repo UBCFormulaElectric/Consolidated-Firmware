@@ -16,6 +16,8 @@
         unsigned char _unused; \
     } name;
 
+#define NUM_ELEMENTS_IN_ARRAY(array_pointer) sizeof(array_pointer) / sizeof(array_pointer[0])
+
 #ifdef __cplusplus
 #define CFUNC extern "C"
 #define NORET [[noreturn]]
