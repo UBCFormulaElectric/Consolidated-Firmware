@@ -5,7 +5,7 @@ extern "C"
 #endif
 #include "app_heartbeatMonitor.h"
 
-extern const HeartbeatMonitor hb_monitor;
+    extern const HeartbeatMonitor hb_monitor;
 #ifdef __cplusplus
 }
 #endif

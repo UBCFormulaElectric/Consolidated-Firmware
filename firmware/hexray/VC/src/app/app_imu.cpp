@@ -1,56 +1,119 @@
-#include "app_imu.h"
-#include "app_canAlerts.h"
+//#include "app_canAlerts.h"
+#include "app_imu.hpp"
+// Need to pass in spi handle device
+    // init the spi and extern it in the io layer??
+    constexpr explicit hw::spi::SpiDevice imu_spi1(SpiBus &bus_in, const Gpio &nss_in, const uint32_t timeoutMs_in);
+    constexpr explicit hw::spi::SpiDevice imu_spi2();
+    constexpr explicit hw::spi::SpiDevice imu_spi3();
 
-static ImuData imu_outputs = { .long_accel = 0.0f,
-                               .lat_accel  = 0.0f,
-                               .z_accel    = 0.0f,
-                               .roll_rate  = 0.0f,
-                               .pitch_rate = 0.0f,
-                               .yaw_rate   = 0.0f };
+    constexpr explicit io::imu::Imu imu1(imu_spi1);
+    constexpr explicit io::imu::Imu imu2(imu_spi2);
+    constexpr explicit io::imu::Imu imu3(imu_spi3);
 
-static ImuFaults imu_faults = { .long_accel_fault = EXIT_CODE_ERROR,
-                                .lat_accel_fault  = EXIT_CODE_ERROR,
-                                .z_accel_fault    = EXIT_CODE_ERROR,
-                                .roll_rate_fault  = EXIT_CODE_ERROR,
-                                .pitch_rate_fault = EXIT_CODE_ERROR,
-                                .yaw_rate_fault   = EXIT_CODE_ERROR };
+    imu1().init();
+    imu2().init();
+    imu3().init();
+    
+    // {} is init in cpp
+    io::imu::Imu::AccelData accel1{};
+    io::imu::Imu::AccelData accel2{};
+    io::imu::Imu::AccelData accel3{};
 
-void app_imu_init()
-{
-    app_canAlerts_VC_Info_ImuFault_set(IS_EXIT_OK(io_imu_init()));
-}
+    io::imu::Imu::GyroData gyro1{};
+    io::imu::Imu::GyroData gyro2{};
+    io::imu::Imu::GyroData gyro3{};
+    
+    void app_imu_broadcast_imu(){
+        if (imu1.getAccelAll(&accel1) != ExitCode::EXIT_CODE_OK){
+            //handle error
+            app_canTx_VC_ImuAccelerationX_set(0.0f);
+            app_canTx_VC_ImuAccelerationY_set(0.0f);
+            app_canTx_VC_ImuAccelerationZ_set(0.0f);
+            app_canTx_VC_ImuAngularVelocityRoll_set(0.0f);
+            app_canTx_VC_ImuAngularVelocityPitch_set(0.0f);
+            app_canTx_VC_ImuAngularVelocityYaw_set(0.0f);
 
-void app_imu_broadcast()
-{
-    imu_faults.long_accel_fault = io_imu_getLinearAccelerationX(&imu_outputs.long_accel);
-    imu_faults.lat_accel_fault  = io_imu_getLinearAccelerationY(&imu_outputs.lat_accel);
-    imu_faults.z_accel_fault    = io_imu_getLinearAccelerationZ(&imu_outputs.z_accel);
-    imu_faults.roll_rate_fault  = io_imu_getAngularVelocityRoll(&imu_outputs.roll_rate);
-    imu_faults.pitch_rate_fault = io_imu_getAngularVelocityPitch(&imu_outputs.pitch_rate);
-    imu_faults.yaw_rate_fault   = io_imu_getAngularVelocityYaw(&imu_outputs.yaw_rate);
+        } else{
+            // Process data
+            static float *lat_accel1= imu1.accel1.x;
+            static float *long_accel1= imu1.accel1.y;
+            static float *z_accel1= imu1.accel1.z;
+            static float *roll_rate1= imu1.gyro.x;
+            static float *pitch_rate1= imu1.gyro.y;
+            static float *yaw_rate1= imu1.gyro.z;
+            app_canTx_VC_ImuAccelerationX_set(&lat_accel1);
+            app_canTx_VC_ImuAccelerationY_set(&long_accel1);
+            app_canTx_VC_ImuAccelerationZ_set(&z_accel1);
+            app_canTx_VC_ImuAngularVelocityRoll_set(&roll_rate1);
+            app_canTx_VC_ImuAngularVelocityPitch_set(&pitch_rate1);
+            app_canTx_VC_ImuAngularVelocityYaw_set(&yaw_rate1);
 
-    // Set outputs to 0 if their respective transactions fault
-    imu_outputs.long_accel = imu_faults.long_accel_fault ? 0.0f : imu_outputs.long_accel;
-    imu_outputs.lat_accel  = imu_faults.lat_accel_fault ? 0.0f : imu_outputs.lat_accel;
-    imu_outputs.z_accel    = imu_faults.z_accel_fault ? 0.0f : imu_outputs.z_accel;
-    imu_outputs.roll_rate  = imu_faults.roll_rate_fault ? 0.0f : imu_outputs.roll_rate;
-    imu_outputs.pitch_rate = imu_faults.pitch_rate_fault ? 0.0f : imu_outputs.pitch_rate;
-    imu_outputs.yaw_rate   = imu_faults.yaw_rate_fault ? 0.0f : imu_outputs.yaw_rate;
+        }
 
-    app_canTx_VC_ImuAccelerationX_set(imu_outputs.lat_accel);
-    app_canTx_VC_ImuAccelerationY_set(imu_outputs.long_accel);
-    app_canTx_VC_ImuAccelerationZ_set(imu_outputs.z_accel);
-    app_canTx_VC_ImuAngularVelocityRoll_set(imu_outputs.roll_rate);
-    app_canTx_VC_ImuAngularVelocityPitch_set(imu_outputs.pitch_rate);
-    app_canTx_VC_ImuAngularVelocityYaw_set(imu_outputs.yaw_rate);
-}
+        if (imu2.getAccelAll(&accel2) != ExitCode::EXIT_CODE_OK){
+            //handle error
+            app_canTx_VC_ImuAccelerationX_set(0.0f);
+            app_canTx_VC_ImuAccelerationY_set(0.0f);
+            app_canTx_VC_ImuAccelerationZ_set(0.0f);
+            app_canTx_VC_ImuAngularVelocityRoll_set(0.0f);
+            app_canTx_VC_ImuAngularVelocityPitch_set(0.0f);
+            app_canTx_VC_ImuAngularVelocityYaw_set(0.0f);
 
-const ImuData *app_imu_getData()
-{
-    return &imu_outputs;
-}
+        } else{
+            // Process data
+            static float *lat_accel2= imu2.accel2.x;
+            static float *long_accel2= imu2.accel2.y;
+            static float *z_accel2= imu2.accel2.z;
+            static float *roll_rate2= imu2.gyro.x;
+            static float *pitch_rate2= imu2.gyro.y;
+            static float *yaw_rate2= imu2.gyro.z;
+            app_canTx_VC_ImuAccelerationX_set(&lat_accel2);
+            app_canTx_VC_ImuAccelerationY_set(&long_accel2);
+            app_canTx_VC_ImuAccelerationZ_set(&z_accel2);
+            app_canTx_VC_ImuAngularVelocityRoll_set(&roll_rate2);
+            app_canTx_VC_ImuAngularVelocityPitch_set(&pitch_rate2);
+            app_canTx_VC_ImuAngularVelocityYaw_set(&yaw_rate2);
+        }
 
-const ImuFaults *app_imu_getFaultData()
-{
-    return &imu_faults;
-}
+        if (imu3.getAccelAll(&accel3) != ExitCode::EXIT_CODE_OK){
+            //handle error
+            app_canTx_VC_ImuAccelerationX_set(0.0f);
+            app_canTx_VC_ImuAccelerationY_set(0.0f);
+            app_canTx_VC_ImuAccelerationZ_set(0.0f);
+            app_canTx_VC_ImuAngularVelocityRoll_set(0.0f);
+            app_canTx_VC_ImuAngularVelocityPitch_set(0.0f);
+            app_canTx_VC_ImuAngularVelocityYaw_set(0.0f);
+
+        } else{
+            // Process data
+            static float *lat_accel3= imu3.accel3.x;
+            static float *long_accel3= imu3.accel3.y;
+            static float *z_accel3= imu3.accel3.z;
+            static float *roll_rate3= imu3.gyro.x;
+            static float *pitch_rate3= imu3.gyro.y;
+            static float *yaw_rate3= imu3.gyro.z;
+            app_canTx_VC_ImuAccelerationX_set(&lat_accel3);
+            app_canTx_VC_ImuAccelerationY_set(&long_accel3);
+            app_canTx_VC_ImuAccelerationZ_set(&z_accel3);
+            app_canTx_VC_ImuAngularVelocityRoll_set(&roll_rate3);
+            app_canTx_VC_ImuAngularVelocityPitch_set(&pitch_rate3);
+            app_canTx_VC_ImuAngularVelocityYaw_set(&yaw_rate3);
+        }
+
+    }
+
+    const AccelData *app_imu_getAccelData(AccelData &data)
+    {
+        return data;
+    }
+
+    const GyroData *app_imu_getGyroData(GyroData &data)
+    {
+        return data;
+    }
+
+
+    // const ImuFaults *app_imu_getFaultData()
+    // {
+    //     return &imu_faults;
+    // }

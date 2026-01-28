@@ -1,12 +1,8 @@
-#include "io_imu_config.h"
-#include "io_imu.h"
-#include "app_canTx.h"
-#include <stdbool.h>
+#include "io_imu.hpp"
+#include "hw_spi.hpp"
 
-void app_imu_init();
-
-void app_imu_broadcast();
-
-const ImuData *app_imu_getData();
-
-const ImuFaults *app_imu_getFaultData();
+namespace vc::app::imus{
+// idk what else this file is used for :(
+const AccelData *app_imu_getAccelData(AccelData &data);
+const GyroData *app_imu_getGyroData(GyroData &data);
+} // namespace vc::app::imus

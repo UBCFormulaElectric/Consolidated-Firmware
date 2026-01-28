@@ -1,6 +1,7 @@
 #pragma once
 
-namespace vc::app::warningHandling {
+namespace vc::app::warningHandling
+{
 // board warnings
 bool app_warningHandling_boardWarningCheck(void);
 

@@ -7,8 +7,6 @@
 
 #define CONTACTOR_STATE_CLOSED 1
 
-namespace vc::app::fault_handling
-{
 bool app_faultHandling_air_minus_closed(void)
 {
     // return (CONTACTOR_STATE_CLOSED == app_canRx_BMS_IrNegative_get());
@@ -22,5 +20,3 @@ bool app_faultHandling_fsm_bms_HeartbeartChecks(void)
     // return app_canAlerts_BoardHasFault(VC_NODE);
     return 1;
 }
-
-} // namespace vc::app::fault_handling

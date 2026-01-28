@@ -1,4 +1,5 @@
-extern "C"{
+extern "C"
+{
 #include "app_warningHandling.hpp"
 #include "app_signal.h"
 #include "app_canAlerts.h"

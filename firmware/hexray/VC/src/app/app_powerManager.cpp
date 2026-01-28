@@ -1,6 +1,6 @@
 #include "app_powerManager.h"
 
-#include "app_timer.h"
+#include "app_timer.hpp"
 #include "io_loadswitches.h"
 #include "app_canAlerts.h"
 

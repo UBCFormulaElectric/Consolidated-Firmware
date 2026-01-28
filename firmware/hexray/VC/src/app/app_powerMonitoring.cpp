@@ -21,6 +21,9 @@ void app_powerMonitoring_update(void)
         float ch2_voltage = 0.0f;
         float ch2_current = 0.0f;
         float ch2_power   = 0.0f;
+        float ch3_voltage = 0.0f;
+        float ch3_current = 0.0f;
+        float ch3_power   = 0.0f;
 
         io_powerMonitoring_refresh();
         io_powerMonitoring_read_voltage(CH1, &ch1_voltage);
@@ -38,3 +41,11 @@ void app_powerMonitoring_update(void)
         app_canTx_VC_ChannelTwoPower_set(ch2_power);
     }
 }
+
+
+
+// Power manager:
+//  24V channel 
+//  5V channel 
+//  3V3 channel  
+//  we have a power pump I2C pins and a Battery monitor I2C 
