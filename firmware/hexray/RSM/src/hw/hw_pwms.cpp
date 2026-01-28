@@ -1,10 +1,10 @@
 #include "hw_pwms.hpp"
 #include "main.h"
 
-constexpr uint32_t TIMx_FREQUENCY = 64000000;
-constexpr uint32_t TIM1_FREQUENCY = 100;
-constexpr uint16_t TIM1_PRESCALER = 64;
-constexpr uint16_t TIM1_ARR = 1000;
+// constexpr uint32_t TIMx_FREQUENCY = 64000000;
+// constexpr uint32_t TIM1_FREQUENCY = 100;
+// constexpr uint16_t TIM1_PRESCALER = 64;
+// constexpr uint16_t TIM1_ARR = 1000;
 
 namespace hw::pwm
 {

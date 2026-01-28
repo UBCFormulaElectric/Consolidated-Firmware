@@ -27,16 +27,6 @@ set(APP_INCLUDE_DIRS
 )
 
 file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.cpp")
-<<<<<<< HEAD
-list(APPEND IO_SRCS)
-set(IO_INCLUDE_DIRS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/"
-        "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_DIR_CPP}"
-)
-
-file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
-=======
->>>>>>> master
 list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
 )
@@ -85,11 +75,8 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h5xx_hal_adc.c"
             "stm32h5xx_hal_adc_ex.c"
             "stm32h5xx_hal_gpio.c"
-<<<<<<< HEAD
             "stm32h5xx_hal_fdcan.c"
             "stm32h5xx_hal_spi.c"
-=======
->>>>>>> master
     )
     stm32h562xx_cube_library(
             "hexray_RSM_stm32"

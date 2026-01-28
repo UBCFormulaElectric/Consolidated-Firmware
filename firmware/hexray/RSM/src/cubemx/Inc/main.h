@@ -63,6 +63,10 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define TIMx_FREQUENCY 64000000
+#define TIM1_FREQUENCY 100
+#define TIM1_PRESCALER 64
+#define TIM1_ARR 1000
 #define BPS_R_3V3_Pin GPIO_PIN_2
 #define BPS_R_3V3_GPIO_Port GPIOC
 #define LC3_OUT_Pin GPIO_PIN_0

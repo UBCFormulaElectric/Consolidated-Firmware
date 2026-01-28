@@ -4,9 +4,9 @@
 namespace hw::gpio
 {
 extern const Gpio brake_ocsc_ok;
+extern const Gpio rl_int;
 extern const Gpio susp_travel_rl_ocsc;
 extern const Gpio susp_travel_rr_ocsc;
-extern const Gpio flow_meter_5v;
 extern const Gpio brake_light_en;
 extern const Gpio led;
 extern const Gpio imu_cs;
