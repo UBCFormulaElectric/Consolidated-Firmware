@@ -1,9 +1,8 @@
 #pragma once
-
-#include "io_imu.hpp"
 #include "util_errorCodes.hpp"
+#include "io_imu.hpp"
 
-extern const imuConfig imu_config;
+extern io::imu::Imu imu_config;
 
 typedef struct
 {
@@ -17,10 +16,10 @@ typedef struct
 
 typedef struct
 {
-    ExitCode x_lin_accel_fault;
-    ExitCode y_lin_accel_fault;
-    ExitCode z_lin_accel_fault;
-    ExitCode roll_ang_vel_fault;
-    ExitCode pitch_ang_vel_fault;
-    ExitCode yaw_ang_vel_fault;
+    ExitCode accel_x_fault;
+    ExitCode accel_y_fault;
+    ExitCode accel_z_fault;
+    ExitCode gyro_x_fault;
+    ExitCode gyro_y_fault;
+    ExitCode gyro_z_fault;
 } RSMImuFaults;

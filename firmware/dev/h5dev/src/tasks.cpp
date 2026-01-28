@@ -1,6 +1,8 @@
 #include "tasks.h"
 
 #include <cassert>
+#include <cmsis_os2.h>
+#include <io_canRx.h>
 #include "main.h"
 #include "jobs.hpp"
 
@@ -13,13 +15,14 @@
 extern "C"
 {
 #include "hw_bootup.h"
-#include "hw_cans.h"
 #include "hw_resetReason.h"
 #include "io_canQueue.h"
-#include "app_jsoncan.h"
+#include "io_canTx.h"
 }
 
-static CanTxQueue can_tx_queue;
+#include "hw_cans.hpp"
+#include "io_canMsgQueues.hpp"
+#include "app_jsoncan.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
@@ -58,17 +61,17 @@ static CanTxQueue can_tx_queue;
 {
     forever
     {
-        CanMsg msg = io_canQueue_popTx(&can_tx_queue);
-        LOG_IF_ERR(hw_can_transmit(&fdcan, &msg));
+        io::CanMsg msg = can_tx_queue.popMsgFromQueue();
+        LOG_IF_ERR(fdcan1.fdcan_transmit(msg));
     }
 }
 [[noreturn]] static void tasks_runCanRx(void *arg)
 {
     forever
     {
-        CanMsg     rx_msg         = io_canQueue_popRx();
-        JsonCanMsg jsoncan_rx_msg = app_jsoncan_copyFromCanMsg(&rx_msg);
-        io_canRx_updateRxTableWithMessage(&jsoncan_rx_msg);
+        io::CanMsg rx_msg      = can_rx_queue.popMsgFromQueue();
+        JsonCanMsg jsoncan_msg = app::jsoncan::copyFromCanMsg(&rx_msg);
+        io_canRx_updateRxTableWithMessage(&jsoncan_msg);
     }
 }
 
@@ -94,9 +97,7 @@ void tasks_init()
 #endif
 
     hw_hardFaultHandler_init();
-    hw_can_init(&fdcan);
-    io_canQueue_initRx();
-    io_canQueue_initTx(&can_tx_queue);
+    fdcan1.init();
     // LOG_IF_ERR(hw_usb_init());
 
     // Check for watchdog timeout on a previous boot cycle.

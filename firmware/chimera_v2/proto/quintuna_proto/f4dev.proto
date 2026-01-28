@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package f4dev;
+
+enum GpioNetName {
+  GPIO_NET_NAME_UNSPECIFIED = 0;
+  GPIO_6 = 1;
+  GPIO_5 = 2;
+}

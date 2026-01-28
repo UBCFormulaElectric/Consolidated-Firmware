@@ -55,9 +55,14 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+<<<<<<< HEAD
 extern ADC_HandleTypeDef   hadc1;
 extern FDCAN_HandleTypeDef hfdcan1;
 extern TIM_HandleTypeDef   htim6;
+=======
+extern ADC_HandleTypeDef hadc1;
+extern TIM_HandleTypeDef htim6;
+>>>>>>> master
 
 /* USER CODE BEGIN EV */
 

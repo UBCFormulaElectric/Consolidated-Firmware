@@ -1,5 +1,6 @@
 #pragma once
 #include "util_errorCodes.hpp"
+#include "io_imu.hpp"
 
 namespace fakes::io
 {
@@ -21,6 +22,7 @@ namespace suspension
     void setRL_OCSC(bool value);
 } // namespace suspension
 
+<<<<<<< HEAD
 namespace imu
 {
     void setLinearAccelerationX(float value, ExitCode status);
@@ -31,6 +33,8 @@ namespace imu
     void setAngularVelocityYaw(float value, ExitCode status);
 } // namespace imu
 
+=======
+>>>>>>> master
 namespace rPump
 {
     void setStatus(ExitCode value);
@@ -41,4 +45,8 @@ namespace tireTemp
     void set(float temp);
 }
 
+<<<<<<< HEAD
 } // namespace fakes::io
+=======
+} // namespace fakes::io
+>>>>>>> master

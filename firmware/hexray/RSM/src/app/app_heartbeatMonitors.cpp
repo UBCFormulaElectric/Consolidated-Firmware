@@ -2,16 +2,16 @@
 extern "C"
 {
 #include "app_canRx.h"
+#include "app_canTx.h"
 #include "app_canAlerts.h"
 }
 
-static HeartbeatBoard heartbeat_boards[1] = { { false,
-                                                false,
-                                                { 0, TIMER_STATE_IDLE, 0 },
-                                                0,
-                                                app_canRx_FSM_Heartbeat_get,
-                                                app_canRx_FSM_Heartbeat_update,
-                                                app_canAlerts_RSM_Info_MissingFSMHeartbeat_set,
-                                                app_canAlerts_RSM_Info_MissingFSMHeartbeat_get } };
+io::heartbeat::node hb_node(
+    app_canRx_FSM_Heartbeat_get,
+    app_canRx_FSM_Heartbeat_update,
+    app_canAlerts_RSM_Info_MissingFSMHeartbeat_get,
+    app_canAlerts_RSM_Info_MissingFSMHeartbeat_set);
 
-const HeartbeatMonitor hb_monitor = { .boards = heartbeat_boards, .board_count = 1, .block_faults = false };
+std::array<io::heartbeat::node *const, 1> hb_nodes = { { &hb_node } };
+
+const app::heartbeat::monitor<1> hb_monitor(app_canTx_RSM_Heartbeat_set, hb_nodes);

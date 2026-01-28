@@ -5,7 +5,7 @@
 #include "io_log.hpp"
 #include "cmsis_os2.h"
 
-#define NUM_DEVICE_READY_TRIALS 5
+constexpr uint8_t NUM_DEVICE_READY_TRIALS = 5;
 
 /* --------------------------------------------- I2CBus ------------------------------------------------ */
 void hw::i2c::I2CBus::deinit() const

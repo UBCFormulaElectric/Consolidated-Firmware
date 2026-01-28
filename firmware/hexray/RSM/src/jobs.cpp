@@ -5,7 +5,12 @@
 #include "app_suspension.hpp"
 #include "app_tireTemp.hpp"
 
-void jobs_init() {}
+void jobs_init()
+{
+#ifdef TARGET_TEST
+    imu_config.init();
+#endif // TARGET_TEST
+}
 void jobs_run1Hz_tick()
 {
     app::brake::broadcast();

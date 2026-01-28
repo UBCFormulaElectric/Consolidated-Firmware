@@ -54,54 +54,6 @@ namespace suspension
     }
 } // namespace suspension
 
-namespace imu
-{
-    static float        x_lin_accel;
-    static float        y_lin_accel;
-    static float        z_lin_accel;
-    static float        roll_ang_vel;
-    static float        pitch_ang_vel;
-    static float        yaw_ang_vel;
-    static RSMImuFaults imu_faults;
-
-    void setLinearAccelerationX(float value, ExitCode status)
-    {
-        x_lin_accel                  = value;
-        imu_faults.x_lin_accel_fault = status;
-    }
-
-    void setLinearAccelerationY(float value, ExitCode status)
-    {
-        y_lin_accel                  = value;
-        imu_faults.y_lin_accel_fault = status;
-    }
-
-    void setLinearAccelerationZ(float value, ExitCode status)
-    {
-        z_lin_accel                  = value;
-        imu_faults.z_lin_accel_fault = status;
-    }
-
-    void setAngularVelocityRoll(float value, ExitCode status)
-    {
-        roll_ang_vel                  = value;
-        imu_faults.roll_ang_vel_fault = status;
-    }
-
-    void setAngularVelocityPitch(float value, ExitCode status)
-    {
-        pitch_ang_vel                  = value;
-        imu_faults.pitch_ang_vel_fault = status;
-    }
-
-    void setAngularVelocityYaw(float value, ExitCode status)
-    {
-        yaw_ang_vel                  = value;
-        imu_faults.yaw_ang_vel_fault = status;
-    }
-
-} // namespace imu
-
 namespace tireTemp
 {
     static float temperature = 0.0f;
@@ -154,6 +106,7 @@ namespace suspension
     }
 } // namespace suspension
 
+<<<<<<< HEAD
 namespace imu
 {
     ExitCode getLinearAccelerationX(float *value)
@@ -193,6 +146,8 @@ namespace imu
     }
 } // namespace imu
 
+=======
+>>>>>>> master
 namespace rPump
 {
     ExitCode setPercentage(float value)

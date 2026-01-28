@@ -1,5 +1,10 @@
 #include <gtest/gtest.h>
 #include "test/test_RSMBase.hpp"
+<<<<<<< HEAD
+=======
+#include "io_imu.hpp"
+#include "app_imu.hpp"
+>>>>>>> master
 #include "test_fakes.hpp"
 #include "util_errorCodes.hpp"
 
@@ -14,12 +19,12 @@ class RSMImuTest : public RSMBaseTest
 
 TEST_F(RSMImuTest, Acceleration_Velocity_Test)
 {
-    fakes::io::imu::setLinearAccelerationX(10, ExitCode::EXIT_CODE_OK);
-    fakes::io::imu::setLinearAccelerationY(10, ExitCode::EXIT_CODE_OK);
-    fakes::io::imu::setLinearAccelerationZ(10, ExitCode::EXIT_CODE_OK);
-    fakes::io::imu::setAngularVelocityRoll(10, ExitCode::EXIT_CODE_OK);
-    fakes::io::imu::setAngularVelocityPitch(10, ExitCode::EXIT_CODE_OK);
-    fakes::io::imu::setAngularVelocityYaw(10, ExitCode::EXIT_CODE_OK);
+    imu_config.set_AccelX(10);
+    imu_config.set_AccelY(10);
+    imu_config.set_AccelZ(10);
+    imu_config.set_GyroRoll(10);
+    imu_config.set_GyroPitch(10);
+    imu_config.set_GyroYaw(10);
 
     LetTimePass(100);
 

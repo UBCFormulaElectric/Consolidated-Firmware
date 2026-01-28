@@ -1,8 +1,6 @@
 #pragma once
 
-extern "C"
-{
-#include "app_heartbeatMonitor.h"
-}
+#include "app_heartbeatMonitor.hpp"
+#include "io_heartbeatNode.hpp"
 
-extern const HeartbeatMonitor hb_monitor;
+extern const app::heartbeat::monitor<1> hb_monitor;
