@@ -11,7 +11,7 @@
 #define APPROX_EQUAL_FLOAT(a, b, threshold) ((bool)(fabsf((a) - (b)) < threshold))
 #define IS_IN_RANGE(min, max, val) (((val) > (min)) && ((val) < (max)))
 
-namespace app::math{
+namespace app { namespace math{
 
     template<typename T, size_t R, size_t C>
     class matrix{
@@ -289,4 +289,4 @@ namespace app::math{
         // to help with ekf
     };
 
-}
+} }

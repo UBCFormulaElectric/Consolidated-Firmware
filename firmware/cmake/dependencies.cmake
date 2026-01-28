@@ -64,6 +64,13 @@ IF ("${TARGET}" STREQUAL "binary")
             GIT_SHALLOW TRUE
             DOWNLOAD_ONLY TRUE
     )
+    CPMAddPackage(
+        NAME AUTO_DIFF
+        GITHUB_REPOSITORY autodiff/autodiff
+        GIT_TAG 2e2f3a2b16afcd9c04e76c8a689e9fd23ff78679
+        GIT_SHALLOW TRUE
+        DOWNLOAD_ONLY TRUE
+    )
 ELSEIF ("${TARGET}" STREQUAL "test")
     # Fetch GoogleTest for unit testing.
     CPMAddPackage(

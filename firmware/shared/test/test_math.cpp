@@ -160,7 +160,8 @@ TEST(MatrixTest, inverse_3x3_round_trip)
                            5.0f, 6.0f, 0.0f };
     matrix<float, 3, 3> identity = matrix<float, 3, 3>::identity();
 
-    matrix<float, 3, 3> inv = m.inverse();
+    matrix<float, 3, 3> inv = m.inverse(); 
+    // a matrix multiplied by its inverse should result in the identity matrix
     ExpectMatrixNear(m * inv, identity, kTol);
     ExpectMatrixNear(inv * m, identity, kTol);
 }
