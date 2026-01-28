@@ -1,0 +1,230 @@
+syntax = "proto3";
+
+/*
+For enums, the default value is the first defined enum value, which must be 0.
+For numeric types, the default value is zero.
+*/
+
+/* 
+Pin Naming Conventions
+---
+Not all the characters supported for naming pins in Altium are supported for naming
+variables, so the following changes are made: 
+* ! in Altium is replaced with N
+* + in Altium is replaced with _P
+* Any Altium pin name starting wtih a numeric character has an added _ to the beginning
+*/
+
+import "nanopb.proto";
+import "rsm.proto";
+import "f4dev.proto";
+import "crit.proto";
+import "bms.proto";
+import "dam.proto";
+import "fsm.proto";
+import "vc.proto";
+
+/* GPIOs */
+message GpioNetName {
+    oneof name {
+        f4dev.GpioNetName f4dev_net_name = 1;
+        crit.GpioNetName crit_net_name = 2;
+        dam.GpioNetName dam_net_name = 3;
+        rsm.GpioNetName rsm_net_name = 4;
+        fsm.GpioNetName fsm_net_name = 5;
+        bms.GpioNetName bms_net_name = 6;
+        vc.GpioNetName vc_net_name = 7;
+    }
+}
+
+// GPIO read request/response.
+message GpioReadRequest {
+  GpioNetName net_name = 1;
+}
+
+message GpioReadResponse {
+  bool value = 1;
+}
+
+// GPIO write request/response.
+message GpioWriteRequest {
+  GpioNetName net_name = 1;
+  bool value = 2;
+}
+
+message GpioWriteResponse {
+  bool success = 1;
+}
+
+/* ADCs */
+message AdcNetName {
+  oneof name {
+    rsm.AdcNetName rsm_net_name = 1;
+    fsm.AdcNetName fsm_net_name = 2;
+    bms.AdcNetName bms_net_name = 3;
+    vc.AdcNetName vc_net_name = 4;
+  }
+}
+
+// ADC read request/response.
+message AdcReadRequest {
+  AdcNetName net_name = 1;
+}
+
+message AdcReadResponse {
+  float value = 1;
+}
+
+/* I2Cs */
+message I2cNetName {
+  oneof name {
+    dam.I2cNetName dam_net_name = 1;
+    rsm.I2cNetName rsm_net_name = 2;
+    fsm.I2cNetName fsm_net_name = 3;
+    vc.I2cNetName vc_net_name = 4;
+  }
+}
+
+// I2C ready check request/response.
+message I2cReadyRequest {
+  I2cNetName net_name = 1;
+}
+
+message I2cReadyResponse {
+  bool ready = 1;
+}
+
+// I2C receive data request/response.
+message I2cReceiveRequest {
+  I2cNetName net_name = 1;
+  uint32 length = 2;
+}
+
+message I2cReceiveResponse {
+  bytes data = 1 [(nanopb).max_size = 128];
+}
+
+// I2C transmit data request/response.
+message I2cTransmitRequest {
+  I2cNetName net_name = 1;
+  bytes data = 2 [(nanopb).max_size = 128];
+}
+
+message I2cTransmitResponse {
+  bool success = 1;
+}
+
+// I2C read memory request/response.
+message I2cMemoryReadRequest {
+  I2cNetName net_name = 1;
+  uint32 memory_address = 2;
+  uint32 length = 3;
+}
+
+message I2cMemoryReadResponse {
+  bytes data = 1 [(nanopb).max_size = 128];
+}
+
+// I2C write memory request/response.
+message I2cMemoryWriteRequest {
+  I2cNetName net_name = 1;
+  uint32 memory_address = 2;
+  bytes data = 3 [(nanopb).max_size = 128];
+}
+
+message I2cMemoryWriteResponse {
+  bool success = 1;
+}
+
+/* SPIs */
+message SpiNetName {
+  oneof name {
+    bms.SpiNetName bms_net_name = 1;
+    crit.SpiNetName crit_net_name = 2;
+  }
+}
+
+// SPI transmit data request/response.
+message SpiTransmitRequest {
+  SpiNetName net_name = 1;
+  bytes data = 2 [(nanopb).max_size = 128];
+}
+
+message SpiTransmitResponse {
+  bool success = 1;
+}
+
+// SPI receive data request/response.
+message SpiReceiveRequest {
+  SpiNetName net_name = 1;
+  uint32 length = 2;
+}
+
+message SpiReceiveResponse {
+  bytes data = 1 [(nanopb).max_size = 128];
+}
+
+// SPI full-duplex request/response.
+message SpiTransactionRequest {
+  SpiNetName net_name = 1;
+  bytes tx_data = 2 [(nanopb).max_size = 128];
+  uint32 rx_length = 3;
+}
+
+message SpiTransactionResponse {
+  bytes rx_data = 1 [(nanopb).max_size = 128];
+}
+
+/* 
+  Wrapper around all messages 
+
+  There is no RPC support in nanopb, so we construct our own request/response protocol.
+  Some interesting projects to like at in the future if this ever gets too cumbersome are:
+  - https://github.com/EmbeddedRPC/erpc
+  - https://github.com/d21d3q/nanogrpc
+*/
+message ChimeraV2Request {
+  oneof payload {
+    // GPIO.
+    GpioReadRequest gpio_read = 1;
+    GpioWriteRequest gpio_write = 2;
+
+    // ADC.
+    AdcReadRequest adc_read = 3;
+
+    // I2C.
+    I2cReadyRequest i2c_ready = 4;
+    I2cReceiveRequest i2c_receive = 5;
+    I2cTransmitRequest i2c_transmit = 6;
+    I2cMemoryReadRequest i2c_memory_read = 7;
+    I2cMemoryWriteRequest i2c_memory_write = 8;
+
+    // SPI.
+    SpiReceiveRequest spi_receive = 9;
+    SpiTransmitRequest spi_transmit = 10;
+    SpiTransactionRequest spi_transaction = 11;
+  }
+}
+
+message ChimeraV2Response {
+  oneof payload {
+    // GPIO.
+    GpioReadResponse gpio_read = 1;
+    GpioWriteResponse gpio_write = 2;
+
+    // ADC.
+    AdcReadResponse adc_read = 3;
+
+    // I2C.
+    I2cReadyResponse i2c_ready = 4;
+    I2cReceiveResponse i2c_receive = 5;
+    I2cTransmitResponse i2c_transmit = 6;
+    I2cMemoryReadResponse i2c_memory_read = 7;
+    I2cMemoryWriteResponse i2c_memory_write = 8;
+
+    // SPI.
+    SpiReceiveResponse spi_receive = 9;
+    SpiTransmitResponse spi_transmit = 10;
+    SpiTransactionResponse spi_transaction = 11;
+  }
+}

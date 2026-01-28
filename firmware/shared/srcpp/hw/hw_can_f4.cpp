@@ -1,4 +1,5 @@
 #include "hw_can.hpp"
+#include <stm32f4xx_hal_can.h>
 
 #undef NDEBUG // TODO remove this in favour of always_assert (we would write this)
 #include <assert.h>
@@ -38,65 +39,9 @@ static constexpr uint32_t MASKMODE_16_BIT_MASK_OPEN = INIT_MASKMODE_16BIT_FiRx(0
 
 namespace hw
 {
-void can::init() const
+
+ExitCode can::tx(CAN_TxHeaderTypeDef &tx_header, io::CanMsg *msg)
 {
-    assert(!ready);
-    // Configure a single filter bank that accepts any message.
-    CAN_FilterTypeDef filter;
-    filter.FilterMode       = CAN_FILTERMODE_IDMASK;
-    filter.FilterScale      = CAN_FILTERSCALE_32BIT;
-    filter.FilterActivation = CAN_FILTER_ENABLE;
-    // low and high
-    filter.FilterIdHigh     = 0x0000;
-    filter.FilterIdLow      = 0x0000;
-    filter.FilterMaskIdHigh = 0x0000;
-    filter.FilterMaskIdLow  = 0x0000;
-    // FIFO assignment
-    filter.FilterFIFOAssignment = CAN_FILTER_FIFO0;
-    filter.FilterBank           = 0;
-    filter.SlaveStartFilterBank = 0;
-
-    // Configure and initialize hardware filter.
-    assert(HAL_CAN_ConfigFilter(hcan, &filter) == HAL_OK);
-
-    // Configure interrupt mode for CAN peripheral.
-    assert(
-        HAL_CAN_ActivateNotification(hcan, CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING | CAN_IT_BUSOFF) ==
-        HAL_OK);
-
-    // Start the CAN peripheral.
-    assert(HAL_CAN_Start(hcan) == HAL_OK);
-    ready = true;
-}
-
-void can::deinit() const
-{
-    assert(HAL_CAN_Stop(hcan) == HAL_OK);
-    assert(HAL_CAN_DeInit(hcan) == HAL_OK);
-}
-
-// NOTE this design assumes that there is only one task calling this function
-
-ExitCode can::transmit(const io::CanMsg &msg)
-{
-    assert(ready);
-    CAN_TxHeaderTypeDef tx_header;
-
-    tx_header.DLC = msg.dlc;
-
-    const bool is_std = msg.std_id <= 0x7FF;
-    tx_header.StdId   = is_std ? msg.std_id : 0x0;
-    tx_header.ExtId   = !is_std ? msg.std_id : 0x0;
-    tx_header.IDE     = is_std ? CAN_ID_STD : CAN_ID_EXT;
-
-    // This field can be either Data Frame or Remote Frame. For our
-    // purpose, we only ever transmit Data Frames.
-    tx_header.RTR = CAN_RTR_DATA;
-
-    // Enabling this gives us a tick-based timestamp which we do not need. Plus,
-    // it would take up 2 bytes of the CAN payload. So we disable the timestamp.
-    tx_header.TransmitGlobalTime = DISABLE;
-
     // Spin until a TX mailbox becomes available.
     for (uint32_t poll_count = 0; HAL_CAN_GetTxMailboxesFreeLevel(hcan) == 0U;)
     {
@@ -118,7 +63,70 @@ ExitCode can::transmit(const io::CanMsg &msg)
 
     // Indicates the mailbox used for transmission, not currently used.
     uint32_t mailbox = 0;
-    return hw_utils_convertHalStatus(HAL_CAN_AddTxMessage(hcan, &tx_header, msg.data.data8, &mailbox));
+    return hw_utils_convertHalStatus(HAL_CAN_AddTxMessage(hcan, &tx_header, msg->data.data8, &mailbox));
+}
+
+void can::init() const
+{
+    assert(!ready);
+    // Configure a single filter bank that accepts any message.
+    CAN_FilterTypeDef filter;
+    filter.FilterMode       = CAN_FILTERMODE_IDMASK;
+    filter.FilterScale      = CAN_FILTERSCALE_32BIT;
+    filter.FilterActivation = CAN_FILTER_ENABLE;
+    // low and high
+    filter.FilterIdHigh     = 0x0000;
+    filter.FilterIdLow      = 0x0000;
+    filter.FilterMaskIdHigh = 0x0000;
+    filter.FilterMaskIdLow  = 0x0000;
+    // FIFO assignment
+    filter.FilterFIFOAssignment = CAN_FILTER_FIFO0;
+    filter.FilterBank           = 0;
+    filter.SlaveStartFilterBank = 0;
+
+    // Configure and initialize hardware filter.
+    const HAL_StatusTypeDef config_filter_status = HAL_CAN_ConfigFilter(hcan, &filter);
+    assert(config_filter_status == HAL_OK);
+
+    // Configure interrupt mode for CAN peripheral.
+    const HAL_StatusTypeDef interrupt_status =
+        HAL_CAN_ActivateNotification(hcan, CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING | CAN_IT_BUSOFF);
+    assert(interrupt_status == HAL_OK);
+
+    // Start the CAN peripheral.
+    assert(HAL_CAN_Start(hcan) == HAL_OK);
+    ready = true;
+}
+
+void can::deinit() const
+{
+    assert(HAL_CAN_Stop(hcan) == HAL_OK);
+    assert(HAL_CAN_DeInit(hcan) == HAL_OK);
+}
+
+// NOTE this design assumes that there is only one task calling this function
+
+ExitCode can::can_transmit(const io::CanMsg &msg)
+{
+    assert(ready);
+    CAN_TxHeaderTypeDef tx_header;
+
+    tx_header.DLC = msg.dlc;
+
+    const bool is_std = msg.std_id <= 0x7FF;
+    tx_header.StdId   = is_std ? msg.std_id : 0x0;
+    tx_header.ExtId   = !is_std ? msg.std_id : 0x0;
+    tx_header.IDE     = is_std ? CAN_ID_STD : CAN_ID_EXT;
+
+    // This field can be either Data Frame or Remote Frame. For our
+    // purpose, we only ever transmit Data Frames.
+    tx_header.RTR = CAN_RTR_DATA;
+
+    // Enabling this gives us a tick-based timestamp which we do not need. Plus,
+    // it would take up 2 bytes of the CAN payload. So we disable the timestamp.
+    tx_header.TransmitGlobalTime = DISABLE;
+
+    return tx(tx_header, const_cast<io::CanMsg *>(&msg));
 }
 
 ExitCode can::receive(const uint32_t rx_fifo, io::CanMsg &msg) const
@@ -151,7 +159,7 @@ ExitCode can::receive(const uint32_t rx_fifo, io::CanMsg &msg) const
 // ReSharper disable once CppParameterMayBeConstPtrOrRef
 static void handle_callback(CAN_HandleTypeDef *hcan)
 {
-    const hw::can &handle = hw::hw_can_getHandle(hcan);
+    const hw::can &handle = hw::can_getHandle(hcan);
 
     io::CanMsg rx_msg{};
     // if (IS_EXIT_ERR(hw_can_receive(handle, CAN_RX_FIFO0, &rx_msg)))
@@ -173,7 +181,7 @@ CFUNC void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
 
 static void mailbox_complete_handler(CAN_HandleTypeDef *hcan)
 {
-    const hw::can &can = hw::hw_can_getHandle(hcan);
+    const hw::can &can = hw::can_getHandle(hcan);
     if (can.transmit_task == nullptr)
     {
         return;

@@ -13,7 +13,7 @@ dependencies = [
     "pyvisa",
 
     # Data.
-    "pandas", "numpy"
+    "pandas", "numpy",
 ]
 
 [tool.setuptools]
