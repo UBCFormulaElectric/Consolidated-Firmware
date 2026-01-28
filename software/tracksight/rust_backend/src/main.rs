@@ -47,7 +47,7 @@ async fn main() {
     // start tasks
     tasks.spawn(run_api_handler(shutdown_rx.resubscribe(), clients.clone()));
     tasks.spawn(run_can_data_handler(shutdown_rx.resubscribe(), can_queue_rx, clients.clone()));
-    tasks.spawn(run_serial_task(shutdown_rx.resubscribe(), can_queue_tx));
+    // tasks.spawn(run_serial_task(shutdown_rx.resubscribe(), can_queue_tx));
 
     // wait for tasks to clean up
     while let Some(res) = tasks.join_next().await {
