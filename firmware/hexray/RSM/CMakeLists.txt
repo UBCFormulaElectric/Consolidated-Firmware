@@ -99,7 +99,7 @@ if ("${TARGET}" STREQUAL "binary")
     target_link_libraries("hexray_RSM_app.elf" PRIVATE "hexray_RSM_stm32" "hexray_RSM_commit_info" "hexray_RSM_jsoncan" "m")
     target_compile_definitions("hexray_RSM_app.elf" PRIVATE "HAL_SPI_MODULE_ENABLED" NO_BOOTLOADER)
 
-    add_chimera_stm32h5("hexray_RSM_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}")
+    add_chimera_stm32h5("hexray_RSM_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}" "hexray_chimera_v2_proto_cm33")
     target_link_libraries("hexray_RSM_chimera.elf" PRIVATE "hexray_RSM_stm32")
     target_compile_definitions("hexray_RSM_chimera.elf" PRIVATE "HAL_SPI_MODULE_ENABLED")
 elseif ("${TARGET}" STREQUAL "test")
