@@ -51,7 +51,7 @@ class CRITChimeraConfig : public chimera_v2::config
     {
         if (snn->which_name != spi_net_name_tag)
         {
-            LOG_ERROR("Chimera: Expected GPIO net name with tag %d, got %d", spi_net_name_tag, snn->which_name);
+            LOG_ERROR("Chimera: Expected SPI net name with tag %d, got %d", spi_net_name_tag, snn->which_name);
             return std::nullopt;
         }
 

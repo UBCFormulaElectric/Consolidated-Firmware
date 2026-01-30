@@ -27,7 +27,7 @@ enum AdcNetName {
 
 enum I2cNetName {
   I2C_NET_NAME_UNSPECIFIED = 0;
-  I2C_R_PUMP_I2C = 1;
+  I2C_R_PUMP = 1;
 }
 
 enum SpiNetName {

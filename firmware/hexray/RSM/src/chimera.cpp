@@ -1,11 +1,13 @@
 #include "chimera_v2.hpp"
 #include "tasks.h"
+#include "hw_adc"
+#include <rsm.pb.h>
 
 class RSMChimeraConfig : public chimera_v2::config
 {
   public:
     ~RSMChimeraConfig() override = default;
-    std::optional<std::reference_wrapper<const hw::Gpio>> id_to_gpio(const _GpioNetName *gnn) const override
+    std::optional<std::reference_wrapper<const hw::gpio>> id_to_gpio(const _GpioNetName *gnn) const override
     {
       if (gnn->which_name != gpio_net_name_tag)
       {
@@ -40,11 +42,11 @@ class RSMChimeraConfig : public chimera_v2::config
           return std::nullopt;
       }
     }
-    std::optional<std::reference_wrapper<const hw::Adc>> id_to_adc(const _AdcNetName *ann) const override
+    std::optional<std::reference_wrapper<const hw::adcs>> id_to_adc(const _AdcNetName *ann) const override
     {
       if (ann->which_name != adc_net_name_tag)
       {
-        LOG_ERROR("Chimera: Expected ADC netname with tag %d, got %d", ann->which_name, adc_net_name_tag)
+        LOG_ERROR("Chimera: Expected ADC netname with tag %d, got %d", adc_net_name_tag, ann->which_name)
         return std::nullopt;
       }
       switch (ann->name.rsm_net_name)
@@ -61,21 +63,57 @@ class RSMChimeraConfig : public chimera_v2::config
           return std::cref(nBSPD_brake_pressed);
         default:
         case rsm_AdcNetName_ADC_NET_NAME_UNSPECIFIED:
-          return LOG_INFO("Chimera: Unspecified ADC net name");
+          LOG_INFO("Chimera: Unspecified ADC net name");
           return std::nullopt;
       }
     }
-
-    public:
-      RSMChimeraConfig()
+    std::optional<std::reference_wrapper<const hw::i2c>> id_to_i2c(const _I2cNetName *inn) const override
+    {
+      if (inn->which_name != i2c_net_name_tag)
       {
-        gpio_net_name_tag = GpioNetName_rsm_net_name_tag;
-        adc_net_name_tag = AdcNetName_rsm_net_name_tag;
+        LOG_ERROR("Chimera: Expected I2C netname with tag %d, got %d", idc_net_name_tag, inn->which_name)
+        return std::nullopt;
       }
+      switch (inn->name.rsm_net_name)
+      {
+        case rsm_I2cNetName_I2C_R_PUMP
+          return std::cref(r_pump);
+        default:
+        case rsm_I2cNetName_I2C_NET_NAME_UNSPECIFIED
+          LOG_INFO("Chimera: Unspecified I2C net name");
+          return std::nullopt;
+      }
+    }
+    std::optional<std::reference_wrapper<const hw::spi>> id_to_spi(const _SpiNetName *snn) const override
+    {
+      if (snn->which_name != spi_net_name_tag)
+      {
+        LOG_ERROR("Chimera: Expected SPI netname with tag %d, got %d", spi_net_name_tag, inn->which_name)
+        return std::nullopt;
+      }
+      switch (snn->name.rsm_net_name)
+      {
+        case rsm_SpiNetName_SPI_IMU
+          return std::cref(imu);
+        default:
+        case rsm_SpiNetName_SPI_NET_NAME_UNSPECIFIED
+          LOG_INFO("Chimera: Unspecified SPI net name");
+          return std::nullopt;
+      }
+    }
+    
+public:
+  RSMChimeraConfig()
+  {
+    gpio_net_name_tag = GpioNetName_rsm_net_name_tag;
+    adc_net_name_tag = AdcNetName_rsm_net_name_tag;
+    i2c_net_name_tag = I2cNetName_rsm_net_name_tag 
+    spi_net_name_tag = SpiNetName_rsm_net_name_tag;
+  }
 } rsm_config;
 
 void tasks_preInit() {}
-void tasks_init()
+void tasks_run100Hz()
 {
     chimera_v2::task(rsm_config);
 }
