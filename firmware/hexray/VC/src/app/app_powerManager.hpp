@@ -1,9 +1,10 @@
 #pragma once
-
-#include <stdint.h>
-#include "io_loadswitches.h"
+#include "app_timer.hpp"
 #include "app_loadswitches.hpp"
 
+// class EfuseChannel:
+//     public vc::app::loadswitches::EfuseChannel{
+// };
 typedef struct
 {
     bool    efuse_enable;
@@ -25,32 +26,24 @@ PowerManagerConfig app_powerManager_getConfig(void);
 bool               app_powerManager_getEfuse(LoadswitchChannel channel);
 #endif
 
+class PowerManager
+{
+  public:
+    bool    efuse_enable;
+    uint8_t timeout;
+    uint8_t max_retry;
+    uint8_t channel;
 
+#ifdef TARGET_EMBEDDED
+  private:
+#endif
 
-
-class PowerManager{
-    public: 
-        bool    efuse_enable;
-        uint8_t timeout;
-        uint8_t max_retry;
-        uint8_t channel;
-
-    #ifdef TARGET_EMBEDDED
-    private:
-
-    #endif
-
-    #ifdef TARGET_TEST
-    PowerManagerConfig app_powerManager_getConfig(void)
-    {
-        return power_manager_state;
-    }
+#ifdef TARGET_TEST
+    PowerManagerConfig app_powerManager_getConfig(void) { return power_manager_state; }
 
     bool app_powerManager_getEfuse(const LoadswitchChannel channel)
     {
         return power_manager_state.efuse_configs[channel].efuse_enable;
     }
-    #endif
-
-
+#endif
 };

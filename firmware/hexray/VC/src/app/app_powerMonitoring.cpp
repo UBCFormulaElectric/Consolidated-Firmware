@@ -1,15 +1,14 @@
-#include "app_powerMonitoring.h"
-#include "io_powerMonitoring.h"
-#include "app_canTx.h"
+#include "app_powerMonitoring.hpp"
 
-#define CH1 1u
-#define CH2 2u
+#define CH1 1u // 24
+#define CH2 2u // 5
+#define CH3 3u // 3
 
 void app_powerMonitoring_update(void)
 {
     static bool init_done = false;
 
-    if (false == init_done)
+    if (!init_done)
     {
         init_done = io_powerMonitoring_init();
     }
@@ -42,10 +41,8 @@ void app_powerMonitoring_update(void)
     }
 }
 
-
-
 // Power manager:
-//  24V channel 
-//  5V channel 
-//  3V3 channel  
-//  we have a power pump I2C pins and a Battery monitor I2C 
+//  24V channel
+//  5V channel
+//  3V3 channel
+//  we have a power pump I2C pins and a Battery monitor I2C

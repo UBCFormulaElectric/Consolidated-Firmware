@@ -1,4 +1,11 @@
 #pragma once
+#include "app_signal.hpp"
+extern "C"
+{
+#include "app_canAlerts.h"
+#include "app_canRx.h"
+#include "app_canTx.h"
+}
 
 namespace vc::app::warningHandling
 {
