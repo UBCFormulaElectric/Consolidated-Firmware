@@ -8,10 +8,15 @@ extern "C"
 #include "io_canQueue.h"
 }
 
-CanHandle can1 = { .hcan = &hfdcan2, .bus_num = 0, .receive_callback = jobs_runCanRx_callBack };
-
-const CanHandle *hw_can_getHandle(const FDCAN_HandleTypeDef *hfdcan)
+namespace hw
 {
-    assert(hfdcan == can1.hcan);
-    return &can1;
+
+fdcan can1(hfdcan2, 0, jobs_runCanRx_callBack);
+
+const fdcan &fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
+{
+    assert(hfdcan == can1.getHfdcan());
+    return can1;
 }
+
+} // namespace hw
