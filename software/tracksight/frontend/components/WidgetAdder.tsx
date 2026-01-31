@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { PlusButton } from "./PlusButton";
+import { PlusButton } from "@/components/PlusButton";
 import { SignalType } from "@/lib/types/Signal";
 import { WidgetData, MockGraphConfig } from "@/lib/types/Widget";
 
@@ -17,6 +17,8 @@ export const WidgetAdder: React.FC<WidgetAdderProps> = ({ onAddWidget }) => {
   const [mockName, setMockName] = useState("Mock Signal");
   const [mockType, setMockType] = useState<"numerical" | "enumeration">("numerical");
   const [mockDelay, setMockDelay] = useState(100);
+  const [mockMin, setMockMin] = useState<number>(-10);
+  const [mockMax, setMockMax] = useState<number>(10);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -56,6 +58,8 @@ export const WidgetAdder: React.FC<WidgetAdderProps> = ({ onAddWidget }) => {
       type: mockType,
       delay: mockDelay,
       initialPoints: 0,
+      min: mockType === "numerical" ? mockMin : undefined,
+      max: mockType === "numerical" ? mockMax : undefined,
     };
     onAddWidget({
       type: SignalType.MOCK,
@@ -67,6 +71,8 @@ export const WidgetAdder: React.FC<WidgetAdderProps> = ({ onAddWidget }) => {
     setMockName("Mock Signal");
     setMockType("numerical");
     setMockDelay(100);
+    setMockMin(-10);
+    setMockMax(10);
   };
 
   return (
@@ -139,6 +145,32 @@ export const WidgetAdder: React.FC<WidgetAdderProps> = ({ onAddWidget }) => {
                     <option value="enumeration">Enumeration</option>
                   </select>
                 </div>
+                {mockType === "numerical" && (
+                  <div className="flex gap-4">
+                    <div className="flex-1">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Min Value
+                      </label>
+                      <input
+                        type="number"
+                        value={mockMin}
+                        onChange={(e) => setMockMin(Number(e.target.value))}
+                        className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Max Value
+                      </label>
+                      <input
+                        type="number"
+                        value={mockMax}
+                        onChange={(e) => setMockMax(Number(e.target.value))}
+                        className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
+                      />
+                    </div>
+                  </div>
+                )}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Update Delay (ms)

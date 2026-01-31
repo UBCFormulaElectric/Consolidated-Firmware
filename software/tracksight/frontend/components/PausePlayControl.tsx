@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, ReactNode, Dispatch, SetStateAction, useCallback } from 'react'
 import { Play, Pause } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -13,28 +13,43 @@ interface DisplayControlContextType {
   isAutoscrollEnabled: boolean
   toggleAutoscroll: () => void
 }
-
 const DisplayControlContext = createContext<DisplayControlContextType | undefined>(undefined)
-
-const PAUSE_STATE_STORAGE_KEY = "tracksight_pause_state_v1";
-
-// retain pause state between refreshes
-function loadPauseStateFromStorage(): boolean {
-  if (typeof window === "undefined") return true; 
-  const saved = localStorage.getItem(PAUSE_STATE_STORAGE_KEY);
-  if (saved === null) return true; 
-  try {
-    return JSON.parse(saved); 
-  } catch {
-    return true; 
+// Hook to use the display control state
+export function useDisplayControl() {
+  const context = useContext(DisplayControlContext)
+  if (!context) {
+    throw new Error('useDisplayControl must be used within a DisplayControlProvider')
   }
+  return context
+}
+// Maintain backward compatibility
+export const usePausePlay = useDisplayControl
+
+// TODO move to a util folder?
+function useLocalState<T>(name: string, defaultValue: T): [T, Dispatch<SetStateAction<T>>] {
+  const [state, setState] = useState<T>(defaultValue);
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const saved = localStorage.getItem(name);
+    if (saved !== null) setState(JSON.parse(saved));
+  }, [])
+
+  const setLocalState: Dispatch<SetStateAction<T>> = (value) => {
+    localStorage.setItem(name, JSON.stringify(value));
+    setState(value);
+  }
+
+  return [state, setLocalState];
 }
 
+const PAUSE_STATE_STORAGE_KEY = "tracksight_pause_state_v1";
 // Provider component to wrap the entire app
 export function DisplayControlProvider({ children }: { children: ReactNode }) {
-  const [isPaused, setIsPaused] = useState(() => loadPauseStateFromStorage());
-  const [horizontalScale, setHorizontalScale] = useState(100) // Default to 100%
-  const [isAutoscrollEnabled, setIsAutoscrollEnabled] = useState(false) // Default to disabled
+  const [isPaused, setIsPaused] = useLocalState<boolean>(PAUSE_STATE_STORAGE_KEY, true);
+  const [horizontalScale, setHorizontalScale] = useState(100)
+  const [isAutoscrollEnabled, setIsAutoscrollEnabled] = useState(false)
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -42,13 +57,8 @@ export function DisplayControlProvider({ children }: { children: ReactNode }) {
     }
   }, [isPaused]);
 
-  const togglePause = () => {
-    setIsPaused(prev => !prev)
-  }
-
-  const toggleAutoscroll = () => {
-    setIsAutoscrollEnabled(prev => !prev)
-  }
+  const togglePause = useCallback(() => { setIsPaused(prev => !prev) }, [setIsPaused])
+  const toggleAutoscroll = useCallback(() => { setIsAutoscrollEnabled(prev => !prev) }, [setIsAutoscrollEnabled])
 
   return (
     <DisplayControlContext.Provider value={{
@@ -64,25 +74,9 @@ export function DisplayControlProvider({ children }: { children: ReactNode }) {
   )
 }
 
-// Maintain backward compatibility
-export const PausePlayProvider = DisplayControlProvider
-
-// Hook to use the display control state
-export function useDisplayControl() {
-  const context = useContext(DisplayControlContext)
-  if (!context) {
-    throw new Error('useDisplayControl must be used within a DisplayControlProvider')
-  }
-  return context
-}
-
-// Maintain backward compatibility
-export const usePausePlay = useDisplayControl
-
 // The circular play/pause button component
 export function PausePlayButton() {
   const { isPaused, togglePause } = useDisplayControl()
-
   return (
     <button
       onClick={togglePause}
