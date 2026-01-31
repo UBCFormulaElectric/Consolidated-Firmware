@@ -1,10 +1,8 @@
 #include "tasks.h"
 
-#include <cassert>
 #include <cmsis_os2.h>
 #include <io_canRx.h>
 #include "main.h"
-#include "jobs.hpp"
 
 // io
 #include "io_time.hpp"
@@ -15,48 +13,44 @@
 extern "C"
 {
 #include "hw_bootup.h"
-#include "hw_resetReason.h"
-#include "io_canQueue.h"
 #include "io_canTx.h"
+#include "app_canTx.h"
+#include "app_canRx.h"
+#include "hw_resetReason.h"
 }
 
 #include "hw_cans.hpp"
 #include "io_canMsgQueues.hpp"
 #include "app_jsoncan.hpp"
+#include "hw_usb.hpp"
 
-[[noreturn]] static void tasks_run1Hz(void *arg)
+char USBD_PRODUCT_STRING_FS[] = "h5dev";
+void hw::usb::receive(const std::span<uint8_t> dest)
 {
-    uint32_t start_ticks = osKernelGetTickCount();
+    LOG_INFO("Recieved a span of length %d", dest.size());
+}
+
+[[noreturn]] static void tasks_runCanBroadcast(void *arg)
+{
+    uint32_t last_1hz = 0, last_100hz = 0;
+    osDelay(osWaitForever);
     forever
     {
-        constexpr uint32_t period_ms = 1000U;
-        jobs_run1Hz_tick();
-        start_ticks += period_ms;
-        io::time::delayUntil(start_ticks);
+        const uint32_t t = io::time::getCurrentMs();
+        if (t - last_1hz > 1000)
+        {
+            io_canTx_enqueue1HzMsgs();
+            last_1hz = t;
+        }
+        else if (t - last_100hz > 10)
+        {
+            io_canTx_enqueue100HzMsgs();
+            last_100hz = t;
+        }
+        io_canTx_enqueueOtherPeriodicMsgs(t);
     }
 }
-[[noreturn]] static void tasks_run100Hz(void *arg)
-{
-    uint32_t start_ticks = osKernelGetTickCount();
-    forever
-    {
-        constexpr uint32_t period_ms = 10U;
-        jobs_run100Hz_tick();
-        start_ticks += period_ms;
-        io::time::delayUntil(start_ticks);
-    }
-}
-[[noreturn]] static void tasks_run1kHz(void *arg)
-{
-    uint32_t start_ticks = osKernelGetTickCount();
-    forever
-    {
-        constexpr uint32_t period_ms = 1U;
-        jobs_run1kHz_tick();
-        start_ticks += period_ms;
-        io::time::delayUntil(start_ticks);
-    }
-}
+
 [[noreturn]] static void tasks_runCanTx(void *arg)
 {
     forever
@@ -75,12 +69,21 @@ extern "C"
     }
 }
 
+[[noreturn]] static void tasks_loop(void *arg)
+{
+    forever
+    {
+        std::array<uint8_t, 8> a{ { 1, 2, 3, 4, 5, 6, 7, 8 } };
+        hw::usb::transmit(a);
+        io::time::delay(1000);
+    }
+}
+
 // Define the task with StaticTask template class
-static hw::rtos::StaticTask<512> Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz);
-static hw::rtos::StaticTask<512> Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz);
-static hw::rtos::StaticTask<512> Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz);
+static hw::rtos::StaticTask<512> TaskCanBroadcast(osPriorityAboveNormal, "Task1Hz", tasks_runCanBroadcast);
 static hw::rtos::StaticTask<512> TaskCanRx(osPriorityBelowNormal, "TaskCanRx", tasks_runCanRx);
 static hw::rtos::StaticTask<512> TaskCanTx(osPriorityBelowNormal, "TaskCanTx", tasks_runCanTx);
+static hw::rtos::StaticTask<512> TaskLoop(osPriorityBelowNormal, "TaskLoop", tasks_loop);
 
 void tasks_preInit()
 {
@@ -98,7 +101,7 @@ void tasks_init()
 
     hw_hardFaultHandler_init();
     fdcan1.init();
-    // LOG_IF_ERR(hw_usb_init());
+    LOG_IF_ERR(hw::usb::init());
 
     // Check for watchdog timeout on a previous boot cycle.
     if (const ResetReason reset_reason = hw_resetReason_get(); reset_reason == RESET_REASON_WATCHDOG)
@@ -119,15 +122,26 @@ void tasks_init()
         hw_bootup_setBootRequest(boot_request);
     }
 
-    jobs_init();
+    app_canTx_init();
+    app_canRx_init();
+
+    io_canTx_init(
+        [](const JsonCanMsg *tx_msg)
+        {
+            const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
+            can_tx_queue.pushMsgToQueue(&msg);
+        });
+    io_canTx_enableMode_FDCAN(FDCAN_MODE_DEFAULT, true);
+
+    can_tx_queue.init();
+    can_rx_queue.init();
     io_canTx_H5_Bootup_sendAperiodic();
 
     osKernelInitialize();
-    Task1kHz.start();
-    Task100Hz.start();
-    Task1Hz.start();
+    TaskCanBroadcast.start();
     TaskCanRx.start();
     TaskCanTx.start();
+    TaskLoop.start();
     osKernelStart();
     forever {}
 }

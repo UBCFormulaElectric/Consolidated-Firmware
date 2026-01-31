@@ -38,7 +38,10 @@ extern "C"
     /* Exported types ------------------------------------------------------------*/
     /* USER CODE BEGIN ET */
     extern FDCAN_HandleTypeDef hfdcan1;
+    extern IWDG_HandleTypeDef  hiwdg;
+    extern RTC_HandleTypeDef   hrtc;
     extern SPI_HandleTypeDef   hspi1;
+    extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
     /* USER CODE END ET */
 
     /* Exported constants --------------------------------------------------------*/
