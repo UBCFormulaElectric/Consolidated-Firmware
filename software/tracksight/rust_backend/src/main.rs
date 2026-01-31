@@ -5,6 +5,10 @@ use tokio::sync::RwLock;
 use tokio::sync::broadcast;
 use tokio::task::{JoinSet};
 
+use crate::config::CONFIG;
+use jsoncan_rust::parsing::JsonCanParser;
+use jsoncan_rust::can_database::CanDatabase;
+
 mod config;
 mod tasks;
 use tasks::telem_message::CanPayload;
@@ -43,6 +47,7 @@ async fn main() {
     // track which clients subscribe to which signals
     // maps signal name to client ids
     let clients = Arc::new(RwLock::new(Clients::new()));
+
 
     // start tasks
     tasks.spawn(run_api_handler(shutdown_rx.resubscribe(), clients.clone()));
