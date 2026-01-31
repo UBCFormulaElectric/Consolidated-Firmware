@@ -3,13 +3,14 @@ message("⚙️ Configuring Shared")
 
 IF ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE SHARED_APP_SRCS CONFIGURE_DEPENDS "${SHARED_APP_INCLUDE_DIR}/*.c")
+
     # shared modules tests
     file(GLOB_RECURSE SHARED_TEST_SRCS CONFIGURE_DEPENDS
             "${CMAKE_CURRENT_SOURCE_DIR}/test/*.c"
             "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp"
     )
     set(SRCS ${SHARED_TEST_SRCS} ${SHARED_APP_SRCS})
-    set(INCLUDE_DIRS ${SHARED_APP_INCLUDE_DIR} ${FFF_DIR} ${SHARED_TEST_UTILS_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR})
+    set(INCLUDE_DIRS ${SHARED_APP_INCLUDE_DIR} ${SHARED_APP_INCLUDE_DIR_CPP} ${FFF_DIR} ${SHARED_TEST_UTILS_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR})
     compile_gtest_executable("shared_test" "${SRCS}" "${INCLUDE_DIRS}")
 
     # jsoncan lib
