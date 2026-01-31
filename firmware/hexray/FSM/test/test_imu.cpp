@@ -22,7 +22,6 @@ TEST_F(ImuModulesTest, normal_imuConditions)
     fakes::io_imu::set_AngularVelocityRoll(0.1f);
     fakes::io_imu::set_AngularVelocityPitch(0.2f);
     fakes::io_imu::set_AngularVelocityYaw(0.3f);
-
     LetTimePass(100);
 
     EXPECT_EQ(app_canTx_FSM_LinearAccelerationX_get(), 1.0f);

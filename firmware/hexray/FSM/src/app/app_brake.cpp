@@ -5,23 +5,15 @@ extern "C"
 #include "app_canTx.h"
 #include "app_canAlerts.h"
 }
-<<<<<<< HEAD
-
-#include <cmath>
-=======
 #include <cmath>
 
->>>>>>> master
 namespace app::brake
 {
 void broadcast(void)
 {
-<<<<<<< HEAD
-=======
     static constexpr float MIN_BRAKE_PRESSURE_PSI = (0.0f);
     static constexpr float MAX_BRAKE_PRESSURE_PSI = (1000.0f);
 
->>>>>>> master
     const bool  brake_pressed             = io::brake::isActuated();
     const float front_pressure            = io::brake::getFrontPressurePsi();
     const bool  front_brake_pressure_ocsc = io::brake::OCSC();

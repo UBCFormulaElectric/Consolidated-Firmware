@@ -40,7 +40,6 @@
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
-<<<<<<< HEAD
 DMA_NodeTypeDef   Node_GPDMA1_Channel0;
 DMA_QListTypeDef  List_GPDMA1_Channel0;
 DMA_HandleTypeDef handle_GPDMA1_Channel0;
@@ -52,11 +51,6 @@ SPI_HandleTypeDef hspi1;
 TIM_HandleTypeDef htim2;
 
 PCD_HandleTypeDef hpcd_USB_DRD_FS;
-=======
-ADC_HandleTypeDef hadc2;
-
-I2C_HandleTypeDef hi2c1;
->>>>>>> master
 
 /* USER CODE BEGIN PV */
 
@@ -66,18 +60,12 @@ I2C_HandleTypeDef hi2c1;
 void        SystemClock_Config(void);
 void        PeriphCommonClock_Config(void);
 static void MX_GPIO_Init(void);
-<<<<<<< HEAD
 static void MX_GPDMA1_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_FDCAN1_Init(void);
 static void MX_USB_PCD_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_TIM2_Init(void);
-=======
-static void MX_ADC1_Init(void);
-static void MX_ADC2_Init(void);
-static void MX_I2C1_Init(void);
->>>>>>> master
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -118,18 +106,12 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
-<<<<<<< HEAD
     MX_GPDMA1_Init();
     MX_ADC1_Init();
     MX_FDCAN1_Init();
     MX_USB_PCD_Init();
     MX_SPI1_Init();
     MX_TIM2_Init();
-=======
-    MX_ADC1_Init();
-    MX_ADC2_Init();
-    MX_I2C1_Init();
->>>>>>> master
     /* USER CODE BEGIN 2 */
     tasks_init();
     /* USER CODE END 2 */
@@ -165,7 +147,6 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-<<<<<<< HEAD
     RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI48 | RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_CSI;
     RCC_OscInitStruct.LSIState            = RCC_LSI_ON;
     RCC_OscInitStruct.HSI48State          = RCC_HSI48_ON;
@@ -181,13 +162,6 @@ void SystemClock_Config(void)
     RCC_OscInitStruct.PLL.PLLRGE          = RCC_PLL1_VCIRANGE_2;
     RCC_OscInitStruct.PLL.PLLVCOSEL       = RCC_PLL1_VCORANGE_WIDE;
     RCC_OscInitStruct.PLL.PLLFRACN        = 0;
-=======
-    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI;
-    RCC_OscInitStruct.HSIState            = RCC_HSI_ON;
-    RCC_OscInitStruct.HSIDiv              = RCC_HSI_DIV2;
-    RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
-    RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_NONE;
->>>>>>> master
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
         Error_Handler();
@@ -203,11 +177,7 @@ void SystemClock_Config(void)
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
     RCC_ClkInitStruct.APB3CLKDivider = RCC_HCLK_DIV1;
 
-<<<<<<< HEAD
     if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
-=======
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
->>>>>>> master
     {
         Error_Handler();
     }
@@ -701,7 +671,6 @@ static void MX_GPIO_Init(void)
 
     /* GPIO Ports Clock Enable */
     __HAL_RCC_GPIOC_CLK_ENABLE();
-<<<<<<< HEAD
     __HAL_RCC_GPIOH_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
@@ -746,10 +715,6 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-=======
-    __HAL_RCC_GPIOA_CLK_ENABLE();
-    __HAL_RCC_GPIOB_CLK_ENABLE();
->>>>>>> master
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
 

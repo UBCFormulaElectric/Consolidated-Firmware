@@ -20,8 +20,9 @@ list(APPEND APP_SRCS
         "${SHARED_APP_INCLUDE_DIR}/app_rangeCheck.c"
 )
 set(APP_INCLUDE_DIRS
-        # "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
-        "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR_CPP}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
+        "${SHARED_APP_INCLUDE_DIR}" 
+        "${SHARED_APP_INCLUDE_DIR_CPP}"
 )
 
 file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.cpp")
@@ -34,8 +35,6 @@ set(IO_INCLUDE_DIRS
         "${SHARED_IO_INCLUDE_DIR}" 
         "${SHARED_IO_INCLUDE_DIR_CPP}"
 )
-
-
 
 file(GLOB_RECURSE HW_SRCS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp"

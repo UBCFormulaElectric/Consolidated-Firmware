@@ -1,5 +1,4 @@
 #include "io_brake.hpp"
-<<<<<<< HEAD
 #include "hw_adcs.hpp"
 #include "hw_gpios.hpp"
 
@@ -25,36 +24,15 @@ static float pressureFromVoltage(float voltage)
 bool isActuated(void)
 {
     return io::brake::getFrontPressurePsi() > BRAKE_ACTUATED_THRESHOLD_PSI;
-=======
-// #include "hw_adcs.hpp"
-// #include "hw_gpios.hpp"
-
-// Just some dummy functions to pass the Github build checks, NEEDED TO IMPLEMENT THESE FUNCTIONS LATER
-namespace io::brake
-{
-bool isActuated(void)
-{
-    return false;
->>>>>>> master
 }
 
 float getFrontPressurePsi(void)
 {
-<<<<<<< HEAD
     return pressureFromVoltage(hw::adcs::bps_f.getVoltage());
-=======
-    return 0;
->>>>>>> master
 }
 
 bool OCSC(void)
 {
-<<<<<<< HEAD
     return !hw::gpios::nbps_f_ocsc.readPin();
 }
 } // namespace io::brake
-=======
-    return false;
-}
-} // namespace io::brake
->>>>>>> master

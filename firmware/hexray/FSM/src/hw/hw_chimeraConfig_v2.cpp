@@ -6,14 +6,11 @@ extern "C"
 
 #include "hw_chimeraConfig_v2.hpp"
 #include "hw_gpios.hpp"
-#include "hw_i2cs.hpp"
+#include "hw_spis.hpp"
 #include "hw_adcs.hpp"
 
 namespace hw::chimera_v2
 {
-
-}
-
 const Gpio *id_to_gpio[] = { [fsm_GpioNetName_GPIO_BOTS_3v3]         = &bots_3v3,
                              [fsm_GpioNetName_GPIO_COCKPIT_SHDN_3v3] = &cockpit_shdn_3v3,
                              [fsm_GpioNetName_GPIO_IMU_FSYNC]        = &imu_fsync,
@@ -26,7 +23,7 @@ const Gpio *id_to_gpio[] = { [fsm_GpioNetName_GPIO_BOTS_3v3]         = &bots_3v3
                              [fsm_GpioNetName_GPIO_NBPS_F_OCSC]      = &nbps_f_ocsc,
                              [fsm_GpioNetName_GPIO_BOOT_LED]         = &boot_led };
 
-const AdcChannel *id_to_adc[] = { [fsm_AdcNetName_ADC_SUSP_FL] = &susp_fl,     [fsm_AdcNetName_ADC_SUSP_FR] = &susp_fr,
+const Adc *id_to_adc[] = { [fsm_AdcNetName_ADC_SUSP_FL] = &susp_fl,     [fsm_AdcNetName_ADC_SUSP_FR] = &susp_fr,
                                   [fsm_AdcNetName_ADC_APPS2] = &apps2,         [fsm_AdcNetName_ADC_BPS_F] = &bps_f,
                                   [fsm_AdcNetName_ADC_STR_ANGLE] = &str_angle, [fsm_AdcNetName_ADC_APPS1] = &apps1 };
 
@@ -38,3 +35,4 @@ hw_chimera_v2_Config chimera_v2_config = { .gpio_net_name_tag = GpioNetName_fsm_
                                            .id_to_adc         = id_to_adc,
                                            .spi_net_name_tag  = SpiNetName_fsm_net_name_tag,
                                            .id_to_spi         = id_to_spi };
+}

@@ -1,21 +1,21 @@
 #include "hw_cans.hpp"
-#include "tasks.hpp"
 #include <cassert>
 extern "C"
 {
+#include "tasks.h"
 #include "main.h"
 }
 
 namespace hw::cans
 {
-can fdcan1 = can(hfdcan1, 0, tasks_runCanRxCallback);
+fdcan fdcan1 = fdcan(hfdcan1, 0, tasks_runCanRxCallback);  // Callback func where to define?
 } // namespace hw::cans
 
 namespace hw
 {
-const can &hw_can_getHandle(const FDCAN_HandleTypeDef *hcan)
+const fdcan &fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
 {
-    assert(hcan == hw::cans::fdcan1.getHcan()); // Shared HW CAN Header file should change to use FDCAN???
+    assert(hfdcan == hw::cans::fdcan1.getHfdcan());
     return hw::cans::fdcan1;
 }
 } // namespace hw

@@ -7,15 +7,15 @@ extern "C"
 
 namespace hw::gpios
 {
-extern constexpr Gpio bots_3v3;
-extern constexpr Gpio cockpit_shdn_3v3;
-extern constexpr Gpio imu_fsync;
-extern constexpr Gpio nsusp_fl_ocsc;
-extern constexpr Gpio nsusp_fr_ocsc;
-extern constexpr Gpio fr_int_3v3;
-extern constexpr Gpio fl_int_3v3;
-extern constexpr Gpio debug_led;
-extern constexpr Gpio nstr_angle_ocsc;
-extern constexpr Gpio nbps_f_ocsc;
-extern constexpr Gpio boot_led;
+extern const Gpio bots_3v3;
+extern const Gpio cockpit_shdn_3v3;
+extern const Gpio imu_fsync;
+extern const Gpio nsusp_fl_ocsc;
+extern const Gpio nsusp_fr_ocsc;
+extern const Gpio fr_int_3v3;
+extern const Gpio fl_int_3v3;
+extern const Gpio debug_led;
+extern const Gpio nstr_angle_ocsc;
+extern const Gpio nbps_f_ocsc;
+extern const Gpio boot_led;
 } // namespace hw::gpios
