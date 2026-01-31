@@ -12,19 +12,18 @@
         __asm__ __volatile__("bkpt #0");                  \
     }
 
-inline ExitCode hw_utils_convertHalStatus(const HAL_StatusTypeDef status)
+inline std::expected<void, ErrorCode> hw_utils_convertHalStatus(const HAL_StatusTypeDef status)
 {
     switch (status)
     {
-        case HAL_OK:
-            return ExitCode::EXIT_CODE_OK;
         case HAL_ERROR:
-            return ExitCode::EXIT_CODE_ERROR;
+            return std::unexpected(ErrorCode::ERROR);
         case HAL_BUSY:
-            return ExitCode::EXIT_CODE_BUSY;
+            return std::unexpected(ErrorCode::BUSY);
         case HAL_TIMEOUT:
-            return ExitCode::EXIT_CODE_TIMEOUT;
+            return std::unexpected(ErrorCode::TIMEOUT);
+        case HAL_OK:
         default:
-            return ExitCode::EXIT_CODE_OK;
+            return {};
     }
 }

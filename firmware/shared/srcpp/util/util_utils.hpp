@@ -16,6 +16,8 @@
         unsigned char _unused; \
     } name;
 
+#define NUM_ELEMENTS_IN_ARRAY(array_pointer) sizeof(array_pointer) / sizeof(array_pointer[0])
+
 #ifdef __cplusplus
 #define CFUNC extern "C"
 #define NORET [[noreturn]]
@@ -41,17 +43,18 @@
 #define DEBUG_BREAK() __debugbreak()
 #elif defined(__APPLE__) || defined(__linux__)
 #include <cstdio>
-#include <cstring>
 #include <cstdlib>
+#include <cstring>
 #include <signal.h>
 #include <unistd.h>
-
+#if defined(__APPLE__)
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#endif
 static inline int IS_DEBUGGER_PRESENT(void)
 {
 #if defined(__APPLE__)
     // macOS: use sysctl to detect debugger
-#include <sys/types.h>
-#include <sys/sysctl.h>
     int               mib[4];
     struct kinfo_proc info;
     size_t            size = sizeof(info);
@@ -101,3 +104,4 @@ static inline int IS_DEBUGGER_PRESENT(void)
 #else
 #error "TARGET_EMBEDDED or TARGET_TEST must be defined"
 #endif
+#undef ERROR

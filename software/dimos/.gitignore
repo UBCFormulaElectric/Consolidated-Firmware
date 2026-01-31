@@ -1,65 +1,45 @@
-# C++ objects and libs
-*.slo
-*.lo
-*.o
-*.a
-*.la
-*.lai
-*.so
-*.so.*
-*.dll
-*.dylib
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
 
-# Qt-es
-object_script.*.Release
-object_script.*.Debug
-*_plugin_import.cpp
-/.qmake.cache
-/.qmake.stash
-*.pro.user
-*.pro.user.*
-*.qbs.user
-*.qbs.user.*
-*.moc
-moc_*.cpp
-moc_*.h
-qrc_*.cpp
-*.qmlc
-*.jsc
-Makefile*
-*build-*
-*.qm
-*.prl
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
 
-# Qt unit tests
-target_wrapper.*
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
 
-# QtCreator
-*.autosave
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
 
-# QtCreator Qml
-*.qmlproject.user
-*.qmlproject.user.*
+# Symbolication related
+app.*.symbols
 
-# QtCreator CMake
-CMakeLists.txt.user*
+# Obfuscation related
+app.*.map.json
 
-# QtCreator 4.8< compilation database
-compile_commands.json
-
-# QtCreator local machine specific files for imported projects
-*creator.user*
-
-*_qmlcache.qrc
-
-.idea
-
-# for my mac user
-**/.DS_Store
-!.dockerignore
-
-**/*.txt
-!**/*/CMakeLists.txt
-
-flash.ps1
-flash.sh
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
