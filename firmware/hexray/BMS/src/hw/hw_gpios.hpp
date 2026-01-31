@@ -2,8 +2,6 @@
 
 #include "hw_gpio.hpp"
 
-// Note: If `hw_gpio.h` isn't being brought up we need to declare Gpio struct here
-
 namespace hw::gpio
 {
 extern const Gpio led_b_pin;

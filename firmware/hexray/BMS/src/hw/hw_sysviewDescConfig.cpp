@@ -1,4 +1,4 @@
-#include "SEGGER_SYSVIEW.h" // Note: Are we planning on making an hpp version?
+#include "SEGGER_SYSVIEW.h" // Note: This will be updated at a later date.
 
 namespace hw::sysviewDescConfig
 {
