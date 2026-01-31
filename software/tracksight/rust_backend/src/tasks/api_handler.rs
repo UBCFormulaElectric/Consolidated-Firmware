@@ -1,5 +1,6 @@
 
 use std::sync::Arc;
+use std::sync::Mutex;
 use axum::response::IntoResponse;
 use axum::serve::Listener;
 use jsoncan_rust::can_database::CanDatabase;
@@ -11,20 +12,26 @@ use axum::{Router, routing::get};
 use axum::extract::ws::{WebSocket, WebSocketUpgrade};
 use socketioxide::{SocketIo, extract::SocketRef};
 use crate::config::CONFIG;
+use crate::tasks::can_data::load_can_database;
 use crate::tasks::client_api::clients::Clients;
 use crate::tasks::client_api::subtable::get_subtable_router;
 
 #[derive(Clone)]
 struct AppState {
-    candb: CanDatabase,
+    candb: Arc<CanDatabase>,
     clients: Arc<RwLock<Clients>>,
 }
 
-pub async fn run_api_handler(mut shutdown_rx: broadcast::Receiver<()>, clients: Arc<RwLock<Clients>>) {
+pub async fn run_api_handler(mut shutdown_rx: broadcast::Receiver<()>, clients: Arc<RwLock<Clients>>, can_db: Arc<CanDatabase>) {
     let addr = format!("0.0.0.0:{}", CONFIG.backend_port);
     let listener = TcpListener::bind(addr).await.unwrap();
 
     let (socket_layer, io) = SocketIo::new_layer();
+
+    let app_state = AppState {
+        candb: can_db,
+        clients: clients.clone(),
+    };
 
     // default socketio endpoint
     io.ns("/", |socket: SocketRef| async move {
@@ -38,21 +45,6 @@ pub async fn run_api_handler(mut shutdown_rx: broadcast::Receiver<()>, clients: 
             println!("{} disconnected", client_id);
         });
     });
-
-    // TODO dupe logic
-    let parser = JsonCanParser::new(CONFIG.jsoncan_config_path.clone());
-    let can_db = match CanDatabase::from(parser) {
-        Ok(db) => db,
-        Err(e) => {
-            eprintln!("Failed to load CAN database: {:?}", e);
-            return;
-        }
-    };
-    
-    let app_state = AppState {
-        candb: can_db,
-        clients: clients.clone(),
-    };
 
     let app = Router::new()
         .with_state(app_state)

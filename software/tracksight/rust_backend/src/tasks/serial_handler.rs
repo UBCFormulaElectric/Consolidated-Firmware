@@ -82,7 +82,7 @@ const CRC32_CALC: Crc<u32> = Crc::<u32>::new(&CRC_32_ISO_HDLC);
  * Blocking handler that reads packets and sends it to the handler
  * This separate blocking thread is needed for optimal multithreading with tokio
  */
-fn packet_reader_handler(shutdown_flag: Arc<AtomicBool>, packet_tx: mpsc::Sender<Vec<u8>>) {   
+async fn packet_reader_handler(shutdown_flag: Arc<AtomicBool>, packet_tx: mpsc::Sender<Vec<u8>>) {   
     let mut serial_port = serialport::new(
         &CONFIG.serial_port,
         CONFIG.serial_baud_rate
@@ -93,7 +93,7 @@ fn packet_reader_handler(shutdown_flag: Arc<AtomicBool>, packet_tx: mpsc::Sender
 
     while !shutdown_flag.load(Ordering::Acquire) {
         match read_packet(&mut serial_port) {
-            Ok(p) => match packet_tx.blocking_send(p) {
+            Ok(p) => match packet_tx.send(p).await {
                 Ok(_) => {},
                 Err(_) => break, // packet receiver closed, exit thread
             },
