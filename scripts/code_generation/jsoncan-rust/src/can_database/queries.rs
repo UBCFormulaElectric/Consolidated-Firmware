@@ -6,8 +6,8 @@ impl CanDatabase {
         node_name: &str,
     ) -> Result<Vec<CanMessage>, CanDBError> {
         // Returns list of messages transmitted by node_name
-        let mut s = self
-            .conn
+        let binding = self.get_connection()?;
+        let mut s = binding
             .prepare("SELECT * FROM messages WHERE tx_node_name = ?1")
             .unwrap();
 
@@ -43,8 +43,8 @@ impl CanDatabase {
         message_id: u32,
     ) -> Result<Vec<CanSignal>, CanDBError> {
         // Returns list of signals for a given message ID
-        let mut s = self
-            .conn
+        let binding = self.get_connection()?;
+        let mut s = binding
             .prepare("SELECT * FROM signals WHERE message_id = ?1")
             .unwrap();
 
@@ -89,21 +89,23 @@ impl CanDatabase {
         }
     }
 
-    pub fn get_allrx_for(self: &Self, node_name: &str) -> Vec<u32> {
-        let mut s = self
-            .conn
-            .prepare("SELECT id FROM messages WHERE tx_node_name != ?1")
+    pub fn get_all_rx_msgs_for(self: &Self, node_name: &str) -> Result<Vec<u32>, CanDBError> {
+        let binding = self.get_connection()?;
+        let mut s = binding
+            .prepare("SELECT name FROM messages WHERE tx_node_name != ?1")
             .unwrap();
 
-        s.query_map([node_name], |row| Ok(row.get::<_, u32>(0)?))
+        let res = s.query_map([node_name], |row| Ok(row.get::<_, u32>(0)?))
             .unwrap()
             .map(|res| res.unwrap())
-            .collect()
+            .collect();
+
+        Ok(res)
     }
 
     pub fn get_message_by_name(self: &Self, message_name: &str) -> Result<CanMessage, CanDBError> {
-        let mut s = self
-            .conn
+        let binding = self.get_connection()?;
+        let mut s = binding
             .prepare("SELECT name, id, description, cycle_time, log_cycle_time, telem_cycle_time, tx_node_name, modes FROM messages WHERE name = ?1")
             .unwrap();
 
@@ -126,8 +128,9 @@ impl CanDatabase {
     }
 
     pub fn get_message_id_by_name(self: &Self, message_name: &str) -> Result<u32, CanDBError> {
-        let mut s = self
-            .conn
+        let binding = self.get_connection()?;
+
+        let mut s = binding
             .prepare("SELECT id FROM messages WHERE name = ?1")
             .unwrap();
 
@@ -138,8 +141,8 @@ impl CanDatabase {
     }
 
     pub fn get_message_name_by_id(self: &Self, message_id: u32) -> Result<String, CanDBError> {
-        let mut s = self
-            .conn
+        let binding = self.get_connection()?;
+        let mut s = binding
             .prepare("SELECT name FROM messages WHERE id = ?1")
             .unwrap();
 
@@ -150,8 +153,8 @@ impl CanDatabase {
     }
 
     pub fn get_message_by_id(self: &Self, message_id: u32) -> Result<CanMessage, CanDBError> {
-        let mut s = self
-            .conn
+        let binding = self.get_connection()?;
+        let mut s = binding
             .prepare("SELECT * FROM messages WHERE id = ?1")
             .unwrap();
 
@@ -174,7 +177,8 @@ impl CanDatabase {
     }
 
     pub fn get_all_msgs(self: &Self) -> Result<Vec<CanMessage>, CanDBError> {
-        let mut s = self.conn.prepare("SELECT * FROM messages").unwrap();
+        let binding = self.get_connection()?;
+        let mut s = binding.prepare("SELECT * FROM messages").unwrap();
 
         match s.query_map([], |row| {
             Ok(CanMessage {
