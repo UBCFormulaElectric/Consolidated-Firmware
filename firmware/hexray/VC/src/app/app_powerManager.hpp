@@ -2,6 +2,8 @@
 #include "app_timer.hpp"
 #include "app_loadswitches.hpp"
 
+namespace vc::app::powerManager
+{
 // class EfuseChannel:
 //     public vc::app::loadswitches::EfuseChannel{
 // };
@@ -47,3 +49,4 @@ class PowerManager
     }
 #endif
 };
+} // namespace vc::app::powerManager

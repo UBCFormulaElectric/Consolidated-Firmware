@@ -1,5 +1,7 @@
 #pragma once
 
-#include <stdint.h>
-
+#include <cstdint>
+namespace vc::app::pumpControl
+{
 void app_pumpControl_MonitorPumps(void);
+}

@@ -1,7 +1,9 @@
-#include <assert.h>
-#include <math.h>
 
 #include "app_sbgEllipse.h"
+extern "C"
+{
+#include <assert.h>
+#include <math.h>
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_utils.h"
@@ -9,16 +11,10 @@
 #include "app_vehicleDynamicsConstants.h"
 #include "io_log.h"
 #include "io_sbgEllipse.h"
+}
 
-/**
- * SBG is able to interface with uart however
- * i encountered 1 random uart error, none before or after
- *
- * it is stuck in solution mode unintialized, either it is
- * literally uninitialized or it needs movement for ekf to
- * begin working and converge
- */
-
+namespace vc::app::sbgEllipse
+{
 static float       vehicle_velocity;
 static VcEkfStatus ekf_solution_mode;
 
@@ -68,34 +64,6 @@ void app_sbgEllipse_broadcast()
         // app_canTx_VC_EkfSolutionMode_set(ekf_solution_mode);
     }
 
-    // app_canTx_VC_VehicleVelocity_set(vehicle_velocity);
-    // app_canTx_VC_VehicleVelocityCalculated_set(vehicle_velocity_calculated);
-
-    // Position EKF
-    // const double ekf_pos_lat  = io_sbgEllipse_getEkfNavPositionData()->latitude;
-    // const double ekf_pos_long = io_sbgEllipse_getEkfNavPositionData()->longitude;
-
-    // app_canTx_VC_Latitude_set((float)ekf_pos_lat);
-    // app_canTx_VC_Longtitude_set((float)ekf_pos_long);
-
-    // Acceleration msg
-    // const float forward_accel  = io_sbgEllipse_getImuAccelerations()->x;
-    // const float lateral_accel  = io_sbgEllipse_getImuAccelerations()->y;
-    // const float vertical_accel = io_sbgEllipse_getImuAccelerations()->z;
-
-    // app_canTx_VC_AccelerationForward_set(forward_accel);
-    // app_canTx_VC_AccelerationLateral_set(lateral_accel);
-    // app_canTx_VC_AccelerationVertical_set(vertical_accel);
-
-    // Angular velocity msg
-    // const float ang_vel_roll  = io_sbgEllipse_getImuAngularVelocities()->roll;
-    // const float ang_vel_pitch = io_sbgEllipse_getImuAngularVelocities()->pitch;
-    // const float ang_vel_yaw   = io_sbgEllipse_getImuAngularVelocities()->yaw;
-
-    // app_canTx_VC_AngularVelocityRoll_set((int)ang_vel_roll);
-    // app_canTx_VC_AngularVelocityPitch_set((int)ang_vel_pitch);
-    // app_canTx_VC_AngularVelocityYaw_set((int)ang_vel_yaw);
-
     // Euler angles msg
     const float euler_roll  = io_sbgEllipse_getEkfEulerAngles()->roll;
     const float euler_pitch = io_sbgEllipse_getEkfEulerAngles()->pitch;
@@ -106,28 +74,6 @@ void app_sbgEllipse_broadcast()
     app_canTx_VC_EulerAnglesYaw_set(euler_yaw);
 }
 
-// void app_sbgEllipse_calculateVelocity(VelocityData *velocity)
-// {
-//     // These velocity calculations are not going to be super accurate because it
-//     // currently does not compute a proper relative y-axis velocity because no yaw rate
-
-//     const float rightMotorRPM = (float)-app_canRx_INVR_MotorSpeed_get();
-//     const float leftMotorRPM  = (float)app_canRx_INVL_MotorSpeed_get();
-
-//     float leftWheelVelocity  = MOTOR_RPM_TO_KMH(leftMotorRPM);
-//     float rightWheelVelocity = MOTOR_RPM_TO_KMH(rightMotorRPM);
-
-//     float velocityX = (leftWheelVelocity + rightWheelVelocity) / 2.0f;
-
-//     // This is technically velocity in the x-axis as it is relative
-//     velocity->north = velocityX;
-
-//     // This is technically velocity in the y-axis as it is relative
-//     velocity->east = 0;
-
-//     velocity->down = 0;
-// }
-
 float app_sbgEllipse_getVehicleVelocity(void)
 {
     return vehicle_velocity;
@@ -137,3 +83,4 @@ VcEkfStatus app_sbgEllipse_getEkfSolutionMode(void)
 {
     return ekf_solution_mode;
 }
+} // namespace vc::app::sbgEllipse

@@ -1,11 +1,13 @@
 #include "app_faultHandling.hpp"
-// #include <app_canRx.hpp>
-// #include <app_canUtils.h>
-// #include <app_canAlerts.h>
-// #include "app_stateMachine.h"
-// #include "states/app_states.h"
-
-#define CONTACTOR_STATE_CLOSED 1
+extern "C"
+{
+#include <app_canRx.hpp>
+#include <app_canUtils.h>
+#include <app_canAlerts.h>
+#include "app_stateMachine.h"
+#include "states/app_states.h"
+}
+constexpr uint8_t CONTACTOR_STATE_CLOSED = 1u;
 
 bool app_faultHandling_air_minus_closed(void)
 {

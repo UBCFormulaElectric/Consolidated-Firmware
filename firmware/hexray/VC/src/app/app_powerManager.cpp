@@ -1,13 +1,19 @@
 #include "app_powerManager.hpp"
 
-// #include "io_loadswitches.h"
-// #include "app_canAlerts.h"
+extern "C"
+{
+#include "io_loadswitches.h"
+#include "app_canAlerts.h"
 
-// #include <stdbool.h>
-// #include <stdint.h>
-// #include <assert.h>
-// #include <stddef.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <assert.h>
+#include <stddef.h>
+}
+namespace vc::app::powerManager
+{
 
+} // namespace vc::app::powerManager
 // static PowerManagerConfig power_manager_state;
 // static TimerChannel       sequencing_timer;
 

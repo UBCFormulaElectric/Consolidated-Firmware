@@ -1,8 +1,14 @@
-#include "app_shdnLast.h"
+#include "app_shdnLast.hpp"
+#include "io_shdnLoopNode.hpp"
+extern "C"
+{
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include <app_canUtils.h>
+}
 
+namespace vc::app::shdnLast
+{
 static ShutdownNode get_first_shutdown()
 {
     if (!app_canRx_BMS_BmsLatchOk_get())
@@ -42,3 +48,5 @@ void app_shdnLast_broadcast(void)
 {
     app_canTx_VC_FirstFaultNode_set(get_first_shutdown());
 }
+
+} //  namespace vc::app::shdnLast

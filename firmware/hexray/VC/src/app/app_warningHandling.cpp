@@ -1,18 +1,28 @@
 #include "app_warningHandling.hpp"
+extern "C"
+{
+#include "app_canAlerts.h"
+#include "app_canRx.h"
+#include "app_canTx.h"
+}
 
+namespace vc::app::warningHandling
+{
 constexpr uint32_t app_brake_diagreement_time_to_fault = 10u;
 constexpr uint32_t app_brake_diagreement_time_to_clear = 10u;
 
 static Signal apps_brake_disagreement_signal;
 
+bool app_warningHandlin_boardWarningCheck(void)
+{
+    return app_canAlerts_AnyBoardHasWarning();
+}
+
 // TODO: integrate with warnings (will have to make compatible with regen)
 bool app_warningHandling_checkSoftwareBspd(float papps_pedal_percentage)
 {
-    // Accelerator Brake System Plausibility device (bad user input safety issues)
-    // Protect against brake/apps active at same time
-    // Brakes disagreement is detected if brakes are actuated and apps are past 25% threshold
-    // Allowed to exit disagreement only when apps is released (< 5%)
-    const bool apps_brakes_conflict = app_canRx_FSM_BrakeActuated_get() && (papps_pedal_percentage > 0.25f);
+    const bool brake_actuation_state = app_canRx_FSM_BrakeActuated_get();
+    const bool apps_brakes_conflict  = brake_actuation_state && (papps_pedal_percentage > 0.25f);
 
     const bool apps_less_than_5_percent = (papps_pedal_percentage < 0.05f);
 
@@ -31,3 +41,5 @@ void app_softwareBspd_init(void)
     app_signal_init(
         &apps_brake_disagreement_signal, app_brake_diagreement_time_to_fault, app_brake_diagreement_time_to_clear);
 }
+
+} // namespace vc::app::warningHandling

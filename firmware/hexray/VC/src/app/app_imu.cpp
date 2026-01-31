@@ -2,6 +2,8 @@
 #include "app_imu.hpp"
 // Need to pass in spi handle device
 // init the spi and extern it in the io layer??
+namespace vc::app::imu
+{
 constexpr explicit hw::spi::SpiDevice imu_spi1(SpiBus &bus_in, const Gpio &nss_in, const uint32_t timeoutMs_in);
 constexpr explicit hw::spi::SpiDevice imu_spi2();
 constexpr explicit hw::spi::SpiDevice imu_spi3();
@@ -121,3 +123,4 @@ const GyroData *app_imu_getGyroData(GyroData &data)
 // {
 //     return &imu_faults;
 // }
+} // namespace vc::app::imu

@@ -3,6 +3,8 @@
 Setting CAN signals for the efuse status aka turning efuse on or off and setting the
 current we want to send over CAN for each efuse channel.
 */
+namespace vc::app::loadswitches
+{
 static const void efuse_channel_setter(EfuseChannel &channel, bool status)
 {
     switch (channel)
@@ -82,3 +84,4 @@ static const void efuse_current_setter(EfuseChannel &channel, float *current)
             break;
     }
 }
+} // namespace vc::app::loadswitches

@@ -1,20 +1,23 @@
-#include "app_pumpControl.h"
+#include "app_pumpControl.hpp"
+extern "C"
+{
 #include "io_loadswitch.h"
 #include "io_time.h"
 #include "io_loadswitches.h"
 #include <app_canTx.h>
+}
 
-#define SLOPE (0.5f)
+namespace vc::app::pumpControl
+{
+constexpr float SLOPE          = 0.5f;
+constexpr float CURRENT_THRESH = 0.025f;
 
 static bool     finished_ramp_up = false;
 static uint16_t time             = 0;
 
-#define CURRENT_THRESH 0.025f
-
 static void pumpControl_rampUp(void)
 {
     // if we are done ramping up note that we are not ramping up
-
     if (finished_ramp_up)
     {
         return;
@@ -53,3 +56,4 @@ void app_pumpControl_MonitorPumps(void)
 
     app_canTx_VC_RsmTurnOnPump_set(ramp_up_pumps);
 }
+} // namespace vc::app::pumpControl

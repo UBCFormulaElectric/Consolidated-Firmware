@@ -1,8 +1,15 @@
 #include "app_powerMonitoring.hpp"
+extern "C"
+{
+#include "io_powerMonitoring.h"
+#include "app_canTx.h"
+}
 
-#define CH1 1u // 24
-#define CH2 2u // 5
-#define CH3 3u // 3
+namespace vc::app::powerMonitoring
+{
+constexpr uint8_t CH1 = 1u; // 24V
+constexpr uint8_t CH2 = 2u; // 5V
+constexpr uint8_t CH3 = 3u; // 3V
 
 void app_powerMonitoring_update(void)
 {
@@ -41,8 +48,9 @@ void app_powerMonitoring_update(void)
     }
 }
 
-// Power manager:
-//  24V channel
-//  5V channel
-//  3V3 channel
-//  we have a power pump I2C pins and a Battery monitor I2C
+} // namespace vc::app::powerMonitoring
+  // Power manager:
+  //  24V channel
+  //  5V channel
+  //  3V3 channel
+  //  we have a power pump I2C pins and a Battery monitor I2C
