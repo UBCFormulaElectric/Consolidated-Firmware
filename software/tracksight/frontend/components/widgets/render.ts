@@ -23,7 +23,6 @@ function binarySearchForFirstVisibleIndex(
 
     if (timestamps[result] < targetTime) {
         result = timestamps.length;
-        console.log("!!!");
     }
     return result;
 }
