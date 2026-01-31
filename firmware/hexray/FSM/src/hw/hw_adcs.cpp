@@ -8,7 +8,7 @@ namespace hw::adcs
 {
 AdcChip<NUM_ADC_CHANNELS> adc1 = AdcChip<NUM_ADC_CHANNELS>(&hadc1, &htim2);
 
-void chipsInit(void) // Do I need this function? Can't I just call adc1.init() directly?
+void chipsInit(void)
 {
     adc1.init();
 }
@@ -23,6 +23,6 @@ Adc apps1     = Adc(adc1.getChannel(5));
 
 extern "C" void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
-    if (hadc == hw::adcs::adc1.gethadc()) // Is this check necessary?
+    if (hadc == hw::adcs::adc1.gethadc())
         hw::adcs::adc1.update_callback();
 }
