@@ -433,3 +433,5 @@ _Noreturn void task(const config &c)
     }
 }
 } // namespace chimera_v2
+
+void hw::usb::receive(const std::span<uint8_t> dest) {}
