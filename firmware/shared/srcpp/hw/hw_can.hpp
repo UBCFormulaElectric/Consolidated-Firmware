@@ -21,10 +21,10 @@ class BaseCan
     const uint8_t bus_num;
 
   public:
-    void (*const receive_callback)(const io::CanMsg *rx_msg);
+    void (*const receive_callback)(const io::CanMsg &rx_msg);
     TaskHandle_t transmit_task = nullptr;
 
-    constexpr explicit BaseCan(const uint8_t bus_num_in, void (*const receive_callback_in)(const io::CanMsg *rx_msg))
+    constexpr explicit BaseCan(const uint8_t bus_num_in, void (*const receive_callback_in)(const io::CanMsg &rx_msg))
       : bus_num(bus_num_in), receive_callback(receive_callback_in)
     {
         assert(receive_callback != nullptr);
@@ -79,7 +79,7 @@ class can final : public BaseCan
     constexpr explicit can(
         CAN_HandleTypeDef &hcan_in,
         const uint8_t      bus_num_in,
-        void (*const receive_callback_in)(const io::CanMsg *rx_msg))
+        void (*const receive_callback_in)(const io::CanMsg &rx_msg))
       : BaseCan(bus_num_in, receive_callback_in), hcan(&hcan_in){};
 
     constexpr CAN_HandleTypeDef *getHcan() const { return hcan; }
@@ -106,7 +106,7 @@ class fdcan final : public BaseCan
     constexpr explicit fdcan(
         FDCAN_HandleTypeDef &hfdcan_in,
         const uint8_t        bus_num_in,
-        void (*const receive_callback_in)(const io::CanMsg *rx_msg))
+        void (*const receive_callback_in)(const io::CanMsg &rx_msg))
       : BaseCan(bus_num_in, receive_callback_in), hfdcan(&hfdcan_in){};
 
     constexpr FDCAN_HandleTypeDef *getHfdcan() const { return hfdcan; }
