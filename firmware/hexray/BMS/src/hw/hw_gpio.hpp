@@ -4,6 +4,8 @@
 
 // Note: If `hw_gpio.h` isn't being brought up we need to declare Gpio struct here
 
+namespace hw::gpio
+{
 extern const Gpio led_b_pin;
 extern const Gpio led_r_pin;
 extern const Gpio msd_shdn_sns_pin;
@@ -35,3 +37,4 @@ extern const Gpio fan_pgood_pin;
 extern const Gpio n_evse_i_lim_pin;
 extern const Gpio precharge_en_pin;
 extern const Gpio ir_p_en_pin;
+} // namespace hw::gpio

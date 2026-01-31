@@ -1,6 +1,8 @@
 #include "hw_gpios.h"
 #include "main.h"
 
+namespace hw::gpio
+{
 const Gpio led_b_pin                  = { .port = LEDB_GPIO_Port,                 .pin = LEDB_Pin };
 const Gpio bspd_ok_current_status_pin = { .port = BSPD_OK_GPIO_Port,              .pin = BSPD_OK_Pin };
 const Gpio accel_brake_ok_pin         = { .port = ACCEL_BRAKE_OK_GPIO_Port,       .pin = ACCEL_BRAKE_OK_Pin };
@@ -48,3 +50,4 @@ const Gpio shdn_ol_on_pin             = { .port = SHDN_OL_ON_GPIO_Port,         
 
 const Gpio fan_en_pin                 = { .port = FAN_EN_GPIO_Port,               .pin = FAN_EN_Pin };
 const Gpio fan_pgood_pin              = { .port = FAN_PGOOD_GPIO_Port,            .pin = FAN_PGOOD_Pin };
+} // namespace hw::gpio
