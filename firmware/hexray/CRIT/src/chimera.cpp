@@ -79,8 +79,8 @@ class CRITChimeraConfig : public chimera_v2::config
     }
 } crit_config;
 
-void              tasks_preInit() {}
-[[noreturn]] void tasks_run100Hz()
+[[noreturn]] void tasks_preInit()
 {
     chimera_v2::task(crit_config);
 }
+[[noreturn]] void tasks_run100Hz() {}
