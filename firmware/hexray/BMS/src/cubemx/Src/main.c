@@ -18,8 +18,6 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "cmsis_os.h"
-#include "usb_device.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -27,7 +25,6 @@
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
-typedef StaticTask_t osStaticThreadDef_t;
 /* USER CODE BEGIN PTD */
 
 /* USER CODE END PTD */
@@ -63,102 +60,8 @@ TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim5;
 
-/* Definitions for Task100Hz */
-osThreadId_t         Task100HzHandle;
-uint32_t             Task100HzBuffer[512];
-osStaticThreadDef_t  Task100HzControlBlock;
-const osThreadAttr_t Task100Hz_attributes = {
-    .name       = "Task100Hz",
-    .cb_mem     = &Task100HzControlBlock,
-    .cb_size    = sizeof(Task100HzControlBlock),
-    .stack_mem  = &Task100HzBuffer[0],
-    .stack_size = sizeof(Task100HzBuffer),
-    .priority   = (osPriority_t)osPriorityHigh,
-};
-/* Definitions for TaskCanRx */
-osThreadId_t         TaskCanRxHandle;
-uint32_t             TaskCanRxBuffer[512];
-osStaticThreadDef_t  TaskCanRxControlBlock;
-const osThreadAttr_t TaskCanRx_attributes = {
-    .name       = "TaskCanRx",
-    .cb_mem     = &TaskCanRxControlBlock,
-    .cb_size    = sizeof(TaskCanRxControlBlock),
-    .stack_mem  = &TaskCanRxBuffer[0],
-    .stack_size = sizeof(TaskCanRxBuffer),
-    .priority   = (osPriority_t)osPriorityBelowNormal,
-};
-/* Definitions for TaskCanTx */
-osThreadId_t         TaskCanTxHandle;
-uint32_t             TaskCanTxBuffer[512];
-osStaticThreadDef_t  TaskCanTxControlBlock;
-const osThreadAttr_t TaskCanTx_attributes = {
-    .name       = "TaskCanTx",
-    .cb_mem     = &TaskCanTxControlBlock,
-    .cb_size    = sizeof(TaskCanTxControlBlock),
-    .stack_mem  = &TaskCanTxBuffer[0],
-    .stack_size = sizeof(TaskCanTxBuffer),
-    .priority   = (osPriority_t)osPriorityBelowNormal,
-};
-/* Definitions for Task1kHz */
-osThreadId_t         Task1kHzHandle;
-uint32_t             Task1kHzBuffer[512];
-osStaticThreadDef_t  Task1kHzControlBlock;
-const osThreadAttr_t Task1kHz_attributes = {
-    .name       = "Task1kHz",
-    .cb_mem     = &Task1kHzControlBlock,
-    .cb_size    = sizeof(Task1kHzControlBlock),
-    .stack_mem  = &Task1kHzBuffer[0],
-    .stack_size = sizeof(Task1kHzBuffer),
-    .priority   = (osPriority_t)osPriorityRealtime,
-};
-/* Definitions for Task1Hz */
-osThreadId_t         Task1HzHandle;
-uint32_t             Task1HzBuffer[512];
-osStaticThreadDef_t  Task1HzControlBlock;
-const osThreadAttr_t Task1Hz_attributes = {
-    .name       = "Task1Hz",
-    .cb_mem     = &Task1HzControlBlock,
-    .cb_size    = sizeof(Task1HzControlBlock),
-    .stack_mem  = &Task1HzBuffer[0],
-    .stack_size = sizeof(Task1HzBuffer),
-    .priority   = (osPriority_t)osPriorityAboveNormal,
-};
-/* Definitions for TaskCellVoltages */
-osThreadId_t         TaskCellVoltagesHandle;
-uint32_t             TaskCellVoltagesBuffer[512];
-osStaticThreadDef_t  TaskCellVoltagesControlBlock;
-const osThreadAttr_t TaskCellVoltages_attributes = {
-    .name       = "TaskCellVoltages",
-    .cb_mem     = &TaskCellVoltagesControlBlock,
-    .cb_size    = sizeof(TaskCellVoltagesControlBlock),
-    .stack_mem  = &TaskCellVoltagesBuffer[0],
-    .stack_size = sizeof(TaskCellVoltagesBuffer),
-    .priority   = (osPriority_t)osPriorityNormal,
-};
-/* Definitions for TaskCellTemps */
-osThreadId_t         TaskCellTempsHandle;
-uint32_t             TaskCellTempsBuffer[512];
-osStaticThreadDef_t  TaskCellTempsControlBlock;
-const osThreadAttr_t TaskCellTemps_attributes = {
-    .name       = "TaskCellTemps",
-    .cb_mem     = &TaskCellTempsControlBlock,
-    .cb_size    = sizeof(TaskCellTempsControlBlock),
-    .stack_mem  = &TaskCellTempsBuffer[0],
-    .stack_size = sizeof(TaskCellTempsBuffer),
-    .priority   = (osPriority_t)osPriorityNormal,
-};
-/* Definitions for TaskCellDiag */
-osThreadId_t         TaskCellDiagHandle;
-uint32_t             TaskCellDiagBuffer[512];
-osStaticThreadDef_t  TaskCellDiagControlBlock;
-const osThreadAttr_t TaskCellDiag_attributes = {
-    .name       = "TaskCellDiag",
-    .cb_mem     = &TaskCellDiagControlBlock,
-    .cb_size    = sizeof(TaskCellDiagControlBlock),
-    .stack_mem  = &TaskCellDiagBuffer[0],
-    .stack_size = sizeof(TaskCellDiagBuffer),
-    .priority   = (osPriority_t)osPriorityNormal,
-};
+PCD_HandleTypeDef hpcd_USB_OTG_HS;
+
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -179,15 +82,7 @@ static void MX_IWDG1_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM5_Init(void);
-void        RunTask100Hz(void *argument);
-void        RunTaskCanRx(void *argument);
-void        RunTaskCanTx(void *argument);
-void        RunTask1kHz(void *argument);
-void        RunTask1Hz(void *argument);
-void        RunTaskCellVoltages(void *argument);
-void        RunTaskCellTemps(void *argument);
-void        RunTaskCellDiag(void *argument);
-
+static void MX_USB_OTG_HS_PCD_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -240,66 +135,10 @@ int main(void)
     MX_TIM1_Init();
     MX_TIM3_Init();
     MX_TIM5_Init();
+    MX_USB_OTG_HS_PCD_Init();
     /* USER CODE BEGIN 2 */
 
     /* USER CODE END 2 */
-
-    /* Init scheduler */
-    osKernelInitialize();
-
-    /* USER CODE BEGIN RTOS_MUTEX */
-    /* add mutexes, ... */
-    /* USER CODE END RTOS_MUTEX */
-
-    /* USER CODE BEGIN RTOS_SEMAPHORES */
-    /* add semaphores, ... */
-    /* USER CODE END RTOS_SEMAPHORES */
-
-    /* USER CODE BEGIN RTOS_TIMERS */
-    /* start timers, add new ones, ... */
-    /* USER CODE END RTOS_TIMERS */
-
-    /* USER CODE BEGIN RTOS_QUEUES */
-    /* add queues, ... */
-    /* USER CODE END RTOS_QUEUES */
-
-    /* Create the thread(s) */
-    /* creation of Task100Hz */
-    Task100HzHandle = osThreadNew(RunTask100Hz, NULL, &Task100Hz_attributes);
-
-    /* creation of TaskCanRx */
-    TaskCanRxHandle = osThreadNew(RunTaskCanRx, NULL, &TaskCanRx_attributes);
-
-    /* creation of TaskCanTx */
-    TaskCanTxHandle = osThreadNew(RunTaskCanTx, NULL, &TaskCanTx_attributes);
-
-    /* creation of Task1kHz */
-    Task1kHzHandle = osThreadNew(RunTask1kHz, NULL, &Task1kHz_attributes);
-
-    /* creation of Task1Hz */
-    Task1HzHandle = osThreadNew(RunTask1Hz, NULL, &Task1Hz_attributes);
-
-    /* creation of TaskCellVoltages */
-    TaskCellVoltagesHandle = osThreadNew(RunTaskCellVoltages, NULL, &TaskCellVoltages_attributes);
-
-    /* creation of TaskCellTemps */
-    TaskCellTempsHandle = osThreadNew(RunTaskCellTemps, NULL, &TaskCellTemps_attributes);
-
-    /* creation of TaskCellDiag */
-    TaskCellDiagHandle = osThreadNew(RunTaskCellDiag, NULL, &TaskCellDiag_attributes);
-
-    /* USER CODE BEGIN RTOS_THREADS */
-    /* add threads, ... */
-    /* USER CODE END RTOS_THREADS */
-
-    /* USER CODE BEGIN RTOS_EVENTS */
-    /* add events, ... */
-    /* USER CODE END RTOS_EVENTS */
-
-    /* Start scheduler */
-    osKernelStart();
-
-    /* We should never get here as control is now taken by the scheduler */
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
@@ -976,6 +815,40 @@ static void MX_TIM5_Init(void)
 }
 
 /**
+ * @brief USB_OTG_HS Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_USB_OTG_HS_PCD_Init(void)
+{
+    /* USER CODE BEGIN USB_OTG_HS_Init 0 */
+
+    /* USER CODE END USB_OTG_HS_Init 0 */
+
+    /* USER CODE BEGIN USB_OTG_HS_Init 1 */
+
+    /* USER CODE END USB_OTG_HS_Init 1 */
+    hpcd_USB_OTG_HS.Instance                 = USB_OTG_HS;
+    hpcd_USB_OTG_HS.Init.dev_endpoints       = 9;
+    hpcd_USB_OTG_HS.Init.speed               = PCD_SPEED_FULL;
+    hpcd_USB_OTG_HS.Init.dma_enable          = DISABLE;
+    hpcd_USB_OTG_HS.Init.phy_itface          = USB_OTG_EMBEDDED_PHY;
+    hpcd_USB_OTG_HS.Init.Sof_enable          = DISABLE;
+    hpcd_USB_OTG_HS.Init.low_power_enable    = DISABLE;
+    hpcd_USB_OTG_HS.Init.lpm_enable          = DISABLE;
+    hpcd_USB_OTG_HS.Init.vbus_sensing_enable = DISABLE;
+    hpcd_USB_OTG_HS.Init.use_dedicated_ep1   = DISABLE;
+    hpcd_USB_OTG_HS.Init.use_external_vbus   = DISABLE;
+    if (HAL_PCD_Init(&hpcd_USB_OTG_HS) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN USB_OTG_HS_Init 2 */
+
+    /* USER CODE END USB_OTG_HS_Init 2 */
+}
+
+/**
  * Enable DMA controller clock
  */
 static void MX_DMA_Init(void)
@@ -985,10 +858,10 @@ static void MX_DMA_Init(void)
 
     /* DMA interrupt init */
     /* DMA1_Stream0_IRQn interrupt configuration */
-    HAL_NVIC_SetPriority(DMA1_Stream0_IRQn, 5, 0);
+    HAL_NVIC_SetPriority(DMA1_Stream0_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(DMA1_Stream0_IRQn);
     /* DMA1_Stream1_IRQn interrupt configuration */
-    HAL_NVIC_SetPriority(DMA1_Stream1_IRQn, 5, 0);
+    HAL_NVIC_SetPriority(DMA1_Stream1_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(DMA1_Stream1_IRQn);
 }
 
@@ -1128,152 +1001,6 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
-
-/* USER CODE BEGIN Header_RunTask100Hz */
-/**
- * @brief  Function implementing the Task100Hz thread.
- * @param  argument: Not used
- * @retval None
- */
-/* USER CODE END Header_RunTask100Hz */
-void RunTask100Hz(void *argument)
-{
-    /* init code for USB_DEVICE */
-    MX_USB_DEVICE_Init();
-    /* USER CODE BEGIN 5 */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
-    /* USER CODE END 5 */
-}
-
-/* USER CODE BEGIN Header_RunTaskCanRx */
-/**
- * @brief Function implementing the TaskCanRx thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_RunTaskCanRx */
-void RunTaskCanRx(void *argument)
-{
-    /* USER CODE BEGIN RunTaskCanRx */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
-    /* USER CODE END RunTaskCanRx */
-}
-
-/* USER CODE BEGIN Header_RunTaskCanTx */
-/**
- * @brief Function implementing the TaskCanTx thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_RunTaskCanTx */
-void RunTaskCanTx(void *argument)
-{
-    /* USER CODE BEGIN RunTaskCanTx */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
-    /* USER CODE END RunTaskCanTx */
-}
-
-/* USER CODE BEGIN Header_RunTask1kHz */
-/**
- * @brief Function implementing the Task1kHz thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_RunTask1kHz */
-void RunTask1kHz(void *argument)
-{
-    /* USER CODE BEGIN RunTask1kHz */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
-    /* USER CODE END RunTask1kHz */
-}
-
-/* USER CODE BEGIN Header_RunTask1Hz */
-/**
- * @brief Function implementing the Task1Hz thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_RunTask1Hz */
-void RunTask1Hz(void *argument)
-{
-    /* USER CODE BEGIN RunTask1Hz */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
-    /* USER CODE END RunTask1Hz */
-}
-
-/* USER CODE BEGIN Header_RunTaskCellVoltages */
-/**
- * @brief Function implementing the TaskCellVoltages thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_RunTaskCellVoltages */
-void RunTaskCellVoltages(void *argument)
-{
-    /* USER CODE BEGIN RunTaskCellVoltages */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
-    /* USER CODE END RunTaskCellVoltages */
-}
-
-/* USER CODE BEGIN Header_RunTaskCellTemps */
-/**
- * @brief Function implementing the TaskCellTemps thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_RunTaskCellTemps */
-void RunTaskCellTemps(void *argument)
-{
-    /* USER CODE BEGIN RunTaskCellTemps */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
-    /* USER CODE END RunTaskCellTemps */
-}
-
-/* USER CODE BEGIN Header_RunTaskCellDiag */
-/**
- * @brief Function implementing the TaskCellDiag thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_RunTaskCellDiag */
-void RunTaskCellDiag(void *argument)
-{
-    /* USER CODE BEGIN RunTaskCellDiag */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
-    /* USER CODE END RunTaskCellDiag */
-}
 
 /**
  * @brief  Period elapsed callback in non blocking mode
