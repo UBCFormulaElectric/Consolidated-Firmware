@@ -5,12 +5,10 @@ use tokio::sync::{RwLock, broadcast};
 
 use super::influx_handler::run_influx_handler;
 use super::live_data_handler::run_live_data_handler;
+use crate::tasks::can_data::load_can_database;
 use crate::tasks::telem_message::CanPayload;
-use crate::config::CONFIG;
 use crate::tasks::client_api::clients::Clients;
 
-use jsoncan_rust::parsing::JsonCanParser;
-use jsoncan_rust::can_database::CanDatabase;
 use jsoncan_rust::can_database::DecodedSignal;
 
 /**
@@ -20,18 +18,12 @@ use jsoncan_rust::can_database::DecodedSignal;
 pub async fn run_can_data_handler(
     mut shutdown_rx: broadcast::Receiver<()>, 
     mut can_queue_rx: broadcast::Receiver<CanPayload>,
-    clients: Arc<RwLock<Clients>>
+    clients: Arc<RwLock<Clients>>, 
 ) {
     println!("CAN data handler task started.");
 
-    let parser = JsonCanParser::new(CONFIG.jsoncan_config_path.clone());
-    let can_db = match CanDatabase::from(parser) {
-        Ok(db) => db,
-        Err(e) => {
-            eprintln!("Failed to load CAN database: {:?}", e);
-            return;
-        }
-    };
+    // load CAN database
+    let can_db = load_can_database().expect("Could not init Can db");
 
     let (decoded_signal_tx, _) = broadcast::channel::<DecodedSignal>(32);
 
