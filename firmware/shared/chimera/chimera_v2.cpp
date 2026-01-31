@@ -395,6 +395,7 @@ static void tick(const config &config)
             return;
         reinterpret_cast<uint8_t *>(&length)[i] = out.value();
     }
+    assert(length <= 64);
 
     // Receive content.
     std::array<uint8_t, 64> content{};
