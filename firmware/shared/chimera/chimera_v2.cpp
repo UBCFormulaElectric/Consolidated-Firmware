@@ -390,7 +390,7 @@ static void tick(const config &config)
     uint16_t length = 0;
     for (uint8_t i = 0; i < 2; i++)
     {
-        const auto out = q.pop();
+        const auto out = q.pop(USB_REQUEST_TIMEOUT_MS);
         if (!out.has_value())
             return;
         reinterpret_cast<uint8_t *>(&length)[i] = out.value();
@@ -401,7 +401,7 @@ static void tick(const config &config)
     std::array<uint8_t, 64> content{};
     for (uint16_t i = 0; i < length; i++)
     {
-        const auto out = q.pop();
+        const auto out = q.pop(USB_REQUEST_TIMEOUT_MS);
         if (!out.has_value())
             return;
         content[i] = out.value();

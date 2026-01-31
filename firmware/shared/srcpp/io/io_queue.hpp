@@ -77,11 +77,11 @@ template <typename T, size_t QUEUE_SIZE> class queue
     /**
      * Pops a CAN msg from the queue. Blocks until a msg exists in the queue.
      */
-    [[nodiscard]] std::expected<T, ExitCode> pop()
+    [[nodiscard]] std::expected<T, ExitCode> pop(const uint32_t timeout = osWaitForever)
     {
         assert(queue_id != nullptr);
         T msg{};
-        if (const osStatus_t s = osMessageQueueGet(this->queue_id, &msg, nullptr, osWaitForever); s != osOK)
+        if (const osStatus_t s = osMessageQueueGet(this->queue_id, &msg, nullptr, timeout); s != osOK)
         {
             return std::unexpected(ExitCode::EXIT_CODE_ERROR);
         }
