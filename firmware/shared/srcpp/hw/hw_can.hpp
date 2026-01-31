@@ -5,6 +5,12 @@
 #include "hw_hal.h"
 #include "cmsis_os.h"
 
+#if defined(STM32H733xx)
+#include "stm32h7xx_hal_fdcan.h"
+#elif defined(STM32H562xx)
+#include "stm32h5xx_hal_fdcan.h"
+#endif
+
 #include <cassert>
 
 namespace hw
