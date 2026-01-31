@@ -31,7 +31,7 @@ static void canRxCallback(const io::CanMsg &msg)
     // can_rx_queue.pushMsgToQueue(msg);
 }
 
-hw::can can1(hcan1, 0, canRxCallback);
+constexpr hw::can can1(hcan1, 0, canRxCallback);
 
 const hw::can &hw::can_getHandle(const CAN_HandleTypeDef *hcan)
 {
