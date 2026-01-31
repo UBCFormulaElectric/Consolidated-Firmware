@@ -74,7 +74,7 @@ class can final : public BaseCan
     CAN_HandleTypeDef *const hcan;
 
   private:
-    std::expected<void, ErrorCode> tx(CAN_TxHeaderTypeDef &tx_header, io::CanMsg *msg);
+    std::expected<void, ErrorCode> tx(const CAN_TxHeaderTypeDef &tx_header, const io::CanMsg &msg);
 
   public:
     constexpr explicit can(
