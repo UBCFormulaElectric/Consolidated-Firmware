@@ -24,11 +24,11 @@
 #endif
 
 #ifdef FS
-extern USBD_HandleTypeDef hUsbDeviceFS;
+static USBD_HandleTypeDef hUsbDeviceFS;
 #define USB_DEVICE_HANDLER (hUsbDeviceFS)
 #define DEVICE_ID 0 // DEVICE_FS
 #elif HS
-extern USBD_HandleTypeDef hUsbDeviceHS;
+static USBD_HandleTypeDef hUsbDeviceHS;
 #define USB_DEVICE_HANDLER (hUsbDeviceHS)
 #define DEVICE_ID 1 // DEVICE_HS
 #endif
