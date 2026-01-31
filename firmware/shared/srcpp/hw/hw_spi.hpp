@@ -53,14 +53,14 @@ class SpiDevice
      * @param tx Buffer containing the data to transmit.
      * @return EXIT_CODE_OK if transmission succeeded, otherwise an error code.
      */
-    [[nodiscard]] ExitCode transmit(std::span<const uint8_t> tx) const;
+    [[nodiscard]] std::expected<void, ErrorCode> transmit(std::span<const uint8_t> tx) const;
 
     /**
      * @brief Receive data from the SPI device.
      * @param rx Buffer to store received data.
      * @return EXIT_CODE_OK if reception succeeded, otherwise an error code.
      */
-    [[nodiscard]] ExitCode receive(std::span<uint8_t> rx) const;
+    [[nodiscard]] std::expected<void, ErrorCode> receive(std::span<uint8_t> rx) const;
 
     /**
      * @brief Transmit and then receive data over SPI while keeping NSS asserted.
@@ -69,16 +69,21 @@ class SpiDevice
      * @param rx Buffer to store received data after transmission.
      * @return EXIT_CODE_OK if the operation succeeded, otherwise an error code.
      */
-    [[nodiscard]] ExitCode transmitThenReceive(std::span<const uint8_t> tx, std::span<uint8_t> rx) const;
+    [[nodiscard]] std::expected<void, ErrorCode>
+        transmitThenReceive(std::span<const uint8_t> tx, std::span<uint8_t> rx) const;
 
   private:
     SpiBus     &bus;
     const Gpio &nss;
     uint32_t    timeoutMs;
 
-    void                   enableNss() const;
-    void                   disableNss() const;
-    [[nodiscard]] ExitCode waitForNotification() const;
+    void enableNss() const;
+    void disableNss() const;
+
+    /**
+     * @return idk
+     */
+    [[nodiscard]] std::expected<void, ErrorCode> waitForNotification() const;
 };
 
 /**

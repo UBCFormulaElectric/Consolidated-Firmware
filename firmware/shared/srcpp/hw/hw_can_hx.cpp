@@ -19,7 +19,7 @@
 #include "stm32h5xx_hal_fdcan.h"
 #endif
 
-ExitCode hw::fdcan::tx(FDCAN_TxHeaderTypeDef &tx_header, io::CanMsg *msg)
+std::expected<void, ErrorCode> hw::fdcan::tx(const FDCAN_TxHeaderTypeDef &tx_header, const io::CanMsg &msg)
 {
     for (uint32_t poll = 0; HAL_FDCAN_GetTxFifoFreeLevel(hfdcan) == 0U;)
     {
@@ -30,14 +30,14 @@ ExitCode hw::fdcan::tx(FDCAN_TxHeaderTypeDef &tx_header, io::CanMsg *msg)
             poll++;
             continue;
         }
-        assert(transmit_task == NULL);
+        assert(transmit_task == nullptr);
         assert(osKernelGetState() == taskSCHEDULER_RUNNING && !xPortIsInsideInterrupt());
         transmit_task             = xTaskGetCurrentTaskHandle();
         const uint32_t num_notifs = ulTaskNotifyTake(pdTRUE, 1000);
         UNUSED(num_notifs);
-        transmit_task = NULL;
+        transmit_task = nullptr;
     }
-    return hw_utils_convertHalStatus(HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &tx_header, msg->data.data8));
+    return hw_utils_convertHalStatus(HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &tx_header, msg.data.data8));
 }
 void hw::fdcan::init() const
 {
@@ -57,18 +57,18 @@ void hw::fdcan::init() const
     filter.RxBufferIndex    = 0;
 #endif
 
-    const ExitCode configure_filter_status = hw_utils_convertHalStatus(HAL_FDCAN_ConfigFilter(hfdcan, &filter));
-    ASSERT_EXIT_OK(configure_filter_status);
+    const auto configure_filter_status = hw_utils_convertHalStatus(HAL_FDCAN_ConfigFilter(hfdcan, &filter));
+    assert(configure_filter_status.has_value());
 
     // Configure interrupt mode for CAN peripheral.
-    const ExitCode configure_notis_ok = hw_utils_convertHalStatus(HAL_FDCAN_ActivateNotification(
+    const auto configure_notis_ok = hw_utils_convertHalStatus(HAL_FDCAN_ActivateNotification(
         hfdcan, FDCAN_IT_RX_FIFO0_NEW_MESSAGE | FDCAN_IT_RX_FIFO1_NEW_MESSAGE | FDCAN_IT_BUS_OFF | FDCAN_IT_TX_COMPLETE,
         FDCAN_TX_BUFFER0));
-    ASSERT_EXIT_OK(configure_notis_ok);
+    assert(configure_notis_ok.has_value());
 
     // Start the FDCAN peripheral.
-    const ExitCode start_status = hw_utils_convertHalStatus(HAL_FDCAN_Start(hfdcan));
-    ASSERT_EXIT_OK(start_status);
+    const auto start_status = hw_utils_convertHalStatus(HAL_FDCAN_Start(hfdcan));
+    assert(start_status.has_value());
     ready = true;
 }
 
@@ -78,7 +78,7 @@ void hw::fdcan::deinit() const
     assert(HAL_FDCAN_DeInit(hfdcan) == HAL_OK);
 }
 
-ExitCode hw::fdcan::can_transmit(const io::CanMsg &msg)
+std::expected<void, ErrorCode> hw::fdcan::can_transmit(const io::CanMsg &msg)
 {
     assert(ready);
     FDCAN_TxHeaderTypeDef tx_header;
@@ -91,10 +91,10 @@ ExitCode hw::fdcan::can_transmit(const io::CanMsg &msg)
     tx_header.FDFormat            = FDCAN_CLASSIC_CAN;
     tx_header.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
     tx_header.MessageMarker       = 0;
-    return tx(tx_header, const_cast<io::CanMsg *>(&msg));
+    return tx(tx_header, msg);
 }
 
-ExitCode hw::fdcan::fdcan_transmit(const io::CanMsg &msg)
+std::expected<void, ErrorCode> hw::fdcan::fdcan_transmit(const io::CanMsg &msg)
 {
     assert(ready);
 
@@ -142,15 +142,15 @@ ExitCode hw::fdcan::fdcan_transmit(const io::CanMsg &msg)
     tx_header.FDFormat            = FDCAN_FD_CAN;
     tx_header.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
     tx_header.MessageMarker       = 0;
-    return tx(tx_header, const_cast<io::CanMsg *>(&msg));
+    return tx(tx_header, msg);
 }
 
-ExitCode hw::fdcan::receive(const uint32_t rx_fifo, io::CanMsg &msg) const
+std::expected<void, ErrorCode> hw::fdcan::receive(const uint32_t rx_fifo, io::CanMsg &msg) const
 {
     assert(ready);
     FDCAN_RxHeaderTypeDef header;
 
-    RETURN_IF_ERR(hw_utils_convertHalStatus(HAL_FDCAN_GetRxMessage(hfdcan, rx_fifo, &header, msg.data.data8)););
+    RETURN_IF_ERR(hw_utils_convertHalStatus(HAL_FDCAN_GetRxMessage(hfdcan, rx_fifo, &header, msg.data.data8)));
 
     // Copy metadata from HAL's CAN message struct into our custom CAN
     // message struct
@@ -159,10 +159,10 @@ ExitCode hw::fdcan::receive(const uint32_t rx_fifo, io::CanMsg &msg) const
     msg.timestamp = io::time::getCurrentMs();
     msg.bus       = bus_num;
 
-    return ExitCode::EXIT_CODE_OK;
+    return {};
 }
 
-CFUNC void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t ErrorStatusITs)
+CFUNC void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, const uint32_t ErrorStatusITs)
 {
     LOG_INFO("FDCAN on bus %d detected on error %x", hw::fdcan_getHandle(hfdcan).getBusNum(), ErrorStatusITs);
     if ((ErrorStatusITs & FDCAN_IT_BUS_OFF) != RESET)
@@ -176,7 +176,7 @@ CFUNC void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t E
     }
 }
 
-static ExitCode handleCallback(FDCAN_HandleTypeDef *hfdcan, uint8_t fifo)
+static std::expected<void, ErrorCode> handleCallback(FDCAN_HandleTypeDef *hfdcan, const uint8_t fifo)
 {
     const hw::fdcan &handle = hw::fdcan_getHandle(hfdcan);
 
@@ -185,27 +185,28 @@ static ExitCode handleCallback(FDCAN_HandleTypeDef *hfdcan, uint8_t fifo)
     RETURN_IF_ERR_SILENT(handle.receive(fifo, rx_msg));
 
     handle.receive_callback(rx_msg);
-    return ExitCode::EXIT_CODE_OK;
+    return {};
 }
 
 CFUNC void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo0ITs)
 {
     UNUSED(RxFifo0ITs);
-    while (IS_EXIT_OK(handleCallback(hfdcan, FDCAN_RX_FIFO0)))
+    while (handleCallback(hfdcan, FDCAN_RX_FIFO0).has_value())
         ;
 }
 
 CFUNC void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo1ITs)
 {
     UNUSED(RxFifo1ITs);
-    while (IS_EXIT_OK(handleCallback(hfdcan, FDCAN_RX_FIFO1)))
+    while (handleCallback(hfdcan, FDCAN_RX_FIFO1).has_value())
         ;
 }
 
-CFUNC void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t BufferIndexes)
+CFUNC void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, const uint32_t BufferIndexes)
 {
+    UNUSED(BufferIndexes);
     const hw::fdcan &handle = hw::fdcan_getHandle(hfdcan);
-    if (handle.transmit_task == NULL)
+    if (handle.transmit_task == nullptr)
     {
         return;
     }
