@@ -49,8 +49,4 @@ float readSelectedTemp(void)
 
     return app::thermistor::resistanceToTemp(thermistor_resistance, &b57861s_lut);
 }
-<<<<<<< HEAD
-
-== == == =
->>>>>>> ae0507814faf612faf031926cdab04369e0978d8
 } // namespace io::therm
