@@ -55,7 +55,7 @@ void hw::usb::receive(const std::span<uint8_t> dest)
 {
     forever
     {
-        io::CanMsg msg = can_tx_queue.pop();
+        io::CanMsg msg = can_tx_queue.pop().value();
         LOG_IF_ERR(fdcan1.fdcan_transmit(msg));
     }
 }
@@ -63,7 +63,7 @@ void hw::usb::receive(const std::span<uint8_t> dest)
 {
     forever
     {
-        io::CanMsg rx_msg      = can_rx_queue.pop();
+        io::CanMsg rx_msg      = can_rx_queue.pop().value();
         JsonCanMsg jsoncan_msg = app::jsoncan::copyFromCanMsg(&rx_msg);
         io_canRx_updateRxTableWithMessage(&jsoncan_msg);
     }

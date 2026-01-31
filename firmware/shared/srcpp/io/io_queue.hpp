@@ -5,6 +5,9 @@
 #include <array>
 
 #include "io_log.hpp"
+#include "util_errorCodes.hpp"
+
+#include <expected>
 
 namespace io
 {
@@ -53,7 +56,7 @@ template <typename T, size_t QUEUE_SIZE> class queue
      * Does not block, calls `overflow_callback` if queue is full.
      * @param msg CAN msg to be TXed.
      */
-    void push(const T &msg)
+    ExitCode push(const T &msg)
     {
         assert(queue_id != nullptr);
         if (const osStatus_t s = osMessageQueuePut(this->queue_id, &msg, 0, 0); s != osOK)
@@ -64,23 +67,24 @@ template <typename T, size_t QUEUE_SIZE> class queue
                 this->overflow_flag = true;
             }
             this->overflow_callback(++this->overflow_count);
+            return ExitCode::EXIT_CODE_ERROR;
         }
-        else
-        {
-            this->overflow_clear_callback();
-            this->overflow_flag = false;
-        }
+        this->overflow_clear_callback();
+        this->overflow_flag = false;
+        return ExitCode::EXIT_CODE_OK;
     }
 
     /**
      * Pops a CAN msg from the queue. Blocks until a msg exists in the queue.
      */
-    [[nodiscard]] T pop()
+    [[nodiscard]] std::expected<T, ExitCode> pop()
     {
         assert(queue_id != nullptr);
-        T                msg{};
-        const osStatus_t s = osMessageQueueGet(this->queue_id, &msg, nullptr, osWaitForever);
-        assert(s == osOK);
+        T msg{};
+        if (const osStatus_t s = osMessageQueueGet(this->queue_id, &msg, nullptr, osWaitForever); s != osOK)
+        {
+            return std::unexpected(ExitCode::EXIT_CODE_ERROR);
+        }
         return msg;
     }
 };
