@@ -1,6 +1,7 @@
 #pragma once
 
 #include "util_errorCodes.hpp"
+#include <cstdint>
 
 #ifdef TARGET_EMBEDDED
 // #include "hw_i2cs.hpp" //Not created yet
