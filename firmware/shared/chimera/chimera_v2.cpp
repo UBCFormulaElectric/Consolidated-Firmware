@@ -1,6 +1,7 @@
 #include "chimera_v2.hpp"
 #include "io_log.hpp"
 #include "hw_usb.hpp"
+#include "io_queue.hpp"
 
 // Protobuf.
 #include <cmsis_os2.h>
@@ -8,12 +9,24 @@
 #include <pb_encode.h>
 #include "shared.pb.h"
 
+#include <array>
+
 // Maximum size for the output rpc content we support (length specified by 2 bytes, so 2^16 - 1).
 // Yes, this is 65kb of RAM - it's a lot, but doable.
 #define OUT_BUFFER_SIZE (0xfff)
 static pb_byte_t out_buffer[OUT_BUFFER_SIZE];
 
 constexpr size_t MAX_PAYLOAD_SIZE = 64;
+
+static io::queue<uint8_t, 100> q{ "USBQueue", nullptr, nullptr };
+
+void hw::usb::receive(const std::span<uint8_t> dest)
+{
+    for (const uint8_t &x : dest)
+    {
+        q.push(x);
+    }
+}
 
 namespace chimera_v2
 {
@@ -295,10 +308,9 @@ static bool evaluateRequest(const config &c, const ChimeraV2Request &request, Ch
  * @brief Handle the content of a Chimera V2 message (parse, evaluate, respond).
  * @param c Collection of protobuf enum to peripheral tables and net name tags.
  * @param content Content buffer to handle.
- * @param length Length of content buffer.
  * @return True if success, otherwise false.
  */
-static bool handleContent(const config &c, uint8_t *content, uint16_t length)
+static bool handleContent(const config &c, std::span<uint8_t> content)
 {
     // Keep track if an error occured.
     // We do this instead of immediate returns,
@@ -310,7 +322,7 @@ static bool handleContent(const config &c, uint8_t *content, uint16_t length)
 
     // Parse request.
     ChimeraV2Request request        = ChimeraV2Request_init_zero;
-    pb_istream_t     content_stream = pb_istream_from_buffer(content, length);
+    pb_istream_t     content_stream = pb_istream_from_buffer(content.data(), content.size());
     if (!pb_decode(&content_stream, ChimeraV2Request_fields, &request))
     {
         LOG_ERROR("Chimera: Error decoding chimera message stream.");
@@ -374,34 +386,32 @@ static void tick(const config &config)
     // [ length low byte  | length high byte | content bytes    | ... ]
 
     // Get length bytes.
-    uint8_t length_bytes[2] = { 0, 0 };
-    for (uint8_t idx = 0; idx < 2; idx++)
+    // it should be sent in little endian
+    uint16_t length = 0;
+    for (uint8_t i = 0; i < 2; i++)
     {
-        if (IS_EXIT_ERR(hw::usb::receive({ length_bytes, 1 }, USB_REQUEST_TIMEOUT_MS)))
-        {
-            // If we don't receive length bytes, stop processing.
+        const auto out = q.pop();
+        if (!out.has_value())
             return;
-        }
+        reinterpret_cast<uint8_t *>(&length)[i] = out.value();
     }
 
-    // Compute length (little endian).
-    const auto low    = static_cast<uint16_t>(length_bytes[0]);
-    const auto high   = static_cast<uint16_t>(length_bytes[1]);
-    const auto length = static_cast<uint16_t>(low + (high << 8));
-
     // Receive content.
-    uint8_t content[64]; // TODO fix
-    if (IS_EXIT_ERR(hw::usb::receive({ content, length }, USB_REQUEST_TIMEOUT_MS)))
+    std::array<uint8_t, 64> content{};
+    for (uint16_t i = 0; i < length; i++)
     {
-        return;
+        const auto out = q.pop();
+        if (!out.has_value())
+            return;
+        content[i] = out.value();
     }
 
     // Print bytes.
-    for (int i = 0; i < length; i += 1)
+    for (size_t i = 0; i < length; i += 1)
         _LOG_PRINTF("%02x ", content[i]);
 
     // Parse content and return response.
-    if (!handleContent(config, content, length))
+    if (!handleContent(config, { content.data(), length }))
     {
         LOG_ERROR("Chimera: Error processing request.");
     }
@@ -433,5 +443,3 @@ _Noreturn void task(const config &c)
     }
 }
 } // namespace chimera_v2
-
-void hw::usb::receive(const std::span<uint8_t> dest) {}
