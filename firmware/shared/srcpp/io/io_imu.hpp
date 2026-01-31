@@ -210,7 +210,7 @@ class Imu
 
     std::expected<void, ErrorCode> getGyroX(float &gyro_x) const;
     std::expected<void, ErrorCode> getGyroY(float &gyro_y) const;
-    std::expected<void, ErrorCode> getGyroZ(float &gyro_z);
+    std::expected<void, ErrorCode> getGyroZ(float &gyro_z) const;
 
     std::expected<void, ErrorCode> getTemp(float &temp) const;
 

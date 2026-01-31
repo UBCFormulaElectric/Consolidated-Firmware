@@ -47,32 +47,32 @@ std::expected<void, ErrorCode> Imu::init()
     initialized = true;
     return {};
 }
-std::expected<void, ErrorCode> Imu::getAccelX(float &accel_x)
+std::expected<void, ErrorCode> Imu::getAccelX(float &accel_x) const
 {
     accel_x = accel_x_fake;
     return {};
 }
-std::expected<void, ErrorCode> Imu::getAccelY(float &accel_y)
+std::expected<void, ErrorCode> Imu::getAccelY(float &accel_y) const
 {
     accel_y = accel_y_fake;
     return {};
 }
-std::expected<void, ErrorCode> Imu::getAccelZ(float &accel_z)
+std::expected<void, ErrorCode> Imu::getAccelZ(float &accel_z) const
 {
     accel_z = accel_z_fake;
     return {};
 }
-std::expected<void, ErrorCode> Imu::getGyroX(float &gyro_x)
+std::expected<void, ErrorCode> Imu::getGyroX(float &gyro_x) const
 {
     gyro_x = gyro_x_fake;
     return {};
 }
-std::expected<void, ErrorCode> Imu::getGyroY(float &gyro_y)
+std::expected<void, ErrorCode> Imu::getGyroY(float &gyro_y) const
 {
     gyro_y = gyro_y_fake;
     return {};
 }
-std::expected<void, ErrorCode> Imu::getGyroZ(float &gyro_z)
+std::expected<void, ErrorCode> Imu::getGyroZ(float &gyro_z) const
 {
     gyro_z = gyro_z_fake;
     return {};

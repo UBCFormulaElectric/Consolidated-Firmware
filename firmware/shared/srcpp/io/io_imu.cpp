@@ -444,7 +444,7 @@ std::expected<void, ErrorCode> Imu::getGyroY(float &gyro_y) const
     return exit;
 }
 
-std::expected<void, ErrorCode> Imu::getGyroZ(float &gyro_z)
+std::expected<void, ErrorCode> Imu::getGyroZ(float &gyro_z) const
 {
     if (is_imu_ready == false)
         return std::unexpected(ErrorCode::ERROR);
