@@ -9,29 +9,30 @@
 
 using namespace hw::cans
 {
-static void canRxCallback(const CanMsg *msg) {
-
-    io::bootHandler::processBootRequest(msg);
-
-    if (io::canRx::filterMessageId_can1(msg->std_id)) {
-        io::canQueue::pushRx(msg);
-    }
-}
-
-CanHandle can1 = { &hfdcan1, 1, canRxCallback };
-CanHandle can2 = { &hfdcan2, 2, canRxCallback };
-
-const CanHandle *hw::can_getHandle(const FDCAN_HandleTypeDef *hfdcan)
-{
-    assert(hfdcan == can1.hcan || hfdcan == can2.hcan);
-
-    if (hfdcan == can1.hcan)
+    static void canRxCallback(const CanMsg *msg)
     {
-        return &can1;
+        io::bootHandler::processBootRequest(msg);
+
+        if (io::canRx::filterMessageId_can1(msg->std_id))
+        {
+            io::canQueue::pushRx(msg);
+        }
     }
-    else
+
+    CanHandle can1 = { &hfdcan1, 1, canRxCallback };
+    CanHandle can2 = { &hfdcan2, 2, canRxCallback };
+
+    const CanHandle *hw::can_getHandle(const FDCAN_HandleTypeDef *hfdcan)
     {
-        return &can2;
+        assert(hfdcan == can1.hcan || hfdcan == can2.hcan);
+
+        if (hfdcan == can1.hcan)
+        {
+            return &can1;
+        }
+        else
+        {
+            return &can2;
+        }
     }
-}
 } // namespace hw::cans
