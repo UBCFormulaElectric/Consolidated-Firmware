@@ -1,6 +1,30 @@
 message("")
 message("🎚️ [stmlib.cmake] Configuring STM32CubeMX functions")
+IF (NOT "${EMBEDDED_CMAKE_INCLUDED}" STREQUAL "TRUE")
+    message(FATAL_ERROR "❌ embedded.cmake must be included before stmlib.cmake")
+ENDIF ()
 set(STM32LIB_CMAKE_INCLUDED TRUE)
+
+# STM32CUBEMX Binary Path
+IF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
+    # check if you have the STM32CubeMX_PATH environment variable set
+    if (NOT "$ENV{STM32CubeMX_PATH}" STREQUAL "")
+        set(STM32CUBEMX_BIN_PATH "$ENV{STM32CubeMX_PATH}/STM32CubeMX.exe")
+    else ()
+        # if not, guess the you have it here
+        set(STM32CUBEMX_BIN_PATH "C:/Program Files/STMicroelectronics/STM32Cube/STM32CubeMX/STM32CubeMX.exe")
+        # check if the file exists
+        if (NOT EXISTS ${STM32CUBEMX_BIN_PATH})
+            message(FATAL_ERROR "❌ STM32CubeMX not found at ${STM32CUBEMX_BIN_PATH}")
+        endif ()
+    endif ()
+ELSEIF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
+    set(STM32CUBEMX_BIN_PATH "/Applications/STMicroelectronics/STM32CubeMX.app/Contents/MacOs/STM32CubeMX")
+ELSEIF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
+    set(STM32CUBEMX_BIN_PATH "/usr/local/STM32CubeMX/STM32CubeMX")
+ELSE ()
+    message(FATAL_ERROR "❌ Unsupported host system: ${CMAKE_HOST_SYSTEM_NAME}")
+ENDIF ()
 
 # ==== generate log4j properties for stm32cubemx codegen ====
 IF (${CMAKE_HOST_WIN32}) # this is slightly more reliable than WIN32
@@ -164,6 +188,7 @@ function(stm32h733xx_cube_library
         CUBEMX_INCLUDE_DIRS
         USB_ENABLED
         ARM_CORE
+        USE_HEXRAY_FREERTOS_CONFIG
 )
     set(DRIVERS_DIR "${STM32CUBEH7_SOURCE_DIR}/Drivers")
     set(FREERTOS_DIR "${STM32CUBEH7_SOURCE_DIR}/Middlewares/Third_Party/FreeRTOS/Source")
@@ -193,6 +218,12 @@ function(stm32h733xx_cube_library
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Config"
             "${SEGGER_SYSTEMVIEW_SOURCE_DIR}/Sample/FreeRTOSV10"
     )
+
+    if (USE_HEXRAY_FREERTOS_CONFIG) # this is temporary during the transition
+        list(APPEND STM32CUBE_INCLUDE_DIRS
+                "${THIRD_PARTY_DIR}/freertos/config"
+        )
+    endif ()
 
     # HAL sources.
     set(STM32_HAL_SRCS ${HAL_SRCS})
@@ -260,7 +291,7 @@ function(stm32h733xx_cube_library
     )
 endfunction()
 
-message(" 🔃 Registered stm32h562xx_cube_library () function")
+message("  🔃 Registered stm32h562xx_cube_library () function")
 function(stm32h562xx_cube_library
         HAL_LIB_NAME
         HAL_SRCS
@@ -287,10 +318,10 @@ function(stm32h562xx_cube_library
             "${DRIVERS_DIR}/STM32H5xx_HAL_Driver/Inc/Legacy"
             "${FREERTOS_DIR}/include"
             "${FREERTOS_DIR}/CMSIS_RTOS_V2"
-            "${FREERTOS_DIR}/portable/GCC/ARM_CM33/non_secure"
+            "${FREERTOS_DIR}/portable/GCC/ARM_CM33_NTZ/non_secure"
             "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H5xx/Include"
             "${DRIVERS_DIR}/CMSIS/Include"
-            "${THIRD_PARTY_DIR}/freertos"
+            "${THIRD_PARTY_DIR}/freertos/config"
 
             # SEGGER SystemView includes.
             "${THIRD_PARTY_DIR}/sysview"
@@ -307,7 +338,8 @@ function(stm32h562xx_cube_library
     file(GLOB RTOS_SRCS
             "${FREERTOS_DIR}/*.c"
             "${FREERTOS_DIR}/CMSIS_RTOS_V2/cmsis_os2.c"
-            "${FREERTOS_DIR}/portable/GCC/ARM_CM33_NTZ/port.c"
+            "${FREERTOS_DIR}/portable/GCC/ARM_CM33_NTZ/non_secure/port.c"
+            "${FREERTOS_DIR}/portable/GCC/ARM_CM33_NTZ/non_secure/portasm.c"
             "${FREERTOS_DIR}/portable/MemMang/heap_4.c"
     )
 

@@ -1,0 +1,12 @@
+{
+  "TEST": {
+    "msg_id": 306,
+    "cycle_time": 1000,
+    "description": "N/A",
+    "signals": {
+      "TestSignal": {
+        "bits": 1
+      }
+    }
+  }
+}
