@@ -50,14 +50,4 @@ void waitForConnected();
  * @note Use this in conjunction with hw_usb_waitForConnected to handle async USB behaviour
  */
 bool connected();
-
-/**
- * @note IF YOU WANT TO USE USB CALLBACKS MAKE SURE TO PUT THIS IN HAL_PCD_ResumeCallback IN USBD_CONF.c (for now)
- */
-void connect_callback();
-
-/**
- * @note IF YOU WANT TO USE USB CALLBACKS MAKE SURE TO PUT THIS IN HAL_PCD_SuspendCallback IN USBD_CONF.c (for now)
- */
-void disconnect_callback();
 } // namespace hw::usb

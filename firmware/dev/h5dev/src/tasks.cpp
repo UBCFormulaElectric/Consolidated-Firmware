@@ -24,9 +24,16 @@ extern "C"
 #include "app_jsoncan.hpp"
 #include "hw_usb.hpp"
 
+char USBD_PRODUCT_STRING_FS[] = "h5dev";
+void hw::usb::receive(const std::span<uint8_t> dest)
+{
+    LOG_INFO("Recieved a span of length %d", dest.size());
+}
+
 [[noreturn]] static void tasks_runCanBroadcast(void *arg)
 {
     uint32_t last_1hz = 0, last_100hz = 0;
+    osDelay(osWaitForever);
     forever
     {
         const uint32_t t = io::time::getCurrentMs();
@@ -62,10 +69,21 @@ extern "C"
     }
 }
 
+[[noreturn]] static void tasks_loop(void *arg)
+{
+    forever
+    {
+        std::array<uint8_t, 8> a{ { 1, 2, 3, 4, 5, 6, 7, 8 } };
+        hw::usb::transmit(a);
+        io::time::delay(1000);
+    }
+}
+
 // Define the task with StaticTask template class
 static hw::rtos::StaticTask<512> TaskCanBroadcast(osPriorityAboveNormal, "Task1Hz", tasks_runCanBroadcast);
 static hw::rtos::StaticTask<512> TaskCanRx(osPriorityBelowNormal, "TaskCanRx", tasks_runCanRx);
 static hw::rtos::StaticTask<512> TaskCanTx(osPriorityBelowNormal, "TaskCanTx", tasks_runCanTx);
+static hw::rtos::StaticTask<512> TaskLoop(osPriorityBelowNormal, "TaskLoop", tasks_loop);
 
 void tasks_preInit()
 {
@@ -123,6 +141,7 @@ void tasks_init()
     TaskCanBroadcast.start();
     TaskCanRx.start();
     TaskCanTx.start();
+    TaskLoop.start();
     osKernelStart();
     forever {}
 }

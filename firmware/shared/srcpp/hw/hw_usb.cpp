@@ -140,7 +140,7 @@ static USBD_CDC_ItfTypeDef USBD_Interface_fops = {
     CDC_Init, [] {return static_cast<int8_t>(USBD_OK); }, CDC_Control, CDC_Receive, CDC_TransmitCplt,
 };
 
-extern char *USBD_PRODUCT_STRING_FS; // TODO make clear this must be configured per board
+extern char USBD_PRODUCT_STRING_FS[]; // TODO make clear this must be configured per board
 
 static constexpr uint8_t USB_SIZ_STRING_SERIAL          = 0x1AU;
 static constexpr int     USBD_VID                       = 1155;
@@ -312,59 +312,6 @@ extern "C"
         }
         return usb_status;
     }
-    void HAL_PCD_SetupStageCallback(PCD_HandleTypeDef *hpcd)
-    {
-        USBD_LL_SetupStage(static_cast<USBD_HandleTypeDef *>(hpcd->pData), reinterpret_cast<uint8_t *>(hpcd->Setup));
-    }
-    void HAL_PCD_DataOutStageCallback(PCD_HandleTypeDef *hpcd, const uint8_t epnum)
-    {
-        USBD_LL_DataOutStage(static_cast<USBD_HandleTypeDef *>(hpcd->pData), epnum, hpcd->OUT_ep[epnum].xfer_buff);
-    }
-    void HAL_PCD_DataInStageCallback(PCD_HandleTypeDef *hpcd, const uint8_t epnum)
-    {
-        USBD_LL_DataInStage(static_cast<USBD_HandleTypeDef *>(hpcd->pData), epnum, hpcd->IN_ep[epnum].xfer_buff);
-    }
-    void HAL_PCD_SOFCallback(PCD_HandleTypeDef *hpcd)
-    {
-        USBD_LL_SOF(static_cast<USBD_HandleTypeDef *>(hpcd->pData));
-    }
-    void HAL_PCD_ResetCallback(PCD_HandleTypeDef *hpcd)
-    {
-        constexpr USBD_SpeedTypeDef speed = USBD_SPEED_FULL;
-        if (hpcd->Init.speed != PCD_SPEED_FULL)
-        {
-            Error_Handler();
-        }
-        /* Set Speed. */
-        USBD_LL_SetSpeed(static_cast<USBD_HandleTypeDef *>(hpcd->pData), speed);
-        /* Reset Device. */
-        USBD_LL_Reset(static_cast<USBD_HandleTypeDef *>(hpcd->pData));
-    }
-    void HAL_PCD_SuspendCallback(PCD_HandleTypeDef *hpcd)
-    {
-        USBD_LL_Suspend(static_cast<USBD_HandleTypeDef *>(hpcd->pData));
-#ifdef __HAL_PCD_GATE_PHYCLOCK
-        __HAL_PCD_GATE_PHYCLOCK(hpcd);
-#endif
-        hw::usb::disconnect_callback();
-        if (hpcd->Init.low_power_enable)
-        {
-            SCB->SCR |= (uint32_t)(SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk);
-        }
-    }
-    void HAL_PCD_ResumeCallback(PCD_HandleTypeDef *hpcd)
-    {
-        hw::usb::connect_callback();
-        USBD_LL_Resume(static_cast<USBD_HandleTypeDef *>(hpcd->pData));
-    }
-    void HAL_PCD_ConnectCallback(PCD_HandleTypeDef *hpcd)
-    {
-        USBD_LL_DevConnected(static_cast<USBD_HandleTypeDef *>(hpcd->pData));
-    }
-    void HAL_PCD_DisconnectCallback(PCD_HandleTypeDef *hpcd)
-    {
-        USBD_LL_DevDisconnected(static_cast<USBD_HandleTypeDef *>(hpcd->pData));
-    }
     USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
     {
         /* Link USB Device <-> PCD */
@@ -372,7 +319,7 @@ extern "C"
         hpcd_USB_DRD_FS.pData = pdev;
 
         /* Initialize LL Driver */
-        // MX_USB_PCD_Init(); // TODO dawg...
+        MX_USB_PCD_Init(); // TODO dawg...
 
         /* PMA buffer configuration */
 #ifdef FS
@@ -492,6 +439,10 @@ bool checkConnection()
 
 ExitCode transmit(std::span<uint8_t> msg)
 {
+    if (USB_DEVICE_HANDLER.pClassData == nullptr)
+    {
+        return ExitCode::EXIT_CODE_BUSY;
+    }
     if (static_cast<const USBD_CDC_HandleTypeDef *>(USB_DEVICE_HANDLER.pClassData)->TxState != 0)
         return ExitCode::EXIT_CODE_BUSY;
     USBD_CDC_SetTxBuffer(&USB_DEVICE_HANDLER, msg.data(), msg.size());
@@ -508,7 +459,7 @@ ExitCode transmit(std::span<uint8_t> msg)
 static bool                        usb_connected = false;
 static std::optional<TaskHandle_t> usb_task      = std::nullopt;
 
-void connect_callback()
+static void connect_callback()
 {
     usb_connected = true;
     if (!usb_task.has_value())
@@ -522,7 +473,7 @@ void connect_callback()
     portYIELD_FROM_ISR(higherPriorityTaskWoken);
 }
 
-void disconnect_callback()
+static void disconnect_callback()
 {
     usb_connected = false;
 }
@@ -546,3 +497,61 @@ void waitForConnected()
     usb_task = nullptr;
 }
 } // namespace hw::usb
+
+// HAL INTERRUPT SETUP
+extern "C"
+{
+    void HAL_PCD_SetupStageCallback(PCD_HandleTypeDef *hpcd)
+    {
+        USBD_LL_SetupStage(static_cast<USBD_HandleTypeDef *>(hpcd->pData), reinterpret_cast<uint8_t *>(hpcd->Setup));
+    }
+    void HAL_PCD_DataOutStageCallback(PCD_HandleTypeDef *hpcd, const uint8_t epnum)
+    {
+        USBD_LL_DataOutStage(static_cast<USBD_HandleTypeDef *>(hpcd->pData), epnum, hpcd->OUT_ep[epnum].xfer_buff);
+    }
+    void HAL_PCD_DataInStageCallback(PCD_HandleTypeDef *hpcd, const uint8_t epnum)
+    {
+        USBD_LL_DataInStage(static_cast<USBD_HandleTypeDef *>(hpcd->pData), epnum, hpcd->IN_ep[epnum].xfer_buff);
+    }
+    void HAL_PCD_SOFCallback(PCD_HandleTypeDef *hpcd)
+    {
+        USBD_LL_SOF(static_cast<USBD_HandleTypeDef *>(hpcd->pData));
+    }
+    void HAL_PCD_ResetCallback(PCD_HandleTypeDef *hpcd)
+    {
+        constexpr USBD_SpeedTypeDef speed = USBD_SPEED_FULL;
+        if (hpcd->Init.speed != PCD_SPEED_FULL)
+        {
+            Error_Handler();
+        }
+        /* Set Speed. */
+        USBD_LL_SetSpeed(static_cast<USBD_HandleTypeDef *>(hpcd->pData), speed);
+        /* Reset Device. */
+        USBD_LL_Reset(static_cast<USBD_HandleTypeDef *>(hpcd->pData));
+    }
+    void HAL_PCD_SuspendCallback(PCD_HandleTypeDef *hpcd)
+    {
+        USBD_LL_Suspend(static_cast<USBD_HandleTypeDef *>(hpcd->pData));
+#ifdef __HAL_PCD_GATE_PHYCLOCK
+        __HAL_PCD_GATE_PHYCLOCK(hpcd);
+#endif
+        hw::usb::disconnect_callback();
+        if (hpcd->Init.low_power_enable)
+        {
+            SCB->SCR |= (uint32_t)(SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk);
+        }
+    }
+    void HAL_PCD_ResumeCallback(PCD_HandleTypeDef *hpcd)
+    {
+        hw::usb::connect_callback();
+        USBD_LL_Resume(static_cast<USBD_HandleTypeDef *>(hpcd->pData));
+    }
+    void HAL_PCD_ConnectCallback(PCD_HandleTypeDef *hpcd)
+    {
+        USBD_LL_DevConnected(static_cast<USBD_HandleTypeDef *>(hpcd->pData));
+    }
+    void HAL_PCD_DisconnectCallback(PCD_HandleTypeDef *hpcd)
+    {
+        USBD_LL_DevDisconnected(static_cast<USBD_HandleTypeDef *>(hpcd->pData));
+    }
+}
