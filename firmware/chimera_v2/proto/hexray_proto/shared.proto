@@ -141,6 +141,7 @@ message SpiNetName {
   oneof name {
     bms.SpiNetName bms_net_name = 1;
     crit.SpiNetName crit_net_name = 2;
+    rsm.SpiNetName rsm_net_name = 3;
   }
 }
 

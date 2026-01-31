@@ -24,8 +24,9 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_spi.cpp"
         "${SHARED_HW_INCLUDE_DIR}/hw_resetReason.c"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
+        "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_ubsan.cpp"
 )
 
 file(GLOB CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
@@ -76,14 +77,18 @@ IF ("${TARGET}" STREQUAL "binary")
             "stm32h5xx_hal_spi.c"
     )
 
-    set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc" "${CMAKE_CURRENT_SOURCE_DIR}/src")
+    set(CUBEMX_INCLUDE_DIRS
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
+    )
     stm32h562xx_cube_library(
             "h5dev_stm32"
             "${STM32_HAL_SRCS}"
             "${IOC_PATH}"
             "${CUBEMX_SRCS}"
             "${CUBEMX_INCLUDE_DIRS}"
-            FALSE
+            TRUE
             "${ARM_CORE}"
     )
 

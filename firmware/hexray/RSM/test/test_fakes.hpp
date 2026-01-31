@@ -24,7 +24,7 @@ namespace suspension
 
 namespace rPump
 {
-    void setStatus(ExitCode value);
+    void setStatus(std::expected<void, ErrorCode> value);
 }
 
 namespace tireTemp

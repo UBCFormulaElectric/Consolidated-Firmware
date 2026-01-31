@@ -1,4 +1,3 @@
-#include "hw_adc.hpp"
 #include "hw_adcs.hpp"
 #include "main.h"
 
@@ -12,11 +11,11 @@ void chipsInit()
     Adc_Chip.init();
 }
 
-const float *lc3_out             = Adc_Chip.getChannel(0);
-const float *susp_travel_rl_3v3  = Adc_Chip.getChannel(1);
-const float *susp_travel_rr_3v3  = Adc_Chip.getChannel(2);
-const float *bps_3v3             = Adc_Chip.getChannel(3);
-const float *nBSPD_brake_pressed = Adc_Chip.getChannel(4);
+Adc lc3_out{ Adc_Chip.getChannel(0) };
+Adc susp_travel_rl_3v3{ Adc_Chip.getChannel(1) };
+Adc susp_travel_rr_3v3{ Adc_Chip.getChannel(2) };
+Adc bps_3v3{ Adc_Chip.getChannel(3) };
+Adc nBSPD_brake_pressed{ Adc_Chip.getChannel(4) };
 
 } // namespace hw::adcs
 

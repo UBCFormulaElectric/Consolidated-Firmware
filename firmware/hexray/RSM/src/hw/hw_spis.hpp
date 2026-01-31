@@ -3,7 +3,6 @@
 
 namespace hw::spi
 {
-extern SpiBus    spi3;
-extern SpiDevice imu;
-SpiBus          &hw_spi_getBusFromHandle(const SPI_HandleTypeDef *handle);
+extern const SpiBus    spi3;
+extern const SpiDevice imu;
 } // namespace hw::spi

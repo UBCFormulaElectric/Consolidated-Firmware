@@ -1,6 +1,6 @@
 #include "hw_i2cs.hpp"
 #include "main.h"
-#include <stm32h5xx_hal_spi.h>
+#include <cassert>
 
 namespace hw::i2c
 {
