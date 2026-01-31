@@ -108,9 +108,9 @@ namespace suspension
 
 namespace rPump
 {
-    ExitCode setPercentage(float value)
+    std::expected<void, ErrorCode> setPercentage(float value)
     {
-        return ExitCode::EXIT_CODE_OK;
+        return {};
     }
 } // namespace rPump
 

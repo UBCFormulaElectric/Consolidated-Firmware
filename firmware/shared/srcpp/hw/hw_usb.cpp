@@ -418,18 +418,18 @@ extern "C"
 
 namespace hw::usb
 {
-ExitCode init()
+std::expected<void, ErrorCode> init()
 {
     if (USBD_Init(&USB_DEVICE_HANDLER, &pdesc, DEVICE_ID) != USBD_OK)
-        return ExitCode::EXIT_CODE_ERROR;
+        return std::unexpected(ErrorCode::ERROR);
     if (USBD_RegisterClass(&USB_DEVICE_HANDLER, &USBD_CDC) != USBD_OK)
-        return ExitCode::EXIT_CODE_ERROR;
+        return std::unexpected(ErrorCode::ERROR);
     if (USBD_CDC_RegisterInterface(&USB_DEVICE_HANDLER, &USBD_Interface_fops) != USBD_OK)
-        return ExitCode::EXIT_CODE_ERROR;
+        return std::unexpected(ErrorCode::ERROR);
     if (USBD_Start(&USB_DEVICE_HANDLER) != USBD_OK)
-        return ExitCode::EXIT_CODE_ERROR;
+        return std::unexpected(ErrorCode::ERROR);
     HAL_PWREx_EnableUSBVoltageDetector();
-    return ExitCode::EXIT_CODE_OK;
+    return {};
 }
 
 bool checkConnection()
@@ -437,21 +437,21 @@ bool checkConnection()
     return USB_DEVICE_HANDLER.dev_state == USBD_STATE_CONFIGURED;
 }
 
-ExitCode transmit(std::span<uint8_t> msg)
+std::expected<void, ErrorCode> transmit(std::span<uint8_t> msg)
 {
     if (USB_DEVICE_HANDLER.pClassData == nullptr)
     {
-        return ExitCode::EXIT_CODE_BUSY;
+        return std::unexpected(ErrorCode::BUSY);
     }
     if (static_cast<const USBD_CDC_HandleTypeDef *>(USB_DEVICE_HANDLER.pClassData)->TxState != 0)
-        return ExitCode::EXIT_CODE_BUSY;
+        return std::unexpected(ErrorCode::BUSY);
     USBD_CDC_SetTxBuffer(&USB_DEVICE_HANDLER, msg.data(), msg.size());
     if (const uint8_t status = USBD_CDC_TransmitPacket(&USB_DEVICE_HANDLER); status != USBD_OK)
     {
         // LOG_WARN("USB: Transmit handle returned %d status code instead of USBD_OK.", status);
-        return ExitCode::EXIT_CODE_ERROR;
+        return std::unexpected(ErrorCode::ERROR);
     }
-    return ExitCode::EXIT_CODE_OK;
+    return {};
 }
 
 // Connection handling
@@ -462,7 +462,7 @@ static std::optional<TaskHandle_t> usb_task      = std::nullopt;
 static void connect_callback()
 {
     usb_connected = true;
-    if (!usb_task.has_value())
+    if (not usb_task.has_value())
     {
         LOG_WARN("USB: No task to notify.");
         return;

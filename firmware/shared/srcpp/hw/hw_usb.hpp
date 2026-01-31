@@ -11,7 +11,7 @@ namespace hw::usb
  * @returns whether the USB is ok to be used
  * @note you can call it multiple times
  */
-ExitCode init();
+std::expected<void, ErrorCode> init();
 
 /**
  * @brief Check if the USB port is connected (in a "configured" state).
@@ -24,7 +24,7 @@ bool checkConnection();
  * @param msg A span to the message buffer to send.
  * @return True if data is transmitted successfully, otherwise false.
  */
-ExitCode transmit(std::span<uint8_t> msg);
+std::expected<void, ErrorCode> transmit(std::span<uint8_t> msg);
 
 /**
  * @brief Receive data from the usb host.
