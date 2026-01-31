@@ -319,7 +319,7 @@ extern "C"
         hpcd_USB_DRD_FS.pData = pdev;
 
         /* Initialize LL Driver */
-        MX_USB_PCD_Init(); // TODO dawg...
+        // MX_USB_PCD_Init(); // TODO dawg...
 
         /* PMA buffer configuration */
 #ifdef FS
