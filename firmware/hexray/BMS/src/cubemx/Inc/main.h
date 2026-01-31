@@ -58,8 +58,19 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define tim_6_prescaler 256
-#define tim_6_period 1000
+#define TIM5_PWM_MIN_FREQUENCY 1
+#define TIM3_PRESCALER 10
+#define TIMx_FREQUENCY 256000000
+#define LSI_FREQUENCY 32000
+#define TIM1_AUTO_RELOAD_REG 0xFFFF
+#define TIM5_AUTO_RELOAD_REG 0xFFFF
+#define ADC_FREQUENCY 1000
+#define IWDG_RESET_FREQUENCY 5
+#define IWDG_WINDOW_DISABLE_VALUE 4095
+#define IWDG_PRESCALER 4
+#define TIM5_PRESCALER (TIMx_FREQUENCY / TIM5_AUTO_RELOAD_REG / TIM5_PWM_MIN_FREQUENCY)
+#define TIM1_PRESCALER (TIMx_FREQUENCY / TIM1_AUTO_RELOAD_REG / TIM1_PWM_MIN_FREQUENCY)
+#define TIM1_PWM_MIN_FREQUENCY 1
 #define SPI_SCK_Pin GPIO_PIN_2
 #define SPI_SCK_GPIO_Port GPIOE
 #define IR_P_EN_Pin GPIO_PIN_3
@@ -72,8 +83,8 @@ extern "C"
 #define SPI_MOSI_GPIO_Port GPIOE
 #define LEDR_Pin GPIO_PIN_13
 #define LEDR_GPIO_Port GPIOC
-#define SPI_C_LS_Pin GPIO_PIN_14
-#define SPI_C_LS_GPIO_Port GPIOC
+#define SPI_CS_LS_Pin GPIO_PIN_14
+#define SPI_CS_LS_GPIO_Port GPIOC
 #define MSD_SHDN_SNS_Pin GPIO_PIN_0
 #define MSD_SHDN_SNS_GPIO_Port GPIOC
 #define HV_P_INTLCK_SNS_Pin GPIO_PIN_1
@@ -158,10 +169,10 @@ extern "C"
 #define SD_D3_GPIO_Port GPIOC
 #define SD_CK_Pin GPIO_PIN_12
 #define SD_CK_GPIO_Port GPIOC
-#define CAN1_RX_Pin GPIO_PIN_0
-#define CAN1_RX_GPIO_Port GPIOD
-#define CAN1_TX_Pin GPIO_PIN_1
-#define CAN1_TX_GPIO_Port GPIOD
+#define CAN1_CHRG_RX_Pin GPIO_PIN_0
+#define CAN1_CHRG_RX_GPIO_Port GPIOD
+#define CAN1_CHRG_TX_Pin GPIO_PIN_1
+#define CAN1_CHRG_TX_GPIO_Port GPIOD
 #define SD_CMD_Pin GPIO_PIN_2
 #define SD_CMD_GPIO_Port GPIOD
 #define TSENSE_SEL0_Pin GPIO_PIN_5
@@ -172,10 +183,10 @@ extern "C"
 #define TSENSE_SEL2_GPIO_Port GPIOD
 #define SWO_Pin GPIO_PIN_3
 #define SWO_GPIO_Port GPIOB
-#define CAN1_CHRG_RX_Pin GPIO_PIN_5
-#define CAN1_CHRG_RX_GPIO_Port GPIOB
-#define CAN1_CHRG_TX_Pin GPIO_PIN_6
-#define CAN1_CHRG_TX_GPIO_Port GPIOB
+#define CAN1_RX_Pin GPIO_PIN_5
+#define CAN1_RX_GPIO_Port GPIOB
+#define CAN1_TX_Pin GPIO_PIN_6
+#define CAN1_TX_GPIO_Port GPIOB
 #define SHDN_FAULT_Pin GPIO_PIN_8
 #define SHDN_FAULT_GPIO_Port GPIOB
 #define PGOOD_3V3_Pin GPIO_PIN_9
