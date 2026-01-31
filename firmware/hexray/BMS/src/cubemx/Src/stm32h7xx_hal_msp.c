@@ -104,8 +104,8 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         PA4     ------> ADC1_INP18
         PA5     ------> ADC1_INP19
         PA6     ------> ADC1_INP3
-        PA7     ------> ADC1_INN3
-        PB0     ------> ADC1_INN5
+        PA7     ------> ADC1_INP7
+        PB0     ------> ADC1_INP9
         PB1     ------> ADC1_INP5
         */
         GPIO_InitStruct.Pin =
@@ -202,8 +202,8 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
         PA4     ------> ADC1_INP18
         PA5     ------> ADC1_INP19
         PA6     ------> ADC1_INP3
-        PA7     ------> ADC1_INN3
-        PB0     ------> ADC1_INN5
+        PA7     ------> ADC1_INP7
+        PB0     ------> ADC1_INP9
         PB1     ------> ADC1_INP5
         */
         HAL_GPIO_DeInit(
