@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { PlusButton } from "./PlusButton";
 import { SignalType } from "@/lib/SignalConfig";
-import { MockGraphConfig } from "../pages/live-data/MockGraph";
+import { MockGraphConfig } from "./widgets/MockGraph";
 
 interface InsertionBarProps {
   onInsert: () => void;
