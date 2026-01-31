@@ -1,8 +1,4 @@
 #pragma once
-extern "C"
-{
-#include "app_utils.h"
-}
 #include <array>
 #include "util_limits.hpp"
 

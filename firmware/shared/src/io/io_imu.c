@@ -1,6 +1,5 @@
 #include "io_imu.h"
 #include "app_utils.h"
-// #include "util_errorCodes.h"
 #include "hw_i2c.h"
 
 // IMU ACC Configs
