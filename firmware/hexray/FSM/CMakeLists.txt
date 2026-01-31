@@ -2,7 +2,9 @@ message("")
 message("⚙️ Configuring FSM (Hexray)")
 
 file(GLOB CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
-set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
+set(CUBEMX_INCLUDE_DIRS 
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
+)
 
 set(JOBS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/jobs.cpp")
 set(TASKS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.cpp")
@@ -42,6 +44,7 @@ file(GLOB_RECURSE HW_SRCS
 list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_spi.cpp"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -82,6 +85,7 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h5xx_hal_spi.c"
             "stm32h5xx_hal_spi_ex.c"
             "stm32h5xx_hal_fdcan.c"
+            "stm32h5xx_ll_usb.c"
     )
     stm32h562xx_cube_library(
             "hexray_FSM_stm32"

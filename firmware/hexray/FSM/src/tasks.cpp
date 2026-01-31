@@ -6,11 +6,7 @@ extern "C"
 #include "io_time.hpp"
 #include "hw_rtosTaskHandler.hpp"
 
-#include <io_canQueue.h>
 #include "hw_cans.hpp"
-#include "io_bootHandler.h"
-#include "io_canMsgQueues.hpp"
-#include "io_canMsg.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
@@ -76,9 +72,4 @@ void tasks_init()
     FSM_StartAllTasks();
     osKernelStart();
     forever {}
-}
-
-static void tasks_runCanRxCallback(const io::CanMsg *msg)
-{
-    can_rx_queue.pushMsgToQueue(msg);
 }

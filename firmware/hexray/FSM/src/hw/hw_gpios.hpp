@@ -9,6 +9,7 @@ namespace hw::gpios
 {
 extern const Gpio bots_3v3;
 extern const Gpio cockpit_shdn_3v3;
+extern const Gpio imu_nss;
 extern const Gpio imu_fsync;
 extern const Gpio nsusp_fl_ocsc;
 extern const Gpio nsusp_fr_ocsc;

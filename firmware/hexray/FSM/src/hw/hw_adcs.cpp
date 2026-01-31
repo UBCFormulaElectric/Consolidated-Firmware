@@ -6,7 +6,7 @@ extern "C"
 
 namespace hw::adcs
 {
-AdcChip<NUM_ADC_CHANNELS> adc1 = AdcChip<NUM_ADC_CHANNELS>(&hadc1, &htim2);
+AdcChip<NUM_ADC_CHANNELS> adc1(&hadc1, &htim2);
 
 void chipsInit(void)
 {

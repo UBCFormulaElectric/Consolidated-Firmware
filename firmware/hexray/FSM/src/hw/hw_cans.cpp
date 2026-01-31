@@ -1,14 +1,11 @@
 #include "hw_cans.hpp"
 #include <cassert>
-extern "C"
-{
 #include "tasks.h"
 #include "main.h"
-}
 
 namespace hw::cans
 {
-fdcan fdcan1 = fdcan(hfdcan1, 0, tasks_runCanRxCallback); // Callback func where to define?
+fdcan fdcan1 = fdcan(hfdcan1, 0, [](const io::CanMsg &msg) { UNUSED(msg); }); // define callback func in io
 } // namespace hw::cans
 
 namespace hw

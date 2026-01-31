@@ -25,6 +25,8 @@ class FSMChimeraConfig : public chimera_v2::config
                 return std::cref(boot_led);
             case fsm_GpioNetName_GPIO_COCKPIT_SHDN_3v3:
                 return std::cref(cockpit_shdn_3v3);
+            case fsm_GpioNetName_GPIO_IMU_NSS:
+                return std::cref(imu_nss);
             case fsm_GpioNetName_GPIO_IMU_FSYNC:
                 return std::cref(imu_fsync);
             case fsm_GpioNetName_GPIO_NSUSP_FL_OCSC:
@@ -45,6 +47,7 @@ class FSMChimeraConfig : public chimera_v2::config
                 return std::cref(boot_led);
             default:
             case fsm_GpioNetName_GPIO_NET_NAME_UNSPECIFIED:
+                LOG_INFO("Chimera: Unspecified GPIO net name");
                 LOG_INFO("Chimera: Unspecified GPIO net name");
                 return std::nullopt;
         }
