@@ -74,7 +74,7 @@ class can final : public BaseCan
     std::expected<void, ErrorCode> tx(const CAN_TxHeaderTypeDef &tx_header, const io::CanMsg &msg);
 
   public:
-    constexpr explicit can(
+    consteval explicit can(
         CAN_HandleTypeDef &hcan_in,
         const uint8_t      bus_num_in,
         void (*const receive_callback_in)(const io::CanMsg &rx_msg))
