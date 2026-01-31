@@ -1,7 +1,4 @@
 #pragma once
-extern "C"
-{
-#include "hw_fdcan.h"
-}
+#include "hw_can.hpp"
 
-extern CanHandle can1;
+extern const hw::fdcan can1;

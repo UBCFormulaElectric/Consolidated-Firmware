@@ -1,22 +1,10 @@
-#include "hw_can.hpp"
-#include "jobs.hpp"
-
-extern "C"
-{
+#include "hw_cans.hpp"
 #include "main.h"
-#include <assert.h>
-#include "io_canQueue.h"
-}
+#include <cassert>
 
-namespace hw
-{
-
-fdcan can1(hfdcan2, 0, jobs_runCanRx_callBack);
-
-const fdcan &fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
+constexpr hw::fdcan can1(hfdcan1, 0, [](const io::CanMsg &msg) { UNUSED(msg); });
+const hw::fdcan    &hw::fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
 {
     assert(hfdcan == can1.getHfdcan());
     return can1;
 }
-
-} // namespace hw

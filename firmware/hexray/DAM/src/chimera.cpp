@@ -1,6 +1,12 @@
+#include "tasks.h"
 #include "chimera_v2.hpp"
 #include "hw_gpios.hpp"
+#include "hw_rtosTaskHandler.hpp"
 #include "shared.pb.h"
+#include "io_log.hpp"
+#include "hw_usb.hpp"
+
+#include <cassert>
 #include <dam.pb.h>
 
 #include <optional>
@@ -52,14 +58,22 @@ class DAMChimeraConfig : public chimera_v2::config
         }
     }
 
-  public:
-    DAMChimeraConfig() { gpio_net_name_tag = GpioNetName_dam_net_name_tag; }
+    consteval DAMChimeraConfig() { gpio_net_name_tag = GpioNetName_dam_net_name_tag; }
 
 } dam_config;
 
-void tasks_preInit() {}
+static hw::rtos::StaticTask<8096>
+    TaskChimera(osPriorityRealtime, "TaskChimera", [](void *) { chimera_v2::task(dam_config); });
 
-[[noreturn]] void tasks_init() // sus, maybe put in tasks_run100Hz()
+void tasks_preInit()
 {
-    chimera_v2::task(dam_config);
+    assert(hw::usb::init());
+}
+
+[[noreturn]] void tasks_init()
+{
+    osKernelInitialize();
+    TaskChimera.start();
+    osKernelStart();
+    forever {}
 }

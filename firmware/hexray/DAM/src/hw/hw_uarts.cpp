@@ -1,18 +1,12 @@
 #include "hw_uarts.hpp"
 
-extern "C"
-{
 #include "main.h"
-}
+#include <cassert>
 
-hw::Uart _900k_uart(&huart2);
+const hw::Uart _900k_uart(&huart2);
 
-hw::Uart *hw_uart_getDeviceFromHandle(const UART_HandleTypeDef *handle)
+const hw::Uart &getUartFromHandle(const UART_HandleTypeDef *handle)
 {
-    if (handle == &huart2)
-    {
-        return &_900k_uart;
-    }
-
-    return nullptr;
+    assert(handle == _900k_uart.getHandle());
+    return _900k_uart;
 }

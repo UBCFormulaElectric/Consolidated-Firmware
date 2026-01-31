@@ -42,7 +42,13 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
-
+    extern CRC_HandleTypeDef   hcrc;
+    extern FDCAN_HandleTypeDef hfdcan1;
+    extern IWDG_HandleTypeDef  hiwdg;
+    extern RTC_HandleTypeDef   hrtc;
+    extern SD_HandleTypeDef    hsd1;
+    extern UART_HandleTypeDef  huart2;
+    extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/
@@ -52,6 +58,7 @@ extern "C"
 
     /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler(void);
+
 /* USER CODE BEGIN EFP */
 
 /* USER CODE END EFP */

@@ -1,7 +1,4 @@
 #pragma once
-#include <hw_uart.hpp>
+#include "hw_uart.hpp"
 
-extern "C"
-{
-#include <hw_uart.h>
-}
+extern const hw::Uart _900k_uart;

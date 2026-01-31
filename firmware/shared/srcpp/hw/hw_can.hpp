@@ -27,11 +27,8 @@ class BaseCan
     void (*const receive_callback)(const io::CanMsg &rx_msg);
     TaskHandle_t transmit_task = nullptr;
 
-    constexpr explicit BaseCan(const uint8_t bus_num_in, void (*const receive_callback_in)(const io::CanMsg &rx_msg))
-      : bus_num(bus_num_in), receive_callback(receive_callback_in)
-    {
-        assert(receive_callback != nullptr);
-    };
+    consteval explicit BaseCan(const uint8_t bus_num_in, void (*const receive_callback_in)(const io::CanMsg &rx_msg))
+      : bus_num(bus_num_in), receive_callback(receive_callback_in){};
 
     /**
      * Initialize CAN driver.
@@ -104,7 +101,7 @@ class fdcan final : public BaseCan
     std::expected<void, ErrorCode> tx(const FDCAN_TxHeaderTypeDef &tx_header, const io::CanMsg &msg);
 
   public:
-    constexpr explicit fdcan(
+    consteval explicit fdcan(
         FDCAN_HandleTypeDef &hfdcan_in,
         const uint8_t        bus_num_in,
         void (*const receive_callback_in)(const io::CanMsg &rx_msg))

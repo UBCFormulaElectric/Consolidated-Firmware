@@ -1,9 +1,5 @@
 #include "hw_gpios.hpp"
-
-extern "C"
-{
 #include "main.h"
-}
 
 using hw::Gpio;
 
