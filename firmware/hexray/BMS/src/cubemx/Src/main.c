@@ -6,7 +6,7 @@
  ******************************************************************************
  * @attention
  *
- * Copyright (c) 2025 STMicroelectronics.
+ * Copyright (c) 2026 STMicroelectronics.
  * All rights reserved.
  *
  * This software is licensed under terms that can be found in the LICENSE file
@@ -23,8 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "tasks.h"
-#include "hw_error.hpp"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -124,18 +123,6 @@ const osThreadAttr_t Task1Hz_attributes = {
     .stack_size = sizeof(Task1HzBuffer),
     .priority   = (osPriority_t)osPriorityAboveNormal,
 };
-/* Definitions for TaskChimera */
-osThreadId_t         TaskChimeraHandle;
-uint32_t             TaskChimeraBuffer[512];
-osStaticThreadDef_t  TaskChimeraControlBlock;
-const osThreadAttr_t TaskChimera_attributes = {
-    .name       = "TaskChimera",
-    .cb_mem     = &TaskChimeraControlBlock,
-    .cb_size    = sizeof(TaskChimeraControlBlock),
-    .stack_mem  = &TaskChimeraBuffer[0],
-    .stack_size = sizeof(TaskChimeraBuffer),
-    .priority   = (osPriority_t)osPriorityHigh,
-};
 /* Definitions for TaskCellVoltages */
 osThreadId_t         TaskCellVoltagesHandle;
 uint32_t             TaskCellVoltagesBuffer[512];
@@ -197,7 +184,6 @@ void        RunTaskCanRx(void *argument);
 void        RunTaskCanTx(void *argument);
 void        RunTask1kHz(void *argument);
 void        RunTask1Hz(void *argument);
-void        RunTaskChimera(void *argument);
 void        RunTaskCellVoltages(void *argument);
 void        RunTaskCellTemps(void *argument);
 void        RunTaskCellDiag(void *argument);
@@ -218,7 +204,7 @@ void        RunTaskCellDiag(void *argument);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-    tasks_preInit();
+
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -255,7 +241,7 @@ int main(void)
     MX_TIM3_Init();
     MX_TIM5_Init();
     /* USER CODE BEGIN 2 */
-    tasks_init();
+
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -292,9 +278,6 @@ int main(void)
 
     /* creation of Task1Hz */
     Task1HzHandle = osThreadNew(RunTask1Hz, NULL, &Task1Hz_attributes);
-
-    /* creation of TaskChimera */
-    TaskChimeraHandle = osThreadNew(RunTaskChimera, NULL, &TaskChimera_attributes);
 
     /* creation of TaskCellVoltages */
     TaskCellVoltagesHandle = osThreadNew(RunTaskCellVoltages, NULL, &TaskCellVoltages_attributes);
@@ -1236,24 +1219,6 @@ void RunTask1Hz(void *argument)
         osDelay(1);
     }
     /* USER CODE END RunTask1Hz */
-}
-
-/* USER CODE BEGIN Header_RunTaskChimera */
-/**
- * @brief Function implementing the TaskChimera thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_RunTaskChimera */
-void RunTaskChimera(void *argument)
-{
-    /* USER CODE BEGIN RunTaskChimera */
-    /* Infinite loop */
-    for (;;)
-    {
-        osDelay(1);
-    }
-    /* USER CODE END RunTaskChimera */
 }
 
 /* USER CODE BEGIN Header_RunTaskCellVoltages */

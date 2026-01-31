@@ -2,8 +2,8 @@
 
 namespace hw::sysviewDescConfig
 {
-    void sendSystemDesc(void)
-    {
-        SEGGER_SYSVIEW_SendSysDesc("N=BMS,D=Cortex-M7,O=FreeRTOS");
-    }
+void sendSystemDesc(void)
+{
+    SEGGER_SYSVIEW_SendSysDesc("N=BMS,D=Cortex-M7,O=FreeRTOS");
+}
 } // namespace hw::sysviewDescConfig
