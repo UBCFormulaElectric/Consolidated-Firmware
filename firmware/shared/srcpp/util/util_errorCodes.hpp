@@ -2,7 +2,6 @@
 #include "io_log.hpp"
 #include <expected>
 
-#undef ERROR
 enum class ErrorCode
 {
     INVALID_ARGS = 0,
