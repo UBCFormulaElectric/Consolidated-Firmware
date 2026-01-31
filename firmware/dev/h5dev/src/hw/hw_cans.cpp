@@ -1,14 +1,14 @@
-#include "main.h"
-#include <cassert>
-#include <io_canQueue.h>
 #include "hw_cans.hpp"
-#include "io_bootHandler.h"
+
+#include "main.h"
 #include "io_canMsgQueues.hpp"
 #include "io_canMsg.hpp"
 
-static void canRxCallback(const io::CanMsg *msg)
+#include <cassert>
+
+static void canRxCallback(const io::CanMsg &msg)
 {
-    can_rx_queue.pushMsgToQueue(msg);
+    can_rx_queue.push(msg);
 }
 
 hw::fdcan fdcan1(hfdcan1, 0, canRxCallback);

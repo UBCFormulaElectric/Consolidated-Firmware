@@ -10,6 +10,6 @@ namespace app::pumpControl
 {
 void monitorPumps()
 {
-    const ExitCode e = io::rPump::setPercentage(app_canRx_VC_PumpRampUpSetPoint_get());
+    const std::expected<void, ErrorCode> e = io::rPump::setPercentage(app_canRx_VC_PumpRampUpSetPoint_get());
 }
 } // namespace app::pumpControl

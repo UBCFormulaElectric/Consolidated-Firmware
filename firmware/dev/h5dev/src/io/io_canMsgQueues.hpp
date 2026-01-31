@@ -1,6 +1,6 @@
 #pragma once
-#include "io_canMsgQueue.hpp"
+#include "io_queue.hpp"
 #include "io_canMsg.hpp"
 
-extern io::CanMsgQueue<> can_tx_queue;
-extern io::CanMsgQueue<> can_rx_queue;
+extern io::queue<io::CanMsg, 128> can_tx_queue;
+extern io::queue<io::CanMsg, 128> can_rx_queue;

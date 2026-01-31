@@ -2,7 +2,6 @@
 #include <cstring>
 #include "cmsis_os2.h"
 #include "hw_spi.hpp"
-#include "io_log.hpp"
 #include "hw_utils.hpp"
 
 using namespace hw::spi;
@@ -35,7 +34,7 @@ void SpiDevice::disableNss() const
     nss.writePin(true);
 }
 
-ExitCode SpiDevice::waitForNotification() const
+std::expected<void, ErrorCode> SpiDevice::waitForNotification() const
 {
     const uint32_t num_notifications = ulTaskNotifyTake(pdTRUE, timeoutMs);
     bus.taskInProgress               = nullptr;
@@ -45,19 +44,18 @@ ExitCode SpiDevice::waitForNotification() const
         // If the transaction didn't complete within the timeout, manually abort it.
         (void)HAL_SPI_Abort_IT(&bus.handle);
         LOG_WARN("SPI transaction timed out");
-        return ExitCode::EXIT_CODE_TIMEOUT;
+        return std::unexpected(ErrorCode::TIMEOUT);
     }
-
-    return ExitCode::EXIT_CODE_OK;
+    return {};
 }
 
-ExitCode SpiDevice::transmit(std::span<const uint8_t> tx) const
+std::expected<void, ErrorCode> SpiDevice::transmit(std::span<const uint8_t> tx) const
 {
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
         // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
         enableNss();
-        const ExitCode st = hw_utils_convertHalStatus(HAL_SPI_Transmit(
+        const std::expected<void, ErrorCode> st = hw_utils_convertHalStatus(HAL_SPI_Transmit(
             &bus.handle, const_cast<uint8_t *>(tx.data()), static_cast<uint16_t>(tx.size()), timeoutMs));
         disableNss();
         return st;
@@ -66,7 +64,7 @@ ExitCode SpiDevice::transmit(std::span<const uint8_t> tx) const
     if (bus.taskInProgress != nullptr)
     {
         // There is a task currently in progress!
-        return ExitCode::EXIT_CODE_BUSY;
+        return std::unexpected(ErrorCode::BUSY);
     }
 
     // Save current task before starting a SPI transaction.
@@ -74,9 +72,9 @@ ExitCode SpiDevice::transmit(std::span<const uint8_t> tx) const
 
     enableNss();
 
-    ExitCode exit = hw_utils_convertHalStatus(
+    auto exit = hw_utils_convertHalStatus(
         HAL_SPI_Transmit_IT(&bus.handle, const_cast<uint8_t *>(tx.data()), static_cast<uint16_t>(tx.size())));
-    if (IS_EXIT_ERR(exit))
+    if (not exit.has_value())
     {
         // Mark this transaction as no longer in progress.
         bus.taskInProgress = nullptr;
@@ -89,19 +87,19 @@ ExitCode SpiDevice::transmit(std::span<const uint8_t> tx) const
     return exit;
 }
 
-ExitCode SpiDevice::receive(std::span<uint8_t> rx) const
+std::expected<void, ErrorCode> SpiDevice::receive(std::span<uint8_t> rx) const
 {
     if (bus.taskInProgress != nullptr || xPortIsInsideInterrupt())
     {
         // There is a task currently in progress!
-        return ExitCode::EXIT_CODE_BUSY;
+        return std::unexpected(ErrorCode::BUSY);
     }
 
     if (osKernelGetState() != taskSCHEDULER_RUNNING)
     {
         // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
         enableNss();
-        const ExitCode exit = hw_utils_convertHalStatus(
+        const std::expected<void, ErrorCode> exit = hw_utils_convertHalStatus(
             HAL_SPI_Receive(&bus.handle, rx.data(), static_cast<uint16_t>(rx.size()), timeoutMs));
         disableNss();
         return exit;
@@ -111,9 +109,9 @@ ExitCode SpiDevice::receive(std::span<uint8_t> rx) const
 
     enableNss();
 
-    ExitCode exit =
+    std::expected<void, ErrorCode> exit =
         hw_utils_convertHalStatus(HAL_SPI_Receive_IT(&bus.handle, rx.data(), static_cast<uint16_t>(rx.size())));
-    if (IS_EXIT_ERR(exit))
+    if (not exit.has_value())
     {
         // Mark this transaction as no longer in progress.
         bus.taskInProgress = nullptr;
@@ -126,12 +124,13 @@ ExitCode SpiDevice::receive(std::span<uint8_t> rx) const
     return exit;
 }
 
-[[nodiscard]] ExitCode SpiDevice::transmitThenReceive(const std::span<const uint8_t> tx, std::span<uint8_t> rx) const
+[[nodiscard]] std::expected<void, ErrorCode>
+    SpiDevice::transmitThenReceive(const std::span<const uint8_t> tx, std::span<uint8_t> rx) const
 {
     const auto combined = static_cast<uint16_t>(tx.size() + rx.size());
     if (combined > MAX_SPI_BUFFER)
     {
-        return ExitCode::EXIT_CODE_INVALID_ARGS;
+        return std::unexpected(ErrorCode::INVALID_ARGS);
     }
 
     // HAL_SPI_TransmitReceive_IT requires tx buffer and rx buffer to be of size equal or greater to number of bytes to
@@ -148,7 +147,7 @@ ExitCode SpiDevice::receive(std::span<uint8_t> rx) const
     {
         // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
         enableNss();
-        const ExitCode exit =
+        const std::expected<void, ErrorCode> exit =
             hw_utils_convertHalStatus(HAL_SPI_TransmitReceive(&bus.handle, paddedTx, paddedRx, combined, timeoutMs));
         disableNss();
 
@@ -162,15 +161,16 @@ ExitCode SpiDevice::receive(std::span<uint8_t> rx) const
     if (bus.taskInProgress != nullptr)
     {
         // There is a task currently in progress!
-        return ExitCode::EXIT_CODE_BUSY;
+        return std::unexpected(ErrorCode::BUSY);
     }
 
     // Save current task before starting a SPI transaction.
     bus.taskInProgress = xTaskGetCurrentTaskHandle();
     enableNss();
 
-    ExitCode exit = hw_utils_convertHalStatus(HAL_SPI_TransmitReceive_IT(&bus.handle, paddedTx, paddedRx, combined));
-    if (IS_EXIT_ERR(exit))
+    std::expected<void, ErrorCode> exit =
+        hw_utils_convertHalStatus(HAL_SPI_TransmitReceive_IT(&bus.handle, paddedTx, paddedRx, combined));
+    if (not exit.has_value())
     {
         bus.taskInProgress = nullptr;
         disableNss();
@@ -179,8 +179,7 @@ ExitCode SpiDevice::receive(std::span<uint8_t> rx) const
 
     exit = waitForNotification();
     disableNss();
-
-    if (IS_EXIT_ERR(exit))
+    if (not exit.has_value())
     {
         return exit;
     }
@@ -189,7 +188,7 @@ ExitCode SpiDevice::receive(std::span<uint8_t> rx) const
     Copy entries at the end of padded_rx_buffer back into rx_buffer */
     std::memcpy(rx.data(), paddedRx + tx.size(), rx.size());
 
-    return exit;
+    return {};
 }
 
 /* ---------------------------- HAL callbacks --------------------------- */
