@@ -29,8 +29,7 @@ extern "C"
 #include "hw_watchdog.hpp"
 #include "hw_bootup.hpp"
 
-
-void tasks_preInit() 
+void tasks_preInit()
 {
     hw::hardFaultHandler::init();
     hw::bootup::enableInterruptsForApp();
@@ -46,12 +45,11 @@ void tasks_init()
 
     LOG_IF_ERR(hw_usb_init());
     jobs_init();
-
 }
 
 void tasks_run1Hz()
 {
-    const uint32_t period_ms = 1000U;
+    const uint32_t period_ms                = 1000U;
     const uint32_t watchdog_grace_period_ms = 50U;
     hw::watchdog::WatchdogInstance(TASK_INDEX_1HZ, period_ms + watchdog_grace_period_ms);
 
@@ -65,7 +63,7 @@ void tasks_run1Hz()
 }
 void tasks_run100Hz()
 {
-    const uint32_t period_ms = 10U;
+    const uint32_t period_ms                = 10U;
     const uint32_t watchdog_grace_period_ms = 2U;
     hw::watchdog::WatchdogInstance(TASK_INDEX_100HZ, period_ms + watchdog_grace_period_ms);
     forever
@@ -78,7 +76,7 @@ void tasks_run100Hz()
 }
 void tasks_run1kHz()
 {
-    const uint32_t period_ms = 1U;
+    const uint32_t period_ms                = 1U;
     const uint32_t watchdog_grace_period_ms = 1U;
     hw::watchdog::WatchdogInstance(TASK_INDEX_1KHZ, period_ms + watchdog_grace_period_ms);
     forever
@@ -91,7 +89,7 @@ void tasks_run1kHz()
 }
 void tasks_runCanTx()
 {
-    forever 
+    forever
     {
 #ifdef CHARGER_CAN
         // Elcon only supports regular CAN but we have some debug messages that are >8 bytes long. Use FDCAN for those

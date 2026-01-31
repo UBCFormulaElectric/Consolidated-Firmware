@@ -2,7 +2,7 @@
 
 extern "C"
 {
-    #include "firmware/hexray/BMS/src/cubemx/Inc/main.h"
+#include "firmware/hexray/BMS/src/cubemx/Inc/main.h"
 }
 #include "hw_spi.h"
 #include "hw_gpios.h"

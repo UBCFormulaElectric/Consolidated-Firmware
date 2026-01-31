@@ -73,7 +73,7 @@ void RunOnTick100Hz()
 const app::State init_state = {
     .name              = "INIT",
     .run_on_entry      = app::states::initState::RunOnEntry,
-    .run_on_tick_1Hz    = nullptr,
+    .run_on_tick_1Hz   = nullptr,
     .run_on_tick_100Hz = app::states::initState::RunOnTick100Hz,
     .run_on_exit       = nullptr,
 };

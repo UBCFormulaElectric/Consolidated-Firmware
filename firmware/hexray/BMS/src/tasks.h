@@ -1,7 +1,8 @@
 #pragma once
 #include "util_utils.hpp"
 
-typedef enum {
+typedef enum
+{
     TASK_INDEX_1HZ = 0,
     TASK_INDEX_100HZ,
     TASK_INDEX_1KHZ,

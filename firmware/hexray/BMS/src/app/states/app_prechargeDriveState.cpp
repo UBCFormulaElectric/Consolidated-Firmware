@@ -57,7 +57,7 @@ static void prechargeDriveStateRunOnExit()
 const app::State precharge_drive_state = {
     .name              = "PRECHARGE DRIVE",
     .run_on_entry      = app::states::perchargeDriveState::prechargeDriveStateRunOnEntry,
-    .run_on_tick_1Hz    = nullptr,
+    .run_on_tick_1Hz   = nullptr,
     .run_on_tick_100Hz = app::states::perchargeDriveState::prechargeDriveStateRunOnTick100Hz,
     .run_on_exit       = app::states::perchargeDriveState::prechargeDriveStateRunOnExit,
 };

@@ -17,11 +17,11 @@ namespace app::math
  * @param f_curr The current value of f(x)
  * @param d_x The uniform delta-x of each trapezoid
  */
-inline void trapezoidalRule(double& integral, float& f_prev, const float f_curr, const double d_x)
+inline void trapezoidalRule(double &integral, float &f_prev, const float f_curr, const double d_x)
 {
     // Calculate the trapezoid and add to the previous integral
     integral += (d_x * static_cast<double>(f_prev + f_curr) * 0.5);
-    
+
     // Update previous value for the next iteration
     f_prev = f_curr;
 }

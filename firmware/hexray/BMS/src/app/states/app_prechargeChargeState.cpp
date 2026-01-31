@@ -76,7 +76,7 @@ static void runOnExit()
 const app::State precharge_charge_state = {
     .name              = "PRECHARGE CHARGE",
     .run_on_entry      = app::states::prechargeChargeState::runOnEntry,
-    .run_on_tick_1Hz    = nullptr,
+    .run_on_tick_1Hz   = nullptr,
     .run_on_tick_100Hz = app::states::prechargeChargeState::runOnTick100Hz,
     .run_on_exit       = app::states::prechargeChargeState::runOnExit,
 };
