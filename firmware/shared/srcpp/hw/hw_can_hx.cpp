@@ -180,11 +180,11 @@ static ExitCode handleCallback(FDCAN_HandleTypeDef *hfdcan, uint8_t fifo)
 {
     const hw::fdcan &handle = hw::fdcan_getHandle(hfdcan);
 
-    io::CanMsg rx_msg;
+    io::CanMsg rx_msg{};
 
     RETURN_IF_ERR_SILENT(handle.receive(fifo, rx_msg));
 
-    handle.receive_callback(&rx_msg);
+    handle.receive_callback(rx_msg);
     return ExitCode::EXIT_CODE_OK;
 }
 
