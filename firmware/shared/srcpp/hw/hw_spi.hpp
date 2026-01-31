@@ -37,7 +37,7 @@ class SpiBus
   private:
     friend class SpiDevice;
 
-    TaskHandle_t taskInProgress{ nullptr }; // Task currently performing a transaction.
+    mutable TaskHandle_t taskInProgress{ nullptr }; // Task currently performing a transaction.
 };
 
 class SpiDevice
