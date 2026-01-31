@@ -79,7 +79,7 @@ class can final : public BaseCan
     constexpr explicit can(
         CAN_HandleTypeDef &hcan_in,
         const uint8_t      bus_num_in,
-        void (*const receive_callback_in)(const io::CanMsg *rx_msg))
+        void (*const receive_callback_in)(const io::CanMsg &rx_msg))
       : BaseCan(bus_num_in, receive_callback_in), hcan(&hcan_in){};
 
     constexpr CAN_HandleTypeDef *getHcan() const { return hcan; }

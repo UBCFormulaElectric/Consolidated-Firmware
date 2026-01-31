@@ -166,7 +166,7 @@ static void handle_callback(CAN_HandleTypeDef *hcan)
     if (IS_EXIT_ERR(handle.receive(CAN_RX_FIFO0, rx_msg)))
         // Early return if RX msg is unavailable.
         return;
-    handle.receive_callback(&rx_msg);
+    handle.receive_callback(rx_msg);
 }
 
 CFUNC void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
