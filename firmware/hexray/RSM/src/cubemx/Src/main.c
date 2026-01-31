@@ -51,7 +51,7 @@ SPI_HandleTypeDef hspi3;
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim3;
 
-HCD_HandleTypeDef hhcd_USB_DRD_FS;
+PCD_HandleTypeDef hpcd_USB_DRD_FS;
 
 /* USER CODE BEGIN PV */
 
@@ -64,7 +64,7 @@ static void MX_ADC1_Init(void);
 static void MX_FDCAN1_Init(void);
 static void MX_I2C2_Init(void);
 static void MX_SPI3_Init(void);
-static void MX_USB_HCD_Init(void);
+static void MX_USB_PCD_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM1_Init(void);
 /* USER CODE BEGIN PFP */
@@ -108,7 +108,7 @@ int main(void)
     MX_FDCAN1_Init();
     MX_I2C2_Init();
     MX_SPI3_Init();
-    MX_USB_HCD_Init();
+    MX_USB_PCD_Init();
     MX_TIM3_Init();
     MX_TIM1_Init();
     /* USER CODE BEGIN 2 */
@@ -535,7 +535,7 @@ static void MX_TIM3_Init(void)
  * @param None
  * @retval None
  */
-static void MX_USB_HCD_Init(void)
+static void MX_USB_PCD_Init(void)
 {
     /* USER CODE BEGIN USB_Init 0 */
 
@@ -544,17 +544,18 @@ static void MX_USB_HCD_Init(void)
     /* USER CODE BEGIN USB_Init 1 */
 
     /* USER CODE END USB_Init 1 */
-    hhcd_USB_DRD_FS.Instance                      = USB_DRD_FS;
-    hhcd_USB_DRD_FS.Init.dev_endpoints            = 8;
-    hhcd_USB_DRD_FS.Init.Host_channels            = 8;
-    hhcd_USB_DRD_FS.Init.speed                    = USBD_FS_SPEED;
-    hhcd_USB_DRD_FS.Init.phy_itface               = HCD_PHY_EMBEDDED;
-    hhcd_USB_DRD_FS.Init.Sof_enable               = DISABLE;
-    hhcd_USB_DRD_FS.Init.low_power_enable         = DISABLE;
-    hhcd_USB_DRD_FS.Init.vbus_sensing_enable      = DISABLE;
-    hhcd_USB_DRD_FS.Init.bulk_doublebuffer_enable = DISABLE;
-    hhcd_USB_DRD_FS.Init.iso_singlebuffer_enable  = DISABLE;
-    if (HAL_HCD_Init(&hhcd_USB_DRD_FS) != HAL_OK)
+    hpcd_USB_DRD_FS.Instance                      = USB_DRD_FS;
+    hpcd_USB_DRD_FS.Init.dev_endpoints            = 8;
+    hpcd_USB_DRD_FS.Init.speed                    = USBD_FS_SPEED;
+    hpcd_USB_DRD_FS.Init.phy_itface               = PCD_PHY_EMBEDDED;
+    hpcd_USB_DRD_FS.Init.Sof_enable               = DISABLE;
+    hpcd_USB_DRD_FS.Init.low_power_enable         = DISABLE;
+    hpcd_USB_DRD_FS.Init.lpm_enable               = DISABLE;
+    hpcd_USB_DRD_FS.Init.battery_charging_enable  = DISABLE;
+    hpcd_USB_DRD_FS.Init.vbus_sensing_enable      = DISABLE;
+    hpcd_USB_DRD_FS.Init.bulk_doublebuffer_enable = DISABLE;
+    hpcd_USB_DRD_FS.Init.iso_singlebuffer_enable  = DISABLE;
+    if (HAL_PCD_Init(&hpcd_USB_DRD_FS) != HAL_OK)
     {
         Error_Handler();
     }
