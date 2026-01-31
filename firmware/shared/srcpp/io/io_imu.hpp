@@ -197,25 +197,25 @@ class Imu
     constexpr explicit Imu() {}
 #endif
 
-    [[nodiscard]] ExitCode init();
+    [[nodiscard]] std::expected<void, ErrorCode> init();
     /**
      * @brief Get acceleration in the x axis
      * @param accel_x
      *
      * @return ExitCode OK for success, otherwise fail
      */
-    ExitCode getAccelX(float &accel_x);
-    ExitCode getAccelY(float &accel_y);
-    ExitCode getAccelZ(float &accel_z);
+    std::expected<void, ErrorCode> getAccelX(float &accel_x) const;
+    std::expected<void, ErrorCode> getAccelY(float &accel_y) const;
+    std::expected<void, ErrorCode> getAccelZ(float &accel_z) const;
 
-    ExitCode getGyroX(float &gyro_x);
-    ExitCode getGyroY(float &gyro_y);
-    ExitCode getGyroZ(float &gyro_z);
+    std::expected<void, ErrorCode> getGyroX(float &gyro_x) const;
+    std::expected<void, ErrorCode> getGyroY(float &gyro_y) const;
+    std::expected<void, ErrorCode> getGyroZ(float &gyro_z);
 
-    ExitCode getTemp(float &temp);
+    std::expected<void, ErrorCode> getTemp(float &temp) const;
 
-    ExitCode getAccelAll(AccelData &data);
-    ExitCode getGyroAll(GyroData &data);
+    std::expected<void, ErrorCode> getAccelAll(AccelData &data) const;
+    std::expected<void, ErrorCode> getGyroAll(GyroData &data) const;
 
 #ifdef TARGET_TEST
     bool  initialized  = false;

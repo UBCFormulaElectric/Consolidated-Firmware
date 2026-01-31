@@ -74,7 +74,7 @@ std::expected<void, ErrorCode> SpiDevice::transmit(std::span<const uint8_t> tx) 
 
     auto exit = hw_utils_convertHalStatus(
         HAL_SPI_Transmit_IT(&bus.handle, const_cast<uint8_t *>(tx.data()), static_cast<uint16_t>(tx.size())));
-    if (!exit.has_value())
+    if (not exit.has_value())
     {
         // Mark this transaction as no longer in progress.
         bus.taskInProgress = nullptr;
@@ -111,7 +111,7 @@ std::expected<void, ErrorCode> SpiDevice::receive(std::span<uint8_t> rx) const
 
     std::expected<void, ErrorCode> exit =
         hw_utils_convertHalStatus(HAL_SPI_Receive_IT(&bus.handle, rx.data(), static_cast<uint16_t>(rx.size())));
-    if (!exit.has_value())
+    if (not exit.has_value())
     {
         // Mark this transaction as no longer in progress.
         bus.taskInProgress = nullptr;
@@ -170,7 +170,7 @@ std::expected<void, ErrorCode> SpiDevice::receive(std::span<uint8_t> rx) const
 
     std::expected<void, ErrorCode> exit =
         hw_utils_convertHalStatus(HAL_SPI_TransmitReceive_IT(&bus.handle, paddedTx, paddedRx, combined));
-    if (!exit.has_value())
+    if (not exit.has_value())
     {
         bus.taskInProgress = nullptr;
         disableNss();
@@ -179,7 +179,7 @@ std::expected<void, ErrorCode> SpiDevice::receive(std::span<uint8_t> rx) const
 
     exit = waitForNotification();
     disableNss();
-    if (!exit.has_value())
+    if (not exit.has_value())
     {
         return exit;
     }

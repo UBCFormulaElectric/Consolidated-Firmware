@@ -462,7 +462,7 @@ static std::optional<TaskHandle_t> usb_task      = std::nullopt;
 static void connect_callback()
 {
     usb_connected = true;
-    if (!usb_task.has_value())
+    if (not usb_task.has_value())
     {
         LOG_WARN("USB: No task to notify.");
         return;

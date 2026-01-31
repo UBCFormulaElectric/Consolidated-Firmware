@@ -18,7 +18,7 @@ enum class ErrorCode
 
 #define RETURN_IF_ERR(err_expr)                                                \
     {                                                                          \
-        if (!(err_expr).has_value())                                           \
+        if (not(err_expr).has_value())                                         \
         {                                                                      \
             LOG_ERROR(#err_expr " exited with an error, returning: %d", exit); \
             return err_expr;                                                   \
@@ -27,7 +27,7 @@ enum class ErrorCode
 
 #define RETURN_IF_ERR_SILENT(err_expr) \
     {                                  \
-        if (!(err_expr).has_value())   \
+        if (not(err_expr).has_value()) \
         {                              \
             return err_expr;           \
         }                              \
@@ -35,7 +35,7 @@ enum class ErrorCode
 
 template <typename T> void _log_if_err(std::expected<T, ErrorCode> out, const char *err_expr)
 {
-    if (!out.has_value())
+    if (not out.has_value())
     {
         LOG_ERROR("%s exited with an error: %d", err_expr);
     }

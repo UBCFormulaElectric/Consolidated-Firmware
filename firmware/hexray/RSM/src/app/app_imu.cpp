@@ -12,12 +12,12 @@ io::imu::Imu imu_config;
 #endif // TARGET_TEST
 namespace app::imu
 {
-static RSMImuFaults imu_faults = { .accel_x_fault = ExitCode::EXIT_CODE_ERROR,
-                                   .accel_y_fault = ExitCode::EXIT_CODE_ERROR,
-                                   .accel_z_fault = ExitCode::EXIT_CODE_ERROR,
-                                   .gyro_x_fault  = ExitCode::EXIT_CODE_ERROR,
-                                   .gyro_y_fault  = ExitCode::EXIT_CODE_ERROR,
-                                   .gyro_z_fault  = ExitCode::EXIT_CODE_ERROR };
+static RSMImuFaults imu_faults = { .accel_x_fault = std::unexpected(ErrorCode::ERROR),
+                                   .accel_y_fault = std::unexpected(ErrorCode::ERROR),
+                                   .accel_z_fault = std::unexpected(ErrorCode::ERROR),
+                                   .gyro_x_fault  = std::unexpected(ErrorCode::ERROR),
+                                   .gyro_y_fault  = std::unexpected(ErrorCode::ERROR),
+                                   .gyro_z_fault  = std::unexpected(ErrorCode::ERROR) };
 
 void broadcast()
 {

@@ -23,7 +23,7 @@ void hw::i2c::I2CBus::onTransactionCompleteFromISR() const
 }
 
 /* --------------------------------------------- I2CDevice ------------------------------------------------ */
-ExitCode hw::i2c::I2CDevice::waitForNotification() const
+std::expected<void, ErrorCode> hw::i2c::I2CDevice::waitForNotification() const
 {
     const uint32_t notified = ulTaskNotifyTake(pdTRUE, timeoutMs);
     bus.taskInProgress      = nullptr;
@@ -32,19 +32,19 @@ ExitCode hw::i2c::I2CDevice::waitForNotification() const
     {
         HAL_I2C_Master_Abort_IT(&bus.handle, static_cast<uint16_t>(targetAddress << 1));
         LOG_WARN("I2C transaction timed out");
-        return ExitCode::EXIT_CODE_TIMEOUT;
+        return std::unexpected(ErrorCode::TIMEOUT);
     }
 
-    return ExitCode::EXIT_CODE_OK;
+    return {};
 }
 
-ExitCode hw::i2c::I2CDevice::isTargetReady() const
+std::expected<void, ErrorCode> hw::i2c::I2CDevice::isTargetReady() const
 {
     return hw_utils_convertHalStatus(HAL_I2C_IsDeviceReady(
         &bus.handle, static_cast<uint16_t>(targetAddress << 1), NUM_DEVICE_READY_TRIALS, timeoutMs));
 }
 
-ExitCode hw::i2c::I2CDevice::receive(std::span<uint8_t> rx_buffer) const
+std::expected<void, ErrorCode> hw::i2c::I2CDevice::receive(std::span<uint8_t> rx_buffer) const
 {
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
@@ -55,14 +55,14 @@ ExitCode hw::i2c::I2CDevice::receive(std::span<uint8_t> rx_buffer) const
 
     if (bus.taskInProgress != nullptr)
     {
-        return ExitCode::EXIT_CODE_BUSY;
+        return std::unexpected(ErrorCode::BUSY);
     }
     bus.taskInProgress = xTaskGetCurrentTaskHandle();
 
-    const ExitCode status = hw_utils_convertHalStatus(HAL_I2C_Master_Receive_IT(
+    const auto status = hw_utils_convertHalStatus(HAL_I2C_Master_Receive_IT(
         &bus.handle, static_cast<uint16_t>(targetAddress << 1), rx_buffer.data(),
         static_cast<uint16_t>(rx_buffer.size())));
-    if (IS_EXIT_ERR(status))
+    if (not status.has_value())
     {
         bus.taskInProgress = nullptr;
         return status;
@@ -71,7 +71,7 @@ ExitCode hw::i2c::I2CDevice::receive(std::span<uint8_t> rx_buffer) const
     return waitForNotification();
 }
 
-ExitCode hw::i2c::I2CDevice::transmit(std::span<const uint8_t> tx_buffer) const
+std::expected<void, ErrorCode> hw::i2c::I2CDevice::transmit(std::span<const uint8_t> tx_buffer) const
 {
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
@@ -82,14 +82,14 @@ ExitCode hw::i2c::I2CDevice::transmit(std::span<const uint8_t> tx_buffer) const
 
     if (bus.taskInProgress != nullptr)
     {
-        return ExitCode::EXIT_CODE_BUSY;
+        return std::unexpected(ErrorCode::BUSY);
     }
     bus.taskInProgress = xTaskGetCurrentTaskHandle();
 
-    const ExitCode status = hw_utils_convertHalStatus(HAL_I2C_Master_Transmit_IT(
+    const auto status = hw_utils_convertHalStatus(HAL_I2C_Master_Transmit_IT(
         &bus.handle, static_cast<uint16_t>(targetAddress << 1), const_cast<uint8_t *>(tx_buffer.data()),
         static_cast<uint16_t>(tx_buffer.size())));
-    if (IS_EXIT_ERR(status))
+    if (not status.has_value())
     {
         bus.taskInProgress = nullptr;
         return status;
@@ -98,7 +98,8 @@ ExitCode hw::i2c::I2CDevice::transmit(std::span<const uint8_t> tx_buffer) const
     return waitForNotification();
 }
 
-ExitCode hw::i2c::I2CDevice::memoryRead(const uint16_t mem_addr, std::span<uint8_t> rx_buffer) const
+std::expected<void, ErrorCode>
+    hw::i2c::I2CDevice::memoryRead(const uint16_t mem_addr, std::span<uint8_t> rx_buffer) const
 {
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
@@ -109,14 +110,14 @@ ExitCode hw::i2c::I2CDevice::memoryRead(const uint16_t mem_addr, std::span<uint8
 
     if (bus.taskInProgress != nullptr)
     {
-        return ExitCode::EXIT_CODE_BUSY;
+        return std::unexpected(ErrorCode::BUSY);
     }
     bus.taskInProgress = xTaskGetCurrentTaskHandle();
 
-    const ExitCode status = hw_utils_convertHalStatus(HAL_I2C_Mem_Read_IT(
+    const auto status = hw_utils_convertHalStatus(HAL_I2C_Mem_Read_IT(
         &bus.handle, static_cast<uint16_t>(targetAddress << 1), mem_addr, I2C_MEMADD_SIZE_8BIT, rx_buffer.data(),
         static_cast<uint16_t>(rx_buffer.size())));
-    if (IS_EXIT_ERR(status))
+    if (not status.has_value())
     {
         bus.taskInProgress = nullptr;
         return status;
@@ -125,7 +126,8 @@ ExitCode hw::i2c::I2CDevice::memoryRead(const uint16_t mem_addr, std::span<uint8
     return waitForNotification();
 }
 
-ExitCode hw::i2c::I2CDevice::memoryWrite(const uint16_t mem_addr, std::span<const uint8_t> tx_buffer) const
+std::expected<void, ErrorCode>
+    hw::i2c::I2CDevice::memoryWrite(const uint16_t mem_addr, std::span<const uint8_t> tx_buffer) const
 {
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
@@ -136,14 +138,14 @@ ExitCode hw::i2c::I2CDevice::memoryWrite(const uint16_t mem_addr, std::span<cons
 
     if (bus.taskInProgress != nullptr)
     {
-        return ExitCode::EXIT_CODE_BUSY;
+        return std::unexpected(ErrorCode::BUSY);
     }
     bus.taskInProgress = xTaskGetCurrentTaskHandle();
 
-    const ExitCode status = hw_utils_convertHalStatus(HAL_I2C_Mem_Write_IT(
+    const auto status = hw_utils_convertHalStatus(HAL_I2C_Mem_Write_IT(
         &bus.handle, static_cast<uint16_t>(targetAddress << 1), mem_addr, I2C_MEMADD_SIZE_8BIT,
         const_cast<uint8_t *>(tx_buffer.data()), static_cast<uint16_t>(tx_buffer.size())));
-    if (IS_EXIT_ERR(status))
+    if (not status.has_value())
     {
         bus.taskInProgress = nullptr;
         return status;

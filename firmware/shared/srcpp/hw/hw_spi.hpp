@@ -43,7 +43,7 @@ class SpiBus
 class SpiDevice
 {
   public:
-    constexpr SpiDevice(SpiBus &bus_in, const Gpio &nss_in, const uint32_t timeoutMs_in)
+    constexpr SpiDevice(const SpiBus &bus_in, const Gpio &nss_in, const uint32_t timeoutMs_in)
       : bus(bus_in), nss(nss_in), timeoutMs(timeoutMs_in)
     {
     }
@@ -73,9 +73,9 @@ class SpiDevice
         transmitThenReceive(std::span<const uint8_t> tx, std::span<uint8_t> rx) const;
 
   private:
-    SpiBus     &bus;
-    const Gpio &nss;
-    uint32_t    timeoutMs;
+    const SpiBus &bus;
+    const Gpio   &nss;
+    uint32_t      timeoutMs;
 
     void enableNss() const;
     void disableNss() const;
@@ -91,6 +91,6 @@ class SpiDevice
  * @param handle Pointer to the HAL SPI handle.
  * @return Reference to the associated SpiBus object.
  */
-[[nodiscard]] SpiBus &getBusFromHandle(const SPI_HandleTypeDef *handle);
+[[nodiscard]] const SpiBus &getBusFromHandle(const SPI_HandleTypeDef *handle);
 
 } // namespace hw::spi

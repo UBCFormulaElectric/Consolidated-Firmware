@@ -24,7 +24,7 @@ void hw::usb::receive(const std::span<uint8_t> dest)
 {
     for (const uint8_t &x : dest)
     {
-        q.push(x);
+        assert(q.push(x).has_value());
     }
 }
 
@@ -54,7 +54,7 @@ static bool evaluateRequest(const config &c, const ChimeraV2Request &request, Ch
 
         // GPIO read.
         const auto gpio = c.id_to_gpio(&payload->net_name);
-        if (!gpio.has_value())
+        if (not gpio.has_value())
         {
             LOG_ERROR("Chimera: Error fetching GPIO peripheral.");
             return false;
@@ -70,7 +70,7 @@ static bool evaluateRequest(const config &c, const ChimeraV2Request &request, Ch
 
         // GPIO write.
         const auto gpio = c.id_to_gpio(&payload->net_name);
-        if (!gpio.has_value())
+        if (not gpio.has_value())
         {
             LOG_ERROR("Chimera: Error fetching GPIO peripheral.");
             return false;
@@ -93,7 +93,7 @@ static bool evaluateRequest(const config &c, const ChimeraV2Request &request, Ch
         // ADC read.
         // const AdcChannel *adc_channel = hw_chimera_v2_getAdc(config, &payload->net_name);
         const auto adc_channel = c.id_to_adc(&payload->net_name);
-        if (!adc_channel.has_value())
+        if (not adc_channel.has_value())
         {
             LOG_ERROR("Chimera: Error fetching ADC peripheral.");
             return false;
@@ -114,14 +114,14 @@ static bool evaluateRequest(const config &c, const ChimeraV2Request &request, Ch
         // I2C ready check.
         // const I2cDevice *device = hw_chimera_v2_getI2c(config, &payload->net_name);
         const auto device = c.id_to_i2c(&payload->net_name);
-        if (!device.has_value())
+        if (not device.has_value())
         {
             LOG_ERROR("Chimera: Error fetching I2C peripheral.");
             return false;
         }
 
         // Format response.
-        response.payload.i2c_ready.ready = IS_EXIT_OK(device.value().get().isTargetReady());
+        response.payload.i2c_ready.ready = device.value().get().isTargetReady().has_value();
         response.which_payload           = ChimeraV2Response_i2c_ready_tag;
     }
     else if (request.which_payload == ChimeraV2Request_i2c_transmit_tag)
@@ -129,14 +129,14 @@ static bool evaluateRequest(const config &c, const ChimeraV2Request &request, Ch
         // Extract payload
         const I2cTransmitRequest *payload = &request.payload.i2c_transmit;
         const auto                device  = c.id_to_i2c(&payload->net_name);
-        if (!device.has_value())
+        if (not device.has_value())
         {
             LOG_ERROR("Chimera: Error fetching I2C peripheral.");
             return false;
         }
 
-        // const bool success = IS_EXIT_OK(hw_i2c_transmit(device, payload->data.bytes, payload->data.size));
-        const bool success = IS_EXIT_OK(device.value().get().transmit({ payload->data.bytes, payload->data.size }));
+        // const bool success = hw_i2c_transmit(device, payload->data.bytes, payload->data.size).has_value();
+        const bool success = device.value().get().transmit({ payload->data.bytes, payload->data.size }).has_value();
 
         // Format response.
         response.which_payload                = ChimeraV2Response_i2c_transmit_tag;
@@ -147,18 +147,20 @@ static bool evaluateRequest(const config &c, const ChimeraV2Request &request, Ch
         // Extract payload
         const I2cMemoryWriteRequest *payload = &request.payload.i2c_memory_write;
         const auto                   device  = c.id_to_i2c(&payload->net_name);
-        if (!device.has_value())
+        if (not device.has_value())
         {
             LOG_ERROR("Chimera: Error fetching I2C peripheral.");
             return false;
         }
 
-        const bool success = IS_EXIT_OK(device.value().get().memoryWrite(
-            static_cast<uint16_t>(payload->memory_address), { payload->data.bytes, payload->data.size }));
-
         // Format response.
-        response.which_payload                    = ChimeraV2Response_i2c_memory_write_tag;
-        response.payload.i2c_memory_write.success = success;
+        response.which_payload = ChimeraV2Response_i2c_memory_write_tag;
+        response.payload.i2c_memory_write.success =
+            device.value()
+                .get()
+                .memoryWrite(
+                    static_cast<uint16_t>(payload->memory_address), { payload->data.bytes, payload->data.size })
+                .has_value();
     }
     else if (request.which_payload == ChimeraV2Request_i2c_receive_tag)
     {
@@ -166,16 +168,14 @@ static bool evaluateRequest(const config &c, const ChimeraV2Request &request, Ch
         const I2cReceiveRequest *payload = &request.payload.i2c_receive;
 
         const auto device = c.id_to_i2c(&payload->net_name);
-        if (!device.has_value())
+        if (not device.has_value())
         {
             LOG_ERROR("Chimera: Error fetching I2C peripheral.");
             return false;
         }
 
         uint8_t data[MAX_PAYLOAD_SIZE];
-        if (const bool success =
-                IS_EXIT_OK(device.value().get().receive({ data, static_cast<uint16_t>(payload->length) }));
-            !success)
+        if (not device.value().get().receive({ data, static_cast<uint16_t>(payload->length) }).has_value())
         {
             LOG_ERROR("Chimera: Failed to receive on I2C");
             return false;
@@ -195,16 +195,19 @@ static bool evaluateRequest(const config &c, const ChimeraV2Request &request, Ch
         // Extract payload
         const I2cMemoryReadRequest *payload = &request.payload.i2c_memory_read;
         const auto                  device  = c.id_to_i2c(&payload->net_name);
-        if (!device.has_value())
+        if (not device.has_value())
         {
             LOG_ERROR("Chimera: Error fetching I2C peripheral.");
             return false;
         }
 
-        uint8_t    data[MAX_PAYLOAD_SIZE];
-        const bool success = IS_EXIT_OK(device.value().get().memoryRead(
-            static_cast<uint16_t>(payload->memory_address), { data, static_cast<uint16_t>(payload->length) }));
-        if (!success)
+        uint8_t data[MAX_PAYLOAD_SIZE];
+        if (not device.value()
+                    .get()
+                    .memoryRead(
+                        static_cast<uint16_t>(payload->memory_address),
+                        { data, static_cast<uint16_t>(payload->length) })
+                    .has_value())
             LOG_ERROR("Chimera: Failed to receive on I2C");
 
         // Format response.
@@ -225,7 +228,7 @@ static bool evaluateRequest(const config &c, const ChimeraV2Request &request, Ch
         // Extract payload.
         const SpiReceiveRequest *payload = &request.payload.spi_receive;
         const auto               device  = c.id_to_spi(&payload->net_name);
-        if (!device.has_value())
+        if (not device.has_value())
         {
             LOG_ERROR("Chimera: Error fetching SPI peripheral.");
             return false;
@@ -234,11 +237,10 @@ static bool evaluateRequest(const config &c, const ChimeraV2Request &request, Ch
         // Read data.
         uint8_t data[MAX_PAYLOAD_SIZE];
         if (const bool success =
-                IS_EXIT_OK(device.value().get().receive({ data, static_cast<uint16_t>(payload->length) }));
+                device.value().get().receive({ data, static_cast<uint16_t>(payload->length) }).has_value();
             !success)
             LOG_ERROR("Chimera: Failed to receive on SPI");
 
-        // Format response.
         response.which_payload                 = ChimeraV2Response_spi_receive_tag;
         response.payload.spi_receive.data.size = static_cast<pb_size_t>(payload->length);
         for (size_t i = 0; i < payload->length; i += 1)
@@ -251,36 +253,38 @@ static bool evaluateRequest(const config &c, const ChimeraV2Request &request, Ch
         // Extract payload.
         const SpiTransmitRequest *payload = &request.payload.spi_transmit;
         const auto                device  = c.id_to_spi(&payload->net_name);
-        if (!device.has_value())
+        if (not device.has_value())
         {
             LOG_ERROR("Chimera: Error fetching SPI peripheral.");
             return false;
         }
 
-        // Transmit data.
-        const bool success = IS_EXIT_OK(
-            device.value().get().transmit({ payload->data.bytes, static_cast<uint16_t>(payload->data.size) }));
-
-        // Format response.
-        response.which_payload                = ChimeraV2Response_spi_transmit_tag;
-        response.payload.spi_transmit.success = success;
+        response.which_payload = ChimeraV2Response_spi_transmit_tag;
+        response.payload.spi_transmit.success =
+            device.value()
+                .get()
+                .transmit({ payload->data.bytes, static_cast<uint16_t>(payload->data.size) })
+                .has_value();
     }
     else if (request.which_payload == ChimeraV2Request_spi_transaction_tag)
     {
         // Extract payload.
         const SpiTransactionRequest *payload = &request.payload.spi_transaction;
         const auto                   device  = c.id_to_spi(&payload->net_name);
-        if (!device.has_value())
+        if (not device.has_value())
         {
             LOG_ERROR("Chimera: Error fetching SPI peripheral.");
             return false;
         }
 
         // Transact data.
-        uint8_t    rx_data[MAX_PAYLOAD_SIZE];
-        const bool success = IS_EXIT_OK(device.value().get().transmitThenReceive(
-            { payload->tx_data.bytes, payload->tx_data.size }, { rx_data, static_cast<uint16_t>(payload->rx_length) }));
-        if (!success)
+        uint8_t rx_data[MAX_PAYLOAD_SIZE];
+        if (not device.value()
+                    .get()
+                    .transmitThenReceive(
+                        { payload->tx_data.bytes, payload->tx_data.size },
+                        { rx_data, static_cast<uint16_t>(payload->rx_length) })
+                    .has_value())
         {
             LOG_ERROR("Chimera: Failed to Transact on SPI");
             return false;
@@ -362,9 +366,9 @@ static bool handleContent(const config &c, std::span<uint8_t> content)
     _LOG_PRINTF("\n");
 
     // Transmit.
-    if (IS_EXIT_ERR(hw::usb::transmit({ response_packet, response_packet_size })))
+    if (const auto e = hw::usb::transmit({ response_packet, response_packet_size }); not e.has_value())
     {
-        LOG_ERROR("Chimera: Error transmitting response packet.");
+        LOG_ERROR("Chimera: Error (%d) transmitting response packet.", e.error());
         error_occurred = true;
     }
 
@@ -391,7 +395,7 @@ static void tick(const config &config)
     for (uint8_t i = 0; i < 2; i++)
     {
         const auto out = q.pop(USB_REQUEST_TIMEOUT_MS);
-        if (!out.has_value())
+        if (not out.has_value())
             return;
         reinterpret_cast<uint8_t *>(&length)[i] = out.value();
     }
@@ -402,7 +406,7 @@ static void tick(const config &config)
     for (uint16_t i = 0; i < length; i++)
     {
         const auto out = q.pop(USB_REQUEST_TIMEOUT_MS);
-        if (!out.has_value())
+        if (not out.has_value())
             return;
         content[i] = out.value();
     }

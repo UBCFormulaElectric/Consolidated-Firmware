@@ -5,9 +5,9 @@ namespace hw
 {
 namespace cans
 {
-    extern can fdcan1;
+    extern fdcan fdcan1;
 }
-const can &hw_can_getHandle(const FDCAN_HandleTypeDef *hcan);
+const fdcan &hw_can_getHandle(const FDCAN_HandleTypeDef *hcan);
 // do I need to include the function or no?
 
 } // namespace hw
