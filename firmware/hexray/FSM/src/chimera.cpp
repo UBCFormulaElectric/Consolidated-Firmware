@@ -12,8 +12,9 @@ class FSMChimeraConfig : public chimera_v2::config
 {
   public:
     ~FSMChimeraConfig() override = default;
-    std::optional<std::reference_wrapper<const hw::Gpio>> id_to_gpio(const _GpioNetName *gnn) const override{
-      if (gnn->which_name != gpio_net_name_tag)
+    std::optional<std::reference_wrapper<const hw::Gpio>> id_to_gpio(const _GpioNetName *gnn) const override
+    {
+        if (gnn->which_name != gpio_net_name_tag)
         {
             LOG_ERROR("Chimera: Expected GPIO net name with tag %d, got %d", gpio_net_name_tag, gnn->which_name);
             return std::nullopt;
@@ -90,7 +91,7 @@ class FSMChimeraConfig : public chimera_v2::config
         switch (snn->name.fsm_net_name)
         {
             case fsm_SpiNetName_SPI_IMU:
-                return std::cref(spi_device_master);
+                return std::cref(imu_spi);
             default:
             case fsm_SpiNetName_SPI_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified SPI net name");
@@ -98,11 +99,12 @@ class FSMChimeraConfig : public chimera_v2::config
         }
         return std::nullopt;
     }
+
   public:
     FSMChimeraConfig()
     {
         gpio_net_name_tag = GpioNetName_fsm_net_name_tag;
-        adc_net_name_tag = AdcNetName_fsm_net_name_tag;
+        adc_net_name_tag  = AdcNetName_fsm_net_name_tag;
         spi_net_name_tag  = SpiNetName_fsm_net_name_tag;
     }
 } fsm_config;

@@ -8,7 +8,7 @@ extern "C"
 
 namespace hw::cans
 {
-fdcan fdcan1 = fdcan(hfdcan1, 0, tasks_runCanRxCallback);  // Callback func where to define?
+fdcan fdcan1 = fdcan(hfdcan1, 0, tasks_runCanRxCallback); // Callback func where to define?
 } // namespace hw::cans
 
 namespace hw
