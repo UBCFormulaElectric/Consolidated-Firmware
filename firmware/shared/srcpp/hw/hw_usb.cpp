@@ -9,6 +9,7 @@
 
 #include <cassert>
 #include <array>
+#include <optional>
 
 // Select between FS or HS methods.
 // F4s (CM4s) only support FS (Full Speed), while H7s (CM7s) support HS (High Speed).
@@ -504,20 +505,20 @@ ExitCode transmit(std::span<uint8_t> msg)
 
 // Connection handling
 
-static bool         usb_connected = false;
-static TaskHandle_t usb_task      = nullptr;
+static bool                        usb_connected = false;
+static std::optional<TaskHandle_t> usb_task      = std::nullopt;
 
 void connect_callback()
 {
     usb_connected = true;
-    if (usb_task == nullptr)
+    if (!usb_task.has_value())
     {
         LOG_WARN("USB: No task to notify.");
         return;
     }
     BaseType_t higherPriorityTaskWoken = pdFALSE;
     // notify the task which is waiting for the USB connection
-    vTaskNotifyGiveFromISR(usb_task, &higherPriorityTaskWoken);
+    vTaskNotifyGiveFromISR(usb_task.value(), &higherPriorityTaskWoken);
     portYIELD_FROM_ISR(higherPriorityTaskWoken);
 }
 

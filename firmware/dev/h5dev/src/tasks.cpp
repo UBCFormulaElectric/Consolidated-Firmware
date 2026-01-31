@@ -22,6 +22,7 @@ extern "C"
 #include "hw_cans.hpp"
 #include "io_canMsgQueues.hpp"
 #include "app_jsoncan.hpp"
+#include "hw_usb.hpp"
 
 [[noreturn]] static void tasks_runCanBroadcast(void *arg)
 {
@@ -82,7 +83,7 @@ void tasks_init()
 
     hw_hardFaultHandler_init();
     fdcan1.init();
-    // LOG_IF_ERR(hw_usb_init());
+    LOG_IF_ERR(hw::usb::init());
 
     // Check for watchdog timeout on a previous boot cycle.
     if (const ResetReason reset_reason = hw_resetReason_get(); reset_reason == RESET_REASON_WATCHDOG)
