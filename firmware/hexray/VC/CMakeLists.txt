@@ -38,6 +38,8 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_i2c.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_uart.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_spi.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
 )
 set(HW_INCLUDE_DIRS
         #        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -95,7 +97,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/VC.ioc"
             "${CUBEMX_SRCS}"
             "${CUBEMX_INCLUDE_DIRS}"
-            FALSE
+            TRUE    
             "${ARM_CORE}"
             TRUE
     )
