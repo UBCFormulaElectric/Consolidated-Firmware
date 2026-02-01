@@ -4,6 +4,7 @@ message("⚙️ Configuring RSM (Hexray)")
 file(GLOB CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
 set(CUBEMX_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src"
+        "${SHARED_HW_INCLUDE_DIR_CPP}"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
 )
 
@@ -34,17 +35,21 @@ set(IO_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
         "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_DIR_CPP}"
 )
+
+file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp")
 list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_i2c.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmInput.cpp"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
 )
 set(HW_INCLUDE_DIRS
-        #        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
         "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR_CPP}"
 )
 
 # chimera sources
-set(CHIMERA_SRCS ${HW_SRCS} "${CMAKE_CURRENT_SOURCE_DIR}/src/chimera.cpp")
+set(CHIMERA_SRCS ${HW_SRCS} ${IO_SRCS} "${CMAKE_CURRENT_SOURCE_DIR}/src/chimera.cpp")
 set(CHIMERA_INCLUDE_DIRS ${HW_INCLUDE_DIRS})
 
 if ("${TARGET}" STREQUAL "binary")
@@ -75,6 +80,11 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h5xx_hal_adc.c"
             "stm32h5xx_hal_adc_ex.c"
             "stm32h5xx_hal_gpio.c"
+            "stm32h5xx_hal_fdcan.c"
+            "stm32h5xx_hal_spi.c"
+            "stm32h5xx_hal_pcd.c"
+            "stm32h5xx_hal_pcd_ex.c"
+            "stm32h5xx_ll_usb.c"
     )
     stm32h562xx_cube_library(
             "hexray_RSM_stm32"
@@ -82,7 +92,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/RSM.ioc"
             "${CUBEMX_SRCS}"
             "${CUBEMX_INCLUDE_DIRS}"
-            FALSE
+            TRUE
             "${ARM_CORE}"
     )
 
@@ -99,14 +109,14 @@ if ("${TARGET}" STREQUAL "binary")
     target_link_libraries("hexray_RSM_app.elf" PRIVATE "hexray_RSM_stm32" "hexray_RSM_commit_info" "hexray_RSM_jsoncan" "m")
     target_compile_definitions("hexray_RSM_app.elf" PRIVATE "HAL_SPI_MODULE_ENABLED" NO_BOOTLOADER)
 
-    add_chimera_stm32h5("hexray_RSM_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}")
+    add_chimera_stm32h5("hexray_RSM_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}" "hexray_chimera_v2_proto_cm33")
     target_link_libraries("hexray_RSM_chimera.elf" PRIVATE "hexray_RSM_stm32")
     target_compile_definitions("hexray_RSM_chimera.elf" PRIVATE "HAL_SPI_MODULE_ENABLED")
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(FAKE_SRCS
-        "${SHARED_FAKES_DIR}/io_time.cpp"
-        "${SHARED_FAKES_DIR}/io_imuHexray.cpp"
+            "${SHARED_FAKES_DIR}/io_time.cpp"
+            "${SHARED_FAKES_DIR}/io_imuHexray.cpp"
     )
     set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
     set(INCLUDE_DIRS

@@ -220,7 +220,7 @@ static constexpr uint8_t READ_IMU_REG(uint8_t reg_addr)
 static constexpr AccelScale accel_scale = AccelScale::ACCEL_G_4;
 static constexpr GyroScale  gyro_scale  = GyroScale::GYRO_DPS_250;
 
-static constexpr float accel_sensitivity = []()
+static constexpr float accel_sensitivity = []
 {
     switch (accel_scale)
     {
@@ -274,7 +274,7 @@ static float translateTempData(uint8_t data_h, uint8_t data_l)
     return static_cast<float>((raw / 326.8f) + 25.0f);
 }
 
-ExitCode Imu::init()
+std::expected<void, ErrorCode> Imu::init()
 {
     // Check if we are able to communicate to the IMU
     std::array<const uint8_t, 1> tx_check = { { READ_IMU_REG(WHO_AM_I) } };
@@ -369,120 +369,120 @@ ExitCode Imu::init()
 //     return exit;
 // }
 
-ExitCode Imu::getAccelX(float &accel_x)
+std::expected<void, ErrorCode> Imu::getAccelX(float &accel_x) const
 {
     if (is_imu_ready == false)
-        return ExitCode::EXIT_CODE_ERROR;
+        return std::unexpected(ErrorCode::ERROR);
 
     std::array<const uint8_t, 1> tx = { { READ_IMU_REG(ACCEL_XOUT_H) } };
     std::array<uint8_t, 2>       rx{};
 
-    ExitCode exit = imu_spi_handle.transmitThenReceive(tx, rx);
+    const auto exit = imu_spi_handle.transmitThenReceive(tx, rx);
 
     accel_x = translateAccelData(rx[0], rx[1]);
 
     return exit;
 }
 
-ExitCode Imu::getAccelY(float &accel_y)
+std::expected<void, ErrorCode> Imu::getAccelY(float &accel_y) const
 {
     if (is_imu_ready == false)
-        return ExitCode::EXIT_CODE_ERROR;
+        return std::unexpected(ErrorCode::ERROR);
 
     std::array<const uint8_t, 1> tx = { { READ_IMU_REG(ACCEL_YOUT_H) } };
     std::array<uint8_t, 2>       rx{};
 
-    ExitCode exit = imu_spi_handle.transmitThenReceive(tx, rx);
+    const auto exit = imu_spi_handle.transmitThenReceive(tx, rx);
 
     accel_y = translateAccelData(rx[0], rx[1]);
 
     return exit;
 }
 
-ExitCode Imu::getAccelZ(float &accel_z)
+std::expected<void, ErrorCode> Imu::getAccelZ(float &accel_z) const
 {
     if (is_imu_ready == false)
-        return ExitCode::EXIT_CODE_ERROR;
+        return std::unexpected(ErrorCode::ERROR);
 
     std::array<const uint8_t, 1> tx = { { READ_IMU_REG(ACCEL_ZOUT_H) } };
     std::array<uint8_t, 2>       rx{};
 
-    ExitCode exit = imu_spi_handle.transmitThenReceive(tx, rx);
+    const auto exit = imu_spi_handle.transmitThenReceive(tx, rx);
 
     accel_z = translateAccelData(rx[0], rx[1]);
 
     return exit;
 }
 
-ExitCode Imu::getGyroX(float &gyro_x)
+std::expected<void, ErrorCode> Imu::getGyroX(float &gyro_x) const
 {
     if (is_imu_ready == false)
-        return ExitCode::EXIT_CODE_ERROR;
+        return std::unexpected(ErrorCode::ERROR);
 
     std::array<const uint8_t, 1> tx = { { READ_IMU_REG(GYRO_XOUT_H) } };
     std::array<uint8_t, 2>       rx{};
 
-    ExitCode exit = imu_spi_handle.transmitThenReceive(tx, rx);
+    const auto exit = imu_spi_handle.transmitThenReceive(tx, rx);
 
     gyro_x = translateGyroData(rx[0], rx[1]);
 
     return exit;
 }
 
-ExitCode Imu::getGyroY(float &gyro_y)
+std::expected<void, ErrorCode> Imu::getGyroY(float &gyro_y) const
 {
     if (is_imu_ready == false)
-        return ExitCode::EXIT_CODE_ERROR;
+        return std::unexpected(ErrorCode::ERROR);
 
     std::array<const uint8_t, 1> tx = { { READ_IMU_REG(GYRO_YOUT_H) } };
     std::array<uint8_t, 2>       rx{};
 
-    ExitCode exit = imu_spi_handle.transmitThenReceive(tx, rx);
+    const auto exit = imu_spi_handle.transmitThenReceive(tx, rx);
 
     gyro_y = translateGyroData(rx[0], rx[1]);
 
     return exit;
 }
 
-ExitCode Imu::getGyroZ(float &gyro_z)
+std::expected<void, ErrorCode> Imu::getGyroZ(float &gyro_z) const
 {
     if (is_imu_ready == false)
-        return ExitCode::EXIT_CODE_ERROR;
+        return std::unexpected(ErrorCode::ERROR);
 
     std::array<const uint8_t, 1> tx = { { READ_IMU_REG(GYRO_ZOUT_H) } };
     std::array<uint8_t, 2>       rx{};
 
-    ExitCode exit = imu_spi_handle.transmitThenReceive(tx, rx);
+    const auto exit = imu_spi_handle.transmitThenReceive(tx, rx);
 
     gyro_z = translateGyroData(rx[0], rx[1]);
 
     return exit;
 }
 
-ExitCode Imu::getTemp(float &temp)
+std::expected<void, ErrorCode> Imu::getTemp(float &temp) const
 {
     if (is_imu_ready == false)
-        return ExitCode::EXIT_CODE_ERROR;
+        return std::unexpected(ErrorCode::ERROR);
 
     std::array<const uint8_t, 1> tx = { { READ_IMU_REG(GYRO_ZOUT_H) } };
     std::array<uint8_t, 2>       rx{};
 
-    ExitCode exit = imu_spi_handle.transmitThenReceive(tx, rx);
+    const auto exit = imu_spi_handle.transmitThenReceive(tx, rx);
 
     temp = translateTempData(rx[0], rx[1]);
 
     return exit;
 }
 
-ExitCode Imu::getAccelAll(AccelData &data)
+std::expected<void, ErrorCode> Imu::getAccelAll(AccelData &data) const
 {
     if (is_imu_ready == false)
-        return ExitCode::EXIT_CODE_ERROR;
+        return std::unexpected(ErrorCode::ERROR);
 
     std::array<const uint8_t, 1> tx = { { READ_IMU_REG(ACCEL_XOUT_H) } };
     std::array<uint8_t, 6>       rx{};
 
-    ExitCode exit = imu_spi_handle.transmitThenReceive(tx, rx);
+    const auto exit = imu_spi_handle.transmitThenReceive(tx, rx);
 
     data.x = translateAccelData(rx[0], rx[1]);
     data.y = translateAccelData(rx[2], rx[3]);
@@ -491,15 +491,15 @@ ExitCode Imu::getAccelAll(AccelData &data)
     return exit;
 }
 
-ExitCode Imu::getGyroAll(GyroData &data)
+std::expected<void, ErrorCode> Imu::getGyroAll(GyroData &data) const
 {
     if (is_imu_ready == false)
-        return ExitCode::EXIT_CODE_ERROR;
+        return std::unexpected(ErrorCode::ERROR);
 
     std::array<const uint8_t, 1> tx = { { READ_IMU_REG(GYRO_XOUT_H) } };
     std::array<uint8_t, 6>       rx{};
 
-    ExitCode exit = imu_spi_handle.transmitThenReceive(tx, rx);
+    const auto exit = imu_spi_handle.transmitThenReceive(tx, rx);
 
     data.x = translateAccelData(rx[0], rx[1]);
     data.y = translateAccelData(rx[2], rx[3]);

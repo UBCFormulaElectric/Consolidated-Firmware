@@ -16,6 +16,8 @@
         unsigned char _unused; \
     } name;
 
+#define NUM_ELEMENTS_IN_ARRAY(array_pointer) sizeof(array_pointer) / sizeof(array_pointer[0])
+
 #ifdef __cplusplus
 #define CFUNC extern "C"
 #define NORET [[noreturn]]
@@ -102,3 +104,4 @@ static inline int IS_DEBUGGER_PRESENT(void)
 #else
 #error "TARGET_EMBEDDED or TARGET_TEST must be defined"
 #endif
+#undef ERROR
