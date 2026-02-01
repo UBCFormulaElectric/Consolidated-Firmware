@@ -254,4 +254,20 @@ impl CanDatabase {
 
         return decoded_signals;
     }
+
+    pub fn is_signal_valid(self: &Self, signal_name: &str) -> bool {
+        let binding = match self.get_connection() {
+            Ok(b) => b,
+            Err(_) => return false,
+        };
+       
+        let mut s = binding
+            .prepare("SELECT COUNT(*) FROM signals WHERE name = ?1")
+            .unwrap();
+
+        return match s.query_row([signal_name], |row| row.get::<_, i32>(0)) {
+            Ok(count) => count > 0,
+            Err(_) => false,
+        };
+    }
 }

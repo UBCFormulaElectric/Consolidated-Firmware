@@ -1,26 +1,15 @@
-
 use std::sync::Arc;
-use std::sync::Mutex;
-use axum::response::IntoResponse;
-use axum::serve::Listener;
-use jsoncan_rust::can_database::CanDatabase;
-use jsoncan_rust::parsing::JsonCanParser;
+use axum::Router;
 use tokio::select;
 use tokio::sync::{RwLock, broadcast};
 use tokio::net::TcpListener;
-use axum::{Router, routing::get};
-use axum::extract::ws::{WebSocket, WebSocketUpgrade};
 use socketioxide::{SocketIo, extract::SocketRef};
+use jsoncan_rust::can_database::CanDatabase;
+
 use crate::config::CONFIG;
-use crate::tasks::can_data::load_can_database;
+use crate::tasks::client_api::AppState;
 use crate::tasks::client_api::clients::Clients;
 use crate::tasks::client_api::subtable::get_subtable_router;
-
-#[derive(Clone)]
-struct AppState {
-    candb: Arc<CanDatabase>,
-    clients: Arc<RwLock<Clients>>,
-}
 
 pub async fn run_api_handler(mut shutdown_rx: broadcast::Receiver<()>, clients: Arc<RwLock<Clients>>, can_db: Arc<CanDatabase>) {
     let addr = format!("0.0.0.0:{}", CONFIG.backend_port);
@@ -29,7 +18,7 @@ pub async fn run_api_handler(mut shutdown_rx: broadcast::Receiver<()>, clients: 
     let (socket_layer, io) = SocketIo::new_layer();
 
     let app_state = AppState {
-        candb: can_db,
+        can_db,
         clients: clients.clone(),
     };
 
@@ -47,9 +36,8 @@ pub async fn run_api_handler(mut shutdown_rx: broadcast::Receiver<()>, clients: 
     });
 
     let app = Router::new()
-        .with_state(app_state)
         .layer(socket_layer)
-        .nest("/api/v1/", get_subtable_router())
+        .nest("/api/v1/", get_subtable_router(app_state))
         .into_make_service();
 
     select! {
