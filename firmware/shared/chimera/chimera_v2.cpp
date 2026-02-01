@@ -18,7 +18,7 @@ static pb_byte_t out_buffer[OUT_BUFFER_SIZE];
 
 constexpr size_t MAX_PAYLOAD_SIZE = 64;
 
-static io::queue<uint8_t, 100> q{ "USBQueue", nullptr, nullptr };
+static io::queue<uint8_t, 100> q{ "USBQueue", [](uint32_t) {}, [] {} };
 
 void hw::usb::receive(const std::span<uint8_t> dest)
 {
@@ -424,6 +424,7 @@ static void tick(const config &config)
 
 _Noreturn void task(const config &c)
 {
+    q.init();
     // Main loop.
     for (;;)
     {
