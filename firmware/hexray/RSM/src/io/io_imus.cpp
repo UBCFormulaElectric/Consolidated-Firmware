@@ -1,6 +1,10 @@
+#include "hw_spis.hpp"
 #include "io_imu.hpp"
+#include "io_imus.hpp"
 
-namespace io::imus
+namespace io::imu
 {
-io::imu::Imu imu_config();
+    ImuFilterConfig imu_filter;
+
+    Imu imu_config(hw::spi::imu);
 }

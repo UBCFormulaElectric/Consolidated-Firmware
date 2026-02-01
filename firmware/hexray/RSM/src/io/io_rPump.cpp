@@ -1,13 +1,11 @@
 #include "io_rPump.hpp"
 #include <util_errorCodes.hpp>
-// #include "hw_i2cs.hpp" //Not yet created
-
-// extern "C"
-// {
-// #include "io_potentiometer.h"
-// }
+#include "hw_i2cs.hpp"
+// #include "io_potentiometer.hpp"
 
 // static const Potentiometer rsm_pot = { .i2c_handle = &r_pump_i2c };
+
+
 
 #define RPUMP_WIPER 0
 #define MAX_WIPER_VALUE 256.0f

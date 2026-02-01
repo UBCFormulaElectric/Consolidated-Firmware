@@ -114,7 +114,7 @@ class RSMChimeraConfig : public chimera_v2::config
 } rsm_config;
 
 void tasks_preInit() {}
-void tasks_init()
+[[noreturn]] void tasks_init()
 {
     chimera_v2::task(rsm_config);
 }

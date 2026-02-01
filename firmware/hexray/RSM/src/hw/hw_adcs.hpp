@@ -1,3 +1,5 @@
+#include "hw_adc.hpp"
+
 #pragma once
 namespace hw::adcs
 {

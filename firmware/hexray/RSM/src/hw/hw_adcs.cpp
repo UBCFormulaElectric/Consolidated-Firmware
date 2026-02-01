@@ -1,4 +1,3 @@
-#include "hw_adc.hpp"
 #include "hw_adcs.hpp"
 #include "main.h"
 
