@@ -40,7 +40,7 @@ static constexpr uint32_t MASKMODE_16_BIT_MASK_OPEN = INIT_MASKMODE_16BIT_FiRx(0
 namespace hw
 {
 
-std::expected<void, ErrorCode> can::tx(const CAN_TxHeaderTypeDef &tx_header, const io::CanMsg &msg)
+std::expected<void, ErrorCode> can::tx(CAN_TxHeaderTypeDef &tx_header, io::CanMsg &msg)
 {
     // Spin until a TX mailbox becomes available.
     for (uint32_t poll_count = 0; HAL_CAN_GetTxMailboxesFreeLevel(hcan) == 0U;)
@@ -126,7 +126,7 @@ std::expected<void, ErrorCode> can::can_transmit(const io::CanMsg &msg)
     // it would take up 2 bytes of the CAN payload. So we disable the timestamp.
     tx_header.TransmitGlobalTime = DISABLE;
 
-    return tx(tx_header, msg);
+    return tx(tx_header, const_cast<io::CanMsg &>(msg));
 }
 
 std::expected<void, ErrorCode> can::receive(const uint32_t rx_fifo, io::CanMsg &msg) const

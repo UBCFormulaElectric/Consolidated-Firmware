@@ -15,7 +15,6 @@
 
 namespace hw
 {
-
 class BaseCan
 {
   protected:
@@ -71,7 +70,7 @@ class can final : public BaseCan
     CAN_HandleTypeDef *const hcan;
 
   private:
-    std::expected<void, ErrorCode> tx(const CAN_TxHeaderTypeDef &tx_header, const io::CanMsg &msg);
+    std::expected<void, ErrorCode> tx(CAN_TxHeaderTypeDef &tx_header, io::CanMsg &msg);
 
   public:
     consteval explicit can(
@@ -98,7 +97,7 @@ class fdcan final : public BaseCan
     FDCAN_HandleTypeDef *const hfdcan;
 
   private:
-    std::expected<void, ErrorCode> tx(const FDCAN_TxHeaderTypeDef &tx_header, const io::CanMsg &msg);
+    std::expected<void, ErrorCode> tx(FDCAN_TxHeaderTypeDef &tx_header, io::CanMsg &msg);
 
   public:
     consteval explicit fdcan(

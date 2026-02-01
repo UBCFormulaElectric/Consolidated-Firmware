@@ -54,6 +54,7 @@ extern "C"
     void UsageFault_Handler(void);
     void DebugMon_Handler(void);
     void SysTick_Handler(void);
+    void ADC_IRQHandler(void);
     /* USER CODE BEGIN EFP */
 
     /* USER CODE END EFP */

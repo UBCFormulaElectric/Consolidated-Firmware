@@ -220,7 +220,7 @@ function(stm32h733xx_cube_library
     )
 
     if (USE_HEXRAY_FREERTOS_CONFIG) # this is temporary during the transition
-        list(APPEND STM32CUBE_INCLUDE_DIRS
+         list(APPEND STM32CUBE_INCLUDE_DIRS
                 "${THIRD_PARTY_DIR}/freertos/config"
         )
     endif ()
