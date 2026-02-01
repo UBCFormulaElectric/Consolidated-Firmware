@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
+#include <stm32h5xx_hal_gpio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -83,7 +84,7 @@ static void MX_TIM1_Init(void);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
+    tasks_preInit();
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -112,6 +113,9 @@ int main(void)
     MX_TIM3_Init();
     MX_TIM1_Init();
     /* USER CODE BEGIN 2 */
+    HAL_GPIO_WritePin(BRAKE_LIGHT_EN_3V3_GPIO_Port, BRAKE_LIGHT_EN_3V3_Pin, GPIO_PIN_RESET);
+    ;
+    tasks_init();
     /* USER CODE END 2 */
 
     /* Infinite loop */

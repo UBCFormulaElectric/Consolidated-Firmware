@@ -60,6 +60,7 @@ extern "C"
     extern SPI_HandleTypeDef   hspi3;
     extern TIM_HandleTypeDef   htim1;
     extern TIM_HandleTypeDef   htim3;
+    extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
