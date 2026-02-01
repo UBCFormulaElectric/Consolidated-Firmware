@@ -183,6 +183,18 @@ const osThreadAttr_t TaskInit_attributes = {
     .stack_size = sizeof(TaskInitBuffer),
     .priority   = (osPriority_t)osPriorityRealtime,
 };
+/* Definitions for TaskSDCard */
+osThreadId_t         TaskSDCardHandle;
+uint32_t             TaskSDCardBuffer[128];
+osStaticThreadDef_t  TaskSDCardControlBlock;
+const osThreadAttr_t TaskSDCard_attributes = {
+    .name       = "TaskSDCard",
+    .cb_mem     = &TaskSDCardControlBlock,
+    .cb_size    = sizeof(TaskSDCardControlBlock),
+    .stack_mem  = &TaskSDCardBuffer[0],
+    .stack_size = sizeof(TaskSDCardBuffer),
+    .priority   = (osPriority_t)osPriorityLow,
+};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -213,6 +225,7 @@ void        RunTaskLtcVoltages(void *argument);
 void        RunTaskLtcTemps(void *argument);
 void        RunTaskLtcDiag(void *argument);
 void        RunTaskInit(void *argument);
+void        RunTaskSDCard(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -318,6 +331,9 @@ int main(void)
     /* creation of TaskInit */
     TaskInitHandle = osThreadNew(RunTaskInit, NULL, &TaskInit_attributes);
 
+    /* creation of TaskSDCard */
+    TaskSDCardHandle = osThreadNew(RunTaskSDCard, NULL, &TaskSDCard_attributes);
+
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
     /* USER CODE END RTOS_THREADS */
@@ -412,7 +428,7 @@ void PeriphCommonClock_Config(void)
 
     /** Initializes the peripherals clock
      */
-    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_ADC | RCC_PERIPHCLK_FDCAN;
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_FDCAN;
     PeriphClkInitStruct.PLL2.PLL2M           = 1;
     PeriphClkInitStruct.PLL2.PLL2N           = 24;
     PeriphClkInitStruct.PLL2.PLL2P           = 2;
@@ -422,7 +438,6 @@ void PeriphCommonClock_Config(void)
     PeriphClkInitStruct.PLL2.PLL2VCOSEL      = RCC_PLL2VCOWIDE;
     PeriphClkInitStruct.PLL2.PLL2FRACN       = 0;
     PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_PLL2;
-    PeriphClkInitStruct.AdcClockSelection    = RCC_ADCCLKSOURCE_PLL2;
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
     {
         Error_Handler();
@@ -1156,6 +1171,9 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(SPI_CS_HS_GPIO_Port, &GPIO_InitStruct);
 
+    /*AnalogSwitch Config */
+    HAL_SYSCFG_AnalogSwitchConfig(SYSCFG_SWITCH_PA0, SYSCFG_SWITCH_PA0_CLOSE);
+
     /* USER CODE BEGIN MX_GPIO_Init_2 */
     /* USER CODE END MX_GPIO_Init_2 */
 }
@@ -1330,6 +1348,21 @@ void RunTaskInit(void *argument)
     /* USER CODE END RunTaskInit */
 }
 
+/* USER CODE BEGIN Header_RunTaskSDCard */
+/**
+ * @brief Function implementing the TaskSDCard thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskSDCard */
+void RunTaskSDCard(void *argument)
+{
+    /* USER CODE BEGIN RunTaskSDCard */
+    /* Infinite loop */
+    tasks_runSdCard();
+    /* USER CODE END RunTaskSDCard */
+}
+
 /**
  * @brief  Period elapsed callback in non blocking mode
  * @note   This function is called  when TIM2 interrupt took place, inside
@@ -1366,7 +1399,6 @@ void Error_Handler(void)
     }
     /* USER CODE END Error_Handler_Debug */
 }
-
 #ifdef USE_FULL_ASSERT
 /**
  * @brief  Reports the name of the source file and the source line number

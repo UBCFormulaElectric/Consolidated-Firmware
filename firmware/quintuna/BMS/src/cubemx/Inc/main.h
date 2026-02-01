@@ -63,6 +63,7 @@ extern "C"
     extern osThreadId_t Task1kHzHandle;
     extern osThreadId_t TaskCanRxHandle;
     extern osThreadId_t TaskCanTxHandle;
+    extern osThreadId_t TaskSDCardHandle;
 
     extern const osThreadAttr_t Task100Hz_attributes;
     extern const osThreadAttr_t TaskCanRx_attributes;

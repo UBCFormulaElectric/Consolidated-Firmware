@@ -79,7 +79,6 @@ static const ProfileConfig fault_profile_config = {
 static Profile fault_profile;
 static Profile warning_profile;
 
-static TimerChannel cell_monitor_settle_timer;
 // Time for voltage and cell temperature values to settle
 #define CELL_MONITOR_TIME_TO_SETTLE_MS (300U)
 

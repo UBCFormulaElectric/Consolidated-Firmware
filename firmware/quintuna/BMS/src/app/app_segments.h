@@ -1,7 +1,14 @@
 #pragma once
+#include "app_timer.h"
 #include "io_ltc6813.h"
 #include <stdbool.h>
 
+#define NUM_CYCLES_TO_SETTLE (30U)
+
+// Needed in app_soc.c for resetting SoC
+static TimerChannel cell_monitor_settle_timer;
+
+// =========== CONFIGS ===========
 /**
  * @file segments/app_segments_configs.c
  */

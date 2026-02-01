@@ -1,6 +1,8 @@
 #include "jobs.h"
 
+#include <limits.h>
 // app
+#include "app_soc.h"
 #include "states/app_states.h"
 #include "app_precharge.h"
 #include "app_segments.h"
@@ -65,6 +67,8 @@ void jobs_init(void)
     io_canQueue_initRx();
     io_canQueue_initTx(&can_tx_queue);
 
+    app_soc_init();
+
     app_canTx_init();
     app_canRx_init();
 
@@ -106,6 +110,8 @@ void jobs_init(void)
 void jobs_run1Hz_tick(void)
 {
     io_canTx_enqueue1HzMsgs();
+
+    app_soc_saveToSd();
 }
 
 void jobs_run100Hz_tick(void)
@@ -120,6 +126,7 @@ void jobs_run100Hz_tick(void)
     // app_heartbeatMonitor_checkIn(&hb_monitor);
     // app_heartbeatMonitor_broadcastFaults(&hb_monitor);
 
+    app_soc_broadcast();
     app_tractiveSystem_broadcast();
     app_imd_broadcast();
     app_shdnLoop_broadcast();
@@ -312,4 +319,13 @@ void jobs_runLTCDiagnostics(void)
         }
     }
     io_semaphore_give(&ltc_app_data_lock);
+}
+
+void jobs_runSdCard_tick(void)
+{
+    uint32_t rounded_soc;
+    if (xTaskNotifyWait(0, ULONG_MAX, &rounded_soc, 0) == pdTRUE)
+    {
+        app_soc_writeSocToSd((float)rounded_soc / 100.0f);
+    }
 }
