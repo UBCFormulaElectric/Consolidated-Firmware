@@ -45,7 +45,9 @@ impl Clients {
      */
     pub fn remove_client(&mut self, client: &String) {
         if let Some(client_socket) = self.sockets.remove(client) {
-            client_socket.disconnect();
+            if let Err(e) = client_socket.disconnect() {
+                eprintln!("Socket error while disconnecting client socket {}", client);
+            };
         }
 
         if let Some(client_signals) = self.client_to_signal.get(client) {
