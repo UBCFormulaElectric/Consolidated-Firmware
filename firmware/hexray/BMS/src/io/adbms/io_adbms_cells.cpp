@@ -1,32 +1,49 @@
 #include "io_adbms_internal.hpp"
-#include <stdint.h>
+#include <cstdint>
 
 namespace io::adbms
 {
-static constexpr uint16_t cv_read_cmds[VOLTAGE_REGISTER_GROUPS] = { RDCVA, RDCVB, RDCVC, RDCVD, RDCVE };
+constexpr uint8_t MAX_NUM_ATTEMPTS  = 10U;
+constexpr uint8_t ADCV_STATUS_READY = 0xFF;
+constexpr uint8_t CELLS_PER_GROUP   = 3U;
 
-ExitCode clearCellRegisters(void)
+ExitCode pollCellsAdcConversion(void)
 {
-    return sendCommand(io::adbms::CLRCELL);
+    for (uint32_t attempt = 0U; attempt < MAX_NUM_ATTEMPTS; attempt++)
+    {
+        uint8_t rx_data;
+        RETURN_IF_ERR(poll(PLCADC, &rx_data, sizeof(rx_data)));
+
+        if (rx_data == ADCV_STATUS_READY)
+        {
+            return ExitCode::EXIT_CODE_OK;
+        }
+    }
+    return ExitCode::EXIT_CODE_TIMEOUT;
+}
+
+ExitCode clearCellVoltageReg(void)
+{
+    return sendCmd(CLRCELL);
 }
 
 ExitCode startCellsAdcConversion(void)
 {
-    RETURN_IF_ERR(clearCellRegisters());
-    return io::adbms::sendCommand(io::adbms::C_ADC);
+    RETURN_IF_ERR(clearCellVoltageReg());
+    return sendCmd(ADCV_BASE | RD | CONT);
 }
 
 void readVoltageRegisters(
-    uint16_t cell_voltage_regs[io::NUM_SEGMENTS][io::CELLS_PER_SEGMENTS],
-    ExitCode comm_success[io::NUM_SEGMENTS][io::CELLS_PER_SEGMENTS])
+    uint16_t cell_voltage_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT],
+    ExitCode comm_success[NUM_SEGMENTS][CELLS_PER_SEGMENT])
 {
-    // Exit early if ADC conversion fails
-    const ExitCode poll_ok = io::adbms::pollAdcConversions();
+    const ExitCode poll_ok = pollCellsAdcConversion();
+
     if (IS_EXIT_ERR(poll_ok))
     {
-        for (uint8_t i = 0; i < io::NUM_SEGMENTS; i++)
+        for (uint8_t i = 0U; i < NUM_SEGMENTS; i++)
         {
-            for (uint8_t j = 0; j < io::CELLS_PER_SEGMENTS; j++)
+            for (uint8_t j = 0U; j < CELLS_PER_SEGMENT; j++)
             {
                 comm_success[i][j] = poll_ok;
             }
@@ -35,25 +52,32 @@ void readVoltageRegisters(
         return;
     }
 
-    for (uint8_t reg_group = 0U; reg_group < io::adbms::VOLTAGE_REGISTER_GROUPS; reg_group++)
-    {
-        uint16_t curr_regs[io::NUM_SEGMENTS][io::adbms::REGS_PER_GROUP];
-        ExitCode curr_success[io::NUM_SEGMENTS];
-        io::adbms::readRegGroup(io::adbms::cv_read_cmds[reg_group], curr_regs, curr_success);
+    static const uint16_t voltage_read_cmds[NUM_VOLT_REG_GROUPS] = { RDCVA, RDCVB, RDCVC, RDCVD, RDCVE };
 
-        for (uint8_t seg_idx = 0U; seg_idx < io::NUM_SEGMENTS; seg_idx++)
+    for (uint8_t reg_group = 0U; reg_group < NUM_VOLT_REG_GROUPS; reg_group++)
+    {
+        static uint8_t  regs[NUM_SEGMENTS][REG_GROUP_SIZE];
+        static ExitCode group_success[NUM_SEGMENTS];
+        readRegGroup(voltage_read_cmds[reg_group], regs, group_success);
+
+        for (uint8_t seg = 0U; seg < NUM_SEGMENTS; seg++)
         {
-            for (uint8_t reg_in_group = 0U; reg_in_group < io::adbms::REGS_PER_GROUP; reg_in_group++)
+            for (uint8_t cell_in_group = 0U; cell_in_group < CELLS_PER_GROUP; cell_in_group++)
             {
-                // Only have 14 cells per segment so ignore the 15th reg reading.
-                const int voltage_reg = reg_group * io::adbms::REGS_PER_GROUP + reg_in_group;
-                if (voltage_reg >= io::CELLS_PER_SEGMENTS)
+                const uint8_t cell_index = static_cast<uint8_t>(reg_group * CELLS_PER_GROUP + cell_in_group);
+                if (cell_index >= CELLS_PER_SEGMENT)
                 {
                     continue;
                 }
 
-                cell_voltage_regs[seg_idx][voltage_reg] = curr_regs[seg_idx][reg_in_group];
-                comm_success[seg_idx][voltage_reg]      = curr_success[seg_idx];
+                comm_success[seg][cell_index] = group_success[seg];
+                if (IS_EXIT_ERR(group_success[seg]))
+                {
+                    continue;
+                }
+
+                const uint8_t byte_offset          = cell_in_group * 2U;
+                cell_voltage_regs[seg][cell_index] = regs[seg][byte_offset];
             }
         }
     }

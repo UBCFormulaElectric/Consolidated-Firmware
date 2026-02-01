@@ -1,9 +1,14 @@
 #include "io_adbms_internal.hpp"
 #include "io_adbms.hpp"
+#include "util_errorCodes.hpp"
 
-#include "hw_spi.h"
 #include "hw_spis.hpp"
 
+#include <cstddef>
+#include <cstring>
+
+namespace
+{
 struct CmdPayload
 {
     uint16_t cmd;
@@ -12,162 +17,181 @@ struct CmdPayload
 
 struct RegGroupPayload
 {
-    uint16_t regs[io::adbms::REGS_PER_GROUP];
+    uint8_t  data[6];
     uint16_t pec10;
 };
 
-// Polynomial mask (polynomial without the x^15 term) for
-// x^15 + x^14 + x^10 + x^8 + x^7 + x^4 + x^3 + 1
-// bits positions: 14,10,8,7,4,3,0 -> mask = 0x4599
-#define PEC15_POLY_MASK 0x4599
-#define PEC15_INIT 0x0010 // initial remainder (15-bit)
-
-static uint16_t calculatePec15(uint16_t command)
-{
-    uint16_t remainder = PEC15_INIT & 0x7FFF; // 15-bit LFSR
-    uint16_t poly      = PEC15_POLY_MASK & 0x7FFF;
-
-    // Process 16 bits MSB-first
-    for (int bit = 15; bit >= 0; --bit)
-    {
-        uint8_t data_bit = (command >> bit) & 1;  // next input bit
-        uint8_t msb      = (remainder >> 14) & 1; // bit leaving the register
-
-        remainder = ((remainder << 1) & 0x7FFF) | data_bit; // shift in new bit
-        if (msb)
-            remainder ^= poly; // XOR with generator mask if top bit was 1
-    }
-
-    // Left-shift once so LSB = 0 (device transmits 16 bits, lowest bit unused)
-    return (remainder << 1) & 0xFFFE;
-}
-
-// Polynomial mask for PEC10 (polynomial without the x^10 term)
-// x^10 + x^7 + x^3 + x^2 + x + 1
-// bit positions: 7,3,2,1,0 -> mask = 0x8F
-#define PEC10_POLY_MASK 0x008F
-// Initial remainder (10-bit)
-#define PEC10_INIT 0x0010
-// Mask to keep PEC10 to 10 bits
-#define PEC10_MASK 0x03FF
-
-static uint16_t calculatePec10(const uint8_t *data, size_t len)
-{
-    uint16_t remainder = PEC10_INIT;
-
-    for (size_t i = 0; i < len; ++i)
-    {
-        uint8_t byte = data[i];
-        for (int bit = 7; bit >= 0; --bit)
-        {
-            uint8_t data_bit = (byte >> bit) & 0x1;
-            uint8_t crc_msb  = (remainder >> 9) & 0x1; // MSB of 10-bit CRC
-
-            remainder <<= 1;
-            remainder &= PEC10_MASK;
-
-            if (crc_msb ^ data_bit)
-                remainder ^= PEC10_POLY_MASK;
-        }
-    }
-
-    return remainder & PEC10_MASK;
-}
-
-static CmdPayload buildTxCmd(const uint16_t command)
-{
-    CmdPayload out = { .cmd = command, .pec15 = calculatePec15(command) };
-    return out;
-}
-
-static bool checkDataPec(const uint8_t *data, const uint8_t len, const uint16_t pec)
-{
-    const uint16_t expected = calculatePec10((uint8_t *)data, len);
-    return expected == pec;
-}
+static_assert(sizeof(CmdPayload) == io::adbms::CMD_BYTES + io::adbms::PEC_BYTES);
+static_assert(sizeof(RegGroupPayload) == io::adbms::REG_GROUP_SIZE + io::adbms::PEC_BYTES);
+} // namespace
 
 namespace io::adbms
 {
-ExitCode sendCommand(const uint16_t command)
+
+static uint16_t swapEndianness(uint16_t value)
 {
-    const CmdPayload tx_cmd = buildTxCmd(command);
+    return (uint16_t)((value >> 8) | (value << 8));
+}
+
+static constexpr uint16_t PEC15_POLY = 0xC599U;
+static constexpr uint16_t PEC15_INIT = 0x0010U;
+
+static uint16_t calculatePec15(const uint8_t *data, size_t len)
+{
+    static const uint16_t pec15Table[256] = {
+        0x0000, 0xC599, 0xCEAB, 0x0B32, 0xD8CF, 0x1D56, 0x1664, 0xD3FD, 0xF407, 0x319E, 0x3AAC, 0xFF35, 0x2CC8, 0xE951,
+        0xE263, 0x27FA, 0xAD97, 0x680E, 0x633C, 0xA6A5, 0x7558, 0xB0C1, 0xBBF3, 0x7E6A, 0x5990, 0x9C09, 0x973B, 0x52A2,
+        0x815F, 0x44C6, 0x4FF4, 0x8A6D, 0x5B2E, 0x9EB7, 0x9585, 0x501C, 0x83E1, 0x4678, 0x4D4A, 0x88D3, 0xAF29, 0x6AB0,
+        0x6182, 0xA41B, 0x77E6, 0xB27F, 0xB94D, 0x7CD4, 0xF6B9, 0x3320, 0x3812, 0xFD8B, 0x2E76, 0xEBEF, 0xE0DD, 0x2544,
+        0x02BE, 0xC727, 0xCC15, 0x098C, 0xDA71, 0x1FE8, 0x14DA, 0xD143, 0xF3C5, 0x365C, 0x3D6E, 0xF8F7, 0x2B0A, 0xEE93,
+        0xE5A1, 0x2038, 0x07C2, 0xC25B, 0xC969, 0x0CF0, 0xDF0D, 0x1A94, 0x11A6, 0xD43F, 0x5E52, 0x9BCB, 0x90F9, 0x5560,
+        0x869D, 0x4304, 0x4836, 0x8DAF, 0xAA55, 0x6FCC, 0x64FE, 0xA167, 0x729A, 0xB703, 0xBC31, 0x79A8, 0xA8EB, 0x6D72,
+        0x6640, 0xA3D9, 0x7024, 0xB5BD, 0xBE8F, 0x7B16, 0x5CEC, 0x9975, 0x9247, 0x57DE, 0x8423, 0x41BA, 0x4A88, 0x8F11,
+        0x057C, 0xC0E5, 0xCBD7, 0x0E4E, 0xDDB3, 0x182A, 0x1318, 0xD681, 0xF17B, 0x34E2, 0x3FD0, 0xFA49, 0x29B4, 0xEC2D,
+        0xE71F, 0x2286, 0xA213, 0x678A, 0x6CB8, 0xA921, 0x7ADC, 0xBF45, 0xB477, 0x71EE, 0x5614, 0x938D, 0x98BF, 0x5D26,
+        0x8EDB, 0x4B42, 0x4070, 0x85E9, 0x0F84, 0xCA1D, 0xC12F, 0x04B6, 0xD74B, 0x12D2, 0x19E0, 0xDC79, 0xFB83, 0x3E1A,
+        0x3528, 0xF0B1, 0x234C, 0xE6D5, 0xEDE7, 0x287E, 0xF93D, 0x3CA4, 0x3796, 0xF20F, 0x21F2, 0xE46B, 0xEF59, 0x2AC0,
+        0x0D3A, 0xC8A3, 0xC391, 0x0608, 0xD5F5, 0x106C, 0x1B5E, 0xDEC7, 0x54AA, 0x9133, 0x9A01, 0x5F98, 0x8C65, 0x49FC,
+        0x42CE, 0x8757, 0xA0AD, 0x6534, 0x6E06, 0xAB9F, 0x7862, 0xBDFB, 0xB6C9, 0x7350, 0x51D6, 0x944F, 0x9F7D, 0x5AE4,
+        0x8919, 0x4C80, 0x47B2, 0x822B, 0xA5D1, 0x6048, 0x6B7A, 0xAEE3, 0x7D1E, 0xB887, 0xB3B5, 0x762C, 0xFC41, 0x39D8,
+        0x32EA, 0xF773, 0x248E, 0xE117, 0xEA25, 0x2FBC, 0x0846, 0xCDDF, 0xC6ED, 0x0374, 0xD089, 0x1510, 0x1E22, 0xDBBB,
+        0x0AF8, 0xCF61, 0xC453, 0x01CA, 0xD237, 0x17AE, 0x1C9C, 0xD905, 0xFEFF, 0x3B66, 0x3054, 0xF5CD, 0x2630, 0xE3A9,
+        0xE89B, 0x2D02, 0xA76F, 0x62F6, 0x69C4, 0xAC5D, 0x7FA0, 0xBA39, 0xB10B, 0x7492, 0x5368, 0x96F1, 0x9DC3, 0x585A,
+        0x8BA7, 0x4E3E, 0x450C, 0x8095
+    };
+
+    uint16_t remainder = 16U;
+    uint16_t address;
+
+    for (size_t i = 0; i < len; i++)
+    {
+        address   = ((remainder >> 7) ^ data[i]) & 0xFFU;
+        remainder = (uint16_t)(((uint16_t)(remainder << 8)) ^ pec15Table[address]);
+    }
+    return (remainder * 2);
+}
+
+static uint16_t calculatePec10(const uint8_t *data, size_t len)
+{
+    static const uint16_t pec10Table[256] = {
+        0x000, 0x08F, 0x11E, 0x191, 0x23C, 0x2B3, 0x322, 0x3AD, 0x0F7, 0x078, 0x1E9, 0x166, 0x2CB, 0x244, 0x3D5, 0x35A,
+        0x1EE, 0x161, 0x0F0, 0x07F, 0x3D2, 0x35D, 0x2CC, 0x243, 0x119, 0x196, 0x007, 0x088, 0x325, 0x3AA, 0x23B, 0x2B4,
+        0x3DC, 0x353, 0x2C2, 0x24D, 0x1E0, 0x16F, 0x0FE, 0x071, 0x32B, 0x3A4, 0x235, 0x2BA, 0x117, 0x198, 0x009, 0x086,
+        0x232, 0x2BD, 0x32C, 0x3A3, 0x00E, 0x081, 0x110, 0x19F, 0x2C5, 0x24A, 0x3DB, 0x354, 0x0F9, 0x076, 0x1E7, 0x168,
+        0x337, 0x3B8, 0x229, 0x2A6, 0x10B, 0x184, 0x015, 0x09A, 0x3C0, 0x34F, 0x2DE, 0x251, 0x1FC, 0x173, 0x0E2, 0x06D,
+        0x2D9, 0x256, 0x3C7, 0x348, 0x0E5, 0x06A, 0x1FB, 0x174, 0x22E, 0x2A1, 0x330, 0x3BF, 0x012, 0x09D, 0x10C, 0x183,
+        0x0EB, 0x064, 0x1F5, 0x17A, 0x2D7, 0x258, 0x3C9, 0x346, 0x01C, 0x093, 0x102, 0x18D, 0x220, 0x2AF, 0x33E, 0x3B1,
+        0x105, 0x18A, 0x01B, 0x094, 0x339, 0x3B6, 0x227, 0x2A8, 0x1F2, 0x17D, 0x0EC, 0x063, 0x3CE, 0x341, 0x2D0, 0x25F,
+        0x2E1, 0x26E, 0x3FF, 0x370, 0x0DD, 0x052, 0x1C3, 0x14C, 0x216, 0x299, 0x308, 0x387, 0x02A, 0x0A5, 0x134, 0x1BB,
+        0x30F, 0x380, 0x211, 0x29E, 0x133, 0x1BC, 0x02D, 0x0A2, 0x3F8, 0x377, 0x2E6, 0x269, 0x1C4, 0x14B, 0x0DA, 0x055,
+        0x13D, 0x1B2, 0x023, 0x0AC, 0x301, 0x38E, 0x21F, 0x290, 0x1CA, 0x145, 0x0D4, 0x05B, 0x3F6, 0x379, 0x2E8, 0x267,
+        0x0D3, 0x05C, 0x1CD, 0x142, 0x2EF, 0x260, 0x3F1, 0x37E, 0x024, 0x0AB, 0x13A, 0x1B5, 0x218, 0x297, 0x306, 0x389,
+        0x1D6, 0x159, 0x0C8, 0x047, 0x3EA, 0x365, 0x2F4, 0x27B, 0x121, 0x1AE, 0x03F, 0x0B0, 0x31D, 0x392, 0x203, 0x28C,
+        0x038, 0x0B7, 0x126, 0x1A9, 0x204, 0x28B, 0x31A, 0x395, 0x0CF, 0x040, 0x1D1, 0x15E, 0x2F3, 0x27C, 0x3ED, 0x362,
+        0x20A, 0x285, 0x314, 0x39B, 0x036, 0x0B9, 0x128, 0x1A7, 0x2FD, 0x272, 0x3E3, 0x36C, 0x0C1, 0x04E, 0x1DF, 0x150,
+        0x3E4, 0x36B, 0x2FA, 0x275, 0x1D8, 0x157, 0x0C6, 0x049, 0x313, 0x39C, 0x20D, 0x282, 0x12F, 0x1A0, 0x031, 0x0BE
+    };
+
+    uint16_t remainder = 16U;
+    uint16_t address;
+
+    for (size_t i = 0; i < len; i++)
+    {
+        address   = ((remainder >> 2) ^ data[i]) & 0xFFU;
+        remainder = (uint16_t)(((uint16_t)(remainder << 8)) ^ pec10Table[address]);
+        remainder &= 0x03FFU;
+    }
+
+    return remainder;
+}
+
+static uint16_t buildDataPec(const uint8_t *data, size_t len)
+{
+    return swapEndianness(calculatePec10(data, len));
+}
+
+static bool checkDataPec(const uint8_t *data, size_t len, uint16_t expected)
+{
+    return buildDataPec(data, len) == expected;
+}
+
+static CmdPayload buildCmd(uint16_t command)
+{
+    CmdPayload payload{};
+    payload.cmd   = swapEndianness(command);
+    payload.pec15 = swapEndianness(calculatePec15((uint8_t *)&command, sizeof(payload.cmd)));
+    return payload;
+}
+
+ExitCode sendCmd(uint16_t cmd)
+{
+    const CmdPayload tx_cmd = buildCmd(cmd);
     return hw_spi_transmit(&adbms_spi_ls, (uint8_t *)&tx_cmd, sizeof(tx_cmd));
 }
 
 ExitCode poll(uint16_t cmd, uint8_t *poll_buf, uint16_t poll_buf_len)
 {
-    const CmdPayload tx_cmd = buildTxCmd(cmd);
+    const CmdPayload tx_cmd = buildCmd(cmd);
     return hw_spi_transmitThenReceive(&adbms_spi_ls, (uint8_t *)&tx_cmd, sizeof(tx_cmd), poll_buf, poll_buf_len);
 }
 
-void readRegGroup(
-    uint16_t cmd,
-    uint16_t regs[io::NUM_SEGMENTS][io::adbms::REGS_PER_GROUP],
-    ExitCode comm_success[io::NUM_SEGMENTS])
+void readRegGroup(uint16_t cmd, uint8_t regs[NUM_SEGMENTS][REG_GROUP_SIZE], ExitCode comm_success[NUM_SEGMENTS])
 {
-    const CmdPayload tx_cmd = buildTxCmd(cmd);
-    RegGroupPayload  rx_buffer[io::NUM_SEGMENTS];
-    const ExitCode   tx_status = hw_spi_transmitThenReceive(
+    std::memset(regs, 0, NUM_SEGMENTS * REG_GROUP_SIZE * sizeof(uint8_t));
+
+    const CmdPayload       tx_cmd = buildCmd(cmd);
+    static RegGroupPayload rx_buffer[NUM_SEGMENTS];
+    ExitCode               tx_status = hw_spi_transmitThenReceive(
         &adbms_spi_ls, (uint8_t *)&tx_cmd, sizeof(tx_cmd), (uint8_t *)rx_buffer, sizeof(rx_buffer));
 
     if (IS_EXIT_ERR(tx_status))
     {
-        for (uint8_t segment = 0; segment < io::NUM_SEGMENTS; segment++)
+        for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
         {
             comm_success[segment] = tx_status;
         }
-
         return;
     }
 
-    for (uint8_t segment = 0; segment < io::NUM_SEGMENTS; segment++)
+    for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
     {
         const RegGroupPayload *segment_data = &rx_buffer[segment];
-        const uint8_t         *data_bytes   = (const uint8_t *)segment_data->regs;
-        const size_t           data_len     = sizeof(segment_data->regs);
+        const uint8_t         *data_bytes   = (const uint8_t *)segment_data->data;
+        const uint16_t        *pec_bytes    = (const uint16_t *)&segment_data->pec10;
+        const size_t           data_len     = sizeof(segment_data->data);
 
-        if (checkDataPec(data_bytes, data_len, segment_data->pec10))
+        if (checkDataPec(data_bytes, data_len, swapEndianness(*pec_bytes)))
         {
-            // PEC OK, copy data
-            for (uint8_t reg_idx = 0; reg_idx < io::adbms::REGS_PER_GROUP; reg_idx++)
-            {
-                regs[segment][reg_idx] = segment_data->regs[reg_idx];
-            }
-            comm_success[segment] = EXIT_CODE_OK;
+            std::memcpy(regs[segment], data_bytes, data_len);
+            comm_success[segment] = ExitCode::EXIT_CODE_OK;
         }
         else
         {
-            // PEC failed
-            comm_success[segment] = EXIT_CODE_CHECKSUM_FAIL;
+            comm_success[segment] = ExitCode::EXIT_CODE_CHECKSUM_FAIL;
         }
     }
 }
 
-ExitCode writeRegGroup(uint16_t cmd, uint16_t regs[io::NUM_SEGMENTS][io::adbms::REGS_PER_GROUP])
+ExitCode writeRegGroup(uint16_t cmd, const uint8_t regs[NUM_SEGMENTS][REG_GROUP_SIZE])
 {
     struct
     {
         CmdPayload      tx_cmd;
-        RegGroupPayload payload[io::NUM_SEGMENTS];
+        RegGroupPayload payload[NUM_SEGMENTS];
     } tx_buffer;
 
-    tx_buffer.tx_cmd = buildTxCmd(cmd);
+    tx_buffer.tx_cmd = buildCmd(cmd);
 
-    for (uint8_t segment = 0; segment < io::NUM_SEGMENTS; segment++)
+    for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
     {
-        // Copy register data
-        for (uint8_t reg_idx = 0; reg_idx < io::adbms::REGS_PER_GROUP; reg_idx++)
-        {
-            tx_buffer.payload[segment].regs[reg_idx] = regs[segment][reg_idx];
-        }
+        uint8_t     *data_bytes = (uint8_t *)tx_buffer.payload[segment].data;
+        const size_t data_len   = sizeof(tx_buffer.payload[segment].data);
 
-        // Calculate PEC10 for this segment's data
-        const uint8_t *data_bytes        = (const uint8_t *)tx_buffer.payload[segment].regs;
-        const size_t   data_len          = sizeof(tx_buffer.payload[segment].regs);
-        tx_buffer.payload[segment].pec10 = calculatePec10(data_bytes, data_len);
+        std::memcpy(data_bytes, regs[segment], data_len);
+
+        tx_buffer.payload[segment].pec10 = buildDataPec(data_bytes, data_len);
     }
 
     return hw_spi_transmit(&adbms_spi_ls, (uint8_t *)&tx_buffer, sizeof(tx_buffer));
 }
-
 } // namespace io::adbms

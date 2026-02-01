@@ -3,13 +3,13 @@
 
 namespace io::adbms
 {
-ExitCode sendBalanceCommand(void)
+ExitCode sendBalanceCmd()
 {
-    return io::adbms::sendCommand(io::adbms::UNMUTE);
+    return sendCmd(UNMUTE);
 }
 
-ExitCode sendStopBalanceCommand(void)
+ExitCode sendStopBalanceCmd()
 {
-    return io::adbms::sendCommand(MUTE);
+    return sendCmd(MUTE);
 }
 } // namespace io::adbms

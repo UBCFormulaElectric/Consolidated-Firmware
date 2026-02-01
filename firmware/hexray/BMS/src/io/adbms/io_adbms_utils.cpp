@@ -1,5 +1,6 @@
 #include "io_adbms.hpp"
 #include "io_adbms_internal.hpp"
+#include "util_errorCodes.hpp"
 
 namespace io::adbms
 {
@@ -15,16 +16,16 @@ ExitCode pollAdcConversions(void)
 
         if (rx_data != ADC_CONV_INCOMPLETE)
         {
-            return EXIT_CODE_OK;
+            return ExitCode::EXIT_CODE_OK;
         }
     }
 
-    return EXIT_CODE_TIMEOUT;
+    return ExitCode::EXIT_CODE_TIMEOUT;
 }
 
 void wakeup(void)
 {
-    sendCommand(io::adbms::RDCFGA);
+    sendCmd(RDCFGA);
 }
 
 } // namespace io::adbms

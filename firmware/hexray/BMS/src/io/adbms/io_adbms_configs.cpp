@@ -1,53 +1,53 @@
 #include "io_adbms.hpp"
 #include "io_adbms_internal.hpp"
+#include "util_errorCodes.hpp"
 
-#include <string.h>
+#include <cstring>
 
 namespace io::adbms
 {
-ExitCode writeConfigurationRegisters(const SegmentConfig config[io::NUM_SEGMENTS])
+ExitCode writeConfigurationRegisters(SegmentConfig config[NUM_SEGMENTS])
 {
-    uint16_t cfga_regs[io::NUM_SEGMENTS][io::adbms::REGS_PER_GROUP];
-    uint16_t cfgb_regs[io::NUM_SEGMENTS][io::adbms::REGS_PER_GROUP];
+    static uint8_t cfga_regs[NUM_SEGMENTS][REG_GROUP_SIZE];
+    static uint8_t cfgb_regs[NUM_SEGMENTS][REG_GROUP_SIZE];
 
-    for (uint8_t seg_idx = 0U; seg_idx < io::NUM_SEGMENTS; seg_idx++)
+    for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
     {
-        memcpy(&cfga_regs[seg_idx], &config[seg_idx].reg_a, sizeof(CFGAR));
-        memcpy(&cfgb_regs[seg_idx], &config[seg_idx].reg_b, sizeof(CFGBR));
+        std::memcpy(&cfga_regs[segment], &config[segment].reg_a, sizeof(CFGA));
+        std::memcpy(&cfgb_regs[segment], &config[segment].reg_b, sizeof(CFGB));
     }
 
-    // Write to configuration registers
-    RETURN_IF_ERR(io::adbms::writeRegGroup(WRCFGA, cfga_regs));
-    RETURN_IF_ERR(io::adbms::writeRegGroup(WRCFGB, cfgb_regs));
-    return EXIT_CODE_OK;
+    RETURN_IF_ERR(writeRegGroup(WRCFGA, cfga_regs));
+    RETURN_IF_ERR(writeRegGroup(WRCFGB, cfgb_regs));
+    return ExitCode::EXIT_CODE_OK;
 }
 
-void readConfigurationRegisters(SegmentConfig configs[io::NUM_SEGMENTS], ExitCode success[io::NUM_SEGMENTS])
+void readConfigurationRegisters(SegmentConfig configs[NUM_SEGMENTS], ExitCode success[NUM_SEGMENTS])
 {
-    uint16_t regs_a[io::NUM_SEGMENTS][io::adbms::REGS_PER_GROUP];
-    ExitCode success_a[io::NUM_SEGMENTS];
-    io::adbms::readRegGroup(RDCFGA, regs_a, success_a);
+    static uint8_t  regs_a[NUM_SEGMENTS][REG_GROUP_SIZE];
+    static ExitCode success_a[NUM_SEGMENTS];
+    readRegGroup(RDCFGA, regs_a, success_a);
 
-    uint16_t regs_b[io::NUM_SEGMENTS][io::adbms::REGS_PER_GROUP];
-    ExitCode success_b[io::NUM_SEGMENTS];
-    io::adbms::readRegGroup(RDCFGB, regs_b, success_b);
+    static uint8_t  regs_b[NUM_SEGMENTS][REG_GROUP_SIZE];
+    static ExitCode success_b[NUM_SEGMENTS];
+    readRegGroup(RDCFGB, regs_b, success_b);
 
-    for (uint8_t seg_idx = 0U; seg_idx < NUM_SEGMENTS; seg_idx++)
+    for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
     {
-        if (IS_EXIT_ERR(success_a[seg_idx]))
+        if (IS_EXIT_ERR(success_a[segment]))
         {
-            success[seg_idx] = success_a[seg_idx];
+            success[segment] = success_a[segment];
             continue;
         }
-        else if (IS_EXIT_ERR(success_b[seg_idx]))
+        else if (IS_EXIT_ERR(success_b[segment]))
         {
-            success[seg_idx] = success_b[seg_idx];
+            success[segment] = success_b[segment];
             continue;
         }
 
-        memcpy(&configs[seg_idx].reg_a, &regs_a[seg_idx], sizeof(CFGAR));
-        memcpy(&configs[seg_idx].reg_b, &regs_b[seg_idx], sizeof(CFGBR));
-        success[seg_idx] = EXIT_CODE_OK;
+        std::memcpy(&configs[segment].reg_a, &regs_a[segment], sizeof(CFGA));
+        std::memcpy(&configs[segment].reg_b, &regs_b[segment], sizeof(CFGB));
+        success[segment] = ExitCode::EXIT_CODE_OK;
     }
 }
 } // namespace io::adbms
