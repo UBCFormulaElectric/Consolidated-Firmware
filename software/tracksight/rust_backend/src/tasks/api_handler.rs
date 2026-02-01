@@ -49,7 +49,7 @@ pub async fn run_api_handler(mut shutdown_rx: broadcast::Receiver<()>, clients: 
     let app = Router::new()
         .with_state(app_state)
         .layer(socket_layer)
-        .merge(get_subtable_router())
+        .nest("/api/v1/", get_subtable_router())
         .into_make_service();
 
     select! {
