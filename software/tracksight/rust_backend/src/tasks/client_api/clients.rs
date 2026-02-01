@@ -46,7 +46,7 @@ impl Clients {
     pub fn remove_client(&mut self, client: &String) {
         if let Some(client_socket) = self.sockets.remove(client) {
             if let Err(e) = client_socket.disconnect() {
-                eprintln!("Socket error while disconnecting client socket {}", client);
+                eprintln!("Socket error while disconnecting {}'s socket: {}", client, e);
             };
         }
 
@@ -103,10 +103,17 @@ impl Clients {
         }
     }
 
-    pub fn get_clients_of_signal(&self, signal: &String) -> Vec<&String> {
+    pub fn get_clients_of_signal(&self, signal: &String) -> Vec<String> {
         return self.signal_to_client
             .get(signal)
-            .map(|clients| clients.iter().collect())
+            .map(|clients| clients.iter().cloned().collect())
+            .unwrap_or_default();
+    }
+
+    pub fn get_signals_of_client(&self, client: &String) -> Vec<String> {
+        return self.client_to_signal
+            .get(client)
+            .map(|signals| signals.iter().cloned().collect())
             .unwrap_or_default();
     }
 

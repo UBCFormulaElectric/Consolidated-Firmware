@@ -30,7 +30,7 @@ pub async fn run_live_data_handler(
                 let c = clients.read().await;
                 for client_id in c.get_clients_of_signal(&signal.name) {
                     // todo unwrap or handle none case, which would be really weird
-                    let _ = c.get_client_socket(client_id).clone().unwrap().emit(
+                    let _ = c.get_client_socket(&client_id).clone().unwrap().emit(
                         "data", 
                         &serde_json::json!({
                             "name": signal.name,
