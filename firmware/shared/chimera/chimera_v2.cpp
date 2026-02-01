@@ -18,7 +18,7 @@ static pb_byte_t out_buffer[OUT_BUFFER_SIZE];
 
 constexpr size_t MAX_PAYLOAD_SIZE = 64;
 
-static io::queue<uint8_t, 100> q{ "USBQueue", nullptr, nullptr };
+static io::queue<uint8_t, 100> q{ "USBQueue", [](uint32_t) {}, [] {} };
 
 void hw::usb::receive(const std::span<uint8_t> dest)
 {
@@ -396,7 +396,10 @@ static void tick(const config &config)
     {
         const auto out = q.pop(USB_REQUEST_TIMEOUT_MS);
         if (not out.has_value())
+        {
+            LOG_ERROR("a");
             return;
+        }
         reinterpret_cast<uint8_t *>(&length)[i] = out.value();
     }
     assert(length <= 64);
@@ -407,7 +410,10 @@ static void tick(const config &config)
     {
         const auto out = q.pop(USB_REQUEST_TIMEOUT_MS);
         if (not out.has_value())
+        {
+            LOG_ERROR("b");
             return;
+        }
         content[i] = out.value();
     }
 
@@ -424,6 +430,7 @@ static void tick(const config &config)
 
 _Noreturn void task(const config &c)
 {
+    q.init();
     // Main loop.
     for (;;)
     {
