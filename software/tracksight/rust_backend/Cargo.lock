@@ -214,6 +214,7 @@ dependencies = [
  "dotenv",
  "influxdb2",
  "jsoncan_rust",
+ "regex",
  "serde",
  "serde_json",
  "serialport",

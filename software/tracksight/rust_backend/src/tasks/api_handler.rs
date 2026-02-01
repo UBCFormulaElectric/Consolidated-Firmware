@@ -9,7 +9,7 @@ use jsoncan_rust::can_database::CanDatabase;
 use crate::config::CONFIG;
 use crate::tasks::client_api::AppState;
 use crate::tasks::client_api::clients::Clients;
-use crate::tasks::client_api::subtable::get_subtable_router;
+use crate::tasks::client_api::subtable_api_handler::get_subtable_router;
 
 pub async fn run_api_handler(mut shutdown_rx: broadcast::Receiver<()>, clients: Arc<RwLock<Clients>>, can_db: Arc<CanDatabase>) {
     let addr = format!("0.0.0.0:{}", CONFIG.backend_port);
