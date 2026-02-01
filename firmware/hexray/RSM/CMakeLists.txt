@@ -41,7 +41,10 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_i2c.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmInput.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_spi.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_gpio.cpp"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -82,6 +85,8 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h5xx_hal_gpio.c"
             "stm32h5xx_hal_fdcan.c"
             "stm32h5xx_hal_spi.c"
+            "stm32h5xx_hal_dma_ex.c"
+            "stm32h5xx_hal_dma.c"
             "stm32h5xx_hal_pcd.c"
             "stm32h5xx_hal_pcd_ex.c"
             "stm32h5xx_ll_usb.c"
