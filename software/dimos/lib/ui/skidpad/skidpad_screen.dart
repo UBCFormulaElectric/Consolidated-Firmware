@@ -9,7 +9,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 class SkidpadScreen extends StatelessWidget {
   final String rotatedImage = 'assets/fe_logo.svg';
 
-  SkidpadScreen({super.key});
+  const SkidpadScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,8 +19,8 @@ class SkidpadScreen extends StatelessWidget {
     final int speed = context.watch<SpeedInteger>().speed;
     final double soc = context.watch<StateOfCharge>().soc;
     final double maxSoc = context.watch<StateOfCharge>().maxSoc;
-    final double vec_x = context.watch<SkidVector>().x;
-    final double vec_y = context.watch<SkidVector>().y;
+    final double vecX = context.watch<SkidVector>().x;
+    final double vecY = context.watch<SkidVector>().y;
     final double mag = context.watch<SkidVector>().mag;
 
     return Center(
@@ -31,8 +31,8 @@ class SkidpadScreen extends StatelessWidget {
           Transform(
             alignment: Alignment.center,
             transform: Matrix4(
-              vec_x/mag, -vec_y/mag, 0, 0,
-              vec_y/mag,  vec_x/mag, 0, 0,
+              vecX/mag, -vecY/mag, 0, 0,
+              vecY/mag,  vecX/mag, 0, 0,
               0,  0, 1, 0,
               0,  0, 0, 1,
             ),
