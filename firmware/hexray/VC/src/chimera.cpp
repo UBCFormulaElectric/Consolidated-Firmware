@@ -1,5 +1,12 @@
 #include "chimera_v2.hpp"
-#include "tasks.h"
+#include "shared.pb.h"
+
+#include "hw_gpios.hpp"
+#include "hw_spis.hpp"
+#include <crit.pb.h>
+
+#include <optional>
+#include <functional>
 
 class VCChimeraConfig : public chimera_v2::config
 {
