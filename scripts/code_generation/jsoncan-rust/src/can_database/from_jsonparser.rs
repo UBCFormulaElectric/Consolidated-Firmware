@@ -186,28 +186,27 @@ fn parse_tx_msg_signals(
     let mut next_available_bit: u16 = 0;
     let mut occupied_bits: Vec<Option<String>> = vec![None; MAX_LEN_BITS];
 
-    // bombastic side eye
-    if json_signals.iter().any(|(_, s)| match s {
-        JsonTxSignal::ScaleOffsetBits { start_bit, .. }
-        | JsonTxSignal::BitsMinMax { start_bit, .. }
-        | JsonTxSignal::ResolutionMinMax { start_bit, .. }
-        | JsonTxSignal::Enum { start_bit, .. }
-        | JsonTxSignal::Bits { start_bit, .. } => start_bit.is_some(),
-    }) != json_signals.iter().all(|(_, s)| match s {
-        JsonTxSignal::ScaleOffsetBits { start_bit, .. }
-        | JsonTxSignal::BitsMinMax { start_bit, .. }
-        | JsonTxSignal::ResolutionMinMax { start_bit, .. }
-        | JsonTxSignal::Enum { start_bit, .. }
-        | JsonTxSignal::Bits { start_bit, .. } => start_bit.is_some(),
-    }) {
-        panic!(
-            "In message '{}', either all signals must specify start bits, or none of them should.",
-            msg_name
-        );
-    }
-
     // Parse message signals
     for (signal_name, signal_data) in json_signals {
+        if match signal_data {
+            JsonTxSignal::ScaleOffsetBits { start_bit, .. }
+            | JsonTxSignal::BitsMinMax { start_bit, .. }
+            | JsonTxSignal::ResolutionMinMax { start_bit, .. }
+            | JsonTxSignal::Enum { start_bit, .. }
+            | JsonTxSignal::Bits { start_bit, .. } => start_bit.is_some(),
+        } != match signal_data {
+            JsonTxSignal::ScaleOffsetBits { start_bit, .. }
+            | JsonTxSignal::BitsMinMax { start_bit, .. }
+            | JsonTxSignal::ResolutionMinMax { start_bit, .. }
+            | JsonTxSignal::Enum { start_bit, .. }
+            | JsonTxSignal::Bits { start_bit, .. } => start_bit.is_some(),
+        } {
+            panic!(
+                "In message '{}', either all signals must specify start bits, or none of them should.",
+                msg_name
+            );
+        }
+
         let signal = parse_signal(
             format!("{}_{}", tx_node_name, signal_name),
             signal_data,
