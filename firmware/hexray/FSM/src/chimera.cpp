@@ -127,5 +127,9 @@ char USBD_PRODUCT_STRING_FS[] = "fsm";
 
 [[noreturn]] void tasks_init()
 {
-    chimera_v2::task(fsm_config);
+    assert(hw::usb::init());
+    osKernelInitialize();
+    TaskChimera.start();
+    osKernelStart();
+    forever {}
 }
