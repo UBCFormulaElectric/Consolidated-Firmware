@@ -4,8 +4,12 @@ mod queries;
 mod types;
 
 use error::CanDBError;
-use rusqlite::Connection;
+use r2d2::{Pool, PooledConnection};
+use r2d2_sqlite::SqliteConnectionManager;
 pub use types::*;
+
+
+const IN_MEMORY_PATH: &str = "can_db";
 
 impl CanNode {
     pub fn add_rx_msg(&mut self, rx_msg: &CanMessage) -> Result<(), CanDBError> {
@@ -54,7 +58,7 @@ impl CanNode {
 }
 
 pub struct CanDatabase {
-    conn: rusqlite::Connection,
+    pool: Pool<SqliteConnectionManager>,
     pub nodes: Vec<CanNode>,
     pub buses: Vec<CanBus>,
     pub forwarding: Vec<BusForwarder>,
@@ -68,56 +72,52 @@ impl CanDatabase {
         forwarding: Vec<BusForwarder>,
         shared_enums: Vec<CanEnum>,
     ) -> Result<Self, CanDBError> {
-        let conn = Connection::open_in_memory().unwrap();
-        match conn.execute(
-            "CREATE TABLE messages (
-				name TEXT UNIQUE NOT NULL,
-				id INTEGER PRIMARY KEY NOT NULL,
-				description TEXT,
-				cycle_time INTEGER,
-				log_cycle_time INTEGER,
-				telem_cycle_time INTEGER,
-				tx_node_name TEXT NOT NULL,
-				modes TEXT NOT NULL
-			)",
-            [],
-        ) {
-            Ok(_) => {}
-            Err(e) => {
-                return Err(CanDBError::SqlLiteError(e));
-            }
-        }
+        let manager = SqliteConnectionManager::file(
+            format!("file:{IN_MEMORY_PATH}?mode=memory&cache=shared")
+        )
+            .with_init(|conn| {
+                conn.execute(
+                "CREATE TABLE IF NOT EXISTS messages (
+                    name TEXT UNIQUE NOT NULL,
+                    id INTEGER PRIMARY KEY NOT NULL,
+                    description TEXT,
+                    cycle_time INTEGER,
+                    log_cycle_time INTEGER,
+                    telem_cycle_time INTEGER,
+                    tx_node_name TEXT NOT NULL,
+                    modes TEXT NOT NULL
+			        )", []
+                )?;
 
-        // create table for signals
-        match conn.execute(
-            "CREATE TABLE signals (
-				name TEXT NOT NULL,
-				message_id INTEGER NOT NULL,
-				start_bit INTEGER NOT NULL,
-				bits INTEGER NOT NULL,
-				scale REAL NOT NULL,
-				offset REAL NOT NULL,
-				min REAL NOT NULL,
-				max REAL NOT NULL,
-				start_val REAL NOT NULL,
-				enum_name TEXT,
-				unit TEXT,
-				signed INTEGER NOT NULL,
-				description TEXT,
-				big_endian INTEGER NOT NULL,
-				signal_type INTEGER NOT NULL,
-				FOREIGN KEY(message_id) REFERENCES messages(id)
-			)",
-            [],
-        ) {
-            Ok(_) => {}
-            Err(e) => {
-                return Err(CanDBError::SqlLiteError(e));
-            }
-        }
+                conn.execute(
+                "CREATE TABLE IF NOT EXISTS signals (
+                    name TEXT NOT NULL,
+                    message_id INTEGER NOT NULL,
+                    start_bit INTEGER NOT NULL,
+                    bits INTEGER NOT NULL,
+                    scale REAL NOT NULL,
+                    offset REAL NOT NULL,
+                    min REAL NOT NULL,
+                    max REAL NOT NULL,
+                    start_val REAL NOT NULL,
+                    enum_name TEXT,
+                    unit TEXT,
+                    signed INTEGER NOT NULL,
+                    description TEXT,
+                    big_endian INTEGER NOT NULL,
+                    signal_type INTEGER NOT NULL,
+                    FOREIGN KEY(message_id) REFERENCES messages(id)
+                    )",
+            [])?;
+                return Ok(());
+            });
+
+        let pool = Pool::builder()
+            .max_size(8)
+            .build(manager).map_err(|e| CanDBError::PoolConnectionError(e))?;
 
         Ok(CanDatabase {
-            conn,
+            pool,
             buses,
             nodes,
             forwarding,
@@ -178,7 +178,8 @@ impl CanDatabase {
         // signal_name_to_msgs.insert(signal.name.clone(), msgs.get(&msg.name).unwrap());
         // }
 
-        match self.conn.execute(
+        self.get_connection()?
+            .execute(
             "INSERT INTO messages (name, id, description, cycle_time, log_cycle_time, telem_cycle_time, tx_node_name, modes) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
             [
                 &msg.name,
@@ -190,12 +191,7 @@ impl CanDatabase {
                 &msg.tx_node_name,
                 &serde_json::to_string(&msg.modes).unwrap()
             ],
-        ) {
-            Ok(_) => {}
-            Err(e) => {
-                return Err(CanDBError::SqlLiteError(e));
-            }
-        }
+        ).map_err(|e| CanDBError::SqlLiteError(e))?;
 
         let msg_id = msg.id;
         for signal in msg.signals.iter() {
@@ -206,7 +202,7 @@ impl CanDatabase {
     }
 
     pub fn add_signal(self: &mut Self, msg_id: &u32, signal: &CanSignal) -> Result<(), CanDBError> {
-        match self.conn.execute(
+        self.get_connection()?.execute(
             "INSERT INTO signals (name, message_id, start_bit, bits, scale, offset, min, max, start_val, enum_name, unit, signed, description, big_endian, signal_type) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)",
             [
                 &signal.name,
@@ -225,11 +221,9 @@ impl CanDatabase {
                 &(if signal.big_endian { "1".to_string() } else { "0".to_string() }),
                 &(signal.signal_type.clone() as u32).to_string(),
             ],
-        )
-    {
-            Ok(_) => Ok(()),
-            Err(e) => Err(CanDBError::SqlLiteError(e)),
-        }
+        ).map_err(|e| CanDBError::SqlLiteError(e))?;
+
+        Ok(())
     }
 
     pub fn get_enum(self: &Self, enum_name: &str) -> Option<CanEnum> {
@@ -239,6 +233,14 @@ impl CanDatabase {
             .chain(self.shared_enums.iter())
             .find(|e| e.name == enum_name)
             .cloned()
+    }
+
+    /**
+     * Gets a connection from the connection pool
+     * Wrapper to just convert error into CanDBError
+     */
+    fn get_connection(&self) -> Result<PooledConnection<SqliteConnectionManager>, CanDBError> {
+        self.pool.get().map_err(|e| CanDBError::PoolConnectionError(e))
     }
 }
 
