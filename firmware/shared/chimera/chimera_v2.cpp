@@ -396,10 +396,7 @@ static void tick(const config &config)
     {
         const auto out = q.pop(USB_REQUEST_TIMEOUT_MS);
         if (not out.has_value())
-        {
-            LOG_ERROR("a");
             return;
-        }
         reinterpret_cast<uint8_t *>(&length)[i] = out.value();
     }
     assert(length <= 64);
@@ -410,10 +407,7 @@ static void tick(const config &config)
     {
         const auto out = q.pop(USB_REQUEST_TIMEOUT_MS);
         if (not out.has_value())
-        {
-            LOG_ERROR("b");
             return;
-        }
         content[i] = out.value();
     }
 
