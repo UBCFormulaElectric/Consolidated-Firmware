@@ -1,6 +1,7 @@
 #include "tasks.h"
 #include "chimera_v2.hpp"
 #include "hw_gpios.hpp"
+#include "hw_hardFaultHandler.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "shared.pb.h"
 #include "io_log.hpp"
@@ -70,6 +71,7 @@ char USBD_PRODUCT_STRING_FS[] = "dam";
 
 [[noreturn]] void tasks_init()
 {
+    hw_hardFaultHandler_init();
     assert(hw::usb::init());
     osKernelInitialize();
     TaskChimera.start();
