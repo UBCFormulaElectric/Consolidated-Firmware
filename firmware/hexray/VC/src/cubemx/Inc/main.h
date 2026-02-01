@@ -42,6 +42,17 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
+    extern ADC_HandleTypeDef   hadc1;
+    extern ADC_HandleTypeDef   hadc2;
+    extern FDCAN_HandleTypeDef hfdcan1;
+    extern FDCAN_HandleTypeDef hfdcan3;
+    extern I2C_HandleTypeDef   hi2c4;
+    extern I2C_HandleTypeDef   hi2c5;
+    extern SPI_HandleTypeDef   hspi1;
+    extern SPI_HandleTypeDef   hspi2;
+    extern TIM_HandleTypeDef   htim3;
+    extern UART_HandleTypeDef  huart8;
+    extern PCD_HandleTypeDef   hpcd_USB_OTG_HS;
 
     /* USER CODE END EC */
 
@@ -52,8 +63,8 @@ extern "C"
 
     /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler(void);
-    void tasks_init(void);
-    /* USER CODE BEGIN EFP */
+
+/* USER CODE BEGIN EFP */
 
 /* USER CODE END EFP */
 
@@ -164,6 +175,10 @@ extern "C"
 #define RR_PUMP_EN_GPIO_Port GPIOA
 #define RR_PUMP_PGOOD_Pin GPIO_PIN_9
 #define RR_PUMP_PGOOD_GPIO_Port GPIOA
+#define USB_DM_Pin GPIO_PIN_11
+#define USB_DM_GPIO_Port GPIOA
+#define USB_DP_Pin GPIO_PIN_12
+#define USB_DP_GPIO_Port GPIOA
 #define BAT_MON_SDA_Pin GPIO_PIN_10
 #define BAT_MON_SDA_GPIO_Port GPIOC
 #define BAT_MON_SCL_Pin GPIO_PIN_11
@@ -194,10 +209,10 @@ extern "C"
 #define PWR_PUMP_SCL_GPIO_Port GPIOB
 #define PWR_PUMP_SDA_Pin GPIO_PIN_9
 #define PWR_PUMP_SDA_GPIO_Port GPIOB
-#define TO_GPS_TX_Pin GPIO_PIN_0
-#define TO_GPS_TX_GPIO_Port GPIOE
-#define FROM_GPS_RX_Pin GPIO_PIN_1
-#define FROM_GPS_RX_GPIO_Port GPIOE
+#define FROM_GPS_TX_Pin GPIO_PIN_0
+#define FROM_GPS_TX_GPIO_Port GPIOE
+#define TO_CPU_TX_Pin GPIO_PIN_1
+#define TO_CPU_TX_GPIO_Port GPIOE
 
     /* USER CODE BEGIN Private defines */
 

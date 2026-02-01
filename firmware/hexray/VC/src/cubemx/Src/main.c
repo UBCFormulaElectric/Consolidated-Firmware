@@ -53,11 +53,12 @@ I2C_HandleTypeDef hi2c5;
 SPI_HandleTypeDef hspi1;
 SPI_HandleTypeDef hspi2;
 
+TIM_HandleTypeDef htim3;
+
 UART_HandleTypeDef huart8;
 
 PCD_HandleTypeDef hpcd_USB_OTG_HS;
 
-/* Definitions for defaultTask */
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -76,9 +77,7 @@ static void MX_SPI1_Init(void);
 static void MX_SPI2_Init(void);
 static void MX_I2C5_Init(void);
 static void MX_UART8_Init(void);
-void        StartDefaultTask(void *argument);
-void        SystemClock_Config(void);
-
+static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -129,42 +128,10 @@ int main(void)
     MX_SPI2_Init();
     MX_I2C5_Init();
     MX_UART8_Init();
+    MX_TIM3_Init();
     /* USER CODE BEGIN 2 */
 
     /* USER CODE END 2 */
-
-    /* Init scheduler */
-
-    /* USER CODE BEGIN RTOS_MUTEX */
-    /* add mutexes, ... */
-    /* USER CODE END RTOS_MUTEX */
-
-    /* USER CODE BEGIN RTOS_SEMAPHORES */
-    /* add semaphores, ... */
-    /* USER CODE END RTOS_SEMAPHORES */
-
-    /* USER CODE BEGIN RTOS_TIMERS */
-    /* start timers, add new ones, ... */
-    tasks_init();
-    /* USER CODE END RTOS_TIMERS */
-
-    /* USER CODE BEGIN RTOS_QUEUES */
-    /* add queues, ... */
-    /* USER CODE END RTOS_QUEUES */
-
-    /* Create the thread(s) */
-    /* creation of defaultTask */
-    /* USER CODE BEGIN RTOS_THREADS */
-    /* add threads, ... */
-    /* USER CODE END RTOS_THREADS */
-
-    /* USER CODE BEGIN RTOS_EVENTS */
-    /* add events, ... */
-    /* USER CODE END RTOS_EVENTS */
-
-    /* Start scheduler */
-
-    /* We should never get here as control is now taken by the scheduler */
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
@@ -248,15 +215,15 @@ void PeriphCommonClock_Config(void)
     /** Initializes the peripherals clock
      */
     PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_ADC;
-    PeriphClkInitStruct.PLL2.PLL2M           = 32;
-    PeriphClkInitStruct.PLL2.PLL2N           = 129;
-    PeriphClkInitStruct.PLL2.PLL2P           = 2;
-    PeriphClkInitStruct.PLL2.PLL2Q           = 2;
-    PeriphClkInitStruct.PLL2.PLL2R           = 2;
-    PeriphClkInitStruct.PLL2.PLL2RGE         = RCC_PLL2VCIRANGE_1;
-    PeriphClkInitStruct.PLL2.PLL2VCOSEL      = RCC_PLL2VCOWIDE;
-    PeriphClkInitStruct.PLL2.PLL2FRACN       = 0;
-    PeriphClkInitStruct.AdcClockSelection    = RCC_ADCCLKSOURCE_PLL2;
+    PeriphClkInitStruct.PLL3.PLL3M           = 32;
+    PeriphClkInitStruct.PLL3.PLL3N           = 129;
+    PeriphClkInitStruct.PLL3.PLL3P           = 2;
+    PeriphClkInitStruct.PLL3.PLL3Q           = 2;
+    PeriphClkInitStruct.PLL3.PLL3R           = 2;
+    PeriphClkInitStruct.PLL3.PLL3RGE         = RCC_PLL3VCIRANGE_1;
+    PeriphClkInitStruct.PLL3.PLL3VCOSEL      = RCC_PLL3VCOWIDE;
+    PeriphClkInitStruct.PLL3.PLL3FRACN       = 0;
+    PeriphClkInitStruct.AdcClockSelection    = RCC_ADCCLKSOURCE_PLL3;
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
     {
         Error_Handler();
@@ -286,14 +253,14 @@ static void MX_ADC1_Init(void)
     hadc1.Instance                      = ADC1;
     hadc1.Init.ClockPrescaler           = ADC_CLOCK_ASYNC_DIV4;
     hadc1.Init.Resolution               = ADC_RESOLUTION_16B;
-    hadc1.Init.ScanConvMode             = ADC_SCAN_DISABLE;
-    hadc1.Init.EOCSelection             = ADC_EOC_SINGLE_CONV;
+    hadc1.Init.ScanConvMode             = ADC_SCAN_ENABLE;
+    hadc1.Init.EOCSelection             = ADC_EOC_SEQ_CONV;
     hadc1.Init.LowPowerAutoWait         = DISABLE;
     hadc1.Init.ContinuousConvMode       = DISABLE;
-    hadc1.Init.NbrOfConversion          = 1;
+    hadc1.Init.NbrOfConversion          = 6;
     hadc1.Init.DiscontinuousConvMode    = DISABLE;
-    hadc1.Init.ExternalTrigConv         = ADC_SOFTWARE_START;
-    hadc1.Init.ExternalTrigConvEdge     = ADC_EXTERNALTRIGCONVEDGE_NONE;
+    hadc1.Init.ExternalTrigConv         = ADC_EXTERNALTRIG_T3_TRGO;
+    hadc1.Init.ExternalTrigConvEdge     = ADC_EXTERNALTRIGCONVEDGE_RISING;
     hadc1.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DR;
     hadc1.Init.Overrun                  = ADC_OVR_DATA_PRESERVED;
     hadc1.Init.LeftBitShift             = ADC_LEFTBITSHIFT_NONE;
@@ -314,13 +281,58 @@ static void MX_ADC1_Init(void)
 
     /** Configure Regular Channel
      */
-    sConfig.Channel                = ADC_CHANNEL_17;
+    sConfig.Channel                = ADC_CHANNEL_8;
     sConfig.Rank                   = ADC_REGULAR_RANK_1;
     sConfig.SamplingTime           = ADC_SAMPLETIME_1CYCLE_5;
     sConfig.SingleDiff             = ADC_SINGLE_ENDED;
     sConfig.OffsetNumber           = ADC_OFFSET_NONE;
     sConfig.Offset                 = 0;
     sConfig.OffsetSignedSaturation = DISABLE;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure Regular Channel
+     */
+    sConfig.Channel = ADC_CHANNEL_9;
+    sConfig.Rank    = ADC_REGULAR_RANK_2;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure Regular Channel
+     */
+    sConfig.Channel = ADC_CHANNEL_10;
+    sConfig.Rank    = ADC_REGULAR_RANK_3;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure Regular Channel
+     */
+    sConfig.Channel = ADC_CHANNEL_15;
+    sConfig.Rank    = ADC_REGULAR_RANK_4;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure Regular Channel
+     */
+    sConfig.Channel = ADC_CHANNEL_16;
+    sConfig.Rank    = ADC_REGULAR_RANK_5;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure Regular Channel
+     */
+    sConfig.Channel = ADC_CHANNEL_17;
+    sConfig.Rank    = ADC_REGULAR_RANK_6;
     if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
     {
         Error_Handler();
@@ -352,14 +364,14 @@ static void MX_ADC2_Init(void)
     hadc2.Instance                      = ADC2;
     hadc2.Init.ClockPrescaler           = ADC_CLOCK_ASYNC_DIV4;
     hadc2.Init.Resolution               = ADC_RESOLUTION_16B;
-    hadc2.Init.ScanConvMode             = ADC_SCAN_DISABLE;
-    hadc2.Init.EOCSelection             = ADC_EOC_SINGLE_CONV;
+    hadc2.Init.ScanConvMode             = ADC_SCAN_ENABLE;
+    hadc2.Init.EOCSelection             = ADC_EOC_SEQ_CONV;
     hadc2.Init.LowPowerAutoWait         = DISABLE;
     hadc2.Init.ContinuousConvMode       = DISABLE;
-    hadc2.Init.NbrOfConversion          = 1;
+    hadc2.Init.NbrOfConversion          = 5;
     hadc2.Init.DiscontinuousConvMode    = DISABLE;
-    hadc2.Init.ExternalTrigConv         = ADC_SOFTWARE_START;
-    hadc2.Init.ExternalTrigConvEdge     = ADC_EXTERNALTRIGCONVEDGE_NONE;
+    hadc2.Init.ExternalTrigConv         = ADC_EXTERNALTRIG_T3_TRGO;
+    hadc2.Init.ExternalTrigConvEdge     = ADC_EXTERNALTRIGCONVEDGE_RISING;
     hadc2.Init.ConversionDataManagement = ADC_CONVERSIONDATA_DR;
     hadc2.Init.Overrun                  = ADC_OVR_DATA_PRESERVED;
     hadc2.Init.LeftBitShift             = ADC_LEFTBITSHIFT_NONE;
@@ -379,6 +391,42 @@ static void MX_ADC2_Init(void)
     sConfig.OffsetNumber           = ADC_OFFSET_NONE;
     sConfig.Offset                 = 0;
     sConfig.OffsetSignedSaturation = DISABLE;
+    if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure Regular Channel
+     */
+    sConfig.Channel = ADC_CHANNEL_5;
+    sConfig.Rank    = ADC_REGULAR_RANK_2;
+    if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure Regular Channel
+     */
+    sConfig.Channel = ADC_CHANNEL_11;
+    sConfig.Rank    = ADC_REGULAR_RANK_3;
+    if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure Regular Channel
+     */
+    sConfig.Channel = ADC_CHANNEL_14;
+    sConfig.Rank    = ADC_REGULAR_RANK_4;
+    if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    /** Configure Regular Channel
+     */
+    sConfig.Channel = ADC_CHANNEL_18;
+    sConfig.Rank    = ADC_REGULAR_RANK_5;
     if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
     {
         Error_Handler();
@@ -674,6 +722,52 @@ static void MX_SPI2_Init(void)
 }
 
 /**
+ * @brief TIM3 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_TIM3_Init(void)
+{
+    /* USER CODE BEGIN TIM3_Init 0 */
+
+    /* USER CODE END TIM3_Init 0 */
+
+    TIM_MasterConfigTypeDef sMasterConfig = { 0 };
+    TIM_OC_InitTypeDef      sConfigOC     = { 0 };
+
+    /* USER CODE BEGIN TIM3_Init 1 */
+
+    /* USER CODE END TIM3_Init 1 */
+    htim3.Instance               = TIM3;
+    htim3.Init.Prescaler         = 0;
+    htim3.Init.CounterMode       = TIM_COUNTERMODE_UP;
+    htim3.Init.Period            = 65535;
+    htim3.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+    htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    if (HAL_TIM_OC_Init(&htim3) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+    sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sConfigOC.OCMode     = TIM_OCMODE_TIMING;
+    sConfigOC.Pulse      = 0;
+    sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+    sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+    if (HAL_TIM_OC_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN TIM3_Init 2 */
+
+    /* USER CODE END TIM3_Init 2 */
+}
+
+/**
  * @brief UART8 Initialization Function
  * @param None
  * @retval None
@@ -775,9 +869,7 @@ static void MX_GPIO_Init(void)
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
-        GPIOE,
-        IMU_CS1_Pin | IMU_CS2_Pin | IMU_CS3_Pin | RR_ILCK_3V3_OUT_Pin | LED_Pin | BOOT_Pin | INERTIA_3V3_OUT_Pin |
-            BAT_CHRG_MODE_Pin,
+        GPIOE, IMU_CS1_Pin | IMU_CS2_Pin | IMU_CS3_Pin | LED_Pin | BOOT_Pin | INERTIA_3V3_OUT_Pin | IMU_FSYNC_Pin,
         GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
@@ -795,10 +887,10 @@ static void MX_GPIO_Init(void)
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(RR_PUMP_EN_GPIO_Port, RR_PUMP_EN_Pin, GPIO_PIN_RESET);
 
-    /*Configure GPIO pins : IMU_CS1_Pin IMU_CS2_Pin IMU_CS3_Pin RR_ILCK_3V3_OUT_Pin
-                             LED_Pin BOOT_Pin INERTIA_3V3_OUT_Pin BAT_CHRG_MODE_Pin */
-    GPIO_InitStruct.Pin = IMU_CS1_Pin | IMU_CS2_Pin | IMU_CS3_Pin | RR_ILCK_3V3_OUT_Pin | LED_Pin | BOOT_Pin |
-                          INERTIA_3V3_OUT_Pin | BAT_CHRG_MODE_Pin;
+    /*Configure GPIO pins : IMU_CS1_Pin IMU_CS2_Pin IMU_CS3_Pin LED_Pin
+                             BOOT_Pin INERTIA_3V3_OUT_Pin IMU_FSYNC_Pin */
+    GPIO_InitStruct.Pin =
+        IMU_CS1_Pin | IMU_CS2_Pin | IMU_CS3_Pin | LED_Pin | BOOT_Pin | INERTIA_3V3_OUT_Pin | IMU_FSYNC_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -824,8 +916,9 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : BMS_PG_Pin PWR_MTR_nALERT_Pin BOOST_PG_Pin IMU_FSYNC_Pin */
-    GPIO_InitStruct.Pin  = BMS_PG_Pin | PWR_MTR_nALERT_Pin | BOOST_PG_Pin | IMU_FSYNC_Pin;
+    /*Configure GPIO pins : RR_ILCK_3V3_OUT_Pin BMS_PG_Pin PWR_MTR_nALERT_Pin BOOST_PG_Pin
+                             BAT_CHRG_MODE_Pin */
+    GPIO_InitStruct.Pin  = RR_ILCK_3V3_OUT_Pin | BMS_PG_Pin | PWR_MTR_nALERT_Pin | BOOST_PG_Pin | BAT_CHRG_MODE_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
@@ -885,14 +978,6 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
-
-/* USER CODE BEGIN Header_StartDefaultTask */
-/**
- * @brief  Function implementing the defaultTask thread.
- * @param  argument: Not used
- * @retval None
- */
-/* USER CODE END Header_StartDefaultTask */
 
 /**
  * @brief  This function is executed in case of error occurrence.

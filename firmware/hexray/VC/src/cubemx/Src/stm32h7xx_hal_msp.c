@@ -69,8 +69,6 @@ void HAL_MspInit(void)
     __HAL_RCC_SYSCFG_CLK_ENABLE();
 
     /* System interrupt init*/
-    /* PendSV_IRQn interrupt configuration */
-    HAL_NVIC_SetPriority(PendSV_IRQn, 15, 0);
 
     /* USER CODE BEGIN MspInit 1 */
 
@@ -108,17 +106,15 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         PA0     ------> ADC1_INP16
         PA1     ------> ADC1_INP17
         PA3     ------> ADC1_INP15
-        PA4     ------> ADC1_INP18
-        PC4     ------> ADC1_INP4
         PC5     ------> ADC1_INP8
         PB0     ------> ADC1_INP9
         */
-        GPIO_InitStruct.Pin  = L_RAD_FAN_I_SNS_Pin | DAM_SNS_Pin | RR_PUMP_I_SNS_Pin;
+        GPIO_InitStruct.Pin  = L_RAD_FAN_I_SNS_Pin | RR_PUMP_I_SNS_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-        GPIO_InitStruct.Pin  = FRONT_SNS_Pin | R_INV_SNS_Pin | BMS_SNS_Pin | RSM_SNS_Pin;
+        GPIO_InitStruct.Pin  = FRONT_SNS_Pin | R_INV_SNS_Pin | BMS_SNS_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -128,6 +124,9 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(RL_PUMP_I_SNS_GPIO_Port, &GPIO_InitStruct);
 
+        /* ADC1 interrupt Init */
+        HAL_NVIC_SetPriority(ADC_IRQn, 0, 0);
+        HAL_NVIC_EnableIRQ(ADC_IRQn);
         /* USER CODE BEGIN ADC1_MspInit 1 */
 
         /* USER CODE END ADC1_MspInit 1 */
@@ -169,6 +168,9 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(R_RAD_FAN_I_SNS_GPIO_Port, &GPIO_InitStruct);
 
+        /* ADC2 interrupt Init */
+        HAL_NVIC_SetPriority(ADC_IRQn, 0, 0);
+        HAL_NVIC_EnableIRQ(ADC_IRQn);
         /* USER CODE BEGIN ADC2_MspInit 1 */
 
         /* USER CODE END ADC2_MspInit 1 */
@@ -200,16 +202,23 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
         PA0     ------> ADC1_INP16
         PA1     ------> ADC1_INP17
         PA3     ------> ADC1_INP15
-        PA4     ------> ADC1_INP18
-        PC4     ------> ADC1_INP4
         PC5     ------> ADC1_INP8
         PB0     ------> ADC1_INP9
         */
-        HAL_GPIO_DeInit(GPIOC, L_RAD_FAN_I_SNS_Pin | DAM_SNS_Pin | RR_PUMP_I_SNS_Pin);
+        HAL_GPIO_DeInit(GPIOC, L_RAD_FAN_I_SNS_Pin | RR_PUMP_I_SNS_Pin);
 
-        HAL_GPIO_DeInit(GPIOA, FRONT_SNS_Pin | R_INV_SNS_Pin | BMS_SNS_Pin | RSM_SNS_Pin);
+        HAL_GPIO_DeInit(GPIOA, FRONT_SNS_Pin | R_INV_SNS_Pin | BMS_SNS_Pin);
 
         HAL_GPIO_DeInit(RL_PUMP_I_SNS_GPIO_Port, RL_PUMP_I_SNS_Pin);
+
+        /* ADC1 interrupt DeInit */
+        /* USER CODE BEGIN ADC1:ADC_IRQn disable */
+        /**
+         * Uncomment the line below to disable the "ADC_IRQn" interrupt
+         * Be aware, disabling shared interrupt may affect other IPs
+         */
+        /* HAL_NVIC_DisableIRQ(ADC_IRQn); */
+        /* USER CODE END ADC1:ADC_IRQn disable */
 
         /* USER CODE BEGIN ADC1_MspDeInit 1 */
 
@@ -239,6 +248,15 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
         HAL_GPIO_DeInit(GPIOA, F_INV_SNS_Pin | RSM_SNS_Pin);
 
         HAL_GPIO_DeInit(R_RAD_FAN_I_SNS_GPIO_Port, R_RAD_FAN_I_SNS_Pin);
+
+        /* ADC2 interrupt DeInit */
+        /* USER CODE BEGIN ADC2:ADC_IRQn disable */
+        /**
+         * Uncomment the line below to disable the "ADC_IRQn" interrupt
+         * Be aware, disabling shared interrupt may affect other IPs
+         */
+        /* HAL_NVIC_DisableIRQ(ADC_IRQn); */
+        /* USER CODE END ADC2:ADC_IRQn disable */
 
         /* USER CODE BEGIN ADC2_MspDeInit 1 */
 
@@ -649,6 +667,48 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
 }
 
 /**
+ * @brief TIM_OC MSP Initialization
+ * This function configures the hardware resources used in this example
+ * @param htim_oc: TIM_OC handle pointer
+ * @retval None
+ */
+void HAL_TIM_OC_MspInit(TIM_HandleTypeDef *htim_oc)
+{
+    if (htim_oc->Instance == TIM3)
+    {
+        /* USER CODE BEGIN TIM3_MspInit 0 */
+
+        /* USER CODE END TIM3_MspInit 0 */
+        /* Peripheral clock enable */
+        __HAL_RCC_TIM3_CLK_ENABLE();
+        /* USER CODE BEGIN TIM3_MspInit 1 */
+
+        /* USER CODE END TIM3_MspInit 1 */
+    }
+}
+
+/**
+ * @brief TIM_OC MSP De-Initialization
+ * This function freeze the hardware resources used in this example
+ * @param htim_oc: TIM_OC handle pointer
+ * @retval None
+ */
+void HAL_TIM_OC_MspDeInit(TIM_HandleTypeDef *htim_oc)
+{
+    if (htim_oc->Instance == TIM3)
+    {
+        /* USER CODE BEGIN TIM3_MspDeInit 0 */
+
+        /* USER CODE END TIM3_MspDeInit 0 */
+        /* Peripheral clock disable */
+        __HAL_RCC_TIM3_CLK_DISABLE();
+        /* USER CODE BEGIN TIM3_MspDeInit 1 */
+
+        /* USER CODE END TIM3_MspDeInit 1 */
+    }
+}
+
+/**
  * @brief UART MSP Initialization
  * This function configures the hardware resources used in this example
  * @param huart: UART handle pointer
@@ -681,7 +741,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
         PE0     ------> UART8_RX
         PE1     ------> UART8_TX
         */
-        GPIO_InitStruct.Pin       = TO_GPS_TX_Pin | FROM_GPS_RX_Pin;
+        GPIO_InitStruct.Pin       = FROM_GPS_TX_Pin | TO_CPU_TX_Pin;
         GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
         GPIO_InitStruct.Pull      = GPIO_NOPULL;
         GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
@@ -714,7 +774,7 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
         PE0     ------> UART8_RX
         PE1     ------> UART8_TX
         */
-        HAL_GPIO_DeInit(GPIOE, TO_GPS_TX_Pin | FROM_GPS_RX_Pin);
+        HAL_GPIO_DeInit(GPIOE, FROM_GPS_TX_Pin | TO_CPU_TX_Pin);
 
         /* USER CODE BEGIN UART8_MspDeInit 1 */
 
