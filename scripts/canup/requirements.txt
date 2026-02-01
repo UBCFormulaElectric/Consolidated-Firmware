@@ -1,3 +1,0 @@
-intelhex
-python-can
-rich
