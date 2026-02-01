@@ -1,5 +1,20 @@
 #pragma once
 
+typedef enum TaskIndex_e
+{
+    TASK_RUN1HZ            = 0,
+    TASK_RUNCHIMERA        = 1,
+    TASK_RUN100HZ          = 2,
+    TASK_RUN1KHZ           = 3,
+    TASK_RUNCAN1TX         = 4,
+    TASK_RUNCAN2TX         = 5,
+    TASK_RUNCAN3TX         = 6,
+    TASK_RUNCANRX          = 7,
+    TASK_BATTERYMONITORING = 8,
+    TASK_POWERMONITORING   = 9,
+    NUM_OF_TASKS           = 10,
+} TaskIndex_e;
+
 void           tasks_preInitWatchdog(void);
 void           tasks_preInit(void);
 void           tasks_init(void);
