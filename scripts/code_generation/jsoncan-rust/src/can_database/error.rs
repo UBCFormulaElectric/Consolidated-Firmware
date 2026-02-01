@@ -29,6 +29,7 @@ pub enum CanDBError {
         rx_msg_name: String,
     },
     SqlLiteError(rusqlite::Error),
+    PoolConnectionError(r2d2::Error),
 }
 
 impl Debug for CanDBError {
@@ -86,6 +87,7 @@ impl Debug for CanDBError {
                 rx_msg_name, rx_node_name
             ),
             CanDBError::SqlLiteError(error) => write!(f, "SQLite error: {}", error),
+            CanDBError::PoolConnectionError(error) => write!(f, "Pool connection error: {}", error),
         }
     }
 }

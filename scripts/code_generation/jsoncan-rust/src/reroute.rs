@@ -260,7 +260,7 @@ pub fn resolve_tx_rx_reroute(
     for rx_node in &can_db.nodes {
         match &rx_node.rx_msgs_names {
             RxMsgNames::All => {
-                for msg_name in can_db.get_all_rx_msgs_for(&rx_node.name) {
+                for msg_name in can_db.get_all_rx_msgs_for(&rx_node.name).unwrap() {
                     register_rx_msg(
                         can_db,
                         rx_node,
