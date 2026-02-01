@@ -18,15 +18,20 @@ use crate::tasks::client_api::subtable::get_subtable_router;
 
 #[derive(Clone)]
 struct AppState {
-    candb: Arc<Mutex<CanDatabase>>,
+    candb: Arc<CanDatabase>,
     clients: Arc<RwLock<Clients>>,
 }
 
-pub async fn run_api_handler(mut shutdown_rx: broadcast::Receiver<()>, clients: Arc<RwLock<Clients>>) {
+pub async fn run_api_handler(mut shutdown_rx: broadcast::Receiver<()>, clients: Arc<RwLock<Clients>>, can_db: Arc<CanDatabase>) {
     let addr = format!("0.0.0.0:{}", CONFIG.backend_port);
     let listener = TcpListener::bind(addr).await.unwrap();
 
     let (socket_layer, io) = SocketIo::new_layer();
+
+    let app_state = AppState {
+        candb: can_db,
+        clients: clients.clone(),
+    };
 
     // default socketio endpoint
     io.ns("/", |socket: SocketRef| async move {
@@ -40,13 +45,6 @@ pub async fn run_api_handler(mut shutdown_rx: broadcast::Receiver<()>, clients: 
             println!("{} disconnected", client_id);
         });
     });
-    
-    let can_db = load_can_database().expect("Could not init Can db");
-
-    let app_state = AppState {
-        candb: Arc::new(Mutex::new(can_db)),
-        clients: clients,
-    };
 
     let app = Router::new()
         .with_state(app_state)

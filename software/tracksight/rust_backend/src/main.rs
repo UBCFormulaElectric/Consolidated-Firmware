@@ -5,19 +5,16 @@ use tokio::sync::RwLock;
 use tokio::sync::broadcast;
 use tokio::task::{JoinSet};
 
-use crate::config::CONFIG;
-use jsoncan_rust::parsing::JsonCanParser;
-use jsoncan_rust::can_database::CanDatabase;
+use crate::tasks::can_data::load_can_database;
 
 mod config;
 mod tasks;
+
 use tasks::telem_message::CanPayload;
 use tasks::client_api::clients::Clients;
-
 use tasks::serial_handler::run_serial_task;
 use tasks::can_data::can_data_handler::run_can_data_handler;
-
-use crate::tasks::api_handler::run_api_handler;
+use tasks::api_handler::run_api_handler;
 
 #[tokio::main]
 async fn main() {
@@ -48,10 +45,12 @@ async fn main() {
     // maps signal name to client ids
     let clients = Arc::new(RwLock::new(Clients::new()));
 
+    // load CAN database
+    let can_db = Arc::new(load_can_database().expect("Could not init Can db"));
 
     // start tasks
-    tasks.spawn(run_api_handler(shutdown_rx.resubscribe(), clients.clone()));
-    tasks.spawn(run_can_data_handler(shutdown_rx.resubscribe(), can_queue_rx, clients.clone()));
+    tasks.spawn(run_api_handler(shutdown_rx.resubscribe(), clients.clone(), can_db.clone()));
+    tasks.spawn(run_can_data_handler(shutdown_rx.resubscribe(), can_queue_rx, clients.clone(), can_db.clone()));
     // tasks.spawn(run_serial_task(shutdown_rx.resubscribe(), can_queue_tx));
 
     // wait for tasks to clean up
