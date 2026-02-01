@@ -113,7 +113,8 @@ int main(void)
     MX_TIM3_Init();
     MX_TIM1_Init();
     /* USER CODE BEGIN 2 */
-    HAL_GPIO_WritePin(BRAKE_LIGHT_EN_3V3_GPIO_Port, BRAKE_LIGHT_EN_3V3_Pin, GPIO_PIN_RESET);;
+    HAL_GPIO_WritePin(BRAKE_LIGHT_EN_3V3_GPIO_Port, BRAKE_LIGHT_EN_3V3_Pin, GPIO_PIN_RESET);
+    ;
     tasks_init();
     /* USER CODE END 2 */
 
