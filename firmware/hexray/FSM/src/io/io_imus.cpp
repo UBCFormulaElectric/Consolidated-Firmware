@@ -3,5 +3,5 @@
 
 namespace io::imus
 {
-const io::imu::Imu imu_config(spi_device_master);
+const io::imu::Imu imu_config(imu_spi);
 }

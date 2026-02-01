@@ -42,7 +42,14 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
-
+    extern ADC_HandleTypeDef   hadc1;
+    extern DMA_NodeTypeDef     Node_GPDMA1_Channel0;
+    extern DMA_QListTypeDef    List_GPDMA1_Channel0;
+    extern DMA_HandleTypeDef   handle_GPDMA1_Channel0;
+    extern FDCAN_HandleTypeDef hfdcan1;
+    extern SPI_HandleTypeDef   hspi1;
+    extern TIM_HandleTypeDef   htim2;
+    extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/

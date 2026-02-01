@@ -31,6 +31,7 @@ file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/
 list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_imu.cpp"
 )
 set(IO_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
@@ -38,13 +39,13 @@ set(IO_INCLUDE_DIRS
         "${SHARED_IO_INCLUDE_DIR_CPP}"
 )
 
-file(GLOB_RECURSE HW_SRCS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp"
-)
+file(GLOB_RECURSE HW_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp")
 list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_spi.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_gpio.cpp"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -71,21 +72,31 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     set(STM32_HAL_SRCS
-            "stm32h5xx_hal.c"
-            "stm32h5xx_hal_rcc.c"
-            "stm32h5xx_hal_rcc_ex.c"
-            "stm32h5xx_hal_pwr_ex.c"
-            "stm32h5xx_hal_cortex.c"
-            "stm32h5xx_hal_exti.c"
-            "stm32h5xx_hal_adc.c"
-            "stm32h5xx_hal_adc_ex.c"
-            "stm32h5xx_hal_gpio.c"
-            "stm32h5xx_hal_tim.c"
-            "stm32h5xx_hal_tim_ex.c"
-            "stm32h5xx_hal_spi.c"
-            "stm32h5xx_hal_spi_ex.c"
-            "stm32h5xx_hal_fdcan.c"
-            "stm32h5xx_ll_usb.c"
+        "stm32h5xx_hal_adc.c"
+        "stm32h5xx_hal_adc_ex.c"
+        "stm32h5xx_hal.c"
+        "stm32h5xx_hal_rcc.c"
+        "stm32h5xx_hal_rcc_ex.c"
+        "stm32h5xx_hal_pwr_ex.c"
+        "stm32h5xx_hal_cortex.c"
+        "stm32h5xx_hal_dma_ex.c"
+        "stm32h5xx_hal_dma.c"
+        "stm32h5xx_hal_exti.c"
+        "stm32h5xx_hal_fdcan.c"
+        "stm32h5xx_hal_gpio.c"
+        "stm32h5xx_hal_i2c.c"
+        "stm32h5xx_hal_i2c_ex.c"
+        "stm32h5xx_hal_pcd.c"
+        "stm32h5xx_hal_pcd_ex.c"
+        "stm32h5xx_hal_spi.c"
+        "stm32h5xx_hal_tim.c"
+        "stm32h5xx_hal_tim_ex.c"
+        "stm32h5xx_hal_uart.c"
+        "stm32h5xx_hal_uart_ex.c"
+        "stm32h5xx_ll_usb.c"
+        "stm32h5xx_hal_spi.c"
+        "stm32h5xx_hal_tim_ex.c"
+        "stm32h5xx_hal_gpio.c"
     )
     stm32h562xx_cube_library(
             "hexray_FSM_stm32"
