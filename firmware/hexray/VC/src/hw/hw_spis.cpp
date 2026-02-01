@@ -15,7 +15,7 @@ SpiDevice imu2(spi1, imu_cs2, 10);
 SpiDevice imu3(spi1, imu_cs3, 10);
 // constexpr SpiDevice rpi(spi2, gpio::rpi_cs, 10); fix this after spi driver is changed
 
-SpiBus &getBusFromHandle(const SPI_HandleTypeDef *handle)
+const SpiBus &getBusFromHandle(const SPI_HandleTypeDef *handle)
 {
     if (handle == &hspi1)
     {
