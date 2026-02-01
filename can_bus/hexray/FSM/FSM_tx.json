@@ -90,44 +90,44 @@
   },
   "IMU": {
     "msg_id": 614,
-    "cycle_time": 10,
+    "cycle_time": 1000,
     "description": "IMU sensor data",
     "signals": {
-      "LinearAccelerationX": {
+      "LinearAccelerationInX": {
         "resolution": 0.1,
         "min": -20,
         "max": 20,
         "unit": "m/s^2"
       },
-      "LinearAccelerationY": {
+      "LinearAccelerationInY": {
         "resolution": 0.1,
         "min": -20,
         "max": 20,
         "unit": "m/s^2"
       },
-      "LinearAccelerationZ": {
+      "LinearAccelerationInZ": {
         "resolution": 0.1,
         "min": -20,
         "max": 20,
         "unit": "m/s^2"
       },
-      "RollRate": {
+      "RollAngularAcceleration": {
         "resolution": 0.1,
         "min": -20,
         "max": 20,
-        "unit": "deg/s"
+        "unit": "deg/s^2"
       },
-      "PitchRate": {
+      "PitchAngularAcceleration": {
         "resolution": 0.1,
         "min": -20,
         "max": 20,
-        "unit": "deg/s"
+        "unit": "deg/s^2"
       },
-      "YawRate": {
+      "YawAngularAcceleration": {
         "resolution": 0.1,
         "min": -20,
         "max": 20,
-        "unit": "deg/s"
+        "unit": "deg/s^2"
       }
     }
   },

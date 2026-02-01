@@ -9,6 +9,8 @@ class FSMBaseTest : public EcuTestBase
     {
         // Setup code for FSM tests can be added here
         register_task(jobs_run1Hz_tick, 10);
+        register_task(jobs_run100Hz_tick, 10);
+        register_task(jobs_run1kHz_tick, 10);
     }
     void board_teardown()
     {

@@ -47,7 +47,15 @@ extern "C"
     /* USER CODE END EM */
 
     /* Exported functions prototypes ---------------------------------------------*/
-
+    void NMI_Handler(void);
+    void HardFault_Handler(void);
+    void MemManage_Handler(void);
+    void BusFault_Handler(void);
+    void UsageFault_Handler(void);
+    void DebugMon_Handler(void);
+    void GPDMA1_Channel0_IRQHandler(void);
+    void ADC1_IRQHandler(void);
+    void TIM6_IRQHandler(void);
     /* USER CODE BEGIN EFP */
 
     /* USER CODE END EFP */

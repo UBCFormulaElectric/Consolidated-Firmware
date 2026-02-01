@@ -1,26 +1,25 @@
 #include "io_fsmShdn.hpp"
-// #include "hw_gpios.hpp"
+#include "hw_gpios.hpp"
 
-// Just some dummy functions to pass the Github build checks, NEEDED TO IMPLEMENT THESE FUNCTIONS LATER
 namespace io::fsmShdn
 {
 bool COCKPIT_SHDN_OK_get(void)
 {
-    return false;
+    return hw::gpios::cockpit_shdn_3v3.readPin();
 }
 
 bool BOTS_SHDN_OK_get(void)
 {
-    return false;
+    return hw::gpios::bots_3v3.readPin();
 }
 
 bool FL_SHDN_OK_get(void)
 {
-    return false;
+    return hw::gpios::fl_int_3v3.readPin();
 }
 
 bool FR_SHDN_OK_get(void)
 {
-    return false;
+    return hw::gpios::fr_int_3v3.readPin();
 }
 } // namespace io::fsmShdn

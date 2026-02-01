@@ -1,29 +1,28 @@
 #include "io_suspension.hpp"
-// #include "hw_adcs.hpp"
-// #include "hw_gpios.hpp"
+#include "hw_adcs.hpp"
+#include "hw_gpios.hpp"
 
-// Just some dummy functions to pass the Github build checks, NEEDED TO IMPLEMENT THESE FUNCTIONS LATER
 namespace io::suspension
 {
 float getLeftTravel(void)
 {
     // Return left suspension travel based on the ADC voltage.
-    return 0;
+    return hw::adcs::susp_fl.getVoltage();
 }
 
 float getRightTravel(void)
 {
     // Return right suspension travel based on the ADC voltage.
-    return 0;
+    return hw::adcs::susp_fr.getVoltage();
 }
 
 bool leftSensorOCSC(void)
 {
-    return false;
+    return !hw::gpios::nsusp_fl_ocsc.readPin();
 }
 
 bool rightSensorOCSC(void)
 {
-    return false;
+    return !hw::gpios::nsusp_fr_ocsc.readPin();
 }
 } // namespace io::suspension
