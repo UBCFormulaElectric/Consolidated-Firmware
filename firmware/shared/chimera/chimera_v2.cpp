@@ -424,8 +424,6 @@ static void tick(const config &config)
 
 _Noreturn void task(const config &c)
 {
-    osDelay(0xFFFFFFFF);
-
     // Main loop.
     for (;;)
     {
