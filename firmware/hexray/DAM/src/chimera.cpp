@@ -65,7 +65,7 @@ class DAMChimeraConfig : public chimera_v2::config
 static hw::rtos::StaticTask<8096>
     TaskChimera(osPriorityRealtime, "TaskChimera", [](void *) { chimera_v2::task(dam_config); });
 
-void tasks_preInit(){}
+void tasks_preInit() {}
 char USBD_PRODUCT_STRING_FS[] = "dam";
 
 [[noreturn]] void tasks_init()
