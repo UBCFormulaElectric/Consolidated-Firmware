@@ -1,0 +1,45 @@
+/**
+ * @note This file is auto-generated. Do not modify!
+ */
+// clang-format off
+
+#pragma once
+
+/* ------------------------------- Includes ------------------------------- */
+
+#include "app_canUtils.hpp"
+#include <stdint.h>
+
+namespace app::can_tx {
+/* ------------------------- Function Prototypes -------------------------- */
+
+/**
+ * Initialize TX signals to their starting values.
+ */
+void init(void);
+
+{% for msg in tx_messages -%}
+{%- for signal in msg.signals -%}
+/**
+ * Update value stored in TX table of signal {{ signal.name }} in msg {{ msg.name }}.
+ */
+void set_{{ signal.name }}({{ signal.datatype() }} value);
+{% endfor -%}
+{% endfor %}
+
+{% for msg in tx_messages -%}
+{%- for signal in msg.signals -%}
+/**
+ * Get value stored in TX table of signal {{ signal.name }} in msg {{ msg.name }}.
+ */
+{{ signal.datatype() }} get_{{ signal.name }}(void);
+{% endfor -%}
+{% endfor %}
+
+{% for msg in tx_messages -%}
+/**
+ * Get pointer to value stored in TX table of msg {{ msg.name }}.
+ */
+{{ msg.c_type() }}* getData_{{ msg.name }}();
+{% endfor %}
+}

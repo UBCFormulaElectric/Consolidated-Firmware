@@ -1,0 +1,221 @@
+/**
+ * @note This file is auto-generated. Do not modify!
+ */
+// clang-format off
+
+
+/* ------------------------------- Includes ------------------------------- */
+
+#include "app_canAlerts.hpp"
+#include "app_canTx.hpp"
+#include "app_canRx.hpp"
+
+namespace app::can_alerts {
+/* ------------------------- Function Definitions ------------------------- */
+
+
+{%- for alert in all_alerts %}
+void set_{{ alert.name }}(bool set_alert)
+{
+    // Increment alert counter.
+    if (set_alert && !app::can_tx::get_{{ alert.name }}())
+    {
+        app::can_tx::set_{{ alert.name }}Count(app::can_tx::get_{{ alert.name }}Count() + 1);
+    }
+    // Set alert.
+    app::can_tx::set_{{ alert.name }}(set_alert);
+}
+{%- endfor %}
+
+
+// alert signal getter functions
+{%- for alert in all_alerts %}
+bool get_{{ alert.name }}(void)
+{
+    return app::can_tx::get_{{ alert.name }}();
+}
+{%- endfor %}
+
+bool BoardHasInfo(CanNode board)
+{
+    switch (board)
+    {
+        {%- for (board_name, board_alerts) in node_name_and_alerts %}
+        case CanNode::{{board_name.to_uppercase()}}_NODE :
+        {
+            {%- if board_alerts.info.len() > 0 %}
+            return (
+                {%- for alert in board_alerts.info %}
+                {%- if board_name == node_name -%}
+                app::can_tx::get_{{ alert.name }}()
+                {%- else -%}
+                app::can_rx::get_{{ alert.name }}()
+                {%- endif -%}
+                {%- if loop.last == false %} || {% endif -%}
+                {%- endfor %}
+            );
+            {%- else %}
+            return false;
+            {%- endif %}
+        }
+        {%- endfor %}
+        default:
+            break;
+    }
+    return false;
+}
+bool BoardHasWarning(CanNode board)
+{
+    switch (board)
+    {
+        {%- for (board_name, board_alerts) in node_name_and_alerts %}
+        case CanNode::{{board_name.to_uppercase()}}_NODE :
+        {
+            {%- if board_alerts.warnings.len() > 0 %}
+            return (
+                {%- for alert in board_alerts.warnings %}
+                {%- if board_name == node_name -%}
+                app::can_tx::get_{{ alert.name }}()
+                {%- else -%}
+                app::can_rx::get_{{ alert.name }}()
+                {%- endif -%}
+                {%- if loop.last == false %} || {% endif -%}
+                {%- endfor %}
+            );
+            {%- else %}
+            return false;
+            {%- endif %}
+        }
+        {%- endfor %}
+        default:
+            break;
+    }
+    return false;
+}
+bool BoardHasFault(CanNode board)
+{
+    switch (board)
+    {
+        {%- for (board_name, board_alerts) in node_name_and_alerts %}
+        case CanNode::{{board_name.to_uppercase()}}_NODE :
+        {
+            {%- if board_alerts.faults.len() > 0 %}
+            return (
+                {%- for alert in board_alerts.faults %}
+                {%- if board_name == node_name -%}
+                app::can_tx::get_{{ alert.name }}()
+                {%- else -%}
+                app::can_rx::get_{{ alert.name }}()
+                {%- endif -%}
+                {%- if loop.last == false %} || {% endif -%}
+                {%- endfor %}
+            );
+            {%- else %}
+            return false;
+            {%- endif %}
+        }
+        {% endfor %}
+        default:
+            break;
+    }
+    return false;
+}
+
+
+bool AnyBoardHasInfo(void)
+{
+    // Check if any board has an info
+    return (
+{%- for (board_name, _) in node_name_and_alerts %}
+        BoardHasInfo(CanNode::{{ board_name.to_uppercase() }}_NODE){% if loop.last == false %} ||{% endif %}
+{%- endfor %}
+    );
+}
+
+bool AnyBoardHasWarning(void)
+{
+    //Check if any board has a warning
+    return (
+{%- for (board_name, _) in node_name_and_alerts %}
+        BoardHasWarning(CanNode::{{ board_name.to_uppercase() }}_NODE){% if loop.last == false %} ||{% endif %}
+{%- endfor %}
+    );
+}
+
+bool AnyBoardHasFault(void)
+{
+    //Check if any board has a fault
+    return (
+{%- for (board_name, _) in node_name_and_alerts %}
+        BoardHasFault(CanNode::{{ board_name.to_uppercase() }}_NODE){% if loop.last == false %} ||{% endif %}
+{%- endfor %}
+    );
+}
+
+
+uint8_t InfoInfo(Alert_Info *alert_array)
+{
+    uint8_t element_num = 0;
+    {%- for (board_name, board_alerts) in node_name_and_alerts %}
+    // {{board_name}} infos info
+    {%- for alert in board_alerts.info %}
+    {%- if board_name == node_name %}
+    if (app::can_tx::get_{{ alert.name }}())
+    {% else %}
+    if (app::can_rx::get_{{ alert.name }}())
+    {% endif -%}
+    {
+        alert_array[element_num].name = "{{ alert.name }}";
+        alert_array[element_num].description = "{{ alert.description }}";
+        alert_array[element_num].id = {{ alert.id }};
+        element_num++;
+    }
+    {%- endfor %}
+    {%- endfor %}
+    return element_num;
+}
+
+uint8_t WarningInfo(Alert_Info *alert_array)
+{
+    uint8_t element_num = 0;
+    {%- for (board_name, board_alerts) in node_name_and_alerts %}
+    // {{ board_name }} warnings info
+    {%- for alert in board_alerts.warnings %}
+    {%- if board_name == node_name %}
+    if (app::can_tx::get_{{ alert.name }}())
+    {% else %}
+    if (app::can_rx::get_{{ alert.name }}())
+    {% endif -%}
+    {
+        alert_array[element_num].name = "{{ alert.name }}";
+        alert_array[element_num].description = "{{ alert.description }}";
+        alert_array[element_num].id = {{ alert.id }};
+        element_num++;
+    }
+    {%- endfor %}
+    {%- endfor %}
+    return element_num;
+}
+
+uint8_t FaultInfo(Alert_Info *alert_array)
+{
+    uint8_t element_num = 0;
+    {%- for (board_name, board_alerts) in node_name_and_alerts %}
+    // {{ board_name }} faults info
+    {%- for alert in board_alerts.faults %}
+    {%- if board_name == node_name %}
+    if (app::can_tx::get_{{ alert.name }}())
+    {% else %}
+    if (app::can_rx::get_{{ alert.name }}())
+    {% endif -%}
+    {
+        alert_array[element_num].name = "{{ alert.name }}";
+        alert_array[element_num].description = "{{ alert.description }}";
+        alert_array[element_num].id = {{ alert.id }};
+        element_num++;
+    }
+    {%- endfor %}
+    {%- endfor %}
+    return element_num;
+}
+}

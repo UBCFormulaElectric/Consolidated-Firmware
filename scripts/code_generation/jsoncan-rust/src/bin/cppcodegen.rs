@@ -1,8 +1,10 @@
 use jsoncan_rust::can_database::CanDatabase;
-use jsoncan_rust::codegen::cpp::CPPModule;
+use jsoncan_rust::codegen::cpp::{CPPModule, CPPModuleCpp};
 use jsoncan_rust::codegen::cpp::{
-    AppCanAlertsModule, AppCanDataCaptureModule, AppCanRxModule, AppCanTxModule, AppCanUtilsModule,
-    CPPGenerator, IoCanRerouteModule, IoCanRxModule, IoCanTxModule,
+    AppCanAlertsModule, AppCanAlertsModuleCpp, AppCanDataCaptureModule, AppCanDataCaptureModuleCpp,
+    AppCanRxModule, AppCanRxModuleCpp, AppCanTxModule, AppCanTxModuleCpp, AppCanUtilsModule,
+    AppCanUtilsModuleCpp, CPPGenerator, IoCanRerouteModule, IoCanRerouteModuleCpp, IoCanRxModule,
+    IoCanRxModuleCpp, IoCanTxModule, IoCanTxModuleCpp,
 };
 use jsoncan_rust::dbcgen::DbcGenerator;
 use jsoncan_rust::parsing::JsonCanParser;
@@ -24,6 +26,8 @@ struct Args {
     dbc_output: String,
     #[arg(long, default_value_t = false)]
     only_dbc: bool,
+    #[arg(long, default_value_t = false)]
+    cpp: bool,
 }
 
 fn main() {
@@ -52,105 +56,212 @@ fn main() {
         panic!("Board {} not found in CAN database.", args.board);
     }
 
-    let modules: Vec<(CPPModule, String)> = vec![
-        (
-            CPPModule::AppCanUtilsModule(AppCanUtilsModule::new(&can_db)),
-            Path::new("app")
-                .join("app_canUtils")
-                .to_str()
-                .expect("Invalid path")
-                .to_string(),
-        ),
-        (
-            CPPModule::AppCanTxModule(AppCanTxModule::new(&can_db, &args.board)),
-            Path::new("app")
-                .join("app_canTx")
-                .to_str()
-                .expect("Invalid path")
-                .to_string(),
-        ),
-        (
-            CPPModule::AppCanAlertsModule(AppCanAlertsModule::new(&can_db, &args.board)),
-            Path::new("app")
-                .join("app_canAlerts")
-                .to_str()
-                .expect("Invalid path")
-                .to_string(),
-        ),
-        (
-            CPPModule::AppCanDataCaptureModule(AppCanDataCaptureModule::new(&can_db, &args.board)),
-            Path::new("app")
-                .join("app_canDataCapture")
-                .to_str()
-                .expect("Invalid path")
-                .to_string(),
-        ),
-        (
-            CPPModule::AppCanRxModule(AppCanRxModule::new(
-                &can_db,
-                &args.board,
-                &rx_configs[&args.board],
-            )),
-            Path::new("app")
-                .join("app_canRx")
-                .to_str()
-                .expect("Invalid path")
-                .to_string(),
-        ),
-        (
-            CPPModule::IoCanTxModule(IoCanTxModule::new(
-                &can_db,
-                &args.board,
-                &tx_configs[&args.board],
-            )),
-            Path::new("io")
-                .join("io_canTx")
-                .to_str()
-                .expect("Invalid path")
-                .to_string(),
-        ),
-        (
-            CPPModule::IoCanRxModule(IoCanRxModule::new(
-                &can_db,
-                &rx_configs[&args.board],
-                &args.board,
-            )),
-            Path::new("io")
-                .join("io_canRx")
-                .to_str()
-                .expect("Invalid path")
-                .to_string(),
-        ),
-        (
-            CPPModule::IoCanRerouteModule(IoCanRerouteModule::new(
-                &can_db,
-                &args.board,
-                &reroute_config[&args.board],
-            )),
-            Path::new("io")
-                .join("io_canReroute")
-                .to_str()
-                .expect("Invalid path")
-                .to_string(),
-        ),
-    ];
+    if args.cpp {
+        let modules: Vec<(CPPModuleCpp, String)> = vec![
+            (
+                CPPModuleCpp::AppCanUtilsModule(AppCanUtilsModuleCpp::new(&can_db)),
+                Path::new("app")
+                    .join("app_canUtils")
+                    .to_str()
+                    .expect("Invalid path")
+                    .to_string(),
+            ),
+            (
+                CPPModuleCpp::AppCanTxModule(AppCanTxModuleCpp::new(&can_db, &args.board)),
+                Path::new("app")
+                    .join("app_canTx")
+                    .to_str()
+                    .expect("Invalid path")
+                    .to_string(),
+            ),
+            (
+                CPPModuleCpp::AppCanAlertsModule(AppCanAlertsModuleCpp::new(&can_db, &args.board)),
+                Path::new("app")
+                    .join("app_canAlerts")
+                    .to_str()
+                    .expect("Invalid path")
+                    .to_string(),
+            ),
+            (
+                CPPModuleCpp::AppCanDataCaptureModule(AppCanDataCaptureModuleCpp::new(
+                    &can_db, &args.board,
+                )),
+                Path::new("app")
+                    .join("app_canDataCapture")
+                    .to_str()
+                    .expect("Invalid path")
+                    .to_string(),
+            ),
+            (
+                CPPModuleCpp::AppCanRxModule(AppCanRxModuleCpp::new(
+                    &can_db,
+                    &args.board,
+                    &rx_configs[&args.board],
+                )),
+                Path::new("app")
+                    .join("app_canRx")
+                    .to_str()
+                    .expect("Invalid path")
+                    .to_string(),
+            ),
+            (
+                CPPModuleCpp::IoCanTxModule(IoCanTxModuleCpp::new(
+                    &can_db,
+                    &args.board,
+                    &tx_configs[&args.board],
+                )),
+                Path::new("io")
+                    .join("io_canTx")
+                    .to_str()
+                    .expect("Invalid path")
+                    .to_string(),
+            ),
+            (
+                CPPModuleCpp::IoCanRxModule(IoCanRxModuleCpp::new(
+                    &can_db,
+                    &rx_configs[&args.board],
+                    &args.board,
+                )),
+                Path::new("io")
+                    .join("io_canRx")
+                    .to_str()
+                    .expect("Invalid path")
+                    .to_string(),
+            ),
+            (
+                CPPModuleCpp::IoCanRerouteModule(IoCanRerouteModuleCpp::new(
+                    &can_db,
+                    &args.board,
+                    &reroute_config[&args.board],
+                )),
+                Path::new("io")
+                    .join("io_canReroute")
+                    .to_str()
+                    .expect("Invalid path")
+                    .to_string(),
+            ),
+        ];
 
-    for (module, module_path) in modules {
-        let module_full_path = Path::new(&args.output_dir).join(module_path);
-        write_text(
-            module.header_template().unwrap(),
-            module_full_path
-                .with_extension("h")
-                .to_str()
-                .expect("Invalid path"),
-        );
-        write_text(
-            module.source_template().unwrap(),
-            module_full_path
-                .with_extension("c")
-                .to_str()
-                .expect("Invalid path"),
-        );
+        for (module, module_path) in modules {
+            let module_full_path = Path::new(&args.output_dir).join(module_path);
+            write_text(
+                module.header_template().unwrap(),
+                module_full_path
+                    .with_extension("hpp")
+                    .to_str()
+                    .expect("Invalid path"),
+            );
+            write_text(
+                module.source_template().unwrap(),
+                module_full_path
+                    .with_extension("cpp")
+                    .to_str()
+                    .expect("Invalid path"),
+            );
+        }
+    } else {
+        let modules: Vec<(CPPModule, String)> = vec![
+            (
+                CPPModule::AppCanUtilsModule(AppCanUtilsModule::new(&can_db)),
+                Path::new("app")
+                    .join("app_canUtils")
+                    .to_str()
+                    .expect("Invalid path")
+                    .to_string(),
+            ),
+            (
+                CPPModule::AppCanTxModule(AppCanTxModule::new(&can_db, &args.board)),
+                Path::new("app")
+                    .join("app_canTx")
+                    .to_str()
+                    .expect("Invalid path")
+                    .to_string(),
+            ),
+            (
+                CPPModule::AppCanAlertsModule(AppCanAlertsModule::new(&can_db, &args.board)),
+                Path::new("app")
+                    .join("app_canAlerts")
+                    .to_str()
+                    .expect("Invalid path")
+                    .to_string(),
+            ),
+            (
+                CPPModule::AppCanDataCaptureModule(AppCanDataCaptureModule::new(
+                    &can_db, &args.board,
+                )),
+                Path::new("app")
+                    .join("app_canDataCapture")
+                    .to_str()
+                    .expect("Invalid path")
+                    .to_string(),
+            ),
+            (
+                CPPModule::AppCanRxModule(AppCanRxModule::new(
+                    &can_db,
+                    &args.board,
+                    &rx_configs[&args.board],
+                )),
+                Path::new("app")
+                    .join("app_canRx")
+                    .to_str()
+                    .expect("Invalid path")
+                    .to_string(),
+            ),
+            (
+                CPPModule::IoCanTxModule(IoCanTxModule::new(
+                    &can_db,
+                    &args.board,
+                    &tx_configs[&args.board],
+                )),
+                Path::new("io")
+                    .join("io_canTx")
+                    .to_str()
+                    .expect("Invalid path")
+                    .to_string(),
+            ),
+            (
+                CPPModule::IoCanRxModule(IoCanRxModule::new(
+                    &can_db,
+                    &rx_configs[&args.board],
+                    &args.board,
+                )),
+                Path::new("io")
+                    .join("io_canRx")
+                    .to_str()
+                    .expect("Invalid path")
+                    .to_string(),
+            ),
+            (
+                CPPModule::IoCanRerouteModule(IoCanRerouteModule::new(
+                    &can_db,
+                    &args.board,
+                    &reroute_config[&args.board],
+                )),
+                Path::new("io")
+                    .join("io_canReroute")
+                    .to_str()
+                    .expect("Invalid path")
+                    .to_string(),
+            ),
+        ];
+
+        for (module, module_path) in modules {
+            let module_full_path = Path::new(&args.output_dir).join(module_path);
+            write_text(
+                module.header_template().unwrap(),
+                module_full_path
+                    .with_extension("h")
+                    .to_str()
+                    .expect("Invalid path"),
+            );
+            write_text(
+                module.source_template().unwrap(),
+                module_full_path
+                    .with_extension("c")
+                    .to_str()
+                    .expect("Invalid path"),
+            );
+        }
     }
 }
 

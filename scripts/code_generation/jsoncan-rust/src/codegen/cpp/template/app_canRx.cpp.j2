@@ -1,0 +1,112 @@
+/**
+ * @note This file is auto-generated. Do not modify!
+ */
+// clang-format off
+
+
+/* ------------------------------- Includes ------------------------------- */
+
+#include <math.h>
+#include <string.h>
+#include "app_canRx.hpp"
+
+namespace app::can_rx {
+/* ------------------------------- Structs -------------------------------- */
+
+/**
+ * Struct for holding all messages received by  (i.e. the RX table).
+ */
+struct {{node}}_RxMsgs
+{
+    {%- if boards_messages.values().len() > 0 %}
+    {%- for rx_messages in boards_messages.values() %}
+    {%- for msg in rx_messages %}
+    {{ msg.c_type() }} {{ msg.name }}_signals;
+    {%- endfor %}
+    {%- endfor %}
+    {%- else %}
+    // No messages defined
+    char _pad;
+    {%- endif %}
+};
+
+
+/* -------------------------- Private Variables --------------------------- */
+
+static {{node}}_RxMsgs rx_table;
+
+/* ------------------------- Function Definitions ------------------------- */
+
+void init()
+{
+    memset(&rx_table, 0, sizeof({{node}}_RxMsgs));
+    // Initialize all signals to Start-up value
+    {%- for rx_messages in boards_messages.values() %}
+    {%- for msg in rx_messages %}
+    {%- for signal in msg.signals %}
+    update_{{ signal.name }}({{ signal.start_val_macro() }});
+    {%- endfor %}
+    {%- endfor %}
+    {%- endfor %}
+}
+
+/* ------- UPDATE -------- */
+{%- for rx_messages in boards_messages.values() %}
+{% for msg in rx_messages %}
+{%- for signal in msg.signals %}
+void update_{{ signal.name }}({{ signal.datatype() }} value)
+{
+    {%- if signal.representation() == "float" %}
+    if (value == NAN)
+    {
+        return;
+    }
+    {%- endif %}
+    // Clamp value to min/max
+    if (value >= {{ signal.max_val_macro() }})
+    {
+        value = {{ signal.max_val_macro() }};
+    }
+    if (value <= {{ signal.min_val_macro() }})
+    {
+        value = {{ signal.min_val_macro() }};
+    }
+    rx_table.{{ msg.name }}_signals.{{ signal.name }}_value = value; // Set value
+}
+{%- endfor %}
+{%- endfor %}
+{%- endfor %}
+
+/* ------- GET -------- */
+{%- for rx_messages in boards_messages.values() %}
+{% for msg in rx_messages %}
+{%- for signal in msg.signals %}
+{{ signal.datatype() }} get_{{ signal.name }}()
+{
+    return rx_table.{{ msg.name }}_signals.{{ signal.name }}_value;
+}
+{%- endfor %}
+{%- endfor %}
+{%- endfor %}
+
+void clear_board_rx_table(CanNode board)
+{
+    switch(board)
+    {
+        {%- for board in boards_messages.keys() %}
+            {%- if board.to_uppercase() != node.to_uppercase() %}
+        case CanNode::{{ board.to_uppercase() }}_NODE:
+            {%- for msg in boards_messages[board] %}
+                {%- for signal in msg.signals %}
+            update_{{ signal.name }}({{ signal.start_val_macro() }});
+                {%- endfor %}
+            {%- endfor %}
+            break;
+            {%- endif %}
+        {%- endfor %}
+        case CanNode::{{ node.to_uppercase() }}_NODE: // Do nothing, this is the current node :)
+        default:
+            break;
+    }
+}
+}

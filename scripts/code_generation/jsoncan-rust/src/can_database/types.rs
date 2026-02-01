@@ -18,6 +18,7 @@ pub enum RxMsgNames {
     RxMsgs(Vec<String>),
 }
 
+#[derive(Clone)]
 pub struct GroupedAlerts {
     pub info: Vec<CanAlert>,
     pub warnings: Vec<CanAlert>,
