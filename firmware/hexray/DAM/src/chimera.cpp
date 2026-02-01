@@ -65,13 +65,12 @@ class DAMChimeraConfig : public chimera_v2::config
 static hw::rtos::StaticTask<8096>
     TaskChimera(osPriorityRealtime, "TaskChimera", [](void *) { chimera_v2::task(dam_config); });
 
-void tasks_preInit()
-{
-    assert(hw::usb::init());
-}
+void tasks_preInit(){}
+char USBD_PRODUCT_STRING_FS[] = "dam";
 
 [[noreturn]] void tasks_init()
 {
+    assert(hw::usb::init());
     osKernelInitialize();
     TaskChimera.start();
     osKernelStart();
