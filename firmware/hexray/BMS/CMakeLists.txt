@@ -66,10 +66,12 @@ if ("${TARGET}" STREQUAL "binary")
         "stm32h7xx_hal_tim.c"
         "stm32h7xx_hal_gpio.c"
         "stm32h7xx_hal_adc.c"
+        "stm32h7xx_hal_dma.c"         
+        "stm32h7xx_hal_iwdg.c"
 
         "stm32h7xx_hal_adc_ex.c"       
         "stm32h7xx_hal_tim_ex.c"       
-        "stm32h7xx_hal_dma.c"          
+        "stm32h7xx_hal_dma_ex.c" 
         
         "stm32h7xx_hal_crc.c"        
         "stm32h7xx_hal_crc_ex.c"       
@@ -83,7 +85,9 @@ if ("${TARGET}" STREQUAL "binary")
 
         "stm32h7xx_hal_pcd.c"     
         "stm32h7xx_hal_pcd_ex.c"
-        "stm32h7xx_ll_usb.c"           
+        "stm32h7xx_ll_usb.c"       
+        
+        
     )
     set(CUBEMX_INCLUDES ${CUBEMX_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
     stm32h733xx_cube_library(

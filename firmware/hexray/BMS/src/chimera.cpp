@@ -1,5 +1,8 @@
 #include "tasks.h"
 #include "chimera_v2.hpp"
+#include "hw_gpios.hpp"
+#include "hw_adcs.hpp"
+#include "hw_spis.hpp"
 
 class BMSChimeraConfig final : public chimera_v2::config
 {
@@ -12,15 +15,15 @@ class BMSChimeraConfig final : public chimera_v2::config
         }
         switch (gnn->name.bms_net_name)
         {
-            case bms_GpioNetName_GPIO_LED_B:
+            case bms_GpioNetName_GPIO_LEDB:
                 return std::cref(hw::gpio::led_b);
-            case bms_GpioNetName_GPIO_BSPD_OK_CURRENT_STATUS:
+            case bms_GpioNetName_GPIO_BSPD_OK:
                 return std::cref(hw::gpio::bspd_ok_current_status);
             case bms_GpioNetName_GPIO_ACCEL_BRAKE_OK:
                 return std::cref(hw::gpio::accel_brake_ok);
-            case bms_GpioNetName_GPIO_N_BRAKE_PRESS_3V3:
+            case bms_GpioNetName_GPIO_nBRAKE_PRESS_3V3:
                 return std::cref(hw::gpio::n_brake_press_3v3);
-            case bms_GpioNetName_GPIO_N_HIGH_CURRENT_BSPD:
+            case bms_GpioNetName_GPIO_nHIGH_CURRENT_BSPD:
                 return std::cref(hw::gpio::n_high_current_bspd);
             case bms_GpioNetName_GPIO_MSD_SHDN_SNS:
                 return std::cref(hw::gpio::msd_shdn_sns);
@@ -30,15 +33,15 @@ class BMSChimeraConfig final : public chimera_v2::config
                 return std::cref(hw::gpio::hv_n_intlck_sns);
             case bms_GpioNetName_GPIO_IMD_LATCH:
                 return std::cref(hw::gpio::imd_latch);
-            case bms_GpioNetName_GPIO_DIAG_TS:
+            case bms_GpioNetName_GPIO_DIAG:
                 return std::cref(hw::gpio::diag_ts);
             case bms_GpioNetName_GPIO_SD_CD:
                 return std::cref(hw::gpio::sd_cd);
-            case bms_GpioNetName_GPIO_LED_R:
+            case bms_GpioNetName_GPIO_LEDR:
                 return std::cref(hw::gpio::led_r);
             case bms_GpioNetName_GPIO_SPI_CS_LS:
                 return std::cref(hw::gpio::spi_cs_ls);
-            case bms_GpioNetName_GPIO_N_EVSE_I_LIM:
+            case bms_GpioNetName_GPIO_nEVSE_I_LIM_GPIO:
                 return std::cref(hw::gpio::n_evse_i_lim);
             case bms_GpioNetName_GPIO_IR_P_EN:
                 return std::cref(hw::gpio::ir_p_en);
@@ -46,13 +49,13 @@ class BMSChimeraConfig final : public chimera_v2::config
                 return std::cref(hw::gpio::shdn_en);
             case bms_GpioNetName_GPIO_BMS_LATCH:
                 return std::cref(hw::gpio::bms_latch_status);
-            case bms_GpioNetName_GPIO_IMD_OK_CURRENT_STATUS:
+            case bms_GpioNetName_GPIO_IMD_OK:
                 return std::cref(hw::gpio::imd_ok_current_status);
-            case bms_GpioNetName_GPIO_BSPD_OK_LATCH_STATUS:
+            case bms_GpioNetName_GPIO_BSPD_LATCH:
                 return std::cref(hw::gpio::bspd_ok_latch_status);
-            case bms_GpioNetName_GPIO_PRECHARGE_EN:
+            case bms_GpioNetName_GPIO_PRE_CHARGE_EN:
                 return std::cref(hw::gpio::precharge_en);
-            case bms_GpioNetName_GPIO_SHDN_OL_ON:
+            case bms_GpioNetName_GPIO_FB_STBY_SHDN:
                 return std::cref(hw::gpio::shdn_ol_on);
             case bms_GpioNetName_GPIO_FAN_EN:
                 return std::cref(hw::gpio::fan_en);
@@ -74,19 +77,19 @@ class BMSChimeraConfig final : public chimera_v2::config
         switch (ann->name.bms_net_name)
         {
             case bms_AdcNetName_ADC_FAN_ISNS:
-                return std::cref(hw::adcs::fan_isns);
+                return std::cref(hw::adc::fan_isns);
             case bms_AdcNetName_ADC_TS_VSENSE_P:
-                return std::cref(hw::adcs::ts_vsense_p);
+                return std::cref(hw::adc::ts_vsense_p);
             case bms_AdcNetName_ADC_TS_VSENSE_N:
-                return std::cref(hw::adcs::ts_vsense_n);
+                return std::cref(hw::adc::ts_vsense_n);
             case bms_AdcNetName_ADC_SHDN_ISNS:
-                return std::cref(hw::adcs::shdn_isns);
+                return std::cref(hw::adc::shdn_isns);
             case bms_AdcNetName_ADC_EMETER_THERM_SNS:
-                return std::cref(hw::adcs::emeter_tsns);
+                return std::cref(hw::adc::emeter_tsns);
             case bms_AdcNetName_ADC_TS_ISNS_400A:
-                return std::cref(hw::adcs::ts_isns_400a);
+                return std::cref(hw::adc::ts_isns_400a);
             case bms_AdcNetName_ADC_TS_ISNS_50A:
-                return std::cref(hw::adcs::ts_isns_50a);
+                return std::cref(hw::adc::ts_isns_50a);
             default:
             case bms_AdcNetName_ADC_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified ADC net name");
@@ -103,9 +106,9 @@ class BMSChimeraConfig final : public chimera_v2::config
         }
         switch (snn->name.bms_net_name)
         {
-            case bms_SpiNetName_SPI_ADBMS_SPI_LS:
+            case bms_SpiNetName_SPI_LTC6813_SPI_LS:
                 return std::cref(hw::spi::adbms_spi_ls);
-            case bms_SpiNetName_SPI_ADBMS_SPI_HS:
+            case bms_SpiNetName_SPI_LTC6813_SPI_HS:
                 return std::cref(hw::spi::adbms_spi_hs);
             default:
             case bms_SpiNetName_SPI_NET_NAME_UNSPECIFIED:
