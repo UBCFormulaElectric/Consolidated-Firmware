@@ -102,7 +102,7 @@
         "address": "auto",
         "decoders": [
           {
-            "label": "Debug logs: DAM",
+            "label": "Debug logs: RSM",
             "port": 0,
             "type": "console"
           }
