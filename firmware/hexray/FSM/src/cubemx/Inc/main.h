@@ -62,7 +62,6 @@ extern "C"
 
     /* USER CODE BEGIN EFP */
     // void FSM_StartAllTasks(void);
-    void tasks_init(void);
     /* USER CODE BEGIN EFP */
 
 /* USER CODE END EFP */

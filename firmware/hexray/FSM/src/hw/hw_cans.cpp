@@ -1,6 +1,5 @@
 #include "hw_cans.hpp"
 #include <cassert>
-#include "tasks.h"
 #include "main.h"
 
 namespace hw::cans
