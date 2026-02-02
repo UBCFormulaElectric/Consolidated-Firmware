@@ -12,7 +12,7 @@
 namespace io::bootHandler
 {
     
-inline void processBootRequest(const io::CanMsg &msg)
+static inline void processBootRequest(const io::CanMsg &msg)
 {
     if (msg.std_id == (BOARD_HIGHBITS | BOOT_CAN_START_LOWBITS))
     {
