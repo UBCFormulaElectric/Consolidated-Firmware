@@ -5,7 +5,7 @@ import { WidgetData } from "@/lib/types/Widget";
 import EnumSignalSelector from "@/components/widgets/EnumSignalSelector";
 import { useDashboardLayout } from "@/lib/contexts/DashboardLayout";
 import useSignalMetadata from "@/lib/hooks/useSignalMetadata";
-import { useSignalDataStore } from "@/lib/contexts/SignalDataStore";
+import { useSignalDataStore } from "@/lib/contexts/signalStores/SignalStoreContext";
 import { useEffect, useRef } from "react";
 import { isEnumSignalMetadata } from "@/lib/types/Signal";
 
@@ -19,6 +19,12 @@ function EnumTimeline(props: WidgetData<"enumTimeline">) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const data = useSignalDataStore(signals[0]);
+
+  useEffect(() => {
+    setInterval(() => {
+      console.log(data.current?.data);
+    }, 1000);
+  }, [data]);
 
   const signalMetadata = useSignalMetadata(signals[0] ?? "");
 
