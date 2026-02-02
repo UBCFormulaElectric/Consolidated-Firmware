@@ -6,7 +6,7 @@
  ******************************************************************************
  * @attention
  *
- * Copyright (c) 2025 STMicroelectronics.
+ * Copyright (c) 2026 STMicroelectronics.
  * All rights reserved.
  *
  * This software is licensed under terms that can be found in the LICENSE file
@@ -57,6 +57,7 @@
 
 /* External variables --------------------------------------------------------*/
 extern FDCAN_HandleTypeDef hfdcan1;
+extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
 extern TIM_HandleTypeDef   htim6;
 
 /* USER CODE BEGIN EV */
@@ -88,6 +89,7 @@ void HardFault_Handler(void)
 {
     /* USER CODE BEGIN HardFault_IRQn 0 */
     hw_hardFaultHandler_handleFault();
+
     /* USER CODE END HardFault_IRQn 0 */
     while (1)
     {
@@ -214,6 +216,20 @@ void TIM6_IRQHandler(void)
     /* USER CODE BEGIN TIM6_IRQn 1 */
 
     /* USER CODE END TIM6_IRQn 1 */
+}
+
+/**
+ * @brief This function handles USB FS global interrupt.
+ */
+void USB_DRD_FS_IRQHandler(void)
+{
+    /* USER CODE BEGIN USB_DRD_FS_IRQn 0 */
+
+    /* USER CODE END USB_DRD_FS_IRQn 0 */
+    HAL_PCD_IRQHandler(&hpcd_USB_DRD_FS);
+    /* USER CODE BEGIN USB_DRD_FS_IRQn 1 */
+
+    /* USER CODE END USB_DRD_FS_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

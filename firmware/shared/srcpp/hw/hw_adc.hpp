@@ -1,7 +1,6 @@
 #pragma once
-
-#include "app_utils.hpp"
 #include <array>
+#include "util_limits.hpp"
 
 #ifdef TARGET_EMBEDDED
 #include "main.h"
@@ -13,7 +12,7 @@ template <size_t NUM_ADC_CHANNELS> class AdcChip
 {
     static constexpr float SINGLE_ENDED_ADC_V_SCALE = 3.3f;
     static constexpr float DIFFERENTIAL_ADC_V_SCALE = 6.6f;
-    float                  rawAdcValueToVoltage(bool is_differential, uint16_t raw_adc_value) const
+    float                  rawAdcValueToVoltage(const bool is_differential, const uint16_t raw_adc_value) const
     {
         uint16_t full_scale;
         switch (hadc->Init.Resolution)
@@ -51,7 +50,7 @@ template <size_t NUM_ADC_CHANNELS> class AdcChip
 
         // Offsets to the raw ADC value should be configured via cube for
         // differential ADC mode
-        return scale * (float)raw_adc_value / (float)full_scale;
+        return scale * static_cast<float>(raw_adc_value) / static_cast<float>(full_scale);
     }
 
   private:
@@ -66,7 +65,7 @@ template <size_t NUM_ADC_CHANNELS> class AdcChip
 
     void init() const
     {
-        HAL_ADC_Start_DMA(hadc, (uint32_t *)raw_adc_values.data(), hadc->Init.NbrOfConversion);
+        HAL_ADC_Start_DMA(hadc, reinterpret_cast<uint32_t *>(raw_adc_values.data()), hadc->Init.NbrOfConversion);
         HAL_TIM_Base_Start(htim);
     }
 

@@ -1,8 +1,5 @@
 #include "hw_pwmInput.hpp"
-#include "hw_pwmInput.h"
 #include <cassert>
-#include <stm32f4xx_hal_tim.h>
-#include <tuple>
 
 namespace hw
 {

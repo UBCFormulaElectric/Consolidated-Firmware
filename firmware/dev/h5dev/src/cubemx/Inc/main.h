@@ -7,7 +7,7 @@
  ******************************************************************************
  * @attention
  *
- * Copyright (c) 2025 STMicroelectronics.
+ * Copyright (c) 2026 STMicroelectronics.
  * All rights reserved.
  *
  * This software is licensed under terms that can be found in the LICENSE file
@@ -38,7 +38,10 @@ extern "C"
     /* Exported types ------------------------------------------------------------*/
     /* USER CODE BEGIN ET */
     extern FDCAN_HandleTypeDef hfdcan1;
+    extern IWDG_HandleTypeDef  hiwdg;
+    extern RTC_HandleTypeDef   hrtc;
     extern SPI_HandleTypeDef   hspi1;
+    extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
     /* USER CODE END ET */
 
     /* Exported constants --------------------------------------------------------*/
