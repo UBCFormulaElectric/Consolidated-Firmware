@@ -12,6 +12,9 @@ constexpr uint32_t BOOT_MAGIC = 0xAB;
 // Defined in linker script.
 extern uint32_t __app_code_start__;
 
+namespace hw::bootup
+{
+
 enum class BootTarget : uint8_t
 {
     BOOT_TARGET_APP,
@@ -25,9 +28,9 @@ enum class BootContext : uint8_t
     BOOT_CONTEXT_WATCHDOG_TIMEOUT,
 };
 
-//Note the ordering matters as given the system is 4-byte aligned
-//It is important that the uint16_t _unused is between the two uint8_t fields
-//to account for padding and ensure consistent struct size across compilers
+// Note the ordering matters as given the system is 4-byte aligned
+// It is important that the uint16_t _unused is between the two uint8_t fields
+// to account for padding and ensure consistent struct size across compilers
 struct BootRequest
 {
     BootTarget  target;
@@ -44,13 +47,12 @@ struct BootRequestData
 // Boot flag from RAM
 volatile __attribute__((section(".boot_request"))) BootRequestData boot_request;
 
-namespace hw::bootup{
 /**
  * Due to quirks of STM32's generated code, this **must** be invoked at the top of main.c if using our CAN bootloader.
  * Otherwise interrupts will not work.
  */
-inline void enableInterruptsForApp(){
-
+inline void enableInterruptsForApp()
+{
     // Set vector table offset register.
     // The startup handler sets the VTOR to the default value (0x8000000), so even though we update it
     // in the bootloader, we have to update it again here.
@@ -70,21 +72,28 @@ inline void enableInterruptsForApp(){
     // So: If any RTOS code runs in the bootloader before its RTOS starts (even initialization stuff), interrupts
     // are broken until the scheduler starts. So, re-enable interrupts here in case that happened, since the app we're
     // jumping too might rely on interrupts in initialization code (like for HAL_Delay, for example).
-    portENABLE_INTERRUPTS(); 
+    portENABLE_INTERRUPTS();
 }
 
-inline void setBootRequest(BootRequest request){
-    boot_request.magic   = BOOT_MAGIC;
-    boot_request.request.target = request.target;
-    boot_request.request.context = request.context;
-    boot_request.request._unused = request._unused;
+inline void setBootRequest(BootRequest request)
+{
+    boot_request.magic                 = BOOT_MAGIC;
+    boot_request.request.target        = request.target;
+    boot_request.request.context       = request.context;
+    boot_request.request._unused       = request._unused;
     boot_request.request.context_value = request.context_value;
-} 
+}
 
-inline BootRequest getBootRequest(){
+inline BootRequest getBootRequest()
+{
     if (boot_request.magic == BOOT_MAGIC)
     {
-        BootRequest r = *(const_cast<BootRequest*>(&boot_request.request));
+        BootRequest r;
+        r.target        = boot_request.request.target;
+        r.context       = boot_request.request.context;
+        r._unused       = boot_request.request._unused;
+        r.context_value = boot_request.request.context_value;
+
         return r;
     }
     else
@@ -92,7 +101,7 @@ inline BootRequest getBootRequest(){
         // Default to app if magic not present.
         const BootRequest request = {
             .target        = BootTarget::BOOT_TARGET_APP,
-            .context       =  BootContext::BOOT_CONTEXT_NONE,
+            .context       = BootContext::BOOT_CONTEXT_NONE,
             .context_value = 0,
         };
         return request;
