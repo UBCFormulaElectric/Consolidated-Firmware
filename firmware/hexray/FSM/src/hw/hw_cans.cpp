@@ -4,7 +4,7 @@
 
 namespace hw::cans
 {
-fdcan fdcan1 = fdcan(hfdcan1, 0, [](const io::CanMsg &msg) { UNUSED(msg); }); // define callback func in io
+const fdcan fdcan1 = fdcan(hfdcan1, 0, [](const io::CanMsg &msg) { UNUSED(msg); }); // define callback func in io
 } // namespace hw::cans
 
 namespace hw

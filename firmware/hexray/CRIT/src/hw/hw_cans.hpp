@@ -3,5 +3,5 @@
 
 namespace hw::cans
 {
-extern fdcan fdcan1;
+extern const fdcan fdcan1;
 } // namespace hw::cans
