@@ -24,15 +24,13 @@ inline void processBootRequest(const io::CanMsg &msg)
         hw::bootup::setBootRequest(request);
 
         // Empirically need to spin for a few cycles or the boot request doesn't get written properly before reset.
-        // TODO: Why?
         for (uint8_t i = 0; i < 100; i++)
         {
             __ASM("nop");
         }
 
         NVIC_SystemReset();
-        for (;;)
-            ;
+        forever;
     }
 }
 } // namespace io::bootHandler
