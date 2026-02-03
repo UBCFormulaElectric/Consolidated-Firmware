@@ -115,7 +115,7 @@
       "executable": "build_fw_dev/firmware/hexray/VC/hexray_VC_chimera.elf",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_dev/firmware/hexray/RSM/hexray_VC_chimera.elf"
+        "build_fw_dev/firmware/hexray/VC/hexray_VC_chimera.elf"
       ],
       "preLaunchTask": "Build Chimera: VC (Hexray)",
       // cortex configurations
