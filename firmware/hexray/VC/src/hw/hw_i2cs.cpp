@@ -11,11 +11,11 @@ I2CDevice pwr_pump(i2c_bus_5, 0x10, 100);
 
 I2CBus &getBusFromHandle(const I2C_HandleTypeDef *handle)
 {
-    if(handle == &hi2c4) 
+    if (handle == &hi2c4)
     {
         return i2c_bus_4;
     }
-    if (handle == &hi2c5) 
+    if (handle == &hi2c5)
     {
         return i2c_bus_5;
     }
