@@ -94,7 +94,7 @@ static void MX_TIM3_Init(void);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
+    tasks_preInit();
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -130,7 +130,9 @@ int main(void)
     MX_UART8_Init();
     MX_TIM3_Init();
     /* USER CODE BEGIN 2 */
-
+    HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
+    ;
+    tasks_init();
     /* USER CODE END 2 */
 
     /* Infinite loop */

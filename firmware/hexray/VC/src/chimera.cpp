@@ -132,9 +132,12 @@ class VCChimeraConfig : public chimera_v2::config
     VCChimeraConfig()
     {
         gpio_net_name_tag = GpioNetName_vc_net_name_tag;
-        spi_net_name_tag  = SpiNetName_crit_net_name_tag;
+        spi_net_name_tag  = SpiNetName_vc_net_name_tag;
     }
 } vc_config;
+
+static hw::rtos::StaticTask<8096>
+    TaskChimera(osPriorityRealtime, "TaskChimera", [](void *) { chimera_v2::task(vc_config); });
 
 void tasks_preInit() {}
 char USBD_PRODUCT_STRING_FS[] = "vc";
