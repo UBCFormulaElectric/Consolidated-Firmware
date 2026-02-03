@@ -75,7 +75,7 @@ static inline void enableInterruptsForApp()
     portENABLE_INTERRUPTS();
 }
 
-static inline void setBootRequest(BootRequest request)
+static inline void setBootRequest(const BootRequest request)
 {
     boot_request.magic                 = BOOT_MAGIC;
     boot_request.request.target        = request.target;
