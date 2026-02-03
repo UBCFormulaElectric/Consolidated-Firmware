@@ -40,10 +40,10 @@ class Signal
     /**
      * Update the internal state of the given signal. If the entry condition for the
      * signal has been continuously high for a period equal to or greater than the
-     * configured duration (See: `entry_high_duration_ms) the callback function will
+     * configured duration (See: `entry_high_ms) the callback function will
      * be triggered. The exit signal for the signal has to remain continuously high
      * for a period equal to or greater than the configured duration (See:
-     * `exit_signal_duration_ms) to stop triggering the callback function.
+     * `exit_signal_ms) to stop triggering the callback function.
      * @param entry_condition_high
      * @param exit_condition_high
      */
