@@ -28,13 +28,12 @@ class Signal
     app::Timer  exit_timer;
 
   public:
-    constexpr explicit Signal(uint32_t entry_time_ms, uint32_t exit_time_ms)
+    consteval explicit Signal(uint32_t entry_time_ms, uint32_t exit_time_ms)
       : is_signal_active(false),
         state(SignalState::SIGNAL_STATE_CLEAR),
         entry_timer(entry_time_ms),
         exit_timer(exit_time_ms)
     {
-        assert(entry_timer < 0 || exit_timer < 0);
     }
 
     /**
