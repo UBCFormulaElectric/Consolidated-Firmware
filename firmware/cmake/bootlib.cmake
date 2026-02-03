@@ -158,13 +158,14 @@ function(stm32h5_boot_binary
         IOC_PATH
 )
     # Add bootloader-specific files.
-    list(APPEND SRCS "${BOOT_DIR}/bootloader.c" "${BOOT_DIR}/bootloader_hx.c")
+    list(APPEND SRCS "${BOOT_DIR}/bootloader.cpp" "${BOOT_DIR}/bootloader_hx.c")
     list(APPEND INCLUDE_DIRS "${BOOT_DIR}")
 
     # shared files 
     # Add shared files.
     list(APPEND SRCS
             "${SHARED_APP_INCLUDE_DIR}/app_crc32.c"
+            "${SHARED_APP_INCLUDE_DIR_CPP}/app_crc32.cpp"
             "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
             "${SHARED_IO_INCLUDE_DIR}/io_time.c"
             "${SHARED_HW_INCLUDE_DIR}/hw_flash.c"
@@ -178,6 +179,7 @@ function(stm32h5_boot_binary
     )
     list(APPEND INCLUDE_DIRS
             "${SHARED_APP_INCLUDE_DIR}"
+            "${SHARED_APP_INCLUDE_DIR_CPP}"
             "${SHARED_IO_INCLUDE_DIR}"
             "${SHARED_HW_INCLUDE_DIR}"
     )

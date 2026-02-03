@@ -10,7 +10,8 @@ using namespace hw::flash;
 
 constexpr uint8_t MAX_RETRIES = 5;
 
-static std::expected<void, ErrorCode> programFlashRetry(const uint32_t address, const std::span<const std::byte> buffer);
+static std::expected<void, ErrorCode>
+    programFlashRetry(const uint32_t address, const std::span<const std::byte> buffer);
 
 #if defined(STM32H733xx)
 constexpr uint32_t            PROGRAM_TYPE = FLASH_TYPEPROGRAM_FLASHWORD;
@@ -59,12 +60,7 @@ std::expected<void, ErrorCode> eraseSector(uint8_t sector)
     return hw_utils_convertHalStatus(halStatus);
 }
 
-std::expected<void, ErrorCode> programFlash(uint32_t address, std::span<const std::byte, 16> buffer)
-{
-    return programFlashRetry(address, buffer);
-}
-
-std::expected<void, ErrorCode> programFlash(uint32_t address, std::span<const std::byte, 32> buffer)
+std::expected<void, ErrorCode> programFlash(uint32_t address, std::span<const std::byte> buffer)
 {
     return programFlashRetry(address, buffer);
 }
@@ -81,8 +77,8 @@ static std::expected<void, ErrorCode> programFlashRetry(const uint32_t address, 
             __HAL_FLASH_CLEAR_FLAG(ERROR_FLAGS);
         }
 
-        status = hw_utils_convertHalStatus(
-            HAL_FLASH_Program(PROGRAM_TYPE, address, static_cast<uint32_t>(reinterpret_cast<uintptr_t>(buffer.data()))));
+        status = hw_utils_convertHalStatus(HAL_FLASH_Program(
+            PROGRAM_TYPE, address, static_cast<uint32_t>(reinterpret_cast<uintptr_t>(buffer.data()))));
 
         if (status.has_value() &&
             (std::memcmp(reinterpret_cast<const void *>(address), buffer.data(), buffer.size()) == 0))

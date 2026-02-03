@@ -42,6 +42,8 @@
 #pragma once
 
 #include <cstdint>
+#include <cstddef>
+
 
 namespace app::crc32
 {

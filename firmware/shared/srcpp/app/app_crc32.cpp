@@ -17,6 +17,7 @@
  */
 #include "app_crc32.hpp" /* include the header file generated with pycrc */
 #include <cstdint>
+#include <cstddef>
 #include <array>
 
 namespace app::crc32
