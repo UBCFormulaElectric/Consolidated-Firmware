@@ -12,7 +12,7 @@ extern "C"
 }
 namespace vc::app::powerManager
 {
-    
+
 } // namespace vc::app::powerManager
 // static PowerManagerConfig power_manager_state;
 // static TimerChannel       sequencing_timer;

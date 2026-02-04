@@ -120,12 +120,11 @@ const GyroData *app_imu_getGyroData(GyroData &data)
     return data;
 }
 
-// ask what we wanna do with the 3 imu logic? 
-// IDEA1: get the average of the 3 
+// ask what we wanna do with the 3 imu logic?
+// IDEA1: get the average of the 3
 // IDEA 2: a sm with the following states
-// all agree, all disgree, 2 agree one disagree if all agree/disagree averge otherwise take the average of the 2 agreeing ones
-// or take the middle   of the two agreeing ones
-// const ImuFaults *app_imu_getFaultData()
+// all agree, all disgree, 2 agree one disagree if all agree/disagree averge otherwise take the average of the 2
+// agreeing ones or take the middle   of the two agreeing ones const ImuFaults *app_imu_getFaultData()
 // {
 //     return &imu_faults;
 // }

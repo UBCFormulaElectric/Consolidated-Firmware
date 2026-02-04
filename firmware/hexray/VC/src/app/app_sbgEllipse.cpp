@@ -68,13 +68,13 @@ void app_sbgEllipse_broadcast()
     }
 
     // Euler angles msg
-    // Need to change these to cpp in io 
+    // Need to change these to cpp in io
     // const float euler_roll  = io_sbgEllipse_getEkfEulerAngles()->roll;
     // const float euler_pitch = io_sbgEllipse_getEkfEulerAngles()->pitch;
     // const float euler_yaw   = io_sbgEllipse_getEkfEulerAngles()->yaw;
-     const float euler_roll  = 0;
-     const float euler_pitch = 0;
-     const float euler_yaw   = 0;
+    const float euler_roll  = 0;
+    const float euler_pitch = 0;
+    const float euler_yaw   = 0;
 
     app_canTx_VC_EulerAnglesRoll_set(euler_roll);
     app_canTx_VC_EulerAnglesPitch_set(euler_pitch);

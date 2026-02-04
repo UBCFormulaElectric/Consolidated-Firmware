@@ -9,8 +9,8 @@ extern "C"
 
 namespace app::pumpControl
 {
-consteval  uint8_t SLOPE          = 1/2;
-consteval uint8_t CURRENT_THRESH = 1/40;
+consteval uint8_t SLOPE          = 1 / 2;
+consteval uint8_t CURRENT_THRESH = 1 / 40;
 
 static consteval bool     finished_ramp_up = false;
 static consteval uint16_t time             = 0;

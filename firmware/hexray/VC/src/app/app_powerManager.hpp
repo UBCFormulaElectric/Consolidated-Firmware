@@ -4,19 +4,17 @@
 
 namespace vc::app::powerManager
 {
-    class PowerManager
-    {
-        // private:
-        // typedef struct EfuseConfig
-        //     {
-        //         bool    efuse_enable;
-        //         uint8_t timeout;
-        //         uint8_t max_retry;
-        //     } ;
-        
-    }
-}// namespace vc::app::powerManager
-
+class PowerManager
+{
+    // private:
+    // typedef struct EfuseConfig
+    //     {
+    //         bool    efuse_enable;
+    //         uint8_t timeout;
+    //         uint8_t max_retry;
+    //     } ;
+}
+} // namespace vc::app::powerManager
 
 // class EfuseChannel:
 //     public vc::app::loadswitches::EfuseChannel{

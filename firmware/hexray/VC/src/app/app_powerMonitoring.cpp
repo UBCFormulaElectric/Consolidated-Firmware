@@ -48,7 +48,7 @@ void app_powerMonitoring_update(void)
     }
 }
 
-} // namespace vc::app::powerMonitoring
+} // namespace app::powerMonitoring
   // Power manager:
   //  24V channel
   //  5V channel
