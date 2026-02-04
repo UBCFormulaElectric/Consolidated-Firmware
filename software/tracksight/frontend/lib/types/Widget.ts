@@ -1,11 +1,18 @@
 import type { FC } from "react";
 
-type WidgetSchema = {
-  type: "enumTimeline",
-  options: {
-    colorPalette: string[],
-  },
-};
+type WidgetSchema =
+  | {
+      type: "enumTimeline";
+      options: {
+        colorPalette: string[];
+      };
+    }
+  | {
+      type: "alertTimeline";
+      options: {
+        colorPalette: string[];
+      };
+    };
 
 type WidgetType = WidgetSchema["type"];
 
@@ -16,8 +23,4 @@ type WidgetData<Type extends WidgetType = WidgetType> = {
 
 type WidgetRenderer<Type extends WidgetType> = FC<WidgetData<Type>>;
 
-export type {
-  WidgetData,
-  WidgetType,
-  WidgetRenderer
-};
+export type { WidgetData, WidgetRenderer, WidgetType };

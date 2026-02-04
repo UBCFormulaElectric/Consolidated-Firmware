@@ -20,50 +20,16 @@ type DashboardLayoutType = {
 const DashboardLayoutContext = createContext<DashboardLayoutType | null>(null);
 
 function DashboardLayoutProvider({ children }: { children: ReactNode }) {
-  const [widgets, setWidgets] = useState<WidgetData<WidgetType>[]>([
-    // TODO(evan): Remove this it's just temporary data, should be pulled from local storage
-    //             or something similar
-    {
-      type: "enumTimeline",
-      signals: ["VC_State"],
+  const [widgets, setWidgets] = useState<WidgetData<WidgetType>[]>(
+    new Array<WidgetData<WidgetType>>(10).fill({
+      type: "alertTimeline",
+      signals: ["BMS_BSPDAccelBrakeOk", "BMS_BmsCurrentlyOk", "BMS_BmsLatchOk", "BMS_BspdLatchOk"],
       options: {
-        colorPalette: ["#FF637E", "#FFB86A", "#05DF72", "#51A2FF"],
+        colorPalette: ["#FF637E", "#FFB86A", "#05DF72", "#51A2FF", "#BB6AFF"],
       },
       id: "widget-1",
-    },
-    {
-      type: "enumTimeline",
-      signals: ["VC_State"],
-      options: {
-        colorPalette: ["#FF637E", "#FFB86A", "#05DF72", "#51A2FF"],
-      },
-      id: "widget-2",
-    },
-    {
-      type: "enumTimeline",
-      signals: ["VC_State"],
-      options: {
-        colorPalette: ["#FF637E", "#FFB86A", "#05DF72", "#51A2FF"],
-      },
-      id: "widget-3",
-    },
-    {
-      type: "enumTimeline",
-      signals: ["VC_State"],
-      options: {
-        colorPalette: ["#FF637E", "#FFB86A", "#05DF72", "#51A2FF"],
-      },
-      id: "widget-4",
-    },
-    {
-      type: "enumTimeline",
-      signals: ["invalid_signal_name"],
-      options: {
-        colorPalette: ["#FF637E", "#FFB86A", "#05DF72", "#51A2FF"],
-      },
-      id: "widget-4",
-    },
-  ]);
+    },)
+  );
 
   const addWidget: DashboardLayoutType["addWidget"] = useCallback((newWidget) => {
     newWidget.id = crypto.randomUUID();
@@ -118,8 +84,6 @@ function DashboardLayoutProvider({ children }: { children: ReactNode }) {
     <DashboardLayoutContext.Provider
       value={{
         widgets,
-
-
         addWidget,
         removeWidget,
         editWidget,
