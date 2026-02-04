@@ -1,7 +1,6 @@
 #pragma once
 
 #include <span>
-
 #include "hw_utils.hpp"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -43,7 +42,7 @@ class I2CDevice
      * @brief Check if device connected to the given I2C interface is ready for communication.
      * @return EXIT_CODE_OK if connected device is ready to communicate over I2C.
      */
-    [[nodiscard]] ExitCode isTargetReady() const;
+    [[nodiscard]] std::expected<void, ErrorCode> isTargetReady() const;
 
     /**
      * @brief Receive data from the device connected to the given I2C interface.
@@ -51,7 +50,7 @@ class I2CDevice
      * from the device connected to the I2C interface.
      * @return EXIT_CODE_OK if data is transmitted successfully.
      */
-    [[nodiscard]] ExitCode receive(std::span<uint8_t> rx_buffer) const;
+    [[nodiscard]] std::expected<void, ErrorCode> receive(std::span<uint8_t> rx_buffer) const;
 
     /**
      * @brief Transmit data to the device connected to the given I2C interface.
@@ -59,7 +58,7 @@ class I2CDevice
      * to the device connected to the I2C interface.
      * @return EXIT_CODE_OK if data is transmitted successfully.
      */
-    [[nodiscard]] ExitCode transmit(std::span<const uint8_t> tx_buffer) const;
+    [[nodiscard]] std::expected<void, ErrorCode> transmit(std::span<const uint8_t> tx_buffer) const;
 
     /**
      * @brief Read an amount of data from a specific memory address
@@ -67,7 +66,7 @@ class I2CDevice
      * @param rx_buffer A data buffer containing the data transmitted from the device connected to the I2C interface.
      * @return EXIT_CODE_OK if data is transmitted successfully.
      */
-    [[nodiscard]] ExitCode memoryRead(uint16_t mem_addr, std::span<uint8_t> rx_buffer) const;
+    [[nodiscard]] std::expected<void, ErrorCode> memoryRead(uint16_t mem_addr, std::span<uint8_t> rx_buffer) const;
 
     /**
      * @brief Write an amount of data to a specific memory address
@@ -76,14 +75,15 @@ class I2CDevice
      * to the device connected to the I2C interface.
      * @return EXIT_CODE_OK if data is read successfully.
      */
-    [[nodiscard]] ExitCode memoryWrite(uint16_t mem_addr, std::span<const uint8_t> tx_buffer) const;
+    [[nodiscard]] std::expected<void, ErrorCode>
+        memoryWrite(uint16_t mem_addr, std::span<const uint8_t> tx_buffer) const;
 
   private:
     I2CBus  &bus;
     uint8_t  targetAddress;
     uint32_t timeoutMs;
 
-    [[nodiscard]] ExitCode waitForNotification() const;
+    [[nodiscard]] std::expected<void, ErrorCode> waitForNotification() const;
 };
 
 /**

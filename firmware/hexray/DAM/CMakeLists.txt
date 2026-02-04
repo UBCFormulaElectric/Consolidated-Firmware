@@ -32,13 +32,17 @@ list(APPEND IO_SRCS
 )
 
 file(GLOB_RECURSE HW_SRCS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp"
 )
 list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_sd.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_gpio.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
 )
 set(HW_INCLUDE_DIRS
-        #        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
         "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR_CPP}"
 )
 
@@ -69,14 +73,30 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h5xx_hal_exti.c"
             "stm32h5xx_hal_tim.c"
             "stm32h5xx_hal_tim_ex.c"
+            "stm32h5xx_hal_uart.c"
+            "stm32h5xx_hal_uart_ex.c"
+            "stm32h5xx_hal_rtc.c"
+            "stm32h5xx_hal_gpio.c"
+            "stm32h5xx_hal_fdcan.c"
+            "stm32h5xx_hal_pcd.c"
+            "stm32h5xx_hal_sd.c"
+            "stm32h5xx_hal_crc.c"
+            "stm32h5xx_ll_sdmmc.c"
+            "stm32h5xx_ll_usb.c"
+            "stm32h5xx_hal_pcd_ex.c"
+            "stm32h5xx_hal_crc_ex.c"
+            "stm32h5xx_hal_rtc_ex.c"
+            "stm32h5xx_hal_iwdg.c"
+            "stm32h5xx_hal_dma.c"
     )
+    set(CUBEMX_INCLUDE_DIRS_ ${CUBEMX_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
     stm32h562xx_cube_library(
             "hexray_DAM_stm32"
             "${STM32_HAL_SRCS}"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/DAM.ioc"
             "${CUBEMX_SRCS}"
-            "${CUBEMX_INCLUDE_DIRS}"
-            FALSE
+            "${CUBEMX_INCLUDE_DIRS_}"
+            TRUE
             "${ARM_CORE}"
     )
 

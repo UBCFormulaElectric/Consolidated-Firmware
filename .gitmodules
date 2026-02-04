@@ -1,5 +1,5 @@
-[submodule "software/dimos/src/assets"]
-	path = software/dimos/src/assets
+[submodule "software/dimos/assets"]
+	path = software/dimos/assets
 	url = https://github.com/UBCFormulaElectric/dimos-assets.git
 [submodule "scripts/canup"]
 	path = scripts/canup
