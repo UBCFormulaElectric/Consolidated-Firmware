@@ -30,7 +30,7 @@ void set_{{ alert.name }}(bool set_alert)
 
 // alert signal getter functions
 {%- for alert in all_alerts %}
-bool get_{{ alert.name }}(void)
+bool get_{{ alert.name }}()
 {
     return app::can_tx::get_{{ alert.name }}();
 }
@@ -122,7 +122,7 @@ bool BoardHasFault(CanNode board)
 }
 
 
-bool AnyBoardHasInfo(void)
+bool AnyBoardHasInfo()
 {
     // Check if any board has an info
     return (
@@ -132,7 +132,7 @@ bool AnyBoardHasInfo(void)
     );
 }
 
-bool AnyBoardHasWarning(void)
+bool AnyBoardHasWarning()
 {
     //Check if any board has a warning
     return (
@@ -142,7 +142,7 @@ bool AnyBoardHasWarning(void)
     );
 }
 
-bool AnyBoardHasFault(void)
+bool AnyBoardHasFault()
 {
     //Check if any board has a fault
     return (

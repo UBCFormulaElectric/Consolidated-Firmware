@@ -59,27 +59,25 @@ impl AppCanUtilsModuleSource<'_> {
 
         while packed_bits < signal.bits {
             let bit_start = signal.start_bit + packed_bits;
-            let starting_byte = bit_start / BYTE_SIZE;
             let bit_in_byte = bit_start % BYTE_SIZE;
             let bits_to_pack = std::cmp::min(BYTE_SIZE - bit_in_byte, signal.bits - packed_bits);
 
-            let shift = if signal.big_endian {
-                signal.bits - packed_bits - bits_to_pack - bit_in_byte
-            } else {
-                packed_bits - bit_in_byte
-            };
-
-            let mask = (1 << bits_to_pack) - 1 << bit_in_byte;
-            let mask_text = format!("0x{:X}", mask);
             let mut comment_data = vec!["_"; BYTE_SIZE as usize];
             for i in (bit_start % BYTE_SIZE)..((bit_start % BYTE_SIZE) + bits_to_pack) {
                 comment_data[i as usize] = "#";
             }
 
             iterations.push(Iteration {
-                starting_byte,
-                shift,
-                mask_text,
+                starting_byte: bit_start / BYTE_SIZE,
+                shift: if signal.big_endian {
+                    signal.bits - packed_bits - bits_to_pack - bit_in_byte
+                } else {
+                    if packed_bits < bit_in_byte {
+                        panic!("{}", signal.name);
+                    }
+                    packed_bits - bit_in_byte
+                },
+                mask_text: format!("0x{:X}", (1 << bits_to_pack) - (1 << bit_in_byte)),
                 comment_data: comment_data.into_iter().rev().collect::<String>(),
                 bits_to_pack,
             });

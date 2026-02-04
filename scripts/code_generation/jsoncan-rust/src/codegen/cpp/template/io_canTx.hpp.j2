@@ -9,10 +9,11 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <array>
 #ifdef THREAD_SAFE_CAN_PACKING
 void io_canTx_set_lockfunction(
-    void (*lock)(void),
-    void (*unlock)(void)
+    void (*lock)(),
+    void (*unlock)()
 );
 #endif
 
@@ -26,10 +27,7 @@ struct JsonCanMsg
 {
     uint32_t std_id;
     uint32_t dlc;
-    uint8_t data[
-        {%- if fd -%}64
-        {%- else %}8{%- endif -%}
-    ];
+    std::array<uint8_t, {%- if fd -%}64{%- else -%}8{%- endif -%}> data{};
 };
 
 /* -------------------------------- Enums --------------------------------- */
@@ -74,12 +72,12 @@ void enableMode_{{bus.name}}({{bus.name}}Mode mode, bool enable);
 /**
  * Enqueue periodic CAN msgs of period 1000ms.
  */
-void enqueue1HzMsgs(void);
+void enqueue1HzMsgs();
 
 /**
  * Enqueue periodic CAN msgs of period 10ms.
  */
-void enqueue100HzMsgs(void);
+void enqueue100HzMsgs();
 
 /**
  * Enqueue periodic CAN messages whose cycle time does is not suitable for other periodic sending functions.

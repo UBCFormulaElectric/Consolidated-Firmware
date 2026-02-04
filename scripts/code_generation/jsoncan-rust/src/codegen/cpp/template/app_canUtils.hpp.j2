@@ -42,7 +42,7 @@ constexpr float {{ signal.start_val_macro() }} = {{ signal.start_val }};
 // {{msg.name}}
 {% for signal in msg.signals -%}
 constexpr float {{ signal.scale_macro() }} = {{ signal.scale }};
-#- Note: unit may be optional
+// Note: unit may be optional
 {%- if signal.unit.is_some() && signal.unit.as_ref().unwrap() != "" -%}// {{ signal.unit.as_ref().unwrap() }} {%- endif %}
 constexpr float {{ signal.offset_macro() }} = {{ signal.offset }};
 {%- if signal.unit.is_some() && signal.unit.as_ref().unwrap() != "" -%}// {{ signal.unit.as_ref().unwrap() }} {%- endif %}
@@ -67,12 +67,11 @@ constexpr float {{ signal.max_val_macro() }} = {{ signal.max }};
 {%- for e in enums %}
 enum class {{ e.name }}
 {
-    {% for (key, value) in e.values -%}
-    {{ value }} = {{ key }},
-    {% endfor -%}
+    {%- for (key, value) in e.values %}
+    {{ key }} = {{ value }},
+    {%- endfor %}
 };
-{% endfor %}
-
+{%- endfor %}
 
 enum class CanNode
 {
@@ -80,7 +79,6 @@ enum class CanNode
     {{node_name.to_uppercase()}}_NODE = {{loop.index}},
     {%- endfor %}
 };
-
 
 /* ------------------------------- Structs -------------------------------- */
 
