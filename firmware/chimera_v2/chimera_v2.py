@@ -12,29 +12,13 @@ import types
 import libusb_package
 
 # Protobuf autogen packages.
-import proto_autogen.shared_pb2
-import proto_autogen.f4dev_pb2
-import proto_autogen.fsm_pb2
-import proto_autogen.rsm_pb2
-import proto_autogen.ssm_pb2
-import proto_autogen.crit_pb2
-import proto_autogen.dam_pb2
+import proto_autogen_hex.dam_pb2
+import proto_autogen_hex.shared_pb2
 
 # Pyvisa Peripherals.
 from load_bank import *
 from power_supply import *
 from scope import *
-
-# Protobuf autogen packages.
-import proto_autogen.shared_pb2
-
-import proto_autogen.f4dev_pb2
-import proto_autogen.ssm_pb2
-import proto_autogen.crit_pb2
-import proto_autogen.bms_pb2
-import proto_autogen.rsm_pb2
-import proto_autogen.fsm_pb2
-import proto_autogen.vc_pb2
 
 # USB Manufacturer ID, specified per-board in STM32 CubeMX.
 _MANUFACTURER = "ubc_formula_electric"
@@ -502,89 +486,12 @@ class SpiDevice:
         return response.spi_transaction.rx_data
 
 
-class F4Dev(_Board):
-    def __init__(self):
-        """Create an interface to an F4Dev board."""
-
-        super().__init__(
-            usb_device=_UsbDevice(product="f4dev"),
-            net_name_tag="f4dev_net_name",
-            board_module=proto_autogen.f4dev_pb2,
-        )
-
-
-class SSM(_Board):
-    def __init__(self):
-        """Create an interface to an SSM board."""
-
-        super().__init__(
-            usb_device=_UsbDevice(product="ssm"),
-            net_name_tag="ssm_net_name",
-            board_module=proto_autogen.ssm_pb2,
-        )
-
-
-class CRIT(_Board):
-    def __init__(self):
-        """Create an interface to a CRIT/cDIM board."""
-
-        super().__init__(
-            usb_device=_UsbDevice(product="crit"),
-            net_name_tag="crit_net_name",
-            board_module=proto_autogen.crit_pb2,
-        )
-
-
-class BMS(_Board):
-    def __init__(self):
-        """Create an interface to a BMS board."""
-
-        super().__init__(
-            usb_device=_UsbDevice(product="bms"),
-            net_name_tag="bms_net_name",
-            board_module=proto_autogen.bms_pb2,
-        )
-
-
-class RSM(_Board):
-    def __init__(self):
-        """Create an interface to a RSM board."""
-
-        super().__init__(
-            usb_device=_UsbDevice(product="rsm"),
-            net_name_tag="rsm_net_name",
-            board_module=proto_autogen.rsm_pb2,
-        )
-
-
-class FSM(_Board):
-    def __init__(self):
-        """Create an interface to a FSM board."""
-
-        super().__init__(
-            usb_device=_UsbDevice(product="fsm"),
-            net_name_tag="fsm_net_name",
-            board_module=proto_autogen.fsm_pb2,
-        )
-
-
 class DAM(_Board):
     def __init__(self):
-        """Create an interface to a DAM board."""
+        """Create an interface to an DAM board."""
 
         super().__init__(
             usb_device=_UsbDevice(product="dam"),
             net_name_tag="dam_net_name",
-            board_module=proto_autogen.dam_pb2,
-        )
-
-
-class VC(_Board):
-    def __init__(self):
-        """Create an interface to a VC board."""
-
-        super().__init__(
-            usb_device=_UsbDevice(product="vc"),
-            net_name_tag="vc_net_name",
-            board_module=proto_autogen.vc_pb2,
+            board_module=proto_autogen_hex.dam_pb2,
         )

@@ -12,7 +12,8 @@ constexpr float BRAKE_PRESSURE_SC_THRESHOLD_V = 4.6f;
 //  Psi per Volt: (Max Pressure - Min Pressure) / (Max Input Voltage - Min Input Voltage)
 constexpr float MAX_PRESSURE = 2500;
 constexpr float MIN_PRESSURE = 0;
-constexpr float BRAKE_PSI_PER_VOLT = (MAX_PRESSURE - MIN_PRESSURE)/(BRAKE_PRESSURE_SC_THRESHOLD_V - BRAKE_PRESSURE_OC_THRESHOLD_V);
+constexpr float BRAKE_PSI_PER_VOLT =
+    (MAX_PRESSURE - MIN_PRESSURE) / (BRAKE_PRESSURE_SC_THRESHOLD_V - BRAKE_PRESSURE_OC_THRESHOLD_V);
 
 float pressureFromVoltage(float voltage)
 {
@@ -22,19 +23,16 @@ float pressureFromVoltage(float voltage)
 
 namespace io::brake
 {
-    float getRearPressurePsi()
-    {
-        return pressureFromVoltage(hw::adcs::bps_3v3.getVoltage());
-    }
-
-    bool OCSC()
-    {
-        return !hw::gpio::brake_ocsc_ok.readPin();
-    }
+float getRearPressurePsi()
+{
+    return pressureFromVoltage(hw::adcs::bps_3v3.getVoltage());
 }
 
-
-
+bool OCSC()
+{
+    return !hw::gpio::brake_ocsc_ok.readPin();
+}
+} // namespace io::brake
 
 // float getRearPressurePsi()
 // {
@@ -49,7 +47,6 @@ namespace io::brake
 //     return !hw_gpio_readPin(&nbps_f_ocsc);
 // }
 // namespace io::brake
-
 
 // static float pressureFromVoltage(float voltage)
 // {

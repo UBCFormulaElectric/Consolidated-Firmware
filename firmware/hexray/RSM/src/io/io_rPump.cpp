@@ -5,8 +5,6 @@
 
 // static const Potentiometer rsm_pot = { .i2c_handle = &r_pump_i2c };
 
-
-
 #define RPUMP_WIPER 0
 #define MAX_WIPER_VALUE 256.0f
 

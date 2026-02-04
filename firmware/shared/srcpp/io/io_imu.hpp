@@ -188,8 +188,8 @@ class Imu
   public:
 #ifdef TARGET_EMBEDDED
     constexpr explicit Imu(
-        const hw::spi::SpiDevice    &in_imu_spi_handle,
-        const ImuFilterConfig &in_filter_config = ImuFilterConfig{})
+        const hw::spi::SpiDevice &in_imu_spi_handle,
+        const ImuFilterConfig    &in_filter_config = ImuFilterConfig{})
       : imu_spi_handle(in_imu_spi_handle), filter_config(in_filter_config)
     {
     }

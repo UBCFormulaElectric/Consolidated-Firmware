@@ -4,6 +4,6 @@
 
 namespace io
 {
-    extern const binary_led led;
-    extern const binary_led brake_light;
-}
+extern const binary_led led;
+extern const binary_led brake_light;
+} // namespace io

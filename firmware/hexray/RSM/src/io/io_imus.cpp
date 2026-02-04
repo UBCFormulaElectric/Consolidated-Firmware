@@ -4,7 +4,7 @@
 
 namespace io::imu
 {
-    ImuFilterConfig imu_filter;
+ImuFilterConfig imu_filter;
 
-    Imu imu_config(hw::spi::imu);
-}
+Imu imu_config(hw::spi::imu);
+} // namespace io::imu
