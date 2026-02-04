@@ -26,7 +26,6 @@ hw::spi::SpiBus *hw_spi_getBusFromHandle(const SPI_HandleTypeDef *handle1)
     assert(handle == &master_bus.handle);
     return &master_bus;
 }
-}
 
 const hw::Gpio IMU2();
 IMU2.master_nss(MASTER_NSS_GPIO_Port, MASTER_NSS_Pin);
@@ -38,7 +37,7 @@ hw::spi::SpiBus *hw_spi_getBusFromHandle(const SPI_HandleTypeDef *handle2)
     assert(handle == &master_bus.handle);
     return &master_bus;
 }
-}
+
 
 const hw::Gpio IMU3();
 IMU3.master_nss(MASTER_NSS_GPIO_Port, MASTER_NSS_Pin);
@@ -50,5 +49,5 @@ hw::spi::SpiBus *hw_spi_getBusFromHandle(const SPI_HandleTypeDef *handle3)
     assert(handle == &master_bus.handle);
     return &master_bus;
 }
-}
+
 } // namespace vc::hw::spis

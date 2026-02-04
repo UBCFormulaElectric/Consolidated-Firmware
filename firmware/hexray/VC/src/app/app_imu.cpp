@@ -120,6 +120,8 @@ const GyroData *app_imu_getGyroData(GyroData &data)
     return data;
 }
 
+
+
 // ask what we wanna do with the 3 imu logic?
 // IDEA1: get the average of the 3
 // IDEA 2: a sm with the following states
