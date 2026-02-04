@@ -6,6 +6,7 @@ extern "C"
 
 namespace hw::adcs
 {
+constexpr int NUM_ADC_CHANNELS = 6;
 AdcChip<NUM_ADC_CHANNELS> adc1(&hadc1, &htim2);
 
 void chipsInit(void)

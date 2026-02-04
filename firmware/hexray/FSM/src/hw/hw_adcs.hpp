@@ -1,8 +1,6 @@
 #pragma once
 #include "hw_adc.hpp"
 
-#define NUM_ADC_CHANNELS 6 // Number of channels being measured by adc1
-
 // In STM32 terminology, each ADC pin corresponds to an ADC channel (See:
 // ADCEx_channels). If there are multiple ADC channels being measured, the ADC
 // measures them based on "rank" (See: ADCEx_regular_rank). The rank starts
@@ -16,8 +14,6 @@
 
 namespace hw::adcs
 {
-extern AdcChip<NUM_ADC_CHANNELS> adc1;
-
 void chipsInit();
 
 extern Adc susp_fl;
