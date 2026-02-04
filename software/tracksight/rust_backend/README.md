@@ -9,12 +9,13 @@ todo for backend
 [x] switch to using tokio threading
 [x] verify that serial messages can be processed
 [x] processing jsoncan to read metadata - deserialize bytes
-[ ] implementing client subscription map, socket server for clients to serve data
-[ ] switch to tokio serial
-[ ] interfacing with influxdb and pushing data through
-[ ] ensure proper error handling in backend and logging
+[x] implementing client subscription map, socket server for clients to serve data
 [ ] implementing api endpoints
 [ ] figure out the time offset basetime thing, implement ntp and base time syncing
+[ ] switch to tokio serial
+[ ] set up mdns config
+[ ] interfacing with influxdb and pushing data through
+[ ] ensure proper error handling in backend and logging
 ...
 
 ##### processing can signals

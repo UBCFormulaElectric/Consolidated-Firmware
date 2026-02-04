@@ -9,6 +9,7 @@ use jsoncan_rust::can_database::CanDatabase;
 use crate::config::CONFIG;
 use crate::tasks::client_api::AppState;
 use crate::tasks::client_api::clients::Clients;
+use crate::tasks::client_api::signal_api_handler::get_signal_router;
 use crate::tasks::client_api::subtable_api_handler::get_subtable_router;
 
 pub async fn run_api_handler(mut shutdown_rx: broadcast::Receiver<()>, clients: Arc<RwLock<Clients>>, can_db: Arc<CanDatabase>) {
@@ -37,7 +38,9 @@ pub async fn run_api_handler(mut shutdown_rx: broadcast::Receiver<()>, clients: 
 
     let app = Router::new()
         .layer(socket_layer)
-        .nest("/api/v1/", get_subtable_router(app_state))
+        .nest("/api/v1/", get_subtable_router())
+        .nest("/api/v1/", get_signal_router())
+        .with_state(app_state)
         .into_make_service();
 
     select! {

@@ -28,8 +28,8 @@ struct SignalMetadata {
     name: String,
     min_val: f64,
     max_val: f64,
-    unit: String,
-    // todo enum
+    unit: Option<String>,
+    enum_type: Option<String>,
     tx_node: String,
     cycle_time_ms: Option<u32>,
     id: u32,
@@ -45,20 +45,30 @@ async fn metadata(Query(mut param): Query<MetadataParam>, State(state): State<Ap
     // todo unwrap hehe
     let regex = Regex::new(param.name.get_or_insert("*".to_string())).unwrap();
 
-    let filter_map = | msg: &CanMessage | -> Option<(String, SignalMetadata)> {
-        if !regex.is_match(&msg.name) {
-            return None;
-        }
-
-        Some((msg.name.clone(), SignalMetadata {
-            //todo
-        }))
+    let flat_map = | msg: &CanMessage | {
+        return msg.signals.iter().map(
+            | signal | {
+                (signal.name.clone(),
+                SignalMetadata {
+                    name: signal.name.clone(),
+                    min_val: signal.min,
+                    max_val: signal.max,
+                    unit: signal.unit.clone(),
+                    enum_type: signal.enum_name.clone(),
+                    tx_node: msg.tx_node_name.clone(),
+                    cycle_time_ms: msg.cycle_time.clone(),
+                    id: msg.id,
+                    msg_name: msg.name.clone(),
+                })
+            }
+        ).collect::<Vec<_>>()
     };
 
     let metadatas: HashMap<String, SignalMetadata> = state.can_db.get_all_msgs()
         .unwrap_or_default()
         .iter()
-        .filter_map(filter_map)
+        .filter(|msg| regex.is_match(&msg.name))
+        .flat_map(flat_map)
         .collect();
 
     return (StatusCode::OK, Json(metadatas));
@@ -66,14 +76,20 @@ async fn metadata(Query(mut param): Query<MetadataParam>, State(state): State<Ap
 
 async fn signal() -> impl IntoResponse {
     // TODO implement
+    todo!("query from influxdb");
     return (StatusCode::OK, Json(()));
 }
 
+async fn signal_csv() -> impl IntoResponse {
+    // TODO implement
+    todo!("to implement signal csv download");
+    return (StatusCode::OK, Json(()));
+}
 
-pub fn get_subtable_router(app_state: AppState) -> Router {
+pub fn get_signal_router() -> Router<AppState> {
     return Router::new()
         .route("/signal/nodes", get(nodes))
         .route("/signal/metadata", get(metadata))
         .route("/signal", get(signal))
-        .with_state(app_state);
+        .route("/signal/csv", get(signal_csv));
 }
