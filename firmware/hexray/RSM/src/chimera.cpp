@@ -118,6 +118,3 @@ void tasks_preInit() {}
 {
     chimera_v2::task(rsm_config);
 }
-
-// what is a protobuf generated tags
-// how does this system actually work with python
