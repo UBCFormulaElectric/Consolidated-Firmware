@@ -190,8 +190,65 @@ impl CanDatabase {
         }
     }
 
-    pub fn pack(&self) -> Vec<u8> {
-        todo!("Serializing or whatnot")
+    pub fn pack(&self, msg_name: &str, signals: &[DecodedSignal]) -> Result<(u32, Vec<u8>), CanDBError> {
+        let msg = match self.get_message_by_name(msg_name) {
+            Ok(m) => m,
+            Err(_) => {
+                eprintln!("Message named '{}' is not defined in the database.", msg_name);
+                return Err(CanDBError::SqlLiteError(rusqlite::Error::InvalidQuery));
+            }
+        };
+
+        let mut signal_map = std::collections::HashMap::new();
+        for signal in &msg.signals {
+            signal_map.insert(signal.name.clone(), signal);
+        }
+
+        let mut data_uint: u64 = 0;
+
+        for decoded_signal in signals {
+            let signal = match signal_map.get(&decoded_signal.name) {
+                Some(s) => s,
+                None => {
+                    eprintln!("Signal named '{}' is not defined for message '{}'.", decoded_signal.name, msg.name);
+                    continue;
+                }
+            };
+
+            let raw_value = ((decoded_signal.value - signal.offset) / signal.scale).floor() as i64;
+
+            let bitmask = (1u64 << signal.bits) - 1;
+            let data_shifted = ((raw_value as u64) & bitmask) << signal.start_bit;
+
+            data_uint |= data_shifted;
+        }
+
+        let mut max_bit = 0;
+        for signal in &msg.signals {
+            let end_bit = signal.start_bit + signal.bits;
+            if end_bit > max_bit {
+                max_bit = end_bit;
+            }
+        }
+        let useful_length = ((max_bit + 7) / 8) as usize;
+        let allowable_lengths = [0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64];
+        let mut dlc = 0;
+        for &length in &allowable_lengths {
+            if length >= useful_length {
+                dlc = length;
+                break;
+            }
+        }
+        if dlc == 0 {
+            return Err(CanDBError::SqlLiteError(rusqlite::Error::InvalidQuery));
+        }
+
+        let mut data_bytes = vec![0u8; dlc];
+        for i in 0..dlc {
+            data_bytes[i] = ((data_uint >> (8 * i)) & 0xFF) as u8;
+        }
+
+        Ok((msg.id, data_bytes))
     }
 
     pub fn unpack(&self, msg_id: u32, data: Vec<u8>, timestamp: Option<std::time::SystemTime>) -> Vec<DecodedSignal> {
