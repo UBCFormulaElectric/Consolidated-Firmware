@@ -9,11 +9,22 @@ import { MockWidgetAddSignalModal } from "./MockWidget";
 // types
 import { EnumSignalConfig, NumericalSignalConfig, WidgetData } from "@/components/widgets/WidgetTypes";
 import { ChartData } from "./CanvasChartTypes";
+import EnumTimeline from "@/components/widgets/EnumTimeline";
+import { WidgetData as WidgetDataType, WidgetType } from "@/lib/types/Widget";
+import AlertTimeline from "@/components/widgets/AlertTimeline";
 
-// hooks
 import { useDisplayControlContext as useDisplayControlInfo } from "../PausePlayControl";
 import { useMockData } from "./MockWidget";
 import { useWidgetManager } from "./WidgetManagerContext";
+
+function Widget(props: WidgetDataType<WidgetType>) {
+	switch (props.type) {
+		case "enumTimeline":
+			return <EnumTimeline {...props} />;
+		case "alertTimeline":
+			return <AlertTimeline {...props} />;
+	}
+}
 
 function SignalButton({ cfg, handleRemoveSignal, hoverSignalName }: {
 	cfg: EnumSignalConfig | NumericalSignalConfig, idx: number,
@@ -46,6 +57,7 @@ function useWidgetData(widgetData: WidgetData): RefObject<ChartData> {
 	if (widgetData.mock) { // this should be fine as it is constant
 		return useMockData(isPaused, widgetData);
 	}
+
 	return useRef<ChartData>({}); // TODO populate data for numerical and enum from the store
 }
 

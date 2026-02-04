@@ -14,11 +14,11 @@ const ARRAY_GROWTH_FACTOR = 2;
 //             get some of those v8 optimizations back.
 class AutoResizingTypedArray {
   private array: Float64Array;
-  private length: number;
+  private _length: number;
 
   constructor() {
     this.array = new Float64Array(INITIAL_ARRAY_SIZE);
-    this.length = 0;
+    this._length = 0;
   }
 
   push(value: number) {
@@ -27,7 +27,7 @@ class AutoResizingTypedArray {
     }
 
     this.array[this.length] = value;
-    this.length += 1;
+    this._length += 1;
 
     if (this.length % 100_000 === 0)
       console.log("%c[TypedArray]: Current length:", "color: lightgreen;", this.length);
@@ -39,6 +39,10 @@ class AutoResizingTypedArray {
     }
 
     return this.array[index];
+  }
+
+  get length(): number {
+    return this._length;
   }
 
   private resize() {
