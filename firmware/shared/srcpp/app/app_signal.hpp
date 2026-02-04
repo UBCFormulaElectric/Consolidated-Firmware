@@ -23,7 +23,7 @@ class Signal
 
     // A flag used to indicate if the callback function is triggered
     bool        is_signal_active = false;
-    SignalState state            = SignalState::SIGNAL_STATE_CLEAR;
+    SignalState state;
     app::Timer  entry_timer;
     app::Timer  exit_timer;
 
@@ -46,7 +46,7 @@ class Signal
      * @param entry_condition_high
      * @param exit_condition_high
      */
-    SignalState app_signal_get_state(bool entry_condition_high, bool exit_condition_high)
+    SignalState get_updated_state(bool entry_condition_high, bool exit_condition_high)
     {
         assert((!entry_condition_high && !exit_condition_high) || (entry_condition_high != exit_condition_high));
 
@@ -73,7 +73,7 @@ class Signal
 
         return state;
     }
-    [[nodiscard]] constexpr bool        app_is_signal_active() const { return is_signal_active; }
-    [[nodiscard]] constexpr SignalState app_current_signal_state() const { return state; }
+    [[nodiscard]] constexpr bool        is_active() const { return is_signal_active; }
+    [[nodiscard]] constexpr SignalState current_state() const { return state; }
 };
 } // namespace app
