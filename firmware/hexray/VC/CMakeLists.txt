@@ -50,8 +50,8 @@ set(HW_INCLUDE_DIRS
 )
 
 # chimera sources
-set(CHIMERA_SRCS
-        ${HW_SRCS}
+set(CHIMERA_SRCS 
+        ${HW_SRCS} 
         "${CMAKE_CURRENT_SOURCE_DIR}/src/chimera.cpp"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
 )
