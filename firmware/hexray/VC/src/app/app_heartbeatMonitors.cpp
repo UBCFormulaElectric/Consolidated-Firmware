@@ -7,7 +7,7 @@ extern "C"
 #include "app_canAlerts.h"
 }
 
-namespace app::vc::heartbeatMonitors::heartbeatMonitors
+namespace app::heartbeatMonitors
 {
 static app::heartbeat::monitor<5> vc_hb_monitor(
     // bms
@@ -41,4 +41,4 @@ static app::heartbeat::monitor<5> vc_hb_monitor(
         fault_getter = app_canAlerts_VC_Info_MissingDAMHeartbeat_get,
         fault_setter = app_canAlerts_VC_Info_MissingDAMHeartbeat_set), );
 
-} // namespace app::vc::heartbeatMonitors::heartbeatMonitors
+} // namespace app::heartbeatMonitors

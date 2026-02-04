@@ -2,15 +2,16 @@
 #include "app_imu.hpp"
 // Need to pass in spi handle device
 // init the spi and extern it in the io layer??
-namespace vc::app::imu
+namespace app::imu
 {
-constexpr explicit hw::spi::SpiDevice imu_spi1(SpiBus &bus_in, const Gpio &nss_in, const uint32_t timeoutMs_in);
-constexpr explicit hw::spi::SpiDevice imu_spi2();
-constexpr explicit hw::spi::SpiDevice imu_spi3();
+// This with proper cs initialization has to move to io
+// constexpr explicit hw::spi::SpiDevice imu_spi1(SpiBus &bus_in, const Gpio &nss_in, const uint32_t timeoutMs_in);
+// constexpr explicit hw::spi::SpiDevice imu_spi2();
+// constexpr explicit hw::spi::SpiDevice imu_spi3();
 
-constexpr explicit io::imu::Imu imu1(imu_spi1);
-constexpr explicit io::imu::Imu imu2(imu_spi2);
-constexpr explicit io::imu::Imu imu3(imu_spi3);
+io::imu::Imu imu1(imu_spi1);
+io::imu::Imu imu2(imu_spi2);
+io::imu::Imu imu3(imu_spi3);
 
 imu1().init();
 imu2().init();
@@ -128,4 +129,4 @@ const GyroData *app_imu_getGyroData(GyroData &data)
 // {
 //     return &imu_faults;
 // }
-} // namespace vc::app::imu
+} // namespace app::imu

@@ -3,7 +3,7 @@
 #include <cstdint>
 #include "io_sbgEllipse.hpp"
 
-namepace vc::app::sbgEllipse
+namespace app::sbgEllipse
 {
     /*
      * Broadcast sensor outputs over CAN.
@@ -24,4 +24,4 @@ namepace vc::app::sbgEllipse
      * Get vehicle velocity
      */
     VcEkfStatus app_sbgEllipse_getEkfSolutionMode(void);
-} // namespace vc::app::sbgEllipse
+} // namespace app::sbgEllipse

@@ -7,7 +7,7 @@ extern "C"
 #include <app_canUtils.h>
 }
 
-namespace vc::app::shdnLast
+namespace app::shdnLast
 {
 static ShutdownNode get_first_shutdown()
 {
@@ -49,4 +49,4 @@ void app_shdnLast_broadcast(void)
     app_canTx_VC_FirstFaultNode_set(get_first_shutdown());
 }
 
-} //  namespace vc::app::shdnLast
+} //  namespace app::shdnLast

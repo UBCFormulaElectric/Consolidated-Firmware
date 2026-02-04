@@ -6,7 +6,7 @@ extern "C"
 #include "app_canTx.h"
 }
 
-namespace vc::app::warningHandling
+namespace app::warningHandling
 {
 constexpr uint32_t app_brake_diagreement_time_to_fault = 10u;
 constexpr uint32_t app_brake_diagreement_time_to_clear = 10u;
@@ -42,4 +42,4 @@ void app_softwareBspd_init(void)
         &apps_brake_disagreement_signal, app_brake_diagreement_time_to_fault, app_brake_diagreement_time_to_clear);
 }
 
-} // namespace vc::app::warningHandling
+} // namespace app::warningHandling

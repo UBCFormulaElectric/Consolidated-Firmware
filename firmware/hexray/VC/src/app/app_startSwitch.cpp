@@ -4,7 +4,7 @@ extern "C"
 }
 #include "app_startSwitch.hpp"
 
-namespace vc::app::startSwitch
+namespace app::startSwitch
 {
 constexpr uint8_t SWITCH_OFF = 0;
 bool              app_startSwitch_hasRisingEdge(void)
@@ -17,4 +17,4 @@ bool              app_startSwitch_hasRisingEdge(void)
     last_switch_state = start_switch_state;
     return has_rising_edge;
 }
-} // namespace vc::app::startSwitch
+} // namespace app::startSwitch

@@ -1,7 +1,7 @@
 #pragma once
 // TODO: refactor the signal
 #include "app_signal.hpp"
-namespace vc::app::warningHandling
+namespace app::warningHandling
 {
 // board warnings
 bool app_warningHandling_boardWarningCheck(void);
@@ -15,4 +15,4 @@ void app_softwareBspd_init(void);
 // Allowed to exit disagreement only when apps is released (< 5%)
 bool app_warningHandling_checkSoftwareBspd(float papps_pedal_percentage);
 
-} // namespace vc::app::warningHandling
+} // namespace app::warningHandling

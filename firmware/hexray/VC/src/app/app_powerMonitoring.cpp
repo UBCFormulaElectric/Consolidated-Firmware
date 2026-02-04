@@ -5,7 +5,7 @@ extern "C"
 #include "app_canTx.h"
 }
 
-namespace vc::app::powerMonitoring
+namespace app::powerMonitoring
 {
 constexpr uint8_t CH1 = 1u; // 24V
 constexpr uint8_t CH2 = 2u; // 5V

@@ -13,7 +13,7 @@ extern "C"
 #include "io_sbgEllipse.h"
 }
 
-namespace vc::app::sbgEllipse
+namespace app::sbgEllipse
 {
 static consteval float       vehicle_velocity;
 static consteval VcEkfStatus ekf_solution_mode;
@@ -45,6 +45,9 @@ void app_sbgEllipse_broadcast()
     // const float ekf_vel_N_accuracy = io_sbgEllipse_getEkfNavVelocityData()->north_std_dev;
     // const float ekf_vel_E_accuracy = io_sbgEllipse_getEkfNavVelocityData()->east_std_dev;
     // const float ekf_vel_D_accuracy = io_sbgEllipse_getEkfNavVelocityData()->down_std_dev;
+    const float ekf_vel_N_accuracy = 0;
+    const float ekf_vel_E_accuracy = 0;
+    const float ekf_vel_D_accuracy = 0;
 
     app_canTx_VC_VelocityNorth_set(ekf_vel_N);
     app_canTx_VC_VelocityEast_set(ekf_vel_E);
@@ -87,4 +90,4 @@ VcEkfStatus app_sbgEllipse_getEkfSolutionMode(void)
 {
     return ekf_solution_mode;
 }
-} // namespace vc::app::sbgEllipse
+} // namespace app::sbgEllipse

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-namespace vc::app::pumpControl
+namespace app::pumpControl
 {
 void app_pumpControl_MonitorPumps(void);
 }

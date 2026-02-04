@@ -11,7 +11,7 @@ hw::Gpio inertia_switch_pin{};
 hw::Gpio rear_right_motor_interlock_pin{};
 hw::Gpio splitter_box_interlock_pin{};
 
-namespace vc::app::shdnLoop
+namespace app::shdnLoop
 {
 // Initialize the shutdown nodes
 io::shdn::node tsms_node                       = { tsms_pin, &app_canTx_VC_TSMSOKStatus_set };
@@ -29,7 +29,7 @@ void app_shdnLoop_broadcast(void)
     splitter_box_interlock_node::can_broadcast();
 }
 
-} // namespace vc::app::shdnLoop
+} // namespace app::shdnLoop
 
 // static const BoardShdnNode tsms_node         = { io_vcShdn_TsmsFault_get, &app_canTx_VC_TSMSOKStatus_set };
 // static const BoardShdnNode inertia_stop_node = { io_vcShdn_InertiaSwitch_get, &app_canTx_VC_InertiaSwitch_set };
