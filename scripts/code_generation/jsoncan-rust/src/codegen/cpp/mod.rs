@@ -7,14 +7,14 @@ pub mod io_canreroute;
 pub mod io_canrx;
 pub mod io_cantx;
 
-pub use app_canalerts::{AppCanAlertsModule, AppCanAlertsModuleCpp};
-pub use app_candatacapture::{AppCanDataCaptureModule, AppCanDataCaptureModuleCpp};
-pub use app_canrx::{AppCanRxModule, AppCanRxModuleCpp};
-pub use app_cantx::{AppCanTxModule, AppCanTxModuleCpp};
-pub use app_canutil::{AppCanUtilsModule, AppCanUtilsModuleCpp};
-pub use io_canreroute::{IoCanRerouteModule, IoCanRerouteModuleCpp};
-pub use io_canrx::{IoCanRxModule, IoCanRxModuleCpp};
-pub use io_cantx::{IoCanTxModule, IoCanTxModuleCpp};
+pub use app_canalerts::AppCanAlertsModule;
+pub use app_candatacapture::AppCanDataCaptureModule;
+pub use app_canrx::AppCanRxModule;
+pub use app_cantx::AppCanTxModule;
+pub use app_canutil::AppCanUtilsModule;
+pub use io_canreroute::IoCanRerouteModule;
+pub use io_canrx::IoCanRxModule;
+pub use io_cantx::IoCanTxModule;
 
 use crate::can_database::{CanMessage, CanSignal};
 
@@ -72,56 +72,6 @@ impl CPPGenerator for CPPModule<'_> {
             CPPModule::IoCanTxModule(module) => module.source_template(),
             CPPModule::IoCanRxModule(module) => module.source_template(),
             CPPModule::IoCanRerouteModule(module) => module.source_template(),
-        }
-    }
-}
-
-pub enum CPPModuleCpp<'a> {
-    AppCanUtilsModule(AppCanUtilsModuleCpp),
-    AppCanTxModule(AppCanTxModuleCpp),
-    AppCanAlertsModule(AppCanAlertsModuleCpp<'a>),
-    AppCanDataCaptureModule(AppCanDataCaptureModuleCpp),
-    AppCanRxModule(AppCanRxModuleCpp<'a>),
-    IoCanTxModule(IoCanTxModuleCpp<'a>),
-    IoCanRxModule(IoCanRxModuleCpp<'a>),
-    IoCanRerouteModule(IoCanRerouteModuleCpp<'a>),
-}
-
-impl CPPGenerator for CPPModuleCpp<'_> {
-    fn file_stem(&self) -> String {
-        match self {
-            CPPModuleCpp::AppCanUtilsModule(module) => module.file_stem(),
-            CPPModuleCpp::AppCanTxModule(module) => module.file_stem(),
-            CPPModuleCpp::AppCanAlertsModule(module) => module.file_stem(),
-            CPPModuleCpp::AppCanDataCaptureModule(module) => module.file_stem(),
-            CPPModuleCpp::AppCanRxModule(module) => module.file_stem(),
-            CPPModuleCpp::IoCanTxModule(module) => module.file_stem(),
-            CPPModuleCpp::IoCanRxModule(module) => module.file_stem(),
-            CPPModuleCpp::IoCanRerouteModule(module) => module.file_stem(),
-        }
-    }
-    fn header_template(&self) -> Result<String, askama::Error> {
-        match self {
-            CPPModuleCpp::AppCanUtilsModule(module) => module.header_template(),
-            CPPModuleCpp::AppCanTxModule(module) => module.header_template(),
-            CPPModuleCpp::AppCanAlertsModule(module) => module.header_template(),
-            CPPModuleCpp::AppCanDataCaptureModule(module) => module.header_template(),
-            CPPModuleCpp::AppCanRxModule(module) => module.header_template(),
-            CPPModuleCpp::IoCanTxModule(module) => module.header_template(),
-            CPPModuleCpp::IoCanRxModule(module) => module.header_template(),
-            CPPModuleCpp::IoCanRerouteModule(module) => module.header_template(),
-        }
-    }
-    fn source_template(&self) -> Result<String, askama::Error> {
-        match self {
-            CPPModuleCpp::AppCanUtilsModule(module) => module.source_template(),
-            CPPModuleCpp::AppCanTxModule(module) => module.source_template(),
-            CPPModuleCpp::AppCanAlertsModule(module) => module.source_template(),
-            CPPModuleCpp::AppCanDataCaptureModule(module) => module.source_template(),
-            CPPModuleCpp::AppCanRxModule(module) => module.source_template(),
-            CPPModuleCpp::IoCanTxModule(module) => module.source_template(),
-            CPPModuleCpp::IoCanRxModule(module) => module.source_template(),
-            CPPModuleCpp::IoCanRerouteModule(module) => module.source_template(),
         }
     }
 }

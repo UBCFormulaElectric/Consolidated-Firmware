@@ -8,14 +8,14 @@ use crate::{
 use askama::Template;
 
 #[derive(Template)]
-#[template(path = "app_canRx.c.j2")]
+#[template(path = "app_canRx.cpp.j2")]
 struct AppCanRxModuleSource<'a> {
     node: &'a String,
     boards_messages: &'a HashMap<String, Vec<CanMessage>>, // maps messages to the board they came from
 }
 
 #[derive(Template)]
-#[template(path = "app_canRx.h.j2")]
+#[template(path = "app_canRx.hpp.j2")]
 struct AppCanRxModuleHeader<'a> {
     boards_messages: &'a HashMap<String, Vec<CanMessage>>, // maps messages to the board they came from
 }
@@ -60,65 +60,6 @@ impl CPPGenerator for AppCanRxModule<'_> {
     }
     fn source_template(&self) -> Result<String, askama::Error> {
         AppCanRxModuleHeader {
-            boards_messages: &self.boards_messages,
-        }
-        .render()
-    }
-}
-
-#[derive(Template)]
-#[template(path = "app_canRx.cpp.j2")]
-struct AppCanRxModuleSourceCpp<'a> {
-    node: &'a String,
-    boards_messages: &'a HashMap<String, Vec<CanMessage>>, // maps messages to the board they came from
-}
-
-#[derive(Template)]
-#[template(path = "app_canRx.hpp.j2")]
-struct AppCanRxModuleHeaderCpp<'a> {
-    boards_messages: &'a HashMap<String, Vec<CanMessage>>, // maps messages to the board they came from
-}
-
-pub struct AppCanRxModuleCpp<'a> {
-    node: &'a String,
-    boards_messages: HashMap<String, Vec<CanMessage>>, // maps messages to the board they came from
-}
-
-impl AppCanRxModuleCpp<'_> {
-    pub fn new<'a>(
-        can_db: &CanDatabase,
-        node: &'a String,
-        rx_config: &CanRxConfig,
-    ) -> AppCanRxModuleCpp<'a> {
-        let mut boards_messages: HashMap<String, Vec<CanMessage>> = HashMap::new();
-        for msg_id in rx_config.get_all_msgs() {
-            let msg = can_db.get_message_by_id(msg_id).unwrap();
-            boards_messages
-                .entry(msg.tx_node_name.clone())
-                .or_insert(Vec::new())
-                .push(msg);
-        }
-
-        AppCanRxModuleCpp {
-            boards_messages,
-            node,
-        }
-    }
-}
-
-impl CPPGenerator for AppCanRxModuleCpp<'_> {
-    fn file_stem(&self) -> String {
-        "app_canRx".to_string()
-    }
-    fn header_template(&self) -> Result<String, askama::Error> {
-        AppCanRxModuleSourceCpp {
-            node: self.node,
-            boards_messages: &self.boards_messages,
-        }
-        .render()
-    }
-    fn source_template(&self) -> Result<String, askama::Error> {
-        AppCanRxModuleHeaderCpp {
             boards_messages: &self.boards_messages,
         }
         .render()
