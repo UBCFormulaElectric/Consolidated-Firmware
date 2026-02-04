@@ -6,3 +6,4 @@
 
 extern const SpiDevice ltc6813_spi_ls;
 extern const SpiDevice ltc6813_spi_hs;
+extern SpiBus          isospi_bus;

@@ -33,8 +33,6 @@ static uint16_t swapEndianness(uint16_t value)
     return (uint16_t)((value >> 8) | (value << 8));
 }
 
-static constexpr uint16_t PEC15_POLY = 0xC599U;
-static constexpr uint16_t PEC15_INIT = 0x0010U;
 
 static uint16_t calculatePec15(const uint8_t *data, size_t len)
 {
@@ -68,7 +66,7 @@ static uint16_t calculatePec15(const uint8_t *data, size_t len)
         address   = ((remainder >> 7) ^ data[i]) & 0xFFU;
         remainder = (uint16_t)(((uint16_t)(remainder << 8)) ^ pec15Table[address]);
     }
-    return (remainder * 2);
+    return (uint16_t)(remainder << 1);
 }
 
 static uint16_t calculatePec10(const uint8_t *data, size_t len)

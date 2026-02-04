@@ -6,7 +6,8 @@ set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
 
 set(JOBS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/jobs.c")
 set(TASKS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.c")
-set(SYSTEM_SRCS ${JOBS_SRC} ${TASKS_SRC})
+set(ADBMS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/adbms.cpp")
+set(SYSTEM_SRCS ${JOBS_SRC} ${TASKS_SRC} ${ADBMS_SRC})
 set(SYSTEM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src" "${CMAKE_CURRENT_SOURCE_DIR}/boot")
 
 file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
@@ -33,6 +34,9 @@ file(GLOB_RECURSE HW_SRCS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
 )
 list(APPEND HW_SRCS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/adbms_spis.cpp"
+)
+list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_spi.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
@@ -56,6 +60,12 @@ set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
         "${SHARED_HW_INCLUDE_DIR}"
 )
+list(APPEND ADBMS_DIRS
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../hexray/BMS/src/hw"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../hexray/BMS/src/io/adbms"
+)
+file(GLOB_RECURSE ADBMS_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../../hexray/BMS/src/io/adbms/*.cpp"
+)
 
 if ("${TARGET}" STREQUAL "binary")
     set(ARM_CORE "cm7")
@@ -64,8 +74,16 @@ if ("${TARGET}" STREQUAL "binary")
     else ()
         set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app_only.ld")
     endif ()
-    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS})
-    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
+    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS} ${ADBMS_SRCS})
+    set(INCLUDE_DIRS
+            ${APP_INCLUDE_DIRS}
+            ${IO_INCLUDE_DIRS}
+            ${HW_INCLUDE_DIRS}
+            ${SHARED_UTIL_INCLUDE_DIR}
+            ${SYSTEM_INCLUDE_DIRS}
+            ${CUBEMX_INCLUDE_DIRS}
+            ${ADBMS_DIRS}
+    )
     embedded_binary("quintuna_BMS_app" "${SRCS}" "${INCLUDE_DIRS}" "${LINKER_SCRIPT}" "${ARM_CORE}")
 
     set(STM32_HAL_SRCS

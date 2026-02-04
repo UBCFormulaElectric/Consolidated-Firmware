@@ -52,5 +52,5 @@ void app_tractiveSystem_broadcast(void)
     app_canTx_BMS_TractiveSystemPower_set(ts_power_kw);
     app_canTx_BMS_VoltageSensorOk_set(ts_voltage_sns_diag_state);
     app_canTx_BMS_CurrentSensorOk_set(ts_current_sns_diag_state);
-    app_canTx_BMS_Warning_TsOvercurrent_set(ts_overcurrent_warning);
+    //app_canTx_BMS_Warning_TsOvercurrent_set(ts_overcurrent_warning);
 }

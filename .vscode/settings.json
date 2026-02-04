@@ -94,5 +94,6 @@
     "queue": "cpp",
     "stack": "cpp",
     "format": "cpp"
-  }
+  },
+  "cortex-debug.variableUseNaturalFormat": false
 }

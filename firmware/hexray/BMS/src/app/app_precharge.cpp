@@ -22,7 +22,7 @@ namespace
 
     bool    precharge_limit_exceeded = false;
     uint8_t num_precharge_failures   = 0U;
-    
+
 } // namespace
 
 void init()

@@ -2,10 +2,9 @@
 
 extern "C"
 {
-    #include "firmware/hexray/BMS/src/cubemx/Inc/main.h"
-}
 #include "hw_spi.h"
-#include "hw_gpios.h"
+}
+#include "hw_gpio.hpp"
 
 extern const SpiDevice adbms_spi_ls;
 extern const SpiDevice adbms_spi_hs;

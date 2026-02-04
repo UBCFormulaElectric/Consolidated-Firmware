@@ -4,7 +4,7 @@
 
 static constexpr uint16_t ADBMS_SPI_TIMEOUT_MS = 100;
 
-static SpiBus isospi_bus = { .handle = &hspi4 };
+static SpiBus isospi_bus = { .handle = &hspi4, .task_in_progress = NULL };
 
 const SpiDevice adbms_spi_ls = { .bus = &isospi_bus, .nss_pin = &spi_cs_ls_pin, .timeout_ms = ADBMS_SPI_TIMEOUT_MS };
 

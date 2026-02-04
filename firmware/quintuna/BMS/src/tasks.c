@@ -33,6 +33,9 @@
 #include <cmsis_os2.h>
 #include <portmacro.h>
 
+// adbms
+#include "adbms.h"
+
 // Define this guy to use CAN2 for talking to the Elcon.
 // #define CHARGER_CAN
 
@@ -51,6 +54,7 @@ void tasks_init(void)
 {
     // Configure and initialize SEGGER SystemView.
     // NOTE: Needs to be done after clock config!
+
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("BMS Reset");
 
@@ -106,7 +110,8 @@ void tasks_init(void)
     hw_gpio_writePin(&shdn_en_pin, true);
 
     jobs_init();
-
+    adbms_init();
+    ;
     io_canTx_BMS_Bootup_sendAperiodic(); // TODO do this in jobs_init
 }
 
@@ -121,7 +126,8 @@ void tasks_run1Hz(void)
     {
         if (!hw_chimera_v2_enabled)
         {
-            jobs_run1Hz_tick();
+            // jobs_run1Hz_tick();
+            adbms_tick();
         }
 
         // Watchdog check-in must be the last function called before putting the task to sleep.
@@ -143,7 +149,7 @@ void tasks_run100Hz(void)
     {
         if (!hw_chimera_v2_enabled)
         {
-            jobs_run100Hz_tick();
+            // jobs_run100Hz_tick();
         }
 
         // Watchdog check-in must be the last function called before putting the task to sleep.
@@ -165,7 +171,7 @@ void tasks_run1kHz(void)
     {
         hw_watchdog_checkForTimeouts();
 
-        jobs_run1kHz_tick();
+        // jobs_run1kHz_tick();
 
         // Watchdog check-in must be the last function called before putting the task to sleep.
         hw_watchdog_checkIn(watchdog);
@@ -217,9 +223,10 @@ void tasks_runLtcVoltages(void)
 #ifdef TARGET_HV_SUPPLY
     for (;;)
         osDelay(osWaitForever);
-#elif
+#else
     static const TickType_t period_ms = 500U; // 2Hz
     jobs_initLTCVoltages();
+
     for (;;)
     {
         const uint32_t start_ticks = osKernelGetTickCount();
@@ -235,7 +242,7 @@ void tasks_runLtcTemps(void)
 #ifdef TARGET_HV_SUPPLY
     for (;;)
         osDelay(osWaitForever);
-#elif
+#else
     static const TickType_t period_ms = 500U; // 2Hz
     jobs_initLTCTemps();
     for (;;)
@@ -253,7 +260,7 @@ void tasks_runLtcDiagnostics(void)
 #ifdef TARGET_HV_SUPPLY
     for (;;)
         osDelay(osWaitForever);
-#elif
+#else
     static const TickType_t period_ms = 10000U; // Every 10s
     jobs_initLTCDiagnostics();
     for (;;)

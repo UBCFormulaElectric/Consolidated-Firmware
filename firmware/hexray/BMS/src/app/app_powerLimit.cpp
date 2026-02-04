@@ -5,8 +5,8 @@
 
 extern "C"
 {
-    #include "app_canTx.h"
-    #include "app_canUtils.h"
+#include "app_canTx.h"
+#include "app_canUtils.h"
 }
 #define MAX_DISCHARGE_POWER_LIMIT_W 78.0e3f
 #define MAX_CHARGE_POWER_LIMIT_W 15.0e3f

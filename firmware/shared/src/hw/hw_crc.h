@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include "hw_hal.h"
 
@@ -15,9 +16,19 @@
 void hw_crc_init(CRC_HandleTypeDef *crc_handle);
 
 /**
- * Calculate a checksum using the CRC peripheral.
+ * Calculate a checksum using the CRC peripheral (HW).
  * @param buffer Pointer to data buffer to take the checksum of.
- * @param size_words Number of words (32 bits) of data to take the checksum of.
+ * @param size_bytes Number of bytes of data to take the checksum of.
  * @return Checksum value.
  */
-uint32_t hw_crc_calculate(uint32_t *buffer, uint32_t size_words);
+uint32_t hw_crc_calculate(const uint8_t *buffer, size_t size_bytes);
+
+/**
+ * Calculate a checksum using the CRC peripheral (custom poly/init).
+ * @param buffer Pointer to data buffer to take the checksum of.
+ * @param size_bytes Number of bytes of data to take the checksum of.
+ * @param polynomial CRC polynomial (normal, MSB-first form).
+ * @param init_value Initial CRC value.
+ * @return Checksum value.
+ */
+uint32_t hw_crc_calculate_custom(const uint8_t *buffer, size_t size_bytes, uint32_t polynomial, uint32_t init_value);
