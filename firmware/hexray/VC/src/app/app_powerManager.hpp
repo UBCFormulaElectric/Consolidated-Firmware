@@ -1,7 +1,8 @@
 #pragma once
 #include "app_timer.hpp"
 #include "app_loadswitches.hpp"
-
+#include <assert>
+#include <cstdint>
 namespace vc::app::powerManager
 {
 class PowerManager

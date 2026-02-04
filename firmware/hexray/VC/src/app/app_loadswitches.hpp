@@ -3,8 +3,8 @@
 namespace vc::app::loadswitches
 {
 
-extern enum class TPS28_EfuseChannel : uint8_t {
-    F_INV = 0x0U,
+enum class TPS28_EfuseChannel {
+    F_INV = 0,
     R_INV,
     RSM,
     BMS,
@@ -14,9 +14,9 @@ extern enum class TPS28_EfuseChannel : uint8_t {
     Count
 };
 
-extern enum class TPS25_EfuseChannel : uint8_t { RR_PUMP, RL_PUMP, R_RAD, L_RAD, Count };
+enum class TPS25_EfuseChannel{ RR_PUMP, RL_PUMP, R_RAD, L_RAD, Count };
 
-extern enum class EfuseChannel : uint8_t { TI_EfuseChannel = 0, ST_EfuseChannel };
+enum class EfuseChannel { TI_EfuseChannel = 0, ST_EfuseChannel };
 
 static const void efuse_channel_setter(EfuseChannel *channel, bool status);
 static const void efuse_current_setter(EfuseChannel &channel, float current);

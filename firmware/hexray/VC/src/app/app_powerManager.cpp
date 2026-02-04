@@ -4,10 +4,6 @@ extern "C"
 {
 #include "io_loadswitches.h"
 #include "app_canAlerts.h"
-
-#include <stdbool.h>
-#include <stdint.h>
-#include <assert.h>
 #include <stddef.h>
 }
 namespace vc::app::powerManager
