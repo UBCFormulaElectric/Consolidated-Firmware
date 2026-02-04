@@ -4,9 +4,9 @@
 
 namespace io::brake
 {
-constexpr float BRAKE_PRESSURE_OC_THRESHOLD_V = 0.33f; // Under-voltage threshold (indicative of open circuit)
-constexpr float BRAKE_PRESSURE_SC_THRESHOLD_V = 3.0f;  // Over-voltage threshold (indicative of short circuit)
-constexpr float BRAKE_ACTUATED_THRESHOLD_PSI = 200.0f; // Minimum pressure (in Psi) to consider the brake actuated
+constexpr float BRAKE_PRESSURE_OC_THRESHOLD_V = 0.33f;  // Under-voltage threshold (indicative of open circuit)
+constexpr float BRAKE_PRESSURE_SC_THRESHOLD_V = 3.0f;   // Over-voltage threshold (indicative of short circuit)
+constexpr float BRAKE_ACTUATED_THRESHOLD_PSI  = 200.0f; // Minimum pressure (in Psi) to consider the brake actuated
 
 // Maximum measurable pressure (in Psi) over the sensor's operating range
 // Psi per Volt: (Max Pressure - Min Pressure) / (Max Input Voltage - Min Input Voltage)

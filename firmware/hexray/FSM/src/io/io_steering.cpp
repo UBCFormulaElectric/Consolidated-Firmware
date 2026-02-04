@@ -10,7 +10,7 @@ constexpr float MAX_STEERING_VOLTAGE = 3.2f; // TODO: need to be validated
 
 // Constants for steering angle calculation
 constexpr float STEERING_ANGLE_VOLTAGE_OFFSET = 2.21f; // TODO: still needs to be validated
-constexpr float DEGREE_PER_VOLT = 360.0f / (MAX_STEERING_VOLTAGE - MIN_STEERING_VOLTAGE);
+constexpr float DEGREE_PER_VOLT               = 360.0f / (MAX_STEERING_VOLTAGE - MIN_STEERING_VOLTAGE);
 
 float getAngleDegrees(void)
 {
