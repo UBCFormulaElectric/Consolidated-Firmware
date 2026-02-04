@@ -7,25 +7,19 @@ function binarySearchForFirstVisibleIndex(
     timestamps: number[],
     targetTime: number
 ): number {
+    // Lower-bound: first index where timestamp >= targetTime.
+    // If none, returns timestamps.length.
     let left = 0;
-    let right = timestamps.length - 1;
-    let result = 0;
-
-    while (left <= right) {
-        const mid = Math.floor((left + right) / 2);
+    let right = timestamps.length;
+    while (left < right) {
+        const mid = left + ((right - left) >> 1);
         if (timestamps[mid] >= targetTime) {
-            result = mid;
-            right = mid - 1;
+            right = mid;
         } else {
             left = mid + 1;
         }
     }
-
-    if (timestamps[result] < targetTime) {
-        result = timestamps.length;
-        console.log("!!!");
-    }
-    return result;
+    return left;
 }
 
 // last index where timestamp <= targetTime
@@ -129,6 +123,7 @@ export default function render(context: CanvasRenderingContext2D, width: number,
     series: SeriesMeta[], timeTickCount: number, externalHoverTimestamp: number | null,
     hoverPixelRef: RefObject<{ x: number; y: number; } | null>, tooltipBufferRef: RefObject<string[]>,
     layoutRef: RefObject<ChartLayout | null>, visibleTimeRange: { min: number; max: number },
+    scalingMode: "absolute" | "relative" = "absolute"
 ) {
     context.clearRect(0, 0, width, height);
 
@@ -270,8 +265,11 @@ export default function render(context: CanvasRenderingContext2D, width: number,
 
     // --- RENDER NUMERICAL ---
     const hasNumerical = numericalSeriesIndices.length > 0;
-    let minValue = Infinity;
-    let maxValue = -Infinity;
+
+    // We will store min/max per series here for relative mode, or global for absolute
+    const seriesRanges: Record<number, { min: number; max: number }> = {};
+    let globalMin = Infinity;
+    let globalMax = -Infinity;
 
     if (hasNumerical) {
         const computeVisibleRange = (
@@ -341,54 +339,70 @@ export default function render(context: CanvasRenderingContext2D, width: number,
             return { min: localMin, max: localMax };
         };
 
-        // Check if any numerical series has fixed bounds
-        let sumMin = 0;
-        let sumMax = 0;
-        let count = 0;
-
-        let mv = Infinity;
-        let MV = -Infinity;
-
+        // 1. Calculate ranges for all visible numerical series
         numericalSeriesIndices.forEach((seriesIndex) => {
             const meta = series[seriesIndex];
+
+            let sMin = Infinity;
+            let sMax = -Infinity;
+
+            // Use fixed bounds if available
             if (meta && typeof meta.min === 'number' && typeof meta.max === 'number') {
-                sumMin += meta.min;
-                sumMax += meta.max;
-                mv = Math.min(mv, meta.min);
-                MV = Math.max(MV, meta.max);
-                count++;
-            }
-        });
-
-        if (count > 0) {
-            // Use average of fixed bounds
-            minValue = mv;//sumMin / count;
-            maxValue = MV;//sumMax / count;
-
-        } else {
-            numericalSeriesIndices.forEach((seriesIndex) => {
+                sMin = meta.min;
+                sMax = meta.max;
+            } else {
+                // Otherwise calculate from visible data
                 const dataPoints = seriesData[seriesIndex];
                 const stats = chunkStats[seriesIndex];
                 const { min, max } = computeVisibleRange(dataPoints, stats);
-                if (!Number.isFinite(min) || !Number.isFinite(max)) {
-                    return;
+                if (Number.isFinite(min) && Number.isFinite(max)) {
+                    sMin = min;
+                    sMax = max;
                 }
-                minValue = Math.min(minValue, min);
-                maxValue = Math.max(maxValue, max);
+            }
+
+            // Fallback if still invalid (e.g. no visible data and no fixed bounds)
+            // We'll handle this by checking Number.isFinite later
+
+            seriesRanges[seriesIndex] = { min: sMin, max: sMax };
+
+            if (Number.isFinite(sMin) && Number.isFinite(sMax)) {
+                globalMin = Math.min(globalMin, sMin);
+                globalMax = Math.max(globalMax, sMax);
+            }
+        });
+
+        // If absolute mode, we need to enforce global min/max for everyone
+        if (scalingMode === "absolute") {
+            if (!Number.isFinite(globalMin) || !Number.isFinite(globalMax)) {
+                // No valid data at all
+                globalMin = 0;
+                globalMax = 1;
+            } else if (globalMin === globalMax) {
+                globalMin -= 1;
+                globalMax += 1;
+            }
+
+            // Override all individual ranges with global
+            numericalSeriesIndices.forEach(idx => {
+                seriesRanges[idx] = { min: globalMin, max: globalMax };
+            });
+        } else {
+            // Relative mode: Handle edge case per series
+            numericalSeriesIndices.forEach(idx => {
+                const r = seriesRanges[idx];
+                if (!Number.isFinite(r.min) || !Number.isFinite(r.max)) {
+                    // Default range if no data
+                    seriesRanges[idx] = { min: 0, max: 1 };
+                } else if (r.min === r.max) {
+                    seriesRanges[idx] = { min: r.min - 1, max: r.max + 1 };
+                }
             });
         }
 
-        // edge case where all values are the same
-        if (minValue === maxValue) {
-            minValue -= 1;
-            maxValue += 1;
-        }
-
-        // console.log("Numerical value range:", minValue, maxValue);
-
-        const valueToY = (value: number) => {
+        const valueToY = (value: number, rangeMin: number, rangeMax: number) => {
             return (
-                numericalTop + chartHeight - ((value - minValue) / (maxValue - minValue)) * chartHeight
+                numericalTop + chartHeight - ((value - rangeMin) / (rangeMax - rangeMin)) * chartHeight
             );
         };
 
@@ -396,15 +410,17 @@ export default function render(context: CanvasRenderingContext2D, width: number,
         context.lineWidth = 1;
         context.beginPath();
 
-        // y-axis
+        // y-axis line (left)
         context.moveTo(padding.left, numericalTop);
         context.lineTo(padding.left, numericalTop + chartHeight);
 
-        // x-axis
+        // x-axis line (bottom)
         context.lineTo(width - padding.right, numericalTop + chartHeight);
         context.stroke();
 
-        // grid lines
+        // grid lines - use the first series range (or global in absolute) for reference grid
+        // In relative mode, grid lines might be confusing if we map them to values, 
+        // so we just draw horizontal lines at percentage intervals.
         context.strokeStyle = "#e0e0e0";
         context.lineWidth = 0.5;
         const numGridLines = 5;
@@ -417,16 +433,54 @@ export default function render(context: CanvasRenderingContext2D, width: number,
         }
 
         // axis labels
-        context.fillStyle = "#000000";
         context.font = "12px sans-serif";
         context.textAlign = "right";
         context.textBaseline = "middle";
 
-        // y-axis labels
-        for (let i = 0; i <= numGridLines; i++) {
-            const value = maxValue - ((maxValue - minValue) / numGridLines) * i;
-            const y = numericalTop + (chartHeight / numGridLines) * i;
-            context.fillText(value.toFixed(2), padding.left - 5, y);
+        if (scalingMode === "absolute") {
+            context.fillStyle = "#000000";
+            // Standard single axis
+            for (let i = 0; i <= numGridLines; i++) {
+                const value = globalMax - ((globalMax - globalMin) / numGridLines) * i;
+                const y = numericalTop + (chartHeight / numGridLines) * i;
+                context.fillText(value.toFixed(2), padding.left - 5, y);
+            }
+        } else {
+            // Relative mode: draw axis labels for each series
+            // We'll stack them horizontally to the left of the axis
+            let xOffset = padding.left - 5;
+
+            numericalSeriesIndices.forEach((seriesIndex) => {
+                const range = seriesRanges[seriesIndex];
+                const color = series[seriesIndex]?.color || "#000";
+                context.fillStyle = color;
+
+                // Draw min and max only to avoid clutter? Or min/mid/max? 
+                // Let's draw min, mid, max.
+                // We shift xOffset left for each series to create "columns"
+
+                // Top (Max)
+                context.fillText(range.max.toFixed(1), xOffset, numericalTop);
+
+                // Bottom (Min)
+                context.fillText(range.min.toFixed(1), xOffset, numericalTop + chartHeight);
+
+                // Middle? Maybe too crowded if many signals. Let's stick to min/max for relative mode
+                // unless it's just 1 or 2 signals.
+                if (numericalSeriesIndices.length <= 2) {
+                    const mid = (range.max + range.min) / 2;
+                    context.fillText(mid.toFixed(1), xOffset, numericalTop + chartHeight / 2);
+                }
+
+                // Move left for next series
+                // Estimate width of text?
+                const w = Math.max(
+                    context.measureText(range.max.toFixed(1)).width,
+                    context.measureText(range.min.toFixed(1)).width
+                );
+
+                xOffset -= (w + 10);
+            });
         }
 
         context.save();
@@ -438,6 +492,7 @@ export default function render(context: CanvasRenderingContext2D, width: number,
         numericalSeriesIndices.forEach((seriesIndex) => {
             const dataPoints = seriesData[seriesIndex];
             const meta = series[seriesIndex];
+            const range = seriesRanges[seriesIndex];
 
             const drawStartIndex = Math.max(0, startIndex - 1);
             const drawEndIndex = Math.min(timestamps.length - 1, endIndex + 1);
@@ -456,8 +511,8 @@ export default function render(context: CanvasRenderingContext2D, width: number,
                     context.beginPath();
                     context.strokeStyle = "#EAB308"; // Yellow
                     context.lineWidth = 2;
-                    context.moveTo(timeToX(t0), valueToY(v0));
-                    context.lineTo(timeToX(t1), valueToY(v1));
+                    context.moveTo(timeToX(t0), valueToY(v0, range.min, range.max));
+                    context.lineTo(timeToX(t1), valueToY(v1, range.min, range.max));
                     context.stroke();
 
                     loopStart = drawStartIndex + 1;
@@ -481,7 +536,7 @@ export default function render(context: CanvasRenderingContext2D, width: number,
                 }
 
                 const x = timeToX(time);
-                const y = valueToY(value);
+                const y = valueToY(value, range.min, range.max);
 
                 if (!pathStarted) {
                     context.moveTo(x, y);
@@ -643,16 +698,16 @@ export default function render(context: CanvasRenderingContext2D, width: number,
 
         // TODO: optimize search by only looking at visible indices
         seriesData.forEach((points, idx) => {
-            console.log(seriesData[idx]);
             const value = points[nearestIndex];
             if (value === null || value === undefined) return;
 
             if (typeof value === "number" && hasNumerical && numericalSeriesIndices.includes(idx)) {
                 let y = 0;
-                if (numericalSeriesIndices.includes(idx) &&
-                    Number.isFinite(minValue) &&
-                    Number.isFinite(maxValue)) {
-                    y = numericalTop + chartHeight - ((value - minValue) / (maxValue - minValue)) * chartHeight;
+                const range = seriesRanges[idx];
+                if (range &&
+                    Number.isFinite(range.min) &&
+                    Number.isFinite(range.max)) {
+                    y = numericalTop + chartHeight - ((value - range.min) / (range.max - range.min)) * chartHeight;
 
                     if (firstPointY === null) firstPointY = y;
 

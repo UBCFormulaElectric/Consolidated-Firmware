@@ -67,7 +67,7 @@ def get_influxdb_client() -> InfluxDBClient:
     Returns InfluxDB client with configured settings
     Use with context window, i.e. `with get_influxdb_client() as client:...`
     """
-    if INFLUX_ON:
+    if not INFLUX_ON:
         raise Exception("InfluxDB is turned off in settings")
     return influxdb_client.InfluxDBClient(
         url=INFLUX_URL,

@@ -5,6 +5,7 @@
 "use client";
 
 import { useDisplayControl } from "@/components/PausePlayControl";
+import { BACKEND_URL, DataPoint, DEBUG, SignalType } from "@/lib/SignalConfig";
 import {
   createContext,
   ReactNode,
@@ -12,13 +13,13 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   useSyncExternalStore,
 } from "react";
-import { BACKEND_URL, DataPoint, DEBUG, SignalType } from "../SignalConfig";
 
-import { useSocket } from "@/lib/hooks/signals/useSocket";
 import { useSignalData } from "@/lib/hooks/signals/useSignalData";
+import { useSocket } from "@/lib/hooks/signals/useSocket";
 import { useSubscribers } from "@/lib/hooks/signals/useSubscribers";
 
 // TODO move this to the specific components which need signals
@@ -50,31 +51,23 @@ function handleData(
   data: any,
   isSubscribed: (signal_name: string) => boolean,
   addDataPoint: (dataPoint: DataPoint) => void
-) {
+): DataPoint | null {
   DEBUG && console.log("Received data:", data);
 
   if (data.value === undefined) {
     DEBUG && console.error("Invalid data received:", data);
-    return;
+    return null;
   }
 
   const { name }: { name: string } = data;
 
   // Check ref count at time of data arrival
   if (!isSubscribed(name)) {
-    return DEBUG && console.log(`Ignoring data for ${name}`);
+    DEBUG && console.log(`Ignoring data for ${name}`);
+    return null;
   }
 
   data.time ||= Date.now();
-
-  // Check if this signal is an enumeration signal using pattern matching
-  if (DEBUG) {
-    const isEnum = /state|mode|enum|status/.test(name.toLowerCase());
-    console.log(
-      `Signal ${name}: isEnum=${isEnum}, value=${data.value
-      } (${typeof data.value})`
-    );
-  }
 
   // Handle enum signals (convert numeric values to strings for display)
   // if (isEnum) {
@@ -125,7 +118,11 @@ function handleData(
 
   // Use batched data addition
   addDataPoint(data);
+
+  return data as DataPoint;
 }
+
+type SignalListener = (dataPoint: DataPoint) => void;
 
 // Context interface
 type SignalContextType = {
@@ -136,6 +133,10 @@ type SignalContextType = {
   // alertSignals: Record<keyof typeof signalPatterns, SignalMeta[]>;
   subscribeToSignal: (signalName: string, type?: SignalType) => void;
   unsubscribeFromSignal: (signalName: string, clearData?: boolean) => void;
+
+  // Imperative callback path for high-performance consumers (avoids React rerenders)
+  addSignalListener: (signalName: string, cb: SignalListener) => () => void;
+
   // Data accessors exposed to consumers
   getSignalData: (signalName: string) => DataPoint[];
   getAllData: () => DataPoint[];
@@ -171,10 +172,7 @@ const dataVersionStore = (() => {
 })();
 
 export function useDataVersion() {
-  return useSyncExternalStore(
-    dataVersionStore.subscribe,
-    dataVersionStore.getSnapshot
-  );
+  return useSyncExternalStore(dataVersionStore.subscribe, dataVersionStore.getSnapshot);
 }
 
 // Create the context
@@ -225,11 +223,45 @@ export function SignalProvider({ children }: { children: ReactNode }) {
   //   return types;
   // }, [availableSignalQuery.data]);
   // Incrementing version triggers re-render of any consumer that uses data via context (by reading a hidden span attr)
-  const { dataStore, addDataPoint, pruneSignalData, pruneData, clearAllData } =
-    useSignalData(() => {
-      // notify only subscribers who opt-in via useDataVersion()
-      dataVersionStore.bump();
+  const { dataStore, addDataPoint, pruneSignalData, clearAllData } = useSignalData(() => {
+    // notify only subscribers who opt-in via useDataVersion()
+    dataVersionStore.bump();
+  });
+
+  const signalListenersRef = useRef<Map<string, Set<SignalListener>>>(new Map());
+
+  const addSignalListener = useCallback((signalName: string, cb: SignalListener) => {
+    const name = signalName.trim();
+    let set = signalListenersRef.current.get(name);
+    if (!set) {
+      set = new Set();
+      signalListenersRef.current.set(name, set);
+    }
+    set.add(cb);
+
+    return () => {
+      const current = signalListenersRef.current.get(name);
+      if (!current) return;
+      current.delete(cb);
+      if (current.size === 0) {
+        signalListenersRef.current.delete(name);
+      }
+    };
+  }, []);
+
+  const notifySignalListeners = useCallback((dataPoint: DataPoint) => {
+    const name = dataPoint.name;
+    if (!name) return;
+    const listeners = signalListenersRef.current.get(name);
+    if (!listeners || listeners.size === 0) return;
+    listeners.forEach((cb) => {
+      try {
+        cb(dataPoint);
+      } catch (e) {
+        DEBUG && console.warn(`Signal listener for ${name} threw`, e);
+      }
     });
+  }, []);
   const socket = useSocket();
   // Connection status needs a state
   // Important: start as disconnected for deterministic SSR/CSR markup
@@ -249,23 +281,24 @@ export function SignalProvider({ children }: { children: ReactNode }) {
   const reconnectSocket = useCallback(() => {
     if (!socket.connected) socket.connect();
   }, [socket]);
-  const {
-    activeSignals,
-    subscribeToSignal,
-    unsubscribeFromSignal,
-    getSignalRefCount,
-    isSubscribed,
-    clearAllSubscriptions,
-  } = useSubscribers(socket, pruneSignalData, clearAllData);
+  const { activeSignals, subscribeToSignal, unsubscribeFromSignal, isSubscribed } = useSubscribers(
+    socket,
+    pruneSignalData,
+    clearAllData
+  );
   // handling new data
   useEffect(() => {
-    const data_handler = (data: any) =>
-      handleData(data, isSubscribed, addDataPoint);
+    const data_handler = (data: any) => {
+      const dataPoint = handleData(data, isSubscribed, addDataPoint);
+      if (dataPoint) {
+        notifySignalListeners(dataPoint);
+      }
+    };
     socket.on("data", data_handler);
     return () => {
       socket.off("data", data_handler);
     };
-  }, [socket, isSubscribed, addDataPoint]);
+  }, [socket, isSubscribed, addDataPoint, notifySignalListeners]);
   // handling pause/resume via HTTP API (per-SID)
   const { isPaused } = useDisplayControl();
 
@@ -277,8 +310,7 @@ export function SignalProvider({ children }: { children: ReactNode }) {
     const send_command = isPaused ? "pause" : "play";
     const endpoint = `${BACKEND_URL}/${sid}/${send_command}`;
     // can somebody shoot me with a gun? thanks - jaden
-    if (DEBUG)
-      console.log(`Sending ${send_command} command to backend for sid ${sid}`);
+    if (DEBUG) console.log(`Sending ${send_command} command to backend for sid ${sid}`);
     fetch(endpoint, { method: "POST" }).catch(
       (e) => DEBUG && console.warn("Pause/Play request failed", e)
     );
@@ -299,8 +331,7 @@ export function SignalProvider({ children }: { children: ReactNode }) {
     <SignalContext.Provider
       value={useMemo(() => {
         // stabilize data accessors; they read from refs and never need to change
-        const getSignalData = (signalName: string) =>
-          dataStore.current.getSignalData(signalName);
+        const getSignalData = (signalName: string) => dataStore.current.getSignalData(signalName);
         const getAllData = () => dataStore.current.getAllData();
         const getNumericalData = () => dataStore.current.getNumericalData();
         const getEnumData = () => dataStore.current.getEnumData();
@@ -312,6 +343,7 @@ export function SignalProvider({ children }: { children: ReactNode }) {
           // alertSignals,
           subscribeToSignal,
           unsubscribeFromSignal,
+          addSignalListener,
           getSignalData,
           getAllData,
           getNumericalData,
@@ -333,6 +365,7 @@ export function SignalProvider({ children }: { children: ReactNode }) {
         activeSignals,
         subscribeToSignal,
         unsubscribeFromSignal,
+        addSignalListener,
       ])}
     >
       {children}
@@ -342,7 +375,6 @@ export function SignalProvider({ children }: { children: ReactNode }) {
 
 export function useSignals() {
   const context = useContext(SignalContext);
-  if (!context)
-    throw new Error("useSignals must be used within a SignalProvider");
+  if (!context) throw new Error("useSignals must be used within a SignalProvider");
   return context;
 }

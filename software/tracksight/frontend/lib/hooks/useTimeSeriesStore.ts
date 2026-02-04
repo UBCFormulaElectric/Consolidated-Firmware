@@ -1,6 +1,7 @@
 import { useRef, useCallback } from 'react';
 
 const INITIAL_CAPACITY = 1_000_000; 
+const IS_DEBUG = process.env.NEXT_PUBLIC_IS_DEBUG === "true";
 
 type SeriesStore = {
   timestamps: Float64Array;         
@@ -31,7 +32,7 @@ export const useTimeSeriesStore = (signalNames: string[]) => {
     const s = store.current!;
     if (s.cursor + requiredDetails >= s.capacity) {
       const newCapacity = s.capacity * 2;
-      console.log(`[Memory] Resizing buffer: ${s.capacity} -> ${newCapacity}`);
+      IS_DEBUG && console.log(`[Memory] Resizing buffer: ${s.capacity} -> ${newCapacity}`);
 
       const newTime = new Float64Array(newCapacity);
       newTime.set(s.timestamps); 

@@ -35,8 +35,7 @@ const processPendingOperations = async () => {
         "color: #88c0d0;"
       );
 
-    const unsubscriptionsToProcess =
-      Array.from(pendingUnsubscriptions).forEach(unsubscribeFromSignal);
+    Array.from(pendingUnsubscriptions).forEach(unsubscribeFromSignal);
 
     pendingUnsubscriptions.clear();
   }

@@ -62,6 +62,7 @@ const MockWidget = memo(({ widgetData, updateWidget, onDelete }:
     const [newSignalDelay, setNewSignalDelay] = useState(100);
     const [newSignalMin, setNewSignalMin] = useState<number>(-10);
     const [newSignalMax, setNewSignalMax] = useState<number>(10);
+    const [scalingMode, setScalingMode] = useState<"absolute" | "relative">("absolute");
 
     const dataRef = useRef<{
         timestamps: number[];
@@ -120,17 +121,6 @@ const MockWidget = memo(({ widgetData, updateWidget, onDelete }:
         return () => intervals.forEach(clearInterval);
     }, [configs, isPaused]);
 
-    useEffect(() => {
-        let frameId: number;
-        const loop = () => {
-            frameId = requestAnimationFrame(loop);
-        };
-
-        frameId = requestAnimationFrame(loop);
-
-        return () => cancelAnimationFrame(frameId);
-    }, [isPaused]);
-
     const chartData = useMemo<AlignedData>(() => {
         const { timestamps, series } = dataRef.current;
 
@@ -146,7 +136,7 @@ const MockWidget = memo(({ widgetData, updateWidget, onDelete }:
             timestamps,
             series: seriesArrays,
         }
-    }, [configs, isPaused]);
+    }, [configs]);
 
     const handleAddSignal = useCallback((e: FormEvent) => {
         e.preventDefault();
@@ -227,6 +217,29 @@ const MockWidget = memo(({ widgetData, updateWidget, onDelete }:
                             value={chartHeight}
                             onChange={(e) => setChartHeight(+e.target.value)}
                         />
+                    </div>
+                    <div className="flex flex-col">
+                        <label className="text-sm">Scaling Mode</label>
+                        <div className="flex bg-gray-100 p-1 rounded-md">
+                            <button
+                                className={`px-3 py-1 text-sm rounded ${scalingMode === "absolute"
+                                    ? "bg-white shadow text-black"
+                                    : "text-gray-500 hover:text-gray-900"
+                                    }`}
+                                onClick={() => setScalingMode("absolute")}
+                            >
+                                Absolute
+                            </button>
+                            <button
+                                className={`px-3 py-1 text-sm rounded ${scalingMode === "relative"
+                                    ? "bg-white shadow text-black"
+                                    : "text-gray-500 hover:text-gray-900"
+                                    }`}
+                                onClick={() => setScalingMode("relative")}
+                            >
+                                Relative
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -364,15 +377,11 @@ const MockWidget = memo(({ widgetData, updateWidget, onDelete }:
                         )}
                     </div>
                 </div>
-
-                {/* Debug info 
-                <div className="text-xs text-gray-500 mb-4 space-y-1 bg-gray-50 p-2 rounded border">
-                    <div>Total points: {totalDataPoints}</div>
-                </div> */}
             </div>
 
             <div style={{ height: chartHeight }} className="overflow-hidden relative">
                 <CanvasChart data={chartData} height={chartHeight}
+                    scalingMode={scalingMode}
                     series={configs.map((c, idx) => ({
                         label: c.signalName,
                         color: signalColors[idx % signalColors.length],
@@ -389,4 +398,3 @@ const MockWidget = memo(({ widgetData, updateWidget, onDelete }:
 MockWidget.displayName = "MockWidget";
 
 export default MockWidget;
-

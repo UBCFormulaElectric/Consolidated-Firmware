@@ -11,9 +11,6 @@ export function useSignalData(onFlush?: () => void) {
 	const rafUpdateTimer = useRef<number | null>(null);
 	const BATCH_INTERVAL_MS = 50; // Fallback for setTimeout
 	const MAX_BATCH_SIZE = 100; // Max data points per batch
-	const currentTimeUpdateCounter = useRef(0);
-	const CURRENT_TIME_UPDATE_FREQUENCY = 10; // Update currentTime every 10th batch
-	const lastBatchTime = useRef(Date.now());
 
 	// Cleanup on unmount
 	useEffect(() => {
@@ -32,40 +29,28 @@ export function useSignalData(onFlush?: () => void) {
 	const flushPendingDataUpdates = useCallback(() => {
 		if (pendingDataUpdates.current.length === 0) return;
 
-		const updates = [...pendingDataUpdates.current];
+		// Detach the current batch so new points can continue accumulating.
+		const updates = pendingDataUpdates.current;
 		pendingDataUpdates.current = [];
-
-		// Track batching performance for adaptive behavior
-		const now = Date.now();
-		const timeSinceLastBatch = now - lastBatchTime.current;
-		lastBatchTime.current = now;
 
 		// Group updates by signal for more efficient processing
 		const signalGroups = new Map<string, DataPoint[]>();
-		updates.forEach((point) => {
+		for (const point of updates) {
 			const signalName = point.name;
-			if (signalName && !signalGroups.has(signalName)) {
-				signalGroups.set(signalName, []);
+			if (!signalName) continue;
+			let group = signalGroups.get(signalName);
+			if (!group) {
+				group = [];
+				signalGroups.set(signalName, group);
 			}
-			if (signalName) {
-				signalGroups.get(signalName)!.push(point);
-			}
-		});
+			group.push(point);
+		}
 
 		// Add all updates to the optimized data store
-		signalGroups.forEach((points) => {
-			points.forEach((point) => {
+		for (const points of signalGroups.values()) {
+			for (const point of points) {
 				dataStore.current.addDataPoint(point);
-			});
-		});
-
-		// Adaptive currentTime updates based on data flow
-		currentTimeUpdateCounter.current++;
-		const isHighFrequency = timeSinceLastBatch < 100; // High frequency if batches < 100ms apart
-		const updateFrequency = isHighFrequency ? CURRENT_TIME_UPDATE_FREQUENCY * 2 : CURRENT_TIME_UPDATE_FREQUENCY;
-
-		if (currentTimeUpdateCounter.current >= updateFrequency) {
-			currentTimeUpdateCounter.current = 0;
+			}
 		}
 
 		// Clear timers
@@ -118,7 +103,7 @@ export function useSignalData(onFlush?: () => void) {
 	const clearAllData = useCallback(() => {
 		if (DEBUG) console.log("Clearing data");
 		dataStore.current.clear();
-	}, [dataStore.current]);
+	}, []);
 
 	return { dataStore, addDataPoint, pruneSignalData, pruneData, clearAllData };
 }

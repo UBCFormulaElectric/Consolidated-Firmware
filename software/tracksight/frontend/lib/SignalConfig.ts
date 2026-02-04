@@ -297,6 +297,7 @@ export const getAlertSignalType = (name: string): AlertSignalType | null => {
 };
 
 const backend_port: number = process.env.NEXT_PUBLIC_BACKEND_PORT ? parseInt(process.env.NEXT_PUBLIC_BACKEND_PORT) : 5000;
+
 // Default maximum number of data points to keep
 export const DEFAULT_MAX_DATA_POINTS = 1000; // lowk we wanna keep it all
 export const BACKEND_URL =
@@ -305,4 +306,6 @@ export const BACKEND_URL =
     : `http://localhost:${backend_port}`;
 export const MAX_RECONNECT_ATTEMPTS = 5;
 export const RECONNECT_INTERVAL = 3000; // 3 seconds
-export const DEBUG = true; // Set to false to disable debug logs
+// Set `NEXT_PUBLIC_IS_DEBUG=true` (or `NEXT_PUBLIC_TS_DEBUG=true`) to enable debug logs.
+export const DEBUG =
+  process.env.NEXT_PUBLIC_TS_DEBUG === "true" || process.env.NEXT_PUBLIC_IS_DEBUG === "true";
