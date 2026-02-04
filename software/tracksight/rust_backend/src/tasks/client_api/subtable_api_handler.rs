@@ -57,10 +57,9 @@ async fn client_signals(Path(client_id): Path<String>, State(state): State<AppSt
     return (StatusCode::OK, Json(signals));
 }
 
-pub fn get_subtable_router(app_state: AppState) -> Router {
+pub fn get_subtable_router() -> Router<AppState> {
     return Router::new()
         .route("/subscribe", post(subscribe))
         .route("/unsubscribe", post(unsubscribe))
-        .route("/:sid/signals", get(client_signals))
-        .with_state(app_state);
+        .route("/{sid}/signals", get(client_signals));
 }
