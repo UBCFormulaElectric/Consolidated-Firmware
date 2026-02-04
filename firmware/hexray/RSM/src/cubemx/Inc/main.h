@@ -52,12 +52,68 @@ extern "C"
 
     /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler(void);
-    void tasks_init(void);
+
     /* USER CODE BEGIN EFP */
+    extern ADC_HandleTypeDef   hadc1;
+    extern FDCAN_HandleTypeDef hfdcan1;
+    extern I2C_HandleTypeDef   hi2c2;
+    extern SPI_HandleTypeDef   hspi3;
+    extern TIM_HandleTypeDef   htim1;
+    extern TIM_HandleTypeDef   htim3;
+    extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
+/* USER CODE END EFP */
 
-    /* USER CODE END EFP */
-
-    /* Private defines -----------------------------------------------------------*/
+/* Private defines -----------------------------------------------------------*/
+#define TIMx_FREQUENCY 64000000
+#define TIM1_FREQUENCY 100
+#define TIM1_PRESCALER 64
+#define TIM1_ARR 1000
+#define BPS_R_3V3_Pin GPIO_PIN_2
+#define BPS_R_3V3_GPIO_Port GPIOC
+#define LC3_OUT_Pin GPIO_PIN_0
+#define LC3_OUT_GPIO_Port GPIOA
+#define nBSPD_BRAKE_PRESSED_3V3_Pin GPIO_PIN_2
+#define nBSPD_BRAKE_PRESSED_3V3_GPIO_Port GPIOA
+#define BRAKE_OCSC_OK_3V3_Pin GPIO_PIN_3
+#define BRAKE_OCSC_OK_3V3_GPIO_Port GPIOA
+#define RL_INT_3V3_SENS_Pin GPIO_PIN_4
+#define RL_INT_3V3_SENS_GPIO_Port GPIOA
+#define SUSP_TRAVEL_RL_3V3_Pin GPIO_PIN_5
+#define SUSP_TRAVEL_RL_3V3_GPIO_Port GPIOA
+#define SUSP_TRAVEL_RR_3V3_Pin GPIO_PIN_6
+#define SUSP_TRAVEL_RR_3V3_GPIO_Port GPIOA
+#define SUSP_TRAVEL_RL_OCSC_Pin GPIO_PIN_7
+#define SUSP_TRAVEL_RL_OCSC_GPIO_Port GPIOA
+#define SUSP_TRAVEL_RR_OCSC_Pin GPIO_PIN_4
+#define SUSP_TRAVEL_RR_OCSC_GPIO_Port GPIOC
+#define RPUMP_SCL_Pin GPIO_PIN_10
+#define RPUMP_SCL_GPIO_Port GPIOB
+#define RPUMP_SDA_Pin GPIO_PIN_12
+#define RPUMP_SDA_GPIO_Port GPIOB
+#define IMU_CS_Pin GPIO_PIN_6
+#define IMU_CS_GPIO_Port GPIOC
+#define IMU_INT_Pin GPIO_PIN_7
+#define IMU_INT_GPIO_Port GPIOC
+#define IMU_FSYNC_Pin GPIO_PIN_8
+#define IMU_FSYNC_GPIO_Port GPIOC
+#define FLOW_METER_5V5_Pin GPIO_PIN_8
+#define FLOW_METER_5V5_GPIO_Port GPIOA
+#define BRAKE_LIGHT_EN_3V3_Pin GPIO_PIN_9
+#define BRAKE_LIGHT_EN_3V3_GPIO_Port GPIOA
+#define IMU_SPC_Pin GPIO_PIN_10
+#define IMU_SPC_GPIO_Port GPIOC
+#define IMU_SDO_Pin GPIO_PIN_11
+#define IMU_SDO_GPIO_Port GPIOC
+#define IMU_SDI_Pin GPIO_PIN_12
+#define IMU_SDI_GPIO_Port GPIOC
+#define D_P_PULLUP_Pin GPIO_PIN_2
+#define D_P_PULLUP_GPIO_Port GPIOD
+#define LED_Pin GPIO_PIN_4
+#define LED_GPIO_Port GPIOB
+#define CANTX_Pin GPIO_PIN_7
+#define CANTX_GPIO_Port GPIOB
+#define CANRX_Pin GPIO_PIN_8
+#define CANRX_GPIO_Port GPIOB
 
     /* USER CODE BEGIN Private defines */
 

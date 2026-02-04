@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package dam;
+
+enum GpioNetName {
+  GPIO_NET_NAME_UNSPECIFIED = 0;
+  GPIO_NTP = 1;
+  GPIO_BUZZER_PWR_EN = 2;
+  GPIO_TSIM_RED_EN = 3;
+  GPIO_NTSIM_GRN_EN = 4;
+  GPIO_R_SHDN_SENSE = 5;
+  GPIO_L_SHDN_SENSE = 6;
+  GPIO_LED = 7;
+  GPIO_BOOT = 8;
+  GPIO_SD_PRESENT = 9;
+  GPIO_900M = 10;
+  GPIO_SD_FAIL = 11;
+  GPIO_D_P_PULLUP = 12;
+}
