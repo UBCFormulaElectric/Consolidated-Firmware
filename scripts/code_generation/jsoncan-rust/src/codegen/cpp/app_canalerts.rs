@@ -19,7 +19,6 @@ impl GroupedAlerts {
 #[template(path = "app_canAlerts.cpp.j2")]
 struct AppCanAlertsModuleSource<'a> {
     all_alerts: Vec<CanAlert>,
-    node_tx_alerts: GroupedAlerts,
     node_name_and_alerts: &'a Vec<(String, &'a GroupedAlerts)>,
     node_name: &'a String,
 }
@@ -73,11 +72,9 @@ impl CPPGenerator for AppCanAlertsModule<'_> {
             .iter()
             .find(|(a, _b)| a == self.node_name)
             .unwrap()
-            .1
-            .clone();
+            .1;
         AppCanAlertsModuleSource {
             all_alerts: node_tx_alerts.flatten(),
-            node_tx_alerts,
             node_name_and_alerts: &self.node_name_and_alerts,
             node_name: self.node_name,
         }
