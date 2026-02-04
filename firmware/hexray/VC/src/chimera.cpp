@@ -214,7 +214,7 @@ class VCChimeraConfig : public chimera_v2::config
         adc_net_name_tag  = AdcNetName_vc_net_name_tag;
         i2c_net_name_tag  = I2cNetName_vc_net_name_tag;
     }
-}vc_config;
+} vc_config;
 
 static hw::rtos::StaticTask<8096>
     TaskChimera(osPriorityRealtime, "TaskChimera", [](void *) { chimera_v2::task(vc_config); });
@@ -228,5 +228,5 @@ char USBD_PRODUCT_STRING_FS[] = "vc";
     osKernelInitialize();
     TaskChimera.start();
     osKernelStart();
-     forever {}
+    forever {}
 }
