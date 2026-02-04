@@ -1,7 +1,7 @@
 #include "io_rPump.hpp"
 #include <util_errorCodes.hpp>
 #include "hw_i2cs.hpp"
-// #include "io_potentiometer.hpp"
+#include "io_potentiometer.h"
 
 // static const Potentiometer rsm_pot = { .i2c_handle = &r_pump_i2c };
 
@@ -12,8 +12,7 @@ namespace io::rPump
 {
 std::expected<void, ErrorCode> isPumpReady()
 {
-    // return hw_i2c_isTargetReady(&r_pump_i2c);
-    return std::unexpected(ErrorCode::UNIMPLEMENTED);
+    return hw::i2c::r_pump.isTargetReady();
 }
 
 std::expected<void, ErrorCode> write(const uint8_t data)
