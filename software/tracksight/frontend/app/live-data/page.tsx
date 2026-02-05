@@ -1,7 +1,8 @@
 "use client";
 
-import LiveDataDashboard from "@/components/LiveDataDashboard";
+import DataDashboard from "@/components/DataDashboard";
 import { DashboardLayoutProvider } from "@/lib/contexts/DashboardLayout";
+import { ScrollProvider } from "@/lib/contexts/ScrollContext";
 
 import { LiveSignalStoreProvider } from "@/lib/contexts/signalStores/LiveSignalStoreContext";
 import { MockSignalStoreProvider } from "@/lib/contexts/signalStores/MockSignalStoreContext";
@@ -14,11 +15,12 @@ export default function LiveDataPage() {
   return (
     <div className="w-screen pb-20">
       <DashboardLayoutProvider>
-        <DataSourceProvider>
-          <LiveDataDashboard />
-        </DataSourceProvider>
+        <ScrollProvider initialTimestamp={new Date().getTime()}>
+          <DataSourceProvider>
+            <DataDashboard />
+          </DataSourceProvider>
+        </ScrollProvider>
       </DashboardLayoutProvider>
     </div>
   );
 }
-

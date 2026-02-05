@@ -1,18 +1,17 @@
 "use client";
 
 import { WidgetData } from "@/lib/types/Widget";
-import { useDashboardLayout } from "@/lib/contexts/DashboardLayout";
 import useSignalMetadata from "@/lib/hooks/useSignalMetadata";
 import { useSignalDataStores } from "@/lib/contexts/signalStores/SignalStoreContext";
 import { useEffect, useMemo, useRef } from "react";
 import { isAlertSignalMetadata } from "@/lib/types/Signal";
 import { SignalStoreEntry } from "@/lib/signals/SignalStore";
+import ChipLegend from "@/components/legends/ChipLegend";
+import { useScrollState } from "@/lib/contexts/ScrollContext";
 
-const SLIP_STREAM_LANES = 5;
-const SLIP_STREAM_GAP = 1;
+const SLIP_STREAM_LANES = 4;
+const SLIP_STREAM_GAP = 5;
 const PROCESSING_INTERVAL_MS = 1000 / 60;
-
-const FULL_VIEW_DURATION_MS = 20_000 // 2 seconds at no zoom
 
 type CursorIndices = {
   [signal: string]: {
@@ -97,26 +96,26 @@ const renderAlertTimeline = (
   state: AlertTimelineRenderState,
   width: number,
   height: number,
+  leftEdge: number,
   rightEdge: number,
-  zoom: number,
 ) => {
   ctx.clearRect(0, 0, width, height);
 
   const laneGap = SLIP_STREAM_GAP;
   const heightPerLane = (height - (SLIP_STREAM_LANES - 1) * laneGap) / SLIP_STREAM_LANES;
 
-  const pixelsPerMillisecond = width / FULL_VIEW_DURATION_MS;
-  const startTime = rightEdge - FULL_VIEW_DURATION_MS;
+  const pixelsPerMillisecond = width / (rightEdge - leftEdge);
 
   state.forEach((alert) => {
     if (alert.streamIndex >= SLIP_STREAM_LANES) return;
+    if (alert.endTime && alert.endTime < leftEdge) return;
 
     const laneY = alert.streamIndex * (heightPerLane + laneGap);
 
-    const isStartBeforeView = alert.startTime < startTime;
+    const isStartBeforeView = alert.startTime < leftEdge;
 
-    const alertStartX = isStartBeforeView ? 0 : (alert.startTime - startTime) * pixelsPerMillisecond;
-    const alertEndX = alert.endTime ? (alert.endTime - startTime) * pixelsPerMillisecond : width;
+    const alertStartX = isStartBeforeView ? 0 : (alert.startTime - leftEdge) * pixelsPerMillisecond;
+    const alertEndX = alert.endTime ? (alert.endTime - leftEdge) * pixelsPerMillisecond : width;
 
     ctx.fillStyle = alert.color || "red";
     ctx.fillRect(alertStartX, laneY, alertEndX - alertStartX, heightPerLane);
@@ -128,11 +127,14 @@ function AlertTimeline(props: WidgetData<"alertTimeline">) {
 
   const { colorPalette } = options;
 
-  const { editWidget } = useDashboardLayout();
-
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const scrollableRef = useRef<HTMLDivElement>(null);
   const animationFrame = useRef<number | null>(null);
+
+  const {
+    leftEdgeTimestampRef,
+    rightEdgeTimestampRef,
+  } = useScrollState();
 
   const cursorIndices = useRef<CursorIndices>({});
   const slipstreamPopulated = useRef<boolean[]>(new Array(SLIP_STREAM_LANES).fill(false));
@@ -186,9 +188,8 @@ function AlertTimeline(props: WidgetData<"alertTimeline">) {
         renderState.current,
         window.innerWidth,
         rect.height,
-        // TODO(evan): Start time should be adjustable via panning or auto follow
-        Date.now() - 50,
-        1
+        leftEdgeTimestampRef.current || 0,
+        rightEdgeTimestampRef.current || 0,
       );
 
       animationFrame.current = requestAnimationFrame(renderSlipStream);
@@ -202,7 +203,7 @@ function AlertTimeline(props: WidgetData<"alertTimeline">) {
         cancelAnimationFrame(animationFrame.current);
       }
     };
-  }, [signals, colorPalette]);
+  }, [signals, colorPalette, leftEdgeTimestampRef, rightEdgeTimestampRef]);
 
   useEffect(() => {
     if (!data.current) return;
@@ -296,6 +297,8 @@ function AlertTimeline(props: WidgetData<"alertTimeline">) {
           ref={canvasRef}
         ></canvas>
       </div>
+
+      <ChipLegend signals={signals} colorPalette={colorPalette} />
     </div>
   );
 }

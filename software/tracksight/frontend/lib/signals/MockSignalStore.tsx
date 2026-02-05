@@ -22,12 +22,12 @@ class MockSignalStore extends SignalStore {
         //             production when using an actual signal source this shouldn't be an issue.
         const intervalId = setInterval(() => {
             const currentTime = Date.now();
-            const shouldSwitch = Math.random() < 0.5;
+            const shouldSwitch = Math.random() < 0.001;
             const randomValue = shouldSwitch ? 1 - previousValue : previousValue;
             previousValue = randomValue;
 
             this.addDataPoint(signalName, currentTime, randomValue);
-        }, 0.0001);
+        }, 1);
 
         this.signalSubscriptionIntervals.set(signalName, intervalId as unknown as number);
 
