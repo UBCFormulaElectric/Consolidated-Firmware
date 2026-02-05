@@ -365,7 +365,21 @@ static bool evaluateRequest(const config &c, const ChimeraV2Request &request, Ch
 #ifdef HAL_TIM_MODULE_ENABLED
         case ChimeraV2Request_pwm_set_tag:
         {
-            break;
+            const PwmSetRequest &payload = request.payload.pwm_set;
+            const auto           device  = c.id_to_pwm(&payload.net_name);
+            if (not device.has_value())
+            {
+                LOG_ERROR("Chimera: Error fetching PWM peripheral.");
+                return false;
+            }
+            if (const auto res = device.value().get().setDutyCycle(payload.duty_cycle); not res.has_value())
+            {
+                LOG_ERROR("Chimera: Error setting PWM duty cycle.");
+                return false;
+            }
+            response.which_payload           = ChimeraV2Response_pwm_set_tag;
+            response.payload.pwm_set.success = true;
+            return true;
         }
 #endif
         default:
