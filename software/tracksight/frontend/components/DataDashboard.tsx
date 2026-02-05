@@ -1,21 +1,25 @@
 "use client";
 
-import { useRef } from "react";
-
 import Widget from "@/components/widgets/Widget";
 import { useDashboardLayout } from "@/lib/contexts/DashboardLayout";
+import { useScrollableRef } from "@/lib/contexts/ScrollContext";
 
-// TODO(evan): Rename to just DataDashboard since it can be used for both live and historical data
-function LiveDataDashboard() {
+function DataDashboard() {
   const { widgets } = useDashboardLayout();
 
-  const containerRef = useRef<HTMLDivElement>(null);
+  const {
+    scrollableRef,
+    childRef
+  } = useScrollableRef();
 
   return (
-    <div className="w-full h-fit overflow-x-scroll scrollbar-hidden overscroll-x-none">
+    <div
+      className="w-full h-fit overflow-x-scroll scrollbar-hidden overscroll-x-none"
+      ref={scrollableRef}
+    >
       <div
         className="flex h-full min-w-[200vw] flex-col gap-16"
-        ref={containerRef}
+        ref={childRef}
       >
         {widgets.map((widget, index) => (
           <div className="sticky left-0 w-screen" style={{ zIndex: widgets.length - index }}>
@@ -27,4 +31,4 @@ function LiveDataDashboard() {
   );
 }
 
-export default LiveDataDashboard;
+export default DataDashboard;
