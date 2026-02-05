@@ -12,18 +12,20 @@
 
 // Maximum size for the output rpc content we support (length specified by 2 bytes, so 2^16 - 1).
 // Yes, this is 65kb of RAM - it's a lot, but doable.
-#define OUT_BUFFER_SIZE (0xfff)
+constexpr size_t OUT_BUFFER_SIZE = 0xfff;
 static pb_byte_t out_buffer[OUT_BUFFER_SIZE];
 
-constexpr size_t MAX_PAYLOAD_SIZE = 64;
+constexpr size_t                      QUEUE_SIZE = 100;
+static io::queue<uint8_t, QUEUE_SIZE> usb_queue{ "USBQueue", [](uint32_t) {}, [] {} };
 
-static io::queue<uint8_t, 100> q{ "USBQueue", [](uint32_t) {}, [] {} };
+constexpr size_t MAX_PAYLOAD_SIZE = 64;
 
 void hw::usb::receive(const std::span<uint8_t> dest)
 {
     for (const uint8_t &x : dest)
     {
-        assert(q.push(x).has_value());
+        const auto usb_queue_push_result = usb_queue.push(x);
+        assert(usb_queue_push_result.has_value());
     }
 }
 
@@ -460,7 +462,7 @@ static void tick(const config &config)
     uint16_t length = 0;
     for (uint8_t i = 0; i < 2; i++)
     {
-        const auto out = q.pop(USB_REQUEST_TIMEOUT_MS);
+        const auto out = usb_queue.pop(USB_REQUEST_TIMEOUT_MS);
         if (not out.has_value())
             return;
         reinterpret_cast<uint8_t *>(&length)[i] = out.value();
@@ -471,7 +473,7 @@ static void tick(const config &config)
     std::array<uint8_t, 64> content{};
     for (uint16_t i = 0; i < length; i++)
     {
-        const auto out = q.pop(USB_REQUEST_TIMEOUT_MS);
+        const auto out = usb_queue.pop(USB_REQUEST_TIMEOUT_MS);
         if (not out.has_value())
             return;
         content[i] = out.value();
@@ -490,7 +492,7 @@ static void tick(const config &config)
 
 _Noreturn void task(const config &c)
 {
-    q.init();
+    usb_queue.init();
     // Main loop.
     for (;;)
     {
