@@ -6,6 +6,7 @@ set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
 
 set(JOBS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/jobs.c")
 set(TASKS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.c")
+
 set(SYSTEM_SRCS ${JOBS_SRC} ${TASKS_SRC})
 set(SYSTEM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src" "${CMAKE_CURRENT_SOURCE_DIR}/boot")
 
@@ -44,9 +45,9 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_resetReason.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_freeRtosConfigs.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_runTimeStat.c"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
