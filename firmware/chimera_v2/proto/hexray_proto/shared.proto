@@ -178,7 +178,7 @@ message SpiTransactionResponse {
 // UART
 message UartNetName {
   oneof name {
-    dam.UartNetName vc_net_name = 3;
+    dam.UartNetName dam_net_name = 3;
   }
 }
 // Uart Transmit

@@ -1,6 +1,7 @@
 #pragma once
 
-#include <cstdint>
+#include "util_errorCodes.hpp"
+#include <span>
 
 #ifdef TARGET_EMBEDDED
 #include "hw_hal.hpp"
@@ -25,14 +26,14 @@ class Uart
      * @param pData Pointer to data buffer (u8 or u16 data elements).
      * @param size Amount of data elements (u8 or u16) to be transmitted.
      */
-    void transmitDma(uint8_t *pData, uint8_t size) const;
+    std::expected<void, ErrorCode> transmitDma(std::span<const uint8_t>) const;
 
     /**
      * Receives an amount of data in DMA mode (non-blocking).
      * @param pData Pointer to data buffer (u8 or u16 data elements).
      * @param size Amount of data elements (u8 or u16) to be received.
      */
-    void receiveDma(uint8_t *pData, uint8_t size) const;
+    std::expected<void, ErrorCode> receiveDma(std::span<uint8_t>) const;
 
     /**
      * Transmits an amount of data in polling mode (blocking).
@@ -40,7 +41,8 @@ class Uart
      * @param size Amount of data elements (u8 or u16) to be transmitted.
      * @param timeout Timeout duration
      */
-    void transmitPoll(uint8_t *pData, uint8_t size, uint32_t timeout) const;
+    std::expected<void, ErrorCode>
+        transmitPoll(std::span<const uint8_t>, uint32_t timeout = std::numeric_limits<uint32_t>::max()) const;
 
     /**
      * Receives an amount of data in polling mode (blocking).
@@ -48,21 +50,22 @@ class Uart
      * @param size Amount of data elements (u8 or u16) to be received.
      * @param timeout Timeout duration
      */
-    bool receivePoll(uint8_t *pData, uint8_t size, uint32_t timeout) const;
+    std::expected<void, ErrorCode>
+        receivePoll(std::span<uint8_t>, uint32_t timeout = std::numeric_limits<uint32_t>::max()) const;
 
     /**
      * Receives an amount of data in interrupt mode (non-blocking).
      * @param pData Pointer to data buffer (u8 or u16 data elements).
      * @param size Amount of data elements (u8 or u16) to be received.
      */
-    void transmitIt(uint8_t *pData, uint8_t size) const;
+    std::expected<void, ErrorCode> transmitIt(std::span<const uint8_t>) const;
 
     /**
      * Receives an amount of data in interrupt mode (non-blocking).
      * @param pData Pointer to data buffer (u8 or u16 data elements).
      * @param size Amount of data elements (u8 or u16) to be received.
      */
-    void receiveIt(uint8_t *pData, uint8_t size) const;
+    std::expected<void, ErrorCode> receiveIt(std::span<uint8_t>) const;
 
     [[nodiscard]] const UART_HandleTypeDef *getHandle() const { return handle; }
 };

@@ -43,6 +43,7 @@ static bool evaluateRequest(const config &c, const ChimeraV2Request &request, Ch
     // Empty provided response pointer.
     constexpr ChimeraV2Response init = ChimeraV2Response_init_zero;
     response                         = init;
+    static std::array<uint8_t, MAX_PAYLOAD_SIZE> rx_buffer{};
 
     /* GPIO commands. */
     switch (request.which_payload)
@@ -289,12 +290,11 @@ static bool evaluateRequest(const config &c, const ChimeraV2Request &request, Ch
             }
 
             // Transact data.
-            uint8_t rx_data[MAX_PAYLOAD_SIZE];
             if (not device.value()
                         .get()
                         .transmitThenReceive(
                             { payload->tx_data.bytes, payload->tx_data.size },
-                            { rx_data, static_cast<uint16_t>(payload->rx_length) })
+                            { rx_data.data(), static_cast<uint16_t>(payload->rx_length) })
                         .has_value())
             {
                 LOG_ERROR("Chimera: Failed to Transact on SPI");
@@ -316,11 +316,47 @@ static bool evaluateRequest(const config &c, const ChimeraV2Request &request, Ch
 #ifdef HAL_UART_MODULE_ENABLED
         case ChimeraV2Request_uart_transmit_tag:
         {
-            break;
+            const UartTransmitRequest &payload = request.payload.uart_transmit;
+            const auto                 device  = c.id_to_uart(&payload.net_name);
+            if (not device.has_value())
+            {
+                LOG_ERROR("Chimera: Error fetching UART peripheral.");
+                return false;
+            }
+            response.which_payload = ChimeraV2Response_uart_transmit_tag;
+            response.payload.uart_transmit.success =
+                device.value()
+                    .get()
+                    .transmitPoll({ reinterpret_cast<const uint8_t *>(&payload.data.bytes), payload.data.size }, 1000)
+                    .has_value();
+            return true;
         }
         case ChimeraV2Request_uart_receive_tag:
         {
-            break;
+            const UartRecieveRequest &payload = request.payload.uart_receive;
+            const auto                device  = c.id_to_uart(&payload.net_name);
+            if (not device.has_value())
+            {
+                LOG_ERROR("Chimera: Error fetching UART peripheral.");
+                return false;
+            }
+
+            if (payload.length > rx_buffer.size())
+            {
+                LOG_ERROR("Chimera: Requested UART receive length exceeds buffer size.");
+                return false;
+            }
+
+            const std::span data_span = { rx_buffer.data(), payload.length };
+            if (const auto r = device.value().get().receivePoll(data_span, 1000); not r.has_value())
+            {
+                LOG_ERROR("Chimera: Error receiving UART data.");
+                return false;
+            }
+
+            response.which_payload = ChimeraV2Response_uart_receive_tag;
+            std::copy(data_span.begin(), data_span.end(), response.payload.uart_receive.data.bytes);
+            return true;
         }
 #endif
 
