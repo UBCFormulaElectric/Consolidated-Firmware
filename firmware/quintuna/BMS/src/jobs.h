@@ -21,6 +21,8 @@ void jobs_run1Hz_tick(void);
 void jobs_run100Hz_tick(void);
 void jobs_run1kHz_tick(void);
 
+void jobs_runSdCard_tick(void);
+
 void jobs_initLTCVoltages(void);
 void jobs_runLTCVoltages(void);
 void jobs_initLTCTemps(void);

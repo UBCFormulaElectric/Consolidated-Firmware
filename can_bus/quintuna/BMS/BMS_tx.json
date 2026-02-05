@@ -268,6 +268,22 @@
       }
     }
   },
+  "VoltageAndChargeStats": {
+    "msg_id": 458,
+    "cycle_time": 100,
+    "description": "BMS Cell Voltage readings",
+    "signals": {
+      "Soc": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "SocCorrupt": {
+        "bits": 1
+      }
+    }
+  },
   "PowerLimit": {
     "msg_id": 122,
     "cycle_time": 10,

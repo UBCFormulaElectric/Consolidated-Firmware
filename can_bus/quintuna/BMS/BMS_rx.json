@@ -5,6 +5,7 @@
     "Debug_CanMode",
     "Debug_Charging",
     "Debug_SetBSPDTestCurrent",
-    "Debug_CellBalancing"
+    "Debug_CellBalancing",
+    "Debug_ResetSoc"
   ]
 }

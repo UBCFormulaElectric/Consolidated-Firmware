@@ -9,6 +9,7 @@
 
 #include "io_log.h"
 #include "io_canQueue.h"
+#include "io_sds.h"
 #include "io_canRx.h"
 #include "io_canTx.h"
 #include "io_canMsg.h"
@@ -107,6 +108,8 @@ void tasks_init(void)
 
     jobs_init();
 
+    // TODO: Uncomment after SoC and SD card are tested
+    // io_sds_queue_init();
     io_canTx_BMS_Bootup_sendAperiodic(); // TODO do this in jobs_init
 }
 
@@ -263,4 +266,15 @@ void tasks_runLtcDiagnostics(void)
         osDelayUntil(start_ticks + period_ms);
     }
 #endif
+}
+
+void tasks_runSdCard(void)
+{
+    static const TickType_t period_ms = 10000U; // Every 10s
+    for (;;)
+    {
+        const uint32_t start_ticks = osKernelGetTickCount();
+        jobs_runSdCard_tick();
+        osDelayUntil(start_ticks + period_ms);
+    }
 }
