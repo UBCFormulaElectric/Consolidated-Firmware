@@ -6,8 +6,8 @@ enum GpioNetName {
   GPIO_NET_NAME_UNSPECIFIED = 0;
   GPIO_BOTS_3v3 = 1;
   GPIO_COCKPIT_SHDN_3v3 = 2;
-  GPIO_IMU_INT1 = 3;
-  GPIO_IMU_INT2 = 4;
+  GPIO_IMU_NSS = 3;
+  GPIO_IMU_FSYNC = 4;
   GPIO_NSUSP_FL_OCSC = 5;
   GPIO_NSUSP_FR_OCSC = 6;
   GPIO_FR_INT_3v3 = 7;
@@ -28,7 +28,7 @@ enum AdcNetName {
   ADC_APPS1 = 6;
 }
 
-enum I2cNetName {
-  I2C_NET_NAME_UNSPECIFIED = 0;
-  I2C_IMU = 1;
+enum SpiNetName{
+  SPI_NET_NAME_UNSPECIFIED = 0;
+  SPI_IMU = 1;
 }
