@@ -25,6 +25,10 @@ extern "C"
 #include "hw_spi.hpp"
 #endif
 
+#ifdef HAL_UART_MODULE_ENABLED
+#include "hw_uart.hpp"
+#endif
+
 namespace chimera_v2
 {
 // Configuration needed ro run chimera.
@@ -74,6 +78,16 @@ class config
   public:
     // A table of Protobuf-generated net names to SPI peripherals.
     virtual std::optional<std::reference_wrapper<const hw::spi::SpiDevice>> id_to_spi(const _SpiNetName *snn) const = 0;
+#endif
+
+#ifdef HAL_UART_MODULE_ENABLED
+  protected:
+    // The Protobuf-generated tag for the board's UART pins, defined in shared.pb.h.
+    pb_size_t uart_net_name_tag{};
+
+  public:
+    // A table of Protobuf-generated net names to UART peripherals.
+    virtual std::optional<std::reference_wrapper<const hw::Uart>> id_to_uart(const _UartNetName *unn) const = 0;
 #endif
 };
 

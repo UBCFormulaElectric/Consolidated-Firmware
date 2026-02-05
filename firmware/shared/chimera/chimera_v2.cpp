@@ -4,7 +4,6 @@
 #include "io_queue.hpp"
 
 // Protobuf.
-#include <cmsis_os2.h>
 #include <pb_decode.h>
 #include <pb_encode.h>
 #include "shared.pb.h"
@@ -46,266 +45,297 @@ static bool evaluateRequest(const config &c, const ChimeraV2Request &request, Ch
     response                         = init;
 
     /* GPIO commands. */
+    switch (request.which_payload)
+    {
 #ifdef HAL_GPIO_MODULE_ENABLED
-    if (request.which_payload == ChimeraV2Request_gpio_read_tag)
-    {
-        // Extract payload
-        const GpioReadRequest *payload = &request.payload.gpio_read;
-
-        // GPIO read.
-        const auto gpio = c.id_to_gpio(&payload->net_name);
-        if (not gpio.has_value())
+        case ChimeraV2Request_gpio_read_tag:
         {
-            LOG_ERROR("Chimera: Error fetching GPIO peripheral.");
-            return false;
-        }
-        // Format response.
-        response.payload.gpio_read.value = gpio.value().get().readPin();
-        response.which_payload           = ChimeraV2Response_gpio_read_tag;
-    }
-    else if (request.which_payload == ChimeraV2Request_gpio_write_tag)
-    {
-        // Extract payload
-        const GpioWriteRequest *payload = &request.payload.gpio_write;
+            // Extract payload
+            const GpioReadRequest *payload = &request.payload.gpio_read;
 
-        // GPIO write.
-        const auto gpio = c.id_to_gpio(&payload->net_name);
-        if (not gpio.has_value())
+            // GPIO read.
+            const auto gpio = c.id_to_gpio(&payload->net_name);
+            if (not gpio.has_value())
+            {
+                LOG_ERROR("Chimera: Error fetching GPIO peripheral.");
+                return false;
+            }
+            // Format response.
+            response.payload.gpio_read.value = gpio.value().get().readPin();
+            response.which_payload           = ChimeraV2Response_gpio_read_tag;
+            return true;
+        }
+        case ChimeraV2Request_gpio_write_tag:
         {
-            LOG_ERROR("Chimera: Error fetching GPIO peripheral.");
-            return false;
-        }
-        gpio.value().get().writePin(request.payload.gpio_write.value);
+            // Extract payload
+            const GpioWriteRequest *payload = &request.payload.gpio_write;
 
-        // Format response.
-        response.which_payload              = ChimeraV2Response_gpio_write_tag;
-        response.payload.gpio_write.success = true;
-    }
+            // GPIO write.
+            const auto gpio = c.id_to_gpio(&payload->net_name);
+            if (not gpio.has_value())
+            {
+                LOG_ERROR("Chimera: Error fetching GPIO peripheral.");
+                return false;
+            }
+            gpio.value().get().writePin(request.payload.gpio_write.value);
+
+            // Format response.
+            response.which_payload              = ChimeraV2Response_gpio_write_tag;
+            response.payload.gpio_write.success = true;
+            return true;
+        }
 #endif
 
-    /* ADC commands. */
+        /* ADC commands. */
 #ifdef HAL_ADC_MODULE_ENABLED
-    else if (request.which_payload == ChimeraV2Request_adc_read_tag)
-    {
-        // Extract payload
-        const AdcReadRequest *payload = &request.payload.adc_read;
-
-        // ADC read.
-        // const AdcChannel *adc_channel = hw_chimera_v2_getAdc(config, &payload->net_name);
-        const auto adc_channel = c.id_to_adc(&payload->net_name);
-        if (not adc_channel.has_value())
+        case ChimeraV2Request_adc_read_tag:
         {
-            LOG_ERROR("Chimera: Error fetching ADC peripheral.");
-            return false;
+            // Extract payload
+            const AdcReadRequest *payload = &request.payload.adc_read;
+
+            // ADC read.
+            // const AdcChannel *adc_channel = hw_chimera_v2_getAdc(config, &payload->net_name);
+            const auto adc_channel = c.id_to_adc(&payload->net_name);
+            if (not adc_channel.has_value())
+            {
+                LOG_ERROR("Chimera: Error fetching ADC peripheral.");
+                return false;
+            }
+            // Format response.
+            response.payload.adc_read.value = adc_channel.value().get().getVoltage();
+            response.which_payload          = ChimeraV2Response_adc_read_tag;
+            return true;
         }
-        // Format response.
-        response.payload.adc_read.value = adc_channel.value().get().getVoltage();
-        response.which_payload          = ChimeraV2Response_adc_read_tag;
-    }
 #endif
 
-    /* I2C commands. */
+        /* I2C commands. */
 #ifdef HAL_I2C_MODULE_ENABLED
-    else if (request.which_payload == ChimeraV2Request_i2c_ready_tag)
-    {
-        // Extract payload
-        const I2cReadyRequest *payload = &request.payload.i2c_ready;
-
-        // I2C ready check.
-        // const I2cDevice *device = hw_chimera_v2_getI2c(config, &payload->net_name);
-        const auto device = c.id_to_i2c(&payload->net_name);
-        if (not device.has_value())
+        case ChimeraV2Request_i2c_ready_tag:
         {
-            LOG_ERROR("Chimera: Error fetching I2C peripheral.");
-            return false;
-        }
+            // Extract payload
+            const I2cReadyRequest *payload = &request.payload.i2c_ready;
 
-        // Format response.
-        response.payload.i2c_ready.ready = device.value().get().isTargetReady().has_value();
-        response.which_payload           = ChimeraV2Response_i2c_ready_tag;
-    }
-    else if (request.which_payload == ChimeraV2Request_i2c_transmit_tag)
-    {
-        // Extract payload
-        const I2cTransmitRequest *payload = &request.payload.i2c_transmit;
-        const auto                device  = c.id_to_i2c(&payload->net_name);
-        if (not device.has_value())
+            // I2C ready check.
+            // const I2cDevice *device = hw_chimera_v2_getI2c(config, &payload->net_name);
+            const auto device = c.id_to_i2c(&payload->net_name);
+            if (not device.has_value())
+            {
+                LOG_ERROR("Chimera: Error fetching I2C peripheral.");
+                return false;
+            }
+
+            // Format response.
+            response.payload.i2c_ready.ready = device.value().get().isTargetReady().has_value();
+            response.which_payload           = ChimeraV2Response_i2c_ready_tag;
+            return true;
+        }
+        case ChimeraV2Request_i2c_transmit_tag:
         {
-            LOG_ERROR("Chimera: Error fetching I2C peripheral.");
-            return false;
+            // Extract payload
+            const I2cTransmitRequest *payload = &request.payload.i2c_transmit;
+            const auto                device  = c.id_to_i2c(&payload->net_name);
+            if (not device.has_value())
+            {
+                LOG_ERROR("Chimera: Error fetching I2C peripheral.");
+                return false;
+            }
+
+            // const bool success = hw_i2c_transmit(device, payload->data.bytes, payload->data.size).has_value();
+            const bool success = device.value().get().transmit({ payload->data.bytes, payload->data.size }).has_value();
+
+            // Format response.
+            response.which_payload                = ChimeraV2Response_i2c_transmit_tag;
+            response.payload.i2c_transmit.success = success;
+            return true;
         }
-
-        // const bool success = hw_i2c_transmit(device, payload->data.bytes, payload->data.size).has_value();
-        const bool success = device.value().get().transmit({ payload->data.bytes, payload->data.size }).has_value();
-
-        // Format response.
-        response.which_payload                = ChimeraV2Response_i2c_transmit_tag;
-        response.payload.i2c_transmit.success = success;
-    }
-    else if (request.which_payload == ChimeraV2Request_i2c_memory_write_tag)
-    {
-        // Extract payload
-        const I2cMemoryWriteRequest *payload = &request.payload.i2c_memory_write;
-        const auto                   device  = c.id_to_i2c(&payload->net_name);
-        if (not device.has_value())
+        case ChimeraV2Request_i2c_memory_write_tag:
         {
-            LOG_ERROR("Chimera: Error fetching I2C peripheral.");
-            return false;
-        }
+            // Extract payload
+            const I2cMemoryWriteRequest *payload = &request.payload.i2c_memory_write;
+            const auto                   device  = c.id_to_i2c(&payload->net_name);
+            if (not device.has_value())
+            {
+                LOG_ERROR("Chimera: Error fetching I2C peripheral.");
+                return false;
+            }
 
-        // Format response.
-        response.which_payload = ChimeraV2Response_i2c_memory_write_tag;
-        response.payload.i2c_memory_write.success =
-            device.value()
-                .get()
-                .memoryWrite(
-                    static_cast<uint16_t>(payload->memory_address), { payload->data.bytes, payload->data.size })
-                .has_value();
-    }
-    else if (request.which_payload == ChimeraV2Request_i2c_receive_tag)
-    {
-        // Extract payload
-        const I2cReceiveRequest *payload = &request.payload.i2c_receive;
-
-        const auto device = c.id_to_i2c(&payload->net_name);
-        if (not device.has_value())
-        {
-            LOG_ERROR("Chimera: Error fetching I2C peripheral.");
-            return false;
-        }
-
-        uint8_t data[MAX_PAYLOAD_SIZE];
-        if (not device.value().get().receive({ data, static_cast<uint16_t>(payload->length) }).has_value())
-        {
-            LOG_ERROR("Chimera: Failed to receive on I2C");
-            return false;
-        }
-
-        // Format response.
-        response.which_payload = ChimeraV2Response_i2c_receive_tag;
-
-        response.payload.i2c_receive.data.size = static_cast<pb_size_t>(payload->length);
-        for (size_t i = 0; i < payload->length; i += 1)
-        {
-            response.payload.i2c_receive.data.bytes[i] = data[i];
-        }
-    }
-    else if (request.which_payload == ChimeraV2Request_i2c_memory_read_tag)
-    {
-        // Extract payload
-        const I2cMemoryReadRequest *payload = &request.payload.i2c_memory_read;
-        const auto                  device  = c.id_to_i2c(&payload->net_name);
-        if (not device.has_value())
-        {
-            LOG_ERROR("Chimera: Error fetching I2C peripheral.");
-            return false;
-        }
-
-        uint8_t data[MAX_PAYLOAD_SIZE];
-        if (not device.value()
+            // Format response.
+            response.which_payload = ChimeraV2Response_i2c_memory_write_tag;
+            response.payload.i2c_memory_write.success =
+                device.value()
                     .get()
-                    .memoryRead(
-                        static_cast<uint16_t>(payload->memory_address),
-                        { data, static_cast<uint16_t>(payload->length) })
-                    .has_value())
-            LOG_ERROR("Chimera: Failed to receive on I2C");
-
-        // Format response.
-        response.which_payload = ChimeraV2Response_i2c_memory_read_tag;
-
-        response.payload.i2c_memory_read.data.size = static_cast<pb_size_t>(payload->length);
-        for (size_t i = 0; i < payload->length; i += 1)
-        {
-            response.payload.i2c_memory_read.data.bytes[i] = data[i];
+                    .memoryWrite(
+                        static_cast<uint16_t>(payload->memory_address), { payload->data.bytes, payload->data.size })
+                    .has_value();
+            return true;
         }
-    }
+        case ChimeraV2Request_i2c_receive_tag:
+        {
+            // Extract payload
+            const I2cReceiveRequest *payload = &request.payload.i2c_receive;
+
+            const auto device = c.id_to_i2c(&payload->net_name);
+            if (not device.has_value())
+            {
+                LOG_ERROR("Chimera: Error fetching I2C peripheral.");
+                return false;
+            }
+
+            uint8_t data[MAX_PAYLOAD_SIZE];
+            if (not device.value().get().receive({ data, static_cast<uint16_t>(payload->length) }).has_value())
+            {
+                LOG_ERROR("Chimera: Failed to receive on I2C");
+                return false;
+            }
+
+            // Format response.
+            response.which_payload = ChimeraV2Response_i2c_receive_tag;
+
+            response.payload.i2c_receive.data.size = static_cast<pb_size_t>(payload->length);
+            for (size_t i = 0; i < payload->length; i += 1)
+            {
+                response.payload.i2c_receive.data.bytes[i] = data[i];
+            }
+            return true;
+        }
+        case ChimeraV2Request_i2c_memory_read_tag:
+        {
+            // Extract payload
+            const I2cMemoryReadRequest *payload = &request.payload.i2c_memory_read;
+            const auto                  device  = c.id_to_i2c(&payload->net_name);
+            if (not device.has_value())
+            {
+                LOG_ERROR("Chimera: Error fetching I2C peripheral.");
+                return false;
+            }
+
+            uint8_t data[MAX_PAYLOAD_SIZE];
+            if (not device.value()
+                        .get()
+                        .memoryRead(
+                            static_cast<uint16_t>(payload->memory_address),
+                            { data, static_cast<uint16_t>(payload->length) })
+                        .has_value())
+                LOG_ERROR("Chimera: Failed to receive on I2C");
+
+            // Format response.
+            response.which_payload = ChimeraV2Response_i2c_memory_read_tag;
+
+            response.payload.i2c_memory_read.data.size = static_cast<pb_size_t>(payload->length);
+            for (size_t i = 0; i < payload->length; i += 1)
+            {
+                response.payload.i2c_memory_read.data.bytes[i] = data[i];
+            }
+            return true;
+        }
 #endif
 
-    /* SPI commands. */
+        /* SPI commands. */
 #ifdef HAL_SPI_MODULE_ENABLED
-    else if (request.which_payload == ChimeraV2Request_spi_receive_tag)
-    {
-        // Extract payload.
-        const SpiReceiveRequest *payload = &request.payload.spi_receive;
-        const auto               device  = c.id_to_spi(&payload->net_name);
-        if (not device.has_value())
+        case ChimeraV2Request_spi_receive_tag:
         {
-            LOG_ERROR("Chimera: Error fetching SPI peripheral.");
-            return false;
+            // Extract payload.
+            const SpiReceiveRequest *payload = &request.payload.spi_receive;
+            const auto               device  = c.id_to_spi(&payload->net_name);
+            if (not device.has_value())
+            {
+                LOG_ERROR("Chimera: Error fetching SPI peripheral.");
+                return false;
+            }
+
+            // Read data.
+            uint8_t data[MAX_PAYLOAD_SIZE];
+            if (const bool success =
+                    device.value().get().receive({ data, static_cast<uint16_t>(payload->length) }).has_value();
+                !success)
+                LOG_ERROR("Chimera: Failed to receive on SPI");
+
+            response.which_payload                 = ChimeraV2Response_spi_receive_tag;
+            response.payload.spi_receive.data.size = static_cast<pb_size_t>(payload->length);
+            for (size_t i = 0; i < payload->length; i += 1)
+            {
+                response.payload.spi_receive.data.bytes[i] = data[i];
+            }
+            return true;
         }
-
-        // Read data.
-        uint8_t data[MAX_PAYLOAD_SIZE];
-        if (const bool success =
-                device.value().get().receive({ data, static_cast<uint16_t>(payload->length) }).has_value();
-            !success)
-            LOG_ERROR("Chimera: Failed to receive on SPI");
-
-        response.which_payload                 = ChimeraV2Response_spi_receive_tag;
-        response.payload.spi_receive.data.size = static_cast<pb_size_t>(payload->length);
-        for (size_t i = 0; i < payload->length; i += 1)
+        case ChimeraV2Request_spi_transmit_tag:
         {
-            response.payload.spi_receive.data.bytes[i] = data[i];
-        }
-    }
-    else if (request.which_payload == ChimeraV2Request_spi_transmit_tag)
-    {
-        // Extract payload.
-        const SpiTransmitRequest *payload = &request.payload.spi_transmit;
-        const auto                device  = c.id_to_spi(&payload->net_name);
-        if (not device.has_value())
-        {
-            LOG_ERROR("Chimera: Error fetching SPI peripheral.");
-            return false;
-        }
+            // Extract payload.
+            const SpiTransmitRequest *payload = &request.payload.spi_transmit;
+            const auto                device  = c.id_to_spi(&payload->net_name);
+            if (not device.has_value())
+            {
+                LOG_ERROR("Chimera: Error fetching SPI peripheral.");
+                return false;
+            }
 
-        response.which_payload = ChimeraV2Response_spi_transmit_tag;
-        response.payload.spi_transmit.success =
-            device.value()
-                .get()
-                .transmit({ payload->data.bytes, static_cast<uint16_t>(payload->data.size) })
-                .has_value();
-    }
-    else if (request.which_payload == ChimeraV2Request_spi_transaction_tag)
-    {
-        // Extract payload.
-        const SpiTransactionRequest *payload = &request.payload.spi_transaction;
-        const auto                   device  = c.id_to_spi(&payload->net_name);
-        if (not device.has_value())
-        {
-            LOG_ERROR("Chimera: Error fetching SPI peripheral.");
-            return false;
-        }
-
-        // Transact data.
-        uint8_t rx_data[MAX_PAYLOAD_SIZE];
-        if (not device.value()
+            response.which_payload = ChimeraV2Response_spi_transmit_tag;
+            response.payload.spi_transmit.success =
+                device.value()
                     .get()
-                    .transmitThenReceive(
-                        { payload->tx_data.bytes, payload->tx_data.size },
-                        { rx_data, static_cast<uint16_t>(payload->rx_length) })
-                    .has_value())
-        {
-            LOG_ERROR("Chimera: Failed to Transact on SPI");
-            return false;
+                    .transmit({ payload->data.bytes, static_cast<uint16_t>(payload->data.size) })
+                    .has_value();
+            return true;
         }
+        case ChimeraV2Request_spi_transaction_tag:
+        {
+            // Extract payload.
+            const SpiTransactionRequest *payload = &request.payload.spi_transaction;
+            const auto                   device  = c.id_to_spi(&payload->net_name);
+            if (not device.has_value())
+            {
+                LOG_ERROR("Chimera: Error fetching SPI peripheral.");
+                return false;
+            }
 
-        // Format response.
-        response.which_payload                        = ChimeraV2Response_spi_transaction_tag;
-        response.payload.spi_transaction.rx_data.size = static_cast<pb_size_t>(payload->rx_length);
-        for (size_t i = 0; i < payload->rx_length; i += 1)
-        {
-            response.payload.spi_transaction.rx_data.bytes[i] = rx_data[i];
+            // Transact data.
+            uint8_t rx_data[MAX_PAYLOAD_SIZE];
+            if (not device.value()
+                        .get()
+                        .transmitThenReceive(
+                            { payload->tx_data.bytes, payload->tx_data.size },
+                            { rx_data, static_cast<uint16_t>(payload->rx_length) })
+                        .has_value())
+            {
+                LOG_ERROR("Chimera: Failed to Transact on SPI");
+                return false;
+            }
+
+            // Format response.
+            response.which_payload                        = ChimeraV2Response_spi_transaction_tag;
+            response.payload.spi_transaction.rx_data.size = static_cast<pb_size_t>(payload->rx_length);
+            for (size_t i = 0; i < payload->rx_length; i += 1)
+            {
+                response.payload.spi_transaction.rx_data.bytes[i] = rx_data[i];
+            }
+            return true;
         }
-    }
 #endif
-    else
-    {
-        LOG_WARN("Chimera: Unsupported request with tag %d received.", request.which_payload);
-        return false;
-    }
 
-    return true;
+        /* UART commands. */
+#ifdef HAL_UART_MODULE_ENABLED
+        case ChimeraV2Request_uart_transmit_tag:
+        {
+            break;
+        }
+        case ChimeraV2Request_uart_receive_tag:
+        {
+            break;
+        }
+#endif
+
+#ifdef HAL_TIM_MODULE_ENABLED
+        case ChimeraV2Request_pwm_set_tag:
+        {
+            break;
+        }
+#endif
+        default:
+        {
+            LOG_WARN("Chimera: Unsupported request with tag %d received.", request.which_payload);
+        }
+    }
+    return false;
 }
 
 /**
