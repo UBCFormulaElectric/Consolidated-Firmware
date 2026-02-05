@@ -15,6 +15,12 @@ import {
 const FULL_VIEW_DURATION_MS = 2_000;
 const SCROLL_SENSITIVITY = 1;
 
+/**
+ * Time (in milliseconds) to wait after a scroll event before considering scrolling to have ended.
+ * This is used to allow for vertical scrolling while also using up/down for zoom functionality.
+ */
+const ALLOWED_SCROLL_COOLDOWN_MS = 200;
+
 const ZOOM_SENSITIVITY = 0.01;
 const MIN_ZOOM_LEVEL = 0.1;
 
@@ -38,6 +44,14 @@ interface ScrollProviderProps {
     // TODO(evan): Add a end timestamp to limit the maximum scroll range for historical data
 }
 
+const isOverWidget = (x: number, y: number) => {
+    const element = document.elementFromPoint(x, y);
+    if (!element) return false;
+
+    // NOTE(evan): This assumes that all widgets contain a canvas element
+    return element.closest("canvas") !== null;
+}
+
 const resetScrollPosition = (scrollableElement: HTMLDivElement, childElement: HTMLDivElement) => {
     const scrollableWidth = scrollableElement.clientWidth;
     const childWidth = childElement.scrollWidth;
@@ -50,6 +64,7 @@ export function ScrollProvider({ children, initialTimestamp }: ScrollProviderPro
     const scrollableRef = useRef<HTMLDivElement | null>(null);
     const childRef = useRef<HTMLDivElement | null>(null);
     const animationFrame = useRef<number | null>(null);
+    const isMidScroll = useRef<boolean>(false);
 
     const hasReachedRightEdgeRef = useRef<boolean>(false);
     const autoFollowRef = useRef<boolean>(false);
@@ -59,6 +74,7 @@ export function ScrollProvider({ children, initialTimestamp }: ScrollProviderPro
     const maximumTimestampRef = useRef<number>(initialTimestamp + FULL_VIEW_DURATION_MS);
 
     const zoomLevelRef = useRef<number>(1);
+    const mousePositionRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
 
     const value: ScrollContextValue = {
         scrollableRef,
@@ -100,11 +116,51 @@ export function ScrollProvider({ children, initialTimestamp }: ScrollProviderPro
     }, []);
 
     useEffect(() => {
+        const handleMouseMove = (event: MouseEvent) => {
+            mousePositionRef.current = { x: event.clientX, y: event.clientY };
+        };
+
+        document.addEventListener("mousemove", handleMouseMove);
+        return () => document.removeEventListener("mousemove", handleMouseMove);
+    }, []);
+
+    useEffect(() => {
+        let scrollTimeout: number;
+
+        const handleUniversalScrollStart = () => {
+            clearTimeout(scrollTimeout);
+
+            if (isOverWidget(mousePositionRef.current.x, mousePositionRef.current.y)) return;
+
+            isMidScroll.current = true;
+        };
+
+        const handleUniversalScrollEnd = () => {
+            clearTimeout(scrollTimeout);
+
+            scrollTimeout = window.setTimeout(() => {
+                isMidScroll.current = false;
+            }, ALLOWED_SCROLL_COOLDOWN_MS);
+        };
+
+        document.addEventListener("scroll", handleUniversalScrollStart);
+        document.addEventListener("scrollend", handleUniversalScrollEnd);
+
+        return () => {
+            document.removeEventListener("scroll", handleUniversalScrollStart);
+            document.removeEventListener("scrollend", handleUniversalScrollEnd);
+        };
+    }, []);
+
+    useEffect(() => {
         const scrollableElement = scrollableRef.current;
         if (!scrollableElement) return;
 
         const handleScroll = () => {
             if (!scrollableRef.current || !childRef.current) return;
+
+            const { x: mouseX, y: mouseY } = mousePositionRef.current;
+            if (!isOverWidget(mouseX, mouseY)) return;
 
             if (!hasReachedRightEdgeRef.current) return;
 
@@ -139,11 +195,16 @@ export function ScrollProvider({ children, initialTimestamp }: ScrollProviderPro
 
     useEffect(() => {
         const handleWheel = (event: WheelEvent) => {
-            if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+            if (Math.abs(event.deltaY) <= Math.abs(event.deltaX * 2)) return;
+
+            const { x: mousePositionX, y: mousePositionY } = mousePositionRef.current;
+
+            if (!isOverWidget(mousePositionX, mousePositionY)) return;
+
+            if (isMidScroll.current) return;
 
             event.preventDefault();
 
-            const mousePositionX = event.clientX;
             const scrollableElement = scrollableRef.current;
             if (!scrollableElement) return;
 
