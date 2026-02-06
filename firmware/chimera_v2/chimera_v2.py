@@ -495,3 +495,13 @@ class DAM(_Board):
             net_name_tag="dam_net_name",
             board_module=proto_autogen_hex.dam_pb2,
         )
+        
+class RSM(_Board):
+    def __init__(self):
+        """Create an interface to an RSM board."""
+
+        super().__init__(
+            usb_device=_UsbDevice(product="rsm"),
+            net_name_tag="rsm_net_name",
+            board_module=proto_autogen_hex.rsm_pb2,
+        )
