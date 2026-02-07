@@ -54,6 +54,18 @@ extern "C"
     void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
+    extern ADC_HandleTypeDef   hadc1;
+    extern ADC_HandleTypeDef   hadc3;
+    extern CRC_HandleTypeDef hcrc;
+    extern FDCAN_HandleTypeDef hfdcan1;
+    extern FDCAN_HandleTypeDef hfdcan2;
+    extern SPI_HandleTypeDef   hspi4;
+    extern TIM_HandleTypeDef   htim1;
+    extern TIM_HandleTypeDef   htim3;
+    extern TIM_HandleTypeDef   htim5;
+    extern SD_HandleTypeDef    hsd1;
+    extern PCD_HandleTypeDef hpcd_USB_OTG_HS;
+
 
 /* USER CODE END EFP */
 
