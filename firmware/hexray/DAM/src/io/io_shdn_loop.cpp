@@ -5,11 +5,11 @@ namespace io
 {
 bool r_shdn_pin_is_high()
 {
-    return hw::r_shdn_sense_pin.readPin();
+    return r_shdn_sense_pin.readPin();
 }
 
 bool l_shdn_pin_is_high()
 {
-    return hw::l_shdn_sense_pin.readPin();
+    return l_shdn_sense_pin.readPin();
 }
 } // namespace io
