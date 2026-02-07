@@ -5,6 +5,7 @@ use tokio::sync::{RwLock, broadcast};
 use tokio::net::TcpListener;
 use socketioxide::{SocketIo, extract::SocketRef};
 use jsoncan_rust::can_database::CanDatabase;
+use tower_http::cors::{CorsLayer, Any};
 
 use crate::config::CONFIG;
 use crate::tasks::client_api::AppState;
@@ -22,6 +23,11 @@ pub async fn run_api_handler(mut shutdown_rx: broadcast::Receiver<()>, clients: 
         can_db,
         clients: clients.clone(),
     };
+
+    let cors = CorsLayer::new()
+        .allow_origin(Any)
+        .allow_methods(Any)
+        .allow_headers(Any);
 
     // default socketio endpoint
     io.ns("/", |socket: SocketRef| async move {
@@ -41,6 +47,7 @@ pub async fn run_api_handler(mut shutdown_rx: broadcast::Receiver<()>, clients: 
         .nest("/api/v1/", get_subtable_router())
         .nest("/api/v1/", get_signal_router())
         .with_state(app_state)
+        .layer(cors)
         .into_make_service();
 
     select! {
