@@ -1,6 +1,7 @@
 #include "tasks.h"
 #include "chimera_v2.hpp"
 #include "hw_gpios.hpp"
+#include "hw_hardFaultHandler.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "shared.pb.h"
 #include "io_log.hpp"
@@ -65,13 +66,13 @@ class DAMChimeraConfig : public chimera_v2::config
 static hw::rtos::StaticTask<8096>
     TaskChimera(osPriorityRealtime, "TaskChimera", [](void *) { chimera_v2::task(dam_config); });
 
-void tasks_preInit()
-{
-    assert(hw::usb::init());
-}
+void tasks_preInit() {}
+char USBD_PRODUCT_STRING_FS[] = "dam";
 
 [[noreturn]] void tasks_init()
 {
+    hw_hardFaultHandler_init();
+    assert(hw::usb::init());
     osKernelInitialize();
     TaskChimera.start();
     osKernelStart();
