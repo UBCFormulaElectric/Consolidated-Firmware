@@ -24,7 +24,7 @@
         so that hw_usb knows which handlers to use.
 #endif
 
-#ifdef FS
+#if defined(FS)
 static USBD_HandleTypeDef hUsbDeviceFS;
 #define USB_DEVICE_HANDLER (hUsbDeviceFS)
 #define DEVICE_ID 0 // DEVICE_FS

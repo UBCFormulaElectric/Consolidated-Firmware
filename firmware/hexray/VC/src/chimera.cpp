@@ -15,21 +15,6 @@
 #include <optional>
 #include <functional>
 
-namespace
-{
-const hw::Adc adc_front{ hw::adcs::front_sns };
-const hw::Adc adc_r_inv{ hw::adcs::r_inv_sns };
-const hw::Adc adc_bms{ hw::adcs::bms_sns };
-const hw::Adc adc_rl_pump{ hw::adcs::rl_pump_i_sns };
-const hw::Adc adc_l_rad_fan{ hw::adcs::l_rad_fan_i_sns };
-const hw::Adc adc_rr_pump{ hw::adcs::rr_pump_i_sns };
-const hw::Adc adc_dam{ hw::adcs::dam_sns };
-const hw::Adc adc_r_rad_fan{ hw::adcs::r_rad_fan_i_sns };
-const hw::Adc adc_misc_fuse{ hw::adcs::misc_fuse_sns };
-const hw::Adc adc_f_inv{ hw::adcs::f_inv_sns };
-const hw::Adc adc_rsm{ hw::adcs::rsm_sns };
-} // namespace
-
 class VCChimeraConfig : public chimera_v2::config
 {
   public:
@@ -131,27 +116,27 @@ class VCChimeraConfig : public chimera_v2::config
         switch (ann->name.vc_net_name)
         {
             case vc_AdcNetName_ADC_RR_PUMP:
-                return std::cref(adc_rr_pump);
+                return std::cref(hw::adcs::adc_rr_pump);
             case vc_AdcNetName_ADC_DAM:
-                return std::cref(adc_dam);
+                return std::cref(hw::adcs::adc_dam);
             case vc_AdcNetName_ADC_L_RAD_FAN:
-                return std::cref(adc_l_rad_fan);
+                return std::cref(hw::adcs::adc_l_rad_fan);
             case vc_AdcNetName_ADC_R_RAD_FAN:
-                return std::cref(adc_r_rad_fan);
+                return std::cref(hw::adcs::adc_r_rad_fan);
             case vc_AdcNetName_ADC_RL_PUMP:
-                return std::cref(adc_rl_pump);
+                return std::cref(hw::adcs::adc_rl_pump);
             case vc_AdcNetName_ADC_F_INV:
-                return std::cref(adc_f_inv);
+                return std::cref(hw::adcs::adc_f_inv);
             case vc_AdcNetName_ADC_R_INV:
-                return std::cref(adc_r_inv);
+                return std::cref(hw::adcs::adc_r_inv);
             case vc_AdcNetName_ADC_BMS:
-                return std::cref(adc_bms);
+                return std::cref(hw::adcs::adc_bms);
             case vc_AdcNetName_ADC_FRONT:
-                return std::cref(adc_front);
+                return std::cref(hw::adcs::adc_front);
             case vc_AdcNetName_ADC_RSM:
-                return std::cref(adc_rsm);
+                return std::cref(hw::adcs::adc_rsm);
             case vc_AdcNetName_ADC_MISC_FUSE:
-                return std::cref(adc_misc_fuse);
+                return std::cref(hw::adcs::adc_misc_fuse);
             default:
             case vc_AdcNetName_ADC_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified ADC net name");
