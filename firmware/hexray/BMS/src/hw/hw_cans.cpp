@@ -17,8 +17,8 @@ static void canRxCallback(const io::CanMsg &msg)
     // }
 }
 
-const fdcan can1{ hfdcan1, 1, canRxCallback };
-const fdcan can2{ hfdcan2, 2, canRxCallback };
+constexpr fdcan can1{ hfdcan1, 1, canRxCallback };
+constexpr fdcan can2{ hfdcan2, 2, canRxCallback };
 
 const fdcan &fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
 {
