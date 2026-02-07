@@ -22,7 +22,7 @@ class BaseCan
     const uint8_t bus_num;
 
   public:
-    virtual ~BaseCan() = default;
+    virtual ~BaseCan(){};
     void (*const receive_callback)(const io::CanMsg &rx_msg);
     TaskHandle_t transmit_task = nullptr;
 
@@ -100,6 +100,7 @@ class fdcan final : public BaseCan
     std::expected<void, ErrorCode> tx(FDCAN_TxHeaderTypeDef &tx_header, io::CanMsg &msg);
 
   public:
+    ~fdcan() override;
     consteval explicit fdcan(
         FDCAN_HandleTypeDef &hfdcan_in,
         const uint8_t        bus_num_in,

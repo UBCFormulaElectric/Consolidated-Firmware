@@ -24,73 +24,73 @@ class BMSChimeraConfig final : public chimera_v2::config
         switch (gnn->name.bms_net_name)
         {
             case bms_GpioNetName_GPIO_LEDB:
-                return std::cref(hw::gpio::led_b);
+                return std::cref(led_b);
             case bms_GpioNetName_GPIO_BSPD_OK:
-                return std::cref(hw::gpio::bspd_ok_current_status);
+                return std::cref(bspd_ok_current_status);
             case bms_GpioNetName_GPIO_ACCEL_BRAKE_OK:
-                return std::cref(hw::gpio::accel_brake_ok);
+                return std::cref(accel_brake_ok);
             case bms_GpioNetName_GPIO_nBRAKE_PRESS_3V3:
-                return std::cref(hw::gpio::n_brake_press_3v3);
+                return std::cref(n_brake_press_3v3);
             case bms_GpioNetName_GPIO_nHIGH_CURRENT_BSPD:
-                return std::cref(hw::gpio::n_high_current_bspd);
+                return std::cref(n_high_current_bspd);
             case bms_GpioNetName_GPIO_MSD_SHDN_SNS:
-                return std::cref(hw::gpio::msd_shdn_sns);
+                return std::cref(msd_shdn_sns);
             case bms_GpioNetName_GPIO_HV_P_INTLCK_SNS:
-                return std::cref(hw::gpio::hv_p_intlck_sns);
+                return std::cref(hv_p_intlck_sns);
             case bms_GpioNetName_GPIO_HV_N_INTLCK_SNS:
-                return std::cref(hw::gpio::hv_n_intlck_sns);
+                return std::cref(hv_n_intlck_sns);
             case bms_GpioNetName_GPIO_IMD_LATCH:
-                return std::cref(hw::gpio::imd_latch);
+                return std::cref(imd_latch);
             case bms_GpioNetName_GPIO_DIAG:
-                return std::cref(hw::gpio::diag_ts);
+                return std::cref(diag_ts);
             case bms_GpioNetName_GPIO_SD_CD:
-                return std::cref(hw::gpio::sd_cd);
+                return std::cref(sd_cd);
             case bms_GpioNetName_GPIO_LEDR:
-                return std::cref(hw::gpio::led_r);
+                return std::cref(led_r);
             case bms_GpioNetName_GPIO_SPI_CS_LS:
-                return std::cref(hw::gpio::spi_cs_ls);
+                return std::cref(spi_cs_ls);
             case bms_GpioNetName_GPIO_TSENSE_SEL0:
-                return std::cref(hw::gpio::tsense_sel0);
+                return std::cref(tsense_sel0);
             case bms_GpioNetName_GPIO_TSENSE_SEL1:
-                return std::cref(hw::gpio::tsense_sel1);
+                return std::cref(tsense_sel1);
             case bms_GpioNetName_GPIO_TSENSE_SEL2:
-                return std::cref(hw::gpio::tsense_sel2);
+                return std::cref(tsense_sel2);
             case bms_GpioNetName_GPIO_BSPD_TEST_EN:
-                return std::cref(hw::gpio::bspd_test_enable);
+                return std::cref(bspd_test_enable);
             case bms_GpioNetName_GPIO_TS_ISENSE_OCSC_OK_3V3:
-                return std::cref(hw::gpio::ts_isense_ocsc_ok);
+                return std::cref(ts_isense_ocsc_ok);
             case bms_GpioNetName_GPIO_SPI_CS_HS:
-                return std::cref(hw::gpio::spi_cs_hs);
+                return std::cref(spi_cs_hs);
             case bms_GpioNetName_GPIO_BMS_OK:
-                return std::cref(hw::gpio::bms_ok_current_status);
+                return std::cref(bms_ok_current_status);
             case bms_GpioNetName_GPIO_nEVSE_I_LIM_GPIO:
-                return std::cref(hw::gpio::n_evse_i_lim);
+                return std::cref(n_evse_i_lim);
             case bms_GpioNetName_GPIO_IR_P_EN:
-                return std::cref(hw::gpio::ir_p_en);
+                return std::cref(ir_p_en);
             case bms_GpioNetName_GPIO_SHDN_EN:
-                return std::cref(hw::gpio::shdn_en);
+                return std::cref(shdn_en);
             case bms_GpioNetName_GPIO_nBMS_LATCH:
-                return std::cref(hw::gpio::n_bms_latch_status);
+                return std::cref(n_bms_latch_status);
             case bms_GpioNetName_GPIO_IMD_OK:
-                return std::cref(hw::gpio::imd_ok_current_status);
+                return std::cref(imd_ok_current_status);
             case bms_GpioNetName_GPIO_nBSPD_LATCH:
-                return std::cref(hw::gpio::n_bspd_latch_status);
+                return std::cref(n_bspd_latch_status);
             case bms_GpioNetName_GPIO_PRE_CHARGE_EN:
-                return std::cref(hw::gpio::precharge_en);
+                return std::cref(precharge_en);
             case bms_GpioNetName_GPIO_SHDN_OL_ON:
-                return std::cref(hw::gpio::shdn_ol_on);
+                return std::cref(shdn_ol_on);
             case bms_GpioNetName_GPIO_FAN_EN:
-                return std::cref(hw::gpio::fan_en);
+                return std::cref(fan_en);
             case bms_GpioNetName_GPIO_FAN_PGOOD:
-                return std::cref(hw::gpio::fan_pgood);
+                return std::cref(fan_pgood);
             case bms_GpioNetName_GPIO_PGOOD_3V3:
-                return std::cref(hw::gpio::pgood_3v3);
+                return std::cref(pgood_3v3);
             case bms_GpioNetName_GPIO_PGOOD_5V:
-                return std::cref(hw::gpio::pgood_5v);
+                return std::cref(pgood_5v);
             case bms_GpioNetName_GPIO_SHDN_DIAG_EN:
-                return std::cref(hw::gpio::shdn_diag_en);
+                return std::cref(shdn_diag_en);
             case bms_GpioNetName_GPIO_SHDN_FAULT:
-                return std::cref(hw::gpio::shdn_diag_en);
+                return std::cref(shdn_fault);
             default:
             case bms_GpioNetName_GPIO_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified GPIO net name");
@@ -137,9 +137,9 @@ class BMSChimeraConfig final : public chimera_v2::config
         switch (snn->name.bms_net_name)
         {
             case bms_SpiNetName_SPI_LTC6813_LS:
-                return std::cref(hw::spi::adbms_spi_ls);
+                return std::cref(adbms_spi_ls);
             case bms_SpiNetName_SPI_LTC6813_HS:
-                return std::cref(hw::spi::adbms_spi_hs);
+                return std::cref(adbms_spi_hs);
             default:
             case bms_SpiNetName_SPI_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified SPI net name");
@@ -149,6 +149,7 @@ class BMSChimeraConfig final : public chimera_v2::config
 
     std::optional<std::reference_wrapper<const hw::i2c::I2CDevice>> id_to_i2c(const _I2cNetName *inn) const override
     {
+        UNUSED(inn);
         return std::nullopt;
     }
 
@@ -165,7 +166,6 @@ class BMSChimeraConfig final : public chimera_v2::config
 
 static hw::rtos::StaticTask<8096>
     TaskChimera(osPriorityRealtime, "TaskChimera", [](void *) { chimera_v2::task(bms_config); });
-
 
 void tasks_preInit() {}
 char USBD_PRODUCT_STRING_FS[] = "bms";

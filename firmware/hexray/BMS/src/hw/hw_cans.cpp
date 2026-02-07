@@ -1,38 +1,36 @@
 #include "hw_can.hpp"
-#include "jobs.hpp"
 #include "io_canMsg.hpp"
-// #include "io_bootHandler.hpp"
-// #include <io_canRx.hpp>
-// #include "io_canQueue.hpp"
+#include "main.h"
 
 #include <cassert>
 
 namespace hw::can
 {
-    static void canRxCallback(const CanMsg *msg)
+static void canRxCallback(const io::CanMsg &msg)
+{
+    UNUSED(msg);
+    // io::bootHandler::processBootRequest(msg);
+
+    // if (io::canRx::filterMessageId_can1(msg->std_id))
+    // {
+    //     io::canQueue::pushRx(msg);
+    // }
+}
+
+const fdcan can1{ hfdcan1, 1, canRxCallback };
+const fdcan can2{ hfdcan2, 2, canRxCallback };
+
+const fdcan &fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
+{
+    assert(hfdcan == can1.getHfdcan() || hfdcan == can2.getHfdcan());
+
+    if (hfdcan == can1.getHfdcan())
     {
-        // io::bootHandler::processBootRequest(msg);
-
-        // if (io::canRx::filterMessageId_can1(msg->std_id))
-        // {
-        //     io::canQueue::pushRx(msg);
-        // }
+        return can1;
     }
-
-    CanHandle can1 = { &hfdcan1, 1, canRxCallback };
-    CanHandle can2 = { &hfdcan2, 2, canRxCallback };
-
-    const CanHandle* getHandle(const FDCAN_HandleTypeDef *hfdcan)
+    else
     {
-        assert(hfdcan == can1.hcan || hfdcan == can2.hcan);
-
-        if (hfdcan == can1.hcan)
-        {
-            return &can1;
-        }
-        else
-        {
-            return &can2;
-        }
+        return can2;
     }
+}
 } // namespace hw::can
