@@ -7,24 +7,24 @@ namespace rtc
 {
 struct Time
 {
-    uint8_t hours;
-    uint8_t minutes;
-    uint8_t seconds;
+    uint8_t hours;   // Must be [0-23]
+    uint8_t minutes; // Must be [0-59]
+    uint8_t seconds; // Must be [0-59]
 };
 
 struct Date
 {
-    uint8_t weekday; // Monday = 1 and Sunday = 7
-    uint8_t month;
-    uint8_t day;
-    uint8_t year;
+    uint8_t weekday; // Must be [1-7]. 1 = Monday, 7 = Sunday
+    uint8_t month;   // Must be [1-12]
+    uint8_t day;     // Must be [1-31]
+    uint8_t year;    // Must be [0-99]
 };
 
 /**
  * Set the RTC time.
  *
  * @param hrtc RTC HAL handle.
- * @param time Time struct. Hours [0–23], minutes [0–59], seconds [0–59].
+ * @param time Time struct.
  * @return true on success, false on HAL error.
  */
 bool set_time(RTC_HandleTypeDef &hrtc, const Time &time);
@@ -33,7 +33,7 @@ bool set_time(RTC_HandleTypeDef &hrtc, const Time &time);
  * Set the RTC date.
  *
  * @param hrtc RTC HAL handle.
- * @param date Date struct. Weekday, month, day [1–31], year [0–99].
+ * @param date Date struct.
  * @return true on success, false on HAL error.
  */
 bool set_date(RTC_HandleTypeDef &hrtc, const Date &date);
