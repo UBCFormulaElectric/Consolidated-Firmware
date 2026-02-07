@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package vc;
+
+enum GpioNetName {
+  GPIO_NET_NAME_UNSPECIFIED = 0;
+  GPIO_F_INV_EN = 1;
+  GPIO_F_INV_PG = 2;
+  GPIO_R_INV_EN = 3;
+  GPIO_R_INV_PG = 4;
+  GPIO_DAM_EN = 5;
+  GPIO_DAM_PG = 6;
+  GPIO_BMS_EN = 7;
+  GPIO_BMS_PG = 8;
+  GPIO_BOOST_PG = 9;
+  GPIO_RSM_EN = 10;
+  GPIO_RSM_PG = 11;
+  GPIO_RR_PUMP_EN = 12;
+  GPIO_RR_PUMP_PGOOD = 13;
+  GPIO_RL_PUMP_EN = 14;
+  GPIO_RL_PUMP_PGOOD = 15;
+  GPIO_PCM_EN = 16;
+  GPIO_L_RAD_FAN_EN = 17;
+  GPIO_L_RAD_FAN_PG = 18;
+  GPIO_R_RAD_FAN_EN = 19;
+  GPIO_R_RAD_FAN_PG = 20;
+  GPIO_FRONT_EN = 21;
+  GPIO_FRONT_PG = 22;
+  GPIO_SB_SHDN_3V3_OUT = 23;
+  GPIO_BAT_CHRG_MODE = 24;
+  GPIO_BAT_CHRG_nSHDN = 25;
+  GPIO_IMU_FSYNC = 26;
+  GPIO_PWR_MTR_nALERT = 27;
+  GPIO_BOOT = 28;
+  GPIO_LED = 29;
+  GPIO_RR_ILCK_3V3_OUT = 30;
+  GPIO_TSMS_3V3_OUT = 31;
+  GPIO_IMU_CS1 = 32;
+  GPIO_IMU_CS2 = 33;
+  GPIO_IMU_CS3 = 34;
+}
+
+enum AdcNetName {
+  ADC_NET_NAME_UNSPECIFIED  = 0;
+  ADC_RR_PUMP = 1;
+  ADC_DAM = 2; 
+  ADC_L_RAD_FAN = 3;
+  ADC_R_RAD_FAN = 4;
+  ADC_RL_PUMP = 5;
+  ADC_F_INV = 6;
+  ADC_R_INV = 7;
+  ADC_BMS = 8;
+  ADC_FRONT = 9;
+  ADC_RSM = 10;
+  ADC_MISC_FUSE = 11;
+}
+
+enum I2cNetName {
+  I2C_NET_NAME_UNSPECIFIED = 0;
+  I2C_BAT_MON = 1;
+  I2C_PWR_PUMP = 2;
+}
+
+enum SpiNetName{
+  SPI_NET_NAME_UNSPECIFIED = 0;
+  IMU1 = 1;
+  IMU2 = 2;
+  IMU3 = 3;
+  RPI = 4;
+}

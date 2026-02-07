@@ -57,25 +57,46 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     set(STM32_HAL_SRCS
-            "stm32h7xx_hal.c"
-            "stm32h7xx_hal_rcc.c"
-            "stm32h7xx_hal_rcc_ex.c"
-            "stm32h7xx_hal_pwr_ex.c"
-            "stm32h7xx_hal_cortex.c"
-            "stm32h7xx_hal_exti.c"
-            "stm32h7xx_hal_tim.c"
-            "stm32h7xx_hal_tim_ex.c"
-            "stm32h7xx_hal_gpio.c"
-            "stm32h7xx_hal_dma.c"
+        "stm32h7xx_hal.c"
+        "stm32h7xx_hal_rcc.c"
+        "stm32h7xx_hal_rcc_ex.c"
+        "stm32h7xx_hal_pwr_ex.c"
+        "stm32h7xx_hal_cortex.c"
+        "stm32h7xx_hal_exti.c"
+        "stm32h7xx_hal_tim.c"
+        "stm32h7xx_hal_gpio.c"
+        "stm32h7xx_hal_adc.c"
+        "stm32h7xx_hal_dma.c"         
+        "stm32h7xx_hal_iwdg.c"
+
+        "stm32h7xx_hal_adc_ex.c"       
+        "stm32h7xx_hal_tim_ex.c"       
+        "stm32h7xx_hal_dma_ex.c" 
+        
+        "stm32h7xx_hal_crc.c"        
+        "stm32h7xx_hal_crc_ex.c"       
+        "stm32h7xx_hal_fdcan.c"       
+        "stm32h7xx_hal_spi.c"        
+        "stm32h7xx_hal_spi_ex.c"
+
+        "stm32h7xx_hal_sd.c"       
+        "stm32h7xx_hal_sd_ex.c"
+        "stm32h7xx_ll_sdmmc.c"        
+
+        "stm32h7xx_hal_pcd.c"     
+        "stm32h7xx_hal_pcd_ex.c"
+        "stm32h7xx_ll_usb.c"       
+        
+        
     )
-    set(CUBEMX_INCLUDES ${CUBEMX_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
+    set(CUBEMX_INCLUDES ${CUBEMX_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
     stm32h733xx_cube_library(
             "hexray_BMS_stm32"
             "${STM32_HAL_SRCS}"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/BMS.ioc"
             "${CUBEMX_SRCS}"
             "${CUBEMX_INCLUDES}"
-            FALSE
+            TRUE
             "${ARM_CORE}"
             TRUE
     )
@@ -93,7 +114,7 @@ if ("${TARGET}" STREQUAL "binary")
     target_link_libraries("hexray_BMS_app.elf" PRIVATE "hexray_BMS_stm32" "hexray_BMS_jsoncan" "hexray_BMS_commit_info" "m")
     target_compile_definitions("hexray_BMS_app.elf" PRIVATE BMS)
 
-    add_chimera_stm32h7("hexray_BMS_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}")
+    add_chimera_stm32h7("hexray_BMS_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}" "hexray_chimera_v2_proto_cm7")
     target_link_libraries("hexray_BMS_chimera.elf" PRIVATE "hexray_BMS_stm32")
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")

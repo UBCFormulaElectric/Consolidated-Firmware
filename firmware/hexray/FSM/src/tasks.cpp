@@ -60,7 +60,7 @@ static void FSM_StartAllTasks()
 
 void tasks_preInit() {}
 
-void tasks_init()
+[[noreturn]] void tasks_init()
 {
     jobs_init();
     osKernelInitialize();
