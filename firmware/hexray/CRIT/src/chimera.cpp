@@ -1,9 +1,12 @@
 #include "chimera_v2.hpp"
 #include "shared.pb.h"
-
+#include "tasks.h"
 #include "hw_gpios.hpp"
 #include "hw_spis.hpp"
 #include <crit.pb.h>
+#include "hw_usb.hpp"
+#include "hw_rtosTaskHandler.hpp"
+#include <cassert>
 
 #include <optional>
 #include <functional>
@@ -79,8 +82,17 @@ class CRITChimeraConfig : public chimera_v2::config
     }
 } crit_config;
 
-[[noreturn]] void tasks_preInit()
+static hw::rtos::StaticTask<8096>
+    TaskChimera(osPriorityRealtime, "TaskChimera", [](void *) { chimera_v2::task(crit_config); });
+
+void tasks_preInit() {}
+char USBD_PRODUCT_STRING_FS[] = "crit";
+
+[[noreturn]] void tasks_init()
 {
-    chimera_v2::task(crit_config);
+    assert(hw::usb::init());
+    osKernelInitialize();
+    TaskChimera.start();
+    osKernelStart();
+    forever {}
 }
-[[noreturn]] void tasks_run100Hz() {}

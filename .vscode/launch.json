@@ -28,6 +28,129 @@
       "console": "integratedTerminal"
     },
     {
+      "name": "Debug Chimera: VC (Hexray)",
+      "cwd": "${workspaceRoot}",
+      "executable": "build_fw_dev/firmware/hexray/VC/hexray_VC_chimera.elf",
+      "symbolFiles": [
+        // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/hexray/VC/hexray_VC_chimera.elf"
+      ],
+      "preLaunchTask": "Build Chimera: VC (Hexray)",
+      // cortex configurations
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "jlink",
+      "linux": {
+        "serverpath": "JLinkGDBServerCLExe"
+      },
+      "osx": {
+        "serverpath": "JLinkGDBServer"
+      },
+      "windows": {
+        "serverpath": "JLinkGDBServerCL"
+      },
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
+      "device": "STM32H733VG",
+      "interface": "swd",
+      "showDevDebugOutput": "none",
+      "rttConfig": {
+        "enabled": true,
+        "address": "auto",
+        "decoders": [
+          {
+            "label": "Debug logs: VC",
+            "port": 0,
+            "type": "console"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Debug Chimera: BMS (Hexray)",
+      "cwd": "${workspaceRoot}",
+      "executable": "build_fw_dev/firmware/hexray/BMS/hexray_BMS_chimera.elf",
+      "symbolFiles": [
+        // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/hexray/BMS/hexray_BMS_chimera.elf"
+      ],
+      "preLaunchTask": "Build Chimera: BMS (Hexray)",
+      // cortex configurations
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "jlink",
+      "linux": {
+        "serverpath": "JLinkGDBServerCLExe"
+      },
+      "osx": {
+        "serverpath": "JLinkGDBServer"
+      },
+      "windows": {
+        "serverpath": "JLinkGDBServerCL"
+      },
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
+      "device": "STM32H733VG",
+      "interface": "swd",
+      "showDevDebugOutput": "none",
+      "rttConfig": {
+        "enabled": true,
+        "address": "auto",
+        "decoders": [
+          {
+            "label": "Debug logs: BMS",
+            "port": 0,
+            "type": "console"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Debug Chimera: FSM (Hexray)",
+      "cwd": "${workspaceRoot}",
+      "executable": "build_fw_dev/firmware/hexray/FSM/hexray_FSM_chimera.elf",
+      "symbolFiles": [
+        // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/hexray/FSM/hexray_FSM_chimera.elf"
+      ],
+      "preLaunchTask": "Build Chimera: FSM (Hexray)",
+      // cortex configurations
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "jlink",
+      "linux": {
+        "serverpath": "JLinkGDBServerCLExe"
+      },
+      "osx": {
+        "serverpath": "JLinkGDBServer"
+      },
+      "windows": {
+        "serverpath": "JLinkGDBServerCL"
+      },
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
+      "device": "STM32H562RI",
+      "interface": "swd",
+      "showDevDebugOutput": "none",
+      "rttConfig": {
+        "enabled": true,
+        "address": "auto",
+        "decoders": [
+          {
+            "label": "Debug logs: FSM",
+            "port": 0,
+            "type": "console"
+          }
+        ]
+      }
+    },
+    {
       "name": "Debug Chimera: DAM (Hexray)",
       "cwd": "${workspaceRoot}",
       "executable": "build_fw_dev/firmware/hexray/DAM/hexray_DAM_chimera.elf",
@@ -110,14 +233,14 @@
       }
     },
     {
-      "name": "Debug Chimera: VC (Hexray)",
+      "name": "Debug Embedded: VC (Hexray)",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/hexray/VC/hexray_VC_chimera.elf",
+      "executable": "build_fw_dev/firmware/hexray/VC/hexray_VC_app.elf",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_dev/firmware/hexray/VC/hexray_VC_chimera.elf"
+        "build_fw_dev/firmware/hexray/VC/hexray_VC_app.elf"
       ],
-      "preLaunchTask": "Build Chimera: VC (Hexray)",
+      "preLaunchTask": "Build Embedded: VC (Hexray)",
       // cortex configurations
       "request": "launch",
       "type": "cortex-debug",
@@ -150,8 +273,170 @@
         ]
       }
     },
-
-
+    {
+      "name": "Debug Embedded: BMS (Hexray)",
+      "cwd": "${workspaceRoot}",
+      "executable": "build_fw_dev/firmware/hexray/BMS/hexray_BMS_app.elf",
+      "symbolFiles": [
+        // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/hexray/BMS/hexray_BMS_app.elf"
+      ],
+      "preLaunchTask": "Build Embedded: BMS (Hexray)",
+      // cortex configurations
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "jlink",
+      "linux": {
+        "serverpath": "JLinkGDBServerCLExe"
+      },
+      "osx": {
+        "serverpath": "JLinkGDBServer"
+      },
+      "windows": {
+        "serverpath": "JLinkGDBServerCL"
+      },
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
+      "device": "STM32H733VG",
+      "interface": "swd",
+      "showDevDebugOutput": "none",
+      "rttConfig": {
+        "enabled": true,
+        "address": "auto",
+        "decoders": [
+          {
+            "label": "Debug logs: BMS",
+            "port": 0,
+            "type": "console"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Debug Embedded: FSM (Hexray)",
+      "cwd": "${workspaceRoot}",
+      "executable": "build_fw_dev/firmware/hexray/FSM/hexray_FSM_app.elf",
+      "symbolFiles": [
+        // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/hexray/FSM/hexray_FSM_app.elf"
+      ],
+      "preLaunchTask": "Build Embedded: FSM (Hexray)",
+      // cortex configurations
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "jlink",
+      "linux": {
+        "serverpath": "JLinkGDBServerCLExe"
+      },
+      "osx": {
+        "serverpath": "JLinkGDBServer"
+      },
+      "windows": {
+        "serverpath": "JLinkGDBServerCL"
+      },
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
+      "device": "STM32H562RI",
+      "interface": "swd",
+      "showDevDebugOutput": "none",
+      "rttConfig": {
+        "enabled": true,
+        "address": "auto",
+        "decoders": [
+          {
+            "label": "Debug logs: FSM",
+            "port": 0,
+            "type": "console"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Debug Embedded: DAM (Hexray)",
+      "cwd": "${workspaceRoot}",
+      "executable": "build_fw_dev/firmware/hexray/DAM/hexray_DAM_app.elf",
+      "symbolFiles": [
+        // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/hexray/DAM/hexray_DAM_app.elf"
+      ],
+      "preLaunchTask": "Build Embedded: DAM (Hexray)",
+      // cortex configurations
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "jlink",
+      "linux": {
+        "serverpath": "JLinkGDBServerCLExe"
+      },
+      "osx": {
+        "serverpath": "JLinkGDBServer"
+      },
+      "windows": {
+        "serverpath": "JLinkGDBServerCL"
+      },
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
+      "device": "STM32H562RI",
+      "interface": "swd",
+      "showDevDebugOutput": "none",
+      "rttConfig": {
+        "enabled": true,
+        "address": "auto",
+        "decoders": [
+          {
+            "label": "Debug logs: DAM",
+            "port": 0,
+            "type": "console"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Debug Embedded: RSM (Hexray)",
+      "cwd": "${workspaceRoot}",
+      "executable": "build_fw_dev/firmware/hexray/RSM/hexray_RSM_app.elf",
+      "symbolFiles": [
+        // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/hexray/RSM/hexray_RSM_app.elf"
+      ],
+      "preLaunchTask": "Build Embedded: RSM (Hexray)",
+      // cortex configurations
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "jlink",
+      "linux": {
+        "serverpath": "JLinkGDBServerCLExe"
+      },
+      "osx": {
+        "serverpath": "JLinkGDBServer"
+      },
+      "windows": {
+        "serverpath": "JLinkGDBServerCL"
+      },
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
+      "device": "STM32H562RI",
+      "interface": "swd",
+      "showDevDebugOutput": "none",
+      "rttConfig": {
+        "enabled": true,
+        "address": "auto",
+        "decoders": [
+          {
+            "label": "Debug logs: RSM",
+            "port": 0,
+            "type": "console"
+          }
+        ]
+      }
+    },
     {
       "name": "Debug Embedded: VC (Quintuna)",
       "cwd": "${workspaceRoot}",

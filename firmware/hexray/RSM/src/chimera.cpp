@@ -9,6 +9,9 @@
 #include <rsm.pb.h>
 #include <cassert>
 
+#include <optional>
+#include <functional>
+
 class RSMChimeraConfig : public chimera_v2::config
 {
   public:
