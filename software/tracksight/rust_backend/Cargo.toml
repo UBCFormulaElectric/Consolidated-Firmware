@@ -17,5 +17,6 @@ crc = "3.0.0"
 serde = "1.0.228"
 serde_json = "1.0.145"
 regex = "1.12.2"
+tower-http = { version = "0.5", features = ["cors"] }
 
 jsoncan_rust = { path = "../../../scripts/code_generation/jsoncan-rust" }
