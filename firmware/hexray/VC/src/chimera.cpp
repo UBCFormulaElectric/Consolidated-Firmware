@@ -8,6 +8,7 @@
 #include "shared.pb.h"
 #include "io_log.hpp"
 #include "hw_usb.hpp"
+#include "hw_hardFaultHandler.hpp"
 
 #include <cassert>
 #include <vc.pb.h>
@@ -204,11 +205,15 @@ class VCChimeraConfig : public chimera_v2::config
 static hw::rtos::StaticTask<8096>
     TaskChimera(osPriorityRealtime, "TaskChimera", [](void *) { chimera_v2::task(vc_config); });
 
-void tasks_preInit() {}
+void tasks_preInit()
+{
+    hw_hardFaultHandler_init();
+}
 char USBD_PRODUCT_STRING_FS[] = "vc";
 
 [[noreturn]] void tasks_init()
 {
+    SEGGER_SYSVIEW_Conf();
     assert(hw::usb::init());
     osKernelInitialize();
     TaskChimera.start();

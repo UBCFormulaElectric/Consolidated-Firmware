@@ -23,7 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include "cmsis_os2.h"
 #include "tasks.h"
-
+#include "hw_error.hpp"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
