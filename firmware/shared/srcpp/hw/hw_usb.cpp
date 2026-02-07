@@ -488,13 +488,13 @@ void waitForConnected()
     if (usb_connected)
         return;
 
-    assert(usb_task == nullptr);
+    assert(usb_task == std::nullopt);
     // save which task we need to notify
     usb_task = xTaskGetCurrentTaskHandle();
     // block this task until notification comes
     const uint32_t num_notifications = ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
     UNUSED(num_notifications);
-    usb_task = nullptr;
+    usb_task = std::nullopt;
 }
 } // namespace hw::usb
 

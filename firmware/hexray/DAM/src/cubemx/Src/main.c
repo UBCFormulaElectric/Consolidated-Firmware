@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
+#include "hw_error.hpp"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -110,9 +111,9 @@ int main(void)
     MX_USB_PCD_Init();
     MX_CRC_Init();
     MX_FDCAN1_Init();
-    MX_IWDG_Init();
+    // MX_IWDG_Init();
     MX_RTC_Init();
-    MX_SDMMC1_SD_Init();
+    // MX_SDMMC1_SD_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
     /* USER CODE END 2 */
