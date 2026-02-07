@@ -1,6 +1,9 @@
 #include "tasks.h"
 #include "chimera_v2.hpp"
 #include "hw_gpios.hpp"
+#include "hw_spis.hpp"
+#include "hw_adcs.hpp"
+#include "hw_i2cs.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "shared.pb.h"
 #include "io_log.hpp"
@@ -11,6 +14,21 @@
 
 #include <optional>
 #include <functional>
+
+namespace
+{
+const hw::Adc adc_front{ hw::adcs::front_sns };
+const hw::Adc adc_r_inv{ hw::adcs::r_inv_sns };
+const hw::Adc adc_bms{ hw::adcs::bms_sns };
+const hw::Adc adc_rl_pump{ hw::adcs::rl_pump_i_sns };
+const hw::Adc adc_l_rad_fan{ hw::adcs::l_rad_fan_i_sns };
+const hw::Adc adc_rr_pump{ hw::adcs::rr_pump_i_sns };
+const hw::Adc adc_dam{ hw::adcs::dam_sns };
+const hw::Adc adc_r_rad_fan{ hw::adcs::r_rad_fan_i_sns };
+const hw::Adc adc_misc_fuse{ hw::adcs::misc_fuse_sns };
+const hw::Adc adc_f_inv{ hw::adcs::f_inv_sns };
+const hw::Adc adc_rsm{ hw::adcs::rsm_sns };
+} // namespace
 
 class VCChimeraConfig : public chimera_v2::config
 {
@@ -102,6 +120,66 @@ class VCChimeraConfig : public chimera_v2::config
         }
     }
 
+    std::optional<std::reference_wrapper<const hw::Adc>> id_to_adc(const _AdcNetName *ann) const override
+    {
+        if (ann->which_name != adc_net_name_tag)
+        {
+            LOG_ERROR("Chimera: Expected ADC net name with tag %d, got %d", adc_net_name_tag, ann->which_name);
+            return std::nullopt;
+        }
+
+        switch (ann->name.vc_net_name)
+        {
+            case vc_AdcNetName_ADC_RR_PUMP:
+                return std::cref(adc_rr_pump);
+            case vc_AdcNetName_ADC_DAM:
+                return std::cref(adc_dam);
+            case vc_AdcNetName_ADC_L_RAD_FAN:
+                return std::cref(adc_l_rad_fan);
+            case vc_AdcNetName_ADC_R_RAD_FAN:
+                return std::cref(adc_r_rad_fan);
+            case vc_AdcNetName_ADC_RL_PUMP:
+                return std::cref(adc_rl_pump);
+            case vc_AdcNetName_ADC_F_INV:
+                return std::cref(adc_f_inv);
+            case vc_AdcNetName_ADC_R_INV:
+                return std::cref(adc_r_inv);
+            case vc_AdcNetName_ADC_BMS:
+                return std::cref(adc_bms);
+            case vc_AdcNetName_ADC_FRONT:
+                return std::cref(adc_front);
+            case vc_AdcNetName_ADC_RSM:
+                return std::cref(adc_rsm);
+            case vc_AdcNetName_ADC_MISC_FUSE:
+                return std::cref(adc_misc_fuse);
+            default:
+            case vc_AdcNetName_ADC_NET_NAME_UNSPECIFIED:
+                LOG_INFO("Chimera: Unspecified ADC net name");
+                return std::nullopt;
+        }
+    }
+
+    std::optional<std::reference_wrapper<const hw::i2c::I2CDevice>> id_to_i2c(const _I2cNetName *inn) const override
+    {
+        if (inn->which_name != i2c_net_name_tag)
+        {
+            LOG_ERROR("Chimera: Expected I2C net name with tag %d, got %d", i2c_net_name_tag, inn->which_name);
+            return std::nullopt;
+        }
+
+        switch (inn->name.vc_net_name)
+        {
+            case vc_I2cNetName_I2C_BAT_MON:
+                return std::cref(hw::i2c::bat_mon);
+            case vc_I2cNetName_I2C_PWR_PUMP:
+                return std::cref(hw::i2c::pwr_pump);
+            default:
+            case vc_I2cNetName_I2C_NET_NAME_UNSPECIFIED:
+                LOG_INFO("Chimera: Unspecified I2C net name");
+                return std::nullopt;
+        }
+    }
+
     std::optional<std::reference_wrapper<const hw::spi::SpiDevice>> id_to_spi(const _SpiNetName *snn) const override
     {
         if (snn->which_name != spi_net_name_tag)
@@ -113,11 +191,11 @@ class VCChimeraConfig : public chimera_v2::config
         switch (snn->name.crit_net_name)
         {
             case vc_SpiNetName_IMU1:
-                return std::cref(imu1);
+                return std::cref(hw::spi::imu1);
             case vc_SpiNetName_IMU2:
-                return std::cref(imu2);
+                return std::cref(hw::spi::imu2);
             case vc_SpiNetName_IMU3:
-                return std::cref(IMU3);
+                return std::cref(hw::spi::imu3);
             // case vc_SpiNetName_RPI:
             // return std::cref(RPI);
             default:
@@ -133,6 +211,8 @@ class VCChimeraConfig : public chimera_v2::config
     {
         gpio_net_name_tag = GpioNetName_vc_net_name_tag;
         spi_net_name_tag  = SpiNetName_vc_net_name_tag;
+        adc_net_name_tag  = AdcNetName_vc_net_name_tag;
+        i2c_net_name_tag  = I2cNetName_vc_net_name_tag;
     }
 } vc_config;
 
@@ -148,4 +228,5 @@ char USBD_PRODUCT_STRING_FS[] = "vc";
     osKernelInitialize();
     TaskChimera.start();
     osKernelStart();
+    forever {}
 }

@@ -11,8 +11,8 @@ namespace app::brake
 {
 void broadcast(void)
 {
-    static constexpr float MIN_BRAKE_PRESSURE_PSI = (0.0f);
-    static constexpr float MAX_BRAKE_PRESSURE_PSI = (1000.0f);
+    static constexpr float MIN_BRAKE_PRESSURE_PSI = 0.0f;
+    static constexpr float MAX_BRAKE_PRESSURE_PSI = 1000.0f;
 
     const bool  brake_pressed             = io::brake::isActuated();
     const float front_pressure            = io::brake::getFrontPressurePsi();

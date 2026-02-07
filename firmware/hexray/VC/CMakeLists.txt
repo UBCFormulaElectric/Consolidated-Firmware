@@ -50,8 +50,15 @@ set(HW_INCLUDE_DIRS
 )
 
 # chimera sources
-set(CHIMERA_SRCS ${HW_SRCS} "${CMAKE_CURRENT_SOURCE_DIR}/src/chimera.cpp")
-set(CHIMERA_INCLUDE_DIRS ${HW_INCLUDE_DIRS})
+set(CHIMERA_SRCS 
+        ${HW_SRCS} 
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/chimera.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
+)
+set(CHIMERA_INCLUDE_DIRS 
+        ${HW_INCLUDE_DIRS}
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
+)
 
 if ("${TARGET}" STREQUAL "binary")
     set(ARM_CORE "cm7")

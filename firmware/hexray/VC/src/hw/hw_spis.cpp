@@ -21,7 +21,7 @@ const SpiBus &getBusFromHandle(const SPI_HandleTypeDef *handle)
     {
         return spi1;
     }
-    if (handle == &hspi2)
+    else if (handle == &hspi2)
     {
         return spi2;
     }
