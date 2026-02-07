@@ -15,7 +15,7 @@ I2CBus &getBusFromHandle(const I2C_HandleTypeDef *handle)
     {
         return i2c_bus_4;
     }
-    if (handle == &hi2c5)
+    else if (handle == &hi2c5)
     {
         return i2c_bus_5;
     }
