@@ -105,6 +105,8 @@ extern "C"
 #define LED_GPIO_Port GPIOC
 #define SPI_CS_LS_Pin GPIO_PIN_14
 #define SPI_CS_LS_GPIO_Port GPIOC
+#define MSD_SHDN_SNS_Pin GPIO_PIN_0
+#define MSD_SHDN_SNS_GPIO_Port GPIOC
 #define HV_P_INTLCK_SNS_Pin GPIO_PIN_1
 #define HV_P_INTLCK_SNS_GPIO_Port GPIOC
 #define HV_N_INTLCK_SNS_Pin GPIO_PIN_2
@@ -149,8 +151,6 @@ extern "C"
 #define FAN_EN_GPIO_Port GPIOE
 #define FAN_PGOOD_Pin GPIO_PIN_15
 #define FAN_PGOOD_GPIO_Port GPIOE
-#define MSD_SHDN_SNS_Pin GPIO_PIN_10
-#define MSD_SHDN_SNS_GPIO_Port GPIOB
 #define ACCEL_BRAKE_OK_Pin GPIO_PIN_12
 #define ACCEL_BRAKE_OK_GPIO_Port GPIOB
 #define nBRAKE_PRESS_3V3_Pin GPIO_PIN_13

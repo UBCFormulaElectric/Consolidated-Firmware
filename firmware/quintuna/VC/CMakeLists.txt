@@ -9,7 +9,7 @@ set(TASKS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.c")
 set(SYSTEM_SRCS ${JOBS_SRC} ${TASKS_SRC})
 set(SYSTEM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src" "${CMAKE_CURRENT_SOURCE_DIR}/boot")
 
-file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
+file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c" "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp")
 list(APPEND APP_SRCS
         "${SHARED_APP_INCLUDE_DIR}/app_heartbeatMonitor.c"
         "${SHARED_APP_INCLUDE_DIR}/app_heartbeatBoard.c"
@@ -18,6 +18,7 @@ list(APPEND APP_SRCS
         "${SHARED_APP_INCLUDE_DIR}/app_shdnLoopNode.c"
         "${SHARED_APP_INCLUDE_DIR}/app_signal.c"
         "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_sensor_filter.c"
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_QUINTUNA_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/src/app/vehicle_dynamics")
 
@@ -48,10 +49,9 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_can_h7.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_can_hx.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_resetReason.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_freeRtosConfigs.c"
 )
@@ -102,6 +102,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${CUBEMX_INCLUDES}"
             TRUE
             "${ARM_CORE}"
+            FALSE
     )
 
     # JSONCAN
@@ -120,7 +121,7 @@ if ("${TARGET}" STREQUAL "binary")
             "quintuna_VC_commit_info"
             "logfs_cm7"
             "sbg_ecom_cm7"
-            "chimera_v2_proto_cm7"
+            "quintuna_chimera_v2_proto_cm7"
             m)
 
 
@@ -151,7 +152,7 @@ if ("${TARGET}" STREQUAL "binary")
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(FAKE_SRCS
-            "${SHARED_FAKES_DIR}/io_imu.cpp"
+            "${SHARED_FAKES_DIR}/io_imuQuintuna.cpp"
             "${SHARED_FAKES_DIR}/io_loadswitch.cpp"
             "${SHARED_FAKES_DIR}/io_canQueue.cpp"
             "${SHARED_FAKES_DIR}/io_bootHandler.cpp"

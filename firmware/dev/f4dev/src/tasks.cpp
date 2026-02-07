@@ -26,11 +26,17 @@ extern "C"
 // static SdCard *sd;
 
 // CanHandle can = { .hcan = &hcan2, .bus_num = 0, .receive_callback = [](const CanMsg *rx_msg) {}, .ready = false };
-hw::can        can0{ hcan2, 0, [](const io::CanMsg *rx_msg) {} };
-const hw::can &hw::hw_can_getHandle(const CAN_HandleTypeDef *hcan)
+static void canRxCallback(const io::CanMsg &msg)
 {
-    assert(hcan == can0.getHcan());
-    return can0;
+    // can_rx_queue.pushMsgToQueue(msg);
+}
+
+constexpr hw::can can1(hcan1, 0, canRxCallback);
+
+const hw::can &hw::can_getHandle(const CAN_HandleTypeDef *hcan)
+{
+    assert(hcan == can1.getHcan());
+    return can1;
 }
 // int lfs_read(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size);
 // int lfs_prog(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size);

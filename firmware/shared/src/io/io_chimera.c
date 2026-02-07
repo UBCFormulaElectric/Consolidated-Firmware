@@ -124,7 +124,8 @@ void io_chimera_msgRxCallback(void)
     {
         DebugMessage msg       = DebugMessage_init_zero;
         pb_istream_t in_stream = pb_istream_from_buffer(data, rx_packet_size);
-        assert(pb_decode(&in_stream, DebugMessage_fields, &msg));
+        const bool   decode_ok = pb_decode(&in_stream, DebugMessage_fields, &msg);
+        assert(decode_ok);
 
         switch (msg.which_payload)
         {
@@ -157,8 +158,9 @@ void io_chimera_msgRxCallback(void)
         }
 
         // Encode and send reply.
-        pb_ostream_t out_stream = pb_ostream_from_buffer(data, sizeof(data));
-        assert(pb_encode(&out_stream, DebugMessage_fields, &msg));
+        pb_ostream_t out_stream    = pb_ostream_from_buffer(data, sizeof(data));
+        const bool   encode_status = pb_encode(&out_stream, DebugMessage_fields, &msg);
+        assert(encode_status);
         uint8_t tx_packet_size = (uint8_t)out_stream.bytes_written;
 
         hw_uart_transmit(&chimera_uart, &tx_packet_size, DEBUG_SIZE_MSG_BUF_SIZE);

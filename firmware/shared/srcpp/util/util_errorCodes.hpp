@@ -1,59 +1,43 @@
 #pragma once
 #include "io_log.hpp"
-#include <cassert>
+#include <expected>
 
-enum class ExitCode
+enum class ErrorCode
 {
-    EXIT_CODE_OK = 0,
-    EXIT_CODE_INVALID_ARGS,
-    EXIT_CODE_OUT_OF_RANGE,
-    EXIT_CODE_TIMEOUT,
-    EXIT_CODE_ERROR,
-    EXIT_CODE_BUSY,
-    EXIT_CODE_UNIMPLEMENTED,
-    EXIT_CODE_RETRY_FAILED,
-    EXIT_CODE_CHECKSUM_FAIL,
-    EXIT_INDETERMINATE, // use this for when you don't know what the exit code is YET
+    INVALID_ARGS = 0,
+    OUT_OF_RANGE,
+    TIMEOUT,
+    ERROR,
+    BUSY,
+    UNIMPLEMENTED,
+    RETRY_FAILED,
+    CHECKSUM_FAIL,
+    ERROR_INDETERMINATE, // use this for when you don't know what the exit code is YET
     NUM_EXIT_CODES,
 };
 
-inline bool IS_EXIT_OK(const ExitCode code)
-{
-    return code == ExitCode::EXIT_CODE_OK;
-}
-inline bool IS_EXIT_ERR(const ExitCode code)
-{
-    return code != ExitCode::EXIT_CODE_OK;
-}
-inline void ASSERT_EXIT_OK(const ExitCode code)
-{
-    assert(code == ExitCode::EXIT_CODE_OK);
-}
-
 #define RETURN_IF_ERR(err_expr)                                                \
     {                                                                          \
-        const ExitCode exit = err_expr;                                        \
-        if (IS_EXIT_ERR(exit))                                                 \
+        if (not(err_expr).has_value())                                         \
         {                                                                      \
             LOG_ERROR(#err_expr " exited with an error, returning: %d", exit); \
-            return exit;                                                       \
+            return err_expr;                                                   \
         }                                                                      \
     }
 
-#define RETURN_IF_ERR_SILENT(err_expr)  \
-    {                                   \
-        const ExitCode exit = err_expr; \
-        if (IS_EXIT_ERR(exit))          \
-        {                               \
-            return exit;                \
-        }                               \
+#define RETURN_IF_ERR_SILENT(err_expr) \
+    {                                  \
+        if (not(err_expr).has_value()) \
+        {                              \
+            return err_expr;           \
+        }                              \
     }
 
-#define LOG_IF_ERR(err_expr)                                        \
-    {                                                               \
-        const ExitCode exit = err_expr;                             \
-        if (IS_EXIT_ERR(exit))                                      \
-        {                                                           \
-            LOG_ERROR(#err_expr " exited with an error: %d", exit); \
-        }                                                           \
+template <typename T> void _log_if_err(std::expected<T, ErrorCode> out, const char *err_expr)
+{
+    if (not out.has_value())
+    {
+        LOG_ERROR("%s exited with an error: %d", err_expr);
     }
+}
+#define LOG_IF_ERR(err_expr) _log_if_err(err_expr, #err_expr)
