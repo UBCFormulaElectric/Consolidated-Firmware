@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::can_database::{CanDatabase, CanMessage, CanSignal, CanSignalType, DecodedSignal, error::CanDBError};
 
 impl CanDatabase {
@@ -48,6 +50,7 @@ impl CanDatabase {
             .prepare("SELECT * FROM signals WHERE message_id = ?1")
             .unwrap();
 
+        
         match s.query_map([message_id], |row| {
             Ok(CanSignal {
                 name: row.get(0)?,
@@ -190,7 +193,7 @@ impl CanDatabase {
         }
     }
 
-    pub fn pack(&self, msg_name: &str, signals: &[DecodedSignal]) -> Result<(u32, Vec<u8>), CanDBError> {
+    pub fn pack(self: &Self, msg_name: &str, signals: &[DecodedSignal]) -> Result<(u32, Vec<u8>), CanDBError> {
         let msg = match self.get_message_by_name(msg_name) {
             Ok(m) => m,
             Err(_) => {
@@ -199,7 +202,7 @@ impl CanDatabase {
             }
         };
 
-        let mut signal_map = std::collections::HashMap::new();
+        let mut signal_map = HashMap::new();
         for signal in &msg.signals {
             signal_map.insert(signal.name.clone(), signal);
         }
@@ -301,9 +304,11 @@ impl CanDatabase {
                     })
                 }),
             };
-            
-            if decoded.label.is_none() {
-                continue;
+
+            if signal.enum_name.is_some() {
+                if decoded.label.is_none() {
+                    continue;
+                }
             }
 
             decoded_signals.push(decoded);

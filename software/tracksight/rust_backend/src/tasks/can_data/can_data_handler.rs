@@ -36,6 +36,7 @@ pub async fn run_can_data_handler(
             }
             Ok(can_payload) = can_queue_rx.recv() => {
 
+                
                 let decoded_signals = can_db.unpack(
                     can_payload.can_id, 
                     can_payload.payload, 

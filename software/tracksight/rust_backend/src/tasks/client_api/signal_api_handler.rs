@@ -76,13 +76,13 @@ async fn metadata(Query(mut param): Query<MetadataParam>, State(state): State<Ap
 
 async fn signal() -> impl IntoResponse {
     // TODO implement
-    todo!("query from influxdb");
-    return (StatusCode::OK, Json(()));
+    // todo!("query from influxdb");
+    return (StatusCode::OK, serde_json::to_string(&Vec::<String>::new()).unwrap());
 }
 
 async fn signal_csv() -> impl IntoResponse {
     // TODO implement
-    todo!("to implement signal csv download");
+    // todo!("to implement signal csv download");
     return (StatusCode::OK, Json(()));
 }
 
