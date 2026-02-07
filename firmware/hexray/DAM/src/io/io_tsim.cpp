@@ -11,13 +11,13 @@ void tsim_set_off()
 
 void tsim_set_red()
 {
-    tsim_red_en_pin.writePin(true);
     ntsim_green_en_pin.writePin(false);
+    tsim_red_en_pin.writePin(true);
 }
 
 void tsim_set_green()
 {
-    ntsim_green_en_pin.writePin(true);
     tsim_red_en_pin.writePin(false);
+    ntsim_green_en_pin.writePin(true);
 }
 } // namespace io
