@@ -140,7 +140,7 @@ void SystemClock_Config(void)
 
     /** Configure the main internal regulator output voltage
      */
-    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
+    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE0);
 
     while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY))
     {
@@ -149,16 +149,15 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI48 | RCC_OSCILLATORTYPE_CSI;
-    RCC_OscInitStruct.HSI48State          = RCC_HSI48_ON;
+    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_CSI;
     RCC_OscInitStruct.CSIState            = RCC_CSI_ON;
     RCC_OscInitStruct.CSICalibrationValue = RCC_CSICALIBRATION_DEFAULT;
     RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource       = RCC_PLL1_SOURCE_CSI;
     RCC_OscInitStruct.PLL.PLLM            = 1;
-    RCC_OscInitStruct.PLL.PLLN            = 32;
+    RCC_OscInitStruct.PLL.PLLN            = 125;
     RCC_OscInitStruct.PLL.PLLP            = 2;
-    RCC_OscInitStruct.PLL.PLLQ            = 3;
+    RCC_OscInitStruct.PLL.PLLQ            = 2;
     RCC_OscInitStruct.PLL.PLLR            = 2;
     RCC_OscInitStruct.PLL.PLLRGE          = RCC_PLL1_VCIRANGE_2;
     RCC_OscInitStruct.PLL.PLLVCOSEL       = RCC_PLL1_VCORANGE_WIDE;
@@ -178,14 +177,14 @@ void SystemClock_Config(void)
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
     RCC_ClkInitStruct.APB3CLKDivider = RCC_HCLK_DIV1;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
     {
         Error_Handler();
     }
 
     /** Configure the programming delay
      */
-    __HAL_FLASH_SET_PROGRAM_DELAY(FLASH_PROGRAMMING_DELAY_1);
+    __HAL_FLASH_SET_PROGRAM_DELAY(FLASH_PROGRAMMING_DELAY_2);
 }
 
 /**
@@ -208,7 +207,7 @@ static void MX_ADC1_Init(void)
     /** Common config
      */
     hadc1.Instance                   = ADC1;
-    hadc1.Init.ClockPrescaler        = ADC_CLOCK_ASYNC_DIV1;
+    hadc1.Init.ClockPrescaler        = ADC_CLOCK_ASYNC_DIV4;
     hadc1.Init.Resolution            = ADC_RESOLUTION_12B;
     hadc1.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
     hadc1.Init.ScanConvMode          = ADC_SCAN_ENABLE;
@@ -337,7 +336,7 @@ static void MX_I2C2_Init(void)
 
     /* USER CODE END I2C2_Init 1 */
     hi2c2.Instance              = I2C2;
-    hi2c2.Init.Timing           = 0x10707DBC;
+    hi2c2.Init.Timing           = 0x60808CD3;
     hi2c2.Init.OwnAddress1      = 0;
     hi2c2.Init.AddressingMode   = I2C_ADDRESSINGMODE_7BIT;
     hi2c2.Init.DualAddressMode  = I2C_DUALADDRESS_DISABLE;
@@ -581,6 +580,7 @@ static void MX_GPIO_Init(void)
     /* USER CODE END MX_GPIO_Init_1 */
 
     /* GPIO Ports Clock Enable */
+    __HAL_RCC_GPIOH_CLK_ENABLE();
     __HAL_RCC_GPIOC_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
