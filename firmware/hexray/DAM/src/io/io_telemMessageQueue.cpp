@@ -11,7 +11,7 @@ void init()
     // TODO: Initialize the queue
 }
 
-std::expected<void, ErrorCode> push(const io::CanMsg& msg)
+std::expected<void, ErrorCode> push(const io::CanMsg &msg)
 {
     // TODO: Push message to queue
     return {};
