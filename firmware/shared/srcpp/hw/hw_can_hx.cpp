@@ -19,7 +19,7 @@
 #include "stm32h5xx_hal_fdcan.h"
 #endif
 
-std::expected<void, ErrorCode> hw::fdcan::tx(const FDCAN_TxHeaderTypeDef &tx_header, const io::CanMsg &msg)
+std::expected<void, ErrorCode> hw::fdcan::tx(FDCAN_TxHeaderTypeDef &tx_header, io::CanMsg &msg)
 {
     for (uint32_t poll = 0; HAL_FDCAN_GetTxFifoFreeLevel(hfdcan) == 0U;)
     {
@@ -91,7 +91,7 @@ std::expected<void, ErrorCode> hw::fdcan::can_transmit(const io::CanMsg &msg)
     tx_header.FDFormat            = FDCAN_CLASSIC_CAN;
     tx_header.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
     tx_header.MessageMarker       = 0;
-    return tx(tx_header, msg);
+    return tx(tx_header, const_cast<io::CanMsg &>(msg));
 }
 
 std::expected<void, ErrorCode> hw::fdcan::fdcan_transmit(const io::CanMsg &msg)
@@ -142,7 +142,7 @@ std::expected<void, ErrorCode> hw::fdcan::fdcan_transmit(const io::CanMsg &msg)
     tx_header.FDFormat            = FDCAN_FD_CAN;
     tx_header.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
     tx_header.MessageMarker       = 0;
-    return tx(tx_header, msg);
+    return tx(tx_header, const_cast<io::CanMsg &>(msg));
 }
 
 std::expected<void, ErrorCode> hw::fdcan::receive(const uint32_t rx_fifo, io::CanMsg &msg) const
