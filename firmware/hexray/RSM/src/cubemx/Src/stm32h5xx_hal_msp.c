@@ -342,7 +342,17 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
         /** Initializes the peripherals clock
          */
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SPI3;
-        PeriphClkInitStruct.Spi3ClockSelection   = RCC_SPI3CLKSOURCE_PLL1Q;
+        PeriphClkInitStruct.PLL2.PLL2Source      = RCC_PLL2_SOURCE_CSI;
+        PeriphClkInitStruct.PLL2.PLL2M           = 1;
+        PeriphClkInitStruct.PLL2.PLL2N           = 62;
+        PeriphClkInitStruct.PLL2.PLL2P           = 2;
+        PeriphClkInitStruct.PLL2.PLL2Q           = 2;
+        PeriphClkInitStruct.PLL2.PLL2R           = 2;
+        PeriphClkInitStruct.PLL2.PLL2RGE         = RCC_PLL2_VCIRANGE_2;
+        PeriphClkInitStruct.PLL2.PLL2VCOSEL      = RCC_PLL2_VCORANGE_WIDE;
+        PeriphClkInitStruct.PLL2.PLL2FRACN       = 4096;
+        PeriphClkInitStruct.PLL2.PLL2ClockOut    = RCC_PLL2_DIVP;
+        PeriphClkInitStruct.Spi3ClockSelection   = RCC_SPI3CLKSOURCE_PLL2P;
         if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
         {
             Error_Handler();
@@ -500,7 +510,17 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
         /** Initializes the peripherals clock
          */
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USB;
-        PeriphClkInitStruct.UsbClockSelection    = RCC_USBCLKSOURCE_HSI48;
+        PeriphClkInitStruct.PLL3.PLL3Source      = RCC_PLL3_SOURCE_CSI;
+        PeriphClkInitStruct.PLL3.PLL3M           = 1;
+        PeriphClkInitStruct.PLL3.PLL3N           = 48;
+        PeriphClkInitStruct.PLL3.PLL3P           = 2;
+        PeriphClkInitStruct.PLL3.PLL3Q           = 4;
+        PeriphClkInitStruct.PLL3.PLL3R           = 2;
+        PeriphClkInitStruct.PLL3.PLL3RGE         = RCC_PLL3_VCIRANGE_0;
+        PeriphClkInitStruct.PLL3.PLL3VCOSEL      = RCC_PLL3_VCORANGE_MEDIUM;
+        PeriphClkInitStruct.PLL3.PLL3FRACN       = 0;
+        PeriphClkInitStruct.PLL3.PLL3ClockOut    = RCC_PLL3_DIVQ;
+        PeriphClkInitStruct.UsbClockSelection    = RCC_USBCLKSOURCE_PLL3Q;
         if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
         {
             Error_Handler();
