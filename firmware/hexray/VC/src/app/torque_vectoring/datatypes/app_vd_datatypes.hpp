@@ -107,8 +107,5 @@ typedef struct
 
 typedef struct controllerTorqueDeltas
 {
-    float front_left_delta;
-    float front_right_delta;
-    float rear_left_delta;
-    float rear_right_delta;
+    float wheel_delta;
 } controllerTorqueDeltas;

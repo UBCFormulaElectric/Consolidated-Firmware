@@ -12,10 +12,7 @@ extern "C"
 #include "app_vd_constants.hpp"
 #include "app_units.h"
 
-// Test constants
-// TRACK_WIDTH_m, WHEELBASE_m, GEAR_RATIO, APPROX_STEERING_TO_WHEEL_ANGLE are defined in headers
-constexpr double MAX_MOTOR_SPEED_RPM   = 6000.0;
-constexpr double MAX_MOTOR_SPEED_RAD_S = MAX_MOTOR_SPEED_RPM * M_PI / 30.0; // ~628.32 rad/s
+// Test constants: TRACK_WIDTH_m, WHEELBASE_m, APPROX_STEERING_TO_WHEEL_ANGLE are defined in headers
 
 // Tolerance for floating point comparisons
 constexpr double EPSILON = 1e-3;
@@ -31,301 +28,161 @@ class TestActiveDifferential : public testing::Test
     }
 };
 
+// Helper: expected delta_omega from Eq. 13
+static double expected_delta_omega(double steering_angle_deg, double omega_v)
+{
+    const double delta =
+        DEG_TO_RAD(static_cast<float>(steering_angle_deg) * static_cast<float>(APPROX_STEERING_TO_WHEEL_ANGLE));
+    return (static_cast<double>(TRACK_WIDTH_m) / static_cast<double>(WHEELBASE_m)) * tan(delta) * omega_v;
+}
+
 /**
  * Test straight driving (steering angle = 0)
- * All wheels should have the same speed
+ * wheel_delta should be zero
  */
 TEST_F(TestActiveDifferential, StraightDriving)
 {
     const double omega_v_ref        = 10.0; // rad/s
     const double steering_angle_deg = 0.0;
-    const double omega_m_max        = 0.0; // Use default limit
 
-    controllerTorqueDeltas result = app_activeDifferential_computeTorque(omega_v_ref, steering_angle_deg, omega_m_max);
+    controllerTorqueDeltas result = app_activeDifferential_computeTorque(omega_v_ref, steering_angle_deg);
 
-    // All wheels should have the same speed
-    const double expected_motor_speed = omega_v_ref * static_cast<double>(GEAR_RATIO);
-    EXPECT_NEAR(result.front_left_delta, expected_motor_speed, EPSILON);
-    EXPECT_NEAR(result.front_right_delta, expected_motor_speed, EPSILON);
-    EXPECT_NEAR(result.rear_left_delta, expected_motor_speed, EPSILON);
-    EXPECT_NEAR(result.rear_right_delta, expected_motor_speed, EPSILON);
+    EXPECT_NEAR(result.wheel_delta, 0.0, EPSILON);
 }
 
 /**
  * Test left turn (positive steering angle)
- * Right wheels (FR, RR) should be faster (outer wheels)
- * Left wheels (FL, RL) should be slower (inner wheels)
+ * wheel_delta should be positive (right wheels outer, faster)
  */
 TEST_F(TestActiveDifferential, LeftTurn)
 {
     const double omega_v_ref        = 10.0; // rad/s
     const double steering_angle_deg = 30.0; // Left turn (positive = left turn)
-    const double omega_m_max        = 0.0;  // Use default limit
 
-    controllerTorqueDeltas result = app_activeDifferential_computeTorque(omega_v_ref, steering_angle_deg, omega_m_max);
+    controllerTorqueDeltas result = app_activeDifferential_computeTorque(omega_v_ref, steering_angle_deg);
 
-    // Convert steering wheel angle to wheel angle
-    const double delta = static_cast<double>(
-        DEG_TO_RAD(static_cast<float>(steering_angle_deg) * static_cast<float>(APPROX_STEERING_TO_WHEEL_ANGLE)));
-
-    // Compute expected wheel speed difference
-    const double delta_omega =
-        (static_cast<double>(TRACK_WIDTH_m) / static_cast<double>(WHEELBASE_m)) * tan(delta) * omega_v_ref;
-
-    // Left and right wheel references
-    const double omega_L_wheel_ref = omega_v_ref - 0.5 * delta_omega;
-    const double omega_R_wheel_ref = omega_v_ref + 0.5 * delta_omega;
-
-    // Motor references
-    const double omega_L_motor_ref = static_cast<double>(GEAR_RATIO) * omega_L_wheel_ref;
-    const double omega_R_motor_ref = static_cast<double>(GEAR_RATIO) * omega_R_wheel_ref;
-
-    // Left turn: right wheels are outer (faster), left wheels are inner (slower)
-    EXPECT_NEAR(result.front_left_delta, omega_L_motor_ref, EPSILON);
-    EXPECT_NEAR(result.rear_left_delta, omega_L_motor_ref, EPSILON);
-    EXPECT_NEAR(result.front_right_delta, omega_R_motor_ref, EPSILON);
-    EXPECT_NEAR(result.rear_right_delta, omega_R_motor_ref, EPSILON);
-
-    // Verify right wheels are faster than left wheels
-    EXPECT_GT(result.front_right_delta, result.front_left_delta);
-    EXPECT_GT(result.rear_right_delta, result.rear_left_delta);
+    const double expected = expected_delta_omega(steering_angle_deg, omega_v_ref);
+    EXPECT_NEAR(result.wheel_delta, expected, EPSILON);
+    EXPECT_GT(result.wheel_delta, 0.0);
 }
 
 /**
  * Test right turn (negative steering angle)
- * Left wheels (FL, RL) should be faster (outer wheels)
- * Right wheels (FR, RR) should be slower (inner wheels)
+ * wheel_delta should be negative (left wheels outer, faster)
  */
 TEST_F(TestActiveDifferential, RightTurn)
 {
     const double omega_v_ref        = 10.0;  // rad/s
     const double steering_angle_deg = -30.0; // Right turn (negative = right turn)
-    const double omega_m_max        = 0.0;   // Use default limit
 
-    controllerTorqueDeltas result = app_activeDifferential_computeTorque(omega_v_ref, steering_angle_deg, omega_m_max);
+    controllerTorqueDeltas result = app_activeDifferential_computeTorque(omega_v_ref, steering_angle_deg);
 
-    // Convert steering wheel angle to wheel angle
-    const double delta = static_cast<double>(
-        DEG_TO_RAD(static_cast<float>(steering_angle_deg) * static_cast<float>(APPROX_STEERING_TO_WHEEL_ANGLE)));
-
-    // Compute expected wheel speed difference
-    const double delta_omega =
-        (static_cast<double>(TRACK_WIDTH_m) / static_cast<double>(WHEELBASE_m)) * tan(delta) * omega_v_ref;
-
-    // Left and right wheel references
-    const double omega_L_wheel_ref = omega_v_ref - 0.5 * delta_omega;
-    const double omega_R_wheel_ref = omega_v_ref + 0.5 * delta_omega;
-
-    // Motor references
-    const double omega_L_motor_ref = static_cast<double>(GEAR_RATIO) * omega_L_wheel_ref;
-    const double omega_R_motor_ref = static_cast<double>(GEAR_RATIO) * omega_R_wheel_ref;
-
-    // Right turn: left wheels are outer (faster), right wheels are inner (slower)
-    EXPECT_NEAR(result.front_left_delta, omega_L_motor_ref, EPSILON);
-    EXPECT_NEAR(result.rear_left_delta, omega_L_motor_ref, EPSILON);
-    EXPECT_NEAR(result.front_right_delta, omega_R_motor_ref, EPSILON);
-    EXPECT_NEAR(result.rear_right_delta, omega_R_motor_ref, EPSILON);
-
-    // Verify left wheels are faster than right wheels
-    EXPECT_GT(result.front_left_delta, result.front_right_delta);
-    EXPECT_GT(result.rear_left_delta, result.rear_right_delta);
+    const double expected = expected_delta_omega(steering_angle_deg, omega_v_ref);
+    EXPECT_NEAR(result.wheel_delta, expected, EPSILON);
+    EXPECT_LT(result.wheel_delta, 0.0);
 }
 
 /**
  * Test speed limiting with custom omega_m_max
- * Motor speeds should be clamped to the provided limit
+ * Function only returns delta_omega; no clamping in this layer.
  */
 TEST_F(TestActiveDifferential, SpeedLimitingCustomLimit)
 {
     const double omega_v_ref        = 100.0; // rad/s (very high)
     const double steering_angle_deg = 0.0;
-    const double omega_m_max        = 100.0; // Custom limit in rad/s
 
-    controllerTorqueDeltas result = app_activeDifferential_computeTorque(omega_v_ref, steering_angle_deg, omega_m_max);
+    controllerTorqueDeltas result = app_activeDifferential_computeTorque(omega_v_ref, steering_angle_deg);
 
-    // Expected motor speed without limiting would be 100 * 14.321 = 1432.1 rad/s
-    // But should be clamped to 100 rad/s
-    const double expected_motor_speed = omega_m_max;
-
-    EXPECT_NEAR(result.front_left_delta, expected_motor_speed, EPSILON);
-    EXPECT_NEAR(result.front_right_delta, expected_motor_speed, EPSILON);
-    EXPECT_NEAR(result.rear_left_delta, expected_motor_speed, EPSILON);
-    EXPECT_NEAR(result.rear_right_delta, expected_motor_speed, EPSILON);
-
-    // Verify all speeds are at or below the limit
-    EXPECT_LE(result.front_left_delta, omega_m_max + EPSILON);
-    EXPECT_LE(result.front_right_delta, omega_m_max + EPSILON);
-    EXPECT_LE(result.rear_left_delta, omega_m_max + EPSILON);
-    EXPECT_LE(result.rear_right_delta, omega_m_max + EPSILON);
+    EXPECT_NEAR(result.wheel_delta, 0.0, EPSILON);
 }
 
 /**
  * Test speed limiting with default MAX_MOTOR_SPEED_RAD_S
- * When omega_m_max <= 0, should use default limit
+ * Function only returns delta_omega; straight driving gives zero.
  */
 TEST_F(TestActiveDifferential, SpeedLimitingDefaultLimit)
 {
     const double omega_v_ref        = 100.0; // rad/s (very high)
     const double steering_angle_deg = 0.0;
-    const double omega_m_max        = 0.0; // Use default limit
 
-    controllerTorqueDeltas result = app_activeDifferential_computeTorque(omega_v_ref, steering_angle_deg, omega_m_max);
+    controllerTorqueDeltas result = app_activeDifferential_computeTorque(omega_v_ref, steering_angle_deg);
 
-    // Expected motor speed without limiting would be 100 * 14.321 = 1432.1 rad/s
-    // But should be clamped to MAX_MOTOR_SPEED_RAD_S
-    const double expected_motor_speed = MAX_MOTOR_SPEED_RAD_S;
-
-    EXPECT_NEAR(result.front_left_delta, expected_motor_speed, EPSILON);
-    EXPECT_NEAR(result.front_right_delta, expected_motor_speed, EPSILON);
-    EXPECT_NEAR(result.rear_left_delta, expected_motor_speed, EPSILON);
-    EXPECT_NEAR(result.rear_right_delta, expected_motor_speed, EPSILON);
-
-    // Verify all speeds are at or below the default limit
-    EXPECT_LE(result.front_left_delta, MAX_MOTOR_SPEED_RAD_S + EPSILON);
-    EXPECT_LE(result.front_right_delta, MAX_MOTOR_SPEED_RAD_S + EPSILON);
-    EXPECT_LE(result.rear_left_delta, MAX_MOTOR_SPEED_RAD_S + EPSILON);
-    EXPECT_LE(result.rear_right_delta, MAX_MOTOR_SPEED_RAD_S + EPSILON);
+    EXPECT_NEAR(result.wheel_delta, 0.0, EPSILON);
 }
 
 /**
  * Test negative speed limiting (reverse)
- * Motor speeds should be clamped to negative limit
+ * Function only returns delta_omega; straight driving gives zero.
  */
 TEST_F(TestActiveDifferential, NegativeSpeedLimiting)
 {
     const double omega_v_ref        = -100.0; // rad/s (reverse, very high)
     const double steering_angle_deg = 0.0;
-    const double omega_m_max        = 100.0; // Custom limit in rad/s
 
-    controllerTorqueDeltas result = app_activeDifferential_computeTorque(omega_v_ref, steering_angle_deg, omega_m_max);
+    controllerTorqueDeltas result = app_activeDifferential_computeTorque(omega_v_ref, steering_angle_deg);
 
-    // Expected motor speed without limiting would be -100 * 14.321 = -1432.1 rad/s
-    // But should be clamped to -100 rad/s
-    const double expected_motor_speed = -omega_m_max;
-
-    EXPECT_NEAR(result.front_left_delta, expected_motor_speed, EPSILON);
-    EXPECT_NEAR(result.front_right_delta, expected_motor_speed, EPSILON);
-    EXPECT_NEAR(result.rear_left_delta, expected_motor_speed, EPSILON);
-    EXPECT_NEAR(result.rear_right_delta, expected_motor_speed, EPSILON);
-
-    // Verify all speeds are at or above the negative limit
-    EXPECT_GE(result.front_left_delta, -omega_m_max - EPSILON);
-    EXPECT_GE(result.front_right_delta, -omega_m_max - EPSILON);
-    EXPECT_GE(result.rear_left_delta, -omega_m_max - EPSILON);
-    EXPECT_GE(result.rear_right_delta, -omega_m_max - EPSILON);
+    EXPECT_NEAR(result.wheel_delta, 0.0, EPSILON);
 }
 
 /**
  * Test with zero vehicle speed
- * All motor speeds should be zero
+ * delta_omega = (track/wheelbase)*tan(delta)*0 = 0
  */
 TEST_F(TestActiveDifferential, ZeroSpeed)
 {
     const double omega_v_ref        = 0.0;
-    const double steering_angle_deg = 45.0; // Even with steering, speed should be zero
-    const double omega_m_max        = 0.0;
+    const double steering_angle_deg = 45.0; // Even with steering, omega_v=0 => delta_omega=0
 
-    controllerTorqueDeltas result = app_activeDifferential_computeTorque(omega_v_ref, steering_angle_deg, omega_m_max);
+    controllerTorqueDeltas result = app_activeDifferential_computeTorque(omega_v_ref, steering_angle_deg);
 
-    EXPECT_NEAR(result.front_left_delta, 0.0, EPSILON);
-    EXPECT_NEAR(result.front_right_delta, 0.0, EPSILON);
-    EXPECT_NEAR(result.rear_left_delta, 0.0, EPSILON);
-    EXPECT_NEAR(result.rear_right_delta, 0.0, EPSILON);
+    EXPECT_NEAR(result.wheel_delta, 0.0, EPSILON);
 }
 
 /**
  * Test with small steering angle
- * Should still produce differential speeds
+ * wheel_delta should be small positive (left turn)
  */
 TEST_F(TestActiveDifferential, SmallSteeringAngle)
 {
     const double omega_v_ref        = 10.0;
     const double steering_angle_deg = 5.0; // Small left turn (positive = left turn)
-    const double omega_m_max        = 0.0;
 
-    controllerTorqueDeltas result = app_activeDifferential_computeTorque(omega_v_ref, steering_angle_deg, omega_m_max);
+    controllerTorqueDeltas result = app_activeDifferential_computeTorque(omega_v_ref, steering_angle_deg);
 
-    // Right wheels should be faster than left wheels (left turn)
-    EXPECT_GT(result.front_right_delta, result.front_left_delta);
-    EXPECT_GT(result.rear_right_delta, result.rear_left_delta);
-
-    // Front and rear wheels on same side should have same speed
-    EXPECT_NEAR(result.front_left_delta, result.rear_left_delta, EPSILON);
-    EXPECT_NEAR(result.front_right_delta, result.rear_right_delta, EPSILON);
+    const double expected = expected_delta_omega(steering_angle_deg, omega_v_ref);
+    EXPECT_NEAR(result.wheel_delta, expected, EPSILON);
+    EXPECT_GT(result.wheel_delta, 0.0);
 }
 
 /**
  * Test with large steering angle
- * Should produce significant differential speeds
+ * wheel_delta should be large positive (left turn)
  */
 TEST_F(TestActiveDifferential, LargeSteeringAngle)
 {
     const double omega_v_ref        = 10.0;
     const double steering_angle_deg = 90.0; // Large left turn (positive = left turn)
-    const double omega_m_max        = 0.0;
 
-    controllerTorqueDeltas result = app_activeDifferential_computeTorque(omega_v_ref, steering_angle_deg, omega_m_max);
+    controllerTorqueDeltas result = app_activeDifferential_computeTorque(omega_v_ref, steering_angle_deg);
 
-    // Right wheels should be significantly faster than left wheels
-    EXPECT_GT(result.front_right_delta, result.front_left_delta);
-    EXPECT_GT(result.rear_right_delta, result.rear_left_delta);
-
-    // Front and rear wheels on same side should have same speed
-    EXPECT_NEAR(result.front_left_delta, result.rear_left_delta, EPSILON);
-    EXPECT_NEAR(result.front_right_delta, result.rear_right_delta, EPSILON);
+    const double expected = expected_delta_omega(steering_angle_deg, omega_v_ref);
+    EXPECT_NEAR(result.wheel_delta, expected, EPSILON);
+    EXPECT_GT(result.wheel_delta, 0.0);
 }
 
 /**
  * Test speed limiting during turn
- * Outer wheels may hit limit while inner wheels don't
+ * Function only returns delta_omega; no clamping.
  */
 TEST_F(TestActiveDifferential, SpeedLimitingDuringTurn)
 {
-    const double omega_v_ref        = 50.0;  // rad/s
-    const double steering_angle_deg = 30.0;  // Left turn (positive = left turn)
-    const double omega_m_max        = 200.0; // Limit that may be hit by outer wheels
+    const double omega_v_ref        = 50.0; // rad/s
+    const double steering_angle_deg = 30.0; // Left turn (positive = left turn)
 
-    controllerTorqueDeltas result = app_activeDifferential_computeTorque(omega_v_ref, steering_angle_deg, omega_m_max);
+    controllerTorqueDeltas result = app_activeDifferential_computeTorque(omega_v_ref, steering_angle_deg);
 
-    // Convert steering wheel angle to wheel angle
-    const double delta = static_cast<double>(
-        DEG_TO_RAD(static_cast<float>(steering_angle_deg) * static_cast<float>(APPROX_STEERING_TO_WHEEL_ANGLE)));
-    const double delta_omega =
-        (static_cast<double>(TRACK_WIDTH_m) / static_cast<double>(WHEELBASE_m)) * tan(delta) * omega_v_ref;
-    const double omega_L_wheel_ref           = omega_v_ref - 0.5 * delta_omega;
-    const double omega_R_wheel_ref           = omega_v_ref + 0.5 * delta_omega;
-    const double omega_L_motor_ref_unclamped = static_cast<double>(GEAR_RATIO) * omega_L_wheel_ref;
-    const double omega_R_motor_ref_unclamped = static_cast<double>(GEAR_RATIO) * omega_R_wheel_ref;
-
-    // Right wheels (outer for left turn) should be clamped if they exceed limit
-    if (omega_R_motor_ref_unclamped > omega_m_max)
-    {
-        EXPECT_NEAR(result.front_right_delta, omega_m_max, EPSILON);
-        EXPECT_NEAR(result.rear_right_delta, omega_m_max, EPSILON);
-    }
-    else
-    {
-        EXPECT_NEAR(result.front_right_delta, omega_R_motor_ref_unclamped, EPSILON);
-        EXPECT_NEAR(result.rear_right_delta, omega_R_motor_ref_unclamped, EPSILON);
-    }
-
-    // Left wheels (inner for left turn) should be clamped if they exceed limit
-    if (omega_L_motor_ref_unclamped > omega_m_max)
-    {
-        EXPECT_NEAR(result.front_left_delta, omega_m_max, EPSILON);
-        EXPECT_NEAR(result.rear_left_delta, omega_m_max, EPSILON);
-    }
-    else
-    {
-        EXPECT_NEAR(result.front_left_delta, omega_L_motor_ref_unclamped, EPSILON);
-        EXPECT_NEAR(result.rear_left_delta, omega_L_motor_ref_unclamped, EPSILON);
-    }
-
-    // All speeds should be within limits
-    EXPECT_LE(result.front_left_delta, omega_m_max + EPSILON);
-    EXPECT_GE(result.front_left_delta, -omega_m_max - EPSILON);
-    EXPECT_LE(result.front_right_delta, omega_m_max + EPSILON);
-    EXPECT_GE(result.front_right_delta, -omega_m_max - EPSILON);
+    const double expected = expected_delta_omega(steering_angle_deg, omega_v_ref);
+    EXPECT_NEAR(result.wheel_delta, expected, EPSILON);
 }
 
 /**
@@ -336,68 +193,37 @@ TEST_F(TestActiveDifferential, AlgorithmCorrectness)
 {
     const double omega_v_ref        = 15.0;
     const double steering_angle_deg = 20.0;
-    const double omega_m_max        = 0.0;
 
-    controllerTorqueDeltas result = app_activeDifferential_computeTorque(omega_v_ref, steering_angle_deg, omega_m_max);
+    controllerTorqueDeltas result = app_activeDifferential_computeTorque(omega_v_ref, steering_angle_deg);
 
-    // Convert steering wheel angle to wheel angle
-    const double delta = static_cast<double>(
-        DEG_TO_RAD(static_cast<float>(steering_angle_deg) * static_cast<float>(APPROX_STEERING_TO_WHEEL_ANGLE)));
-
-    // Compute expected wheel speed difference (Eq. 13)
-    const double delta_omega =
-        (static_cast<double>(TRACK_WIDTH_m) / static_cast<double>(WHEELBASE_m)) * tan(delta) * omega_v_ref;
-
-    // Left and right wheel references (Eq. 15-16)
-    const double omega_L_wheel_ref = omega_v_ref - 0.5 * delta_omega;
-    const double omega_R_wheel_ref = omega_v_ref + 0.5 * delta_omega;
-
-    // Motor references (Eq. 17-18)
-    const double omega_L_motor_ref = static_cast<double>(GEAR_RATIO) * omega_L_wheel_ref;
-    const double omega_R_motor_ref = static_cast<double>(GEAR_RATIO) * omega_R_wheel_ref;
-
-    // Verify results match expected calculations
-    EXPECT_NEAR(result.front_left_delta, omega_L_motor_ref, EPSILON);
-    EXPECT_NEAR(result.rear_left_delta, omega_L_motor_ref, EPSILON);
-    EXPECT_NEAR(result.front_right_delta, omega_R_motor_ref, EPSILON);
-    EXPECT_NEAR(result.rear_right_delta, omega_R_motor_ref, EPSILON);
+    const double expected = expected_delta_omega(steering_angle_deg, omega_v_ref);
+    EXPECT_NEAR(result.wheel_delta, expected, EPSILON);
 }
 
 /**
- * Test that front and rear wheels on the same side have identical speeds
- * This is a key characteristic of the 4WD differential algorithm
+ * Test that wheel_delta matches Eq. 13 for a given steering and yaw rate
  */
 TEST_F(TestActiveDifferential, FrontRearWheelConsistency)
 {
     const double omega_v_ref        = 10.0;
     const double steering_angle_deg = 25.0;
-    const double omega_m_max        = 0.0;
 
-    controllerTorqueDeltas result = app_activeDifferential_computeTorque(omega_v_ref, steering_angle_deg, omega_m_max);
+    controllerTorqueDeltas result = app_activeDifferential_computeTorque(omega_v_ref, steering_angle_deg);
 
-    // Front and rear wheels on left side should be identical
-    EXPECT_NEAR(result.front_left_delta, result.rear_left_delta, EPSILON);
-
-    // Front and rear wheels on right side should be identical
-    EXPECT_NEAR(result.front_right_delta, result.rear_right_delta, EPSILON);
+    const double expected = expected_delta_omega(steering_angle_deg, omega_v_ref);
+    EXPECT_NEAR(result.wheel_delta, expected, EPSILON);
 }
 
 /**
- * Test with negative omega_m_max (should use default limit)
+ * Test with negative omega_m_max
+ * Function only returns delta_omega; straight driving gives zero.
  */
 TEST_F(TestActiveDifferential, NegativeOmegaMaxUsesDefault)
 {
     const double omega_v_ref        = 100.0;
     const double steering_angle_deg = 0.0;
-    const double omega_m_max        = -10.0; // Negative, should use default
 
-    controllerTorqueDeltas result = app_activeDifferential_computeTorque(omega_v_ref, steering_angle_deg, omega_m_max);
+    controllerTorqueDeltas result = app_activeDifferential_computeTorque(omega_v_ref, steering_angle_deg);
 
-    // Should use default MAX_MOTOR_SPEED_RAD_S limit
-    const double expected_motor_speed = MAX_MOTOR_SPEED_RAD_S;
-
-    EXPECT_NEAR(result.front_left_delta, expected_motor_speed, EPSILON);
-    EXPECT_NEAR(result.front_right_delta, expected_motor_speed, EPSILON);
-    EXPECT_NEAR(result.rear_left_delta, expected_motor_speed, EPSILON);
-    EXPECT_NEAR(result.rear_right_delta, expected_motor_speed, EPSILON);
+    EXPECT_NEAR(result.wheel_delta, 0.0, EPSILON);
 }
