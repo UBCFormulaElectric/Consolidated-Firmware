@@ -153,4 +153,4 @@ elseif ("${TARGET}" STREQUAL "test")
     )
 
     target_link_libraries("hexray_DAM_test" PRIVATE "hexray_DAM_fakes" "hexray_DAM_commit_info" "hexray_DAM_jsoncan")
-endif ()
+endif()
