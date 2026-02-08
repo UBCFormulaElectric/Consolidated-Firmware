@@ -27,13 +27,17 @@ enum GpioNetName {
     GPIO_nEVSE_I_LIM_GPIO = 21;
     GPIO_IR_P_EN = 22;
     GPIO_SHDN_EN = 23;
-    GPIO_BMS_LATCH = 24;
+    GPIO_nBMS_LATCH = 24;
     GPIO_IMD_OK = 25;
-    GPIO_BSPD_LATCH = 26;
+    GPIO_nBSPD_LATCH = 26;
     GPIO_PRE_CHARGE_EN = 27;
-    GPIO_FB_STBY_SHDN = 28;
+    GPIO_SHDN_OL_ON = 28;
     GPIO_FAN_EN = 29;
     GPIO_FAN_PGOOD = 30;
+    GPIO_PGOOD_3V3 = 31;
+    GPIO_PGOOD_5V = 32;
+    GPIO_SHDN_DIAG_EN = 33;
+    GPIO_SHDN_FAULT = 34;
 }
 
 enum AdcNetName {
@@ -41,14 +45,18 @@ enum AdcNetName {
     ADC_FAN_ISNS = 1;
     ADC_TS_VSENSE_P = 2;
     ADC_TS_VSENSE_N = 3;
-    ADC_SHDN_ISNS = 4;
+    ADC_SHDN_SNS = 4;
     ADC_EMETER_THERM_SNS = 5;
-    ADC_TS_ISNS_400A = 6;
-    ADC_TS_ISNS_50A = 7;
+    ADC_TS_ISENSE_400A = 6;
+    ADC_TS_ISENSE_50A = 7;
 }
 
 enum SpiNetName {
     SPI_NET_NAME_UNSPECIFIED = 0;
     SPI_LTC6813_LS = 1;
     SPI_LTC6813_HS = 2;
+}
+
+enum I2cNetName {
+    I2C_NET_NAME_UNSPECIFIED = 0;
 }
