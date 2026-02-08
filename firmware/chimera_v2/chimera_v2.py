@@ -13,6 +13,8 @@ import libusb_package
 
 # Protobuf autogen packages.
 import proto_autogen_hex.dam_pb2
+import proto_autogen_hex.rsm_pb2
+import proto_autogen_hex.vc_pb2
 from proto_autogen_hex import shared_pb2
 
 # Pyvisa Peripherals.
@@ -545,4 +547,26 @@ class DAM(_Board):
             usb_device=_UsbDevice(product="dam"),
             net_name_tag="dam_net_name",
             board_module=proto_autogen_hex.dam_pb2,
+        )
+
+
+class RSM(_Board):
+    def __init__(self):
+        """Create an interface to an RSM board."""
+
+        super().__init__(
+            usb_device=_UsbDevice(product="rsm"),
+            net_name_tag="rsm_net_name",
+            board_module=proto_autogen_hex.rsm_pb2,
+        )
+
+
+class VC(_Board):
+    def __init__(self):
+        """Create an interface to an DAM board."""
+
+        super().__init__(
+            usb_device=_UsbDevice(product="vc"),
+            net_name_tag="vc_net_name",
+            board_module=proto_autogen_hex.vc_pb2,
         )

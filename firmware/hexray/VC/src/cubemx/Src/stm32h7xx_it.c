@@ -22,6 +22,7 @@
 #include "stm32h7xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "hw_hardFaultHandler.hpp"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -57,6 +58,9 @@
 /* External variables --------------------------------------------------------*/
 extern ADC_HandleTypeDef hadc1;
 extern ADC_HandleTypeDef hadc2;
+extern PCD_HandleTypeDef hpcd_USB_OTG_HS;
+extern TIM_HandleTypeDef htim6;
+
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -85,7 +89,7 @@ void NMI_Handler(void)
 void HardFault_Handler(void)
 {
     /* USER CODE BEGIN HardFault_IRQn 0 */
-
+    hw_hardFaultHandler_handleFault();
     /* USER CODE END HardFault_IRQn 0 */
     while (1)
     {
@@ -172,6 +176,62 @@ void ADC_IRQHandler(void)
     /* USER CODE BEGIN ADC_IRQn 1 */
 
     /* USER CODE END ADC_IRQn 1 */
+}
+
+/**
+ * @brief This function handles TIM6 global interrupt, DAC1_CH1 and DAC1_CH2 underrun error interrupts.
+ */
+void TIM6_DAC_IRQHandler(void)
+{
+    /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
+
+    /* USER CODE END TIM6_DAC_IRQn 0 */
+    HAL_TIM_IRQHandler(&htim6);
+    /* USER CODE BEGIN TIM6_DAC_IRQn 1 */
+
+    /* USER CODE END TIM6_DAC_IRQn 1 */
+}
+
+/**
+ * @brief This function handles USB On The Go HS End Point 1 Out global interrupt.
+ */
+void OTG_HS_EP1_OUT_IRQHandler(void)
+{
+    /* USER CODE BEGIN OTG_HS_EP1_OUT_IRQn 0 */
+
+    /* USER CODE END OTG_HS_EP1_OUT_IRQn 0 */
+    HAL_PCD_IRQHandler(&hpcd_USB_OTG_HS);
+    /* USER CODE BEGIN OTG_HS_EP1_OUT_IRQn 1 */
+
+    /* USER CODE END OTG_HS_EP1_OUT_IRQn 1 */
+}
+
+/**
+ * @brief This function handles USB On The Go HS End Point 1 In global interrupt.
+ */
+void OTG_HS_EP1_IN_IRQHandler(void)
+{
+    /* USER CODE BEGIN OTG_HS_EP1_IN_IRQn 0 */
+
+    /* USER CODE END OTG_HS_EP1_IN_IRQn 0 */
+    HAL_PCD_IRQHandler(&hpcd_USB_OTG_HS);
+    /* USER CODE BEGIN OTG_HS_EP1_IN_IRQn 1 */
+
+    /* USER CODE END OTG_HS_EP1_IN_IRQn 1 */
+}
+
+/**
+ * @brief This function handles USB On The Go HS global interrupt.
+ */
+void OTG_HS_IRQHandler(void)
+{
+    /* USER CODE BEGIN OTG_HS_IRQn 0 */
+
+    /* USER CODE END OTG_HS_IRQn 0 */
+    HAL_PCD_IRQHandler(&hpcd_USB_OTG_HS);
+    /* USER CODE BEGIN OTG_HS_IRQn 1 */
+
+    /* USER CODE END OTG_HS_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
