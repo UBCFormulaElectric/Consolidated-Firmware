@@ -1,4 +1,6 @@
-use crate::can_database::{CanDatabase, CanMessage, CanSignal, CanSignalType, error::CanDBError};
+use std::collections::HashMap;
+
+use crate::can_database::{CanDatabase, CanMessage, CanSignal, CanSignalType, DecodedSignal, error::CanDBError};
 
 impl CanDatabase {
     pub fn get_message_by_node(
@@ -6,8 +8,8 @@ impl CanDatabase {
         node_name: &str,
     ) -> Result<Vec<CanMessage>, CanDBError> {
         // Returns list of messages transmitted by node_name
-        let mut s = self
-            .conn
+        let binding = self.get_connection()?;
+        let mut s = binding
             .prepare("SELECT * FROM messages WHERE tx_node_name = ?1")
             .unwrap();
 
@@ -43,11 +45,12 @@ impl CanDatabase {
         message_id: u32,
     ) -> Result<Vec<CanSignal>, CanDBError> {
         // Returns list of signals for a given message ID
-        let mut s = self
-            .conn
+        let binding = self.get_connection()?;
+        let mut s = binding
             .prepare("SELECT * FROM signals WHERE message_id = ?1")
             .unwrap();
 
+        
         match s.query_map([message_id], |row| {
             Ok(CanSignal {
                 name: row.get(0)?,
@@ -94,21 +97,23 @@ impl CanDatabase {
         }
     }
 
-    pub fn get_all_rx_msgs_for(self: &Self, node_name: &str) -> Vec<String> {
-        let mut s = self
-            .conn
+    pub fn get_all_rx_msgs_for(self: &Self, node_name: &str) -> Result<Vec<String>, CanDBError> {
+        let binding = self.get_connection()?;
+        let mut s = binding
             .prepare("SELECT name FROM messages WHERE tx_node_name != ?1")
             .unwrap();
 
-        s.query_map([node_name], |row| Ok(row.get::<_, String>(0)?))
+        let res = s.query_map([node_name], |row| Ok(row.get::<_, String>(0)?))
             .unwrap()
             .map(|res| res.unwrap())
-            .collect()
+            .collect();
+
+        Ok(res)
     }
 
     pub fn get_message_by_name(self: &Self, message_name: &str) -> Result<CanMessage, CanDBError> {
-        let mut s = self
-            .conn
+        let binding = self.get_connection()?;
+        let mut s = binding
             .prepare("SELECT * FROM messages WHERE name = ?1")
             .unwrap();
 
@@ -131,8 +136,8 @@ impl CanDatabase {
     }
 
     pub fn get_message_name_by_id(self: &Self, message_id: u32) -> Result<String, CanDBError> {
-        let mut s = self
-            .conn
+        let binding = self.get_connection()?;
+        let mut s = binding
             .prepare("SELECT name FROM messages WHERE id = ?1")
             .unwrap();
 
@@ -143,8 +148,8 @@ impl CanDatabase {
     }
 
     pub fn get_message_by_id(self: &Self, message_id: u32) -> Result<CanMessage, CanDBError> {
-        let mut s = self
-            .conn
+        let binding = self.get_connection()?;
+        let mut s = binding
             .prepare("SELECT * FROM messages WHERE id = ?1")
             .unwrap();
 
@@ -167,7 +172,8 @@ impl CanDatabase {
     }
 
     pub fn get_all_msgs(self: &Self) -> Result<Vec<CanMessage>, CanDBError> {
-        let mut s = self.conn.prepare("SELECT * FROM messages").unwrap();
+        let binding = self.get_connection()?;
+        let mut s = binding.prepare("SELECT * FROM messages").unwrap();
 
         match s.query_map([], |row| {
             Ok(CanMessage {
@@ -185,5 +191,145 @@ impl CanDatabase {
             Err(e) => Err(CanDBError::SqlLiteError(e)),
             Ok(k) => Ok(k.map(|res| res.unwrap()).collect()),
         }
+    }
+
+    pub fn pack(self: &Self, msg_name: &str, signals: &[DecodedSignal]) -> Result<(u32, Vec<u8>), CanDBError> {
+        let msg = match self.get_message_by_name(msg_name) {
+            Ok(m) => m,
+            Err(_) => {
+                eprintln!("Message named '{}' is not defined in the database.", msg_name);
+                return Err(CanDBError::SqlLiteError(rusqlite::Error::InvalidQuery));
+            }
+        };
+
+        let mut signal_map = HashMap::new();
+        for signal in &msg.signals {
+            signal_map.insert(signal.name.clone(), signal);
+        }
+
+        let mut data_uint: u64 = 0;
+
+        for decoded_signal in signals {
+            let signal = match signal_map.get(&decoded_signal.name) {
+                Some(s) => s,
+                None => {
+                    eprintln!("Signal named '{}' is not defined for message '{}'.", decoded_signal.name, msg.name);
+                    continue;
+                }
+            };
+
+            let raw_value = ((decoded_signal.value - signal.offset) / signal.scale).floor() as i64;
+
+            let bitmask = (1u64 << signal.bits) - 1;
+            let data_shifted = ((raw_value as u64) & bitmask) << signal.start_bit;
+
+            data_uint |= data_shifted;
+        }
+
+        let mut max_bit = 0;
+        for signal in &msg.signals {
+            let end_bit = signal.start_bit + signal.bits;
+            if end_bit > max_bit {
+                max_bit = end_bit;
+            }
+        }
+        let useful_length = ((max_bit + 7) / 8) as usize;
+        let allowable_lengths = [0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64];
+        let mut dlc = 0;
+        for &length in &allowable_lengths {
+            if length >= useful_length {
+                dlc = length;
+                break;
+            }
+        }
+        if dlc == 0 {
+            return Err(CanDBError::SqlLiteError(rusqlite::Error::InvalidQuery));
+        }
+
+        let mut data_bytes = vec![0u8; dlc];
+        for i in 0..dlc {
+            data_bytes[i] = ((data_uint >> (8 * i)) & 0xFF) as u8;
+        }
+
+        Ok((msg.id, data_bytes))
+    }
+
+    pub fn unpack(&self, msg_id: u32, data: Vec<u8>, timestamp: Option<std::time::SystemTime>) -> Vec<DecodedSignal> {
+        let msgs = match self.get_message_by_id(msg_id) {
+            Ok(m) => m,
+            Err(_) => {
+                eprintln!("Message ID {} not found in database", msg_id);
+                return Vec::new()
+            },
+        };
+
+        let mut decoded_signals: Vec<DecodedSignal> = Vec::new();
+        
+        let mut buf = [0u8; 4];
+        let len = data.len().min(4);
+        buf[..len].copy_from_slice(&data[..len]);
+
+        let data_uint = u32::from_le_bytes(buf);
+
+        for signal in msgs.signals {
+            // Extract the bits representing the current signal.
+            let data_shifted = data_uint as u64 >> signal.start_bit;
+
+            let bitmask = (1u64 << signal.bits) - 1;
+            let raw_value = {
+                let val = data_shifted & bitmask;
+                // Handle signed values via 2's complement
+                if signal.signed && (val & (1 << (signal.bits - 1)) != 0) {
+                    val - (1 << signal.bits)
+                } else {
+                    val
+                }         
+            };
+
+            // Apply scaling and offset
+            let scaled_value = raw_value as f64 * signal.scale + signal.offset;
+
+            // Initialize decoded signal
+
+            let decoded = DecodedSignal {
+                name: signal.name,
+                value: scaled_value,
+                timestamp: timestamp,
+                unit: signal.unit,
+                label: signal.enum_name.as_deref().and_then(|enum_name| {
+                    self.get_enum(enum_name).and_then(|can_enum| {
+                        can_enum.values.iter()
+                            .find(|(_, val)| **val as f64 == scaled_value)
+                            .map(|(k, _)| k.clone())
+                    })
+                }),
+            };
+
+            if signal.enum_name.is_some() {
+                if decoded.label.is_none() {
+                    continue;
+                }
+            }
+
+            decoded_signals.push(decoded);
+        }
+
+        return decoded_signals;
+    }
+
+    pub fn is_signal_valid(self: &Self, signal_name: &str) -> bool {
+        let binding = match self.get_connection() {
+            Ok(b) => b,
+            Err(_) => return false,
+        };
+       
+        let mut s = binding
+            .prepare("SELECT COUNT(*) FROM signals WHERE name = ?1")
+            .unwrap();
+
+        return match s.query_row([signal_name], |row| row.get::<_, i32>(0)) {
+            Ok(count) => count > 0,
+            Err(_) => false,
+        };
     }
 }

@@ -1,0 +1,22 @@
+[package]
+name = "backend"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+serialport = "4.0"
+ctrlc = "3.5"
+tokio = { version = "1", features = ["full"] }
+tokio-serial = "5"
+tokio-tungstenite = "0.28.0"
+axum = { version = "0.8.8", features = ["ws"] }
+socketioxide = "0.18.1"
+influxdb2 = "0.5"
+dotenv = "0.15"
+crc = "3.0.0"
+serde = "1.0.228"
+serde_json = "1.0.145"
+regex = "1.12.2"
+tower-http = { version = "0.5", features = ["cors"] }
+
+jsoncan_rust = { path = "../../../scripts/code_generation/jsoncan-rust" }

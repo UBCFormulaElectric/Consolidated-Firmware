@@ -41,6 +41,8 @@ def subscribe():
 	signal_name = get_signal_name(data)
 	request_sid = get_sid(data)
 
+	print(f"jackyao Received subscribe request from SID {request_sid} for signal {signal_name}")
+
 	# note this checks a proxy, namely whether the mapping between signal name and it's corresponding message exists
 	valid_signal = live_can_db.signals_to_msgs.get(signal_name) is not None
 	if not valid_signal:
