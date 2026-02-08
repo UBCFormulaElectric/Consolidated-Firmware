@@ -495,7 +495,8 @@ class DAM(_Board):
             net_name_tag="dam_net_name",
             board_module=proto_autogen_hex.dam_pb2,
         )
-        
+
+
 class RSM(_Board):
     def __init__(self):
         """Create an interface to an RSM board."""
@@ -504,4 +505,26 @@ class RSM(_Board):
             usb_device=_UsbDevice(product="rsm"),
             net_name_tag="rsm_net_name",
             board_module=proto_autogen_hex.rsm_pb2,
+        )
+
+
+class CRIT(_Board):
+    def __init__(self):
+        """Create an interface to a CRIT board."""
+
+        super().__init__(
+            usb_device=_UsbDevice(product="crit"),
+            net_name_tag="crit_net_name",
+            board_module=proto_autogen_hex.crit_pb2,
+        )
+
+
+class FSM(_Board):
+    def __init__(self):
+        """Create an interface to an FSM board."""
+
+        super().__init__(
+            usb_device=_UsbDevice(product="fsm"),
+            net_name_tag="fsm_net_name",
+            board_module=proto_autogen_hex.fsm_pb2,
         )
