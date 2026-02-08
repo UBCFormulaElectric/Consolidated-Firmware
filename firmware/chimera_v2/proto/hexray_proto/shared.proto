@@ -141,6 +141,7 @@ message SpiNetName {
     crit.SpiNetName crit_net_name = 2;
     rsm.SpiNetName rsm_net_name = 3;
     fsm.SpiNetName fsm_net_name = 4;
+    vc.SpiNetName vc_net_name = 5;
   }
 }
 
