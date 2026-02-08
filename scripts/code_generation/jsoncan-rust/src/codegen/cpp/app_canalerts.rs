@@ -67,6 +67,18 @@ impl CPPGenerator for AppCanAlertsModule<'_> {
         "app_canAlerts".to_string()
     }
     fn header_template(&self) -> Result<String, askama::Error> {
+        AppCanAlertsModuleHeader {
+            node_tx_alerts: &self
+                .node_name_and_alerts
+                .iter()
+                .find(|(a, _b)| a == self.node_name)
+                .unwrap()
+                .1,
+            node_name: self.node_name,
+        }
+        .render()
+    }
+    fn source_template(&self) -> Result<String, askama::Error> {
         let node_tx_alerts = self
             .node_name_and_alerts
             .iter()
@@ -76,18 +88,6 @@ impl CPPGenerator for AppCanAlertsModule<'_> {
         AppCanAlertsModuleSource {
             all_alerts: node_tx_alerts.flatten(),
             node_name_and_alerts: &self.node_name_and_alerts,
-            node_name: self.node_name,
-        }
-        .render()
-    }
-    fn source_template(&self) -> Result<String, askama::Error> {
-        AppCanAlertsModuleHeader {
-            node_tx_alerts: &self
-                .node_name_and_alerts
-                .iter()
-                .find(|(a, _b)| a == self.node_name)
-                .unwrap()
-                .1,
             node_name: self.node_name,
         }
         .render()

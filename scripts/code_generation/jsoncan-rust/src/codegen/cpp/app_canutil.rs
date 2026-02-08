@@ -9,7 +9,7 @@ mod filters {}
 
 struct Iteration {
     starting_byte: u16,
-    shift: u16,
+    shift: i16,
     mask_text: String,
     comment_data: String,
     bits_to_pack: u16,
@@ -70,12 +70,13 @@ impl AppCanUtilsModuleSource<'_> {
             iterations.push(Iteration {
                 starting_byte: bit_start / BYTE_SIZE,
                 shift: if signal.big_endian {
-                    signal.bits - packed_bits - bits_to_pack - bit_in_byte
+                    signal.bits as i16
+                        - packed_bits as i16
+                        - bits_to_pack as i16
+                        - bit_in_byte as i16
                 } else {
-                    if packed_bits < bit_in_byte {
-                        panic!("{}", signal.name);
-                    }
-                    packed_bits - bit_in_byte
+                    // little endian case
+                    packed_bits as i16 - bit_in_byte as i16
                 },
                 mask_text: format!("0x{:X}", (1 << bits_to_pack) - (1 << bit_in_byte)),
                 comment_data: comment_data.into_iter().rev().collect::<String>(),

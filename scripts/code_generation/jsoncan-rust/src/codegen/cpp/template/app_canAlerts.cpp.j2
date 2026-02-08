@@ -1,5 +1,6 @@
 /**
  * @note This file is auto-generated. Do not modify!
+ * @name app_canAlerts.cpp
  */
 // clang-format off
 
@@ -41,7 +42,7 @@ bool BoardHasInfo(CanNode board)
     switch (board)
     {
         {%- for (board_name, board_alerts) in node_name_and_alerts %}
-        case CanNode::{{board_name.to_uppercase()}}_NODE :
+        case CanNode::{{board_name.to_uppercase()}}_NODE:
         {
             {%- if board_alerts.info.len() > 0 %}
             return (
@@ -69,7 +70,7 @@ bool BoardHasWarning(CanNode board)
     switch (board)
     {
         {%- for (board_name, board_alerts) in node_name_and_alerts %}
-        case CanNode::{{board_name.to_uppercase()}}_NODE :
+        case CanNode::{{board_name.to_uppercase()}}_NODE:
         {
             {%- if board_alerts.warnings.len() > 0 %}
             return (
@@ -97,7 +98,7 @@ bool BoardHasFault(CanNode board)
     switch (board)
     {
         {%- for (board_name, board_alerts) in node_name_and_alerts %}
-        case CanNode::{{board_name.to_uppercase()}}_NODE :
+        case CanNode::{{board_name.to_uppercase()}}_NODE:
         {
             {%- if board_alerts.faults.len() > 0 %}
             return (
