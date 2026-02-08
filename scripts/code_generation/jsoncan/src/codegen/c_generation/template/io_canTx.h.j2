@@ -4,7 +4,9 @@
 // clang-format off
 
 #pragma once
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 /* ------------------------------- Includes ------------------------------- */
 
 #include <stdint.h>
@@ -93,3 +95,7 @@ void io_canTx_enqueueOtherPeriodicMsgs(uint32_t time_ms);
 {%- for msg in messages if msg.cycle_time == None %}
 void io_canTx_{{msg.name}}_sendAperiodic();
 {%- endfor %}
+
+#ifdef __cplusplus
+}
+#endif

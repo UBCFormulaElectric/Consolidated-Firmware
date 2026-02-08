@@ -24,7 +24,7 @@ void app_tractionControl_computeTorque(TractionControl_Inputs *inputs, TractionC
     float slip_ratio_rr = app_tractionControl_computeSlip(inputs->motor_speed_rr_rpm, inputs->vehicle_velocity_kmh);
 
     float slip_ratio_max = fmaxf(fmaxf(slip_ratio_fl, slip_ratio_fr), fmaxf(slip_ratio_rl, slip_ratio_rr));
-    float k              = app_pid_compute(pid, SLIP_RATIO_IDEAL, slip_ratio_max);
+    float k              = app_pid_compute(pid, SLIP_RATIO_IDEAL, slip_ratio_max, 0.0f);
 
     // Send debug messages over CAN
     app_canTx_VC_SlipRatioFL_set(slip_ratio_fl);

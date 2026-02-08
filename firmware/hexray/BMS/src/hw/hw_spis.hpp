@@ -2,9 +2,13 @@
 
 extern "C"
 {
-#include "hw_spi.h"
+#include "main.h"
 }
-#include "hw_gpio.hpp"
+#include "hw_spi.hpp"
+#include "hw_gpios.hpp"
 
+namespace hw::spi
+{
 extern const SpiDevice adbms_spi_ls;
 extern const SpiDevice adbms_spi_hs;
+} // namespace hw::spi

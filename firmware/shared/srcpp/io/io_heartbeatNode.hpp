@@ -23,7 +23,7 @@ class node
     // getters for heartbeats on the CAN table
     bool (*const getter)();
     // resetters on the local CAN table for other heartbeats
-    void (*const resetter)();
+    void (*const resetter)(bool);
 
     // FAULT SETGET
     // fault getters for each board's heartbeat from this board
@@ -33,7 +33,7 @@ class node
 
     explicit node(
         bool (*const in_getter)(),
-        void (*const in_resetter)(),
+        void (*const in_resetter)(bool),
         bool (*const in_fault_getter)(),
         void (*const in_fault_setter)(bool))
       : getter(in_getter), resetter(in_resetter), fault_getter(in_fault_getter), fault_setter(in_fault_setter){};
