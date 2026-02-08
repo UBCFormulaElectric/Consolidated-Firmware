@@ -160,7 +160,7 @@ struct ImuFifoConfig
     }
 };
 
-namespace io::imu
+namespace io
 {
 class Imu
 {
@@ -214,8 +214,8 @@ class Imu
 
     std::expected<void, ErrorCode> getTemp(float &temp) const;
 
-    std::expected<void, ErrorCode> getAccelAll(AccelData &data) const;
-    std::expected<void, ErrorCode> getGyroAll(GyroData &data) const;
+    std::expected<AccelData, ErrorCode> getAccelAll() const;
+    std::expected<GyroData, ErrorCode> getGyroAll() const;
 
 #ifdef TARGET_TEST
     bool  initialized  = false;
