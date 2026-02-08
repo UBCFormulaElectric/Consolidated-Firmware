@@ -12,8 +12,7 @@ std::expected<void, ErrorCode> pollCellsAdcConversion()
     for (uint32_t attempt = 0U; attempt < MAX_NUM_ATTEMPTS; attempt++)
     {
         uint8_t rx_data;
-        RETURN_IF_ERR(poll(PLCADC, &rx_data, sizeof(rx_data)));
-
+        RETURN_IF_ERR(poll(PLCADC, { &rx_data, 1 }))
         if (rx_data == ADCV_STATUS_READY)
         {
             return {};
@@ -50,12 +49,11 @@ void readVoltageRegisters(
         return;
     }
 
-    static const uint16_t voltage_read_cmds[NUM_VOLT_REG_GROUPS] = { RDCVA, RDCVB, RDCVC, RDCVD, RDCVE };
-
+    static constexpr std::array<uint16_t, 5> voltage_read_cmds{ { RDCVA, RDCVB, RDCVC, RDCVD, RDCVE } };
     for (uint8_t reg_group = 0U; reg_group < NUM_VOLT_REG_GROUPS; reg_group++)
     {
-        static uint8_t                        regs[NUM_SEGMENTS][REG_GROUP_SIZE];
-        static std::expected<void, ErrorCode> group_success[NUM_SEGMENTS];
+        static std::array<std::array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> regs;
+        static std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS>      group_success;
         readRegGroup(voltage_read_cmds[reg_group], regs, group_success);
 
         for (uint8_t seg = 0U; seg < NUM_SEGMENTS; seg++)

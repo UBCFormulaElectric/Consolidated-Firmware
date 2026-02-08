@@ -7,14 +7,14 @@
 
 namespace io
 {
-static constexpr uint8_t NUM_SEGMENTS            = 1;
-static constexpr uint8_t CELLS_PER_SEGMENT       = 14;
-static constexpr uint8_t THERMISTORS_PER_SEGMENT = 14;
+inline constexpr uint8_t NUM_SEGMENTS            = 1;
+inline constexpr uint8_t CELLS_PER_SEGMENT       = 14;
+inline constexpr uint8_t THERMISTORS_PER_SEGMENT = 14;
 namespace adbms
 {
-    static constexpr uint8_t REG_GROUP_SIZE      = 6; // bytes
-    static constexpr uint8_t NUM_VOLT_REG_GROUPS = 5; // A..E only (F not used; 14 cells measured)
-    static constexpr uint8_t NUM_STAT_REG_GROUPS = 5; // A..E
+    inline constexpr uint8_t REG_GROUP_SIZE      = 6; // bytes
+    inline constexpr uint8_t NUM_VOLT_REG_GROUPS = 5; // A..E only (F not used; 14 cells measured)
+    inline constexpr uint8_t NUM_STAT_REG_GROUPS = 5; // A..E
 
     /**
      * @file adbms/io_adbms_configs.cpp
@@ -121,7 +121,7 @@ namespace adbms
                                   std::expected<void, ErrorCode> comm_success[NUM_SEGMENTS][CELLS_PER_SEGMENT]);
     std::expected<void, ErrorCode> startCellsAdcConversion();
     std::expected<void, ErrorCode> pollCellsAdcConversion();
-    void                           wakeup();
+    std::expected<void, ErrorCode> wakeup();
     std::expected<void, ErrorCode> pollAdcConversions();
 
 } // namespace adbms

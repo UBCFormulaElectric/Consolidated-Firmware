@@ -12,7 +12,7 @@ std::expected<void, ErrorCode> pollAdcConversions()
     for (uint32_t num_attempts = 0U; num_attempts < MAX_NUM_ADC_COMPLETE_CHECKS; num_attempts++)
     {
         uint8_t rx_data;
-        poll(PLADC, &rx_data, sizeof(rx_data));
+        RETURN_IF_ERR(poll(PLADC, { &rx_data, sizeof(rx_data) }));
 
         if (rx_data != ADC_CONV_INCOMPLETE)
         {
@@ -22,9 +22,10 @@ std::expected<void, ErrorCode> pollAdcConversions()
     return std::unexpected(ErrorCode::TIMEOUT);
 }
 
-void wakeup()
+std::expected<void, ErrorCode> wakeup()
 {
-    sendCmd(RDCFGA);
+    RETURN_IF_ERR(sendCmd(RDCFGA));
+    return {};
 }
 
 } // namespace io::adbms

@@ -27,12 +27,12 @@ void readConfigurationRegisters(
     SegmentConfig                  configs[NUM_SEGMENTS],
     std::expected<void, ErrorCode> success[NUM_SEGMENTS])
 {
-    static uint8_t                        regs_a[NUM_SEGMENTS][REG_GROUP_SIZE];
-    static std::expected<void, ErrorCode> success_a[NUM_SEGMENTS];
+    static std::array<std::array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> regs_a;
+    static std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS>      success_a;
     readRegGroup(RDCFGA, regs_a, success_a);
 
-    static uint8_t                        regs_b[NUM_SEGMENTS][REG_GROUP_SIZE];
-    static std::expected<void, ErrorCode> success_b[NUM_SEGMENTS];
+    static std::array<std::array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> regs_b;
+    static std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS>      success_b;
     readRegGroup(RDCFGB, regs_b, success_b);
 
     for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)

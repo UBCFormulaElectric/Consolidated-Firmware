@@ -11,12 +11,13 @@ struct CmdPayload
 {
     uint16_t cmd;
     uint16_t pec15;
+    CmdPayload(const uint16_t _cmd, const uint16_t _pec15) : cmd(_cmd), pec15(_pec15) {}
 };
 
 struct RegGroupPayload
 {
-    uint8_t  data[6];
-    uint16_t pec10;
+    std::array<uint8_t, io::adbms::REG_GROUP_SIZE> data;
+    uint16_t                                       pec10;
 };
 
 static_assert(sizeof(CmdPayload) == io::adbms::CMD_BYTES + io::adbms::PEC_BYTES);
@@ -118,10 +119,8 @@ static bool checkDataPec(const std::span<const uint8_t> data, const uint16_t exp
 
 static CmdPayload buildCmd(uint16_t command)
 {
-    CmdPayload payload{};
-    payload.cmd   = swapEndianness(command);
-    payload.pec15 = swapEndianness(calculatePec15(reinterpret_cast<uint8_t *>(&command), sizeof(payload.cmd)));
-    return payload;
+    return { swapEndianness(command),
+             swapEndianness(calculatePec15(reinterpret_cast<uint8_t *>(&command), sizeof(command))) };
 }
 
 std::expected<void, ErrorCode> sendCmd(const uint16_t cmd)
@@ -138,11 +137,11 @@ std::expected<void, ErrorCode> poll(const uint16_t cmd, const std::span<uint8_t>
 }
 
 void readRegGroup(
-    const uint16_t                 cmd,
-    uint8_t                        regs[NUM_SEGMENTS][REG_GROUP_SIZE],
-    std::expected<void, ErrorCode> comm_success[NUM_SEGMENTS])
+    const uint16_t                                                 cmd,
+    std::array<std::array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs,
+    std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS>      &comm_success)
 {
-    std::memset(regs, 0, NUM_SEGMENTS * REG_GROUP_SIZE * sizeof(uint8_t));
+    std::memset(regs.data(), 0, sizeof(regs));
 
     const CmdPayload       tx_cmd = buildCmd(cmd);
     static RegGroupPayload rx_buffer[NUM_SEGMENTS];
@@ -162,9 +161,9 @@ void readRegGroup(
     for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
     {
         const RegGroupPayload *segment_data = &rx_buffer[segment];
-        if (checkDataPec({ segment_data->data, (sizeof(segment_data->data)) }, swapEndianness(segment_data->pec10)))
+        if (checkDataPec(segment_data->data, swapEndianness(segment_data->pec10)))
         {
-            std::memcpy(regs[segment], segment_data->data, sizeof(segment_data->data));
+            regs[segment]         = segment_data->data; // copy :)
             comm_success[segment] = {};
         }
         else
@@ -174,21 +173,18 @@ void readRegGroup(
     }
 }
 
-std::expected<void, ErrorCode> writeRegGroup(const uint16_t cmd, const uint8_t regs[NUM_SEGMENTS][REG_GROUP_SIZE])
+std::expected<void, ErrorCode>
+    writeRegGroup(const uint16_t cmd, const std::array<std::array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> regs)
 {
     struct
     {
-        CmdPayload      tx_cmd;
-        RegGroupPayload payload[NUM_SEGMENTS];
-    } tx_buffer{};
-
-    tx_buffer.tx_cmd = buildCmd(cmd);
-
+        CmdPayload                                tx_cmd;
+        std::array<RegGroupPayload, NUM_SEGMENTS> payload;
+    } tx_buffer{ buildCmd(cmd), {} };
     for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
     {
-        std::memcpy(tx_buffer.payload[segment].data, regs[segment], sizeof(tx_buffer.payload[segment].data));
-        tx_buffer.payload[segment].pec10 =
-            buildDataPec({ (tx_buffer.payload[segment].data), (sizeof(tx_buffer.payload[segment].data)) });
+        tx_buffer.payload[segment].data  = regs[segment];
+        tx_buffer.payload[segment].pec10 = buildDataPec(tx_buffer.payload[segment].data);
     }
     return hw::spi::adbms_spi_ls.transmit({ reinterpret_cast<uint8_t *>(&tx_buffer), sizeof(tx_buffer) });
 }
