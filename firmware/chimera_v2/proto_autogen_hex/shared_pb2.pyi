@@ -270,24 +270,46 @@ Global___AdcReadResponse: typing_extensions.TypeAlias = AdcReadResponse
 @typing.final
 class I2cNetName(google.protobuf.message.Message):
     """I2Cs"""
-    DESCRIPTOR: _descriptor.Descriptor
-    RSM_NET_NAME_FIELD_NUMBER: _builtins.int
-    VC_NET_NAME_FIELD_NUMBER: _builtins.int
-    rsm_net_name: _rsm_pb2.I2cNetName.ValueType
-    vc_net_name: _vc_pb2.I2cNetName.ValueType
 
-    def __init__(self, *, rsm_net_name: _rsm_pb2.I2cNetName.ValueType=..., vc_net_name: _vc_pb2.I2cNetName.ValueType=...) -> None:
-        ...
-    _HasFieldArgType: _TypeAlias = _typing.Literal['name', b'name', 'rsm_net_name', b'rsm_net_name', 'vc_net_name', b'vc_net_name']
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    RSM_NET_NAME_FIELD_NUMBER: builtins.int
+    VC_NET_NAME_FIELD_NUMBER: builtins.int
+    rsm_net_name: rsm_pb2.I2cNetName.ValueType
+    vc_net_name: vc_pb2.I2cNetName.ValueType
 
-    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool:
-        ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal['name', b'name', 'rsm_net_name', b'rsm_net_name', 'vc_net_name', b'vc_net_name']
+    def __init__(
+        self,
+        *,
+        rsm_net_name: rsm_pb2.I2cNetName.ValueType = ...,
+        vc_net_name: vc_pb2.I2cNetName.ValueType = ...,
+    ) -> None: ...
+    def HasField(
+        self,
+        field_name: typing.Literal[
+            "name",
+            b"name",
+            "rsm_net_name",
+            b"rsm_net_name",
+            "vc_net_name",
+            b"vc_net_name",
+        ],
+    ) -> builtins.bool: ...
+    def ClearField(
+        self,
+        field_name: typing.Literal[
+            "name",
+            b"name",
+            "rsm_net_name",
+            b"rsm_net_name",
+            "vc_net_name",
+            b"vc_net_name",
+        ],
+    ) -> None: ...
+    def WhichOneof(
+        self, oneof_group: typing.Literal["name", b"name"]
+    ) -> typing.Literal["rsm_net_name", "vc_net_name"] | None: ...
 
-    def ClearField(self, field_name: _ClearFieldArgType) -> None:
-        ...
-    _WhichOneofReturnType_name: _TypeAlias = _typing.Literal['rsm_net_name', 'vc_net_name']
-    _WhichOneofArgType_name: _TypeAlias = _typing.Literal['name', b'name']
+Global___I2cNetName: typing_extensions.TypeAlias = I2cNetName
 
 @typing.final
 class I2cReadyRequest(google.protobuf.message.Message):
@@ -486,30 +508,76 @@ Global___I2cMemoryWriteResponse: typing_extensions.TypeAlias = I2cMemoryWriteRes
 @typing.final
 class SpiNetName(google.protobuf.message.Message):
     """SPIs"""
-    DESCRIPTOR: _descriptor.Descriptor
-    BMS_NET_NAME_FIELD_NUMBER: _builtins.int
-    CRIT_NET_NAME_FIELD_NUMBER: _builtins.int
-    RSM_NET_NAME_FIELD_NUMBER: _builtins.int
-    FSM_NET_NAME_FIELD_NUMBER: _builtins.int
-    VC_NET_NAME_FIELD_NUMBER: _builtins.int
-    bms_net_name: _bms_pb2.SpiNetName.ValueType
-    crit_net_name: _crit_pb2.SpiNetName.ValueType
-    rsm_net_name: _rsm_pb2.SpiNetName.ValueType
-    fsm_net_name: _fsm_pb2.SpiNetName.ValueType
-    vc_net_name: _vc_pb2.SpiNetName.ValueType
 
-    def __init__(self, *, bms_net_name: _bms_pb2.SpiNetName.ValueType=..., crit_net_name: _crit_pb2.SpiNetName.ValueType=..., rsm_net_name: _rsm_pb2.SpiNetName.ValueType=..., fsm_net_name: _fsm_pb2.SpiNetName.ValueType=..., vc_net_name: _vc_pb2.SpiNetName.ValueType=...) -> None:
-        ...
-    _HasFieldArgType: _TypeAlias = _typing.Literal['bms_net_name', b'bms_net_name', 'crit_net_name', b'crit_net_name', 'fsm_net_name', b'fsm_net_name', 'name', b'name', 'rsm_net_name', b'rsm_net_name', 'vc_net_name', b'vc_net_name']
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    BMS_NET_NAME_FIELD_NUMBER: builtins.int
+    CRIT_NET_NAME_FIELD_NUMBER: builtins.int
+    RSM_NET_NAME_FIELD_NUMBER: builtins.int
+    FSM_NET_NAME_FIELD_NUMBER: builtins.int
+    VC_NET_NAME_FIELD_NUMBER: builtins.int
+    bms_net_name: bms_pb2.SpiNetName.ValueType
+    crit_net_name: crit_pb2.SpiNetName.ValueType
+    rsm_net_name: rsm_pb2.SpiNetName.ValueType
+    fsm_net_name: fsm_pb2.SpiNetName.ValueType
+    vc_net_name: vc_pb2.SpiNetName.ValueType
 
-    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool:
-        ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal['bms_net_name', b'bms_net_name', 'crit_net_name', b'crit_net_name', 'fsm_net_name', b'fsm_net_name', 'name', b'name', 'rsm_net_name', b'rsm_net_name', 'vc_net_name', b'vc_net_name']
+    def __init__(
+        self,
+        *,
+        bms_net_name: bms_pb2.SpiNetName.ValueType = ...,
+        crit_net_name: crit_pb2.SpiNetName.ValueType = ...,
+        rsm_net_name: rsm_pb2.SpiNetName.ValueType = ...,
+        fsm_net_name: fsm_pb2.SpiNetName.ValueType = ...,
+        vc_net_name: vc_pb2.SpiNetName.ValueType = ...,
+    ) -> None: ...
+    def HasField(
+        self,
+        field_name: typing.Literal[
+            "bms_net_name",
+            b"bms_net_name",
+            "crit_net_name",
+            b"crit_net_name",
+            "fsm_net_name",
+            b"fsm_net_name",
+            "name",
+            b"name",
+            "rsm_net_name",
+            b"rsm_net_name",
+            "vc_net_name",
+            b"vc_net_name",
+        ],
+    ) -> builtins.bool: ...
+    def ClearField(
+        self,
+        field_name: typing.Literal[
+            "bms_net_name",
+            b"bms_net_name",
+            "crit_net_name",
+            b"crit_net_name",
+            "fsm_net_name",
+            b"fsm_net_name",
+            "name",
+            b"name",
+            "rsm_net_name",
+            b"rsm_net_name",
+            "vc_net_name",
+            b"vc_net_name",
+        ],
+    ) -> None: ...
+    def WhichOneof(
+        self, oneof_group: typing.Literal["name", b"name"]
+    ) -> (
+        typing.Literal[
+            "bms_net_name",
+            "crit_net_name",
+            "rsm_net_name",
+            "fsm_net_name",
+            "vc_net_name",
+        ]
+        | None
+    ): ...
 
-    def ClearField(self, field_name: _ClearFieldArgType) -> None:
-        ...
-    _WhichOneofReturnType_name: _TypeAlias = _typing.Literal['bms_net_name', 'crit_net_name', 'rsm_net_name', 'fsm_net_name', 'vc_net_name']
-    _WhichOneofArgType_name: _TypeAlias = _typing.Literal['name', b'name']
+Global___SpiNetName: typing_extensions.TypeAlias = SpiNetName
 
 @typing.final
 class SpiTransmitRequest(google.protobuf.message.Message):
@@ -622,177 +690,170 @@ class SpiTransactionResponse(google.protobuf.message.Message):
 
 Global___SpiTransactionResponse: typing_extensions.TypeAlias = SpiTransactionResponse
 
-    def ClearField(self, field_name: _ClearFieldArgType) -> None:
-        ...
-Global___SpiTransactionResponse: _TypeAlias = SpiTransactionResponse
-
-@_typing.final
-class UartNetName(_message.Message):
+@typing.final
+class UartNetName(google.protobuf.message.Message):
     """UART"""
-    DESCRIPTOR: _descriptor.Descriptor
-    DAM_NET_NAME_FIELD_NUMBER: _builtins.int
-    dam_net_name: _dam_pb2.UartNetName.ValueType
 
-    def __init__(self, *, dam_net_name: _dam_pb2.UartNetName.ValueType=...) -> None:
-        ...
-    _HasFieldArgType: _TypeAlias = _typing.Literal['dam_net_name', b'dam_net_name', 'name', b'name']
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DAM_NET_NAME_FIELD_NUMBER: builtins.int
+    dam_net_name: dam_pb2.UartNetName.ValueType
 
-    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool:
-        ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal['dam_net_name', b'dam_net_name', 'name', b'name']
+    def __init__(
+        self, *, dam_net_name: dam_pb2.UartNetName.ValueType = ...
+    ) -> None: ...
+    def HasField(
+        self,
+        field_name: typing.Literal["dam_net_name", b"dam_net_name", "name", b"name"],
+    ) -> builtins.bool: ...
+    def ClearField(
+        self,
+        field_name: typing.Literal["dam_net_name", b"dam_net_name", "name", b"name"],
+    ) -> None: ...
+    def WhichOneof(
+        self, oneof_group: typing.Literal["name", b"name"]
+    ) -> typing.Literal["dam_net_name"] | None: ...
 
-    def ClearField(self, field_name: _ClearFieldArgType) -> None:
-        ...
-    _WhichOneofReturnType_name: _TypeAlias = _typing.Literal['dam_net_name']
-    _WhichOneofArgType_name: _TypeAlias = _typing.Literal['name', b'name']
+Global___UartNetName: typing_extensions.TypeAlias = UartNetName
 
-    def WhichOneof(self, oneof_group: _WhichOneofArgType_name) -> _WhichOneofReturnType_name | None:
-        ...
-Global___UartNetName: _TypeAlias = UartNetName
-
-@_typing.final
-class UartTransmitRequest(_message.Message):
+@typing.final
+class UartTransmitRequest(google.protobuf.message.Message):
     """Uart Transmit"""
-    DESCRIPTOR: _descriptor.Descriptor
-    NET_NAME_FIELD_NUMBER: _builtins.int
-    DATA_FIELD_NUMBER: _builtins.int
-    data: _builtins.bytes
 
-    @_builtins.property
-    def net_name(self) -> Global___UartNetName:
-        ...
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    NET_NAME_FIELD_NUMBER: builtins.int
+    DATA_FIELD_NUMBER: builtins.int
+    data: builtins.bytes
 
-    def __init__(self, *, net_name: Global___UartNetName | None=..., data: _builtins.bytes=...) -> None:
-        ...
-    _HasFieldArgType: _TypeAlias = _typing.Literal['net_name', b'net_name']
+    @property
+    def net_name(self) -> Global___UartNetName: ...
+    def __init__(
+        self, *, net_name: Global___UartNetName | None = ..., data: builtins.bytes = ...
+    ) -> None: ...
+    def HasField(
+        self, field_name: typing.Literal["net_name", b"net_name"]
+    ) -> builtins.bool: ...
+    def ClearField(
+        self, field_name: typing.Literal["data", b"data", "net_name", b"net_name"]
+    ) -> None: ...
 
-    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool:
-        ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal['data', b'data', 'net_name', b'net_name']
+Global___UartTransmitRequest: typing_extensions.TypeAlias = UartTransmitRequest
 
-    def ClearField(self, field_name: _ClearFieldArgType) -> None:
-        ...
-Global___UartTransmitRequest: _TypeAlias = UartTransmitRequest
+@typing.final
+class UartTransmitResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    SUCCESS_FIELD_NUMBER: builtins.int
+    success: builtins.bool
 
-@_typing.final
-class UartTransmitResponse(_message.Message):
-    DESCRIPTOR: _descriptor.Descriptor
-    SUCCESS_FIELD_NUMBER: _builtins.int
-    success: _builtins.bool
+    def __init__(self, *, success: builtins.bool = ...) -> None: ...
+    def ClearField(self, field_name: typing.Literal["success", b"success"]) -> None: ...
 
-    def __init__(self, *, success: _builtins.bool=...) -> None:
-        ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal['success', b'success']
+Global___UartTransmitResponse: typing_extensions.TypeAlias = UartTransmitResponse
 
-    def ClearField(self, field_name: _ClearFieldArgType) -> None:
-        ...
-Global___UartTransmitResponse: _TypeAlias = UartTransmitResponse
-
-@_typing.final
-class UartRecieveRequest(_message.Message):
+@typing.final
+class UartRecieveRequest(google.protobuf.message.Message):
     """Uart receieve"""
-    DESCRIPTOR: _descriptor.Descriptor
-    NET_NAME_FIELD_NUMBER: _builtins.int
-    LENGTH_FIELD_NUMBER: _builtins.int
-    length: _builtins.int
 
-    @_builtins.property
-    def net_name(self) -> Global___UartNetName:
-        ...
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    NET_NAME_FIELD_NUMBER: builtins.int
+    LENGTH_FIELD_NUMBER: builtins.int
+    length: builtins.int
 
-    def __init__(self, *, net_name: Global___UartNetName | None=..., length: _builtins.int=...) -> None:
-        ...
-    _HasFieldArgType: _TypeAlias = _typing.Literal['net_name', b'net_name']
+    @property
+    def net_name(self) -> Global___UartNetName: ...
+    def __init__(
+        self, *, net_name: Global___UartNetName | None = ..., length: builtins.int = ...
+    ) -> None: ...
+    def HasField(
+        self, field_name: typing.Literal["net_name", b"net_name"]
+    ) -> builtins.bool: ...
+    def ClearField(
+        self, field_name: typing.Literal["length", b"length", "net_name", b"net_name"]
+    ) -> None: ...
 
-    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool:
-        ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal['length', b'length', 'net_name', b'net_name']
+Global___UartRecieveRequest: typing_extensions.TypeAlias = UartRecieveRequest
 
-    def ClearField(self, field_name: _ClearFieldArgType) -> None:
-        ...
-Global___UartRecieveRequest: _TypeAlias = UartRecieveRequest
+@typing.final
+class UartReceiveResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DATA_FIELD_NUMBER: builtins.int
+    data: builtins.bytes
 
-@_typing.final
-class UartReceiveResponse(_message.Message):
-    DESCRIPTOR: _descriptor.Descriptor
-    DATA_FIELD_NUMBER: _builtins.int
-    data: _builtins.bytes
+    def __init__(self, *, data: builtins.bytes = ...) -> None: ...
+    def ClearField(self, field_name: typing.Literal["data", b"data"]) -> None: ...
 
-    def __init__(self, *, data: _builtins.bytes=...) -> None:
-        ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal['data', b'data']
+Global___UartReceiveResponse: typing_extensions.TypeAlias = UartReceiveResponse
 
-    def ClearField(self, field_name: _ClearFieldArgType) -> None:
-        ...
-Global___UartReceiveResponse: _TypeAlias = UartReceiveResponse
-
-@_typing.final
-class PwmNetName(_message.Message):
+@typing.final
+class PwmNetName(google.protobuf.message.Message):
     """PWM"""
-    DESCRIPTOR: _descriptor.Descriptor
-    CRIT_NET_NAME_FIELD_NUMBER: _builtins.int
-    crit_net_name: _crit_pb2.PwmNetName.ValueType
 
-    def __init__(self, *, crit_net_name: _crit_pb2.PwmNetName.ValueType=...) -> None:
-        ...
-    _HasFieldArgType: _TypeAlias = _typing.Literal['crit_net_name', b'crit_net_name', 'name', b'name']
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    CRIT_NET_NAME_FIELD_NUMBER: builtins.int
+    crit_net_name: crit_pb2.PwmNetName.ValueType
 
-    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool:
-        ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal['crit_net_name', b'crit_net_name', 'name', b'name']
+    def __init__(
+        self, *, crit_net_name: crit_pb2.PwmNetName.ValueType = ...
+    ) -> None: ...
+    def HasField(
+        self,
+        field_name: typing.Literal["crit_net_name", b"crit_net_name", "name", b"name"],
+    ) -> builtins.bool: ...
+    def ClearField(
+        self,
+        field_name: typing.Literal["crit_net_name", b"crit_net_name", "name", b"name"],
+    ) -> None: ...
+    def WhichOneof(
+        self, oneof_group: typing.Literal["name", b"name"]
+    ) -> typing.Literal["crit_net_name"] | None: ...
 
-    def ClearField(self, field_name: _ClearFieldArgType) -> None:
-        ...
-    _WhichOneofReturnType_name: _TypeAlias = _typing.Literal['crit_net_name']
-    _WhichOneofArgType_name: _TypeAlias = _typing.Literal['name', b'name']
+Global___PwmNetName: typing_extensions.TypeAlias = PwmNetName
 
-    def WhichOneof(self, oneof_group: _WhichOneofArgType_name) -> _WhichOneofReturnType_name | None:
-        ...
-Global___PwmNetName: _TypeAlias = PwmNetName
-
-@_typing.final
-class PwmSetRequest(_message.Message):
+@typing.final
+class PwmSetRequest(google.protobuf.message.Message):
     """PWM set"""
-    DESCRIPTOR: _descriptor.Descriptor
-    NET_NAME_FIELD_NUMBER: _builtins.int
-    ENABLE_FIELD_NUMBER: _builtins.int
-    DUTY_CYCLE_FIELD_NUMBER: _builtins.int
-    enable: _builtins.bool
-    duty_cycle: _builtins.float
-    '0.0 to 1.0'
 
-    @_builtins.property
-    def net_name(self) -> Global___PwmNetName:
-        ...
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    NET_NAME_FIELD_NUMBER: builtins.int
+    ENABLE_FIELD_NUMBER: builtins.int
+    DUTY_CYCLE_FIELD_NUMBER: builtins.int
+    enable: builtins.bool
+    duty_cycle: builtins.float
+    "0.0 to 1.0"
 
-    def __init__(self, *, net_name: Global___PwmNetName | None=..., enable: _builtins.bool=..., duty_cycle: _builtins.float=...) -> None:
-        ...
-    _HasFieldArgType: _TypeAlias = _typing.Literal['net_name', b'net_name']
+    @property
+    def net_name(self) -> Global___PwmNetName: ...
+    def __init__(
+        self,
+        *,
+        net_name: Global___PwmNetName | None = ...,
+        enable: builtins.bool = ...,
+        duty_cycle: builtins.float = ...,
+    ) -> None: ...
+    def HasField(
+        self, field_name: typing.Literal["net_name", b"net_name"]
+    ) -> builtins.bool: ...
+    def ClearField(
+        self,
+        field_name: typing.Literal[
+            "duty_cycle", b"duty_cycle", "enable", b"enable", "net_name", b"net_name"
+        ],
+    ) -> None: ...
 
-    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool:
-        ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal['duty_cycle', b'duty_cycle', 'enable', b'enable', 'net_name', b'net_name']
+Global___PwmSetRequest: typing_extensions.TypeAlias = PwmSetRequest
 
-    def ClearField(self, field_name: _ClearFieldArgType) -> None:
-        ...
-Global___PwmSetRequest: _TypeAlias = PwmSetRequest
+@typing.final
+class PwmSetResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    SUCCESS_FIELD_NUMBER: builtins.int
+    success: builtins.bool
 
-@_typing.final
-class PwmSetResponse(_message.Message):
-    DESCRIPTOR: _descriptor.Descriptor
-    SUCCESS_FIELD_NUMBER: _builtins.int
-    success: _builtins.bool
+    def __init__(self, *, success: builtins.bool = ...) -> None: ...
+    def ClearField(self, field_name: typing.Literal["success", b"success"]) -> None: ...
 
-    def __init__(self, *, success: _builtins.bool=...) -> None:
-        ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal['success', b'success']
+Global___PwmSetResponse: typing_extensions.TypeAlias = PwmSetResponse
 
-    def ClearField(self, field_name: _ClearFieldArgType) -> None:
-        ...
-Global___PwmSetResponse: _TypeAlias = PwmSetResponse
-
-@_typing.final
-class ChimeraV2Request(_message.Message):
+@typing.final
+class ChimeraV2Request(google.protobuf.message.Message):
     """
     Wrapper around all messages
 
@@ -801,21 +862,6 @@ class ChimeraV2Request(_message.Message):
     - https://github.com/EmbeddedRPC/erpc
     - https://github.com/d21d3q/nanogrpc
     """
-    DESCRIPTOR: _descriptor.Descriptor
-    GPIO_READ_FIELD_NUMBER: _builtins.int
-    GPIO_WRITE_FIELD_NUMBER: _builtins.int
-    ADC_READ_FIELD_NUMBER: _builtins.int
-    I2C_READY_FIELD_NUMBER: _builtins.int
-    I2C_RECEIVE_FIELD_NUMBER: _builtins.int
-    I2C_TRANSMIT_FIELD_NUMBER: _builtins.int
-    I2C_MEMORY_READ_FIELD_NUMBER: _builtins.int
-    I2C_MEMORY_WRITE_FIELD_NUMBER: _builtins.int
-    SPI_RECEIVE_FIELD_NUMBER: _builtins.int
-    SPI_TRANSMIT_FIELD_NUMBER: _builtins.int
-    SPI_TRANSACTION_FIELD_NUMBER: _builtins.int
-    UART_RECEIVE_FIELD_NUMBER: _builtins.int
-    UART_TRANSMIT_FIELD_NUMBER: _builtins.int
-    PWM_SET_FIELD_NUMBER: _builtins.int
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
     GPIO_READ_FIELD_NUMBER: builtins.int
@@ -829,6 +875,9 @@ class ChimeraV2Request(_message.Message):
     SPI_RECEIVE_FIELD_NUMBER: builtins.int
     SPI_TRANSMIT_FIELD_NUMBER: builtins.int
     SPI_TRANSACTION_FIELD_NUMBER: builtins.int
+    UART_RECEIVE_FIELD_NUMBER: builtins.int
+    UART_TRANSMIT_FIELD_NUMBER: builtins.int
+    PWM_SET_FIELD_NUMBER: builtins.int
 
     @property
     def gpio_read(self) -> Global___GpioReadRequest:
@@ -860,6 +909,16 @@ class ChimeraV2Request(_message.Message):
     def spi_transmit(self) -> Global___SpiTransmitRequest: ...
     @property
     def spi_transaction(self) -> Global___SpiTransactionRequest: ...
+    @property
+    def uart_receive(self) -> Global___UartRecieveRequest:
+        """UART."""
+
+    @property
+    def uart_transmit(self) -> Global___UartTransmitRequest: ...
+    @property
+    def pwm_set(self) -> Global___PwmSetRequest:
+        """PWM"""
+
     def __init__(
         self,
         *,
@@ -874,6 +933,9 @@ class ChimeraV2Request(_message.Message):
         spi_receive: Global___SpiReceiveRequest | None = ...,
         spi_transmit: Global___SpiTransmitRequest | None = ...,
         spi_transaction: Global___SpiTransactionRequest | None = ...,
+        uart_receive: Global___UartRecieveRequest | None = ...,
+        uart_transmit: Global___UartTransmitRequest | None = ...,
+        pwm_set: Global___PwmSetRequest | None = ...,
     ) -> None: ...
     def HasField(
         self,
@@ -896,12 +958,18 @@ class ChimeraV2Request(_message.Message):
             b"i2c_transmit",
             "payload",
             b"payload",
+            "pwm_set",
+            b"pwm_set",
             "spi_receive",
             b"spi_receive",
             "spi_transaction",
             b"spi_transaction",
             "spi_transmit",
             b"spi_transmit",
+            "uart_receive",
+            b"uart_receive",
+            "uart_transmit",
+            b"uart_transmit",
         ],
     ) -> builtins.bool: ...
     def ClearField(
@@ -925,12 +993,18 @@ class ChimeraV2Request(_message.Message):
             b"i2c_transmit",
             "payload",
             b"payload",
+            "pwm_set",
+            b"pwm_set",
             "spi_receive",
             b"spi_receive",
             "spi_transaction",
             b"spi_transaction",
             "spi_transmit",
             b"spi_transmit",
+            "uart_receive",
+            b"uart_receive",
+            "uart_transmit",
+            b"uart_transmit",
         ],
     ) -> None: ...
     def WhichOneof(
@@ -948,60 +1022,34 @@ class ChimeraV2Request(_message.Message):
             "spi_receive",
             "spi_transmit",
             "spi_transaction",
+            "uart_receive",
+            "uart_transmit",
+            "pwm_set",
         ]
         | None
     ): ...
 
 Global___ChimeraV2Request: typing_extensions.TypeAlias = ChimeraV2Request
 
-    @_builtins.property
-    def uart_receive(self) -> Global___UartRecieveRequest:
-        """UART."""
+@typing.final
+class ChimeraV2Response(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    GPIO_READ_FIELD_NUMBER: builtins.int
+    GPIO_WRITE_FIELD_NUMBER: builtins.int
+    ADC_READ_FIELD_NUMBER: builtins.int
+    I2C_READY_FIELD_NUMBER: builtins.int
+    I2C_RECEIVE_FIELD_NUMBER: builtins.int
+    I2C_TRANSMIT_FIELD_NUMBER: builtins.int
+    I2C_MEMORY_READ_FIELD_NUMBER: builtins.int
+    I2C_MEMORY_WRITE_FIELD_NUMBER: builtins.int
+    SPI_RECEIVE_FIELD_NUMBER: builtins.int
+    SPI_TRANSMIT_FIELD_NUMBER: builtins.int
+    SPI_TRANSACTION_FIELD_NUMBER: builtins.int
+    UART_RECEIVE_FIELD_NUMBER: builtins.int
+    UART_TRANSMIT_FIELD_NUMBER: builtins.int
+    PWM_SET_FIELD_NUMBER: builtins.int
 
-    @_builtins.property
-    def uart_transmit(self) -> Global___UartTransmitRequest:
-        ...
-
-    @_builtins.property
-    def pwm_set(self) -> Global___PwmSetRequest:
-        """PWM"""
-
-    def __init__(self, *, gpio_read: Global___GpioReadRequest | None=..., gpio_write: Global___GpioWriteRequest | None=..., adc_read: Global___AdcReadRequest | None=..., i2c_ready: Global___I2cReadyRequest | None=..., i2c_receive: Global___I2cReceiveRequest | None=..., i2c_transmit: Global___I2cTransmitRequest | None=..., i2c_memory_read: Global___I2cMemoryReadRequest | None=..., i2c_memory_write: Global___I2cMemoryWriteRequest | None=..., spi_receive: Global___SpiReceiveRequest | None=..., spi_transmit: Global___SpiTransmitRequest | None=..., spi_transaction: Global___SpiTransactionRequest | None=..., uart_receive: Global___UartRecieveRequest | None=..., uart_transmit: Global___UartTransmitRequest | None=..., pwm_set: Global___PwmSetRequest | None=...) -> None:
-        ...
-    _HasFieldArgType: _TypeAlias = _typing.Literal['adc_read', b'adc_read', 'gpio_read', b'gpio_read', 'gpio_write', b'gpio_write', 'i2c_memory_read', b'i2c_memory_read', 'i2c_memory_write', b'i2c_memory_write', 'i2c_ready', b'i2c_ready', 'i2c_receive', b'i2c_receive', 'i2c_transmit', b'i2c_transmit', 'payload', b'payload', 'pwm_set', b'pwm_set', 'spi_receive', b'spi_receive', 'spi_transaction', b'spi_transaction', 'spi_transmit', b'spi_transmit', 'uart_receive', b'uart_receive', 'uart_transmit', b'uart_transmit']
-
-    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool:
-        ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal['adc_read', b'adc_read', 'gpio_read', b'gpio_read', 'gpio_write', b'gpio_write', 'i2c_memory_read', b'i2c_memory_read', 'i2c_memory_write', b'i2c_memory_write', 'i2c_ready', b'i2c_ready', 'i2c_receive', b'i2c_receive', 'i2c_transmit', b'i2c_transmit', 'payload', b'payload', 'pwm_set', b'pwm_set', 'spi_receive', b'spi_receive', 'spi_transaction', b'spi_transaction', 'spi_transmit', b'spi_transmit', 'uart_receive', b'uart_receive', 'uart_transmit', b'uart_transmit']
-
-    def ClearField(self, field_name: _ClearFieldArgType) -> None:
-        ...
-    _WhichOneofReturnType_payload: _TypeAlias = _typing.Literal['gpio_read', 'gpio_write', 'adc_read', 'i2c_ready', 'i2c_receive', 'i2c_transmit', 'i2c_memory_read', 'i2c_memory_write', 'spi_receive', 'spi_transmit', 'spi_transaction', 'uart_receive', 'uart_transmit', 'pwm_set']
-    _WhichOneofArgType_payload: _TypeAlias = _typing.Literal['payload', b'payload']
-
-    def WhichOneof(self, oneof_group: _WhichOneofArgType_payload) -> _WhichOneofReturnType_payload | None:
-        ...
-Global___ChimeraV2Request: _TypeAlias = ChimeraV2Request
-
-@_typing.final
-class ChimeraV2Response(_message.Message):
-    DESCRIPTOR: _descriptor.Descriptor
-    GPIO_READ_FIELD_NUMBER: _builtins.int
-    GPIO_WRITE_FIELD_NUMBER: _builtins.int
-    ADC_READ_FIELD_NUMBER: _builtins.int
-    I2C_READY_FIELD_NUMBER: _builtins.int
-    I2C_RECEIVE_FIELD_NUMBER: _builtins.int
-    I2C_TRANSMIT_FIELD_NUMBER: _builtins.int
-    I2C_MEMORY_READ_FIELD_NUMBER: _builtins.int
-    I2C_MEMORY_WRITE_FIELD_NUMBER: _builtins.int
-    SPI_RECEIVE_FIELD_NUMBER: _builtins.int
-    SPI_TRANSMIT_FIELD_NUMBER: _builtins.int
-    SPI_TRANSACTION_FIELD_NUMBER: _builtins.int
-    UART_RECEIVE_FIELD_NUMBER: _builtins.int
-    UART_TRANSMIT_FIELD_NUMBER: _builtins.int
-    PWM_SET_FIELD_NUMBER: _builtins.int
-
-    @_builtins.property
+    @property
     def gpio_read(self) -> Global___GpioReadResponse:
         """GPIO."""
 
@@ -1031,6 +1079,16 @@ class ChimeraV2Response(_message.Message):
     def spi_transmit(self) -> Global___SpiTransmitResponse: ...
     @property
     def spi_transaction(self) -> Global___SpiTransactionResponse: ...
+    @property
+    def uart_receive(self) -> Global___UartReceiveResponse:
+        """UART."""
+
+    @property
+    def uart_transmit(self) -> Global___UartTransmitResponse: ...
+    @property
+    def pwm_set(self) -> Global___PwmSetResponse:
+        """PWM"""
+
     def __init__(
         self,
         *,
@@ -1045,6 +1103,9 @@ class ChimeraV2Response(_message.Message):
         spi_receive: Global___SpiReceiveResponse | None = ...,
         spi_transmit: Global___SpiTransmitResponse | None = ...,
         spi_transaction: Global___SpiTransactionResponse | None = ...,
+        uart_receive: Global___UartReceiveResponse | None = ...,
+        uart_transmit: Global___UartTransmitResponse | None = ...,
+        pwm_set: Global___PwmSetResponse | None = ...,
     ) -> None: ...
     def HasField(
         self,
@@ -1067,12 +1128,18 @@ class ChimeraV2Response(_message.Message):
             b"i2c_transmit",
             "payload",
             b"payload",
+            "pwm_set",
+            b"pwm_set",
             "spi_receive",
             b"spi_receive",
             "spi_transaction",
             b"spi_transaction",
             "spi_transmit",
             b"spi_transmit",
+            "uart_receive",
+            b"uart_receive",
+            "uart_transmit",
+            b"uart_transmit",
         ],
     ) -> builtins.bool: ...
     def ClearField(
@@ -1096,12 +1163,18 @@ class ChimeraV2Response(_message.Message):
             b"i2c_transmit",
             "payload",
             b"payload",
+            "pwm_set",
+            b"pwm_set",
             "spi_receive",
             b"spi_receive",
             "spi_transaction",
             b"spi_transaction",
             "spi_transmit",
             b"spi_transmit",
+            "uart_receive",
+            b"uart_receive",
+            "uart_transmit",
+            b"uart_transmit",
         ],
     ) -> None: ...
     def WhichOneof(
@@ -1119,39 +1192,11 @@ class ChimeraV2Response(_message.Message):
             "spi_receive",
             "spi_transmit",
             "spi_transaction",
+            "uart_receive",
+            "uart_transmit",
+            "pwm_set",
         ]
         | None
     ): ...
 
-    @_builtins.property
-    def spi_transaction(self) -> Global___SpiTransactionResponse:
-        ...
-
-    @_builtins.property
-    def uart_receive(self) -> Global___UartReceiveResponse:
-        """UART."""
-
-    @_builtins.property
-    def uart_transmit(self) -> Global___UartTransmitResponse:
-        ...
-
-    @_builtins.property
-    def pwm_set(self) -> Global___PwmSetResponse:
-        """PWM"""
-
-    def __init__(self, *, gpio_read: Global___GpioReadResponse | None=..., gpio_write: Global___GpioWriteResponse | None=..., adc_read: Global___AdcReadResponse | None=..., i2c_ready: Global___I2cReadyResponse | None=..., i2c_receive: Global___I2cReceiveResponse | None=..., i2c_transmit: Global___I2cTransmitResponse | None=..., i2c_memory_read: Global___I2cMemoryReadResponse | None=..., i2c_memory_write: Global___I2cMemoryWriteResponse | None=..., spi_receive: Global___SpiReceiveResponse | None=..., spi_transmit: Global___SpiTransmitResponse | None=..., spi_transaction: Global___SpiTransactionResponse | None=..., uart_receive: Global___UartReceiveResponse | None=..., uart_transmit: Global___UartTransmitResponse | None=..., pwm_set: Global___PwmSetResponse | None=...) -> None:
-        ...
-    _HasFieldArgType: _TypeAlias = _typing.Literal['adc_read', b'adc_read', 'gpio_read', b'gpio_read', 'gpio_write', b'gpio_write', 'i2c_memory_read', b'i2c_memory_read', 'i2c_memory_write', b'i2c_memory_write', 'i2c_ready', b'i2c_ready', 'i2c_receive', b'i2c_receive', 'i2c_transmit', b'i2c_transmit', 'payload', b'payload', 'pwm_set', b'pwm_set', 'spi_receive', b'spi_receive', 'spi_transaction', b'spi_transaction', 'spi_transmit', b'spi_transmit', 'uart_receive', b'uart_receive', 'uart_transmit', b'uart_transmit']
-
-    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool:
-        ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal['adc_read', b'adc_read', 'gpio_read', b'gpio_read', 'gpio_write', b'gpio_write', 'i2c_memory_read', b'i2c_memory_read', 'i2c_memory_write', b'i2c_memory_write', 'i2c_ready', b'i2c_ready', 'i2c_receive', b'i2c_receive', 'i2c_transmit', b'i2c_transmit', 'payload', b'payload', 'pwm_set', b'pwm_set', 'spi_receive', b'spi_receive', 'spi_transaction', b'spi_transaction', 'spi_transmit', b'spi_transmit', 'uart_receive', b'uart_receive', 'uart_transmit', b'uart_transmit']
-
-    def ClearField(self, field_name: _ClearFieldArgType) -> None:
-        ...
-    _WhichOneofReturnType_payload: _TypeAlias = _typing.Literal['gpio_read', 'gpio_write', 'adc_read', 'i2c_ready', 'i2c_receive', 'i2c_transmit', 'i2c_memory_read', 'i2c_memory_write', 'spi_receive', 'spi_transmit', 'spi_transaction', 'uart_receive', 'uart_transmit', 'pwm_set']
-    _WhichOneofArgType_payload: _TypeAlias = _typing.Literal['payload', b'payload']
-
-    def WhichOneof(self, oneof_group: _WhichOneofArgType_payload) -> _WhichOneofReturnType_payload | None:
-        ...
-Global___ChimeraV2Response: _TypeAlias = ChimeraV2Response
+Global___ChimeraV2Response: typing_extensions.TypeAlias = ChimeraV2Response

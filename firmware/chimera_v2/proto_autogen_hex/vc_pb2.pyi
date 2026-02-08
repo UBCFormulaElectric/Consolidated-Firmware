@@ -60,6 +60,8 @@ class _GpioNetNameEnumTypeWrapper(
     GPIO_IMU_CS2: _GpioNetName.ValueType
     GPIO_IMU_CS3: _GpioNetName.ValueType
 
+class GpioNetName(_GpioNetName, metaclass=_GpioNetNameEnumTypeWrapper): ...
+
 GPIO_NET_NAME_UNSPECIFIED: GpioNetName.ValueType
 GPIO_F_INV_EN: GpioNetName.ValueType
 GPIO_F_INV_PG: GpioNetName.ValueType
@@ -95,7 +97,7 @@ GPIO_TSMS_3V3_OUT: GpioNetName.ValueType
 GPIO_IMU_CS1: GpioNetName.ValueType
 GPIO_IMU_CS2: GpioNetName.ValueType
 GPIO_IMU_CS3: GpioNetName.ValueType
-Global___GpioNetName: _TypeAlias = GpioNetName
+Global___GpioNetName: typing_extensions.TypeAlias = GpioNetName
 
 class _AdcNetName:
     ValueType = typing.NewType("ValueType", builtins.int)
@@ -119,6 +121,8 @@ class _AdcNetNameEnumTypeWrapper(
     ADC_RSM: _AdcNetName.ValueType
     ADC_MISC_FUSE: _AdcNetName.ValueType
 
+class AdcNetName(_AdcNetName, metaclass=_AdcNetNameEnumTypeWrapper): ...
+
 ADC_NET_NAME_UNSPECIFIED: AdcNetName.ValueType
 ADC_RR_PUMP: AdcNetName.ValueType
 ADC_DAM: AdcNetName.ValueType
@@ -131,7 +135,7 @@ ADC_BMS: AdcNetName.ValueType
 ADC_FRONT: AdcNetName.ValueType
 ADC_RSM: AdcNetName.ValueType
 ADC_MISC_FUSE: AdcNetName.ValueType
-Global___AdcNetName: _TypeAlias = AdcNetName
+Global___AdcNetName: typing_extensions.TypeAlias = AdcNetName
 
 class _I2cNetName:
     ValueType = typing.NewType("ValueType", builtins.int)
@@ -146,28 +150,33 @@ class _I2cNetNameEnumTypeWrapper(
     I2C_BAT_MON: _I2cNetName.ValueType
     I2C_PWR_PUMP: _I2cNetName.ValueType
 
+class I2cNetName(_I2cNetName, metaclass=_I2cNetNameEnumTypeWrapper): ...
+
 I2C_NET_NAME_UNSPECIFIED: I2cNetName.ValueType
 I2C_BAT_MON: I2cNetName.ValueType
 I2C_PWR_PUMP: I2cNetName.ValueType
-Global___I2cNetName: _TypeAlias = I2cNetName
+Global___I2cNetName: typing_extensions.TypeAlias = I2cNetName
 
 class _SpiNetName:
-    ValueType = _typing.NewType('ValueType', _builtins.int)
-    V: _TypeAlias = ValueType
+    ValueType = typing.NewType("ValueType", builtins.int)
+    V: typing_extensions.TypeAlias = ValueType
 
-class _SpiNetNameEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[_SpiNetName.ValueType], _builtins.type):
-    DESCRIPTOR: _descriptor.EnumDescriptor
+class _SpiNetNameEnumTypeWrapper(
+    google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_SpiNetName.ValueType],
+    builtins.type,
+):
+    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     SPI_NET_NAME_UNSPECIFIED: _SpiNetName.ValueType
     IMU1: _SpiNetName.ValueType
     IMU2: _SpiNetName.ValueType
     IMU3: _SpiNetName.ValueType
     RPI: _SpiNetName.ValueType
 
-class SpiNetName(_SpiNetName, metaclass=_SpiNetNameEnumTypeWrapper):
-    ...
+class SpiNetName(_SpiNetName, metaclass=_SpiNetNameEnumTypeWrapper): ...
+
 SPI_NET_NAME_UNSPECIFIED: SpiNetName.ValueType
 IMU1: SpiNetName.ValueType
 IMU2: SpiNetName.ValueType
 IMU3: SpiNetName.ValueType
 RPI: SpiNetName.ValueType
-Global___SpiNetName: _TypeAlias = SpiNetName
+Global___SpiNetName: typing_extensions.TypeAlias = SpiNetName
