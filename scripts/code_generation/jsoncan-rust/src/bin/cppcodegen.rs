@@ -140,14 +140,14 @@ fn main() {
         write_text(
             module.header_template().unwrap(),
             module_full_path
-                .with_extension("h")
+                .with_extension("hpp")
                 .to_str()
                 .expect("Invalid path"),
         );
         write_text(
             module.source_template().unwrap(),
             module_full_path
-                .with_extension("c")
+                .with_extension("cpp")
                 .to_str()
                 .expect("Invalid path"),
         );

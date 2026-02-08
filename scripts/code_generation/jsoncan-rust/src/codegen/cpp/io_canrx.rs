@@ -4,13 +4,13 @@ use crate::can_database::CanMessage;
 use crate::{can_database::CanDatabase, codegen::cpp::CPPGenerator, reroute::CanRxConfig};
 
 #[derive(Template)]
-#[template(path = "io_canRx.c.j2")]
+#[template(path = "io_canRx.cpp.j2")]
 struct IoCanRxModuleSource<'a> {
     messages_on_busses: &'a Vec<(String, Vec<CanMessage>)>,
 }
 
 #[derive(Template)]
-#[template(path = "io_canRx.h.j2")]
+#[template(path = "io_canRx.hpp.j2")]
 struct IoCanRxModuleHeader<'a> {
     node: &'a String,
     messages_on_busses: &'a Vec<(String, Vec<CanMessage>)>,
@@ -44,6 +44,9 @@ impl IoCanRxModule<'_> {
 }
 
 impl CPPGenerator for IoCanRxModule<'_> {
+    fn file_stem(&self) -> String {
+        "io_canRx".to_string()
+    }
     fn header_template(&self) -> Result<String, askama::Error> {
         IoCanRxModuleHeader {
             node: self.board,

@@ -23,6 +23,7 @@ use convert_case::{Case, Casing};
 pub trait CPPGenerator {
     fn header_template(&self) -> Result<String, askama::Error>;
     fn source_template(&self) -> Result<String, askama::Error>;
+    fn file_stem(&self) -> String;
 }
 
 pub enum CPPModule<'a> {
@@ -37,6 +38,18 @@ pub enum CPPModule<'a> {
 }
 
 impl CPPGenerator for CPPModule<'_> {
+    fn file_stem(&self) -> String {
+        match self {
+            CPPModule::AppCanUtilsModule(module) => module.file_stem(),
+            CPPModule::AppCanTxModule(module) => module.file_stem(),
+            CPPModule::AppCanAlertsModule(module) => module.file_stem(),
+            CPPModule::AppCanDataCaptureModule(module) => module.file_stem(),
+            CPPModule::AppCanRxModule(module) => module.file_stem(),
+            CPPModule::IoCanTxModule(module) => module.file_stem(),
+            CPPModule::IoCanRxModule(module) => module.file_stem(),
+            CPPModule::IoCanRerouteModule(module) => module.file_stem(),
+        }
+    }
     fn header_template(&self) -> Result<String, askama::Error> {
         match self {
             CPPModule::AppCanUtilsModule(module) => module.header_template(),
@@ -93,11 +106,36 @@ impl CanSignal {
     }
 
     pub fn datatype(self: &Self) -> String {
-        todo!()
+        if self.scale != 1.0 || self.offset != 0.0 {
+            return "float".to_string();
+        }
+        if self.signed {
+            match self.bits {
+                8 => "int8_t".to_string(),
+                16 => "int16_t".to_string(),
+                32 => "int32_t".to_string(),
+                64 => "int64_t".to_string(),
+                _ => "int".to_string(), // Fallback for unusual bit lengths
+            }
+        } else {
+            match self.bits {
+                8 => "uint8_t".to_string(),
+                16 => "uint16_t".to_string(),
+                32 => "uint32_t".to_string(),
+                64 => "uint64_t".to_string(),
+                _ => "unsigned int".to_string(), // Fallback for unusual bit lengths
+            }
+        }
     }
 
     pub fn representation(self: &Self) -> String {
-        todo!()
+        if self.scale != 1.0 || self.offset != 0.0 {
+            return "float".to_string();
+        }
+        if self.signed {
+            return "int".to_string();
+        }
+        "uint".to_string()
     }
 }
 

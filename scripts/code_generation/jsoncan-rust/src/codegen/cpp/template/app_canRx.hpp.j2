@@ -7,14 +7,15 @@
 
 /* ------------------------------- Includes ------------------------------- */
 
-#include "app_canUtils.h"
+#include "app_canUtils.hpp"
 
+namespace app::can_rx {
 /* ------------------------- Function Prototypes -------------------------- */
 
 /**
  * Initialize RX signals to their starting values.
  */
-void app_canRx_init(void);
+void init(void);
 
 /* --------- UPDATE --------- */
 {%- for rx_messages in boards_messages.values() %}
@@ -23,7 +24,7 @@ void app_canRx_init(void);
 /**
  * Update value stored in RX table of signal {{ signal.name }} in msg {{ msg.name }}.
  */
-void app_canRx_{{ signal.name }}_update({{ signal.datatype() }} value);
+void update_{{ signal.name }}({{ signal.datatype() }} value);
 {%- endfor %}
 {%- endfor %}
 {%- endfor %}
@@ -35,9 +36,10 @@ void app_canRx_{{ signal.name }}_update({{ signal.datatype() }} value);
 /**
  * Get value stored in RX table of signal {{ signal.name }} in msg {{ msg.name }}.
  */
-{{ signal.datatype() }} app_canRx_{{ signal.name }}_get(void);
+{{ signal.datatype() }} get_{{ signal.name }}(void);
 {%- endfor %}
 {%- endfor %}
 {%- endfor %}
 
-void app_canRx_clear_board_rx_table(CanNode board);
+void clear_board_rx_table(CanNode board);
+}

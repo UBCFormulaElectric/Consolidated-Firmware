@@ -6,13 +6,13 @@ use crate::{
 };
 
 #[derive(Template)]
-#[template(path = "app_canTx.c.j2")]
+#[template(path = "app_canTx.cpp.j2")]
 struct AppCanTxModuleSource<'a> {
     tx_messages: &'a Vec<CanMessage>,
 }
 
 #[derive(Template)]
-#[template(path = "app_canTx.h.j2")]
+#[template(path = "app_canTx.hpp.j2")]
 struct AppCanTxModuleHeader<'a> {
     tx_messages: &'a Vec<CanMessage>,
 }
@@ -30,6 +30,9 @@ impl AppCanTxModule {
 }
 
 impl CPPGenerator for AppCanTxModule {
+    fn file_stem(&self) -> String {
+        "app_canTx".to_string()
+    }
     fn header_template(&self) -> Result<String, askama::Error> {
         AppCanTxModuleHeader {
             tx_messages: &self.tx_messages,

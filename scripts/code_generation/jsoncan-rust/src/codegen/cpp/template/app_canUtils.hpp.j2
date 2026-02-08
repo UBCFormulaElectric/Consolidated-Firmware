@@ -11,21 +11,21 @@
 #include <stdbool.h>
 
 /* -------------------------------- Macros -------------------------------- */
-
+namespace app::can_utils {
 // Msg IDs
 {% for message in messages -%}
-#define {{ message.id_macro() }} ({{ message.id }}U)
+constexr uint32_t {{ message.id_macro() }} = {{ message.id }}U;
 {% endfor %}
 
 // Msg lengths (in bytes)
 {% for message in messages -%}
-#define {{ message.dlc_macro() }} ({{ message.dlc() }})
+constexpr uint8_t {{ message.dlc_macro() }} = {{ message.dlc() }};
 {% endfor %}
 
 // Periodic msg cycle times (in MS)
 {% for message in messages -%}
 {% if message.cycle_time.is_some() -%}
-#define {{ message.cycle_time_macro() }} ({{ message.cycle_time.unwrap() }}) 
+constexpr uint32_t {{ message.cycle_time_macro() }} = {{ message.cycle_time.unwrap() }};
 {%- endif %}
 {% endfor %}
 
@@ -33,7 +33,7 @@
 {% for msg in messages -%}
 // {{msg.name}}
 {% for signal in msg.signals -%}
-#define {{ signal.start_val_macro() }} ({{ signal.start_val }})
+constexpr float {{ signal.start_val_macro() }} = {{ signal.start_val }};
 {%- if signal.unit.is_some() && signal.unit.as_ref().unwrap() != "" -%}// {{ signal.unit.as_ref().unwrap() }} {%- endif %}
 {% endfor %}
 {% endfor %}
@@ -41,10 +41,10 @@
 {% for msg in messages -%}
 // {{msg.name}}
 {% for signal in msg.signals -%}
-#define {{ signal.scale_macro() }} ({{ signal.scale }})
-#- Note: unit may be optional
+constexpr float {{ signal.scale_macro() }} = {{ signal.scale }};
+// Note: unit may be optional
 {%- if signal.unit.is_some() && signal.unit.as_ref().unwrap() != "" -%}// {{ signal.unit.as_ref().unwrap() }} {%- endif %}
-#define {{ signal.offset_macro() }} ({{ signal.offset }})
+constexpr float {{ signal.offset_macro() }} = {{ signal.offset }};
 {%- if signal.unit.is_some() && signal.unit.as_ref().unwrap() != "" -%}// {{ signal.unit.as_ref().unwrap() }} {%- endif %}
 {% endfor %}
 {% endfor %}
@@ -54,10 +54,10 @@
 {% for msg in messages -%}
 // {{msg.name}}
 {% for signal in msg.signals -%}
-#define {{ signal.min_val_macro() }} ({{ signal.min }})
+constexpr float {{ signal.min_val_macro() }} = {{ signal.min }};
 #- Only print unit if present and non-empty
 {%- if signal.unit.is_some() && signal.unit.as_ref().unwrap() != "" -%}// {{ signal.unit.as_ref().unwrap() }} {%- endif %}
-#define {{ signal.max_val_macro() }} ({{ signal.max }})
+constexpr float {{ signal.max_val_macro() }} = {{ signal.max }};
 {%- if signal.unit.is_some() && signal.unit.as_ref().unwrap() != "" -%}// {{ signal.unit.as_ref().unwrap() }} {%- endif %}
 {% endfor %}
 {% endfor %}
@@ -65,28 +65,25 @@
 
 /* -------------------------------- Enums --------------------------------- */
 {%- for e in enums %}
-typedef enum
+enum class {{ e.name }}
 {
-    {% for (key, value) in e.values -%}
-    {{ value }} = {{ key }},
-    {% endfor -%}
-    NUM_{{ e.name.to_uppercase().replace("-", "_") }}_CHOICES = {{ e.values.len() }},
-} {{ e.name }};
-{% endfor %}
+    {%- for (key, value) in e.values %}
+    {{ key }} = {{ value }},
+    {%- endfor %}
+};
+{%- endfor %}
 
-
-typedef enum
+enum class CanNode
 {
     {%- for node_name in node_names %}
     {{node_name.to_uppercase()}}_NODE = {{loop.index}},
     {%- endfor %}
-} CanNode;
-
+};
 
 /* ------------------------------- Structs -------------------------------- */
 
 {% for message in messages %}
-typedef struct
+struct {{ message.name }}_Signals
 {
     {%- if message.signals.len() == 0 %}
     uint8_t _placeholder;
@@ -95,14 +92,15 @@ typedef struct
     {{ signal.datatype() }} {{ signal.name }}_value;
     {%- endfor %}
     {%- endif %}
-} {{ message.name }}_Signals;
+};
 {% endfor %}
 
 /* ------------------------- Function Prototypes -------------------------- */
 
 {% for message in messages %}
-void app_canUtils_{{ message.name }}_pack(const {{ message.name }}_Signals* in_msg, uint8_t* out_data);
+void pack(const {{ message.name }}_Signals* in_msg, uint8_t* out_data);
 {%- endfor %}
 {% for message in messages %}
-void app_canUtils_{{ message.name }}_unpack(const uint8_t* in_data, {{ message.name }}_Signals* out_msg);
+void unpack(const uint8_t* in_data, {{ message.name }}_Signals* out_msg);
 {%- endfor %}
+}

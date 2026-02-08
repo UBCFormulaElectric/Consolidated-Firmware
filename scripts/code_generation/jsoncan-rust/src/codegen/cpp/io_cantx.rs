@@ -7,14 +7,14 @@ use crate::{
 };
 
 #[derive(Template)]
-#[template(path = "io_canTx.c.j2")]
+#[template(path = "io_canTx.cpp.j2")]
 struct IoCanTxModuleSource<'a> {
     node_buses: &'a Vec<&'a CanBus>,
     messages: &'a Vec<(CanMessage, Vec<String>)>,
 }
 
 #[derive(Template)]
-#[template(path = "io_canTx.h.j2")]
+#[template(path = "io_canTx.hpp.j2")]
 struct IoCanTxModuleHeader<'a> {
     node_buses: &'a Vec<&'a CanBus>,
     messages: &'a Vec<(CanMessage, Vec<String>)>,
@@ -50,6 +50,9 @@ impl IoCanTxModule<'_> {
 }
 
 impl CPPGenerator for IoCanTxModule<'_> {
+    fn file_stem(&self) -> String {
+        "io_canTx".to_string()
+    }
     fn header_template(&self) -> Result<String, askama::Error> {
         IoCanTxModuleHeader {
             messages: &self.messages,
