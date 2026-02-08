@@ -1,23 +1,18 @@
-#pragma once 
+#pragma once
 
-namespace io {
-class PCM {
-public: 
-    /**
-     * Enable the PCM.
-     * @param enable Whether or not to enable the PCM.
-     */
-    void pcm_set(bool enable);
+namespace io::pcm
+{
 
-    /**
-     * Toggle the PCM.
-     */
-    void pcm_toggle();
+/**
+ * Enable the PCM.
+ * @param enable Whether or not to enable the PCM.
+ */
+void set(bool enable);
 
-    /**
-     * Check if the PCM is enabled.
-     * @return true if the PCM is enabled, false otherwise.
-     */
-    bool pcm_enabled();
-};
-} // namespace io
+/**
+ * Check if the PCM is enabled.
+ * @return true if the PCM is enabled, false otherwise.
+ */
+bool enabled();
+
+}; // namespace io::pcm
