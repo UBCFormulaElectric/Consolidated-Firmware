@@ -1,4 +1,5 @@
 #include "jobs.hpp"
+#include "hw_bootup.hpp"
 
 #include "app_apps.hpp"
 #include "app_brake.hpp"
