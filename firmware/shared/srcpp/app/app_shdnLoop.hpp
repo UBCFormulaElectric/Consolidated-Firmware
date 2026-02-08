@@ -1,5 +1,7 @@
 #pragma once
+#include <cstddef>
 #include <array>
+
 #include "io_shdnLoopNode.hpp"
 
 namespace app::shdn
