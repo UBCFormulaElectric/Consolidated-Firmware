@@ -1,5 +1,6 @@
-#include <assert.h>
-#include <string.h>
+#include <cassert>
+#include <cstring>
+
 #include "io_telemMessage.hpp"
 namespace
 {
@@ -29,7 +30,8 @@ uint32_t payloadSizeFromDlc(uint32_t dlc)
     {
         return 64;
     }
-    assert(dlc <= 15);
+    // Throw error
+    assert(false);
     return 0;
 }
 

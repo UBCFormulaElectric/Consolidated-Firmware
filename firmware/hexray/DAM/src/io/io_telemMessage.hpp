@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include "io_canMsg.hpp"
 
 extern "C"
