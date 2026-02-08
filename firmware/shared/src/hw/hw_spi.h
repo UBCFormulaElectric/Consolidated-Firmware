@@ -1,19 +1,8 @@
 #pragma once
 
-#ifdef __cplusplus
-#include "util_errorCodes.hpp"
-extern "C"
-{
-#else
-#include "util_errorCodes.h"
-#endif
-
 #include "hw_gpio.h"
 #include "main.h"
-
-#ifdef __cplusplus
-} // extern "C"
-#endif
+#include "util_errorCodes.h"
 
 typedef struct
 {
