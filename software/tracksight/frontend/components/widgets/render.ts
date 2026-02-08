@@ -1,6 +1,5 @@
 import { RefObject } from "react";
 import { ENUM_COLORS, NA_COLOR } from "@/components/widgets/signalColors";
-import { TimeRange } from "@/components/SyncedGraphContainer";
 
 // first index where timestamp >= targetTime
 function binarySearchForFirstVisibleIndex(
@@ -46,6 +45,7 @@ function binarySearchForLastVisibleIndex(
 
 // first enum index where the enum's end time (timestamps[i+1]) >= targetTime
 function binarySearchForFirstEnumIndex(
+
     timestamps: number[],
     targetTime: number
 ): number {
@@ -106,6 +106,21 @@ export interface ChartLayout {
     paddingLeft: number;
 }
 
+export interface DownsampleOptions {
+    minVisiblePoints: number;
+    minPointsPerPixel: number;
+}
+
+// THIS IS FOR DEBUG! we will remove this when downsampling is fully implemented and tested, to avoid confusion about which numbers are real vs estimated.
+// but for now we want to expose this info for testing and validation purpose s i think
+export interface DownsampleInfo {
+    seriesLabel?: string;
+    visiblePoints: number;
+    renderedPoints: number;
+    pointsPerPixel: number;
+    downsampled: boolean;
+}
+
 const timeFormatter = new Intl.DateTimeFormat(undefined, {
     hour: "numeric",
     minute: "2-digit",
@@ -123,7 +138,9 @@ export default function render(context: CanvasRenderingContext2D, width: number,
     series: SeriesMeta[], timeTickCount: number, externalHoverTimestamp: number | null,
     hoverPixelRef: RefObject<{ x: number; y: number; } | null>, tooltipBufferRef: RefObject<string[]>,
     layoutRef: RefObject<ChartLayout | null>, visibleTimeRange: { min: number; max: number },
-    scalingMode: "absolute" | "relative" = "absolute"
+    scalingMode: "absolute" | "relative" = "absolute",
+    downsampleOptions: DownsampleOptions = { minVisiblePoints: 50_000, minPointsPerPixel: 8 },
+    downsampleInfoRef?: RefObject<DownsampleInfo | null>
 ) {
     context.clearRect(0, 0, width, height);
 
@@ -161,6 +178,8 @@ export default function render(context: CanvasRenderingContext2D, width: number,
         timestamps,
         visibleEndTime
     );
+
+    const visiblePointCount = Math.max(0, endIndex - startIndex + 1);
 
     // data ranges - only use visible range
     const minTime = visibleStartTime;
@@ -272,10 +291,7 @@ export default function render(context: CanvasRenderingContext2D, width: number,
     let globalMax = -Infinity;
 
     if (hasNumerical) {
-        const computeVisibleRange = (
-            dataPoints: (number | string | null)[],
-            stats?: ChunkStats
-        ) => {
+        const computeVisibleRange = ( dataPoints: (number | string | null)[], stats?: ChunkStats) => {
             if (startIndex > endIndex) return { min: Infinity, max: -Infinity };
 
             const windowSize = endIndex - startIndex + 1;
@@ -334,6 +350,52 @@ export default function render(context: CanvasRenderingContext2D, width: number,
             const tailStart = Math.max(endChunk * chunkSize, startChunkEnd + 1);
             if (tailStart <= endIndex) {
                 scanRange(tailStart, endIndex);
+            }
+
+            return { min: localMin, max: localMax };
+        };
+
+        // for downsampling
+        const computeMinMaxInIndexRange = ( dataPoints: (number | string | null)[], fromIndex: number, toIndex: number, stats?: ChunkStats) => {
+            if (fromIndex > toIndex) return { min: Infinity, max: -Infinity };
+
+            let localMin = Infinity;
+            let localMax = -Infinity;
+
+            const scanRange = (from: number, to: number) => {
+                for (let i = from; i <= to; i++) {
+                    const value = dataPoints[i];
+                    if (value === null || value === undefined || typeof value === "string") continue;
+                    if (value < localMin) localMin = value;
+                    if (value > localMax) localMax = value;
+                }
+            };
+
+            const windowSize = toIndex - fromIndex + 1;
+            const shouldUseChunks = chunkSize > 0 && stats && windowSize > chunkSize * 2;
+            if (!shouldUseChunks) {
+                scanRange(fromIndex, toIndex);
+                return { min: localMin, max: localMax };
+            }
+
+            const startChunk = Math.floor(fromIndex / chunkSize);
+            const endChunk = Math.floor(toIndex / chunkSize);
+
+            const startChunkEnd = Math.min((startChunk + 1) * chunkSize - 1, toIndex);
+            scanRange(fromIndex, startChunkEnd);
+
+            if (endChunk > startChunk + 1) {
+                for (let chunk = startChunk + 1; chunk <= endChunk - 1; chunk++) {
+                    const chunkMin = stats.min[chunk];
+                    const chunkMax = stats.max[chunk];
+                    if (Number.isFinite(chunkMin) && chunkMin < localMin) localMin = chunkMin;
+                    if (Number.isFinite(chunkMax) && chunkMax > localMax) localMax = chunkMax;
+                }
+            }
+
+            const tailStart = Math.max(endChunk * chunkSize, startChunkEnd + 1);
+            if (tailStart <= toIndex) {
+                scanRange(tailStart, toIndex);
             }
 
             return { min: localMin, max: localMax };
@@ -488,11 +550,144 @@ export default function render(context: CanvasRenderingContext2D, width: number,
         context.rect(padding.left, numericalTop, chartWidth, chartHeight);
         context.clip();
 
+        const drawDownsampledEnvelope = ( dataPoints: (number | string | null)[], stats: ChunkStats | undefined, rangeMin: number, rangeMax: number, strokeStyle: string) => {
+            const drawStartIndex = Math.max(0, startIndex - 1);
+            const drawEndIndex = Math.min((timestamps.length ?? 0) - 1, endIndex + 1);
+            if (drawStartIndex > drawEndIndex) return;
+
+            const pixelWidth = Math.max(1, Math.floor(chartWidth));
+            const pointCount = drawEndIndex - drawStartIndex + 1;
+            const pointsPerPixel = pointCount / pixelWidth;
+            const shouldDownsample = pointsPerPixel > downsampleOptions.minPointsPerPixel && pointCount > downsampleOptions.minVisiblePoints;
+
+            if (!shouldDownsample) return { used: false, renderedPoints: pointCount, pointsPerPixel };
+
+            const drawSegment = (seg: Array<{ x: number; yMin: number; yMax: number }>) => {
+                if (seg.length < 2) return;
+
+                // filled band
+                context.save();
+                context.globalAlpha = 0.18;
+                context.fillStyle = strokeStyle;
+                context.beginPath();
+                context.moveTo(seg[0].x, seg[0].yMax);
+                for (let i = 1; i < seg.length; i++) {
+                    context.lineTo(seg[i].x, seg[i].yMax);
+                }
+                for (let i = seg.length - 1; i >= 0; i--) {
+                    context.lineTo(seg[i].x, seg[i].yMin);
+                }
+                context.closePath();
+                context.fill();
+                context.restore();
+
+                // band outlines
+                context.strokeStyle = strokeStyle;
+                context.lineWidth = 1.25;
+                context.beginPath();
+                context.moveTo(seg[0].x, seg[0].yMax);
+                for (let i = 1; i < seg.length; i++) {
+                    context.lineTo(seg[i].x, seg[i].yMax);
+                }
+                context.stroke();
+
+                context.beginPath();
+                context.moveTo(seg[0].x, seg[0].yMin);
+                for (let i = 1; i < seg.length; i++) {
+                    context.lineTo(seg[i].x, seg[i].yMin);
+                }
+                context.stroke();
+            };
+
+            // thanks claude for the following code; i am ngl i don't know too much about how the bucketing acutally works but i think
+            // it does! yay! - jaden
+
+            const seg: Array<{ x: number; yMin: number; yMax: number }> = [];
+            let renderedBuckets = 0;
+
+            // Use stable, time-aligned buckets so scrolling doesn't shift bucket boundaries every frame
+            // Bucket width is roughly one pixel-worth of time but anchored to an absolute time grid
+            const bucketDt = timeRange / pixelWidth;
+            if (!(bucketDt > 0) || !Number.isFinite(bucketDt)) {
+                return { used: false, renderedPoints: pointCount, pointsPerPixel };
+            }
+
+            const bucketIndexStart = Math.floor(minTime / bucketDt);
+            const bucketIndexEnd = Math.ceil(maxTime / bucketDt) - 1;
+            const maxBuckets = Math.max(1, pixelWidth + 4);
+            const bucketCount = Math.min(maxBuckets, Math.max(0, bucketIndexEnd - bucketIndexStart + 1));
+
+            for (let b = 0; b < bucketCount; b++) {
+                const idx = bucketIndexStart + b;
+                const tLeft = idx * bucketDt;
+                const tRight = tLeft + bucketDt;
+
+                let i0 = binarySearchForFirstVisibleIndex(timestamps, tLeft);
+                let i1 = binarySearchForFirstVisibleIndex(timestamps, tRight) - 1;
+
+                i0 = Math.max(i0, drawStartIndex);
+                i1 = Math.min(i1, drawEndIndex);
+
+                if (i0 > i1) {
+                    // gap: flush current segment
+                    drawSegment(seg);
+                    seg.length = 0;
+                    continue;
+                }
+
+                const { min, max } = computeMinMaxInIndexRange(dataPoints, i0, i1, stats);
+                if (!Number.isFinite(min) || !Number.isFinite(max)) {
+                    drawSegment(seg);
+                    seg.length = 0;
+                    continue;
+                }
+
+                // Place the bucket at its mid-time. This keeps x positions stable while scrolling.
+                const x = timeToX((tLeft + tRight) / 2);
+                if (x < padding.left || x > width - padding.right) {
+                    continue;
+                }
+                const yMin = valueToY(min, rangeMin, rangeMax);
+                const yMax = valueToY(max, rangeMin, rangeMax);
+
+                // Ensure yMin is the lower line in screen coords (larger value is lower on canvas)
+                const low = Math.max(yMin, yMax);
+                const high = Math.min(yMin, yMax);
+                seg.push({ x, yMin: low, yMax: high });
+                renderedBuckets += 1;
+            }
+
+            drawSegment(seg);
+            return { used: true, renderedPoints: renderedBuckets, pointsPerPixel };
+        };
+
         // draw data series
         numericalSeriesIndices.forEach((seriesIndex) => {
             const dataPoints = seriesData[seriesIndex];
             const meta = series[seriesIndex];
             const range = seriesRanges[seriesIndex];
+
+            const downsampleResult = drawDownsampledEnvelope(
+                dataPoints,
+                chunkStats[seriesIndex],
+                range.min,
+                range.max,
+                meta?.color || "#000"
+            );
+
+            if (downsampleInfoRef) {
+                downsampleInfoRef.current = {
+                    seriesLabel: meta?.label,
+                    visiblePoints: visiblePointCount,
+                    renderedPoints: downsampleResult?.used
+                        ? downsampleResult.renderedPoints
+                        : visiblePointCount,
+                    pointsPerPixel: downsampleResult?.pointsPerPixel ?? 0,
+                    downsampled: Boolean(downsampleResult?.used),
+                };
+            }
+
+            if (downsampleResult?.used) return;
 
             const drawStartIndex = Math.max(0, startIndex - 1);
             const drawEndIndex = Math.min(timestamps.length - 1, endIndex + 1);

@@ -1,12 +1,14 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, RefObject, ReactNode } from "react";
-import { usePausePlay } from "./PausePlayControl";
+import { usePausePlay } from "@/components/PausePlayControl";
 
 export type SyncedGraphContext = {
     scalePxPerSecRef: RefObject<number>;
     hoverTimestamp: RefObject<number | null>;
+    setHoverTimestamp: (ts: number | null) => void;
     timeRangeRef: RefObject<TimeRange | null>;
     setTimeRange: (tr: TimeRange) => void;
     scrollLeftRef: RefObject<number>;
+    subscribeInvalidate: (fn: () => void) => () => void;
 };
 // eslint-disable-next-line no-redeclare
 const SyncedGraphContext = createContext<SyncedGraphContext | null>(null);
@@ -67,6 +69,29 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
 
     const offsetRef = useRef<number>(0);
 
+    // set of listeners
+    const invalidateListenersRef = useRef<Set<() => void>>(new Set());
+    const invalidateAll = useCallback(() => {
+        invalidateListenersRef.current.forEach((fn) => {
+            try {
+                fn();
+            } catch {
+                // ignore listener errors
+            }
+        });
+    }, []);
+
+    const subscribeInvalidate = useCallback((fn: () => void) => {
+        invalidateListenersRef.current.add(fn);
+        return () => invalidateListenersRef.current.delete(fn);
+    }, []);
+
+    const setHoverTimestamp = useCallback((ts: number | null) => {
+        if (hoverTimestamp.current === ts) return;
+        hoverTimestamp.current = ts;
+        invalidateAll();
+    }, [invalidateAll]);
+
     // zoom management (attach wheel listener to the scroll container)
     const scalePxPerSec = useZoomManager(scrollContainerRef);
     const scalePxPerSecRef = useRef<number>(scalePxPerSec);
@@ -83,13 +108,17 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
 
             container.scrollLeft = scrollLeftRef.current;
             contentRef.current.style.width = `${width}px`;
+
+            // width/scroll changes affect visible window
+            invalidateAll();
         }
-    }, []);
+    }, [invalidateAll]);
 
     // Update width when zoom changes
     useEffect(() => {
         scalePxPerSecRef.current = scalePxPerSec;
         updateGraphWidth();
+        invalidateAll();
     }, [scalePxPerSec, updateGraphWidth]);
 
     // update timeRange and width without triggering a re-render
@@ -98,6 +127,7 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
         if (!current || current.min !== tr.min || current.max !== tr.max) {
             timeRangeRef.current = tr;
             updateGraphWidth();
+            invalidateAll();
         }
     }, [updateGraphWidth]);
 
@@ -108,23 +138,25 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
         if (!container) return;
 
         const handleScroll = () => {
-            if (!isPaused) return;
             scrollLeftRef.current = container.scrollLeft;
+            invalidateAll();
         };
 
         container.addEventListener("scroll", handleScroll, { passive: true });
         return () => {
             container.removeEventListener("scroll", handleScroll);
         };
-    }, [isPaused]);
+    }, [isPaused, invalidateAll]);
 
     const CTXVAL = useMemo<SyncedGraphContext>(() => ({
         scalePxPerSecRef,
         hoverTimestamp,
+        setHoverTimestamp,
         timeRangeRef,
         setTimeRange,
-        scrollLeftRef
-    }), [setTimeRange]);
+        scrollLeftRef,
+        subscribeInvalidate,
+    }), [setTimeRange, setHoverTimestamp, subscribeInvalidate]);
 
     return (
         <SyncedGraphContext.Provider value={CTXVAL}>

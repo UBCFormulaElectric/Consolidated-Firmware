@@ -2,7 +2,7 @@
 
 // import AlertBoard from "@/components/shared/AlertBoard/AlertBoard";
 // import ConnectionStatus from "@/components/pages/live-data/ConnectionStatus";
-import { DisplayControlProvider } from "@/components/PausePlayControl";
+import { DisplayControlProvider, DownsampleControls, PausePlayButton } from "@/components/PausePlayControl";
 import SyncedGraphContainer from "@/components/SyncedGraphContainer";
 import { SignalProvider } from "@/lib/contexts/SignalContext";
 import { WidgetAdder } from "@/components/WidgetAdder";
@@ -24,7 +24,12 @@ export default function LiveDataPage() {
     <DisplayControlProvider> {/* not so sure actually (OLD) */}
       <SignalProvider> {/* provides signal data (OLD) */}
         <SyncedGraphContainer>
-          {/** TODO(evan): Add pause / play button here */}
+          <div className="sticky top-0 left-0 z-50 w-screen bg-white/80 backdrop-blur border-b">
+            <div className="px-4 py-2 flex items-center gap-3">
+              <PausePlayButton />
+              <DownsampleControls />
+            </div>
+          </div>
           {/** TODO(evan): Add the universal timeline here */}
           {/* TODO rework alerts */}
           {/* <h2 className="text-xl font-bold mb-2">Alerts</h2> */}

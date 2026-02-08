@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo, useRef, memo, FormEvent, useCallback } from "react";
 import CanvasChart, { AlignedData } from "@/components/widgets/CanvasChart";
-import { usePausePlay, PausePlayButton } from "@/components/PausePlayControl";
+import { usePausePlay, DownsampleControls } from "@/components/PausePlayControl";
 import { PlusButton } from "@/components/PlusButton";
 import { MockGraphConfig, WidgetDataMock, WidgetData } from "@/lib/types/Widget";
 import { signalColors } from "@/components/widgets/signalColors";
@@ -189,14 +189,11 @@ const MockWidget = memo(({ widgetData, updateWidget, onDelete }:
         }
     }, [configs, onDelete, updateWidget, widgetData.id]);
 
-    const totalDataPoints = dataRef.current.timestamps.length;
-
     return (
         <div className="mb-6 p-4 block w-full relative border border-red-500">
             <div className="sticky left-0 block w-[50vw] animate-none overscroll-contain z-40">
                 <div className="flex items-center gap-2 mb-4">
                     <h3 className="font-semibold">Mock Graph Container (Widget)</h3>
-                    <PausePlayButton />
                     <button
                         onClick={onDelete}
                         className="w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-sm font-bold transition-colors"

@@ -2,6 +2,8 @@
 // note to self: updatemockconfig -> mockwidgets, then pass setwidgets in
 
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
+import { useDisplayControl } from "@/components/PausePlayControl";
+
 import render, {
   ChartLayout,
   ChunkStats,
@@ -49,12 +51,13 @@ export default function CanvasChart({
   scalingMode?: "absolute" | "relative";
 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const animationFrameId = useRef<number | null>(null);
+  const scheduledFrameIdRef = useRef<number | null>(null);
   const hoverPixelRef = useRef<{ x: number; y: number } | null>(null);
   const tooltipBufferRef = useRef<string[]>([]);
   const layoutRef = useRef<ChartLayout | null>(null);
 
-  const { scalePxPerSecRef, timeRangeRef, scrollLeftRef, hoverTimestamp: externalHoverTimestampRef, } = useSyncedGraph();
+  const { scalePxPerSecRef, timeRangeRef, scrollLeftRef, hoverTimestamp: externalHoverTimestampRef, setHoverTimestamp, subscribeInvalidate, } = useSyncedGraph();
+  const { downsampleOptions, downsampleInfoRef } = useDisplayControl();
   const [containerWidth, setContainerWidth] = useState(0);
 
   // handle resize of the container
@@ -158,66 +161,100 @@ export default function CanvasChart({
     };
   }, [data]);
 
-  useEffect(() => {
+  const drawOnce = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const context = canvas.getContext("2d");
     if (!context) return;
-    const render_call = () => {
-      const dpr = window.devicePixelRatio || 1;
 
-      // transform to the original size
-      context.setTransform(1, 0, 0, 1, 0, 0);
-      context.scale(dpr, dpr);
+    const dpr = window.devicePixelRatio || 1;
 
-      const scrollLeft = scrollLeftRef.current;
-      const scale = scalePxPerSecRef.current;
-      const globalTimeRange = timeRangeRef.current;
-      const externalHoverTimestamp = externalHoverTimestampRef.current;
+    // transform to the original size
+    context.setTransform(1, 0, 0, 1, 0, 0);
+    context.scale(dpr, dpr);
 
-      if (globalTimeRange) {
-        const visibleStartTime = globalTimeRange.min + scrollLeft / scale;
-        const visibleEndTime = visibleStartTime + containerWidth / scale;
+    const scrollLeft = scrollLeftRef.current;
+    const scale = scalePxPerSecRef.current;
+    const globalTimeRange = timeRangeRef.current;
+    const externalHoverTimestamp = externalHoverTimestampRef.current;
 
-        const visibleTimeRange = { min: visibleStartTime, max: visibleEndTime };
+    if(!globalTimeRange) return;
 
-        render(
-          context,
-          containerWidth,
-          height,
-          preparedData,
-          series,
-          timeTickCount,
-          externalHoverTimestamp,
-          hoverPixelRef,
-          tooltipBufferRef,
-          layoutRef,
-          visibleTimeRange,
-          scalingMode
-        );
-      }
+    let visibleStartTime: number;
+    let visibleEndTime: number;
 
-      animationFrameId.current = requestAnimationFrame(render_call);
-    };
-    animationFrameId.current = requestAnimationFrame(render_call);
-    return () => {
-      if (animationFrameId.current === null) return;
-      cancelAnimationFrame(animationFrameId.current);
-      animationFrameId.current = null;
-    };
+    if (!(scale > 0) || !Number.isFinite(scale) || containerWidth <= 0) {
+      visibleStartTime = globalTimeRange.min;
+      visibleEndTime = globalTimeRange.max;
+    } else {
+      visibleStartTime = globalTimeRange.min + scrollLeft / scale;
+      visibleEndTime = visibleStartTime + containerWidth / scale;
+    }
+
+    const visibleTimeRange = { min: visibleStartTime, max: visibleEndTime };
+
+    render(
+      context,
+      containerWidth,
+      height,
+      preparedData,
+      series,
+      timeTickCount,
+      externalHoverTimestamp,
+      hoverPixelRef,
+      tooltipBufferRef,
+      layoutRef,
+      visibleTimeRange,
+      scalingMode,
+      downsampleOptions,
+      downsampleInfoRef
+    );
   }, [
+    containerWidth,
+    height,
     preparedData,
     series,
-    height,
-    containerWidth,
     timeTickCount,
-    onHoverTimestampChange,
+    scalingMode,
+    downsampleOptions,
+    downsampleInfoRef,
+    scrollLeftRef,
     scalePxPerSecRef,
     timeRangeRef,
-    scrollLeftRef,
     externalHoverTimestampRef,
-    scalingMode,
   ]);
+
+  const invalidate = useCallback(() => {
+    if (scheduledFrameIdRef.current !== null) return;
+    scheduledFrameIdRef.current = requestAnimationFrame(() => {
+      scheduledFrameIdRef.current = null;
+      drawOnce();
+    });
+  }, [drawOnce]);
+
+  useEffect(() => {
+    // redraw on any global invalidation (scroll/zoom/timeRange/hover)
+    const unsubscribe = subscribeInvalidate(invalidate);
+    // initial draw
+    invalidate();
+    return () => {
+      unsubscribe();
+    };
+  }, [subscribeInvalidate, invalidate]);
+
+  // redraw when local inputs change (data/size/options)
+  useEffect(() => {
+    invalidate();
+  }, [invalidate, preparedData, containerWidth, height, series, timeTickCount, scalingMode, downsampleOptions]);
+
+  useEffect(() => {
+    return () => {
+      if (scheduledFrameIdRef.current !== null) {
+        cancelAnimationFrame(scheduledFrameIdRef.current);
+        scheduledFrameIdRef.current = null;
+      }
+    };
+  }, []);
 
   const handleMouseMove = useCallback(
     (event: MouseEvent_React<HTMLCanvasElement, MouseEvent>) => {
@@ -233,24 +270,27 @@ export default function CanvasChart({
         if (chartWidth > 0) {
           const calculatedTime = minTime + ((x - paddingLeft) / chartWidth) * timeRange;
 
-          externalHoverTimestampRef.current = calculatedTime;
+          setHoverTimestamp(calculatedTime);
 
           if (onHoverTimestampChange) {
             onHoverTimestampChange(calculatedTime);
           }
+
+          invalidate();
         }
       }
     },
-    [onHoverTimestampChange, externalHoverTimestampRef]
+    [onHoverTimestampChange, setHoverTimestamp, invalidate]
   );
 
   const handleMouseLeave = useCallback(() => {
     hoverPixelRef.current = null;
-    externalHoverTimestampRef.current = null;
+    setHoverTimestamp(null);
     if (onHoverTimestampChange) {
       onHoverTimestampChange(null);
     }
-  }, [onHoverTimestampChange, externalHoverTimestampRef]);
+    invalidate();
+  }, [onHoverTimestampChange, setHoverTimestamp, invalidate]);
 
   if (containerWidth === 0) {
     return <canvas className="block w-full" ref={canvasRef} style={{ height }} />;
