@@ -1,4 +1,5 @@
 #pragma once
+
 #include <optional>
 #include <functional>
 
@@ -23,6 +24,14 @@ extern "C"
 
 #ifdef HAL_SPI_MODULE_ENABLED
 #include "hw_spi.hpp"
+#endif
+
+#ifdef HAL_UART_MODULE_ENABLED
+#include "hw_uart.hpp"
+#endif
+
+#ifdef HAL_TIM_MODULE_ENABLED
+#include "hw_pwmOutput.hpp"
 #endif
 
 namespace chimera_v2
@@ -74,6 +83,26 @@ class config
   public:
     // A table of Protobuf-generated net names to SPI peripherals.
     virtual std::optional<std::reference_wrapper<const hw::spi::SpiDevice>> id_to_spi(const _SpiNetName *snn) const = 0;
+#endif
+
+#ifdef HAL_UART_MODULE_ENABLED
+  protected:
+    // The Protobuf-generated tag for the board's UART pins, defined in shared.pb.h.
+    pb_size_t uart_net_name_tag{};
+
+  public:
+    // A table of Protobuf-generated net names to UART peripherals.
+    virtual std::optional<std::reference_wrapper<const hw::Uart>> id_to_uart(const _UartNetName *unn) const = 0;
+#endif
+
+#ifdef HAL_TIM_MODULE_ENABLED
+  protected:
+    // The Protobuf-generated tag for the board's PWM pins, defined in shared.pb.h.
+    pb_size_t pwm_net_name_tag{};
+
+  public:
+    // A table of Protobuf-generated net names to PWM peripherals.
+    virtual std::optional<std::reference_wrapper<const hw::PwmOutput>> id_to_pwm(const _PwmNetName *pnn) const = 0;
 #endif
 };
 

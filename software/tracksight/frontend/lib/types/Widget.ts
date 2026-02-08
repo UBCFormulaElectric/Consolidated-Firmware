@@ -25,6 +25,8 @@ export interface MockGraphConfig {
   delay: number; // ms
   initialPoints: number;
   signalName: string;
+  min?: number;
+  max?: number;
 }
 
 interface mockProps {

@@ -16,10 +16,10 @@ typedef struct
 
 typedef struct
 {
-    ExitCode accel_x_fault;
-    ExitCode accel_y_fault;
-    ExitCode accel_z_fault;
-    ExitCode gyro_x_fault;
-    ExitCode gyro_y_fault;
-    ExitCode gyro_z_fault;
+    std::expected<void, ErrorCode> accel_x_fault;
+    std::expected<void, ErrorCode> accel_y_fault;
+    std::expected<void, ErrorCode> accel_z_fault;
+    std::expected<void, ErrorCode> gyro_x_fault;
+    std::expected<void, ErrorCode> gyro_y_fault;
+    std::expected<void, ErrorCode> gyro_z_fault;
 } RSMImuFaults;
