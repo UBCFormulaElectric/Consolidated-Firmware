@@ -7,11 +7,13 @@ enum GpioNetName {
   GPIO_LED = 1;
   GPIO_BRAKE_LIGHT_EN= 2;
   GPIO_RL_INT = 3;
-  GPIO_IMU_INT1 = 4;
-  GPIO_IMU_INT2 = 5; 
-  GPIO_BOOT = 6;
+  GPIO_IMU_CS = 4;
+  GPIO_IMU_INT = 5; 
+  GPIO_IMU_FSYNC = 6;
   GPIO_SUSP_TRAVEL_RR_OCSC = 7;
   GPIO_SUSP_TRAVEL_RL_OCSC = 8;
+  GPIO_BRAKE_OCSC_OK = 9;
+  GPIO_D_P_PULLUP = 10;
 }
 
 enum AdcNetName {
@@ -20,10 +22,17 @@ enum AdcNetName {
   ADC_SUSP_TRAVEL_RL_3V3 = 2;
   ADC_SUSP_TRAVEL_RR_3V3 = 3; 
   ADC_BPS_3V3 = 4;
+  ADC_nBSPD_BRAKE_PRESSED = 5;
 }
 
 enum I2cNetName {
   I2C_NET_NAME_UNSPECIFIED = 0;
-  I2C_IMU_I2C = 1;
-  I2C_R_PUMP_I2C = 2;
+  I2C_R_PUMP = 1;
 }
+
+enum SpiNetName {
+  SPI_NET_NAME_UNSPECIFIED = 0;
+  SPI_IMU = 1;
+}
+
+

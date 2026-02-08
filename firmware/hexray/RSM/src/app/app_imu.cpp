@@ -12,12 +12,12 @@ io::imu::Imu imu_config;
 #endif // TARGET_TEST
 namespace app::imu
 {
-static RSMImuFaults imu_faults = { .accel_x_fault = ExitCode::EXIT_CODE_ERROR,
-                                   .accel_y_fault = ExitCode::EXIT_CODE_ERROR,
-                                   .accel_z_fault = ExitCode::EXIT_CODE_ERROR,
-                                   .gyro_x_fault  = ExitCode::EXIT_CODE_ERROR,
-                                   .gyro_y_fault  = ExitCode::EXIT_CODE_ERROR,
-                                   .gyro_z_fault  = ExitCode::EXIT_CODE_ERROR };
+static RSMImuFaults imu_faults = { .accel_x_fault = std::unexpected(ErrorCode::ERROR),
+                                   .accel_y_fault = std::unexpected(ErrorCode::ERROR),
+                                   .accel_z_fault = std::unexpected(ErrorCode::ERROR),
+                                   .gyro_x_fault  = std::unexpected(ErrorCode::ERROR),
+                                   .gyro_y_fault  = std::unexpected(ErrorCode::ERROR),
+                                   .gyro_z_fault  = std::unexpected(ErrorCode::ERROR) };
 
 void broadcast()
 {
@@ -32,12 +32,12 @@ void broadcast()
     imu_faults.gyro_y_fault  = imu_config.getGyroY(gyro_y);
     imu_faults.gyro_z_fault  = imu_config.getGyroZ(gyro_z);
 
-    accel_x = (bool)imu_faults.accel_x_fault ? 0.0f : accel_x;
-    accel_y = (bool)imu_faults.accel_y_fault ? 0.0f : accel_y;
-    accel_z = (bool)imu_faults.accel_z_fault ? 0.0f : accel_z;
-    gyro_x  = (bool)imu_faults.gyro_x_fault ? 0.0f : gyro_x;
-    gyro_y  = (bool)imu_faults.gyro_y_fault ? 0.0f : gyro_y;
-    gyro_z  = (bool)imu_faults.gyro_z_fault ? 0.0f : gyro_z;
+    accel_x = imu_faults.accel_x_fault ? accel_x : 0.0f;
+    accel_y = imu_faults.accel_y_fault ? accel_y : 0.0f;
+    accel_z = imu_faults.accel_z_fault ? accel_z : 0.0f;
+    gyro_x  = imu_faults.gyro_x_fault ? gyro_x : 0.0f;
+    gyro_y  = imu_faults.gyro_y_fault ? gyro_y : 0.0f;
+    gyro_z  = imu_faults.gyro_z_fault ? gyro_z : 0.0f;
 
     io::imu::Imu::AccelData imu_accel_data = { accel_x, accel_y, accel_z };
     io::imu::Imu::GyroData  imu_gyro_data  = { gyro_x, gyro_y, gyro_z };

@@ -104,3 +104,4 @@ static inline int IS_DEBUGGER_PRESENT(void)
 #else
 #error "TARGET_EMBEDDED or TARGET_TEST must be defined"
 #endif
+#undef ERROR
