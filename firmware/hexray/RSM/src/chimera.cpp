@@ -129,8 +129,8 @@ char USBD_PRODUCT_STRING_FS[] = "rsm";
 [[noreturn]] void tasks_init()
 {
     hw_hardFaultHandler_init();
-    hw::gpio::d_p_pullup.writePin(false);
     assert(hw::usb::init());
+    hw::gpio::d_p_pullup.writePin(true); // enable USB D+ pullup
     osKernelInitialize();
     TaskChimera.start();
     osKernelStart();

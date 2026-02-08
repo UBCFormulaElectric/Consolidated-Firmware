@@ -71,4 +71,19 @@ SPI_NET_NAME_UNSPECIFIED: SpiNetName.ValueType
 LED: SpiNetName.ValueType
 SEVEN_SEG: SpiNetName.ValueType
 PWR_CHG: SpiNetName.ValueType
-Global___SpiNetName: typing_extensions.TypeAlias = SpiNetName
+Global___SpiNetName: _TypeAlias = SpiNetName
+
+class _PwmNetName:
+    ValueType = _typing.NewType('ValueType', _builtins.int)
+    V: _TypeAlias = ValueType
+
+class _PwmNetNameEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[_PwmNetName.ValueType], _builtins.type):
+    DESCRIPTOR: _descriptor.EnumDescriptor
+    PWM_NET_NAME_UNSPECIFIED: _PwmNetName.ValueType
+    PWM_LED: _PwmNetName.ValueType
+
+class PwmNetName(_PwmNetName, metaclass=_PwmNetNameEnumTypeWrapper):
+    ...
+PWM_NET_NAME_UNSPECIFIED: PwmNetName.ValueType
+PWM_LED: PwmNetName.ValueType
+Global___PwmNetName: _TypeAlias = PwmNetName

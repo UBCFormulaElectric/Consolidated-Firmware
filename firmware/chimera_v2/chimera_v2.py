@@ -13,6 +13,8 @@ import libusb_package
 
 # Protobuf autogen packages.
 import proto_autogen_hex.dam_pb2
+import proto_autogen_hex.rsm_pb2
+import proto_autogen_hex.vc_pb2
 from proto_autogen_hex import shared_pb2
 
 # Pyvisa Peripherals.
@@ -265,6 +267,57 @@ class _Board:
         """
         return SpiDevice(self, net_name)
 
+    def uart_transmit(self, net_name: str, data: bytes) -> None:
+        """
+
+        :param net_name:
+        :param data:
+        :return:
+        """
+        request = shared_pb2.ChimeraV2Request()
+        setattr(request.uart_transmit.net_name, self._net_name_tag, self.board_module.UartNetName.Value(net_name))
+        request.uart_transmit.data = data
+        self._write(request)
+
+        # Wait for response.
+        response = self._read()
+        assert response.WhichOneof("payload") == "uart_transmit"
+        assert response.uart_transmit.success
+
+    def uart_recieve(self, net_name: str, length: int) -> bytes:
+        """
+
+        :param net_name:
+        :param length:
+        :return:
+        """
+        request = shared_pb2.ChimeraV2Request()
+        setattr(request.uart_receive.net_name, self._net_name_tag, self.board_module.UartNetName.Value(net_name))
+        request.uart_receive.length = length
+        self._write(request)
+
+        # Wait for response.
+        response = self._read()
+        assert response.WhichOneof("payload") == "uart_receive"
+        return response.uart_receive.data
+
+    def pwm_set(self, net_name: str, duty_cycle: float):
+        """
+
+        :param net_name:
+        :param duty_cycle:
+        :return:
+        """
+        request = shared_pb2.ChimeraV2Request()
+        setattr(request.pwm_set.net_name, self._net_name_tag, self.board_module.PwmNetName.Value(net_name))
+        request.pwm_set.duty_cycle = duty_cycle
+        self._write(request)
+
+        # Wait for response.
+        response = self._read()
+        assert response.WhichOneof("payload") == "pwm_set"
+        assert response.pwm_set.success
+
 
 class I2cDevice:
     def __init__(self, owner: _Board, net_name: str):
@@ -508,23 +561,12 @@ class RSM(_Board):
         )
 
 
-class CRIT(_Board):
+class VC(_Board):
     def __init__(self):
-        """Create an interface to a CRIT board."""
+        """Create an interface to an DAM board."""
 
         super().__init__(
-            usb_device=_UsbDevice(product="crit"),
-            net_name_tag="crit_net_name",
-            board_module=proto_autogen_hex.crit_pb2,
-        )
-
-
-class FSM(_Board):
-    def __init__(self):
-        """Create an interface to an FSM board."""
-
-        super().__init__(
-            usb_device=_UsbDevice(product="fsm"),
-            net_name_tag="fsm_net_name",
-            board_module=proto_autogen_hex.fsm_pb2,
+            usb_device=_UsbDevice(product="vc"),
+            net_name_tag="vc_net_name",
+            board_module=proto_autogen_hex.vc_pb2,
         )

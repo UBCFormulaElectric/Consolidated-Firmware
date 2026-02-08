@@ -3,6 +3,7 @@
 #include "hw_hal.hpp"
 #include <hw_pwmOutput.h>
 #include <cstdint>
+#include "util_errorCodes.hpp"
 
 /*
  * The PWM output driver is designed to generate a PWM signal on a specific timer channel.
@@ -22,7 +23,7 @@ class PwmOutput
   private:
     TIM_HandleTypeDef *htim;
     uint32_t           pwm_channel;
-    float              duty_cycle;   // Duty cycle as a percent (0.0 to 100.0)
+    mutable float      duty_cycle;   // Duty cycle as a percent (0.0 to 100.0)
     float              frequency_hz; // Desired PWM frequency
 
   public:
@@ -37,23 +38,23 @@ class PwmOutput
     /**
      * @brief Start the PWM output.
      */
-    void start();
+    std::expected<void, ErrorCode> start() const;
 
     /**
      * @brief Stop the PWM output.
      */
-    void stop();
+    std::expected<void, ErrorCode> stop() const;
 
     /**
      * @brief Set the duty cycle of the PWM output.
-     * @param duty_cycle The duty cycle as a percent (0.0 to 100.0).
+     * @param duty_cycle_in The duty cycle as a percent (0.0 to 100.0).
      */
-    void setDutyCycle(float duty_cycle);
+    std::expected<void, ErrorCode> setDutyCycle(float duty_cycle_in) const;
 
     /**
      * @brief Set the frequency of the PWM output.
-     * @param frequency_hz The desired PWM frequency in Hz.
+     * @param frequency_hz_in The desired PWM frequency in Hz.
      */
-    void getFrequency(float frequency_hz);
+    void getFrequency(float frequency_hz_in);
 };
 } // namespace hw

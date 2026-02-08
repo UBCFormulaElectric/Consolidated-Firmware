@@ -84,19 +84,16 @@ ADC_APPS1: AdcNetName.ValueType
 Global___AdcNetName: typing_extensions.TypeAlias = AdcNetName
 
 class _SpiNetName:
-    ValueType = typing.NewType("ValueType", builtins.int)
-    V: typing_extensions.TypeAlias = ValueType
+    ValueType = _typing.NewType('ValueType', _builtins.int)
+    V: _TypeAlias = ValueType
 
-class _SpiNetNameEnumTypeWrapper(
-    google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_SpiNetName.ValueType],
-    builtins.type,
-):
-    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+class _SpiNetNameEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[_SpiNetName.ValueType], _builtins.type):
+    DESCRIPTOR: _descriptor.EnumDescriptor
     SPI_NET_NAME_UNSPECIFIED: _SpiNetName.ValueType
     SPI_IMU: _SpiNetName.ValueType
 
-class SpiNetName(_SpiNetName, metaclass=_SpiNetNameEnumTypeWrapper): ...
-
+class SpiNetName(_SpiNetName, metaclass=_SpiNetNameEnumTypeWrapper):
+    ...
 SPI_NET_NAME_UNSPECIFIED: SpiNetName.ValueType
 SPI_IMU: SpiNetName.ValueType
-Global___SpiNetName: typing_extensions.TypeAlias = SpiNetName
+Global___SpiNetName: _TypeAlias = SpiNetName
