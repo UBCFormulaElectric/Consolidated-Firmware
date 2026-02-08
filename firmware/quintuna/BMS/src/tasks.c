@@ -111,7 +111,6 @@ void tasks_init(void)
 
     jobs_init();
     adbms_init();
-    ;
     io_canTx_BMS_Bootup_sendAperiodic(); // TODO do this in jobs_init
 }
 

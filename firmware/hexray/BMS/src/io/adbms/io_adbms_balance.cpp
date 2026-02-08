@@ -3,12 +3,12 @@
 
 namespace io::adbms
 {
-ExitCode sendBalanceCmd()
+std::expected<void, ErrorCode> sendBalanceCmd()
 {
     return sendCmd(UNMUTE);
 }
 
-ExitCode sendStopBalanceCmd()
+std::expected<void, ErrorCode> sendStopBalanceCmd()
 {
     return sendCmd(MUTE);
 }

@@ -110,17 +110,19 @@ namespace adbms
         EvenChannels
     };
 
-    void     readConfigurationRegisters(SegmentConfig configs[io::NUM_SEGMENTS], ExitCode success[io::NUM_SEGMENTS]);
-    ExitCode writeConfigurationRegisters(SegmentConfig config[io::NUM_SEGMENTS]);
-    ExitCode sendBalanceCommand(void);
-    ExitCode sendStopBalanceCommand(void);
-    void     readVoltageRegisters(
-            uint16_t cell_voltage_regs[io::NUM_SEGMENTS][io::CELLS_PER_SEGMENT],
-            ExitCode comm_success[io::NUM_SEGMENTS][io::CELLS_PER_SEGMENT]);
-    ExitCode startCellsAdcConversion(void);
-    ExitCode pollCellsAdcConversion(void);
-    void     wakeup(void);
-    ExitCode pollAdcConversions(void);
+    void readConfigurationRegisters(
+        SegmentConfig                  configs[NUM_SEGMENTS],
+        std::expected<void, ErrorCode> success[NUM_SEGMENTS]);
+    std::expected<void, ErrorCode> writeConfigurationRegisters(SegmentConfig config[NUM_SEGMENTS]);
+    std::expected<void, ErrorCode> sendBalanceCommand();
+    std::expected<void, ErrorCode> sendStopBalanceCommand();
+    void                           readVoltageRegisters(
+                                  uint16_t                       cell_voltage_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT],
+                                  std::expected<void, ErrorCode> comm_success[NUM_SEGMENTS][CELLS_PER_SEGMENT]);
+    std::expected<void, ErrorCode> startCellsAdcConversion();
+    std::expected<void, ErrorCode> pollCellsAdcConversion();
+    void                           wakeup();
+    std::expected<void, ErrorCode> pollAdcConversions();
 
 } // namespace adbms
 } // namespace io

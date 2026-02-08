@@ -5,11 +5,11 @@
 namespace io::adbms
 {
 
-ExitCode clearStatReg()
+std::expected<void, ErrorCode> clearStatReg()
 {
     RETURN_IF_ERR(sendCmd(CLRFLAG));
     RETURN_IF_ERR(sendCmd(CLOVUV));
-    return ExitCode::EXIT_CODE_OK;
+    return {};
 }
 
 void getStatusReg() {}

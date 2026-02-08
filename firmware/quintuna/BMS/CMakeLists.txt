@@ -34,9 +34,6 @@ file(GLOB_RECURSE HW_SRCS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
 )
 list(APPEND HW_SRCS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/adbms_spis.cpp"
-)
-list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_spi.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
@@ -54,6 +51,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_freeRtosConfigs.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/adbms_spis.cpp"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -63,8 +61,7 @@ list(APPEND ADBMS_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/../../hexray/BMS/src/hw"
         "${CMAKE_CURRENT_SOURCE_DIR}/../../hexray/BMS/src/io/adbms"
 )
-file(GLOB_RECURSE ADBMS_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../../hexray/BMS/src/io/adbms/*.cpp"
-)
+file(GLOB_RECURSE ADBMS_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../../hexray/BMS/src/io/adbms/*.cpp")
 
 if ("${TARGET}" STREQUAL "binary")
     set(ARM_CORE "cm7")
@@ -75,12 +72,9 @@ if ("${TARGET}" STREQUAL "binary")
     endif ()
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS} ${ADBMS_SRCS})
     set(INCLUDE_DIRS
-            ${APP_INCLUDE_DIRS}
-            ${IO_INCLUDE_DIRS}
-            ${HW_INCLUDE_DIRS}
+            ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS}
             ${SHARED_UTIL_INCLUDE_DIR}
-            ${SYSTEM_INCLUDE_DIRS}
-            ${CUBEMX_INCLUDE_DIRS}
+            ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS}
             ${ADBMS_DIRS}
     )
     embedded_binary("quintuna_BMS_app" "${SRCS}" "${INCLUDE_DIRS}" "${LINKER_SCRIPT}" "${ARM_CORE}")

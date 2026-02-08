@@ -7,23 +7,22 @@ namespace io::adbms
 constexpr uint16_t MAX_NUM_ADC_COMPLETE_CHECKS = 10;
 constexpr uint8_t  ADC_CONV_INCOMPLETE         = 0xFF;
 
-ExitCode pollAdcConversions(void)
+std::expected<void, ErrorCode> pollAdcConversions()
 {
     for (uint32_t num_attempts = 0U; num_attempts < MAX_NUM_ADC_COMPLETE_CHECKS; num_attempts++)
     {
         uint8_t rx_data;
-        RETURN_IF_ERR(poll(io::adbms::PLADC, &rx_data, sizeof(rx_data)));
+        poll(PLADC, &rx_data, sizeof(rx_data));
 
         if (rx_data != ADC_CONV_INCOMPLETE)
         {
-            return ExitCode::EXIT_CODE_OK;
+            return {};
         }
     }
-
-    return ExitCode::EXIT_CODE_TIMEOUT;
+    return std::unexpected(ErrorCode::TIMEOUT);
 }
 
-void wakeup(void)
+void wakeup()
 {
     sendCmd(RDCFGA);
 }

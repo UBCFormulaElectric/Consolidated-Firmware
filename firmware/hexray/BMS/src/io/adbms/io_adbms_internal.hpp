@@ -84,10 +84,10 @@ constexpr uint16_t CH0 = (1U << 0);
 
 /**
  * Sends the given command.
- * @param command The command to send
+ * @param cmd The command to send
  * @return success of operation
  */
-ExitCode sendCmd(uint16_t command);
+std::expected<void, ErrorCode> sendCmd(uint16_t cmd);
 
 /**
  * Send a poll command (see Table 45)
@@ -95,7 +95,7 @@ ExitCode sendCmd(uint16_t command);
  * @param poll_buf Buffer to store the polled data
  * @param poll_buf_len Length of the poll buffer
  */
-ExitCode poll(uint16_t cmd, uint8_t *poll_buf, uint16_t poll_buf_len);
+std::expected<void, ErrorCode> poll(uint16_t cmd, uint8_t *poll_buf, uint16_t poll_buf_len);
 
 /**
  * Send a read reg group command and receive the values (see Table 47).
@@ -104,9 +104,9 @@ ExitCode poll(uint16_t cmd, uint8_t *poll_buf, uint16_t poll_buf_len);
  * @param comm_success Buffer to store the success of communication for each segment
  */
 void readRegGroup(
-    uint16_t cmd,
-    uint8_t  regs[io::NUM_SEGMENTS][io::adbms::REG_GROUP_SIZE],
-    ExitCode comm_success[io::NUM_SEGMENTS]);
+    uint16_t                       cmd,
+    uint8_t                        regs[NUM_SEGMENTS][REG_GROUP_SIZE],
+    std::expected<void, ErrorCode> comm_success[NUM_SEGMENTS]);
 
 /**
  * Send a write reg group command to write the values (see Table 46)
@@ -114,5 +114,5 @@ void readRegGroup(
  * @param regs Buffer containing the register values to write
  * @return success of operation
  */
-ExitCode writeRegGroup(uint16_t cmd, const uint8_t regs[io::NUM_SEGMENTS][io::adbms::REG_GROUP_SIZE]);
+std::expected<void, ErrorCode> writeRegGroup(uint16_t cmd, const uint8_t regs[NUM_SEGMENTS][REG_GROUP_SIZE]);
 } // namespace io::adbms

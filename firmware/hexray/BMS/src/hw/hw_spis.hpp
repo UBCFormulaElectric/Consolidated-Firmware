@@ -1,11 +1,5 @@
 #pragma once
-
-extern "C"
-{
-#include "main.h"
-}
 #include "hw_spi.hpp"
-#include "hw_gpios.hpp"
 
 namespace hw::spi
 {
