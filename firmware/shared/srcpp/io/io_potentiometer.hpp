@@ -15,16 +15,16 @@ constexpr uint8_t POT_WIPER1_REGISTER = 0x1;
 
 namespace io
 {
+    enum class POTENTIOMETER_WIPER
+    {
+        WIPER0 = 0,
+        WIPER1,
+    };
+
     class Potentiometer
     {
         private:
             const hw::i2c::I2CDevice device;
-        
-            enum class POTENTIOMETER_WIPER
-            {
-                WIPER0 = 0,
-                WIPER1,
-            };
 
             enum class POTENTIOMETER_CMD
             {
@@ -46,9 +46,8 @@ namespace io
 
         public:
             consteval explicit Potentiometer(
-                hw::i2c::I2CDevice device,
-                POTENTIOMETER_WIPER wiper
-            )
+                hw::i2c::I2CDevice device_in, POTENTIOMETER_WIPER wiper_in) 
+                : device(device_in), wiper(wiper_in){};
 
             std::expected<void, ErrorCode> readWiper(std::array<uint8_t, 2> &dest) const
             {
