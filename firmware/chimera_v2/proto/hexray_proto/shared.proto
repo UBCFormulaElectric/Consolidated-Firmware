@@ -176,6 +176,45 @@ message SpiTransactionResponse {
   bytes rx_data = 1 [(nanopb).max_size = 128];
 }
 
+// UART
+message UartNetName {
+  oneof name {
+    dam.UartNetName dam_net_name = 3;
+  }
+}
+// Uart Transmit
+message UartTransmitRequest {
+  UartNetName net_name = 1;
+  bytes data = 2 [(nanopb).max_size = 128];
+}
+message UartTransmitResponse {
+  bool success = 1;
+}
+// Uart receieve
+message UartRecieveRequest {
+  UartNetName net_name = 1;
+  uint32 length = 2;
+}
+message UartReceiveResponse {
+  bytes data = 1 [(nanopb).max_size = 128];
+}
+
+// PWM
+message PwmNetName {
+  oneof name {
+    crit.PwmNetName crit_net_name = 1;
+  }
+}
+// PWM set
+message PwmSetRequest {
+  PwmNetName net_name = 1;
+  bool enable = 2;
+  float duty_cycle = 3; // 0.0 to 1.0
+}
+message PwmSetResponse {
+  bool success = 1;
+}
+
 /* 
   Wrapper around all messages 
 
@@ -204,6 +243,13 @@ message ChimeraV2Request {
     SpiReceiveRequest spi_receive = 9;
     SpiTransmitRequest spi_transmit = 10;
     SpiTransactionRequest spi_transaction = 11;
+
+    // UART.
+    UartRecieveRequest uart_receive = 12;
+    UartTransmitRequest uart_transmit = 13;
+
+    // PWM
+    PwmSetRequest pwm_set = 14;
   }
 }
 
@@ -227,5 +273,12 @@ message ChimeraV2Response {
     SpiReceiveResponse spi_receive = 9;
     SpiTransmitResponse spi_transmit = 10;
     SpiTransactionResponse spi_transaction = 11;
+
+    // UART.
+    UartReceiveResponse uart_receive = 12;
+    UartTransmitResponse uart_transmit = 13;
+
+    // PWM
+    PwmSetResponse pwm_set = 14;
   }
 }
