@@ -24,8 +24,7 @@ std::expected<void, ErrorCode> pollAdcConversions()
 
 std::expected<void, ErrorCode> wakeup()
 {
-    RETURN_IF_ERR(sendCmd(RDCFGA));
-    return {};
+    return sendCmd(RDCFGA);
 }
 
 } // namespace io::adbms

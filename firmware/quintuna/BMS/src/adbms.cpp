@@ -2,6 +2,8 @@
 #include "io_adbms.hpp"
 #include "util_errorCodes.hpp"
 
+#include <cassert>
+
 static io::adbms::SegmentConfig       configs[io::NUM_SEGMENTS];
 static std::expected<void, ErrorCode> success[io::NUM_SEGMENTS];
 static io::adbms::SegmentConfig       configReg[io::NUM_SEGMENTS];
@@ -37,13 +39,15 @@ CFUNC void adbms_init()
         reg_b.dcc_9_16         = 0;
     }
 
-    io::adbms::wakeup();
-    io::adbms::writeConfigurationRegisters(configReg);
+    assert(io::adbms::wakeup());
+    assert(io::adbms::writeConfigurationRegisters(configReg));
 }
 
 CFUNC void adbms_tick()
 {
-    io::adbms::wakeup();
-    io::adbms::writeConfigurationRegisters(configReg);
+    LOG_INFO("tick!");
+    assert(io::adbms::wakeup());
+    assert(io::adbms::writeConfigurationRegisters(configReg));
     io::adbms::readConfigurationRegisters(configs, success);
+    LOG_INFO("done!");
 }

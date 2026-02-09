@@ -4,10 +4,12 @@
 #include <string.h>
 #include <assert.h>
 #include "hw_watchdog.h"
-#include "hw_bootup.h"
 #include "io_log.h"
 #include "io_time.h"
 #include "main.h"
+#ifdef BOOTLOADER
+#include "hw_bootup.h"
+#endif
 
 #ifdef STM32F412Rx
 // extern IWDG_HandleTypeDef  hiwdg;
@@ -101,7 +103,7 @@ void hw_watchdog_checkForTimeouts(void)
                     "id = %d)",
                     pcTaskGetTaskName(watchdog_table.watchdogs[i].task), status.xTaskNumber);
 
-#ifndef NO_BOOTLOADER
+#ifdef BOOTLOADER
                 const BootRequest request = { .target        = BOOT_TARGET_APP,
                                               .context       = BOOT_CONTEXT_WATCHDOG_TIMEOUT,
                                               .context_value = status.xTaskNumber };

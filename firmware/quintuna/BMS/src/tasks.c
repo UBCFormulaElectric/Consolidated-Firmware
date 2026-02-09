@@ -21,9 +21,11 @@
 #include "hw_pwms.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_watchdog.h"
-#include "hw_bootup.h"
 #include "hw_gpios.h"
 #include "hw_resetReason.h"
+#ifdef BOOTLOADER
+#include "hw_bootup.h"
+#endif
 
 // chimera
 // #include "hw_chimeraConfig_v2.h"
@@ -49,7 +51,9 @@ void tasks_runChimera(void)
 void tasks_preInit(void)
 {
     hw_hardFaultHandler_init();
+#ifdef BOOTLOADER
     hw_bootup_enableInterruptsForApp();
+#endif
 }
 
 void tasks_init(void)
@@ -86,6 +90,7 @@ void tasks_init(void)
         app_canAlerts_BMS_Info_WatchdogTimeout_set(true);
     }
 
+#ifdef BOOTLOADER
     BootRequest boot_request = hw_bootup_getBootRequest();
     if (boot_request.context != BOOT_CONTEXT_NONE)
     {
@@ -107,6 +112,7 @@ void tasks_init(void)
         boot_request.context_value = 0;
         hw_bootup_setBootRequest(boot_request);
     }
+#endif
 
     // Shutdown loop power comes from a load switch on the BMS.
     hw_gpio_writePin(&shdn_en_pin, true);
