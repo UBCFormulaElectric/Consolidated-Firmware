@@ -46,8 +46,8 @@ CFUNC void adbms_init()
 CFUNC void adbms_tick()
 {
     LOG_INFO("tick!");
-    assert(io::adbms::wakeup());
-    assert(io::adbms::writeConfigurationRegisters(configReg));
+    // assert(io::adbms::wakeup());
+    // assert(io::adbms::writeConfigurationRegisters(configReg));
     io::adbms::readConfigurationRegisters(configs, success);
     LOG_INFO("done!");
 }
