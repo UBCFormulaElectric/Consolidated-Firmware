@@ -124,7 +124,7 @@ void tasks_init(void)
 
 void tasks_run1Hz(void)
 {
-    const uint32_t  period_ms                = 1000U;
+    const uint32_t  period_ms                = 5000U;
     const uint32_t  watchdog_grace_period_ms = 50U;
     WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
 
@@ -134,7 +134,7 @@ void tasks_run1Hz(void)
         // if (!hw_chimera_v2_enabled)
         {
             // jobs_run1Hz_tick();
-            adbms_tick();
+            
         }
 
         // Watchdog check-in must be the last function called before putting the task to sleep.
@@ -154,10 +154,11 @@ void tasks_run100Hz(void)
     uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        // if (!hw_chimera_v2_enabled)
-        // {
-        // jobs_run100Hz_tick();
-        // }
+        if (!hw_chimera_v2_enabled)
+        {
+            // jobs_run100Hz_tick();
+            adbms_tick();
+        }
 
         // Watchdog check-in must be the last function called before putting the task to sleep.
         hw_watchdog_checkIn(watchdog);
