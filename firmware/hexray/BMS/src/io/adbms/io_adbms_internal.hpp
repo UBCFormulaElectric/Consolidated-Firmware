@@ -115,5 +115,6 @@ void readRegGroup(
  * @param regs Buffer containing the register values to write
  * @return success of operation
  */
-std::expected<void, ErrorCode> writeRegGroup(uint16_t cmd, const uint8_t regs[NUM_SEGMENTS][REG_GROUP_SIZE]);
+std::expected<void, ErrorCode>
+    writeRegGroup(uint16_t cmd, std::array<std::array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> regs);
 } // namespace io::adbms

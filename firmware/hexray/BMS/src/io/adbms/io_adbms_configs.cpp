@@ -8,8 +8,8 @@ namespace io::adbms
 {
 std::expected<void, ErrorCode> writeConfigurationRegisters(SegmentConfig config[NUM_SEGMENTS])
 {
-    static uint8_t cfga_regs[NUM_SEGMENTS][REG_GROUP_SIZE];
-    static uint8_t cfgb_regs[NUM_SEGMENTS][REG_GROUP_SIZE];
+    static std::array<std::array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> cfga_regs;
+    static std::array<std::array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> cfgb_regs;
 
     for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
     {

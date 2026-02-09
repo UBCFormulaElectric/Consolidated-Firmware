@@ -160,10 +160,10 @@ void readRegGroup(
 
     for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
     {
-        const RegGroupPayload *segment_data = &rx_buffer[segment];
-        if (checkDataPec(segment_data->data, swapEndianness(segment_data->pec10)))
+        const auto &[data, pec10] = rx_buffer[segment];
+        if (checkDataPec(data, swapEndianness(pec10)))
         {
-            regs[segment]         = segment_data->data; // copy :)
+            regs[segment]         = data;
             comm_success[segment] = {};
         }
         else
