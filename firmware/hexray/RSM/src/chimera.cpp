@@ -6,6 +6,7 @@
 #include "hw_spis.hpp"
 #include "hw_usb.hpp"
 #include "hw_rtosTaskHandler.hpp"
+#include "hw_hardFaultHandler.hpp"
 #include <rsm.pb.h>
 #include <cassert>
 
@@ -127,7 +128,9 @@ char USBD_PRODUCT_STRING_FS[] = "rsm";
 
 [[noreturn]] void tasks_init()
 {
+    hw_hardFaultHandler_init();
     assert(hw::usb::init());
+    hw::gpio::d_p_pullup.writePin(true); // enable USB D+ pullup
     osKernelInitialize();
     TaskChimera.start();
     osKernelStart();
