@@ -12,3 +12,9 @@ const SpiDevice adbms_spi_ls = { .bus = &isospi_bus, .nss_pin = &spi_cs_ls_pin, 
 
 const SpiDevice adbms_spi_hs = { .bus = &isospi_bus, .nss_pin = &spi_cs_hs_pin, .timeout_ms = ADBMS_SPI_TIMEOUT_MS };
 } // namespace hw::spi
+
+SpiBus *hw_spi_getBusFromHandle(const SPI_HandleTypeDef *handle)
+{
+    assert(handle == isospi_bus.handle);
+    return &isospi_bus;
+}

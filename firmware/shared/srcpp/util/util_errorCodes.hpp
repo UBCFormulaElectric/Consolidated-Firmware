@@ -18,10 +18,10 @@ enum class ErrorCode
 
 #define RETURN_IF_ERR(err_expr)                                                \
     {                                                                          \
-        if (not(err_expr).has_value())                                         \
+        if (const auto err = err_expr; not err_expr)                           \
         {                                                                      \
             LOG_ERROR(#err_expr " exited with an error, returning: %d", exit); \
-            return err_expr;                                                   \
+            return err;                                                        \
         }                                                                      \
     }
 

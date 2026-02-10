@@ -66,7 +66,6 @@ extern TIM_HandleTypeDef   htim3;
 extern TIM_HandleTypeDef   htim5;
 extern PCD_HandleTypeDef   hpcd_USB_OTG_HS;
 extern TIM_HandleTypeDef   htim2;
-
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */

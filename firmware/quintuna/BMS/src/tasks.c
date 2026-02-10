@@ -21,36 +21,46 @@
 #include "hw_pwms.h"
 #include "hw_hardFaultHandler.h"
 #include "hw_watchdog.h"
-#include "hw_bootup.h"
 #include "hw_gpios.h"
 #include "hw_resetReason.h"
+#ifdef BOOTLOADER
+#include "hw_bootup.h"
+#endif
 
 // chimera
-#include "hw_chimeraConfig_v2.h"
-#include "hw_chimera_v2.h"
+// #include "hw_chimeraConfig_v2.h"
+// #include "hw_chimera_v2.h"
 
 #include <FreeRTOS.h>
 #include <cmsis_os2.h>
 #include <portmacro.h>
+
+// adbms
+#include "adbms.h"
 
 // Define this guy to use CAN2 for talking to the Elcon.
 // #define CHARGER_CAN
 
 void tasks_runChimera(void)
 {
-    hw_chimera_v2_task(&chimera_v2_config);
+    // hw_chimera_v2_task(&chimera_v2_config);
+    osDelay(osWaitForever);
+    forever {}
 }
 
 void tasks_preInit(void)
 {
     hw_hardFaultHandler_init();
+#ifdef BOOTLOADER
     hw_bootup_enableInterruptsForApp();
+#endif
 }
 
 void tasks_init(void)
 {
     // Configure and initialize SEGGER SystemView.
     // NOTE: Needs to be done after clock config!
+
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("BMS Reset");
 
@@ -80,6 +90,7 @@ void tasks_init(void)
         app_canAlerts_BMS_Info_WatchdogTimeout_set(true);
     }
 
+#ifdef BOOTLOADER
     BootRequest boot_request = hw_bootup_getBootRequest();
     if (boot_request.context != BOOT_CONTEXT_NONE)
     {
@@ -101,27 +112,29 @@ void tasks_init(void)
         boot_request.context_value = 0;
         hw_bootup_setBootRequest(boot_request);
     }
+#endif
 
     // Shutdown loop power comes from a load switch on the BMS.
     hw_gpio_writePin(&shdn_en_pin, true);
 
     jobs_init();
-
+    adbms_init();
     io_canTx_BMS_Bootup_sendAperiodic(); // TODO do this in jobs_init
 }
 
 void tasks_run1Hz(void)
 {
-    const uint32_t  period_ms                = 1000U;
+    const uint32_t  period_ms                = 5000U;
     const uint32_t  watchdog_grace_period_ms = 50U;
     WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        if (!hw_chimera_v2_enabled)
+        // if (!hw_chimera_v2_enabled)
         {
-            jobs_run1Hz_tick();
+            // jobs_run1Hz_tick();
+            
         }
 
         // Watchdog check-in must be the last function called before putting the task to sleep.
@@ -141,10 +154,12 @@ void tasks_run100Hz(void)
     uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        if (!hw_chimera_v2_enabled)
-        {
-            jobs_run100Hz_tick();
-        }
+        // if (!hw_chimera_v2_enabled)
+        // {
+        //     // jobs_run100Hz_tick();
+            
+        // }
+        adbms_tick();
 
         // Watchdog check-in must be the last function called before putting the task to sleep.
         hw_watchdog_checkIn(watchdog);
@@ -165,7 +180,7 @@ void tasks_run1kHz(void)
     {
         hw_watchdog_checkForTimeouts();
 
-        jobs_run1kHz_tick();
+        // jobs_run1kHz_tick();
 
         // Watchdog check-in must be the last function called before putting the task to sleep.
         hw_watchdog_checkIn(watchdog);
@@ -220,6 +235,7 @@ void tasks_runLtcVoltages(void)
 #else
     static const TickType_t period_ms = 500U; // 2Hz
     jobs_initLTCVoltages();
+
     for (;;)
     {
         const uint32_t start_ticks = osKernelGetTickCount();

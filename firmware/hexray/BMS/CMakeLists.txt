@@ -9,32 +9,34 @@ set(TASKS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.cpp")
 set(SYSTEM_SRCS ${JOBS_SRC} ${TASKS_SRC})
 set(SYSTEM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
-file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
+file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp")
 list(APPEND APP_SRCS
-        # "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
+        "${SHARED_APP_INCLUDE_DIR_CPP}/app_timer.cpp"
+        "${SHARED_APP_INCLUDE_DIR_CPP}/app_stateMachine.cpp"
 )
 set(APP_INCLUDE_DIRS
-        # "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
         "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR_CPP}"
 )
 
-file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
+file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.cpp")
 list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
 )
 set(IO_INCLUDE_DIRS
-        # "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
         "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_DIR_CPP}"
 )
 
-file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c")
+file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp")
 list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_gpio.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
 )
 set(HW_INCLUDE_DIRS
-        #        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
         "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR_CPP}"
 )
 
@@ -66,28 +68,28 @@ if ("${TARGET}" STREQUAL "binary")
         "stm32h7xx_hal_tim.c"
         "stm32h7xx_hal_gpio.c"
         "stm32h7xx_hal_adc.c"
-        "stm32h7xx_hal_dma.c"         
+        "stm32h7xx_hal_dma.c"
         "stm32h7xx_hal_iwdg.c"
 
-        "stm32h7xx_hal_adc_ex.c"       
-        "stm32h7xx_hal_tim_ex.c"       
-        "stm32h7xx_hal_dma_ex.c" 
-        
-        "stm32h7xx_hal_crc.c"        
-        "stm32h7xx_hal_crc_ex.c"       
-        "stm32h7xx_hal_fdcan.c"       
-        "stm32h7xx_hal_spi.c"        
+        "stm32h7xx_hal_adc_ex.c"
+        "stm32h7xx_hal_tim_ex.c"
+        "stm32h7xx_hal_dma_ex.c"
+
+        "stm32h7xx_hal_crc.c"
+        "stm32h7xx_hal_crc_ex.c"
+        "stm32h7xx_hal_fdcan.c"
+        "stm32h7xx_hal_spi.c"
         "stm32h7xx_hal_spi_ex.c"
 
-        "stm32h7xx_hal_sd.c"       
+        "stm32h7xx_hal_sd.c"
         "stm32h7xx_hal_sd_ex.c"
-        "stm32h7xx_ll_sdmmc.c"        
+        "stm32h7xx_ll_sdmmc.c"
 
-        "stm32h7xx_hal_pcd.c"     
+        "stm32h7xx_hal_pcd.c"
         "stm32h7xx_hal_pcd_ex.c"
-        "stm32h7xx_ll_usb.c"       
-        
-        
+        "stm32h7xx_ll_usb.c"
+
+
     )
     set(CUBEMX_INCLUDES ${CUBEMX_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
     stm32h733xx_cube_library(
@@ -118,10 +120,16 @@ if ("${TARGET}" STREQUAL "binary")
     target_link_libraries("hexray_BMS_chimera.elf" PRIVATE "hexray_BMS_stm32")
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
+    set(SHARED_FAKES
+            "${SHARED_FAKES_DIR}/io_canQueue.cpp"
+            "${SHARED_FAKES_DIR}/io_semaphore.cpp"
+            "${SHARED_FAKES_DIR}/io_timer.cpp"
+            "${SHARED_FAKES_DIR}/io_shdnLoopNode.cpp"
+    )
     set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS})
     set(INCLUDE_DIRS
-            # "${CMAKE_CURRENT_SOURCE_DIR}/test"
-            ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP}
+            "${CMAKE_CURRENT_SOURCE_DIR}/test"
+            ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP} ${SHARED_FAKES_DIR}
     )
     compile_gtest_executable(
             "hexray_BMS_test"
@@ -144,13 +152,11 @@ elseif ("${TARGET}" STREQUAL "test")
     # FakeIO
     set(HEADERS_TO_FAKE
     )
-
-    file(GLOB TEST_IO_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.h")
-    list(APPEND HEADERS_TO_FAKE ${TEST_IO_HDRS})
     create_fake_library(
             "hexray_BMS_fakes"
             "${HEADERS_TO_FAKE}"
     )
 
-    target_link_libraries("hexray_BMS_test" PRIVATE "hexray_BMS_fakes" "hexray_BMS_commit_info")
+    target_link_libraries("hexray_BMS_test" PRIVATE "hexray_BMS_jsoncan" "hexray_BMS_fakes" "hexray_BMS_commit_info")
+    target_compile_definitions("hexray_BMS_test" PRIVATE STM32H733xx)
 endif ()

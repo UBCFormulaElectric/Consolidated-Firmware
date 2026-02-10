@@ -46,7 +46,7 @@ static const ProfileConfig warning_profile_config = {
     .min_voltage = MIN_CELL_VOLTAGE_WARNING_V,
     .max_voltage = MAX_CELL_VOLTAGE_WARNING_V,
     // temps
-    .max_temp = MAX_CELL_TEMP_WARNING_V,
+    .max_temp = MAX_CELL_TEMP_WARNING_C,
     // debounce
     .under_voltage_debounce_ms = UNDER_VOLTAGE_DEBOUNCE_WARNING_MS,
     .over_voltage_debounce_ms  = OVER_VOLTAGE_DEBOUNCE_WARNING_MS,
@@ -63,7 +63,7 @@ static const ProfileConfig fault_profile_config = {
     .min_voltage = MIN_CELL_VOLTAGE_FAULT_V,
     .max_voltage = MAX_CELL_VOLTAGE_FAULT_V,
     // temps
-    .max_temp = MAX_CELL_TEMP_FAULT_V,
+    .max_temp = MAX_CELL_TEMP_FAULT_C,
     // debounce
     .under_voltage_debounce_ms = UNDER_VOLTAGE_DEBOUNCE_FAULT_MS,
     .over_voltage_debounce_ms  = OVER_VOLTAGE_DEBOUNCE_FAULT_MS,

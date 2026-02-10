@@ -4,7 +4,7 @@
 
 #define LTC6813_SPI_TIMEOUT_MS (100U)
 
-static SpiBus isospi_bus = { .handle = &hspi4 };
+SpiBus isospi_bus = { .handle = &hspi4, .task_in_progress = NULL };
 
 const SpiDevice ltc6813_spi_ls = { .bus        = &isospi_bus,
                                    .nss_pin    = &spi_cs_ls_pin,
