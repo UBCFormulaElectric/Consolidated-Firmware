@@ -165,8 +165,8 @@ extern "C"
 #define SD_D1_GPIO_Port GPIOC
 #define IMD_M_HS_3V3_Pin GPIO_PIN_8
 #define IMD_M_HS_3V3_GPIO_Port GPIOA
-#define USB_DM_Pin GPIO_PIN_11
-#define USB_DM_GPIO_Port GPIOA
+#define USB_DN_Pin GPIO_PIN_11
+#define USB_DN_GPIO_Port GPIOA
 #define USB_DP_Pin GPIO_PIN_12
 #define USB_DP_GPIO_Port GPIOA
 #define SWDIO_Pin GPIO_PIN_13
