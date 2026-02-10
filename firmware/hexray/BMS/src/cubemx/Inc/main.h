@@ -42,7 +42,17 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
-
+    extern ADC_HandleTypeDef   hadc1;
+    extern ADC_HandleTypeDef   hadc3;
+    extern CRC_HandleTypeDef   hcrc;
+    extern FDCAN_HandleTypeDef hfdcan1;
+    extern FDCAN_HandleTypeDef hfdcan2;
+    extern SPI_HandleTypeDef   hspi4;
+    extern TIM_HandleTypeDef   htim1;
+    extern TIM_HandleTypeDef   htim3;
+    extern TIM_HandleTypeDef   htim5;
+    extern SD_HandleTypeDef    hsd1;
+    extern PCD_HandleTypeDef   hpcd_USB_OTG_HS;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/
@@ -155,8 +165,8 @@ extern "C"
 #define SD_D1_GPIO_Port GPIOC
 #define IMD_M_HS_3V3_Pin GPIO_PIN_8
 #define IMD_M_HS_3V3_GPIO_Port GPIOA
-#define USB_DM_Pin GPIO_PIN_11
-#define USB_DM_GPIO_Port GPIOA
+#define USB_DN_Pin GPIO_PIN_11
+#define USB_DN_GPIO_Port GPIOA
 #define USB_DP_Pin GPIO_PIN_12
 #define USB_DP_GPIO_Port GPIOA
 #define SWDIO_Pin GPIO_PIN_13

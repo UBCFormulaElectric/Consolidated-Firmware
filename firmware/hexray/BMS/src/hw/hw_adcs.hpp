@@ -21,10 +21,10 @@ namespace hw::adc
 extern Adc fan_isns;
 extern Adc ts_vsense_p;
 extern Adc ts_vsense_n;
-extern Adc shdn_isns;
+extern Adc shdn_sns;
 extern Adc emeter_tsns;
-extern Adc ts_isns_400a;
-extern Adc ts_isns_50a;
+extern Adc ts_isense_400a;
+extern Adc ts_isense_50a;
 
 extern Adc aux_tsns;
 
