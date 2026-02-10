@@ -2,6 +2,7 @@
 #include "chimera_v2.hpp"
 #include "hw_gpios.hpp"
 #include "hw_adcs.hpp"
+#include "hw_hardFaultHandler.hpp"
 #include "hw_spis.hpp"
 #include "hw_usb.hpp"
 #include "hw_i2cs.hpp"
@@ -153,6 +154,12 @@ class BMSChimeraConfig final : public chimera_v2::config
         return std::nullopt;
     }
 
+    std::optional<std::reference_wrapper<const hw::PwmOutput>> id_to_pwm(const _PwmNetName *pnn) const override
+    {
+        UNUSED(pnn);
+        return std::nullopt;
+    }
+
   public:
     ~BMSChimeraConfig() override = default;
     BMSChimeraConfig()
@@ -169,12 +176,15 @@ static hw::rtos::StaticTask<8096>
 
 void tasks_preInit()
 {
-    assert(hw::usb::init());
+    hw_hardFaultHandler_init();
 }
 char USBD_PRODUCT_STRING_FS[] = "bms";
 
 [[noreturn]] void tasks_init()
 {
+    SEGGER_SYSVIEW_Conf();
+    assert(hw::usb::init());
+
     LOG_INFO("BMS Reset!");
     osKernelInitialize();
     TaskChimera.start();
