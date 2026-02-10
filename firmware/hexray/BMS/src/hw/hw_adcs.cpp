@@ -3,21 +3,15 @@
 
 namespace hw::adc
 {
-AdcChip<NUM_ADC1_CHANNELS> adc1 = AdcChip<NUM_ADC1_CHANNELS>(
-    &hadc1,
-    &htim3
-);
+AdcChip<NUM_ADC1_CHANNELS> adc1 = AdcChip<NUM_ADC1_CHANNELS>(&hadc1, &htim3);
 
-AdcChip<NUM_ADC3_CHANNELS> adc3 = AdcChip<NUM_ADC3_CHANNELS>(
-    &hadc3,
-    &htim3
-);
+AdcChip<NUM_ADC3_CHANNELS> adc3 = AdcChip<NUM_ADC3_CHANNELS>(&hadc3, &htim3);
 
-Adc fan_isns     = Adc{ adc1.getChannel(0) };
-Adc ts_vsense_p  = Adc{ adc1.getChannel(1) };
-Adc ts_vsense_n  = Adc{ adc1.getChannel(2) };
-Adc shdn_sns    = Adc{ adc1.getChannel(3) };
-Adc emeter_tsns  = Adc{ adc1.getChannel(4) };
+Adc fan_isns       = Adc{ adc1.getChannel(0) };
+Adc ts_vsense_p    = Adc{ adc1.getChannel(1) };
+Adc ts_vsense_n    = Adc{ adc1.getChannel(2) };
+Adc shdn_sns       = Adc{ adc1.getChannel(3) };
+Adc emeter_tsns    = Adc{ adc1.getChannel(4) };
 Adc ts_isense_400a = Adc{ adc1.getChannel(5) };
 Adc ts_isense_50a  = Adc{ adc1.getChannel(6) };
 

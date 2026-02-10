@@ -775,15 +775,7 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
         /** Initializes the peripherals clock
          */
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USB;
-        PeriphClkInitStruct.PLL3.PLL3M           = 1;
-        PeriphClkInitStruct.PLL3.PLL3N           = 24;
-        PeriphClkInitStruct.PLL3.PLL3P           = 2;
-        PeriphClkInitStruct.PLL3.PLL3Q           = 2;
-        PeriphClkInitStruct.PLL3.PLL3R           = 2;
-        PeriphClkInitStruct.PLL3.PLL3RGE         = RCC_PLL3VCIRANGE_3;
-        PeriphClkInitStruct.PLL3.PLL3VCOSEL      = RCC_PLL3VCOWIDE;
-        PeriphClkInitStruct.PLL3.PLL3FRACN       = 0;
-        PeriphClkInitStruct.UsbClockSelection    = RCC_USBCLKSOURCE_PLL3;
+        PeriphClkInitStruct.UsbClockSelection    = RCC_USBCLKSOURCE_HSI48;
         if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
         {
             Error_Handler();
@@ -796,7 +788,11 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
         /* Peripheral clock enable */
         __HAL_RCC_USB_OTG_HS_CLK_ENABLE();
         /* USB_OTG_HS interrupt Init */
-        HAL_NVIC_SetPriority(OTG_HS_IRQn, 0, 0);
+        HAL_NVIC_SetPriority(OTG_HS_EP1_OUT_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(OTG_HS_EP1_OUT_IRQn);
+        HAL_NVIC_SetPriority(OTG_HS_EP1_IN_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(OTG_HS_EP1_IN_IRQn);
+        HAL_NVIC_SetPriority(OTG_HS_IRQn, 5, 0);
         HAL_NVIC_EnableIRQ(OTG_HS_IRQn);
         /* USER CODE BEGIN USB_OTG_HS_MspInit 1 */
 
@@ -821,6 +817,8 @@ void HAL_PCD_MspDeInit(PCD_HandleTypeDef *hpcd)
         __HAL_RCC_USB_OTG_HS_CLK_DISABLE();
 
         /* USB_OTG_HS interrupt DeInit */
+        HAL_NVIC_DisableIRQ(OTG_HS_EP1_OUT_IRQn);
+        HAL_NVIC_DisableIRQ(OTG_HS_EP1_IN_IRQn);
         HAL_NVIC_DisableIRQ(OTG_HS_IRQn);
         /* USER CODE BEGIN USB_OTG_HS_MspDeInit 1 */
 

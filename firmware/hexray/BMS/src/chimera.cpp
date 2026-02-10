@@ -167,12 +167,15 @@ class BMSChimeraConfig final : public chimera_v2::config
 static hw::rtos::StaticTask<8096>
     TaskChimera(osPriorityRealtime, "TaskChimera", [](void *) { chimera_v2::task(bms_config); });
 
-void tasks_preInit() {}
+void tasks_preInit()
+{
+    assert(hw::usb::init());
+}
 char USBD_PRODUCT_STRING_FS[] = "bms";
 
 [[noreturn]] void tasks_init()
 {
-    assert(hw::usb::init());
+    LOG_INFO("BMS Reset!");
     osKernelInitialize();
     TaskChimera.start();
     osKernelStart();
