@@ -5,24 +5,12 @@
 
 #include <cstring>
 
-namespace
-{
-struct CmdPayload
-{
-    uint16_t cmd;
-    uint16_t pec15;
-    CmdPayload(const uint16_t _cmd, const uint16_t _pec15) : cmd(_cmd), pec15(_pec15) {}
-};
-
 struct RegGroupPayload
 {
     std::array<uint8_t, io::adbms::REG_GROUP_SIZE> data;
     uint16_t                                       pec10;
 };
-
-static_assert(sizeof(CmdPayload) == io::adbms::CMD_BYTES + io::adbms::PEC_BYTES);
 static_assert(sizeof(RegGroupPayload) == io::adbms::REG_GROUP_SIZE + io::adbms::PEC_BYTES);
-} // namespace
 
 namespace io::adbms
 {
@@ -68,7 +56,7 @@ static constexpr std::array<uint16_t, 256> pec15Table = get_pec_table(CRC15_POLY
 uint16_t calculatePec10(const std::span<const uint8_t> data)
 {
     uint16_t r = CRC10_INIT;
-    for (const auto d : data)
+    for (const uint8_t d : data)
     {
         const auto addy = static_cast<uint8_t>(r >> 2 ^ d);
         r               = static_cast<uint16_t>(static_cast<uint16_t>(r << 8) ^ pec10Table[addy]);
@@ -76,12 +64,12 @@ uint16_t calculatePec10(const std::span<const uint8_t> data)
     }
     return static_cast<uint16_t>(r << 1);
 }
-uint16_t calculatePec15(const uint8_t *data, const size_t len)
+uint16_t calculatePec15(const std::span<const uint8_t> data)
 {
     uint16_t r = CRC15_INIT;
-    for (size_t i = 0; i < len; i++)
+    for (const uint8_t d : data)
     {
-        const auto addy = static_cast<uint8_t>(r >> 7 ^ data[i]);
+        const auto addy = static_cast<uint8_t>(r >> 7 ^ d);
         r               = static_cast<uint16_t>(static_cast<uint16_t>(r << 8) ^ pec15Table[addy]);
     }
     return static_cast<uint16_t>(r << 1);
@@ -97,21 +85,27 @@ static bool checkDataPec(const std::span<const uint8_t> data, const uint16_t exp
     return buildDataPec(data) == expected;
 }
 
-static CmdPayload buildCmd(uint16_t command)
+struct TxCmd
 {
-    return { swapEndianness(command),
-             swapEndianness(calculatePec15(reinterpret_cast<uint8_t *>(&command), sizeof(command))) };
-}
+    uint16_t cmd;
+    uint16_t pec15;
+    explicit TxCmd(const uint16_t _cmd)
+    {
+        cmd   = swapEndianness(_cmd);
+        pec15 = swapEndianness(calculatePec15({ reinterpret_cast<const uint8_t *>(&_cmd), sizeof(_cmd) }));
+    }
+};
+static_assert(sizeof(TxCmd) == CMD_BYTES + PEC_BYTES);
 
 std::expected<void, ErrorCode> sendCmd(const uint16_t cmd)
 {
-    const CmdPayload tx_cmd = buildCmd(cmd);
+    const TxCmd tx_cmd{ cmd };
     return hw::spi::adbms_spi_ls.transmit({ reinterpret_cast<const uint8_t *>(&tx_cmd), sizeof(tx_cmd) });
 }
 
 std::expected<void, ErrorCode> poll(const uint16_t cmd, const std::span<uint8_t> poll_buf)
 {
-    const CmdPayload tx_cmd = buildCmd(cmd);
+    const TxCmd tx_cmd{ cmd };
     return hw::spi::adbms_spi_ls.transmitThenReceive(
         { reinterpret_cast<const uint8_t *>(&tx_cmd), sizeof(tx_cmd) }, poll_buf);
 }
@@ -123,7 +117,7 @@ void readRegGroup(
 {
     std::memset(regs.data(), 0, sizeof(regs));
 
-    const CmdPayload                                 tx_cmd = buildCmd(cmd);
+    const TxCmd                                      tx_cmd{ cmd };
     static std::array<RegGroupPayload, NUM_SEGMENTS> rx_buffer;
 
     if (const auto tx_status = hw::spi::adbms_spi_ls.transmitThenReceive(
@@ -158,9 +152,9 @@ std::expected<void, ErrorCode>
 {
     struct
     {
-        CmdPayload                                tx_cmd;
+        TxCmd                                     tx_cmd;
         std::array<RegGroupPayload, NUM_SEGMENTS> payload;
-    } tx_buffer{ buildCmd(cmd), {} };
+    } tx_buffer{ TxCmd{ cmd }, {} };
     for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
     {
         tx_buffer.payload[segment].data  = regs[segment];
