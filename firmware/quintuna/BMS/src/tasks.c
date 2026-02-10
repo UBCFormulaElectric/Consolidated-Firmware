@@ -154,11 +154,12 @@ void tasks_run100Hz(void)
     uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
     {
-        if (!hw_chimera_v2_enabled)
-        {
-            // jobs_run100Hz_tick();
-            adbms_tick();
-        }
+        // if (!hw_chimera_v2_enabled)
+        // {
+        //     // jobs_run100Hz_tick();
+            
+        // }
+        adbms_tick();
 
         // Watchdog check-in must be the last function called before putting the task to sleep.
         hw_watchdog_checkIn(watchdog);

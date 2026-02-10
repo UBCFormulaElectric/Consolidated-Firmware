@@ -40,14 +40,14 @@ CFUNC void adbms_init()
     }
 
     assert(io::adbms::wakeup());
-    assert(io::adbms::writeConfigurationRegisters(configReg));
+    //assert(io::adbms::writeConfigurationRegisters(configReg));
 }
 
 CFUNC void adbms_tick()
 {
     LOG_INFO("tick!");
-    // assert(io::adbms::wakeup());
-    // assert(io::adbms::writeConfigurationRegisters(configReg));
-    io::adbms::readConfigurationRegisters(configs, success);
+    assert(io::adbms::wakeup());
+    //assert(io::adbms::writeConfigurationRegisters(configReg));
+    //io::adbms::readConfigurationRegisters(configs, success);
     LOG_INFO("done!");
 }
