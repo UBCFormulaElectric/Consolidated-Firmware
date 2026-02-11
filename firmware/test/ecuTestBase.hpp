@@ -2,7 +2,6 @@
 
 #include <gtest/gtest.h>
 #include "io_timeFake.hpp"
-
 #include <queue>
 
 class EcuTestBase : public testing::Test
@@ -57,7 +56,7 @@ class EcuTestBase : public testing::Test
         // A simple way to get around this is to start the state machine at
         // t = 1ms rather than t = 0ms.
         current_time_ms = 1;
-        fakes::time::setTime(current_time_ms);
+        fakes::time::setTimeFake(current_time_ms);
         assert(task_queue.empty());
         board_setup();
         assert(!task_queue.empty());
@@ -82,7 +81,7 @@ class EcuTestBase : public testing::Test
 
             assert(current_time_ms + 1 > current_time_ms); // overflow check
             current_time_ms++;
-            fakes::time::setTime(current_time_ms);
+            fakes::time::setTimeFake(current_time_ms);
         }
     }
 
