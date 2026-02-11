@@ -63,6 +63,7 @@ BaseTimeRegMsg buildBaseTimeRegMsg(const IoRtcTime &rtc_time)
     baseTimeMsg.msg.second     = rtc_time.seconds;
     baseTimeMsg.header =
         buildHeader(reinterpret_cast<const uint8_t *>(&baseTimeMsg.msg), static_cast<uint8_t>(sizeof(baseTimeMsg.msg)));
+    // removed micros compared to quintuna implementation, our rtc doesn't support
 
     return baseTimeMsg;
 }
