@@ -78,6 +78,7 @@ void HAL_MspInit(void)
     /* Peripheral interrupt init */
     /* RCC_IRQn interrupt configuration */
     HAL_NVIC_SetPriority(RCC_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(RCC_IRQn);
 
     /* USER CODE BEGIN MspInit 1 */
 
@@ -117,10 +118,10 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         /**ADC1 GPIO Configuration
         PA1     ------> ADC1_INP1
         */
-        GPIO_InitStruct.Pin  = EFUSE_I_SNS_Pin;
+        GPIO_InitStruct.Pin  = GPIO_PIN_1;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
-        HAL_GPIO_Init(EFUSE_I_SNS_GPIO_Port, &GPIO_InitStruct);
+        HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
         /* ADC1 DMA Init */
         /* GPDMA1_REQUEST_ADC1 Init */
@@ -156,7 +157,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         }
 
         handle_GPDMA1_Channel0.Instance                         = GPDMA1_Channel0;
-        handle_GPDMA1_Channel0.InitLinkedList.Priority          = DMA_LOW_PRIORITY_HIGH_WEIGHT;
+        handle_GPDMA1_Channel0.InitLinkedList.Priority          = DMA_LOW_PRIORITY_LOW_WEIGHT;
         handle_GPDMA1_Channel0.InitLinkedList.LinkStepMode      = DMA_LSM_FULL_EXECUTION;
         handle_GPDMA1_Channel0.InitLinkedList.LinkAllocatedPort = DMA_LINK_ALLOCATED_PORT0;
         handle_GPDMA1_Channel0.InitLinkedList.TransferEventMode = DMA_TCEM_BLOCK_TRANSFER;
@@ -206,7 +207,7 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
         /**ADC1 GPIO Configuration
         PA1     ------> ADC1_INP1
         */
-        HAL_GPIO_DeInit(EFUSE_I_SNS_GPIO_Port, EFUSE_I_SNS_Pin);
+        HAL_GPIO_DeInit(GPIOA, GPIO_PIN_1);
 
         /* ADC1 DMA DeInit */
         HAL_DMA_DeInit(hadc->DMA_Handle);
@@ -451,6 +452,54 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
         /* USER CODE BEGIN SPI1_MspDeInit 1 */
 
         /* USER CODE END SPI1_MspDeInit 1 */
+    }
+}
+
+/**
+ * @brief TIM_Base MSP Initialization
+ * This function configures the hardware resources used in this example
+ * @param htim_base: TIM_Base handle pointer
+ * @retval None
+ */
+void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim_base)
+{
+    if (htim_base->Instance == TIM3)
+    {
+        /* USER CODE BEGIN TIM3_MspInit 0 */
+
+        /* USER CODE END TIM3_MspInit 0 */
+        /* Peripheral clock enable */
+        __HAL_RCC_TIM3_CLK_ENABLE();
+        /* TIM3 interrupt Init */
+        HAL_NVIC_SetPriority(TIM3_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(TIM3_IRQn);
+        /* USER CODE BEGIN TIM3_MspInit 1 */
+
+        /* USER CODE END TIM3_MspInit 1 */
+    }
+}
+
+/**
+ * @brief TIM_Base MSP De-Initialization
+ * This function freeze the hardware resources used in this example
+ * @param htim_base: TIM_Base handle pointer
+ * @retval None
+ */
+void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef *htim_base)
+{
+    if (htim_base->Instance == TIM3)
+    {
+        /* USER CODE BEGIN TIM3_MspDeInit 0 */
+
+        /* USER CODE END TIM3_MspDeInit 0 */
+        /* Peripheral clock disable */
+        __HAL_RCC_TIM3_CLK_DISABLE();
+
+        /* TIM3 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(TIM3_IRQn);
+        /* USER CODE BEGIN TIM3_MspDeInit 1 */
+
+        /* USER CODE END TIM3_MspDeInit 1 */
     }
 }
 

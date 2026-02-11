@@ -61,6 +61,7 @@ extern DMA_QListTypeDef    List_GPDMA1_Channel0;
 extern DMA_HandleTypeDef   handle_GPDMA1_Channel0;
 extern ADC_HandleTypeDef   hadc1;
 extern FDCAN_HandleTypeDef hfdcan1;
+extern TIM_HandleTypeDef   htim3;
 extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
 extern TIM_HandleTypeDef   htim6;
 
@@ -258,6 +259,7 @@ void TIM6_IRQHandler(void)
     /* USER CODE BEGIN TIM6_IRQn 0 */
 
     /* USER CODE END TIM6_IRQn 0 */
+    HAL_TIM_IRQHandler(&htim6);
     /* USER CODE BEGIN TIM6_IRQn 1 */
 
     /* USER CODE END TIM6_IRQn 1 */

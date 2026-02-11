@@ -15,15 +15,7 @@
 #define CLAMP(x, min, max) (MAX(MIN(x, max), min))
 #define CLAMP_TO_ONE(x) (((x) <= 0) ? 1 : ((x) > 1 ? 1 : (x))) // initialize to 1 if value is <=0
 #define SQUARE(x) ((x) * (x))
-
-#define MAX_4_BITS_VALUE (uint32_t)(15)
-#define MAX_6_BITS_VALUE (uint32_t)(63)
-#define MAX_8_BITS_VALUE (uint32_t)(255)
-#define MAX_10_BITS_VALUE (uint32_t)(1023)
-#define MAX_11_BITS_VALUE (uint32_t)(2047)
-#define MAX_12_BITS_VALUE (uint32_t)(4095)
-#define MAX_16_BITS_VALUE (uint32_t)(65535)
-#define MAX_32_BITS_VALUE (uint32_t)(4294967295)
+#define IS_IN_RANGE(min, max, val) (((val) > (min)) && ((val) < (max)))
 
 /* @brief Extract the basename from a file path */
 #define __BASENAME__(path) (__builtin_strrchr(path, '/') ? __builtin_strrchr(path, '/') + 1 : path)

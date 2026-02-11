@@ -1,6 +1,7 @@
 #pragma once
 
 #include "util_utils.hpp"
+#include "util_limits.hpp"
 #include <array>
 #include <cassert>
 

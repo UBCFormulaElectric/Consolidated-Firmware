@@ -1,4 +1,5 @@
 #include "tasks.h"
+#include "jobs.hpp"
 
 #include <cmsis_os2.h>
 #include <io_canRx.h>
@@ -79,11 +80,21 @@ void hw::usb::receive(const std::span<uint8_t> dest)
     }
 }
 
+[[noreturn]] static void tasks_run100Hz(void *arg)
+{
+    forever
+    {
+        jobs_run100Hz_tick();
+        osDelay(10);
+    }
+}
+
 // Define the task with StaticTask template class
 static hw::rtos::StaticTask<512> TaskCanBroadcast(osPriorityAboveNormal, "Task1Hz", tasks_runCanBroadcast);
 static hw::rtos::StaticTask<512> TaskCanRx(osPriorityBelowNormal, "TaskCanRx", tasks_runCanRx);
 static hw::rtos::StaticTask<512> TaskCanTx(osPriorityBelowNormal, "TaskCanTx", tasks_runCanTx);
 static hw::rtos::StaticTask<512> TaskLoop(osPriorityBelowNormal, "TaskLoop", tasks_loop);
+static hw::rtos::StaticTask<512> Task100Hz(osPriorityAboveNormal, "Task100Hz", tasks_run100Hz);
 
 void tasks_preInit()
 {
@@ -137,11 +148,14 @@ void tasks_init()
     can_rx_queue.init();
     io_canTx_H5_Bootup_sendAperiodic();
 
+    jobs_init();
+
     osKernelInitialize();
     TaskCanBroadcast.start();
     TaskCanRx.start();
     TaskCanTx.start();
     TaskLoop.start();
+    Task100Hz.start();
     osKernelStart();
     forever {}
 }
