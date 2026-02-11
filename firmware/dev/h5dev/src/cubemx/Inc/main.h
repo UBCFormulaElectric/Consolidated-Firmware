@@ -7,7 +7,7 @@
  ******************************************************************************
  * @attention
  *
- * Copyright (c) 2025 STMicroelectronics.
+ * Copyright (c) 2026 STMicroelectronics.
  * All rights reserved.
  *
  * This software is licensed under terms that can be found in the LICENSE file
@@ -38,8 +38,10 @@ extern "C"
     /* Exported types ------------------------------------------------------------*/
     /* USER CODE BEGIN ET */
     extern FDCAN_HandleTypeDef hfdcan1;
-    extern ADC_HandleTypeDef   hadc1;
-    extern TIM_HandleTypeDef   htim3;
+    extern IWDG_HandleTypeDef  hiwdg;
+    extern RTC_HandleTypeDef   hrtc;
+    extern SPI_HandleTypeDef   hspi1;
+    extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
     /* USER CODE END ET */
 
     /* Exported constants --------------------------------------------------------*/
@@ -60,12 +62,16 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define EFUSE_I_SNS_Pin GPIO_PIN_1
-#define EFUSE_I_SNS_GPIO_Port GPIOA
-#define DIAG_EN_Pin GPIO_PIN_14
-#define DIAG_EN_GPIO_Port GPIOB
-#define EFUSE_EN_Pin GPIO_PIN_15
-#define EFUSE_EN_GPIO_Port GPIOB
+#define MASTER_NSS_Pin GPIO_PIN_4
+#define MASTER_NSS_GPIO_Port GPIOA
+#define MASTER_CLK_Pin GPIO_PIN_5
+#define MASTER_CLK_GPIO_Port GPIOA
+#define MASTER_MISO_Pin GPIO_PIN_6
+#define MASTER_MISO_GPIO_Port GPIOA
+#define MASTER_MOSI_Pin GPIO_PIN_7
+#define MASTER_MOSI_GPIO_Port GPIOA
+#define SLAVE_CLK_Pin GPIO_PIN_9
+#define SLAVE_CLK_GPIO_Port GPIOA
 #define SWDIO_Pin GPIO_PIN_13
 #define SWDIO_GPIO_Port GPIOA
 #define SWCLK_Pin GPIO_PIN_14

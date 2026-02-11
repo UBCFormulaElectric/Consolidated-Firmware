@@ -7,7 +7,7 @@
  ******************************************************************************
  * @attention
  *
- * Copyright (c) 2025 STMicroelectronics.
+ * Copyright (c) 2026 STMicroelectronics.
  * All rights reserved.
  *
  * This software is licensed under terms that can be found in the LICENSE file
@@ -367,50 +367,151 @@ void HAL_RTC_MspDeInit(RTC_HandleTypeDef *hrtc)
 }
 
 /**
- * @brief TIM_Base MSP Initialization
+ * @brief SPI MSP Initialization
  * This function configures the hardware resources used in this example
- * @param htim_base: TIM_Base handle pointer
+ * @param hspi: SPI handle pointer
  * @retval None
  */
-void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim_base)
+void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
 {
-    if (htim_base->Instance == TIM3)
+    GPIO_InitTypeDef         GPIO_InitStruct     = { 0 };
+    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
+    if (hspi->Instance == SPI1)
     {
-        /* USER CODE BEGIN TIM3_MspInit 0 */
+        /* USER CODE BEGIN SPI1_MspInit 0 */
 
-        /* USER CODE END TIM3_MspInit 0 */
+        /* USER CODE END SPI1_MspInit 0 */
+
+        /** Initializes the peripherals clock
+         */
+        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SPI1;
+        PeriphClkInitStruct.PLL3.PLL3Source      = RCC_PLL3_SOURCE_CSI;
+        PeriphClkInitStruct.PLL3.PLL3M           = 1;
+        PeriphClkInitStruct.PLL3.PLL3N           = 37;
+        PeriphClkInitStruct.PLL3.PLL3P           = 50;
+        PeriphClkInitStruct.PLL3.PLL3Q           = 2;
+        PeriphClkInitStruct.PLL3.PLL3R           = 2;
+        PeriphClkInitStruct.PLL3.PLL3RGE         = RCC_PLL3_VCIRANGE_0;
+        PeriphClkInitStruct.PLL3.PLL3VCOSEL      = RCC_PLL3_VCORANGE_MEDIUM;
+        PeriphClkInitStruct.PLL3.PLL3FRACN       = 4096;
+        PeriphClkInitStruct.PLL3.PLL3ClockOut    = RCC_PLL3_DIVP;
+        PeriphClkInitStruct.Spi1ClockSelection   = RCC_SPI1CLKSOURCE_PLL3P;
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+        {
+            Error_Handler();
+        }
+
         /* Peripheral clock enable */
-        __HAL_RCC_TIM3_CLK_ENABLE();
-        /* TIM3 interrupt Init */
-        HAL_NVIC_SetPriority(TIM3_IRQn, 10, 0);
-        HAL_NVIC_EnableIRQ(TIM3_IRQn);
-        /* USER CODE BEGIN TIM3_MspInit 1 */
+        __HAL_RCC_SPI1_CLK_ENABLE();
 
-        /* USER CODE END TIM3_MspInit 1 */
+        __HAL_RCC_GPIOA_CLK_ENABLE();
+        /**SPI1 GPIO Configuration
+        PA4     ------> SPI1_NSS
+        PA5     ------> SPI1_SCK
+        PA6     ------> SPI1_MISO
+        PA7     ------> SPI1_MOSI
+        */
+        GPIO_InitStruct.Pin       = MASTER_NSS_Pin | MASTER_CLK_Pin | MASTER_MISO_Pin | MASTER_MOSI_Pin;
+        GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+        GPIO_InitStruct.Pull      = GPIO_NOPULL;
+        GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
+        GPIO_InitStruct.Alternate = GPIO_AF5_SPI1;
+        HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+        /* USER CODE BEGIN SPI1_MspInit 1 */
+
+        /* USER CODE END SPI1_MspInit 1 */
     }
 }
 
 /**
- * @brief TIM_Base MSP De-Initialization
+ * @brief SPI MSP De-Initialization
  * This function freeze the hardware resources used in this example
- * @param htim_base: TIM_Base handle pointer
+ * @param hspi: SPI handle pointer
  * @retval None
  */
-void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef *htim_base)
+void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
 {
-    if (htim_base->Instance == TIM3)
+    if (hspi->Instance == SPI1)
     {
-        /* USER CODE BEGIN TIM3_MspDeInit 0 */
+        /* USER CODE BEGIN SPI1_MspDeInit 0 */
 
-        /* USER CODE END TIM3_MspDeInit 0 */
+        /* USER CODE END SPI1_MspDeInit 0 */
         /* Peripheral clock disable */
-        __HAL_RCC_TIM3_CLK_DISABLE();
+        __HAL_RCC_SPI1_CLK_DISABLE();
 
-        /* TIM3 interrupt DeInit */
-        HAL_NVIC_DisableIRQ(TIM3_IRQn);
-        /* USER CODE BEGIN TIM3_MspDeInit 1 */
+        /**SPI1 GPIO Configuration
+        PA4     ------> SPI1_NSS
+        PA5     ------> SPI1_SCK
+        PA6     ------> SPI1_MISO
+        PA7     ------> SPI1_MOSI
+        */
+        HAL_GPIO_DeInit(GPIOA, MASTER_NSS_Pin | MASTER_CLK_Pin | MASTER_MISO_Pin | MASTER_MOSI_Pin);
 
-        /* USER CODE END TIM3_MspDeInit 1 */
+        /* USER CODE BEGIN SPI1_MspDeInit 1 */
+
+        /* USER CODE END SPI1_MspDeInit 1 */
+    }
+}
+
+/**
+ * @brief PCD MSP Initialization
+ * This function configures the hardware resources used in this example
+ * @param hpcd: PCD handle pointer
+ * @retval None
+ */
+void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
+{
+    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
+    if (hpcd->Instance == USB_DRD_FS)
+    {
+        /* USER CODE BEGIN USB_DRD_FS_MspInit 0 */
+
+        /* USER CODE END USB_DRD_FS_MspInit 0 */
+
+        /** Initializes the peripherals clock
+         */
+        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USB;
+        PeriphClkInitStruct.UsbClockSelection    = RCC_USBCLKSOURCE_HSI48;
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+        {
+            Error_Handler();
+        }
+
+        /* Enable VDDUSB */
+        HAL_PWREx_EnableVddUSB();
+        /* Peripheral clock enable */
+        __HAL_RCC_USB_CLK_ENABLE();
+        /* USB_DRD_FS interrupt Init */
+        HAL_NVIC_SetPriority(USB_DRD_FS_IRQn, 0, 0);
+        HAL_NVIC_EnableIRQ(USB_DRD_FS_IRQn);
+        /* USER CODE BEGIN USB_DRD_FS_MspInit 1 */
+
+        /* USER CODE END USB_DRD_FS_MspInit 1 */
+    }
+}
+
+/**
+ * @brief PCD MSP De-Initialization
+ * This function freeze the hardware resources used in this example
+ * @param hpcd: PCD handle pointer
+ * @retval None
+ */
+void HAL_PCD_MspDeInit(PCD_HandleTypeDef *hpcd)
+{
+    if (hpcd->Instance == USB_DRD_FS)
+    {
+        /* USER CODE BEGIN USB_DRD_FS_MspDeInit 0 */
+
+        /* USER CODE END USB_DRD_FS_MspDeInit 0 */
+        /* Peripheral clock disable */
+        __HAL_RCC_USB_CLK_DISABLE();
+
+        /* USB_DRD_FS interrupt DeInit */
+        HAL_NVIC_DisableIRQ(USB_DRD_FS_IRQn);
+        /* USER CODE BEGIN USB_DRD_FS_MspDeInit 1 */
+
+        /* USER CODE END USB_DRD_FS_MspDeInit 1 */
     }
 }
 

@@ -6,7 +6,7 @@
  ******************************************************************************
  * @attention
  *
- * Copyright (c) 2025 STMicroelectronics.
+ * Copyright (c) 2026 STMicroelectronics.
  * All rights reserved.
  *
  * This software is licensed under terms that can be found in the LICENSE file
@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
+#include "hw_usb.h"
 #include "hw_error.hpp"
 #include "SEGGER_SYSVIEW.h"
 /* USER CODE END Includes */
@@ -53,10 +54,11 @@ IWDG_HandleTypeDef hiwdg;
 
 RTC_HandleTypeDef hrtc;
 
-TIM_HandleTypeDef htim3;
+SPI_HandleTypeDef hspi1;
+
+PCD_HandleTypeDef hpcd_USB_DRD_FS;
 
 /* USER CODE BEGIN PV */
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -66,10 +68,9 @@ static void MX_GPDMA1_Init(void);
 static void MX_FDCAN1_Init(void);
 static void MX_IWDG_Init(void);
 static void MX_RTC_Init(void);
-static void MX_TIM3_Init(void);
-static void MX_ADC1_Init(void);
+static void MX_SPI1_Init(void);
+static void MX_USB_PCD_Init(void);
 /* USER CODE BEGIN PFP */
-
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -93,6 +94,7 @@ int main(void)
     HAL_Init();
 
     /* USER CODE BEGIN Init */
+
     /* USER CODE END Init */
 
     /* Configure the system clock */
@@ -108,14 +110,15 @@ int main(void)
     MX_FDCAN1_Init();
     // MX_IWDG_Init();
     MX_RTC_Init();
-    MX_TIM3_Init();
-    MX_ADC1_Init();
+    MX_SPI1_Init();
+    MX_USB_PCD_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
     /* USER CODE END 2 */
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
+
     while (1)
     {
         /* USER CODE END WHILE */
@@ -145,19 +148,23 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
-    RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
-    RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
-    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
-    RCC_OscInitStruct.PLL.PLLSource  = RCC_PLL1_SOURCE_HSE;
-    RCC_OscInitStruct.PLL.PLLM       = 1;
-    RCC_OscInitStruct.PLL.PLLN       = 24;
-    RCC_OscInitStruct.PLL.PLLP       = 2;
-    RCC_OscInitStruct.PLL.PLLQ       = 2;
-    RCC_OscInitStruct.PLL.PLLR       = 2;
-    RCC_OscInitStruct.PLL.PLLRGE     = RCC_PLL1_VCIRANGE_3;
-    RCC_OscInitStruct.PLL.PLLVCOSEL  = RCC_PLL1_VCORANGE_WIDE;
-    RCC_OscInitStruct.PLL.PLLFRACN   = 0;
+    RCC_OscInitStruct.OscillatorType =
+        RCC_OSCILLATORTYPE_HSI48 | RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_CSI;
+    RCC_OscInitStruct.HSEState            = RCC_HSE_ON;
+    RCC_OscInitStruct.LSIState            = RCC_LSI_ON;
+    RCC_OscInitStruct.HSI48State          = RCC_HSI48_ON;
+    RCC_OscInitStruct.CSIState            = RCC_CSI_ON;
+    RCC_OscInitStruct.CSICalibrationValue = RCC_CSICALIBRATION_DEFAULT;
+    RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
+    RCC_OscInitStruct.PLL.PLLSource       = RCC_PLL1_SOURCE_HSE;
+    RCC_OscInitStruct.PLL.PLLM            = 1;
+    RCC_OscInitStruct.PLL.PLLN            = 62;
+    RCC_OscInitStruct.PLL.PLLP            = 2;
+    RCC_OscInitStruct.PLL.PLLQ            = 2;
+    RCC_OscInitStruct.PLL.PLLR            = 2;
+    RCC_OscInitStruct.PLL.PLLRGE          = RCC_PLL1_VCIRANGE_3;
+    RCC_OscInitStruct.PLL.PLLVCOSEL       = RCC_PLL1_VCORANGE_WIDE;
+    RCC_OscInitStruct.PLL.PLLFRACN        = 4096;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
         Error_Handler();
@@ -391,46 +398,83 @@ static void MX_RTC_Init(void)
 }
 
 /**
- * @brief TIM3 Initialization Function
+ * @brief SPI1 Initialization Function
  * @param None
  * @retval None
  */
-static void MX_TIM3_Init(void)
+static void MX_SPI1_Init(void)
 {
-    /* USER CODE BEGIN TIM3_Init 0 */
+    /* USER CODE BEGIN SPI1_Init 0 */
 
-    /* USER CODE END TIM3_Init 0 */
+    /* USER CODE END SPI1_Init 0 */
 
-    TIM_ClockConfigTypeDef  sClockSourceConfig = { 0 };
-    TIM_MasterConfigTypeDef sMasterConfig      = { 0 };
+    /* USER CODE BEGIN SPI1_Init 1 */
 
-    /* USER CODE BEGIN TIM3_Init 1 */
-
-    /* USER CODE END TIM3_Init 1 */
-    htim3.Instance               = TIM3;
-    htim3.Init.Prescaler         = 1;
-    htim3.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim3.Init.Period            = 47999;
-    htim3.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
-    htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-    if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+    /* USER CODE END SPI1_Init 1 */
+    /* SPI1 parameter configuration*/
+    hspi1.Instance                     = SPI1;
+    hspi1.Init.Mode                    = SPI_MODE_MASTER;
+    hspi1.Init.Direction               = SPI_DIRECTION_2LINES;
+    hspi1.Init.DataSize                = SPI_DATASIZE_8BIT;
+    hspi1.Init.CLKPolarity             = SPI_POLARITY_LOW;
+    hspi1.Init.CLKPhase                = SPI_PHASE_1EDGE;
+    hspi1.Init.NSS                     = SPI_NSS_HARD_OUTPUT;
+    hspi1.Init.BaudRatePrescaler       = SPI_BAUDRATEPRESCALER_2;
+    hspi1.Init.FirstBit                = SPI_FIRSTBIT_MSB;
+    hspi1.Init.TIMode                  = SPI_TIMODE_DISABLE;
+    hspi1.Init.CRCCalculation          = SPI_CRCCALCULATION_DISABLE;
+    hspi1.Init.CRCPolynomial           = 0x7;
+    hspi1.Init.NSSPMode                = SPI_NSS_PULSE_ENABLE;
+    hspi1.Init.NSSPolarity             = SPI_NSS_POLARITY_LOW;
+    hspi1.Init.FifoThreshold           = SPI_FIFO_THRESHOLD_01DATA;
+    hspi1.Init.MasterSSIdleness        = SPI_MASTER_SS_IDLENESS_00CYCLE;
+    hspi1.Init.MasterInterDataIdleness = SPI_MASTER_INTERDATA_IDLENESS_00CYCLE;
+    hspi1.Init.MasterReceiverAutoSusp  = SPI_MASTER_RX_AUTOSUSP_DISABLE;
+    hspi1.Init.MasterKeepIOState       = SPI_MASTER_KEEP_IO_STATE_DISABLE;
+    hspi1.Init.IOSwap                  = SPI_IO_SWAP_DISABLE;
+    hspi1.Init.ReadyMasterManagement   = SPI_RDY_MASTER_MANAGEMENT_INTERNALLY;
+    hspi1.Init.ReadyPolarity           = SPI_RDY_POLARITY_HIGH;
+    if (HAL_SPI_Init(&hspi1) != HAL_OK)
     {
         Error_Handler();
     }
-    sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-    if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
-    sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
-    if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN TIM3_Init 2 */
+    /* USER CODE BEGIN SPI1_Init 2 */
 
-    /* USER CODE END TIM3_Init 2 */
+    /* USER CODE END SPI1_Init 2 */
+}
+
+/**
+ * @brief USB Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_USB_PCD_Init(void)
+{
+    /* USER CODE BEGIN USB_Init 0 */
+
+    /* USER CODE END USB_Init 0 */
+
+    /* USER CODE BEGIN USB_Init 1 */
+
+    /* USER CODE END USB_Init 1 */
+    hpcd_USB_DRD_FS.Instance                      = USB_DRD_FS;
+    hpcd_USB_DRD_FS.Init.dev_endpoints            = 8;
+    hpcd_USB_DRD_FS.Init.speed                    = USBD_FS_SPEED;
+    hpcd_USB_DRD_FS.Init.phy_itface               = PCD_PHY_EMBEDDED;
+    hpcd_USB_DRD_FS.Init.Sof_enable               = DISABLE;
+    hpcd_USB_DRD_FS.Init.low_power_enable         = DISABLE;
+    hpcd_USB_DRD_FS.Init.lpm_enable               = DISABLE;
+    hpcd_USB_DRD_FS.Init.battery_charging_enable  = DISABLE;
+    hpcd_USB_DRD_FS.Init.vbus_sensing_enable      = DISABLE;
+    hpcd_USB_DRD_FS.Init.bulk_doublebuffer_enable = DISABLE;
+    hpcd_USB_DRD_FS.Init.iso_singlebuffer_enable  = DISABLE;
+    if (HAL_PCD_Init(&hpcd_USB_DRD_FS) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN USB_Init 2 */
+
+    /* USER CODE END USB_Init 2 */
 }
 
 /**
@@ -454,8 +498,16 @@ static void MX_GPIO_Init(void)
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOB, DIAG_EN_Pin | EFUSE_EN_Pin | LED_Pin | BOOT_Pin, GPIO_PIN_RESET);
 
-    /*Configure GPIO pins : DIAG_EN_Pin EFUSE_EN_Pin LED_Pin BOOT_Pin */
-    GPIO_InitStruct.Pin   = DIAG_EN_Pin | EFUSE_EN_Pin | LED_Pin | BOOT_Pin;
+    /*Configure GPIO pin : SLAVE_CLK_Pin */
+    GPIO_InitStruct.Pin       = SLAVE_CLK_Pin;
+    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull      = GPIO_NOPULL;
+    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Alternate = GPIO_AF5_SPI2;
+    HAL_GPIO_Init(SLAVE_CLK_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : LED_Pin BOOT_Pin */
+    GPIO_InitStruct.Pin   = LED_Pin | BOOT_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

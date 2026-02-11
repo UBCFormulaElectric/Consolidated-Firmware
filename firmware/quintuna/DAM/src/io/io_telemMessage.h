@@ -1,6 +1,6 @@
 #pragma once
 
-#include "io_rtc.h"
+#include "../../../../shared/src/io/io_rtc.h"
 #include "io_canMsg.h"
 #include <stdint.h>
 

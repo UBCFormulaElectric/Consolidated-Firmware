@@ -26,14 +26,31 @@ set(IO_INCLUDE_DIRS
         "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_DIR_CPP}"
 )
 
-file(GLOB_RECURSE HW_SRCS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
+file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
+list(APPEND IO_SRCS
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
 )
-list(APPEND HW_SRCS)
+
+file(GLOB_RECURSE HW_SRCS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp"
+)
+list(APPEND HW_SRCS
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_sd.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_gpio.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_uart.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
+)
 set(HW_INCLUDE_DIRS
-        #        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
         "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR_CPP}"
 )
+
+# chimera sources
+set(CHIMERA_SRCS ${HW_SRCS} ${IO_SRCS} "${CMAKE_CURRENT_SOURCE_DIR}/src/chimera.cpp")
+set(CHIMERA_INCLUDE_DIRS ${HW_INCLUDE_DIRS} ${IO_INCLUDE_DIRS})
 
 if ("${TARGET}" STREQUAL "binary")
     set(ARM_CORE "cm33")
@@ -58,14 +75,30 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h5xx_hal_exti.c"
             "stm32h5xx_hal_tim.c"
             "stm32h5xx_hal_tim_ex.c"
+            "stm32h5xx_hal_uart.c"
+            "stm32h5xx_hal_uart_ex.c"
+            "stm32h5xx_hal_rtc.c"
+            "stm32h5xx_hal_gpio.c"
+            "stm32h5xx_hal_fdcan.c"
+            "stm32h5xx_hal_pcd.c"
+            "stm32h5xx_hal_sd.c"
+            "stm32h5xx_hal_crc.c"
+            "stm32h5xx_ll_sdmmc.c"
+            "stm32h5xx_ll_usb.c"
+            "stm32h5xx_hal_pcd_ex.c"
+            "stm32h5xx_hal_crc_ex.c"
+            "stm32h5xx_hal_rtc_ex.c"
+            "stm32h5xx_hal_iwdg.c"
+            "stm32h5xx_hal_dma.c"
     )
+    set(CUBEMX_INCLUDE_DIRS_ ${CUBEMX_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS})
     stm32h562xx_cube_library(
             "hexray_DAM_stm32"
             "${STM32_HAL_SRCS}"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/DAM.ioc"
             "${CUBEMX_SRCS}"
-            "${CUBEMX_INCLUDE_DIRS}"
-            FALSE
+            "${CUBEMX_INCLUDE_DIRS_}"
+            TRUE
             "${ARM_CORE}"
     )
 
@@ -81,6 +114,9 @@ if ("${TARGET}" STREQUAL "binary")
 
     target_link_libraries("hexray_DAM_app.elf" PRIVATE "hexray_DAM_stm32" "hexray_DAM_commit_info" "hexray_DAM_jsoncan" "m")
     target_compile_definitions("hexray_DAM_app.elf" PRIVATE DAM)
+
+    add_chimera_stm32h5("hexray_DAM_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}" "hexray_chimera_v2_proto_cm33")
+    target_link_libraries("hexray_DAM_chimera.elf" PRIVATE "hexray_DAM_stm32")
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS})
