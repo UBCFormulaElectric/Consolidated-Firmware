@@ -7,6 +7,7 @@
 #include <type_traits>
 #include <algorithm>
 #include <utility>
+#include <dual.hpp>
 
 #define APPROX_EQUAL_FLOAT(a, b, threshold) ((bool)(fabsf((a) - (b)) < threshold))
 #define IS_IN_RANGE(min, max, val) (((val) > (min)) && ((val) < (max)))
@@ -16,7 +17,6 @@ namespace app { namespace math{
     template<typename T, size_t R, size_t C>
     class matrix{
 
-        static_assert(std::is_floating_point_v<T>, "Matrix class is constrained to floats or doubles"); // leaving ints out as they do not handle division well
         static_assert(R != 0 && C != 0, "matrix dimensions must be non-zero and non-negagtive");
         static_assert(R <= (std::numeric_limits<std::size_t>::max() / C), "R*C overflows size_t");
 
@@ -285,8 +285,6 @@ namespace app { namespace math{
             } 
         
     };
-    class autodiff {
-        // to help with ekf
-    };
-
-} }
+    
+}
+}

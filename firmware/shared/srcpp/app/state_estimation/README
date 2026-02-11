@@ -4,3 +4,4 @@ Resources
 2. https://simondlevy.github.io/ekf-tutorial/ -- more beginner friendly resource for extended kalman filters 
 3. https://www.youtube.com/watch?v=X42HqGthOqs&list=PLvKAPIGzFEr8n7WRx8RptZmC1rXeTzYtA&index=1 -- for understanding practical implementation 
 4. https://en.wikipedia.org/wiki/Kalman_filter -- nice overview of all the equations involved in the prediction, update and estimate steps in details for the kf
+

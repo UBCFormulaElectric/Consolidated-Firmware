@@ -1,8 +1,8 @@
-#include <gtest/gtest>
-#include <array>
-#include "app_math.hpp"
+#include <gtest/gtest.h>
+#include <cmath>
+#include <random>
+#include "Eigen/Dense"
 
-using app::math::matrix; 
 using app::state_estimation::kf;
 
 /**
@@ -11,21 +11,239 @@ using app::state_estimation::kf;
 */
 
 /**
-* For this lets have a two state system say x1 = position and x2 = velocity with a single input say pedal percentage 
-* for this we can quickly identify our differential equations
-* we know Torque = F* d, and per wheel this looks like Torque = F * r(wheel), now to make a simple assumption on the car we say Fcar = sum of Fwheel as the car is a rigid body
-* to find F we do T/r and then we know the torque request comming in is Tmax (22 N*m) * pedal percent and then lets assume no torque vecotring so this is the torque to each motor so Tmax * pedel percent * 4 / wheel_rad
-* is our total force but then the last thing we need to keep in mind is that there is a gear ratio to put the torque to motor to the wheel, for simplicity lets say thats 10
-* additioanlly lets assume r to be 0.5 so we get F = (22 * 4 * 10 * / 0.5) * p
-* now to complete our system equatiosn we need to convert this forfce to an accep so we know F=ma which now = (22*4*10*2) * p
-* assuming m = 300 kg so a = (22*4*10*2 / 300) * p --> 5.87 * p  = a
-* so we can now form our differential eqns (let ~state be the derrivative of the state)
-* x1(t) = x1(t-1) + x2(t-1) * (delta t) + 5.87 * p * (delta t)^2 
-* x2(t) = x2(t-1) + (5.87*p) * (delta t)
-* this can then be used to form our F and B matrix 
-* F = [(1) (delta t)]
-      [ (1)    0     ]
-* B = [5.87 * (delta t)^2]
-*.    [5.87 * p          ]
+* SCENARIO: Two-state system tracking position (x1) and velocity (x2) with pedal input
+* 
+* PHYSICS MODEL:
+* - Torque per motor: Tmax * pedal_percent = 22 Nm * p
+* - Total torque (4 motors): Tmax * 4 * p = 88 * p Nm
+* - Force with gear ratio (10:1) and wheel radius (0.5m): F = (Torque * gear_ratio) / wheel_radius = (88 * 10 * p) / 0.5 = 1760 * p N
+* - Acceleration: a = F / mass = (1760 * p) / 300 kg = 5.87 * p m/s²
+*
+* DISCRETE-TIME SYSTEM DYNAMICS:
+* State vector: X = [x1 (position), x2 (velocity)]^T
+* Input: u = pedal_percent
+* Time step: dt = 0.01 seconds (100 Hz)
+*
+* State transition equations:
+*   x1(k+1) = x1(k) + x2(k)*dt + 0.5*a*dt² = x1(k) + x2(k)*dt + 2.935*p*dt²
+*   x2(k+1) = x2(k) + a*dt = x2(k) + 5.87*p*dt
+*
+* STATE TRANSITION MATRIX F (with dt=0.01):
+*   F = [1.0  0.01]
+*       [0.0  1.0 ]
+*
+* INPUT MATRIX B (with dt=0.01):
+*   B = [0.002935]   (5.87 * dt²/2)
+*       [0.0587  ]   (5.87 * dt)
+*
+* MEASUREMENT MODEL:
+* We assume we can measure velocity directly (e.g., from wheel encoders)
+* Measurement equation: z = H*X where z is the measured velocity
+*   H = [0.0  1.0]   (observe only velocity, not position)
+*
+* COVARIANCE MATRICES:
+* Q (Process Noise Covariance): Models uncertainty in the system model
+*   - Represents model inaccuracies, unknown disturbances, friction, etc.
+*   - Typically diagonal: Q = [[q1, 0], [0, q2]]
+*   - Choose q1 ≈ 0.001 to 0.01 (position uncertainty grows slowly)
+*   - Choose q2 ≈ 0.01 to 0.1 (velocity uncertainty due to acceleration noise)
+*
+* R (Measurement Noise Covariance): Models sensor uncertainty
+*   - For direct velocity measurement: R = [r] (scalar)
+*   - Typical range: R ≈ 0.01 to 0.1 depending on sensor quality
+*   - If R is too small, filter trusts measurements too much and gets noisy
+*   - If R is too large, filter ignores measurements and relies on prediction
+*
+* TEST SCENARIO:
+* - Start with x1=0, x2=0 (at rest)
+* - Apply pedal_percent=0.5 (50% throttle) for 10 steps
+* - Simulate measurements with small noise
+* - Verify filter converges to expected velocity ≈ 0.5 * 5.87 * 0.01 = 0.02935 m/s per step
 */
+
+/**
+* COMPLETE TEST EXAMPLE for the Kalman Filter scenario
+* 
+* This test demonstrates:
+* 1. System setup with F, B, H matrices using Eigen
+* 2. Covariance matrix selection (Q and R)
+* 3. Running the filter over a sequence of inputs and measurements
+* 4. Verifying the filter output converges to expected values
+*/
+
+TEST(KalmanFilterTest, VelocityEstimationWith50PercentThrottle)
+{
+    // Constants from our scenario
+    const float dt = 0.01f;           // 100 Hz update rate
+    const float acceleration_factor = 5.87f;  // 5.87 * pedal_percent = acceleration
+    const float pedal_percent = 0.5f; // 50% throttle
+    const float expected_accel = acceleration_factor * pedal_percent;  // 2.935 m/s²
+    
+    // ============================================
+    // 1. Define State Transition Matrix F (2x2)
+    // ============================================
+    // F = [1.0  0.01]
+    //     [0.0  1.0 ]
+    Eigen::Matrix<float, 2, 2> F;
+    F << 1.0f, dt,
+         0.0f, 1.0f;
+    
+    // ============================================
+    // 2. Define Input Matrix B (2x1)
+    // ============================================
+    // B = [0.5 * a * dt²]  = [0.002935]
+    //     [a * dt      ]     [0.0587  ]
+    Eigen::Matrix<float, 2, 1> B;
+    B << 0.5f * acceleration_factor * dt * dt,
+         acceleration_factor * dt;
+    
+    // ============================================
+    // 3. Define Measurement Matrix H (1x2)
+    // ============================================
+    // H = [0.0  1.0]  - we measure velocity directly from wheel encoders
+    Eigen::Matrix<float, 1, 2> H;
+    H << 0.0f, 1.0f;
+    
+    // ============================================
+    // 4. Define Process Noise Covariance Q (2x2)
+    // ============================================
+    // Diagonal: q_position ≈ 0.001, q_velocity ≈ 0.01
+    Eigen::Matrix<float, 2, 2> Q;
+    Q << 0.001f, 0.0f,
+         0.0f, 0.01f;
+    
+    // ============================================
+    // 5. Define Measurement Noise Covariance R (1x1)
+    // ============================================
+    Eigen::Matrix<float, 1, 1> R;
+    R << 0.05f;
+    
+    // ============================================
+    // 6. Define Initial State and Covariance
+    // ============================================
+    // Initial state: at rest at position 0
+    Eigen::Matrix<float, 2, 1> x_estimated;
+    x_estimated << 0.0f, 0.0f;  // [position, velocity]^T
+    
+    // Initial state covariance: uncertain about starting state
+    Eigen::Matrix<float, 2, 2> P;
+    P << 1.0f, 0.0f,
+         0.0f, 1.0f;
+    
+    // ============================================
+    // 7. Create and Initialize Kalman Filter
+    // ============================================
+    // TODO: Initialize your KF class with the matrices above
+    // kf filter(F, B, H, Q, R, x_estimated, P);
+    
+    // ============================================
+    // 8. Simulate System and Filter for 10 steps
+    // ============================================
+    float accumulated_velocity = 0.0f;  // Track true velocity for comparison
+    std::mt19937 rng(42);  // Deterministic seed for reproducibility
+    std::normal_distribution<float> noise_dist(0.0f, 0.005f);  // ±0.005 m/s noise
+    
+    for (int k = 0; k < 10; ++k) {
+        // --- TRUE SYSTEM DYNAMICS (with noise in measurement) ---
+        accumulated_velocity += expected_accel * dt;
+        float true_position = x_estimated(0) + accumulated_velocity * dt;
+        
+        // Simulate sensor measurement with small noise
+        float measurement_noise = noise_dist(rng);
+        float measured_velocity = accumulated_velocity + measurement_noise;
+        
+        // --- KALMAN FILTER PREDICTION STEP ---
+        // x_pred = F * x + B * u
+        Eigen::Matrix<float, 2, 1> x_pred = F * x_estimated + B * pedal_percent;
+        
+        // P_pred = F * P * F^T + Q
+        Eigen::Matrix<float, 2, 2> P_pred = F * P * F.transpose() + Q;
+        
+        // --- KALMAN FILTER UPDATE STEP ---
+        // Using measured_velocity from wheel encoder
+        Eigen::Matrix<float, 1, 1> z;
+        z << measured_velocity;
+        
+        // y = z - H * x_pred  (measurement residual)
+        Eigen::Matrix<float, 1, 1> y = z - H * x_pred;
+        
+        // S = H * P_pred * H^T + R  (residual covariance)
+        Eigen::Matrix<float, 1, 1> S = H * P_pred * H.transpose() + R;
+        
+        // K = P_pred * H^T * S^-1  (Kalman gain)
+        Eigen::Matrix<float, 2, 1> K = P_pred * H.transpose() * S.inverse();
+        
+        // x_estimated = x_pred + K * y
+        x_estimated = x_pred + K * y;
+        
+        // P = (I - K * H) * P_pred
+        Eigen::Matrix<float, 2, 2> I = Eigen::Matrix<float, 2, 2>::Identity();
+        P = (I - K * H) * P_pred;
+        
+        // --- VERIFY BEHAVIOR ---
+        SCOPED_TRACE("Iteration " + std::to_string(k));
+        // Verify that estimates are reasonable
+        EXPECT_LT(x_estimated(1), 1.0f);  // velocity shouldn't exceed 1 m/s in 10 steps
+        EXPECT_GT(x_estimated(0), -0.1f);  // position should not go negative
+    }
+    
+    // Final check: velocity should be close to calculated value
+    float expected_final_velocity = expected_accel * dt * 10;  // ≈ 0.2935 m/s
+    EXPECT_NEAR(x_estimated(1), expected_final_velocity, 0.05f);
+    
+    // Final check: position should have increased
+    EXPECT_GT(x_estimated(0), 0.001f);
+}
+
+/**
+ * CHOOSING COVARIANCE MATRICES - PRACTICAL GUIDE:
+ * 
+ * Process Noise Covariance (Q):
+ * =============================
+ * Represents: How much we believe the system model
+ * 
+ * In our case:
+ * - Position update: x_new = x_old + v*dt + 0.5*a*dt²
+ *   We're pretty confident in this kinematics, so q11 should be small (0.001-0.01)
+ * 
+ * - Velocity update: v_new = v_old + a*dt
+ *   This depends on our acceleration estimate (5.87*pedal%), which may be affected by:
+ *   * Friction (varies with road surface)
+ *   * Tire slip (at high acceleration)
+ *   * Aerodynamic drag (quadratic with speed)
+ *   So q22 should be larger (0.01-0.1)
+ * 
+ * Q = [[q11, 0  ],
+ *      [0,   q22]]
+ *
+ * Measurement Noise Covariance (R):
+ * ==================================
+ * Represents: Sensor accuracy and uncertainty
+ * 
+ * In our case: Wheel encoder measuring velocity
+ * - Modern encoders have ~0.1-0.5% error
+ * - For velocity range 0-10 m/s, that's ±0.01-0.05 m/s noise
+ * - Noise covariance R = (std_dev)² ≈ (0.025)² ≈ 0.0006 to (0.05)² ≈ 0.0025
+ * - Practical range: R = 0.001 to 0.1
+ * 
+ * R = [r]  (1x1 matrix for single measurement)
+ *
+ * TUNING PROCESS:
+ * ===============
+ * 1. Start with Q_initial = 0.01*I, R_initial = 0.01
+ * 2. Run simulation and check filter response:
+ *    - If filter lags behind true value: increase Q (trust model less)
+ *    - If filter oscillates around measurement: increase R (trust sensor less)
+ * 3. Adjust ratio Q/R:
+ *    - High ratio: Filter follows measurements closely
+ *    - Low ratio: Filter follows model predictions closely
+ * 4. Typical sweet spot: Q/R ≈ 0.1 to 1.0
+ * 
+ * EMPIRICAL METHOD:
+ * ================
+ * Record actual sensor data and compute:
+ * - Q: Variance of (model_predicted - actual_value)
+ * - R: Variance of sensor noise around true value
+ */
+
 

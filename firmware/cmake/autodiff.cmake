@@ -1,30 +1,30 @@
 message("")
 message("Auto diff lib")
 
-set(AUTO_DIFF_INCLUDE_DIRS
-    "${AUTO_DIFF_SOURCE_DIR}/autodiff/forward"
-    "${AUTO_DIFF_SOURCE_DIR}/autodiff/reverse"
+# Eigen configuration for stack-only allocation (no heap allocation)
+# These flags prevent dynamic memory allocation in Eigen
+set(EIGEN_FLAGS
+    -DEIGEN_STACK_ALLOCATION_LIMIT=0  # Disable dynamic allocation
+    -DEIGEN_MAX_STATIC_ALIGN_BYTES=0  # No static alignment overhead
 )
 
-# Dummy source file as library is header only
+set(AUTO_DIFF_SOURCE_DIR autodiff/)
 
-set(AUTO_DIFF_DUMMY_SRC "${CMAKE_BINARY_DIR}/_autodiff_dummy.cpp")
-if (NOT EXISTS "${AUTO_DIFF_DUMMY_SRC}")
-  file(WRITE "${AUTO_DIFF_DUMMY_SRC}" "// dummy TU for header-only autodiff\n")
+if (NOT DEFINED AUTO_DIFF_SOURCE_DIR)
+  message(FATAL_ERROR "AUTO_DIFF_SOURCE_DIR not set before including autodiff.cmake")
 endif()
 
-embedded_library(
-  "auto_diff_cm4"
-  "${AUTO_DIFF_DUMMY_SRC}"
-  "${AUTO_DIFF_INCLUDE_DIRS}"
-  "cm4"
-  TRUE
+set(AUTO_DIFF_INCLUDE_DIRS
+  "${AUTO_DIFF_SOURCE_DIR}/autodiff/forward"
+  "${AUTO_DIFF_SOURCE_DIR}/autodiff/reverse"
 )
 
-embedded_library(
-  "auto_diff_cm7"
-  "${AUTO_DIFF_DUMMY_SRC}"
-  "${AUTO_DIFF_INCLUDE_DIRS}"
-  "cm7"
-  TRUE
-)
+if (NOT TARGET autodiff::autodiff)
+  if(NOT TARGET autodiff_interface)
+    add_library(autodiff_interface INTERFACE)
+    target_link_libraries(autodiff_interface INTERFACE Eigen3::Eigen)
+    target_include_directories(autodiff_interface SYSTEM INTERFACE ${AUTO_DIFF_INCLUDE_DIRS})
+  endif()
+endif()
+
+add_library(autodiff::autodiff ALIAS autodiff_interface)
