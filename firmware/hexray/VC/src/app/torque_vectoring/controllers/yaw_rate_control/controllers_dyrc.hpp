@@ -15,11 +15,11 @@ class DirectYawRateControl
 
     // purely for debugging purposes
     float yaw_moment_Nm    = 0.0f;
-    float ref_yaw_rate_rad = 0.0f;
+    float r_ref_rad = 0.0f;
 
   public:
     explicit DirectYawRateControl(const PID::Config &in_pid_conf, const float in_ku)
-      : pid_config(in_pid_conf), pid(in_pid_conf), ku(in_ku){};
+      : pid_config(in_pid_conf), ku(in_ku), pid(in_pid_conf) {};
 
     /**
      * @brief Computes the reference yaw rate to target based on the steering angle, velocity and understeer gradient
@@ -39,7 +39,7 @@ class DirectYawRateControl
      *
      * @return The reference yaw rate to target in rad/s
      */
-    [[nodiscard]] inline float computeRefYawRate(float steer_ang_rad, float body_velx_mps) const;
+    [[nodiscard]] inline float computeRefYawRate(float steer_ang_rad, float body_velx_mps);
 
     /**
      * @brief Computes the corrective yaw moment to apply on the vehicle to target a reference yaw rate
@@ -52,7 +52,7 @@ class DirectYawRateControl
      *
      * @return The corrective yaw moment in Nm to apply on the vehicle
      */
-    [[nodiscard]] inline float computeYawMoment(float r_actual_rad, float steer_ang_rad, float body_velx_mps) const;
+    [[nodiscard]] inline float computeYawMoment(float r_actual_rad, float steer_ang_rad, float body_velx_mps);
 
     // The functions below are getters for CAN debugging
 
@@ -61,13 +61,13 @@ class DirectYawRateControl
      *
      * @return The corrective yaw moment in Nm to apply on the vehicle
      */
-    [[nodiscard]] float getYawMoment() const;
+    [[nodiscard]] float getYawMoment();
 
     /**
      * @brief Get the reference yaw rate computed using the understeer gradient, steering angle and velocity
      *
      * @return The desired yaw rate to achieve in radians per second
      */
-    [[nodiscard]] float getRefYawRate() const;
+    [[nodiscard]] float getRefYawRate();
 };
 } // namespace app::tv::controllers::dyrc
