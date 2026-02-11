@@ -13,7 +13,7 @@ void overflowCallback(const uint32_t overflow_count)
 
 void overflowClearCallback()
 {
-    LOG_INFO("Telem Message TX Queue overflow cleared");
+    // LOG_INFO("Telem Message TX Queue overflow cleared"); Do nothing
 }
 
 io::queue<io::CanMsg, QUEUE_SIZE> queue{ "Telem Message TX Queue", overflowCallback, overflowClearCallback };
