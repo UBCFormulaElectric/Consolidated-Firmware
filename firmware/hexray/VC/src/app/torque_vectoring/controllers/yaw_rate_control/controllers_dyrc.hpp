@@ -14,12 +14,12 @@ class DirectYawRateControl
     PID pid;
 
     // purely for debugging purposes
-    float yaw_moment_Nm    = 0.0f;
-    float r_ref_rad = 0.0f;
+    float yaw_moment_Nm = 0.0f;
+    float r_ref_rad     = 0.0f;
 
   public:
     explicit DirectYawRateControl(const PID::Config &in_pid_conf, const float in_ku)
-      : pid_config(in_pid_conf), ku(in_ku), pid(in_pid_conf) {};
+      : pid_config(in_pid_conf), ku(in_ku), pid(in_pid_conf){};
 
     /**
      * @brief Computes the reference yaw rate to target based on the steering angle, velocity and understeer gradient
