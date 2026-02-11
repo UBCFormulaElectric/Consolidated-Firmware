@@ -96,7 +96,7 @@ inline constexpr float APPROX_STEERING_TO_WHEEL_ANGLE =
  * Input: torque in Nm
  * Output: int16_t representing (torque/nominal) * 1000
  */
-inline constexpr int16_t PEDAL_REMAPPING(float torque)
+inline constexpr int16_t MOTOR_TORQUE_REQUEST(float torque)
 {
     return static_cast<int16_t>((torque / NOMINAL_TORQUE_REQUEST_NM) * 1000.0f);
 }
