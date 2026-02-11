@@ -20,11 +20,18 @@ const AdcChip<NUM_ADC_CHANNELS> adc1{ &hadc1, &htim3 };
 const Adc                       efuse_i_sns{ adc1.getChannel(0) };
 TI_TPS28_Efuse                  efuse{ efuse_en, efuse_i_sns, diag_en };
 
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+{
+    adc1.update_callback();
+}
+
 void jobs_init()
 {
+    // adc1.init();
+
     efuse.setChannel(true);
     efuse.enableDiagnostics(true);
-    LOG_INFO("IS CHANNEL ENABLED: %s", efuse.isChannelEnabled() ? "YES" : "NO");
+    // LOG_INFO("IS CHANNEL ENABLED: %s", efuse.isChannelEnabled() ? "YES" : "NO");
 }
 
 void jobs_run1Hz_tick() {}
@@ -34,7 +41,7 @@ void jobs_run100Hz_tick()
     float current = efuse.getChannelCurrent();
     bool  ok      = efuse.ok();
 
-    LOG_INFO("CURRENT: %.3f, EFUSE OK: %s", static_cast<double>(current), ok ? "YES" : "NO");
+    // LOG_INFO("CURRENT: %.3f, EFUSE OK: %s", static_cast<double>(current), ok ? "YES" : "NO");
 }
 
 void jobs_run1kHz_tick() {}

@@ -2,6 +2,7 @@
 
 #include "util_utils.hpp"
 #include <array>
+#include <cassert>
 
 #ifdef TARGET_EMBEDDED
 #include "main.h"
@@ -66,8 +67,8 @@ template <size_t NUM_ADC_CHANNELS> class AdcChip
 
     void init() const
     {
-        HAL_ADC_Start_DMA(hadc, (uint32_t *)raw_adc_values.data(), hadc->Init.NbrOfConversion);
-        HAL_TIM_Base_Start(htim);
+        assert(HAL_ADC_Start_DMA(hadc, (uint32_t *)raw_adc_values.data(), hadc->Init.NbrOfConversion) == HAL_OK);
+        assert(HAL_TIM_Base_Start(htim) == HAL_OK);
     }
 
     void update_callback() const

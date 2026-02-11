@@ -37,6 +37,7 @@ static constexpr float V_SNSFH_MIN = 3.5f;
 static constexpr float V_SNSFH     = 3.95f;
 static constexpr float V_SNSFH_MAX = 4.4f;
 
+// TODO: Will probably consolidate this into ok function 
 void TI_TPS28_Efuse::enableDiagnostics(bool enable)
 {
     this->diag_en_gpio.writePin(enable);
