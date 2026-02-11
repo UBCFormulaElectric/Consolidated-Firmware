@@ -22,26 +22,27 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
+#include <stm32h5xx_hal.h>
 #include <stm32h5xx_hal_gpio.h>
-/* USER CODE END Includes */
+    /* USER CODE END Includes */
 
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
+    /* Private typedef -----------------------------------------------------------*/
+    /* USER CODE BEGIN PTD */
 
-/* USER CODE END PTD */
+    /* USER CODE END PTD */
 
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
+    /* Private define ------------------------------------------------------------*/
+    /* USER CODE BEGIN PD */
 
-/* USER CODE END PD */
+    /* USER CODE END PD */
 
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
+    /* Private macro -------------------------------------------------------------*/
+    /* USER CODE BEGIN PM */
 
-/* USER CODE END PM */
+    /* USER CODE END PM */
 
-/* Private variables ---------------------------------------------------------*/
-ADC_HandleTypeDef hadc1;
+    /* Private variables ---------------------------------------------------------*/
+    ADC_HandleTypeDef hadc1;
 
 FDCAN_HandleTypeDef hfdcan1;
 

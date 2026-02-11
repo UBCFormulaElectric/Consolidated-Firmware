@@ -1,11 +1,11 @@
 #pragma once
 
 /*
-*Brake light control
-val = value of the brake light
-*/
+ * Brake light control
+ * value = value of the brake light
+ */
 
 namespace io::brakeLight
 {
-void set(const bool val);
+void set(const bool value);
 }

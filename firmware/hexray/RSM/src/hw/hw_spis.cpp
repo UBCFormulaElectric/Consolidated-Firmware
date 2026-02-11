@@ -10,8 +10,6 @@ namespace hw::spi
 constexpr SpiBus    spi3(hspi3);
 constexpr SpiDevice imu(spi3, gpio::imu_cs, 10);
 
-// should I write if (handle != &hspi) {assert(false); return nullptr} else {return &spi3} instead?
-// or does this count as hard coding?
 const SpiBus &hw_spi_getBusFromHandle(const SPI_HandleTypeDef *handle)
 {
     assert(handle == &hspi3);

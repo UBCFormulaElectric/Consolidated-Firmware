@@ -10,7 +10,7 @@ void init();
 /*
  * Check if the flow meter is active. If not, set frequency to 0.
  */
-void checkIfFlowMeterActive();
+bool checkIfFlowMeterActive();
 
 /*
  * return the flow rate in liters per minute.
