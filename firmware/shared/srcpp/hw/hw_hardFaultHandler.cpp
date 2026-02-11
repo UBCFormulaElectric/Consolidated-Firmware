@@ -2,7 +2,7 @@
 #include "hw_hal.hpp"
 #include "hw_utils.hpp"
 
-void hw_hardFaultHandler_init(void)
+void hw_hardFaultHandler_init()
 {
     // Div-by-zero exception is disabled by default and must be enabled manually
     SCB->CCR = SCB->CCR | SCB_CCR_DIV_0_TRP_Msk;

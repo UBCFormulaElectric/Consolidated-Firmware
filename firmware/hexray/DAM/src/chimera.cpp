@@ -1,10 +1,12 @@
 #include "tasks.h"
 #include "chimera_v2.hpp"
 #include "hw_gpios.hpp"
+#include "hw_hardFaultHandler.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "shared.pb.h"
 #include "io_log.hpp"
 #include "hw_usb.hpp"
+#include "hw_uarts.hpp"
 
 #include <cassert>
 #include <dam.pb.h>
@@ -12,7 +14,7 @@
 #include <optional>
 #include <functional>
 
-class DAMChimeraConfig : public chimera_v2::config
+class DAMChimeraConfig final : public chimera_v2::config
 {
   public:
     ~DAMChimeraConfig() override = default;
@@ -58,20 +60,38 @@ class DAMChimeraConfig : public chimera_v2::config
         }
     }
 
-    consteval DAMChimeraConfig() { gpio_net_name_tag = GpioNetName_dam_net_name_tag; }
+    std::optional<std::reference_wrapper<const hw::Uart>> id_to_uart(const _UartNetName *unn) const override
+    {
+        assert(unn->which_name == gpio_net_name_tag);
+        switch (unn->name.dam_net_name)
+        {
+            case dam_UartNetName_UART_RADIO:
+                return std::cref(_900k_uart);
+            case dam_UartNetName_UART_NET_NAME_UNSPECIFIED:
+            default:
+                LOG_INFO("Chimera: Unknown UART net name");
+                return std::nullopt;
+        }
+    }
+
+    consteval DAMChimeraConfig()
+    {
+        gpio_net_name_tag = GpioNetName_dam_net_name_tag;
+        uart_net_name_tag = UartNetName_dam_net_name_tag;
+    }
 
 } dam_config;
 
 static hw::rtos::StaticTask<8096>
     TaskChimera(osPriorityRealtime, "TaskChimera", [](void *) { chimera_v2::task(dam_config); });
 
-void tasks_preInit()
-{
-    assert(hw::usb::init());
-}
+void tasks_preInit() {}
+char USBD_PRODUCT_STRING_FS[] = "dam";
 
 [[noreturn]] void tasks_init()
 {
+    hw_hardFaultHandler_init();
+    assert(hw::usb::init());
     osKernelInitialize();
     TaskChimera.start();
     osKernelStart();
