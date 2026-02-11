@@ -42,6 +42,9 @@
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
+DMA_NodeTypeDef   Node_GPDMA1_Channel0;
+DMA_QListTypeDef  List_GPDMA1_Channel0;
+DMA_HandleTypeDef handle_GPDMA1_Channel0;
 
 FDCAN_HandleTypeDef hfdcan1;
 
@@ -61,13 +64,14 @@ PCD_HandleTypeDef hpcd_USB_DRD_FS;
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_GPDMA1_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_FDCAN1_Init(void);
 static void MX_I2C2_Init(void);
 static void MX_SPI3_Init(void);
 static void MX_USB_PCD_Init(void);
-static void MX_TIM3_Init(void);
 static void MX_TIM1_Init(void);
+static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -105,13 +109,14 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
+    MX_GPDMA1_Init();
     MX_ADC1_Init();
     MX_FDCAN1_Init();
     MX_I2C2_Init();
     MX_SPI3_Init();
     MX_USB_PCD_Init();
-    MX_TIM3_Init();
     MX_TIM1_Init();
+    MX_TIM3_Init();
     /* USER CODE BEGIN 2 */
     HAL_GPIO_WritePin(BRAKE_LIGHT_EN_3V3_GPIO_Port, BRAKE_LIGHT_EN_3V3_Pin, GPIO_PIN_RESET);
     ;
@@ -324,6 +329,32 @@ static void MX_FDCAN1_Init(void)
 }
 
 /**
+ * @brief GPDMA1 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_GPDMA1_Init(void)
+{
+    /* USER CODE BEGIN GPDMA1_Init 0 */
+
+    /* USER CODE END GPDMA1_Init 0 */
+
+    /* Peripheral clock enable */
+    __HAL_RCC_GPDMA1_CLK_ENABLE();
+
+    /* GPDMA1 interrupt Init */
+    HAL_NVIC_SetPriority(GPDMA1_Channel0_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(GPDMA1_Channel0_IRQn);
+
+    /* USER CODE BEGIN GPDMA1_Init 1 */
+
+    /* USER CODE END GPDMA1_Init 1 */
+    /* USER CODE BEGIN GPDMA1_Init 2 */
+
+    /* USER CODE END GPDMA1_Init 2 */
+}
+
+/**
  * @brief I2C2 Initialization Function
  * @param None
  * @retval None
@@ -501,7 +532,7 @@ static void MX_TIM3_Init(void)
     htim3.Init.CounterMode       = TIM_COUNTERMODE_UP;
     htim3.Init.Period            = 99;
     htim3.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
-    htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
     if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
     {
         Error_Handler();
@@ -511,7 +542,7 @@ static void MX_TIM3_Init(void)
     {
         Error_Handler();
     }
-    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
     sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
     if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
     {
