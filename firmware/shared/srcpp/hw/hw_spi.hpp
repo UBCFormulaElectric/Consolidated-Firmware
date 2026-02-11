@@ -34,6 +34,8 @@ class SpiBus
      */
     void onTransactionCompleteFromISR() const;
 
+    SPI_HandleTypeDef &getHandle() const { return handle; }
+
   private:
     friend class SpiDevice;
 
