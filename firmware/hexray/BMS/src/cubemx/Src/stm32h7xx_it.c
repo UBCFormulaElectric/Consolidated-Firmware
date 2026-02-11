@@ -324,6 +324,34 @@ void TIM5_IRQHandler(void)
 }
 
 /**
+ * @brief This function handles USB On The Go HS End Point 1 Out global interrupt.
+ */
+void OTG_HS_EP1_OUT_IRQHandler(void)
+{
+    /* USER CODE BEGIN OTG_HS_EP1_OUT_IRQn 0 */
+
+    /* USER CODE END OTG_HS_EP1_OUT_IRQn 0 */
+    HAL_PCD_IRQHandler(&hpcd_USB_OTG_HS);
+    /* USER CODE BEGIN OTG_HS_EP1_OUT_IRQn 1 */
+
+    /* USER CODE END OTG_HS_EP1_OUT_IRQn 1 */
+}
+
+/**
+ * @brief This function handles USB On The Go HS End Point 1 In global interrupt.
+ */
+void OTG_HS_EP1_IN_IRQHandler(void)
+{
+    /* USER CODE BEGIN OTG_HS_EP1_IN_IRQn 0 */
+
+    /* USER CODE END OTG_HS_EP1_IN_IRQn 0 */
+    HAL_PCD_IRQHandler(&hpcd_USB_OTG_HS);
+    /* USER CODE BEGIN OTG_HS_EP1_IN_IRQn 1 */
+
+    /* USER CODE END OTG_HS_EP1_IN_IRQn 1 */
+}
+
+/**
  * @brief This function handles USB On The Go HS global interrupt.
  */
 void OTG_HS_IRQHandler(void)
