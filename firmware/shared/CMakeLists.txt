@@ -2,13 +2,16 @@ message("")
 message("⚙️ Configuring Shared")
 
 IF ("${TARGET}" STREQUAL "test")
-    # shared modules tests
-    file(GLOB_RECURSE SHARED_TEST_SRCS
+    # C tests (test/*.c, test/*.cpp) and C++ tests (test/cpp/*.cpp) targeted individually via layout
+    file(GLOB SHARED_TEST_C_SRCS
             "${CMAKE_CURRENT_SOURCE_DIR}/test/*.c"
             "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp"
     )
-    set(SRCS ${SHARED_TEST_SRCS} ${SHARED_APP_SRCS})
-    set(INCLUDE_DIRS ${SHARED_APP_INCLUDE_DIR} ${FFF_DIR} ${SHARED_TEST_UTILS_INCLUDE_DIRS})
+    file(GLOB SHARED_TEST_CPP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/test/cpp/*.cpp")
+    # Only C++ app sources that do not depend on C++ io (e.g. io_time.hpp) to avoid undefined refs in shared_test
+    set(SHARED_APP_SRCS_CPP_TEST "${SHARED_APP_INCLUDE_DIR_CPP}/app_sensor_filter.cpp")
+    set(SRCS ${SHARED_TEST_C_SRCS} ${SHARED_TEST_CPP_SRCS} ${SHARED_APP_SRCS} ${SHARED_APP_SRCS_CPP_TEST})
+    set(INCLUDE_DIRS ${SHARED_APP_INCLUDE_DIR} ${SHARED_APP_INCLUDE_DIR_CPP} ${SHARED_IO_INCLUDE_DIR_CPP} ${FFF_DIR} ${SHARED_TEST_UTILS_INCLUDE_DIRS})
     compile_gtest_executable("shared_test" "${SRCS}" "${INCLUDE_DIRS}")
 
     # jsoncan lib
