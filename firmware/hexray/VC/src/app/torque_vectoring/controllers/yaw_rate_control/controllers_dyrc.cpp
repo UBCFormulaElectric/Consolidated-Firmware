@@ -5,27 +5,26 @@ using namespace app::tv::datatypes::vd_constants;
 
 namespace app::tv::controllers::dyrc
 {
-[[nodiscard]] inline float DirectYawRateControl::computeRefYawRate(float steer_ang_rad, float body_velx_mps) const
+[[nodiscard]] inline float DirectYawRateControl::computeRefYawRate(float steer_ang_rad, float body_velx_mps)
 {
-    ref_yaw_rate_rad = (body_velx_mps * steer_ang_rad) / (WHEELBASE_m * (1.0f + ku * body_velx_mps * body_velx_mps));
-    return ref_yaw_rate_rad;
+    r_ref_rad = (body_velx_mps * steer_ang_rad) / (WHEELBASE_m * (1.0f + ku * body_velx_mps * body_velx_mps));
+    return r_ref_rad;
 }
 
 [[nodiscard]] inline float
-    DirectYawRateControl::computeYawMoment(float r_actual_rad, float steer_ang_rad, float body_velx_mps) const
+    DirectYawRateControl::computeYawMoment(float r_actual_rad, float steer_ang_rad, float body_velx_mps)
 {
-    float r_ref_rad = computeRefYawRate(steer_ang_rad, body_velx_mps);
-    yaw_moment_Nm = pid.compute(r_ref_rad, r_actual_rad, 0.0f);
+    yaw_moment_Nm = pid.compute(computeRefYawRate(steer_ang_rad, body_velx_mps), r_actual_rad, 0.0f);
     return yaw_moment_Nm;
 }
 
-[[nodiscard]] float getYawMoment() const
+[[nodiscard]] float DirectYawRateControl::getYawMoment()
 {
     return yaw_moment_Nm;
 }
 
-[[nodiscard]] float getRefYawRate() const
+[[nodiscard]] float DirectYawRateControl::getRefYawRate()
 {
-    return ref_yaw_rate_rad;
+    return r_ref_rad;
 }
 } // namespace app::tv::controllers::dyrc

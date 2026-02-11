@@ -9,61 +9,61 @@ namespace app::tv::datatypes::vd_constants
 // PHYSICAL CONSTANTS
 // =============================================================================
 
-static constexpr float GRAVITY       = 9.81f;     // m/s^2
-static constexpr float SMALL_EPSILON = 0.000001f; // Numerical stability for division
+inline constexpr float GRAVITY       = 9.81f;     // m/s^2
+inline constexpr float SMALL_EPSILON = 0.000001f; // Numerical stability for division
 
 // =============================================================================
 // VEHICLE DIMENSIONS
 // =============================================================================
 
-static constexpr float WHEELBASE_mm = 1550.0f;
-static constexpr float WHEELBASE_m  = WHEELBASE_mm * MM_TO_M;
+inline constexpr float WHEELBASE_mm = 1550.0f;
+inline constexpr float WHEELBASE_m  = WHEELBASE_mm * MM_TO_M;
 
-static constexpr float TRACK_WIDTH_mm = 1100.0f;
-static constexpr float TRACK_WIDTH_m  = TRACK_WIDTH_mm * MM_TO_M;
+inline constexpr float TRACK_WIDTH_mm = 1100.0f;
+inline constexpr float TRACK_WIDTH_m  = TRACK_WIDTH_mm * MM_TO_M;
 
 // =============================================================================
 // VEHICLE MASS & CENTER OF GRAVITY
 // =============================================================================
 
-static constexpr float CAR_MASS_AT_CG_KG = 300.0f; // Mass with driver (verified with suspension team)
+inline constexpr float CAR_MASS_AT_CG_KG = 300.0f; // Mass with driver (verified with suspension team)
 
-static constexpr float DIST_FRONT_AXLE_CG_m = 0.837f; // Distance from front axle to CG (parameter 'a')
-static constexpr float DIST_REAR_AXLE_CG_m =
+inline constexpr float DIST_FRONT_AXLE_CG_m = 0.837f; // Distance from front axle to CG (parameter 'a')
+inline constexpr float DIST_REAR_AXLE_CG_m =
     WHEELBASE_m - DIST_FRONT_AXLE_CG_m;                    // Distance from rear axle to CG (parameter 'b')
-static constexpr float DIST_HEIGHT_CG_m = 30.0f * CM_TO_M; // CG height (from suspension team)
+inline constexpr float DIST_HEIGHT_CG_m = 30.0f * CM_TO_M; // CG height (from suspension team)
 
 // Derived weight distribution properties
-static constexpr float WEIGHT_ACROSS_BODY        = CAR_MASS_AT_CG_KG * GRAVITY / WHEELBASE_m;
-static constexpr float REAR_WEIGHT_DISTRIBUTION  = WEIGHT_ACROSS_BODY * DIST_REAR_AXLE_CG_m;
-static constexpr float FRONT_WEIGHT_DISTRIBUTION = WEIGHT_ACROSS_BODY * DIST_FRONT_AXLE_CG_m;
+inline constexpr float WEIGHT_ACROSS_BODY        = CAR_MASS_AT_CG_KG * GRAVITY / WHEELBASE_m;
+inline constexpr float REAR_WEIGHT_DISTRIBUTION  = WEIGHT_ACROSS_BODY * DIST_REAR_AXLE_CG_m;
+inline constexpr float FRONT_WEIGHT_DISTRIBUTION = WEIGHT_ACROSS_BODY * DIST_FRONT_AXLE_CG_m;
 
 // =============================================================================
 // MOTOR & POWERTRAIN SPECIFICATIONS
 // =============================================================================
 
 // AMK DD5-14-10-POW Motor Specifications
-static constexpr float MAX_TORQUE_REQUEST_NM     = 20.5f;  // Safety limit (actual max is 21 Nm)
-static constexpr float NOMINAL_TORQUE_REQUEST_NM = 9.8f;   // Nominal continuous torque
-static constexpr float MAX_REGEN_Nm              = -15.0f; // Maximum regenerative braking torque
+inline constexpr float MAX_TORQUE_REQUEST_NM     = 20.5f;  // Safety limit (actual max is 21 Nm)
+inline constexpr float NOMINAL_TORQUE_REQUEST_NM = 9.8f;   // Nominal continuous torque
+inline constexpr float MAX_REGEN_Nm              = -15.0f; // Maximum regenerative braking torque
 
-static constexpr uint16_t POWER_TO_TORQUE_CONVERSION_FACTOR = 9550; // 60/(2*pi)*1000 for T = P/ω
+inline constexpr uint16_t POWER_TO_TORQUE_CONVERSION_FACTOR = 9550; // 60/(2*pi)*1000 for T = P/ω
 
 // =============================================================================
 // POWER & THERMAL LIMITS
 // =============================================================================
 
 // Power Limits
-static constexpr float RULES_BASED_POWER_LIMIT_KW = 80.0f; // FSAE maximum allowed power
-static constexpr float POWER_LIMIT_CAR_kW         = 40.0f; // TODO: Update with hexray constants or remove
-static constexpr float POWER_LIMIT_REGEN_kW       = 17.0f; // ~17.64kW = 30A charge for Molicel cells
+inline constexpr float RULES_BASED_POWER_LIMIT_KW = 80.0f; // FSAE maximum allowed power
+inline constexpr float POWER_LIMIT_CAR_kW         = 40.0f; // TODO: Update with hexray constants or remove
+inline constexpr float POWER_LIMIT_REGEN_kW       = 17.0f; // ~17.64kW = 30A charge for Molicel cells
                                                            // TODO: Verify if per motor or entire accumulator
 
 // Thermal Limits
-static constexpr float MOTOR_TEMP_CUTOFF_c = 90.0f; // Motor temperature cutoff
-static constexpr float MOTOR_TEMP_POWER_DECREMENTING_RATIO =
+inline constexpr float MOTOR_TEMP_CUTOFF_c = 90.0f; // Motor temperature cutoff
+inline constexpr float MOTOR_TEMP_POWER_DECREMENTING_RATIO =
     80.0f / 30.0f;                               // Power reduction per °C over cutoff (from Emrax 188 manual)
-static constexpr float MAX_BATTERY_TEMP = 45.0f; // TODO: Verify this is current
+inline constexpr float MAX_BATTERY_TEMP = 45.0f; // TODO: Verify this is current
 
 // =============================================================================
 // CONTROL SYSTEM PARAMETERS
@@ -71,16 +71,16 @@ static constexpr float MAX_BATTERY_TEMP = 45.0f; // TODO: Verify this is current
 
 // TODO: these probably are legacy and not needed
 // PID Control Parameters
-static constexpr float PID_TIMEOUT_ms       = 1000.0f; // PID timeout period
-static constexpr float PID_POWER_FACTOR_MIN = -0.9f;   // TODO: May need adjustment
-static constexpr float PID_POWER_FACTOR_MAX = 0.1f;    // TODO: May need adjustment
+inline constexpr float PID_TIMEOUT_ms       = 1000.0f; // PID timeout period
+inline constexpr float PID_POWER_FACTOR_MIN = -0.9f;   // TODO: May need adjustment
+inline constexpr float PID_POWER_FACTOR_MAX = 0.1f;    // TODO: May need adjustment
 
 // =============================================================================
 // TIRE & TRACTION PARAMETERS
 // =============================================================================
 
-static constexpr float SLIP_RATIO_IDEAL = 0.05f; // Ideal slip ratio for maximum traction
-static constexpr float APPROX_STEERING_TO_WHEEL_ANGLE =
+inline constexpr float SLIP_RATIO_IDEAL = 0.05f; // Ideal slip ratio for maximum traction
+inline constexpr float APPROX_STEERING_TO_WHEEL_ANGLE =
     0.3f; // TODO: Replace with reverse/anti-Ackermann model
           // Note: Underestimate for wheel angles > 40° (see Confluence/Steering System)
 
@@ -96,7 +96,7 @@ static constexpr float APPROX_STEERING_TO_WHEEL_ANGLE =
  * Input: torque in Nm
  * Output: int16_t representing (torque/nominal) * 1000
  */
-static constexpr int16_t PEDAL_REMAPPING(float torque)
+inline constexpr int16_t PEDAL_REMAPPING(float torque)
 {
     return static_cast<int16_t>((torque / NOMINAL_TORQUE_REQUEST_NM) * 1000.0f);
 }
@@ -104,7 +104,7 @@ static constexpr int16_t PEDAL_REMAPPING(float torque)
 /**
  * Convert torque and RPM to power (kW)
  */
-static constexpr float TORQUE_TO_POWER(float torque, float rpm)
+inline constexpr float TORQUE_TO_POWER(float torque, float rpm)
 {
     return (torque * (rpm / GEAR_RATIO)) / static_cast<float>(POWER_TO_TORQUE_CONVERSION_FACTOR);
 }
@@ -113,7 +113,7 @@ static constexpr float TORQUE_TO_POWER(float torque, float rpm)
  * Convert power (kW) and RPM to torque (Nm)
  * Includes safety guard against division by zero
  */
-static constexpr float POWER_TO_TORQUE(float power, float rpm)
+inline constexpr float POWER_TO_TORQUE(float power, float rpm)
 {
     return (power * static_cast<float>(POWER_TO_TORQUE_CONVERSION_FACTOR)) / (std::fmax(rpm, 0.00001f) / GEAR_RATIO);
 }
@@ -130,7 +130,7 @@ static constexpr float POWER_TO_TORQUE(float power, float rpm)
  * @param long_accel Longitudinal acceleration (m/s^2)
  * @return Load transfer force (N)
  */
-static constexpr float LONG_ACCEL_TERM_VERTICAL_FORCE(float long_accel)
+inline constexpr float LONG_ACCEL_TERM_VERTICAL_FORCE(float long_accel)
 {
     return (CAR_MASS_AT_CG_KG * long_accel * DIST_HEIGHT_CG_m) / WHEELBASE_m;
 }
@@ -142,31 +142,31 @@ static constexpr float LONG_ACCEL_TERM_VERTICAL_FORCE(float long_accel)
  * @param lat_accel Lateral acceleration (m/s^2)
  * @return Load transfer force per side (N)
  */
-static constexpr float LAT_ACCEL_TERM_VERTICAL_FORCE(float lat_accel)
+inline constexpr float LAT_ACCEL_TERM_VERTICAL_FORCE(float lat_accel)
 {
     return (CAR_MASS_AT_CG_KG * lat_accel * DIST_HEIGHT_CG_m) / (2.0f * TRACK_WIDTH_m);
 }
 
-static constexpr float REAR_RIGHT_WHEEL_VERTICAL_FORCE(float long_accel, float lat_accel)
+inline constexpr float REAR_RIGHT_WHEEL_VERTICAL_FORCE(float long_accel, float lat_accel)
 {
     return REAR_WEIGHT_DISTRIBUTION + LONG_ACCEL_TERM_VERTICAL_FORCE(long_accel / 4.0f) +
            LAT_ACCEL_TERM_VERTICAL_FORCE(lat_accel);
 }
 
-static constexpr float REAR_LEFT_WHEEL_VERTICAL_FORCE(float long_accel, float lat_accel)
+inline constexpr float REAR_LEFT_WHEEL_VERTICAL_FORCE(float long_accel, float lat_accel)
 {
     return REAR_WEIGHT_DISTRIBUTION + LONG_ACCEL_TERM_VERTICAL_FORCE(long_accel / 4.0f) -
            LAT_ACCEL_TERM_VERTICAL_FORCE(lat_accel);
 }
 
 // TODO: Check if front wheels use rear weight or front weight distribution
-static constexpr float FRONT_RIGHT_WHEEL_VERTICAL_FORCE(float long_accel, float lat_accel)
+inline constexpr float FRONT_RIGHT_WHEEL_VERTICAL_FORCE(float long_accel, float lat_accel)
 {
     return REAR_WEIGHT_DISTRIBUTION + LONG_ACCEL_TERM_VERTICAL_FORCE(long_accel / 4.0f) +
            LAT_ACCEL_TERM_VERTICAL_FORCE(lat_accel);
 }
 
-static constexpr float FRONT_LEFT_WHEEL_VERTICAL_FORCE(float long_accel, float lat_accel)
+inline constexpr float FRONT_LEFT_WHEEL_VERTICAL_FORCE(float long_accel, float lat_accel)
 {
     return REAR_WEIGHT_DISTRIBUTION - LONG_ACCEL_TERM_VERTICAL_FORCE(long_accel / 4.0f) -
            LAT_ACCEL_TERM_VERTICAL_FORCE(lat_accel);
@@ -179,7 +179,7 @@ static constexpr float FRONT_LEFT_WHEEL_VERTICAL_FORCE(float long_accel, float l
  * @param long_accel Longitudinal acceleration (m/s^2)
  * @return Effective moment arm (m)
  */
-static constexpr float ACCELERATION_TERM_KMZ(float long_accel)
+inline constexpr float ACCELERATION_TERM_KMZ(float long_accel)
 {
     return DIST_FRONT_AXLE_CG_m + (long_accel * DIST_HEIGHT_CG_m) / GRAVITY;
 }
@@ -188,7 +188,7 @@ static constexpr float ACCELERATION_TERM_KMZ(float long_accel)
  * Moment scaling factor F (page 58)
  * Relates torque differential to yaw moment through track width and effective radius
  */
-static constexpr float F = (TRACK_WIDTH_m / ((WHEEL_DIAMETER_IN / 2.0f) * 2.54f)) * GEAR_RATIO;
+inline constexpr float F = (TRACK_WIDTH_m / ((WHEEL_DIAMETER_IN / 2.0f) * 2.54f)) * GEAR_RATIO;
 
 // =============================================================================
 // EXTERNAL CONFIGURATION (Commented Out)
