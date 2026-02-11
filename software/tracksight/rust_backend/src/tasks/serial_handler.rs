@@ -105,7 +105,8 @@ async fn packet_reader_handler(shutdown_flag: Arc<AtomicBool>, packet_tx: mpsc::
 fn read_packet(serial_port: &mut Box<dyn SerialPort>) -> Result<Vec<u8>, Error> {
     let mut header_buffer = [0x0; HEADER_SIZE];
     let mut index = 0;
-
+    
+    // keep reading until magic bytes
     loop {
         while index < 2 {
             match serial_port.read(&mut header_buffer[index..]) {
@@ -116,9 +117,12 @@ fn read_packet(serial_port: &mut Box<dyn SerialPort>) -> Result<Vec<u8>, Error> 
         if header_buffer[0..2] == MAGIC {
             break;
         }
+        // if magic byte not matched, rotate buffer
         header_buffer.rotate_left(1);
         index -= 1;
     }
+
+    // magic bytes have matched, make sure that the rest of the header has been fully read
     while index < HEADER_SIZE {
         match serial_port.read(&mut header_buffer[index..]) {
             Ok(n) => index += n,
@@ -126,6 +130,7 @@ fn read_packet(serial_port: &mut Box<dyn SerialPort>) -> Result<Vec<u8>, Error> 
         }
     }
 
+    // header has been read, now read until payload is fully read
     let payload_length = header_buffer[2] as usize;
     // assert payload length is less than max
     if payload_length > MAX_PAYLOAD_SIZE {
