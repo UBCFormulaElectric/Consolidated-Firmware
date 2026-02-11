@@ -49,3 +49,18 @@ GPIO_900M: GpioNetName.ValueType
 GPIO_SD_FAIL: GpioNetName.ValueType
 GPIO_D_P_PULLUP: GpioNetName.ValueType
 Global___GpioNetName: _TypeAlias = GpioNetName
+
+class _UartNetName:
+    ValueType = _typing.NewType('ValueType', _builtins.int)
+    V: _TypeAlias = ValueType
+
+class _UartNetNameEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[_UartNetName.ValueType], _builtins.type):
+    DESCRIPTOR: _descriptor.EnumDescriptor
+    UART_NET_NAME_UNSPECIFIED: _UartNetName.ValueType
+    UART_RADIO: _UartNetName.ValueType
+
+class UartNetName(_UartNetName, metaclass=_UartNetNameEnumTypeWrapper):
+    ...
+UART_NET_NAME_UNSPECIFIED: UartNetName.ValueType
+UART_RADIO: UartNetName.ValueType
+Global___UartNetName: _TypeAlias = UartNetName

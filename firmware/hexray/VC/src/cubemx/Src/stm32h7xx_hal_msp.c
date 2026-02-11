@@ -285,7 +285,7 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
         /** Initializes the peripherals clock
          */
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_FDCAN;
-        PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_PLL;
+        PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_HSE;
         if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
         {
             Error_Handler();
@@ -323,7 +323,7 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
         /** Initializes the peripherals clock
          */
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_FDCAN;
-        PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_PLL;
+        PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_HSE;
         if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
         {
             Error_Handler();
@@ -544,23 +544,12 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef *hi2c)
  */
 void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
 {
-    GPIO_InitTypeDef         GPIO_InitStruct     = { 0 };
-    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
+    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
     if (hspi->Instance == SPI1)
     {
         /* USER CODE BEGIN SPI1_MspInit 0 */
 
         /* USER CODE END SPI1_MspInit 0 */
-
-        /** Initializes the peripherals clock
-         */
-        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SPI1;
-        PeriphClkInitStruct.Spi123ClockSelection = RCC_SPI123CLKSOURCE_PLL;
-        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
-        {
-            Error_Handler();
-        }
-
         /* Peripheral clock enable */
         __HAL_RCC_SPI1_CLK_ENABLE();
 
@@ -586,16 +575,6 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
         /* USER CODE BEGIN SPI2_MspInit 0 */
 
         /* USER CODE END SPI2_MspInit 0 */
-
-        /** Initializes the peripherals clock
-         */
-        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SPI2;
-        PeriphClkInitStruct.Spi123ClockSelection = RCC_SPI123CLKSOURCE_PLL;
-        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
-        {
-            Error_Handler();
-        }
-
         /* Peripheral clock enable */
         __HAL_RCC_SPI2_CLK_ENABLE();
 
@@ -800,7 +779,15 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
         /** Initializes the peripherals clock
          */
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USB;
-        PeriphClkInitStruct.UsbClockSelection    = RCC_USBCLKSOURCE_PLL;
+        PeriphClkInitStruct.PLL3.PLL3M           = 1;
+        PeriphClkInitStruct.PLL3.PLL3N           = 24;
+        PeriphClkInitStruct.PLL3.PLL3P           = 2;
+        PeriphClkInitStruct.PLL3.PLL3Q           = 4;
+        PeriphClkInitStruct.PLL3.PLL3R           = 4;
+        PeriphClkInitStruct.PLL3.PLL3RGE         = RCC_PLL3VCIRANGE_3;
+        PeriphClkInitStruct.PLL3.PLL3VCOSEL      = RCC_PLL3VCOWIDE;
+        PeriphClkInitStruct.PLL3.PLL3FRACN       = 0;
+        PeriphClkInitStruct.UsbClockSelection    = RCC_USBCLKSOURCE_PLL3;
         if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
         {
             Error_Handler();
@@ -812,6 +799,13 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
 
         /* Peripheral clock enable */
         __HAL_RCC_USB_OTG_HS_CLK_ENABLE();
+        /* USB_OTG_HS interrupt Init */
+        HAL_NVIC_SetPriority(OTG_HS_EP1_OUT_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(OTG_HS_EP1_OUT_IRQn);
+        HAL_NVIC_SetPriority(OTG_HS_EP1_IN_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(OTG_HS_EP1_IN_IRQn);
+        HAL_NVIC_SetPriority(OTG_HS_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(OTG_HS_IRQn);
         /* USER CODE BEGIN USB_OTG_HS_MspInit 1 */
 
         /* USER CODE END USB_OTG_HS_MspInit 1 */
@@ -833,6 +827,11 @@ void HAL_PCD_MspDeInit(PCD_HandleTypeDef *hpcd)
         /* USER CODE END USB_OTG_HS_MspDeInit 0 */
         /* Peripheral clock disable */
         __HAL_RCC_USB_OTG_HS_CLK_DISABLE();
+
+        /* USB_OTG_HS interrupt DeInit */
+        HAL_NVIC_DisableIRQ(OTG_HS_EP1_OUT_IRQn);
+        HAL_NVIC_DisableIRQ(OTG_HS_EP1_IN_IRQn);
+        HAL_NVIC_DisableIRQ(OTG_HS_IRQn);
         /* USER CODE BEGIN USB_OTG_HS_MspDeInit 1 */
 
         /* USER CODE END USB_OTG_HS_MspDeInit 1 */

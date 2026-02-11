@@ -201,23 +201,21 @@ class I2cNetName(_message.Message):
     """I2Cs"""
     DESCRIPTOR: _descriptor.Descriptor
     RSM_NET_NAME_FIELD_NUMBER: _builtins.int
-    FSM_NET_NAME_FIELD_NUMBER: _builtins.int
     VC_NET_NAME_FIELD_NUMBER: _builtins.int
     rsm_net_name: _rsm_pb2.I2cNetName.ValueType
-    fsm_net_name: _fsm_pb2.I2cNetName.ValueType
     vc_net_name: _vc_pb2.I2cNetName.ValueType
 
-    def __init__(self, *, rsm_net_name: _rsm_pb2.I2cNetName.ValueType=..., fsm_net_name: _fsm_pb2.I2cNetName.ValueType=..., vc_net_name: _vc_pb2.I2cNetName.ValueType=...) -> None:
+    def __init__(self, *, rsm_net_name: _rsm_pb2.I2cNetName.ValueType=..., vc_net_name: _vc_pb2.I2cNetName.ValueType=...) -> None:
         ...
-    _HasFieldArgType: _TypeAlias = _typing.Literal['fsm_net_name', b'fsm_net_name', 'name', b'name', 'rsm_net_name', b'rsm_net_name', 'vc_net_name', b'vc_net_name']
+    _HasFieldArgType: _TypeAlias = _typing.Literal['name', b'name', 'rsm_net_name', b'rsm_net_name', 'vc_net_name', b'vc_net_name']
 
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool:
         ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal['fsm_net_name', b'fsm_net_name', 'name', b'name', 'rsm_net_name', b'rsm_net_name', 'vc_net_name', b'vc_net_name']
+    _ClearFieldArgType: _TypeAlias = _typing.Literal['name', b'name', 'rsm_net_name', b'rsm_net_name', 'vc_net_name', b'vc_net_name']
 
     def ClearField(self, field_name: _ClearFieldArgType) -> None:
         ...
-    _WhichOneofReturnType_name: _TypeAlias = _typing.Literal['rsm_net_name', 'fsm_net_name', 'vc_net_name']
+    _WhichOneofReturnType_name: _TypeAlias = _typing.Literal['rsm_net_name', 'vc_net_name']
     _WhichOneofArgType_name: _TypeAlias = _typing.Literal['name', b'name']
 
     def WhichOneof(self, oneof_group: _WhichOneofArgType_name) -> _WhichOneofReturnType_name | None:
@@ -423,21 +421,25 @@ class SpiNetName(_message.Message):
     BMS_NET_NAME_FIELD_NUMBER: _builtins.int
     CRIT_NET_NAME_FIELD_NUMBER: _builtins.int
     RSM_NET_NAME_FIELD_NUMBER: _builtins.int
+    FSM_NET_NAME_FIELD_NUMBER: _builtins.int
+    VC_NET_NAME_FIELD_NUMBER: _builtins.int
     bms_net_name: _bms_pb2.SpiNetName.ValueType
     crit_net_name: _crit_pb2.SpiNetName.ValueType
     rsm_net_name: _rsm_pb2.SpiNetName.ValueType
+    fsm_net_name: _fsm_pb2.SpiNetName.ValueType
+    vc_net_name: _vc_pb2.SpiNetName.ValueType
 
-    def __init__(self, *, bms_net_name: _bms_pb2.SpiNetName.ValueType=..., crit_net_name: _crit_pb2.SpiNetName.ValueType=..., rsm_net_name: _rsm_pb2.SpiNetName.ValueType=...) -> None:
+    def __init__(self, *, bms_net_name: _bms_pb2.SpiNetName.ValueType=..., crit_net_name: _crit_pb2.SpiNetName.ValueType=..., rsm_net_name: _rsm_pb2.SpiNetName.ValueType=..., fsm_net_name: _fsm_pb2.SpiNetName.ValueType=..., vc_net_name: _vc_pb2.SpiNetName.ValueType=...) -> None:
         ...
-    _HasFieldArgType: _TypeAlias = _typing.Literal['bms_net_name', b'bms_net_name', 'crit_net_name', b'crit_net_name', 'name', b'name', 'rsm_net_name', b'rsm_net_name']
+    _HasFieldArgType: _TypeAlias = _typing.Literal['bms_net_name', b'bms_net_name', 'crit_net_name', b'crit_net_name', 'fsm_net_name', b'fsm_net_name', 'name', b'name', 'rsm_net_name', b'rsm_net_name', 'vc_net_name', b'vc_net_name']
 
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool:
         ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal['bms_net_name', b'bms_net_name', 'crit_net_name', b'crit_net_name', 'name', b'name', 'rsm_net_name', b'rsm_net_name']
+    _ClearFieldArgType: _TypeAlias = _typing.Literal['bms_net_name', b'bms_net_name', 'crit_net_name', b'crit_net_name', 'fsm_net_name', b'fsm_net_name', 'name', b'name', 'rsm_net_name', b'rsm_net_name', 'vc_net_name', b'vc_net_name']
 
     def ClearField(self, field_name: _ClearFieldArgType) -> None:
         ...
-    _WhichOneofReturnType_name: _TypeAlias = _typing.Literal['bms_net_name', 'crit_net_name', 'rsm_net_name']
+    _WhichOneofReturnType_name: _TypeAlias = _typing.Literal['bms_net_name', 'crit_net_name', 'rsm_net_name', 'fsm_net_name', 'vc_net_name']
     _WhichOneofArgType_name: _TypeAlias = _typing.Literal['name', b'name']
 
     def WhichOneof(self, oneof_group: _WhichOneofArgType_name) -> _WhichOneofReturnType_name | None:
@@ -561,6 +563,171 @@ class SpiTransactionResponse(_message.Message):
 Global___SpiTransactionResponse: _TypeAlias = SpiTransactionResponse
 
 @_typing.final
+class UartNetName(_message.Message):
+    """UART"""
+    DESCRIPTOR: _descriptor.Descriptor
+    DAM_NET_NAME_FIELD_NUMBER: _builtins.int
+    dam_net_name: _dam_pb2.UartNetName.ValueType
+
+    def __init__(self, *, dam_net_name: _dam_pb2.UartNetName.ValueType=...) -> None:
+        ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal['dam_net_name', b'dam_net_name', 'name', b'name']
+
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool:
+        ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal['dam_net_name', b'dam_net_name', 'name', b'name']
+
+    def ClearField(self, field_name: _ClearFieldArgType) -> None:
+        ...
+    _WhichOneofReturnType_name: _TypeAlias = _typing.Literal['dam_net_name']
+    _WhichOneofArgType_name: _TypeAlias = _typing.Literal['name', b'name']
+
+    def WhichOneof(self, oneof_group: _WhichOneofArgType_name) -> _WhichOneofReturnType_name | None:
+        ...
+Global___UartNetName: _TypeAlias = UartNetName
+
+@_typing.final
+class UartTransmitRequest(_message.Message):
+    """Uart Transmit"""
+    DESCRIPTOR: _descriptor.Descriptor
+    NET_NAME_FIELD_NUMBER: _builtins.int
+    DATA_FIELD_NUMBER: _builtins.int
+    data: _builtins.bytes
+
+    @_builtins.property
+    def net_name(self) -> Global___UartNetName:
+        ...
+
+    def __init__(self, *, net_name: Global___UartNetName | None=..., data: _builtins.bytes=...) -> None:
+        ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal['net_name', b'net_name']
+
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool:
+        ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal['data', b'data', 'net_name', b'net_name']
+
+    def ClearField(self, field_name: _ClearFieldArgType) -> None:
+        ...
+Global___UartTransmitRequest: _TypeAlias = UartTransmitRequest
+
+@_typing.final
+class UartTransmitResponse(_message.Message):
+    DESCRIPTOR: _descriptor.Descriptor
+    SUCCESS_FIELD_NUMBER: _builtins.int
+    success: _builtins.bool
+
+    def __init__(self, *, success: _builtins.bool=...) -> None:
+        ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal['success', b'success']
+
+    def ClearField(self, field_name: _ClearFieldArgType) -> None:
+        ...
+Global___UartTransmitResponse: _TypeAlias = UartTransmitResponse
+
+@_typing.final
+class UartRecieveRequest(_message.Message):
+    """Uart receieve"""
+    DESCRIPTOR: _descriptor.Descriptor
+    NET_NAME_FIELD_NUMBER: _builtins.int
+    LENGTH_FIELD_NUMBER: _builtins.int
+    length: _builtins.int
+
+    @_builtins.property
+    def net_name(self) -> Global___UartNetName:
+        ...
+
+    def __init__(self, *, net_name: Global___UartNetName | None=..., length: _builtins.int=...) -> None:
+        ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal['net_name', b'net_name']
+
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool:
+        ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal['length', b'length', 'net_name', b'net_name']
+
+    def ClearField(self, field_name: _ClearFieldArgType) -> None:
+        ...
+Global___UartRecieveRequest: _TypeAlias = UartRecieveRequest
+
+@_typing.final
+class UartReceiveResponse(_message.Message):
+    DESCRIPTOR: _descriptor.Descriptor
+    DATA_FIELD_NUMBER: _builtins.int
+    data: _builtins.bytes
+
+    def __init__(self, *, data: _builtins.bytes=...) -> None:
+        ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal['data', b'data']
+
+    def ClearField(self, field_name: _ClearFieldArgType) -> None:
+        ...
+Global___UartReceiveResponse: _TypeAlias = UartReceiveResponse
+
+@_typing.final
+class PwmNetName(_message.Message):
+    """PWM"""
+    DESCRIPTOR: _descriptor.Descriptor
+    CRIT_NET_NAME_FIELD_NUMBER: _builtins.int
+    crit_net_name: _crit_pb2.PwmNetName.ValueType
+
+    def __init__(self, *, crit_net_name: _crit_pb2.PwmNetName.ValueType=...) -> None:
+        ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal['crit_net_name', b'crit_net_name', 'name', b'name']
+
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool:
+        ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal['crit_net_name', b'crit_net_name', 'name', b'name']
+
+    def ClearField(self, field_name: _ClearFieldArgType) -> None:
+        ...
+    _WhichOneofReturnType_name: _TypeAlias = _typing.Literal['crit_net_name']
+    _WhichOneofArgType_name: _TypeAlias = _typing.Literal['name', b'name']
+
+    def WhichOneof(self, oneof_group: _WhichOneofArgType_name) -> _WhichOneofReturnType_name | None:
+        ...
+Global___PwmNetName: _TypeAlias = PwmNetName
+
+@_typing.final
+class PwmSetRequest(_message.Message):
+    """PWM set"""
+    DESCRIPTOR: _descriptor.Descriptor
+    NET_NAME_FIELD_NUMBER: _builtins.int
+    ENABLE_FIELD_NUMBER: _builtins.int
+    DUTY_CYCLE_FIELD_NUMBER: _builtins.int
+    enable: _builtins.bool
+    duty_cycle: _builtins.float
+    '0.0 to 1.0'
+
+    @_builtins.property
+    def net_name(self) -> Global___PwmNetName:
+        ...
+
+    def __init__(self, *, net_name: Global___PwmNetName | None=..., enable: _builtins.bool=..., duty_cycle: _builtins.float=...) -> None:
+        ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal['net_name', b'net_name']
+
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool:
+        ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal['duty_cycle', b'duty_cycle', 'enable', b'enable', 'net_name', b'net_name']
+
+    def ClearField(self, field_name: _ClearFieldArgType) -> None:
+        ...
+Global___PwmSetRequest: _TypeAlias = PwmSetRequest
+
+@_typing.final
+class PwmSetResponse(_message.Message):
+    DESCRIPTOR: _descriptor.Descriptor
+    SUCCESS_FIELD_NUMBER: _builtins.int
+    success: _builtins.bool
+
+    def __init__(self, *, success: _builtins.bool=...) -> None:
+        ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal['success', b'success']
+
+    def ClearField(self, field_name: _ClearFieldArgType) -> None:
+        ...
+Global___PwmSetResponse: _TypeAlias = PwmSetResponse
+
+@_typing.final
 class ChimeraV2Request(_message.Message):
     """
     Wrapper around all messages 
@@ -582,6 +749,9 @@ class ChimeraV2Request(_message.Message):
     SPI_RECEIVE_FIELD_NUMBER: _builtins.int
     SPI_TRANSMIT_FIELD_NUMBER: _builtins.int
     SPI_TRANSACTION_FIELD_NUMBER: _builtins.int
+    UART_RECEIVE_FIELD_NUMBER: _builtins.int
+    UART_TRANSMIT_FIELD_NUMBER: _builtins.int
+    PWM_SET_FIELD_NUMBER: _builtins.int
 
     @_builtins.property
     def gpio_read(self) -> Global___GpioReadRequest:
@@ -627,17 +797,29 @@ class ChimeraV2Request(_message.Message):
     def spi_transaction(self) -> Global___SpiTransactionRequest:
         ...
 
-    def __init__(self, *, gpio_read: Global___GpioReadRequest | None=..., gpio_write: Global___GpioWriteRequest | None=..., adc_read: Global___AdcReadRequest | None=..., i2c_ready: Global___I2cReadyRequest | None=..., i2c_receive: Global___I2cReceiveRequest | None=..., i2c_transmit: Global___I2cTransmitRequest | None=..., i2c_memory_read: Global___I2cMemoryReadRequest | None=..., i2c_memory_write: Global___I2cMemoryWriteRequest | None=..., spi_receive: Global___SpiReceiveRequest | None=..., spi_transmit: Global___SpiTransmitRequest | None=..., spi_transaction: Global___SpiTransactionRequest | None=...) -> None:
+    @_builtins.property
+    def uart_receive(self) -> Global___UartRecieveRequest:
+        """UART."""
+
+    @_builtins.property
+    def uart_transmit(self) -> Global___UartTransmitRequest:
         ...
-    _HasFieldArgType: _TypeAlias = _typing.Literal['adc_read', b'adc_read', 'gpio_read', b'gpio_read', 'gpio_write', b'gpio_write', 'i2c_memory_read', b'i2c_memory_read', 'i2c_memory_write', b'i2c_memory_write', 'i2c_ready', b'i2c_ready', 'i2c_receive', b'i2c_receive', 'i2c_transmit', b'i2c_transmit', 'payload', b'payload', 'spi_receive', b'spi_receive', 'spi_transaction', b'spi_transaction', 'spi_transmit', b'spi_transmit']
+
+    @_builtins.property
+    def pwm_set(self) -> Global___PwmSetRequest:
+        """PWM"""
+
+    def __init__(self, *, gpio_read: Global___GpioReadRequest | None=..., gpio_write: Global___GpioWriteRequest | None=..., adc_read: Global___AdcReadRequest | None=..., i2c_ready: Global___I2cReadyRequest | None=..., i2c_receive: Global___I2cReceiveRequest | None=..., i2c_transmit: Global___I2cTransmitRequest | None=..., i2c_memory_read: Global___I2cMemoryReadRequest | None=..., i2c_memory_write: Global___I2cMemoryWriteRequest | None=..., spi_receive: Global___SpiReceiveRequest | None=..., spi_transmit: Global___SpiTransmitRequest | None=..., spi_transaction: Global___SpiTransactionRequest | None=..., uart_receive: Global___UartRecieveRequest | None=..., uart_transmit: Global___UartTransmitRequest | None=..., pwm_set: Global___PwmSetRequest | None=...) -> None:
+        ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal['adc_read', b'adc_read', 'gpio_read', b'gpio_read', 'gpio_write', b'gpio_write', 'i2c_memory_read', b'i2c_memory_read', 'i2c_memory_write', b'i2c_memory_write', 'i2c_ready', b'i2c_ready', 'i2c_receive', b'i2c_receive', 'i2c_transmit', b'i2c_transmit', 'payload', b'payload', 'pwm_set', b'pwm_set', 'spi_receive', b'spi_receive', 'spi_transaction', b'spi_transaction', 'spi_transmit', b'spi_transmit', 'uart_receive', b'uart_receive', 'uart_transmit', b'uart_transmit']
 
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool:
         ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal['adc_read', b'adc_read', 'gpio_read', b'gpio_read', 'gpio_write', b'gpio_write', 'i2c_memory_read', b'i2c_memory_read', 'i2c_memory_write', b'i2c_memory_write', 'i2c_ready', b'i2c_ready', 'i2c_receive', b'i2c_receive', 'i2c_transmit', b'i2c_transmit', 'payload', b'payload', 'spi_receive', b'spi_receive', 'spi_transaction', b'spi_transaction', 'spi_transmit', b'spi_transmit']
+    _ClearFieldArgType: _TypeAlias = _typing.Literal['adc_read', b'adc_read', 'gpio_read', b'gpio_read', 'gpio_write', b'gpio_write', 'i2c_memory_read', b'i2c_memory_read', 'i2c_memory_write', b'i2c_memory_write', 'i2c_ready', b'i2c_ready', 'i2c_receive', b'i2c_receive', 'i2c_transmit', b'i2c_transmit', 'payload', b'payload', 'pwm_set', b'pwm_set', 'spi_receive', b'spi_receive', 'spi_transaction', b'spi_transaction', 'spi_transmit', b'spi_transmit', 'uart_receive', b'uart_receive', 'uart_transmit', b'uart_transmit']
 
     def ClearField(self, field_name: _ClearFieldArgType) -> None:
         ...
-    _WhichOneofReturnType_payload: _TypeAlias = _typing.Literal['gpio_read', 'gpio_write', 'adc_read', 'i2c_ready', 'i2c_receive', 'i2c_transmit', 'i2c_memory_read', 'i2c_memory_write', 'spi_receive', 'spi_transmit', 'spi_transaction']
+    _WhichOneofReturnType_payload: _TypeAlias = _typing.Literal['gpio_read', 'gpio_write', 'adc_read', 'i2c_ready', 'i2c_receive', 'i2c_transmit', 'i2c_memory_read', 'i2c_memory_write', 'spi_receive', 'spi_transmit', 'spi_transaction', 'uart_receive', 'uart_transmit', 'pwm_set']
     _WhichOneofArgType_payload: _TypeAlias = _typing.Literal['payload', b'payload']
 
     def WhichOneof(self, oneof_group: _WhichOneofArgType_payload) -> _WhichOneofReturnType_payload | None:
@@ -658,6 +840,9 @@ class ChimeraV2Response(_message.Message):
     SPI_RECEIVE_FIELD_NUMBER: _builtins.int
     SPI_TRANSMIT_FIELD_NUMBER: _builtins.int
     SPI_TRANSACTION_FIELD_NUMBER: _builtins.int
+    UART_RECEIVE_FIELD_NUMBER: _builtins.int
+    UART_TRANSMIT_FIELD_NUMBER: _builtins.int
+    PWM_SET_FIELD_NUMBER: _builtins.int
 
     @_builtins.property
     def gpio_read(self) -> Global___GpioReadResponse:
@@ -703,17 +888,29 @@ class ChimeraV2Response(_message.Message):
     def spi_transaction(self) -> Global___SpiTransactionResponse:
         ...
 
-    def __init__(self, *, gpio_read: Global___GpioReadResponse | None=..., gpio_write: Global___GpioWriteResponse | None=..., adc_read: Global___AdcReadResponse | None=..., i2c_ready: Global___I2cReadyResponse | None=..., i2c_receive: Global___I2cReceiveResponse | None=..., i2c_transmit: Global___I2cTransmitResponse | None=..., i2c_memory_read: Global___I2cMemoryReadResponse | None=..., i2c_memory_write: Global___I2cMemoryWriteResponse | None=..., spi_receive: Global___SpiReceiveResponse | None=..., spi_transmit: Global___SpiTransmitResponse | None=..., spi_transaction: Global___SpiTransactionResponse | None=...) -> None:
+    @_builtins.property
+    def uart_receive(self) -> Global___UartReceiveResponse:
+        """UART."""
+
+    @_builtins.property
+    def uart_transmit(self) -> Global___UartTransmitResponse:
         ...
-    _HasFieldArgType: _TypeAlias = _typing.Literal['adc_read', b'adc_read', 'gpio_read', b'gpio_read', 'gpio_write', b'gpio_write', 'i2c_memory_read', b'i2c_memory_read', 'i2c_memory_write', b'i2c_memory_write', 'i2c_ready', b'i2c_ready', 'i2c_receive', b'i2c_receive', 'i2c_transmit', b'i2c_transmit', 'payload', b'payload', 'spi_receive', b'spi_receive', 'spi_transaction', b'spi_transaction', 'spi_transmit', b'spi_transmit']
+
+    @_builtins.property
+    def pwm_set(self) -> Global___PwmSetResponse:
+        """PWM"""
+
+    def __init__(self, *, gpio_read: Global___GpioReadResponse | None=..., gpio_write: Global___GpioWriteResponse | None=..., adc_read: Global___AdcReadResponse | None=..., i2c_ready: Global___I2cReadyResponse | None=..., i2c_receive: Global___I2cReceiveResponse | None=..., i2c_transmit: Global___I2cTransmitResponse | None=..., i2c_memory_read: Global___I2cMemoryReadResponse | None=..., i2c_memory_write: Global___I2cMemoryWriteResponse | None=..., spi_receive: Global___SpiReceiveResponse | None=..., spi_transmit: Global___SpiTransmitResponse | None=..., spi_transaction: Global___SpiTransactionResponse | None=..., uart_receive: Global___UartReceiveResponse | None=..., uart_transmit: Global___UartTransmitResponse | None=..., pwm_set: Global___PwmSetResponse | None=...) -> None:
+        ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal['adc_read', b'adc_read', 'gpio_read', b'gpio_read', 'gpio_write', b'gpio_write', 'i2c_memory_read', b'i2c_memory_read', 'i2c_memory_write', b'i2c_memory_write', 'i2c_ready', b'i2c_ready', 'i2c_receive', b'i2c_receive', 'i2c_transmit', b'i2c_transmit', 'payload', b'payload', 'pwm_set', b'pwm_set', 'spi_receive', b'spi_receive', 'spi_transaction', b'spi_transaction', 'spi_transmit', b'spi_transmit', 'uart_receive', b'uart_receive', 'uart_transmit', b'uart_transmit']
 
     def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool:
         ...
-    _ClearFieldArgType: _TypeAlias = _typing.Literal['adc_read', b'adc_read', 'gpio_read', b'gpio_read', 'gpio_write', b'gpio_write', 'i2c_memory_read', b'i2c_memory_read', 'i2c_memory_write', b'i2c_memory_write', 'i2c_ready', b'i2c_ready', 'i2c_receive', b'i2c_receive', 'i2c_transmit', b'i2c_transmit', 'payload', b'payload', 'spi_receive', b'spi_receive', 'spi_transaction', b'spi_transaction', 'spi_transmit', b'spi_transmit']
+    _ClearFieldArgType: _TypeAlias = _typing.Literal['adc_read', b'adc_read', 'gpio_read', b'gpio_read', 'gpio_write', b'gpio_write', 'i2c_memory_read', b'i2c_memory_read', 'i2c_memory_write', b'i2c_memory_write', 'i2c_ready', b'i2c_ready', 'i2c_receive', b'i2c_receive', 'i2c_transmit', b'i2c_transmit', 'payload', b'payload', 'pwm_set', b'pwm_set', 'spi_receive', b'spi_receive', 'spi_transaction', b'spi_transaction', 'spi_transmit', b'spi_transmit', 'uart_receive', b'uart_receive', 'uart_transmit', b'uart_transmit']
 
     def ClearField(self, field_name: _ClearFieldArgType) -> None:
         ...
-    _WhichOneofReturnType_payload: _TypeAlias = _typing.Literal['gpio_read', 'gpio_write', 'adc_read', 'i2c_ready', 'i2c_receive', 'i2c_transmit', 'i2c_memory_read', 'i2c_memory_write', 'spi_receive', 'spi_transmit', 'spi_transaction']
+    _WhichOneofReturnType_payload: _TypeAlias = _typing.Literal['gpio_read', 'gpio_write', 'adc_read', 'i2c_ready', 'i2c_receive', 'i2c_transmit', 'i2c_memory_read', 'i2c_memory_write', 'spi_receive', 'spi_transmit', 'spi_transaction', 'uart_receive', 'uart_transmit', 'pwm_set']
     _WhichOneofArgType_payload: _TypeAlias = _typing.Literal['payload', b'payload']
 
     def WhichOneof(self, oneof_group: _WhichOneofArgType_payload) -> _WhichOneofReturnType_payload | None:

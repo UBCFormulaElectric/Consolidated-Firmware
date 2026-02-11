@@ -22,8 +22,8 @@ class _GpioNetNameEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[_GpioNetNa
     GPIO_NET_NAME_UNSPECIFIED: _GpioNetName.ValueType
     GPIO_BOTS_3v3: _GpioNetName.ValueType
     GPIO_COCKPIT_SHDN_3v3: _GpioNetName.ValueType
-    GPIO_IMU_INT1: _GpioNetName.ValueType
-    GPIO_IMU_INT2: _GpioNetName.ValueType
+    GPIO_IMU_NSS: _GpioNetName.ValueType
+    GPIO_IMU_FSYNC: _GpioNetName.ValueType
     GPIO_NSUSP_FL_OCSC: _GpioNetName.ValueType
     GPIO_NSUSP_FR_OCSC: _GpioNetName.ValueType
     GPIO_FR_INT_3v3: _GpioNetName.ValueType
@@ -38,8 +38,8 @@ class GpioNetName(_GpioNetName, metaclass=_GpioNetNameEnumTypeWrapper):
 GPIO_NET_NAME_UNSPECIFIED: GpioNetName.ValueType
 GPIO_BOTS_3v3: GpioNetName.ValueType
 GPIO_COCKPIT_SHDN_3v3: GpioNetName.ValueType
-GPIO_IMU_INT1: GpioNetName.ValueType
-GPIO_IMU_INT2: GpioNetName.ValueType
+GPIO_IMU_NSS: GpioNetName.ValueType
+GPIO_IMU_FSYNC: GpioNetName.ValueType
 GPIO_NSUSP_FL_OCSC: GpioNetName.ValueType
 GPIO_NSUSP_FR_OCSC: GpioNetName.ValueType
 GPIO_FR_INT_3v3: GpioNetName.ValueType
@@ -75,17 +75,17 @@ ADC_STR_ANGLE: AdcNetName.ValueType
 ADC_APPS1: AdcNetName.ValueType
 Global___AdcNetName: _TypeAlias = AdcNetName
 
-class _I2cNetName:
+class _SpiNetName:
     ValueType = _typing.NewType('ValueType', _builtins.int)
     V: _TypeAlias = ValueType
 
-class _I2cNetNameEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[_I2cNetName.ValueType], _builtins.type):
+class _SpiNetNameEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[_SpiNetName.ValueType], _builtins.type):
     DESCRIPTOR: _descriptor.EnumDescriptor
-    I2C_NET_NAME_UNSPECIFIED: _I2cNetName.ValueType
-    I2C_IMU: _I2cNetName.ValueType
+    SPI_NET_NAME_UNSPECIFIED: _SpiNetName.ValueType
+    SPI_IMU: _SpiNetName.ValueType
 
-class I2cNetName(_I2cNetName, metaclass=_I2cNetNameEnumTypeWrapper):
+class SpiNetName(_SpiNetName, metaclass=_SpiNetNameEnumTypeWrapper):
     ...
-I2C_NET_NAME_UNSPECIFIED: I2cNetName.ValueType
-I2C_IMU: I2cNetName.ValueType
-Global___I2cNetName: _TypeAlias = I2cNetName
+SPI_NET_NAME_UNSPECIFIED: SpiNetName.ValueType
+SPI_IMU: SpiNetName.ValueType
+Global___SpiNetName: _TypeAlias = SpiNetName
