@@ -11,9 +11,10 @@
 #include "stm32h5xx_hal_fdcan.h"
 #endif
 
+#include <cassert>
+
 namespace hw
 {
-
 class BaseCan
 {
   protected:
@@ -21,14 +22,11 @@ class BaseCan
     const uint8_t bus_num;
 
   public:
-    void (*const receive_callback)(const io::CanMsg *rx_msg);
+    void (*const receive_callback)(const io::CanMsg &rx_msg);
     TaskHandle_t transmit_task = nullptr;
 
-    constexpr explicit BaseCan(const uint8_t bus_num_in, void (*const receive_callback_in)(const io::CanMsg *rx_msg))
-      : bus_num(bus_num_in), receive_callback(receive_callback_in)
-    {
-        assert(receive_callback != nullptr);
-    };
+    consteval explicit BaseCan(const uint8_t bus_num_in, void (*const receive_callback_in)(const io::CanMsg &rx_msg))
+      : bus_num(bus_num_in), receive_callback(receive_callback_in){};
 
     /**
      * Initialize CAN driver.
@@ -43,21 +41,19 @@ class BaseCan
 
     /**
      * Transmit a CAN msg on the bus, blocking until completed.
-     * @param can_handle Can handle to transmit from
      * @param msg CAN msg to be TXed.
      * @return Whether or not the transmission was successful.
      */
-    virtual ExitCode can_transmit(const io::CanMsg &msg) = 0;
+    virtual std::expected<void, ErrorCode> can_transmit(const io::CanMsg &msg) = 0;
 
     /**
      * Receive a CAN msg from the bus, returning whether or not a message is available.
      * This function also passes up the CanMsg to a callback function.
-     * @param can_handle Can handle to receive from
      * @param msg CAN msg to be RXed.
      * @param rx_fifo Which RX FIFO to receive a message from.
      * @return Whether or not the reception was successful.
      */
-    virtual ExitCode receive(uint32_t rx_fifo, io::CanMsg &msg) const = 0;
+    virtual std::expected<void, ErrorCode> receive(uint32_t rx_fifo, io::CanMsg &msg) const = 0;
 
     constexpr uint8_t getBusNum() const { return bus_num; }
 };
@@ -73,13 +69,14 @@ class can final : public BaseCan
     CAN_HandleTypeDef *const hcan;
 
   private:
-    ExitCode tx(CAN_TxHeaderTypeDef &tx_header, io::CanMsg *msg);
+    std::expected<void, ErrorCode> tx(CAN_TxHeaderTypeDef &tx_header, io::CanMsg &msg);
 
   public:
-    constexpr explicit can(
+    ~can() = default;
+    consteval explicit can(
         CAN_HandleTypeDef &hcan_in,
         const uint8_t      bus_num_in,
-        void (*const receive_callback_in)(const io::CanMsg *rx_msg))
+        void (*const receive_callback_in)(const io::CanMsg &rx_msg))
       : BaseCan(bus_num_in, receive_callback_in), hcan(&hcan_in){};
 
     constexpr CAN_HandleTypeDef *getHcan() const { return hcan; }
@@ -88,9 +85,9 @@ class can final : public BaseCan
 
     void deinit() const override;
 
-    ExitCode can_transmit(const io::CanMsg &msg) override;
+    std::expected<void, ErrorCode> can_transmit(const io::CanMsg &msg) override;
 
-    ExitCode receive(const uint32_t rx_fifo, io::CanMsg &msg) const override;
+    std::expected<void, ErrorCode> receive(uint32_t rx_fifo, io::CanMsg &msg) const override;
 };
 
 const can &can_getHandle(const CAN_HandleTypeDef *hcan);
@@ -100,13 +97,14 @@ class fdcan final : public BaseCan
     FDCAN_HandleTypeDef *const hfdcan;
 
   private:
-    ExitCode tx(FDCAN_TxHeaderTypeDef &tx_header, io::CanMsg *msg);
+    std::expected<void, ErrorCode> tx(FDCAN_TxHeaderTypeDef &tx_header, io::CanMsg &msg);
 
   public:
-    constexpr explicit fdcan(
+    ~fdcan() = default;
+    consteval explicit fdcan(
         FDCAN_HandleTypeDef &hfdcan_in,
         const uint8_t        bus_num_in,
-        void (*const receive_callback_in)(const io::CanMsg *rx_msg))
+        void (*const receive_callback_in)(const io::CanMsg &rx_msg))
       : BaseCan(bus_num_in, receive_callback_in), hfdcan(&hfdcan_in){};
 
     constexpr FDCAN_HandleTypeDef *getHfdcan() const { return hfdcan; }
@@ -115,11 +113,11 @@ class fdcan final : public BaseCan
 
     void deinit() const override;
 
-    ExitCode can_transmit(const io::CanMsg &msg) override;
+    std::expected<void, ErrorCode> can_transmit(const io::CanMsg &msg) override;
 
-    ExitCode fdcan_transmit(const io::CanMsg &msg);
+    std::expected<void, ErrorCode> fdcan_transmit(const io::CanMsg &msg);
 
-    ExitCode receive(const uint32_t rx_fifo, io::CanMsg &msg) const override;
+    std::expected<void, ErrorCode> receive(uint32_t rx_fifo, io::CanMsg &msg) const override;
 };
 
 const fdcan &fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan);
