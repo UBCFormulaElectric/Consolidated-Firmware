@@ -7,17 +7,18 @@
 
 /* ------------------------------- Includes ------------------------------- */
 
-#include <stdint.h>
-#include <stdbool.h>
+#include <cstdint>
+#include <cstdbool>
 #include <array>
+
+namespace io::can_tx {
 #ifdef THREAD_SAFE_CAN_PACKING
-void io_canTx_set_lockfunction(
+void setLockfunction(
     void (*lock)(),
     void (*unlock)()
 );
 #endif
 
-namespace io::can_tx {
 /* ------------------------------- Structs -------------------------------- */
 
 /**
@@ -27,7 +28,9 @@ struct JsonCanMsg
 {
     uint32_t std_id;
     uint32_t dlc;
-    std::array<uint8_t, {%- if fd -%}64{%- else -%}8{%- endif -%}> data{};
+    std::array<uint8_t, {% if fd -%}64{%- else -%}8{%- endif -%}> data{};
+
+    JsonCanMsg(uint32_t id, uint32_t _dlc) : std_id(id), dlc(_dlc) {}
 };
 
 /* -------------------------------- Enums --------------------------------- */
@@ -50,7 +53,6 @@ enum class {{bus.name}}Mode
 {% endfor %}
 
 
-
 /* ------------------------- Function Prototypes -------------------------- */
 
 /**
@@ -58,7 +60,7 @@ enum class {{bus.name}}Mode
  */
 void init(
     {%- for bus in node_buses %}
-    void (*transmit_{{bus.name}}_msg_func)(const JsonCanMsg*) {%- if !loop.last -%}, {%- endif %}
+    void (*enqueue_{{bus.name}}_msg_func)(const JsonCanMsg&) {%- if !loop.last -%}, {%- endif %}
     {%- endfor %}
 );
 
@@ -84,7 +86,6 @@ void enqueue100HzMsgs();
  */
 void enqueueOtherPeriodicMsgs(uint32_t time_ms);
 
-// send aperiodic messages
 {%- for (msg, _) in messages if msg.cycle_time == None %}
 void sendAperiodic_{{msg.name}}();
 {%- endfor %}

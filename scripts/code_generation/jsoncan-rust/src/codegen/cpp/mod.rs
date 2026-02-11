@@ -137,6 +137,22 @@ impl CanSignal {
         }
         "uint".to_string()
     }
+
+    pub fn endian_macro(self: &Self) -> String {
+        if self.big_endian {
+            "@0".to_string()
+        } else {
+            "@1".to_string()
+        }
+    }
+
+    pub fn signed_macro(self: &Self) -> String {
+        if self.signed {
+            "-".to_string()
+        } else {
+            "+".to_string()
+        }
+    }
 }
 
 pub fn id_macro(name: &str) -> String {

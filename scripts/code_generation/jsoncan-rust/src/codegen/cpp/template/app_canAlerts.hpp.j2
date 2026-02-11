@@ -8,8 +8,8 @@
 
 /* ------------------------------- Includes ------------------------------- */
 
-#include <stdbool.h>
-#include <stdint.h>
+#include <cstdbool>
+#include <cstdint>
 #include "app_canUtils.hpp"
 
 namespace app::can_alerts {
@@ -34,7 +34,7 @@ void set_{{info.name}}(bool set_alert);
 /**
  * Return whether {{info.name}} transmitted by {{node_name}} is set.
  */
-bool get_{{info.name}}(void);
+bool get_{{info.name}}();
 {%- endfor %}
 
 /* ----------- Warnings -----------*/
@@ -46,7 +46,7 @@ void set_{{warning.name}}(bool set_alert);
 /**
  * Return whether {{warning.name}} transmitted by {{node_name}} is set.
  */
-bool get_{{warning.name}}(void);
+bool get_{{warning.name}}();
 {%- endfor %}
 
 /* ----------- Faults -----------*/
@@ -58,7 +58,7 @@ void set_{{fault.name}}(bool set_alert);
 /**
  * Return whether {{fault.name}} transmitted by {{node_name}} is set.
  */
-bool get_{{fault.name}}(void);
+bool get_{{fault.name}}();
 {%- endfor %}
 
 
@@ -79,15 +79,15 @@ bool BoardHasFault(CanNode board);
 /**
  * Return whether or not any board has set a info.
  */
-bool AnyBoardHasInfo(void);
+bool AnyBoardHasInfo();
 /**
  * Return whether or not any board has set a warning.
  */
-bool AnyBoardHasWarning(void);
+bool AnyBoardHasWarning();
 /**
  * Return whether or not any board has set a fault.
  */
-bool AnyBoardHasFault(void);
+bool AnyBoardHasFault();
 
 
 /**

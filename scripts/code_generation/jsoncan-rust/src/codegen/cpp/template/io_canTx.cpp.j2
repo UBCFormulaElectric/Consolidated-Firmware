@@ -6,10 +6,12 @@
 /* ------------------------------- Includes ------------------------------- */
 
 #include "io_canTx.hpp"
-#include <cstring>
 #include "app_canTx.hpp"
 #include "app_canUtils.hpp"
 
+#include <cstring>
+
+namespace io::can_tx {
 #ifdef THREAD_SAFE_CAN_PACKING
 void (*lock)(void);
 void (*unlock)(void); 
@@ -24,11 +26,10 @@ void io_canTx_set_lockfunction(
 }
 #endif
 
-namespace io::can_tx {
 /* --------------------------- Static Variables --------------------------- */
 {% for bus in node_buses %}
 static uint32_t can_mode_{{bus.name}};
-static void (*transmit_func_{{bus.name}})(const JsonCanMsg* tx_msg);
+static void (*enqueue_func_{{bus.name}})(const JsonCanMsg* tx_msg);
 {% endfor %}
 
 /* --------------------- Static Function Definitions ---------------------- */
@@ -58,7 +59,7 @@ void sendAperiodic_{{msg.name}}()
     {%- endfor %}
     )
     {
-        transmit_func_{{msg_bus_name}}(&tx_msg);
+        enqueue_func_{{msg_bus_name}}(&tx_msg);
     }
     {%- endfor %}
 }
@@ -68,13 +69,13 @@ void sendAperiodic_{{msg.name}}()
 /* --------------------- Public Function Definitions ---------------------- */
 
 void init( 
-    {% for bus in node_buses -%}
-    void (*transmit_{{bus.name}}_msg_func)(const JsonCanMsg*) {%- if !loop.last -%}, {%- endif -%}
+    {%- for bus in node_buses %}
+    void (*enqueue_{{bus.name}}_msg_func)(const JsonCanMsg*) {%- if !loop.last -%}, {%- endif -%}
     {%- endfor %}
 )
 {
     {%- for bus in node_buses %}
-    transmit_func_{{bus.name}} = transmit_{{bus.name}}_msg_func;
+    enqueue_func_{{bus.name}} = enqueue_{{bus.name}}_msg_func;
     {%- endfor %}
 }
 
@@ -97,7 +98,7 @@ void enableMode_{{bus.name}}({{bus.name}}Mode mode, bool enable)
 
 void enqueue1HzMsgs()
 {
-    {% for (msg, busses) in messages if msg.cycle_time.is_some() && msg.cycle_time.unwrap() == 1000 -%}
+    {%- for (msg, busses) in messages if msg.cycle_time.is_some() && msg.cycle_time.unwrap() == 1000 %}
     sendPeriodic_{{ msg.name }}();
     {%- endfor %}
 }
