@@ -16,24 +16,24 @@ namespace app::can_alerts {
 
 
 {%- for alert in all_alerts %}
-void set_{{ alert.name }}(bool set_alert)
+void {{ alert.name }}_set(bool set_alert)
 {
     // Increment alert counter.
-    if (set_alert && !app::can_tx::get_{{ alert.name }}())
+    if (set_alert && !app::can_tx::{{ alert.name }}_get())
     {
-        app::can_tx::set_{{ alert.name }}Count(app::can_tx::get_{{ alert.name }}Count() + 1);
+        app::can_tx::{{ alert.name }}Count_set(app::can_tx::{{ alert.name }}Count_get() + 1);
     }
     // Set alert.
-    app::can_tx::set_{{ alert.name }}(set_alert);
+    app::can_tx::{{ alert.name }}_set(set_alert);
 }
 {%- endfor %}
 
 
 // alert signal getter functions
 {%- for alert in all_alerts %}
-bool get_{{ alert.name }}()
+bool {{ alert.name }}_get()
 {
-    return app::can_tx::get_{{ alert.name }}();
+    return app::can_tx::{{ alert.name }}_get();
 }
 {%- endfor %}
 
@@ -48,9 +48,9 @@ bool BoardHasInfo(CanNode board)
             return (
                 {%- for alert in board_alerts.info %}
                 {%- if board_name == node_name -%}
-                app::can_tx::get_{{ alert.name }}()
+                app::can_tx::{{ alert.name }}_get()
                 {%- else -%}
-                app::can_rx::get_{{ alert.name }}()
+                app::can_rx::{{ alert.name }}_get()
                 {%- endif -%}
                 {%- if loop.last == false %} || {% endif -%}
                 {%- endfor %}
@@ -76,9 +76,9 @@ bool BoardHasWarning(CanNode board)
             return (
                 {%- for alert in board_alerts.warnings %}
                 {%- if board_name == node_name -%}
-                app::can_tx::get_{{ alert.name }}()
+                app::can_tx::{{ alert.name }}_get()
                 {%- else -%}
-                app::can_rx::get_{{ alert.name }}()
+                app::can_rx::{{ alert.name }}_get()
                 {%- endif -%}
                 {%- if loop.last == false %} || {% endif -%}
                 {%- endfor %}
@@ -104,9 +104,9 @@ bool BoardHasFault(CanNode board)
             return (
                 {%- for alert in board_alerts.faults %}
                 {%- if board_name == node_name -%}
-                app::can_tx::get_{{ alert.name }}()
+                app::can_tx::{{ alert.name }}_get()
                 {%- else -%}
-                app::can_rx::get_{{ alert.name }}()
+                app::can_rx::{{ alert.name }}_get()
                 {%- endif -%}
                 {%- if loop.last == false %} || {% endif -%}
                 {%- endfor %}
@@ -161,7 +161,7 @@ uint8_t InfoInfo(Alert_Info *alert_array)
     // {{board_name}} infos info
     {%- for alert in board_alerts.info %}
     {%- if board_name == node_name %}
-    if (app::can_tx::get_{{ alert.name }}())
+    if (app::can_tx::{{ alert.name }}_get())
     {% else %}
     if (app::can_rx::get_{{ alert.name }}())
     {% endif -%}
@@ -183,9 +183,9 @@ uint8_t WarningInfo(Alert_Info *alert_array)
     // {{ board_name }} warnings info
     {%- for alert in board_alerts.warnings %}
     {%- if board_name == node_name %}
-    if (app::can_tx::get_{{ alert.name }}())
+    if (app::can_tx::{{ alert.name }}_get())
     {% else %}
-    if (app::can_rx::get_{{ alert.name }}())
+    if (app::can_rx::{{ alert.name }}_get())
     {% endif -%}
     {
         alert_array[element_num].name = "{{ alert.name }}";
@@ -205,9 +205,9 @@ uint8_t FaultInfo(Alert_Info *alert_array)
     // {{ board_name }} faults info
     {%- for alert in board_alerts.faults %}
     {%- if board_name == node_name %}
-    if (app::can_tx::get_{{ alert.name }}())
+    if (app::can_tx::{{ alert.name }}_get())
     {% else %}
-    if (app::can_rx::get_{{ alert.name }}())
+    if (app::can_rx::{{ alert.name }}_get())
     {% endif -%}
     {
         alert_array[element_num].name = "{{ alert.name }}";

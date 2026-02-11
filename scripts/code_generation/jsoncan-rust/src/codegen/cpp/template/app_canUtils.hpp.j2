@@ -90,7 +90,7 @@ struct {{ message.name }}_Signals
     uint8_t _placeholder;
     {%- else %}
     {%- for signal in message.signals %}
-    {{ signal.datatype() }} {{ signal.name }}_value;
+    {{ signal.datatype() }} {{ signal.name }}_value = {{ signal.start_val_macro()}};
     {%- endfor %}
     {%- endif %}
 };

@@ -18,26 +18,16 @@ namespace app::can_tx {
 static struct
 {
     {%- for msg in tx_messages %}
-    {{ msg.c_type() }} {{ msg.name }}_signals;
+    {{ msg.c_type() }} {{ msg.name }}_signals{};
     {%- endfor %}
-} tx_table;
+} tx_table{};
 
 /* ------------------------- Function Definitions ------------------------- */
-
-void init()
-{
-    memset(&tx_table, 0, sizeof(tx_table));
-    {%- for msg in tx_messages %}
-    {%- for signal in msg.signals %}
-    set_{{ signal.name }}({{ signal.start_val_macro() }});
-    {%- endfor %}
-    {%- endfor %}
-}
 
 /* -------- UPDATE -------- */
 {% for msg in tx_messages %}
 {%- for signal in msg.signals %}
-void set_{{ signal.name }}({{ signal.datatype() }} value)
+void {{ signal.name }}_set(const {{ signal.datatype() }} value)
 {
     {%- if signal.representation() == "float" %}
     if (value == NAN)
@@ -62,7 +52,7 @@ void set_{{ signal.name }}({{ signal.datatype() }} value)
 /* -------- GET -------- */
 {% for msg in tx_messages %}
 {%- for signal in msg.signals %}
-{{ signal.datatype() }} get_{{ signal.name }}(void)
+{{ signal.datatype() }} {{ signal.name }}_get()
 {
     return tx_table.{{ msg.name }}_signals.{{ signal.name }}_value;
 }
@@ -70,9 +60,9 @@ void set_{{ signal.name }}({{ signal.datatype() }} value)
 {%- endfor %}
 
 {%- for msg in tx_messages %}
-{{ msg.c_type() }}* getData_{{ msg.name }}()
+{{ msg.c_type() }}& {{ msg.name }}_getData()
 {
     return &tx_table.{{ msg.name }}_signals;
 }
-{%- endfor %}
+{%- endfor -%}
 }

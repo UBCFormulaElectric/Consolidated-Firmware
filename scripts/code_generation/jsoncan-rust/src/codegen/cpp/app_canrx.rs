@@ -51,14 +51,14 @@ impl CPPGenerator for AppCanRxModule<'_> {
     fn file_stem(&self) -> String {
         "app_canRx".to_string()
     }
-    fn header_template(&self) -> Result<String, askama::Error> {
+    fn source_template(&self) -> Result<String, askama::Error> {
         AppCanRxModuleSource {
             node: self.node,
             boards_messages: &self.boards_messages,
         }
         .render()
     }
-    fn source_template(&self) -> Result<String, askama::Error> {
+    fn header_template(&self) -> Result<String, askama::Error> {
         AppCanRxModuleHeader {
             boards_messages: &self.boards_messages,
         }

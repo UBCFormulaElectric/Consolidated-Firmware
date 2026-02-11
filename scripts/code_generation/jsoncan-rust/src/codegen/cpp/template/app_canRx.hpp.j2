@@ -1,5 +1,6 @@
 /**
  * @note This file is auto-generated. Do not modify!
+ * @name app_canRx.hpp
  */
 // clang-format off
 
@@ -11,12 +12,6 @@
 
 namespace app::can_rx {
 /* ------------------------- Function Prototypes -------------------------- */
-
-/**
- * Initialize RX signals to their starting values.
- */
-void init(void);
-
 /* --------- UPDATE --------- */
 {%- for rx_messages in boards_messages.values() %}
 {% for msg in rx_messages %}
@@ -24,7 +19,7 @@ void init(void);
 /**
  * Update value stored in RX table of signal {{ signal.name }} in msg {{ msg.name }}.
  */
-void update_{{ signal.name }}({{ signal.datatype() }} value);
+void {{ signal.name }}_update({{ signal.datatype() }} value);
 {%- endfor %}
 {%- endfor %}
 {%- endfor %}
@@ -36,7 +31,7 @@ void update_{{ signal.name }}({{ signal.datatype() }} value);
 /**
  * Get value stored in RX table of signal {{ signal.name }} in msg {{ msg.name }}.
  */
-{{ signal.datatype() }} get_{{ signal.name }}(void);
+{{ signal.datatype() }} {{ signal.name }}_get(void);
 {%- endfor %}
 {%- endfor %}
 {%- endfor %}

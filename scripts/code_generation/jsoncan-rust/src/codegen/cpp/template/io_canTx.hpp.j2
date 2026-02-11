@@ -26,11 +26,13 @@ void setLockfunction(
  */
 struct JsonCanMsg
 {
+    using std::array<uint8_t, {% if fd -%}64{%- else -%}8{%- endif -%}> as data_array;
+
     uint32_t std_id;
     uint32_t dlc;
-    std::array<uint8_t, {% if fd -%}64{%- else -%}8{%- endif -%}> data{};
+    data_array data{};
 
-    JsonCanMsg(uint32_t id, uint32_t _dlc) : std_id(id), dlc(_dlc) {}
+    JsonCanMsg(uint32_t id, uint32_t _dlc, data_array _data) : std_id(id), dlc(_dlc), data(_data) {}
 };
 
 /* -------------------------------- Enums --------------------------------- */

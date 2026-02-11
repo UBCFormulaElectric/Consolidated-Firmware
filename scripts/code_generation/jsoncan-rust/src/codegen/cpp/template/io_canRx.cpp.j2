@@ -43,7 +43,7 @@ void updateRxTableWithMessage(const JsonCanMsg& msg)
         case {{msg.id_macro()}}:
         {
             {{msg.name}}_Signals out_msg;
-            app::can_utils::unpack(msg->data, &out_msg);
+            app::can_utils::unpack(msg.data, out_msg);
             
             {%- for signal in msg.signals %}
             app::can_rx::update_{{signal.name}}(out_msg.{{signal.name}}_value);
