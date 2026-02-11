@@ -280,9 +280,9 @@ std::expected<void, ErrorCode> Imu::init()
     std::array<const uint8_t, 1> tx_check = { { READ_IMU_REG(WHO_AM_I) } };
     std::array<uint8_t, 1>       rx;
 
-    ExitCode exit = imu_spi_handle.transmitThenReceive(tx_check, rx);
+    std::expected<void, ErrorCode> exit = imu_spi_handle.transmitThenReceive(tx_check, rx);
 
-    if ((IS_EXIT_OK(exit) == false) || rx[0] != WHO_AM_I_VAL)
+    if (not exit.has_value() || rx[0] != WHO_AM_I_VAL)
         return exit;
 
     // Send configs to IMU
@@ -349,7 +349,7 @@ std::expected<void, ErrorCode> Imu::init()
                                                   WRITE_IMU_REG(PWR_MGMT_2),     std::bit_cast<uint8_t>(pwr_mgmt2) } };
 
     exit         = imu_spi_handle.transmit(tx_config);
-    is_imu_ready = IS_EXIT_OK(exit);
+    is_imu_ready = exit.has_value();
 
     return exit;
 }
