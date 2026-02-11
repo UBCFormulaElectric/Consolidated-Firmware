@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
-#include "fake_io_time.hpp"
+#include "io_timeFake.hpp"
+
 extern "C"
 {
 #include "app_heartbeatBoard.h"

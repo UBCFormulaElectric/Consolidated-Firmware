@@ -9,7 +9,6 @@ extern "C"
 #include "app_canTx.h"
 #include "app_canAlerts.h"
 #include "io_irs.h"
-#include "io_time.h"
 #include "app_segments.h"
 }
 
