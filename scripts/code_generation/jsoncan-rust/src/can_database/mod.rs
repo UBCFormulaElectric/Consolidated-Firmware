@@ -180,15 +180,15 @@ impl CanDatabase {
 
         match self.conn.execute(
             "INSERT INTO messages (name, id, description, cycle_time, log_cycle_time, telem_cycle_time, tx_node_name, modes) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
-            [
-                &msg.name,
-                &msg.id.to_string(),
-                &msg.description.unwrap_or("".to_string()),
-                &msg.cycle_time.map_or("".to_string(), |v| v.to_string()),
-                &msg.log_cycle_time.map_or("".to_string(), |v| v.to_string()),
-                &msg.telem_cycle_time.map_or("".to_string(), |v| v.to_string()),
-                &msg.tx_node_name,
-                &serde_json::to_string(&msg.modes).unwrap()
+            rusqlite::params![
+                msg.name,
+                msg.id,
+                msg.description.as_ref().unwrap_or(&"".to_string()),
+                msg.cycle_time,
+                msg.log_cycle_time,
+                msg.telem_cycle_time,
+                msg.tx_node_name,
+                serde_json::to_string(&msg.modes).unwrap()
             ],
         ) {
             Ok(_) => {}
@@ -208,22 +208,22 @@ impl CanDatabase {
     pub fn add_signal(self: &mut Self, msg_id: &u32, signal: &CanSignal) -> Result<(), CanDBError> {
         match self.conn.execute(
             "INSERT INTO signals (name, message_id, start_bit, bits, scale, offset, min, max, start_val, enum_name, unit, signed, description, big_endian, signal_type) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)",
-            [
-                &signal.name,
-                &msg_id.to_string(),
-                &signal.start_bit.to_string(),
-                &signal.bits.to_string(),
-                &signal.scale.to_string(),
-                &signal.offset.to_string(),
-                &signal.min.to_string(),
-                &signal.max.to_string(),
-                &signal.start_val.to_string(),
-                &signal.enum_name.clone().unwrap_or("".to_string()),
-                &signal.unit.clone().unwrap_or("".to_string()),
-                &(if signal.signed { "1".to_string() } else { "0".to_string() }),
-                &signal.description.clone().unwrap_or("".to_string()),
-                &(if signal.big_endian { "1".to_string() } else { "0".to_string() }),
-                &(signal.signal_type.clone() as u32).to_string(),
+            rusqlite::params![
+                signal.name,
+                msg_id,
+                signal.start_bit,
+                signal.bits,
+                signal.scale,
+                signal.offset,
+                signal.min,
+                signal.max,
+                signal.start_val,
+                signal.enum_name.as_ref().unwrap_or(&"".to_string()),
+                signal.unit.as_ref().unwrap_or(&"".to_string()),
+                if signal.signed { 1 } else { 0 },
+                signal.description.as_ref().unwrap_or(&"".to_string()),
+                if signal.big_endian { 1 } else { 0 },
+                signal.signal_type.clone() as u32,
             ],
         )
     {

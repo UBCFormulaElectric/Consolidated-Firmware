@@ -29,12 +29,12 @@ struct Alert_Info
 /**
  * Set or clear {{info.name}} for {{node_name}}.
  */
-void set_{{info.name}}(bool set_alert);
+void {{info.name}}_set(bool set_alert);
 
 /**
  * Return whether {{info.name}} transmitted by {{node_name}} is set.
  */
-bool get_{{info.name}}();
+bool {{info.name}}_get();
 {%- endfor %}
 
 /* ----------- Warnings -----------*/
@@ -42,11 +42,11 @@ bool get_{{info.name}}();
 /**
  * Set or clear {{warning.name}} for {{node_name}}.
  */
-void set_{{warning.name}}(bool set_alert);
+void {{warning.name}}_set(bool set_alert);
 /**
  * Return whether {{warning.name}} transmitted by {{node_name}} is set.
  */
-bool get_{{warning.name}}();
+bool {{warning.name}}_get();
 {%- endfor %}
 
 /* ----------- Faults -----------*/
@@ -54,11 +54,11 @@ bool get_{{warning.name}}();
 /**
  * Set or clear {{fault.name}} for {{node_name}}.
  */
-void set_{{fault.name}}(bool set_alert);
+void {{fault.name}}_set(bool set_alert);
 /**
  * Return whether {{fault.name}} transmitted by {{node_name}} is set.
  */
-bool get_{{fault.name}}();
+bool {{fault.name}}_get();
 {%- endfor %}
 
 

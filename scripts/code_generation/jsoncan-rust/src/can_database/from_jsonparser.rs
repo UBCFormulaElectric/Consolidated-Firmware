@@ -187,7 +187,7 @@ fn parse_tx_msg_signals(
     let mut occupied_bits: Vec<Option<String>> = vec![None; MAX_LEN_BITS];
 
     // bombastic side eye
-    if json_signals.iter().any(|(_, s)| match s {
+    if json_signals.len() > 0 && json_signals.iter().any(|(_, s)| match s {
         JsonTxSignal::ScaleOffsetBits { start_bit, .. }
         | JsonTxSignal::BitsMinMax { start_bit, .. }
         | JsonTxSignal::ResolutionMinMax { start_bit, .. }

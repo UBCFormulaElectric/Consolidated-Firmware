@@ -109,7 +109,7 @@ impl CanDatabase {
     pub fn get_message_by_name(self: &Self, message_name: &str) -> Result<CanMessage, CanDBError> {
         let mut s = self
             .conn
-            .prepare("SELECT * FROM messages WHERE name = ?1")
+            .prepare("SELECT name, id, description, cycle_time, log_cycle_time, telem_cycle_time, tx_node_name, modes FROM messages WHERE name = ?1")
             .unwrap();
 
         match s.query_row([message_name], |row| {
