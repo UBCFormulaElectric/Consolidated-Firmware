@@ -46,7 +46,8 @@ static ShutdownNode get_first_shutdown()
 
 void app_shdnLast_broadcast(void)
 {
-    app_canTx_VC_FirstFaultNode_set(get_first_shutdown());
+    // REFACTOR!
+    // app_canTx_VC_FirstFaultNode_set(get_first_shutdown());
 }
 
 } //  namespace app::shdnLast

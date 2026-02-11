@@ -6,6 +6,11 @@ extern "C"
 
 namespace app::startSwitch
 {
+enum class SwitchState : uint8_t
+{
+    SWITCH_OFF = 0,
+    SWITCH_ON  = 1,
+};
 constexpr uint8_t SWITCH_OFF = 0;
 bool              app_startSwitch_hasRisingEdge(void)
 {
