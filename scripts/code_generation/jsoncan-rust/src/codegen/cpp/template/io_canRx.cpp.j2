@@ -13,7 +13,7 @@ namespace io::can_rx {
 /* ------------------------- Function Definitions ------------------------- */
 // each bus has its own filter function
 {% for (bus_name, messages) in messages_on_busses -%}
-bool filterMessageId_{{bus_name}}(uint32_t std_id)
+bool filterMessageId_{{bus_name}}(const uint32_t std_id)
 {
     switch (std_id)
     {
@@ -34,9 +34,9 @@ bool filterMessageId_{{bus_name}}(uint32_t std_id)
 {% endfor %}
 
 
-void updateRxTableWithMessage(JsonCanMsg* msg)
+void updateRxTableWithMessage(const JsonCanMsg& msg)
 {
-    switch (msg->std_id)
+    switch (msg.std_id)
     {
         {%- for (bus_name, messages) in messages_on_busses %}
         {%- for msg in messages %}

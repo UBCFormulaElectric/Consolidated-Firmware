@@ -7,8 +7,8 @@
 
 /* ------------------------------- Includes ------------------------------- */
 
-#include <stdint.h>
-#include <stdbool.h>
+#include <cstdint>
+#include <cstdbool>
 #include "io_canTx.hpp"
 
 namespace io::can_rx {
@@ -24,5 +24,5 @@ bool filterMessageId_{{bus_name}}(uint32_t std_id);
 /**
  * Unpack a received message and update the CAN RX table.
  */
-void updateRxTableWithMessage(JsonCanMsg* msg);
+void updateRxTableWithMessage(const JsonCanMsg& msg);
 }

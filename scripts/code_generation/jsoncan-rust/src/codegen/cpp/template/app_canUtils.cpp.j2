@@ -73,16 +73,11 @@ static uint32_t unpackShiftRight(uint8_t input, uint8_t shift, uint8_t mask)
 {% for msg in messages -%}
 {% set msg_big_name =  msg.screaming_snake_name() %} 
 // pack function for {{ msg.name }}
-void pack(const {{ msg.name }}_Signals* const in_msg, const std::span<uint8_t> out_data)
+void pack(const {{ msg.name }}_Signals& in_msg, const std::span<uint8_t> out_data)
 {
     // Pack message {{ msg.name }}.
     // {{ signal_placement_comment(msg) }}
-    
-    if (in_msg == nullptr || out_data == nullptr)
-    {
-        return;
-    }
-    
+
     {% for signal in msg.signals %}
     {%- decl raw_type -%}
     {%-if signal.signed -%}
@@ -116,14 +111,11 @@ void pack(const {{ msg.name }}_Signals* const in_msg, const std::span<uint8_t> o
 {% set msg_big_name =  msg.screaming_snake_name() %}
 
 // unpack function for {{ msg.name }}
-void unpack(const uint8_t* const in_data, {{ msg.name }}_Signals* const out_msg)
+void unpack(const std::span<uint8_t> in_data, {{ msg.name }}_Signals& const out_msg)
 {
     // Unpack message {{ msg.name }}.
     // {{ signal_placement_comment(msg) }}
-    if (in_data == NULL || out_msg == NULL)
-    {
-        return;
-    }
+
     {% for signal in msg.signals %}
     {%- set signal_big_name =  signal.screaming_snake_name() -%}
     {%- decl decord_macro -%}
@@ -144,11 +136,11 @@ void unpack(const uint8_t* const in_data, {{ msg.name }}_Signals* const out_msg)
     {% endfor -%}
     {%- if signal.signed -%}
     const int {{ signal.name }}_signed = SIGNED_DECODE({{ signal.name }}_raw, {{ signal.bits }}, {{ max_uint_for_bits(signal.bits) }});
-    out_msg->{{ signal.name }}_value = CAN_DECODE({{ signal.name }}_signed, {{ signal.scale_macro() }}, {{ signal.offset_macro() }}, {{ signal.representation() }});
+    out_msg.{{ signal.name }}_value = CAN_DECODE({{ signal.name }}_signed, {{ signal.scale_macro() }}, {{ signal.offset_macro() }}, {{ signal.representation() }});
     {%- else -%}
-    out_msg->{{ signal.name }}_value = CAN_DECODE({{ signal.name }}_raw, {{ signal.scale_macro() }}, {{ signal.offset_macro() }}, {{signal.representation()}});
+    out_msg.{{ signal.name }}_value = CAN_DECODE({{ signal.name }}_raw, {{ signal.scale_macro() }}, {{ signal.offset_macro() }}, {{signal.representation()}});
     {% endif %}
-    {% endfor %}
+    {%- endfor %}
 }
-{% endfor %}
+{%- endfor %}
 }
