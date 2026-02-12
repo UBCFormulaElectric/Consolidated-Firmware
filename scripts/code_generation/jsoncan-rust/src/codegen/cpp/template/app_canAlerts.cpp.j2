@@ -37,21 +37,21 @@ bool {{ alert.name }}_get()
 }
 {%- endfor %}
 
-bool BoardHasInfo(CanNode board)
+bool BoardHasInfo(app::can_utils::CanNode board)
 {
     switch (board)
     {
         {%- for (board_name, board_alerts) in node_name_and_alerts %}
-        case CanNode::{{board_name.to_uppercase()}}_NODE:
+        case app::can_utils::CanNode::{{board_name.to_uppercase()}}_NODE:
         {
             {%- if board_alerts.info.len() > 0 %}
             return (
-                {%- for alert in board_alerts.info %}
-                {%- if board_name == node_name -%}
+                {% for alert in board_alerts.info -%}
+                {% if board_name == node_name -%}
                 app::can_tx::{{ alert.name }}_get()
-                {%- else -%}
+                {% else -%}
                 app::can_rx::{{ alert.name }}_get()
-                {%- endif -%}
+                {% endif -%}
                 {%- if loop.last == false %} || {% endif -%}
                 {%- endfor %}
             );
@@ -65,12 +65,12 @@ bool BoardHasInfo(CanNode board)
     }
     return false;
 }
-bool BoardHasWarning(CanNode board)
+bool BoardHasWarning(app::can_utils::CanNode board)
 {
     switch (board)
     {
         {%- for (board_name, board_alerts) in node_name_and_alerts %}
-        case CanNode::{{board_name.to_uppercase()}}_NODE:
+        case app::can_utils::CanNode::{{board_name.to_uppercase()}}_NODE:
         {
             {%- if board_alerts.warnings.len() > 0 %}
             return (
@@ -93,12 +93,12 @@ bool BoardHasWarning(CanNode board)
     }
     return false;
 }
-bool BoardHasFault(CanNode board)
+bool BoardHasFault(app::can_utils::CanNode board)
 {
     switch (board)
     {
         {%- for (board_name, board_alerts) in node_name_and_alerts %}
-        case CanNode::{{board_name.to_uppercase()}}_NODE:
+        case app::can_utils::CanNode::{{board_name.to_uppercase()}}_NODE:
         {
             {%- if board_alerts.faults.len() > 0 %}
             return (
@@ -138,7 +138,7 @@ bool AnyBoardHasWarning()
     //Check if any board has a warning
     return (
 {%- for (board_name, _) in node_name_and_alerts %}
-        BoardHasWarning(CanNode::{{ board_name.to_uppercase() }}_NODE){% if loop.last == false %} ||{% endif %}
+        BoardHasWarning(app::can_utils::CanNode::{{ board_name.to_uppercase() }}_NODE){% if loop.last == false %} ||{% endif %}
 {%- endfor %}
     );
 }

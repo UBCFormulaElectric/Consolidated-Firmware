@@ -12,7 +12,6 @@ struct Iteration {
     shift: i16,
     mask_text: String,
     comment_data: String,
-    bits_to_pack: u16,
 }
 
 #[derive(Template)]
@@ -80,7 +79,6 @@ impl AppCanUtilsModuleSource<'_> {
                 },
                 mask_text: format!("0x{:X}", (1 << bits_to_pack) - (1 << bit_in_byte)),
                 comment_data: comment_data.into_iter().rev().collect::<String>(),
-                bits_to_pack,
             });
 
             packed_bits += bits_to_pack;

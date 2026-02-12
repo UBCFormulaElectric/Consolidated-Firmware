@@ -65,7 +65,7 @@ bool needsLog(uint32_t msg_id, uint32_t time_ms)
     {
         {%- for msg in messages %}
         {%- if msg.log_cycle_time.is_some() %}
-        case {{msg.id_macro()}}:
+        case app::can_utils::{{msg.id_macro()}}:
         {
         {%- if msg.log_cycle_time != msg.cycle_time %}
             if (time_ms > {{msg.name}}_next_log_time_ms) {{msg.name}}_next_log_time_ms = time_ms + {{msg.name}}_LOG_CYCLE_TIME;
@@ -89,7 +89,7 @@ bool needsTelem(uint32_t msg_id, uint32_t time_ms)
     {
         {%- for msg in messages %}
         {%- if msg.telem_cycle_time.is_some() %}
-        case {{msg.id_macro()}}:
+        case app::can_utils::{{msg.id_macro()}}:
         {
         {%- if msg.telem_cycle_time != msg.cycle_time %}
             if (time_ms > {{msg.name}}_next_log_time_ms)

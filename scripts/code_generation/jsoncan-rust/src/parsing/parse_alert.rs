@@ -52,7 +52,6 @@ pub fn parse_alert_data(can_data_dir: &String, node_name: &String) -> Option<Jso
         },
     };
 
-    println!("file content: {}", file_content);
     if file_content == "{}" {
         return None;
     }

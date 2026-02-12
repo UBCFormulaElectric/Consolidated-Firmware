@@ -7,6 +7,7 @@ use crate::{
     parsing::JsonCanParser,
 };
 
+#[allow(dead_code)]
 pub fn setup() -> Result<CanDatabase, CanDBError> {
     let _can_data_dir = std::path::Path::new(file!()).parent().unwrap();
     CanDatabase::from(JsonCanParser::new(format!(
@@ -15,6 +16,7 @@ pub fn setup() -> Result<CanDatabase, CanDBError> {
     )))
 }
 
+#[allow(dead_code)]
 pub fn assert_setequal<S, T, I1, I2>(iter1: I1, iter2: I2)
 where
     S: Eq + PartialEq + Hash + Debug,

@@ -41,21 +41,22 @@ static void sendPeriodic_{{msg.name}}()
 void sendAperiodic_{{msg.name}}()
 {%- endif %}
 {
-    JsonCanMsg tx_msg;
-    memset(&tx_msg, 0, sizeof(JsonCanMsg));
-    tx_msg.std_id = {{msg.id_macro()}};
-    tx_msg.dlc = {{msg.dlc_macro()}};
+    JsonCanMsg tx_msg{
+        app::can_utils::{{msg.id_macro()}},
+        app::can_utils::{{msg.dlc_macro()}},
+        {}
+    };
     #ifdef THREAD_SAFE_CAN_PACKING
     lock();
     #endif
-    app::can_utils::pack(app::can_tx::getData_{{msg.name}}(), tx_msg.data);
+    app::can_utils::pack(app::can_tx::{{msg.name}}_getData(), tx_msg.data);
     #ifdef THREAD_SAFE_CAN_PACKING
     unlock();
     #endif
     {%- for msg_bus_name in busses %}
     if (
     {%- for mode in msg.modes %}
-        can_mode_{{msg_bus_name}} & (static_cast<uint32_t>({{msg_bus_name}}Mode::{{mode}}))
+        can_mode_{{msg_bus_name}} & (static_cast<uint32_t>({{msg_bus_name}}Mode::{{msg_bus_name.to_uppercase()}}_MODE_{{mode}}))
     {%- endfor %}
     )
     {

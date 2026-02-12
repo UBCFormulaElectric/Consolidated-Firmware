@@ -28,6 +28,10 @@ function(jsoncan_sources_cpp JSONCAN_PY_BOARD OUTPUT_DIR USE_IO DBC_OUTPUT CAN_J
     set(IO_CAN_REROUTE_HEADER_OUTPUT "${OUTPUT_DIR}/io/io_canReroute.hpp")
 
     file(GLOB_RECURSE CAN_JSON_SRCS ${CAN_JSON_DIR}/**/*.json)
+    file(GLOB_RECURSE CAN_JSON_RUST_SRCS
+            ${SCRIPTS_DIR}/code_generation/jsoncan-rust/src/**/*.rs
+            ${SCRIPTS_DIR}/code_generation/jsoncan-rust/src/**/*.j2
+    )
 
     add_custom_command(
             OUTPUT ${APP_CAN_TX_SRC_OUTPUT}
@@ -51,7 +55,7 @@ function(jsoncan_sources_cpp JSONCAN_PY_BOARD OUTPUT_DIR USE_IO DBC_OUTPUT CAN_J
             --can-data-dir ${CAN_JSON_DIR}
             --output-dir ${OUTPUT_DIR}
             --dbc-output ${DBC_OUTPUT}
-            DEPENDS ${CAN_JSON_SRCS} ${CAN_JSON_PY_SRCS}
+            DEPENDS ${CAN_JSON_SRCS} ${CAN_JSON_RUST_SRCS}
             WORKING_DIRECTORY ${SCRIPTS_DIR}/code_generation/jsoncan-rust
     )
 

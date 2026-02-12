@@ -60,7 +60,7 @@ void {{ signal.name }}_set(const {{ signal.datatype() }} value)
 {%- endfor %}
 
 {%- for msg in tx_messages %}
-{{ msg.c_type() }}& {{ msg.name }}_getData()
+app::can_utils::{{ msg.c_type() }}& {{ msg.name }}_getData()
 {
     return &tx_table.{{ msg.name }}_signals;
 }

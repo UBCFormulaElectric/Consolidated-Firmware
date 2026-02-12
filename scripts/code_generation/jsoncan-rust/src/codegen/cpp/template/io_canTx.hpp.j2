@@ -11,6 +11,20 @@
 #include <cstdbool>
 #include <array>
 
+/**
+ * Standard CAN message type.
+ */
+struct JsonCanMsg
+{
+    using data_array = std::array<uint8_t, {% if fd -%}64{%- else -%}8{%- endif -%}>;
+
+    uint32_t std_id;
+    uint32_t dlc;
+    data_array data{};
+
+    JsonCanMsg(uint32_t id, uint32_t _dlc, data_array _data) : std_id(id), dlc(_dlc), data(_data) {}
+};
+
 namespace io::can_tx {
 #ifdef THREAD_SAFE_CAN_PACKING
 void setLockfunction(
@@ -21,19 +35,6 @@ void setLockfunction(
 
 /* ------------------------------- Structs -------------------------------- */
 
-/**
- * Standard CAN message type.
- */
-struct JsonCanMsg
-{
-    using std::array<uint8_t, {% if fd -%}64{%- else -%}8{%- endif -%}> as data_array;
-
-    uint32_t std_id;
-    uint32_t dlc;
-    data_array data{};
-
-    JsonCanMsg(uint32_t id, uint32_t _dlc, data_array _data) : std_id(id), dlc(_dlc), data(_data) {}
-};
 
 /* -------------------------------- Enums --------------------------------- */
 // BUS ENUMS

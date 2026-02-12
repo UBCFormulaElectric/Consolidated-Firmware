@@ -56,7 +56,7 @@ constexpr float {{ signal.offset_macro() }} = {{ signal.offset }};
 // {{msg.name}}
 {% for signal in msg.signals -%}
 constexpr float {{ signal.min_val_macro() }} = {{ signal.min }};
-#- Only print unit if present and non-empty
+// Only print unit if present and non-empty
 {%- if signal.unit.is_some() && signal.unit.as_ref().unwrap() != "" -%}// {{ signal.unit.as_ref().unwrap() }} {%- endif %}
 constexpr float {{ signal.max_val_macro() }} = {{ signal.max }};
 {%- if signal.unit.is_some() && signal.unit.as_ref().unwrap() != "" -%}// {{ signal.unit.as_ref().unwrap() }} {%- endif %}

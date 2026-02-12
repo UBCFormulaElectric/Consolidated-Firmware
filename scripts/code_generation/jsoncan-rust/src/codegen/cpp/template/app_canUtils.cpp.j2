@@ -92,7 +92,7 @@ void pack(const {{ msg.name }}_Signals& in_msg, const std::span<uint8_t> out_dat
         {%- let decord_macro = "CAN_ENCODE" -%}
     {%- endif -%}
     // Pack {{ signal.bits }}-bit signal {{ signal.name }} into payload at [ bit {{ signal.start_bit }} to bit {{ signal.start_bit + signal.bits }} ).
-    const {{ signal.datatype() }} {{ signal.name }}_val = in_msg->{{ signal.name }}_value;
+    const {{ signal.datatype() }} {{ signal.name }}_val = in_msg.{{ signal.name }}_value;
     const {{ raw_type }} {{ signal.name }}_raw = {{ decord_macro }}({{ signal.name }}_val, {{ signal.scale_macro() }}, {{ signal.offset_macro() }}, {{ raw_type }});
     {% for iteration in iterations(signal) -%}
     {%- decl packShift -%}
@@ -111,7 +111,7 @@ void pack(const {{ msg.name }}_Signals& in_msg, const std::span<uint8_t> out_dat
 {% set msg_big_name =  msg.screaming_snake_name() %}
 
 // unpack function for {{ msg.name }}
-void unpack(const std::span<uint8_t> in_data, {{ msg.name }}_Signals& const out_msg)
+void unpack(const std::span<uint8_t> in_data, {{ msg.name }}_Signals& out_msg)
 {
     // Unpack message {{ msg.name }}.
     // {{ signal_placement_comment(msg) }}
