@@ -8,7 +8,7 @@ use crate::can_database::{BusForwarder, CanBus, CanEnum};
 
 pub use parse_alert::JsonAlerts;
 pub use parse_tx::{JsonCanSignal, JsonCanMessage};
-pub use crate::can_database::RxMsgNames;
+pub use crate::can_database::JsonRxMsgNames;
 
 use parse_alert::parse_alert_data;
 use parse_bus::parse_bus_data;
@@ -24,7 +24,7 @@ pub struct JsonNode {
     pub enums: Vec<CanEnum>,
     pub alerts: Option<JsonAlerts>,
     pub tx_msgs: Vec<JsonCanMessage>,
-    pub rx_msgs: RxMsgNames,
+    pub rx_msgs: JsonRxMsgNames,
 }
 
 //  A few notes about this class

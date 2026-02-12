@@ -1,4 +1,4 @@
-use crate::can_database::{BusForwarder, CanBus, CanDatabase, CanNode, RxMsgNames};
+use crate::can_database::{BusForwarder, CanBus, CanDatabase, CanNode, RxMsgs};
 use std::collections::{HashMap, HashSet};
 
 pub struct CanRxConfig {
@@ -185,13 +185,13 @@ fn route_msg<'cdb>(
 fn register_rx_msg(
     can_db: &CanDatabase,
     rx_node: &CanNode,
-    msg_name: &String,
+    msg_id: u32,
     tx_configs: &mut HashMap<String, CanTxConfig>,
     rx_configs: &mut HashMap<String, CanRxConfig>,
     forwards: &mut HashMap<String, CanForward>,
 ) {
     let msg = can_db
-        .get_message_by_name(msg_name)
+        .get_message_by_id(msg_id)
         .expect("Message not found in CAN database.");
 
     let tx_node_name = &msg.tx_node_name;
@@ -259,7 +259,7 @@ pub fn resolve_tx_rx_reroute(
 
     for rx_node in &can_db.nodes {
         match &rx_node.rx_msgs_names {
-            RxMsgNames::All => {
+            RxMsgs::All => {
                 todo!();
                 // for msg_name in can_db.get_all_tx_msgs_for(&rx_node.name) {
                 //     register_rx_msg(
@@ -272,12 +272,12 @@ pub fn resolve_tx_rx_reroute(
                 //     );
                 // }
             }
-            RxMsgNames::RxMsgs(m) => {
-                for msg_name in m {
+            RxMsgs::RxMsgs(m) => {
+                for msg_id in m {
                     register_rx_msg(
                         can_db,
                         rx_node,
-                        msg_name,
+                        *msg_id,
                         &mut tx_configs,
                         &mut rx_configs,
                         &mut forwards,
@@ -286,6 +286,5 @@ pub fn resolve_tx_rx_reroute(
             }
         }
     }
-
-    return (tx_configs, rx_configs, forwards);
+    (tx_configs, rx_configs, forwards)
 }

@@ -13,7 +13,7 @@ pub struct CanBus {
 }
 
 #[derive(Clone)]
-pub enum RxMsgNames {
+pub enum JsonRxMsgNames {
     All,
     RxMsgs(Vec<String>),
 }
@@ -30,12 +30,17 @@ pub struct GroupedAlerts {
     pub faults_count_id: u32,
 }
 
+pub enum RxMsgs {
+    All,
+    RxMsgs(Vec<u32>),
+}
+
 //     struct for fully describing a CAN node.
 //     Each CanNode object should be able to independently generate (notwithstanding foreign keys) all code related to that node
 pub struct CanNode {
     // Name of this CAN node
     pub name: String,
-    pub rx_msgs_names: RxMsgNames, // list of messages that it is listening
+    pub rx_msgs_names: RxMsgs, // list of messages that it is listening
     pub collects_data: bool,
     pub alerts: Option<GroupedAlerts>,
     pub enums: Vec<CanEnum>,

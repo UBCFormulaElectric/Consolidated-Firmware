@@ -3,10 +3,11 @@ use std::collections::HashMap;
 use crate::{
     can_database::{
         error::CanDBError, CanAlert, CanAlertType, CanDatabase, CanEnum, CanMessage, CanNode,
-        CanSignal, CanSignalType, GroupedAlerts, RxMsgNames
+        CanSignal, CanSignalType, GroupedAlerts, JsonRxMsgNames
     },
     parsing::{JsonCanParser, JsonCanSignal, DEFAULT_BUS_MODE},
 };
+use crate::can_database::RxMsgs;
 
 fn calculate_scale_offset(min: f64, max: f64, bits: u16) -> (f64, f64) {
     // return scale, offset
@@ -394,12 +395,13 @@ impl CanDatabase {
 
         // first handle adding nodes and their tx_msgs
         for n in parser.nodes {
+            let tx_node_name = n.name.clone();
             let node = CanNode {
                 rx_msgs_names: match n.rx_msgs {
-                    RxMsgNames::All => RxMsgNames::All,
-                    RxMsgNames::RxMsgs(rx_msgs) => {
+                    JsonRxMsgNames::All => RxMsgs::All,
+                    JsonRxMsgNames::RxMsgs(rx_msgs) => {
                         rx_msg_names_to_resolve.push((n.name.clone(), rx_msgs));
-                        RxMsgNames::RxMsgs(Vec::new())
+                        RxMsgs::RxMsgs(Vec::new())
                     }
                 },
                 name: n.name,
@@ -417,42 +419,65 @@ impl CanDatabase {
                 }),
                 enums: n.enums,
             };
-            let db_node = db.add_node(node);
+            db.add_node(node);
 
             // find the node in the list of nodes
             for msg in n.tx_msgs {
+                let signals = parse_tx_msg_signals(
+                    msg.signals,
+                    &db.shared_enums,
+                    &db.nodes.iter().find(|n| n.name == tx_node_name).unwrap().enums,
+                    &msg.name,
+                    &tx_node_name,
+                );
                 db.add_tx_msg(CanMessage {
-                    signals: parse_tx_msg_signals(
-                        msg.signals,
-                        &db_node.enums,
-                        &db.shared_enums,
-                        &msg.name,
-                        &db_node.name,
-                    ),
                     name: msg.name,
                     id: msg.id,
                     description: msg.description,
                     cycle_time: msg.cycle_time,
                     log_cycle_time: msg.log_cycle_time,
                     telem_cycle_time: msg.telem_cycle_time,
-                    tx_node_name: db_node.name.clone(),
+                    tx_node_name: tx_node_name.clone(),
                     modes: msg.modes,
+                    signals,
                 })?;
             }
         }
 
-        // alert tx msgs
-        for node in &db.nodes {
-            if let Some(alerts) = &node.alerts {
-                for msg in generate_node_alert_msgs(&node.name, &alerts) {
-                    db.add_tx_msg(msg)?;
-                }
+        // resolve explicit rx messages
+        for (rx_name, rx_msg_names) in rx_msg_names_to_resolve.into_iter() {
+            let rx_msgs: Vec<u32> = rx_msg_names
+                .iter()
+                .map(|m| db.get_message_id_by_name(m).expect(&format!("Message {} not found in database", m)))
+                .collect();
+            if let RxMsgs::RxMsgs(old_rx_msgs) = &mut db.nodes.iter_mut().find(|n| n.name == rx_name).expect(&format!("Node {} not found in database", rx_name)).rx_msgs_names {
+                *old_rx_msgs = rx_msgs;
+            } else {
+                panic!("Node {} was marked as receiving all messages, but is also trying to explicitly receive some messages. Please fix the JSON input.", rx_name);
             }
-            // force alerts to be rxd by all other boards
         }
 
-        // resolve all rx messages
-        for (tx_name, rx_msgs) in rx_msg_names_to_resolve.into_iter() {
+        // alert tx msgs
+        let alert_tx_msgs: Vec<CanMessage> = db.nodes
+            .iter()
+            .filter_map(|n| n.alerts.as_ref().map(|alerts| generate_node_alert_msgs(&n.name, alerts)))
+            .flatten()
+            .collect();
+        for msg in alert_tx_msgs {
+            let id = msg.id;
+            let tx_node_name = msg.tx_node_name.clone();
+            db.add_tx_msg(msg)?;
+            // rx on all nodes
+            db.nodes.iter_mut().for_each(|n| {
+                if n.name == tx_node_name {return;}
+                match &mut n.rx_msgs_names {
+                    RxMsgs::All => (),
+                    RxMsgs::RxMsgs(rx_msgs) => {
+                        assert!(!rx_msgs.contains(&id), "Node {} is trying to receive ALERT message ID {}, but that ID is already in its rx_msgs list. Note that all alerts are already RXd by default", n.name, id);
+                        rx_msgs.push(id);
+                    }
+                }
+            });
         }
 
         Ok(db)

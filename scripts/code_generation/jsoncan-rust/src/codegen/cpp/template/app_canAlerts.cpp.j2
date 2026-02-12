@@ -44,9 +44,9 @@ bool BoardHasInfo(app::can_utils::CanNode board)
         {%- for (board_name, board_alerts) in node_name_and_alerts %}
         case app::can_utils::CanNode::{{board_name.to_uppercase()}}_NODE:
         {
-            {%- if board_alerts.info.len() > 0 %}
+            {%- if board_alerts.infos.len() > 0 %}
             return (
-                {% for alert in board_alerts.info -%}
+                {% for alert in board_alerts.infos -%}
                 {% if board_name == node_name -%}
                 app::can_tx::{{ alert.name }}_get()
                 {% else -%}
@@ -159,7 +159,7 @@ uint8_t InfoInfo(Alert_Info *alert_array)
     uint8_t element_num = 0;
     {%- for (board_name, board_alerts) in node_name_and_alerts %}
     // {{board_name}} infos info
-    {%- for alert in board_alerts.info %}
+    {%- for alert in board_alerts.infos %}
     {%- if board_name == node_name %}
     if (app::can_tx::{{ alert.name }}_get())
     {% else %}

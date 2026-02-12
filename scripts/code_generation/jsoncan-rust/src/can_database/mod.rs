@@ -31,21 +31,21 @@ impl CanNode {
         }
 
         match &mut self.rx_msgs_names {
-            RxMsgNames::All => {
+            RxMsgs::All => {
                 // this cannot happen because we checked for it earlier
                 panic!(
                     "Node '{}' is already set to receive all messages, cannot add specific message '{}'",
                     self.name, rx_msg.name
                 );
             }
-            RxMsgNames::RxMsgs(msg_names) => {
-                if msg_names.contains(&rx_msg.name) {
+            RxMsgs::RxMsgs(msg_ids) => {
+                if msg_ids.contains(&rx_msg.id) {
                     return Err(CanDBError::RxDuplicate {
                         rx_node_name: self.name.clone(),
                         rx_msg_name: rx_msg.name.clone(),
                     });
                 }
-                msg_names.push(rx_msg.name.clone());
+                msg_ids.push(rx_msg.id);
             }
         }
 
@@ -54,7 +54,7 @@ impl CanNode {
 }
 
 pub struct CanDatabase {
-    conn: rusqlite::Connection,
+    conn: Connection,
     pub nodes: Vec<CanNode>,
     pub buses: Vec<CanBus>,
     pub forwarding: Vec<BusForwarder>,
