@@ -94,7 +94,7 @@ impl CanDatabase {
         }
     }
 
-    pub fn get_all_rx_msgs_for(self: &Self, node_name: &str) -> Vec<String> {
+    pub fn get_all_tx_msgs_for(self: &Self, node_name: &str) -> Vec<String> {
         let mut s = self
             .conn
             .prepare("SELECT name FROM messages WHERE tx_node_name != ?1")

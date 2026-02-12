@@ -2,10 +2,10 @@ use std::collections::HashMap;
 
 use crate::{
     can_database::{
-        CanAlert, CanAlertType, CanDatabase, CanEnum, CanMessage, CanNode, CanSignal,
-        CanSignalType, GroupedAlerts, error::CanDBError,
+        error::CanDBError, CanAlert, CanAlertType, CanDatabase, CanEnum, CanMessage, CanNode,
+        CanSignal, CanSignalType, GroupedAlerts, RxMsgNames
     },
-    parsing::{DEFAULT_BUS_MODE, JsonAlerts, JsonCanParser, JsonTxSignal},
+    parsing::{JsonCanParser, JsonCanSignal, DEFAULT_BUS_MODE},
 };
 
 fn calculate_scale_offset(min: f64, max: f64, bits: u16) -> (f64, f64) {
@@ -15,14 +15,14 @@ fn calculate_scale_offset(min: f64, max: f64, bits: u16) -> (f64, f64) {
 
 fn parse_signal(
     signal_name: String,
-    signal: JsonTxSignal,
+    signal: JsonCanSignal,
     next_available_bit: u16,
     node_enums: &Vec<CanEnum>,
     shared_enums: &Vec<CanEnum>,
 ) -> CanSignal {
     // TODO description
     match signal {
-        JsonTxSignal::ScaleOffsetBits {
+        JsonCanSignal::ScaleOffsetBits {
             min,
             max,
             scale,
@@ -49,7 +49,7 @@ fn parse_signal(
             big_endian: big_endian.unwrap_or(false),
             signal_type: CanSignalType::Numerical,
         },
-        JsonTxSignal::BitsMinMax {
+        JsonCanSignal::BitsMinMax {
             bits,
             min,
             max,
@@ -77,7 +77,7 @@ fn parse_signal(
                 signal_type: CanSignalType::Numerical,
             }
         }
-        JsonTxSignal::ResolutionMinMax {
+        JsonCanSignal::ResolutionMinMax {
             resolution,
             min,
             max,
@@ -102,7 +102,7 @@ fn parse_signal(
             big_endian: big_endian.unwrap_or(false),
             signal_type: CanSignalType::Numerical,
         },
-        JsonTxSignal::Enum {
+        JsonCanSignal::Enum {
             enum_name,
             start_value,
             start_bit,
@@ -134,7 +134,7 @@ fn parse_signal(
                 signal_type: CanSignalType::Enum,
             }
         }
-        JsonTxSignal::Bits {
+        JsonCanSignal::Bits {
             bits,
             scale,
             unit,
@@ -145,7 +145,7 @@ fn parse_signal(
         } => {
             let (min, max) = match signed {
                 Some(true) => (
-                    -(2f64.powi((bits - 1) as i32)),
+                    -2f64.powi((bits - 1) as i32),
                     2f64.powi((bits - 1) as i32) - 1.0,
                 ),
                 Some(false) | None => (0.0, 2f64.powi(bits as i32) - 1.0),
@@ -172,7 +172,7 @@ fn parse_signal(
 }
 
 fn parse_tx_msg_signals(
-    json_signals: HashMap<String, JsonTxSignal>,
+    json_signals: HashMap<String, JsonCanSignal>,
     node_enums: &Vec<CanEnum>,
     shared_enums: &Vec<CanEnum>,
     // also useful
@@ -187,19 +187,21 @@ fn parse_tx_msg_signals(
     let mut occupied_bits: Vec<Option<String>> = vec![None; MAX_LEN_BITS];
 
     // bombastic side eye
-    if json_signals.len() > 0 && json_signals.iter().any(|(_, s)| match s {
-        JsonTxSignal::ScaleOffsetBits { start_bit, .. }
-        | JsonTxSignal::BitsMinMax { start_bit, .. }
-        | JsonTxSignal::ResolutionMinMax { start_bit, .. }
-        | JsonTxSignal::Enum { start_bit, .. }
-        | JsonTxSignal::Bits { start_bit, .. } => start_bit.is_some(),
-    }) != json_signals.iter().all(|(_, s)| match s {
-        JsonTxSignal::ScaleOffsetBits { start_bit, .. }
-        | JsonTxSignal::BitsMinMax { start_bit, .. }
-        | JsonTxSignal::ResolutionMinMax { start_bit, .. }
-        | JsonTxSignal::Enum { start_bit, .. }
-        | JsonTxSignal::Bits { start_bit, .. } => start_bit.is_some(),
-    }) {
+    if json_signals.len() > 0
+        && json_signals.iter().any(|(_, s)| match s {
+            JsonCanSignal::ScaleOffsetBits { start_bit, .. }
+            | JsonCanSignal::BitsMinMax { start_bit, .. }
+            | JsonCanSignal::ResolutionMinMax { start_bit, .. }
+            | JsonCanSignal::Enum { start_bit, .. }
+            | JsonCanSignal::Bits { start_bit, .. } => start_bit.is_some(),
+        }) != json_signals.iter().all(|(_, s)| match s {
+            JsonCanSignal::ScaleOffsetBits { start_bit, .. }
+            | JsonCanSignal::BitsMinMax { start_bit, .. }
+            | JsonCanSignal::ResolutionMinMax { start_bit, .. }
+            | JsonCanSignal::Enum { start_bit, .. }
+            | JsonCanSignal::Bits { start_bit, .. } => start_bit.is_some(),
+        })
+    {
         panic!(
             "In message '{}', either all signals must specify start bits, or none of them should.",
             msg_name
@@ -239,7 +241,7 @@ fn parse_tx_msg_signals(
         signals.push(signal);
     }
 
-    return signals;
+    signals
 }
 
 fn parse_node_alert_signals(
@@ -280,10 +282,10 @@ fn parse_node_alert_signals(
         bit_pos += 1;
     }
 
-    return (signals, vec![]);
+    (signals, vec![])
 }
 
-fn generate_node_alert_msgs(node_name: &String, alerts_json: &JsonAlerts) -> [CanMessage; 6] {
+fn generate_node_alert_msgs(node_name: &String, alerts_json: &GroupedAlerts) -> [CanMessage; 6] {
     // Check alert messages ID are unique
     let warnings_name = format!("{}_Warnings", node_name);
     let faults_name = format!("{}_Faults", node_name);
@@ -293,15 +295,12 @@ fn generate_node_alert_msgs(node_name: &String, alerts_json: &JsonAlerts) -> [Ca
     let info_counts_name = format!("{}_InfoCounts", node_name);
 
     // Make alert signals
-    let (warnings_signals, warnings_counts_signals) = parse_node_alert_signals(
-        node_name,
-        &alerts_json.warnings.alerts,
-        CanAlertType::Warning,
-    );
+    let (warnings_signals, warnings_counts_signals) =
+        parse_node_alert_signals(node_name, &alerts_json.warnings, CanAlertType::Warning);
     let (faults_signals, faults_counts_signals) =
-        parse_node_alert_signals(node_name, &alerts_json.faults.alerts, CanAlertType::Fault);
+        parse_node_alert_signals(node_name, &alerts_json.faults, CanAlertType::Fault);
     let (info_signals, info_counts_signals) =
-        parse_node_alert_signals(node_name, &alerts_json.infos.alerts, CanAlertType::Info);
+        parse_node_alert_signals(node_name, &alerts_json.infos, CanAlertType::Info);
 
     static WARNINGS_ALERTS_CYCLE_TIME: Option<u32> = Some(1000);
     static FAULTS_ALERTS_CYCLE_TIME: Option<u32> = Some(100);
@@ -310,7 +309,7 @@ fn generate_node_alert_msgs(node_name: &String, alerts_json: &JsonAlerts) -> [Ca
     [
         CanMessage {
             name: warnings_name,
-            id: alerts_json.warnings.id,
+            id: alerts_json.warnings_id,
             description: Some(format!("Status of warnings for the {}.", node_name)),
             cycle_time: WARNINGS_ALERTS_CYCLE_TIME,
             log_cycle_time: WARNINGS_ALERTS_CYCLE_TIME,
@@ -321,7 +320,7 @@ fn generate_node_alert_msgs(node_name: &String, alerts_json: &JsonAlerts) -> [Ca
         },
         CanMessage {
             name: faults_name,
-            id: alerts_json.faults.id,
+            id: alerts_json.faults_id,
             description: Some(format!("Status of faults for the {}.", node_name)),
             cycle_time: FAULTS_ALERTS_CYCLE_TIME,
             log_cycle_time: FAULTS_ALERTS_CYCLE_TIME,
@@ -332,7 +331,7 @@ fn generate_node_alert_msgs(node_name: &String, alerts_json: &JsonAlerts) -> [Ca
         },
         CanMessage {
             name: warnings_counts_name,
-            id: alerts_json.warnings.count_id,
+            id: alerts_json.warnings_count_id,
             description: Some(format!(
                 "Number of times warnings have been set for the {}.",
                 node_name
@@ -346,7 +345,7 @@ fn generate_node_alert_msgs(node_name: &String, alerts_json: &JsonAlerts) -> [Ca
         },
         CanMessage {
             name: faults_counts_name,
-            id: alerts_json.faults.count_id,
+            id: alerts_json.faults_count_id,
             description: Some(format!(
                 "Number of times faults have been set for the {}.",
                 node_name
@@ -360,7 +359,7 @@ fn generate_node_alert_msgs(node_name: &String, alerts_json: &JsonAlerts) -> [Ca
         },
         CanMessage {
             name: info_name,
-            id: alerts_json.infos.id,
+            id: alerts_json.infos_id,
             description: Some(format!("Status of info for the {}.", node_name)),
             cycle_time: INFO_ALERTS_CYCLE_TIME,
             log_cycle_time: INFO_ALERTS_CYCLE_TIME,
@@ -371,7 +370,7 @@ fn generate_node_alert_msgs(node_name: &String, alerts_json: &JsonAlerts) -> [Ca
         },
         CanMessage {
             name: info_counts_name,
-            id: alerts_json.infos.count_id,
+            id: alerts_json.infos_count_id,
             description: Some(format!(
                 "Number of times info have been set for the {}.",
                 node_name
@@ -388,58 +387,72 @@ fn generate_node_alert_msgs(node_name: &String, alerts_json: &JsonAlerts) -> [Ca
 
 impl CanDatabase {
     pub fn from(parser: JsonCanParser) -> Result<Self, CanDBError> {
-        let can_nodes = parser
-            .nodes
-            .iter()
-            .map(|n| CanNode {
-                name: n.name.clone(),
-                rx_msgs_names: n.rx_msgs.clone(), // TODO this does not get checked for validity
+        // one can check that all fields of parser are used here
+        let mut db = CanDatabase::new(parser.buses, parser.forwarding, parser.shared_enums)?;
+
+        let mut rx_msg_names_to_resolve: Vec<(String, Vec<String>)> = Vec::new();
+
+        // first handle adding nodes and their tx_msgs
+        for n in parser.nodes {
+            let node = CanNode {
+                rx_msgs_names: match n.rx_msgs {
+                    RxMsgNames::All => RxMsgNames::All,
+                    RxMsgNames::RxMsgs(rx_msgs) => {
+                        rx_msg_names_to_resolve.push((n.name.clone(), rx_msgs));
+                        RxMsgNames::RxMsgs(Vec::new())
+                    }
+                },
+                name: n.name,
                 collects_data: n.collects_data,
-                alerts: n.alerts.as_ref().map(|a| GroupedAlerts {
-                    info: a.infos.alerts.clone(),
-                    warnings: a.warnings.alerts.clone(),
-                    faults: a.faults.alerts.clone(),
+                alerts: n.alerts.map(|a| GroupedAlerts {
+                    infos: a.infos.alerts,
+                    warnings: a.warnings.alerts,
+                    faults: a.faults.alerts,
+                    infos_id: a.infos.id,
+                    warnings_id: a.warnings.id,
+                    faults_id: a.faults.id,
+                    infos_count_id: a.infos.count_id,
+                    warnings_count_id: a.warnings.count_id,
+                    faults_count_id: a.faults.count_id,
                 }),
-                enums: n.enums.clone(),
-            })
-            .collect();
+                enums: n.enums,
+            };
+            let db_node = db.add_node(node);
 
-        let mut db = CanDatabase::new(
-            parser.buses,
-            can_nodes,
-            parser.forwarding,
-            parser.shared_enums.clone(),
-        )?;
-
-        // resolve all tx messages
-        for node in parser.nodes {
-            // register tx_msgs in database
-            for msg in node.tx_msgs {
-                let signals: Vec<CanSignal> = parse_tx_msg_signals(
-                    msg.signals,
-                    &node.enums,
-                    &parser.shared_enums,
-                    &msg.name,
-                    &node.name,
-                );
+            // find the node in the list of nodes
+            for msg in n.tx_msgs {
                 db.add_tx_msg(CanMessage {
+                    signals: parse_tx_msg_signals(
+                        msg.signals,
+                        &db_node.enums,
+                        &db.shared_enums,
+                        &msg.name,
+                        &db_node.name,
+                    ),
                     name: msg.name,
                     id: msg.id,
                     description: msg.description,
                     cycle_time: msg.cycle_time,
                     log_cycle_time: msg.log_cycle_time,
                     telem_cycle_time: msg.telem_cycle_time,
-                    tx_node_name: node.name.clone(),
+                    tx_node_name: db_node.name.clone(),
                     modes: msg.modes,
-                    signals,
                 })?;
             }
+        }
 
-            if let Some(alerts) = node.alerts {
+        // alert tx msgs
+        for node in &db.nodes {
+            if let Some(alerts) = &node.alerts {
                 for msg in generate_node_alert_msgs(&node.name, &alerts) {
                     db.add_tx_msg(msg)?;
                 }
             }
+            // force alerts to be rxd by all other boards
+        }
+
+        // resolve all rx messages
+        for (tx_name, rx_msgs) in rx_msg_names_to_resolve.into_iter() {
         }
 
         Ok(db)

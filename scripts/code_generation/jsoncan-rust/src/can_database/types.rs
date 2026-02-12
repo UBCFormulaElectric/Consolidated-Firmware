@@ -19,9 +19,15 @@ pub enum RxMsgNames {
 }
 
 pub struct GroupedAlerts {
-    pub info: Vec<CanAlert>,
+    pub infos: Vec<CanAlert>,
     pub warnings: Vec<CanAlert>,
     pub faults: Vec<CanAlert>,
+    pub infos_id: u32,
+    pub infos_count_id: u32,
+    pub warnings_id: u32,
+    pub warnings_count_id: u32,
+    pub faults_id: u32,
+    pub faults_count_id: u32,
 }
 
 //     struct for fully describing a CAN node.

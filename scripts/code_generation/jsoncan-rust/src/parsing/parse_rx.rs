@@ -30,10 +30,7 @@ pub fn parse_json_rx_data(can_data_dir: &str, rx_node_name: &str) -> RxMsgNames 
 
     match json_rx_msgs.messages {
         JsonRxEntry::All(s) => {
-            assert!(
-                s.to_uppercase() == "ALL",
-                "Expected 'ALL' string for all messages"
-            );
+            assert_eq!(s.to_uppercase(), "ALL", "Expected 'ALL' string for all messages");
             RxMsgNames::All
         }
         JsonRxEntry::RxMsgs(msg_list) => RxMsgNames::RxMsgs(msg_list),

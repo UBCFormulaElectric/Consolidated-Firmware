@@ -64,7 +64,6 @@ pub struct CanDatabase {
 impl CanDatabase {
     pub fn new(
         buses: Vec<CanBus>,
-        nodes: Vec<CanNode>,
         forwarding: Vec<BusForwarder>,
         shared_enums: Vec<CanEnum>,
     ) -> Result<Self, CanDBError> {
@@ -119,7 +118,7 @@ impl CanDatabase {
         Ok(CanDatabase {
             conn,
             buses,
-            nodes,
+            nodes: Vec::new(),
             forwarding,
             shared_enums,
         })
@@ -239,5 +238,10 @@ impl CanDatabase {
             .chain(self.shared_enums.iter())
             .find(|e| e.name == enum_name)
             .cloned()
+    }
+
+    pub fn add_node(self: &mut Self, node: CanNode) -> &CanNode {
+       self.nodes.push(node);
+         self.nodes.last().unwrap()
     }
 }

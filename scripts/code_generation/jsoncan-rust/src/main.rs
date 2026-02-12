@@ -4,3 +4,5 @@ pub mod dbcgen;
 pub mod parsing;
 pub mod reroute;
 mod test;
+
+pub main() {}

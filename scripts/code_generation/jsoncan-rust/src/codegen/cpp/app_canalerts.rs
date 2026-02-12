@@ -8,7 +8,7 @@ use crate::{
 impl GroupedAlerts {
     pub fn flatten(self: &Self) -> Vec<CanAlert> {
         let mut all_alerts: Vec<CanAlert> = Vec::new();
-        all_alerts.extend(self.info.clone());
+        all_alerts.extend(self.infos.clone());
         all_alerts.extend(self.warnings.clone());
         all_alerts.extend(self.faults.clone());
         all_alerts
