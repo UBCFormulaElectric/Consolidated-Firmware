@@ -1,15 +1,16 @@
 #include "hw_crc.hpp"
 
-static CRC_HandleTypeDef *handle;
+static CRC_HandleTypeDef *handle = nullptr;
 
-void hw_crc_init(CRC_HandleTypeDef *crc_handle)
+namespace hw::crc
+{
+void init(CRC_HandleTypeDef *crc_handle)
 {
     handle = crc_handle;
 }
 
-uint32_t hw_crc_calculate(uint32_t *buffer, uint32_t size_words)
+uint32_t calculate(const uint32_t *buffer, const uint32_t size_words)
 {
-    return HAL_CRC_Calculate(handle, buffer, size_words);
+    return HAL_CRC_Calculate(handle, const_cast<uint32_t *>(buffer), size_words);
 }
-
-// !!! rewrite this to cpp style
+} // namespace hw::crc
