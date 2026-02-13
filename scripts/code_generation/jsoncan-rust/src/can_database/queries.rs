@@ -72,12 +72,7 @@ impl CanDatabase {
                     if d.is_empty() { None } else { Some(d) }
                 },
                 big_endian: row.get::<_, i32>(13)? != 0,
-                signal_type: match row.get::<_, i32>(14)? {
-                    0 => CanSignalType::Numerical,
-                    1 => CanSignalType::Alert,
-                    2 => CanSignalType::Enum,
-                    _ => panic!("Invalid signal type in database"),
-                },
+                signal_type: CanSignalType::from(row.get::<_, i32>(14)? as u32),
             })
         }) {
             Err(e) => Err(CanDBError::SqlLiteError(e)),
@@ -94,13 +89,13 @@ impl CanDatabase {
         }
     }
 
-    pub fn get_all_tx_msgs_for(self: &Self, node_name: &str) -> Vec<String> {
+    pub fn get_allrx_for(self: &Self, node_name: &str) -> Vec<u32> {
         let mut s = self
             .conn
-            .prepare("SELECT name FROM messages WHERE tx_node_name != ?1")
+            .prepare("SELECT id FROM messages WHERE tx_node_name != ?1")
             .unwrap();
 
-        s.query_map([node_name], |row| Ok(row.get::<_, String>(0)?))
+        s.query_map([node_name], |row| Ok(row.get::<_, u32>(0)?))
             .unwrap()
             .map(|res| res.unwrap())
             .collect()

@@ -81,7 +81,7 @@ void clear_board_rx_table(app::can_utils::CanNode board)
         case CanNode::{{ board.to_uppercase() }}_NODE:
             {%- for msg in boards_messages[board] %}
                 {%- for signal in msg.signals %}
-            update_{{ signal.name }}({{ signal.start_val_macro() }});
+            {{ signal.name }}_update({{ signal.start_val_macro() }});
                 {%- endfor %}
             {%- endfor %}
             break;

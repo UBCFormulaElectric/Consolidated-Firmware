@@ -260,17 +260,16 @@ pub fn resolve_tx_rx_reroute(
     for rx_node in &can_db.nodes {
         match &rx_node.rx_msgs_names {
             RxMsgs::All => {
-                todo!();
-                // for msg_name in can_db.get_all_tx_msgs_for(&rx_node.name) {
-                //     register_rx_msg(
-                //         can_db,
-                //         rx_node,
-                //         &msg_name,
-                //         &mut tx_configs,
-                //         &mut rx_configs,
-                //         &mut forwards,
-                //     );
-                // }
+                for msg_id in can_db.get_allrx_for(&rx_node.name) {
+                    register_rx_msg(
+                        can_db,
+                        rx_node,
+                        msg_id,
+                        &mut tx_configs,
+                        &mut rx_configs,
+                        &mut forwards,
+                    );
+                }
             }
             RxMsgs::RxMsgs(m) => {
                 for msg_id in m {

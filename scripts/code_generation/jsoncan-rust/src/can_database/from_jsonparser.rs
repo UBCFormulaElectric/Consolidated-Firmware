@@ -48,7 +48,7 @@ fn parse_signal(
             signed: signed.unwrap_or(false),
             description: None,
             big_endian: big_endian.unwrap_or(false),
-            signal_type: CanSignalType::Numerical,
+            signal_type: if min == 0f64 && max == 1f64 && scale == 1f64 && offset == 0f64 {CanSignalType::Boolean} else {CanSignalType::Numerical},
         },
         JsonCanSignal::BitsMinMax {
             bits,
@@ -75,7 +75,7 @@ fn parse_signal(
                 signed: signed.unwrap_or(false),
                 description: None,
                 big_endian: big_endian.unwrap_or(false),
-                signal_type: CanSignalType::Numerical,
+                signal_type: if min == 0f64 && max == 1f64 && bits == 1 { CanSignalType::Boolean } else {CanSignalType::Numerical},
             }
         }
         JsonCanSignal::ResolutionMinMax {

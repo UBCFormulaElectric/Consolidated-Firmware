@@ -16,7 +16,7 @@ pub use io_canreroute::IoCanRerouteModule;
 pub use io_canrx::IoCanRxModule;
 pub use io_cantx::IoCanTxModule;
 
-use crate::can_database::{CanMessage, CanSignal};
+use crate::can_database::{CanMessage, CanSignal, CanSignalType};
 
 use convert_case::{Case, Casing};
 
@@ -38,18 +38,6 @@ pub enum CPPModule<'a> {
 }
 
 impl CPPGenerator for CPPModule<'_> {
-    fn file_stem(&self) -> String {
-        match self {
-            CPPModule::AppCanUtilsModule(module) => module.file_stem(),
-            CPPModule::AppCanTxModule(module) => module.file_stem(),
-            CPPModule::AppCanAlertsModule(module) => module.file_stem(),
-            CPPModule::AppCanDataCaptureModule(module) => module.file_stem(),
-            CPPModule::AppCanRxModule(module) => module.file_stem(),
-            CPPModule::IoCanTxModule(module) => module.file_stem(),
-            CPPModule::IoCanRxModule(module) => module.file_stem(),
-            CPPModule::IoCanRerouteModule(module) => module.file_stem(),
-        }
-    }
     fn header_template(&self) -> Result<String, askama::Error> {
         match self {
             CPPModule::AppCanUtilsModule(module) => module.header_template(),
@@ -72,6 +60,18 @@ impl CPPGenerator for CPPModule<'_> {
             CPPModule::IoCanTxModule(module) => module.source_template(),
             CPPModule::IoCanRxModule(module) => module.source_template(),
             CPPModule::IoCanRerouteModule(module) => module.source_template(),
+        }
+    }
+    fn file_stem(&self) -> String {
+        match self {
+            CPPModule::AppCanUtilsModule(module) => module.file_stem(),
+            CPPModule::AppCanTxModule(module) => module.file_stem(),
+            CPPModule::AppCanAlertsModule(module) => module.file_stem(),
+            CPPModule::AppCanDataCaptureModule(module) => module.file_stem(),
+            CPPModule::AppCanRxModule(module) => module.file_stem(),
+            CPPModule::IoCanTxModule(module) => module.file_stem(),
+            CPPModule::IoCanRxModule(module) => module.file_stem(),
+            CPPModule::IoCanRerouteModule(module) => module.file_stem(),
         }
     }
 }
@@ -106,25 +106,32 @@ impl CanSignal {
     }
 
     pub fn datatype(self: &Self) -> String {
-        if self.scale != 1.0 || self.offset != 0.0 {
-            return "float".to_string();
-        }
-        if self.signed {
-            match self.bits {
-                8 => "int8_t".to_string(),
-                16 => "int16_t".to_string(),
-                32 => "int32_t".to_string(),
-                64 => "int64_t".to_string(),
-                _ => "int".to_string(), // Fallback for unusual bit lengths
-            }
-        } else {
-            match self.bits {
-                8 => "uint8_t".to_string(),
-                16 => "uint16_t".to_string(),
-                32 => "uint32_t".to_string(),
-                64 => "uint64_t".to_string(),
-                _ => "unsigned int".to_string(), // Fallback for unusual bit lengths
-            }
+        match self.signal_type {
+            CanSignalType::Numerical => {
+                if self.scale != 1.0 || self.offset != 0.0 {
+                    "float".to_string()
+                }
+                else if self.signed {
+                    match self.bits {
+                        0_u16..=8_u16 => "int8_t".to_string(),
+                        9_u16..=16_u16 => "int16_t".to_string(),
+                        17_u16..=32_u16 => "int32_t".to_string(),
+                        33_u16..=64_u16 => "int64_t".to_string(),
+                        _ => "int".to_string(), // Fallback for unusual bit lengths
+                    }
+                } else {
+                    match self.bits {
+                        0_u16..=8_u16 => "uint8_t".to_string(),
+                        9_u16..=16_u16 => "uint16_t".to_string(),
+                        17_u16..=32_u16 => "uint32_t".to_string(),
+                        33_u16..=64_u16 => "uint64_t".to_string(),
+                        _ => "unsigned int".to_string(), // Fallback for unusual bit lengths
+                    }
+                }
+            },
+            CanSignalType::Boolean => "bool".to_string(),
+            CanSignalType::Enum => self.enum_name.as_ref().expect("Enum must have name").clone(),
+            CanSignalType::Alert => "alert".to_string(),
         }
     }
 
@@ -133,9 +140,9 @@ impl CanSignal {
             return "float".to_string();
         }
         if self.signed {
-            return "int".to_string();
+            return "int32_t".to_string();
         }
-        "uint".to_string()
+        "uint32_t".to_string()
     }
 
     pub fn endian_macro(self: &Self) -> String {
@@ -151,6 +158,24 @@ impl CanSignal {
             "-".to_string()
         } else {
             "+".to_string()
+        }
+    }
+
+    pub fn start_val_name(self: &Self) -> String {
+        // format!("{}_START_VAL", self.snake_name().to_uppercase())
+        match self.signal_type {
+            CanSignalType::Numerical => {
+                self.start_val.to_string()
+            },
+            CanSignalType::Boolean => {
+                if self.start_val == 0f64 {
+                    "false".to_string()
+                } else {
+                    "true".to_string()
+                }
+            },
+            CanSignalType::Enum => todo!(),
+            CanSignalType::Alert => "false".to_string(),
         }
     }
 }

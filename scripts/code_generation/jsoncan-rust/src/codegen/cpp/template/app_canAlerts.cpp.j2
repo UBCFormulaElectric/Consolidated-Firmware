@@ -48,7 +48,7 @@ bool BoardHasInfo(app::can_utils::CanNode board)
             return (
                 {% for alert in board_alerts.infos -%}
                 {% if board_name == node_name -%}
-                app::can_tx::{{ alert.name }}_get()
+                app::can_tx::{{board_name.to_uppercase()}}_Info_{{ alert.name }}_get()
                 {% else -%}
                 app::can_rx::{{ alert.name }}_get()
                 {% endif -%}

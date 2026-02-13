@@ -49,9 +49,22 @@ pub struct CanNode {
 #[derive(Clone)]
 pub enum CanSignalType {
     Numerical,
+    Boolean,
     Enum,
     Alert,
 }
+impl CanSignalType {
+    pub fn from(x: u32) -> CanSignalType {
+        match x { // this is definately very suspicious
+            0 => CanSignalType::Numerical,
+            1 => CanSignalType::Boolean,
+            2 => CanSignalType::Alert,
+            3 => CanSignalType::Enum,
+            _ => panic!("Invalid signal type {} in database", x),
+        }
+    }
+}
+
 pub struct CanSignal {
     // Name of this CAN signal
     pub name: String,
@@ -81,6 +94,9 @@ pub struct CanSignal {
     pub big_endian: bool, // TODO: Add tests for big endianness
 
     pub signal_type: CanSignalType,
+    // note I am way too lazy to make cansignal a proper union type
+    // hence this will do
+    // however you need to trust that this is correct
 }
 
 pub struct CanMessage {
@@ -185,12 +201,12 @@ impl CanEnum {
     }
 
     pub fn max_value(&self) -> u32 {
-        return self
+        self
             .values
             .values()
             .cloned()
             .max()
-            .expect("Enum has at least one value");
+            .expect("Enum has at least one value")
     }
 
     pub fn min_value(&self) -> u32 {

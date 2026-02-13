@@ -8,11 +8,27 @@
 /* ------------------------------- Includes ------------------------------- */
 
 #include <cstdint>
-#include <cstdbool>
 #include <span>
 
-/* -------------------------------- Macros -------------------------------- */
 namespace app::can_utils {
+/* -------------------------------- Enums --------------------------------- */
+{%- for e in enums %}
+enum class {{ e.name }}
+{
+    {%- for (key, value) in e.values %}
+    {{ key }} = {{ value }},
+    {%- endfor %}
+};
+{%- endfor %}
+
+enum class CanNode
+{
+    {%- for node_name in node_names %}
+    {{node_name.to_uppercase()}}_NODE = {{loop.index}},
+    {%- endfor %}
+};
+
+/* -------------------------------- Macros -------------------------------- */
 // Msg IDs
 {% for message in messages -%}
 inline constexpr uint32_t {{ message.id_macro() }} = {{ message.id }};
@@ -28,13 +44,13 @@ constexpr uint8_t {{ message.dlc_macro() }} = {{ message.dlc() }};
 {% if message.cycle_time.is_some() -%}
 constexpr uint32_t {{ message.cycle_time_macro() }} = {{ message.cycle_time.unwrap() }};
 {%- endif %}
-{% endfor %}
+{%- endfor %}
 
 // Signal starting values
 {% for msg in messages -%}
 // {{msg.name}}
 {% for signal in msg.signals -%}
-constexpr float {{ signal.start_val_macro() }} = {{ signal.start_val }};
+constexpr {{ signal.datatype() }} {{ signal.start_val_macro() }} = {{ signal.start_val_name() }};
 {%- if signal.unit.is_some() && signal.unit.as_ref().unwrap() != "" -%}// {{ signal.unit.as_ref().unwrap() }} {%- endif %}
 {% endfor %}
 {% endfor %}
@@ -63,26 +79,9 @@ constexpr float {{ signal.max_val_macro() }} = {{ signal.max }};
 {% endfor %}
 {% endfor %}
 
-
-/* -------------------------------- Enums --------------------------------- */
-{%- for e in enums %}
-enum class {{ e.name }}
-{
-    {%- for (key, value) in e.values %}
-    {{ key }} = {{ value }},
-    {%- endfor %}
-};
-{%- endfor %}
-
-enum class CanNode
-{
-    {%- for node_name in node_names %}
-    {{node_name.to_uppercase()}}_NODE = {{loop.index}},
-    {%- endfor %}
-};
-
 /* ------------------------------- Structs -------------------------------- */
 
+{# THESE ARE THE SIGNAL STRUCTS #}
 {% for message in messages %}
 struct {{ message.name }}_Signals
 {
@@ -92,7 +91,9 @@ struct {{ message.name }}_Signals
     {%- for signal in message.signals %}
     {{ signal.datatype() }} {{ signal.name }}_value = {{ signal.start_val_macro()}};
     {%- endfor %}
+    explicit {{ message.name }}_Signals(std::span<const uint8_t> data);
     {%- endif %}
+    {{ message.name }}_Signals() = default;
 };
 {% endfor %}
 
@@ -100,8 +101,5 @@ struct {{ message.name }}_Signals
 
 {% for message in messages %}
 void pack(const {{ message.name }}_Signals& in_msg, std::span<uint8_t> out_data);
-{%- endfor %}
-{% for message in messages %}
-void unpack(const uint8_t* in_data, {{ message.name }}_Signals& out_msg);
 {%- endfor %}
 }
