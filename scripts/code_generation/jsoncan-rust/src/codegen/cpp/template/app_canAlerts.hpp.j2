@@ -8,7 +8,6 @@
 
 /* ------------------------------- Includes ------------------------------- */
 
-#include <cstdbool>
 #include <cstdint>
 #include "app_canUtils.hpp"
 
@@ -17,8 +16,8 @@ namespace app::can_alerts {
 
 struct Alert_Info
 {
-    char* description;
-    char* name;
+    const char* description;
+    const char* name;
     uint16_t id;
 };
 

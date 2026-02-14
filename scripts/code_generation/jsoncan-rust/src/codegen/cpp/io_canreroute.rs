@@ -29,7 +29,7 @@ struct IoCanRerouteModuleHeader<'a> {
 pub struct IoCanRerouteModule<'a> {
     can_db: &'a CanDatabase,
     reroute_config: &'a CanForward,
-    node_busses: Vec<&'a CanBus>,
+    node_busses: Vec<&'a CanBus>, // list of CanBusses that this node sits on
 }
 impl IoCanRerouteModule<'_> {
     pub fn new<'a>(
@@ -46,15 +46,12 @@ impl IoCanRerouteModule<'_> {
         IoCanRerouteModule {
             can_db,
             reroute_config,
-            node_busses: node_busses,
+            node_busses,
         }
     }
 }
 
 impl CPPGenerator for IoCanRerouteModule<'_> {
-    fn file_stem(&self) -> String {
-        "io_canReroute".to_string()
-    }
     fn header_template(&self) -> Result<String, askama::Error> {
         IoCanRerouteModuleHeader {
             node_busses: &self.node_busses,
@@ -68,5 +65,8 @@ impl CPPGenerator for IoCanRerouteModule<'_> {
             reroutes: self.reroute_config,
         }
         .render()
+    }
+    fn file_stem(&self) -> String {
+        "io_canReroute".to_string()
     }
 }

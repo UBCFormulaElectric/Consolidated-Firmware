@@ -130,8 +130,20 @@ impl CanSignal {
                 }
             },
             CanSignalType::Boolean => "bool".to_string(),
-            CanSignalType::Enum => self.enum_name.as_ref().expect("Enum must have name").clone(),
-            CanSignalType::Alert => "alert".to_string(),
+            CanSignalType::Enum => {
+                format!(
+                    "app::can_utils::{}",
+                    self.enum_name.as_ref().expect(&format!("{} is enum signal but has no enum name", &self.name))
+                )
+            },
+            CanSignalType::Alert => "bool".to_string(),
+        }
+    }
+
+    pub fn has_unrepresentable_values(self: &Self) -> bool {
+        match self.signal_type {
+            CanSignalType::Numerical | CanSignalType::Enum => true,
+            CanSignalType::Boolean | CanSignalType::Alert => false,
         }
     }
 
@@ -174,7 +186,11 @@ impl CanSignal {
                     "true".to_string()
                 }
             },
-            CanSignalType::Enum => todo!(),
+            CanSignalType::Enum => format!(
+                "static_cast<{}>({})",
+                self.enum_name.as_ref().expect(&format!("{} is enum signal but has no enum name", &self.name)),
+                self.start_val as i64
+            ),
             CanSignalType::Alert => "false".to_string(),
         }
     }

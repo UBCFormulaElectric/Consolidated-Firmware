@@ -388,6 +388,25 @@ fn generate_node_alert_msgs(node_name: &String, alerts_json: &GroupedAlerts) -> 
 
 impl CanDatabase {
     pub fn from(parser: JsonCanParser) -> Result<Self, CanDBError> {
+        for x in &parser.forwarding {
+            let bus_1_node_names: &Vec<String> = &parser.buses.iter().find(|b| b.name == x.bus1_name).expect("must exist").node_names;
+            if !bus_1_node_names.contains(&x.forwarder_name) {
+                // println!("{:?} {}", bus_1_node_names, &x.forwarder_name);
+                return Err(CanDBError::NodeCannotForwardFrom {
+                    node_name: x.forwarder_name.clone(),
+                    bus_not_on: x.bus1_name.clone(),
+                })
+            }
+            let bus_2_node_names = &parser.buses.iter().find(|b| b.name == x.bus2_name).expect("must exist").node_names;
+            if !bus_2_node_names.contains(&x.forwarder_name) {
+                // println!("{:?} {}", bus_2_node_names, &x.forwarder_name);
+                return Err(CanDBError::NodeCannotForwardTo {
+                    node_name: x.forwarder_name.clone(),
+                    bus_not_on: x.bus2_name.clone(),
+                });
+            }
+        }
+
         // one can check that all fields of parser are used here
         let mut db = CanDatabase::new(parser.buses, parser.forwarding, parser.shared_enums)?;
 

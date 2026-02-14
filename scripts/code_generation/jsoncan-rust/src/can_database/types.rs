@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 #[derive(PartialEq)]
+#[derive(Debug)]
 pub struct CanBus {
     pub name: String,
     pub bus_speed: u32,
@@ -46,7 +47,8 @@ pub struct CanNode {
     pub enums: Vec<CanEnum>,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
+#[derive(PartialEq)]
 pub enum CanSignalType {
     Numerical,
     Boolean,
@@ -58,8 +60,8 @@ impl CanSignalType {
         match x { // this is definately very suspicious
             0 => CanSignalType::Numerical,
             1 => CanSignalType::Boolean,
-            2 => CanSignalType::Alert,
-            3 => CanSignalType::Enum,
+            2 => CanSignalType::Enum,
+            3 => CanSignalType::Alert,
             _ => panic!("Invalid signal type {} in database", x),
         }
     }

@@ -7,8 +7,6 @@
 
 /* ------------------------------- Includes ------------------------------- */
 
-#include <math.h>
-#include <string.h>
 #include "app_canRx.hpp"
 
 namespace app::can_rx {
@@ -22,7 +20,7 @@ static struct RxMsgs
     {%- if boards_messages.values().len() > 0 %}
     {%- for rx_messages in boards_messages.values() %}
     {%- for msg in rx_messages %}
-    {{ msg.c_type() }} {{ msg.name }}_signals {};
+    can_utils::{{ msg.c_type() }} {{ msg.name }}_signals {};
     {%- endfor %}
     {%- endfor %}
     {%- else %}
@@ -46,14 +44,16 @@ void {{ signal.name }}_update({{ signal.datatype() }} value)
     }
     {%- endif %}
     // Clamp value to min/max
-    if (value >= {{ signal.max_val_macro() }})
+    {%- if signal.has_unrepresentable_values() %}
+    if (value >= can_utils::{{ signal.max_val_macro() }})
     {
-        value = {{ signal.max_val_macro() }};
+        value = can_utils::{{ signal.max_val_macro() }};
     }
-    if (value <= {{ signal.min_val_macro() }})
+    if (value <= can_utils::{{ signal.min_val_macro() }})
     {
-        value = {{ signal.min_val_macro() }};
+        value = can_utils::{{ signal.min_val_macro() }};
     }
+    {%- endif %}
     rx_table.{{ msg.name }}_signals.{{ signal.name }}_value = value; // Set value
 }
 {%- endfor %}
@@ -72,22 +72,22 @@ void {{ signal.name }}_update({{ signal.datatype() }} value)
 {%- endfor %}
 {%- endfor %}
 
-void clear_board_rx_table(app::can_utils::CanNode board)
+void clear_board_rx_table(const can_utils::CanNode board)
 {
     switch(board)
     {
         {%- for board in boards_messages.keys() %}
             {%- if board.to_uppercase() != node.to_uppercase() %}
-        case CanNode::{{ board.to_uppercase() }}_NODE:
+        case can_utils::CanNode::{{ board.to_uppercase() }}_NODE:
             {%- for msg in boards_messages[board] %}
                 {%- for signal in msg.signals %}
-            {{ signal.name }}_update({{ signal.start_val_macro() }});
+            {{ signal.name }}_update(can_utils::{{ signal.start_val_macro() }});
                 {%- endfor %}
             {%- endfor %}
             break;
             {%- endif %}
         {%- endfor %}
-        case CanNode::{{ node.to_uppercase() }}_NODE: // Do nothing, this is the current node :)
+        case can_utils::CanNode::{{ node.to_uppercase() }}_NODE: // Do nothing, this is the current node :)
         default:
             break;
     }

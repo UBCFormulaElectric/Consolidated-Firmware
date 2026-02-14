@@ -49,14 +49,14 @@ void sendAperiodic_{{msg.name}}()
     #ifdef THREAD_SAFE_CAN_PACKING
     lock();
     #endif
-    app::can_utils::pack(app::can_tx::{{msg.name}}_getData(), tx_msg.data);
+    app::can_tx::{{msg.name}}_getData().pack(tx_msg.data);
     #ifdef THREAD_SAFE_CAN_PACKING
     unlock();
     #endif
     {%- for msg_bus_name in busses %}
     if (
     {%- for mode in msg.modes %}
-        can_mode_{{msg_bus_name}} & (static_cast<uint32_t>({{msg_bus_name}}Mode::{{msg_bus_name.to_uppercase()}}_MODE_{{mode}}))
+        can_mode_{{msg_bus_name}} & (static_cast<uint32_t>({{msg_bus_name}}Mode::{{msg_bus_name.to_uppercase()}}_MODE_{{mode.to_uppercase()}}))
     {%- endfor %}
     )
     {
@@ -80,22 +80,19 @@ void init(
     {%- endfor %}
 }
 
-
-{% for bus in node_buses -%}
-void enableMode_{{bus.name}}({{bus.name}}Mode mode, bool enable)
+{% for bus in node_buses %}
+void enableMode_{{bus.name}}({{bus.name}}Mode mode, const bool enable)
 {
     if (enable)
     {
-        can_mode_{{bus.name}} |= (uint32_t)mode; // Enable mode
+        can_mode_{{bus.name}} |= static_cast<uint32_t>(mode); // Enable mode
     }
     else
     {
-        can_mode_{{bus.name}} &= ~((uint32_t)mode); // Disable mode
+        can_mode_{{bus.name}} &= ~static_cast<uint32_t>(mode); // Disable mode
     }
 }
-{%- endfor %}
-
-
+{% endfor %}
 
 void enqueue1HzMsgs()
 {
@@ -111,10 +108,10 @@ void enqueue100HzMsgs()
     {%- endfor %}
 }
 
-void enqueueOtherPeriodicMsgs(uint32_t time_ms)
+void enqueueOtherPeriodicMsgs(const uint32_t time_ms)
 {
     {%- for (msg, busses) in messages if msg.cycle_time.is_some() && msg.cycle_time.unwrap() != 1000 && msg.cycle_time.unwrap() != 10 %}
-    if (time_ms % {{msg.cycle_time_macro()}} == 0)
+    if (time_ms % app::can_utils::{{msg.cycle_time_macro()}} == 0)
     {
         sendPeriodic_{{msg.name}}();
     }

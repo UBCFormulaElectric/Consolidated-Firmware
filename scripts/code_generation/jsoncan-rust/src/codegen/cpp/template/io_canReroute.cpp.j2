@@ -30,7 +30,7 @@ void reroute_{{from_bus.name}}(const JsonCanMsg* rx_msg)
     switch(rx_msg->std_id)
     {
         {%- for (msg_id, busses) in reroutes.get_forwards_for_bus(from_bus.name) %}
-        case {{ id_macro(msg_id) }}:
+        case app::can_utils::{{ id_macro(msg_id) }}:
         {
             {%- for bus_name in busses %}
             transmit_func_{{bus_name}}(rx_msg);
