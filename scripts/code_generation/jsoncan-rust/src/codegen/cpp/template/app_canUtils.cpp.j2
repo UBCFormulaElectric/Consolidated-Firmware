@@ -47,22 +47,36 @@ static uint32_t unpackShiftRight(const uint8_t input, const uint8_t shift, const
 /**
  * Encode real signal value to payload representation, w/ scale and offset (unsigned).
  */
-#define CAN_ENCODE(input, scale, offset, type) ((uint32_t)((input - offset) / scale))
+template<typename T>
+static T CAN_ENCODE(const auto input, const double scale, const double offset)
+{
+    return static_cast<T>((static_cast<double>(input) - offset) / scale);
+}
 
 /**
  * Encode real signal value to payload representation, w/ scale and offset (signed).
  */
-#define CAN_SIGNED_ENCODE(input, scale, offset, type) ((int32_t)((input - offset) / scale))
+static int32_t CAN_SIGNED_ENCODE(const double input, const double scale, const double offset)
+{
+    return static_cast<int32_t>((input - offset) / scale);
+}
 
 /**
  * Decode payload representation of signal to signal value, w/ scale and offset.
  */
-#define CAN_DECODE(input, scale, offset, type) ((type)((type)input * (type)scale + (type)offset))
+template<typename T>
+static T CAN_DECODE(const float input, const float scale, const float offset)
+{
+    return static_cast<T>(input * scale + offset);
+}
 
 /**
  * Interpret input as a signed number of length bits via 2s complement.
  */
-#define SIGNED_DECODE(input, bits, mask) (((int)((input & (1 << (bits - 1))) ? -((~input & mask) + 1) : input)))
+static int SIGNED_DECODE(const uint32_t input, const uint32_t bits, const uint32_t mask)
+{
+    return static_cast<int>((input & (1 << (bits - 1))) ? -((~input & mask) + 1) : input);
+}
 
 /* ------------------------- Function Definitions ------------------------- */
 
@@ -76,7 +90,10 @@ void {{ msg.name }}_Signals::pack(const std::span<uint8_t> out_data) const
 {
     // Pack message {{ msg.name }}.
     // {{ signal_placement_comment(msg) }}
-
+    {% if msg.signals.len() == 0 %}
+    // No signals in {{ msg.name }}, so no pack function.
+    out_data[0] = _placeholder;
+    {% else %}
     {% for signal in msg.signals %}
     {%- decl raw_type -%}
     {%-if signal.signed -%}
@@ -92,7 +109,7 @@ void {{ msg.name }}_Signals::pack(const std::span<uint8_t> out_data) const
     {%- endif -%}
     // Pack {{ signal.bits }}-bit signal {{ signal.name }} into payload at [ bit {{ signal.start_bit }} to bit {{ signal.start_bit + signal.bits }} ).
     const {{ signal.datatype() }} {{ signal.name }}_val = {{ signal.name }}_value;
-    const {{ raw_type }} {{ signal.name }}_raw = {{ decord_macro }}({{ signal.name }}_val, {{ signal.scale_macro() }}, {{ signal.offset_macro() }}, {{ raw_type }});
+    const auto {{ signal.name }}_raw = {{ decord_macro }}<{{ raw_type }}>({{ signal.name }}_val, {{ signal.scale_macro() }}, {{ signal.offset_macro() }});
     {% for iteration in iterations(signal) -%}
     {%- decl packShift -%}
     {%- if iteration.shift >= 0 -%}
@@ -103,6 +120,7 @@ void {{ msg.name }}_Signals::pack(const std::span<uint8_t> out_data) const
     out_data[{{ iteration.starting_byte }}] |= {{ packShift }}({{ signal.name }}_raw, {{ iteration.shift }}, {{ iteration.mask_text }});   // Packs bits {{ iteration.comment_data }} of byte {{ iteration.starting_byte }}
     {% endfor %}
     {% endfor %}
+    {%- endif %}
 }
 {% endfor %}
 
@@ -119,12 +137,6 @@ void {{ msg.name }}_Signals::pack(const std::span<uint8_t> out_data) const
 
     {% for signal in msg.signals %}
     {%- set signal_big_name =  signal.screaming_snake_name() -%}
-    {%- decl decord_macro -%}
-    {%- if signal.signed -%}
-    {%- let decord_macro = "CAN_SIGNED_ENCODE" -%}
-    {%- else -%}
-    {%- let decord_macro = "CAN_ENCODE" -%}
-    {%- endif -%}
     uint32_t {{ signal.name }}_raw = 0; // Temporary raw variable for {{ signal.name }}
     {% for iteration in iterations(signal) -%}
     {%- decl unpackShift -%}
@@ -137,9 +149,9 @@ void {{ msg.name }}_Signals::pack(const std::span<uint8_t> out_data) const
     {% endfor -%}
     {%- if signal.signed -%}
     const int {{ signal.name }}_signed = SIGNED_DECODE({{ signal.name }}_raw, {{ signal.bits }}, {{ max_uint_for_bits(signal.bits) }});
-    {{ signal.name }}_value = CAN_DECODE({{ signal.name }}_signed, {{ signal.scale_macro() }}, {{ signal.offset_macro() }}, {{ signal.representation() }});
+    {{ signal.name }}_value = CAN_DECODE<{{ signal.datatype() }}>({{ signal.name }}_signed, {{ signal.scale_macro() }}, {{ signal.offset_macro() }});
     {%- else -%}
-    {{ signal.name }}_value = CAN_DECODE({{ signal.name }}_raw, {{ signal.scale_macro() }}, {{ signal.offset_macro() }}, {{signal.representation()}});
+    {{ signal.name }}_value = CAN_DECODE<{{ signal.datatype() }}>({{ signal.name }}_raw, {{ signal.scale_macro() }}, {{ signal.offset_macro() }});
     {% endif %}
     {%- endfor %}
 }
