@@ -7,6 +7,7 @@
 # Returns
 # CAN_SRCS - List of generated source files
 # CAN_INCLUDE_DIRS - List of include directories
+message("  📚 [jsoncan.cmake] Registering function jsoncan_sources_cpp()")
 function(jsoncan_sources_cpp JSONCAN_PY_BOARD OUTPUT_DIR USE_IO DBC_OUTPUT CAN_JSON_DIR)
     file(RELATIVE_PATH OUTPUT_DIR_RELATIVE ${CMAKE_SOURCE_DIR} ${OUTPUT_DIR})
     message("  📚 [jsoncan.cmake, jsoncan_sources_cpp()] Registering JSONCAN sources for ${JSONCAN_PY_BOARD} at ${OUTPUT_DIR_RELATIVE} for ${CAR}")
@@ -27,10 +28,18 @@ function(jsoncan_sources_cpp JSONCAN_PY_BOARD OUTPUT_DIR USE_IO DBC_OUTPUT CAN_J
     set(IO_CAN_REROUTE_SRC_OUTPUT "${OUTPUT_DIR}/io/io_canReroute.cpp")
     set(IO_CAN_REROUTE_HEADER_OUTPUT "${OUTPUT_DIR}/io/io_canReroute.hpp")
 
-    file(GLOB_RECURSE CAN_JSON_SRCS ${CAN_JSON_DIR}/**/*.json)
+    file(GLOB_RECURSE CAN_JSON_SRCS ${CAN_JSON_DIR}/*.json)
     file(GLOB_RECURSE CAN_JSON_RUST_SRCS
-            ${SCRIPTS_DIR}/code_generation/jsoncan-rust/src/**/*.rs
-            ${SCRIPTS_DIR}/code_generation/jsoncan-rust/src/**/*.j2
+            ${SCRIPTS_DIR}/code_generation/jsoncan-rust/src/*.rs
+            ${SCRIPTS_DIR}/code_generation/jsoncan-rust/src/*.j2
+    )
+
+    add_custom_command(
+            OUTPUT ${SCRIPTS_DIR}/code_generation/jsoncan-rust/target/release/cppcodegen${EXECUTABLE_SUFFIX}
+            COMMAND cargo build --release --bin cppcodegen
+            WORKING_DIRECTORY ${SCRIPTS_DIR}/code_generation/jsoncan-rust
+            DEPENDS ${CAN_JSON_RUST_SRCS}
+            COMMENT "Building JSONCAN code generator"
     )
 
     add_custom_command(
@@ -50,12 +59,12 @@ function(jsoncan_sources_cpp JSONCAN_PY_BOARD OUTPUT_DIR USE_IO DBC_OUTPUT CAN_J
             ${APP_CAN_DATA_CAPTURE_HEADER_OUTPUT}
             ${IO_CAN_REROUTE_SRC_OUTPUT}
             ${IO_CAN_REROUTE_HEADER_OUTPUT}
-            COMMAND cargo run --release --bin cppcodegen --
+            COMMAND ${SCRIPTS_DIR}/code_generation/jsoncan-rust/target/release/cppcodegen${EXECUTABLE_SUFFIX}
             --board ${JSONCAN_PY_BOARD}
             --can-data-dir ${CAN_JSON_DIR}
             --output-dir ${OUTPUT_DIR}
             --dbc-output ${DBC_OUTPUT}
-            DEPENDS ${CAN_JSON_SRCS} ${CAN_JSON_RUST_SRCS}
+            DEPENDS ${CAN_JSON_SRCS} ${SCRIPTS_DIR}/code_generation/jsoncan-rust/target/release/cppcodegen${EXECUTABLE_SUFFIX}
             WORKING_DIRECTORY ${SCRIPTS_DIR}/code_generation/jsoncan-rust
     )
 
