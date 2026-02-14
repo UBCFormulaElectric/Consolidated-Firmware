@@ -50,9 +50,6 @@ impl IoCanTxModule<'_> {
 }
 
 impl CPPGenerator for IoCanTxModule<'_> {
-    fn file_stem(&self) -> String {
-        "io_canTx".to_string()
-    }
     fn header_template(&self) -> Result<String, askama::Error> {
         IoCanTxModuleHeader {
             messages: &self.messages,
@@ -67,5 +64,8 @@ impl CPPGenerator for IoCanTxModule<'_> {
             messages: &self.messages,
         }
         .render()
+    }
+    fn file_stem(&self) -> String {
+        "io_canTx".to_string()
     }
 }

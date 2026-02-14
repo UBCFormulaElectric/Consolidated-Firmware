@@ -30,9 +30,6 @@ impl AppCanDataCaptureModule {
 }
 
 impl CPPGenerator for AppCanDataCaptureModule {
-    fn file_stem(&self) -> String {
-        "app_canDataCapture".to_string()
-    }
     fn header_template(&self) -> Result<String, askama::Error> {
         AppCanDataCaptureModuleHeader {}.render()
     }
@@ -41,5 +38,8 @@ impl CPPGenerator for AppCanDataCaptureModule {
             messages: &self.messages,
         }
         .render()
+    }
+    fn file_stem(&self) -> String {
+        "app_canDataCapture".to_string()
     }
 }

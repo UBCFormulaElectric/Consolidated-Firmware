@@ -20,7 +20,7 @@ struct AppCanUtilsModuleSource<'a> {
     messages: &'a Vec<CanMessage>,
 }
 impl AppCanUtilsModuleSource<'_> {
-    fn signal_placement_comment(self: &Self, msg: &CanMessage) -> std::string::String {
+    fn signal_placement_comment(self: &Self, msg: &CanMessage) -> String {
         let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
         let mut signals = vec!['_'; (msg.dlc() * 8) as usize];
@@ -84,7 +84,7 @@ impl AppCanUtilsModuleSource<'_> {
             packed_bits += bits_to_pack;
         }
 
-        return iterations;
+        iterations
     }
 
     fn max_uint_for_bits(self: &Self, bits: &u16) -> u32 {
@@ -122,9 +122,6 @@ impl AppCanUtilsModule {
 }
 
 impl CPPGenerator for AppCanUtilsModule {
-    fn file_stem(&self) -> String {
-        "app_canUtils".to_string()
-    }
     fn header_template(&self) -> Result<String, askama::Error> {
         AppCanUtilsModuleHeader {
             messages: &self.messages,
@@ -138,5 +135,8 @@ impl CPPGenerator for AppCanUtilsModule {
             messages: &self.messages,
         }
         .render()
+    }
+    fn file_stem(&self) -> String {
+        "app_canUtils".to_string()
     }
 }

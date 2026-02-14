@@ -63,9 +63,6 @@ impl AppCanAlertsModule<'_> {
 }
 
 impl CPPGenerator for AppCanAlertsModule<'_> {
-    fn file_stem(&self) -> String {
-        "app_canAlerts".to_string()
-    }
     fn header_template(&self) -> Result<String, askama::Error> {
         AppCanAlertsModuleHeader {
             node_tx_alerts: &self
@@ -91,5 +88,8 @@ impl CPPGenerator for AppCanAlertsModule<'_> {
             node_name: self.node_name,
         }
         .render()
+    }
+    fn file_stem(&self) -> String {
+        "app_canAlerts".to_string()
     }
 }

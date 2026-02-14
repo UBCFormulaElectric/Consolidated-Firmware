@@ -84,7 +84,7 @@ static int SIGNED_DECODE(const uint32_t input, const uint32_t bits, const uint32
 {% set offset_macro = "CANSIG_{}_{}_OFFSET" %}
 
 {% for msg in messages -%}
-{% set msg_big_name =  msg.screaming_snake_name() %} 
+{% set msg_big_name =  msg.screaming_snake_name() %}
 // pack function for {{ msg.name }}
 void {{ msg.name }}_Signals::pack(const std::span<uint8_t> out_data) const
 {
@@ -127,8 +127,7 @@ void {{ msg.name }}_Signals::pack(const std::span<uint8_t> out_data) const
 {% for msg in messages -%}
 {% if msg.signals.len() == 0 %}
 // No signals in {{ msg.name }}, so no unpack function.
-{%- continue %}
-{% endif %}
+{% else %}
 {% set msg_big_name =  msg.screaming_snake_name() %}
 {{ msg.name }}_Signals::{{ msg.name }}_Signals(const std::span<const uint8_t> data)
 {
@@ -156,4 +155,5 @@ void {{ msg.name }}_Signals::pack(const std::span<uint8_t> out_data) const
     {%- endfor %}
 }
 {%- endfor %}
+{% endif %}
 }

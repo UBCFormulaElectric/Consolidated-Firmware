@@ -44,9 +44,6 @@ impl IoCanRxModule<'_> {
 }
 
 impl CPPGenerator for IoCanRxModule<'_> {
-    fn file_stem(&self) -> String {
-        "io_canRx".to_string()
-    }
     fn header_template(&self) -> Result<String, askama::Error> {
         IoCanRxModuleHeader {
             node: self.board,
@@ -59,5 +56,8 @@ impl CPPGenerator for IoCanRxModule<'_> {
             messages_on_busses: &self.messages_on_busses,
         }
         .render()
+    }
+    fn file_stem(&self) -> String {
+        "io_canRx".to_string()
     }
 }
