@@ -50,3 +50,5 @@ RUN echo "[global]\n break-system-packages = true" > /etc/pip.conf
 COPY requirements.txt .
 RUN pip3 install -r requirements.txt
 RUN rm requirements.txt
+
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
