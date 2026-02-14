@@ -23,6 +23,11 @@
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
+extern DMA_NodeTypeDef Node_GPDMA1_Channel0;
+
+extern DMA_QListTypeDef List_GPDMA1_Channel0;
+
+extern DMA_HandleTypeDef handle_GPDMA1_Channel0;
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN TD */
@@ -81,7 +86,8 @@ void HAL_MspInit(void)
  */
 void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
 {
-    GPIO_InitTypeDef         GPIO_InitStruct     = { 0 };
+    GPIO_InitTypeDef         GPIO_InitStruct = { 0 };
+    DMA_NodeConfTypeDef      NodeConfig;
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
     if (hadc->Instance == ADC1)
     {
@@ -121,6 +127,62 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+        /* ADC1 DMA Init */
+        /* GPDMA1_REQUEST_ADC1 Init */
+        NodeConfig.NodeType                         = DMA_GPDMA_LINEAR_NODE;
+        NodeConfig.Init.Request                     = GPDMA1_REQUEST_ADC1;
+        NodeConfig.Init.BlkHWRequest                = DMA_BREQ_SINGLE_BURST;
+        NodeConfig.Init.Direction                   = DMA_PERIPH_TO_MEMORY;
+        NodeConfig.Init.SrcInc                      = DMA_SINC_FIXED;
+        NodeConfig.Init.DestInc                     = DMA_DINC_FIXED;
+        NodeConfig.Init.SrcDataWidth                = DMA_SRC_DATAWIDTH_HALFWORD;
+        NodeConfig.Init.DestDataWidth               = DMA_DEST_DATAWIDTH_HALFWORD;
+        NodeConfig.Init.SrcBurstLength              = 1;
+        NodeConfig.Init.DestBurstLength             = 1;
+        NodeConfig.Init.TransferAllocatedPort       = DMA_SRC_ALLOCATED_PORT0 | DMA_DEST_ALLOCATED_PORT0;
+        NodeConfig.Init.TransferEventMode           = DMA_TCEM_BLOCK_TRANSFER;
+        NodeConfig.Init.Mode                        = DMA_NORMAL;
+        NodeConfig.TriggerConfig.TriggerPolarity    = DMA_TRIG_POLARITY_MASKED;
+        NodeConfig.DataHandlingConfig.DataExchange  = DMA_EXCHANGE_NONE;
+        NodeConfig.DataHandlingConfig.DataAlignment = DMA_DATA_RIGHTALIGN_ZEROPADDED;
+        if (HAL_DMAEx_List_BuildNode(&NodeConfig, &Node_GPDMA1_Channel0) != HAL_OK)
+        {
+            Error_Handler();
+        }
+
+        if (HAL_DMAEx_List_InsertNode(&List_GPDMA1_Channel0, NULL, &Node_GPDMA1_Channel0) != HAL_OK)
+        {
+            Error_Handler();
+        }
+
+        if (HAL_DMAEx_List_SetCircularMode(&List_GPDMA1_Channel0) != HAL_OK)
+        {
+            Error_Handler();
+        }
+
+        handle_GPDMA1_Channel0.Instance                         = GPDMA1_Channel0;
+        handle_GPDMA1_Channel0.InitLinkedList.Priority          = DMA_LOW_PRIORITY_LOW_WEIGHT;
+        handle_GPDMA1_Channel0.InitLinkedList.LinkStepMode      = DMA_LSM_FULL_EXECUTION;
+        handle_GPDMA1_Channel0.InitLinkedList.LinkAllocatedPort = DMA_LINK_ALLOCATED_PORT0;
+        handle_GPDMA1_Channel0.InitLinkedList.TransferEventMode = DMA_TCEM_BLOCK_TRANSFER;
+        handle_GPDMA1_Channel0.InitLinkedList.LinkedListMode    = DMA_LINKEDLIST_CIRCULAR;
+        if (HAL_DMAEx_List_Init(&handle_GPDMA1_Channel0) != HAL_OK)
+        {
+            Error_Handler();
+        }
+
+        if (HAL_DMAEx_List_LinkQ(&handle_GPDMA1_Channel0, &List_GPDMA1_Channel0) != HAL_OK)
+        {
+            Error_Handler();
+        }
+
+        __HAL_LINKDMA(hadc, DMA_Handle, handle_GPDMA1_Channel0);
+
+        if (HAL_DMA_ConfigChannelAttributes(&handle_GPDMA1_Channel0, DMA_CHANNEL_NPRIV) != HAL_OK)
+        {
+            Error_Handler();
+        }
+
         /* ADC1 interrupt Init */
         HAL_NVIC_SetPriority(ADC1_IRQn, 0, 0);
         HAL_NVIC_EnableIRQ(ADC1_IRQn);
@@ -157,6 +219,9 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
 
         HAL_GPIO_DeInit(
             GPIOA, LC3_OUT_Pin | nBSPD_BRAKE_PRESSED_3V3_Pin | SUSP_TRAVEL_RL_3V3_Pin | SUSP_TRAVEL_RR_3V3_Pin);
+
+        /* ADC1 DMA DeInit */
+        HAL_DMA_DeInit(hadc->DMA_Handle);
 
         /* ADC1 interrupt DeInit */
         HAL_NVIC_DisableIRQ(ADC1_IRQn);
@@ -342,7 +407,17 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
         /** Initializes the peripherals clock
          */
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SPI3;
-        PeriphClkInitStruct.Spi3ClockSelection   = RCC_SPI3CLKSOURCE_PLL1Q;
+        PeriphClkInitStruct.PLL2.PLL2Source      = RCC_PLL2_SOURCE_CSI;
+        PeriphClkInitStruct.PLL2.PLL2M           = 1;
+        PeriphClkInitStruct.PLL2.PLL2N           = 125;
+        PeriphClkInitStruct.PLL2.PLL2P           = 4;
+        PeriphClkInitStruct.PLL2.PLL2Q           = 2;
+        PeriphClkInitStruct.PLL2.PLL2R           = 2;
+        PeriphClkInitStruct.PLL2.PLL2RGE         = RCC_PLL2_VCIRANGE_2;
+        PeriphClkInitStruct.PLL2.PLL2VCOSEL      = RCC_PLL2_VCORANGE_WIDE;
+        PeriphClkInitStruct.PLL2.PLL2FRACN       = 0;
+        PeriphClkInitStruct.PLL2.PLL2ClockOut    = RCC_PLL2_DIVP;
+        PeriphClkInitStruct.Spi3ClockSelection   = RCC_SPI3CLKSOURCE_PLL2P;
         if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
         {
             Error_Handler();
@@ -438,6 +513,9 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim_base)
         /* USER CODE END TIM3_MspInit 0 */
         /* Peripheral clock enable */
         __HAL_RCC_TIM3_CLK_ENABLE();
+        /* TIM3 interrupt Init */
+        HAL_NVIC_SetPriority(TIM3_IRQn, 0, 0);
+        HAL_NVIC_EnableIRQ(TIM3_IRQn);
         /* USER CODE BEGIN TIM3_MspInit 1 */
 
         /* USER CODE END TIM3_MspInit 1 */
@@ -476,6 +554,9 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef *htim_base)
         /* USER CODE END TIM3_MspDeInit 0 */
         /* Peripheral clock disable */
         __HAL_RCC_TIM3_CLK_DISABLE();
+
+        /* TIM3 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(TIM3_IRQn);
         /* USER CODE BEGIN TIM3_MspDeInit 1 */
 
         /* USER CODE END TIM3_MspDeInit 1 */
