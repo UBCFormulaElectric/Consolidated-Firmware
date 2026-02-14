@@ -581,17 +581,7 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
         /** Initializes the peripherals clock
          */
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USB;
-        PeriphClkInitStruct.PLL3.PLL3Source      = RCC_PLL3_SOURCE_CSI;
-        PeriphClkInitStruct.PLL3.PLL3M           = 1;
-        PeriphClkInitStruct.PLL3.PLL3N           = 48;
-        PeriphClkInitStruct.PLL3.PLL3P           = 2;
-        PeriphClkInitStruct.PLL3.PLL3Q           = 4;
-        PeriphClkInitStruct.PLL3.PLL3R           = 2;
-        PeriphClkInitStruct.PLL3.PLL3RGE         = RCC_PLL3_VCIRANGE_0;
-        PeriphClkInitStruct.PLL3.PLL3VCOSEL      = RCC_PLL3_VCORANGE_MEDIUM;
-        PeriphClkInitStruct.PLL3.PLL3FRACN       = 0;
-        PeriphClkInitStruct.PLL3.PLL3ClockOut    = RCC_PLL3_DIVQ;
-        PeriphClkInitStruct.UsbClockSelection    = RCC_USBCLKSOURCE_PLL3Q;
+        PeriphClkInitStruct.UsbClockSelection    = RCC_USBCLKSOURCE_HSI48;
         if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
         {
             Error_Handler();

@@ -584,6 +584,7 @@ class VC(_Board):
             board_module=proto_autogen_hex.vc_pb2,
         )
 
+
 class BMS(_Board):
     def __init__(self):
         """Create an interface to an DAM board."""

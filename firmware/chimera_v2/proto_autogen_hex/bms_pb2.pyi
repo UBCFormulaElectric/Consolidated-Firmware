@@ -48,13 +48,17 @@ class _GpioNetNameEnumTypeWrapper(
     GPIO_nEVSE_I_LIM_GPIO: _GpioNetName.ValueType
     GPIO_IR_P_EN: _GpioNetName.ValueType
     GPIO_SHDN_EN: _GpioNetName.ValueType
-    GPIO_BMS_LATCH: _GpioNetName.ValueType
+    GPIO_nBMS_LATCH: _GpioNetName.ValueType
     GPIO_IMD_OK: _GpioNetName.ValueType
-    GPIO_BSPD_LATCH: _GpioNetName.ValueType
+    GPIO_nBSPD_LATCH: _GpioNetName.ValueType
     GPIO_PRE_CHARGE_EN: _GpioNetName.ValueType
-    GPIO_FB_STBY_SHDN: _GpioNetName.ValueType
+    GPIO_SHDN_OL_ON: _GpioNetName.ValueType
     GPIO_FAN_EN: _GpioNetName.ValueType
     GPIO_FAN_PGOOD: _GpioNetName.ValueType
+    GPIO_PGOOD_3V3: _GpioNetName.ValueType
+    GPIO_PGOOD_5V: _GpioNetName.ValueType
+    GPIO_SHDN_DIAG_EN: _GpioNetName.ValueType
+    GPIO_SHDN_FAULT: _GpioNetName.ValueType
 
 class GpioNetName(_GpioNetName, metaclass=_GpioNetNameEnumTypeWrapper): ...
 
@@ -82,13 +86,17 @@ GPIO_BMS_OK: GpioNetName.ValueType
 GPIO_nEVSE_I_LIM_GPIO: GpioNetName.ValueType
 GPIO_IR_P_EN: GpioNetName.ValueType
 GPIO_SHDN_EN: GpioNetName.ValueType
-GPIO_BMS_LATCH: GpioNetName.ValueType
+GPIO_nBMS_LATCH: GpioNetName.ValueType
 GPIO_IMD_OK: GpioNetName.ValueType
-GPIO_BSPD_LATCH: GpioNetName.ValueType
+GPIO_nBSPD_LATCH: GpioNetName.ValueType
 GPIO_PRE_CHARGE_EN: GpioNetName.ValueType
-GPIO_FB_STBY_SHDN: GpioNetName.ValueType
+GPIO_SHDN_OL_ON: GpioNetName.ValueType
 GPIO_FAN_EN: GpioNetName.ValueType
 GPIO_FAN_PGOOD: GpioNetName.ValueType
+GPIO_PGOOD_3V3: GpioNetName.ValueType
+GPIO_PGOOD_5V: GpioNetName.ValueType
+GPIO_SHDN_DIAG_EN: GpioNetName.ValueType
+GPIO_SHDN_FAULT: GpioNetName.ValueType
 Global___GpioNetName: typing_extensions.TypeAlias = GpioNetName
 
 class _AdcNetName:
@@ -104,10 +112,10 @@ class _AdcNetNameEnumTypeWrapper(
     ADC_FAN_ISNS: _AdcNetName.ValueType
     ADC_TS_VSENSE_P: _AdcNetName.ValueType
     ADC_TS_VSENSE_N: _AdcNetName.ValueType
-    ADC_SHDN_ISNS: _AdcNetName.ValueType
+    ADC_SHDN_SNS: _AdcNetName.ValueType
     ADC_EMETER_THERM_SNS: _AdcNetName.ValueType
-    ADC_TS_ISNS_400A: _AdcNetName.ValueType
-    ADC_TS_ISNS_50A: _AdcNetName.ValueType
+    ADC_TS_ISENSE_400A: _AdcNetName.ValueType
+    ADC_TS_ISENSE_50A: _AdcNetName.ValueType
 
 class AdcNetName(_AdcNetName, metaclass=_AdcNetNameEnumTypeWrapper): ...
 
@@ -115,10 +123,10 @@ ADC_NET_NAME_UNSPECIFIED: AdcNetName.ValueType
 ADC_FAN_ISNS: AdcNetName.ValueType
 ADC_TS_VSENSE_P: AdcNetName.ValueType
 ADC_TS_VSENSE_N: AdcNetName.ValueType
-ADC_SHDN_ISNS: AdcNetName.ValueType
+ADC_SHDN_SNS: AdcNetName.ValueType
 ADC_EMETER_THERM_SNS: AdcNetName.ValueType
-ADC_TS_ISNS_400A: AdcNetName.ValueType
-ADC_TS_ISNS_50A: AdcNetName.ValueType
+ADC_TS_ISENSE_400A: AdcNetName.ValueType
+ADC_TS_ISENSE_50A: AdcNetName.ValueType
 Global___AdcNetName: typing_extensions.TypeAlias = AdcNetName
 
 class _SpiNetName:
@@ -140,3 +148,19 @@ SPI_NET_NAME_UNSPECIFIED: SpiNetName.ValueType
 SPI_LTC6813_LS: SpiNetName.ValueType
 SPI_LTC6813_HS: SpiNetName.ValueType
 Global___SpiNetName: typing_extensions.TypeAlias = SpiNetName
+
+class _I2cNetName:
+    ValueType = typing.NewType("ValueType", builtins.int)
+    V: typing_extensions.TypeAlias = ValueType
+
+class _I2cNetNameEnumTypeWrapper(
+    google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_I2cNetName.ValueType],
+    builtins.type,
+):
+    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+    I2C_NET_NAME_UNSPECIFIED: _I2cNetName.ValueType
+
+class I2cNetName(_I2cNetName, metaclass=_I2cNetNameEnumTypeWrapper): ...
+
+I2C_NET_NAME_UNSPECIFIED: I2cNetName.ValueType
+Global___I2cNetName: typing_extensions.TypeAlias = I2cNetName
