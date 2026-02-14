@@ -41,15 +41,12 @@ void updateRxTableWithMessage(const JsonCanMsg& msg)
         {%- for (bus_name, messages) in messages_on_busses %}
         {%- for msg in messages %}
         case app::can_utils::{{msg.id_macro()}}:
-        {
-            {% if msg.signals.len() > 0 %}
-            const app::can_utils::{{msg.name}}_Signals out_msg{msg.data};
-            {%- for signal in msg.signals %}
-            app::can_rx::{{signal.name}}_update(out_msg.{{signal.name}}_value);
-            {%- endfor %}
-            {% endif %}
+            {% if msg.signals.len() > 0 -%}
+            app::can_rx::{{ msg.name }}_getData() = app::can_utils::{{ msg.c_type() }} {msg.data};
+            {%- else -%}
+            // No signals to unpack for {{ msg.name }}.
+            {%- endif %}
             break;
-        }
         {%- endfor %}
         {%- endfor %}
         default:

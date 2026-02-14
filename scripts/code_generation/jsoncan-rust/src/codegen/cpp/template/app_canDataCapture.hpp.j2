@@ -7,17 +7,11 @@
 
 /* ------------------------------- Includes ------------------------------- */
 
-#include <stdint.h>
-#include <stdbool.h>
+#include <cstdint>
 
 namespace app::can_data_capture {
 /* ------------------------- Function Prototypes -------------------------- */
-
-
-void init(void);
-
+void init();
 bool needsLog(uint32_t msg_id, uint32_t time_ms);
-
 bool needsTelem(uint32_t msg_id, uint32_t time_ms);
-
 }

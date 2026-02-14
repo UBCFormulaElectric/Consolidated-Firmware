@@ -92,13 +92,13 @@ bool AnyBoardHasFault();
 /**
  * Fetches the info info into alert_array, returns amount of elements in alert_array.
  */
-uint8_t InfoInfo(Alert_Info *alert_array);
+uint8_t InfoInfo(std::span<const Alert_Info> alert_array);
 /**
  * Fetches the warning info into alert_array, returns amount of elements in alert_array.
  */
-uint8_t WarningInfo(Alert_Info *alert_array);
+uint8_t WarningInfo(std::span<const Alert_Info> alert_array);
 /**
  * Fetches the fault info into alert_array, returns amount of elements in alert_array.
  */
-uint8_t FaultInfo(Alert_Info *alert_array);
+uint8_t FaultInfo(std::span<const Alert_Info> alert_array);
 }

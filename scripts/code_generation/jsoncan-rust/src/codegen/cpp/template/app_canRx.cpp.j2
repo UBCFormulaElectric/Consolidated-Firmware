@@ -72,6 +72,15 @@ void {{ signal.name }}_update({{ signal.datatype() }} value)
 {%- endfor %}
 {%- endfor %}
 
+/* --------- GET DATA --------- */
+{%- for rx_messages in boards_messages.values() %}
+{%- for msg in rx_messages %}
+can_utils::{{ msg.c_type() }}& {{ msg.name }}_getData() {
+    return rx_table.{{ msg.name }}_signals;
+}
+{%- endfor %}
+{%- endfor %}
+
 void clear_board_rx_table(const can_utils::CanNode board)
 {
     switch(board)
@@ -80,9 +89,7 @@ void clear_board_rx_table(const can_utils::CanNode board)
             {%- if board.to_uppercase() != node.to_uppercase() %}
         case can_utils::CanNode::{{ board.to_uppercase() }}_NODE:
             {%- for msg in boards_messages[board] %}
-                {%- for signal in msg.signals %}
-            {{ signal.name }}_update(can_utils::{{ signal.start_val_macro() }});
-                {%- endfor %}
+            rx_table.{{ msg.name }}_signals = {};
             {%- endfor %}
             break;
             {%- endif %}
