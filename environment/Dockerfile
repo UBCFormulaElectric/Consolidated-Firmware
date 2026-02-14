@@ -38,7 +38,8 @@ RUN apt update -y && apt install -y \
     git \
 #    xvfb \
     libncurses5 \
-    valgrind
+    valgrind \
+    curl
 #    libgtk-3-0 \
 #    libxi6 \
 #    libxtst6 \
@@ -51,4 +52,4 @@ COPY requirements.txt .
 RUN pip3 install -r requirements.txt
 RUN rm requirements.txt
 
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
