@@ -49,7 +49,14 @@ pub fn parse_alert_data(can_data_dir: &String, node_name: &String) -> Option<Jso
         },
     };
 
-    let alerts_json: AlertsSchema = match serde_json::from_str(&file_content) {
+    let value: serde_json::Value = serde_json::from_str(&file_content)
+        .expect(&format!("Failed to parse Alerts JSON file for node {}", node_name));
+
+    if value == serde_json::json!({}) {
+        return None;
+    }
+
+    let alerts_json: AlertsSchema = match serde_json::from_value(value) {
         Ok(v) => v,
         Err(e) => panic!(
             "Alerts JSON file is not valid JSON for node {}: {}",
