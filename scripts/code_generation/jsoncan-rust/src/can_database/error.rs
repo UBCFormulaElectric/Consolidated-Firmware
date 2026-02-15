@@ -29,6 +29,14 @@ pub enum CanDBError {
         rx_msg_name: String,
     },
     SqlLiteError(rusqlite::Error),
+    NodeCannotForwardFrom {
+        node_name: String,
+        bus_not_on: String,
+    },
+    NodeCannotForwardTo {
+        node_name: String,
+        bus_not_on: String,
+    }
 }
 
 impl Debug for CanDBError {
@@ -86,6 +94,8 @@ impl Debug for CanDBError {
                 rx_msg_name, rx_node_name
             ),
             CanDBError::SqlLiteError(error) => write!(f, "SQLite error: {}", error),
+            CanDBError::NodeCannotForwardFrom { node_name, bus_not_on } => write!(f,  "{} cannot forward from {} as it is not on it", node_name, bus_not_on),
+            CanDBError::NodeCannotForwardTo { node_name, bus_not_on } => write!(f,  "{} cannot forward to {} as it is not on it", node_name, bus_not_on),
         }
     }
 }

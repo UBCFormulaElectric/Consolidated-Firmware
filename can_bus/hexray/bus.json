@@ -36,6 +36,7 @@
     {
       "name": "InvCAN",
       "nodes": [
+        "VC",
         "INVFR",
         "INVFL",
         "INVRR",
