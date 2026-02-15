@@ -7,22 +7,24 @@ namespace io
 {
 class ST_VND5_Efuse final : public Efuse
 {
+  union ST_VND5_Faults
+  {
+      struct
+      {
+          uint8_t overload : 1;
+          uint8_t ovt_stp : 1;
+          uint8_t under_voltage : 1;
+          uint8_t short_to_vbat : 1;
+          uint8_t open_load_off_stat : 1;
+          uint8_t negative_output_voltage_clamp : 1;
+          uint8_t padding : 2;
+      } flags;
+      uint8_t raw;
+  };
+  
   private:
     const hw::Gpio &stby_reset_gpio;
-    union
-    {
-        struct
-        {
-            uint8_t overload : 1;
-            uint8_t ovt_stp : 1;
-            uint8_t under_voltage : 1;
-            uint8_t short_to_vbat : 1;
-            uint8_t open_load_off_stat : 1;
-            uint8_t negative_output_voltage_clamp : 1;
-            uint8_t padding : 2;
-        } flags;
-        uint8_t raw;
-    } faults;
+    ST_VND5_Faults faults;
 
   public:
     explicit constexpr ST_VND5_Efuse(
@@ -34,6 +36,7 @@ class ST_VND5_Efuse final : public Efuse
     }
     void reset() override final;
     void resetSet(const bool set);
-    bool ok() override final;
+    [[nodiscard]] bool ok() override final;
+    [[nodiscard]] ST_VND5_Faults readFaults() const;
 };
 } // namespace io

@@ -15,10 +15,11 @@ using namespace io;
 
 const Gpio                      efuse_en{ EFUSE_EN_GPIO_Port, EFUSE_EN_Pin };
 const Gpio                      diag_en{ DIAG_EN_GPIO_Port, DIAG_EN_Pin };
+const Gpio                      efuse_pgood{ EFUSE_PGOOD_GPIO_Port, EFUSE_PGOOD_Pin };
 const size_t                    NUM_ADC_CHANNELS = 1U;
 const AdcChip<NUM_ADC_CHANNELS> adc1{ &hadc1, &htim3 };
 const Adc                       efuse_i_sns(adc1.getChannel(0));
-TI_TPS28_Efuse                  efuse(efuse_en, efuse_i_sns, diag_en);
+TI_TPS28_Efuse                  efuse(efuse_en, efuse_i_sns, efuse_pgood, diag_en);
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
@@ -29,7 +30,6 @@ void jobs_init()
 {
     adc1.init();
     efuse.setChannel(true);
-    efuse.enableDiagnostics(true);
     // LOG_INFO("IS CHANNEL ENABLED: %s", efuse.isChannelEnabled() ? "YES" : "NO");
 }
 

@@ -18,8 +18,8 @@ class TI_TPS25_Efuse final : public Efuse
       : Efuse(in_enable_gpio, in_sns_adc_channel), pgood_gpio(in_pgood)
     {
     }
+    [[nodiscard]] float getChannelCurrent() override final;
     void reset() override final;
-    bool pgood() const;
-    bool ok() override final;
+    [[nodiscard]] bool ok() override final;
 };
 } // namespace io

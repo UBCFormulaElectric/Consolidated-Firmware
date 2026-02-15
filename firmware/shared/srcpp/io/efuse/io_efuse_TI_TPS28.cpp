@@ -15,28 +15,32 @@
  *      40 A*kOhm - 60 A*kOhm (Rev A or C)
  *      80 A*kOhm - 120 A*kOhm (Rev B, D, or C)
  */
-
 namespace io
 {
+// Current sense ratio: I_out/I_sns (A/A)
+static constexpr float K_SNS = 1200.0f;
+// R_sns (Ohms)
+static constexpr float R_SNS = 1000.0f;
+
 static constexpr float R_PD = 24.9f; // kOhm
 
-static constexpr float K_CL_MIN = 40.0f; // A*kOhm
-static constexpr float K_CL_TYP = 50.0f; // A*kOhm
-static constexpr float K_CL_MAX = 60.0f; // A*kOhm
+// static constexpr float K_CL_MIN = 40.0f; // A*kOhm
+// static constexpr float K_CL_TYP = 50.0f; // A*kOhm
+// static constexpr float K_CL_MAX = 60.0f; // A*kOhm
 
-static constexpr float I_LIM_MIN = (K_CL_MIN / R_PD);
-static constexpr float I_LIM_TYP = (K_CL_TYP / R_PD);
-static constexpr float I_LIM_MAX = (K_CL_MAX / R_PD);
+// static constexpr float I_LIM_MIN = (K_CL_MIN / R_PD);
+// static constexpr float I_LIM_TYP = (K_CL_TYP / R_PD);
+// static constexpr float I_LIM_MAX = (K_CL_MAX / R_PD);
 
 // There are different V_SNSFH thresholds if DIAG_EN gpio is set to LOw (3.3V) or HIGH (5V)
 static constexpr float V_SNSFH_MIN = 3.5f;
-static constexpr float V_SNSFH     = 3.95f;
+// static constexpr float V_SNSFH     = 3.95f;
 static constexpr float V_SNSFH_MAX = 4.4f;
 
-// TODO: Will probably consolidate this into ok function
-void TI_TPS28_Efuse::enableDiagnostics(bool enable)
+[[nodiscard]] float TI_TPS28_Efuse::getChannelCurrent()
 {
-    this->diag_en_gpio.writePin(enable);
+    // I_SNS = V_SNS * R_SNS * K_SNS
+    return this->sns_adc_channel.getVoltage() * R_SNS * K_SNS;
 }
 
 // TODO: verify reset function
@@ -47,11 +51,12 @@ void TI_TPS28_Efuse::reset()
     this->enable_gpio.writePin(false);
 }
 
-bool TI_TPS28_Efuse::ok()
+[[nodiscard]] bool TI_TPS28_Efuse::ok()
 {
+    this->diag_en_gpio.writePin(true);
+    
     const bool  channel_enabled = this->isChannelEnabled();
-    const bool  diag_enabled    = this->diag_en_gpio.readPin();
-    const float voltage         = this->getChannelCurrent() / ADC_VOLTAGE_TO_CURRENT_A;
+    const float voltage         = this->sns_adc_channel.getVoltage();
 
     /**
      * Note: Table 8.2 DIAG_EN Logic Table
@@ -65,16 +70,23 @@ bool TI_TPS28_Efuse::ok()
      */
 
     // if diagnostics are not enabled, only check TSD and ILIM
+    
     // fault is asserted low
-    // TODO: Add back fault gpio
-    // const bool is_ok = this->fault_gpio.readPin();
-    const bool is_ok = true;
-    if (diag_enabled && (is_ok == false))
+    const bool is_ok = this->pgood_gpio.readPin();
+    
+    if (is_ok == false)
     {
         this->faults.flags.overcurrent  = (channel_enabled && IS_IN_RANGE(V_SNSFH_MIN, V_SNSFH_MAX, voltage));
         this->faults.flags.thermal_shdn = (channel_enabled && IS_IN_RANGE(V_SNSFH_MIN, V_SNSFH_MAX, voltage));
     }
 
+    this->diag_en_gpio.writePin(false);
+
     return is_ok;
+}
+
+TI_TPS28_Efuse::TPS28_Faults TI_TPS28_Efuse::readFaults() const
+{
+    return this->faults;
 }
 } // namespace io

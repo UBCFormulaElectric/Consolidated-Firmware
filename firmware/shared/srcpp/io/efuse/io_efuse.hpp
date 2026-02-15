@@ -9,7 +9,6 @@ namespace io
 class Efuse
 {
   protected:
-    static constexpr float ADC_VOLTAGE_TO_CURRENT_A = 1.720f;
     const hw::Gpio        &enable_gpio;
     const hw::Adc         &sns_adc_channel;
 
@@ -19,10 +18,37 @@ class Efuse
     {
     }
     virtual ~Efuse() = default;
+    /**
+     * @brief Enable the efuse 
+     * 
+     * @param enabled 
+     */
     void         setChannel(bool enabled) { enable_gpio.writePin(enabled); }
-    bool         isChannelEnabled() const { return this->enable_gpio.readPin(); }
-    float        getChannelCurrent() { return this->sns_adc_channel.getVoltage() * ADC_VOLTAGE_TO_CURRENT_A; }
+
+    /**
+     * @brief Check if efuse is enabled
+     * 
+     * @return true if enabled, false otherwise
+     */
+    [[nodiscard]] bool         isChannelEnabled() const { return this->enable_gpio.readPin(); }
+
+    /**
+     * @brief Read the current flowing through the efuse
+     * 
+     * @return current flowing through efuse
+     */
+    [[nodiscard]] virtual float        getChannelCurrent() = 0;
+
+    /**
+     * @brief Reset the efuse
+     */
     virtual void reset() = 0;
-    virtual bool ok()    = 0;
+
+    /**
+     * @brief Check if the efuse has faulted
+     * 
+     * @return true if efuse is ok, false if faulted
+     */
+    [[nodiscard]] virtual bool ok()    = 0;
 };
 } // namespace io

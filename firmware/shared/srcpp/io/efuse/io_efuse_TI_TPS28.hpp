@@ -7,12 +7,9 @@ namespace io
 {
 class TI_TPS28_Efuse final : public Efuse
 {
-  private:
-    // const hw::Gpio &fault_gpio;
-    const hw::Gpio &diag_en_gpio;
-
+  public:
     /* Portable bit-fields: use 'unsigned' and name the subgroup */
-    union
+    union TPS28_Faults
     {
         struct __attribute__((packed))
         {
@@ -21,19 +18,31 @@ class TI_TPS28_Efuse final : public Efuse
             uint8_t padding : 6;
         } flags;
         uint8_t raw = 0U;
-    } faults;
+    };
+
+  private:
+    const hw::Gpio &pgood_gpio;
+    const hw::Gpio &diag_en_gpio;
+    TPS28_Faults faults{};
 
   public:
     explicit constexpr TI_TPS28_Efuse(
         const hw::Gpio &in_enable_gpio,
         const hw::Adc  &in_sns_adc_channel,
-        // const hw::Gpio &in_fault_gpio,
+        const hw::Gpio &in_pgood_gpio,
         const hw::Gpio &in_diag_en_gpio)
-      : Efuse(in_enable_gpio, in_sns_adc_channel), /*fault_gpio(in_fault_gpio),*/ diag_en_gpio(in_diag_en_gpio)
+      : Efuse(in_enable_gpio, in_sns_adc_channel), pgood_gpio(in_pgood_gpio), diag_en_gpio(in_diag_en_gpio)
     {
     }
-    void enableDiagnostics(bool enable);
+    [[nodiscard]] float getChannelCurrent() override final;
     void reset() override final;
-    bool ok() override final;
+    [[nodiscard]] bool ok() override final;
+
+    /**
+     * @brief Read the specific faults of the efuse
+     * 
+     * @return 
+     */
+    [[nodiscard]] TPS28_Faults readFaults() const;
 };
 } // namespace io
