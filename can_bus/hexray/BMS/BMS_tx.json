@@ -11,5 +11,62 @@
                 "enum": "BmsState"
             }
         }
+    },
+  "LatchStatus": {
+    "msg_id": 410,
+    "cycle_time": 10,
+    "description": "Latched faults for the BMS",
+    "signals": {
+      "BmsCurrentlyOk": {
+        "bits": 1
+      },
+      "ImdCurrentlyOk": {
+        "bits": 1
+      },
+      "BspdCurrentlyOk": {
+        "bits": 1
+      },
+      "BmsLatchOk": {
+        "bits": 1
+      },
+      "ImdLatchOk": {
+        "bits": 1
+      },
+      "BspdLatchOk": {
+        "bits": 1
+      }
     }
+  },
+
+    "Contactors": {
+    "msg_id": 417,
+    "cycle_time": 10,
+    "description": "BMS IR state statuses",
+    "signals": {
+      "IrPositive": {
+        "enum": "ContactorState"
+      },
+      "IrNegative": {
+        "enum": "ContactorState"
+      },
+      "PrechargeRelay": {
+        "enum": "ContactorState"
+      }
+    }
+  },
+        "BMSShdnNodeStatus": {
+    "msg_id": 454,
+    "cycle_time": 100,
+    "description": "BMS Shutdown Nodes Status",
+    "signals": {
+      "HVPShdnOKStatus": {
+        "bits": 1
+      },
+      "HVNShdnOKStatus": {
+        "bits": 1
+      }
+    }
+  }
+
+
 }

@@ -3,5 +3,5 @@
 
 namespace io::imus
 {
-const io::imu::Imu imu_config(imu_spi);
+const io::Imu imu_config(imu_spi);
 }

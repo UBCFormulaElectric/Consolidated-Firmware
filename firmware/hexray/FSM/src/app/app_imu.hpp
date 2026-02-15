@@ -6,4 +6,4 @@ namespace app::imu
 void broadcast();
 }
 
-extern io::imu::Imu imu_config;
+extern io::Imu imu;

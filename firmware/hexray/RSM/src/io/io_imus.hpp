@@ -2,7 +2,7 @@
 #include "util_errorCodes.hpp"
 #include "io_imu.hpp"
 
-extern io::imu::Imu imu_config;
+extern io::Imu imu_config;
 
 typedef struct
 {
