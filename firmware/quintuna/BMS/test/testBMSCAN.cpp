@@ -5,8 +5,6 @@ extern "C"
 #include "app_canTx.h"
 #include "app_canRx.h"
 #include "app_canAlerts.h"
-
-#include "io_time.h"
 }
 
 class BMSCanTest : public BMSBaseTest

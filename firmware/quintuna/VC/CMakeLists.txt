@@ -19,6 +19,7 @@ list(APPEND APP_SRCS
         "${SHARED_APP_INCLUDE_DIR}/app_signal.c"
         "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
         "${SHARED_APP_INCLUDE_DIR}/app_sensor_filter.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_pid.c"
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_QUINTUNA_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/src/app/vehicle_dynamics")
 
@@ -156,7 +157,7 @@ elseif ("${TARGET}" STREQUAL "test")
             "${SHARED_FAKES_DIR}/io_loadswitch.cpp"
             "${SHARED_FAKES_DIR}/io_canQueue.cpp"
             "${SHARED_FAKES_DIR}/io_bootHandler.cpp"
-            "${SHARED_FAKES_DIR}/io_time.cpp"
+            "${SHARED_FAKES_DIR}/io_timeFake.cpp"
     )
     set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
     set(INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test"
