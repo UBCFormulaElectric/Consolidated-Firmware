@@ -3,6 +3,7 @@
 #include "tasks.h"
 #include "hw_gpios.hpp"
 #include "hw_spis.hpp"
+#include "hw_pwmOutputs.hpp"
 #include <crit.pb.h>
 #include "hw_usb.hpp"
 #include "hw_rtosTaskHandler.hpp"
@@ -69,6 +70,27 @@ class CRITChimeraConfig : public chimera_v2::config
             default:
             case crit_SpiNetName_SPI_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified SPI net name");
+                return std::nullopt;
+        }
+        return std::nullopt;
+    }
+
+    std::optional<std::reference_wrapper<const hw::PwmOutput>> id_to_pwm(const _PwmNetName *pnn) const override
+    {
+        if (pnn->which_name != pwm_net_name_tag)
+        {
+            LOG_ERROR("Chimera: Expected PWM net name with tag %d, got %d", pwm_net_name_tag, pnn->which_name);
+            return std::nullopt;
+        }
+        switch (pnn->name.crit_net_name)
+        {
+            case crit_PwmNetName_PWM_LED:
+                return std::cref(led_dimming);
+            case crit_PwmNetName_PWM_SEVEN_SEG:
+                return std::cref(seven_seg_dimming);
+            default:
+            case crit_PwmNetName_PWM_NET_NAME_UNSPECIFIED:
+                LOG_INFO("Chimera: Unspecified PWM net name");
                 return std::nullopt;
         }
         return std::nullopt;
