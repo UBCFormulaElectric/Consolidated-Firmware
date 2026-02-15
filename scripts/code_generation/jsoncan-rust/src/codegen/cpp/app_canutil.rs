@@ -5,21 +5,22 @@ use crate::{
     codegen::cpp::CPPGenerator,
 };
 
+mod filters {}
+
 struct Iteration {
     starting_byte: u16,
-    shift: u16,
+    shift: i16,
     mask_text: String,
     comment_data: String,
-    bits_to_pack: u16,
 }
 
 #[derive(Template)]
-#[template(path = "app_canUtils.c.j2")]
+#[template(path = "app_canUtils.cpp.j2")]
 struct AppCanUtilsModuleSource<'a> {
     messages: &'a Vec<CanMessage>,
 }
 impl AppCanUtilsModuleSource<'_> {
-    fn signal_placement_comment(self: &Self, msg: &CanMessage) -> std::string::String {
+    fn signal_placement_comment(self: &Self, msg: &CanMessage) -> String {
         let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
         let mut signals = vec!['_'; (msg.dlc() * 8) as usize];
@@ -57,35 +58,33 @@ impl AppCanUtilsModuleSource<'_> {
 
         while packed_bits < signal.bits {
             let bit_start = signal.start_bit + packed_bits;
-            let starting_byte = bit_start / BYTE_SIZE;
             let bit_in_byte = bit_start % BYTE_SIZE;
             let bits_to_pack = std::cmp::min(BYTE_SIZE - bit_in_byte, signal.bits - packed_bits);
 
-            let shift = if signal.big_endian {
-                signal.bits - packed_bits - bits_to_pack - bit_in_byte
-            } else {
-                packed_bits - bit_in_byte
-            };
-
-            let mask = (1 << bits_to_pack) - 1 << bit_in_byte;
-            let mask_text = format!("0x{:X}", mask);
             let mut comment_data = vec!["_"; BYTE_SIZE as usize];
             for i in (bit_start % BYTE_SIZE)..((bit_start % BYTE_SIZE) + bits_to_pack) {
                 comment_data[i as usize] = "#";
             }
 
             iterations.push(Iteration {
-                starting_byte,
-                shift,
-                mask_text,
+                starting_byte: bit_start / BYTE_SIZE,
+                shift: if signal.big_endian {
+                    signal.bits as i16
+                        - packed_bits as i16
+                        - bits_to_pack as i16
+                        - bit_in_byte as i16
+                } else {
+                    // little endian case
+                    packed_bits as i16 - bit_in_byte as i16
+                },
+                mask_text: format!("0x{:X}", (1 << bits_to_pack) - (1 << bit_in_byte)),
                 comment_data: comment_data.into_iter().rev().collect::<String>(),
-                bits_to_pack,
             });
 
             packed_bits += bits_to_pack;
         }
 
-        return iterations;
+        iterations
     }
 
     fn max_uint_for_bits(self: &Self, bits: &u16) -> u32 {
@@ -93,10 +92,8 @@ impl AppCanUtilsModuleSource<'_> {
     }
 }
 
-mod filters {}
-
 #[derive(Template)]
-#[template(path = "app_canUtils.h.j2")]
+#[template(path = "app_canUtils.hpp.j2")]
 struct AppCanUtilsModuleHeader<'a> {
     messages: &'a Vec<CanMessage>,
     node_names: &'a Vec<String>,
@@ -138,5 +135,8 @@ impl CPPGenerator for AppCanUtilsModule {
             messages: &self.messages,
         }
         .render()
+    }
+    fn file_stem(&self) -> String {
+        "app_canUtils".to_string()
     }
 }
