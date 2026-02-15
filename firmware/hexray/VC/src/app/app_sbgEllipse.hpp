@@ -2,26 +2,29 @@
 
 #include <cstdint>
 #include "io_sbgEllipse.hpp"
+#include "app_math.hpp"
+#include "hw_asserts.hpp"
+#include "io_log.hpp"
 
 namespace app::sbgEllipse
 {
 /*
  * Broadcast sensor outputs over CAN.
  */
-void app_sbgEllipse_broadcast(void);
+void broadcast(void);
 
 /*
  * Calculate vehicle velocity based on motor RPM
  */
-void app_sbgEllipse_calculateVelocity(VelocityData *velocity);
+void calculateVelocity(VelocityData *velocity);
 
 /*
  * Get vehicle velocity
  */
-float app_sbgEllipse_getVehicleVelocity(void);
+float getVehicleVelocity(void);
 
 /*
  * Get vehicle velocity
  */
-VcEkfStatus app_sbgEllipse_getEkfSolutionMode(void);
+VcEkfStatus getEkfSolutionMode(void);
 } // namespace app::sbgEllipse

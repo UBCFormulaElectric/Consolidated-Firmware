@@ -1,5 +1,4 @@
 #include "app_shdnLast.hpp"
-#include "io_shdnLoopNode.hpp"
 extern "C"
 {
 #include "app_canTx.h"
@@ -11,43 +10,59 @@ namespace app::shdnLast
 {
 static ShutdownNode get_first_shutdown()
 {
-    if (!app_canRx_BMS_BmsLatchOk_get())
+    // The shutdowns in the accumulator  
+    if (!app::can::rx::BMS_BmsLatchOk_get())
         return SHDN_BMS_OK;
-    if (!app_canRx_BMS_ImdLatchOk_get())
+
+    // In the Splitter idk which is for emeter
+    if (!app::can::rx::BMS_ImdLatchOk_get())
         return SHDN_IMD_OK;
-    if (!app_canRx_BMS_BspdLatchOk_get())
+    if (!app::can::rx::BMS_BspdLatchOk_get())
         return SHDN_BSPD_OK;
-    if (!app_canRx_BMS_HVPShdnOKStatus_get())
-        return SHDN_HV_P_ILCK;
-    if (!app_canRx_BMS_HVNShdnOKStatus_get())
-        return SHDN_HV_N_ILCK;
-    if (!app_canTx_VC_MSDOrEMeterOKStatus_get())
+        // IDK WHERE THESE GUYS GO!! currently not on the diagram
+    // if (!app::can::rx::BMS_HVPShdnOKStatus_get())
+    //     return SHDN_HV_P_ILCK;
+    // if (!app::can::rx::BMS_HVNShdnOKStatus_get())
+    //     return SHDN_HV_N_ILCK;
+
+    if (!app:can::tx::VC_MSDOrEMeterOKStatus_get())
         return SHDN_MSD_EMETER_ILCK;
-    if (!app_canRx_RSM_RearLeftMotorInterlock_get())
+
+    // RSMs Rl and RR interlocks 
+    if (!app::can::rx::RSM_RearLeftMotorInterlock_get())
         return SHDN_RL_ILCK;
-    if (!app_canTx_VC_RearRightMotorInterlock_get())
+    // RSM or VC?
+    if (!app:can::tx::VC_RearRightMotorInterlock_get())
         return SHDN_RR_ILCK;
-    if (!app_canRx_DAM_REStopOKStatus_get())
+
+    // right and left estops
+    if (!app::can::rx::DAM_REStopOKStatus_get())
         return SHDN_R_EStop;
-    if (!app_canRx_DAM_LEStopOKStatus_get())
+    if (!app::can::rx::DAM_LEStopOKStatus_get())
         return SHDN_L_EStop;
-    if (!app_canRx_FSM_COCKPITOKStatus_get())
+
+    // cockpit for fsm
+    if (!app::can::rx::FSM_COCKPITOKStatus_get())
         return SHDN_Cockpit_EStop;
-    if (!app_canRx_FSM_FrontLeftILCKInertiaOKStatus_get())
-        return SHDN_FL_INERTIA_ILCK;
-    if (!app_canRx_FSM_BOTSOKStatus_get())
+
+    if (!app::can::rx::FSM_BOTSOKStatus_get())
         return SHDN_BOTS;
-    if (!app_canRx_FSM_FrontRightILCKOKStatus_get())
+
+    if (!app::can::rx::FSM_FrontLeftILCKInertiaOKStatus_get())
+        return SHDN_FL_INERTIA_ILCK;
+    if (!app::can::rx::FSM_FrontRightILCKOKStatus_get())
         return SHDN_FR_ILCK;
-    if (!app_canTx_VC_TSMSOKStatus_get())
+
+    // idk if this is right signal cuz its FL interial? I think I just need inertia 
+    if (!app::can::tx::VC_TSMSOKStatus_get())
         return SHDN_TSMS;
     return SHDN_OK;
 }
 
-void app_shdnLast_broadcast(void)
+void broadcast()
 {
     // REFACTOR!
-    // app_canTx_VC_FirstFaultNode_set(get_first_shutdown());
+    app::can::tx::VC_FirstFaultNode_set(get_first_shutdown());
 }
 
 } //  namespace app::shdnLast

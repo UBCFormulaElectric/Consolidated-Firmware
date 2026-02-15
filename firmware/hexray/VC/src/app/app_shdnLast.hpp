@@ -1,6 +1,7 @@
 #pragma once
+#include "io_shdnLoopNode.hpp"
 
 namespace app::shdnLast
 {
-void app_shdnLast_broadcast(void);
+void broadcast();
 } // namespace app::shdnLast

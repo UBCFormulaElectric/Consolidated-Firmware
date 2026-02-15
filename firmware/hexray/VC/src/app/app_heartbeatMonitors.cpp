@@ -7,9 +7,10 @@ extern "C"
 #include "app_canAlerts.h"
 }
 
+// Using the hearbeat nodes to monitor set up the getter and setters for the heartbeat signals.
 namespace app::heartbeatMonitors
 {
-static app::heartbeat::monitor<5> vc_hb_monitor(
+static app::heartbeat::monitor<5> vc_hbs(
     // bms
     io::heartbeat::node{
         app_canRx_BMS_Heartbeat_get,

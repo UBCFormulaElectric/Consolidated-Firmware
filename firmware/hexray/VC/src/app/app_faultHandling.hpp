@@ -5,7 +5,7 @@
 namespace app::fault_handling
 {
 // Check if the air minus contactor is closed
-bool app_faultHandling_air_minus_closed(void);
+bool air_minus_closed(void);
 // Function ensuring the BMS hearbeat is valid for VC
-bool app_faultHandling_fsm_bms_HeartbeartChecks(void);
+bool fsm_bms_HeartbeartChecks(void);
 } // namespace app::fault_handling

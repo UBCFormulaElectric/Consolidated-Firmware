@@ -1,11 +1,10 @@
 //refactor needed
-//#include "hw_spi.hpp"
-#include "io_imu.hpp"
+#include "io_imus.hpp"
 
 namespace vc::app::imus
 {
-// idk what else this file is used for :(
-const io::Imu::AccelData *app_imu_getAccelData(AccelData &data);
-const io::Imu::GyroData  *app_imu_getGyroData(GyroData &data);
-// Add a func for the IMU
+// const io::Imu::AccelData *getAccelData(AccelData &data);
+// const io::Imu::GyroData  *getGyroData(GyroData &data);
+// TODO: IMU state machine for averaging or taking median of sensors 
+
 } // namespace vc::app::imus

@@ -1,122 +1,88 @@
-// #include "app_canAlerts.h"
 #include "app_imu.hpp"
-// Need to pass in spi handle device
-// init the spi and extern it in the io layer??
+
+extern 'C'{
+#include "app_canAlerts.h"
+}
+
 namespace app::imu
 {
-// {} is init in cpp  accel1{0,0,0}
-io::Imu::AccelData accel1{};
-io::Imu::AccelData accel2{};
-io::Imu::AccelData accel3{};
 
-io::imu::Imu::GyroData gyro1{};
-io::imu::Imu::GyroData gyro2{};
-io::imu::Imu::GyroData gyro3{};
-
-void app_imu_init() {
-    imu1.init();
-    imu2.init();
-    imu3.init();
-}
-
-void app_imu_broadcast_imu()
+    void broadcast_imu()
 {
-    if (const auto res = imu1.getAccelAll(accel1); not res)
+    // IMU1 data broadcasting
+    if (const auto accel = imu1.getAccelAll(); not accel)
     {
         // handle error
-        // REEEFACTORRRR!s
-        // app_canTx_VC_ImuAccelerationX_set(0.0f);
-        // app_canTx_VC_ImuAccelerationY_set(0.0f);
-        // app_canTx_VC_ImuAccelerationZ_set(0.0f);
-        // app_canTx_VC_ImuAngularVelocityRoll_set(0.0f);
-        // app_canTx_VC_ImuAngularVelocityPitch_set(0.0f);
-        // app_canTx_VC_ImuAngularVelocityYaw_set(0.0f);
+        return std::unexpected(ErrorCode::ERROR);
     }
     else
     {
         // Process data
-        // RAHHH REFACTOR!!
-        app_canTx_VC_ImuAccelerationX_set(res.data().x);
-        app_canTx_VC_ImuAccelerationY_set(res.data().y);
-        app_canTx_VC_ImuAccelerationZ_set(res.data().z);
+        app_canTx_VC_Imu1AccelerationX_set(accel.data().x);
+        app_canTx_VC_Imu1AccelerationY_set(accel.data().y);
+        app_canTx_VC_Imu1AccelerationZ_set(accel.data().z);
     }
-
-    if (const auto res = imu1.getGyroAll(); not res) {
-        // handle error
+    if (const auto gyro = imu1.getGyroAll(); not gyro) {
+        return std::unexpected(ErrorCode::ERROR);
     } else {
-        // app_canTx_VC_ImuAngularVelocityRoll_set(0.0f);
-        // app_canTx_VC_ImuAngularVelocityPitch_set(0.0f);
-        // app_canTx_VC_ImuAngularVelocityYaw_set(0.0f);
+        app_canTx_VC_Imu1AngularVelocityRoll_set(gyro.data().x);
+        app_canTx_VC_Imu1AngularVelocityPitch_set(gyro.data().y);
+        app_canTx_VC_Imu1AngularVelocityYaw_set(gyro.data().z);
     }
 
-    if (imu2.getAccelAll(&accel2) != EXIT_CODE_OK)
+    // IMU2 data broadcasting
+    if (const auto accel = imu2.getAccelAll(); not accel)
     {
-        // handle error
-        // RAHHHH REGACTOR
-        // app_canTx_VC_ImuAccelerationX_set(0.0f);
-        // app_canTx_VC_ImuAccelerationY_set(0.0f);
-        // app_canTx_VC_ImuAccelerationZ_set(0.0f);
-        // app_canTx_VC_ImuAngularVelocityRoll_set(0.0f);
-        // app_canTx_VC_ImuAngularVelocityPitch_set(0.0f);
-        // app_canTx_VC_ImuAngularVelocityYaw_set(0.0f);
+        return std::unexpected(ErrorCode::ERROR);
     }
     else
     {
         // Process data
-        static float *lat_accel2  = accel2.x;
-        static float *long_accel2 = accel2.y;
-        static float *z_accel2    = accel2.z;
-        static float *roll_rate2  = gyro2.x;
-        static float *pitch_rate2 = gyro2.y;
-        static float *yaw_rate2   = gyro2.z;
-        // REFACTOR!!!
-        // app_canTx_VC_ImuAccelerationX_set(&lat_accel2);
-        // app_canTx_VC_ImuAccelerationY_set(&long_accel2);
-        // app_canTx_VC_ImuAccelerationZ_set(&z_accel2);
-        // app_canTx_VC_ImuAngularVelocityRoll_set(&roll_rate2);
-        // app_canTx_VC_ImuAngularVelocityPitch_set(&pitch_rate2);
-        // app_canTx_VC_ImuAngularVelocityYaw_set(&yaw_rate2);
+        app_canTx_VC_Imu2AccelerationX_set(accel.data().x);
+        app_canTx_VC_Imu2AccelerationY_set(accel.data().y);
+        app_canTx_VC_Imu2AccelerationZ_set(accel.data().z);
     }
-
-    if (imu3.getAccelAll(&accel3) != EXIT_CODE_OK)
+    if (const auto gyro = imu2.getGyroAll(); not gyro)
     {
-        // handle error
-        // REFACTOR!!!
-        // app_canTx_VC_ImuAccelerationX_set(0.0f);
-        // app_canTx_VC_ImuAccelerationY_set(0.0f);
-        // app_canTx_VC_ImuAccelerationZ_set(0.0f);
-        // app_canTx_VC_ImuAngularVelocityRoll_set(0.0f);
-        // app_canTx_VC_ImuAngularVelocityPitch_set(0.0f);
-        // app_canTx_VC_ImuAngularVelocityYaw_set(0.0f);
+        return std::unexpected(ErrorCode::ERROR);
     }
     else
     {
         // Process data
-        static float *lat_accel3  = accel3.x;
-        static float *long_accel3 = accel3.y;
-        static float *z_accel3    = accel3.z;
-        static float *roll_rate3  = gyro3.x;
-        static float *pitch_rate3 = gyro3.y;
-        static float *yaw_rate3   = gyro3.z;
-        //  refactor
-        // app_canTx_VC_ImuAccelerationX_set(&lat_accel3);
-        // app_canTx_VC_ImuAccelerationY_set(&long_accel3);
-        // app_canTx_VC_ImuAccelerationZ_set(&z_accel3);
-        // app_canTx_VC_ImuAngularVelocityRoll_set(&roll_rate3);
-        // app_canTx_VC_ImuAngularVelocityPitch_set(&pitch_rate3);
-        // app_canTx_VC_ImuAngularVelocityYaw_set(&yaw_rate3);
+        app_canTx_VC_Imu2AngularVelocityRoll_set(gyro.data().x);
+        app_canTx_VC_Imu2AngularVelocityPitch_set(gyro.data().y);
+        app_canTx_VC_Imu2AngularVelocityYaw_set(gyro.data().z);
+    }
+
+    // IMU3 data broadcasting
+    if (const auto accel = imu3.getAccelAll(); not accel){
+        return std::unexpected(ErrorCode::ERROR);
+    }
+    else{
+        app_canTx_VC_Imu3AccelerationX_set(accel.data().x);
+        app_canTx_VC_Imu3AccelerationY_set(accel.data().y);
+        app_canTx_VC_Imu3AccelerationZ_set(accel.data().z);
+    }
+    if (const auto gyro = imu3.getGyroAll(); not gyro){
+        return std::unexpected(ErrorCode::ERROR);
+    }
+    else{
+        app_canTx_VC_Imu3AngularVelocityRoll_set(gyro.data().x);
+        app_canTx_VC_Imu3AngularVelocityPitch_set(gyro.data().y);
+        app_canTx_VC_Imu3AngularVelocityYaw_set(gyro.data().z);
     }
 }
 
-const io::Imu::AccelData *app_imu_getAccelData(io::Imu::AccelData &data)
-{
-    return imu1.;
-}
+// prob donty need ts no more 
+// const auto &getAccelData(io::Imu imu)
+// {
+//     return const auto accel = imu.getAccelAll();
+// }
 
-const io::Imu::GyroData& app_imu_getGyroData(io::Imu::GyroData &data)
-{
-    return data;
-}
+// const auto &getGyroData(io::Imu imu)
+// {
+//     return const auto accel = imu.getGyroAll();
+// }
 
 
 

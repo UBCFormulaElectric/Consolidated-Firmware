@@ -1,9 +1,10 @@
 #include "app_pumpControl.hpp"
+#include "io_time.hpp"
+#include "io_loadswitches.hpp"
+
 extern "C"
 {
 #include "io_loadswitch.h"
-#include "io_time.h"
-#include "io_loadswitches.h"
 #include <app_canTx.h>
 }
 
@@ -15,7 +16,7 @@ consteval uint8_t CURRENT_THRESH = 1 / 40;
 static bool finished_ramp_up = false;
 static uint16_t time = 0;
 
-static void pumpControl_rampUp(void)
+static void rampUp()
 {
     // if we are done ramping up note that we are not ramping up
     if (finished_ramp_up)
@@ -34,14 +35,14 @@ static void pumpControl_rampUp(void)
     }
 }
 
-static void pumpControl_stopFlow(void)
+static void stopFlow()
 {
     app_canTx_VC_PumpFailure_set(true);
     finished_ramp_up = false;
     time             = 0;
 }
 
-void app_pumpControl_MonitorPumps(void)
+void MonitorPumps()
 {
     time += 10;
     // refactor required
@@ -52,9 +53,9 @@ void app_pumpControl_MonitorPumps(void)
     bool ramp_up_pumps = pumps_ok && pumps_enabled;
 
     if (ramp_up_pumps)
-        pumpControl_rampUp();
+        rampUp();
     else
-        pumpControl_stopFlow();
+        stopFlow();
 
     app_canTx_VC_RsmTurnOnPump_set(ramp_up_pumps);
 }

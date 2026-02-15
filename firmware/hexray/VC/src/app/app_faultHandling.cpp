@@ -1,7 +1,7 @@
 #include "app_faultHandling.hpp"
+#inlcude "app_canRx.hpp"
 extern "C"
 {
-#include "app_canRx.h"
 #include "app_canUtils.h"
 #include "app_canAlerts.h"
 #include "app_stateMachine.h"
@@ -17,8 +17,9 @@ bool air_minus_closed(void)
     return (CONTACTOR_STATE_CLOSED == app::canRx::BMS_IrNegative_get());
 }
 
-bool app_faultHandling_fsm_bms_HeartbeartChecks(void)
+bool fsm_bms_HeartbeartChecks(void)
 {
+    // will be in the default jinja files yaaaa meow also need to confirm if theeres a board enum still
     return app_canAlerts_BoardHasFault(VC_NODE);
 }
 } // namespace app::fault_handling
