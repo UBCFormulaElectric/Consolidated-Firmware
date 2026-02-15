@@ -1,12 +1,10 @@
 #include "app_shdnLast.hpp"
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
-#include "app_canUtils.hpp"
 
-
-using namespace app::shdnLast
+namespace app::shdnLast
 {
-static ShutdownNode get_first_shutdown()
+static app::can_utils::ShutdownNode get_first_shutdown()
 {
     // The shutdowns in the accumulator
     if (!app::can_rx::BMS_BmsLatchOk_get())
@@ -23,14 +21,14 @@ static ShutdownNode get_first_shutdown()
     // if (!app::can_rx::BMS_HVNShdnOKStatus_get())
     //     return SHDN_HV_N_ILCK;
 
-    if (!app : can_tx::VC_MSDOrEMeterOKStatus_get())
+    if (!app::can_tx::VC_MSDOrEMeterOKStatus_get())
         return SHDN_MSD_EMETER_ILCK;
 
     // RSMs Rl and RR interlocks
     if (!app::can_rx::RSM_RearLeftMotorInterlock_get())
         return SHDN_RL_ILCK;
     // RSM or VC?
-    if (!app : can_tx::VC_RearRightMotorInterlock_get())
+    if (!app::can_tx::VC_RearRightMotorInterlock_get())
         return SHDN_RR_ILCK;
 
     // right and left estops
