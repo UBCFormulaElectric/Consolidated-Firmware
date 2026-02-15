@@ -474,7 +474,7 @@ std::expected<void, ErrorCode> Imu::getTemp(float &temp) const
     return exit;
 }
 
-std::expected<AccelData, ErrorCode> Imu::getAccelAll() const
+std::expected<io::imu::AccelData, ErrorCode> Imu::getAccelAll() const
 {
     if (is_imu_ready == false)
         return std::unexpected(ErrorCode::ERROR);
@@ -490,7 +490,7 @@ std::expected<AccelData, ErrorCode> Imu::getAccelAll() const
     return { translateAccelData(rx[0], rx[1]), translateAccelData(rx[2], rx[3]), translateAccelData(rx[4], rx[5]) };
 }
 
-std::expected<GyroData, ErrorCode> Imu::getGyroAll() const
+std::expected<io::Imu::GyroData, ErrorCode> Imu::getGyroAll() const
 {
     if (is_imu_ready == false)
         return std::unexpected(ErrorCode::ERROR);
