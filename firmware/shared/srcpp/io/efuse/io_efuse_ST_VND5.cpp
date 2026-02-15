@@ -1,8 +1,4 @@
-extern "C"
-{
-#include "app_utils.h"
-}
-
+#include "util_limits.hpp"
 #include "io_efuse_ST_VND5.hpp"
 #include "hw_gpio.hpp"
 
@@ -56,36 +52,36 @@ void ST_VND5_Efuse::resetSet(const bool set)
     switch (fault_table_idx)
     {
         case L_L:
-            this->faults.flags.overload                      = APPROX_EQUAL_FLOAT(voltage, 0.0f, V_THRES);
-            this->faults.flags.ovt_stp                       = APPROX_EQUAL_FLOAT(voltage, 0.0f, V_THRES);
-            this->faults.flags.short_to_vbat                 = APPROX_EQUAL_FLOAT(voltage, 0.0f, V_THRES);
-            this->faults.flags.open_load_off_stat            = APPROX_EQUAL_FLOAT(voltage, 0.0f, V_THRES);
-            this->faults.flags.negative_output_voltage_clamp = APPROX_EQUAL_FLOAT(voltage, 0.0f, V_THRES);
+            this->faults.flags.overload                      = APPROX_EQUAL(voltage, 0.0f, V_THRES);
+            this->faults.flags.ovt_stp                       = APPROX_EQUAL(voltage, 0.0f, V_THRES);
+            this->faults.flags.short_to_vbat                 = APPROX_EQUAL(voltage, 0.0f, V_THRES);
+            this->faults.flags.open_load_off_stat            = APPROX_EQUAL(voltage, 0.0f, V_THRES);
+            this->faults.flags.negative_output_voltage_clamp = APPROX_EQUAL(voltage, 0.0f, V_THRES);
             break;
         case L_H:
-            this->faults.flags.overload           = APPROX_EQUAL_FLOAT(voltage, NOMINAL_V, V_THRES);
+            this->faults.flags.overload           = APPROX_EQUAL(voltage, NOMINAL_V, V_THRES);
             this->faults.flags.ovt_stp            = IS_IN_RANGE(V_SENSE_H_L, V_SENSE_H_H, voltage);
-            this->faults.flags.short_to_vbat      = APPROX_EQUAL_FLOAT(voltage, NOMINAL_V, V_THRES);
-            this->faults.flags.open_load_off_stat = APPROX_EQUAL_FLOAT(voltage, 0.0f, V_THRES);
+            this->faults.flags.short_to_vbat      = APPROX_EQUAL(voltage, NOMINAL_V, V_THRES);
+            this->faults.flags.open_load_off_stat = APPROX_EQUAL(voltage, 0.0f, V_THRES);
             break;
         case H_L:
-            this->faults.flags.overload                      = APPROX_EQUAL_FLOAT(voltage, 0.0f, V_THRES);
-            this->faults.flags.ovt_stp                       = APPROX_EQUAL_FLOAT(voltage, 0.0f, V_THRES);
+            this->faults.flags.overload                      = APPROX_EQUAL(voltage, 0.0f, V_THRES);
+            this->faults.flags.ovt_stp                       = APPROX_EQUAL(voltage, 0.0f, V_THRES);
             this->faults.flags.short_to_vbat                 = IS_IN_RANGE(V_SENSE_H_L, V_SENSE_H_H, voltage);
             this->faults.flags.open_load_off_stat            = IS_IN_RANGE(V_SENSE_H_L, V_SENSE_H_H, voltage);
-            this->faults.flags.negative_output_voltage_clamp = APPROX_EQUAL_FLOAT(voltage, 0.0f, V_THRES);
+            this->faults.flags.negative_output_voltage_clamp = APPROX_EQUAL(voltage, 0.0f, V_THRES);
             break;
         case H_H:
-            this->faults.flags.overload           = APPROX_EQUAL_FLOAT(voltage, NOMINAL_V, V_THRES);
+            this->faults.flags.overload           = APPROX_EQUAL(voltage, NOMINAL_V, V_THRES);
             this->faults.flags.ovt_stp            = IS_IN_RANGE(V_SENSE_H_L, V_SENSE_H_H, voltage);
-            this->faults.flags.short_to_vbat      = APPROX_EQUAL_FLOAT(voltage, NOMINAL_V, V_THRES);
-            this->faults.flags.open_load_off_stat = APPROX_EQUAL_FLOAT(voltage, 0.0f, V_THRES);
+            this->faults.flags.short_to_vbat      = APPROX_EQUAL(voltage, NOMINAL_V, V_THRES);
+            this->faults.flags.open_load_off_stat = APPROX_EQUAL(voltage, 0.0f, V_THRES);
             break;
         default:
             break;
     }
 
-    this->faults.flags.under_voltage = APPROX_EQUAL_FLOAT(voltage, 0.0f, V_THRES);
+    this->faults.flags.under_voltage = APPROX_EQUAL(voltage, 0.0f, V_THRES);
 
     const uint8_t flags = this->faults.raw & ST_VND5_Efuse_FAULT_FLAGS;
 
