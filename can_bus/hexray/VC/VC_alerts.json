@@ -1,54 +1,70 @@
   {
-  "faults_id": 502,
-  "faults_counts_id": 504,
-  "faults": {
-    "InvLockoutFault": {
-      "id": 503,
-      "description": "One of the inverters has a critical fault impacting VC."
+    "faults_id": 502,
+    "faults_counts_id": 504,
+    "faults": {
+      "InvLockoutFault": {
+        "id": 503,
+        "description": "One of the inverters has a critical fault impacting VC."
+      },
+      "VcBoardFaulted": {
+        "id": 504,
+        "description": "VC board is faulted."
+      }
     },
-    "VcBoardFaulted": {
-      "id": 504,
-      "description": "VC board is faulted."
-    }
-  },
-  "warnings_id": 501,
-  "warnings_counts_id": 503,
-  "warnings": {
-    "PcmLvOvercurrentFault": {
-      "id": 558,
-      "description": "LV rail from the HV DCDC was overcurrent."
+    "warnings_id": 501,
+    "warnings_counts_id": 503,
+    "warnings": {
+      "PcmLvOvercurrentFault": {
+        "id": 558,
+        "description": "LV rail from the HV DCDC was overcurrent."
+      },
+      "SoftwareBspd": {
+        "id": 564,
+        "description": "Brakes and apps are active at same time."
+      },
+      "MissingCRITHeartbeat": {
+        "id": 554,
+        "description": "Missing heartbeat signal from the CRIT."
+      },
+      "MissingBMSHeartbeat": {
+        "id": 551,
+        "description": "Missing heartbeat signal from the BMS."
+      },
+      "MissingFSMHeartbeat": {
+        "id": 552,
+        "description": "Missing heartbeat signal from the FSM."
+      },
+      "FrontLeftInverterFault": {
+        "id": 555,
+        "description": "Left inverter entered fault state."
+      },
+      "FrontRightInverterFault": {
+        "id": 556,
+        "description": "Right inverter entered fault state."
+      },
+      "RearLeftInverterFault": {
+        "id": 557,
+        "description": "Left inverter entered fault state."
+      },
+      "RearRightInverterFault": {
+        "id": 558,
+        "description": "Right inverter entered fault state."
+      }
     },
-    "SoftwareBspd": {
-      "id": 564,
-      "description": "Brakes and apps are active at same time."
-    },
-    "MissingCRITHeartbeat": {
-      "id": 554,
-      "description": "Missing heartbeat signal from the CRIT."
-    },
-    "MissingBMSHeartbeat": {
-      "id": 551,
-      "description": "Missing heartbeat signal from the BMS."
-    },
-    "MissingFSMHeartbeat": {
-      "id": 552,
-      "description": "Missing heartbeat signal from the FSM."
-    },
-    "FrontLeftInverterFault": {
-      "id": 555,
-      "description": "Left inverter entered fault state."
-    },
-    "FrontRightInverterFault": {
-      "id": 556,
-      "description": "Right inverter entered fault state."
-    },
-    "RearLeftInverterFault": {
-      "id": 557,
-      "description": "Left inverter entered fault state."
-    },
-    "RearRightInverterFault": {
-      "id": 558,
-      "description": "Right inverter entered fault state."
+    "info_id": 405,
+    "info_counts_id": 406,
+    "info": {
+      "StackOverflow": {
+        "id": 450,
+        "description": "An RTOS task stack overflowed on the previous boot cycle."
+      },
+      "CriticalPrechargeFailure": {
+        "id": 451,
+        "description": "Precharge failed >3x"
+      },
+      "WatchdogTimeout": {
+        "id": 452,
+        "description": "Watchdog timeout detected."
+      }
     }
   }
-}

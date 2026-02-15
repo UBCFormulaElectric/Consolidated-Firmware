@@ -215,7 +215,7 @@ class Imu
     std::expected<void, ErrorCode> getTemp(float &temp) const;
 
     std::expected<AccelData, ErrorCode> getAccelAll() const;
-    std::expected<GyroData, ErrorCode> getGyroAll() const;
+    std::expected<GyroData, ErrorCode>  getGyroAll() const;
 
 #ifdef TARGET_TEST
     bool  initialized  = false;
@@ -232,4 +232,4 @@ class Imu
     void set_GyroYaw(float gyro_z_fake);
 #endif
 };
-} // namespace io::imu
+} // namespace io

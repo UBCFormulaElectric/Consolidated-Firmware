@@ -3,7 +3,6 @@
 #include <cstdint>
 #include "io_sbgEllipse.hpp"
 #include "app_math.hpp"
-#include "hw_asserts.hpp"
 #include "io_log.hpp"
 
 namespace app::sbgEllipse

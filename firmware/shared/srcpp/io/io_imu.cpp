@@ -482,15 +482,12 @@ std::expected<AccelData, ErrorCode> Imu::getAccelAll() const
     std::array<const uint8_t, 1> tx = { { READ_IMU_REG(ACCEL_XOUT_H) } };
     std::array<uint8_t, 6>       rx{};
 
-    if(const auto exit = imu_spi_handle.transmitThenReceive(tx, rx); not exit) {
+    if (const auto exit = imu_spi_handle.transmitThenReceive(tx, rx); not exit)
+    {
         return std::unexpected(exit.error());
     }
-    
-    return {
-        translateAccelData(rx[0], rx[1]),
-        translateAccelData(rx[2], rx[3]),
-        translateAccelData(rx[4], rx[5])
-    };
+
+    return { translateAccelData(rx[0], rx[1]), translateAccelData(rx[2], rx[3]), translateAccelData(rx[4], rx[5]) };
 }
 
 std::expected<GyroData, ErrorCode> Imu::getGyroAll() const
@@ -501,15 +498,12 @@ std::expected<GyroData, ErrorCode> Imu::getGyroAll() const
     std::array<const uint8_t, 1> tx = { { READ_IMU_REG(GYRO_XOUT_H) } };
     std::array<uint8_t, 6>       rx{};
 
-    if(const auto exit = imu_spi_handle.transmitThenReceive(tx, rx); not exit) {
+    if (const auto exit = imu_spi_handle.transmitThenReceive(tx, rx); not exit)
+    {
         return std::unexpected(exit.error());
     }
 
-    return {
-        translateAccelData(rx[0], rx[1]),
-        translateAccelData(rx[2], rx[3]),
-        translateAccelData(rx[4], rx[5])
-    };
+    return { translateAccelData(rx[0], rx[1]), translateAccelData(rx[2], rx[3]), translateAccelData(rx[4], rx[5]) };
 }
 
-} // namespace io::imu
+} // namespace io

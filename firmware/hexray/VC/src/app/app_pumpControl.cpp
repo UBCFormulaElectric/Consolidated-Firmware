@@ -1,20 +1,15 @@
 #include "app_pumpControl.hpp"
 #include "io_time.hpp"
 #include "io_loadswitches.hpp"
-
-extern "C"
-{
-#include "io_loadswitch.h"
-#include <app_canTx.h>
-}
+#include "app_canTx.hpp"
 
 namespace app::pumpControl
 {
 consteval uint8_t SLOPE          = 1 / 2;
 consteval uint8_t CURRENT_THRESH = 1 / 40;
 
-static bool finished_ramp_up = false;
-static uint16_t time = 0;
+static bool     finished_ramp_up = false;
+static uint16_t time             = 0;
 
 static void rampUp()
 {
@@ -25,7 +20,7 @@ static void rampUp()
     }
     // calculate percentage based on defined slope above
     uint32_t percentage = SLOPE * time;
-    app_canTx_VC_PumpRampUpSetPoint_set(percentage);
+    app::can_tx::VC_PumpRampUpSetPoint_set(percentage);
 
     // should we add any buffer? is this seriously perfectly 100??
     if (percentage == 100)
@@ -37,7 +32,7 @@ static void rampUp()
 
 static void stopFlow()
 {
-    app_canTx_VC_PumpFailure_set(true);
+    app::can_tx::VC_PumpFailure_set(true);
     finished_ramp_up = false;
     time             = 0;
 }
@@ -57,6 +52,6 @@ void MonitorPumps()
     else
         stopFlow();
 
-    app_canTx_VC_RsmTurnOnPump_set(ramp_up_pumps);
+    app::can_tx::VC_RsmTurnOnPump_set(ramp_up_pumps);
 }
 } // namespace app::pumpControl

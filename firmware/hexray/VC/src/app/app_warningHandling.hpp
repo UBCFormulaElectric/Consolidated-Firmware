@@ -3,7 +3,7 @@
 
 namespace app::warningHandling
 {
-    
+
 constexpr uint32_t app_brake_diagreement_time_to_fault = 10u;
 constexpr uint32_t app_brake_diagreement_time_to_clear = 10u;
 

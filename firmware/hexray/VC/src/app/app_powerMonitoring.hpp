@@ -6,5 +6,5 @@
  */
 namespace app::powerMonitoring
 {
-void update(void);
+void update();
 }

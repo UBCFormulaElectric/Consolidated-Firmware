@@ -8,5 +8,9 @@
         "BMS_CHARGE_STATE": 5,
         "BMS_BALANCING_STATE": 6,
         "BMS_FAULT_STATE": 7
+    },
+    "ContactorState": {
+        "CONTACTOR_STATE_OPEN": 0,
+        "CONTACTOR_STATE_CLOSED": 1
     }
 }

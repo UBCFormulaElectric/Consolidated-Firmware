@@ -1,8 +1,10 @@
 #inlcude "io_imus.hpp"
 
-namespace io::imus{
+namespace io::imus
+{
 
-void init() {
+void init()
+{
     IMU1.init();
     IMU2.init();
     IMU3.init();
