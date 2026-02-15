@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     #    container:
-    #      image: ubcformulaelectric/environment:arm_14
+    #      image: ubcformulaelectric/environment:cargoedfr2
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -72,7 +72,7 @@ jobs:
 
     # both packages shouldn't need to use python dependences that we need...
     #    container:
-    #      image: ubcformulaelectric/environment:arm_14
+    #      image: ubcformulaelectric/environment:cargoedfr2
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -130,11 +130,13 @@ jobs:
           - board: hexray_VC_app.hex
 
     container:
-      image: ubcformulaelectric/environment:arm_14
+      image: ubcformulaelectric/environment:cargoedfr2
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.docker_token }}
     steps:
+      - name: Check Rustup
+        run: rustup show
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -177,7 +179,7 @@ jobs:
             car: hexray
 
     container:
-      image: ubcformulaelectric/environment:arm_14
+      image: ubcformulaelectric/environment:cargoedfr2
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -215,7 +217,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     container:
-      image: ubcformulaelectric/environment:arm_14
+      image: ubcformulaelectric/environment:cargoedfr2
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -249,7 +251,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     container:
-      image: ubcformulaelectric/environment:arm_14
+      image: ubcformulaelectric/environment:cargoedfr2
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -282,7 +284,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     container:
-      image: ubcformulaelectric/environment:arm_14
+      image: ubcformulaelectric/environment:cargoedfr2
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -310,7 +312,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     container:
-      image: ubcformulaelectric/environment:arm_14
+      image: ubcformulaelectric/environment:cargoedfr2
     env:
       BUILD_DIR: build_fw_test
     steps:

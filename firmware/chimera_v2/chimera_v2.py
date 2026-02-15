@@ -276,7 +276,11 @@ class _Board:
         :return:
         """
         request = shared_pb2.ChimeraV2Request()
-        setattr(request.uart_transmit.net_name, self._net_name_tag, self.board_module.UartNetName.Value(net_name))
+        setattr(
+            request.uart_transmit.net_name,
+            self._net_name_tag,
+            self.board_module.UartNetName.Value(net_name),
+        )
         request.uart_transmit.data = data
         self._write(request)
 
@@ -293,7 +297,11 @@ class _Board:
         :return:
         """
         request = shared_pb2.ChimeraV2Request()
-        setattr(request.uart_receive.net_name, self._net_name_tag, self.board_module.UartNetName.Value(net_name))
+        setattr(
+            request.uart_receive.net_name,
+            self._net_name_tag,
+            self.board_module.UartNetName.Value(net_name),
+        )
         request.uart_receive.length = length
         self._write(request)
 
@@ -310,7 +318,11 @@ class _Board:
         :return:
         """
         request = shared_pb2.ChimeraV2Request()
-        setattr(request.pwm_set.net_name, self._net_name_tag, self.board_module.PwmNetName.Value(net_name))
+        setattr(
+            request.pwm_set.net_name,
+            self._net_name_tag,
+            self.board_module.PwmNetName.Value(net_name),
+        )
         request.pwm_set.duty_cycle = duty_cycle
         self._write(request)
 
@@ -571,6 +583,7 @@ class VC(_Board):
             net_name_tag="vc_net_name",
             board_module=proto_autogen_hex.vc_pb2,
         )
+
 
 class BMS(_Board):
     def __init__(self):
