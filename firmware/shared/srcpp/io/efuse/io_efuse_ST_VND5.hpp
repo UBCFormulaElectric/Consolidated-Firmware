@@ -22,7 +22,7 @@ class ST_VND5_Efuse final : public Efuse
         } flags;
         uint8_t raw;
     };
-  
+
   private:
 #ifdef TARGET_EMBEDDED
     const hw::Gpio &stby_reset_gpio;
@@ -38,7 +38,7 @@ class ST_VND5_Efuse final : public Efuse
       : Efuse(in_enable_gpio, in_sns_adc_channel), stby_reset_gpio(in_stby_reset_gpio)
     {
     }
-    [[nodiscard]] float getChannelCurrent() override final;
+    [[nodiscard]] float          getChannelCurrent() override final;
     void                         reset() override final;
     void                         resetSet(const bool set);
     [[nodiscard]] bool           ok() override final;
