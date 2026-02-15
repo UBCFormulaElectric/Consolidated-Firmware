@@ -2,7 +2,12 @@ message("")
 message("⚙️ Configuring Shared")
 
 IF ("${TARGET}" STREQUAL "test")
-    file(GLOB_RECURSE SHARED_APP_SRCS CONFIGURE_DEPENDS "${SHARED_APP_INCLUDE_DIR}/*.c")
+    file(GLOB_RECURSE SHARED_APP_SRCS CONFIGURE_DEPENDS 
+            "${SHARED_APP_INCLUDE_DIR}/*.c"
+            "${SHARED_APP_INCLUDE_DIR}/*.cpp"
+    )
+    # Remove .c file if corresponding .cpp file exists to avoid duplicate symbols
+    list(FILTER SHARED_APP_SRCS EXCLUDE REGEX ".*app_sensor_filter\\.c$")
     # shared modules tests
     file(GLOB_RECURSE SHARED_TEST_SRCS CONFIGURE_DEPENDS
             "${CMAKE_CURRENT_SOURCE_DIR}/test/*.c"
