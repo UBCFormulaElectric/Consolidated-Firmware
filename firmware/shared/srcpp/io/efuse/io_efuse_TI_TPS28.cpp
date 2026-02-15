@@ -22,7 +22,8 @@ static constexpr float K_SNS = 1200.0f;
 // R_sns (Ohms)
 static constexpr float R_SNS = 1000.0f;
 
-static constexpr float R_PD = 24.9f; // kOhm
+// Potentially useful values for more thorough fault handling
+// static constexpr float R_PD = 24.9f; // kOhm
 
 // static constexpr float K_CL_MIN = 40.0f; // A*kOhm
 // static constexpr float K_CL_TYP = 50.0f; // A*kOhm
@@ -54,7 +55,7 @@ void TI_TPS28_Efuse::reset()
 [[nodiscard]] bool TI_TPS28_Efuse::ok()
 {
     this->diag_en_gpio.writePin(true);
-    
+
     const bool  channel_enabled = this->isChannelEnabled();
     const float voltage         = this->sns_adc_channel.getVoltage();
 
@@ -70,10 +71,10 @@ void TI_TPS28_Efuse::reset()
      */
 
     // if diagnostics are not enabled, only check TSD and ILIM
-    
+
     // fault is asserted low
     const bool is_ok = this->pgood_gpio.readPin();
-    
+
     if (is_ok == false)
     {
         this->faults.flags.overcurrent  = (channel_enabled && IS_IN_RANGE(V_SNSFH_MIN, V_SNSFH_MAX, voltage));
@@ -85,7 +86,7 @@ void TI_TPS28_Efuse::reset()
     return is_ok;
 }
 
-TI_TPS28_Efuse::TPS28_Faults TI_TPS28_Efuse::readFaults() const
+[[nodiscard]] TI_TPS28_Efuse::TPS28_Faults TI_TPS28_Efuse::readFaults() const
 {
     return this->faults;
 }

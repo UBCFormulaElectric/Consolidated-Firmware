@@ -25,9 +25,9 @@ static constexpr uint8_t H_H = 0x03U;
 
 static constexpr float ADC_VOLTAGE_TO_CURRENT_A = 1.720f;
 
-[[nodiscard]] float TI_TPS25_Efuse::getChannelCurrent()
+[[nodiscard]] float ST_VND5_Efuse::getChannelCurrent()
 {
-    return this->sns_adc_channel * ADC_VOLTAGE_TO_CURRENT_A;
+    return this->sns_adc_channel.getVoltage() * ADC_VOLTAGE_TO_CURRENT_A;
 }
 
 void ST_VND5_Efuse::reset()
@@ -92,7 +92,7 @@ void ST_VND5_Efuse::resetSet(const bool set)
     return !(flags > 0U);
 }
 
-[[nodiscard]] ST_VND5_Efuse::ST_VND5_Faults readFaults() const
+[[nodiscard]] ST_VND5_Efuse::ST_VND5_Faults ST_VND5_Efuse::readFaults() const
 {
     return this->faults;
 }

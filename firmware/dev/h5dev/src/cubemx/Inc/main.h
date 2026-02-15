@@ -39,14 +39,14 @@ extern "C"
     /* USER CODE BEGIN ET */
     extern FDCAN_HandleTypeDef hfdcan1;
     // extern IWDG_HandleTypeDef  hiwdg;
-    extern RTC_HandleTypeDef   hrtc;
-    extern SPI_HandleTypeDef   hspi1;
-    extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
-    extern ADC_HandleTypeDef   hadc1;
-    extern DMA_NodeTypeDef     Node_GPDMA1_Channel0;
-    extern DMA_QListTypeDef    List_GPDMA1_Channel0;
-    extern DMA_HandleTypeDef   handle_GPDMA1_Channel0;
-    extern TIM_HandleTypeDef   htim3;
+    extern RTC_HandleTypeDef hrtc;
+    extern SPI_HandleTypeDef hspi1;
+    extern PCD_HandleTypeDef hpcd_USB_DRD_FS;
+    extern ADC_HandleTypeDef hadc1;
+    extern DMA_NodeTypeDef   Node_GPDMA1_Channel0;
+    extern DMA_QListTypeDef  List_GPDMA1_Channel0;
+    extern DMA_HandleTypeDef handle_GPDMA1_Channel0;
+    extern TIM_HandleTypeDef htim3;
     /* USER CODE END ET */
 
     /* Exported constants --------------------------------------------------------*/

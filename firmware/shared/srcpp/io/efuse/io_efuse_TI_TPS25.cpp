@@ -9,7 +9,7 @@ static constexpr float ADC_VOLTAGE_TO_CURRENT_A = 1.720f;
 
 [[nodiscard]] float TI_TPS25_Efuse::getChannelCurrent()
 {
-    return this->sns_adc_channel * ADC_VOLTAGE_TO_CURRENT_A;
+    return this->sns_adc_channel.getVoltage() * ADC_VOLTAGE_TO_CURRENT_A;
 }
 
 void TI_TPS25_Efuse::reset()
