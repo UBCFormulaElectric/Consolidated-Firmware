@@ -8,7 +8,7 @@ pyclibrary
 jinja2
 gitpython
 intelhex
-protobuf==5.29.4
+protobuf==5.29.6
 grpcio-tools
 pyserial
 protoletariat
