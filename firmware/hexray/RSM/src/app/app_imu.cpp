@@ -8,7 +8,7 @@ extern "C"
 }
 
 #ifdef TARGET_TEST
-io::imu::Imu imu_config;
+io::Imu imu_config;
 #endif // TARGET_TEST
 namespace app::imu
 {
@@ -39,8 +39,8 @@ void broadcast()
     gyro_y  = imu_faults.gyro_y_fault ? gyro_y : 0.0f;
     gyro_z  = imu_faults.gyro_z_fault ? gyro_z : 0.0f;
 
-    io::imu::Imu::AccelData imu_accel_data = { accel_x, accel_y, accel_z };
-    io::imu::Imu::GyroData  imu_gyro_data  = { gyro_x, gyro_y, gyro_z };
+    io::Imu::AccelData imu_accel_data = { accel_x, accel_y, accel_z };
+    io::Imu::GyroData  imu_gyro_data  = { gyro_x, gyro_y, gyro_z };
 
     app_canTx_RSM_LinearAccelerationInX_set(imu_accel_data.x);
     app_canTx_RSM_LinearAccelerationInY_set(imu_accel_data.y);

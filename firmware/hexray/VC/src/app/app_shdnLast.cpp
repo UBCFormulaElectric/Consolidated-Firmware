@@ -1,9 +1,10 @@
 #include "app_shdnLast.hpp"
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
-#include <app_canUtils.hpp>
+#include "app_canUtils.hpp"
 
-namespace app::shdnLast
+
+using namespace app::shdnLast
 {
 static ShutdownNode get_first_shutdown()
 {

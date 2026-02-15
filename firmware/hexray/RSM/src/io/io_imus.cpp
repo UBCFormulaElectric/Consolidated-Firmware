@@ -2,5 +2,5 @@
 
 namespace io::imus
 {
-io::imu::Imu imu_config();
+io::Imu imu_config();
 }
