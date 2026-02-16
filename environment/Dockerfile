@@ -2,7 +2,7 @@ FROM debian:12.9-slim AS builder
 
 # wget: Downloading files from the internet
 # unzip: Tool to extract zipped archives
-RUN apt update -y && apt install -y xz-utils unzip
+RUN apt update -y && apt install -y xz-utils unzip wget build-essential
 
 ADD "https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz" /usr/local/bin
 RUN ls /usr/local/bin && tar -xvf /usr/local/bin/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz -C /
@@ -15,11 +15,25 @@ RUN ls /usr/local/bin && tar -xvf /usr/local/bin/arm-gnu-toolchain-14.2.rel1-x86
 ADD "https://github.com/protocolbuffers/protobuf/releases/download/v29.4/protoc-29.4-linux-x86_64.zip" /usr/local/bin
 RUN unzip /usr/local/bin/protoc-29.4-linux-x86_64.zip -d /protoc
 
+ENV RUSTUP_HOME=/usr/local/rustup \
+    CARGO_HOME=/usr/local/cargo \
+    PATH=/usr/local/cargo/bin:$PATH \
+    RUST_VERSION=1.93.1
+RUN wget --progress=dot:giga "https://static.rust-lang.org/rustup/archive/1.28.2/x86_64-unknown-linux-gnu/rustup-init"; \
+    chmod +x rustup-init; \
+    ./rustup-init -y --no-modify-path --profile minimal --default-toolchain $RUST_VERSION --default-host x86_64-unknown-linux-gnu; \
+    rm rustup-init; \
+    chmod -R a+w $RUSTUP_HOME $CARGO_HOME;
+ADD scripts/code_generation/jsoncan-rust /jsoncan-rust
+WORKDIR /jsoncan-rust
+RUN cargo build --release
+
 FROM debian:12.9-slim AS environment
 
 # COPY over builds from builder
 COPY --from=builder /arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi /usr/local
 COPY --from=builder /protoc/bin/protoc /usr/bin
+COPY --from=builder /jsoncan-rust/target/release/cppcodegen /usr/local/bin/cppcodegen
 #COPY --from=builder /usr/local/STM32CubeMX /usr/local/STM32CubeMX
 
 # pip: For installing python packages
@@ -39,7 +53,7 @@ RUN apt update -y && apt install -y --no-install-recommends \
 #    xvfb \
     libncurses5 \
     valgrind \
-    wget
+    build-essential
 #    libgtk-3-0 \
 #    libxi6 \
 #    libxtst6 \
@@ -48,16 +62,6 @@ RUN apt update -y && apt install -y --no-install-recommends \
 
 # Install python package dependencies.
 RUN echo "[global]\n break-system-packages = true" > /etc/pip.conf
-COPY requirements.txt .
+ADD environment/requirements.txt .
 RUN pip3 install -r requirements.txt
 RUN rm requirements.txt
-
-ENV RUSTUP_HOME=/usr/local/rustup \
-    CARGO_HOME=/usr/local/cargo \
-    PATH=/usr/local/cargo/bin:$PATH \
-    RUST_VERSION=1.93.1
-RUN wget --progress=dot:giga "https://static.rust-lang.org/rustup/archive/1.28.2/x86_64-unknown-linux-gnu/rustup-init"; \
-    chmod +x rustup-init; \
-    ./rustup-init -y --no-modify-path --profile minimal --default-toolchain $RUST_VERSION --default-host x86_64-unknown-linux-gnu; \
-    rm rustup-init; \
-    chmod -R a+w $RUSTUP_HOME $CARGO_HOME;
