@@ -12,7 +12,7 @@
 namespace io::bootHandler
 {
 
-static inline void processBootRequest(const io::CanMsg &msg)
+static void processBootRequest(const io::CanMsg &msg)
 {
     if (msg.std_id == (BOARD_HIGHBITS | BOOT_CAN_START_LOWBITS))
     {
@@ -20,10 +20,13 @@ static inline void processBootRequest(const io::CanMsg &msg)
 
         const hw::bootup::BootRequest request = { .target        = hw::bootup::BootTarget::BOOT_TARGET_BOOTLOADER,
                                                   .context       = hw::bootup::BootContext::BOOT_CONTEXT_NONE,
+                                                  ._unused       = 0xA5A5,
                                                   .context_value = 0 };
         hw::bootup::setBootRequest(request);
 
         // Empirically need to spin for a few cycles or the boot request doesn't get written properly before reset.
+
+        //We need to check if this is actually valid because we are not doing this for boot jump sequences
         for (uint8_t i = 0; i < 100; i++)
         {
             __ASM("nop");
