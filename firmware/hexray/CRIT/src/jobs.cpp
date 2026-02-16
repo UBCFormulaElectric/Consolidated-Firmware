@@ -6,11 +6,16 @@
 #include "io_switches.hpp"
 #include "io_time.hpp"
 #include "app_canUtils.hpp"
+#include "app_commitInfo.h"
 
 static auto drive_mode = app::can_utils::DriveMode::DRIVE_MODE_POWER;
 
 void jobs_init()
 {
+    app::can_tx::CRIT_Hash_set(GIT_COMMIT_HASH);
+    app::can_tx::CRIT_Clean_set(GIT_COMMIT_CLEAN);
+    app::can_tx::CRIT_Heartbeat_set(true);
+
     io::rotary::init();
     io::rotary::setClockwiseCallback(
         []

@@ -4,6 +4,7 @@
 #include "util_errorCodes.hpp"
 #include "hw_hal.h"
 #include "cmsis_os.h"
+#include "io_canTx.hpp"
 
 #if defined(STM32H733xx)
 #include "stm32h7xx_hal_fdcan.h"
@@ -18,14 +19,17 @@ namespace hw
 class BaseCan
 {
   protected:
-    mutable bool  ready = false;
-    const uint8_t bus_num;
+    mutable bool              ready = false;
+    const io::can_tx::BusEnum bus_num;
 
   public:
+    virtual ~BaseCan() = default;
     void (*const receive_callback)(const io::CanMsg &rx_msg);
-    TaskHandle_t transmit_task = nullptr;
+    mutable TaskHandle_t transmit_task = nullptr;
 
-    consteval explicit BaseCan(const uint8_t bus_num_in, void (*const receive_callback_in)(const io::CanMsg &rx_msg))
+    consteval explicit BaseCan(
+        const io::can_tx::BusEnum bus_num_in,
+        void (*const receive_callback_in)(const io::CanMsg &rx_msg))
       : bus_num(bus_num_in), receive_callback(receive_callback_in){};
 
     /**
@@ -44,7 +48,7 @@ class BaseCan
      * @param msg CAN msg to be TXed.
      * @return Whether or not the transmission was successful.
      */
-    virtual std::expected<void, ErrorCode> can_transmit(const io::CanMsg &msg) = 0;
+    virtual std::expected<void, ErrorCode> can_transmit(const io::CanMsg &msg) const = 0;
 
     /**
      * Receive a CAN msg from the bus, returning whether or not a message is available.
@@ -55,7 +59,7 @@ class BaseCan
      */
     virtual std::expected<void, ErrorCode> receive(uint32_t rx_fifo, io::CanMsg &msg) const = 0;
 
-    constexpr uint8_t getBusNum() const { return bus_num; }
+    constexpr io::can_tx::BusEnum getBusNum() const { return bus_num; }
 };
 /**
  * @attention THIS MUST BE DEFINED IN YOUR CONFIGURATIONS
@@ -69,13 +73,13 @@ class can final : public BaseCan
     CAN_HandleTypeDef *const hcan;
 
   private:
-    std::expected<void, ErrorCode> tx(CAN_TxHeaderTypeDef &tx_header, io::CanMsg &msg);
+    std::expected<void, ErrorCode> tx(CAN_TxHeaderTypeDef &tx_header, io::CanMsg &msg) const;
 
   public:
     ~can() = default;
     consteval explicit can(
-        CAN_HandleTypeDef &hcan_in,
-        const uint8_t      bus_num_in,
+        CAN_HandleTypeDef        &hcan_in,
+        const io::can_tx::BusEnum bus_num_in,
         void (*const receive_callback_in)(const io::CanMsg &rx_msg))
       : BaseCan(bus_num_in, receive_callback_in), hcan(&hcan_in){};
 
@@ -85,7 +89,7 @@ class can final : public BaseCan
 
     void deinit() const override;
 
-    std::expected<void, ErrorCode> can_transmit(const io::CanMsg &msg) override;
+    std::expected<void, ErrorCode> can_transmit(const io::CanMsg &msg) const override;
 
     std::expected<void, ErrorCode> receive(uint32_t rx_fifo, io::CanMsg &msg) const override;
 };
@@ -97,13 +101,13 @@ class fdcan final : public BaseCan
     FDCAN_HandleTypeDef *const hfdcan;
 
   private:
-    std::expected<void, ErrorCode> tx(FDCAN_TxHeaderTypeDef &tx_header, io::CanMsg &msg);
+    std::expected<void, ErrorCode> tx(const FDCAN_TxHeaderTypeDef &tx_header, const io::CanMsg &msg) const;
 
   public:
-    ~fdcan() = default;
+    ~fdcan() override = default;
     consteval explicit fdcan(
-        FDCAN_HandleTypeDef &hfdcan_in,
-        const uint8_t        bus_num_in,
+        FDCAN_HandleTypeDef      &hfdcan_in,
+        const io::can_tx::BusEnum bus_num_in,
         void (*const receive_callback_in)(const io::CanMsg &rx_msg))
       : BaseCan(bus_num_in, receive_callback_in), hfdcan(&hfdcan_in){};
 
@@ -113,9 +117,9 @@ class fdcan final : public BaseCan
 
     void deinit() const override;
 
-    std::expected<void, ErrorCode> can_transmit(const io::CanMsg &msg) override;
+    std::expected<void, ErrorCode> can_transmit(const io::CanMsg &msg) const override;
 
-    std::expected<void, ErrorCode> fdcan_transmit(const io::CanMsg &msg);
+    std::expected<void, ErrorCode> fdcan_transmit(const io::CanMsg &msg) const;
 
     std::expected<void, ErrorCode> receive(uint32_t rx_fifo, io::CanMsg &msg) const override;
 };

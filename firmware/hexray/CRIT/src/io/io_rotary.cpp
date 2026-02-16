@@ -29,7 +29,7 @@ void setCounterClockwiseCallback(const RotaryCallback cb)
 {
     counterclockwise_callback = cb;
 }
-void io_rotary_setPushCallback(const RotaryCallback cb)
+void setPushCallback(const RotaryCallback cb)
 {
     push_callback = cb;
 }

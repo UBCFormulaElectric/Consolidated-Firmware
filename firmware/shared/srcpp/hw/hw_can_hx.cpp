@@ -19,7 +19,7 @@
 #include "stm32h5xx_hal_fdcan.h"
 #endif
 
-std::expected<void, ErrorCode> hw::fdcan::tx(FDCAN_TxHeaderTypeDef &tx_header, io::CanMsg &msg)
+std::expected<void, ErrorCode> hw::fdcan::tx(const FDCAN_TxHeaderTypeDef &tx_header, const io::CanMsg &msg) const
 {
     for (uint32_t poll = 0; HAL_FDCAN_GetTxFifoFreeLevel(hfdcan) == 0U;)
     {
@@ -78,7 +78,7 @@ void hw::fdcan::deinit() const
     assert(HAL_FDCAN_DeInit(hfdcan) == HAL_OK);
 }
 
-std::expected<void, ErrorCode> hw::fdcan::can_transmit(const io::CanMsg &msg)
+std::expected<void, ErrorCode> hw::fdcan::can_transmit(const io::CanMsg &msg) const
 {
     assert(ready);
     FDCAN_TxHeaderTypeDef tx_header;
@@ -94,7 +94,7 @@ std::expected<void, ErrorCode> hw::fdcan::can_transmit(const io::CanMsg &msg)
     return tx(tx_header, const_cast<io::CanMsg &>(msg));
 }
 
-std::expected<void, ErrorCode> hw::fdcan::fdcan_transmit(const io::CanMsg &msg)
+std::expected<void, ErrorCode> hw::fdcan::fdcan_transmit(const io::CanMsg &msg) const
 {
     assert(ready);
 
@@ -176,7 +176,7 @@ CFUNC void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, const uint
     }
 }
 
-static std::expected<void, ErrorCode> handleCallback(FDCAN_HandleTypeDef *hfdcan, const uint8_t fifo)
+static std::expected<void, ErrorCode> handleCallback(const FDCAN_HandleTypeDef *hfdcan, const uint8_t fifo)
 {
     const hw::fdcan &handle = hw::fdcan_getHandle(hfdcan);
 
@@ -191,15 +191,13 @@ static std::expected<void, ErrorCode> handleCallback(FDCAN_HandleTypeDef *hfdcan
 CFUNC void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo0ITs)
 {
     UNUSED(RxFifo0ITs);
-    while (handleCallback(hfdcan, FDCAN_RX_FIFO0).has_value())
-        ;
+    LOG_IF_ERR(handleCallback(hfdcan, FDCAN_RX_FIFO0));
 }
 
 CFUNC void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo1ITs)
 {
     UNUSED(RxFifo1ITs);
-    while (handleCallback(hfdcan, FDCAN_RX_FIFO1).has_value())
-        ;
+    LOG_IF_ERR(handleCallback(hfdcan, FDCAN_RX_FIFO1));
 }
 
 CFUNC void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, const uint32_t BufferIndexes)

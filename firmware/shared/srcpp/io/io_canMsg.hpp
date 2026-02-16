@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include "io_canTx.hpp"
 
 #if defined(STM32F412Rx)
 #define CAN_PAYLOAD_BYTES 8
@@ -26,7 +27,7 @@ struct CanMsg
         uint32_t data32[CAN_PAYLOAD_BYTES / 4];
         uint64_t data64[CAN_PAYLOAD_BYTES / 8];
     } data;
-    uint8_t bus; // TODO change this to the bus` enum when complete
-    bool    is_fd;
+    io::can_tx::BusEnum bus; // TODO change this to the bus` enum when complete
+    bool                is_fd;
 };
 } // namespace io
