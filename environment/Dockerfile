@@ -48,7 +48,7 @@ COPY --from=builder /jsoncan-rust/target/release/cppcodegen /usr/local/bin/cppco
 # libxtst6: Random library required for running STM32CubeMX V6 in container
 # libxrender1: Random library required for running STM32CubeMX V6 in container
 RUN apt update -y && apt install -y --no-install-recommends \
-    python3 \
+    python3-dev \
     pip \
     git \
 #    xvfb \
