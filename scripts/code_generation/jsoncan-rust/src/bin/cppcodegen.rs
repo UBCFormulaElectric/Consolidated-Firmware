@@ -10,6 +10,7 @@ use jsoncan_rust::reroute::resolve_tx_rx_reroute;
 
 use clap::Parser;
 use std::path::Path;
+use jsoncan_rust::can_database::error::CanDBError;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -26,11 +27,11 @@ struct Args {
     only_dbc: bool,
 }
 
-fn main() {
+fn main() -> Result<(), CanDBError> {
     let args = Args::parse();
 
     // Parse JSON
-    let can_db = CanDatabase::from(JsonCanParser::new(args.can_data_dir)).unwrap();
+    let can_db = CanDatabase::from(JsonCanParser::new(args.can_data_dir))?;
 
     let (tx_configs, rx_configs, reroute_config) = resolve_tx_rx_reroute(&can_db);
 
@@ -40,7 +41,7 @@ fn main() {
         &args.dbc_output,
     );
     if args.only_dbc {
-        return;
+        return Ok(());
     }
 
     if can_db
@@ -140,18 +141,20 @@ fn main() {
         write_text(
             module.header_template().unwrap(),
             module_full_path
-                .with_extension("h")
+                .with_extension("hpp")
                 .to_str()
                 .expect("Invalid path"),
         );
         write_text(
             module.source_template().unwrap(),
             module_full_path
-                .with_extension("c")
+                .with_extension("cpp")
                 .to_str()
                 .expect("Invalid path"),
         );
     }
+
+    Ok(())
 }
 
 fn write_text(contents: String, path: &str) {

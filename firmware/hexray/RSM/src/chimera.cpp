@@ -6,8 +6,12 @@
 #include "hw_spis.hpp"
 #include "hw_usb.hpp"
 #include "hw_rtosTaskHandler.hpp"
+#include "hw_hardFaultHandler.hpp"
 #include <rsm.pb.h>
 #include <cassert>
+
+#include <optional>
+#include <functional>
 
 class RSMChimeraConfig : public chimera_v2::config
 {
@@ -107,12 +111,22 @@ class RSMChimeraConfig : public chimera_v2::config
                 return std::nullopt;
         }
     }
+    std::optional<std::reference_wrapper<const hw::PwmOutput>> id_to_pwm(const _PwmNetName *pnn) const override
+    {
+        if (pnn->which_name != pwm_net_name_tag)
+        {
+            LOG_ERROR("Chimera: Expected PWM netname with tag %d, got %d", pwm_net_name_tag, pnn->which_name);
+            return std::nullopt;
+        }
+        return std::nullopt;
+    }
     RSMChimeraConfig()
     {
         gpio_net_name_tag = GpioNetName_rsm_net_name_tag;
         adc_net_name_tag  = AdcNetName_rsm_net_name_tag;
         i2c_net_name_tag  = I2cNetName_rsm_net_name_tag;
         spi_net_name_tag  = SpiNetName_rsm_net_name_tag;
+        pwm_net_name_tag  = 0;
     }
 } rsm_config;
 
@@ -124,7 +138,9 @@ char USBD_PRODUCT_STRING_FS[] = "rsm";
 
 [[noreturn]] void tasks_init()
 {
+    hw_hardFaultHandler_init();
     assert(hw::usb::init());
+    hw::gpio::d_p_pullup.writePin(true); // enable USB D+ pullup
     osKernelInitialize();
     TaskChimera.start();
     osKernelStart();

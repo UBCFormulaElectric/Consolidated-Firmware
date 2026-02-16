@@ -22,3 +22,9 @@ enum SpiNetName{
   SEVEN_SEG = 2;
   PWR_CHG = 3;
 }
+
+enum PwmNetName {
+  PWM_NET_NAME_UNSPECIFIED = 0;
+  PWM_LED = 1;
+  PWM_SEVEN_SEG = 2;
+}
