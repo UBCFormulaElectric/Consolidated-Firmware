@@ -135,8 +135,6 @@ jobs:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.docker_token }}
     steps:
-      - name: Check Rustup
-        run: rustup show
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
