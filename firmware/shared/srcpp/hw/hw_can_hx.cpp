@@ -37,7 +37,7 @@ std::expected<void, ErrorCode> hw::fdcan::tx(const FDCAN_TxHeaderTypeDef &tx_hea
         UNUSED(num_notifs);
         transmit_task = nullptr;
     }
-    return hw_utils_convertHalStatus(HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &tx_header, msg.data.data8));
+    return hw_utils_convertHalStatus(HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &tx_header, msg.data.data()));
 }
 void hw::fdcan::init() const
 {
@@ -142,15 +142,16 @@ std::expected<void, ErrorCode> hw::fdcan::fdcan_transmit(const io::CanMsg &msg) 
     tx_header.FDFormat            = FDCAN_FD_CAN;
     tx_header.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
     tx_header.MessageMarker       = 0;
-    return tx(tx_header, const_cast<io::CanMsg &>(msg));
+    return tx(tx_header, msg);
 }
 
-std::expected<void, ErrorCode> hw::fdcan::receive(const uint32_t rx_fifo, io::CanMsg &msg) const
+std::expected<io::CanMsg, ErrorCode> hw::fdcan::receive(const uint32_t rx_fifo) const
 {
     assert(ready);
     FDCAN_RxHeaderTypeDef header;
 
-    RETURN_IF_ERR(hw_utils_convertHalStatus(HAL_FDCAN_GetRxMessage(hfdcan, rx_fifo, &header, msg.data.data8)));
+    io::CanMsg msg{};
+    RETURN_IF_ERR(hw_utils_convertHalStatus(HAL_FDCAN_GetRxMessage(hfdcan, rx_fifo, &header, msg.data.data())));
 
     // Copy metadata from HAL's CAN message struct into our custom CAN
     // message struct
@@ -180,11 +181,10 @@ static std::expected<void, ErrorCode> handleCallback(const FDCAN_HandleTypeDef *
 {
     const hw::fdcan &handle = hw::fdcan_getHandle(hfdcan);
 
-    io::CanMsg rx_msg{};
+    const auto out = handle.receive(fifo);
+    RETURN_IF_ERR_SILENT(out);
 
-    RETURN_IF_ERR_SILENT(handle.receive(fifo, rx_msg));
-
-    handle.receive_callback(rx_msg);
+    handle.receive_callback(out.value());
     return {};
 }
 
