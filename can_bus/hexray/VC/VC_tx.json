@@ -30,7 +30,14 @@
             }
         }
     },
-      "PumpStatus": {
+    "Bootup": {
+        "msg_id": 234,
+        "cycle_time": null,
+        "description": "Async bootup message!",
+        "signals": {}
+    },
+
+    "PumpStatus": {
     "msg_id": 229,
     "cycle_time": 10,
     "description": "All pump descriptions",

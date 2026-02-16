@@ -20,7 +20,6 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_spi.cpp"
         "${SHARED_HW_INCLUDE_DIR}/hw_resetReason.c"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
-        "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_flash.cpp"
@@ -32,7 +31,6 @@ file(GLOB CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/
 set(EMBEDDED_INCLUDE_DIRS
         "${SHARED_APP_INCLUDE_DIR}"
         "${SHARED_APP_INCLUDE_DIR_CPP}"
-        "${SHARED_IO_INCLUDE_DIR}"
         "${SHARED_IO_INCLUDE_DIR_CPP}"
         "${SHARED_HW_INCLUDE_DIR}"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
@@ -97,7 +95,7 @@ IF ("${TARGET}" STREQUAL "binary")
     )
 
     # JSONCAN
-    jsoncan_embedded_library(H5 dev "${CMAKE_CURRENT_BINARY_DIR}")
+    jsoncan_embedded_library_cpp(H5 dev "${CMAKE_CURRENT_BINARY_DIR}")
 
     embedded_binary(
             "h5dev_app"
@@ -113,7 +111,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    target_link_libraries("h5dev_app.elf" PRIVATE "h5dev_stm32" "dev_H5_jsoncan")
+    target_link_libraries("h5dev_app.elf" PRIVATE "h5dev_stm32" "h5dev_commit_info" "dev_H5_jsoncan" "m")
 
     if ("${BOOTLOAD}" STREQUAL "ON")
         # Bootloader files.

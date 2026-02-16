@@ -1,7 +1,7 @@
 #include "tasks.h"
 
 #include <cmsis_os2.h>
-#include <io_canRx.h>
+#include <io_canRx.hpp>
 #include "main.h"
 
 // io
@@ -14,11 +14,12 @@
 // old deps
 extern "C"
 {
-#include "io_canTx.h"
-#include "app_canTx.h"
-#include "app_canRx.h"
 #include "hw_resetReason.h"
 }
+
+#include "io_canTx.hpp"
+#include "app_canTx.hpp"
+#include "app_canRx.hpp"
 
 #include "hw_cans.hpp"
 #include "io_canMsgQueues.hpp"
@@ -40,15 +41,15 @@ void hw::usb::receive(const std::span<uint8_t> dest)
         const uint32_t t = io::time::getCurrentMs();
         if (t - last_1hz > 1000)
         {
-            io_canTx_enqueue1HzMsgs();
+            io::can_tx::enqueue1HzMsgs();
             last_1hz = t;
         }
         else if (t - last_100hz > 10)
         {
-            io_canTx_enqueue100HzMsgs();
+            io::can_tx::enqueue100HzMsgs();
             last_100hz = t;
         }
-        io_canTx_enqueueOtherPeriodicMsgs(t);
+        io::can_tx::enqueueOtherPeriodicMsgs(t);
     }
 }
 
@@ -65,8 +66,8 @@ void hw::usb::receive(const std::span<uint8_t> dest)
     forever
     {
         io::CanMsg rx_msg      = can_rx_queue.pop().value();
-        JsonCanMsg jsoncan_msg = app::jsoncan::copyFromCanMsg(&rx_msg);
-        io_canRx_updateRxTableWithMessage(&jsoncan_msg);
+        JsonCanMsg jsoncan_msg = app::jsoncan::copyFromCanMsg(rx_msg);
+        io::can_rx::updateRxTableWithMessage(jsoncan_msg);
     }
 }
 
@@ -124,20 +125,18 @@ void tasks_init()
         hw::bootup::setBootRequest(boot_request);
     }
 
-    app_canTx_init();
-    app_canRx_init();
-
-    io_canTx_init(
-        [](const JsonCanMsg *tx_msg)
+    io::can_tx::init(
+        [](const JsonCanMsg &tx_msg)
         {
             const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
-            can_tx_queue.push(msg);
-        });
-    io_canTx_enableMode_FDCAN(FDCAN_MODE_DEFAULT, true);
+            (void)can_tx_queue.push(msg);
+        }
+    );
+    io::can_tx::enableMode_FDCAN(io::can_tx::FDCANMode::FDCAN_MODE_DEFAULT, true);
 
     can_tx_queue.init();
     can_rx_queue.init();
-    io_canTx_H5_Bootup_sendAperiodic();
+    io::can_tx::sendAperiodic_H5_Bootup();
 
     osKernelInitialize();
     TaskCanBroadcast.start();

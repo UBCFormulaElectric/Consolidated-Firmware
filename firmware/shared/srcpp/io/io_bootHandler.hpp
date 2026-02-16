@@ -6,16 +6,16 @@
 #include "cmsis_gcc.h"
 #include <cstdint>
 #include "io_canMsg.hpp"
+#include "bootloader_h5.hpp"
 
 #define BOOT_CAN_START_LOWBITS 0x9
-extern uint32_t BOARD_HIGHBITS;
 
 namespace io::bootHandler
 {
 
 static void processBootRequest(const io::CanMsg &msg)
 {
-    if (msg.std_id == (2 | BOOT_CAN_START_LOWBITS))
+    if (msg.std_id == (BOARD_HIGHBITS | BOOT_CAN_START_LOWBITS))
     {
         LOG_INFO("Received CAN message, entering bootloader");
 
