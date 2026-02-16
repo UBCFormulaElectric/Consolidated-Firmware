@@ -1,1 +1,11 @@
-{}
+{
+  "warnings_id": 901,
+  "faults_id": 902,
+  "warnings_counts_id": 903,
+  "faults_counts_id": 904,
+  "info_id": 905,
+  "info_counts_id": 906,
+  "infos": {},
+  "warnings": {},
+  "faults": {}
+}

@@ -8,5 +8,33 @@
                 "bits": 1
             }
         }
+    },
+    "ButtonsAndSwitches": {
+        "msg_id": 910,
+        "cycle_time": 100,
+        "description": "State of buttons and switches on the CRIT",
+        "signals": {
+            "StartButton": {
+                "bits": 1
+            },
+            "RegenSwitch": {
+                "bits": 1
+            },
+            "LaunchControlSwitch": {
+                "bits": 1
+            },
+            "TorqueVectoringSwitch": {
+                "bits": 1
+            },
+            "DriveMode": {
+                "enum": "DriveMode"
+            }
+        }
+    },
+    "TelemMarkEvent": {
+        "msg_id": 911,
+        "cycle_time": null,
+        "description": "Marks an event in the telemetry data. Can be used to mark the start of a run, or any other significant event.",
+        "signals": {}
     }
 }
