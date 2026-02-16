@@ -2,10 +2,37 @@
 
 #include "app_canTx.hpp"
 #include "io_canTx.hpp"
+#include "io_rotary.hpp"
 #include "io_switches.hpp"
+#include "io_time.hpp"
+#include "app_canUtils.hpp"
 
-void jobs_init() {}
-void jobs_run1Hz_tick() {}
+static auto drive_mode = app::can_utils::DriveMode::DRIVE_MODE_POWER;
+
+void jobs_init()
+{
+    io::rotary::init();
+    io::rotary::setClockwiseCallback(
+        []
+        {
+            drive_mode = static_cast<app::can_utils::DriveMode>(
+                (static_cast<uint32_t>(drive_mode) + 1) %
+                static_cast<uint32_t>(app::can_utils::DriveMode::DRIVE_MODE_COUNT));
+        });
+    io::rotary::setCounterClockwiseCallback(
+        []
+        {
+            drive_mode = static_cast<app::can_utils::DriveMode>(
+                (static_cast<uint32_t>(drive_mode) - 1) %
+                static_cast<uint32_t>(app::can_utils::DriveMode::DRIVE_MODE_COUNT));
+        });
+    io::rotary::setPushCallback([] {});
+}
+
+void jobs_run1Hz_tick()
+{
+    io::can_tx::enqueue1HzMsgs();
+}
 void jobs_run100Hz_tick()
 {
     // update the state from the switches
@@ -17,7 +44,11 @@ void jobs_run100Hz_tick()
     {
         io::can_tx::sendAperiodic_CRIT_TelemMarkEvent();
     }
+
+    // enqueue can messages
+    io::can_tx::enqueue100HzMsgs();
 }
-void jobs_run1kHz_tick() {}
-void jobs_runCanTx_tick() {}
-void jobs_runCanRx_tick() {}
+void jobs_run1kHz_tick()
+{
+    io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
+}
