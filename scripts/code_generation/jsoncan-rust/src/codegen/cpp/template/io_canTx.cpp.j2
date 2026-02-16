@@ -29,7 +29,7 @@ void io_canTx_set_lockfunction(
 /* --------------------------- Static Variables --------------------------- */
 {% for bus in node_buses %}
 static uint32_t can_mode_{{bus.name}};
-static void (*enqueue_func_{{bus.name}})(const JsonCanMsg* tx_msg);
+static void (*enqueue_func_{{bus.name}})(const JsonCanMsg& tx_msg);
 {% endfor %}
 
 /* --------------------- Static Function Definitions ---------------------- */
@@ -60,7 +60,7 @@ void sendAperiodic_{{msg.name}}()
     {%- endfor %}
     )
     {
-        enqueue_func_{{msg_bus_name}}(&tx_msg);
+        enqueue_func_{{msg_bus_name}}(tx_msg);
     }
     {%- endfor %}
 }
@@ -71,7 +71,7 @@ void sendAperiodic_{{msg.name}}()
 
 void init( 
     {%- for bus in node_buses %}
-    void (*enqueue_{{bus.name}}_msg_func)(const JsonCanMsg*) {%- if !loop.last -%}, {%- endif -%}
+    void (*enqueue_{{bus.name}}_msg_func)(const JsonCanMsg&) {%- if !loop.last -%}, {%- endif -%}
     {%- endfor %}
 )
 {
