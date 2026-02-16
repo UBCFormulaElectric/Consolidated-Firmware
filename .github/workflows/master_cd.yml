@@ -29,7 +29,7 @@ jobs:
             bin_name: quintuna_DAM_app_metadata.hex
             build_dir: firmware/quintuna/DAM
     container:
-      image: ubcformulaelectric/environment:cargoed
+      image: ubcformulaelectric/environment:cigoat
       credentials:
         username: ubcformulaelectric
         password: ${{ secrets.docker_token }}
@@ -54,7 +54,7 @@ jobs:
     name: Generate CAN DBC file
     runs-on: ubuntu-22.04
     container:
-      image: ubcformulaelectric/environment:cargoed
+      image: ubcformulaelectric/environment:cigoat
       credentials:
         username: ubcformulaelectric
         password: ${{ secrets.docker_token }}
