@@ -51,7 +51,7 @@ volatile __attribute__((section(".boot_request"))) BootRequestData boot_request;
  * Due to quirks of STM32's generated code, this **must** be invoked at the top of main.c if using our CAN bootloader.
  * Otherwise interrupts will not work.
  */
-static inline void enableInterruptsForApp()
+static void enableInterruptsForApp()
 {
     // Set vector table offset register.
     // The startup handler sets the VTOR to the default value (0x8000000), so even though we update it
@@ -75,7 +75,7 @@ static inline void enableInterruptsForApp()
     portENABLE_INTERRUPTS();
 }
 
-static inline void setBootRequest(const BootRequest request)
+static void setBootRequest(const BootRequest request)
 {
     boot_request.magic                 = BOOT_MAGIC;
     boot_request.request.target        = request.target;
@@ -84,7 +84,7 @@ static inline void setBootRequest(const BootRequest request)
     boot_request.request.context_value = request.context_value;
 }
 
-static inline BootRequest getBootRequest()
+static BootRequest getBootRequest()
 {
     if (boot_request.magic == BOOT_MAGIC)
     {
