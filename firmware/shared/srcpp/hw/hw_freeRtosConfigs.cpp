@@ -13,9 +13,9 @@ _Noreturn void vApplicationStackOverflowHook(TaskHandle_t xTask, signed char *pc
     TaskStatus_t status;
     vTaskGetInfo(xTask, &status, pdFALSE, eRunning);
     const hw::bootup::BootRequest request = { .target        = hw::bootup::BootTarget::BOOT_TARGET_APP,
-                                  .context       = hw::bootup::BootContext::BOOT_CONTEXT_STACK_OVERFLOW,
-                                  ._unused       = 0xFFFF,
-                                  .context_value = status.xTaskNumber };
+                                              .context       = hw::bootup::BootContext::BOOT_CONTEXT_STACK_OVERFLOW,
+                                              ._unused       = 0xFFFF,
+                                              .context_value = status.xTaskNumber };
     hw::bootup::setBootRequest(request);
 #endif
 

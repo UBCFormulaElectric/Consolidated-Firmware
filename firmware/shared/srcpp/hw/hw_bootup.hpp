@@ -46,7 +46,6 @@ struct BootRequestData
 static_assert(sizeof(BootRequestData) == 12, "BootRequestData struct size must be 12 bytes");
 static_assert(_Alignof(BootRequestData) == 4, "");
 
-
 // Boot flag from RAM
 extern volatile __attribute__((section(".boot_request"))) BootRequestData boot_request;
 

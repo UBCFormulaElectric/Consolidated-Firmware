@@ -2,8 +2,7 @@
 #include "hw_hal.hpp"
 #include "FreeRTOS.h"
 
-
-volatile __attribute__((section(".boot_request"))) hw::bootup::BootRequestData hw::bootup::boot_request;;
+volatile __attribute__((section(".boot_request"))) hw::bootup::BootRequestData hw::bootup::boot_request;
 
 void hw::bootup::setBootRequest(const hw::bootup::BootRequest request)
 {

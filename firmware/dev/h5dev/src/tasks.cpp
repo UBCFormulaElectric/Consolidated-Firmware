@@ -110,7 +110,8 @@ void tasks_init()
         LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
     }
 
-    if (const hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest(); boot_request.context != hw::bootup::BootContext::BOOT_CONTEXT_NONE)
+    if (const hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
+        boot_request.context != hw::bootup::BootContext::BOOT_CONTEXT_NONE)
     {
         if (boot_request.context == hw::bootup::BootContext::BOOT_CONTEXT_STACK_OVERFLOW)
         {
@@ -118,8 +119,8 @@ void tasks_init()
         }
 
         // Clear stack overflow bootup.
-        const_cast<hw::bootup::BootRequest&>(boot_request).context = hw::bootup::BootContext::BOOT_CONTEXT_NONE;
-        const_cast<hw::bootup::BootRequest&>(boot_request).context_value = 0;
+        const_cast<hw::bootup::BootRequest &>(boot_request).context       = hw::bootup::BootContext::BOOT_CONTEXT_NONE;
+        const_cast<hw::bootup::BootRequest &>(boot_request).context_value = 0;
         hw::bootup::setBootRequest(boot_request);
     }
 
