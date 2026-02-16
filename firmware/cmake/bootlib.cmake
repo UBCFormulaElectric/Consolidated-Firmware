@@ -158,30 +158,28 @@ function(stm32h5_boot_binary
         IOC_PATH
 )
     # Add bootloader-specific files.
-    list(APPEND SRCS "${BOOT_DIR}/bootloader.cpp" "${BOOT_DIR}/bootloader_hx.c")
+    list(APPEND SRCS "${BOOT_DIR}/bootloader.cpp")
     list(APPEND INCLUDE_DIRS "${BOOT_DIR}")
 
     # shared files 
     # Add shared files.
     list(APPEND SRCS
-            "${SHARED_APP_INCLUDE_DIR}/app_crc32.c"
             "${SHARED_APP_INCLUDE_DIR_CPP}/app_crc32.cpp"
-            "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
-            "${SHARED_IO_INCLUDE_DIR}/io_time.c"
-            "${SHARED_HW_INCLUDE_DIR}/hw_flash.c"
-            "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
-            "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
-            "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
-            "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
-            "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
-            "${SHARED_HW_INCLUDE_DIR}/hw_can_hx.c"
-            "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
+            "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
+            "${SHARED_HW_INCLUDE_DIR_CPP}/hw_flash.cpp"
+            "${SHARED_HW_INCLUDE_DIR_CPP}/hw_gpio.cpp"
+            "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
+            "${SHARED_HW_INCLUDE_DIR_CPP}/hw_assert.cpp"
+            "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
+            "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
     )
     list(APPEND INCLUDE_DIRS
             "${SHARED_APP_INCLUDE_DIR}"
             "${SHARED_APP_INCLUDE_DIR_CPP}"
             "${SHARED_IO_INCLUDE_DIR}"
             "${SHARED_HW_INCLUDE_DIR}"
+            "${SHARED_IO_INCLUDE_DIR_CPP}"
+            "${SHARED_HW_INCLUDE_DIR_CPP}"
     )
 
     set(STM32_HAL_SRCS

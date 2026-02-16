@@ -1,5 +1,6 @@
 #pragma once
 #include "util_utils.hpp"
+#include <cstddef>
 #include <cstdint>
 #include "hw_flash.hpp"
 #include "hw_can.hpp"
@@ -36,29 +37,22 @@ void rx_overflow_clear_callback();
 class config
 {
   public:
+    io::queue<io::CanMsg, 128> can_tx_queue;
+    io::queue<io::CanMsg, 128> can_rx_queue;
 
 #if defined(STM32H733xx) || defined(STM32H562xx)
     hw::fdcan fdcan_handle;
+    config(hw::fdcan fdcan_handle_in, io::queue<io::CanMsg, 128> &tx_queue, io::queue<io::CanMsg, 128> &rx_queue)
+      : can_tx_queue(tx_queue), can_rx_queue(rx_queue), fdcan_handle(fdcan_handle_in){};
 #elif defined(STM32F412Rx)
     hw::can can_handle;
+    config(hw::can can_handle_in, io::queue<io::CanMsg, 128> &tx_queue, io::queue<io::CanMsg, 128> &rx_queue
+      : can_tx_queue(tx_queue), can_rx_queue(rx_queue), can_handle(can_handle_in){};
 #endif
 
-    io::queue<io::CanMsg, 128> can_tx_queue{
-        "CanTxQueue",
-        tx_overflow_callback,
-        tx_overflow_clear_callback
-    };
-
-    io::queue<io::CanMsg, 128> can_rx_queue{
-        "CanRxQueue",
-        rx_overflow_callback,
-        rx_overflow_clear_callback
-    };
-
-    uint32_t BOARD_HIGHBITS{0};
-    uint32_t GIT_COMMIT_HASH{0};
-    bool GIT_COMMIT_CLEAN;
-    
+    uint32_t BOARD_HIGHBITS{ 0 };
+    uint32_t GIT_COMMIT_HASH{ 0 };
+    bool     GIT_COMMIT_CLEAN;
 
     virtual ~config() = default;
 
@@ -68,8 +62,8 @@ class config
 
     virtual void boardSpecific_program(uint32_t address, uint64_t data)
     {
-        std::span<std::byte, hw::flash::WORD_BYTES> program_buffer;
-        uint32_t buffer_idx = address % hw::flash::WORD_BYTES;
+        std::byte program_buffer[hw::flash::WORD_BYTES];
+        uint32_t  buffer_idx = address % hw::flash::WORD_BYTES;
         std::memcpy(&program_buffer[buffer_idx], &data, sizeof(data));
 
         // On the STM32H733xx microcontroller, the smallest amount of memory you can
@@ -80,16 +74,18 @@ class config
         // data. So we keep track of the data to program in a buffer in RAM, until the buffer is full, and then we can
         // write the entire flash word. This implementation only works if the binary size is a multiple of 32 bytes, or
         // the buffer won't fill up for the last few bytes so won't be written into flash. This is guaranteed by canup.
+
+        std::span<const std::byte> program_buffer_span(program_buffer);
         if (buffer_idx + sizeof(uint64_t) == hw::flash::WORD_BYTES)
-        {  
+        {
             std::span<const std::byte, hw::flash::WORD_BYTES> spano(program_buffer);
-            hw::flash::programFlash(address / hw::flash::WORD_BYTES * hw::flash::WORD_BYTES, program_buffer);
+            hw::flash::programFlash(address / hw::flash::WORD_BYTES * hw::flash::WORD_BYTES, program_buffer_span);
         }
     };
 };
 
-void preInit(void);
-void init(void);
+void              preInit(void);
+void              init(void);
 [[noreturn]] void runInterfaceTask(config &boot_config);
 [[noreturn]] void runTickTask(config &boot_config);
 [[noreturn]] void runCanTxTask(config &boot_config);

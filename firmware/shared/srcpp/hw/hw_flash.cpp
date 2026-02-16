@@ -6,8 +6,6 @@
 #include <cstring>
 #include <expected>
 
-using namespace hw::flash;
-
 constexpr uint8_t MAX_RETRIES = 5;
 
 static std::expected<void, ErrorCode>
@@ -36,7 +34,7 @@ static FLASH_EraseInitTypeDef eraseStruct      = {
 };
 #endif
 
-std::expected<void, ErrorCode> eraseSector(uint8_t sector)
+std::expected<void, ErrorCode> hw::flash::eraseSector(uint8_t sector)
 {
 #if defined(STM32H562xx)
     assert(sector < (BANK_SECTOR_SIZE * 2));
@@ -60,7 +58,7 @@ std::expected<void, ErrorCode> eraseSector(uint8_t sector)
     return hw_utils_convertHalStatus(halStatus);
 }
 
-std::expected<void, ErrorCode> programFlash(uint32_t address, std::span<const std::byte> buffer)
+std::expected<void, ErrorCode> hw::flash::programFlash(uint32_t address, std::span<const std::byte> buffer)
 {
     return programFlashRetry(address, buffer);
 }

@@ -21,19 +21,6 @@
 #error "Please define what MCU is used"
 #endif
 
-void tx_overflow_callback(const uint32_t overflow_count)
-{
-    UNUSED(overflow_count);
-    LOG_INFO("CAN TX OVERFLOW");
-}
-void rx_overflow_callback(const uint32_t overflow_count)
-{
-    UNUSED(overflow_count);
-    LOG_INFO("CAN RX OVERFLOW");
-}
-void tx_overflow_clear_callback() {}
-void rx_overflow_clear_callback() {}
-
 // App code block. Start/size included from the linker script.
 // Info needed by the bootloader to boot safely. Currently takes up the the first kB
 // of flash allocated to the app.
@@ -149,11 +136,12 @@ void bootloader::preInit(void)
     // Boot request targetting bootloader. Overwrite it to target app next so we don't get stuck here
     const hw::bootup::BootRequest app_request = { .target        = hw::bootup::BootTarget::BOOT_TARGET_APP,
                                                   .context       = hw::bootup::BootContext::BOOT_CONTEXT_NONE,
+                                                  ._unused       = 0xFFFF,
                                                   .context_value = 0 };
     hw::bootup::setBootRequest(app_request);
 }
 
-void bootloader_init(void)
+void bootloader::init(void)
 {
     LOG_INFO("Bootloader reset!");
     // Initialize CAN
@@ -164,7 +152,13 @@ void bootloader_init(void)
 {
     for (;;)
     {
-        const io::CanMsg command = boot_config.can_tx_queue.pop();
+        if (not boot_config.can_rx_queue.pop().has_value())
+        {
+            LOG_INFO("No CAN command received");
+            continue;
+        }
+
+        const io::CanMsg command = boot_config.can_rx_queue.pop().value();
 
         if (command.std_id == (boot_config.BOARD_HIGHBITS | START_UPDATE_ID_LOWBITS))
         {
@@ -173,7 +167,9 @@ void bootloader_init(void)
             update_in_progress = true;
 
             // Send ACK message that programming has started.
-            const io::CanMsg reply = { .std_id = boot_config.BOARD_HIGHBITS | UPDATE_ACK_ID_LOWBITS, .dlc = 0 };
+            io::CanMsg reply{};
+            reply.std_id = boot_config.BOARD_HIGHBITS | UPDATE_ACK_ID_LOWBITS;
+            reply.dlc    = 0;
             boot_config.can_tx_queue.push(reply);
         }
         else if (command.std_id == (boot_config.BOARD_HIGHBITS | ERASE_SECTOR_ID_LOWBITS) && update_in_progress)
@@ -183,11 +179,10 @@ void bootloader_init(void)
             (void)hw::flash::eraseSector(sector);
 
             // Erasing sectors takes a while, so reply when finished.
-            const io::CanMsg reply = {
-                .std_id = (boot_config.BOARD_HIGHBITS | ERASE_SECTOR_COMPLETE_ID_LOWBITS),
-                .dlc    = 0,
-            };
-            boot_config.can_tx_queue.push(reply)
+            io::CanMsg reply{};
+            reply.std_id = (boot_config.BOARD_HIGHBITS | ERASE_SECTOR_COMPLETE_ID_LOWBITS);
+            reply.dlc    = 0;
+            boot_config.can_tx_queue.push(reply);
         }
         else if (command.std_id == (boot_config.BOARD_HIGHBITS | PROGRAM_ID_LOWBITS) && update_in_progress)
         {
@@ -199,10 +194,9 @@ void bootloader_init(void)
         else if (command.std_id == (boot_config.BOARD_HIGHBITS | VERIFY_ID_LOWBITS) && update_in_progress)
         {
             // Verify received checksum matches the one saved in flash.
-            io::CanMsg reply = {
-                .std_id = (boot_config.BOARD_HIGHBITS | APP_VALIDITY_ID_LOWBITS),
-                .dlc    = 1,
-            };
+            io::CanMsg reply{};
+            reply.std_id = (boot_config.BOARD_HIGHBITS | VERIFY_ID_LOWBITS);
+            reply.dlc    = 1;
             verifyAppCodeChecksum();
             reply.data.data8[0] = (uint8_t)boot_status;
             boot_config.can_tx_queue.push(reply);
@@ -213,8 +207,9 @@ void bootloader_init(void)
         else if (command.std_id == (boot_config.BOARD_HIGHBITS | GO_TO_APP_LOWBITS) && !update_in_progress)
         {
             const hw::bootup::BootRequest app_request = { .target        = hw::bootup::BootTarget::BOOT_TARGET_APP,
-                                              .context       = hw::bootup::BootContext::BOOT_CONTEXT_NONE,
-                                              .context_value = 0 };
+                                                          .context       = hw::bootup::BootContext::BOOT_CONTEXT_NONE,
+                                                          ._unused       = 0xFFFF,
+                                                          .context_value = 0 };
             hw::bootup::setBootRequest(app_request);
             NVIC_SystemReset();
         }
@@ -240,9 +235,11 @@ void bootloader_init(void)
         if (!update_in_progress)
         {
             // Broadcast a message at 1Hz so we can check status over CAN.
-            io::CanMsg status_msg         = { .std_id = boot_config.BOARD_HIGHBITS | STATUS_10HZ_ID_LOWBITS, .dlc = 5 };
+            io::CanMsg status_msg{};
+            status_msg.std_id         = boot_config.BOARD_HIGHBITS | STATUS_10HZ_ID_LOWBITS;
+            status_msg.dlc            = 5;
             status_msg.data.data32[0] = boot_config.GIT_COMMIT_HASH;
-            status_msg.data.data8[4]  = (uint8_t)(static_cast<uint8_t>(boot_status) << 1) | boot_config.GIT_COMMIT_CLEAN;
+            status_msg.data.data8[4] = (uint8_t)(static_cast<uint8_t>(boot_status) << 1) | boot_config.GIT_COMMIT_CLEAN;
             boot_config.can_tx_queue.push(status_msg);
         }
 
@@ -257,12 +254,11 @@ void bootloader_init(void)
 {
     for (;;)
     {
-        const io::CanMsg tx_msg = boot_config.can_tx_queue.pop();
+        const io::CanMsg tx_msg = boot_config.can_tx_queue.pop().value();
 #if defined(STM32H733xx) || defined(STM32H562xx)
-        LOG_IF_ERR(fdcan_handle.fdcan_transmit(tx_msg));
+        (void)boot_config.fdcan_handle.fdcan_transmit(tx_msg);
 #elif defined(STM32F412Rx)
-        LOG_IF_ERR(can_handle.can_transmit(tx_msg));
+        (void)boot_config.can_handle.can_transmit(tx_msg);
 #endif
     }
 }
-

@@ -31,7 +31,6 @@ std::expected<void, ErrorCode> eraseSector(uint8_t sector);
   * @param buffer Data span to program.
   * @return EXIT_CODE_OK if verified, EXIT_CODE_ERROR otherwise.
   */
-std::expected<void, ErrorCode> programFlash(uint32_t address, std::span<const std::byte, 16> buffer);
-std::expected<void, ErrorCode> programFlash(uint32_t address, std::span<const std::byte, 32> buffer);
+std::expected<void, ErrorCode> programFlash(uint32_t address, std::span<const std::byte> buffer);
 
 } // namespace hw::flash
