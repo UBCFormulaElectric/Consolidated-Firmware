@@ -16,7 +16,7 @@ typedef struct
     BootRequest request;
 } BootRequestData;
 static_assert(sizeof(BootRequestData) == 12, "");
-static_assert(alignof(BootRequestData) == 4, "");
+static_assert(_Alignof(BootRequestData) == 4, "");
 
 // Boot flag from RAM
 __attribute__((section(".boot_request"))) volatile BootRequestData boot_request;
