@@ -37,14 +37,14 @@ pub struct AppCanAlertsModule<'a> {
 
 impl AppCanAlertsModule<'_> {
     pub fn new<'a>(can_db: &'a CanDatabase, node_name: &'a String) -> AppCanAlertsModule<'a> {
-        assert!(
-            can_db
+        let self_alerts= &can_db
                 .nodes
                 .iter()
                 .find(|n| n.name == *node_name)
                 .unwrap()
-                .alerts
-                .is_some(),
+                .alerts;
+        assert!(
+            self_alerts.is_some(),
             "Tried to generate CAN Alerts module for node {} but it has no alerts defined",
             node_name
         );
