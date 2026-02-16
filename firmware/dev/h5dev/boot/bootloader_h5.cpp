@@ -4,11 +4,14 @@
 #include <hw_can.hpp>
 #include "hw_rtosTaskHandler.hpp"
 
-namespace hw::cans
+extern "C"
 {
-// no tasks_runCanRxCallback yet in tasks.c (need bootloader stuff)
-fdcan fdcan1(hfdcan1, 0, [](const io::CanMsg &msg) { UNUSED(msg); });
-} // namespace hw::cans
+#include <app_commitInfo.h>
+}
+
+constexpr uint32_t BOARD_HIGHBITS       = 0x18000000;
+constexpr uint32_t git_commit_has_val   = GIT_COMMIT_HASH;
+constexpr bool     git_commit_clean_val = GIT_COMMIT_CLEAN;
 
 void tx_overflow_callback(const uint32_t overflow_count)
 {
@@ -26,7 +29,12 @@ void rx_overflow_clear_callback(){};
 io::queue<io::CanMsg, 128> can_tx_queue{ "CanTxQueue", tx_overflow_callback, tx_overflow_clear_callback };
 io::queue<io::CanMsg, 128> can_rx_queue{ "CanRxQueue", rx_overflow_callback, rx_overflow_clear_callback };
 
-// should I change type to FDCAN_HandleTypeDef in hw_can.hpp?
+namespace hw::cans
+{
+// no tasks_runCanRxCallback yet in tasks.c (need bootloader stuff)
+fdcan fdcan1(hfdcan1, 0, [](const io::CanMsg &msg) { UNUSED(msg); });
+} // namespace hw::cans
+
 const hw::fdcan &hw::fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
 {
     assert(hfdcan == hw::cans::fdcan1.getHfdcan());
@@ -36,8 +44,19 @@ const hw::fdcan &hw::fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
 class H5DevBootConfig : public bootloader::config
 {
   public:
-    H5DevBootConfig(hw::fdcan fdcan_handle_in) : bootloader::config(fdcan_handle_in, can_tx_queue, can_rx_queue){};
-} h5devboot_config(hw::cans::fdcan1);
+    H5DevBootConfig(
+        hw::fdcan fdcan_handle_in,
+        uint32_t  bootloader_highbits,
+        uint32_t  git_commit_hash,
+        bool      git_commit_clean)
+      : bootloader::config(
+            fdcan_handle_in,
+            can_tx_queue,
+            can_rx_queue,
+            bootloader_highbits,
+            git_commit_hash,
+            git_commit_clean){};
+} h5devboot_config(hw::cans::fdcan1, BOARD_HIGHBITS, git_commit_has_val, git_commit_clean_val);
 
 void bootloader_preInit(void)
 {

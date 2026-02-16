@@ -43,21 +43,24 @@ struct BootRequestData
     uint32_t    magic;
     BootRequest request;
 };
+static_assert(sizeof(BootRequestData) == 12, "BootRequestData struct size must be 12 bytes");
+static_assert(_Alignof(BootRequestData) == 4, "");
+
 
 // Boot flag from RAM
-volatile __attribute__((section(".boot_request"))) BootRequestData boot_request;
+extern volatile __attribute__((section(".boot_request"))) BootRequestData boot_request;
 
 /**
  * Due to quirks of STM32's generated code, this **must** be invoked at the top of main.c if using our CAN bootloader.
  * Otherwise interrupts will not work.
  */
-static void enableInterruptsForApp()
+inline void enableInterruptsForApp()
 {
     // Set vector table offset register.
     // The startup handler sets the VTOR to the default value (0x8000000), so even though we update it
     // in the bootloader, we have to update it again here.
     // (In SystemInit(), which is defined in system_stm32fXxx.c)
-    SCB->VTOR = (uint32_t)&__app_code_start__;
+    SCB->VTOR = reinterpret_cast<uint32_t>(&__app_code_start__);
 
     // We also need to re-enable interrupts since they are disabled by the bootloader before jumping to the app, to
     // prevent interrupts occuring mid-jump.
@@ -75,36 +78,7 @@ static void enableInterruptsForApp()
     portENABLE_INTERRUPTS();
 }
 
-static void setBootRequest(const BootRequest request)
-{
-    boot_request.magic                 = BOOT_MAGIC;
-    boot_request.request.target        = request.target;
-    boot_request.request.context       = request.context;
-    boot_request.request._unused       = request._unused;
-    boot_request.request.context_value = request.context_value;
-}
+void setBootRequest(const BootRequest request);
 
-static BootRequest getBootRequest()
-{
-    if (boot_request.magic == BOOT_MAGIC)
-    {
-        BootRequest r;
-        r.target        = boot_request.request.target;
-        r.context       = boot_request.request.context;
-        r._unused       = boot_request.request._unused;
-        r.context_value = boot_request.request.context_value;
-
-        return r;
-    }
-    else
-    {
-        // Default to app if magic not present.
-        const BootRequest request = {
-            .target        = BootTarget::BOOT_TARGET_APP,
-            .context       = BootContext::BOOT_CONTEXT_NONE,
-            .context_value = 0,
-        };
-        return request;
-    }
-}
+BootRequest getBootRequest();
 } // namespace hw::bootup

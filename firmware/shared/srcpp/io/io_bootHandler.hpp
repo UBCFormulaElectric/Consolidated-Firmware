@@ -3,34 +3,30 @@
 #include "hw_bootup.hpp"
 #include "main.h"
 #include "io_log.hpp"
-#include "bootloaderConfig.h"
+#include "cmsis_gcc.h"
 #include <cstdint>
-#include <io_canMsg.hpp>
+#include "io_canMsg.hpp"
 
 #define BOOT_CAN_START_LOWBITS 0x9
+extern uint32_t BOARD_HIGHBITS;
 
 namespace io::bootHandler
 {
 
 static void processBootRequest(const io::CanMsg &msg)
 {
-    if (msg.std_id == (BOARD_HIGHBITS | BOOT_CAN_START_LOWBITS))
+    if (msg.std_id == (2 | BOOT_CAN_START_LOWBITS))
     {
         LOG_INFO("Received CAN message, entering bootloader");
 
         const hw::bootup::BootRequest request = { .target        = hw::bootup::BootTarget::BOOT_TARGET_BOOTLOADER,
                                                   .context       = hw::bootup::BootContext::BOOT_CONTEXT_NONE,
-                                                  ._unused       = 0xA5A5,
+                                                  ._unused       = 0xFFFF,
                                                   .context_value = 0 };
         hw::bootup::setBootRequest(request);
 
-        // Empirically need to spin for a few cycles or the boot request doesn't get written properly before reset.
-
-        // We need to check if this is actually valid because we are not doing this for boot jump sequences
-        for (uint8_t i = 0; i < 100; i++)
-        {
-            __ASM("nop");
-        }
+        __DSB();
+        __ISB();
 
         NVIC_SystemReset();
         forever;

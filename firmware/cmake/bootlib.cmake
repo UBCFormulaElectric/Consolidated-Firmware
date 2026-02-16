@@ -172,6 +172,7 @@ function(stm32h5_boot_binary
             "${SHARED_HW_INCLUDE_DIR_CPP}/hw_assert.cpp"
             "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
             "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
+            "${SHARED_HW_INCLUDE_DIR_CPP}/hw_bootup.cpp"
     )
     list(APPEND INCLUDE_DIRS
             "${SHARED_APP_INCLUDE_DIR}"

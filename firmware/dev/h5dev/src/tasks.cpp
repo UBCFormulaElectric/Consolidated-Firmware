@@ -9,10 +9,11 @@
 // hw
 #include "hw_hardFaultHandler.hpp"
 #include "hw_rtosTaskHandler.hpp"
+#include "hw_bootup.hpp"
+
 // old deps
 extern "C"
 {
-#include "hw_bootup.h"
 #include "io_canTx.h"
 #include "app_canTx.h"
 #include "app_canRx.h"
@@ -87,7 +88,7 @@ static hw::rtos::StaticTask<512> TaskLoop(osPriorityBelowNormal, "TaskLoop", tas
 
 void tasks_preInit()
 {
-    hw_bootup_enableInterruptsForApp();
+    hw::bootup::enableInterruptsForApp();
 }
 
 void tasks_init()
@@ -109,17 +110,17 @@ void tasks_init()
         LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
     }
 
-    if (BootRequest boot_request = hw_bootup_getBootRequest(); boot_request.context != BOOT_CONTEXT_NONE)
+    if (const hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest(); boot_request.context != hw::bootup::BootContext::BOOT_CONTEXT_NONE)
     {
-        if (boot_request.context == BOOT_CONTEXT_STACK_OVERFLOW)
+        if (boot_request.context == hw::bootup::BootContext::BOOT_CONTEXT_STACK_OVERFLOW)
         {
             LOG_WARN("Detected stack overflow on the previous boot cycle!");
         }
 
         // Clear stack overflow bootup.
-        boot_request.context       = BOOT_CONTEXT_NONE;
-        boot_request.context_value = 0;
-        hw_bootup_setBootRequest(boot_request);
+        const_cast<hw::bootup::BootRequest&>(boot_request).context = hw::bootup::BootContext::BOOT_CONTEXT_NONE;
+        const_cast<hw::bootup::BootRequest&>(boot_request).context_value = 0;
+        hw::bootup::setBootRequest(boot_request);
     }
 
     app_canTx_init();

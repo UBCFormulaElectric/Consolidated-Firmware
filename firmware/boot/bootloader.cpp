@@ -12,6 +12,7 @@
 #include "cmsis_os.h"
 #include <io_canMsg.hpp>
 #include <io_queue.hpp>
+#include <expected>
 
 #if defined(STM32H733xx) || defined(STM32H562xx)
 #include "hw_fdcan.h"
@@ -36,6 +37,8 @@ extern uint32_t __app_metadata_size__;  // NOLINT(*-reserved-identifier)
 // App metadata block. Start/size included from the linker script.
 extern uint32_t __app_code_start__; // NOLINT(*-reserved-identifier)
 extern uint32_t __app_code_size__;  // NOLINT(*-reserved-identifier)
+
+extern uint32_t __boot_request_start__; // NOLINT(*-reserved-identifier)
 
 enum class BootStatus : uint8_t
 {
@@ -68,10 +71,11 @@ static uint32_t   current_address;
     // the microcontroller looks for the corresponding interrupt service handler
     // at the memory address in the VTOR. We need to update it so the app ISRs
     // are used.
-    SCB->VTOR = (uint32_t)address;
+    SCB->VTOR = reinterpret_cast<uint32_t>(address);
 
     // Flush processor pipeline.
     __ISB();
+    __DSB();
 
     // Tell MCU to use the main stack pointer rather than process stack pointer (PSP is used with RTOS)
     __set_CONTROL(__get_CONTROL() & ~CONTROL_SPSEL_Msk);
@@ -83,8 +87,8 @@ static uint32_t   current_address;
     // program counter accordingly.
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
-    uint32_t app_sp    = address[0];
-    uint32_t app_start = address[1];
+    const uint32_t app_sp    = address[0];
+    const uint32_t app_start = address[1];
 #pragma GCC diagnostic pop
     __set_MSP(app_sp);
     void (*app_reset_handler)(void) = (void (*)(void))app_start;
@@ -108,7 +112,7 @@ static void verifyAppCodeChecksum(void)
     }
 
     const Metadata *metadata = &__app_metadata_start__;
-    if (metadata->size_bytes > (uint32_t)&__app_code_start__)
+    if (metadata->size_bytes > reinterpret_cast<uint32_t>(&__app_code_size__))
     {
         // App binary size field is invalid
         boot_status = BootStatus::BOOT_STATUS_APP_INVALID;
@@ -152,18 +156,19 @@ void bootloader::init(void)
 {
     for (;;)
     {
-        if (not boot_config.can_rx_queue.pop().has_value())
+        auto can_msg = boot_config.can_rx_queue.pop();
+        if (not can_msg.has_value())
         {
             LOG_INFO("No CAN command received");
             continue;
         }
 
-        const io::CanMsg command = boot_config.can_rx_queue.pop().value();
+        const io::CanMsg command = can_msg.value();
 
         if (command.std_id == (boot_config.BOARD_HIGHBITS | START_UPDATE_ID_LOWBITS))
         {
             // Reset current address to program and update state.
-            current_address    = (uint32_t)&__app_metadata_start__;
+            current_address    = reinterpret_cast<uint32_t>(&__app_metadata_start__);
             update_in_progress = true;
 
             // Send ACK message that programming has started.
@@ -198,7 +203,7 @@ void bootloader::init(void)
             reply.std_id = (boot_config.BOARD_HIGHBITS | VERIFY_ID_LOWBITS);
             reply.dlc    = 1;
             verifyAppCodeChecksum();
-            reply.data.data8[0] = (uint8_t)boot_status;
+            reply.data.data8[0] = static_cast<uint8_t>(boot_status);
             boot_config.can_tx_queue.push(reply);
 
             // Verify command doubles as exit programming state command.
@@ -217,7 +222,7 @@ void bootloader::init(void)
         {
             // Restart bootloader update state when receiving a GO_TO_BOOT command.
             update_in_progress = false;
-            current_address    = (uint32_t)&__app_metadata_start__;
+            current_address    = reinterpret_cast<uint32_t>(&__app_metadata_start__);
         }
         else
         {
