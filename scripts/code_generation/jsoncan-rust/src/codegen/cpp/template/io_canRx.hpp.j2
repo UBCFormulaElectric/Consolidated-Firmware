@@ -5,30 +5,23 @@
 
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /* ------------------------------- Includes ------------------------------- */
 
-#include <stdint.h>
-#include <stdbool.h>
-#include "io_canTx.h"
+#include <cstdint>
+#include "io_canTx.hpp"
 
+namespace io::can_rx {
 /* ------------------------- Function Prototypes -------------------------- */
 
 /**
  * Returns true if {{node}} receives the specified message ID.
  */
 {% for (bus_name, _) in messages_on_busses -%}
-bool io_canRx_filterMessageId_{{bus_name}}(uint32_t std_id);
+bool filterMessageId_{{bus_name}}(uint32_t std_id);
 {%  endfor  %}
 
 /**
  * Unpack a received message and update the CAN RX table.
  */
-void io_canRx_updateRxTableWithMessage(JsonCanMsg* msg);
-
-#ifdef __cplusplus
+void updateRxTableWithMessage(const JsonCanMsg& msg);
 }
-#endif

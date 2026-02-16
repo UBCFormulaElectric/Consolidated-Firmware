@@ -33,12 +33,13 @@ COPY --from=builder /protoc/bin/protoc /usr/bin
 # libxi6: Random library required for running STM32CubeMX V6 in container
 # libxtst6: Random library required for running STM32CubeMX V6 in container
 # libxrender1: Random library required for running STM32CubeMX V6 in container
-RUN apt update -y && apt install -y \
+RUN apt update -y && apt install -y --no-install-recommends \
     pip \
     git \
 #    xvfb \
     libncurses5 \
-    valgrind
+    valgrind \
+    wget
 #    libgtk-3-0 \
 #    libxi6 \
 #    libxtst6 \
@@ -50,3 +51,13 @@ RUN echo "[global]\n break-system-packages = true" > /etc/pip.conf
 COPY requirements.txt .
 RUN pip3 install -r requirements.txt
 RUN rm requirements.txt
+
+ENV RUSTUP_HOME=/usr/local/rustup \
+    CARGO_HOME=/usr/local/cargo \
+    PATH=/usr/local/cargo/bin:$PATH \
+    RUST_VERSION=1.93.1
+RUN wget --progress=dot:giga "https://static.rust-lang.org/rustup/archive/1.28.2/x86_64-unknown-linux-gnu/rustup-init"; \
+    chmod +x rustup-init; \
+    ./rustup-init -y --no-modify-path --profile minimal --default-toolchain $RUST_VERSION --default-host x86_64-unknown-linux-gnu; \
+    rm rustup-init; \
+    chmod -R a+w $RUSTUP_HOME $CARGO_HOME;

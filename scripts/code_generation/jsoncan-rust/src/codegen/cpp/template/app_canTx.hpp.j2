@@ -7,22 +7,18 @@
 
 /* ------------------------------- Includes ------------------------------- */
 
-#include "app_canUtils.h"
+#include "app_canUtils.hpp"
 #include <stdint.h>
 
+namespace app::can_tx {
 /* ------------------------- Function Prototypes -------------------------- */
-
-/**
- * Initialize TX signals to their starting values.
- */
-void app_canTx_init(void);
 
 {% for msg in tx_messages -%}
 {%- for signal in msg.signals -%}
 /**
  * Update value stored in TX table of signal {{ signal.name }} in msg {{ msg.name }}.
  */
-void app_canTx_{{ signal.name }}_set({{ signal.datatype() }} value);
+void {{ signal.name }}_set({{ signal.datatype() }} value);
 {% endfor -%}
 {% endfor %}
 
@@ -31,7 +27,7 @@ void app_canTx_{{ signal.name }}_set({{ signal.datatype() }} value);
 /**
  * Get value stored in TX table of signal {{ signal.name }} in msg {{ msg.name }}.
  */
-{{ signal.datatype() }} app_canTx_{{ signal.name }}_get(void);
+{{ signal.datatype() }} {{ signal.name }}_get();
 {% endfor -%}
 {% endfor %}
 
@@ -39,5 +35,6 @@ void app_canTx_{{ signal.name }}_set({{ signal.datatype() }} value);
 /**
  * Get pointer to value stored in TX table of msg {{ msg.name }}.
  */
-{{ msg.c_type() }}* app_canTx_{{ msg.name }}_getData();
+app::can_utils::{{ msg.c_type() }}& {{ msg.name }}_getData();
 {% endfor %}
+}
