@@ -1,3 +1,26 @@
+option(JSONCAN_BINARY_GENERATE "Whether to generate JSONCAN binary during CMake configuration. If set to false, it will assume that the cppcodegen executable is on PATH" ON)
+IF (${JSONCAN_BINARY_GENERATE})
+    set(JSONCAN_EXECUTABLE ${SCRIPTS_DIR}/code_generation/jsoncan-rust/target/release/cppcodegen${EXECUTABLE_SUFFIX})
+    set(JSONCAN_EXECUTABLE_OUTPUT ${SCRIPTS_DIR}/code_generation/jsoncan-rust/target/release/cppcodegen${EXECUTABLE_SUFFIX})
+    file(GLOB_RECURSE CAN_JSON_RUST_SRCS
+            ${SCRIPTS_DIR}/code_generation/jsoncan-rust/src/*.rs
+            ${SCRIPTS_DIR}/code_generation/jsoncan-rust/src/*.j2
+    )
+    add_custom_command(
+            OUTPUT ${JSONCAN_EXECUTABLE_OUTPUT}
+            COMMAND cargo build --release --bin cppcodegen
+            WORKING_DIRECTORY ${SCRIPTS_DIR}/code_generation/jsoncan-rust
+            DEPENDS ${CAN_JSON_RUST_SRCS}
+            COMMENT "Building JSONCAN code generator"
+    )
+    # stupid fuckass method
+    add_custom_target(jsoncan_codegen_target DEPENDS ${JSONCAN_EXECUTABLE_OUTPUT})
+    set(JSONCAN_EXECUTABLE_BUILD_TARGET jsoncan_codegen_target)
+ELSE ()
+    set(JSONCAN_EXECUTABLE cppcodegen${EXECUTABLE_SUFFIX})
+    set(JSONCAN_EXECUTABLE_BUILD_TARGET "")
+ENDIF ()
+
 # Inputs
 # JSONCAN_PY_BOARD - Python board name
 # OUTPUT_DIR - Output directory
@@ -29,18 +52,12 @@ function(jsoncan_sources_cpp JSONCAN_PY_BOARD OUTPUT_DIR USE_IO DBC_OUTPUT CAN_J
     set(IO_CAN_REROUTE_HEADER_OUTPUT "${OUTPUT_DIR}/io/io_canReroute.hpp")
 
     file(GLOB_RECURSE CAN_JSON_SRCS ${CAN_JSON_DIR}/*.json)
-    file(GLOB_RECURSE CAN_JSON_RUST_SRCS
-            ${SCRIPTS_DIR}/code_generation/jsoncan-rust/src/*.rs
-            ${SCRIPTS_DIR}/code_generation/jsoncan-rust/src/*.j2
-    )
 
-    add_custom_command(
-            OUTPUT ${SCRIPTS_DIR}/code_generation/jsoncan-rust/target/release/cppcodegen${EXECUTABLE_SUFFIX}
-            COMMAND cargo build --release --bin cppcodegen
-            WORKING_DIRECTORY ${SCRIPTS_DIR}/code_generation/jsoncan-rust
-            DEPENDS ${CAN_JSON_RUST_SRCS}
-            COMMENT "Building JSONCAN code generator"
-    )
+    IF (${JSONCAN_BINARY_GENERATE})
+        set(JSONCAN_DEPS ${CAN_JSON_SRCS} ${JSONCAN_EXECUTABLE_OUTPUT})
+    ELSE ()
+        set(JSONCAN_DEPS ${CAN_JSON_SRCS})
+    ENDIF ()
 
     add_custom_command(
             OUTPUT ${APP_CAN_TX_SRC_OUTPUT}
@@ -59,12 +76,12 @@ function(jsoncan_sources_cpp JSONCAN_PY_BOARD OUTPUT_DIR USE_IO DBC_OUTPUT CAN_J
             ${APP_CAN_DATA_CAPTURE_HEADER_OUTPUT}
             ${IO_CAN_REROUTE_SRC_OUTPUT}
             ${IO_CAN_REROUTE_HEADER_OUTPUT}
-            COMMAND ${SCRIPTS_DIR}/code_generation/jsoncan-rust/target/release/cppcodegen${EXECUTABLE_SUFFIX}
+            COMMAND ${JSONCAN_EXECUTABLE}
             --board ${JSONCAN_PY_BOARD}
             --can-data-dir ${CAN_JSON_DIR}
             --output-dir ${OUTPUT_DIR}
             --dbc-output ${DBC_OUTPUT}
-            DEPENDS ${CAN_JSON_SRCS} ${SCRIPTS_DIR}/code_generation/jsoncan-rust/target/release/cppcodegen${EXECUTABLE_SUFFIX}
+            DEPENDS ${JSONCAN_DEPS}
             WORKING_DIRECTORY ${SCRIPTS_DIR}/code_generation/jsoncan-rust
     )
 
