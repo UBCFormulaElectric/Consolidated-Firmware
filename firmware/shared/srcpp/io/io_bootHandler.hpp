@@ -26,7 +26,7 @@ static void processBootRequest(const io::CanMsg &msg)
 
         // Empirically need to spin for a few cycles or the boot request doesn't get written properly before reset.
 
-        //We need to check if this is actually valid because we are not doing this for boot jump sequences
+        // We need to check if this is actually valid because we are not doing this for boot jump sequences
         for (uint8_t i = 0; i < 100; i++)
         {
             __ASM("nop");
