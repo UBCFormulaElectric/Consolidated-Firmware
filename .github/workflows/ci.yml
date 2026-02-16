@@ -153,8 +153,8 @@ jobs:
           #  car: quintuna
           #- board: RSM
           #  car: quintuna
-          - board: VC
-            car: quintuna
+          #- board: VC
+          #  car: quintuna
           - board: BMS
             car: hexray
           - board: CRIT

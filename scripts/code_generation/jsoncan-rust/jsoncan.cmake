@@ -37,6 +37,7 @@ function(jsoncan_sources_cpp JSONCAN_PY_BOARD OUTPUT_DIR USE_IO DBC_OUTPUT CAN_J
 
     IF (${JSONCAN_BINARY_GENERATE})
         set(JSONCAN_EXECUTABLE ${SCRIPTS_DIR}/code_generation/jsoncan-rust/target/release/cppcodegen${EXECUTABLE_SUFFIX})
+        set(JSONCAN_EXECUTABLE_BUILD_TARGET ${SCRIPTS_DIR}/code_generation/jsoncan-rust/target/release/cppcodegen${EXECUTABLE_SUFFIX})
         add_custom_command(
                 OUTPUT
                 COMMAND cargo build --release --bin cppcodegen
@@ -46,6 +47,7 @@ function(jsoncan_sources_cpp JSONCAN_PY_BOARD OUTPUT_DIR USE_IO DBC_OUTPUT CAN_J
         )
     ELSE ()
         set(JSONCAN_EXECUTABLE cppcodegen${EXECUTABLE_SUFFIX})
+        set(JSONCAN_EXECUTABLE_BUILD_TARGET "")
     ENDIF ()
 
     add_custom_command(
@@ -65,12 +67,12 @@ function(jsoncan_sources_cpp JSONCAN_PY_BOARD OUTPUT_DIR USE_IO DBC_OUTPUT CAN_J
             ${APP_CAN_DATA_CAPTURE_HEADER_OUTPUT}
             ${IO_CAN_REROUTE_SRC_OUTPUT}
             ${IO_CAN_REROUTE_HEADER_OUTPUT}
-            COMMAND ${SCRIPTS_DIR}/code_generation/jsoncan-rust/target/release/cppcodegen${EXECUTABLE_SUFFIX}
+            COMMAND ${JSONCAN_EXECUTABLE}
             --board ${JSONCAN_PY_BOARD}
             --can-data-dir ${CAN_JSON_DIR}
             --output-dir ${OUTPUT_DIR}
             --dbc-output ${DBC_OUTPUT}
-            DEPENDS ${CAN_JSON_SRCS} ${JSONCAN_EXECUTABLE}
+            DEPENDS ${CAN_JSON_SRCS} ${JSONCAN_EXECUTABLE_BUILD_TARGET}
             WORKING_DIRECTORY ${SCRIPTS_DIR}/code_generation/jsoncan-rust
     )
 
