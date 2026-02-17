@@ -5,7 +5,6 @@
 #include <cstring>
 #include "io_canTx.hpp"
 
-
 namespace app::jsoncan
 {
 inline JsonCanMsg copyFromCanMsg(const io::CanMsg &msg)

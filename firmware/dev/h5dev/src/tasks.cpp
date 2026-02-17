@@ -130,8 +130,7 @@ void tasks_init()
         {
             const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
             (void)can_tx_queue.push(msg);
-        }
-    );
+        });
     io::can_tx::enableMode_FDCAN(io::can_tx::FDCANMode::FDCAN_MODE_DEFAULT, true);
 
     can_tx_queue.init();
