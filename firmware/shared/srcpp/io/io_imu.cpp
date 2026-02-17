@@ -2,7 +2,7 @@
 
 #include "io_imu.hpp"
 
-namespace io::imu
+namespace io
 {
 // Register 25: SMPLRT_DIV
 // Divides the internal sample rate (see CONFIG) to generate the sample

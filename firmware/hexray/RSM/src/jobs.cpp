@@ -8,18 +8,16 @@
 
 void jobs_init()
 {
-#ifdef TARGET_TEST
-    LOG_IF_ERR(imu_config.init());
-#endif // TARGET_TEST
+    app::imu::init();
 }
-void jobs_run1Hz_tick()
+void jobs_run1Hz_tick() {}
+void jobs_run100Hz_tick() 
 {
     app::brake::broadcast();
     app::imu::broadcast();
     app::suspension::broadcast();
     app::tireTemp::broadcast();
 }
-void jobs_run100Hz_tick() {}
 void jobs_run1kHz_tick() {}
 void jobs_runCanTx_tick() {}
 void jobs_runCanRx_tick() {}

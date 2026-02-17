@@ -43,6 +43,14 @@
     "TireTemperatureOutOfRange":{
       "id": 715,
       "description": "Tire Temperature Out of Sensor Range"
+    },
+    "ImuInitFailed":{
+      "id": 716,
+      "description": "IMU initialization failed"
+    },
+    "ImuDataBad":{
+      "id": 717,
+      "description": "IMU data is bad"
     }
   }
 }

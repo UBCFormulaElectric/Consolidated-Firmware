@@ -160,7 +160,7 @@ struct ImuFifoConfig
     }
 };
 
-namespace io::imu
+namespace io
 {
 class Imu
 {
