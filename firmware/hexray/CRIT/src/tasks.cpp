@@ -39,9 +39,13 @@
         const auto msg = can_tx_queue.pop();
         if (not msg)
             continue;
-        if (const io::CanMsg &m = msg.value(); m.bus == io::can_tx::BusEnum::Bus_FDCAN)
+        if (const auto &m = msg.value(); m.bus == io::can_tx::BusEnum::Bus_FDCAN)
         {
-            const auto res = hw::cans::fdcan1.can_transmit(m);
+            const auto res = fdcan1.can_transmit(hw::CanMsg{
+                m.std_id,
+                m.dlc,
+                m.data,
+            });
             LOG_IF_ERR(res);
         }
         else
@@ -50,7 +54,6 @@
         }
     }
 }
-#include "io_canRx.hpp"
 [[noreturn]] static void tasks_runCanRx(void *arg)
 {
     forever

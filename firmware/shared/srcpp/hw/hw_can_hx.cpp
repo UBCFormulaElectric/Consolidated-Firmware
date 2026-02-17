@@ -1,5 +1,4 @@
 #include "hw_can.hpp"
-#include <io_canMsg.hpp>
 #include <util_errorCodes.hpp>
 #undef NDEBUG // TODO remove this in favour of always_assert
 #include <cassert>
@@ -7,7 +6,6 @@
 #include <task.h>
 
 #include "io_log.hpp"
-#include "io_time.hpp"
 #include "hw_utils.hpp"
 
 #include "util_utils.hpp"
@@ -19,7 +17,7 @@
 #include "stm32h5xx_hal_fdcan.h"
 #endif
 
-std::expected<void, ErrorCode> hw::fdcan::tx(const FDCAN_TxHeaderTypeDef &tx_header, const io::CanMsg &msg) const
+std::expected<void, ErrorCode> hw::fdcan::tx(const FDCAN_TxHeaderTypeDef &tx_header, const CanMsg &msg) const
 {
     for (uint32_t poll = 0; HAL_FDCAN_GetTxFifoFreeLevel(hfdcan) == 0U;)
     {
@@ -78,7 +76,7 @@ void hw::fdcan::deinit() const
     assert(HAL_FDCAN_DeInit(hfdcan) == HAL_OK);
 }
 
-std::expected<void, ErrorCode> hw::fdcan::can_transmit(const io::CanMsg &msg) const
+std::expected<void, ErrorCode> hw::fdcan::can_transmit(const CanMsg &msg) const
 {
     assert(ready);
     FDCAN_TxHeaderTypeDef tx_header;
@@ -91,10 +89,10 @@ std::expected<void, ErrorCode> hw::fdcan::can_transmit(const io::CanMsg &msg) co
     tx_header.FDFormat            = FDCAN_CLASSIC_CAN;
     tx_header.TxEventFifoControl  = FDCAN_NO_TX_EVENTS;
     tx_header.MessageMarker       = 0;
-    return tx(tx_header, const_cast<io::CanMsg &>(msg));
+    return tx(tx_header, msg);
 }
 
-std::expected<void, ErrorCode> hw::fdcan::fdcan_transmit(const io::CanMsg &msg) const
+std::expected<void, ErrorCode> hw::fdcan::fdcan_transmit(const CanMsg &msg) const
 {
     assert(ready);
 
@@ -145,34 +143,32 @@ std::expected<void, ErrorCode> hw::fdcan::fdcan_transmit(const io::CanMsg &msg) 
     return tx(tx_header, msg);
 }
 
-std::expected<io::CanMsg, ErrorCode> hw::fdcan::receive(const uint32_t rx_fifo) const
+std::expected<hw::CanMsg, ErrorCode> hw::fdcan::receive(const uint32_t rx_fifo) const
 {
     assert(ready);
     FDCAN_RxHeaderTypeDef header;
 
-    io::CanMsg msg{};
+    CanMsg msg{};
     RETURN_IF_ERR(hw_utils_convertHalStatus(HAL_FDCAN_GetRxMessage(hfdcan, rx_fifo, &header, msg.data.data())));
 
     // Copy metadata from HAL's CAN message struct into our custom CAN
     // message struct
-    msg.std_id    = header.Identifier;
-    msg.dlc       = header.DataLength >> 16; // Data length code needs to be un-shifted by 16 bits.
-    msg.timestamp = io::time::getCurrentMs();
-    msg.bus       = bus_num;
+    msg.std_id = header.Identifier;
+    msg.dlc    = header.DataLength >> 16; // Data length code needs to be un-shifted by 16 bits.
 
-    return {};
+    return msg;
 }
 
 CFUNC void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, const uint32_t ErrorStatusITs)
 {
-    LOG_INFO("FDCAN on bus %d detected on error %x", hw::fdcan_getHandle(hfdcan).getBusNum(), ErrorStatusITs);
+    LOG_INFO("FDCAN error detected: %x", ErrorStatusITs);
     if ((ErrorStatusITs & FDCAN_IT_BUS_OFF) != RESET)
     {
         FDCAN_ProtocolStatusTypeDef protocolStatus;
         HAL_FDCAN_GetProtocolStatus(hfdcan, &protocolStatus);
         if (protocolStatus.BusOff)
         {
-            LOG_ERROR("FDCAN on bus %d is in BUS OFF state!", hw::fdcan_getHandle(hfdcan).getBusNum());
+            LOG_ERROR("FDCAN is in BUS OFF state!");
         }
     }
 }

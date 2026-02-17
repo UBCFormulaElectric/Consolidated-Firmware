@@ -1,44 +1,40 @@
 #pragma once
 
-#include <cstdint>
 #include <array>
-#include "io_canTx.hpp"
-#include "io_time.hpp"
-
 #include <span>
+#include "io_canTx.hpp"
 
-#if defined(STM32F412Rx)
-#define CAN_PAYLOAD_BYTES 8
-#elif defined(STM32H733xx) or defined(STM32H562xx)
-#define CAN_PAYLOAD_BYTES 64
-#else
-#error "Please define what MCU is used."
-#endif
+#include "io_time.hpp"
 
 namespace io
 {
+#if defined(STM32F412Rx)
+inline constexpr size_t CAN_PAYLOAD_BYTES = 8;
+#elif defined(STM32H733xx) or defined(STM32H562xx)
+inline constexpr size_t CAN_PAYLOAD_BYTES = 64;
+#else
+#error "Please define what MCU is used."
+#endif
 struct CanMsg
 {
-    uint32_t std_id;
-    // classic data length range : [0, 8]
-    // fd data length range : [0, 64]
+    uint32_t                               std_id;
     uint32_t                               dlc;
     uint32_t                               timestamp;
     std::array<uint8_t, CAN_PAYLOAD_BYTES> data;
-    io::can_tx::BusEnum                    bus;
     bool                                   is_fd;
+    can_tx::BusEnum                        bus;
+
     CanMsg(
         const uint32_t                                id,
         const uint32_t                                _dlc,
         const std::array<uint8_t, CAN_PAYLOAD_BYTES> &_data,
-        const io::can_tx::BusEnum                     _bus,
-        const bool                                    _is_fd)
-      : std_id(id), dlc(_dlc), timestamp(time::getCurrentMs()), data(_data), bus(_bus), is_fd(_is_fd)
+        const bool                                    _is_fd,
+        const can_tx::BusEnum                         _bus)
+      : std_id(id), dlc(_dlc), timestamp(time::getCurrentMs()), data(_data), is_fd(_is_fd), bus(_bus)
     {
     }
 
-    // for fuckass C compatilibity
-    CanMsg() : std_id(0), dlc(0), timestamp(0), data{}, bus(static_cast<io::can_tx::BusEnum>(0)), is_fd(false) {}
+    CanMsg() = default; // bruh moment
 
     [[nodiscard]] std::span<const uint16_t, CAN_PAYLOAD_BYTES / 2> getDataAsWords() const
     {
