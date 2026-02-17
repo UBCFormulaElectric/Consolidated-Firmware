@@ -8,8 +8,7 @@
 struct __attribute__((packed)) RegGroupPayload
 {
     std::array<uint8_t, io::adbms::REG_GROUP_SIZE> data;
-    uint16_t                                       cmdCount : 6;
-    uint16_t                                       pec10 : 10;
+    uint16_t                                       pec10;
 };
 static_assert(sizeof(RegGroupPayload) == io::adbms::REG_GROUP_SIZE + io::adbms::PEC_BYTES);
 
@@ -89,7 +88,7 @@ uint16_t calculatePec15(const std::span<const uint8_t> data)
 
 static bool checkDataPec(const std::span<const uint8_t> data, const uint16_t cmdCount, const uint16_t expected)
 {
-    return swapEndianness(calculatePec10(data, cmdCount)) == expected;
+    return calculatePec10(data, cmdCount) == swapEndianness(expected);
 }
 
 struct TxCmd
@@ -126,11 +125,9 @@ void readRegGroup(
 
     const TxCmd                                      tx_cmd{ cmd };
     static std::array<RegGroupPayload, NUM_SEGMENTS> rx_buffer;
+    const auto tx_status = hw::spi::adbms_spi_ls.transmitThenReceive({ reinterpret_cast<const uint8_t *>(&tx_cmd), sizeof(tx_cmd) },{ reinterpret_cast<uint8_t *>(rx_buffer.data()), sizeof(rx_buffer) });
 
-    if (const auto tx_status = hw::spi::adbms_spi_ls.transmitThenReceive(
-            { reinterpret_cast<const uint8_t *>(&tx_cmd), sizeof(tx_cmd) },
-            { reinterpret_cast<uint8_t *>(rx_buffer.data()), sizeof(rx_buffer) });
-        not tx_status)
+    if (!tx_status)
     {
         for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
         {
@@ -142,7 +139,7 @@ void readRegGroup(
     for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
     {
         const auto &payload = rx_buffer[segment];
-        if (checkDataPec(payload.data, payload.cmdCount, swapEndianness(payload.pec10)))
+        if (checkDataPec(payload.data, swapEndianness(payload.pec10) >> 10U, payload.pec10 & 0xFF03))
         {
             regs[segment]         = payload.data;
             comm_success[segment] = {};
@@ -167,9 +164,7 @@ std::expected<void, ErrorCode>
     for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
     {
         tx_buffer.payload[segment].data  = regs[segment];
-        tx_buffer.payload[segment].pec10 = static_cast<uint16_t>(
-            swapEndianness(calculatePec10(tx_buffer.payload[segment].data, tx_buffer.payload[segment].cmdCount)) &
-            0x03FFU);
+        tx_buffer.payload[segment].pec10 = static_cast<uint16_t>(swapEndianness(calculatePec10(tx_buffer.payload[segment].data,0U) & 0x03FFU));
     }
     return hw::spi::adbms_spi_ls.transmit({ reinterpret_cast<uint8_t *>(&tx_buffer), sizeof(tx_buffer) });
 }

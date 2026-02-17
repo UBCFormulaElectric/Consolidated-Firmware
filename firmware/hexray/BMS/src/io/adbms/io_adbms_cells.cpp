@@ -7,20 +7,6 @@ constexpr uint8_t MAX_NUM_ATTEMPTS  = 10U;
 constexpr uint8_t ADCV_STATUS_READY = 0xFF;
 constexpr uint8_t CELLS_PER_GROUP   = 3U;
 
-std::expected<void, ErrorCode> pollCellsAdcConversion()
-{
-    for (uint32_t attempt = 0U; attempt < MAX_NUM_ATTEMPTS; attempt++)
-    {
-        uint8_t rx_data;
-        RETURN_IF_ERR(poll(PLCADC, { &rx_data, 1 }))
-        if (rx_data == ADCV_STATUS_READY)
-        {
-            return {};
-        }
-    }
-    return std::unexpected(ErrorCode::TIMEOUT);
-}
-
 std::expected<void, ErrorCode> clearCellVoltageReg()
 {
     return sendCmd(CLRCELL);
@@ -32,20 +18,32 @@ std::expected<void, ErrorCode> startCellsAdcConversion()
     return sendCmd(ADCV_BASE | RD | CONT);
 }
 
-void readVoltageRegisters(
-    uint16_t                       cell_voltage_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT],
+std::expected<void, ErrorCode> pollCellsAdcConversion()
+{
+    for (uint8_t attempt = 0U; attempt < MAX_NUM_ATTEMPTS; attempt++)
+    {
+        uint8_t rx_data;
+        RETURN_IF_ERR(poll(PLCADC, { &rx_data, sizeof(rx_data) }));
+        if (rx_data == ADCV_STATUS_READY)
+        {
+            return {};
+        }
+    }
+    return std::unexpected(ErrorCode::TIMEOUT);
+}
+
+void readCellVoltageReg(
+    std::array<std::array<uint16_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS> cell_voltage_regs,                 
     std::expected<void, ErrorCode> comm_success[NUM_SEGMENTS][CELLS_PER_SEGMENT])
 {
-    if (const std::expected<void, ErrorCode> poll_ok = pollCellsAdcConversion(); not poll_ok)
-    {
-        for (uint8_t i = 0U; i < NUM_SEGMENTS; i++)
-        {
-            for (uint8_t j = 0U; j < CELLS_PER_SEGMENT; j++)
-            {
+    const std::expected<void, ErrorCode> poll_ok = pollCellsAdcConversion();
+
+    if (!poll_ok){
+        for (uint8_t i = 0U; i < NUM_SEGMENTS; i++){
+            for (uint8_t j = 0U; j < CELLS_PER_SEGMENT; j++){
                 comm_success[i][j] = poll_ok;
             }
         }
-
         return;
     }
 
@@ -67,7 +65,7 @@ void readVoltageRegisters(
                 }
 
                 comm_success[seg][cell_index] = group_success[seg];
-                if (not group_success[seg])
+                if (!group_success[seg])
                 {
                     continue;
                 }

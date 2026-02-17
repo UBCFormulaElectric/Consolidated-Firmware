@@ -35,19 +35,20 @@ CFUNC void adbms_init()
         reg_b.dcto_0_5         = 0;
         reg_b.dtrng            = 0;
         reg_b.dtmen            = 0;
-        reg_b.dcc_1_8          = 0;
-        reg_b.dcc_9_16         = 0;
+        reg_b.dcc_1_8          = 0xFF;
+        reg_b.dcc_9_16         = 0xFF;
     }
 
     assert(io::adbms::wakeup());
-    //assert(io::adbms::writeConfigurationRegisters(configReg));
+    assert(io::adbms::writeConfigurationRegisters(configReg));
 }
 
 CFUNC void adbms_tick()
 {
     LOG_INFO("tick!");
     assert(io::adbms::wakeup());
-    //assert(io::adbms::writeConfigurationRegisters(configReg));
-    //io::adbms::readConfigurationRegisters(configs, success);
+    assert(io::adbms::writeConfigurationRegisters(configReg));
+    io::adbms::readConfigurationRegisters(configs, success);
+    //assert(io::adbms::sendBalanceCmd());
     LOG_INFO("done!");
 }

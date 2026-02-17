@@ -9,9 +9,7 @@ std::expected<void, ErrorCode> clearStatReg()
 {
     RETURN_IF_ERR(sendCmd(CLRFLAG));
     RETURN_IF_ERR(sendCmd(CLOVUV));
-    return {};
+    return;
 }
-
-void getStatusReg() {}
 
 } // namespace io::adbms

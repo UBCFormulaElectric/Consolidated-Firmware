@@ -114,8 +114,8 @@ namespace adbms
         SegmentConfig                  configs[NUM_SEGMENTS],
         std::expected<void, ErrorCode> success[NUM_SEGMENTS]);
     std::expected<void, ErrorCode> writeConfigurationRegisters(SegmentConfig config[NUM_SEGMENTS]);
-    std::expected<void, ErrorCode> sendBalanceCommand();
-    std::expected<void, ErrorCode> sendStopBalanceCommand();
+    std::expected<void, ErrorCode> sendBalanceCmd();
+    std::expected<void, ErrorCode> sendStopBalanceCmd();
     void                           readVoltageRegisters(
                                   uint16_t                       cell_voltage_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT],
                                   std::expected<void, ErrorCode> comm_success[NUM_SEGMENTS][CELLS_PER_SEGMENT]);
