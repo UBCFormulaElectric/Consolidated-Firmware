@@ -13,14 +13,15 @@ namespace app
 {
 class Signal
 {
-  private:
+  public:
     // State of the signal
     enum class SignalState : uint8_t
     {
-        SIGNAL_STATE_CLEAR,  // Exit: Alert is not active.
-        SIGNAL_STATE_ACTIVE, // Entry: Alert is now active.
+        CLEAR,  // Exit: Alert is not active.
+        ACTIVE, // Entry: Alert is now active.
     };
-
+  
+  private:
     // A flag used to indicate if the callback function is triggered
     bool        is_signal_active = false;
     SignalState state;
@@ -28,9 +29,9 @@ class Signal
     app::Timer  exit_timer;
 
   public:
-    consteval explicit Signal(uint32_t entry_time_ms, uint32_t exit_time_ms)
+    constexpr explicit Signal(uint32_t entry_time_ms, uint32_t exit_time_ms)
       : is_signal_active(false),
-        state(SignalState::SIGNAL_STATE_CLEAR),
+        state(SignalState::CLEAR),
         entry_timer(entry_time_ms),
         exit_timer(exit_time_ms)
     {
@@ -50,8 +51,8 @@ class Signal
     {
         assert((!entry_condition_high && !exit_condition_high) || (entry_condition_high != exit_condition_high));
 
-        const Timer entry_timer_state = entry_timer.runIfCondition(entry_condition_high);
-        const Timer exit_timer_state  = entry_timer.runIfCondition(exit_condition_high);
+        const Timer::TimerState entry_timer_state = entry_timer.runIfCondition(entry_condition_high);
+        const Timer::TimerState exit_timer_state  = exit_timer.runIfCondition(exit_condition_high);
 
         if (!is_signal_active)
         {

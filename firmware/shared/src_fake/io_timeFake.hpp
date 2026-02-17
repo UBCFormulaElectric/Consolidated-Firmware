@@ -4,5 +4,5 @@
 
 namespace fakes::time
 {
-void setFakeTime(uint32_t ms);
+void setTime(uint32_t ms);
 }

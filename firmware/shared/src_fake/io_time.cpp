@@ -1,14 +1,18 @@
-#include "io_time.hpp"
+#include "io_timeFake.hpp"
 
 static uint32_t current_time_ms = 0;
 
-#include "io_time.hpp"
-// TODO: PLZ FIX THIS
-namespace io::time
+extern "C"
 {
-uint32_t getCurrentMs()
-{
-    return current_time_ms;
+#include "io_time.h"
+    uint32_t io_time_getCurrentMs()
+    {
+        return current_time_ms;
+    }
+    void io_time_delay(const uint32_t ms)
+    {
+        (void)ms;
+    }
 }
 #include "io_time.hpp"
 namespace io::time
@@ -27,20 +31,9 @@ void delayUntil(const uint32_t time)
 }
 } // namespace io::time
 
-void delay(uint32_t ms)
-{
-    (void)ms;
-}
-
-void delayUntil(uint32_t time)
-{
-    (void)time;
-}
-} // namespace io::time
-
 namespace fakes::time
 {
-void setFakeTime(const uint32_t ms)
+void setTime(const uint32_t ms)
 {
     current_time_ms = ms;
 }

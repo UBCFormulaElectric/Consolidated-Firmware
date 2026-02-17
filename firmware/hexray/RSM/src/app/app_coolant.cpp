@@ -4,8 +4,8 @@
 extern "C"
 {
 #include "app_rangeCheck.h"
-#include "app_signal.h"
 }
+#include "app_signal.hpp"
 
 #include "io_coolant.hpp"
 
@@ -16,14 +16,9 @@ static constexpr uint32_t   FLOW_METER_TIME_TO_FAULT = 1000U;
 static constexpr uint32_t   FLOW_METER_TIME_TO_CLEAR = 1000U;
 static constexpr RangeCheck flow_rate_in_range_check = { nullptr, MIN_FLOW_RATE_L_PER_MIN, MAX_FLOW_RATE_L_PER_MIN };
 
-static Signal flow_in_range_signal;
-
 namespace app::coolant
 {
-void init()
-{
-    app_signal_init(&flow_in_range_signal, FLOW_METER_TIME_TO_FAULT, FLOW_METER_TIME_TO_CLEAR);
-}
+static Signal flow_in_range_signal(FLOW_METER_TIME_TO_FAULT, FLOW_METER_TIME_TO_CLEAR);
 
 void broadcast()
 {
