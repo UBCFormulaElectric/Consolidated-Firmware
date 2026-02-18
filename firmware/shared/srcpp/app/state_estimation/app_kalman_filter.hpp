@@ -1,13 +1,13 @@
-#include "app_math.hpp"
+#pragma once
+
+#include <iostream>
 #include <array>
-#include <cstddef>
-#include <cmath>
-#include <functional>
+#include <iterator>
+#include <algorithm>
 #include <Eigen/Dense>
-#include <autodiff/forward/dual.hpp>
-
+#include <dual.hpp>
+#include <gradient.hpp>
 namespace app::state_estimation{
-
 /**
 * @brief The kalman filter class will serve as a simplification of the extended kalman filter. The idea is that for linear systems (or systems that can be easily linearized) 
 * we use the kalman filter rather than the EKF.
@@ -22,7 +22,7 @@ namespace app::state_estimation{
 
 /** Matrix dimensions
 * Everything is driven from three system sepcifications, t
-* those being how many states our system estimates, number of measurements from sensors and how many inputs we have
+* those being how many states our system estimates, number of measurements from MEASUREMENTS and how many inputs we have
 * F (NxN) : represents how our states evolve with respect to each other 
 * covariance matrixes are always square as they relate variables to each other
 * B (NxU) : represents how our state evolves with respect to the input
@@ -32,263 +32,241 @@ namespace app::state_estimation{
 * S (MxM) : residuial covariacne of how uncertain measurement error is (freaky)
 * K (NxM) : basically decides how much to trust measurement vs prediction
 */
+    template<typename T, std::size_t STATES, std::size_t MEASUREMENTS, std::size_t INPUTS>
+    class kf {
+    public:
+        using N_N = Eigen::Matrix<T, STATES, STATES>;
+        using N_1 = Eigen::Matrix<T, STATES, 1>; 
+        using M_1 = Eigen::Matrix<T, MEASUREMENTS, 1>;
+        using U_1 = Eigen::Matrix<T, INPUTS, 1>;
+        using M_M = Eigen::Matrix<T, MEASUREMENTS, MEASUREMENTS>; 
+        using M_N = Eigen::Matrix<T, MEASUREMENTS, STATES>;
+        using N_M = Eigen::Matrix<T, STATES, MEASUREMENTS>;
+        using N_U = Eigen::Matrix<T, STATES, INPUTS>; 
+
+        /**
+        * @brief Constructor for KF
+        * 
+        * @param F Square matrix (NxN) representing state evolution with respect to previous state
+        * @param H MxN matrix measurement matrix transforming state to measurements 
+        * @param Q Process noise covariance (NxN) - how much we trust the model
+        * @param R Measurement noise covariance (MxM) - how much we trust measurements
+        * @param x0 Initial state estimate (Nx1)
+        * @param P0 Initial state covariance estimate (NxN)
+        */
+        constexpr explicit kf(const N_N& F, const N_U& B, const N_N& Q, 
+                            const M_N& H, const M_M& R, const N_1& x0, const N_N& P0): 
+            F_(F), B_(B), Q_(Q), H_(H), R_(R), x_(x0), P_(P0) {}
 
 
-template<typename T, std::size_t N, std::size_t M, std::size_t U>
-class kf {
-public:
-    using N_N = Eigen::Matrix<T, N, N>;
-    using N_1 = Eigen::Matrix<T, N, 1>; 
-    using M_1 = Eigen::Matrix<T, M, 1>;
-    using U_1 = Eigen::Matrix<T, U, 1>;
-    using M_M = Eigen::Matrix<T, M, M>; 
-    using M_N = Eigen::Matrix<T, M, N>;
-    using N_M = Eigen::Matrix<T, N, M>;
-    using N_U = Eigen::Matrix<T, N, U>; 
+        const N_1 estimated_states(const U_1 &inputs, const M_1 &measurements){ 
+            predict(inputs);
+            update(measurements);
+            return x_; 
+        }
 
-    constexpr explicit kf(const N_N& F, const N_U& B, const N_N& Q, 
-                          const M_N& H, const M_M& R, const N_1& x0, const N_N& P0): 
-        F_(F), B_(B), Q_(Q), H_(H), R_(R), x_(x0), P_(P0) {}
+    private:
+        N_N F_, Q_;
+        N_U B_;
+        M_N H_;
+        M_M R_;
 
-    void predict(const U_1& u) {
-        x_ = F_ * x_ + (B_ * u);
-        P_ = F_ * P_ * F_.transpose() + Q_;
-    }
+        N_1 x_;
+        N_N P_;
 
-    void update(const M_1& z) {
-        const M_1 y = z - (H_ * x_);
-        const M_M S = (H_ * P_ * H_.transpose()) + R_;
-        const N_M K = (P_ * H_.transpose()) * S.inverse();
+        void predict(const U_1& u) {
+            x_ = F_ * x_ + (B_ * u);
+            P_ = F_ * P_ * F_.transpose() + Q_;
+        }
 
-        x_ = x_ + K * y;
-        P_ = (N_N::Identity() - K * H_) * P_;
-    }
+        void update(const M_1& z)
+        {
+            const M_M S = H_ * P_ * H_.transpose() + R_; // find the evolution covariance using linearized measurement evolution functions and measurement noise
+            const N_M K = P_ * H_.transpose() * S.llt().solve(M_M::Identity()); // cholesky decomp to avoid inversing computation overhead
+            
+            x_ = x_ + K * (z - (H_ * x_));
+            P_ = (N_N::Identity() - K * H_) * P_;
+        }
 
-    const N_1& x_vec() const { return x_; }
-    const N_N& P_mat() const { return P_; }
-
-private:
-    N_N F_, Q_;
-    N_U B_;
-    M_N H_;
-    M_M R_;
-
-    N_1 x_;
-    N_N P_;
-};
-
-/**
- * @brief Extended Kalman Filter (EKF) with automatic Jacobian computation via autodifferentiation
- * 
- * Uses Eigen for fixed-size matrices and autodiff for computing F and H Jacobians.
- * No dynamic memory allocation - all matrix sizes are known at compile time.
- * 
- * Template parameters:
- * - T: scalar type (float or double, must support autodiff dual numbers)
- * - N: number of states
- * - M: number of measurements
- * 
- * State transition function f: R^N -> R^N (nonlinear)
- * Measurement function h: R^N -> R^M (nonlinear)
- * 
- * User provides function pointers for each row of f and h:
- * - f[i]: computes x_dot[i] = f[i](x) where x is the full state vector
- * - h[i]: computes z_predicted[i] = h[i](x) where x is the full state vector
- */
-template <typename T, std::size_t N, std::size_t M>
-class ekf {
-public:
-    using N_N = Eigen::Matrix<T, N, N>;
-    using M_M = Eigen::Matrix<T, M, M>; 
-    using N_1 = Eigen::Matrix<T, N, 1>;
-    using M_1 = Eigen::Matrix<T, M, 1>;
-    using M_N = Eigen::Matrix<T, M, N>;
-    using N_M = Eigen::Matrix<T, N, M>;
-
-    // Function signature: takes array of N dual numbers representing states, returns dual number
-    // Each function computes one row of the state transition or measurement vector
-    using StateFunction = std::function<autodiff::dual(const std::array<autodiff::dual, N>&)>;
-    using MeasurementFunction = std::function<autodiff::dual(const std::array<autodiff::dual, N>&)>;
+    };
 
     /**
-     * @brief Constructor for EKF
-     * 
-     * @param f Array of N functions, where f[i](x) computes the i-th state derivative
-     * @param h Array of M functions, where h[i](x) computes the i-th measurement prediction
-     * @param Q Process noise covariance (NxN) - how much we trust the model
-     * @param R Measurement noise covariance (MxM) - how much we trust measurements
-     * @param x0 Initial state estimate (Nx1)
-     * @param P0 Initial state covariance estimate (NxN)
-     */
-    ekf(const std::array<StateFunction, N>& f,
-        const std::array<MeasurementFunction, M>& h,
-        const N_N& Q,
-        const M_M& R,
-        const N_1& x0,
-        const N_N& P0)
-    : f_(f), h_(h), Q_(Q), R_(R), x_(x0), P_(P0) {}
+    * @brief Extended Kalman Filter (EKF) with automatic Jacobian computation via autodifferentiation
+    * 
+    * Uses Eigen for fixed-size matrices and autodiff for computing F and H Jacobians.
+    * No dynamic memory allocation - all matrix sizes are known at compile time.
+    * 
+    * Template parameters:
+    * - T: scalar type (float or double, must support autodiff dual numbers)
+    * - STATES: number of states
+    * - MEASUREMENTS: number of measurements
+    * 
+    * State transition function f: R^STATES -> R^STATES (nonlinear)
+    * Measurement function h: R^STATES -> R^MEASUREMENTS (nonlinear)
+    * 
+    * User provides function pointers for each row of f and h:
+    * - f[i]: computes x_dot[i] = f[i](x) where x is the full state vector
+    * - h[i]: computes z_predicted[i] = h[i](x) where x is the full state vector
+    */
+    template <typename T, std::size_t STATES, std::size_t MEASUREMENTS, std::size_t INPUTS>
+    class ekf {
+    public:
+        using N_N = Eigen::Matrix<T, STATES, STATES>;
+        using N_1 = Eigen::Matrix<T, STATES, 1>; 
+        using M_1 = Eigen::Matrix<T, MEASUREMENTS, 1>;
+        using U_1 = Eigen::Matrix<T, INPUTS, 1>;
+        using M_M = Eigen::Matrix<T, MEASUREMENTS, MEASUREMENTS>; 
+        using M_N = Eigen::Matrix<T, MEASUREMENTS, STATES>;
+        using N_M = Eigen::Matrix<T, STATES, MEASUREMENTS>;
+        using N_U = Eigen::Matrix<T, STATES, INPUTS>; 
 
-    /**
-     * @brief Predict step: compute Jacobian F, then update state and covariance
-     * 
-     * This is called when there is no measurement, only state evolution.
-     * Computes F = df/dx at current state, then:
-     *   x = f(x)
-     *   P = F*P*F^T + Q
-     */
-    void predict() {
-        computeF(); // compute jacobian (linearized system) at current time instance
-        x_ = evaluateStateFunction(x_); // predict current state by evaluationg non-linear functions using previous state and input
-        P_ = F_ * P_ * F_.transpose() + Q_; // compute prediction covariacne using current linearized system for current time instance
-    }
+        /*
+        For EKF
+        the autodiff library expects a vector of states and control inputs that the function uses
+        this complicates the creation of our B and F jacobian as they need to be split from the computed jacobian
+        from autodiff cpp. For this we assume that the vector of the user provided function is of the size N + U...
+        Knowing this we can split the output jacobian based on the index
+        */
+        using state_arr = Eigen::Matrix<autodiff::dual, STATES, 1>;
+        using state_inp_arr = Eigen::Matrix<autodiff::dual, STATES + INPUTS, 1>;
+        using measurement_arr = Eigen::Matrix<autodiff::dual, MEASUREMENTS, 1>;
+        using StateFunction = autodiff::dual(*)(const state_inp_arr&);
+        using MeasurementFunction = autodiff::dual(*)(const state_arr&);
 
-    /**
-     * @brief Update step: compute Jacobian H, then fuse measurement
-     * 
-     * Called when a measurement is available.
-     * Computes H = dh/dx at current state, then:
-     *   y = z - h(x)  (measurement innovation)
-     *   S = H*P*H^T + R  (innovation covariance)
-     *   K = P*H^T*S^{-1}  (Kalman gain)
-     *   x = x + K*y  (state update)
-     *   P = (I - K*H)*P  (covariance update)
-     * 
-     * @param z Sensor Measurement vector (Mx1)
-     */
-    void update(const M_1& z) {
-        computeH();
-        const M_1 y = z - evaluateMeasurementFunction(x_); // find the noise between the measurement and predicted state
-        const M_M S = H_ * P_ * H_.transpose() + R_; // find the evolution covariance using linearized measurement evolution functions and measurement noise
-        const N_M K = P_ * H_.transpose() * S.inverse(); // find the kalman gain... lets use Cholesky decomp instead of an inverse here
-        
-        x_ = x_ + K * y;
-        P_ = (N_N::Identity() - K * H_) * P_;
-    }
+        /**
+        * @brief Constructor for EKF
+        * 
+        * @param f Array of STATES functions -- for every state we have one function 
+        * @param h Array of MEASUREMENTS functions -- for every measurement we have one function 
+        * @param Q Process noise covariance (NxN) - how much we trust the model
+        * @param R Measurement noise covariance (MxM) - how much we trust measurements
+        * @param x0 Initial state estimate (Nx1)
+        * @param P0 Initial state covariance estimate (NxN)
+        */
+        ekf(const std::array<StateFunction, STATES>& f,
+            const std::array<MeasurementFunction, MEASUREMENTS>& h,
+            const N_N& Q,
+            const M_M& R,
+            const N_1& x0,
+            const N_N& P0)
+        : f_(f),
+          h_(h),
+          Q_(Q),
+          P_(P0),
+          F_(N_N::Identity()),
+          R_(R),
+          H_(M_N::Zero()),
+          x_(x0),
+          y_(M_1::Zero()) {}
 
-    // getter functions
-    const N_1& x_vec() const { return x_; }
-    const N_N& P_mat() const { return P_; }
-    const N_N& F_mat() const { return F_; }
-    const M_N& H_mat() const { return H_; }
+        const N_1& state() const { return x_; }
+        const N_N& covariance() const { return P_; }
 
-private:
-    std::array<StateFunction, N> f_;
-    std::array<MeasurementFunction, M> h_;
-    N_N Q_, P_, F_;
-    M_M R_;
-    M_N H_;
-    N_1 x_;
+        // getter functions
+        const N_1 estimated_states (U_1 &inputs, M_1 &measurements) 
+        {
+            predict(inputs);
+            update(measurements);
+            return x_;
+        }
 
-    /**
-     * @brief Compute Jacobian F = df/dx using automatic differentiation
-     * 
-     * For each state function f_i, computes the i-th row of the Jacobian matrix.
-     * F(i,j) = df_i/dx_j using autodiff's built-in jacobian function.
-     */
-    void computeF() {
-        // Convert current state to dual numbers for differentiation
-        Eigen::Matrix<autodiff::dual, N, 1> x_dual = x_.template cast<autodiff::dual>();
-        
-        for (std::size_t i = 0; i < N; ++i) {
-            // Create a lambda that captures the i-th function and evaluates it
-            auto f_i = [this, i](const Eigen::Matrix<autodiff::dual, N, 1>& x) {
-                // Convert Eigen vector to std::array for the state function
-                std::array<autodiff::dual, N> x_array;
-                for (std::size_t k = 0; k < N; ++k) {
-                    x_array[k] = x(k);
-                }
-                return f_[i](x_array);
+    private:
+        std::array<StateFunction, STATES> f_;
+        std::array<MeasurementFunction, MEASUREMENTS> h_;
+        N_N Q_, P_, F_;
+        M_M R_;
+        M_N H_;
+        N_1 x_;
+        M_1 y_;
+
+        /**
+        * @brief Compute Jacobian H = dh/dx using automatic differentiation
+        * 
+        * For each measurement function h_i, computes the i-th row of the Jacobian matrix.
+        * H(i,j) = dh_i/dx_j using autodiff's built-in jacobian function.
+        */
+
+        void compute_F_eval_states(const U_1& u)
+        {
+            state_inp_arr base;
+            for (std::size_t j = 0; j < STATES; ++j)
+                base(static_cast<Eigen::Index>(j)) = autodiff::dual(x_(static_cast<Eigen::Index>(j)));
+
+            for (std::size_t k = 0; k < INPUTS; ++k)
+                base(static_cast<Eigen::Index>(STATES + k)) = autodiff::dual(u(static_cast<Eigen::Index>(k)));
+
+            auto f_vec = [&](const state_inp_arr& p) {
+                state_arr out;
+                for (std::size_t i = 0; i < STATES; ++i)
+                    out(static_cast<Eigen::Index>(i)) = f_[i](p);
+                return out;
             };
-            
-            // Compute the jacobian (1×N matrix) for f_i using autodiff
-            Eigen::Matrix<T, 1, N> jac_row;
-            autodiff::jacobian(f_i, wrt(x_dual), at(x_dual), jac_row);
-            
-            // Extract the row into F
-            F_.row(i) = jac_row;
-        }
-    }
 
-    /**
-     * @brief Compute Jacobian H = dh/dx using automatic differentiation
-     * 
-     * For each measurement function h_i, computes the i-th row of the Jacobian matrix.
-     * H(i,j) = dh_i/dx_j using autodiff's built-in jacobian function.
-     */
-    void computeH() {
-        // Convert current state to dual numbers for differentiation
-        Eigen::Matrix<autodiff::dual, N, 1> x_dual = x_.template cast<autodiff::dual>();
-        
-        for (std::size_t i = 0; i < M; ++i) {
-            // Create a lambda that captures the i-th function and evaluates it
-            auto h_i = [this, i](const Eigen::Matrix<autodiff::dual, N, 1>& x) {
-                // Convert Eigen vector to std::array for the measurement function
-                std::array<autodiff::dual, N> x_array;
-                for (std::size_t k = 0; k < N; ++k) {
-                    x_array[k] = x(k);
-                }
-                return h_[i](x_array);
+            state_inp_arr p = base;
+            state_arr x_eval_dual;
+            Eigen::Matrix<T, STATES, STATES + INPUTS> jac;
+            autodiff::jacobian(f_vec, autodiff::wrt(p), autodiff::at(p), x_eval_dual, jac);
+
+            F_ = jac.template leftCols<STATES>();
+            for (std::size_t i = 0; i < STATES; ++i)
+                x_(static_cast<Eigen::Index>(i)) = static_cast<T>(autodiff::val(x_eval_dual(static_cast<Eigen::Index>(i))));
+        }
+
+        void compute_H_eval_y(const M_1& z)
+        {
+            state_arr base;
+            for (std::size_t j = 0; j < STATES; ++j)
+                base(static_cast<Eigen::Index>(j)) = autodiff::dual(x_(static_cast<Eigen::Index>(j)));
+
+            auto h_vec = [&](const state_arr& p) {
+                measurement_arr out;
+                for (std::size_t i = 0; i < MEASUREMENTS; ++i)
+                    out(static_cast<Eigen::Index>(i)) = h_[i](p);
+                return out;
             };
-            
-            // Compute the jacobian (1×N matrix) for h_i using autodiff
-            Eigen::Matrix<T, 1, N> jac_row;
-            autodiff::jacobian(h_i, wrt(x_dual), at(x_dual), jac_row);
-            
-            // Extract the row into H
-            H_.row(i) = jac_row;
-        }
-    }
 
-    /**
-     * @brief Evaluate state transition function f at current state (non-differentiating evaluation)
-     * 
-     * Converts state vector to array of dual numbers (with zero derivatives), evaluates all
-     * state functions, and extracts the values.
-     * 
-     * @param x State vector
-     * @return f(x) - the state derivative vector
-     */
-    N_1 evaluateStateFunction(const N_1& x) {
-        N_1 result;
-        std::array<autodiff::dual, N> x_dual;
-        
-        // Convert state to dual (with zero derivative for value-only evaluation)
-        for (std::size_t i = 0; i < N; ++i) {
-            x_dual[i] = autodiff::dual(x(i), 0.0);
-        }
-        
-        // Evaluate each state function
-        for (std::size_t i = 0; i < N; ++i) {
-            result(i) = f_[i](x_dual).value;
-        }
-        
-        return result;
-    }
+            state_arr p = base;
+            measurement_arr z_eval_dual;
+            autodiff::jacobian(h_vec, autodiff::wrt(p), autodiff::at(p), z_eval_dual, H_);
 
-    /**
-     * @brief Evaluate measurement function h at current state (non-differentiating evaluation)
-     * 
-     * Similar to evaluateStateFunction but for measurement functions.
-     * 
-     * @param x State vector
-     * @return h(x) - the predicted measurement vector
-     */
-    M_1 evaluateMeasurementFunction(const N_1& x) {
-        M_1 result;
-        std::array<autodiff::dual, N> x_dual;
-        
-        // Convert state to dual (with zero derivative for value-only evaluation)
-        for (std::size_t i = 0; i < N; ++i) {
-            x_dual[i] = autodiff::dual(x(i), 0.0);
+            for (std::size_t i = 0; i < MEASUREMENTS; ++i)
+                y_(static_cast<Eigen::Index>(i)) = z(static_cast<Eigen::Index>(i)) - static_cast<T>(autodiff::val(z_eval_dual(static_cast<Eigen::Index>(i))));
         }
-        
-        // Evaluate each measurement function
-        for (std::size_t i = 0; i < M; ++i) {
-            result(i) = h_[i](x_dual).value;
+
+        /**
+        * @brief Predict step: compute Jacobian F, then update state and covariance
+        * 
+        * This is called when there is no measurement, only state evolution.
+        * Computes F = df/dx at current state, then:
+        *   x = f(x)
+        *   P = F*P*F^T + Q
+        */
+        void predict(U_1 &u) {
+            compute_F_eval_states(u); // already evaluates the state vector at the prev instance... that is part of autodiff
+            P_ = F_ * P_ * F_.transpose() + Q_;
         }
-        
-        return result;
-    }
-};
-}
+
+        /**
+        * @brief Update step: compute Jacobian H, then fuse measurement
+        * 
+        * Called when a measurement is available.
+        * Computes H = dh/dx at current state, then:
+        *   y = z - h(x)  (measurement innovation)
+        *   S = H*P*H^T + R  (innovation covariance)
+        *   K = P*H^T*S^{-1}  (Kalman gain)
+        *   x = x + K*y  (state update)
+        *   P = (I - K*H)*P  (covariance update)
+        * 
+        * @param z Sensor Measurement vector (Mx1)
+        */
+        void update(const M_1& z) {
+            // the jacobian function works by providing you the jacobian (partial derrivatives of a function with respect to each variable) and at the same time evaluating 
+            compute_H_eval_y(z);
+            const M_M S = H_ * P_ * H_.transpose() + R_; // find the evolution covariance using linearized measurement evolution functions and measurement noise
+            const N_M K = P_ * H_.transpose() * S.llt().solve(M_M::Identity()); // cholesky decomp to avoid inversing computation overhead
+            
+            x_ = x_ + K * y_;
+            P_ = (N_N::Identity() - K * H_) * P_;
+        }
+    };
 }

@@ -2,7 +2,7 @@ message("")
 message("⚙️ Configuring Shared")
 
 IF ("${TARGET}" STREQUAL "test")
-    file(GLOB_RECURSE SHARED_APP_SRCS CONFIGURE_DEPENDS "${SHARED_APP_INCLUDE_DIR}/*.c")
+    file(GLOB_RECURSE SHARED_APP_SRCS CONFIGURE_DEPENDS "${SHARED_APP_INCLUDE_DIR}/*.c" "{SHARED_APP_INCLUDE_DIR_CPP}/*.cpp")
 
     # shared modules tests
     file(GLOB_RECURSE SHARED_TEST_SRCS CONFIGURE_DEPENDS
@@ -26,5 +26,5 @@ IF ("${TARGET}" STREQUAL "test")
     create_fake_library("shared_test_fakes" "${HDRS_TO_FAKE}")
 
     target_compile_definitions("shared_test" PRIVATE STM32H733xx)
-    target_link_libraries("shared_test" PRIVATE "quintuna_Debug_jsoncan" "shared_test_fakes")
+    target_link_libraries("shared_test" PRIVATE "quintuna_Debug_jsoncan" "shared_test_fakes" "eigen_interface" "autodiff_interface")
 ENDIF ()

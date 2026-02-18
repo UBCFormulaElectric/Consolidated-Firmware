@@ -8,15 +8,21 @@ set(EIGEN_FLAGS
     -DEIGEN_MAX_STATIC_ALIGN_BYTES=0  # No static alignment overhead
 )
 
-set(AUTO_DIFF_SOURCE_DIR autodiff/)
-
 if (NOT DEFINED AUTO_DIFF_SOURCE_DIR)
-  message(FATAL_ERROR "AUTO_DIFF_SOURCE_DIR not set before including autodiff.cmake")
+  find_path(AUTO_DIFF_SOURCE_DIR autodiff/forward/dual.hpp)
+endif()
+
+if (NOT AUTO_DIFF_SOURCE_DIR)
+  message(FATAL_ERROR "AUTO_DIFF_SOURCE_DIR not set or autodiff headers not found. Fetch autodiff or set AUTO_DIFF_SOURCE_DIR.")
 endif()
 
 set(AUTO_DIFF_INCLUDE_DIRS
+  # Required by autodiff internal includes like <autodiff/common/...>
+  "${AUTO_DIFF_SOURCE_DIR}"
+  # so we can directly include <dual.hpp>
   "${AUTO_DIFF_SOURCE_DIR}/autodiff/forward"
-  "${AUTO_DIFF_SOURCE_DIR}/autodiff/reverse"
+  # so we can directly include <gradient.hpp>
+  "${AUTO_DIFF_SOURCE_DIR}/autodiff/forward/utils"
 )
 
 if (NOT TARGET autodiff::autodiff)

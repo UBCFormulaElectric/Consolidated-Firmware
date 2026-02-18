@@ -1,9 +1,50 @@
 #include <gtest/gtest.h>
 #include <cmath>
 #include <random>
+#include <array>
 #include "Eigen/Dense"
+#include "state_estimation/app_kalman_filter.hpp"
 
 using app::state_estimation::kf;
+using app::state_estimation::ekf;
+
+namespace {
+constexpr float kDt = 0.01f;
+
+using EkfVelocity = ekf<float, 2, 2, 3>;
+using StateInpArr = EkfVelocity::state_inp_arr;
+using StateArr = EkfVelocity::state_arr;
+
+autodiff::dual velocity_state_x(const StateInpArr& x)
+{
+    const autodiff::dual& vx = x(0);
+    const autodiff::dual& vy = x(1);
+    const autodiff::dual& ax = x(2);
+    const autodiff::dual& ay = x(3);
+    const autodiff::dual& yaw = x(4);
+    return vx + kDt * (ax + vy * yaw);
+}
+
+autodiff::dual velocity_state_y(const StateInpArr& x)
+{
+    const autodiff::dual& vx = x(0);
+    const autodiff::dual& vy = x(1);
+    const autodiff::dual& ax = x(2);
+    const autodiff::dual& ay = x(3);
+    const autodiff::dual& yaw = x(4);
+    return vy + kDt * (ay + vx * yaw);
+}
+
+autodiff::dual velocity_meas_x(const StateArr& x)
+{
+    return x(0);
+}
+
+autodiff::dual velocity_meas_y(const StateArr& x)
+{
+    return x(1);
+}
+} // namespace
 
 /**
 * Writing tests for a simple 1D analytical case, the idea here is most of that work can be hand computed so we can 
@@ -146,8 +187,6 @@ TEST(KalmanFilterTest, VelocityEstimationWith50PercentThrottle)
     for (int k = 0; k < 10; ++k) {
         // --- TRUE SYSTEM DYNAMICS (with noise in measurement) ---
         accumulated_velocity += expected_accel * dt;
-        float true_position = x_estimated(0) + accumulated_velocity * dt;
-        
         // Simulate sensor measurement with small noise
         float measurement_noise = noise_dist(rng);
         float measured_velocity = accumulated_velocity + measurement_noise;
@@ -193,6 +232,127 @@ TEST(KalmanFilterTest, VelocityEstimationWith50PercentThrottle)
     
     // Final check: position should have increased
     EXPECT_GT(x_estimated(0), 0.001f);
+}
+
+TEST(ExtendedKalmanFilterTest, VelocityEstimatorMockMatchesReference)
+{
+    using N2 = Eigen::Matrix<float, 2, 2>;
+    using V2 = Eigen::Matrix<float, 2, 1>;
+    using V3 = Eigen::Matrix<float, 3, 1>;
+
+    V2 x0;
+    x0 << 1.0f, 2.0f;
+
+    N2 P0;
+    P0 << 1.0f, 2.0f,
+          2.0f, 1.0f;
+
+    const N2 Q = N2::Zero();
+
+    N2 R;
+    R << 0.04f, 0.0f,
+         0.0f, 0.09f;
+
+    const std::array<EkfVelocity::StateFunction, 2> f = {{
+        velocity_state_x,
+        velocity_state_y,
+    }};
+    const std::array<EkfVelocity::MeasurementFunction, 2> h = {{
+        velocity_meas_x,
+        velocity_meas_y,
+    }};
+
+    EkfVelocity filter(f, h, Q, R, x0, P0);
+
+    V3 u;
+    u << 1.0f, 2.0f, 3.0f; // accel_x, accel_y, yaw_rate
+
+    V2 z;
+    z << 1.5f, 2.5f;
+
+    // Reference predict step (matches velocity estimator equations)
+    V2 x_pred;
+    x_pred << x0(0) + kDt * (u(0) + x0(1) * u(2)),
+              x0(1) + kDt * (u(1) + x0(0) * u(2));
+
+    N2 F;
+    F << 1.0f, kDt * u(2),
+         -kDt * u(2), 1.0f;
+
+    N2 P_pred = F * P0 * F.transpose() + Q;
+
+    // Reference update step (H = I)
+    const N2 S = P_pred + R;
+    const N2 K = P_pred * S.llt().solve(N2::Identity());
+    const V2 y = z - x_pred;
+    const V2 x_expected = x_pred + K * y;
+    const N2 P_expected = (N2::Identity() - K) * P_pred;
+
+    V2 x_actual = filter.estimated_states(u, z);
+    N2 P_actual = filter.covariance();
+
+    for (int i = 0; i < 2; ++i)
+    {
+        EXPECT_NEAR(x_expected(i), x_actual(i), 1e-5f);
+    }
+
+    for (int r = 0; r < 2; ++r)
+    {
+        for (int c = 0; c < 2; ++c)
+        {
+            EXPECT_NEAR(P_expected(r, c), P_actual(r, c), 1e-5f);
+        }
+    }
+}
+
+TEST(ExtendedKalmanFilterTest, ZeroMeasurementNoiseSnapsToMeasurement)
+{
+    using N2 = Eigen::Matrix<float, 2, 2>;
+    using V2 = Eigen::Matrix<float, 2, 1>;
+    using V3 = Eigen::Matrix<float, 3, 1>;
+
+    V2 x0;
+    x0 << 1.0f, 2.0f;
+
+    N2 P0;
+    P0 << 1.0f, 2.0f,
+          2.0f, 1.0f;
+
+    const N2 Q = N2::Zero();
+    const N2 R = N2::Zero();
+
+    const std::array<EkfVelocity::StateFunction, 2> f = {{
+        velocity_state_x,
+        velocity_state_y,
+    }};
+    const std::array<EkfVelocity::MeasurementFunction, 2> h = {{
+        velocity_meas_x,
+        velocity_meas_y,
+    }};
+
+    EkfVelocity filter(f, h, Q, R, x0, P0);
+
+    V3 u;
+    u << 1.0f, 2.0f, 3.0f;
+
+    V2 z;
+    z << 1.5f, 2.5f;
+
+    V2 x_actual = filter.estimated_states(u, z);
+    N2 P_actual = filter.covariance();
+
+    for (int i = 0; i < 2; ++i)
+    {
+        EXPECT_NEAR(z(i), x_actual(i), 1e-6f);
+    }
+
+    for (int r = 0; r < 2; ++r)
+    {
+        for (int c = 0; c < 2; ++c)
+        {
+            EXPECT_NEAR(0.0f, P_actual(r, c), 1e-6f);
+        }
+    }
 }
 
 /**
@@ -245,5 +405,3 @@ TEST(KalmanFilterTest, VelocityEstimationWith50PercentThrottle)
  * - Q: Variance of (model_predicted - actual_value)
  * - R: Variance of sensor noise around true value
  */
-
-

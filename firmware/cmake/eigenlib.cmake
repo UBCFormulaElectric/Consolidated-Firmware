@@ -1,5 +1,5 @@
 message("")
-message("⚙️ [eigenlib.cmake] Configuring Eigen 5.0 library")
+message("⚙️ [eigenlib.cmake] Configuring Eigen library")
 
 # Ensure we have a path to Eigen headers (CPM should set EIGEN_SOURCE_DIR)
 if (NOT DEFINED EIGEN_SOURCE_DIR)
