@@ -104,10 +104,10 @@ inline constexpr float {{ signal.offset_macro() }} = {{ signal.offset }};
 {% for msg in messages -%}
 // {{msg.name}}
 {% for signal in msg.signals -%}
-inline constexpr float {{ signal.min_val_macro() }} = {{ signal.min }};
+inline constexpr {{ signal.datatype() }} {{ signal.min_val_macro() }} = {{ signal.min_val_name() | safe }};
 // Only print unit if present and non-empty
 {%- if signal.unit.is_some() && signal.unit.as_ref().unwrap() != "" -%}// {{ signal.unit.as_ref().unwrap() }} {%- endif %}
-inline constexpr float {{ signal.max_val_macro() }} = {{ signal.max }};
+inline constexpr {{ signal.datatype() }} {{ signal.max_val_macro() }} = {{ signal.max_val_name() | safe }};
 {%- if signal.unit.is_some() && signal.unit.as_ref().unwrap() != "" -%}// {{ signal.unit.as_ref().unwrap() }} {%- endif %}
 {% endfor %}
 {% endfor %}

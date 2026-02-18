@@ -173,13 +173,13 @@ impl CanSignal {
         }
     }
 
-    pub fn start_val_name(self: &Self) -> String {
+    fn val_name(self: &Self, value: f64) -> String {
         match self.signal_type {
             CanSignalType::Numerical => {
-                self.start_val.to_string()
+                value.to_string()
             },
             CanSignalType::Boolean => {
-                if self.start_val == 0f64 {
+                if value == 0f64 {
                     "false".to_string()
                 } else {
                     "true".to_string()
@@ -188,10 +188,22 @@ impl CanSignal {
             CanSignalType::Enum => format!(
                 "static_cast<{}>({})",
                 self.enum_name.as_ref().expect(&format!("{} is enum signal but has no enum name", &self.name)),
-                self.start_val as i64
+                value as i64
             ),
             CanSignalType::Alert => "false".to_string(),
         }
+    }
+
+    pub fn start_val_name(self: &Self) -> String {
+        self.val_name(self.start_val)
+    }
+
+    pub fn max_val_name(self: &Self) -> String {
+        self.val_name(self.max)
+    }
+
+    pub fn min_val_name(self: &Self) -> String {
+        self.val_name(self.min)
     }
 }
 
