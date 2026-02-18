@@ -2,7 +2,7 @@
 
 #include "io_imu.hpp"
 
-namespace io::imu
+namespace io
 {
 // Register 25: SMPLRT_DIV
 // Divides the internal sample rate (see CONFIG) to generate the sample
@@ -474,7 +474,7 @@ std::expected<void, ErrorCode> Imu::getTemp(float &temp) const
     return exit;
 }
 
-std::expected<void, ErrorCode> Imu::getAccelAll(AccelData &data) const
+std::expected<io::imu::AccelData, ErrorCode> Imu::getAccelAll() const
 {
     if (is_imu_ready == false)
         return std::unexpected(ErrorCode::ERROR);
@@ -482,16 +482,15 @@ std::expected<void, ErrorCode> Imu::getAccelAll(AccelData &data) const
     std::array<const uint8_t, 1> tx = { { READ_IMU_REG(ACCEL_XOUT_H) } };
     std::array<uint8_t, 6>       rx{};
 
-    const auto exit = imu_spi_handle.transmitThenReceive(tx, rx);
+    if (const auto exit = imu_spi_handle.transmitThenReceive(tx, rx); not exit)
+    {
+        return std::unexpected(exit.error());
+    }
 
-    data.x = translateAccelData(rx[0], rx[1]);
-    data.y = translateAccelData(rx[2], rx[3]);
-    data.z = translateAccelData(rx[4], rx[5]);
-
-    return exit;
+    return { translateAccelData(rx[0], rx[1]), translateAccelData(rx[2], rx[3]), translateAccelData(rx[4], rx[5]) };
 }
 
-std::expected<void, ErrorCode> Imu::getGyroAll(GyroData &data) const
+std::expected<io::Imu::GyroData, ErrorCode> Imu::getGyroAll() const
 {
     if (is_imu_ready == false)
         return std::unexpected(ErrorCode::ERROR);
@@ -499,13 +498,12 @@ std::expected<void, ErrorCode> Imu::getGyroAll(GyroData &data) const
     std::array<const uint8_t, 1> tx = { { READ_IMU_REG(GYRO_XOUT_H) } };
     std::array<uint8_t, 6>       rx{};
 
-    const auto exit = imu_spi_handle.transmitThenReceive(tx, rx);
+    if (const auto exit = imu_spi_handle.transmitThenReceive(tx, rx); not exit)
+    {
+        return std::unexpected(exit.error());
+    }
 
-    data.x = translateAccelData(rx[0], rx[1]);
-    data.y = translateAccelData(rx[2], rx[3]);
-    data.z = translateAccelData(rx[4], rx[5]);
-
-    return exit;
+    return { translateAccelData(rx[0], rx[1]), translateAccelData(rx[2], rx[3]), translateAccelData(rx[4], rx[5]) };
 }
 
-} // namespace io::imu
+} // namespace io

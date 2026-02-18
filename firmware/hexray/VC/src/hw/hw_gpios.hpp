@@ -33,6 +33,7 @@ extern hw::Gpio boot;
 extern hw::Gpio led;
 extern hw::Gpio rr_ilck_3v3_out;
 extern hw::Gpio tsms_3v3_out;
+extern hw::Gpio inertia_3v3_out;
 extern hw::Gpio imu_cs1;
 extern hw::Gpio imu_cs2;
 extern hw::Gpio imu_cs3;

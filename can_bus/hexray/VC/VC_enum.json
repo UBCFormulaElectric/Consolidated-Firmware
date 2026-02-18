@@ -16,5 +16,35 @@
         "INV_ENABLE": 2,
         "INV_INVERTER_ON": 3,
         "INV_READY_FOR_DRIVE": 4
+    },
+    "VcEkfStatus": {
+        "UNINITIALIZED": 0,
+        "VERTICAL_GYRO": 1,
+        "AHRS": 2,
+        "VELOCITY": 3,
+        "POSITION": 4
+    },
+    "EllipseErrorCode": {
+        "ELLIPSE_NO_ERROR": 0,
+        "ELLIPSE_ERROR": 1,
+        "ELLIPSE_NULL_POINTER": 2,
+        "ELLIPSE_INVALID_CRC": 3,
+        "ELLIPSE_INVALID_FRAME": 4,
+        "ELLIPSE_TIME_OUT": 5,
+        "ELLIPSE_WRITE_ERROR": 6,
+        "ELLIPSE_READ_ERROR": 7,
+        "ELLIPSE_BUFFER_OVERFLOW": 8,
+        "ELLIPSE_INVALID_PARAMETER": 9,
+        "ELLIPSE_NOT_READY": 10,
+        "ELLIPSE_MALLOC_FAILED": 11,
+        "ELLIPSE_CALIB_MAG_NOT_ENOUGH_POINTS": 12,
+        "ELLIPSE_CALIB_MAG_INVALID_TAKE": 13,
+        "ELLIPSE_CALIB_MAG_SATURATION": 14,
+        "ELLIPSE_CALIB_MAG_POINTS_NOT_IN_A_PLANE": 15,
+        "ELLIPSE_DEVICE_NOT_FOUND": 16,
+        "ELLIPSE_OPERATION_CANCELLED": 17,
+        "ELLIPSE_NOT_CONTINUOUS_FRAME": 18,
+        "ELLIPSE_INCOMPATIBLE_HARDWARE": 19,
+        "ELLIPSE_INVALID_VERSION": 20
     }
 }

@@ -8,5 +8,27 @@
                 "bits": 1
             }
         }
+    },
+      "Switches": {
+    "msg_id": 910,
+    "cycle_time": 100,
+    "description": "States of the switches on the CRIT.",
+    "signals": {
+      "StartSwitch": {
+        "enum": "SwitchState"
+      },
+      "RegenSwitch": {
+        "enum": "SwitchState"
+      },
+      "VanillaOverrideSwitch": {
+        "enum": "SwitchState"
+      },
+      "LaunchControlSwitch": {
+        "enum": "SwitchState"
+      },
+      "TelemSwitch": {
+        "enum": "SwitchState"
+      }
     }
+  }
 }
