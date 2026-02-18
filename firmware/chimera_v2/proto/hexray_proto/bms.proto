@@ -23,7 +23,7 @@ enum GpioNetName {
     GPIO_BSPD_TEST_EN = 17;
     GPIO_TS_ISENSE_OCSC_OK_3V3 = 18;
     GPIO_SPI_CS_HS = 19;
-    GPIO_BMS_OK = 20;
+    GPIO_nBMS_OK = 20;
     GPIO_nEVSE_I_LIM_GPIO = 21;
     GPIO_IR_P_EN = 22;
     GPIO_SHDN_EN = 23;
