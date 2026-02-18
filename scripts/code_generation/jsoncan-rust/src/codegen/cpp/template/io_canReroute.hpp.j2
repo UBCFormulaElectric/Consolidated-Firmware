@@ -1,0 +1,20 @@
+/**
+ * @note This file is auto-generated. Do not modify!
+ */
+// clang-format off
+
+/* ------------------------------- Includes ------------------------------- */
+
+#include "app_canUtils.hpp"
+#include "io_canTx.hpp"
+
+namespace io::can_reroute {
+void init(
+    {%- for bus in node_busses %}
+    void (*transmit_{{bus.name}}_msg_func)(const JsonCanMsg*) {%- if !loop.last -%}, {%- endif %}
+    {%- endfor %}
+);
+{% for bus in node_busses %}
+void reroute_{{bus.name}}(const JsonCanMsg* rx_msg);
+{%- endfor %}
+}

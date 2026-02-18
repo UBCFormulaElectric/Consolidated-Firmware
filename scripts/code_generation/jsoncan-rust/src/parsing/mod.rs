@@ -4,15 +4,17 @@ mod parse_enum;
 mod parse_rx;
 mod parse_tx;
 
-use crate::can_database::{BusForwarder, CanBus, CanEnum, RxMsgNames};
+use crate::can_database::{BusForwarder, CanBus, CanEnum};
 
 pub use parse_alert::JsonAlerts;
+pub use parse_tx::{JsonCanSignal, JsonCanMessage};
+pub use crate::can_database::JsonRxMsgNames;
+
 use parse_alert::parse_alert_data;
 use parse_bus::parse_bus_data;
 use parse_enum::{parse_node_enum_data, parse_shared_enums};
 use parse_rx::parse_json_rx_data;
-pub use parse_tx::JsonTxSignal;
-use parse_tx::{JsonCanMessage, parse_tx_data};
+use parse_tx::parse_tx_data;
 
 pub static DEFAULT_BUS_MODE: &str = "default";
 
@@ -22,7 +24,7 @@ pub struct JsonNode {
     pub enums: Vec<CanEnum>,
     pub alerts: Option<JsonAlerts>,
     pub tx_msgs: Vec<JsonCanMessage>,
-    pub rx_msgs: RxMsgNames,
+    pub rx_msgs: JsonRxMsgNames,
 }
 
 //  A few notes about this class

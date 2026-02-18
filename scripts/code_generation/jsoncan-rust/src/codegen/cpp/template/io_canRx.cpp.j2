@@ -5,20 +5,21 @@
 
 /* ------------------------------- Includes ------------------------------- */
 
-#include "io_canRx.h"
-#include "app_canRx.h"
-#include "app_canUtils.h"
+#include "io_canRx.hpp"
+#include "app_canRx.hpp"
+#include "app_canUtils.hpp"
 
+namespace io::can_rx {
 /* ------------------------- Function Definitions ------------------------- */
 // each bus has its own filter function
 {% for (bus_name, messages) in messages_on_busses -%}
-bool io_canRx_filterMessageId_{{bus_name}}(uint32_t std_id)
+bool filterMessageId_{{bus_name}}(const uint32_t std_id)
 {
     switch (std_id)
     {
         {%- if messages.len() > 0 %}
         {%- for msg in messages %}
-        case {{msg.id_macro()}}:
+        case app::can_utils::{{msg.id_macro()}}:
         {%- endfor %}
             return true;
         {%- endif %}
@@ -33,22 +34,19 @@ bool io_canRx_filterMessageId_{{bus_name}}(uint32_t std_id)
 {% endfor %}
 
 
-void io_canRx_updateRxTableWithMessage(JsonCanMsg* msg)
+void updateRxTableWithMessage(const JsonCanMsg& msg)
 {
-    switch (msg->std_id)
+    switch (msg.std_id)
     {
         {%- for (bus_name, messages) in messages_on_busses %}
         {%- for msg in messages %}
-        case {{msg.id_macro()}}:
-        {
-            {{msg.name}}_Signals out_msg;
-            app_canUtils_{{msg.name}}_unpack(msg->data, &out_msg);
-            
-            {%- for signal in msg.signals %}
-            app_canRx_{{signal.name}}_update(out_msg.{{signal.name}}_value);
-            {%- endfor %}
+        case app::can_utils::{{msg.id_macro()}}:
+            {% if msg.signals.len() > 0 -%}
+            app::can_rx::{{ msg.name }}_getData() = app::can_utils::{{ msg.c_type() }} {msg.data};
+            {%- else -%}
+            // No signals to unpack for {{ msg.name }}.
+            {%- endif %}
             break;
-        }
         {%- endfor %}
         {%- endfor %}
         default:
@@ -57,4 +55,5 @@ void io_canRx_updateRxTableWithMessage(JsonCanMsg* msg)
             break;
         }
     }
+}
 }

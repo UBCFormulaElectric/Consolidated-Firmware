@@ -29,11 +29,16 @@ set(IO_INCLUDE_DIRS
         "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_DIR_CPP}"
 )
 
-file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c")
+file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp")
 list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_gpio.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_i2c.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_spi.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmInput.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmOutput.cpp"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -59,37 +64,37 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     set(STM32_HAL_SRCS
-        "stm32h7xx_hal.c"
-        "stm32h7xx_hal_rcc.c"
-        "stm32h7xx_hal_rcc_ex.c"
-        "stm32h7xx_hal_pwr_ex.c"
-        "stm32h7xx_hal_cortex.c"
-        "stm32h7xx_hal_exti.c"
-        "stm32h7xx_hal_tim.c"
-        "stm32h7xx_hal_gpio.c"
-        "stm32h7xx_hal_adc.c"
-        "stm32h7xx_hal_dma.c"         
-        "stm32h7xx_hal_iwdg.c"
+            "stm32h7xx_hal.c"
+            "stm32h7xx_hal_rcc.c"
+            "stm32h7xx_hal_rcc_ex.c"
+            "stm32h7xx_hal_pwr_ex.c"
+            "stm32h7xx_hal_cortex.c"
+            "stm32h7xx_hal_exti.c"
+            "stm32h7xx_hal_tim.c"
+            "stm32h7xx_hal_gpio.c"
+            "stm32h7xx_hal_adc.c"
+            "stm32h7xx_hal_dma.c"
+            "stm32h7xx_hal_iwdg.c"
 
-        "stm32h7xx_hal_adc_ex.c"       
-        "stm32h7xx_hal_tim_ex.c"       
-        "stm32h7xx_hal_dma_ex.c" 
-        
-        "stm32h7xx_hal_crc.c"        
-        "stm32h7xx_hal_crc_ex.c"       
-        "stm32h7xx_hal_fdcan.c"       
-        "stm32h7xx_hal_spi.c"        
-        "stm32h7xx_hal_spi_ex.c"
+            "stm32h7xx_hal_adc_ex.c"
+            "stm32h7xx_hal_tim_ex.c"
+            "stm32h7xx_hal_dma_ex.c"
 
-        "stm32h7xx_hal_sd.c"       
-        "stm32h7xx_hal_sd_ex.c"
-        "stm32h7xx_ll_sdmmc.c"        
+            "stm32h7xx_hal_crc.c"
+            "stm32h7xx_hal_crc_ex.c"
+            "stm32h7xx_hal_fdcan.c"
+            "stm32h7xx_hal_spi.c"
+            "stm32h7xx_hal_spi_ex.c"
 
-        "stm32h7xx_hal_pcd.c"     
-        "stm32h7xx_hal_pcd_ex.c"
-        "stm32h7xx_ll_usb.c"       
-        
-        
+            "stm32h7xx_hal_sd.c"
+            "stm32h7xx_hal_sd_ex.c"
+            "stm32h7xx_ll_sdmmc.c"
+
+            "stm32h7xx_hal_pcd.c"
+            "stm32h7xx_hal_pcd_ex.c"
+            "stm32h7xx_ll_usb.c"
+
+            "stm32h7xx_hal_i2c.c"
     )
     set(CUBEMX_INCLUDES ${CUBEMX_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
     stm32h733xx_cube_library(

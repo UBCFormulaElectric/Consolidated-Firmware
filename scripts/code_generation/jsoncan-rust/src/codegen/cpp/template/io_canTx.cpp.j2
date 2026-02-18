@@ -5,11 +5,13 @@
 
 /* ------------------------------- Includes ------------------------------- */
 
-#include "io_canTx.h"
-#include <string.h>
-#include "app_canTx.h"
-#include "app_canUtils.h"
+#include "io_canTx.hpp"
+#include "app_canTx.hpp"
+#include "app_canUtils.hpp"
 
+#include <cstring>
+
+namespace io::can_tx {
 #ifdef THREAD_SAFE_CAN_PACKING
 void (*lock)(void);
 void (*unlock)(void); 
@@ -27,37 +29,38 @@ void io_canTx_set_lockfunction(
 /* --------------------------- Static Variables --------------------------- */
 {% for bus in node_buses %}
 static uint32_t can_mode_{{bus.name}};
-static void (*transmit_func_{{bus.name}})(const JsonCanMsg* tx_msg);
+static void (*enqueue_func_{{bus.name}})(const JsonCanMsg& tx_msg);
 {% endfor %}
 
 /* --------------------- Static Function Definitions ---------------------- */
 
 {% for (msg, busses) in messages %}
 {%- if msg.cycle_time.is_some() -%}
-static void io_canTx_{{msg.name}}_sendPeriodic()
+static void sendPeriodic_{{msg.name}}()
 {%- else -%}
-void io_canTx_{{msg.name}}_sendAperiodic()
+void sendAperiodic_{{msg.name}}()
 {%- endif %}
 {
-    JsonCanMsg tx_msg;
-    memset(&tx_msg, 0, sizeof(JsonCanMsg));
-    tx_msg.std_id = {{msg.id_macro()}};
-    tx_msg.dlc = {{msg.dlc_macro()}};
+    JsonCanMsg tx_msg{
+        app::can_utils::{{msg.id_macro()}},
+        app::can_utils::{{msg.dlc_macro()}},
+        {}
+    };
     #ifdef THREAD_SAFE_CAN_PACKING
     lock();
     #endif
-    app_canUtils_{{msg.name}}_pack(app_canTx_{{msg.name}}_getData(), tx_msg.data);
+    app::can_tx::{{msg.name}}_getData().pack(tx_msg.data);
     #ifdef THREAD_SAFE_CAN_PACKING
     unlock();
     #endif
     {%- for msg_bus_name in busses %}
     if (
     {%- for mode in msg.modes %}
-        can_mode_{{msg_bus_name}} & ({{msg_bus_name.to_uppercase()}}_MODE_{{mode}})
+        can_mode_{{msg_bus_name}} & (static_cast<uint32_t>({{msg_bus_name}}Mode::{{msg_bus_name.to_uppercase()}}_MODE_{{mode.to_uppercase()}}))
     {%- endfor %}
     )
     {
-        transmit_func_{{msg_bus_name}}(&tx_msg);
+        enqueue_func_{{msg_bus_name}}(tx_msg);
     }
     {%- endfor %}
 }
@@ -66,55 +69,52 @@ void io_canTx_{{msg.name}}_sendAperiodic()
 
 /* --------------------- Public Function Definitions ---------------------- */
 
-void io_canTx_init( 
-    {% for bus in node_buses -%}
-    void (*transmit_{{bus.name}}_msg_func)(const JsonCanMsg*) {%- if !loop.last -%}, {%- endif -%}
+void init( 
+    {%- for bus in node_buses %}
+    void (*enqueue_{{bus.name}}_msg_func)(const JsonCanMsg&) {%- if !loop.last -%}, {%- endif -%}
     {%- endfor %}
 )
 {
     {%- for bus in node_buses %}
-    transmit_func_{{bus.name}} = transmit_{{bus.name}}_msg_func;
+    enqueue_func_{{bus.name}} = enqueue_{{bus.name}}_msg_func;
     {%- endfor %}
 }
 
-
-{% for bus in node_buses -%}
-void io_canTx_enableMode_{{bus.name}}({{bus.name}}Mode mode, bool enable)
+{% for bus in node_buses %}
+void enableMode_{{bus.name}}({{bus.name}}Mode mode, const bool enable)
 {
     if (enable)
     {
-        can_mode_{{bus.name}} |= (uint32_t)mode; // Enable mode
+        can_mode_{{bus.name}} |= static_cast<uint32_t>(mode); // Enable mode
     }
     else
     {
-        can_mode_{{bus.name}} &= ~((uint32_t)mode); // Disable mode
+        can_mode_{{bus.name}} &= ~static_cast<uint32_t>(mode); // Disable mode
     }
 }
-{%- endfor %}
+{% endfor %}
 
-
-
-void io_canTx_enqueue1HzMsgs()
+void enqueue1HzMsgs()
 {
-    {% for (msg, busses) in messages if msg.cycle_time.is_some() && msg.cycle_time.unwrap() == 1000 -%}
-    io_canTx_{{ msg.name }}_sendPeriodic();
+    {%- for (msg, busses) in messages if msg.cycle_time.is_some() && msg.cycle_time.unwrap() == 1000 %}
+    sendPeriodic_{{ msg.name }}();
     {%- endfor %}
 }
 
-void io_canTx_enqueue100HzMsgs()
+void enqueue100HzMsgs()
 {
     {%- for (msg, busses) in messages if msg.cycle_time.is_some() && msg.cycle_time.unwrap() == 10 %}
-    io_canTx_{{ msg.name }}_sendPeriodic();
+    sendPeriodic_{{ msg.name }}();
     {%- endfor %}
 }
 
-void io_canTx_enqueueOtherPeriodicMsgs(uint32_t time_ms)
+void enqueueOtherPeriodicMsgs(const uint32_t time_ms)
 {
     {%- for (msg, busses) in messages if msg.cycle_time.is_some() && msg.cycle_time.unwrap() != 1000 && msg.cycle_time.unwrap() != 10 %}
-    if (time_ms % {{msg.cycle_time_macro()}} == 0)
+    if (time_ms % app::can_utils::{{msg.cycle_time_macro()}} == 0)
     {
-        io_canTx_{{msg.name}}_sendPeriodic();
+        sendPeriodic_{{msg.name}}();
     }
     {%- endfor %}
 }
-
+}
