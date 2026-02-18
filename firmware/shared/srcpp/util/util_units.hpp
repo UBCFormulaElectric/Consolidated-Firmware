@@ -67,7 +67,7 @@ inline constexpr float RPM_TO_RADS(float rpm)
 // VEHICLE-SPECIFIC CONSTANTS
 // =============================================================================
 
-inline constexpr float WHEEL_DIAMETER_IN = 18.0f;   // Wheel diameter in inches
+inline constexpr float WHEEL_DIAMETER_IN = 18.0f; // Wheel diameter in inches
 inline constexpr float GEAR_RATIO        = 14.3f; // Verified by Noah
 
 // =============================================================================

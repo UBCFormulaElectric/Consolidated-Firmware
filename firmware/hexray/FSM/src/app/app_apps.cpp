@@ -28,20 +28,23 @@ void broadcast()
     const float sapps_pedal_percentage = io::apps::getSecondary();
 
     // OCSC test (primary)
-    const bool        primary_pedal_ocsc = io::apps::isPrimaryOCSC();
-    const Signal::SignalState papps_ocsc_signal_state = papps_ocsc_signal.get_updated_state(primary_pedal_ocsc, !primary_pedal_ocsc);
+    const bool                primary_pedal_ocsc = io::apps::isPrimaryOCSC();
+    const Signal::SignalState papps_ocsc_signal_state =
+        papps_ocsc_signal.get_updated_state(primary_pedal_ocsc, !primary_pedal_ocsc);
     const bool papps_ocsc_active = papps_ocsc_signal_state == Signal::SignalState::ACTIVE;
 
     // OCSC test (secondary)
-    const bool        secondary_pedal_ocsc = io::apps::isSecondaryOCSC();
-    const Signal::SignalState sapps_ocsc_signal_state = sapps_ocsc_signal.get_updated_state(secondary_pedal_ocsc, !secondary_pedal_ocsc);
+    const bool                secondary_pedal_ocsc = io::apps::isSecondaryOCSC();
+    const Signal::SignalState sapps_ocsc_signal_state =
+        sapps_ocsc_signal.get_updated_state(secondary_pedal_ocsc, !secondary_pedal_ocsc);
     const bool sapps_ocsc_active = sapps_ocsc_signal_state == Signal::SignalState::ACTIVE;
 
     can_alerts::warnings::PappsOCSC_set(papps_ocsc_active);
     can_alerts::warnings::SappsOCSC_set(sapps_ocsc_active);
 
-    const float       papps_sapps_diff = fabsf(papps_pedal_percentage - sapps_pedal_percentage);
-    const Signal::SignalState papps_sapps_disagreement_signal_state = papps_sapps_disagreement_signal.get_updated_state((papps_sapps_diff) > 10.f, (papps_sapps_diff) <= 10.f);
+    const float               papps_sapps_diff = fabsf(papps_pedal_percentage - sapps_pedal_percentage);
+    const Signal::SignalState papps_sapps_disagreement_signal_state =
+        papps_sapps_disagreement_signal.get_updated_state((papps_sapps_diff) > 10.f, (papps_sapps_diff) <= 10.f);
     const bool papps_sapps_disagreement_active = papps_sapps_disagreement_signal_state == Signal::SignalState::ACTIVE;
 
     can_alerts::warnings::AppsDisagreement_set(papps_sapps_disagreement_active);

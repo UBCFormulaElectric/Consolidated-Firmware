@@ -20,7 +20,7 @@ class Signal
         CLEAR,  // Exit: Alert is not active.
         ACTIVE, // Entry: Alert is now active.
     };
-  
+
   private:
     // A flag used to indicate if the callback function is triggered
     bool        is_signal_active = false;
@@ -30,10 +30,7 @@ class Signal
 
   public:
     constexpr explicit Signal(uint32_t entry_time_ms, uint32_t exit_time_ms)
-      : is_signal_active(false),
-        state(SignalState::CLEAR),
-        entry_timer(entry_time_ms),
-        exit_timer(exit_time_ms)
+      : is_signal_active(false), state(SignalState::CLEAR), entry_timer(entry_time_ms), exit_timer(exit_time_ms)
     {
     }
 
