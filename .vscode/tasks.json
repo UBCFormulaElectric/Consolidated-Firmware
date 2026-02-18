@@ -328,7 +328,8 @@
       "type": "cmake",
       "command": "build",
       "targets": [
-        "shared_test"
+        "shared_test",
+        "shared_test_cpp"
       ]
     },
     {
