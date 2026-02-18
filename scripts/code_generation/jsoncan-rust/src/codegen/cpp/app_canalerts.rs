@@ -43,11 +43,12 @@ impl AppCanAlertsModule<'_> {
                 .find(|n| n.name == *node_name)
                 .unwrap()
                 .alerts;
-        assert!(
-            self_alerts.is_some(),
-            "Tried to generate CAN Alerts module for node {} but it has no alerts defined",
-            node_name
-        );
+        if self_alerts.is_none() {
+             return AppCanAlertsModule {
+                node_name,
+                node_name_and_alerts: Vec::new(),
+            };
+        }
         AppCanAlertsModule {
             node_name,
             node_name_and_alerts: can_db
@@ -64,6 +65,9 @@ impl AppCanAlertsModule<'_> {
 
 impl CPPGenerator for AppCanAlertsModule<'_> {
     fn header_template(&self) -> Result<String, askama::Error> {
+        if self.node_name_and_alerts.is_empty() {
+            return Ok("".to_string());
+        }
         AppCanAlertsModuleHeader {
             node_tx_alerts: &self
                 .node_name_and_alerts
@@ -76,6 +80,9 @@ impl CPPGenerator for AppCanAlertsModule<'_> {
         .render()
     }
     fn source_template(&self) -> Result<String, askama::Error> {
+        if self.node_name_and_alerts.is_empty() {
+            return Ok("".to_string());
+        }
         let node_tx_alerts = self
             .node_name_and_alerts
             .iter()
