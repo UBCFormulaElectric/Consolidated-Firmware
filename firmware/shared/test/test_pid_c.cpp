@@ -3,7 +3,6 @@
 extern "C"
 {
 #include "app_pid.h"
-#include "app_torqueVectoring.h"
 }
 #include <cmath>
 #include <random>
@@ -20,11 +19,10 @@ TEST(PIDTest, initialization_check)
     // clamp_integral?, back_calculation?, feed_forward?, sample_time
 
     app_pid_init(&test_pid, &test_cfg);
-    float setpoint        = 0.0f;
-    float input           = 0.0f;
-    float disturbance     = 0.0f;
-    float expected_output = 0.0f;
-    float actual_output   = app_pid_compute(&test_pid, setpoint, input, disturbance);
+    float setpoint      = 0.0f;
+    float input         = 0.0f;
+    float disturbance   = 0.0f;
+    float actual_output = app_pid_compute(&test_pid, setpoint, input, disturbance);
 
     ASSERT_NEAR(test_pid.Kp, 1.0f, 0.000001f);
     ASSERT_NEAR(test_pid.Ki, 1.0f, 0.000001f);

@@ -3,7 +3,7 @@
 #ifdef __arm__
 #include <FreeRTOS.h>
 #include <semphr.h>
-#elif __unix__ || __APPLE__
+#elif defined(__unix__) || defined(__APPLE__)
 #include <pthread.h>
 #elif _WIN32
 #include <windows.h>
@@ -14,7 +14,7 @@
 #ifdef __arm__
 static StaticSemaphore_t state_tick_mutex_storage;
 static SemaphoreHandle_t state_tick_mutex;
-#elif __unix__ || __APPLE__
+#elif defined(__unix__) || defined(__APPLE__)
 static pthread_mutex_t state_tick_mutex;
 #elif _WIN32
 static HANDLE state_tick_mutex;
@@ -35,7 +35,7 @@ void runTickFunction(void (*tick_function)())
 {
 #ifdef __arm__
     xSemaphoreTake(state_tick_mutex, portMAX_DELAY);
-#elif __unix__ || __APPLE__
+#elif defined(__unix__) || defined(__APPLE__)
     pthread_mutex_lock(&(state_tick_mutex));
 #elif _WIN32
     WaitForSingleObject(state_tick_mutex, INFINITE);
@@ -68,7 +68,7 @@ void runTickFunction(void (*tick_function)())
 
 #ifdef __arm__
     xSemaphoreGive(state_tick_mutex);
-#elif __unix__ || __APPLE__
+#elif defined(__unix__) || defined(__APPLE__)
     pthread_mutex_unlock(&(state_tick_mutex));
 #elif _WIN32
     ReleaseMutex(state_tick_mutex);
@@ -89,7 +89,7 @@ namespace StateMachine
 
 #ifdef __arm__
         state_tick_mutex = xSemaphoreCreateMutexStatic(&(state_tick_mutex_storage));
-#elif __unix__ || __APPLE__
+#elif defined(__unix__) || defined(__APPLE__)
         pthread_mutex_init(&(state_tick_mutex), NULL);
 #elif _WIN32
         state_tick_mutex = CreateMutex(NULL, FALSE, NULL);

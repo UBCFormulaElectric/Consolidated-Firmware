@@ -125,14 +125,15 @@ elseif ("${TARGET}" STREQUAL "test")
     set(FAKE_SRCS 
         #"${SHARED_FAKES_DIR}/io_imuQuintuna.cpp"
         "${SHARED_FAKES_DIR}/io_imuHexray.cpp"
-        "${SHARED_FAKES_DIR}/io_time.cpp"
+        "${SHARED_FAKES_DIR}/io_timeFake.cpp"
     )
     set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
     set(INCLUDE_DIRS
             # "${CMAKE_CURRENT_SOURCE_DIR}/test"
+            ${SHARED_UTIL_INCLUDE_DIR} ${SHARED_FAKES_DIR}
             ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} 
             ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP} 
-            ${SHARED_UTIL_INCLUDE_DIR} ${SHARED_FAKES_DIR}
+            
     )
     compile_gtest_executable(
             "hexray_FSM_test"
