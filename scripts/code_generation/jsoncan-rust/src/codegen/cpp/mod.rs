@@ -27,7 +27,7 @@ pub trait CPPGenerator {
 }
 
 pub enum CPPModule<'a> {
-    AppCanUtilsModule(AppCanUtilsModule),
+    AppCanUtilsModule(AppCanUtilsModule<'a>),
     AppCanTxModule(AppCanTxModule),
     AppCanAlertsModule(AppCanAlertsModule<'a>),
     AppCanDataCaptureModule(AppCanDataCaptureModule),
@@ -174,7 +174,6 @@ impl CanSignal {
     }
 
     pub fn start_val_name(self: &Self) -> String {
-        // format!("{}_START_VAL", self.snake_name().to_uppercase())
         match self.signal_type {
             CanSignalType::Numerical => {
                 self.start_val.to_string()
@@ -196,7 +195,7 @@ impl CanSignal {
     }
 }
 
-pub fn id_macro(name: &str) -> String {
+pub fn id_macro(name: &str) -> String { // TODO this feels jank
     format!("CAN_MSG_{}_ID", name.to_case(Case::Snake).to_uppercase())
 }
 

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdint>
-
 #include "util_errorCodes.hpp"
 #ifdef TARGET_EMBEDDED
 #include "hw_spi.hpp"
@@ -103,14 +101,14 @@ struct ImuFilterConfig
     GyroDlpfConfig  gyro_dlpf_cutoff  = GyroDlpfConfig::BW_41HZ_NOISE_59HZ;
     uint8_t         sample_rate_div   = 9;
 
-    inline constexpr uint16_t calculateOdr(uint16_t base_rate)
+    constexpr uint16_t calculateOdr(const uint16_t base_rate) const
     {
         return static_cast<uint16_t>(base_rate / (1U + sample_rate_div));
     }
 
-    inline constexpr uint16_t getAccelOdrHz() { return (enable_accel_dlpf == true) ? calculateOdr(1000U) : 4000U; }
+    constexpr uint16_t getAccelOdrHz() const { return (enable_accel_dlpf == true) ? calculateOdr(1000U) : 4000U; }
 
-    inline constexpr uint16_t getGyroOdrHz()
+    constexpr uint16_t getGyroOdrHz() const
     {
         if (enable_gyro_dlpf == false)
             return 32000U;
@@ -148,12 +146,12 @@ struct ImuFifoConfig
     FifoSize fifo_size                = FifoSize::SIZE_512B; // Specifies FIFO Size
     bool     fifo_overflow_int_enable = false;
 
-    inline constexpr bool enableFifo()
+    constexpr bool enableFifo() const
     {
         return enable_accel_fifo || enable_gyro_x_fifo || enable_gyro_y_fifo || enable_gyro_z_fifo || enable_temp_fifo;
     }
 
-    inline constexpr size_t getFifoPacketSize() const
+    constexpr size_t getFifoPacketSize() const
     {
         return (enable_accel_fifo ? 6 : 0) + (enable_temp_fifo ? 2 : 0) + (enable_gyro_x_fifo ? 2 : 0) +
                (enable_gyro_y_fifo ? 2 : 0) + (enable_gyro_z_fifo ? 2 : 0);
@@ -176,7 +174,7 @@ class Imu
 
   private:
 #ifdef TARGET_EMBEDDED
-    hw::spi::SpiDevice &imu_spi_handle;
+    const hw::spi::SpiDevice &imu_spi_handle;
 #endif
 
     ImuFilterConfig filter_config;
@@ -188,8 +186,8 @@ class Imu
   public:
 #ifdef TARGET_EMBEDDED
     constexpr explicit Imu(
-        hw::spi::SpiDevice    &in_imu_spi_handle,
-        const ImuFilterConfig &in_filter_config = ImuFilterConfig{})
+        const hw::spi::SpiDevice &in_imu_spi_handle,
+        const ImuFilterConfig    &in_filter_config = ImuFilterConfig{})
       : imu_spi_handle(in_imu_spi_handle), filter_config(in_filter_config)
     {
     }
@@ -198,24 +196,19 @@ class Imu
 #endif
 
     [[nodiscard]] std::expected<void, ErrorCode> init();
-    /**
-     * @brief Get acceleration in the x axis
-     * @param accel_x
-     *
-     * @return ExitCode OK for success, otherwise fail
-     */
-    std::expected<void, ErrorCode> getAccelX(float &accel_x) const;
-    std::expected<void, ErrorCode> getAccelY(float &accel_y) const;
-    std::expected<void, ErrorCode> getAccelZ(float &accel_z) const;
 
-    std::expected<void, ErrorCode> getGyroX(float &gyro_x) const;
-    std::expected<void, ErrorCode> getGyroY(float &gyro_y) const;
-    std::expected<void, ErrorCode> getGyroZ(float &gyro_z) const;
+    std::expected<float, ErrorCode> getAccelX() const;
+    std::expected<float, ErrorCode> getAccelY() const;
+    std::expected<float, ErrorCode> getAccelZ() const;
 
-    std::expected<void, ErrorCode> getTemp(float &temp) const;
+    std::expected<float, ErrorCode> getGyroX() const;
+    std::expected<float, ErrorCode> getGyroY() const;
+    std::expected<float, ErrorCode> getGyroZ() const;
 
-    std::expected<void, ErrorCode> getAccelAll(AccelData &data) const;
-    std::expected<void, ErrorCode> getGyroAll(GyroData &data) const;
+    std::expected<float, ErrorCode> getTemp() const;
+
+    std::expected<AccelData, ErrorCode> getAccelAll() const;
+    std::expected<GyroData, ErrorCode>  getGyroAll() const;
 
 #ifdef TARGET_TEST
     bool  initialized  = false;

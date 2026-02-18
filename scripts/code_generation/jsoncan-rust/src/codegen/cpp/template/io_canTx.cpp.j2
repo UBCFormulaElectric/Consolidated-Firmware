@@ -15,8 +15,7 @@ namespace io::can_tx {
 #ifdef THREAD_SAFE_CAN_PACKING
 void (*lock)(void);
 void (*unlock)(void); 
-
-void io_canTx_set_lockfunction(
+void setLockfunction(
     void (*lock_in)(void),
     void (*unlock_in)(void)
 )
@@ -34,11 +33,11 @@ static void (*enqueue_func_{{bus.name}})(const JsonCanMsg& tx_msg);
 
 /* --------------------- Static Function Definitions ---------------------- */
 
-{% for (msg, busses) in messages %}
+{% for (msg, busses) in board_tx_msgs_and_busses %}
 {%- if msg.cycle_time.is_some() -%}
-static void sendPeriodic_{{msg.name}}()
+static void {{msg.name}}_sendPeriodic()
 {%- else -%}
-void sendAperiodic_{{msg.name}}()
+void {{msg.name}}_sendAperiodic()
 {%- endif %}
 {
     JsonCanMsg tx_msg{
@@ -56,7 +55,7 @@ void sendAperiodic_{{msg.name}}()
     {%- for msg_bus_name in busses %}
     if (
     {%- for mode in msg.modes %}
-        can_mode_{{msg_bus_name}} & (static_cast<uint32_t>({{msg_bus_name}}Mode::{{msg_bus_name.to_uppercase()}}_MODE_{{mode.to_uppercase()}}))
+        can_mode_{{msg_bus_name}} & static_cast<uint32_t>(app::can_utils::{{msg_bus_name}}Mode::{{msg_bus_name.to_uppercase()}}_MODE_{{mode.to_uppercase()}}){%- if loop.last == false %} || {% endif -%}
     {%- endfor %}
     )
     {
@@ -81,7 +80,7 @@ void init(
 }
 
 {% for bus in node_buses %}
-void enableMode_{{bus.name}}({{bus.name}}Mode mode, const bool enable)
+void enableMode_{{bus.name}}(app::can_utils::{{bus.name}}Mode mode, const bool enable)
 {
     if (enable)
     {
@@ -96,24 +95,24 @@ void enableMode_{{bus.name}}({{bus.name}}Mode mode, const bool enable)
 
 void enqueue1HzMsgs()
 {
-    {%- for (msg, busses) in messages if msg.cycle_time.is_some() && msg.cycle_time.unwrap() == 1000 %}
-    sendPeriodic_{{ msg.name }}();
+    {%- for (msg, busses) in board_tx_msgs_and_busses if msg.cycle_time.is_some() && msg.cycle_time.unwrap() == 1000 %}
+    {{ msg.name }}_sendPeriodic();
     {%- endfor %}
 }
 
 void enqueue100HzMsgs()
 {
-    {%- for (msg, busses) in messages if msg.cycle_time.is_some() && msg.cycle_time.unwrap() == 10 %}
-    sendPeriodic_{{ msg.name }}();
+    {%- for (msg, busses) in board_tx_msgs_and_busses if msg.cycle_time.is_some() && msg.cycle_time.unwrap() == 10 %}
+    {{ msg.name }}_sendPeriodic();
     {%- endfor %}
 }
 
 void enqueueOtherPeriodicMsgs(const uint32_t time_ms)
 {
-    {%- for (msg, busses) in messages if msg.cycle_time.is_some() && msg.cycle_time.unwrap() != 1000 && msg.cycle_time.unwrap() != 10 %}
+    {%- for (msg, busses) in board_tx_msgs_and_busses if msg.cycle_time.is_some() && msg.cycle_time.unwrap() != 1000 && msg.cycle_time.unwrap() != 10 %}
     if (time_ms % app::can_utils::{{msg.cycle_time_macro()}} == 0)
     {
-        sendPeriodic_{{msg.name}}();
+        {{msg.name}}_sendPeriodic();
     }
     {%- endfor %}
 }

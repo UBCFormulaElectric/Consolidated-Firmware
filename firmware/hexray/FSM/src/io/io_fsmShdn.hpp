@@ -1,24 +1,7 @@
 #pragma once
+#include "app_shdnLoop.hpp"
 
-namespace io::fsmShdn
-{
-/**
- * @return True or Talse when cockpit has triggered a shutdown
- */
-bool COCKPIT_SHDN_OK_get(void);
-
-/**
- * @return True or Talse when brakes over travel has triggered a shutdown
- */
-bool BOTS_SHDN_OK_get(void);
-
-/**
- * @return True or Talse when fl interrupt has triggered a shutdown
- */
-bool FL_SHDN_OK_get(void);
-
-/**
- * @return True or Talse when fr interrupt has triggered a shutdown
- */
-bool FR_SHDN_OK_get(void);
-} // namespace io::fsmShdn
+extern const io::shdn::node cockpit_node;
+extern const io::shdn::node bots_node;
+extern const io::shdn::node fl_shdn_ok_node;
+extern const io::shdn::node fr_shdn_ok_node;

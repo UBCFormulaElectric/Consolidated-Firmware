@@ -10,6 +10,21 @@
 #include <cstdint>
 #include <span>
 
+/* -------------------------------- Structs --------------------------------- */
+/**
+ * Standard CAN message type.
+ */
+struct JsonCanMsg
+{
+    using data_array = std::array<uint8_t, {% if fd -%}64{%- else -%}8{%- endif -%}>;
+
+    uint32_t std_id;
+    uint32_t dlc;
+    data_array data{};
+
+    JsonCanMsg(const uint32_t id, const uint32_t _dlc, const data_array _data) : std_id(id), dlc(_dlc), data(_data) {}
+};
+
 namespace app::can_utils {
 /* -------------------------------- Enums --------------------------------- */
 {%- for e in enums %}
@@ -27,6 +42,24 @@ enum class CanNode
     {{node_name.to_uppercase()}}_NODE = {{loop.index}},
     {%- endfor %}
 };
+
+// BUS ENUMS
+enum class BusEnum
+{
+    {%- for bus in node_buses %}
+    Bus_{{bus.name}} = {{loop.index0}},
+    {%- endfor %}
+};
+
+// MODE ENUMS
+{%- for bus in node_buses %}
+enum class {{bus.name}}Mode
+{
+    {%- for mode in bus.modes %}
+    {{bus.name.to_uppercase()}}_MODE_{{mode}} = 1 << {{loop.index0}},
+    {%- endfor %}
+};
+{% endfor %}
 
 /* -------------------------------- Macros -------------------------------- */
 // Msg IDs

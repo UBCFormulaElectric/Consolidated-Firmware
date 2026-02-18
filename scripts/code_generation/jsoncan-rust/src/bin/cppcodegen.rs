@@ -55,7 +55,7 @@ fn main() -> Result<(), CanDBError> {
 
     let modules: Vec<(CPPModule, String)> = vec![
         (
-            CPPModule::AppCanUtilsModule(AppCanUtilsModule::new(&can_db)),
+            CPPModule::AppCanUtilsModule(AppCanUtilsModule::new(&can_db, &args.board)),
             Path::new("app")
                 .join("app_canUtils")
                 .to_str()

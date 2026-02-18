@@ -26,8 +26,9 @@ extern "C"
 // static SdCard *sd;
 
 // CanHandle can = { .hcan = &hcan2, .bus_num = 0, .receive_callback = [](const CanMsg *rx_msg) {}, .ready = false };
-static void canRxCallback(const io::CanMsg &msg)
+static void canRxCallback(const hw::CanMsg &msg)
 {
+    UNUSED(msg);
     // can_rx_queue.pushMsgToQueue(msg);
 }
 

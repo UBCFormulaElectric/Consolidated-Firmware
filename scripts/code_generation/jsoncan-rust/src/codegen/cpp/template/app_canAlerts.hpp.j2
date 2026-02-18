@@ -23,43 +23,35 @@ struct Alert_Info
 
 /* ------------------------- Function Prototypes -------------------------- */
 
+namespace infos {
 /* ----------- Infos -----------*/
-{%- for info in node_tx_alerts.infos %}
+{%- for info in board_alerts.infos %}
 /**
  * Set or clear {{info.name}} for {{node_name}}.
  */
 void {{info.name}}_set(bool set_alert);
-
-/**
- * Return whether {{info.name}} transmitted by {{node_name}} is set.
- */
-bool {{info.name}}_get();
 {%- endfor %}
+}
 
+namespace warnings {
 /* ----------- Warnings -----------*/
-{%- for warning in node_tx_alerts.warnings %}
+{%- for warning in board_alerts.warnings %}
 /**
  * Set or clear {{warning.name}} for {{node_name}}.
  */
 void {{warning.name}}_set(bool set_alert);
-/**
- * Return whether {{warning.name}} transmitted by {{node_name}} is set.
- */
-bool {{warning.name}}_get();
 {%- endfor %}
+}
 
+namespace faults {
 /* ----------- Faults -----------*/
-{%- for fault in node_tx_alerts.faults %}
+{%- for fault in board_alerts.faults %}
 /**
  * Set or clear {{fault.name}} for {{node_name}}.
  */
 void {{fault.name}}_set(bool set_alert);
-/**
- * Return whether {{fault.name}} transmitted by {{node_name}} is set.
- */
-bool {{fault.name}}_get();
 {%- endfor %}
-
+}
 
 /**
  * Return whether or not a board has set a info.
