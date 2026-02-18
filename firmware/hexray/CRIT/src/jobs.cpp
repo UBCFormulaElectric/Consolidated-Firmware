@@ -47,7 +47,7 @@ void jobs_run100Hz_tick()
     app::can_tx::CRIT_StartButton_set(io::switches::start_get());
     if (const bool has_rising_edge = io::switches::telem_mark_rising_edge_get(); has_rising_edge)
     {
-        io::can_tx::sendAperiodic_CRIT_TelemMarkEvent();
+        io::can_tx::CRIT_TelemMarkEvent_sendAperiodic();
     }
 
     // enqueue can messages

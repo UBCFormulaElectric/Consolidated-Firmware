@@ -2,7 +2,7 @@
 
 #include <array>
 #include <span>
-#include "io_canTx.hpp"
+#include "app_canUtils.hpp"
 
 #include "io_time.hpp"
 
@@ -22,14 +22,14 @@ struct CanMsg
     uint32_t                               timestamp;
     std::array<uint8_t, CAN_PAYLOAD_BYTES> data;
     bool                                   is_fd;
-    can_tx::BusEnum                        bus;
+    app::can_utils::BusEnum                bus;
 
     CanMsg(
         const uint32_t                                id,
         const uint32_t                                _dlc,
         const std::array<uint8_t, CAN_PAYLOAD_BYTES> &_data,
         const bool                                    _is_fd,
-        const can_tx::BusEnum                         _bus)
+        const app::can_utils::BusEnum                 _bus)
       : std_id(id), dlc(_dlc), timestamp(time::getCurrentMs()), data(_data), is_fd(_is_fd), bus(_bus)
     {
     }

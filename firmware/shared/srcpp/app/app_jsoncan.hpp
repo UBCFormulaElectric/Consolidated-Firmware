@@ -1,7 +1,7 @@
 #pragma once
 
 #include "io_canMsg.hpp"
-#include "io_canTx.hpp"
+#include "app_canUtils.hpp"
 
 namespace app::jsoncan
 {
@@ -18,7 +18,7 @@ inline io::CanMsg copyToCanMsg(const JsonCanMsg &msg)
 {
     // TODO lowkey shouldn't exist?
     return io::CanMsg{
-        msg.std_id, msg.dlc, msg.data, false, static_cast<io::can_tx::BusEnum>(0),
+        msg.std_id, msg.dlc, msg.data, false, static_cast<can_utils::BusEnum>(0),
     };
 }
 } // namespace app::jsoncan

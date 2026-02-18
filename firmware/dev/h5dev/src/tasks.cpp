@@ -124,11 +124,11 @@ void tasks_init()
             const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
             LOG_IF_ERR(can_tx_queue.push(msg));
         });
-    io::can_tx::enableMode_FDCAN(io::can_tx::FDCANMode::FDCAN_MODE_DEFAULT, true);
+    io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
 
     can_tx_queue.init();
     can_rx_queue.init();
-    io::can_tx::sendAperiodic_H5_Bootup();
+    io::can_tx::H5_Bootup_sendAperiodic();
 
     osKernelInitialize();
     TaskCanBroadcast.start();

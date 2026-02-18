@@ -17,7 +17,7 @@
 #include "stm32h5xx_hal_fdcan.h"
 #endif
 
-std::expected<void, ErrorCode> hw::fdcan::tx(const FDCAN_TxHeaderTypeDef &tx_header, const CanMsg &msg) const
+std::expected<void, ErrorCode> hw::fdcan::tx(FDCAN_TxHeaderTypeDef &tx_header, const CanMsg &msg) const
 {
     for (uint32_t poll = 0; HAL_FDCAN_GetTxFifoFreeLevel(hfdcan) == 0U;)
     {
@@ -35,7 +35,8 @@ std::expected<void, ErrorCode> hw::fdcan::tx(const FDCAN_TxHeaderTypeDef &tx_hea
         UNUSED(num_notifs);
         transmit_task = nullptr;
     }
-    return hw_utils_convertHalStatus(HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &tx_header, msg.data.data()));
+    return hw_utils_convertHalStatus(
+        HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &tx_header, const_cast<uint8_t *>(msg.data.data())));
 }
 void hw::fdcan::init() const
 {

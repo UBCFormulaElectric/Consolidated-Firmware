@@ -113,7 +113,7 @@ const can &can_getHandle(const CAN_HandleTypeDef *hcan);
 class fdcan final : public BaseCan
 {
     FDCAN_HandleTypeDef *const     hfdcan;
-    std::expected<void, ErrorCode> tx(const FDCAN_TxHeaderTypeDef &tx_header, const CanMsg &msg) const;
+    std::expected<void, ErrorCode> tx(FDCAN_TxHeaderTypeDef &tx_header, const CanMsg &msg) const;
 
   public:
     ~fdcan() override = default;

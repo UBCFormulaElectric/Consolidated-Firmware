@@ -39,7 +39,7 @@
         const auto msg = can_tx_queue.pop();
         if (not msg)
             continue;
-        if (const auto &m = msg.value(); m.bus == io::can_tx::BusEnum::Bus_FDCAN)
+        if (const auto &m = msg.value(); m.bus == app::can_utils::BusEnum::Bus_FDCAN)
         {
             const auto res = fdcan1.can_transmit(hw::CanMsg{
                 m.std_id,
