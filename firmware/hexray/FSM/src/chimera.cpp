@@ -4,6 +4,7 @@
 #include "io_log.hpp"
 #include "hw_usb.hpp"
 #include "hw_rtosTaskHandler.hpp"
+#include "hw_hardFaultHandler.hpp"
 #include "hw_gpios.hpp"
 #include "hw_spis.hpp"
 #include "hw_adcs.hpp"
@@ -100,11 +101,21 @@ class FSMChimeraConfig : public chimera_v2::config
         switch (snn->name.fsm_net_name)
         {
             case fsm_SpiNetName_SPI_IMU:
-                return std::cref(imu_spi);
+                return std::cref(hw::spi::imu_spi);
             default:
             case fsm_SpiNetName_SPI_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified SPI net name");
                 return std::nullopt;
+        }
+        return std::nullopt;
+    }
+
+    std::optional<std::reference_wrapper<const hw::PwmOutput>> id_to_pwm(const _PwmNetName *pnn) const override
+    {
+        if (pnn->which_name != pwm_net_name_tag)
+        {
+            LOG_ERROR("Chimera: Expected PWM net name with tag %d, got %d", pwm_net_name_tag, pnn->which_name);
+            return std::nullopt;
         }
         return std::nullopt;
     }
