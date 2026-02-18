@@ -118,12 +118,12 @@ void tasks_init()
         hw_bootup_setBootRequest(boot_request);
     }
 
-    // io_canTx_init(
-    //     [](const JsonCanMsg &tx_msg)
-    //     {
-    //         const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
-    //         can_tx_queue.push(msg);
-    //     });
+    io::can_tx::init(
+        [](const JsonCanMsg &tx_msg)
+        {
+            const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
+            LOG_IF_ERR(can_tx_queue.push(msg));
+        });
     io::can_tx::enableMode_FDCAN(io::can_tx::FDCANMode::FDCAN_MODE_DEFAULT, true);
 
     can_tx_queue.init();
