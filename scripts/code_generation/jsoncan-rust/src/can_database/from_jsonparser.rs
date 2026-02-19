@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::{
     can_database::{
         error::CanDBError, CanAlert, CanAlertType, CanDatabase, CanEnum, CanMessage, CanNode,
-        CanSignal, CanSignalType, GroupedAlerts, JsonRxMsgNames
+        CanSignal, CanSignalType, NodeAlerts, JsonRxMsgNames
     },
     parsing::{JsonCanParser, JsonCanSignal, DEFAULT_BUS_MODE},
 };
@@ -11,7 +11,8 @@ use crate::can_database::RxMsgs;
 
 fn calculate_scale_offset(min: f64, max: f64, bits: u16) -> (f64, f64) {
     // return scale, offset
-    ((max - min) / (2f64.powi(bits as i32) - 1.0), min)
+    // ((max - min) / (2f64.powi(bits as i32) - 1.0), min)
+    ((max - min) / (1u128 << bits - 1) as f64, min)
 }
 
 fn parse_signal(
@@ -146,10 +147,10 @@ fn parse_signal(
         } => {
             let (min, max) = match signed {
                 Some(true) => (
-                    -2f64.powi((bits - 1) as i32),
-                    2f64.powi((bits - 1) as i32) - 1.0,
+                    (-1_i128 << (bits-1)) as f64,
+                    ((1_u128 << (bits-1)) - 1) as f64,
                 ),
-                Some(false) | None => (0.0, 2f64.powi(bits as i32) - 1.0),
+                Some(false) | None => (0.0, (1u128<<bits - 1) as f64),
             };
 
             CanSignal {
@@ -166,7 +167,7 @@ fn parse_signal(
                 signed: signed.unwrap_or(false),
                 description: None,
                 big_endian: big_endian.unwrap_or(false),
-                signal_type: CanSignalType::Numerical,
+                signal_type: if bits == 1 { CanSignalType::Boolean } else { CanSignalType::Numerical },
             }
         }
     }
@@ -254,6 +255,7 @@ fn parse_node_alert_signals(
     // :returns metadata which maps names of alert signals to their AlertsEntry, list of CanSignals for the alert message
 
     let mut signals: Vec<CanSignal> = Vec::new();
+    let mut signals_counts: Vec<CanSignal> = Vec::new();
     let mut bit_pos: u16 = 0;
 
     for alert in alerts {
@@ -279,20 +281,36 @@ fn parse_node_alert_signals(
             big_endian: false,
             signal_type: CanSignalType::Alert,
         });
+        signals_counts.push(CanSignal {
+            name: format!("{}_{}_{}_Count", node_name, alert_type_name, alert.name),
+            start_bit: bit_pos,
+            bits: 8,
+            scale: 1.0,
+            offset: 0.0,
+            min: 0.0,
+            max: 255.0,
+            start_val: 0.0,
+            enum_name: None,
+            unit: None,
+            signed: false,
+            description: None,
+            big_endian: false,
+            signal_type: CanSignalType::Numerical,
+        });
 
         bit_pos += 1;
     }
 
-    (signals, vec![])
+    (signals, signals_counts)
 }
 
-fn generate_node_alert_msgs(node_name: &String, alerts_json: &GroupedAlerts) -> [CanMessage; 6] {
+fn generate_node_alert_msgs(node_name: &String, alerts_json: &NodeAlerts) -> [CanMessage; 6] {
     // Check alert messages ID are unique
     let warnings_name = format!("{}_Warnings", node_name);
     let faults_name = format!("{}_Faults", node_name);
+    let info_name = format!("{}_Info", node_name);
     let warnings_counts_name = format!("{}_WarningsCounts", node_name);
     let faults_counts_name = format!("{}_FaultsCounts", node_name);
-    let info_name = format!("{}_Info", node_name);
     let info_counts_name = format!("{}_InfoCounts", node_name);
 
     // Make alert signals
@@ -308,6 +326,17 @@ fn generate_node_alert_msgs(node_name: &String, alerts_json: &GroupedAlerts) -> 
     static INFO_ALERTS_CYCLE_TIME: Option<u32> = Some(100);
 
     [
+        CanMessage {
+            name: info_name,
+            id: alerts_json.infos_id,
+            description: Some(format!("Status of info for the {}.", node_name)),
+            cycle_time: INFO_ALERTS_CYCLE_TIME,
+            log_cycle_time: INFO_ALERTS_CYCLE_TIME,
+            telem_cycle_time: INFO_ALERTS_CYCLE_TIME,
+            signals: info_signals,
+            tx_node_name: node_name.clone(),
+            modes: vec![DEFAULT_BUS_MODE.to_string()],
+        },
         CanMessage {
             name: warnings_name,
             id: alerts_json.warnings_id,
@@ -327,6 +356,20 @@ fn generate_node_alert_msgs(node_name: &String, alerts_json: &GroupedAlerts) -> 
             log_cycle_time: FAULTS_ALERTS_CYCLE_TIME,
             telem_cycle_time: FAULTS_ALERTS_CYCLE_TIME,
             signals: faults_signals,
+            tx_node_name: node_name.clone(),
+            modes: vec![DEFAULT_BUS_MODE.to_string()],
+        },
+        CanMessage {
+            name: info_counts_name,
+            id: alerts_json.infos_count_id,
+            description: Some(format!(
+                "Number of times info have been set for the {}.",
+                node_name
+            )),
+            cycle_time: INFO_ALERTS_CYCLE_TIME,
+            log_cycle_time: INFO_ALERTS_CYCLE_TIME,
+            telem_cycle_time: INFO_ALERTS_CYCLE_TIME,
+            signals: info_counts_signals,
             tx_node_name: node_name.clone(),
             modes: vec![DEFAULT_BUS_MODE.to_string()],
         },
@@ -355,31 +398,6 @@ fn generate_node_alert_msgs(node_name: &String, alerts_json: &GroupedAlerts) -> 
             log_cycle_time: FAULTS_ALERTS_CYCLE_TIME,
             telem_cycle_time: FAULTS_ALERTS_CYCLE_TIME,
             signals: faults_counts_signals,
-            tx_node_name: node_name.clone(),
-            modes: vec![DEFAULT_BUS_MODE.to_string()],
-        },
-        CanMessage {
-            name: info_name,
-            id: alerts_json.infos_id,
-            description: Some(format!("Status of info for the {}.", node_name)),
-            cycle_time: INFO_ALERTS_CYCLE_TIME,
-            log_cycle_time: INFO_ALERTS_CYCLE_TIME,
-            telem_cycle_time: INFO_ALERTS_CYCLE_TIME,
-            signals: info_signals,
-            tx_node_name: node_name.clone(),
-            modes: vec![DEFAULT_BUS_MODE.to_string()],
-        },
-        CanMessage {
-            name: info_counts_name,
-            id: alerts_json.infos_count_id,
-            description: Some(format!(
-                "Number of times info have been set for the {}.",
-                node_name
-            )),
-            cycle_time: INFO_ALERTS_CYCLE_TIME,
-            log_cycle_time: INFO_ALERTS_CYCLE_TIME,
-            telem_cycle_time: INFO_ALERTS_CYCLE_TIME,
-            signals: info_counts_signals,
             tx_node_name: node_name.clone(),
             modes: vec![DEFAULT_BUS_MODE.to_string()],
         },
@@ -425,7 +443,7 @@ impl CanDatabase {
                 },
                 name: n.name,
                 collects_data: n.collects_data,
-                alerts: n.alerts.map(|a| GroupedAlerts {
+                alerts: n.alerts.map(|a| NodeAlerts {
                     infos: a.infos.alerts,
                     warnings: a.warnings.alerts,
                     faults: a.faults.alerts,

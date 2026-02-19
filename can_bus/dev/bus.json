@@ -6,7 +6,8 @@
             "nodes": [
                 "H7",
                 "H5",
-                "Boot"
+                "Boot",
+                "Debug"
             ],
             "bus_speed": 1000,
             "modes": [

@@ -1,9 +1,10 @@
 #include "tasks.h"
 
 #include <cmsis_os2.h>
-#include <io_canRx.hpp>
-#include "main.h"
 
+#include "app_jsoncan.hpp"
+#include "io_canRx.hpp"
+#include "main.h"
 // io
 #include "io_time.hpp"
 // hw
@@ -23,7 +24,6 @@ extern "C"
 
 #include "hw_cans.hpp"
 #include "io_canMsgQueues.hpp"
-#include "app_jsoncan.hpp"
 #include "hw_usb.hpp"
 
 char USBD_PRODUCT_STRING_FS[] = "h5dev";
@@ -58,16 +58,15 @@ void hw::usb::receive(const std::span<uint8_t> dest)
     forever
     {
         io::CanMsg msg = can_tx_queue.pop().value();
-        LOG_IF_ERR(fdcan1.fdcan_transmit(msg));
+        LOG_IF_ERR(fdcan1.fdcan_transmit({ msg.std_id, msg.dlc, msg.data }));
     }
 }
 [[noreturn]] static void tasks_runCanRx(void *arg)
 {
     forever
     {
-        io::CanMsg rx_msg      = can_rx_queue.pop().value();
-        JsonCanMsg jsoncan_msg = app::jsoncan::copyFromCanMsg(rx_msg);
-        io::can_rx::updateRxTableWithMessage(jsoncan_msg);
+        const io::CanMsg rx_msg = can_rx_queue.pop().value();
+        io::can_rx::updateRxTableWithMessage(app::jsoncan::copyFromCanMsg(rx_msg));
     }
 }
 
@@ -76,7 +75,7 @@ void hw::usb::receive(const std::span<uint8_t> dest)
     forever
     {
         std::array<uint8_t, 8> a{ { 1, 2, 3, 4, 5, 6, 7, 8 } };
-        hw::usb::transmit(a);
+        LOG_IF_ERR(hw::usb::transmit(a));
         io::time::delay(1000);
     }
 }
@@ -129,13 +128,13 @@ void tasks_init()
         [](const JsonCanMsg &tx_msg)
         {
             const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
-            (void)can_tx_queue.push(msg);
+            LOG_IF_ERR(can_tx_queue.push(msg));
         });
-    io::can_tx::enableMode_FDCAN(io::can_tx::FDCANMode::FDCAN_MODE_DEFAULT, true);
+    io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
 
     can_tx_queue.init();
     can_rx_queue.init();
-    io::can_tx::sendAperiodic_H5_Bootup();
+    io::can_tx::H5_Bootup_sendAperiodic();
 
     osKernelInitialize();
     TaskCanBroadcast.start();

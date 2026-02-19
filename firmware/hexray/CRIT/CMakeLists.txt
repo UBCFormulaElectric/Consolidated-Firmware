@@ -19,7 +19,7 @@ set(SYSTEM_INCLUDE_DIRS
 file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp")
 list(APPEND APP_SRCS)
 set(APP_INCLUDE_DIRS
-        #"${CMAKE_CURRENT_SOURCE_DIR}/src/app"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
         "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR_CPP}"
 )
 
@@ -29,7 +29,7 @@ list(APPEND IO_SRCS
 )
 
 set(IO_INCLUDE_DIRS
-        #"${CMAKE_CURRENT_SOURCE_DIR}/src/io"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
         "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_DIR_CPP}"
 )
 
@@ -97,7 +97,7 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     # JSONCAN
-    jsoncan_embedded_library(CRIT hexray "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
+    jsoncan_embedded_library_cpp(CRIT hexray "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
 
     # CommitInfo
     commit_info_library(
@@ -110,13 +110,16 @@ if ("${TARGET}" STREQUAL "binary")
     target_compile_definitions("hexray_CRIT_app.elf" PRIVATE CRIT)
 
     add_chimera_stm32h5("hexray_CRIT_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}" "hexray_chimera_v2_proto_cm33")
-    target_link_libraries("hexray_CRIT_chimera.elf" PRIVATE "hexray_CRIT_stm32")
-    target_compile_definitions("hexray_CRIT_chimera.elf" PRIVATE "HAL_SPI_MODULE_ENABLED" )
+    target_link_libraries("hexray_CRIT_chimera.elf" PRIVATE "hexray_CRIT_stm32" "hexray_CRIT_jsoncan")
+    target_compile_definitions("hexray_CRIT_chimera.elf" PRIVATE "HAL_SPI_MODULE_ENABLED")
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
-    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS})
+    set(FAKE_SRCS
+            "${SHARED_FAKES_DIR}/io_time.cpp"
+    )
+    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
     set(INCLUDE_DIRS
-            # "${CMAKE_CURRENT_SOURCE_DIR}/test"
+            "${CMAKE_CURRENT_SOURCE_DIR}/test" ${SHARED_FAKES_DIR}
             ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP}
     )
     compile_gtest_executable(
@@ -128,7 +131,7 @@ elseif ("${TARGET}" STREQUAL "test")
     add_compile_definitions("hexray_CRIT_test" PRIVATE STM32H562Rx)
 
     # JSONCAN
-    jsoncan_library(CRIT hexray "${CMAKE_CURRENT_BINARY_DIR}")
+    jsoncan_library_cpp(CRIT hexray "${CMAKE_CURRENT_BINARY_DIR}")
 
     # CommitInfo
     commit_info_library(

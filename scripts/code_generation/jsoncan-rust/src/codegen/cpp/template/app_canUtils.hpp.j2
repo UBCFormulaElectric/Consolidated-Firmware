@@ -10,6 +10,21 @@
 #include <cstdint>
 #include <span>
 
+/* -------------------------------- Structs --------------------------------- */
+/**
+ * Standard CAN message type.
+ */
+struct JsonCanMsg
+{
+    using data_array = std::array<uint8_t, {% if fd -%}64{%- else -%}8{%- endif -%}>;
+
+    uint32_t std_id;
+    uint32_t dlc;
+    data_array data{};
+
+    JsonCanMsg(const uint32_t id, const uint32_t _dlc, const data_array _data) : std_id(id), dlc(_dlc), data(_data) {}
+};
+
 namespace app::can_utils {
 /* -------------------------------- Enums --------------------------------- */
 {%- for e in enums %}
@@ -27,6 +42,24 @@ enum class CanNode
     {{node_name.to_uppercase()}}_NODE = {{loop.index}},
     {%- endfor %}
 };
+
+// BUS ENUMS
+enum class BusEnum
+{
+    {%- for bus in node_buses %}
+    Bus_{{bus.name}} = {{loop.index0}},
+    {%- endfor %}
+};
+
+// MODE ENUMS
+{%- for bus in node_buses %}
+enum class {{bus.name}}Mode
+{
+    {%- for mode in bus.modes %}
+    {{bus.name.to_uppercase()}}_MODE_{{mode}} = 1 << {{loop.index0}},
+    {%- endfor %}
+};
+{% endfor %}
 
 /* -------------------------------- Macros -------------------------------- */
 // Msg IDs
@@ -58,10 +91,10 @@ inline constexpr {{ signal.datatype() }} {{ signal.start_val_macro() }} = {{ sig
 {% for msg in messages -%}
 // {{msg.name}}
 {% for signal in msg.signals -%}
-inline constexpr float {{ signal.scale_macro() }} = {{ signal.scale }};
+inline constexpr float {{ signal.scale_macro() }} = {{ signal.scale_val_name() }};
 // Note: unit may be optional
 {%- if signal.unit.is_some() && signal.unit.as_ref().unwrap() != "" -%}// {{ signal.unit.as_ref().unwrap() }} {%- endif %}
-inline constexpr float {{ signal.offset_macro() }} = {{ signal.offset }};
+inline constexpr float {{ signal.offset_macro() }} = {{ signal.offset_val_name() }};
 {%- if signal.unit.is_some() && signal.unit.as_ref().unwrap() != "" -%}// {{ signal.unit.as_ref().unwrap() }} {%- endif %}
 {% endfor %}
 {% endfor %}
@@ -71,10 +104,10 @@ inline constexpr float {{ signal.offset_macro() }} = {{ signal.offset }};
 {% for msg in messages -%}
 // {{msg.name}}
 {% for signal in msg.signals -%}
-inline constexpr float {{ signal.min_val_macro() }} = {{ signal.min }};
+inline constexpr {{ signal.datatype() }} {{ signal.min_val_macro() }} = {{ signal.min_val_name() | safe }};
 // Only print unit if present and non-empty
 {%- if signal.unit.is_some() && signal.unit.as_ref().unwrap() != "" -%}// {{ signal.unit.as_ref().unwrap() }} {%- endif %}
-inline constexpr float {{ signal.max_val_macro() }} = {{ signal.max }};
+inline constexpr {{ signal.datatype() }} {{ signal.max_val_macro() }} = {{ signal.max_val_name() | safe }};
 {%- if signal.unit.is_some() && signal.unit.as_ref().unwrap() != "" -%}// {{ signal.unit.as_ref().unwrap() }} {%- endif %}
 {% endfor %}
 {% endfor %}

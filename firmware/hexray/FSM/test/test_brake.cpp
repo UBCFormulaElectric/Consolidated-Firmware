@@ -1,11 +1,6 @@
 #include "fsmMocks.hpp"
 #include "test_FSMBase.hpp"
-
-extern "C"
-{
-#include "app_canTx.h"
-#include "app_canAlerts.h"
-}
+#include "app_canTx.hpp"
 
 class BrakeModuleTest : public FSMBaseTest
 {
@@ -19,10 +14,10 @@ TEST_F(BrakeModuleTest, Normal_BrakeConditions_1)
 
     LetTimePass(100);
 
-    EXPECT_TRUE(app_canTx_FSM_BrakeActuated_get());
-    EXPECT_EQ(app_canTx_FSM_FrontBrakePressure_get(), 300);
-    EXPECT_FALSE(app_canAlerts_FSM_Info_FrontBrakePressureOCSC_get());
-    EXPECT_FALSE(app_canTx_FSM_Info_FrontBrakePressureOutOfRange_get());
+    EXPECT_TRUE(app::can_tx::FSM_BrakeActuated_get());
+    EXPECT_EQ(app::can_tx::FSM_FrontBrakePressure_get(), 300);
+    EXPECT_FALSE(app::can_tx::FSM_Info_FrontBrakePressureOCSC_get());
+    EXPECT_FALSE(app::can_tx::FSM_Info_FrontBrakePressureOutOfRange_get());
 }
 
 TEST_F(BrakeModuleTest, Normal_BrakeConditions_2)
@@ -33,10 +28,10 @@ TEST_F(BrakeModuleTest, Normal_BrakeConditions_2)
 
     LetTimePass(100);
 
-    EXPECT_TRUE(app_canTx_FSM_BrakeActuated_get());
-    EXPECT_EQ(app_canTx_FSM_FrontBrakePressure_get(), 999);
-    EXPECT_FALSE(app_canAlerts_FSM_Info_FrontBrakePressureOCSC_get());
-    EXPECT_FALSE(app_canTx_FSM_Info_FrontBrakePressureOutOfRange_get());
+    EXPECT_TRUE(app::can_tx::FSM_BrakeActuated_get());
+    EXPECT_EQ(app::can_tx::FSM_FrontBrakePressure_get(), 999);
+    EXPECT_FALSE(app::can_tx::FSM_Info_FrontBrakePressureOCSC_get());
+    EXPECT_FALSE(app::can_tx::FSM_Info_FrontBrakePressureOutOfRange_get());
 }
 
 TEST_F(BrakeModuleTest, Brake_Released)
@@ -47,10 +42,10 @@ TEST_F(BrakeModuleTest, Brake_Released)
 
     LetTimePass(100);
 
-    EXPECT_FALSE(app_canTx_FSM_BrakeActuated_get());
-    EXPECT_EQ(app_canTx_FSM_FrontBrakePressure_get(), 0);
-    EXPECT_FALSE(app_canAlerts_FSM_Info_FrontBrakePressureOCSC_get());
-    EXPECT_FALSE(app_canTx_FSM_Info_FrontBrakePressureOutOfRange_get());
+    EXPECT_FALSE(app::can_tx::FSM_BrakeActuated_get());
+    EXPECT_EQ(app::can_tx::FSM_FrontBrakePressure_get(), 0);
+    EXPECT_FALSE(app::can_tx::FSM_Info_FrontBrakePressureOCSC_get());
+    EXPECT_FALSE(app::can_tx::FSM_Info_FrontBrakePressureOutOfRange_get());
 }
 
 TEST_F(BrakeModuleTest, PSIOutOfRange_OverFlow)
@@ -61,10 +56,10 @@ TEST_F(BrakeModuleTest, PSIOutOfRange_OverFlow)
 
     LetTimePass(100);
 
-    EXPECT_TRUE(app_canTx_FSM_BrakeActuated_get());
-    EXPECT_EQ(app_canTx_FSM_FrontBrakePressure_get(), 2200);
-    EXPECT_FALSE(app_canAlerts_FSM_Info_FrontBrakePressureOCSC_get());
-    EXPECT_TRUE(app_canTx_FSM_Info_FrontBrakePressureOutOfRange_get());
+    EXPECT_TRUE(app::can_tx::FSM_BrakeActuated_get());
+    EXPECT_EQ(app::can_tx::FSM_FrontBrakePressure_get(), 2200);
+    EXPECT_FALSE(app::can_tx::FSM_Info_FrontBrakePressureOCSC_get());
+    EXPECT_TRUE(app::can_tx::FSM_Info_FrontBrakePressureOutOfRange_get());
 }
 
 TEST_F(BrakeModuleTest, PSIOutOfRange_CANOverFlow)
@@ -75,10 +70,10 @@ TEST_F(BrakeModuleTest, PSIOutOfRange_CANOverFlow)
 
     LetTimePass(100);
 
-    EXPECT_TRUE(app_canTx_FSM_BrakeActuated_get());
-    EXPECT_EQ(app_canTx_FSM_FrontBrakePressure_get(), 2500);
-    EXPECT_FALSE(app_canAlerts_FSM_Info_FrontBrakePressureOCSC_get());
-    EXPECT_TRUE(app_canTx_FSM_Info_FrontBrakePressureOutOfRange_get());
+    EXPECT_TRUE(app::can_tx::FSM_BrakeActuated_get());
+    EXPECT_EQ(app::can_tx::FSM_FrontBrakePressure_get(), 2500);
+    EXPECT_FALSE(app::can_tx::FSM_Info_FrontBrakePressureOCSC_get());
+    EXPECT_TRUE(app::can_tx::FSM_Info_FrontBrakePressureOutOfRange_get());
 }
 
 TEST_F(BrakeModuleTest, PSIOutOfRange_CANUnderFlow)
@@ -89,10 +84,10 @@ TEST_F(BrakeModuleTest, PSIOutOfRange_CANUnderFlow)
 
     LetTimePass(100);
 
-    EXPECT_FALSE(app_canTx_FSM_BrakeActuated_get());
-    EXPECT_EQ(app_canTx_FSM_FrontBrakePressure_get(), 2500); // CAN only accepts positive values
-    EXPECT_FALSE(app_canAlerts_FSM_Info_FrontBrakePressureOCSC_get());
-    EXPECT_TRUE(app_canTx_FSM_Info_FrontBrakePressureOutOfRange_get());
+    EXPECT_FALSE(app::can_tx::FSM_BrakeActuated_get());
+    EXPECT_EQ(app::can_tx::FSM_FrontBrakePressure_get(), 2500); // CAN only accepts positive values
+    EXPECT_FALSE(app::can_tx::FSM_Info_FrontBrakePressureOCSC_get());
+    EXPECT_TRUE(app::can_tx::FSM_Info_FrontBrakePressureOutOfRange_get());
 }
 
 TEST_F(BrakeModuleTest, Multiple_Faults_1)
@@ -103,10 +98,10 @@ TEST_F(BrakeModuleTest, Multiple_Faults_1)
 
     LetTimePass(100);
 
-    EXPECT_TRUE(app_canTx_FSM_BrakeActuated_get());
-    EXPECT_EQ(app_canTx_FSM_FrontBrakePressure_get(), 1500);
-    EXPECT_TRUE(app_canAlerts_FSM_Info_FrontBrakePressureOCSC_get());
-    EXPECT_TRUE(app_canTx_FSM_Info_FrontBrakePressureOutOfRange_get());
+    EXPECT_TRUE(app::can_tx::FSM_BrakeActuated_get());
+    EXPECT_EQ(app::can_tx::FSM_FrontBrakePressure_get(), 1500);
+    EXPECT_TRUE(app::can_tx::FSM_Info_FrontBrakePressureOCSC_get());
+    EXPECT_TRUE(app::can_tx::FSM_Info_FrontBrakePressureOutOfRange_get());
 }
 
 TEST_F(BrakeModuleTest, Multiple_Faults_2)
@@ -117,8 +112,8 @@ TEST_F(BrakeModuleTest, Multiple_Faults_2)
 
     LetTimePass(100);
 
-    EXPECT_FALSE(app_canTx_FSM_BrakeActuated_get());
-    EXPECT_EQ(app_canTx_FSM_FrontBrakePressure_get(), 2500);
-    EXPECT_TRUE(app_canAlerts_FSM_Info_FrontBrakePressureOCSC_get());
-    EXPECT_TRUE(app_canTx_FSM_Info_FrontBrakePressureOutOfRange_get());
+    EXPECT_FALSE(app::can_tx::FSM_BrakeActuated_get());
+    EXPECT_EQ(app::can_tx::FSM_FrontBrakePressure_get(), 2500);
+    EXPECT_TRUE(app::can_tx::FSM_Info_FrontBrakePressureOCSC_get());
+    EXPECT_TRUE(app::can_tx::FSM_Info_FrontBrakePressureOutOfRange_get());
 }

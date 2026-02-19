@@ -75,7 +75,8 @@
       "name": "FW Test CI",
       "inherits": "FW Test",
       "cacheVariables": {
-        "FIX_FORMATTING": "OFF"
+        "FIX_FORMATTING": "OFF",
+        "JSONCAN_BINARY_GENERATE": "OFF"
       },
       "generator": "Unix Makefiles"
     }

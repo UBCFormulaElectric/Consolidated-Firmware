@@ -217,8 +217,8 @@ static constexpr uint8_t READ_IMU_REG(uint8_t reg_addr)
 }
 
 // Adjust scaling for all
-static constexpr AccelScale accel_scale = AccelScale::ACCEL_G_4;
-static constexpr GyroScale  gyro_scale  = GyroScale::GYRO_DPS_250;
+static constexpr auto accel_scale = AccelScale::ACCEL_G_4;
+static constexpr auto gyro_scale  = GyroScale::GYRO_DPS_250;
 
 static constexpr float accel_sensitivity = []
 {
@@ -254,31 +254,31 @@ static constexpr float gyro_sensitivity = []()
     }
 }();
 
-static constexpr float temp_scale = 326.8f;
+static constexpr float TEMP_SCALE = 326.8f;
 
-static float translateAccelData(uint8_t data_h, uint8_t data_l)
+static float translateData(const uint8_t data_h, const uint8_t data_l)
 {
-    int16_t raw = static_cast<int16_t>((data_h << 8) | data_l);
-    return static_cast<float>(raw / accel_sensitivity);
+    const auto raw = static_cast<int16_t>(data_h << 8 | data_l);
+    return static_cast<float>(raw) / accel_sensitivity;
 }
 
-static float translateGyroData(uint8_t data_h, uint8_t data_l)
+static float translateGyroData(const uint8_t data_h, const uint8_t data_l)
 {
-    int16_t raw = static_cast<int16_t>((data_h << 8) | data_l);
-    return static_cast<float>(raw / gyro_sensitivity);
+    const auto raw = static_cast<int16_t>(data_h << 8 | data_l);
+    return static_cast<float>(raw) / gyro_sensitivity;
 }
 
-static float translateTempData(uint8_t data_h, uint8_t data_l)
+static float translateTempData(const uint8_t data_h, const uint8_t data_l)
 {
-    int16_t raw = static_cast<int16_t>((data_h << 8) | data_l);
-    return static_cast<float>((raw / 326.8f) + 25.0f);
+    const auto raw = static_cast<int16_t>(data_h << 8 | data_l);
+    return static_cast<float>(raw) / TEMP_SCALE + 25.0f;
 }
 
-std::expected<void, ErrorCode> Imu::init()
+std::expected<void, ErrorCode> Imu::init() const
 {
     // Check if we are able to communicate to the IMU
     std::array<const uint8_t, 1> tx_check = { { READ_IMU_REG(WHO_AM_I) } };
-    std::array<uint8_t, 1>       rx;
+    std::array<uint8_t, 1>       rx{};
 
     std::expected<void, ErrorCode> exit = imu_spi_handle.transmitThenReceive(tx_check, rx);
 
@@ -369,7 +369,7 @@ std::expected<void, ErrorCode> Imu::init()
 //     return exit;
 // }
 
-std::expected<void, ErrorCode> Imu::getAccelX(float &accel_x) const
+std::expected<float, ErrorCode> Imu::getAccelX() const
 {
     if (is_imu_ready == false)
         return std::unexpected(ErrorCode::ERROR);
@@ -378,13 +378,11 @@ std::expected<void, ErrorCode> Imu::getAccelX(float &accel_x) const
     std::array<uint8_t, 2>       rx{};
 
     const auto exit = imu_spi_handle.transmitThenReceive(tx, rx);
-
-    accel_x = translateAccelData(rx[0], rx[1]);
-
-    return exit;
+    RETURN_IF_ERR_SILENT(exit);
+    return translateData(rx[0], rx[1]);
 }
 
-std::expected<void, ErrorCode> Imu::getAccelY(float &accel_y) const
+std::expected<float, ErrorCode> Imu::getAccelY() const
 {
     if (is_imu_ready == false)
         return std::unexpected(ErrorCode::ERROR);
@@ -393,13 +391,12 @@ std::expected<void, ErrorCode> Imu::getAccelY(float &accel_y) const
     std::array<uint8_t, 2>       rx{};
 
     const auto exit = imu_spi_handle.transmitThenReceive(tx, rx);
+    RETURN_IF_ERR_SILENT(exit);
 
-    accel_y = translateAccelData(rx[0], rx[1]);
-
-    return exit;
+    return translateData(rx[0], rx[1]);
 }
 
-std::expected<void, ErrorCode> Imu::getAccelZ(float &accel_z) const
+std::expected<float, ErrorCode> Imu::getAccelZ() const
 {
     if (is_imu_ready == false)
         return std::unexpected(ErrorCode::ERROR);
@@ -408,13 +405,12 @@ std::expected<void, ErrorCode> Imu::getAccelZ(float &accel_z) const
     std::array<uint8_t, 2>       rx{};
 
     const auto exit = imu_spi_handle.transmitThenReceive(tx, rx);
+    RETURN_IF_ERR_SILENT(exit);
 
-    accel_z = translateAccelData(rx[0], rx[1]);
-
-    return exit;
+    return translateData(rx[0], rx[1]);
 }
 
-std::expected<void, ErrorCode> Imu::getGyroX(float &gyro_x) const
+std::expected<float, ErrorCode> Imu::getGyroX() const
 {
     if (is_imu_ready == false)
         return std::unexpected(ErrorCode::ERROR);
@@ -423,13 +419,12 @@ std::expected<void, ErrorCode> Imu::getGyroX(float &gyro_x) const
     std::array<uint8_t, 2>       rx{};
 
     const auto exit = imu_spi_handle.transmitThenReceive(tx, rx);
+    RETURN_IF_ERR_SILENT(exit);
 
-    gyro_x = translateGyroData(rx[0], rx[1]);
-
-    return exit;
+    return translateGyroData(rx[0], rx[1]);
 }
 
-std::expected<void, ErrorCode> Imu::getGyroY(float &gyro_y) const
+std::expected<float, ErrorCode> Imu::getGyroY() const
 {
     if (is_imu_ready == false)
         return std::unexpected(ErrorCode::ERROR);
@@ -438,13 +433,12 @@ std::expected<void, ErrorCode> Imu::getGyroY(float &gyro_y) const
     std::array<uint8_t, 2>       rx{};
 
     const auto exit = imu_spi_handle.transmitThenReceive(tx, rx);
+    RETURN_IF_ERR_SILENT(exit);
 
-    gyro_y = translateGyroData(rx[0], rx[1]);
-
-    return exit;
+    return translateGyroData(rx[0], rx[1]);
 }
 
-std::expected<void, ErrorCode> Imu::getGyroZ(float &gyro_z) const
+std::expected<float, ErrorCode> Imu::getGyroZ() const
 {
     if (is_imu_ready == false)
         return std::unexpected(ErrorCode::ERROR);
@@ -453,13 +447,12 @@ std::expected<void, ErrorCode> Imu::getGyroZ(float &gyro_z) const
     std::array<uint8_t, 2>       rx{};
 
     const auto exit = imu_spi_handle.transmitThenReceive(tx, rx);
+    RETURN_IF_ERR_SILENT(exit);
 
-    gyro_z = translateGyroData(rx[0], rx[1]);
-
-    return exit;
+    return translateGyroData(rx[0], rx[1]);
 }
 
-std::expected<void, ErrorCode> Imu::getTemp(float &temp) const
+std::expected<float, ErrorCode> Imu::getTemp() const
 {
     if (is_imu_ready == false)
         return std::unexpected(ErrorCode::ERROR);
@@ -468,13 +461,12 @@ std::expected<void, ErrorCode> Imu::getTemp(float &temp) const
     std::array<uint8_t, 2>       rx{};
 
     const auto exit = imu_spi_handle.transmitThenReceive(tx, rx);
+    RETURN_IF_ERR_SILENT(exit);
 
-    temp = translateTempData(rx[0], rx[1]);
-
-    return exit;
+    return translateTempData(rx[0], rx[1]);
 }
 
-std::expected<void, ErrorCode> Imu::getAccelAll(AccelData &data) const
+std::expected<Imu::AccelData, ErrorCode> Imu::getAccelAll() const
 {
     if (is_imu_ready == false)
         return std::unexpected(ErrorCode::ERROR);
@@ -483,15 +475,16 @@ std::expected<void, ErrorCode> Imu::getAccelAll(AccelData &data) const
     std::array<uint8_t, 6>       rx{};
 
     const auto exit = imu_spi_handle.transmitThenReceive(tx, rx);
+    RETURN_IF_ERR_SILENT(exit);
 
-    data.x = translateAccelData(rx[0], rx[1]);
-    data.y = translateAccelData(rx[2], rx[3]);
-    data.z = translateAccelData(rx[4], rx[5]);
-
-    return exit;
+    return AccelData{
+        translateData(rx[0], rx[1]),
+        translateData(rx[2], rx[3]),
+        translateData(rx[4], rx[5]),
+    };
 }
 
-std::expected<void, ErrorCode> Imu::getGyroAll(GyroData &data) const
+std::expected<Imu::GyroData, ErrorCode> Imu::getGyroAll() const
 {
     if (is_imu_ready == false)
         return std::unexpected(ErrorCode::ERROR);
@@ -500,12 +493,13 @@ std::expected<void, ErrorCode> Imu::getGyroAll(GyroData &data) const
     std::array<uint8_t, 6>       rx{};
 
     const auto exit = imu_spi_handle.transmitThenReceive(tx, rx);
+    RETURN_IF_ERR_SILENT(exit);
 
-    data.x = translateAccelData(rx[0], rx[1]);
-    data.y = translateAccelData(rx[2], rx[3]);
-    data.z = translateAccelData(rx[4], rx[5]);
-
-    return exit;
+    return GyroData{
+        translateData(rx[0], rx[1]),
+        translateData(rx[2], rx[3]),
+        translateData(rx[4], rx[5]),
+    };
 }
 
 } // namespace io::imu

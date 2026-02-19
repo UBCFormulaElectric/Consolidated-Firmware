@@ -1,11 +1,6 @@
 #include "fsmMocks.hpp"
 #include "test_FSMBase.hpp"
-
-extern "C"
-{
-#include "app_canTx.h"
-#include "app_canAlerts.h"
-}
+#include "app_canTx.hpp"
 
 // TEST NOT COMPLETED:
 // Test values are not accurate, App logic is not yet finalized
@@ -28,14 +23,14 @@ TEST_F(AppsModuleTest, Normal_AppsConditions)
 
     LetTimePass(100);
 
-    EXPECT_FALSE(app_canAlerts_FSM_Warning_PappsOCSC_get());
-    EXPECT_FALSE(app_canAlerts_FSM_Warning_SappsOCSC_get());
-    EXPECT_FALSE(app_canAlerts_FSM_Warning_AppsDisagreement_get());
+    EXPECT_FALSE(app::can_tx::FSM_Warning_PappsOCSC_get());
+    EXPECT_FALSE(app::can_tx::FSM_Warning_SappsOCSC_get());
+    EXPECT_FALSE(app::can_tx::FSM_Warning_AppsDisagreement_get());
 
-    EXPECT_EQ(app_canTx_FSM_PappsRawPedalPercentage_get(), 30.0f);
-    EXPECT_EQ(app_canTx_FSM_SappsRawPedalPercentage_get(), 25.0f);
-    EXPECT_EQ(app_canTx_FSM_PappsMappedPedalPercentage_get(), 30.0f);
-    EXPECT_EQ(app_canTx_FSM_SappsMappedPedalPercentage_get(), 25.0f);
+    EXPECT_EQ(app::can_tx::FSM_PappsRawPedalPercentage_get(), 30.0f);
+    EXPECT_EQ(app::can_tx::FSM_SappsRawPedalPercentage_get(), 25.0f);
+    EXPECT_EQ(app::can_tx::FSM_PappsMappedPedalPercentage_get(), 30.0f);
+    EXPECT_EQ(app::can_tx::FSM_SappsMappedPedalPercentage_get(), 25.0f);
 }
 
 TEST_F(AppsModuleTest, OCSC_1)
@@ -48,14 +43,14 @@ TEST_F(AppsModuleTest, OCSC_1)
 
     LetTimePass(100);
 
-    EXPECT_TRUE(app_canAlerts_FSM_Warning_PappsOCSC_get());
-    EXPECT_TRUE(app_canAlerts_FSM_Warning_SappsOCSC_get());
-    EXPECT_FALSE(app_canAlerts_FSM_Warning_AppsDisagreement_get());
+    EXPECT_TRUE(app::can_tx::FSM_Warning_PappsOCSC_get());
+    EXPECT_TRUE(app::can_tx::FSM_Warning_SappsOCSC_get());
+    EXPECT_FALSE(app::can_tx::FSM_Warning_AppsDisagreement_get());
 
-    EXPECT_EQ(app_canTx_FSM_PappsRawPedalPercentage_get(), 30.0f);
-    EXPECT_EQ(app_canTx_FSM_SappsRawPedalPercentage_get(), 25.0f);
-    EXPECT_EQ(app_canTx_FSM_PappsMappedPedalPercentage_get(), 0.0f);
-    EXPECT_EQ(app_canTx_FSM_SappsMappedPedalPercentage_get(), 0.0f);
+    EXPECT_EQ(app::can_tx::FSM_PappsRawPedalPercentage_get(), 30.0f);
+    EXPECT_EQ(app::can_tx::FSM_SappsRawPedalPercentage_get(), 25.0f);
+    EXPECT_EQ(app::can_tx::FSM_PappsMappedPedalPercentage_get(), 0.0f);
+    EXPECT_EQ(app::can_tx::FSM_SappsMappedPedalPercentage_get(), 0.0f);
 }
 
 TEST_F(AppsModuleTest, OCSC_2)
@@ -68,14 +63,14 @@ TEST_F(AppsModuleTest, OCSC_2)
 
     LetTimePass(100);
 
-    EXPECT_TRUE(app_canAlerts_FSM_Warning_PappsOCSC_get());
-    EXPECT_FALSE(app_canAlerts_FSM_Warning_SappsOCSC_get());
-    EXPECT_FALSE(app_canAlerts_FSM_Warning_AppsDisagreement_get());
+    EXPECT_TRUE(app::can_tx::FSM_Warning_PappsOCSC_get());
+    EXPECT_FALSE(app::can_tx::FSM_Warning_SappsOCSC_get());
+    EXPECT_FALSE(app::can_tx::FSM_Warning_AppsDisagreement_get());
 
-    EXPECT_EQ(app_canTx_FSM_PappsRawPedalPercentage_get(), 30.0f);
-    EXPECT_EQ(app_canTx_FSM_SappsRawPedalPercentage_get(), 25.0f);
-    EXPECT_EQ(app_canTx_FSM_PappsMappedPedalPercentage_get(), 0.0f);
-    EXPECT_EQ(app_canTx_FSM_SappsMappedPedalPercentage_get(), 0.0f);
+    EXPECT_EQ(app::can_tx::FSM_PappsRawPedalPercentage_get(), 30.0f);
+    EXPECT_EQ(app::can_tx::FSM_SappsRawPedalPercentage_get(), 25.0f);
+    EXPECT_EQ(app::can_tx::FSM_PappsMappedPedalPercentage_get(), 0.0f);
+    EXPECT_EQ(app::can_tx::FSM_SappsMappedPedalPercentage_get(), 0.0f);
 }
 
 TEST_F(AppsModuleTest, AppsDisagreement_1)
@@ -88,14 +83,14 @@ TEST_F(AppsModuleTest, AppsDisagreement_1)
 
     LetTimePass(100);
 
-    EXPECT_FALSE(app_canAlerts_FSM_Warning_PappsOCSC_get());
-    EXPECT_FALSE(app_canAlerts_FSM_Warning_SappsOCSC_get());
-    EXPECT_TRUE(app_canAlerts_FSM_Warning_AppsDisagreement_get());
+    EXPECT_FALSE(app::can_tx::FSM_Warning_PappsOCSC_get());
+    EXPECT_FALSE(app::can_tx::FSM_Warning_SappsOCSC_get());
+    EXPECT_TRUE(app::can_tx::FSM_Warning_AppsDisagreement_get());
 
-    EXPECT_EQ(app_canTx_FSM_PappsRawPedalPercentage_get(), 30.0f);
-    EXPECT_EQ(app_canTx_FSM_SappsRawPedalPercentage_get(), 10.0f);
-    EXPECT_EQ(app_canTx_FSM_PappsMappedPedalPercentage_get(), 0.0f);
-    EXPECT_EQ(app_canTx_FSM_SappsMappedPedalPercentage_get(), 0.0f);
+    EXPECT_EQ(app::can_tx::FSM_PappsRawPedalPercentage_get(), 30.0f);
+    EXPECT_EQ(app::can_tx::FSM_SappsRawPedalPercentage_get(), 10.0f);
+    EXPECT_EQ(app::can_tx::FSM_PappsMappedPedalPercentage_get(), 0.0f);
+    EXPECT_EQ(app::can_tx::FSM_SappsMappedPedalPercentage_get(), 0.0f);
 }
 
 TEST_F(AppsModuleTest, AppsDisagreement_2)
@@ -108,14 +103,14 @@ TEST_F(AppsModuleTest, AppsDisagreement_2)
 
     LetTimePass(100);
 
-    EXPECT_FALSE(app_canAlerts_FSM_Warning_PappsOCSC_get());
-    EXPECT_FALSE(app_canAlerts_FSM_Warning_SappsOCSC_get());
-    EXPECT_TRUE(app_canAlerts_FSM_Warning_AppsDisagreement_get());
+    EXPECT_FALSE(app::can_tx::FSM_Warning_PappsOCSC_get());
+    EXPECT_FALSE(app::can_tx::FSM_Warning_SappsOCSC_get());
+    EXPECT_TRUE(app::can_tx::FSM_Warning_AppsDisagreement_get());
 
-    EXPECT_EQ(app_canTx_FSM_PappsRawPedalPercentage_get(), 10.0f);
-    EXPECT_EQ(app_canTx_FSM_SappsRawPedalPercentage_get(), 30.0f);
-    EXPECT_EQ(app_canTx_FSM_PappsMappedPedalPercentage_get(), 0.0f);
-    EXPECT_EQ(app_canTx_FSM_SappsMappedPedalPercentage_get(), 0.0f);
+    EXPECT_EQ(app::can_tx::FSM_PappsRawPedalPercentage_get(), 10.0f);
+    EXPECT_EQ(app::can_tx::FSM_SappsRawPedalPercentage_get(), 30.0f);
+    EXPECT_EQ(app::can_tx::FSM_PappsMappedPedalPercentage_get(), 0.0f);
+    EXPECT_EQ(app::can_tx::FSM_SappsMappedPedalPercentage_get(), 0.0f);
 }
 
 TEST_F(AppsModuleTest, AppsDisagreement_CANOverFlow)
@@ -128,14 +123,14 @@ TEST_F(AppsModuleTest, AppsDisagreement_CANOverFlow)
 
     LetTimePass(100);
 
-    EXPECT_FALSE(app_canAlerts_FSM_Warning_PappsOCSC_get());
-    EXPECT_FALSE(app_canAlerts_FSM_Warning_SappsOCSC_get());
-    EXPECT_TRUE(app_canAlerts_FSM_Warning_AppsDisagreement_get());
+    EXPECT_FALSE(app::can_tx::FSM_Warning_PappsOCSC_get());
+    EXPECT_FALSE(app::can_tx::FSM_Warning_SappsOCSC_get());
+    EXPECT_TRUE(app::can_tx::FSM_Warning_AppsDisagreement_get());
 
-    EXPECT_EQ(app_canTx_FSM_PappsRawPedalPercentage_get(), 100.0f);
-    EXPECT_EQ(app_canTx_FSM_SappsRawPedalPercentage_get(), 100.0f);
-    EXPECT_EQ(app_canTx_FSM_PappsMappedPedalPercentage_get(), 0.0f);
-    EXPECT_EQ(app_canTx_FSM_SappsMappedPedalPercentage_get(), 0.0f);
+    EXPECT_EQ(app::can_tx::FSM_PappsRawPedalPercentage_get(), 100.0f);
+    EXPECT_EQ(app::can_tx::FSM_SappsRawPedalPercentage_get(), 100.0f);
+    EXPECT_EQ(app::can_tx::FSM_PappsMappedPedalPercentage_get(), 0.0f);
+    EXPECT_EQ(app::can_tx::FSM_SappsMappedPedalPercentage_get(), 0.0f);
 }
 
 TEST_F(AppsModuleTest, AppsDisagreement_CANUnderFlow)
@@ -148,14 +143,14 @@ TEST_F(AppsModuleTest, AppsDisagreement_CANUnderFlow)
 
     LetTimePass(100);
 
-    EXPECT_FALSE(app_canAlerts_FSM_Warning_PappsOCSC_get());
-    EXPECT_FALSE(app_canAlerts_FSM_Warning_SappsOCSC_get());
-    EXPECT_TRUE(app_canAlerts_FSM_Warning_AppsDisagreement_get());
+    EXPECT_FALSE(app::can_tx::FSM_Warning_PappsOCSC_get());
+    EXPECT_FALSE(app::can_tx::FSM_Warning_SappsOCSC_get());
+    EXPECT_TRUE(app::can_tx::FSM_Warning_AppsDisagreement_get());
 
-    EXPECT_EQ(app_canTx_FSM_PappsRawPedalPercentage_get(), 0.0f);
-    EXPECT_EQ(app_canTx_FSM_SappsRawPedalPercentage_get(), 0.0f);
-    EXPECT_EQ(app_canTx_FSM_PappsMappedPedalPercentage_get(), 0.0f);
-    EXPECT_EQ(app_canTx_FSM_SappsMappedPedalPercentage_get(), 0.0f);
+    EXPECT_EQ(app::can_tx::FSM_PappsRawPedalPercentage_get(), 0.0f);
+    EXPECT_EQ(app::can_tx::FSM_SappsRawPedalPercentage_get(), 0.0f);
+    EXPECT_EQ(app::can_tx::FSM_PappsMappedPedalPercentage_get(), 0.0f);
+    EXPECT_EQ(app::can_tx::FSM_SappsMappedPedalPercentage_get(), 0.0f);
 }
 
 TEST_F(AppsModuleTest, CANOverFlow)
@@ -168,14 +163,14 @@ TEST_F(AppsModuleTest, CANOverFlow)
 
     LetTimePass(100);
 
-    EXPECT_FALSE(app_canAlerts_FSM_Warning_PappsOCSC_get());
-    EXPECT_FALSE(app_canAlerts_FSM_Warning_SappsOCSC_get());
-    EXPECT_FALSE(app_canAlerts_FSM_Warning_AppsDisagreement_get());
+    EXPECT_FALSE(app::can_tx::FSM_Warning_PappsOCSC_get());
+    EXPECT_FALSE(app::can_tx::FSM_Warning_SappsOCSC_get());
+    EXPECT_FALSE(app::can_tx::FSM_Warning_AppsDisagreement_get());
 
-    EXPECT_EQ(app_canTx_FSM_PappsRawPedalPercentage_get(), 100.0f);
-    EXPECT_EQ(app_canTx_FSM_SappsRawPedalPercentage_get(), 95.0f);
-    EXPECT_EQ(app_canTx_FSM_PappsMappedPedalPercentage_get(), 100.0f);
-    EXPECT_EQ(app_canTx_FSM_SappsMappedPedalPercentage_get(), 95.0f);
+    EXPECT_EQ(app::can_tx::FSM_PappsRawPedalPercentage_get(), 100.0f);
+    EXPECT_EQ(app::can_tx::FSM_SappsRawPedalPercentage_get(), 95.0f);
+    EXPECT_EQ(app::can_tx::FSM_PappsMappedPedalPercentage_get(), 100.0f);
+    EXPECT_EQ(app::can_tx::FSM_SappsMappedPedalPercentage_get(), 95.0f);
 }
 
 TEST_F(AppsModuleTest, CANUnderFlow)
@@ -188,14 +183,14 @@ TEST_F(AppsModuleTest, CANUnderFlow)
 
     LetTimePass(100);
 
-    EXPECT_FALSE(app_canAlerts_FSM_Warning_PappsOCSC_get());
-    EXPECT_FALSE(app_canAlerts_FSM_Warning_SappsOCSC_get());
-    EXPECT_FALSE(app_canAlerts_FSM_Warning_AppsDisagreement_get());
+    EXPECT_FALSE(app::can_tx::FSM_Warning_PappsOCSC_get());
+    EXPECT_FALSE(app::can_tx::FSM_Warning_SappsOCSC_get());
+    EXPECT_FALSE(app::can_tx::FSM_Warning_AppsDisagreement_get());
 
-    EXPECT_EQ(app_canTx_FSM_PappsRawPedalPercentage_get(), 0.0f);
-    EXPECT_EQ(app_canTx_FSM_SappsRawPedalPercentage_get(), 5.0f);
-    EXPECT_EQ(app_canTx_FSM_PappsMappedPedalPercentage_get(), 0.0f);
-    EXPECT_EQ(app_canTx_FSM_SappsMappedPedalPercentage_get(), 5.0f);
+    EXPECT_EQ(app::can_tx::FSM_PappsRawPedalPercentage_get(), 0.0f);
+    EXPECT_EQ(app::can_tx::FSM_SappsRawPedalPercentage_get(), 5.0f);
+    EXPECT_EQ(app::can_tx::FSM_PappsMappedPedalPercentage_get(), 0.0f);
+    EXPECT_EQ(app::can_tx::FSM_SappsMappedPedalPercentage_get(), 5.0f);
 }
 
 TEST_F(AppsModuleTest, Multiple_Faults_1)
@@ -208,14 +203,14 @@ TEST_F(AppsModuleTest, Multiple_Faults_1)
 
     LetTimePass(100);
 
-    EXPECT_TRUE(app_canAlerts_FSM_Warning_PappsOCSC_get());
-    EXPECT_FALSE(app_canAlerts_FSM_Warning_SappsOCSC_get());
-    EXPECT_TRUE(app_canAlerts_FSM_Warning_AppsDisagreement_get());
+    EXPECT_TRUE(app::can_tx::FSM_Warning_PappsOCSC_get());
+    EXPECT_FALSE(app::can_tx::FSM_Warning_SappsOCSC_get());
+    EXPECT_TRUE(app::can_tx::FSM_Warning_AppsDisagreement_get());
 
-    EXPECT_EQ(app_canTx_FSM_PappsRawPedalPercentage_get(), 30.0f);
-    EXPECT_EQ(app_canTx_FSM_SappsRawPedalPercentage_get(), 50.0f);
-    EXPECT_EQ(app_canTx_FSM_PappsMappedPedalPercentage_get(), 0.0f);
-    EXPECT_EQ(app_canTx_FSM_SappsMappedPedalPercentage_get(), 0.0f);
+    EXPECT_EQ(app::can_tx::FSM_PappsRawPedalPercentage_get(), 30.0f);
+    EXPECT_EQ(app::can_tx::FSM_SappsRawPedalPercentage_get(), 50.0f);
+    EXPECT_EQ(app::can_tx::FSM_PappsMappedPedalPercentage_get(), 0.0f);
+    EXPECT_EQ(app::can_tx::FSM_SappsMappedPedalPercentage_get(), 0.0f);
 }
 
 TEST_F(AppsModuleTest, Multiple_Faults_2)
@@ -228,14 +223,14 @@ TEST_F(AppsModuleTest, Multiple_Faults_2)
 
     LetTimePass(100);
 
-    EXPECT_TRUE(app_canAlerts_FSM_Warning_PappsOCSC_get());
-    EXPECT_TRUE(app_canAlerts_FSM_Warning_SappsOCSC_get());
-    EXPECT_TRUE(app_canAlerts_FSM_Warning_AppsDisagreement_get());
+    EXPECT_TRUE(app::can_tx::FSM_Warning_PappsOCSC_get());
+    EXPECT_TRUE(app::can_tx::FSM_Warning_SappsOCSC_get());
+    EXPECT_TRUE(app::can_tx::FSM_Warning_AppsDisagreement_get());
 
-    EXPECT_EQ(app_canTx_FSM_PappsRawPedalPercentage_get(), 100.0f);
-    EXPECT_EQ(app_canTx_FSM_SappsRawPedalPercentage_get(), 0.0f);
-    EXPECT_EQ(app_canTx_FSM_PappsMappedPedalPercentage_get(), 0.0f);
-    EXPECT_EQ(app_canTx_FSM_SappsMappedPedalPercentage_get(), 0.0f);
+    EXPECT_EQ(app::can_tx::FSM_PappsRawPedalPercentage_get(), 100.0f);
+    EXPECT_EQ(app::can_tx::FSM_SappsRawPedalPercentage_get(), 0.0f);
+    EXPECT_EQ(app::can_tx::FSM_PappsMappedPedalPercentage_get(), 0.0f);
+    EXPECT_EQ(app::can_tx::FSM_SappsMappedPedalPercentage_get(), 0.0f);
 }
 
 TEST_F(AppsModuleTest, Multiple_Faults_3)
@@ -248,14 +243,14 @@ TEST_F(AppsModuleTest, Multiple_Faults_3)
 
     LetTimePass(100);
 
-    EXPECT_FALSE(app_canAlerts_FSM_Warning_PappsOCSC_get());
-    EXPECT_TRUE(app_canAlerts_FSM_Warning_SappsOCSC_get());
-    EXPECT_TRUE(app_canAlerts_FSM_Warning_AppsDisagreement_get());
+    EXPECT_FALSE(app::can_tx::FSM_Warning_PappsOCSC_get());
+    EXPECT_TRUE(app::can_tx::FSM_Warning_SappsOCSC_get());
+    EXPECT_TRUE(app::can_tx::FSM_Warning_AppsDisagreement_get());
 
-    EXPECT_EQ(app_canTx_FSM_PappsRawPedalPercentage_get(), 100.0f);
-    EXPECT_EQ(app_canTx_FSM_SappsRawPedalPercentage_get(), 50.0f);
-    EXPECT_EQ(app_canTx_FSM_PappsMappedPedalPercentage_get(), 0.0f);
-    EXPECT_EQ(app_canTx_FSM_SappsMappedPedalPercentage_get(), 0.0f);
+    EXPECT_EQ(app::can_tx::FSM_PappsRawPedalPercentage_get(), 100.0f);
+    EXPECT_EQ(app::can_tx::FSM_SappsRawPedalPercentage_get(), 50.0f);
+    EXPECT_EQ(app::can_tx::FSM_PappsMappedPedalPercentage_get(), 0.0f);
+    EXPECT_EQ(app::can_tx::FSM_SappsMappedPedalPercentage_get(), 0.0f);
 }
 
 TEST_F(AppsModuleTest, Multiple_Faults_4)
@@ -268,12 +263,12 @@ TEST_F(AppsModuleTest, Multiple_Faults_4)
 
     LetTimePass(100);
 
-    EXPECT_TRUE(app_canAlerts_FSM_Warning_PappsOCSC_get());
-    EXPECT_FALSE(app_canAlerts_FSM_Warning_SappsOCSC_get());
-    EXPECT_TRUE(app_canAlerts_FSM_Warning_AppsDisagreement_get());
+    EXPECT_TRUE(app::can_tx::FSM_Warning_PappsOCSC_get());
+    EXPECT_FALSE(app::can_tx::FSM_Warning_SappsOCSC_get());
+    EXPECT_TRUE(app::can_tx::FSM_Warning_AppsDisagreement_get());
 
-    EXPECT_EQ(app_canTx_FSM_PappsRawPedalPercentage_get(), 0.0f);
-    EXPECT_EQ(app_canTx_FSM_SappsRawPedalPercentage_get(), 10.0f);
-    EXPECT_EQ(app_canTx_FSM_PappsMappedPedalPercentage_get(), 0.0f);
-    EXPECT_EQ(app_canTx_FSM_SappsMappedPedalPercentage_get(), 0.0f);
+    EXPECT_EQ(app::can_tx::FSM_PappsRawPedalPercentage_get(), 0.0f);
+    EXPECT_EQ(app::can_tx::FSM_SappsRawPedalPercentage_get(), 10.0f);
+    EXPECT_EQ(app::can_tx::FSM_PappsMappedPedalPercentage_get(), 0.0f);
+    EXPECT_EQ(app::can_tx::FSM_SappsMappedPedalPercentage_get(), 0.0f);
 }
