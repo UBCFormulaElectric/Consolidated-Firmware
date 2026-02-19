@@ -2,6 +2,7 @@
 #include "util_errorCodes.hpp"
 
 #include <array>
+#include <cstdint>
 
 namespace io::seven_seg
 {
