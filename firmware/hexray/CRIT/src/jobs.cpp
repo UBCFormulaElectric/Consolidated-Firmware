@@ -60,10 +60,11 @@ void jobs_run100Hz_tick()
     app::can_tx::CRIT_LaunchControlSwitch_set(io::switches::launch_control_get());
     app::can_tx::CRIT_RegenSwitch_set(io::switches::regen_get());
     app::can_tx::CRIT_StartButton_set(io::switches::start_get());
-    if (const bool has_rising_edge = io::switches::telem_mark_rising_edge_get(); has_rising_edge)
-    {
-        io::can_tx::CRIT_TelemMarkEvent_sendAperiodic();
-    }
+    // TODO debounce and find rising edge
+    // if (const bool has_rising_edge = io::switches::telem_mark_get(); has_rising_edge)
+    // {
+    //     io::can_tx::CRIT_TelemMarkEvent_sendAperiodic();
+    // }
 
     // enqueue can messages
     io::can_tx::enqueue100HzMsgs();

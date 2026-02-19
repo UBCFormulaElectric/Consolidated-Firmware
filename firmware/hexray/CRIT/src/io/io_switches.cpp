@@ -19,12 +19,8 @@ bool start_get()
 {
     return push_drive_sig.readPin();
 }
-bool telem_mark_rising_edge_get()
+bool telem_mark_get()
 {
-    static bool last_state    = false;
-    const bool  current_state = telem_sig.readPin();
-    const bool  rising_edge   = current_state == true and last_state == false;
-    last_state                = current_state;
-    return rising_edge;
+    return telem_sig.readPin();
 }
 } // namespace io::switches

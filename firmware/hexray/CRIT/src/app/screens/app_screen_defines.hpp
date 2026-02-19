@@ -1,5 +1,6 @@
+#pragma once
 #include <stdint.h>
-#include "io_rotary.h"
+#include "io_rotary.hpp"
 
 // clang-format off
 // Segment bit mask
