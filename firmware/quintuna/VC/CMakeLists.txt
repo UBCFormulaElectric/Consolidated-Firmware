@@ -121,7 +121,7 @@ if ("${TARGET}" STREQUAL "binary")
             "quintuna_VC_commit_info"
             "logfs_cm7"
             "sbg_ecom_cm7"
-            "chimera_v2_proto_cm7"
+            "quintuna_chimera_v2_proto_cm7"
             m)
 
 
@@ -152,7 +152,7 @@ if ("${TARGET}" STREQUAL "binary")
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(FAKE_SRCS
-            "${SHARED_FAKES_DIR}/io_imu.cpp"
+            "${SHARED_FAKES_DIR}/io_imuQuintuna.cpp"
             "${SHARED_FAKES_DIR}/io_loadswitch.cpp"
             "${SHARED_FAKES_DIR}/io_canQueue.cpp"
             "${SHARED_FAKES_DIR}/io_bootHandler.cpp"

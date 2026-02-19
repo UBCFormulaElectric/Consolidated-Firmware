@@ -6,7 +6,7 @@
  ******************************************************************************
  * @attention
  *
- * Copyright (c) 2025 STMicroelectronics.
+ * Copyright (c) 2026 STMicroelectronics.
  * All rights reserved.
  *
  * This software is licensed under terms that can be found in the LICENSE file
@@ -18,11 +18,11 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "cmsis_os2.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
+#include "hw_usb.h"
 #include "hw_error.hpp"
 /* USER CODE END Includes */
 
@@ -51,20 +51,20 @@ RTC_HandleTypeDef hrtc;
 
 SPI_HandleTypeDef hspi1;
 
-/* USER CODE BEGIN PV */
+PCD_HandleTypeDef hpcd_USB_DRD_FS;
 
+/* USER CODE BEGIN PV */
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
-void        MX_FREERTOS_Init(void);
 static void MX_GPIO_Init(void);
 static void MX_FDCAN1_Init(void);
 static void MX_IWDG_Init(void);
 static void MX_RTC_Init(void);
 static void MX_SPI1_Init(void);
+static void MX_USB_PCD_Init(void);
 /* USER CODE BEGIN PFP */
-
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -88,6 +88,7 @@ int main(void)
     HAL_Init();
 
     /* USER CODE BEGIN Init */
+
     /* USER CODE END Init */
 
     /* Configure the system clock */
@@ -103,22 +104,14 @@ int main(void)
     MX_IWDG_Init();
     MX_RTC_Init();
     MX_SPI1_Init();
+    MX_USB_PCD_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
     /* USER CODE END 2 */
 
-    /* Init scheduler */
-    osKernelInitialize();
-    /* Call init function for freertos objects (in app_freertos.c) */
-    MX_FREERTOS_Init();
-
-    /* Start scheduler */
-    osKernelStart();
-
-    /* We should never get here as control is now taken by the scheduler */
-
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
+
     while (1)
     {
         /* USER CODE END WHILE */
@@ -148,9 +141,11 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_CSI;
+    RCC_OscInitStruct.OscillatorType =
+        RCC_OSCILLATORTYPE_HSI48 | RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_CSI;
     RCC_OscInitStruct.HSEState            = RCC_HSE_ON;
     RCC_OscInitStruct.LSIState            = RCC_LSI_ON;
+    RCC_OscInitStruct.HSI48State          = RCC_HSI48_ON;
     RCC_OscInitStruct.CSIState            = RCC_CSI_ON;
     RCC_OscInitStruct.CSICalibrationValue = RCC_CSICALIBRATION_DEFAULT;
     RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
@@ -356,6 +351,40 @@ static void MX_SPI1_Init(void)
     /* USER CODE BEGIN SPI1_Init 2 */
 
     /* USER CODE END SPI1_Init 2 */
+}
+
+/**
+ * @brief USB Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_USB_PCD_Init(void)
+{
+    /* USER CODE BEGIN USB_Init 0 */
+
+    /* USER CODE END USB_Init 0 */
+
+    /* USER CODE BEGIN USB_Init 1 */
+
+    /* USER CODE END USB_Init 1 */
+    hpcd_USB_DRD_FS.Instance                      = USB_DRD_FS;
+    hpcd_USB_DRD_FS.Init.dev_endpoints            = 8;
+    hpcd_USB_DRD_FS.Init.speed                    = USBD_FS_SPEED;
+    hpcd_USB_DRD_FS.Init.phy_itface               = PCD_PHY_EMBEDDED;
+    hpcd_USB_DRD_FS.Init.Sof_enable               = DISABLE;
+    hpcd_USB_DRD_FS.Init.low_power_enable         = DISABLE;
+    hpcd_USB_DRD_FS.Init.lpm_enable               = DISABLE;
+    hpcd_USB_DRD_FS.Init.battery_charging_enable  = DISABLE;
+    hpcd_USB_DRD_FS.Init.vbus_sensing_enable      = DISABLE;
+    hpcd_USB_DRD_FS.Init.bulk_doublebuffer_enable = DISABLE;
+    hpcd_USB_DRD_FS.Init.iso_singlebuffer_enable  = DISABLE;
+    if (HAL_PCD_Init(&hpcd_USB_DRD_FS) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN USB_Init 2 */
+
+    /* USER CODE END USB_Init 2 */
 }
 
 /**

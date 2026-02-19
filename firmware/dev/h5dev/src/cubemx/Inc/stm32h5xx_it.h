@@ -6,7 +6,7 @@
  ******************************************************************************
  * @attention
  *
- * Copyright (c) 2025 STMicroelectronics.
+ * Copyright (c) 2026 STMicroelectronics.
  * All rights reserved.
  *
  * This software is licensed under terms that can be found in the LICENSE file
@@ -57,6 +57,7 @@ extern "C"
     void FDCAN1_IT0_IRQHandler(void);
     void FDCAN1_IT1_IRQHandler(void);
     void TIM6_IRQHandler(void);
+    void USB_DRD_FS_IRQHandler(void);
     /* USER CODE BEGIN EFP */
 
     /* USER CODE END EFP */

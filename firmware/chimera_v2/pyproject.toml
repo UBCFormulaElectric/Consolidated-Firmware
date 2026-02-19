@@ -18,4 +18,4 @@ dependencies = [
 
 [tool.setuptools]
 py-modules=["chimera_v2", "load_bank", "power_supply", "scope"]
-packages=["proto_autogen"]
+packages=["proto_autogen_hex"]

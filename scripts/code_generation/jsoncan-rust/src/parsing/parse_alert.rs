@@ -17,8 +17,11 @@ struct AlertsSchema {
     faults_counts_id: u32,
     info_id: u32,
     info_counts_id: u32,
+    #[serde(default)]
     warnings: HashMap<String, AlertEntrySchema>,
+    #[serde(default)]
     faults: HashMap<String, AlertEntrySchema>,
+    #[serde(default)]
     info: HashMap<String, AlertEntrySchema>,
 }
 
@@ -48,6 +51,10 @@ pub fn parse_alert_data(can_data_dir: &String, node_name: &String) -> Option<Jso
             ),
         },
     };
+
+    if file_content == "{}" {
+        return None;
+    }
 
     let alerts_json: AlertsSchema = match serde_json::from_str(&file_content) {
         Ok(v) => v,
