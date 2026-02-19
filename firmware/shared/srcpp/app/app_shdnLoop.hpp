@@ -5,7 +5,7 @@
 
 namespace app::shdn
 {
-template <size_t NODES_LEN> class shdnLoop
+template <std::size_t NODES_LEN> class shdnLoop
 {
     const std::array<const io::shdn::node *const, NODES_LEN> nodes;
 

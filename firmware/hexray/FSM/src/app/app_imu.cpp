@@ -4,7 +4,7 @@
 #include "app_canTx.hpp"
 
 #ifdef TARGET_TEST // TODO make proper fakes
-io::imu::Imu imu_config;
+const io::imu::Imu imu_config;
 #endif // TARGET_TEST
 namespace app::imu
 {

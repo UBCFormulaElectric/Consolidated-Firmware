@@ -176,7 +176,7 @@ impl CanSignal {
     fn val_name(self: &Self, value: f64) -> String {
         match self.signal_type {
             CanSignalType::Numerical => {
-                value.to_string()
+                format!("{:?}f", value)
             },
             CanSignalType::Boolean => {
                 if value == 0f64 {
@@ -204,6 +204,14 @@ impl CanSignal {
 
     pub fn min_val_name(self: &Self) -> String {
         self.val_name(self.min)
+    }
+
+    pub fn scale_val_name(self: &Self) -> String {
+        format!("{:?}f", self.scale)
+    }
+
+    pub fn offset_val_name(self: &Self) -> String {
+        format!("{:?}f", self.offset)
     }
 }
 

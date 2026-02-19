@@ -141,7 +141,7 @@ elseif ("${TARGET}" STREQUAL "test")
     add_compile_definitions("hexray_RSM_test" PRIVATE STM32H562Rx)
 
     # JSONCAN
-    jsoncan_library(RSM hexray "${CMAKE_CURRENT_BINARY_DIR}")
+    jsoncan_library_cpp(RSM hexray "${CMAKE_CURRENT_BINARY_DIR}")
 
     # CommitInfo
     commit_info_library(

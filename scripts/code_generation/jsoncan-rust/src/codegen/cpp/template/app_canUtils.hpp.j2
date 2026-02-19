@@ -91,10 +91,10 @@ inline constexpr {{ signal.datatype() }} {{ signal.start_val_macro() }} = {{ sig
 {% for msg in messages -%}
 // {{msg.name}}
 {% for signal in msg.signals -%}
-inline constexpr float {{ signal.scale_macro() }} = {{ signal.scale }};
+inline constexpr float {{ signal.scale_macro() }} = {{ signal.scale_val_name() }};
 // Note: unit may be optional
 {%- if signal.unit.is_some() && signal.unit.as_ref().unwrap() != "" -%}// {{ signal.unit.as_ref().unwrap() }} {%- endif %}
-inline constexpr float {{ signal.offset_macro() }} = {{ signal.offset }};
+inline constexpr float {{ signal.offset_macro() }} = {{ signal.offset_val_name() }};
 {%- if signal.unit.is_some() && signal.unit.as_ref().unwrap() != "" -%}// {{ signal.unit.as_ref().unwrap() }} {%- endif %}
 {% endfor %}
 {% endfor %}

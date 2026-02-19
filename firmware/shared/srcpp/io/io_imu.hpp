@@ -3,6 +3,8 @@
 #include "util_errorCodes.hpp"
 #ifdef TARGET_EMBEDDED
 #include "hw_spi.hpp"
+#else
+#include <cstdint>
 #endif
 /**
  * IMU Datasheet: https://invensense.tdk.com/wp-content/uploads/2021/11/DS-000409-IAM-20680HP-v1.2-Typ.pdf
@@ -211,18 +213,18 @@ class Imu
     std::expected<GyroData, ErrorCode>  getGyroAll() const;
 
 #ifdef TARGET_TEST
-    bool  initialized  = false;
-    float accel_x_fake = 0.0f, accel_y_fake = 0.0f, accel_z_fake = 0.0f, gyro_x_fake = 0.0f, gyro_y_fake = 0.0f,
-          gyro_z_fake = 0.0f;
+    bool          initialized   = false;
+    mutable float _accel_x_fake = 0.0f, _accel_y_fake = 0.0f, _accel_z_fake = 0.0f, _gyro_x_fake = 0.0f,
+                  _gyro_y_fake = 0.0f, _gyro_z_fake = 0.0f;
 
     void reset_init();
-    bool get_init();
-    void set_AccelX(float accel_x_fake);
-    void set_AccelY(float accel_y_fake);
-    void set_AccelZ(float accel_z_fake);
-    void set_GyroRoll(float gyro_x_fake);
-    void set_GyroPitch(float gyro_y_fake);
-    void set_GyroYaw(float gyro_z_fake);
+    bool get_init() const;
+    void set_AccelX(float accel_x_fake) const;
+    void set_AccelY(float accel_y_fake) const;
+    void set_AccelZ(float accel_z_fake) const;
+    void set_GyroRoll(float gyro_x_fake) const;
+    void set_GyroPitch(float gyro_y_fake) const;
+    void set_GyroYaw(float gyro_z_fake) const;
 #endif
 };
 } // namespace io::imu
