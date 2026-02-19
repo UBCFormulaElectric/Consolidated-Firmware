@@ -11,19 +11,35 @@
 
 static PowerLimitingInputs powerLimitingInputs;
 
-void app_wheelVerticalForces_broadcast(const ImuData *imu_data)
+void app_wheelVerticalForces_broadcast(const ImuData *imu_data, TractionControl_Inputs *inputs)
 {
     app_canTx_VC_FrontLeftWheelVerticalForce_set(
-        (uint32_t)(((REAR_WEIGHT_DISTRIBUTION - LONG_ACCEL_TERM_VERTICAL_FORCE(imu_data->long_accel)) / 4.0f) -
+        (uint32_t)(((REAR_WEIGHT_DISTRIBUTION +
+                     (DOWNFORCE_TERM_VERTICAL_FORCE(inputs->vehicle_velocity_kmh) *
+                      DYNAMIC_COP_FRONT(imu_data->long_accel) * DYNAMIC_COP_LEFT(imu_data->lat_accel)) -
+                     LONG_ACCEL_TERM_VERTICAL_FORCE(imu_data->long_accel)) /
+                    4.0f) -
                    LAT_ACCEL_TERM_VERTICAL_FORCE(imu_data->lat_accel)));
     app_canTx_VC_FrontRightWheelVerticalForce_set(
-        (uint32_t)(((REAR_WEIGHT_DISTRIBUTION - LONG_ACCEL_TERM_VERTICAL_FORCE(imu_data->long_accel)) / 4.0f) +
+        (uint32_t)(((REAR_WEIGHT_DISTRIBUTION +
+                     (DOWNFORCE_TERM_VERTICAL_FORCE(inputs->vehicle_velocity_kmh) *
+                      DYNAMIC_COP_FRONT(imu_data->long_accel) * DYNAMIC_COP_RIGHT(imu_data->lat_accel)) -
+                     LONG_ACCEL_TERM_VERTICAL_FORCE(imu_data->long_accel)) /
+                    4.0f) +
                    LAT_ACCEL_TERM_VERTICAL_FORCE(imu_data->lat_accel)));
     app_canTx_VC_RearLeftWheelVerticalForce_set(
-        (uint32_t)(((REAR_WEIGHT_DISTRIBUTION + LONG_ACCEL_TERM_VERTICAL_FORCE(imu_data->long_accel)) / 4.0f) -
+        (uint32_t)(((REAR_WEIGHT_DISTRIBUTION +
+                     (DOWNFORCE_TERM_VERTICAL_FORCE(inputs->vehicle_velocity_kmh) *
+                      DYNAMIC_COP_REAR(imu_data->long_accel) * DYNAMIC_COP_LEFT(imu_data->lat_accel)) +
+                     LONG_ACCEL_TERM_VERTICAL_FORCE(imu_data->long_accel)) /
+                    4.0f) -
                    LAT_ACCEL_TERM_VERTICAL_FORCE(imu_data->lat_accel)));
     app_canTx_VC_RearRightWheelVerticalForce_set(
-        (uint32_t)(((REAR_WEIGHT_DISTRIBUTION + LONG_ACCEL_TERM_VERTICAL_FORCE(imu_data->long_accel)) / 4.0f) +
+        (uint32_t)(((REAR_WEIGHT_DISTRIBUTION +
+                     (DOWNFORCE_TERM_VERTICAL_FORCE(inputs->vehicle_velocity_kmh) *
+                      DYNAMIC_COP_REAR(imu_data->long_accel) * DYNAMIC_COP_RIGHT(imu_data->lat_accel)) +
+                     LONG_ACCEL_TERM_VERTICAL_FORCE(imu_data->long_accel)) /
+                    4.0f) +
                    LAT_ACCEL_TERM_VERTICAL_FORCE(imu_data->lat_accel)));
 }
 
