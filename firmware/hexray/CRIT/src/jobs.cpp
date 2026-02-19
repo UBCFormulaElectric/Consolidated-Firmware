@@ -7,6 +7,8 @@
 #include "io_time.hpp"
 #include "app_canUtils.hpp"
 #include "app_commitInfo.h"
+#include "io_leds.hpp"
+#include "io_sevenSeg.hpp"
 
 static auto drive_mode = app::can_utils::DriveMode::DRIVE_MODE_POWER;
 
@@ -40,6 +42,16 @@ void jobs_run1Hz_tick()
 }
 void jobs_run100Hz_tick()
 {
+    // TODO move this to app_leds
+    io::leds::update({ io::leds::color::OFF, io::leds::color::OFF, io::leds::color::OFF, io::leds::color::OFF,
+                       io::leds::color::OFF, io::leds::color::OFF, io::leds::color::OFF, io::leds::color::OFF,
+                       io::leds::color::OFF, false, false, false, false, false });
+    io::leds::setBrightness(1.0);
+
+    // TODO
+    // io::seven_seg::write({});
+    io::seven_seg::setBrightness(1.0);
+
     // update the state from the switches
     app::can_tx::CRIT_TorqueVectoringSwitch_set(io::switches::torque_vectoring_get());
     app::can_tx::CRIT_LaunchControlSwitch_set(io::switches::launch_control_get());
