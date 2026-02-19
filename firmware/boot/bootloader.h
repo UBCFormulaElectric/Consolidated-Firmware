@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include <stdnoreturn.h>
 
 // Keep CAN protocol in sync with:
 // canup/bootloader.py
