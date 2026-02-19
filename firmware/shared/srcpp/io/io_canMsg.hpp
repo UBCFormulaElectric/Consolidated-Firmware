@@ -46,5 +46,10 @@ struct CanMsg
         return std::span<const uint32_t, CAN_PAYLOAD_BYTES / 4>{ reinterpret_cast<const uint32_t *>(data.data()),
                                                                  CAN_PAYLOAD_BYTES / 4 };
     }
+    [[nodiscard]] std::span<const uint64_t, CAN_PAYLOAD_BYTES / 8> getDataAsQWords() const
+    {
+        return std::span<const uint64_t, CAN_PAYLOAD_BYTES / 8>{ reinterpret_cast<const uint64_t *>(data.data()),
+                                                                 CAN_PAYLOAD_BYTES / 8 };
+    }
 };
 } // namespace io
