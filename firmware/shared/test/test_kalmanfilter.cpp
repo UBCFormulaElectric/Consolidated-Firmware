@@ -12,8 +12,8 @@ namespace {
 constexpr float kDt = 0.01f;
 
 using EkfVelocity = ekf<float, 2, 2, 3>;
-using StateInpArr = EkfVelocity::state_inp_arr;
-using StateArr = EkfVelocity::state_arr;
+using StateInpArr = EkfVelocity::state_inp_mtx;
+using StateArr = EkfVelocity::state_mtx;
 
 autodiff::dual velocity_state_x(const StateInpArr& x)
 {

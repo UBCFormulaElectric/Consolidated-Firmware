@@ -1,9 +1,4 @@
 #pragma once
-
-#include <iostream>
-#include <array>
-#include <iterator>
-#include <algorithm>
 #include <Eigen/Dense>
 #include <dual.hpp>
 #include <gradient.hpp>
@@ -127,11 +122,11 @@ namespace app::state_estimation{
         from autodiff cpp. For this we assume that the vector of the user provided function is of the size N + U...
         Knowing this we can split the output jacobian based on the index
         */
-        using state_arr = Eigen::Matrix<autodiff::dual, STATES, 1>;
-        using state_inp_arr = Eigen::Matrix<autodiff::dual, STATES + INPUTS, 1>;
+        using state_mtx = Eigen::Matrix<autodiff::dual, STATES, 1>;
+        using state_inp_mtx = Eigen::Matrix<autodiff::dual, STATES + INPUTS, 1>;
         using measurement_arr = Eigen::Matrix<autodiff::dual, MEASUREMENTS, 1>;
-        using StateFunction = autodiff::dual(*)(const state_inp_arr&);
-        using MeasurementFunction = autodiff::dual(*)(const state_arr&);
+        using StateFunction = autodiff::dual(*)(const state_inp_mtx&);
+        using MeasurementFunction = autodiff::dual(*)(const state_mtx&);
 
         /**
         * @brief Constructor for EKF
@@ -162,7 +157,7 @@ namespace app::state_estimation{
         const N_1& state() const { return x_; }
         const N_N& covariance() const { return P_; }
 
-        // getter functions
+        // estimate functions
         const N_1 estimated_states (U_1 &inputs, M_1 &measurements) 
         {
             predict(inputs);
@@ -188,25 +183,30 @@ namespace app::state_estimation{
 
         void compute_F_eval_states(const U_1& u)
         {
-            state_inp_arr base;
+            state_inp_mtx base;
             for (std::size_t j = 0; j < STATES; ++j)
                 base(static_cast<Eigen::Index>(j)) = autodiff::dual(x_(static_cast<Eigen::Index>(j)));
 
             for (std::size_t k = 0; k < INPUTS; ++k)
                 base(static_cast<Eigen::Index>(STATES + k)) = autodiff::dual(u(static_cast<Eigen::Index>(k)));
 
-            auto f_vec = [&](const state_inp_arr& p) {
-                state_arr out;
+            /*
+            lambda function developed to wrap a single function call around the array of functions in f_. This creates a vector valued function of the 
+            state functions where the output is a an array of vectors evaluated at the scalar input. In our case it is an array of scalar inputs .. p 
+            */
+            auto f_vec = [&](const state_inp_mtx& p) {
+                state_mtx out;
                 for (std::size_t i = 0; i < STATES; ++i)
-                    out(static_cast<Eigen::Index>(i)) = f_[i](p);
+                    out(static_cast<Eigen::Index>(i)) = f_[i](p); // places each 
                 return out;
             };
 
-            state_inp_arr p = base;
-            state_arr x_eval_dual;
+            state_inp_mtx p = base;
+            state_mtx x_eval_dual;
             Eigen::Matrix<T, STATES, STATES + INPUTS> jac;
             autodiff::jacobian(f_vec, autodiff::wrt(p), autodiff::at(p), x_eval_dual, jac);
 
+            // throwing away partials with respect to inputs as we do not need them 
             F_ = jac.template leftCols<STATES>();
             for (std::size_t i = 0; i < STATES; ++i)
                 x_(static_cast<Eigen::Index>(i)) = static_cast<T>(autodiff::val(x_eval_dual(static_cast<Eigen::Index>(i))));
@@ -214,18 +214,18 @@ namespace app::state_estimation{
 
         void compute_H_eval_y(const M_1& z)
         {
-            state_arr base;
+            state_mtx base;
             for (std::size_t j = 0; j < STATES; ++j)
                 base(static_cast<Eigen::Index>(j)) = autodiff::dual(x_(static_cast<Eigen::Index>(j)));
 
-            auto h_vec = [&](const state_arr& p) {
+            auto h_vec = [&](const state_mtx& p) {
                 measurement_arr out;
                 for (std::size_t i = 0; i < MEASUREMENTS; ++i)
                     out(static_cast<Eigen::Index>(i)) = h_[i](p);
                 return out;
             };
 
-            state_arr p = base;
+            state_mtx p = base;
             measurement_arr z_eval_dual;
             autodiff::jacobian(h_vec, autodiff::wrt(p), autodiff::at(p), z_eval_dual, H_);
 
