@@ -1,5 +1,6 @@
 #include "io_rotary.hpp"
 #include "hw_gpios.hpp"
+#include "io_log.hpp"
 
 namespace io::rotary
 {
