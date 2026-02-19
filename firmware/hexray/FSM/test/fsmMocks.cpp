@@ -1,5 +1,4 @@
 #include "fsmMocks.hpp"
-#include "io_shdnLoopNode.hpp"
 #include "app_canTx.hpp"
 
 namespace fakes::io // Set all the fake values using functions here
@@ -180,6 +179,7 @@ namespace suspension
 } // namespace suspension
 } // namespace io
 
+#include "io_fsmShdn.hpp"
 const io::shdn::node cockpit_node{ app::can_tx::FSM_COCKPITOKStatus_set };
 const io::shdn::node bots_node{ app::can_tx::FSM_BOTSOKStatus_set };
 const io::shdn::node fl_shdn_ok_node{ app::can_tx::FSM_FrontLeftILCKInertiaOKStatus_set };

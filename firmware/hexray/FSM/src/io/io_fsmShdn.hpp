@@ -1,5 +1,5 @@
 #pragma once
-#include "app_shdnLoop.hpp"
+#include "io_shdnLoopNode.hpp"
 
 extern const io::shdn::node cockpit_node;
 extern const io::shdn::node bots_node;
