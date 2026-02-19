@@ -1,11 +1,10 @@
 #include <cstdio>
-#include "app_utils.hpp"
 #include "hw_utils.hpp"
 #include "io_log.hpp"
 
 static char buffer[100];
 
-void __assert_func(const char *file, int line, const char *func, const char *failedexpr)
+[[noreturn]] void __assert_func(const char *file, int line, const char *func, const char *failedexpr)
 {
     // Store the message into a buffer so we can easily inspect it using a
     // debugger even without SEGGER RTT set up
