@@ -142,7 +142,7 @@ static void init_update()
             // leave all segments blank
             break;
     }
-    io::seven_seg::write(data_buffer);
+    LOG_IF_ERR(io::seven_seg::write(data_buffer));
 }
 
 namespace app::screens

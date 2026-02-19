@@ -38,7 +38,7 @@ static void update()
     return;
 
 write:
-    io::seven_seg::write(screen_buf);
+    LOG_IF_ERR(io::seven_seg::write(screen_buf));
 }
 
 constexpr app::screens::Screen app::screens::alerts_screen = {
