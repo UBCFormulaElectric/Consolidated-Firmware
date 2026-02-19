@@ -188,13 +188,15 @@ static std::expected<void, ErrorCode> handleCallback(const FDCAN_HandleTypeDef *
 CFUNC void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo0ITs)
 {
     UNUSED(RxFifo0ITs);
-    LOG_IF_ERR(handleCallback(hfdcan, FDCAN_RX_FIFO0));
+    while (not handleCallback(hfdcan, FDCAN_RX_FIFO0))
+        ;
 }
 
 CFUNC void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, const uint32_t RxFifo1ITs)
 {
     UNUSED(RxFifo1ITs);
-    LOG_IF_ERR(handleCallback(hfdcan, FDCAN_RX_FIFO1));
+    while (not handleCallback(hfdcan, FDCAN_RX_FIFO1))
+        ;
 }
 
 CFUNC void HAL_FDCAN_TxBufferCompleteCallback(FDCAN_HandleTypeDef *hfdcan, const uint32_t BufferIndexes)
