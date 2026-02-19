@@ -8,6 +8,7 @@
 #include "app_canUtils.hpp"
 #include "app_commitInfo.h"
 #include "io_leds.hpp"
+#include "io_powerGauge.hpp"
 #include "io_sevenSeg.hpp"
 
 static auto drive_mode = app::can_utils::DriveMode::DRIVE_MODE_POWER;
@@ -51,6 +52,8 @@ void jobs_run100Hz_tick()
     // TODO
     // io::seven_seg::write({});
     io::seven_seg::setBrightness(1.0);
+
+    // io::power_gauge::update({});
 
     // update the state from the switches
     app::can_tx::CRIT_TorqueVectoringSwitch_set(io::switches::torque_vectoring_get());
