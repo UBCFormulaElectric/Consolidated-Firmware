@@ -1,6 +1,6 @@
 #include "app_screens.hpp"
+
 #include "io_rotary.hpp"
-#include "app_canTx.hpp"
 #include "app_canRx.hpp"
 
 namespace app::screens
@@ -9,21 +9,19 @@ namespace app::screens
 // extern Screen main_drive_screen;
 // extern Screen drive_modes_screen;
 // extern Screen start_up_screen;
-// extern Screen init_screen;
+extern Screen init_screen;
 /************************* Global Variables ***************************/
-inline constexpr size_t NUM_DEVICE_SCREENS = 2u;
-static uint8_t          current_screen     = 0;
-static Screen           drive_screens[NUM_DEVICE_SCREENS];
+// inline constexpr size_t NUM_DEVICE_SCREENS = 2u;
+// static uint8_t          current_screen     = 0;
+// static Screen           drive_screens[NUM_DEVICE_SCREENS];
+static Screen &current_screen = init_screen;
 
 /*********************** Function Definitions ***************************/
-/**
- * @brief Initalize all screens, and starting init screen.
- */
 void init()
 {
     io::rotary::init();
-    io::rotary::setClockwiseCallback([] { drive_screens[current_screen].cw_callback(); });
-    io::rotary::setCounterClockwiseCallback([] { drive_screens[current_screen].ccw_callback(); });
+    io::rotary::setClockwiseCallback([] { current_screen.cw_callback(); });
+    io::rotary::setCounterClockwiseCallback([] { current_screen.ccw_callback(); });
     io::rotary::setPushCallback(
         []
         {
@@ -33,30 +31,35 @@ void init()
             {
                 return;
             }
-            current_screen = static_cast<uint8_t>((current_screen + 1) % NUM_DEVICE_SCREENS);
+            // transition to next
         });
 
     // drive_screens[0] = main_drive_screen;
     // drive_screens[1] = drive_modes_screen;
 }
 
-/**
- * @brief Called every 100Hz, updates seven seg.
- */
 void tick()
 {
-    // Display screen, based on VC state.
-    if (const can_utils::VCState vc_state = can_rx::VC_State_get(); vc_state == can_utils::VCState::VC_INIT_STATE)
+    // force transitions based on vc state
+    switch (can_rx::VC_State_get())
     {
-        // init_screen.update();
+        case can_utils::VCState::VC_INIT_STATE:
+            // init_screen.update();
+            break;
+        case can_utils::VCState::VC_DRIVE_WARNING_STATE:
+        case can_utils::VCState::VC_DRIVE_STATE:
+            // drive_screens[current_screen].update();
+            break;
+        case can_utils::VCState::VC_FAULT_STATE:
+        case can_utils::VCState::VC_INVERTER_ON_STATE:
+        case can_utils::VCState::VC_PCM_ON_STATE:
+        case can_utils::VCState::VC_HV_INIT_STATE:
+        case can_utils::VCState::VC_HV_ON_STATE:
+        case can_utils::VCState::VC_BMS_ON_STATE:
+        default:
+            // start_up_screen.update();
+            break;
     }
-    else if (vc_state == can_utils::VCState::VC_DRIVE_STATE || vc_state == can_utils::VCState::VC_DRIVE_WARNING_STATE)
-    {
-        drive_screens[current_screen].update();
-    }
-    else
-    {
-        // start_up_screen.update();
-    }
+    current_screen.update();
 }
 } // namespace app::screens

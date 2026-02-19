@@ -9,14 +9,14 @@ inline constexpr size_t DIGITS = 9;
 
 __attribute__((packed)) struct digit
 {
-    bool c : 1;
-    bool dot : 1;
-    bool b : 1;
-    bool a : 1;
-    bool f : 1;
-    bool g : 1;
-    bool e : 1;
-    bool d : 1;
+    bool c : 1   = false;
+    bool dot : 1 = false;
+    bool b : 1   = false;
+    bool a : 1   = false;
+    bool f : 1   = false;
+    bool g : 1   = false;
+    bool e : 1   = false;
+    bool d : 1   = false;
     constexpr explicit digit(
         const bool _a,
         const bool _b,
@@ -29,6 +29,8 @@ __attribute__((packed)) struct digit
       : c(_c), dot(_dot), b(_b), a(_a), f(_f), g(_g), e(_e), d(_d)
     {
     }
+
+    constexpr digit() = default;
 };
 static_assert(sizeof(digit) == 1);
 
@@ -44,35 +46,39 @@ std::expected<void, ErrorCode> write(std::array<digit, DIGITS> &data);
  * @return success of operation
  */
 std::expected<void, ErrorCode> setBrightness(float brightness);
-} // namespace io::seven_seg
 
-inline constexpr io::seven_seg::digit zero{ true, true, true, true, true, true, false, false };
-inline constexpr io::seven_seg::digit one{ false, true, true, false, false, false, false, false };
-inline constexpr io::seven_seg::digit two{ true, true, false, true, true, false, true, false };
-inline constexpr io::seven_seg::digit three{ true, true, true, true, false, false, true, false };
-inline constexpr io::seven_seg::digit four{ false, true, true, false, false, true, true, false };
-inline constexpr io::seven_seg::digit five{ true, false, true, true, false, true, true, false };
-inline constexpr io::seven_seg::digit six{ true, false, true, true, true, true, true, false };
-inline constexpr io::seven_seg::digit seven{ true, true, true, false, false, false, false, false };
-inline constexpr io::seven_seg::digit eight{ true, true, true, true, true, true, true, false };
-inline constexpr io::seven_seg::digit nine{ true, true, true, false, false, true, true, false };
-inline constexpr io::seven_seg::digit a{ true, true, true, false, true, true, true, false };
-inline constexpr io::seven_seg::digit b{ false, false, true, true, true, true, true, false };
-inline constexpr io::seven_seg::digit c{ true, false, false, true, true, true, false, false };
-inline constexpr io::seven_seg::digit d{ false, true, true, true, true, false, true, false };
-inline constexpr io::seven_seg::digit e{ true, false, false, true, true, true, true, false };
-inline constexpr io::seven_seg::digit f{ true, false, false, false, true, true, true, false };
-inline constexpr io::seven_seg::digit g{ true, true, true, true, false, true, true, false };
-inline constexpr io::seven_seg::digit h{ false, false, true, false, true, true, true, false };
-inline constexpr io::seven_seg::digit i{ false, false, false, false, true, false, false, false };
-inline constexpr io::seven_seg::digit j{ false, false, true, true, false, false, false, false };
-inline constexpr io::seven_seg::digit l{ false, false, false, true, true, true, false, false };
-inline constexpr io::seven_seg::digit n{ false, false, true, false, true, false, true, false };
-inline constexpr io::seven_seg::digit o{ false, false, true, true, true, false, true, false };
-inline constexpr io::seven_seg::digit p{ true, true, false, false, true, true, true, false };
-inline constexpr io::seven_seg::digit q{ true, true, true, false, false, true, true, false };
-inline constexpr io::seven_seg::digit r{ false, false, false, false, true, false, true, false };
-inline constexpr io::seven_seg::digit s{ true, false, true, true, false, true, true, false };
-inline constexpr io::seven_seg::digit t{ false, false, false, true, true, true, true, false };
-inline constexpr io::seven_seg::digit u{ false, false, true, true, true, false, false, false };
-inline constexpr io::seven_seg::digit y{ false, true, true, true, false, true, true, false };
+inline constexpr digit zero{ true, true, true, true, true, true, false, false };
+inline constexpr digit one{ false, true, true, false, false, false, false, false };
+inline constexpr digit two{ true, true, false, true, true, false, true, false };
+inline constexpr digit three{ true, true, true, true, false, false, true, false };
+inline constexpr digit four{ false, true, true, false, false, true, true, false };
+inline constexpr digit five{ true, false, true, true, false, true, true, false };
+inline constexpr digit six{ true, false, true, true, true, true, true, false };
+inline constexpr digit seven{ true, true, true, false, false, false, false, false };
+inline constexpr digit eight{ true, true, true, true, true, true, true, false };
+inline constexpr digit nine{ true, true, true, false, false, true, true, false };
+inline constexpr digit a{ true, true, true, false, true, true, true, false };
+inline constexpr digit b{ false, false, true, true, true, true, true, false };
+inline constexpr digit c{ true, false, false, true, true, true, false, false };
+inline constexpr digit d{ false, true, true, true, true, false, true, false };
+inline constexpr digit e{ true, false, false, true, true, true, true, false };
+inline constexpr digit f{ true, false, false, false, true, true, true, false };
+inline constexpr digit g{ true, true, true, true, false, true, true, false };
+inline constexpr digit h{ false, false, true, false, true, true, true, false };
+inline constexpr digit i{ false, false, false, false, true, false, false, false };
+inline constexpr digit j{ false, false, true, true, false, false, false, false };
+inline constexpr digit k{ false, false, false, false, true, true, true, false };
+inline constexpr digit l{ false, false, false, true, true, true, false, false };
+inline constexpr digit m{ true, false, true, false, true, false, false, false };
+inline constexpr digit n{ false, false, true, false, true, false, true, false };
+inline constexpr digit o{ false, false, true, true, true, false, true, false };
+inline constexpr digit p{ true, true, false, false, true, true, true, false };
+inline constexpr digit q{ true, true, true, false, false, true, true, false };
+inline constexpr digit r{ false, false, false, false, true, false, true, false };
+inline constexpr digit s{ true, false, true, true, false, true, true, false };
+inline constexpr digit t{ false, false, false, true, true, true, true, false };
+inline constexpr digit u{ false, false, true, true, true, false, false, false };
+inline constexpr digit v{ false, true, false, true, false, true, false, false };
+inline constexpr digit y{ false, true, true, true, false, true, true, false };
+inline constexpr digit dot{ false, false, false, false, false, false, false, true };
+} // namespace io::seven_seg

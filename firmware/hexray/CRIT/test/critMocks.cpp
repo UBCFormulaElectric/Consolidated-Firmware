@@ -57,4 +57,11 @@ std::expected<void, ErrorCode> setBrightness(const float brightness)
     UNUSED(brightness);
     return {};
 }
+static std::array<digit, DIGITS> display;
+// ReSharper disable once CppParameterMayBeConstPtrOrRef
+std::expected<void, ErrorCode> write(std::array<digit, DIGITS> &data)
+{
+    display = data;
+    return {};
+}
 } // namespace io::seven_seg

@@ -1,143 +1,151 @@
-// #include "app_screens.hpp"
-// #include "app_screen_defines.h"
-// #include "app_canTx.h"
-// #include "app_canRx.h"
-// #include "app_canUtils.h"
-// #include "io_shift_register.h"
-//
+#include "app_screens.hpp"
+#include "io_sevenSeg.hpp"
+#include "app_canRx.hpp"
+#include "io_sevenSeg.hpp"
+
 // /*********************** Function Definitions ***************************/
-// static void init_update(void)
-// {
-//     uint8_t      data_buffer[SEVEN_SEG_DATA_LENGTH];
-//     ShutdownNode shutdownNode = app_canRx_VC_FirstFaultNode_get();
-//
-//     for (uint8_t i = 0; i < 8; i++)
-//     {
-//         data_buffer[i] = SEG_PATTERN_DP;
-//     }
-//
-//     switch (shutdownNode)
-//     {
-//         case SHDN_BSPD_OK:
-//             data_buffer[0] = SEG_PATTERN_B;
-//             data_buffer[1] = SEG_PATTERN_S;
-//             data_buffer[2] = SEG_PATTERN_P;
-//             data_buffer[3] = SEG_PATTERN_D;
-//             break;
-//         case SHDN_BMS_OK:
-//             data_buffer[0] = SEG_PATTERN_B;
-//             data_buffer[1] = SEG_PATTERN_M;
-//             data_buffer[2] = SEG_PATTERN_S;
-//             break;
-//         case SHDN_IMD_OK:
-//             data_buffer[0] = SEG_PATTERN_I;
-//             data_buffer[1] = SEG_PATTERN_M;
-//             data_buffer[2] = SEG_PATTERN_D;
-//             break;
-//         case SHDN_TSMS:
-//             data_buffer[0] = SEG_PATTERN_T;
-//             data_buffer[1] = SEG_PATTERN_S;
-//             data_buffer[2] = SEG_PATTERN_M;
-//             data_buffer[3] = SEG_PATTERN_S;
-//             break;
-//         case SHDN_Cockpit_EStop:
-//             data_buffer[0] = SEG_PATTERN_C;
-//             data_buffer[1] = SEG_PATTERN_DP;
-//             data_buffer[2] = SEG_PATTERN_E;
-//             data_buffer[3] = SEG_PATTERN_S;
-//             data_buffer[4] = SEG_PATTERN_T;
-//             data_buffer[5] = SEG_PATTERN_O;
-//             data_buffer[6] = SEG_PATTERN_P;
-//             break;
-//         case SHDN_FL_INERTIA_ILCK:
-//             data_buffer[0] = SEG_PATTERN_F;
-//             data_buffer[1] = SEG_PATTERN_L;
-//             data_buffer[2] = SEG_PATTERN_DP;
-//             data_buffer[3] = SEG_PATTERN_I;
-//             data_buffer[4] = SEG_PATTERN_N;
-//             data_buffer[5] = SEG_PATTERN_E;
-//             data_buffer[6] = SEG_PATTERN_R;
-//             break;
-//         case SHDN_BOTS:
-//             data_buffer[0] = SEG_PATTERN_B;
-//             data_buffer[1] = SEG_PATTERN_O;
-//             data_buffer[2] = SEG_PATTERN_T;
-//             break;
-//         case SHDN_L_EStop:
-//             data_buffer[0] = SEG_PATTERN_L;
-//             data_buffer[1] = SEG_PATTERN_DP;
-//             data_buffer[2] = SEG_PATTERN_E;
-//             data_buffer[3] = SEG_PATTERN_S;
-//             data_buffer[4] = SEG_PATTERN_T;
-//             data_buffer[5] = SEG_PATTERN_O;
-//             data_buffer[6] = SEG_PATTERN_P;
-//             break;
-//         case SHDN_R_EStop:
-//             data_buffer[0] = SEG_PATTERN_R;
-//             data_buffer[1] = SEG_PATTERN_DP;
-//             data_buffer[2] = SEG_PATTERN_E;
-//             data_buffer[3] = SEG_PATTERN_S;
-//             data_buffer[4] = SEG_PATTERN_T;
-//             data_buffer[5] = SEG_PATTERN_O;
-//             data_buffer[6] = SEG_PATTERN_P;
-//             break;
-//         case SHDN_MSD_EMETER_ILCK:
-//             data_buffer[0] = SEG_PATTERN_M;
-//             data_buffer[1] = SEG_PATTERN_S;
-//             data_buffer[2] = SEG_PATTERN_D;
-//             break;
-//         case SHDN_FR_ILCK:
-//             data_buffer[0] = SEG_PATTERN_F;
-//             data_buffer[1] = SEG_PATTERN_R;
-//             data_buffer[2] = SEG_PATTERN_DP;
-//             data_buffer[3] = SEG_PATTERN_I;
-//             data_buffer[4] = SEG_PATTERN_L;
-//             data_buffer[5] = SEG_PATTERN_K;
-//             break;
-//         case SHDN_RL_ILCK:
-//             data_buffer[0] = SEG_PATTERN_R;
-//             data_buffer[1] = SEG_PATTERN_L;
-//             data_buffer[2] = SEG_PATTERN_DP;
-//             data_buffer[3] = SEG_PATTERN_I;
-//             data_buffer[4] = SEG_PATTERN_L;
-//             data_buffer[5] = SEG_PATTERN_K;
-//             break;
-//         case SHDN_RR_ILCK:
-//             data_buffer[0] = SEG_PATTERN_R;
-//             data_buffer[1] = SEG_PATTERN_R;
-//             data_buffer[2] = SEG_PATTERN_DP;
-//             data_buffer[3] = SEG_PATTERN_I;
-//             data_buffer[4] = SEG_PATTERN_L;
-//             data_buffer[5] = SEG_PATTERN_K;
-//             break;
-//         case SHDN_HV_P_ILCK:
-//             data_buffer[0] = SEG_PATTERN_H;
-//             data_buffer[1] = SEG_PATTERN_V;
-//             data_buffer[2] = SEG_PATTERN_D;
-//             data_buffer[3] = SEG_PATTERN_P;
-//             data_buffer[4] = SEG_PATTERN_I;
-//             data_buffer[5] = SEG_PATTERN_L;
-//             data_buffer[6] = SEG_PATTERN_K;
-//             break;
-//         case SHDN_HV_N_ILCK:
-//             data_buffer[0] = SEG_PATTERN_H;
-//             data_buffer[1] = SEG_PATTERN_V;
-//             data_buffer[2] = SEG_PATTERN_D;
-//             data_buffer[3] = SEG_PATTERN_N;
-//             data_buffer[4] = SEG_PATTERN_I;
-//             data_buffer[5] = SEG_PATTERN_L;
-//             data_buffer[6] = SEG_PATTERN_K;
-//             break;
-//         case SHDN_OK:
-//             data_buffer[0] = SEG_PATTERN_O;
-//             data_buffer[1] = SEG_PATTERN_K;
-//             break;
-//         case NUM_SHUTDOWN_NODE_CHOICES:
-//         default:
-//             // leave all segments blank
-//             break;
-//     }
-//     io_shift_register_updateSevenSegRegisters((uint8_t *)data_buffer);
-// }
-//
-// Screen init_screen = { .ccw_callback = NULL, .cw_callback = NULL, .update = init_update };
+static void init_update()
+{
+    std::array<io::seven_seg::digit, io::seven_seg::DIGITS> data_buffer{ {
+        io::seven_seg::dot,
+        io::seven_seg::dot,
+        io::seven_seg::dot,
+        io::seven_seg::dot,
+        io::seven_seg::dot,
+        io::seven_seg::dot,
+        io::seven_seg::dot,
+        io::seven_seg::dot,
+        io::seven_seg::dot,
+    } };
+
+    switch (app::can_rx::VC_FirstFaultNode_get())
+    {
+        case app::can_utils::ShutdownNode::SHDN_BSPD_OK:
+            data_buffer[0] = io::seven_seg::b;
+            data_buffer[1] = io::seven_seg::s;
+            data_buffer[2] = io::seven_seg::p;
+            data_buffer[3] = io::seven_seg::d;
+            break;
+        case app::can_utils::ShutdownNode::SHDN_BMS_OK:
+            data_buffer[0] = io::seven_seg::b;
+            data_buffer[1] = io::seven_seg::m;
+            data_buffer[2] = io::seven_seg::s;
+            break;
+        case app::can_utils::ShutdownNode::SHDN_IMD_OK:
+            data_buffer[0] = io::seven_seg::i;
+            data_buffer[1] = io::seven_seg::m;
+            data_buffer[2] = io::seven_seg::d;
+            break;
+        case app::can_utils::ShutdownNode::SHDN_TSMS:
+            data_buffer[0] = io::seven_seg::t;
+            data_buffer[1] = io::seven_seg::s;
+            data_buffer[2] = io::seven_seg::m;
+            data_buffer[3] = io::seven_seg::s;
+            break;
+        case app::can_utils::ShutdownNode::SHDN_Cockpit_EStop:
+            data_buffer[0] = io::seven_seg::c;
+            data_buffer[1] = io::seven_seg::dot;
+            data_buffer[2] = io::seven_seg::e;
+            data_buffer[3] = io::seven_seg::s;
+            data_buffer[4] = io::seven_seg::t;
+            data_buffer[5] = io::seven_seg::o;
+            data_buffer[6] = io::seven_seg::p;
+            break;
+        case app::can_utils::ShutdownNode::SHDN_FL_INERTIA_ILCK:
+            data_buffer[0] = io::seven_seg::f;
+            data_buffer[1] = io::seven_seg::l;
+            data_buffer[2] = io::seven_seg::dot;
+            data_buffer[3] = io::seven_seg::i;
+            data_buffer[4] = io::seven_seg::n;
+            data_buffer[5] = io::seven_seg::e;
+            data_buffer[6] = io::seven_seg::r;
+            break;
+        case app::can_utils::ShutdownNode::SHDN_BOTS:
+            data_buffer[0] = io::seven_seg::b;
+            data_buffer[1] = io::seven_seg::o;
+            data_buffer[2] = io::seven_seg::t;
+            data_buffer[2] = io::seven_seg::s;
+            break;
+        case app::can_utils::ShutdownNode::SHDN_L_EStop:
+            data_buffer[0] = io::seven_seg::l;
+            data_buffer[1] = io::seven_seg::dot;
+            data_buffer[2] = io::seven_seg::e;
+            data_buffer[3] = io::seven_seg::s;
+            data_buffer[4] = io::seven_seg::t;
+            data_buffer[5] = io::seven_seg::o;
+            data_buffer[6] = io::seven_seg::p;
+            break;
+        case app::can_utils::ShutdownNode::SHDN_R_EStop:
+            data_buffer[0] = io::seven_seg::r;
+            data_buffer[1] = io::seven_seg::dot;
+            data_buffer[2] = io::seven_seg::e;
+            data_buffer[3] = io::seven_seg::s;
+            data_buffer[4] = io::seven_seg::t;
+            data_buffer[5] = io::seven_seg::o;
+            data_buffer[6] = io::seven_seg::p;
+            break;
+        case app::can_utils::ShutdownNode::SHDN_MSD_EMETER_ILCK:
+            data_buffer[0] = io::seven_seg::m;
+            data_buffer[1] = io::seven_seg::s;
+            data_buffer[2] = io::seven_seg::d;
+            break;
+        case app::can_utils::ShutdownNode::SHDN_FR_ILCK:
+            data_buffer[0] = io::seven_seg::f;
+            data_buffer[1] = io::seven_seg::r;
+            data_buffer[2] = io::seven_seg::dot;
+            data_buffer[3] = io::seven_seg::i;
+            data_buffer[4] = io::seven_seg::l;
+            data_buffer[5] = io::seven_seg::c;
+            data_buffer[5] = io::seven_seg::k;
+            break;
+        case app::can_utils::ShutdownNode::SHDN_RL_ILCK:
+            data_buffer[0] = io::seven_seg::r;
+            data_buffer[1] = io::seven_seg::l;
+            data_buffer[2] = io::seven_seg::dot;
+            data_buffer[3] = io::seven_seg::i;
+            data_buffer[4] = io::seven_seg::l;
+            data_buffer[5] = io::seven_seg::c;
+            data_buffer[6] = io::seven_seg::k;
+            break;
+        case app::can_utils::ShutdownNode::SHDN_RR_ILCK:
+            data_buffer[0] = io::seven_seg::r;
+            data_buffer[1] = io::seven_seg::r;
+            data_buffer[2] = io::seven_seg::dot;
+            data_buffer[3] = io::seven_seg::i;
+            data_buffer[4] = io::seven_seg::l;
+            data_buffer[5] = io::seven_seg::c;
+            data_buffer[6] = io::seven_seg::k;
+            break;
+        case app::can_utils::ShutdownNode::SHDN_HV_P_ILCK:
+            data_buffer[0] = io::seven_seg::h;
+            data_buffer[1] = io::seven_seg::v;
+            data_buffer[2] = io::seven_seg::dot;
+            data_buffer[3] = io::seven_seg::p;
+            data_buffer[4] = io::seven_seg::i;
+            data_buffer[5] = io::seven_seg::l;
+            data_buffer[6] = io::seven_seg::k;
+            break;
+        case app::can_utils::ShutdownNode::SHDN_HV_N_ILCK:
+            data_buffer[0] = io::seven_seg::h;
+            data_buffer[1] = io::seven_seg::v;
+            data_buffer[2] = io::seven_seg::dot;
+            data_buffer[3] = io::seven_seg::n;
+            data_buffer[4] = io::seven_seg::i;
+            data_buffer[5] = io::seven_seg::l;
+            data_buffer[6] = io::seven_seg::k;
+            break;
+        case app::can_utils::ShutdownNode::SHDN_OK:
+            data_buffer[0] = io::seven_seg::o;
+            data_buffer[1] = io::seven_seg::k;
+            break;
+        default:
+            // leave all segments blank
+            break;
+    }
+    io::seven_seg::write(data_buffer);
+}
+
+namespace app::screens
+{
+Screen init_screen = { .ccw_callback = [] {}, .cw_callback = [] {}, .update = init_update };
+}

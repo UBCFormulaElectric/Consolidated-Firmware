@@ -1,17 +1,14 @@
 #include "jobs.hpp"
 
 #include "app_canTx.hpp"
+#include "app_commitInfo.h"
+#include "screens/app_screens.hpp"
+
 #include "io_canTx.hpp"
-#include "io_rotary.hpp"
 #include "io_switches.hpp"
 #include "io_time.hpp"
-#include "app_canUtils.hpp"
-#include "app_commitInfo.h"
 #include "io_leds.hpp"
 #include "io_powerGauge.hpp"
-#include "io_sevenSeg.hpp"
-
-static auto drive_mode = app::can_utils::DriveMode::DRIVE_MODE_POWER;
 
 void jobs_init()
 {
@@ -19,22 +16,7 @@ void jobs_init()
     app::can_tx::CRIT_Clean_set(GIT_COMMIT_CLEAN);
     app::can_tx::CRIT_Heartbeat_set(true);
 
-    io::rotary::init();
-    io::rotary::setClockwiseCallback(
-        []
-        {
-            drive_mode = static_cast<app::can_utils::DriveMode>(
-                (static_cast<uint32_t>(drive_mode) + 1) %
-                static_cast<uint32_t>(app::can_utils::DriveMode::DRIVE_MODE_COUNT));
-        });
-    io::rotary::setCounterClockwiseCallback(
-        []
-        {
-            drive_mode = static_cast<app::can_utils::DriveMode>(
-                (static_cast<uint32_t>(drive_mode) - 1) %
-                static_cast<uint32_t>(app::can_utils::DriveMode::DRIVE_MODE_COUNT));
-        });
-    io::rotary::setPushCallback([] {});
+    app::screens::init();
 }
 
 void jobs_run1Hz_tick()
@@ -44,14 +26,25 @@ void jobs_run1Hz_tick()
 void jobs_run100Hz_tick()
 {
     // TODO move this to app_leds
-    io::leds::update({ io::leds::color::OFF, io::leds::color::OFF, io::leds::color::OFF, io::leds::color::OFF,
-                       io::leds::color::OFF, io::leds::color::OFF, io::leds::color::OFF, io::leds::color::OFF,
-                       io::leds::color::OFF, false, false, false, false, false });
+    io::leds::update({
+        io::leds::color::OFF,
+        io::leds::color::OFF,
+        io::leds::color::OFF,
+        io::leds::color::OFF,
+        io::leds::color::OFF,
+        io::leds::color::OFF,
+        io::leds::color::OFF,
+        io::leds::color::OFF,
+        io::leds::color::OFF,
+        false,
+        false,
+        false,
+        false,
+        false,
+    });
     io::leds::setBrightness(1.0);
 
-    // TODO
-    // io::seven_seg::write({});
-    io::seven_seg::setBrightness(1.0);
+    app::screens::tick();
 
     // io::power_gauge::update({});
 
