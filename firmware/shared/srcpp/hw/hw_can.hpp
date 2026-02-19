@@ -6,16 +6,6 @@
 
 #include <array>
 
-// #if defined(STM32H733xx)
-// #include "stm32h7xx_hal_fdcan.h"
-// #elif defined(STM32H562xx)
-// #include "stm32h5xx_hal_fdcan.h"
-// #elif defined(STM32F412Rx)
-// #include <stm32f4xx_hal_can.h>
-// #else
-// #error "Unsupported MCU for CAN driver"
-// #endif
-
 namespace hw
 {
 #if defined(STM32F412Rx)
