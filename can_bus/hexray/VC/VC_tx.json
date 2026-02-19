@@ -20,8 +20,34 @@
             }
         }
     },
-    "ConnectorBoardEfuse":{
-        "msg_id": 233,
+    "GlobalShdnNodeStatus": {
+        "msg_id": 511,
+        "cycle_time": 100,
+        "description": "Global Shutdown Node Status",
+        "signals": {
+            "FirstFaultNode": {
+                "enum": "ShutdownNode"
+            }
+        }
+    },
+    "PumpStatus": {
+        "msg_id": 529,
+        "cycle_time": 10,
+        "description": "All pump descriptions",
+        "signals": {
+            "PumpFailure": {
+                "bits": 1
+            },
+            "PumpRampUpSetPoint": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            }
+        }
+    },
+    "ConnectorBoardEfuse": {
+        "msg_id": 533,
         "cycle_time": 100,
         "description": "Efuse info for RL Pump/RR Pump/F pump/L Rad/R Rad efuses.",
         "signals": {
@@ -29,21 +55,5 @@
                 "bits": 1
             }
         }
-    },
-      "PumpStatus": {
-    "msg_id": 229,
-    "cycle_time": 10,
-    "description": "All pump descriptions",
-    "signals": {
-      "PumpFailure": {
-        "bits": 1
-      },
-      "PumpRampUpSetPoint": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "%"
-      }
     }
-  }
 }

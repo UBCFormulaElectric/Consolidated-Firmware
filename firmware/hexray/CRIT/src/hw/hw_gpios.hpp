@@ -1,7 +1,6 @@
 #pragma once
 
 #include "hw_gpio.hpp"
-#include "hw_utils.hpp"
 
 extern hw::Gpio boot_led;
 extern hw::Gpio status_led;

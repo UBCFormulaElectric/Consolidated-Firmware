@@ -1,7 +1,13 @@
 #include "tasks.h"
+
+#include "app_jsoncan.hpp"
 #include "jobs.hpp"
 #include "io_time.hpp"
+#include "io_canQueues.hpp"
 #include "hw_rtosTaskHandler.hpp"
+#include "hw_cans.hpp"
+
+#include <io_canRx.hpp>
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
@@ -30,14 +36,32 @@
 {
     forever
     {
-        jobs_runCanTx_tick();
+        const auto msg = can_tx_queue.pop();
+        if (not msg)
+            continue;
+        if (const auto &m = msg.value(); m.bus == app::can_utils::BusEnum::Bus_FDCAN)
+        {
+            const auto res = fdcan1.can_transmit(hw::CanMsg{
+                m.std_id,
+                m.dlc,
+                m.data,
+            });
+            LOG_IF_ERR(res);
+        }
+        else
+        {
+            LOG_ERROR("INVALID BUS %d", m.bus);
+        }
     }
 }
 [[noreturn]] static void tasks_runCanRx(void *arg)
 {
     forever
     {
-        jobs_runCanRx_tick();
+        const auto msg = can_rx_queue.pop();
+        if (not msg)
+            continue;
+        io::can_rx::updateRxTableWithMessage(app::jsoncan::copyFromCanMsg(msg.value()));
     }
 }
 // Define the task with StaticTask template class

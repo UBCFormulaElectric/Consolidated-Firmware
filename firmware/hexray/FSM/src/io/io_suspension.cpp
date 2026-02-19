@@ -4,25 +4,25 @@
 
 namespace io::suspension
 {
-float getLeftTravel(void)
+float getLeftTravel()
 {
     // Return left suspension travel based on the ADC voltage.
     return hw::adcs::susp_fl.getVoltage();
 }
 
-float getRightTravel(void)
+float getRightTravel()
 {
     // Return right suspension travel based on the ADC voltage.
     return hw::adcs::susp_fr.getVoltage();
 }
 
-bool leftSensorOCSC(void)
+bool leftSensorOCSC()
 {
-    return !hw::gpios::nsusp_fl_ocsc.readPin();
+    return !nsusp_fl_ocsc.readPin();
 }
 
-bool rightSensorOCSC(void)
+bool rightSensorOCSC()
 {
-    return !hw::gpios::nsusp_fr_ocsc.readPin();
+    return !nsusp_fr_ocsc.readPin();
 }
 } // namespace io::suspension

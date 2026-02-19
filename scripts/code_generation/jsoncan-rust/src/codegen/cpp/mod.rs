@@ -27,7 +27,7 @@ pub trait CPPGenerator {
 }
 
 pub enum CPPModule<'a> {
-    AppCanUtilsModule(AppCanUtilsModule),
+    AppCanUtilsModule(AppCanUtilsModule<'a>),
     AppCanTxModule(AppCanTxModule),
     AppCanAlertsModule(AppCanAlertsModule<'a>),
     AppCanDataCaptureModule(AppCanDataCaptureModule),
@@ -173,14 +173,13 @@ impl CanSignal {
         }
     }
 
-    pub fn start_val_name(self: &Self) -> String {
-        // format!("{}_START_VAL", self.snake_name().to_uppercase())
+    fn val_name(self: &Self, value: f64) -> String {
         match self.signal_type {
             CanSignalType::Numerical => {
-                self.start_val.to_string()
+                format!("{:?}f", value)
             },
             CanSignalType::Boolean => {
-                if self.start_val == 0f64 {
+                if value == 0f64 {
                     "false".to_string()
                 } else {
                     "true".to_string()
@@ -189,14 +188,34 @@ impl CanSignal {
             CanSignalType::Enum => format!(
                 "static_cast<{}>({})",
                 self.enum_name.as_ref().expect(&format!("{} is enum signal but has no enum name", &self.name)),
-                self.start_val as i64
+                value as i64
             ),
             CanSignalType::Alert => "false".to_string(),
         }
     }
+
+    pub fn start_val_name(self: &Self) -> String {
+        self.val_name(self.start_val)
+    }
+
+    pub fn max_val_name(self: &Self) -> String {
+        self.val_name(self.max)
+    }
+
+    pub fn min_val_name(self: &Self) -> String {
+        self.val_name(self.min)
+    }
+
+    pub fn scale_val_name(self: &Self) -> String {
+        format!("{:?}f", self.scale)
+    }
+
+    pub fn offset_val_name(self: &Self) -> String {
+        format!("{:?}f", self.offset)
+    }
 }
 
-pub fn id_macro(name: &str) -> String {
+pub fn id_macro(name: &str) -> String { // TODO this feels jank
     format!("CAN_MSG_{}_ID", name.to_case(Case::Snake).to_uppercase())
 }
 

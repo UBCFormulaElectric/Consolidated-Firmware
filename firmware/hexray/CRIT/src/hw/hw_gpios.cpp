@@ -13,3 +13,19 @@ hw::Gpio rot_b(ROT_B_GPIO_Port, ROT_B_Pin);
 hw::Gpio rot_a(ROT_A_GPIO_Port, ROT_A_Pin);
 hw::Gpio led_rck(LED_RCK_GPIO_Port, LED_RCK_Pin);
 hw::Gpio seven_seg_rck(_7SEG_RCK_GPIO_Port, _7SEG_RCK_Pin);
+
+#ifndef USE_CHIMERA
+// Rotary GPIO interrupt handler.
+#include "io_rotary.hpp"
+void HAL_GPIO_EXTI_Callback(const uint16_t GPIO_Pin)
+{
+    if (GPIO_Pin == rot_a.getPin() || GPIO_Pin == rot_b.getPin())
+    {
+        io::rotary::rotA_rotB_IRQHandler();
+    }
+    else if (GPIO_Pin == rot_s.getPin())
+    {
+        io::rotary::push_IRQHandler();
+    }
+}
+#endif

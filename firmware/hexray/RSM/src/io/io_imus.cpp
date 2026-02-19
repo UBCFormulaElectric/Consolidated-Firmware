@@ -1,6 +1,5 @@
-#include "io_imu.hpp"
+#include "io_imus.hpp"
 
-namespace io::imus
-{
-io::imu::Imu imu_config();
-}
+#include "hw_spis.hpp"
+
+const io::imu::Imu imu_config{ hw::spi::imu };

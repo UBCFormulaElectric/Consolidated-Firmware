@@ -10,41 +10,37 @@ use crate::{
 #[template(path = "io_canTx.cpp.j2")]
 struct IoCanTxModuleSource<'a> {
     node_buses: &'a Vec<&'a CanBus>,
-    messages: &'a Vec<(CanMessage, Vec<String>)>,
+    board_tx_msgs_and_busses: &'a Vec<(CanMessage, Vec<String>)>,
 }
 
 #[derive(Template)]
 #[template(path = "io_canTx.hpp.j2")]
 struct IoCanTxModuleHeader<'a> {
     node_buses: &'a Vec<&'a CanBus>,
-    messages: &'a Vec<(CanMessage, Vec<String>)>,
-    fd: bool,
+    board_tx_msgs_and_busses: &'a Vec<(CanMessage, Vec<String>)>,
 }
 
 pub struct IoCanTxModule<'a> {
-    messages: Vec<(CanMessage, Vec<String>)>,
     node_buses: Vec<&'a CanBus>,
-    fd: bool,
+    board_tx_msgs_and_busses: Vec<(CanMessage, Vec<String>)>,
 }
 impl IoCanTxModule<'_> {
     pub fn new<'a>(
         can_db: &'a CanDatabase,
-        board: &'a String,
+        board: &String,
         tx_config: &'a CanTxConfig,
     ) -> IoCanTxModule<'a> {
-        let node_buses: Vec<&'a CanBus> = can_db
-            .buses
-            .iter()
-            .filter(|b| b.node_names.contains(board))
-            .collect();
         IoCanTxModule {
-            messages: tx_config
+            board_tx_msgs_and_busses: tx_config
                 .get_all()
-                .iter()
-                .map(|(m_id, busses)| (can_db.get_message_by_id(*m_id).unwrap(), busses.clone()))
+                .into_iter()
+                .map(|(m_id, busses)| (can_db.get_message_by_id(m_id).unwrap(), busses))
                 .collect(),
-            fd: node_buses.iter().any(|b| b.fd),
-            node_buses,
+            node_buses: can_db
+                .buses
+                .iter()
+                .filter(|b| b.node_names.contains(board))
+                .collect(),
         }
     }
 }
@@ -52,16 +48,15 @@ impl IoCanTxModule<'_> {
 impl CPPGenerator for IoCanTxModule<'_> {
     fn header_template(&self) -> Result<String, askama::Error> {
         IoCanTxModuleHeader {
-            messages: &self.messages,
-            fd: self.fd,
             node_buses: &self.node_buses,
+            board_tx_msgs_and_busses: &self.board_tx_msgs_and_busses,
         }
         .render()
     }
     fn source_template(&self) -> Result<String, askama::Error> {
         IoCanTxModuleSource {
             node_buses: &self.node_buses,
-            messages: &self.messages,
+            board_tx_msgs_and_busses: &self.board_tx_msgs_and_busses,
         }
         .render()
     }

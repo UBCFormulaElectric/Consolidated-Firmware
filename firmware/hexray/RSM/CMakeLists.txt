@@ -30,6 +30,7 @@ set(APP_INCLUDE_DIRS
 file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.cpp")
 list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_imu.cpp"
 )
 set(IO_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
@@ -104,7 +105,7 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     # JSONCAN
-    jsoncan_embedded_library(RSM hexray "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
+    jsoncan_embedded_library_cpp(RSM hexray "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
 
     # CommitInfo
     commit_info_library(
@@ -140,7 +141,7 @@ elseif ("${TARGET}" STREQUAL "test")
     add_compile_definitions("hexray_RSM_test" PRIVATE STM32H562Rx)
 
     # JSONCAN
-    jsoncan_library(RSM hexray "${CMAKE_CURRENT_BINARY_DIR}")
+    jsoncan_library_cpp(RSM hexray "${CMAKE_CURRENT_BINARY_DIR}")
 
     # CommitInfo
     commit_info_library(
