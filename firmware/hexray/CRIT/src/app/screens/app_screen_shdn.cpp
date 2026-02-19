@@ -147,5 +147,5 @@ static void init_update()
 
 namespace app::screens
 {
-Screen init_screen = { .ccw_callback = [] {}, .cw_callback = [] {}, .update = init_update };
+const Screen shdn_screen = { .ccw_callback = [] {}, .cw_callback = [] {}, .update = init_update };
 }

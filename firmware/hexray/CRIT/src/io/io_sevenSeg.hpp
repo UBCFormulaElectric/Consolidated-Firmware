@@ -81,4 +81,32 @@ inline constexpr digit u{ false, false, true, true, true, false, false, false };
 inline constexpr digit v{ false, true, false, true, false, true, false, false };
 inline constexpr digit y{ false, true, true, true, false, true, true, false };
 inline constexpr digit dot{ false, false, false, false, false, false, false, true };
+
+inline digit digit_to_segment(const uint8_t digit)
+{
+    switch (digit)
+    {
+        default:
+        case 0:
+            return zero;
+        case 1:
+            return one;
+        case 2:
+            return two;
+        case 3:
+            return three;
+        case 4:
+            return four;
+        case 5:
+            return five;
+        case 6:
+            return six;
+        case 7:
+            return seven;
+        case 8:
+            return eight;
+        case 9:
+            return nine;
+    }
+}
 } // namespace io::seven_seg
