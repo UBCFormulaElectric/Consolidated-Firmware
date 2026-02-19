@@ -42,7 +42,7 @@ void Imu::set_GyroYaw(const float gyro_z_fake) const
     _gyro_z_fake = gyro_z_fake;
 }
 
-std::expected<void, ErrorCode> Imu::init()
+std::expected<void, ErrorCode> Imu::init() const
 {
     initialized = true;
     return {};

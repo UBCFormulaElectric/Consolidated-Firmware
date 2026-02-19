@@ -35,9 +35,9 @@ enum class ErrorCode
 
 template <typename T> void _log_if_err(std::expected<T, ErrorCode> out, const char *err_expr)
 {
-    if (not out.has_value())
+    if (not out)
     {
-        LOG_ERROR("%s exited with an error: %d", err_expr);
+        LOG_ERROR("%s exited with an error: %d", err_expr, static_cast<int>(out.error()));
     }
 }
 #define LOG_IF_ERR(err_expr) _log_if_err(err_expr, #err_expr)

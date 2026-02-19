@@ -274,7 +274,7 @@ static float translateTempData(const uint8_t data_h, const uint8_t data_l)
     return static_cast<float>(raw) / TEMP_SCALE + 25.0f;
 }
 
-std::expected<void, ErrorCode> Imu::init()
+std::expected<void, ErrorCode> Imu::init() const
 {
     // Check if we are able to communicate to the IMU
     std::array<const uint8_t, 1> tx_check = { { READ_IMU_REG(WHO_AM_I) } };

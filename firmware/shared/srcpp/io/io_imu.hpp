@@ -181,7 +181,7 @@ class Imu
 
     ImuFilterConfig filter_config;
     // ImuFifoConfig   fifo_config;
-    bool is_imu_ready = false;
+    mutable bool is_imu_ready = false;
 
     // ExitCode getFifoCount(uint16_t &fifo_count);
 
@@ -197,7 +197,7 @@ class Imu
     constexpr explicit Imu() {}
 #endif
 
-    [[nodiscard]] std::expected<void, ErrorCode> init();
+    [[nodiscard]] std::expected<void, ErrorCode> init() const;
 
     std::expected<float, ErrorCode> getAccelX() const;
     std::expected<float, ErrorCode> getAccelY() const;
@@ -213,7 +213,7 @@ class Imu
     std::expected<GyroData, ErrorCode>  getGyroAll() const;
 
 #ifdef TARGET_TEST
-    bool          initialized   = false;
+    mutable bool  initialized   = false;
     mutable float _accel_x_fake = 0.0f, _accel_y_fake = 0.0f, _accel_z_fake = 0.0f, _gyro_x_fake = 0.0f,
                   _gyro_y_fake = 0.0f, _gyro_z_fake = 0.0f;
 
