@@ -8,9 +8,8 @@
 namespace io::adbms
 {
 
-// Command Codes (Table 50)
-constexpr uint8_t CMD_BYTES = 2;
-constexpr uint8_t PEC_BYTES = 2;
+inline constexpr uint8_t CMD_BYTES = 2;
+inline constexpr uint8_t PEC_BYTES = 2;
 
 // Config
 inline constexpr uint16_t WRCFGA = 0x0001U;

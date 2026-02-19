@@ -16,7 +16,7 @@ std::expected<void, ErrorCode> pollAdcConversions()
 
         if (rx_data != ADC_CONV_INCOMPLETE)
         {
-            return;
+            return {};
         }
     }
     return std::unexpected(ErrorCode::TIMEOUT);

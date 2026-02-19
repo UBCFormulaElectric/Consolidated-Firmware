@@ -13,8 +13,9 @@ std::expected<void, ErrorCode> clearCellTempReg()
     return sendCmd(CLRAUX);
 }
 
-std::expected<void,ExitCode> startTempAdcConversion(){
-    RETURN_IF_ERR(clearTempReg());
+std::expected<void, ErrorCode> startTempAdcConversion()
+{
+    RETURN_IF_ERR(clearCellTempReg());
     return sendCmd(ADAX_BASE);
 }
 
