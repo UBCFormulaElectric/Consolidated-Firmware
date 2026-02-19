@@ -40,13 +40,13 @@ static_assert(sizeof(digit) == 1);
  * @note that the data will be touched, so please consider the buffer invalidated after use
  * @return success of operation
  */
-std::expected<void, ErrorCode> write(std::array<digit, DIGITS> &data);
+[[nodiscard]] std::expected<void, ErrorCode> write(std::array<digit, DIGITS> &data);
 /**
  * Set the brightness of the seven segment display.
  * @param brightness brightness value from 0.0 (off) to 1.0 (max brightness)
  * @return success of operation
  */
-std::expected<void, ErrorCode> setBrightness(float brightness);
+[[nodiscard]] std::expected<void, ErrorCode> setBrightness(float brightness);
 
 inline constexpr digit zero{ true, true, true, true, true, true, false, false };
 inline constexpr digit one{ false, true, true, false, false, false, false, false };
