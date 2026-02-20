@@ -1,9 +1,9 @@
 #include "app_coolant.hpp"
+#include "app_canTx.hpp"
+#include "app_canAlerts.hpp"
 extern "C"
 {
 #include "app_rangeCheck.h"
-#include "app_canTx.h"
-#include "app_canAlerts.h"
 #include "app_signal.h"
 }
 
@@ -12,9 +12,9 @@ extern "C"
 static constexpr float MIN_FLOW_RATE_L_PER_MIN = 1.0f;
 static constexpr float MAX_FLOW_RATE_L_PER_MIN = 30.0f;
 
-static constexpr uint32_t FLOW_METER_TIME_TO_FAULT = 1000U;
-static constexpr uint32_t FLOW_METER_TIME_TO_CLEAR = 1000U;
-static const RangeCheck   flow_rate_in_range_check = { nullptr, MIN_FLOW_RATE_L_PER_MIN, MAX_FLOW_RATE_L_PER_MIN };
+static constexpr uint32_t   FLOW_METER_TIME_TO_FAULT = 1000U;
+static constexpr uint32_t   FLOW_METER_TIME_TO_CLEAR = 1000U;
+static constexpr RangeCheck flow_rate_in_range_check = { nullptr, MIN_FLOW_RATE_L_PER_MIN, MAX_FLOW_RATE_L_PER_MIN };
 
 static Signal flow_in_range_signal;
 
@@ -27,9 +27,9 @@ void init()
 
 void broadcast()
 {
-    const float                    flow_val       = io::coolant::getFlowRate();
-    const RangeCheckStatusMetaData coolant_status = app_rangeCheck_getValue(&flow_rate_in_range_check, flow_val);
-    app_canTx_RSM_CoolantFlowRate_set(flow_val);
-    app_canAlerts_RSM_Info_FlowRateOutOfRange_set(coolant_status.status != VALUE_IN_RANGE);
+    const float flow_val               = io::coolant::getFlowRate();
+    const auto [status, clamped_value] = app_rangeCheck_getValue(&flow_rate_in_range_check, flow_val);
+    can_tx::RSM_CoolantFlowRate_set(flow_val);
+    can_alerts::infos::FlowRateOutOfRange_set(status != VALUE_IN_RANGE);
 }
 } // namespace app::coolant

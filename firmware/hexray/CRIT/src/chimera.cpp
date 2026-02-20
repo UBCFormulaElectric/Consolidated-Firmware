@@ -1,9 +1,13 @@
 #include "chimera_v2.hpp"
 #include "shared.pb.h"
-
+#include "tasks.h"
 #include "hw_gpios.hpp"
 #include "hw_spis.hpp"
+#include "hw_pwmOutputs.hpp"
 #include <crit.pb.h>
+#include "hw_usb.hpp"
+#include "hw_rtosTaskHandler.hpp"
+#include <cassert>
 
 #include <optional>
 #include <functional>
@@ -71,6 +75,27 @@ class CRITChimeraConfig : public chimera_v2::config
         return std::nullopt;
     }
 
+    std::optional<std::reference_wrapper<const hw::PwmOutput>> id_to_pwm(const _PwmNetName *pnn) const override
+    {
+        if (pnn->which_name != pwm_net_name_tag)
+        {
+            LOG_ERROR("Chimera: Expected PWM net name with tag %d, got %d", pwm_net_name_tag, pnn->which_name);
+            return std::nullopt;
+        }
+        switch (pnn->name.crit_net_name)
+        {
+            case crit_PwmNetName_PWM_LED:
+                return std::cref(led_dimming);
+            case crit_PwmNetName_PWM_SEVEN_SEG:
+                return std::cref(seven_seg_dimming);
+            default:
+            case crit_PwmNetName_PWM_NET_NAME_UNSPECIFIED:
+                LOG_INFO("Chimera: Unspecified PWM net name");
+                return std::nullopt;
+        }
+        return std::nullopt;
+    }
+
   public:
     CRITChimeraConfig()
     {
@@ -79,8 +104,17 @@ class CRITChimeraConfig : public chimera_v2::config
     }
 } crit_config;
 
-[[noreturn]] void tasks_preInit()
+static hw::rtos::StaticTask<8096>
+    TaskChimera(osPriorityRealtime, "TaskChimera", [](void *) { chimera_v2::task(crit_config); });
+
+void tasks_preInit() {}
+char USBD_PRODUCT_STRING_FS[] = "crit";
+
+[[noreturn]] void tasks_init()
 {
-    chimera_v2::task(crit_config);
+    assert(hw::usb::init());
+    osKernelInitialize();
+    TaskChimera.start();
+    osKernelStart();
+    forever {}
 }
-[[noreturn]] void tasks_run100Hz() {}

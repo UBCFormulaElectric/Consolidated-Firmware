@@ -17,6 +17,7 @@ class Gpio
 
   public:
     explicit Gpio(GPIO_TypeDef *const port_in, const uint16_t pin_in) : port(port_in), pin(pin_in) {}
+    [[nodiscard]] uint16_t getPin() const { return pin; }
 #endif
   public:
     [[nodiscard]] bool readPin() const;

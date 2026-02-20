@@ -1,0 +1,26 @@
+/**
+ * @note This file is auto-generated. Do not modify!
+ */
+// clang-format off
+
+#pragma once
+
+/* ------------------------------- Includes ------------------------------- */
+
+#include <cstdint>
+#include "app_canUtils.hpp"
+#include "io_canTx.hpp"
+
+namespace io::can_rx {
+/**
+ * Returns true if {{node}} receives the specified message ID.
+ */
+{% for (bus_name, _) in messages_on_busses -%}
+bool filterMessageId_{{bus_name}}(uint32_t std_id);
+{%  endfor  %}
+
+/**
+ * Unpack a received message and update the CAN RX table.
+ */
+void updateRxTableWithMessage(const JsonCanMsg& msg);
+}

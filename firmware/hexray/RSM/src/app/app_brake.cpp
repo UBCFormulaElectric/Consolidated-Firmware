@@ -1,10 +1,8 @@
 #include "app_brake.hpp"
 #include "io_brake.hpp"
 #include <cmath>
-extern "C"
-{
-#include "app_canTx.h"
-}
+#include "app_canTx.hpp"
+#include "app_canAlerts.hpp"
 
 static constexpr float MIN_BRAKE_PRESSURE_PSI       = 0.0f;
 static constexpr float MAX_BRAKE_PRESSURE_PSI       = 1000.0f;
@@ -20,12 +18,12 @@ bool isActuated()
 void broadcast()
 {
     const float rear_pressure = io::brake::getRearPressurePsi();
-    const bool  brake_pressed = app::brake::isActuated();
+    const bool  brake_pressed = isActuated();
 
-    app_canTx_RSM_BrakeActuated_set(brake_pressed);
-    app_canTx_RSM_RearBrakePressure_set((uint32_t)roundf(rear_pressure));
+    can_tx::RSM_BrakeActuated_set(brake_pressed);
+    can_tx::RSM_RearBrakePressure_set(roundf(rear_pressure));
 
-    app_canTx_RSM_Info_RearBrakePressureOutOfRange_set(
+    can_alerts::infos::RearBrakePressureOutOfRange_set(
         (rear_pressure >= MAX_BRAKE_PRESSURE_PSI) || (rear_pressure < MIN_BRAKE_PRESSURE_PSI));
 }
 } // namespace app::brake

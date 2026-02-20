@@ -1,34 +1,32 @@
-#include "fsmMocks.hpp"
-#include "test_FSMBase.hpp"
-#include "io_imuFake.h"
+#include <gtest/gtest.h>
+#include "test/test_FSMBase.hpp"
+#include "util_errorCodes.hpp"
+#include "app_canTx.hpp"
+#include "io_imus.hpp"
 
 extern "C"
 {
-#include "app_canTx.h"
 }
 
-// Test NOT COMPLETED:
-// LOG_IF_ERROR are not tested here
-
-class ImuModulesTest : public FSMBaseTest
+class FSMImuTest : public FSMBaseTest
 {
 };
 
-TEST_F(ImuModulesTest, normal_imuConditions)
+TEST_F(FSMImuTest, Acceleration_Velocity_Test)
 {
-    fakes::io_imu::set_LinearAccelerationX(1.0f);
-    fakes::io_imu::set_LinearAccelerationY(2.0f);
-    fakes::io_imu::set_LinearAccelerationZ(3.0f);
-    fakes::io_imu::set_AngularVelocityRoll(0.1f);
-    fakes::io_imu::set_AngularVelocityPitch(0.2f);
-    fakes::io_imu::set_AngularVelocityYaw(0.3f);
+    imu_config.set_AccelX(10);
+    imu_config.set_AccelY(10);
+    imu_config.set_AccelZ(10);
+    imu_config.set_GyroRoll(10);
+    imu_config.set_GyroPitch(10);
+    imu_config.set_GyroYaw(10);
 
     LetTimePass(100);
 
-    EXPECT_EQ(app_canTx_FSM_LinearAccelerationX_get(), 1.0f);
-    EXPECT_EQ(app_canTx_FSM_LinearAccelerationY_get(), 2.0f);
-    EXPECT_EQ(app_canTx_FSM_LinearAccelerationZ_get(), 3.0f);
-    EXPECT_EQ(app_canTx_FSM_RollRate_get(), 0.1f);
-    EXPECT_EQ(app_canTx_FSM_PitchRate_get(), 0.2f);
-    EXPECT_EQ(app_canTx_FSM_YawRate_get(), 0.3f);
+    EXPECT_EQ(10, app::can_tx::FSM_LinearAccelerationInX_get());
+    EXPECT_EQ(10, app::can_tx::FSM_LinearAccelerationInY_get());
+    EXPECT_EQ(10, app::can_tx::FSM_LinearAccelerationInZ_get());
+    EXPECT_EQ(10, app::can_tx::FSM_RollAngularAcceleration_get());
+    EXPECT_EQ(10, app::can_tx::FSM_PitchAngularAcceleration_get());
+    EXPECT_EQ(10, app::can_tx::FSM_YawAngularAcceleration_get());
 }

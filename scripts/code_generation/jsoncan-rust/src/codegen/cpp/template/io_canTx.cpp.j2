@@ -1,0 +1,119 @@
+/**
+ * @note This file is auto-generated. Do not modify!
+ */
+// clang-format off
+
+/* ------------------------------- Includes ------------------------------- */
+
+#include "io_canTx.hpp"
+#include "app_canTx.hpp"
+#include "app_canUtils.hpp"
+
+#include <cstring>
+
+namespace io::can_tx {
+#ifdef THREAD_SAFE_CAN_PACKING
+void (*lock)(void);
+void (*unlock)(void); 
+void setLockfunction(
+    void (*lock_in)(void),
+    void (*unlock_in)(void)
+)
+{
+    lock = lock_in;
+    unlock = unlock_in;
+}
+#endif
+
+/* --------------------------- Static Variables --------------------------- */
+{% for bus in node_buses %}
+static uint32_t can_mode_{{bus.name}};
+static void (*enqueue_func_{{bus.name}})(const JsonCanMsg& tx_msg);
+{% endfor %}
+
+/* --------------------- Static Function Definitions ---------------------- */
+
+{% for (msg, busses) in board_tx_msgs_and_busses %}
+{%- if msg.cycle_time.is_some() -%}
+static void {{msg.name}}_sendPeriodic()
+{%- else -%}
+void {{msg.name}}_sendAperiodic()
+{%- endif %}
+{
+    JsonCanMsg tx_msg{
+        app::can_utils::{{msg.id_macro()}},
+        app::can_utils::{{msg.dlc_macro()}},
+        {}
+    };
+    #ifdef THREAD_SAFE_CAN_PACKING
+    lock();
+    #endif
+    app::can_tx::{{msg.name}}_getData().pack(tx_msg.data);
+    #ifdef THREAD_SAFE_CAN_PACKING
+    unlock();
+    #endif
+    {%- for msg_bus_name in busses %}
+    if (
+    {%- for mode in msg.modes %}
+        can_mode_{{msg_bus_name}} & static_cast<uint32_t>(app::can_utils::{{msg_bus_name}}Mode::{{msg_bus_name.to_uppercase()}}_MODE_{{mode.to_uppercase()}}){%- if loop.last == false %} || {% endif -%}
+    {%- endfor %}
+    )
+    {
+        enqueue_func_{{msg_bus_name}}(tx_msg);
+    }
+    {%- endfor %}
+}
+{% endfor %}
+
+
+/* --------------------- Public Function Definitions ---------------------- */
+
+void init( 
+    {%- for bus in node_buses %}
+    void (*enqueue_{{bus.name}}_msg_func)(const JsonCanMsg&) {%- if !loop.last -%}, {%- endif -%}
+    {%- endfor %}
+)
+{
+    {%- for bus in node_buses %}
+    enqueue_func_{{bus.name}} = enqueue_{{bus.name}}_msg_func;
+    {%- endfor %}
+}
+
+{% for bus in node_buses %}
+void enableMode_{{bus.name}}(app::can_utils::{{bus.name}}Mode mode, const bool enable)
+{
+    if (enable)
+    {
+        can_mode_{{bus.name}} |= static_cast<uint32_t>(mode); // Enable mode
+    }
+    else
+    {
+        can_mode_{{bus.name}} &= ~static_cast<uint32_t>(mode); // Disable mode
+    }
+}
+{% endfor %}
+
+void enqueue1HzMsgs()
+{
+    {%- for (msg, busses) in board_tx_msgs_and_busses if msg.cycle_time.is_some() && msg.cycle_time.unwrap() == 1000 %}
+    {{ msg.name }}_sendPeriodic();
+    {%- endfor %}
+}
+
+void enqueue100HzMsgs()
+{
+    {%- for (msg, busses) in board_tx_msgs_and_busses if msg.cycle_time.is_some() && msg.cycle_time.unwrap() == 10 %}
+    {{ msg.name }}_sendPeriodic();
+    {%- endfor %}
+}
+
+void enqueueOtherPeriodicMsgs(const uint32_t time_ms)
+{
+    {%- for (msg, busses) in board_tx_msgs_and_busses if msg.cycle_time.is_some() && msg.cycle_time.unwrap() != 1000 && msg.cycle_time.unwrap() != 10 %}
+    if (time_ms % app::can_utils::{{msg.cycle_time_macro()}} == 0)
+    {
+        {{msg.name}}_sendPeriodic();
+    }
+    {%- endfor %}
+}
+}
