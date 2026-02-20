@@ -287,17 +287,17 @@ std::expected<void, ErrorCode> Imu::init() const
 
     // Send configs to IMU
     uint8_t      smplrt_div;
-    Config       config;
-    GyroConfig   gyro_config;
-    AccelConfig  accel_config;
-    AccelConfig2 accel_config2;
-    LpModeConfig lp_mode_config;
-    IntPinConfig int_pin_config;
-    FifoEn       fifo_en;
-    IntEnable    int_enable;
-    UserCtrl     user_ctrl;
-    PwrMgmt1     pwr_mgmt1;
-    PwrMgmt2     pwr_mgmt2;
+    Config       config{};
+    GyroConfig   gyro_config{};
+    AccelConfig  accel_config{};
+    AccelConfig2 accel_config2{};
+    LpModeConfig lp_mode_config{};
+    IntPinConfig int_pin_config{};
+    FifoEn       fifo_en{};
+    IntEnable    int_enable{};
+    UserCtrl     user_ctrl{};
+    PwrMgmt1     pwr_mgmt1{};
+    PwrMgmt2     pwr_mgmt2{};
 
     // Filter Config
     accel_config.FS_SEL = static_cast<uint8_t>(accel_scale);
