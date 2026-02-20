@@ -5,5 +5,5 @@
 
 namespace io::imus
 {
-extern Imu imu_r;
+extern Imu imu_rear;
 }

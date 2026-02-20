@@ -3,5 +3,5 @@
 
 namespace io::imus
 {
-Imu imu_r(hw::spi::imu_sd);
+Imu imu_rear(hw::spi::imu_sd);
 }

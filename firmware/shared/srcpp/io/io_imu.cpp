@@ -254,7 +254,7 @@ static constexpr float gyro_sensitivity = []()
     }
 }();
 
-inline constexpr float temp_scale = 326.8f;
+inline constexpr float TEMP_SCALE = 326.8f;
 
 static float translateData(const uint8_t data_h, const uint8_t data_l)
 {
