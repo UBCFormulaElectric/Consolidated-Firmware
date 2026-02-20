@@ -30,6 +30,7 @@ export function Widget({
 	switch (widgetData.type) {
 		case SignalType.ENUM:
 			return <EnumWidget
+				onDelete={handleDelete}
 				widgetData={widgetData}
 				setEnumSignal={setEnumSignalCurried}
 				key={widgetData.id}
