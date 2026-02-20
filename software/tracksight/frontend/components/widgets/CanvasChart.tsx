@@ -23,20 +23,18 @@ export default function CanvasChart({
     timeTickCount?: number;
     onHoverTimestampChange?: (timestamp: number | null) => void;
 }) {
-
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const animationFrameId = useRef<number | null>(null);
     const hoverPixelRef = useRef<{ x: number; y: number } | null>(null);
     const tooltipBufferRef = useRef<string[]>([]);
     const layoutRef = useRef<ChartLayout | null>(null);
+    const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
+    const { scalePxPerSecRef, timeRangeRef, scrollLeftRef, hoverTimestamp: externalHoverTimestampRef } = useSyncedGraph();
+    const containerWidth = useRef(0);
 
-    const { scalePxPerSecRef, timeRangeRef, scrollLeftRef, hoverTimestamp: externalHoverTimestampRef, setTimeRange } = useSyncedGraph();
-    const [containerWidth, setContainerWidth] = useState(0);
-
-    const timestamps = data?.timestamps;
-    const firstTimestamp = timestamps && timestamps.length > 0 ? timestamps[0] : null;
-    const lastTimestamp = timestamps && timestamps.length > 0 ? timestamps[timestamps.length - 1] : null;
-
+    // const timestamps = data?.timestamps;
+    // const firstTimestamp = timestamps && timestamps.length > 0 ? timestamps[0] : null;
+    // const lastTimestamp = timestamps && timestamps.length > 0 ? timestamps[timestamps.length - 1] : null;
     // Update global time range based on data
     // useEffect(() => {
     //   if (firstTimestamp === null || lastTimestamp === null) return;
@@ -53,19 +51,15 @@ export default function CanvasChart({
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
-
-        const observer = new ResizeObserver((entries) => {
-            for (const entry of entries) {
-                if (entry.contentRect) {
-                    setContainerWidth(entry.contentRect.width);
-                }
-            }
+        const observer = new ResizeObserver(entries => {
+            console.assert(entries.length == 1, "Expected exactly one entry in ResizeObserver");
+            containerWidth.current = entries[0].contentRect.width;
         });
-
         observer.observe(canvas);
         return () => observer.disconnect();
-    }, []);
+    }, [canvasRef.current]);
 
+    // TODO
     const preparedData = useMemo<PreparedChartData>(() => {
         if (!data) {
             return {
@@ -169,41 +163,30 @@ export default function CanvasChart({
         };
     }, [data]);
 
+    // RENDER LOOP
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
         const context = canvas.getContext("2d");
         if (!context) return;
         const render_call = () => {
-            const dpr = window.devicePixelRatio || 1;
-
             // transform to the original size
             context.setTransform(1, 0, 0, 1, 0, 0);
             context.scale(dpr, dpr);
-
-            const scrollLeft = scrollLeftRef.current;
             const scale = scalePxPerSecRef.current;
             const globalTimeRange = timeRangeRef.current;
-            const externalHoverTimestamp = externalHoverTimestampRef.current;
-
             if (globalTimeRange) {
-                const visibleStartTime = globalTimeRange.min + (scrollLeft / scale);
-                const visibleEndTime = visibleStartTime + (containerWidth / scale);
-
-                const visibleTimeRange = { min: visibleStartTime, max: visibleEndTime };
-
-                render(context, containerWidth, height, preparedData, series,
-                    timeTickCount,
-                    externalHoverTimestamp, hoverPixelRef, tooltipBufferRef, layoutRef,
-                    visibleTimeRange);
+                render(context, containerWidth.current, height, layoutRef, preparedData, series, timeTickCount,
+                    externalHoverTimestampRef.current, hoverPixelRef, tooltipBufferRef, {
+                    min: globalTimeRange.min + (scrollLeftRef.current / scale),
+                    max: globalTimeRange.min + (scrollLeftRef.current / scale) + (containerWidth.current / scale)
+                });
             }
-
             animationFrameId.current = requestAnimationFrame(render_call);
         }
         animationFrameId.current = requestAnimationFrame(render_call);
         return () => {
-            if (animationFrameId.current === null)
-                return;
+            if (animationFrameId.current === null) return;
             cancelAnimationFrame(animationFrameId.current);
             animationFrameId.current = null;
         };
@@ -219,16 +202,12 @@ export default function CanvasChart({
         hoverPixelRef.current = { x, y };
 
         if (layoutRef.current) {
-            const { minTime, timeRange, chartWidth, paddingLeft } =
-                layoutRef.current;
-            if (chartWidth > 0) {
-                const calculatedTime = minTime + ((x - paddingLeft) / chartWidth) * timeRange;
-
-                externalHoverTimestampRef.current = calculatedTime;
-
-                if (onHoverTimestampChange) {
-                    onHoverTimestampChange(calculatedTime);
-                }
+            const { minTime, timeRange, chartWidth, paddingLeft } = layoutRef.current;
+            console.assert(chartWidth > 0, "Chart width must be greater than 0");
+            const calculatedTime = minTime + ((x - paddingLeft) / chartWidth) * timeRange;
+            externalHoverTimestampRef.current = calculatedTime;
+            if (onHoverTimestampChange) {
+                onHoverTimestampChange(calculatedTime);
             }
         }
     }, [onHoverTimestampChange, externalHoverTimestampRef]);
@@ -241,18 +220,11 @@ export default function CanvasChart({
         }
     }, [onHoverTimestampChange, externalHoverTimestampRef]);
 
-    if (containerWidth === 0) {
-        return <canvas className="block w-full" ref={canvasRef} style={{ height }} />;
-    }
-
-    // get dpr from window 
-    const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
-
     return (
         <canvas
             className="block w-full"
             ref={canvasRef}
-            width={containerWidth * dpr}
+            width={containerWidth.current * dpr}
             height={height * dpr}
             style={{ width: "100%", height: height }}
             onMouseMove={handleMouseMove}

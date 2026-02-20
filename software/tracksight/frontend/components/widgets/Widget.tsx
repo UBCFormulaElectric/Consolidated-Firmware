@@ -47,7 +47,7 @@ export function Widget({
 			return <MockWidget
 				widgetData={widgetData}
 				updateWidget={updateWidget}
-				onDelete={handleDelete}
+				deleteSelfWidget={handleDelete}
 				key={widgetData.id}
 			/>;
 		default:

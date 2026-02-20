@@ -8,15 +8,9 @@ import { MockGraphConfig, WidgetDataMock, WidgetData, MockSignalType } from "@/l
 import { signalColors } from "@/components/widgets/signalColors";
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { SignalType } from "@/lib/types/Signal";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 
-const generateRandomValue = (
-    type: MockSignalType,
-    time: number,
-    index: number = 0,
-    min?: number,
-    max?: number
-) => {
+function generateRandomValue(type: MockSignalType, time: number, index: number = 0, min?: number, max?: number) {
     if (type === MockSignalType.Enumeration) {
         const states = ["IDLE", "ACTIVE", "ERROR", "WAITING", "CHARGING"];
         return states[Math.floor(Math.random() * states.length)];
@@ -25,6 +19,7 @@ const generateRandomValue = (
             const range = max - min;
             // Generate a wave within the range
             const normalized = (Math.sin(time / 1000 + index) + 1) / 2; // 0 to 1
+
             // Add some noise
             const noise = (Math.random() - 0.5) * 0.1; // -0.05 to 0.05
             let n = normalized + noise;
@@ -40,8 +35,9 @@ const generateRandomValue = (
             // 50 + Math.random() * 10 + 50 + index * 20 * time
         );
     }
-};
+}
 
+// TODO move this around
 function SignalButton({ cfg, idx, handleRemoveSignal, onHover, onHoverEnd }: {
     cfg: MockGraphConfig, idx: number,
     handleRemoveSignal: (signalName: string) => void,
@@ -94,10 +90,14 @@ function MockWidgetModal({ closeModal, configs, dataRef, updateWidget, widgetDat
             alert("Signal name must be unique in this graph");
             return;
         }
+        if (newSignalMin >= newSignalMax) {
+            alert("Min value must be less than max value");
+            return;
+        }
 
         const newConfig: MockGraphConfig = {
             signalName: name,
-            type: newSignalType, // "numerical" | "enumeration"
+            type: newSignalType,
             delay: newSignalDelay,
             initialPoints: 0,
             min: newSignalType === MockSignalType.Numerical ? newSignalMin : undefined,
@@ -113,18 +113,16 @@ function MockWidgetModal({ closeModal, configs, dataRef, updateWidget, widgetDat
             }
             return prev;
         });
-
         closeModal();
-        setNewSignalName("");
-        setNewSignalType(MockSignalType.Numerical);
-        setNewSignalMin(-10);
-        setNewSignalMax(10);
     }, [configs, newSignalName, newSignalType, newSignalDelay, updateWidget, widgetData.id, newSignalMin, newSignalMax]);
 
     return (
         <>
             <DialogHeader>
                 <DialogTitle className="text-lg font-bold mb-4">Add Mock Signal</DialogTitle>
+                <DialogDescription>
+                    Configure a new signal to be generated in this mock graph.
+                </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleAddSignal} className="space-y-4">
                 <div>
@@ -207,35 +205,28 @@ function MockWidgetModal({ closeModal, configs, dataRef, updateWidget, widgetDat
     );
 }
 
-const MockWidget = memo(({ widgetData, updateWidget, onDelete }: {
+const MockWidget = memo(({ widgetData, updateWidget, deleteSelfWidget }: {
     widgetData: WidgetDataMock,
     updateWidget: (widgetId: string, updater: (prevWidget: WidgetData) => WidgetData) => void,
-    onDelete: () => void
+    deleteSelfWidget: () => void
 }) => {
     const { isPaused } = usePausePlay();
     const configs = widgetData.configs;
     const [modalOpen, setModalOpen] = useState(false);
-
+    const [chartHeight, setChartHeight] = useState(256);
+    const { setTimeRange, timeRangeRef } = useSyncedGraph(); // because this widget is also doing the data generation
     const dataRef = useRef<{
         timestamps: number[];
         series: Record<string, (number | string | null)[]>;
     }>({ timestamps: [], series: {} });
 
-    const [chartHeight, setChartHeight] = useState(256);
-
-    const { setTimeRange, timeRangeRef } = useSyncedGraph(); // because this widget is also doing the data generation
-
-    // const graphId = widgetData.id;
-
     // TODO: could add initialPoints loop here (but this is very optional)
     // it'd just be what we use in MockGraph.tsx
 
+    // generate fuck ass mock data here
     useEffect(() => {
         if (isPaused) return;
-
-        const intervals: ReturnType<typeof setInterval>[] = [];
-
-        configs.forEach((cfg, idx) => {
+        const intervals: ReturnType<typeof setInterval>[] = configs.map((cfg, idx) => {
             const interval = setInterval(() => {
                 const now = Date.now();
                 const val = generateRandomValue(cfg.type, now, idx, cfg.min, cfg.max);
@@ -267,42 +258,27 @@ const MockWidget = memo(({ widgetData, updateWidget, onDelete }: {
                     }
                 });
             }, cfg.delay);
-            intervals.push(interval);
+            return interval;
         });
-
         return () => intervals.forEach(clearInterval);
     }, [configs, isPaused]);
 
-    // TODO why is the render loop here?
-    useEffect(() => {
-        let frameId: number;
-        const loop = () => {
-            frameId = requestAnimationFrame(loop);
-        };
-        frameId = requestAnimationFrame(loop);
-        return () => cancelAnimationFrame(frameId);
-    }, [isPaused]);
-
     const chartData = useMemo<AlignedData>(() => {
         const { timestamps, series } = dataRef.current;
-
         configs.forEach((c) => {
             if (!series[c.signalName]) {
                 series[c.signalName] = new Array(timestamps.length).fill(null);
             }
         });
-
-        const seriesArrays = configs.map((c) => series[c.signalName]);
-        // if (timestamps.length === 0) return { timestamps: [], series: [] };
         return {
             timestamps,
-            series: seriesArrays,
+            series: configs.map((c) => series[c.signalName]),
         }
     }, [configs, isPaused]);
 
     const handleRemoveSignal = useCallback((name: string) => {
-        if (configs.length <= 1) {
-            onDelete();
+        if (configs.length <= 1) { // delete the whole widget
+            deleteSelfWidget();
             return;
         }
         updateWidget(widgetData.id, (prev) => {
@@ -311,11 +287,10 @@ const MockWidget = memo(({ widgetData, updateWidget, onDelete }: {
             }
             return prev;
         });
-
         if (dataRef.current.series[name]) {
             delete dataRef.current.series[name];
         }
-    }, [configs, onDelete, updateWidget, widgetData.id]);
+    }, [configs, deleteSelfWidget, updateWidget, widgetData.id]);
 
     return (
         <div className="mb-6 p-4 block w-full relative border border-red-500">
@@ -323,7 +298,7 @@ const MockWidget = memo(({ widgetData, updateWidget, onDelete }: {
                 {/* header */}
                 <div className="flex items-center gap-2 mb-4">
                     <h3 className="font-semibold">Mock Graph Container (Widget)</h3>
-                    <button onClick={onDelete} title="Remove mock graph"
+                    <button onClick={deleteSelfWidget} title="Remove mock graph"
                         className="w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-sm font-bold transition-colors cursor-pointer"
                     >
                         ×
