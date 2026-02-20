@@ -12,7 +12,7 @@ SpiDevice imu_sd(spi3, gpio::imu_cs, 10);
 
 // should I write if (handle != &hspi) {assert(false); return nullptr} else {return &spi3} instead?
 // or does this count as hard coding?
-const SpiBus &hw_spi_getBusFromHandle(const SPI_HandleTypeDef *handle)
+const SpiBus &getBusFromHandle(const SPI_HandleTypeDef *handle)
 {
     assert(handle == &hspi3);
     return spi3;

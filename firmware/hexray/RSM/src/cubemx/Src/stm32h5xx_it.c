@@ -60,6 +60,7 @@ extern DMA_QListTypeDef    List_GPDMA1_Channel0;
 extern DMA_HandleTypeDef   handle_GPDMA1_Channel0;
 extern ADC_HandleTypeDef   hadc1;
 extern FDCAN_HandleTypeDef hfdcan1;
+extern SPI_HandleTypeDef   hspi3;
 extern TIM_HandleTypeDef   htim3;
 extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
 extern TIM_HandleTypeDef   htim6;
@@ -248,6 +249,20 @@ void TIM6_IRQHandler(void)
     /* USER CODE BEGIN TIM6_IRQn 1 */
 
     /* USER CODE END TIM6_IRQn 1 */
+}
+
+/**
+ * @brief This function handles SPI3 global interrupt.
+ */
+void SPI3_IRQHandler(void)
+{
+    /* USER CODE BEGIN SPI3_IRQn 0 */
+
+    /* USER CODE END SPI3_IRQn 0 */
+    HAL_SPI_IRQHandler(&hspi3);
+    /* USER CODE BEGIN SPI3_IRQn 1 */
+
+    /* USER CODE END SPI3_IRQn 1 */
 }
 
 /**

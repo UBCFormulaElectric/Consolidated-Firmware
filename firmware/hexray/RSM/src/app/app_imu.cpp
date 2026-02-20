@@ -35,7 +35,7 @@ void init()
 void broadcast()
 {
     io::Imu::AccelData accel{};
-    io::Imu::GyroData gyro{};
+    io::Imu::GyroData  gyro{};
 
     imu_faults.accel_x_fault = imu_r.getAccelX(accel.x);
     imu_faults.accel_y_fault = imu_r.getAccelY(accel.y);

@@ -227,4 +227,4 @@ class Imu
     void set_GyroYaw(float gyro_z_fake) const;
 #endif
 };
-} // namespace io::imu
+} // namespace io
