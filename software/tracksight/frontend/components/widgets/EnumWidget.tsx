@@ -1,6 +1,6 @@
 "use client";
 
-import LabelLegend from "@/components/legends/LabelLegend";
+// import LabelLegend from "@/components/legends/LabelLegend";
 import { WidgetDataEnum } from "@/lib/types/Widget";
 import EnumSignalSelector from "@/components/widgets/EnumSignalSelector";
 import useSignalMetadata from "@/lib/hooks/useSignalMetadata";

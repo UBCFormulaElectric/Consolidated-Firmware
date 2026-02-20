@@ -8,14 +8,7 @@ import { MockGraphConfig, WidgetDataMock, WidgetData, MockSignalType } from "@/l
 import { signalColors } from "@/components/widgets/signalColors";
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { SignalType } from "@/lib/types/Signal";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 
 const generateRandomValue = (
     type: MockSignalType,
@@ -67,7 +60,7 @@ function SignalButton({ cfg, idx, handleRemoveSignal, onHover, onHoverEnd }: {
             <span className="text-xs text-gray-500">({cfg.delay}ms)</span>
             <button
                 onClick={() => handleRemoveSignal(cfg.signalName)}
-                className="ml-1 text-gray-500 hover:text-red-500 transition-colors font-bold cursor-pointer"
+                className="ml-1 text-gray-500 hover:text-red-500 transition-colors font-bold cursor-pointer focus:text-red-500 focus:outline-none"
                 title="Remove signal"
             >
                 ×
@@ -76,9 +69,8 @@ function SignalButton({ cfg, idx, handleRemoveSignal, onHover, onHoverEnd }: {
     );
 }
 
-function BruhModal({ setShowAddModal, configs, dataRef, updateWidget, widgetData }: {
-    // writes
-    setShowAddModal: (show: boolean) => void,
+function MockWidgetModal({ closeModal, configs, dataRef, updateWidget, widgetData }: {
+    closeModal: () => void,
     updateWidget: (widgetId: string, updater: (prevWidget: WidgetData) => WidgetData) => void,
 
     // read only
@@ -122,7 +114,7 @@ function BruhModal({ setShowAddModal, configs, dataRef, updateWidget, widgetData
             return prev;
         });
 
-        setShowAddModal(false);
+        closeModal();
         setNewSignalName("");
         setNewSignalType(MockSignalType.Numerical);
         setNewSignalMin(-10);
@@ -130,105 +122,88 @@ function BruhModal({ setShowAddModal, configs, dataRef, updateWidget, widgetData
     }, [configs, newSignalName, newSignalType, newSignalDelay, updateWidget, widgetData.id, newSignalMin, newSignalMax]);
 
     return (
-        <div
-            className="fixed inset-0 bg-black/50 flex items-center justify-center z-100"
-            onClick={() => setShowAddModal(false)}
-        >
-            <div
-                className="bg-white rounded-lg shadow-xl p-6 w-96 max-w-full m-4"
-                onClick={(e) => e.stopPropagation()}
-            >
-                <h3 className="text-lg font-bold mb-4">Add Mock Signal</h3>
-                <form onSubmit={handleAddSignal} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Signal Name
-                        </label>
-                        <input
-                            type="text"
-                            value={newSignalName}
-                            onChange={(e) => setNewSignalName(e.target.value)}
-                            className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
-                            placeholder="e.g. Voltage"
-                            autoFocus
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Type
-                        </label>
-                        <select
-                            value={newSignalType}
-                            onChange={(e) =>
-                                setNewSignalType(e.target.value as MockSignalType)
-                            }
-                            className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
-                        >
-                            <option value={MockSignalType.Numerical}>
-                                Numerical
-                            </option>
-                            <option value={MockSignalType.Enumeration}>
-                                Enumeration
-                            </option>
-                        </select>
-                    </div>
-                    {newSignalType === MockSignalType.Numerical && (
-                        <div className="flex gap-4">
-                            <div className="flex-1">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Min Value
-                                </label>
-                                <input
-                                    type="number"
-                                    value={newSignalMin}
-                                    onChange={(e) => setNewSignalMin(Number(e.target.value))}
-                                    className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
-                                />
-                            </div>
-                            <div className="flex-1">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Max Value
-                                </label>
-                                <input
-                                    type="number"
-                                    value={newSignalMax}
-                                    onChange={(e) => setNewSignalMax(Number(e.target.value))}
-                                    className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
-                                />
-                            </div>
+        <>
+            <DialogHeader>
+                <DialogTitle className="text-lg font-bold mb-4">Add Mock Signal</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleAddSignal} className="space-y-4">
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Signal Name
+                    </label>
+                    <input
+                        type="text"
+                        value={newSignalName}
+                        onChange={(e) => setNewSignalName(e.target.value)}
+                        className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
+                        placeholder="e.g. Voltage"
+                        autoFocus
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Type
+                    </label>
+                    <select
+                        value={newSignalType}
+                        onChange={(e) =>
+                            setNewSignalType(e.target.value as MockSignalType)
+                        }
+                        className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
+                    >
+                        <option value={MockSignalType.Numerical}>
+                            Numerical
+                        </option>
+                        <option value={MockSignalType.Enumeration}>
+                            Enumeration
+                        </option>
+                    </select>
+                </div>
+                {newSignalType === MockSignalType.Numerical && (
+                    <div className="flex gap-4">
+                        <div className="flex-1">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Min Value
+                            </label>
+                            <input
+                                type="number"
+                                value={newSignalMin}
+                                onChange={(e) => setNewSignalMin(Number(e.target.value))}
+                                className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
+                            />
                         </div>
-                    )}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Update Delay (ms)
-                        </label>
-                        <input
-                            type="number"
-                            value={newSignalDelay}
-                            onChange={(e) =>
-                                setNewSignalDelay(Number(e.target.value))
-                            }
-                            className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
-                        />
+                        <div className="flex-1">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Max Value
+                            </label>
+                            <input
+                                type="number"
+                                value={newSignalMax}
+                                onChange={(e) => setNewSignalMax(Number(e.target.value))}
+                                className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
+                            />
+                        </div>
                     </div>
-                    <div className="flex justify-end gap-2 pt-2">
-                        <button
-                            type="button"
-                            onClick={() => setShowAddModal(false)}
-                            className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded"
-                        >
-                            Add
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                )}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Update Delay (ms)
+                    </label>
+                    <input type="number" value={newSignalDelay}
+                        onChange={(e) => setNewSignalDelay(Number(e.target.value))}
+                        className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
+                    />
+                </div>
+                <div className="flex justify-end gap-2 pt-2">
+                    <button type="button" onClick={closeModal} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer">
+                        Cancel
+                    </button>
+                    <button type="submit" className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded cursor-pointer">
+                        Add
+                    </button>
+                </div>
+            </form>
+        </>
     );
 }
 
@@ -239,8 +214,7 @@ const MockWidget = memo(({ widgetData, updateWidget, onDelete }: {
 }) => {
     const { isPaused } = usePausePlay();
     const configs = widgetData.configs;
-
-    const [showAddModal, setShowAddModal] = useState(false);
+    const [modalOpen, setModalOpen] = useState(false);
 
     const dataRef = useRef<{
         timestamps: number[];
@@ -367,23 +341,14 @@ const MockWidget = memo(({ widgetData, updateWidget, onDelete }: {
                     {configs.map((cfg, idx) =>
                         <SignalButton key={cfg.signalName} cfg={cfg} idx={idx} handleRemoveSignal={handleRemoveSignal} onHover={() => { }} onHoverEnd={() => { }} />
                     )}
-                    <div className="relative">
-                        <PlusButton onClick={() => setShowAddModal(true)} variant="rowSide" />
-                        {/* MODAL */}
-                        {/* {showAddModal && <BruhModal setShowAddModal={setShowAddModal} configs={configs} dataRef={dataRef} updateWidget={updateWidget} widgetData={widgetData} />} */}
-                        <Dialog>
-                            <DialogTrigger>Open</DialogTrigger>
-                            <DialogContent>
-                                <DialogHeader>
-                                    <DialogTitle>Are you absolutely sure?</DialogTitle>
-                                    <DialogDescription>
-                                        This action cannot be undone. This will permanently delete your account
-                                        and remove your data from our servers.
-                                    </DialogDescription>
-                                </DialogHeader>
-                            </DialogContent>
-                        </Dialog>
-                    </div>
+                    <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+                        <DialogTrigger>
+                            <PlusButton />
+                        </DialogTrigger>
+                        <DialogContent>
+                            <MockWidgetModal configs={configs} dataRef={dataRef} updateWidget={updateWidget} widgetData={widgetData} closeModal={() => setModalOpen(false)} />
+                        </DialogContent>
+                    </Dialog>
                 </div>
             </div>
 
