@@ -41,7 +41,7 @@ interface NumericalWidgetProps {
   onDelete?: () => void;
 }
 
-export default function NumericalWidget() {
+export default function NumericalWidget({ widgetData, appendNumSignal, removeNumSignal, onDelete }: NumericalWidgetProps) {
   return <div>wip</div>;
 }
 

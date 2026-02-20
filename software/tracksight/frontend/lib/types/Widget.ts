@@ -20,8 +20,12 @@ interface numericalProps {
 }
 export type WidgetDataNumerical = WidgetDataBase & numericalProps;
 
+export enum MockSignalType {
+  Numerical = "numerical",
+  Enumeration = "enumeration",
+}
 export interface MockGraphConfig {
-  type: "numerical" | "enumeration";
+  type: MockSignalType;
   delay: number; // ms
   initialPoints: number;
   signalName: string;
@@ -30,8 +34,8 @@ export interface MockGraphConfig {
 }
 
 interface mockProps {
-    type: SignalType.MOCK;
-    configs: MockGraphConfig[];
+  type: SignalType.MOCK;
+  configs: MockGraphConfig[];
 }
 export type WidgetDataMock = WidgetDataBase & mockProps;
 
