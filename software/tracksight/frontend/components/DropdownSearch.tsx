@@ -134,7 +134,7 @@ const RowEditorInner: React.FC<RowEditorProps> = ({
       {!row.hasCreatedComponent && (
         <div className="flex items-center gap-2">
           <div>
-            <PlusButton variant="rowSide" onClick={() => onToggle(index)} />
+            <PlusButton onClick={() => onToggle(index)} />
           </div>
 
           {/* Delete row button */}
