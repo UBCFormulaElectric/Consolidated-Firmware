@@ -9,11 +9,11 @@ using namespace io::imus;
 namespace app::imu
 {
 static RSMImuResults imu_results = { .accel_x_res = std::unexpected(ErrorCode::ERROR),
-                                    .accel_y_res = std::unexpected(ErrorCode::ERROR),
-                                    .accel_z_res = std::unexpected(ErrorCode::ERROR),
-                                    .gyro_x_res  = std::unexpected(ErrorCode::ERROR),
-                                    .gyro_y_res  = std::unexpected(ErrorCode::ERROR),
-                                    .gyro_z_res  = std::unexpected(ErrorCode::ERROR) };
+                                     .accel_y_res = std::unexpected(ErrorCode::ERROR),
+                                     .accel_z_res = std::unexpected(ErrorCode::ERROR),
+                                     .gyro_x_res  = std::unexpected(ErrorCode::ERROR),
+                                     .gyro_y_res  = std::unexpected(ErrorCode::ERROR),
+                                     .gyro_z_res  = std::unexpected(ErrorCode::ERROR) };
 
 void init()
 {

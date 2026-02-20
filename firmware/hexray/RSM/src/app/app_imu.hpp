@@ -5,7 +5,8 @@
 
 namespace app::imu
 {
-struct RSMImuResults {
+struct RSMImuResults
+{
     std::expected<float, ErrorCode> accel_x_res;
     std::expected<float, ErrorCode> accel_y_res;
     std::expected<float, ErrorCode> accel_z_res;
@@ -16,8 +17,8 @@ struct RSMImuResults {
     inline constexpr bool hasFault()
     {
         return not(
-            accel_x_res.has_value() && accel_y_res.has_value() && accel_z_res.has_value() &&
-            gyro_x_res.has_value() && gyro_y_res.has_value() && gyro_z_res.has_value());
+            accel_x_res.has_value() && accel_y_res.has_value() && accel_z_res.has_value() && gyro_x_res.has_value() &&
+            gyro_y_res.has_value() && gyro_z_res.has_value());
     }
 };
 
