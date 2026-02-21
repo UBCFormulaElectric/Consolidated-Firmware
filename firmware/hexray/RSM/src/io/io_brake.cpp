@@ -1,6 +1,5 @@
 #include "io_brake.hpp"
-#include "hw_adcs.hpp"
-#include "hw_gpios.hpp"
+
 #ifdef TARGET_EMBEDDED
 #include "hw_adc.hpp"
 #endif

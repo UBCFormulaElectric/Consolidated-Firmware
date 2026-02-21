@@ -1,5 +1,4 @@
 #include "io_leds.hpp"
-#include "hw_gpios.hpp"
 
 namespace io
 {

@@ -1,5 +1,4 @@
 #include "io_brakeLight.hpp"
-#include "hw_gpios.hpp"
 
 namespace io::brakeLight
 {

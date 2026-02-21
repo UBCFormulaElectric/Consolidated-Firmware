@@ -1,6 +1,7 @@
 #pragma once
 #include "util_errorCodes.hpp"
 #include "io_imu.hpp"
+#include "hw_spis.hpp"
 
 extern const io::imu::Imu imu_config;
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "hw_pwms.hpp"
+
 namespace io::coolant
 {
 /*

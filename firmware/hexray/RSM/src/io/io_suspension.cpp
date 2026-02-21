@@ -1,6 +1,4 @@
 #include "io_suspension.hpp"
-#include "hw_adcs.hpp"
-#include "hw_gpios.hpp"
 
 constexpr float METERS_PER_VOLT = 100.0f;
 
@@ -31,4 +29,3 @@ bool RL_OCSC()
     return hw::gpio::susp_travel_rl_ocsc.readPin();
 }
 } // namespace io::suspension
-

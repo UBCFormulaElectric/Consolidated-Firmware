@@ -3,7 +3,7 @@
 
 namespace hw::adcs
 {
-constexpr int NUM_ADC_CHANNELS = 5;
+constexpr int             NUM_ADC_CHANNELS = 5;
 AdcChip<NUM_ADC_CHANNELS> Adc_Chip(&hadc1, &htim3);
 
 void chipsInit()

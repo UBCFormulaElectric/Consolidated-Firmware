@@ -1,6 +1,7 @@
 #pragma once
 
 #include "io_led.hpp"
+#include "hw_gpios.hpp"
 
 namespace io
 {
