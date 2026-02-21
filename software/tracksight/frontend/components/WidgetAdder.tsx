@@ -154,9 +154,11 @@ export function WidgetAdder({ onAddWidget }: {
     <>
       {/* Default Popover */}
       <Popover open={isOpen} onOpenChange={setIsOpen}>
-        <PopoverTrigger asChild>
-          <PlusButton className="cursor-pointer" />
-        </PopoverTrigger>
+        <div className="w-full flex justify-center">
+          <PopoverTrigger asChild>
+            <PlusButton className="cursor-pointer" />
+          </PopoverTrigger>
+        </div>
         <PopoverContent>
           <button onClick={handleAddEnum} className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700" >
             Add Enum Widget
