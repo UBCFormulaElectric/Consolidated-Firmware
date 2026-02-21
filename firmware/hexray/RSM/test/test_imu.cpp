@@ -1,14 +1,9 @@
 #include <gtest/gtest.h>
 #include "test/test_RSMBase.hpp"
-#include "io_imu.hpp"
-#include "app_imu.hpp"
+#include "io_imus.hpp"
 #include "test_fakes.hpp"
 #include "util_errorCodes.hpp"
-
-extern "C"
-{
-#include "app_canTx.h"
-}
+#include "app_canTx.hpp"
 
 class RSMImuTest : public RSMBaseTest
 {
@@ -25,10 +20,10 @@ TEST_F(RSMImuTest, Acceleration_Velocity_Test)
 
     LetTimePass(100);
 
-    EXPECT_EQ(10, app_canTx_RSM_LinearAccelerationInX_get());
-    EXPECT_EQ(10, app_canTx_RSM_LinearAccelerationInY_get());
-    EXPECT_EQ(10, app_canTx_RSM_LinearAccelerationInZ_get());
-    EXPECT_EQ(10, app_canTx_RSM_RollAngularAcceleration_get());
-    EXPECT_EQ(10, app_canTx_RSM_PitchAngularAcceleration_get());
-    EXPECT_EQ(10, app_canTx_RSM_YawAngularAcceleration_get());
+    EXPECT_EQ(10, app::can_tx::RSM_LinearAccelerationInX_get());
+    EXPECT_EQ(10, app::can_tx::RSM_LinearAccelerationInY_get());
+    EXPECT_EQ(10, app::can_tx::RSM_LinearAccelerationInZ_get());
+    EXPECT_EQ(10, app::can_tx::RSM_RollAngularAcceleration_get());
+    EXPECT_EQ(10, app::can_tx::RSM_PitchAngularAcceleration_get());
+    EXPECT_EQ(10, app::can_tx::RSM_YawAngularAcceleration_get());
 }

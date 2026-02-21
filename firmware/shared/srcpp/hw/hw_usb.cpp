@@ -24,11 +24,11 @@
         so that hw_usb knows which handlers to use.
 #endif
 
-#ifdef FS
+#if defined(FS)
 static USBD_HandleTypeDef hUsbDeviceFS;
 #define USB_DEVICE_HANDLER (hUsbDeviceFS)
 #define DEVICE_ID 0 // DEVICE_FS
-#elif HS
+#elif defined(HS)
 static USBD_HandleTypeDef hUsbDeviceHS;
 #define USB_DEVICE_HANDLER (hUsbDeviceHS)
 #define DEVICE_ID 1 // DEVICE_HS
@@ -315,9 +315,14 @@ extern "C"
     USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
     {
         /* Link USB Device <-> PCD */
+#ifdef FS
         pdev->pData           = &hpcd_USB_DRD_FS;
         hpcd_USB_DRD_FS.pData = pdev;
-
+#endif
+#ifdef HS
+        pdev->pData           = &hpcd_USB_OTG_HS;
+        hpcd_USB_OTG_HS.pData = pdev;
+#endif
         /* Initialize LL Driver */
         // MX_USB_PCD_Init(); // TODO dawg...
 

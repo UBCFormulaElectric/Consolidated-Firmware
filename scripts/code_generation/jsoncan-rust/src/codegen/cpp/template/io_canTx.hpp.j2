@@ -1,0 +1,58 @@
+/**
+ * @note This file is auto-generated. Do not modify!
+ */
+// clang-format off
+
+#pragma once
+
+/* ------------------------------- Includes ------------------------------- */
+
+#include "app_canUtils.hpp"
+#include <cstdint>
+#include <array>
+
+namespace io::can_tx {
+#ifdef THREAD_SAFE_CAN_PACKING
+void setLockfunction(
+    void (*lock)(),
+    void (*unlock)()
+);
+#endif
+
+/* ------------------------- Function Prototypes -------------------------- */
+
+/**
+ * Initialize the IO CAN TX module.
+ */
+void init(
+    {%- for bus in node_buses %}
+    void (*enqueue_{{bus.name}}_msg_func)(const JsonCanMsg&) {%- if !loop.last -%}, {%- endif %}
+    {%- endfor %}
+);
+
+/**
+ * Enable or disable a mode (only messages allowed for the enabled modes transmitted on the bus).
+ */
+{%- for bus in node_buses %}
+void enableMode_{{bus.name}}(app::can_utils::{{bus.name}}Mode mode, bool enable);
+{%- endfor %}
+
+/**
+ * Enqueue periodic CAN msgs of period 1000ms.
+ */
+void enqueue1HzMsgs();
+
+/**
+ * Enqueue periodic CAN msgs of period 10ms.
+ */
+void enqueue100HzMsgs();
+
+/**
+ * Enqueue periodic CAN messages whose cycle time does is not suitable for other periodic sending functions.
+ */
+void enqueueOtherPeriodicMsgs(uint32_t time_ms);
+
+{%- for (msg, _) in board_tx_msgs_and_busses if msg.cycle_time == None %}
+void {{msg.name}}_sendAperiodic();
+{%- endfor %}
+}

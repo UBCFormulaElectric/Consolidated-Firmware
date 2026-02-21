@@ -1,14 +1,14 @@
 #include "hw_can.hpp"
-#include <stm32f4xx_hal_can.h>
 
 #undef NDEBUG // TODO remove this in favour of always_assert (we would write this)
-#include <assert.h>
 #include <FreeRTOS.h>
 #include <task.h>
 
 #include "hw_utils.hpp"
 #include "io_log.hpp"
 #include "io_time.hpp"
+
+#include <cassert>
 
 // The following filter IDs/masks must be used with 16-bit Filter Scale
 // (FSCx = 0) and Identifier Mask Mode (FBMx = 0). In this mode, the identifier
@@ -40,7 +40,7 @@ static constexpr uint32_t MASKMODE_16_BIT_MASK_OPEN = INIT_MASKMODE_16BIT_FiRx(0
 namespace hw
 {
 
-std::expected<void, ErrorCode> can::tx(const CAN_TxHeaderTypeDef &tx_header, const io::CanMsg &msg)
+std::expected<void, ErrorCode> can::tx(const CAN_TxHeaderTypeDef &tx_header, const CanMsg &msg) const
 {
     // Spin until a TX mailbox becomes available.
     for (uint32_t poll_count = 0; HAL_CAN_GetTxMailboxesFreeLevel(hcan) == 0U;)
@@ -63,7 +63,7 @@ std::expected<void, ErrorCode> can::tx(const CAN_TxHeaderTypeDef &tx_header, con
 
     // Indicates the mailbox used for transmission, not currently used.
     uint32_t mailbox = 0;
-    return hw_utils_convertHalStatus(HAL_CAN_AddTxMessage(hcan, &tx_header, msg.data.data8, &mailbox));
+    return hw_utils_convertHalStatus(HAL_CAN_AddTxMessage(hcan, &tx_header, msg.data.data(), &mailbox));
 }
 
 void can::init() const
@@ -106,7 +106,7 @@ void can::deinit() const
 
 // NOTE this design assumes that there is only one task calling this function
 
-std::expected<void, ErrorCode> can::can_transmit(const io::CanMsg &msg)
+std::expected<void, ErrorCode> can::can_transmit(const CanMsg &msg) const
 {
     assert(ready);
     CAN_TxHeaderTypeDef tx_header;
@@ -129,12 +129,13 @@ std::expected<void, ErrorCode> can::can_transmit(const io::CanMsg &msg)
     return tx(tx_header, msg);
 }
 
-std::expected<void, ErrorCode> can::receive(const uint32_t rx_fifo, io::CanMsg &msg) const
+std::expected<CanMsg, ErrorCode> can::receive(const uint32_t rx_fifo) const
 {
     assert(ready);
     CAN_RxHeaderTypeDef header;
 
-    RETURN_IF_ERR(hw_utils_convertHalStatus(HAL_CAN_GetRxMessage(hcan, rx_fifo, &header, msg.data.data8)));
+    CanMsg msg;
+    RETURN_IF_ERR(hw_utils_convertHalStatus(HAL_CAN_GetRxMessage(hcan, rx_fifo, &header, msg.data.data())));
 
     // Copy metadata from HAL's CAN message struct into our custom CAN
     // message struct
@@ -149,10 +150,9 @@ std::expected<void, ErrorCode> can::receive(const uint32_t rx_fifo, io::CanMsg &
         default:
             assert(false);
     }
-    msg.dlc       = header.DLC;
-    msg.timestamp = io::time::getCurrentMs();
+    msg.dlc = header.DLC;
 
-    return {};
+    return msg;
 }
 } // namespace hw
 
@@ -160,13 +160,13 @@ std::expected<void, ErrorCode> can::receive(const uint32_t rx_fifo, io::CanMsg &
 static void handle_callback(CAN_HandleTypeDef *hcan)
 {
     const hw::can &handle = hw::can_getHandle(hcan);
-
-    io::CanMsg rx_msg{};
-    // if (IS_EXIT_ERR(hw_can_receive(handle, CAN_RX_FIFO0, &rx_msg)))
-    if (not handle.receive(CAN_RX_FIFO0, rx_msg).has_value())
-        // Early return if RX msg is unavailable.
+    const auto     res    = handle.receive(CAN_RX_FIFO0);
+    if (not res)
+    {
+        LOG_ERROR("CAN Error: %d", res.error());
         return;
-    handle.receive_callback(rx_msg);
+    }
+    handle.receive_callback(res.value());
 }
 
 CFUNC void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)

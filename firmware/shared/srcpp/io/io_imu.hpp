@@ -1,10 +1,10 @@
 #pragma once
 
-#include <cstdint>
-
 #include "util_errorCodes.hpp"
 #ifdef TARGET_EMBEDDED
 #include "hw_spi.hpp"
+#else
+#include <cstdint>
 #endif
 /**
  * IMU Datasheet: https://invensense.tdk.com/wp-content/uploads/2021/11/DS-000409-IAM-20680HP-v1.2-Typ.pdf
@@ -103,14 +103,14 @@ struct ImuFilterConfig
     GyroDlpfConfig  gyro_dlpf_cutoff  = GyroDlpfConfig::BW_41HZ_NOISE_59HZ;
     uint8_t         sample_rate_div   = 9;
 
-    inline constexpr uint16_t calculateOdr(uint16_t base_rate)
+    constexpr uint16_t calculateOdr(const uint16_t base_rate) const
     {
         return static_cast<uint16_t>(base_rate / (1U + sample_rate_div));
     }
 
-    inline constexpr uint16_t getAccelOdrHz() { return (enable_accel_dlpf == true) ? calculateOdr(1000U) : 4000U; }
+    constexpr uint16_t getAccelOdrHz() const { return (enable_accel_dlpf == true) ? calculateOdr(1000U) : 4000U; }
 
-    inline constexpr uint16_t getGyroOdrHz()
+    constexpr uint16_t getGyroOdrHz() const
     {
         if (enable_gyro_dlpf == false)
             return 32000U;
@@ -148,12 +148,12 @@ struct ImuFifoConfig
     FifoSize fifo_size                = FifoSize::SIZE_512B; // Specifies FIFO Size
     bool     fifo_overflow_int_enable = false;
 
-    inline constexpr bool enableFifo()
+    constexpr bool enableFifo() const
     {
         return enable_accel_fifo || enable_gyro_x_fifo || enable_gyro_y_fifo || enable_gyro_z_fifo || enable_temp_fifo;
     }
 
-    inline constexpr size_t getFifoPacketSize() const
+    constexpr size_t getFifoPacketSize() const
     {
         return (enable_accel_fifo ? 6 : 0) + (enable_temp_fifo ? 2 : 0) + (enable_gyro_x_fifo ? 2 : 0) +
                (enable_gyro_y_fifo ? 2 : 0) + (enable_gyro_z_fifo ? 2 : 0);
@@ -181,7 +181,7 @@ class Imu
 
     ImuFilterConfig filter_config;
     // ImuFifoConfig   fifo_config;
-    bool is_imu_ready = false;
+    mutable bool is_imu_ready = false;
 
     // ExitCode getFifoCount(uint16_t &fifo_count);
 
@@ -197,39 +197,34 @@ class Imu
     constexpr explicit Imu() {}
 #endif
 
-    [[nodiscard]] std::expected<void, ErrorCode> init();
-    /**
-     * @brief Get acceleration in the x axis
-     * @param accel_x
-     *
-     * @return ExitCode OK for success, otherwise fail
-     */
-    std::expected<void, ErrorCode> getAccelX(float &accel_x) const;
-    std::expected<void, ErrorCode> getAccelY(float &accel_y) const;
-    std::expected<void, ErrorCode> getAccelZ(float &accel_z) const;
+    [[nodiscard]] std::expected<void, ErrorCode> init() const;
 
-    std::expected<void, ErrorCode> getGyroX(float &gyro_x) const;
-    std::expected<void, ErrorCode> getGyroY(float &gyro_y) const;
-    std::expected<void, ErrorCode> getGyroZ(float &gyro_z) const;
+    std::expected<float, ErrorCode> getAccelX() const;
+    std::expected<float, ErrorCode> getAccelY() const;
+    std::expected<float, ErrorCode> getAccelZ() const;
 
-    std::expected<void, ErrorCode> getTemp(float &temp) const;
+    std::expected<float, ErrorCode> getGyroX() const;
+    std::expected<float, ErrorCode> getGyroY() const;
+    std::expected<float, ErrorCode> getGyroZ() const;
 
-    std::expected<void, ErrorCode> getAccelAll(AccelData &data) const;
-    std::expected<void, ErrorCode> getGyroAll(GyroData &data) const;
+    std::expected<float, ErrorCode> getTemp() const;
+
+    std::expected<AccelData, ErrorCode> getAccelAll() const;
+    std::expected<GyroData, ErrorCode>  getGyroAll() const;
 
 #ifdef TARGET_TEST
-    bool  initialized  = false;
-    float accel_x_fake = 0.0f, accel_y_fake = 0.0f, accel_z_fake = 0.0f, gyro_x_fake = 0.0f, gyro_y_fake = 0.0f,
-          gyro_z_fake = 0.0f;
+    mutable bool  initialized   = false;
+    mutable float _accel_x_fake = 0.0f, _accel_y_fake = 0.0f, _accel_z_fake = 0.0f, _gyro_x_fake = 0.0f,
+                  _gyro_y_fake = 0.0f, _gyro_z_fake = 0.0f;
 
     void reset_init();
-    bool get_init();
-    void set_AccelX(float accel_x_fake);
-    void set_AccelY(float accel_y_fake);
-    void set_AccelZ(float accel_z_fake);
-    void set_GyroRoll(float gyro_x_fake);
-    void set_GyroPitch(float gyro_y_fake);
-    void set_GyroYaw(float gyro_z_fake);
+    bool get_init() const;
+    void set_AccelX(float accel_x_fake) const;
+    void set_AccelY(float accel_y_fake) const;
+    void set_AccelZ(float accel_z_fake) const;
+    void set_GyroRoll(float gyro_x_fake) const;
+    void set_GyroPitch(float gyro_y_fake) const;
+    void set_GyroYaw(float gyro_z_fake) const;
 #endif
 };
 } // namespace io::imu

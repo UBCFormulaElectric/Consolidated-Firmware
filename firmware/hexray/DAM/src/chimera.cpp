@@ -6,6 +6,7 @@
 #include "shared.pb.h"
 #include "io_log.hpp"
 #include "hw_usb.hpp"
+#include "hw_uarts.hpp"
 
 #include <cassert>
 #include <dam.pb.h>
@@ -13,7 +14,7 @@
 #include <optional>
 #include <functional>
 
-class DAMChimeraConfig : public chimera_v2::config
+class DAMChimeraConfig final : public chimera_v2::config
 {
   public:
     ~DAMChimeraConfig() override = default;
@@ -59,7 +60,29 @@ class DAMChimeraConfig : public chimera_v2::config
         }
     }
 
-    consteval DAMChimeraConfig() { gpio_net_name_tag = GpioNetName_dam_net_name_tag; }
+    std::optional<std::reference_wrapper<const hw::Uart>> id_to_uart(const _UartNetName *unn) const override
+    {
+        assert(unn->which_name == gpio_net_name_tag);
+        switch (unn->name.dam_net_name)
+        {
+            case dam_UartNetName_UART_RADIO:
+                return std::cref(_900k_uart);
+            case dam_UartNetName_UART_NET_NAME_UNSPECIFIED:
+            default:
+                LOG_INFO("Chimera: Unknown UART net name");
+                return std::nullopt;
+        }
+    }
+    std::optional<std::reference_wrapper<const hw::PwmOutput>> id_to_pwm(const _PwmNetName *) const override
+    {
+        return std::nullopt;
+    }
+
+    consteval DAMChimeraConfig()
+    {
+        gpio_net_name_tag = GpioNetName_dam_net_name_tag;
+        uart_net_name_tag = UartNetName_dam_net_name_tag;
+    }
 
 } dam_config;
 
