@@ -3,6 +3,6 @@
 
 namespace hw::spi
 {
-extern const SpiBus    spi3;
-extern const SpiDevice imu;
+extern SpiBus    spi3;
+extern SpiDevice imu_sd;
 } // namespace hw::spi

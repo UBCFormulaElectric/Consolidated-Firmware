@@ -409,8 +409,8 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SPI3;
         PeriphClkInitStruct.PLL2.PLL2Source      = RCC_PLL2_SOURCE_CSI;
         PeriphClkInitStruct.PLL2.PLL2M           = 1;
-        PeriphClkInitStruct.PLL2.PLL2N           = 125;
-        PeriphClkInitStruct.PLL2.PLL2P           = 4;
+        PeriphClkInitStruct.PLL2.PLL2N           = 32;
+        PeriphClkInitStruct.PLL2.PLL2P           = 16;
         PeriphClkInitStruct.PLL2.PLL2Q           = 2;
         PeriphClkInitStruct.PLL2.PLL2R           = 2;
         PeriphClkInitStruct.PLL2.PLL2RGE         = RCC_PLL2_VCIRANGE_2;
@@ -426,12 +426,21 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
         /* Peripheral clock enable */
         __HAL_RCC_SPI3_CLK_ENABLE();
 
+        __HAL_RCC_GPIOA_CLK_ENABLE();
         __HAL_RCC_GPIOC_CLK_ENABLE();
         /**SPI3 GPIO Configuration
+        PA15(JTDI)     ------> SPI3_NSS
         PC10     ------> SPI3_SCK
         PC11     ------> SPI3_MISO
         PC12     ------> SPI3_MOSI
         */
+        GPIO_InitStruct.Pin       = GPIO_PIN_15;
+        GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+        GPIO_InitStruct.Pull      = GPIO_NOPULL;
+        GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
+        GPIO_InitStruct.Alternate = GPIO_AF6_SPI3;
+        HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
         GPIO_InitStruct.Pin       = IMU_SPC_Pin | IMU_SDO_Pin | IMU_SDI_Pin;
         GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
         GPIO_InitStruct.Pull      = GPIO_NOPULL;
@@ -439,6 +448,9 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
         GPIO_InitStruct.Alternate = GPIO_AF6_SPI3;
         HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
+        /* SPI3 interrupt Init */
+        HAL_NVIC_SetPriority(SPI3_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(SPI3_IRQn);
         /* USER CODE BEGIN SPI3_MspInit 1 */
 
         /* USER CODE END SPI3_MspInit 1 */
@@ -462,12 +474,17 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
         __HAL_RCC_SPI3_CLK_DISABLE();
 
         /**SPI3 GPIO Configuration
+        PA15(JTDI)     ------> SPI3_NSS
         PC10     ------> SPI3_SCK
         PC11     ------> SPI3_MISO
         PC12     ------> SPI3_MOSI
         */
+        HAL_GPIO_DeInit(GPIOA, GPIO_PIN_15);
+
         HAL_GPIO_DeInit(GPIOC, IMU_SPC_Pin | IMU_SDO_Pin | IMU_SDI_Pin);
 
+        /* SPI3 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(SPI3_IRQn);
         /* USER CODE BEGIN SPI3_MspDeInit 1 */
 
         /* USER CODE END SPI3_MspDeInit 1 */
