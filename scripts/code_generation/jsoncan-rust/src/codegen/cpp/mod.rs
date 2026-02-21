@@ -16,17 +16,18 @@ pub use io_canreroute::IoCanRerouteModule;
 pub use io_canrx::IoCanRxModule;
 pub use io_cantx::IoCanTxModule;
 
-use crate::can_database::{CanMessage, CanSignal};
+use crate::can_database::{CanMessage, CanSignal, CanSignalType};
 
 use convert_case::{Case, Casing};
 
 pub trait CPPGenerator {
     fn header_template(&self) -> Result<String, askama::Error>;
     fn source_template(&self) -> Result<String, askama::Error>;
+    fn file_stem(&self) -> String;
 }
 
 pub enum CPPModule<'a> {
-    AppCanUtilsModule(AppCanUtilsModule),
+    AppCanUtilsModule(AppCanUtilsModule<'a>),
     AppCanTxModule(AppCanTxModule),
     AppCanAlertsModule(AppCanAlertsModule<'a>),
     AppCanDataCaptureModule(AppCanDataCaptureModule),
@@ -61,6 +62,18 @@ impl CPPGenerator for CPPModule<'_> {
             CPPModule::IoCanRerouteModule(module) => module.source_template(),
         }
     }
+    fn file_stem(&self) -> String {
+        match self {
+            CPPModule::AppCanUtilsModule(module) => module.file_stem(),
+            CPPModule::AppCanTxModule(module) => module.file_stem(),
+            CPPModule::AppCanAlertsModule(module) => module.file_stem(),
+            CPPModule::AppCanDataCaptureModule(module) => module.file_stem(),
+            CPPModule::AppCanRxModule(module) => module.file_stem(),
+            CPPModule::IoCanTxModule(module) => module.file_stem(),
+            CPPModule::IoCanRxModule(module) => module.file_stem(),
+            CPPModule::IoCanRerouteModule(module) => module.file_stem(),
+        }
+    }
 }
 
 impl CanSignal {
@@ -93,15 +106,116 @@ impl CanSignal {
     }
 
     pub fn datatype(self: &Self) -> String {
-        todo!()
+        match self.signal_type {
+            CanSignalType::Numerical => {
+                if self.scale != 1.0 || self.offset != 0.0 {
+                    "float".to_string()
+                }
+                else if self.signed {
+                    match self.bits {
+                        0_u16..=8_u16 => "int8_t".to_string(),
+                        9_u16..=16_u16 => "int16_t".to_string(),
+                        17_u16..=32_u16 => "int32_t".to_string(),
+                        33_u16..=64_u16 => "int64_t".to_string(),
+                        _ => "int".to_string(), // Fallback for unusual bit lengths
+                    }
+                } else {
+                    match self.bits {
+                        0_u16..=8_u16 => "uint8_t".to_string(),
+                        9_u16..=16_u16 => "uint16_t".to_string(),
+                        17_u16..=32_u16 => "uint32_t".to_string(),
+                        33_u16..=64_u16 => "uint64_t".to_string(),
+                        _ => "unsigned int".to_string(), // Fallback for unusual bit lengths
+                    }
+                }
+            },
+            CanSignalType::Boolean => "bool".to_string(),
+            CanSignalType::Enum => {
+                format!(
+                    "app::can_utils::{}",
+                    self.enum_name.as_ref().expect(&format!("{} is enum signal but has no enum name", &self.name))
+                )
+            },
+            CanSignalType::Alert => "bool".to_string(),
+        }
+    }
+
+    pub fn has_unrepresentable_values(self: &Self) -> bool {
+        match self.signal_type {
+            CanSignalType::Numerical | CanSignalType::Enum => true,
+            CanSignalType::Boolean | CanSignalType::Alert => false,
+        }
     }
 
     pub fn representation(self: &Self) -> String {
-        todo!()
+        if self.scale != 1.0 || self.offset != 0.0 {
+            return "float".to_string();
+        }
+        if self.signed {
+            return "int32_t".to_string();
+        }
+        "uint32_t".to_string()
+    }
+
+    pub fn endian_macro(self: &Self) -> String {
+        if self.big_endian {
+            "@0".to_string()
+        } else {
+            "@1".to_string()
+        }
+    }
+
+    pub fn signed_macro(self: &Self) -> String {
+        if self.signed {
+            "-".to_string()
+        } else {
+            "+".to_string()
+        }
+    }
+
+    fn val_name(self: &Self, value: f64) -> String {
+        match self.signal_type {
+            CanSignalType::Numerical => {
+                format!("{:?}f", value)
+            },
+            CanSignalType::Boolean => {
+                if value == 0f64 {
+                    "false".to_string()
+                } else {
+                    "true".to_string()
+                }
+            },
+            CanSignalType::Enum => format!(
+                "static_cast<{}>({})",
+                self.enum_name.as_ref().expect(&format!("{} is enum signal but has no enum name", &self.name)),
+                value as i64
+            ),
+            CanSignalType::Alert => "false".to_string(),
+        }
+    }
+
+    pub fn start_val_name(self: &Self) -> String {
+        self.val_name(self.start_val)
+    }
+
+    pub fn max_val_name(self: &Self) -> String {
+        self.val_name(self.max)
+    }
+
+    pub fn min_val_name(self: &Self) -> String {
+        self.val_name(self.min)
+    }
+
+    pub fn scale_val_name(self: &Self) -> String {
+        format!("{:?}f", self.scale)
+    }
+
+    pub fn offset_val_name(self: &Self) -> String {
+        format!("{:?}f", self.offset)
     }
 }
 
-pub fn id_macro(name: &str) -> String {
+pub fn id_macro(name: &str) -> String { // TODO this feels jank
     format!("CAN_MSG_{}_ID", name.to_case(Case::Snake).to_uppercase())
 }
 

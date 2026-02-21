@@ -73,6 +73,10 @@ class DAMChimeraConfig final : public chimera_v2::config
                 return std::nullopt;
         }
     }
+    std::optional<std::reference_wrapper<const hw::PwmOutput>> id_to_pwm(const _PwmNetName *) const override
+    {
+        return std::nullopt;
+    }
 
     consteval DAMChimeraConfig()
     {

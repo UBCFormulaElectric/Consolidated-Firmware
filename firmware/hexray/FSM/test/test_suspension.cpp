@@ -1,11 +1,6 @@
 #include "fsmMocks.hpp"
 #include "test_FSMBase.hpp"
-
-extern "C"
-{
-#include "app_canTx.h"
-#include "app_canAlerts.h"
-}
+#include "app_canTx.hpp"
 
 class SuspensionModuleTest : public FSMBaseTest
 {
@@ -20,10 +15,10 @@ TEST_F(SuspensionModuleTest, Normal_SuspensionConditions)
 
     LetTimePass(100);
 
-    EXPECT_EQ(app_canTx_FSM_LeftSuspensionTravel_get(), 1.0f);
-    EXPECT_EQ(app_canTx_FSM_RightSuspensionTravel_get(), 2.0f);
-    EXPECT_FALSE(app_canAlerts_FSM_Info_LeftSuspensionOCSC_get());
-    EXPECT_FALSE(app_canAlerts_FSM_Info_RightSuspensionOCSC_get());
+    EXPECT_EQ(app::can_tx::FSM_LeftSuspensionTravel_get(), 1.0f);
+    EXPECT_EQ(app::can_tx::FSM_RightSuspensionTravel_get(), 2.0f);
+    EXPECT_FALSE(app::can_tx::FSM_Info_LeftSuspensionOCSC_get());
+    EXPECT_FALSE(app::can_tx::FSM_Info_RightSuspensionOCSC_get());
 }
 
 TEST_F(SuspensionModuleTest, TravelOutOfRange_CANOverFlow)
@@ -35,10 +30,10 @@ TEST_F(SuspensionModuleTest, TravelOutOfRange_CANOverFlow)
 
     LetTimePass(100);
 
-    EXPECT_EQ(app_canTx_FSM_LeftSuspensionTravel_get(), 50.0f);
-    EXPECT_EQ(app_canTx_FSM_RightSuspensionTravel_get(), 50.0f);
-    EXPECT_FALSE(app_canAlerts_FSM_Info_LeftSuspensionOCSC_get());
-    EXPECT_FALSE(app_canAlerts_FSM_Info_RightSuspensionOCSC_get());
+    EXPECT_EQ(app::can_tx::FSM_LeftSuspensionTravel_get(), 50.0f);
+    EXPECT_EQ(app::can_tx::FSM_RightSuspensionTravel_get(), 50.0f);
+    EXPECT_FALSE(app::can_tx::FSM_Info_LeftSuspensionOCSC_get());
+    EXPECT_FALSE(app::can_tx::FSM_Info_RightSuspensionOCSC_get());
 }
 
 TEST_F(SuspensionModuleTest, TravelOutOfRange_CANUnderFlow)
@@ -50,10 +45,10 @@ TEST_F(SuspensionModuleTest, TravelOutOfRange_CANUnderFlow)
 
     LetTimePass(100);
 
-    EXPECT_EQ(app_canTx_FSM_LeftSuspensionTravel_get(), 0.0f);
-    EXPECT_EQ(app_canTx_FSM_RightSuspensionTravel_get(), 0.0f);
-    EXPECT_FALSE(app_canAlerts_FSM_Info_LeftSuspensionOCSC_get());
-    EXPECT_FALSE(app_canAlerts_FSM_Info_RightSuspensionOCSC_get());
+    EXPECT_EQ(app::can_tx::FSM_LeftSuspensionTravel_get(), 0.0f);
+    EXPECT_EQ(app::can_tx::FSM_RightSuspensionTravel_get(), 0.0f);
+    EXPECT_FALSE(app::can_tx::FSM_Info_LeftSuspensionOCSC_get());
+    EXPECT_FALSE(app::can_tx::FSM_Info_RightSuspensionOCSC_get());
 }
 
 TEST_F(SuspensionModuleTest, OCSC_Left)
@@ -65,10 +60,10 @@ TEST_F(SuspensionModuleTest, OCSC_Left)
 
     LetTimePass(100);
 
-    EXPECT_EQ(app_canTx_FSM_LeftSuspensionTravel_get(), 1.0f);
-    EXPECT_EQ(app_canTx_FSM_RightSuspensionTravel_get(), 2.0f);
-    EXPECT_TRUE(app_canAlerts_FSM_Info_LeftSuspensionOCSC_get());
-    EXPECT_FALSE(app_canAlerts_FSM_Info_RightSuspensionOCSC_get());
+    EXPECT_EQ(app::can_tx::FSM_LeftSuspensionTravel_get(), 1.0f);
+    EXPECT_EQ(app::can_tx::FSM_RightSuspensionTravel_get(), 2.0f);
+    EXPECT_TRUE(app::can_tx::FSM_Info_LeftSuspensionOCSC_get());
+    EXPECT_FALSE(app::can_tx::FSM_Info_RightSuspensionOCSC_get());
 }
 
 TEST_F(SuspensionModuleTest, OCSC_Right)
@@ -80,8 +75,8 @@ TEST_F(SuspensionModuleTest, OCSC_Right)
 
     LetTimePass(100);
 
-    EXPECT_EQ(app_canTx_FSM_LeftSuspensionTravel_get(), 1.0f);
-    EXPECT_EQ(app_canTx_FSM_RightSuspensionTravel_get(), 2.0f);
-    EXPECT_FALSE(app_canAlerts_FSM_Info_LeftSuspensionOCSC_get());
-    EXPECT_TRUE(app_canAlerts_FSM_Info_RightSuspensionOCSC_get());
+    EXPECT_EQ(app::can_tx::FSM_LeftSuspensionTravel_get(), 1.0f);
+    EXPECT_EQ(app::can_tx::FSM_RightSuspensionTravel_get(), 2.0f);
+    EXPECT_FALSE(app::can_tx::FSM_Info_LeftSuspensionOCSC_get());
+    EXPECT_TRUE(app::can_tx::FSM_Info_RightSuspensionOCSC_get());
 }

@@ -80,7 +80,7 @@ template <typename T, size_t QUEUE_SIZE> class queue
     [[nodiscard]] std::expected<T, ErrorCode> pop(const uint32_t timeout = osWaitForever)
     {
         assert(queue_id != nullptr);
-        T msg{};
+        T msg;
         if (const osStatus_t s = osMessageQueueGet(this->queue_id, &msg, nullptr, timeout); s != osOK)
         {
             return std::unexpected(ErrorCode::ERROR);

@@ -233,6 +233,47 @@
       }
     },
     {
+      "name": "Debug Chimera: CRIT (Hexray)",
+      "cwd": "${workspaceRoot}",
+      "executable": "build_fw_dev/firmware/hexray/CRIT/hexray_CRIT_chimera.elf",
+      "symbolFiles": [
+        // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/hexray/CRIT/hexray_CRIT_chimera.elf"
+      ],
+      "preLaunchTask": "Build Chimera: CRIT (Hexray)",
+      // cortex configurations
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "jlink",
+      "linux": {
+        "serverpath": "JLinkGDBServerCLExe"
+      },
+      "osx": {
+        "serverpath": "JLinkGDBServer"
+      },
+      "windows": {
+        "serverpath": "JLinkGDBServerCL"
+      },
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
+      "device": "STM32H562RI",
+      "interface": "swd",
+      "showDevDebugOutput": "none",
+      "rttConfig": {
+        "enabled": true,
+        "address": "auto",
+        "decoders": [
+          {
+            "label": "Debug logs: CRIT",
+            "port": 0,
+            "type": "console"
+          }
+        ]
+      }
+    },
+    {
       "name": "Debug Embedded: VC (Hexray)",
       "cwd": "${workspaceRoot}",
       "executable": "build_fw_dev/firmware/hexray/VC/hexray_VC_app.elf",
@@ -1074,6 +1115,20 @@
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceRoot}/build_fw_test/firmware/shared/shared_test",
+      "cwd": "${workspaceRoot}",
+      "preLaunchTask": "Build Tests: Shared",
+      "linux": {
+        "MIMode": "gdb"
+      },
+      "osx": {
+        "MIMode": "lldb"
+      }
+    },
+    {
+      "name": "Debug Tests: Shared C++",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/build_fw_test/firmware/shared/shared_test_cpp",
       "cwd": "${workspaceRoot}",
       "preLaunchTask": "Build Tests: Shared",
       "linux": {
