@@ -146,6 +146,3 @@ char USBD_PRODUCT_STRING_FS[] = "rsm";
     osKernelStart();
     forever {}
 }
-
-// what is a protobuf generated tags
-// how does this system actually work with python

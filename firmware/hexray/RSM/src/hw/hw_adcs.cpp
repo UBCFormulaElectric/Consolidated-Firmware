@@ -1,10 +1,9 @@
-#include "hw_adc.hpp"
 #include "hw_adcs.hpp"
 #include "main.h"
 
 namespace hw::adcs
 {
-#define NUM_ADC_CHANNELS 5
+constexpr int             NUM_ADC_CHANNELS = 5;
 AdcChip<NUM_ADC_CHANNELS> Adc_Chip(&hadc1, &htim3);
 
 void chipsInit()

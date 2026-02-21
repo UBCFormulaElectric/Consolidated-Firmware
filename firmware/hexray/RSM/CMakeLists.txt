@@ -28,6 +28,7 @@ set(APP_INCLUDE_DIRS
 
 file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.cpp")
 list(APPEND IO_SRCS
+        "${SHARED_IO_INCLUDE_DIR_CPP}"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_imu.cpp"
 )
@@ -56,6 +57,8 @@ set(HW_INCLUDE_DIRS
 # chimera sources
 set(CHIMERA_SRCS ${HW_SRCS} ${IO_SRCS} "${CMAKE_CURRENT_SOURCE_DIR}/src/chimera.cpp")
 set(CHIMERA_INCLUDE_DIRS ${HW_INCLUDE_DIRS})
+
+
 
 if ("${TARGET}" STREQUAL "binary")
     set(ARM_CORE "cm33")
