@@ -21,7 +21,7 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} bg-primary-200`}>
+      <body className={`${inter.className}`}>
         <QueryProvider>
           <Navbar />
           <main>{children}</main>
