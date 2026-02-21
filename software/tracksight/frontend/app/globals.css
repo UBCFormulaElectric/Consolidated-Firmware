@@ -144,3 +144,47 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
 }
+
+.graph-scrollbar {
+  scrollbar-gutter: stable;
+}
+
+.graph-scrollbar::-webkit-scrollbar {
+  width: 18px;
+  height: 0px;
+}
+
+.graph-scrollbar::-webkit-scrollbar-button {
+  width: 0px;
+  height: 0px;
+}
+
+.graph-scrollbar::-webkit-scrollbar-thumb {
+  background: #b8b7c0;
+  border: 6px white solid;
+  border-radius: 100px;
+}
+
+.graph-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #87878e;
+}
+
+.graph-scrollbar::-webkit-scrollbar-thumb:active {
+  background: #000000;
+}
+
+.graph-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.graph-scrollbar::-webkit-scrollbar-track:hover {
+  background: transparent;
+}
+
+.graph-scrollbar::-webkit-scrollbar-track:active {
+  background: transparent;
+}
+
+.graph-scrollbar::-webkit-scrollbar-corner {
+  background: transparent;
+}

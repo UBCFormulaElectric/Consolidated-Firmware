@@ -293,8 +293,8 @@ const MockWidget = memo(({ widgetData, updateWidget, deleteSelfWidget }: {
     }, [configs, deleteSelfWidget, updateWidget, widgetData.id]);
 
     return (
-        <div className="mb-6 p-4 block w-full relative border border-red-500">
-            <div>
+        <div className="w-full border-red-500 py-4">
+            <div className="px-6">
                 {/* header */}
                 <div className="flex items-center gap-2 mb-4">
                     <h3 className="font-semibold">Mock Graph Container (Widget)</h3>
@@ -306,13 +306,13 @@ const MockWidget = memo(({ widgetData, updateWidget, deleteSelfWidget }: {
                 </div>
 
                 {/* TODO remove, keep for debugging for now */}
-                <label className="text-sm block">Vertical Scale: {chartHeight}px</label>
+                {/* <label className="text-sm block">Vertical Scale: {chartHeight}px</label>
                 <input type="range" min={100} max={600} step={50} value={chartHeight}
                     onChange={(e) => setChartHeight(+e.target.value)}
-                />
+                /> */}
 
                 {/* Signal buttons */}
-                <div className="flex flex-wrap items-center gap-3 mb-4">
+                <div className="flex flex-wrap items-center gap-3">
                     {configs.map((cfg, idx) =>
                         <SignalButton key={cfg.signalName} cfg={cfg} idx={idx} handleRemoveSignal={handleRemoveSignal} onHover={() => { }} onHoverEnd={() => { }} />
                     )}
@@ -328,14 +328,14 @@ const MockWidget = memo(({ widgetData, updateWidget, deleteSelfWidget }: {
             </div>
 
             {/* Actual chart */}
-            <div style={{ height: chartHeight }} className="overflow-hidden relative">
-                <CanvasChart data={chartData} height={chartHeight}
-                    series={configs.map((c, idx) => ({
-                        label: c.signalName, color: signalColors[idx % signalColors.length],
-                        min: c.min, max: c.max,
-                    }))}
-                />
-            </div>
+            {/* <div style={{ height: chartHeight }}> */}
+            <CanvasChart data={chartData} height={chartHeight}
+                series={configs.map((c, idx) => ({
+                    label: c.signalName, color: signalColors[idx % signalColors.length],
+                    min: c.min, max: c.max,
+                }))}
+            />
+            {/* </div> */}
         </div >
     );
 });

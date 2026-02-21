@@ -124,7 +124,7 @@ const dateFormatter = new Intl.DateTimeFormat(undefined, {
 });
 
 
-const CHART_PADDING = { top: 20, right: 20, bottom: 56, left: 60 };
+const CHART_PADDING = { top: 15, right: 20, bottom: 40, left: 60 };
 
 export default function render(
     context: CanvasRenderingContext2D, width: number, height: number, // dimensions of chart
