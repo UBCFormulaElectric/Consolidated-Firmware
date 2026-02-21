@@ -15,7 +15,6 @@ void jobs_init()
 void jobs_run1Hz_tick()
 {
     app::brake::broadcast();
-    app::coolant::broadcast();
     app::imu::broadcast();
     app::suspension::broadcast();
     app::tireTemp::broadcast();

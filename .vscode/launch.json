@@ -1125,6 +1125,20 @@
       }
     },
     {
+      "name": "Debug Tests: Shared C++",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/build_fw_test/firmware/shared/shared_test_cpp",
+      "cwd": "${workspaceRoot}",
+      "preLaunchTask": "Build Tests: Shared",
+      "linux": {
+        "MIMode": "gdb"
+      },
+      "osx": {
+        "MIMode": "lldb"
+      }
+    },
+    {
       "name": "Debug Tests: JSON CAN intergation",
       "type": "cppdbg",
       "request": "launch",
