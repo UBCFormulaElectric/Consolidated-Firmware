@@ -9,4 +9,4 @@ std::expected<void, ErrorCode> init()
 {
     return imu_rear.init();
 }
-}
+} // namespace io::imus
