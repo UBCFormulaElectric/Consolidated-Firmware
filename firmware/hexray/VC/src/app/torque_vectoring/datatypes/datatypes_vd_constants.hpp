@@ -96,7 +96,7 @@ inline constexpr float APPROX_STEERING_TO_WHEEL_ANGLE =
  * Input: torque in Nm
  * Output: int16_t representing (torque/nominal) * 1000
  */
-inline constexpr int16_t MOTOR_TORQUE_REQUEST(float torque)
+[[nodiscard]] inline constexpr int16_t MOTOR_TORQUE_REQUEST(const float torque)
 {
     return static_cast<int16_t>((torque / NOMINAL_TORQUE_REQUEST_NM) * 1000.0f);
 }
@@ -104,7 +104,7 @@ inline constexpr int16_t MOTOR_TORQUE_REQUEST(float torque)
 /**
  * Convert torque and RPM to power (kW)
  */
-inline constexpr float TORQUE_TO_POWER(float torque, float rpm)
+[[nodiscard]] inline constexpr float TORQUE_TO_POWER(const float torque, const float rpm)
 {
     return (torque * (rpm / GEAR_RATIO)) / static_cast<float>(POWER_TO_TORQUE_CONVERSION_FACTOR);
 }
@@ -113,7 +113,7 @@ inline constexpr float TORQUE_TO_POWER(float torque, float rpm)
  * Convert power (kW) and RPM to torque (Nm)
  * Includes safety guard against division by zero
  */
-inline constexpr float POWER_TO_TORQUE(float power, float rpm)
+[[nodiscard]] inline constexpr float POWER_TO_TORQUE(const float power, const float rpm)
 {
     return (power * static_cast<float>(POWER_TO_TORQUE_CONVERSION_FACTOR)) / (std::fmax(rpm, 0.00001f) / GEAR_RATIO);
 }
@@ -130,7 +130,7 @@ inline constexpr float POWER_TO_TORQUE(float power, float rpm)
  * @param long_accel Longitudinal acceleration (m/s^2)
  * @return Load transfer force (N)
  */
-inline constexpr float LONG_ACCEL_TERM_VERTICAL_FORCE(float long_accel)
+[[nodiscard]] inline constexpr float LONG_ACCEL_TERM_VERTICAL_FORCE(const float long_accel)
 {
     return (CAR_MASS_AT_CG_KG * long_accel * DIST_HEIGHT_CG_m) / WHEELBASE_m;
 }
@@ -142,31 +142,31 @@ inline constexpr float LONG_ACCEL_TERM_VERTICAL_FORCE(float long_accel)
  * @param lat_accel Lateral acceleration (m/s^2)
  * @return Load transfer force per side (N)
  */
-inline constexpr float LAT_ACCEL_TERM_VERTICAL_FORCE(float lat_accel)
+[[nodiscard]] inline constexpr float LAT_ACCEL_TERM_VERTICAL_FORCE(const float lat_accel)
 {
     return (CAR_MASS_AT_CG_KG * lat_accel * DIST_HEIGHT_CG_m) / (2.0f * TRACK_WIDTH_m);
 }
 
-inline constexpr float REAR_RIGHT_WHEEL_VERTICAL_FORCE(float long_accel, float lat_accel)
+[[nodiscard]] inline constexpr float REAR_RIGHT_WHEEL_VERTICAL_FORCE(const float long_accel, const float lat_accel)
 {
     return REAR_WEIGHT_DISTRIBUTION + LONG_ACCEL_TERM_VERTICAL_FORCE(long_accel / 4.0f) +
            LAT_ACCEL_TERM_VERTICAL_FORCE(lat_accel);
 }
 
-inline constexpr float REAR_LEFT_WHEEL_VERTICAL_FORCE(float long_accel, float lat_accel)
+[[nodiscard]] inline constexpr float REAR_LEFT_WHEEL_VERTICAL_FORCE(const float long_accel, const float lat_accel)
 {
     return REAR_WEIGHT_DISTRIBUTION + LONG_ACCEL_TERM_VERTICAL_FORCE(long_accel / 4.0f) -
            LAT_ACCEL_TERM_VERTICAL_FORCE(lat_accel);
 }
 
 // TODO: Check if front wheels use rear weight or front weight distribution
-inline constexpr float FRONT_RIGHT_WHEEL_VERTICAL_FORCE(float long_accel, float lat_accel)
+[[nodiscard]] inline constexpr float FRONT_RIGHT_WHEEL_VERTICAL_FORCE(const float long_accel, const float lat_accel)
 {
     return REAR_WEIGHT_DISTRIBUTION + LONG_ACCEL_TERM_VERTICAL_FORCE(long_accel / 4.0f) +
            LAT_ACCEL_TERM_VERTICAL_FORCE(lat_accel);
 }
 
-inline constexpr float FRONT_LEFT_WHEEL_VERTICAL_FORCE(float long_accel, float lat_accel)
+[[nodiscard]] inline constexpr float FRONT_LEFT_WHEEL_VERTICAL_FORCE(const float long_accel, const float lat_accel)
 {
     return REAR_WEIGHT_DISTRIBUTION - LONG_ACCEL_TERM_VERTICAL_FORCE(long_accel / 4.0f) -
            LAT_ACCEL_TERM_VERTICAL_FORCE(lat_accel);
@@ -179,7 +179,7 @@ inline constexpr float FRONT_LEFT_WHEEL_VERTICAL_FORCE(float long_accel, float l
  * @param long_accel Longitudinal acceleration (m/s^2)
  * @return Effective moment arm (m)
  */
-inline constexpr float ACCELERATION_TERM_KMZ(float long_accel)
+[[nodiscard]] inline constexpr float ACCELERATION_TERM_KMZ(const float long_accel)
 {
     return DIST_FRONT_AXLE_CG_m + (long_accel * DIST_HEIGHT_CG_m) / GRAVITY;
 }
