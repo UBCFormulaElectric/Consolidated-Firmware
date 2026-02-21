@@ -42,12 +42,8 @@ class Potentiometer
 
     [[nodiscard]] static constexpr uint8_t buildHeader(uint8_t address, POTENTIOMETER_CMD cmd)
     {
-        return (static_cast<uint8_t>(address) << 4 | static_cast<uint8_t>(cmd) << 2);
+        return ((static_cast<uint8_t>(address) << 4 | static_cast<uint8_t>(cmd) << 2) & 0xFC);
     }
-
-  public:
-    explicit Potentiometer(hw::i2c::I2CDevice device_in, POTENTIOMETER_WIPER wiper_in)
-      : device(device_in), wiper(wiper_in){};
 
     [[nodiscard]] std::expected<void, ErrorCode> readWiper(std::array<uint8_t, 2> &dest) const
     {
@@ -57,19 +53,23 @@ class Potentiometer
         return {};
     }
 
+    [[nodiscard]] std::expected<void, ErrorCode> writeWiper(uint8_t data) const
+    {
+        const std::array<uint8_t, 2> tx_cmd{ buildHeader(wiperRegister(), POTENTIOMETER_CMD::WRITE), data };
+        RETURN_IF_ERR(device.transmit(tx_cmd));
+        return {};
+    }
+
+  public:
+    constexpr explicit Potentiometer(hw::i2c::I2CDevice device_in, POTENTIOMETER_WIPER wiper_in)
+      : device(device_in), wiper(wiper_in){};
+
     [[nodiscard]] std::expected<void, ErrorCode> readPercentage(uint8_t &dest) const
     {
         std::array<uint8_t, 2> data{ 0 };
         RETURN_IF_ERR(readWiper(data));
         const uint16_t read_data{ static_cast<uint16_t>(data[0] << 8 | data[1]) };
         dest = static_cast<uint8_t>((read_data * 100.0f) / MAX_WIPER_VALUE);
-        return {};
-    }
-
-    [[nodiscard]] std::expected<void, ErrorCode> writeWiper(uint8_t data) const
-    {
-        const std::array<uint8_t, 2> tx_cmd{ buildHeader(wiperRegister(), POTENTIOMETER_CMD::WRITE), data };
-        RETURN_IF_ERR(device.transmit(tx_cmd));
         return {};
     }
 
