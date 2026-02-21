@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, RefObject, ReactNode } from "react";
-import { usePausePlay } from "./PausePlayControl";
+import { useDisplayControl } from "./PausePlayControl";
 
 export type SyncedGraphContext = {
     scalePxPerSecRef: RefObject<number>;
@@ -58,7 +58,7 @@ function useZoomManager(containerRef: RefObject<HTMLDivElement | null>) {
 }
 
 export default function SyncedGraphContainer({ children }: { children: ReactNode }) {
-    const { isPaused } = usePausePlay();
+    const { isPaused } = useDisplayControl();
     const hoverTimestamp = useRef<number | null>(null);
     const scrollContainerRef = useRef<HTMLDivElement | null>(null); // NEW: Ref for the scrolling wrapper
     const contentRef = useRef<HTMLDivElement | null>(null); // Renamed from containerRef, this one grows

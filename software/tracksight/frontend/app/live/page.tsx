@@ -1,11 +1,10 @@
 "use client";
 
-import { DisplayControlProvider } from "@/components/PausePlayControl";
+import { DisplayControlProvider, PausePlayButton } from "@/components/PausePlayControl";
 import SyncedGraphContainer from "@/components/SyncedGraphContainer";
 import { SignalProvider } from "@/lib/contexts/SignalContext";
 import { WidgetAdder } from "@/components/WidgetAdder";
 import { Widget } from "@/components/widgets/Widget";
-import { PausePlayButton } from "@/components/PausePlayControl";
 import useWidgetManager from "@/components/widgets/useWidgetManager";
 
 export default function LiveDataPage() {

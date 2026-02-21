@@ -1,6 +1,6 @@
 "use client";
 
-import { usePausePlay } from "@/components/PausePlayControl";
+import { useDisplayControl } from "@/components/PausePlayControl";
 import { PlusButton } from "@/components/PlusButton";
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { SignalType } from "@/lib/SignalConfig";

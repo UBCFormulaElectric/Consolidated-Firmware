@@ -6,7 +6,7 @@ import EnumSignalSelector from "@/components/widgets/EnumSignalSelector";
 import useSignalMetadata from "@/lib/hooks/useSignalMetadata";
 import { useMemo, useEffect } from "react";
 import { EnumSignalMetadata, SignalType } from "@/lib/types/Signal";
-import { usePausePlay } from "@/components/PausePlayControl";
+import { useDisplayControl } from "@/components/PausePlayControl";
 import { useSignals, useDataVersion } from "@/lib/contexts/SignalContext";
 import { formatWithMs } from "@/lib/dateformat";
 
@@ -23,7 +23,7 @@ function EnumWidgetBody({ signalName, setSignalName, signalMetadata, colorPalett
   signalName: string;
   signalMetadata: EnumSignalMetadata;
 })) {
-  const { horizontalScale, setHorizontalScale } = usePausePlay();
+  const { horizontalScale, setHorizontalScale } = useDisplayControl();
   const {
     subscribeToSignal,
     unsubscribeFromSignal,

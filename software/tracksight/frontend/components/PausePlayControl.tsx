@@ -22,8 +22,6 @@ export function useDisplayControl() {
   }
   return context
 }
-// Maintain backward compatibility
-export const usePausePlay = useDisplayControl
 
 // TODO move to a util folder?
 function useLocalState<T>(name: string, defaultValue: T): [T, Dispatch<SetStateAction<T>>] {

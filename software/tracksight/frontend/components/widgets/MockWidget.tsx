@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo, useRef, memo, FormEvent, useCallback, RefObject } from "react";
 import CanvasChart, { AlignedData } from "@/components/widgets/CanvasChart";
-import { usePausePlay } from "@/components/PausePlayControl";
+import { useDisplayControl } from "@/components/PausePlayControl";
 import { PlusButton } from "@/components/PlusButton";
 import { MockGraphConfig, WidgetDataMock, WidgetData, MockSignalType } from "@/lib/types/Widget";
 import { signalColors } from "@/components/widgets/signalColors";
@@ -210,7 +210,7 @@ const MockWidget = memo(({ widgetData, updateWidget, deleteSelfWidget }: {
     updateWidget: (widgetId: string, updater: (prevWidget: WidgetData) => WidgetData) => void,
     deleteSelfWidget: () => void
 }) => {
-    const { isPaused } = usePausePlay();
+    const { isPaused } = useDisplayControl();
     const configs = widgetData.configs;
     const [modalOpen, setModalOpen] = useState(false);
     const [chartHeight, setChartHeight] = useState(256);
