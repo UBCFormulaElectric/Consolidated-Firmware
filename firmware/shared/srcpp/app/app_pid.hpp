@@ -31,29 +31,29 @@ class PID
     };
 
     explicit constexpr PID(const Config &conf)
-  : Kp(conf.Kp),
-    Ki(conf.Ki),
-    Kd(conf.Kd),
-    Kb(conf.Kb),
-    Kff(conf.Kff),
-    smoothing_coeff(conf.smoothing_coeff),
-    out_max(conf.out_max),
-    out_min(conf.out_min),
-    max_integral(conf.max_integral),
-    min_integral(conf.min_integral),
-    clamp_output(conf.clamp_output),
-    clamp_integral(conf.clamp_integral),
-    back_calculation(conf.back_calculation),
-    feed_forward(conf.feed_forward),
-    sample_time(conf.sample_time)
-{
-    assert(out_max >= out_min);
-    assert(max_integral >= min_integral);
-    assert(sample_time > 0.0f);
-}
+      : Kp(conf.Kp),
+        Ki(conf.Ki),
+        Kd(conf.Kd),
+        Kb(conf.Kb),
+        Kff(conf.Kff),
+        smoothing_coeff(conf.smoothing_coeff),
+        out_max(conf.out_max),
+        out_min(conf.out_min),
+        max_integral(conf.max_integral),
+        min_integral(conf.min_integral),
+        clamp_output(conf.clamp_output),
+        clamp_integral(conf.clamp_integral),
+        back_calculation(conf.back_calculation),
+        feed_forward(conf.feed_forward),
+        sample_time(conf.sample_time)
+    {
+        assert(out_max >= out_min);
+        assert(max_integral >= min_integral);
+        assert(sample_time > 0.0f);
+    }
 
     [[nodiscard]] float compute(const float setpoint, const float input, const float disturbance = 0.0f);
-    void  reset();
+    void                reset();
     [[nodiscard]] float getIntegral();
     [[nodiscard]] float getDerivative();
 

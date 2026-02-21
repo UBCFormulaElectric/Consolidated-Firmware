@@ -8,7 +8,7 @@ namespace app::tv::controllers::dyrc
 {
 
 // Configuration
-static float       ku = DYRC_ku; // understeer gradient
+static float ku = DYRC_ku; // understeer gradient
 
 // Control Scheme
 static PID pid(PID_DYRC_config);

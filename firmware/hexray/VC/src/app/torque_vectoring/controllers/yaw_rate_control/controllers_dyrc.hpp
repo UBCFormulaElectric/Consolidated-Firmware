@@ -34,7 +34,8 @@ namespace app::tv::controllers::dyrc
  *
  * @return The corrective yaw moment in Nm to apply on the vehicle
  */
-[[nodiscard]] inline float computeYawMoment(const float r_actual_rad, const float steer_ang_rad, const float body_velx_mps);
+[[nodiscard]] inline float
+    computeYawMoment(const float r_actual_rad, const float steer_ang_rad, const float body_velx_mps);
 
 // The functions below are getters for CAN debugging
 

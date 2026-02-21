@@ -21,4 +21,4 @@ static constexpr app::PID::Config PID_DYRC_config{
 };
 
 static constexpr float DYRC_ku = 0.0f;
-}
+} // namespace app::tv::controllers::dyrc
