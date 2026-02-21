@@ -41,23 +41,22 @@
 
 /* USER CODE END PM */
 
-/* Private variables ---------------------------------------------------------*/
-ADC_HandleTypeDef hadc1;
-DMA_NodeTypeDef   Node_GPDMA1_Channel0;
-DMA_QListTypeDef  List_GPDMA1_Channel0;
-DMA_HandleTypeDef handle_GPDMA1_Channel0;
+    /* Private variables ---------------------------------------------------------*/
+    ADC_HandleTypeDef hadc1;
+    DMA_NodeTypeDef   Node_GPDMA1_Channel0;
+    DMA_QListTypeDef  List_GPDMA1_Channel0;
+    DMA_HandleTypeDef handle_GPDMA1_Channel0;
 
-FDCAN_HandleTypeDef hfdcan1;
+    FDCAN_HandleTypeDef hfdcan1;
 
-I2C_HandleTypeDef hi2c2;
+    I2C_HandleTypeDef hi2c2;
 
-SPI_HandleTypeDef hspi3;
+    SPI_HandleTypeDef hspi3;
 
-TIM_HandleTypeDef htim1;
-TIM_HandleTypeDef htim3;
+    TIM_HandleTypeDef htim1;
+    TIM_HandleTypeDef htim3;
 
-PCD_HandleTypeDef hpcd_USB_DRD_FS;
-
+    PCD_HandleTypeDef hpcd_USB_DRD_FS;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
