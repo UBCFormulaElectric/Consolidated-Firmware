@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo, useRef, memo, FormEvent, useCallback, RefObject } from "react";
 import CanvasChart, { AlignedData } from "@/components/widgets/CanvasChart";
 import { useDisplayControl } from "@/components/PausePlayControl";
-import { PlusButton } from "@/components/PlusButton";
+import { PlusButton } from "@/components/icons/PlusButton";
 import { MockGraphConfig, WidgetDataMock, WidgetData, MockSignalType } from "@/lib/types/Widget";
 import { signalColors } from "@/components/widgets/signalColors";
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";

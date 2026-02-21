@@ -2,7 +2,7 @@
 
 import { X } from "lucide-react";
 import React, { useMemo, useState, useEffect, useRef, useCallback } from "react";
-import { PlusButton } from "@/components/PlusButton";
+import { PlusButton } from "@/components/icons/PlusButton";
 import { DEBUG, BACKEND_URL, SignalMeta } from "@/lib/SignalConfig";
 
 // Internal extension with pre-lowercased fields to avoid per-keystroke toLowerCase allocations

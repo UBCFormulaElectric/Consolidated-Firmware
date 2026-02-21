@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { PlusButton } from "@/components/PlusButton";
+import { PlusButton } from "@/components/icons/PlusButton";
 import { SignalType } from "@/lib/types/Signal";
 import { WidgetData, MockGraphConfig, MockSignalType } from "@/lib/types/Widget";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"

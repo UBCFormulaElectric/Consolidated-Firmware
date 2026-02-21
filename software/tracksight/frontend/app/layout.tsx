@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
-import Navbar from "@/components/Navbar";
+import Navbar from "./Navbar";
 import QueryProvider from "@/lib/contexts/QueryProvider";
 
 export const metadata: Metadata = {
