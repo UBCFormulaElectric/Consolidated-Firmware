@@ -18,7 +18,7 @@
 namespace io
 {
 // Current sense ratio: I_out/I_sns (A/A)
-static constexpr float K_SNS = 1200.0f;
+static constexpr float K_SNS = 1300.0f;
 // R_sns (Ohms)
 static constexpr float R_SNS = 1000.0f;
 
@@ -40,8 +40,8 @@ static constexpr float V_SNSFH_MAX = 4.4f;
 
 [[nodiscard]] float TI_TPS28_Efuse::getChannelCurrent()
 {
-    // I_SNS = V_SNS * R_SNS * K_SNS
-    return this->sns_adc_channel.getVoltage() * R_SNS * K_SNS;
+    // I_SNS = V_SNS / R_SNS * K_SNS
+    return this->sns_adc_channel.getVoltage() / R_SNS * K_SNS;
 }
 
 // TODO: verify reset function
@@ -69,8 +69,6 @@ void TI_TPS28_Efuse::reset()
      * diag_en is asserted high or not. To be safe we will
      * force
      */
-
-    // if diagnostics are not enabled, only check TSD and ILIM
 
     // fault is asserted low
     const bool is_ok = this->pgood_gpio.readPin();
