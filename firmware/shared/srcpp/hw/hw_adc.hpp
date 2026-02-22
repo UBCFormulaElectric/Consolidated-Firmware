@@ -82,7 +82,6 @@ template <size_t NUM_ADC_CHANNELS> class AdcChip
         return const_cast<const volatile float *>(&adc_voltages[channel]);
     }
     [[nodiscard]] constexpr ADC_HandleTypeDef *gethadc() const { return hadc; }
-    `
 };
 
 class Adc
