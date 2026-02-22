@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package bms;
+
+enum GpioNetName {
+    GPIO_NET_NAME_UNSPECIFIED = 0;
+    GPIO_LEDB = 1; 
+    GPIO_BSPD_OK = 2;
+    GPIO_ACCEL_BRAKE_OK = 3;
+    GPIO_nBRAKE_PRESS_3V3 = 4;
+    GPIO_nHIGH_CURRENT_BSPD = 5;
+    GPIO_MSD_SHDN_SNS = 6;
+    GPIO_HV_P_INTLCK_SNS = 7;
+    GPIO_HV_N_INTLCK_SNS = 8;
+    GPIO_IMD_LATCH = 9;
+    GPIO_DIAG = 10;
+    GPIO_SD_CD = 11;
+    GPIO_LEDR = 12;
+    GPIO_SPI_CS_LS = 13;
+    GPIO_TSENSE_SEL0 = 14;
+    GPIO_TSENSE_SEL1 = 15;
+    GPIO_TSENSE_SEL2 = 16;
+    GPIO_BSPD_TEST_EN = 17;
+    GPIO_TS_ISENSE_OCSC_OK_3V3 = 18;
+    GPIO_SPI_CS_HS = 19;
+    GPIO_nBMS_OK = 20;
+    GPIO_nEVSE_I_LIM_GPIO = 21;
+    GPIO_IR_P_EN = 22;
+    GPIO_SHDN_EN = 23;
+    GPIO_nBMS_LATCH = 24;
+    GPIO_IMD_OK = 25;
+    GPIO_nBSPD_LATCH = 26;
+    GPIO_PRE_CHARGE_EN = 27;
+    GPIO_SHDN_OL_ON = 28;
+    GPIO_FAN_EN = 29;
+    GPIO_FAN_PGOOD = 30;
+    GPIO_PGOOD_3V3 = 31;
+    GPIO_PGOOD_5V = 32;
+    GPIO_SHDN_DIAG_EN = 33;
+    GPIO_SHDN_FAULT = 34;
+}
+
+enum AdcNetName {
+    ADC_NET_NAME_UNSPECIFIED = 0;
+    ADC_FAN_ISNS = 1;
+    ADC_TS_VSENSE_P = 2;
+    ADC_TS_VSENSE_N = 3;
+    ADC_SHDN_SNS = 4;
+    ADC_EMETER_THERM_SNS = 5;
+    ADC_TS_ISENSE_400A = 6;
+    ADC_TS_ISENSE_50A = 7;
+}
+
+enum SpiNetName {
+    SPI_NET_NAME_UNSPECIFIED = 0;
+    SPI_LTC6813_LS = 1;
+    SPI_LTC6813_HS = 2;
+}
+
+enum I2cNetName {
+    I2C_NET_NAME_UNSPECIFIED = 0;
+}

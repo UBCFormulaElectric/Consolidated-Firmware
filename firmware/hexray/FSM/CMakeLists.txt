@@ -2,38 +2,62 @@ message("")
 message("⚙️ Configuring FSM (Hexray)")
 
 file(GLOB CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
-set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
+set(CUBEMX_INCLUDE_DIRS 
+        "${CMAKE_CURRENT_SOURCE_DIR}/src"
+        "${SHARED_HW_INCLUDE_DIR_CPP}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
+)
 
 set(JOBS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/jobs.cpp")
 set(TASKS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.cpp")
 set(SYSTEM_SRCS ${JOBS_SRC} ${TASKS_SRC})
 set(SYSTEM_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src"
-        #        "${CMAKE_CURRENT_SOURCE_DIR}/boot"
+        #"${CMAKE_CURRENT_SOURCE_DIR}/boot"
 )
 
-file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
-list(APPEND APP_SRCS)
+file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp")
+list(APPEND APP_SRCS
+        "${SHARED_APP_INCLUDE_DIR}/app_shdnLoopNode.c"
+        "${SHARED_APP_INCLUDE_DIR_CPP}/app_timer.cpp"
+        "${SHARED_APP_INCLUDE_DIR}/app_rangeCheck.c"
+)
 set(APP_INCLUDE_DIRS
-        # "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
-        "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR_CPP}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
+        "${SHARED_APP_INCLUDE_DIR}" 
+        "${SHARED_APP_INCLUDE_DIR_CPP}"
 )
 
-file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
-list(APPEND IO_SRCS)
+file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.cpp")
+list(APPEND IO_SRCS
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
+        "${SHARED_IO_INCLUDE_DIR}/io_time.c"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_imu.cpp"
+)
 set(IO_INCLUDE_DIRS
-        # "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
-        "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_DIR_CPP}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
+        "${SHARED_IO_INCLUDE_DIR}" 
+        "${SHARED_IO_INCLUDE_DIR_CPP}"
 )
 
-file(GLOB_RECURSE HW_SRCS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c"
+file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp")
+list(APPEND HW_SRCS
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_spi.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_gpio.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
+
 )
-list(APPEND HW_SRCS)
 set(HW_INCLUDE_DIRS
-        #        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
-        "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR_CPP}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
+        "${SHARED_HW_INCLUDE_DIR}"
+        "${SHARED_HW_INCLUDE_DIR_CPP}"
 )
+
+# chimera sources
+set(CHIMERA_SRCS ${HW_SRCS} ${IO_SRCS} "${CMAKE_CURRENT_SOURCE_DIR}/src/chimera.cpp")
+set(CHIMERA_INCLUDE_DIRS ${HW_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${APP_INCLUDE_DIRS})
 
 if ("${TARGET}" STREQUAL "binary")
     set(ARM_CORE "cm33")
@@ -50,14 +74,24 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     set(STM32_HAL_SRCS
-            "stm32h5xx_hal.c"
-            "stm32h5xx_hal_rcc.c"
-            "stm32h5xx_hal_rcc_ex.c"
-            "stm32h5xx_hal_pwr_ex.c"
-            "stm32h5xx_hal_cortex.c"
-            "stm32h5xx_hal_exti.c"
-            "stm32h5xx_hal_tim.c"
-            "stm32h5xx_hal_tim_ex.c"
+        "stm32h5xx_hal_adc.c"
+        "stm32h5xx_hal_adc_ex.c"
+        "stm32h5xx_hal.c"
+        "stm32h5xx_hal_rcc.c"
+        "stm32h5xx_hal_rcc_ex.c"
+        "stm32h5xx_hal_pwr_ex.c"
+        "stm32h5xx_hal_cortex.c"
+        "stm32h5xx_hal_dma_ex.c"
+        "stm32h5xx_hal_dma.c"
+        "stm32h5xx_hal_exti.c"
+        "stm32h5xx_hal_fdcan.c"
+        "stm32h5xx_hal_gpio.c"
+        "stm32h5xx_hal_pcd.c"
+        "stm32h5xx_hal_pcd_ex.c"
+        "stm32h5xx_hal_spi.c"
+        "stm32h5xx_hal_tim.c"
+        "stm32h5xx_hal_tim_ex.c"
+        "stm32h5xx_ll_usb.c"
     )
     stm32h562xx_cube_library(
             "hexray_FSM_stm32"
@@ -65,12 +99,12 @@ if ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/FSM.ioc"
             "${CUBEMX_SRCS}"
             "${CUBEMX_INCLUDE_DIRS}"
-            FALSE
+            TRUE
             "${ARM_CORE}"
     )
 
     # JSONCAN
-    jsoncan_embedded_library(FSM hexray "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
+    jsoncan_embedded_library_cpp(FSM hexray "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
 
     # CommitInfo
     commit_info_library(
@@ -81,13 +115,23 @@ if ("${TARGET}" STREQUAL "binary")
 
     target_link_libraries("hexray_FSM_app.elf" PRIVATE "hexray_FSM_stm32" "hexray_FSM_commit_info"
             "hexray_FSM_jsoncan" "m")
+    target_compile_definitions("hexray_FSM_app.elf" PRIVATE FSM)
 
+    add_chimera_stm32h5("hexray_FSM_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}" "hexray_chimera_v2_proto_cm33")
+    target_link_libraries("hexray_FSM_chimera.elf" PRIVATE "hexray_FSM_stm32")
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
-    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS})
+    set(FAKE_SRCS 
+        #"${SHARED_FAKES_DIR}/io_imuQuintuna.cpp"
+        "${SHARED_FAKES_DIR_CPP}/io_imu.cpp"
+        "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
+    )
+    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
     set(INCLUDE_DIRS
             # "${CMAKE_CURRENT_SOURCE_DIR}/test"
-            ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP}
+            ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} 
+            ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP} 
+            ${SHARED_UTIL_INCLUDE_DIR} ${SHARED_FAKES_DIR} ${SHARED_FAKES_DIR_CPP}
     )
     compile_gtest_executable(
             "hexray_FSM_test"
@@ -98,7 +142,7 @@ elseif ("${TARGET}" STREQUAL "test")
     add_compile_definitions("hexray_FSM_test" PRIVATE STM32H562Rx)
 
     # JSONCAN
-    jsoncan_library(FSM hexray "${CMAKE_CURRENT_BINARY_DIR}")
+    jsoncan_library_cpp(FSM hexray "${CMAKE_CURRENT_BINARY_DIR}")
 
     # CommitInfo
     commit_info_library(
@@ -107,16 +151,5 @@ elseif ("${TARGET}" STREQUAL "test")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    # FakeIO
-    set(HEADERS_TO_FAKE
-    )
-
-    file(GLOB TEST_IO_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.h")
-    list(APPEND HEADERS_TO_FAKE ${TEST_IO_HDRS})
-    create_fake_library(
-            "hexray_FSM_fakes"
-            "${HEADERS_TO_FAKE}"
-    )
-
-    target_link_libraries("hexray_FSM_test" PRIVATE "hexray_FSM_fakes" "hexray_FSM_commit_info" "hexray_FSM_jsoncan")
+    target_link_libraries("hexray_FSM_test" PRIVATE "hexray_FSM_commit_info" "hexray_FSM_jsoncan")
 endif ()

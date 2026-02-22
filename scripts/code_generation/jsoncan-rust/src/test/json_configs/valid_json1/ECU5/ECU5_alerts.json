@@ -1,0 +1,21 @@
+{
+  "warnings_id": 500,
+  "faults_id": 501,
+  "info_id": 502,
+  "warnings_counts_id": 503,
+  "faults_counts_id": 504,
+  "info_counts_id": 505,
+  "info": {},
+  "warnings": {
+    "Warning1": {
+      "id": 500,
+      "description": "N/A"
+    }
+  },
+  "faults": {
+    "Fault1": {
+      "id": 550,
+      "description": "N/A"
+    }
+  }
+}

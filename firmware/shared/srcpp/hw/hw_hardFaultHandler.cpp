@@ -2,7 +2,7 @@
 #include "hw_hal.hpp"
 #include "hw_utils.hpp"
 
-void hw_hardFaultHandler_init(void)
+void hw_hardFaultHandler_init()
 {
     // Div-by-zero exception is disabled by default and must be enabled manually
     SCB->CCR = SCB->CCR | SCB_CCR_DIV_0_TRP_Msk;
@@ -12,7 +12,8 @@ void hw_hardFaultHandler_init(void)
 // transmit the data over CAN
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
-void                   hw_hardFaultHandler_logInfo(uint32_t *fault_stack)
+
+void hw_hardFaultHandler_logInfo(uint32_t *fault_stack)
 {
     // Registers pushed onto the stack frame before entering hard fault handler
     volatile uint32_t stacked_r0;

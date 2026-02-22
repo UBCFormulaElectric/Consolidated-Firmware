@@ -185,70 +185,81 @@ TEST_F(VCStateMachineTest, ReadyForDriveWithRetryFlagGoesToDriveState)
     app_canRx_INVFL_bQuitInverterOn_update(true);
     app_canAlerts_VC_Info_InverterRetry_set(true); // NOTE: main difference between this and last test
 
-    LetTimePass(30);
-    ASSERT_EQ(app_canTx_VC_InverterState_get(), INV_READY_FOR_DRIVE);
+    // Go to drive state.
+    LetTimePass(20);
 
-    LetTimePass(10);
+    app_canRx_FSM_BrakeActuated_update(true);
+    app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
+    LetTimePass(20);
+
     ASSERT_STATE_EQ(drive_state);
 }
 
+// I think this test is also not applicable becas
 TEST_F(VCStateMachineTest, DriveStateRetrytoHvInit)
 {
     // HACK FIX: Start switch is static and not reset from test to test. Do this to force the previous state to be
     // SWITCH_ON and prevent transition out of drive. This shouldn't be an issue on the car since
     // app_startSwitch_hasRisingEdge() will always be called before driving, because it is a condition to enter driving.
+    // Ensure previous start state is ON so we can synthesize a rising edge later
     app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
     (void)app_startSwitch_hasRisingEdge(); // TODO BOMBOCLATTT
 
-    // Starting from VC being in drive state
+    // fault inverters
     SetStateWithEntry(&drive_state);
     app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
-    LetTimePass(30);
-    ASSERT_STATE_EQ(drive_state);
+    LetTimePass(20);
 
-    // After some time we are gonna mock inverters failing
     app_canRx_INVFL_bError_update(true);
     app_canRx_INVFR_bError_update(true);
     app_canRx_INVRL_bError_update(true);
     app_canRx_INVRR_bError_update(true);
-
     LetTimePass(10);
+    ASSERT_STATE_EQ(inverter_fault_handling_state);
 
-    // Making sure that we are in hvInit and making sure that inverter flag is set
-    ASSERT_EQ(app_canAlerts_VC_Info_InverterRetry_get(), true);
-    ASSERT_STATE_EQ(hvInit_state);
-    ASSERT_EQ(app_canTx_VC_InverterState_get(), INV_SYSTEM_READY);
-
-    LetTimePass(10);
-
-    // Mock the inverters to indicate that there fault has cleared
     app_canRx_INVFL_bError_update(false);
     app_canRx_INVFR_bError_update(false);
     app_canRx_INVRL_bError_update(false);
     app_canRx_INVRR_bError_update(false);
+    LetTimePass(10);
 
-    app_canRx_INVRR_bSystemReady_update(true);
-    app_canRx_INVRL_bSystemReady_update(true);
+    // SYSTEM_READY
     app_canRx_INVFL_bSystemReady_update(true);
     app_canRx_INVFR_bSystemReady_update(true);
-    app_canRx_INVFR_bQuitDcOn_update(true);
+    app_canRx_INVRL_bSystemReady_update(true);
+    app_canRx_INVRR_bSystemReady_update(true);
+    hvInit_state.run_on_tick_100Hz();
+
+    // DC_ON quits
     app_canRx_INVFL_bQuitDcOn_update(true);
-    app_canRx_INVRR_bQuitDcOn_update(true);
+    app_canRx_INVFR_bQuitDcOn_update(true);
     app_canRx_INVRL_bQuitDcOn_update(true);
+    app_canRx_INVRR_bQuitDcOn_update(true);
+
+    // INVERTER_ON quits
     app_canRx_INVFL_bQuitInverterOn_update(true);
     app_canRx_INVFR_bQuitInverterOn_update(true);
     app_canRx_INVRL_bQuitInverterOn_update(true);
     app_canRx_INVRR_bQuitInverterOn_update(true);
 
-    LetTimePass(30);
-    ASSERT_EQ(app_canTx_VC_InverterState_get(), INV_READY_FOR_DRIVE);
+    // // brake + start rising edge
+    app_canRx_CRIT_StartSwitch_update(SWITCH_OFF);
+    app_canRx_FSM_BrakeActuated_update(true);
 
-    LetTimePass(10);
-    ASSERT_EQ(app_canAlerts_VC_Info_InverterRetry_get(), false);
+    LetTimePass(200);
+    // ASSERT_STATE_EQ(hvInit_state);
+
+    // Qualify DRIVE (rising edge + brake)
+    app_canRx_FSM_BrakeActuated_update(true);
+    app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
+
+    LetTimePass(100);
     ASSERT_STATE_EQ(drive_state);
+
+    ASSERT_FALSE(app_canAlerts_VC_Info_InverterRetry_get());
 }
 
-/* ------------------------- HV STATE ------------------------------- */
+/* ------------------------- HV STATE -------------------------------*/
 TEST_F(VCStateMachineTest, EntryInitializesState)
 {
     SetStateWithEntry(&hv_state);
@@ -300,15 +311,17 @@ TEST_F(VCStateMachineTest, NoTransitionWithoutBrakeEvenIfStart)
 }
 
 /* ------------------------- DRIVE STATE ------------------------------- */
-TEST_F(VCStateMachineTest, PreCheckInverterFaultTransitionsToHvInit)
-{
-    SetStateWithEntry(&drive_state);
-    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
+// This test is not applicable right now because now we are going into
+// handling state and then once recovered back to hvInit which is covered elsewhere
+//  TEST_F(VCStateMachineTest, PreCheckInverterFaultTransitionsToHvInit)
+//  {
+//      SetStateWithEntry(&drive_state);
+//      app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
 
-    app_canRx_INVFL_bError_update(true);
-    LetTimePass(10);
-    ASSERT_STATE_EQ(hvInit_state);
-}
+//     app_canRx_INVFL_bError_update(true);
+//     LetTimePass(10);
+//     ASSERT_STATE_EQ(inverter_fault_handling_state);
+// }
 
 TEST_F(VCStateMachineTest, StartSwitchOffTransitionsToHv)
 {
@@ -408,13 +421,234 @@ TEST_F(VCStateMachineTest, EntryInitializesPcmOn)
     EXPECT_FALSE(io_pcm_enabled());
 }
 
+/* ------------------------- INVERTER FAULT HANDLING STATE ------------------------------- */
+// Drive state to retry when only one inverter is faulted (interate through all 4)
+TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverterFromDrive)
+{
+    SetStateWithEntry(&drive_state);
+    LetTimePass(10);
+    app_canRx_INVFL_bError_update(true);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(inverter_fault_handling_state);
+    app_canRx_INVFL_bError_update(false);
+    LetTimePass(10);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(hvInit_state);
+}
+
+TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverterFromInit)
+{
+    // works for inv on, hvinit to drive but doesn't wprk for pcm on,
+    SetStateWithEntry(&init_state);
+    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_OPEN);
+
+    // LetTimePass(10);
+    app_canRx_INVFL_bError_update(true);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(inverter_fault_handling_state);
+    LetTimePass(10);
+    // Recover the fault
+    app_canRx_INVFL_bError_update(false);
+    LetTimePass(10);
+    // app_canRx_INVFL_bQuitInverterOn_update(true);
+    // app_canRx_INVFR_bQuitInverterOn_update(true);
+    // app_canRx_INVRL_bQuitInverterOn_update(true);
+    // app_canRx_INVRR_bQuitInverterOn_update(true);
+
+    LetTimePass(10);
+    ASSERT_STATE_EQ(init_state);
+}
+TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverterFromInvOn)
+{
+    // works for inv on, hvinit to drive but doesn't wprk for pcm on,
+    SetStateWithEntry(&inverterOn_state);
+    LetTimePass(10);
+    app_canRx_INVFL_bError_update(true);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(inverter_fault_handling_state);
+    LetTimePass(10);
+    // Recover the fault
+    app_canRx_INVFL_bError_update(false);
+    LetTimePass(10);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(inverterOn_state);
+}
+
+TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverterFromBmsOn)
+{
+    // works for inv on, hvinit to drive but doesn't wprk for pcm on,
+    SetStateWithEntry(&bmsOn_state);
+    LetTimePass(10);
+    app_canRx_INVFL_bError_update(true);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(inverter_fault_handling_state);
+    LetTimePass(10);
+    // Recover the fault
+    app_canRx_INVFL_bError_update(false);
+    LetTimePass(10);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(bmsOn_state);
+}
+
+TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverterFromHvInit)
+{
+    // works for inv on, hvinit to drive but doesn't wprk for pcm on,
+    SetStateWithEntry(&hvInit_state);
+    LetTimePass(10);
+    app_canRx_INVFL_bError_update(true);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(inverter_fault_handling_state);
+    LetTimePass(10);
+    // Recover the fault
+    app_canRx_INVFL_bError_update(false);
+    LetTimePass(10);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(hvInit_state);
+}
+
+TEST_F(VCStateMachineTest, InverterRetryOneFaultedInverterFromHv)
+{
+    // works for inv on, hvinit to drive but doesn't wprk for pcm on,
+    SetStateWithEntry(&hvInit_state);
+    LetTimePass(10);
+    app_canRx_INVFL_bError_update(true);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(inverter_fault_handling_state);
+    LetTimePass(10);
+    // Recover the fault
+    app_canRx_INVFL_bError_update(false);
+    LetTimePass(10);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(hvInit_state);
+}
+
+// Drive state to retry when more than 1 inverter faulted
+TEST_F(VCStateMachineTest, InverterRetryMoreThanOneFaultedInverter)
+{
+    SetStateWithEntry(&drive_state);
+    LetTimePass(10);
+    app_canRx_INVFL_bError_update(true);
+    app_canRx_INVFR_bError_update(true);
+    app_canRx_INVRL_bError_update(true);
+    app_canRx_INVRR_bError_update(true);
+
+    LetTimePass(10);
+    ASSERT_STATE_EQ(inverter_fault_handling_state);
+}
+
+// Retry lockout when error codes given (iterate through all cases)
+TEST_F(VCStateMachineTest, InverterFaultLockout)
+{
+    SetStateWithEntry(&inverter_fault_handling_state);
+    app_canTx_VC_Warning_FrontLeftInverterFault_set(true);
+    app_canRx_INVFL_ErrorInfo_update(259u);
+    LetTimePass(100);
+    ASSERT_STATE_EQ(inverter_fault_handling_state);
+}
+
+// State changing to HV_init when fault is cleared
+TEST_F(VCStateMachineTest, InverterRetryRecovered)
+{
+    SetStateWithEntry(&drive_state);
+    LetTimePass(10);
+
+    app_canRx_INVFL_bError_update(true);
+
+    LetTimePass(10);
+    ASSERT_STATE_EQ(inverter_fault_handling_state);
+    LetTimePass(10);
+
+    // Recover the fault
+    app_canRx_INVFL_bError_update(false);
+    LetTimePass(10);
+    // INVERTER_ON quits
+    app_canRx_INVFL_bQuitInverterOn_update(true);
+    app_canRx_INVFR_bQuitInverterOn_update(true);
+    app_canRx_INVRL_bQuitInverterOn_update(true);
+    app_canRx_INVRR_bQuitInverterOn_update(true);
+
+    // Re-enter HV_INIT path: set all systemReady
+    app_canRx_INVFL_bSystemReady_update(true);
+    app_canRx_INVFR_bSystemReady_update(true);
+    app_canRx_INVRL_bSystemReady_update(true);
+    app_canRx_INVRR_bSystemReady_update(true);
+
+    // DC_ON quits
+    app_canRx_INVFL_bQuitDcOn_update(true);
+    app_canRx_INVFR_bQuitDcOn_update(true);
+    app_canRx_INVRL_bQuitDcOn_update(true);
+    app_canRx_INVRR_bQuitDcOn_update(true);
+
+    // INV_ENABLE set
+    app_canTx_VC_INVFLbEnable_set(true);
+    app_canTx_VC_INVFRbEnable_set(true);
+    app_canTx_VC_INVRLbEnable_set(true);
+    app_canTx_VC_INVRRbEnable_set(true);
+
+    // INV_ON set to enter hv
+    app_canRx_INVRR_bQuitInverterOn_update(true);
+    app_canRx_INVRL_bQuitInverterOn_update(true);
+    app_canRx_INVFR_bQuitInverterOn_update(true);
+    app_canRx_INVFL_bQuitInverterOn_update(true);
+
+    LetTimePass(10);
+    ASSERT_STATE_EQ(hvInit_state);
+
+    // Qualify DRIVE (rising edge + brake)
+    app_canRx_FSM_BrakeActuated_update(true);
+    app_canRx_CRIT_StartSwitch_update(SWITCH_ON);
+
+    LetTimePass(100);
+    ASSERT_STATE_EQ(drive_state);
+
+    ASSERT_FALSE(app_canAlerts_VC_Info_InverterRetry_get());
+}
+
+// Testing if can recover from two faults in a row
+TEST_F(VCStateMachineTest, InverterRetryTwoFaultsInaRow)
+{
+    // works for inv on, hvinit to drive but doesn't wprk for pcm on,
+    SetStateWithEntry(&bmsOn_state);
+    LetTimePass(10);
+    app_canRx_INVFL_bError_update(true);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(inverter_fault_handling_state);
+    LetTimePass(10);
+    // Recover the fault
+    app_canRx_INVFL_bError_update(false);
+    LetTimePass(10);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(bmsOn_state);
+    app_canRx_BMS_IrNegative_update(CONTACTOR_STATE_CLOSED);
+    LetTimePass(10);
+
+    // Stay in BMS ON for non-drive states
+    app_canRx_BMS_State_update(BMS_PRECHARGE_DRIVE_STATE);
+    LetTimePass(10);
+    // Drive state -> transition to HV INIT
+    app_canRx_BMS_State_update(BMS_DRIVE_STATE);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(pcmOn_state);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(hvInit_state);
+    // Fault number 2
+    app_canRx_INVFL_bError_update(true);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(inverter_fault_handling_state);
+    LetTimePass(10);
+    // Recover the fault
+    app_canRx_INVFL_bError_update(false);
+    LetTimePass(10);
+    LetTimePass(10);
+    ASSERT_STATE_EQ(hvInit_state);
+}
+
 /* ------------------------- PCM ON STATE ------------------------------- */
 TEST_F(VCStateMachineTest, GoodVoltageTransitionsToHvInit)
 {
     SetStateWithEntry(&pcmOn_state);
     app_canTx_VC_ChannelOneVoltage_set(20.0f);
-    LetTimePass(10); //
-    LetTimePass(10); // second tick: debounced, should transition
+    LetTimePass(20);
     ASSERT_EQ(app_canTx_VC_PcmRetryCount_get(), 0);
     ASSERT_STATE_EQ(hvInit_state);
 }
@@ -563,6 +797,7 @@ TEST_F(VCStateMachineTest, bmsOnLatchedFault)
     ASSERT_STATE_EQ(inverterOn_state);
 }
 
+// I believe we are getting rid of this logic
 TEST_F(VCStateMachineTest, pcmOnStateLatchedFault)
 {
     SetStateWithEntry(&pcmOn_state);

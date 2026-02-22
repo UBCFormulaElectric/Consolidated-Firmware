@@ -1,0 +1,22 @@
+{
+    "forwarders": [],
+    "buses": [
+        {
+            "name": "FDCAN",
+            "nodes": [
+                "H7",
+                "H5",
+                "Boot",
+                "Debug"
+            ],
+            "bus_speed": 1000,
+            "modes": [
+                "DEFAULT",
+                "DEBUG"
+            ],
+            "default_mode": "DEFAULT",
+            "fd": true
+        }
+    ],
+    "loggers": []
+}

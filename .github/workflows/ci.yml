@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     #    container:
-    #      image: ubcformulaelectric/environment:arm_14
+    #      image: ubcformulaelectric/environment:cigoat
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -39,6 +39,8 @@ jobs:
             ioc_dir: firmware/dev/f4dev/src/cubemx
           - board: h7dev
             ioc_dir: firmware/dev/h7dev/src/cubemx
+          - board: h5dev
+            ioc_dir: firmware/dev/h5dev/src/cubemx
           - board: BMS
             ioc_dir: firmware/quintuna/BMS/src/cubemx
           - board: CRIT
@@ -70,7 +72,7 @@ jobs:
 
     # both packages shouldn't need to use python dependences that we need...
     #    container:
-    #      image: ubcformulaelectric/environment:arm_14
+    #      image: ubcformulaelectric/environment:cigoat
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -111,14 +113,7 @@ jobs:
         include:
           - board: f4dev.elf
           - board: h7dev.hex
-          - board: quintuna_BMS.hex
-          - board: quintuna_CRIT.hex
-          - board: quintuna_DAM.hex
-          - board: quintuna_FSM.hex
-          - board: quintuna_RSM.hex
-          - board: quintuna_VC.hex
-          - board: quintuna_VCR_app.elf
-          - board: quintuna_PCM_app.elf
+          - board: h5dev.hex
           - board: hexray_BMS_app.hex
           - board: hexray_CRIT_app.hex
           - board: hexray_DAM_app.hex
@@ -127,7 +122,7 @@ jobs:
           - board: hexray_VC_app.hex
 
     container:
-      image: ubcformulaelectric/environment:arm_14
+      image: ubcformulaelectric/environment:cigoat
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.docker_token }}
@@ -158,8 +153,8 @@ jobs:
           #  car: quintuna
           #- board: RSM
           #  car: quintuna
-          - board: VC
-            car: quintuna
+          #- board: VC
+          #  car: quintuna
           - board: BMS
             car: hexray
           - board: CRIT
@@ -174,7 +169,7 @@ jobs:
             car: hexray
 
     container:
-      image: ubcformulaelectric/environment:arm_14
+      image: ubcformulaelectric/environment:cigoat
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -212,7 +207,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     container:
-      image: ubcformulaelectric/environment:arm_14
+      image: ubcformulaelectric/environment:cigoat
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -246,7 +241,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     container:
-      image: ubcformulaelectric/environment:arm_14
+      image: ubcformulaelectric/environment:cigoat
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -279,7 +274,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     container:
-      image: ubcformulaelectric/environment:arm_14
+      image: ubcformulaelectric/environment:cigoat
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -307,7 +302,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     container:
-      image: ubcformulaelectric/environment:arm_14
+      image: ubcformulaelectric/environment:cigoat
     env:
       BUILD_DIR: build_fw_test
     steps:
@@ -325,3 +320,18 @@ jobs:
         run: |
           cd $BUILD_DIR/scripts/code_generation/jsoncan/test/integration
           valgrind --tool=memcheck --leak-check=yes ./jsoncan_test
+
+  test-rust-jsoncan:
+    env:
+      CARGO_TERM_COLOR: always
+    name: Test Rust JSONCAN
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup update stable && rustup default stable
+      - name: Build Rust JSONCAN
+        working-directory: ./scripts/code_generation/jsoncan-rust
+        run: cargo build --verbose
+      - name: Test Rust JSONCAN
+        working-directory: ./scripts/code_generation/jsoncan-rust
+        run: cargo test --verbose

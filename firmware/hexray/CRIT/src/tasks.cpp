@@ -1,14 +1,15 @@
 #include "tasks.h"
+
+#include "app_jsoncan.hpp"
 #include "jobs.hpp"
 #include "io_time.hpp"
+#include "io_canQueues.hpp"
+#include "hw_rtosTaskHandler.hpp"
+#include "hw_cans.hpp"
 
-void tasks_preInit() {}
-void tasks_init()
-{
-    jobs_init();
-}
+#include <io_canRx.hpp>
 
-void tasks_run1Hz()
+[[noreturn]] static void tasks_run1Hz(void *arg)
 {
     forever
     {
@@ -17,29 +18,75 @@ void tasks_run1Hz()
         io::time::delayUntil(start_time + 1000);
     }
 }
-void tasks_run100Hz()
+[[noreturn]] static void tasks_run100Hz(void *arg)
 {
     forever
     {
         jobs_run100Hz_tick();
     }
 }
-void tasks_run1kHz()
+[[noreturn]] static void tasks_run1kHz(void *arg)
 {
     forever
     {
         jobs_run1kHz_tick();
     }
 }
-void tasks_runCanTx()
+[[noreturn]] static void tasks_runCanTx(void *arg)
 {
-    forever {}
+    forever
+    {
+        const auto msg = can_tx_queue.pop();
+        if (not msg)
+            continue;
+        if (const auto &m = msg.value(); m.bus == app::can_utils::BusEnum::Bus_FDCAN)
+        {
+            const auto res = fdcan1.can_transmit(hw::CanMsg{
+                m.std_id,
+                m.dlc,
+                m.data,
+            });
+            LOG_IF_ERR(res);
+        }
+        else
+        {
+            LOG_ERROR("INVALID BUS %d", m.bus);
+        }
+    }
 }
-void tasks_runCanRx()
+[[noreturn]] static void tasks_runCanRx(void *arg)
 {
-    forever {}
+    forever
+    {
+        const auto msg = can_rx_queue.pop();
+        if (not msg)
+            continue;
+        io::can_rx::updateRxTableWithMessage(app::jsoncan::copyFromCanMsg(msg.value()));
+    }
 }
-void tasks_runChimera()
+// Define the task with StaticTask template class
+static hw::rtos::StaticTask<512> Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz);
+static hw::rtos::StaticTask<512> Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz);
+static hw::rtos::StaticTask<512> Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz);
+static hw::rtos::StaticTask<512> TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_runCanRx);
+static hw::rtos::StaticTask<512> TaskCanTx(osPriorityNormal, "TaskCanTx", tasks_runCanTx);
+
+static void CRIT_StartAllTasks()
 {
+    Task1kHz.start();
+    Task1Hz.start();
+    Task100Hz.start();
+    TaskCanRx.start();
+    TaskCanTx.start();
+}
+
+void tasks_preInit() {}
+
+void tasks_init()
+{
+    jobs_init();
+    osKernelInitialize();
+    CRIT_StartAllTasks();
+    osKernelStart();
     forever {}
 }
