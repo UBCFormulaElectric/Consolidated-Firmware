@@ -1,7 +1,7 @@
 "use client";
 
-import { usePausePlay } from "@/components/PausePlayControl";
-import { PlusButton } from "@/components/PlusButton";
+import { useDisplayControl } from "@/components/PausePlayControl";
+import { PlusButton } from "@/components/icons/PlusButton";
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { SignalType } from "@/lib/SignalConfig";
 import { useSignals, useDataVersion } from "@/lib/contexts/SignalContext";
@@ -41,7 +41,7 @@ interface NumericalWidgetProps {
   onDelete?: () => void;
 }
 
-export default function NumericalWidget() {
+export default function NumericalWidget({ widgetData, appendNumSignal, removeNumSignal, onDelete }: NumericalWidgetProps) {
   return <div>wip</div>;
 }
 

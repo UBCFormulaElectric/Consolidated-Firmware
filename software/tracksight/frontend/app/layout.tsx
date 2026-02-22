@@ -6,8 +6,9 @@ import type { ReactNode } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
-import Navbar from "@/components/Navbar";
+import Navbar from "./Navbar";
 import QueryProvider from "@/lib/contexts/QueryProvider";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "Tracksight Dashboard",
@@ -21,7 +22,14 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} bg-primary-200`}>
+      <head>
+        <Script
+          src="//unpkg.com/react-scan/dist/auto.global.js"
+          crossOrigin="anonymous"
+          strategy="beforeInteractive"
+        />
+      </head>
+      <body className={`${inter.className}`} style={{ overflow: "overlay" }}>
         <QueryProvider>
           <Navbar />
           <main>{children}</main>

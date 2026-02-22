@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, RefObject, ReactNode } from "react";
-import { usePausePlay } from "./PausePlayControl";
+import { useDisplayControl } from "./PausePlayControl";
 
 export type SyncedGraphContext = {
     scalePxPerSecRef: RefObject<number>;
@@ -58,19 +58,8 @@ function useZoomManager(containerRef: RefObject<HTMLDivElement | null>) {
 }
 
 export default function SyncedGraphContainer({ children }: { children: ReactNode }) {
-    const { isPaused } = usePausePlay();
-    const hoverTimestamp = useRef<number | null>(null);
-    const scrollContainerRef = useRef<HTMLDivElement | null>(null); // NEW: Ref for the scrolling wrapper
     const contentRef = useRef<HTMLDivElement | null>(null); // Renamed from containerRef, this one grows
-    const scrollLeftRef = useRef<number>(0);
-    const timeRangeRef = useRef<TimeRange | null>(null);
-
     const offsetRef = useRef<number>(0);
-
-    // zoom management (attach wheel listener to the scroll container)
-    const scalePxPerSec = useZoomManager(scrollContainerRef);
-    const scalePxPerSecRef = useRef<number>(scalePxPerSec);
-
     const updateGraphWidth = useCallback(() => {
         const tr = timeRangeRef.current;
         const container = scrollContainerRef.current;
@@ -85,13 +74,19 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
             contentRef.current.style.width = `${width}px`;
         }
     }, []);
+    const scrollContainerRef = useRef<HTMLDivElement | null>(null); // NEW: Ref for the scrolling wrapper
 
+    // zoom management (attach wheel listener to the scroll container)
+    const scalePxPerSec = useZoomManager(scrollContainerRef);
+    const scalePxPerSecRef = useRef<number>(scalePxPerSec);
     // Update width when zoom changes
     useEffect(() => {
         scalePxPerSecRef.current = scalePxPerSec;
         updateGraphWidth();
     }, [scalePxPerSec, updateGraphWidth]);
 
+    const hoverTimestamp = useRef<number | null>(null);
+    const timeRangeRef = useRef<TimeRange | null>(null);
     // update timeRange and width without triggering a re-render
     const setTimeRange = useCallback((tr: TimeRange) => {
         const current = timeRangeRef.current;
@@ -101,23 +96,22 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
         }
     }, [updateGraphWidth]);
 
-    // handle scroll events
-    useEffect(() => {
-        // Attach listener to the SCROLL CONTAINER, not the content
+    // manage left scroll variable
+    const scrollLeftRef = useRef<number>(0);
+    const { isPaused } = useDisplayControl();
+    useEffect(() => { // handle scroll events (needs to be here because of passive: true)
         const container = scrollContainerRef.current;
         if (!container) return;
-
         const handleScroll = () => {
             if (!isPaused) return;
             scrollLeftRef.current = container.scrollLeft;
         };
-
         container.addEventListener("scroll", handleScroll, { passive: true });
-        return () => {
-            container.removeEventListener("scroll", handleScroll);
-        };
+        return () => { container.removeEventListener("scroll", handleScroll) }
     }, [isPaused]);
 
+
+    // context
     const CTXVAL = useMemo<SyncedGraphContext>(() => ({
         scalePxPerSecRef,
         hoverTimestamp,
@@ -129,13 +123,14 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
     return (
         <SyncedGraphContext.Provider value={CTXVAL}>
             {/* outer wrapper handles overflow/scrolling; this the viewport */}
-            <div
-                ref={scrollContainerRef}
-                className="w-full overflow-x-auto overflow-y-hidden min-h-screen pt-14"
-            >
+            <div ref={scrollContainerRef} className="w-full overflow-x-auto overflow-y-auto h-full graph-scrollbar">
                 {/* inner content grows in width */}
-                <div ref={contentRef} className="min-w-full min-h-60 relative">
-                    <div className="sticky left-0 top-0 w-screen">
+                <div ref={contentRef} className="min-w-full relative">
+                    <div className="sticky left-0"
+                        style={{
+                            width: `calc(100vw - 18px)` // this is the set width of the scrollbar (global.css)
+                        }}
+                    >
                         {children}
                     </div>
                 </div>

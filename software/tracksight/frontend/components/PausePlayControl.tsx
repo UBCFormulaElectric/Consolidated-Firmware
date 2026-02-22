@@ -22,8 +22,6 @@ export function useDisplayControl() {
   }
   return context
 }
-// Maintain backward compatibility
-export const usePausePlay = useDisplayControl
 
 // TODO move to a util folder?
 function useLocalState<T>(name: string, defaultValue: T): [T, Dispatch<SetStateAction<T>>] {
@@ -81,7 +79,7 @@ export function PausePlayButton() {
     <button
       onClick={togglePause}
       className={cn(
-        "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg border-2 hover:scale-105 active:scale-95",
+        "size-16 p-4 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg border-2 hover:scale-105 active:scale-95 cursor-pointer",
         isPaused
           ? "bg-green-500 border-green-600 hover:bg-green-600 text-white"
           : "bg-red-500 border-red-600 hover:bg-red-600 text-white"
@@ -89,9 +87,9 @@ export function PausePlayButton() {
       title={isPaused ? "Resume data updates" : "Pause data updates"}
     >
       {isPaused ? (
-        <Play className="w-5 h-5 ml-0.5" fill="currentColor" />
+        <Play className="w-full h-full" fill="currentColor" />
       ) : (
-        <Pause className="w-5 h-5" fill="currentColor" />
+        <Pause className="w-full h-full" fill="currentColor" />
       )}
     </button>
   )

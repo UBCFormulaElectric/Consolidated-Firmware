@@ -1,20 +1,21 @@
 "use client";
 
-import LabelLegend from "@/components/legends/LabelLegend";
+// import LabelLegend from "@/components/legends/LabelLegend";
 import { WidgetDataEnum } from "@/lib/types/Widget";
 import EnumSignalSelector from "@/components/widgets/EnumSignalSelector";
 import useSignalMetadata from "@/lib/hooks/useSignalMetadata";
-import { useMemo, useEffect, useRef } from "react";
+import { useMemo, useEffect } from "react";
 import { EnumSignalMetadata, SignalType } from "@/lib/types/Signal";
-import { usePausePlay } from "@/components/PausePlayControl";
+import { useDisplayControl } from "@/components/PausePlayControl";
 import { useSignals, useDataVersion } from "@/lib/contexts/SignalContext";
 import { formatWithMs } from "@/lib/dateformat";
 
 const NA_COLOR = "#E5E7EB";
 
-function EnumWidgetBody({ signalName, setSignalName, signalMetadata, colorPalette }: {
+function EnumWidgetBody({ signalName, setSignalName, signalMetadata, colorPalette, onDelete }: {
   setSignalName: (name: string) => void;
   colorPalette: string[];
+  onDelete: () => void;
 } & ({
   signalName: null;
   signalMetadata: null;
@@ -22,7 +23,7 @@ function EnumWidgetBody({ signalName, setSignalName, signalMetadata, colorPalett
   signalName: string;
   signalMetadata: EnumSignalMetadata;
 })) {
-  const { isPaused, horizontalScale, setHorizontalScale } = usePausePlay();
+  const { horizontalScale, setHorizontalScale } = useDisplayControl();
   const {
     subscribeToSignal,
     unsubscribeFromSignal,
@@ -98,8 +99,13 @@ function EnumWidgetBody({ signalName, setSignalName, signalMetadata, colorPalett
     <div className="flex flex-col gap-5 w-full">
       <div className="px-8">
         <EnumSignalSelector currentSignal={signalName} onSignalChange={setSignalName} />
+        <button onClick={onDelete} title="Remove mock graph"
+          className="w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-sm font-bold transition-colors cursor-pointer"
+        >
+          ×
+        </button>
       </div>
-      <LabelLegend signals={signals} colorPalette={colorPalette} />
+      {/* <LabelLegend signals={signals} colorPalette={colorPalette} /> */}
 
       <div className="p-4 w-full overflow-x-auto">
         {/* Controls */}
@@ -118,7 +124,7 @@ function EnumWidgetBody({ signalName, setSignalName, signalMetadata, colorPalett
 
         {/* Chart */}
         {chartData.length === 0 ? (
-          <div className="w-full h-[24px] flex items-center justify-center text-gray-500">
+          <div className="w-full h-6 flex items-center justify-center text-gray-500">
             No data
           </div>
         ) : (
@@ -171,9 +177,10 @@ function EnumWidgetBody({ signalName, setSignalName, signalMetadata, colorPalett
   );
 }
 
-export default function EnumWidget({ widgetData: { signal, options: { colorPalette } }, setEnumSignal }: {
+export default function EnumWidget({ widgetData: { signal, options: { colorPalette } }, setEnumSignal, onDelete }: {
   widgetData: WidgetDataEnum
   setEnumSignal: (newSignal: string) => void;
+  onDelete: () => void;
 }) {
   const { isPending: signalMetadataLoading, error: signalMetadataError, data: signalMetadata } = useSignalMetadata(signal);
 
@@ -201,6 +208,7 @@ export default function EnumWidget({ widgetData: { signal, options: { colorPalet
   }
   if (signal === null || signalMetadata === null) {
     return <EnumWidgetBody
+      onDelete={onDelete}
       signalName={null}
       setSignalName={setEnumSignal}
       signalMetadata={null}
@@ -214,6 +222,7 @@ export default function EnumWidget({ widgetData: { signal, options: { colorPalet
     );
   }
   return <EnumWidgetBody
+    onDelete={onDelete}
     signalName={signal}
     setSignalName={setEnumSignal}
     signalMetadata={signalMetadata}

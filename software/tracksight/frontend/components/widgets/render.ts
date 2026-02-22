@@ -1,6 +1,5 @@
 import { RefObject } from "react";
 import { ENUM_COLORS, NA_COLOR } from "@/components/widgets/signalColors";
-import { TimeRange } from "@/components/SyncedGraphContainer";
 
 // first index where timestamp >= targetTime
 function binarySearchForFirstVisibleIndex(
@@ -124,10 +123,16 @@ const dateFormatter = new Intl.DateTimeFormat(undefined, {
     day: "2-digit",
 });
 
-export default function render(context: CanvasRenderingContext2D, width: number, height: number, preparedData: PreparedChartData,
-    series: SeriesMeta[], timeTickCount: number, externalHoverTimestamp: number | null,
-    hoverPixelRef: RefObject<{ x: number; y: number; } | null>, tooltipBufferRef: RefObject<string[]>,
-    layoutRef: RefObject<ChartLayout | null>, visibleTimeRange: { min: number; max: number },
+
+const CHART_PADDING = { top: 15, right: 20, bottom: 40, left: 60 };
+
+export default function render(
+    context: CanvasRenderingContext2D, width: number, height: number, // dimensions of chart
+    layoutRef: RefObject<ChartLayout | null>, // seems kinda bodgey
+    preparedData: PreparedChartData, series: SeriesMeta[], // data
+    timeTickCount: number,
+    externalHoverTimestamp: number | null, hoverPixelRef: RefObject<{ x: number; y: number; } | null>, tooltipBufferRef: RefObject<string[]>, // for hovering
+    visibleTimeRange: { min: number; max: number },
 ) {
     context.clearRect(0, 0, width, height);
 
@@ -135,10 +140,7 @@ export default function render(context: CanvasRenderingContext2D, width: number,
         timestamps, seriesData, chunkSize, chunkStats, enumSeriesIndices, numericalSeriesIndices, uniqueEnumValues,
     } = preparedData;
 
-    //if (!timestamps || timestamps.length === 0) return;
-
     const clampedTickCount = Math.max(1, Math.floor(timeTickCount));
-    const padding = { top: 20, right: 20, bottom: 56, left: 60 };
 
     const ENUM_STRIP_HEIGHT = 20;
     const ENUM_STRIP_GAP = 10;
@@ -149,22 +151,15 @@ export default function render(context: CanvasRenderingContext2D, width: number,
         10
         : 0;
 
-    const numericalTop = padding.top + enumSectionHeight;
-    const chartWidth = width - padding.left - padding.right;
-    const chartHeight = Math.max(0, height - numericalTop - padding.bottom);
+    const numericalTop = CHART_PADDING.top + enumSectionHeight;
+    const chartWidth = width - CHART_PADDING.left - CHART_PADDING.right;
+    const chartHeight = Math.max(0, height - numericalTop - CHART_PADDING.bottom);
 
     const visibleStartTime = visibleTimeRange.min;
     const visibleEndTime = visibleTimeRange.max;
 
-    const startIndex = binarySearchForFirstVisibleIndex(
-        timestamps,
-        visibleStartTime
-    );
-
-    const endIndex = binarySearchForLastVisibleIndex(
-        timestamps,
-        visibleEndTime
-    );
+    const startIndex = binarySearchForFirstVisibleIndex(timestamps, visibleStartTime);
+    const endIndex = binarySearchForLastVisibleIndex(timestamps, visibleEndTime);
 
     // data ranges - only use visible range
     const minTime = visibleStartTime;
@@ -173,14 +168,14 @@ export default function render(context: CanvasRenderingContext2D, width: number,
     const timeRange = rawTimeRange <= 0 ? 1 : rawTimeRange;
 
     const timeToX = (time: number) => {
-        return padding.left + ((time - minTime) / timeRange) * chartWidth;
+        return CHART_PADDING.left + ((time - minTime) / timeRange) * chartWidth;
     };
 
     layoutRef.current = {
         minTime,
         timeRange,
         chartWidth,
-        paddingLeft: padding.left,
+        paddingLeft: CHART_PADDING.left,
     };
 
     // --- RENDER ENUMS ---
@@ -190,8 +185,8 @@ export default function render(context: CanvasRenderingContext2D, width: number,
         context.textBaseline = "top";
         context.font = "10px sans-serif";
 
-        let legendX = padding.left;
-        const legendY = padding.top;
+        let legendX = CHART_PADDING.left;
+        const legendY = CHART_PADDING.top;
 
         const allEnumValues = new Set<string>();
         enumSeriesIndices.forEach((idx) => {
@@ -212,7 +207,7 @@ export default function render(context: CanvasRenderingContext2D, width: number,
             legendX += 14 + textWidth + 15;
         });
 
-        let currentStripY = padding.top + LEGEND_HEIGHT;
+        let currentStripY = CHART_PADDING.top + LEGEND_HEIGHT;
 
         enumSeriesIndices.forEach((seriesIndex) => {
             const dataPoints = seriesData[seriesIndex];
@@ -221,7 +216,7 @@ export default function render(context: CanvasRenderingContext2D, width: number,
             context.textBaseline = "middle";
             context.fillText(
                 series[seriesIndex].label,
-                padding.left - 10,
+                CHART_PADDING.left - 10,
                 currentStripY + ENUM_STRIP_HEIGHT / 2
             );
 
@@ -243,8 +238,8 @@ export default function render(context: CanvasRenderingContext2D, width: number,
                     endTime = timestamps[i + 1];
                 }
 
-                const startX = Math.max(padding.left, timeToX(time));
-                const endX = Math.min(width - padding.right, timeToX(endTime));
+                const startX = Math.max(CHART_PADDING.left, timeToX(time));
+                const endX = Math.min(width - CHART_PADDING.right, timeToX(endTime));
                 const barWidth = endX - startX;
 
                 if (barWidth < 0.5) continue;
@@ -396,11 +391,11 @@ export default function render(context: CanvasRenderingContext2D, width: number,
         context.beginPath();
 
         // y-axis
-        context.moveTo(padding.left, numericalTop);
-        context.lineTo(padding.left, numericalTop + chartHeight);
+        context.moveTo(CHART_PADDING.left, numericalTop);
+        context.lineTo(CHART_PADDING.left, numericalTop + chartHeight);
 
         // x-axis
-        context.lineTo(width - padding.right, numericalTop + chartHeight);
+        context.lineTo(width - CHART_PADDING.right, numericalTop + chartHeight);
         context.stroke();
 
         // grid lines
@@ -410,8 +405,8 @@ export default function render(context: CanvasRenderingContext2D, width: number,
         for (let i = 0; i <= numGridLines; i++) {
             const y = numericalTop + (chartHeight / numGridLines) * i;
             context.beginPath();
-            context.moveTo(padding.left, y);
-            context.lineTo(width - padding.right, y);
+            context.moveTo(CHART_PADDING.left, y);
+            context.lineTo(width - CHART_PADDING.right, y);
             context.stroke();
         }
 
@@ -425,12 +420,12 @@ export default function render(context: CanvasRenderingContext2D, width: number,
         for (let i = 0; i <= numGridLines; i++) {
             const value = maxValue - ((maxValue - minValue) / numGridLines) * i;
             const y = numericalTop + (chartHeight / numGridLines) * i;
-            context.fillText(value.toFixed(2), padding.left - 5, y);
+            context.fillText(value.toFixed(2), CHART_PADDING.left - 5, y);
         }
 
         context.save();
         context.beginPath();
-        context.rect(padding.left, numericalTop, chartWidth, chartHeight);
+        context.rect(CHART_PADDING.left, numericalTop, chartWidth, chartHeight);
         context.clip();
 
         // draw data series
@@ -531,9 +526,9 @@ export default function render(context: CanvasRenderingContext2D, width: number,
     context.beginPath();
     for (let tick = firstTick; tick <= lastTick; tick += tickSpacing) {
         const x = timeToX(tick);
-        if (x >= padding.left && x <= width - padding.right) {
-            context.moveTo(x, height - padding.bottom);
-            context.lineTo(x, height - padding.bottom + 6);
+        if (x >= CHART_PADDING.left && x <= width - CHART_PADDING.right) {
+            context.moveTo(x, height - CHART_PADDING.bottom);
+            context.lineTo(x, height - CHART_PADDING.bottom + 6);
         }
     }
     context.stroke();
@@ -541,44 +536,34 @@ export default function render(context: CanvasRenderingContext2D, width: number,
     for (let tick = firstTick; tick <= lastTick; tick += tickSpacing) {
         const x = timeToX(tick);
 
-        if (x < padding.left - 10 || x > width - padding.right + 10) continue;
+        if (x < CHART_PADDING.left - 10 || x > width - CHART_PADDING.right + 10) continue;
 
         const dateObj = new Date(tick);
         const msLabel = dateObj.getMilliseconds().toString().padStart(3, "0");
         const timeLabel = `${timeFormatter.format(dateObj)}.${msLabel}`;
         const dateLabel = dateFormatter.format(dateObj);
 
-        context.fillText(timeLabel, x, height - padding.bottom + 8);
-        context.fillText(dateLabel, x, height - padding.bottom + 24);
+        context.fillText(timeLabel, x, height - CHART_PADDING.bottom + 8);
+        context.fillText(dateLabel, x, height - CHART_PADDING.bottom + 24);
     }
 
-    // hover interaction (vertical line, points, and tooltip)
+    // ====hover interaction (vertical line, points, and tooltip)====
     let activeHoverX: number | null = null;
     let activeHoverTimestamp: number | null = null;
-
     const hover = hoverPixelRef.current;
-
     if (hover) {
-        const withinX = hover.x >= padding.left && hover.x <= width - padding.right;
-        const withinY = hover.y >= padding.top && hover.y <= height - padding.bottom;
-
+        const withinX = hover.x >= CHART_PADDING.left && hover.x <= width - CHART_PADDING.right;
+        const withinY = hover.y >= CHART_PADDING.top && hover.y <= height - CHART_PADDING.bottom;
         if (withinX && withinY) {
             activeHoverX = hover.x;
-
-            const calculatedTime = minTime + ((hover.x - padding.left) / chartWidth) * timeRange;
+            const calculatedTime = minTime + ((hover.x - CHART_PADDING.left) / chartWidth) * timeRange;
             activeHoverTimestamp = calculatedTime;
         }
-    } else if (externalHoverTimestamp !== null &&
-        externalHoverTimestamp !== undefined) {
-        if (externalHoverTimestamp >= minTime &&
-            externalHoverTimestamp <= maxTime) {
-            activeHoverTimestamp = externalHoverTimestamp;
-            activeHoverX = timeToX(externalHoverTimestamp);
-
-            // activeHoverY = padding.top + 50;
-        }
+    } else if (externalHoverTimestamp !== null && externalHoverTimestamp !== undefined && externalHoverTimestamp >= minTime && externalHoverTimestamp <= maxTime) {
+        activeHoverTimestamp = externalHoverTimestamp;
+        activeHoverX = timeToX(externalHoverTimestamp);
+        // activeHoverY = padding.top + 50;
     }
-
     // render lines 
     if (activeHoverX !== null && activeHoverTimestamp !== null) {
         const hoverTime = activeHoverTimestamp;
@@ -616,8 +601,8 @@ export default function render(context: CanvasRenderingContext2D, width: number,
         context.strokeStyle = "rgba(255,255,255,0.6)";
         context.lineWidth = 1;
         context.beginPath();
-        context.moveTo(drawX, padding.top);
-        context.lineTo(drawX, height - padding.bottom);
+        context.moveTo(drawX, CHART_PADDING.top);
+        context.lineTo(drawX, height - CHART_PADDING.bottom);
         context.stroke();
         context.setLineDash([]);
 
@@ -642,7 +627,7 @@ export default function render(context: CanvasRenderingContext2D, width: number,
 
         // TODO: optimize search by only looking at visible indices
         seriesData.forEach((points, idx) => {
-            console.log(seriesData[idx]);
+            // console.log(seriesData[idx]);
             const value = points[nearestIndex];
             if (value === null || value === undefined) return;
 
@@ -695,15 +680,15 @@ export default function render(context: CanvasRenderingContext2D, width: number,
             const tooltipHeight = tooltipLines.length * lineHeight + verticalPadding;
 
             let tooltipX = drawX + 10;
-            if (tooltipX + tooltipWidth > width - padding.right) {
+            if (tooltipX + tooltipWidth > width - CHART_PADDING.right) {
                 tooltipX = drawX - 10 - tooltipWidth;
             }
 
             // determine tooltip Y
-            let tooltipY = padding.top + 20;
+            let tooltipY = CHART_PADDING.top + 20;
 
-            const minY = padding.top;
-            const maxY = height - padding.bottom - tooltipHeight;
+            const minY = CHART_PADDING.top;
+            const maxY = height - CHART_PADDING.bottom - tooltipHeight;
             tooltipY = Math.min(Math.max(tooltipY, minY), maxY);
 
             context.fillStyle = "rgba(17, 24, 39, 0.85)";

@@ -3,16 +3,13 @@ import EnumWidget from "@/components/widgets/EnumWidget";
 import NumericalWidget from "@/components/widgets/NumericalWidget";
 import MockWidget from "@/components/widgets/MockWidget";
 import { SignalType } from "@/lib/types/Signal";
-import { MockGraphConfig, WidgetData } from "@/lib/types/Widget";
+import { WidgetData } from "@/lib/types/Widget";
 import { useCallback } from "react";
 
 export function Widget({
-	widgetData,
-	setEnumSignal,
-	appendNumSignal,
-	removeNumSignal,
-	updateWidget,
-	removeWidget
+	widgetData, setEnumSignal,
+	appendNumSignal, removeNumSignal,
+	updateWidget, removeWidget
 }: {
 	widgetData: WidgetData;
 	setEnumSignal: (widgetId: string, newSignal: string) => void;
@@ -33,6 +30,7 @@ export function Widget({
 	switch (widgetData.type) {
 		case SignalType.ENUM:
 			return <EnumWidget
+				onDelete={handleDelete}
 				widgetData={widgetData}
 				setEnumSignal={setEnumSignalCurried}
 				key={widgetData.id}
@@ -49,7 +47,7 @@ export function Widget({
 			return <MockWidget
 				widgetData={widgetData}
 				updateWidget={updateWidget}
-				onDelete={handleDelete}
+				deleteSelfWidget={handleDelete}
 				key={widgetData.id}
 			/>;
 		default:
