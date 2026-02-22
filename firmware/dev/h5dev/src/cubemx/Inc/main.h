@@ -38,10 +38,15 @@ extern "C"
     /* Exported types ------------------------------------------------------------*/
     /* USER CODE BEGIN ET */
     extern FDCAN_HandleTypeDef hfdcan1;
-    extern IWDG_HandleTypeDef  hiwdg;
-    extern RTC_HandleTypeDef   hrtc;
-    extern SPI_HandleTypeDef   hspi1;
-    extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
+    // extern IWDG_HandleTypeDef  hiwdg;
+    extern RTC_HandleTypeDef hrtc;
+    extern SPI_HandleTypeDef hspi1;
+    extern PCD_HandleTypeDef hpcd_USB_DRD_FS;
+    extern ADC_HandleTypeDef hadc1;
+    extern DMA_NodeTypeDef   Node_GPDMA1_Channel0;
+    extern DMA_QListTypeDef  List_GPDMA1_Channel0;
+    extern DMA_HandleTypeDef handle_GPDMA1_Channel0;
+    extern TIM_HandleTypeDef htim3;
     /* USER CODE END ET */
 
     /* Exported constants --------------------------------------------------------*/
@@ -70,6 +75,12 @@ extern "C"
 #define MASTER_MISO_GPIO_Port GPIOA
 #define MASTER_MOSI_Pin GPIO_PIN_7
 #define MASTER_MOSI_GPIO_Port GPIOA
+#define DIAG_EN_Pin GPIO_PIN_14
+#define DIAG_EN_GPIO_Port GPIOB
+#define EFUSE_EN_Pin GPIO_PIN_15
+#define EFUSE_EN_GPIO_Port GPIOB
+#define EFUSE_PGOOD_Pin GPIO_PIN_6
+#define EFUSE_PGOOD_GPIO_Port GPIOC
 #define SLAVE_CLK_Pin GPIO_PIN_9
 #define SLAVE_CLK_GPIO_Port GPIOA
 #define SWDIO_Pin GPIO_PIN_13
