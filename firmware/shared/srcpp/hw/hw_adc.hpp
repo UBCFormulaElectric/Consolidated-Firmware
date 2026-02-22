@@ -57,8 +57,8 @@ template <size_t NUM_ADC_CHANNELS> class AdcChip
     }
 
   private:
-    ADC_HandleTypeDef *const                       hadc;
-    TIM_HandleTypeDef *const                       htim;
+    ADC_HandleTypeDef *const                                hadc;
+    TIM_HandleTypeDef *const                                htim;
     mutable std::array<volatile float, NUM_ADC_CHANNELS>    adc_voltages;
     mutable std::array<volatile uint16_t, NUM_ADC_CHANNELS> raw_adc_values;
 
@@ -77,8 +77,12 @@ template <size_t NUM_ADC_CHANNELS> class AdcChip
         for (uint16_t ch = 0; ch < NUM_ADC_CHANNELS; ch++)
             adc_voltages[ch] = rawAdcValueToVoltage(false, raw_adc_values[ch]);
     }
-    [[nodiscard]] const volatile float                 *getChannel(uint32_t channel) const { return const_cast<const volatile float*>(&adc_voltages[channel]); }
-    [[nodiscard]] constexpr ADC_HandleTypeDef *gethadc() const { return hadc; }`
+    [[nodiscard]] const volatile float *getChannel(uint32_t channel) const
+    {
+        return const_cast<const volatile float *>(&adc_voltages[channel]);
+    }
+    [[nodiscard]] constexpr ADC_HandleTypeDef *gethadc() const { return hadc; }
+    `
 };
 
 class Adc
