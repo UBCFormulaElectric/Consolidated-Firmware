@@ -75,8 +75,8 @@ namespace imus
     {
         return imu_rear.init();
     }
-}
-    namespace brake
+} // namespace imus
+namespace brake
 {
     float getRearPressurePsi()
     {

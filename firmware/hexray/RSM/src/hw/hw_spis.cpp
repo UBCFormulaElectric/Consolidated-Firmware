@@ -7,7 +7,7 @@
 namespace hw::spi
 {
 // TODO determine timeout_ms w/ datasheet of imu?
-static SpiBus    spi3(hspi3);
+static SpiBus   spi3(hspi3);
 const SpiDevice imu_sd(spi3, gpio::imu_cs, 10);
 
 // should I write if (handle != &hspi) {assert(false); return nullptr} else {return &spi3} instead?

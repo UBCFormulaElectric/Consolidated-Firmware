@@ -15,4 +15,4 @@ const SpiDevice imu_spi(imu_spi_bus, imu_nss, SPI_TIMEOUT);
     assert(handle == &imu_spi_bus.handle);
     return imu_spi_bus;
 }
-}
+} // namespace hw::spi

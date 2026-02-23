@@ -10,7 +10,7 @@ class RSMImuTest : public RSMBaseTest
 };
 
 TEST_F(RSMImuTest, Accel_Gyro_Test)
-{    
+{
     io::imus::imu_rear.set_AccelX(10.0f);
     io::imus::imu_rear.set_AccelY(10.0f);
     io::imus::imu_rear.set_AccelZ(10.0f);

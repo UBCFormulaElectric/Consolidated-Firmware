@@ -97,15 +97,15 @@ namespace suspension
 
 namespace io // Define the mocked functions here
 {
-    namespace imus
-    {
-        Imu imu_front;
+namespace imus
+{
+    Imu imu_front;
 
-        std::expected<void, ErrorCode> init()
-        {
-            return imu_front.init();
-        }
+    std::expected<void, ErrorCode> init()
+    {
+        return imu_front.init();
     }
+} // namespace imus
 namespace apps
 {
     void init()
