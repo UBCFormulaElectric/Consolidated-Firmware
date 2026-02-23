@@ -11,6 +11,7 @@ IF ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE SHARED_TEST_SRCS_CPP CONFIGURE_DEPENDS
             "${SHARED_TEST_UTILS_INCLUDE_DIRS_CPP}/*.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
+            "${SHARED_FAKES_DIR_CPP}/io_imu.cpp"
     )
 
     set(SRCS ${SHARED_TEST_SRCS} ${SHARED_APP_SRCS})

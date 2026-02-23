@@ -77,40 +77,40 @@
   },
   "IMU": {
     "msg_id": 712,
-    "cycle_time": 1000,
+    "cycle_time": 10,
     "description": "IMU data",
     "signals": {
-      "LinearAccelerationInX": {
+      "AccelX": {
         "resolution": 0.1,
         "min": -20,
         "max": 20,
         "unit": "m/s^2"
       },
-      "LinearAccelerationInY": {
+      "AccelY": {
         "resolution": 0.1,
         "min": -20,
         "max": 20,
         "unit": "m/s^2"
       },
-      "LinearAccelerationInZ": {
+      "AccelZ": {
         "resolution": 0.1,
         "min": -20,
         "max": 20,
         "unit": "m/s^2"
       },
-      "RollAngularAcceleration": {
+      "GyroX": {
         "resolution": 0.1,
         "min": -20,
         "max": 20,
         "unit": "deg/s^2"
       },
-      "PitchAngularAcceleration": {
+      "GyroY": {
         "resolution": 0.1,
         "min": -20,
         "max": 20,
         "unit": "deg/s^2"
       },
-      "YawAngularAcceleration": {
+      "GyroZ": {
         "resolution": 0.1,
         "min": -20,
         "max": 20,

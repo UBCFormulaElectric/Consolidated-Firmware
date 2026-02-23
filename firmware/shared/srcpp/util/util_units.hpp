@@ -6,7 +6,7 @@
 // MATHEMATICAL CONSTANTS
 // =============================================================================
 
-[[nodiscard]] inline constexpr float M_PI_F = static_cast<float>(M_PI);
+inline constexpr float M_PI_F = static_cast<float>(M_PI);
 
 // =============================================================================
 // TIME CONVERSIONS
@@ -18,7 +18,7 @@
     return static_cast<uint32_t>(time_s * 1000.0f);
 }
 
-[[nodiscard]] inline constexpr float MIN_TO_HOUR = 60.0f;
+inline constexpr float MIN_TO_HOUR = 60.0f;
 
 // Convert seconds to hours
 [[nodiscard]] inline constexpr float SECONDS_TO_HOUR(const float s)
