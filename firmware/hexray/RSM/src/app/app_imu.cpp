@@ -6,6 +6,7 @@
 #include "app_canAlerts.hpp"
 
 using namespace io::imus;
+
 namespace app::imu
 {
 static RSMImuResults imu_results = { .accel_x_res = std::unexpected(ErrorCode::ERROR),

@@ -77,7 +77,7 @@
   },
   "IMU": {
     "msg_id": 712,
-    "cycle_time": 1000,
+    "cycle_time": 10,
     "description": "IMU data",
     "signals": {
       "AccelX": {

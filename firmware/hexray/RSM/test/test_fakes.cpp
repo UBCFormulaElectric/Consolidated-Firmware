@@ -67,7 +67,16 @@ namespace tireTemp
 
 namespace io
 {
-namespace brake
+namespace imus
+{
+    Imu imu_rear;
+
+    std::expected<void, ErrorCode> init()
+    {
+        return imu_rear.init();
+    }
+}
+    namespace brake
 {
     float getRearPressurePsi()
     {
