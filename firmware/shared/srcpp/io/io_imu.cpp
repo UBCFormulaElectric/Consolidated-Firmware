@@ -474,7 +474,7 @@ std::expected<void, ErrorCode> Imu::getTemp(float &temp) const
     return exit;
 }
 
-std::expected<io::imu::AccelData, ErrorCode> Imu::getAccelAll() const
+std::expected<io::Imu::AccelData, ErrorCode> io::Imu::getAccelAll() const
 {
     if (is_imu_ready == false)
         return std::unexpected(ErrorCode::ERROR);
