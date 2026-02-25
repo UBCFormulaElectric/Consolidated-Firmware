@@ -3,6 +3,7 @@
 #include "util_errorCodes.hpp"
 #include "app_canTx.hpp"
 #include "io_imus.hpp"
+#include "fsmMocks.hpp"
 
 extern "C"
 {
@@ -12,21 +13,21 @@ class FSMImuTest : public FSMBaseTest
 {
 };
 
-TEST_F(FSMImuTest, Acceleration_Velocity_Test)
+TEST_F(FSMImuTest, Accel_Gyro_Test)
 {
-    imu_config.set_AccelX(10);
-    imu_config.set_AccelY(10);
-    imu_config.set_AccelZ(10);
-    imu_config.set_GyroRoll(10);
-    imu_config.set_GyroPitch(10);
-    imu_config.set_GyroYaw(10);
+    io::imus::imu_front.set_AccelX(10.0f);
+    io::imus::imu_front.set_AccelY(10.0f);
+    io::imus::imu_front.set_AccelZ(10.0f);
+    io::imus::imu_front.set_GyroRoll(10.0f);
+    io::imus::imu_front.set_GyroPitch(10.0f);
+    io::imus::imu_front.set_GyroYaw(10.0f);
 
     LetTimePass(100);
 
-    EXPECT_EQ(10, app::can_tx::FSM_LinearAccelerationInX_get());
-    EXPECT_EQ(10, app::can_tx::FSM_LinearAccelerationInY_get());
-    EXPECT_EQ(10, app::can_tx::FSM_LinearAccelerationInZ_get());
-    EXPECT_EQ(10, app::can_tx::FSM_RollAngularAcceleration_get());
-    EXPECT_EQ(10, app::can_tx::FSM_PitchAngularAcceleration_get());
-    EXPECT_EQ(10, app::can_tx::FSM_YawAngularAcceleration_get());
+    ASSERT_FLOAT_EQ(10.0f, app::can_tx::FSM_AccelX_get());
+    ASSERT_FLOAT_EQ(10.0f, app::can_tx::FSM_AccelY_get());
+    ASSERT_FLOAT_EQ(10.0f, app::can_tx::FSM_AccelZ_get());
+    ASSERT_FLOAT_EQ(10.0f, app::can_tx::FSM_GyroX_get());
+    ASSERT_FLOAT_EQ(10.0f, app::can_tx::FSM_GyroY_get());
+    ASSERT_FLOAT_EQ(10.0f, app::can_tx::FSM_GyroZ_get());
 }

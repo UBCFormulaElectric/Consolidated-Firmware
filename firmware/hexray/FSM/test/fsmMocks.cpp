@@ -1,5 +1,6 @@
 #include "fsmMocks.hpp"
 #include "app_canTx.hpp"
+#include "io_imus.hpp"
 
 namespace fakes::io // Set all the fake values using functions here
 {
@@ -96,6 +97,15 @@ namespace suspension
 
 namespace io // Define the mocked functions here
 {
+namespace imus
+{
+    Imu imu_front;
+
+    std::expected<void, ErrorCode> init()
+    {
+        return imu_front.init();
+    }
+} // namespace imus
 namespace apps
 {
     void init()

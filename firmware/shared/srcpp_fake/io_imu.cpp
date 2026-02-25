@@ -1,7 +1,7 @@
 #include "util_errorCodes.hpp"
 #include "io_imu.hpp"
 
-using namespace io::imu;
+using namespace io;
 
 void Imu::reset_init()
 {

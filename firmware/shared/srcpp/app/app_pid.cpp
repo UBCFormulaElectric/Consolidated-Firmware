@@ -4,28 +4,6 @@
 
 namespace app
 {
-PID::PID(const Config &conf)
-  : Kp(conf.Kp),
-    Ki(conf.Ki),
-    Kd(conf.Kd),
-    Kb(conf.Kb),
-    Kff(conf.Kff),
-    smoothing_coeff(conf.smoothing_coeff),
-    out_max(conf.out_max),
-    out_min(conf.out_min),
-    max_integral(conf.max_integral),
-    min_integral(conf.min_integral),
-    clamp_output(conf.clamp_output),
-    clamp_integral(conf.clamp_integral),
-    back_calculation(conf.back_calculation),
-    feed_forward(conf.feed_forward),
-    sample_time(conf.sample_time)
-{
-    assert(out_max >= out_min);
-    assert(max_integral >= min_integral);
-    assert(sample_time > 0.0f);
-}
-
 /**
  * PID controller effort implementation with derivative-on-error and discrete time handling. Includes:
  * - Integral anti-wind up in the form of clamping and optional back calculation (requires valid min and max output
@@ -38,7 +16,7 @@ PID::PID(const Config &conf)
  * @return controller output/"effort"
  */
 
-float PID::compute(float setpoint, float input, float disturbance = 0.0f)
+[[nodiscard]] float PID::compute(const float setpoint, const float input, const float disturbance)
 {
     error = setpoint - input;
 
@@ -46,7 +24,6 @@ float PID::compute(float setpoint, float input, float disturbance = 0.0f)
 
     // First order exponential smoothing (https://en.wikipedia.org/wiki/Exponential_smoothing)
     float raw_derivative = (error - prev_error) / sample_time;
-    derivative           = smoothing_coeff * raw_derivative + (1.0f - smoothing_coeff) * prev_derivative;
     derivative           = smoothing_coeff * raw_derivative + (1.0f - smoothing_coeff) * prev_derivative;
 
     // Feed Forward
@@ -91,12 +68,12 @@ void PID::reset()
     prev_error       = 0.0f;
 }
 
-float PID::getIntegral()
+[[nodiscard]] float PID::getIntegral()
 {
     return integral;
 }
 
-float PID::getDerivative()
+[[nodiscard]] float PID::getDerivative()
 {
     return derivative;
 }

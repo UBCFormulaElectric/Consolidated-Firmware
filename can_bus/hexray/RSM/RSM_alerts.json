@@ -5,7 +5,16 @@
   "faults_counts_id": 704,
   "info_id": 705,
   "info_counts_id": 706,
-  "warnings": {},
+  "warnings": {
+    "ImuInitFailed":{
+      "id": 716,
+      "description": "IMU initialization failed"
+    },
+    "ImuDataBad":{
+      "id": 717,
+      "description": "IMU data is bad"
+    }
+  },
   "faults": {},
   "info": {
     "RearBrakePressureOutOfRange": {
