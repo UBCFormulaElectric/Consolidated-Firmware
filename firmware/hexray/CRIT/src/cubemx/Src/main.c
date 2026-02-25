@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "tasks.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -115,7 +115,7 @@ int main(void)
     MX_TIM4_Init();
     MX_USB_PCD_Init();
     /* USER CODE BEGIN 2 */
-
+    tasks_init();
     /* USER CODE END 2 */
 
     /* Infinite loop */

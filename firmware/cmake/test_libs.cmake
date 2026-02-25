@@ -29,6 +29,24 @@ function(jsoncan_library BOARD CAR JSONCAN_DIR)
     target_link_libraries(${JSONCAN_LIB} INTERFACE "${JSONCAN_FAKES_LIB}")
 endfunction()
 
+message("  🔃 Registered jsoncan_library_cpp() function")
+function(jsoncan_library_cpp BOARD CAR JSONCAN_DIR)
+    set(JSONCAN_LIB "${CAR}_${BOARD}_jsoncan")
+    set(JSONCAN_FAKES_LIB "${CAR}_${BOARD}_jsoncan_fakes")
+
+    jsoncan_sources_cpp(
+            ${BOARD}
+            ${JSONCAN_DIR}
+            TRUE
+            "${CAN_DIR}/dbcs/${CAR}.dbc"
+            "${CAN_DIR}/${CAR}"
+    )
+    add_library(${JSONCAN_LIB} INTERFACE)
+    target_sources(${JSONCAN_LIB} INTERFACE ${CAN_SRCS})
+    no_checks("${CAN_SRCS}")
+    target_include_directories(${JSONCAN_LIB} INTERFACE "${CAN_INCLUDE_DIRS}")
+endfunction()
+
 message("  🔃 Registered commit_info_library() function")
 function(commit_info_library
         BIND_TARGET

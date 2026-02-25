@@ -3,8 +3,8 @@
 
 namespace hw::cans
 {
-fdcan fdcan1(hfdcan1, 0, [](const io::CanMsg &msg) { UNUSED(msg); });
-fdcan fdcan3(hfdcan3, 0, [](const io::CanMsg &msg) { UNUSED(msg); });
+fdcan fdcan1(hfdcan1, [](const CanMsg &msg) { UNUSED(msg); });
+fdcan fdcan3(hfdcan3, [](const CanMsg &msg) { UNUSED(msg); });
 } // namespace hw::cans
 
 const hw::fdcan &hw::fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)

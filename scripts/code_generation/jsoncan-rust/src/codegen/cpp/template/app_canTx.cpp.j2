@@ -1,0 +1,71 @@
+/**
+ * @note This file is auto-generated. Do not modify!
+ */
+// clang-format off
+
+/* ------------------------------- Includes ------------------------------- */
+
+#include <cmath>
+#include <cstring>
+#include "app_canTx.hpp"
+
+namespace app::can_tx {
+using namespace can_utils;
+/* ------------------------------- Structs -------------------------------- */
+
+/**
+ * Struct for holding all tx_messages transmitted by BMS (i.e. the TX table).
+ */
+static struct
+{
+    {%- for msg in tx_messages %}
+    {{ msg.c_type() }} {{ msg.name }}_signals{};
+    {%- endfor %}
+} tx_table{};
+
+/* ------------------------- Function Definitions ------------------------- */
+
+/* -------- UPDATE -------- */
+{% for msg in tx_messages %}
+{%- for signal in msg.signals %}
+void {{ signal.name }}_set({{ signal.datatype() }} value)
+{
+    {%- if signal.representation() == "float" %}
+    if (value == NAN)
+    {
+        return;
+    }
+    {%- endif %}
+    {%- if let CanSignalType::Numerical = signal.signal_type %}
+    // Clamp value to min/max
+    if (value >= {{ signal.max_val_macro() }})
+    {
+        value = {{ signal.max_val_macro() }};
+    }
+    if (value <= {{ signal.min_val_macro() }})
+    {
+        value = {{ signal.min_val_macro() }};
+    }
+    {%- endif %}
+    tx_table.{{ msg.name }}_signals.{{ signal.name }}_value = value; // Set value
+}
+{%- endfor %}
+{%- endfor %}
+
+/* -------- GET -------- */
+{% for msg in tx_messages %}
+{%- for signal in msg.signals %}
+{{ signal.datatype() }} {{ signal.name }}_get()
+{
+    return tx_table.{{ msg.name }}_signals.{{ signal.name }}_value;
+}
+{%- endfor %}
+{%- endfor %}
+
+{%- for msg in tx_messages %}
+{{ msg.c_type() }}& {{ msg.name }}_getData()
+{
+    return tx_table.{{ msg.name }}_signals;
+}
+{%- endfor -%}
+}

@@ -6,13 +6,13 @@ use crate::{
 };
 
 #[derive(Template)]
-#[template(path = "app_canDataCapture.c.j2")]
+#[template(path = "app_canDataCapture.cpp.j2")]
 struct AppCanDataCaptureModuleSource<'a> {
     messages: &'a Vec<CanMessage>,
 }
 
 #[derive(Template)]
-#[template(path = "app_canDataCapture.h.j2")]
+#[template(path = "app_canDataCapture.hpp.j2")]
 struct AppCanDataCaptureModuleHeader {}
 
 pub struct AppCanDataCaptureModule {
@@ -38,5 +38,8 @@ impl CPPGenerator for AppCanDataCaptureModule {
             messages: &self.messages,
         }
         .render()
+    }
+    fn file_stem(&self) -> String {
+        "app_canDataCapture".to_string()
     }
 }

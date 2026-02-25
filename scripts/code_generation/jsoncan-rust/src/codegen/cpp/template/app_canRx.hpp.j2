@@ -1,0 +1,47 @@
+/**
+ * @note This file is auto-generated. Do not modify!
+ * @name app_canRx.hpp
+ */
+// clang-format off
+
+#pragma once
+
+/* ------------------------------- Includes ------------------------------- */
+
+#include "app_canUtils.hpp"
+
+namespace app::can_rx {
+/* ------------------------- Function Prototypes -------------------------- */
+/* --------- UPDATE --------- */
+{%- for rx_messages in boards_messages.values() %}
+{% for msg in rx_messages %}
+{%- for signal in msg.signals %}
+/**
+ * Update value stored in RX table of signal {{ signal.name }} in msg {{ msg.name }}.
+ */
+void {{ signal.name }}_update({{ signal.datatype() }} value);
+{%- endfor %}
+{%- endfor %}
+{%- endfor %}
+
+/* --------- GET --------- */
+{% for rx_messages in boards_messages.values() %}
+{% for msg in rx_messages %}
+{%- for signal in msg.signals %}
+/**
+ * Get value stored in RX table of signal {{ signal.name }} in msg {{ msg.name }}.
+ */
+{{ signal.datatype() }} {{ signal.name }}_get();
+{%- endfor %}
+{%- endfor %}
+{%- endfor %}
+
+/* --------- GET DATA --------- */
+{%- for rx_messages in boards_messages.values() %}
+{%- for msg in rx_messages %}
+can_utils::{{ msg.c_type() }}& {{ msg.name }}_getData();
+{%- endfor %}
+{%- endfor %}
+
+void clear_board_rx_table(app::can_utils::CanNode board);
+}
