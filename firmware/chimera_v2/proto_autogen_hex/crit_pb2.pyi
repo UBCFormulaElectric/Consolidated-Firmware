@@ -84,9 +84,11 @@ class _PwmNetNameEnumTypeWrapper(
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     PWM_NET_NAME_UNSPECIFIED: _PwmNetName.ValueType
     PWM_LED: _PwmNetName.ValueType
+    PWM_SEVEN_SEG: _PwmNetName.ValueType
 
 class PwmNetName(_PwmNetName, metaclass=_PwmNetNameEnumTypeWrapper): ...
 
 PWM_NET_NAME_UNSPECIFIED: PwmNetName.ValueType
 PWM_LED: PwmNetName.ValueType
+PWM_SEVEN_SEG: PwmNetName.ValueType
 Global___PwmNetName: typing_extensions.TypeAlias = PwmNetName

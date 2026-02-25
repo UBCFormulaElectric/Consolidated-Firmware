@@ -188,18 +188,18 @@
             }
         }
     },
-    "ConnectorBoardEfuse": {
-        "msg_id": 235,
+    "GlobalShdnNodeStatus": {
+        "msg_id": 511,
         "cycle_time": 100,
-        "description": "Efuse info for RL Pump/RR Pump/F pump/L Rad/R Rad efuses.",
+        "description": "Global Shutdown Node Status",
         "signals": {
-            "RsmTurnOnPump": {
-                "bits": 1
+            "FirstFaultNode": {
+                "enum": "ShutdownNode"
             }
         }
     },
     "PumpStatus": {
-        "msg_id": 236,
+        "msg_id": 529,
         "cycle_time": 10,
         "description": "All pump descriptions",
         "signals": {
@@ -214,77 +214,85 @@
             }
         }
     },
-      "ShdnNodeStatus": {
-    "msg_id": 238,
-    "cycle_time": 100,
-    "description": "VC Shutdown Node Status",
-    "signals": {
-      "RearRightMotorInterlock": {
-        "bits": 1
-      },
-      "InertiaSwitch": {
-        "bits": 1
-      },
-      "TSMSOKStatus": {
-        "bits": 1
-      },
-      "MSDOrEMeterOKStatus": {
-        "bits": 1
-      }
-    }
-  },
-
-     "EllipseEulerAngles": {
-    "msg_id": 243,
-    "cycle_time": 1000,
-    "description": "Euler angles from the SBG Ellipse N sensor.",
-    "signals": {
-      "EulerAnglesRoll": {
-        "min": -180,
-        "max": 180,
-        "resolution": 0.1,
-        "signed": true,
-        "unit": "deg"
-      },
-      "EulerAnglesPitch": {
-        "min": -180,
-        "max": 180,
-        "resolution": 0.1,
-        "signed": true,
-        "unit": "deg"
-      },
-      "EulerAnglesYaw": {
-        "min": -180,
-        "max": 180,
-        "resolution": 0.1,
-        "signed": true,
-        "unit": "deg"
-      }
-    }
-  },
-   "EllipseStatus": {
-    "msg_id": 247,
-    "cycle_time": 100,
-    "description": "Status of the SBG Ellipse N sensor.",
-    "signals": {
-      "EllipseGeneralStatusBitmask": {
-        "bits": 16
-      },
-      "EllipseComStatusBitmask": {
-        "bits": 32
-      },
-      "EllipseErrorCode": {
-        "enum": "EllipseErrorCode"
-      },
-      "EkfSolutionMode": {
-        "enum": "VcEkfStatus"
-      },
-      "EllipseQueueOverflowCount": {
-        "bits": 8
-      }
-    }
-  },
-
+    "ConnectorBoardEfuse": {
+        "msg_id": 533,
+        "cycle_time": 100,
+        "description": "Efuse info for RL Pump/RR Pump/F pump/L Rad/R Rad efuses.",
+        "signals": {
+            "RsmTurnOnPump": {
+                "bits": 1
+            }
+        }
+    },
+    "ShdnNodeStatus": {
+        "msg_id": 238,
+        "cycle_time": 100,
+        "description": "VC Shutdown Node Status",
+        "signals": {
+            "RearRightMotorInterlock": {
+                "bits": 1
+            },
+            "InertiaSwitch": {
+                "bits": 1
+            },
+            "TSMSOKStatus": {
+                "bits": 1
+            },
+            "MSDOrEMeterOKStatus": {
+                "bits": 1
+            }
+        }
+    },
+    "EllipseEulerAngles": {
+        "msg_id": 243,
+        "cycle_time": 1000,
+        "description": "Euler angles from the SBG Ellipse N sensor.",
+        "signals": {
+            "EulerAnglesRoll": {
+                "min": -180,
+                "max": 180,
+                "resolution": 0.1,
+                "signed": true,
+                "unit": "deg"
+            },
+            "EulerAnglesPitch": {
+                "min": -180,
+                "max": 180,
+                "resolution": 0.1,
+                "signed": true,
+                "unit": "deg"
+            },
+            "EulerAnglesYaw": {
+                "min": -180,
+                "max": 180,
+                "resolution": 0.1,
+                "signed": true,
+                "unit": "deg"
+            }
+        }
+    },
+    "EllipseStatus": {
+        "msg_id": 247,
+        "cycle_time": 100,
+        "description": "Status of the SBG Ellipse N sensor.",
+        "signals": {
+            "EllipseGeneralStatusBitmask": {
+                "bits": 16
+            },
+            "EllipseComStatusBitmask": {
+                "bits": 32
+            },
+            "EllipseErrorCode": {
+                "enum": "EllipseErrorCode"
+            },
+            "EkfSolutionMode": {
+                "enum": "VcEkfStatus"
+            },
+            "EllipseQueueOverflowCount": {
+                "bits": 8
+            }
+        }
+    },
     "PowerMonitoring": {
         "msg_id": 514,
         "cycle_time": 100,
@@ -314,7 +322,6 @@
                 "max": 32.0,
                 "unit": "V"
             },
-
             "ChannelOneCurrent": {
                 "resolution": 0.1,
                 "min": 0.0,
@@ -333,13 +340,12 @@
                 "max": 25.0,
                 "unit": "A"
             },
-                        "ChannelFourCurrent": {
+            "ChannelFourCurrent": {
                 "resolution": 0.1,
                 "min": 0.0,
                 "max": 25.0,
                 "unit": "A"
             },
-
             "ChannelOnePower": {
                 "resolution": 0.1,
                 "min": 0.0,
@@ -358,13 +364,12 @@
                 "max": 800.0,
                 "unit": "W"
             },
-                        "ChannelFourPower": {
+            "ChannelFourPower": {
                 "resolution": 0.1,
                 "min": 0.0,
                 "max": 800.0,
                 "unit": "W"
             }
-
         }
     }
 }

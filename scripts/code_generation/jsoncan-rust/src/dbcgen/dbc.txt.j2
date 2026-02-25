@@ -18,7 +18,7 @@ BA_ "BusType" "CAN FD";
 {% for msg in messages %}
 {%- for signal in msg.signals %}
 {%- if signal.enum_name.is_some() %}
-VAL_ {{msg.dbc_id()}} {{signal.name}} {{enumfuckshit(signal.enum_name.as_deref().unwrap_or("")) }};
+VAL_ {{msg.dbc_id()}} {{signal.name}} {{ enumfuckshit(signal.enum_name.as_deref().unwrap_or("")) | safe }};
 {%- endif %}
 {%- endfor %}
 {%- endfor %}

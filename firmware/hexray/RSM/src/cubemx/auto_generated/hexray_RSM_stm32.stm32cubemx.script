@@ -1,0 +1,17 @@
+###############################################################################
+# This file is auto-generated. DO NOT MODIFY!
+#
+# Note: The paths in this files are relative to the where the STM32CubeMX is
+#       invoked, rather than relative to where this .script file is.
+###############################################################################
+# Load the project-specific config file (.ioc)
+config load /home/adityad/Programs/fsae/Consolidated-Firmware/firmware/hexray/RSM/src/cubemx/RSM.ioc
+
+# Generate the peripheral initializations in main.c
+project couplefilesbyip 0
+
+# Generate code in the project directory
+generate code /home/adityad/Programs/fsae/Consolidated-Firmware/firmware/hexray/RSM/src/cubemx
+
+# Exit the program
+exit

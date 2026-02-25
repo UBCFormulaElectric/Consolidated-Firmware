@@ -594,3 +594,14 @@ class BMS(_Board):
             net_name_tag="bms_net_name",
             board_module=proto_autogen_hex.bms_pb2,
         )
+
+
+class CRIT(_Board):
+    def __init__(self):
+        """Create an interface to an CRIT board."""
+
+        super().__init__(
+            usb_device=_UsbDevice(product="crit"),
+            net_name_tag="crit_net_name",
+            board_module=proto_autogen_hex.crit_pb2,
+        )

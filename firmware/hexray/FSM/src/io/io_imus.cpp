@@ -3,5 +3,10 @@
 
 namespace io::imus
 {
-const io::Imu imu_config(imu_spi);
+Imu imu_front(hw::spi::imu_spi);
+
+std::expected<void, ErrorCode> init()
+{
+    return imu_front.init();
 }
+} // namespace io::imus

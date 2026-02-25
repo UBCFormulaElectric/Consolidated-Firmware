@@ -62,8 +62,8 @@ class BMSChimeraConfig final : public chimera_v2::config
                 return std::cref(ts_isense_ocsc_ok);
             case bms_GpioNetName_GPIO_SPI_CS_HS:
                 return std::cref(spi_cs_hs);
-            case bms_GpioNetName_GPIO_BMS_OK:
-                return std::cref(bms_ok_current_status);
+            case bms_GpioNetName_GPIO_nBMS_OK:
+                return std::cref(n_bms_ok_current_status);
             case bms_GpioNetName_GPIO_nEVSE_I_LIM_GPIO:
                 return std::cref(n_evse_i_lim);
             case bms_GpioNetName_GPIO_IR_P_EN:

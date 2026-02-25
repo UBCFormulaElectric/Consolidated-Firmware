@@ -1,0 +1,23 @@
+# Ignore Rust build artifacts
+scripts/code_generation/jsoncan-rust/target
+
+# Ignore build directories
+build_fw_dev
+build_fw_test
+
+# Ignore git directory
+.git
+.gitignore
+
+# Ignore IDE files
+.idea
+.vscode
+*.swp
+*.swo
+
+# Ignore cache and temporary files
+__pycache__
+*.pyc
+.pytest_cache
+node_modules
+

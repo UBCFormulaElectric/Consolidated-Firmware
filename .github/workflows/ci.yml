@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     #    container:
-    #      image: ubcformulaelectric/environment:cargoedfr2
+    #      image: ubcformulaelectric/environment:cigoat
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -72,7 +72,7 @@ jobs:
 
     # both packages shouldn't need to use python dependences that we need...
     #    container:
-    #      image: ubcformulaelectric/environment:cargoedfr2
+    #      image: ubcformulaelectric/environment:cigoat
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -114,14 +114,6 @@ jobs:
           - board: f4dev.elf
           - board: h7dev.hex
           - board: h5dev.hex
-          - board: quintuna_BMS.hex
-          - board: quintuna_CRIT.hex
-          - board: quintuna_DAM.hex
-          - board: quintuna_FSM.hex
-          - board: quintuna_RSM.hex
-          - board: quintuna_VC.hex
-          - board: quintuna_VCR_app.elf
-          - board: quintuna_PCM_app.elf
           - board: hexray_BMS_app.hex
           - board: hexray_CRIT_app.hex
           - board: hexray_DAM_app.hex
@@ -130,13 +122,11 @@ jobs:
           - board: hexray_VC_app.hex
 
     container:
-      image: ubcformulaelectric/environment:cargoedfr2
+      image: ubcformulaelectric/environment:cigoat
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.docker_token }}
     steps:
-      - name: Check Rustup
-        run: rustup show
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -163,8 +153,8 @@ jobs:
           #  car: quintuna
           #- board: RSM
           #  car: quintuna
-          - board: VC
-            car: quintuna
+          #- board: VC
+          #  car: quintuna
           - board: BMS
             car: hexray
           - board: CRIT
@@ -179,7 +169,7 @@ jobs:
             car: hexray
 
     container:
-      image: ubcformulaelectric/environment:cargoedfr2
+      image: ubcformulaelectric/environment:cigoat
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -217,7 +207,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     container:
-      image: ubcformulaelectric/environment:cargoedfr2
+      image: ubcformulaelectric/environment:cigoat
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -251,7 +241,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     container:
-      image: ubcformulaelectric/environment:cargoedfr2
+      image: ubcformulaelectric/environment:cigoat
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -284,7 +274,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     container:
-      image: ubcformulaelectric/environment:cargoedfr2
+      image: ubcformulaelectric/environment:cigoat
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -312,7 +302,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     container:
-      image: ubcformulaelectric/environment:cargoedfr2
+      image: ubcformulaelectric/environment:cigoat
     env:
       BUILD_DIR: build_fw_test
     steps:
