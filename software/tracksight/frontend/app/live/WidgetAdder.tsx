@@ -3,35 +3,50 @@
 import { useCallback, useState } from "react";
 import { PlusButton } from "@/components/icons/PlusButton";
 import { SignalType } from "@/lib/types/Signal";
-import { WidgetData, MockGraphConfig, MockSignalType } from "@/lib/types/Widget";
+import { WidgetData } from "@/lib/types/Widget";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { useWidgetManager } from "@/components/widgets/WidgetManagerContext";
 
 function MockModal({ closeModal, onAddWidget }: {
   closeModal: () => void;
   onAddWidget: (widget: WidgetData) => void;
 }) {
   const [mockName, setMockName] = useState("Mock Signal");
-  const [mockType, setMockType] = useState<MockSignalType>(MockSignalType.Numerical);
+  const [mockType, setMockType] = useState<SignalType>(SignalType.NUMERICAL);
   const [mockDelay, setMockDelay] = useState(100);
   const [mockMin, setMockMin] = useState<number>(-10);
   const [mockMax, setMockMax] = useState<number>(10);
 
   const handleMockSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const config: MockGraphConfig = {
-      signalName: mockName,
-      type: mockType,
-      delay: mockDelay,
-      initialPoints: 0,
-      min: mockType === MockSignalType.Numerical ? mockMin : undefined,
-      max: mockType === MockSignalType.Numerical ? mockMax : undefined,
-    };
-    onAddWidget({
-      type: SignalType.MOCK,
-      configs: [config],
-      id: "",
-    });
+    if (mockType === SignalType.ENUM) {
+      onAddWidget({
+        type: SignalType.ENUM,
+        configs: [{
+          signal_name: mockName,
+          delay: mockDelay,
+          initialPoints: 0,
+          options: {
+            colorPalette: [],
+          }
+        }],
+        id: "",
+      });
+    } else if (mockType === SignalType.NUMERICAL) {
+      onAddWidget({
+        type: SignalType.NUMERICAL,
+        configs: [{
+          signal_name: mockName,
+          delay: mockDelay,
+          initialPoints: 0,
+          min: mockMin,
+          max: mockMax,
+        }],
+        id: "",
+      });
+    } else { }
+
     closeModal();
   };
   return (
@@ -59,14 +74,14 @@ function MockModal({ closeModal, onAddWidget }: {
           </label>
           <select
             value={mockType}
-            onChange={(e) => setMockType(e.target.value as MockSignalType)}
+            onChange={(e) => setMockType(e.target.value as SignalType)}
             className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
           >
-            <option value={MockSignalType.Numerical}>Numerical</option>
-            <option value={MockSignalType.Enumeration}>Enumeration</option>
+            <option value={SignalType.NUMERICAL}>Numerical</option>
+            <option value={SignalType.ENUM}>Enumeration</option>
           </select>
         </div>
-        {mockType === MockSignalType.Numerical && (
+        {mockType === SignalType.NUMERICAL && (
           <div className="flex gap-4">
             <div className="flex-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -118,30 +133,18 @@ function MockModal({ closeModal, onAddWidget }: {
   )
 }
 
-export function WidgetAdder({ onAddWidget }: {
-  onAddWidget: (widget: WidgetData) => void;
-}) {
+export function WidgetAdder() {
   const [isOpen, setIsOpen] = useState(false);
   const [mockModalOpen, setMockModalOpen] = useState(false);
+  const { appendWidget: onAddWidget } = useWidgetManager();
 
   const handleAddEnum = () => {
-    onAddWidget({
-      type: SignalType.ENUM,
-      signal: null,
-      options: {
-        colorPalette: ["#FF637E", "#FFB86A", "#05DF72", "#51A2FF"],
-      },
-      id: "",
-    });
+    onAddWidget({ type: SignalType.ENUM, configs: [], id: "" });
     setIsOpen(false);
   };
 
   const handleAddNumerical = () => {
-    onAddWidget({
-      type: SignalType.NUMERICAL,
-      signals: [],
-      id: "",
-    });
+    onAddWidget({ type: SignalType.NUMERICAL, id: "", configs: [] });
     setIsOpen(false);
   };
 

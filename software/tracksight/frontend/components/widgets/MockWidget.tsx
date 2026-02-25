@@ -1,92 +1,58 @@
 "use client";
 
-import { useEffect, useState, useMemo, useRef, memo, FormEvent, useCallback, RefObject } from "react";
-import CanvasChart, { AlignedData } from "@/components/widgets/CanvasChart";
-import { useDisplayControl } from "@/components/PausePlayControl";
-import { PlusButton } from "@/components/icons/PlusButton";
-import { MockGraphConfig, WidgetDataMock, WidgetData, MockSignalType } from "@/lib/types/Widget";
-import { signalColors } from "@/components/widgets/signalColors";
+import { useEffect, useState, useRef, useCallback, RefObject, SubmitEvent } from "react";
+import { NumericalSignalConfig, WidgetConfigs, WidgetData } from "@/lib/types/Widget";
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { SignalType } from "@/lib/types/Signal";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ChartData } from "./chart_types";
 
-function generateRandomValue(type: MockSignalType, time: number, index: number = 0, min?: number, max?: number) {
-    if (type === MockSignalType.Enumeration) {
-        const states = ["IDLE", "ACTIVE", "ERROR", "WAITING", "CHARGING"];
-        return states[Math.floor(Math.random() * states.length)];
-    } else {
-        if (min !== undefined && max !== undefined) {
-            const range = max - min;
-            // Generate a wave within the range
-            const normalized = (Math.sin(time / 1000 + index) + 1) / 2; // 0 to 1
+function generateRandomNumericalValue(time: number, index: number = 0, min: number, max: number) {
+    if (min !== undefined && max !== undefined) {
+        const range = max - min;
+        // Generate a wave within the range
+        const normalized = (Math.sin(time / 1000 + index) + 1) / 2; // 0 to 1
 
-            // Add some noise
-            const noise = (Math.random() - 0.5) * 0.1; // -0.05 to 0.05
-            let n = normalized + noise;
-            n = Math.max(0, Math.min(1, n));
-            return min + n * range;
-        }
-
-        return (
-            //Math.sin(time / 1000 + index) * 50 + Math.random() * 10 + 50 + index * 20 * (1 + time / 100000)
-            Math.sin(time / 1000 + index) * 50 + Math.random() * 10 + 50 + index * 20
-            //val
-            //Math.random() * (time % 10000) * (index * 1000)
-            // 50 + Math.random() * 10 + 50 + index * 20 * time
-        );
+        // Add some noise
+        const noise = (Math.random() - 0.5) * 0.1; // -0.05 to 0.05
+        let n = normalized + noise;
+        n = Math.max(0, Math.min(1, n));
+        return min + n * range;
     }
-}
 
-// TODO move this around
-function SignalButton({ cfg, idx, handleRemoveSignal, onHover, onHoverEnd }: {
-    cfg: MockGraphConfig, idx: number,
-    handleRemoveSignal: (signalName: string) => void,
-    onHover: (signalName: string) => void,
-    onHoverEnd: () => void,
-}) {
-    const color = signalColors[idx % signalColors.length];
-    // TODO hover highlights the signal in graph
     return (
-        <div className="select-none flex items-center gap-2 px-3 py-1.5 rounded-full border-2 hover:opacity-80 transition-opacity"
-            style={{ backgroundColor: color + "20", borderColor: color + "80" }}
-            onMouseEnter={() => onHover(cfg.signalName)} onMouseLeave={() => onHoverEnd()}
-        >
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color }} />
-            <span className="font-medium">{cfg.signalName}</span>
-            <span className="text-xs text-gray-500">({cfg.delay}ms)</span>
-            <button
-                onClick={() => handleRemoveSignal(cfg.signalName)}
-                className="ml-1 text-gray-500 hover:text-red-500 transition-colors font-bold cursor-pointer focus:text-red-500 focus:outline-none"
-                title="Remove signal"
-            >
-                ×
-            </button>
-        </div>
+        //Math.sin(time / 1000 + index) * 50 + Math.random() * 10 + 50 + index * 20 * (1 + time / 100000)
+        Math.sin(time / 1000 + index) * 50 + Math.random() * 10 + 50 + index * 20
+        //val
+        //Math.random() * (time % 10000) * (index * 1000)
+        // 50 + Math.random() * 10 + 50 + index * 20 * time
     );
 }
 
-function MockWidgetModal({ closeModal, configs, dataRef, updateWidget, widgetData }: {
+const MOCK_STATES = ["IDLE", "ACTIVE", "ERROR", "WAITING", "CHARGING"];
+function generateRandomEnumValue() {
+    return MOCK_STATES[Math.floor(Math.random() * MOCK_STATES.length)];
+}
+
+export function MockWidgetAddSignalModal({ closeModal, configs, updateWidget, dataRef, widgetData }: {
     closeModal: () => void,
-    updateWidget: (widgetId: string, updater: (prevWidget: WidgetData) => WidgetData) => void,
+    updateWidget: (updater: (prevWidget: WidgetData) => WidgetData) => void,
 
     // read only
-    configs: MockGraphConfig[],
-    dataRef: RefObject<{
-        timestamps: number[];
-        series: Record<string, (number | string | null)[]>;
-    }>,
-    widgetData: WidgetDataMock,
+    configs: WidgetConfigs,
+    dataRef: RefObject<unknown>,
+    widgetData: WidgetData,
 }) {
     const [newSignalName, setNewSignalName] = useState("");
-    const [newSignalType, setNewSignalType] = useState<MockSignalType>(MockSignalType.Numerical);
+    const [newSignalType, setNewSignalType] = useState<SignalType>(SignalType.NUMERICAL);
     const [newSignalDelay, setNewSignalDelay] = useState(100);
     const [newSignalMin, setNewSignalMin] = useState<number>(-10);
     const [newSignalMax, setNewSignalMax] = useState<number>(10);
 
-    const handleAddSignal = useCallback((e: FormEvent) => {
+    const handleAddSignal = useCallback((e: SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
         const name = newSignalName.trim() || `Signal ${configs.length + 1}`;
-        if (configs.some((c) => c.signalName === name)) {
+        if (configs.some((c) => c.signal_name === name)) {
             alert("Signal name must be unique in this graph");
             return;
         }
@@ -95,22 +61,21 @@ function MockWidgetModal({ closeModal, configs, dataRef, updateWidget, widgetDat
             return;
         }
 
-        const newConfig: MockGraphConfig = {
-            signalName: name,
-            type: newSignalType,
-            delay: newSignalDelay,
-            initialPoints: 0,
-            min: newSignalType === MockSignalType.Numerical ? newSignalMin : undefined,
-            max: newSignalType === MockSignalType.Numerical ? newSignalMax : undefined,
-        };
-
-        const store = dataRef.current;
-        store.series[name] = new Array(store.timestamps.length).fill(null);
-
-        updateWidget(widgetData.id, (prev) => {
-            if (prev.type === SignalType.MOCK) {
-                return { ...prev, configs: [...prev.configs, newConfig] };
-            }
+        // TODO
+        // const newConfig: MockGraphConfig = {
+        //     signal_name: name,
+        //     type: newSignalType,
+        //     delay: newSignalDelay,
+        //     initialPoints: 0,
+        //     min: newSignalType === SignalType.NUMERICAL ? newSignalMin : undefined,
+        //     max: newSignalType === SignalType.NUMERICAL ? newSignalMax : undefined,
+        // };
+        // const store = dataRef.current;
+        // store.series[name] = new Array(store.timestamps.length).fill(null);
+        updateWidget((prev) => {
+            // if (prev.type === SignalType.MOCK) {
+            //     return { ...prev, configs: [...prev.configs, newConfig] };
+            // }
             return prev;
         });
         closeModal();
@@ -145,19 +110,19 @@ function MockWidgetModal({ closeModal, configs, dataRef, updateWidget, widgetDat
                     <select
                         value={newSignalType}
                         onChange={(e) =>
-                            setNewSignalType(e.target.value as MockSignalType)
+                            setNewSignalType(e.target.value as SignalType)
                         }
                         className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
                     >
-                        <option value={MockSignalType.Numerical}>
+                        <option value={SignalType.NUMERICAL}>
                             Numerical
                         </option>
-                        <option value={MockSignalType.Enumeration}>
+                        <option value={SignalType.ENUM}>
                             Enumeration
                         </option>
                     </select>
                 </div>
-                {newSignalType === MockSignalType.Numerical && (
+                {newSignalType === SignalType.NUMERICAL && (
                     <div className="flex gap-4">
                         <div className="flex-1">
                             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -205,142 +170,49 @@ function MockWidgetModal({ closeModal, configs, dataRef, updateWidget, widgetDat
     );
 }
 
-const MockWidget = memo(({ widgetData, updateWidget, deleteSelfWidget }: {
-    widgetData: WidgetDataMock,
-    updateWidget: (widgetId: string, updater: (prevWidget: WidgetData) => WidgetData) => void,
-    deleteSelfWidget: () => void
-}) => {
-    const { isPaused } = useDisplayControl();
-    const configs = widgetData.configs;
-    const [modalOpen, setModalOpen] = useState(false);
-    const [chartHeight, setChartHeight] = useState(256);
+export function useMockData(
+    isPaused: boolean,
+    widgetData: WidgetData,
+): RefObject<ChartData> {
     const { setTimeRange, timeRangeRef } = useSyncedGraph(); // because this widget is also doing the data generation
-    const dataRef = useRef<{
-        timestamps: number[];
-        series: Record<string, (number | string | null)[]>;
-    }>({ timestamps: [], series: {} });
+    // const dataRef = useRef<Record<string, SeriesData<number | string>>>({});
+    const dataRef = useRef({
+        type: widgetData.type,
+        all_series: []
+    } satisfies ChartData);
 
-    // TODO: could add initialPoints loop here (but this is very optional)
-    // it'd just be what we use in MockGraph.tsx
-
-    // generate fuck ass mock data here
     useEffect(() => {
         if (isPaused) return;
-        const intervals: ReturnType<typeof setInterval>[] = configs.map((cfg, idx) => {
+        const intervals: ReturnType<typeof setInterval>[] = widgetData.configs.map((cfg, idx) => {
             const interval = setInterval(() => {
-                const now = Date.now();
-                const val = generateRandomValue(cfg.type, now, idx, cfg.min, cfg.max);
-
                 const store = dataRef.current;
+                if (!store[cfg.signal_name]) {
+                    store[cfg.signal_name] = {
+                        timestamps: [],
+                        values: []
+                    };
+                }
+                const at = store[cfg.signal_name]
 
-                configs.forEach((c) => {
-                    if (!store.series[c.signalName]) {
-                        store.series[c.signalName] = new Array(store.timestamps.length).fill(null);
-                    }
-                });
-
-                store.timestamps.push(now);
-
-                if (store.timestamps.length > 0) {
+                const now = Date.now();
+                at.timestamps.push(now);
+                if (at.timestamps.length > 0) { // update timeRanges (i feel like this needs to be handled elsewhere...)
+                    // TODO this cannot be the best interface for this
                     setTimeRange({
-                        min: Math.min(store.timestamps[0], timeRangeRef.current?.min ?? store.timestamps[0]),
-                        max: Math.max(store.timestamps[store.timestamps.length - 1], timeRangeRef.current?.max ?? store.timestamps[store.timestamps.length - 1])
+                        min: Math.min(at.timestamps[0], timeRangeRef.current?.min ?? at.timestamps[0]),
+                        max: Math.max(at.timestamps[at.timestamps.length - 1], timeRangeRef.current?.max ?? at.timestamps[at.timestamps.length - 1])
                     });
                 }
-
-                Object.keys(store.series).forEach((key) => {
-                    if (key === cfg.signalName) {
-                        store.series[key].push(val);
-                    } else {
-                        const arr = store.series[key];
-                        const lastVal = arr.length > 0 ? arr[arr.length - 1] : null;
-                        arr.push(lastVal);
-                    }
-                });
+                if (widgetData.type == SignalType.NUMERICAL) {
+                    at.values.push(generateRandomNumericalValue(now, idx, (cfg as NumericalSignalConfig).min, (cfg as NumericalSignalConfig).max));
+                } else {
+                    at.values.push(generateRandomEnumValue());
+                }
             }, cfg.delay);
             return interval;
         });
         return () => intervals.forEach(clearInterval);
-    }, [configs, isPaused]);
+    }, [widgetData, isPaused]);
 
-    const chartData = useMemo<AlignedData>(() => {
-        const { timestamps, series } = dataRef.current;
-        configs.forEach((c) => {
-            if (!series[c.signalName]) {
-                series[c.signalName] = new Array(timestamps.length).fill(null);
-            }
-        });
-        return {
-            timestamps,
-            series: configs.map((c) => series[c.signalName]),
-        }
-    }, [configs, isPaused]);
-
-    const handleRemoveSignal = useCallback((name: string) => {
-        if (configs.length <= 1) { // delete the whole widget
-            deleteSelfWidget();
-            return;
-        }
-        updateWidget(widgetData.id, (prev) => {
-            if (prev.type === SignalType.MOCK) {
-                return { ...prev, configs: prev.configs.filter((c) => c.signalName !== name) };
-            }
-            return prev;
-        });
-        if (dataRef.current.series[name]) {
-            delete dataRef.current.series[name];
-        }
-    }, [configs, deleteSelfWidget, updateWidget, widgetData.id]);
-
-    return (
-        <div className="w-full border-red-500 py-4">
-            <div className="px-6">
-                {/* header */}
-                <div className="flex items-center gap-2 mb-4">
-                    <h3 className="font-semibold">Mock Graph Container (Widget)</h3>
-                    <button onClick={deleteSelfWidget} title="Remove mock graph"
-                        className="w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-sm font-bold transition-colors cursor-pointer"
-                    >
-                        ×
-                    </button>
-                </div>
-
-                {/* TODO remove, keep for debugging for now */}
-                {/* <label className="text-sm block">Vertical Scale: {chartHeight}px</label>
-                <input type="range" min={100} max={600} step={50} value={chartHeight}
-                    onChange={(e) => setChartHeight(+e.target.value)}
-                /> */}
-
-                {/* Signal buttons */}
-                <div className="flex flex-wrap items-center gap-3">
-                    {configs.map((cfg, idx) =>
-                        <SignalButton key={cfg.signalName} cfg={cfg} idx={idx} handleRemoveSignal={handleRemoveSignal} onHover={() => { }} onHoverEnd={() => { }} />
-                    )}
-                    <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-                        <DialogTrigger>
-                            <PlusButton />
-                        </DialogTrigger>
-                        <DialogContent>
-                            <MockWidgetModal configs={configs} dataRef={dataRef} updateWidget={updateWidget} widgetData={widgetData} closeModal={() => setModalOpen(false)} />
-                        </DialogContent>
-                    </Dialog>
-                </div>
-            </div>
-
-            {/* Actual chart */}
-            {/* <div style={{ height: chartHeight }}> */}
-            <CanvasChart data={chartData} height={chartHeight}
-                series={configs.map((c, idx) => ({
-                    label: c.signalName, color: signalColors[idx % signalColors.length],
-                    min: c.min, max: c.max,
-                }))}
-            />
-            {/* </div> */}
-        </div >
-    );
-});
-
-MockWidget.displayName = "MockWidget";
-
-export default MockWidget;
-
+    return dataRef;
+}

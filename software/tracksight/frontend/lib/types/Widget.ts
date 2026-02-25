@@ -1,43 +1,39 @@
 import { SignalType } from "@/lib/types/Signal";
 import type { FC } from "react";
 
-type WidgetDataBase = {
+// shared to all
+type WidgetBase = {
   id: string;
+  mock?: boolean; // TODO this might be the play?
 }
 
-interface enumProps {
-  type: SignalType.ENUM;
-  signal: string | null;
+// enum data
+export interface EnumSignalConfig {
+  signal_name: string;
+  delay: number; // ms
+  initialPoints: number;
   options: {
     colorPalette: string[],
   };
 }
-export type WidgetDataEnum = WidgetDataBase & enumProps;
-
-interface numericalProps {
-  type: SignalType.NUMERICAL;
-  signals: string[];
+export type WidgetDataEnum = WidgetBase & {
+  type: SignalType.ENUM;
+  configs: Array<EnumSignalConfig>;
 }
-export type WidgetDataNumerical = WidgetDataBase & numericalProps;
 
-export enum MockSignalType {
-  Numerical = "numerical",
-  Enumeration = "enumeration",
-}
-export interface MockGraphConfig {
-  type: MockSignalType;
+// numerical data
+export interface NumericalSignalConfig {
+  signal_name: string;
   delay: number; // ms
   initialPoints: number;
-  signalName: string;
-  min?: number;
-  max?: number;
+  min: number;
+  max: number;
+}
+export type WidgetDataNumerical = WidgetBase & {
+  type: SignalType.NUMERICAL;
+  configs: Array<NumericalSignalConfig>;
 }
 
-interface mockProps {
-  type: SignalType.MOCK;
-  configs: MockGraphConfig[];
-}
-export type WidgetDataMock = WidgetDataBase & mockProps;
-
-export type WidgetData = WidgetDataEnum | WidgetDataNumerical | WidgetDataMock;
+export type WidgetConfigs = EnumSignalConfig[] | NumericalSignalConfig[];
+export type WidgetData = WidgetDataNumerical | WidgetDataEnum;
 export type WidgetRenderer = FC<WidgetData>;

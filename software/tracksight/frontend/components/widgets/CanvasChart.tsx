@@ -1,36 +1,51 @@
 "use client";
 // note to self: updatemockconfig -> mockwidgets, then pass setwidgets in
 
-import { useRef, useEffect, useMemo, useCallback, useState } from "react";
+import { useRef, useEffect, useCallback, RefObject } from "react";
 import { MouseEvent as MouseEvent_React } from "react";
-import render, { ChartLayout, ChunkStats, PreparedChartData, SeriesMeta } from "@/components/widgets/render";
+import render from "@/components/widgets/render";
+import { ChartData, ChartLayout } from "./chart_types";
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 
 // data format is an array where:
 // -first element is an array of x-axis timestamps
 // - subsequent elements are arrays of y-axis values for each series
-export interface AlignedData {
+export interface SeriesData<T> {
+    series_name: string;
     timestamps: number[];
-    series: Array<(number | string | null)[]>;
+    values: Array<T>; // TODO bruh
 };
 
-export default function CanvasChart({
-    data, series, height, timeTickCount = 6,
-    onHoverTimestampChange,
-}: {
-    data: AlignedData; series: SeriesMeta[];
+function useObserveResize(ref: RefObject<HTMLCanvasElement | null>) {
+    const containerWidth = useRef(0);
+    // handle resize of the container
+    useEffect(() => {
+        const canvas = ref.current;
+        if (!canvas) return;
+        const observer = new ResizeObserver(entries => {
+            console.assert(entries.length == 1, "Expected exactly one entry in ResizeObserver");
+            containerWidth.current = entries[0].contentRect.width;
+        });
+        observer.observe(canvas);
+        return () => observer.disconnect();
+    }, [ref.current]);
+    return containerWidth;
+}
+
+export default function CanvasChart({ chartData: chart_data, height, timeTickCount = 6, onHoverTimestampChange }: {
+    chartData: RefObject<ChartData>,
     height: number;
     timeTickCount?: number;
     onHoverTimestampChange?: (timestamp: number | null) => void;
 }) {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
+    const containerWidth = useObserveResize(canvasRef);
     const animationFrameId = useRef<number | null>(null);
     const hoverPixelRef = useRef<{ x: number; y: number } | null>(null);
     const tooltipBufferRef = useRef<string[]>([]);
     const layoutRef = useRef<ChartLayout | null>(null);
     const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
     const { scalePxPerSecRef, timeRangeRef, scrollLeftRef, hoverTimestamp: externalHoverTimestampRef } = useSyncedGraph();
-    const containerWidth = useRef(0);
 
     // const timestamps = data?.timestamps;
     // const firstTimestamp = timestamps && timestamps.length > 0 ? timestamps[0] : null;
@@ -47,122 +62,6 @@ export default function CanvasChart({
     //   }
     // }, [firstTimestamp, lastTimestamp, setTimeRange, timeRangeRef]);
 
-    // handle resize of the container
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const observer = new ResizeObserver(entries => {
-            console.assert(entries.length == 1, "Expected exactly one entry in ResizeObserver");
-            containerWidth.current = entries[0].contentRect.width;
-        });
-        observer.observe(canvas);
-        return () => observer.disconnect();
-    }, [canvasRef.current]);
-
-    // TODO
-    const preparedData = useMemo<PreparedChartData>(() => {
-        if (!data) {
-            return {
-                timestamps: [],
-                seriesData: [],
-                chunkSize: 0,
-                chunkStats: [],
-                enumSeriesIndices: [],
-                numericalSeriesIndices: [],
-                uniqueEnumValues: {},
-            };
-        }
-
-        const { timestamps: originalTimestamps, series: originalSeries } = data;
-        const timestamps = originalTimestamps ?? [];
-
-        let workingTimestamps: number[] = timestamps;
-        let workingSeries: Array<(number | string | null)[]> = originalSeries;
-
-        const enumSeriesIndices: number[] = [];
-        const numericalSeriesIndices: number[] = [];
-        const uniqueEnumValues: Record<number, Set<string>> = {};
-
-        workingSeries.forEach((s, idx) => {
-            let isEnum = false;
-            for (const val of s) {
-                if (val !== null && val !== undefined) {
-                    if (typeof val === "string") {
-                        isEnum = true;
-                    }
-                    break;
-                }
-            }
-
-            if (isEnum) {
-                enumSeriesIndices.push(idx);
-                uniqueEnumValues[idx] = new Set<string>();
-                s.forEach((val) => {
-                    if (typeof val === "string") {
-                        uniqueEnumValues[idx].add(val);
-                    }
-                });
-            } else {
-                numericalSeriesIndices.push(idx);
-            }
-        });
-
-        const chunkSize =
-            workingTimestamps.length > 0
-                ? Math.max(32, Math.ceil(workingTimestamps.length / 512))
-                : 0;
-        const chunkStats: ChunkStats[] = workingSeries.map(() => ({
-            min: [],
-            max: [],
-        }));
-
-        if (chunkSize > 0) {
-            const chunkCount = Math.ceil(workingTimestamps.length / chunkSize);
-            workingSeries.forEach((seriesPoints, seriesIndex) => {
-                if (enumSeriesIndices.includes(seriesIndex)) return;
-
-                const stats = chunkStats[seriesIndex];
-                for (let chunkIdx = 0; chunkIdx < chunkCount; chunkIdx++) {
-                    const start = chunkIdx * chunkSize;
-                    const end = Math.min(start + chunkSize, workingTimestamps.length);
-                    let chunkMin = Infinity;
-                    let chunkMax = -Infinity;
-
-                    for (let i = start; i < end; i++) {
-                        const value = seriesPoints[i];
-                        if (
-                            value === null ||
-                            value === undefined ||
-                            typeof value === "string"
-                        )
-                            continue;
-                        if (value < chunkMin) chunkMin = value;
-                        if (value > chunkMax) chunkMax = value;
-                    }
-
-                    stats.min[chunkIdx] = chunkMin;
-                    stats.max[chunkIdx] = chunkMax;
-                }
-            });
-        }
-
-        const uniqueEnumValuesRecord: Record<number, string[]> = {};
-        Object.keys(uniqueEnumValues).forEach((k) => {
-            const key = Number(k);
-            uniqueEnumValuesRecord[key] = Array.from(uniqueEnumValues[key]).sort();
-        });
-
-        return {
-            timestamps: workingTimestamps,
-            seriesData: workingSeries,
-            chunkSize,
-            chunkStats,
-            enumSeriesIndices,
-            numericalSeriesIndices,
-            uniqueEnumValues: uniqueEnumValuesRecord,
-        };
-    }, [data]);
-
     // RENDER LOOP
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -173,15 +72,11 @@ export default function CanvasChart({
             // transform to the original size
             context.setTransform(1, 0, 0, 1, 0, 0);
             context.scale(dpr, dpr);
-            const scale = scalePxPerSecRef.current;
-            const globalTimeRange = timeRangeRef.current;
-            if (globalTimeRange) {
-                render(context, containerWidth.current, height, layoutRef, preparedData, series, timeTickCount,
-                    externalHoverTimestampRef.current, hoverPixelRef, tooltipBufferRef, {
-                    min: globalTimeRange.min + (scrollLeftRef.current / scale),
-                    max: globalTimeRange.min + (scrollLeftRef.current / scale) + (containerWidth.current / scale)
-                });
-            }
+            // const scale = scalePxPerSecRef.current;
+            render(context, containerWidth.current, height, layoutRef, chart_data.current, timeTickCount, hoverPixelRef, {
+                min: 0, // TODO
+                max: 0, // TODO
+            });
             animationFrameId.current = requestAnimationFrame(render_call);
         }
         animationFrameId.current = requestAnimationFrame(render_call);
@@ -190,8 +85,7 @@ export default function CanvasChart({
             cancelAnimationFrame(animationFrameId.current);
             animationFrameId.current = null;
         };
-    }, [preparedData, series, height, containerWidth, timeTickCount,
-        onHoverTimestampChange, scalePxPerSecRef, timeRangeRef, scrollLeftRef, externalHoverTimestampRef]);
+    }, [chart_data, height, containerWidth, timeTickCount, onHoverTimestampChange, scalePxPerSecRef, timeRangeRef, scrollLeftRef, externalHoverTimestampRef]);
 
     const handleMouseMove = useCallback((event: MouseEvent_React<HTMLCanvasElement, MouseEvent>) => {
         const canvas = canvasRef.current;
