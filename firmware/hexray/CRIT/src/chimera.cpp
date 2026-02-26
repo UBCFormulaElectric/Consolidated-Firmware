@@ -45,6 +45,10 @@ class CRITChimeraConfig : public chimera_v2::config
                 return std::cref(torque_vectoring_sig);
             case crit_GpioNetName_GPIO_REGEN_SIG:
                 return std::cref(regen_sig);
+            case crit_GpioNetName_GPIO_LED_RCK:
+                return std::cref(led_rck);
+            case crit_GpioNetName_GPIO_SEVEN_SEG_RCK:
+                return std::cref(seven_seg_rck);
             default:
             case crit_GpioNetName_GPIO_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified GPIO net name");
