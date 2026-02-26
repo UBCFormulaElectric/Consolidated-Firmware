@@ -40,6 +40,7 @@ uint32_t payloadSizeFromDlc(uint32_t dlc)
 namespace io::telemMessage
 {
 
+// This is payload_length in bytes
 Header buildHeader(const uint8_t *payload, uint8_t payload_length)
 {
     const auto crc =

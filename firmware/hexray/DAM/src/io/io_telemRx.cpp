@@ -1,5 +1,6 @@
 #include "io_telemRx.hpp"
 #include "hw_uarts.hpp"
+#include "hw_uart.hpp"
 
 // TODO: extern "C" linkage for io_rtc.h when needed
 
@@ -13,10 +14,6 @@ void run()
 
 } // namespace io::telemRx
 
-#include "io_telemRx.h"
-#include "hw_uart.h"
-#include "hw_uarts.h"
-
 #define BUFFER_SIZE sizeof(IoRtcTime) + 2
 
 static IoRtcTime received_time_data = { 0 };
@@ -24,7 +21,7 @@ static IoRtcTime received_time_data = { 0 };
 static uint8_t data[BUFFER_SIZE];
 void           io_telemRx()
 {
-    // for now we just simply recieve the data and set the time
+    // for now we just simply receive the data and set the time
     ExitCode c = hw_uart_receive_pooling(&_900k_uart, data, BUFFER_SIZE);
     if (c != EXIT_CODE_OK)
         return;
