@@ -1,5 +1,9 @@
 #include "io_brake.hpp"
 
+#ifdef TARGET_EMBEDDED
+#include "hw_adc.hpp"
+#endif
+
 // Max measurable pressure over sensors operating range
 constexpr float BRAKE_PRESSURE_OC_THRESHOLD_V = 0.4f;
 constexpr float BRAKE_PRESSURE_SC_THRESHOLD_V = 4.6f;
