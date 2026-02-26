@@ -121,7 +121,7 @@ void readRegGroup(
     std::array<std::array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs,
     std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS>      &comm_success)
 {
-    std::memset(regs.data(), 0, sizeof(regs));
+    std::memset(regs.data(), 0, regs.size());
 
     const TxCmd                                      tx_cmd{ cmd };
     static std::array<RegGroupPayload, NUM_SEGMENTS> rx_buffer;

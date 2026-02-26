@@ -52,7 +52,7 @@ inline constexpr uint16_t CLOVUV  = 0x547U;
 
 // Poll
 inline constexpr uint16_t PLADC  = 0x0718U;
-inline constexpr uint16_t PLCADC = 0x071DU;
+inline constexpr uint16_t PLCADC = 0x071CU;
 inline constexpr uint16_t PLAUX  = 0x071EU;
 inline constexpr uint16_t PLAUX2 = 0x071FU;
 

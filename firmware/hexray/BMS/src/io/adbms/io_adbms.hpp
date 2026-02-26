@@ -4,6 +4,7 @@
  */
 #pragma once
 #include "util_errorCodes.hpp"
+#include <array>
 
 namespace io
 {
@@ -110,11 +111,14 @@ namespace adbms
         EvenChannels
     };
 
-    void                           readConfigReg(SegmentConfig configs[NUM_SEGMENTS], std::expected<void, ErrorCode> success[NUM_SEGMENTS]);
-    std::expected<void, ErrorCode> writeConfigReg(SegmentConfig config[NUM_SEGMENTS]);
+    void readConfigReg(
+        std::array<SegmentConfig, NUM_SEGMENTS>                    &configs,
+        std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS>   &success);
+    std::expected<void, ErrorCode> writeConfigReg(std::array<SegmentConfig, NUM_SEGMENTS> &config);
     std::expected<void, ErrorCode> sendBalanceCmd();
     std::expected<void, ErrorCode> sendStopBalanceCmd();
-    void                           readVoltageRegisters(uint16_t cell_voltage_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT], std::expected<void, ErrorCode> comm_success[NUM_SEGMENTS][CELLS_PER_SEGMENT]);
+    void readCellVoltageReg(std::array<std::array<uint16_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &cell_voltage_regs, std::array<std::array<std::expected<void, ErrorCode>, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success);
+    
     std::expected<void, ErrorCode> startCellsAdcConversion();
     std::expected<void, ErrorCode> pollCellsAdcConversion();
     std::expected<void, ErrorCode> wakeup();

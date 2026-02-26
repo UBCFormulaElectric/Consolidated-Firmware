@@ -6,8 +6,7 @@
 
 namespace io::adbms
 {
-std::expected<void, ErrorCode> writeConfigReg(SegmentConfig config[NUM_SEGMENTS])
-{
+std::expected<void, ErrorCode> writeConfigReg(std::array <SegmentConfig, NUM_SEGMENTS> &config) {
     static std::array<std::array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> cfga_regs;
     static std::array<std::array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> cfgb_regs;
 
@@ -24,8 +23,8 @@ std::expected<void, ErrorCode> writeConfigReg(SegmentConfig config[NUM_SEGMENTS]
 }
 
 void readConfigReg(
-    SegmentConfig                  configs[NUM_SEGMENTS],
-    std::expected<void, ErrorCode> success[NUM_SEGMENTS])
+    std::array<SegmentConfig, NUM_SEGMENTS>       &configs,
+    std::array<std::expected<void, ErrorCode>,NUM_SEGMENTS> &success)
 {
     static std::array<std::array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> regs_a;
     static std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS>      success_a;

@@ -23,9 +23,6 @@ static constexpr int tolerance_time = 500; //ms
 static constexpr int PRECHARGE_COOLDOWN_TIME = 1000; // ms
 static constexpr int precharge_completion_ms = static_cast<int>(PRECHARGE_COMPLETION_MS_F);
 static constexpr int latch_timeout = PRECHARGE_LATCH_TIMEOUT_MS + 100; // ms
-namespace fakes
-{
-} 
 
 // Init-PrechargeDrive tests
 

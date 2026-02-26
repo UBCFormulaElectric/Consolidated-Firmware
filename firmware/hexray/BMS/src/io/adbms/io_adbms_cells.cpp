@@ -4,7 +4,7 @@
 namespace io::adbms
 {
 constexpr uint8_t MAX_NUM_ATTEMPTS  = 10U;
-constexpr uint8_t ADCV_STATUS_READY = 0xFF;
+constexpr uint8_t ADCV_STATUS_READY = 0x3F;
 constexpr uint8_t CELLS_PER_GROUP   = 3U;
 
 std::expected<void, ErrorCode> clearCellVoltageReg()
@@ -15,7 +15,7 @@ std::expected<void, ErrorCode> clearCellVoltageReg()
 std::expected<void, ErrorCode> startCellsAdcConversion()
 {
     RETURN_IF_ERR(clearCellVoltageReg());
-    return sendCmd(ADCV_BASE | RD | CONT);
+    return sendCmd(ADCV_BASE);
 }
 
 std::expected<void, ErrorCode> pollCellsAdcConversion()
@@ -32,9 +32,11 @@ std::expected<void, ErrorCode> pollCellsAdcConversion()
     return std::unexpected(ErrorCode::TIMEOUT);
 }
 
+
 void readCellVoltageReg(
-    std::array<std::array<uint16_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS> cell_voltage_regs,                 
-    std::expected<void, ErrorCode> comm_success[NUM_SEGMENTS][CELLS_PER_SEGMENT])
+    std::array<std::array<uint16_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &cell_voltage_regs,                 
+    std::array<std::array<std::expected<void, ErrorCode>, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success
+)
 {
     const std::expected<void, ErrorCode> poll_ok = pollCellsAdcConversion();
 
@@ -47,7 +49,7 @@ void readCellVoltageReg(
         return;
     }
 
-    static constexpr std::array<uint16_t, 5> voltage_read_cmds{ { RDCVA, RDCVB, RDCVC, RDCVD, RDCVE } };
+    static constexpr std::array<uint16_t, NUM_VOLT_REG_GROUPS> voltage_read_cmds{ { RDCVA, RDCVB, RDCVC, RDCVD, RDCVE } };
     for (uint8_t reg_group = 0U; reg_group < NUM_VOLT_REG_GROUPS; reg_group++)
     {
         static std::array<std::array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> regs;
@@ -70,6 +72,7 @@ void readCellVoltageReg(
                     continue;
                 }
 
+                comm_success[seg][cell_index] = {};
                 const uint8_t byte_offset          = cell_in_group * 2U;
                 cell_voltage_regs[seg][cell_index] = regs[seg][byte_offset];
             }

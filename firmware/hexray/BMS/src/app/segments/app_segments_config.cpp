@@ -1,11 +1,13 @@
 #include "app_segments.hpp"
 #include "app_segments_internal.hpp"
-#include "io_adbms.hpp"
 
-constexpr uint16_t VUV = 0x800; //VUV × 16 × 150 μV + 1.5 V (TO DO)
-constexpr uint16_t VOV = 0x7FF; //VOV × 16 × 150 μV + 1.5 V (TO DO)
+#include <cstring>
 
-static std::array<SegmentConfig, NUM_SEGMENTS> segment_config;
+inline constexpr uint8_t NUM_CONFIG_SYNC_TRIES = 20;
+inline constexpr uint16_t VUV = 0x800; //VUV × 16 × 150 μV + 1.5 V (TO DO)
+inline constexpr uint16_t VOV = 0x7FF; //VOV × 16 × 150 μV + 1.5 V (TO DO)
+
+static std::array<io::adbms::SegmentConfig, io::NUM_SEGMENTS> segment_config;
 
 namespace app::segments {
     void setDefaultConfig() {
@@ -22,12 +24,14 @@ namespace app::segments {
         }
     }
 
-    void setBalanceConfig(std::array<std::array<bool, CELLS_PER_SEGMENT>, NUM_SEGMENTS> balance_config) {
-        for (auto &[reg_a, reg_b] : segment_config) {
+    void setBalanceConfig(std::array<std::array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> balance_config) {
+        for (uint8_t seg = 0; seg < io::NUM_SEGMENTS; seg++) {
+            auto &[reg_a, reg_b] = segment_config[seg];
             uint16_t dcc_bits = 0U;
-            
-            for (uint8_t cell = 0; cell. < CELLS_PER_SEGMENT; cell++) {
-                dcc_bits |= static_cast<uint16_t> (balance_config[cell] << cell);
+
+            (void)reg_a;
+            for (uint8_t cell = 0; cell < io::CELLS_PER_SEGMENT; cell++) {
+                dcc_bits |= static_cast<uint16_t>((balance_config[seg][cell] ? 1U : 0U) << cell);
             }
 
             reg_b.dcc_1_8   = static_cast<uint8_t>(dcc_bits & 0xFF);
@@ -37,32 +41,47 @@ namespace app::segments {
 
     void setThermistorConfig(ThermistorMux mux) {
         for (auto &[reg_a, reg_b] : segment_config) {
+            (void)reg_b;
 
             if (mux == ThermistorMux::THERMISTOR_MUX_0_7) {
-                reg_b.gpio_1_8 = 0xFF;
-                reg_b.gpio_9_10 = 0x02;
+                reg_a.gpio_1_8 = 0xFF;
+                reg_a.gpio_9_10 = 0x02;
             } else {
-                reg_b.gpio_1_8 = 0xFF;
-                reg_b.gpio_9_10 = 0x03;
+                reg_a.gpio_1_8 = 0xFF;
+                reg_a.gpio_9_10 = 0x03;
             }
         }
     }
 
     static std::expected<void, ErrorCode> isConfigEqual() {
-        std::array<SegmentConfig, NUM_SEGMENTS> segment_config_buf;
-        std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS> segment_success_buf;
+        std::array<io::adbms::SegmentConfig, io::NUM_SEGMENTS> segment_config_buf;
+        std::array<std::expected<void, ErrorCode>, io::NUM_SEGMENTS> segment_success_buf;
 
-        io::adbms::readConfigReg(segment_config_buf.data(), segment_success_buf.data());
+        io::adbms::readConfigReg(segment_config_buf, segment_success_buf);
 
-        for (uint8_t seg = 0U; seg < NUM_SEGMENTS; seg++) {
+        for (uint8_t seg = 0U; seg < io::NUM_SEGMENTS; seg++) {
             if (!segment_success_buf[seg]) {
                 return segment_success_buf[seg];
             } else {
-                if (std::memcmp(&segment_config_buf[seg], &segment_config[seg], sizeof(segment_config)) != 0) {
-                    return std::unexpected(ExitCode::EXIT_CODE_CHECKSUM_FAIL); 
+                if (std::memcmp(&segment_config_buf[seg], &segment_config[seg], sizeof(segment_config[seg])) != 0) {
+                    return std::unexpected(ErrorCode::CHECKSUM_FAIL);
                 }
             }
         }
-        return;
+        return {};
+    }
+
+    std::expected<void, ErrorCode> configSync() {
+        for (uint8_t tries = 0; tries < NUM_CONFIG_SYNC_TRIES; tries++) {
+            const auto write_ok = io::adbms::writeConfigReg(segment_config);
+            if (!write_ok) {
+                continue;
+            } else {
+                if (const auto equal = isConfigEqual(); equal.has_value()) {
+                    return {};
+                }
+            }
+        }
+        return std::unexpected(ErrorCode::RETRY_FAILED);
     }
 }
