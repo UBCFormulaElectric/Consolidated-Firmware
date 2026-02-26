@@ -1,6 +1,9 @@
 include(cmake/dependencies.cmake)
 include(../scripts/code_generation/jsoncan/jsoncan.cmake)
+include(../scripts/code_generation/jsoncan-rust/jsoncan.cmake)
 include(../scripts/code_generation/commit_info_gen/commit_info.cmake)
+include(cmake/eigenlib.cmake)   
+include(cmake/autodiff.cmake)
 
 IF ("${TARGET}" STREQUAL "binary")
     option(BOOTLOAD "Build the bootloader" OFF)

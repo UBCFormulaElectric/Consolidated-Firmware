@@ -59,6 +59,14 @@
     "SappsOCSC": {
       "id": 609,
       "description": "Secondary accelerator pedal voltage out of acceptable range (OCSC)."
+    },
+    "ImuInitFailed":{
+      "id": 610,
+      "description": "IMU initialization failed"
+    },
+    "ImuDataBad":{
+      "id": 611,
+      "description": "IMU data is bad"
     }
   },
   "faults": {}

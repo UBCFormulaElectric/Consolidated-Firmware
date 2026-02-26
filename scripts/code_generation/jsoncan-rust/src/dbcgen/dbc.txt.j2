@@ -4,10 +4,10 @@ BS_:
 
 BU_: {{ nodes_list.join(" ") }}
 
-{%- for msg in messages %}
+{% for msg in messages %}
 BO_ {{msg.dbc_id()}} {{msg.name}}: {{msg.dlc()}} {{msg.tx_node_name}}
 {%- for signal in msg.signals %}
-	SG_ {{signal.name}} {{signal.start_bit}}|{{signal.bits}}{{signal.big_endian}}{{signal.signed}} ({{signal.scale}},{{signal.offset}}) [{{signal.min}}|{{signal.max}}] "{{signal.unit.as_deref().unwrap_or("")}}" {{receivers(msg)}}
+	SG_ {{signal.name}} {{signal.start_bit}}|{{signal.bits}}{{signal.endian_macro()}}{{signal.signed_macro()}} ({{signal.scale}},{{signal.offset}}) [{{signal.min}}|{{signal.max}}] "{{signal.unit.as_deref().unwrap_or("")}}" {{receivers(msg)}}
 {%- endfor %}
 {%- endfor %}
 
@@ -16,21 +16,21 @@ BA_DEF_DEF_  "BusType" "CAN";
 BA_ "BusType" "CAN FD";
 
 {% for msg in messages %}
-{% for signal in msg.signals %}
-{% if signal.enum_name.is_some() %}
-VAL_ {{msg.dbc_id()}} {{signal.name}} {{enumfuckshit(signal.enum_name.as_deref().unwrap_or("")) }};
-{% endif %}
-{% endfor %}
-{% endfor %}
+{%- for signal in msg.signals %}
+{%- if signal.enum_name.is_some() %}
+VAL_ {{msg.dbc_id()}} {{signal.name}} {{ enumfuckshit(signal.enum_name.as_deref().unwrap_or("")) | safe }};
+{%- endif %}
+{%- endfor %}
+{%- endfor %}
 
 {% for msg in messages %}
 {%- if msg.cycle_time.is_some() %}
 BA_ "GenMsgCycleTime" BO_ {{msg.dbc_id()}} {{msg.cycle_time.unwrap()}};
 {%- endif %}
-{% endfor %}
+{%- endfor %}
 
 {% for msg in messages %}
-{% for signal in msg.signals %}
+{%- for signal in msg.signals %}
 BA_ "GenSigStartValue" SG_ {{msg.dbc_id()}} {{signal.name}} {{signal.start_val}};
-{% endfor %}
-{% endfor %}
+{%- endfor -%}
+{%- endfor %}

@@ -1,6 +1,5 @@
 #include "hw_spis.hpp"
 #include "main.h"
-#include <cstddef>
 #include "hw_gpios.hpp"
 
 static hw::spi::SpiBus pwr_chg(hspi1);

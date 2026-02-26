@@ -5,7 +5,7 @@ use crate::parsing::DEFAULT_BUS_MODE;
 
 #[derive(Deserialize)]
 #[serde(untagged)]
-pub enum JsonTxSignal {
+pub enum JsonCanSignal {
     ScaleOffsetBits {
         min: f64,
         max: f64,
@@ -92,7 +92,7 @@ struct JsonDataCapture {
 #[derive(Deserialize)]
 struct JsonTxMsg {
     msg_id: u32, // todo extra validity checks
-    signals: HashMap<String, JsonTxSignal>,
+    signals: HashMap<String, JsonCanSignal>,
     cycle_time: Option<u32>, // todo extra validity checks
     disabled: Option<bool>,
     description: Option<String>,
@@ -103,7 +103,7 @@ struct JsonTxMsg {
 pub struct JsonCanMessage {
     pub name: String,
     pub id: u32,
-    pub signals: HashMap<String, JsonTxSignal>,
+    pub signals: HashMap<String, JsonCanSignal>,
     pub cycle_time: Option<u32>,
     pub description: Option<String>,
     pub log_cycle_time: Option<u32>,

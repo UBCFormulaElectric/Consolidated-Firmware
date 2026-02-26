@@ -107,7 +107,7 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     # JSONCAN
-    jsoncan_embedded_library(BMS hexray "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
+    jsoncan_embedded_library_cpp(BMS hexray "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
 
     # CommitInfo
     commit_info_library(
@@ -137,7 +137,7 @@ elseif ("${TARGET}" STREQUAL "test")
     add_compile_definitions("hexray_BMS_test" PRIVATE STM32h763Rx)
 
     # JSONCAN
-    jsoncan_library(BMS hexray "${CMAKE_CURRENT_BINARY_DIR}")
+    jsoncan_library_cpp(BMS hexray "${CMAKE_CURRENT_BINARY_DIR}")
 
     # CommitInfo
     commit_info_library(
