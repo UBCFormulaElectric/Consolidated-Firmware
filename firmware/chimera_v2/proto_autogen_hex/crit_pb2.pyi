@@ -30,6 +30,8 @@ class _GpioNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._En
     GPIO_LAUNCH_CONTROL_SIG: _GpioNetName.ValueType
     GPIO_TORQUE_VECTORING_SIG: _GpioNetName.ValueType
     GPIO_REGEN_SIG: _GpioNetName.ValueType
+    GPIO_LED_RCK: _GpioNetName.ValueType
+    GPIO_SEVEN_SEG_RCK: _GpioNetName.ValueType
 
 class GpioNetName(_GpioNetName, metaclass=_GpioNetNameEnumTypeWrapper):
     ...
@@ -44,6 +46,8 @@ GPIO_ROT_A: GpioNetName.ValueType
 GPIO_LAUNCH_CONTROL_SIG: GpioNetName.ValueType
 GPIO_TORQUE_VECTORING_SIG: GpioNetName.ValueType
 GPIO_REGEN_SIG: GpioNetName.ValueType
+GPIO_LED_RCK: GpioNetName.ValueType
+GPIO_SEVEN_SEG_RCK: GpioNetName.ValueType
 Global___GpioNetName: typing_extensions.TypeAlias = GpioNetName
 
 class _SpiNetName:
