@@ -36,7 +36,6 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_adc.hpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_i2c.cpp"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_uart.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_spi.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"

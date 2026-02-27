@@ -48,16 +48,16 @@ class PwmInput
     uint32_t              falling_edge_tim_channel;
     uint32_t              tim_auto_reload_reg;
 
-    bool first_tick = false;
+    mutable bool first_tick = false;
 
     /* Calculaing frequency based of rising edge*/
-    uint32_t curr_rising_edge = 0;
-    uint32_t prev_rising_edge = 0;
+    mutable uint32_t curr_rising_edge = 0;
+    mutable uint32_t prev_rising_edge = 0;
 
     /*Outputs of PWM input*/
-    float  duty_cycle         = 0;
-    float  frequency_hz       = 0;
-    size_t tim_overflow_count = 0;
+    mutable float  duty_cycle         = 0;
+    mutable float  frequency_hz       = 0;
+    mutable size_t tim_overflow_count = 0;
 
     PwmMode mode;
 
@@ -65,7 +65,7 @@ class PwmInput
      * Set the frequency for the given PWM input
      * @param curr_frequency Frequency, in Hz
      */
-    void setFrequency(const float curr_frequency)
+    void setFrequency(const float curr_frequency) const
     {
         assert(frequency_hz >= 0.0f);
         frequency_hz = curr_frequency;
@@ -106,6 +106,8 @@ class PwmInput
         mode(PwmMode::PWMFREQONLY)
     {
     }
+
+    PwmInput() = delete;
 
     /**
      * Initialize a frequency-only PWM input using the given (hardware) timer
@@ -160,7 +162,7 @@ class PwmInput
     /**
      * Update the frequency and duty cycle for the given PWM input
      */
-    void tick()
+    void tick() const
     {
         // Reset the timer overflow count to indicate that the PWM signal is active
         tim_overflow_count = 0;
