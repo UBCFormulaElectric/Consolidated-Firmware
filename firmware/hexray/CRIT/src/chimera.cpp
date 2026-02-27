@@ -8,6 +8,7 @@
 #include "hw_usb.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include <cassert>
+#include "hw_pwmOutputs.hpp"
 
 #include <optional>
 #include <functional>
@@ -117,6 +118,12 @@ char USBD_PRODUCT_STRING_FS[] = "crit";
 [[noreturn]] void tasks_init()
 {
     assert(hw::usb::init());
+    (void)led_dimming.start();
+    (void)led_dimming.setDutyCycle(100.0f);
+    (void)led_dimming.start();
+    (void)seven_seg_dimming.start();
+    (void)seven_seg_dimming.setDutyCycle(100.0f);
+    (void)seven_seg_dimming.start();
     osKernelInitialize();
     TaskChimera.start();
     osKernelStart();

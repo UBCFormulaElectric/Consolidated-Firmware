@@ -49,6 +49,10 @@ class SpiDevice
     constexpr SpiDevice(const SpiBus &bus_in, const std::optional<Gpio> nss_in, const uint32_t timeoutMs_in)
       : bus(bus_in), nss(nss_in), timeoutMs(timeoutMs_in)
     {
+        if (nss.has_value())
+        {
+            nss.value().writePin(true); // Ensure NSS is high (inactive) by default.
+        }
     }
 
     /**

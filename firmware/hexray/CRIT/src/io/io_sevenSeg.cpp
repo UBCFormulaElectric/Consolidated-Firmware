@@ -13,8 +13,8 @@ std::expected<void, ErrorCode> write(std::array<digit, DIGITS> &data)
 
 std::expected<void, ErrorCode> setBrightness(const float brightness)
 {
-    RETURN_IF_ERR_SILENT(seven_seg_dimming.start());
     RETURN_IF_ERR_SILENT(seven_seg_dimming.setDutyCycle(brightness));
+    RETURN_IF_ERR_SILENT(seven_seg_dimming.start());
     return {};
 }
 } // namespace io::seven_seg

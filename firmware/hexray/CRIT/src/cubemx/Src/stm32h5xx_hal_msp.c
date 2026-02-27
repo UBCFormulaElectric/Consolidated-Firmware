@@ -228,21 +228,12 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
         /* Peripheral clock enable */
         __HAL_RCC_SPI3_CLK_ENABLE();
 
-        __HAL_RCC_GPIOA_CLK_ENABLE();
         __HAL_RCC_GPIOB_CLK_ENABLE();
         __HAL_RCC_GPIOC_CLK_ENABLE();
         /**SPI3 GPIO Configuration
-        PA4     ------> SPI3_NSS
         PB2     ------> SPI3_MOSI
         PC10     ------> SPI3_SCK
         */
-        GPIO_InitStruct.Pin       = _7SEG_RCK_Pin;
-        GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-        GPIO_InitStruct.Pull      = GPIO_NOPULL;
-        GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
-        GPIO_InitStruct.Alternate = GPIO_AF6_SPI3;
-        HAL_GPIO_Init(_7SEG_RCK_GPIO_Port, &GPIO_InitStruct);
-
         GPIO_InitStruct.Pin       = _7SEG_SERIN_Pin;
         GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
         GPIO_InitStruct.Pull      = GPIO_NOPULL;
@@ -325,12 +316,9 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
         __HAL_RCC_SPI3_CLK_DISABLE();
 
         /**SPI3 GPIO Configuration
-        PA4     ------> SPI3_NSS
         PB2     ------> SPI3_MOSI
         PC10     ------> SPI3_SCK
         */
-        HAL_GPIO_DeInit(_7SEG_RCK_GPIO_Port, _7SEG_RCK_Pin);
-
         HAL_GPIO_DeInit(_7SEG_SERIN_GPIO_Port, _7SEG_SERIN_Pin);
 
         HAL_GPIO_DeInit(_7SEG_SRCK_GPIO_Port, _7SEG_SRCK_Pin);
