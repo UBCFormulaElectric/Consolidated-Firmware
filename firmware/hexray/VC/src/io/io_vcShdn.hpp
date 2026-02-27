@@ -1,11 +1,9 @@
 #pragma once
 
-#include <stdbool.h>
+#include "io_shdnLoopNode.hpp"
 
-namespace io::vcShdn
-{
-bool TsmsFault_get(void);
-bool RearRightMotorInterlock_get(void);
-bool MSDOrEMeterFault_get(void);
-}; // namespace io::vcShdn
+//extern const io::shdn::node tsms_node;
+//extern const io::shdn::node inertia_stop_node; same thing
+//extern const io::shdn::node rear_right_motor_interlock_node;
+//extern const io::shdn::node splitter_box_interlock_node;
 
