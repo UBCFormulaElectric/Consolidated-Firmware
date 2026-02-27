@@ -1,16 +1,13 @@
 #include <cstdio>
-#include "app_utils.hpp"
 #include "hw_utils.hpp"
 #include "io_log.hpp"
 
-static char buffer[100];
-
-void __assert_func(const char *file, int line, const char *func, const char *failedexpr)
+extern "C" [[noreturn]] void
+    __assert_func(const char *file, int line, const char *func, const char *failedexpr) // NOLINT(*-reserved-identifier)
 {
     // Store the message into a buffer so we can easily inspect it using a
     // debugger even without SEGGER RTT set up
-    snprintf(buffer, sizeof(buffer), "%s:%d %s: Assertion `%s' failed\r\n", __BASENAME__(file), line, func, failedexpr);
-    LOG_ERROR("%s", buffer);
+    LOG_ERROR("%s:%d %s: Assertion `%s' failed\r\n", __BASENAME__(file), line, func, failedexpr);
 
     BREAK_IF_DEBUGGER_CONNECTED();
 

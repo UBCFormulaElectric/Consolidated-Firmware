@@ -39,7 +39,7 @@ class F4Chimera : public chimera_v2_config
         return std::nullopt;
     }
 
-    std::optional<std::reference_wrapper<const hw::i2c::I2CDevice>> id_to_i2c(const _I2cNetName *inn) const override
+    std::optional<std::reference_wrapper<const hw::i2c::device>> id_to_i2c(const _I2cNetName *inn) const override
     {
         if (inn->which_name != i2c_net_name_tag)
         {
