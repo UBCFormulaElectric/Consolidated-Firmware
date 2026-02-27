@@ -15,11 +15,11 @@ template <size_t NUM_ADC_CHANNELS> class AdcChip;
 
 class Adc
 {
-    const volatile float *const voltage_source;
-    consteval explicit Adc(const volatile float *in_voltage_source) : voltage_source(in_voltage_source){};
+    const volatile float &voltage_source;
+    consteval explicit Adc(const volatile float &in_voltage_source) : voltage_source(in_voltage_source){};
 
   public:
-    [[nodiscard]] float getVoltage() const { return *voltage_source; }
+    [[nodiscard]] float getVoltage() const { return voltage_source; }
     template <size_t> friend class AdcChip;
 };
 
@@ -90,7 +90,7 @@ template <size_t NUM_ADC_CHANNELS> class AdcChip
         for (uint16_t ch = 0; ch < NUM_ADC_CHANNELS; ch++)
             adc_voltages[ch] = rawAdcValueToVoltage(false, raw_adc_values[ch]);
     }
-    [[nodiscard]] consteval Adc getChannel(uint32_t channel) const { return Adc{ &adc_voltages[channel] }; }
+    [[nodiscard]] consteval Adc getChannel(uint32_t channel) const { return Adc{ adc_voltages[channel] }; }
     [[nodiscard]] constexpr ADC_HandleTypeDef &gethadc() const { return hadc; }
 };
 } // namespace hw
