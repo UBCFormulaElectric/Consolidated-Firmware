@@ -12,7 +12,9 @@
         __asm__ __volatile__("bkpt #0");                  \
     }
 
-inline std::expected<void, ErrorCode> hw_utils_convertHalStatus(const HAL_StatusTypeDef status)
+namespace hw::utils
+{
+inline std::expected<void, ErrorCode> convertHalStatus(const HAL_StatusTypeDef status)
 {
     switch (status)
     {
@@ -27,3 +29,4 @@ inline std::expected<void, ErrorCode> hw_utils_convertHalStatus(const HAL_Status
             return {};
     }
 }
+} // namespace hw::utils

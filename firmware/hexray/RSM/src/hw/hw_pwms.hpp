@@ -3,5 +3,5 @@
 
 namespace hw::pwm
 {
-extern PwmInput flow_meter_config;
+extern const PwmInput flow_meter_config;
 } // namespace hw::pwm

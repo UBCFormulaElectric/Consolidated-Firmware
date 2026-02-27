@@ -35,7 +35,7 @@ std::expected<void, ErrorCode> hw::fdcan::tx(FDCAN_TxHeaderTypeDef &tx_header, c
         UNUSED(num_notifs);
         transmit_task = nullptr;
     }
-    return hw_utils_convertHalStatus(
+    return hw::utils::convertHalStatus(
         HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &tx_header, const_cast<uint8_t *>(msg.data.data())));
 }
 void hw::fdcan::init() const
@@ -56,17 +56,17 @@ void hw::fdcan::init() const
     filter.RxBufferIndex    = 0;
 #endif
 
-    const auto configure_filter_status = hw_utils_convertHalStatus(HAL_FDCAN_ConfigFilter(hfdcan, &filter));
+    const auto configure_filter_status = hw::utils::convertHalStatus(HAL_FDCAN_ConfigFilter(hfdcan, &filter));
     assert(configure_filter_status.has_value());
 
     // Configure interrupt mode for CAN peripheral.
-    const auto configure_notis_ok = hw_utils_convertHalStatus(HAL_FDCAN_ActivateNotification(
+    const auto configure_notis_ok = hw::utils::convertHalStatus(HAL_FDCAN_ActivateNotification(
         hfdcan, FDCAN_IT_RX_FIFO0_NEW_MESSAGE | FDCAN_IT_RX_FIFO1_NEW_MESSAGE | FDCAN_IT_BUS_OFF | FDCAN_IT_TX_COMPLETE,
         FDCAN_TX_BUFFER0));
     assert(configure_notis_ok.has_value());
 
     // Start the FDCAN peripheral.
-    const auto start_status = hw_utils_convertHalStatus(HAL_FDCAN_Start(hfdcan));
+    const auto start_status = hw::utils::convertHalStatus(HAL_FDCAN_Start(hfdcan));
     assert(start_status.has_value());
     ready = true;
 }
@@ -150,7 +150,7 @@ std::expected<hw::CanMsg, ErrorCode> hw::fdcan::receive(const uint32_t rx_fifo) 
     FDCAN_RxHeaderTypeDef header;
 
     CanMsg msg{};
-    RETURN_IF_ERR(hw_utils_convertHalStatus(HAL_FDCAN_GetRxMessage(hfdcan, rx_fifo, &header, msg.data.data())));
+    RETURN_IF_ERR(hw::utils::convertHalStatus(HAL_FDCAN_GetRxMessage(hfdcan, rx_fifo, &header, msg.data.data())));
 
     // Copy metadata from HAL's CAN message struct into our custom CAN
     // message struct

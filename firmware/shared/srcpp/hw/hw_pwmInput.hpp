@@ -1,10 +1,10 @@
 #pragma once
+#include "hw_hal.hpp"
+#include "hw_utils.hpp"
+#include "util_errorCodes.hpp"
 
 #include <cstdint>
-#include <array>
-#include "hw_hal.hpp"
 #include <cassert>
-#include "hw_utils.hpp"
 
 /*
  * PWM input driver notes:
@@ -41,31 +41,31 @@ class PwmInput
     };
 
     /* Conifguration for PWM input*/
-    TIM_HandleTypeDef    *htim = NULL;
+    TIM_HandleTypeDef    &htim;
     HAL_TIM_ActiveChannel tim_active_channel;
     float                 tim_frequency_hz;
     uint32_t              rising_edge_tim_channel;
     uint32_t              falling_edge_tim_channel;
     uint32_t              tim_auto_reload_reg;
 
-    bool first_tick = false;
+    mutable bool first_tick = false;
 
     /* Calculaing frequency based of rising edge*/
-    uint32_t curr_rising_edge = 0;
-    uint32_t prev_rising_edge = 0;
+    mutable uint32_t curr_rising_edge = 0;
+    mutable uint32_t prev_rising_edge = 0;
 
     /*Outputs of PWM input*/
-    float  duty_cycle         = 0;
-    float  frequency_hz       = 0;
-    size_t tim_overflow_count = 0;
+    mutable float  duty_cycle         = 0;
+    mutable float  frequency_hz       = 0;
+    mutable size_t tim_overflow_count = 0;
 
     PwmMode mode;
 
     /**
      * Set the frequency for the given PWM input
-     * @param frequency_hz: Frequency, in Hz
+     * @param curr_frequency Frequency, in Hz
      */
-    void setFrequency(const float curr_frequency)
+    void setFrequency(const float curr_frequency) const
     {
         assert(frequency_hz >= 0.0f);
         frequency_hz = curr_frequency;
@@ -74,12 +74,12 @@ class PwmInput
   public:
     /* Complete PWM Input Constructor*/
     consteval explicit PwmInput(
-        TIM_HandleTypeDef    *htim_in,
-        HAL_TIM_ActiveChannel tim_active_channel_in,
-        float                 tim_frequency_hz_in,
-        uint32_t              rising_edge_tim_channel_in,
-        uint32_t              falling_edge_tim_channel_in,
-        uint32_t              tim_auto_reload_reg_in)
+        TIM_HandleTypeDef          &htim_in,
+        const HAL_TIM_ActiveChannel tim_active_channel_in,
+        const float                 tim_frequency_hz_in,
+        const uint32_t              rising_edge_tim_channel_in,
+        const uint32_t              falling_edge_tim_channel_in,
+        const uint32_t              tim_auto_reload_reg_in)
       : htim(htim_in),
         tim_active_channel(tim_active_channel_in),
         tim_frequency_hz(tim_frequency_hz_in),
@@ -92,11 +92,11 @@ class PwmInput
 
     /* Frequency only PWM Input Constructor */
     consteval explicit PwmInput(
-        TIM_HandleTypeDef    *htim_in,
-        HAL_TIM_ActiveChannel tim_active_channel_in,
-        float                 tim_frequency_hz_in,
-        uint32_t              rising_edge_tim_channel_in,
-        uint32_t              tim_auto_reload_reg_in)
+        TIM_HandleTypeDef          &htim_in,
+        const HAL_TIM_ActiveChannel tim_active_channel_in,
+        const float                 tim_frequency_hz_in,
+        const uint32_t              rising_edge_tim_channel_in,
+        const uint32_t              tim_auto_reload_reg_in)
       : htim(htim_in),
         tim_active_channel(tim_active_channel_in),
         tim_frequency_hz(tim_frequency_hz_in),
@@ -107,43 +107,113 @@ class PwmInput
     {
     }
 
+    PwmInput() = delete;
+
     /**
      * Initialize a frequency-only PWM input using the given (hardware) timer
      *
      * @note The given timer must be initialized with Input Capture Direct Mode
      */
-    void init();
+    [[nodiscard]] std::expected<void, ErrorCode> init() const
+    {
+        RETURN_IF_ERR_SILENT(hw::utils::convertHalStatus(HAL_TIM_IC_Start_IT(&htim, rising_edge_tim_channel)));
+        RETURN_IF_ERR_SILENT(hw::utils::convertHalStatus(HAL_TIM_IC_Start_IT(&htim, falling_edge_tim_channel)));
+        RETURN_IF_ERR_SILENT(hw::utils::convertHalStatus(HAL_TIM_Base_Start_IT(&htim)));
+        return {};
+    }
 
     /**
      * Get the frequency for the given PWM input
      * @return The frequency for the given PWM input
      */
-    float get_frequency(void) const;
+    [[nodiscard]] float get_frequency() const { return frequency_hz; }
 
     /**
      * Get the duty cycle for the given PWM input
      * @return The duty cycle for the given PWM input
      */
-    float get_dutyCycle(void) const;
+    [[nodiscard]] float get_dutyCycle() const { return duty_cycle; }
 
     /**
      * Get the timer handle for the given PWM input
      * @return The timer handle for the given PWM input
      */
-    constexpr TIM_HandleTypeDef *get_timer_handle(void) const { return htim; }
+    [[nodiscard]] constexpr TIM_HandleTypeDef &get_timer_handle() const { return htim; }
 
-    constexpr HAL_TIM_ActiveChannel get_timer_activeChannel(void) const { return tim_active_channel; }
+    [[nodiscard]] constexpr HAL_TIM_ActiveChannel get_timer_activeChannel() const { return tim_active_channel; }
     /**
      * Check if the given PWM signal is active. If the sensor detects a DC signal
      * set the frequency to 0Hz.
      * @note This function should be called in the timer overflow interrupt
      *       for the PWM signal
      */
-    bool pwm_isActive(void);
+    [[nodiscard]] std::expected<void, ErrorCode> pwm_isActive()
+    {
+        // If the timer overflows twice without a rising edge, the PWM signal is
+        // likely inactive (i.e. DC signal) and its frequency can't be computed
+        if (++tim_overflow_count == 2U)
+        {
+            setFrequency(0);
+            return std::unexpected(ErrorCode::ERROR);
+        }
+        return {};
+    }
 
     /**
      * Update the frequency and duty cycle for the given PWM input
      */
-    void tick(void);
+    void tick() const
+    {
+        // Reset the timer overflow count to indicate that the PWM signal is active
+        tim_overflow_count = 0;
+
+        // We store the counter values captured during two most recent rising edges.
+        // The difference between these two counter values is used to compute the
+        // frequency of the PWM input signal.
+        if (first_tick)
+        {
+            curr_rising_edge = HAL_TIM_ReadCapturedValue(&htim, rising_edge_tim_channel);
+            first_tick       = false;
+        }
+        else
+        {
+            prev_rising_edge = curr_rising_edge;
+
+            curr_rising_edge = HAL_TIM_ReadCapturedValue(&htim, rising_edge_tim_channel);
+
+            uint32_t rising_edge_detlta;
+
+            if (curr_rising_edge > prev_rising_edge)
+            {
+                rising_edge_detlta = curr_rising_edge - prev_rising_edge;
+                setFrequency(tim_frequency_hz / static_cast<float>(rising_edge_detlta));
+            }
+            else if (curr_rising_edge < prev_rising_edge)
+            {
+                // Occurs when the counter rolls over
+                rising_edge_detlta = tim_auto_reload_reg - prev_rising_edge + curr_rising_edge;
+                setFrequency(tim_frequency_hz / static_cast<float>(rising_edge_detlta));
+            }
+            else
+            {
+                // Occurs when the counter rolls over (i.e. The PWM frequency being
+                // measured is too low), or either when a tick arrives before the
+                // counter can upcount (i.e. The PWM frequency being measured is
+                // too high)
+                setFrequency(0);
+            }
+        }
+
+        if (mode == PwmMode::PWMINPUT)
+        {
+            // Calculating duty cycle
+            if (curr_rising_edge != 0)
+            {
+                const uint32_t falling_edge = HAL_TIM_ReadCapturedValue(&htim, falling_edge_tim_channel);
+
+                duty_cycle = 100.0f * static_cast<float>(falling_edge) / static_cast<float>(curr_rising_edge);
+            }
+        }
+    }
 };
 } // namespace hw

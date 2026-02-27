@@ -4,10 +4,11 @@
 
 namespace hw
 {
-Uart sbg_ellipse_uart(&huart8);
+constexpr Uart sbg_ellipse_uart{ huart8 };
 
-Uart &hw_uart_getDeviceFromHandle(const UART_HandleTypeDef *handle)
+const Uart &getUartFromHandle(const UART_HandleTypeDef *handle)
 {
+    assert(handle == &huart8);
     return sbg_ellipse_uart;
 }
 } // namespace hw

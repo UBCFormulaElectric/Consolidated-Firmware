@@ -116,11 +116,11 @@ class fdcan final : public BaseCan
 
     void deinit() const override;
 
-    std::expected<void, ErrorCode> can_transmit(const CanMsg &msg) const override;
+    [[nodiscard]] std::expected<void, ErrorCode> can_transmit(const CanMsg &msg) const override;
 
-    std::expected<void, ErrorCode> fdcan_transmit(const CanMsg &msg) const;
+    [[nodiscard]] std::expected<void, ErrorCode> fdcan_transmit(const CanMsg &msg) const;
 
-    std::expected<CanMsg, ErrorCode> receive(uint32_t rx_fifo) const override;
+    [[nodiscard]] std::expected<CanMsg, ErrorCode> receive(uint32_t rx_fifo) const override;
 };
 
 const fdcan &fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan);

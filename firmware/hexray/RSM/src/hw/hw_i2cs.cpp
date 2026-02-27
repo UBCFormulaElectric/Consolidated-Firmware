@@ -2,16 +2,11 @@
 #include "main.h"
 #include <cassert>
 
-namespace hw::i2c
-{
-I2CBus i2c_bus_2(hi2c2);
+constexpr hw::i2c::bus    i2c_bus_2(hi2c2);
+constexpr hw::i2c::device r_pump(i2c_bus_2, 0x2F, 100);
 
-I2CDevice r_pump(i2c_bus_2, 0x2F, 100);
-
-I2CBus &getBusFromHandle(const I2C_HandleTypeDef *handle)
+const hw::i2c::bus &getBusFromHandle(const I2C_HandleTypeDef *handle)
 {
     assert(handle == &hi2c2);
     return i2c_bus_2;
 }
-
-} // namespace hw::i2c

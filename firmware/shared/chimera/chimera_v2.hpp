@@ -71,8 +71,8 @@ class config
 
   public:
     // A table of Protobuf-generated net names to I2C peripherals.
-    // virtual const hw::i2c::I2CDevice &id_to_i2c();
-    virtual std::optional<std::reference_wrapper<const hw::i2c::I2CDevice>> id_to_i2c(const _I2cNetName *inn) const = 0;
+    // virtual const hw::i2c::device &id_to_i2c();
+    virtual std::optional<std::reference_wrapper<const hw::i2c::device>> id_to_i2c(const _I2cNetName *inn) const = 0;
 #endif
 
 #ifdef HAL_SPI_MODULE_ENABLED
