@@ -1,5 +1,6 @@
 use std::sync::Arc;
 use axum::Router;
+use colored::Colorize;
 use tokio::select;
 use tokio::sync::{RwLock, broadcast};
 use tokio::net::TcpListener;
@@ -14,6 +15,8 @@ use crate::tasks::client_api::signal_api_handler::get_signal_router;
 use crate::tasks::client_api::subtable_api_handler::get_subtable_router;
 
 pub async fn run_api_handler(mut shutdown_rx: broadcast::Receiver<()>, clients: Arc<RwLock<Clients>>, can_db: Arc<CanDatabase>) {
+    println!("{}", "API handler task started.".yellow());
+    
     let addr = format!("0.0.0.0:{}", CONFIG.backend_port);
     let listener = TcpListener::bind(addr).await.unwrap();
 
@@ -50,12 +53,16 @@ pub async fn run_api_handler(mut shutdown_rx: broadcast::Receiver<()>, clients: 
         .layer(cors)
         .into_make_service();
 
+    // this is so quirky it's amazing
+    // the select macro waits for one of these to finish
+    // if shutdown finishes first, leave select block
     select! {
         _ = shutdown_rx.recv() => {
-            println!("Shutting down API handler task.");
+            println!("API handler task shutting down.");
         },
         _ = axum::serve(listener, app) => {
             println!("Error occurred");
         }
     }
+    println!("{}", "API handler task ended.".yellow());
 }

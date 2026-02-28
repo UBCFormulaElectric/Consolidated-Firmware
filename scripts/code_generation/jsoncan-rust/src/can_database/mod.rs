@@ -252,7 +252,7 @@ impl CanDatabase {
 pub struct DecodedSignal {
     pub name: String,
     pub value: f64,
-    pub timestamp: Option<std::time::SystemTime>,
+    pub timestamp: Option<u32>,
     pub label: Option<String>,
     pub unit: Option<String>,
 }

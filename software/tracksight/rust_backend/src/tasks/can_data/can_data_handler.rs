@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use colored::Colorize;
 use tokio::{select, spawn};
 use tokio::sync::{RwLock, broadcast};
 
@@ -20,7 +21,7 @@ pub async fn run_can_data_handler(
     clients: Arc<RwLock<Clients>>,
     can_db: Arc<CanDatabase>
 ) {
-    println!("CAN data handler task started.");
+    println!("{}", "CAN data task started.".yellow());
 
     let (decoded_signal_tx, _) = broadcast::channel::<DecodedSignal>(32);
 
@@ -31,11 +32,10 @@ pub async fn run_can_data_handler(
     loop {
         select! {
             _ = shutdown_rx.recv() => {
-                println!("Shutting down CAN data handler task.");
+                println!("CAN data task shutting down.");
                 break;
             }
             Ok(can_payload) = can_queue_rx.recv() => {
-
                 
                 let decoded_signals = can_db.unpack(
                     can_payload.can_id, 
@@ -55,6 +55,6 @@ pub async fn run_can_data_handler(
     
     let _ = influx_handler_task.await;
     let _ = live_data_handler_task.await;
-    println!("CAN data handler task ended.");
+    println!("{}", "CAN data task ended.".yellow());
 }
 
