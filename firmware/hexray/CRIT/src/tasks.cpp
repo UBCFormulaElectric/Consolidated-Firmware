@@ -99,6 +99,7 @@ void tasks_preInit() {}
 
 void tasks_init()
 {
+    hw::can::fdcan1.init();
     jobs_init();
     osKernelInitialize();
     CRIT_StartAllTasks();
