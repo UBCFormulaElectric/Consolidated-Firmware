@@ -102,6 +102,7 @@ void tasks_preInit() {}
 
 void tasks_init()
 {
+    hw::can::can1.init();
     jobs_init();
     osKernelInitialize();
     RSM_StartAllTasks();
