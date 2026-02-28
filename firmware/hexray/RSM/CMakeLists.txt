@@ -44,7 +44,6 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmInput.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_spi.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_gpio.cpp"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_adc.cpp"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
@@ -131,7 +130,7 @@ elseif ("${TARGET}" STREQUAL "test")
     )
     set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
     set(INCLUDE_DIRS
-            # "${CMAKE_CURRENT_SOURCE_DIR}/test"
+        #     "${CMAKE_CURRENT_SOURCE_DIR}/test"
             ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR} ${SHARED_UTIL_INCLUDE_DIR_CPP}
             ${SHARED_FAKES_DIR} ${SHARED_FAKES_DIR_CPP} ${SHARED_TEST_INCLUDE_DIR}
     )
