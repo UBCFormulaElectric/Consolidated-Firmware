@@ -101,6 +101,8 @@ void tasks_preInit() {}
 
 [[noreturn]] void tasks_init()
 {
+
+    hw::can::fdcan1.init();
     jobs_init();
     osKernelInitialize();
     FSM_StartAllTasks();

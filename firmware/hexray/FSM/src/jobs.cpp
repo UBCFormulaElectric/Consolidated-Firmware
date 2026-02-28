@@ -15,7 +15,11 @@
 #include <io_time.hpp>
 // #include "app_shdnLoopNode.hpp"
 
-void jobs_init() {}
+void jobs_init()
+{
+    can_tx_queue.init();
+    can_rx_queue.init();
+}
 void jobs_run1Hz_tick()
 {
     app::apps::broadcast();
