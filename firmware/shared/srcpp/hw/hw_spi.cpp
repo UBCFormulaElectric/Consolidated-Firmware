@@ -26,12 +26,18 @@ void SpiBus::onTransactionCompleteFromISR() const
 /* ------------------------------ SpiDevice ----------------------------- */
 void SpiDevice::enableNss() const
 {
-    nss.writePin(false);
+    if (nss.has_value())
+    {
+        nss.value().writePin(false);
+    }
 }
 
 void SpiDevice::disableNss() const
 {
-    nss.writePin(true);
+    if (nss.has_value())
+    {
+        nss.value().writePin(true);
+    }
 }
 
 std::expected<void, ErrorCode> SpiDevice::waitForNotification() const
