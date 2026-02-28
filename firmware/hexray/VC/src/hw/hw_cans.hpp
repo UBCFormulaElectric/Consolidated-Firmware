@@ -1,9 +1,9 @@
 #pragma once
 #include "hw_can.hpp"
 
-namespace hw::cans
+namespace hw::can
 {
 extern fdcan fdcan1;
-extern fdcan fdcan3;
+extern fdcan fdcan2;
 
-} // namespace hw::cans
+} // namespace hw::can

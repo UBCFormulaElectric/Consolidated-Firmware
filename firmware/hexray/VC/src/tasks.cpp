@@ -2,6 +2,11 @@
 #include "jobs.hpp"
 #include "io_time.hpp"
 #include "hw_rtosTaskHandler.hpp"
+#include "io_canQueues.hpp"
+#include "hw_cans.hpp"
+#include "app_jsoncan.hpp"
+
+#include <io_canRx.hpp>
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
@@ -27,16 +32,53 @@
     }
 }
 
+[[noreturn]] static void tasks_runCanTx(void *arg)
+{
+    forever
+    {
+        const auto msg = can_tx_queue.pop();
+        if (not msg)
+            continue;
+        if (const auto &m = msg.value(); m.bus == app::can_utils::BusEnum::Bus_FDCAN)
+        {
+            const auto res = hw::can::fdcan1.can_transmit(hw::CanMsg{
+                m.std_id,
+                m.dlc,
+                m.data,
+            });
+            LOG_IF_ERR(res);
+        }
+        else
+        {
+            LOG_ERROR("INVALID BUS %d", m.bus);
+        }
+    }
+}
+[[noreturn]] static void tasks_runCanRx(void *arg)
+{
+    forever
+    {
+        const auto msg = can_rx_queue.pop();
+        if (not msg)
+            continue;
+        io::can_rx::updateRxTableWithMessage(app::jsoncan::copyFromCanMsg(msg.value()));
+    }
+}
+
 // Define the task with StaticTask Class
 static hw::rtos::StaticTask<8096> Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz);
 static hw::rtos::StaticTask<512>  Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz);
 static hw::rtos::StaticTask<512>  Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz);
+static hw::rtos::StaticTask<512>  TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_runCanRx);
+static hw::rtos::StaticTask<512>  TaskCanTx(osPriorityNormal, "TaskCanTx", tasks_runCanTx);
 
 static void VC_StartAllTasks()
 {
     Task100Hz.start();
     Task1kHz.start();
     Task1Hz.start();
+    TaskCanRx.start();
+    TaskCanTx.start();
 }
 
 void tasks_preInit() {}
