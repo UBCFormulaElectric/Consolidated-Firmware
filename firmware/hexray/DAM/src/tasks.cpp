@@ -10,8 +10,6 @@
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_cans.hpp"
 
-
-
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
     const uint32_t period_ms = 1000U;

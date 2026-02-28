@@ -1,7 +1,6 @@
 #include "tasks.h"
 #include "jobs.hpp"
 
-
 #include "app_jsoncan.hpp"
 
 #include "io_time.hpp"
@@ -10,7 +9,6 @@
 
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_cans.hpp"
-
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
@@ -35,7 +33,6 @@
         jobs_run100Hz_tick();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
-    
     }
 }
 [[noreturn]] static void tasks_run1kHz(void *arg)

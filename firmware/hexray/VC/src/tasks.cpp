@@ -11,7 +11,6 @@
 #include "hw_cans.hpp"
 #include "hw_rtosTaskHandler.hpp"
 
-
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
     const uint32_t period_ms = 1000U;
@@ -112,7 +111,6 @@ static hw::rtos::StaticTask<512>  Task1Hz(osPriorityAboveNormal, "Task1Hz", task
 static hw::rtos::StaticTask<512>  TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_runCanRx);
 static hw::rtos::StaticTask<512>  TaskCan1Tx(osPriorityNormal, "TaskCanTx", tasks_runCan1Tx);
 static hw::rtos::StaticTask<512>  TaskCan2Tx(osPriorityNormal, "TaskCanTx", tasks_runCan2Tx);
-
 
 static void VC_StartAllTasks()
 {

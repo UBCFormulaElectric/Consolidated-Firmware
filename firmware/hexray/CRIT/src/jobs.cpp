@@ -13,19 +13,16 @@
 #include <io_canTx.hpp>
 #include "io_canQueues.hpp"
 
-
 void jobs_init()
 {
-
     io::can_tx::init(
         [](const JsonCanMsg &tx_msg)
         {
             const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
             LOG_IF_ERR(can_tx_queue.push(msg));
-        }
-    );
+        });
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
-   
+
     app::can_tx::CRIT_Hash_set(GIT_COMMIT_HASH);
     app::can_tx::CRIT_Clean_set(GIT_COMMIT_CLEAN);
     app::can_tx::CRIT_Heartbeat_set(true);

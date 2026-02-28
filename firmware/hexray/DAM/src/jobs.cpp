@@ -10,27 +10,22 @@
 
 #include <util_errorCodes.hpp>
 
-
-void jobs_init() 
-{
-
-}
-void jobs_run1Hz_tick() 
+void jobs_init() {}
+void jobs_run1Hz_tick()
 {
     io::can_tx::init(
         [](const JsonCanMsg &tx_msg)
         {
             const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
             LOG_IF_ERR(can_tx_queue.push(msg));
-        }
-    );
+        });
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
 }
-void jobs_run100Hz_tick() 
+void jobs_run100Hz_tick()
 {
     io::can_tx::enqueue100HzMsgs();
 }
-void jobs_run1kHz_tick() 
+void jobs_run1kHz_tick()
 {
     io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
 }
