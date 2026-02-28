@@ -1,8 +1,5 @@
 #pragma once
 
-#include "hw_adcs.hpp"
-#include "hw_gpios.hpp"
-
 namespace io::suspension
 {
 float getRLTravel();

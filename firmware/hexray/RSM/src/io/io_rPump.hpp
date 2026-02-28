@@ -1,12 +1,7 @@
 #pragma once
-#include "io_potentiometer.hpp"
-#include "hw_i2cs.hpp"
-#include "util_errorCodes.hpp"
-#include <cstdint>
 
-#ifdef TARGET_EMBEDDED
-// #include "hw_i2cs.hpp" //Not created yet
-#endif
+#include "io_potentiometer.hpp"
+#include <cstdint>
 
 namespace io::rPump
 {

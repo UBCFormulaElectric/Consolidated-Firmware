@@ -1,4 +1,6 @@
 #include "io_suspension.hpp"
+#include "hw_adcs.hpp"
+#include "hw_gpios.hpp"
 
 constexpr float METERS_PER_VOLT = 100.0f;
 

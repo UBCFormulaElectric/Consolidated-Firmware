@@ -1,4 +1,6 @@
 #include "io_rPump.hpp"
+#include "hw_i2cs.hpp"
+#include "util_errorCodes.hpp"
 
 namespace io::rPump
 {
