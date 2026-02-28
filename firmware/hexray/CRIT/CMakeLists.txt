@@ -152,4 +152,5 @@ elseif ("${TARGET}" STREQUAL "test")
     )
 
     target_link_libraries("hexray_CRIT_test" PRIVATE "hexray_CRIT_fakes" "hexray_CRIT_commit_info" "hexray_CRIT_jsoncan")
+    target_compile_definitions("hexray_CRIT_test" PRIVATE STM32H562xx)
 endif ()
