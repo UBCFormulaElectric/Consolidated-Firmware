@@ -19,15 +19,6 @@ void jobs_init()
 {
     can_tx_queue.init();
     can_rx_queue.init();
-}
-void jobs_run1Hz_tick()
-{
-    app::apps::broadcast();
-    app::brake::broadcast();
-    app::imu::broadcast();
-    // app::shdnLoop::broadcast();
-    app::steering::broadcast();
-    app::suspension::broadcast();
 
     io::can_tx::init(
         [](const JsonCanMsg &tx_msg)
@@ -37,6 +28,15 @@ void jobs_run1Hz_tick()
         });
 
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
+}
+void jobs_run1Hz_tick()
+{
+    app::apps::broadcast();
+    app::brake::broadcast();
+    app::imu::broadcast();
+    // app::shdnLoop::broadcast();
+    app::steering::broadcast();
+    app::suspension::broadcast();
 }
 void jobs_run100Hz_tick()
 {
