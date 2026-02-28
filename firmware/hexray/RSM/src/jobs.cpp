@@ -33,7 +33,7 @@ void jobs_run100Hz_tick()
     app::imu::broadcast();
     app::suspension::broadcast();
     app::tireTemp::broadcast();
-
+    app::coolant::broadcast();
     io::can_tx::enqueue100HzMsgs();
 }
 void jobs_run1kHz_tick()
