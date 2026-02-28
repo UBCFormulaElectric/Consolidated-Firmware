@@ -1,6 +1,8 @@
 #pragma once
 
+#ifdef TARGET_EMBEDDED
 #include "hw_pwms.hpp"
+#endif
 
 namespace io::coolant
 {
