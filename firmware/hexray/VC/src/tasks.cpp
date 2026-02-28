@@ -1,47 +1,87 @@
 #include "tasks.h"
 #include "jobs.hpp"
-#include "io_time.hpp"
-#include "hw_rtosTaskHandler.hpp"
-#include "io_canQueues.hpp"
-#include "hw_cans.hpp"
+
 #include "app_jsoncan.hpp"
 
+#include "io_time.hpp"
+#include "io_canQueues.hpp"
 #include <io_canRx.hpp>
+#include <io_canTx.hpp>
+
+#include "hw_cans.hpp"
+#include "hw_rtosTaskHandler.hpp"
+
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
+    const uint32_t period_ms = 1000U;
+
+    uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
-        const uint32_t start_time = io::time::getCurrentMs();
         jobs_run1Hz_tick();
-        io::time::delayUntil(start_time + 1000);
+        start_ticks += period_ms;
+        io::time::delayUntil(start_ticks);
+        osDelayUntil(start_ticks);
     }
 }
 [[noreturn]] static void tasks_run100Hz(void *arg)
 {
+    const uint32_t period_ms = 10U;
+
+    uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
         jobs_run100Hz_tick();
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
     }
 }
 [[noreturn]] static void tasks_run1kHz(void *arg)
 {
+    const uint32_t period_ms = 1U;
+
+    uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
         jobs_run1kHz_tick();
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
     }
 }
 
-[[noreturn]] static void tasks_runCanTx(void *arg)
+[[noreturn]] static void tasks_runCan1Tx(void *arg)
 {
     forever
     {
-        const auto msg = can_tx_queue.pop();
+        const auto msg = fdcan_tx_queue.pop();
         if (not msg)
             continue;
         if (const auto &m = msg.value(); m.bus == app::can_utils::BusEnum::Bus_FDCAN)
         {
-            const auto res = hw::can::fdcan1.can_transmit(hw::CanMsg{
+            const auto res = hw::can::fdcan1.fdcan_transmit(hw::CanMsg{
+                m.std_id,
+                m.dlc,
+                m.data,
+            });
+            LOG_IF_ERR(res);
+        }
+        else
+        {
+            LOG_ERROR("INVALID BUS %d", m.bus);
+        }
+    }
+}
+[[noreturn]] static void tasks_runCan2Tx(void *arg)
+{
+    forever
+    {
+        const auto msg = invcan_tx_queue.pop();
+        if (not msg)
+            continue;
+        if (const auto &m = msg.value(); m.bus == app::can_utils::BusEnum::Bus_FDCAN)
+        {
+            const auto res = hw::can::invcan.can_transmit(hw::CanMsg{
                 m.std_id,
                 m.dlc,
                 m.data,
@@ -70,7 +110,9 @@ static hw::rtos::StaticTask<8096> Task100Hz(osPriorityHigh, "Task100Hz", tasks_r
 static hw::rtos::StaticTask<512>  Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz);
 static hw::rtos::StaticTask<512>  Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz);
 static hw::rtos::StaticTask<512>  TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_runCanRx);
-static hw::rtos::StaticTask<512>  TaskCanTx(osPriorityNormal, "TaskCanTx", tasks_runCanTx);
+static hw::rtos::StaticTask<512>  TaskCan1Tx(osPriorityNormal, "TaskCanTx", tasks_runCan1Tx);
+static hw::rtos::StaticTask<512>  TaskCan2Tx(osPriorityNormal, "TaskCanTx", tasks_runCan2Tx);
+
 
 static void VC_StartAllTasks()
 {
@@ -78,7 +120,8 @@ static void VC_StartAllTasks()
     Task1kHz.start();
     Task1Hz.start();
     TaskCanRx.start();
-    TaskCanTx.start();
+    TaskCan1Tx.start();
+    TaskCan2Tx.start();
 }
 
 void tasks_preInit() {}

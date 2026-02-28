@@ -4,6 +4,6 @@
 namespace hw::can
 {
 extern fdcan fdcan1;
-extern fdcan fdcan2;
+extern fdcan invcan;
 
 } // namespace hw::can

@@ -1,35 +1,52 @@
 #include "tasks.h"
 #include "jobs.hpp"
+
+#include "app_jsoncan.hpp"
+
 #include "io_time.hpp"
+#include "io_canQueues.hpp"
+#include <io_canRx.hpp>
+#include <io_canTx.hpp>
+
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_cans.hpp"
-#include "io_canQueues.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
+    const uint32_t period_ms = 1000U;
+
+    uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
-        const uint32_t start_time = io::time::getCurrentMs();
         jobs_run1Hz_tick();
-        io::time::delayUntil(start_time + 1000);
+        start_ticks += period_ms;
+        io::time::delayUntil(start_ticks);
+        osDelayUntil(start_ticks);
     }
 }
 [[noreturn]] static void tasks_run100Hz(void *arg)
 {
+    const uint32_t period_ms = 10U;
+
+    uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
-        const uint32_t start_time = io::time::getCurrentMs();
         jobs_run100Hz_tick();
-        io::time::delayUntil(start_time + 10);
+        io::can_tx::enqueue100HzMsgs();
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
     }
 }
 [[noreturn]] static void tasks_run1kHz(void *arg)
 {
+    const uint32_t period_ms = 1U;
+
+    uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
-        const uint32_t start_time = io::time::getCurrentMs();
         jobs_run1kHz_tick();
-        io::time::delayUntil(start_time + 10);
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
     }
 }
 [[noreturn]] static void tasks_runCanTx(void *arg)
@@ -58,7 +75,10 @@
 {
     forever
     {
-        jobs_runCanRx_tick();
+        const auto msg = can_rx_queue.pop();
+        if (not msg)
+            continue;
+        io::can_rx::updateRxTableWithMessage(app::jsoncan::copyFromCanMsg(msg.value()));
     }
 }
 
