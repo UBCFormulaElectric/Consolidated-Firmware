@@ -5,7 +5,6 @@
 #include "hw_gpios.hpp"
 #endif
 
-
 namespace io::brake
 {
 /*
