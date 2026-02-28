@@ -64,7 +64,7 @@ export function Widget({ widgetData }: { widgetData: WidgetData; }) {
 				{/* header */}
 				<div className="flex items-center gap-2 mb-4">
 					<h3 className="font-semibold">Widget {widgetData.id}</h3>
-					<button onClick={deleteSelfWidget} title="Remove mock graph"
+					<button onClick={deleteSelfWidget} title="Remove graph"
 						className="w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-sm font-bold transition-colors cursor-pointer"
 					>
 						×
@@ -72,11 +72,11 @@ export function Widget({ widgetData }: { widgetData: WidgetData; }) {
 				</div>
 
 				{/* TODO remove, keep for debugging for now */}
-				{/* <label className="text-sm block">Vertical Scale: {chartHeight}px</label>
+				<label className="text-sm block">Vertical Scale: {chartHeight}px</label>
 					<input type="range" min={100} max={600} step={50} value={chartHeight}
 						onChange={(e) => setChartHeight(+e.target.value)}
 					/>
-				*/}
+				
 
 				{/* Signal buttons */}
 				<div className="flex flex-wrap items-center gap-3">

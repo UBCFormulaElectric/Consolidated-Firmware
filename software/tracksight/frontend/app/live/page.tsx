@@ -7,20 +7,28 @@ import { WidgetAdder } from "@/app/live/WidgetAdder";
 import { Widget } from "@/components/widgets/Widget";
 import { useWidgetManager, WidgetManager } from "@/components/widgets/WidgetManagerContext";
 
-export default function LiveDataPage() {
+function Content() {
   const { widgets } = useWidgetManager();
+
+  return (
+    <>
+      <PausePlayButton />
+      {widgets.map(widgetData => // TODO(evan): Add the universal timeline
+        <Widget widgetData={widgetData} key={widgetData.id} />
+      )}
+      <WidgetAdder />
+    </>
+  );
+}
+
+export default function LiveDataPage() {
   return (
     <div id="live-page" className="pt-14 h-screen">
       <DisplayControlProvider>
         <SignalProvider>
           <SyncedGraphContainer>
             <WidgetManager>
-              <PausePlayButton />
-              {/** TODO(evan): Add the universal timeline here */}
-              {widgets.map(widgetData =>
-                <Widget widgetData={widgetData} key={widgetData.id} />
-              )}
-              <WidgetAdder />
+              <Content />
             </WidgetManager>
           </SyncedGraphContainer>
         </SignalProvider >

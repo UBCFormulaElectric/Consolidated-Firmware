@@ -5,6 +5,7 @@ type SeriesBase = {
 	label: string;
 	timestamps: number[];
 };
+
 export type NumericalSeries = SeriesBase & {
 	type: SignalType.NUMERICAL;
 	color: string;
@@ -12,6 +13,7 @@ export type NumericalSeries = SeriesBase & {
 	max: number;
 	data: SeriesData;
 };
+
 export type EnumSeries = SeriesBase & {
 	type: SignalType.ENUM;
 	data: Array<number>;

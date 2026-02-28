@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback, RefObject, SubmitEvent } from "react";
-import { NumericalSignalConfig, WidgetConfigs, WidgetData } from "@/lib/types/Widget";
+import { EnumSignalConfig, NumericalSignalConfig, WidgetConfigs, WidgetData } from "@/lib/types/Widget";
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { SignalType } from "@/lib/types/Signal";
 import { DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ChartData } from "./chart_types";
+import { ChartData, NumericalSeries } from "./chart_types";
+import { SeriesData } from "@/lib/seriesData";
 
 function generateRandomNumericalValue(time: number, index: number = 0, min: number, max: number) {
     if (min !== undefined && max !== undefined) {
@@ -21,11 +22,7 @@ function generateRandomNumericalValue(time: number, index: number = 0, min: numb
     }
 
     return (
-        //Math.sin(time / 1000 + index) * 50 + Math.random() * 10 + 50 + index * 20 * (1 + time / 100000)
         Math.sin(time / 1000 + index) * 50 + Math.random() * 10 + 50 + index * 20
-        //val
-        //Math.random() * (time % 10000) * (index * 1000)
-        // 50 + Math.random() * 10 + 50 + index * 20 * time
     );
 }
 
@@ -40,7 +37,7 @@ export function MockWidgetAddSignalModal({ closeModal, configs, updateWidget, da
 
     // read only
     configs: WidgetConfigs,
-    dataRef: RefObject<unknown>,
+    dataRef: RefObject<ChartData>,
     widgetData: WidgetData,
 }) {
     const [newSignalName, setNewSignalName] = useState("");
@@ -61,23 +58,27 @@ export function MockWidgetAddSignalModal({ closeModal, configs, updateWidget, da
             return;
         }
 
-        // TODO
-        // const newConfig: MockGraphConfig = {
-        //     signal_name: name,
-        //     type: newSignalType,
-        //     delay: newSignalDelay,
-        //     initialPoints: 0,
-        //     min: newSignalType === SignalType.NUMERICAL ? newSignalMin : undefined,
-        //     max: newSignalType === SignalType.NUMERICAL ? newSignalMax : undefined,
-        // };
-        // const store = dataRef.current;
-        // store.series[name] = new Array(store.timestamps.length).fill(null);
-        updateWidget((prev) => {
-            // if (prev.type === SignalType.MOCK) {
-            //     return { ...prev, configs: [...prev.configs, newConfig] };
-            // }
-            return prev;
-        });
+        const newConfig = newSignalType === SignalType.NUMERICAL ? {
+            signal_name: name, delay: newSignalDelay, initialPoints: 0, min: newSignalMin, max: newSignalMax, } satisfies NumericalSignalConfig : {
+            signal_name: name, delay: newSignalDelay, initialPoints: 0, options: { colorPalette: [] }} satisfies EnumSignalConfig;
+
+        
+        const store = dataRef.current;
+
+        if (store.type === SignalType.NUMERICAL) {
+            store.all_series.push({
+                type: SignalType.NUMERICAL, // not sure if i need to add this bc of discriminated union?
+                label: name, timestamps: [], data: new SeriesData(), color: "", min: newSignalMin, max: newSignalMax,
+            });
+        }
+        else {
+            store.all_series.push({
+                type: SignalType.ENUM,
+                label: name, timestamps: [], data: [], enumValuesToNames: {}
+            });
+        }
+
+        updateWidget((prev) => ({ ...prev, configs: [...prev.configs, newConfig] } as WidgetData));
         closeModal();
     }, [configs, newSignalName, newSignalType, newSignalDelay, updateWidget, widgetData.id, newSignalMin, newSignalMax]);
 
@@ -170,10 +171,7 @@ export function MockWidgetAddSignalModal({ closeModal, configs, updateWidget, da
     );
 }
 
-export function useMockData(
-    isPaused: boolean,
-    widgetData: WidgetData,
-): RefObject<ChartData> {
+export function useMockData( isPaused: boolean, widgetData: WidgetData,): RefObject<ChartData> {
     const { setTimeRange, timeRangeRef } = useSyncedGraph(); // because this widget is also doing the data generation
     // const dataRef = useRef<Record<string, SeriesData<number | string>>>({});
     const dataRef = useRef({
