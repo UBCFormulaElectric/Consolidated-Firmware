@@ -9,3 +9,9 @@ bool hw::Gpio::readPin() const
 {
     return HAL_GPIO_ReadPin(port, pin) == GPIO_PIN_SET;
 }
+
+bool hw::Gpio::togglePin() const
+{
+    HAL_GPIO_TogglePin(port, pin);
+    return readPin();
+}

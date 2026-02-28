@@ -7,22 +7,9 @@
 
 /* ------------------------------- Includes ------------------------------- */
 
+#include "app_canUtils.hpp"
 #include <cstdint>
 #include <array>
-
-/**
- * Standard CAN message type.
- */
-struct JsonCanMsg
-{
-    using data_array = std::array<uint8_t, {% if fd -%}64{%- else -%}8{%- endif -%}>;
-
-    uint32_t std_id;
-    uint32_t dlc;
-    data_array data{};
-
-    JsonCanMsg(const uint32_t id, const uint32_t _dlc, const data_array _data) : std_id(id), dlc(_dlc), data(_data) {}
-};
 
 namespace io::can_tx {
 #ifdef THREAD_SAFE_CAN_PACKING
@@ -31,29 +18,6 @@ void setLockfunction(
     void (*unlock)()
 );
 #endif
-
-/* ------------------------------- Structs -------------------------------- */
-
-
-/* -------------------------------- Enums --------------------------------- */
-// BUS ENUMS
-enum class BusEnum
-{
-    {%- for bus in node_buses %}
-    Bus_{{bus.name}} = {{loop.index0}},
-    {%- endfor %}
-};
-
-// MODE ENUMS
-{%- for bus in node_buses %}
-enum class {{bus.name}}Mode
-{
-    {%- for mode in bus.modes %}
-    {{bus.name.to_uppercase()}}_MODE_{{mode}} = 1 << {{loop.index0}},
-    {%- endfor %}
-};
-{% endfor %}
-
 
 /* ------------------------- Function Prototypes -------------------------- */
 
@@ -70,7 +34,7 @@ void init(
  * Enable or disable a mode (only messages allowed for the enabled modes transmitted on the bus).
  */
 {%- for bus in node_buses %}
-void enableMode_{{bus.name}}({{bus.name}}Mode mode, bool enable);
+void enableMode_{{bus.name}}(app::can_utils::{{bus.name}}Mode mode, bool enable);
 {%- endfor %}
 
 /**
@@ -88,7 +52,7 @@ void enqueue100HzMsgs();
  */
 void enqueueOtherPeriodicMsgs(uint32_t time_ms);
 
-{%- for (msg, _) in messages if msg.cycle_time == None %}
-void sendAperiodic_{{msg.name}}();
+{%- for (msg, _) in board_tx_msgs_and_busses if msg.cycle_time == None %}
+void {{msg.name}}_sendAperiodic();
 {%- endfor %}
 }

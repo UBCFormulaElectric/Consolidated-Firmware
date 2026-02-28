@@ -5,7 +5,6 @@ extern "C"
 {
 #include "app_canTx.h"
 #include "app_canRx.h"
-#include "app_jsoncan.h"
 #include "app_canAlerts.h"
 }
 
@@ -19,15 +18,17 @@ extern "C"
 #include "app_shdnLoop.hpp"
 #include "app_tractiveSystem.hpp"
 #include "app_irs.hpp"
+#include "app_jsoncan.hpp"
+#include <app_canUtils.hpp>
 
 // io
 extern "C"
 {
-#include "io_canTx.h"
-#include "io_canQueue.h"
 #include "io_semaphore.h"
 }
 
+#include "io_canMsg.hpp"
+#include "io_canQueues.hpp"
 #include "io_canMsg.hpp"
 #include "io_irs.hpp"
 #include "io_time.hpp"
@@ -35,6 +36,9 @@ extern "C"
 #include "io_charger.hpp"
 #include "io_fans.hpp"
 #include "io_faultLatch.hpp"
+#include <io_canTx.hpp>
+
+#include <util_errorCodes.hpp>
 
 CanTxQueue can_tx_queue; // TODO find a better location for this
 
@@ -64,11 +68,22 @@ void jobs_init()
     // adbms_app_data_lock guards access to any ADuM app data that may be written to by the ADuM tasks and read from
     // other tick functions. It's a mutex (yes priority inheritance) since it's guarding shared data and doesn't depend
     // on hardware.
-    io_semaphore_create(&adbms_app_data_lock, true);
+    io::semaphore::create(&adbms_app_data_lock, true);
+    io::can_tx::init(
+        [](const JsonCanMsg &tx_msg)
+        {
+            const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
+            LOG_IF_ERR(can_tx_queue.push(msg));
+        },
+        [](const JsonCanMsg &tx_msg)
+        {
+            UNUSED(tx_msg);
+            // const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
+            // LOG_IF_ERR(can_tx_queue.push(msg));
+        });
+    io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
+    io::can_tx::enableMode_charger(app::can_utils::chargerMode::CHARGER_MODE_DEFAULT, true);
 
-    io_canTx_init(jsoncan_transmit_func, charger_transmit_func);
-    io_canTx_enableMode_can1(CAN1_MODE_DEFAULT, true);
-    io_canTx_enableMode_charger(CHARGER_MODE_DEFAULT, true);
     io_canQueue_initRx();
     io_canQueue_initTx(&can_tx_queue);
 
@@ -91,12 +106,12 @@ void jobs_init()
 
 void jobs_run1Hz_tick()
 {
-    io_canTx_enqueue1HzMsgs();
+    io::can_tx::enqueue1HzMsgs();
 }
 
 void jobs_run100Hz_tick()
 {
-    io_semaphore_take(&adbms_app_data_lock, MAX_TIMEOUT);
+    io::semaphore::take(&adbms_app_data_lock, MAX_TIMEOUT);
 
     StateMachine::tick100Hz();
 
@@ -153,11 +168,11 @@ void jobs_run100Hz_tick()
 
     irs::broadcast();
 
-    io_canTx_enqueue100HzMsgs();
-    io_semaphore_give(&adbms_app_data_lock);
+    io::can_tx::enqueue100HzMsgs();
+    io::semaphore::give(&adbms_app_data_lock);
 }
 
 void jobs_run1kHz_tick()
 {
-    io_canTx_enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
+    io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
 }

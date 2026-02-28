@@ -30,12 +30,6 @@ RUN cargo build --release
 
 FROM debian:12.9-slim AS environment
 
-# COPY over builds from builder
-COPY --from=builder /arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi /usr/local
-COPY --from=builder /protoc/bin/protoc /usr/bin
-COPY --from=builder /jsoncan-rust/target/release/cppcodegen /usr/local/bin/cppcodegen
-#COPY --from=builder /usr/local/STM32CubeMX /usr/local/STM32CubeMX
-
 # pip: For installing python packages
 # git: For pulling external repos, invoked via cmake
 # git-lfs: Large file storage, used for saving zipped STM32CubeMX installer
@@ -66,3 +60,10 @@ RUN echo "[global]\n break-system-packages = true" > /etc/pip.conf
 ADD environment/requirements.txt .
 RUN pip3 install -r requirements.txt
 RUN rm requirements.txt
+
+# note: these are the most common changes, so put them last
+# COPY over builds from builder
+COPY --from=builder /arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi /usr/local
+COPY --from=builder /protoc/bin/protoc /usr/bin
+COPY --from=builder /jsoncan-rust/target/release/cppcodegen /usr/local/bin/cppcodegen
+#COPY --from=builder /usr/local/STM32CubeMX /usr/local/STM32CubeMX

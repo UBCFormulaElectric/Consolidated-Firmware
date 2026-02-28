@@ -1,23 +1,31 @@
 #include "tasks.h"
 
-#include "hw_error.hpp"
-#include "hw_hardFaultHandler.hpp"
+#include "app_jsoncan.hpp"
+
 #include "jobs.hpp"
 #include "io_time.hpp"
+#include <io_canRx.hpp>
+
+#include "hw_cans.hpp"
+#include "hw_error.hpp"
+#include "hw_hardFaultHandler.hpp"
 #include "hw_rtosTaskHandler.hpp"
+#include "io_canQueues.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
     const uint32_t period_ms                = 1000U;
     const uint32_t watchdog_grace_period_ms = 50U;
     hw::watchdog::WatchdogInstance(TASK_INDEX_1HZ, period_ms + watchdog_grace_period_ms);
+    uint32_t start_ticks = osKernelGetTickCount();
 
     forever
     {
-        const uint32_t start_time = io::time::getCurrentMs();
         jobs_run1Hz_tick();
         hw::watchdog.checkIn();
-        io::time::delayUntil(start_time + period_ms);
+        start_ticks += period_ms;
+        io::time::delayUntil(start_ticks);
+        osDelayUntil(start_ticks);
     }
 }
 
@@ -26,12 +34,14 @@
     const uint32_t period_ms                = 10U;
     const uint32_t watchdog_grace_period_ms = 2U;
     hw::watchdog::WatchdogInstance(TASK_INDEX_100HZ, period_ms + watchdog_grace_period_ms);
+    uint32_t start_ticks = osKernelGetTickCount();
+
     forever
     {
-        const uint32_t start_time = io::time::getCurrentMs();
         jobs_run100Hz_tick();
         hw::watchdog.checkIn();
-        io::time::delayUntil(start_time + period_ms);
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
     }
 }
 [[noreturn]] static void tasks_run1kHz(void *arg)
@@ -39,12 +49,13 @@
     const uint32_t period_ms                = 1U;
     const uint32_t watchdog_grace_period_ms = 1U;
     hw::watchdog::WatchdogInstance(TASK_INDEX_1KHZ, period_ms + watchdog_grace_period_ms);
+    uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
-        const uint32_t start_time = io::time::getCurrentMs();
         jobs_run1kHz_tick();
         hw::watchdog.checkIn();
-        io::time::delayUntil(start_time + period_ms);
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
     }
 }
 [[noreturn]] static void tasks_runCanTx(void *arg)
@@ -57,6 +68,23 @@
         // TODO: Bit-rate-switching wasn't working for me when the BMS was connected to the charger, so the FD
         // peripheral is configured without BRS. Figure out why it wasn't working?
 
+        const auto msg = can_tx_queue.pop();
+        if (not msg)
+            continue;
+        if (const auto &m = msg.value(); m.bus == app::can_utils::BusEnum::Bus_FDCAN)
+        {
+            const auto res = hw::can::fdcan1.fdcan_transmit(hw::CanMsg{
+                m.std_id,
+                m.dlc,
+                m.data,
+            });
+            LOG_IF_ERR(res);
+        }
+        else
+        {
+            LOG_ERROR("INVALID BUS %d", m.bus);
+        }
+
 #else
 
 #endif
@@ -66,7 +94,10 @@
 {
     forever
     {
-        jobs_runCanRx_tick();
+        const auto msg = can_rx_queue.pop();
+        if (not msg)
+            continue;
+        io::can_rx::updateRxTableWithMessage(app::jsoncan::copyFromCanMsg(msg.value()));
     }
 }
 

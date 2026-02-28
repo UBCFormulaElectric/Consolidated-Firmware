@@ -1,38 +1,28 @@
 use askama::Template;
 
 use crate::{
-    can_database::{CanAlert, CanDatabase, GroupedAlerts},
+    can_database::{CanDatabase, NodeAlerts},
     codegen::cpp::CPPGenerator,
 };
 
-impl GroupedAlerts {
-    pub fn flatten(self: &Self) -> Vec<CanAlert> {
-        let mut all_alerts: Vec<CanAlert> = Vec::new();
-        all_alerts.extend(self.infos.clone());
-        all_alerts.extend(self.warnings.clone());
-        all_alerts.extend(self.faults.clone());
-        all_alerts
-    }
-}
-
 #[derive(Template)]
 #[template(path = "app_canAlerts.cpp.j2")]
-struct AppCanAlertsModuleSource<'a> {
-    all_alerts: Vec<CanAlert>,
-    node_name_and_alerts: &'a Vec<(String, &'a GroupedAlerts)>,
+struct AppCanAlertsModuleSource<'a>{
+    board_alerts: &'a NodeAlerts,
+    all_node_name_and_alerts: &'a Vec<(String, &'a NodeAlerts)>,
     node_name: &'a String,
 }
 
 #[derive(Template)]
 #[template(path = "app_canAlerts.hpp.j2")]
 struct AppCanAlertsModuleHeader<'a> {
-    node_tx_alerts: &'a GroupedAlerts,
+    board_alerts: &'a NodeAlerts,
     node_name: &'a String,
 }
 
 pub struct AppCanAlertsModule<'a> {
+    all_node_name_and_alerts: Vec<(String, &'a NodeAlerts)>,
     node_name: &'a String,
-    node_name_and_alerts: Vec<(String, &'a GroupedAlerts)>,
 }
 
 impl AppCanAlertsModule<'_> {
@@ -43,14 +33,15 @@ impl AppCanAlertsModule<'_> {
                 .find(|n| n.name == *node_name)
                 .unwrap()
                 .alerts;
-        assert!(
-            self_alerts.is_some(),
-            "Tried to generate CAN Alerts module for node {} but it has no alerts defined",
-            node_name
-        );
+        if self_alerts.is_none() {
+             return AppCanAlertsModule {
+                node_name,
+                all_node_name_and_alerts: Vec::new(),
+            };
+        }
         AppCanAlertsModule {
             node_name,
-            node_name_and_alerts: can_db
+            all_node_name_and_alerts: can_db
                 .nodes
                 .iter()
                 .filter_map(|n| match n.alerts {
@@ -64,9 +55,12 @@ impl AppCanAlertsModule<'_> {
 
 impl CPPGenerator for AppCanAlertsModule<'_> {
     fn header_template(&self) -> Result<String, askama::Error> {
+        if self.all_node_name_and_alerts.is_empty() {
+            return Ok("".to_string());
+        }
         AppCanAlertsModuleHeader {
-            node_tx_alerts: &self
-                .node_name_and_alerts
+            board_alerts: &self
+                .all_node_name_and_alerts
                 .iter()
                 .find(|(a, _b)| a == self.node_name)
                 .unwrap()
@@ -76,15 +70,17 @@ impl CPPGenerator for AppCanAlertsModule<'_> {
         .render()
     }
     fn source_template(&self) -> Result<String, askama::Error> {
-        let node_tx_alerts = self
-            .node_name_and_alerts
-            .iter()
-            .find(|(a, _b)| a == self.node_name)
-            .unwrap()
-            .1;
+        if self.all_node_name_and_alerts.is_empty() {
+            return Ok("".to_string());
+        }
         AppCanAlertsModuleSource {
-            all_alerts: node_tx_alerts.flatten(),
-            node_name_and_alerts: &self.node_name_and_alerts,
+            board_alerts: self
+                .all_node_name_and_alerts
+                .iter()
+                .find(|(a, _b)| a == self.node_name)
+                .unwrap()
+                .1,
+            all_node_name_and_alerts: &self.all_node_name_and_alerts,
             node_name: self.node_name,
         }
         .render()

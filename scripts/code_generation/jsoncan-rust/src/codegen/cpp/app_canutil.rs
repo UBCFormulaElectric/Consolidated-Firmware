@@ -4,6 +4,7 @@ use crate::{
     can_database::{CanDatabase, CanEnum, CanMessage, CanSignal},
     codegen::cpp::CPPGenerator,
 };
+use crate::can_database::CanBus;
 
 mod filters {}
 
@@ -98,16 +99,27 @@ struct AppCanUtilsModuleHeader<'a> {
     messages: &'a Vec<CanMessage>,
     node_names: &'a Vec<String>,
     enums: &'a Vec<CanEnum>,
+    fd: bool,
+    node_buses: &'a Vec<&'a CanBus>,
 }
 
-pub struct AppCanUtilsModule {
+pub struct AppCanUtilsModule<'a> {
     messages: Vec<CanMessage>,
     node_names: Vec<String>,
     enums: Vec<CanEnum>,
+    fd: bool, // if we need fd features at any point
+    // TODO make a JsonCanFdMsg to handle the fd issue on a message by message basis
+    // TODO this would also force with the type system that certain busses must transmit fd messages?
+    node_buses: Vec<&'a CanBus>,
 }
 
-impl AppCanUtilsModule {
-    pub fn new(can_db: &CanDatabase) -> AppCanUtilsModule {
+impl AppCanUtilsModule<'_> {
+    pub fn new<'a>(can_db: &'a CanDatabase, board: &String) -> AppCanUtilsModule<'a> {
+        let node_buses: Vec<&'a CanBus> = can_db
+                .buses
+                .iter()
+                .filter(|b| b.node_names.contains(board))
+                .collect();
         AppCanUtilsModule {
             messages: can_db.get_all_msgs().expect("get all msgs should not fail"),
             node_names: can_db.nodes.iter().map(|n| n.name.clone()).collect(),
@@ -117,16 +129,20 @@ impl AppCanUtilsModule {
                 .flat_map(|n| n.enums.clone())
                 .chain(can_db.shared_enums.clone())
                 .collect(),
+            fd: node_buses.iter().any(|b| b.fd),
+            node_buses,
         }
     }
 }
 
-impl CPPGenerator for AppCanUtilsModule {
+impl CPPGenerator for AppCanUtilsModule<'_> {
     fn header_template(&self) -> Result<String, askama::Error> {
         AppCanUtilsModuleHeader {
             messages: &self.messages,
             node_names: &self.node_names,
             enums: &self.enums,
+            fd: self.fd,
+            node_buses: &self.node_buses,
         }
         .render()
     }

@@ -39,6 +39,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_spi.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmInput.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmOutput.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -109,7 +110,7 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     # JSONCAN
-    jsoncan_embedded_library(BMS hexray "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
+    jsoncan_embedded_library_cpp(BMS hexray "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
 
     # CommitInfo
     commit_info_library(
@@ -125,13 +126,14 @@ if ("${TARGET}" STREQUAL "binary")
     target_link_libraries("hexray_BMS_chimera.elf" PRIVATE "hexray_BMS_stm32")
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
-    set(SHARED_FAKES
-            "${SHARED_FAKES_DIR}/io_canQueue.cpp"
-            "${SHARED_FAKES_DIR}/io_semaphore.cpp"
-            "${SHARED_FAKES_DIR}/io_timer.cpp"
-            "${SHARED_FAKES_DIR}/io_shdnLoopNode.cpp"
+    set(FAKE_SRCS
+            "${SHARED_FAKES_DIR_CPP}/io_canQueue.cpp"
+            "${SHARED_FAKES_DIR_CPP}/io_semaphore.cpp"
+            "${SHARED_FAKES_DIR_CPP}/io_timer.cpp"
+            "${SHARED_FAKES_DIR_CPP}/io_shdnLoopNode.cpp"
+            "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
     )
-    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS})
+    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
     set(INCLUDE_DIRS
             "${CMAKE_CURRENT_SOURCE_DIR}/test"
             ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP} ${SHARED_FAKES_DIR}
@@ -145,7 +147,7 @@ elseif ("${TARGET}" STREQUAL "test")
     add_compile_definitions("hexray_BMS_test" PRIVATE STM32h763Rx)
 
     # JSONCAN
-    jsoncan_library(BMS hexray "${CMAKE_CURRENT_BINARY_DIR}")
+    jsoncan_library_cpp(BMS hexray "${CMAKE_CURRENT_BINARY_DIR}")
 
     # CommitInfo
     commit_info_library(

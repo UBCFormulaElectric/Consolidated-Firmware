@@ -1,7 +1,7 @@
 #pragma once
 #include "hw_can.hpp"
 
-namespace hw::cans
+namespace hw::can
 {
 extern const fdcan fdcan1;
-} // namespace hw::cans
+} // namespace hw::can

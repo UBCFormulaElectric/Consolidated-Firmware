@@ -19,7 +19,7 @@ pub enum JsonRxMsgNames {
     RxMsgs(Vec<String>),
 }
 
-pub struct GroupedAlerts {
+pub struct NodeAlerts {
     pub infos: Vec<CanAlert>,
     pub warnings: Vec<CanAlert>,
     pub faults: Vec<CanAlert>,
@@ -43,7 +43,7 @@ pub struct CanNode {
     pub name: String,
     pub rx_msgs_names: RxMsgs, // list of messages that it is listening
     pub collects_data: bool,
-    pub alerts: Option<GroupedAlerts>,
+    pub alerts: Option<NodeAlerts>,
     pub enums: Vec<CanEnum>,
 }
 
@@ -74,6 +74,8 @@ pub struct CanSignal {
     pub start_bit: u16,
     // Number of bits used to represent this signal in the message payload
     pub bits: u16,
+    // NOTE: that all scale, offset, min and max are required, as there are signals which
+    // do not completely exaust all permutations of bits
     // Scaling factor for encoding/decoding this signal
     pub scale: f64,
     // Offset for encoding/decoding this signal
