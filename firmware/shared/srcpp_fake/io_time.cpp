@@ -10,12 +10,12 @@ uint32_t getCurrentMs()
     return current_time_ms;
 }
 
-void delay(uint32_t ms)
+void delay(const uint32_t ms)
 {
     (void)ms;
 }
 
-void delayUntil(uint32_t time)
+void delayUntil(const uint32_t time)
 {
     (void)time;
 }
