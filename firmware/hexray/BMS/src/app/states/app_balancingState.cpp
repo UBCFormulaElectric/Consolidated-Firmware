@@ -1,12 +1,8 @@
 #include "app_stateMachine.hpp"
 #include "app_states.hpp"
 #include "io_irs.hpp"
-
-extern "C"
-{
-#include "app_canTx.h"
-#include "app_canRx.h"
-}
+#include "app_canTx.hpp"
+#include "app_canRx.hpp"
 
 namespace app::balancingState
 {

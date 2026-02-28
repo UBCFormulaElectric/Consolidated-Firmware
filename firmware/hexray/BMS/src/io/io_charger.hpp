@@ -1,9 +1,5 @@
 #pragma once
-
-extern "C"
-{
-#include "app_canUtils.h"
-}
+#include "app_canUtils.hpp"
 
 namespace io::charger
 {

@@ -5,17 +5,13 @@
 #include "states/app_states.hpp"
 #include "io_log.hpp"
 #include "app_stateMachine.hpp"
-
-extern "C"
-{
-#include "app_canTx.h"
-}
+#include "app_canTx.hpp"
 
 namespace app::states::perchargeDriveState
 {
 static void prechargeDriveStateRunOnEntry()
 {
-    app_canTx_BMS_State_set(BMS_PRECHARGE_DRIVE_STATE);
+    app::can_tx::BMS_State_set(BMS_PRECHARGE_DRIVE_STATE);
     app::precharge::init();
     app::precharge::restart();
 }

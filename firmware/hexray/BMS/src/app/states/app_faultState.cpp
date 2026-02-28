@@ -2,24 +2,20 @@
 
 #include "app_states.hpp"
 #include "app_precharge.hpp"
-// #include "app_segments.hpp"
+#include "app_segments.hpp"
 #include "io_irs.hpp"
 #include "io_faultLatch.hpp"
-
-extern "C"
-{
-#include "app_canTx.h"
-}
+#include "app_canTx.hpp"
 
 namespace app::states::faultState
 {
 
 static void runOnEntry()
 {
-    app_canTx_BMS_State_set(BMS_FAULT_STATE);
+    app::can_tx::BMS_State_set(app::can_utils::BMS_State::BMS_FAULT_STATE);
 
     // Always open AIR+ when entering fault state to isolate high voltage.
-    io::irs::setPositive(CONTACTOR_STATE_OPEN);
+    io::irs::setPositive(app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
 }
 
 static void runOnTick100Hz()

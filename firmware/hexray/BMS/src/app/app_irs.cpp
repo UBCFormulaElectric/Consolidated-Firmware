@@ -1,12 +1,9 @@
 #include "io_irs.hpp"
 #include "app_irs.hpp"
 #include "app_timer.hpp"
+#include "app_canTx.hpp"
+#include "app_canUtils.hpp"
 
-extern "C"
-{
-#include "app_canTx.h"
-#include "app_canUtils.h"
-}
 static constexpr uint8_t IR_N_DEBOUNCE_PERIOD_MS = 200;
 static app::Timer        negative_opened_debounce_timer{ IR_N_DEBOUNCE_PERIOD_MS };
 

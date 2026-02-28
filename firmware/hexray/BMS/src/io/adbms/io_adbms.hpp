@@ -46,8 +46,8 @@ namespace adbms
         uint8_t mute_st : 1; // 1 = mute is active, dischargeing disabled
         uint8_t snap_st : 1; // 1 = snapshot is activated, result registers are frozen
         uint8_t : 2;
-    } CFGA;
-    static_assert(sizeof(CFGA) == adbms::REGISTER_GROUP_SIZE);
+    } CFGAR;
+    static_assert(sizeof(CFGAR) == adbms::REGISTER_GROUP_SIZE);
 
     // as per table 56
     typedef struct

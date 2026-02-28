@@ -1,11 +1,7 @@
 #include "states/app_states.hpp"
 #include "io_irs.hpp"
-
-extern "C"
-{
-#include "app_canTx.h"
-#include "app_canUtils.h"
-}
+#include "app_canTx.hpp"
+#include "app_canUtils.hpp"
 
 namespace app::states::driveState
 {

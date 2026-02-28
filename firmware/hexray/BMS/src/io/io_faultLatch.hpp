@@ -5,7 +5,7 @@
 #include <cstdint>
 
 #ifdef TARGET_EMBEDDED
-#include "hw_gpios.h"
+#include "hw_gpios.hpp"
 #endif
 
 namespace io::faultLatch

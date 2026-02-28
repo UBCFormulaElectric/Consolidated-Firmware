@@ -1,12 +1,9 @@
 #include "jobs.hpp"
 
 // app
-extern "C"
-{
-#include "app_canTx.h"
-#include "app_canRx.h"
-#include "app_canAlerts.h"
-}
+#include "app_canTx.hpp"
+#include "app_canRx.hpp"
+#include "app_canAlerts.hpp"
 
 #include "states/app_states.hpp"
 #include "app_precharge.hpp"

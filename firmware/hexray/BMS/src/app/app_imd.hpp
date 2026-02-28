@@ -1,10 +1,6 @@
 #pragma once
-
-extern "C"
-{
-#include "app_canUtils.h"
-}
-
+#include "app_canUtils.hpp"
+ 
 enum class ImdSst
 {
     GOOD,

@@ -6,19 +6,15 @@
 #include "app_precharge.hpp"
 #include "io_irs.hpp"
 #include "io_log.hpp"
-
-extern "C"
-{
-#include "app_canTx.h"
-#include "app_canRx.h"
-}
+#include "app_canTx.hpp"
+#include "app_canRx.hpp"
 
 namespace app::states::prechargeChargeState
 {
 
 static void runOnEntry()
 {
-    app_canTx_BMS_State_set(BMS_PRECHARGE_CHARGE_STATE);
+    app::can_tx::BMS_State_set(BMS_PRECHARGE_CHARGE_STATE);
 
     app::precharge::init();
     app::precharge::restart();
@@ -41,7 +37,7 @@ static void runOnTick100Hz()
             io::irs::setPrecharge(CONTACTOR_STATE_OPEN);
 
             // Prevent unintended re-entry into charge state
-            app_canRx_Debug_StartCharging_update(false);
+            app::can_rx::Debug_StartCharging_update(false);
 
             app::StateMachine::set_next_state(&precharge_latch_state);
             break;

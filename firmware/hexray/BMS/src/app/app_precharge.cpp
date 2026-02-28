@@ -5,12 +5,8 @@
 #include "app_timer.hpp"
 #include "app_tractiveSystem.hpp"
 #include "io_irs.hpp"
+#include "app_canAlerts.hpp"
 // #include "app_segments.hpp"
-
-extern "C"
-{
-#include "app_canAlerts.h"
-}
 
 namespace app::precharge
 {

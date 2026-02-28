@@ -6,13 +6,9 @@
 #include "io_irs.hpp"
 #include "io_charger.hpp"
 // #include "app_segments.hpp"
-
-extern "C"
-{
-#include "app_canUtils.h"
-#include "app_canRx.h"
-#include "app_canTx.h"
-}
+#include "app_canUtils.hpp"
+#include "app_canRx.hpp"
+#include "app_canTx.hpp"
 
 // Charger/pack constants
 namespace

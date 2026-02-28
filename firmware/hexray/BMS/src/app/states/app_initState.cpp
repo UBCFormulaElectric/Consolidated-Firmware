@@ -4,13 +4,9 @@
 #include "app_tractiveSystem.hpp"
 #include "io_irs.hpp"
 #include "io_charger.hpp"
-
-extern "C"
-{
-#include "app_canRx.h"
-#include "app_canTx.h"
-#include "app_canUtils.h"
-}
+#include "app_canRx.hpp"
+#include "app_canTx.hpp"
+#include "app_canUtils.hpp"
 
 namespace app::states::initState
 {
@@ -24,12 +20,12 @@ void RunOnEntry()
     // AIR+ opens upon entering init state.
     // Should always be opened at this point from other states; this is only for redundancy
     // since we really don't want AIR+ closed in init.
-    io::irs::setPositive(CONTACTOR_STATE_OPEN);
+    io::irs::setPositive(app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
 }
 
 void RunOnTick100Hz()
 {
-    const bool irs_negative_closed = (io::irs::negativeState() == CONTACTOR_STATE_CLOSED);
+    const bool irs_negative_closed = (io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
     const bool ts_discharged       = (app::ts::getVoltage() < TS_DISCHARGED_THRESHOLD_V);
 
     // ONLY RUN THIS WHEN CELLS HAVE HAD TIME TO SETTLE
@@ -51,7 +47,7 @@ void RunOnTick100Hz()
             (conn_status == CHARGER_CONNECTED_WALL) || (conn_status == CHARGER_CONNECTED_EVSE);
 
         const bool precharge_for_driving  = (app_canRx_VC_State_get() == VC_BMS_ON_STATE);
-        const bool cell_balancing_enabled = app_canRx_Debug_CellBalancingRequest_get();
+        const bool cell_balancing_enabled = app::can_rx::Debug_CellBalancingRequest_get();
 
         if (external_charging_request && charger_connected)
         {

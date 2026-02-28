@@ -3,12 +3,10 @@
 #include "app_powerLimit.hpp"
 #include "app_tractiveSystem.hpp"
 #include <algorithm>
+#include <cstdint>
+// #include "app_canTx.hpp"
+// #include "app_canUtils.hpp"
 
-extern "C"
-{
-#include "app_canTx.h"
-#include "app_canUtils.h"
-}
 #define MAX_DISCHARGE_POWER_LIMIT_W 78.0e3f
 #define MAX_CHARGE_POWER_LIMIT_W 15.0e3f
 #define MAX_DISCHARGE_CURRENT_LIMIT (-MAX_TS_DISCHARGE_CURRENT_AMPS)
@@ -48,7 +46,7 @@ float getDischargePowerLimit()
 
     // Broadcast limit condition over CAN
     // Keeping C CAN API is standard
-    app::canTx::BMS_DischargePowerLimitCondition_set(p_lim_condition);
+    app::can_tx::BMS_DischargePowerLimitCondition_set(p_lim_condition);
 
     return power_limit;
 }
@@ -173,8 +171,8 @@ void broadcast()
 
     // Broadcast limits
     // static_cast used for explicit type conversion
-    app::canTx::BMS_DischargePowerLimit_set(static_cast<uint32_t>(discharge_p_lim));
-    app::canTx::BMS_ChargePowerLimit_set(static_cast<uint32_t>(charge_p_lim));
+    app::can_tx::BMS_DischargePowerLimit_set(static_cast<uint32_t>(discharge_p_lim));
+    app::can_tx::BMS_ChargePowerLimit_set(static_cast<uint32_t>(charge_p_lim));
 }
 
 } // namespace app::plim
