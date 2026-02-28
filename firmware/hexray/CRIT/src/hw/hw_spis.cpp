@@ -4,7 +4,8 @@
 #include <cassert>
 #include <optional>
 
-namespace hw::spi{
+namespace hw::spi
+{
 static constexpr uint32_t SPI_TIMEOUT = 100U;
 
 static SpiBus pwr_chg(hspi1);
@@ -28,4 +29,4 @@ const SpiDevice seven_seg_device(seven_seg, std::nullopt, SPI_TIMEOUT);
     }
     return seven_seg;
 }
-}
+} // namespace hw::spi
