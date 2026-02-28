@@ -35,3 +35,6 @@ hw::Gpio tsms_3v3_out(TSMS_3V3_OUT_GPIO_Port, TSMS_3V3_OUT_Pin);
 hw::Gpio imu_cs1(IMU_CS1_GPIO_Port, IMU_CS1_Pin);
 hw::Gpio imu_cs2(IMU_CS2_GPIO_Port, IMU_CS2_Pin);
 hw::Gpio imu_cs3(IMU_CS3_GPIO_Port, IMU_CS3_Pin);
+hw::Gpio inertia_3v3_out(INERTIA_3V3_OUT_GPIO_Port, INERTIA_3V3_OUT_Pin);
+hw::Gpio misc_fuse_pg(MISC_FUSE_PG_GPIO_Port, MISC_FUSE_PG_Pin);
+hw::Gpio misc_fuse_en(MISC_FUSE_EN_GPIO_Port, MISC_FUSE_EN_Pin);

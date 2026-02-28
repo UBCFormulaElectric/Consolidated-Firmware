@@ -26,6 +26,7 @@ file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/
 list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/efuse/io_efuse_TI_TPS28.cpp"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
 )
 set(IO_INCLUDE_DIRS
         # "${CMAKE_CURRENT_SOURCE_DIR}/src/io"

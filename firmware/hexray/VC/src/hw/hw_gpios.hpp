@@ -36,3 +36,6 @@ extern hw::Gpio tsms_3v3_out;
 extern hw::Gpio imu_cs1;
 extern hw::Gpio imu_cs2;
 extern hw::Gpio imu_cs3;
+extern hw::Gpio inertia_3v3_out;
+extern hw::Gpio misc_fuse_en;
+extern hw::Gpio misc_fuse_pg;
