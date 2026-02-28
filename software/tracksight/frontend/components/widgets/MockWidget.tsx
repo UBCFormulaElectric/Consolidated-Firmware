@@ -5,7 +5,7 @@ import { EnumSignalConfig, NumericalSignalConfig, WidgetConfigs, WidgetData } fr
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { SignalType } from "@/lib/types/Signal";
 import { DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ChartData, NumericalSeries } from "./chart_types";
+import { ChartData, EnumSeries, NumericalSeries } from "./chart_types";
 import { SeriesData } from "@/lib/seriesData";
 
 function generateRandomNumericalValue(time: number, index: number = 0, min: number, max: number) {
@@ -28,7 +28,11 @@ function generateRandomNumericalValue(time: number, index: number = 0, min: numb
 
 const MOCK_STATES = ["IDLE", "ACTIVE", "ERROR", "WAITING", "CHARGING"];
 function generateRandomEnumValue() {
-    return MOCK_STATES[Math.floor(Math.random() * MOCK_STATES.length)];
+    const v = Math.floor(Math.random() * MOCK_STATES.length);
+    return  {
+        name: MOCK_STATES[v],
+        idx: v,
+    };
 }
 
 export function MockWidgetAddSignalModal({ closeModal, configs, updateWidget, dataRef, widgetData }: {
@@ -173,39 +177,57 @@ export function MockWidgetAddSignalModal({ closeModal, configs, updateWidget, da
 
 export function useMockData( isPaused: boolean, widgetData: WidgetData,): RefObject<ChartData> {
     const { setTimeRange, timeRangeRef } = useSyncedGraph(); // because this widget is also doing the data generation
-    // const dataRef = useRef<Record<string, SeriesData<number | string>>>({});
-    const dataRef = useRef({
-        type: widgetData.type,
-        all_series: []
-    } satisfies ChartData);
+    const dataRef = useRef<ChartData>({ type: widgetData.type, all_series: [] });
 
     useEffect(() => {
         if (isPaused) return;
         const intervals: ReturnType<typeof setInterval>[] = widgetData.configs.map((cfg, idx) => {
             const interval = setInterval(() => {
                 const store = dataRef.current;
-                if (!store[cfg.signal_name]) {
-                    store[cfg.signal_name] = {
-                        timestamps: [],
-                        values: []
-                    };
-                }
-                const at = store[cfg.signal_name]
+                
+                let series = store.all_series.find((s) => s.label === cfg.signal_name);
 
-                const now = Date.now();
-                at.timestamps.push(now);
-                if (at.timestamps.length > 0) { // update timeRanges (i feel like this needs to be handled elsewhere...)
-                    // TODO this cannot be the best interface for this
-                    setTimeRange({
-                        min: Math.min(at.timestamps[0], timeRangeRef.current?.min ?? at.timestamps[0]),
-                        max: Math.max(at.timestamps[at.timestamps.length - 1], timeRangeRef.current?.max ?? at.timestamps[at.timestamps.length - 1])
-                    });
+                if (!series) {
+                    console.log("no series found!");
+                    if (widgetData.type === SignalType.NUMERICAL) {
+                        series = {
+                            type: SignalType.NUMERICAL, 
+                            color: "",
+                            min: (cfg as NumericalSignalConfig).min,
+                            max: (cfg as NumericalSignalConfig).max,
+                            label: cfg.signal_name, timestamps: [], data: new SeriesData()
+                        } satisfies NumericalSeries;
+                    } else {
+                        series = {
+                            type: SignalType.ENUM,
+                            label: cfg.signal_name,
+                            timestamps: [],
+                            data: [],
+                            enumValuesToNames: {}
+                        } satisfies EnumSeries;
+                    }
                 }
-                if (widgetData.type == SignalType.NUMERICAL) {
-                    at.values.push(generateRandomNumericalValue(now, idx, (cfg as NumericalSignalConfig).min, (cfg as NumericalSignalConfig).max));
+
+                const rn = Date.now();
+                series.timestamps.push(rn);
+
+                setTimeRange({ // TODO: this is NOT where we should be setting the timerange
+                    min: Math.min(series.timestamps[0], timeRangeRef.current?.min ?? series.timestamps[0]),
+                    max: Math.max(rn, timeRangeRef.current?.max ?? rn),
+                });
+
+                if (series.type === SignalType.NUMERICAL) {
+                    series.data.data.push(generateRandomNumericalValue(rn, idx, series.min, series.max));
                 } else {
-                    at.values.push(generateRandomEnumValue());
+                    const vals = generateRandomEnumValue();
+                    
+                    series.data.push(vals.idx);
+
+                    if (!series.enumValuesToNames[vals.idx]) {
+                        series.enumValuesToNames[vals.idx] = [vals.name];
+                    }
                 }
+
             }, cfg.delay);
             return interval;
         });
