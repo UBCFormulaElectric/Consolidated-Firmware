@@ -1,8 +1,8 @@
 #include "io_canQueues.hpp"
 // #include <cstdint>
 
-static void penis() {}
-static void penis(uint32_t) {}
+static void overflow_callback() {}
+static void overflow_callback(uint32_t) {}
 
-io::queue<io::CanMsg, 128> can_tx_queue{ "", penis, penis };
-io::queue<io::CanMsg, 128> can_rx_queue{ "", penis, penis };
+io::queue<io::CanMsg, 128> can_tx_queue{ "", overflow_callback, overflow_callback };
+io::queue<io::CanMsg, 128> can_rx_queue{ "", overflow_callback, overflow_callback };
