@@ -155,7 +155,24 @@ function render_enum(
     }
 
     if (hover !== null) {
-        // TODO calculate hover value for enums
+        const chartWidth = width - CHART_PADDING.left - CHART_PADDING.right;
+        const timeRange = visibleEndTime - visibleStartTime;
+        const hoverTime = visibleStartTime + ((hover.x - CHART_PADDING.left) / chartWidth) * timeRange;
+
+        const result: Array<{ name: string, value: string }> = [];
+        for (const series of all_series) {
+            if (series.timestamps.length === 0) continue; // ignore empty series
+            const idx = binarySearchForFirstEnumIndex(series.timestamps, hoverTime);
+            if (idx < series.data.length) {
+                const enumValue = series.data[idx];
+                const names = series.enumValuesToNames[enumValue];
+                result.push({
+                    name: series.label,
+                    value: names ? names[0] : `Unknown (${enumValue})`,
+                });
+            }
+        }
+        return result;
     }
 
     return [];
@@ -406,7 +423,7 @@ export default function render(
             context, width, chartWidth, chartHeight, numericalTop,
             chartData.all_series, visibleStartTime, visibleEndTime, timeToX, hoverPixelRef.current
         );
-    } // end hasNumerical
+    }
 
     // x-axis tick marks & labels (Shared for both)
     const numTimeTicks = Math.max(1, Math.floor(timeTickCount));

@@ -72,7 +72,6 @@ export default function CanvasChart({ chartData: chart_data, height, timeTickCou
             // transform to the original size
             context.setTransform(1, 0, 0, 1, 0, 0);
             context.scale(dpr, dpr);
-            // const scale = scalePxPerSecRef.current;
             render(context, containerWidth.current, height, layoutRef, chart_data.current, timeTickCount, hoverPixelRef, {
                 min: 0, // TODO
                 max: 0, // TODO
