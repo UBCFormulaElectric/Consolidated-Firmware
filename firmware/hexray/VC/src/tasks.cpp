@@ -130,7 +130,7 @@ void tasks_init()
     dam_en.writePin(true);
     rsm_en.writePin(true);
     front_en.writePin(true);
-    bms_en.writePin(true); 
+    bms_en.writePin(true);
     jobs_init();
     osKernelInitialize();
     VC_StartAllTasks();
