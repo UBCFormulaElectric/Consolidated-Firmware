@@ -5,6 +5,7 @@
 #elif TARGET_TEST
 #include <queue>
 #endif
+#include <cassert>
 #include <limits>
 #include <array>
 #include <cstdint>
