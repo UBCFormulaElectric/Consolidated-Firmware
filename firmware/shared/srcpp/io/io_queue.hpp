@@ -22,17 +22,14 @@ template <typename T, size_t QUEUE_SIZE> class queue
     constexpr static size_t QUEUE_SIZE_BYTES = sizeof(T) * QUEUE_SIZE;
 
 #ifdef TARGET_EMBEDDED
-    osMessageQueueId_t queue_id = nullptr;
-    StaticQueue_t      queue_control_block{};
-#endif
+    osMessageQueueId_t                    queue_id = nullptr;
+    StaticQueue_t                         queue_control_block{};
     std::array<uint8_t, QUEUE_SIZE_BYTES> queue_buf{};
-
-    // inputs
-#ifdef TARGET_EMBEDDED
-    const osMessageQueueAttr_t queue_attr;
+    const osMessageQueueAttr_t            queue_attr;
 #elif TARGET_TEST
     std::queue<T> q{};
 #endif
+
     void (*const overflow_callback)(uint32_t){};
     void (*const overflow_clear_callback)(){};
 
