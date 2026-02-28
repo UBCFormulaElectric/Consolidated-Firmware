@@ -6,13 +6,20 @@ extern "C"
 #include "app_canAlerts.h"
 #include <stddef.h>
 }
+static PowerManagerConfig power_manager_state;
+static TimerChannel       sequencing_timer;
+
 namespace vc::app::powerManager
 {
+    typedef union
+    {
+        const ST_LoadSwitch *st;
+        const TI_LoadSwitch *ti;
+    } LoadSwitch;
+    
 
 } // namespace vc::app::powerManager
 
-// static PowerManagerConfig power_manager_state;
-// static TimerChannel       sequencing_timer;
 
 // typedef union
 // {
