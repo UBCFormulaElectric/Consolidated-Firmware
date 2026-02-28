@@ -67,11 +67,11 @@ class CRITChimeraConfig : public chimera_v2::config
         switch (snn->name.crit_net_name)
         {
             case crit_SpiNetName_LED:
-                return std::cref(leds_device);
+                return std::cref(hw::spi::leds_device);
             case crit_SpiNetName_SEVEN_SEG:
-                return std::cref(seven_seg_device);
+                return std::cref(hw::spi::seven_seg_device);
             case crit_SpiNetName_PWR_CHG:
-                return std::cref(pwr_chg_device);
+                return std::cref(hw::spi::pwr_chg_device);
             default:
             case crit_SpiNetName_SPI_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified SPI net name");

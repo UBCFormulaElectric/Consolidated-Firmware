@@ -37,7 +37,7 @@ std::expected<void, ErrorCode> update(const config &c)
     led_data[3] = static_cast<uint8_t>(dam_g << 7) | static_cast<uint8_t>(color_bits(c.vc) << 4) |
                   static_cast<uint8_t>(dam_r << 3) | color_bits(c.shdn);
 
-    auto exit = leds_device.transmit(led_data);
+    auto exit = hw::spi::leds_device.transmit(led_data);
     if (exit.has_value())
     {
         clock_rck();

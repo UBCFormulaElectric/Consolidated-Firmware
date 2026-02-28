@@ -4,15 +4,18 @@
 #include <cassert>
 #include <optional>
 
-static hw::spi::SpiBus pwr_chg(hspi1);
-static hw::spi::SpiBus leds(hspi2);
-static hw::spi::SpiBus seven_seg(hspi3);
+namespace hw::spi{
+static constexpr uint32_t SPI_TIMEOUT = 100U;
 
-const hw::spi::SpiDevice pwr_chg_device(pwr_chg, led_rck, 100); // No NSS pin for this device so should we bit bang?
-const hw::spi::SpiDevice leds_device(leds, std::nullopt, 100);
-const hw::spi::SpiDevice seven_seg_device(seven_seg, std::nullopt, 100);
+static SpiBus pwr_chg(hspi1);
+static SpiBus leds(hspi2);
+static SpiBus seven_seg(hspi3);
 
-[[nodiscard]] const hw::spi::SpiBus &hw::spi::getBusFromHandle(const SPI_HandleTypeDef *handle)
+const SpiDevice pwr_chg_device(pwr_chg, std::nullopt, SPI_TIMEOUT); // No NSS pin for this device so should we bit bang?
+const SpiDevice leds_device(leds, std::nullopt, SPI_TIMEOUT);
+const SpiDevice seven_seg_device(seven_seg, std::nullopt, SPI_TIMEOUT);
+
+[[nodiscard]] const SpiBus &getBusFromHandle(const SPI_HandleTypeDef *handle)
 {
     assert(handle == &pwr_chg.handle || handle == &leds.handle || handle == &seven_seg.handle);
     if (handle == &pwr_chg.handle)
@@ -24,4 +27,5 @@ const hw::spi::SpiDevice seven_seg_device(seven_seg, std::nullopt, 100);
         return leds;
     }
     return seven_seg;
+}
 }
