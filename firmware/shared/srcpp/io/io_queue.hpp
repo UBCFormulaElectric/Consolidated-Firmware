@@ -42,7 +42,7 @@ template <typename T, size_t QUEUE_SIZE> class queue
         void (*const in_overflow_callback)(uint32_t),
         void (*const in_overflow_clear_callback)())
       :
-#ifdef TARGET_EMBDEDDED
+#ifdef TARGET_EMBEDDED
         queue_attr({
             .name      = name,
             .attr_bits = 0,
