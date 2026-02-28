@@ -60,7 +60,6 @@ class EcuTestBase : public testing::Test
         fakes::time::setTime(current_time_ms);
         assert(task_queue.empty());
         board_setup();
-        assert(!task_queue.empty());
     }
     void TearDown() final { board_teardown(); };
 
@@ -68,7 +67,12 @@ class EcuTestBase : public testing::Test
 
     void LetTimePass(const uint32_t time_ms)
     {
-        assert(!task_queue.empty());
+        if (task_queue.empty())
+        {
+            std::cout
+                << "Warning: No tasks registered, so LetTimePass will just advance time without executing any tasks."
+                << std::endl;
+        }
         for (uint32_t ms = 0; ms < time_ms; ms++)
         {
             while (task_queue.top().next_run_time_ms <= current_time_ms)

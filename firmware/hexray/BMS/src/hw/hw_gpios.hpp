@@ -22,7 +22,7 @@ extern const hw::Gpio tsense_sel2;
 extern const hw::Gpio bspd_test_enable;
 extern const hw::Gpio ts_isense_ocsc_ok;
 extern const hw::Gpio spi_cs_hs;
-extern const hw::Gpio bms_ok_current_status;
+extern const hw::Gpio n_bms_ok_current_status;
 extern const hw::Gpio n_evse_i_lim;
 extern const hw::Gpio ir_p_en;
 extern const hw::Gpio shdn_en;

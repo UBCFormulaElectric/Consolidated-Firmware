@@ -6,7 +6,7 @@
 
 namespace hw::can
 {
-static void canRxCallback(const io::CanMsg &msg)
+static void canRxCallback(const CanMsg &msg)
 {
     UNUSED(msg);
     // io::bootHandler::processBootRequest(msg);
@@ -17,8 +17,8 @@ static void canRxCallback(const io::CanMsg &msg)
     // }
 }
 
-constexpr fdcan can1{ hfdcan1, 1, canRxCallback };
-constexpr fdcan can2{ hfdcan2, 2, canRxCallback };
+constexpr fdcan can1{ hfdcan1, canRxCallback };
+constexpr fdcan can2{ hfdcan2, canRxCallback };
 
 const fdcan &fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
 {
@@ -28,9 +28,6 @@ const fdcan &fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
     {
         return can1;
     }
-    else
-    {
-        return can2;
-    }
+    return can2;
 }
 } // namespace hw::can

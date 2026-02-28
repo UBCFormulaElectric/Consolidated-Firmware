@@ -7,15 +7,12 @@
 #include "io_canReroute.hpp"
 
 namespace io::can_reroute {
-
 {%- for bus in node_busses %}
-static void (*transmit_func_{{bus.name}})(const JsonCanMsg* tx_msg);
+static void (*transmit_func_{{bus.name}})(const JsonCanMsg& tx_msg);
 {%- endfor %}
-
-
-void init( 
+void init(
 {%- for bus in node_busses %}
-    void (*transmit_func_{{bus.name}}_in)(const JsonCanMsg*) {%- if !loop.last -%}, {%- endif %}
+    void (*transmit_func_{{bus.name}}_in)(const JsonCanMsg&) {%- if !loop.last -%}, {%- endif %}
 {%- endfor %}
 )
 {
@@ -25,9 +22,9 @@ void init(
 }
 
 {% for from_bus in node_busses %}
-void reroute_{{from_bus.name}}(const JsonCanMsg* rx_msg)
+void reroute_{{from_bus.name}}(const JsonCanMsg& rx_msg)
 {
-    switch(rx_msg->std_id)
+    switch(rx_msg.std_id)
     {
         {%- for (msg_id, busses) in reroutes.get_forwards_for_bus(from_bus.name) %}
         case app::can_utils::{{ id_macro(msg_id) }}:

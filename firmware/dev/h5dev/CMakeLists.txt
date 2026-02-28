@@ -13,9 +13,12 @@ file(GLOB EMBEDDED_SRCS CONFIGURE_DEPENDS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
 )
 list(APPEND EMBEDDED_SRCS
-        "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
         "${SHARED_IO_INCLUDE_DIR}/io_bootHandler.c"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/efuse/io_efuse_TI_TPS28.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/efuse/io_efuse_TI_TPS25.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/efuse/io_efuse_ST_VND5.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_gpio.cpp"
         "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_freeRtosConfigs.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
@@ -24,7 +27,6 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_spi.cpp"
         "${SHARED_HW_INCLUDE_DIR}/hw_resetReason.c"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
-        "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
 )
@@ -37,6 +39,7 @@ set(EMBEDDED_INCLUDE_DIRS
         "${SHARED_IO_INCLUDE_DIR}"
         "${SHARED_IO_INCLUDE_DIR_CPP}"
         "${SHARED_HW_INCLUDE_DIR}"
+        "${SHARED_HW_INCLUDE_DIR_CPP}"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
@@ -93,7 +96,7 @@ IF ("${TARGET}" STREQUAL "binary")
     )
 
     # JSONCAN
-    jsoncan_embedded_library(H5 dev "${CMAKE_CURRENT_BINARY_DIR}")
+    jsoncan_embedded_library_cpp(H5 dev "${CMAKE_CURRENT_BINARY_DIR}")
 
     embedded_binary(
             "h5dev_app"

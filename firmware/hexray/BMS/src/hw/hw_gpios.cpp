@@ -29,7 +29,7 @@ const hw::Gpio tsense_sel2(TSENSE_SEL2_GPIO_Port, TSENSE_SEL2_Pin);
 const hw::Gpio bspd_test_enable(BSPD_TEST_EN_GPIO_Port, BSPD_TEST_EN_Pin);
 const hw::Gpio ts_isense_ocsc_ok(TS_ISENSE_OCSC_OK_3V3_GPIO_Port, TS_ISENSE_OCSC_OK_3V3_Pin);
 const hw::Gpio spi_cs_hs(SPI_CS_HS_GPIO_Port, SPI_CS_HS_Pin);
-const hw::Gpio bms_ok_current_status(BMS_OK_GPIO_Port, BMS_OK_Pin);
+const hw::Gpio n_bms_ok_current_status(nBMS_OK_GPIO_Port, nBMS_OK_Pin);
 const hw::Gpio n_evse_i_lim(nEVSE_I_LIM_PWM_GPIO_Port, nEVSE_I_LIM_PWM_Pin);
 const hw::Gpio ir_p_en(IR_P_EN_GPIO_Port, IR_P_EN_Pin);
 const hw::Gpio shdn_en(SHDN_EN_GPIO_Port, SHDN_EN_Pin);

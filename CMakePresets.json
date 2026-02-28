@@ -16,7 +16,7 @@
         "TARGET": "binary",
         "USE_COMMIT_INFO": "ON",
         "BOOTLOAD": "ON",
-        "WATCHDOG": "ON"
+        "WATCHDOG": "OFF"
       },
       "binaryDir": "build_fw_dev"
     },
@@ -75,7 +75,8 @@
       "name": "FW Test CI",
       "inherits": "FW Test",
       "cacheVariables": {
-        "FIX_FORMATTING": "OFF"
+        "FIX_FORMATTING": "OFF",
+        "JSONCAN_BINARY_GENERATE": "OFF"
       },
       "generator": "Unix Makefiles"
     }
