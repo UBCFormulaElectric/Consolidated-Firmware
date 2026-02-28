@@ -5,8 +5,4 @@ pub mod parsing;
 pub mod reroute;
 mod test;
 
-fn main() {
-    eprintln!("mi bombo");
-    // exit with error
-    std::process::exit(1);
-}
+pub fn main() {}

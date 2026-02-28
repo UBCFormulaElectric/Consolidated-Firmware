@@ -4,27 +4,16 @@
 // clang-format off
 
 /* ------------------------------- Includes ------------------------------- */
-#include "io_canReroute.h"
+#include "io_canReroute.hpp"
 
-{# 
-    1. init transmit functions
-    2. generate switch case to check if the message needs to be rerouted
-    3. generate the reroute function arg is the message, use transmit function to send the message
-        3.1 need all message need reroute to be defined in the io_canTx.h
-        3.2 need bus of the message need to be resent
-    4. expose the 2. function only 
-
-    To use this module, but call init with all the transmit functions 
-        the transmit function can be push stuff to the queue or send the message directly
-    Call 2. function in the canRx callback
- #}
+namespace io::can_reroute {
 
 {%- for bus in node_busses %}
 static void (*transmit_func_{{bus.name}})(const JsonCanMsg* tx_msg);
 {%- endfor %}
 
 
-void io_canReroute_init( 
+void init( 
 {%- for bus in node_busses %}
     void (*transmit_func_{{bus.name}}_in)(const JsonCanMsg*) {%- if !loop.last -%}, {%- endif %}
 {%- endfor %}
@@ -36,12 +25,12 @@ void io_canReroute_init(
 }
 
 {% for from_bus in node_busses %}
-void io_canReroute_{{from_bus.name}}(const JsonCanMsg* rx_msg)
+void reroute_{{from_bus.name}}(const JsonCanMsg* rx_msg)
 {
     switch(rx_msg->std_id)
     {
         {%- for (msg_id, busses) in reroutes.get_forwards_for_bus(from_bus.name) %}
-        case {{ id_macro(msg_id) }}:
+        case app::can_utils::{{ id_macro(msg_id) }}:
         {
             {%- for bus_name in busses %}
             transmit_func_{{bus_name}}(rx_msg);
@@ -54,3 +43,4 @@ void io_canReroute_{{from_bus.name}}(const JsonCanMsg* rx_msg)
     }
 }
 {%- endfor %}
+}

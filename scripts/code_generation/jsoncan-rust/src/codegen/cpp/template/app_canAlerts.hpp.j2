@@ -1,5 +1,6 @@
 /**
  * @note This file is auto-generated. Do not modify!
+ * @name app_canAlerts.hpp
  */
 // clang-format off
 
@@ -7,32 +8,32 @@
 
 /* ------------------------------- Includes ------------------------------- */
 
-#include <stdbool.h>
-#include <stdint.h>
-#include "app_canUtils.h"
+#include <cstdint>
+#include "app_canUtils.hpp"
 
+namespace app::can_alerts {
 /* -------------------------------- Enums --------------------------------- */
 
-typedef struct
+struct Alert_Info
 {
-    char* description;
-    char* name;
+    const char* description;
+    const char* name;
     uint16_t id;
-} Alert_Info;
+};
 
 /* ------------------------- Function Prototypes -------------------------- */
 
 /* ----------- Infos -----------*/
-{%- for info in node_tx_alerts.info %}
+{%- for info in node_tx_alerts.infos %}
 /**
  * Set or clear {{info.name}} for {{node_name}}.
  */
-void app_canAlerts_{{info.name}}_set(bool set_alert);
+void {{info.name}}_set(bool set_alert);
 
 /**
  * Return whether {{info.name}} transmitted by {{node_name}} is set.
  */
-bool app_canAlerts_{{info.name}}_get(void);
+bool {{info.name}}_get();
 {%- endfor %}
 
 /* ----------- Warnings -----------*/
@@ -40,11 +41,11 @@ bool app_canAlerts_{{info.name}}_get(void);
 /**
  * Set or clear {{warning.name}} for {{node_name}}.
  */
-void app_canAlerts_{{warning.name}}_set(bool set_alert);
+void {{warning.name}}_set(bool set_alert);
 /**
  * Return whether {{warning.name}} transmitted by {{node_name}} is set.
  */
-bool app_canAlerts_{{warning.name}}_get(void);
+bool {{warning.name}}_get();
 {%- endfor %}
 
 /* ----------- Faults -----------*/
@@ -52,51 +53,52 @@ bool app_canAlerts_{{warning.name}}_get(void);
 /**
  * Set or clear {{fault.name}} for {{node_name}}.
  */
-void app_canAlerts_{{fault.name}}_set(bool set_alert);
+void {{fault.name}}_set(bool set_alert);
 /**
  * Return whether {{fault.name}} transmitted by {{node_name}} is set.
  */
-bool app_canAlerts_{{fault.name}}_get(void);
+bool {{fault.name}}_get();
 {%- endfor %}
 
 
 /**
  * Return whether or not a board has set a info.
  */
-bool app_canAlerts_BoardHasInfo(CanNode board);
+bool BoardHasInfo(app::can_utils::CanNode board);
 /**
  * Return whether or not a board has set a warning.
  */
-bool app_canAlerts_BoardHasWarning(CanNode board);
+bool BoardHasWarning(app::can_utils::CanNode board);
 /**
  * Return whether or not a board has set a fault.
  */
-bool app_canAlerts_BoardHasFault(CanNode board);
+bool BoardHasFault(app::can_utils::CanNode board);
 
 
 /**
  * Return whether or not any board has set a info.
  */
-bool app_canAlerts_AnyBoardHasInfo(void);
+bool AnyBoardHasInfo();
 /**
  * Return whether or not any board has set a warning.
  */
-bool app_canAlerts_AnyBoardHasWarning(void);
+bool AnyBoardHasWarning();
 /**
  * Return whether or not any board has set a fault.
  */
-bool app_canAlerts_AnyBoardHasFault(void);
+bool AnyBoardHasFault();
 
 
 /**
  * Fetches the info info into alert_array, returns amount of elements in alert_array.
  */
-uint8_t app_canAlerts_InfoInfo(Alert_Info *alert_array);
+uint8_t InfoInfo(std::span<const Alert_Info> alert_array);
 /**
  * Fetches the warning info into alert_array, returns amount of elements in alert_array.
  */
-uint8_t app_canAlerts_WarningInfo(Alert_Info *alert_array);
+uint8_t WarningInfo(std::span<const Alert_Info> alert_array);
 /**
  * Fetches the fault info into alert_array, returns amount of elements in alert_array.
  */
-uint8_t app_canAlerts_FaultInfo(Alert_Info *alert_array);
+uint8_t FaultInfo(std::span<const Alert_Info> alert_array);
+}

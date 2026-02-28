@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 #[derive(PartialEq)]
+#[derive(Debug)]
 pub struct CanBus {
     pub name: String,
     pub bus_speed: u32,
@@ -13,15 +14,26 @@ pub struct CanBus {
 }
 
 #[derive(Clone)]
-pub enum RxMsgNames {
+pub enum JsonRxMsgNames {
     All,
     RxMsgs(Vec<String>),
 }
 
 pub struct GroupedAlerts {
-    pub info: Vec<CanAlert>,
+    pub infos: Vec<CanAlert>,
     pub warnings: Vec<CanAlert>,
     pub faults: Vec<CanAlert>,
+    pub infos_id: u32,
+    pub infos_count_id: u32,
+    pub warnings_id: u32,
+    pub warnings_count_id: u32,
+    pub faults_id: u32,
+    pub faults_count_id: u32,
+}
+
+pub enum RxMsgs {
+    All,
+    RxMsgs(Vec<u32>),
 }
 
 //     struct for fully describing a CAN node.
@@ -29,18 +41,32 @@ pub struct GroupedAlerts {
 pub struct CanNode {
     // Name of this CAN node
     pub name: String,
-    pub rx_msgs_names: RxMsgNames, // list of messages that it is listening
+    pub rx_msgs_names: RxMsgs, // list of messages that it is listening
     pub collects_data: bool,
     pub alerts: Option<GroupedAlerts>,
     pub enums: Vec<CanEnum>,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
+#[derive(PartialEq)]
 pub enum CanSignalType {
     Numerical,
+    Boolean,
     Enum,
     Alert,
 }
+impl CanSignalType {
+    pub fn from(x: u32) -> CanSignalType {
+        match x { // this is definately very suspicious
+            0 => CanSignalType::Numerical,
+            1 => CanSignalType::Boolean,
+            2 => CanSignalType::Enum,
+            3 => CanSignalType::Alert,
+            _ => panic!("Invalid signal type {} in database", x),
+        }
+    }
+}
+
 pub struct CanSignal {
     // Name of this CAN signal
     pub name: String,
@@ -70,6 +96,9 @@ pub struct CanSignal {
     pub big_endian: bool, // TODO: Add tests for big endianness
 
     pub signal_type: CanSignalType,
+    // note I am way too lazy to make cansignal a proper union type
+    // hence this will do
+    // however you need to trust that this is correct
 }
 
 pub struct CanMessage {
@@ -174,12 +203,12 @@ impl CanEnum {
     }
 
     pub fn max_value(&self) -> u32 {
-        return self
+        self
             .values
             .values()
             .cloned()
             .max()
-            .expect("Enum has at least one value");
+            .expect("Enum has at least one value")
     }
 
     pub fn min_value(&self) -> u32 {

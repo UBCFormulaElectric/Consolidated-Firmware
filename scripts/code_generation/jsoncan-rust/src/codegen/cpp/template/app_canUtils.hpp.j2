@@ -1,0 +1,101 @@
+/**
+ * @note This file is auto-generated. Do not modify!
+ */
+// clang-format off
+
+#pragma once
+
+/* ------------------------------- Includes ------------------------------- */
+
+#include <cstdint>
+#include <span>
+
+namespace app::can_utils {
+/* -------------------------------- Enums --------------------------------- */
+{%- for e in enums %}
+enum class {{ e.name }}
+{
+    {%- for (key, value) in e.values %}
+    {{ key }} = {{ value }},
+    {%- endfor %}
+};
+{%- endfor %}
+
+enum class CanNode
+{
+    {%- for node_name in node_names %}
+    {{node_name.to_uppercase()}}_NODE = {{loop.index}},
+    {%- endfor %}
+};
+
+/* -------------------------------- Macros -------------------------------- */
+// Msg IDs
+{% for message in messages -%}
+inline constexpr uint32_t {{ message.id_macro() }} = {{ message.id }};
+{% endfor %}
+
+// Msg lengths (in bytes)
+{% for message in messages -%}
+inline constexpr uint8_t {{ message.dlc_macro() }} = {{ message.dlc() }};
+{% endfor %}
+
+// Periodic msg cycle times (in MS)
+{%- for message in messages %}
+{%- if message.cycle_time.is_some() %}
+inline constexpr uint32_t {{ message.cycle_time_macro() }} = {{ message.cycle_time.unwrap() }};
+{%- endif -%}
+{% endfor %}
+
+// Signal starting values
+{% for msg in messages -%}
+// {{msg.name}}
+{% for signal in msg.signals -%}
+inline constexpr {{ signal.datatype() }} {{ signal.start_val_macro() }} = {{ signal.start_val_name() | safe }};
+{%- if signal.unit.is_some() && signal.unit.as_ref().unwrap() != "" -%}// {{ signal.unit.as_ref().unwrap() }} {%- endif %}
+{% endfor %}
+{% endfor %}
+// Scale/offset values for encoding/decoding signals
+{% for msg in messages -%}
+// {{msg.name}}
+{% for signal in msg.signals -%}
+inline constexpr float {{ signal.scale_macro() }} = {{ signal.scale }};
+// Note: unit may be optional
+{%- if signal.unit.is_some() && signal.unit.as_ref().unwrap() != "" -%}// {{ signal.unit.as_ref().unwrap() }} {%- endif %}
+inline constexpr float {{ signal.offset_macro() }} = {{ signal.offset }};
+{%- if signal.unit.is_some() && signal.unit.as_ref().unwrap() != "" -%}// {{ signal.unit.as_ref().unwrap() }} {%- endif %}
+{% endfor %}
+{% endfor %}
+
+
+// Min/max allowed values for signals
+{% for msg in messages -%}
+// {{msg.name}}
+{% for signal in msg.signals -%}
+inline constexpr float {{ signal.min_val_macro() }} = {{ signal.min }};
+// Only print unit if present and non-empty
+{%- if signal.unit.is_some() && signal.unit.as_ref().unwrap() != "" -%}// {{ signal.unit.as_ref().unwrap() }} {%- endif %}
+inline constexpr float {{ signal.max_val_macro() }} = {{ signal.max }};
+{%- if signal.unit.is_some() && signal.unit.as_ref().unwrap() != "" -%}// {{ signal.unit.as_ref().unwrap() }} {%- endif %}
+{% endfor %}
+{% endfor %}
+
+/* ------------------------------- Structs -------------------------------- */
+
+{# THESE ARE THE SIGNAL STRUCTS #}
+{% for message in messages %}
+struct {{ message.name }}_Signals
+{
+    {%- if message.signals.len() == 0 %}
+    uint8_t _placeholder;
+    {%- else %}
+    {%- for signal in message.signals %}
+    {{ signal.datatype() }} {{ signal.name }}_value = {{ signal.start_val_macro()}};
+    {%- endfor %}
+    explicit {{ message.name }}_Signals(std::span<const uint8_t> data);
+    {%- endif %}
+    {{ message.name }}_Signals() = default;
+
+    void pack(std::span<uint8_t> out_data) const;
+};
+{% endfor %}
+}

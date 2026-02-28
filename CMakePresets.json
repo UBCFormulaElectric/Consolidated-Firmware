@@ -49,7 +49,8 @@
       "name": "FW Deploy CI",
       "inherits": "FW Deploy",
       "cacheVariables": {
-        "FIX_FORMATTING": "OFF"
+        "FIX_FORMATTING": "OFF",
+        "JSONCAN_BINARY_GENERATE": "OFF"
       },
       "generator": "Unix Makefiles"
     },

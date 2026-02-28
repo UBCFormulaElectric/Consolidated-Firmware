@@ -1,6 +1,14 @@
 use std::collections::HashSet;
-
+use crate::can_database::CanSignalType;
 use crate::test::setup;
+
+#[test]
+fn test_signal_type_mapping() {
+    assert_eq!(CanSignalType::Numerical, CanSignalType::from(CanSignalType::Numerical as u32));
+    assert_eq!(CanSignalType::Enum, CanSignalType::from(CanSignalType::Enum as u32));
+    assert_eq!(CanSignalType::Alert, CanSignalType::from(CanSignalType::Alert as u32));
+    assert_eq!(CanSignalType::Boolean, CanSignalType::from(CanSignalType::Boolean as u32));
+}
 
 #[test]
 fn test_message_list_consistent() {
