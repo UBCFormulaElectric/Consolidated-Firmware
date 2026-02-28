@@ -1,8 +1,41 @@
 #include "jobs.hpp"
 
-void jobs_init() {}
-void jobs_run1Hz_tick() {}
-void jobs_run100Hz_tick() {}
-void jobs_run1kHz_tick() {}
-void jobs_runCanTx_tick() {}
-void jobs_runCanRx_tick() {}
+#include <app_canUtils.hpp>
+#include "app_jsoncan.hpp"
+
+#include "io_canMsg.hpp"
+#include <io_canTx.hpp>
+#include "io_canQueues.hpp"
+#include "io_time.hpp"
+
+#include <util_errorCodes.hpp>
+
+void jobs_init()
+{
+    io::can_tx::init(
+        [](const JsonCanMsg &tx_msg)
+        {
+            const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
+            LOG_IF_ERR(can_tx_queue.push(msg));
+        },
+        [](const JsonCanMsg &tx_msg)
+        {
+            UNUSED(tx_msg);
+            // const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
+            // LOG_IF_ERR(can_tx_queue.push(msg));
+        });
+    io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
+    io::can_tx::enableMode_charger(app::can_utils::chargerMode::CHARGER_MODE_DEFAULT, true);
+}
+void jobs_run1Hz_tick()
+{
+    io::can_tx::enqueue1HzMsgs();
+}
+void jobs_run100Hz_tick()
+{
+    io::can_tx::enqueue100HzMsgs();
+}
+void jobs_run1kHz_tick()
+{
+    io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
+}

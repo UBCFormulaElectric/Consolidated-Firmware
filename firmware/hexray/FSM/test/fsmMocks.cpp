@@ -194,3 +194,9 @@ const io::shdn::node cockpit_node{ app::can_tx::FSM_COCKPITOKStatus_set };
 const io::shdn::node bots_node{ app::can_tx::FSM_BOTSOKStatus_set };
 const io::shdn::node fl_shdn_ok_node{ app::can_tx::FSM_FrontLeftILCKInertiaOKStatus_set };
 const io::shdn::node fr_shdn_ok_node{ app::can_tx::FSM_FrontRightILCKOKStatus_set };
+
+#include "io_canQueues.hpp"
+static void                overflow_callback() {}
+static void                overflow_callback(uint32_t) {}
+io::queue<io::CanMsg, 128> can_tx_queue{ "", overflow_callback, overflow_callback };
+io::queue<io::CanMsg, 128> can_rx_queue{ "", overflow_callback, overflow_callback };
