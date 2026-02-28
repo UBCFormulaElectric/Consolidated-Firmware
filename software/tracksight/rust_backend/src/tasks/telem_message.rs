@@ -35,7 +35,7 @@ impl TelemetryIncomingMessage {
 #[derive(Clone, Debug)]
  pub struct CanPayload {
     pub can_id: u32,
-    pub can_timestamp: SystemTime, // should deprecate this field when we establish RTC and NTP
+    pub can_timestamp: u32,
     pub payload: Vec<u8>,
 }
 

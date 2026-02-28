@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use colored::Colorize;
 use tokio::sync::{RwLock, broadcast::Receiver};
 use tokio::select;
 
@@ -16,12 +17,12 @@ pub async fn run_live_data_handler(
     mut can_signals_rx: Receiver<DecodedSignal>,
     clients: Arc<RwLock<Clients>>
 ) {
-    println!("Live data task started.");
+    println!("{}", "Live data task started.".yellow());
 
     loop {
         select! {
             _ = shutdown_signal.recv() => {
-                println!("Shutting down live data handler task.");
+                println!("Live data task shutting down.");
                 break;
             }
             Ok(signal) = can_signals_rx.recv() => {
@@ -42,4 +43,6 @@ pub async fn run_live_data_handler(
             }
         }
     }
+
+    println!("{}", "Live data task ended.".yellow())
 }

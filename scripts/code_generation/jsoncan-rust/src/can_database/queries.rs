@@ -262,7 +262,7 @@ impl CanDatabase {
         Ok((msg.id, data_bytes))
     }
 
-    pub fn unpack(&self, msg_id: u32, data: Vec<u8>, timestamp: Option<std::time::SystemTime>) -> Vec<DecodedSignal> {
+    pub fn unpack(&self, msg_id: u32, data: Vec<u8>, timestamp: Option<u32>) -> Vec<DecodedSignal> {
         let msgs = match self.get_message_by_id(msg_id) {
             Ok(m) => m,
             Err(_) => {

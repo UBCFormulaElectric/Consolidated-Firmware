@@ -5,6 +5,7 @@ use tokio_serial::{SerialPortBuilderExt, SerialStream};
 use std::io::{Error, ErrorKind};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use crc::{Crc, CRC_32_ISO_HDLC};
+use colored::Colorize;
 
 use crate::config::CONFIG;
 use crate::tasks::telem_message::TelemetryOutgoingMessage;
@@ -13,8 +14,8 @@ use super::telem_message::{TelemetryIncomingMessage, CanPayload};
 /**
  * Handling serial signals from radio. Main task
  */
-pub async fn run_serial_task(mut shutdown_rx: broadcast::Receiver<()>, can_queue_sender: broadcast::Sender<CanPayload>) {
-    println!("Serial handler task started.");
+pub async fn run_serial_task(mut shutdown_rx: broadcast::Receiver<()>, can_queue_tx: broadcast::Sender<CanPayload>) {
+    println!("{}", "Serial handler task started.".yellow());
 
     let serial_port = tokio_serial::new(
         &CONFIG.serial_port,
@@ -66,12 +67,13 @@ pub async fn run_serial_task(mut shutdown_rx: broadcast::Receiver<()>, can_queue
                 match telem_message {
                     TelemetryIncomingMessage::Can { body } => {
                         // TODO error handling
-                        if !can_queue_sender.send(body).is_ok() {
+                        if !can_queue_tx.send(body).is_ok() {
                             eprintln!("Channel has closed");
                             break;
                         };
                     },
                     TelemetryIncomingMessage::NTP => {
+                        println!("ntp request");
                         let t1 = SystemTime::now()
                             .duration_since(UNIX_EPOCH)
                             .unwrap();
@@ -86,7 +88,7 @@ pub async fn run_serial_task(mut shutdown_rx: broadcast::Receiver<()>, can_queue
     }
     packet_reader.await.ok();
     packet_sender.await.ok();
-    println!("Serial handler task ended.");
+    println!("{}", "Serial handler task ended.".yellow());
 }
 
 /**
@@ -97,16 +99,14 @@ fn parse_incoming_telem_message(payload: Vec<u8>) -> Result<TelemetryIncomingMes
         // TODO magic numbers
         TelemetryIncomingMessage::CAN_BYTE => {
             let can_id = u32::from_le_bytes([payload[1], payload[2], payload[3], payload[4]]);
-            // TODO use RTC and NTP time instead of whatever this is
             // this should also probably be u64 for epoch unix time, awaiting confirmation
-            let can_time_offset = f32::from_le_bytes([payload[5], payload[6], payload[7], payload[8]]);
-            let timestamp = SystemTime::now(); // something with can_time_offset
+            let can_timestamp = u32::from_le_bytes([payload[5], payload[6], payload[7], payload[8]]);
 
             let can_payload = payload[9..].to_vec();
             TelemetryIncomingMessage::Can {
                 body: CanPayload {
                     can_id: can_id,
-                    can_timestamp: timestamp,
+                    can_timestamp: can_timestamp,
                     payload: can_payload,
                 }
             }
@@ -148,7 +148,7 @@ async fn packet_reader_handler(mut shutdown_flag: broadcast::Receiver<()>, mut s
                         Ok(_) => {},
                         Err(_) => break, // packet receiver closed, exit thread
                     },
-                    Err(e) => {println!("{e}")}, // failed to read, continue
+                    Err(e) => {eprintln!("{e}")}, // failed to read, continue
                 }
             }
         }
