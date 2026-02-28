@@ -106,6 +106,7 @@ class CRITChimeraConfig : public chimera_v2::config
     {
         gpio_net_name_tag = GpioNetName_crit_net_name_tag;
         spi_net_name_tag  = SpiNetName_crit_net_name_tag;
+        pwm_net_name_tag = PwmNetName_crit_net_name_tag;
     }
 } crit_config;
 
@@ -119,11 +120,9 @@ char USBD_PRODUCT_STRING_FS[] = "crit";
 {
     assert(hw::usb::init());
     (void)led_dimming.start();
-    (void)led_dimming.setDutyCycle(100.0f);
-    (void)led_dimming.start();
+    (void)led_dimming.setDutyCycle(0.0f);
     (void)seven_seg_dimming.start();
-    (void)seven_seg_dimming.setDutyCycle(100.0f);
-    (void)seven_seg_dimming.start();
+    (void)seven_seg_dimming.setDutyCycle(0.0f);
     osKernelInitialize();
     TaskChimera.start();
     osKernelStart();

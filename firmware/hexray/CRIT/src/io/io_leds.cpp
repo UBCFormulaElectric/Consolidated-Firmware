@@ -47,8 +47,8 @@ std::expected<void, ErrorCode> update(const config &c)
 
 std::expected<void, ErrorCode> setBrightness(const float brightness)
 {
-    RETURN_IF_ERR_SILENT(led_dimming.setDutyCycle(brightness));
     RETURN_IF_ERR_SILENT(led_dimming.start());
+    RETURN_IF_ERR_SILENT(led_dimming.setDutyCycle(brightness));
     return {};
 }
 
