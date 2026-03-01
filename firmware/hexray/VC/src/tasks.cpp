@@ -132,11 +132,9 @@ void tasks_init()
     hw::can::invcan.init();
 
     dam_en.writePin(true);
-    os
     rsm_en.writePin(true);
     front_en.writePin(true);
     bms_en.writePin(true);
-
     jobs_init();
     osKernelInitialize();
     VC_StartAllTasks();
