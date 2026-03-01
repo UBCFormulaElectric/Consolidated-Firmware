@@ -77,6 +77,7 @@ pub async fn run_serial_task(mut shutdown_rx: broadcast::Receiver<()>, can_queue
                         let t1 = SystemTime::now()
                             .duration_since(UNIX_EPOCH)
                             .unwrap();
+                            println!("Received properly");
                         if !out_packet_tx.send(TelemetryOutgoingMessage::NTP { t1 }).await.is_ok() {
                             eprintln!("Channel has closed");
                             break;
@@ -177,7 +178,6 @@ async fn read_packet(serial_read: &mut ReadHalf<SerialStream>) -> Result<Vec<u8>
         header_buffer.rotate_left(1);
         index -= 1;
     }
-
     // magic bytes have matched, make sure that the rest of the header has been fully read
     serial_read.read_exact(&mut header_buffer[index..]).await?;
 
@@ -202,7 +202,6 @@ async fn read_packet(serial_read: &mut ReadHalf<SerialStream>) -> Result<Vec<u8>
     // read payload buffer
     let mut payload_buffer = vec![0u8; payload_length];
     serial_read.read_exact(&mut payload_buffer).await?;
-
     // checksum, probably works
     let expected_crc = u32::from_le_bytes(header_buffer[3..7].try_into().unwrap_or_default());
     let calculated_crc: u32 = CRC32_CALC.checksum(&payload_buffer);
