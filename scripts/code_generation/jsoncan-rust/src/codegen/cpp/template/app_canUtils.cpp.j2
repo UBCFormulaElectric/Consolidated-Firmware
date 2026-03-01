@@ -48,15 +48,15 @@ static uint32_t unpackShiftRight(const uint8_t input, const uint8_t shift, const
  * Encode real signal value to payload representation, w/ scale and offset (unsigned).
  */
 template<typename T>
-static T CAN_ENCODE(const auto input, const double scale, const double offset)
+static T CAN_ENCODE(const auto input, const float scale, const float offset)
 {
-    return static_cast<T>((static_cast<double>(input) - offset) / scale);
+    return static_cast<T>((static_cast<float>(input) - offset) / scale);
 }
 
 /**
  * Encode real signal value to payload representation, w/ scale and offset (signed).
  */
-static int32_t CAN_SIGNED_ENCODE(const double input, const double scale, const double offset)
+static int32_t CAN_SIGNED_ENCODE(const float input, const float scale, const float offset)
 {
     return static_cast<int32_t>((input - offset) / scale);
 }
