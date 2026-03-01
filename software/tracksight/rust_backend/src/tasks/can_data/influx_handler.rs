@@ -46,7 +46,10 @@ pub async fn run_influx_handler(mut shutdown_signal: Receiver<()>, mut decoded_s
 
                 if batch_buffer.len() >= MAX_BATCH_CAPACITY {
                     let body = stream::iter(batch_buffer.drain(..).collect::<Vec<DataPoint>>());
-                    influx_client.write_with_precision(&CONFIG.influxdb_bucket, body, TimestampPrecision::Milliseconds);
+                    let write_res = influx_client.write_with_precision(&CONFIG.influxdb_bucket, body, TimestampPrecision::Milliseconds).await;
+                    if let Err(e) = write_res {
+                        eprintln!("Error writing to InfluxDB: {e}");
+                    }
                 }
             }
         }
