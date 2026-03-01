@@ -185,7 +185,10 @@ function render_numerical(
     visibleStartTime: number, visibleEndTime: number, timeToX: (time: number) => number, // time range
     hover: { x: number; y: number; } | null
 ): Array<{ name: string, value: string }> | null {
-    // TODO edge case where series.length === 0
+    if (series.length === 0) { // am i crazy or is this not okay
+        return [];
+    }
+
     const series_bounds = series.map(s => {
         const left = bisect(s.timestamps, visibleStartTime)
         const right = bisect(s.timestamps, visibleEndTime)
@@ -276,22 +279,53 @@ function render_numerical(
     }
 
     if (hover !== null) {
-        // TODO calculate closes point if hovering
-        // TODO render the numerical circle
-        // const y = numericalTop + chartHeight - ((value - all_series_min) / (all_series_max - all_series_min)) * chartHeight;
-        // // draw the circle at the hovered point
-        // context.beginPath();
-        // context.fillStyle = s.color || "#4f46e5";
-        // context.strokeStyle = "#ffffff";
-        // context.lineWidth = 1.5;
-        // context.arc(drawX, y, 4, 0, Math.PI * 2);
-        // context.fill();
-        // context.stroke();
+        // TODO ask zedwin if this is a fine interpretation
+
+        const hoverTime = visibleStartTime + ((hover.x - CHART_PADDING.left) / chartWidth) * (visibleEndTime - visibleStartTime);
+        const result: Array<{ name: string, value: string }> = [];
+
+        for (let seriesIndex = 0; seriesIndex < series.length; seriesIndex++) {
+            const s = series[seriesIndex];
+            if (s.timestamps.length === 0) continue;
+
+            // bisect gives us the insertion point; check both neighbors to find the closest
+            const idx = bisect(s.timestamps, hoverTime);
+            let closestIdx = idx;
+
+            if (idx >= s.timestamps.length) { // clamp to last point
+                closestIdx = s.timestamps.length - 1;
+            } else if (idx > 0) {
+
+                // choose between left and right neighbour
+                const diffLeft = Math.abs(s.timestamps[idx - 1] - hoverTime);
+                const diffRight = Math.abs(s.timestamps[idx] - hoverTime);
+                closestIdx = diffLeft < diffRight ? idx - 1 : idx;
+            }
+
+            const value = s.data.get(closestIdx);
+            const drawX = timeToX(s.timestamps[closestIdx]);
+            const y = numericalTop + chartHeight - ((value - all_series_min) / (all_series_max - all_series_min)) * chartHeight;
+
+            // draw circle at hovered point
+            context.beginPath();
+            context.fillStyle = s.color || "#4f46e5";
+            context.strokeStyle = "#ffffff";
+            context.lineWidth = 1.5;
+            context.arc(drawX, y, 4, 0, Math.PI * 2);
+            context.fill();
+            context.stroke();
+
+            result.push({
+                name: s.label,
+                value: value.toFixed(2),
+            });
+        }
+
+        context.restore();
+        return result;
     }
 
-
     context.restore();
-
     return [];
 }
 

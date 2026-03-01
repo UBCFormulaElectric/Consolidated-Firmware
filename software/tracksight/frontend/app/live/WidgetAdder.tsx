@@ -32,6 +32,7 @@ function MockModal({ closeModal, onAddWidget }: {
           }
         }],
         id: "",
+        mock: true,
       });
     } else if (mockType === SignalType.NUMERICAL) {
       onAddWidget({
@@ -44,6 +45,7 @@ function MockModal({ closeModal, onAddWidget }: {
           max: mockMax,
         }],
         id: "",
+        mock: true,
       });
     } else { }
 

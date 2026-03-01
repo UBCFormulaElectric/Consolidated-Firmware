@@ -181,6 +181,7 @@ export function useMockData( isPaused: boolean, widgetData: WidgetData,): RefObj
 
     useEffect(() => {
         if (isPaused) return;
+
         const intervals: ReturnType<typeof setInterval>[] = widgetData.configs.map((cfg, idx) => {
             const interval = setInterval(() => {
                 const store = dataRef.current;
