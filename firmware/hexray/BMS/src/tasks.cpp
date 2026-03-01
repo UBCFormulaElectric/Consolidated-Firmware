@@ -55,11 +55,12 @@
     forever
     {
         const auto msg = can_tx_queue.pop();
+        LOG_INFO("message popped");
         if (not msg)
             continue;
         if (const auto &m = msg.value(); m.bus == app::can_utils::BusEnum::Bus_FDCAN)
         {
-            const auto res = hw::can::fdcan1.fdcan_transmit(hw::CanMsg{
+            const auto res = hw::can::fdcan2.fdcan_transmit(hw::CanMsg{
                 m.std_id,
                 m.dlc,
                 m.data,
@@ -106,6 +107,9 @@ void tasks_preInit()
 
 void tasks_init()
 {
+    hw::can::fdcan1.init();
+    hw::can::fdcan2.init();
+
     jobs_init();
     osKernelInitialize();
     BMS_StartAllTasks();
