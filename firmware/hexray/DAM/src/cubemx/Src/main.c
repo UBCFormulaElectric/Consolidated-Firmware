@@ -113,7 +113,7 @@ int main(void)
     MX_FDCAN1_Init();
     MX_IWDG_Init();
     MX_RTC_Init();
-    //MX_SDMMC1_SD_Init();
+    // MX_SDMMC1_SD_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
     /* USER CODE END 2 */

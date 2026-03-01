@@ -1,4 +1,5 @@
 #include "tasks.h"
+#include "hw_pwmOutputs.hpp"
 #include "jobs.hpp"
 
 #include "app_jsoncan.hpp"
@@ -100,6 +101,8 @@ void tasks_preInit() {}
 void tasks_init()
 {
     hw::can::fdcan1.init();
+    led_dimming.start();
+    led_dimming.setDutyCycle(95);
     jobs_init();
     osKernelInitialize();
     CRIT_StartAllTasks();
