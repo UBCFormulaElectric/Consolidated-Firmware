@@ -56,12 +56,12 @@ static app::can_utils::ImdConditionName estimateConditionName(const float freque
     return condition_name;
 }
 
-ImdCondition getCondition()
+Condition getCondition()
 {
     const float pwm_frequency  = io::imd::getFrequency();
     const float pwm_duty_cycle = io::imd::getDutyCycle();
 
-    ImdCondition condition{};
+    Condition condition{};
     condition.name = (pwm_frequency < 0.001f) ? app::can_utils::ImdConditionName::IMD_CONDITION_SHORT_CIRCUIT
                                               : estimateConditionName(pwm_frequency);
 
@@ -105,11 +105,11 @@ ImdCondition getCondition()
             {
                 if (pwm_duty_cycle >= 5.0f && pwm_duty_cycle <= 10.0f)
                 {
-                    condition.payload.speed_start_status = ImdSst::GOOD;
+                    condition.payload.speed_start_status = Sst::GOOD;
                 }
                 else if (pwm_duty_cycle >= 90.0f && pwm_duty_cycle <= 95.0f)
                 {
-                    condition.payload.speed_start_status = ImdSst::BAD;
+                    condition.payload.speed_start_status = Sst::BAD;
                 }
             }
         }
@@ -135,7 +135,7 @@ void broadcast()
     app::can_tx::BMS_ImdDutyCycle_set(io::imd::getDutyCycle());
     app::can_tx::BMS_ImdTimeSincePowerOn_set(static_cast<float>(io::imd::getTimeSincePowerOn()));
 
-    const ImdCondition condition = app::imd::getCondition();
+    const Condition condition = app::imd::getCondition();
     app::can_tx::BMS_ImdCondition_set(condition.name);
     app::can_tx::BMS_ImdValidDutyCycle_set(condition.valid_duty_cycle);
 
