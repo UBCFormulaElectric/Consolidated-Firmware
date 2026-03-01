@@ -12,11 +12,15 @@
 
 void jobs_init()
 {
+    can_tx_queue.init();
+    can_rx_queue.init();
+
     io::can_tx::init(
         [](const JsonCanMsg &tx_msg)
         {
             const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
-            LOG_IF_ERR(can_tx_queue.push(msg));
+            (void)can_tx_queue.push(msg);
+            // LOG_IF_ERR();
         },
         [](const JsonCanMsg &tx_msg)
         {
