@@ -12,6 +12,10 @@
 
 void jobs_init()
 {
+    fdcan_tx_queue.init();
+    invcan_tx_queue.init();
+    can_rx_queue.init();
+
     io::can_tx::init(
         [](const JsonCanMsg &tx_msg)
         {

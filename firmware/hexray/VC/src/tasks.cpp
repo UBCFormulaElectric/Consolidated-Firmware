@@ -5,10 +5,12 @@
 
 #include "io_time.hpp"
 #include "io_canQueues.hpp"
+#include <hw_can.hpp>
 #include <io_canRx.hpp>
 #include <io_canTx.hpp>
 
 #include "hw_cans.hpp"
+#include "hw_gpios.hpp"
 #include "hw_rtosTaskHandler.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
@@ -126,6 +128,13 @@ void tasks_preInit() {}
 
 void tasks_init()
 {
+    hw::can::fdcan1.init();
+    hw::can::invcan.init();
+
+    dam_en.writePin(true);
+    rsm_en.writePin(true);
+    front_en.writePin(true);
+    bms_en.writePin(true);
     jobs_init();
     osKernelInitialize();
     VC_StartAllTasks();

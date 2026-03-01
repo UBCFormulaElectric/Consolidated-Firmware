@@ -46,21 +46,23 @@ void jobs_init()
 {
     can_tx_queue.init();
     can_rx_queue.init();
+    // TODO: Uncomment semaphores when segments are added (also if there's a semaphore.cpp update).
     // isospi_bus_access_lock guards access to the ISOSPI bus, to guarantee an ADuM SPI transaction doesn't get
     // interrupted by another task. It's just a regular semaphore (no priority inheritance) since it depends on
     // hardware.
-    io_semaphore_create(&isospi_bus_access_lock, false);
+    // io_semaphore_create(&isospi_bus_access_lock, false);
 
     // adbms_app_data_lock guards access to any ADuM app data that may be written to by the ADuM tasks and read from
     // other tick functions. It's a mutex (yes priority inheritance) since it's guarding shared data and doesn't depend
     // on hardware.
-    io_semaphore_create(&adbms_app_data_lock, true);
+    // io_semaphore_create(&adbms_app_data_lock, true);
+
     io::can_tx::init(
         [](const JsonCanMsg &tx_msg)
         {
             const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
             (void)can_tx_queue.push(msg);
-            // LOG_IF_ERR(can_tx_queue.push(msg));
+            // LOG_IF_ERR();
         },
         [](const JsonCanMsg &tx_msg)
         {

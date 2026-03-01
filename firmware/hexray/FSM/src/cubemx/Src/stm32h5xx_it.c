@@ -55,11 +55,13 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-extern DMA_NodeTypeDef   Node_GPDMA1_Channel0;
-extern DMA_QListTypeDef  List_GPDMA1_Channel0;
-extern DMA_HandleTypeDef handle_GPDMA1_Channel0;
-extern ADC_HandleTypeDef hadc1;
-extern TIM_HandleTypeDef htim6;
+extern DMA_NodeTypeDef     Node_GPDMA1_Channel0;
+extern DMA_QListTypeDef    List_GPDMA1_Channel0;
+extern DMA_HandleTypeDef   handle_GPDMA1_Channel0;
+extern ADC_HandleTypeDef   hadc1;
+extern FDCAN_HandleTypeDef hfdcan1;
+extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
+extern TIM_HandleTypeDef   htim6;
 
 /* USER CODE BEGIN EV */
 
@@ -192,6 +194,34 @@ void ADC1_IRQHandler(void)
 }
 
 /**
+ * @brief This function handles FDCAN1 interrupt 0.
+ */
+void FDCAN1_IT0_IRQHandler(void)
+{
+    /* USER CODE BEGIN FDCAN1_IT0_IRQn 0 */
+
+    /* USER CODE END FDCAN1_IT0_IRQn 0 */
+    HAL_FDCAN_IRQHandler(&hfdcan1);
+    /* USER CODE BEGIN FDCAN1_IT0_IRQn 1 */
+
+    /* USER CODE END FDCAN1_IT0_IRQn 1 */
+}
+
+/**
+ * @brief This function handles FDCAN1 interrupt 1.
+ */
+void FDCAN1_IT1_IRQHandler(void)
+{
+    /* USER CODE BEGIN FDCAN1_IT1_IRQn 0 */
+
+    /* USER CODE END FDCAN1_IT1_IRQn 0 */
+    HAL_FDCAN_IRQHandler(&hfdcan1);
+    /* USER CODE BEGIN FDCAN1_IT1_IRQn 1 */
+
+    /* USER CODE END FDCAN1_IT1_IRQn 1 */
+}
+
+/**
  * @brief This function handles TIM6 global interrupt.
  */
 void TIM6_IRQHandler(void)
@@ -203,6 +233,20 @@ void TIM6_IRQHandler(void)
     /* USER CODE BEGIN TIM6_IRQn 1 */
 
     /* USER CODE END TIM6_IRQn 1 */
+}
+
+/**
+ * @brief This function handles USB FS global interrupt.
+ */
+void USB_DRD_FS_IRQHandler(void)
+{
+    /* USER CODE BEGIN USB_DRD_FS_IRQn 0 */
+
+    /* USER CODE END USB_DRD_FS_IRQn 0 */
+    HAL_PCD_IRQHandler(&hpcd_USB_DRD_FS);
+    /* USER CODE BEGIN USB_DRD_FS_IRQn 1 */
+
+    /* USER CODE END USB_DRD_FS_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

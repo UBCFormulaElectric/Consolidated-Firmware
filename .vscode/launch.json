@@ -274,6 +274,47 @@
       }
     },
     {
+      "name": "Debug Embedded: CRIT (Hexray)",
+      "cwd": "${workspaceRoot}",
+      "executable": "build_fw_dev/firmware/hexray/CRIT/hexray_CRIT_app.elf",
+      "symbolFiles": [
+        // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/hexray/CRIT/hexray_CRIT_app.elf"
+      ],
+      "preLaunchTask": "Build Embedded: CRIT (Hexray)",
+      // cortex configurations
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "jlink",
+      "linux": {
+        "serverpath": "JLinkGDBServerCLExe"
+      },
+      "osx": {
+        "serverpath": "JLinkGDBServer"
+      },
+      "windows": {
+        "serverpath": "JLinkGDBServerCL"
+      },
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
+      "device": "STM32H562RI",
+      "interface": "swd",
+      "showDevDebugOutput": "none",
+      "rttConfig": {
+        "enabled": true,
+        "address": "auto",
+        "decoders": [
+          {
+            "label": "Debug logs: CRIT",
+            "port": 0,
+            "type": "console"
+          }
+        ]
+      }
+    },
+    {
       "name": "Debug Embedded: VC (Hexray)",
       "cwd": "${workspaceRoot}",
       "executable": "build_fw_dev/firmware/hexray/VC/hexray_VC_app.elf",
@@ -803,6 +844,47 @@
         "decoders": [
           {
             "label": "Debug logs: VCR",
+            "port": 0,
+            "type": "console"
+          }
+        ]
+      }
+    },
+        {
+      "name": "Debug Embedded: RSM (Hexray)",
+      "cwd": "${workspaceRoot}",
+      "executable": "build_fw_dev/firmware/hexray/RSM/hexray_RSM_app.elf",
+      "symbolFiles": [
+        // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/hexray/RSM/hexray_RSM_app.elf"
+      ],
+      "preLaunchTask": "Build Embedded: RSM (Hexray)",
+      // cortex configurations
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "jlink",
+      "linux": {
+        "serverpath": "JLinkGDBServerCLExe"
+      },
+      "osx": {
+        "serverpath": "JLinkGDBServer"
+      },
+      "windows": {
+        "serverpath": "JLinkGDBServerCL"
+      },
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
+      "device": "STM32H562RI",
+      "interface": "swd",
+      "showDevDebugOutput": "none",
+      "rttConfig": {
+        "enabled": true,
+        "address": "auto",
+        "decoders": [
+          {
+            "label": "Debug logs: RSM",
             "port": 0,
             "type": "console"
           }
