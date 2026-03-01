@@ -189,7 +189,6 @@ export function useMockData( isPaused: boolean, widgetData: WidgetData,): RefObj
                 let series = store.all_series.find((s) => s.label === cfg.signal_name);
 
                 if (!series) {
-                    console.log("no series found!");
                     if (widgetData.type === SignalType.NUMERICAL) {
                         series = {
                             type: SignalType.NUMERICAL, 
@@ -218,7 +217,7 @@ export function useMockData( isPaused: boolean, widgetData: WidgetData,): RefObj
                 });
 
                 if (series.type === SignalType.NUMERICAL) {
-                    series.data.data.push(generateRandomNumericalValue(rn, idx, series.min, series.max));
+                    series.data.push(generateRandomNumericalValue(rn, idx, series.min, series.max));
                 } else {
                     const vals = generateRandomEnumValue();
                     

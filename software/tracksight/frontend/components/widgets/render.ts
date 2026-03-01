@@ -263,17 +263,27 @@ function render_numerical(
         context.lineWidth = 2;
         context.beginPath();
 
+        let initialMove = false;
+
         // only iterate through visible data points and last point before
         for (let i = left - 1; i <= right + 1; i++) {
             const time = s.timestamps[i];
             const value = s.data.get(i);
             const x = timeToX(time);
             const y = numericalTop + chartHeight - ((value - all_series_min) / (all_series_max - all_series_min)) * chartHeight
-            if (false) { // TODO if gap between current point and last point is greater than threshold
+
+            if (!initialMove) { 
                 context.moveTo(x, y);
+                initialMove = true;
             } else {
                 context.lineTo(x, y);
             }
+
+            // if (false) { // TODO if gap between current point and last point is greater than threshold
+            //     context.moveTo(x, y);
+            // } else {
+            //     context.lineTo(x, y);
+            // }
         }
         context.stroke();
     }
