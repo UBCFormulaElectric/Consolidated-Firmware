@@ -192,6 +192,13 @@ async fn read_packet(serial_read: &mut ReadHalf<SerialStream>) -> Result<Vec<u8>
         ));
     }
 
+    if payload_length == 0 {
+        return Err(Error::new(
+            ErrorKind::InvalidData,
+            "Payload length is 0",
+        ));
+    }
+
     // read payload buffer
     let mut payload_buffer = vec![0u8; payload_length];
     serial_read.read_exact(&mut payload_buffer).await?;
