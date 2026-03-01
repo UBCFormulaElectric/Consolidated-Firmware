@@ -4,7 +4,6 @@
 
 #define APPROX_EQUAL_FLOAT(a, b, threshold) ((bool)(std::fabs((a) - (b)) < threshold))
 #define IS_IN_RANGE(min, max, val) (((val) > (min)) && ((val) < (max)))
-#define CLAMP(x, min, max) std::clamp(x, min, max);
 #define REDUCE_X true
 #define INCREASE_X false
 

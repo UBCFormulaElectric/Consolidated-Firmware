@@ -19,6 +19,10 @@
     "ModuleCommunicationError": {
       "id": 157,
       "description": "Failed to communicate with ADBMS modules."
+    },
+    "TsOvercurrent": {
+      "id": 158,
+      "description": "Tractive system overcurrent detected."
     }
   },
   "faults": {

@@ -6,37 +6,41 @@
 #include "app_timer.hpp"
 #include "app_canTx.hpp"
 
-namespace app::states::prechargeLatchState
+namespace app::states
 {
 
-constexpr uint32_t PRECHARGE_LATCH_TIMEOUT_MS = 3000U; // 3 seconds
-static app::Timer  precharge_latch_timer{ PRECHARGE_LATCH_TIMEOUT_MS };
-
-static void runOnEntry()
+namespace prechargeLatchState
 {
-    app::can_tx::BMS_State_set(app::can_utils::BmsState::BMS_PRECHARGE_LATCH_STATE);
-    precharge_latch_timer.restart();
-}
 
-static void runOnTick100Hz()
-{
-    if (precharge_latch_timer.updateAndGetState() == Timer::TimerState::EXPIRED)
+    constexpr uint32_t PRECHARGE_LATCH_TIMEOUT_MS = 3000U; // 3 seconds
+    static app::Timer  precharge_latch_timer{ PRECHARGE_LATCH_TIMEOUT_MS };
+
+    static void runOnEntry()
     {
-        app::StateMachine::set_next_state(&init_state);
+        app::can_tx::BMS_State_set(app::can_utils::BmsState::BMS_PRECHARGE_LATCH_STATE);
+        precharge_latch_timer.restart();
     }
-}
 
-static void runOnExit()
-{
-    // Nothing to do here yet
-}
+    static void runOnTick100Hz()
+    {
+        if (precharge_latch_timer.updateAndGetState() == Timer::TimerState::EXPIRED)
+        {
+            app::StateMachine::set_next_state(&init_state);
+        }
+    }
 
-} // namespace app::states::prechargeLatchState
+    static void runOnExit()
+    {
+        // Nothing to do here yet
+    }
 
-const app::State precharge_latch_state = {
+} // namespace prechargeLatchState
+
+const ::app::State precharge_latch_state = {
     .name              = "PRECHARGE LATCH",
-    .run_on_entry      = app::states::prechargeLatchState::runOnEntry,
+    .run_on_entry      = prechargeLatchState::runOnEntry,
     .run_on_tick_1Hz   = nullptr,
-    .run_on_tick_100Hz = app::states::prechargeLatchState::runOnTick100Hz,
-    .run_on_exit       = app::states::prechargeLatchState::runOnExit,
+    .run_on_tick_100Hz = prechargeLatchState::runOnTick100Hz,
+    .run_on_exit       = prechargeLatchState::runOnExit,
 };
+} // namespace app::states

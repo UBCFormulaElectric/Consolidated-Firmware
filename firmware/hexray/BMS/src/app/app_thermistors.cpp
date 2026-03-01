@@ -28,5 +28,5 @@ constexpr std::array<const float, ADBMS_THERMISTOR_LUT_SIZE> adbms_ntc10k_lut_bu
 }
 namespace app::therm
 {
-constexpr ThermistorLUT adbms_ntc10k_lut{ 0, 0.5f, adbms_ntc10k_lut_buffer.data(), adbms_ntc10k_lut_buffer.size() };
+constexpr ThermistorLUT adbms_ntc10k_lut{ adbms_ntc10k_lut_buffer.data(), 0, 0.5f, adbms_ntc10k_lut_buffer.size() };
 } // namespace app::therm

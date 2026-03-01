@@ -1,4 +1,6 @@
 #pragma once
+#include "app_math.hpp"
+
 #include <cstddef>
 #include <cstdint>
 #include <cassert>
@@ -13,19 +15,19 @@ namespace therm
       public:
         // Construct from explicit pointer + size
         constexpr ThermistorLUT(
+            const float *resistances,
             float        starting_temp,
             float        resolution,
-            const float *resistances,
             std::size_t  size) noexcept
-          : starting_temp_(starting_temp), resolution_(resolution), resistances_(resistances), size_((uint16_t)size)
+          : resistances_(resistances), starting_temp_(starting_temp), resolution_(resolution), size_((uint16_t)size)
         {
             // Runtime check because `size` is not a compile-time constant here
             assert(size <= 0xFFFF && "LUT too large for uint16_t size");
         }
 
         template <std::size_t N>
-        constexpr explicit ThermistorLUT(float starting_temp, float resolution, const float (&arr)[N]) noexcept
-          : starting_temp_(starting_temp), resolution_(resolution), resistances_(arr), size_((uint16_t)N)
+        constexpr explicit ThermistorLUT(const float (&arr)[N], float starting_temp, float resolution) noexcept
+          : resistances_(arr), starting_temp_(starting_temp), resolution_(resolution), size_((uint16_t)N)
         {
             static_assert(N <= 0xFFFF, "LUT too large for uint16_t size");
         }
@@ -48,7 +50,7 @@ namespace therm
             // Handle trivial single-entry LUT safely
             if (size_ == 1U)
             {
-                return thermistor_resistance - resistances_[0] < 0.00001 ? starting_temp_ : -1.0f;
+                return APPROX_EQUAL_FLOAT(thermistor_resistance, resistances_[0], 0.0001f) ? starting_temp_ : -1.0f;
             }
 
             // Ensure resistance is within bounds: resistances[0] is highest, resistances[size-1] is lowest
@@ -93,7 +95,7 @@ namespace therm
             const float x1 = starting_temp_ + (float)(therm_lut_index + 1U) * resolution_;
 
             // guard against degenerate LUT entries
-            if (y2 - y1 < 0.0001f)
+            if (APPROX_EQUAL_FLOAT(y2 - y1, 0.0f, 0.0001f))
                 return x1;
 
             return (thermistor_resistance - y1) * ((x2 - x1) / (y2 - y1)) + x1;

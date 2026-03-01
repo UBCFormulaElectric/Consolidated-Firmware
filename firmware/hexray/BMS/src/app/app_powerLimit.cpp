@@ -16,6 +16,8 @@
 // Definition placeholders until segments module is included
 #define MAX_CELL_TEMP_WARNING_C (59.0f)
 
+using namespace app::can_utils;
+
 namespace app::plim
 {
 
@@ -38,11 +40,11 @@ float getDischargePowerLimit()
     const float power_limit = std::min(temp_power_limit, MAX_DISCHARGE_POWER_LIMIT_W);
 
     // Determine limiting condition enum
-    DischargePowerLimitCondition p_lim_condition = NO_DISCHARGE_POWER_LIMIT;
+    DischargePowerLimitCondition p_lim_condition = DischargePowerLimitCondition::NO_DISCHARGE_POWER_LIMIT;
 
     if (max_cell_temp >= TEMP_DERATING_THRESHOLD)
     {
-        p_lim_condition = HIGH_TEMP_DISCHARGE_POWER_LIMIT;
+        p_lim_condition = DischargePowerLimitCondition::HIGH_TEMP_DISCHARGE_POWER_LIMIT;
     }
 
     // Broadcast limit condition over CAN
@@ -71,11 +73,11 @@ float getChargePowerLimit()
     const float power_limit = std::min(temp_power_limit, MAX_CHARGE_POWER_LIMIT_W);
 
     // Determine limiting condition enum
-    ChargePowerLimitCondition p_lim_condition = NO_CHARGE_POWER_LIMIT;
+    ChargePowerLimitCondition p_lim_condition = ChargePowerLimitCondition::NO_CHARGE_POWER_LIMIT;
 
     if (max_cell_temp >= TEMP_DERATING_THRESHOLD)
     {
-        p_lim_condition = HIGH_TEMP_CHARGE_POWER_LIMIT;
+        p_lim_condition = ChargePowerLimitCondition::HIGH_TEMP_CHARGE_POWER_LIMIT;
     }
 
     // Broadcast limit condition over CAN

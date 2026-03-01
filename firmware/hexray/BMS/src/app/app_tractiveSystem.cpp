@@ -48,6 +48,6 @@ void broadcast()
     app::can_tx::BMS_TractiveSystemPower_set(ts_power_kw);
     app::can_tx::BMS_VoltageSensorOk_set(ts_voltage_sns_diag_state);
     app::can_tx::BMS_CurrentSensorOk_set(ts_current_sns_diag_state);
-    // app::can_alerts::warnings::TsOvercurrent_set(ts_overcurrent_warning);
+    app::can_alerts::warnings::TsOvercurrent_set(ts_overcurrent_warning);
 }
 } // namespace app::ts

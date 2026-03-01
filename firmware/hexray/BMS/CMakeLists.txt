@@ -20,6 +20,10 @@ set(APP_INCLUDE_DIRS
 )
 
 file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.cpp")
+
+# TODO: Remove once ADBMS + Segments are merged
+list(FILTER IO_SRCS EXCLUDE REGEX ".*adbms.*") # Exclude ADBMS-specific IO files
+
 list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
 )
