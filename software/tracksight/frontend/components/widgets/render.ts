@@ -163,14 +163,12 @@ function render_enum(
         for (const series of all_series) {
             if (series.timestamps.length === 0) continue; // ignore empty series
             const idx = binarySearchForFirstEnumIndex(series.timestamps, hoverTime);
-            if (idx < series.data.length) {
-                const enumValue = series.data[idx];
-                const names = series.enumValuesToNames[enumValue];
-                result.push({
-                    name: series.label,
-                    value: names ? names[0] : `Unknown (${enumValue})`,
-                });
-            }
+            const enumValue = series.data[idx];
+            const names = series.enumValuesToNames[enumValue];
+            result.push({
+                name: series.label,
+                value: names ? names[0] : `Unknown (${enumValue})`,
+            });
         }
         return result;
     }
