@@ -1,5 +1,5 @@
 #include "io_imu.hpp"
-#include "hw_spis.hpp"
+#include "io_imus.hpp"
 
 namespace io::imus
 {

@@ -117,7 +117,7 @@ void {{ msg.name }}_Signals::pack(const std::span<uint8_t> out_data) const
     {%- else -%}
     {%- let packShift = "packShiftLeft" -%}
     {%- endif -%}
-    out_data[{{ iteration.starting_byte }}] |= {{ packShift }}({{ signal.name }}_raw, {{ iteration.shift }}, {{ iteration.mask_text }});   // Packs bits {{ iteration.comment_data }} of byte {{ iteration.starting_byte }}
+    out_data[{{ iteration.starting_byte }}] |= {{ packShift }}({{ signal.name }}_raw, {{ iteration.shift.abs() }}, {{ iteration.mask_text }});   // Packs bits {{ iteration.comment_data }} of byte {{ iteration.starting_byte }}
     {% endfor %}
     {% endfor %}
     {%- endif %}
