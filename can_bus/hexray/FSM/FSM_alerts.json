@@ -11,27 +11,27 @@
       "description": "Watchdog timed out."
     },
     "TxOverflow": {
-      "id": 601,
+      "id": 612,
       "description": "CanTx queue overflowed."
     },
     "RxOverflow": {
-      "id": 602,
+      "id": 613,
       "description": "CanRx queue overflowed."
     },
     "SteeringAngleOCSC": {
-      "id": 603,
+      "id": 614,
       "description": "Steering sensor voltage out of acceptable range (OCSC)."
     },
     "SteeringAngleOutOfRange": {
-      "id": 604,
+      "id": 615,
       "description": "Steering angle out of range."
     },
     "FrontBrakePressureOCSC": {
-      "id": 605,
+      "id": 616,
       "description": "Front brake pressure sensor voltage out of acceptable range (OCSC)."
     },
     "LeftSuspensionOCSC": {
-      "id": 606,
+      "id": 617,
       "description": "Left suspension sensor voltage out of acceptable range (OCSC)."
     },
     "RightSuspensionOCSC": {
@@ -43,7 +43,7 @@
       "description": "An RTOS task stack overflowed on the previous boot cycle."
     },
     "FrontBrakePressureOutOfRange": {
-      "id": 611,
+      "id": 618,
       "description": "Front brake pressure out of range."
     }
   },
@@ -60,11 +60,11 @@
       "id": 609,
       "description": "Secondary accelerator pedal voltage out of acceptable range (OCSC)."
     },
-    "ImuInitFailed":{
-      "id": 610,
+    "ImuInitFailed": {
+      "id": 619,
       "description": "IMU initialization failed"
     },
-    "ImuDataBad":{
+    "ImuDataBad": {
       "id": 611,
       "description": "IMU data is bad"
     }

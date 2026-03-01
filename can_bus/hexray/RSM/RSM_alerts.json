@@ -6,11 +6,11 @@
   "info_id": 705,
   "info_counts_id": 706,
   "warnings": {
-    "ImuInitFailed":{
+    "ImuInitFailed": {
       "id": 716,
       "description": "IMU initialization failed"
     },
-    "ImuDataBad":{
+    "ImuDataBad": {
       "id": 717,
       "description": "IMU data is bad"
     }
@@ -46,10 +46,10 @@
       "description": "An RTOS task stack overflowed on the previous boot cycle."
     },
     "WatchdogTimeout": {
-      "id": 782,
+      "id": 787,
       "description": "Watchdog timeout detected."
     },
-    "TireTemperatureOutOfRange":{
+    "TireTemperatureOutOfRange": {
       "id": 715,
       "description": "Tire Temperature Out of Sensor Range"
     }

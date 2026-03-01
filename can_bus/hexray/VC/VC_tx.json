@@ -21,7 +21,7 @@
         }
     },
     "Imu1Data": {
-        "msg_id": 225,
+        "msg_id": 550,
         "cycle_time": 10,
         "description": "Linear Acceleration x, y and z direction from the first IMU",
         "signals": {
@@ -49,7 +49,7 @@
         }
     },
     "Imu2Data": {
-        "msg_id": 221,
+        "msg_id": 554,
         "cycle_time": 10,
         "description": "Linear Acceleration x, y and z direction from the second IMU",
         "signals": {
@@ -77,7 +77,7 @@
         }
     },
     "Imu3Data": {
-        "msg_id": 219,
+        "msg_id": 558,
         "cycle_time": 10,
         "description": "Linear Acceleration x, y and z direction from the third IMU ",
         "signals": {
@@ -105,7 +105,7 @@
         }
     },
     "Imu1AngularData": {
-        "msg_id": 223,
+        "msg_id": 661,
         "cycle_time": 10,
         "description": "Angular Velocity in x, y and z direction from the first IMU",
         "signals": {
@@ -133,7 +133,7 @@
         }
     },
     "Imu2AngularData": {
-        "msg_id": 227,
+        "msg_id": 665,
         "cycle_time": 10,
         "description": "Angular Velocity in x, y and z direction from the second IMU",
         "signals": {
@@ -161,7 +161,7 @@
         }
     },
     "Imu3AngularData": {
-        "msg_id": 231,
+        "msg_id": 669,
         "cycle_time": 10,
         "description": "Angular Velocity in x, y and z direction from the third IMU",
         "signals": {
