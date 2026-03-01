@@ -1,28 +1,31 @@
 #include "io_charger.hpp"
 #include "hw_gpios.hpp"
 #include "hw_pwms.hpp"
+#include "app_canUtils.hpp"
+
+using namespace hw::pwm;
 
 namespace io::charger
 {
 
-ChargerConnectedType getConnectionStatus()
+app::can_utils::ChargerConnectedType getConnectionStatus()
 {
     constexpr int kMinHz = 990;
     constexpr int kMaxHz = 1010;
 
-    const int freq = hw_pwmInput_getFrequency(&evse_pwm_input);
+    const int freq = static_cast<int>(hw::pwm::evse_pwm_input.get_frequency());
     if (kMinHz <= freq && freq <= kMaxHz)
-        return CHARGER_CONNECTED_EVSE;
+        return app::can_utils::ChargerConnectedType::CHARGER_CONNECTED_EVSE;
 
-    if (hw_gpio_readPin(&n_evse_i_lim_pin))
-        return CHARGER_CONNECTED_WALL;
+    if (!n_evse_i_lim.readPin())
+        return app::can_utils::ChargerConnectedType::CHARGER_CONNECTED_WALL;
 
-    return CHARGER_DISCONNECTED;
+    return app::can_utils::ChargerConnectedType::CHARGER_DISCONNECTED;
 }
 
 float getDutyCycle()
 {
-    return hw::pwmInput::getDutyCycle(&evse_pwm_input);
+    return hw::pwm::evse_pwm_input.get_dutyCycle();
 }
 
 } // namespace io::charger

@@ -14,7 +14,7 @@ static app::Timer  precharge_latch_timer{ PRECHARGE_LATCH_TIMEOUT_MS };
 
 static void runOnEntry()
 {
-    app::can_tx::BMS_State_set(app::can_utils::BMS_State::BMS_PRECHARGE_LATCH_STATE);
+    app::can_tx::BMS_State_set(app::can_utils::BmsState::BMS_PRECHARGE_LATCH_STATE);
     precharge_latch_timer.restart();
 }
 

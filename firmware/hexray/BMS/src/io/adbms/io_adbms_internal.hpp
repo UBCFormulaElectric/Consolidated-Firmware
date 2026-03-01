@@ -7,10 +7,10 @@ namespace io::adbms
 {
 
 // ADC conversion commands.
-inline constexpr uint16_t RD    = (0x00 << 8);                       // 1 to enable redundant conversion (C-ADC and S-ADC)
-inline constexpr uint16_t CONT  = (0x00 << 7);                       // 1 to enable continuous conversion mode
-inline constexpr uint16_t DCP   = (0x00 << 4);                       // 1 to enable discharge/balance during conversion
-inline constexpr uint16_t RSTF  = (0x00 << 3);                       // 1 to reset IIR filter
+inline constexpr uint16_t RD    = (0x00 << 8); // 1 to enable redundant conversion (C-ADC and S-ADC)
+inline constexpr uint16_t CONT  = (0x00 << 7); // 1 to enable continuous conversion mode
+inline constexpr uint16_t DCP   = (0x00 << 4); // 1 to enable discharge/balance during conversion
+inline constexpr uint16_t RSTF  = (0x00 << 3); // 1 to reset IIR filter
 inline constexpr uint16_t C_ADC = (0x0260 | RD | CONT | DCP | RSTF); // Start cell voltage ADC conversion
 
 // Clear registers commands.

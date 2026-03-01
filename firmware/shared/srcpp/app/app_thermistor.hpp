@@ -59,7 +59,7 @@ namespace therm
 
             // Binary search for insertion point
             uint16_t low_index  = 0U;
-            uint16_t high_index = static_cast<uint16_t>(size_-1);
+            uint16_t high_index = static_cast<uint16_t>(size_ - 1);
 
             // Ensure low and high are a range for interpolation
             while (high_index > low_index + 1U)

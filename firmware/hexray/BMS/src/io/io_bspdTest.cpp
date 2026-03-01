@@ -1,29 +1,28 @@
 #include "io_bspdTest.hpp"
 #include "hw_gpios.hpp"
 
-using namespace hw::gpio;
 namespace io
 {
 namespace bspdtest
 {
     void enable(const bool enable)
     {
-        hw::Gpio::writePin(&bspd_test_enable_pin, enable);
+        bspd_test_enable.writePin(enable);
     }
 
     bool isCurrentThresholdExceeded(void)
     {
-        return !hw::Gpio::readPin(&n_high_current_bspd_pin);
+        return !n_high_current_bspd.readPin();
     }
 
     bool isBrakePressureThresholdExceeded(void)
     {
-        return !hw::Gpio::readPin(&n_brake_press_3v3_pin);
+        return !n_brake_press_3v3.readPin();
     }
 
     bool isAccelBrakeOk(void)
     {
-        return hw::Gpio::readPin(&accel_brake_ok_pin);
+        return accel_brake_ok.readPin();
     }
 } // namespace bspdtest
 } // namespace io

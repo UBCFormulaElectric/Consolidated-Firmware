@@ -14,7 +14,7 @@ namespace app::states::prechargeChargeState
 
 static void runOnEntry()
 {
-    app::can_tx::BMS_State_set(BMS_PRECHARGE_CHARGE_STATE);
+    app::can_tx::BMS_State_set(app::can_utils::BmsState::BMS_PRECHARGE_CHARGE_STATE);
 
     app::precharge::init();
     app::precharge::restart();
@@ -25,16 +25,16 @@ static void runOnTick100Hz()
     switch (app::precharge::poll(false))
     {
         case app::precharge::State::RUNNING:
-            io::irs::setPrecharge(CONTACTOR_STATE_OPEN);
+            io::irs::setPrecharge(app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
             break;
 
         case app::precharge::State::COOLDOWN:
-            io::irs::setPrecharge(CONTACTOR_STATE_CLOSED);
+            io::irs::setPrecharge(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
             break;
 
         case app::precharge::State::FAILED_CRITICAL:
             // Precharge failed multiple times, abort charging
-            io::irs::setPrecharge(CONTACTOR_STATE_OPEN);
+            io::irs::setPrecharge(app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
 
             // Prevent unintended re-entry into charge state
             app::can_rx::Debug_StartCharging_update(false);
@@ -43,13 +43,13 @@ static void runOnTick100Hz()
             break;
 
         case app::precharge::State::FAILED:
-            io::irs::setPrecharge(CONTACTOR_STATE_OPEN);
+            io::irs::setPrecharge(app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
             LOG_ERROR("Precharge failed, retrying");
             break;
 
         case app::precharge::State::SUCCESS:
             // Precharge succeeded → close AIR+ and move to charge init
-            io::irs::setPositive(CONTACTOR_STATE_CLOSED);
+            io::irs::setPositive(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
             app::StateMachine::set_next_state(&charge_init_state);
             break;
 
@@ -64,7 +64,7 @@ static void runOnTick100Hz()
 
 static void runOnExit()
 {
-    io::irs::setPrecharge(CONTACTOR_STATE_OPEN);
+    io::irs::setPrecharge(app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
 }
 
 } // namespace app::states::prechargeChargeState

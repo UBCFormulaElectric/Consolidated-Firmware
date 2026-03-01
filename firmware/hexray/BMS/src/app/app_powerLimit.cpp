@@ -4,8 +4,8 @@
 #include "app_tractiveSystem.hpp"
 #include <algorithm>
 #include <cstdint>
-// #include "app_canTx.hpp"
-// #include "app_canUtils.hpp"
+#include "app_canTx.hpp"
+#include "app_canUtils.hpp"
 
 #define MAX_DISCHARGE_POWER_LIMIT_W 78.0e3f
 #define MAX_CHARGE_POWER_LIMIT_W 15.0e3f
@@ -26,8 +26,9 @@ namespace app::plim
  */
 float getDischargePowerLimit()
 {
+    // TODO: implement this once app_segments is merged with master
     // const float max_cell_temp = app::segments::getMaxCellTemp().value;
-    const float max_cell_temp = 0.0f; // PLACEHOLDER until segments included
+    const float max_cell_temp = 0.0f;
 
     // Calculate power limit from temperature
     const float temp_power_limit = app::math::linearDerating(
@@ -58,8 +59,9 @@ float getDischargePowerLimit()
  */
 float getChargePowerLimit()
 {
+    // TODO: implement this once app_segments is merged with master
     // const float max_cell_temp = app::segments::getMaxCellTemp().value;
-    const float max_cell_temp = 0.0f; // Placeholder until segments included
+    const float max_cell_temp = 0.0f;
 
     // Calculate power limit from temperature
     const float temp_power_limit = app::math::linearDerating(
@@ -77,7 +79,7 @@ float getChargePowerLimit()
     }
 
     // Broadcast limit condition over CAN
-    app::canTx::BMS_ChargePowerLimitCondition_set(p_lim_condition);
+    app::can_tx::BMS_ChargePowerLimitCondition_set(p_lim_condition);
 
     return power_limit;
 }

@@ -12,7 +12,7 @@ namespace app::states::faultState
 
 static void runOnEntry()
 {
-    app::can_tx::BMS_State_set(app::can_utils::BMS_State::BMS_FAULT_STATE);
+    app::can_tx::BMS_State_set(app::can_utils::BmsState::BMS_FAULT_STATE);
 
     // Always open AIR+ when entering fault state to isolate high voltage.
     io::irs::setPositive(app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
@@ -23,8 +23,9 @@ static void runOnTick100Hz()
 #ifdef TARGET_HV_SUPPLY
     const bool acc_fault_cleared = true;
 #else
-    const bool acc_fault_cleared = !app::segments::checkFaults();
-#endif
+    // TODO: Change back if we ever get to segments again
+    // const bool acc_fault_cleared = !app::segments::checkFaults();
+    const bool acc_fault_cleared = false; 
 
     // const bool precharge_ok = !app_precharge_limitExceeded(); // Optional condition
 

@@ -9,13 +9,13 @@ namespace app::balancingState
 
 static void balancingStateRunOnEntry()
 {
-    app_canTx_BMS_State_set(BMS_BALANCING_STATE);
+    app::can_tx::BMS_State_set(app::can_utils::BmsState::BMS_BALANCING_STATE);
 }
 
 static void balancingStateRunOnTick100Hz()
 {
-    const bool air_negative_open          = io::irs::negativeState() == CONTACTOR_STATE_OPEN;
-    const bool stopped_requesting_balance = !app_canRx_Debug_CellBalancingRequest_get();
+    const bool air_negative_open = io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN;
+    const bool stopped_requesting_balance = !app::can_rx::Debug_CellBalancingRequest_get();
     if (air_negative_open || stopped_requesting_balance)
     {
         app::StateMachine::set_next_state(&app::states::init_state);
@@ -24,7 +24,7 @@ static void balancingStateRunOnTick100Hz()
 
 static void balancingStateRunOnExit()
 {
-    app_canRx_Debug_CellBalancingRequest_update(false);
+    app::can_rx::Debug_CellBalancingRequest_update(false);
 }
 } // namespace app::balancingState
 

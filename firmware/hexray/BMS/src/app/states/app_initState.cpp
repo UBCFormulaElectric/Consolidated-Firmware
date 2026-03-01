@@ -15,7 +15,7 @@ constexpr float TS_DISCHARGED_THRESHOLD_V = 10.0f;
 
 void RunOnEntry()
 {
-    app_canTx_BMS_State_set(BMS_INIT_STATE);
+    app::can_tx::BMS_State_set(app::can_utils::BmsState::BMS_INIT_STATE);
 
     // AIR+ opens upon entering init state.
     // Should always be opened at this point from other states; this is only for redundancy
@@ -25,8 +25,9 @@ void RunOnEntry()
 
 void RunOnTick100Hz()
 {
-    const bool irs_negative_closed = (io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
-    const bool ts_discharged       = (app::ts::getVoltage() < TS_DISCHARGED_THRESHOLD_V);
+    const bool irs_negative_closed =
+        (io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
+    const bool ts_discharged = (app::ts::getVoltage() < TS_DISCHARGED_THRESHOLD_V);
 
     // ONLY RUN THIS WHEN CELLS HAVE HAD TIME TO SETTLE
     // if (app_canRx_Debug_ResetSoc_MinCellV_get())
@@ -40,13 +41,13 @@ void RunOnTick100Hz()
 
     if (irs_negative_closed && ts_discharged)
     {
-        const bool external_charging_request = app_canRx_Debug_StartCharging_get();
+        const bool external_charging_request = app::can_rx::Debug_StartCharging_get();
 
-        const auto conn_status = io::charger::getConnectionStatus();
-        const bool charger_connected =
-            (conn_status == CHARGER_CONNECTED_WALL) || (conn_status == CHARGER_CONNECTED_EVSE);
+        const auto conn_status       = io::charger::getConnectionStatus();
+        const bool charger_connected = (conn_status == app::can_utils::ChargerConnectedType::CHARGER_CONNECTED_WALL) ||
+                                       (conn_status == app::can_utils::ChargerConnectedType::CHARGER_CONNECTED_EVSE);
 
-        const bool precharge_for_driving  = (app_canRx_VC_State_get() == VC_BMS_ON_STATE);
+        const bool precharge_for_driving  = (app::can_rx::VC_State_get() == app::can_utils::VCState::VC_BMS_ON_STATE);
         const bool cell_balancing_enabled = app::can_rx::Debug_CellBalancingRequest_get();
 
         if (external_charging_request && charger_connected)

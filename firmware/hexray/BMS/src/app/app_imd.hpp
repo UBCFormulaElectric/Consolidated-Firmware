@@ -1,6 +1,6 @@
 #pragma once
 #include "app_canUtils.hpp"
- 
+
 enum class ImdSst
 {
     GOOD,
@@ -10,8 +10,8 @@ enum class ImdSst
 
 struct ImdCondition
 {
-    ImdConditionName name;
-    bool             valid_duty_cycle;
+    app::can_utils::ImdConditionName name;
+    bool                             valid_duty_cycle;
     union Payload
     {
         uint16_t insulation_measurement_dcp_kohms;

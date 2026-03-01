@@ -219,7 +219,8 @@
         "min": 0,
         "resolution": 1,
         "max": 10000,
-        "unit": "ms"
+        "unit": "ms",
+        "bits": 32
       },
       "ImdValidDutyCycle": {
         "bits": 1
