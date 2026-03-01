@@ -48,15 +48,15 @@ static uint32_t unpackShiftRight(const uint8_t input, const uint8_t shift, const
  * Encode real signal value to payload representation, w/ scale and offset (unsigned).
  */
 template<typename T>
-static T CAN_ENCODE(const auto input, const double scale, const double offset)
+static T CAN_ENCODE(const auto input, const float scale, const float offset)
 {
-    return static_cast<T>((static_cast<double>(input) - offset) / scale);
+    return static_cast<T>((static_cast<float>(input) - offset) / scale);
 }
 
 /**
  * Encode real signal value to payload representation, w/ scale and offset (signed).
  */
-static int32_t CAN_SIGNED_ENCODE(const double input, const double scale, const double offset)
+static int32_t CAN_SIGNED_ENCODE(const float input, const float scale, const float offset)
 {
     return static_cast<int32_t>((input - offset) / scale);
 }
@@ -101,15 +101,9 @@ void {{ msg.name }}_Signals::pack(const std::span<uint8_t> out_data) const
     {%- else -%}
     {%- let raw_type = "uint32_t" -%}
     {%- endif -%}
-    {%- decl decord_macro -%}
-    {%- if signal.signed -%}
-        {%- let decord_macro = "CAN_SIGNED_ENCODE" -%}
-    {%- else -%}
-        {%- let decord_macro = "CAN_ENCODE" -%}
-    {%- endif -%}
     // Pack {{ signal.bits }}-bit signal {{ signal.name }} into payload at [ bit {{ signal.start_bit }} to bit {{ signal.start_bit + signal.bits }} ).
     const {{ signal.datatype() }} {{ signal.name }}_val = {{ signal.name }}_value;
-    const auto {{ signal.name }}_raw = {{ decord_macro }}<{{ raw_type }}>({{ signal.name }}_val, {{ signal.scale_macro() }}, {{ signal.offset_macro() }});
+    const auto {{ signal.name }}_raw = CAN_ENCODE<{{ raw_type }}>({{ signal.name }}_val, {{ signal.scale_macro() }}, {{ signal.offset_macro() }});
     {% for iteration in iterations(signal) -%}
     {%- decl packShift -%}
     {%- if iteration.shift >= 0 -%}

@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
+#include <stm32h5xx_hal.h>
 #include <stm32h5xx_hal_gpio.h>
 /* USER CODE END Includes */
 
@@ -56,7 +57,6 @@ TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim3;
 
 PCD_HandleTypeDef hpcd_USB_DRD_FS;
-
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
