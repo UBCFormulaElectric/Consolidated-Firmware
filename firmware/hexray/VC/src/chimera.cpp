@@ -11,6 +11,7 @@
 #include "hw_hardFaultHandler.hpp"
 
 #include <cassert>
+#include <hw_pwmOutput.hpp>
 #include <vc.pb.h>
 
 #include <optional>
@@ -190,6 +191,26 @@ class VCChimeraConfig : public chimera_v2::config
                 return std::nullopt;
         }
         return std::nullopt;
+    }
+    std::optional<std::reference_wrapper<const hw::PwmOutput>> id_to_pwm(const _PwmNetName *pnn ) const override 
+    {
+        if (pnn->which_name != pwm_net_name_tag)
+        {
+            LOG_ERROR("Chimera: Expected GPIO net name with tag %d, got %d", spi_net_name_tag, pnn->which_name);
+            return std::nullopt;
+        }
+        return std::nullopt;
+
+    }
+    std::optional<std::reference_wrapper<const hw::Uart>> id_to_uart(const _UartNetName *unn ) const override 
+    {
+        if (unn->which_name != pwm_net_name_tag)
+        {
+            LOG_ERROR("Chimera: Expected GPIO net name with tag %d, got %d", spi_net_name_tag, unn->which_name);
+            return std::nullopt;
+        }
+        return std::nullopt;
+
     }
 
   public:
