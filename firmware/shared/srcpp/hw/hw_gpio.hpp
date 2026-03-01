@@ -22,5 +22,6 @@ class Gpio
   public:
     [[nodiscard]] bool readPin() const;
     void               writePin(bool value) const;
+    bool               togglePin() const;
 };
 } // namespace hw

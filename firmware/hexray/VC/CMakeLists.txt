@@ -29,10 +29,8 @@ list(APPEND IO_SRCS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
 )
 set(IO_INCLUDE_DIRS
-        # "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
-        "${SHARED_IO_INCLUDE_DIR}" 
-        "${SHARED_IO_INCLUDE_DIR_CPP}"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
+        "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_DIR_CPP}"
 )
 
 file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp")
@@ -48,7 +46,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
 )
 set(HW_INCLUDE_DIRS
-        #        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
         "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR_CPP}"
 )
 
@@ -134,6 +132,7 @@ elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS}
             "${SHARED_FAKES_DIR_CPP}/io_imu.cpp"
+            "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
     )
     set(INCLUDE_DIRS
             # "${CMAKE_CURRENT_SOURCE_DIR}/test"
@@ -157,16 +156,6 @@ elseif ("${TARGET}" STREQUAL "test")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    # FakeIO
-    set(HEADERS_TO_FAKE
-    )
-
-    file(GLOB TEST_IO_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.h")
-    list(APPEND HEADERS_TO_FAKE ${TEST_IO_HDRS})
-    create_fake_library(
-            "hexray_VC_fakes"
-            "${HEADERS_TO_FAKE}"
-    )
-
-    target_link_libraries("hexray_VC_test" PRIVATE "hexray_VC_fakes" "hexray_VC_commit_info" "hexray_VC_jsoncan")
+    target_link_libraries("hexray_VC_test" PRIVATE "hexray_VC_commit_info" "hexray_VC_jsoncan")
+    target_compile_definitions("hexray_VC_test" PRIVATE STM32H733xx)
 endif ()
