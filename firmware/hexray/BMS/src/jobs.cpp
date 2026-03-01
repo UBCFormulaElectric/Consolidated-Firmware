@@ -38,8 +38,9 @@ extern "C"
 
 #include <util_errorCodes.hpp>
 
-static Semaphore isospi_bus_access_lock;
-static Semaphore adbms_app_data_lock;
+// TODO: Uncomment when segments are added
+// static Semaphore isospi_bus_access_lock;
+// static Semaphore adbms_app_data_lock;
 
 using namespace app;
 void jobs_init()
@@ -77,7 +78,6 @@ void jobs_init()
     can_tx::BMS_Clean_set(GIT_COMMIT_CLEAN);
     can_tx::BMS_Heartbeat_set(true);
 
-    ts::init();
     precharge::init();
 
 #ifndef TARGET_HV_SUPPLY
@@ -94,7 +94,8 @@ void jobs_run1Hz_tick()
 
 void jobs_run100Hz_tick()
 {
-    io_semaphore_take(&adbms_app_data_lock, MAX_TIMEOUT);
+    // TODO: Uncomment when segments are added
+    // io_semaphore_take(&adbms_app_data_lock, MAX_TIMEOUT);
 
     StateMachine::tick100Hz();
 
@@ -155,7 +156,8 @@ void jobs_run100Hz_tick()
     irs::broadcast();
 
     io::can_tx::enqueue100HzMsgs();
-    io_semaphore_give(&adbms_app_data_lock);
+    // TODO: Uncomment when segments are added
+    // io_semaphore_give(&adbms_app_data_lock);
 }
 
 void jobs_run1kHz_tick()
