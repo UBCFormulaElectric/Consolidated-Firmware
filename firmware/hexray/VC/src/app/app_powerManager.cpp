@@ -11,15 +11,13 @@ static TimerChannel       sequencing_timer;
 
 namespace vc::app::powerManager
 {
-    typedef union
-    {
-        const ST_LoadSwitch *st;
-        const TI_LoadSwitch *ti;
-    } LoadSwitch;
-    
+typedef union
+{
+    const ST_LoadSwitch *st;
+    const TI_LoadSwitch *ti;
+} LoadSwitch;
 
 } // namespace vc::app::powerManager
-
 
 // typedef union
 // {

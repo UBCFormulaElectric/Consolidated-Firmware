@@ -1,4 +1,4 @@
-#include <array> 
+#include <array>
 #include "app_loadswitches.hpp"
 #include "app_canTx.hpp"
 #include "io_efuse.hpp"
@@ -10,7 +10,7 @@ current we want to send over CAN for each efuse channel.
 
 namespace app::loadswitches
 {
-io::Efuse* const efuse_channels[NUM_EFUSE_CHANNELS];
+io::Efuse *const efuse_channels[NUM_EFUSE_CHANNELS];
 
 // extern io::TI_TPS25_Efuse L_RAD_Efuse{&l_rad_fan_en, &adc_l_rad_fan, &l_rad_fan_pg, &l_rad_fan_en};
 static void (*const efuse_enabled_can_setters[NUM_EFUSE_CHANNELS])(bool) = {
@@ -23,7 +23,8 @@ static void (*const efuse_enabled_can_setters[NUM_EFUSE_CHANNELS])(bool) = {
     [RL_PUMP_Efuse] = app::can_tx::VC_RearLeftPumpStatus_set,
     [R_RAD_Efuse]   = app::can_tx::VC_RightRadiatorFanStatus_set,
     [RR_PUMP_Efuse] = app::can_tx::VC_RearRightPumpStatus_set,
-    [L_RAD_Efuse] = app::can_tx::VC_LeftRadiatorFanStatus_set,};
+    [L_RAD_Efuse]   = app::can_tx::VC_LeftRadiatorFanStatus_set,
+};
 
 static void (*const efuse_current_can_setters[NUM_EFUSE_CHANNELS])(float) = {
     [F_INV_Efuse]   = app::can_tx::VC_FrontInvertersCurrent_set,
@@ -35,10 +36,11 @@ static void (*const efuse_current_can_setters[NUM_EFUSE_CHANNELS])(float) = {
     [RL_PUMP_Efuse] = app::can_tx::VC_RearLeftPumpCurrent_set,
     [R_RAD_Efuse]   = app::can_tx::VC_RightRadiatorFanCurrent_set,
     [RR_PUMP_Efuse] = app::can_tx::VC_RearRightPumpCurrent_set,
-    [L_RAD_Efuse] = app::can_tx::VC_LeftRadiatorFanCurrent_set,
+    [L_RAD_Efuse]   = app::can_tx::VC_LeftRadiatorFanCurrent_set,
 };
 
-void efuse_broadcast(void){    
+void efuse_broadcast(void)
+{
     // run through each efuse, and broadcast the channel status and current
     for (int i = 0; i < NUM_EFUSE_CHANNELS; i++)
     {
@@ -50,4 +52,4 @@ void efuse_broadcast(void){
         efuse_channels[i]->setChannelCurrent(current);
     }
 }
-}// namespace app::loadswitches
+} // namespace app::loadswitches
