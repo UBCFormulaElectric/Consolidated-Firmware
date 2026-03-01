@@ -520,10 +520,10 @@ static void MX_FDCAN2_Init(void)
     hfdcan2.Init.AutoRetransmission   = ENABLE;
     hfdcan2.Init.TransmitPause        = DISABLE;
     hfdcan2.Init.ProtocolException    = DISABLE;
-    hfdcan2.Init.NominalPrescaler     = 12;
+    hfdcan2.Init.NominalPrescaler     = 6;
     hfdcan2.Init.NominalSyncJumpWidth = 2;
-    hfdcan2.Init.NominalTimeSeg1      = 12;
-    hfdcan2.Init.NominalTimeSeg2      = 3;
+    hfdcan2.Init.NominalTimeSeg1      = 13;
+    hfdcan2.Init.NominalTimeSeg2      = 2;
     hfdcan2.Init.DataPrescaler        = 3;
     hfdcan2.Init.DataSyncJumpWidth    = 2;
     hfdcan2.Init.DataTimeSeg1         = 5;
@@ -590,7 +590,7 @@ static void MX_SDMMC1_SD_Init(void)
     /* USER CODE END SDMMC1_Init 0 */
 
     /* USER CODE BEGIN SDMMC1_Init 1 */
-
+#ifdef false
     /* USER CODE END SDMMC1_Init 1 */
     hsd1.Instance                 = SDMMC1;
     hsd1.Init.ClockEdge           = SDMMC_CLOCK_EDGE_RISING;
@@ -603,7 +603,7 @@ static void MX_SDMMC1_SD_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN SDMMC1_Init 2 */
-
+#endif
     /* USER CODE END SDMMC1_Init 2 */
 }
 
