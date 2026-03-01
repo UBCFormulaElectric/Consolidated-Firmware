@@ -104,7 +104,7 @@ class RSMChimeraConfig : public chimera_v2::config
         switch (snn->name.rsm_net_name)
         {
             case rsm_SpiNetName_SPI_IMU:
-                return std::cref(hw::spi::imu);
+                return std::cref(hw::spi::imu_sd);
             default:
             case rsm_SpiNetName_SPI_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified SPI net name");
