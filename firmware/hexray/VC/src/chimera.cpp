@@ -192,7 +192,7 @@ class VCChimeraConfig : public chimera_v2::config
         }
         return std::nullopt;
     }
-    std::optional<std::reference_wrapper<const hw::PwmOutput>> id_to_pwm(const _PwmNetName *pnn ) const override 
+    std::optional<std::reference_wrapper<const hw::PwmOutput>> id_to_pwm(const _PwmNetName *pnn) const override
     {
         if (pnn->which_name != pwm_net_name_tag)
         {
@@ -200,9 +200,8 @@ class VCChimeraConfig : public chimera_v2::config
             return std::nullopt;
         }
         return std::nullopt;
-
     }
-    std::optional<std::reference_wrapper<const hw::Uart>> id_to_uart(const _UartNetName *unn ) const override 
+    std::optional<std::reference_wrapper<const hw::Uart>> id_to_uart(const _UartNetName *unn) const override
     {
         if (unn->which_name != pwm_net_name_tag)
         {
@@ -210,7 +209,6 @@ class VCChimeraConfig : public chimera_v2::config
             return std::nullopt;
         }
         return std::nullopt;
-
     }
 
   public:
