@@ -1,7 +1,7 @@
 import { RefObject } from "react";
 import { ENUM_COLORS } from "@/components/widgets/signalColors";
 import { SignalType } from "@/lib/types/Signal";
-import { NumericalSeries, ChartLayout, ChartData, EnumSeries } from "./chart_types";
+import { NumericalSeries, ChartLayout, ChartData, EnumSeries } from "./CanvasChartTypes";
 import { bisect } from "@/lib/bisect";
 
 // TODO reduce to bisect right
@@ -270,7 +270,7 @@ function render_numerical(
             const x = timeToX(time);
             const y = numericalTop + chartHeight - ((value - all_series_min) / (all_series_max - all_series_min)) * chartHeight
 
-            if (!initialMove) { 
+            if (!initialMove) {
                 context.moveTo(x, y);
                 initialMove = true;
             } else {

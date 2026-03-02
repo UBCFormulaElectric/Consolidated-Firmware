@@ -1,11 +1,11 @@
 "use client";
 
-import { useDisplayControl } from "@/components/PausePlayControl";
+import { useDisplayControlContext } from "@/components/PausePlayControl";
 import { PlusButton } from "@/components/icons/PlusButton";
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
-import { SignalType } from "@/lib/SignalConfig";
+// import { SignalType } from "@/lib/SignalConfig";
 import { useSignals, useDataVersion } from "@/lib/contexts/SignalContext";
-import { WidgetDataNumerical } from "@/lib/types/Widget";
+import { WidgetDataNumerical } from "@/components/widgets/WidgetTypes";
 import React, {
   useCallback,
   useEffect,

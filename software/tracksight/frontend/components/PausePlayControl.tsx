@@ -15,7 +15,7 @@ interface DisplayControlContextType {
 }
 const DisplayControlContext = createContext<DisplayControlContextType | undefined>(undefined)
 // Hook to use the display control state
-export function useDisplayControl() {
+export function useDisplayControlContext() {
   const context = useContext(DisplayControlContext)
   if (!context) {
     throw new Error('useDisplayControl must be used within a DisplayControlProvider')
@@ -74,7 +74,7 @@ export function DisplayControlProvider({ children }: { children: ReactNode }) {
 
 // The circular play/pause button component
 export function PausePlayButton() {
-  const { isPaused, togglePause } = useDisplayControl()
+  const { isPaused, togglePause } = useDisplayControlContext()
   return (
     <button
       onClick={togglePause}

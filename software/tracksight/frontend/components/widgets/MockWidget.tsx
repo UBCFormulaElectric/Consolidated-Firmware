@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback, RefObject, SubmitEvent } from "react";
-import { EnumSignalConfig, NumericalSignalConfig, WidgetConfigs, WidgetData } from "@/lib/types/Widget";
+import { NumericalSignalConfig, WidgetConfigs, WidgetData, WidgetDataEnum, WidgetDataNumerical } from "@/components/widgets/WidgetTypes";
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { SignalType } from "@/lib/types/Signal";
-import { DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ChartData, EnumSeries, NumericalSeries } from "./chart_types";
+import { Dialog, DialogDescription, DialogHeader, DialogTitle, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { ChartData, ChartDataEnum, ChartDataNumerical, EnumSeries } from "./CanvasChartTypes";
 import { SeriesData } from "@/lib/seriesData";
+import { PlusButton } from "@/components/icons/PlusButton";
 
 function generateRandomNumericalValue(time: number, index: number = 0, min: number, max: number) {
     if (min !== undefined && max !== undefined) {
@@ -29,20 +30,18 @@ function generateRandomNumericalValue(time: number, index: number = 0, min: numb
 const MOCK_STATES = ["IDLE", "ACTIVE", "ERROR", "WAITING", "CHARGING"];
 function generateRandomEnumValue() {
     const v = Math.floor(Math.random() * MOCK_STATES.length);
-    return  {
+    return {
         name: MOCK_STATES[v],
         idx: v,
     };
 }
 
-export function MockWidgetAddSignalModal({ closeModal, configs, updateWidget, dataRef, widgetData }: {
+function ModalForm({ closeModal, configs, dataRef, widgetData, updateWidget }: {
     closeModal: () => void,
-    updateWidget: (updater: (prevWidget: WidgetData) => WidgetData) => void,
-
-    // read only
     configs: WidgetConfigs,
     dataRef: RefObject<ChartData>,
     widgetData: WidgetData,
+    updateWidget: (update: (prevWidget: WidgetData) => WidgetData) => void
 }) {
     const [newSignalName, setNewSignalName] = useState("");
     const [newSignalType, setNewSignalType] = useState<SignalType>(SignalType.NUMERICAL);
@@ -62,120 +61,139 @@ export function MockWidgetAddSignalModal({ closeModal, configs, updateWidget, da
             return;
         }
 
-        const newConfig = newSignalType === SignalType.NUMERICAL ? {
-            signal_name: name, delay: newSignalDelay, initialPoints: 0, min: newSignalMin, max: newSignalMax, } satisfies NumericalSignalConfig : {
-            signal_name: name, delay: newSignalDelay, initialPoints: 0, options: { colorPalette: [] }} satisfies EnumSignalConfig;
-
-        
-        const store = dataRef.current;
-
-        if (store.type === SignalType.NUMERICAL) {
-            store.all_series.push({
-                type: SignalType.NUMERICAL, // not sure if i need to add this bc of discriminated union?
+        if (dataRef.current.type === SignalType.NUMERICAL) {
+            dataRef.current.all_series.push({
                 label: name, timestamps: [], data: new SeriesData(), color: "", min: newSignalMin, max: newSignalMax,
             });
+            const update: (prev: WidgetDataNumerical) => WidgetDataNumerical = (prev) => ({
+                ...prev,
+                configs: [...prev.configs, {
+                    signal_name: name, delay: newSignalDelay, initialPoints: 0, min: newSignalMin, max: newSignalMax,
+                }]
+            });
+            updateWidget(update as (prevWidget: WidgetData) => WidgetData); // stupid ahh typescript inference
         }
         else {
-            store.all_series.push({
-                type: SignalType.ENUM,
+            dataRef.current.all_series.push({
                 label: name, timestamps: [], data: [], enumValuesToNames: {}
             });
+            const update: (prev: WidgetDataEnum) => WidgetDataEnum = (prev) => ({
+                ...prev,
+                configs: [...prev.configs, {
+                    signal_name: name, delay: newSignalDelay, initialPoints: 0, options: { colorPalette: [] }
+                }]
+            });
+            updateWidget(update as (prevWidget: WidgetData) => WidgetData);
         }
-
-        updateWidget((prev) => ({ ...prev, configs: [...prev.configs, newConfig] } as WidgetData));
         closeModal();
-    }, [configs, newSignalName, newSignalType, newSignalDelay, updateWidget, widgetData.id, newSignalMin, newSignalMax]);
-
+    }, [configs, updateWidget, newSignalName, newSignalType, newSignalDelay, newSignalMin, newSignalMax]);
     return (
-        <>
-            <DialogHeader>
-                <DialogTitle className="text-lg font-bold mb-4">Add Mock Signal</DialogTitle>
-                <DialogDescription>
-                    Configure a new signal to be generated in this mock graph.
-                </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleAddSignal} className="space-y-4">
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Signal Name
-                    </label>
-                    <input
-                        type="text"
-                        value={newSignalName}
-                        onChange={(e) => setNewSignalName(e.target.value)}
-                        className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
-                        placeholder="e.g. Voltage"
-                        autoFocus
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Type
-                    </label>
-                    <select
-                        value={newSignalType}
-                        onChange={(e) =>
-                            setNewSignalType(e.target.value as SignalType)
-                        }
-                        className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
-                    >
-                        <option value={SignalType.NUMERICAL}>
-                            Numerical
-                        </option>
-                        <option value={SignalType.ENUM}>
-                            Enumeration
-                        </option>
-                    </select>
-                </div>
-                {newSignalType === SignalType.NUMERICAL && (
-                    <div className="flex gap-4">
-                        <div className="flex-1">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Min Value
-                            </label>
-                            <input
-                                type="number"
-                                value={newSignalMin}
-                                onChange={(e) => setNewSignalMin(Number(e.target.value))}
-                                className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
-                            />
-                        </div>
-                        <div className="flex-1">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Max Value
-                            </label>
-                            <input
-                                type="number"
-                                value={newSignalMax}
-                                onChange={(e) => setNewSignalMax(Number(e.target.value))}
-                                className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
-                            />
-                        </div>
+        <form onSubmit={handleAddSignal} className="space-y-4">
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Signal Name
+                </label>
+                <input
+                    type="text"
+                    value={newSignalName}
+                    onChange={(e) => setNewSignalName(e.target.value)}
+                    className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
+                    placeholder="e.g. Voltage"
+                    autoFocus
+                />
+            </div>
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Type
+                </label>
+                <select
+                    value={newSignalType}
+                    onChange={(e) =>
+                        setNewSignalType(e.target.value as SignalType)
+                    }
+                    className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
+                >
+                    <option value={SignalType.NUMERICAL}>
+                        Numerical
+                    </option>
+                    <option value={SignalType.ENUM}>
+                        Enumeration
+                    </option>
+                </select>
+            </div>
+            {newSignalType === SignalType.NUMERICAL && (
+                <div className="flex gap-4">
+                    <div className="flex-1">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Min Value
+                        </label>
+                        <input
+                            type="number"
+                            value={newSignalMin}
+                            onChange={(e) => setNewSignalMin(Number(e.target.value))}
+                            className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
+                        />
                     </div>
-                )}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Update Delay (ms)
-                    </label>
-                    <input type="number" value={newSignalDelay}
-                        onChange={(e) => setNewSignalDelay(Number(e.target.value))}
-                        className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
-                    />
+                    <div className="flex-1">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Max Value
+                        </label>
+                        <input
+                            type="number"
+                            value={newSignalMax}
+                            onChange={(e) => setNewSignalMax(Number(e.target.value))}
+                            className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
+                        />
+                    </div>
                 </div>
-                <div className="flex justify-end gap-2 pt-2">
-                    <button type="button" onClick={closeModal} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer">
-                        Cancel
-                    </button>
-                    <button type="submit" className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded cursor-pointer">
-                        Add
-                    </button>
-                </div>
-            </form>
-        </>
+            )}
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Update Delay (ms)
+                </label>
+                <input type="number" value={newSignalDelay}
+                    onChange={(e) => setNewSignalDelay(Number(e.target.value))}
+                    className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
+                />
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+                <button type="button" onClick={closeModal} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer">
+                    Cancel
+                </button>
+                <button type="submit" className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded cursor-pointer">
+                    Add
+                </button>
+            </div>
+        </form>
+    )
+}
+
+export function MockWidgetAddSignalModal({ configs, dataRef, widgetData, updateWidget }: {
+    configs: WidgetConfigs;
+    widgetData: WidgetData;
+    updateWidget: (updater: (prevWidget: WidgetData) => WidgetData) => void;
+    dataRef: RefObject<ChartData>;
+}) {
+    const [modalOpen, setModalOpen] = useState(false);
+    return (
+        <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+            <DialogTrigger>
+                <PlusButton />
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle className="text-lg font-bold mb-4">Add Mock Signal</DialogTitle>
+                    <DialogDescription>
+                        Configure a new signal to be generated in this mock graph.
+                    </DialogDescription>
+                </DialogHeader>
+                <ModalForm closeModal={() => setModalOpen(false)} configs={configs} dataRef={dataRef} widgetData={widgetData} updateWidget={updateWidget} />
+            </DialogContent>
+        </Dialog>
     );
 }
 
-export function useMockData( isPaused: boolean, widgetData: WidgetData,): RefObject<ChartData> {
+export function useMockData(isPaused: boolean, widgetData: WidgetData,): RefObject<ChartData> {
     const { setTimeRange, timeRangeRef } = useSyncedGraph(); // because this widget is also doing the data generation
     const dataRef = useRef<ChartData>({ type: widgetData.type, all_series: [] });
 
@@ -184,50 +202,40 @@ export function useMockData( isPaused: boolean, widgetData: WidgetData,): RefObj
 
         const intervals: ReturnType<typeof setInterval>[] = widgetData.configs.map((cfg, idx) => {
             const interval = setInterval(() => {
-                const store = dataRef.current;
-                
-                let series = store.all_series.find((s) => s.label === cfg.signal_name);
-
-                if (!series) {
-                    if (widgetData.type === SignalType.NUMERICAL) {
-                        series = {
-                            type: SignalType.NUMERICAL, 
-                            color: "",
-                            min: (cfg as NumericalSignalConfig).min,
-                            max: (cfg as NumericalSignalConfig).max,
-                            label: cfg.signal_name, timestamps: [], data: new SeriesData()
-                        } satisfies NumericalSeries;
-                    } else {
-                        series = {
-                            type: SignalType.ENUM,
-                            label: cfg.signal_name,
-                            timestamps: [],
-                            data: [],
-                            enumValuesToNames: {}
-                        } satisfies EnumSeries;
-                    }
-                }
-
                 const rn = Date.now();
-                series.timestamps.push(rn);
-
-                setTimeRange({ // TODO: this is NOT where we should be setting the timerange
-                    min: Math.min(series.timestamps[0], timeRangeRef.current?.min ?? series.timestamps[0]),
-                    max: Math.max(rn, timeRangeRef.current?.max ?? rn),
-                });
-
-                if (series.type === SignalType.NUMERICAL) {
+                if (widgetData.type === SignalType.NUMERICAL) {
+                    // cast is legal due to inference on widgetData.type
+                    const series = (dataRef.current as ChartDataNumerical).all_series.find((s) => s.label === cfg.signal_name) ?? {
+                        color: "",
+                        min: (cfg as NumericalSignalConfig).min, // legal due to inference
+                        max: (cfg as NumericalSignalConfig).max, // legal due to inference
+                        label: cfg.signal_name, timestamps: [], data: new SeriesData()
+                    };
+                    series.timestamps.push(rn);
                     series.data.push(generateRandomNumericalValue(rn, idx, series.min, series.max));
+                    setTimeRange({ // TODO: this is NOT where we should be setting the timerange
+                        min: Math.min(series.timestamps[0], timeRangeRef.current?.min ?? series.timestamps[0]),
+                        max: Math.max(rn, timeRangeRef.current?.max ?? rn),
+                    });
                 } else {
+                    // cast is legal due to inference on widgetData.type
+                    const series = (dataRef.current as ChartDataEnum).all_series.find((s) => s.label === cfg.signal_name) ?? {
+                        label: cfg.signal_name,
+                        timestamps: [],
+                        data: [],
+                        enumValuesToNames: {}
+                    } satisfies EnumSeries;
+                    series.timestamps.push(rn);
                     const vals = generateRandomEnumValue();
-                    
                     series.data.push(vals.idx);
-
                     if (!series.enumValuesToNames[vals.idx]) {
                         series.enumValuesToNames[vals.idx] = [vals.name];
                     }
+                    setTimeRange({ // TODO: this is NOT where we should be setting the timerange
+                        min: Math.min(series.timestamps[0], timeRangeRef.current?.min ?? series.timestamps[0]),
+                        max: Math.max(rn, timeRangeRef.current?.max ?? rn),
+                    });
                 }
-
             }, cfg.delay);
             return interval;
         });

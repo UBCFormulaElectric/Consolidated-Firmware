@@ -4,17 +4,8 @@
 import { useRef, useEffect, useCallback, RefObject } from "react";
 import { MouseEvent as MouseEvent_React } from "react";
 import render from "@/components/widgets/render";
-import { ChartData, ChartLayout } from "./chart_types";
+import { ChartData, ChartLayout } from "./CanvasChartTypes";
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
-
-// data format is an array where:
-// -first element is an array of x-axis timestamps
-// - subsequent elements are arrays of y-axis values for each series
-export interface SeriesData<T> {
-    series_name: string;
-    timestamps: number[];
-    values: Array<T>; // TODO bruh
-};
 
 function useObserveResize(ref: RefObject<HTMLCanvasElement | null>) {
     const containerWidth = useRef(0);
@@ -32,12 +23,14 @@ function useObserveResize(ref: RefObject<HTMLCanvasElement | null>) {
     return containerWidth;
 }
 
-export default function CanvasChart({ chartData: chart_data, height, timeTickCount = 6, onHoverTimestampChange }: {
+export default function CanvasChart({ chartData: chart_data, height, hoveredSignal, timeTickCount = 6, onHoverTimestampChange }: {
     chartData: RefObject<ChartData>,
     height: number;
     timeTickCount?: number;
     onHoverTimestampChange?: (timestamp: number | null) => void;
+    hoveredSignal?: string | null;
 }) {
+    // TODO highlighted hoveredSignal
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const containerWidth = useObserveResize(canvasRef);
     const animationFrameId = useRef<number | null>(null);
@@ -80,7 +73,7 @@ export default function CanvasChart({ chartData: chart_data, height, timeTickCou
             }
             render(context, containerWidth.current, height, layoutRef, chart_data.current, timeTickCount, hoverPixelRef, {
                 min: timeRange.min, // TODO check this with zedwin
-                max: timeRange.max, 
+                max: timeRange.max,
             });
             animationFrameId.current = requestAnimationFrame(render_call);
         }
@@ -125,7 +118,7 @@ export default function CanvasChart({ chartData: chart_data, height, timeTickCou
             ref={canvasRef}
             width={containerWidth.current * dpr}
             height={height * dpr}
-            style={{ width: "100%", height: height }}
+            style={{ height: height }}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
         />

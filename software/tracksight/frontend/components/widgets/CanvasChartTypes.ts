@@ -7,7 +7,6 @@ type SeriesBase = {
 };
 
 export type NumericalSeries = SeriesBase & {
-	type: SignalType.NUMERICAL;
 	color: string;
 	min: number;
 	max: number;
@@ -15,7 +14,6 @@ export type NumericalSeries = SeriesBase & {
 };
 
 export type EnumSeries = SeriesBase & {
-	type: SignalType.ENUM;
 	data: Array<number>;
 	enumValuesToNames: Record<number, string[]>; // map of series index to unique enum values
 };
@@ -23,16 +21,17 @@ export type Series = NumericalSeries | EnumSeries;
 type ChartDataBase = {
 	type: SignalType;
 };
-type ChartDataNumerical = ChartDataBase & {
+export type ChartDataNumerical = ChartDataBase & {
 	type: SignalType.NUMERICAL;
 	all_series: Array<NumericalSeries>;
 };
-type ChartDataEnum = ChartDataBase & {
+export type ChartDataEnum = ChartDataBase & {
 	type: SignalType.ENUM;
 	all_series: Array<EnumSeries>;
 };
 
 export type ChartData = ChartDataNumerical | ChartDataEnum;
+// export type ChartDataOf<T extends WidgetData> = Extract<ChartData, { type: T["type"] }>;
 
 export interface ChartLayout {
 	minTime: number;

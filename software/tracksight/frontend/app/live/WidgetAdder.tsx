@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import { PlusButton } from "@/components/icons/PlusButton";
 import { SignalType } from "@/lib/types/Signal";
-import { WidgetData } from "@/lib/types/Widget";
+import { WidgetData } from "@/components/widgets/Widget";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useWidgetManager } from "@/components/widgets/WidgetManagerContext";

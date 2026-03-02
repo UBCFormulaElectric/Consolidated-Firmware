@@ -1,12 +1,12 @@
 "use client";
 
 // import LabelLegend from "@/components/legends/LabelLegend";
-import { WidgetDataEnum } from "@/lib/types/Widget";
+import { WidgetDataEnum } from "@/components/widgets/WidgetTypes";
 import EnumSignalSelector from "@/components/widgets/EnumSignalSelector";
 import useSignalMetadata from "@/lib/hooks/useSignalMetadata";
 import { useMemo, useEffect } from "react";
 import { EnumSignalMetadata, SignalType } from "@/lib/types/Signal";
-import { useDisplayControl } from "@/components/PausePlayControl";
+import { useDisplayControlContext } from "@/components/PausePlayControl";
 import { useSignals, useDataVersion } from "@/lib/contexts/SignalContext";
 import { formatWithMs } from "@/lib/dateformat";
 
@@ -23,7 +23,7 @@ function EnumWidgetBody({ signalName, setSignalName, signalMetadata, colorPalett
   signalName: string;
   signalMetadata: EnumSignalMetadata;
 })) {
-  const { horizontalScale, setHorizontalScale } = useDisplayControl();
+  const { horizontalScale, setHorizontalScale } = useDisplayControlContext();
   const {
     subscribeToSignal,
     unsubscribeFromSignal,

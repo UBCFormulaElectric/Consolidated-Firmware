@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, RefObject, ReactNode } from "react";
-import { useDisplayControl } from "./PausePlayControl";
+import { useDisplayControlContext } from "./PausePlayControl";
 
 export type SyncedGraphContext = {
     scalePxPerSecRef: RefObject<number>;
@@ -98,7 +98,7 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
 
     // manage left scroll variable
     const scrollLeftRef = useRef<number>(0);
-    const { isPaused } = useDisplayControl();
+    const { isPaused } = useDisplayControlContext();
     useEffect(() => { // handle scroll events (needs to be here because of passive: true)
         const container = scrollContainerRef.current;
         if (!container) return;
