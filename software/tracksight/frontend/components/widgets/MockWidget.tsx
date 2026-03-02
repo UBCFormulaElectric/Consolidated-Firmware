@@ -195,6 +195,7 @@ export function MockWidgetAddSignalModal({ configs, dataRef, widgetData, updateW
 
 export function useMockData(isPaused: boolean, widgetData: WidgetData,): RefObject<ChartData> {
     const dataRef = useRef<ChartData>({ type: widgetData.type, all_series: [] });
+    const { updateWithTimestamp } = useSyncedGraph();
 
     useEffect(() => {
         if (isPaused) return;
@@ -233,6 +234,7 @@ export function useMockData(isPaused: boolean, widgetData: WidgetData,): RefObje
                     series.enumValuesToNames[vals.idx] = [vals.name];
                 }
             }
+            updateWithTimestamp(rn);
         }, sig_cfg.delay));
         return () => intervals.forEach(clearInterval);
     }, [widgetData, isPaused]);

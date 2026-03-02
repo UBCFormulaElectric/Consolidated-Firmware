@@ -415,10 +415,10 @@ function render_tooltip(
 
 export default function render(
     context: CanvasRenderingContext2D, width: number, height: number, // dimensions of chart
-    layoutRef: RefObject<ChartLayout | null>, // seems kinda bodgey
+    layoutRef: RefObject<ChartLayout | null>, // seems kinda bodgey, it's a ref because we write to it :sob:
     chartData: ChartData,
     timeTickCount: number,
-    hoverPixelRef: RefObject<{ x: number; y: number; } | null>,
+    hoverPixel: { x: number; y: number; } | null,
     { min: visibleStartTime, max: visibleEndTime }: { min: number; max: number },
 ) {
     context.clearRect(0, 0, width, height);
@@ -457,13 +457,13 @@ export default function render(
         const ENUM_STRIP_HEIGHT = 40;
         const ENUM_STRIP_GAP = 40;
         hover_value = render_enum(context, width, chartData.all_series, visibleStartTime, visibleEndTime, 0, // TODO
-            timeToX, LEGEND_HEIGHT, ENUM_STRIP_HEIGHT, ENUM_STRIP_GAP, hoverPixelRef.current);
+            timeToX, LEGEND_HEIGHT, ENUM_STRIP_HEIGHT, ENUM_STRIP_GAP, hoverPixel);
     }
     // --- RENDER NUMERICAL ---
     else if (chartData.type === SignalType.NUMERICAL) {
         hover_value = render_numerical(
             context, width, chartWidth, chartHeight, numericalTop,
-            chartData.all_series, visibleStartTime, visibleEndTime, timeToX, hoverPixelRef.current
+            chartData.all_series, visibleStartTime, visibleEndTime, timeToX, hoverPixel
         );
     }
 
@@ -503,11 +503,10 @@ export default function render(
         context.fillText(dateLabel, x, height - CHART_PADDING.bottom + 24);
     }
 
-    if (hoverPixelRef.current !== null) {
-        const hover = hoverPixelRef.current;
+    if (hoverPixel !== null) {
         render_tooltip(
             context, width, height,
-            hover, hover_value!, XToTime
+            hoverPixel, hover_value!, XToTime
         );
     }
 
@@ -516,7 +515,6 @@ export default function render(
 
 export function render_empty(context: CanvasRenderingContext2D, width: number, height: number) {
     context.clearRect(0, 0, width, height);
-    console.log(width, height)
 
     context.fillStyle = "#666";
     context.font = "14px sans-serif";

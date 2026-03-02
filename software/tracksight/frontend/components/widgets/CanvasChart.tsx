@@ -7,22 +7,6 @@ import render, { render_empty } from "@/components/widgets/render";
 import { ChartData, ChartLayout } from "./CanvasChartTypes";
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 
-function useObserveResize(ref: RefObject<HTMLCanvasElement | null>) {
-    const containerWidth = useRef(0);
-    // handle resize of the container
-    useEffect(() => {
-        const canvas = ref.current;
-        if (!canvas) return;
-        const observer = new ResizeObserver(entries => {
-            console.assert(entries.length == 1, "Expected exactly one entry in ResizeObserver");
-            containerWidth.current = entries[0].contentRect.width;
-        });
-        observer.observe(canvas);
-        return () => observer.disconnect();
-    }, [ref.current]);
-    return containerWidth;
-}
-
 export default function CanvasChart({ chartData: chart_data, height, hoveredSignal, timeTickCount = 6, onHoverTimestampChange }: {
     chartData: RefObject<ChartData>,
     height: number;
@@ -32,13 +16,12 @@ export default function CanvasChart({ chartData: chart_data, height, hoveredSign
 }) {
     // TODO highlighted hoveredSignal
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
-    const containerWidth = useObserveResize(canvasRef);
     const animationFrameId = useRef<number | null>(null);
     const hoverPixelRef = useRef<{ x: number; y: number } | null>(null);
     const tooltipBufferRef = useRef<string[]>([]);
     const layoutRef = useRef<ChartLayout | null>(null);
     const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
-    const { scalePxPerSecRef, timeRangeRef, scrollLeftRef, hoverTimestamp: externalHoverTimestampRef } = useSyncedGraph();
+    const { scalePxPerSecRef, globalTimeRangeRef, scrollLeftRef, hoverTimestamp: externalHoverTimestampRef, XToTime } = useSyncedGraph();
 
     // const timestamps = data?.timestamps;
     // const firstTimestamp = timestamps && timestamps.length > 0 ? timestamps[0] : null;
@@ -69,7 +52,7 @@ export default function CanvasChart({ chartData: chart_data, height, hoveredSign
         }
         const render_call = () => {
             // update width and height from css
-            const cssWidth = containerWidth.current || canvas.getBoundingClientRect().width;
+            const cssWidth = canvas.getBoundingClientRect().width;
             const nextCanvasWidth = Math.max(1, Math.floor(cssWidth * dpr));
             const nextCanvasHeight = Math.max(1, Math.floor(height * dpr));
             if (canvas.width !== nextCanvasWidth || canvas.height !== nextCanvasHeight) {
@@ -79,14 +62,12 @@ export default function CanvasChart({ chartData: chart_data, height, hoveredSign
             // transform to the original size
             context.setTransform(1, 0, 0, 1, 0, 0);
             context.scale(dpr, dpr);
-            const timeRange = timeRangeRef.current;
-            if (!timeRange) {
-                // If no time range is set, clear the canvas and return early
-                render_empty(context, containerWidth.current, height);
+            if (!globalTimeRangeRef.current) {
+                render_empty(context, cssWidth, height);
             } else {
-                render(context, containerWidth.current, height, layoutRef, chart_data.current, timeTickCount, hoverPixelRef, {
-                    min: timeRange.min, // TODO check this with zedwin
-                    max: timeRange.max,
+                render(context, cssWidth, height, layoutRef, chart_data.current, timeTickCount, hoverPixelRef.current, {
+                    min: XToTime(0),
+                    max: XToTime(cssWidth),
                 });
             }
             // cleanup
@@ -101,9 +82,9 @@ export default function CanvasChart({ chartData: chart_data, height, hoveredSign
             animationFrameId.current = null;
         };
     }, [
-        canvasRef.current, chart_data, height, containerWidth,
+        canvasRef.current, chart_data, height,
         timeTickCount, onHoverTimestampChange,
-        scalePxPerSecRef, timeRangeRef, scrollLeftRef, externalHoverTimestampRef
+        scalePxPerSecRef, globalTimeRangeRef, scrollLeftRef
     ]);
 
     const handleMouseMove = useCallback((event: MouseEvent_React<HTMLCanvasElement, MouseEvent>) => {
@@ -119,18 +100,14 @@ export default function CanvasChart({ chartData: chart_data, height, hoveredSign
             console.assert(chartWidth > 0, "Chart width must be greater than 0");
             const calculatedTime = minTime + ((x - paddingLeft) / chartWidth) * timeRange;
             externalHoverTimestampRef.current = calculatedTime;
-            if (onHoverTimestampChange) {
-                onHoverTimestampChange(calculatedTime);
-            }
+            onHoverTimestampChange && onHoverTimestampChange(calculatedTime);
         }
     }, [onHoverTimestampChange, externalHoverTimestampRef]);
 
     const handleMouseLeave = useCallback(() => {
         hoverPixelRef.current = null;
         externalHoverTimestampRef.current = null;
-        if (onHoverTimestampChange) {
-            onHoverTimestampChange(null);
-        }
+        onHoverTimestampChange && onHoverTimestampChange(null);
     }, [onHoverTimestampChange, externalHoverTimestampRef]);
 
     return (
