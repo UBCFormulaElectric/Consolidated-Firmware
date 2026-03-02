@@ -18,7 +18,7 @@ export interface EnumSignalConfig {
 }
 export type WidgetDataEnum = WidgetBase & {
   type: SignalType.ENUM;
-  configs: Array<EnumSignalConfig>;
+  signals: Array<EnumSignalConfig>;
 }
 
 // numerical data
@@ -31,7 +31,7 @@ export interface NumericalSignalConfig {
 }
 export type WidgetDataNumerical = WidgetBase & {
   type: SignalType.NUMERICAL;
-  configs: Array<NumericalSignalConfig>;
+  signals: Array<NumericalSignalConfig>;
 }
 
 export type WidgetConfigs = EnumSignalConfig[] | NumericalSignalConfig[];

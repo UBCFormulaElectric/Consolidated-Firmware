@@ -85,7 +85,7 @@ export function Widget({ widgetData }: { widgetData: WidgetData; }) {
 
 				{/* Signal buttons */}
 				<div className="flex flex-wrap items-center gap-3">
-					{widgetData.configs.map((cfg, idx) =>
+					{widgetData.signals.map((cfg, idx) =>
 						<SignalButton
 							key={cfg.signal_name} cfg={cfg} idx={idx}
 							handleRemoveSignal={() => removeSignal(widgetData.id, cfg.signal_name)}
@@ -94,7 +94,7 @@ export function Widget({ widgetData }: { widgetData: WidgetData; }) {
 					)}
 					{
 						widgetData.mock &&
-						<MockWidgetAddSignalModal configs={widgetData.configs} dataRef={dataRef}
+						<MockWidgetAddSignalModal configs={widgetData.signals} dataRef={dataRef}
 							widgetData={widgetData} updateWidget={() => {
 								throw new Error("updateWidget function not implemented for non-mock widget");
 							}} />

@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import { PlusButton } from "@/components/icons/PlusButton";
 import { SignalType } from "@/lib/types/Signal";
-import { WidgetData } from "@/components/widgets/Widget";
+import { WidgetData } from "@/components/widgets/WidgetTypes";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useWidgetManager } from "@/components/widgets/WidgetManagerContext";
@@ -23,7 +23,7 @@ function MockModal({ closeModal, onAddWidget }: {
     if (mockType === SignalType.ENUM) {
       onAddWidget({
         type: SignalType.ENUM,
-        configs: [{
+        signals: [{
           signal_name: mockName,
           delay: mockDelay,
           initialPoints: 0,
@@ -37,7 +37,7 @@ function MockModal({ closeModal, onAddWidget }: {
     } else if (mockType === SignalType.NUMERICAL) {
       onAddWidget({
         type: SignalType.NUMERICAL,
-        configs: [{
+        signals: [{
           signal_name: mockName,
           delay: mockDelay,
           initialPoints: 0,
@@ -141,12 +141,12 @@ export function WidgetAdder() {
   const { appendWidget: onAddWidget } = useWidgetManager();
 
   const handleAddEnum = () => {
-    onAddWidget({ type: SignalType.ENUM, configs: [], id: "" });
+    onAddWidget({ type: SignalType.ENUM, signals: [], id: "" });
     setIsOpen(false);
   };
 
   const handleAddNumerical = () => {
-    onAddWidget({ type: SignalType.NUMERICAL, id: "", configs: [] });
+    onAddWidget({ type: SignalType.NUMERICAL, id: "", signals: [] });
     setIsOpen(false);
   };
 

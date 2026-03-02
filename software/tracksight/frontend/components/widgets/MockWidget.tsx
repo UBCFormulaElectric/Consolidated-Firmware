@@ -5,7 +5,7 @@ import { NumericalSignalConfig, WidgetConfigs, WidgetData, WidgetDataEnum, Widge
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { SignalType } from "@/lib/types/Signal";
 import { Dialog, DialogDescription, DialogHeader, DialogTitle, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { ChartData, ChartDataEnum, ChartDataNumerical, EnumSeries } from "./CanvasChartTypes";
+import { ChartData, ChartDataEnum, ChartDataNumerical, EnumSeries, NumericalSeries } from "./CanvasChartTypes";
 import { SeriesData } from "@/lib/seriesData";
 import { PlusButton } from "@/components/icons/PlusButton";
 
@@ -67,7 +67,7 @@ function ModalForm({ closeModal, configs, dataRef, widgetData, updateWidget }: {
             });
             const update: (prev: WidgetDataNumerical) => WidgetDataNumerical = (prev) => ({
                 ...prev,
-                configs: [...prev.configs, {
+                signals: [...prev.signals, {
                     signal_name: name, delay: newSignalDelay, initialPoints: 0, min: newSignalMin, max: newSignalMax,
                 }]
             });
@@ -79,7 +79,7 @@ function ModalForm({ closeModal, configs, dataRef, widgetData, updateWidget }: {
             });
             const update: (prev: WidgetDataEnum) => WidgetDataEnum = (prev) => ({
                 ...prev,
-                configs: [...prev.configs, {
+                signals: [...prev.signals, {
                     signal_name: name, delay: newSignalDelay, initialPoints: 0, options: { colorPalette: [] }
                 }]
             });
@@ -194,51 +194,46 @@ export function MockWidgetAddSignalModal({ configs, dataRef, widgetData, updateW
 }
 
 export function useMockData(isPaused: boolean, widgetData: WidgetData,): RefObject<ChartData> {
-    const { setTimeRange, timeRangeRef } = useSyncedGraph(); // because this widget is also doing the data generation
     const dataRef = useRef<ChartData>({ type: widgetData.type, all_series: [] });
 
     useEffect(() => {
         if (isPaused) return;
-
-        const intervals: ReturnType<typeof setInterval>[] = widgetData.configs.map((cfg, idx) => {
-            const interval = setInterval(() => {
-                const rn = Date.now();
-                if (widgetData.type === SignalType.NUMERICAL) {
-                    // cast is legal due to inference on widgetData.type
-                    const series = (dataRef.current as ChartDataNumerical).all_series.find((s) => s.label === cfg.signal_name) ?? {
+        const intervals: ReturnType<typeof setInterval>[] = widgetData.signals.map((sig_cfg, idx) => setInterval(() => {
+            const rn = Date.now();
+            if (widgetData.type === SignalType.NUMERICAL) {
+                // cast is legal due to inference on widgetData.type
+                let series = (dataRef.current as ChartDataNumerical).all_series.find((s) => s.label === sig_cfg.signal_name);
+                if (!series) {
+                    series = {
                         color: "",
-                        min: (cfg as NumericalSignalConfig).min, // legal due to inference
-                        max: (cfg as NumericalSignalConfig).max, // legal due to inference
-                        label: cfg.signal_name, timestamps: [], data: new SeriesData()
-                    };
-                    series.timestamps.push(rn);
-                    series.data.push(generateRandomNumericalValue(rn, idx, series.min, series.max));
-                    setTimeRange({ // TODO: this is NOT where we should be setting the timerange
-                        min: Math.min(series.timestamps[0], timeRangeRef.current?.min ?? series.timestamps[0]),
-                        max: Math.max(rn, timeRangeRef.current?.max ?? rn),
-                    });
-                } else {
-                    // cast is legal due to inference on widgetData.type
-                    const series = (dataRef.current as ChartDataEnum).all_series.find((s) => s.label === cfg.signal_name) ?? {
-                        label: cfg.signal_name,
+                        min: (sig_cfg as NumericalSignalConfig).min, // legal due to inference
+                        max: (sig_cfg as NumericalSignalConfig).max, // legal due to inference
+                        label: sig_cfg.signal_name, timestamps: [], data: new SeriesData()
+                    } satisfies NumericalSeries;
+                    (dataRef.current as ChartDataNumerical).all_series.push(series);
+                }
+                series.timestamps.push(rn);
+                series.data.push(generateRandomNumericalValue(rn, idx, series.min, series.max));
+            } else {
+                // cast is legal due to inference on widgetData.type
+                let series = (dataRef.current as ChartDataEnum).all_series.find((s) => s.label === sig_cfg.signal_name);
+                if (!series) {
+                    series = {
+                        label: sig_cfg.signal_name,
                         timestamps: [],
                         data: [],
                         enumValuesToNames: {}
                     } satisfies EnumSeries;
-                    series.timestamps.push(rn);
-                    const vals = generateRandomEnumValue();
-                    series.data.push(vals.idx);
-                    if (!series.enumValuesToNames[vals.idx]) {
-                        series.enumValuesToNames[vals.idx] = [vals.name];
-                    }
-                    setTimeRange({ // TODO: this is NOT where we should be setting the timerange
-                        min: Math.min(series.timestamps[0], timeRangeRef.current?.min ?? series.timestamps[0]),
-                        max: Math.max(rn, timeRangeRef.current?.max ?? rn),
-                    });
+                    (dataRef.current as ChartDataEnum).all_series.push(series);
                 }
-            }, cfg.delay);
-            return interval;
-        });
+                series.timestamps.push(rn);
+                const vals = generateRandomEnumValue();
+                series.data.push(vals.idx);
+                if (!series.enumValuesToNames[vals.idx]) {
+                    series.enumValuesToNames[vals.idx] = [vals.name];
+                }
+            }
+        }, sig_cfg.delay));
         return () => intervals.forEach(clearInterval);
     }, [widgetData, isPaused]);
 

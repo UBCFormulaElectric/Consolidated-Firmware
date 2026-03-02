@@ -123,7 +123,7 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
     return (
         <SyncedGraphContext.Provider value={CTXVAL}>
             {/* outer wrapper handles overflow/scrolling; this the viewport */}
-            <div ref={scrollContainerRef} className="w-full overflow-x-auto overflow-y-auto h-full graph-scrollbar">
+            <div ref={scrollContainerRef} className="w-full overflow-x-auto overflow-y-scroll h-full graph-scrollbar">
                 {/* inner content grows in width */}
                 <div ref={contentRef} className="min-w-full relative">
                     <div className="sticky left-0"

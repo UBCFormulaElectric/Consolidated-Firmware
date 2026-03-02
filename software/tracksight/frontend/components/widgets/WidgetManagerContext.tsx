@@ -80,14 +80,14 @@ export function WidgetManager({ children }: { children: ReactNode }) {
             const newWidgets = [...prev];
 
             // avoid duplicates
-            if (newWidgets[widgetIndex].configs.some(c => c.signal_name === new_signal_name)) {
+            if (newWidgets[widgetIndex].signals.some(c => c.signal_name === new_signal_name)) {
                 IS_DEBUG && console.warn("Signal already exists in widget: " + new_signal_name);
                 return prev;
             }
             if (newWidgets[widgetIndex].type === SignalType.NUMERICAL) {
                 newWidgets[widgetIndex] = {
                     ...newWidgets[widgetIndex],
-                    configs: [...newWidgets[widgetIndex].configs, {
+                    signals: [...newWidgets[widgetIndex].signals, {
                         signal_name: new_signal_name,
                         delay: 0,
                         initialPoints: 100,
@@ -98,7 +98,7 @@ export function WidgetManager({ children }: { children: ReactNode }) {
             } else {
                 newWidgets[widgetIndex] = {
                     ...newWidgets[widgetIndex],
-                    configs: [...newWidgets[widgetIndex].configs, ({
+                    signals: [...newWidgets[widgetIndex].signals, ({
                         signal_name: new_signal_name,
                         delay: 0,
                         initialPoints: 0,
@@ -123,7 +123,7 @@ export function WidgetManager({ children }: { children: ReactNode }) {
             const newWidgets = [...prev];
             newWidgets[widgetIndex] = {
                 ...newWidgets[widgetIndex],
-                configs: newWidgets[widgetIndex].configs.filter(c => c.signal_name !== remove_signal_name) as Array<any> // trust
+                signals: newWidgets[widgetIndex].signals.filter(c => c.signal_name !== remove_signal_name) as Array<any> // trust
             };
             return newWidgets;
         });
