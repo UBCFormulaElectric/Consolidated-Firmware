@@ -120,6 +120,20 @@ jobs:
           - board: hexray_FSM_app.hex
           - board: hexray_RSM_app.hex
           - board: hexray_VC_app.hex
+    container:
+      image: ubcformulaelectric/environment:cigoat
+    #      credentials:
+    #        username: ubcformulaelectric
+    #        password: ${{ secrets.docker_token }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/build_binary
+        with:
+          board: ${{ matrix.board }}
+
   build-chimera:
     needs: [ clang-format, codegen ]
     name: Build Chimera Binaries
@@ -138,19 +152,24 @@ jobs:
           - board: hexray_RSM_chimera.elf
           - board: hexray_VC_chimera.elf
 
-    container:
-      image: ubcformulaelectric/environment:cigoat
-    #      credentials:
-    #        username: ubcformulaelectric
-    #        password: ${{ secrets.docker_token }}
     steps:
+      # Fix to ensure that commands like git status work in child directories
+      # for gitpython in git_commit_info
+      - name: Setup git
+        run: git config --global --add safe.directory $(realpath .)
+
       - name: Checkout repository
+        shell: bash
         uses: actions/checkout@v4
         with:
           submodules: recursive
-      - uses: ./.github/actions/build_binary
-        with:
-          board: ${{ matrix.board }}
+
+      - name: Build
+        run: |
+          cmake --preset "FW Deploy CI" -B ${{ inputs.build_dir }}
+          cmake --build ${{ inputs.build_dir }} --target ${{ inputs.board }} -- -j $(nproc)
+
+
 
   test-firmware:
     needs: [ clang-format ]
