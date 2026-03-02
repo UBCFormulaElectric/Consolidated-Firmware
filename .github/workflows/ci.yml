@@ -143,9 +143,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - board: f4dev.elf
-          - board: h7dev.hex
-          - board: h5dev.hex
           - board: hexray_BMS_chimera.elf
           - board: hexray_CRIT_chimera.elf
           - board: hexray_DAM_chimera.elf
