@@ -1,6 +1,6 @@
 "use client";
 // react
-import { RefObject, useCallback, useRef, useState } from "react";
+import { RefObject, use, useCallback, useRef, useState } from "react";
 
 // components
 import CanvasChart from "./CanvasChart";
@@ -26,7 +26,7 @@ function SignalButton({ cfg, idx, handleRemoveSignal, onHover, onHoverEnd }: {
 }) {
 	const color = signalColors[idx % signalColors.length];
 	return (
-		<div className="select-none flex items-center gap-2 px-3 py-1.5 rounded-full border-2 hover:opacity-80 transition-opacity"
+		<div className="select-none flex items-center gap-2 px-3 py-1.5 rounded-full border-2 hover:opacity-80 transition-opacity cursor-crosshair"
 			style={{ backgroundColor: color + "20", borderColor: color + "80" }}
 			onMouseEnter={() => onHover(cfg.signal_name)} onMouseLeave={() => onHoverEnd()}
 		>
@@ -56,7 +56,7 @@ function useWidgetData(widgetData: WidgetData): RefObject<ChartData> {
 export function Widget({ widgetData }: { widgetData: WidgetData; }) {
 	const [chartHeight, setChartHeight] = useState(256);
 	const { removeWidget, removeSignal } = useWidgetManager();
-	const [hoveredSignal, setHoveredSignal] = useState<string | null>(null);
+	const hoveredSignal = useRef<string | null>(null);
 
 	// note that the type of this data should be bound to the type of widgetData
 	const dataRef: RefObject<ChartData> = useWidgetData(widgetData);
@@ -89,7 +89,7 @@ export function Widget({ widgetData }: { widgetData: WidgetData; }) {
 						<SignalButton
 							key={cfg.signal_name} cfg={cfg} idx={idx}
 							handleRemoveSignal={() => removeSignal(widgetData.id, cfg.signal_name)}
-							onHover={(name) => setHoveredSignal(name)} onHoverEnd={() => setHoveredSignal(null)}
+							onHover={(name) => hoveredSignal.current = name} onHoverEnd={() => hoveredSignal.current = null}
 						/>
 					)}
 					{

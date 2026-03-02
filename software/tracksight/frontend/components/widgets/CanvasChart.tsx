@@ -28,7 +28,7 @@ export default function CanvasChart({ chartData: chart_data, height, hoveredSign
     height: number;
     timeTickCount?: number;
     onHoverTimestampChange?: (timestamp: number | null) => void;
-    hoveredSignal?: string | null;
+    hoveredSignal?: RefObject<string | null>;
 }) {
     // TODO highlighted hoveredSignal
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -78,7 +78,9 @@ export default function CanvasChart({ chartData: chart_data, height, hoveredSign
             animationFrameId.current = requestAnimationFrame(render_call);
         }
         animationFrameId.current = requestAnimationFrame(render_call);
+        // console.log("starting animation frame");
         return () => {
+            // console.log("cancelling animation frame");
             if (animationFrameId.current === null) return;
             cancelAnimationFrame(animationFrameId.current);
             animationFrameId.current = null;

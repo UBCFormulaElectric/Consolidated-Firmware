@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, ReactNode } from "react";
 import { SignalType } from "@/lib/types/Signal";
-import { EnumSignalConfig, WidgetConfigs, WidgetData } from "@/components/widgets/Widget";
+import { EnumSignalConfig, WidgetData } from "./WidgetTypes";
 import { IS_DEBUG } from "@/lib/constants";
 import { v4 as uuidv4 } from 'uuid';
 
