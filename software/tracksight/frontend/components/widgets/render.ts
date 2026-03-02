@@ -193,8 +193,8 @@ function render_numerical(
         return ({
             left,
             right,
-            min: s.data.get_min(left, right),
-            max: s.data.get_max(left, right)
+            min: s.data.get_min(left, right) - 0.2,
+            max: s.data.get_max(left, right) + 0.2
         })
     });
 
@@ -354,7 +354,10 @@ function render_tooltip(
     const hoverDate = new Date(snappedTimestamp);
     const ms = hoverDate.getMilliseconds().toString().padStart(3, "0");
     const time_string = `${DATE_FORMATTER.format(hoverDate)} ${TIME_FORMATTER.format(hoverDate)}.${ms}`
-    const tooltip_lines = hover_value.map(({ name, value }) => `${name}: ${value}`);
+    const tooltip_lines = [
+        time_string,
+        ...hover_value.map(({ name, value }) => `${name}: ${value}`)
+    ];
 
 
     context.setLineDash([4, 4]);

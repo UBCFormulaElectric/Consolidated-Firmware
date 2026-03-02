@@ -21,7 +21,7 @@ export default function CanvasChart({ chartData: chart_data, height, hoveredSign
     const tooltipBufferRef = useRef<string[]>([]);
     const layoutRef = useRef<ChartLayout | null>(null);
     const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
-    const { scalePxPerSecRef, globalTimeRangeRef, scrollLeftRef, hoverTimestamp: externalHoverTimestampRef, XToTime } = useSyncedGraph();
+    const { scalePxPerSecRef, globalTimeRangeRef, scrollLeftRef, hoverTimestampRef: externalHoverTimestampRef, XToTime } = useSyncedGraph();
 
     // RENDER LOOP
     useEffect(() => {

@@ -1,3 +1,4 @@
+// TODO add fallback min/max calculation
 export class SeriesData {
 	data: Array<number> = [];
 	private minTree: Array<number> = [Infinity, Infinity];

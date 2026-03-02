@@ -7,7 +7,7 @@ export interface TimeRange {
 }
 export type SyncedGraphContext = {
     scalePxPerSecRef: RefObject<number>; // a measure of zoom
-    hoverTimestamp: RefObject<number | null>; // TODO maybe not here?
+    hoverTimestampRef: RefObject<number | null>; // TODO maybe not here?
     globalTimeRangeRef: RefObject<TimeRange | null>;
     updateWithTimestamp(timestamp: number): void; // NOTE: PLEASE CALL THIS EVERY SINGLE TIME A NEW DATA POINT IS ADDED!!!
 
@@ -35,27 +35,27 @@ const MAX_SCALE_PX_PER_SEC = 10000;
 function useZoomPanManager(containerRef: RefObject<HTMLDivElement | null>) {
     const scalePxPerSecRef = useRef<number>(1);
 
-    const handleWheelZoom = useCallback((event: WheelEvent) => {
-        if (event.ctrlKey === false) {
-            return;
-        }
-        event.preventDefault();
-        const deltaScale = event.deltaY * -0.005; // invert for natural zoom 
-        if (deltaScale === 0) return;
-
-        // deltaScale usually in {-1,1}
-        scalePxPerSecRef.current = Math.min(Math.max(scalePxPerSecRef.current * Math.exp(deltaScale), MIN_SCALE_PX_PER_SEC), MAX_SCALE_PX_PER_SEC);
-    }, [scalePxPerSecRef]);
-
+    // scale update on ctrl + wheel
     useEffect(() => {
         const container = containerRef.current;
         if (!container) return;
 
+        const handleWheelZoom = (event: WheelEvent) => {
+            if (event.ctrlKey === false) {
+                return;
+            }
+            event.preventDefault();
+            const deltaScale = event.deltaY * -0.005; // invert for natural zoom 
+            if (deltaScale === 0) return;
+
+            // deltaScale usually in {-1,1}
+            scalePxPerSecRef.current = Math.min(Math.max(scalePxPerSecRef.current * Math.exp(deltaScale), MIN_SCALE_PX_PER_SEC), MAX_SCALE_PX_PER_SEC);
+        }
         window.addEventListener("wheel", handleWheelZoom, { passive: false });
         return () => {
             window.removeEventListener("wheel", handleWheelZoom);
         };
-    }, [handleWheelZoom, containerRef]);
+    }, [scalePxPerSecRef, containerRef]);
 
     // suppress scroll when playing
     const { isPaused } = useDisplayControlContext();
@@ -79,10 +79,14 @@ function useZoomPanManager(containerRef: RefObject<HTMLDivElement | null>) {
 }
 
 export default function SyncedGraphContainer({ children }: { children: ReactNode }) {
+    // object refs
     const contentRef = useRef<HTMLDivElement | null>(null); // Renamed from containerRef, this one grows
     const scrollContainerRef = useRef<HTMLDivElement | null>(null); // NEW: Ref for the scrolling wrapper
-    const hoverTimestamp = useRef<number | null>(null);
 
+    // zoom management (attach wheel listener to the scroll container)
+    const scalePxPerSecRef = useZoomPanManager(scrollContainerRef);
+
+    // glokbal time range
     const globalTimeRangeRef = useRef<TimeRange | null>(null);
     // Update width when zoom changes
     const updateGraphWidth = useCallback(() => {
@@ -93,7 +97,7 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
             container.scrollLeft = Math.max(container_width + SCROLL_PAD - container.clientWidth, 0);
             contentRef.current.style.width = `${container_width + RIGHT_PAD}px`;
         }
-    }, []);
+    }, [globalTimeRangeRef, scalePxPerSecRef, scrollContainerRef, contentRef]);
     const updateWithTimestamp = useCallback((timestamp: number) => {
         if (!globalTimeRangeRef.current || timestamp < globalTimeRangeRef.current.min || timestamp > globalTimeRangeRef.current.max) {
             globalTimeRangeRef.current = {
@@ -103,9 +107,6 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
             updateGraphWidth();
         }
     }, [updateGraphWidth])
-
-    // zoom management (attach wheel listener to the scroll container)
-    const scalePxPerSecRef = useZoomPanManager(scrollContainerRef);
 
     // manage left scroll variable
     const scrollLeftRef = useRef<number>(0);
@@ -127,17 +128,19 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
         (t - globalTimeRangeRef.current!.min) * scalePxPerSecRef.current - scrollLeftRef.current
         , [scrollLeftRef, scalePxPerSecRef, globalTimeRangeRef]);
 
+    // hover
+    const hoverTimestampRef = useRef<number | null>(null);
 
     // context
     const CTXVAL = useMemo<SyncedGraphContext>(() => ({
         scalePxPerSecRef,
-        hoverTimestamp,
+        hoverTimestampRef,
         globalTimeRangeRef,
         updateWithTimestamp,
         scrollLeftRef,
         timeToX,
         XToTime
-    }), [updateWithTimestamp, scrollLeftRef, timeToX, XToTime]);
+    }), [scalePxPerSecRef, hoverTimestampRef, globalTimeRangeRef, updateWithTimestamp, scrollLeftRef, timeToX, XToTime]);
 
     return (
         <SyncedGraphContext.Provider value={CTXVAL}>
