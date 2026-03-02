@@ -5,30 +5,17 @@
 
 #include <cstring>
 
-struct __attribute__((packed)) RegGroupPayload
-{
-    std::array<uint8_t, io::adbms::REG_GROUP_SIZE> data;
-    uint16_t                                       pec10;
-};
-static_assert(sizeof(RegGroupPayload) == io::adbms::REG_GROUP_SIZE + io::adbms::PEC_BYTES);
-
-namespace io::adbms
-{
-
-static uint16_t swapEndianness(const uint16_t value)
-{
-    return static_cast<uint16_t>(value >> 8 | value << 8);
-}
+using namespace std;
 
 static constexpr uint16_t CRC10_POLY = 0x8F;
 static constexpr uint16_t CRC15_POLY = 0x4599;
 
-static constexpr std::array<uint16_t, 256> get_pec_table(const uint16_t poly, const uint16_t size)
+static constexpr std::array<uint16_t, 256> pecTable(const uint16_t poly, const uint16_t size)
 {
     const auto MSB_SIZE  = static_cast<uint16_t>(1 << (size - 1));
     const auto MASK_SIZE = static_cast<uint16_t>((1 << (size + 1)) - 1);
 
-    std::array<uint16_t, 256> out{};
+    array<uint16_t, 256> out{};
     for (uint16_t i = 0; i < 256; i++)
     {
         auto r = static_cast<uint16_t>(i << (size - 8)); // r = 4 * i
@@ -49,10 +36,15 @@ static constexpr std::array<uint16_t, 256> get_pec_table(const uint16_t poly, co
     return out;
 }
 
-static constexpr std::array<uint16_t, 256> pec10Table = get_pec_table(CRC10_POLY, 10);
-static constexpr std::array<uint16_t, 256> pec15Table = get_pec_table(CRC15_POLY, 15);
+static constexpr array<uint16_t, 256> pec10Table = pecTable(CRC10_POLY, 10);
+static constexpr array<uint16_t, 256> pec15Table = pecTable(CRC15_POLY, 15);
 
-uint16_t calculatePec10(const std::span<const uint8_t> data, const uint16_t cmdCount)
+static uint16_t swapEndianness(const uint16_t value)
+{
+    return static_cast<uint16_t>(value >> 8 | value << 8);
+}
+
+static uint16_t calculatePec10(const span<const uint8_t> data, const uint16_t cmdCount)
 {
     uint16_t remainder = 16U;
     uint16_t address;
@@ -74,7 +66,7 @@ uint16_t calculatePec10(const std::span<const uint8_t> data, const uint16_t cmdC
     return remainder;
 }
 
-uint16_t calculatePec15(const std::span<const uint8_t> data)
+static uint16_t calculatePec15(const span<const uint8_t> data)
 {
     uint16_t remainder = 16U;
     uint16_t address;
@@ -86,12 +78,19 @@ uint16_t calculatePec15(const std::span<const uint8_t> data)
     return static_cast<uint16_t>(remainder << 1U);
 }
 
-static bool checkDataPec(const std::span<const uint8_t> data, const uint16_t cmdCount, const uint16_t expected)
+[[maybe_unused]] static bool checkDataPec(const span<const uint8_t> data, const uint16_t cmdCount, const uint16_t expected)
 {
     return calculatePec10(data, cmdCount) == swapEndianness(expected);
 }
 
-struct TxCmd
+template <std::size_t N>
+struct __attribute__((packed)) RegGroupPayload
+{
+    array<uint8_t, N> data;
+    uint16_t pec10;
+};
+
+struct __attribute__ ((packed)) TxCmd
 {
     uint16_t cmd;
     uint16_t pec15;
@@ -101,71 +100,102 @@ struct TxCmd
         pec15 = swapEndianness(calculatePec15({ reinterpret_cast<const uint8_t *>(&cmd), sizeof(cmd) }));
     }
 };
-static_assert(sizeof(TxCmd) == CMD_BYTES + PEC_BYTES);
 
-std::expected<void, ErrorCode> sendCmd(const uint16_t cmd)
+template <size_t N>
+struct __attribute__ ((packed)) TxCmdPayload
+{
+    TxCmd tx_cmd;
+    array<RegGroupPayload<N>, io::NUM_SEGMENTS> payload;
+};
+
+namespace io::adbms
+{
+
+expected<void, ErrorCode> sendCmd(const uint16_t cmd)
 {
     const TxCmd tx_cmd{ cmd };
     return hw::spi::adbms_spi_ls.transmit({ reinterpret_cast<const uint8_t *>(&tx_cmd), sizeof(tx_cmd) });
 }
 
-std::expected<void, ErrorCode> poll(const uint16_t cmd, const std::span<uint8_t> poll_buf)
+expected<void, ErrorCode> poll(const uint16_t cmd, const span<uint8_t> poll_buf)
 {
     const TxCmd tx_cmd{ cmd };
     return hw::spi::adbms_spi_ls.transmitThenReceive(
         { reinterpret_cast<const uint8_t *>(&tx_cmd), sizeof(tx_cmd) }, poll_buf);
 }
 
+template <size_t N>
 void readRegGroup(
-    const uint16_t                                                 cmd,
-    std::array<std::array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs,
-    std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS>      &comm_success)
+    uint16_t cmd,
+    array<array<uint8_t, N>, NUM_SEGMENTS> &regs,
+    array<expected<void, ErrorCode>, NUM_SEGMENTS> &comm_success)
 {
-    std::memset(regs.data(), 0, regs.size());
+    if (cmd == RDCVALL){
+        int i = 0; 
+        UNUSED(i);
+    }
 
-    const TxCmd                                      tx_cmd{ cmd };
-    static std::array<RegGroupPayload, NUM_SEGMENTS> rx_buffer;
-    const auto tx_status = hw::spi::adbms_spi_ls.transmitThenReceive({ reinterpret_cast<const uint8_t *>(&tx_cmd), sizeof(tx_cmd) },{ reinterpret_cast<uint8_t *>(rx_buffer.data()), sizeof(rx_buffer) });
+    const TxCmd tx_cmd { cmd };
+    array<RegGroupPayload<N>, NUM_SEGMENTS> rx_buffer {};
+    
+    const auto tx_status = hw::spi::adbms_spi_ls.transmitThenReceive(
+        { reinterpret_cast<const uint8_t *>(&tx_cmd), sizeof(tx_cmd) },
+        { reinterpret_cast<uint8_t *>(rx_buffer.data()), sizeof(rx_buffer) });
 
-    if (!tx_status)
-    {
-        for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
-        {
-            comm_success[segment] = tx_status;
-        }
+    if (cmd == RDCVALL){
+        int i = 0; 
+        UNUSED(i);
+    }
+
+    if (!tx_status){
+        comm_success.fill(tx_status);
         return;
     }
 
-    for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
+
+    for (size_t segment = 0U; segment < NUM_SEGMENTS; segment++)
     {
         const auto &payload = rx_buffer[segment];
-        if (checkDataPec(payload.data, swapEndianness(payload.pec10) >> 10U, payload.pec10 & 0xFF03))
+
+        if (checkDataPec( payload.data, swapEndianness(payload.pec10) >> 10U, payload.pec10 & 0xFF03U))
         {
             regs[segment]         = payload.data;
             comm_success[segment] = {};
         }
         else
         {
-            comm_success[segment] = std::unexpected(ErrorCode::CHECKSUM_FAIL);
+            comm_success[segment] = unexpected(ErrorCode::CHECKSUM_FAIL);
         }
     }
 }
 
-std::expected<void, ErrorCode>
-    writeRegGroup(const uint16_t cmd, const std::array<std::array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> regs)
-{
+expected<void, ErrorCode> writeRegGroup(const uint16_t cmd, const array<array<uint8_t,REG_GROUP_SIZE>, NUM_SEGMENTS> regs) {
     
-    struct
-    {
-        TxCmd                                     tx_cmd;
-        std::array<RegGroupPayload, NUM_SEGMENTS> payload;
-    } tx_buffer{ TxCmd{ cmd }, {} };
+    TxCmdPayload<6> tx_buffer{ TxCmd{ cmd }, {} };
 
     for (uint8_t segment = 0U; segment < NUM_SEGMENTS; segment++)
     {
         tx_buffer.payload[segment].data  = regs[segment];
         tx_buffer.payload[segment].pec10 = static_cast<uint16_t>(swapEndianness(calculatePec10(tx_buffer.payload[segment].data,0U) & 0x03FFU));
     }
-    return hw::spi::adbms_spi_ls.transmit({ reinterpret_cast<uint8_t *>(&tx_buffer), sizeof(tx_buffer) });
+    return hw::spi::adbms_spi_ls.transmit({ reinterpret_cast<const uint8_t *>(&tx_buffer), sizeof(tx_buffer) });
+} 
+
+template void io::adbms::readRegGroup<6>(
+    uint16_t,
+    std::array<std::array<uint8_t, 6>, io::NUM_SEGMENTS> &,
+    std::array<std::expected<void, ErrorCode>, io::NUM_SEGMENTS> &);
+
+template void io::adbms::readRegGroup<36>(
+    uint16_t,
+    std::array<std::array<uint8_t, 36>, io::NUM_SEGMENTS> &,
+    std::array<std::expected<void, ErrorCode>, io::NUM_SEGMENTS> &);
+
+template void io::adbms::readRegGroup<42>(
+    uint16_t,
+    std::array<std::array<uint8_t, 42>, io::NUM_SEGMENTS> &,
+    std::array<std::expected<void, ErrorCode>, io::NUM_SEGMENTS> &);
+
+
 }
-} // namespace io::adbms
+// namespace io::adbms

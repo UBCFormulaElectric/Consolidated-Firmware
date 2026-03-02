@@ -5,6 +5,8 @@
 #include <array>
 #include <span>
 
+using namespace std;
+
 namespace io::adbms
 {
 
@@ -66,6 +68,10 @@ inline constexpr uint16_t ADSV_BASE  = 0x0168U;
 inline constexpr uint16_t ADAX_BASE  = 0x0410U;
 inline constexpr uint16_t ADAX2_BASE = 0x0400U;
 
+// Snapshot
+inline constexpr uint16_t SNAP = 0x002DU;
+inline constexpr uint16_t UNSNAP = 0x002FU;
+
 // ADCV and ADSV
 inline constexpr uint16_t RD   = (1U << 8); // redundant C + S ADC
 inline constexpr uint16_t CONT = (1U << 7); // continuous mode
@@ -88,14 +94,14 @@ inline constexpr uint16_t CH0 = (1U << 0);
  * @param cmd The command to send
  * @return success of operation
  */
-std::expected<void, ErrorCode> sendCmd(uint16_t cmd);
+expected<void, ErrorCode> sendCmd(uint16_t cmd);
 
 /**
  * Send a poll command (see Table 45)
  * @param cmd The command to send
  * @param poll_buf Buffer to store the polled data
  */
-std::expected<void, ErrorCode> poll(uint16_t cmd, std::span<uint8_t> poll_buf);
+expected<void, ErrorCode> poll(uint16_t cmd, span<uint8_t> poll_buf);
 
 /**
  * Send a read reg group command and receive the values (see Table 47).
@@ -103,10 +109,12 @@ std::expected<void, ErrorCode> poll(uint16_t cmd, std::span<uint8_t> poll_buf);
  * @param regs Buffer to store the received register values
  * @param comm_success Buffer to store the success of communication for each segment
  */
+template <size_t N>
 void readRegGroup(
     uint16_t                                                       cmd,
-    std::array<std::array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs,
-    std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS>      &comm_success);
+    array<array<uint8_t, N>, NUM_SEGMENTS> &regs,
+    array<expected<void, ErrorCode>, NUM_SEGMENTS>      &comm_success);
+    
 
 /**
  * Send a write reg group command to write the values (see Table 46)
@@ -114,6 +122,6 @@ void readRegGroup(
  * @param regs Buffer containing the register values to write
  * @return success of operation
  */
-std::expected<void, ErrorCode>
-    writeRegGroup(uint16_t cmd, std::array<std::array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> regs);
+expected<void, ErrorCode>
+    writeRegGroup(uint16_t cmd, array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> regs);
 } // namespace io::adbms

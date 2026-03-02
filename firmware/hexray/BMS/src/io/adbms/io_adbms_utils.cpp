@@ -27,4 +27,11 @@ std::expected<void, ErrorCode> wakeup()
     return sendCmd(RDCFGA);
 }
 
+std::expected<void, ErrorCode> freeze() {
+    return sendCmd(SNAP);
+}
+
+std::expected<void, ErrorCode> unfreeze() {
+    return sendCmd(UNSNAP);
+}
 } // namespace io::adbms

@@ -1,11 +1,14 @@
 #include "io_adbms_internal.hpp"
 #include <cstdint>
 
+static std::array<std::expected<void, ErrorCode>, io::NUM_SEGMENTS>      group_success;
+//static std::array<std::array<uint8_t, io::adbms::REG_GROUP_SIZE>, io::NUM_SEGMENTS> regs;
+
 namespace io::adbms
 {
 constexpr uint8_t MAX_NUM_ATTEMPTS  = 10U;
 constexpr uint8_t ADCV_STATUS_READY = 0x3F;
-constexpr uint8_t CELLS_PER_GROUP   = 3U;
+//constexpr uint8_t CELLS_PER_GROUP   = 3U;
 
 std::expected<void, ErrorCode> clearCellVoltageReg()
 {
@@ -33,50 +36,32 @@ std::expected<void, ErrorCode> pollCellsAdcConversion()
 }
 
 
-void readCellVoltageReg(
-    std::array<std::array<uint16_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &cell_voltage_regs,                 
-    std::array<std::array<std::expected<void, ErrorCode>, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success
-)
-{
-    const std::expected<void, ErrorCode> poll_ok = pollCellsAdcConversion();
+// void readCellVoltageReg(
+//     std::array<std::array<uint16_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &cell_voltage_regs,                 
+//     std::array<std::array<std::expected<void, ErrorCode>, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success
+// )
+// {
+//     const std::expected<void, ErrorCode> poll_ok = pollCellsAdcConversion();
 
-    if (!poll_ok){
-        for (uint8_t i = 0U; i < NUM_SEGMENTS; i++){
-            for (uint8_t j = 0U; j < CELLS_PER_SEGMENT; j++){
-                comm_success[i][j] = poll_ok;
-            }
-        }
-        return;
-    }
+//     if (!poll_ok){
+//         for (uint8_t i = 0U; i < NUM_SEGMENTS; i++){
+//             for (uint8_t j = 0U; j < CELLS_PER_SEGMENT; j++){
+//                 comm_success[i][j] = poll_ok;
+//             }
+//         }
+//         return;
+//     }
 
-    static constexpr std::array<uint16_t, NUM_VOLT_REG_GROUPS> voltage_read_cmds{ { RDCVA, RDCVB, RDCVC, RDCVD, RDCVE } };
-    for (uint8_t reg_group = 0U; reg_group < NUM_VOLT_REG_GROUPS; reg_group++)
-    {
-        static std::array<std::array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> regs;
-        static std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS>      group_success;
-        readRegGroup(voltage_read_cmds[reg_group], regs, group_success);
+    
+//     readRegGroup(RDCVALL, regs, group_success);
 
-        for (uint8_t seg = 0U; seg < NUM_SEGMENTS; seg++)
-        {
-            for (uint8_t cell_in_group = 0U; cell_in_group < CELLS_PER_GROUP; cell_in_group++)
-            {
-                const auto cell_index = static_cast<uint8_t>(reg_group * CELLS_PER_GROUP + cell_in_group);
-                if (cell_index >= CELLS_PER_SEGMENT)
-                {
-                    continue;
-                }
+//     cell_voltage_regs = static_cast<uint16_t> regs;
 
-                comm_success[seg][cell_index] = group_success[seg];
-                if (!group_success[seg])
-                {
-                    continue;
-                }
-
-                comm_success[seg][cell_index] = {};
-                const uint8_t byte_offset          = cell_in_group * 2U;
-                cell_voltage_regs[seg][cell_index] = regs[seg][byte_offset];
-            }
-        }
-    }
-}
+//     for (uint8_t seg = 0U; seg < NUM_SEGMENTS; seg++){
+//         for (uint8_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++){
+//             comm_success[seg][cell] = group_success[seg];
+//         }
+//     }
+    
+// }
 } // namespace io::adbms
