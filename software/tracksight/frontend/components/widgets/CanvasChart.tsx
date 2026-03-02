@@ -23,21 +23,6 @@ export default function CanvasChart({ chartData: chart_data, height, hoveredSign
     const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
     const { scalePxPerSecRef, globalTimeRangeRef, scrollLeftRef, hoverTimestamp: externalHoverTimestampRef, XToTime } = useSyncedGraph();
 
-    // const timestamps = data?.timestamps;
-    // const firstTimestamp = timestamps && timestamps.length > 0 ? timestamps[0] : null;
-    // const lastTimestamp = timestamps && timestamps.length > 0 ? timestamps[timestamps.length - 1] : null;
-    // Update global time range based on data
-    // useEffect(() => {
-    //   if (firstTimestamp === null || lastTimestamp === null) return;
-    //   if (firstTimestamp >= lastTimestamp) return;
-
-    //   const current = timeRangeRef.current;
-    //   // Update if range is different or not set yet
-    //   if (!current || current.min !== firstTimestamp || current.max !== lastTimestamp) {
-    //     setTimeRange({ min: firstTimestamp, max: lastTimestamp });
-    //   }
-    // }, [firstTimestamp, lastTimestamp, setTimeRange, timeRangeRef]);
-
     // RENDER LOOP
     useEffect(() => {
         const canvas = canvasRef.current;

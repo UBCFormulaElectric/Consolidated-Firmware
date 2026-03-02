@@ -9,7 +9,7 @@ export type SyncedGraphContext = {
     scalePxPerSecRef: RefObject<number>; // a measure of zoom
     hoverTimestamp: RefObject<number | null>; // TODO maybe not here?
     globalTimeRangeRef: RefObject<TimeRange | null>;
-    updateWithTimestamp(timestamp: number): void; // helper to update time range to include a timestamp if needed
+    updateWithTimestamp(timestamp: number): void; // NOTE: PLEASE CALL THIS EVERY SINGLE TIME A NEW DATA POINT IS ADDED!!!
 
     scrollLeftRef: RefObject<number>;
 
