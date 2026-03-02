@@ -59,9 +59,9 @@ export default function CanvasChart({ chartData: chart_data, height, hoveredSign
             animationFrameId.current = requestAnimationFrame(render_call);
         }
         animationFrameId.current = requestAnimationFrame(render_call);
-        console.log("starting animation frame");
+        // console.log("starting animation frame");
         return () => {
-            console.log("cancelling animation frame");
+            // console.log("cancelling animation frame");
             if (animationFrameId.current === null) return;
             cancelAnimationFrame(animationFrameId.current);
             animationFrameId.current = null;

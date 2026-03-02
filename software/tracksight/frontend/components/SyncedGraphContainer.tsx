@@ -102,7 +102,6 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
         if (!container) return;
         const handleScroll = () => {
             scrollLeftRef.current = container.scrollLeft;
-            console.log("scrollLeft", scrollLeftRef.current);
         };
         container.addEventListener("scroll", handleScroll, { passive: true });
         return () => { container.removeEventListener("scroll", handleScroll) }
