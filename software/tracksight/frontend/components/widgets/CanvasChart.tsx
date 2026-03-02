@@ -3,7 +3,7 @@
 
 import { useRef, useEffect, useCallback, RefObject } from "react";
 import { MouseEvent as MouseEvent_React } from "react";
-import render from "@/components/widgets/render";
+import render, { render_empty } from "@/components/widgets/render";
 import { ChartData, ChartLayout } from "./CanvasChartTypes";
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 
@@ -58,34 +58,53 @@ export default function CanvasChart({ chartData: chart_data, height, hoveredSign
     // RENDER LOOP
     useEffect(() => {
         const canvas = canvasRef.current;
-        if (!canvas) return;
+        if (!canvas) {
+            console.error("Canvas element not found");
+            return;
+        }
         const context = canvas.getContext("2d");
-        if (!context) return;
+        if (!context) {
+            console.error("Render context not found");
+            return;
+        }
         const render_call = () => {
+            // update width and height from css
+            const cssWidth = containerWidth.current || canvas.getBoundingClientRect().width;
+            const nextCanvasWidth = Math.max(1, Math.floor(cssWidth * dpr));
+            const nextCanvasHeight = Math.max(1, Math.floor(height * dpr));
+            if (canvas.width !== nextCanvasWidth || canvas.height !== nextCanvasHeight) {
+                canvas.width = nextCanvasWidth;
+                canvas.height = nextCanvasHeight;
+            }
             // transform to the original size
             context.setTransform(1, 0, 0, 1, 0, 0);
             context.scale(dpr, dpr);
-
             const timeRange = timeRangeRef.current;
             if (!timeRange) {
-                animationFrameId.current = requestAnimationFrame(render_call);
-                return;
+                // If no time range is set, clear the canvas and return early
+                render_empty(context, containerWidth.current, height);
+            } else {
+                render(context, containerWidth.current, height, layoutRef, chart_data.current, timeTickCount, hoverPixelRef, {
+                    min: timeRange.min, // TODO check this with zedwin
+                    max: timeRange.max,
+                });
             }
-            render(context, containerWidth.current, height, layoutRef, chart_data.current, timeTickCount, hoverPixelRef, {
-                min: timeRange.min, // TODO check this with zedwin
-                max: timeRange.max,
-            });
+            // cleanup
             animationFrameId.current = requestAnimationFrame(render_call);
         }
         animationFrameId.current = requestAnimationFrame(render_call);
-        // console.log("starting animation frame");
+        console.log("starting animation frame");
         return () => {
-            // console.log("cancelling animation frame");
+            console.log("cancelling animation frame");
             if (animationFrameId.current === null) return;
             cancelAnimationFrame(animationFrameId.current);
             animationFrameId.current = null;
         };
-    }, [chart_data, height, containerWidth, timeTickCount, onHoverTimestampChange, scalePxPerSecRef, timeRangeRef, scrollLeftRef, externalHoverTimestampRef]);
+    }, [
+        canvasRef.current, chart_data, height, containerWidth,
+        timeTickCount, onHoverTimestampChange,
+        scalePxPerSecRef, timeRangeRef, scrollLeftRef, externalHoverTimestampRef
+    ]);
 
     const handleMouseMove = useCallback((event: MouseEvent_React<HTMLCanvasElement, MouseEvent>) => {
         const canvas = canvasRef.current;
@@ -118,8 +137,6 @@ export default function CanvasChart({ chartData: chart_data, height, hoveredSign
         <canvas
             className="block w-full"
             ref={canvasRef}
-            width={containerWidth.current * dpr}
-            height={height * dpr}
             style={{ height: height }}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}

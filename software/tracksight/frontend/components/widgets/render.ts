@@ -513,3 +513,15 @@ export default function render(
 
     context.restore();
 }
+
+export function render_empty(context: CanvasRenderingContext2D, width: number, height: number) {
+    context.clearRect(0, 0, width, height);
+    console.log(width, height)
+
+    context.fillStyle = "#666";
+    context.font = "14px sans-serif";
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    context.fillText("No data in this time range", width / 2, height / 2);
+    context.restore();
+}
