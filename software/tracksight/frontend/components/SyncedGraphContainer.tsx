@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, RefObject, ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, RefObject, ReactNode, UIEvent } from "react";
 import { useDisplayControlContext } from "./PausePlayControl";
 
 export interface TimeRange {
@@ -32,8 +32,8 @@ export function useSyncedGraph() {
 const MIN_SCALE_PX_PER_SEC = 0;
 const MAX_SCALE_PX_PER_SEC = 10000;
 
-function useZoomManager(containerRef: RefObject<HTMLDivElement | null>) {
-    const [scalePxPerSec, setScalePxPerSec] = useState(1);
+function useZoomPanManager(containerRef: RefObject<HTMLDivElement | null>) {
+    const scalePxPerSecRef = useRef<number>(1);
 
     const handleWheelZoom = useCallback((event: WheelEvent) => {
         if (event.ctrlKey === false) {
@@ -44,10 +44,9 @@ function useZoomManager(containerRef: RefObject<HTMLDivElement | null>) {
         if (deltaScale === 0) return;
 
         // deltaScale usually in {-1,1}
-        setScalePxPerSec(prev => Math.min(Math.max(prev * Math.exp(deltaScale), MIN_SCALE_PX_PER_SEC), MAX_SCALE_PX_PER_SEC));
-    }, [setScalePxPerSec]);
+        scalePxPerSecRef.current = Math.min(Math.max(scalePxPerSecRef.current * Math.exp(deltaScale), MIN_SCALE_PX_PER_SEC), MAX_SCALE_PX_PER_SEC);
+    }, [scalePxPerSecRef]);
 
-    // TODO handle touch gestures for zoom
     useEffect(() => {
         const container = containerRef.current;
         if (!container) return;
@@ -58,7 +57,25 @@ function useZoomManager(containerRef: RefObject<HTMLDivElement | null>) {
         };
     }, [handleWheelZoom, containerRef]);
 
-    return scalePxPerSec;
+    // suppress scroll when playing
+    const { isPaused } = useDisplayControlContext();
+    useEffect(() => { // handle scroll events (needs to be here because of passive: false)
+        const container = containerRef.current;
+        if (!container) return;
+        const suppressScroll = (e: Event) => {
+            if (!isPaused) {
+                e.preventDefault();
+            }
+        }
+        container.addEventListener("wheel", suppressScroll, { passive: false });
+        container.addEventListener("mousewheel", suppressScroll, { passive: false });
+        return () => {
+            container.removeEventListener("wheel", suppressScroll);
+            container.removeEventListener("mousewheel", suppressScroll);
+        };
+    }, [containerRef, isPaused]);
+
+    return scalePxPerSecRef;
 }
 
 export default function SyncedGraphContainer({ children }: { children: ReactNode }) {
@@ -88,24 +105,13 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
     }, [updateGraphWidth])
 
     // zoom management (attach wheel listener to the scroll container)
-    const scalePxPerSec = useZoomManager(scrollContainerRef);
-    const scalePxPerSecRef = useRef<number>(scalePxPerSec);
-    useEffect(() => {
-        scalePxPerSecRef.current = scalePxPerSec;
-        updateGraphWidth();
-    }, [scalePxPerSec, updateGraphWidth]);
+    const scalePxPerSecRef = useZoomPanManager(scrollContainerRef);
 
     // manage left scroll variable
     const scrollLeftRef = useRef<number>(0);
-    useEffect(() => { // handle scroll events (needs to be here because of passive: true)
-        const container = scrollContainerRef.current;
-        if (!container) return;
-        const handleScroll = () => {
-            scrollLeftRef.current = container.scrollLeft;
-        };
-        container.addEventListener("scroll", handleScroll, { passive: true });
-        return () => { container.removeEventListener("scroll", handleScroll) }
-    }, []);
+    const updateLeftScroll = useCallback((e: UIEvent<HTMLDivElement>) => {
+        scrollLeftRef.current = (e.target as HTMLDivElement).scrollLeft;
+    }, [scrollLeftRef]);
 
     // screen space conversions
     /**
@@ -136,7 +142,7 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
     return (
         <SyncedGraphContext.Provider value={CTXVAL}>
             {/* outer wrapper handles overflow/scrolling; this the viewport */}
-            <div ref={scrollContainerRef} className="w-full overflow-x-auto overflow-y-scroll h-full">
+            <div ref={scrollContainerRef} className="w-full overflow-x-auto overflow-y-scroll h-full" onScroll={updateLeftScroll}>
                 {/* inner content grows in width */}
                 <div ref={contentRef} className="min-w-full relative">
                     <div className="sticky left-0"
