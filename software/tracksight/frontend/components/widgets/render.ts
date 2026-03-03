@@ -1,9 +1,13 @@
+// react
 import { RefObject } from "react";
+// constants
 import { ENUM_COLORS } from "@/components/widgets/depr/signalColors";
+// types
 import { SignalType } from "@/lib/types/Signal";
 import { NumericalSeries, ChartLayout, ChartData, EnumSeries } from "./CanvasChartTypes";
-import { bisect } from "@/lib/bisect";
 import { WidgetData, WidgetDataNumerical } from "./WidgetTypes";
+// utils
+import { bisect } from "@/lib/bisect";
 
 // TODO reduce to bisect right
 // first enum index where the enum's end time (timestamps[i+1]) >= targetTime

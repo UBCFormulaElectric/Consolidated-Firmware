@@ -1,13 +1,17 @@
+// react
 import { createContext, useCallback, useContext, useMemo, ReactNode } from "react";
+// types
 import { SignalType } from "@/lib/types/Signal";
 import { EnumSignalConfig, NumericalSignalConfig, WidgetData, WidgetDataEnum, WidgetDataNumerical, WidgetSignalConfig } from "./WidgetTypes";
-import { IS_DEBUG } from "@/lib/constants";
-import { v4 as uuidv4 } from 'uuid';
-import { useLocalState } from "@/lib/hooks/useLocalState";
 import chroma from "chroma-js";
+// constants
+import { IS_DEBUG } from "@/lib/constants";
+// functions
+import { v4 as uuidv4 } from 'uuid';
+// hooks
+import { useLocalState } from "@/lib/hooks/useLocalState";
 
 const LOCAL_STORAGE_KEY = "tracksight_widgets_config_v1";
-
 
 interface WidgetManagerContext {
     widgets: WidgetData[];

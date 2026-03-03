@@ -1,12 +1,15 @@
 "use client";
 // note to self: updatemockconfig -> mockwidgets, then pass setwidgets in
 
-import { useRef, useEffect, useCallback, RefObject } from "react";
-import { MouseEvent as MouseEvent_React } from "react";
+// react
+import { useRef, useEffect, useCallback, RefObject, MouseEvent as MouseEvent_React } from "react";
+// functions
 import render, { render_empty } from "@/components/widgets/render";
+// types
 import { ChartData, ChartLayout } from "./CanvasChartTypes";
-import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { WidgetData } from "./WidgetTypes";
+// hooks
+import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 
 export default function CanvasChart({ chartData: chart_data, widgetData, height, hoveredSignal, timeTickCount = 6, onHoverTimestampChange }: {
     widgetData: WidgetData;

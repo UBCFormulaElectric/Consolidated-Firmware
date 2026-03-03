@@ -1,6 +1,6 @@
 "use client";
 // react
-import { RefObject, use, useCallback, useRef, useState } from "react";
+import { RefObject, useCallback, useRef, useState } from "react";
 
 // components
 import CanvasChart from "./CanvasChart";
@@ -9,9 +9,6 @@ import { MockWidgetAddSignalModal } from "./MockWidget";
 // types
 import { EnumSignalConfig, NumericalSignalConfig, WidgetData } from "@/components/widgets/WidgetTypes";
 import { ChartData } from "./CanvasChartTypes";
-
-// constants
-import { signalColors } from "@/components/widgets/depr/signalColors";
 
 // hooks
 import { useDisplayControlContext as useDisplayControlInfo } from "../PausePlayControl";

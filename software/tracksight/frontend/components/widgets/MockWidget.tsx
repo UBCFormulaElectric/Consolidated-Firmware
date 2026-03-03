@@ -1,15 +1,18 @@
 "use client";
-
+// react
 import { useEffect, useState, useRef, useCallback, RefObject, SubmitEvent } from "react";
+// types
 import { EnumSignalConfig, NumericalSignalConfig, WidgetConfigs, WidgetData } from "@/components/widgets/WidgetTypes";
-import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { SignalType } from "@/lib/types/Signal";
-import { Dialog, DialogDescription, DialogHeader, DialogTitle, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { ChartData, ChartDataEnum, ChartDataNumerical, EnumSeries, NumericalSeries } from "./CanvasChartTypes";
 import { SeriesData } from "@/lib/seriesData";
-import { PlusButton } from "@/components/icons/PlusButton";
-import { useWidgetManager } from "./WidgetManagerContext";
 import chroma from "chroma-js";
+// hooks
+import { useSyncedGraph } from "@/components/SyncedGraphContainer";
+import { useWidgetManager } from "./WidgetManagerContext";
+// components
+import { Dialog, DialogDescription, DialogHeader, DialogTitle, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { PlusButton } from "@/components/icons/PlusButton";
 
 function generateRandomNumericalValue(time: number, index: number = 0, min: number, max: number) {
     if (min !== undefined && max !== undefined) {
