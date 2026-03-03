@@ -30,6 +30,25 @@
             }
         }
     },
+    "ShdnNodeStatus": {
+        "msg_id": 238,
+        "cycle_time": 100,
+        "description": "VC Shutdown Node Status",
+        "signals": {
+            "RearRightMotorInterlock": {
+                "bits": 1
+            },
+            "InertiaSwitch": {
+                "bits": 1
+            },
+            "TSMSOKStatus": {
+                "bits": 1
+            },
+            "MSDOrEMeterOKStatus": {
+                "bits": 1
+            }
+        }
+    },
     "PumpStatus": {
         "msg_id": 529,
         "cycle_time": 10,

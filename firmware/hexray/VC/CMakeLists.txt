@@ -125,6 +125,9 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     target_link_libraries("hexray_VC_app.elf" PRIVATE "hexray_VC_stm32" "hexray_VC_commit_info" "hexray_VC_jsoncan" "m")
+    if (TARGET "sbg_ecom_${ARM_CORE}")
+        target_link_libraries("hexray_VC_app.elf" PRIVATE "sbg_ecom_${ARM_CORE}")
+    endif ()
     target_compile_definitions("hexray_VC_app.elf" PRIVATE VC)
 
     add_chimera_stm32h7("hexray_VC_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}" "hexray_chimera_v2_proto_cm7")
@@ -158,5 +161,8 @@ elseif ("${TARGET}" STREQUAL "test")
     )
 
     target_link_libraries("hexray_VC_test" PRIVATE "hexray_VC_commit_info" "hexray_VC_jsoncan")
+    if (TARGET "sbg_ecom_cm7")
+        target_link_libraries("hexray_VC_test" PRIVATE "sbg_ecom_cm7")
+    endif ()
     target_compile_definitions("hexray_VC_test" PRIVATE STM32H733xx)
 endif ()

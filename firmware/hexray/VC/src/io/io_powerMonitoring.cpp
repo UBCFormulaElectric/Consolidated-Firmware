@@ -2,18 +2,17 @@
 
 #include "hw_i2cs.hpp"
 #include "io_log.hpp"
-#include <cstring>
 #include <array>
 #include <expected>
 
 //register addresses (p`g 45.)
-constexpr std::uint16_t REG_REFRESH =      0x00;
-constexpr std::uint16_t REG_CTRL =         0x01;
-constexpr std::uint16_t REG_VBUS =         0x07;
-constexpr std::uint16_t REG_VSENSE =       0x0B;
-constexpr std::uint16_t REG_VPOWERN =      0x17;
-constexpr std::uint16_t REG_NEG_PWR_FSR =  0x1D;
-constexpr std::uint16_t REG_ACCUM_CONFIG = 0x25;
+constexpr uint16_t REG_REFRESH =      0x00;
+constexpr uint16_t REG_CTRL =         0x01;
+constexpr uint16_t REG_VBUS =         0x07;
+constexpr uint16_t REG_VSENSE =       0x0B;
+constexpr uint16_t REG_VPOWERN =      0x17;
+constexpr uint16_t REG_NEG_PWR_FSR =  0x1D;
+constexpr uint16_t REG_ACCUM_CONFIG = 0x25;
 //lsb scaling
 constexpr float VBUS_LSB = 4.88e-4f;
 constexpr float VSENSE_LSB (1.5259e-6f / 0.003f);
@@ -22,13 +21,13 @@ constexpr float VSENSE_LSB (1.5259e-6f / 0.003f);
 constexpr float POWER_LSB = VBUS_LSB * VSENSE_LSB;
 namespace io::powerMonitoring
 {
-std::expected<void, ErrorCode> read_register(std::uint16_t reg, std::span<uint8_t> data)
+std::expected<void, ErrorCode> read_register(uint16_t reg, std::span<uint8_t> data)
 {
     RETURN_IF_ERR_SILENT(hw::i2c::pwr_pump.memoryRead(reg, data));
     return {};
 }
 
-std::expected<void, ErrorCode> write_register(std::uint16_t reg, std::span<const std::uint8_t> data)
+std::expected<void, ErrorCode> write_register(uint16_t reg, std::span<const uint8_t> data)
 {
     /*no need for this stuff i reviewed the functions the i2c trasnmit both BLOCKING and NONBLOCK functions store the register 
     in the first byte when called, so what we are doing here in the c code was unnecesary: ive left it below to confirm*/
@@ -58,8 +57,8 @@ bool io_powerMonitoring_init(void)
     }   
 
     // 2) Config: CTRL: 1024 SPS continuous, all CH enabled, slow ALERT1 enabled.
-    std::uint16_t ctrl =  0x700; //0b0000011100000000
-    std::array<const uint8_t, 2> ctrl_bytes = {{(std::uint8_t)(ctrl >> 8), (std::uint8_t)(ctrl)}};
+    uint16_t ctrl =  0x700; //0b0000011100000000
+    std::array<const uint8_t, 2> ctrl_bytes = {{(uint8_t)(ctrl >> 8), (uint8_t)(ctrl)}};
     if (!write_register(REG_CTRL, ctrl_bytes))
     {
         return false;
@@ -74,7 +73,7 @@ bool io_powerMonitoring_init(void)
 
     /* 4) ENABLE VBUS AND VSENSE (idk why it was 0x03 when ch3 and ch4 wasnt in use 
     but now all of em are on so use 0x00) */
-    std::uint8_t acc_cfg = 0x00;
+    uint8_t acc_cfg = 0x00;
     if (!write_register(REG_ACCUM_CONFIG, (std::span{&acc_cfg, 1}))) 
     {
         return false;
