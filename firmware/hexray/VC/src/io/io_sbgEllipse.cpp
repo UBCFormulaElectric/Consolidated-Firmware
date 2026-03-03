@@ -194,7 +194,7 @@ static void processMsg_EkfNavVelandPos(const SbgEComLogUnion *log_data)
 
 /* ------------------------- Public Function Definitions -------------------------- */
 
-ExitCode init(void)
+std::expected<void, ErrorCode> init()
 {
     memset(&sensor_data, 0, sizeof(SensorData));
 
@@ -207,7 +207,7 @@ ExitCode init(void)
     if (sbgEComInitCode != SBG_NO_ERROR)
     {
         LOG_INFO("%d", sbgEComInitCode);
-        return EXIT_CODE_ERROR;
+        return std::unexpected(ErrorCode::ERROR);
     }
 
     // Set the callback function (callback is called when a new log is successfully received and parsed)
@@ -218,7 +218,8 @@ ExitCode init(void)
     assert(uart_sbuf_handle != NULL);
 
     // Start waiting for UART packets
-    return hw_uart_receiveCallback(&sbg_ellipse_uart, uart_dma_buf, UART_RX_PACKET_SIZE);
+    RETURN_IF_ERR(sbg_ellipse_uart.receiveDma(std::span<uint8_t>{ uart_dma_buf }));
+    return {};
 }
 
 void handleLogs(void)
@@ -237,7 +238,7 @@ void handleLogs(void)
             char buffer[256];
             sbgEComErrorToString(error_code, buffer);
             LOG_INFO("SBG Ellipse logging error: %s", buffer);
-            app_canTx_VC_ellipseErrorCode_set((ellipseErrorCode)error_code);
+            // app::can_tx::VC_MSDOrEMeterOKStatus_set((ellipseErrorCode)error_code);
         }
     }
 }

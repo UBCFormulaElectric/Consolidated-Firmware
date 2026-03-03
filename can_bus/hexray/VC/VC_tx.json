@@ -49,6 +49,28 @@
             }
         }
     },
+    "EllipseStatus": {
+        "msg_id": 247,
+        "cycle_time": 100,
+        "description": "Status of the SBG Ellipse N sensor.",
+        "signals": {
+            "EllipseGeneralStatusBitmask": {
+                "bits": 16
+            },
+            "EllipseComStatusBitmask": {
+                "bits": 32
+            },
+            "EllipseErrorCode": {
+                "enum": "EllipseErrorCode"
+            },
+            "EkfSolutionMode": {
+                "enum": "VcEkfStatus"
+            },
+            "EllipseQueueOverflowCount": {
+                "bits": 8
+            }
+        }
+    },
     "PumpStatus": {
         "msg_id": 529,
         "cycle_time": 10,
