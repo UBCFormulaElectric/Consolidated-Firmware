@@ -5,7 +5,7 @@ export interface TimeRange {
     min: number;
     max: number;
 }
-export type SyncedGraphContext = {
+export type SyncedGraphContext_t = {
     // internal
     scalePxPerSecRef: RefObject<number>; // a measure of zoom
     hoverTimestampRef: RefObject<number | null>; // TODO maybe not here?
@@ -19,11 +19,7 @@ export type SyncedGraphContext = {
     timeToX(t: number): number;
     XToTime(x: number): number;
 };
-// eslint-disable-next-line no-redeclare
-const SyncedGraphContext = createContext<SyncedGraphContext | null>(null);
-const RIGHT_PAD = 5 * 60; // 5 secs right 
-const SCROLL_PAD = 15;
-
+const SyncedGraphContext = createContext<SyncedGraphContext_t | null>(null);
 export function useSyncedGraph() {
     const ctx = useContext(SyncedGraphContext);
     if (!ctx) {
@@ -32,6 +28,8 @@ export function useSyncedGraph() {
     return ctx;
 }
 
+const RIGHT_PAD = 5 * 60; // 5 secs right 
+const SCROLL_PAD = 15;
 const MIN_SCALE_PX_PER_SEC = 0;
 const MAX_SCALE_PX_PER_SEC = 10000;
 
@@ -135,7 +133,7 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
     const hoverTimestampRef = useRef<number | null>(null);
 
     // context
-    const CTXVAL = useMemo<SyncedGraphContext>(() => ({
+    const CTXVAL = useMemo<SyncedGraphContext_t>(() => ({
         scalePxPerSecRef,
         hoverTimestampRef,
         globalTimeRangeRef,

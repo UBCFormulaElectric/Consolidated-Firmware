@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback, RefObject, SubmitEvent } from "react";
-import { NumericalSignalConfig, WidgetConfigs, WidgetData, WidgetDataEnum, WidgetDataNumerical } from "@/components/widgets/WidgetTypes";
+import { EnumSignalConfig, NumericalSignalConfig, WidgetConfigs, WidgetData } from "@/components/widgets/WidgetTypes";
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { SignalType } from "@/lib/types/Signal";
 import { Dialog, DialogDescription, DialogHeader, DialogTitle, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { ChartData, ChartDataEnum, ChartDataNumerical, EnumSeries, NumericalSeries } from "./CanvasChartTypes";
 import { SeriesData } from "@/lib/seriesData";
 import { PlusButton } from "@/components/icons/PlusButton";
+import { useWidgetManager } from "./WidgetManagerContext";
+import chroma from "chroma-js";
 
 function generateRandomNumericalValue(time: number, index: number = 0, min: number, max: number) {
     if (min !== undefined && max !== undefined) {
@@ -36,18 +38,19 @@ function generateRandomEnumValue() {
     };
 }
 
-function ModalForm({ closeModal, configs, dataRef, widgetData, updateWidget }: {
+function MockSignalModalForm({ closeModal, configs, dataRef, widgetData }: {
     closeModal: () => void,
     configs: WidgetConfigs,
     dataRef: RefObject<ChartData>,
     widgetData: WidgetData,
-    updateWidget: (update: (prevWidget: WidgetData) => WidgetData) => void
 }) {
     const [newSignalName, setNewSignalName] = useState("");
     const [newSignalType, setNewSignalType] = useState<SignalType>(SignalType.NUMERICAL);
     const [newSignalDelay, setNewSignalDelay] = useState(100);
     const [newSignalMin, setNewSignalMin] = useState<number>(-10);
     const [newSignalMax, setNewSignalMax] = useState<number>(10);
+
+    const { appendSignal } = useWidgetManager();
 
     const handleAddSignal = useCallback((e: SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -62,31 +65,27 @@ function ModalForm({ closeModal, configs, dataRef, widgetData, updateWidget }: {
         }
 
         if (dataRef.current.type === SignalType.NUMERICAL) {
-            dataRef.current.all_series.push({
-                label: name, timestamps: [], data: new SeriesData(), color: "", min: newSignalMin, max: newSignalMax,
-            });
-            const update: (prev: WidgetDataNumerical) => WidgetDataNumerical = (prev) => ({
-                ...prev,
-                signals: [...prev.signals, {
-                    signal_name: name, delay: newSignalDelay, initialPoints: 0, min: newSignalMin, max: newSignalMax,
-                }]
-            });
-            updateWidget(update as (prevWidget: WidgetData) => WidgetData); // stupid ahh typescript inference
+            dataRef.current.all_series.push({ label: name, timestamps: [], data: new SeriesData(), });
+            appendSignal(widgetData.id, {
+                delay: newSignalDelay,
+                min: newSignalMin, max: newSignalMax,
+                signal_name: name,
+                color: chroma.random()
+            } satisfies NumericalSignalConfig);
         }
         else {
-            dataRef.current.all_series.push({
-                label: name, timestamps: [], data: [], enumValuesToNames: {}
-            });
-            const update: (prev: WidgetDataEnum) => WidgetDataEnum = (prev) => ({
-                ...prev,
-                signals: [...prev.signals, {
-                    signal_name: name, delay: newSignalDelay, initialPoints: 0, options: { colorPalette: [] }
-                }]
-            });
-            updateWidget(update as (prevWidget: WidgetData) => WidgetData);
+            dataRef.current.all_series.push({ label: name, timestamps: [], data: [], enumValuesToNames: {} });
+            appendSignal(widgetData.id, {
+                signal_name: name, delay: newSignalDelay, initialPoints: 0, options: {
+                    colorPalette: [
+                        // TODO random colour palette
+                    ]
+                }, color: chroma.random()
+            } satisfies EnumSignalConfig);
         }
         closeModal();
-    }, [configs, updateWidget, newSignalName, newSignalType, newSignalDelay, newSignalMin, newSignalMax]);
+    }, [configs, appendSignal, newSignalName, newSignalType, newSignalDelay, newSignalMin, newSignalMax]);
+
     return (
         <form onSubmit={handleAddSignal} className="space-y-4">
             <div>
@@ -168,10 +167,9 @@ function ModalForm({ closeModal, configs, dataRef, widgetData, updateWidget }: {
     )
 }
 
-export function MockWidgetAddSignalModal({ configs, dataRef, widgetData, updateWidget }: {
+export function MockWidgetAddSignalModal({ configs, dataRef, widgetData }: {
     configs: WidgetConfigs;
     widgetData: WidgetData;
-    updateWidget: (updater: (prevWidget: WidgetData) => WidgetData) => void;
     dataRef: RefObject<ChartData>;
 }) {
     const [modalOpen, setModalOpen] = useState(false);
@@ -187,7 +185,7 @@ export function MockWidgetAddSignalModal({ configs, dataRef, widgetData, updateW
                         Configure a new signal to be generated in this mock graph.
                     </DialogDescription>
                 </DialogHeader>
-                <ModalForm closeModal={() => setModalOpen(false)} configs={configs} dataRef={dataRef} widgetData={widgetData} updateWidget={updateWidget} />
+                <MockSignalModalForm closeModal={() => setModalOpen(false)} configs={configs} dataRef={dataRef} widgetData={widgetData} />
             </DialogContent>
         </Dialog>
     );
@@ -206,15 +204,12 @@ export function useMockData(isPaused: boolean, widgetData: WidgetData,): RefObje
                 let series = (dataRef.current as ChartDataNumerical).all_series.find((s) => s.label === sig_cfg.signal_name);
                 if (!series) {
                     series = {
-                        color: "",
-                        min: (sig_cfg as NumericalSignalConfig).min, // legal due to inference
-                        max: (sig_cfg as NumericalSignalConfig).max, // legal due to inference
                         label: sig_cfg.signal_name, timestamps: [], data: new SeriesData()
                     } satisfies NumericalSeries;
                     (dataRef.current as ChartDataNumerical).all_series.push(series);
                 }
                 series.timestamps.push(rn);
-                series.data.push(generateRandomNumericalValue(rn, idx, series.min, series.max));
+                series.data.push(generateRandomNumericalValue(rn, idx, (sig_cfg as NumericalSignalConfig).min, (sig_cfg as NumericalSignalConfig).max));
             } else {
                 // cast is legal due to inference on widgetData.type
                 let series = (dataRef.current as ChartDataEnum).all_series.find((s) => s.label === sig_cfg.signal_name);

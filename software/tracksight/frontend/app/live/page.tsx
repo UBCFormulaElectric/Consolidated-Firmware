@@ -15,15 +15,17 @@ function Content() {
       <PausePlayButton />
       {
         initializedFromLocalStorage ?
-          widgets.map(widgetData => // TODO(evan): Add the universal timeline
-            <Widget widgetData={widgetData} key={widgetData.id} />
-          )
+          <>
+            {widgets.map(widgetData => // TODO(evan): Add the universal timeline
+              <Widget widgetData={widgetData} key={widgetData.id} />
+            )}
+            <WidgetAdder />
+          </>
           :
-          <div>
-            Loading (this should never be seen, unless ur localstore is mega busted)
+          <div className='grid place-items-center h-full text-gray-500'>
+            Loading Widgets
           </div>
       }
-      <WidgetAdder />
     </>
   );
 }
@@ -32,13 +34,13 @@ export default function LiveDataPage() {
   return (
     <div id="live-page" className="pt-14 h-screen">
       <DisplayControlProvider>
-        <SignalProvider>
-          <SyncedGraphContainer>
-            <WidgetManager>
-              <Content />
-            </WidgetManager>
-          </SyncedGraphContainer>
-        </SignalProvider >
+        {/* <SignalProvider> */}
+        <SyncedGraphContainer>
+          <WidgetManager>
+            <Content />
+          </WidgetManager>
+        </SyncedGraphContainer>
+        {/* </SignalProvider > */}
       </DisplayControlProvider >
     </div>
   );

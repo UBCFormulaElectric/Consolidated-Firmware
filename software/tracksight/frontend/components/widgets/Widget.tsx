@@ -18,19 +18,20 @@ import { useDisplayControlContext as useDisplayControlInfo } from "../PausePlayC
 import { useMockData } from "./MockWidget";
 import { useWidgetManager } from "./WidgetManagerContext";
 
-function SignalButton({ cfg, idx, handleRemoveSignal, onHover, onHoverEnd }: {
+function SignalButton({ cfg, handleRemoveSignal, onHover, onHoverEnd }: {
 	cfg: EnumSignalConfig | NumericalSignalConfig, idx: number,
 	handleRemoveSignal: (signalName: string) => void,
 	onHover: (signalName: string) => void,
 	onHoverEnd: () => void,
 }) {
-	const color = signalColors[idx % signalColors.length];
+	// const color = signalColors[idx % signalColors.length];
 	return (
 		<div className="select-none flex items-center gap-2 px-3 py-1.5 rounded-full border-2 hover:opacity-80 transition-opacity cursor-crosshair"
-			style={{ backgroundColor: color + "20", borderColor: color + "80" }}
+			style={{ backgroundColor: cfg.color.brighten(1).hex(), borderColor: cfg.color.darken(1).hex() }}
 			onMouseEnter={() => onHover(cfg.signal_name)} onMouseLeave={() => onHoverEnd()}
 		>
-			<div className="w-3 h-3 rounded-full" style={{ backgroundColor: color }} />
+			{/* Left circle */}
+			<div className="w-3 h-3 rounded-full" style={{ backgroundColor: cfg.color.hex() }} />
 			<span className="font-medium">{cfg.signal_name}</span>
 			<span className="text-xs text-gray-500">({cfg.delay}ms)</span>
 			<button
@@ -49,8 +50,7 @@ function useWidgetData(widgetData: WidgetData): RefObject<ChartData> {
 	if (widgetData.mock) { // this should be fine as it is constant
 		return useMockData(isPaused, widgetData);
 	}
-	// TODO populate data for numerical and enum from the store
-	return useRef({} as ChartData);
+	return useRef<ChartData>({}); // TODO populate data for numerical and enum from the store
 }
 
 export function Widget({ widgetData }: { widgetData: WidgetData; }) {
@@ -94,17 +94,13 @@ export function Widget({ widgetData }: { widgetData: WidgetData; }) {
 					)}
 					{
 						widgetData.mock &&
-						<MockWidgetAddSignalModal configs={widgetData.signals} dataRef={dataRef}
-							widgetData={widgetData} updateWidget={() => {
-								throw new Error("updateWidget function not implemented for non-mock widget");
-							}} />
+						<MockWidgetAddSignalModal configs={widgetData.signals} dataRef={dataRef} widgetData={widgetData} />
 					}
-
 				</div>
 			</div>
 
 			{/* Actual chart */}
-			<CanvasChart chartData={dataRef} height={chartHeight} hoveredSignal={hoveredSignal} />
+			<CanvasChart widgetData={widgetData} chartData={dataRef} height={chartHeight} hoveredSignal={hoveredSignal} />
 		</div>
 	)
 }

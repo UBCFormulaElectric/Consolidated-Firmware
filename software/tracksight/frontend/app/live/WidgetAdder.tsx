@@ -1,24 +1,24 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, SubmitEvent } from "react";
 import { PlusButton } from "@/components/icons/PlusButton";
 import { SignalType } from "@/lib/types/Signal";
-import { WidgetData } from "@/components/widgets/WidgetTypes";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useWidgetManager } from "@/components/widgets/WidgetManagerContext";
+import chroma from "chroma-js";
 
-function MockModal({ closeModal, onAddWidget }: {
+function MockWidgetModalForm({ closeModal }: {
   closeModal: () => void;
-  onAddWidget: (widget: WidgetData) => void;
 }) {
+  const { appendWidget: onAddWidget } = useWidgetManager();
   const [mockName, setMockName] = useState("Mock Signal");
   const [mockType, setMockType] = useState<SignalType>(SignalType.NUMERICAL);
   const [mockDelay, setMockDelay] = useState(100);
   const [mockMin, setMockMin] = useState<number>(-10);
   const [mockMax, setMockMax] = useState<number>(10);
 
-  const handleMockSubmit = (e: React.FormEvent) => {
+  const handleMockSubmit = (e: SubmitEvent) => {
     e.preventDefault();
     if (mockType === SignalType.ENUM) {
       onAddWidget({
@@ -29,7 +29,8 @@ function MockModal({ closeModal, onAddWidget }: {
           initialPoints: 0,
           options: {
             colorPalette: [],
-          }
+          },
+          color: chroma.random()
         }],
         id: "",
         mock: true,
@@ -40,9 +41,9 @@ function MockModal({ closeModal, onAddWidget }: {
         signals: [{
           signal_name: mockName,
           delay: mockDelay,
-          initialPoints: 0,
           min: mockMin,
           max: mockMax,
+          color: chroma.random()
         }],
         id: "",
         mock: true,
@@ -140,6 +141,7 @@ export function WidgetAdder() {
   const [mockModalOpen, setMockModalOpen] = useState(false);
   const { appendWidget: onAddWidget } = useWidgetManager();
 
+  // TODO
   const handleAddEnum = () => {
     onAddWidget({ type: SignalType.ENUM, signals: [], id: "" });
     setIsOpen(false);
@@ -179,7 +181,7 @@ export function WidgetAdder() {
       {/* MOCK MODAL */}
       <Dialog open={mockModalOpen} onOpenChange={setMockModalOpen}>
         <DialogContent>
-          <MockModal closeModal={() => setMockModalOpen(false)} onAddWidget={onAddWidget} />
+          <MockWidgetModalForm closeModal={() => setMockModalOpen(false)} />
         </DialogContent>
       </Dialog>
     </>

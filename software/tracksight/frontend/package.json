@@ -16,6 +16,7 @@
     "@radix-ui/react-popover": "^1.1.15",
     "@tailwindcss/postcss": "^4.2.0",
     "@tanstack/react-query": "^5.90.21",
+    "chroma-js": "^3.2.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.575.0",
     "next": "16.1.6",
@@ -29,6 +30,7 @@
     "uuid": "^13.0.0"
   },
   "devDependencies": {
+    "@types/chroma-js": "^3.1.2",
     "@types/node": "^25",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",

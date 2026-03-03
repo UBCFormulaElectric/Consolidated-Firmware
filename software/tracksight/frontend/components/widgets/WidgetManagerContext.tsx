@@ -1,9 +1,10 @@
 import { createContext, useCallback, useContext, useMemo, ReactNode } from "react";
 import { SignalType } from "@/lib/types/Signal";
-import { EnumSignalConfig, WidgetData } from "./WidgetTypes";
+import { EnumSignalConfig, NumericalSignalConfig, WidgetData, WidgetDataEnum, WidgetDataNumerical, WidgetSignalConfig } from "./WidgetTypes";
 import { IS_DEBUG } from "@/lib/constants";
 import { v4 as uuidv4 } from 'uuid';
 import { useLocalState } from "@/lib/hooks/useLocalState";
+import chroma from "chroma-js";
 
 const LOCAL_STORAGE_KEY = "tracksight_widgets_config_v1";
 
@@ -14,7 +15,7 @@ interface WidgetManagerContext {
     appendWidget: (newWidget: WidgetData) => void;
     removeWidget: (widgetToRemove: string) => void;
     // setEnumSignal: (widgetID: string, newSignal: string) => void;
-    appendSignal: (widgetID: string, newSignal: string) => void;
+    appendSignal: (widgetID: string, new_signal: WidgetSignalConfig) => void;
     removeSignal: (widgetID: string, signalToRemove: string) => void;
     updateWidget: (widgetID: string, updater: (prevWidget: WidgetData) => WidgetData) => void;
 }
@@ -25,8 +26,73 @@ export function useWidgetManager() {
     return ctx;
 }
 
+function WidgetSerialize(widgets: WidgetData[]): string {
+    return JSON.stringify(widgets.map(w => {
+        if (w.type == SignalType.ENUM) {
+            return {
+                ...w,
+                signals: w.signals.map(s => ({
+                    ...s,
+                    options: {
+                        colorPalette: s.options.colorPalette.map(c => c.hex())
+                    }
+                }))
+            }
+        }
+        else if (w.type == SignalType.NUMERICAL) {
+            return {
+                ...w,
+                signals: w.signals.map(s => ({
+                    ...s,
+                    color: s.color.hex()
+                }))
+            }
+        }
+    }));
+}
+
+// yolo if it doesn't have it it is what it is fr
+function WidgetDeserialize(widgetString: string): WidgetData[] {
+    const back: unknown = JSON.parse(widgetString);
+    if (!Array.isArray(back)) {
+        throw new Error("Deserialized widget config is not an array");
+    }
+    return back.map(b => {
+        if (b.type === SignalType.ENUM) {
+            return {
+                id: "",
+                type: SignalType.ENUM,
+                signals: b.signals.map((s: any) => ({
+                    signal_name: s.signal_name,
+                    delay: s.delay,
+                    initialPoints: s.initialPoints,
+                    options: {
+                        colorPalette: s.options.colorPalette.map((c: string) => chroma(c))
+                    },
+                    color: chroma(s.color)
+                })) satisfies EnumSignalConfig[]
+            } satisfies WidgetDataEnum;
+        } else if (b.type === SignalType.NUMERICAL) {
+            return {
+                id: b.id,
+                type: SignalType.NUMERICAL,
+                signals: b.signals.map((s: any) => ({
+                    signal_name: s.signal_name,
+                    delay: s.delay,
+                    min: s.min,
+                    max: s.max,
+                    color: chroma(s.color)
+                }) satisfies NumericalSignalConfig)
+            } satisfies WidgetDataNumerical;
+        }
+        else {
+            throw new Error("Deserialized widget has invalid type: " + (b as any).type);
+        }
+    })
+}
+
 export function WidgetManager({ children }: { children: ReactNode }) {
-    const [widgets, setWidgets, isInitialized] = useLocalState<WidgetData[]>(LOCAL_STORAGE_KEY, []);
+    const [widgets, setWidgets, isInitialized] = useLocalState<WidgetData[]>(LOCAL_STORAGE_KEY, [], WidgetSerialize, WidgetDeserialize);
 
     const appendWidget = useCallback((newWidget: WidgetData) => {
         newWidget.id = uuidv4();
@@ -46,43 +112,30 @@ export function WidgetManager({ children }: { children: ReactNode }) {
         });
     }, []);
 
-    const appendSignal = useCallback((widgetID: string, new_signal_name: string) => {
+    const appendSignal = useCallback((widgetID: string, new_signal: WidgetSignalConfig) => {
         setWidgets((prev) => {
-            const widgetIndex = prev.findIndex((w) => w.id === widgetID);
-            if (widgetIndex === -1) {
+            const newWidgets = [...prev];
+            let updateWidget = newWidgets.find((w) => w.id === widgetID);
+            if (!updateWidget) {
                 IS_DEBUG && console.warn("Widget to edit not found");
                 return prev;
             }
-            const newWidgets = [...prev];
 
             // avoid duplicates
-            if (newWidgets[widgetIndex].signals.some(c => c.signal_name === new_signal_name)) {
-                IS_DEBUG && console.warn("Signal already exists in widget: " + new_signal_name);
+            if (updateWidget.signals.some(c => c.signal_name === new_signal.signal_name)) {
+                IS_DEBUG && console.warn("Signal already exists in widget: " + new_signal.signal_name);
                 return prev;
             }
-            if (newWidgets[widgetIndex].type === SignalType.NUMERICAL) {
-                newWidgets[widgetIndex] = {
-                    ...newWidgets[widgetIndex],
-                    signals: [...newWidgets[widgetIndex].signals, {
-                        signal_name: new_signal_name,
-                        delay: 0,
-                        initialPoints: 100,
-                        min: 0,
-                        max: 100
-                    }]
+            if (updateWidget.type === SignalType.NUMERICAL) {
+                updateWidget = {
+                    ...updateWidget,
+                    signals: [...updateWidget.signals, (new_signal as NumericalSignalConfig)] // inshallah ig
                 };
             } else {
-                newWidgets[widgetIndex] = {
-                    ...newWidgets[widgetIndex],
-                    signals: [...newWidgets[widgetIndex].signals, ({
-                        signal_name: new_signal_name,
-                        delay: 0,
-                        initialPoints: 0,
-                        options: {
-                            colorPalette: []
-                        }
-                    } satisfies EnumSignalConfig)]
-                }
+                updateWidget = {
+                    ...updateWidget,
+                    signals: [...updateWidget.signals, (new_signal as EnumSignalConfig)] // inshallah ig
+                };
             }
 
             return newWidgets;
@@ -91,15 +144,15 @@ export function WidgetManager({ children }: { children: ReactNode }) {
 
     const removeSignal = useCallback(function (widgetID: string, remove_signal_name: string) {
         setWidgets((prev) => {
-            const widgetIndex = prev.findIndex((w) => w.id === widgetID);
-            if (widgetIndex === -1) {
+            const newWidgets = [...prev];
+            let updateWidget = newWidgets.find((w) => w.id === widgetID);
+            if (!updateWidget) {
                 IS_DEBUG && console.warn("Widget to edit not found");
                 return prev;
             }
-            const newWidgets = [...prev];
-            newWidgets[widgetIndex] = {
-                ...newWidgets[widgetIndex],
-                signals: newWidgets[widgetIndex].signals.filter(c => c.signal_name !== remove_signal_name) as Array<any> // trust
+            updateWidget = {
+                ...updateWidget,
+                signals: updateWidget.signals.filter(c => c.signal_name !== remove_signal_name) as Array<any> // trust
             };
             return newWidgets;
         });
@@ -110,13 +163,13 @@ export function WidgetManager({ children }: { children: ReactNode }) {
         updater: (prevWidget: WidgetData) => WidgetData
     ) => {
         setWidgets((prev) => {
-            const widgetIndex = prev.findIndex((w) => w.id === widgetID);
-            if (widgetIndex === -1) {
-                IS_DEBUG && console.warn("Widget to update not found");
+            const newWidgets = [...prev];
+            let updateWidget = newWidgets.find((w) => w.id === widgetID);
+            if (!updateWidget) {
+                IS_DEBUG && console.warn("Widget to edit not found");
                 return prev;
             }
-            const newWidgets = [...prev];
-            newWidgets[widgetIndex] = updater(newWidgets[widgetIndex]);
+            updateWidget = updater(updateWidget);
             return newWidgets;
         });
     }, []);

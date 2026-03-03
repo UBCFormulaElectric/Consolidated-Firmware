@@ -3,6 +3,7 @@ import { ENUM_COLORS } from "@/components/widgets/signalColors";
 import { SignalType } from "@/lib/types/Signal";
 import { NumericalSeries, ChartLayout, ChartData, EnumSeries } from "./CanvasChartTypes";
 import { bisect } from "@/lib/bisect";
+import { WidgetData, WidgetDataNumerical } from "./WidgetTypes";
 
 // TODO reduce to bisect right
 // first enum index where the enum's end time (timestamps[i+1]) >= targetTime
@@ -175,6 +176,7 @@ function render_enum(
 function render_numerical(
     context: CanvasRenderingContext2D, width: number, chartWidth: number, chartHeight: number,
     numericalTop: number,
+    widgetConfig: WidgetDataNumerical,
     series: NumericalSeries[], // series data
     visibleStartTime: number, visibleEndTime: number, timeToX: (time: number) => number, // time range
     hoverTime: number | null
@@ -253,7 +255,7 @@ function render_numerical(
         const s = series[seriesIndex];
         const { left, right } = series_bounds[seriesIndex];
 
-        context.strokeStyle = s.color || "#000";
+        context.strokeStyle = widgetConfig.signals[seriesIndex].color.hex();
         context.lineWidth = 2;
         context.beginPath();
 
@@ -310,7 +312,7 @@ function render_numerical(
 
             // draw circle at hovered point
             context.beginPath();
-            context.fillStyle = s.color || "#4f46e5";
+            context.fillStyle = widgetConfig.signals[seriesIndex].color.hex();
             context.strokeStyle = "#ffffff";
             context.lineWidth = 1.5;
             context.arc(drawX, y, 4, 0, Math.PI * 2);
@@ -337,6 +339,10 @@ function render_tooltip(
     hover_value: Array<{ name: string, value: string }>,
     timeToX: (t: number) => number
 ) {
+    if (timeToX(hoverTime) < CHART_PADDING.left || timeToX(hoverTime) > width - CHART_PADDING.right) {
+        return;
+    }
+
     const hoverDate = new Date(hoverTime);
     const ms = hoverDate.getMilliseconds().toString().padStart(3, "0");
     const time_string = `${DATE_FORMATTER.format(hoverDate)} ${TIME_FORMATTER.format(hoverDate)}.${ms}`
@@ -347,7 +353,7 @@ function render_tooltip(
 
 
     context.setLineDash([4, 4]);
-    context.strokeStyle = "rgba(255,255,255,0.6)";
+    context.strokeStyle = "rgba(0,0,0,0.6)";
     context.lineWidth = 1;
     context.beginPath();
     context.moveTo(timeToX(hoverTime), CHART_PADDING.top);
@@ -406,6 +412,7 @@ export default function render(
     context: CanvasRenderingContext2D, width: number, height: number, // dimensions of chart
     layoutRef: RefObject<ChartLayout | null>, // seems kinda bodgey, it's a ref because we write to it :sob:
     chartData: ChartData,
+    widgetConfig: WidgetData,
     timeTickCount: number,
     hoverTime: number | null,
     { min: visibleStartTime, max: visibleEndTime }: { min: number; max: number },
@@ -447,9 +454,12 @@ export default function render(
     }
     // --- RENDER NUMERICAL ---
     else if (chartData.type === SignalType.NUMERICAL) {
+        if (widgetConfig.type !== SignalType.NUMERICAL) {
+            throw new Error("Widget config type does not match chart data type");
+        }
         hover_value = render_numerical(
             context, width, chartWidth, chartHeight, numericalTop,
-            chartData.all_series, visibleStartTime, visibleEndTime, timeToX, hoverTime
+            widgetConfig, chartData.all_series, visibleStartTime, visibleEndTime, timeToX, hoverTime
         );
     }
 
@@ -511,6 +521,6 @@ export function render_empty(context: CanvasRenderingContext2D, width: number, h
     context.font = "14px sans-serif";
     context.textAlign = "center";
     context.textBaseline = "middle";
-    context.fillText("No data in this time range", width / 2, height / 2);
+    context.fillText("No data collected yet.", width / 2, height / 2);
     context.restore();
 }

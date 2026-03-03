@@ -7,9 +7,6 @@ type SeriesBase = {
 };
 
 export type NumericalSeries = SeriesBase & {
-	color: string;
-	min: number;
-	max: number;
 	data: SeriesData;
 };
 

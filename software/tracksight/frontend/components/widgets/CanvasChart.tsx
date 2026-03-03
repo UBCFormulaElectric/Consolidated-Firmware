@@ -6,8 +6,10 @@ import { MouseEvent as MouseEvent_React } from "react";
 import render, { render_empty } from "@/components/widgets/render";
 import { ChartData, ChartLayout } from "./CanvasChartTypes";
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
+import { WidgetData } from "./WidgetTypes";
 
-export default function CanvasChart({ chartData: chart_data, height, hoveredSignal, timeTickCount = 6, onHoverTimestampChange }: {
+export default function CanvasChart({ chartData: chart_data, widgetData, height, hoveredSignal, timeTickCount = 6, onHoverTimestampChange }: {
+    widgetData: WidgetData;
     chartData: RefObject<ChartData>,
     height: number;
     timeTickCount?: number;
@@ -16,7 +18,6 @@ export default function CanvasChart({ chartData: chart_data, height, hoveredSign
 }) {
     // TODO highlighted hoveredSignal
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
-    const animationFrameId = useRef<number | null>(null);
     // const hoverPixelRef = useRef<{ x: number; y: number } | null>(null);
     const tooltipBufferRef = useRef<string[]>([]);
     const layoutRef = useRef<ChartLayout | null>(null);
@@ -24,6 +25,7 @@ export default function CanvasChart({ chartData: chart_data, height, hoveredSign
     const { scalePxPerSecRef, globalTimeRangeRef, scrollLeftRef, hoverTimestampRef: externalHoverTimestampRef, XToTime } = useSyncedGraph();
 
     // RENDER LOOP
+    const animationFrameId = useRef<number | null>(null);
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) {
@@ -50,7 +52,7 @@ export default function CanvasChart({ chartData: chart_data, height, hoveredSign
             if (!globalTimeRangeRef.current) {
                 render_empty(context, cssWidth, height);
             } else {
-                render(context, cssWidth, height, layoutRef, chart_data.current, timeTickCount, externalHoverTimestampRef.current, {
+                render(context, cssWidth, height, layoutRef, chart_data.current, widgetData, timeTickCount, externalHoverTimestampRef.current, {
                     min: XToTime(0),
                     max: XToTime(cssWidth),
                 });
@@ -69,7 +71,7 @@ export default function CanvasChart({ chartData: chart_data, height, hoveredSign
     }, [
         canvasRef.current, chart_data, height,
         timeTickCount, onHoverTimestampChange,
-        scalePxPerSecRef, globalTimeRangeRef, scrollLeftRef,
+        scalePxPerSecRef, globalTimeRangeRef, scrollLeftRef, externalHoverTimestampRef, animationFrameId,
         render, render_empty // these two are mostly for dev purposes
     ]);
 
