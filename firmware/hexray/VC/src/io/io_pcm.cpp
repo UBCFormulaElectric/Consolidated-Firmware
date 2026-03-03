@@ -2,11 +2,16 @@
 #include "hw_gpios.hpp"
 #include "main.h"
 
-void io::pcm::set(const bool enable)
+
+namespace io::pcm {
+
+void set(const bool enable)
 {
     pcm_en.writePin(enable);
 }
-bool io::pcm::enabled()
+bool enabled()
 {
     return pcm_en.readPin();
 }
+
+} //namespace io::pcm
