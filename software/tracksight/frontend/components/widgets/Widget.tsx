@@ -15,17 +15,16 @@ import { useDisplayControlContext as useDisplayControlInfo } from "../PausePlayC
 import { useMockData } from "./MockWidget";
 import { useWidgetManager } from "./WidgetManagerContext";
 
-function SignalButton({ cfg, handleRemoveSignal, onHover, onHoverEnd }: {
+function SignalButton({ cfg, handleRemoveSignal, hoverSignalName }: {
 	cfg: EnumSignalConfig | NumericalSignalConfig, idx: number,
 	handleRemoveSignal: (signalName: string) => void,
-	onHover: (signalName: string) => void,
-	onHoverEnd: () => void,
+	hoverSignalName: RefObject<string | null>,
 }) {
 	// const color = signalColors[idx % signalColors.length];
 	return (
 		<div className="select-none flex items-center gap-2 px-3 py-1.5 rounded-full border-2 hover:opacity-80 transition-opacity cursor-crosshair"
 			style={{ backgroundColor: cfg.color.brighten(1).hex(), borderColor: cfg.color.darken(1).hex() }}
-			onMouseEnter={() => onHover(cfg.signal_name)} onMouseLeave={() => onHoverEnd()}
+			onMouseEnter={() => hoverSignalName.current = cfg.signal_name} onMouseLeave={() => hoverSignalName.current = null}
 		>
 			{/* Left circle */}
 			<div className="w-3 h-3 rounded-full" style={{ backgroundColor: cfg.color.hex() }} />
@@ -83,11 +82,8 @@ export function Widget({ widgetData }: { widgetData: WidgetData; }) {
 				{/* Signal buttons */}
 				<div className="flex flex-wrap items-center gap-3">
 					{widgetData.signals.map((cfg, idx) =>
-						<SignalButton
-							key={cfg.signal_name} cfg={cfg} idx={idx}
-							handleRemoveSignal={() => removeSignal(widgetData.id, cfg.signal_name)}
-							onHover={(name) => hoveredSignal.current = name} onHoverEnd={() => hoveredSignal.current = null}
-						/>
+						<SignalButton key={cfg.signal_name} cfg={cfg} idx={idx}
+							handleRemoveSignal={() => removeSignal(widgetData.id, cfg.signal_name)} hoverSignalName={hoveredSignal} />
 					)}
 					{
 						widgetData.mock &&
