@@ -8,14 +8,21 @@ import { Widget } from "@/components/widgets/Widget";
 import { useWidgetManager, WidgetManager } from "@/components/widgets/WidgetManagerContext";
 
 function Content() {
-  const { widgets } = useWidgetManager();
+  const { widgets, initializedFromLocalStorage } = useWidgetManager();
 
   return (
     <>
       <PausePlayButton />
-      {widgets.map(widgetData => // TODO(evan): Add the universal timeline
-        <Widget widgetData={widgetData} key={widgetData.id} />
-      )}
+      {
+        initializedFromLocalStorage ?
+          widgets.map(widgetData => // TODO(evan): Add the universal timeline
+            <Widget widgetData={widgetData} key={widgetData.id} />
+          )
+          :
+          <div>
+            Loading (this should never be seen, unless ur localstore is mega busted)
+          </div>
+      }
       <WidgetAdder />
     </>
   );

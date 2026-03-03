@@ -1,14 +1,16 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, ReactNode } from "react";
+import { createContext, useCallback, useContext, useMemo, ReactNode } from "react";
 import { SignalType } from "@/lib/types/Signal";
 import { EnumSignalConfig, WidgetData } from "./WidgetTypes";
 import { IS_DEBUG } from "@/lib/constants";
 import { v4 as uuidv4 } from 'uuid';
+import { useLocalState } from "@/lib/hooks/useLocalState";
 
 const LOCAL_STORAGE_KEY = "tracksight_widgets_config_v1";
 
 
 interface WidgetManagerContext {
     widgets: WidgetData[];
+    initializedFromLocalStorage: boolean;
     appendWidget: (newWidget: WidgetData) => void;
     removeWidget: (widgetToRemove: string) => void;
     // setEnumSignal: (widgetID: string, newSignal: string) => void;
@@ -24,33 +26,7 @@ export function useWidgetManager() {
 }
 
 export function WidgetManager({ children }: { children: ReactNode }) {
-    const [widgets, setWidgets] = useState<WidgetData[]>([]);
-    // used to initialize widgets from localStorage
-    const [isInitialized, setIsInitialized] = useState(false);
-
-    // recover from local storage on mount
-    useEffect(() => {
-        if (typeof window === "undefined") { return }
-        const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
-        if (saved) {
-            try {
-                const parsed = JSON.parse(saved);
-                // basic validation could go here
-                if (Array.isArray(parsed)) {
-                    setWidgets(parsed);
-                }
-            } catch (e) {
-                console.error("Failed to load widgets from local storage", e);
-            }
-        }
-        setIsInitialized(true);
-    }, []);
-
-    useEffect(() => {
-        if (isInitialized && typeof window !== "undefined") {
-            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(widgets));
-        }
-    }, [widgets, isInitialized]);
+    const [widgets, setWidgets, isInitialized] = useLocalState<WidgetData[]>(LOCAL_STORAGE_KEY, []);
 
     const appendWidget = useCallback((newWidget: WidgetData) => {
         newWidget.id = uuidv4();
@@ -145,14 +121,15 @@ export function WidgetManager({ children }: { children: ReactNode }) {
         });
     }, []);
 
-    const CTXVAL = useMemo(() => ({
+    const CTXVAL = useMemo<WidgetManagerContext>(() => ({
         widgets, appendWidget, removeWidget,
         appendSignal, removeSignal,
-        updateWidget
+        updateWidget,
+        initializedFromLocalStorage: isInitialized
     }), [
         widgets, appendWidget, removeWidget,
         appendSignal, removeSignal,
-        updateWidget
+        updateWidget, isInitialized
     ]);
 
     return (
