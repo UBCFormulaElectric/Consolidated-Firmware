@@ -14,6 +14,23 @@ import { useWidgetManager } from "./WidgetManagerContext";
 import { Dialog, DialogDescription, DialogHeader, DialogTitle, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { PlusButton } from "@/components/icons/PlusButton";
 
+export const MOCK_STATES = [ // needed to hardcode for widgetadder
+    "IDLE", "ACTIVE", "ERROR", "WAITING", "CHARGING", "SKIBIDI", 
+    "TOILET", "MORE", "SIGNALS", "TO", "TEST", "RANDOM", 
+    "ENUM", "COLOR", "GEN"
+];
+
+export function generateRandomColorPalette(count: number = MOCK_STATES.length) {
+    const normalizedCount = Math.max(1, Math.floor(count));
+    const startingHue = Math.random() * 360;
+    const hueStep = 360 / normalizedCount;
+
+    return Array.from({ length: normalizedCount }, (_, idx) => {
+        const hue = (startingHue + idx * hueStep) % 360;
+        return chroma.hsl(hue, 0.72, 0.56);
+    });
+}
+
 function generateRandomNumericalValue(time: number, index: number = 0, min: number, max: number) {
     if (min !== undefined && max !== undefined) {
         const range = max - min;
@@ -32,7 +49,6 @@ function generateRandomNumericalValue(time: number, index: number = 0, min: numb
     );
 }
 
-const MOCK_STATES = ["IDLE", "ACTIVE", "ERROR", "WAITING", "CHARGING"];
 function generateRandomEnumValue() {
     const v = Math.floor(Math.random() * MOCK_STATES.length);
     return {
@@ -80,9 +96,7 @@ function MockSignalModalForm({ closeModal, configs, dataRef, widgetData }: {
             dataRef.current.all_series.push({ label: name, timestamps: [], data: [], enumValuesToNames: {} });
             appendSignal(widgetData.id, {
                 signal_name: name, delay: newSignalDelay, initialPoints: 0, options: {
-                    colorPalette: [
-                        // TODO random colour palette
-                    ]
+                    colorPalette: generateRandomColorPalette(MOCK_STATES.length)
                 }, color: chroma.random()
             } satisfies EnumSignalConfig);
         }

@@ -5,7 +5,7 @@ import { ENUM_COLORS } from "@/components/widgets/depr/signalColors";
 // types
 import { SignalType } from "@/lib/types/Signal";
 import { NumericalSeries, ChartLayout, ChartData, EnumSeries } from "./CanvasChartTypes";
-import { WidgetData, WidgetDataNumerical } from "./WidgetTypes";
+import { WidgetData, WidgetDataEnum, WidgetDataNumerical } from "./WidgetTypes";
 // utils
 import { bisect } from "@/lib/bisect";
 
@@ -81,6 +81,7 @@ function niceNumber(range: number, round: boolean) {
 
 function render_enum(
     context: CanvasRenderingContext2D, width: number, // container context
+    widgetConfig: WidgetDataEnum,
     all_series: Array<EnumSeries>,
     // rendering
     visibleStartTime: number, visibleEndTime: number, latestDateTime: number, timeToX: (time: number) => number, // time range
@@ -146,7 +147,13 @@ function render_enum(
             // const color = value === null
             //     ? NA_COLOR
             //     : ENUM_COLORS[value % ENUM_COLORS.length];
-            context.fillStyle = ENUM_COLORS[value % ENUM_COLORS.length];
+            const palette = widgetConfig.signals[series_idx]?.options.colorPalette ?? [];
+            const paletteColor = palette[value];
+            if (paletteColor) {
+                context.fillStyle = paletteColor.hex();
+            } else { // fallback just in case
+                context.fillStyle = ENUM_COLORS[value % ENUM_COLORS.length];
+            }
             context.fillRect(
                 startX,
                 currentStripY,
@@ -450,10 +457,13 @@ export default function render(
     // --- RENDER ENUMS ---
     let hover_value: Array<{ name: string, value: string }> | null = null;
     if (chartData.type === SignalType.ENUM) {
+        if (widgetConfig.type !== SignalType.ENUM) {
+            throw new Error("Widget config type does not match chart data type");
+        }
         const LEGEND_HEIGHT = 30;
         const ENUM_STRIP_HEIGHT = 40;
         const ENUM_STRIP_GAP = 40;
-        hover_value = render_enum(context, width, chartData.all_series, visibleStartTime, visibleEndTime, 0, // TODO
+        hover_value = render_enum(context, width, widgetConfig, chartData.all_series, visibleStartTime, visibleEndTime, 0, // TODO
             timeToX, LEGEND_HEIGHT, ENUM_STRIP_HEIGHT, ENUM_STRIP_GAP, hoverTime);
     }
     // --- RENDER NUMERICAL ---

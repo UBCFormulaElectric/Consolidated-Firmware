@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useWidgetManager } from "@/components/widgets/WidgetManagerContext";
 import chroma from "chroma-js";
+import { generateRandomColorPalette, MOCK_STATES } from "@/components/widgets/MockWidget";
 
 function MockWidgetModalForm({ closeModal }: {
   closeModal: () => void;
@@ -28,7 +29,7 @@ function MockWidgetModalForm({ closeModal }: {
           delay: mockDelay,
           initialPoints: 0,
           options: {
-            colorPalette: [],
+            colorPalette: generateRandomColorPalette(MOCK_STATES.length), // hardcoding this should be fine since it's only for mock data?
           },
           color: chroma.random()
         }],
