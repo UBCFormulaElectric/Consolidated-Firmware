@@ -11,7 +11,7 @@ import { EnumSignalConfig, NumericalSignalConfig, WidgetData } from "@/component
 import { ChartData } from "./CanvasChartTypes";
 
 // constants
-import { signalColors } from "@/components/widgets/signalColors";
+import { signalColors } from "@/components/widgets/depr/signalColors";
 
 // hooks
 import { useDisplayControlContext as useDisplayControlInfo } from "../PausePlayControl";

@@ -1,7 +1,7 @@
 import { ChevronDown } from "lucide-react";
 import { RefObject, useRef } from "react";
 
-import SignalSelector from "@/components/widgets/SignalSelector";
+import SignalSelector from "@/components/widgets/depr/SignalSelector";
 import { useQueryEnumSignalMetadata } from "@/lib/hooks/useQuerySignalMetadata";
 
 function EnumSignalSelector({ currentSignal, onSignalChange }: {

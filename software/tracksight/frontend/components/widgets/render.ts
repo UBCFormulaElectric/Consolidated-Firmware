@@ -1,5 +1,5 @@
 import { RefObject } from "react";
-import { ENUM_COLORS } from "@/components/widgets/signalColors";
+import { ENUM_COLORS } from "@/components/widgets/depr/signalColors";
 import { SignalType } from "@/lib/types/Signal";
 import { NumericalSeries, ChartLayout, ChartData, EnumSeries } from "./CanvasChartTypes";
 import { bisect } from "@/lib/bisect";

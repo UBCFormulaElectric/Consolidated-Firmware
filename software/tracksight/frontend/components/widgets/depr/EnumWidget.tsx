@@ -2,7 +2,7 @@
 
 // import LabelLegend from "@/components/legends/LabelLegend";
 import { WidgetDataEnum } from "@/components/widgets/WidgetTypes";
-import EnumSignalSelector from "@/components/widgets/EnumSignalSelector";
+import EnumSignalSelector from "@/components/widgets/depr/EnumSignalSelector";
 import useSignalMetadata from "@/lib/hooks/useSignalMetadata";
 import { useMemo, useEffect } from "react";
 import { EnumSignalMetadata, SignalType } from "@/lib/types/Signal";
