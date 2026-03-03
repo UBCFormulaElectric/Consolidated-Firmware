@@ -104,7 +104,7 @@ void io_powerMonitoring_read_current(uint8_t ch, float *current)
     read_register(reg, buf, 2);
 
     uint16_t raw = (uint16_t)((buf[0] << 8) | buf[1]);
-    *current = raw * VSENSE_LSB;
+    *current     = raw * VSENSE_LSB;
 }
 
 void io_powerMonitoring_read_power(uint8_t ch, float *power)

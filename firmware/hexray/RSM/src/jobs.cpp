@@ -17,6 +17,8 @@
 
 void jobs_init()
 {
+    can_tx_queue.init();
+    can_rx_queue.init();
     io::can_tx::init(
         [](const JsonCanMsg &tx_msg)
         {
@@ -33,7 +35,7 @@ void jobs_run100Hz_tick()
     app::imu::broadcast();
     app::suspension::broadcast();
     app::tireTemp::broadcast();
-
+    app::coolant::broadcast();
     io::can_tx::enqueue100HzMsgs();
 }
 void jobs_run1kHz_tick()

@@ -2,8 +2,8 @@
 #include "hw_gpios.hpp"
 #include "main.h"
 
-
-namespace io::pcm {
+namespace io::pcm
+{
 
 void set(const bool enable)
 {
@@ -14,4 +14,4 @@ bool enabled()
     return pcm_en.readPin();
 }
 
-} //namespace io::pcm
+} // namespace io::pcm

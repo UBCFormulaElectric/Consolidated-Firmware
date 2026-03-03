@@ -1,9 +1,10 @@
 #include "io_sbgEllipse.hpp"
 
-extern "C" {
-    #include "sbgECom.h"
-    #include "FreeRTOS.h"
-    #include "stream_buffer.h"
+extern "C"
+{
+#include "sbgECom.h"
+#include "FreeRTOS.h"
+#include "stream_buffer.h"
 }
 
 #include "hw_uarts.hpp"
@@ -12,7 +13,8 @@ extern "C" {
 constexpr int UART_RX_PACKET_SIZE = 128; // Size of each received UART packet, in bytes
 constexpr int QUEUE_MAX_SIZE      = 32;  // 128 * 32 = 4096 which is SBG_ECOM_MAX_BUFFER_SIZE
 
-namespace io::sbgEllipse {
+namespace io::sbgEllipse
+{
 
 static SbgInterface  abg_interface;                     // Handle for interface (abgs gon want us w this handle)
 static SbgEComHandle com_handle;                        // Handle for comms
@@ -303,4 +305,4 @@ void msgRxCallback(void)
     portYIELD_FROM_ISR(higher_priority_task_woken);
 }
 
-} //namespace io::sbgEllipse
+} // namespace io::sbgEllipse

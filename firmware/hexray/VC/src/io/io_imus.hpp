@@ -1,4 +1,4 @@
-#pragma once 
+#pragma once
 #include "io_imu.hpp"
 
 extern io::Imu IMU1;

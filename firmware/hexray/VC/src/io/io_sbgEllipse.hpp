@@ -1,80 +1,89 @@
-#pragma once 
+#pragma once
 
 #include <expected>
 #include <cstdint>
 
 #include "util_errorCodes.hpp"
 
-namespace io::sbgEllipse {
+namespace io::sbgEllipse
+{
 
-class Vector3 { 
-    public: 
-        float x;
-        float y;
-        float z;
+class Vector3
+{
+  public:
+    float x;
+    float y;
+    float z;
 };
 
-class Attitude {
-    public: 
-        float roll;
-        float pitch;
-        float yaw;
+class Attitude
+{
+  public:
+    float roll;
+    float pitch;
+    float yaw;
 };
 
-class PositionData {
-    public: 
-        uint32_t status;
-        double   latitude;
-        double   longitude;
-        double   altitude;
-        float    latitude_std_dev;
-        float    longitude_std_dev;
-        float    altitude_std_dev;
+class PositionData
+{
+  public:
+    uint32_t status;
+    double   latitude;
+    double   longitude;
+    double   altitude;
+    float    latitude_std_dev;
+    float    longitude_std_dev;
+    float    altitude_std_dev;
 };
 
-class VelocityData {
-    public:
-        uint32_t status;
-        float    north;
-        float    east;
-        float    down;
-        float    north_std_dev;
-        float    east_std_dev;
-        float    down_std_dev;
+class VelocityData
+{
+  public:
+    uint32_t status;
+    float    north;
+    float    east;
+    float    down;
+    float    north_std_dev;
+    float    east_std_dev;
+    float    down_std_dev;
 };
 
-class EkfNavPacketData {
-    public:
-        VelocityData velocity;
-        PositionData position;
+class EkfNavPacketData
+{
+  public:
+    VelocityData velocity;
+    PositionData position;
 };
 
-class ImuPacketData {
-    public: 
-        Vector3  acceleration;
-        Attitude angular_velocity;
+class ImuPacketData
+{
+  public:
+    Vector3  acceleration;
+    Attitude angular_velocity;
 };
 
-class EkfEulerPacketData {
-    public:
-        Attitude euler_angles;
+class EkfEulerPacketData
+{
+  public:
+    Attitude euler_angles;
 };
 
-class StatusPacketData {
-    public:
-        uint32_t timestamp_us;
-        uint16_t general_status;
-        uint32_t com_status;
+class StatusPacketData
+{
+  public:
+    uint32_t timestamp_us;
+    uint16_t general_status;
+    uint32_t com_status;
 };
 
 class SensorData
 {
-    public:
-        ImuPacketData      imu_data;
-        EkfEulerPacketData ekf_euler_data;
-        StatusPacketData   status_data;
-        EkfNavPacketData   ekf_nav_data;
-        uint32_t           ekf_solution_status;
+  public:
+    ImuPacketData      imu_data;
+    EkfEulerPacketData ekf_euler_data;
+    StatusPacketData   status_data;
+    EkfNavPacketData   ekf_nav_data;
+    uint32_t           ekf_solution_status;
 };
 
 std::expected<void, ErrorCode> init();
@@ -168,4 +177,4 @@ PositionData *getEkfNavPositionData(void);
  */
 void msgRxCallback(void);
 
-} //namespace io
+} // namespace io::sbgEllipse
