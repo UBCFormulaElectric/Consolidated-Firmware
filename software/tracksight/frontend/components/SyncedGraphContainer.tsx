@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, RefObject, ReactNode, UIEvent } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, RefObject, ReactNode, UIEvent } from "react";
 import { useDisplayControlContext } from "./PausePlayControl";
 
 export interface TimeRange {
@@ -6,13 +6,16 @@ export interface TimeRange {
     max: number;
 }
 export type SyncedGraphContext = {
+    // internal
     scalePxPerSecRef: RefObject<number>; // a measure of zoom
     hoverTimestampRef: RefObject<number | null>; // TODO maybe not here?
     globalTimeRangeRef: RefObject<TimeRange | null>;
-    updateWithTimestamp(timestamp: number): void; // NOTE: PLEASE CALL THIS EVERY SINGLE TIME A NEW DATA POINT IS ADDED!!!
-
     scrollLeftRef: RefObject<number>;
 
+    // mutations
+    updateWithTimestamp(timestamp: number): void; // NOTE: PLEASE CALL THIS EVERY SINGLE TIME A NEW DATA POINT IS ADDED!!!
+
+    // transformations
     timeToX(t: number): number;
     XToTime(x: number): number;
 };

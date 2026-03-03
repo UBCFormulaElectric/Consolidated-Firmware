@@ -51,7 +51,7 @@ const DATE_FORMATTER = new Intl.DateTimeFormat(undefined, {
     month: "short",
     day: "2-digit",
 });
-const CHART_PADDING = { top: 15, right: 20, bottom: 40, left: 60 };
+const CHART_PADDING = { top: 15, right: 0, bottom: 40, left: 60 };
 const ENUM_STRIP_HEIGHT = 20;
 const ENUM_STRIP_GAP = 10;
 
@@ -80,7 +80,7 @@ function render_enum(
     // rendering
     visibleStartTime: number, visibleEndTime: number, latestDateTime: number, timeToX: (time: number) => number, // time range
     LEGEND_HEIGHT: number, ENUM_STRIP_HEIGHT: number, ENUM_STRIP_GAP: number, // layout
-    hover: { x: number; y: number; } | null
+    hoverTime: number | null
 ): Array<{ name: string, value: string }> | null {
     // DRAWING LEGEND
     // context.textAlign = "left";
@@ -154,11 +154,7 @@ function render_enum(
         currentStripY += ENUM_STRIP_HEIGHT + ENUM_STRIP_GAP;
     }
 
-    if (hover !== null) {
-        const chartWidth = width - CHART_PADDING.left - CHART_PADDING.right;
-        const timeRange = visibleEndTime - visibleStartTime;
-        const hoverTime = visibleStartTime + ((hover.x - CHART_PADDING.left) / chartWidth) * timeRange;
-
+    if (hoverTime !== null) {
         const result: Array<{ name: string, value: string }> = [];
         for (const series of all_series) {
             if (series.timestamps.length === 0) continue; // ignore empty series
@@ -181,7 +177,7 @@ function render_numerical(
     numericalTop: number,
     series: NumericalSeries[], // series data
     visibleStartTime: number, visibleEndTime: number, timeToX: (time: number) => number, // time range
-    hover: { x: number; y: number; } | null
+    hoverTime: number | null
 ): Array<{ name: string, value: string }> | null {
     if (series.length === 0) { // am i crazy or is this not okay
         return [];
@@ -286,10 +282,8 @@ function render_numerical(
         context.stroke();
     }
 
-    if (hover !== null) {
+    if (hoverTime !== null) {
         // TODO ask zedwin if this is a fine interpretation
-
-        const hoverTime = visibleStartTime + ((hover.x - CHART_PADDING.left) / chartWidth) * (visibleEndTime - visibleStartTime);
         const result: Array<{ name: string, value: string }> = [];
 
         for (let seriesIndex = 0; seriesIndex < series.length; seriesIndex++) {
@@ -339,19 +333,11 @@ function render_numerical(
 
 function render_tooltip(
     context: CanvasRenderingContext2D, width: number, height: number, // layout
-    hover: { x: number; y: number; },
+    hoverTime: number,
     hover_value: Array<{ name: string, value: string }>,
-    XToTime: (x: number) => number
+    timeToX: (t: number) => number
 ) {
-    // bounds check
-    const withinX = hover.x >= CHART_PADDING.left && hover.x <= width - CHART_PADDING.right;
-    const withinY = hover.y >= CHART_PADDING.top && hover.y <= height - CHART_PADDING.bottom;
-    if (!(withinX && withinY)) {
-        return
-    }
-
-    const snappedTimestamp = XToTime(hover.x);
-    const hoverDate = new Date(snappedTimestamp);
+    const hoverDate = new Date(hoverTime);
     const ms = hoverDate.getMilliseconds().toString().padStart(3, "0");
     const time_string = `${DATE_FORMATTER.format(hoverDate)} ${TIME_FORMATTER.format(hoverDate)}.${ms}`
     const tooltip_lines = [
@@ -364,8 +350,8 @@ function render_tooltip(
     context.strokeStyle = "rgba(255,255,255,0.6)";
     context.lineWidth = 1;
     context.beginPath();
-    context.moveTo(hover.x, CHART_PADDING.top);
-    context.lineTo(hover.x, height - CHART_PADDING.bottom);
+    context.moveTo(timeToX(hoverTime), CHART_PADDING.top);
+    context.lineTo(timeToX(hoverTime), height - CHART_PADDING.bottom);
     context.stroke();
     context.setLineDash([]);
 
@@ -384,9 +370,9 @@ function render_tooltip(
     tooltipWidth += horizontalPadding * 2;
     const tooltipHeight = tooltip_lines.length * lineHeight + verticalPadding;
 
-    let tooltipX = hover.x + 10;
+    let tooltipX = timeToX(hoverTime) + 10;
     if (tooltipX + tooltipWidth > width - CHART_PADDING.right) {
-        tooltipX = hover.x - 10 - tooltipWidth;
+        tooltipX = timeToX(hoverTime) - 10 - tooltipWidth;
     }
 
     // determine tooltip Y
@@ -421,7 +407,7 @@ export default function render(
     layoutRef: RefObject<ChartLayout | null>, // seems kinda bodgey, it's a ref because we write to it :sob:
     chartData: ChartData,
     timeTickCount: number,
-    hoverPixel: { x: number; y: number; } | null,
+    hoverTime: number | null,
     { min: visibleStartTime, max: visibleEndTime }: { min: number; max: number },
 ) {
     context.clearRect(0, 0, width, height);
@@ -442,9 +428,6 @@ export default function render(
     const timeToX = (time: number) => {
         return CHART_PADDING.left + ((time - visibleStartTime) / timeRange) * chartWidth;
     };
-    const XToTime = (x: number) => {
-        return visibleStartTime + ((x - CHART_PADDING.left) / chartWidth) * timeRange;
-    }
 
     layoutRef.current = {
         minTime: visibleStartTime,
@@ -460,13 +443,13 @@ export default function render(
         const ENUM_STRIP_HEIGHT = 40;
         const ENUM_STRIP_GAP = 40;
         hover_value = render_enum(context, width, chartData.all_series, visibleStartTime, visibleEndTime, 0, // TODO
-            timeToX, LEGEND_HEIGHT, ENUM_STRIP_HEIGHT, ENUM_STRIP_GAP, hoverPixel);
+            timeToX, LEGEND_HEIGHT, ENUM_STRIP_HEIGHT, ENUM_STRIP_GAP, hoverTime);
     }
     // --- RENDER NUMERICAL ---
     else if (chartData.type === SignalType.NUMERICAL) {
         hover_value = render_numerical(
             context, width, chartWidth, chartHeight, numericalTop,
-            chartData.all_series, visibleStartTime, visibleEndTime, timeToX, hoverPixel
+            chartData.all_series, visibleStartTime, visibleEndTime, timeToX, hoverTime
         );
     }
 
@@ -506,10 +489,15 @@ export default function render(
         context.fillText(dateLabel, x, height - CHART_PADDING.bottom + 24);
     }
 
-    if (hoverPixel !== null) {
+    if (hoverTime !== null) {
+        // TODO surely this check is not useful because the hoverTime will be on the screen?
+        // const withinX = hoverTime >= visibleStartTime && hoverTime <= visibleEndTime;
+        // if (!withinX) {
+        //     return
+        // }
         render_tooltip(
             context, width, height,
-            hoverPixel, hover_value!, XToTime
+            hoverTime, hover_value!, timeToX
         );
     }
 

@@ -17,7 +17,7 @@ export default function CanvasChart({ chartData: chart_data, height, hoveredSign
     // TODO highlighted hoveredSignal
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const animationFrameId = useRef<number | null>(null);
-    const hoverPixelRef = useRef<{ x: number; y: number } | null>(null);
+    // const hoverPixelRef = useRef<{ x: number; y: number } | null>(null);
     const tooltipBufferRef = useRef<string[]>([]);
     const layoutRef = useRef<ChartLayout | null>(null);
     const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
@@ -50,7 +50,7 @@ export default function CanvasChart({ chartData: chart_data, height, hoveredSign
             if (!globalTimeRangeRef.current) {
                 render_empty(context, cssWidth, height);
             } else {
-                render(context, cssWidth, height, layoutRef, chart_data.current, timeTickCount, hoverPixelRef.current, {
+                render(context, cssWidth, height, layoutRef, chart_data.current, timeTickCount, externalHoverTimestampRef.current, {
                     min: XToTime(0),
                     max: XToTime(cssWidth),
                 });
@@ -69,7 +69,8 @@ export default function CanvasChart({ chartData: chart_data, height, hoveredSign
     }, [
         canvasRef.current, chart_data, height,
         timeTickCount, onHoverTimestampChange,
-        scalePxPerSecRef, globalTimeRangeRef, scrollLeftRef
+        scalePxPerSecRef, globalTimeRangeRef, scrollLeftRef,
+        render, render_empty // these two are mostly for dev purposes
     ]);
 
     const handleMouseMove = useCallback((event: MouseEvent_React<HTMLCanvasElement, MouseEvent>) => {
@@ -77,9 +78,6 @@ export default function CanvasChart({ chartData: chart_data, height, hoveredSign
         if (!canvas) return;
         const rect = canvas.getBoundingClientRect();
         const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
-        hoverPixelRef.current = { x, y };
-
         if (layoutRef.current) {
             const { minTime, timeRange, chartWidth, paddingLeft } = layoutRef.current;
             console.assert(chartWidth > 0, "Chart width must be greater than 0");
@@ -90,7 +88,6 @@ export default function CanvasChart({ chartData: chart_data, height, hoveredSign
     }, [onHoverTimestampChange, externalHoverTimestampRef]);
 
     const handleMouseLeave = useCallback(() => {
-        hoverPixelRef.current = null;
         externalHoverTimestampRef.current = null;
         onHoverTimestampChange && onHoverTimestampChange(null);
     }, [onHoverTimestampChange, externalHoverTimestampRef]);
