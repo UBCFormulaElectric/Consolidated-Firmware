@@ -31,7 +31,7 @@
         }
     },
     "ShdnNodeStatus": {
-        "msg_id": 238,
+        "msg_id": 538,
         "cycle_time": 100,
         "description": "VC Shutdown Node Status",
         "signals": {
@@ -50,7 +50,7 @@
         }
     },
     "EllipseStatus": {
-        "msg_id": 247,
+        "msg_id": 547,
         "cycle_time": 100,
         "description": "Status of the SBG Ellipse N sensor.",
         "signals": {

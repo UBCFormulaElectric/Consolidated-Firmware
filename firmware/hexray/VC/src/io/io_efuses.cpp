@@ -1,10 +1,10 @@
 #include "io_efuses.hpp"
-#include <vector>
 
 #include "efuse/io_efuse_TI_TPS28.hpp"
 #include "efuse/io_efuse_TI_TPS25.hpp"
 #include "hw_adcs.hpp"
 #include "hw_gpios.hpp"
+#include <array>
 
 namespace io
 {
@@ -25,8 +25,7 @@ constexpr TI_TPS28_Efuse r_rad_fan_efuse(r_rad_fan_en, hw::adcs::adc_r_rad_fan, 
 constexpr TI_TPS25_Efuse rl_pump_efuse(rl_pump_en, hw::adcs::adc_rl_pump, rl_pump_pgood);
 constexpr TI_TPS25_Efuse rr_pump_efuse(rr_pump_en, hw::adcs::adc_rr_pump, rr_pump_pgood);
 
-const Efuse *efuses[NUM_EFUSE_CHANNELS] = {
-    &io::f_inv_efuse, &io::rsm_efuse,   &io::bms_efuse,     &io::r_inv_efuse,
-    &io::dam_efuse,   &io::front_efuse, &io::rl_pump_efuse, &io::r_rad_fan_efuse
+std::array<const Efuse *, NUM_EFUSE_CHANNELS> efuses = {
+    { &f_inv_efuse, &rsm_efuse, &bms_efuse, &r_inv_efuse, &dam_efuse, &front_efuse, &rl_pump_efuse, &r_rad_fan_efuse }
 };
 } // namespace io

@@ -1,16 +1,9 @@
 #pragma once
 
-#pragma once
-
 #include "efuse/io_efuse.hpp"
 
-namespace io
-{
-constexpr int NUM_EFUSE_CHANNELS = 9;
-
-extern const Efuse *const efuse_channels[NUM_EFUSE_CHANNELS];
-
-} // namespace io
+constexpr int                                            NUM_EFUSE_CHANNELS = 9;
+extern std::array<const io::Efuse *, NUM_EFUSE_CHANNELS> efuses;
 
 extern const io::Efuse f_inv_efuse;
 extern const io::Efuse rsm_efuse;
