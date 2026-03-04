@@ -1,6 +1,6 @@
 use colored::Colorize;
 use influxdb2::{Client, api::write::TimestampPrecision, models::{DataPoint, data_point::DataPointError}};
-use tokio::{select, sync::{broadcast::Receiver}};
+use tokio::sync::{broadcast::Receiver};
 use futures::stream;
 
 use crate::config::CONFIG;
@@ -14,7 +14,7 @@ const MAX_BATCH_CAPACITY: usize = 1000;
  * After serial_handler parses the can messages,
  * this task consumes the messages and writes them to influxdb
  */
-pub async fn run_influx_handler(mut shutdown_signal: Receiver<()>, mut decoded_signal_rx: Receiver<DecodedSignal>) {
+pub async fn run_influx_handler(mut decoded_signal_rx: Receiver<DecodedSignal>) {
     println!("{}", "Influx task started.".yellow());
 
     let influx_client = Client::new(
@@ -27,13 +27,8 @@ pub async fn run_influx_handler(mut shutdown_signal: Receiver<()>, mut decoded_s
     let mut batch_buffer: Vec<DataPoint> = Vec::with_capacity(MAX_BATCH_CAPACITY);
 
     loop {
-        select! {
-            _ = shutdown_signal.recv() => {
-                println!("Influx task shutting down.");
-                break;
-            }
-            Ok(decoded_signal) = decoded_signal_rx.recv() => {
-                // todo should also probably check for closed channels and close thread
+        match decoded_signal_rx.recv().await {
+            Ok(decoded_signal) => {
                 let data = match build_data_point(decoded_signal) {
                     Ok(data) => data,
                     Err(e) => {
@@ -41,12 +36,17 @@ pub async fn run_influx_handler(mut shutdown_signal: Receiver<()>, mut decoded_s
                         break;
                     } 
                 };
-
+                
                 batch_buffer.push(data);
-
+                
                 if batch_buffer.len() >= MAX_BATCH_CAPACITY {
                     flush_buffer(&mut batch_buffer, &influx_client).await;
                 }
+            }
+            // Closed channel or any error is signal to stop thread
+            _ => {
+                println!("Influx task shutting down.");
+                break;
             }
         }
     }

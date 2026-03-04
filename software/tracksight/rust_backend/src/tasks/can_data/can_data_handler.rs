@@ -26,8 +26,8 @@ pub async fn run_can_data_handler(
     let (decoded_signal_tx, _) = broadcast::channel::<DecodedSignal>(32);
 
     // parsed can signal consumers
-    let influx_handler_task = spawn(run_influx_handler(shutdown_rx.resubscribe(), decoded_signal_tx.subscribe()));
-    let live_data_handler_task = spawn(run_live_data_handler(shutdown_rx.resubscribe(), decoded_signal_tx.subscribe(), clients));
+    let influx_handler_task = spawn(run_influx_handler(decoded_signal_tx.subscribe()));
+    let live_data_handler_task = spawn(run_live_data_handler(decoded_signal_tx.subscribe(), clients));
     
     loop {
         select! {
@@ -36,7 +36,6 @@ pub async fn run_can_data_handler(
                 break;
             }
             Ok(can_payload) = can_queue_rx.recv() => {
-                
                 let decoded_signals = can_db.unpack(
                     can_payload.can_id, 
                     can_payload.payload, 
@@ -52,7 +51,7 @@ pub async fn run_can_data_handler(
             }
         }
     }
-    
+    drop(decoded_signal_tx); // Closing channel signals the other tasks to shutdown
     let _ = influx_handler_task.await;
     let _ = live_data_handler_task.await;
     println!("{}", "CAN data task ended.".yellow());
