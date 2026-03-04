@@ -29,29 +29,29 @@ class FSMChimeraConfig : public chimera_v2::config
         switch (gnn->name.fsm_net_name)
         {
             case fsm_GpioNetName_GPIO_BOTS_3v3:
-                return std::cref(hw::gpios::boot_led);
+                return std::cref(boot_led);
             case fsm_GpioNetName_GPIO_COCKPIT_SHDN_3v3:
-                return std::cref(hw::gpios::cockpit_shdn_3v3);
+                return std::cref(cockpit_shdn_3v3);
             case fsm_GpioNetName_GPIO_IMU_NSS:
-                return std::cref(hw::gpios::imu_nss);
+                return std::cref(::imu_nss);
             case fsm_GpioNetName_GPIO_IMU_FSYNC:
-                return std::cref(hw::gpios::imu_fsync);
+                return std::cref(imu_fsync);
             case fsm_GpioNetName_GPIO_NSUSP_FL_OCSC:
-                return std::cref(hw::gpios::nsusp_fl_ocsc);
+                return std::cref(nsusp_fl_ocsc);
             case fsm_GpioNetName_GPIO_NSUSP_FR_OCSC:
-                return std::cref(hw::gpios::nsusp_fr_ocsc);
+                return std::cref(nsusp_fr_ocsc);
             case fsm_GpioNetName_GPIO_FR_INT_3v3:
-                return std::cref(hw::gpios::fr_int_3v3);
+                return std::cref(fr_int_3v3);
             case fsm_GpioNetName_GPIO_FL_INT_3v3:
-                return std::cref(hw::gpios::fl_int_3v3);
+                return std::cref(fl_int_3v3);
             case fsm_GpioNetName_GPIO_DEBUG_LED:
-                return std::cref(hw::gpios::debug_led);
+                return std::cref(debug_led);
             case fsm_GpioNetName_GPIO_NSTR_ANGLE_OCSC:
-                return std::cref(hw::gpios::nstr_angle_ocsc);
+                return std::cref(nstr_angle_ocsc);
             case fsm_GpioNetName_GPIO_NBPS_F_OCSC:
-                return std::cref(hw::gpios::nbps_f_ocsc);
+                return std::cref(nbps_f_ocsc);
             case fsm_GpioNetName_GPIO_BOOT_LED:
-                return std::cref(hw::gpios::boot_led);
+                return std::cref(boot_led);
             default:
             case fsm_GpioNetName_GPIO_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified GPIO net name");

@@ -10,9 +10,10 @@
 
 #include <util_errorCodes.hpp>
 
-void jobs_init() {}
-void jobs_run1Hz_tick()
+void jobs_init()
 {
+    can_tx_queue.init();
+    can_rx_queue.init();
     io::can_tx::init(
         [](const JsonCanMsg &tx_msg)
         {
@@ -21,6 +22,7 @@ void jobs_run1Hz_tick()
         });
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
 }
+void jobs_run1Hz_tick() {}
 void jobs_run100Hz_tick()
 {
     io::can_tx::enqueue100HzMsgs();

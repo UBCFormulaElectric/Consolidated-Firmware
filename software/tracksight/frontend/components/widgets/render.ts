@@ -1,54 +1,15 @@
+// react
 import { RefObject } from "react";
-import { ENUM_COLORS, NA_COLOR } from "@/components/widgets/signalColors";
-import { TimeRange } from "@/components/SyncedGraphContainer";
+// constants
+import { ENUM_COLORS } from "@/components/widgets/depr/signalColors";
+// types
+import { SignalType } from "@/lib/types/Signal";
+import { NumericalSeries, ChartLayout, ChartData, EnumSeries } from "./CanvasChartTypes";
+import { WidgetData, WidgetDataEnum, WidgetDataNumerical } from "./WidgetTypes";
+// utils
+import { bisect } from "@/lib/bisect";
 
-// first index where timestamp >= targetTime
-function binarySearchForFirstVisibleIndex(
-    timestamps: number[],
-    targetTime: number
-): number {
-    let left = 0;
-    let right = timestamps.length - 1;
-    let result = 0;
-
-    while (left <= right) {
-        const mid = Math.floor((left + right) / 2);
-        if (timestamps[mid] >= targetTime) {
-            result = mid;
-            right = mid - 1;
-        } else {
-            left = mid + 1;
-        }
-    }
-
-    if (timestamps[result] < targetTime) {
-        result = timestamps.length;
-    }
-    return result;
-}
-
-// last index where timestamp <= targetTime
-function binarySearchForLastVisibleIndex(
-    timestamps: number[],
-    targetTime: number
-): number {
-    let left = 0;
-    let right = timestamps.length - 1;
-    let result = timestamps.length - 1;
-
-    while (left <= right) {
-        const mid = Math.floor((left + right) / 2);
-        if (timestamps[mid] <= targetTime) {
-            result = mid;
-            left = mid + 1;
-        } else {
-            right = mid - 1;
-        }
-    }
-
-    return result;
-}
-
+// TODO reduce to bisect right
 // first enum index where the enum's end time (timestamps[i+1]) >= targetTime
 function binarySearchForFirstEnumIndex(
     timestamps: number[],
@@ -82,458 +43,458 @@ function binarySearchForFirstEnumIndex(
     return result;
 }
 
-export interface ChunkStats {
-    min: number[];
-    max: number[];
-};
-
-export interface SeriesMeta {
-    label: string;
-    color?: string;
-    min?: number;
-    max?: number;
-};
-
-export interface PreparedChartData {
-    timestamps: number[];
-    seriesData: Array<(number | string | null)[]>;
-    chunkSize: number;
-    chunkStats: ChunkStats[];
-    enumSeriesIndices: number[]; // indices of series that are enums
-    numericalSeriesIndices: number[]; // indices of series that are numerical
-    uniqueEnumValues: Record<number, string[]>; // map of series index to unique enum values
-};
-
-export interface ChartLayout {
-    minTime: number;
-    timeRange: number;
-    chartWidth: number;
-    paddingLeft: number;
-}
-
-const timeFormatter = new Intl.DateTimeFormat(undefined, {
+// constants
+const TIME_FORMATTER = new Intl.DateTimeFormat(undefined, {
     hour: "numeric",
     minute: "2-digit",
     second: "2-digit",
     hour12: true,
 });
 
-const dateFormatter = new Intl.DateTimeFormat(undefined, {
+const DATE_FORMATTER = new Intl.DateTimeFormat(undefined, {
     year: "numeric",
     month: "short",
     day: "2-digit",
 });
+const CHART_PADDING = { top: 15, right: 0, bottom: 40, left: 60 };
+const ENUM_STRIP_HEIGHT = 20;
+const ENUM_STRIP_GAP = 10;
 
-export default function render(context: CanvasRenderingContext2D, width: number, height: number, preparedData: PreparedChartData,
-    series: SeriesMeta[], timeTickCount: number, externalHoverTimestamp: number | null,
-    hoverPixelRef: RefObject<{ x: number; y: number; } | null>, tooltipBufferRef: RefObject<string[]>,
-    layoutRef: RefObject<ChartLayout | null>, visibleTimeRange: { min: number; max: number },
-) {
-    context.clearRect(0, 0, width, height);
+function niceNumber(range: number, round: boolean) {
+    const exponent = Math.floor(Math.log10(range));
+    const fraction = range / Math.pow(10, exponent);
+    let niceFraction;
 
-    const {
-        timestamps, seriesData, chunkSize, chunkStats, enumSeriesIndices, numericalSeriesIndices, uniqueEnumValues,
-    } = preparedData;
+    if (round) {
+        if (fraction < 1.5) niceFraction = 1;
+        else if (fraction < 3) niceFraction = 2;
+        else if (fraction < 7) niceFraction = 5;
+        else niceFraction = 10;
+    } else {
+        if (fraction <= 1) niceFraction = 1;
+        else if (fraction <= 2) niceFraction = 2;
+        else if (fraction <= 5) niceFraction = 5;
+        else niceFraction = 10;
+    }
+    return niceFraction * Math.pow(10, exponent);
+}
 
-    //if (!timestamps || timestamps.length === 0) return;
+function render_enum(
+    context: CanvasRenderingContext2D, width: number, // container context
+    widgetConfig: WidgetDataEnum,
+    all_series: Array<EnumSeries>,
+    // rendering
+    visibleStartTime: number, visibleEndTime: number, latestDateTime: number, timeToX: (time: number) => number, // time range
+    LEGEND_HEIGHT: number, ENUM_STRIP_HEIGHT: number, ENUM_STRIP_GAP: number, // layout
+    hoverTime: number | null
+): Array<{ name: string, value: string }> | null {
+    // DRAWING LEGEND
+    // context.textAlign = "left";
+    // context.textBaseline = "top";
+    // context.font = "10px sans-serif";
+    // let legendX = CHART_PADDING.left;
+    // const legendY = CHART_PADDING.top;
+    // const allEnumValues = new Set<string>();
+    // enumSeriesIndices.forEach((idx) => {
+    //     uniqueEnumValues[idx]?.forEach((v) => allEnumValues.add(v));
+    // });
+    // const sortedAllEnums = Array.from(allEnumValues).sort();
+    // sortedAllEnums.forEach((val, i) => {
+    //     const color = val === "N/A" ? NA_COLOR : ENUM_COLORS[i % ENUM_COLORS.length];
 
-    const clampedTickCount = Math.max(1, Math.floor(timeTickCount));
-    const padding = { top: 20, right: 20, bottom: 56, left: 60 };
+    //     context.fillStyle = color;
+    //     context.fillRect(legendX, legendY, 10, 10);
 
-    const ENUM_STRIP_HEIGHT = 20;
-    const ENUM_STRIP_GAP = 10;
-    const LEGEND_HEIGHT = enumSeriesIndices.length > 0 ? 30 : 0;
-    const enumSectionHeight = enumSeriesIndices.length > 0
-        ? enumSeriesIndices.length * (ENUM_STRIP_HEIGHT + ENUM_STRIP_GAP) +
-        LEGEND_HEIGHT +
-        10
-        : 0;
+    //     context.fillStyle = "#ffffff"; // Assuming dark background based on numerical chart
+    //     context.fillText(val, legendX + 14, legendY);
 
-    const numericalTop = padding.top + enumSectionHeight;
-    const chartWidth = width - padding.left - padding.right;
-    const chartHeight = Math.max(0, height - numericalTop - padding.bottom);
+    //     const textWidth = context.measureText(val).width;
+    //     legendX += 14 + textWidth + 15;
+    // });
 
-    const visibleStartTime = visibleTimeRange.min;
-    const visibleEndTime = visibleTimeRange.max;
+    let currentStripY = CHART_PADDING.top + LEGEND_HEIGHT;
+    for (let series_idx = 0; series_idx < all_series.length; series_idx++) {
+        const series = all_series[series_idx];
+        const { data: seriesData, timestamps: seriesTimestamps } = series;
 
-    const startIndex = binarySearchForFirstVisibleIndex(
-        timestamps,
-        visibleStartTime
-    );
+        context.fillStyle = "#000000";
+        context.textAlign = "right";
+        context.textBaseline = "middle";
+        context.fillText(
+            series.label,
+            CHART_PADDING.left - 10,
+            currentStripY + ENUM_STRIP_HEIGHT / 2
+        );
 
-    const endIndex = binarySearchForLastVisibleIndex(
-        timestamps,
-        visibleEndTime
-    );
-
-    // data ranges - only use visible range
-    const minTime = visibleStartTime;
-    const maxTime = visibleEndTime;
-    const rawTimeRange = maxTime - minTime;
-    const timeRange = rawTimeRange <= 0 ? 1 : rawTimeRange;
-
-    const timeToX = (time: number) => {
-        return padding.left + ((time - minTime) / timeRange) * chartWidth;
-    };
-
-    layoutRef.current = {
-        minTime,
-        timeRange,
-        chartWidth,
-        paddingLeft: padding.left,
-    };
-
-    // --- RENDER ENUMS ---
-    if (enumSeriesIndices.length > 0) {
-        // legend
-        context.textAlign = "left";
-        context.textBaseline = "top";
-        context.font = "10px sans-serif";
-
-        let legendX = padding.left;
-        const legendY = padding.top;
-
-        const allEnumValues = new Set<string>();
-        enumSeriesIndices.forEach((idx) => {
-            uniqueEnumValues[idx]?.forEach((v) => allEnumValues.add(v));
-        });
-        const sortedAllEnums = Array.from(allEnumValues).sort();
-
-        sortedAllEnums.forEach((val, i) => {
-            const color = val === "N/A" ? NA_COLOR : ENUM_COLORS[i % ENUM_COLORS.length];
-
-            context.fillStyle = color;
-            context.fillRect(legendX, legendY, 10, 10);
-
-            context.fillStyle = "#ffffff"; // Assuming dark background based on numerical chart
-            context.fillText(val, legendX + 14, legendY);
-
-            const textWidth = context.measureText(val).width;
-            legendX += 14 + textWidth + 15;
-        });
-
-        let currentStripY = padding.top + LEGEND_HEIGHT;
-
-        enumSeriesIndices.forEach((seriesIndex) => {
-            const dataPoints = seriesData[seriesIndex];
-            context.fillStyle = series[seriesIndex]?.color || "#ffffff";
-            context.textAlign = "right";
-            context.textBaseline = "middle";
-            context.fillText(
-                series[seriesIndex].label,
-                padding.left - 10,
-                currentStripY + ENUM_STRIP_HEIGHT / 2
+        for (
+            let data_idx = binarySearchForFirstEnumIndex(seriesTimestamps, visibleStartTime);
+            data_idx <= binarySearchForFirstEnumIndex(seriesTimestamps, visibleEndTime);
+            data_idx++
+        ) {
+            const dataStartTime = seriesTimestamps[data_idx];
+            const dataEndTime = Math.min(
+                data_idx + 1 < seriesTimestamps.length ? seriesTimestamps[data_idx + 1] : latestDateTime, // if it's the last point, only render up to the latest datetime
+                visibleEndTime
             );
+            const value = seriesData[data_idx];
 
-            const enumStartIndex = binarySearchForFirstEnumIndex(
-                timestamps,
-                visibleStartTime
-            );
+            const startX = Math.max(CHART_PADDING.left, timeToX(dataStartTime));
+            const endX = Math.min(width - CHART_PADDING.right, timeToX(dataEndTime));
+            const barWidth = endX - startX;
+            if (barWidth < 0.5) continue;
 
-            for (let i = enumStartIndex; i <= endIndex; i++) {
-                const time = timestamps[i];
-                const value = dataPoints[i] as string | null;
-
-                if (value === null) continue;
-
-                let endTime: number;
-                if (i === endIndex) {
-                    endTime = visibleEndTime;
-                } else {
-                    endTime = timestamps[i + 1];
-                }
-
-                const startX = Math.max(padding.left, timeToX(time));
-                const endX = Math.min(width - padding.right, timeToX(endTime));
-                const barWidth = endX - startX;
-
-                if (barWidth < 0.5) continue;
-
-                const valIndex = sortedAllEnums.indexOf(value);
-                const color = value === "N/A"
-                    ? NA_COLOR
-                    : ENUM_COLORS[valIndex % ENUM_COLORS.length];
-
-                context.fillStyle = color;
-                context.fillRect(
-                    startX,
-                    currentStripY,
-                    barWidth,
-                    ENUM_STRIP_HEIGHT
-                );
+            // TODO work out when to use NA_COLOR
+            // const color = value === null
+            //     ? NA_COLOR
+            //     : ENUM_COLORS[value % ENUM_COLORS.length];
+            const palette = widgetConfig.signals[series_idx]?.options.colorPalette ?? [];
+            const paletteColor = palette[value];
+            if (paletteColor) {
+                context.fillStyle = paletteColor.hex();
+            } else { // fallback just in case
+                context.fillStyle = ENUM_COLORS[value % ENUM_COLORS.length];
             }
+            context.fillRect(
+                startX,
+                currentStripY,
+                barWidth,
+                ENUM_STRIP_HEIGHT
+            );
+        }
 
-            currentStripY += ENUM_STRIP_HEIGHT + ENUM_STRIP_GAP;
-        });
+        // move to the next strip
+        currentStripY += ENUM_STRIP_HEIGHT + ENUM_STRIP_GAP;
     }
 
-    // --- RENDER NUMERICAL ---
-    const hasNumerical = numericalSeriesIndices.length > 0;
-    let minValue = Infinity;
-    let maxValue = -Infinity;
+    if (hoverTime !== null) {
+        const result: Array<{ name: string, value: string }> = [];
+        for (const series of all_series) {
+            if (series.timestamps.length === 0) continue; // ignore empty series
+            const idx = binarySearchForFirstEnumIndex(series.timestamps, hoverTime);
+            const enumValue = series.data[idx];
+            const names = series.enumValuesToNames[enumValue];
+            result.push({
+                name: series.label,
+                value: names ? names[0] : `Unknown (${enumValue})`,
+            });
+        }
+        return result;
+    }
 
-    if (hasNumerical) {
-        const computeVisibleRange = (
-            dataPoints: (number | string | null)[],
-            stats?: ChunkStats
-        ) => {
-            if (startIndex > endIndex) return { min: Infinity, max: -Infinity };
+    return [];
+}
 
-            const windowSize = endIndex - startIndex + 1;
-            const shouldUseChunks = chunkSize > 0 && stats && windowSize > chunkSize * 2;
+function render_numerical(
+    context: CanvasRenderingContext2D, width: number, chartWidth: number, chartHeight: number,
+    numericalTop: number,
+    widgetConfig: WidgetDataNumerical,
+    series: NumericalSeries[], // series data
+    visibleStartTime: number, visibleEndTime: number, timeToX: (time: number) => number, // time range
+    hoverTime: number | null
+): Array<{ name: string, value: string }> | null {
+    if (series.length === 0) { // am i crazy or is this not okay
+        return [];
+    }
 
-            let localMin = Infinity;
-            let localMax = -Infinity;
+    const series_bounds = series.map(s => {
+        const left = bisect(s.timestamps, visibleStartTime)
+        const right = bisect(s.timestamps, visibleEndTime)
+        return ({
+            left,
+            right,
+            min: s.data.get_min(left, right) - 0.2,
+            max: s.data.get_max(left, right) + 0.2
+        })
+    });
 
-            if (!shouldUseChunks) {
-                for (let i = startIndex; i <= endIndex; i++) {
-                    const value = dataPoints[i];
-                    if (value === null ||
-                        value === undefined ||
-                        typeof value === "string")
-                        continue;
-                    if (value < localMin) localMin = value;
-                    if (value > localMax) localMax = value;
-                }
-                return { min: localMin, max: localMax };
+    let [all_series_min, all_series_max] = series_bounds.reduce(([min, max], meta) =>
+        [Math.min(min, meta.min), Math.max(max, meta.max)], [Infinity, -Infinity]);
+
+    // edge case where all values are the same
+    if (all_series_min === all_series_max) {
+        all_series_min -= 1;
+        all_series_max += 1;
+    }
+
+    // console.log("Numerical value range:", minValue, maxValue);
+
+    context.strokeStyle = "#333";
+    context.lineWidth = 1;
+    context.beginPath();
+
+    // y-axis
+    context.moveTo(CHART_PADDING.left, numericalTop);
+    context.lineTo(CHART_PADDING.left, numericalTop + chartHeight);
+
+    // x-axis
+    context.lineTo(width - CHART_PADDING.right, numericalTop + chartHeight);
+    context.stroke();
+
+    // grid lines
+    context.strokeStyle = "#e0e0e0";
+    context.lineWidth = 0.5;
+    const numGridLines = 5;
+    for (let i = 0; i <= numGridLines; i++) {
+        const y = numericalTop + (chartHeight / numGridLines) * i;
+        context.beginPath();
+        context.moveTo(CHART_PADDING.left, y);
+        context.lineTo(width - CHART_PADDING.right, y);
+        context.stroke();
+    }
+
+    // axis labels
+    context.fillStyle = "#000000";
+    context.font = "12px sans-serif";
+    context.textAlign = "right";
+    context.textBaseline = "middle";
+
+    // y-axis labels
+    for (let i = 0; i <= numGridLines; i++) {
+        const value = all_series_max - ((all_series_max - all_series_min) / numGridLines) * i;
+        const y = numericalTop + (chartHeight / numGridLines) * i;
+        context.fillText(value.toFixed(2), CHART_PADDING.left - 5, y);
+    }
+
+    context.save();
+    context.beginPath();
+    context.rect(CHART_PADDING.left, numericalTop, chartWidth, chartHeight);
+    context.clip();
+
+    // draw data series
+    // numericalSeriesIndices.forEach((seriesIndex) => {
+    for (let seriesIndex = 0; seriesIndex < series.length; seriesIndex++) {
+        const s = series[seriesIndex];
+        const { left, right } = series_bounds[seriesIndex];
+
+        context.strokeStyle = widgetConfig.signals[seriesIndex].color.hex();
+        context.lineWidth = 2;
+        context.beginPath();
+
+        let initialMove = false;
+
+        // only iterate through visible data points and last point before
+        for (let i = left - 1; i <= right + 1; i++) {
+            const time = s.timestamps[i];
+            const value = s.data.get(i);
+            const x = timeToX(time);
+            const y = numericalTop + chartHeight - ((value - all_series_min) / (all_series_max - all_series_min)) * chartHeight
+
+            if (!initialMove) {
+                context.moveTo(x, y);
+                initialMove = true;
+            } else {
+                context.lineTo(x, y);
             }
 
-            const startChunk = Math.floor(startIndex / chunkSize);
-            const endChunk = Math.floor(endIndex / chunkSize);
+            // if (false) { // TODO if gap between current point and last point is greater than threshold
+            //     context.moveTo(x, y);
+            // } else {
+            //     context.lineTo(x, y);
+            // }
+        }
+        context.stroke();
+    }
 
-            const scanRange = (from: number, to: number) => {
-                for (let i = from; i <= to; i++) {
-                    const value = dataPoints[i];
-                    if (value === null ||
-                        value === undefined ||
-                        typeof value === "string")
-                        continue;
-                    if (value < localMin) localMin = value;
-                    if (value > localMax) localMax = value;
-                }
-            };
+    if (hoverTime !== null) {
+        // TODO ask zedwin if this is a fine interpretation
+        const result: Array<{ name: string, value: string }> = [];
 
-            const startChunkEnd = Math.min(
-                (startChunk + 1) * chunkSize - 1,
-                endIndex
-            );
-            scanRange(startIndex, startChunkEnd);
+        for (let seriesIndex = 0; seriesIndex < series.length; seriesIndex++) {
+            const s = series[seriesIndex];
+            if (s.timestamps.length === 0) continue;
 
-            if (endChunk > startChunk + 1) {
-                for (let chunk = startChunk + 1; chunk <= endChunk - 1; chunk++) {
-                    const chunkMin = stats.min[chunk];
-                    const chunkMax = stats.max[chunk];
-                    if (Number.isFinite(chunkMin) && chunkMin < localMin) {
-                        localMin = chunkMin;
-                    }
-                    if (Number.isFinite(chunkMax) && chunkMax > localMax) {
-                        localMax = chunkMax;
-                    }
-                }
+            // bisect gives us the insertion point; check both neighbors to find the closest
+            const idx = bisect(s.timestamps, hoverTime);
+            let closestIdx = idx;
+
+            if (idx >= s.timestamps.length) { // clamp to last point
+                closestIdx = s.timestamps.length - 1;
+            } else if (idx > 0) {
+
+                // choose between left and right neighbour
+                const diffLeft = Math.abs(s.timestamps[idx - 1] - hoverTime);
+                const diffRight = Math.abs(s.timestamps[idx] - hoverTime);
+                closestIdx = diffLeft < diffRight ? idx - 1 : idx;
             }
 
-            const tailStart = Math.max(endChunk * chunkSize, startChunkEnd + 1);
-            if (tailStart <= endIndex) {
-                scanRange(tailStart, endIndex);
-            }
+            const value = s.data.get(closestIdx);
+            const drawX = timeToX(s.timestamps[closestIdx]);
+            const y = numericalTop + chartHeight - ((value - all_series_min) / (all_series_max - all_series_min)) * chartHeight;
 
-            return { min: localMin, max: localMax };
-        };
+            // draw circle at hovered point
+            context.beginPath();
+            context.fillStyle = widgetConfig.signals[seriesIndex].color.hex();
+            context.strokeStyle = "#ffffff";
+            context.lineWidth = 1.5;
+            context.arc(drawX, y, 4, 0, Math.PI * 2);
+            context.fill();
+            context.stroke();
 
-        // Check if any numerical series has fixed bounds
-        let sumMin = 0;
-        let sumMax = 0;
-        let count = 0;
-
-        let mv = Infinity;
-        let MV = -Infinity;
-
-        numericalSeriesIndices.forEach((seriesIndex) => {
-            const meta = series[seriesIndex];
-            if (meta && typeof meta.min === 'number' && typeof meta.max === 'number') {
-                sumMin += meta.min;
-                sumMax += meta.max;
-                mv = Math.min(mv, meta.min);
-                MV = Math.max(MV, meta.max);
-                count++;
-            }
-        });
-
-        if (count > 0) {
-            // Use average of fixed bounds
-            minValue = mv;//sumMin / count;
-            maxValue = MV;//sumMax / count;
-
-        } else {
-            numericalSeriesIndices.forEach((seriesIndex) => {
-                const dataPoints = seriesData[seriesIndex];
-                const stats = chunkStats[seriesIndex];
-                const { min, max } = computeVisibleRange(dataPoints, stats);
-                if (!Number.isFinite(min) || !Number.isFinite(max)) {
-                    return;
-                }
-                minValue = Math.min(minValue, min);
-                maxValue = Math.max(maxValue, max);
+            result.push({
+                name: s.label,
+                value: value.toFixed(2),
             });
         }
 
-        // edge case where all values are the same
-        if (minValue === maxValue) {
-            minValue -= 1;
-            maxValue += 1;
-        }
-
-        // console.log("Numerical value range:", minValue, maxValue);
-
-        const valueToY = (value: number) => {
-            return (
-                numericalTop + chartHeight - ((value - minValue) / (maxValue - minValue)) * chartHeight
-            );
-        };
-
-        context.strokeStyle = "#333";
-        context.lineWidth = 1;
-        context.beginPath();
-
-        // y-axis
-        context.moveTo(padding.left, numericalTop);
-        context.lineTo(padding.left, numericalTop + chartHeight);
-
-        // x-axis
-        context.lineTo(width - padding.right, numericalTop + chartHeight);
-        context.stroke();
-
-        // grid lines
-        context.strokeStyle = "#e0e0e0";
-        context.lineWidth = 0.5;
-        const numGridLines = 5;
-        for (let i = 0; i <= numGridLines; i++) {
-            const y = numericalTop + (chartHeight / numGridLines) * i;
-            context.beginPath();
-            context.moveTo(padding.left, y);
-            context.lineTo(width - padding.right, y);
-            context.stroke();
-        }
-
-        // axis labels
-        context.fillStyle = "#000000";
-        context.font = "12px sans-serif";
-        context.textAlign = "right";
-        context.textBaseline = "middle";
-
-        // y-axis labels
-        for (let i = 0; i <= numGridLines; i++) {
-            const value = maxValue - ((maxValue - minValue) / numGridLines) * i;
-            const y = numericalTop + (chartHeight / numGridLines) * i;
-            context.fillText(value.toFixed(2), padding.left - 5, y);
-        }
-
-        context.save();
-        context.beginPath();
-        context.rect(padding.left, numericalTop, chartWidth, chartHeight);
-        context.clip();
-
-        // draw data series
-        numericalSeriesIndices.forEach((seriesIndex) => {
-            const dataPoints = seriesData[seriesIndex];
-            const meta = series[seriesIndex];
-
-            const drawStartIndex = Math.max(0, startIndex - 1);
-            const drawEndIndex = Math.min(timestamps.length - 1, endIndex + 1);
-
-            let loopStart = drawStartIndex;
-
-            // if the last point before is not on screen (i.e. start of data range has no data),
-            // then the line color is yellow for that segment.
-            if (drawStartIndex < startIndex && drawStartIndex + 1 <= drawEndIndex) {
-                const t0 = timestamps[drawStartIndex];
-                const v0 = dataPoints[drawStartIndex];
-                const t1 = timestamps[drawStartIndex + 1];
-                const v1 = dataPoints[drawStartIndex + 1];
-
-                if (typeof v0 === "number" && typeof v1 === "number") {
-                    context.beginPath();
-                    context.strokeStyle = "#EAB308"; // Yellow
-                    context.lineWidth = 2;
-                    context.moveTo(timeToX(t0), valueToY(v0));
-                    context.lineTo(timeToX(t1), valueToY(v1));
-                    context.stroke();
-
-                    loopStart = drawStartIndex + 1;
-                }
-            }
-
-            context.strokeStyle = meta?.color || "#000";
-            context.lineWidth = 2;
-            context.beginPath();
-
-            let pathStarted = false;
-
-            // only iterate through visible data points and last point before
-            for (let i = loopStart; i <= drawEndIndex; i++) {
-                const time = timestamps[i];
-                const value = dataPoints[i];
-
-                if (value === null || typeof value !== "number") {
-                    pathStarted = false;
-                    continue;
-                }
-
-                const x = timeToX(time);
-                const y = valueToY(value);
-
-                if (!pathStarted) {
-                    context.moveTo(x, y);
-                    pathStarted = true;
-                } else {
-                    context.lineTo(x, y);
-                }
-            }
-
-            context.stroke();
-        });
-
         context.restore();
-    } // end hasNumerical
+        return result;
+    }
 
+    context.restore();
+    return [];
+}
+
+function render_tooltip(
+    context: CanvasRenderingContext2D, width: number, height: number, // layout
+    hoverTime: number,
+    hover_value: Array<{ name: string, value: string }>,
+    timeToX: (t: number) => number
+) {
+    if (timeToX(hoverTime) < CHART_PADDING.left || timeToX(hoverTime) > width - CHART_PADDING.right) {
+        return;
+    }
+
+    const hoverDate = new Date(hoverTime);
+    const ms = hoverDate.getMilliseconds().toString().padStart(3, "0");
+    const time_string = `${DATE_FORMATTER.format(hoverDate)} ${TIME_FORMATTER.format(hoverDate)}.${ms}`
+    const tooltip_lines = [
+        time_string,
+        ...hover_value.map(({ name, value }) => `${name}: ${value}`)
+    ];
+
+
+    context.setLineDash([4, 4]);
+    context.strokeStyle = "rgba(0,0,0,0.6)";
+    context.lineWidth = 1;
+    context.beginPath();
+    context.moveTo(timeToX(hoverTime), CHART_PADDING.top);
+    context.lineTo(timeToX(hoverTime), height - CHART_PADDING.bottom);
+    context.stroke();
+    context.setLineDash([]);
+
+    const font = "12px sans-serif";
+    context.font = font;
+    const lineHeight = 16;
+    const horizontalPadding = 10;
+    const verticalPadding = 8;
+    let tooltipWidth = 0;
+    tooltip_lines.forEach((line) => {
+        tooltipWidth = Math.max(
+            tooltipWidth,
+            context.measureText(line).width
+        );
+    });
+    tooltipWidth += horizontalPadding * 2;
+    const tooltipHeight = tooltip_lines.length * lineHeight + verticalPadding;
+
+    let tooltipX = timeToX(hoverTime) + 10;
+    if (tooltipX + tooltipWidth > width - CHART_PADDING.right) {
+        tooltipX = timeToX(hoverTime) - 10 - tooltipWidth;
+    }
+
+    // determine tooltip Y
+    let tooltipY = CHART_PADDING.top + 20;
+
+    const minY = CHART_PADDING.top;
+    const maxY = height - CHART_PADDING.bottom - tooltipHeight;
+    tooltipY = Math.min(Math.max(tooltipY, minY), maxY);
+
+    context.fillStyle = "rgba(17, 24, 39, 0.85)";
+    context.fillRect(tooltipX, tooltipY, tooltipWidth, tooltipHeight);
+
+    context.strokeStyle = "rgba(255, 255, 255, 0.25)";
+    context.lineWidth = 1;
+    context.strokeRect(tooltipX, tooltipY, tooltipWidth, tooltipHeight);
+
+    context.fillStyle = "#ffffff";
+    context.textAlign = "left";
+    context.textBaseline = "top";
+
+    tooltip_lines.forEach((line, idx) => {
+        context.fillText(
+            line,
+            tooltipX + horizontalPadding,
+            tooltipY + verticalPadding / 2 + idx * lineHeight
+        );
+    });
+}
+
+export default function render(
+    context: CanvasRenderingContext2D, width: number, height: number, // dimensions of chart
+    layoutRef: RefObject<ChartLayout | null>, // seems kinda bodgey, it's a ref because we write to it :sob:
+    chartData: ChartData,
+    widgetConfig: WidgetData,
+    timeTickCount: number,
+    hoverTime: number | null,
+    { min: visibleStartTime, max: visibleEndTime }: { min: number; max: number },
+) {
+    context.clearRect(0, 0, width, height);
+
+    // calculate layout
+    const numericalTop = CHART_PADDING.top;
+    const chartHeight = Math.max(0, height - numericalTop - CHART_PADDING.bottom);
+    const chartWidth = width - CHART_PADDING.left - CHART_PADDING.right;
+
+    // data ranges - only use visible range
+    const timeRange = Math.max(1, visibleEndTime - visibleStartTime);
+
+    /**
+     * converts a time value to an x coordinate within the chart area
+     * @param time
+     * @returns 
+     */
+    const timeToX = (time: number) => {
+        return CHART_PADDING.left + ((time - visibleStartTime) / timeRange) * chartWidth;
+    };
+
+    layoutRef.current = {
+        minTime: visibleStartTime,
+        timeRange,
+        chartWidth,
+        paddingLeft: CHART_PADDING.left,
+    };
+
+    // --- RENDER ENUMS ---
+    let hover_value: Array<{ name: string, value: string }> | null = null;
+    if (chartData.type === SignalType.ENUM) {
+        if (widgetConfig.type !== SignalType.ENUM) {
+            throw new Error("Widget config type does not match chart data type");
+        }
+        const LEGEND_HEIGHT = 30;
+        const ENUM_STRIP_HEIGHT = 40;
+        const ENUM_STRIP_GAP = 40;
+        hover_value = render_enum(context, width, widgetConfig, chartData.all_series, visibleStartTime, visibleEndTime, 0, // TODO
+            timeToX, LEGEND_HEIGHT, ENUM_STRIP_HEIGHT, ENUM_STRIP_GAP, hoverTime);
+    }
+    // --- RENDER NUMERICAL ---
+    else if (chartData.type === SignalType.NUMERICAL) {
+        if (widgetConfig.type !== SignalType.NUMERICAL) {
+            throw new Error("Widget config type does not match chart data type");
+        }
+        hover_value = render_numerical(
+            context, width, chartWidth, chartHeight, numericalTop,
+            widgetConfig, chartData.all_series, visibleStartTime, visibleEndTime, timeToX, hoverTime
+        );
+    }
 
     // x-axis tick marks & labels (Shared for both)
-    const numTimeTicks = clampedTickCount;
+    const numTimeTicks = Math.max(1, Math.floor(timeTickCount));
     context.strokeStyle = "#999";
     context.lineWidth = 1;
     context.textAlign = "center";
     context.textBaseline = "top";
     context.fillStyle = "#000000";
 
-    const niceNumber = (range: number, round: boolean) => {
-        const exponent = Math.floor(Math.log10(range));
-        const fraction = range / Math.pow(10, exponent);
-        let niceFraction;
-
-        if (round) {
-            if (fraction < 1.5) niceFraction = 1;
-            else if (fraction < 3) niceFraction = 2;
-            else if (fraction < 7) niceFraction = 5;
-            else niceFraction = 10;
-        } else {
-            if (fraction <= 1) niceFraction = 1;
-            else if (fraction <= 2) niceFraction = 2;
-            else if (fraction <= 5) niceFraction = 5;
-            else niceFraction = 10;
-        }
-        return niceFraction * Math.pow(10, exponent);
-    };
-
     const tickSpacing = niceNumber(timeRange / numTimeTicks, true);
-    const firstTick = Math.floor(minTime / tickSpacing) * tickSpacing;
-    const lastTick = Math.ceil(maxTime / tickSpacing) * tickSpacing;
+    const firstTick = Math.floor(visibleStartTime / tickSpacing) * tickSpacing;
+    const lastTick = Math.ceil(visibleEndTime / tickSpacing) * tickSpacing;
 
     context.beginPath();
     for (let tick = firstTick; tick <= lastTick; tick += tickSpacing) {
         const x = timeToX(tick);
-        if (x >= padding.left && x <= width - padding.right) {
-            context.moveTo(x, height - padding.bottom);
-            context.lineTo(x, height - padding.bottom + 6);
+        if (x >= CHART_PADDING.left && x <= width - CHART_PADDING.right) {
+            context.moveTo(x, height - CHART_PADDING.bottom);
+            context.lineTo(x, height - CHART_PADDING.bottom + 6);
         }
     }
     context.stroke();
@@ -541,191 +502,39 @@ export default function render(context: CanvasRenderingContext2D, width: number,
     for (let tick = firstTick; tick <= lastTick; tick += tickSpacing) {
         const x = timeToX(tick);
 
-        if (x < padding.left - 10 || x > width - padding.right + 10) continue;
+        if (x < CHART_PADDING.left - 10 || x > width - CHART_PADDING.right + 10) continue;
 
         const dateObj = new Date(tick);
         const msLabel = dateObj.getMilliseconds().toString().padStart(3, "0");
-        const timeLabel = `${timeFormatter.format(dateObj)}.${msLabel}`;
-        const dateLabel = dateFormatter.format(dateObj);
+        const timeLabel = `${TIME_FORMATTER.format(dateObj)}.${msLabel}`;
+        const dateLabel = DATE_FORMATTER.format(dateObj);
 
-        context.fillText(timeLabel, x, height - padding.bottom + 8);
-        context.fillText(dateLabel, x, height - padding.bottom + 24);
+        context.fillText(timeLabel, x, height - CHART_PADDING.bottom + 8);
+        context.fillText(dateLabel, x, height - CHART_PADDING.bottom + 24);
     }
 
-    // hover interaction (vertical line, points, and tooltip)
-    let activeHoverX: number | null = null;
-    let activeHoverTimestamp: number | null = null;
-
-    const hover = hoverPixelRef.current;
-
-    if (hover) {
-        const withinX = hover.x >= padding.left && hover.x <= width - padding.right;
-        const withinY = hover.y >= padding.top && hover.y <= height - padding.bottom;
-
-        if (withinX && withinY) {
-            activeHoverX = hover.x;
-
-            const calculatedTime = minTime + ((hover.x - padding.left) / chartWidth) * timeRange;
-            activeHoverTimestamp = calculatedTime;
-        }
-    } else if (externalHoverTimestamp !== null &&
-        externalHoverTimestamp !== undefined) {
-        if (externalHoverTimestamp >= minTime &&
-            externalHoverTimestamp <= maxTime) {
-            activeHoverTimestamp = externalHoverTimestamp;
-            activeHoverX = timeToX(externalHoverTimestamp);
-
-            // activeHoverY = padding.top + 50;
-        }
-    }
-
-    // render lines 
-    if (activeHoverX !== null && activeHoverTimestamp !== null) {
-        const hoverTime = activeHoverTimestamp;
-
-        const clampIndex = (idx: number) => Math.min(Math.max(idx, startIndex), endIndex);
-
-        let low = startIndex;
-        let high = endIndex;
-        while (low <= high) {
-            const mid = Math.floor((low + high) / 2);
-            if (timestamps[mid] < hoverTime) {
-                low = mid + 1;
-            } else {
-                high = mid - 1;
-            }
-        }
-
-        const rightCandidate = clampIndex(low);
-        const leftCandidate = clampIndex(low - 1);
-
-        let nearestIndex = rightCandidate;
-        if (Math.abs(timestamps[leftCandidate] - hoverTime) <
-            Math.abs(timestamps[nearestIndex] - hoverTime)) {
-            nearestIndex = leftCandidate;
-        }
-
-        const snappedTimestamp = timestamps[nearestIndex];
-        const snappedX = timeToX(snappedTimestamp);
-
-        // Use snapped X for drawing
-        const drawX = snappedX;
-
-        context.save();
-        context.setLineDash([4, 4]);
-        context.strokeStyle = "rgba(255,255,255,0.6)";
-        context.lineWidth = 1;
-        context.beginPath();
-        context.moveTo(drawX, padding.top);
-        context.lineTo(drawX, height - padding.bottom);
-        context.stroke();
-        context.setLineDash([]);
-
-        const tooltipLines = tooltipBufferRef.current;
-        tooltipLines.length = 0;
-        const hoverDate = new Date(snappedTimestamp);
-        const ms = hoverDate.getMilliseconds().toString().padStart(3, "0");
-        tooltipLines.push(
-            `${dateFormatter.format(hoverDate)} ${timeFormatter.format(
-                hoverDate
-            )}.${ms}`
+    if (hoverTime !== null) {
+        // TODO surely this check is not useful because the hoverTime will be on the screen?
+        // const withinX = hoverTime >= visibleStartTime && hoverTime <= visibleEndTime;
+        // if (!withinX) {
+        //     return
+        // }
+        render_tooltip(
+            context, width, height,
+            hoverTime, hover_value!, timeToX
         );
-
-        // collect unified enum values for legend color mapping
-        /*const allEnumValues = new Set<string>();
-        enumSeriesIndices.forEach((idx) => {
-            uniqueEnumValues[idx]?.forEach((v) => allEnumValues.add(v));
-        });
-        const sortedAllEnums = Array.from(allEnumValues).sort();*/
-
-        let firstPointY: number | null = null;
-
-        // TODO: optimize search by only looking at visible indices
-        seriesData.forEach((points, idx) => {
-            console.log(seriesData[idx]);
-            const value = points[nearestIndex];
-            if (value === null || value === undefined) return;
-
-            if (typeof value === "number" && hasNumerical && numericalSeriesIndices.includes(idx)) {
-                let y = 0;
-                if (numericalSeriesIndices.includes(idx) &&
-                    Number.isFinite(minValue) &&
-                    Number.isFinite(maxValue)) {
-                    y = numericalTop + chartHeight - ((value - minValue) / (maxValue - minValue)) * chartHeight;
-
-                    if (firstPointY === null) firstPointY = y;
-
-                    const color = series[idx]?.color || "#4f46e5";
-                    context.beginPath();
-                    context.fillStyle = color;
-                    context.strokeStyle = "#ffffff";
-                    context.lineWidth = 1.5;
-                    context.arc(drawX, y, 4, 0, Math.PI * 2);
-                    context.fill();
-                    context.stroke();
-                }
-            }
-
-            let displayValue = "";
-            if (typeof value === "number") {
-                displayValue = value.toFixed(2);
-            } else {
-                displayValue = String(value);
-            }
-
-            tooltipLines.push(
-                `${series[idx]?.label ?? `Series ${idx + 1}`}: ${displayValue}`
-            );
-        });
-
-        if (tooltipLines.length > 0) {
-            const font = "12px sans-serif";
-            context.font = font;
-            const lineHeight = 16;
-            const horizontalPadding = 10;
-            const verticalPadding = 8;
-            let tooltipWidth = 0;
-            tooltipLines.forEach((line) => {
-                tooltipWidth = Math.max(
-                    tooltipWidth,
-                    context.measureText(line).width
-                );
-            });
-            tooltipWidth += horizontalPadding * 2;
-            const tooltipHeight = tooltipLines.length * lineHeight + verticalPadding;
-
-            let tooltipX = drawX + 10;
-            if (tooltipX + tooltipWidth > width - padding.right) {
-                tooltipX = drawX - 10 - tooltipWidth;
-            }
-
-            // determine tooltip Y
-            let tooltipY = padding.top + 20;
-
-            const minY = padding.top;
-            const maxY = height - padding.bottom - tooltipHeight;
-            tooltipY = Math.min(Math.max(tooltipY, minY), maxY);
-
-            context.fillStyle = "rgba(17, 24, 39, 0.85)";
-            context.fillRect(tooltipX, tooltipY, tooltipWidth, tooltipHeight);
-
-            context.strokeStyle = "rgba(255, 255, 255, 0.25)";
-            context.lineWidth = 1;
-            context.strokeRect(tooltipX, tooltipY, tooltipWidth, tooltipHeight);
-
-            context.fillStyle = "#ffffff";
-            context.textAlign = "left";
-            context.textBaseline = "top";
-
-            tooltipLines.forEach((line, idx) => {
-                context.fillText(
-                    line,
-                    tooltipX + horizontalPadding,
-                    tooltipY + verticalPadding / 2 + idx * lineHeight
-                );
-            });
-        }
-
-        context.restore();
     }
+
+    context.restore();
+}
+
+export function render_empty(context: CanvasRenderingContext2D, width: number, height: number) {
+    context.clearRect(0, 0, width, height);
+
+    context.fillStyle = "#666";
+    context.font = "14px sans-serif";
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    context.fillText("No data collected yet.", width / 2, height / 2);
+    context.restore();
 }
