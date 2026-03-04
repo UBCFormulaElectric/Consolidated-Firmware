@@ -96,7 +96,6 @@ pub async fn run_serial_task(mut shutdown_rx: broadcast::Receiver<()>, can_queue
  */
 fn parse_incoming_telem_message(payload: Vec<u8>) -> Result<TelemetryIncomingMessage, ()> {
     let parsed_message: TelemetryIncomingMessage = match payload[0] {
-        // TODO magic numbers
         TelemetryIncomingMessage::CAN_BYTE => {
             let can_id = u32::from_le_bytes([payload[1], payload[2], payload[3], payload[4]]);
             // this should also probably be u64 for epoch unix time, awaiting confirmation

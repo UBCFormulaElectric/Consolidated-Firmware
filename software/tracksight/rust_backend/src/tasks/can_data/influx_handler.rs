@@ -45,19 +45,31 @@ pub async fn run_influx_handler(mut shutdown_signal: Receiver<()>, mut decoded_s
                 batch_buffer.push(data);
 
                 if batch_buffer.len() >= MAX_BATCH_CAPACITY {
-                    let body = stream::iter(batch_buffer.drain(..).collect::<Vec<DataPoint>>());
-                    let write_res = influx_client.write_with_precision(&CONFIG.influxdb_bucket, body, TimestampPrecision::Milliseconds).await;
-                    if let Err(e) = write_res {
-                        eprintln!("Error writing to InfluxDB: {e}");
-                    }
+                    flush_buffer(&mut batch_buffer, &influx_client).await;
                 }
             }
         }
     }
-
+    
+    flush_buffer(&mut batch_buffer, &influx_client).await;
+    
     println!("{}", "Influx task ended.".yellow());
 }
 
+/**
+ * Helper to flush out a buffer
+ */
+async fn flush_buffer(buffer: &mut Vec<DataPoint>, client: &Client) {
+    let body = stream::iter((*buffer).drain(..).collect::<Vec<DataPoint>>());
+    let write_res = client.write_with_precision(&CONFIG.influxdb_bucket, body, TimestampPrecision::Milliseconds).await;
+    if let Err(e) = write_res {
+        eprintln!("Error writing to InfluxDB: {e}");
+    }
+}
+
+/**
+ * helper to build InfluxDB data point
+ */
 fn build_data_point(decoded_signal: DecodedSignal) -> Result<DataPoint, DataPointError> {
     DataPoint::builder(&CONFIG.influxdb_measurement)
         .field(&decoded_signal.name, decoded_signal.value)

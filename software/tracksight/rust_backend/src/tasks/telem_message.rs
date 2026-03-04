@@ -15,19 +15,6 @@ impl TelemetryIncomingMessage {
     pub const NTP_BYTE: u8 = 0x02;
 }
 
-// impl TryFrom<u8> for TelemetryMessage {
-//     type Error = ();
-//     fn try_from(byte: u8) -> Result<Self, Self::Error> {
-//         match byte {
-//             0x01 => Ok(TelemetryMessage::CanMessage),
-//             0x02 => Ok(TelemetryMessage::NTPTimeMessage),
-//             0x03 => Ok(TelemetryMessage::NTPDateMessage),
-//             0x04 => Ok(TelemetryMessage::BaseTimeRegMessage),
-//             _ => Err(()),
-//         }
-//     }
-// }
-
 /**
  * Message passed through serial
  * Define with default cloning behaviour, as fields are more or less primitives

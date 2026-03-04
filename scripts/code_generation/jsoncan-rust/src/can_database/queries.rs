@@ -49,7 +49,6 @@ impl CanDatabase {
         let mut s = binding
             .prepare("SELECT * FROM signals WHERE message_id = ?1")
             .unwrap();
-
         
         match s.query_map([message_id], |row| {
             Ok(CanSignal {
