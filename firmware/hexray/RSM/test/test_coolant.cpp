@@ -7,6 +7,7 @@ class RSMCoolantTest : public RSMBaseTest
 {
 };
 
+// TODO: Set up io_coolant and add fake functionality with #ifdefs
 TEST_F(RSMCoolantTest, getFlowRate)
 {
     fakes::io::coolant::setFlowRate(15);

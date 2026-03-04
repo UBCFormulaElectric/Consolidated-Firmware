@@ -1,5 +1,6 @@
 #include "fsmMocks.hpp"
 #include "app_canTx.hpp"
+#include "io_imus.hpp"
 
 namespace fakes::io // Set all the fake values using functions here
 {
@@ -96,6 +97,15 @@ namespace suspension
 
 namespace io // Define the mocked functions here
 {
+namespace imus
+{
+    Imu imu_front;
+
+    std::expected<void, ErrorCode> init()
+    {
+        return imu_front.init();
+    }
+} // namespace imus
 namespace apps
 {
     void init()
@@ -184,3 +194,9 @@ const io::shdn::node cockpit_node{ app::can_tx::FSM_COCKPITOKStatus_set };
 const io::shdn::node bots_node{ app::can_tx::FSM_BOTSOKStatus_set };
 const io::shdn::node fl_shdn_ok_node{ app::can_tx::FSM_FrontLeftILCKInertiaOKStatus_set };
 const io::shdn::node fr_shdn_ok_node{ app::can_tx::FSM_FrontRightILCKOKStatus_set };
+
+#include "io_canQueues.hpp"
+static void                overflow_callback() {}
+static void                overflow_callback(uint32_t) {}
+io::queue<io::CanMsg, 128> can_tx_queue{ "", overflow_callback, overflow_callback };
+io::queue<io::CanMsg, 128> can_rx_queue{ "", overflow_callback, overflow_callback };

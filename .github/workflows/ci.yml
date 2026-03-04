@@ -120,7 +120,6 @@ jobs:
           - board: hexray_FSM_app.hex
           - board: hexray_RSM_app.hex
           - board: hexray_VC_app.hex
-
     container:
       image: ubcformulaelectric/environment:cigoat
     #      credentials:
@@ -134,6 +133,45 @@ jobs:
       - uses: ./.github/actions/build_binary
         with:
           board: ${{ matrix.board }}
+
+  build-chimera:
+    needs: [ clang-format, codegen ]
+    name: Build Chimera Binaries
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - board: hexray_BMS_chimera.elf
+          - board: hexray_CRIT_chimera.elf
+          - board: hexray_DAM_chimera.elf
+          - board: hexray_FSM_chimera.elf
+          - board: hexray_RSM_chimera.elf
+          - board: hexray_VC_chimera.elf
+
+    container:
+      image: ubcformulaelectric/environment:cigoat
+
+    env:
+      BUILD_DIR: build_fw_dev
+
+    steps:
+      - name: Setup git
+        run: git config --global --add safe.directory $(realpath .)
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Configure
+        run: cmake --preset "FW Deploy CI" -B $BUILD_DIR
+
+      - name: Build
+        run: |
+          cmake --preset "FW Deploy CI" -B $BUILD_DIR 
+          cmake --build $BUILD_DIR --target ${{ matrix.board }} -- -j $(nproc)
 
   test-firmware:
     needs: [ clang-format ]

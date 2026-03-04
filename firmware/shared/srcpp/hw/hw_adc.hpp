@@ -1,6 +1,9 @@
 #pragma once
-#include <array>
+
+#include "util_utils.hpp"
 #include "util_limits.hpp"
+#include <array>
+#include <cassert>
 
 #ifdef TARGET_EMBEDDED
 #include "main.h"
@@ -54,10 +57,10 @@ template <size_t NUM_ADC_CHANNELS> class AdcChip
     }
 
   private:
-    ADC_HandleTypeDef *const                       hadc;
-    TIM_HandleTypeDef *const                       htim;
-    mutable std::array<float, NUM_ADC_CHANNELS>    adc_voltages;
-    mutable std::array<uint16_t, NUM_ADC_CHANNELS> raw_adc_values;
+    ADC_HandleTypeDef *const                                hadc;
+    TIM_HandleTypeDef *const                                htim;
+    mutable std::array<volatile float, NUM_ADC_CHANNELS>    adc_voltages;
+    mutable std::array<volatile uint16_t, NUM_ADC_CHANNELS> raw_adc_values;
 
   public:
     explicit AdcChip(ADC_HandleTypeDef *const in_hadc, TIM_HandleTypeDef *const in_htim)
@@ -65,8 +68,8 @@ template <size_t NUM_ADC_CHANNELS> class AdcChip
 
     void init() const
     {
-        HAL_ADC_Start_DMA(hadc, reinterpret_cast<uint32_t *>(raw_adc_values.data()), hadc->Init.NbrOfConversion);
-        HAL_TIM_Base_Start(htim);
+        assert(HAL_ADC_Start_DMA(hadc, (uint32_t *)raw_adc_values.data(), hadc->Init.NbrOfConversion) == HAL_OK);
+        assert(HAL_TIM_Base_Start(htim) == HAL_OK);
     }
 
     void update_callback() const
@@ -74,16 +77,16 @@ template <size_t NUM_ADC_CHANNELS> class AdcChip
         for (uint16_t ch = 0; ch < NUM_ADC_CHANNELS; ch++)
             adc_voltages[ch] = rawAdcValueToVoltage(false, raw_adc_values[ch]);
     }
-    [[nodiscard]] const float                 *getChannel(uint32_t channel) const { return &adc_voltages[channel]; }
+    [[nodiscard]] const volatile float        *getChannel(uint32_t channel) const { return &adc_voltages[channel]; }
     [[nodiscard]] constexpr ADC_HandleTypeDef *gethadc() const { return hadc; }
 };
 
 class Adc
 {
-    const float *const voltage_source;
+    const volatile float *const voltage_source;
 
   public:
-    explicit Adc(const float *in_voltage_source) : voltage_source(in_voltage_source){};
+    explicit Adc(const volatile float *in_voltage_source) : voltage_source(in_voltage_source){};
     [[nodiscard]] float getVoltage() const { return *voltage_source; }
 };
 } // namespace hw
