@@ -11,7 +11,7 @@ pub struct Config {
     pub influxdb_bucket: String,
     pub influxdb_measurement: String,
     pub jsoncan_config_path: String,
-    pub backend_port: u32,
+    pub backend_port: u16,
 }
 
 pub static CONFIG: LazyLock<Config> = LazyLock::new(|| load_env_file());
@@ -40,7 +40,7 @@ fn load_env_file() -> Config {
     // i love hardcoding
     let jsoncan_config_path: String = format!("../../../can_bus/{car_name}");
 
-    let backend_port: u32 = get_var::<u32>("BACKEND_PORT");
+    let backend_port: u16 = get_var::<u16>("BACKEND_PORT");
 
     return Config {
         serial_port: serial_port,
