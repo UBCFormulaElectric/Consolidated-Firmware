@@ -33,9 +33,7 @@ const SCROLL_PAD = 15;
 const MIN_SCALE_PX_PER_SEC = 0;
 const MAX_SCALE_PX_PER_SEC = 10000;
 
-function useZoomPanManager(containerRef: RefObject<HTMLDivElement | null>) {
-    const scalePxPerSecRef = useRef<number>(1);
-
+function useZoomPanManager(containerRef: RefObject<HTMLDivElement | null>, scalePxPerSecRef: RefObject<number>, onZoomChange?: () => void) {
     // scale update on ctrl + wheel
     useEffect(() => {
         const container = containerRef.current;
@@ -51,12 +49,15 @@ function useZoomPanManager(containerRef: RefObject<HTMLDivElement | null>) {
 
             // deltaScale usually in {-1,1}
             scalePxPerSecRef.current = Math.min(Math.max(scalePxPerSecRef.current * Math.exp(deltaScale), MIN_SCALE_PX_PER_SEC), MAX_SCALE_PX_PER_SEC);
+            if (onZoomChange) {
+                onZoomChange();
+            }
         }
         window.addEventListener("wheel", handleWheelZoom, { passive: false });
         return () => {
             window.removeEventListener("wheel", handleWheelZoom);
         };
-    }, [scalePxPerSecRef, containerRef]);
+    }, [scalePxPerSecRef, containerRef, onZoomChange]);
 
     // suppress scroll when playing
     const { isPaused } = useDisplayControlContext();
@@ -76,7 +77,6 @@ function useZoomPanManager(containerRef: RefObject<HTMLDivElement | null>) {
         };
     }, [containerRef, isPaused]);
 
-    return scalePxPerSecRef;
 }
 
 export default function SyncedGraphContainer({ children }: { children: ReactNode }) {
@@ -84,8 +84,7 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
     const contentRef = useRef<HTMLDivElement | null>(null); // Renamed from containerRef, this one grows
     const scrollContainerRef = useRef<HTMLDivElement | null>(null); // NEW: Ref for the scrolling wrapper
 
-    // zoom management (attach wheel listener to the scroll container)
-    const scalePxPerSecRef = useZoomPanManager(scrollContainerRef);
+    const scalePxPerSecRef = useRef<number>(1);
 
     // glokbal time range
     const globalTimeRangeRef = useRef<TimeRange | null>(null);
@@ -108,6 +107,9 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
             updateGraphWidth();
         }
     }, [updateGraphWidth])
+
+    // zoom management (attach wheel listener to the scroll container)
+    useZoomPanManager(scrollContainerRef, scalePxPerSecRef, updateGraphWidth);
 
     // manage left scroll variable
     const scrollLeftRef = useRef<number>(0);
