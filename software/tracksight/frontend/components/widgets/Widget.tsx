@@ -14,6 +14,7 @@ import { ChartData } from "./CanvasChartTypes";
 import { useDisplayControlContext as useDisplayControlInfo } from "../PausePlayControl";
 import { useMockData } from "./MockWidget";
 import { useWidgetManager } from "./WidgetManagerContext";
+import { SignalType } from "@/lib/types/Signal";
 
 function SignalButton({ cfg, handleRemoveSignal, hoverSignalName }: {
 	cfg: EnumSignalConfig | NumericalSignalConfig, idx: number,
@@ -50,7 +51,7 @@ function useWidgetData(widgetData: WidgetData): RefObject<ChartData> {
 }
 
 export function Widget({ widgetData }: { widgetData: WidgetData; }) {
-	const [chartHeight, setChartHeight] = useState(256);
+	const [chartHeight, setChartHeight] = widgetData.type === SignalType.NUMERICAL ? useState(256) : useState(150); 
 	const { removeWidget, removeSignal } = useWidgetManager();
 	const hoveredSignal = useRef<string | null>(null);
 

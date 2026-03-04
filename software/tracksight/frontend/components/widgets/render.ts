@@ -514,11 +514,6 @@ export default function render(
     }
 
     if (hoverTime !== null) {
-        // TODO surely this check is not useful because the hoverTime will be on the screen?
-        // const withinX = hoverTime >= visibleStartTime && hoverTime <= visibleEndTime;
-        // if (!withinX) {
-        //     return
-        // }
         render_tooltip(
             context, width, height,
             hoverTime, hover_value!, timeToX
