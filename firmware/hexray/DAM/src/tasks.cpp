@@ -1,7 +1,19 @@
 #include "tasks.h"
 #include "jobs.hpp"
 #include "io_time.hpp"
+#include "io_telemMessage.hpp"
 #include "hw_rtosTaskHandler.hpp"
+#include "hw_crc.hpp"
+#include "hw_uarts.hpp"
+
+#include <span>
+
+extern "C"
+{
+#include "io_rtc.h"
+}
+
+static IoRtcTime boot_time{};
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
@@ -36,6 +48,10 @@
 }
 [[noreturn]] static void tasks_runTelem(void *arg)
 {
+    const io::telemMessage::BaseTimeRegMsg base_time_msg(boot_time);
+    LOG_IF_ERR(_900k_uart.transmitPoll(
+        std::span<const uint8_t>{ reinterpret_cast<const uint8_t *>(&base_time_msg), sizeof(base_time_msg) }));
+
     forever
     {
         jobs_runTelem_tick();
@@ -90,6 +106,8 @@ void tasks_preInit() {}
 
 void tasks_init()
 {
+    io_rtc_readTime(&boot_time);
+    hw::crc::init(&hcrc);
     jobs_init();
     osKernelInitialize();
     DAM_StartAllTasks();

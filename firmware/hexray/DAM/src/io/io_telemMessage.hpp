@@ -2,10 +2,10 @@
 
 #include <cstdint>
 #include "io_canMsg.hpp"
+#include "hw_crc.hpp"
 
 extern "C"
 {
-#include "hw_crc.h"
 #include "io_rtc.h"
 }
 
@@ -42,6 +42,7 @@ struct [[gnu::packed]] BaseTimeRegMsg
 {
     Header             header;
     BaseTimeRegMsgBody msg;
+    explicit BaseTimeRegMsg(const IoRtcTime &rtc_time);
 };
 
 struct [[gnu::packed]] CanMsgBody
@@ -56,12 +57,8 @@ struct [[gnu::packed]] TelemCanMsg
 {
     Header     header;
     CanMsgBody msg;
+    explicit TelemCanMsg(const io::CanMsg &rx_msg, float time_offset);
+    [[nodiscard]] size_t wireSize() const;
 };
-
-Header buildHeader(const uint8_t *payload, uint8_t payload_length);
-
-BaseTimeRegMsg buildBaseTimeRegMsg(const IoRtcTime &rtc_time);
-
-TelemCanMsg buildCanMsg(const io::CanMsg &rx_msg, float time_offset, uint8_t &size);
 
 } // namespace io::telemMessage

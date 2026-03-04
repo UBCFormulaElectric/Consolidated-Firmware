@@ -1,6 +1,7 @@
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
+#include <span>
 #include "hw_hal.hpp"
 
 // For reference, see STM32's manual on using their cyclic redundancy check (CRC)
@@ -17,9 +18,8 @@ void init(CRC_HandleTypeDef *crc_handle);
 
 /**
  * Calculate a checksum using the CRC peripheral.
- * @param buffer Pointer to data buffer to take the checksum of.
- * @param size_words Number of words (32 bits) of data to take the checksum of.
+ * @param buffer_words Data buffer of words (32 bits) to checksum.
  * @return Checksum value.
  */
-[[nodiscard]] uint32_t calculate(const uint32_t *buffer, const uint32_t size_words);
+[[nodiscard]] uint32_t calculate(std::span<const uint32_t> buffer_words);
 } // namespace hw::crc
