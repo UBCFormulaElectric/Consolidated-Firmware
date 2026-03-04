@@ -3,5 +3,5 @@
 
 namespace io::imus
 {
-    void app_imu_init();
+void app_imu_init();
 } // namespace io::imus

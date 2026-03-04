@@ -12,7 +12,6 @@ namespace app::loadswitches
 {
 io::Efuse *const efuse_channels[NUM_EFUSE_CHANNELS];
 
-// extern io::TI_TPS25_Efuse L_RAD_Efuse{&l_rad_fan_en, &adc_l_rad_fan, &l_rad_fan_pg, &l_rad_fan_en};
 static void (*const efuse_enabled_can_setters[NUM_EFUSE_CHANNELS])(bool) = {
     [F_INV_Efuse]   = app::can_tx::VC_FrontInvertersStatus_set,
     [RSM_Efuse]     = app::can_tx::VC_RSMStatus_set,

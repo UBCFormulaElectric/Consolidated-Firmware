@@ -1,65 +1,134 @@
 #pragma once
-#include "app_timer.hpp"
-#include "app_loadswitches.hpp"
-#include <assert>
+#include <array>
 #include <cstdint>
-namespace vc::app::powerManager
+#include <cassert>
+#include "app_timer.hpp"
+#include "app_canAlerts.hpp"
+#include "io_efuse.hpp"
+#include "io_efuses.hpp"
+
+namespace app
 {
+
+struct EfuseConfig
+{
+    bool    efuse_enable{ false };
+    uint8_t timeout{ 0 };
+    uint8_t max_retry{ 0 };
+};
+
+struct PowerManagerConfig
+{
+    std::array<EfuseConfig, NUM_EFUSE_CHANNELS> efuse_configs{};
+};
+
 class PowerManager
 {
-    // private:
-    // typedef struct EfuseConfig
-    //     {
-    //         bool    efuse_enable;
-    //         uint8_t timeout;
-    //         uint8_t max_retry;
-    //     } ;
-}
-} // namespace vc::app::powerManager
+  public:
+    explicit PowerManager(const std::array<io::Efuse *, NUM_EFUSE_CHANNELS> &efuses) : efuses_(efuses)
+    {
+        for (auto *e : efuses_)
+        {
+            assert(e != nullptr);
+        }
+    }
 
-// class EfuseChannel:
-//     public vc::app::loadswitches::EfuseChannel{
-// };
-// typedef struct
-// {
-//     bool    efuse_enable;
-//     uint8_t timeout;
-//     uint8_t max_retry;
-// } EfuseConfig;
+    void init() { app::Timer sequencing_timer = {}; }
 
-// typedef struct
-// {
-//     EfuseConfig efuse_configs[NUM_EFUSE_CHANNELS];
-// } PowerManagerConfig;
+    void updateConfig(const PowerManagerConfig &new_cfg)
+    {
+        state = new_cfg;
 
-// void app_powerManager_init();
-// void app_powerManager_updateConfig(PowerManagerConfig new_power_manager_config);
-// void app_powerManager_EfuseProtocolTick_100Hz(void);
+        const bool under_v                                      = app::can_alerts::VC_Info_PcmUnderVoltage_get();
+        state.efuse_configs[EFUSE_CHANNEL_RL_PUMP].efuse_enable = !under_v;
+        state.efuse_configs[EFUSE_CHANNEL_R_RAD].efuse_enable   = !under_v;
+    }
 
-// #ifdef TARGET_TEST
-// PowerManagerConfig app_powerManager_getConfig(void);
-// bool               app_powerManager_getEfuse(LoadswitchChannel channel);
-// #endif
+    // 100 Hz tasdk
+    void efuseProtocolTick_100Hz()
+    {
+        const auto time_state = sequencing_timer.updateAndGetState();
 
-// class PowerManager
-// {
-//   public:
-//     bool    efuse_enable;
-//     uint8_t timeout;
-//     uint8_t max_retry;
-//     uint8_t channel;
+        switch (time_state)
+        {
+            case TIMER_STATE_RUNNING:
+            default:
+                return;
 
-// #ifdef TARGET_EMBEDDED
-//   private:
-// #endif
+            case TIMER_STATE_EXPIRED:
+                // timeout expired or no timeout
+                sequencing_timer.stop();
+                [[fallthrough]];
 
-// #ifdef TARGET_TEST
-//     PowerManagerConfig app_powerManager_getConfig(void) { return power_manager_state; }
+            case TIMER_STATE_IDLE:
+                sequenceWhileIdle();
+                return;
+        }
+    }
 
-//     bool app_powerManager_getEfuse(const LoadswitchChannel channel)
-//     {
-//         return power_manager_state.efuse_configs[channel].efuse_enable;
-//     }
-// #endif
-// };
-//} // namespace vc::app::powerManager
+#ifdef TARGET_TEST
+    PowerManagerConfig getConfig() const { return state; }
+    bool getEfuse(const LoadswitchChannel channel) const { return state_.efuse_configs[channel].efuse_enable; }
+#endif
+
+  private:
+    void sequenceWhileIdle()
+    {
+        for (int ch = 0; ch < NUM_EFUSE_CHANNELS; ++ch)
+        {
+            if (sequencing_timer.updateAndGetState() != TIMER_STATE_IDLE)
+            {
+                break;
+            }
+
+            io::Efuse *efuse = efuses_[ch];
+            assert(efuse != nullptr);
+
+            const bool desired = state.efuse_configs[ch].efuse_enable;
+            const bool actual  = efuse->isChannelEnabled();
+
+            if (actual == desired)
+            {
+                continue; // channel already in desired state
+            }
+
+            // retry limit logic (same as C)
+            if (retries[ch] > state_.efuse_configs[ch].max_retry)
+            {
+                break;
+            }
+
+            if (!desired)
+            {
+                // case 1: on and trying to turn off
+                efuse->setChannel(false);
+                continue;
+            }
+
+            // case 2: off and trying to turn on
+            if (!efuse->ok())
+            {
+                ++retries[ch];
+            }
+
+            const uint8_t timeout = state.efuse_configs[ch].timeout;
+            if (timeout != 0)
+            {
+                app_timer_init(&sequencing_timer, timeout);
+                app_timer_restart(&sequencing_timer);
+                // After starting a timeout, we stop sequencing more channels this tick
+            }
+
+            efuse->setChannel(true);
+        }
+    }
+
+  private:
+    PowerManagerConfig state{};
+    TimerChannel       sequencing_timer{};
+
+    std::array<io::Efuse *, NUM_EFUSE_CHANNELS> efuses{};
+    std::array<uint8_t, NUM_EFUSE_CHANNELS>     retries{};
+};
+
+} // namespace app

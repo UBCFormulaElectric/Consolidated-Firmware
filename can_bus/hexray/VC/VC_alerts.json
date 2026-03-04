@@ -65,6 +65,10 @@
     "WatchdogTimeout": {
       "id": 452,
       "description": "Watchdog timeout detected."
+    },
+        "PcmUnderVoltage": {
+      "id": 453,
+      "description": "PCM voltage under 18 volts"
     }
   }
 }
