@@ -14,10 +14,10 @@ All following steps should be independent of OS.
 
 ## Build Container
 
-If you've modified the container, `cd` into this directory and build via:
+If you've modified the container, `cd` into THE ROOT OF THIS REPO and build via
 
 ```bash
-docker build . -t ubcformulaelectric/environment
+docker build . -f environment/Dockerfile -t ubcformulaelectric/environment
 ```
 
 ## Push/Pull Container

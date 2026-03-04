@@ -21,7 +21,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "tasks.h"
+#include "hw_error.hpp"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -99,7 +100,7 @@ static void MX_USB_OTG_HS_PCD_Init(void);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
+    tasks_preInit();
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -137,7 +138,7 @@ int main(void)
     MX_TIM5_Init();
     MX_USB_OTG_HS_PCD_Init();
     /* USER CODE BEGIN 2 */
-
+    tasks_init();
     /* USER CODE END 2 */
 
     /* Infinite loop */
@@ -519,10 +520,10 @@ static void MX_FDCAN2_Init(void)
     hfdcan2.Init.AutoRetransmission   = ENABLE;
     hfdcan2.Init.TransmitPause        = DISABLE;
     hfdcan2.Init.ProtocolException    = DISABLE;
-    hfdcan2.Init.NominalPrescaler     = 12;
+    hfdcan2.Init.NominalPrescaler     = 6;
     hfdcan2.Init.NominalSyncJumpWidth = 2;
-    hfdcan2.Init.NominalTimeSeg1      = 12;
-    hfdcan2.Init.NominalTimeSeg2      = 3;
+    hfdcan2.Init.NominalTimeSeg1      = 13;
+    hfdcan2.Init.NominalTimeSeg2      = 2;
     hfdcan2.Init.DataPrescaler        = 3;
     hfdcan2.Init.DataSyncJumpWidth    = 2;
     hfdcan2.Init.DataTimeSeg1         = 5;
@@ -562,7 +563,7 @@ static void MX_IWDG1_Init(void)
     /* USER CODE END IWDG1_Init 0 */
 
     /* USER CODE BEGIN IWDG1_Init 1 */
-
+#ifndef WATCHDOG_DISABLED
     /* USER CODE END IWDG1_Init 1 */
     hiwdg1.Instance       = IWDG1;
     hiwdg1.Init.Prescaler = IWDG_PRESCALER_4;
@@ -573,7 +574,7 @@ static void MX_IWDG1_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN IWDG1_Init 2 */
-
+#endif
     /* USER CODE END IWDG1_Init 2 */
 }
 
@@ -589,7 +590,7 @@ static void MX_SDMMC1_SD_Init(void)
     /* USER CODE END SDMMC1_Init 0 */
 
     /* USER CODE BEGIN SDMMC1_Init 1 */
-
+#ifdef false
     /* USER CODE END SDMMC1_Init 1 */
     hsd1.Instance                 = SDMMC1;
     hsd1.Init.ClockEdge           = SDMMC_CLOCK_EDGE_RISING;
@@ -602,7 +603,7 @@ static void MX_SDMMC1_SD_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN SDMMC1_Init 2 */
-
+#endif
     /* USER CODE END SDMMC1_Init 2 */
 }
 
@@ -887,7 +888,7 @@ static void MX_GPIO_Init(void)
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
-        GPIOE, IR_P_EN_Pin | SHDN_EN_Pin | PRE_CHARGE_EN_Pin | SHDN_OL_ON_Pin | FAN_EN_Pin | BMS_OK_Pin,
+        GPIOE, IR_P_EN_Pin | SHDN_EN_Pin | PRE_CHARGE_EN_Pin | SHDN_OL_ON_Pin | FAN_EN_Pin | nBMS_OK_Pin,
         GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
@@ -900,8 +901,8 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_WritePin(
         GPIOD, BSPD_TEST_EN_Pin | SPI_CS_HS_Pin | TSENSE_SEL0_Pin | TSENSE_SEL1_Pin | TSENSE_SEL2_Pin, GPIO_PIN_RESET);
 
-    /*Configure GPIO pins : IR_P_EN_Pin SHDN_EN_Pin SHDN_OL_ON_Pin BMS_OK_Pin */
-    GPIO_InitStruct.Pin   = IR_P_EN_Pin | SHDN_EN_Pin | SHDN_OL_ON_Pin | BMS_OK_Pin;
+    /*Configure GPIO pins : IR_P_EN_Pin SHDN_EN_Pin SHDN_OL_ON_Pin nBMS_OK_Pin */
+    GPIO_InitStruct.Pin   = IR_P_EN_Pin | SHDN_EN_Pin | SHDN_OL_ON_Pin | nBMS_OK_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

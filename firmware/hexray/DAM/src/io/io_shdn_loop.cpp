@@ -1,15 +1,9 @@
-#include "io_shdn_loop.hpp"
+#include "io_shdnLoopNode.hpp"
 #include "hw_gpios.hpp"
+#include "app_canTx.hpp"
 
-namespace io
+namespace io::shdn
 {
-bool r_shdn_pin_is_high()
-{
-    return r_shdn_sense_pin.readPin();
-}
-
-bool l_shdn_pin_is_high()
-{
-    return l_shdn_sense_pin.readPin();
-}
-} // namespace io
+io::shdn::node r_estop(r_shdn_sense_pin, app::can_tx::DAM_REStopOKStatus_set);
+io::shdn::node l_estop(l_shdn_sense_pin, app::can_tx::DAM_LEStopOKStatus_set);
+} // namespace io::shdn

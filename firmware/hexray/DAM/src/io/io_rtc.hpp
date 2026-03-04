@@ -1,9 +1,8 @@
 #pragma once
 
 #include <stdint.h>
-#include "stm32h5xx_hal.h"
 
-namespace rtc
+namespace io::rtc
 {
 struct Time
 {
@@ -27,7 +26,7 @@ struct Date
  * @param time Time struct.
  * @return true on success, false on HAL error.
  */
-bool set_time(RTC_HandleTypeDef &hrtc, const Time &time);
+bool set_time(const Time &time);
 
 /**
  * Set the RTC date.
@@ -36,7 +35,7 @@ bool set_time(RTC_HandleTypeDef &hrtc, const Time &time);
  * @param date Date struct.
  * @return true on success, false on HAL error.
  */
-bool set_date(RTC_HandleTypeDef &hrtc, const Date &date);
+bool set_date(const Date &date);
 
 /**
  * Get the RTC time.
@@ -45,7 +44,7 @@ bool set_date(RTC_HandleTypeDef &hrtc, const Date &date);
  * @param time Output time.
  * @return true on success, false on HAL error.
  */
-bool get_time(RTC_HandleTypeDef &hrtc, Time &time);
+bool get_time(Time &time);
 
 /**
  * Get the RTC date.
@@ -54,12 +53,12 @@ bool get_time(RTC_HandleTypeDef &hrtc, Time &time);
  * @param date Output date.
  * @return true on success, false on HAL error.
  */
-bool get_date(RTC_HandleTypeDef &hrtc, Date &date);
+bool get_date(Date &date);
 
 // Helper function to convert BCD format to binary.
-static uint8_t bcd_to_bin(uint8_t bcd);
+uint8_t bcd_to_bin(uint8_t bcd);
 
 // Helper function to convert binary to BCD format.
-static uint8_t bin_to_bcd(uint8_t bin);
+uint8_t bin_to_bcd(uint8_t bin);
 
-} // namespace rtc
+} // namespace io::rtc

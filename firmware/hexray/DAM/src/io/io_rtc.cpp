@@ -1,9 +1,10 @@
 #include "io_rtc.hpp"
 #include "io_log.h"
+#include "main.h"
 
-namespace rtc
+namespace io::rtc
 {
-bool set_time(RTC_HandleTypeDef &hrtc, const Time &time)
+bool set_time(const Time &time)
 {
     RTC_TimeTypeDef rtcTime{};
 
@@ -21,7 +22,7 @@ bool set_time(RTC_HandleTypeDef &hrtc, const Time &time)
     return true;
 }
 
-bool set_date(RTC_HandleTypeDef &hrtc, const Date &date)
+bool set_date(const Date &date)
 {
     RTC_DateTypeDef rtcDate{};
 
@@ -38,7 +39,7 @@ bool set_date(RTC_HandleTypeDef &hrtc, const Date &date)
     return true;
 }
 
-bool get_time(RTC_HandleTypeDef &hrtc, Time &time)
+bool get_time(Time &time)
 {
     RTC_TimeTypeDef rtcTime{};
     RTC_DateTypeDef rtcDate{};
@@ -58,7 +59,7 @@ bool get_time(RTC_HandleTypeDef &hrtc, Time &time)
     return true;
 }
 
-bool get_date(RTC_HandleTypeDef &hrtc, Date &date)
+bool get_date(Date &date)
 {
     RTC_TimeTypeDef dummy{};
     RTC_DateTypeDef rtcDate{};
@@ -79,13 +80,13 @@ bool get_date(RTC_HandleTypeDef &hrtc, Date &date)
     return true;
 }
 
-static uint8_t bcd_to_bin(uint8_t bcd)
+uint8_t bcd_to_bin(uint8_t bcd)
 {
     return static_cast<uint8_t>((bcd >> 4) * 10 + (bcd & 0x0F));
 }
 
-static uint8_t bin_to_bcd(uint8_t bin)
+uint8_t bin_to_bcd(uint8_t bin)
 {
     return static_cast<uint8_t>(((bin / 10) << 4) | (bin % 10));
 }
-} // namespace rtc
+} // namespace io::rtc

@@ -13,6 +13,7 @@ extern "C"
 #include "task.h"
 #include "util_errorCodes.hpp"
 #include "hw_gpio.hpp"
+#include <optional>
 
 namespace hw::spi
 {
@@ -34,6 +35,8 @@ class SpiBus
      */
     void onTransactionCompleteFromISR() const;
 
+    SPI_HandleTypeDef &getHandle() const { return handle; }
+
   private:
     friend class SpiDevice;
 
@@ -43,9 +46,13 @@ class SpiBus
 class SpiDevice
 {
   public:
-    constexpr SpiDevice(const SpiBus &bus_in, const Gpio &nss_in, const uint32_t timeoutMs_in)
+    constexpr SpiDevice(const SpiBus &bus_in, const std::optional<Gpio> nss_in, const uint32_t timeoutMs_in)
       : bus(bus_in), nss(nss_in), timeoutMs(timeoutMs_in)
     {
+        if (nss.has_value())
+        {
+            nss.value().writePin(true); // Ensure NSS is high (inactive) by default.
+        }
     }
 
     /**
@@ -73,9 +80,9 @@ class SpiDevice
         transmitThenReceive(std::span<const uint8_t> tx, std::span<uint8_t> rx) const;
 
   private:
-    const SpiBus &bus;
-    const Gpio   &nss;
-    uint32_t      timeoutMs;
+    const SpiBus             &bus;
+    const std::optional<Gpio> nss;
+    uint32_t                  timeoutMs;
 
     void enableNss() const;
     void disableNss() const;

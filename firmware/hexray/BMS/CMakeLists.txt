@@ -9,7 +9,7 @@ set(TASKS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.cpp")
 set(SYSTEM_SRCS ${JOBS_SRC} ${TASKS_SRC})
 set(SYSTEM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
-file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.c")
+file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp")
 list(APPEND APP_SRCS
         # "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
 )
@@ -18,23 +18,30 @@ set(APP_INCLUDE_DIRS
         "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR_CPP}"
 )
 
-file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.c")
+file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.cpp")
 list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
 )
 set(IO_INCLUDE_DIRS
-        # "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
         "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_DIR_CPP}"
 )
 
-file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c")
+file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp")
 list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_gpio.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_i2c.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_spi.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmInput.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmOutput.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_assert.cpp"
 )
 set(HW_INCLUDE_DIRS
-        #        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
         "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR_CPP}"
 )
 
@@ -57,37 +64,37 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     set(STM32_HAL_SRCS
-        "stm32h7xx_hal.c"
-        "stm32h7xx_hal_rcc.c"
-        "stm32h7xx_hal_rcc_ex.c"
-        "stm32h7xx_hal_pwr_ex.c"
-        "stm32h7xx_hal_cortex.c"
-        "stm32h7xx_hal_exti.c"
-        "stm32h7xx_hal_tim.c"
-        "stm32h7xx_hal_gpio.c"
-        "stm32h7xx_hal_adc.c"
-        "stm32h7xx_hal_dma.c"         
-        "stm32h7xx_hal_iwdg.c"
+            "stm32h7xx_hal.c"
+            "stm32h7xx_hal_rcc.c"
+            "stm32h7xx_hal_rcc_ex.c"
+            "stm32h7xx_hal_pwr_ex.c"
+            "stm32h7xx_hal_cortex.c"
+            "stm32h7xx_hal_exti.c"
+            "stm32h7xx_hal_tim.c"
+            "stm32h7xx_hal_gpio.c"
+            "stm32h7xx_hal_adc.c"
+            "stm32h7xx_hal_dma.c"
+            "stm32h7xx_hal_iwdg.c"
 
-        "stm32h7xx_hal_adc_ex.c"       
-        "stm32h7xx_hal_tim_ex.c"       
-        "stm32h7xx_hal_dma_ex.c" 
-        
-        "stm32h7xx_hal_crc.c"        
-        "stm32h7xx_hal_crc_ex.c"       
-        "stm32h7xx_hal_fdcan.c"       
-        "stm32h7xx_hal_spi.c"        
-        "stm32h7xx_hal_spi_ex.c"
+            "stm32h7xx_hal_adc_ex.c"
+            "stm32h7xx_hal_tim_ex.c"
+            "stm32h7xx_hal_dma_ex.c"
 
-        "stm32h7xx_hal_sd.c"       
-        "stm32h7xx_hal_sd_ex.c"
-        "stm32h7xx_ll_sdmmc.c"        
+            "stm32h7xx_hal_crc.c"
+            "stm32h7xx_hal_crc_ex.c"
+            "stm32h7xx_hal_fdcan.c"
+            "stm32h7xx_hal_spi.c"
+            "stm32h7xx_hal_spi_ex.c"
 
-        "stm32h7xx_hal_pcd.c"     
-        "stm32h7xx_hal_pcd_ex.c"
-        "stm32h7xx_ll_usb.c"       
-        
-        
+            "stm32h7xx_hal_sd.c"
+            "stm32h7xx_hal_sd_ex.c"
+            "stm32h7xx_ll_sdmmc.c"
+
+            "stm32h7xx_hal_pcd.c"
+            "stm32h7xx_hal_pcd_ex.c"
+            "stm32h7xx_ll_usb.c"
+
+            "stm32h7xx_hal_i2c.c"
     )
     set(CUBEMX_INCLUDES ${CUBEMX_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${HW_INCLUDE_DIRS})
     stm32h733xx_cube_library(
@@ -102,7 +109,7 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     # JSONCAN
-    jsoncan_embedded_library(BMS hexray "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
+    jsoncan_embedded_library_cpp(BMS hexray "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
 
     # CommitInfo
     commit_info_library(
@@ -118,7 +125,10 @@ if ("${TARGET}" STREQUAL "binary")
     target_link_libraries("hexray_BMS_chimera.elf" PRIVATE "hexray_BMS_stm32")
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
-    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS})
+    set(FAKE_SRCS
+            "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
+    )
+    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
     set(INCLUDE_DIRS
             # "${CMAKE_CURRENT_SOURCE_DIR}/test"
             ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP}
@@ -132,7 +142,7 @@ elseif ("${TARGET}" STREQUAL "test")
     add_compile_definitions("hexray_BMS_test" PRIVATE STM32h763Rx)
 
     # JSONCAN
-    jsoncan_library(BMS hexray "${CMAKE_CURRENT_BINARY_DIR}")
+    jsoncan_library_cpp(BMS hexray "${CMAKE_CURRENT_BINARY_DIR}")
 
     # CommitInfo
     commit_info_library(
@@ -141,16 +151,6 @@ elseif ("${TARGET}" STREQUAL "test")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    # FakeIO
-    set(HEADERS_TO_FAKE
-    )
-
-    file(GLOB TEST_IO_HDRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.h")
-    list(APPEND HEADERS_TO_FAKE ${TEST_IO_HDRS})
-    create_fake_library(
-            "hexray_BMS_fakes"
-            "${HEADERS_TO_FAKE}"
-    )
-
-    target_link_libraries("hexray_BMS_test" PRIVATE "hexray_BMS_fakes" "hexray_BMS_commit_info")
+    target_link_libraries("hexray_BMS_test" PRIVATE "hexray_BMS_commit_info" "hexray_BMS_jsoncan")
+    target_compile_definitions("hexray_BMS_test" PRIVATE STM32H733xx)
 endif ()

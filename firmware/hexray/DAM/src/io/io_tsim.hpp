@@ -1,20 +1,20 @@
 #pragma once
 
-namespace io
+namespace io::tsim
 {
 /**
  * Turn red and green tsims off.
  */
-void tsim_set_off();
+void set_off();
 
 /**
  * Turn red tsim on.
  */
-void tsim_set_red();
+void set_red();
 
 /**
  * Turn green tsim on.
  */
-void tsim_set_green();
+void set_green();
 
-} // namespace io
+} // namespace io::tsim

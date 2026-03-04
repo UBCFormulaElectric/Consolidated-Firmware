@@ -1,6 +1,7 @@
 #pragma once
 
-#include <cstdint>
+#include "util_errorCodes.hpp"
+#include <span>
 
 #ifdef TARGET_EMBEDDED
 #include "hw_hal.hpp"
@@ -22,47 +23,43 @@ class Uart
   public:
     /**
      * Transmits an amount of data in DMA mode (non-blocking).
-     * @param pData Pointer to data buffer (u8 or u16 data elements).
-     * @param size Amount of data elements (u8 or u16) to be transmitted.
+     * @param tx_data Span of data to transmit.
      */
-    void transmitDma(uint8_t *pData, uint8_t size) const;
+    std::expected<void, ErrorCode> transmitDma(std::span<const uint8_t> tx_data) const;
 
     /**
      * Receives an amount of data in DMA mode (non-blocking).
-     * @param pData Pointer to data buffer (u8 or u16 data elements).
-     * @param size Amount of data elements (u8 or u16) to be received.
+     * @param rx_data Span to store received data.
      */
-    void receiveDma(uint8_t *pData, uint8_t size) const;
+    std::expected<void, ErrorCode> receiveDma(std::span<uint8_t> rx_data) const;
 
     /**
      * Transmits an amount of data in polling mode (blocking).
-     * @param pData Pointer to data buffer (u8 or u16 data elements).
-     * @param size Amount of data elements (u8 or u16) to be transmitted.
+     * @param tx_data Span of data to transmit.
      * @param timeout Timeout duration
      */
-    void transmitPoll(uint8_t *pData, uint8_t size, uint32_t timeout) const;
+    std::expected<void, ErrorCode>
+        transmitPoll(std::span<const uint8_t> tx_data, uint32_t timeout = std::numeric_limits<uint32_t>::max()) const;
 
     /**
      * Receives an amount of data in polling mode (blocking).
-     * @param pData Pointer to data buffer (u8 or u16 data elements).
-     * @param size Amount of data elements (u8 or u16) to be received.
+     * @param rx_data Span to store received data.
      * @param timeout Timeout duration
      */
-    bool receivePoll(uint8_t *pData, uint8_t size, uint32_t timeout) const;
+    std::expected<void, ErrorCode>
+        receivePoll(std::span<uint8_t> rx_data, uint32_t timeout = std::numeric_limits<uint32_t>::max()) const;
 
     /**
      * Receives an amount of data in interrupt mode (non-blocking).
-     * @param pData Pointer to data buffer (u8 or u16 data elements).
-     * @param size Amount of data elements (u8 or u16) to be received.
+     * @param tx_data Span of data to transmit.
      */
-    void transmitIt(uint8_t *pData, uint8_t size) const;
+    std::expected<void, ErrorCode> transmitIt(std::span<const uint8_t> tx_data) const;
 
     /**
      * Receives an amount of data in interrupt mode (non-blocking).
-     * @param pData Pointer to data buffer (u8 or u16 data elements).
-     * @param size Amount of data elements (u8 or u16) to be received.
+     * @param rx_data Span to store received data.
      */
-    void receiveIt(uint8_t *pData, uint8_t size) const;
+    std::expected<void, ErrorCode> receiveIt(std::span<uint8_t> rx_data) const;
 
     [[nodiscard]] const UART_HandleTypeDef *getHandle() const { return handle; }
 };
