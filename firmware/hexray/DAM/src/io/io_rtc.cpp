@@ -8,9 +8,9 @@ bool set_time(const Time &time)
 {
     RTC_TimeTypeDef rtcTime{};
 
-    rtcTime.Hours = bin_to_bcd(time.hours);
-    rtcTime.Minutes = bin_to_bcd(time.minutes);
-    rtcTime.Seconds = bin_to_bcd(time.seconds);
+    rtcTime.Hours          = bin_to_bcd(time.hours);
+    rtcTime.Minutes        = bin_to_bcd(time.minutes);
+    rtcTime.Seconds        = bin_to_bcd(time.seconds);
     rtcTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
     rtcTime.StoreOperation = RTC_STOREOPERATION_RESET;
 
@@ -27,11 +27,11 @@ bool set_date(const Date &date)
     RTC_DateTypeDef rtcDate{};
 
     rtcDate.WeekDay = date.weekday;
-    rtcDate.Month = date.month;
-    rtcDate.Date = bin_to_bcd(date.day);
-    rtcDate.Year = bin_to_bcd(date.year);
+    rtcDate.Month   = date.month;
+    rtcDate.Date    = bin_to_bcd(date.day);
+    rtcDate.Year    = bin_to_bcd(date.year);
 
-    if (HAL_RTC_SetDate(&hrtc, &rtcDate, RTC_FORMAT_BCD) != HAL_OK) 
+    if (HAL_RTC_SetDate(&hrtc, &rtcDate, RTC_FORMAT_BCD) != HAL_OK)
     {
         LOG_ERROR("Error getting RTC Date");
         return false;
@@ -44,7 +44,7 @@ bool get_time(Time &time)
     RTC_TimeTypeDef rtcTime{};
     RTC_DateTypeDef rtcDate{};
 
-    // You must call HAL_RTC_GetDate() after HAL_RTC_GetTime() to unlock the values in the 
+    // You must call HAL_RTC_GetDate() after HAL_RTC_GetTime() to unlock the values in the
     // higher-order calendar shadow registers to ensure consistency between the time and date values.
     if (HAL_RTC_GetTime(&hrtc, &rtcTime, RTC_FORMAT_BCD) != HAL_OK)
         return false;
@@ -52,7 +52,7 @@ bool get_time(Time &time)
     if (HAL_RTC_GetDate(&hrtc, &rtcDate, RTC_FORMAT_BCD) != HAL_OK)
         return false;
 
-    time.hours = bcd_to_bin(rtcTime.Hours);
+    time.hours   = bcd_to_bin(rtcTime.Hours);
     time.minutes = bcd_to_bin(rtcTime.Minutes);
     time.seconds = bcd_to_bin(rtcTime.Seconds);
 
@@ -64,7 +64,7 @@ bool get_date(Date &date)
     RTC_TimeTypeDef dummy{};
     RTC_DateTypeDef rtcDate{};
 
-    // You must call HAL_RTC_GetDate() after HAL_RTC_GetTime() to unlock the values in the 
+    // You must call HAL_RTC_GetDate() after HAL_RTC_GetTime() to unlock the values in the
     // higher-order calendar shadow registers to ensure consistency between the time and date values.
     if (HAL_RTC_GetTime(&hrtc, &dummy, RTC_FORMAT_BCD) != HAL_OK)
         return false;
@@ -73,9 +73,9 @@ bool get_date(Date &date)
         return false;
 
     date.weekday = rtcDate.WeekDay;
-    date.month = rtcDate.Month;
-    date.day = bcd_to_bin(rtcDate.Date);
-    date.year = bcd_to_bin(rtcDate.Year);
+    date.month   = rtcDate.Month;
+    date.day     = bcd_to_bin(rtcDate.Date);
+    date.year    = bcd_to_bin(rtcDate.Year);
 
     return true;
 }
