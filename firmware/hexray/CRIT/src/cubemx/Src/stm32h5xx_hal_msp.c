@@ -83,23 +83,12 @@ void HAL_MspInit(void)
  */
 void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
 {
-    GPIO_InitTypeDef         GPIO_InitStruct     = { 0 };
-    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
+    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
     if (hfdcan->Instance == FDCAN1)
     {
         /* USER CODE BEGIN FDCAN1_MspInit 0 */
 
         /* USER CODE END FDCAN1_MspInit 0 */
-
-        /** Initializes the peripherals clock
-         */
-        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_FDCAN;
-        PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_PLL1Q;
-        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
-        {
-            Error_Handler();
-        }
-
         /* Peripheral clock enable */
         __HAL_RCC_FDCAN_CLK_ENABLE();
 
@@ -115,6 +104,11 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
         GPIO_InitStruct.Alternate = GPIO_AF9_FDCAN1;
         HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+        /* FDCAN1 interrupt Init */
+        HAL_NVIC_SetPriority(FDCAN1_IT0_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(FDCAN1_IT0_IRQn);
+        HAL_NVIC_SetPriority(FDCAN1_IT1_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(FDCAN1_IT1_IRQn);
         /* USER CODE BEGIN FDCAN1_MspInit 1 */
 
         /* USER CODE END FDCAN1_MspInit 1 */
@@ -143,6 +137,9 @@ void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef *hfdcan)
         */
         HAL_GPIO_DeInit(GPIOB, GPIO_PIN_7 | GPIO_PIN_8);
 
+        /* FDCAN1 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(FDCAN1_IT0_IRQn);
+        HAL_NVIC_DisableIRQ(FDCAN1_IT1_IRQn);
         /* USER CODE BEGIN FDCAN1_MspDeInit 1 */
 
         /* USER CODE END FDCAN1_MspDeInit 1 */
@@ -178,6 +175,9 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
         GPIO_InitStruct.Alternate = GPIO_AF5_SPI1;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+        /* SPI1 interrupt Init */
+        HAL_NVIC_SetPriority(SPI1_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(SPI1_IRQn);
         /* USER CODE BEGIN SPI1_MspInit 1 */
 
         /* USER CODE END SPI1_MspInit 1 */
@@ -191,11 +191,9 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
         __HAL_RCC_SPI2_CLK_ENABLE();
 
         __HAL_RCC_GPIOC_CLK_ENABLE();
-        __HAL_RCC_GPIOA_CLK_ENABLE();
         __HAL_RCC_GPIOB_CLK_ENABLE();
         /**SPI2 GPIO Configuration
         PC1     ------> SPI2_MOSI
-        PA3     ------> SPI2_NSS
         PB10     ------> SPI2_SCK
         */
         GPIO_InitStruct.Pin       = LED_DATA_Pin;
@@ -205,13 +203,6 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
         GPIO_InitStruct.Alternate = GPIO_AF5_SPI2;
         HAL_GPIO_Init(LED_DATA_GPIO_Port, &GPIO_InitStruct);
 
-        GPIO_InitStruct.Pin       = LED_RCK_Pin;
-        GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-        GPIO_InitStruct.Pull      = GPIO_NOPULL;
-        GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
-        GPIO_InitStruct.Alternate = GPIO_AF5_SPI2;
-        HAL_GPIO_Init(LED_RCK_GPIO_Port, &GPIO_InitStruct);
-
         GPIO_InitStruct.Pin       = LED_CLK_Pin;
         GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
         GPIO_InitStruct.Pull      = GPIO_NOPULL;
@@ -219,6 +210,9 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
         GPIO_InitStruct.Alternate = GPIO_AF5_SPI2;
         HAL_GPIO_Init(LED_CLK_GPIO_Port, &GPIO_InitStruct);
 
+        /* SPI2 interrupt Init */
+        HAL_NVIC_SetPriority(SPI2_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(SPI2_IRQn);
         /* USER CODE BEGIN SPI2_MspInit 1 */
 
         /* USER CODE END SPI2_MspInit 1 */
@@ -231,21 +225,12 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
         /* Peripheral clock enable */
         __HAL_RCC_SPI3_CLK_ENABLE();
 
-        __HAL_RCC_GPIOA_CLK_ENABLE();
         __HAL_RCC_GPIOB_CLK_ENABLE();
         __HAL_RCC_GPIOC_CLK_ENABLE();
         /**SPI3 GPIO Configuration
-        PA4     ------> SPI3_NSS
         PB2     ------> SPI3_MOSI
         PC10     ------> SPI3_SCK
         */
-        GPIO_InitStruct.Pin       = _7SEG_RCK_Pin;
-        GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-        GPIO_InitStruct.Pull      = GPIO_NOPULL;
-        GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
-        GPIO_InitStruct.Alternate = GPIO_AF6_SPI3;
-        HAL_GPIO_Init(_7SEG_RCK_GPIO_Port, &GPIO_InitStruct);
-
         GPIO_InitStruct.Pin       = _7SEG_SERIN_Pin;
         GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
         GPIO_InitStruct.Pull      = GPIO_NOPULL;
@@ -260,6 +245,9 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
         GPIO_InitStruct.Alternate = GPIO_AF6_SPI3;
         HAL_GPIO_Init(_7SEG_SRCK_GPIO_Port, &GPIO_InitStruct);
 
+        /* SPI3 interrupt Init */
+        HAL_NVIC_SetPriority(SPI3_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(SPI3_IRQn);
         /* USER CODE BEGIN SPI3_MspInit 1 */
 
         /* USER CODE END SPI3_MspInit 1 */
@@ -288,6 +276,8 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
         */
         HAL_GPIO_DeInit(GPIOA, PWR_CHG_CLK_Pin | PWR_CHG_DATA_Pin);
 
+        /* SPI1 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(SPI1_IRQn);
         /* USER CODE BEGIN SPI1_MspDeInit 1 */
 
         /* USER CODE END SPI1_MspDeInit 1 */
@@ -302,15 +292,14 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
 
         /**SPI2 GPIO Configuration
         PC1     ------> SPI2_MOSI
-        PA3     ------> SPI2_NSS
         PB10     ------> SPI2_SCK
         */
         HAL_GPIO_DeInit(LED_DATA_GPIO_Port, LED_DATA_Pin);
 
-        HAL_GPIO_DeInit(LED_RCK_GPIO_Port, LED_RCK_Pin);
-
         HAL_GPIO_DeInit(LED_CLK_GPIO_Port, LED_CLK_Pin);
 
+        /* SPI2 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(SPI2_IRQn);
         /* USER CODE BEGIN SPI2_MspDeInit 1 */
 
         /* USER CODE END SPI2_MspDeInit 1 */
@@ -324,16 +313,15 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
         __HAL_RCC_SPI3_CLK_DISABLE();
 
         /**SPI3 GPIO Configuration
-        PA4     ------> SPI3_NSS
         PB2     ------> SPI3_MOSI
         PC10     ------> SPI3_SCK
         */
-        HAL_GPIO_DeInit(_7SEG_RCK_GPIO_Port, _7SEG_RCK_Pin);
-
         HAL_GPIO_DeInit(_7SEG_SERIN_GPIO_Port, _7SEG_SERIN_Pin);
 
         HAL_GPIO_DeInit(_7SEG_SRCK_GPIO_Port, _7SEG_SRCK_Pin);
 
+        /* SPI3 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(SPI3_IRQn);
         /* USER CODE BEGIN SPI3_MspDeInit 1 */
 
         /* USER CODE END SPI3_MspDeInit 1 */

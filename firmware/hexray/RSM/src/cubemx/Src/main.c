@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
+#include <stm32h5xx_hal.h>
 #include <stm32h5xx_hal_gpio.h>
 /* USER CODE END Includes */
 
@@ -56,7 +57,6 @@ TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim3;
 
 PCD_HandleTypeDef hpcd_USB_DRD_FS;
-
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -145,7 +145,7 @@ void SystemClock_Config(void)
 
     /** Configure the main internal regulator output voltage
      */
-    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE0);
+    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
 
     while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY))
     {
@@ -162,13 +162,13 @@ void SystemClock_Config(void)
     RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource       = RCC_PLL1_SOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM            = 1;
-    RCC_OscInitStruct.PLL.PLLN            = 62;
+    RCC_OscInitStruct.PLL.PLLN            = 24;
     RCC_OscInitStruct.PLL.PLLP            = 2;
     RCC_OscInitStruct.PLL.PLLQ            = 2;
     RCC_OscInitStruct.PLL.PLLR            = 2;
     RCC_OscInitStruct.PLL.PLLRGE          = RCC_PLL1_VCIRANGE_3;
     RCC_OscInitStruct.PLL.PLLVCOSEL       = RCC_PLL1_VCORANGE_WIDE;
-    RCC_OscInitStruct.PLL.PLLFRACN        = 4096;
+    RCC_OscInitStruct.PLL.PLLFRACN        = 0;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
         Error_Handler();
@@ -184,7 +184,7 @@ void SystemClock_Config(void)
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
     RCC_ClkInitStruct.APB3CLKDivider = RCC_HCLK_DIV1;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
     {
         Error_Handler();
     }
@@ -214,7 +214,7 @@ static void MX_ADC1_Init(void)
     /** Common config
      */
     hadc1.Instance                   = ADC1;
-    hadc1.Init.ClockPrescaler        = ADC_CLOCK_ASYNC_DIV4;
+    hadc1.Init.ClockPrescaler        = ADC_CLOCK_ASYNC_DIV2;
     hadc1.Init.Resolution            = ADC_RESOLUTION_12B;
     hadc1.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
     hadc1.Init.ScanConvMode          = ADC_SCAN_ENABLE;
@@ -303,21 +303,21 @@ static void MX_FDCAN1_Init(void)
     /* USER CODE END FDCAN1_Init 1 */
     hfdcan1.Instance                  = FDCAN1;
     hfdcan1.Init.ClockDivider         = FDCAN_CLOCK_DIV1;
-    hfdcan1.Init.FrameFormat          = FDCAN_FRAME_FD_BRS;
+    hfdcan1.Init.FrameFormat          = FDCAN_FRAME_FD_NO_BRS;
     hfdcan1.Init.Mode                 = FDCAN_MODE_NORMAL;
     hfdcan1.Init.AutoRetransmission   = ENABLE;
     hfdcan1.Init.TransmitPause        = DISABLE;
     hfdcan1.Init.ProtocolException    = DISABLE;
-    hfdcan1.Init.NominalPrescaler     = 16;
-    hfdcan1.Init.NominalSyncJumpWidth = 1;
-    hfdcan1.Init.NominalTimeSeg1      = 1;
-    hfdcan1.Init.NominalTimeSeg2      = 1;
-    hfdcan1.Init.DataPrescaler        = 1;
-    hfdcan1.Init.DataSyncJumpWidth    = 1;
-    hfdcan1.Init.DataTimeSeg1         = 1;
-    hfdcan1.Init.DataTimeSeg2         = 1;
-    hfdcan1.Init.StdFiltersNbr        = 0;
-    hfdcan1.Init.ExtFiltersNbr        = 0;
+    hfdcan1.Init.NominalPrescaler     = 6;
+    hfdcan1.Init.NominalSyncJumpWidth = 2;
+    hfdcan1.Init.NominalTimeSeg1      = 13;
+    hfdcan1.Init.NominalTimeSeg2      = 2;
+    hfdcan1.Init.DataPrescaler        = 3;
+    hfdcan1.Init.DataSyncJumpWidth    = 2;
+    hfdcan1.Init.DataTimeSeg1         = 5;
+    hfdcan1.Init.DataTimeSeg2         = 2;
+    hfdcan1.Init.StdFiltersNbr        = 1;
+    hfdcan1.Init.ExtFiltersNbr        = 1;
     hfdcan1.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
     if (HAL_FDCAN_Init(&hfdcan1) != HAL_OK)
     {
@@ -369,7 +369,7 @@ static void MX_I2C2_Init(void)
 
     /* USER CODE END I2C2_Init 1 */
     hi2c2.Instance              = I2C2;
-    hi2c2.Init.Timing           = 0x60808CD3;
+    hi2c2.Init.Timing           = 0x10B0DCFB;
     hi2c2.Init.OwnAddress1      = 0;
     hi2c2.Init.AddressingMode   = I2C_ADDRESSINGMODE_7BIT;
     hi2c2.Init.DualAddressMode  = I2C_DUALADDRESS_DISABLE;
@@ -418,10 +418,10 @@ static void MX_SPI3_Init(void)
     hspi3.Instance                     = SPI3;
     hspi3.Init.Mode                    = SPI_MODE_MASTER;
     hspi3.Init.Direction               = SPI_DIRECTION_2LINES;
-    hspi3.Init.DataSize                = SPI_DATASIZE_4BIT;
+    hspi3.Init.DataSize                = SPI_DATASIZE_8BIT;
     hspi3.Init.CLKPolarity             = SPI_POLARITY_LOW;
     hspi3.Init.CLKPhase                = SPI_PHASE_1EDGE;
-    hspi3.Init.NSS                     = SPI_NSS_SOFT;
+    hspi3.Init.NSS                     = SPI_NSS_HARD_OUTPUT;
     hspi3.Init.BaudRatePrescaler       = SPI_BAUDRATEPRESCALER_2;
     hspi3.Init.FirstBit                = SPI_FIRSTBIT_MSB;
     hspi3.Init.TIMode                  = SPI_TIMODE_DISABLE;

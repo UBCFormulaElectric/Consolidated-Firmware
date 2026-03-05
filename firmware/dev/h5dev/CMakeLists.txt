@@ -14,6 +14,10 @@ file(GLOB EMBEDDED_SRCS CONFIGURE_DEPENDS
 list(APPEND EMBEDDED_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_freeRtosConfigs.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/efuse/io_efuse_TI_TPS28.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/efuse/io_efuse_TI_TPS25.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/efuse/io_efuse_ST_VND5.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_gpio.cpp"
         "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
@@ -33,6 +37,7 @@ set(EMBEDDED_INCLUDE_DIRS
         "${SHARED_APP_INCLUDE_DIR_CPP}"
         "${SHARED_IO_INCLUDE_DIR_CPP}"
         "${SHARED_HW_INCLUDE_DIR}"
+        "${SHARED_HW_INCLUDE_DIR_CPP}"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io"

@@ -1,6 +1,7 @@
 #include <cstdio>
 #include "hw_utils.hpp"
 #include "io_log.hpp"
+#include "util_utils.hpp"
 
 static char buffer[100];
 
