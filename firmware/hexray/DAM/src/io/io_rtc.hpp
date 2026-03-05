@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <util_errorCodes.hpp>
 
 namespace io::rtc
 {
@@ -22,38 +23,38 @@ struct Date
 /**
  * Set the RTC time.
  *
- * @param hrtc RTC HAL handle.
  * @param time Time struct.
- * @return true on success, false on HAL error.
+ * @return std::expected containing the programmed Time on success,
+ *         or an ErrorCode if a HAL error occurred.
  */
-bool set_time(const Time &time);
+std::expected<Time, ErrorCode> set_time(const Time &time);
 
 /**
  * Set the RTC date.
  *
- * @param hrtc RTC HAL handle.
  * @param date Date struct.
- * @return true on success, false on HAL error.
+ * @return std::expected containing the programmed Date on success,
+ *         or an ErrorCode if a HAL error occurred.
  */
-bool set_date(const Date &date);
+std::expected<Date, ErrorCode> set_date(const Date &date);
 
 /**
  * Get the RTC time.
  *
- * @param hrtc RTC HAL handle.
  * @param time Output time.
- * @return true on success, false on HAL error.
+ * @return std::expected containing the current time on success,
+ *         or an ErrorCode if a HAL error occurred.
  */
-bool get_time(Time &time);
+std::expected<Time, ErrorCode> get_time(Time &time);
 
 /**
  * Get the RTC date.
  *
- * @param hrtc RTC HAL handle.
  * @param date Output date.
- * @return true on success, false on HAL error.
+ * @return std::expected containing the current date on success,
+ *         or an ErrorCode if a HAL error occurred.
  */
-bool get_date(Date &date);
+std::expected<Date, ErrorCode> get_date(Date &date);
 
 // Helper function to convert BCD format to binary.
 uint8_t bcd_to_bin(uint8_t bcd);
