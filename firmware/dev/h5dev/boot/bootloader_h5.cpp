@@ -23,13 +23,21 @@ void rx_overflow_callback(const uint32_t overflow_count)
 void tx_overflow_clear_callback(){};
 void rx_overflow_clear_callback(){};
 
-io::queue<io::CanMsg, 128> can_tx_queue{ "CanTxQueue", tx_overflow_callback, tx_overflow_clear_callback };
-io::queue<io::CanMsg, 128> can_rx_queue{ "CanRxQueue", rx_overflow_callback, rx_overflow_clear_callback };
+io::queue<io::CanMsg, 128> boot_can_tx_queue{ "CanTxQueue", tx_overflow_callback, tx_overflow_clear_callback };
+io::queue<io::CanMsg, 128> boot_can_rx_queue{ "CanRxQueue", rx_overflow_callback, rx_overflow_clear_callback };
 
 namespace hw::cans
 {
 // no tasks_runCanRxCallback yet in tasks.c (need bootloader stuff)
-fdcan fdcan1(hfdcan1, [](const hw::CanMsg &msg) { UNUSED(msg); });
+fdcan fdcan1(hfdcan1, [](const hw::CanMsg &msg) 
+    { (void)boot_can_rx_queue.push(io::CanMsg{
+        msg.std_id,
+        msg.dlc,
+        msg.data,
+        true,
+        app::can_utils::BusEnum::Bus_FDCAN
+    }); 
+});
 } // namespace hw::cans
 
 const hw::fdcan &hw::fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
@@ -42,18 +50,17 @@ class H5DevBootConfig : public bootloader::config
 {
   public:
     H5DevBootConfig(
-        hw::fdcan fdcan_handle_in,
         uint32_t  bootloader_highbits,
         uint32_t  git_commit_hash,
         bool      git_commit_clean)
       : bootloader::config(
-            fdcan_handle_in,
-            can_tx_queue,
-            can_rx_queue,
+            hw::cans::fdcan1,
+            boot_can_tx_queue,
+            boot_can_rx_queue,
             bootloader_highbits,
             git_commit_hash,
             git_commit_clean){};
-} h5devboot_config(hw::cans::fdcan1, BOARD_HIGHBITS, git_commit_has_val, git_commit_clean_val);
+} h5devboot_config(BOARD_HIGHBITS, git_commit_has_val, git_commit_clean_val);
 
 void bootloader_preInit(void)
 {

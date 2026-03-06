@@ -170,7 +170,7 @@ class Bootloader:
                 self.ui_callback("Erasing FLASH sectors", erase_size, erase_progress)
 
             if sector.write_protect:
-                raise RuntimeError("Attempted to write to a readonly memory sector!")
+                raise RuntimeError(f"Attempted to write to a readonly memory sector!{sectors}")
 
             self.bus.send(
                 can.Message(
@@ -290,6 +290,7 @@ class Bootloader:
                 b_max=sector.max_address,
             )
         ]
+        
         if not self.erase_sectors(app_flash_sectors):
             raise RuntimeError(
                 f"Bootloader for {self.board.name} did not respond to command to erase flash memory."

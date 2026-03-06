@@ -32,17 +32,17 @@ namespace bootloader
 class config
 {
   public:
-    io::queue<io::CanMsg, 128> can_tx_queue;
-    io::queue<io::CanMsg, 128> can_rx_queue;
+    io::queue<io::CanMsg, 128> &can_tx_queue;
+    io::queue<io::CanMsg, 128> &can_rx_queue;
 
     uint32_t BOARD_HIGHBITS{ 0 };
     uint32_t GIT_COMMIT_HASH{ 0 };
     bool     GIT_COMMIT_CLEAN{ false };
 
 #if defined(STM32H733xx) || defined(STM32H562xx)
-    hw::fdcan fdcan_handle;
+    hw::fdcan &fdcan_handle;
     config(
-        hw::fdcan                   fdcan_handle_in,
+        hw::fdcan                  &fdcan_handle_in,
         io::queue<io::CanMsg, 128> &tx_queue,
         io::queue<io::CanMsg, 128> &rx_queue,
         uint32_t                    board_highbits,
@@ -55,9 +55,9 @@ class config
         GIT_COMMIT_CLEAN(git_commit_clean),
         fdcan_handle(fdcan_handle_in){};
 #elif defined(STM32F412Rx)
-    hw::can can_handle;
+    hw::can &can_handle;
     config(
-        hw::can                     can_handle_in,
+        hw::can                    &can_handle_in,
         io::queue<io::CanMsg, 128> &tx_queue,
         io::queue<io::CanMsg, 128> &rx_queue,
         uint32_t                    board_highbits,

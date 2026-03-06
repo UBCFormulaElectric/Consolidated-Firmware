@@ -9,7 +9,6 @@
 #include "bootloader_h5.hpp"
 
 #define BOOT_CAN_START_LOWBITS 0x9
-
 namespace io::bootHandler
 {
 

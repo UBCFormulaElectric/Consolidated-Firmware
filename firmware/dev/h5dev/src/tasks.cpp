@@ -36,7 +36,6 @@ void hw::usb::receive(const std::span<uint8_t> dest)
 [[noreturn]] static void tasks_runCanBroadcast(void *arg)
 {
     uint32_t last_1hz = 0, last_100hz = 0;
-    osDelay(osWaitForever);
     forever
     {
         const uint32_t t = io::time::getCurrentMs();
@@ -51,6 +50,7 @@ void hw::usb::receive(const std::span<uint8_t> dest)
             last_100hz = t;
         }
         io::can_tx::enqueueOtherPeriodicMsgs(t);
+        osDelay(10);
     }
 }
 
