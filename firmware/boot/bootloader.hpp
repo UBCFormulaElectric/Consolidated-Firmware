@@ -38,6 +38,7 @@ class config
     uint32_t BOARD_HIGHBITS{ 0 };
     uint32_t GIT_COMMIT_HASH{ 0 };
     bool     GIT_COMMIT_CLEAN{ false };
+    std::byte program_buffer[hw::flash::WORD_BYTES];
 
 #if defined(STM32H733xx) || defined(STM32H562xx)
     hw::fdcan &fdcan_handle;
@@ -79,8 +80,7 @@ class config
 
     virtual std::expected<void, ErrorCode> boardSpecific_program(uint32_t address, uint64_t data)
     {
-        std::expected<void, ErrorCode> status = std::unexpected(ErrorCode::INVALID_ARGS);
-        std::byte program_buffer[hw::flash::WORD_BYTES];
+        std::expected<void, ErrorCode> status;
         uint32_t  buffer_idx = address % hw::flash::WORD_BYTES;
         std::memcpy(&program_buffer[buffer_idx], &data, sizeof(data));
 
@@ -93,11 +93,9 @@ class config
         // write the entire flash word. This implementation only works if the binary size is a multiple of 32 bytes, or
         // the buffer won't fill up for the last few bytes so won't be written into flash. This is guaranteed by canup.
 
-        std::span<const std::byte> program_buffer_span(program_buffer);
         if (buffer_idx + sizeof(uint64_t) == hw::flash::WORD_BYTES)
         {
-            std::span<const std::byte, hw::flash::WORD_BYTES> spano(program_buffer);
-            status = hw::flash::programFlash(address / hw::flash::WORD_BYTES * hw::flash::WORD_BYTES, program_buffer_span);
+            status = hw::flash::programFlash(address / hw::flash::WORD_BYTES * hw::flash::WORD_BYTES, program_buffer);
         }
 
         return status;
