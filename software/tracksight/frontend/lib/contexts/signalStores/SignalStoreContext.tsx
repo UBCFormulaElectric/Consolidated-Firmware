@@ -1,7 +1,8 @@
 "use client";
 
 import { createContext, RefObject, ReactNode, useContext, useEffect, useRef } from "react";
-import SignalStore, { SignalStoreEntry } from "@/lib/signals/SignalStore";
+import SignalStore, { SignalStoreReturnType } from "@/lib/signals/SignalStore";
+import { WidgetConfigs, WidgetSignalConfig } from "@/components/widgets/WidgetTypes";
 
 const SignalDataStoreContext = createContext<RefObject<SignalStore> | null>(null);
 
@@ -15,7 +16,7 @@ function SignalDataStoreProvider({ children, signalStore }: { children: ReactNod
   );
 };
 
-const useSignalDataStore = (signalName: string) => {
+const useSignalDataStore = <T extends WidgetSignalConfig>(signal: T) => {
   const context = useContext(SignalDataStoreContext);
 
   if (context === null) {
@@ -23,27 +24,27 @@ const useSignalDataStore = (signalName: string) => {
   }
 
   const signalStore = context;
-  const cachedReferenceRef = useRef<SignalStoreEntry | null>(null);
+  const cachedReferenceRef = useRef<SignalStoreReturnType<T> | null>(null);
 
   useEffect(() => {
     return () => {
       if (!signalStore.current) return;
 
-      signalStore.current.purgeReferenceToSignal(signalName);
+      signalStore.current.purgeReferenceToSignal(signal);
     };
-  }, [signalName, signalStore]);
+  }, [signal, signalStore]);
 
   useEffect(() => {
     if (!signalStore.current) return;
 
-    cachedReferenceRef.current = signalStore.current.getReferenceToSignal(signalName);
-  }, [signalName, signalStore]);
+    cachedReferenceRef.current = signalStore.current.getReferenceToSignal(signal);
+  }, [signal, signalStore]);
 
 
   return cachedReferenceRef;
 }
 
-const useSignalDataStores = (signalNames: string[]) => {
+const useSignalDataStores = <T extends WidgetConfigs>(signals: T) => {
   const context = useContext(SignalDataStoreContext);
 
   if (context === null) {
@@ -51,28 +52,28 @@ const useSignalDataStores = (signalNames: string[]) => {
   }
 
   const signalStore = context;
-  const cachedReferencesRef = useRef<Map<string, SignalStoreEntry>>(new Map());
+  const cachedReferencesRef = useRef<SignalStoreReturnType<T[number]>[]>([]);
 
   useEffect(() => {
     return () => {
       if (!signalStore.current) return;
 
-      signalNames.forEach((signalName) => {
-        signalStore.current!.purgeReferenceToSignal(signalName);
+      signals.forEach((signal) => {
+        signalStore.current!.purgeReferenceToSignal(signal);
       });
     };
-  }, [signalNames, signalStore]);
+  }, [signals, signalStore]);
 
   useEffect(() => {
     if (!signalStore.current) return;
 
-    signalNames.forEach((signalName) => {
-      if (!cachedReferencesRef.current.has(signalName)) {
-        const reference = signalStore.current!.getReferenceToSignal(signalName);
-        cachedReferencesRef.current.set(signalName, reference);
-      }
+    cachedReferencesRef.current = [];
+    signals.forEach((signal) => {
+      const reference = signalStore.current!.getReferenceToSignal<T[number]>(signal);
+
+      cachedReferencesRef.current.push(reference);
     });
-  }, [signalNames, signalStore]);
+  }, [signals, signalStore]);
 
   return cachedReferencesRef;
 }

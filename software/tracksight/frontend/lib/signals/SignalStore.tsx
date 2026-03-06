@@ -1,94 +1,139 @@
-import AutoResizingTypedArray from "@/lib/utils/AutoResizingTypedArray";
+import { EnumSeries, NumericalSeries } from "@/components/widgets/CanvasChartTypes";
+import { EnumSignalConfig, NumericalSignalConfig, WidgetSignalConfig } from "@/components/widgets/WidgetTypes";
+import { SignalType } from "../types/Signal";
+import { SeriesData } from "../seriesData";
 
-export type SignalData = {
-    timePoints: AutoResizingTypedArray;
-    values: AutoResizingTypedArray;
-}
+export type SignalStoreReturnType<T extends WidgetSignalConfig> = T extends EnumSignalConfig
+  ? EnumSeries
+  : T extends NumericalSignalConfig
+  ? NumericalSeries
+  : never;
 
-export type SignalStoreEntry = {
-    data: SignalData;
-    error: unknown | null;
-    isSubscribed: boolean;
+type SignalStorageEntry<T extends WidgetSignalConfig> = {
+  isSubscribed: boolean;
+  error: unknown | null;
+  data: SignalStoreReturnType<T>;
+  // NOTE(evan): Type safety slop 
+  storeType: T extends EnumSignalConfig
+  ? SignalType.ENUM
+  : T extends NumericalSignalConfig
+  ? SignalType.NUMERICAL
+  : never;
 }
 
 abstract class SignalStore {
-    protected storage: { [signalName: string]: SignalStoreEntry };
-    protected subscriberCounts: { [signalName: string]: number };
+  protected storage: {
+    [signalName: string]: SignalStorageEntry<WidgetSignalConfig>;
+  };
+  protected subscriberCounts: { [signalName: string]: number };
+  protected updateWithTimestamp: (timestamp: number) => void;
 
-    constructor() {
-        this.storage = {};
-        this.subscriberCounts = {};
-    }
+  constructor(updateWithTimestamp: (timestamp: number) => void) {
+    this.storage = {};
+    this.subscriberCounts = {};
+    this.updateWithTimestamp = updateWithTimestamp;
+  }
 
-    abstract getReferenceToSignal(signalName: string): SignalStoreEntry;
-    abstract purgeReferenceToSignal(signalName: string): void;
+  abstract getReferenceToSignal<T extends WidgetSignalConfig>(signal: T): SignalStoreReturnType<T>;
+  abstract purgeReferenceToSignal(signal: WidgetSignalConfig): void;
 
-    private createSignalDataEntry(signalName: string) {
-        this.storage[signalName] = {
-            data: {
-                timePoints: new AutoResizingTypedArray(),
-                values: new AutoResizingTypedArray(),
-            },
-            error: null,
-            isSubscribed: true,
+  private createSignalDataEntry<T extends WidgetSignalConfig>(signal: T): void {
+    const storageBase = {
+      error: null,
+      isSubscribed: true,
+      storeType: signal.type,
+    };
+
+    switch (signal.type) {
+      case SignalType.ENUM:
+        this.storage[signal.signal_name] = {
+          ...storageBase,
+          data: {
+            enumValuesToNames: {},
+            data: [],
+            timestamps: [],
+            label: signal.signal_name,
+          } satisfies EnumSeries,
         };
-
-        this.subscriberCounts[signalName] = 0;
+        break;
+      case SignalType.NUMERICAL:
+        this.storage[signal.signal_name] = {
+          ...storageBase,
+          data: {
+            data: new SeriesData(),
+            timestamps: [],
+            label: signal.signal_name,
+          } satisfies NumericalSeries,
+        }
+        break;
     }
 
-    protected getOrCreateSignalData(signalName: string): SignalStoreEntry {
-        if (!this.storage[signalName]) this.createSignalDataEntry(signalName);
+    this.subscriberCounts[signal.signal_name] = 0;
+  }
 
-        return this.getSignalData(signalName)!;
+  protected getOrCreateSignalData<T extends WidgetSignalConfig>(signal: T): SignalStorageEntry<T> {
+    if (!this.storage[signal.signal_name]) this.createSignalDataEntry(signal);
+
+    return this.getSignalData(signal)!;
+  }
+
+
+  getSignalData<T extends WidgetSignalConfig>(signal: T): SignalStorageEntry<T> | undefined {
+    return this.storage[signal.signal_name];
+  }
+
+  incrementSubscribers(signalName: string): void {
+    if (!this.subscriberCounts[signalName]) this.subscriberCounts[signalName] = 0;
+
+    this.subscriberCounts[signalName] += 1;
+  }
+
+  decrementSubscribers(signalName: string): boolean {
+    if (!this.subscriberCounts[signalName]) return false;
+
+    this.subscriberCounts[signalName] -= 1;
+
+    return this.subscriberCounts[signalName] <= 0;
+  }
+
+  getSubscriberCount(signalName: string): number {
+    return this.subscriberCounts[signalName] || 0;
+  }
+
+  markAsUnsubscribed(signalName: string): void {
+    if (!this.storage[signalName]) return;
+
+    this.storage[signalName].isSubscribed = false;
+  }
+
+  removeSignal(signalName: string): void {
+    delete this.storage[signalName];
+    delete this.subscriberCounts[signalName];
+  }
+
+  setError(signalName: string, error: unknown): void {
+    if (!this.storage[signalName]) return;
+
+    this.storage[signalName].error = error;
+  }
+
+  addDataPoint(signalName: string, timestamp: number, value: number): void {
+    this.updateWithTimestamp(timestamp);
+    const entry = this.storage[signalName];
+
+    if (!entry) return;
+
+    switch (entry.storeType) {
+      case SignalType.ENUM:
+        entry.data.data.push(value);
+        entry.data.timestamps.push(timestamp);
+        break;
+      case SignalType.NUMERICAL:
+        entry.data.data.push(value);
+        entry.data.timestamps.push(timestamp);
+        break;
     }
-
-    getSignalData(signalName: string): SignalStoreEntry | undefined {
-        return this.storage[signalName];
-    }
-
-    incrementSubscribers(signalName: string): void {
-        if (!this.subscriberCounts[signalName]) this.subscriberCounts[signalName] = 0;
-
-        this.subscriberCounts[signalName] += 1;
-    }
-
-    decrementSubscribers(signalName: string): boolean {
-        if (!this.subscriberCounts[signalName]) return false;
-
-        this.subscriberCounts[signalName] -= 1;
-
-        return this.subscriberCounts[signalName] <= 0;
-    }
-
-    getSubscriberCount(signalName: string): number {
-        return this.subscriberCounts[signalName] || 0;
-    }
-
-    markAsUnsubscribed(signalName: string): void {
-        if (!this.storage[signalName]) return;
-
-        this.storage[signalName].isSubscribed = false;
-    }
-
-    removeSignal(signalName: string): void {
-        delete this.storage[signalName];
-        delete this.subscriberCounts[signalName];
-    }
-
-    setError(signalName: string, error: unknown): void {
-        if (!this.storage[signalName]) return;
-
-        this.storage[signalName].error = error;
-    }
-
-    addDataPoint(signalName: string, timestamp: number, value: number): void {
-        const entry = this.storage[signalName];
-
-        if (!entry) return;
-
-        entry.data.timePoints.push(timestamp);
-        entry.data.values.push(value);
-    }
+  }
 }
 
 export default SignalStore;

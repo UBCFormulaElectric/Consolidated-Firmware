@@ -15,8 +15,8 @@ import { Dialog, DialogDescription, DialogHeader, DialogTitle, DialogContent, Di
 import { PlusButton } from "@/components/icons/PlusButton";
 
 export const MOCK_STATES = [ // needed to hardcode for widgetadder
-    "IDLE", "ACTIVE", "ERROR", "WAITING", "CHARGING", "SKIBIDI", 
-    "TOILET", "MORE", "SIGNALS", "TO", "TEST", "RANDOM", 
+    "IDLE", "ACTIVE", "ERROR", "WAITING", "CHARGING", "SKIBIDI",
+    "TOILET", "MORE", "SIGNALS", "TO", "TEST", "RANDOM",
     "ENUM", "COLOR", "GEN"
 ];
 
@@ -57,11 +57,10 @@ function generateRandomEnumValue() {
     };
 }
 
-function MockSignalModalForm({ closeModal, configs, dataRef, widgetData }: {
+function MockSignalModalForm({ closeModal, configs, dataRef }: {
     closeModal: () => void,
     configs: WidgetConfigs,
     dataRef: RefObject<ChartData>,
-    widgetData: WidgetData,
 }) {
     const [newSignalName, setNewSignalName] = useState("");
     const [newSignalType, setNewSignalType] = useState<SignalType>(SignalType.NUMERICAL);
@@ -184,10 +183,8 @@ function MockSignalModalForm({ closeModal, configs, dataRef, widgetData }: {
     )
 }
 
-export function MockWidgetAddSignalModal({ configs, dataRef, widgetData }: {
+export function MockWidgetAddSignalModal({ configs }: {
     configs: WidgetConfigs;
-    widgetData: WidgetData;
-    dataRef: RefObject<ChartData>;
 }) {
     const [modalOpen, setModalOpen] = useState(false);
     return (
@@ -202,7 +199,6 @@ export function MockWidgetAddSignalModal({ configs, dataRef, widgetData }: {
                         Configure a new signal to be generated in this mock graph.
                     </DialogDescription>
                 </DialogHeader>
-                <MockSignalModalForm closeModal={() => setModalOpen(false)} configs={configs} dataRef={dataRef} widgetData={widgetData} />
             </DialogContent>
         </Dialog>
     );

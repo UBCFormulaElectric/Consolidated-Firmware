@@ -1,8 +1,8 @@
 "use client";
 
-import Widget from "@/components/widgets/Widget";
 import { useDashboardLayout } from "@/lib/contexts/DashboardLayout";
 import { useScrollableRef } from "@/lib/contexts/ScrollContext";
+import { Widget } from "./widgets/Widget";
 
 function DataDashboard() {
   const { widgets } = useDashboardLayout();

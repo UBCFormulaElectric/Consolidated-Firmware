@@ -1,5 +1,6 @@
 import SignalStore from "@/lib/signals/SignalStore";
 import socket from "@/lib/realtime/socket";
+import { WidgetSignalConfig } from "@/components/widgets/WidgetTypes";
 
 type SignalSubscriptionCallbacks = {
   onSuccess?: () => void;
@@ -13,10 +14,11 @@ class LiveSignalStore extends SignalStore {
   private unsubscribeFromSignal: SignalMutationFunction
 
   constructor(
+    updateWithTimestamp: (timestamp: number) => void,
     subscribeToSignal: SignalMutationFunction,
     unsubscribeFromSignal: SignalMutationFunction
   ) {
-    super();
+    super(updateWithTimestamp);
 
     this.subscribeToSignal = subscribeToSignal;
     this.unsubscribeFromSignal = unsubscribeFromSignal;
@@ -31,42 +33,41 @@ class LiveSignalStore extends SignalStore {
     });
   }
 
-  getReferenceToSignal(signalName: string) {
-    const signalData = this.getOrCreateSignalData(signalName);
-    this.incrementSubscribers(signalName);
+  getReferenceToSignal<T extends WidgetSignalConfig>(signal: T) {
+    const signalData = this.getOrCreateSignalData(signal);
+    this.incrementSubscribers(signal.signal_name);
 
-    if (this.getSubscriberCount(signalName) !== 1) return signalData;
+    if (this.getSubscriberCount(signal.signal_name) !== 1) return signalData.data;
 
-    this.subscribeToSignal(signalName, {
+    this.subscribeToSignal(signal.signal_name, {
       onError: (error) => {
-        this.setError(signalName, error);
+        this.setError(signal.signal_name, error);
       }
     });
 
-    return signalData;
+    return signalData.data;
   }
 
-  purgeReferenceToSignal(signalName: string) {
-    const shouldCleanup = this.decrementSubscribers(signalName);
+  purgeReferenceToSignal<T extends WidgetSignalConfig>(signal: T) {
+    const shouldCleanup = this.decrementSubscribers(signal.signal_name);
 
     if (!shouldCleanup) return;
 
-    this.markAsUnsubscribed(signalName);
+    this.markAsUnsubscribed(signal.signal_name);
 
-    this.unsubscribeFromSignal(signalName, {
+    this.unsubscribeFromSignal(signal.signal_name, {
       onSuccess: () => {
-        if (this.getSubscriberCount(signalName) !== 0) return;
+        if (this.getSubscriberCount(signal.signal_name) !== 0) return;
 
-        this.removeSignal(signalName);
+        this.removeSignal(signal.signal_name);
       },
       onError: (error) => {
-        console.error(`Error unsubscribing from signal ${signalName}:`, error);
+        console.error(`Error unsubscribing from signal ${signal.signal_name}:`, error);
       }
     });
   }
 }
 
 export default LiveSignalStore;
-
 
 
