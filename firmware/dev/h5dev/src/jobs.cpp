@@ -1,14 +1,16 @@
 #include "jobs.hpp"
 
+#include "app_jsoncan.hpp"
+#include "io_canQueues.hpp"
+#include "io_canTx.hpp"
+#include "io_canRx.hpp"
 #include "io_log.hpp"
 #include "efuse/io_efuse_TI_TPS28.hpp"
 #include "hw_gpio.hpp"
 #include "hw_adc.hpp"
-
-extern "C"
-{
+#include <io_canMsg.hpp>
+#include <util_errorCodes.hpp>
 #include "main.h"
-}
 
 using namespace hw;
 using namespace io;
@@ -28,9 +30,14 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 
 void jobs_init()
 {
-    adc1.init();
-    efuse.setChannel(true);
-    // LOG_INFO("IS CHANNEL ENABLED: %s", efuse.isChannelEnabled() ? "YES" : "NO");
+    io::can_tx::init(
+        [](const JsonCanMsg &tx_msg)
+        {
+            const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
+            LOG_IF_ERR(can_tx_queue.push(msg));
+        });
+
+    io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
 }
 
 void jobs_run1Hz_tick() {}

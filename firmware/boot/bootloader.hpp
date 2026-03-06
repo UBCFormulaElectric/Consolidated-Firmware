@@ -9,6 +9,7 @@
 #include <span>
 #include "io_queue.hpp"
 #include "cmsis_gcc.h"
+#include <expected>
 
 // Keep CAN protocol in sync with:
 // canup/bootloader.py
@@ -19,10 +20,12 @@ constexpr uint8_t UPDATE_ACK_ID_LOWBITS            = 0x2;
 constexpr uint8_t GO_TO_APP_LOWBITS                = 0x3;
 constexpr uint8_t ERASE_SECTOR_ID_LOWBITS          = 0x4;
 constexpr uint8_t ERASE_SECTOR_COMPLETE_ID_LOWBITS = 0x5;
-constexpr uint8_t PROGRAM_ID_LOWBITS               = 0x6;
-constexpr uint8_t VERIFY_ID_LOWBITS                = 0x7;
-constexpr uint8_t APP_VALIDITY_ID_LOWBITS          = 0x8;
-constexpr uint8_t GO_TO_BOOT                       = 0x9;
+constexpr uint8_t ERASE_SECTOR_FAILED_ID_LOWBITS   = 0x6;
+constexpr uint8_t PROGRAM_ID_LOWBITS               = 0x7;
+constexpr uint8_t PROGRAM_ID_FAILED_LOWBITS        = 0x8;
+constexpr uint8_t VERIFY_ID_LOWBITS                = 0x9;
+constexpr uint8_t APP_VALIDITY_ID_LOWBITS          = 0xA;
+constexpr uint8_t GO_TO_BOOT                       = 0xB;
 
 namespace bootloader
 {
@@ -74,8 +77,9 @@ class config
 
     virtual void boardSpecific_tick(void){};
 
-    virtual void boardSpecific_program(uint32_t address, uint64_t data)
+    virtual std::expected<void, ErrorCode> boardSpecific_program(uint32_t address, uint64_t data)
     {
+        std::expected<void, ErrorCode> status = std::unexpected(ErrorCode::INVALID_ARGS);
         std::byte program_buffer[hw::flash::WORD_BYTES];
         uint32_t  buffer_idx = address % hw::flash::WORD_BYTES;
         std::memcpy(&program_buffer[buffer_idx], &data, sizeof(data));
@@ -93,13 +97,15 @@ class config
         if (buffer_idx + sizeof(uint64_t) == hw::flash::WORD_BYTES)
         {
             std::span<const std::byte, hw::flash::WORD_BYTES> spano(program_buffer);
-            hw::flash::programFlash(address / hw::flash::WORD_BYTES * hw::flash::WORD_BYTES, program_buffer_span);
+            status = hw::flash::programFlash(address / hw::flash::WORD_BYTES * hw::flash::WORD_BYTES, program_buffer_span);
         }
+
+        return status;
     };
 };
 
 void              preInit(void);
-void              init(void);
+void              init(config &boot_config);
 [[noreturn]] void runInterfaceTask(config &boot_config);
 [[noreturn]] void runTickTask(config &boot_config);
 [[noreturn]] void runCanTxTask(config &boot_config);

@@ -1,3 +1,4 @@
+#include "app_canUtils.hpp"
 #include "hw_bootup.hpp"
 #include "hw_hardFaultHandler.hpp"
 #include "hw_flash.hpp"
@@ -10,17 +11,11 @@
 
 #include "cmsis_gcc.h"
 #include "cmsis_os.h"
-#include <io_canMsg.hpp>
-#include <io_queue.hpp>
+#include "hw_can.hpp"
+#include "io_canMsg.hpp"
+#include "io_queue.hpp"
 #include <expected>
-
-#if defined(STM32H733xx) || defined(STM32H562xx)
-#include "hw_fdcan.h"
-#elif defined(STM32F412Rx)
-#include "hw_can.h"
-#else
-#error "Please define what MCU is used"
-#endif
+#include "util_errorCodes.hpp"
 
 // App code block. Start/size included from the linker script.
 // Info needed by the bootloader to boot safely. Currently takes up the the first kB
@@ -145,11 +140,19 @@ void bootloader::preInit(void)
     hw::bootup::setBootRequest(app_request);
 }
 
-void bootloader::init(void)
+void bootloader::init(config &boot_config)
 {
     LOG_INFO("Bootloader reset!");
-    // Initialize CAN
-    // Board Specific
+
+    boot_config.can_tx_queue.init();
+    boot_config.can_rx_queue.init();
+
+#if defined(STM32H733xx) || defined(STM32H562xx)
+    boot_config.fdcan_handle.init();
+#elif defined(STM32F412Rx)
+    boot_config.can_handle.init();
+#endif 
+
 }
 
 [[noreturn]] void bootloader::runInterfaceTask(config &boot_config)
@@ -180,11 +183,21 @@ void bootloader::init(void)
         else if (command.std_id == (boot_config.BOARD_HIGHBITS | ERASE_SECTOR_ID_LOWBITS) && update_in_progress)
         {
             // Erase a flash sector.
-            const uint8_t sector = command.data.data8[0];
-            (void)hw::flash::eraseSector(sector);
+            const uint8_t sector = command.data[0];
+            auto status = hw::flash::eraseSector(sector);
 
-            // Erasing sectors takes a while, so reply when finished.
             io::CanMsg reply{};
+            if (not status)
+            {
+                //if we failed to erase a flash sector after set number of retries exit 
+                //bootloader and indicate that we have failed
+                reply.std_id = (boot_config.BOARD_HIGHBITS | ERASE_SECTOR_FAILED_ID_LOWBITS);
+                reply.dlc = 0;
+                boot_config.can_tx_queue.push(reply);
+                update_in_progress = false;
+                continue;
+            }
+            // Erasing sectors takes a while, so reply when finished.
             reply.std_id = (boot_config.BOARD_HIGHBITS | ERASE_SECTOR_COMPLETE_ID_LOWBITS);
             reply.dlc    = 0;
             boot_config.can_tx_queue.push(reply);
@@ -193,7 +206,20 @@ void bootloader::init(void)
         {
             // Program 64 bits at the current address.
             // No reply for program command to reduce latency.
-            boot_config.boardSpecific_program(current_address, command.data.data64[0]);
+            uint64_t command_packet = command.getDataAsQWords().data()[0];
+            auto status = boot_config.boardSpecific_program(current_address, command_packet);
+
+            if (not status)
+            {
+                //program failed meaning we need to stop and tell the application that program has failed
+                //and stop the bootloader
+                io::CanMsg reply{};
+                reply.std_id = {boot_config.BOARD_HIGHBITS | PROGRAM_ID_FAILED_LOWBITS};
+                reply.dlc = 0;
+                boot_config.can_tx_queue.push(reply);
+                update_in_progress = false;
+                continue;
+            }
             current_address += sizeof(uint64_t);
         }
         else if (command.std_id == (boot_config.BOARD_HIGHBITS | VERIFY_ID_LOWBITS) && update_in_progress)
@@ -203,7 +229,7 @@ void bootloader::init(void)
             reply.std_id = (boot_config.BOARD_HIGHBITS | VERIFY_ID_LOWBITS);
             reply.dlc    = 1;
             verifyAppCodeChecksum();
-            reply.data.data8[0] = static_cast<uint8_t>(boot_status);
+            reply.data[0] = static_cast<uint8_t>(boot_status);
             boot_config.can_tx_queue.push(reply);
 
             // Verify command doubles as exit programming state command.
@@ -241,10 +267,10 @@ void bootloader::init(void)
         {
             // Broadcast a message at 1Hz so we can check status over CAN.
             io::CanMsg status_msg{};
-            status_msg.std_id         = boot_config.BOARD_HIGHBITS | STATUS_10HZ_ID_LOWBITS;
-            status_msg.dlc            = 5;
-            status_msg.data.data32[0] = boot_config.GIT_COMMIT_HASH;
-            status_msg.data.data8[4] = (uint8_t)(static_cast<uint8_t>(boot_status) << 1) | boot_config.GIT_COMMIT_CLEAN;
+            status_msg.std_id                      = boot_config.BOARD_HIGHBITS | STATUS_10HZ_ID_LOWBITS;
+            status_msg.dlc                         = 5;
+            status_msg.getDataAsDWords().data()[0] = boot_config.GIT_COMMIT_HASH;
+            status_msg.data[4] = (uint8_t)(static_cast<uint8_t>(boot_status) << 1) | boot_config.GIT_COMMIT_CLEAN;
             boot_config.can_tx_queue.push(status_msg);
         }
 
@@ -259,11 +285,31 @@ void bootloader::init(void)
 {
     for (;;)
     {
-        const io::CanMsg tx_msg = boot_config.can_tx_queue.pop().value();
+        const auto tx_msg = boot_config.can_tx_queue.pop();
+
+        if (not tx_msg)
+            continue;
+        if (const auto &m = tx_msg.value(); m.bus == app::can_utils::BusEnum::Bus_FDCAN)
+        {
+            const auto res =
 #if defined(STM32H733xx) || defined(STM32H562xx)
-        (void)boot_config.fdcan_handle.fdcan_transmit(tx_msg);
+                boot_config.fdcan_handle.fdcan_transmit(hw::CanMsg{
+                    m.std_id,
+                    m.dlc,
+                    m.data,
+                });
 #elif defined(STM32F412Rx)
-        (void)boot_config.can_handle.can_transmit(tx_msg);
+                boot_config.can_handle.can_transmit(hw::CanMsg{
+                    m.std_id,
+                    m.dlc,
+                    m.data,
+                });
 #endif
+            LOG_IF_ERR(res);
+        }
+        else
+        {
+            LOG_ERROR("INVALID BUS %d", m.bus);
+        }
     }
 }

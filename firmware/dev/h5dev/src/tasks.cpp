@@ -24,7 +24,7 @@ extern "C"
 #include "app_canRx.hpp"
 
 #include "hw_cans.hpp"
-#include "io_canMsgQueues.hpp"
+#include "io_canQueues.hpp"
 #include "hw_usb.hpp"
 
 char USBD_PRODUCT_STRING_FS[] = "h5dev";

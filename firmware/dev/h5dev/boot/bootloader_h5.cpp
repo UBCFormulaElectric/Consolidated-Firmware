@@ -29,7 +29,7 @@ io::queue<io::CanMsg, 128> can_rx_queue{ "CanRxQueue", rx_overflow_callback, rx_
 namespace hw::cans
 {
 // no tasks_runCanRxCallback yet in tasks.c (need bootloader stuff)
-fdcan fdcan1(hfdcan1, 0, [](const io::CanMsg &msg) { UNUSED(msg); });
+fdcan fdcan1(hfdcan1, [](const hw::CanMsg &msg) { UNUSED(msg); });
 } // namespace hw::cans
 
 const hw::fdcan &hw::fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
@@ -70,7 +70,7 @@ static hw::rtos::StaticTask<1024>
 
 [[noreturn]] void bootloader_init(void)
 {
-    bootloader::init();
+    bootloader::init(h5devboot_config);
     osKernelInitialize();
     TaskRunInterface.start();
     TaskRunTickTask.start();

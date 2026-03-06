@@ -1,8 +1,7 @@
 #include "hw_cans.hpp"
 
 #include "main.h"
-#include "io_canMsgQueues.hpp"
-#include "io_canMsg.hpp"
+#include "io_canQueues.hpp"
 #include "io_bootHandler.hpp"
 #include "app_canUtils.hpp"
 
