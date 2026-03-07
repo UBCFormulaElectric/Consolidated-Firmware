@@ -27,11 +27,11 @@ namespace hw
 class Cordic
 {
   private:
-    CORDIC_HandleTypeDef &handle;
-    CORDIC_ConfigTypeDef config;
+    const CORDIC_HandleTypeDef &handle;
+    CORDIC_ConfigTypeDef        config;
 
   public:
-    constexpr explicit Cordic(CORDIC_HandleTypeDef &handle_in) : handle(handle_in) {}
+    constexpr explicit Cordic(const CORDIC_HandleTypeDef &handle_in) : handle(handle_in) {}
 
     inline float sin(float angle, float hyp = 1.0f);
     inline float cos(float angle, float hyp = 1.0f);
