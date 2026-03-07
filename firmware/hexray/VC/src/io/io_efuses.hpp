@@ -2,7 +2,7 @@
 
 #include "efuse/io_efuse.hpp"
 
-constexpr int                                            NUM_EFUSE_CHANNELS = 9;
+constexpr int                                            NUM_EFUSE_CHANNELS = 10; // change to 11 with misc fuse
 extern std::array<const io::Efuse *, NUM_EFUSE_CHANNELS> efuses;
 
 extern const io::Efuse f_inv_efuse;
