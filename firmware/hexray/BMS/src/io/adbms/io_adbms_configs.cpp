@@ -6,7 +6,8 @@
 
 namespace io::adbms
 {
-std::expected<void, ErrorCode> writeConfigReg(std::array <SegmentConfig, NUM_SEGMENTS> &config) {
+std::expected<void, ErrorCode> writeConfigReg(std::array<SegmentConfig, NUM_SEGMENTS> &config)
+{
     static std::array<std::array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> cfga_regs;
     static std::array<std::array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> cfgb_regs;
 
@@ -23,8 +24,8 @@ std::expected<void, ErrorCode> writeConfigReg(std::array <SegmentConfig, NUM_SEG
 }
 
 void readConfigReg(
-    std::array<SegmentConfig, NUM_SEGMENTS>       &configs,
-    std::array<std::expected<void, ErrorCode>,NUM_SEGMENTS> &success)
+    std::array<SegmentConfig, NUM_SEGMENTS>                  &configs,
+    std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS> &success)
 {
     static std::array<std::array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> regs_a;
     static std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS>      success_a;
@@ -51,6 +52,5 @@ void readConfigReg(
         std::memcpy(&configs[seg].reg_b, &regs_b[seg], sizeof(CFGB));
         success[seg] = {};
     }
-
 }
 } // namespace io::adbms

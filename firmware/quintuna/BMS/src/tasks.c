@@ -134,7 +134,6 @@ void tasks_run1Hz(void)
         // if (!hw_chimera_v2_enabled)
         {
             // jobs_run1Hz_tick();
-            
         }
 
         // Watchdog check-in must be the last function called before putting the task to sleep.
@@ -157,7 +156,7 @@ void tasks_run100Hz(void)
         // if (!hw_chimera_v2_enabled)
         // {
         //     // jobs_run100Hz_tick();
-            
+
         // }
         adbms_tick();
 
@@ -239,7 +238,7 @@ void tasks_runLtcVoltages(void)
     for (;;)
     {
         const uint32_t start_ticks = osKernelGetTickCount();
-       //jobs_runLTCVoltages();
+        // jobs_runLTCVoltages();
         LOG_INFO("LTC voltage period remaining: %dms", start_ticks + period_ms - osKernelGetTickCount());
         osDelayUntil(start_ticks + period_ms);
     }
@@ -257,7 +256,7 @@ void tasks_runLtcTemps(void)
     for (;;)
     {
         const uint32_t start_ticks = osKernelGetTickCount();
-        //jobs_runLTCTemperatures();
+        // jobs_runLTCTemperatures();
         LOG_INFO("LTC temp period remaining: %dms", start_ticks + period_ms - osKernelGetTickCount());
         osDelayUntil(start_ticks + period_ms);
     }
@@ -275,7 +274,7 @@ void tasks_runLtcDiagnostics(void)
     for (;;)
     {
         const uint32_t start_ticks = osKernelGetTickCount();
-        //jobs_runLTCDiagnostics();
+        // jobs_runLTCDiagnostics();
         osDelayUntil(start_ticks + period_ms);
     }
 #endif

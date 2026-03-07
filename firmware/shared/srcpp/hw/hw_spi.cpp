@@ -3,6 +3,7 @@
 #include "cmsis_os2.h"
 #include "hw_spi.hpp"
 #include "hw_utils.hpp"
+#include "adbms.h"
 
 using namespace hw::spi;
 
@@ -208,6 +209,11 @@ extern "C" void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 {
     const auto &bus = getBusFromHandle(hspi);
     bus.onTransactionCompleteFromISR();
+
+    if (hspi->Instance == SPI4)
+    {
+        onDmaCfgComplete(); // Advance DMA ConfigReg state machine
+    }
 }
 
 extern "C" void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)

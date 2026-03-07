@@ -83,6 +83,29 @@ inline constexpr uint16_t CH2 = (1U << 2);
 inline constexpr uint16_t CH1 = (1U << 1);
 inline constexpr uint16_t CH0 = (1U << 0);
 
+// Wire-format helpers (exposed so callers can build DMA buffers)
+
+uint16_t swapEndianness(uint16_t value);
+uint16_t calculatePec10(std::span<const uint8_t> data, uint16_t cmdCount);
+uint16_t calculatePec15(std::span<const uint8_t> data);
+
+struct __attribute__((packed)) RegGroupPayload
+{
+    std::array<uint8_t, REG_GROUP_SIZE> data;
+    uint16_t                            pec10;
+};
+static_assert(sizeof(RegGroupPayload) == REG_GROUP_SIZE + PEC_BYTES);
+
+struct TxCmd
+{
+    uint16_t cmd = 0;
+    uint16_t pec15 = 0;
+    
+    TxCmd() = default;
+    explicit TxCmd(uint16_t _cmd);
+};
+static_assert(sizeof(TxCmd) == CMD_BYTES + PEC_BYTES);
+
 /**
  * Sends the given command.
  * @param cmd The command to send

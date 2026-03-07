@@ -19,12 +19,11 @@ class node
     {
     }
 #elif TARGET_TEST
-    bool        status;
+    bool status;
     void (*const can_broadcast)(bool);
 
   public:
-    explicit node(bool in_status, void (*in_can_broadcast)(bool))
-      : status(in_status), can_broadcast(in_can_broadcast)
+    explicit node(bool in_status, void (*in_can_broadcast)(bool)) : status(in_status), can_broadcast(in_can_broadcast)
     {
     }
     void set_status(bool in_status);

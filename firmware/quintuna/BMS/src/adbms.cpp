@@ -1,18 +1,22 @@
 #include "adbms.h"
 #include "io_adbms.hpp"
+#include "io_adbms_internal.hpp"
 #include "app_segments.hpp"
 #include "util_errorCodes.hpp"
 #include "io_time.hpp"
+#include "stm32h7xx_hal.h"
+#include "main.h"
 
 #include <cassert>
 #include <array>
+#include <cstring>
 
 static std::array<io::adbms::SegmentConfig, io::NUM_SEGMENTS>       configs;
 static std::array<std::expected<void, ErrorCode>, io::NUM_SEGMENTS> success;
 static std::array<io::adbms::SegmentConfig, io::NUM_SEGMENTS>       configReg;
 
-static std::array<std::array<uint16_t, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>                        cell_voltage_regs;
-static std::array<std::array<std::expected<void, ErrorCode>, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>  comm_success;
+static std::array<std::array<uint16_t, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> cell_voltage_regs;
+static std::array<std::array<std::expected<void, ErrorCode>, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> comm_success;
 
 CFUNC void adbms_init()
 {
@@ -48,79 +52,201 @@ CFUNC void adbms_init()
     assert(io::adbms::writeConfigReg(configReg));
 }
 
-// ------- start Jack's DMA code -------
+// ------- Jack's DMA ConfigReg validation -------
 
-// Buffers for SPI DMA transfers. Placed in SRAM4 for optimal access by the SPI peripheral and DMA controller.
-__attribute__((section(".sram4"))) uint8_t bms_tx_buf[84];
-__attribute__((section(".sram4"))) uint8_t bms_rx_buf[84];
+// ISR handled in shared/hw_spi.cpp
 
-volatile bool bms_transfer_complete = false; // volatile since it's set in an ISR
+// Packet layout matches Pranay's writeRegGroup/readRegGroup exactly
+struct __attribute__((packed)) CfgPacket
+{
+    io::adbms::TxCmd                                         tx_cmd;
+    std::array<io::adbms::RegGroupPayload, io::NUM_SEGMENTS> payload;
+};
 
-// Prepare command and start SPI DMA
-void start_adbms_read() {
-    bms_transfer_complete = false;
+__attribute__((section(".sram2_data"))) static CfgPacket cfg_tx_a;
+__attribute__((section(".sram2_data"))) static CfgPacket cfg_rx_a;
+__attribute__((section(".sram2_data"))) static CfgPacket cfg_tx_b;
+__attribute__((section(".sram2_data"))) static CfgPacket cfg_rx_b;
 
-    // Prepare tx_buf
-    bms_tx_buf[0] = 0x00; // Example
-    bms_tx_buf[1] = 0x04; // Example
-    // TODO: Insert PEC15 calculation for the command here
-    bms_tx_buf[2] = 0x07; // Example
-    bms_tx_buf[3] = 0xC2; // Example
-    
-    for(int i = 4; i < 84; i++) bms_tx_buf[i] = 0xFF; // Dummy bytes for clocking out data
+// State machine for tracking where we are in the DMA process
+enum class DmaCfgState
+{
+    IDLE,
+    WRITING_A,
+    WRITING_B,
+    READING_A,
+    READING_B,
+};
 
-    // DMA
-    HAL_StatusTypeDef status = HAL_SPI_TransmitReceive_DMA(&hspi4, bms_tx_buf, bms_rx_buf, 84);
-    
-    if (status != HAL_OK) {
-        // Handle error (SPI busy or config issue)
+static volatile DmaCfgState dma_cfg_state = DmaCfgState::IDLE;
+
+// Parsed readback results (populates after READING_B completes)
+static std::array<io::adbms::SegmentConfig, io::NUM_SEGMENTS> dma_cfg_readback;
+static std::array<bool, io::NUM_SEGMENTS> dma_cfg_pec_ok;
+
+// Build a write packet (same as Pranay's writeRegGroup's tx_buffer construction)
+static void buildWritePacket(CfgPacket &tx, const uint16_t cmd, const std::array<io::adbms::SegmentConfig, io::NUM_SEGMENTS> &cfg, bool useRegA)
+{
+    tx.tx_cmd = io::adbms::TxCmd{ cmd };
+    for (uint8_t seg = 0; seg < io::NUM_SEGMENTS; seg++)
+    {
+        const uint8_t *data = useRegA
+            ? reinterpret_cast<const uint8_t *>(&cfg[seg].reg_a)
+            : reinterpret_cast<const uint8_t *>(&cfg[seg].reg_b);
+        std::memcpy(tx.payload[seg].data.data(), data, io::adbms::REG_GROUP_SIZE);
+        tx.payload[seg].pec10 = io::adbms::swapEndianness(
+            static_cast<uint16_t>(io::adbms::calculatePec10(tx.payload[seg].data, 0U) & 0x03FFU));
     }
 }
 
-// ISR callback for SPI DMA TC (should prob go in a different file that has all the ISRs)
-extern "C" {
-void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi) {
-    if (hspi->Instance == SPI4) {
+// Build a read packet (command + 0xFF dummy payload for DMA clocking)
+static void buildReadPacket(CfgPacket &tx, const uint16_t cmd)
+{
+    tx.tx_cmd = io::adbms::TxCmd{ cmd };
+    std::memset(tx.payload.data(), 0xFF, sizeof(tx.payload));
+}
 
-        bms_transfer_complete = true; // Signal the main loop
+// Start the write phase (CFGA first)
+void writeConfigRegDma(const std::array<io::adbms::SegmentConfig, io::NUM_SEGMENTS> &cfg)
+{
+    if (dma_cfg_state != DmaCfgState::IDLE)
+        return;
+
+    buildWritePacket(cfg_tx_a, io::adbms::WRCFGA, cfg, true);
+    dma_cfg_state = DmaCfgState::WRITING_A;
+
+    HAL_GPIO_WritePin(SPI_CS_LS_GPIO_Port, SPI_CS_LS_Pin, GPIO_PIN_RESET);
+    if (HAL_SPI_TransmitReceive_DMA(&hspi4, reinterpret_cast<uint8_t *>(&cfg_tx_a), reinterpret_cast<uint8_t *>(&cfg_rx_a), sizeof(CfgPacket)) != HAL_OK)
+    {
+        HAL_GPIO_WritePin(SPI_CS_LS_GPIO_Port, SPI_CS_LS_Pin, GPIO_PIN_SET);
+        dma_cfg_state = DmaCfgState::IDLE;
+        LOG_WARN("writeConfigRegDma: WRCFGA DMA start failed");
     }
 }
+
+// Start readback (RDCFGA first) (call after writes complete)
+static void startReadCfgA()
+{
+    buildReadPacket(cfg_tx_a, io::adbms::RDCFGA);
+    dma_cfg_state = DmaCfgState::READING_A;
+
+    HAL_GPIO_WritePin(SPI_CS_LS_GPIO_Port, SPI_CS_LS_Pin, GPIO_PIN_RESET);
+    if (HAL_SPI_TransmitReceive_DMA(&hspi4, reinterpret_cast<uint8_t *>(&cfg_tx_a), reinterpret_cast<uint8_t *>(&cfg_rx_a), sizeof(CfgPacket)) != HAL_OK)
+    {
+        HAL_GPIO_WritePin(SPI_CS_LS_GPIO_Port, SPI_CS_LS_Pin, GPIO_PIN_SET);
+        dma_cfg_state = DmaCfgState::IDLE;
+        LOG_WARN("writeConfigRegDma: RDCFGA DMA start failed");
+    }
 }
 
-// Put in main loop for running PEC10 checks
-void process_bms_data() {
-    if (bms_transfer_complete) {
-        // Data starts at index 4 because of the 4-byte command garbage shloppy
-        for (int chip = 0; chip < 10; chip++) {
-            uint8_t* segment = &bms_rx_buf[4 + (chip * 8)];
-            
-            // segment[0-5] = Cell Voltages
-            // segment[6]   = Command Counter
-            // segment[7]   = PEC10 (Verify this!)
-            
-            if (verify_pec10(segment, 7, segment[7])) {
-                // Successful CRC: Convert bytes to floats
-                float voltage = ((segment[1] << 8) | segment[0]) * 0.000150f; 
-            } else {
-                // Else: Noise on the line or some bs
+// Called from the HAL_SPI_TxRxCpltCallback (might want to change this to run on the main loop instead of the ISR)
+void onDmaCfgComplete()
+{
+    HAL_GPIO_WritePin(SPI_CS_LS_GPIO_Port, SPI_CS_LS_Pin, GPIO_PIN_SET);
+
+    switch (dma_cfg_state)
+    {
+        case DmaCfgState::WRITING_A:
+        {
+            // WRCFGA done so now write CFGB
+            // Reuse cfg_tx_b; need access to cfg – stored in configReg (file-scope)
+            buildWritePacket(cfg_tx_b, io::adbms::WRCFGB, configReg, false);
+            dma_cfg_state = DmaCfgState::WRITING_B;
+
+            HAL_GPIO_WritePin(SPI_CS_LS_GPIO_Port, SPI_CS_LS_Pin, GPIO_PIN_RESET);
+            if (HAL_SPI_TransmitReceive_DMA(&hspi4, reinterpret_cast<uint8_t *>(&cfg_tx_b), reinterpret_cast<uint8_t *>(&cfg_rx_b), sizeof(CfgPacket)) != HAL_OK)
+            {
+                HAL_GPIO_WritePin(SPI_CS_LS_GPIO_Port, SPI_CS_LS_Pin, GPIO_PIN_SET);
+                dma_cfg_state = DmaCfgState::IDLE;
             }
+            break;
         }
-        bms_transfer_complete = false; // Reset for next cycle
+        case DmaCfgState::WRITING_B:
+        {
+            // Both config groups written -> start readback
+            startReadCfgA();
+            break;
+        }
+        case DmaCfgState::READING_A:
+        {
+            // cfg_rx_a.payload[] holds the chip response – validate PEC the same way readRegGroup does.
+            for (uint8_t seg = 0; seg < io::NUM_SEGMENTS; seg++)
+            {
+                const auto &p   = cfg_rx_a.payload[seg];
+                dma_cfg_pec_ok[seg] =
+                    io::adbms::calculatePec10(p.data, io::adbms::swapEndianness(p.pec10) >> 10U) ==
+                    io::adbms::swapEndianness(static_cast<uint16_t>(p.pec10 & 0xFF03));
+                if (dma_cfg_pec_ok[seg])
+                    std::memcpy(&dma_cfg_readback[seg].reg_a, p.data.data(), io::adbms::REG_GROUP_SIZE);
+            }
+
+            // Now read CFGB
+            buildReadPacket(cfg_tx_b, io::adbms::RDCFGB);
+            dma_cfg_state = DmaCfgState::READING_B;
+
+            HAL_GPIO_WritePin(SPI_CS_LS_GPIO_Port, SPI_CS_LS_Pin, GPIO_PIN_RESET);
+            if (HAL_SPI_TransmitReceive_DMA(&hspi4, reinterpret_cast<uint8_t *>(&cfg_tx_b), reinterpret_cast<uint8_t *>(&cfg_rx_b), sizeof(CfgPacket)) != HAL_OK)
+            {
+                HAL_GPIO_WritePin(SPI_CS_LS_GPIO_Port, SPI_CS_LS_Pin, GPIO_PIN_SET);
+                dma_cfg_state = DmaCfgState::IDLE;
+            }
+            break;
+        }
+        case DmaCfgState::READING_B:
+        {
+            for (uint8_t seg = 0; seg < io::NUM_SEGMENTS; seg++)
+            {
+                const auto &p = cfg_rx_b.payload[seg];
+                const bool  ok =
+                    io::adbms::calculatePec10(p.data, io::adbms::swapEndianness(p.pec10) >> 10U) ==
+                    io::adbms::swapEndianness(static_cast<uint16_t>(p.pec10 & 0xFF03));
+                if (dma_cfg_pec_ok[seg] && ok)
+                    std::memcpy(&dma_cfg_readback[seg].reg_b, p.data.data(), io::adbms::REG_GROUP_SIZE);
+                else
+                    dma_cfg_pec_ok[seg] = false;
+            }
+
+            // All done – log result for each segment
+            for (uint8_t seg = 0; seg < io::NUM_SEGMENTS; seg++)
+            {
+                if (dma_cfg_pec_ok[seg])
+                    LOG_INFO("DMA ConfigReg readback OK for segment %u", (unsigned)seg);
+                else
+                    LOG_WARN("DMA ConfigReg readback PEC FAIL for segment %u", (unsigned)seg);
+            }
+
+            dma_cfg_state = DmaCfgState::IDLE;
+            break;
+        }
+        case DmaCfgState::IDLE:
+        {
+            break;
+        }
+        default:
+            dma_cfg_state = DmaCfgState::IDLE;
+            break;
     }
 }
 
-// ------- end Jack's DMA code -------
+// Returns true when a DMA ConfigReg cycle (write + readback) is running
+bool isDmaCfgBusy()
+{
+    return dma_cfg_state != DmaCfgState::IDLE;
+}
+
+// ------- end DMA ConfigReg validation -------
 
 CFUNC void adbms_tick()
 {
     LOG_INFO("tick!");
-    assert(io::adbms::wakeup());
-    assert(io::adbms::writeConfigReg(configReg));
-    io::adbms::readConfigReg(configs, success);
-    //io::adbms::startCellsAdcConversion();
-    //io::time::delay(2);
-    //io::adbms::readCellVoltageReg(cell_voltage_regs, comm_success);
-    //assert(io::adbms::sendBalanceCmd());
+    assert(io::adbms::wakeup()); // Why does this run every cycle again?
+
+    // State machine: WRITING_A \to WRITING_B \to READING_A \to READING_B \to IDLE
+    // Results and per segment PEC status written to dma_cfg_readback / dma_cfg_pec_ok
+    if (!isDmaCfgBusy())
+    {
+        writeConfigRegDma(configReg);
+    }
+
     LOG_INFO("done!");
 }
-

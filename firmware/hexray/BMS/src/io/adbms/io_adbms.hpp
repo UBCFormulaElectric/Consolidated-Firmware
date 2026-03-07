@@ -112,13 +112,15 @@ namespace adbms
     };
 
     void readConfigReg(
-        std::array<SegmentConfig, NUM_SEGMENTS>                    &configs,
-        std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS>   &success);
+        std::array<SegmentConfig, NUM_SEGMENTS>                  &configs,
+        std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS> &success);
     std::expected<void, ErrorCode> writeConfigReg(std::array<SegmentConfig, NUM_SEGMENTS> &config);
     std::expected<void, ErrorCode> sendBalanceCmd();
     std::expected<void, ErrorCode> sendStopBalanceCmd();
-    void readCellVoltageReg(std::array<std::array<uint16_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &cell_voltage_regs, std::array<std::array<std::expected<void, ErrorCode>, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success);
-    
+    void                           readCellVoltageReg(
+                                  std::array<std::array<uint16_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS>                       &cell_voltage_regs,
+                                  std::array<std::array<std::expected<void, ErrorCode>, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success);
+
     std::expected<void, ErrorCode> startCellsAdcConversion();
     std::expected<void, ErrorCode> pollCellsAdcConversion();
     std::expected<void, ErrorCode> wakeup();

@@ -62,6 +62,8 @@ extern DMA_HandleTypeDef   hdma_adc3;
 extern FDCAN_HandleTypeDef hfdcan1;
 extern FDCAN_HandleTypeDef hfdcan2;
 extern SD_HandleTypeDef    hsd1;
+extern DMA_HandleTypeDef   hdma_spi4_rx;
+extern DMA_HandleTypeDef   hdma_spi4_tx;
 extern SPI_HandleTypeDef   hspi4;
 extern TIM_HandleTypeDef   htim1;
 extern TIM_HandleTypeDef   htim3;
@@ -178,7 +180,7 @@ void DMA1_Stream0_IRQHandler(void)
     /* USER CODE BEGIN DMA1_Stream0_IRQn 0 */
 
     /* USER CODE END DMA1_Stream0_IRQn 0 */
-    HAL_DMA_IRQHandler(&hdma_adc1);
+    HAL_DMA_IRQHandler(&hdma_spi4_rx);
     /* USER CODE BEGIN DMA1_Stream0_IRQn 1 */
 
     /* USER CODE END DMA1_Stream0_IRQn 1 */
@@ -192,10 +194,38 @@ void DMA1_Stream1_IRQHandler(void)
     /* USER CODE BEGIN DMA1_Stream1_IRQn 0 */
 
     /* USER CODE END DMA1_Stream1_IRQn 0 */
-    HAL_DMA_IRQHandler(&hdma_adc3);
+    HAL_DMA_IRQHandler(&hdma_spi4_tx);
     /* USER CODE BEGIN DMA1_Stream1_IRQn 1 */
 
     /* USER CODE END DMA1_Stream1_IRQn 1 */
+}
+
+/**
+ * @brief This function handles DMA1 stream2 global interrupt.
+ */
+void DMA1_Stream2_IRQHandler(void)
+{
+    /* USER CODE BEGIN DMA1_Stream2_IRQn 0 */
+
+    /* USER CODE END DMA1_Stream2_IRQn 0 */
+    HAL_DMA_IRQHandler(&hdma_adc1);
+    /* USER CODE BEGIN DMA1_Stream2_IRQn 1 */
+
+    /* USER CODE END DMA1_Stream2_IRQn 1 */
+}
+
+/**
+ * @brief This function handles DMA1 stream3 global interrupt.
+ */
+void DMA1_Stream3_IRQHandler(void)
+{
+    /* USER CODE BEGIN DMA1_Stream3_IRQn 0 */
+
+    /* USER CODE END DMA1_Stream3_IRQn 0 */
+    HAL_DMA_IRQHandler(&hdma_adc3);
+    /* USER CODE BEGIN DMA1_Stream3_IRQn 1 */
+
+    /* USER CODE END DMA1_Stream3_IRQn 1 */
 }
 
 /**

@@ -3,3 +3,4 @@
 
 CFUNC void adbms_init();
 CFUNC void adbms_tick();
+void onDmaCfgComplete(); // Called from hw_spi HAL callback when a DMA transaction completes
