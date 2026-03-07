@@ -57,6 +57,7 @@ TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim3;
 
 PCD_HandleTypeDef hpcd_USB_DRD_FS;
+
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -249,8 +250,9 @@ static void MX_ADC1_Init(void)
 
     /** Configure Regular Channel
      */
-    sConfig.Channel = ADC_CHANNEL_19;
-    sConfig.Rank    = ADC_REGULAR_RANK_2;
+    sConfig.Channel      = ADC_CHANNEL_19;
+    sConfig.Rank         = ADC_REGULAR_RANK_2;
+    sConfig.SamplingTime = ADC_SAMPLETIME_47CYCLES_5;
     if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
     {
         Error_Handler();
@@ -343,7 +345,7 @@ static void MX_GPDMA1_Init(void)
     __HAL_RCC_GPDMA1_CLK_ENABLE();
 
     /* GPDMA1 interrupt Init */
-    HAL_NVIC_SetPriority(GPDMA1_Channel0_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(GPDMA1_Channel0_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(GPDMA1_Channel0_IRQn);
 
     /* USER CODE BEGIN GPDMA1_Init 1 */
@@ -467,7 +469,7 @@ static void MX_TIM1_Init(void)
     htim1.Instance               = TIM1;
     htim1.Init.Prescaler         = TIM1_PRESCALER - 1;
     htim1.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim1.Init.Period            = 9999;
+    htim1.Init.Period            = 999;
     htim1.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim1.Init.RepetitionCounter = 0;
     htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
