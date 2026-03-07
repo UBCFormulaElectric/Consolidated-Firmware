@@ -33,7 +33,7 @@ pub async fn run_influx_handler(mut decoded_signal_rx: Receiver<DecodedSignal>) 
                     Ok(data) => data,
                     Err(e) => {
                         eprintln!("{e}");
-                        break;
+                        continue;
                     } 
                 };
                 

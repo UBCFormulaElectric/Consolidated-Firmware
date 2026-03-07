@@ -42,8 +42,12 @@ struct SignalMetadata {
  * E.g. `/signal?name=INVFR_bError,*_bReserve`
  */
 async fn metadata(Query(mut param): Query<MetadataParam>, State(state): State<AppState>) -> impl IntoResponse {
-    // todo unwrap hehe
-    let regex = Regex::new(param.name.get_or_insert("*".to_string())).unwrap();
+    let regex = match Regex::new(param.name.get_or_insert("*".to_string())) {
+        Ok(regex) => regex,
+        Err(_) => {
+            return (StatusCode::BAD_REQUEST, Json::default());
+        }
+    };
 
     let flat_map = | msg: &CanMessage | {
         return msg.signals.iter().map(

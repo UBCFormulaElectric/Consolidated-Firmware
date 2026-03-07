@@ -30,7 +30,7 @@ impl Clients {
     }
 
     /**
-     * TODO temp function, shouldn't be needed
+     * Retrieves a list of clients
      */
     pub fn get_clients(&self) -> Vec<&String> {
         return self.sockets.keys().collect();
