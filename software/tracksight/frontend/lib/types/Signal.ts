@@ -9,7 +9,6 @@ export enum SignalType {
     ENUM = "enum",
     NUMERICAL = "numerical",
     ALERT = "alert",
-    MOCK = "mock",
 }
 
 export type EnumSignalMetadata = CommonSignalMetadata & {
