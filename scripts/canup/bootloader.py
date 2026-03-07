@@ -222,7 +222,7 @@ class Bootloader:
                 except can.interfaces.vector.exceptions.VectorOperationError:
                     pass
                 
-            time.sleep(0.0001)
+            #time.sleep(0.0001)
         if self.ui_callback:
             self.ui_callback("Programming data", self.size_bytes(), self.size_bytes())
 
