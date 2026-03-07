@@ -3,11 +3,13 @@
 
 #include <cstring>
 
+using namespace std;
+
 inline constexpr uint8_t NUM_CONFIG_SYNC_TRIES = 20;
 inline constexpr uint16_t VUV = 0x800; //VUV × 16 × 150 μV + 1.5 V (TO DO)
 inline constexpr uint16_t VOV = 0x7FF; //VOV × 16 × 150 μV + 1.5 V (TO DO)
 
-static std::array<io::adbms::SegmentConfig, io::NUM_SEGMENTS> segment_config;
+static array<io::adbms::SegmentConfig, io::NUM_SEGMENTS> segment_config;
 
 namespace app::segments {
     void setDefaultConfig() {
@@ -24,7 +26,7 @@ namespace app::segments {
         }
     }
 
-    void setBalanceConfig(std::array<std::array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> balance_config) {
+    void setBalanceConfig(array<array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> balance_config) {
         for (uint8_t seg = 0; seg < io::NUM_SEGMENTS; seg++) {
             auto &[reg_a, reg_b] = segment_config[seg];
             uint16_t dcc_bits = 0U;
@@ -53,9 +55,9 @@ namespace app::segments {
         }
     }
 
-    static std::expected<void, ErrorCode> isConfigEqual() {
-        std::array<io::adbms::SegmentConfig, io::NUM_SEGMENTS> segment_config_buf;
-        std::array<std::expected<void, ErrorCode>, io::NUM_SEGMENTS> segment_success_buf;
+    static expected<void, ErrorCode> isConfigEqual() {
+        array<io::adbms::SegmentConfig, io::NUM_SEGMENTS> segment_config_buf;
+        array<expected<void, ErrorCode>, io::NUM_SEGMENTS> segment_success_buf;
 
         io::adbms::readConfigReg(segment_config_buf, segment_success_buf);
 
@@ -63,25 +65,30 @@ namespace app::segments {
             if (!segment_success_buf[seg]) {
                 return segment_success_buf[seg];
             } else {
-                if (std::memcmp(&segment_config_buf[seg], &segment_config[seg], sizeof(segment_config[seg])) != 0) {
-                    return std::unexpected(ErrorCode::CHECKSUM_FAIL);
+                if (memcmp(&segment_config_buf[seg], &segment_config[seg], sizeof(segment_config[seg])) != 0) {
+                    return unexpected(ErrorCode::CHECKSUM_FAIL);
                 }
             }
         }
         return {};
     }
 
-    std::expected<void, ErrorCode> configSync() {
+    expected<void, ErrorCode> configSync() {
         for (uint8_t tries = 0; tries < NUM_CONFIG_SYNC_TRIES; tries++) {
             const auto write_ok = io::adbms::writeConfigReg(segment_config);
             if (!write_ok) {
                 continue;
             } else {
-                if (const auto equal = isConfigEqual(); equal.has_value()) {
+                const auto equal = isConfigEqual();
+                if (!equal) {
                     return {};
                 }
             }
         }
-        return std::unexpected(ErrorCode::RETRY_FAILED);
+        return unexpected(ErrorCode::RETRY_FAILED);
+    }
+
+    expected<void, ErrorCode> writeConfig() {
+        return io::adbms::writeConfigReg(segment_config);
     }
 }

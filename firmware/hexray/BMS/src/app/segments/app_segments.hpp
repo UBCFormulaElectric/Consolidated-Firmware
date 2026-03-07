@@ -5,6 +5,8 @@
 #include <array>
 #include <expected>
 
+using namespace std;
+
 namespace app::segments
 {
 enum class ThermistorMux
@@ -14,8 +16,15 @@ enum class ThermistorMux
     THERMISTOR_MUX_COUNT,
 };
 
+struct CellParam {
+    uint8_t segment;
+    uint8_t cell; 
+    float voltage;
+    
+};
+
 void setDefaultConfig();
-void setBalanceConfig(std::array<std::array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> balance_config);
+void setBalanceConfig(array<array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> balance_config);
 void setThermistorConfig(ThermistorMux mux);
-std::expected<void, ErrorCode> configSync();
+expected<void, ErrorCode> configSync();
 } // namespace app::segments

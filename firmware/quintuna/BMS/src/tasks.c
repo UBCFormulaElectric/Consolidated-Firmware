@@ -123,6 +123,7 @@ void tasks_init(void)
 }
 
 void tasks_run1Hz(void)
+
 {
     const uint32_t  period_ms                = 1000U;
     const uint32_t  watchdog_grace_period_ms = 50U;

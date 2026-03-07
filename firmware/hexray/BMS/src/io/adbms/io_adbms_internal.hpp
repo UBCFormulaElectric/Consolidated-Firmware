@@ -26,7 +26,14 @@ inline constexpr uint16_t RDCVC   = 0x0008U;
 inline constexpr uint16_t RDCVD   = 0x000AU;
 inline constexpr uint16_t RDCVE   = 0x0009U;
 inline constexpr uint16_t RDCVF   = 0x000BU;
-inline constexpr uint16_t RDCVALL = 0x000CU;
+
+// Filtered cell voltages
+inline constexpr uint16_t RDFCA   = 0x0012U;
+inline constexpr uint16_t RDFCB   = 0x0013U;
+inline constexpr uint16_t RDFCC   = 0x0014U;
+inline constexpr uint16_t RDFCD   = 0x0015U;
+inline constexpr uint16_t RDFCE   = 0x0016U;
+inline constexpr uint16_t RDFCF   = 0x0017U;
 
 // AUX & Status
 inline constexpr uint16_t RDAUXA  = 0x0019U;
@@ -55,6 +62,7 @@ inline constexpr uint16_t CLOVUV  = 0x547U;
 // Poll
 inline constexpr uint16_t PLADC  = 0x0718U;
 inline constexpr uint16_t PLCADC = 0x071CU;
+inline constexpr uint16_t PLSADC = 0x071DU;
 inline constexpr uint16_t PLAUX  = 0x071EU;
 inline constexpr uint16_t PLAUX2 = 0x071FU;
 
@@ -89,6 +97,9 @@ inline constexpr uint16_t CH2 = (1U << 2);
 inline constexpr uint16_t CH1 = (1U << 1);
 inline constexpr uint16_t CH0 = (1U << 0);
 
+//
+inline constexpr uint32_t POLL_STATUS_READY = __builtin_bswap32(0xFFFFFFFFU >> (2 * NUM_SEGMENTS));
+
 /**
  * Sends the given command.
  * @param cmd The command to send
@@ -109,10 +120,10 @@ expected<void, ErrorCode> poll(uint16_t cmd, span<uint8_t> poll_buf);
  * @param regs Buffer to store the received register values
  * @param comm_success Buffer to store the success of communication for each segment
  */
-template <size_t N>
+
 void readRegGroup(
     uint16_t                                                       cmd,
-    array<array<uint8_t, N>, NUM_SEGMENTS> &regs,
+    array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs,
     array<expected<void, ErrorCode>, NUM_SEGMENTS>      &comm_success);
     
 
@@ -123,5 +134,5 @@ void readRegGroup(
  * @return success of operation
  */
 expected<void, ErrorCode>
-    writeRegGroup(uint16_t cmd, array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> regs);
+    writeRegGroup(uint16_t cmd, const array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs);
 } // namespace io::adbms
