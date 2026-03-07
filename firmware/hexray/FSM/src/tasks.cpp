@@ -1,4 +1,5 @@
 #include "tasks.h"
+#include "hw_adcs.hpp"
 #include "jobs.hpp"
 
 #include "app_jsoncan.hpp"
@@ -30,6 +31,7 @@
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
+        float voltage = hw::adcs::susp_fl.getVoltage();
         jobs_run100Hz_tick();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -102,6 +104,7 @@ void tasks_preInit() {}
 [[noreturn]] void tasks_init()
 {
     hw::can::fdcan1.init();
+    hw::adcs::chipsInit();
     jobs_init();
     osKernelInitialize();
     FSM_StartAllTasks();
