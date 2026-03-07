@@ -82,6 +82,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "stm32h5xx_hal_pwr_ex.c"
             "stm32h5xx_hal_flash.c"
             "stm32h5xx_hal_spi.c"
+            "stm32h5xx_hal_cordic.c"
     )
 
     set(CUBEMX_INCLUDE_DIRS
