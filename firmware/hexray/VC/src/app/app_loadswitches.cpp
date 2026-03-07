@@ -1,4 +1,3 @@
-#include <array>
 #include "app_loadswitches.hpp"
 #include "app_canTx.hpp"
 #include "io_efuse.hpp"
@@ -7,11 +6,14 @@
 Setting CAN signals for the efuse status aka turning efuse on or off and setting the
 current we want to send over CAN for each efuse channel.
 */
+struct CanSetters{
+    void *setter;
+    void *getter;
+}
 
 namespace app::loadswitches
 {
-io::Efuse *const efuse_channels[NUM_EFUSE_CHANNELS];
-
+// array passed in will be the efuse_channels which will have all the efuses. 
 static void (*const efuse_enabled_can_setters[NUM_EFUSE_CHANNELS])(bool) = {
     [F_INV_Efuse]   = app::can_tx::VC_FrontInvertersStatus_set,
     [RSM_Efuse]     = app::can_tx::VC_RSMStatus_set,
@@ -47,8 +49,8 @@ void efuse_broadcast(void)
 
         const bool  enabled = efuse_channels[i]->isChannelEnabled();
         const float current = efuse_channels[i]->getChannelCurrent();
-        efuse_channels[i]->setChannel(enabled);
-        efuse_channels[i]->setChannelCurrent(current);
+        efuse_enabled_can_setters[i](enabled);
+        efuse_current_can_setters[i](current);
     }
 }
 } // namespace app::loadswitches

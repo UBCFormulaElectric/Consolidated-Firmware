@@ -225,7 +225,7 @@
         }
     },
     "ShdnNodeStatus": {
-        "msg_id": 238,
+        "msg_id": 538,
         "cycle_time": 100,
         "description": "VC Shutdown Node Status",
         "signals": {
@@ -243,36 +243,8 @@
             }
         }
     },
-    "EllipseEulerAngles": {
-        "msg_id": 243,
-        "cycle_time": 1000,
-        "description": "Euler angles from the SBG Ellipse N sensor.",
-        "signals": {
-            "EulerAnglesRoll": {
-                "min": -180,
-                "max": 180,
-                "resolution": 0.1,
-                "signed": true,
-                "unit": "deg"
-            },
-            "EulerAnglesPitch": {
-                "min": -180,
-                "max": 180,
-                "resolution": 0.1,
-                "signed": true,
-                "unit": "deg"
-            },
-            "EulerAnglesYaw": {
-                "min": -180,
-                "max": 180,
-                "resolution": 0.1,
-                "signed": true,
-                "unit": "deg"
-            }
-        }
-    },
     "EllipseStatus": {
-        "msg_id": 247,
+        "msg_id": 547,
         "cycle_time": 100,
         "description": "Status of the SBG Ellipse N sensor.",
         "signals": {
@@ -292,7 +264,7 @@
                 "bits": 8
             }
         }
-    },
+    }, 
     "PowerMonitoring": {
         "msg_id": 514,
         "cycle_time": 100,
