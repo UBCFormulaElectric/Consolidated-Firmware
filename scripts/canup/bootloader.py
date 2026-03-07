@@ -53,7 +53,7 @@ class Bootloader:
         board: boards.Board,
         ui_callback: Callable,
         ih: intelhex.IntelHex = None,
-        timeout: int = 5,
+        timeout: int = 1000,
         is_fd: bool = False,
     ) -> None:
         self.bus: can.Bus = bus
@@ -221,6 +221,8 @@ class Bootloader:
                     success = True
                 except can.interfaces.vector.exceptions.VectorOperationError:
                     pass
+                
+            time.sleep(0.0001)
         if self.ui_callback:
             self.ui_callback("Programming data", self.size_bytes(), self.size_bytes())
 
@@ -259,6 +261,9 @@ class Bootloader:
         rx_msg = self._await_can_msg(_validator)
         if rx_msg is None:
             return None
+        
+        if rx_msg.dlc < 1:
+            raise RuntimeError("Zero Message recieved")
 
         return rx_msg.data[0]
 

@@ -89,8 +89,8 @@ STM32H562_MCU = Microcontroller(
     flash_sectors = [
         FlashSector(
             id=sector_id,
-            base_address=0x08000000 + sector_id * 0x2000,
-            size=0x2000,  # 8KB
+            base_address=0x8000000 + (sector_id * 8 * KB),
+            size=8 * KB,  # 8KB
             write_protect=(sector_id < 16),
         )
         for sector_id in range(128)

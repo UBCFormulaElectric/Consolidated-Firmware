@@ -20,20 +20,21 @@ constexpr uint8_t UPDATE_ACK_ID_LOWBITS            = 0x2;
 constexpr uint8_t GO_TO_APP_LOWBITS                = 0x3;
 constexpr uint8_t ERASE_SECTOR_ID_LOWBITS          = 0x4;
 constexpr uint8_t ERASE_SECTOR_COMPLETE_ID_LOWBITS = 0x5;
-constexpr uint8_t ERASE_SECTOR_FAILED_ID_LOWBITS   = 0x6;
-constexpr uint8_t PROGRAM_ID_LOWBITS               = 0x7;
-constexpr uint8_t PROGRAM_ID_FAILED_LOWBITS        = 0x8;
-constexpr uint8_t VERIFY_ID_LOWBITS                = 0x9;
-constexpr uint8_t APP_VALIDITY_ID_LOWBITS          = 0xA;
-constexpr uint8_t GO_TO_BOOT                       = 0xB;
+constexpr uint8_t PROGRAM_ID_LOWBITS               = 0x6;
+constexpr uint8_t VERIFY_ID_LOWBITS                = 0x7;
+constexpr uint8_t APP_VALIDITY_ID_LOWBITS          = 0x8;
+constexpr uint8_t GO_TO_BOOT                       = 0x9;
+constexpr uint8_t ERASE_SECTOR_FAILED_ID_LOWBITS   = 0xA;
+constexpr uint8_t PROGRAM_ID_FAILED_LOWBITS        = 0xB;
+
 
 namespace bootloader
 {
 class config
 {
   public:
-    io::queue<io::CanMsg, 128> &can_tx_queue;
-    io::queue<io::CanMsg, 128> &can_rx_queue;
+    io::queue<io::CanMsg, 256> &can_tx_queue;
+    io::queue<io::CanMsg, 256> &can_rx_queue;
 
     uint32_t BOARD_HIGHBITS{ 0 };
     uint32_t GIT_COMMIT_HASH{ 0 };
@@ -44,8 +45,8 @@ class config
     hw::fdcan &fdcan_handle;
     config(
         hw::fdcan                  &fdcan_handle_in,
-        io::queue<io::CanMsg, 128> &tx_queue,
-        io::queue<io::CanMsg, 128> &rx_queue,
+        io::queue<io::CanMsg, 256> &tx_queue,
+        io::queue<io::CanMsg, 256> &rx_queue,
         uint32_t                    board_highbits,
         uint32_t                    git_commit_hash,
         bool                        git_commit_clean)
@@ -59,8 +60,8 @@ class config
     hw::can &can_handle;
     config(
         hw::can                    &can_handle_in,
-        io::queue<io::CanMsg, 128> &tx_queue,
-        io::queue<io::CanMsg, 128> &rx_queue,
+        io::queue<io::CanMsg, 256> &tx_queue,
+        io::queue<io::CanMsg, 256> &rx_queue,
         uint32_t                    board_highbits,
         uint32_t                    git_commit_hash,
         bool                        git_commit_clean)

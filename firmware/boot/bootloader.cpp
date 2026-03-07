@@ -124,6 +124,8 @@ void bootloader::preInit(void)
 {
     hw_hardFaultHandler_init();
 
+    verifyAppCodeChecksum();
+
     // verify checksum place holder
     if (boot_status == BootStatus::BOOT_STATUS_APP_VALID &&
         hw::bootup::getBootRequest().target == hw::bootup::BootTarget::BOOT_TARGET_APP)
@@ -226,7 +228,7 @@ void bootloader::init(config &boot_config)
         {
             // Verify received checksum matches the one saved in flash.
             io::CanMsg reply{};
-            reply.std_id = (boot_config.BOARD_HIGHBITS | VERIFY_ID_LOWBITS);
+            reply.std_id = (boot_config.BOARD_HIGHBITS | APP_VALIDITY_ID_LOWBITS);
             reply.dlc    = 1;
             verifyAppCodeChecksum();
             reply.data[0] = static_cast<uint8_t>(boot_status);

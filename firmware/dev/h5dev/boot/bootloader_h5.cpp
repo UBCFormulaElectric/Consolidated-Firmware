@@ -23,8 +23,8 @@ void rx_overflow_callback(const uint32_t overflow_count)
 void tx_overflow_clear_callback(){};
 void rx_overflow_clear_callback(){};
 
-io::queue<io::CanMsg, 128> boot_can_tx_queue{ "CanTxQueue", tx_overflow_callback, tx_overflow_clear_callback };
-io::queue<io::CanMsg, 128> boot_can_rx_queue{ "CanRxQueue", rx_overflow_callback, rx_overflow_clear_callback };
+io::queue<io::CanMsg, 256> boot_can_tx_queue{ "CanTxQueue", tx_overflow_callback, tx_overflow_clear_callback };
+io::queue<io::CanMsg, 256> boot_can_rx_queue{ "CanRxQueue", rx_overflow_callback, rx_overflow_clear_callback };
 
 namespace hw::cans
 {
@@ -65,7 +65,6 @@ class H5DevBootConfig : public bootloader::config
 void bootloader_preInit(void)
 {
     bootloader::preInit();
-    HAL_GPIO_WritePin(BOOT_GPIO_Port, BOOT_Pin, GPIO_PIN_SET);
 }
 
 static hw::rtos::StaticTask<1024>
@@ -77,6 +76,7 @@ static hw::rtos::StaticTask<1024>
 
 [[noreturn]] void bootloader_init(void)
 {
+    HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
     bootloader::init(h5devboot_config);
     osKernelInitialize();
     TaskRunInterface.start();
