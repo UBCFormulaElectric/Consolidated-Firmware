@@ -15,7 +15,7 @@ void monitorPumps()
 
 void broadcast()
 {
-    uint8_t percentage; 
+    uint8_t percentage;
     io::rPump::readPercentage(percentage);
     can_tx::RSM_RPumpPercentage_set(percentage);
 }
