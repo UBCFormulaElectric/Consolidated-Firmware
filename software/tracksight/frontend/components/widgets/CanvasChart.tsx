@@ -55,7 +55,7 @@ export default function CanvasChart({ chartData: chart_data, widgetData, height,
             if (!globalTimeRangeRef.current) {
                 render_empty(context, cssWidth, height);
             } else {
-                render(context, cssWidth, height, layoutRef, chart_data.current, widgetData, timeTickCount, externalHoverTimestampRef.current, {
+                render(context, cssWidth, height, layoutRef, chart_data.current, widgetData, timeTickCount, externalHoverTimestampRef.current, hoveredSignal, {
                     min: XToTime(0),
                     max: XToTime(cssWidth),
                 });
