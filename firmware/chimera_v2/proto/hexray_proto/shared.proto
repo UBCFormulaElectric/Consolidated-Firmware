@@ -203,6 +203,7 @@ message UartReceiveResponse {
 message PwmNetName {
   oneof name {
     crit.PwmNetName crit_net_name = 1;
+    rsm.PwmNetName rsm_net_name = 2;
   }
 }
 // PWM set

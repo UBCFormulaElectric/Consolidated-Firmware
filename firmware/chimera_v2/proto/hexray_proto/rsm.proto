@@ -35,4 +35,9 @@ enum SpiNetName {
   SPI_IMU = 1;
 }
 
+enum PwmNetName {
+  PWM_NET_NAME_UNSPECIFIED = 0;
+  PWM_FLOW_METER_5V5 = 1;
+}
+
 

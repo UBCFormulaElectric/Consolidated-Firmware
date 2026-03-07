@@ -5,6 +5,7 @@
 #include "hw_i2cs.hpp"
 #include "hw_spis.hpp"
 #include "hw_usb.hpp"
+#include "hw_pwms.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_hardFaultHandler.hpp"
 #include <rsm.pb.h>
@@ -12,6 +13,7 @@
 
 #include <optional>
 #include <functional>
+#include <shared.pb.h>
 
 class RSMChimeraConfig : public chimera_v2::config
 {
@@ -118,7 +120,15 @@ class RSMChimeraConfig : public chimera_v2::config
             LOG_ERROR("Chimera: Expected PWM netname with tag %d, got %d", pwm_net_name_tag, pnn->which_name);
             return std::nullopt;
         }
-        return std::nullopt;
+        switch (pnn->name.rsm_net_name)
+        {
+            case rsm_PwmNetName_PWM_FLOW_METER_5V5:
+                return std::cref(hw::pwm::flow_meter_config);
+            default:
+            case rsm_PwmNetName_PWM_NET_NAME_UNSPECIFIED:
+                LOG_INFO("Chimera: Unspecified PWM net name");
+                return std::nullopt;
+        }
     }
     RSMChimeraConfig()
     {
@@ -126,7 +136,7 @@ class RSMChimeraConfig : public chimera_v2::config
         adc_net_name_tag  = AdcNetName_rsm_net_name_tag;
         i2c_net_name_tag  = I2cNetName_rsm_net_name_tag;
         spi_net_name_tag  = SpiNetName_rsm_net_name_tag;
-        pwm_net_name_tag  = 0;
+        pwm_net_name_tag  = PwmNetName_rsm_net_name_tag;
     }
 } rsm_config;
 
