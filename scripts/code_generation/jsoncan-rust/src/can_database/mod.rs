@@ -6,6 +6,7 @@ mod types;
 use error::CanDBError;
 use r2d2::{Pool, PooledConnection};
 use r2d2_sqlite::SqliteConnectionManager;
+use uuid::Uuid;
 pub use types::*;
 
 
@@ -72,7 +73,7 @@ impl CanDatabase {
         shared_enums: Vec<CanEnum>,
     ) -> Result<Self, CanDBError> {
         let manager = SqliteConnectionManager::file(
-            format!("file:{IN_MEMORY_PATH}?mode=memory&cache=shared")
+            format!("file:{}-{}?mode=memory&cache=shared", IN_MEMORY_PATH, Uuid::new_v4())
         )
             .with_init(|conn| {
                 conn.execute(
