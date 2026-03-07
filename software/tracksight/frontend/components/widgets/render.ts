@@ -277,7 +277,7 @@ function render_numerical(
         }
 
         context.strokeStyle = strokeCol;
-        context.lineWidth = 2;
+        context.lineWidth = lineWidth;
         context.beginPath();
 
         let initialMove = false;
