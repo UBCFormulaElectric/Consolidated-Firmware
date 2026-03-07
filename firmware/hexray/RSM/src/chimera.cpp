@@ -113,7 +113,7 @@ class RSMChimeraConfig : public chimera_v2::config
                 return std::nullopt;
         }
     }
-    std::optional<std::reference_wrapper<const hw::PwmOutput>> id_to_pwm(const _PwmNetName *pnn) const override
+    std::optional<std::reference_wrapper<const hw::PwmInput>> id_to_pwm(const _PwmNetName *pnn) const override
     {
         if (pnn->which_name != pwm_net_name_tag)
         {
