@@ -24,6 +24,7 @@ class WarningsList extends ChangeNotifier {
   void updateListCan() {
     // for now triggers on recieving frames, just put dummy
     _warnings.add("TRIGGERED");
+    notifyListeners();
   }
 }
 
