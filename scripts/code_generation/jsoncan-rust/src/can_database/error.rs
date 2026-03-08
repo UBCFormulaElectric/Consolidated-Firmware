@@ -36,7 +36,8 @@ pub enum CanDBError {
     NodeCannotForwardTo {
         node_name: String,
         bus_not_on: String,
-    }
+    },
+    PoolConnectionError(r2d2::Error),
 }
 
 impl Debug for CanDBError {
@@ -96,6 +97,7 @@ impl Debug for CanDBError {
             CanDBError::SqlLiteError(error) => write!(f, "SQLite error: {}", error),
             CanDBError::NodeCannotForwardFrom { node_name, bus_not_on } => write!(f,  "{} cannot forward from {} as it is not on it", node_name, bus_not_on),
             CanDBError::NodeCannotForwardTo { node_name, bus_not_on } => write!(f,  "{} cannot forward to {} as it is not on it", node_name, bus_not_on),
+            CanDBError::PoolConnectionError(error) => write!(f, "Pool connection error: {}", error),
         }
     }
 }
