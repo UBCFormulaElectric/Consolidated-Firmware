@@ -47,6 +47,7 @@ extern "C"
     extern DMA_QListTypeDef  List_GPDMA1_Channel0;
     extern DMA_HandleTypeDef handle_GPDMA1_Channel0;
     extern TIM_HandleTypeDef htim3;
+    extern FMAC_HandleTypeDef hfmac;
     /* USER CODE END ET */
 
     /* Exported constants --------------------------------------------------------*/

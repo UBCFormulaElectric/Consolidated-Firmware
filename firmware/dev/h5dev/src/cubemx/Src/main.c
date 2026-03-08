@@ -50,6 +50,8 @@ DMA_HandleTypeDef handle_GPDMA1_Channel0;
 
 FDCAN_HandleTypeDef hfdcan1;
 
+FMAC_HandleTypeDef hfmac;
+
 RTC_HandleTypeDef hrtc;
 
 SPI_HandleTypeDef hspi1;
@@ -72,6 +74,7 @@ static void MX_USB_PCD_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_TIM3_Init(void);
+static void MX_FMAC_Init(void);
 /* USER CODE BEGIN PFP */
 /* USER CODE END PFP */
 
@@ -118,6 +121,7 @@ int main(void)
     MX_ADC1_Init();
     MX_SPI1_Init();
     MX_TIM3_Init();
+    MX_FMAC_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
     /* USER CODE END 2 */
@@ -330,6 +334,30 @@ static void MX_FDCAN1_Init(void)
     /* USER CODE BEGIN FDCAN1_Init 2 */
 
     /* USER CODE END FDCAN1_Init 2 */
+}
+
+/**
+ * @brief FMAC Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_FMAC_Init(void)
+{
+    /* USER CODE BEGIN FMAC_Init 0 */
+
+    /* USER CODE END FMAC_Init 0 */
+
+    /* USER CODE BEGIN FMAC_Init 1 */
+
+    /* USER CODE END FMAC_Init 1 */
+    hfmac.Instance = FMAC;
+    if (HAL_FMAC_Init(&hfmac) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN FMAC_Init 2 */
+
+    /* USER CODE END FMAC_Init 2 */
 }
 
 /**
