@@ -57,7 +57,7 @@ export function useSubscribers(socket: Socket, pruneSignalData: (name: string) =
 		}
 
 		const sid = socket.id;
-		fetch(`${BACKEND_URL}/subscribe`, {
+		fetch(`${BACKEND_URL}/api/v1/subscribe`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ sid, signal: name })
@@ -111,7 +111,7 @@ export function useSubscribers(socket: Socket, pruneSignalData: (name: string) =
 				setTick(t => t + 1);
 				if (socket.connected && socket.id) {
 					const sid = socket.id;
-					fetch(`${BACKEND_URL}/unsubscribe`, {
+					fetch(`${BACKEND_URL}/api/v1/unsubscribe`, {
 						method: "POST",
 						headers: { "Content-Type": "application/json" },
 						body: JSON.stringify({ sid, signal: name })
@@ -168,7 +168,7 @@ export function useSubscribers(socket: Socket, pruneSignalData: (name: string) =
 			// On fresh connect, backend has no state; clear any revive flags
 			revivedFromPending.current = {};
 			names.forEach((name) => {
-				fetch(`${BACKEND_URL}/subscribe`, {
+				fetch(`${BACKEND_URL}/api/v1/subscribe`, {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify({ sid, signal: name })

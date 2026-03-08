@@ -42,6 +42,8 @@ class FmacIir
 
   private:
     FMAC_HandleTypeDef* m_handle;
+    int16_t m_outputSample = 0;
+    uint16_t m_outputSize = 1;
     std::expected<void, ErrorCode> pushSample(int16_t sample_q15);
     std::expected<void, ErrorCode> popSample(int16_t* output_q15);
 };
