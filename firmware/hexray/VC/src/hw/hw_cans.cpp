@@ -17,3 +17,4 @@ const hw::fdcan &hw::fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
     }
     return can::invcan;
 }
+
