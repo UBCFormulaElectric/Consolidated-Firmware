@@ -207,8 +207,8 @@ extern "C" void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
 
 extern "C" void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 {
-    const auto &bus = getBusFromHandle(hspi);
-    bus.onTransactionCompleteFromISR();
+    // const auto &bus = getBusFromHandle(hspi);
+    // bus.onTransactionCompleteFromISR();
 
     if (hspi->Instance == SPI4)
     {

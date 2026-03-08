@@ -63,10 +63,10 @@ struct __attribute__((packed)) CfgPacket
     std::array<io::adbms::RegGroupPayload, io::NUM_SEGMENTS> payload;
 };
 
-__attribute__((section(".sram2_data"))) static CfgPacket cfg_tx_a;
-__attribute__((section(".sram2_data"))) static CfgPacket cfg_rx_a;
-__attribute__((section(".sram2_data"))) static CfgPacket cfg_tx_b;
-__attribute__((section(".sram2_data"))) static CfgPacket cfg_rx_b;
+__attribute__((section(".sram2_data"), aligned(32))) static CfgPacket cfg_tx_a;
+__attribute__((section(".sram2_data"), aligned(32))) static CfgPacket cfg_rx_a;
+__attribute__((section(".sram2_data"), aligned(32))) static CfgPacket cfg_tx_b;
+__attribute__((section(".sram2_data"), aligned(32))) static CfgPacket cfg_rx_b;
 
 // State machine for tracking where we are in the DMA process
 enum class DmaCfgState
@@ -84,25 +84,37 @@ static volatile DmaCfgState dma_cfg_state = DmaCfgState::IDLE;
 static std::array<io::adbms::SegmentConfig, io::NUM_SEGMENTS> dma_cfg_readback;
 static std::array<bool, io::NUM_SEGMENTS> dma_cfg_pec_ok;
 
-// Build a write packet (same as Pranay's writeRegGroup's tx_buffer construction)
+// Build a write packet 
 static void buildWritePacket(CfgPacket &tx, const uint16_t cmd, const std::array<io::adbms::SegmentConfig, io::NUM_SEGMENTS> &cfg, bool useRegA)
 {
-    tx.tx_cmd = io::adbms::TxCmd{ cmd };
+    // 1. Properly format the command and calculate the 15-bit command PEC
+    tx.tx_cmd.cmd = io::adbms::swapEndianness(cmd);
+    uint8_t cmd_bytes[2] = { static_cast<uint8_t>(cmd >> 8), static_cast<uint8_t>(cmd & 0xFF) };
+    tx.tx_cmd.pec15 = io::adbms::swapEndianness(io::adbms::calculatePec15(cmd_bytes));
+
     for (uint8_t seg = 0; seg < io::NUM_SEGMENTS; seg++)
     {
+        // 2. Reverse the segment order for the daisy chain!
+        uint8_t target_idx = io::NUM_SEGMENTS - 1 - seg;
+
         const uint8_t *data = useRegA
             ? reinterpret_cast<const uint8_t *>(&cfg[seg].reg_a)
             : reinterpret_cast<const uint8_t *>(&cfg[seg].reg_b);
-        std::memcpy(tx.payload[seg].data.data(), data, io::adbms::REG_GROUP_SIZE);
-        tx.payload[seg].pec10 = io::adbms::swapEndianness(
-            static_cast<uint16_t>(io::adbms::calculatePec10(tx.payload[seg].data, 0U) & 0x03FFU));
+        
+        std::memcpy(tx.payload[target_idx].data.data(), data, io::adbms::REG_GROUP_SIZE);
+        tx.payload[target_idx].pec10 = io::adbms::swapEndianness(
+            static_cast<uint16_t>(io::adbms::calculatePec10(tx.payload[target_idx].data, 0U) & 0x03FFU));
     }
 }
 
-// Build a read packet (command + 0xFF dummy payload for DMA clocking)
+// Build a read packet
 static void buildReadPacket(CfgPacket &tx, const uint16_t cmd)
 {
-    tx.tx_cmd = io::adbms::TxCmd{ cmd };
+    // 1. Properly format the command and calculate the 15-bit command PEC
+    tx.tx_cmd.cmd = io::adbms::swapEndianness(cmd);
+    uint8_t cmd_bytes[2] = { static_cast<uint8_t>(cmd >> 8), static_cast<uint8_t>(cmd & 0xFF) };
+    tx.tx_cmd.pec15 = io::adbms::swapEndianness(io::adbms::calculatePec15(cmd_bytes));
+
     std::memset(tx.payload.data(), 0xFF, sizeof(tx.payload));
 }
 
@@ -116,6 +128,7 @@ void writeConfigRegDma(const std::array<io::adbms::SegmentConfig, io::NUM_SEGMEN
     dma_cfg_state = DmaCfgState::WRITING_A;
 
     HAL_GPIO_WritePin(SPI_CS_LS_GPIO_Port, SPI_CS_LS_Pin, GPIO_PIN_RESET);
+    SCB_CleanDCache_by_Addr(reinterpret_cast<uint32_t*>(&cfg_tx_a), sizeof(CfgPacket));
     if (HAL_SPI_TransmitReceive_DMA(&hspi4, reinterpret_cast<uint8_t *>(&cfg_tx_a), reinterpret_cast<uint8_t *>(&cfg_rx_a), sizeof(CfgPacket)) != HAL_OK)
     {
         HAL_GPIO_WritePin(SPI_CS_LS_GPIO_Port, SPI_CS_LS_Pin, GPIO_PIN_SET);
@@ -130,6 +143,7 @@ static void startReadCfgA()
     buildReadPacket(cfg_tx_a, io::adbms::RDCFGA);
     dma_cfg_state = DmaCfgState::READING_A;
 
+    SCB_CleanDCache_by_Addr(reinterpret_cast<uint32_t*>(&cfg_tx_a), sizeof(CfgPacket));
     HAL_GPIO_WritePin(SPI_CS_LS_GPIO_Port, SPI_CS_LS_Pin, GPIO_PIN_RESET);
     if (HAL_SPI_TransmitReceive_DMA(&hspi4, reinterpret_cast<uint8_t *>(&cfg_tx_a), reinterpret_cast<uint8_t *>(&cfg_rx_a), sizeof(CfgPacket)) != HAL_OK)
     {
@@ -143,7 +157,6 @@ static void startReadCfgA()
 void onDmaCfgComplete()
 {
     HAL_GPIO_WritePin(SPI_CS_LS_GPIO_Port, SPI_CS_LS_Pin, GPIO_PIN_SET);
-
     switch (dma_cfg_state)
     {
         case DmaCfgState::WRITING_A:
@@ -153,6 +166,7 @@ void onDmaCfgComplete()
             buildWritePacket(cfg_tx_b, io::adbms::WRCFGB, configReg, false);
             dma_cfg_state = DmaCfgState::WRITING_B;
 
+            SCB_CleanDCache_by_Addr(reinterpret_cast<uint32_t*>(&cfg_tx_b), sizeof(CfgPacket));
             HAL_GPIO_WritePin(SPI_CS_LS_GPIO_Port, SPI_CS_LS_Pin, GPIO_PIN_RESET);
             if (HAL_SPI_TransmitReceive_DMA(&hspi4, reinterpret_cast<uint8_t *>(&cfg_tx_b), reinterpret_cast<uint8_t *>(&cfg_rx_b), sizeof(CfgPacket)) != HAL_OK)
             {
@@ -169,6 +183,8 @@ void onDmaCfgComplete()
         }
         case DmaCfgState::READING_A:
         {
+            SCB_InvalidateDCache_by_Addr(reinterpret_cast<uint32_t*>(&cfg_rx_a), sizeof(CfgPacket));
+
             // cfg_rx_a.payload[] holds the chip response – validate PEC the same way readRegGroup does.
             for (uint8_t seg = 0; seg < io::NUM_SEGMENTS; seg++)
             {
@@ -194,6 +210,8 @@ void onDmaCfgComplete()
         }
         case DmaCfgState::READING_B:
         {
+            SCB_InvalidateDCache_by_Addr(reinterpret_cast<uint32_t*>(&cfg_rx_b), sizeof(CfgPacket));
+
             for (uint8_t seg = 0; seg < io::NUM_SEGMENTS; seg++)
             {
                 const auto &p = cfg_rx_b.payload[seg];
