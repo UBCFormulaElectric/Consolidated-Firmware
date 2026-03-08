@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::Router;
 use colored::Colorize;
 use tokio::select;
-use tokio::sync::{RwLock, broadcast};
+use tokio::sync::{RwLock, broadcast, mpsc};
 use tokio::net::TcpListener;
 use socketioxide::{SocketIo, extract::SocketRef};
 use jsoncan_rust::can_database::CanDatabase;
@@ -15,7 +15,12 @@ use crate::tasks::client_api::clients::Clients;
 use crate::tasks::client_api::signal_api_handler::get_signal_router;
 use crate::tasks::client_api::subtable_api_handler::get_subtable_router;
 
-pub async fn run_api_handler(mut shutdown_rx: broadcast::Receiver<()>, clients: Arc<RwLock<Clients>>, can_db: Arc<CanDatabase>) {
+pub async fn run_api_handler(
+    mut shutdown_rx: broadcast::Receiver<()>, 
+    health_check_tx: mpsc::Sender<bool>, 
+    clients: Arc<RwLock<Clients>>, 
+    can_db: Arc<CanDatabase>
+) {
     println!("{}", "API handler task started.".yellow());
     
     // Axum
