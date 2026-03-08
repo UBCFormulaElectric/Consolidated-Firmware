@@ -22,26 +22,23 @@ pub async fn run_api_handler(mut shutdown_rx: broadcast::Receiver<()>, clients: 
     let addr = format!("0.0.0.0:{}", CONFIG.backend_port);
     let listener = TcpListener::bind(addr).await.unwrap();
 
-    // MDNS
     let mdns = ServiceDaemon::new().unwrap();
 
     let service_type = "_http._tcp.local.";
-    let instance_name = "my-server";
-
-    let my_ip = local_ip_address::local_ip().unwrap(); // optional helper crate
+    let instance_name = "server";
 
     let service_info = ServiceInfo::new(
         service_type,
         instance_name,
         &format!("{}.local.", instance_name),
-        my_ip,
+        &CONFIG.mdns_local_ip,
         CONFIG.backend_port,
         None,
     ).unwrap();
 
     mdns.register(service_info).unwrap();
-    println!("Server running at http://{}.local:{}", instance_name, CONFIG.backend_port);
-
+    // running at this location
+    println!("Server hosted on {} running at http://{}.local:{}", CONFIG.mdns_local_ip, instance_name, CONFIG.backend_port);
 
     // Websocket
     let (socket_layer, io) = SocketIo::new_layer();
