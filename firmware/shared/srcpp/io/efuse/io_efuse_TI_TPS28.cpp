@@ -57,13 +57,13 @@ void TI_TPS28_Efuse::reset()
     this->diag_en_gpio.writePin(true);
 
     const bool  channel_enabled = this->isChannelEnabled();
-    const float voltage         = this->sns_adc_channel.getVoltage();
+    const float Isns_voltage         = this->sns_adc_channel.getVoltage();
 
     /**
      * Note: Table 8.2 DIAG_EN Logic Table
      *
      * If DIAG_EN is low, FAULT will continue to indicate
-     * TSD (thermal_shdn) or ILIM (forgor what this is)
+     * TSD (thermal_shdn) or ILIM (current limit)
      *
      * So technically we read the same faults regardless if
      * diag_en is asserted high or not. To be safe we will
@@ -75,8 +75,8 @@ void TI_TPS28_Efuse::reset()
 
     if (is_ok == false)
     {
-        this->faults.flags.overcurrent  = (channel_enabled && IS_IN_RANGE(V_SNSFH_MIN, V_SNSFH_MAX, voltage));
-        this->faults.flags.thermal_shdn = (channel_enabled && IS_IN_RANGE(V_SNSFH_MIN, V_SNSFH_MAX, voltage));
+        this->faults.flags.overcurrent_or_thermal_shdn  = (channel_enabled && IS_IN_RANGE(V_SNSFH_MIN, V_SNSFH_MAX, Isns_voltage));
+        this->faults.flags.open_load = (!channel_enabled && IS_IN_RANGE(V_SNSFH_MIN, V_SNSFH_MAX, Isns_voltage));
     }
 
     this->diag_en_gpio.writePin(false);
