@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use colored::Colorize;
 use tokio::{select, spawn};
-use tokio::sync::{RwLock, broadcast};
+use tokio::sync::{RwLock, broadcast, mpsc};
 
 use super::influx_handler::run_influx_handler;
 use super::live_data_handler::run_live_data_handler;
@@ -17,6 +17,7 @@ use jsoncan_rust::can_database::{CanDatabase, DecodedSignal};
  */
 pub async fn run_can_data_handler(
     mut shutdown_rx: broadcast::Receiver<()>, 
+    health_check_tx: mpsc::Sender<bool>,
     mut can_queue_rx: broadcast::Receiver<CanPayload>,
     clients: Arc<RwLock<Clients>>,
     can_db: Arc<CanDatabase>

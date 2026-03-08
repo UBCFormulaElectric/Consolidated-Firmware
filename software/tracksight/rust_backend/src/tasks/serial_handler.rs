@@ -14,7 +14,11 @@ use super::telem_message::{TelemetryIncomingMessage, CanPayload};
 /**
  * Handling serial signals from radio. Main task
  */
-pub async fn run_serial_task(mut shutdown_rx: broadcast::Receiver<()>, can_queue_tx: broadcast::Sender<CanPayload>) {
+pub async fn run_serial_task(
+    mut shutdown_rx: broadcast::Receiver<()>, 
+    health_check_tx: mpsc::Sender<bool>,
+    can_queue_tx: broadcast::Sender<CanPayload>
+) {
     println!("{}", "Serial handler task started.".yellow());
 
     let serial_port = tokio_serial::new(
@@ -43,6 +47,9 @@ pub async fn run_serial_task(mut shutdown_rx: broadcast::Receiver<()>, can_queue
         let shutdown_rx = shutdown_rx.resubscribe();
         tokio::spawn(packet_sender_handler(shutdown_rx, serial_write, out_packet_rx))
     };
+
+    // no set up involved with packet sender and reader thread, send health check
+    
 
     // loop select check for shutdown signal
     // if shutdown signal, select block breaks loop early

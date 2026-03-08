@@ -3,6 +3,7 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use tokio::sync::RwLock;
 use tokio::sync::broadcast;
+use tokio::sync::mpsc;
 use tokio::task::{JoinSet};
 
 use crate::tasks::can_data::load_can_database;
@@ -48,10 +49,35 @@ async fn main() {
     // load CAN database
     let can_db = Arc::new(load_can_database().expect("Could not init Can db"));
 
+    let (health_check_tx, health_check_rx) = mpsc::channel::<bool>(3);
+
+
+
     // start tasks
-    tasks.spawn(run_api_handler(shutdown_rx.resubscribe(), clients.clone(), can_db.clone()));
-    tasks.spawn(run_can_data_handler(shutdown_rx.resubscribe(), can_queue_rx, clients.clone(), can_db.clone()));
-    tasks.spawn(run_serial_task(shutdown_rx.resubscribe(), can_queue_tx));
+    tasks.spawn(
+        run_api_handler(
+            shutdown_rx.resubscribe(),
+            health_check_tx.clone(),
+            clients.clone(), 
+            can_db.clone()
+        )
+    );
+    tasks.spawn(
+        run_can_data_handler(
+            shutdown_rx.resubscribe(),
+            health_check_tx.clone(),
+            can_queue_rx, 
+            clients.clone(), 
+            can_db.clone()
+        )
+    );
+    tasks.spawn(
+        run_serial_task(
+            shutdown_rx.resubscribe(), 
+            health_check_tx.clone(),
+            can_queue_tx
+        )
+    );
 
     // wait for tasks to clean up
     while let Some(res) = tasks.join_next().await {
