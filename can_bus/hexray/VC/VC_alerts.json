@@ -7,15 +7,15 @@
       "description": "One of the inverters has a critical fault impacting VC."
     },
     "VcBoardFaulted": {
-      "id": 505,
+      "id": 504,
       "description": "VC board is faulted."
     }
   },
   "warnings_id": 501,
-  "warnings_counts_id": 506,
+  "warnings_counts_id": 503,
   "warnings": {
     "PcmLvOvercurrentFault": {
-      "id": 560,
+      "id": 558,
       "description": "LV rail from the HV DCDC was overcurrent."
     },
     "SoftwareBspd": {
@@ -51,24 +51,72 @@
       "description": "Right inverter entered fault state."
     }
   },
-  "info_id": 405,
-  "info_counts_id": 406,
+  "info_id": 505,
+  "info_counts_id": 506,
   "info": {
+    "MissingRSMHeartbeat": {
+      "id": 553,
+      "description": "Missing heartbeat signal from the RSM."
+    },
+    "MissingDAMHeartbeat": {
+      "id": 567,
+      "description": "Missing heartbeat signal from the VC"
+    },
+    "InverterRetry": {
+      "id": 553,
+      "description": "Inverter fault occured in drive state"
+    },
     "StackOverflow": {
-      "id": 450,
+      "id": 510,
       "description": "An RTOS task stack overflowed on the previous boot cycle."
     },
-    "CriticalPrechargeFailure": {
-      "id": 451,
-      "description": "Precharge failed >3x"
+    "LvChargeFault": {
+      "id": 559,
+      "description": "LV battery charger has faulted."
+    },
+    "BoostControllerFault": {
+      "id": 560,
+      "description": "Boost controller has faulted."
+    },
+    "ImuFault": {
+      "id": 516,
+      "description": "IMU has faulted (due to failed init or transaction)."
+    },
+    "FlowRateInputOutOfRange": {
+      "id": 517,
+      "description": "Input to app_pumpControl_setFlowRate out of range"
+    },
+    "BatteryRailOvercurrentFault": {
+      "id": 557,
+      "description": "LV rail from the 18650 batteries was overcurrent."
     },
     "WatchdogTimeout": {
-      "id": 452,
+      "id": 506,
       "description": "Watchdog timeout detected."
     },
-        "PcmUnderVoltage": {
-      "id": 453,
+    "TxOverflow": {
+      "id": 507,
+      "description": "CAN TX queue has overflowed."
+    },
+    "RxOverflow": {
+      "id": 508,
+      "description": "CAN RX queue has overflowed."
+    },
+    "RegenNotAvailable": {
+      "id": 509,
+      "description": "Regen is not currently available."
+    },
+    "SbgInitFailed": {
+      "id": 565,
+      "description": "Initializing the SBG Ellipse GPS failed"
+    },
+    "PcmUnderVoltage": {
+      "id": 566,
       "description": "PCM voltage under 18 volts"
+    },
+    "DriveModeOverride": {
+      "id": 567,
+      "description": "Override requested drive mode to vanilla if sensor fails"
     }
   }
 }
