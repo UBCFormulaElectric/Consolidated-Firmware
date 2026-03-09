@@ -14,18 +14,18 @@
 // Keep CAN protocol in sync with:
 // canup/bootloader.py
 
-constexpr uint8_t STATUS_10HZ_ID_LOWBITS           = 0x0;
-constexpr uint8_t START_UPDATE_ID_LOWBITS          = 0x1;
-constexpr uint8_t UPDATE_ACK_ID_LOWBITS            = 0x2;
-constexpr uint8_t GO_TO_APP_LOWBITS                = 0x3;
-constexpr uint8_t ERASE_SECTOR_ID_LOWBITS          = 0x4;
-constexpr uint8_t ERASE_SECTOR_COMPLETE_ID_LOWBITS = 0x5;
-constexpr uint8_t PROGRAM_ID_LOWBITS               = 0x6;
-constexpr uint8_t VERIFY_ID_LOWBITS                = 0x7;
-constexpr uint8_t APP_VALIDITY_ID_LOWBITS          = 0x8;
-constexpr uint8_t GO_TO_BOOT                       = 0x9;
-constexpr uint8_t ERASE_SECTOR_FAILED_ID_LOWBITS   = 0xA;
-constexpr uint8_t PROGRAM_ID_FAILED_LOWBITS        = 0xB;
+inline constexpr uint8_t STATUS_10HZ_ID_LOWBITS           = 0x0;
+inline constexpr uint8_t START_UPDATE_ID_LOWBITS          = 0x1;
+inline constexpr uint8_t UPDATE_ACK_ID_LOWBITS            = 0x2;
+inline constexpr uint8_t GO_TO_APP_LOWBITS                = 0x3;
+inline constexpr uint8_t ERASE_SECTOR_ID_LOWBITS          = 0x4;
+inline constexpr uint8_t ERASE_SECTOR_COMPLETE_ID_LOWBITS = 0x5;
+inline constexpr uint8_t PROGRAM_ID_LOWBITS               = 0x6;
+inline constexpr uint8_t VERIFY_ID_LOWBITS                = 0x7;
+inline constexpr uint8_t APP_VALIDITY_ID_LOWBITS          = 0x8;
+inline constexpr uint8_t GO_TO_BOOT                       = 0x9;
+inline constexpr uint8_t ERASE_SECTOR_FAILED_ID_LOWBITS   = 0xA;
+inline constexpr uint8_t PROGRAM_ID_FAILED_LOWBITS        = 0xB;
 
 
 namespace bootloader
