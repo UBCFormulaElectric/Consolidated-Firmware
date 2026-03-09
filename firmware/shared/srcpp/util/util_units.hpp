@@ -6,7 +6,8 @@
 // MATHEMATICAL CONSTANTS
 // =============================================================================
 
-inline constexpr float M_PI_F = static_cast<float>(M_PI);
+inline constexpr float M_PI_F  = static_cast<float>(M_PI);
+inline constexpr float M_2PI_F = 2.0f * M_PI_F;
 
 // =============================================================================
 // TIME CONVERSIONS

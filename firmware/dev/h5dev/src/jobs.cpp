@@ -10,7 +10,12 @@
 #include "hw_adc.hpp"
 #include <io_canMsg.hpp>
 #include <util_errorCodes.hpp>
+#include "util_math.hpp"
+
+extern "C"
+{
 #include "main.h"
+}
 
 using namespace hw;
 using namespace io;
@@ -29,6 +34,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 
 void jobs_init()
 {
+<<<<<<< HEAD
     io::can_tx::init(
         [](const JsonCanMsg &tx_msg)
         {
@@ -37,16 +43,26 @@ void jobs_init()
         });
 
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
+=======
+    // adc1.init();
+    // efuse.setChannel(true);
+    // LOG_INFO("IS CHANNEL ENABLED: %s", efuse.isChannelEnabled() ? "YES" : "NO");
+>>>>>>> 3b22b446c (compiles)
 }
 
 void jobs_run1Hz_tick() {}
 
 void jobs_run100Hz_tick()
 {
-    float current = efuse.getChannelCurrent() / 1.720f;
-    bool  ok      = efuse.ok();
+    // float current = efuse.getChannelCurrent() / 1.720f;
+    // bool  ok      = efuse.ok();
 
     // LOG_INFO("CURRENT: %d", (int)(current * 100000));
+<<<<<<< HEAD
+=======
+    auto result = ccos(0.0f);
+    LOG_INFO("COS(0.0) = %f", static_cast<double>(result.value_or(0.0f)));
+>>>>>>> 3b22b446c (compiles)
 }
 
 void jobs_run1kHz_tick() {}
