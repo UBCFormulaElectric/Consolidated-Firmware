@@ -10,7 +10,8 @@
 #include "hw_adc.hpp"
 #include <io_canMsg.hpp>
 #include <util_errorCodes.hpp>
-#include "util_math.hpp"
+#include "io_math.hpp"
+#include <cmath>
 
 extern "C"
 {
@@ -59,10 +60,17 @@ void jobs_run100Hz_tick()
 
     // LOG_INFO("CURRENT: %d", (int)(current * 100000));
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     auto result = ccos(0.0f);
     LOG_INFO("COS(0.0) = %f", static_cast<double>(result.value_or(0.0f)));
 >>>>>>> 3b22b446c (compiles)
+=======
+    auto  cordic_result = io::math::ccos(0.0f);
+    float libc_result   = std::cosf(0.0f);
+    float diff          = std::abs(cordic_result.value_or(0.0f) - libc_result);
+    LOG_INFO("COS(0.0) = %f, DIFF: %f", static_cast<double>(cordic_result.value_or(0.0f)), static_cast<double>(diff));
+>>>>>>> 35194ecf2 (little changes)
 }
 
 void jobs_run1kHz_tick() {}

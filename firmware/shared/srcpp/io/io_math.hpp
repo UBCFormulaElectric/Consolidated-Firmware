@@ -1,5 +1,6 @@
-#include "hw_cordic.hpp"
 #include <array>
+
+#include "hw_cordic.hpp"
 #include "util_errorCodes.hpp"
 #include "util_units.hpp"
 
@@ -16,6 +17,8 @@
  * the cordic driver.
  */
 
+namespace io::math
+{
 // TODO: is it annoying for usability to have std::expected here? default to standard library implementation or arm math
 // implementation?
 // TODO: Extend to support vector operations
@@ -52,3 +55,4 @@ std::expected<float, ErrorCode> ccos(float angle)
 // inline float atanh(float angle) {}
 // inline float ln(float x) {}
 // inline float sqrt(float x) {}
+}; // namespace io::math
