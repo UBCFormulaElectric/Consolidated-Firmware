@@ -85,12 +85,12 @@ int main(void)
 {
     /* USER CODE BEGIN 1 */
     tasks_preInit();
-        /* USER CODE END 1 */
+    /* USER CODE END 1 */
 
-        /* MCU Configuration--------------------------------------------------------*/
+    /* MCU Configuration--------------------------------------------------------*/
 
-        /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-        HAL_Init();
+    /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+    HAL_Init();
 
     /* USER CODE BEGIN Init */
 
