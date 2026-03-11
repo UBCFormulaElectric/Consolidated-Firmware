@@ -7,6 +7,7 @@ use tokio::net::TcpListener;
 use socketioxide::{SocketIo, extract::SocketRef};
 use jsoncan_rust::can_database::CanDatabase;
 use tower_http::cors::{CorsLayer, Any};
+use mdns_sd::{ServiceDaemon, ServiceInfo};
 
 use crate::config::CONFIG;
 use crate::tasks::client_api::AppState;
@@ -17,9 +18,29 @@ use crate::tasks::client_api::subtable_api_handler::get_subtable_router;
 pub async fn run_api_handler(mut shutdown_rx: broadcast::Receiver<()>, clients: Arc<RwLock<Clients>>, can_db: Arc<CanDatabase>) {
     println!("{}", "API handler task started.".yellow());
     
+    // Axum
     let addr = format!("0.0.0.0:{}", CONFIG.backend_port);
     let listener = TcpListener::bind(addr).await.unwrap();
 
+    let mdns = ServiceDaemon::new().unwrap();
+
+    let service_type = "_http._tcp.local.";
+    let instance_name = "server";
+
+    let service_info = ServiceInfo::new(
+        service_type,
+        instance_name,
+        &format!("{}.local.", instance_name),
+        &CONFIG.mdns_local_ip,
+        CONFIG.backend_port,
+        None,
+    ).unwrap();
+
+    mdns.register(service_info).unwrap();
+    // running at this location
+    println!("Server hosted on {} running at http://{}.local:{}", CONFIG.mdns_local_ip, instance_name, CONFIG.backend_port);
+
+    // Websocket
     let (socket_layer, io) = SocketIo::new_layer();
 
     let app_state = AppState {
