@@ -4,7 +4,8 @@
 #include "efuse/io_efuse_TI_TPS28.hpp"
 #include "hw_gpio.hpp"
 #include "hw_adc.hpp"
-#include "util_math.hpp"
+#include "io_math.hpp"
+#include <cmath>
 
 extern "C"
 {
@@ -41,8 +42,10 @@ void jobs_run100Hz_tick()
     // bool  ok      = efuse.ok();
 
     // LOG_INFO("CURRENT: %d", (int)(current * 100000));
-    auto result = ccos(0.0f);
-    LOG_INFO("COS(0.0) = %f", static_cast<double>(result.value_or(0.0f)));
+    auto  cordic_result = io::math::ccos(0.0f);
+    float libc_result   = std::cosf(0.0f);
+    float diff          = std::abs(cordic_result.value_or(0.0f) - libc_result);
+    LOG_INFO("COS(0.0) = %f, DIFF: %f", static_cast<double>(cordic_result.value_or(0.0f)), static_cast<double>(diff));
 }
 
 void jobs_run1kHz_tick() {}

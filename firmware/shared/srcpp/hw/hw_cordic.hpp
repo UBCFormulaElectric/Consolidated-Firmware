@@ -1,8 +1,12 @@
-#pragma once
-
 #include <span>
 
+#include "hw_hal.hpp"
+
+#ifdef STM32H562xx
 #include "stm32h5xx_hal_cordic.h"
+#elif STM32H733xx
+#include "stm32h7xx_hal_cordic.h"
+#endif
 
 #include "main.h"
 #ifndef HAL_CORDIC_MODULE_ENABLED

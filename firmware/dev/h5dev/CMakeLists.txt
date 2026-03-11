@@ -18,6 +18,7 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/efuse/io_efuse_TI_TPS28.cpp"
         "${SHARED_IO_INCLUDE_DIR_CPP}/efuse/io_efuse_TI_TPS25.cpp"
         "${SHARED_IO_INCLUDE_DIR_CPP}/efuse/io_efuse_ST_VND5.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_math.hpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_gpio.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_cordic.hpp"
         "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
