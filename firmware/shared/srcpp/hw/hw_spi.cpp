@@ -9,6 +9,8 @@ using namespace hw::spi;
 
 constexpr size_t MAX_SPI_BUFFER = 256;
 
+using namespace std;
+
 /* ------------------------------- SpiBus ------------------------------- */
 void SpiBus::deinit() const
 {
@@ -35,7 +37,7 @@ void SpiDevice::disableNss() const
     nss.writePin(true);
 }
 
-std::expected<void, ErrorCode> SpiDevice::waitForNotification() const
+expected<void, ErrorCode> SpiDevice::waitForNotification() const
 {
     const uint32_t num_notifications = ulTaskNotifyTake(pdTRUE, timeoutMs);
     bus.taskInProgress               = nullptr;
@@ -50,7 +52,7 @@ std::expected<void, ErrorCode> SpiDevice::waitForNotification() const
     return {};
 }
 
-std::expected<void, ErrorCode> SpiDevice::transmit(const std::span<const uint8_t> tx) const
+expected<void, ErrorCode> SpiDevice::transmit(const std::span<const uint8_t> tx) const
 {
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
@@ -88,7 +90,7 @@ std::expected<void, ErrorCode> SpiDevice::transmit(const std::span<const uint8_t
     return exit;
 }
 
-std::expected<void, ErrorCode> SpiDevice::receive(const std::span<uint8_t> rx) const
+expected<void, ErrorCode> SpiDevice::receive(const std::span<uint8_t> rx) const
 {
     if (bus.taskInProgress != nullptr || xPortIsInsideInterrupt())
     {
@@ -125,8 +127,8 @@ std::expected<void, ErrorCode> SpiDevice::receive(const std::span<uint8_t> rx) c
     return exit;
 }
 
-[[nodiscard]] std::expected<void, ErrorCode>
-    SpiDevice::transmitThenReceive(const std::span<const uint8_t> tx, const std::span<uint8_t> rx) const
+[[nodiscard]] expected<void, ErrorCode>
+    SpiDevice::transmitThenReceive(const span<const uint8_t> tx, const span<uint8_t> rx) const
 {
     const auto combined = static_cast<uint16_t>(tx.size() + rx.size());
     if (combined > MAX_SPI_BUFFER)
@@ -187,6 +189,147 @@ std::expected<void, ErrorCode> SpiDevice::receive(const std::span<uint8_t> rx) c
 
     /* Data will not be returned over SPI until command has finished, so data in first tx_buffer_size bytes not relevant
     Copy entries at the end of padded_rx_buffer back into rx_buffer */
+    std::memcpy(rx.data(), paddedRx + tx.size(), rx.size());
+
+    return {};
+}
+
+/* ------------------------------ DMA SpiDevice ----------------------------- */
+
+expected<void, ErrorCode> SpiDevice::transmitDma(const std::span<const uint8_t> tx) const
+{
+    if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
+    {
+        // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
+        enableNss();
+        const std::expected<void, ErrorCode> st = hw_utils_convertHalStatus(
+            HAL_SPI_Transmit(&bus.handle, tx.data(), static_cast<uint16_t>(tx.size()), timeoutMs));
+        disableNss();
+        return st;
+    }
+
+    if (bus.taskInProgress != nullptr)
+    {
+        // There is a task currently in progress!
+        return std::unexpected(ErrorCode::BUSY);
+    }
+
+    // Save current task before starting a SPI transaction.
+    bus.taskInProgress = xTaskGetCurrentTaskHandle();
+
+    enableNss();
+
+    auto exit =
+        hw_utils_convertHalStatus(HAL_SPI_Transmit_DMA(&bus.handle, tx.data(), static_cast<uint16_t>(tx.size())));
+    if (not exit)
+    {
+        bus.taskInProgress = nullptr;
+        disableNss();
+        return exit;
+    }
+
+    exit = waitForNotification();
+    disableNss();
+    return exit;
+}
+
+expected<void, ErrorCode> SpiDevice::receiveDma(const std::span<uint8_t> rx) const
+{
+    if (bus.taskInProgress != nullptr || xPortIsInsideInterrupt())
+    {
+        // There is a task currently in progress!
+        return std::unexpected(ErrorCode::BUSY);
+    }
+
+    if (osKernelGetState() != taskSCHEDULER_RUNNING)
+    {
+        // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
+        enableNss();
+        const std::expected<void, ErrorCode> exit = hw_utils_convertHalStatus(
+            HAL_SPI_Receive(&bus.handle, rx.data(), static_cast<uint16_t>(rx.size()), timeoutMs));
+        disableNss();
+        return exit;
+    }
+
+    bus.taskInProgress = xTaskGetCurrentTaskHandle();
+
+    enableNss();
+
+    std::expected<void, ErrorCode> exit =
+        hw_utils_convertHalStatus(HAL_SPI_Receive_DMA(&bus.handle, rx.data(), static_cast<uint16_t>(rx.size())));
+    if (not exit)
+    {
+        bus.taskInProgress = nullptr;
+        disableNss();
+        return exit;
+    }
+
+    exit = waitForNotification();
+    disableNss();
+    return exit;
+}
+
+[[nodiscard]] expected<void, ErrorCode>
+    SpiDevice::transmitThenReceiveDma(const span<const uint8_t> tx, const span<uint8_t> rx) const
+{
+    const auto combined = static_cast<uint16_t>(tx.size() + rx.size());
+    if (combined > MAX_SPI_BUFFER)
+    {
+        return std::unexpected(ErrorCode::INVALID_ARGS);
+    }
+
+    // HAL_SPI_TransmitReceive_DMA requires tx buffer and rx buffer to be of size equal or greater to number of bytes to transmit and receive
+    uint8_t paddedTx[MAX_SPI_BUFFER];
+    uint8_t paddedRx[MAX_SPI_BUFFER];
+    std::memset(paddedTx, 0, combined);
+    std::memset(paddedRx, 0, combined);
+
+    // Copy tx_buffer into beginning of larger padded_tx_buffer
+    std::memcpy(paddedTx, tx.data(), tx.size());
+
+    if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
+    {
+        // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
+        enableNss();
+        const std::expected<void, ErrorCode> exit =
+            hw_utils_convertHalStatus(HAL_SPI_TransmitReceive(&bus.handle, paddedTx, paddedRx, combined, timeoutMs));
+        disableNss();
+
+        // Data will not be returned over SPI until command has finished, so data in first tx_buffer_size bytes not
+        // relevant. Copy entries at the end of padded_rx_buffer back into rx_buffer.
+        std::memcpy(rx.data(), paddedRx + tx.size(), rx.size());
+
+        return exit;
+    }
+
+    if (bus.taskInProgress != nullptr)
+    {
+        // There is a task currently in progress!
+        return std::unexpected(ErrorCode::BUSY);
+    }
+
+    // Save current task before starting a SPI transaction.
+    bus.taskInProgress = xTaskGetCurrentTaskHandle();
+    enableNss();
+
+    std::expected<void, ErrorCode> exit =
+        hw_utils_convertHalStatus(HAL_SPI_TransmitReceive_DMA(&bus.handle, paddedTx, paddedRx, combined));
+    if (not exit)
+    {
+        bus.taskInProgress = nullptr;
+        disableNss();
+        return exit;
+    }
+
+    exit = waitForNotification();
+    disableNss();
+    if (not exit)
+    {
+        return exit;
+    }
+
+    /* Data will not be returned over SPI until command has finished, so data in first tx_buffer_size bytes not relevant.
+    Copy entries at the end of padded_rx_buffer back into rx_buffer. */
     std::memcpy(rx.data(), paddedRx + tx.size(), rx.size());
 
     return {};

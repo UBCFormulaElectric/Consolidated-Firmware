@@ -72,6 +72,30 @@ class SpiDevice
     [[nodiscard]] std::expected<void, ErrorCode>
         transmitThenReceive(std::span<const uint8_t> tx, std::span<uint8_t> rx) const;
 
+    /**
+     * @brief Transmit data to the SPI device using DMA.
+     * @param tx Buffer containing the data to transmit. Must remain valid until the transfer completes.
+     * @return EXIT_CODE_OK if transmission succeeded, otherwise an error code.
+     */
+    [[nodiscard]] std::expected<void, ErrorCode> transmitDma(std::span<const uint8_t> tx) const;
+
+    /**
+     * @brief Receive data from the SPI device using DMA.
+     * @param rx Buffer to store received data. Must remain valid until the transfer completes.
+     * @return EXIT_CODE_OK if reception succeeded, otherwise an error code.
+     */
+    [[nodiscard]] std::expected<void, ErrorCode> receiveDma(std::span<uint8_t> rx) const;
+
+    /**
+     * @brief Transmit and then receive data over SPI using DMA while keeping NSS asserted.
+     *
+     * @param tx Buffer containing data to transmit first. Must remain valid until the transfer completes.
+     * @param rx Buffer to store received data after transmission. Must remain valid until the transfer completes.
+     * @return EXIT_CODE_OK if the operation succeeded, otherwise an error code.
+     */
+    [[nodiscard]] std::expected<void, ErrorCode>
+        transmitThenReceiveDma(std::span<const uint8_t> tx, std::span<uint8_t> rx) const;
+
   private:
     const SpiBus &bus;
     const Gpio   &nss;
