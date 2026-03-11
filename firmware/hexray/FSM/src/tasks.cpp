@@ -8,6 +8,7 @@
 #include "io_canQueues.hpp"
 #include "io_time.hpp"
 
+#include "hw_hardFaultHandler.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_cans.hpp"
 

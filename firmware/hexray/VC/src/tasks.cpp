@@ -12,6 +12,7 @@
 #include "hw_cans.hpp"
 #include "hw_gpios.hpp"
 #include "hw_rtosTaskHandler.hpp"
+#include "hw_hardFaultHandler.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {

@@ -9,6 +9,7 @@
 #include <io_canRx.hpp>
 #include <io_canTx.hpp>
 
+#include "hw_hardFaultHandler.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_cans.hpp"
 
