@@ -5,14 +5,7 @@ import { ENUM_COLORS } from "@/components/widgets/depr/signalColors";
 // types
 import { SignalType } from "@/lib/types/Signal";
 import { ChartData, ChartLayout, EnumSeries, NumericalSeries } from "./CanvasChartTypes";
-import {
-  EnumSignalConfig,
-  NumericalSignalConfig,
-  WidgetConfigs,
-  WidgetData,
-  WidgetDataEnum,
-  WidgetDataNumerical,
-} from "./WidgetTypes";
+import { WidgetDataEnum, WidgetDataNumerical } from "./WidgetTypes";
 // utils
 import { bisect } from "@/lib/bisect";
 
