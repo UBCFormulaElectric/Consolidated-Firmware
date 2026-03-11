@@ -2,7 +2,6 @@
 
 import { DisplayControlProvider, PausePlayButton } from "@/components/PausePlayControl";
 import SyncedGraphContainer from "@/components/SyncedGraphContainer";
-import { SignalProvider } from "@/lib/contexts/SignalContext";
 import { WidgetAdder } from "@/app/live/WidgetAdder";
 import { Widget } from "@/components/widgets/Widget";
 import { useWidgetManager, WidgetManager } from "@/components/widgets/WidgetManagerContext";
@@ -48,7 +47,6 @@ function Content() {
 }
 
 export default function LiveDataPage() {
-
   return (
     <div id="live-page" className="pt-14 h-screen">
       <DisplayControlProvider>
@@ -58,6 +56,6 @@ export default function LiveDataPage() {
           </WidgetManager>
         </SyncedGraphContainer>
       </DisplayControlProvider >
-    </div >
+    </div>
   );
 }
