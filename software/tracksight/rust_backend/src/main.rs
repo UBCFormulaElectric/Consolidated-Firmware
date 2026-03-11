@@ -1,6 +1,10 @@
+use colored::Colorize;
 use ctrlc;
+use tokio::select;
+use tokio::time::sleep;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicUsize, Ordering};
+use std::time::Duration;
 use tokio::sync::RwLock;
 use tokio::sync::broadcast;
 use tokio::sync::mpsc;
@@ -20,7 +24,7 @@ use tasks::api_handler::run_api_handler;
 #[tokio::main]
 async fn main() {
     // shutdown signal for threads
-    let (shutdown_tx, shutdown_rx) = broadcast::channel(1);
+    let (shutdown_tx, mut shutdown_rx) = broadcast::channel(1);
 
     // handle termination signal
     let interrupt_count = AtomicUsize::new(0);
@@ -49,9 +53,10 @@ async fn main() {
     // load CAN database
     let can_db = Arc::new(load_can_database().expect("Could not init Can db"));
 
-    let (health_check_tx, health_check_rx) = mpsc::channel::<bool>(3);
-
-
+    // health checks for tasks, check for count after starting all tasks
+    const NUM_TASKS: usize = 3; // number of tasks to launch below
+    const HEALTH_CHECK_TIMEOUT_MS: u64 = 5000;
+    let (health_check_tx, mut health_check_rx) = mpsc::channel::<bool>(NUM_TASKS);
 
     // start tasks
     tasks.spawn(
@@ -78,6 +83,33 @@ async fn main() {
             can_queue_tx
         )
     );
+
+    // should probably use a map and check for the specific tasks
+    // that successfully health checked
+    let mut hc_count = 0;
+    loop {
+        select! {
+            Some(hc) = health_check_rx.recv() => {
+                if !hc {
+                    // TODO gracefully shutdown, somehow through the flag or whatnot
+                    // Currently is just a warning
+                    println!("{}", "Health check failed for one of the tasks!".red());
+                    break;
+                }
+                hc_count += 1;
+                if hc_count >= NUM_TASKS {
+                    println!("{}", "Health checks passed, all tasks successfully started!".green());
+                    break;
+                }
+            },
+            _ = sleep(Duration::from_millis(HEALTH_CHECK_TIMEOUT_MS)) => {
+                println!("{}", "Health checks are taking a while, are you sure tasks have started successfully?".red());
+            }
+            _ = shutdown_rx.recv() => {
+                break;
+            }
+        }
+    }
 
     // wait for tasks to clean up
     while let Some(res) = tasks.join_next().await {

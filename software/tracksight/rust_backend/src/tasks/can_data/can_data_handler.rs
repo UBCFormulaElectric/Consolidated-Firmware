@@ -30,6 +30,8 @@ pub async fn run_can_data_handler(
     let influx_handler_task = spawn(run_influx_handler(decoded_signal_tx.subscribe()));
     let live_data_handler_task = spawn(run_live_data_handler(decoded_signal_tx.subscribe(), clients));
     
+    let _ = health_check_tx.send(true).await.expect("Health check send failed, how.");
+    
     loop {
         select! {
             _ = shutdown_rx.recv() => {
