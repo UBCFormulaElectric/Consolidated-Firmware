@@ -7,7 +7,7 @@
  * Reference documentation used for this driver:
  * - RM0481 (STM32H5 Reference manual on zotero): FMAC chapter — IIR formula, buffer layout (X1, X2, Y),
  *   sizes (P+ε, P+Q, Q+ε), q1.15 format, gain R, 256-word internal RAM.
- * - STM32H7 Filter Math Accelerator (FMAC) peripheral doc: 
+ * - STM32H7 Filter Math Accelerator (FMAC) peripheral doc:
  *   https://www.st.com/content/ccc/resource/training/technical/product_training/group1/b3/5b/b1/ac/e1/61/40/b7/STM32H7-Peripheral-Filter_Math_Accelerator_FMAC/files/STM32H7-Peripheral-Filter_Math_Accelerator_FMAC.pdf/_jcr_content/translations/en.STM32H7-Peripheral-Filter_Math_Accelerator_FMAC.pdf
  *   Same concepts; H5 HAL follows the same model.
  * - stm32h5xx_hal_fmac.h (STM32CubeH5): HAL API — HAL_FMAC_FilterConfig, HAL_FMAC_FilterPreload,
@@ -42,15 +42,20 @@ constexpr uint8_t IIR_MAX_GAIN   = 7;  // R max
 
 namespace detail
 {
-inline int16_t floatToQ15(float x) { return static_cast<int16_t>(x * 32768.0f); }
-inline float   q15ToFloat(int16_t x) { return static_cast<float>(x) / 32768.0f; }
+    inline int16_t floatToQ15(float x)
+    {
+        return static_cast<int16_t>(x * 32768.0f);
+    }
+    inline float q15ToFloat(int16_t x)
+    {
+        return static_cast<float>(x) / 32768.0f;
+    }
 
-// HAL_MAX_DELAY is 0xFFFFFFFF (wait forever). Use a finite timeout (ms) so we can tune on hardware.
-inline constexpr uint32_t kPollFilterDataTimeoutMs = 100;
+    // HAL_MAX_DELAY is 0xFFFFFFFF (wait forever). Use a finite timeout (ms) so we can tune on hardware.
+    inline constexpr uint32_t kPollFilterDataTimeoutMs = 100;
 } // namespace detail
 
-template <size_t NUM_B_TAPS, size_t NUM_A_TAPS>
-class FmacIir
+template <size_t NUM_B_TAPS, size_t NUM_A_TAPS> class FmacIir
 {
     static_assert(NUM_B_TAPS >= IIR_MIN_B_TAPS && NUM_B_TAPS <= IIR_MAX_B_TAPS);
     static_assert(NUM_A_TAPS >= IIR_MIN_A_TAPS && NUM_A_TAPS <= IIR_MAX_A_TAPS);
@@ -99,9 +104,10 @@ class FmacIir
         };
 
         assert(HAL_FMAC_FilterConfig(&m_handle, &filterConfig) == HAL_OK);
-        assert(HAL_FMAC_FilterPreload(
-                   &m_handle, const_cast<int16_t *>(m_coefB.data()), NUM_B_TAPS,
-                   const_cast<int16_t *>(m_coefA.data()), NUM_A_TAPS) == HAL_OK);
+        assert(
+            HAL_FMAC_FilterPreload(
+                &m_handle, const_cast<int16_t *>(m_coefB.data()), NUM_B_TAPS, const_cast<int16_t *>(m_coefA.data()),
+                NUM_A_TAPS) == HAL_OK);
         assert(HAL_FMAC_FilterStart(&m_handle, &m_outputSample, &m_outputSize) == HAL_OK);
     }
 
@@ -114,10 +120,7 @@ class FmacIir
         return detail::q15ToFloat(out_q15.value());
     }
 
-    std::expected<void, ErrorCode> stop()
-    {
-        return hw_utils_convertHalStatus(HAL_FMAC_FilterStop(&m_handle));
-    }
+    std::expected<void, ErrorCode> stop() { return hw_utils_convertHalStatus(HAL_FMAC_FilterStop(&m_handle)); }
 
   private:
     FMAC_HandleTypeDef                    &m_handle;
