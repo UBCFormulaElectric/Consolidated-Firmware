@@ -53,6 +53,7 @@ function MockWidgetModalForm({ closeModal }: {
 
     closeModal();
   };
+
   return (
     <>
       <DialogHeader>
@@ -137,9 +138,65 @@ function MockWidgetModalForm({ closeModal }: {
   )
 }
 
+function NumericalWidgetModalForm({ closeModal }: { closeModal: () => void; }) {
+
+  const { appendWidget: onAddWidget } = useWidgetManager();
+  const [numericalSignalName, setNumericalSignalName] = useState("na"); // this should be fuzzily found in a selector or sm
+
+  const handleNumericalSubmit = (e: SubmitEvent) => {
+    e.preventDefault();
+
+    onAddWidget({
+      type: SignalType.NUMERICAL,
+        signals: [{
+          signal_name: numericalSignalName,
+          delay: 10, // TODO : do we get this from backend? or use lookup table given signal name.
+          min: 0,// TODO : do we get this from backend? or use lookup table given signal name.
+          max: 100,// TODO : do we get this from backend? or use lookup table given signal name.
+          color: chroma.random()
+        }],
+        id: numericalSignalName,
+        mock: false,
+      });
+    closeModal();
+  }
+
+  return (
+    <>
+      <DialogHeader>
+        <DialogTitle>New Numerical Widget</DialogTitle>
+        <DialogDescription> options for configuring the mock widget </DialogDescription>
+      </DialogHeader>
+      <form onSubmit={handleNumericalSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Signal Name
+          </label>
+          <input
+            type="text"
+            value={numericalSignalName}
+            onChange={(e) => setNumericalSignalName(e.target.value)}
+            className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
+            required
+          />
+        </div>
+        <div className="flex justify-end gap-2 pt-2">
+          <button type="button" onClick={closeModal} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer">
+            Cancel
+          </button>
+          <button type="submit" className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded">
+            Create Widget
+          </button>
+        </div>
+      </form>
+    </>
+  )
+}
+
 export function WidgetAdder() {
   const [isOpen, setIsOpen] = useState(false);
   const [mockModalOpen, setMockModalOpen] = useState(false);
+  const [numericalModelOpen, setNumericalModelOpen] = useState(false);
   const { appendWidget: onAddWidget } = useWidgetManager();
 
   // TODO
@@ -149,7 +206,7 @@ export function WidgetAdder() {
   };
 
   const handleAddNumerical = () => {
-    onAddWidget({ type: SignalType.NUMERICAL, id: "", signals: [] });
+    setNumericalModelOpen(true);
     setIsOpen(false);
   };
 
@@ -183,6 +240,12 @@ export function WidgetAdder() {
       <Dialog open={mockModalOpen} onOpenChange={setMockModalOpen}>
         <DialogContent>
           <MockWidgetModalForm closeModal={() => setMockModalOpen(false)} />
+        </DialogContent>
+      </Dialog>
+      {/* NUMERICAL MODAL */}
+      <Dialog open={numericalModelOpen} onOpenChange={setNumericalModelOpen}>
+        <DialogContent>
+          <NumericalWidgetModalForm closeModal={() => setNumericalModelOpen(false)} />
         </DialogContent>
       </Dialog>
     </>
