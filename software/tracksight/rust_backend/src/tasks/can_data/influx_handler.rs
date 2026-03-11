@@ -22,9 +22,14 @@ pub async fn run_influx_handler(mut decoded_signal_rx: Receiver<DecodedSignal>) 
         &CONFIG.influxdb_org,
         &CONFIG.influxdb_token
     );
-
+    
     // group the data points together until some maximum size, then write to database
     let mut batch_buffer: Vec<DataPoint> = Vec::with_capacity(MAX_BATCH_CAPACITY);
+    
+    // quick check, fail otherwise
+    influx_client.health().await.expect("Unable to connect to InfluxDB");
+
+    
 
     loop {
         match decoded_signal_rx.recv().await {

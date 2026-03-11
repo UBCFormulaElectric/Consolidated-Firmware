@@ -79,6 +79,8 @@ pub async fn run_api_handler(
         .layer(cors)
         .into_make_service();
 
+    let _ = health_check_tx.send(true).await.expect("Health check send failed, how.");
+
     // this is so quirky it's amazing
     // the select macro waits for one of these to finish
     // if shutdown finishes first, leave select block

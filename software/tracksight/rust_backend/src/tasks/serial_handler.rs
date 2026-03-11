@@ -49,7 +49,7 @@ pub async fn run_serial_task(
     };
 
     // no set up involved with packet sender and reader thread, send health check
-    
+    let _ = health_check_tx.send(true).await.expect("Health check send failed, how.");
 
     // loop select check for shutdown signal
     // if shutdown signal, select block breaks loop early
