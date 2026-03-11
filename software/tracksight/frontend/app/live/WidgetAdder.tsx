@@ -165,7 +165,7 @@ function NumericalWidgetModalForm({ closeModal }: { closeModal: () => void; }) {
     <>
       <DialogHeader>
         <DialogTitle>New Numerical Widget</DialogTitle>
-        <DialogDescription> options for configuring the mock widget </DialogDescription>
+        <DialogDescription> options for configuring the numerical widget </DialogDescription>
       </DialogHeader>
       <form onSubmit={handleNumericalSubmit} className="space-y-4">
         <div>
