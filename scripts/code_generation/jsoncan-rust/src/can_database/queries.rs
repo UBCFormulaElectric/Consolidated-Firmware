@@ -310,6 +310,7 @@ impl CanDatabase {
                             .map(|(k, _)| k.clone())
                     })
                 }),
+                signal_type: signal.signal_type
             };
 
             if signal.enum_name.is_some() {

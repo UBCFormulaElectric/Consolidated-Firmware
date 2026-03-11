@@ -256,4 +256,5 @@ pub struct DecodedSignal {
     pub timestamp: Option<u32>,
     pub label: Option<String>,
     pub unit: Option<String>,
+    pub signal_type: CanSignalType
 }
