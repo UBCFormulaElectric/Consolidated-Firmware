@@ -1,11 +1,12 @@
 #include "hw_cans.hpp"
+#include "hw_canReroutes.hpp"
 #include "main.h"
 #include <cassert>
 
 namespace hw::can
 {
-fdcan fdcan1(hfdcan1, [](const CanMsg &msg) { UNUSED(msg); });
-fdcan invcan(hfdcan3, [](const CanMsg &msg) { UNUSED(msg); });
+fdcan fdcan1(hfdcan1, io::canReroute::handleCallback);
+fdcan invcan(hfdcan3, io::canReroute::handleCallback);
 } // namespace hw::can
 
 const hw::fdcan &hw::fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
@@ -17,4 +18,3 @@ const hw::fdcan &hw::fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
     }
     return can::invcan;
 }
-
