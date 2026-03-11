@@ -8,9 +8,9 @@ namespace io::rtc
 std::expected<Time, ErrorCode> set_time(const Time &time)
 {
     RTC_TimeTypeDef rtcTime{};
-    rtcTime.Hours          = bin_to_bcd(time.hours);
-    rtcTime.Minutes        = bin_to_bcd(time.minutes);
-    rtcTime.Seconds        = bin_to_bcd(time.seconds);
+    rtcTime.Hours   = bin_to_bcd(time.hours);
+    rtcTime.Minutes = bin_to_bcd(time.minutes);
+    rtcTime.Seconds = bin_to_bcd(time.seconds);
     // The subseconds field is not used by HAL_RTC_SetTime().
     rtcTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
     rtcTime.StoreOperation = RTC_STOREOPERATION_RESET;
@@ -56,9 +56,9 @@ std::expected<Time, ErrorCode> get_time(Time &time)
     if (!status)
         return std::unexpected(status.error());
 
-    time.hours   = bcd_to_bin_8(rtcTime.Hours);
-    time.minutes = bcd_to_bin_8(rtcTime.Minutes);
-    time.seconds = bcd_to_bin_8(rtcTime.Seconds);
+    time.hours      = bcd_to_bin_8(rtcTime.Hours);
+    time.minutes    = bcd_to_bin_8(rtcTime.Minutes);
+    time.seconds    = bcd_to_bin_8(rtcTime.Seconds);
     time.subseconds = bcd_to_bin_32(rtcTime.SubSeconds);
 
     return time;
