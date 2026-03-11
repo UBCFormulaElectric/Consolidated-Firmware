@@ -30,7 +30,7 @@ struct Date
  * @return std::expected containing the programmed Time on success,
  *         or an ErrorCode if a HAL error occurred.
  */
-std::expected<Time, ErrorCode> set_time(const Time &time);
+std::expected<void, ErrorCode> set_time(const Time &time);
 
 /**
  * Set the RTC date.
@@ -39,7 +39,7 @@ std::expected<Time, ErrorCode> set_time(const Time &time);
  * @return std::expected containing the programmed Date on success,
  *         or an ErrorCode if a HAL error occurred.
  */
-std::expected<Date, ErrorCode> set_date(const Date &date);
+std::expected<void, ErrorCode> set_date(const Date &date);
 
 /**
  * Get the RTC time.

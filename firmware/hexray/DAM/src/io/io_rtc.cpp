@@ -5,7 +5,7 @@
 
 namespace io::rtc
 {
-std::expected<Time, ErrorCode> set_time(const Time &time)
+std::expected<void, ErrorCode> set_time(const Time &time)
 {
     RTC_TimeTypeDef rtcTime{};
     rtcTime.Hours   = bin_to_bcd(time.hours);
@@ -21,10 +21,10 @@ std::expected<Time, ErrorCode> set_time(const Time &time)
         LOG_ERROR("Error setting RTC Time");
         return std::unexpected(status.error());
     }
-    return time;
+    return {};
 }
 
-std::expected<Date, ErrorCode> set_date(const Date &date)
+std::expected<void, ErrorCode> set_date(const Date &date)
 {
     RTC_DateTypeDef rtcDate{};
     rtcDate.WeekDay = date.weekday;
@@ -38,7 +38,7 @@ std::expected<Date, ErrorCode> set_date(const Date &date)
         LOG_ERROR("Error setting RTC Date");
         return std::unexpected(status.error());
     }
-    return date;
+    return {};
 }
 
 std::expected<Time, ErrorCode> get_time(Time &time)
