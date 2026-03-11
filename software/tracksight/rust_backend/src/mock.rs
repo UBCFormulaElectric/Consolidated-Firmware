@@ -37,7 +37,7 @@ pub async fn mock(mut shutdown_rx: Receiver<()>, can_queue_tx: Sender<CanPayload
                 let mock_payload = CanPayload {
                     can_id: id,
                     payload: payload,
-                    can_timestamp: SystemTime::now(),
+                    can_timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis() as u32,
                 };
                 if !can_queue_tx.send(mock_payload).is_ok() {
                     eprintln!("Channel has closed");
