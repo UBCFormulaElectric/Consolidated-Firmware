@@ -5,7 +5,7 @@
 
 static char buffer[100];
 
-[[noreturn]] extern "C" void __assert_func(const char *file, int line, const char *func, const char *failedexpr)
+[[noreturn]] void __assert_func(const char *file, int line, const char *func, const char *failedexpr)
 {
     // Store the message into a buffer so we can easily inspect it using a
     // debugger even without SEGGER RTT set up
