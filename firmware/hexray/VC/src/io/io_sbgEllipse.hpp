@@ -8,25 +8,22 @@
 namespace io::sbgEllipse
 {
 
-class Vector3
+struct Vector3
 {
-  public:
     float x;
     float y;
     float z;
 };
 
-class Attitude
+struct Attitude
 {
-  public:
     float roll;
     float pitch;
     float yaw;
 };
 
-class PositionData
+struct PositionData
 {
-  public:
     uint32_t status;
     double   latitude;
     double   longitude;
@@ -36,9 +33,8 @@ class PositionData
     float    altitude_std_dev;
 };
 
-class VelocityData
+struct VelocityData
 {
-  public:
     uint32_t status;
     float    north;
     float    east;
@@ -48,37 +44,32 @@ class VelocityData
     float    down_std_dev;
 };
 
-class EkfNavPacketData
+struct EkfNavPacketData
 {
-  public:
     VelocityData velocity;
     PositionData position;
 };
 
-class ImuPacketData
+struct ImuPacketData
 {
-  public:
     Vector3  acceleration;
     Attitude angular_velocity;
 };
 
-class EkfEulerPacketData
+struct EkfEulerPacketData
 {
-  public:
     Attitude euler_angles;
 };
 
-class StatusPacketData
+struct StatusPacketData
 {
-  public:
     uint32_t timestamp_us;
     uint16_t general_status;
     uint32_t com_status;
 };
 
-class SensorData
+struct SensorData
 {
-  public:
     ImuPacketData      imu_data;
     EkfEulerPacketData ekf_euler_data;
     StatusPacketData   status_data;

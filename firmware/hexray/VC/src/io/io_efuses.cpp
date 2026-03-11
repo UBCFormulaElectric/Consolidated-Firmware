@@ -25,8 +25,8 @@ constexpr TI_TPS28_Efuse r_rad_fan_efuse(r_rad_fan_en, hw::adcs::adc_r_rad_fan, 
 constexpr TI_TPS25_Efuse rl_pump_efuse(rl_pump_en, hw::adcs::adc_rl_pump, rl_pump_pgood);
 constexpr TI_TPS25_Efuse rr_pump_efuse(rr_pump_en, hw::adcs::adc_rr_pump, rr_pump_pgood);
 
-std::array<const Efuse *, NUM_EFUSE_CHANNELS> efuses = {
-    { &f_inv_efuse, &r_inv_efuse, &bms_efuse, &rsm_efuse, &dam_efuse, &front_efuse, &l_rad_fan_efuse, &r_rad_fan_efuse,
-      &rl_pump_efuse, &rr_pump_efuse } // POTENTIAL ADD: misc fuse
+std::reference_wrapper<const Efuse> efuses = {
+    { f_inv_efuse, r_inv_efuse, bms_efuse, rsm_efuse, dam_efuse, front_efuse, l_rad_fan_efuse, r_rad_fan_efuse,
+      rl_pump_efuse, rr_pump_efuse } // POTENTIAL ADD: misc fuse
 };
 } // namespace io
