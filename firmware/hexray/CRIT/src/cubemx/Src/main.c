@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
+#include "hw_error.hpp"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -83,13 +84,13 @@ static void MX_USB_PCD_Init(void);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
+    tasks_preInit()
+        /* USER CODE END 1 */
 
-    /* USER CODE END 1 */
+        /* MCU Configuration--------------------------------------------------------*/
 
-    /* MCU Configuration--------------------------------------------------------*/
-
-    /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-    HAL_Init();
+        /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+        HAL_Init();
 
     /* USER CODE BEGIN Init */
 

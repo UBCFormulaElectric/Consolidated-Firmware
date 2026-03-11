@@ -99,7 +99,10 @@ static void RSM_StartAllTasks()
     Task1Hz.start();
 }
 
-void tasks_preInit() {}
+void tasks_preInit()
+{
+    hw_hardFaultHandler_init();
+}
 
 void tasks_init()
 {

@@ -5,7 +5,7 @@
 
 static char buffer[100];
 
-void hw_error(const char *file, int line, const char *func)
+[[noreturn]] extern "C" void hw_error(const char *file, int line, const char *func)
 {
     // Store the message into a buffer, so we can easily inspect it using a
     // debugger even without SEGGER RTT set up

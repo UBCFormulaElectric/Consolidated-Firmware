@@ -128,7 +128,10 @@ void DAM_StartAllTasks()
     // TaskTelemRx.start();
 }
 
-void tasks_preInit() {}
+void tasks_preInit()
+{
+    hw_hardFaultHandler_init();
+}
 
 void tasks_init()
 {

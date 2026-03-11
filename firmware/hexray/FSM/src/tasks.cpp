@@ -99,7 +99,10 @@ static void FSM_StartAllTasks()
     TaskCanRx.start();
 }
 
-void tasks_preInit() {}
+void tasks_preInit()
+{
+    hw_hardFaultHandler_init();
+}
 
 [[noreturn]] void tasks_init()
 {

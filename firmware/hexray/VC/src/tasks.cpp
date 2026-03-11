@@ -124,7 +124,10 @@ static void VC_StartAllTasks()
     TaskCan2Tx.start();
 }
 
-void tasks_preInit() {}
+void tasks_preInit()
+{
+    hw_hardFaultHandler_init();
+}
 
 void tasks_init()
 {
