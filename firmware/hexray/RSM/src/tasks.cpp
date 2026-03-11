@@ -1,4 +1,5 @@
 #include "tasks.h"
+#include "hw_adcs.hpp"
 #include "jobs.hpp"
 
 #include "app_jsoncan.hpp"
@@ -102,6 +103,7 @@ void tasks_preInit() {}
 
 void tasks_init()
 {
+    hw::adcs::chipsInit();
     hw::can::can1.init();
     jobs_init();
     osKernelInitialize();
