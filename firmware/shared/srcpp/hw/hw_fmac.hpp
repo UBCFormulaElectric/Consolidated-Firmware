@@ -29,16 +29,6 @@ extern "C"
 namespace hw::fmac
 {
 
-// IIR filter limits from FMAC reference manual (RM0481)
-// P = feedforward (B) tap count, Q = feedback (A) tap count, R = output gain exponent
-// Using english names for the variables to match the reference manual but increasing readability
-constexpr uint8_t IIR_MIN_B_TAPS = 2;  // P min
-constexpr uint8_t IIR_MAX_B_TAPS = 64; // P max
-constexpr uint8_t IIR_MIN_A_TAPS = 1;  // Q min
-constexpr uint8_t IIR_MAX_A_TAPS = 63; // Q max
-constexpr uint8_t IIR_MIN_GAIN   = 0;  // R min (gain = 2^R)
-constexpr uint8_t IIR_MAX_GAIN   = 7;  // R max
-
 class FmacIir
 {
   public:

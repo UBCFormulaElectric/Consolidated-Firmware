@@ -8,7 +8,6 @@ namespace hw::fmac
 
 namespace
 {
-    // Q1.15 fixed-point conversion (internal only; public API uses float to match rest of stack)
     int16_t floatToQ1Point5(float x)
     {
         return static_cast<int16_t>(x * 32768.0f);
@@ -20,6 +19,14 @@ namespace
 
     // HAL_MAX_DELAY is 0xFFFFFFFF (wait forever). Use a finite timeout (ms) so we can tune on hardware.
     inline constexpr uint32_t kPollFilterDataTimeoutMs = 100;
+
+    // IIR filter limits from FMAC reference manual (RM0481)
+    constexpr uint8_t IIR_MIN_B_TAPS = 2;  // P min
+    constexpr uint8_t IIR_MAX_B_TAPS = 64; // P max
+    constexpr uint8_t IIR_MIN_A_TAPS = 1;  // Q min
+    constexpr uint8_t IIR_MAX_A_TAPS = 63; // Q max
+    constexpr uint8_t IIR_MIN_GAIN   = 0;  // R min (gain = 2^R)
+    constexpr uint8_t IIR_MAX_GAIN   = 7;  // R max
 } // namespace
 
 void FmacIir::init(std::span<const int16_t> coefB, std::span<const int16_t> coefA, uint8_t gainExponent)
@@ -49,10 +56,10 @@ void FmacIir::init(std::span<const int16_t> coefB, std::span<const int16_t> coef
         .OutputBaseAddress = static_cast<uint8_t>(yBase),
         .OutputBufferSize  = static_cast<uint8_t>(ysize),
         .OutputThreshold   = FMAC_THRESHOLD_1,
-        .pCoeffB           = const_cast<int16_t *>(coefB.data()),
-        .CoeffBSize        = numBTaps,
         .pCoeffA           = const_cast<int16_t *>(coefA.data()),
         .CoeffASize        = numATaps,
+        .pCoeffB           = const_cast<int16_t *>(coefB.data()),
+        .CoeffBSize        = numBTaps,
         .InputAccess       = FMAC_BUFFER_ACCESS_POLLING,
         .OutputAccess      = FMAC_BUFFER_ACCESS_POLLING,
         .Clip              = FMAC_CLIP_ENABLED,
@@ -72,7 +79,7 @@ void FmacIir::init(std::span<const int16_t> coefB, std::span<const int16_t> coef
 
 std::expected<void, ErrorCode> FmacIir::pushSample(int16_t sample_q15)
 {
-    constexpr uint16_t size = 1;
+    uint16_t size = 1;
     return hw_utils_convertHalStatus(HAL_FMAC_AppendFilterData(&m_handle, &sample_q15, &size));
 }
 
