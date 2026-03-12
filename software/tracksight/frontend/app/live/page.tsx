@@ -8,6 +8,7 @@ import { useWidgetManager, WidgetManager } from "@/components/widgets/WidgetMana
 import { SignalType } from "@/lib/types/Signal";
 import { LiveSignalStoreProvider } from "@/lib/contexts/signalStores/LiveSignalStoreContext";
 import { MockSignalStoreProvider } from "@/lib/contexts/signalStores/MockSignalStoreContext";
+import AlertTimeline from "@/components/widgets/AlertTimeline";
 
 const USE_MOCK_DATA = true;
 
@@ -20,6 +21,7 @@ function Content() {
     <>
       <DataSourceProvider>
         <PausePlayButton />
+        {/* <AlertTimeline /> */}
         {
           initializedFromLocalStorage ?
             <>

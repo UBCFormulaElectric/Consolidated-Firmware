@@ -5,7 +5,7 @@ import useSignalMetadata from "@/lib/hooks/useSignalMetadata";
 import { useSignalDataStores } from "@/lib/contexts/signalStores/SignalStoreContext";
 import { useEffect, useMemo, useRef } from "react";
 import { isAlertSignalMetadata } from "@/lib/types/Signal";
-import { SignalStoreEntry } from "@/lib/signals/SignalStore";
+// import { SignalStoreEntry } from "@/lib/signals/SignalStore";
 import ChipLegend from "@/components/legends/ChipLegend";
 import { useScrollState } from "@/lib/contexts/ScrollContext";
 
@@ -122,10 +122,20 @@ const renderAlertTimeline = (
   });
 };
 
-function AlertTimeline(props: WidgetData<"alertTimeline">) {
-  const { signals, options } = props;
-
-  const { colorPalette } = options;
+function AlertTimeline() {
+  const colorPalette = [
+    "#FF637E",
+    "#FFB463",
+    "#FFF263",
+    "#B6FF63",
+    "#63FF8E",
+    "#63FFF2",
+    "#63B6FF",
+    "#637EFF",
+    "#8E63FF",
+    "#F263FF",
+    "#FF63B6",
+  ]
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const scrollableRef = useRef<HTMLDivElement>(null);
@@ -140,17 +150,7 @@ function AlertTimeline(props: WidgetData<"alertTimeline">) {
   const slipstreamPopulated = useRef<boolean[]>(new Array(SLIP_STREAM_LANES).fill(false));
   const renderState = useRef<AlertTimelineRenderState>([]);
 
-  const signalColors = useMemo(() => {
-    const colors: { [signal: string]: string } = {};
-
-    signals.forEach((signal, index) => {
-      colors[signal] = colorPalette?.[index % colorPalette.length] || "#FF637E";
-    });
-
-    return colors;
-  }, [signals, colorPalette]);
-
-  const data = useSignalDataStores(signals);
+  const data = useSignalDataStores([]);
 
   const signalMetadata = useSignalMetadata(signals[0] ?? "");
 

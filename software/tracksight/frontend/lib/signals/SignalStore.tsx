@@ -1,4 +1,4 @@
-import { EnumSeries, NumericalSeries } from "@/components/widgets/CanvasChartTypes";
+import { AlertSeries, EnumSeries, NumericalSeries } from "@/components/widgets/CanvasChartTypes";
 import { EnumSignalConfig, NumericalSignalConfig, WidgetSignalConfig } from "@/components/widgets/WidgetTypes";
 import { SignalType } from "../types/Signal";
 import { SeriesData } from "../seriesData";
@@ -13,7 +13,6 @@ type SignalStorageEntry<T extends WidgetSignalConfig> = {
   isSubscribed: boolean;
   error: unknown | null;
   data: SignalStoreReturnType<T>;
-  // NOTE(evan): Type safety slop 
   storeType: T extends EnumSignalConfig
   ? SignalType.ENUM
   : T extends NumericalSignalConfig
@@ -25,17 +24,43 @@ abstract class SignalStore {
   protected storage: {
     [signalName: string]: SignalStorageEntry<WidgetSignalConfig>;
   };
+  protected alertDataStorage: {
+    [signalName: string]: AlertSeries;
+  }
+
   protected subscriberCounts: { [signalName: string]: number };
   protected updateWithTimestamp: (timestamp: number) => void;
 
   constructor(updateWithTimestamp: (timestamp: number) => void) {
     this.storage = {};
     this.subscriberCounts = {};
+    this.alertDataStorage = {};
+
     this.updateWithTimestamp = updateWithTimestamp;
   }
 
   abstract getReferenceToSignal<T extends WidgetSignalConfig>(signal: T): SignalStoreReturnType<T>;
   abstract purgeReferenceToSignal(signal: WidgetSignalConfig): void;
+
+  private addAlertDataPoint(signalName: string, timestamp: number, value: number): void {
+    this.updateWithTimestamp(timestamp);
+    const entry = this.alertDataStorage[signalName];
+
+    if (!entry) {
+      this.alertDataStorage[signalName] = {
+        label: signalName,
+        data: [value],
+        timestamps: [timestamp],
+      };
+    } else {
+      entry.data.push(value);
+      entry.timestamps.push(timestamp);
+    }
+  }
+
+  private getAlertData(): AlertSeries[] {
+    return Object.values(this.alertDataStorage);
+  }
 
   private createSignalDataEntry<T extends WidgetSignalConfig>(signal: T): void {
     const storageBase = {
@@ -76,7 +101,6 @@ abstract class SignalStore {
 
     return this.getSignalData(signal)!;
   }
-
 
   getSignalData<T extends WidgetSignalConfig>(signal: T): SignalStorageEntry<T> | undefined {
     return this.storage[signal.signal_name];

@@ -10,6 +10,10 @@ export type NumericalSeries = SeriesBase & {
   data: SeriesData;
 };
 
+export type AlertSeries = SeriesBase & {
+  data: Array<number>;
+};
+
 export type EnumSeries = SeriesBase & {
   data: Array<number>;
   enumValuesToNames: Record<number, string[]>; // map of series index to unique enum values

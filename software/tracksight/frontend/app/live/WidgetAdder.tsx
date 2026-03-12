@@ -3,7 +3,6 @@
 import { useCallback, useState, SubmitEvent } from "react";
 import { PlusButton } from "@/components/icons/PlusButton";
 import { SignalType } from "@/lib/types/Signal";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useWidgetManager } from "@/components/widgets/WidgetManagerContext";
 import chroma from "chroma-js";
