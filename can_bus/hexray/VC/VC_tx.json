@@ -20,7 +20,7 @@
             }
         }
     },
-    "Imu1Data": {
+    "Imu1LinearData": {
         "msg_id": 550,
         "cycle_time": 10,
         "description": "Linear Acceleration x, y and z direction from the first IMU",
@@ -48,7 +48,7 @@
             }
         }
     },
-    "Imu2Data": {
+    "Imu2LinearData": {
         "msg_id": 554,
         "cycle_time": 10,
         "description": "Linear Acceleration x, y and z direction from the second IMU",
@@ -76,7 +76,7 @@
             }
         }
     },
-    "Imu3Data": {
+    "Imu3LinearData": {
         "msg_id": 558,
         "cycle_time": 10,
         "description": "Linear Acceleration x, y and z direction from the third IMU ",
@@ -264,7 +264,7 @@
                 "bits": 8
             }
         }
-    }, 
+    },
     "PowerMonitoring": {
         "msg_id": 514,
         "cycle_time": 100,

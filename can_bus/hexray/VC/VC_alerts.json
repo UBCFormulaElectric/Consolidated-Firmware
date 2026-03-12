@@ -40,11 +40,11 @@
     },
     "FrontRightInverterFault": {
       "id": 556,
-      "description": "Right inverter entered fault state."
+      "description": "Front right inverter entered fault state."
     },
     "RearLeftInverterFault": {
       "id": 557,
-      "description": "Left inverter entered fault state."
+      "description": "Rear left inverter entered fault state."
     },
     "RearRightInverterFault": {
       "id": 558,

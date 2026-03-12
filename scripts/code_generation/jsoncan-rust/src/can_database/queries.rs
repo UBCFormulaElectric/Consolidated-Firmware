@@ -94,7 +94,7 @@ impl CanDatabase {
     pub fn get_all_rx_msgs_for(self: &Self, node_name: &str) -> Result<Vec<u32>, CanDBError> {
         let binding = self.get_connection()?;
         let mut s = binding
-            .prepare("SELECT name FROM messages WHERE tx_node_name != ?1")
+            .prepare("SELECT id FROM messages WHERE tx_node_name != ?1")
             .unwrap();
 
         let res = s.query_map([node_name], |row| Ok(row.get::<_, u32>(0)?))
