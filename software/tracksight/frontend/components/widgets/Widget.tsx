@@ -15,15 +15,7 @@ import { useDisplayControlContext as useDisplayControlInfo } from "../PausePlayC
 import { useMockData } from "./MockWidget";
 import { useWidgetManager } from "./WidgetManagerContext";
 import { SignalType } from "@/lib/types/Signal";
-import { NumericalWidgetAddSignalModal } from "./NumericalWidget";
-
-function createEmptyChartData(type: SignalType): ChartData {
-	if (type === SignalType.NUMERICAL) {
-		return { type: SignalType.NUMERICAL, all_series: [] };
-	}
-
-	return { type: SignalType.ENUM, all_series: [] };
-}
+import { NumericalWidgetAddSignalModal, useLiveNumericalData } from "./NumericalWidget";
 
 function SignalButton({ cfg, handleRemoveSignal, hoverSignalName }: {
 	cfg: EnumSignalConfig | NumericalSignalConfig, idx: number,
@@ -56,7 +48,10 @@ function useWidgetData(widgetData: WidgetData): RefObject<ChartData> {
 	if (widgetData.mock) { // this should be fine as it is constant
 		return useMockData(isPaused, widgetData);
 	}
-	return useRef<ChartData>(createEmptyChartData(widgetData.type)); // TODO populate data from the store
+	if (widgetData.type === SignalType.NUMERICAL) {
+		return useLiveNumericalData(widgetData);
+	}
+	return useRef<ChartData>(); // TODO populate data from the store
 }
 
 export function Widget({ widgetData }: { widgetData: WidgetData; }) {
@@ -101,7 +96,7 @@ export function Widget({ widgetData }: { widgetData: WidgetData; }) {
 					}
 					{
 						!widgetData.mock && widgetData.type == SignalType.NUMERICAL &&
-						<NumericalWidgetAddSignalModal configs={widgetData.signals} dataRef={dataRef} widgetData={widgetData} />
+						<NumericalWidgetAddSignalModal configs={widgetData.signals} widgetData={widgetData} />
 					}
 				</div>
 			</div>

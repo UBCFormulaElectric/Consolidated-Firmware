@@ -34,13 +34,13 @@ export default function LiveDataPage() {
   return (
     <div id="live-page" className="pt-14 h-screen">
       <DisplayControlProvider>
-        {/* <SignalProvider> */}
-        <SyncedGraphContainer>
-          <WidgetManager>
-            <Content />
-          </WidgetManager>
-        </SyncedGraphContainer>
-        {/* </SignalProvider > */}
+        <SignalProvider>
+          <SyncedGraphContainer>
+            <WidgetManager>
+              <Content />
+            </WidgetManager>
+          </SyncedGraphContainer>
+        </SignalProvider>
       </DisplayControlProvider >
     </div>
   );
