@@ -57,7 +57,6 @@ class _AdcNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._Enu
     ADC_SUSP_TRAVEL_RL_3V3: _AdcNetName.ValueType
     ADC_SUSP_TRAVEL_RR_3V3: _AdcNetName.ValueType
     ADC_BPS_3V3: _AdcNetName.ValueType
-    ADC_nBSPD_BRAKE_PRESSED: _AdcNetName.ValueType
 
 class AdcNetName(_AdcNetName, metaclass=_AdcNetNameEnumTypeWrapper):
     ...
@@ -66,7 +65,6 @@ ADC_LC3_OUT: AdcNetName.ValueType
 ADC_SUSP_TRAVEL_RL_3V3: AdcNetName.ValueType
 ADC_SUSP_TRAVEL_RR_3V3: AdcNetName.ValueType
 ADC_BPS_3V3: AdcNetName.ValueType
-ADC_nBSPD_BRAKE_PRESSED: AdcNetName.ValueType
 Global___AdcNetName: typing_extensions.TypeAlias = AdcNetName
 
 class _I2cNetName:
