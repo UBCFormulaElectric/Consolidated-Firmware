@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from "react";
-import { DataPoint, DEBUG, DEFAULT_MAX_DATA_POINTS, SignalDataStore } from "@/lib/SignalConfig";
+import { DataPoint, DEBUG, SignalDataStore } from "@/lib/SignalConfig";
 
 // Optional onFlush callback notifies when a batch has been flushed so consumers can trigger re-render.
 export function useSignalData(onFlush?: () => void) {
@@ -110,15 +110,10 @@ export function useSignalData(onFlush?: () => void) {
 		dataStore.current.removeSignalData(name);
 	}, []);
 
-	const pruneData = useCallback((max = DEFAULT_MAX_DATA_POINTS) => {
-		if (DEBUG) console.log(`Pruning data to last ${max} points`);
-		dataStore.current.pruneToLastN(max);
-	}, []);
-
 	const clearAllData = useCallback(() => {
 		if (DEBUG) console.log("Clearing data");
 		dataStore.current.clear();
 	}, [dataStore.current]);
 
-	return { dataStore, addDataPoint, pruneSignalData, pruneData, clearAllData };
+	return { dataStore, addDataPoint, pruneSignalData, clearAllData };
 }

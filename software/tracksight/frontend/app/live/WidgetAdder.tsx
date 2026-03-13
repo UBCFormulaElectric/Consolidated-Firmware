@@ -150,9 +150,9 @@ function NumericalWidgetModalForm({ closeModal }: { closeModal: () => void; }) {
       type: SignalType.NUMERICAL,
         signals: [{
           signal_name: numericalSignalName,
-          delay: 10, // TODO : do we get this from backend? or use lookup table given signal name.
-          min: 0,// TODO : do we get this from backend? or use lookup table given signal name.
-          max: 100,// TODO : do we get this from backend? or use lookup table given signal name.
+          delay: 0, // TODO : change these placeholders?
+          min: 0,// TODO : change these placeholders?
+          max: 0,// TODO : change these placeholders?
           color: chroma.random()
         }],
         id: numericalSignalName,
