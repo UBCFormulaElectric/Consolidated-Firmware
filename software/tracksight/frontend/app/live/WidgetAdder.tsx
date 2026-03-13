@@ -6,6 +6,7 @@ import { SignalType } from "@/lib/types/Signal";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useWidgetManager } from "@/components/widgets/WidgetManagerContext";
+import { NumericalWidgetModalForm } from "@/components/widgets/NumericalWidget";
 import chroma from "chroma-js";
 import { generateRandomColorPalette, MOCK_STATES } from "@/components/widgets/MockWidget";
 
@@ -138,61 +139,6 @@ function MockWidgetModalForm({ closeModal }: {
   )
 }
 
-function NumericalWidgetModalForm({ closeModal }: { closeModal: () => void; }) {
-
-  const { appendWidget: onAddWidget } = useWidgetManager();
-  const [numericalSignalName, setNumericalSignalName] = useState("na"); // this should be fuzzily found in a selector or sm
-
-  const handleNumericalSubmit = (e: SubmitEvent) => {
-    e.preventDefault();
-
-    onAddWidget({
-      type: SignalType.NUMERICAL,
-        signals: [{
-          signal_name: numericalSignalName,
-          delay: 0, // TODO : change these placeholders?
-          min: 0,// TODO : change these placeholders?
-          max: 0,// TODO : change these placeholders?
-          color: chroma.random()
-        }],
-        id: numericalSignalName,
-        mock: false,
-      });
-    closeModal();
-  }
-
-  return (
-    <>
-      <DialogHeader>
-        <DialogTitle>New Numerical Widget</DialogTitle>
-        <DialogDescription> options for configuring the numerical widget </DialogDescription>
-      </DialogHeader>
-      <form onSubmit={handleNumericalSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Signal Name
-          </label>
-          <input
-            type="text"
-            value={numericalSignalName}
-            onChange={(e) => setNumericalSignalName(e.target.value)}
-            className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
-            required
-          />
-        </div>
-        <div className="flex justify-end gap-2 pt-2">
-          <button type="button" onClick={closeModal} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer">
-            Cancel
-          </button>
-          <button type="submit" className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded">
-            Create Widget
-          </button>
-        </div>
-      </form>
-    </>
-  )
-}
-
 export function WidgetAdder() {
   const [isOpen, setIsOpen] = useState(false);
   const [mockModalOpen, setMockModalOpen] = useState(false);
@@ -251,4 +197,3 @@ export function WidgetAdder() {
     </>
   );
 }
-

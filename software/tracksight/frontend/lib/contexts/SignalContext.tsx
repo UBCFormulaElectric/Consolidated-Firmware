@@ -51,7 +51,6 @@ function handleData(
   isSubscribed: (signal_name: string) => boolean,
   addDataPoint: (dataPoint: DataPoint) => void
 ) {
-  DEBUG && console.log("Received data:", data);
 
   if (data.value === undefined) {
     DEBUG && console.error("Invalid data received:", data);
@@ -67,14 +66,14 @@ function handleData(
 
   data.time ||= Date.now();
 
-  // Check if this signal is an enumeration signal using pattern matching
-  if (DEBUG) {
-    const isEnum = /state|mode|enum|status/.test(name.toLowerCase());
-    console.log(
-      `Signal ${name}: isEnum=${isEnum}, value=${data.value
-      } (${typeof data.value})`
-    );
-  }
+  // // Check if this signal is an enumeration signal using pattern matching
+  // if (DEBUG) {
+  //   const isEnum = /state|mode|enum|status/.test(name.toLowerCase());
+  //   console.log(
+  //     `Signal ${name}: isEnum=${isEnum}, value=${data.value
+  //     } (${typeof data.value})`
+  //   );
+  // }
 
   // Handle enum signals (convert numeric values to strings for display)
   // if (isEnum) {

@@ -19,7 +19,7 @@ export type EnumSignalMetadata = CommonSignalMetadata & {
     };
     min_val: number;
     max_val: number;
-    cycle_time_ms: number | null;
+    cycle_time_ms: number;
 };
 
 export type NumericalSignalMetadata = CommonSignalMetadata & {
@@ -27,14 +27,14 @@ export type NumericalSignalMetadata = CommonSignalMetadata & {
     min_val: number;
     max_val: number;
     unit: "" | string;
-    cycle_time_ms: number | null;
+    cycle_time_ms: number;
 };
 
 export type AlertSignalMetadata = CommonSignalMetadata & {
     type: SignalType.ALERT;
     min_val: 0;
     max_val: 1;
-    cycle_time_ms: number | null;
+    cycle_time_ms: number | null; // does this make sense? its an alert... @zeddy
 };
 
 export const isEnumSignalMetadata = (signal: SignalMetadata): signal is EnumSignalMetadata => {

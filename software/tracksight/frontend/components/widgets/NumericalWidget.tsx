@@ -41,8 +41,8 @@ function parsePointValue(value: number | string | undefined): number {
 }
 
 async function fetchNumericalSignalMetadata(signalName: string): Promise<NumericalSignalMetadata> {
-    console.log("Fetching metadata for signal:", signalName);
     const response = await fetch(`${API_BASE_URL}/signal?name=${encodeURIComponent(signalName)}`);
+
     if (!response.ok) {
         throw new Error(`Failed to fetch signal metadata: ${response.statusText}`);
     }
@@ -62,58 +62,85 @@ async function fetchNumericalSignalMetadata(signalName: string): Promise<Numeric
 }
 
 export function NumericalWidgetModalForm({ closeModal }: { closeModal: () => void; }) {
+    const { appendWidget: onAddWidget } = useWidgetManager();
+    const [numericalSignalName, setNumericalSignalName] = useState("");
+    const [error, setError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
 
-  const { appendWidget: onAddWidget } = useWidgetManager();
-  const [numericalSignalName, setNumericalSignalName] = useState("na"); // this should be fuzzily found in a selector or sm
+    const handleNumericalSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const trimmedSignalName = numericalSignalName.trim();
 
-  const handleNumericalSubmit = (e: SubmitEvent) => {
-    e.preventDefault();
+        setIsLoading(true);
+        setError(null);
 
-    onAddWidget({
-      type: SignalType.NUMERICAL,
-        signals: [{
-          signal_name: numericalSignalName,
-          delay: 0, // TODO : change these placeholders?
-          min: 0,// TODO : change these placeholders?
-          max: 0,// TODO : change these placeholders?
-          color: chroma.random()
-        }],
-        id: numericalSignalName,
-        mock: false,
-      });
-    closeModal();
-  }
+        try {
+            const metadata = await fetchNumericalSignalMetadata(trimmedSignalName);
 
-  return (
-    <>
-      <DialogHeader>
-        <DialogTitle>New Numerical Widget</DialogTitle>
-        <DialogDescription> options for configuring the numerical widget </DialogDescription>
-      </DialogHeader>
-      <form onSubmit={handleNumericalSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Signal Name
-          </label>
-          <input
-            type="text"
-            value={numericalSignalName}
-            onChange={(e) => setNumericalSignalName(e.target.value)}
-            className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
-            required
-          />
-        </div>
-        <div className="flex justify-end gap-2 pt-2">
-          <button type="button" onClick={closeModal} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer">
-            Cancel
-          </button>
-          <button type="submit" className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded">
-            Create Widget
-          </button>
-        </div>
-      </form>
-    </>
-  )
+            onAddWidget({
+                type: SignalType.NUMERICAL,
+                signals: [{
+                    signal_name: trimmedSignalName,
+                    delay: metadata.cycle_time_ms,
+                    min: metadata.min_val,
+                    max: metadata.max_val,
+                    color: chroma.random()
+                }],
+                id: trimmedSignalName,
+                mock: false,
+            });
+            closeModal();
+        } catch (e) {
+            setError(e instanceof Error ? e.message : "Failed to create widget");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <>
+            <DialogHeader>
+                <DialogTitle>New Numerical Widget</DialogTitle>
+                <DialogDescription> options for configuring the numerical widget </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleNumericalSubmit} className="space-y-4">
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Signal Name
+                    </label>
+                    <input
+                        type="text"
+                        value={numericalSignalName}
+                        onChange={(e) => {
+                            setNumericalSignalName(e.target.value);
+                            if (error) {
+                                setError(null);
+                            }
+                        }}
+                        className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
+                        placeholder="e.g. BMS_TractiveSystemVoltage"
+                        autoFocus
+                        required
+                    />
+                </div>
+                {error && (
+                    <p className="text-sm text-red-600">{error}</p>
+                )}
+                <div className="flex justify-end gap-2 pt-2">
+                    <button type="button" onClick={closeModal} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer">
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        disabled={isLoading || numericalSignalName.trim().length === 0}
+                        className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                        {isLoading ? "Creating..." : "Create Widget"}
+                    </button>
+                </div>
+            </form>
+        </>
+    );
 }
 
 
