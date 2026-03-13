@@ -55,7 +55,7 @@
     }
   },
         "BMSShdnNodeStatus": {
-    "msg_id": 454,
+    "msg_id": 420,
     "cycle_time": 100,
     "description": "BMS Shutdown Nodes Status",
     "signals": {

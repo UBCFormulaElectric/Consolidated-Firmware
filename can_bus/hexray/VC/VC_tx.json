@@ -21,7 +21,7 @@
         }
     },
     "Imu1LinearData": {
-        "msg_id": 550,
+        "msg_id": 505,
         "cycle_time": 10,
         "description": "Linear Acceleration x, y and z direction from the first IMU",
         "signals": {
@@ -49,7 +49,7 @@
         }
     },
     "Imu2LinearData": {
-        "msg_id": 554,
+        "msg_id": 510,
         "cycle_time": 10,
         "description": "Linear Acceleration x, y and z direction from the second IMU",
         "signals": {
@@ -77,7 +77,7 @@
         }
     },
     "Imu3LinearData": {
-        "msg_id": 558,
+        "msg_id": 515,
         "cycle_time": 10,
         "description": "Linear Acceleration x, y and z direction from the third IMU ",
         "signals": {
@@ -105,7 +105,7 @@
         }
     },
     "Imu1AngularData": {
-        "msg_id": 661,
+        "msg_id": 520,
         "cycle_time": 10,
         "description": "Angular Velocity in x, y and z direction from the first IMU",
         "signals": {
@@ -133,7 +133,7 @@
         }
     },
     "Imu2AngularData": {
-        "msg_id": 665,
+        "msg_id": 525,
         "cycle_time": 10,
         "description": "Angular Velocity in x, y and z direction from the second IMU",
         "signals": {
@@ -161,7 +161,7 @@
         }
     },
     "Imu3AngularData": {
-        "msg_id": 669,
+        "msg_id": 530,
         "cycle_time": 10,
         "description": "Angular Velocity in x, y and z direction from the third IMU",
         "signals": {
@@ -189,7 +189,7 @@
         }
     },
     "GlobalShdnNodeStatus": {
-        "msg_id": 511,
+        "msg_id": 535,
         "cycle_time": 100,
         "description": "Global Shutdown Node Status",
         "signals": {
@@ -199,7 +199,7 @@
         }
     },
     "PumpStatus": {
-        "msg_id": 529,
+        "msg_id": 540,
         "cycle_time": 10,
         "description": "All pump descriptions",
         "signals": {
@@ -215,7 +215,7 @@
         }
     },
     "ConnectorBoardEfuse": {
-        "msg_id": 533,
+        "msg_id": 545,
         "cycle_time": 100,
         "description": "Efuse info for RL Pump/RR Pump/F pump/L Rad/R Rad efuses.",
         "signals": {
@@ -225,7 +225,7 @@
         }
     },
     "ShdnNodeStatus": {
-        "msg_id": 538,
+        "msg_id": 550,
         "cycle_time": 100,
         "description": "VC Shutdown Node Status",
         "signals": {
@@ -244,7 +244,7 @@
         }
     },
     "EllipseStatus": {
-        "msg_id": 547,
+        "msg_id": 555,
         "cycle_time": 100,
         "description": "Status of the SBG Ellipse N sensor.",
         "signals": {
@@ -266,7 +266,7 @@
         }
     },
     "PowerMonitoring": {
-        "msg_id": 514,
+        "msg_id": 560,
         "cycle_time": 100,
         "description": "Power monitoring chip",
         "signals": {

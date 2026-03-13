@@ -1,61 +1,61 @@
 {
-  "warnings_id": 401,
-  "faults_id": 402,
-  "warnings_counts_id": 403,
-  "faults_counts_id": 404,
+  "warnings_id": 421,
+  "faults_id": 422,
+  "warnings_counts_id": 423,
+  "faults_counts_id": 424,
   "warnings": {
     "CellUndervoltage": {
-      "id": 155,
+      "id": 425,
       "description": "Cell is critically undervoltage"
     },
     "CellOvervoltage": {
-      "id": 156,
+      "id": 426,
       "description": "Cell is critically overvoltage"
     },
     "CellOvertemp": {
-      "id": 159,
+      "id": 427,
       "description": "Cell is critically overtemp"
     },
     "ModuleCommunicationError": {
-      "id": 157,
+      "id": 428,
       "description": "Failed to communicate with LTC6813 modules."
     }
   },
   "faults": {
     "CellUndervoltage": {
-      "id": 155,
+      "id": 429,
       "description": "Cell is critically undervoltage"
     },
     "CellOvervoltage": {
-      "id": 156,
+      "id": 430,
       "description": "Cell is critically overvoltage"
     },
     "CellOvertemp": {
-      "id": 159,
+      "id": 431,
       "description": "Cell is critically overtemp"
     },
     "ModuleCommunicationError": {
-      "id": 157,
+      "id": 432,
       "description": "Failed to communicate with LTC6813 modules."
     },
     "TESTFAULT": {
-      "id": 999,
+      "id": 433,
       "description": "FOR UNIT TESTING ONLY DO NOT EVER EVER THROW"
     }
   },
-  "info_id": 405,
-  "info_counts_id": 406,
+  "info_id": 434,
+  "info_counts_id": 435,
   "info": {
     "StackOverflow": {
-      "id": 450,
+      "id": 436,
       "description": "An RTOS task stack overflowed on the previous boot cycle."
     },
     "CriticalPrechargeFailure": {
-      "id": 451,
+      "id": 437,
       "description": "Precharge failed >3x"
     },
     "WatchdogTimeout": {
-      "id": 452,
+      "id": 438,
       "description": "Watchdog timeout detected."
     }
   }

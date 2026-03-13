@@ -6,11 +6,6 @@
 Setting CAN signals for the efuse status aka turning efuse on or off and setting the
 current we want to send over CAN for each efuse channel.
 */
-struct CanSetters
-{
-    void *setter;
-    void *getter;
-}
 
 namespace app::loadswitches
 {

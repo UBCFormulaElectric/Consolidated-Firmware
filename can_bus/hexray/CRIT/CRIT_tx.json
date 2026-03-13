@@ -17,7 +17,7 @@
     }
   },
   "ButtonsAndSwitches": {
-    "msg_id": 912,
+    "msg_id": 911,
     "cycle_time": 100,
     "description": "State of buttons and switches on the CRIT",
     "signals": {
@@ -29,7 +29,7 @@
     }
   },
   "TelemMarkEvent": {
-    "msg_id": 911,
+    "msg_id": 912,
     "cycle_time": null,
     "description": "Marks an event in the telemetry data. Can be used to mark the start of a run, or any other significant event.",
     "signals": {}

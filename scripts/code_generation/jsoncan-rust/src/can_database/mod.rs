@@ -191,7 +191,10 @@ impl CanDatabase {
                 msg.tx_node_name,
                 serde_json::to_string(&msg.modes).unwrap()
             ],
-        ).map_err(|e| CanDBError::SqlLiteError(e))?;
+        ).map_err(|e| 
+            {
+                println!("Error adding signal ID '{}' to message ID", msg.id);
+                CanDBError::SqlLiteError(e)})?;
 
         let msg_id = msg.id;
         for signal in msg.signals.iter() {
@@ -221,7 +224,10 @@ impl CanDatabase {
                 if signal.big_endian { 1 } else { 0 },
                 signal.signal_type.clone() as u32,
             ],
-        ).map_err(|e| CanDBError::SqlLiteError(e))?;
+        ).map_err(|e| {
+            CanDBError::SqlLiteError(e)
+        
+        })?;
 
         Ok(())
     }
