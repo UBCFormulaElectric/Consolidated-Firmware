@@ -5,16 +5,16 @@
 
 // Defined in the loadswitches io layer
 static app::PowerManager powerManager({
-    &RR_PUMP_Efuse,
-    &RL_PUMP_Efuse,
-    &R_RAD_Efuse,
-    &L_RAD_Efuse,
-    &F_INV_Efuse,
-    &R_INV_Efuse,
-    &RSM_Efuse,
-    &BMS_Efuse,
-    &DAM_Efuse,
-    &FRONT_Efuse,
+    &io::loadswitches::RR_PUMP_Efuse,
+    &io::loadswitches::RL_PUMP_Efuse,
+    &io::loadswitches::R_RAD_Efuse,
+    &io::loadswitches::L_RAD_Efuse,
+    &io::loadswitches::F_INV_Efuse,
+    &io::loadswitches::R_INV_Efuse,
+    &io::loadswitches::RSM_Efuse,
+    &io::loadswitches::BMS_Efuse,
+    &io::loadswitches::DAM_Efuse,
+    &io::loadswitches::FRONT_Efuse,
 });
 
 void init()
