@@ -17,6 +17,7 @@ class DriveHandlingTest : public VCBaseTest
 
 TEST_F(DriveHandlingTest, DriveModeVanillaNotPowerLimiting)
 {
+    // Full power should not trigger power limiting due to vanilla drive mode
     float       bms_avail_power_w = 80000 * EFFICIENCY_ESTIMATE;
     uint32_t    inverter_rpm      = 1000;
     const float apps              = 1.0f;
