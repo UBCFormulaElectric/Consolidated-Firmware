@@ -12,6 +12,7 @@
 #include "app_jsoncan.h"
 
 #include "io_log.h"
+#include "io_time.h"
 #include "io_canQueues.h"
 // hw
 #include "hw_usb.h"
@@ -198,10 +199,18 @@ _Noreturn void tasks_runCanRx(void)
 
 _Noreturn void tasks_batteryMonitoring(void)
 {
+    static const TickType_t period_ms = 100U;
+
+    static uint32_t start_ticks = 0;
+    start_ticks                 = osKernelGetTickCount();
+
     osDelay(osWaitForever);
     for (;;)
     {
-        osDelay(1000);
+        const uint32_t task_start_ms = io_time_getCurrentMs();
+
+        start_ticks += period_ms;
+        osDelay(start_ticks);
     }
 }
 
