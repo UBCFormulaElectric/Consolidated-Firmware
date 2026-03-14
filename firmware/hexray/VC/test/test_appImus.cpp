@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "test/test_VCBase.hpp"
-#include "io_imus.cpp"
+#include "io_imus.hpp"
 #include "io_imu.cpp"
 // #include "vc_fakes.hpp"
 #include "util_errorCodes.hpp"

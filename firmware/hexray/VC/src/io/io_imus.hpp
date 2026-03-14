@@ -5,5 +5,8 @@
 
 namespace io::imus
 {
+    extern Imu IMU1;
+    extern Imu IMU2;
+    extern Imu IMU3;
 void init();
 } // namespace io::imus

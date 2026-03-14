@@ -1,8 +1,11 @@
-#include "io_efuse.hpp"
-#include "io_efuse_TI_TPS25.hpp"
-#include "io_efuse_TI_TPS28.hpp"
+#ifdef TARGET_EMBEDDED
 #include "hw_adcs.hpp"
 #include "hw_gpios.hpp"
+#endif
+#include "io_efuse_TI_TPS25.hpp"
+#include "io_efuse_TI_TPS28.hpp"
+#include "io_efuse.hpp"
+
 namespace io::loadswitches
 {
 const bool                io_loadswitch_isChannelEnabled(EfuseChannel::TPS25_EfuseChannel channel);
