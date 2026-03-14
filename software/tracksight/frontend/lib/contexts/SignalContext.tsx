@@ -4,7 +4,7 @@
 
 "use client";
 
-import { useDisplayControl } from "@/components/PausePlayControl";
+import { useDisplayControlContext } from "@/components/PausePlayControl";
 import {
   createContext,
   ReactNode,
@@ -267,7 +267,7 @@ export function SignalProvider({ children }: { children: ReactNode }) {
     };
   }, [socket, isSubscribed, addDataPoint]);
   // handling pause/resume via HTTP API (per-SID)
-  const { isPaused } = useDisplayControl();
+  const { isPaused } = useDisplayControlContext();
 
   useEffect(() => {
     // Socket must be connected to have a SID

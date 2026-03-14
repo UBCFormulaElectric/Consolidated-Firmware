@@ -2,16 +2,16 @@
 #include <cassert>
 #include "main.h"
 
-namespace hw::cans
+namespace hw::can
 {
 const fdcan fdcan1{ hfdcan1, [](const CanMsg &msg) { UNUSED(msg); } }; // define callback func in io
-} // namespace hw::cans
+} // namespace hw::can
 
 namespace hw
 {
 const fdcan &fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
 {
-    assert(hfdcan == hw::cans::fdcan1.getHfdcan());
-    return cans::fdcan1;
+    assert(hfdcan == can::fdcan1.getHfdcan());
+    return can::fdcan1;
 }
 } // namespace hw

@@ -69,8 +69,6 @@ class RSMChimeraConfig : public chimera_v2::config
                 return std::cref(hw::adcs::susp_travel_rr_3v3);
             case rsm_AdcNetName_ADC_BPS_3V3:
                 return std::cref(hw::adcs::bps_3v3);
-            case rsm_AdcNetName_ADC_nBSPD_BRAKE_PRESSED:
-                return std::cref(hw::adcs::nBSPD_brake_pressed);
             default:
             case rsm_AdcNetName_ADC_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified ADC net name");
@@ -104,7 +102,7 @@ class RSMChimeraConfig : public chimera_v2::config
         switch (snn->name.rsm_net_name)
         {
             case rsm_SpiNetName_SPI_IMU:
-                return std::cref(hw::spi::imu);
+                return std::cref(hw::spi::imu_sd);
             default:
             case rsm_SpiNetName_SPI_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified SPI net name");
@@ -139,6 +137,7 @@ char USBD_PRODUCT_STRING_FS[] = "rsm";
 [[noreturn]] void tasks_init()
 {
     hw_hardFaultHandler_init();
+    hw::adcs::chipsInit();
     assert(hw::usb::init());
     hw::gpio::d_p_pullup.writePin(true); // enable USB D+ pullup
     osKernelInitialize();
@@ -146,6 +145,3 @@ char USBD_PRODUCT_STRING_FS[] = "rsm";
     osKernelStart();
     forever {}
 }
-
-// what is a protobuf generated tags
-// how does this system actually work with python
