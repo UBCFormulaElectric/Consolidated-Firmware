@@ -2,7 +2,7 @@
 #include <gtest/gtest.h>
 #include "util_errorCodes.hpp"
 #include "app_canRx.hpp"
-#include "app_loadSwitches.cpp"
+// #include "app_loadSwitches.cpp"
 #include "app_canTx.hpp"
 ////// temporary ///
 class VCTestAppLoadSwitches : public VCBaseTest
