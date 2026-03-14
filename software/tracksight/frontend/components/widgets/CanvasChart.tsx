@@ -99,7 +99,7 @@ export default function CanvasChart({ chartData: chart_data, widgetData, height,
 
     return (
         <canvas
-            className="block w-full"
+            className="block w-full cursor-crosshair"
             ref={canvasRef}
             style={{ height: height }}
             onMouseMove={handleMouseMove}

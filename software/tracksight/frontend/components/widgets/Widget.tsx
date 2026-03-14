@@ -1,6 +1,6 @@
 "use client";
 // react
-import { RefObject, useCallback, useRef, useState } from "react";
+import { RefObject, useCallback, useEffect, useRef, useState } from "react";
 
 // components
 import CanvasChart from "./CanvasChart";
@@ -16,22 +16,23 @@ import { useMockData } from "./MockWidget";
 import { useWidgetManager } from "./WidgetManagerContext";
 import { SignalType } from "@/lib/types/Signal";
 import { NumericalWidgetAddSignalModal, useLiveNumericalData } from "./NumericalWidget";
+import { fetchNumericalSignalMetadata } from "@/lib/api/signalMetadata";
 
-function SignalButton({ cfg, handleRemoveSignal, hoverSignalName }: {
+function SignalButton({ cfg, handleRemoveSignal, hoverSignalName, delay }: {
 	cfg: EnumSignalConfig | NumericalSignalConfig, idx: number,
 	handleRemoveSignal: (signalName: string) => void,
 	hoverSignalName: RefObject<string | null>,
+	delay?: number, // if we have fetched delay (i.e. not mock)
 }) {
-	// const color = signalColors[idx % signalColors.length];
 	return (
-		<div className="select-none flex items-center gap-2 px-3 py-1.5 rounded-full border-2 hover:opacity-80 transition-opacity cursor-crosshair"
+		<div className="select-none flex items-center gap-2 px-3 py-1.5 rounded-full border-2 hover:opacity-80 transition-opacity"
 			style={{ backgroundColor: cfg.color.brighten(1).hex(), borderColor: cfg.color.darken(1).hex() }}
 			onMouseEnter={() => hoverSignalName.current = cfg.signal_name} onMouseLeave={() => hoverSignalName.current = null}
-		>
+			>
 			{/* Left circle */}
 			<div className="w-3 h-3 rounded-full" style={{ backgroundColor: cfg.color.hex() }} />
 			<span className="font-medium">{cfg.signal_name}</span>
-			<span className="text-xs text-gray-500">({cfg.delay}ms)</span>
+			<span className="text-xs text-gray-500">({delay ?? cfg.delay}ms)</span>
 			<button
 				onClick={() => handleRemoveSignal(cfg.signal_name)}
 				className="ml-1 text-gray-500 hover:text-red-500 transition-colors font-bold cursor-pointer focus:text-red-500 focus:outline-none"
@@ -54,6 +55,43 @@ function useWidgetData(widgetData: WidgetData): RefObject<ChartData> {
 	return useRef<ChartData>(); // TODO populate data from the store
 }
 
+function useSignalButtonDelays(widgetData: WidgetData): Record<string, number> {
+	const [delays, setDelays] = useState<Record<string, number>>({});
+
+	useEffect(() => {
+		if (widgetData.mock || widgetData.type !== SignalType.NUMERICAL) {
+			setDelays({});
+			return;
+		}
+
+		let cancelled = false;
+
+		// fetch metadat for signals
+		Promise.all(
+			widgetData.signals.map(async (signal) => {
+				const metadata = await fetchNumericalSignalMetadata(signal.signal_name);
+				return [signal.signal_name, metadata.cycle_time_ms] as const;
+			})
+		).then((entries) => {
+			if (cancelled) {
+				return;
+			}
+			setDelays(Object.fromEntries(entries));
+		}).catch((error) => {
+			if (!cancelled) {
+				console.warn("Failed to fetch signal button metadata:", error);
+				setDelays({});
+			}
+		});
+
+		return () => {
+			cancelled = true;
+		};
+	}, [widgetData]);
+
+	return delays;
+}
+
 export function Widget({ widgetData }: { widgetData: WidgetData; }) {
 	const [chartHeight, setChartHeight] = useState(256);
 	const { removeWidget, removeSignal } = useWidgetManager();
@@ -61,6 +99,7 @@ export function Widget({ widgetData }: { widgetData: WidgetData; }) {
 
 	// note that the type of this data should be bound to the type of widgetData
 	const dataRef: RefObject<ChartData> = useWidgetData(widgetData);
+	const signalButtonDelays = useSignalButtonDelays(widgetData);
 
 	const deleteSelfWidget = useCallback(() => { removeWidget(widgetData.id); }, [widgetData.id, removeWidget]);
 
@@ -85,11 +124,14 @@ export function Widget({ widgetData }: { widgetData: WidgetData; }) {
 
 
 				{/* Signal buttons */}
-				<div className="flex flex-wrap items-center gap-3">
-					{widgetData.signals.map((cfg, idx) =>
-						<SignalButton key={cfg.signal_name} cfg={cfg} idx={idx}
-							handleRemoveSignal={() => removeSignal(widgetData.id, cfg.signal_name)} hoverSignalName={hoveredSignal} />
-					)}
+					<div className="flex flex-wrap items-center gap-3">
+						{widgetData.signals.map((cfg, idx) =>
+							<SignalButton key={cfg.signal_name} cfg={cfg} idx={idx}
+								handleRemoveSignal={() => removeSignal(widgetData.id, cfg.signal_name)}
+								hoverSignalName={hoveredSignal}
+								delay={signalButtonDelays[cfg.signal_name]}
+							/>
+						)}
 					{
 						widgetData.mock &&
 						<MockWidgetAddSignalModal configs={widgetData.signals} dataRef={dataRef} widgetData={widgetData} />

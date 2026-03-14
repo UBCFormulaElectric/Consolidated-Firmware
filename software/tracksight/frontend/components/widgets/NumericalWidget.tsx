@@ -3,15 +3,15 @@
 import { useEffect, useRef, useState, RefObject, SubmitEvent } from "react";
 // types
 import { NumericalSignalConfig, WidgetDataNumerical } from "@/components/widgets/WidgetTypes";
-import { isNumericalSignalMetadata, NumericalSignalMetadata, SignalMetadata, SignalType } from "@/lib/types/Signal";
+import { SignalType } from "@/lib/types/Signal";
 import { ChartData, ChartDataNumerical, NumericalSeries } from "./CanvasChartTypes";
 import { SeriesData } from "@/lib/seriesData";
 import chroma from "chroma-js";
 // hooks
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { useDataVersion, useSignals } from "@/lib/contexts/SignalContext";
-import { API_BASE_URL } from "@/lib/constants";
 import { useWidgetManager } from "./WidgetManagerContext";
+import { fetchNumericalSignalMetadata } from "@/lib/api/signalMetadata";
 // components
 import { Dialog, DialogDescription, DialogHeader, DialogTitle, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { PlusButton } from "@/components/icons/PlusButton";
@@ -38,27 +38,6 @@ function parsePointValue(value: number | string | undefined): number {
     }
 
     return Number.NaN;
-}
-
-async function fetchNumericalSignalMetadata(signalName: string): Promise<NumericalSignalMetadata> {
-    const response = await fetch(`${API_BASE_URL}/signal?name=${encodeURIComponent(signalName)}`);
-
-    if (!response.ok) {
-        throw new Error(`Failed to fetch signal metadata: ${response.statusText}`);
-    }
-
-    const payload = (await response.json()) as SignalMetadata[];
-    const signal = payload.find((candidate) => candidate.name === signalName);
-
-    if (!signal) {
-        throw new Error("Signal not found");
-    }
-
-    if (!isNumericalSignalMetadata(signal)) {
-        throw new Error("Signal is not numerical");
-    }
-
-    return signal;
 }
 
 export function NumericalWidgetModalForm({ closeModal }: { closeModal: () => void; }) {
@@ -275,9 +254,10 @@ function NumericalSignalModalForm ({ closeModal, configs, widgetData }: {
 
         try {
             const metadata = await fetchNumericalSignalMetadata(trimmedSignalName);
+            console.log("Fetched metadata for signal", trimmedSignalName, metadata.cycle_time_ms);
 
             appendSignal(widgetData.id, {
-                delay: metadata.cycle_time_ms ?? 100,
+                delay: metadata.cycle_time_ms,
                 min: metadata.min_val,
                 max: metadata.max_val,
                 signal_name: trimmedSignalName,
