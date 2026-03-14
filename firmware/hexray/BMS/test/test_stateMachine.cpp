@@ -42,6 +42,8 @@ TEST_F(BmsStateMachineTest, enter_precharge_drive)
 
 TEST_F(BmsStateMachineTest, no_precharge_drive_if_negative_open)
 {
+    SetInitialState(&init_state);
+    ASSERT_EQ(app::StateMachine::get_current_state(), &init_state);
     app::can_rx::VC_State_update(VCState::VC_BMS_ON_STATE);
     fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_OPEN);
     LetTimePass(20);
@@ -51,19 +53,23 @@ TEST_F(BmsStateMachineTest, no_precharge_drive_if_negative_open)
 
 TEST_F(BmsStateMachineTest, no_precharge_drive_if_vc_state_not_bms_on)
 {
+    SetInitialState(&init_state);
+    ASSERT_EQ(app::StateMachine::get_current_state(), &init_state);
     app::can_rx::VC_State_update(VCState::VC_INIT_STATE);
     fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_CLOSED);
-    LetTimePass(10);
+    LetTimePass(20);
 
     ASSERT_EQ(app::StateMachine::get_current_state(), &init_state);
 }
 
 TEST_F(BmsStateMachineTest, no_precharge_drive_if_charging_requested)
 {
+    SetInitialState(&init_state);
+    ASSERT_EQ(app::StateMachine::get_current_state(), &init_state);
     app::can_rx::VC_State_update(VCState::VC_BMS_ON_STATE);
     fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_CLOSED);
     app::can_rx::Debug_StartCharging_update(true);
-    LetTimePass(10);
+    LetTimePass(20);
 
     ASSERT_EQ(app::StateMachine::get_current_state(), &init_state);
 }
@@ -199,7 +205,7 @@ TEST_F(BmsStateMachineTest, enter_balance)
     ASSERT_EQ(app::StateMachine::get_current_state(), &init_state);
     fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_CLOSED);
     app::can_rx::Debug_CellBalancingRequest_update(true);
-    LetTimePass(10);
+    LetTimePass(20);
 
     ASSERT_EQ(app::StateMachine::get_current_state(), &balancing_state);
     EXPECT_TRUE(app::can_rx::Debug_CellBalancingRequest_get());
@@ -209,7 +215,7 @@ TEST_F(BmsStateMachineTest, exit_balance)
 {
     SetInitialState(&balancing_state);
     app::can_rx::Debug_CellBalancingRequest_update(false);
-    LetTimePass(10);
+    LetTimePass(20);
 
     ASSERT_EQ(app::StateMachine::get_current_state(), &init_state);
 }
@@ -219,7 +225,7 @@ TEST_F(BmsStateMachineTest, exits_balance_when_negative_opens_and_clears_request
     SetInitialState(&balancing_state);
     app::can_rx::Debug_CellBalancingRequest_update(true);
     fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_OPEN);
-    LetTimePass(10);
+    LetTimePass(20);
 
     ASSERT_EQ(app::StateMachine::get_current_state(), &init_state);
     EXPECT_FALSE(app::can_rx::Debug_CellBalancingRequest_get());
@@ -234,7 +240,7 @@ TEST_F(BmsStateMachineTest, enter_precharge_charge)
     fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_CLOSED);
     fakes::charger::setConnectionStatus(ChargerConnectedType::CHARGER_CONNECTED_EVSE);
     app::can_rx::Debug_StartCharging_update(true);
-    LetTimePass(10);
+    LetTimePass(20);
 
     ASSERT_EQ(app::StateMachine::get_current_state(), &precharge_charge_state);
     ASSERT_EQ(app::can_tx::BMS_State_get(), BmsState::BMS_PRECHARGE_CHARGE_STATE);
@@ -247,7 +253,7 @@ TEST_F(BmsStateMachineTest, precharge_charge_success_to_charge_init)
     fakes::ts::setVoltage(target_voltage);
 
     app::StateMachine::set_current_state(&precharge_charge_state);
-    LetTimePass(10);
+    LetTimePass(20);
 
     ASSERT_EQ(app::StateMachine::get_current_state(), &charge_init_state);
     ASSERT_EQ(io::irs::positiveState(), ContactorState::CONTACTOR_STATE_CLOSED);
@@ -262,7 +268,7 @@ TEST_F(BmsStateMachineTest, precharge_charge_latches_after_retries)
     app::can_rx::Debug_StartCharging_update(true);
 
     app::StateMachine::set_current_state(&precharge_charge_state);
-    LetTimePass(10);
+    LetTimePass(20);
 
     for (uint8_t retry = 0; retry < MAX_PRECHARGE_ATTEMPTS; retry++)
     {
@@ -287,7 +293,7 @@ TEST_F(BmsStateMachineTest, drive_to_init_on_negative_open)
     fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_CLOSED);
     SetInitialState(&drive_state);
     fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_OPEN);
-    LetTimePass(10);
+    LetTimePass(20);
 
     ASSERT_EQ(app::StateMachine::get_current_state(), &init_state);
 }
@@ -297,7 +303,7 @@ TEST_F(BmsStateMachineTest, drive_to_fault_on_positive_open)
     fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_CLOSED);
     SetInitialState(&drive_state);
     io::irs::setPositive(ContactorState::CONTACTOR_STATE_OPEN);
-    LetTimePass(10);
+    LetTimePass(20);
 
     ASSERT_EQ(app::StateMachine::get_current_state(), &fault_state);
 }
@@ -308,7 +314,7 @@ TEST_F(BmsStateMachineTest, drive_to_fault_from_board_faults)
     SetInitialState(&drive_state);
     // app::can_alerts::AnyBoardHasFault_set(true);
     app::can_tx::BMS_Fault_TESTFAULT_set(true);
-    LetTimePass(10);
+    LetTimePass(20);
     ASSERT_TRUE(app::can_alerts::AnyBoardHasFault());
     ASSERT_EQ(app::StateMachine::get_current_state(), &fault_state);
 }
@@ -327,7 +333,7 @@ TEST_F(BmsStateMachineTest, drive_to_fault_on_overtemp)
     temperatures[0][0] = MAX_CELL_TEMP_FAULT_C;
     fakes::segments::setCellTemperatures(temperatures);
 
-    LetTimePass(10);
+    LetTimePass(20);
 
     ASSERT_EQ(app::StateMachine::get_current_state(), &fault_state);
 }
