@@ -8,8 +8,14 @@ namespace hw::fmac
 
 namespace
 {
-    constexpr int16_t floatToQ1Point5(float x) { return static_cast<int16_t>(x * 32768.0f); }
-    constexpr float   q1Point5ToFloat(int16_t x) { return static_cast<float>(x) / 32768.0f; }
+    constexpr int16_t floatToQ1Point5(float x)
+    {
+        return static_cast<int16_t>(x * 32768.0f);
+    }
+    constexpr float q1Point5ToFloat(int16_t x)
+    {
+        return static_cast<float>(x) / 32768.0f;
+    }
 
     // HAL_MAX_DELAY is 0xFFFFFFFF (wait forever). Use a finite timeout (ms) so we can tune on hardware.
     inline constexpr uint32_t kPollFilterDataTimeoutMs = 100;
@@ -23,7 +29,8 @@ namespace
     constexpr uint8_t IIR_MAX_GAIN   = 7;  // R max
 } // namespace
 
-std::expected<void, ErrorCode> FmacIir::init(std::span<const int16_t> coefB, std::span<const int16_t> coefA, uint8_t gainExponent)
+std::expected<void, ErrorCode>
+    FmacIir::init(std::span<const int16_t> coefB, std::span<const int16_t> coefA, uint8_t gainExponent)
 {
     const auto numBTaps = static_cast<uint8_t>(coefB.size());
     const auto numATaps = static_cast<uint8_t>(coefA.size());
