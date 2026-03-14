@@ -78,18 +78,7 @@ void broadcast_imu()
     }
 }
 
-// prob donty need ts no more
-// const auto &getAccelData(io::Imu imu)
-// {
-//     return const auto accel = imu.getAccelAll();
-// }
-
-// const auto &getGyroData(io::Imu imu)
-// {
-//     return const auto accel = imu.getGyroAll();
-// }
-
-// ask what we wanna do with the 3 imu logic?
+// TODO: 3 imu fusion
 // IDEA1: get the average of the 3
 // IDEA 2: a sm with the following states
 // all agree, all disgree, 2 agree one disagree if all agree/disagree averge otherwise take the average of the 2

@@ -5,17 +5,15 @@
 
 namespace app::fault_handling
 {
-constexpr uint8_t CONTACTOR_STATE_CLOSED = 1u;
 
 bool air_minus_closed(void)
 {
-    return (CONTACTOR_STATE_CLOSED == app::canRx::BMS_IrNegative_get());
+    return (app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED == app::can_rx::BMS_IrNegative_get());
 }
 
-bool fsm_bms_HeartbeartChecks(void)
+bool HeartbeartChecks(void)
 {
     // VC heartbeat check
-    //
-    return app::can_alerts::faults::BoardHasFault(app::canutils::CanNode::VC_NODE);
+    return app::can_alerts::BoardHasFault(app::can_utils::CanNode::VC_NODE);
 }
 } // namespace app::fault_handling

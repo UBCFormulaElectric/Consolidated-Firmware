@@ -3,6 +3,7 @@
 #include <array>
 #define NUM_EFUSE_CHANNELS 10
 
+// Used to indicate the indeces of the array
 enum EfuseChannel
 {
     F_INV_Efuse = 0,
