@@ -1,7 +1,7 @@
 "use client";
 
 // import LabelLegend from "@/components/legends/LabelLegend";
-import { WidgetDataEnum } from "@/components/widgets/WidgetTypes";
+import { WidgetDataEnum } from "@/components/widgets/SignalTypes";
 import EnumSignalSelector from "@/components/widgets/depr/EnumSignalSelector";
 import useSignalMetadata from "@/lib/hooks/useSignalMetadata";
 import { useMemo, useEffect } from "react";
