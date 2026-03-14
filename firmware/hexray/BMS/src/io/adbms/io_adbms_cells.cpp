@@ -80,9 +80,10 @@ void readCellVoltageReg(
                 const size_t cell = group * CELLS_PER_GROUP + cell_in_group;
                 if (cell < CELLS_PER_SEGMENT)
                 {
-                    if (!volt_group_success[seg])
+                    if (!reg_group_success[seg])
                     {
-                        comm_success[seg][cell] = volt_group_success[seg];
+                        cell_voltage_regs[seg][cell] = 0U;
+                        comm_success[seg][cell] = reg_group_success[seg];
                         continue;
                     }
             
@@ -92,7 +93,8 @@ void readCellVoltageReg(
 
                     if (voltage == 0xFFFF || voltage == 0x8000) {
                         cell_voltage_regs[seg][cell] = 0U;
-                        comm_success[seg][cell] = ErrorCode::ERROR;
+                        comm_success[seg][cell] = std::unexpected(ErrorCode::ERROR);
+                        continue;
                     }
                     
                     cell_voltage_regs[seg][cell] = voltage;

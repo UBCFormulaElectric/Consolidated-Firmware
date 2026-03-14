@@ -12,7 +12,7 @@
 #include "hw_rtosTaskHandler.hpp"
 #include "io_canQueues.hpp"
 
-extern "C"
+[[noreturn]] static void tasks_run1Hz(void *arg)
 {
     const uint32_t period_ms = 1000U;
 

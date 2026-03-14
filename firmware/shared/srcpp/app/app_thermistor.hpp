@@ -48,7 +48,7 @@ namespace therm
             // Handle trivial single-entry LUT safely
             if (size_ == 1U)
             {
-                return thermistor_resistance == resistances_[0] ? starting_temp_ : -1.0f;
+                return std::fabs(thermistor_resistance - resistances_[0]) < 1e-6f ? starting_temp_ : -1.0f;
             }
 
             // Ensure resistance is within bounds: resistances[0] is highest, resistances[size-1] is lowest
@@ -59,7 +59,7 @@ namespace therm
 
             // Binary search for insertion point
             uint16_t low_index  = 0U;
-            uint16_t high_index = size_ - 1U;
+            uint16_t high_index = (uint16_t)(size_ - 1U);
 
             // Ensure low and high are a range for interpolation
             while (high_index > low_index + 1U)
@@ -93,7 +93,7 @@ namespace therm
             const float x1 = starting_temp_ + (float)(therm_lut_index + 1U) * resolution_;
 
             // guard against degenerate LUT entries
-            if (y2 == y1)
+            if (std::fabs(y2 - y1) < 1e-9f)
                 return x1;
 
             return (thermistor_resistance - y1) * ((x2 - x1) / (y2 - y1)) + x1;
@@ -106,9 +106,9 @@ namespace therm
         constexpr std::size_t  size() const noexcept { return size_; }
 
       private:
-        const float   *resistances_;
         const float    starting_temp_;
         const float    resolution_;
+        const float   *resistances_;
         const uint16_t size_;
     };
 } // namespace therm

@@ -54,8 +54,13 @@ void setPwmBalanceConfig(array<array<uint8_t, io::CELLS_PER_SEGMENT>, io::NUM_SE
     {
         const auto &d = pwm_duty[seg];
         segment_pwm_config[seg] = {
-            .reg_a = { d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7], d[8], d[9], d[10], d[11] },
-            .reg_b = { d[12], d[13], 0, 0 },
+            .reg_a = { static_cast<uint8_t>(d[0] & 0x0F), static_cast<uint8_t>(d[1] & 0x0F),
+                       static_cast<uint8_t>(d[2] & 0x0F), static_cast<uint8_t>(d[3] & 0x0F),
+                       static_cast<uint8_t>(d[4] & 0x0F), static_cast<uint8_t>(d[5] & 0x0F),
+                       static_cast<uint8_t>(d[6] & 0x0F), static_cast<uint8_t>(d[7] & 0x0F),
+                       static_cast<uint8_t>(d[8] & 0x0F), static_cast<uint8_t>(d[9] & 0x0F),
+                       static_cast<uint8_t>(d[10] & 0x0F), static_cast<uint8_t>(d[11] & 0x0F) },
+            .reg_b = { static_cast<uint8_t>(d[12] & 0x0F), static_cast<uint8_t>(d[13] & 0x0F), 0, 0 },
         };
     }
 }
@@ -127,7 +132,7 @@ expected<void, ErrorCode> configSync()
 expected<void, ErrorCode> writeConfig()
 {
     RETURN_IF_ERR(io::adbms::writeConfigReg(segment_config));
-    RETURN_IF_ERR(io::adbms::writePWMReg(segment_pwm_config));
+    RETURN_IF_ERR(io::adbms::writePwmReg(segment_pwm_config));
     return {};
 }
 

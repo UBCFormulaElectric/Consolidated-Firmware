@@ -1,6 +1,13 @@
 #include "hw_adcs.hpp"
 #include "main.h"
 
+extern "C"
+{
+extern ADC_HandleTypeDef hadc1;
+extern ADC_HandleTypeDef hadc3;
+extern TIM_HandleTypeDef htim3;
+}
+
 namespace hw::adc
 {
 AdcChip<NUM_ADC1_CHANNELS> adc1 = AdcChip<NUM_ADC1_CHANNELS>(&hadc1, &htim3);

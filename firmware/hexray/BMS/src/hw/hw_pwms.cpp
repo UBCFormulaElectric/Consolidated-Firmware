@@ -2,6 +2,12 @@
 #include "main.h"
 #include <cassert>
 
+extern "C"
+{
+extern TIM_HandleTypeDef htim1;
+extern TIM_HandleTypeDef htim5;
+}
+
 // Note: A few PWM still need to be configured.
 namespace hw::pwms
 {

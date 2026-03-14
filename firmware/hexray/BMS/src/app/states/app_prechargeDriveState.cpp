@@ -5,17 +5,15 @@
 #include "states/app_states.hpp"
 #include "io_log.hpp"
 #include "app_stateMachine.hpp"
+#include "app_canTx.hpp"
+#include "app_canUtils.hpp"
 
-extern "C"
-{
-#include "app_canTx.h"
-}
 
 namespace app::states::perchargeDriveState
 {
 static void prechargeDriveStateRunOnEntry()
 {
-    app_canTx_BMS_State_set(BMS_PRECHARGE_DRIVE_STATE);
+    app::can_tx::BMS_State_set(app::can_utils::BmsState::BMS_PRECHARGE_DRIVE_STATE);
     app::precharge::init();
     app::precharge::restart();
 }
@@ -25,21 +23,21 @@ static void prechargeDriveStateRunOnTick100Hz()
     switch (app::precharge::poll(false))
     {
         case app::precharge::State::COOLDOWN:
-            io::irs::setPrecharge(CONTACTOR_STATE_OPEN);
+            io::irs::setPrecharge(app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
             break;
         case app::precharge::State::RUNNING:
-            io::irs::setPrecharge(CONTACTOR_STATE_CLOSED);
+            io::irs::setPrecharge(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
             break;
         case app::precharge::State::FAILED_CRITICAL: // precharge failed multiple times
-            io::irs::setPrecharge(CONTACTOR_STATE_OPEN);
+            io::irs::setPrecharge(app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
             app::StateMachine::set_next_state(&precharge_latch_state);
             break;
         case app::precharge::State::FAILED:
-            io::irs::setPrecharge(CONTACTOR_STATE_OPEN);
+            io::irs::setPrecharge(app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
             LOG_ERROR("precharge failed, retrying");
             break;
         case app::precharge::State::SUCCESS:
-            io::irs::setPositive(CONTACTOR_STATE_CLOSED);
+            io::irs::setPositive(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
             app::StateMachine::set_next_state(&drive_state);
             break;
         default:
@@ -50,11 +48,11 @@ static void prechargeDriveStateRunOnTick100Hz()
 
 static void prechargeDriveStateRunOnExit()
 {
-    io::irs::setPrecharge(CONTACTOR_STATE_OPEN);
+    io::irs::setPrecharge(app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
 }
 } // namespace app::states::perchargeDriveState
 
-const app::State precharge_drive_state = {
+[[maybe_unused]] const app::State precharge_drive_state = {
     .name              = "PRECHARGE DRIVE",
     .run_on_entry      = app::states::perchargeDriveState::prechargeDriveStateRunOnEntry,
     .run_on_tick_1Hz   = nullptr,

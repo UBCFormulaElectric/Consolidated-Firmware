@@ -133,4 +133,6 @@ void readRegGroup(
  * @return success of operation
  */
 expected<void, ErrorCode> writeRegGroup(uint16_t cmd, const array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs);
+
+expected<void, ErrorCode> pollTempAdcConversion();
 } // namespace io::adbms

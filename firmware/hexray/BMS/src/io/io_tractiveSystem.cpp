@@ -1,11 +1,6 @@
 #include "io_tractiveSystem.hpp"
-
-extern "C"
-{
-#include "hw_adcs.h"
-#include "hw_gpios.h"
-#include "hw_hal.h"
-}
+#include "hw_adcs.hpp"
+#include "hw_gpios.hpp"
 
 #include <cassert>
 #include <cmath>
@@ -78,8 +73,8 @@ float getVoltage(void)
     //                Voltage Ratio x Amplifier Gain
 
     // TODO: Test differential ADC for voltage measurement
-    const float ts_vsense_P = hw_adc_getVoltage(&ts_vsense_p);
-    const float ts_vsense_N = hw_adc_getVoltage(&ts_vsense_n);
+    const float ts_vsense_P = hw::adc::ts_vsense_p.getVoltage();
+    const float ts_vsense_N = hw::adc::ts_vsense_n.getVoltage();
     const float ts_vsense   = ts_vsense_P - ts_vsense_N;
 
     if (ts_vsense < 0.0f)
@@ -95,7 +90,7 @@ float getVoltage(void)
 
 float getCurrentHighestResolution(void)
 {
-    float adc_voltage = hw::adc::getVoltage(&ts_isns_50a);
+    float adc_voltage = hw::adc::ts_isense_50a.getVoltage();
 
     if (adc_voltage < 0.0f)
     {
@@ -146,7 +141,7 @@ float getCurrentHighestResolution(void)
 
 float getCurrentLowResolution(void)
 {
-    float adc_voltage = hw::adc::getVoltage(&ts_isns_400a);
+    float adc_voltage = hw::adc::ts_isense_400a.getVoltage();
 
     if (adc_voltage < 0.0f)
     {
@@ -196,12 +191,12 @@ float getCurrentLowResolution(void)
 
 bool getVoltageSnsDiagState(void)
 {
-    return hw::pgio::readPin(&diag_ts_pin);
+    return diag_ts.readPin();
 }
 
 bool getCurrentSnsDiagState(void)
 {
-    return hw::gpio::readPin(&ts_isense_ocsc_ok_pin);
+    return ts_isense_ocsc_ok.readPin();
 }
 
 } // namespace io::ts

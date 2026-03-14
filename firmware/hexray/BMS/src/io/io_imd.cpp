@@ -6,17 +6,17 @@ namespace io::imd
 {
 float getFrequency()
 {
-    if (!hw::PwmInput::pwm_isActive(&imd_pwm_input))
+    if (!hw::pwms::imd_pwm_input.pwm_isActive())
     {
         return 0.0f;
     }
 
-    return hw::PwmInput::getFrequency(&imd_pwm_input);
+    return hw::pwms::imd_pwm_input.get_frequency();
 }
 
 float getDutyCycle()
 {
-    return hw::PwmInput::getDutyCycle(&imd_pwm_input);
+    return hw::pwms::imd_pwm_input.get_dutyCycle();
 }
 
 uint32_t getTimeSincePowerOn()

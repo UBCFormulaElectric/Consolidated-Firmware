@@ -1,17 +1,16 @@
 #include "app_imd.hpp"
 #include "io_imd.hpp"
+#include "app_canUtils.hpp"
+#include "app_canTx.hpp"
 #include <cassert>
 #include <cmath>
 #include <algorithm>
 
-extern "C"
-{
-#include "app_canUtils.h"
-#include "app_canTx.h"
-}
+using app::can_utils::ImdConditionName;
+using app::can_utils::ImdActiveFrequency;
 
 constexpr int   NUM_OF_IMD_CONDITIONS   = 6;
-constexpr float IMD_FREQUENCY_TOLERANCE = 2.0;
+constexpr float IMD_FREQUENCY_TOLERANCE = 2.0f;
 constexpr float IMD_FREQUENCY_LOOKUP[]  = {
     0.0f,  // IMD_CONDITION_SHORT_CIRCUIT
     10.0f, // IMD_CONDITION_NORMAL
@@ -31,8 +30,9 @@ namespace app::imd
  */
 static float getIdealPwmFrequency(const ImdConditionName condition_name)
 {
-    assert(condition_name < NUM_OF_IMD_CONDITIONS);
-    return IMD_FREQUENCY_LOOKUP[condition_name];
+    const int idx = static_cast<int>(condition_name);
+    assert(idx < NUM_OF_IMD_CONDITIONS);
+    return IMD_FREQUENCY_LOOKUP[idx];
 }
 
 /**
@@ -43,7 +43,7 @@ static float getIdealPwmFrequency(const ImdConditionName condition_name)
  */
 static ImdConditionName estimateConditionName(const float frequency)
 {
-    ImdConditionName condition_name = IMD_CONDITION_INVALID;
+    ImdConditionName condition_name = ImdConditionName::IMD_CONDITION_INVALID;
     for (int i = 0; i < NUM_OF_IMD_CONDITIONS; i++)
     {
         ImdConditionName condition   = static_cast<ImdConditionName>(i);
@@ -66,19 +66,20 @@ ImdCondition getCondition()
     const float pwm_duty_cycle = io::imd::getDutyCycle();
 
     ImdCondition condition{};
-    condition.name = (pwm_frequency < 0.001f) ? IMD_CONDITION_SHORT_CIRCUIT : estimateConditionName(pwm_frequency);
+    condition.name = (pwm_frequency < 0.001f) ? ImdConditionName::IMD_CONDITION_SHORT_CIRCUIT
+                                               : estimateConditionName(pwm_frequency);
 
     // Decode the information encoded in the PWM frequency and duty cycle
     switch (condition.name)
     {
-        case IMD_CONDITION_SHORT_CIRCUIT:
+        case ImdConditionName::IMD_CONDITION_SHORT_CIRCUIT:
         {
             // This condition doesn't use duty cycle to encode information so any duty cycle is valid.
             condition.valid_duty_cycle = true;
         }
         break;
-        case IMD_CONDITION_NORMAL:
-        case IMD_CONDITION_UNDERVOLTAGE_DETECTED:
+        case ImdConditionName::IMD_CONDITION_NORMAL:
+        case ImdConditionName::IMD_CONDITION_UNDERVOLTAGE_DETECTED:
         {
             condition.valid_duty_cycle = (pwm_duty_cycle >= 5.0f && pwm_duty_cycle <= 90.0f);
             if (condition.valid_duty_cycle)
@@ -97,7 +98,7 @@ ImdCondition getCondition()
             }
         }
         break;
-        case IMD_CONDITION_SST:
+        case ImdConditionName::IMD_CONDITION_SST:
         {
             condition.valid_duty_cycle = ((pwm_duty_cycle >= 5.0f && pwm_duty_cycle <= 10.0f) ||
                                           (pwm_duty_cycle >= 90.0f && pwm_duty_cycle <= 95.0f))
@@ -117,14 +118,13 @@ ImdCondition getCondition()
             }
         }
         break;
-        case IMD_CONDITION_DEVICE_ERROR:
-        case IMD_CONDITION_GROUND_FAULT:
+        case ImdConditionName::IMD_CONDITION_DEVICE_ERROR:
+        case ImdConditionName::IMD_CONDITION_GROUND_FAULT:
         {
             condition.valid_duty_cycle = (pwm_duty_cycle >= 47.5f && pwm_duty_cycle <= 52.5f) ? true : false;
         }
         break;
-        case IMD_CONDITION_INVALID:
-        case NUM_IMD_CONDITION_NAME_CHOICES:
+        case ImdConditionName::IMD_CONDITION_INVALID:
         default:
         {
             condition.valid_duty_cycle = false;
@@ -135,57 +135,58 @@ ImdCondition getCondition()
 
 void broadcast()
 {
-    app_canTx_BMS_ImdFrequency_set(io::imd::getFrequency());
-    app_canTx_BMS_ImdDutyCycle_set(io::imd::getDutyCycle());
-    app_canTx_BMS_ImdTimeSincePowerOn_set(io::imd::getTimeSincePowerOn());
+    app::can_tx::BMS_ImdFrequency_set(io::imd::getFrequency());
+    app::can_tx::BMS_ImdDutyCycle_set(io::imd::getDutyCycle());
+    app::can_tx::BMS_ImdTimeSincePowerOn_set(static_cast<uint16_t>(io::imd::getTimeSincePowerOn()));
 
     const ImdCondition condition = app::imd::getCondition();
-    app_canTx_BMS_ImdCondition_set(condition.name);
-    app_canTx_BMS_ImdValidDutyCycle_set(condition.valid_duty_cycle);
+    app::can_tx::BMS_ImdCondition_set(condition.name);
+    app::can_tx::BMS_ImdValidDutyCycle_set(condition.valid_duty_cycle);
 
     switch (condition.name)
     {
-        case IMD_CONDITION_SHORT_CIRCUIT:
+        case ImdConditionName::IMD_CONDITION_SHORT_CIRCUIT:
         {
-            app_canTx_BMS_ImdActiveFrequency_set(IMD_0Hz);
+            app::can_tx::BMS_ImdActiveFrequency_set(ImdActiveFrequency::IMD_0Hz);
         }
         break;
-        case IMD_CONDITION_NORMAL:
-        {
-            if (condition.valid_duty_cycle)
-            {
-                app_canTx_BMS_ImdInsulationMeasurementDcp10Hz_set(condition.payload.insulation_measurement_dcp_kohms);
-                app_canTx_BMS_ImdActiveFrequency_set(IMD_10Hz);
-            }
-        }
-        break;
-        case IMD_CONDITION_UNDERVOLTAGE_DETECTED:
+        case ImdConditionName::IMD_CONDITION_NORMAL:
         {
             if (condition.valid_duty_cycle)
             {
-                app_canTx_BMS_ImdInsulationMeasurementDcp20Hz_set(condition.payload.insulation_measurement_dcp_kohms);
-                app_canTx_BMS_ImdActiveFrequency_set(IMD_20Hz);
+                app::can_tx::BMS_ImdInsulationMeasurementDcp10Hz_set(
+                    static_cast<float>(condition.payload.insulation_measurement_dcp_kohms));
+                app::can_tx::BMS_ImdActiveFrequency_set(ImdActiveFrequency::IMD_10Hz);
             }
         }
         break;
-        case IMD_CONDITION_SST:
+        case ImdConditionName::IMD_CONDITION_UNDERVOLTAGE_DETECTED:
         {
-            app_canTx_BMS_ImdSpeedStartStatus30Hz_set((float)condition.payload.speed_start_status);
-            app_canTx_BMS_ImdActiveFrequency_set(IMD_30Hz);
+            if (condition.valid_duty_cycle)
+            {
+                app::can_tx::BMS_ImdInsulationMeasurementDcp20Hz_set(
+                    static_cast<float>(condition.payload.insulation_measurement_dcp_kohms));
+                app::can_tx::BMS_ImdActiveFrequency_set(ImdActiveFrequency::IMD_20Hz);
+            }
         }
         break;
-        case IMD_CONDITION_DEVICE_ERROR:
+        case ImdConditionName::IMD_CONDITION_SST:
         {
-            app_canTx_BMS_ImdActiveFrequency_set(IMD_40Hz);
+            app::can_tx::BMS_ImdSpeedStartStatus30Hz_set(static_cast<float>(condition.payload.speed_start_status));
+            app::can_tx::BMS_ImdActiveFrequency_set(ImdActiveFrequency::IMD_30Hz);
         }
         break;
-        case IMD_CONDITION_GROUND_FAULT:
+        case ImdConditionName::IMD_CONDITION_DEVICE_ERROR:
         {
-            app_canTx_BMS_ImdActiveFrequency_set(IMD_50Hz);
+            app::can_tx::BMS_ImdActiveFrequency_set(ImdActiveFrequency::IMD_40Hz);
         }
         break;
-        case IMD_CONDITION_INVALID:
-        case NUM_IMD_CONDITION_NAME_CHOICES:
+        case ImdConditionName::IMD_CONDITION_GROUND_FAULT:
+        {
+            app::can_tx::BMS_ImdActiveFrequency_set(ImdActiveFrequency::IMD_50Hz);
+        }
+        break;
+        case ImdConditionName::IMD_CONDITION_INVALID:
         default:
         {
             // Do nothing

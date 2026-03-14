@@ -2,7 +2,6 @@
 #include "io_adbms.hpp"
 #include "util_errorCodes.hpp"
 #include "hw_spis.hpp"
-
 #include <cstring>
 
 using namespace std;

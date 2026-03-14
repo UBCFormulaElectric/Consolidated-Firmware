@@ -11,7 +11,6 @@ set(SYSTEM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp")
 list(APPEND APP_SRCS
-        "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
         "${SHARED_APP_INCLUDE_DIR_CPP}/app_timer.cpp"
         "${SHARED_APP_INCLUDE_DIR_CPP}/app_stateMachine.cpp"
 )

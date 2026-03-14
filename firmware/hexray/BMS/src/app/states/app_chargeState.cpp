@@ -5,20 +5,17 @@
 #include "app_timer.hpp"
 #include "io_irs.hpp"
 #include "io_charger.hpp"
-// #include "app_segments.hpp"
+#include "segments/app_segments.hpp"
+#include "app_canUtils.hpp"
+#include "app_canRx.hpp"
+#include "app_canTx.hpp"
 
-extern "C"
-{
-#include "app_canUtils.h"
-#include "app_canRx.h"
-#include "app_canTx.h"
-}
 
 // Charger/pack constants
 namespace
 {
 // TODO: Change back if we ever get to 10 segments again
-// constexpr float PACK_VOLTAGE_DC 581.0f // V – the battery pack’s nominal voltage (4.15V per cell * 14 cell per seg *
+// constexpr float PACK_VOLTAGE_DC 581.0f // V – the battery pack's nominal voltage (4.15V per cell * 14 cell per seg *
 // 10 seg)
 constexpr float PACK_VOLTAGE_DC    = 464.8f; // V – (4.15V * 14 cells/seg * 8 seg)
 constexpr float CHARGER_EFFICIENCY = 0.93f;  // 93% – average DC-side efficiency of the Elcon
@@ -28,7 +25,8 @@ constexpr float VAC_MIN = 208.0f; // V – lower end of typical North American g
 constexpr float VAC_MAX = 240.0f; // V – upper end of typical North American grid
 constexpr float CAC_MAX = 32.0f;  // A – max current available of typical NA grid
 
-constexpr uint32_t ELCON_ERR_DEBOUNCE_MS = 3000U; // 3 seconds
+constexpr uint32_t ELCON_ERR_DEBOUNCE_MS    = 3000U; // 3 seconds
+constexpr float    MAX_CELL_VOLTAGE_WARNING_V = 4.15f; // V – charging cutoff per cell
 } // namespace
 
 // Charge state implementation
@@ -91,13 +89,13 @@ struct DCRange_t
 static ElconRx readElconStatus()
 {
     ElconRx rx{
-        .hardwareFailure    = app_canRx_Elcon_HardwareFailure_get(),
-        .overTemperature    = app_canRx_Elcon_ChargerOverTemperature_get(),
-        .inputVoltageFault  = app_canRx_Elcon_InputVoltageError_get(),
-        .chargingStateFault = app_canRx_Elcon_ChargingDisabled_get(),
-        .commTimeout        = app_canRx_Elcon_CommunicationTimeout_get(),
-        .outputVoltage_V    = app_canRx_Elcon_OutputVoltage_get(),
-        .outputCurrent_A    = app_canRx_Elcon_OutputCurrent_get(),
+        .hardwareFailure    = app::can_rx::Elcon_HardwareFailure_get(),
+        .overTemperature    = app::can_rx::Elcon_ChargerOverTemperature_get(),
+        .inputVoltageFault  = app::can_rx::Elcon_InputVoltageError_get(),
+        .chargingStateFault = app::can_rx::Elcon_ChargingDisabled_get(),
+        .commTimeout        = app::can_rx::Elcon_CommunicationTimeout_get(),
+        .outputVoltage_V    = app::can_rx::Elcon_OutputVoltage_get(),
+        .outputCurrent_A    = app::can_rx::Elcon_OutputCurrent_get(),
     };
     return rx;
 }
@@ -105,9 +103,9 @@ static ElconRx readElconStatus()
 // Push a charging command to the BMS CAN TX table
 static void buildTxFrame(const ElconTx &cmd)
 {
-    app_canTx_BMS_MaxChargingVoltage_set(cmd.maxVoltage_V);
-    app_canTx_BMS_MaxChargingCurrent_set(cmd.maxCurrent_A);
-    app_canTx_BMS_StopCharging_set(cmd.stopCharging);
+    app::can_tx::BMS_MaxChargingVoltage_set(cmd.maxVoltage_V);
+    app::can_tx::BMS_MaxChargingCurrent_set(cmd.maxCurrent_A);
+    app::can_tx::BMS_StopCharging_set(cmd.stopCharging);
 }
 
 // // Compute conservative DC current range from AC limits (kept commented until wiring ready)
@@ -131,23 +129,23 @@ static app::Timer elcon_err_debounce(ELCON_ERR_DEBOUNCE_MS);
 
 static void runOnEntry()
 {
-    app_canTx_BMS_State_set(BMS_CHARGE_STATE);
+    app::can_tx::BMS_State_set(app::can_utils::BmsState::BMS_CHARGE_STATE);
 
     // Reset charge status flags when entering charge state.
-    app_canTx_BMS_ChargingFaulted_set(false);
-    app_canTx_BMS_ChargingDone_set(false);
+    app::can_tx::BMS_ChargingFaulted_set(false);
+    app::can_tx::BMS_ChargingDone_set(false);
 
     // Close AIR+ to enable HV path
-    io::irs::setPositive(CONTACTOR_STATE_CLOSED);
+    io::irs::setPositive(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
 }
 
 static void runOnTick100Hz()
 {
     // TODO: Fix charger connection status reading
     // const ChargerConnectedType charger_connection_status = io_charger_getConnectionStatus();
-    const bool extShutdown = (io::irs::negativeState() == CONTACTOR_STATE_OPEN);
+    const bool extShutdown = (io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
     const bool chargerConn = true; // (charger_connection_status == CHARGER_CONNECTED_EVSE || CHARGER_CONNECTED_WALL);
-    const bool userEnable  = app_canRx_Debug_StartCharging_get();
+    const bool userEnable  = app::can_rx::Debug_StartCharging_get();
 
     const ElconRx rx = readElconStatus();
 
@@ -158,7 +156,7 @@ static void runOnTick100Hz()
 
     if (fault_latched || !userEnable)
     {
-        app_canTx_BMS_ChargingFaulted_set(fault);
+        app::can_tx::BMS_ChargingFaulted_set(fault);
         app::StateMachine::set_next_state(&init_state);
         return;
     }
@@ -179,17 +177,17 @@ static void runOnTick100Hz()
     // For now, command nominal pack voltage and a debug-selected current
     const ElconTx tx{
         .maxVoltage_V = PACK_VOLTAGE_DC, // cap at 464.8V (8 segments)
-        // .maxCurrent_A = idc_range.idc_min,                 // conservative min DC current (when enabled)
-        .maxCurrent_A = app_canRx_Debug_ChargingCurrent_get(), // debug-controlled current
+        // .maxCurrent_A = idc_range.idc_min,                       // conservative min DC current (when enabled)
+        .maxCurrent_A = app::can_rx::Debug_ChargingCurrent_get(), // debug-controlled current
         .stopCharging = !userEnable,
     };
     buildTxFrame(tx);
 
     // Charging completion: if any cell reaches cutoff, stop charging
-    const float max_cell_voltage = app_segments_getMaxCellVoltage().value;
+    const float max_cell_voltage = app::segments::getMaxCellVoltage().voltage;
     if (max_cell_voltage >= MAX_CELL_VOLTAGE_WARNING_V)
     {
-        app_canTx_BMS_ChargingDone_set(true);
+        app::can_tx::BMS_ChargingDone_set(true);
         app::StateMachine::set_next_state(&init_state);
     }
 }
@@ -197,10 +195,10 @@ static void runOnTick100Hz()
 static void runOnExit()
 {
     // Open AIR+ on exit from charging
-    io::irs::setPositive(CONTACTOR_STATE_OPEN);
+    io::irs::setPositive(app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
 
     // Ensure we don't unintentionally re-enter charge state
-    app_canRx_Debug_StartCharging_update(false);
+    app::can_rx::Debug_StartCharging_update(false);
 
     // Reset command to zero on exit
     const ElconTx tx{ .maxVoltage_V = 0.0f, .maxCurrent_A = 0.0f, .stopCharging = true };
@@ -209,9 +207,10 @@ static void runOnExit()
 
 } // namespace app::states::chargeState
 
-const app::State charge_state = {
+[[maybe_unused]] const app::State charge_state = {
     .name              = "CHARGE",
     .run_on_entry      = app::states::chargeState::runOnEntry,
+    .run_on_tick_1Hz   = nullptr,
     .run_on_tick_100Hz = app::states::chargeState::runOnTick100Hz,
     .run_on_exit       = app::states::chargeState::runOnExit,
 };
@@ -221,15 +220,16 @@ namespace app::states::chargeFaultState
 {
 static void runOnEntry()
 {
-    app_canTx_BMS_State_set(BMS_CHARGE_FAULT_STATE);
+    app::can_tx::BMS_State_set(app::can_utils::BmsState::BMS_CHARGE_FAULT_STATE);
 }
 static void runOnTick100Hz() {}
 static void runOnExit() {}
 } // namespace app::states::chargeFaultState
 
-const app::State charge_fault_state = {
+[[maybe_unused]] const app::State charge_fault_state = {
     .name              = "CHARGE FAULT",
     .run_on_entry      = app::states::chargeFaultState::runOnEntry,
+    .run_on_tick_1Hz   = nullptr,
     .run_on_tick_100Hz = app::states::chargeFaultState::runOnTick100Hz,
     .run_on_exit       = app::states::chargeFaultState::runOnExit,
 };
@@ -239,15 +239,16 @@ namespace app::states::chargeInitState
 {
 static void runOnEntry()
 {
-    app_canTx_BMS_State_set(BMS_CHARGE_INIT_STATE);
+    app::can_tx::BMS_State_set(app::can_utils::BmsState::BMS_CHARGE_INIT_STATE);
 }
 static void runOnTick100Hz() {}
 static void runOnExit() {}
 } // namespace app::states::chargeInitState
 
-const app::State charge_init_state = {
+[[maybe_unused]] const app::State charge_init_state = {
     .name              = "CHARGE INIT",
     .run_on_entry      = app::states::chargeInitState::runOnEntry,
+    .run_on_tick_1Hz   = nullptr,
     .run_on_tick_100Hz = app::states::chargeInitState::runOnTick100Hz,
     .run_on_exit       = app::states::chargeInitState::runOnExit,
 };

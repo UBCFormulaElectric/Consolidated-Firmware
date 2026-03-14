@@ -2,13 +2,15 @@
 #include "app_segments.hpp"
 #include "app_canTx.hpp"
 #include "app_canUtils.hpp"
-#include "io_adbms.hpp"
+#include "adbms/io_adbms.hpp"
 #include "app_timer.hpp"
+#include <algorithm>
 #include <cstring>
 
 using namespace std;
 using namespace app::can_tx;
 using namespace app::can_utils;
+using app::Timer;
 
 // Minimum voltage delta to begin discharging a cell (10 mV)
 static constexpr float DISCHARGE_THRESHOLD_V = 10e-3f;
@@ -52,18 +54,18 @@ static void updateCellsToBalance()
         }
     }
 
-    setBalanceConfig(discharge_enabled);
-    setPwmConfig(pwm_duty);
-    writeConfig();
+    app::segments::setBalanceConfig(discharge_enabled);
+    app::segments::setPwmConfig(pwm_duty);
+    app::segments::writeConfig();
 }
 
 static void disableBalance()
 {
     memset(&discharge_enabled, 0, sizeof(discharge_enabled));
     memset(&pwm_duty, 0, sizeof(pwm_duty));
-    setBalanceConfig(discharge_enabled);
-    setPwmConfig(pwm_duty);
-    writeConfig();
+    app::segments::setBalanceConfig(discharge_enabled);
+    app::segments::setPwmConfig(pwm_duty);
+    app::segments::writeConfig();
 }
 
 namespace app::segments

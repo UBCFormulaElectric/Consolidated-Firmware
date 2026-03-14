@@ -1,6 +1,6 @@
 #pragma once
 
-#include "io_adbms.hpp"
+#include "adbms/io_adbms.hpp"
 
 #include <array>
 #include <expected>
@@ -33,6 +33,13 @@ expected<void, ErrorCode> writeConfig();
 
 void balancingInit();
 void balancingTick(bool enable);
+void broadcastCellVoltages();
+
+float    getPackVoltage();
+CellParam getMaxCellVoltage();
+CellParam getMinCellVoltage();
+CellParam getMaxCellTemp();
+CellParam getMinCellTemp();
 
 
 

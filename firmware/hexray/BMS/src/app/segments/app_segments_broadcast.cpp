@@ -4,17 +4,17 @@
 
 
 float pack_voltage;
-CellParam max_cell_voltage;
-CellParam min_cell_voltage;
-CellParam max_cell_temp;
-CellParam min_cell_temp;
+app::segments::CellParam max_cell_voltage;
+app::segments::CellParam min_cell_voltage;
+app::segments::CellParam max_cell_temp;
+app::segments::CellParam min_cell_temp;
 
 constexpr float convertRegToVoltage(uint16_t reg) {
     return (reg * 150e-6f) + 1.5f;
 }
 
 namespace app::segments{
-    broadcastCellVoltages() {
+    void broadcastCellVoltages() {
         
         for (size_t seg = 0U; seg < io::NUM_SEGMENTS; seg++) {
             for (size_t cell = 0U; cell < io::CELLS_PER_SEGMENT; cell++) {

@@ -1,5 +1,4 @@
 #include "io_fans.hpp"
-#include "hw_gpio.hpp"
 #include "hw_gpios.hpp"
 #include <stdint.h>
 
@@ -11,21 +10,21 @@ void tick(bool enable)
 {
     if (enable)
     {
-        hw::Gpio::writePin(&hw::gpios::fan_en_pin, true);
+        fan_en.writePin(true);
 
-        if (!hw::Gpio::readPin(&hw::gpios::fan_pgood_pin))
+        if (!fan_pgood.readPin())
         {
             static uint8_t num_retries = 0;
             if (num_retries < MAX_RETRIES)
             {
                 num_retries++;
-                hw::Gpio::writePin(&hw::gpios::fan_en_pin, false);
+                fan_en.writePin(false);
             }
         }
     }
     else
     {
-        hw::Gpio::writePin(&hw::gpios::fan_en_pin, false);
+        fan_en.writePin(false);
     }
 }
 } // namespace io::fans

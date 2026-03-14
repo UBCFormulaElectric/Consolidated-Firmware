@@ -97,6 +97,8 @@ if("${TARGET}" STREQUAL "binary")
                 ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS}
                 ${ADBMS_IO_DIRS}
                 ${ADBMS_APP_DIRS}
+                "${CMAKE_CURRENT_BINARY_DIR}/app"
+                "${CMAKE_CURRENT_BINARY_DIR}/io"
         )
         embedded_binary("quintuna_BMS_app" "${SRCS}" "${INCLUDE_DIRS}" "${LINKER_SCRIPT}" "${ARM_CORE}")
 
@@ -146,7 +148,7 @@ if("${TARGET}" STREQUAL "binary")
 
         
         # JSONCAN
-        jsoncan_embedded_library(BMS quintuna "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
+        jsoncan_embedded_library_cpp(BMS quintuna "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
 
         # CommitInfo
         commit_info_library(

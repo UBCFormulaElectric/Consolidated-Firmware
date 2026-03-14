@@ -5,12 +5,11 @@
 #include "app_timer.hpp"
 #include "app_tractiveSystem.hpp"
 #include "io_irs.hpp"
-// #include "app_segments.hpp"
+#include "segments/app_segments.hpp"
 
-extern "C"
-{
-#include "app_canAlerts.h"
-}
+#include "app_canAlerts.hpp"
+#include "app_canTx.hpp"
+#include "app_canUtils.hpp"
 
 namespace app::precharge
 {
@@ -65,7 +64,7 @@ State poll(bool precharge_for_charging)
     const float threshold_voltage = app::segments::getPackVoltage() * PRECHARGE_ACC_V_THRESHOLD;
 #endif
 
-    const bool is_air_negative_open = (io::irs::negativeState() == CONTACTOR_STATE_OPEN);
+    const bool is_air_negative_open = (io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
 
     const bool is_ts_rising_slowly =
         (ts_voltage < threshold_voltage) && (upper_bound_timer.updateAndGetState() == Timer::TimerState::EXPIRED);
@@ -85,7 +84,7 @@ State poll(bool precharge_for_charging)
     }
 
     precharge_limit_exceeded = (num_precharge_failures >= MAX_PRECHARGE_ATTEMPTS);
-    app::canAlerts::BMS_Info_CriticalPrechargeFailure_set(precharge_limit_exceeded);
+    app::can_tx::BMS_Info_CriticalPrechargeFailure_set(precharge_limit_exceeded);
 
     // Fault handling
     if (has_precharge_fault)

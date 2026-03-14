@@ -5,10 +5,8 @@
 #include "app_states.hpp"
 #include "app_timer.hpp"
 
-extern "C"
-{
-#include "app_canTx.h"
-}
+#include "app_canTx.hpp"
+#include "app_canUtils.hpp"
 
 namespace app::states::prechargeLatchState
 {
@@ -18,7 +16,7 @@ static app::Timer  precharge_latch_timer{ PRECHARGE_LATCH_TIMEOUT_MS };
 
 static void runOnEntry()
 {
-    app_canTx_BMS_State_set(BMS_PRECHARGE_LATCH_STATE);
+    app::can_tx::BMS_State_set(app::can_utils::BmsState::BMS_PRECHARGE_LATCH_STATE);
     precharge_latch_timer.restart();
 }
 
