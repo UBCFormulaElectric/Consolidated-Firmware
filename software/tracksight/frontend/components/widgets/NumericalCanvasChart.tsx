@@ -46,6 +46,7 @@ export default function NumericalCanvasChart({
                 },
                 timeTickCount,
                 externalHoverTimestampRef.current,
+                hoveredSignal,
                 {
                     min: XToTime(0),
                     max: XToTime(cssWidth),

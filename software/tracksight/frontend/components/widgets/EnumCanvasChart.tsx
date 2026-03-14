@@ -7,7 +7,7 @@ import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { useSignalDataStores } from "@/lib/contexts/signalStores/SignalStoreContext";
 import { useCanvasRenderLoop } from "@/lib/hooks/useCanvasRenderLoop";
 import { useCanvasHover } from "@/lib/hooks/useCanvasHover";
-import { EnumWidgetData } from "@/lib/types/Widget";
+import { EnumTimelineWidgetData } from "@/lib/types/Widget";
 
 // TODO(evan): This can probably be merged into NumericalCanvasChart w some type magic 🙏🏽🙏🏽🙏🏽.
 export default function EnumCanvasChart({
@@ -16,7 +16,7 @@ export default function EnumCanvasChart({
     signals,
     hoveredSignal,
     onHoverTimestampChange,
-}: EnumWidgetData) {
+}: EnumTimelineWidgetData) {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const layoutRef = useRef<ChartLayout | null>(null);
     const {
@@ -49,6 +49,7 @@ export default function EnumCanvasChart({
                 },
                 timeTickCount,
                 externalHoverTimestampRef.current,
+                hoveredSignal,
                 {
                     min: XToTime(0),
                     max: XToTime(cssWidth),

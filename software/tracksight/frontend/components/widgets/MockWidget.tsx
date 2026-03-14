@@ -63,7 +63,6 @@ function MockSignalModalForm({ closeModal, configs, dataRef }: {
     dataRef: RefObject<ChartData>,
 }) {
     const [newSignalName, setNewSignalName] = useState("");
-    const [newSignalType, setNewSignalType] = useState<SignalType>(SignalType.NUMERICAL);
     const [newSignalDelay, setNewSignalDelay] = useState(100);
     const [newSignalMin, setNewSignalMin] = useState<number>(-10);
     const [newSignalMax, setNewSignalMax] = useState<number>(10);
@@ -82,8 +81,8 @@ function MockSignalModalForm({ closeModal, configs, dataRef }: {
             return;
         }
 
-        if (dataRef.current.type === SignalType.NUMERICAL) {
-            dataRef.current.all_series.push({ label: name, timestamps: [], data: new SeriesData(), });
+        if (widgetData.type === SignalType.NUMERICAL) {
+            (dataRef.current as ChartDataNumerical).all_series.push({ label: name, timestamps: [], data: new SeriesData(), });
             appendSignal(widgetData.id, {
                 delay: newSignalDelay,
                 min: newSignalMin, max: newSignalMax,
@@ -92,7 +91,7 @@ function MockSignalModalForm({ closeModal, configs, dataRef }: {
             } satisfies NumericalSignalConfig);
         }
         else {
-            dataRef.current.all_series.push({ label: name, timestamps: [], data: [], enumValuesToNames: {} });
+            (dataRef.current as ChartDataEnum).all_series.push({ label: name, timestamps: [], data: [], enumValuesToNames: {} });
             appendSignal(widgetData.id, {
                 signal_name: name, delay: newSignalDelay, initialPoints: 0, options: {
                     colorPalette: generateRandomColorPalette(MOCK_STATES.length)
@@ -100,7 +99,7 @@ function MockSignalModalForm({ closeModal, configs, dataRef }: {
             } satisfies EnumSignalConfig);
         }
         closeModal();
-    }, [configs, appendSignal, newSignalName, newSignalType, newSignalDelay, newSignalMin, newSignalMax]);
+    }, [configs, appendSignal, dataRef, widgetData, newSignalName, newSignalDelay, newSignalMin, newSignalMax]);
 
     return (
         <form onSubmit={handleAddSignal} className="space-y-4">
@@ -121,22 +120,11 @@ function MockSignalModalForm({ closeModal, configs, dataRef }: {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                     Type
                 </label>
-                <select
-                    value={newSignalType}
-                    onChange={(e) =>
-                        setNewSignalType(e.target.value as SignalType)
-                    }
-                    className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
-                >
-                    <option value={SignalType.NUMERICAL}>
-                        Numerical
-                    </option>
-                    <option value={SignalType.ENUM}>
-                        Enumeration
-                    </option>
-                </select>
+                <div className="w-full border rounded px-3 py-2 text-gray-900 bg-gray-50">
+                    {widgetData.type === SignalType.NUMERICAL ? "Numerical" : "Enumeration"}
+                </div>
             </div>
-            {newSignalType === SignalType.NUMERICAL && (
+            {widgetData.type === SignalType.NUMERICAL && (
                 <div className="flex gap-4">
                     <div className="flex-1">
                         <label className="block text-sm font-medium text-gray-700 mb-1">
