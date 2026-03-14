@@ -1,16 +1,17 @@
 /*
 DATASHEET: MAX745EAP+
-INPUTS: BAT_CHRG_MODE (from MCU)
+INPUTS: NSHDN (from battery monitoring chip )
+OUTPUTS: BAT_CHRG_MODE (to MCU)
         - high is voltage regulation (const voltage) 
         - low is current regulation (const current)
-        A battery that is fully discharged means current regulation first
-        After the voltage has reached a certain threshold, it regulates voltage
-OUTPUTS: 
-
+        - idk seems pre unnecessary 
 */
 
 #include "io_batteryCharging.hpp"
 #include "hw_gpios.hpp"
+
+constexpr float SHDNRise = 2.34;
+constexpr float SHDNFall = 2.19;
 
 namespace io::batteryCharging {
 
