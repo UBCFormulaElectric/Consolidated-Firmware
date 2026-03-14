@@ -1,8 +1,8 @@
 
 use std::{f64::consts::{PI, TAU}, sync::Arc, time::{Instant, SystemTime, UNIX_EPOCH}};
 
-use jsoncan_rust::can_database::{CanDatabase, DecodedSignal};
-use tokio::{select, sync::broadcast::{Receiver, Sender}};
+use jsoncan_rust::can_database::{CanDatabase, CanSignalType, DecodedSignal};
+use tokio::{select, sync::broadcast, sync::mpsc};
 
 use crate::tasks::telem_message::CanPayload;
 
@@ -11,10 +11,11 @@ use crate::tasks::telem_message::CanPayload;
 */
 
 
-pub async fn mock(mut shutdown_rx: Receiver<()>, can_queue_tx: Sender<CanPayload>, can_db: Arc<CanDatabase>) {
+pub async fn run_mock_task(mut shutdown_rx: broadcast::Receiver<()>, health_check_tx: mpsc::Sender<bool>, can_queue_tx: broadcast::Sender<CanPayload>, can_db: Arc<CanDatabase>) {
     println!("Mock task running...");
     let start = Instant::now();
 
+    let _ = health_check_tx.send(true).await.expect("Health check send failed, how.");
     loop {
         select! {
             _ = shutdown_rx.recv() => {
@@ -31,6 +32,7 @@ pub async fn mock(mut shutdown_rx: Receiver<()>, can_queue_tx: Sender<CanPayload
                         timestamp: None,
                         label: None,
                         unit: None,
+                        signal_type: CanSignalType::Numerical
                     },
                 ];
                 let (id, payload) = can_db.pack("BMS_TractiveSystem", &signals).unwrap();

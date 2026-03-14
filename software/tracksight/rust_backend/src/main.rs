@@ -1,25 +1,28 @@
 use colored::Colorize;
 use ctrlc;
-use tokio::select;
-use tokio::time::sleep;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
+use tokio::select;
 use tokio::sync::RwLock;
 use tokio::sync::broadcast;
 use tokio::sync::mpsc;
-use tokio::task::{JoinSet};
+use tokio::task::JoinSet;
+use tokio::time::sleep;
 
+use crate::config::CONFIG;
 use crate::tasks::can_data::load_can_database;
 
 mod config;
+mod mock;
 mod tasks;
 
-use tasks::telem_message::CanPayload;
+use mock::run_mock_task;
+use tasks::api_handler::run_api_handler;
+use tasks::can_data::can_data_handler::run_can_data_handler;
 use tasks::client_api::clients::Clients;
 use tasks::serial_handler::run_serial_task;
-use tasks::can_data::can_data_handler::run_can_data_handler;
-use tasks::api_handler::run_api_handler;
+use tasks::telem_message::CanPayload;
 
 #[tokio::main]
 async fn main() {
@@ -36,7 +39,8 @@ async fn main() {
         }
         eprintln!("Interrupt received! Cleaning up...");
         shutdown_tx.send(()).ok();
-    }).expect("Error setting Ctrl-C handler");
+    })
+    .expect("Error setting Ctrl-C handler");
 
     // setup task manager
     let mut tasks = JoinSet::new();
@@ -59,30 +63,33 @@ async fn main() {
     let (health_check_tx, mut health_check_rx) = mpsc::channel::<bool>(NUM_TASKS);
 
     // start tasks
-    tasks.spawn(
-        run_api_handler(
+    tasks.spawn(run_api_handler(
+        shutdown_rx.resubscribe(),
+        health_check_tx.clone(),
+        clients.clone(),
+        can_db.clone(),
+    ));
+    tasks.spawn(run_can_data_handler(
+        shutdown_rx.resubscribe(),
+        health_check_tx.clone(),
+        can_queue_rx,
+        clients.clone(),
+        can_db.clone(),
+    ));
+    // run mock xor serial radio
+    match CONFIG.mock {
+        true => tasks.spawn(run_mock_task(
             shutdown_rx.resubscribe(),
             health_check_tx.clone(),
-            clients.clone(), 
-            can_db.clone()
-        )
-    );
-    tasks.spawn(
-        run_can_data_handler(
+            can_queue_tx.clone(),
+            can_db.clone(),
+        )),
+        _ => tasks.spawn(run_serial_task(
             shutdown_rx.resubscribe(),
             health_check_tx.clone(),
-            can_queue_rx, 
-            clients.clone(), 
-            can_db.clone()
-        )
-    );
-    tasks.spawn(
-        run_serial_task(
-            shutdown_rx.resubscribe(), 
-            health_check_tx.clone(),
-            can_queue_tx
-        )
-    );
+            can_queue_tx,
+        )),
+    };
 
     // should probably use a map and check for the specific tasks
     // that successfully health checked
