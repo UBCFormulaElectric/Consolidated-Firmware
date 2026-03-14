@@ -25,5 +25,5 @@ float getVehicleVelocity(void);
 /*
  * Get vehicle velocity
  */
-VcEkfStatus getEkfSolutionMode(void);
+app::can_utils::VcEkfStatus getEkfSolutionMode(void);
 } // namespace app::sbgEllipse

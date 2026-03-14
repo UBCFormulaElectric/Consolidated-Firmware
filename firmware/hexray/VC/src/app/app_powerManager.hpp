@@ -42,7 +42,7 @@ class PowerManager
         state_.efuse_configs[io::loadswitches::R_RAD_Efuse].efuse_enable   = !under_v;
     }
 
-    // 100 Hz tasdk
+    // 100 Hz task
     void efuseProtocolTick_100Hz()
     {
         const auto time_state = sequencing_timer_.updateAndGetState();

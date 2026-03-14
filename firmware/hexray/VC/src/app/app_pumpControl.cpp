@@ -5,7 +5,7 @@
 
 namespace app::pumpControl
 {
-consteval uint8_t SLOPE          = 1 / 2;
+consteval uint8_t SLOPE          = 1 / 2; // if specs have not changed
 consteval uint8_t CURRENT_THRESH = 1 / 40;
 
 static bool     finished_ramp_up = false;

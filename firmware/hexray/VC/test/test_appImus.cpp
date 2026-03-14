@@ -5,6 +5,7 @@
 // #include "vc_fakes.hpp"
 #include "util_errorCodes.hpp"
 #include "app_canTx.hpp"
+#include "app_canRx.hpp"
 
 class VCImuTest : public VCBaseTest
 {
@@ -77,11 +78,11 @@ TEST_F(VCImuTest, Imu3_Accel_Gyro_Test)
 
 TEST_F(VCImuTest, Imu1_Accel_Error_Returns_Early)
 {
-    io::imus::IMU1.set_accel_error(true);  
+    app::can_rx::RSM_Warning_ImuInitFailed_Count_update(1);
 
     LetTimePass(1);
 
-    // CAN values should remain at default (0.0f) 
+    // CAN values should remain at default (0.0f)
     ASSERT_FLOAT_EQ(0.0f, app::can_tx::VC_Imu1AccelerationX_get());
     ASSERT_FLOAT_EQ(0.0f, app::can_tx::VC_Imu1AccelerationY_get());
     ASSERT_FLOAT_EQ(0.0f, app::can_tx::VC_Imu1AccelerationZ_get());

@@ -4,7 +4,7 @@
 
 namespace app::imu
 {
-    
+
 void init()
 {
     auto ec = io::imus::init();

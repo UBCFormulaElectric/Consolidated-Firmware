@@ -18,5 +18,4 @@ void broadcast(void)
     rear_right_motor_interlock_node::can_broadcast();
     splitter_box_interlock_node::can_broadcast();
 }
-
 } // namespace app::shdnLoop
