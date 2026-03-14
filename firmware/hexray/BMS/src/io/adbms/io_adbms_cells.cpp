@@ -73,20 +73,17 @@ void readCellVoltageReg(
     {
         readRegGroup(reg_groups[group], reg_group, reg_group_success);
 
-        for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
-        {
-            for (size_t cell_in_group = 0U; cell_in_group < CELLS_PER_GROUP; cell_in_group++)
-            {
-                const size_t cell = group * CELLS_PER_GROUP + cell_in_group;
-                if (cell < CELLS_PER_SEGMENT)
-                {
-                    if (!reg_group_success[seg])
-                    {
-                        cell_voltage_regs[seg][cell] = 0U;
-                        comm_success[seg][cell] = reg_group_success[seg];
-                        continue;
-                    }
+        for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++) {
             
+            if (!reg_group_success[seg]) {
+                cell_voltage_regs[seg].fill(0U);
+                comm_success[seg].fill(reg_group_success[seg]);
+                continue;
+            }
+
+            for (size_t cell_in_group = 0U; cell_in_group < CELLS_PER_GROUP; cell_in_group++){
+                const size_t cell = group * CELLS_PER_GROUP + cell_in_group;
+                if (cell < CELLS_PER_SEGMENT) {
                     const uint8_t low           = reg_group[seg][cell_in_group * 2U];
                     const uint8_t high          = reg_group[seg][cell_in_group * 2U + 1U];
                     const uint16_t voltage      = static_cast<uint16_t> (low) | (static_cast<uint16_t> (high) << 8U);
