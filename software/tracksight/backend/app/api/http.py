@@ -1,7 +1,8 @@
 # api blueprints
 from fnmatch import fnmatch
-from flask import Blueprint, jsonify, reqeust
+from flask import Blueprint, jsonify, request 
 from middleware.candb import live_can_db
+from jsoncan import CanMessage, CanSignal
 http = Blueprint("util", __name__)
 
 @http.route("/")
@@ -11,6 +12,32 @@ def index():
 @http.route("/health", methods=["GET"])
 def hello_world():
     return "<p>Hello, World!</p>"
+
+  def build_signal(msg: CanMessage, signal: CanSignal) -> dict:
+    if signal.enum:
+        return {
+            "name": signal.name,
+            "tx_node": msg.tx_node_name,
+            "msg_name": msg.name,
+            "id": msg.id,
+            "type": "enum",
+            "enum": signal.enum,
+            "min_val": signal.min_val,
+            "max_val": signal.max_val,
+            "cycle_time_ms": msg.cycle_time,
+        }
+    else:
+        return {
+            "name": signal.name,
+            "tx_node": msg.tx_node_name,
+            "msg_name": msg.name,
+            "id": msg.id,
+            "type": "numerical",
+            "min_val": signal.min_val,
+            "max_val": signal.max_val,
+            "unit": signal.unit,
+            "cycle_time_ms": msg.cycle_time,
+        }
 
 @http.route("/signal", methods=["GET"])
 def get_signal_metadata():
@@ -33,17 +60,7 @@ def get_signal_metadata():
         return con != exclude
 
     return jsonify([
-        {
-            "name": signal.name,
-            "min_val": signal.min_val,
-            "max_val": signal.max_val,
-            "unit": signal.unit,
-            "enum": signal.enum,
-            "tx_node": msg.tx_node_name,
-            "cycle_time_ms": msg.cycle_time,
-            "id": msg.id,
-            "msg_name": msg.name,
-        }
+        build_signal(msg, signal)
         for msg in live_can_db.msgs.values()
         for signal in msg.signals
         if condition(signal.name)

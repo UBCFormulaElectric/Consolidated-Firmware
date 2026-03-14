@@ -35,8 +35,8 @@ extern "C"
  */
 #define HAL_MODULE_ENABLED
 
-    /* #define HAL_ADC_MODULE_ENABLED   */
-/* #define HAL_FDCAN_MODULE_ENABLED   */
+#define HAL_ADC_MODULE_ENABLED
+#define HAL_FDCAN_MODULE_ENABLED
 /* #define HAL_FMAC_MODULE_ENABLED   */
 /* #define HAL_CEC_MODULE_ENABLED   */
 /* #define HAL_COMP_MODULE_ENABLED   */
@@ -73,15 +73,15 @@ extern "C"
 /* #define HAL_SD_MODULE_ENABLED   */
 /* #define HAL_MMC_MODULE_ENABLED   */
 /* #define HAL_SPDIFRX_MODULE_ENABLED   */
-/* #define HAL_SPI_MODULE_ENABLED   */
+#define HAL_SPI_MODULE_ENABLED
 /* #define HAL_SWPMI_MODULE_ENABLED   */
-/* #define HAL_TIM_MODULE_ENABLED   */
-/* #define HAL_UART_MODULE_ENABLED   */
+#define HAL_TIM_MODULE_ENABLED
+#define HAL_UART_MODULE_ENABLED
 /* #define HAL_USART_MODULE_ENABLED   */
 /* #define HAL_IRDA_MODULE_ENABLED   */
 /* #define HAL_SMARTCARD_MODULE_ENABLED   */
 /* #define HAL_WWDG_MODULE_ENABLED   */
-/* #define HAL_PCD_MODULE_ENABLED   */
+#define HAL_PCD_MODULE_ENABLED
 /* #define HAL_HCD_MODULE_ENABLED   */
 /* #define HAL_DFSDM_MODULE_ENABLED   */
 /* #define HAL_DSI_MODULE_ENABLED   */
@@ -107,8 +107,8 @@ extern "C"
  *        (when HSE is used as system clock source, directly or through the PLL).
  */
 #if !defined(HSE_VALUE)
-#define HSE_VALUE (25000000UL) /*!< Value of the External oscillator in Hz : FPGA case fixed to 60MHZ */
-#endif                         /* HSE_VALUE */
+#define HSE_VALUE (8000000UL) /*!< Value of the External oscillator in Hz : FPGA case fixed to 60MHZ */
+#endif                        /* HSE_VALUE */
 
 #if !defined(HSE_STARTUP_TIMEOUT)
 #define HSE_STARTUP_TIMEOUT (100UL) /*!< Time out for HSE start up, in ms */
@@ -136,8 +136,8 @@ extern "C"
  *        This value is used by the UART, RTC HAL module to compute the system frequency
  */
 #if !defined(LSE_VALUE)
-#define LSE_VALUE (32768UL) /*!< Value of the External oscillator in Hz*/
-#endif                      /* LSE_VALUE */
+#define LSE_VALUE (32UL) /*!< Value of the External oscillator in Hz*/
+#endif                   /* LSE_VALUE */
 
 #if !defined(LSE_STARTUP_TIMEOUT)
 #define LSE_STARTUP_TIMEOUT (5000UL) /*!< Time out for LSE start up, in ms */

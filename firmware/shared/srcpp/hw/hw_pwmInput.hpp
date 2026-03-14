@@ -1,10 +1,10 @@
 #pragma once
 
-#include "app_utils.hpp"
 #include <cstdint>
 #include <array>
 #include "hw_hal.hpp"
 #include <cassert>
+#include "hw_utils.hpp"
 
 /*
  * PWM input driver notes:
@@ -74,35 +74,35 @@ class PwmInput
   public:
     /* Complete PWM Input Constructor*/
     consteval explicit PwmInput(
-        TIM_HandleTypeDef    *htim,
-        HAL_TIM_ActiveChannel tim_active_channel,
-        float                 tim_frequency_hz,
-        uint32_t              rising_edge_tim_channel,
-        uint32_t              falling_edge_tim_channel,
-        uint32_t              tim_auto_reload_reg)
-      : htim(htim),
-        tim_active_channel(tim_active_channel),
-        tim_frequency_hz(tim_frequency_hz),
-        rising_edge_tim_channel(rising_edge_tim_channel),
-        falling_edge_tim_channel(falling_edge_tim_channel),
-        tim_auto_reload_reg(tim_auto_reload_reg),
+        TIM_HandleTypeDef    *htim_in,
+        HAL_TIM_ActiveChannel tim_active_channel_in,
+        float                 tim_frequency_hz_in,
+        uint32_t              rising_edge_tim_channel_in,
+        uint32_t              falling_edge_tim_channel_in,
+        uint32_t              tim_auto_reload_reg_in)
+      : htim(htim_in),
+        tim_active_channel(tim_active_channel_in),
+        tim_frequency_hz(tim_frequency_hz_in),
+        rising_edge_tim_channel(rising_edge_tim_channel_in),
+        falling_edge_tim_channel(falling_edge_tim_channel_in),
+        tim_auto_reload_reg(tim_auto_reload_reg_in),
         mode(PwmMode::PWMINPUT)
     {
     }
 
     /* Frequency only PWM Input Constructor */
     consteval explicit PwmInput(
-        TIM_HandleTypeDef    *htim,
-        HAL_TIM_ActiveChannel tim_active_channel,
-        float                 tim_frequency_hz,
-        uint32_t              rising_edge_tim_channel,
-        uint32_t              tim_auto_reload_reg)
-      : htim(htim),
-        tim_active_channel(tim_active_channel),
-        tim_frequency_hz(tim_frequency_hz),
-        rising_edge_tim_channel(rising_edge_tim_channel),
+        TIM_HandleTypeDef    *htim_in,
+        HAL_TIM_ActiveChannel tim_active_channel_in,
+        float                 tim_frequency_hz_in,
+        uint32_t              rising_edge_tim_channel_in,
+        uint32_t              tim_auto_reload_reg_in)
+      : htim(htim_in),
+        tim_active_channel(tim_active_channel_in),
+        tim_frequency_hz(tim_frequency_hz_in),
+        rising_edge_tim_channel(rising_edge_tim_channel_in),
         falling_edge_tim_channel(0),
-        tim_auto_reload_reg(tim_auto_reload_reg),
+        tim_auto_reload_reg(tim_auto_reload_reg_in),
         mode(PwmMode::PWMFREQONLY)
     {
     }

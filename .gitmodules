@@ -1,5 +1,5 @@
-[submodule "software/dimos/src/assets"]
-	path = software/dimos/src/assets
+[submodule "software/dimos/assets"]
+	path = software/dimos/assets
 	url = https://github.com/UBCFormulaElectric/dimos-assets.git
 [submodule "scripts/canup"]
 	path = scripts/canup
@@ -7,3 +7,6 @@
 [submodule "firmware/third_party/pybind11"]
 	path = firmware/third_party/pybind11
 	url = https://github.com/pybind/pybind11.git
+[submodule "software/dimos/assets"]
+	path = software/dimos/assets
+	url = https://github.com/UBCFormulaElectric/dimos-assets

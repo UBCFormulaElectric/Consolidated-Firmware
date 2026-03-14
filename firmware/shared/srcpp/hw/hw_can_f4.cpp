@@ -1,13 +1,14 @@
 #include "hw_can.hpp"
 
 #undef NDEBUG // TODO remove this in favour of always_assert (we would write this)
-#include <assert.h>
 #include <FreeRTOS.h>
 #include <task.h>
 
 #include "hw_utils.hpp"
 #include "io_log.hpp"
 #include "io_time.hpp"
+
+#include <cassert>
 
 // The following filter IDs/masks must be used with 16-bit Filter Scale
 // (FSCx = 0) and Identifier Mask Mode (FBMx = 0). In this mode, the identifier
@@ -38,6 +39,33 @@ static constexpr uint32_t MASKMODE_16_BIT_MASK_OPEN = INIT_MASKMODE_16BIT_FiRx(0
 
 namespace hw
 {
+
+std::expected<void, ErrorCode> can::tx(const CAN_TxHeaderTypeDef &tx_header, const CanMsg &msg) const
+{
+    // Spin until a TX mailbox becomes available.
+    for (uint32_t poll_count = 0; HAL_CAN_GetTxMailboxesFreeLevel(hcan) == 0U;)
+    {
+        // the polling is here because if the CAN mailbox is temporarily blocked, we don't want to incur the overhead of
+        // context switching
+        if (poll_count <= 1000)
+        {
+            poll_count++;
+            continue;
+        }
+        assert(transmit_task == nullptr);
+        assert(osKernelGetState() == taskSCHEDULER_RUNNING && !xPortIsInsideInterrupt());
+        transmit_task = xTaskGetCurrentTaskHandle();
+        // timeout just in case the tx complete interrupt does not fire properly?
+        const uint32_t num_notifs = ulTaskNotifyTake(pdTRUE, 1000);
+        UNUSED(num_notifs);
+        transmit_task = nullptr;
+    }
+
+    // Indicates the mailbox used for transmission, not currently used.
+    uint32_t mailbox = 0;
+    return hw_utils_convertHalStatus(HAL_CAN_AddTxMessage(hcan, &tx_header, msg.data.data(), &mailbox));
+}
+
 void can::init() const
 {
     assert(!ready);
@@ -57,12 +85,13 @@ void can::init() const
     filter.SlaveStartFilterBank = 0;
 
     // Configure and initialize hardware filter.
-    assert(HAL_CAN_ConfigFilter(hcan, &filter) == HAL_OK);
+    const HAL_StatusTypeDef config_filter_status = HAL_CAN_ConfigFilter(hcan, &filter);
+    assert(config_filter_status == HAL_OK);
 
     // Configure interrupt mode for CAN peripheral.
-    assert(
-        HAL_CAN_ActivateNotification(hcan, CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING | CAN_IT_BUSOFF) ==
-        HAL_OK);
+    const HAL_StatusTypeDef interrupt_status =
+        HAL_CAN_ActivateNotification(hcan, CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING | CAN_IT_BUSOFF);
+    assert(interrupt_status == HAL_OK);
 
     // Start the CAN peripheral.
     assert(HAL_CAN_Start(hcan) == HAL_OK);
@@ -77,7 +106,7 @@ void can::deinit() const
 
 // NOTE this design assumes that there is only one task calling this function
 
-ExitCode can::transmit(const io::CanMsg &msg)
+std::expected<void, ErrorCode> can::can_transmit(const CanMsg &msg) const
 {
     assert(ready);
     CAN_TxHeaderTypeDef tx_header;
@@ -97,36 +126,16 @@ ExitCode can::transmit(const io::CanMsg &msg)
     // it would take up 2 bytes of the CAN payload. So we disable the timestamp.
     tx_header.TransmitGlobalTime = DISABLE;
 
-    // Spin until a TX mailbox becomes available.
-    for (uint32_t poll_count = 0; HAL_CAN_GetTxMailboxesFreeLevel(hcan) == 0U;)
-    {
-        // the polling is here because if the CAN mailbox is temporarily blocked, we don't want to incur the overhead of
-        // context switching
-        if (poll_count <= 1000)
-        {
-            poll_count++;
-            continue;
-        }
-        assert(transmit_task == NULL);
-        assert(osKernelGetState() == taskSCHEDULER_RUNNING && !xPortIsInsideInterrupt());
-        transmit_task = xTaskGetCurrentTaskHandle();
-        // timeout just in case the tx complete interrupt does not fire properly?
-        const uint32_t num_notifs = ulTaskNotifyTake(pdTRUE, 1000);
-        UNUSED(num_notifs);
-        transmit_task = nullptr;
-    }
-
-    // Indicates the mailbox used for transmission, not currently used.
-    uint32_t mailbox = 0;
-    return hw_utils_convertHalStatus(HAL_CAN_AddTxMessage(hcan, &tx_header, msg.data.data8, &mailbox));
+    return tx(tx_header, msg);
 }
 
-ExitCode can::receive(const uint32_t rx_fifo, io::CanMsg &msg) const
+std::expected<CanMsg, ErrorCode> can::receive(const uint32_t rx_fifo) const
 {
     assert(ready);
     CAN_RxHeaderTypeDef header;
 
-    RETURN_IF_ERR(hw_utils_convertHalStatus(HAL_CAN_GetRxMessage(hcan, rx_fifo, &header, msg.data.data8)););
+    CanMsg msg;
+    RETURN_IF_ERR(hw_utils_convertHalStatus(HAL_CAN_GetRxMessage(hcan, rx_fifo, &header, msg.data.data())));
 
     // Copy metadata from HAL's CAN message struct into our custom CAN
     // message struct
@@ -141,24 +150,23 @@ ExitCode can::receive(const uint32_t rx_fifo, io::CanMsg &msg) const
         default:
             assert(false);
     }
-    msg.dlc       = header.DLC;
-    msg.timestamp = io::time::getCurrentMs();
+    msg.dlc = header.DLC;
 
-    return ExitCode::EXIT_CODE_OK;
+    return msg;
 }
 } // namespace hw
 
 // ReSharper disable once CppParameterMayBeConstPtrOrRef
 static void handle_callback(CAN_HandleTypeDef *hcan)
 {
-    const hw::can &handle = hw::hw_can_getHandle(hcan);
-
-    io::CanMsg rx_msg{};
-    // if (IS_EXIT_ERR(hw_can_receive(handle, CAN_RX_FIFO0, &rx_msg)))
-    if (IS_EXIT_ERR(handle.receive(CAN_RX_FIFO0, rx_msg)))
-        // Early return if RX msg is unavailable.
+    const hw::can &handle = hw::can_getHandle(hcan);
+    const auto     res    = handle.receive(CAN_RX_FIFO0);
+    if (not res)
+    {
+        LOG_ERROR("CAN Error: %d", res.error());
         return;
-    handle.receive_callback(&rx_msg);
+    }
+    handle.receive_callback(res.value());
 }
 
 CFUNC void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
@@ -173,7 +181,7 @@ CFUNC void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
 
 static void mailbox_complete_handler(CAN_HandleTypeDef *hcan)
 {
-    const hw::can &can = hw::hw_can_getHandle(hcan);
+    const hw::can &can = hw::can_getHandle(hcan);
     if (can.transmit_task == nullptr)
     {
         return;

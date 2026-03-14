@@ -6,6 +6,10 @@
 #include <assert.h>
 #include <stdbool.h>
 
+// TODO: Should this be a semaphore so threads yield during SD operations?
+// Do some benchmarking to make sure the context switching cost isn't unreasonable for however long
+// these IO operations take...
+
 static volatile bool dma_tx_completed = true;
 #define OFFSET_SIZE_VALID(offset, size) (offset % HW_DEVICE_SECTOR_SIZE == 0 && size % HW_DEVICE_SECTOR_SIZE == 0)
 

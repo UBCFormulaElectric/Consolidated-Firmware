@@ -1,0 +1,31 @@
+{
+  "BasicSignalTypes": {
+    "msg_id": 206,
+    "cycle_time": 1000,
+    "description": "N/A",
+    "signals": {
+      "Boolean1": {
+        "bits": 1
+      },
+      "Boolean2": {
+        "bits": 1
+      },
+      "Enum": {
+        "enum": "EnumExample"
+      },
+      "UInt8": {
+        "bits": 8
+      },
+      "UInt16": {
+        "bits": 16
+      },
+      "UInt32": {
+        "bits": 32
+      }
+    },
+    "data_capture": {
+      "log_cycle_time": 1000,
+      "telem_cycle_time": 1000
+    }
+  }
+}

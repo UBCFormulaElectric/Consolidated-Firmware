@@ -42,7 +42,6 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_can_f4.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_resetReason.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
@@ -118,7 +117,7 @@ if ("${TARGET}" STREQUAL "binary")
 
     target_link_libraries("quintuna_FSM_jsoncan" INTERFACE)
     target_link_libraries("quintuna_FSM_app.elf" PRIVATE "quintuna_FSM_stm32"
-            "quintuna_FSM_jsoncan" "quintuna_FSM_commit_info" "chimera_v2_proto_cm4" "m")
+            "quintuna_FSM_jsoncan" "quintuna_FSM_commit_info" "quintuna_chimera_v2_proto_cm4" "m")
 
     if ("${BOOTLOAD}" STREQUAL "ON")
         #bootloader files

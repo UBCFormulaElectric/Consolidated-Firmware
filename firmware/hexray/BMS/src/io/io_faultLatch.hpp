@@ -5,7 +5,7 @@
 #include <cstdint>
 
 #ifdef TARGET_EMBEDDED
-#include "hw_gpios.h"
+#include "hw_gpios.hpp"
 #endif
 
 namespace io::faultLatch
@@ -21,10 +21,11 @@ enum class FaultLatchState : std::uint8_t
 
 struct FaultLatch
 {
-    const Gpio *current_status_gpio;
-    const Gpio *latch_status_gpio;
-    bool        inverted;
-    const bool  read_only; // Certain fault latches can only be read from.
+    const hw::Gpio *current_status_gpio;
+    const hw::Gpio *latch_status_gpio;
+    bool            current_inverted;
+    bool            latch_inverted;
+    const bool      read_only; // Certain fault latches can only be read from.
 };
 
 extern const FaultLatch bms_ok_latch;
@@ -37,7 +38,6 @@ struct FaultLatch
 {
     FaultLatchState status;
     FaultLatchState latched_state;
-    bool            inverted;
     const bool      read_only; // Certain fault latches can only be read from.
 };
 

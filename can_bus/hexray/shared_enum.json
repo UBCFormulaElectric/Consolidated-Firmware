@@ -10,5 +10,29 @@
     "CAN_RESET_REASON_POWER_ON": 3,
     "CAN_RESET_REASON_NRST_PIN": 4,
     "CAN_RESET_REASON_BROWN_OUT": 5
+  },
+  "ShutdownNode": {
+    "SHDN_BMS_OK": 0,
+    "SHDN_IMD_OK": 1,
+    "SHDN_BSPD_OK": 2,
+    "SHDN_HV_P_ILCK": 3,
+    "SHDN_HV_N_ILCK": 4,
+    "SHDN_MSD_EMETER_ILCK": 5,
+    "SHDN_RL_ILCK": 6,
+    "SHDN_RR_ILCK": 7,
+    "SHDN_R_EStop": 8,
+    "SHDN_L_EStop": 9,
+    "SHDN_Cockpit_EStop": 10,
+    "SHDN_BOTS": 11,
+    "SHDN_FR_ILCK": 12,
+    "SHDN_FL_INERTIA_ILCK": 13,
+    "SHDN_TSMS": 14,
+    "SHDN_OK": 15
+  },
+  "DriveMode": {
+    "DRIVE_MODE_POWER": 0,
+    "DRIVE_MODE_POWER_AND_ACTIVE": 1,
+    "DRIVE_MODE_TV": 2,
+    "DRIVE_MODE_COUNT": 3
   }
 }

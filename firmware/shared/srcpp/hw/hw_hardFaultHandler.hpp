@@ -48,7 +48,7 @@ extern "C"
      * @param fault_stack Pointer to the stack that was used when the hard fault
      *        occurred.
      */
-    void hw_hardFaultHandler_logInfo(uint32_t *fault_stack);
+    [[noreturn]] void hw_hardFaultHandler_logInfo(uint32_t *fault_stack);
 #ifdef __cplusplus
 }
 #endif

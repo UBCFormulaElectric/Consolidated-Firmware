@@ -3,12 +3,10 @@
 #include "app_powerLimit.hpp"
 #include "app_tractiveSystem.hpp"
 #include <algorithm>
+#include <cstdint>
+#include "app_canTx.hpp"
+#include "app_canUtils.hpp"
 
-extern "C"
-{
-#include "app_canTx.h"
-#include "app_canUtils.h"
-}
 #define MAX_DISCHARGE_POWER_LIMIT_W 78.0e3f
 #define MAX_CHARGE_POWER_LIMIT_W 15.0e3f
 #define MAX_DISCHARGE_CURRENT_LIMIT (-MAX_TS_DISCHARGE_CURRENT_AMPS)
@@ -17,6 +15,8 @@ extern "C"
 
 // Definition placeholders until segments module is included
 #define MAX_CELL_TEMP_WARNING_C (59.0f)
+
+using namespace app::can_utils;
 
 namespace app::plim
 {
@@ -28,8 +28,9 @@ namespace app::plim
  */
 float getDischargePowerLimit()
 {
+    // TODO: implement this once app_segments is merged with master
     // const float max_cell_temp = app::segments::getMaxCellTemp().value;
-    const float max_cell_temp = 0.0f; // PLACEHOLDER until segments included
+    const float max_cell_temp = 0.0f;
 
     // Calculate power limit from temperature
     const float temp_power_limit = app::math::linearDerating(
@@ -39,16 +40,16 @@ float getDischargePowerLimit()
     const float power_limit = std::min(temp_power_limit, MAX_DISCHARGE_POWER_LIMIT_W);
 
     // Determine limiting condition enum
-    DischargePowerLimitCondition p_lim_condition = NO_DISCHARGE_POWER_LIMIT;
+    DischargePowerLimitCondition p_lim_condition = DischargePowerLimitCondition::NO_DISCHARGE_POWER_LIMIT;
 
     if (max_cell_temp >= TEMP_DERATING_THRESHOLD)
     {
-        p_lim_condition = HIGH_TEMP_DISCHARGE_POWER_LIMIT;
+        p_lim_condition = DischargePowerLimitCondition::HIGH_TEMP_DISCHARGE_POWER_LIMIT;
     }
 
     // Broadcast limit condition over CAN
     // Keeping C CAN API is standard
-    app::canTx::BMS_DischargePowerLimitCondition_set(p_lim_condition);
+    app::can_tx::BMS_DischargePowerLimitCondition_set(p_lim_condition);
 
     return power_limit;
 }
@@ -60,8 +61,9 @@ float getDischargePowerLimit()
  */
 float getChargePowerLimit()
 {
+    // TODO: implement this once app_segments is merged with master
     // const float max_cell_temp = app::segments::getMaxCellTemp().value;
-    const float max_cell_temp = 0.0f; // Placeholder until segments included
+    const float max_cell_temp = 0.0f;
 
     // Calculate power limit from temperature
     const float temp_power_limit = app::math::linearDerating(
@@ -71,15 +73,15 @@ float getChargePowerLimit()
     const float power_limit = std::min(temp_power_limit, MAX_CHARGE_POWER_LIMIT_W);
 
     // Determine limiting condition enum
-    ChargePowerLimitCondition p_lim_condition = NO_CHARGE_POWER_LIMIT;
+    ChargePowerLimitCondition p_lim_condition = ChargePowerLimitCondition::NO_CHARGE_POWER_LIMIT;
 
     if (max_cell_temp >= TEMP_DERATING_THRESHOLD)
     {
-        p_lim_condition = HIGH_TEMP_CHARGE_POWER_LIMIT;
+        p_lim_condition = ChargePowerLimitCondition::HIGH_TEMP_CHARGE_POWER_LIMIT;
     }
 
     // Broadcast limit condition over CAN
-    app::canTx::BMS_ChargePowerLimitCondition_set(p_lim_condition);
+    app::can_tx::BMS_ChargePowerLimitCondition_set(p_lim_condition);
 
     return power_limit;
 }
@@ -173,8 +175,8 @@ void broadcast()
 
     // Broadcast limits
     // static_cast used for explicit type conversion
-    app::canTx::BMS_DischargePowerLimit_set(static_cast<uint32_t>(discharge_p_lim));
-    app::canTx::BMS_ChargePowerLimit_set(static_cast<uint32_t>(charge_p_lim));
+    app::can_tx::BMS_DischargePowerLimit_set(static_cast<uint32_t>(discharge_p_lim));
+    app::can_tx::BMS_ChargePowerLimit_set(static_cast<uint32_t>(charge_p_lim));
 }
 
 } // namespace app::plim

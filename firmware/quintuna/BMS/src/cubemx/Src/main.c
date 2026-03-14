@@ -1093,9 +1093,10 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(SPI_CS_LS_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : HV_P_INTLCK_SNS_Pin HV_N_INTLCK_SNS_Pin IMD_LATCH_Pin DIAG_Pin
-                             SD_CD_Pin */
-    GPIO_InitStruct.Pin  = HV_P_INTLCK_SNS_Pin | HV_N_INTLCK_SNS_Pin | IMD_LATCH_Pin | DIAG_Pin | SD_CD_Pin;
+    /*Configure GPIO pins : MSD_SHDN_SNS_Pin HV_P_INTLCK_SNS_Pin HV_N_INTLCK_SNS_Pin IMD_LATCH_Pin
+                             DIAG_Pin SD_CD_Pin */
+    GPIO_InitStruct.Pin =
+        MSD_SHDN_SNS_Pin | HV_P_INTLCK_SNS_Pin | HV_N_INTLCK_SNS_Pin | IMD_LATCH_Pin | DIAG_Pin | SD_CD_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
@@ -1107,10 +1108,8 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(LEDB_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : BSPD_OK_Pin MSD_SHDN_SNS_Pin ACCEL_BRAKE_OK_Pin nBRAKE_PRESS_3V3_Pin
-                             nHIGH_CURRENT_BSPD_Pin */
-    GPIO_InitStruct.Pin =
-        BSPD_OK_Pin | MSD_SHDN_SNS_Pin | ACCEL_BRAKE_OK_Pin | nBRAKE_PRESS_3V3_Pin | nHIGH_CURRENT_BSPD_Pin;
+    /*Configure GPIO pins : BSPD_OK_Pin ACCEL_BRAKE_OK_Pin nBRAKE_PRESS_3V3_Pin nHIGH_CURRENT_BSPD_Pin */
+    GPIO_InitStruct.Pin  = BSPD_OK_Pin | ACCEL_BRAKE_OK_Pin | nBRAKE_PRESS_3V3_Pin | nHIGH_CURRENT_BSPD_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);

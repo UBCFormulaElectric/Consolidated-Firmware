@@ -1,9 +1,5 @@
 #pragma once
-
-extern "C"
-{
-#include "app_canUtils.h"
-}
+#include "app_canUtils.hpp"
 
 namespace io::charger
 {
@@ -14,7 +10,7 @@ namespace io::charger
  * @return ChargerConnectedType indicating whether the charger is
  *         connected to EVSE, wall, or disconnected.
  */
-ChargerConnectedType getConnectionStatus();
+app::can_utils::ChargerConnectedType getConnectionStatus();
 
 /**
  * @brief Retrieve the duty cycle of the EVSE CP PWM signal.

@@ -77,8 +77,7 @@ function(compile_gtest_executable
     elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         target_compile_options(${TEST_EXECUTABLE_NAME}
                 PRIVATE
-                ${SHARED_GNU_COMPILER_CHECKS}
-                -Werror
+                ${SHARED_GNU_COMPILER_CHECKS_STRICT}
         )
         target_compile_options(${TEST_EXECUTABLE_NAME} PRIVATE --coverage)
         target_link_libraries(${TEST_EXECUTABLE_NAME} PRIVATE gcov)

@@ -5,7 +5,11 @@
 #include <gtest/gtest.h>
 #include <cmath>
 
+#include "util_errorCodes.hpp"
+#include "util_utils.hpp"
 #include "io_time.hpp"
+
+using namespace app::can_utils;
 
 struct FaultLatchParams
 {
@@ -24,23 +28,26 @@ template <> struct std::hash<FaultLatchParams>
 };
 static std::unordered_map<FaultLatchParams, uint32_t> setCurrentStatus_call_count;
 
+using namespace io::adbms;
+
 extern "C"
 {
     // #include "io_adbms.h"
     //     static std::array<SegmentConfig, NUM_SEGMENTS> segment_config{};
 
-    //     void io_adbms_readConfigurationRegisters(SegmentConfig configs[NUM_SEGMENTS], ExitCode success[NUM_SEGMENTS])
+    //     void io_adbms_readConfigurationRegisters(SegmentConfig configs[NUM_SEGMENTS], std::expected<void, ErrorCode>
+    //     success[NUM_SEGMENTS])
     //     {
     //         for (size_t i = 0; i < NUM_SEGMENTS; i++)
     //         {
     //             configs[i] = segment_config[i];
-    //             success[i] = EXIT_CODE_OK;
+    //             success[i] = ;
     //         }
     //     }
-    //     ExitCode io_adbms_writeConfigurationRegisters(const SegmentConfig config[NUM_SEGMENTS])
+    //     std::expected<void, ErrorCode> io_adbms_writeConfigurationRegisters(const SegmentConfig config[NUM_SEGMENTS])
     //     {
     //         std::ranges::copy_n(config, NUM_SEGMENTS, segment_config.data());
-    //         return EXIT_CODE_OK;
+    //         return;
     //     }
 
     static std::array<std::array<uint16_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS> voltage_regs{};
@@ -50,24 +57,24 @@ extern "C"
     static bool     started_self_test_voltages = false;
     static uint16_t expected_self_test_value   = 0x0;
 
-    //     ExitCode io_adbms_startCellsAdcConversion(void)
+    //     std::expected<void, ErrorCode> io_adbms_startCellsAdcConversion(void)
     //     {
     //         started_adc_conversion = true;
-    //         return EXIT_CODE_OK;
+    //         return;
     //     }
-    //     ExitCode io_adbms_overlapADCTest(void)
+    //     std::expected<void, ErrorCode> io_adbms_overlapADCTest(void)
     //     {
     //         started_overlap_test = true;
-    //         return EXIT_CODE_OK;
+    //         return;
     //     }
-    //     ExitCode io_adbms_sendSelfTestVoltages(void)
+    //     std::expected<void, ErrorCode> io_adbms_sendSelfTestVoltages(void)
     //     {
     //         started_self_test_voltages = true;
-    //         return EXIT_CODE_OK;
+    //         return;
     //     }
     //     void io_adbms_readVoltageRegisters(
     //         uint16_t cell_voltage_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT],
-    //         ExitCode comm_success[NUM_SEGMENTS][CELLS_PER_SEGMENT])
+    //         std::expected<void, ErrorCode> comm_success[NUM_SEGMENTS][CELLS_PER_SEGMENT])
     //     {
     //         if (started_adc_conversion || started_overlap_test)
     //         {
@@ -92,7 +99,7 @@ extern "C"
     //         {
     //             for (int j = 0; j < CELLS_PER_SEGMENT; j++)
     //             {
-    //                 comm_success[i][j] = EXIT_CODE_OK;
+    //                 comm_success[i][j] = ;
     //             }
     //         }
     //         started_adc_conversion = false;
@@ -105,7 +112,7 @@ extern "C"
 
     //     void io_ltc6813_readAuxRegisters(
     //         uint16_t aux_regs[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT],
-    //         ExitCode comm_success[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT])
+    //         std::expected<void, ErrorCode> comm_success[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT])
     //     {
     //         if (started_therm_adc_conversion || started_self_test_aux)
     //         {
@@ -115,7 +122,7 @@ extern "C"
     //                 for (int j = 0; j < AUX_REGS_PER_SEGMENT; j++)
     //                 {
     //                     // aux_regs[i][j]     = 0;
-    //                     comm_success[i][j] = EXIT_CODE_OK;
+    //                     comm_success[i][j] = ;
     //                 }
     //             }
     //         }
@@ -126,68 +133,69 @@ extern "C"
     //         started_therm_adc_conversion = false;
     //     }
 
-    //     ExitCode io_adbms_startThermistorsAdcConversion(void)
+    //     std::expected<void, ErrorCode> io_adbms_startThermistorsAdcConversion(void)
     //     {
     //         started_therm_adc_conversion = true;
-    //         return EXIT_CODE_OK;
+    //         return;
     //     }
     //     void     io_adbms_wakeup(void) {}
-    //     ExitCode io_adbms_pollAdcConversions(void)
+    //     std::expected<void, ErrorCode> io_adbms_pollAdcConversions(void)
     //     {
-    //         return EXIT_CODE_OK;
+    //         return;
     //     }
-    //     ExitCode io_adbms_sendBalanceCommand(void)
+    //     std::expected<void, ErrorCode> io_adbms_sendBalanceCommand(void)
     //     {
-    //         return EXIT_CODE_OK;
+    //         return;
     //     }
-    //     ExitCode io_adbms_sendStopBalanceCommand(void)
+    //     std::expected<void, ErrorCode> io_adbms_sendStopBalanceCommand(void)
     //     {
-    //         return EXIT_CODE_OK;
+    //         return;
     //     }
-    //     ExitCode io_adbms_owcPull(const PullDirection pull_direction)
+    //     std::expected<void, ErrorCode> io_adbms_owcPull(const PullDirection pull_direction)
     //     {
     //         UNUSED(pull_direction);
-    //         return EXIT_CODE_OK;
+    //         return;
     //     }
-    //     ExitCode io_adbms_sendSelfTestAux(void)
+    //     std::expected<void, ErrorCode> io_adbms_sendSelfTestAux(void)
     //     {
     //         started_self_test_aux = true;
-    //         return EXIT_CODE_OK;
+    //         return;
     //     }
-    //     ExitCode io_adbms_sendSelfTestStat(void)
+    //     std::expected<void, ErrorCode> io_adbms_sendSelfTestStat(void)
     //     {
-    //         return EXIT_CODE_OK;
+    //         return;
     //     }
-    //     ExitCode io_adbms_diagnoseMUX(void)
+    //     std::expected<void, ErrorCode> io_adbms_diagnoseMUX(void)
     //     {
-    //         return EXIT_CODE_OK;
+    //         return;
     //     }
-    //     ExitCode io_adbms_startInternalADCConversions(void)
+    //     std::expected<void, ErrorCode> io_adbms_startInternalADCConversions(void)
     //     {
-    //         return EXIT_CODE_OK;
+    //         return;
     //     }
-    //     void io_adbms_getStatus(StatusRegGroups status[NUM_SEGMENTS], ExitCode success[NUM_SEGMENTS])
+    //     void io_adbms_getStatus(StatusRegGroups status[NUM_SEGMENTS], std::expected<void, ErrorCode>
+    //     success[NUM_SEGMENTS])
     //     {
     //         UNUSED(status);
     //         for (int i = 0; i < NUM_SEGMENTS; i++)
     //         {
-    //             success[i] = EXIT_CODE_OK;
+    //             success[i] = ;
     //         }
     //     }
-    //     ExitCode io_adbms_clearCellRegisters(void)
+    //     std::expected<void, ErrorCode> io_adbms_clearCellRegisters(void)
     //     {
-    //         return EXIT_CODE_OK;
+    //         return;
     //     }
-    //     ExitCode io_adbms_clearAuxRegisters(void)
+    //     std::expected<void, ErrorCode> io_adbms_clearAuxRegisters(void)
     //     {
-    //         return EXIT_CODE_OK;
+    //         return;
     //     }
-    //     ExitCode io_adbms_clearStatRegisters(void)
+    //     std::expected<void, ErrorCode> io_adbms_clearStatRegisters(void)
     //     {
-    //         return EXIT_CODE_OK;
+    //         return;
     //     }
 
-#include "io_canTx.h"
+#include "io_canTx.hpp"
     void io_canTx_init(
         void (*transmit_can1_msg_func)(const JsonCanMsg *),
         void (*transmit_charger_msg_func)(const JsonCanMsg *))
@@ -205,9 +213,9 @@ namespace io
 #include "io_irs.hpp"
 namespace irs
 {
-    static ContactorState positive_state  = CONTACTOR_STATE_OPEN;
-    static ContactorState precharge_state = CONTACTOR_STATE_OPEN;
-    static ContactorState negative_state  = CONTACTOR_STATE_OPEN;
+    static ContactorState positive_state  = ContactorState::CONTACTOR_STATE_OPEN;
+    static ContactorState precharge_state = ContactorState::CONTACTOR_STATE_OPEN;
+    static ContactorState negative_state  = ContactorState::CONTACTOR_STATE_OPEN;
 
     ContactorState negativeState()
     {
@@ -289,14 +297,15 @@ namespace imd
 #include "io_faultLatch.hpp"
 namespace faultLatch
 {
-    FaultLatch bms_ok_latch{ FAULT_LATCH_OK, FAULT_LATCH_OK, true, false };
-    FaultLatch imd_ok_latch{ FAULT_LATCH_OK, FAULT_LATCH_OK, false, true };
-    FaultLatch bspd_ok_latch{ FAULT_LATCH_OK, FAULT_LATCH_OK, false, true };
+    // The unit test faultlatchg logic here is agnostic to whether the latch and current status are inverted
+    FaultLatch bms_ok_latch{ FaultLatchState::OK, FaultLatchState::OK, false };
+    FaultLatch imd_ok_latch{ FaultLatchState::OK, FaultLatchState::OK, true };
+    FaultLatch bspd_ok_latch{ FaultLatchState::OK, FaultLatchState::OK, true };
 
     void setCurrentStatus(const FaultLatch *latch, const FaultLatchState status)
     {
         assert(!latch->read_only);
-        fakes::faultLatches::updateFaultLatch(const_cast<FaultLatch *>(latch), status);
+        fakes::faultLatch::updateFaultLatch(const_cast<FaultLatch *>(latch), status);
     }
     FaultLatchState getCurrentStatus(const FaultLatch *latch)
     {
@@ -311,7 +320,7 @@ namespace faultLatch
 #include "io_charger.hpp"
 namespace charger
 {
-    static ChargerConnectedType connectionStatus = CHARGER_DISCONNECTED;
+    static ChargerConnectedType connectionStatus = ChargerConnectedType::CHARGER_DISCONNECTED;
     static float                evse_dutyCycle   = 0.0f;
 
     ChargerConnectedType getConnectionStatus()
@@ -348,9 +357,9 @@ namespace shdn
 #include "io_fans.hpp"
 namespace fans
 {
-    void io_fans_tick(const bool enable)
+    void tick(const bool enable)
     {
-        (void)enable;
+        UNUSED(enable);
     }
 } // namespace fans
 
@@ -380,47 +389,47 @@ namespace adbms
     bool started_therm_adc_conversion = false;
     bool started_cell_adc_conversion  = false;
 
-    ExitCode sendCommand(const uint16_t command)
+    std::expected<void, ErrorCode> sendCommand(const uint16_t command)
     {
         UNUSED(command);
-        return EXIT_CODE_OK;
+        return {};
     }
 
-    ExitCode poll(uint16_t cmd, uint8_t *poll_buf, uint16_t poll_buf_len)
+    std::expected<void, ErrorCode> poll(uint16_t cmd, uint8_t *poll_buf, uint16_t poll_buf_len)
     {
         UNUSED(cmd);
         std::memset(poll_buf, 0, poll_buf_len);
-        return EXIT_CODE_OK;
+        return {};
     }
 
     void readRegGroup(
-        uint16_t cmd,
-        uint16_t regs[NUM_SEGMENTS][adbms::REGS_PER_GROUP],
-        ExitCode comm_success[NUM_SEGMENTS])
+        uint16_t                       cmd,
+        uint16_t                       regs[NUM_SEGMENTS][REGS_PER_GROUP],
+        std::expected<void, ErrorCode> comm_success[NUM_SEGMENTS])
     {
         UNUSED(cmd);
-        std::memset(regs, 0, NUM_SEGMENTS * adbms::REGS_PER_GROUP * sizeof(uint16_t));
+        std::memset(regs, 0, NUM_SEGMENTS * REGS_PER_GROUP * sizeof(uint16_t));
         for (size_t i = 0; i < NUM_SEGMENTS; i++)
         {
-            comm_success[i] = EXIT_CODE_OK;
+            comm_success[i] = {};
         }
     }
 
-    ExitCode writeRegGroup(uint16_t cmd, uint16_t regs[NUM_SEGMENTS][adbms::REGS_PER_GROUP])
+    std::expected<void, ErrorCode> writeRegGroup(uint16_t cmd, uint16_t regs[NUM_SEGMENTS][REGS_PER_GROUP])
     {
         UNUSED(cmd);
         UNUSED(regs);
-        return EXIT_CODE_OK;
+        return {};
     }
 
-    ExitCode sendBalanceCommand(void)
+    std::expected<void, ErrorCode> sendBalanceCommand(void)
     {
-        return EXIT_CODE_OK;
+        return {};
     }
 
-    ExitCode sendStopBalanceCommand(void)
+    std::expected<void, ErrorCode> sendStopBalanceCommand(void)
     {
-        return EXIT_CODE_OK;
+        return {};
     }
 } // namespace adbms
 
@@ -460,21 +469,23 @@ namespace ts
     }
 } // namespace ts
 
-namespace faultLatches
+namespace faultLatch
 {
+    using namespace io::faultLatch;
+
     void resetFaultLatch(const FaultLatch *latch)
     {
-        const_cast<FaultLatch *>(latch)->status        = FAULT_LATCH_OK;
-        const_cast<FaultLatch *>(latch)->latched_state = FAULT_LATCH_OK;
+        const_cast<FaultLatch *>(latch)->status        = FaultLatchState::OK;
+        const_cast<FaultLatch *>(latch)->latched_state = FaultLatchState::OK;
     }
     void updateFaultLatch(FaultLatch *latch, const FaultLatchState status)
     {
-        if (latch->latched_state == FAULT_LATCH_OK && status == FAULT_LATCH_FAULT)
+        if (latch->latched_state == FaultLatchState::OK && status == FaultLatchState::FAULT)
         {
             setCurrentStatus_call_count[FaultLatchParams{ const_cast<FaultLatch *>(latch), status }]++;
         }
         latch->status        = status;
-        latch->latched_state = latch->latched_state == FAULT_LATCH_OK ? status : FAULT_LATCH_FAULT;
+        latch->latched_state = latch->latched_state == FaultLatchState::OK ? status : FaultLatchState::FAULT;
     }
     void setCurrentStatus_resetCallCounts()
     {
@@ -484,7 +495,7 @@ namespace faultLatches
     {
         return setCurrentStatus_call_count[FaultLatchParams{ const_cast<FaultLatch *>(latch), status }];
     }
-} // namespace faultLatches
+} // namespace faultLatch
 
 namespace imd
 {
@@ -526,10 +537,10 @@ namespace segments
         {
             for (size_t j = 0; j < AUX_REGS_PER_SEGMENT; j++)
             {
-                float T_k = temperatures[i][j] + 273.15;
-                float k   = -3610 * (1 / T_k - 1 / 298.15);
+                float T_k = temperatures[i][j] + 273.15f;
+                float k   = -3610.0f * (1.0f / T_k - 1.0f / 298.15f);
 
-                aux_regs_storage[i][j] = static_cast<uint16_t>(3 / (1 + exp2f(k)));
+                aux_regs_storage[i][j] = static_cast<uint16_t>(3.0f / (1.0f + exp2f(k)));
             }
         }
     }

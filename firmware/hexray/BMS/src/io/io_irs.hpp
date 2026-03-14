@@ -1,7 +1,6 @@
-extern "C"
-{
-#include "app_canUtils.h"
-}
+#include "app_canUtils.hpp"
+
+using namespace app::can_utils;
 
 namespace io::irs
 {

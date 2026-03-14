@@ -49,7 +49,6 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_resetReason.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_freeRtosConfigs.c"
@@ -122,7 +121,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    target_link_libraries("quintuna_RSM_app.elf" PRIVATE "quintuna_RSM_stm32" "quintuna_RSM_jsoncan" "quintuna_RSM_commit_info" "chimera_v2_proto_cm4" m)
+    target_link_libraries("quintuna_RSM_app.elf" PRIVATE "quintuna_RSM_stm32" "quintuna_RSM_jsoncan" "quintuna_RSM_commit_info" "quintuna_chimera_v2_proto_cm4" m)
 
     if ("${BOOTLOAD}" STREQUAL "ON")
         # Bootloader files.

@@ -8,7 +8,7 @@
 #include "app_torqueVectoring.h"
 #include "app_regen.h"
 #include "app_powerManager.h"
-#include "app_warningHandling.h"
+#include "app_inverter.h"
 #include "app_canAlerts.h"
 #include "app_vehicleDynamics.h"
 #include "app_powerLimiting.h"

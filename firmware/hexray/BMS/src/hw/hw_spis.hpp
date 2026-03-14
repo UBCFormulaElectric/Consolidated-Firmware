@@ -1,11 +1,5 @@
 #pragma once
+#include "hw_spi.hpp"
 
-extern "C"
-{
-#include "firmware/hexray/BMS/src/cubemx/Inc/main.h"
-}
-#include "hw_spi.h"
-#include "hw_gpios.h"
-
-extern const SpiDevice adbms_spi_ls;
-extern const SpiDevice adbms_spi_hs;
+extern const hw::spi::SpiDevice adbms_spi_ls;
+extern const hw::spi::SpiDevice adbms_spi_hs;

@@ -1,0 +1,58 @@
+{
+  "forwarders": [
+    {
+      "forwarder": "ECU1",
+      "bus1": "can1",
+      "bus2": "can3"
+    },
+    {
+      "forwarder": "ECU1",
+      "bus1": "can1",
+      "bus2": "can2"
+    }
+  ],
+  "buses": [
+    {
+      "name": "can1",
+      "nodes": [
+        "ECU1",
+        "ECU3",
+        "ECU4"
+      ],
+      "fd": true,
+      "bus_speed": 4000,
+      "modes": [
+        "default",
+        "debug"
+      ],
+      "default_mode": "default"
+    },
+    {
+      "name": "can2",
+      "bus_speed": 1000,
+      "nodes": [
+        "ECU1",
+        "ECU3",
+        "ECU5"
+      ],
+      "modes": [
+        "default",
+        "debug"
+      ],
+      "default_mode": "default"
+    },
+    {
+      "name": "can3",
+      "bus_speed": 500,
+      "nodes": [
+        "ECU1",
+        "ECU2"
+      ],
+      "modes": [
+        "default",
+        "debug"
+      ],
+      "default_mode": "default"
+    }
+  ]
+}
