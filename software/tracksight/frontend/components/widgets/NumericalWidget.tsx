@@ -16,10 +16,6 @@ import { fetchNumericalSignalMetadata } from "@/lib/api/signalMetadata";
 import { Dialog, DialogDescription, DialogHeader, DialogTitle, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { PlusButton } from "@/components/icons/PlusButton";
 
-function createEmptyNumericalChartData(): ChartDataNumerical {
-    return { type: SignalType.NUMERICAL, all_series: [] };
-}
-
 function createEmptyNumericalSeries(label: string): NumericalSeries {
     return { label, timestamps: [], data: new SeriesData() };
 }
@@ -125,7 +121,7 @@ export function NumericalWidgetModalForm({ closeModal }: { closeModal: () => voi
 
 
 export function useLiveNumericalData(widgetData: WidgetDataNumerical): RefObject<ChartData> {
-    const dataRef = useRef<ChartDataNumerical>(createEmptyNumericalChartData());
+    const dataRef = useRef<ChartDataNumerical>( {type: SignalType.NUMERICAL, all_series: [] } );
     const previousSignalNamesRef = useRef<string[]>([]);
     const seenCountRef = useRef<Map<string, number>>(new Map());
     const { getSignalData, subscribeToSignal, unsubscribeFromSignal } = useSignals();
@@ -254,7 +250,6 @@ function NumericalSignalModalForm ({ closeModal, configs, widgetData }: {
 
         try {
             const metadata = await fetchNumericalSignalMetadata(trimmedSignalName);
-            console.log("Fetched metadata for signal", trimmedSignalName, metadata.cycle_time_ms);
 
             appendSignal(widgetData.id, {
                 delay: metadata.cycle_time_ms,

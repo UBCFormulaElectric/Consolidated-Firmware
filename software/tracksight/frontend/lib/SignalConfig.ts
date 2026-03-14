@@ -4,19 +4,6 @@
 //   Enumeration = "enumeration",
 // }
 
-// Signal metadata interface
-export interface SignalMeta {
-  name: string;
-  unit: string;
-  cycle_time_ms?: number;
-  msg_id: number;
-  msg_name: string;
-  enum?: {
-    name: string,
-    items: Record<string, string>
-  };
-}
-
 export type AlertType = "Fault" | "Warning" | "Info";
 export type AlertSignalType =
   | AlertType

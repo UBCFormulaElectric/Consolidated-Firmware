@@ -15,7 +15,7 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
-import { BACKEND_URL, DataPoint, DEBUG, SignalType } from "../SignalConfig";
+import { BACKEND_URL, DataPoint, DEBUG} from "../SignalConfig";
 
 import { useSocket } from "@/lib/hooks/signals/useSocket";
 import { useSignalData } from "@/lib/hooks/signals/useSignalData";
@@ -224,7 +224,7 @@ export function SignalProvider({ children }: { children: ReactNode }) {
   //   return types;
   // }, [availableSignalQuery.data]);
   // Incrementing version triggers re-render of any consumer that uses data via context (by reading a hidden span attr)
-  const { dataStore, addDataPoint, pruneSignalData, pruneData, clearAllData } =
+  const { dataStore, addDataPoint, pruneSignalData, clearAllData } =
     useSignalData(() => {
       // notify only subscribers who opt-in via useDataVersion()
       dataVersionStore.bump();
