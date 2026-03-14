@@ -20,7 +20,7 @@ struct CanMsg
     uint32_t                               std_id;
     uint32_t                               dlc;
     uint32_t                               timestamp;
-    std::array<uint8_t, CAN_PAYLOAD_BYTES> data;
+    mutable std::array<uint8_t, CAN_PAYLOAD_BYTES> data;
     bool                                   is_fd;
     app::can_utils::BusEnum                bus;
 
@@ -36,6 +36,7 @@ struct CanMsg
 
     CanMsg() = default; // bruh moment
 
+    //Const version of io_canMsg
     [[nodiscard]] std::span<const uint16_t, CAN_PAYLOAD_BYTES / 2> getDataAsWords() const
     {
         return std::span<const uint16_t, CAN_PAYLOAD_BYTES / 2>{ reinterpret_cast<const uint16_t *>(data.data()),
@@ -49,6 +50,24 @@ struct CanMsg
     [[nodiscard]] std::span<const uint64_t, CAN_PAYLOAD_BYTES / 8> getDataAsQWords() const
     {
         return std::span<const uint64_t, CAN_PAYLOAD_BYTES / 8>{ reinterpret_cast<const uint64_t *>(data.data()),
+                                                                 CAN_PAYLOAD_BYTES / 8 };
+    }
+
+
+    //None const version of io_canMsg
+    [[nodiscard]] std::span<uint16_t, CAN_PAYLOAD_BYTES / 2> getDataAsWords()
+    {
+        return std::span<uint16_t, CAN_PAYLOAD_BYTES / 2>{ reinterpret_cast<uint16_t *>(data.data()),
+                                                                 CAN_PAYLOAD_BYTES / 2 };
+    }
+    [[nodiscard]] std::span<uint32_t, CAN_PAYLOAD_BYTES / 4> getDataAsDWords()
+    {
+        return std::span<uint32_t, CAN_PAYLOAD_BYTES / 4>{ reinterpret_cast<uint32_t *>(data.data()),
+                                                                 CAN_PAYLOAD_BYTES / 4 };
+    }
+    [[nodiscard]] std::span<uint64_t, CAN_PAYLOAD_BYTES / 8> getDataAsQWords()
+    {
+        return std::span<uint64_t, CAN_PAYLOAD_BYTES / 8>{ reinterpret_cast<uint64_t *>(data.data()),
                                                                  CAN_PAYLOAD_BYTES / 8 };
     }
 };
