@@ -86,8 +86,11 @@ function render_enum(
     // rendering
     visibleStartTime: number, visibleEndTime: number, latestDateTime: number, timeToX: (time: number) => number, // time range
     LEGEND_HEIGHT: number, ENUM_STRIP_HEIGHT: number, ENUM_STRIP_GAP: number, // layout
-    hoverTime: number | null
+    hoverTime: number | null,
+    hoveredSignal: RefObject<string | null> | undefined,
 ): Array<{ name: string, value: string }> | null {
+    const signalConfigByName = new Map(widgetConfig.signals.map((signal) => [signal.signal_name, signal]));
+
     // DRAWING LEGEND
     // context.textAlign = "left";
     // context.textBaseline = "top";
@@ -95,27 +98,12 @@ function render_enum(
     // let legendX = CHART_PADDING.left;
     // const legendY = CHART_PADDING.top;
     // const allEnumValues = new Set<string>();
-    // enumSeriesIndices.forEach((idx) => {
-    //     uniqueEnumValues[idx]?.forEach((v) => allEnumValues.add(v));
-    // });
-    // const sortedAllEnums = Array.from(allEnumValues).sort();
-    // sortedAllEnums.forEach((val, i) => {
-    //     const color = val === "N/A" ? NA_COLOR : ENUM_COLORS[i % ENUM_COLORS.length];
-
-    //     context.fillStyle = color;
-    //     context.fillRect(legendX, legendY, 10, 10);
-
-    //     context.fillStyle = "#ffffff"; // Assuming dark background based on numerical chart
-    //     context.fillText(val, legendX + 14, legendY);
-
-    //     const textWidth = context.measureText(val).width;
-    //     legendX += 14 + textWidth + 15;
-    // });
 
     let currentStripY = CHART_PADDING.top + LEGEND_HEIGHT;
-    for (let series_idx = 0; series_idx < all_series.length; series_idx++) {
-        const series = all_series[series_idx];
+    for (const series of all_series) {
         const { data: seriesData, timestamps: seriesTimestamps } = series;
+        const signalConfig = signalConfigByName.get(series.label);
+        const isHovered = hoveredSignal?.current === series.label;
 
         context.fillStyle = "#000000";
         context.textAlign = "right";
@@ -147,17 +135,29 @@ function render_enum(
             // const color = value === null
             //     ? NA_COLOR
             //     : ENUM_COLORS[value % ENUM_COLORS.length];
-            const palette = widgetConfig.signals[series_idx]?.options.colorPalette ?? [];
+            const palette = signalConfig?.options.colorPalette ?? [];
             const paletteColor = palette[value];
             if (paletteColor) {
                 context.fillStyle = paletteColor.hex();
             } else { // fallback just in case
                 context.fillStyle = ENUM_COLORS[value % ENUM_COLORS.length];
             }
+
             context.fillRect(
                 startX,
                 currentStripY,
                 barWidth,
+                ENUM_STRIP_HEIGHT
+            );
+        }
+
+        if (isHovered) {
+            context.strokeStyle = "#000000";
+            context.lineWidth = 3;
+            context.strokeRect(
+                CHART_PADDING.left,
+                currentStripY,
+                width - CHART_PADDING.left - CHART_PADDING.right,
                 ENUM_STRIP_HEIGHT
             );
         }
@@ -190,11 +190,14 @@ function render_numerical(
     widgetConfig: WidgetDataNumerical,
     series: NumericalSeries[], // series data
     visibleStartTime: number, visibleEndTime: number, timeToX: (time: number) => number, // time range
-    hoverTime: number | null
+    hoverTime: number | null,
+    hoveredSignal: RefObject<string | null> | undefined,
 ): Array<{ name: string, value: string }> | null {
     if (series.length === 0) { // am i crazy or is this not okay
         return [];
     }
+
+    const signalConfigByName = new Map(widgetConfig.signals.map((signal) => [signal.signal_name, signal]));
 
     const series_bounds = series.map(s => {
         const left = bisect(s.timestamps, visibleStartTime)
@@ -215,8 +218,6 @@ function render_numerical(
         all_series_min -= 1;
         all_series_max += 1;
     }
-
-    // console.log("Numerical value range:", minValue, maxValue);
 
     context.strokeStyle = "#333";
     context.lineWidth = 1;
@@ -265,9 +266,18 @@ function render_numerical(
     for (let seriesIndex = 0; seriesIndex < series.length; seriesIndex++) {
         const s = series[seriesIndex];
         const { left, right } = series_bounds[seriesIndex];
+        const signalConfig = signalConfigByName.get(s.label);
+        let strokeCol = signalConfig?.color.hex() ?? "#2563eb";
+        let lineWidth = 2;
 
-        context.strokeStyle = widgetConfig.signals[seriesIndex].color.hex();
-        context.lineWidth = 2;
+        if (hoveredSignal?.current && hoveredSignal.current !== s.label) {
+            strokeCol = "#808080";
+        } else if (hoveredSignal?.current && hoveredSignal.current === s.label) {
+            lineWidth = 3;
+        }
+
+        context.strokeStyle = strokeCol;
+        context.lineWidth = lineWidth;
         context.beginPath();
 
         let initialMove = false;
@@ -323,7 +333,7 @@ function render_numerical(
 
             // draw circle at hovered point
             context.beginPath();
-            context.fillStyle = widgetConfig.signals[seriesIndex].color.hex();
+            context.fillStyle = signalConfigByName.get(s.label)?.color.hex() ?? "#2563eb";
             context.strokeStyle = "#ffffff";
             context.lineWidth = 1.5;
             context.arc(drawX, y, 4, 0, Math.PI * 2);
@@ -426,6 +436,7 @@ export default function render(
     widgetConfig: WidgetData,
     timeTickCount: number,
     hoverTime: number | null,
+    hoveredSignal: RefObject<string | null> | undefined,
     { min: visibleStartTime, max: visibleEndTime }: { min: number; max: number },
 ) {
     context.clearRect(0, 0, width, height);
@@ -464,7 +475,7 @@ export default function render(
         const ENUM_STRIP_HEIGHT = 40;
         const ENUM_STRIP_GAP = 40;
         hover_value = render_enum(context, width, widgetConfig, chartData.all_series, visibleStartTime, visibleEndTime, 0, // TODO
-            timeToX, LEGEND_HEIGHT, ENUM_STRIP_HEIGHT, ENUM_STRIP_GAP, hoverTime);
+            timeToX, LEGEND_HEIGHT, ENUM_STRIP_HEIGHT, ENUM_STRIP_GAP, hoverTime, hoveredSignal);
     }
     // --- RENDER NUMERICAL ---
     else if (chartData.type === SignalType.NUMERICAL) {
@@ -473,7 +484,7 @@ export default function render(
         }
         hover_value = render_numerical(
             context, width, chartWidth, chartHeight, numericalTop,
-            widgetConfig, chartData.all_series, visibleStartTime, visibleEndTime, timeToX, hoverTime
+            widgetConfig, chartData.all_series, visibleStartTime, visibleEndTime, timeToX, hoverTime, hoveredSignal
         );
     }
 
@@ -514,11 +525,6 @@ export default function render(
     }
 
     if (hoverTime !== null) {
-        // TODO surely this check is not useful because the hoverTime will be on the screen?
-        // const withinX = hoverTime >= visibleStartTime && hoverTime <= visibleEndTime;
-        // if (!withinX) {
-        //     return
-        // }
         render_tooltip(
             context, width, height,
             hoverTime, hover_value!, timeToX

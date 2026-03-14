@@ -37,6 +37,7 @@ function WidgetSerialize(widgets: WidgetData[]): string {
                 ...w,
                 signals: w.signals.map(s => ({
                     ...s,
+                    color: s.color.hex(),
                     options: {
                         colorPalette: s.options.colorPalette.map(c => c.hex())
                     }
@@ -64,8 +65,9 @@ function WidgetDeserialize(widgetString: string): WidgetData[] {
     return back.map(b => {
         if (b.type === SignalType.ENUM) {
             return {
-                id: "",
+                id: b.id,
                 type: SignalType.ENUM,
+                mock: b.mock,
                 signals: b.signals.map((s: any) => ({
                     signal_name: s.signal_name,
                     delay: s.delay,
@@ -80,6 +82,7 @@ function WidgetDeserialize(widgetString: string): WidgetData[] {
             return {
                 id: b.id,
                 type: SignalType.NUMERICAL,
+                mock: b.mock,
                 signals: b.signals.map((s: any) => ({
                     signal_name: s.signal_name,
                     delay: s.delay,
@@ -119,11 +122,12 @@ export function WidgetManager({ children }: { children: ReactNode }) {
     const appendSignal = useCallback((widgetID: string, new_signal: WidgetSignalConfig) => {
         setWidgets((prev) => {
             const newWidgets = [...prev];
-            let updateWidget = newWidgets.find((w) => w.id === widgetID);
-            if (!updateWidget) {
+            const widgetIndex = newWidgets.findIndex((w) => w.id === widgetID);
+            if (widgetIndex === -1) {
                 IS_DEBUG && console.warn("Widget to edit not found");
                 return prev;
             }
+            const updateWidget = newWidgets[widgetIndex];
 
             // avoid duplicates
             if (updateWidget.signals.some(c => c.signal_name === new_signal.signal_name)) {
@@ -131,12 +135,12 @@ export function WidgetManager({ children }: { children: ReactNode }) {
                 return prev;
             }
             if (updateWidget.type === SignalType.NUMERICAL) {
-                updateWidget = {
+                newWidgets[widgetIndex] = {
                     ...updateWidget,
                     signals: [...updateWidget.signals, (new_signal as NumericalSignalConfig)] // inshallah ig
                 };
             } else {
-                updateWidget = {
+                newWidgets[widgetIndex] = {
                     ...updateWidget,
                     signals: [...updateWidget.signals, (new_signal as EnumSignalConfig)] // inshallah ig
                 };
@@ -149,12 +153,13 @@ export function WidgetManager({ children }: { children: ReactNode }) {
     const removeSignal = useCallback(function (widgetID: string, remove_signal_name: string) {
         setWidgets((prev) => {
             const newWidgets = [...prev];
-            let updateWidget = newWidgets.find((w) => w.id === widgetID);
-            if (!updateWidget) {
+            const widgetIndex = newWidgets.findIndex((w) => w.id === widgetID);
+            if (widgetIndex === -1) {
                 IS_DEBUG && console.warn("Widget to edit not found");
                 return prev;
             }
-            updateWidget = {
+            const updateWidget = newWidgets[widgetIndex];
+            newWidgets[widgetIndex] = {
                 ...updateWidget,
                 signals: updateWidget.signals.filter(c => c.signal_name !== remove_signal_name) as Array<any> // trust
             };
@@ -168,12 +173,12 @@ export function WidgetManager({ children }: { children: ReactNode }) {
     ) => {
         setWidgets((prev) => {
             const newWidgets = [...prev];
-            let updateWidget = newWidgets.find((w) => w.id === widgetID);
-            if (!updateWidget) {
+            const widgetIndex = newWidgets.findIndex((w) => w.id === widgetID);
+            if (widgetIndex === -1) {
                 IS_DEBUG && console.warn("Widget to edit not found");
                 return prev;
             }
-            updateWidget = updater(updateWidget);
+            newWidgets[widgetIndex] = updater(newWidgets[widgetIndex]);
             return newWidgets;
         });
     }, []);
