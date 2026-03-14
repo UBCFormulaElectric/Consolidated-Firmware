@@ -1,7 +1,5 @@
 #include "io_efuses.hpp"
 
-#include "efuse/io_efuse_TI_TPS28.hpp"
-#include "efuse/io_efuse_TI_TPS25.hpp"
 #include "hw_adcs.hpp"
 #include "hw_gpios.hpp"
 
