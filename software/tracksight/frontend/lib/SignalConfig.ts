@@ -232,17 +232,6 @@ export class SignalDataStore {
     return this.dataPoints.length;
   }
 
-  // Prune data to keep only the last N points
-  pruneToLastN(maxPoints: number): void {
-    if (this.dataPoints.length <= maxPoints) return;
-
-    const pointsToRemove = this.dataPoints.length - maxPoints;
-    this.dataPoints.splice(0, pointsToRemove);
-
-    // Rebuild all indices since positions changed
-    this.rebuildIndices();
-  }
-
   private rebuildIndices(): void {
     // Clear existing indices
     this.timeIndex.clear();
@@ -303,7 +292,6 @@ if (!process.env.NEXT_PUBLIC_BACKEND_PORT) {
 }
 
 // Default maximum number of data points to keep
-export const DEFAULT_MAX_DATA_POINTS = 1000; // lowk we wanna keep it all
 export const BACKEND_URL =
   typeof window !== "undefined"
     ? `http://${window.location.hostname}:${backend_port}`
