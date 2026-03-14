@@ -10,11 +10,6 @@
 
 namespace hw::crc
 {
-/**
- * Initialize the CRC driver.
- * @param crc_handle Handle to CRC peripheral.
- */
-void init(CRC_HandleTypeDef *crc_handle);
 
 /**
  * Calculate a checksum using the CRC peripheral.

@@ -5,18 +5,9 @@
 #include "io_telemMessage.hpp"
 #include "io_queue.hpp"
 #include "hw_uarts.hpp"
+#include "io_telemQueue.hpp"
 
 #include <span>
-
-namespace
-{
-static void telemOverflow(uint32_t)
-{
-    LOG_WARN("Telem TX queue overflow");
-}
-static void                                  telemOverflowClear() {}
-io::queue<io::telemMessage::TelemCanMsg, 52> telem_tx_queue{ "Telem TX Queue", telemOverflow, telemOverflowClear };
-} // namespace
 
 void jobs_init()
 {
@@ -32,11 +23,19 @@ void jobs_runLogging_tick() {}
 
 void jobs_runTelem_tick()
 {
-    if (auto result = telem_tx_queue.pop())
+    const auto result = telem_tx_queue.pop();
+    if (not result)
     {
-        const auto &msg = *result;
-        LOG_IF_ERR(_900k_uart.transmitPoll(
-            std::span<const uint8_t>{ reinterpret_cast<const uint8_t *>(&msg), msg.wireSize() }));
+        LOG_ERROR("Failed to pop telem TX message: %d", static_cast<int>(result.error()));
+        return;
+    }
+
+    const auto &msg = result.value();
+    const auto tx_result =
+        _900k_uart.transmitPoll(std::span<const uint8_t>{ reinterpret_cast<const uint8_t *>(&msg), msg.wireSize() });
+    if (not tx_result)
+    {
+        LOG_ERROR("Failed to transmit telem message: %d", static_cast<int>(tx_result.error()));
     }
 }
 
@@ -44,15 +43,4 @@ void jobs_runTelemRx()
 {
     // TODO: NTP time-sync response — see quintuna DAM io_telemRx.c for protocol
     // Poll _900k_uart.receivePoll(...) for 0xFF 0x01 header, extract IoRtcTime, call io_rtc_setTime()
-}
-
-void jobs_runCanTx_tick() {}
-
-void jobs_runCanRx_tick()
-{
-    if (auto result = can_rx_queue.pop())
-    {
-        // TODO: io_canRx_updateRxTableWithMessage (once jsoncan is wired up)
-        telem_tx_queue.push(io::telemMessage::TelemCanMsg(*result, 0.0f));
-    }
 }

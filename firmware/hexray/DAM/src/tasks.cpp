@@ -2,9 +2,11 @@
 #include "jobs.hpp"
 #include "io_time.hpp"
 #include "io_telemMessage.hpp"
+#include "io_canQueues.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_crc.hpp"
 #include "hw_uarts.hpp"
+#include "io_telemQueue.hpp"
 
 #include <span>
 
@@ -48,9 +50,9 @@ static IoRtcTime boot_time{};
 }
 [[noreturn]] static void tasks_runTelem(void *arg)
 {
-    const io::telemMessage::BaseTimeRegMsg base_time_msg(boot_time);
-    LOG_IF_ERR(_900k_uart.transmitPoll(
-        std::span<const uint8_t>{ reinterpret_cast<const uint8_t *>(&base_time_msg), sizeof(base_time_msg) }));
+    // const io::telemMessage::BaseTimeRegMsg base_time_msg(boot_time);
+    // LOG_IF_ERR(_900k_uart.transmitPoll(
+    //     std::span<const uint8_t>{ reinterpret_cast<const uint8_t *>(&base_time_msg), sizeof(base_time_msg) }));
 
     forever
     {
@@ -69,14 +71,25 @@ static IoRtcTime boot_time{};
 {
     forever
     {
-        jobs_runCanTx_tick();
+        // inline this funcction in the future
     }
 }
 [[noreturn]] static void tasks_runCanRx(void *arg)
 {
     forever
     {
-        jobs_runCanRx_tick();
+        const auto result = can_rx_queue.pop();
+        if (not result)
+        {
+            LOG_ERROR("Failed to pop CAN RX message: %d", static_cast<int>(result.error()));
+            continue;
+        }
+        const auto &canMsg      = result.value();
+        const auto  push_result = telem_tx_queue.push(io::telemMessage::TelemCanMsg(canMsg, 0.0f));
+        if (not push_result)
+        {
+            LOG_ERROR("Failed to push telem TX message: %d", static_cast<int>(push_result.error()));
+        }
     }
 }
 
@@ -106,8 +119,7 @@ void tasks_preInit() {}
 
 void tasks_init()
 {
-    io_rtc_readTime(&boot_time);
-    hw::crc::init(&hcrc);
+    // io_rtc_readTime(&boot_time);
     jobs_init();
     osKernelInitialize();
     DAM_StartAllTasks();

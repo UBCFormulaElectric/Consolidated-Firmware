@@ -32,6 +32,7 @@ file(GLOB_RECURSE HW_SRCS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp"
 )
 list(APPEND HW_SRCS
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_crc.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_sd.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
