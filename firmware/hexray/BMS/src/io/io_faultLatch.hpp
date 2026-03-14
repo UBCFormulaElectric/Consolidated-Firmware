@@ -38,8 +38,6 @@ struct FaultLatch
 {
     FaultLatchState status;
     FaultLatchState latched_state;
-    bool            current_inverted;
-    bool            latch_inverted;
     const bool      read_only; // Certain fault latches can only be read from.
 };
 

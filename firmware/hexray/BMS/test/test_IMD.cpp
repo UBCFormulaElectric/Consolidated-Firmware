@@ -1,10 +1,17 @@
 #include "test_BMSBase.hpp"
 #include "app_imd.hpp"
+#include <optional>
+
+using app::can_utils::ImdActiveFrequency;
+using app::can_utils::ImdConditionName;
+using app::imd::Sst;
+using enum app::can_utils::ImdActiveFrequency;
+using enum app::can_utils::ImdConditionName;
 
 class ImdTest : public BMSBaseTest
 {
   public:
-    static void SetImdCondition(const ImdConditionName condition_name)
+    static void SetImdCondition(const app::can_utils::ImdConditionName condition_name)
     {
         const std::map<ImdConditionName, float> mapping{
             { IMD_CONDITION_SHORT_CIRCUIT, 0.0f },          { IMD_CONDITION_NORMAL, 10.0f },
@@ -34,8 +41,8 @@ TEST_F(ImdTest, check_insulation_resistance_normal_and_undervoltage_conditions)
         constexpr float MAX_VALID_DUTY_CYCLE = 95.0f;
         constexpr float MIN_VALID_DUTY_CYCLE = 5.0f;
 
-        fakes::imd::setDutyCycle(MIN_VALID_DUTY_CYCLE - 0.01);
-        ImdCondition condition = app::imd::getCondition();
+        fakes::imd::setDutyCycle(MIN_VALID_DUTY_CYCLE - 0.01f);
+        auto condition = app::imd::getCondition();
         ASSERT_EQ(false, condition.valid_duty_cycle);
 
         fakes::imd::setDutyCycle(MIN_VALID_DUTY_CYCLE);
@@ -45,11 +52,11 @@ TEST_F(ImdTest, check_insulation_resistance_normal_and_undervoltage_conditions)
 
         fakes::imd::setDutyCycle((MIN_VALID_DUTY_CYCLE + MAX_VALID_DUTY_CYCLE) / 2.0f);
         condition = app::imd::getCondition();
-        ASSERT_EQ(true, condition.pwm_encoding.valid_duty_cycle);
-        ASSERT_EQ(1200, condition.pwm_encoding.insulation_measurement_dcp_kohms);
+        ASSERT_EQ(true, condition.valid_duty_cycle);
+        ASSERT_EQ(1200, condition.payload.insulation_measurement_dcp_kohms);
 
-        fakes::imd::setDutyCycle(MAX_VALID_DUTY_CYCLE + 0.01);
-        ImdCondition condition = app::imd::getCondition();
+        fakes::imd::setDutyCycle(MAX_VALID_DUTY_CYCLE + 0.01f);
+        condition = app::imd::getCondition();
         ASSERT_EQ(false, condition.valid_duty_cycle);
 
         fakes::imd::setDutyCycle(MAX_VALID_DUTY_CYCLE);
@@ -67,8 +74,6 @@ TEST_F(ImdTest, check_good_and_bad_sst_condition_eval)
 
     constexpr float SST_FREQUENCY = 30.0f;
 
-    constexpr float SST_FREQUENCY = 30.0f;
-
     constexpr float GOOD_MIN_DUTY_CYCLE = 5.0f;
     constexpr float GOOD_MAX_DUTY_CYCLE = 10.0f;
 
@@ -78,39 +83,39 @@ TEST_F(ImdTest, check_good_and_bad_sst_condition_eval)
     fakes::imd::setFrequency(SST_FREQUENCY);
 
     fakes::imd::setDutyCycle(GOOD_MIN_DUTY_CYCLE - 0.1f);
-    ASSERT_EQ(false, app_imd_getCondition().pwm_encoding.valid_duty_cycle);
+    ASSERT_EQ(false, app::imd::getCondition().valid_duty_cycle);
 
     fakes::imd::setDutyCycle(GOOD_MIN_DUTY_CYCLE);
-    ImdCondition condition = app_imd_getCondition();
-    ASSERT_EQ(true, condition.pwm_encoding.valid_duty_cycle);
-    ASSERT_EQ(SST_GOOD, condition.pwm_encoding.speed_start_status);
+    auto condition = app::imd::getCondition();
+    ASSERT_EQ(true, condition.valid_duty_cycle);
+    ASSERT_EQ(Sst::GOOD, condition.payload.speed_start_status);
 
     fakes::imd::setDutyCycle(GOOD_MAX_DUTY_CYCLE);
-    condition = app_imd_getCondition();
-    ASSERT_EQ(true, condition.pwm_encoding.valid_duty_cycle);
-    ASSERT_EQ(SST_GOOD, condition.pwm_encoding.speed_start_status);
+    condition = app::imd::getCondition();
+    ASSERT_EQ(true, condition.valid_duty_cycle);
+    ASSERT_EQ(Sst::GOOD, condition.payload.speed_start_status);
 
     fakes::imd::setDutyCycle(GOOD_MAX_DUTY_CYCLE + 0.1f);
-    ASSERT_EQ(false, app_imd_getCondition().pwm_encoding.valid_duty_cycle);
+    ASSERT_EQ(false, app::imd::getCondition().valid_duty_cycle);
 
     fakes::imd::setDutyCycle((GOOD_MIN_DUTY_CYCLE + BAD_MIN_DUTY_CYCLE) / 2.0f);
-    ASSERT_EQ(false, app_imd_getCondition().pwm_encoding.valid_duty_cycle);
+    ASSERT_EQ(false, app::imd::getCondition().valid_duty_cycle);
 
     fakes::imd::setDutyCycle(BAD_MIN_DUTY_CYCLE - 0.1f);
-    ASSERT_EQ(false, app_imd_getCondition().pwm_encoding.valid_duty_cycle);
+    ASSERT_EQ(false, app::imd::getCondition().valid_duty_cycle);
 
     fakes::imd::setDutyCycle(BAD_MIN_DUTY_CYCLE);
-    condition = app_imd_getCondition();
-    ASSERT_EQ(true, condition.pwm_encoding.valid_duty_cycle);
-    ASSERT_EQ(SST_BAD, condition.pwm_encoding.speed_start_status);
+    condition = app::imd::getCondition();
+    ASSERT_EQ(true, condition.valid_duty_cycle);
+    ASSERT_EQ(Sst::BAD, condition.payload.speed_start_status);
 
     fakes::imd::setDutyCycle(BAD_MAX_DUTY_CYCLE);
-    condition = app_imd_getCondition();
-    ASSERT_EQ(true, condition.pwm_encoding.valid_duty_cycle);
-    ASSERT_EQ(SST_BAD, condition.pwm_encoding.speed_start_status);
+    condition = app::imd::getCondition();
+    ASSERT_EQ(true, condition.valid_duty_cycle);
+    ASSERT_EQ(Sst::BAD, condition.payload.speed_start_status);
 
     fakes::imd::setDutyCycle(BAD_MAX_DUTY_CYCLE + 0.1f);
-    ASSERT_EQ(false, app_imd_getCondition().pwm_encoding.valid_duty_cycle);
+    ASSERT_EQ(false, app::imd::getCondition().valid_duty_cycle);
 }
 
 TEST_F(ImdTest, check_frequency_to_condition_mapping)
@@ -174,39 +179,39 @@ TEST_F(ImdTest, check_can_broadcast_function)
 {
     struct StatusLut
     {
-        float              frequency;
-        float              duty_cycle;
-        ImdConditionName   condition_name;
-        ImdActiveFrequency active_frequency;
+        float                             frequency;
+        std::optional<float>              duty_cycle;
+        ImdConditionName                  condition_name;
+        std::optional<ImdActiveFrequency> active_frequency;
     };
     const std::vector<StatusLut> lookup_table = {
-        { 0.0f, NULL, IMD_CONDITION_SHORT_CIRCUIT, IMD_0Hz },
-        { 3.0f, NULL, IMD_CONDITION_INVALID, NULL },
-        { 7.0f, NULL, IMD_CONDITION_INVALID, NULL },
+        { 0.0f, std::nullopt, IMD_CONDITION_SHORT_CIRCUIT, IMD_0Hz },
+        { 3.0f, std::nullopt, IMD_CONDITION_INVALID, std::nullopt },
+        { 7.0f, std::nullopt, IMD_CONDITION_INVALID, std::nullopt },
         { 10.0f, 50.0f, IMD_CONDITION_NORMAL, IMD_10Hz },
-        { 13.0f, 50.0f, IMD_CONDITION_INVALID, NULL },
-        { 17.0f, 50.0f, IMD_CONDITION_INVALID, NULL },
+        { 13.0f, 50.0f, IMD_CONDITION_INVALID, std::nullopt },
+        { 17.0f, 50.0f, IMD_CONDITION_INVALID, std::nullopt },
         { 20.0f, 50.0f, IMD_CONDITION_UNDERVOLTAGE_DETECTED, IMD_20Hz },
-        { 23.0f, 50.0f, IMD_CONDITION_INVALID, NULL },
-        { 27.0f, 5.0f, IMD_CONDITION_INVALID, NULL },
+        { 23.0f, 50.0f, IMD_CONDITION_INVALID, std::nullopt },
+        { 27.0f, 5.0f, IMD_CONDITION_INVALID, std::nullopt },
         { 30.0f, 95.0f, IMD_CONDITION_SST, IMD_30Hz },
-        { 33.0f, 5.0f, IMD_CONDITION_INVALID, NULL },
-        { 37.0f, 50.0f, IMD_CONDITION_INVALID, NULL },
+        { 33.0f, 5.0f, IMD_CONDITION_INVALID, std::nullopt },
+        { 37.0f, 50.0f, IMD_CONDITION_INVALID, std::nullopt },
         { 40.0f, 50.0f, IMD_CONDITION_DEVICE_ERROR, IMD_40Hz },
-        { 43.0f, 50.0f, IMD_CONDITION_INVALID, NULL },
-        { 47.0f, 50.0f, IMD_CONDITION_INVALID, NULL },
+        { 43.0f, 50.0f, IMD_CONDITION_INVALID, std::nullopt },
+        { 47.0f, 50.0f, IMD_CONDITION_INVALID, std::nullopt },
         { 50.0f, 50.0f, IMD_CONDITION_GROUND_FAULT, IMD_50Hz },
-        { 53.0f, 50.0f, IMD_CONDITION_INVALID, NULL },
+        { 53.0f, 50.0f, IMD_CONDITION_INVALID, std::nullopt },
     };
 
     for (const auto &[frequency, duty_cycle, condition_name, active_frequency_status] : lookup_table)
     {
-        bool duty_cycle_valid     = duty_cycle != NULL;
-        bool active_frequency_set = active_frequency_status != NULL;
+        bool duty_cycle_valid     = duty_cycle.has_value();
+        bool active_frequency_set = active_frequency_status.has_value();
         fakes::imd::setFrequency(frequency);
         if (duty_cycle_valid)
         {
-            fakes::imd::setDutyCycle(duty_cycle);
+            fakes::imd::setDutyCycle(*duty_cycle);
         }
 
         app::imd::broadcast();
@@ -218,13 +223,13 @@ TEST_F(ImdTest, check_can_broadcast_function)
         if (duty_cycle_valid)
         {
             ASSERT_EQ(app::can_tx::BMS_ImdValidDutyCycle_get(), true);
-            ASSERT_EQ(app::can_tx::BMS_ImdDutyCycle_get(), duty_cycle);
+            ASSERT_EQ(app::can_tx::BMS_ImdDutyCycle_get(), *duty_cycle);
         }
         ASSERT_EQ(active_frequency_set, app::can_tx::BMS_ImdCondition_get() != IMD_CONDITION_INVALID);
 
         if (active_frequency_set)
         {
-            ASSERT_EQ(app::can_tx::BMS_ImdActiveFrequency_get() == active_frequency_status);
+            ASSERT_TRUE(app::can_tx::BMS_ImdActiveFrequency_get() == *active_frequency_status);
         }
     }
 }

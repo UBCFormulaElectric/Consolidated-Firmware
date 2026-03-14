@@ -5,6 +5,7 @@
 #include "app_states.hpp"
 #include "app_timer.hpp"
 #include "app_canTx.hpp"
+#include "app_precharge.hpp"
 
 namespace app::states
 {
@@ -12,8 +13,7 @@ namespace app::states
 namespace prechargeLatchState
 {
 
-    constexpr uint32_t PRECHARGE_LATCH_TIMEOUT_MS = 3000U; // 3 seconds
-    static app::Timer  precharge_latch_timer{ PRECHARGE_LATCH_TIMEOUT_MS };
+    static app::Timer precharge_latch_timer{ app::precharge::PRECHARGE_LATCH_TIMEOUT_MS };
 
     static void runOnEntry()
     {

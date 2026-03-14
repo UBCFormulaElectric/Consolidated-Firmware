@@ -88,7 +88,7 @@ namespace adbms
      * @param config the configuration to write on the ADBMS
      * @return success of the operation
      */
-    ExitCode writeConfigurationRegisters(const SegmentConfig config[io::NUM_SEGMENTS]);
+    std::expected<void, ErrorCode> writeConfigurationRegisters(const SegmentConfig config[io::NUM_SEGMENTS]);
 
     /**
      * @file adbms/io_adbms_balance.cpp
@@ -98,13 +98,13 @@ namespace adbms
      * Sends a command to enable balancing
      * @return success of operation
      */
-    ExitCode sendBalanceCommand(void);
+    std::expected<void, ErrorCode> sendBalanceCommand(void);
 
     /**
      * Send a command to disable balancing
      * @return success of operation
      */
-    ExitCode sendStopBalanceCommand(void);
+    std::expected<void, ErrorCode> sendStopBalanceCommand(void);
 
     /**
      * @file io_adbms_cells.cpp
@@ -116,14 +116,14 @@ namespace adbms
      * @param comm_success success of operation on a certain segment and register group
      */
     void readVoltageRegisters(
-        uint16_t cell_voltage_regs[io::NUM_SEGMENTS][io::CELLS_PER_SEGMENTS],
-        ExitCode comm_success[io::NUM_SEGMENTS][io::CELLS_PER_SEGMENTS]);
+        uint16_t                       cell_voltage_regs[io::NUM_SEGMENTS][io::CELLS_PER_SEGMENTS],
+        std::expected<void, ErrorCode> comm_success[io::NUM_SEGMENTS][io::CELLS_PER_SEGMENTS]);
 
     /**
      * sends a command to read all voltages from all segments
      * @return success of the operation
      */
-    ExitCode startCellsAdcConversion(void);
+    std::expected<void, ErrorCode> startCellsAdcConversion(void);
 
     /**
      * @file ltc6813/io_ltc6813_utils.c
@@ -138,7 +138,7 @@ namespace adbms
      * polls the LTC6813 for the completion of the ADC conversions
      * @return success of the operation
      */
-    ExitCode pollAdcConversions(void);
+    std::expected<void, ErrorCode> pollAdcConversions(void);
 
 } // namespace adbms
 } // namespace io

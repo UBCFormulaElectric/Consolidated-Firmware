@@ -1,32 +1,34 @@
 #include "app_canUtils.hpp"
 
+using namespace app::can_utils;
+
 namespace io::irs
 {
 /**
  * Check if the IR- is closed
  * @returns the state of the IR- relay.
  */
-app::can_utils::ContactorState negativeState(void);
+ContactorState negativeState(void);
 
 /**
  * Sets the IR- relay to the desired state
  */
-void setPositive(app::can_utils::ContactorState state);
+void setPositive(ContactorState state);
 
 /**
  * Check if the IR+ is closed
  * @returns the state of the IR+ relay.
  */
-app::can_utils::ContactorState positiveState(void);
+ContactorState positiveState(void);
 
 /**
  * Set the precharge relay to the desired state
  */
-void setPrecharge(app::can_utils::ContactorState state);
+void setPrecharge(ContactorState state);
 
 /**
  * Check if the precharge relay is closed
  * @returns the state of the precharge relay.
  */
-app::can_utils::ContactorState prechargeState(void);
+ContactorState prechargeState(void);
 } // namespace io::irs

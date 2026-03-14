@@ -31,7 +31,7 @@ void setCurrentStatus(const FaultLatch *latch, const FaultLatchState status)
 {
     assert(latch != nullptr);
     assert(latch->read_only == false);
-    latch->current_status_gpio->writePin((status == FaultLatchState::OK) ? false : true);
+    latch->current_status_gpio->writePin((status == FaultLatchState::OK ^ latch->current_inverted) ? true : false);
 }
 
 FaultLatchState getCurrentStatus(const FaultLatch *latch)
