@@ -1,4 +1,7 @@
 #pragma once
 #include "hw_spi.hpp"
 
-extern hw::spi::SpiDevice imu_spi;
+namespace hw::spi
+{
+extern const SpiDevice imu_spi;
+}

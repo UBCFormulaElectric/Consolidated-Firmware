@@ -8,9 +8,10 @@ using namespace std;
 
 namespace io::adbms
 {
-expected<void, ErrorCode> writeConfigReg(array <SegmentConfig, NUM_SEGMENTS> &config) {
-    array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> cfga_regs {};
-    array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> cfgb_regs {};
+expected<void, ErrorCode> writeConfigReg(array<SegmentConfig, NUM_SEGMENTS> &config)
+{
+    array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> cfga_regs{};
+    array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> cfgb_regs{};
 
     for (size_t seg = 0U; seg < NUM_SEGMENTS; ++seg)
     {
@@ -25,14 +26,12 @@ expected<void, ErrorCode> writeConfigReg(array <SegmentConfig, NUM_SEGMENTS> &co
     return {};
 }
 
-void readConfigReg(
-    array<SegmentConfig, NUM_SEGMENTS>       &configs,
-    array<expected<void, ErrorCode>,NUM_SEGMENTS> &success)
+void readConfigReg(array<SegmentConfig, NUM_SEGMENTS> &configs, array<expected<void, ErrorCode>, NUM_SEGMENTS> &success)
 {
-    array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> regs_a {};
-    array<expected<void, ErrorCode>, NUM_SEGMENTS> success_a {};
-    array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> regs_b {};
-    array<expected<void, ErrorCode>, NUM_SEGMENTS> success_b {};
+    array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> regs_a{};
+    array<expected<void, ErrorCode>, NUM_SEGMENTS>      success_a{};
+    array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> regs_b{};
+    array<expected<void, ErrorCode>, NUM_SEGMENTS>      success_b{};
 
     readRegGroup(RDCFGA, regs_a, success_a);
     readRegGroup(RDCFGB, regs_b, success_b);

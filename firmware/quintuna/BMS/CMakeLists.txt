@@ -38,7 +38,7 @@ file(GLOB_RECURSE HW_SRCS
 list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
 
-        # "${SHARED_HW_INCLUDE_DIR}/hw_spi.c"
+        "${SHARED_HW_INCLUDE_DIR}/hw_spi.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_i2c.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_adc.c"
@@ -144,6 +144,7 @@ if("${TARGET}" STREQUAL "binary")
                 FALSE
         )
 
+        
         # JSONCAN
         jsoncan_embedded_library(BMS quintuna "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
 
@@ -154,60 +155,36 @@ if("${TARGET}" STREQUAL "binary")
                 "${CMAKE_CURRENT_BINARY_DIR}/app"
         )
 
-        target_link_libraries("quintuna_BMS_app.elf" PRIVATE "quintuna_BMS_stm32" "quintuna_BMS_jsoncan" "quintuna_BMS_commit_info" "quintuna_chimera_v2_proto_cm7")
-        target_compile_definitions("quintuna_BMS_app.elf" PUBLIC TARGET_HV_SUPPLY)
+    target_link_libraries("quintuna_BMS_app.elf" PRIVATE
+            "quintuna_BMS_stm32"
+            "quintuna_BMS_jsoncan"
+            "quintuna_BMS_commit_info"
+            "quintuna_chimera_v2_proto_cm7"
+            m)
+    target_compile_definitions("quintuna_BMS_app.elf" PRIVATE STM32H733xx)
 
-        if("${BOOTLOAD}" STREQUAL "ON")
-                # Bootloader files.
-                file(GLOB BOOT_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
-                file(GLOB BOOT_CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
-                set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
-                no_checks("${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c")
-                stm32h7_boot_binary(
-                        "quintuna_BMS_boot"
-                        "${BOOT_SRCS}"
-                        "${BOOT_CUBEMX_SRCS}"
-                        "${BOOT_INCLUDE_DIRS}"
-                        "quintuna_BMS"
-                        "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/BMS_boot.ioc"
-                )
-                target_link_libraries("quintuna_BMS_boot.elf" PRIVATE "quintuna_BMS_commit_info")
-
-                embedded_image(
-                        "quintuna_BMS"
-                        "quintuna_BMS_app.hex"
-                        "${CMAKE_CURRENT_BINARY_DIR}/quintuna_BMS_app.hex"
-                        "quintuna_BMS_boot.hex"
-                        "${CMAKE_CURRENT_BINARY_DIR}/quintuna_BMS_boot.hex"
-                )
-        endif()
-elseif("${TARGET}" STREQUAL "test")
-        file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
-        set(SHARED_FAKES
-                "${SHARED_FAKES_DIR}/io_canQueue.cpp"
-                "${SHARED_FAKES_DIR}/io_semaphore.cpp"
-                "${SHARED_FAKES_DIR}/io_time.cpp"
+    if ("${BOOTLOAD}" STREQUAL "ON")
+        # Bootloader files.
+        file(GLOB BOOT_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+        file(GLOB BOOT_CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
+        set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
+        no_checks("${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c")
+        stm32h7_boot_binary(
+                "quintuna_BMS_boot"
+                "${BOOT_SRCS}"
+                "${BOOT_CUBEMX_SRCS}"
+                "${BOOT_INCLUDE_DIRS}"
+                "quintuna_BMS"
+                "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/BMS_boot.ioc"
         )
-        set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${SHARED_FAKES})
-        set(INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/test" ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR}
-                ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_FAKES_DIR})
-        compile_gtest_executable(
-                "quintuna_BMS_test"
-                "${SRCS}"
-                "${INCLUDE_DIRS}"
+        target_link_libraries("quintuna_BMS_boot.elf" PRIVATE "quintuna_BMS_commit_info")
+
+        embedded_image(
+                "quintuna_BMS"
+                "quintuna_BMS_app.hex"
+                "${CMAKE_CURRENT_BINARY_DIR}/quintuna_BMS_app.hex"
+                "quintuna_BMS_boot.hex"
+                "${CMAKE_CURRENT_BINARY_DIR}/quintuna_BMS_boot.hex"
         )
-
-        # JSONCAN
-        jsoncan_library(BMS quintuna "${CMAKE_CURRENT_BINARY_DIR}")
-
-        # commit info
-        commit_info_library(
-                "quintuna_BMS_test"
-                "quintuna_BMS_commit_info"
-                "${CMAKE_CURRENT_BINARY_DIR}/app"
-        )
-
-        target_link_libraries("quintuna_BMS_test" PRIVATE "quintuna_BMS_jsoncan" "quintuna_BMS_jsoncan_fakes" "quintuna_BMS_commit_info")
-        target_compile_definitions("quintuna_BMS_test" PRIVATE STM32H733xx)
-        target_compile_definitions("quintuna_BMS_test" PRIVATE STM32H733xx)
-endif()
+    endif ()
+endif ()

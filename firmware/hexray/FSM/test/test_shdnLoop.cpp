@@ -1,11 +1,8 @@
+// TODO
 #include "fsmMocks.hpp"
 #include "test_FSMBase.hpp"
-extern "C"
-{
-#include "app_canTx.h"
-#include "app_canAlerts.h"
-    // #include "app_shdnLoopNode.h"
-}
+#include "app_canTx.hpp"
+#include "app_canAlerts.hpp"
 
 class ShdnLoopModuleTest : public FSMBaseTest
 {

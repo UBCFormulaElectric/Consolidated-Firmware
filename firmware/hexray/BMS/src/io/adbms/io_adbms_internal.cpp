@@ -49,14 +49,16 @@ static uint16_t calculatePec10(const span<const uint8_t> data, const uint16_t cm
     uint16_t remainder = 16U;
     uint16_t address;
 
-    for (size_t i = 0; i < data.size(); i++) {
+    for (size_t i = 0; i < data.size(); i++)
+    {
         address   = ((remainder >> 2) ^ data[i]) & 0xFFU;
         remainder = (uint16_t)(((uint16_t)(remainder << 8)) ^ pec10Table[address]);
-        remainder &= 0x03FFU;  
+        remainder &= 0x03FFU;
     }
 
-    remainder ^= ((uint16_t)cmdCount<< 4);
-    for (int bit = 0; bit < 6; bit++) {
+    remainder ^= ((uint16_t)cmdCount << 4);
+    for (int bit = 0; bit < 6; bit++)
+    {
         if (remainder & 0x0200)
             remainder = static_cast<uint16_t>((remainder << 1U) ^ CRC10_POLY);
         else
@@ -71,7 +73,8 @@ static uint16_t calculatePec15(const span<const uint8_t> data)
     uint16_t remainder = 16U;
     uint16_t address;
 
-    for (size_t i = 0; i < data.size(); i++) {
+    for (size_t i = 0; i < data.size(); i++)
+    {
         address   = ((remainder >> 7) ^ data[i]) & 0xFFU;
         remainder = (uint16_t)(((uint16_t)(remainder << 8)) ^ pec15Table[address]);
     }
@@ -86,10 +89,10 @@ static bool checkDataPec(const span<const uint8_t> data, const uint16_t cmdCount
 struct __attribute__((packed)) RegGroupPayload
 {
     array<uint8_t, io::adbms::REG_GROUP_SIZE> data;
-    uint16_t pec10;
+    uint16_t                                  pec10;
 };
 
-struct __attribute__ ((packed)) TxCmd
+struct __attribute__((packed)) TxCmd
 {
     uint16_t cmd;
     uint16_t pec15;
@@ -100,9 +103,9 @@ struct __attribute__ ((packed)) TxCmd
     }
 };
 
-struct __attribute__ ((packed)) TxCmdPayload
+struct __attribute__((packed)) TxCmdPayload
 {
-    TxCmd tx_cmd;
+    TxCmd                                    tx_cmd;
     array<RegGroupPayload, io::NUM_SEGMENTS> payload;
 };
 
@@ -123,12 +126,12 @@ expected<void, ErrorCode> poll(const uint16_t cmd, span<uint8_t> poll_buf)
 }
 
 void readRegGroup(
-    const uint16_t cmd,
+    const uint16_t                                       cmd,
     array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs,
     array<expected<void, ErrorCode>, NUM_SEGMENTS>      &comm_success)
 {
-    const TxCmd tx_cmd{ cmd };
-    array<RegGroupPayload, NUM_SEGMENTS> rx_buffer {};
+    const TxCmd                          tx_cmd{ cmd };
+    array<RegGroupPayload, NUM_SEGMENTS> rx_buffer{};
 
     const auto tx_status = hw::spi::adbms_spi_ls.transmitThenReceive(
         { reinterpret_cast<const uint8_t *>(&tx_cmd), sizeof(tx_cmd) },
@@ -143,9 +146,9 @@ void readRegGroup(
 
     for (size_t segment = 0U; segment < NUM_SEGMENTS; ++segment)
     {
-        const auto &payload = rx_buffer[segment];
-        const auto cmd_count = static_cast<uint16_t>(swapEndianness(payload.pec10) >> 10U);
-        const auto expected_pec = static_cast<uint16_t>(payload.pec10 & 0xFF03U);
+        const auto &payload      = rx_buffer[segment];
+        const auto  cmd_count    = static_cast<uint16_t>(swapEndianness(payload.pec10) >> 10U);
+        const auto  expected_pec = static_cast<uint16_t>(payload.pec10 & 0xFF03U);
 
         if (checkDataPec(payload.data, cmd_count, expected_pec))
         {
@@ -160,22 +163,20 @@ void readRegGroup(
     }
 }
 
-expected<void, ErrorCode> writeRegGroup(
-    const uint16_t cmd,
-    const array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs)
+expected<void, ErrorCode>
+    writeRegGroup(const uint16_t cmd, const array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs)
 {
     TxCmdPayload tx_buffer{ TxCmd{ cmd }, {} };
 
     for (size_t segment = 0U; segment < NUM_SEGMENTS; ++segment)
     {
         auto &payload = tx_buffer.payload[segment];
-        payload.data = regs[segment];
-        payload.pec10 =
-            static_cast<uint16_t>(swapEndianness(calculatePec10(payload.data, 0U) & 0x03FFU));
+        payload.data  = regs[segment];
+        payload.pec10 = static_cast<uint16_t>(swapEndianness(calculatePec10(payload.data, 0U) & 0x03FFU));
     }
 
     return hw::spi::adbms_spi_ls.transmit({ reinterpret_cast<const uint8_t *>(&tx_buffer), sizeof(tx_buffer) });
 }
 
-}
+} // namespace io::adbms
 // namespace io::adbms

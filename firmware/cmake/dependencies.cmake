@@ -64,6 +64,22 @@ IF ("${TARGET}" STREQUAL "binary")
             GIT_SHALLOW TRUE
             DOWNLOAD_ONLY TRUE
     )
+    # Autodiff library: contains header only apis to automatically compute derrivatives of functions 
+    CPMAddPackage(
+        NAME AUTO_DIFF
+        GITHUB_REPOSITORY autodiff/autodiff
+        GIT_TAG 2e2f3a2b16afcd9c04e76c8a689e9fd23ff78679
+        GIT_SHALLOW TRUE
+        DOWNLOAD_ONLY TRUE
+    )
+    # Eigen Library: provides support for matrices and matrix algebra 
+    CPMAddPackage(
+        NAME EIGEN
+        GIT_REPOSITORY https://gitlab.com/libeigen/eigen
+        GIT_TAG 3147391d946bb4b6c68edd901f2add6ac1f31f8c
+        GIT_SHALLOW TRUE
+        DOWNLOAD_ONLY TRUE
+    )
 ELSEIF ("${TARGET}" STREQUAL "test")
     # Fetch GoogleTest for unit testing.
     CPMAddPackage(
@@ -71,6 +87,22 @@ ELSEIF ("${TARGET}" STREQUAL "test")
             GITHUB_REPOSITORY "google/googletest"
             GIT_TAG "release-1.12.1"
             GIT_SHALLOW TRUE
+    )
+    # Autodiff library: contains header only apis to automatically compute derrivatives of functions
+    CPMAddPackage(
+        NAME AUTO_DIFF
+        GITHUB_REPOSITORY autodiff/autodiff
+        GIT_TAG 2e2f3a2b16afcd9c04e76c8a689e9fd23ff78679
+        GIT_SHALLOW TRUE
+        DOWNLOAD_ONLY TRUE
+    )
+    # Eigen Library: provides support for matrices and matrix algebra
+    CPMAddPackage(
+        NAME EIGEN
+        GIT_REPOSITORY https://gitlab.com/libeigen/eigen
+        GIT_TAG 3147391d946bb4b6c68edd901f2add6ac1f31f8c
+        GIT_SHALLOW TRUE
+        DOWNLOAD_ONLY TRUE
     )
 ENDIF ()
 

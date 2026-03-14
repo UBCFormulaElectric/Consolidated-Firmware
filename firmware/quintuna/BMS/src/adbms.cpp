@@ -12,9 +12,8 @@
 [[maybe_unused]] static std::array<io::adbms::SegmentConfig, io::NUM_SEGMENTS>       configReg;
 
 [[maybe_unused]] static std::array<std::array<uint16_t, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> cell_voltage_regs;
-[[maybe_unused]] static std::array<std::array<std::expected<void, ErrorCode>,io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>  cell_voltage_success;
-
-
+[[maybe_unused]] static std::array<std::array<std::expected<void, ErrorCode>, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>
+    cell_voltage_success;
 
 CFUNC void adbms_init()
 {
@@ -48,7 +47,7 @@ CFUNC void adbms_init()
 
     io::adbms::wakeup();
     io::adbms::writeConfigReg(configReg);
-    //io::adbms::startCellsAdcConversion();
+    // io::adbms::startCellsAdcConversion();
 }
 
 CFUNC void adbms_tick()
@@ -58,13 +57,12 @@ CFUNC void adbms_tick()
     io::adbms::writeConfigReg(configReg);
     io::adbms::readConfigReg(configs, success);
     io::adbms::sendBalanceCmd();
-    //io::adbms::startCellsAdcConversion();
-    //io::time::delay(2);
-    //io::adbms::sendCmd(io::adbms::SNAP);
-    //io::adbms::readCellVoltageReg(cell_voltage_regs, cell_voltage_success);
-    //io::adbms::sendCmd(io::adbms::UNSNAP);
-    //io::adbms::readCellVoltageReg(cell_voltage_regs, comm_success);
-    //assert(io::adbms::sendBalanceCmd());
+    // io::adbms::startCellsAdcConversion();
+    // io::time::delay(2);
+    // io::adbms::sendCmd(io::adbms::SNAP);
+    // io::adbms::readCellVoltageReg(cell_voltage_regs, cell_voltage_success);
+    // io::adbms::sendCmd(io::adbms::UNSNAP);
+    // io::adbms::readCellVoltageReg(cell_voltage_regs, comm_success);
+    // assert(io::adbms::sendBalanceCmd());
     LOG_INFO("done!");
 }
-

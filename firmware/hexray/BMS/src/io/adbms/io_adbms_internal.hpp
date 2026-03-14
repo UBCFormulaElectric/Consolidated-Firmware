@@ -20,20 +20,20 @@ inline constexpr uint16_t RDCFGA = 0x0002U;
 inline constexpr uint16_t RDCFGB = 0x0026U;
 
 // Cell voltages (C-ADC)
-inline constexpr uint16_t RDCVA   = 0x0004U;
-inline constexpr uint16_t RDCVB   = 0x0006U;
-inline constexpr uint16_t RDCVC   = 0x0008U;
-inline constexpr uint16_t RDCVD   = 0x000AU;
-inline constexpr uint16_t RDCVE   = 0x0009U;
-inline constexpr uint16_t RDCVF   = 0x000BU;
+inline constexpr uint16_t RDCVA = 0x0004U;
+inline constexpr uint16_t RDCVB = 0x0006U;
+inline constexpr uint16_t RDCVC = 0x0008U;
+inline constexpr uint16_t RDCVD = 0x000AU;
+inline constexpr uint16_t RDCVE = 0x0009U;
+inline constexpr uint16_t RDCVF = 0x000BU;
 
 // Filtered cell voltages
-inline constexpr uint16_t RDFCA   = 0x0012U;
-inline constexpr uint16_t RDFCB   = 0x0013U;
-inline constexpr uint16_t RDFCC   = 0x0014U;
-inline constexpr uint16_t RDFCD   = 0x0015U;
-inline constexpr uint16_t RDFCE   = 0x0016U;
-inline constexpr uint16_t RDFCF   = 0x0017U;
+inline constexpr uint16_t RDFCA = 0x0012U;
+inline constexpr uint16_t RDFCB = 0x0013U;
+inline constexpr uint16_t RDFCC = 0x0014U;
+inline constexpr uint16_t RDFCD = 0x0015U;
+inline constexpr uint16_t RDFCE = 0x0016U;
+inline constexpr uint16_t RDFCF = 0x0017U;
 
 // AUX & Status
 inline constexpr uint16_t RDAUXA  = 0x0019U;
@@ -77,7 +77,7 @@ inline constexpr uint16_t ADAX_BASE  = 0x0410U;
 inline constexpr uint16_t ADAX2_BASE = 0x0400U;
 
 // Snapshot
-inline constexpr uint16_t SNAP = 0x002DU;
+inline constexpr uint16_t SNAP   = 0x002DU;
 inline constexpr uint16_t UNSNAP = 0x002FU;
 
 // ADCV and ADSV
@@ -122,10 +122,9 @@ expected<void, ErrorCode> poll(uint16_t cmd, span<uint8_t> poll_buf);
  */
 
 void readRegGroup(
-    uint16_t                                                       cmd,
+    uint16_t                                             cmd,
     array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs,
     array<expected<void, ErrorCode>, NUM_SEGMENTS>      &comm_success);
-    
 
 /**
  * Send a write reg group command to write the values (see Table 46)
@@ -133,6 +132,5 @@ void readRegGroup(
  * @param regs Buffer containing the register values to write
  * @return success of operation
  */
-expected<void, ErrorCode>
-    writeRegGroup(uint16_t cmd, const array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs);
+expected<void, ErrorCode> writeRegGroup(uint16_t cmd, const array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs);
 } // namespace io::adbms

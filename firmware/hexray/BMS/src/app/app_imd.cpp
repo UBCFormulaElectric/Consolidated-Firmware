@@ -46,10 +46,10 @@ static ImdConditionName estimateConditionName(const float frequency)
     ImdConditionName condition_name = IMD_CONDITION_INVALID;
     for (int i = 0; i < NUM_OF_IMD_CONDITIONS; i++)
     {
-        ImdConditionName condition = static_cast<ImdConditionName>(i);
-        const float ideal       = getIdealPwmFrequency(condition);
-        const float lower_bound = fmaxf(0.0f, ideal - IMD_FREQUENCY_TOLERANCE);
-        const float upper_bound = ideal + IMD_FREQUENCY_TOLERANCE;
+        ImdConditionName condition   = static_cast<ImdConditionName>(i);
+        const float      ideal       = getIdealPwmFrequency(condition);
+        const float      lower_bound = fmaxf(0.0f, ideal - IMD_FREQUENCY_TOLERANCE);
+        const float      upper_bound = ideal + IMD_FREQUENCY_TOLERANCE;
 
         if (frequency >= lower_bound && frequency <= upper_bound)
         {
@@ -62,8 +62,8 @@ static ImdConditionName estimateConditionName(const float frequency)
 
 ImdCondition getCondition()
 {
-    const float   pwm_frequency          = io::imd::getFrequency();
-    const float   pwm_duty_cycle         = io::imd::getDutyCycle();
+    const float pwm_frequency  = io::imd::getFrequency();
+    const float pwm_duty_cycle = io::imd::getDutyCycle();
 
     ImdCondition condition{};
     condition.name = (pwm_frequency < 0.001f) ? IMD_CONDITION_SHORT_CIRCUIT : estimateConditionName(pwm_frequency);
@@ -89,8 +89,10 @@ ImdCondition getCondition()
                 }
                 else
                 {
-                    const uint16_t resistance = static_cast<uint16_t>((1080.0f / (pwm_duty_cycle / 100.0f - 0.05f)) - 1200.0f);
-                    condition.payload.insulation_measurement_dcp_kohms = std::min(resistance, static_cast<uint16_t>(50000));              
+                    const uint16_t resistance =
+                        static_cast<uint16_t>((1080.0f / (pwm_duty_cycle / 100.0f - 0.05f)) - 1200.0f);
+                    condition.payload.insulation_measurement_dcp_kohms =
+                        std::min(resistance, static_cast<uint16_t>(50000));
                 }
             }
         }

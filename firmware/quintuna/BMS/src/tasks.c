@@ -135,7 +135,6 @@ void tasks_run1Hz(void)
         // if (!hw_chimera_v2_enabled)
         {
             // jobs_run1Hz_tick();
-            
         }
         adbms_tick();
 
@@ -159,9 +158,8 @@ void tasks_run100Hz(void)
         // if (!hw_chimera_v2_enabled)
         // {
         //     // jobs_run100Hz_tick();
-            
+
         // }
-        
 
         // Watchdog check-in must be the last function called before putting the task to sleep.
         hw_watchdog_checkIn(watchdog);

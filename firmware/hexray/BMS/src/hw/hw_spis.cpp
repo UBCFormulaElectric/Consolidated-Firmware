@@ -1,12 +1,14 @@
 #include "hw_spis.hpp"
+#include "hw_gpios.hpp"
+#include "main.h"
 
-#include <assert.h>
+#include <cassert>
 
-namespace hw::spi
-{
 static constexpr uint16_t ADBMS_SPI_TIMEOUT_MS = 100;
 
-static SpiBus isospi_bus = { .handle = &hspi4 };
+static hw::spi::SpiBus   isospi_bus(hspi4);
+const hw::spi::SpiDevice adbms_spi_ls(isospi_bus, spi_cs_ls, ADBMS_SPI_TIMEOUT_MS);
+const hw::spi::SpiDevice adbms_spi_hs(isospi_bus, spi_cs_hs, ADBMS_SPI_TIMEOUT_MS);
 
 const SpiDevice adbms_spi_ls = { .bus = &isospi_bus, .nss_pin = &spi_cs_ls_pin, .timeout_ms = ADBMS_SPI_TIMEOUT_MS };
 

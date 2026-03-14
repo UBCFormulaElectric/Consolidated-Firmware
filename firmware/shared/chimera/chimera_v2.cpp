@@ -296,7 +296,7 @@ static bool evaluateRequest(const config &c, const ChimeraV2Request &request, Ch
                         .get()
                         .transmitThenReceive(
                             { payload->tx_data.bytes, payload->tx_data.size },
-                            { rx_data.data(), static_cast<uint16_t>(payload->rx_length) })
+                            { rx_buffer.data(), static_cast<uint16_t>(payload->rx_length) })
                         .has_value())
             {
                 LOG_ERROR("Chimera: Failed to Transact on SPI");
@@ -308,7 +308,7 @@ static bool evaluateRequest(const config &c, const ChimeraV2Request &request, Ch
             response.payload.spi_transaction.rx_data.size = static_cast<pb_size_t>(payload->rx_length);
             for (size_t i = 0; i < payload->rx_length; i += 1)
             {
-                response.payload.spi_transaction.rx_data.bytes[i] = rx_data[i];
+                response.payload.spi_transaction.rx_data.bytes[i] = rx_buffer[i];
             }
             return true;
         }
