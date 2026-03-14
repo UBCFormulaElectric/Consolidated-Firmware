@@ -19,7 +19,10 @@ void SpiBus::deinit() const
 
 void SpiBus::onTransactionCompleteFromISR() const
 {
-    assert(taskInProgress != nullptr);
+    if (taskInProgress == nullptr)
+    {
+        return;
+    }
 
     BaseType_t higherPriorityTaskWoken = pdFALSE;
     vTaskNotifyGiveFromISR(taskInProgress, &higherPriorityTaskWoken);
@@ -350,16 +353,21 @@ extern "C" void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
 
 extern "C" void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 {
-    // const auto &bus = getBusFromHandle(hspi);
-    // bus.onTransactionCompleteFromISR();
+    const auto &bus = getBusFromHandle(hspi);
+    bus.onTransactionCompleteFromISR();
 
     if (hspi->Instance == SPI4)
     {
-        onDmaCfgComplete(); // Advance DMA ConfigReg state machine
+        onDmaCfgComplete();
     }
 }
 
 extern "C" void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
 {
+    if (hspi->Instance == SPI4)
+    {
+        onDmaCfgError();
+    }
+
     LOG_ERROR("SPI error: 0x%X", hspi->ErrorCode);
 }
