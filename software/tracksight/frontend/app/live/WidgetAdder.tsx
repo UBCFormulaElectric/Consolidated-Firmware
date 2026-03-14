@@ -6,7 +6,6 @@ import { SignalType } from "@/lib/types/Signal";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useWidgetManager } from "@/components/widgets/WidgetManagerContext";
-import { NumericalWidgetModalForm } from "@/components/widgets/NumericalWidget";
 import chroma from "chroma-js";
 import { generateRandomColorPalette, MOCK_STATES } from "@/components/widgets/MockWidget";
 
@@ -142,7 +141,6 @@ function MockWidgetModalForm({ closeModal }: {
 export function WidgetAdder() {
   const [isOpen, setIsOpen] = useState(false);
   const [mockModalOpen, setMockModalOpen] = useState(false);
-  const [numericalModelOpen, setNumericalModelOpen] = useState(false);
   const { appendWidget: onAddWidget } = useWidgetManager();
 
   // TODO
@@ -152,7 +150,7 @@ export function WidgetAdder() {
   };
 
   const handleAddNumerical = () => {
-    setNumericalModelOpen(true);
+    onAddWidget({ type: SignalType.NUMERICAL, signals: [], id: "", mock: false });
     setIsOpen(false);
   };
 
@@ -188,13 +186,6 @@ export function WidgetAdder() {
           <MockWidgetModalForm closeModal={() => setMockModalOpen(false)} />
         </DialogContent>
       </Dialog>
-      {/* NUMERICAL MODAL */}
-      <Dialog open={numericalModelOpen} onOpenChange={setNumericalModelOpen}>
-        <DialogContent>
-          <NumericalWidgetModalForm closeModal={() => setNumericalModelOpen(false)} />
-        </DialogContent>
-      </Dialog>
     </>
   );
 }
-

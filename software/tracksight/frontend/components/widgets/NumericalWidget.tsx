@@ -1,9 +1,9 @@
 "use client";
 // react
-import { useEffect, useRef, useState, RefObject, SubmitEvent } from "react";
+import { RefObject, SubmitEvent, useCallback, useEffect, useRef, useState } from "react";
 // types
 import { NumericalSignalConfig, WidgetDataNumerical } from "@/components/widgets/WidgetTypes";
-import { SignalType } from "@/lib/types/Signal";
+import { NumericalSignalMetadata, SignalType } from "@/lib/types/Signal";
 import { ChartData, ChartDataNumerical, NumericalSeries } from "./CanvasChartTypes";
 import { SeriesData } from "@/lib/seriesData";
 import chroma from "chroma-js";
@@ -15,6 +15,7 @@ import { fetchNumericalSignalMetadata } from "@/lib/api/signalMetadata";
 // components
 import { Dialog, DialogDescription, DialogHeader, DialogTitle, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { PlusButton } from "@/components/icons/PlusButton";
+import { NumericalSignalPicker } from "./NumericalSignalPicker";
 
 function createEmptyNumericalSeries(label: string): NumericalSeries {
     return { label, timestamps: [], data: new SeriesData() };
@@ -36,94 +37,10 @@ function parsePointValue(value: number | string | undefined): number {
     return Number.NaN;
 }
 
-export function NumericalWidgetModalForm({ closeModal }: { closeModal: () => void; }) {
-    const { appendWidget: onAddWidget } = useWidgetManager();
-    const [numericalSignalName, setNumericalSignalName] = useState("");
-    const [error, setError] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
-
-    const handleNumericalSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        const trimmedSignalName = numericalSignalName.trim();
-
-        setIsLoading(true);
-        setError(null);
-
-        try {
-            const metadata = await fetchNumericalSignalMetadata(trimmedSignalName);
-
-            onAddWidget({
-                type: SignalType.NUMERICAL,
-                signals: [{
-                    signal_name: trimmedSignalName,
-                    delay: metadata.cycle_time_ms,
-                    min: metadata.min_val,
-                    max: metadata.max_val,
-                    color: chroma.random()
-                }],
-                id: trimmedSignalName,
-                mock: false,
-            });
-            closeModal();
-        } catch (e) {
-            setError(e instanceof Error ? e.message : "Failed to create widget");
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    return (
-        <>
-            <DialogHeader>
-                <DialogTitle>New Numerical Widget</DialogTitle>
-                <DialogDescription> options for configuring the numerical widget </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleNumericalSubmit} className="space-y-4">
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Signal Name
-                    </label>
-                    <input
-                        type="text"
-                        value={numericalSignalName}
-                        onChange={(e) => {
-                            setNumericalSignalName(e.target.value);
-                            if (error) {
-                                setError(null);
-                            }
-                        }}
-                        className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
-                        placeholder="e.g. BMS_TractiveSystemVoltage"
-                        autoFocus
-                        required
-                    />
-                </div>
-                {error && (
-                    <p className="text-sm text-red-600">{error}</p>
-                )}
-                <div className="flex justify-end gap-2 pt-2">
-                    <button type="button" onClick={closeModal} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer">
-                        Cancel
-                    </button>
-                    <button
-                        type="submit"
-                        disabled={isLoading || numericalSignalName.trim().length === 0}
-                        className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                        {isLoading ? "Creating..." : "Create Widget"}
-                    </button>
-                </div>
-            </form>
-        </>
-    );
-}
-
-
-
 export function useLiveNumericalData(widgetData: WidgetDataNumerical): RefObject<ChartData> {
     const dataRef = useRef<ChartDataNumerical>( {type: SignalType.NUMERICAL, all_series: [] } );
-    const previousSignalNamesRef = useRef<string[]>([]);
-    const seenCountRef = useRef<Map<string, number>>(new Map());
+    const previousSignalNamesRef = useRef<string[]>([]); // susbcribes new signals, removes old ones, preserves existing where possible 
+    const seenCountRef = useRef<Map<string, number>>(new Map()); // tracks, by signal, how many data points we've already processed
     const { getSignalData, subscribeToSignal, unsubscribeFromSignal } = useSignals();
     const dataVersion = useDataVersion();
     const { updateWithTimestamp } = useSyncedGraph();
@@ -220,28 +137,51 @@ function NumericalSignalModalForm ({ closeModal, configs, widgetData }: {
     configs: NumericalSignalConfig[];
     widgetData: WidgetDataNumerical;
 }) {
-    const [signalName, setSignalName] = useState("");
+    const [signalQuery, setSignalQuery] = useState("");
+    const [selectedSignal, setSelectedSignal] = useState<NumericalSignalMetadata | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const { appendSignal } = useWidgetManager();
 
+    const selectionError = signalQuery.trim().length > 0 && selectedSignal === null
+        ? "Choose a signal from the list."
+        : null;
+
+    const handleSignalQueryChange = useCallback((value: string) => {
+        setSignalQuery(value);
+        setSelectedSignal((currentSignal) => currentSignal?.name === value.trim() ? currentSignal : null);
+        setError(null);
+    }, []);
+
+    const handleSignalSelect = useCallback((signal: NumericalSignalMetadata) => {
+        setSignalQuery(signal.name);
+        setSelectedSignal(signal);
+        setError(null);
+    }, []);
+
     const handleClose = () => {
-        setSignalName("");
+        setSignalQuery("");
+        setSelectedSignal(null);
         setError(null);
         closeModal();
     };
 
     const handleAddSignal = async (e: SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const trimmedSignalName = signalName.trim();
+        if (!selectedSignal) {
+            setError("Choose a signal from the list.");
+            return;
+        }
+
+        const trimmedSignalName = selectedSignal.name;
 
         if (!trimmedSignalName) {
             setError("Signal name is required");
             return;
         }
 
-        if (configs.some((c) => c.signal_name === trimmedSignalName)) {
-            setError("Already listening to this signal");
+        if (configs.some((config) => config.signal_name === trimmedSignalName)) {
+            setError("Already listening to this signal on this widget.");
             return;
         }
 
@@ -268,24 +208,12 @@ function NumericalSignalModalForm ({ closeModal, configs, widgetData }: {
 
     return (
         <form onSubmit={handleAddSignal} className="space-y-4">
-            <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Signal Name
-                </label>
-                <input
-                    type="text"
-                    value={signalName}
-                    onChange={(e) => {
-                        setSignalName(e.target.value);
-                        if (error) {
-                            setError(null);
-                        }
-                    }}
-                    className="w-full border rounded px-3 py-2 text-gray-900 bg-white"
-                    placeholder="e.g. TractiveSystemVoltage"
-                    autoFocus
-                />
-            </div>
+            <NumericalSignalPicker
+                query={signalQuery}
+                selectedSignalName={selectedSignal?.name ?? null}
+                onQueryChange={handleSignalQueryChange}
+                onSelectSignal={handleSignalSelect}
+            />
             <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                     Type
@@ -294,8 +222,8 @@ function NumericalSignalModalForm ({ closeModal, configs, widgetData }: {
                     {widgetData.type === SignalType.NUMERICAL ? "Numerical" : "Enumeration"}
                 </div>
             </div>
-            {error && (
-                <p className="text-sm text-red-600">{error}</p>
+            {(error ?? selectionError) && (
+                <p className="text-sm text-red-600">{error ?? selectionError}</p>
             )}
             <div className="flex justify-end gap-2 pt-2">
                 <button type="button" onClick={handleClose} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer">
@@ -303,7 +231,7 @@ function NumericalSignalModalForm ({ closeModal, configs, widgetData }: {
                 </button>
                 <button
                     type="submit"
-                    disabled={isLoading || signalName.trim().length === 0}
+                    disabled={isLoading || selectedSignal === null}
                     className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
                 >
                     {isLoading ? "Adding..." : "Add"}

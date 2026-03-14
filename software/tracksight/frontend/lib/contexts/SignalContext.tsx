@@ -133,7 +133,7 @@ type SignalContextType = {
   reconnectSocket: () => void;
   activeSignals: string[];
   // alertSignals: Record<keyof typeof signalPatterns, SignalMeta[]>;
-  subscribeToSignal: (signalName: string, type?: SignalType) => void;
+  subscribeToSignal: (signalName: string) => void;
   unsubscribeFromSignal: (signalName: string, clearData?: boolean) => void;
   // Data accessors exposed to consumers
   getSignalData: (signalName: string) => DataPoint[];

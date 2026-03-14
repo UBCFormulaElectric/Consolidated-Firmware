@@ -96,6 +96,7 @@ export function Widget({ widgetData }: { widgetData: WidgetData; }) {
 	const [chartHeight, setChartHeight] = useState(256);
 	const { removeWidget, removeSignal } = useWidgetManager();
 	const hoveredSignal = useRef<string | null>(null);
+	const isEmptyWidget = widgetData.signals.length === 0;
 
 	// note that the type of this data should be bound to the type of widgetData
 	const dataRef: RefObject<ChartData> = useWidgetData(widgetData);
@@ -144,7 +145,13 @@ export function Widget({ widgetData }: { widgetData: WidgetData; }) {
 			</div>
 
 			{/* Actual chart */}
-			<CanvasChart widgetData={widgetData} chartData={dataRef} height={chartHeight} hoveredSignal={hoveredSignal} />
+			{isEmptyWidget ? (
+				<div className="mx-6 mt-4 rounded-lg border border-gray-300 bg-gray-50 px-6 py-12 text-center text-sm text-gray-500">
+					No signals added.
+				</div>
+			) : (
+				<CanvasChart widgetData={widgetData} chartData={dataRef} height={chartHeight} hoveredSignal={hoveredSignal} />
+			)}
 		</div>
 	)
 }
