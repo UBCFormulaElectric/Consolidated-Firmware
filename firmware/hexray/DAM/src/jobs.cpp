@@ -3,8 +3,8 @@
 #include "io_canQueues.hpp"
 #include "io_log.hpp"
 #include "io_telemMessage.hpp"
+#include "io_telemUart.hpp"
 #include "io_queue.hpp"
-#include "hw_uarts.hpp"
 #include "io_telemQueue.hpp"
 #include "app_jsoncan.hpp"
 #include <app_canUtils.hpp>
@@ -50,7 +50,7 @@ void jobs_runTelem_tick()
 
     const auto &msg = result.value();
     const auto  tx_result =
-        _900k_uart.transmitPoll(std::span<const uint8_t>{ reinterpret_cast<const uint8_t *>(&msg), msg.wireSize() });
+        io::telemUart::transmit(std::span<const uint8_t>{ reinterpret_cast<const uint8_t *>(&msg), msg.wireSize() });
     if (not tx_result)
     {
         LOG_ERROR("Failed to transmit telem message: %d", static_cast<int>(tx_result.error()));

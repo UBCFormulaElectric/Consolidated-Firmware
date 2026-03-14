@@ -1,10 +1,9 @@
-#include <array>
 #include <cassert>
 #include <cstring>
 #include <span>
 
 #include "io_telemMessage.hpp"
-#include "hw_crc.hpp"
+#include "io_crc.hpp"
 
 namespace
 {
@@ -46,14 +45,7 @@ namespace io::telemMessage
 Header::Header(const uint8_t *payload, uint8_t payload_length)
   : magic{ MAGIC_HIGH, MAGIC_LOW }, payload_size(payload_length), crc(0)
 {
-    std::array<uint8_t, 256> crc_input{};
-    memcpy(crc_input.data(), payload, payload_length);
-
-    const size_t crc_word_count = (static_cast<size_t>(payload_length) + 3U) / 4U;
-    const auto   crc_words =
-        std::span<const uint32_t>{ reinterpret_cast<const uint32_t *>(crc_input.data()), crc_word_count };
-
-    crc = ~hw::crc::calculate(crc_words);
+    crc = io::crc::calculatePayloadCrc(std::span<const uint8_t>{ payload, payload_length });
 }
 
 // BaseTimeRegMsg::BaseTimeRegMsg(const IoRtcTime &rtc_time)
