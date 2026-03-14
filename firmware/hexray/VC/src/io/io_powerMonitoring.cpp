@@ -2,6 +2,7 @@
 
 #include "hw_i2cs.hpp"
 #include "io_log.hpp"
+#include "io_time.hpp"
 #include <array>
 #include <expected>
 
@@ -38,15 +39,15 @@ std::expected<void, ErrorCode> write_register(uint16_t reg, std::span<const uint
     memcpy(&buf[1], data, len);
     return (hw_i2c_memoryWrite(&pwr_mtr, reg, buf, len + 1) == EXIT_CODE_OK); */
 
-    LOG_IF_ERR(hw::i2c::pwr_pump.memoryWrite(reg, data));
+    RETURN_IF_ERR(hw::i2c::pwr_pump.memoryWrite(reg, data));
     return {};
 }
 
 void io_power_monitoring_refresh(void)
 {
-    const std::uint8_t cmd = 0x00;
+    const uint8_t cmd = 0x00;
     LOG_IF_ERR(hw::i2c::pwr_pump.transmit((std::span{ &cmd, 1 })));
-    vTaskDelay(1);
+    io::time::delay(1);
 }
 
 bool io_powerMonitoring_init(void)
