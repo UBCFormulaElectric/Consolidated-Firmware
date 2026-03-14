@@ -1,28 +1,36 @@
 import { AlertSeries, EnumSeries, NumericalSeries } from "@/components/widgets/CanvasChartTypes";
-import { EnumSignalConfig, NumericalSignalConfig, WidgetSignalConfig } from "@/components/widgets/WidgetTypes";
-import { SignalType } from "../types/Signal";
+import { SignalMetadata, SignalType } from "../types/Signal";
 import { SeriesData } from "../seriesData";
 
-export type SignalStoreReturnType<T extends WidgetSignalConfig> = T extends EnumSignalConfig
+export type SignalStoreReturnType<T extends SignalMetadata> = T["type"] extends SignalType.ENUM
   ? EnumSeries
-  : T extends NumericalSignalConfig
+  : T["type"] extends SignalType.NUMERICAL
   ? NumericalSeries
-  : never;
+  : T["type"] extends SignalType.ALERT
+  ? NumericalSeries
+  : never
 
-type SignalStorageEntry<T extends WidgetSignalConfig> = {
+type SignalStorageEntry = {
   isSubscribed: boolean;
   error: unknown | null;
-  data: SignalStoreReturnType<T>;
-  storeType: T extends EnumSignalConfig
-  ? SignalType.ENUM
-  : T extends NumericalSignalConfig
-  ? SignalType.NUMERICAL
-  : never;
-}
+} & (
+    {
+      data: NumericalSeries
+      storeType: SignalType.ALERT
+    }
+    | {
+      data: NumericalSeries
+      storeType: SignalType.NUMERICAL
+    }
+    | {
+      data: EnumSeries
+      storeType: SignalType.ENUM
+    }
+  )
 
 abstract class SignalStore {
   protected storage: {
-    [signalName: string]: SignalStorageEntry<WidgetSignalConfig>;
+    [signalName: string]: SignalStorageEntry
   };
   protected alertDataStorage: {
     [signalName: string]: AlertSeries;
@@ -39,8 +47,8 @@ abstract class SignalStore {
     this.updateWithTimestamp = updateWithTimestamp;
   }
 
-  abstract getReferenceToSignal<T extends WidgetSignalConfig>(signal: T): SignalStoreReturnType<T>;
-  abstract purgeReferenceToSignal(signal: WidgetSignalConfig): void;
+  abstract getReferenceToSignal<T extends SignalMetadata>(signal: T): SignalStoreReturnType<T>;
+  abstract purgeReferenceToSignal(signal: SignalMetadata): void;
 
   private addAlertDataPoint(signalName: string, timestamp: number, value: number): void {
     this.updateWithTimestamp(timestamp);
@@ -62,48 +70,58 @@ abstract class SignalStore {
     return Object.values(this.alertDataStorage);
   }
 
-  private createSignalDataEntry<T extends WidgetSignalConfig>(signal: T): void {
+  private createSignalDataEntry<T extends SignalMetadata>(signal: T): void {
     const storageBase = {
       error: null,
       isSubscribed: true,
-      storeType: signal.type,
     };
 
     switch (signal.type) {
       case SignalType.ENUM:
-        this.storage[signal.signal_name] = {
+        this.storage[signal.name] = {
           ...storageBase,
           data: {
             enumValuesToNames: {},
             data: [],
             timestamps: [],
-            label: signal.signal_name,
+            label: signal.name,
           } satisfies EnumSeries,
-        };
+          storeType: SignalType.ENUM
+        } satisfies SignalStorageEntry
         break;
       case SignalType.NUMERICAL:
-        this.storage[signal.signal_name] = {
+        this.storage[signal.name] = {
           ...storageBase,
           data: {
             data: new SeriesData(),
             timestamps: [],
-            label: signal.signal_name,
+            label: signal.name,
           } satisfies NumericalSeries,
+          storeType: SignalType.NUMERICAL,
         }
         break;
     }
 
-    this.subscriberCounts[signal.signal_name] = 0;
+    this.subscriberCounts[signal.name] = 0;
   }
 
-  protected getOrCreateSignalData<T extends WidgetSignalConfig>(signal: T): SignalStorageEntry<T> {
-    if (!this.storage[signal.signal_name]) this.createSignalDataEntry(signal);
+  protected getOrCreateSignalData<T extends SignalMetadata>(signal: T): Extract<SignalStorageEntry, { storeType: T["type"] }> {
+    if (!this.storage[signal.name]) this.createSignalDataEntry(signal);
 
     return this.getSignalData(signal)!;
   }
 
-  getSignalData<T extends WidgetSignalConfig>(signal: T): SignalStorageEntry<T> | undefined {
-    return this.storage[signal.signal_name];
+  getSignalData<T extends SignalMetadata>(signal: T): Extract<SignalStorageEntry, { storeType: T["type"] }> | undefined {
+    const signalDataToReturn = this.storage[signal.name];
+
+    if (!signalDataToReturn) return undefined;
+
+    if (signalDataToReturn.storeType !== signal.type) return undefined;
+
+    // NOTE(evan): We can assume this `any` cast is safe because we already force `storeType` and `type`
+    //             to be equal so we know it's the correct return type Typescript just can't do runtime
+    //             discriminated union scoping like that.
+    return signalDataToReturn as any;
   }
 
   incrementSubscribers(signalName: string): void {

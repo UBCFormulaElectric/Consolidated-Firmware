@@ -1,6 +1,6 @@
 import SignalStore from "@/lib/signals/SignalStore";
 import socket from "@/lib/realtime/socket";
-import { WidgetSignalConfig } from "@/components/widgets/WidgetTypes";
+import { SignalMetadata } from "../types/Signal";
 
 type SignalSubscriptionCallbacks = {
   onSuccess?: () => void;
@@ -33,36 +33,37 @@ class LiveSignalStore extends SignalStore {
     });
   }
 
-  getReferenceToSignal<T extends WidgetSignalConfig>(signal: T) {
+  // FIXME(evan): Type stuff I can't be bothered to do right now
+  getReferenceToSignal<T extends SignalMetadata>(signal: T) {
     const signalData = this.getOrCreateSignalData(signal);
-    this.incrementSubscribers(signal.signal_name);
+    this.incrementSubscribers(signal.name);
 
-    if (this.getSubscriberCount(signal.signal_name) !== 1) return signalData.data;
+    if (this.getSubscriberCount(signal.name) !== 1) return signalData.data;
 
-    this.subscribeToSignal(signal.signal_name, {
+    this.subscribeToSignal(signal.name, {
       onError: (error) => {
-        this.setError(signal.signal_name, error);
+        this.setError(signal.name, error);
       }
     });
 
     return signalData.data;
   }
 
-  purgeReferenceToSignal<T extends WidgetSignalConfig>(signal: T) {
-    const shouldCleanup = this.decrementSubscribers(signal.signal_name);
+  purgeReferenceToSignal<T extends SignalMetadata>(signal: T) {
+    const shouldCleanup = this.decrementSubscribers(signal.name);
 
     if (!shouldCleanup) return;
 
-    this.markAsUnsubscribed(signal.signal_name);
+    this.markAsUnsubscribed(signal.name);
 
-    this.unsubscribeFromSignal(signal.signal_name, {
+    this.unsubscribeFromSignal(signal.name, {
       onSuccess: () => {
-        if (this.getSubscriberCount(signal.signal_name) !== 0) return;
+        if (this.getSubscriberCount(signal.name) !== 0) return;
 
-        this.removeSignal(signal.signal_name);
+        this.removeSignal(signal.name);
       },
       onError: (error) => {
-        console.error(`Error unsubscribing from signal ${signal.signal_name}:`, error);
+        console.error(`Error unsubscribing from signal ${signal.name}:`, error);
       }
     });
   }

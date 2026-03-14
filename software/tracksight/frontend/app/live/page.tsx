@@ -3,17 +3,15 @@
 import { DisplayControlProvider, PausePlayButton } from "@/components/PausePlayControl";
 import SyncedGraphContainer from "@/components/SyncedGraphContainer";
 import { WidgetAdder } from "@/app/live/WidgetAdder";
-import { Widget } from "@/components/widgets/Widget";
 import { useWidgetManager, WidgetManager } from "@/components/widgets/WidgetManagerContext";
-import { SignalType } from "@/lib/types/Signal";
 import { LiveSignalStoreProvider } from "@/lib/contexts/signalStores/LiveSignalStoreContext";
 import { MockSignalStoreProvider } from "@/lib/contexts/signalStores/MockSignalStoreContext";
-import AlertTimeline from "@/components/widgets/AlertTimeline";
+import DataDashboard from "@/components/DataDashboard";
 
 const USE_MOCK_DATA = true;
 
 function Content() {
-  const { widgets, initializedFromLocalStorage } = useWidgetManager();
+  const { initializedFromLocalStorage } = useWidgetManager();
 
   const DataSourceProvider = USE_MOCK_DATA ? MockSignalStoreProvider : LiveSignalStoreProvider;
 
@@ -25,17 +23,7 @@ function Content() {
         {
           initializedFromLocalStorage ?
             <>
-              {widgets.map(widgetData => {
-                if (widgetData.type === SignalType.NUMERICAL) {
-                  return (
-                    <Widget key={widgetData.id} {...widgetData} type="numericalGraph" />
-                  );
-                } else if (widgetData.type === SignalType.ENUM) {
-                  return (
-                    <Widget key={widgetData.id} {...widgetData} type="enumTimeline" />
-                  );
-                }
-              })}
+              <DataDashboard />
               <WidgetAdder />
             </>
             :

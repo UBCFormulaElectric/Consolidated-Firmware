@@ -1,31 +1,26 @@
 "use client";
 
-import { useRef, RefObject, useEffect } from "react";
+import { useRef, RefObject } from "react";
 import render, { render_empty } from "@/components/widgets/render";
 import { ChartLayout } from "@/components/widgets/CanvasChartTypes";
-import { NumericalSignalConfig } from "@/components/widgets/WidgetTypes";
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { useSignalDataStores } from "@/lib/contexts/signalStores/SignalStoreContext";
 import { useCanvasRenderLoop } from "@/lib/hooks/useCanvasRenderLoop";
 import { useCanvasHover } from "@/lib/hooks/useCanvasHover";
 import { SignalType } from "@/lib/types/Signal";
+import { WidgetData } from "@/lib/types/Widget";
 
-type NumericalCanvasChartProps = {
-    id: string;
-    signals: NumericalSignalConfig[];
-    height: number;
-    timeTickCount?: number;
+type NumericalCanvasChartProps = Extract<WidgetData, { type: "numericalGraph" }> & {
     hoveredSignal?: RefObject<string | null>;
     onHoverTimestampChange?: (timestamp: number | null) => void;
 };
 
 export default function NumericalCanvasChart({
     id,
+    options,
     signals,
-    height,
     hoveredSignal,
     onHoverTimestampChange,
-    timeTickCount = 6,
 }: NumericalCanvasChartProps) {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const layoutRef = useRef<ChartLayout | null>(null);
@@ -34,6 +29,8 @@ export default function NumericalCanvasChart({
         hoverTimestampRef: externalHoverTimestampRef,
         XToTime,
     } = useSyncedGraph();
+
+    const { height, timeTickCount } = options;
 
     const chartData = useSignalDataStores(signals);
 
@@ -47,13 +44,11 @@ export default function NumericalCanvasChart({
                 height,
                 layoutRef,
                 {
-                    type: SignalType.NUMERICAL,
-                    all_series: chartData.current,
-                },
-                {
-                    id,
-                    type: SignalType.NUMERICAL,
+                    type: "numericalGraph",
                     signals,
+                    options,
+                    data: chartData.current,
+                    id,
                 },
                 timeTickCount,
                 externalHoverTimestampRef.current,

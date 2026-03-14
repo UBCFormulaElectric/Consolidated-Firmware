@@ -15,30 +15,60 @@ export function WidgetAdder() {
 
   // TODO
   const handleAddEnum = () => {
+    const signalName = Math.random().toString();
+
     onAddWidget({
-      type: SignalType.ENUM, signals: [{
-        signal_name: Math.random().toString(),
-        delay: 100,
-        initialPoints: 0,
-        options: {
-          colorPalette: generateRandomColorPalette(MOCK_STATES.length),
+      type: "enumTimeline",
+      data: [],
+      options: {
+        colorPalette: {
+          [signalName]: generateRandomColorPalette(MOCK_STATES.length)
         },
-        color: chroma.random(),
-        type: SignalType.ENUM,
+        height: 256,
+        timeTickCount: 6,
+      },
+      signals: [{
+        id: Math.random(),
+        name: signalName,
+        cycle_time_ms: 100,
+        enum: {
+          items: Object.fromEntries(MOCK_STATES.map((state, i) => [i, state])),
+          name: "Mock Enum",
+        },
+        max_val: MOCK_STATES.length,
+        min_val: 0,
+        msg_name: "Mock Enum Signal",
+        tx_node: "Mock Node",
+        type: SignalType.ENUM
       }], id: Math.random().toString(),
     });
     setIsOpen(false);
   };
 
   const handleAddNumerical = () => {
+    const signalName = Math.random().toString();
+
     onAddWidget({
-      type: SignalType.NUMERICAL, id: Math.random().toString(), signals: [{
-        signal_name: Math.random().toString(),
-        delay: 100,
-        min: 0,
-        max: 100,
-        color: chroma.random(),
+      id: Math.random().toString(),
+      type: "numericalGraph",
+      data: [],
+      options: {
+        colorPalette: {
+          [signalName]: generateRandomColorPalette(1)[0]
+        },
+        height: 256,
+        timeTickCount: 6,
+      },
+      signals: [{
+        id: Math.random(),
+        name: signalName,
+        cycle_time_ms: 100,
+        min_val: 0,
+        max_val: 100,
         type: SignalType.NUMERICAL,
+        tx_node: "Mock Node",
+        msg_name: "Mock Numerical Signal",
+        unit: "units",
       }]
     });
     setIsOpen(false);

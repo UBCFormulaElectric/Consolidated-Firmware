@@ -1,15 +1,13 @@
-// react
 import { createContext, useCallback, useContext, useMemo, ReactNode } from "react";
-// types
-import { SignalType } from "@/lib/types/Signal";
-import { EnumSignalConfig, NumericalSignalConfig, WidgetData, WidgetDataEnum, WidgetDataNumerical, WidgetSignalConfig } from "./WidgetTypes";
-import chroma from "chroma-js";
-// constants
-import { IS_DEBUG } from "@/lib/constants";
-// functions
+
 import { v4 as uuidv4 } from 'uuid';
-// hooks
+
+import chroma from "chroma-js";
+
+import { IS_DEBUG } from "@/lib/constants";
+
 import { useLocalState } from "@/lib/hooks/useLocalState";
+import { WidgetData, WidgetType } from "@/lib/types/Widget";
 
 const LOCAL_STORAGE_KEY = "tracksight_widgets_config_v1";
 
@@ -19,9 +17,9 @@ interface WidgetManagerContext {
   appendWidget: (newWidget: WidgetData) => void;
   removeWidget: (widgetToRemove: string) => void;
   // setEnumSignal: (widgetID: string, newSignal: string) => void;
-  appendSignal: (widgetID: string, new_signal: WidgetSignalConfig) => void;
-  removeSignal: (widgetID: string, signalToRemove: string) => void;
-  updateWidget: (widgetID: string, updater: (prevWidget: WidgetData) => WidgetData) => void;
+  appendSignal: <T extends WidgetType, Widget extends Extract<WidgetData, { type: T }>>(widget: Widget, newSignal: Widget["signals"][number]) => void;
+  removeSignal: (widget: WidgetData, nameOfSignalToRemvoe: string) => void;
+  updateWidget: <T extends WidgetType, Widget extends Extract<WidgetData, { type: T }>>(widget: Widget, updater: (prevWidget: Widget) => Widget) => void;
 }
 const WidgetManagerContext = createContext<WidgetManagerContext | null>(null);
 export function useWidgetManager() {
@@ -32,24 +30,31 @@ export function useWidgetManager() {
 
 function WidgetSerialize(widgets: WidgetData[]): string {
   return JSON.stringify(widgets.map(w => {
-    if (w.type == SignalType.ENUM) {
+    if (w.type == "enumTimeline") {
       return {
         ...w,
-        signals: w.signals.map(s => ({
-          ...s,
-          options: {
-            colorPalette: s.options.colorPalette.map(c => c.hex())
-          }
-        }))
+        options: {
+          ...w.options,
+          colorPalette: Object.fromEntries(Object.entries(w.options.colorPalette).map(([signalName, enumColors]) => [
+            signalName,
+            Object.fromEntries(Object.entries(enumColors).map(([enumVal, color]) => [
+              enumVal,
+              color.hex()
+            ]))
+          ]))
+        }
       }
     }
-    else if (w.type == SignalType.NUMERICAL) {
+    else if (w.type == "numericalGraph") {
       return {
         ...w,
-        signals: w.signals.map(s => ({
-          ...s,
-          color: s.color.hex()
-        }))
+        options: {
+          ...w.options,
+          colorPalette: Object.fromEntries(Object.entries(w.options.colorPalette).map(([signalName, color]) => [
+            signalName,
+            color.hex()
+          ])),
+        }
       }
     }
   }));
@@ -57,37 +62,47 @@ function WidgetSerialize(widgets: WidgetData[]): string {
 
 // yolo if it doesn't have it it is what it is fr
 function WidgetDeserialize(widgetString: string): WidgetData[] {
-  const back: unknown = JSON.parse(widgetString);
+  const back = JSON.parse(widgetString) as unknown & WidgetData[];
+
   if (!Array.isArray(back)) {
     throw new Error("Deserialized widget config is not an array");
   }
+
   return back.map(b => {
-    if (b.type === SignalType.ENUM) {
-      return {
-        id: "",
-        type: SignalType.ENUM,
-        signals: b.signals.map((s: any) => ({
-          signal_name: s.signal_name,
-          delay: s.delay,
-          initialPoints: s.initialPoints,
-          options: {
-            colorPalette: s.options.colorPalette.map((c: string) => chroma(c))
-          },
-          color: chroma(s.color)
-        })) satisfies EnumSignalConfig[]
-      } satisfies WidgetDataEnum;
-    } else if (b.type === SignalType.NUMERICAL) {
+    if (b.type === "enumTimeline") {
       return {
         id: b.id,
-        type: SignalType.NUMERICAL,
-        signals: b.signals.map((s: any) => ({
-          signal_name: s.signal_name,
-          delay: s.delay,
-          min: s.min,
-          max: s.max,
-          color: chroma(s.color)
-        }) satisfies NumericalSignalConfig)
-      } satisfies WidgetDataNumerical;
+        type: "enumTimeline",
+        data: b.data,
+        signals: b.signals,
+        options: {
+          height: b.options.height,
+          timeTickCount: b.options.timeTickCount,
+          colorPalette: Object.keys(b.options.colorPalette).reduce((acc, signalName) => ({
+            ...acc,
+            [signalName]: Object.keys(b.options.colorPalette[signalName]).reduce((enumAcc, enumVal) => ({
+              ...enumAcc,
+              [enumVal]: chroma(b.options.colorPalette[signalName][enumVal as any])
+            }), {})
+          }), {})
+        }
+      }
+    }
+    else if (b.type === "numericalGraph") {
+      return {
+        id: b.id,
+        type: "numericalGraph",
+        signals: b.signals,
+        data: b.data,
+        options: {
+          colorPalette: Object.fromEntries(Object.entries(b.options.colorPalette).map(([signalName, color]) => [
+            signalName,
+            chroma(color)
+          ])),
+          height: b.options.height,
+          timeTickCount: b.options.timeTickCount,
+        }
+      }
     }
     else {
       throw new Error("Deserialized widget has invalid type: " + (b as any).type);
@@ -116,35 +131,35 @@ export function WidgetManager({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const appendSignal = useCallback(<T extends SignalType>(widgetID: string, new_signal: T extends SignalType.NUMERICAL ? NumericalSignalConfig : EnumSignalConfig) => {
+  const appendSignal = useCallback(<T extends WidgetType, Widget extends Extract<WidgetData, { type: T }>>(widget: Widget, newSignal: Widget["signals"][number]) => {
     setWidgets((prev) => {
       const newWidgets = [...prev];
-      let updateWidget = newWidgets.find((w) => w.id === widgetID) as T extends SignalType.NUMERICAL ? WidgetDataNumerical : WidgetDataEnum | undefined;
+      let updateWidget = newWidgets.find((w) => w.id === widget.id) as Widget;
 
       if (!updateWidget) {
         IS_DEBUG && console.warn("Widget to edit not found");
         return prev;
       }
 
-      if (updateWidget.signals.some(c => c.signal_name === new_signal.signal_name)) {
-        IS_DEBUG && console.warn("Signal already exists in widget: " + new_signal.signal_name);
+      if (updateWidget.signals.some(c => c.name === newSignal.name)) {
+        IS_DEBUG && console.warn("Signal already exists in widget: " + newSignal.name);
         return prev;
       }
 
       updateWidget = {
         ...updateWidget,
-        signals: [...updateWidget.signals, new_signal],
+        signals: [...updateWidget.signals, newSignal],
       };
 
       return newWidgets;
     });
   }, []);
 
-  const removeSignal = useCallback(function(widgetID: string, remove_signal_name: string) {
+  const removeSignal = useCallback((widget: WidgetData, nameOfSignalToRemove: string) => {
     setWidgets((prev) => {
       const newWidgets = [...prev];
 
-      let updateWidget = newWidgets.find((w) => w.id === widgetID);
+      let updateWidget = newWidgets.find((w) => w.id === widget.id);
 
       if (!updateWidget) {
         IS_DEBUG && console.warn("Widget to edit not found");
@@ -153,26 +168,21 @@ export function WidgetManager({ children }: { children: ReactNode }) {
 
       updateWidget = {
         ...updateWidget,
-        signals: updateWidget.signals.filter(c => c.signal_name !== remove_signal_name) as Array<any> // trust
+        signals: updateWidget.signals.filter(c => c.name !== nameOfSignalToRemove) as Array<any> // trust
       };
 
       return newWidgets;
     });
   }, []);
 
-  const updateWidget = useCallback((
-    widgetID: string,
-    updater: (prevWidget: WidgetData) => WidgetData
-  ) => {
+  const updateWidget = useCallback(<T extends WidgetType, Widget extends Extract<WidgetData, { type: T }>>(widget: Widget, updater: (prevWidget: Widget) => Widget) => {
     setWidgets((prev) => {
-      const newWidgets = [...prev];
-      let updateWidget = newWidgets.find((w) => w.id === widgetID);
-      if (!updateWidget) {
-        IS_DEBUG && console.warn("Widget to edit not found");
-        return prev;
-      }
-      updateWidget = updater(updateWidget);
-      return newWidgets;
+      const updateWidget = updater(widget);
+
+      return [
+        ...prev.filter((w) => w.id !== widget.id),
+        updateWidget
+      ]
     });
   }, []);
 

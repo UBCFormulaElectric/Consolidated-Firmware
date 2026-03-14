@@ -1,5 +1,5 @@
-import { WidgetSignalConfig } from "@/components/widgets/WidgetTypes";
-import SignalStore from "@/lib/signals/SignalStore";
+import SignalStore, { SignalStoreReturnType } from "@/lib/signals/SignalStore";
+import { SignalMetadata, SignalType } from "../types/Signal";
 
 export const MOCK_STATES = [ // needed to hardcode for widgetadder
   "IDLE", "ACTIVE", "ERROR", "WAITING", "CHARGING", "SKIBIDI",
@@ -54,11 +54,12 @@ class MockSignalStore extends SignalStore {
     this.signalSubscriptionIntervals = new Map();
   }
 
-  getReferenceToSignal<T extends WidgetSignalConfig>(signal: T) {
+  // FIXME(evan): Type stuff I can't be bothered to do right now
+  getReferenceToSignal<T extends SignalMetadata>(signal: T): SignalStoreReturnType<T> {
     const signalData = this.getOrCreateSignalData(signal);
-    this.incrementSubscribers(signal.signal_name);
+    this.incrementSubscribers(signal.name);
 
-    if (this.getSubscriberCount(signal.signal_name) !== 1) return signalData.data;
+    if (this.getSubscriberCount(signal.name) !== 1) return signalData.data;
 
     let previousValue = 0;
 
@@ -68,32 +69,32 @@ class MockSignalStore extends SignalStore {
     const intervalId = setInterval(() => {
       const now = Date.now();
 
-      if (signal.type === "numerical") {
-        const { min, max } = signal;
-        const value = generateRandomNumericalValue(now, 0, min, max);
+      if (signal.type === SignalType.NUMERICAL) {
+        const { min_val, max_val } = signal;
+        const value = generateRandomNumericalValue(now, 0, min_val, max_val);
         previousValue = value;
-        this.addDataPoint(signal.signal_name, now, value);
-      } else if (signal.type === "enum") {
+        this.addDataPoint(signal.name, now, value);
+      } else if (signal.type === SignalType.ENUM) {
         const value = generateRandomEnumValue();
         previousValue = value.idx;
-        this.addDataPoint(signal.signal_name, now, value.idx);
+        this.addDataPoint(signal.name, now, value.idx);
       }
     }, 1);
 
-    this.signalSubscriptionIntervals.set(signal.signal_name, intervalId as unknown as number);
+    this.signalSubscriptionIntervals.set(signal.name, intervalId as unknown as number);
 
     return signalData.data;
   }
 
-  purgeReferenceToSignal<T extends WidgetSignalConfig>(signal: T) {
-    const shouldCleanup = this.decrementSubscribers(signal.signal_name);
+  purgeReferenceToSignal<T extends SignalMetadata>(signal: T) {
+    const shouldCleanup = this.decrementSubscribers(signal.name);
 
     if (!shouldCleanup) return;
 
-    this.markAsUnsubscribed(signal.signal_name);
+    this.markAsUnsubscribed(signal.name);
 
-    clearInterval(this.signalSubscriptionIntervals.get(signal.signal_name));
-    this.signalSubscriptionIntervals.delete(signal.signal_name);
+    clearInterval(this.signalSubscriptionIntervals.get(signal.name));
+    this.signalSubscriptionIntervals.delete(signal.name);
   }
 }
 

@@ -1,4 +1,4 @@
-type CommonSignalMetadata = {
+export type CommonSignalMetadata = {
   name: string;
   tx_node: string;
   msg_name: string;
@@ -40,12 +40,19 @@ export type AlertSignalMetadata = CommonSignalMetadata & {
 export const isEnumSignalMetadata = (signal: SignalMetadata): signal is EnumSignalMetadata => {
   return signal.type === SignalType.ENUM;
 };
+
 export const isAlertSignalMetadata = (signal: SignalMetadata): signal is AlertSignalMetadata => {
   return signal.type === SignalType.ALERT;
 };
+
 export const isNumericalSignalMetadata = (
   signal: SignalMetadata
 ): signal is NumericalSignalMetadata => {
   return signal.type === SignalType.NUMERICAL;
 };
+
 export type SignalMetadata = EnumSignalMetadata | NumericalSignalMetadata | AlertSignalMetadata;
+export type WidgetSignalMetadata =
+  | EnumSignalMetadata[]
+  | NumericalSignalMetadata[]
+  | AlertSignalMetadata[];

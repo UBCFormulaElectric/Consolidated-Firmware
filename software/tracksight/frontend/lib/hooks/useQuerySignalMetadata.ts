@@ -16,7 +16,7 @@ export default function useQuerySignalMetadata(query: string) {
     queryKey: ["signal-query", query],
     queryFn: async () => {
       const response = await fetch(
-        `${API_BASE_URL}/signal/metadata?name=${encodeURIComponent(signalSelector)}`
+        `${API_BASE_URL}/signal/metadata?name=${encodeURIComponent(query)}`
       );
 
       if (!response.ok) {

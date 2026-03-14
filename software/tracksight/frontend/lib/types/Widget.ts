@@ -1,56 +1,54 @@
-import {
-  ChartData,
-  ChartDataEnum,
-  ChartDataNumerical,
-} from "@/components/widgets/CanvasChartTypes";
-import {
-  WidgetConfigs,
-  WidgetDataEnum,
-  WidgetDataNumerical,
-} from "@/components/widgets/WidgetTypes";
+import { EnumSeries, NumericalSeries } from "@/components/widgets/CanvasChartTypes";
+import { Color } from "chroma-js";
 import type { FC } from "react";
-import { SignalType } from "./Signal";
+import { EnumSignalMetadata, NumericalSignalMetadata } from "./Signal";
 
-type WidgetSchema =
+export type WidgetSchema =
   | {
-      type: "enumTimeline";
-      data: ChartDataEnum[];
-      options: {
-        colorPalette: string[];
+    type: "enumTimeline";
+    data: EnumSeries[];
+    options: {
+      colorPalette: {
+        [signalName: string]: {
+          [enumValue: number]: Color;
+        };
       };
-    }
-  | {
-      type: "numericalGraph";
-      data: ChartDataNumerical[];
-      options: {
-        colorPalette: string[];
-      };
+      height: number;
+      timeTickCount: number;
     };
+  }
+  | {
+    type: "numericalGraph";
+    data: NumericalSeries[];
+    options: {
+      colorPalette: {
+        [signalName: string]: Color;
+      };
+      height: number;
+      timeTickCount: number;
+    };
+  };
 
 type WidgetType = WidgetSchema["type"];
 
-type WidgetData<Type extends WidgetType = WidgetType> = {
-  signals: WidgetConfigs;
+type WidgetSchemaOf<T extends WidgetType> = Extract<WidgetSchema, { type: T }>;
+
+type EnumWidgetData = Extract<WidgetSchema, { type: "enumTimeline" }> & {
+  signals: EnumSignalMetadata[];
+}
+
+type NumericalWidgetData = Extract<WidgetSchema, { type: "numericalGraph" }> & {
+  signals: NumericalSignalMetadata[];
+}
+
+type WidgetData = (
+  EnumWidgetData
+  | NumericalWidgetData
+) & {
   id: string;
-} & Extract<WidgetSchema, { type: Type }>;
+}
 
-type WidgetRendererProps<Type extends WidgetType> = WidgetData<Type>;
-type WidgetRenderer<Type extends WidgetType> = FC<WidgetRendererProps<Type>>;
+type WidgetRendererProps = WidgetData;
+type WidgetRenderer = FC<WidgetRendererProps>;
 
-type UnknownWidgetRendererProps = Omit<WidgetRendererProps<WidgetType>, "data">;
-type UnknownWidgetRenderer = FC<UnknownWidgetRendererProps>;
-
-type NarrowedWidgetRendererProps<DataType extends SignalType> = Omit<
-  Extract<WidgetDataEnum | WidgetDataNumerical, { type: DataType }>,
-  "type" | "id"
->;
-
-export type {
-  NarrowedWidgetRendererProps,
-  UnknownWidgetRenderer,
-  UnknownWidgetRendererProps,
-  WidgetData,
-  WidgetRenderer,
-  WidgetRendererProps,
-  WidgetType,
-};
+export type { WidgetData, WidgetRenderer, WidgetRendererProps, WidgetSchemaOf, WidgetType };

@@ -2,7 +2,7 @@
 
 import { createContext, RefObject, ReactNode, useContext, useEffect, useRef } from "react";
 import SignalStore, { SignalStoreReturnType } from "@/lib/signals/SignalStore";
-import { WidgetConfigs, WidgetSignalConfig } from "@/components/widgets/WidgetTypes";
+import { SignalMetadata } from "@/lib/types/Signal";
 
 const SignalDataStoreContext = createContext<RefObject<SignalStore> | null>(null);
 
@@ -16,7 +16,7 @@ function SignalDataStoreProvider({ children, signalStore }: { children: ReactNod
   );
 };
 
-const useSignalDataStore = <T extends WidgetSignalConfig>(signal: T) => {
+const useSignalDataStore = <T extends SignalMetadata>(signal: T) => {
   const context = useContext(SignalDataStoreContext);
 
   if (context === null) {
@@ -44,7 +44,7 @@ const useSignalDataStore = <T extends WidgetSignalConfig>(signal: T) => {
   return cachedReferenceRef;
 }
 
-const useSignalDataStores = <T extends WidgetConfigs>(signals: T) => {
+const useSignalDataStores = <T extends SignalMetadata[]>(signals: T) => {
   const context = useContext(SignalDataStoreContext);
 
   if (context === null) {

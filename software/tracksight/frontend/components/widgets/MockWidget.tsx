@@ -2,7 +2,7 @@
 // react
 import { useEffect, useState, useRef, useCallback, RefObject, SubmitEvent } from "react";
 // types
-import { EnumSignalConfig, NumericalSignalConfig, WidgetConfigs, WidgetData } from "@/components/widgets/WidgetTypes";
+import { EnumSignalConfig, NumericalSignalConfig, WidgetConfigs, WidgetData } from "@/components/widgets/SignalTypes";
 import { SignalType } from "@/lib/types/Signal";
 import { ChartData, ChartDataEnum, ChartDataNumerical, EnumSeries, NumericalSeries } from "./CanvasChartTypes";
 import { SeriesData } from "@/lib/seriesData";

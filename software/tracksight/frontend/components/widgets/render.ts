@@ -5,9 +5,9 @@ import { ENUM_COLORS } from "@/components/widgets/depr/signalColors";
 // types
 import { SignalType } from "@/lib/types/Signal";
 import { ChartData, ChartLayout, EnumSeries, NumericalSeries } from "./CanvasChartTypes";
-import { WidgetDataEnum, WidgetDataNumerical } from "./WidgetTypes";
 // utils
 import { bisect } from "@/lib/bisect";
+import { WidgetData } from "@/lib/types/Widget";
 
 // TODO reduce to bisect right
 // first enum index where the enum's end time (timestamps[i+1]) >= targetTime
@@ -79,8 +79,7 @@ function niceNumber(range: number, round: boolean) {
 function render_enum(
   context: CanvasRenderingContext2D,
   width: number, // container context
-  widgetConfig: WidgetDataEnum,
-  all_series: Array<EnumSeries>,
+  widgetConfig: Extract<WidgetData, { type: "enumTimeline" }>,
   // rendering
   visibleStartTime: number,
   visibleEndTime: number,
@@ -91,6 +90,7 @@ function render_enum(
   ENUM_STRIP_GAP: number, // layout
   hoverTime: number | null
 ): Array<{ name: string; value: string }> | null {
+  const all_series = widgetConfig.data ?? [];
   // DRAWING LEGEND
   // context.textAlign = "left";
   // context.textBaseline = "top";
@@ -146,9 +146,9 @@ function render_enum(
       // const color = value === null
       //     ? NA_COLOR
       //     : ENUM_COLORS[value % ENUM_COLORS.length];
-      const palette = widgetConfig.signals[series_idx]?.options.colorPalette ?? [];
+      // const palette = widgetConfig.signals[series_idx]?.options.colorPalette ?? [];
+      const palette = widgetConfig.options.colorPalette[widgetConfig.signals[series_idx]?.name ?? ""] ?? {};
       const paletteColor = palette[value];
-      console.log("Rendering enum value:", { value, paletteColor });
       if (paletteColor) {
         context.fillStyle = paletteColor.hex();
       } else {
@@ -186,13 +186,14 @@ function render_numerical(
   chartWidth: number,
   chartHeight: number,
   numericalTop: number,
-  widgetConfig: WidgetDataNumerical,
-  series: NumericalSeries[], // series data
+  widgetConfig: Extract<WidgetData, { type: "numericalGraph" }>,
   visibleStartTime: number,
   visibleEndTime: number,
   timeToX: (time: number) => number, // time range
   hoverTime: number | null
 ): Array<{ name: string; value: string }> | null {
+  const series = widgetConfig.data ?? [];
+
   if (series.length === 0) {
     // am i crazy or is this not okay
     return [];
@@ -270,7 +271,7 @@ function render_numerical(
     const s = series[seriesIndex];
     const { left, right } = series_bounds[seriesIndex];
 
-    context.strokeStyle = widgetConfig.signals[seriesIndex]?.color.hex();
+    context.strokeStyle = widgetConfig.options.colorPalette[widgetConfig.signals[seriesIndex]?.name ?? ""]?.hex() ?? "#333";
     context.lineWidth = 2;
     context.beginPath();
 
@@ -333,7 +334,7 @@ function render_numerical(
 
       // draw circle at hovered point
       context.beginPath();
-      context.fillStyle = widgetConfig.signals[seriesIndex]?.color.hex();
+      context.fillStyle = widgetConfig.options.colorPalette[widgetConfig.signals[seriesIndex]?.name ?? ""]?.hex() ?? "#333";
       context.strokeStyle = "#ffffff";
       context.lineWidth = 1.5;
       context.arc(drawX, y, 4, 0, Math.PI * 2);
@@ -424,15 +425,12 @@ function render_tooltip(
   });
 }
 
-export default function render<T extends ChartData>(
+export default function rende(
   context: CanvasRenderingContext2D,
   width: number,
   height: number, // dimensions of chart
   layoutRef: RefObject<ChartLayout | null>, // seems kinda bodgey, it's a ref because we write to it :sob:
-  chartData: T,
-  widgetConfig: T extends ChartData & { type: SignalType.NUMERICAL }
-    ? WidgetDataNumerical
-    : WidgetDataEnum,
+  chartData: WidgetData,
   timeTickCount: number,
   hoverTime: number | null,
   { min: visibleStartTime, max: visibleEndTime }: { min: number; max: number }
@@ -465,15 +463,14 @@ export default function render<T extends ChartData>(
 
   // --- RENDER ENUMS ---
   let hover_value: Array<{ name: string; value: string }> | null = null;
-  if (chartData.type === SignalType.ENUM && widgetConfig.type === SignalType.ENUM) {
+  if (chartData.type === "enumTimeline") {
     const LEGEND_HEIGHT = 30;
     const ENUM_STRIP_HEIGHT = 40;
     const ENUM_STRIP_GAP = 40;
     hover_value = render_enum(
       context,
       width,
-      widgetConfig,
-      chartData.all_series,
+      chartData,
       visibleStartTime,
       visibleEndTime,
       0, // TODO
@@ -485,15 +482,14 @@ export default function render<T extends ChartData>(
     );
   }
   // --- RENDER NUMERICAL ---
-  else if (chartData.type === SignalType.NUMERICAL && widgetConfig.type === SignalType.NUMERICAL) {
+  else if (chartData.type === "numericalGraph") {
     hover_value = render_numerical(
       context,
       width,
       chartWidth,
       chartHeight,
       numericalTop,
-      widgetConfig,
-      chartData.all_series,
+      chartData,
       visibleStartTime,
       visibleEndTime,
       timeToX,
