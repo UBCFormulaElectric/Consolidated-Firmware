@@ -5,7 +5,7 @@
 #include "app_timer.hpp"
 #include "io_irs.hpp"
 #include "io_charger.hpp"
-#include "segments/app_segments.hpp"
+#include "app_segments.hpp"
 #include "app_canUtils.hpp"
 #include "app_canRx.hpp"
 #include "app_canTx.hpp"

@@ -20,13 +20,13 @@ namespace app::segments{
             for (size_t cell = 0U; cell < io::CELLS_PER_SEGMENT; cell++) {
 
                 if (!cell_voltage_success[seg][cell]) {
-                    cell_voltage_setters[seg][cell](-0.1f);
+                    //cell_voltage_setters[seg][cell](-0.1f);
                     continue;
                 }
 
                 const float voltage = convertRegToVoltage(cell_voltage_regs[seg][cell]);
                 cell_voltages[seg][cell] = voltage;
-                cell_voltage_setters[seg][cell](voltage);
+                //cell_voltage_setters[seg][cell](voltage);
             }
         }
     }

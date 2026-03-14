@@ -192,6 +192,14 @@ namespace adbms
                                   std::array<std::array<uint16_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS>                       &cell_voltage_regs,
                                   std::array<std::array<std::expected<void, ErrorCode>, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success);
 
+    std::expected<void, ErrorCode> startTempAdcConversion();
+    void                           readCellTempReg(
+                                  std::array<std::array<uint16_t, THERMISTORS_PER_SEGMENT>, NUM_SEGMENTS>                       &cell_temp_regs,
+                                  std::array<std::array<std::expected<void, ErrorCode>, THERMISTORS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success);
+
+    std::expected<void, ErrorCode> owcCells(OpenWireSwitch owcSwitch);
+    std::expected<void, ErrorCode> owcTherms(OpenWireSwitch owcSwitch);
+
     std::expected<void, ErrorCode> startCellsAdcConversion();
     std::expected<void, ErrorCode> pollCellsAdcConversion();
     std::expected<void, ErrorCode> wakeup();

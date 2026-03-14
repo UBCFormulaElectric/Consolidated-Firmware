@@ -5,7 +5,7 @@
 #include "app_timer.hpp"
 #include "app_tractiveSystem.hpp"
 #include "io_irs.hpp"
-#include "segments/app_segments.hpp"
+#include "app_segments.hpp"
 
 #include "app_canAlerts.hpp"
 #include "app_canTx.hpp"
