@@ -1,0 +1,181 @@
+import { AlertSeries, EnumSeries, NumericalSeries } from "@/components/widgets/CanvasChartTypes";
+import { SignalMetadata, SignalType } from "../types/Signal";
+import { SeriesData } from "../seriesData";
+
+export type SignalStoreReturnType<T extends SignalMetadata> = T["type"] extends SignalType.ENUM
+  ? EnumSeries
+  : T["type"] extends SignalType.NUMERICAL
+  ? NumericalSeries
+  : T["type"] extends SignalType.ALERT
+  ? NumericalSeries
+  : never
+
+type SignalStorageEntry = {
+  isSubscribed: boolean;
+  error: unknown | null;
+} & (
+    {
+      data: NumericalSeries
+      storeType: SignalType.ALERT
+    }
+    | {
+      data: NumericalSeries
+      storeType: SignalType.NUMERICAL
+    }
+    | {
+      data: EnumSeries
+      storeType: SignalType.ENUM
+    }
+  )
+
+abstract class SignalStore {
+  protected storage: {
+    [signalName: string]: SignalStorageEntry
+  };
+  protected alertDataStorage: {
+    [signalName: string]: AlertSeries;
+  }
+
+  protected subscriberCounts: { [signalName: string]: number };
+  protected updateWithTimestamp: (timestamp: number) => void;
+
+  constructor(updateWithTimestamp: (timestamp: number) => void) {
+    this.storage = {};
+    this.subscriberCounts = {};
+    this.alertDataStorage = {};
+
+    this.updateWithTimestamp = updateWithTimestamp;
+  }
+
+  abstract getReferenceToSignal<T extends SignalMetadata>(signal: T): SignalStoreReturnType<T>;
+  abstract purgeReferenceToSignal(signal: SignalMetadata): void;
+
+  private addAlertDataPoint(signalName: string, timestamp: number, value: number): void {
+    this.updateWithTimestamp(timestamp);
+    const entry = this.alertDataStorage[signalName];
+
+    if (!entry) {
+      this.alertDataStorage[signalName] = {
+        label: signalName,
+        data: [value],
+        timestamps: [timestamp],
+      };
+    } else {
+      entry.data.push(value);
+      entry.timestamps.push(timestamp);
+    }
+  }
+
+  private getAlertData(): AlertSeries[] {
+    return Object.values(this.alertDataStorage);
+  }
+
+  private createSignalDataEntry<T extends SignalMetadata>(signal: T): void {
+    const storageBase = {
+      error: null,
+      isSubscribed: true,
+    };
+
+    switch (signal.type) {
+      case SignalType.ENUM:
+        this.storage[signal.name] = {
+          ...storageBase,
+          data: {
+            enumValuesToNames: {},
+            data: [],
+            timestamps: [],
+            label: signal.name,
+          } satisfies EnumSeries,
+          storeType: SignalType.ENUM
+        } satisfies SignalStorageEntry
+        break;
+      case SignalType.NUMERICAL:
+        this.storage[signal.name] = {
+          ...storageBase,
+          data: {
+            data: new SeriesData(),
+            timestamps: [],
+            label: signal.name,
+          } satisfies NumericalSeries,
+          storeType: SignalType.NUMERICAL,
+        }
+        break;
+    }
+
+    this.subscriberCounts[signal.name] = 0;
+  }
+
+  protected getOrCreateSignalData<T extends SignalMetadata>(signal: T): Extract<SignalStorageEntry, { storeType: T["type"] }> {
+    if (!this.storage[signal.name]) this.createSignalDataEntry(signal);
+
+    return this.getSignalData(signal)!;
+  }
+
+  getSignalData<T extends SignalMetadata>(signal: T): Extract<SignalStorageEntry, { storeType: T["type"] }> | undefined {
+    const signalDataToReturn = this.storage[signal.name];
+
+    if (!signalDataToReturn) return undefined;
+
+    if (signalDataToReturn.storeType !== signal.type) return undefined;
+
+    // NOTE(evan): We can assume this `any` cast is safe because we already force `storeType` and `type`
+    //             to be equal so we know it's the correct return type Typescript just can't do runtime
+    //             discriminated union scoping like that.
+    return signalDataToReturn as any;
+  }
+
+  incrementSubscribers(signalName: string): void {
+    if (!this.subscriberCounts[signalName]) this.subscriberCounts[signalName] = 0;
+
+    this.subscriberCounts[signalName] += 1;
+  }
+
+  decrementSubscribers(signalName: string): boolean {
+    if (!this.subscriberCounts[signalName]) return false;
+
+    this.subscriberCounts[signalName] -= 1;
+
+    return this.subscriberCounts[signalName] <= 0;
+  }
+
+  getSubscriberCount(signalName: string): number {
+    return this.subscriberCounts[signalName] || 0;
+  }
+
+  markAsUnsubscribed(signalName: string): void {
+    if (!this.storage[signalName]) return;
+
+    this.storage[signalName].isSubscribed = false;
+  }
+
+  removeSignal(signalName: string): void {
+    delete this.storage[signalName];
+    delete this.subscriberCounts[signalName];
+  }
+
+  setError(signalName: string, error: unknown): void {
+    if (!this.storage[signalName]) return;
+
+    this.storage[signalName].error = error;
+  }
+
+  addDataPoint(signalName: string, timestamp: number, value: number): void {
+    this.updateWithTimestamp(timestamp);
+    const entry = this.storage[signalName];
+
+    if (!entry) return;
+
+    switch (entry.storeType) {
+      case SignalType.ENUM:
+        entry.data.data.push(value);
+        entry.data.timestamps.push(timestamp);
+        break;
+      case SignalType.NUMERICAL:
+        entry.data.data.push(value);
+        entry.data.timestamps.push(timestamp);
+        break;
+    }
+  }
+}
+
+export default SignalStore;

@@ -16,7 +16,7 @@ class LVScreen extends StatelessWidget {
 
   final String _logoPath = 'assets/fe_logo.svg';
 
-  LVScreen({super.key});
+  const LVScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
