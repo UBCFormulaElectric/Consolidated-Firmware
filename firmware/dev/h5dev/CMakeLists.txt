@@ -29,6 +29,7 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_fmac.cpp"
 )
 
 file(GLOB CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")
@@ -78,6 +79,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "stm32h5xx_hal_pwr_ex.c"
             "stm32h5xx_hal_flash.c"
             "stm32h5xx_hal_spi.c"
+            "stm32h5xx_hal_fmac.c"
     )
 
     set(CUBEMX_INCLUDE_DIRS
