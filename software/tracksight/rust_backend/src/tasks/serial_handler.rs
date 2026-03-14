@@ -8,6 +8,7 @@ use crc::{Crc, CRC_32_ISO_HDLC};
 use colored::Colorize;
 
 use crate::config::CONFIG;
+use crate::health_check::{HealthCheckSender, HealthCheckSenderExt, ResultExt, Task};
 use crate::tasks::telem_message::TelemetryOutgoingMessage;
 use super::telem_message::{TelemetryIncomingMessage, CanPayload};
 
@@ -16,7 +17,7 @@ use super::telem_message::{TelemetryIncomingMessage, CanPayload};
  */
 pub async fn run_serial_task(
     mut shutdown_rx: broadcast::Receiver<()>, 
-    health_check_tx: mpsc::Sender<bool>,
+    health_check_tx: HealthCheckSender,
     can_queue_tx: broadcast::Sender<CanPayload>
 ) {
     println!("{}", "Serial handler task started.".yellow());
@@ -27,7 +28,7 @@ pub async fn run_serial_task(
     )
     .timeout(Duration::from_millis(1000)) // i love magic numbers
     .open_native_async()
-    .expect("Failed to open serial port");
+    .unwrap_or_fail_health_check(&health_check_tx, Task::SerialHandler).await;
 
     // split serial port into respective reads and writes
     let (serial_read, serial_write) = tokio::io::split(serial_port);
@@ -49,7 +50,7 @@ pub async fn run_serial_task(
     };
 
     // no set up involved with packet sender and reader thread, send health check
-    let _ = health_check_tx.send(true).await.expect("Health check send failed, how.");
+    health_check_tx.send_health_check(Task::SerialHandler, true).await;
 
     // loop select check for shutdown signal
     // if shutdown signal, select block breaks loop early
