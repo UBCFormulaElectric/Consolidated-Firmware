@@ -1,4 +1,4 @@
-import SignalStore from "@/lib/signals/SignalStore";
+import SignalStore, { SignalStoreReturnType } from "@/lib/signals/SignalStore";
 import socket from "@/lib/realtime/socket";
 import { SignalMetadata } from "../types/Signal";
 
@@ -38,7 +38,7 @@ class LiveSignalStore extends SignalStore {
     const signalData = this.getOrCreateSignalData(signal);
     this.incrementSubscribers(signal.name);
 
-    if (this.getSubscriberCount(signal.name) !== 1) return signalData.data;
+    if (this.getSubscriberCount(signal.name) !== 1) return signalData.data as any;
 
     this.subscribeToSignal(signal.name, {
       onError: (error) => {
@@ -46,7 +46,7 @@ class LiveSignalStore extends SignalStore {
       }
     });
 
-    return signalData.data;
+    return signalData.data as any;
   }
 
   purgeReferenceToSignal<T extends SignalMetadata>(signal: T) {

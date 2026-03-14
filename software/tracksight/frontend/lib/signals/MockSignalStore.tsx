@@ -55,11 +55,11 @@ class MockSignalStore extends SignalStore {
   }
 
   // FIXME(evan): Type stuff I can't be bothered to do right now
-  getReferenceToSignal<T extends SignalMetadata>(signal: T): SignalStoreReturnType<T> {
+  getReferenceToSignal<T extends SignalMetadata>(signal: T) {
     const signalData = this.getOrCreateSignalData(signal);
     this.incrementSubscribers(signal.name);
 
-    if (this.getSubscriberCount(signal.name) !== 1) return signalData.data;
+    if (this.getSubscriberCount(signal.name) !== 1) return signalData.data as any;
 
     let previousValue = 0;
 
@@ -83,7 +83,7 @@ class MockSignalStore extends SignalStore {
 
     this.signalSubscriptionIntervals.set(signal.name, intervalId as unknown as number);
 
-    return signalData.data;
+    return signalData.data as any;
   }
 
   purgeReferenceToSignal<T extends SignalMetadata>(signal: T) {

@@ -5,7 +5,6 @@ import { PlusButton } from "@/components/icons/PlusButton";
 import { SignalType } from "@/lib/types/Signal";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useWidgetManager } from "@/components/widgets/WidgetManagerContext";
-import chroma from "chroma-js";
 import { generateRandomColorPalette, MOCK_STATES } from "@/components/widgets/MockWidget";
 
 export function WidgetAdder() {
