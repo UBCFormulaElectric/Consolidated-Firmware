@@ -3,6 +3,8 @@ use std::{env::var, str::FromStr};
 use std::sync::LazyLock;
 use dotenv::{ dotenv, from_filename};
 
+use crate::vprintln;
+
 pub struct Config {
     pub mock: bool,
     pub serial_port: String,
@@ -69,7 +71,7 @@ fn load_env_file() -> Config {
                     break;
                 }
             }
-            println!("Invalid Ipv4 address provided or empty, using first default: {}", default_ip);
+            vprintln!("Invalid Ipv4 address provided or empty, using first default: {}", default_ip);
             default_ip
         }
     };

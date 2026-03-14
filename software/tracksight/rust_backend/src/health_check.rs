@@ -2,6 +2,8 @@ use std::{collections::HashSet, time::Duration};
 
 use tokio::{select, sync::mpsc, time::sleep};
 
+use crate::vprintln;
+
 // im not even going to lie
 // this is kind of an overkill for a health check on tasks
 // it can probably also be implemented a lot more cleanly
@@ -94,7 +96,7 @@ pub trait HealthCheckSenderExt {
 impl HealthCheckSenderExt for HealthCheckSender {
     async fn send_health_check(&self, task: Task, status: bool) {
         if self.send((task.clone(), status)).await.is_err() {
-            eprintln!("{:?} failed to send health check", task);
+            vprintln!("{:?} failed to send health check", task);
         }
     }
 }

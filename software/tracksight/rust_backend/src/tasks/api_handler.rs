@@ -15,6 +15,7 @@ use crate::tasks::client_api::AppState;
 use crate::tasks::client_api::clients::Clients;
 use crate::tasks::client_api::signal_api_handler::get_signal_router;
 use crate::tasks::client_api::subtable_api_handler::get_subtable_router;
+use crate::vprintln;
 
 pub async fn run_api_handler(
     mut shutdown_rx: broadcast::Receiver<()>, 
@@ -22,7 +23,7 @@ pub async fn run_api_handler(
     clients: Arc<RwLock<Clients>>, 
     can_db: Arc<CanDatabase>
 ) {
-    println!("{}", "API handler task started.".yellow());
+    vprintln!("{}", "API handler task started.".yellow());
     
     // Axum
     let addr = format!("0.0.0.0:{}", CONFIG.backend_port);
@@ -87,11 +88,11 @@ pub async fn run_api_handler(
     // if shutdown finishes first, leave select block
     select! {
         _ = shutdown_rx.recv() => {
-            println!("API handler task shutting down.");
+            vprintln!("API handler task shutting down.");
         },
         _ = axum::serve(listener, app) => {
             println!("Error occurred");
         }
     }
-    println!("{}", "API handler task ended.".yellow());
+    vprintln!("{}", "API handler task ended.".yellow());
 }

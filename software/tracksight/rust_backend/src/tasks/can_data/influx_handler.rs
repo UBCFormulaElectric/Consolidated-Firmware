@@ -3,7 +3,7 @@ use influxdb2::{Client, api::write::TimestampPrecision, models::{DataPoint, data
 use tokio::sync::{broadcast::Receiver};
 use futures::stream;
 
-use crate::{config::CONFIG, health_check::{HealthCheckSender, HealthCheckSenderExt, Task}};
+use crate::{config::CONFIG, health_check::{HealthCheckSender, HealthCheckSenderExt, Task}, vprintln};
 
 use jsoncan_rust::can_database::DecodedSignal;
 
@@ -18,7 +18,7 @@ pub async fn run_influx_handler(
     health_check_tx: HealthCheckSender,
     mut decoded_signal_rx: Receiver<DecodedSignal>
 ) {
-    println!("{}", "Influx task started.".yellow());
+    vprintln!("{}", "Influx task started.".yellow());
 
     let influx_client = Client::new(
         &CONFIG.influxdb_url,
@@ -53,7 +53,7 @@ pub async fn run_influx_handler(
             }
             // Closed channel or any error is signal to stop thread
             _ => {
-                println!("Influx task shutting down.");
+                vprintln!("Influx task shutting down.");
                 break;
             }
         }
@@ -61,7 +61,7 @@ pub async fn run_influx_handler(
     
     flush_buffer(&mut batch_buffer, &influx_client).await;
     
-    println!("{}", "Influx task ended.".yellow());
+    vprintln!("{}", "Influx task ended.".yellow());
 }
 
 /**

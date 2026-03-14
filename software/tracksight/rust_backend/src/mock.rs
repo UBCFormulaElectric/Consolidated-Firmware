@@ -1,11 +1,11 @@
 
-use std::{f64::consts::{PI, TAU}, sync::Arc, time::{Instant, SystemTime, UNIX_EPOCH}};
+use std::{f64::consts::{TAU}, sync::Arc, time::{Instant, SystemTime, UNIX_EPOCH}};
 
 use colored::Colorize;
 use jsoncan_rust::can_database::{CanDatabase, CanSignalType, DecodedSignal};
 use tokio::{select, sync::broadcast};
 
-use crate::{health_check::{HealthCheckSender, HealthCheckSenderExt, Task}, tasks::telem_message::CanPayload};
+use crate::{health_check::{HealthCheckSender, HealthCheckSenderExt, Task}, tasks::telem_message::CanPayload, vprintln};
 
 /*
     Debugging/dev mock file, not used functionally
@@ -20,7 +20,7 @@ pub async fn run_mock_task(
     can_queue_tx: broadcast::Sender<CanPayload>, 
     can_db: Arc<CanDatabase>
 ) {
-    println!("{}", "Mock task started.".yellow());
+    vprintln!("{}", "Mock task started.".yellow());
     let start = Instant::now();
 
     health_check_tx.send_health_check(Task::SerialHandler, true).await;
@@ -28,7 +28,7 @@ pub async fn run_mock_task(
     loop {
         select! {
             _ = shutdown_rx.recv() => {
-                println!("Mock task shutting down.");
+                vprintln!("Mock task shutting down.");
                 break;
             }
             _ = async {
@@ -59,5 +59,5 @@ pub async fn run_mock_task(
         }
     }
 
-    println!("{}", "Mock task ended.".yellow());
+    vprintln!("{}", "Mock task ended.".yellow());
 }
