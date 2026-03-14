@@ -4,8 +4,14 @@
 
 namespace app::imu
 {
+    
+void init()
+{
+    auto ec = io::imus::init();
+    can_alerts::warnings::ImuInitFailed_set(not ec.has_value());
+}
 
-void broadcast_imu()
+void broadcast()
 {
     // IMU1 data broadcasting
     if (const auto accel = imu1.getAccelAll(); not accel)
