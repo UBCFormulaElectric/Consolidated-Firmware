@@ -221,6 +221,43 @@
         "signals": {
             "RsmTurnOnPump": {
                 "bits": 1
+            },
+            "RearLeftPumpCurrent": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 5,
+                "unit": "A"
+            },
+            "RearLeftPumpStatus": {
+                "bits": 1
+            },
+            "RearRightPumpCurrent": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 5,
+                "unit": "A"
+            },
+            "RearRightPumpStatus": {
+                "bits": 1
+            },
+
+            "LeftRadiatorFanCurrent": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 5,
+                "unit": "A"
+            },
+            "LeftRadiatorFanStatus": {
+                "bits": 1
+            },
+            "RightRadiatorFanCurrent": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 5,
+                "unit": "A"
+            },
+            "RightRadiatorFanStatus": {
+                "bits": 1
             }
         }
     },
@@ -265,6 +302,68 @@
             }
         }
     },
+    "MainBoardEfuse": {
+    "msg_id": 556,
+    "cycle_time": 100,
+    "description": "Efuse info for shdn/LV/pump/aux/INVR/INVL efuses.",
+    "signals": {
+      "FrontInvertersCurrent": {
+        "resolution": 0.01,
+        "min": 0,
+        "max": 5,
+        "unit": "A"
+      },
+      "FrontInvertersStatus": {
+        "bits": 1
+      },
+      "RSMCurrent": {
+        "resolution": 0.01,
+        "min": 0,
+        "max": 20,
+        "unit": "A"
+      },
+      "RSMStatus": {
+        "bits": 1
+      },
+      "BMSCurrent": {
+        "resolution": 0.01,
+        "min": 0,
+        "max": 5,
+        "unit": "A"
+      },
+      "BMSStatus": {
+        "bits": 1
+      },
+      "RearInvertersCurrent": {
+        "resolution": 0.01,
+        "min": 0,
+        "max": 5,
+        "unit": "A"
+      },
+      "RearInvertersStatus": {
+        "bits": 1
+      },
+      "DAMCurrent": {
+        "resolution": 0.01,
+        "min": 0,
+        "max": 5,
+        "unit": "A"
+      },
+      "DAMStatus": {
+        "bits": 1
+      },
+      "FrontCurrent": {
+        "resolution": 0.01,
+        "min": 0,
+        "max": 5,
+        "unit": "A"
+      },
+      "FrontStatus": {
+        "bits": 1
+      }
+    }
+  },
+
     "PowerMonitoring": {
         "msg_id": 560,
         "cycle_time": 100,
