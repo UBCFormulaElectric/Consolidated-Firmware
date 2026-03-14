@@ -24,7 +24,9 @@ use tasks::client_api::clients::Clients;
 use tasks::serial_handler::run_serial_task;
 use tasks::telem_message::CanPayload;
 
+
 // macro for printing red hehe
+#[macro_export]
 macro_rules! error_println {
     ($($arg:tt)*) => {{
         let s = format!($($arg)*);
@@ -32,8 +34,21 @@ macro_rules! error_println {
     }};
 }
 
+// enable verbose print with `--features verbose`
+#[macro_export]
+macro_rules! vprintln {
+    ($($arg:tt)*) => {{
+        if cfg!(feature = "verbose") {
+            println!("{}", format!($($arg)*));
+        }
+    }};
+}
+
+
 #[tokio::main]
 async fn main() {
+    vprintln!("Verbose print enabled");
+
     // shutdown signal for threads
     let (shutdown_tx, mut shutdown_rx) = broadcast::channel(1);
 

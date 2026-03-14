@@ -9,6 +9,7 @@ use super::live_data_handler::run_live_data_handler;
 use crate::health_check::{HealthCheckSender, HealthCheckSenderExt, Task};
 use crate::tasks::telem_message::CanPayload;
 use crate::tasks::client_api::clients::Clients;
+use crate::vprintln;
 
 use jsoncan_rust::can_database::{CanDatabase, DecodedSignal};
 
@@ -23,7 +24,7 @@ pub async fn run_can_data_handler(
     clients: Arc<RwLock<Clients>>,
     can_db: Arc<CanDatabase>
 ) {
-    println!("{}", "CAN data task started.".yellow());
+    vprintln!("{}", "CAN data task started.".yellow());
 
     let (decoded_signal_tx, _) = broadcast::channel::<DecodedSignal>(32);
 
@@ -36,7 +37,7 @@ pub async fn run_can_data_handler(
     loop {
         select! {
             _ = shutdown_rx.recv() => {
-                println!("CAN data task shutting down.");
+                vprintln!("CAN data task shutting down.");
                 break;
             }
             Ok(can_payload) = can_queue_rx.recv() => {
@@ -58,6 +59,6 @@ pub async fn run_can_data_handler(
     drop(decoded_signal_tx); // Closing channel signals the other tasks to shutdown
     let _ = influx_handler_task.await;
     let _ = live_data_handler_task.await;
-    println!("{}", "CAN data task ended.".yellow());
+    vprintln!("{}", "CAN data task ended.".yellow());
 }
 

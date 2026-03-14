@@ -10,6 +10,7 @@ use colored::Colorize;
 use crate::config::CONFIG;
 use crate::health_check::{HealthCheckSender, HealthCheckSenderExt, ResultExt, Task};
 use crate::tasks::telem_message::TelemetryOutgoingMessage;
+use crate::vprintln;
 use super::telem_message::{TelemetryIncomingMessage, CanPayload};
 
 /**
@@ -20,7 +21,7 @@ pub async fn run_serial_task(
     health_check_tx: HealthCheckSender,
     can_queue_tx: broadcast::Sender<CanPayload>
 ) {
-    println!("{}", "Serial handler task started.".yellow());
+    vprintln!("{}", "Serial handler task started.".yellow());
 
     let serial_port = tokio_serial::new(
         &CONFIG.serial_port,
@@ -57,7 +58,7 @@ pub async fn run_serial_task(
     loop {
         select! {
             _ = shutdown_rx.recv() => {
-                println!("Shutting down serial task.");
+                vprintln!("Shutting down serial task.");
                 break;
             }
             Some(packet) = in_packet_rx.recv() => {
@@ -96,7 +97,7 @@ pub async fn run_serial_task(
     }
     packet_reader.await.ok();
     packet_sender.await.ok();
-    println!("{}", "Serial handler task ended.".yellow());
+    vprintln!("{}", "Serial handler task ended.".yellow());
 }
 
 /**

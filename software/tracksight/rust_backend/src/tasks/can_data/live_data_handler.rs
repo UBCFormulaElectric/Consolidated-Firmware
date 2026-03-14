@@ -4,7 +4,7 @@ use colored::Colorize;
 use socketioxide::extract::SocketRef;
 use tokio::sync::{RwLock, broadcast::Receiver};
 
-use crate::{health_check::{HealthCheckSender, HealthCheckSenderExt, Task}, tasks::client_api::clients::Clients};
+use crate::{health_check::{HealthCheckSender, HealthCheckSenderExt, Task}, tasks::client_api::clients::Clients, vprintln};
 
 use jsoncan_rust::can_database::{CanSignalType, DecodedSignal};
 
@@ -17,7 +17,7 @@ pub async fn run_live_data_handler(
     mut can_signals_rx: Receiver<DecodedSignal>,
     clients: Arc<RwLock<Clients>>
 ) {
-    println!("{}", "Live data task started.".yellow());
+    vprintln!("{}", "Live data task started.".yellow());
 
     health_check_tx.send_health_check(Task::LiveDataHandler, true).await;
 
@@ -51,11 +51,11 @@ pub async fn run_live_data_handler(
             }
             // Closed channel or any error is signal to stop thread
             _ => {
-                println!("Live data task shutting down.");
+                vprintln!("Live data task shutting down.");
                 break;
             }
         }
     }
 
-    println!("{}", "Live data task ended.".yellow())
+    vprintln!("{}", "Live data task ended.".yellow())
 }
