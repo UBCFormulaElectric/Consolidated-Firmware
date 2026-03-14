@@ -7,7 +7,7 @@ import { SignalType } from "@/lib/types/Signal";
 import { ChartData, ChartLayout, EnumSeries, NumericalSeries } from "./CanvasChartTypes";
 // utils
 import { bisect } from "@/lib/bisect";
-import { WidgetData } from "@/lib/types/Widget";
+import { EnumTimelineWidgetData, NumericalGraphWidgetData, WidgetData } from "@/lib/types/Widget";
 
 // TODO reduce to bisect right
 // first enum index where the enum's end time (timestamps[i+1]) >= targetTime
@@ -79,7 +79,7 @@ function niceNumber(range: number, round: boolean) {
 function render_enum(
   context: CanvasRenderingContext2D,
   width: number, // container context
-  widgetConfig: Extract<WidgetData, { type: "enumTimeline" }>,
+  widgetConfig: EnumTimelineWidgetData,
   // rendering
   visibleStartTime: number,
   visibleEndTime: number,
@@ -148,7 +148,7 @@ function render_enum(
       //     : ENUM_COLORS[value % ENUM_COLORS.length];
       // const palette = widgetConfig.signals[series_idx]?.options.colorPalette ?? [];
       const palette = widgetConfig.options.colorPalette[widgetConfig.signals[series_idx]?.name ?? ""] ?? {};
-      const paletteColor = palette[value];
+      const paletteColor = palette.enumValueColors[value];
       if (paletteColor) {
         context.fillStyle = paletteColor.hex();
       } else {
@@ -186,7 +186,7 @@ function render_numerical(
   chartWidth: number,
   chartHeight: number,
   numericalTop: number,
-  widgetConfig: Extract<WidgetData, { type: "numericalGraph" }>,
+  widgetConfig: NumericalGraphWidgetData,
   visibleStartTime: number,
   visibleEndTime: number,
   timeToX: (time: number) => number, // time range

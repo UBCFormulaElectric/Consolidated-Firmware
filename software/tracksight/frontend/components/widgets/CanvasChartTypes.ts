@@ -40,7 +40,6 @@ export type ChartDataEnum = ChartDataBase & {
 };
 
 export type ChartData = ChartDataNumerical | ChartDataEnum;
-// export type ChartDataOf<T extends WidgetData> = Extract<ChartData, { type: T["type"] }>;
 
 export interface ChartLayout {
   minTime: number;

@@ -21,7 +21,10 @@ export function WidgetAdder() {
       data: [],
       options: {
         colorPalette: {
-          [signalName]: generateRandomColorPalette(MOCK_STATES.length)
+          [signalName]: {
+            color: generateRandomColorPalette(1)[0],
+            enumValueColors: generateRandomColorPalette(MOCK_STATES.length)
+          }
         },
         height: 256,
         timeTickCount: 6,

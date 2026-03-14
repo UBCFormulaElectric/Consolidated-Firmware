@@ -7,13 +7,7 @@ import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { useSignalDataStores } from "@/lib/contexts/signalStores/SignalStoreContext";
 import { useCanvasRenderLoop } from "@/lib/hooks/useCanvasRenderLoop";
 import { useCanvasHover } from "@/lib/hooks/useCanvasHover";
-import { SignalType } from "@/lib/types/Signal";
-import { WidgetData } from "@/lib/types/Widget";
-
-type NumericalCanvasChartProps = Extract<WidgetData, { type: "numericalGraph" }> & {
-    hoveredSignal?: RefObject<string | null>;
-    onHoverTimestampChange?: (timestamp: number | null) => void;
-};
+import { NumericalGraphWidgetData } from "@/lib/types/Widget";
 
 export default function NumericalCanvasChart({
     id,
@@ -21,7 +15,7 @@ export default function NumericalCanvasChart({
     signals,
     hoveredSignal,
     onHoverTimestampChange,
-}: NumericalCanvasChartProps) {
+}: NumericalGraphWidgetData) {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const layoutRef = useRef<ChartLayout | null>(null);
     const {

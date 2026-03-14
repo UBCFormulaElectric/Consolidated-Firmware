@@ -1,54 +1,63 @@
 import { EnumSeries, NumericalSeries } from "@/components/widgets/CanvasChartTypes";
 import { Color } from "chroma-js";
-import type { FC } from "react";
+import type { FC, RefObject } from "react";
 import { EnumSignalMetadata, NumericalSignalMetadata } from "./Signal";
 
-export type WidgetSchema =
-  | {
-    type: "enumTimeline";
-    data: EnumSeries[];
-    options: {
-      colorPalette: {
-        [signalName: string]: {
+export type EnumTimelineWidgetSchema = {
+  type: "enumTimeline";
+  data: EnumSeries[];
+  options: {
+    colorPalette: {
+      [signalName: string]: {
+        color: Color;
+        enumValueColors: {
           [enumValue: number]: Color;
-        };
+        }
       };
-      height: number;
-      timeTickCount: number;
     };
-  }
-  | {
-    type: "numericalGraph";
-    data: NumericalSeries[];
-    options: {
-      colorPalette: {
-        [signalName: string]: Color;
-      };
-      height: number;
-      timeTickCount: number;
-    };
+    height: number;
+    timeTickCount: number;
   };
+}
+
+export type NumericalGraphWidgetSchema = {
+  type: "numericalGraph";
+  data: NumericalSeries[];
+  options: {
+    colorPalette: {
+      [signalName: string]: Color;
+    };
+    height: number;
+    timeTickCount: number;
+  };
+}
+
+export type WidgetSchema =
+  | NumericalGraphWidgetSchema
+  | EnumTimelineWidgetSchema;
 
 type WidgetType = WidgetSchema["type"];
 
-type WidgetSchemaOf<T extends WidgetType> = Extract<WidgetSchema, { type: T }>;
+export type BaseWidgetRenderer = {
+  id: string;
+  hoveredSignal?: RefObject<string | null>;
+  onHoverTimestampChange?: (timestamp: number | null) => void;
+};
 
-type EnumWidgetData = Extract<WidgetSchema, { type: "enumTimeline" }> & {
+export type EnumTimelineWidgetData = BaseWidgetRenderer & EnumTimelineWidgetSchema & {
   signals: EnumSignalMetadata[];
 }
 
-type NumericalWidgetData = Extract<WidgetSchema, { type: "numericalGraph" }> & {
+export type NumericalGraphWidgetData = BaseWidgetRenderer & NumericalGraphWidgetSchema & {
   signals: NumericalSignalMetadata[];
 }
 
 type WidgetData = (
-  EnumWidgetData
-  | NumericalWidgetData
-) & {
-  id: string;
-}
+  | EnumTimelineWidgetData
+  | NumericalGraphWidgetData
+);
 
 type WidgetRendererProps = WidgetData;
 type WidgetRenderer = FC<WidgetRendererProps>;
 
-export type { WidgetData, WidgetRenderer, WidgetRendererProps, WidgetSchemaOf, WidgetType };
+export type { WidgetData, WidgetRenderer, WidgetRendererProps, WidgetType };

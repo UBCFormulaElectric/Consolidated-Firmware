@@ -21,7 +21,9 @@ interface WidgetManagerContext {
   removeSignal: (widget: WidgetData, nameOfSignalToRemvoe: string) => void;
   updateWidget: <T extends WidgetType, Widget extends Extract<WidgetData, { type: T }>>(widget: Widget, updater: (prevWidget: Widget) => Widget) => void;
 }
+
 const WidgetManagerContext = createContext<WidgetManagerContext | null>(null);
+
 export function useWidgetManager() {
   const ctx = useContext(WidgetManagerContext);
   if (!ctx) { throw new Error("useWidgetManagerContext must be used within a WidgetManagerProvider"); }
@@ -37,10 +39,13 @@ function WidgetSerialize(widgets: WidgetData[]): string {
           ...w.options,
           colorPalette: Object.fromEntries(Object.entries(w.options.colorPalette).map(([signalName, enumColors]) => [
             signalName,
-            Object.fromEntries(Object.entries(enumColors).map(([enumVal, color]) => [
-              enumVal,
-              color.hex()
-            ]))
+            {
+              color: enumColors.color.hex(),
+              enumValueColors: Object.fromEntries(Object.entries(enumColors.enumValueColors).map(([enumVal, color]) => [
+                enumVal,
+                color.hex()
+              ]))
+            }
           ]))
         }
       }
@@ -82,7 +87,13 @@ function WidgetDeserialize(widgetString: string): WidgetData[] {
             ...acc,
             [signalName]: Object.keys(b.options.colorPalette[signalName]).reduce((enumAcc, enumVal) => ({
               ...enumAcc,
-              [enumVal]: chroma(b.options.colorPalette[signalName][enumVal as any])
+              [enumVal]: {
+                color: chroma(b.options.colorPalette[signalName].color),
+                enumValueColors: Object.fromEntries(Object.entries(b.options.colorPalette[signalName].enumValueColors).map(([enumVal, color]) => [
+                  enumVal,
+                  chroma(color)
+                ]))
+              }
             }), {})
           }), {})
         }
