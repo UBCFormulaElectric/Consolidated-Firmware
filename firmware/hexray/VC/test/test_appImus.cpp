@@ -1,21 +1,88 @@
-#include "test_VCBase.hpp"
 #include <gtest/gtest.h>
+#include "test/test_VCBase.hpp"
+#include "io_imus.cpp"
+#include "io_imu.cpp"
+// #include "vc_fakes.hpp"
 #include "util_errorCodes.hpp"
-#include "app_canRx.hpp"
-#include "app_imu.cpp"
 #include "app_canTx.hpp"
 
-
-class VCTestImu: public VCBaseTest
+class VCImuTest : public VCBaseTest
 {
 };
-TEST_F(VCTestImu, broadcastImuTest)
+
+// IMU1
+
+TEST_F(VCImuTest, Imu1_Accel_Gyro_Test)
 {
-    // fakes::io::sbgEllipses::setLinearAcceleration(1.0f, 2.0f, 3.0f);
+    io::imus::IMU1.set_AccelX(1.0f);
+    io::imus::IMU1.set_AccelY(2.0f);
+    io::imus::IMU1.set_AccelZ(3.0f);
+    io::imus::IMU1.set_GyroRoll(4.0f);
+    io::imus::IMU1.set_GyroPitch(5.0f);
+    io::imus::IMU1.set_GyroYaw(6.0f);
 
-    // app::imu::broadcast_imu();
+    LetTimePass(1);
 
-    // EXPECT_FLOAT_EQ(app::can_tx::VC_Imu1AccelerationX_get(), 1.0f);
-    // EXPECT_FLOAT_EQ(app::can_tx::VC_Imu1AccelerationY_get(), 2.0f);
-    // EXPECT_FLOAT_EQ(app::can_tx::VC_Imu1AccelerationZ_get(), 3.0f);
+    ASSERT_FLOAT_EQ(1.0f, app::can_tx::VC_Imu1AccelerationX_get());
+    ASSERT_FLOAT_EQ(2.0f, app::can_tx::VC_Imu1AccelerationY_get());
+    ASSERT_FLOAT_EQ(3.0f, app::can_tx::VC_Imu1AccelerationZ_get());
+    ASSERT_FLOAT_EQ(4.0f, app::can_tx::VC_Imu1AngularVelocityRoll_get());
+    ASSERT_FLOAT_EQ(5.0f, app::can_tx::VC_Imu1AngularVelocityPitch_get());
+    ASSERT_FLOAT_EQ(6.0f, app::can_tx::VC_Imu1AngularVelocityYaw_get());
+}
+
+// IMU2
+
+TEST_F(VCImuTest, Imu2_Accel_Gyro_Test)
+{
+    io::imus::IMU2.set_AccelX(1.0f);
+    io::imus::IMU2.set_AccelY(2.0f);
+    io::imus::IMU2.set_AccelZ(3.0f);
+    io::imus::IMU2.set_GyroRoll(4.0f);
+    io::imus::IMU2.set_GyroPitch(5.0f);
+    io::imus::IMU2.set_GyroYaw(6.0f);
+
+    LetTimePass(1);
+
+    ASSERT_FLOAT_EQ(1.0f, app::can_tx::VC_Imu2AccelerationX_get());
+    ASSERT_FLOAT_EQ(2.0f, app::can_tx::VC_Imu2AccelerationY_get());
+    ASSERT_FLOAT_EQ(3.0f, app::can_tx::VC_Imu2AccelerationZ_get());
+    ASSERT_FLOAT_EQ(4.0f, app::can_tx::VC_Imu2AngularVelocityRoll_get());
+    ASSERT_FLOAT_EQ(5.0f, app::can_tx::VC_Imu2AngularVelocityPitch_get());
+    ASSERT_FLOAT_EQ(6.0f, app::can_tx::VC_Imu2AngularVelocityYaw_get());
+}
+
+// IMU3
+
+TEST_F(VCImuTest, Imu3_Accel_Gyro_Test)
+{
+    io::imus::IMU3.set_AccelX(1.0f);
+    io::imus::IMU3.set_AccelY(2.0f);
+    io::imus::IMU3.set_AccelZ(3.0f);
+    io::imus::IMU3.set_GyroRoll(4.0f);
+    io::imus::IMU3.set_GyroPitch(5.0f);
+    io::imus::IMU3.set_GyroYaw(6.0f);
+
+    LetTimePass(1);
+
+    ASSERT_FLOAT_EQ(1.0f, app::can_tx::VC_Imu3AccelerationX_get());
+    ASSERT_FLOAT_EQ(2.0f, app::can_tx::VC_Imu3AccelerationY_get());
+    ASSERT_FLOAT_EQ(3.0f, app::can_tx::VC_Imu3AccelerationZ_get());
+    ASSERT_FLOAT_EQ(4.0f, app::can_tx::VC_Imu3AngularVelocityRoll_get());
+    ASSERT_FLOAT_EQ(5.0f, app::can_tx::VC_Imu3AngularVelocityPitch_get());
+    ASSERT_FLOAT_EQ(6.0f, app::can_tx::VC_Imu3AngularVelocityYaw_get());
+}
+
+// ERROR
+
+TEST_F(VCImuTest, Imu1_Accel_Error_Returns_Early)
+{
+    io::imus::IMU1.set_accel_error(true);  
+
+    LetTimePass(1);
+
+    // CAN values should remain at default (0.0f) 
+    ASSERT_FLOAT_EQ(0.0f, app::can_tx::VC_Imu1AccelerationX_get());
+    ASSERT_FLOAT_EQ(0.0f, app::can_tx::VC_Imu1AccelerationY_get());
+    ASSERT_FLOAT_EQ(0.0f, app::can_tx::VC_Imu1AccelerationZ_get());
 }

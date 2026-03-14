@@ -4,11 +4,6 @@
 
 namespace fakes::io
 {
-namespace contactor
-{
-    void setContactor(bool closed);
-}
-
 namespace loadswitches
 {
     void setChannelEnabled(int channel, bool enabled);

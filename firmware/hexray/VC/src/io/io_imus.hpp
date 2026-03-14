@@ -1,7 +1,9 @@
-#include "hw_spis.hpp"
 #include "io_imu.hpp"
+#ifdef TARGET_EMBEDDED
+#include "hw_spis.hpp"
+#endif
 
 namespace io::imus
 {
-void app_imu_init();
+void init();
 } // namespace io::imus

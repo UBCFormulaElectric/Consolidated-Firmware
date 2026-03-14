@@ -22,9 +22,9 @@ void broadcast()
        CAN messages because another message in the signal is being used */
 
     // Status msg
-    app::can_rx::VC_EllipseGeneralStatusBitmask_set(io_sbgEllipse_getGeneralStatus());
-    app::can_rx::VC_EllipseComStatusBitmask_set(io_sbgEllipse_getComStatus());
-    app::can_rx::VC_EllipseQueueOverflowCount_set(io_sbgEllipse_getOverflowCount());
+    app::can_tx::VC_EllipseGeneralStatusBitmask_set(io_sbgEllipse_getGeneralStatus());
+    app::can_tx::VC_EllipseComStatusBitmask_set(io_sbgEllipse_getComStatus());
+    app::can_tx::VC_EllipseQueueOverflowCount_set(io_sbgEllipse_getOverflowCount());
 
     // Time msg
     constexpr uint32_t timestamp_us = io_sbgEllipse_getTimestampUs();
