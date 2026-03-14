@@ -2,7 +2,6 @@
 
 #include <cstdint>
 #include "io_canMsg.hpp"
-#include "hw_crc.hpp"
 
 namespace io::telemMessage
 {

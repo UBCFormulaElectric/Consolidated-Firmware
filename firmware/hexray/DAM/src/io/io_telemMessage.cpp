@@ -4,6 +4,7 @@
 #include <span>
 
 #include "io_telemMessage.hpp"
+#include "hw_crc.hpp"
 
 namespace
 {

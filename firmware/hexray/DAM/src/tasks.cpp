@@ -10,7 +10,6 @@
 #include <io_canRx.hpp>
 
 #include "hw_rtosTaskHandler.hpp"
-#include "hw_crc.hpp"
 #include "hw_uarts.hpp"
 #include "io_telemQueue.hpp"
 
