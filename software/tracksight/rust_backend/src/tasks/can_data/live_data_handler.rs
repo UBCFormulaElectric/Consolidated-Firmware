@@ -4,7 +4,7 @@ use colored::Colorize;
 use socketioxide::extract::SocketRef;
 use tokio::sync::{RwLock, broadcast::Receiver};
 
-use crate::tasks::client_api::clients::Clients;
+use crate::{health_check::{HealthCheckSender, HealthCheckSenderExt, Task}, tasks::client_api::clients::Clients};
 
 use jsoncan_rust::can_database::{CanSignalType, DecodedSignal};
 
@@ -13,10 +13,13 @@ use jsoncan_rust::can_database::{CanSignalType, DecodedSignal};
  * this task will handle "forwarding" live data to clients via sockets
  */
 pub async fn run_live_data_handler(
+    health_check_tx: HealthCheckSender,
     mut can_signals_rx: Receiver<DecodedSignal>,
     clients: Arc<RwLock<Clients>>
 ) {
     println!("{}", "Live data task started.".yellow());
+
+    health_check_tx.send_health_check(Task::LiveDataHandler, true).await;
 
     loop {
         match can_signals_rx.recv().await {

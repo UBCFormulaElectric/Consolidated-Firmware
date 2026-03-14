@@ -2,10 +2,11 @@ use std::sync::Arc;
 
 use colored::Colorize;
 use tokio::{select, spawn};
-use tokio::sync::{RwLock, broadcast, mpsc};
+use tokio::sync::{RwLock, broadcast};
 
 use super::influx_handler::run_influx_handler;
 use super::live_data_handler::run_live_data_handler;
+use crate::health_check::{HealthCheckSender, HealthCheckSenderExt, Task};
 use crate::tasks::telem_message::CanPayload;
 use crate::tasks::client_api::clients::Clients;
 
@@ -17,7 +18,7 @@ use jsoncan_rust::can_database::{CanDatabase, DecodedSignal};
  */
 pub async fn run_can_data_handler(
     mut shutdown_rx: broadcast::Receiver<()>, 
-    health_check_tx: mpsc::Sender<bool>,
+    health_check_tx: HealthCheckSender,
     mut can_queue_rx: broadcast::Receiver<CanPayload>,
     clients: Arc<RwLock<Clients>>,
     can_db: Arc<CanDatabase>
@@ -27,10 +28,10 @@ pub async fn run_can_data_handler(
     let (decoded_signal_tx, _) = broadcast::channel::<DecodedSignal>(32);
 
     // parsed can signal consumers
-    let influx_handler_task = spawn(run_influx_handler(decoded_signal_tx.subscribe()));
-    let live_data_handler_task = spawn(run_live_data_handler(decoded_signal_tx.subscribe(), clients));
+    let influx_handler_task: tokio::task::JoinHandle<()> = spawn(run_influx_handler(health_check_tx.clone(), decoded_signal_tx.subscribe()));
+    let live_data_handler_task: tokio::task::JoinHandle<()> = spawn(run_live_data_handler(health_check_tx.clone(), decoded_signal_tx.subscribe(), clients));
     
-    let _ = health_check_tx.send(true).await.expect("Health check send failed, how.");
+    health_check_tx.send_health_check(Task::CanDataHandler, true).await;
     
     loop {
         select! {

@@ -3,7 +3,7 @@ use influxdb2::{Client, api::write::TimestampPrecision, models::{DataPoint, data
 use tokio::sync::{broadcast::Receiver};
 use futures::stream;
 
-use crate::config::CONFIG;
+use crate::{config::CONFIG, health_check::{HealthCheckSender, HealthCheckSenderExt, Task}};
 
 use jsoncan_rust::can_database::DecodedSignal;
 
@@ -14,7 +14,10 @@ const MAX_BATCH_CAPACITY: usize = 1000;
  * After serial_handler parses the can messages,
  * this task consumes the messages and writes them to influxdb
  */
-pub async fn run_influx_handler(mut decoded_signal_rx: Receiver<DecodedSignal>) {
+pub async fn run_influx_handler(
+    health_check_tx: HealthCheckSender,
+    mut decoded_signal_rx: Receiver<DecodedSignal>
+) {
     println!("{}", "Influx task started.".yellow());
 
     let influx_client = Client::new(
@@ -28,8 +31,8 @@ pub async fn run_influx_handler(mut decoded_signal_rx: Receiver<DecodedSignal>) 
     
     // quick check, fail otherwise
     influx_client.health().await.expect("Unable to connect to InfluxDB");
-
     
+    health_check_tx.send_health_check(Task::InfluxHandler, true).await;
 
     loop {
         match decoded_signal_rx.recv().await {

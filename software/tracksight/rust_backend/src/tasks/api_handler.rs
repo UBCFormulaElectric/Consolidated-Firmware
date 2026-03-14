@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::Router;
 use colored::Colorize;
 use tokio::select;
-use tokio::sync::{RwLock, broadcast, mpsc};
+use tokio::sync::{RwLock, broadcast};
 use tokio::net::TcpListener;
 use socketioxide::{SocketIo, extract::SocketRef};
 use jsoncan_rust::can_database::CanDatabase;
@@ -10,6 +10,7 @@ use tower_http::cors::{CorsLayer, Any};
 use mdns_sd::{ServiceDaemon, ServiceInfo};
 
 use crate::config::CONFIG;
+use crate::health_check::{HealthCheckSender, HealthCheckSenderExt, Task};
 use crate::tasks::client_api::AppState;
 use crate::tasks::client_api::clients::Clients;
 use crate::tasks::client_api::signal_api_handler::get_signal_router;
@@ -17,7 +18,7 @@ use crate::tasks::client_api::subtable_api_handler::get_subtable_router;
 
 pub async fn run_api_handler(
     mut shutdown_rx: broadcast::Receiver<()>, 
-    health_check_tx: mpsc::Sender<bool>, 
+    health_check_tx: HealthCheckSender, 
     clients: Arc<RwLock<Clients>>, 
     can_db: Arc<CanDatabase>
 ) {
@@ -79,7 +80,7 @@ pub async fn run_api_handler(
         .layer(cors)
         .into_make_service();
 
-    let _ = health_check_tx.send(true).await.expect("Health check send failed, how.");
+    health_check_tx.send_health_check(Task::ApiHandler, true).await;
 
     // this is so quirky it's amazing
     // the select macro waits for one of these to finish
