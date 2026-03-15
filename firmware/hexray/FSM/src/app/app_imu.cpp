@@ -25,8 +25,8 @@ void init()
 
 void broadcast()
 {
-    imu_results = { imu_front.getAccelX(), imu_front.getAccelY(), imu_front.getAccelZ(),
-                    imu_front.getGyroX(),  imu_front.getGyroY(),  imu_front.getGyroZ() };
+    imu_results = { io::imus::imu_front.getAccelX(), io::imus::imu_front.getAccelY(), io::imus::imu_front.getAccelZ(),
+                    io::imus::imu_front.getGyroX(),  io::imus::imu_front.getGyroY(),  io::imus::imu_front.getGyroZ() };
 
     can_tx::FSM_AccelX_set(imu_results.accel_x_res.value_or(0.0f));
     can_tx::FSM_AccelY_set(imu_results.accel_y_res.value_or(0.0f));
