@@ -38,12 +38,21 @@ macro_rules! error_println {
 #[macro_export]
 macro_rules! vprintln {
     ($($arg:tt)*) => {{
-        if cfg!(feature = "verbose") {
+        #[cfg(feature = "verbose")] {
             println!("{}", format!($($arg)*));
         }
     }};
 }
 
+// enable even more verbose print with `--features debug`
+#[macro_export]
+macro_rules! dprintln {
+    ($($arg:tt)*) => {{
+        #[cfg(feature = "debug")] {
+            println!("{}", format!($($arg)*));
+        }
+    }};
+}
 
 #[tokio::main]
 async fn main() {

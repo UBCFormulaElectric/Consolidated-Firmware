@@ -1,14 +1,15 @@
-use colored::Colorize;
 use influxdb2::{Client, api::write::TimestampPrecision, models::{DataPoint, data_point::DataPointError}};
 use tokio::sync::{broadcast::Receiver};
 use futures::stream;
+#[allow(unused_imports)]
+use colored::Colorize;
 
-use crate::{config::CONFIG, health_check::{HealthCheckSender, HealthCheckSenderExt, Task}, vprintln};
+use crate::{config::CONFIG, health_check::{HealthCheckSender, HealthCheckSenderExt, ResultExt, Task}, vprintln};
 
 use jsoncan_rust::can_database::DecodedSignal;
 
 // Write to database once batch size is reached or some termination signal
-const MAX_BATCH_CAPACITY: usize = 1000;
+const MAX_BATCH_CAPACITY: usize = 500;
 
 /**
  * After serial_handler parses the can messages,
@@ -30,7 +31,7 @@ pub async fn run_influx_handler(
     let mut batch_buffer: Vec<DataPoint> = Vec::with_capacity(MAX_BATCH_CAPACITY);
     
     // quick check, fail otherwise
-    influx_client.health().await.expect("Unable to connect to InfluxDB");
+    influx_client.health().await.unwrap_or_fail_health_check(&health_check_tx, Task::InfluxHandler).await;
     
     health_check_tx.send_health_check(Task::InfluxHandler, true).await;
 

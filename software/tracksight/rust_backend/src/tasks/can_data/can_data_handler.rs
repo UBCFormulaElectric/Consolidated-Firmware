@@ -1,15 +1,16 @@
 use std::sync::Arc;
 
-use colored::Colorize;
 use tokio::{select, spawn};
 use tokio::sync::{RwLock, broadcast};
+#[allow(unused_imports)]
+use colored::Colorize;
 
 use super::influx_handler::run_influx_handler;
 use super::live_data_handler::run_live_data_handler;
 use crate::health_check::{HealthCheckSender, HealthCheckSenderExt, Task};
 use crate::tasks::telem_message::CanPayload;
 use crate::tasks::client_api::clients::Clients;
-use crate::vprintln;
+use crate::{vprintln};
 
 use jsoncan_rust::can_database::{CanDatabase, DecodedSignal};
 
