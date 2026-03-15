@@ -95,7 +95,9 @@ int main(void)
     HAL_Init();
 
     /* USER CODE BEGIN Init */
-
+#ifndef WATCHDOG_DISABLED
+    __HAL_DBGMCU_FREEZE_IWDG();
+#endif
     /* USER CODE END Init */
 
     /* Configure the system clock */
@@ -270,7 +272,7 @@ static void MX_IWDG_Init(void)
     /* USER CODE END IWDG_Init 0 */
 
     /* USER CODE BEGIN IWDG_Init 1 */
-
+#ifndef WATCHDOG_DISABLED
     /* USER CODE END IWDG_Init 1 */
     hiwdg.Instance       = IWDG;
     hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
@@ -282,7 +284,7 @@ static void MX_IWDG_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN IWDG_Init 2 */
-
+#endif
     /* USER CODE END IWDG_Init 2 */
 }
 
@@ -310,7 +312,7 @@ static void MX_RTC_Init(void)
      */
     hrtc.Instance            = RTC;
     hrtc.Init.HourFormat     = RTC_HOURFORMAT_24;
-    hrtc.Init.AsynchPrediv   = 127;
+    hrtc.Init.AsynchPrediv   = 31;
     hrtc.Init.SynchPrediv    = 999;
     hrtc.Init.OutPut         = RTC_OUTPUT_DISABLE;
     hrtc.Init.OutPutRemap    = RTC_OUTPUT_REMAP_NONE;
