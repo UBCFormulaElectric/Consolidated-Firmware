@@ -189,6 +189,7 @@ void jobs_initLTCVoltages(void)
         io_ltc6813_wakeup();
         LOG_IF_ERR(app_segments_configSync());
     }
+    
     io_semaphore_give(&isospi_bus_access_lock);
 }
 

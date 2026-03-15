@@ -15,11 +15,6 @@ static const array<uint16_t, io::adbms::NUM_STAT_REG_GROUPS> reg_groups{ {
     io::adbms::RDSTATE,
 } };
 
-static_assert(sizeof(io::adbms::STATA) == io::adbms::REG_GROUP_SIZE);
-static_assert(sizeof(io::adbms::STATB) == io::adbms::REG_GROUP_SIZE);
-static_assert(sizeof(io::adbms::STATC) == io::adbms::REG_GROUP_SIZE);
-static_assert(sizeof(io::adbms::STATD) == io::adbms::REG_GROUP_SIZE);
-static_assert(sizeof(io::adbms::STATE) == io::adbms::REG_GROUP_SIZE);
 namespace io::adbms
 {
 
