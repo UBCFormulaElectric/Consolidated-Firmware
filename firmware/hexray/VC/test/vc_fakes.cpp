@@ -13,9 +13,9 @@ namespace imus
     Imu IMU2;
     Imu IMU3;
 
-    std::expected<void, ErrorCode> init()
+    std::expected<void, ErrorCode> initAll()
     {
-        return IMU1.init() | IMU2.init() | IMU3.init();
+        return IMU1.init().and_then([this] { return IMU2.init(); }).and_then([this] { return IMU3.init(); });
     }
 } // namespace imus
 } // namespace io
