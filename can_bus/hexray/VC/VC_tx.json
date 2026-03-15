@@ -198,6 +198,47 @@
             }
         }
     },
+    "ShdnNodeStatus": {
+        "msg_id": 538,
+        "cycle_time": 100,
+        "description": "VC Shutdown Node Status",
+        "signals": {
+            "RearRightMotorInterlock": {
+                "bits": 1
+            },
+            "InertiaSwitch": {
+                "bits": 1
+            },
+            "TSMSOKStatus": {
+                "bits": 1
+            },
+            "MSDOrEMeterOKStatus": {
+                "bits": 1
+            }
+        }
+    },
+    "EllipseStatus": {
+        "msg_id": 547,
+        "cycle_time": 100,
+        "description": "Status of the SBG Ellipse N sensor.",
+        "signals": {
+            "EllipseGeneralStatusBitmask": {
+                "bits": 16
+            },
+            "EllipseComStatusBitmask": {
+                "bits": 32
+            },
+            "EllipseErrorCode": {
+                "enum": "EllipseErrorCode"
+            },
+            "EkfSolutionMode": {
+                "enum": "VcEkfStatus"
+            },
+            "EllipseQueueOverflowCount": {
+                "bits": 8
+            }
+        }
+    },
     "PumpStatus": {
         "msg_id": 540,
         "cycle_time": 10,

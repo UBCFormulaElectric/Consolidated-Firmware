@@ -16,7 +16,7 @@
         "INV_ENABLE": 2,
         "INV_INVERTER_ON": 3,
         "INV_READY_FOR_DRIVE": 4
-    },
+    }, 
     "VcEkfStatus": {
         "UNINITIALIZED": 0,
         "VERTICAL_GYRO": 1,
