@@ -96,6 +96,7 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h5xx_hal_pcd.c"
             "stm32h5xx_hal_pcd_ex.c"
             "stm32h5xx_ll_usb.c"
+            "stm32h5xx_hal_iwdg.c"
     )
     stm32h562xx_cube_library(
             "hexray_RSM_stm32"
