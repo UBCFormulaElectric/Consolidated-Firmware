@@ -1,4 +1,5 @@
 #include "tasks.h"
+#include "main.h"
 #include "jobs.hpp"
 
 #include "app_jsoncan.hpp"
@@ -19,7 +20,7 @@ extern "C"
 #include "io_rtc.h"
 }
 
-static IoRtcTime boot_time{};
+// static IoRtcTime boot_time{};
 #include "hw_cans.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
@@ -54,6 +55,7 @@ static IoRtcTime boot_time{};
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
+        HAL_IWDG_Refresh(&hiwdg);
         jobs_run1kHz_tick();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -151,8 +153,8 @@ void tasks_preInit() {}
 void tasks_init()
 {
     hw::can::fdcan1.init();
-    jobs_init();
     osKernelInitialize();
+    jobs_init();
     DAM_StartAllTasks();
     osKernelStart();
     forever {}
