@@ -20,8 +20,176 @@
             }
         }
     },
+    "Imu1LinearData": {
+        "msg_id": 505,
+        "cycle_time": 10,
+        "description": "Linear Acceleration x, y and z direction from the first IMU",
+        "signals": {
+            "Imu1AccelerationX": {
+                "resolution": 0.001,
+                "signed": true,
+                "min": -50,
+                "max": 50,
+                "unit": "m/s^2"
+            },
+            "Imu1AccelerationY": {
+                "resolution": 0.001,
+                "signed": true,
+                "min": -50,
+                "max": 50,
+                "unit": "m/s^2"
+            },
+            "Imu1AccelerationZ": {
+                "resolution": 0.001,
+                "signed": true,
+                "min": -50,
+                "max": 50,
+                "unit": "m/s^2"
+            }
+        }
+    },
+    "Imu2LinearData": {
+        "msg_id": 510,
+        "cycle_time": 10,
+        "description": "Linear Acceleration x, y and z direction from the second IMU",
+        "signals": {
+            "Imu2AccelerationX": {
+                "resolution": 0.001,
+                "signed": true,
+                "min": -50,
+                "max": 50,
+                "unit": "m/s^2"
+            },
+            "Imu2AccelerationY": {
+                "resolution": 0.001,
+                "signed": true,
+                "min": -50,
+                "max": 50,
+                "unit": "m/s^2"
+            },
+            "Imu2AccelerationZ": {
+                "resolution": 0.001,
+                "signed": true,
+                "min": -50,
+                "max": 50,
+                "unit": "m/s^2"
+            }
+        }
+    },
+    "Imu3LinearData": {
+        "msg_id": 515,
+        "cycle_time": 10,
+        "description": "Linear Acceleration x, y and z direction from the third IMU ",
+        "signals": {
+            "Imu3AccelerationX": {
+                "resolution": 0.001,
+                "signed": true,
+                "min": -50,
+                "max": 50,
+                "unit": "m/s^2"
+            },
+            "Imu3AccelerationY": {
+                "resolution": 0.001,
+                "signed": true,
+                "min": -50,
+                "max": 50,
+                "unit": "m/s^2"
+            },
+            "Imu3AccelerationZ": {
+                "resolution": 0.001,
+                "signed": true,
+                "min": -50,
+                "max": 50,
+                "unit": "m/s^2"
+            }
+        }
+    },
+    "Imu1AngularData": {
+        "msg_id": 520,
+        "cycle_time": 10,
+        "description": "Angular Velocity in x, y and z direction from the first IMU",
+        "signals": {
+            "Imu1AngularVelocityRoll": {
+                "resolution": 0.1,
+                "signed": true,
+                "min": -360,
+                "max": 360,
+                "unit": "deg/s"
+            },
+            "Imu1AngularVelocityPitch": {
+                "resolution": 0.1,
+                "signed": true,
+                "min": -360,
+                "max": 360,
+                "unit": "deg/s"
+            },
+            "Imu1AngularVelocityYaw": {
+                "resolution": 0.1,
+                "signed": true,
+                "min": -360,
+                "max": 360,
+                "unit": "deg/s"
+            }
+        }
+    },
+    "Imu2AngularData": {
+        "msg_id": 525,
+        "cycle_time": 10,
+        "description": "Angular Velocity in x, y and z direction from the second IMU",
+        "signals": {
+            "Imu2AngularVelocityRoll": {
+                "resolution": 0.1,
+                "signed": true,
+                "min": -360,
+                "max": 360,
+                "unit": "deg/s"
+            },
+            "Imu2AngularVelocityPitch": {
+                "resolution": 0.1,
+                "signed": true,
+                "min": -360,
+                "max": 360,
+                "unit": "deg/s"
+            },
+            "Imu2AngularVelocityYaw": {
+                "resolution": 0.1,
+                "signed": true,
+                "min": -360,
+                "max": 360,
+                "unit": "deg/s"
+            }
+        }
+    },
+    "Imu3AngularData": {
+        "msg_id": 530,
+        "cycle_time": 10,
+        "description": "Angular Velocity in x, y and z direction from the third IMU",
+        "signals": {
+            "Imu3AngularVelocityRoll": {
+                "resolution": 0.1,
+                "signed": true,
+                "min": -360,
+                "max": 360,
+                "unit": "deg/s"
+            },
+            "Imu3AngularVelocityPitch": {
+                "resolution": 0.1,
+                "signed": true,
+                "min": -360,
+                "max": 360,
+                "unit": "deg/s"
+            },
+            "Imu3AngularVelocityYaw": {
+                "resolution": 0.1,
+                "signed": true,
+                "min": -360,
+                "max": 360,
+                "unit": "deg/s"
+            }
+        }
+    },
     "GlobalShdnNodeStatus": {
-        "msg_id": 511,
+        "msg_id": 535,
         "cycle_time": 100,
         "description": "Global Shutdown Node Status",
         "signals": {
@@ -72,7 +240,7 @@
         }
     },
     "PumpStatus": {
-        "msg_id": 529,
+        "msg_id": 540,
         "cycle_time": 10,
         "description": "All pump descriptions",
         "signals": {
@@ -88,12 +256,231 @@
         }
     },
     "ConnectorBoardEfuse": {
-        "msg_id": 533,
+        "msg_id": 545,
         "cycle_time": 100,
         "description": "Efuse info for RL Pump/RR Pump/F pump/L Rad/R Rad efuses.",
         "signals": {
             "RsmTurnOnPump": {
                 "bits": 1
+            },
+            "RearLeftPumpCurrent": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 5,
+                "unit": "A"
+            },
+            "RearLeftPumpStatus": {
+                "bits": 1
+            },
+            "RearRightPumpCurrent": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 5,
+                "unit": "A"
+            },
+            "RearRightPumpStatus": {
+                "bits": 1
+            },
+
+            "LeftRadiatorFanCurrent": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 5,
+                "unit": "A"
+            },
+            "LeftRadiatorFanStatus": {
+                "bits": 1
+            },
+            "RightRadiatorFanCurrent": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 5,
+                "unit": "A"
+            },
+            "RightRadiatorFanStatus": {
+                "bits": 1
+            }
+        }
+    },
+    "ShdnNodeStatus": {
+        "msg_id": 550,
+        "cycle_time": 100,
+        "description": "VC Shutdown Node Status",
+        "signals": {
+            "RearRightMotorInterlock": {
+                "bits": 1
+            },
+            "InertiaSwitch": {
+                "bits": 1
+            },
+            "TSMSOKStatus": {
+                "bits": 1
+            },
+            "MSDOrEMeterOKStatus": {
+                "bits": 1
+            }
+        }
+    },
+    "EllipseStatus": {
+        "msg_id": 555,
+        "cycle_time": 100,
+        "description": "Status of the SBG Ellipse N sensor.",
+        "signals": {
+            "EllipseGeneralStatusBitmask": {
+                "bits": 16
+            },
+            "EllipseComStatusBitmask": {
+                "bits": 32
+            },
+            "EllipseErrorCode": {
+                "enum": "EllipseErrorCode"
+            },
+            "EkfSolutionMode": {
+                "enum": "VcEkfStatus"
+            },
+            "EllipseQueueOverflowCount": {
+                "bits": 8
+            }
+        }
+    },
+    "MainBoardEfuse": {
+    "msg_id": 556,
+    "cycle_time": 100,
+    "description": "Efuse info for shdn/LV/pump/aux/INVR/INVL efuses.",
+    "signals": {
+      "FrontInvertersCurrent": {
+        "resolution": 0.01,
+        "min": 0,
+        "max": 5,
+        "unit": "A"
+      },
+      "FrontInvertersStatus": {
+        "bits": 1
+      },
+      "RSMCurrent": {
+        "resolution": 0.01,
+        "min": 0,
+        "max": 20,
+        "unit": "A"
+      },
+      "RSMStatus": {
+        "bits": 1
+      },
+      "BMSCurrent": {
+        "resolution": 0.01,
+        "min": 0,
+        "max": 5,
+        "unit": "A"
+      },
+      "BMSStatus": {
+        "bits": 1
+      },
+      "RearInvertersCurrent": {
+        "resolution": 0.01,
+        "min": 0,
+        "max": 5,
+        "unit": "A"
+      },
+      "RearInvertersStatus": {
+        "bits": 1
+      },
+      "DAMCurrent": {
+        "resolution": 0.01,
+        "min": 0,
+        "max": 5,
+        "unit": "A"
+      },
+      "DAMStatus": {
+        "bits": 1
+      },
+      "FrontCurrent": {
+        "resolution": 0.01,
+        "min": 0,
+        "max": 5,
+        "unit": "A"
+      },
+      "FrontStatus": {
+        "bits": 1
+      }
+    }
+  },
+
+    "PowerMonitoring": {
+        "msg_id": 560,
+        "cycle_time": 100,
+        "description": "Power monitoring chip",
+        "signals": {
+            "ChannelOneVoltage": {
+                "resolution": 0.1,
+                "min": 0.0,
+                "max": 24.0,
+                "unit": "V"
+            },
+            "ChannelTwoVoltage": {
+                "resolution": 0.1,
+                "min": 0.0,
+                "max": 32.0,
+                "unit": "V"
+            },
+            "ChannelThreeVoltage": {
+                "resolution": 0.1,
+                "min": 0.0,
+                "max": 32.0,
+                "unit": "V"
+            },
+            "ChannelFourVoltage": {
+                "resolution": 0.1,
+                "min": 0.0,
+                "max": 32.0,
+                "unit": "V"
+            },
+            "ChannelOneCurrent": {
+                "resolution": 0.1,
+                "min": 0.0,
+                "max": 25.0,
+                "unit": "A"
+            },
+            "ChannelTwoCurrent": {
+                "resolution": 0.1,
+                "min": 0.0,
+                "max": 25.0,
+                "unit": "A"
+            },
+            "ChannelThreeCurrent": {
+                "resolution": 0.1,
+                "min": 0.0,
+                "max": 25.0,
+                "unit": "A"
+            },
+            "ChannelFourCurrent": {
+                "resolution": 0.1,
+                "min": 0.0,
+                "max": 25.0,
+                "unit": "A"
+            },
+            "ChannelOnePower": {
+                "resolution": 0.1,
+                "min": 0.0,
+                "max": 800.0,
+                "unit": "W"
+            },
+            "ChannelTwoPower": {
+                "resolution": 0.1,
+                "min": 0.0,
+                "max": 800.0,
+                "unit": "W"
+            },
+            "ChannelThreePower": {
+                "resolution": 0.1,
+                "min": 0.0,
+                "max": 800.0,
+                "unit": "W"
+            },
+            "ChannelFourPower": {
+                "resolution": 0.1,
+                "min": 0.0,
+                "max": 800.0,
+                "unit": "W"
             }
         }
     }
