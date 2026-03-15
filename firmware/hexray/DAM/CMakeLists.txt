@@ -12,6 +12,7 @@ set(SYSTEM_INCLUDE_DIRS
         #        "${CMAKE_CURRENT_SOURCE_DIR}/boot"
 )
 
+file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp")
 file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp"
 )
@@ -36,6 +37,7 @@ file(GLOB_RECURSE HW_SRCS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp"
 )
 list(APPEND HW_SRCS
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_crc.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_sd.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
@@ -45,6 +47,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmOutput.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_assert.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_watchdog.cpp"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -122,10 +125,14 @@ if ("${TARGET}" STREQUAL "binary")
     target_link_libraries("hexray_DAM_chimera.elf" PRIVATE "hexray_DAM_stm32")
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
+    set(TEST_IO_SRCS
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_telemMessage.cpp"
+    )
     set(FAKE_SRCS
             "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/test/fake_io_crc.cpp"
     )
-    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
+    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_IO_SRCS} ${TEST_SRCS} ${FAKE_SRCS})
     set(INCLUDE_DIRS
             # "${CMAKE_CURRENT_SOURCE_DIR}/test"
             ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP}
