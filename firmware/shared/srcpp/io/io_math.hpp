@@ -27,7 +27,7 @@ namespace io::math
 std::expected<float, ErrorCode> csin(float angle)
 {
     std::array<const int32_t, 1> args{ convertAngleToFixedPoint(angle) };
-    std::array<int32_t, 1> result{};
+    std::array<int32_t, 1>       result{};
 
     RETURN_IF_ERR(configure(CORDIC_FUNCTION_SINE, CORDIC_SCALE_0, CORDIC_NBWRITE_1));
     RETURN_IF_ERR(calculate(1U, args, result));
@@ -37,7 +37,7 @@ std::expected<float, ErrorCode> csin(float angle)
 std::expected<float, ErrorCode> ccos(float angle)
 {
     std::array<const int32_t, 1> args{ convertAngleToFixedPoint(angle) };
-    std::array<int32_t, 1> result{};
+    std::array<int32_t, 1>       result{};
 
     RETURN_IF_ERR(configure(CORDIC_FUNCTION_COSINE, CORDIC_SCALE_0, CORDIC_NBWRITE_1));
     RETURN_IF_ERR(calculate(1U, args, result));

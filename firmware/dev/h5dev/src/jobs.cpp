@@ -12,6 +12,8 @@ extern "C"
 #include "main.h"
 }
 
+#include "SEGGER_SYSVIEW.h"
+
 using namespace hw;
 using namespace io;
 
@@ -44,13 +46,17 @@ void jobs_run100Hz_tick()
     // bool  ok      = efuse.ok();
 
     // LOG_INFO("CURRENT: %d", (int)(current * 100000));
-    auto  ccos_result = io::math::ccos(angle);
-    float libc_cos_result   = std::cosf(angle);
-    float cos_diff          = std::abs(ccos_result.value_or(0.0f) - libc_cos_result);
+    SEGGER_SYSVIEW_MarkStart(1U);
+    auto ccos_result = io::math::ccos(angle);
+    SEGGER_SYSVIEW_MarkStop(1U);
+    SEGGER_SYSVIEW_MarkStart(2U);
+    float libc_cos_result = std::cosf(angle);
+    SEGGER_SYSVIEW_MarkStop(2U);
+    float cos_diff = std::abs(ccos_result.value_or(0.0f) - libc_cos_result);
 
-    auto  csin_result = io::math::csin(angle);
-    float libc_sin_result   = std::sinf(angle);
-    float sin_diff          = std::abs(csin_result.value_or(0.0f) - libc_sin_result);
+    auto  csin_result     = io::math::csin(angle);
+    float libc_sin_result = std::sinf(angle);
+    float sin_diff        = std::abs(csin_result.value_or(0.0f) - libc_sin_result);
 
     angle += M_PI_F / 6.0f;
 }
