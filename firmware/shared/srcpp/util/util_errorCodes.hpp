@@ -16,13 +16,13 @@ enum class ErrorCode
     NUM_EXIT_CODES,
 };
 
-#define RETURN_IF_ERR(err_expr)                                                \
-    {                                                                          \
-        if (const auto res = err_expr; not res)                                \
-        {                                                                      \
-            LOG_ERROR(#err_expr " exited with an error, returning: %d", exit); \
-            return std::unexpected(res.error());                               \
-        }                                                                      \
+#define RETURN_IF_ERR(err_expr)                                                                         \
+    {                                                                                                   \
+        if (const auto res = err_expr; not res)                                                         \
+        {                                                                                               \
+            LOG_ERROR(#err_expr " exited with an error, returning: %d", static_cast<int>(res.error())); \
+            return std::unexpected(res.error());                                                        \
+        }                                                                                               \
     }
 
 #define RETURN_IF_ERR_SILENT(err_expr)           \
