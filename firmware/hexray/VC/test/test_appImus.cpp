@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 #include "test/test_VCBase.hpp"
 #include "io_imus.hpp"
-#include "io_imu.cpp"
-#include "vc_fakes.cpp"
+// #include "io_imu.hpp"
+// #include "vc_fakes.hpp"
 #include "util_errorCodes.hpp"
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
@@ -15,12 +15,12 @@ class VCImuTest : public VCBaseTest
 
 TEST_F(VCImuTest, Imu1_Accel_Gyro_Test)
 {
-    io::imus::IMU1.set_AccelX(1.0f);
-    io::imus::IMU1.set_AccelY(2.0f);
-    io::imus::IMU1.set_AccelZ(3.0f);
-    io::imus::IMU1.set_GyroRoll(4.0f);
-    io::imus::IMU1.set_GyroPitch(5.0f);
-    io::imus::IMU1.set_GyroYaw(6.0f);
+    IMU1.set_AccelX(1.0f);
+    IMU1.set_AccelY(2.0f);
+    IMU1.set_AccelZ(3.0f);
+    IMU1.set_GyroRoll(4.0f);
+    IMU1.set_GyroPitch(5.0f);
+    IMU1.set_GyroYaw(6.0f);
 
     LetTimePass(1);
 
@@ -36,12 +36,12 @@ TEST_F(VCImuTest, Imu1_Accel_Gyro_Test)
 
 TEST_F(VCImuTest, Imu2_Accel_Gyro_Test)
 {
-    io::imus::IMU2.set_AccelX(1.0f);
-    io::imus::IMU2.set_AccelY(2.0f);
-    io::imus::IMU2.set_AccelZ(3.0f);
-    io::imus::IMU2.set_GyroRoll(4.0f);
-    io::imus::IMU2.set_GyroPitch(5.0f);
-    io::imus::IMU2.set_GyroYaw(6.0f);
+    IMU2.set_AccelX(1.0f);
+    IMU2.set_AccelY(2.0f);
+    IMU2.set_AccelZ(3.0f);
+    IMU2.set_GyroRoll(4.0f);
+    IMU2.set_GyroPitch(5.0f);
+    IMU2.set_GyroYaw(6.0f);
 
     LetTimePass(1);
 
@@ -57,12 +57,12 @@ TEST_F(VCImuTest, Imu2_Accel_Gyro_Test)
 
 TEST_F(VCImuTest, Imu3_Accel_Gyro_Test)
 {
-    io::imus::IMU3.set_AccelX(1.0f);
-    io::imus::IMU3.set_AccelY(2.0f);
-    io::imus::IMU3.set_AccelZ(3.0f);
-    io::imus::IMU3.set_GyroRoll(4.0f);
-    io::imus::IMU3.set_GyroPitch(5.0f);
-    io::imus::IMU3.set_GyroYaw(6.0f);
+    IMU3.set_AccelX(1.0f);
+    IMU3.set_AccelY(2.0f);
+    IMU3.set_AccelZ(3.0f);
+    IMU3.set_GyroRoll(4.0f);
+    IMU3.set_GyroPitch(5.0f);
+    IMU3.set_GyroYaw(6.0f);
 
     LetTimePass(1);
 
