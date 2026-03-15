@@ -15,7 +15,7 @@ namespace imus
 
     std::expected<void, ErrorCode> initAll()
     {
-        return IMU1.init().and_then({ return IMU2.init(); }).and_then({ return IMU3.init(); });
+        return IMU1.init().and_then(return IMU2.init();).and_then(return IMU3.init(););
     }
 } // namespace imus
 } // namespace io
