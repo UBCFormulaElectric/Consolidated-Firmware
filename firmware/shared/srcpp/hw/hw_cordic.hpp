@@ -42,7 +42,7 @@
 namespace hw::cordic
 {
 inline constexpr uint32_t CORDIC_TIMEOUT = 10;
-inline constexpr float    CONVERSION     = static_cast<float>(1 << 31);
+inline constexpr float    CONVERSION     = static_cast<float>(1U << 31);
 inline constexpr float    CONVERSION_INV = 1.0f / CONVERSION;
 
 static CORDIC_ConfigTypeDef config;
@@ -55,14 +55,14 @@ inline int32_t convertAngleToFixedPoint(float angle)
     float mod = std::fmodf(angle, M_2PI_F);
     if (mod > M_PI_F)
     {
-        mod -= M_PI_F;
+        mod -= M_2PI_F;
     }
     else if (mod < -M_PI_F)
     {
-        mod += M_PI_F;
+        mod += M_2PI_F;
     }
 
-    return static_cast<int32_t>(angle * M_PI_INV * CONVERSION);
+    return static_cast<int32_t>(mod * M_PI_INV * CONVERSION);
 }
 
 inline float convertToFloat(int32_t fixed_point)
