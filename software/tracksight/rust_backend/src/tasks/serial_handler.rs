@@ -62,37 +62,40 @@ pub async fn run_serial_task(
                 vprintln!("Shutting down serial task.");
                 break;
             }
-            Some(packet) = in_packet_rx.recv() => {
-                // todo should also probably check for closed channels and close thread
-                // TODO better handling error
-                // println!("Received packet: {:x?}", &packet);
-                let telem_message = match parse_incoming_telem_message(packet) {
-                    Ok(m)   => m,
-                    Err(_)  => {
-                        eprintln!("Failed to parse telemetry message.");
-                        continue;
-                    },
-                };
+            // Some(packet) = in_packet_rx.recv() => {
+            //     // todo should also probably check for closed channels and close thread
+            //     // TODO better handling error
+            //     // println!("Received packet: {:x?}", &packet);
+            //     let telem_message = match parse_incoming_telem_message(packet) {
+            //         Ok(m)   => m,
+            //         Err(_)  => {
+            //             eprintln!("Failed to parse telemetry message.");
+            //             continue;
+            //         },
+            //     };
 
-                match telem_message {
-                    TelemetryIncomingMessage::Can { body } => {
-                        // TODO error handling
-                        if !can_queue_tx.send(body).is_ok() {
-                            eprintln!("Channel has closed");
-                            break;
-                        };
-                    },
-                    TelemetryIncomingMessage::NTP => {
-                        println!("ntp request");
-                        let t1 = SystemTime::now()
-                            .duration_since(UNIX_EPOCH)
-                            .unwrap();
-                        if !out_packet_tx.send(TelemetryOutgoingMessage::NTP { t1 }).await.is_ok() {
-                            eprintln!("Channel has closed");
-                            break;
-                        };
-                    }
-                }
+            //     match telem_message {
+            //         TelemetryIncomingMessage::Can { body } => {
+            //             // TODO error handling
+            //             if !can_queue_tx.send(body).is_ok() {
+            //                 eprintln!("Channel has closed");
+            //                 break;
+            //             };
+            //         },
+            //         TelemetryIncomingMessage::NTP => {
+            //             println!("ntp request");
+            //             let t1 = SystemTime::now()
+            //                 .duration_since(UNIX_EPOCH)
+            //                 .unwrap();
+            //             if !out_packet_tx.send(TelemetryOutgoingMessage::NTP { t1 }).await.is_ok() {
+            //                 eprintln!("Channel has closed");
+            //                 break;
+            //             };
+            //         }
+            //     }
+            // }
+            _ = tokio::time::sleep(Duration::from_millis(200)) => {
+                out_packet_tx.send(TelemetryOutgoingMessage::NTP { t1: Duration::from_millis(0x88FF88FF88FF88FF) }).await;
             }
         }
     }
@@ -238,7 +241,9 @@ async fn packet_sender_handler(mut shutdown_flag: broadcast::Receiver<()>, mut s
             Some(outgoing) = out_packet_rx.recv() => {
                 let packet = generate_packet(outgoing);
                 match serial_write.write_all(&packet).await {
-                    Ok(_) => {},
+                    Ok(_) => {
+                        println!("Send serialized as {:x?}", packet)
+                    },
                     Err(e) => {
                         eprintln!("Failed to send packet: {e}");
                     }
