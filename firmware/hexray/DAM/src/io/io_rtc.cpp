@@ -56,10 +56,10 @@ std::expected<Time, ErrorCode> get_time(Time &time)
     if (!status)
         return std::unexpected(status.error());
 
-    time.hours      = bcd_to_bin_8(rtcTime.Hours);
-    time.minutes    = bcd_to_bin_8(rtcTime.Minutes);
-    time.seconds    = bcd_to_bin_8(rtcTime.Seconds);
-    time.subseconds = bcd_to_bin_32(rtcTime.SubSeconds);
+    time.hours      = bcd_to_bin(rtcTime.Hours);
+    time.minutes    = bcd_to_bin(rtcTime.Minutes);
+    time.seconds    = bcd_to_bin(rtcTime.Seconds);
+    time.subseconds = rtcTime.SubSeconds;
 
     return time;
 }
@@ -81,20 +81,15 @@ std::expected<Date, ErrorCode> get_date(Date &date)
 
     date.weekday = rtcDate.WeekDay;
     date.month   = rtcDate.Month;
-    date.day     = bcd_to_bin_8(rtcDate.Date);
-    date.year    = bcd_to_bin_8(rtcDate.Year);
+    date.day     = bcd_to_bin(rtcDate.Date);
+    date.year    = bcd_to_bin(rtcDate.Year);
 
     return date;
 }
 
-uint8_t bcd_to_bin_8(uint8_t bcd)
+uint8_t bcd_to_bin(uint8_t bcd)
 {
     return static_cast<uint8_t>((bcd >> 4) * 10 + (bcd & 0x0F));
-}
-
-uint32_t bcd_to_bin_32(uint32_t bcd)
-{
-    return (bcd >> 4) * 10 + (bcd & 0x0F);
 }
 
 uint8_t bin_to_bcd(uint8_t bin)

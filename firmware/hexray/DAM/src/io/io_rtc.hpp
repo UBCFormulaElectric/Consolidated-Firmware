@@ -11,7 +11,7 @@ struct Time
     uint8_t  minutes;    // Must be [0-59]
     uint8_t  seconds;    // Must be [0-59]
     uint32_t subseconds; // PREDIV_S is internally set to 999 so this field will be [0, 999 + 1].
-                         // ms = (PREDIV_S - subseconds) / (PREDIV_S + 1)
+                         // ms = PREDIV_S - subseconds
                          // This field is NOT used by HAL_RTC_SetTime().
 };
 
@@ -60,8 +60,7 @@ std::expected<Time, ErrorCode> get_time(Time &time);
 std::expected<Date, ErrorCode> get_date(Date &date);
 
 // Helper functions to convert BCD format to binary.
-uint8_t  bcd_to_bin_8(uint8_t bcd);
-uint32_t bcd_to_bin_32(uint32_t bcd);
+uint8_t bcd_to_bin(uint8_t bcd);
 
 // Helper function to convert binary to BCD format.
 uint8_t bin_to_bcd(uint8_t bin);
