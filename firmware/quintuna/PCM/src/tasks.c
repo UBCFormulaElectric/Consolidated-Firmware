@@ -67,15 +67,36 @@ _Noreturn void tasks_tick(void)
         LOG_IF_ERR(vicor_readTemp(&temp));
         LOG_IF_ERR(vicor_readPout(&pout));
 
+        uint16_t statusWord;
+        uint8_t statusIout;
+        uint8_t statusInput;
+        uint8_t statusTemp;
+        uint8_t statusComm;
+        uint8_t statusMfrSpecific;
+
+        LOG_IF_ERR(vicor_statusWord(&statusWord));
+        LOG_IF_ERR(vicor_statusIout(&statusIout));
+        LOG_IF_ERR(vicor_statusInput(&statusInput));
+        LOG_IF_ERR(vicor_statusTemp(&statusTemp));
+        LOG_IF_ERR(vicor_statusComm(&statusComm));
+        LOG_IF_ERR(vicor_statusMfrSpecific(&statusMfrSpecific));
+
         // SysView does't support floats! :(
         sprintf(
-            debug_buf, "Vin = %.2fV\nIin = %.2fA\nVout=%.2fV\nIout=%.2fA\nTemp=%.1fdegC\nPout=%.2fW", (double)vin,
-            (double)iin, (double)vout, (double)iout, (double)temp, (double)pout);
+            debug_buf, "Vin = %.2fV\nIin = %.2fA\nVout=%.2fV\nIout=%.2fA\nTemp=%.1fdegC\nPout=%.2fW",
+            (double)vin, (double)iin, (double)vout, (double)iout, (double)temp, (double)pout);
+        LOG_INFO("%s", debug_buf);
+
+        sprintf(
+            debug_buf, "statusWord = %d\nstatusIout = %d\nstatusInput=%d\n"
+                       "statusTemp=%d\nstatusComm=%d\nstatusMfrSpecific=%d",
+            statusWord, statusIout, statusInput, statusTemp,
+            statusComm, statusMfrSpecific);
         LOG_INFO("%s", debug_buf);
 
         hw_gpio_togglePin(&led_out);
         osDelay(500);
-#else
+// #else
         switch (state)
         {
             case PCM_STATE_OFF:
@@ -93,7 +114,7 @@ _Noreturn void tasks_tick(void)
                     state = PCM_STATE_OFF;
                 }
 
-                float vout = 0;
+                vout = 0;
                 if (IS_EXIT_OK(vicor_readVout(&vout) && vout >= LV_ON_THRESHOLD_V))
                 {
                     osDelay(TURN_ON_DELAY_MS);
