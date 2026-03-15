@@ -41,7 +41,7 @@ void MonitorPumps()
 {
     time += 10;
     // refactor required
-    const bool pumps_ok = io::loadswitches::TILoadswitch_pgood(&rl_pump_loadswitch);
+    const bool pumps_ok = io::loadswitches::TILoadswitch_pgood(io::loadswitches::RL_PUMP_Efuse);
 
     const bool pumps_enabled = io::loadswitches::isChannelEnabled(io::TPS25_EfuseChannel::RL_PUMP);
 

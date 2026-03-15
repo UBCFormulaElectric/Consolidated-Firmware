@@ -6,10 +6,19 @@
 #include "io_efuse_TI_TPS28.hpp"
 #include "io_efuse.hpp"
 
-namespace io::loadswitches
+enum EfuseChannel
 {
-bool isChannelEnabled(io::TPS25_EfuseChannel channel);
-bool TILoadswitch_pgood(const *temp);
+    F_INV = 0,
+    RSM,
+    BMS,
+    R_INV,
+    DAM,
+    FRONT,
+    RL_PUMP,
+    R_RAD,
+    RR_PUMP,
+    L_RAD
+};
 
 extern io::TI_TPS25_Efuse RR_PUMP_Efuse;
 extern io::TI_TPS25_Efuse RL_PUMP_Efuse;
@@ -22,4 +31,8 @@ extern io::TI_TPS28_Efuse BMS_Efuse;
 extern io::TI_TPS28_Efuse DAM_Efuse;
 extern io::TI_TPS28_Efuse FRONT_Efuse;
 
+namespace io::loadswitches
+{
+bool isChannelEnabled(EfuseChannel channel);
+bool TILoadswitch_pgood(EfuseChannel channel);
 } // namespace io::loadswitches
