@@ -1,5 +1,5 @@
 
-use std::{f64::consts::{TAU}, sync::Arc, time::{Instant, SystemTime, UNIX_EPOCH}};
+use std::{f64::consts::{TAU}, sync::Arc, time::{SystemTime, UNIX_EPOCH}};
 
 use jsoncan_rust::can_database::{CanDatabase, CanSignalType, DecodedSignal};
 use tokio::{select, sync::broadcast};
@@ -22,7 +22,7 @@ pub async fn run_mock_task(
     can_db: Arc<CanDatabase>
 ) {
     vprintln!("{}", "Mock task started.".yellow());
-    let start = Instant::now();
+    let mut i: u32 = 0;
 
     health_check_tx.send_health_check(Task::SerialHandler, true).await;
     
@@ -34,7 +34,8 @@ pub async fn run_mock_task(
             }
             _ = async {
                 // Simulate sending mock CAN payloads
-                let value = (start.elapsed().as_secs_f64() * TAU).sin();
+                i += 1;
+                let value = (i as f64 * TAU/100.0).sin() * 10.0 + 10.0;
                 let signals = vec![
                     DecodedSignal {
                         name: "BMS_TractiveSystemVoltage".to_string(),
@@ -49,7 +50,7 @@ pub async fn run_mock_task(
                 let mock_payload = CanPayload {
                     can_id: id,
                     payload: payload,
-                    can_timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis() as u32,
+                    can_timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis() as u64,
                 };
                 if !can_queue_tx.send(mock_payload).is_ok() {
                     eprintln!("Channel has closed");
