@@ -33,6 +33,7 @@ void jobs_init()
 }
 void jobs_run1Hz_tick()
 {
+    
     io::can_tx::enqueue1HzMsgs();
 }
 void jobs_run100Hz_tick()
@@ -43,3 +44,17 @@ void jobs_run1kHz_tick()
 {
     io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
 }
+
+void jobs_runAdbmsVoltages_tick() {
+
+}
+
+void jobs_runAdbmsTemperatures_tick() {
+    
+}
+
+void jobs_runAdbmsDiagnostics_tick() {
+    
+}
+
+

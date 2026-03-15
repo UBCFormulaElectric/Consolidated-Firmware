@@ -55,14 +55,14 @@ std::expected<void, ErrorCode> SpiDevice::waitForNotification() const
     return {};
 }
 
-std::expected<void, ErrorCode> SpiDevice::transmit(std::span<const uint8_t> tx) const
+std::expected<void, ErrorCode> SpiDevice::transmit(const std::span<const uint8_t> tx) const
 {
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
         // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
         enableNss();
-        const std::expected<void, ErrorCode> st = hw_utils_convertHalStatus(HAL_SPI_Transmit(
-            &bus.handle, const_cast<uint8_t *>(tx.data()), static_cast<uint16_t>(tx.size()), timeoutMs));
+        const std::expected<void, ErrorCode> st = hw_utils_convertHalStatus(
+            HAL_SPI_Transmit(&bus.handle, tx.data(), static_cast<uint16_t>(tx.size()), timeoutMs));
         disableNss();
         return st;
     }
@@ -78,9 +78,9 @@ std::expected<void, ErrorCode> SpiDevice::transmit(std::span<const uint8_t> tx) 
 
     enableNss();
 
-    auto exit = hw_utils_convertHalStatus(
-        HAL_SPI_Transmit_IT(&bus.handle, const_cast<uint8_t *>(tx.data()), static_cast<uint16_t>(tx.size())));
-    if (not exit.has_value())
+    auto exit =
+        hw_utils_convertHalStatus(HAL_SPI_Transmit_IT(&bus.handle, tx.data(), static_cast<uint16_t>(tx.size())));
+    if (not exit)
     {
         // Mark this transaction as no longer in progress.
         bus.taskInProgress = nullptr;
@@ -93,7 +93,7 @@ std::expected<void, ErrorCode> SpiDevice::transmit(std::span<const uint8_t> tx) 
     return exit;
 }
 
-std::expected<void, ErrorCode> SpiDevice::receive(std::span<uint8_t> rx) const
+std::expected<void, ErrorCode> SpiDevice::receive(const std::span<uint8_t> rx) const
 {
     if (bus.taskInProgress != nullptr || xPortIsInsideInterrupt())
     {
@@ -117,7 +117,7 @@ std::expected<void, ErrorCode> SpiDevice::receive(std::span<uint8_t> rx) const
 
     std::expected<void, ErrorCode> exit =
         hw_utils_convertHalStatus(HAL_SPI_Receive_IT(&bus.handle, rx.data(), static_cast<uint16_t>(rx.size())));
-    if (not exit.has_value())
+    if (not exit)
     {
         // Mark this transaction as no longer in progress.
         bus.taskInProgress = nullptr;
@@ -131,7 +131,7 @@ std::expected<void, ErrorCode> SpiDevice::receive(std::span<uint8_t> rx) const
 }
 
 [[nodiscard]] std::expected<void, ErrorCode>
-    SpiDevice::transmitThenReceive(const std::span<const uint8_t> tx, std::span<uint8_t> rx) const
+    SpiDevice::transmitThenReceive(const std::span<const uint8_t> tx, const std::span<uint8_t> rx) const
 {
     const auto combined = static_cast<uint16_t>(tx.size() + rx.size());
     if (combined > MAX_SPI_BUFFER)
@@ -176,7 +176,7 @@ std::expected<void, ErrorCode> SpiDevice::receive(std::span<uint8_t> rx) const
 
     std::expected<void, ErrorCode> exit =
         hw_utils_convertHalStatus(HAL_SPI_TransmitReceive_IT(&bus.handle, paddedTx, paddedRx, combined));
-    if (not exit.has_value())
+    if (not exit)
     {
         bus.taskInProgress = nullptr;
         disableNss();
@@ -185,7 +185,7 @@ std::expected<void, ErrorCode> SpiDevice::receive(std::span<uint8_t> rx) const
 
     exit = waitForNotification();
     disableNss();
-    if (not exit.has_value())
+    if (not exit)
     {
         return exit;
     }

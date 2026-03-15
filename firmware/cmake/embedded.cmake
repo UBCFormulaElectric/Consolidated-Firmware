@@ -158,6 +158,10 @@ function(embedded_binary
         target_sources(${ELF_NAME} PRIVATE "${SHARED_HW_INCLUDE_DIR_CPP}/hw_ubsan.cpp")
     ENDIF ()
 
+    if (${BOOTLOAD})
+        target_compile_definitions(${ELF_NAME} PRIVATE -DBOOTLOAD)
+    endif ()
+
     target_link_options(${ELF_NAME} PRIVATE
             ${SHARED_LINKER_FLAGS}
             # binary specific linker flags

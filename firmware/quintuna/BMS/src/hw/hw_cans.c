@@ -1,5 +1,7 @@
 #include "hw_cans.h"
+#ifdef BOOTLOADER
 #include "io_bootHandler.h"
+#endif
 #include "io_canMsg.h"
 #include "io_canQueue.h"
 #include "main.h"
@@ -9,7 +11,9 @@
 
 static void canRxCallback(const CanMsg *msg)
 {
+#ifdef BOOTLOADER
     io_bootHandler_processBootRequest(msg);
+#endif
 
     if (io_canRx_filterMessageId_can1(msg->std_id))
     {
