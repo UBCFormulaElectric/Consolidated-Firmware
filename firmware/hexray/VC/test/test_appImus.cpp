@@ -2,7 +2,7 @@
 #include "test/test_VCBase.hpp"
 #include "io_imus.hpp"
 #include "io_imu.cpp"
-#include "vc_fakes.hpp"
+#include "vc_fakes.cpp"
 #include "util_errorCodes.hpp"
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
