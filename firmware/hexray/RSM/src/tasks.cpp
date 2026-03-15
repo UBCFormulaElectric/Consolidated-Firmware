@@ -8,6 +8,7 @@
 #include "io_canQueues.hpp"
 #include <io_canRx.hpp>
 #include <io_canTx.hpp>
+#include <stm32h5xx_hal.h>
 
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_cans.hpp"
@@ -103,6 +104,7 @@ void tasks_preInit() {}
 
 void tasks_init()
 {
+    __HAL_DBGMCU_FREEZE_IWDG();
     hw::adcs::chipsInit();
     hw::can::can1.init();
     jobs_init();
