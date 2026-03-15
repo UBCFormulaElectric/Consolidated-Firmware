@@ -5,6 +5,7 @@ use tokio_serial::{SerialPortBuilderExt, SerialStream};
 use std::io::{Error, ErrorKind};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use crc::{Crc, CRC_32_ISO_HDLC};
+#[allow(unused_imports)]
 use colored::Colorize;
 
 use crate::config::CONFIG;

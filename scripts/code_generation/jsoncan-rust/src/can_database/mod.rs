@@ -249,7 +249,7 @@ impl CanDatabase {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct DecodedSignal {
     pub name: String,
     pub value: f64,

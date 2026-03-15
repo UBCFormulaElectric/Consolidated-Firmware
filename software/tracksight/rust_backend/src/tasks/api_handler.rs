@@ -1,6 +1,5 @@
 use std::sync::Arc;
 use axum::Router;
-use colored::Colorize;
 use tokio::select;
 use tokio::sync::{RwLock, broadcast};
 use tokio::net::TcpListener;
@@ -8,6 +7,8 @@ use socketioxide::{SocketIo, extract::SocketRef};
 use jsoncan_rust::can_database::CanDatabase;
 use tower_http::cors::{CorsLayer, Any};
 use mdns_sd::{ServiceDaemon, ServiceInfo};
+#[allow(unused_imports)]
+use colored::Colorize;
 
 use crate::config::CONFIG;
 use crate::health_check::{HealthCheckSender, HealthCheckSenderExt, Task};

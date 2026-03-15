@@ -1,9 +1,10 @@
 
 use std::{f64::consts::{TAU}, sync::Arc, time::{Instant, SystemTime, UNIX_EPOCH}};
 
-use colored::Colorize;
 use jsoncan_rust::can_database::{CanDatabase, CanSignalType, DecodedSignal};
 use tokio::{select, sync::broadcast};
+#[allow(unused_imports)]
+use colored::Colorize;
 
 use crate::{health_check::{HealthCheckSender, HealthCheckSenderExt, Task}, tasks::telem_message::CanPayload, vprintln};
 
