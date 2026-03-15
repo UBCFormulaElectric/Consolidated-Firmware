@@ -22,7 +22,7 @@ impl TelemetryIncomingMessage {
 #[derive(Clone, Debug)]
  pub struct CanPayload {
     pub can_id: u32,
-    pub can_timestamp: u32,
+    pub can_timestamp: u64,
     pub payload: Vec<u8>,
 }
 

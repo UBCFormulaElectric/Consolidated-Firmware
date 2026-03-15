@@ -108,10 +108,12 @@ fn parse_incoming_telem_message(payload: Vec<u8>) -> Result<TelemetryIncomingMes
     let parsed_message: TelemetryIncomingMessage = match payload[0] {
         TelemetryIncomingMessage::CAN_BYTE => {
             let can_id = u32::from_le_bytes([payload[1], payload[2], payload[3], payload[4]]);
-            // this should also probably be u64 for epoch unix time, awaiting confirmation
-            let can_timestamp = u32::from_le_bytes([payload[5], payload[6], payload[7], payload[8]]);
+            let can_timestamp = u64::from_le_bytes(
+                [payload[5], payload[6], payload[7], payload[8],
+                payload[9], payload[10], payload[11], payload[12]]
+            );
 
-            let can_payload = payload[9..].to_vec();
+            let can_payload = payload[13..].to_vec();
             TelemetryIncomingMessage::Can {
                 body: CanPayload {
                     can_id: can_id,
