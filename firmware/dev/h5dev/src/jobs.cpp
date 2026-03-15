@@ -28,6 +28,8 @@ const AdcChip<NUM_ADC_CHANNELS> adc1{ &hadc1, &htim3 };
 const Adc                       efuse_i_sns(adc1.getChannel(0));
 TI_TPS28_Efuse                  efuse(efuse_en, efuse_i_sns, efuse_pgood);
 
+static float angle = 0.0f;
+
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
     adc1.update_callback();
@@ -35,7 +37,6 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 
 void jobs_init()
 {
-<<<<<<< HEAD
     io::can_tx::init(
         [](const JsonCanMsg &tx_msg)
         {
@@ -44,11 +45,6 @@ void jobs_init()
         });
 
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
-=======
-    // adc1.init();
-    // efuse.setChannel(true);
-    // LOG_INFO("IS CHANNEL ENABLED: %s", efuse.isChannelEnabled() ? "YES" : "NO");
->>>>>>> 3b22b446c (compiles)
 }
 
 void jobs_run1Hz_tick() {}
@@ -59,18 +55,16 @@ void jobs_run100Hz_tick()
     // bool  ok      = efuse.ok();
 
     // LOG_INFO("CURRENT: %d", (int)(current * 100000));
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    auto result = ccos(0.0f);
-    LOG_INFO("COS(0.0) = %f", static_cast<double>(result.value_or(0.0f)));
->>>>>>> 3b22b446c (compiles)
-=======
-    auto  cordic_result = io::math::ccos(0.0f);
-    float libc_result   = std::cosf(0.0f);
-    float diff          = std::abs(cordic_result.value_or(0.0f) - libc_result);
-    LOG_INFO("COS(0.0) = %f, DIFF: %f", static_cast<double>(cordic_result.value_or(0.0f)), static_cast<double>(diff));
->>>>>>> 35194ecf2 (little changes)
+
+    auto  ccos_result = io::math::ccos(angle);
+    float libc_cos_result   = std::cosf(angle);
+    float cos_diff          = std::abs(ccos_result.value_or(0.0f) - libc_cos_result);
+
+    auto  csin_result = io::math::csin(angle);
+    float libc_sin_result   = std::sinf(angle);
+    float sin_diff          = std::abs(csin_result.value_or(0.0f) - libc_sin_result);
+
+    angle += M_PI_F / 6.0f;
 }
 
 void jobs_run1kHz_tick() {}
