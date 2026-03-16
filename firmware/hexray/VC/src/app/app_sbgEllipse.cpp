@@ -13,10 +13,11 @@ extern "C"
 
 namespace app::sbgEllipse
 {
-static consteval float                       vehicle_velocity;
-static consteval app::can_utils::VcEkfStatus ekf_solution_mode;
-static consteval int                         NUM_VC_EKF_STATUS_CHOICES{ 5 };
-void                                         broadcast()
+static float                       vehicle_velocity;
+static app::can_utils::VcEkfStatus ekf_solution_mode;
+static constexpr int NUM_VC_EKF_STATUS_CHOICES{ 5 };
+
+void broadcast()
 {
     /* Enable these back when you turn this on in the SBG, otherwise it's still sending
        CAN messages because another message in the signal is being used */
@@ -59,6 +60,26 @@ void                                         broadcast()
     app::can_tx::VC_EulerAnglesRoll_set(euler_roll);
     app::can_tx::VC_EulerAnglesPitch_set(euler_pitch);
     app::can_tx::VC_EulerAnglesYaw_set(euler_yaw);
+}
+io::sbgEllipse::VelocityData calculateVelocity(io::sbgEllipse::Vector3 *position){
+    // These velocity calculations are not going to be super accurate because it
+    // currently does not compute a proper relative y-axis velocity because no yaw rate
+
+    const float rightMotorRPM = (float)-app_canRx_INVR_MotorSpeed_get();
+    const float leftMotorRPM  = (float)app_canRx_INVL_MotorSpeed_get();
+
+    float leftWheelVelocity  = MOTOR_RPM_TO_KMH(leftMotorRPM);
+    float rightWheelVelocity = MOTOR_RPM_TO_KMH(rightMotorRPM);
+
+    float velocityX = (leftWheelVelocity + rightWheelVelocity) / 2.0f;
+
+    // This is technically velocity in the x-axis as it is relative
+    velocity.north = velocityX;
+
+    // This is technically velocity in the y-axis as it is relative
+    velocity->east = 0;
+
+    velocity->down = 0;
 }
 
 float getVehicleVelocity(void)

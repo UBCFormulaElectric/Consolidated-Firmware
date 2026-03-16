@@ -1,12 +1,13 @@
 #include "app_loadswitches.hpp"
 #include "app_canTx.hpp"
 #include "io_efuse.hpp"
+#include "io_loadswitches.hpp"
+#include <array>
 
 /*
 Setting CAN signals for the efuse status aka turning efuse on or off and setting the
 current we want to send over CAN for each efuse channel.
 */
-
 namespace app::loadswitches
 {
 struct EfuseCanMsg

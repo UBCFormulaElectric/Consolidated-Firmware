@@ -78,10 +78,6 @@
       "id": 585,
       "description": "Boost controller has faulted."
     },
-    "ImuFault": {
-      "id": 586,
-      "description": "IMU has faulted (due to failed init or transaction)."
-    },
     "FlowRateInputOutOfRange": {
       "id": 587,
       "description": "Input to app_pumpControl_setFlowRate out of range"
@@ -117,6 +113,18 @@
     "DriveModeOverride": {
       "id": 595,
       "description": "Override requested drive mode to vanilla if sensor fails"
+    },
+    "Imu1Fault": {
+      "id": 551,
+      "description": "IMU1 has faulted (due to failed init or transaction)."
+    },
+    "Imu2Fault": {
+      "id": 552,
+      "description": "IMU2 has faulted (due to failed init or transaction)."
+    },
+    "Imu3Fault": {
+      "id": 553,
+      "description": "IMU3 has faulted (due to failed init or transaction)."
     }
   }
 }

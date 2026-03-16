@@ -2,5 +2,7 @@
 
 namespace app::pumpControl
 {
-static void rampUp() static void stopFlow() void MonitorPumps();
+static void rampUp(); 
+static void stopFlow(); 
+void MonitorPumps();
 }

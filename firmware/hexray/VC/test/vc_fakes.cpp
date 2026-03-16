@@ -12,7 +12,18 @@ namespace imus
 {
     std::expected<void, ErrorCode> initAll()
     {
-        return IMU1.init().and_then([]() { return IMU2.init(); }).and_then([]() { return IMU3.init(); });
+        if (auto result = IMU1.init(); not result)
+        {
+            return result;
+        }
+        if (auto result = IMU2.init(); not result)
+        {
+            return result;
+        }
+        if (auto result = IMU3.init(); not result){
+            return result;
+        }
+        return {};
     }
 } // namespace imus
 } // namespace io

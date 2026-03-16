@@ -1,6 +1,8 @@
 #include "app_shdnLast.hpp"
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
+#include "io_shdnLoopNode.hpp"
+#include "app_canUtils.hpp"
 
 namespace app::shdnLast
 {

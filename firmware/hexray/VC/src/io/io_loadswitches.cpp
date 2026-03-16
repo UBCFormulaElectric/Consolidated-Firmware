@@ -1,4 +1,7 @@
 #include "io_loadswitches.hpp"
+#include "hw_adcs.hpp"
+#include "hw_gpios.hpp"
+
 using namespace hw::adcs;
 io::TI_TPS25_Efuse RR_PUMP_Efuse{ rr_pump_en, adc_rr_pump, rr_pump_pgood };
 io::TI_TPS25_Efuse RL_PUMP_Efuse{ rl_pump_en, adc_rl_pump, rl_pump_pgood };
