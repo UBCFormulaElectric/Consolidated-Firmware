@@ -20,7 +20,8 @@ namespace imus
         {
             return result;
         }
-        if (auto result = IMU3.init(); not result){
+        if (auto result = IMU3.init(); not result)
+        {
             return result;
         }
         return {};

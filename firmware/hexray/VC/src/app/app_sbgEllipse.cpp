@@ -15,7 +15,7 @@ namespace app::sbgEllipse
 {
 static float                       vehicle_velocity;
 static app::can_utils::VcEkfStatus ekf_solution_mode;
-static constexpr int NUM_VC_EKF_STATUS_CHOICES{ 5 };
+static constexpr int               NUM_VC_EKF_STATUS_CHOICES{ 5 };
 
 void broadcast()
 {
@@ -61,7 +61,8 @@ void broadcast()
     app::can_tx::VC_EulerAnglesPitch_set(euler_pitch);
     app::can_tx::VC_EulerAnglesYaw_set(euler_yaw);
 }
-io::sbgEllipse::VelocityData calculateVelocity(io::sbgEllipse::Vector3 *position){
+io::sbgEllipse::VelocityData calculateVelocity(io::sbgEllipse::Vector3 *position)
+{
     // These velocity calculations are not going to be super accurate because it
     // currently does not compute a proper relative y-axis velocity because no yaw rate
 

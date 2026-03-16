@@ -16,13 +16,13 @@ void broadcast()
 {
     // IMU1 data broadcasting
     const auto accel1 = imu1.getAccelAll();
-    const auto gyro1 = imu1.getGyroAll();
+    const auto gyro1  = imu1.getGyroAll();
 
-    // If either accel or gyro fails for an IMU, set a fault alert 
+    // If either accel or gyro fails for an IMU, set a fault alert
     // for that IMU and skip broadcasting data for that IMU
     if (!accel1 || !gyro1)
     {
-        // handle error by setting an alert or could also seperate into 3 broadcasting 
+        // handle error by setting an alert or could also seperate into 3 broadcasting
         // fuunctions to return a fault for each IMU if not working.
         infos::Imu1Fault_set(true);
     }
@@ -42,7 +42,7 @@ void broadcast()
 
     // IMU2 data broadcasting
     const auto accel2 = imu2.getAccelAll();
-    const auto gyro2 = imu2.getGyroAll();
+    const auto gyro2  = imu2.getGyroAll();
 
     if (!accel2 || !gyro2)
     {
@@ -65,7 +65,7 @@ void broadcast()
 
     // IMU3 data broadcasting
     const auto accel3 = imu3.getAccelAll();
-    const auto gyro3 = imu3.getGyroAll();
+    const auto gyro3  = imu3.getGyroAll();
 
     if (!accel3 || !gyro3)
     {
