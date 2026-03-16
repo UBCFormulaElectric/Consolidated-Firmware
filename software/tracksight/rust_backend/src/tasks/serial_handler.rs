@@ -4,13 +4,12 @@ use tokio::sync::{broadcast, mpsc};
 use tokio_serial::{SerialPortBuilderExt, SerialStream};
 use std::io::{Error, ErrorKind};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
-use crc::{Crc, CRC_32_ISO_HDLC};
 #[allow(unused_imports)]
 use colored::Colorize;
 
 use crate::config::CONFIG;
 use crate::health_check::{HealthCheckSender, HealthCheckSenderExt, ResultExt, Task};
-use crate::tasks::telem_message::TelemetryOutgoingMessage;
+use crate::tasks::telem_message::{CRC32_CALC, TelemetryOutgoingMessage};
 use crate::vprintln;
 use super::telem_message::{TelemetryIncomingMessage, CanPayload};
 
@@ -136,20 +135,14 @@ fn parse_incoming_telem_message(payload: Vec<u8>) -> Result<TelemetryIncomingMes
 // Serial reading stuff
 //
 
-// These magic bytes are chosen so that the pattern of the bits 
-// wouldn't be confused with each other
-const MAGIC_INCOMING: [u8; 2] = [0xaa, 0x55];
-const MAGIC_OUTGOING: [u8; 2] = [0xcc, 0x33];
-// 2 for magic bytes, 1 for length, 4 for checksum
-const HEADER_SIZE: usize = 7;
-const MAX_PAYLOAD_SIZE: usize = 100;
-// calc is short for calculator for those new to the chat
-const CRC32_CALC: Crc<u32> = Crc::<u32>::new(&CRC_32_ISO_HDLC);
-
 /**
  * Subhandler that manages packet reading, sends packet bytes to main task
  */
-async fn packet_reader_handler(mut shutdown_flag: broadcast::Receiver<()>, mut serial_read: ReadHalf<SerialStream>, packet_tx: mpsc::Sender<Vec<u8>>) {   
+async fn packet_reader_handler(
+    mut shutdown_flag: broadcast::Receiver<()>, 
+    mut serial_read: ReadHalf<SerialStream>, 
+    packet_tx: mpsc::Sender<Vec<u8>>
+) {   
     loop {
         select! {
             _ = shutdown_flag.recv() => break,
@@ -170,7 +163,7 @@ async fn packet_reader_handler(mut shutdown_flag: broadcast::Receiver<()>, mut s
  * Reading bytes until legitimate packet is formed
  */
 async fn read_packet(serial_read: &mut ReadHalf<SerialStream>) -> Result<Vec<u8>, Error> {
-    let mut header_buffer = [0x0; HEADER_SIZE];
+    let mut header_buffer = [0x0; TelemetryIncomingMessage::HEADER_SIZE];
     let mut index = 0;
 
     // keep reading until magic bytes
@@ -181,7 +174,7 @@ async fn read_packet(serial_read: &mut ReadHalf<SerialStream>) -> Result<Vec<u8>
                 Err(e) => return Err(e)
             }
         }
-        if header_buffer[0..2] == MAGIC_INCOMING {
+        if header_buffer[0..2] == TelemetryIncomingMessage::MAGIC {
             break;
         }
         // if magic byte not matched, rotate buffer
@@ -195,7 +188,7 @@ async fn read_packet(serial_read: &mut ReadHalf<SerialStream>) -> Result<Vec<u8>
     // header has been read, now read until payload is fully read
     let payload_length = header_buffer[2] as usize;
     // assert payload length is less than max
-    if payload_length > MAX_PAYLOAD_SIZE {
+    if payload_length > TelemetryIncomingMessage::MAX_PAYLOAD_SIZE {
         // TODO wow this is horrible, probably just log and return generic error
         return Err(Error::new(
             ErrorKind::InvalidData,
@@ -231,7 +224,11 @@ async fn read_packet(serial_read: &mut ReadHalf<SerialStream>) -> Result<Vec<u8>
 /**
  * Subhandler that manages packet sending, handles outgoing telemetry messages from main task
  */
-async fn packet_sender_handler(mut shutdown_flag: broadcast::Receiver<()>, mut serial_write: WriteHalf<SerialStream>, mut out_packet_rx: mpsc::Receiver<TelemetryOutgoingMessage>) {
+async fn packet_sender_handler(
+    mut shutdown_flag: broadcast::Receiver<()>, 
+    mut serial_write: WriteHalf<SerialStream>, 
+    mut out_packet_rx: mpsc::Receiver<TelemetryOutgoingMessage>
+) {
     loop {
         select! {
             _ = shutdown_flag.recv() => break,
@@ -249,18 +246,7 @@ async fn packet_sender_handler(mut shutdown_flag: broadcast::Receiver<()>, mut s
 }
 
 /**
- * Generate telem packet bytes in the form of
- * [
- *  MAGIC BYTE 1
- *  MAGIC BYTE 2
- *  LENGTH OF PAYLOAD
- *  CHECK SUM 1
- *  CHECK SUM 2
- *  CHECK SUM 3
- *  CHECK SUM 4
- *  PAYLOAD ...
- *  MESSAGE TYPE BYTE (usually first byte of payload)
- * ]
+ * See `TelemetryOutgoingMessage` to see how packets are generated
  */
 fn generate_packet(message: TelemetryOutgoingMessage) -> Vec<u8> {
     let mut payload = Vec::<u8>::new();
@@ -286,7 +272,7 @@ fn generate_packet(message: TelemetryOutgoingMessage) -> Vec<u8> {
     let checksum: [u8; 4] = CRC32_CALC.checksum(&payload).to_le_bytes();
 
     let mut packet = Vec::new();
-    packet.extend_from_slice(&MAGIC_OUTGOING);
+    packet.extend_from_slice(&TelemetryOutgoingMessage::MAGIC);
     packet.extend_from_slice(&length);
     packet.extend_from_slice(&checksum);
     packet.extend_from_slice(&payload);
