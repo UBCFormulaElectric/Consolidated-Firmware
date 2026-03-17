@@ -102,7 +102,7 @@ std::expected<void, ErrorCode> hw::fdcan::fdcan_transmit(const CanMsg &msg) cons
     {
 #if defined(STM32H753xx)
         dlc = msg.dlc << 16; // Data length code needs to be shifted by 16 bits.
-#elif defined (STM32H562xx)
+#elif defined(STM32H562xx)
         dlc = msg.dlc;
 #endif
     }

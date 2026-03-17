@@ -15,7 +15,7 @@ void hw::bootup::setBootRequest(const hw::bootup::BootRequest request)
 
 hw::bootup::BootRequest hw::bootup::getBootRequest()
 {
-        if (boot_request.magic == BOOT_MAGIC)
+    if (boot_request.magic == BOOT_MAGIC)
     {
         hw::bootup::BootRequest r;
         r.target        = hw::bootup::boot_request.request.target;

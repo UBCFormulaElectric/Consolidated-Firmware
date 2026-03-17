@@ -4,15 +4,14 @@
 #include "main.h"
 #include "io_log.hpp"
 #include "cmsis_gcc.h"
-#include <cstdint>
 #include "hw_can.hpp"
 #include "bootloader_h5.hpp"
 
-#define BOOT_CAN_START_LOWBITS 0x9
+constexpr uint8_t BOOT_CAN_START_LOWBITS = 0x9;
 namespace io::bootHandler
 {
 
-static void processBootRequest(const hw::CanMsg &msg)
+inline void processBootRequest(const hw::CanMsg &msg)
 {
     if (msg.std_id == (BOARD_HIGHBITS | BOOT_CAN_START_LOWBITS))
     {

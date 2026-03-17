@@ -47,7 +47,7 @@ void jobs_run100Hz_tick()
     float current = efuse.getChannelCurrent() / 1.720f;
     bool  ok      = efuse.ok();
 
-    //LOG_INFO("CURRENT: %d", (int)(current * 100000));
+    // LOG_INFO("CURRENT: %d", (int)(current * 100000));
 }
 
 void jobs_run1kHz_tick() {}
