@@ -107,6 +107,8 @@ void tasks_preInit()
 
 void tasks_init()
 {
+    SEGGER_SYSVIEW_Conf();
+
     hw::can::fdcan1.init();
     hw::can::fdcan2.init();
 

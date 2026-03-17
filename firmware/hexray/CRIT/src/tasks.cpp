@@ -104,9 +104,12 @@ void tasks_preInit()
 
 void tasks_init()
 {
+    SEGGER_SYSVIEW_Conf();
+    
     hw::can::fdcan1.init();
     led_dimming.start();
     led_dimming.setDutyCycle(95);
+
     jobs_init();
     osKernelInitialize();
     CRIT_StartAllTasks();
