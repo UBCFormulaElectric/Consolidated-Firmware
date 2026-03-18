@@ -104,9 +104,9 @@ uint32_t getComStatus(void);
 
 /*
  * Get queue overflow status
- * @return the overflow uint32_t
+ * @return the overflow uint8_t
  */
-uint32_t getOverflowCount(void);
+uint8_t getOverflowCount(void);
 
 /*
  * Get EKF Solution Mode Status

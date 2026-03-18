@@ -24,7 +24,7 @@ static SensorData    sensor_data;                       // Struct of all sensor 
 static StaticStreamBuffer_t uart_sbuf_ctrl;
 static uint8_t              uart_sbuf_data[QUEUE_MAX_SIZE * UART_RX_PACKET_SIZE];
 static StreamBufferHandle_t uart_sbuf_handle;
-static uint32_t             sbg_queue_overflow_count;
+static uint8_t              sbg_queue_overflow_count;
 
 static void         createSerialInterface(SbgInterface *interface);
 static SbgErrorCode read(SbgInterface *interface, void *buffer, size_t *read_bytes, size_t bytes_to_read);
@@ -258,7 +258,7 @@ uint32_t getComStatus(void)
     return sensor_data.status_data.com_status;
 }
 
-uint32_t getOverflowCount(void)
+uint8_t getOverflowCount(void)
 {
     return sbg_queue_overflow_count;
 }

@@ -13,11 +13,6 @@ namespace app::sbgEllipse
 void broadcast(void);
 
 /*
- * Calculate vehicle velocity based on motor RPM
- */
-void calculateVelocity(VelocityData *velocity);
-
-/*
  * Get vehicle velocity
  */
 float getVehicleVelocity(void);

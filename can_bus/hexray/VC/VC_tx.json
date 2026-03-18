@@ -20,6 +20,46 @@
             }
         }
     },
+    "VehicleDynamics": {
+        "msg_id": 501,
+        "cycle_time": 100,
+        "description": "Vehicle dynamics info",
+        "signals": {
+            "RegenEnabled": {
+                "bits": 1
+            },
+            "TorqueVectoringEnabled": {
+                "bits": 1
+            },
+            "VehicleVelocity": {
+                "bits": 8
+            },
+            "ReferenceYawRate": {
+                "min": -100,
+                "max": 100,
+                "resolution": 0.1,
+                "signed": true
+            },
+            "CorrectionYawRate": {
+                "min": -100,
+                "max": 100,
+                "resolution": 0.1,
+                "signed": true
+            },
+            "FrontYawMoment": {
+                "min": -100,
+                "max": 100,
+                "resolution": 0.1,
+                "signed": true
+            },
+            "RearYawMoment": {
+                "min": -100,
+                "max": 100,
+                "resolution": 0.1,
+                "signed": true
+            }
+        }
+    },
     "Imu1LinearData": {
         "msg_id": 505,
         "cycle_time": 10,
@@ -240,7 +280,6 @@
             "RearRightPumpStatus": {
                 "bits": 1
             },
-
             "LeftRadiatorFanCurrent": {
                 "resolution": 0.01,
                 "min": 0,
@@ -303,67 +342,66 @@
         }
     },
     "MainBoardEfuse": {
-    "msg_id": 556,
-    "cycle_time": 100,
-    "description": "Efuse info for shdn/LV/pump/aux/INVR/INVL efuses.",
-    "signals": {
-      "FrontInvertersCurrent": {
-        "resolution": 0.01,
-        "min": 0,
-        "max": 5,
-        "unit": "A"
-      },
-      "FrontInvertersStatus": {
-        "bits": 1
-      },
-      "RSMCurrent": {
-        "resolution": 0.01,
-        "min": 0,
-        "max": 20,
-        "unit": "A"
-      },
-      "RSMStatus": {
-        "bits": 1
-      },
-      "BMSCurrent": {
-        "resolution": 0.01,
-        "min": 0,
-        "max": 5,
-        "unit": "A"
-      },
-      "BMSStatus": {
-        "bits": 1
-      },
-      "RearInvertersCurrent": {
-        "resolution": 0.01,
-        "min": 0,
-        "max": 5,
-        "unit": "A"
-      },
-      "RearInvertersStatus": {
-        "bits": 1
-      },
-      "DAMCurrent": {
-        "resolution": 0.01,
-        "min": 0,
-        "max": 5,
-        "unit": "A"
-      },
-      "DAMStatus": {
-        "bits": 1
-      },
-      "FrontCurrent": {
-        "resolution": 0.01,
-        "min": 0,
-        "max": 5,
-        "unit": "A"
-      },
-      "FrontStatus": {
-        "bits": 1
-      }
-    }
-  },
-
+        "msg_id": 556,
+        "cycle_time": 100,
+        "description": "Efuse info for shdn/LV/pump/aux/INVR/INVL efuses.",
+        "signals": {
+            "FrontInvertersCurrent": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 5,
+                "unit": "A"
+            },
+            "FrontInvertersStatus": {
+                "bits": 1
+            },
+            "RSMCurrent": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 20,
+                "unit": "A"
+            },
+            "RSMStatus": {
+                "bits": 1
+            },
+            "BMSCurrent": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 5,
+                "unit": "A"
+            },
+            "BMSStatus": {
+                "bits": 1
+            },
+            "RearInvertersCurrent": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 5,
+                "unit": "A"
+            },
+            "RearInvertersStatus": {
+                "bits": 1
+            },
+            "DAMCurrent": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 5,
+                "unit": "A"
+            },
+            "DAMStatus": {
+                "bits": 1
+            },
+            "FrontCurrent": {
+                "resolution": 0.01,
+                "min": 0,
+                "max": 5,
+                "unit": "A"
+            },
+            "FrontStatus": {
+                "bits": 1
+            }
+        }
+    },
     "PowerMonitoring": {
         "msg_id": 560,
         "cycle_time": 100,
