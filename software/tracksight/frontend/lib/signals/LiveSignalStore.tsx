@@ -1,4 +1,4 @@
-import SignalStore, { SignalStoreReturnType } from "@/lib/signals/SignalStore";
+import SignalStore from "@/lib/signals/SignalStore";
 import socket from "@/lib/realtime/socket";
 import { SignalMetadata } from "../types/Signal";
 
@@ -10,8 +10,8 @@ type SignalSubscriptionCallbacks = {
 type SignalMutationFunction = (signalName: string, callbacks?: SignalSubscriptionCallbacks) => void;
 
 class LiveSignalStore extends SignalStore {
-  private subscribeToSignal: SignalMutationFunction
-  private unsubscribeFromSignal: SignalMutationFunction
+  private subscribeToSignal: SignalMutationFunction;
+  private unsubscribeFromSignal: SignalMutationFunction;
 
   constructor(
     updateWithTimestamp: (timestamp: number) => void,
@@ -26,14 +26,12 @@ class LiveSignalStore extends SignalStore {
     socket.on("data", (payload) => {
       const { name: signalName, timestamp, value } = payload;
 
-      const signalData = this.getSignalData(signalName);
-      if (!signalData) return;
+      if (!this.storage[signalName]) return;
 
       this.addDataPoint(signalName, new Date(timestamp).getTime(), value);
     });
   }
 
-  // FIXME(evan): Type stuff I can't be bothered to do right now
   getReferenceToSignal<T extends SignalMetadata>(signal: T) {
     const signalData = this.getOrCreateSignalData(signal);
     this.incrementSubscribers(signal.name);
@@ -43,7 +41,7 @@ class LiveSignalStore extends SignalStore {
     this.subscribeToSignal(signal.name, {
       onError: (error) => {
         this.setError(signal.name, error);
-      }
+      },
     });
 
     return signalData.data as any;
@@ -64,11 +62,9 @@ class LiveSignalStore extends SignalStore {
       },
       onError: (error) => {
         console.error(`Error unsubscribing from signal ${signal.name}:`, error);
-      }
+      },
     });
   }
 }
 
 export default LiveSignalStore;
-
-
