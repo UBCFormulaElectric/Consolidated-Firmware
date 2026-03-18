@@ -29,15 +29,13 @@ io::queue<io::CanMsg, 256> boot_can_rx_queue{ "CanRxQueue", rx_overflow_callback
 namespace hw::cans
 {
 // no tasks_runCanRxCallback yet in tasks.c (need bootloader stuff)
-fdcan fdcan1(hfdcan1, [](const hw::CanMsg &msg) 
-    { (void)boot_can_rx_queue.push(io::CanMsg{
-        msg.std_id,
-        msg.dlc,
-        msg.data,
-        true,
-        app::can_utils::BusEnum::Bus_FDCAN
-    }); 
-});
+fdcan fdcan1(
+    hfdcan1,
+    [](const hw::CanMsg &msg)
+    {
+        (void)boot_can_rx_queue.push(
+            io::CanMsg{ msg.std_id, msg.dlc, msg.data, true, app::can_utils::BusEnum::Bus_FDCAN });
+    });
 } // namespace hw::cans
 
 const hw::fdcan &hw::fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
@@ -49,10 +47,7 @@ const hw::fdcan &hw::fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
 class H5DevBootConfig : public bootloader::config
 {
   public:
-    H5DevBootConfig(
-        uint32_t  bootloader_highbits,
-        uint32_t  git_commit_hash,
-        bool      git_commit_clean)
+    H5DevBootConfig(uint32_t bootloader_highbits, uint32_t git_commit_hash, bool git_commit_clean)
       : bootloader::config(
             hw::cans::fdcan1,
             boot_can_tx_queue,

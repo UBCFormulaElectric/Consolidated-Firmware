@@ -153,8 +153,7 @@ void bootloader::init(config &boot_config)
     boot_config.fdcan_handle.init();
 #elif defined(STM32F412Rx)
     boot_config.can_handle.init();
-#endif 
-
+#endif
 }
 
 [[noreturn]] void bootloader::runInterfaceTask(config &boot_config)
@@ -186,15 +185,15 @@ void bootloader::init(config &boot_config)
         {
             // Erase a flash sector.
             const uint8_t sector = command.data[0];
-            auto status = hw::flash::eraseSector(sector);
+            auto          status = hw::flash::eraseSector(sector);
 
             io::CanMsg reply{};
             if (not status)
             {
-                //if we failed to erase a flash sector after set number of retries exit 
-                //bootloader and indicate that we have failed
+                // if we failed to erase a flash sector after set number of retries exit
+                // bootloader and indicate that we have failed
                 reply.std_id = (boot_config.BOARD_HIGHBITS | ERASE_SECTOR_FAILED_ID_LOWBITS);
-                reply.dlc = 0;
+                reply.dlc    = 0;
                 boot_config.can_tx_queue.push(reply);
                 update_in_progress = false;
                 continue;
@@ -209,15 +208,15 @@ void bootloader::init(config &boot_config)
             // Program 64 bits at the current address.
             // No reply for program command to reduce latency.
             uint64_t command_packet = command.getDataAsQWords().data()[0];
-            auto status = boot_config.boardSpecific_program(current_address, command_packet);
+            auto     status         = boot_config.boardSpecific_program(current_address, command_packet);
 
             if (not status)
             {
-                //program failed meaning we need to stop and tell the application that program has failed
-                //and stop the bootloader
+                // program failed meaning we need to stop and tell the application that program has failed
+                // and stop the bootloader
                 io::CanMsg reply{};
-                reply.std_id = {boot_config.BOARD_HIGHBITS | PROGRAM_ID_FAILED_LOWBITS};
-                reply.dlc = 0;
+                reply.std_id = { boot_config.BOARD_HIGHBITS | PROGRAM_ID_FAILED_LOWBITS };
+                reply.dlc    = 0;
                 boot_config.can_tx_queue.push(reply);
                 update_in_progress = false;
                 continue;

@@ -27,7 +27,6 @@ inline constexpr uint8_t GO_TO_BOOT                       = 0x9;
 inline constexpr uint8_t ERASE_SECTOR_FAILED_ID_LOWBITS   = 0xA;
 inline constexpr uint8_t PROGRAM_ID_FAILED_LOWBITS        = 0xB;
 
-
 namespace bootloader
 {
 class config
@@ -36,9 +35,9 @@ class config
     io::queue<io::CanMsg, 256> &can_tx_queue;
     io::queue<io::CanMsg, 256> &can_rx_queue;
 
-    uint32_t BOARD_HIGHBITS{ 0 };
-    uint32_t GIT_COMMIT_HASH{ 0 };
-    bool     GIT_COMMIT_CLEAN{ false };
+    uint32_t  BOARD_HIGHBITS{ 0 };
+    uint32_t  GIT_COMMIT_HASH{ 0 };
+    bool      GIT_COMMIT_CLEAN{ false };
     std::byte program_buffer[hw::flash::WORD_BYTES];
 
 #if defined(STM32H733xx) || defined(STM32H562xx)
@@ -82,7 +81,7 @@ class config
     virtual std::expected<void, ErrorCode> boardSpecific_program(uint32_t address, uint64_t data)
     {
         std::expected<void, ErrorCode> status;
-        uint32_t  buffer_idx = address % hw::flash::WORD_BYTES;
+        uint32_t                       buffer_idx = address % hw::flash::WORD_BYTES;
         std::memcpy(&program_buffer[buffer_idx], &data, sizeof(data));
 
         // On the STM32H733xx microcontroller, the smallest amount of memory you can
