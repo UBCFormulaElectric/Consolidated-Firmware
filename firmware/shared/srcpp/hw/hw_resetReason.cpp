@@ -21,7 +21,6 @@ ResetReason hw_resetReason_get(void)
 // are a few of these we ignore:
 //
 // - WWDGRSTF: We don't use the window watchdog peripheral
-// - LPWRRSTF: We don't use any of STM's low power modes
 // - D1RSTF/D2RSTF: I think this just says which power domains experienced
 //   the reset, and doesn't specify the reason.
 //
@@ -33,7 +32,7 @@ ResetReason hw_resetReason_get(void)
     const bool     software          = rsr & RCC_RSR_SFTRSTF;
     const bool     power_on          = rsr & RCC_RSR_PORRSTF;
     const bool     nrst_pin          = rsr & RCC_RSR_PINRSTF;
-    const bool     brown_out         = (rsr & RCC_RSR_BORRSTF) || (rsr & RCC_RSR_LPWRRSTF);
+    const bool     brownout_or_sleep = (rsr & RCC_RSR_BORRSTF) || (rsr & RCC_RSR_LPWRRSTF);
     const bool     _d2_domain_switch = rsr & RCC_RSR_D2RSTF;
     const bool     _d1_domain_switch = rsr & RCC_RSR_D1RSTF;
 
@@ -41,13 +40,13 @@ ResetReason hw_resetReason_get(void)
     RCC->RSR |= RCC_RSR_RMVF;
 
 #elif defined(STM32H562xx)
-    const uint32_t rsr       = RCC->RSR;
-    const bool     _wwdg     = rsr & RCC_RSR_WWDGRSTF;
-    const bool     iwdg      = rsr & RCC_RSR_IWDGRSTF;
-    const bool     software  = rsr & RCC_RSR_SFTRSTF;
-    const bool     power_on  = false; // Does not exist for H5
-    const bool     nrst_pin  = rsr & RCC_RSR_PINRSTF;
-    const bool     brown_out = (rsr & RCC_RSR_BORRSTF) || (rsr & RCC_RSR_LPWRRSTF);
+    const uint32_t rsr               = RCC->RSR;
+    const bool     _wwdg             = rsr & RCC_RSR_WWDGRSTF;
+    const bool     iwdg              = rsr & RCC_RSR_IWDGRSTF;
+    const bool     software          = rsr & RCC_RSR_SFTRSTF;
+    const bool     power_on          = false; // Does not exist for H5
+    const bool     nrst_pin          = rsr & RCC_RSR_PINRSTF;
+    const bool     brownout_or_sleep = (rsr & RCC_RSR_BORRSTF) || (rsr & RCC_RSR_LPWRRSTF);
 
     RCC->RSR |= RCC_RSR_RMVF; // clear all reset flags
 #endif
@@ -73,9 +72,9 @@ ResetReason hw_resetReason_get(void)
     {
         reason = RESET_REASON_POWER_ON;
     }
-    else if (brown_out)
+    else if (brownout_or_sleep)
     {
-        reason = RESET_REASON_BROWN_OUT;
+        reason = RESET_REASON_BROWN_OUT_OR_SLEEP;
     }
     else if (nrst_pin)
     {

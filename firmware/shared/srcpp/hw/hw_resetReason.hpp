@@ -21,12 +21,11 @@ typedef enum
     RESET_REASON_POWER_ON = 3,
     // External reset via the NRST pin.
     RESET_REASON_NRST_PIN = 4,
-    // Brownout reset (voltage drop below threshold).
-    RESET_REASON_BROWN_OUT = 5,
-}
+    // Brownout reset (voltage drop below threshold) or sleep reset.
+    RESET_REASON_BROWN_OUT_OR_SLEEP = 5,
+} ResetReason;
 
 /*
  * Returns the reason the microcontroller reset.
  */
-ResetReason
-    hw_resetReason_get(void);
+ResetReason hw_resetReason_get(void);
