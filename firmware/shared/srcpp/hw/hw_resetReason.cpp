@@ -14,7 +14,7 @@ ResetReason hw_resetReason_get(void)
     // still set on the next reset if they aren't part of the actual reason.
     if (reason_read)
     {
-        W return reason;
+        return reason;
     }
 
 // All the specific reasons the microcontroller can reset. However, there
@@ -28,13 +28,12 @@ ResetReason hw_resetReason_get(void)
 // (However I've enumerated them all for completeness!)
 #ifdef STM32H733xx
     const uint32_t rsr               = RCC->RSR;
-    const bool     _low_power        = rsr & RCC_RSR_LPWRRSTF;
     const bool     _wwdg             = rsr & RCC_RSR_WWDG1RSTF;
     const bool     iwdg              = rsr & RCC_RSR_IWDG1RSTF;
     const bool     software          = rsr & RCC_RSR_SFTRSTF;
     const bool     power_on          = rsr & RCC_RSR_PORRSTF;
     const bool     nrst_pin          = rsr & RCC_RSR_PINRSTF;
-    const bool     brown_out         = rsr & RCC_RSR_BORRSTF;
+    const bool     brown_out = (rsr & RCC_RSR_BORRSTF) || (rsr & RCC_RSR_LPWRRSTF);
     const bool     _d2_domain_switch = rsr & RCC_RSR_D2RSTF;
     const bool     _d1_domain_switch = rsr & RCC_RSR_D1RSTF;
 
@@ -43,13 +42,12 @@ ResetReason hw_resetReason_get(void)
 
 #elif defined(STM32H562xx)
     const uint32_t rsr        = RCC->RSR;
-    const bool     _low_power = rsr & RCC_RSR_LPWRRSTF;
     const bool     _wwdg      = rsr & RCC_RSR_WWDGRSTF;
     const bool     iwdg       = rsr & RCC_RSR_IWDGRSTF;
     const bool     software   = rsr & RCC_RSR_SFTRSTF;
     const bool     power_on   = false; // Does not exist for H5
     const bool     nrst_pin   = rsr & RCC_RSR_PINRSTF;
-    const bool     brown_out  = rsr & RCC_RSR_BORRSTF;
+    const bool     brown_out = (rsr & RCC_RSR_BORRSTF) || (rsr & RCC_RSR_LPWRRSTF);
 
     RCC->RSR |= RCC_RSR_RMVF; // clear all reset flags
 #endif
