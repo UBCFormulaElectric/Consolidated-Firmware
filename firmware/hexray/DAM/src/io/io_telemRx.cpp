@@ -5,10 +5,10 @@
 #include "io_rtc.hpp"
 #include <stdint.h>
 #include <util_errorCodes.h>
-
+#include "io_telemUart.hpp"
 static NTPTimestamps ntpTimestamps;
 
-void io_telemRx() 
+void io_telemRx()
 {
     pollForRadioMessages();
 }
@@ -25,57 +25,59 @@ void transmitNTPStartMsg(void)
     }
     ntpTimestamps.t0 = t0;
 
-    TelemNTPMsg ntp_msg = io_buildNTPMessage();
-    LOG_IF_ERR(transmitIt()); // takes a span
+    const io::telemMessage::NTPMsg ntp_msg = io::telemMessage::NTPMsg();
+    if (not io::telemUart::transmitIt(
+            std::span<const uint8_t>{ reinterpret_cast<const uint8_t *>(&ntp_msg), ntp_msg.wireSize() }))
+    {
+        LOG_ERROR("Failed to transmit NTP message");
+        return;
+    }
 }
-
 void pollForRadioMessages(void)
-{ 
+{
     // Structure: First 2 bytes is magic bytes, 3rd is size of the body, remaining 4 is CRC
     uint8_t rxBufferHeader[7];
 
-    const ExitCode err = transmitIt(&_900k_uart, rxBufferHeader, 7);
-    if (!err) 
+    const auto result = io::telemUart::receiveIt(std::span<uint8_t>{ rxBufferHeader, 7 });
+    if (!result)
     {
-        LOG_IF_ERR(err);
+        LOG_ERROR("Failed to receive radio message");
         return;
     }
-
     // Keep shifting until magic bytes found
-    while (1)
+    while (true)
     {
         if (rxBufferHeader[0] == 0xCC && rxBufferHeader[1] == 0x33)
             break;
 
         LOG_INFO("magic bytes not found, searching ...");
-        
+
         for (int i = 0; i < 6; i++)
         {
             rxBufferHeader[i] = rxBufferHeader[i + 1];
         }
 
         // Read 1 new byte into last position
-        if (!receiveIt(&_900k_uart, &rxBufferHeader[6], 1))
+        if (not io::telemUart::receiveIt(std::span<uint8_t>{ &rxBufferHeader[6], 1 }))
             return;
     }
 
-    LOG_INFO("Header: %02X %02X %02X %02X %02X %02X %02X",
-         rxBufferHeader[0],
-         rxBufferHeader[1],
-         rxBufferHeader[2],
-         rxBufferHeader[3],
-         rxBufferHeader[4],
-         rxBufferHeader[5],
-         rxBufferHeader[6]);
-                                                                                                                                                                                                                                      
+    LOG_INFO(
+        "Header: %02X %02X %02X %02X %02X %02X %02X", rxBufferHeader[0], rxBufferHeader[1], rxBufferHeader[2],
+        rxBufferHeader[3], rxBufferHeader[4], rxBufferHeader[5], rxBufferHeader[6]);
+
     // TODO check CRC here
 
     // Read rest of packet (contains t1, t2) using size given to you
     uint8_t size = rxBufferHeader[3];
-    uint8_t rxBufferBody[size];
+    // uint8_t rxBufferBody[size];
 
-    if (hw_uart_receive_pooling(&_900k_uart, rxBufferBody, size) != 0)
-        return;
+    // if (not io::telemUart::receivePoll(std::span<uint8_t>{ rxBufferBody, size }))
+    // {
+    //     LOG_ERROR("Failed to receive radio message body");
+    //     return;
+    // }
+    // TODO u cant assign rxBufferBody[size] because it is not a static array
 
     // Take note of t3 (receiving time)
     io::rtc::Time t3;
@@ -87,10 +89,9 @@ void pollForRadioMessages(void)
     ntpTimestamps.t3 = t3;
 
     // Parse t1 and t2 from rxBufferBody.
-    parseNTPPacketBody(rxBufferBody);
+    // parseNTPPacketBody(rxBufferBody);
 
     // Tune RTC.
-    
 }
 
 void parseNTPPacketBody(uint8_t rxBufferBody[])
@@ -108,7 +109,7 @@ void parseNTPPacketBody(uint8_t rxBufferBody[])
             t1 |= ((uint64_t)rxBufferBody[i + 1]) << (8 * i);
         }
 
-        // Bytes [16:9] to t2 
+        // Bytes [16:9] to t2
         for (int i = 0; i < 8; i++)
         {
             t2 |= ((uint64_t)rxBufferBody[i + 9]) << (8 * i);
@@ -118,13 +119,12 @@ void parseNTPPacketBody(uint8_t rxBufferBody[])
     // Turn t1, t2 into IoRtcTime
 
     // put t1, t2 in a struct
-
 }
 
 void tuneRTC(void)
 {
     // // Caluclate the offset theta using the formula (in seconds)
-    // uint64_t theta = ((IoRtcTimeToSeconds(t1) - IoRtcTimeToSeconds(t0)) 
+    // uint64_t theta = ((IoRtcTimeToSeconds(t1) - IoRtcTimeToSeconds(t0))
     //                 + (IoRtcTimeToSeconds(t2) - IoRtcTimeToSeconds(t3))) / 2;
 
     // // Get new time for the RTC (offset in s + current time in s) in an IoRtcTime struct
@@ -139,7 +139,6 @@ void tuneRTC(void)
     //     LOG_ERROR("Failed to tune RTC!");
     // }
 }
-
 
 // ============================================================================================================
 
@@ -169,7 +168,7 @@ void tuneRTC(void)
 //     const uint16_t year = 2000 + t.year;
 //     uint64_t seconds = 0;
 
-//     //  Add full years since 2000 
+//     //  Add full years since 2000
 //     for (uint16_t y = 2000; y < year; ++y)
 //     {
 //         seconds += isLeapYear(y) ? 366LL : 365LL;
@@ -221,14 +220,14 @@ void tuneRTC(void)
 //     uint64_t days = seconds / 86400LL;
 //     seconds %= 86400LL;
 
-//     // Time of day 
+//     // Time of day
 //     t.hours   = (uint8_t)(seconds / 3600);
 //     seconds %= 3600;
 
 //     t.minutes = (uint8_t)(seconds / 60);
 //     t.seconds = seconds % 60;
 
-//     // Year 
+//     // Year
 //     uint16_t year = 2000;
 
 //     while (true)
@@ -247,7 +246,7 @@ void tuneRTC(void)
 
 //     t.year = (uint8_t)(year - 2000);
 
-//     // Month 
+//     // Month
 //     uint8_t month = 1;
 
 //     while (true)
