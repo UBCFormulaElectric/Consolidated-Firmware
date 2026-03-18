@@ -42,7 +42,6 @@ TEST_F(BmsStateMachineTest, enter_precharge_drive)
 
 TEST_F(BmsStateMachineTest, no_precharge_drive_if_negative_open)
 {
-    SetInitialState(&init_state);
     ASSERT_EQ(app::StateMachine::get_current_state(), &init_state);
     app::can_rx::VC_State_update(VCState::VC_BMS_ON_STATE);
     fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_OPEN);
@@ -53,7 +52,6 @@ TEST_F(BmsStateMachineTest, no_precharge_drive_if_negative_open)
 
 TEST_F(BmsStateMachineTest, no_precharge_drive_if_vc_state_not_bms_on)
 {
-    SetInitialState(&init_state);
     ASSERT_EQ(app::StateMachine::get_current_state(), &init_state);
     app::can_rx::VC_State_update(VCState::VC_INIT_STATE);
     fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_CLOSED);
@@ -62,13 +60,12 @@ TEST_F(BmsStateMachineTest, no_precharge_drive_if_vc_state_not_bms_on)
     ASSERT_EQ(app::StateMachine::get_current_state(), &init_state);
 }
 
-TEST_F(BmsStateMachineTest, no_precharge_drive_if_charging_requested)
+TEST_F(BmsStateMachineTest, no_precharge_drive_if_charger_connected)
 {
-    SetInitialState(&init_state);
     ASSERT_EQ(app::StateMachine::get_current_state(), &init_state);
     app::can_rx::VC_State_update(VCState::VC_BMS_ON_STATE);
     fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_CLOSED);
-    app::can_rx::Debug_StartCharging_update(true);
+    fakes::charger::setConnectionStatus(ChargerConnectedType::CHARGER_CONNECTED_WALL);
     LetTimePass(20);
 
     ASSERT_EQ(app::StateMachine::get_current_state(), &init_state);
@@ -81,7 +78,7 @@ TEST_F(BmsStateMachineTest, precharge_drive_success)
     fakes::segments::setPackVoltageEvenly(target_voltage);
     fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_CLOSED);
     fakes::ts::setVoltage(0.0f);
-    app::StateMachine::set_current_state(&precharge_drive_state);
+    app::can_rx::VC_State_update(VCState::VC_BMS_ON_STATE);
     LetTimePass(10);
 
     for (int i = 0; i < precharge_completion_ms; i += 10)
@@ -91,7 +88,6 @@ TEST_F(BmsStateMachineTest, precharge_drive_success)
         ASSERT_EQ(app::can_tx::BMS_PrechargeRelay_get(), ContactorState::CONTACTOR_STATE_CLOSED);
         LetTimePass(10);
     }
-
     fakes::ts::setVoltage(target_voltage);
     LetTimePass(10);
     ASSERT_EQ(app::StateMachine::get_current_state(), &drive_state);
@@ -101,11 +97,12 @@ TEST_F(BmsStateMachineTest, precharge_drive_success)
 
 TEST_F(BmsStateMachineTest, precharge_rises_too_slowly_then_latches_after_max_retries)
 {
+    app::StateMachine::set_current_state(&init_state);
     fakes::segments::setPackVoltageEvenly(target_voltage);
     fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_CLOSED);
     fakes::ts::setVoltage(undervoltage);
-    app::StateMachine::set_current_state(&precharge_drive_state);
-    LetTimePass(10);
+    app::can_rx::VC_State_update(VCState::VC_BMS_ON_STATE);
+    LetTimePass(20);
 
     for (uint8_t retry = 0; retry < MAX_PRECHARGE_ATTEMPTS; retry++)
     {
@@ -146,8 +143,8 @@ TEST_F(BmsStateMachineTest, precharge_rises_too_quickly_then_latches_after_max_r
     fakes::segments::setPackVoltageEvenly(target_voltage);
     fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_CLOSED);
     fakes::ts::setVoltage(undervoltage);
-    app::StateMachine::set_current_state(&precharge_drive_state);
-    LetTimePass(10);
+    app::can_rx::VC_State_update(VCState::VC_BMS_ON_STATE);
+    LetTimePass(20);
 
     for (uint8_t retry = 0; retry < MAX_PRECHARGE_ATTEMPTS; retry++)
     {

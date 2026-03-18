@@ -23,6 +23,7 @@ namespace
 
 void init()
 {
+    cooldown_timer.stop();
     precharge_limit_exceeded = false;
     num_precharge_failures   = 0U;
 }
@@ -66,11 +67,14 @@ State poll(bool precharge_for_charging)
     const bool is_air_negative_open =
         (io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
 
+    const Timer::TimerState upper_bound_state = upper_bound_timer.updateAndGetState();
+    const Timer::TimerState lower_bound_state = lower_bound_timer.updateAndGetState();
+
     const bool is_ts_rising_slowly =
-        (ts_voltage < threshold_voltage) && (upper_bound_timer.updateAndGetState() == Timer::TimerState::EXPIRED);
+        (ts_voltage < threshold_voltage) && (upper_bound_state == Timer::TimerState::EXPIRED);
 
     const bool is_ts_rising_quickly =
-        (ts_voltage > threshold_voltage) && (lower_bound_timer.updateAndGetState() == Timer::TimerState::RUNNING);
+        (ts_voltage > threshold_voltage) && (lower_bound_state == Timer::TimerState::RUNNING);
 
     // For charging we only consider "rising slowly" as a fault; otherwise consider both.
     bool has_precharge_fault =

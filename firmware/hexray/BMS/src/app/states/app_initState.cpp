@@ -58,7 +58,7 @@ namespace initState
             {
                 app::StateMachine::set_next_state(&precharge_charge_state);
             }
-            else if (precharge_for_driving)
+            else if (precharge_for_driving && !charger_connected)
             {
                 app::StateMachine::set_next_state(&precharge_drive_state);
             }

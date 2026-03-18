@@ -23,6 +23,8 @@ class BMSBaseTest : public EcuTestBase
         fakes::faultLatch::resetFaultLatch(&io::faultLatch::imd_ok_latch);
         fakes::faultLatch::resetFaultLatch(&io::faultLatch::bspd_ok_latch);
         fakes::faultLatch::setCurrentStatus_resetCallCounts();
+        fakes::charger::setConnectionStatus(ChargerConnectedType::CHARGER_DISCONNECTED);
+        app::can_rx::VC_State_update(VCState::VC_INIT_STATE);
 
         // TODO: Change back to using constants once segments is added
         // fakes::segments::setPackVoltageEvenly(3.8f * NUM_SEGMENTS * CELLS_PER_SEGMENT);

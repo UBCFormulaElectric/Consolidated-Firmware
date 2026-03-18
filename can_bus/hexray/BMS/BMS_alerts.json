@@ -61,6 +61,10 @@
     "WatchdogTimeout": {
       "id": 452,
       "description": "Watchdog timeout detected."
+    },
+    "MissingVCHeartbeat": {
+      "id": 453,
+      "description": "Missing VC heartbeat signal."
     }
   }
 }

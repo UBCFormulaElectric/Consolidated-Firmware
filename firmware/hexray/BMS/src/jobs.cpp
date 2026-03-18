@@ -14,6 +14,8 @@
 #include "app_bmsShdnLoop.hpp"
 #include "app_tractiveSystem.hpp"
 #include "app_irs.hpp"
+#include "app_heartbeatMonitors.hpp"
+#include "app_heartBeatMonitor.hpp"
 #include "app_jsoncan.hpp"
 #include <app_canUtils.hpp>
 
@@ -105,6 +107,8 @@ void jobs_run100Hz_tick()
     imd::broadcast();
     shdn::bms_shdnLoop.broadcast();
     plim::broadcast();
+    hb_monitor.checkIn();
+    hb_monitor.broadcastFaults();
 
     // TODO: Enable fans for endurance when contactors are closed.
     // const bool hv_up = io_irs_isNegativeClosed() && io_irs_isPositiveClosed();

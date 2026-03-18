@@ -77,7 +77,7 @@ Condition getCondition()
         case app::can_utils::ImdConditionName::IMD_CONDITION_NORMAL:
         case app::can_utils::ImdConditionName::IMD_CONDITION_UNDERVOLTAGE_DETECTED:
         {
-            condition.valid_duty_cycle = (pwm_duty_cycle >= 5.0f && pwm_duty_cycle <= 90.0f);
+            condition.valid_duty_cycle = (pwm_duty_cycle >= 5.0f && pwm_duty_cycle <= 95.0f);
             if (condition.valid_duty_cycle)
             {
                 if (pwm_duty_cycle - 5.0f < 0.001f)

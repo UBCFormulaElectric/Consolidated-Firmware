@@ -23,7 +23,7 @@
 
     forever
     {
-        // jobs_run1Hz_tick();
+        jobs_run1Hz_tick();
         watchdog_1hz.checkIn();
         start_ticks += period_ms;
         io::time::delayUntil(start_ticks);
@@ -41,7 +41,7 @@
 
     forever
     {
-        // jobs_run100Hz_tick();
+        jobs_run100Hz_tick();
         watchdog_100hz.checkIn();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -56,7 +56,7 @@
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
-        // jobs_run1kHz_tick();
+        jobs_run1kHz_tick();
         watchdog_1khz.checkIn();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
