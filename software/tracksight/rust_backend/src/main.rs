@@ -1,7 +1,9 @@
 use colored::Colorize;
 use ctrlc;
+use tokio::time::sleep;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicUsize, Ordering};
+use std::time::Duration;
 use tokio::select;
 use tokio::sync::RwLock;
 use tokio::sync::broadcast;
@@ -16,6 +18,7 @@ mod config;
 mod tasks;
 
 use mock::run_mock_task;
+use tasks::TASK_RESTART_DELAY_MS;
 use tasks::HealthCheck;
 use tasks::api_handler::run_api_handler;
 use tasks::can_data::can_data_handler::run_can_data_handler;
@@ -62,9 +65,10 @@ async fn main() {
     let (shutdown_tx, mut shutdown_rx) = broadcast::channel(1);
 
     // handle termination signal
-    let interrupt_count = AtomicUsize::new(0);
+    let interrupt_count = Arc::new(AtomicUsize::new(0));
+    let handler_interrupt_count = interrupt_count.clone();
     ctrlc::set_handler(move || {
-        let count = interrupt_count.fetch_add(1, Ordering::SeqCst);
+        let count = handler_interrupt_count.fetch_add(1, Ordering::SeqCst);
         if count >= 1 {
             eprintln!("Force exiting...");
             std::process::exit(1);
@@ -114,27 +118,46 @@ async fn main() {
         )
     );
     // run mock xor serial radio
-    match CONFIG.mock {
-        true => spawn_task(
-            &mut tasks,
-            Task::SerialHandler,
-            run_mock_task(
-                shutdown_rx.resubscribe(),
-                health_check.hc_tx.clone(),
-                can_queue_tx.clone(),
-                can_db.clone(),
-            )
-        ),
-        _ => spawn_task(
-            &mut tasks,
-            Task::SerialHandler,
-            run_serial_task(
-                shutdown_rx.resubscribe(),
-                health_check.hc_tx.clone(),
-                can_queue_tx,
-            )
-        ),
+    // use a wrapper to spawning serial handler
+    // to reuse code below when restarting tasks
+    let serial_spawner = {
+        // clone twice to not move ownership of variables
+        let base_shutdown_rx = shutdown_rx.resubscribe();
+        let base_hc_tx = health_check.hc_tx.clone();
+        let base_can_queue_tx = can_queue_tx.clone();
+        let base_can_db = can_db.clone();
+
+        move |tasks: &mut JoinSet<(Task, Result<(), JoinError>)>| {
+            let shutdown_rx_clone = base_shutdown_rx.resubscribe();
+            let hc_tx_clone = base_hc_tx.clone();
+            let can_queue_tx_clone = base_can_queue_tx.clone();
+            let can_db_clone = base_can_db.clone();
+
+            if CONFIG.mock {
+                spawn_task(
+                    tasks,
+                    Task::SerialHandler,
+                    run_mock_task(
+                        shutdown_rx_clone,
+                        hc_tx_clone,
+                        can_queue_tx_clone,
+                        can_db_clone,
+                    ),
+                );
+            } else {
+                spawn_task(
+                    tasks,
+                    Task::SerialHandler,
+                    run_serial_task(
+                        shutdown_rx_clone,
+                        hc_tx_clone,
+                        can_queue_tx_clone,
+                    ),
+                );
+            }
+        }
     };
+    serial_spawner(&mut tasks);
 
     select! {
         hc_res = health_check.wait_for_health_checks() => {
@@ -166,12 +189,29 @@ async fn main() {
         // res is the result of the spawn_task async move, probably a way to make it cleaner
         let (task, task_res) = res.unwrap();
         match task_res {
-            // todo robust restart
             Ok(_) => {
                 vprintln!(format!("{task:?} ended successfuly").yellow());
             },
             Err(e) => {
                 error_println!("{task:?} panicked with error: {e:?}");
+
+                // don't restart task if stopping
+                if interrupt_count.fetch_add(0, Ordering::SeqCst) > 0 {
+                    continue;
+                }
+
+                match task {
+                    Task::SerialHandler => {
+                        // TODO super super jank way of doing this
+                        // edge case not handled, but since delay time isn't very large,
+                        // it should be ok
+                        // also worst case isn't bad, can still force quit
+                        println!("Restarting {task:?} in {TASK_RESTART_DELAY_MS}ms...");
+                        sleep(Duration::from_millis(TASK_RESTART_DELAY_MS)).await;
+                        serial_spawner(&mut tasks);
+                    }
+                    _ => {}
+                }
             }
         }
     }

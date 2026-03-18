@@ -15,6 +15,8 @@ use crate::vprintln;
 // it can probably also be implemented a lot more cleanly
 // but it was cool so idk
 
+pub const TASK_RESTART_DELAY_MS: u64 = 1000;
+
 pub type ShutdownReceiver = broadcast::Receiver<()>;
 
 /**
