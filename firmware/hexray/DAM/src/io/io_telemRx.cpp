@@ -1,8 +1,8 @@
 #include "io_telemRx.hpp"
 #include "hw_uart.hpp"
 #include "hw_uarts.hpp"
-#include "io_telemMessage.hpp" //doesnt exist
-#include "io_rtc.h"
+#include "io_telemMessage.hpp"
+#include "io_rtc.hpp"
 #include <stdint.h>
 #include <util_errorCodes.h>
 
@@ -14,15 +14,19 @@ void io_telemRx()
 }
 
 // Send message to backend through radio to get t1,t2
-void transmitNTPStartMsg(void) // also use mutex to not conflict with can msg, should be higher piority but its ok cuz its slower frequency
+void transmitNTPStartMsg(void)
 {
-    // Take note of the sending time (t0). TODO can put this in a local struct or smth
-    IoRtcTime t0;
-    io_rtc_readTime(&t0);
+    // Take note of the sending time (t0).
+    io::rtc::Time t0;
+    if (!io::rtc::get_time(t0))
+    {
+        LOG_ERROR("Could not get RTC time");
+        return;
+    }
     ntpTimestamps.t0 = t0;
 
     TelemNTPMsg ntp_msg = io_buildNTPMessage();
-    LOG_IF_ERR(hw_uart_transmit(&_900k_uart, (uint8_t *)&ntp_msg, sizeof(ntp_msg)));
+    LOG_IF_ERR(transmitIt()); // takes a span
 }
 
 void pollForRadioMessages(void)
@@ -30,8 +34,8 @@ void pollForRadioMessages(void)
     // Structure: First 2 bytes is magic bytes, 3rd is size of the body, remaining 4 is CRC
     uint8_t rxBufferHeader[7];
 
-    const ExitCode err = hw_uart_receive_pooling(&_900k_uart, rxBufferHeader, 7);
-    if (err != EXIT_CODE_OK) 
+    const ExitCode err = transmitIt(&_900k_uart, rxBufferHeader, 7);
+    if (!err) 
     {
         LOG_IF_ERR(err);
         return;
@@ -51,7 +55,7 @@ void pollForRadioMessages(void)
         }
 
         // Read 1 new byte into last position
-        if (hw_uart_receive(&_900k_uart, &rxBufferHeader[6], 1) != 0)
+        if (!receiveIt(&_900k_uart, &rxBufferHeader[6], 1))
             return;
     }
 
@@ -73,9 +77,13 @@ void pollForRadioMessages(void)
     if (hw_uart_receive_pooling(&_900k_uart, rxBufferBody, size) != 0)
         return;
 
-    // Take note of t3 (receiving time) TODO put in struct or smth
-    IoRtcTime t3;
-    io_rtc_readTime(&t3);
+    // Take note of t3 (receiving time)
+    io::rtc::Time t3;
+    if (!io::rtc::get_time(t3))
+    {
+        LOG_ERROR("Could not get RTC time");
+        return;
+    }
     ntpTimestamps.t3 = t3;
 
     // Parse t1 and t2 from rxBufferBody.
