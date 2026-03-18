@@ -5,19 +5,18 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use tokio::select;
 use tokio::sync::RwLock;
 use tokio::sync::broadcast;
-use tokio::task::JoinSet;
+use tokio::task::{JoinError, JoinSet};
 
 use crate::config::CONFIG;
-use crate::health_check::HealthCheckError;
+use crate::tasks::{HealthCheckError, Task};
 use crate::tasks::can_data::load_can_database;
 
 mod mock;
 mod config;
 mod tasks;
-mod health_check;
 
 use mock::run_mock_task;
-use health_check::HealthCheck;
+use tasks::HealthCheck;
 use tasks::api_handler::run_api_handler;
 use tasks::can_data::can_data_handler::run_can_data_handler;
 use tasks::client_api::clients::Clients;
@@ -57,6 +56,7 @@ macro_rules! dprintln {
 #[tokio::main]
 async fn main() {
     vprintln!("Verbose print enabled");
+    dprintln!("Debug print enabled");
 
     // shutdown signal for threads
     let (shutdown_tx, mut shutdown_rx) = broadcast::channel(1);
@@ -75,7 +75,7 @@ async fn main() {
     .expect("Error setting Ctrl-C handler");
 
     // setup task manager
-    let mut tasks = JoinSet::new();
+    let mut tasks: JoinSet<(Task, Result<(), JoinError>)> = JoinSet::new();
 
     // this is equivalent to queue in old backend
     // use broadcast instead of mpsc, probably only one serial source but multiple consumers
@@ -92,32 +92,48 @@ async fn main() {
     let health_check = HealthCheck::new();
     
     // start tasks
-    tasks.spawn(run_api_handler(
-        shutdown_rx.resubscribe(),
-        health_check.hc_tx.clone(),
-        clients.clone(),
-        can_db.clone(),
-    ));
-    tasks.spawn(run_can_data_handler(
-        shutdown_rx.resubscribe(),
-        health_check.hc_tx.clone(),
-        can_queue_rx,
-        clients.clone(),
-        can_db.clone(),
-    ));
+    spawn_task(
+        &mut tasks,
+        Task::ApiHandler,
+        run_api_handler(
+            shutdown_rx.resubscribe(),
+            health_check.hc_tx.clone(),
+            clients.clone(),
+            can_db.clone(),
+        )
+    );
+    spawn_task(
+        &mut tasks, 
+        Task::CanDataHandler,
+        run_can_data_handler(
+            shutdown_rx.resubscribe(),
+            health_check.hc_tx.clone(),
+            can_queue_rx,
+            clients.clone(),
+            can_db.clone(),
+        )
+    );
     // run mock xor serial radio
     match CONFIG.mock {
-        true => tasks.spawn(run_mock_task(
-            shutdown_rx.resubscribe(),
-            health_check.hc_tx.clone(),
-            can_queue_tx.clone(),
-            can_db.clone(),
-        )),
-        _ => tasks.spawn(run_serial_task(
-            shutdown_rx.resubscribe(),
-            health_check.hc_tx.clone(),
-            can_queue_tx,
-        )),
+        true => spawn_task(
+            &mut tasks,
+            Task::SerialHandler,
+            run_mock_task(
+                shutdown_rx.resubscribe(),
+                health_check.hc_tx.clone(),
+                can_queue_tx.clone(),
+                can_db.clone(),
+            )
+        ),
+        _ => spawn_task(
+            &mut tasks,
+            Task::SerialHandler,
+            run_serial_task(
+                shutdown_rx.resubscribe(),
+                health_check.hc_tx.clone(),
+                can_queue_tx,
+            )
+        ),
     };
 
     select! {
@@ -145,12 +161,31 @@ async fn main() {
     }
 
     // tasks are running
-    // wait for tasks to clean up
+    // stop here for tasks to run
     while let Some(res) = tasks.join_next().await {
-        if let Err(err) = res {
-            eprintln!("Task failed to clean up: {err}");
+        // res is the result of the spawn_task async move, probably a way to make it cleaner
+        let (task, task_res) = res.unwrap();
+        match task_res {
+            // todo robust restart
+            Ok(_) => {
+                vprintln!(format!("{task:?} ended successfuly").yellow());
+            },
+            Err(e) => {
+                error_println!("{task:?} panicked with error: {e:?}");
+            }
         }
     }
 
     println!("Exiting main thread.");
+}
+
+fn spawn_task<F>(
+    task_set: &mut JoinSet<(Task, Result<(), JoinError>)>,
+    task: Task,
+    runner_fn: F
+) where F: std::future::Future<Output = ()> + Send + 'static {
+    task_set.spawn(async move {
+        let res = tokio::spawn(runner_fn).await;
+        (task, res)
+    });
 }

@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use axum::Router;
 use tokio::select;
-use tokio::sync::{RwLock, broadcast};
+use tokio::sync::RwLock;
 use tokio::net::TcpListener;
 use socketioxide::{SocketIo, extract::SocketRef};
 use jsoncan_rust::can_database::CanDatabase;
@@ -11,7 +11,7 @@ use mdns_sd::{ServiceDaemon, ServiceInfo};
 use colored::Colorize;
 
 use crate::config::CONFIG;
-use crate::health_check::{HealthCheckSender, HealthCheckSenderExt, Task};
+use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, ShutdownReceiver, Task};
 use crate::tasks::client_api::AppState;
 use crate::tasks::client_api::clients::Clients;
 use crate::tasks::client_api::signal_api_handler::get_signal_router;
@@ -19,7 +19,7 @@ use crate::tasks::client_api::subtable_api_handler::get_subtable_router;
 use crate::vprintln;
 
 pub async fn run_api_handler(
-    mut shutdown_rx: broadcast::Receiver<()>, 
+    mut shutdown_rx: ShutdownReceiver, 
     health_check_tx: HealthCheckSender, 
     clients: Arc<RwLock<Clients>>, 
     can_db: Arc<CanDatabase>
@@ -82,6 +82,7 @@ pub async fn run_api_handler(
         .layer(cors)
         .into_make_service();
 
+    // set up complete, send health_check
     health_check_tx.send_health_check(Task::ApiHandler, true).await;
 
     // this is so quirky it's amazing

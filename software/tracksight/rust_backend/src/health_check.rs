@@ -1,6 +1,6 @@
 use std::{collections::HashSet, time::Duration};
 
-use tokio::{select, sync::mpsc, time::sleep};
+use tokio::{select, sync::{broadcast, mpsc}, time::sleep};
 
 use crate::vprintln;
 
@@ -8,6 +8,8 @@ use crate::vprintln;
 // this is kind of an overkill for a health check on tasks
 // it can probably also be implemented a lot more cleanly
 // but it was cool so idk
+
+pub type ShutdownReceiver = broadcast::Receiver<()>;
 
 /**
  * Tasks to health check

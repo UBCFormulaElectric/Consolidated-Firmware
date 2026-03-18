@@ -8,7 +8,7 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use colored::Colorize;
 
 use crate::config::CONFIG;
-use crate::health_check::{HealthCheckSender, HealthCheckSenderExt, ResultExt, Task};
+use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, ResultExt, Task};
 use crate::tasks::telem_message::{CRC32_CALC, TelemetryOutgoingMessage};
 use crate::vprintln;
 use super::telem_message::{TelemetryIncomingMessage, CanPayload};

@@ -6,7 +6,7 @@ use tokio::{select, sync::broadcast};
 #[allow(unused_imports)]
 use colored::Colorize;
 
-use crate::{health_check::{HealthCheckSender, HealthCheckSenderExt, Task}, tasks::telem_message::CanPayload, vprintln};
+use crate::{tasks::{HealthCheckSender, HealthCheckSenderExt, Task}, tasks::telem_message::CanPayload, vprintln};
 
 /*
     Debugging/dev mock file, not used functionally
