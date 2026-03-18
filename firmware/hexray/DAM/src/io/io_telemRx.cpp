@@ -27,10 +27,14 @@ void transmitNTPStartMsg(void)
     }
     ntpTimestamps.t0 = RtcTimeToMs(t0);
 
-    TelemNTPMsg ntp_msg = io_buildNTPMessage();
-    LOG_IF_ERR(transmitIt()); // takes a span
+    const io::telemMessage::NTPMsg ntp_msg = io::telemMessage::NTPMsg();
+    if (not io::telemUart::transmitIt(
+            std::span<const uint8_t>{ reinterpret_cast<const uint8_t *>(&ntp_msg), ntp_msg.wireSize() }))
+    {
+        LOG_ERROR("Failed to transmit NTP message");
+        return;
+    }
 }
-
 void pollForRadioMessages(void)
 {
     // Structure: First 2 bytes is magic bytes, 3rd is size of the body, remaining 4 is CRC
@@ -42,7 +46,7 @@ void pollForRadioMessages(void)
         return;
 
     // Keep shifting until magic bytes found
-    while (1)
+    while (true)
     {
         if (rxBufferHeader[0] == 0xCC && rxBufferHeader[1] == 0x33)
             break;
@@ -60,15 +64,10 @@ void pollForRadioMessages(void)
             return;
     }
 
-    LOG_INFO("Header: %02X %02X %02X %02X %02X %02X %02X",
-         rxBufferHeader[0],
-         rxBufferHeader[1],
-         rxBufferHeader[2],
-         rxBufferHeader[3],
-         rxBufferHeader[4],
-         rxBufferHeader[5],
-         rxBufferHeader[6]);
-                                                                                                                                                                                                                                      
+    LOG_INFO(
+        "Header: %02X %02X %02X %02X %02X %02X %02X", rxBufferHeader[0], rxBufferHeader[1], rxBufferHeader[2],
+        rxBufferHeader[3], rxBufferHeader[4], rxBufferHeader[5], rxBufferHeader[6]);
+
     // TODO check CRC here
 
     // Read rest of packet (contains t1, t2) using size given to you
@@ -89,7 +88,7 @@ void pollForRadioMessages(void)
     ntpTimestamps.t3 = RtcTimeToMs(t3);
 
     // Parse t1 and t2 from rxBufferBody.
-    parseNTPPacketBody(rxBufferBody);
+    // parseNTPPacketBody(rxBufferBody);
 
     // Tune RTC with collected t1, t2, t3, t4.
     tuneRTC();
