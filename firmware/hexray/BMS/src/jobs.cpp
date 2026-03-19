@@ -15,7 +15,7 @@
 #include "app_tractiveSystem.hpp"
 #include "app_irs.hpp"
 #include "app_heartbeatMonitors.hpp"
-#include "app_heartBeatMonitor.hpp"
+#include "app_heartbeatMonitor.hpp"
 #include "app_jsoncan.hpp"
 #include <app_canUtils.hpp>
 
