@@ -883,7 +883,9 @@ static void MX_GPIO_Init(void)
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
-        GPIOD, F_INV_EN_Pin | SB_SHDN_3V3_OUT_Pin | RSM_EN_Pin | R_INV_EN_Pin | R_RAD_FAN_EN_Pin | L_RAD_FAN_EN_Pin,
+        GPIOD,
+        F_INV_EN_Pin | SB_SHDN_3V3_OUT_Pin | RSM_EN_Pin | R_INV_EN_Pin | MISC_FUSE_EN_Pin | R_RAD_FAN_EN_Pin |
+            L_RAD_FAN_EN_Pin,
         GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
@@ -934,16 +936,17 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : R_INV_PG_Pin F_INV_PG_Pin L_RAD_FAN_PG_Pin R_RAD_FAN_PG_Pin */
-    GPIO_InitStruct.Pin  = R_INV_PG_Pin | F_INV_PG_Pin | L_RAD_FAN_PG_Pin | R_RAD_FAN_PG_Pin;
+    /*Configure GPIO pins : R_INV_PG_Pin F_INV_PG_Pin MISC_FUSE_PG_Pin L_RAD_FAN_PG_Pin
+                             R_RAD_FAN_PG_Pin */
+    GPIO_InitStruct.Pin  = R_INV_PG_Pin | F_INV_PG_Pin | MISC_FUSE_PG_Pin | L_RAD_FAN_PG_Pin | R_RAD_FAN_PG_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
     /*Configure GPIO pins : F_INV_EN_Pin SB_SHDN_3V3_OUT_Pin RSM_EN_Pin R_INV_EN_Pin
-                             R_RAD_FAN_EN_Pin L_RAD_FAN_EN_Pin */
-    GPIO_InitStruct.Pin =
-        F_INV_EN_Pin | SB_SHDN_3V3_OUT_Pin | RSM_EN_Pin | R_INV_EN_Pin | R_RAD_FAN_EN_Pin | L_RAD_FAN_EN_Pin;
+                             MISC_FUSE_EN_Pin R_RAD_FAN_EN_Pin L_RAD_FAN_EN_Pin */
+    GPIO_InitStruct.Pin = F_INV_EN_Pin | SB_SHDN_3V3_OUT_Pin | RSM_EN_Pin | R_INV_EN_Pin | MISC_FUSE_EN_Pin |
+                          R_RAD_FAN_EN_Pin | L_RAD_FAN_EN_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
