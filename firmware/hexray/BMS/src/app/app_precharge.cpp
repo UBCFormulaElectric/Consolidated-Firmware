@@ -23,13 +23,14 @@ namespace
 
 void init()
 {
-    cooldown_timer.stop();
     precharge_limit_exceeded = false;
     num_precharge_failures   = 0U;
 }
 
 void restart()
 {
+    // Reset the failure retry cooldown timer to being idle.
+    cooldown_timer.stop();
     // Restart timers for checking if we're precharging too slow/quick.
     lower_bound_timer.restart();
     upper_bound_timer.restart();

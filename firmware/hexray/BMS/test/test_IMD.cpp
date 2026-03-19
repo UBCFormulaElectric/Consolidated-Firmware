@@ -206,8 +206,8 @@ TEST_F(ImdTest, check_can_broadcast_function)
 
     for (const auto &[frequency, duty_cycle, condition_name, active_frequency_status] : lookup_table)
     {
-        bool duty_cycle_set     = duty_cycle.has_value();
-        bool duty_cycle_valid   = condition_name != IMD_CONDITION_INVALID;
+        bool duty_cycle_set       = duty_cycle.has_value();
+        bool duty_cycle_valid     = condition_name != IMD_CONDITION_INVALID;
         bool active_frequency_set = active_frequency_status.has_value();
         fakes::imd::setFrequency(frequency);
         if (duty_cycle_set)

@@ -151,7 +151,7 @@ void jobs_run100Hz_tick()
     {
         StateMachine::set_next_state(&states::init_state);
     }
-    if (app::can_alerts::AnyBoardHasFault())
+    if (can_alerts::AnyBoardHasFault())
     {
         StateMachine::set_next_state(&states::fault_state);
     }

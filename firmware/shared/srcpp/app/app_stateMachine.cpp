@@ -120,6 +120,7 @@ namespace StateMachine
     {
         state = in_state;
         state->run_on_entry();
+        next_state = in_state;
     }
 #endif
 } // namespace StateMachine

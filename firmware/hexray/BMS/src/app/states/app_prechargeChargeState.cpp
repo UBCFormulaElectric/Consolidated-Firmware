@@ -16,7 +16,6 @@ namespace prechargeChargeState
     static void runOnEntry()
     {
         app::can_tx::BMS_State_set(app::can_utils::BmsState::BMS_PRECHARGE_CHARGE_STATE);
-
         app::precharge::init();
         app::precharge::restart();
     }
@@ -26,11 +25,11 @@ namespace prechargeChargeState
         switch (app::precharge::poll(false))
         {
             case app::precharge::State::RUNNING:
-                io::irs::setPrecharge(app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
+                io::irs::setPrecharge(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
                 break;
 
             case app::precharge::State::COOLDOWN:
-                io::irs::setPrecharge(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
+                io::irs::setPrecharge(app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
                 break;
 
             case app::precharge::State::FAILED_CRITICAL:
