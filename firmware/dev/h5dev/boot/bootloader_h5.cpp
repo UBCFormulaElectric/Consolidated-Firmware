@@ -44,7 +44,7 @@ const hw::fdcan &hw::fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
     return cans::fdcan1;
 }
 
-class H5DevBootConfig : public bootloader::config 
+class H5DevBootConfig : public bootloader::config
 {
   public:
     H5DevBootConfig()
