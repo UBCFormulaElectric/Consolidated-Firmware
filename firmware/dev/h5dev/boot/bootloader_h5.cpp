@@ -44,18 +44,18 @@ const hw::fdcan &hw::fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
     return cans::fdcan1;
 }
 
-class H5DevBootConfig : public bootloader::config
+class H5DevBootConfig : public bootloader::config 
 {
   public:
-    H5DevBootConfig(uint32_t bootloader_highbits, uint32_t git_commit_hash, bool git_commit_clean)
+    H5DevBootConfig()
       : bootloader::config(
             hw::cans::fdcan1,
             boot_can_tx_queue,
             boot_can_rx_queue,
-            bootloader_highbits,
-            git_commit_hash,
-            git_commit_clean){};
-} h5devboot_config(BOARD_HIGHBITS, git_commit_has_val, git_commit_clean_val);
+            board_highbits,
+            git_commit_has_val,
+            git_commit_clean_val){};
+} h5devboot_config;
 
 void bootloader_preInit(void)
 {

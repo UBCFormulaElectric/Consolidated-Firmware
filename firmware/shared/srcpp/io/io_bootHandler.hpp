@@ -13,7 +13,7 @@ namespace io::bootHandler
 
 inline void processBootRequest(const hw::CanMsg &msg)
 {
-    if (msg.std_id == (BOARD_HIGHBITS | BOOT_CAN_START_LOWBITS))
+    if (msg.std_id == (board_highbits | BOOT_CAN_START_LOWBITS))
     {
         LOG_INFO("Received CAN message, entering bootloader");
 
