@@ -4,9 +4,8 @@
 
 using namespace std;
 
-static constexpr uint8_t MAX_NUM_ATTEMPTS      = 10U;
-static constexpr uint8_t GPIOS_PER_GROUP = 3U;
-
+static constexpr uint8_t MAX_NUM_ATTEMPTS = 10U;
+static constexpr uint8_t GPIOS_PER_GROUP  = 3U;
 
 static array<array<uint8_t, io::adbms::REG_GROUP_SIZE>, io::NUM_SEGMENTS> reg_group;
 static array<expected<void, ErrorCode>, io::NUM_SEGMENTS>                 reg_group_success;
@@ -49,34 +48,41 @@ void readCellTempReg(
 {
     const expected<void, ErrorCode> poll_ok = pollTempAdcConversion();
 
-    if (!poll_ok) {
-        for (uint8_t seg = 0U; seg < NUM_SEGMENTS; seg++) {
+    if (!poll_ok)
+    {
+        for (uint8_t seg = 0U; seg < NUM_SEGMENTS; seg++)
+        {
             comm_success[seg].fill(poll_ok);
         }
         return;
     }
 
-    for (size_t group = 0U; group < NUM_TEMP_REG_GROUPS; group++) {
+    for (size_t group = 0U; group < NUM_TEMP_REG_GROUPS; group++)
+    {
         readRegGroup(reg_groups[group], reg_group, reg_group_success);
 
-        for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++) {
-            if (!reg_group_success[seg]) {
+        for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
+        {
+            if (!reg_group_success[seg])
+            {
                 cell_temp_regs[seg].fill(0U);
                 comm_success[seg].fill(reg_group_success[seg]);
                 continue;
             }
 
-            for (size_t gpio_in_group = 0U; gpio_in_group < GPIOS_PER_SEGMENT; gpio_in_group++) {
-                
+            for (size_t gpio_in_group = 0U; gpio_in_group < GPIOS_PER_SEGMENT; gpio_in_group++)
+            {
                 const size_t gpio = group * GPIOS_PER_GROUP + gpio_in_group;
-                if (gpio < GPIOS_PER_SEGMENT) {
+                if (gpio < GPIOS_PER_SEGMENT)
+                {
                     const uint16_t low         = reg_group[seg][gpio_in_group * 2U];
                     const uint16_t high        = reg_group[seg][gpio_in_group * 2U + 1U];
                     const uint16_t temperature = static_cast<uint16_t>(low | (high << 8U));
 
-                    if (temperature == 0xFFFF || temperature == 0x8000) {
+                    if (temperature == 0xFFFF || temperature == 0x8000)
+                    {
                         cell_temp_regs[seg][gpio] = 0U;
-                        comm_success[seg][gpio] = std::unexpected(ErrorCode::ERROR);
+                        comm_success[seg][gpio]   = std::unexpected(ErrorCode::ERROR);
                         continue;
                     }
 

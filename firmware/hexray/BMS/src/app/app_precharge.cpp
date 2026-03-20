@@ -64,7 +64,8 @@ State poll(bool precharge_for_charging)
     const float threshold_voltage = app::segments::getPackVoltage() * PRECHARGE_ACC_V_THRESHOLD;
 #endif
 
-    const bool is_air_negative_open = (io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
+    const bool is_air_negative_open =
+        (io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
 
     const bool is_ts_rising_slowly =
         (ts_voltage < threshold_voltage) && (upper_bound_timer.updateAndGetState() == Timer::TimerState::EXPIRED);

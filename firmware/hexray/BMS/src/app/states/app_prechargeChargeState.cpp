@@ -9,7 +9,6 @@
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
 
-
 namespace app::states::prechargeChargeState
 {
 

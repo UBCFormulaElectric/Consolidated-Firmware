@@ -4,7 +4,6 @@
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
 
-
 namespace app::balancingState
 {
 
@@ -15,7 +14,7 @@ static void balancingStateRunOnEntry()
 
 static void balancingStateRunOnTick100Hz()
 {
-    const bool air_negative_open          = io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN;
+    const bool air_negative_open = io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN;
     const bool stopped_requesting_balance = !app::can_rx::Debug_CellBalancingRequest_get();
     if (air_negative_open || stopped_requesting_balance)
     {

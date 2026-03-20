@@ -2,7 +2,6 @@
 #include "io_irs.hpp"
 #include "app_canUtils.hpp"
 
-
 using namespace app::can_utils;
 namespace io::irs
 {

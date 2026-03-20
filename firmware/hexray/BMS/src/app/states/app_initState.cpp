@@ -8,7 +8,6 @@
 #include "app_canTx.hpp"
 #include "app_canUtils.hpp"
 
-
 namespace app::states::initState
 {
 
@@ -26,8 +25,9 @@ void RunOnEntry()
 
 void RunOnTick100Hz()
 {
-    const bool irs_negative_closed = (io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
-    const bool ts_discharged       = (app::ts::getVoltage() < TS_DISCHARGED_THRESHOLD_V);
+    const bool irs_negative_closed =
+        (io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
+    const bool ts_discharged = (app::ts::getVoltage() < TS_DISCHARGED_THRESHOLD_V);
 
     // ONLY RUN THIS WHEN CELLS HAVE HAD TIME TO SETTLE
     // if (app_canRx_Debug_ResetSoc_MinCellV_get())
@@ -43,10 +43,9 @@ void RunOnTick100Hz()
     {
         const bool external_charging_request = app::can_rx::Debug_StartCharging_get();
 
-        const auto conn_status = io::charger::getConnectionStatus();
-        const bool charger_connected =
-            (conn_status == app::can_utils::ChargerConnectedType::CHARGER_CONNECTED_WALL) ||
-            (conn_status == app::can_utils::ChargerConnectedType::CHARGER_CONNECTED_EVSE);
+        const auto conn_status       = io::charger::getConnectionStatus();
+        const bool charger_connected = (conn_status == app::can_utils::ChargerConnectedType::CHARGER_CONNECTED_WALL) ||
+                                       (conn_status == app::can_utils::ChargerConnectedType::CHARGER_CONNECTED_EVSE);
 
         const bool precharge_for_driving  = (app::can_rx::VC_State_get() == app::can_utils::VCState::VC_BMS_ON_STATE);
         const bool cell_balancing_enabled = app::can_rx::Debug_CellBalancingRequest_get();

@@ -10,6 +10,7 @@
 using namespace std;
 using namespace app::can_tx;
 using namespace app::can_utils;
+using namespace app::segments;
 using app::Timer;
 
 // Minimum voltage delta to begin discharging a cell (10 mV)
@@ -17,8 +18,8 @@ static constexpr float DISCHARGE_THRESHOLD_V = 10e-3f;
 // Delta at which PWM reaches full duty cycle (100 mV → duty = 15)
 static constexpr float BALANCE_FULL_RANGE_V = 100e-3f;
 
-static constexpr uint32_t SETTLE_TIME_MS  = 30 * 1000;
-static constexpr uint32_t BALANCE_TIME_MS = 5 * 60 * 1000;
+static constexpr uint32_t SETTLE_TIME_MS  = 5 * 1000;
+static constexpr uint32_t BALANCE_TIME_MS = 5 * 1000;
 
 static BalancingState                                                 state;
 static array<array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>    discharge_enabled;
@@ -36,18 +37,24 @@ static void updateCellsToBalance()
         for (uint8_t cell = 0; cell < io::CELLS_PER_SEGMENT; cell++)
         {
             // Never discharge the leader cell
-            if (seg == min_cell_voltage.segment && cell == min_cell_voltage.cell)
+            if (seg == min_cell_voltage.segment && cell == min_cell_voltage.cell) {
+                discharge_enabled[seg][cell] = false;
                 continue;
+            }
 
             // Skip cells with failed voltage reads
-            if (!cell_voltage_success[seg][cell])
+            if (!cell_voltage_success[seg][cell]) {
+                discharge_enabled[seg][cell] = false;
                 continue;
+            }
 
             const float delta = cell_voltages[seg][cell] - min_cell_voltage.voltage;
-            if (delta < DISCHARGE_THRESHOLD_V)
+            // Don't dischange below threshold
+            if (delta < DISCHARGE_THRESHOLD_V) {
+                discharge_enabled[seg][cell] = false;
                 continue;
-
-            // Proportional PWM: clamp duty 1–15 based on how far above the leader the cell is
+            }
+            
             const float raw_duty         = (delta / BALANCE_FULL_RANGE_V) * 15.0f;
             discharge_enabled[seg][cell] = true;
             pwm_duty[seg][cell]          = static_cast<uint8_t>(clamp(raw_duty, 1.0f, 15.0f));
@@ -78,7 +85,6 @@ void balancingInit()
 
 void balancingTick(bool enable)
 {
-
     switch (state)
     {
         case BalancingState::BALANCING_DISABLED:
@@ -87,6 +93,7 @@ void balancingTick(bool enable)
             {
                 settle_timer.restart();
                 state = BalancingState::BALANCING_SETTLE;
+                LOG_INFO("Settling");
             }
             break;
         }
@@ -96,6 +103,7 @@ void balancingTick(bool enable)
             {
                 disableBalance();
                 state = BalancingState::BALANCING_DISABLED;
+                LOG_INFO("Disabling");
             }
             else if (settle_timer.updateAndGetState() == Timer::TimerState::EXPIRED)
             {
@@ -103,6 +111,7 @@ void balancingTick(bool enable)
                 io::adbms::sendBalanceCmd();
                 balance_timer.restart();
                 state = BalancingState::BALANCING_BALANCE;
+                LOG_INFO("Balancing");
             }
             break;
         }
@@ -112,12 +121,14 @@ void balancingTick(bool enable)
             {
                 disableBalance();
                 state = BalancingState::BALANCING_DISABLED;
+                LOG_INFO("Disabling");
             }
             else if (balance_timer.updateAndGetState() == Timer::TimerState::EXPIRED)
             {
                 io::adbms::sendStopBalanceCmd();
                 settle_timer.restart();
                 state = BalancingState::BALANCING_SETTLE;
+                LOG_INFO("Settling");
             }
             break;
         }

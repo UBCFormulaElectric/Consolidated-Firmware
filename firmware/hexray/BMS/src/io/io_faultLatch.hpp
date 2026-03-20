@@ -23,8 +23,8 @@ struct FaultLatch
 {
     const hw::Gpio *current_status_gpio;
     const hw::Gpio *latch_status_gpio;
-    bool        inverted;
-    const bool  read_only; // Certain fault latches can only be read from.
+    bool            inverted;
+    const bool      read_only; // Certain fault latches can only be read from.
 };
 
 extern const FaultLatch bms_ok_latch;

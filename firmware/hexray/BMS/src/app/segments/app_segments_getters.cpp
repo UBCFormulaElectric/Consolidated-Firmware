@@ -3,8 +3,9 @@
 
 using namespace std;
 
-namespace app::segments {
-    float getPackVoltage(void)
+namespace app::segments
+{
+float getPackVoltage(void)
 {
     return pack_voltage;
 }
@@ -28,4 +29,4 @@ CellParam getMinCellTemp(void)
 {
     return min_cell_temp;
 }
-}
+} // namespace app::segments

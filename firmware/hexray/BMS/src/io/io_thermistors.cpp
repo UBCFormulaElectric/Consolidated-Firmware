@@ -11,10 +11,10 @@ constexpr float  BIAS_RESISTOR_OHM       = 10000.0f;
 constexpr float  REFERENCE_VOLTAGE       = 3.3f;
 constexpr size_t SIZE_OF_TEMPERATURE_LUT = 21U;
 
-constexpr std::array<float, SIZE_OF_TEMPERATURE_LUT> lut_resistances = {{
-    32650.0f, 25390.0f, 19900.0f, 15710.0f, 12490.0f, 10000.0f, 8057.0f, 6531.0f, 5327.0f, 4369.0f, 3603.0f,
-    2986.0f,  2488.0f,  2083.0f,  1752.0f,  1481.0f,  1258.0f,  1072.0f, 917.7f,  788.5f,  680.0f
-}};
+constexpr std::array<float, SIZE_OF_TEMPERATURE_LUT> lut_resistances = {
+    { 32650.0f, 25390.0f, 19900.0f, 15710.0f, 12490.0f, 10000.0f, 8057.0f, 6531.0f, 5327.0f, 4369.0f, 3603.0f,
+      2986.0f,  2488.0f,  2083.0f,  1752.0f,  1481.0f,  1258.0f,  1072.0f, 917.7f,  788.5f,  680.0f }
+};
 
 const app::therm::ThermistorLUT b57861s_lut(0.0f, 5.0f, lut_resistances.data(), SIZE_OF_TEMPERATURE_LUT);
 } // namespace

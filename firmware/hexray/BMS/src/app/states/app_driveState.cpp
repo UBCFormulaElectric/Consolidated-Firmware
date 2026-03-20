@@ -3,7 +3,6 @@
 #include "app_canTx.hpp"
 #include "app_canUtils.hpp"
 
-
 namespace app::states::driveState
 {
 static void driveStateRunOnEntry()

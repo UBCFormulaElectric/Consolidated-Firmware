@@ -6,8 +6,8 @@
 using namespace std;
 
 static array<array<uint8_t, io::adbms::REG_GROUP_SIZE>, io::NUM_SEGMENTS> reg_group;
-static array<expected<void, ErrorCode>, io::NUM_SEGMENTS> reg_group_success;
-static const array<uint16_t, io::adbms::NUM_STAT_REG_GROUPS> reg_groups{ {
+static array<expected<void, ErrorCode>, io::NUM_SEGMENTS>                 reg_group_success;
+static const array<uint16_t, io::adbms::NUM_STAT_REG_GROUPS>              reg_groups{ {
     io::adbms::RDSTATA,
     io::adbms::RDSTATB,
     io::adbms::RDSTATC,
@@ -27,7 +27,7 @@ expected<void, ErrorCode> clearStatReg()
 }
 
 void readStatusReg(
-    array<StatusGroups, NUM_SEGMENTS> &stat_regs,
+    array<StatusGroups, NUM_SEGMENTS>              &stat_regs,
     array<expected<void, ErrorCode>, NUM_SEGMENTS> &stat_regs_success)
 {
     const auto poll_ok = pollTempAdcConversion();
@@ -81,6 +81,5 @@ void readStatusReg(
         }
     }
 }
-
 
 } // namespace io::adbms

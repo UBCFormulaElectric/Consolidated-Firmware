@@ -6,8 +6,8 @@
 #include <cmath>
 #include <algorithm>
 
-using app::can_utils::ImdConditionName;
 using app::can_utils::ImdActiveFrequency;
+using app::can_utils::ImdConditionName;
 
 constexpr int   NUM_OF_IMD_CONDITIONS   = 6;
 constexpr float IMD_FREQUENCY_TOLERANCE = 2.0f;
@@ -66,8 +66,8 @@ ImdCondition getCondition()
     const float pwm_duty_cycle = io::imd::getDutyCycle();
 
     ImdCondition condition{};
-    condition.name = (pwm_frequency < 0.001f) ? ImdConditionName::IMD_CONDITION_SHORT_CIRCUIT
-                                               : estimateConditionName(pwm_frequency);
+    condition.name =
+        (pwm_frequency < 0.001f) ? ImdConditionName::IMD_CONDITION_SHORT_CIRCUIT : estimateConditionName(pwm_frequency);
 
     // Decode the information encoded in the PWM frequency and duty cycle
     switch (condition.name)

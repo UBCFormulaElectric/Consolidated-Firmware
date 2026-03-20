@@ -30,19 +30,19 @@ namespace adbms
         uint8_t cth : 3;    // C-ADC vs. S-ADC comparison voltage threshold
         uint8_t : 4;        // unused bits
         uint8_t ref_on : 1; // reference powered up, enables REFUP state
-    
+
         uint8_t flag_d; // asserts flags in Status Reg C for latent fault detection (pg. 70)
-        
+
         uint8_t : 3;
         uint8_t owa : 3;     // open wire soak times
         uint8_t owrng : 1;   // soak time range
         uint8_t soak_on : 1; // enables soak on AUX ADCs
-      
+
         uint8_t gpio_1_8; // GPIOx pin control
-    
+
         uint8_t gpio_9_10 : 2; // GPIOx pin control
         uint8_t : 6;           // unused bits
-    
+
         uint8_t fc : 3;      // IIR filter parameter, see table 21
         uint8_t comm_bk : 1; // communication break, propagation communication prevention
         uint8_t mute_st : 1; // 1 = mute is active, discharging disabled
@@ -55,18 +55,18 @@ namespace adbms
     struct __attribute__((packed)) CFGB
     {
         uint8_t vuv_0_7; // cell undervoltage threshold = vuv * 16 * 150uV + 1.5V
-       
+
         uint8_t vuv_8_11 : 4;
         uint8_t vov_0_3 : 4; // cell overvoltage threshold = vov * 16 * 150uV + 1.5V
-        
+
         uint8_t vov_4_11;
-    
+
         uint8_t dcto_0_5 : 6; // discharge timeout value
         uint8_t dtrng : 1;    // discharge timer range setting
         uint8_t dtmen : 1;    // enable discharge timer monitor
-      
+
         uint8_t dcc_1_8; // discharge cell x
-       
+
         uint8_t dcc_9_16; // discharge cell x
     };
     static_assert(sizeof(CFGB) == REG_GROUP_SIZE);
@@ -97,7 +97,7 @@ namespace adbms
 
         uint8_t : 3;
         uint16_t ct : 11;
-        uint8_t cts : 2;
+        uint8_t  cts : 2;
 
         uint8_t va_ov : 1;
         uint8_t va_uv : 1;
@@ -106,7 +106,7 @@ namespace adbms
         uint8_t ced : 1;
         uint8_t cmed : 1;
         uint8_t sed : 1;
-        uint8_t smed: 1;
+        uint8_t smed : 1;
 
         uint8_t vdel : 1;
         uint8_t vde : 1;
@@ -128,7 +128,7 @@ namespace adbms
     struct __attribute__((packed)) STATE
     {
         uint32_t : 32;
-        uint16_t gpi: 10;
+        uint16_t gpi : 10;
         uint8_t : 2;
         uint8_t rev : 4;
     };
@@ -143,7 +143,6 @@ namespace adbms
     };
 
     // PWM Register Group A: per-cell duty cycle for cells 0–11
-    // Two cells per byte, nibble-packed: lower nibble = even cell, upper nibble = odd cell
     struct __attribute__((packed)) PWMA
     {
         uint8_t pwm1 : 4;
@@ -176,7 +175,6 @@ namespace adbms
         PWMB reg_b;
     };
 
-
     enum class OpenWireSwitch
     {
         OddChannels,
@@ -196,8 +194,8 @@ namespace adbms
 
     std::expected<void, ErrorCode> startTempAdcConversion();
     void                           readCellTempReg(
-                                  std::array<std::array<uint16_t, THERMISTORS_PER_SEGMENT>, NUM_SEGMENTS>                       &cell_temp_regs,
-                                  std::array<std::array<std::expected<void, ErrorCode>, THERMISTORS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success);
+                                  std::array<std::array<uint16_t, GPIOS_PER_SEGMENT>, NUM_SEGMENTS>                       &cell_temp_regs,
+                                  std::array<std::array<std::expected<void, ErrorCode>, GPIOS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success);
 
     std::expected<void, ErrorCode> owcCells(OpenWireSwitch owcSwitch);
     std::expected<void, ErrorCode> owcTherms(OpenWireSwitch owcSwitch);
@@ -206,6 +204,12 @@ namespace adbms
     std::expected<void, ErrorCode> pollCellsAdcConversion();
     std::expected<void, ErrorCode> wakeup();
     std::expected<void, ErrorCode> pollAdcConversions();
+
+
+    void readStatusReg(
+    std::array<StatusGroups, NUM_SEGMENTS>              &stat_regs,
+    std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS> &stat_regs_success);
+    
 
 } // namespace adbms
 } // namespace io

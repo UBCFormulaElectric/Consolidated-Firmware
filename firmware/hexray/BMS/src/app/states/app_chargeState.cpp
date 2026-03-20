@@ -10,7 +10,6 @@
 #include "app_canRx.hpp"
 #include "app_canTx.hpp"
 
-
 // Charger/pack constants
 namespace
 {
@@ -25,7 +24,7 @@ constexpr float VAC_MIN = 208.0f; // V – lower end of typical North American g
 constexpr float VAC_MAX = 240.0f; // V – upper end of typical North American grid
 constexpr float CAC_MAX = 32.0f;  // A – max current available of typical NA grid
 
-constexpr uint32_t ELCON_ERR_DEBOUNCE_MS    = 3000U; // 3 seconds
+constexpr uint32_t ELCON_ERR_DEBOUNCE_MS      = 3000U; // 3 seconds
 constexpr float    MAX_CELL_VOLTAGE_WARNING_V = 4.15f; // V – charging cutoff per cell
 } // namespace
 

@@ -11,8 +11,8 @@ class node
 #ifdef TARGET_EMBEDDED
     const hw::Gpio &pin;
 #endif
-    bool             status       = false;
-    void (*can_broadcast)(bool)   = nullptr;
+    bool status                 = false;
+    void (*can_broadcast)(bool) = nullptr;
 
   public:
 #ifdef TARGET_EMBEDDED

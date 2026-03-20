@@ -5,12 +5,12 @@
 
 using namespace std;
 
-inline constexpr uint8_t  NUM_CONFIG_SYNC_TRIES = 20;
-inline constexpr uint16_t VUV = 0x800; // VUV × 16 × 150 μV + 1.5 V (TO DO)
-inline constexpr uint16_t VOV = 0x7FF; // VOV × 16 × 150 μV + 1.5 V (TO DO)
+inline constexpr uint8_t  NUM_CONFIG_SYNC_TRIES = 5;
+inline constexpr uint16_t VUV                   = 0x800; // VUV × 16 × 150 μV + 1.5 V (TO DO)
+inline constexpr uint16_t VOV                   = 0x7FF; // VOV × 16 × 150 μV + 1.5 V (TO DO)
 
 static array<io::adbms::SegmentConfig, io::NUM_SEGMENTS> segment_config;
-static array<io::adbms::PWMConfig, io::NUM_SEGMENTS> segment_pwm_config;
+static array<io::adbms::PWMConfig, io::NUM_SEGMENTS>     segment_pwm_config;
 
 namespace app::segments
 {
@@ -48,11 +48,11 @@ void setBalanceConfig(array<array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS
     }
 }
 
-void setPwmBalanceConfig(array<array<uint8_t, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> &pwm_duty)
+void setPwmConfig(array<array<uint8_t, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> &pwm_duty)
 {
     for (uint8_t seg = 0; seg < io::NUM_SEGMENTS; seg++)
     {
-        const auto &d = pwm_duty[seg];
+        const auto &d           = pwm_duty[seg];
         segment_pwm_config[seg] = {
             .reg_a = { static_cast<uint8_t>(d[0] & 0x0F), static_cast<uint8_t>(d[1] & 0x0F),
                        static_cast<uint8_t>(d[2] & 0x0F), static_cast<uint8_t>(d[3] & 0x0F),

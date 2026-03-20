@@ -35,7 +35,8 @@ expected<void, ErrorCode> writePwmReg(array<PWMConfig, NUM_SEGMENTS> &pwm_config
     return {};
 }
 
-void readPwmReg(array<PWMConfig, NUM_SEGMENTS> &configs, array<expected<void, ErrorCode>, NUM_SEGMENTS> &success) {
+void readPwmReg(array<PWMConfig, NUM_SEGMENTS> &configs, array<expected<void, ErrorCode>, NUM_SEGMENTS> &success)
+{
     array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> regs_a{};
     array<expected<void, ErrorCode>, NUM_SEGMENTS>      success_a{};
     array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> regs_b{};
@@ -44,12 +45,15 @@ void readPwmReg(array<PWMConfig, NUM_SEGMENTS> &configs, array<expected<void, Er
     readRegGroup(RDPWMA, regs_a, success_a);
     readRegGroup(RDPWMB, regs_b, success_b);
 
-    for (size_t seg=0U; seg < NUM_SEGMENTS; ++seg) {
-        if (!success_a[seg]) {
+    for (size_t seg = 0U; seg < NUM_SEGMENTS; ++seg)
+    {
+        if (!success_a[seg])
+        {
             success[seg] = success_a[seg];
             continue;
         }
-        if (!success_b[seg]) {
+        if (!success_b[seg])
+        {
             success[seg] = success_b[seg];
             continue;
         }

@@ -35,7 +35,7 @@ static void runOnExit()
 
 } // namespace app::states::prechargeLatchState
 
-const app::State precharge_latch_state = {
+[[maybe_unused]] const app::State precharge_latch_state = {
     .name              = "PRECHARGE LATCH",
     .run_on_entry      = app::states::prechargeLatchState::runOnEntry,
     .run_on_tick_1Hz   = nullptr,

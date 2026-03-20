@@ -55,7 +55,8 @@ std::expected<void, ErrorCode> SpiDevice::waitForNotification() const
     return {};
 }
 
-std::expected<void, ErrorCode> SpiDevice::transmit(const std::span<const uint8_t> tx) const
+std::expected<void, ErrorCode> SpiDevice::
+transmit(const std::span<const uint8_t> tx) const
 {
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {

@@ -129,6 +129,7 @@ void readRegGroup(
     array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs,
     array<expected<void, ErrorCode>, NUM_SEGMENTS>      &comm_success)
 {
+
     const TxCmd                          tx_cmd{ cmd };
     array<RegGroupPayload, NUM_SEGMENTS> rx_buffer{};
 
@@ -142,6 +143,23 @@ void readRegGroup(
         comm_success.fill(tx_status);
         return;
     }
+
+    if (cmd == RDSTATA) {
+        [[maybe_unused]] int j = 0;
+    }
+    if (cmd == RDSTATB) {
+        [[maybe_unused]] int j = 0;
+    }
+    if (cmd == RDSTATC) {
+        [[maybe_unused]] int j = 0;
+    }
+    if (cmd == RDSTATD) {
+        [[maybe_unused]] int j = 0;
+    }
+    if (cmd == RDSTATE) {
+        [[maybe_unused]] int j = 0;
+    }
+    
 
     for (size_t segment = 0U; segment < NUM_SEGMENTS; ++segment)
     {
