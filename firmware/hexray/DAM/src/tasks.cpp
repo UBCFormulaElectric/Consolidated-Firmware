@@ -146,7 +146,7 @@ void DAM_StartAllTasks()
     Task1Hz.start();
     // TaskLogging.start();
     // TaskTelem.start();
-    // TaskTelemRx.start();
+    TaskTelemRx.start();
 }
 
 void tasks_preInit()

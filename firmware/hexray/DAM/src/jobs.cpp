@@ -13,6 +13,7 @@
 #include "io_canMsg.hpp"
 #include <io_canTx.hpp>
 #include <util_errorCodes.hpp>
+#include "io_telemRx.cpp"
 
 #include <span>
 
@@ -64,6 +65,5 @@ void jobs_runTelem_tick()
 
 void jobs_runTelemRx()
 {
-    // TODO: NTP time-sync response — see quintuna DAM io_telemRx.c for protocol
-    // Poll _900k_uart.receivePoll(...) for 0xFF 0x01 header, extract IoRtcTime, call io_rtc_setTime()
+    io_telemRx();
 }

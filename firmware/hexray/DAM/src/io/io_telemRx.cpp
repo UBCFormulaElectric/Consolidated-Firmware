@@ -46,6 +46,7 @@ void pollForRadioMessages(void)
         LOG_ERROR("Could not get rxBufferHeader");
         return;
     }
+    
     // Keep shifting until magic bytes found
     while (true)
     {
