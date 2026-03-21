@@ -11,7 +11,7 @@ use mdns_sd::{ServiceDaemon, ServiceInfo};
 #[allow(unused_imports)]
 use crate::utils::yellow;
 use crate::config::CONFIG;
-use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, ShutdownReceiver, Task};
+use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, ResultExt, ShutdownReceiver, Task};
 use crate::tasks::client_api::AppState;
 use crate::tasks::client_api::clients::Clients;
 use crate::tasks::client_api::signal_api_handler::get_signal_router;
@@ -28,9 +28,11 @@ pub async fn run_api_handler(
     
     // Axum
     let addr = format!("0.0.0.0:{}", CONFIG.backend_port);
-    let listener = TcpListener::bind(addr).await.unwrap();
+    let listener = TcpListener::bind(addr).await
+        .unwrap_or_fail_health_check(&health_check_tx, Task::ApiHandler).await;
 
-    let mdns = ServiceDaemon::new().unwrap();
+    let mdns = ServiceDaemon::new()
+        .unwrap_or_fail_health_check(&health_check_tx, Task::ApiHandler).await;
 
     let service_type = "_http._tcp.local.";
     let instance_name = "server";
@@ -42,9 +44,10 @@ pub async fn run_api_handler(
         &CONFIG.mdns_local_ip,
         CONFIG.backend_port,
         None,
-    ).unwrap();
+    ).unwrap_or_fail_health_check(&health_check_tx, Task::ApiHandler).await;
 
-    mdns.register(service_info).unwrap();
+    mdns.register(service_info)
+        .unwrap_or_fail_health_check(&health_check_tx, Task::ApiHandler).await;
     // running at this location
     println!("Server hosted on {} running at http://{}.local:{}", CONFIG.mdns_local_ip, instance_name, CONFIG.backend_port);
 

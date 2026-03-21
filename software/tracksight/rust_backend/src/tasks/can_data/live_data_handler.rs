@@ -5,7 +5,7 @@ use tokio::sync::{RwLock, broadcast::Receiver};
 
 #[allow(unused_imports)]
 use crate::utils::yellow;
-use crate::{tasks::{HealthCheckSender, HealthCheckSenderExt, Task}, tasks::client_api::clients::Clients, vprintln};
+use crate::{error_println, tasks::{HealthCheckSender, HealthCheckSenderExt, Task, client_api::clients::Clients}, vprintln};
 
 use jsoncan_rust::can_database::{CanSignalType, DecodedSignal};
 
@@ -39,15 +39,19 @@ pub async fn run_live_data_handler(
                     .collect();
 
                 for socket in client_sockets {
-                    // todo unwrap or handle none case, which would be really weird
-                    let _ = socket.emit(
+                    match socket.emit(
                         "data", 
                         &serde_json::json!({
                             "name": signal.name,
                             "value": signal.value,
                             "timestamp": signal.timestamp,
                         })
-                    );
+                    ) {
+                        Ok(_) => {}
+                        Err(e) => {
+                            error_println!("{e}");
+                        }
+                    }
                 }
             }
             // Closed channel or any error is signal to stop thread
