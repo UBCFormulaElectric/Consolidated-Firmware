@@ -261,7 +261,7 @@ impl CanDatabase {
         Ok((msg.id, data_bytes))
     }
 
-    pub fn unpack(&self, msg_id: u32, data: Vec<u8>, timestamp: Option<u32>) -> Vec<DecodedSignal> {
+    pub fn unpack(&self, msg_id: u32, data: Vec<u8>, timestamp: Option<u64>) -> Vec<DecodedSignal> {
         let msgs = match self.get_message_by_id(msg_id) {
             Ok(m) => m,
             Err(_) => {
@@ -310,6 +310,7 @@ impl CanDatabase {
                             .map(|(k, _)| k.clone())
                     })
                 }),
+                signal_type: signal.signal_type
             };
 
             if signal.enum_name.is_some() {

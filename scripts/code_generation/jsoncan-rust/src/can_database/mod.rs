@@ -255,11 +255,12 @@ impl CanDatabase {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct DecodedSignal {
     pub name: String,
     pub value: f64,
-    pub timestamp: Option<u32>,
+    pub timestamp: Option<u64>,
     pub label: Option<String>,
     pub unit: Option<String>,
+    pub signal_type: CanSignalType
 }
