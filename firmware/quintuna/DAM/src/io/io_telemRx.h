@@ -13,11 +13,3 @@ void transmitNTPStartMsg(void);
 void pollForRadioMessages(void);
 void parseNTPPacketBody(uint8_t rxBufferBody[]);
 void tuneRTC(void);
-
-typedef struct
-{
-    IoRtcTime t0;
-    IoRtcTime t1;
-    IoRtcTime t2;
-    IoRtcTime t3;
-} NTPTimestamps;

@@ -1,5 +1,4 @@
 #include "io_telemRx.hpp"
-#include "hw_uart.hpp"
 #include "io_telemUart.hpp"
 #include "io_telemMessage.hpp"
 #include "io_rtc.hpp"
@@ -35,6 +34,7 @@ void transmitNTPStartMsg(void)
         return;
     }
 }
+
 void pollForRadioMessages(void)
 {
     // Structure: First 2 bytes is magic bytes, 3rd is size of the body, remaining 4 is CRC
@@ -42,7 +42,7 @@ void pollForRadioMessages(void)
     uint8_t headerData[7]; 
     std::span<uint8_t> rxBufferHeader(headerData, 7);
     auto result = io::telemUart::receiveIt(rxBufferHeader);
-    if (result.has_error())
+    if (!result)
         return;
 
     // Keep shifting until magic bytes found
@@ -58,7 +58,7 @@ void pollForRadioMessages(void)
 
         // Read 1 new byte into last position
         result = io::telemUart::receiveIt(&rxBufferHeader[6], 1);
-        if (result.has_error())
+        if (!result)
             return;
     }
 
@@ -71,7 +71,7 @@ void pollForRadioMessages(void)
     // Read rest of packet (contains t1, t2) using size given to you
     uint8_t size = rxBufferHeader[3];
     uint8_t bodyData[256];
-    std::span<uint8_t> rxBufferBody(bodyData, size);
+    result = io::telemUart::receiveIt(std::span<uint8_t>(&rxBufferHeader[6], 1));
     
     if (!io::telemUart::receiveIt(rxBufferBody) != 0)
         return;
@@ -86,7 +86,7 @@ void pollForRadioMessages(void)
     ntpTimestamps.t3 = RtcTimeToMs(t3);
 
     // Parse t1 and t2 from rxBufferBody.
-    // parseNTPPacketBody(rxBufferBody);
+    parseNTPPacketBody(rxBufferBody);
 
     // Tune RTC with collected t1, t2, t3, t4.
     tuneRTC();

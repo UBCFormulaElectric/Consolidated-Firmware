@@ -6,8 +6,6 @@
 #include <stdint.h>
 #include <util_errorCodes.h>
 
-static NTPTimestamps ntpTimestamps;
-
 int sentcount = 0;
 int headercount = 0;
 
@@ -20,16 +18,16 @@ void io_telemRx(void)
 void transmitNTPStartMsg(void) // also use mutex to not conflict with can msg, should be higher piority but its ok cuz its slower frequency
 {
     // Take note of the sending time (t0). TODO can put this in a local struct or smth
-    IoRtcTime t0;
-    io_rtc_readTime(&t0);
-    ntpTimestamps.t0 = t0;
+    // IoRtcTime t0;
+    // io_rtc_readTime(&t0);
+    // ntpTimestamps.t0 = t0;
 
-    sentcount++;
+    // sentcount++;
 
-    TelemNTPMsg ntp_msg = io_buildNTPMessage();
-    LOG_IF_ERR(hw_uart_transmit(&_900k_uart, (uint8_t *)&ntp_msg, sizeof(ntp_msg)));
+    // TelemNTPMsg ntp_msg = io_buildNTPMessage();
+    // LOG_IF_ERR(hw_uart_transmit(&_900k_uart, (uint8_t *)&ntp_msg, sizeof(ntp_msg)));
 
-    LOG_INFO("NTP message sent, counter = %d", sentcount);
+    // LOG_INFO("NTP message sent, counter = %d", sentcount);
 }
 
 // perpetual periodic function to poll radio
@@ -86,7 +84,7 @@ void pollForRadioMessages(void)
     // Take note of t3 (receiving time) TODO put in struct or smth
     IoRtcTime t3;
     io_rtc_readTime(&t3);
-    ntpTimestamps.t3 = t3;
+    //ntpTimestamps.t3 = t3;
 
     // Parse t1 and t2 from rxBufferBody.
     parseNTPPacketBody(rxBufferBody);
