@@ -1,17 +1,31 @@
 "use client";
 
-import { WidgetData } from "@/lib/types/Widget";
-import useSignalMetadata from "@/lib/hooks/useSignalMetadata";
-import { useSignalDataStores } from "@/lib/contexts/signalStores/SignalStoreContext";
-import { useEffect, useMemo, useRef } from "react";
-import { isAlertSignalMetadata } from "@/lib/types/Signal";
-// import { SignalStoreEntry } from "@/lib/signals/SignalStore";
-import ChipLegend from "@/components/legends/ChipLegend";
-import { useScrollState } from "@/lib/contexts/ScrollContext";
+import { useAlertDataStores } from "@/lib/contexts/signalStores/SignalStoreContext";
+import { RefObject, useEffect, useRef } from "react";
+import { AlertSeries } from "./CanvasChartTypes";
+import { useSyncedGraph } from "../SyncedGraphContainer";
 
-const SLIP_STREAM_LANES = 4;
+const INITIAL_SLIP_STREAM_LANES = 4;
 const SLIP_STREAM_GAP = 5;
-const PROCESSING_INTERVAL_MS = 1000 / 60;
+const PROCESSING_INTERVAL_MS = 1;
+const SLIP_STREAM_ROUNDING_RADIUS = 8;
+const SLIP_STREAM_ROUNDING_SPEED = 0.5;
+const LABEL_FONT = "11px sans-serif";
+const LABEL_PADDING = 8;
+const TOOLTIP_FONT = "11px sans-serif";
+const TOOLTIP_PADDING_X = 8;
+const TOOLTIP_PADDING_Y = 4;
+const TOOLTIP_TRIANGLE_SIZE = 5;
+const TOOLTIP_GAP = 2;
+
+type HoverInfo = {
+  alertIndex: number;
+} | null;
+
+type MousePosition = {
+  x: number;
+  y: number;
+} | null;
 
 type CursorIndices = {
   [signal: string]: {
@@ -36,40 +50,43 @@ type AlertTimelineRenderState = {
 }[];
 
 const processAlertTimelineData = (
-  data: Map<string, SignalStoreEntry>,
-  signals: string[],
+  data: { [signalName: string]: AlertSeries },
   cursorIndices: CursorIndices,
   previousState: AlertTimelineRenderState,
   populationMap: boolean[],
-  signalColors?: { [signal: string]: string },
+  slipStreamLanes: RefObject<number>,
 ) => {
-  signals.forEach((signal) => {
+  Object.keys(data).forEach((signal) => {
     const cursor = cursorIndices[signal] || { cursorIndex: 0, renderIndex: null };
-    const signalData = data.get(signal);
+    const signalData = data[signal];
 
-    if (!signalData || signalData.error || !signalData.isSubscribed) return;
-
-    while (cursor.cursorIndex < signalData.data.timePoints.length) {
-      const timestamp = signalData.data.timePoints.get(cursor.cursorIndex);
-      const isAlertActive = signalData.data.values.get(cursor.cursorIndex) === 1;
+    while (cursor.cursorIndex < signalData.data.length) {
+      const timestamp = signalData.timestamps[cursor.cursorIndex];
+      const isAlertActive = signalData.data[cursor.cursorIndex] === 1;
 
       // If the alert turned on and we haven't already rendered it, create a new alert entry
       if (isAlertActive && cursor.renderIndex === null) {
         const newAlertIndex = previousState.length;
-        const streamIndex = populationMap.findIndex((populated) => !populated);
+        let streamIndex = populationMap.findIndex((populated) => !populated);
+
+        if (streamIndex === -1) {
+          slipStreamLanes.current += 1;
+          streamIndex = slipStreamLanes.current - 1;
+          populationMap.push(true);
+        } else {
+          populationMap[streamIndex] = true;
+        }
 
         previousState.push({
           signal,
           streamIndex: streamIndex === -1 ? 0 : streamIndex,
           startTime: timestamp,
-          endTime: timestamp,
-          color: signalColors ? signalColors[signal] : undefined,
+          endTime: undefined,
+          color: "#0a5efa",
         });
 
         populationMap[streamIndex] = true;
         cursor.renderIndex = newAlertIndex;
-      } else if (isAlertActive && cursor.renderIndex !== null) {
-        previousState[cursor.renderIndex].endTime = timestamp;
       }
 
       // If the alert turns off and there was a previously rendered alert, we need to update its end time
@@ -91,6 +108,52 @@ const processAlertTimelineData = (
   return { previousState, populationMap, cursorIndices };
 };
 
+const hitTestAlerts = (
+  mousePos: MousePosition,
+  state: AlertTimelineRenderState,
+  width: number,
+  height: number,
+  leftEdge: number,
+  rightEdge: number,
+  liveTime: number,
+  slipStreamLanes: number,
+  ctx: CanvasRenderingContext2D,
+): HoverInfo => {
+  if (!mousePos) return null;
+
+  const { x: mouseX, y: mouseY } = mousePos;
+  const laneGap = SLIP_STREAM_GAP;
+  const heightPerLane = (height - (slipStreamLanes - 1) * laneGap) / slipStreamLanes;
+  const pixelsPerMs = width / (rightEdge - leftEdge);
+
+  for (let i = state.length - 1; i >= 0; i--) {
+    const alert = state[i];
+    if (alert.streamIndex >= slipStreamLanes) continue;
+    if (alert.endTime && alert.endTime < leftEdge) continue;
+
+    const laneY = alert.streamIndex * (heightPerLane + laneGap);
+    if (mouseY < laneY || mouseY > laneY + heightPerLane) continue;
+
+    const alertStartX = alert.startTime < leftEdge ? 0 : (alert.startTime - leftEdge) * pixelsPerMs;
+    const alertEndX = alert.endTime ? (alert.endTime - leftEdge) * pixelsPerMs : (liveTime - leftEdge) * pixelsPerMs;
+    if (mouseX < alertStartX || mouseX > alertEndX) continue;
+
+    const visibleStartX = Math.max(alertStartX, 0);
+    const visibleEndX = Math.min(alertEndX, width);
+    const visibleWidth = visibleEndX - visibleStartX;
+
+    ctx.font = LABEL_FONT;
+    const textWidth = ctx.measureText(alert.signal).width;
+
+    if (visibleWidth < textWidth + LABEL_PADDING * 2) {
+      return { alertIndex: i };
+    }
+    return null;
+  }
+
+  return null;
+};
+
 const renderAlertTimeline = (
   ctx: CanvasRenderingContext2D,
   state: AlertTimelineRenderState,
@@ -98,16 +161,19 @@ const renderAlertTimeline = (
   height: number,
   leftEdge: number,
   rightEdge: number,
+  liveTime: number,
+  slipStreamLanes: number,
+  hover: HoverInfo,
 ) => {
   ctx.clearRect(0, 0, width, height);
 
   const laneGap = SLIP_STREAM_GAP;
-  const heightPerLane = (height - (SLIP_STREAM_LANES - 1) * laneGap) / SLIP_STREAM_LANES;
+  const heightPerLane = (height - (slipStreamLanes - 1) * laneGap) / slipStreamLanes;
 
   const pixelsPerMillisecond = width / (rightEdge - leftEdge);
 
   state.forEach((alert) => {
-    if (alert.streamIndex >= SLIP_STREAM_LANES) return;
+    if (alert.streamIndex >= slipStreamLanes) return;
     if (alert.endTime && alert.endTime < leftEdge) return;
 
     const laneY = alert.streamIndex * (heightPerLane + laneGap);
@@ -115,81 +181,170 @@ const renderAlertTimeline = (
     const isStartBeforeView = alert.startTime < leftEdge;
 
     const alertStartX = isStartBeforeView ? 0 : (alert.startTime - leftEdge) * pixelsPerMillisecond;
-    const alertEndX = alert.endTime ? (alert.endTime - leftEdge) * pixelsPerMillisecond : width;
+    const alertEndX = alert.endTime ? (alert.endTime - leftEdge) * pixelsPerMillisecond : (liveTime - leftEdge) * pixelsPerMillisecond;
 
-    ctx.fillStyle = alert.color || "red";
-    ctx.fillRect(alertStartX, laneY, alertEndX - alertStartX, heightPerLane);
+    ctx.fillStyle = alert.color || "#0a5efa";
+
+    const isOffLeftEdge = alert.startTime < leftEdge;
+
+    const endTime = alert.endTime ?? liveTime;
+    
+    // NOTE(evan): The rounding instantly going away jumps out at ur eyes so 
+    //             smoothe it it doesn't look good if u stare at it but because it
+    //             doesn't jump out you shouldn't see it most of the time.
+    const distanceFromRightEdgePx = (liveTime - endTime) * pixelsPerMillisecond;
+    const rightRadius = Math.min(Math.max(distanceFromRightEdgePx * SLIP_STREAM_ROUNDING_SPEED, 0), SLIP_STREAM_ROUNDING_RADIUS);
+
+    ctx.beginPath();
+    ctx.roundRect(alertStartX, laneY, alertEndX - alertStartX, heightPerLane, [
+      isOffLeftEdge ? 0 : SLIP_STREAM_ROUNDING_RADIUS,
+      rightRadius,
+      rightRadius,
+      isOffLeftEdge ? 0 : SLIP_STREAM_ROUNDING_RADIUS,
+    ]);
+    ctx.fill();
+
+    const visibleStartX = Math.max(alertStartX, 0);
+    const visibleEndX = Math.min(alertEndX, width);
+    const visibleWidth = visibleEndX - visibleStartX;
+
+    ctx.font = LABEL_FONT;
+    const textWidth = ctx.measureText(alert.signal).width;
+
+    if (visibleWidth >= textWidth + LABEL_PADDING * 2) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(visibleStartX, laneY, visibleWidth, heightPerLane);
+      ctx.clip();
+
+      ctx.fillStyle = "#ffffff";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(
+        alert.signal,
+        visibleStartX + visibleWidth / 2,
+        laneY + heightPerLane / 2,
+      );
+      ctx.restore();
+    }
   });
+
+  if (hover && hover.alertIndex < state.length) {
+    const alert = state[hover.alertIndex];
+    if (alert.streamIndex < slipStreamLanes) {
+      const laneY = alert.streamIndex * (heightPerLane + laneGap);
+      const alertStartX = alert.startTime < leftEdge ? 0 : (alert.startTime - leftEdge) * pixelsPerMillisecond;
+      const alertEndX = alert.endTime ? (alert.endTime - leftEdge) * pixelsPerMillisecond : (liveTime - leftEdge) * pixelsPerMillisecond;
+      const visibleStartX = Math.max(alertStartX, 0);
+      const visibleEndX = Math.min(alertEndX, width);
+      const visibleWidth = visibleEndX - visibleStartX;
+      const centerX = visibleStartX + visibleWidth / 2;
+      const barBottom = laneY + heightPerLane;
+
+      ctx.font = TOOLTIP_FONT;
+      const textWidth = ctx.measureText(alert.signal).width;
+      const tooltipWidth = textWidth + TOOLTIP_PADDING_X * 2;
+      const tooltipHeight = 14 + TOOLTIP_PADDING_Y * 2;
+
+      const triangleTop = barBottom + TOOLTIP_GAP;
+      const tooltipTop = triangleTop + TOOLTIP_TRIANGLE_SIZE;
+
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.moveTo(centerX - TOOLTIP_TRIANGLE_SIZE, triangleTop + TOOLTIP_TRIANGLE_SIZE);
+      ctx.lineTo(centerX, triangleTop);
+      ctx.lineTo(centerX + TOOLTIP_TRIANGLE_SIZE, triangleTop + TOOLTIP_TRIANGLE_SIZE);
+      ctx.closePath();
+      ctx.fill();
+
+      const tooltipX = Math.max(0, Math.min(centerX - tooltipWidth / 2, width - tooltipWidth));
+      ctx.beginPath();
+      ctx.roundRect(tooltipX, tooltipTop, tooltipWidth, tooltipHeight, 4);
+      ctx.fill();
+
+      ctx.fillStyle = "#333333";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(alert.signal, tooltipX + tooltipWidth / 2, tooltipTop + tooltipHeight / 2);
+    }
+  }
 };
 
 function AlertTimeline() {
-  const colorPalette = [
-    "#FF637E",
-    "#FFB463",
-    "#FFF263",
-    "#B6FF63",
-    "#63FF8E",
-    "#63FFF2",
-    "#63B6FF",
-    "#637EFF",
-    "#8E63FF",
-    "#F263FF",
-    "#FF63B6",
-  ]
-
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const scrollableRef = useRef<HTMLDivElement>(null);
   const animationFrame = useRef<number | null>(null);
 
   const {
-    leftEdgeTimestampRef,
-    rightEdgeTimestampRef,
-  } = useScrollState();
+    globalTimeRangeRef,
+    scalePxPerSecRef,
+    XToTime,
+  } = useSyncedGraph();
+
+  const XToTimeRef = useRef(XToTime);
+  XToTimeRef.current = XToTime;
 
   const cursorIndices = useRef<CursorIndices>({});
-  const slipstreamPopulated = useRef<boolean[]>(new Array(SLIP_STREAM_LANES).fill(false));
+  const slipStreamLanes = useRef(INITIAL_SLIP_STREAM_LANES);
+  const slipstreamPopulated = useRef<boolean[]>(new Array(INITIAL_SLIP_STREAM_LANES).fill(false));
   const renderState = useRef<AlertTimelineRenderState>([]);
+  const hoverInfo = useRef<HoverInfo>(null);
+  const mousePos = useRef<MousePosition>(null);
 
-  const data = useSignalDataStores([]);
-
-  const signalMetadata = useSignalMetadata(signals[0] ?? "");
+  const data = useAlertDataStores();
 
   useEffect(() => {
-    let isRunning = true;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const dpr = window.devicePixelRatio || 1;
 
     const renderSlipStream = () => {
-      if (!isRunning) return;
-
-      const canvas = canvasRef.current;
-
-      if (!canvas) {
+      if (!globalTimeRangeRef.current) {
         animationFrame.current = requestAnimationFrame(renderSlipStream);
         return;
       }
 
-      const dpr = window.devicePixelRatio || 1;
       const rect = canvas.getBoundingClientRect();
-      const targetWidth = Math.round(rect.width * dpr);
-      const targetHeight = Math.round(rect.height * dpr);
+      const targetWidth = Math.max(1, Math.floor(rect.width * dpr));
+      const targetHeight = Math.max(1, Math.floor(rect.height * dpr));
 
-      // Only resize if dimensions changed to avoid clearing the canvas unnecessarily
       if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
         canvas.width = targetWidth;
         canvas.height = targetHeight;
       }
 
-      const ctx = canvas.getContext("2d")!;
-
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.scale(dpr, dpr);
+
+      const leftEdge = XToTimeRef.current(0);
+      const rightEdge = XToTimeRef.current(rect.width);
+      const liveTime = globalTimeRangeRef.current!.max;;
+
+      hoverInfo.current = hitTestAlerts(
+        mousePos.current,
+        renderState.current,
+        rect.width,
+        rect.height,
+        leftEdge,
+        rightEdge,
+        liveTime,
+        slipStreamLanes.current,
+        ctx,
+      );
 
       renderAlertTimeline(
         ctx,
         renderState.current,
-        window.innerWidth,
+        rect.width,
         rect.height,
-        leftEdgeTimestampRef.current || 0,
-        rightEdgeTimestampRef.current || 0,
+        leftEdge,
+        rightEdge - 15 / scalePxPerSecRef.current,
+        liveTime,
+        slipStreamLanes.current,
+        hoverInfo.current,
       );
 
       animationFrame.current = requestAnimationFrame(renderSlipStream);
@@ -198,12 +353,11 @@ function AlertTimeline() {
     animationFrame.current = requestAnimationFrame(renderSlipStream);
 
     return () => {
-      isRunning = false;
       if (animationFrame.current) {
         cancelAnimationFrame(animationFrame.current);
       }
     };
-  }, [signals, colorPalette, leftEdgeTimestampRef, rightEdgeTimestampRef]);
+  }, [canvasRef.current]);
 
   useEffect(() => {
     if (!data.current) return;
@@ -217,12 +371,17 @@ function AlertTimeline() {
         cursorIndices: newCursorIndices
       } = processAlertTimelineData(
         data.current,
-        signals,
         cursorIndices.current,
         renderState.current,
         slipstreamPopulated.current,
-        signalColors
+        slipStreamLanes,
       );
+
+      if (scrollableRef.current) {
+        const newHeight = slipStreamLanes.current * 32 + (slipStreamLanes.current - 1) * SLIP_STREAM_GAP;
+
+        scrollableRef.current.style.height = `${newHeight}px`;
+      }
 
       renderState.current = newRenderState;
       slipstreamPopulated.current = newSlipstreamPopulation;
@@ -234,71 +393,43 @@ function AlertTimeline() {
     return () => {
       clearInterval(intervalId);
     };
-  }, [data.current, signals]);
+  }, [data.current]);
+  
+  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) {
+      mousePos.current = null;
+      return;
+    }
 
-  if (signalMetadata.isLoading) {
-    return (
-      <div className="flex flex-col gap-5">
-        <div className="px-8">
-          Loading...
-        </div>
+    const rect = canvas.getBoundingClientRect();
+    mousePos.current = {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    };
+  };
 
-        <div className="relative flex h-6 w-full">
-          <div
-            className="w-full"
-            style={{
-              backgroundColor: "lightgray",
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  if (!signalMetadata.data || signalMetadata.isError) {
-    return (
-      <div className="flex flex-col items-center">
-        Error loading signal metadata.
-
-        <p className="p-4 text-center text-sm">
-          Signal metadata not found for signal "{signals[0]}". Please select a valid enum signal.
-        </p>
-      </div>
-    )
-  }
-
-  if (!isAlertSignalMetadata(signalMetadata.data)) {
-    return (
-      <div className="flex flex-col items-center">
-        Invalid signal type.
-        <p className="p-4 text-center text-sm">
-          The signal "{signals[0]}" is not an alert signal. Please select a valid alert signal.
-        </p>
-      </div>
-    );
-  }
+  const handleMouseLeave = () => {
+    mousePos.current = null;
+  };
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="px-8">
-        {/* TODO(evan): Allow multiple selection */}
-      </div>
-
       <div
         className="relative flex w-full"
         ref={scrollableRef}
         style={{
           backgroundColor: "lightgray",
-          height: `${SLIP_STREAM_LANES * 32}px`,
+          height: `${INITIAL_SLIP_STREAM_LANES * 32}px`,
         }}
       >
         <canvas
-          className="w-full"
+          className="w-full h-full"
           ref={canvasRef}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
         ></canvas>
       </div>
-
-      <ChipLegend signals={signals} colorPalette={colorPalette} />
     </div>
   );
 }
