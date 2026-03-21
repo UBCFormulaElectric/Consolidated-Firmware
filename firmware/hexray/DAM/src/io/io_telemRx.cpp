@@ -123,7 +123,8 @@ void parseNTPPacketBody(std::span<uint8_t> body)
 void tuneRTC(void)
 {
     // Calculate the offset theta using the formula
-    uint64_t theta = ((ntpTimestamps.t1 - ntpTimestamps.t0) + (ntpTimestamps.t2 - ntpTimestamps.t3)) / 2;
+   int64_t theta = ((int64_t)ntpTimestamps.t1 - (int64_t)ntpTimestamps.t0 +
+                    (int64_t)ntpTimestamps.t2 - (int64_t)ntpTimestamps.t3) / 2;
 
     io::rtc::Time currTime;
     if (!io::rtc::get_time(currTime))
