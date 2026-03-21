@@ -12,6 +12,7 @@
 #include "hw_cans.hpp"
 #include "hw_gpios.hpp"
 #include "hw_rtosTaskHandler.hpp"
+#include "hw_hardFaultHandler.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
@@ -124,7 +125,10 @@ static void VC_StartAllTasks()
     TaskCan2Tx.start();
 }
 
-void tasks_preInit() {}
+void tasks_preInit()
+{
+    hw_hardFaultHandler_init();
+}
 
 void tasks_init()
 {

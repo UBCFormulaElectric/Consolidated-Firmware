@@ -1,21 +1,13 @@
-pub mod api_handler;
-pub mod serial_handler;
-pub mod telem_message;
-pub mod can_data;
-pub mod client_api;
-
 use std::{collections::HashSet, time::Duration};
 
 use tokio::{select, sync::{broadcast, mpsc}, time::sleep};
 
-use crate::{utils::red, vprintln};
+use crate::vprintln;
 
 // im not even going to lie
 // this is kind of an overkill for a health check on tasks
 // it can probably also be implemented a lot more cleanly
 // but it was cool so idk
-
-pub const TASK_RESTART_DELAY_MS: u64 = 1000;
 
 pub type ShutdownReceiver = broadcast::Receiver<()>;
 
@@ -32,9 +24,7 @@ pub enum Task {
 }
 
 impl Task {
-    // apparently rust doesn't allow (safe) count of enums
-    // this number should just match number of tasks to run to health check every thing
-    const ENUM_COUNT: usize = 5;
+    const ENUM_COUNT: usize = 5; // apparently rust doesn't let allow counting enums
 }
 
 #[derive(Debug)]
@@ -98,6 +88,7 @@ impl HealthCheck {
     }
 }
 
+
 pub type HealthCheckSender = mpsc::Sender<(Task, bool)>;
 
 pub trait HealthCheckSenderExt {
@@ -124,7 +115,7 @@ impl<T, E: std::fmt::Debug> ResultExt<T> for Result<T, E> {
             }
             Err(e) => {
                 health_check_sender.send_health_check(task, false).await;
-                panic!("{}", red(format!("{e:?}")));
+                panic!("{:?}", e);
             }
         }
     }

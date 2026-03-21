@@ -44,7 +44,7 @@ pub struct JsonCanParser {
 fn list_nodes_from_folders(can_data_dir: &String) -> Vec<String> {
     let mut node_names: Vec<String> = Vec::new();
 
-    let entries = std::fs::read_dir(can_data_dir).unwrap();
+    let entries = std::fs::read_dir(can_data_dir).expect(&format!("Unable to read dir {can_data_dir}"));
     for entry in entries {
         let entry = entry.expect("Failed to read entry"); // surely??
         let path = entry.path();
