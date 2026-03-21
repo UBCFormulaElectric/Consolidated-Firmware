@@ -1,22 +1,36 @@
 "use client";
 
 import { WidgetAdder } from "@/app/live/WidgetAdder";
-import { DisplayControlProvider, PausePlayButton } from "@/components/PausePlayControl";
-import SyncedGraphContainer from "@/components/SyncedGraphContainer";
 import DataDashboard from "@/components/DataDashboard";
-import { useWidgetManager, WidgetManager } from "@/components/widgets/WidgetManagerContext";
+import {
+  DisplayControlProvider,
+  PausePlayButton,
+  ViewportLockButton,
+} from "@/components/PausePlayControl";
+import SyncedGraphContainer from "@/components/SyncedGraphContainer";
+import {
+  useWidgetManager,
+  WidgetManager,
+} from "@/components/widgets/WidgetManagerContext";
 import { LiveSignalStoreProvider } from "@/lib/contexts/signalStores/LiveSignalStoreContext";
 import { MockSignalStoreProvider } from "@/lib/contexts/signalStores/MockSignalStoreContext";
 
 const USE_MOCK_DATA = process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true";
+// console.log("Using mock data:", USE_MOCK_DATA);
+console.log(process.env.NEXT_PUBLIC_USE_MOCK_DATA);
 
 function Content() {
   const { initializedFromLocalStorage } = useWidgetManager();
-  const DataSourceProvider = USE_MOCK_DATA ? MockSignalStoreProvider : LiveSignalStoreProvider;
+  const DataSourceProvider = USE_MOCK_DATA
+    ? MockSignalStoreProvider
+    : LiveSignalStoreProvider;
 
   return (
     <DataSourceProvider>
-      <PausePlayButton />
+      <div className="sticky top-20 z-20 ml-auto mr-6 flex w-fit gap-3">
+        <PausePlayButton />
+        <ViewportLockButton />
+      </div>
       {initializedFromLocalStorage ? (
         <>
           <DataDashboard />
