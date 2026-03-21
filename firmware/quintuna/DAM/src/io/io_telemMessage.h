@@ -54,7 +54,7 @@ typedef struct __attribute__((packed))
 typedef struct __attribute__((packed))
 {
     TelemMessageHeader header;
-    uint8_t identifier;
+    uint8_t            identifier;
 } TelemNTPMsg;
 
 TelemCanMsg io_telemMessage_buildCanMsg(const CanMsg *rx_msg, float time_offset, uint8_t *size);

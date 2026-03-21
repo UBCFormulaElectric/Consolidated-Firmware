@@ -10,7 +10,7 @@ constexpr uint32_t PREDIV_S = 999;
 
 static NTPTimestamps ntpTimestamps;
 
-void io_telemRx() // Make this noreturn
+void io_telemRx()
 {
     pollForRadioMessages();
 }
@@ -27,60 +27,61 @@ void transmitNTPStartMsg(void)
     }
     ntpTimestamps.t0 = RtcTimeToMs(t0);
 
-    TelemNTPMsg ntp_msg = io_buildNTPMessage();
-    LOG_IF_ERR(transmitIt()); // takes a span
+    const io::telemMessage::NTPMsg ntp_msg = io::telemMessage::NTPMsg();
+    if (!io::telemUart::transmitIt(
+            std::span<const uint8_t>{ reinterpret_cast<const uint8_t *>(&ntp_msg), ntp_msg.wireSize() }))
+    {
+        LOG_ERROR("Failed to transmit NTP message");
+        return;
+    }
 }
 
 void pollForRadioMessages(void)
 {
     // Structure: First 2 bytes is magic bytes, 3rd is size of the body, remaining 4 is CRC
-
-    uint8_t headerData[7]; 
+    uint8_t            headerData[7];
     std::span<uint8_t> rxBufferHeader(headerData, 7);
-    auto result = io::telemUart::receiveIt(rxBufferHeader);
-    if (result.has_error())
+    if (!io::telemUart::receiveIt(rxBufferHeader))
+    {
+        LOG_ERROR("Could not get rxBufferHeader");
         return;
-
+    }
     // Keep shifting until magic bytes found
-    while (1)
+    while (true)
     {
         if (rxBufferHeader[0] == 0xCC && rxBufferHeader[1] == 0x33)
             break;
 
-        LOG_INFO("magic bytes not found, searching ...");
-        
         for (std::size_t i = 0; i < rxBufferHeader.size() - 1; i++)
         {
             rxBufferHeader[i] = rxBufferHeader[i + 1];
         }
 
         // Read 1 new byte into last position
-        result = io::telemUart::receiveIt(&rxBufferHeader[6], 1);
-        if (result.has_error())
+        if (!io::telemUart::receiveIt(std::span<uint8_t>{ &rxBufferHeader[6], 1 }))
             return;
     }
 
-    LOG_INFO("Header: %02X %02X %02X %02X %02X %02X %02X",
-         rxBufferHeader[0],
-         rxBufferHeader[1],
-         rxBufferHeader[2],
-         rxBufferHeader[3],
-         rxBufferHeader[4],
-         rxBufferHeader[5],
-         rxBufferHeader[6]);
-                                                                                                                                                                                                                                      
+    LOG_INFO(
+        "Header: %02X %02X %02X %02X %02X %02X %02X", rxBufferHeader[0], rxBufferHeader[1], rxBufferHeader[2],
+        rxBufferHeader[3], rxBufferHeader[4], rxBufferHeader[5], rxBufferHeader[6]);
+
     // TODO check CRC here
 
     // Read rest of packet (contains t1, t2) using size given to you
-    uint8_t size = rxBufferHeader[3];
-    uint8_t bodyData[256];
+    uint8_t            size = rxBufferHeader[3];
+    uint8_t            bodyData[256];
     std::span<uint8_t> rxBufferBody(bodyData, size);
-    
-    if (!io::telemUart::receiveIt(rxBufferBody) != 0)
+
+    io::rtc::Time t3; // declare it here to not waste time when capturing t3
+
+    if (!io::telemUart::receiveIt(rxBufferBody))
+    {
+        LOG_ERROR("Could not get rxBufferBody");
         return;
+    }
 
     // Take note of t3 (receiving time)
-    io::rtc::Time t3;
     if (!io::rtc::get_time(t3))
     {
         LOG_ERROR("Could not get RTC time");
@@ -91,15 +92,14 @@ void pollForRadioMessages(void)
     // Parse t1 and t2 from rxBufferBody.
     parseNTPPacketBody(rxBufferBody);
 
-    // Tune RTC with collected t1, t2, t3, t4.
+    // Tune RTC with collected t0, t1, t2, t3
     tuneRTC();
-    
 }
 
 void parseNTPPacketBody(std::span<uint8_t> body)
 {
     if (body.size() < 17)
-        return; // Invalid packet body size
+        return; // Invalid packet body size.
 
     uint64_t messageID = body[0];
     if (messageID != 2)
@@ -110,12 +110,14 @@ void parseNTPPacketBody(std::span<uint8_t> body)
     uint64_t t2 = 0;
 
     // Parse t1 (bytes 1–8) - little endian
-    for (size_t i = 0; i < 8; i++) {
+    for (size_t i = 0; i < 8; i++)
+    {
         t1 |= static_cast<uint64_t>(body[1 + i]) << (8 * i);
     }
 
     // Parse t2 (bytes 9–16) - little endian
-    for (size_t i = 0; i < 8; i++) {
+    for (size_t i = 0; i < 8; i++)
+    {
         t2 |= static_cast<uint64_t>(body[9 + i]) << (8 * i);
     }
 
@@ -126,7 +128,9 @@ void parseNTPPacketBody(std::span<uint8_t> body)
 void tuneRTC(void)
 {
     // Calculate the offset theta using the formula
-    uint64_t theta = ((ntpTimestamps.t1 - ntpTimestamps.t0) + (ntpTimestamps.t2 - ntpTimestamps.t3)) / 2;
+    int64_t theta = ((int64_t)ntpTimestamps.t1 - (int64_t)ntpTimestamps.t0 + (int64_t)ntpTimestamps.t2 -
+                     (int64_t)ntpTimestamps.t3) /
+                    2;
 
     io::rtc::Time currTime;
     if (!io::rtc::get_time(currTime))
@@ -140,16 +144,18 @@ void tuneRTC(void)
     // extract the ms
     uint32_t ms = PREDIV_S - newRtcTime.subseconds;
 
-    // round the ms field up to the nearest second
+    // round the newRtcTime ms field up to the nearest second
+    // this needs to be done because io::rtc::set_time() doesn't use the subseconds field to set rtc time
     newRtcTime.subseconds = 0;
 
-    // wait the ms amount of time
-    os_delay(ms); //TODO do this properly
+    // delay the ms amount of time (this calls os_delay so it is non-blocking)
+    io::time::delay(ms);
 
     // Tune the RTC
     if (!io::rtc::set_time(newRtcTime))
+    {
         LOG_ERROR("Failed to tune RTC!");
-    
+    }
 }
 
 uint64_t RtcTimeToMs(io::rtc::Time t)
@@ -157,10 +163,8 @@ uint64_t RtcTimeToMs(io::rtc::Time t)
     // Convert subseconds to ms using inverted relation
     uint32_t ms_part = PREDIV_S - t.subseconds;
 
-    return static_cast<uint64_t>(t.hours)   * 3600000ULL +
-           static_cast<uint64_t>(t.minutes) * 60000ULL +
-           static_cast<uint64_t>(t.seconds) * 1000ULL +
-           static_cast<uint64_t>(ms_part);
+    return static_cast<uint64_t>(t.hours) * 3600000ULL + static_cast<uint64_t>(t.minutes) * 60000ULL +
+           static_cast<uint64_t>(t.seconds) * 1000ULL + static_cast<uint64_t>(ms_part);
 }
 
 io::rtc::Time MsToRtcTime(uint64_t ms)
