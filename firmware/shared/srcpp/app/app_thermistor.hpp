@@ -130,7 +130,7 @@ namespace therm
 
             for (std::size_t i = 1U; i < size; ++i)
             {
-                if (!(resistances[i - 1U] > resistances[i]))
+                if (!(resistances[i - 1U] >= resistances[i]))
                     return false;
             }
 
