@@ -10,7 +10,7 @@ namespace app::powerMonitoring
 constexpr uint8_t CH1 = 1u; // V
 constexpr uint8_t CH2 = 2u; // V
 constexpr uint8_t CH3 = 3u; // V
-constexpr uint8_t Ch4 = 4u; // V
+constexpr uint8_t CH4 = 4u; // V
 
 void update()
 {

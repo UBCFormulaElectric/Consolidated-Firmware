@@ -2,7 +2,7 @@
 #include "app_sbgEllipse.hpp"
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
-#include "app_utils.hpp"
+#include "util_utils.hpp"
 #include "hw_assert.hpp"
 
 extern "C"
@@ -34,13 +34,13 @@ void broadcast()
 
     // EKF
     const static VelocityData *VelData   = getEkfNavVelocityData();
-    float                ekf_vel_N = VelData->north;
-    float                ekf_vel_E = VelData->east;
-    float                ekf_vel_D = VelData->down;
-    vehicle_velocity               = getVehicleVelocity(&VelData);
-    const float ekf_vel_N_accuracy = VelData->north_std_dev;
-    const float ekf_vel_E_accuracy = VelData->east_std_dev;
-    const float ekf_vel_D_accuracy = VelData->down_std_dev;
+    float                      ekf_vel_N = VelData->north;
+    float                      ekf_vel_E = VelData->east;
+    float                      ekf_vel_D = VelData->down;
+    vehicle_velocity                     = getVehicleVelocity(&VelData);
+    const float ekf_vel_N_accuracy       = VelData->north_std_dev;
+    const float ekf_vel_E_accuracy       = VelData->east_std_dev;
+    const float ekf_vel_D_accuracy       = VelData->down_std_dev;
 
     app::can_tx::VC_VelocityNorth_set(ekf_vel_N);
     app::can_tx::VC_VelocityEast_set(ekf_vel_E);

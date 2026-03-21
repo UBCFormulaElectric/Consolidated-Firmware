@@ -98,4 +98,4 @@ void broadcast()
 // {
 //     return &imu_faults;
 // }
-} // namespace app::imu
+} // namespace app::imus

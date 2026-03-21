@@ -6,7 +6,7 @@
 // Using the hearbeat nodes to monitor set up the getter and setters for the heartbeat signals.
 namespace app::heartbeatMonitors
 {
-static app::heartbeat::monitor<5> vc_hbs(
+static app::heartbeat::monitor<5> vc_hbs{
     // bms
     io::heartbeat::node{ app::can_rx::BMS_Heartbeat_get, app::can_rx::BMS_Heartbeat_update,
                          app::can_tx::VC_Warning_MissingBMSHeartbeat_get,
@@ -25,6 +25,6 @@ static app::heartbeat::monitor<5> vc_hbs(
                          app::can_alerts::warnings::MissingCRITHeartbeat_set },
     // DAM
     io::heartbeat::node{ app::can_rx::DAM_Heartbeat_get, app::can_rx::DAM_Heartbeat_update,
-                         app::can_tx::VC_Info_MissingDAMHeartbeat_get,
-                         app::can_alerts::warnings::MissingDAMHeartbeat_set });
+                         app::can_tx::VC_Info_MissingDAMHeartbeat_get, app::can_alerts::infos::MissingDAMHeartbeat_set }
+};
 } // namespace app::heartbeatMonitors

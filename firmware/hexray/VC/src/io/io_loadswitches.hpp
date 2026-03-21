@@ -4,19 +4,6 @@
 
 // Used to indicate the indeces of the array for better readability
 // when setting CAN signals for each efuse channel
-enum EfuseChannel
-{
-    F_INV = 0,
-    RSM,
-    BMS,
-    R_INV,
-    DAM,
-    FRONT,
-    RL_PUMP,
-    R_RAD,
-    RR_PUMP,
-    L_RAD
-};
 
 // Actual efuse handlers
 extern io::TI_TPS25_Efuse RR_PUMP_Efuse;

@@ -5,10 +5,10 @@
 #define BUFFER 5
 namespace app::pumpControl
 {
-constexpr uint8_t SLOPE          = 1 / 2; // if specs have not changed
-constexpr uint8_t CURRENT_THRESH = 1 / 40;
-static bool     finished_ramp_up = false;
-static uint16_t time             = 0;
+constexpr uint8_t SLOPE            = 1 / 2; // if specs have not changed
+constexpr uint8_t CURRENT_THRESH   = 1 / 40;
+static bool       finished_ramp_up = false;
+static uint16_t   time             = 0;
 
 static void rampUp()
 {
@@ -40,9 +40,9 @@ void MonitorPumps()
 {
     time += 10;
     // refactor required
-    const bool pump_rl_ok = RL_PUMP_Efuse.ok();
+    const bool pump_rl_ok      = RL_PUMP_Efuse.ok();
     const bool pump_rl_enabled = RL_PUMP_Efuse.isChannelEnabled();
-    const bool pump_rr_ok = RR_PUMP_Efuse.ok();
+    const bool pump_rr_ok      = RR_PUMP_Efuse.ok();
     const bool pump_rr_enabled = RR_PUMP_Efuse.isChannelEnabled();
 
     bool ramp_up_rl_pump = pump_rl_ok && pump_rl_enabled;

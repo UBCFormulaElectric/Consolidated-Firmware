@@ -40,68 +40,35 @@ constexpr std::size_t idx(EfuseChannel ch)
 {
     return static_cast<std::size_t>(ch);
 }
-static const std::array<EfuseCanMsg, NUM_EFUSE_CHANNELS> efuse_channel_setters = [] {
+static const std::array<EfuseCanMsg, NUM_EFUSE_CHANNELS> efuse_channel_setters = []
+{
     std::array<EfuseCanMsg, NUM_EFUSE_CHANNELS> arr{};
 
-    arr[idx(EfuseChannel::F_INV)] = {
-        &F_INV_Efuse,
-        app::can_tx::VC_FrontInvertersStatus_set,
-        app::can_tx::VC_FrontInvertersCurrent_set
-    };
+    arr[idx(EfuseChannel::F_INV)] = { &F_INV_Efuse, app::can_tx::VC_FrontInvertersStatus_set,
+                                      app::can_tx::VC_FrontInvertersCurrent_set };
 
-    arr[idx(EfuseChannel::RSM)] = {
-        &RSM_Efuse,
-        app::can_tx::VC_RSMStatus_set,
-        app::can_tx::VC_RSMCurrent_set
-    };
+    arr[idx(EfuseChannel::RSM)] = { &RSM_Efuse, app::can_tx::VC_RSMStatus_set, app::can_tx::VC_RSMCurrent_set };
 
-    arr[idx(EfuseChannel::BMS)] = {
-        &BMS_Efuse,
-        app::can_tx::VC_BMSStatus_set,
-        app::can_tx::VC_BMSCurrent_set
-    };
+    arr[idx(EfuseChannel::BMS)] = { &BMS_Efuse, app::can_tx::VC_BMSStatus_set, app::can_tx::VC_BMSCurrent_set };
 
-    arr[idx(EfuseChannel::R_INV)] = {
-        &R_INV_Efuse,
-        app::can_tx::VC_RearInvertersStatus_set,
-        app::can_tx::VC_RearInvertersCurrent_set
-    };
+    arr[idx(EfuseChannel::R_INV)] = { &R_INV_Efuse, app::can_tx::VC_RearInvertersStatus_set,
+                                      app::can_tx::VC_RearInvertersCurrent_set };
 
-    arr[idx(EfuseChannel::DAM)] = {
-        &DAM_Efuse,
-        app::can_tx::VC_DAMStatus_set,
-        app::can_tx::VC_DAMCurrent_set
-    };
+    arr[idx(EfuseChannel::DAM)] = { &DAM_Efuse, app::can_tx::VC_DAMStatus_set, app::can_tx::VC_DAMCurrent_set };
 
-    arr[idx(EfuseChannel::FRONT)] = {
-        &FRONT_Efuse,
-        app::can_tx::VC_FrontStatus_set,
-        app::can_tx::VC_FrontCurrent_set
-    };
+    arr[idx(EfuseChannel::FRONT)] = { &FRONT_Efuse, app::can_tx::VC_FrontStatus_set, app::can_tx::VC_FrontCurrent_set };
 
-    arr[idx(EfuseChannel::RL_PUMP)] = {
-        &RL_PUMP_Efuse,
-        app::can_tx::VC_RearLeftPumpStatus_set,
-        app::can_tx::VC_RearLeftPumpCurrent_set
-    };
+    arr[idx(EfuseChannel::RL_PUMP)] = { &RL_PUMP_Efuse, app::can_tx::VC_RearLeftPumpStatus_set,
+                                        app::can_tx::VC_RearLeftPumpCurrent_set };
 
-    arr[idx(EfuseChannel::R_RAD)] = {
-        &R_RAD_Efuse,
-        app::can_tx::VC_RightRadiatorFanStatus_set,
-        app::can_tx::VC_RightRadiatorFanCurrent_set
-    };
+    arr[idx(EfuseChannel::R_RAD)] = { &R_RAD_Efuse, app::can_tx::VC_RightRadiatorFanStatus_set,
+                                      app::can_tx::VC_RightRadiatorFanCurrent_set };
 
-    arr[idx(EfuseChannel::RR_PUMP)] = {
-        &RR_PUMP_Efuse,
-        app::can_tx::VC_RearRightPumpStatus_set,
-        app::can_tx::VC_RearRightPumpCurrent_set
-    };
+    arr[idx(EfuseChannel::RR_PUMP)] = { &RR_PUMP_Efuse, app::can_tx::VC_RearRightPumpStatus_set,
+                                        app::can_tx::VC_RearRightPumpCurrent_set };
 
-    arr[idx(EfuseChannel::L_RAD)] = {
-        &L_RAD_Efuse,
-        app::can_tx::VC_LeftRadiatorFanStatus_set,
-        app::can_tx::VC_LeftRadiatorFanCurrent_set
-    };
+    arr[idx(EfuseChannel::L_RAD)] = { &L_RAD_Efuse, app::can_tx::VC_LeftRadiatorFanStatus_set,
+                                      app::can_tx::VC_LeftRadiatorFanCurrent_set };
 
     return arr;
 }();

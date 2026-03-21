@@ -24,6 +24,8 @@
         "VC_Imu3LinearData",
         "VC_Imu1AngularData",
         "VC_Imu2AngularData",
-        "VC_Imu3AngularData"
+        "VC_Imu3AngularData",
+        "FSM_Brake",
+        "CRIT_Switches"
     ]
 }
