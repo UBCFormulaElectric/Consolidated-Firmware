@@ -2,11 +2,11 @@ use std::sync::Arc;
 
 use tokio::{select, spawn};
 use tokio::sync::{RwLock, broadcast};
-#[allow(unused_imports)]
-use colored::Colorize;
 
 use super::influx_handler::run_influx_handler;
 use super::live_data_handler::run_live_data_handler;
+#[allow(unused_imports)]
+use crate::utils::yellow;
 use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, Task};
 use crate::tasks::telem_message::CanPayload;
 use crate::tasks::client_api::clients::Clients;
@@ -25,7 +25,7 @@ pub async fn run_can_data_handler(
     clients: Arc<RwLock<Clients>>,
     can_db: Arc<CanDatabase>
 ) {
-    vprintln!("{}", "CAN data task started.".yellow());
+    vprintln!("{}", yellow("CAN data task started."));
 
     let (decoded_signal_tx, _) = broadcast::channel::<DecodedSignal>(32);
 
@@ -60,6 +60,6 @@ pub async fn run_can_data_handler(
     drop(decoded_signal_tx); // Closing channel signals the other tasks to shutdown
     let _ = influx_handler_task.await;
     let _ = live_data_handler_task.await;
-    vprintln!("{}", "CAN data task ended.".yellow());
+    vprintln!("{}", yellow("CAN data task ended."));
 }
 

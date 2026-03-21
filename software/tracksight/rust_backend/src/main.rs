@@ -1,4 +1,3 @@
-use colored::Colorize;
 use ctrlc;
 use tokio::time::sleep;
 use std::sync::Arc;
@@ -12,10 +11,12 @@ use tokio::task::{JoinError, JoinSet};
 use crate::config::CONFIG;
 use crate::tasks::{HealthCheckError, Task};
 use crate::tasks::can_data::load_can_database;
+use crate::utils::green;
 
 mod mock;
 mod config;
 mod tasks;
+mod utils;
 
 use mock::run_mock_task;
 use tasks::TASK_RESTART_DELAY_MS;
@@ -25,36 +26,9 @@ use tasks::can_data::can_data_handler::run_can_data_handler;
 use tasks::client_api::clients::Clients;
 use tasks::serial_handler::run_serial_task;
 use tasks::telem_message::CanPayload;
-
-
-// macro for printing red hehe
-#[macro_export]
-macro_rules! error_println {
-    ($($arg:tt)*) => {{
-        let s = format!($($arg)*);
-        eprintln!("{}", s.red());
-    }};
-}
-
-// enable verbose print with `--features verbose`
-#[macro_export]
-macro_rules! vprintln {
-    ($($arg:tt)*) => {{
-        #[cfg(feature = "verbose")] {
-            println!("{}", format!($($arg)*));
-        }
-    }};
-}
-
-// enable even more verbose print with `--features debug`
-#[macro_export]
-macro_rules! dprintln {
-    ($($arg:tt)*) => {{
-        #[cfg(feature = "debug")] {
-            println!("{}", format!($($arg)*));
-        }
-    }};
-}
+use utils::red;
+#[allow(unused_imports)]
+use utils::yellow;
 
 #[tokio::main]
 async fn main() {
@@ -163,7 +137,7 @@ async fn main() {
         hc_res = health_check.wait_for_health_checks() => {
             match hc_res {
                 Ok(_) => {
-                    println!("{}", "Health checks passed, all tasks successfully started!".green());
+                    println!("{}", green("Health checks passed, all tasks successfully started!"));
                 },
                 Err(e) => {
                     match e {
@@ -190,7 +164,7 @@ async fn main() {
         let (task, task_res) = res.unwrap();
         match task_res {
             Ok(_) => {
-                vprintln!(format!("{task:?} ended successfuly").yellow());
+                vprintln!("{}", yellow(format!("{task:?} ended successfuly")));
             },
             Err(e) => {
                 error_println!("{task:?} panicked with error: {e:?}");

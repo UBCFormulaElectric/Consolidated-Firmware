@@ -7,9 +7,9 @@ use socketioxide::{SocketIo, extract::SocketRef};
 use jsoncan_rust::can_database::CanDatabase;
 use tower_http::cors::{CorsLayer, Any};
 use mdns_sd::{ServiceDaemon, ServiceInfo};
-#[allow(unused_imports)]
-use colored::Colorize;
 
+#[allow(unused_imports)]
+use crate::utils::yellow;
 use crate::config::CONFIG;
 use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, ShutdownReceiver, Task};
 use crate::tasks::client_api::AppState;
@@ -24,7 +24,7 @@ pub async fn run_api_handler(
     clients: Arc<RwLock<Clients>>, 
     can_db: Arc<CanDatabase>
 ) {
-    vprintln!("{}", "API handler task started.".yellow());
+    vprintln!("{}", yellow("API handler task started."));
     
     // Axum
     let addr = format!("0.0.0.0:{}", CONFIG.backend_port);
@@ -96,5 +96,5 @@ pub async fn run_api_handler(
             println!("Error occurred");
         }
     }
-    vprintln!("{}", "API handler task ended.".yellow());
+    vprintln!("{}", yellow("API handler task ended."));
 }

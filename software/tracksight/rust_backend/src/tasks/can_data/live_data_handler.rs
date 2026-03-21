@@ -2,9 +2,9 @@ use std::sync::Arc;
 
 use socketioxide::extract::SocketRef;
 use tokio::sync::{RwLock, broadcast::Receiver};
-#[allow(unused_imports)]
-use colored::Colorize;
 
+#[allow(unused_imports)]
+use crate::utils::yellow;
 use crate::{tasks::{HealthCheckSender, HealthCheckSenderExt, Task}, tasks::client_api::clients::Clients, vprintln};
 
 use jsoncan_rust::can_database::{CanSignalType, DecodedSignal};
@@ -18,7 +18,7 @@ pub async fn run_live_data_handler(
     mut can_signals_rx: Receiver<DecodedSignal>,
     clients: Arc<RwLock<Clients>>
 ) {
-    vprintln!("{}", "Live data task started.".yellow());
+    vprintln!("{}", yellow("Live data task started."));
 
     health_check_tx.send_health_check(Task::LiveDataHandler, true).await;
 
@@ -58,5 +58,5 @@ pub async fn run_live_data_handler(
         }
     }
 
-    vprintln!("{}", "Live data task ended.".yellow())
+    vprintln!("{}", yellow("Live data task ended."));
 }

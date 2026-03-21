@@ -4,12 +4,12 @@ use tokio::sync::{broadcast, mpsc};
 use tokio_serial::{SerialPortBuilderExt, SerialStream};
 use std::io::{Error, ErrorKind};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
-#[allow(unused_imports)]
-use colored::Colorize;
 
 use crate::config::CONFIG;
 use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, ResultExt, Task};
 use crate::tasks::telem_message::{CRC32_CALC, TelemetryOutgoingMessage};
+#[allow(unused_imports)]
+use crate::utils::yellow;
 use crate::vprintln;
 use super::telem_message::{TelemetryIncomingMessage, CanPayload};
 
@@ -21,7 +21,7 @@ pub async fn run_serial_task(
     health_check_tx: HealthCheckSender,
     can_queue_tx: broadcast::Sender<CanPayload>
 ) {
-    vprintln!("{}", "Serial handler task started.".yellow());
+    vprintln!("{}", yellow("Serial handler task started."));
 
     let serial_port = tokio_serial::new(
         &CONFIG.serial_port,
@@ -97,7 +97,7 @@ pub async fn run_serial_task(
     }
     packet_reader.await.ok();
     packet_sender.await.ok();
-    vprintln!("{}", "Serial handler task ended.".yellow());
+    vprintln!("{}", yellow("Serial handler task ended."));
 }
 
 /**

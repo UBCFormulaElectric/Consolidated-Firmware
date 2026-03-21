@@ -8,7 +8,7 @@ use std::{collections::HashSet, time::Duration};
 
 use tokio::{select, sync::{broadcast, mpsc}, time::sleep};
 
-use crate::vprintln;
+use crate::{utils::red, vprintln};
 
 // im not even going to lie
 // this is kind of an overkill for a health check on tasks
@@ -124,7 +124,7 @@ impl<T, E: std::fmt::Debug> ResultExt<T> for Result<T, E> {
             }
             Err(e) => {
                 health_check_sender.send_health_check(task, false).await;
-                panic!("{:?}", e);
+                panic!("{}", red(format!("{e:?}")));
             }
         }
     }

@@ -3,9 +3,9 @@ use std::{f64::consts::{TAU}, sync::Arc, time::{SystemTime, UNIX_EPOCH}};
 
 use jsoncan_rust::can_database::{CanDatabase, CanSignalType, DecodedSignal};
 use tokio::{select, sync::broadcast};
-#[allow(unused_imports)]
-use colored::Colorize;
 
+#[allow(unused_imports)]
+use crate::utils::yellow;
 use crate::{tasks::{HealthCheckSender, HealthCheckSenderExt, Task}, tasks::telem_message::CanPayload, vprintln};
 
 /*
@@ -21,7 +21,7 @@ pub async fn run_mock_task(
     can_queue_tx: broadcast::Sender<CanPayload>, 
     can_db: Arc<CanDatabase>
 ) {
-    vprintln!("{}", "Mock task started.".yellow());
+    vprintln!("{}", yellow("Mock task started."));
     let mut i: u32 = 0;
 
     health_check_tx.send_health_check(Task::SerialHandler, true).await;
@@ -61,5 +61,5 @@ pub async fn run_mock_task(
         }
     }
 
-    vprintln!("{}", "Mock task ended.".yellow());
+    vprintln!("{}", yellow("Mock task ended."));
 }
