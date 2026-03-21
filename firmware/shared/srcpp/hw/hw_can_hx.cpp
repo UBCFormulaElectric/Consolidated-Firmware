@@ -97,7 +97,7 @@ std::expected<void, ErrorCode> hw::fdcan::fdcan_transmit(const CanMsg &msg) cons
 {
     assert(ready);
 
-    uint32_t dlc;
+    uint32_t dlc = 0;
     if (msg.dlc <= 8)
     {
 #if defined(STM32H753xx)
