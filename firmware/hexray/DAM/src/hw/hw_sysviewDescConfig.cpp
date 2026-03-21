@@ -1,6 +1,6 @@
 #include "SEGGER_SYSVIEW.h"
 
-void hw_sysviewConfig_sendSystemDesc()
+extern "C" void hw_sysviewConfig_sendSystemDesc()
 {
     SEGGER_SYSVIEW_SendSysDesc("N=DAM,C=Cortex-M7,O=FreeRTOS,D=STM32H562RI");
     SEGGER_SYSVIEW_SendSysDesc("I#15=SysTick");
