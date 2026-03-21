@@ -15,7 +15,7 @@ class node
 
   public:
     explicit node(const hw::Gpio &in_pin_in, void (*in_can_broadcast)(bool))
-      : pin(in_pin_in), can_broadcast(in_can_broadcast)
+      : can_broadcast(in_can_broadcast), pin(in_pin_in)
     {
     }
 #elif TARGET_TEST

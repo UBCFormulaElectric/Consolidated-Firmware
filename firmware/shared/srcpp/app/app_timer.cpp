@@ -18,7 +18,8 @@ Timer::TimerState Timer::updateAndGetState()
 {
     // If timer running and duration has elapsed, set it to expired
     // Otherwise, leave the timer alone
-    if (state == TimerState::RUNNING && getElapsedTime() >= duration_ms)
+    uint32_t elapsed_time = getElapsedTime();
+    if (state == TimerState::RUNNING && elapsed_time >= duration_ms)
         state = TimerState::EXPIRED;
     return state;
 }

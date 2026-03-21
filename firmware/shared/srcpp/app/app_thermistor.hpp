@@ -19,17 +19,31 @@ namespace therm
             float        starting_temp,
             float        resolution,
             std::size_t  size) noexcept
-          : resistances_(resistances), starting_temp_(starting_temp), resolution_(resolution), size_((uint16_t)size)
+          : resistances_(resistances),
+            starting_temp_(starting_temp),
+            resolution_(resolution),
+            size_((size <= 0xFFFFU) ? (uint16_t)size : 0U),
+            valid_((size <= 0xFFFFU) && isStrictlyDescending(resistances, size))
         {
             // Runtime check because `size` is not a compile-time constant here
             assert(size <= 0xFFFF && "LUT too large for uint16_t size");
+
+            // Binary search assumes strictly descending entries.
+            assert(valid_ && "Thermistor LUT must be strictly descending");
         }
 
         template <std::size_t N>
         constexpr explicit ThermistorLUT(const float (&arr)[N], float starting_temp, float resolution) noexcept
-          : resistances_(arr), starting_temp_(starting_temp), resolution_(resolution), size_((uint16_t)N)
+          : resistances_(arr),
+            starting_temp_(starting_temp),
+            resolution_(resolution),
+            size_((uint16_t)N),
+            valid_(isStrictlyDescending(arr, N))
         {
             static_assert(N <= 0xFFFF, "LUT too large for uint16_t size");
+
+            // Binary search assumes strictly descending entries.
+            assert(valid_ && "Thermistor LUT must be strictly descending");
         }
 
         /**
@@ -40,7 +54,7 @@ namespace therm
          */
         float resistanceToTemp(float thermistor_resistance) const noexcept
         {
-            if (resistances_ == nullptr || size_ == 0U)
+            if (!valid_ || resistances_ == nullptr || size_ == 0U)
                 return -1.0f;
 
             // Guard against NaN/inf inputs
@@ -106,12 +120,28 @@ namespace therm
         constexpr float        resolution() const noexcept { return resolution_; }
         constexpr const float *resistances() const noexcept { return resistances_; }
         constexpr std::size_t  size() const noexcept { return size_; }
+        constexpr bool         valid() const noexcept { return valid_; }
 
       private:
+        static constexpr bool isStrictlyDescending(const float *resistances, std::size_t size) noexcept
+        {
+            if (resistances == nullptr || size <= 1U)
+                return true;
+
+            for (std::size_t i = 1U; i < size; ++i)
+            {
+                if (!(resistances[i - 1U] > resistances[i]))
+                    return false;
+            }
+
+            return true;
+        }
+
         const float   *resistances_;
         const float    starting_temp_;
         const float    resolution_;
         const uint16_t size_;
+        const bool     valid_;
     };
 } // namespace therm
 } // namespace app

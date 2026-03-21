@@ -1,5 +1,4 @@
 #include "hw_cans.hpp"
-#include "io_canMsg.hpp"
 #include "main.h"
 
 #include <cassert>

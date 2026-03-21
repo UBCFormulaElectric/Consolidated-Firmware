@@ -1,4 +1,5 @@
 #include "tasks.h"
+#include "hw_adcs.hpp"
 #include "jobs.hpp"
 
 #include "app_jsoncan.hpp"
@@ -8,6 +9,7 @@
 #include <io_canRx.hpp>
 #include <io_canTx.hpp>
 
+#include "hw_hardFaultHandler.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_cans.hpp"
 
@@ -98,10 +100,14 @@ static void RSM_StartAllTasks()
     Task1Hz.start();
 }
 
-void tasks_preInit() {}
+void tasks_preInit()
+{
+    hw_hardFaultHandler_init();
+}
 
 void tasks_init()
 {
+    hw::adcs::chipsInit();
     hw::can::can1.init();
     jobs_init();
     osKernelInitialize();

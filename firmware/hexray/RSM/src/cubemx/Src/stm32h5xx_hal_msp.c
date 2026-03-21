@@ -134,7 +134,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         NodeConfig.Init.BlkHWRequest                = DMA_BREQ_SINGLE_BURST;
         NodeConfig.Init.Direction                   = DMA_PERIPH_TO_MEMORY;
         NodeConfig.Init.SrcInc                      = DMA_SINC_FIXED;
-        NodeConfig.Init.DestInc                     = DMA_DINC_FIXED;
+        NodeConfig.Init.DestInc                     = DMA_DINC_INCREMENTED;
         NodeConfig.Init.SrcDataWidth                = DMA_SRC_DATAWIDTH_HALFWORD;
         NodeConfig.Init.DestDataWidth               = DMA_DEST_DATAWIDTH_HALFWORD;
         NodeConfig.Init.SrcBurstLength              = 1;
@@ -184,7 +184,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         }
 
         /* ADC1 interrupt Init */
-        HAL_NVIC_SetPriority(ADC1_IRQn, 0, 0);
+        HAL_NVIC_SetPriority(ADC1_IRQn, 5, 0);
         HAL_NVIC_EnableIRQ(ADC1_IRQn);
         /* USER CODE BEGIN ADC1_MspInit 1 */
 
@@ -531,7 +531,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim_base)
         /* Peripheral clock enable */
         __HAL_RCC_TIM3_CLK_ENABLE();
         /* TIM3 interrupt Init */
-        HAL_NVIC_SetPriority(TIM3_IRQn, 0, 0);
+        HAL_NVIC_SetPriority(TIM3_IRQn, 5, 0);
         HAL_NVIC_EnableIRQ(TIM3_IRQn);
         /* USER CODE BEGIN TIM3_MspInit 1 */
 

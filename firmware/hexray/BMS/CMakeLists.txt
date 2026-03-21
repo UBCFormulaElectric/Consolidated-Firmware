@@ -24,6 +24,7 @@ file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/
 
 list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_shdnLoopNode.cpp"
 )
 set(IO_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
