@@ -2,6 +2,7 @@
 import 'package:linux_can/linux_can.dart';
 import 'dart:async';
 import 'dart:isolate';
+import 'dart:typed_data';
 
 // WE MIGHT NEED FFI AT THIS POINT
 // lowkey I remember how this works
@@ -17,7 +18,7 @@ import 'dart:isolate';
 class CanApiWorker {
   late SendPort _sendPort;
 
-  Future<void> start(Function(String) onDataReceived) async {
+  Future<void> start(Function(int stdId, Uint8List data) onFrameReceived) async {
     // very basic socket behaviour
     // our recieve port on main thread
     final receivePort = ReceivePort();
@@ -30,8 +31,12 @@ class CanApiWorker {
     receivePort.listen((message) {
       if (message is SendPort) {
         _sendPort = message;
-      } else if (message is String) {
-        onDataReceived(message); 
+      } else if (message is List && message.length == 2) {
+        final id = message[0];
+        final data = message[1];
+        if (id is int && data is Uint8List) {
+          onFrameReceived(id, data);
+        }
       }
     });
   }
@@ -66,7 +71,13 @@ class CanApiWorker {
 
     // Listen on a Stream of CAN frames
     await for (final frame in socket.receive()) {
-      mainSendPort.send("TRIGGERED");
+      switch (frame) {
+        case CanDataFrame(:final id, :final data):
+          mainSendPort.send([id, Uint8List.fromList(data)]);
+          break;
+        default:
+          break;
+      }
     }
 
     await socket.close();

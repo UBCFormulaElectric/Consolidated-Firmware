@@ -3,6 +3,7 @@
 import 'dart:io';
 import 'package:dimos/data/services/can_api.dart';
 import 'package:dimos/data/services/can_variables.dart';
+import 'package:dimos/data/services/jsoncan_ffi.dart';
 import 'package:dimos/routing/dev_router.dart';
 import 'package:dimos/ui/core/themes/themes.dart';
 import 'package:dimos/ui/notificationbar/notification_bar.dart';
@@ -64,10 +65,14 @@ class _AppState extends State<App> {
         _debugVars.updateVarDev(data);
       });
     } else if (Platform.isLinux) {
+      final jsoncan = JsonCanFfi.instance;
+      jsoncan.ensureLoaded();
       _canWorker = CanApiWorker();
-      _canWorker.start((data) {
+      _canWorker.start((stdId, frameData) {
+        jsoncan.processFrame(stdId, frameData);
+        final demoU32 = jsoncan.getDemoU32();
         _warningsList.updateListCan();
-        _speedInteger.updateVarCan();
+        _speedInteger.updateVarCan(demoU32);
         _stateOfCharge.updateVarCan();
         _shutdownLoopNodes.updateVarCan();
         _skidVector.updateVarCan();

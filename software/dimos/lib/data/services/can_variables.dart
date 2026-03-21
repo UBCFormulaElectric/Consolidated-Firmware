@@ -38,12 +38,9 @@ class SpeedInteger extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateVarCan() {
-    // JSON CAN calls + maybe mutex??
-    // then ONLY notify if changes are made!!
-    // lokwey i totally forgot what I was thinking here
-    // rehash this dumbass
-    _speed += 1;
+  void updateVarCan(int speed) {
+    _speed = speed;
+    notifyListeners();
   }
 }
 
