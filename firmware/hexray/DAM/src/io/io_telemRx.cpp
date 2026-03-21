@@ -54,9 +54,7 @@ void pollForRadioMessages(void)
         LOG_INFO("magic bytes not found, searching ...");
         
         for (std::size_t i = 0; i < rxBufferHeader.size() - 1; i++)
-        {
             rxBufferHeader[i] = rxBufferHeader[i + 1];
-        }
 
         // Read 1 new byte into last position
         result = io::telemUart::receiveIt(&rxBufferHeader[6], 1);
@@ -134,7 +132,13 @@ void tuneRTC(void)
         return;
     }
 
-    io::rtc::Time newRtcTime = MsToRtcTime(RtcTimeToMs(currTime) + theta);
+    int64_t currMs = static_cast<int64_t>(RtcTimeToMs(currTime));
+    int64_t newMs  = currMs + theta;
+
+    if (newMs < 0)
+        newMs = 0;
+
+    io::rtc::Time newRtcTime = MsToRtcTime(static_cast<uint64_t>(newMs));
 
     // extract the ms
     uint32_t ms = PREDIV_S - newRtcTime.subseconds;
@@ -142,45 +146,39 @@ void tuneRTC(void)
     // round the ms field up to the nearest second
     newRtcTime.subseconds = 0;
 
-    // wait the ms amount of time
-    os_delay(ms); //TODO do this properly
+    // delay the ms amount of time (this calls os_delay so it is non-blocking)
+    if (theta > 0) // only delay when moving forward - we want to apply negative adjustments asap
+        io::time::delay(ms);
 
     // Tune the RTC
     if (!io::rtc::set_time(newRtcTime))
         LOG_ERROR("Failed to tune RTC!");
-    
+
+    LOG_INFO("Tuned RTC!"); // Debug msg
 }
 
 uint64_t RtcTimeToMs(io::rtc::Time t)
 {
     // Convert subseconds to ms using inverted relation
     uint32_t ms_part = PREDIV_S - t.subseconds;
-
-    return static_cast<uint64_t>(t.hours)   * 3600000ULL +
-           static_cast<uint64_t>(t.minutes) * 60000ULL +
-           static_cast<uint64_t>(t.seconds) * 1000ULL +
-           static_cast<uint64_t>(ms_part);
+    return static_cast<uint64_t>(t.hours) * 3600000ULL + static_cast<uint64_t>(t.minutes) * 60000ULL +
+           static_cast<uint64_t>(t.seconds) * 1000ULL + static_cast<uint64_t>(ms_part);
 }
 
 io::rtc::Time MsToRtcTime(uint64_t ms)
 {
     io::rtc::Time t{};
 
-    // Wrap to 24 hours
     ms %= 86400000ULL;
-
     t.hours = static_cast<uint8_t>(ms / 3600000ULL);
     ms %= 3600000ULL;
-
     t.minutes = static_cast<uint8_t>(ms / 60000ULL);
     ms %= 60000ULL;
 
-    t.seconds = static_cast<uint8_t>(ms / 1000ULL);
-
+    t.seconds             = static_cast<uint8_t>(ms / 1000ULL);
     uint32_t ms_remainder = static_cast<uint32_t>(ms % 1000ULL);
 
     // Store inverted for RTC
     t.subseconds = PREDIV_S - ms_remainder;
-
     return t;
 }
