@@ -111,7 +111,7 @@ template <typename T, size_t QUEUE_SIZE> class queue
         return msg;
 #elif TARGET_TEST
         UNUSED(timeout);
-        const auto out = q.top();
+        const auto out = q.front();
         q.pop();
         return out;
 #endif

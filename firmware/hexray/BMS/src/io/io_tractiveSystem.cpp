@@ -91,7 +91,7 @@ float getVoltage(void)
     }
 }
 
-float getCurrentHighestResolution(void)
+float getCurrentHighResolution(void)
 {
     float adc_voltage = ts_isense_50a.getVoltage();
 

@@ -27,7 +27,7 @@ namespace faultState
 #else
         // TODO: Change back if we ever get to segments again
         // const bool acc_fault_cleared = !app::segments::checkFaults();
-        const bool acc_fault_cleared = false;
+        const bool acc_fault_cleared = true;
 #endif
 
         // const bool precharge_ok = !app_precharge_limitExceeded(); // Optional condition

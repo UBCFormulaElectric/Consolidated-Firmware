@@ -26,12 +26,21 @@ TEST(ThermistorLUTTest, exact_match)
 {
     app::therm::ThermistorLUT lut(simple_resistances, 0.0f, 1.0f);
 
+<<<<<<< HEAD
     // Use ASSERT_NEAR for interpolation results to handle standard floating point drift
     ASSERT_NEAR(lut.resistanceToTemp(100.0f), 0.0f, 1e-5f); // idx 0
     ASSERT_NEAR(lut.resistanceToTemp(80.0f), 1.0f, 1e-5f);  // idx 1
     ASSERT_NEAR(lut.resistanceToTemp(60.0f), 2.0f, 1e-5f);  // idx 2
     ASSERT_NEAR(lut.resistanceToTemp(40.0f), 3.0f, 1e-5f);  // idx 3
     ASSERT_NEAR(lut.resistanceToTemp(20.0f), 4.0f, 1e-5f);  // idx 4
+=======
+    // Temperature = starting_temp + index * resolution
+    ASSERT_FLOAT_EQ(lut.resistanceToTemp(100.0f), 0.0f); // idx 0
+    ASSERT_FLOAT_EQ(lut.resistanceToTemp(80.0f), 1.0f);  // idx 1
+    ASSERT_FLOAT_EQ(lut.resistanceToTemp(60.0f), 2.0f);  // idx 2
+    ASSERT_FLOAT_EQ(lut.resistanceToTemp(40.0f), 3.0f);  // idx 3
+    ASSERT_FLOAT_EQ(lut.resistanceToTemp(20.0f), 4.0f);  // idx 4
+>>>>>>> d678bc9b674a07280425d3656bc4eb81032be97e
 }
 
 TEST(ThermistorLUTTest, basic_interpolation_value_checks)
@@ -115,6 +124,7 @@ TEST(ThermistorLUTTest, precondition_decreasing_resistances)
     float t = lut.resistanceToTemp(70.0f);
     ASSERT_GE(t, 0.0f) << "Violation of monotonicity leads to potentially confusing output just mathematically applied.";
 }
+<<<<<<< HEAD
 
 //Uses other constructor
 TEST(ThermistorLUTTest, null_pointer_and_empty_test) {
@@ -195,3 +205,5 @@ TEST(ThermistorLUTTest, production_array_integration)
     // Exactly halfway resistance is 9901.7, expect 25.25 C
     ASSERT_NEAR(lut.resistanceToTemp(9901.7f), 25.25f, 1e-4f);
 }
+=======
+>>>>>>> d678bc9b674a07280425d3656bc4eb81032be97e

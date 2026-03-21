@@ -119,6 +119,8 @@ namespace StateMachine
     void set_current_state(const State *const in_state)
     {
         state = in_state;
+        state->run_on_entry();
+        next_state = in_state;
     }
 #endif
 } // namespace StateMachine

@@ -3,6 +3,8 @@
 namespace app::irs
 {
 
+constexpr uint8_t N_DEBOUNCE_PERIOD_MS = 200;
+
 /**
  * @brief Checks if the negative contactor has been opened for at least the debounce period.
  *

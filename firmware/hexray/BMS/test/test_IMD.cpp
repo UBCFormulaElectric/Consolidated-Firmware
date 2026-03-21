@@ -206,10 +206,11 @@ TEST_F(ImdTest, check_can_broadcast_function)
 
     for (const auto &[frequency, duty_cycle, condition_name, active_frequency_status] : lookup_table)
     {
-        bool duty_cycle_valid     = duty_cycle.has_value();
+        bool duty_cycle_set       = duty_cycle.has_value();
+        bool duty_cycle_valid     = condition_name != IMD_CONDITION_INVALID;
         bool active_frequency_set = active_frequency_status.has_value();
         fakes::imd::setFrequency(frequency);
-        if (duty_cycle_valid)
+        if (duty_cycle_set)
         {
             fakes::imd::setDutyCycle(*duty_cycle);
         }
@@ -220,7 +221,7 @@ TEST_F(ImdTest, check_can_broadcast_function)
         ASSERT_EQ(app::can_tx::BMS_ImdFrequency_get(), frequency);
         ASSERT_EQ(app::can_tx::BMS_ImdCondition_get(), condition_name);
 
-        if (duty_cycle_valid)
+        if (duty_cycle_set && duty_cycle_valid)
         {
             ASSERT_EQ(app::can_tx::BMS_ImdValidDutyCycle_get(), true);
             ASSERT_EQ(app::can_tx::BMS_ImdDutyCycle_get(), *duty_cycle);

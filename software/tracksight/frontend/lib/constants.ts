@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:5001/";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:5000";
 const MAX_RECCONECTION_ATTEMPTS = +(process.env.NEXT_PUBLIC_MAX_RECCONNECTION_ATTEMPTS || 5);
 
 const IS_DEBUG = process.env.NEXT_PUBLIC_IS_DEBUG === "true";
