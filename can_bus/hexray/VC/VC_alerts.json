@@ -14,6 +14,18 @@
   "warnings_id": 565,
   "warnings_counts_id": 566,
   "warnings": {
+    "Imu1InitFailed": {
+      "id": 511,
+      "description": "IMU initialization failed"
+    },
+    "Imu2InitFailed": {
+      "id": 512,
+      "description": "IMU initialization failed"
+    },
+    "Imu3InitFailed": {
+      "id": 513,
+      "description": "IMU initialization failed"
+    },
     "PcmLvOvercurrentFault": {
       "id": 567,
       "description": "LV rail from the HV DCDC was overcurrent."

@@ -1,11 +1,11 @@
-#include "hw_gpios.hpp"
+#pragma once
 #include "app_canTx.hpp"
 #include "io_vcShdn.hpp"
 
 namespace app::shdnLoop
 {
 // broadcase the shutdown states
-void broadcast(void)
+void inline broadcast(void)
 {
     tsms_node.can_broadcast();
     inertia_stop_node.can_broadcast();

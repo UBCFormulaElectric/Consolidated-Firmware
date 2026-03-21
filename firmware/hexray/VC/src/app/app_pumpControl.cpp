@@ -2,12 +2,11 @@
 #include "io_time.hpp"
 #include "io_loadswitches.hpp"
 #include "app_canTx.hpp"
-
+#define BUFFER 5
 namespace app::pumpControl
 {
-consteval uint8_t SLOPE          = 1 / 2; // if specs have not changed
-consteval uint8_t CURRENT_THRESH = 1 / 40;
-
+constexpr uint8_t SLOPE          = 1 / 2; // if specs have not changed
+constexpr uint8_t CURRENT_THRESH = 1 / 40;
 static bool     finished_ramp_up = false;
 static uint16_t time             = 0;
 
@@ -19,11 +18,11 @@ static void rampUp()
         return;
     }
     // calculate percentage based on defined slope above
-    uint32_t percentage = SLOPE * time;
+    float percentage = SLOPE * time;
     app::can_tx::VC_PumpRampUpSetPoint_set(percentage);
 
     // should we add any buffer? is this seriously perfectly 100??
-    if (percentage == 100)
+    if (percentage >= 100 - BUFFER)
     {
         time             = 0;
         finished_ramp_up = true;
@@ -41,17 +40,19 @@ void MonitorPumps()
 {
     time += 10;
     // refactor required
-    const bool pumps_ok = io::loadswitches::TILoadswitch_pgood(io::loadswitches::RL_PUMP_Efuse);
+    const bool pump_rl_ok = RL_PUMP_Efuse.ok();
+    const bool pump_rl_enabled = RL_PUMP_Efuse.isChannelEnabled();
+    const bool pump_rr_ok = RR_PUMP_Efuse.ok();
+    const bool pump_rr_enabled = RR_PUMP_Efuse.isChannelEnabled();
 
-    const bool pumps_enabled = io::loadswitches::isChannelEnabled(io::TPS25_EfuseChannel::RL_PUMP);
+    bool ramp_up_rl_pump = pump_rl_ok && pump_rl_enabled;
+    bool ramp_up_rr_pump = pump_rr_ok && pump_rr_enabled;
 
-    bool ramp_up_pumps = pumps_ok && pumps_enabled;
-
-    if (ramp_up_pumps)
+    if (ramp_up_rl_pump && ramp_up_rr_pump)
         rampUp();
     else
         stopFlow();
 
-    app::can_tx::VC_RsmTurnOnPump_set(ramp_up_pumps);
+    app::can_tx::VC_RsmTurnOnPump_set(ramp_up_rl_pump && ramp_up_rr_pump);
 }
 } // namespace app::pumpControl

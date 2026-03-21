@@ -343,7 +343,7 @@
     },
     "MainBoardEfuse": {
         "msg_id": 556,
-        "cycle_time": 100,
+        "cycle_time": 1,
         "description": "Efuse info for shdn/LV/pump/aux/INVR/INVL efuses.",
         "signals": {
             "FrontInvertersCurrent": {

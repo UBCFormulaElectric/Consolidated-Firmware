@@ -15,6 +15,7 @@ namespace app::sbgEllipse
 {
 using namespcace                   io::sbgEllipse;
 static app::can_utils::VcEkfStatus ekf_solution_mode;
+static float                       vehicle_velocity;
 static constexpr int               NUM_VC_EKF_STATUS_CHOICES{ 5 };
 
 void broadcast()
@@ -32,14 +33,14 @@ void broadcast()
     app::can_tx::VC_EllipseTimestamp_set(timestamp_us);
 
     // EKF
-    static VelocityData *VelData   = getEkfNavVelocityData();
-    float                ekf_vel_N = VelData::north;
-    float                ekf_vel_E = VelData::east;
-    float                ekf_vel_D = VelData::down;
-
-    const float ekf_vel_N_accuracy = VelData::north_std_dev;
-    const float ekf_vel_E_accuracy = VelData::east_std_dev;
-    const float ekf_vel_D_accuracy = VelData::down_std_dev;
+    const static VelocityData *VelData   = getEkfNavVelocityData();
+    float                ekf_vel_N = VelData->north;
+    float                ekf_vel_E = VelData->east;
+    float                ekf_vel_D = VelData->down;
+    vehicle_velocity               = getVehicleVelocity(&VelData);
+    const float ekf_vel_N_accuracy = VelData->north_std_dev;
+    const float ekf_vel_E_accuracy = VelData->east_std_dev;
+    const float ekf_vel_D_accuracy = VelData->down_std_dev;
 
     app::can_tx::VC_VelocityNorth_set(ekf_vel_N);
     app::can_tx::VC_VelocityEast_set(ekf_vel_E);
@@ -60,18 +61,18 @@ void broadcast()
     }
 
     const Attitude *euler_angles = getEkfEulerAngles();
-    const float     euler_roll   = euler_angles::roll;
-    const float     euler_pitch  = euler_angles::pitch;
-    const float     euler_yaw    = euler_angles::yaw;
+    const float     euler_roll   = euler_angles->roll;
+    const float     euler_pitch  = euler_angles->pitch;
+    const float     euler_yaw    = euler_angles->yaw;
 
     app::can_tx::VC_EulerAnglesRoll_set(euler_roll);
     app::can_tx::VC_EulerAnglesPitch_set(euler_pitch);
     app::can_tx::VC_EulerAnglesYaw_set(euler_yaw);
 }
 
-float getVehicleVelocity(void)
+float getVehicleVelocity(VelocityData *VelData)
 {
-    return vehicle_velocity;
+    return sqrtf(SQUARE(VelData->north) + SQUARE(VelData->east) + SQUARE(VelData->down));
 }
 
 app::can_utils::VcEkfStatus getEkfSolutionMode(void)

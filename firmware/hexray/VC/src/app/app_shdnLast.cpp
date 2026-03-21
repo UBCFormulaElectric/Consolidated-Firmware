@@ -6,50 +6,41 @@
 
 namespace app::shdnLast
 {
-static app::can_utils::ShutdownNode get_first_shutdown()
+using namespace app::can_utils;
+static ShutdownNode get_first_shutdown()
 {
     // The shutdowns in the accumulator
     if (!app::can_rx::BMS_BmsLatchOk_get())
-        return SHDN_BMS_OK;
+        return ShutdownNode::SHDN_BMS_OK;
     if (!app::can_rx::BMS_ImdLatchOk_get())
-        return SHDN_IMD_OK;
+        return ShutdownNode::SHDN_IMD_OK;
     if (!app::can_rx::BMS_BspdLatchOk_get())
-        return SHDN_BSPD_OK;
+        return ShutdownNode::SHDN_BSPD_OK;
     if (!app::can_rx::BMS_HVPShdnOKStatus_get())
-        return SHDN_HV_P_ILCK;
+        return ShutdownNode::SHDN_HV_P_ILCK;
     if (!app::can_rx::BMS_HVNShdnOKStatus_get())
-        return SHDN_HV_N_ILCK;
+        return ShutdownNode::SHDN_HV_N_ILCK;
     if (!app::can_tx::VC_MSDOrEMeterOKStatus_get())
-        return SHDN_MSD_EMETER_ILCK;
-
-    // RSMs Rl and RR interlocks
+        return ShutdownNode::SHDN_MSD_EMETER_ILCK;
     if (!app::can_rx::RSM_RearLeftMotorInterlock_get())
-        return SHDN_RL_ILCK;
-    // RSM or VC?
+        return ShutdownNode::SHDN_RL_ILCK;
     if (!app::can_tx::VC_RearRightMotorInterlock_get())
-        return SHDN_RR_ILCK;
-
-    // right and left estops
+        return ShutdownNode::SHDN_RR_ILCK;
     if (!app::can_rx::DAM_REStopOKStatus_get())
-        return SHDN_R_EStop;
+        return ShutdownNode::SHDN_R_EStop;
     if (!app::can_rx::DAM_LEStopOKStatus_get())
-        return SHDN_L_EStop;
-
-    // cockpit for fsm
+        return ShutdownNode::SHDN_L_EStop;
     if (!app::can_rx::FSM_COCKPITOKStatus_get())
-        return SHDN_Cockpit_EStop;
-
+        return ShutdownNode::SHDN_Cockpit_EStop;
     if (!app::can_rx::FSM_BOTSOKStatus_get())
-        return SHDN_BOTS;
-
+        return ShutdownNode::SHDN_BOTS;
     if (!app::can_rx::FSM_FrontLeftILCKInertiaOKStatus_get())
-        return SHDN_FL_INERTIA_ILCK;
+        return ShutdownNode::SHDN_FL_INERTIA_ILCK;
     if (!app::can_rx::FSM_FrontRightILCKOKStatus_get())
-        return SHDN_FR_ILCK;
-
+        return ShutdownNode::SHDN_FR_ILCK;
     if (!app::can_tx::VC_TSMSOKStatus_get())
-        return SHDN_TSMS;
-    return SHDN_OK;
+        return ShutdownNode::SHDN_TSMS;
+    return ShutdownNode::SHDN_OK;
 }
 
 void broadcast()

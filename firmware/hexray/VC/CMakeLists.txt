@@ -15,10 +15,9 @@ set(SYSTEM_INCLUDE_DIRS
         #        "${CMAKE_CURRENT_SOURCE_DIR}/boot"
 )
 
-file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/**/*.cpp")
+file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp")
 list(APPEND APP_SRCS)
 set(APP_INCLUDE_DIRS
-        # "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
         "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR_CPP}" "${CMAKE_CURRENT_SOURCE_DIR}/src/app/"
 )
 
@@ -140,7 +139,7 @@ elseif ("${TARGET}" STREQUAL "test")
             "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
     )
     set(INCLUDE_DIRS
-            # "${CMAKE_CURRENT_SOURCE_DIR}/test"
+            "${CMAKE_CURRENT_SOURCE_DIR}/test"
             ${APP_INCLUDE_DIRS} ${SHARED_FAKES_DIR_CPP} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP}
     )
     compile_gtest_executable(

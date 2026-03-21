@@ -29,9 +29,3 @@ extern io::TI_TPS28_Efuse RSM_Efuse;
 extern io::TI_TPS28_Efuse BMS_Efuse;
 extern io::TI_TPS28_Efuse DAM_Efuse;
 extern io::TI_TPS28_Efuse FRONT_Efuse;
-
-namespace io::loadswitches
-{
-bool isChannelEnabled(EfuseChannel channel);
-bool TILoadswitch_pgood(EfuseChannel channel);
-} // namespace io::loadswitches

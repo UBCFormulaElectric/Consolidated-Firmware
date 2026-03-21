@@ -268,27 +268,27 @@ uint32_t getEkfSolutionMode(void)
     return sensor_data.ekf_solution_status;
 }
 
-Vector3 *getImuAccelerations(void)
+const Vector3 *getImuAccelerations(void)
 {
     return &sensor_data.imu_data.acceleration;
 }
 
-Attitude *getImuAngularVelocities(void)
+const Attitude *getImuAngularVelocities(void)
 {
     return &sensor_data.imu_data.angular_velocity;
 }
 
-Attitude *getEkfEulerAngles(void)
+const Attitude *getEkfEulerAngles(void)
 {
     return &sensor_data.ekf_euler_data.euler_angles;
 }
 
-VelocityData *getEkfNavVelocityData(void)
+const VelocityData *getEkfNavVelocityData(void)
 {
     return &sensor_data.ekf_nav_data.velocity;
 }
 
-PositionData *getEkfNavPositionData(void)
+const PositionData *getEkfNavPositionData(void)
 {
     return &sensor_data.ekf_nav_data.position;
 }

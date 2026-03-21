@@ -1,48 +1,58 @@
 #include "app_imu.hpp"
 #include "app_canAlerts.hpp"
 #include "app_canTx.hpp"
+#include "io_imu.hpp"
 
-namespace app::imu
+namespace app::imus
 {
 using namespace app::can_alerts;
 
 void init()
 {
-    auto ec = io::imus::init();
-    warnings::ImuInitFailed_set(not ec.has_value());
+    auto ec1 = IMU1.init();
+    auto ec2 = IMU2.init();
+    auto ec3 = IMU3.init();
+    if (ec1)
+        warnings::Imu1InitFailed_set(not ec1.has_value());
+    if (ec2)
+        warnings::Imu2InitFailed_set(not ec2.has_value());
+    if (ec3)
+        warnings::Imu3InitFailed_set(not ec3.has_value());
 }
 
 void broadcast()
 {
     // IMU1 data broadcasting
-    const auto accel1 = imu1.getAccelAll();
-    const auto gyro1  = imu1.getGyroAll();
+    const auto accel1 = IMU1.getAccelAll();
+    const auto gyro1  = IMU1.getGyroAll();
+    // IMU2 data broadcasting
+    const auto accel2 = IMU2.getAccelAll();
+    const auto gyro2  = IMU2.getGyroAll();
+    // IMU3 data broadcasting
+    const auto accel3 = IMU3.getAccelAll();
+    const auto gyro3  = IMU3.getGyroAll();
 
     // If either accel or gyro fails for an IMU, set a fault alert
     // for that IMU and skip broadcasting data for that IMU
     if (!accel1 || !gyro1)
     {
         // handle error by setting an alert or could also seperate into 3 broadcasting
-        // fuunctions to return a fault for each IMU if not working.
+        // fuunctions to return a fault for each IMU if not working->
         infos::Imu1Fault_set(true);
     }
     if (accel1)
     {
         // Process data
-        app::can_tx::VC_Imu1AccelerationX_set(accel1.data().x);
-        app::can_tx::VC_Imu1AccelerationY_set(accel1.data().y);
-        app::can_tx::VC_Imu1AccelerationZ_set(accel1.data().z);
+        app::can_tx::VC_Imu1AccelerationX_set(accel1->x);
+        app::can_tx::VC_Imu1AccelerationY_set(accel1->y);
+        app::can_tx::VC_Imu1AccelerationZ_set(accel1->z);
     }
     if (gyro1)
     {
-        app::can_tx::VC_Imu1AngularVelocityRoll_set(gyro1.data().x);
-        app::can_tx::VC_Imu1AngularVelocityPitch_set(gyro1.data().y);
-        app::can_tx::VC_Imu1AngularVelocityYaw_set(gyro1.data().z);
+        app::can_tx::VC_Imu1AngularVelocityRoll_set(gyro1->x);
+        app::can_tx::VC_Imu1AngularVelocityPitch_set(gyro1->y);
+        app::can_tx::VC_Imu1AngularVelocityYaw_set(gyro1->z);
     }
-
-    // IMU2 data broadcasting
-    const auto accel2 = imu2.getAccelAll();
-    const auto gyro2  = imu2.getGyroAll();
 
     if (!accel2 || !gyro2)
     {
@@ -51,21 +61,17 @@ void broadcast()
     if (accel2)
     {
         // Process data
-        app::can_tx::VC_Imu2AccelerationX_set(accel2.data().x);
-        app::can_tx::VC_Imu2AccelerationY_set(accel2.data().y);
-        app::can_tx::VC_Imu2AccelerationZ_set(accel2.data().z);
+        app::can_tx::VC_Imu2AccelerationX_set(accel2->x);
+        app::can_tx::VC_Imu2AccelerationY_set(accel2->y);
+        app::can_tx::VC_Imu2AccelerationZ_set(accel2->z);
     }
     if (gyro2)
     {
         // Process data
-        app::can_tx::VC_Imu2AngularVelocityRoll_set(gyro2.data().x);
-        app::can_tx::VC_Imu2AngularVelocityPitch_set(gyro2.data().y);
-        app::can_tx::VC_Imu2AngularVelocityYaw_set(gyro.data().z);
+        app::can_tx::VC_Imu2AngularVelocityRoll_set(gyro2->x);
+        app::can_tx::VC_Imu2AngularVelocityPitch_set(gyro2->y);
+        app::can_tx::VC_Imu2AngularVelocityYaw_set(gyro2->z);
     }
-
-    // IMU3 data broadcasting
-    const auto accel3 = imu3.getAccelAll();
-    const auto gyro3  = imu3.getGyroAll();
 
     if (!accel3 || !gyro3)
     {
@@ -73,15 +79,15 @@ void broadcast()
     }
     if (accel3)
     {
-        app::can_tx::VC_Imu3AccelerationX_set(accel3.data().x);
-        app::can_tx::VC_Imu3AccelerationY_set(accel3.data().y);
-        app::can_tx::VC_Imu3AccelerationZ_set(accel3.data().z);
+        app::can_tx::VC_Imu3AccelerationX_set(accel3->x);
+        app::can_tx::VC_Imu3AccelerationY_set(accel3->y);
+        app::can_tx::VC_Imu3AccelerationZ_set(accel3->z);
     }
     if (gyro3)
     {
-        app::can_tx::VC_Imu3AngularVelocityRoll_set(gyro3.data().x);
-        app::can_tx::VC_Imu3AngularVelocityPitch_set(gyro3.data().y);
-        app::can_tx::VC_Imu3AngularVelocityYaw_set(gyro3.data().z);
+        app::can_tx::VC_Imu3AngularVelocityRoll_set(gyro3->x);
+        app::can_tx::VC_Imu3AngularVelocityPitch_set(gyro3->y);
+        app::can_tx::VC_Imu3AngularVelocityYaw_set(gyro3->z);
     }
 }
 
