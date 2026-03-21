@@ -1,23 +1,20 @@
 #include "io_rtc.hpp"
 #include <stdbool.h>
 #include <stdint.h>
-
-bool isLeapYear(uint16_t year);
-uint8_t daysInMonth(uint16_t year, uint8_t month);
-uint64_t RtcTimeToSeconds(io::rtc::Time t);
-uint8_t calcWeekday(uint16_t year, uint8_t month, uint8_t day);
-io::rtc::Time SecondsToRtcTime(uint64_t totalSeconds);
+#include <span>
 
 void io_telemRx(void);
 void transmitNTPStartMsg(void);
 void pollForRadioMessages(void);
-void parseNTPPacketBody(uint8_t rxBufferBody[]);
+void parseNTPPacketBody(std::span<uint8_t> body);
 void tuneRTC(void);
+uint64_t RtcTimeToMs(io::rtc::Time t);
+io::rtc::Time MsToRtcTime(uint64_t ms);
 
 typedef struct
 {
-    io::rtc::Time t0;
-    io::rtc::Time t1;
-    io::rtc::Time t2;
-    io::rtc::Time t3;
+    uint64_t t0;
+    uint64_t t1;
+    uint64_t t2;
+    uint64_t t3;
 } NTPTimestamps;
