@@ -81,13 +81,13 @@ std::expected<void, ErrorCode> hw::fdcan::can_transmit(const CanMsg &msg) const
 {
     assert(ready);
     FDCAN_TxHeaderTypeDef tx_header;
-    tx_header.Identifier          = msg.std_id;
-    tx_header.IdType              = (msg.std_id > MAX_11_BITS_VALUE) ? FDCAN_EXTENDED_ID : FDCAN_STANDARD_ID;
-    tx_header.TxFrameType         = FDCAN_DATA_FRAME;
-#if defined (STM32H753xx)
-    tx_header.DataLength          = msg.dlc << 16; // Data length code needs to be shifted by 16 bits.
+    tx_header.Identifier  = msg.std_id;
+    tx_header.IdType      = (msg.std_id > MAX_11_BITS_VALUE) ? FDCAN_EXTENDED_ID : FDCAN_STANDARD_ID;
+    tx_header.TxFrameType = FDCAN_DATA_FRAME;
+#if defined(STM32H753xx)
+    tx_header.DataLength = msg.dlc << 16; // Data length code needs to be shifted by 16 bits.
 #elif defined(STM32H562xx)
-    tx_header.DataLength          = msg.dlc; // Data length code 
+    tx_header.DataLength = msg.dlc; // Data length code
 #endif
     tx_header.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
     tx_header.BitRateSwitch       = FDCAN_BRS_OFF;
