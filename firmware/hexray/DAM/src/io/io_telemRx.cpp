@@ -1,19 +1,21 @@
 #include "io_telemRx.hpp"
 #include "hw_uart.hpp"
-#include "hw_uarts.hpp"
+#include "io_telemUart.hpp"
 #include "io_telemMessage.hpp"
 #include "io_rtc.hpp"
 #include <stdint.h>
 #include <util_errorCodes.h>
 
+constexpr uint32_t PREDIV_S = 999;
+
 static NTPTimestamps ntpTimestamps;
 
-void io_telemRx() 
+void io_telemRx() // Make this noreturn
 {
     pollForRadioMessages();
 }
 
-// Send message to backend through radio to get t1,t2
+// Send message to backend through radio to get t1,t2. Called periodically
 void transmitNTPStartMsg(void)
 {
     // Take note of the sending time (t0).
@@ -23,23 +25,21 @@ void transmitNTPStartMsg(void)
         LOG_ERROR("Could not get RTC time");
         return;
     }
-    ntpTimestamps.t0 = t0;
+    ntpTimestamps.t0 = RtcTimeToMs(t0);
 
     TelemNTPMsg ntp_msg = io_buildNTPMessage();
     LOG_IF_ERR(transmitIt()); // takes a span
 }
 
 void pollForRadioMessages(void)
-{ 
+{
     // Structure: First 2 bytes is magic bytes, 3rd is size of the body, remaining 4 is CRC
-    uint8_t rxBufferHeader[7];
 
-    const ExitCode err = transmitIt(&_900k_uart, rxBufferHeader, 7);
-    if (!err) 
-    {
-        LOG_IF_ERR(err);
+    uint8_t headerData[7]; 
+    std::span<uint8_t> rxBufferHeader(headerData, 7);
+    auto result = io::telemUart::receiveIt(rxBufferHeader);
+    if (result.has_error())
         return;
-    }
 
     // Keep shifting until magic bytes found
     while (1)
@@ -49,13 +49,14 @@ void pollForRadioMessages(void)
 
         LOG_INFO("magic bytes not found, searching ...");
         
-        for (int i = 0; i < 6; i++)
+        for (std::size_t i = 0; i < rxBufferHeader.size() - 1; i++)
         {
             rxBufferHeader[i] = rxBufferHeader[i + 1];
         }
 
         // Read 1 new byte into last position
-        if (!receiveIt(&_900k_uart, &rxBufferHeader[6], 1))
+        result = io::telemUart::receiveIt(&rxBufferHeader[6], 1);
+        if (result.has_error())
             return;
     }
 
@@ -72,9 +73,10 @@ void pollForRadioMessages(void)
 
     // Read rest of packet (contains t1, t2) using size given to you
     uint8_t size = rxBufferHeader[3];
-    uint8_t rxBufferBody[size];
-
-    if (hw_uart_receive_pooling(&_900k_uart, rxBufferBody, size) != 0)
+    uint8_t bodyData[256];
+    std::span<uint8_t> rxBufferBody(bodyData, size);
+    
+    if (!io::telemUart::receiveIt(rxBufferBody) != 0)
         return;
 
     // Take note of t3 (receiving time)
@@ -84,192 +86,102 @@ void pollForRadioMessages(void)
         LOG_ERROR("Could not get RTC time");
         return;
     }
-    ntpTimestamps.t3 = t3;
+    ntpTimestamps.t3 = RtcTimeToMs(t3);
 
     // Parse t1 and t2 from rxBufferBody.
     parseNTPPacketBody(rxBufferBody);
 
-    // Tune RTC.
+    // Tune RTC with collected t1, t2, t3, t4.
+    tuneRTC();
     
 }
 
-void parseNTPPacketBody(uint8_t rxBufferBody[])
+void parseNTPPacketBody(std::span<uint8_t> body)
 {
-    uint64_t messageID = rxBufferBody[0];
+    if (body.size() < 17)
+        return; // Invalid packet body size
 
+    uint64_t messageID = body[0];
+    if (messageID != 2)
+        return; // Received non-ntp message
+
+    // Body is 17 bytes: 1 byte header + 8 bytes t1 + 8 bytes t2
     uint64_t t1 = 0;
     uint64_t t2 = 0;
 
-    if (messageID == 1)
-    {
-        // Bytes [8:1] to t1
-        for (int i = 0; i < 8; i++)
-        {
-            t1 |= ((uint64_t)rxBufferBody[i + 1]) << (8 * i);
-        }
-
-        // Bytes [16:9] to t2 
-        for (int i = 0; i < 8; i++)
-        {
-            t2 |= ((uint64_t)rxBufferBody[i + 9]) << (8 * i);
-        }
+    // Parse t1 (bytes 1–8) - little endian
+    for (size_t i = 0; i < 8; i++) {
+        t1 |= static_cast<uint64_t>(body[1 + i]) << (8 * i);
     }
 
-    // Turn t1, t2 into IoRtcTime
+    // Parse t2 (bytes 9–16) - little endian
+    for (size_t i = 0; i < 8; i++) {
+        t2 |= static_cast<uint64_t>(body[9 + i]) << (8 * i);
+    }
 
-    // put t1, t2 in a struct
-
+    ntpTimestamps.t1 = t1;
+    ntpTimestamps.t2 = t2;
 }
 
 void tuneRTC(void)
 {
-    // // Caluclate the offset theta using the formula (in seconds)
-    // uint64_t theta = ((IoRtcTimeToSeconds(t1) - IoRtcTimeToSeconds(t0)) 
-    //                 + (IoRtcTimeToSeconds(t2) - IoRtcTimeToSeconds(t3))) / 2;
+    // Calculate the offset theta using the formula
+    uint64_t theta = ((ntpTimestamps.t1 - ntpTimestamps.t0) + (ntpTimestamps.t2 - ntpTimestamps.t3)) / 2;
 
-    // // Get new time for the RTC (offset in s + current time in s) in an IoRtcTime struct
-    // IoRtcTime currTime;
-    // io_rtc_readTime(&currTime);
+    io::rtc::Time currTime;
+    if (!io::rtc::get_time(currTime))
+    {
+        LOG_ERROR("Could not get RTC time");
+        return;
+    }
 
-    // IoRtcTime newRtcTime = SecondsToIoRtcTime(IoRtcTimeToSeconds(currTime) + theta);
+    io::rtc::Time newRtcTime = MsToRtcTime(RtcTimeToMs(currTime) + theta);
 
-    // // Tune the RTC
-    // if (io_rtc_setTime(&newRtcTime) != EXIT_CODE_OK)
-    // {
-    //     LOG_ERROR("Failed to tune RTC!");
-    // }
+    // extract the ms
+    uint32_t ms = PREDIV_S - newRtcTime.subseconds;
+
+    // round the ms field up to the nearest second
+    newRtcTime.subseconds = 0;
+
+    // wait the ms amount of time
+    os_delay(ms); //TODO do this properly
+
+    // Tune the RTC
+    if (!io::rtc::set_time(newRtcTime))
+        LOG_ERROR("Failed to tune RTC!");
+    
 }
 
+uint64_t RtcTimeToMs(io::rtc::Time t)
+{
+    // Convert subseconds to ms using inverted relation
+    uint32_t ms_part = PREDIV_S - t.subseconds;
 
-// ============================================================================================================
+    return static_cast<uint64_t>(t.hours)   * 3600000ULL +
+           static_cast<uint64_t>(t.minutes) * 60000ULL +
+           static_cast<uint64_t>(t.seconds) * 1000ULL +
+           static_cast<uint64_t>(ms_part);
+}
 
-// bool isLeapYear(uint16_t year)
-// {
-//     if ((year % 400) == 0) return true;
-//     if ((year % 100) == 0) return false;
-//     return (year % 4) == 0;
-// }
+io::rtc::Time MsToRtcTime(uint64_t ms)
+{
+    io::rtc::Time t{};
 
-// uint8_t daysInMonth(uint16_t year, uint8_t month)
-// {
-//     static const uint8_t days_per_month[12] =
-//     {
-//         31, 28, 31, 30, 31, 30,
-//         31, 31, 30, 31, 30, 31
-//     };
+    // Wrap to 24 hours
+    ms %= 86400000ULL;
 
-//     if (month == 2 && isLeapYear(year))
-//         return 29;
+    t.hours = static_cast<uint8_t>(ms / 3600000ULL);
+    ms %= 3600000ULL;
 
-//     return days_per_month[month - 1];
-// }
+    t.minutes = static_cast<uint8_t>(ms / 60000ULL);
+    ms %= 60000ULL;
 
-// uint64_t IoRtcTimeToSeconds(IoRtcTime t)
-// {
-//     const uint16_t year = 2000 + t.year;
-//     uint64_t seconds = 0;
+    t.seconds = static_cast<uint8_t>(ms / 1000ULL);
 
-//     //  Add full years since 2000 
-//     for (uint16_t y = 2000; y < year; ++y)
-//     {
-//         seconds += isLeapYear(y) ? 366LL : 365LL;
-//     }
+    uint32_t ms_remainder = static_cast<uint32_t>(ms % 1000ULL);
 
-//     // Add full months of current year
-//     for (uint8_t m = 1; m < t.month; ++m)
-//     {
-//         seconds += daysInMonth(year, m);
-//     }
+    // Store inverted for RTC
+    t.subseconds = PREDIV_S - ms_remainder;
 
-//     // Add full days this month (day is 1-based)
-//     seconds += (t.day - 1);
-//     // Convert days → seconds
-//     seconds *= 86400LL;
-//     // Add time-of-day
-//     seconds += (uint64_t)t.hours   * 3600LL;
-//     seconds += (uint64_t)t.minutes * 60LL;
-//     seconds += (uint64_t)t.seconds;
-//     return seconds;
-// }
-
-// uint8_t calcWeekday(uint16_t year, uint8_t month, uint8_t day)
-// {
-//     //Sunday = 0
-//     if (month < 3)
-//     {
-//         month += 12;
-//         year -= 1;
-//     }
-
-//     uint16_t K = year % 100;
-//     uint16_t J = year / 100;
-
-//     uint8_t h =
-//         (day + (13 * (month + 1)) / 5 +
-//          K + K / 4 + J / 4 + 5 * J) % 7;
-
-//     // h = 0 Saturday → convert to Sunday=0
-//     return (h + 6) % 7;
-// }
-
-// IoRtcTime SecondsToIoRtcTime(uint64_t totalSeconds)
-// {
-//     IoRtcTime t;
-//     uint64_t seconds = totalSeconds;
-
-//     // Extract days since epoch
-//     uint64_t days = seconds / 86400LL;
-//     seconds %= 86400LL;
-
-//     // Time of day 
-//     t.hours   = (uint8_t)(seconds / 3600);
-//     seconds %= 3600;
-
-//     t.minutes = (uint8_t)(seconds / 60);
-//     t.seconds = seconds % 60;
-
-//     // Year 
-//     uint16_t year = 2000;
-
-//     while (true)
-//     {
-//         uint64_t daysInYear = isLeapYear(year) ? 366 : 365;
-//         if (days >= daysInYear)
-//         {
-//             days -= daysInYear;
-//             ++year;
-//         }
-//         else
-//         {
-//             break;
-//         }
-//     }
-
-//     t.year = (uint8_t)(year - 2000);
-
-//     // Month 
-//     uint8_t month = 1;
-
-//     while (true)
-//     {
-//         uint8_t dim = daysInMonth(year, month);
-
-//         if (days >= dim)
-//         {
-//             days -= dim;
-//             ++month;
-//         }
-//         else
-//         {
-//             break;
-//         }
-//     }
-
-//     t.month = month;
-
-//     // Day (1-based)
-//     t.day = (uint8_t)(days + 1);
-//     // Weekday
-//     t.weekdays = calcWeekday(year, month, t.day);
-//     return t;
-// }
+    return t;
+}
