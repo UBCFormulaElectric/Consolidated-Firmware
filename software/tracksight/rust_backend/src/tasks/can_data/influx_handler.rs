@@ -1,30 +1,39 @@
-use colored::Colorize;
 use influxdb2::{Client, api::write::TimestampPrecision, models::{DataPoint, data_point::DataPointError}};
 use tokio::sync::{broadcast::Receiver};
 use futures::stream;
 
-use crate::config::CONFIG;
+#[allow(unused_imports)]
+use crate::utils::yellow;
+use crate::{config::CONFIG, tasks::{HealthCheckSender, HealthCheckSenderExt, ResultExt, Task}, vprintln};
 
 use jsoncan_rust::can_database::DecodedSignal;
 
 // Write to database once batch size is reached or some termination signal
-const MAX_BATCH_CAPACITY: usize = 1000;
+const MAX_BATCH_CAPACITY: usize = 500;
 
 /**
  * After serial_handler parses the can messages,
  * this task consumes the messages and writes them to influxdb
  */
-pub async fn run_influx_handler(mut decoded_signal_rx: Receiver<DecodedSignal>) {
-    println!("{}", "Influx task started.".yellow());
+pub async fn run_influx_handler(
+    health_check_tx: HealthCheckSender,
+    mut decoded_signal_rx: Receiver<DecodedSignal>
+) {
+    vprintln!("{}", yellow("Influx task started."));
 
     let influx_client = Client::new(
         &CONFIG.influxdb_url,
         &CONFIG.influxdb_org,
         &CONFIG.influxdb_token
     );
-
+    
     // group the data points together until some maximum size, then write to database
     let mut batch_buffer: Vec<DataPoint> = Vec::with_capacity(MAX_BATCH_CAPACITY);
+    
+    // quick check, fail otherwise
+    influx_client.health().await.unwrap_or_fail_health_check(&health_check_tx, Task::InfluxHandler).await;
+    
+    health_check_tx.send_health_check(Task::InfluxHandler, true).await;
 
     loop {
         match decoded_signal_rx.recv().await {
@@ -45,7 +54,7 @@ pub async fn run_influx_handler(mut decoded_signal_rx: Receiver<DecodedSignal>) 
             }
             // Closed channel or any error is signal to stop thread
             _ => {
-                println!("Influx task shutting down.");
+                vprintln!("Influx task shutting down.");
                 break;
             }
         }
@@ -53,7 +62,7 @@ pub async fn run_influx_handler(mut decoded_signal_rx: Receiver<DecodedSignal>) 
     
     flush_buffer(&mut batch_buffer, &influx_client).await;
     
-    println!("{}", "Influx task ended.".yellow());
+    vprintln!("{}", yellow("Influx task ended."));
 }
 
 /**
