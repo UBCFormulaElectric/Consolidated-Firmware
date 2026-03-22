@@ -21,7 +21,7 @@ void hw::Uart::onTransactionCompleteFromISR() const
     portYIELD_FROM_ISR(higherPriorityTaskWoken);
 }
 
-std::expected<void, ErrorCode> hw::Uart::waitForNotification(const uint32_t timeoutMs)
+std::expected<void, ErrorCode> hw::Uart::waitForNotification(const uint32_t timeoutMs) const
 {
     const uint32_t num_notifications = ulTaskNotifyTake(pdTRUE, timeoutMs);
     taskInProgress                   = nullptr;
@@ -36,7 +36,7 @@ std::expected<void, ErrorCode> hw::Uart::waitForNotification(const uint32_t time
     return {};
 }
 
-std::expected<void, ErrorCode> hw::Uart::transmit(const std::span<const uint8_t> tx, const uint32_t timeout)
+std::expected<void, ErrorCode> hw::Uart::transmit(const std::span<const uint8_t> tx, const uint32_t timeout) const
 {
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
@@ -67,7 +67,7 @@ std::expected<void, ErrorCode> hw::Uart::transmit(const std::span<const uint8_t>
     return exit;
 }
 
-std::expected<void, ErrorCode> hw::Uart::receive(std::span<uint8_t> rx, const uint32_t timeout)
+std::expected<void, ErrorCode> hw::Uart::receive(std::span<uint8_t> rx, const uint32_t timeout) const
 {
     if (taskInProgress != nullptr || xPortIsInsideInterrupt())
     {

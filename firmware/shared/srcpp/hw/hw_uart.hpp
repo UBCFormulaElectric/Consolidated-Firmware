@@ -16,8 +16,8 @@ class Uart
 {
 #ifdef TARGET_EMBEDDED
   private:
-    TaskHandle_t        taskInProgress;
-    UART_HandleTypeDef &handle; // pointer to structure containing UART module configuration information
+    mutable TaskHandle_t taskInProgress;
+    UART_HandleTypeDef  &handle; // pointer to structure containing UART module configuration information
   public:
     explicit consteval Uart(UART_HandleTypeDef &in_handle) : taskInProgress(nullptr), handle(in_handle) {}
 #endif
@@ -26,7 +26,7 @@ class Uart
      * @param timeoutMs
      * @return
      */
-    std::expected<void, ErrorCode> waitForNotification(uint32_t timeoutMs);
+    std::expected<void, ErrorCode> waitForNotification(uint32_t timeoutMs) const;
 
   public:
     /**
@@ -40,7 +40,7 @@ class Uart
      * @param timeout Timeout duration
      */
     std::expected<void, ErrorCode>
-        transmit(std::span<const uint8_t> tx, uint32_t timeout = std::numeric_limits<uint32_t>::max());
+        transmit(std::span<const uint8_t> tx, uint32_t timeout = std::numeric_limits<uint32_t>::max()) const;
 
     /**
      * Receives an amount of data in polling mode (blocking).
@@ -48,7 +48,7 @@ class Uart
      * @param timeout Timeout duration
      */
     std::expected<void, ErrorCode>
-        receive(std::span<uint8_t> rx, uint32_t timeout = std::numeric_limits<uint32_t>::max());
+        receive(std::span<uint8_t> rx, uint32_t timeout = std::numeric_limits<uint32_t>::max()) const;
 
     // TODO
     /**
