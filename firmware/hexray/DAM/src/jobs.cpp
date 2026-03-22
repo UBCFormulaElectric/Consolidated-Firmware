@@ -13,7 +13,7 @@
 #include "io_canMsg.hpp"
 #include <io_canTx.hpp>
 #include <util_errorCodes.hpp>
-#include "io_telemRx.cpp"
+#include "io_telemRx.hpp"
 
 #include <span>
 
@@ -24,8 +24,8 @@ void jobs_init()
     io::can_tx::init(
         [](const JsonCanMsg &tx_msg)
         {
-            const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
-            auto result = can_tx_queue.push(msg);
+            const io::CanMsg msg    = app::jsoncan::copyToCanMsg(tx_msg);
+            auto             result = can_tx_queue.push(msg);
             if (not result)
                 LOG_ERROR("Failed to push TX CAN message: %d", static_cast<int>(result.error()));
         });

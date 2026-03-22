@@ -78,7 +78,7 @@ void jobs_init(void)
 void jobs_run1Hz_tick(void)
 {
     transmitNTPStartMsg(); // Ping backend for t1, t2
-    
+
     io_canTx_enqueue1HzMsgs();
 
     const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();
@@ -86,7 +86,7 @@ void jobs_run1Hz_tick(void)
 }
 
 void jobs_run100Hz_tick(void)
-{   
+{
     io_canTx_enqueue100HzMsgs();
 
     const bool vc_drive_state = app_canRx_VC_State_get() == VC_DRIVE_STATE;
