@@ -5,21 +5,26 @@
 
 #include "app_jsoncan.hpp"
 #include "io_canRx.hpp"
-
+#include "main.h"
 // io
 #include "io_time.hpp"
 // hw
 #include "hw_hardFaultHandler.hpp"
 #include "hw_rtosTaskHandler.hpp"
+#include "hw_bootup.hpp"
+
 // old deps
 extern "C"
 {
-#include "hw_bootup.h"
 #include "hw_resetReason.h"
 }
 
+#include "io_canTx.hpp"
+#include "app_canTx.hpp"
+#include "app_canRx.hpp"
+
 #include "hw_cans.hpp"
-#include "io_canMsgQueues.hpp"
+#include "io_canQueues.hpp"
 #include "hw_usb.hpp"
 
 char USBD_PRODUCT_STRING_FS[] = "h5dev";
@@ -31,7 +36,6 @@ void hw::usb::receive(const std::span<uint8_t> dest)
 [[noreturn]] static void tasks_runCanBroadcast(void *arg)
 {
     uint32_t last_1hz = 0, last_100hz = 0;
-    osDelay(osWaitForever);
     forever
     {
         const uint32_t t = io::time::getCurrentMs();
@@ -46,6 +50,7 @@ void hw::usb::receive(const std::span<uint8_t> dest)
             last_100hz = t;
         }
         io::can_tx::enqueueOtherPeriodicMsgs(t);
+        osDelay(10);
     }
 }
 
@@ -94,7 +99,7 @@ static hw::rtos::StaticTask<512> Task100Hz(osPriorityAboveNormal, "Task100Hz", t
 
 void tasks_preInit()
 {
-    hw_bootup_enableInterruptsForApp();
+    hw::bootup::enableInterruptsForApp();
 }
 
 void tasks_init()
@@ -116,17 +121,18 @@ void tasks_init()
         LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
     }
 
-    if (BootRequest boot_request = hw_bootup_getBootRequest(); boot_request.context != BOOT_CONTEXT_NONE)
+    if (const hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
+        boot_request.context != hw::bootup::BootContext::BOOT_CONTEXT_NONE)
     {
-        if (boot_request.context == BOOT_CONTEXT_STACK_OVERFLOW)
+        if (boot_request.context == hw::bootup::BootContext::BOOT_CONTEXT_STACK_OVERFLOW)
         {
             LOG_WARN("Detected stack overflow on the previous boot cycle!");
         }
 
         // Clear stack overflow bootup.
-        boot_request.context       = BOOT_CONTEXT_NONE;
-        boot_request.context_value = 0;
-        hw_bootup_setBootRequest(boot_request);
+        const_cast<hw::bootup::BootRequest &>(boot_request).context       = hw::bootup::BootContext::BOOT_CONTEXT_NONE;
+        const_cast<hw::bootup::BootRequest &>(boot_request).context_value = 0;
+        hw::bootup::setBootRequest(boot_request);
     }
 
     io::can_tx::init(
