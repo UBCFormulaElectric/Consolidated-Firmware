@@ -25,8 +25,8 @@ struct CanMsg
 
     explicit CanMsg() = default;
 
-    uint32_t                               std_id = 0;
-    uint32_t                               dlc    = 0;
+    uint32_t                                       std_id = 0;
+    uint32_t                                       dlc    = 0;
     mutable std::array<uint8_t, CAN_PAYLOAD_BYTES> data{};
 
     [[nodiscard]] std::span<uint16_t, CAN_PAYLOAD_BYTES / 2> getDataAsWords()
@@ -44,7 +44,6 @@ struct CanMsg
         return std::span<uint64_t, CAN_PAYLOAD_BYTES / 8>{ reinterpret_cast<uint64_t *>(data.data()),
                                                            CAN_PAYLOAD_BYTES / 8 };
     }
-
 
     [[nodiscard]] std::span<const uint16_t, CAN_PAYLOAD_BYTES / 2> getDataAsWords() const
     {

@@ -18,9 +18,9 @@ inline constexpr size_t CAN_PAYLOAD_BYTES = 64;
 #endif
 struct CanMsg : hw::CanMsg
 {
-    uint32_t                                       timestamp;
-    bool                                           is_fd;
-    app::can_utils::BusEnum                        bus;
+    uint32_t                timestamp;
+    bool                    is_fd;
+    app::can_utils::BusEnum bus;
 
     CanMsg(
         const uint32_t                                id,
