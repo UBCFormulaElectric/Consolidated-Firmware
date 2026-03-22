@@ -450,10 +450,20 @@ impl CanDatabase {
         let mut rx_msg_names_to_resolve: Vec<(String, Vec<String>)> = Vec::new();
 
         let mut enum_names: HashMap<String, Vec<String>> = HashMap::new();
+        enum_names.extend(
+            db.shared_enums
+                .iter()
+                .map(|e| (e.name.clone(), vec!["shared".into()])),
+        );
 
         // first handle adding nodes and their tx_msgs
         for n in parser.nodes {
             let tx_node_name = n.name.clone();
+            enum_names.extend(
+                n.enums
+                    .iter()
+                    .map(|e| (e.name.clone(), vec![tx_node_name.clone()])),
+            );
             let node = CanNode {
                 rx_msgs_names: match n.rx_msgs {
                     JsonRxMsgNames::All => RxMsgs::All,
