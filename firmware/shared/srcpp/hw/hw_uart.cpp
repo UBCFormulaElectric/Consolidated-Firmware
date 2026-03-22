@@ -1,38 +1,117 @@
+#include <cstring>
+#include <cassert>
+
+#include "cmsis_os2.h"
 #include "hw_uart.hpp"
 #include "hw_utils.hpp"
 
-namespace hw
+// constexpr size_t MAX_SPI_BUFFER = 256;
+
+void hw::Uart::deinit() const
 {
-std::expected<void, ErrorCode> Uart::transmitDma(const std::span<const uint8_t> data) const
-{
-    return hw_utils_convertHalStatus(HAL_UART_Transmit_DMA(handle, data.data(), static_cast<uint16_t>(data.size())));
+    HAL_UART_DeInit(&handle);
 }
 
-std::expected<void, ErrorCode> Uart::receiveDma(std::span<uint8_t> data) const
+void hw::Uart::onTransactionCompleteFromISR() const
 {
-    return hw_utils_convertHalStatus(HAL_UART_Receive_DMA(handle, data.data(), static_cast<uint16_t>(data.size())));
+    assert(taskInProgress != nullptr);
+
+    BaseType_t higherPriorityTaskWoken = pdFALSE;
+    vTaskNotifyGiveFromISR(taskInProgress, &higherPriorityTaskWoken);
+    portYIELD_FROM_ISR(higherPriorityTaskWoken);
 }
 
-std::expected<void, ErrorCode> Uart::transmitPoll(const std::span<const uint8_t> tx_data, const uint32_t timeout) const
+std::expected<void, ErrorCode> hw::Uart::waitForNotification(const uint32_t timeoutMs)
 {
-    return hw_utils_convertHalStatus(
-        HAL_UART_Transmit(handle, tx_data.data(), static_cast<uint16_t>(tx_data.size()), timeout));
+    const uint32_t num_notifications = ulTaskNotifyTake(pdTRUE, timeoutMs);
+    taskInProgress                   = nullptr;
+
+    if (const bool transaction_timed_out = num_notifications; transaction_timed_out == 0)
+    {
+        // If the transaction didn't complete within the timeout, manually abort it.
+        (void)HAL_UART_Abort_IT(&handle);
+        LOG_WARN("UART transaction timed out");
+        return std::unexpected(ErrorCode::TIMEOUT);
+    }
+    return {};
 }
 
-std::expected<void, ErrorCode> Uart::receivePoll(std::span<uint8_t> rx_data, const uint32_t timeout) const
+std::expected<void, ErrorCode> hw::Uart::transmit(const std::span<const uint8_t> tx, const uint32_t timeout)
 {
-    return hw_utils_convertHalStatus(
-        HAL_UART_Receive(handle, rx_data.data(), static_cast<uint16_t>(rx_data.size()), timeout));
+    if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
+    {
+        // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
+        const std::expected<void, ErrorCode> st =
+            hw_utils_convertHalStatus(HAL_UART_Transmit(&handle, tx.data(), static_cast<uint16_t>(tx.size()), timeout));
+        return st;
+    }
+
+    if (taskInProgress != nullptr)
+    {
+        // There is a task currently in progress!
+        return std::unexpected(ErrorCode::BUSY);
+    }
+
+    // Save current task before starting a SPI transaction.
+    taskInProgress = xTaskGetCurrentTaskHandle();
+
+    auto exit = hw_utils_convertHalStatus(HAL_UART_Transmit_IT(&handle, tx.data(), static_cast<uint16_t>(tx.size())));
+    if (not exit.has_value())
+    {
+        // Mark this transaction as no longer in progress.
+        taskInProgress = nullptr;
+        return exit;
+    }
+
+    exit = waitForNotification(timeout);
+    return exit;
 }
 
-std::expected<void, ErrorCode> Uart::transmitIt(const std::span<const uint8_t> data) const
+std::expected<void, ErrorCode> hw::Uart::receive(std::span<uint8_t> rx, const uint32_t timeout)
 {
-    return hw_utils_convertHalStatus(HAL_UART_Transmit_IT(handle, data.data(), static_cast<uint16_t>(data.size())));
+    if (taskInProgress != nullptr || xPortIsInsideInterrupt())
+    {
+        // There is a task currently in progress!
+        return std::unexpected(ErrorCode::BUSY);
+    }
+
+    if (osKernelGetState() != taskSCHEDULER_RUNNING)
+    {
+        // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
+        const std::expected<void, ErrorCode> exit =
+            hw_utils_convertHalStatus(HAL_UART_Receive(&handle, rx.data(), static_cast<uint16_t>(rx.size()), timeout));
+        return exit;
+    }
+
+    taskInProgress = xTaskGetCurrentTaskHandle();
+
+    std::expected<void, ErrorCode> exit =
+        hw_utils_convertHalStatus(HAL_UART_Receive_IT(&handle, rx.data(), static_cast<uint16_t>(rx.size())));
+    if (not exit.has_value())
+    {
+        // Mark this transaction as no longer in progress.
+        taskInProgress = nullptr;
+        return exit;
+    }
+
+    exit = waitForNotification(timeout);
+    return exit;
 }
 
-std::expected<void, ErrorCode> Uart::receiveIt(std::span<uint8_t> rx_data) const
+/* ---------------------------- HAL callbacks --------------------------- */
+extern "C" void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-    return hw_utils_convertHalStatus(
-        HAL_UART_Receive_IT(handle, rx_data.data(), static_cast<uint16_t>(rx_data.size())));
+    const hw::Uart &bus = hw::getUartFromHandle(huart);
+    bus.onTransactionCompleteFromISR();
 }
-} // namespace hw
+
+extern "C" void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+{
+    const hw::Uart &bus = hw::getUartFromHandle(huart);
+    bus.onTransactionCompleteFromISR();
+}
+
+extern "C" void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
+{
+    LOG_ERROR("SPI error: 0x%X", huart->ErrorCode);
+}

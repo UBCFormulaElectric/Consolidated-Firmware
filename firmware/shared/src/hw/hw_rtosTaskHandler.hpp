@@ -1,16 +1,13 @@
 #pragma once
-#include <cstdint>
-#include <cstddef>
 #include "cmsis_os2.h"
 #include "FreeRTOS.h"
 #include <string>
-#include "timers.h"
 namespace hw::rtos
 {
 template <size_t StackWords> class StaticTask
 {
   public:
-    constexpr explicit StaticTask(osPriority_t priority, const char *name, osThreadFunc_t func)
+    constexpr explicit StaticTask(const osPriority_t priority, const char *name, const osThreadFunc_t func)
       : prio_(priority), name_(name), fn_(func)
 
     {
