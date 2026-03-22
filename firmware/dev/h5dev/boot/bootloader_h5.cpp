@@ -23,8 +23,8 @@ void rx_overflow_callback(const uint32_t overflow_count)
 void tx_overflow_clear_callback(){};
 void rx_overflow_clear_callback(){};
 
-io::queue<io::CanMsg, 256> boot_can_tx_queue{ "CanTxQueue", tx_overflow_callback, tx_overflow_clear_callback };
-io::queue<io::CanMsg, 256> boot_can_rx_queue{ "CanRxQueue", rx_overflow_callback, rx_overflow_clear_callback };
+io::queue<hw::CanMsg, 256> boot_can_tx_queue{ "CanTxQueue", tx_overflow_callback, tx_overflow_clear_callback };
+io::queue<hw::CanMsg, 256> boot_can_rx_queue{ "CanRxQueue", rx_overflow_callback, rx_overflow_clear_callback };
 
 namespace hw::cans
 {
@@ -33,8 +33,7 @@ fdcan fdcan1(
     hfdcan1,
     [](const hw::CanMsg &msg)
     {
-        (void)boot_can_rx_queue.push(
-            io::CanMsg{ msg.std_id, msg.dlc, msg.data, true, app::can_utils::BusEnum::Bus_FDCAN });
+        (void)boot_can_rx_queue.push(msg);
     });
 } // namespace hw::cans
 

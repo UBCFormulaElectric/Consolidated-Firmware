@@ -5,7 +5,6 @@
 #include "hw_flash.hpp"
 #include "hw_can.hpp"
 #include <cstring>
-#include <io_canMsg.hpp>
 #include <span>
 #include "io_queue.hpp"
 #include "cmsis_gcc.h"
@@ -32,8 +31,8 @@ namespace bootloader
 class config
 {
   public:
-    io::queue<io::CanMsg, 256> &can_tx_queue;
-    io::queue<io::CanMsg, 256> &can_rx_queue;
+    io::queue<hw::CanMsg, 256> &can_tx_queue;
+    io::queue<hw::CanMsg, 256> &can_rx_queue;
 
     uint32_t  BOARD_HIGHBITS{ 0 };
     uint32_t  GIT_COMMIT_HASH{ 0 };
@@ -44,8 +43,8 @@ class config
     hw::fdcan &fdcan_handle;
     config(
         hw::fdcan                  &fdcan_handle_in,
-        io::queue<io::CanMsg, 256> &tx_queue,
-        io::queue<io::CanMsg, 256> &rx_queue,
+        io::queue<hw::CanMsg, 256> &tx_queue,
+        io::queue<hw::CanMsg, 256> &rx_queue,
         uint32_t                    board_highbits,
         uint32_t                    git_commit_hash,
         bool                        git_commit_clean)
@@ -59,8 +58,8 @@ class config
     hw::can &can_handle;
     config(
         hw::can                    &can_handle_in,
-        io::queue<io::CanMsg, 256> &tx_queue,
-        io::queue<io::CanMsg, 256> &rx_queue,
+        io::queue<hw::CanMsg, 256> &tx_queue,
+        io::queue<hw::CanMsg, 256> &rx_queue,
         uint32_t                    board_highbits,
         uint32_t                    git_commit_hash,
         bool                        git_commit_clean)

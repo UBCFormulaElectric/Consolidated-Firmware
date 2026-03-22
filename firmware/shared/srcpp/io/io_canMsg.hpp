@@ -3,6 +3,7 @@
 #include <array>
 #include <span>
 #include "app_canUtils.hpp"
+#include "hw_can.hpp"
 
 #include "io_time.hpp"
 
@@ -15,12 +16,9 @@ inline constexpr size_t CAN_PAYLOAD_BYTES = 64;
 #else
 #error "Please define what MCU is used."
 #endif
-struct CanMsg
+struct CanMsg : hw::CanMsg
 {
-    uint32_t                                       std_id;
-    uint32_t                                       dlc;
     uint32_t                                       timestamp;
-    mutable std::array<uint8_t, CAN_PAYLOAD_BYTES> data;
     bool                                           is_fd;
     app::can_utils::BusEnum                        bus;
 
@@ -30,44 +28,10 @@ struct CanMsg
         const std::array<uint8_t, CAN_PAYLOAD_BYTES> &_data,
         const bool                                    _is_fd,
         const app::can_utils::BusEnum                 _bus)
-      : std_id(id), dlc(_dlc), timestamp(time::getCurrentMs()), data(_data), is_fd(_is_fd), bus(_bus)
+      : hw::CanMsg(id, _dlc, _data), timestamp(time::getCurrentMs()), is_fd(_is_fd), bus(_bus)
     {
     }
 
     CanMsg() = default; // bruh moment
-
-    // Const version of io_canMsg
-    [[nodiscard]] std::span<const uint16_t, CAN_PAYLOAD_BYTES / 2> getDataAsWords() const
-    {
-        return std::span<const uint16_t, CAN_PAYLOAD_BYTES / 2>{ reinterpret_cast<const uint16_t *>(data.data()),
-                                                                 CAN_PAYLOAD_BYTES / 2 };
-    }
-    [[nodiscard]] std::span<const uint32_t, CAN_PAYLOAD_BYTES / 4> getDataAsDWords() const
-    {
-        return std::span<const uint32_t, CAN_PAYLOAD_BYTES / 4>{ reinterpret_cast<const uint32_t *>(data.data()),
-                                                                 CAN_PAYLOAD_BYTES / 4 };
-    }
-    [[nodiscard]] std::span<const uint64_t, CAN_PAYLOAD_BYTES / 8> getDataAsQWords() const
-    {
-        return std::span<const uint64_t, CAN_PAYLOAD_BYTES / 8>{ reinterpret_cast<const uint64_t *>(data.data()),
-                                                                 CAN_PAYLOAD_BYTES / 8 };
-    }
-
-    // None const version of io_canMsg
-    [[nodiscard]] std::span<uint16_t, CAN_PAYLOAD_BYTES / 2> getDataAsWords()
-    {
-        return std::span<uint16_t, CAN_PAYLOAD_BYTES / 2>{ reinterpret_cast<uint16_t *>(data.data()),
-                                                           CAN_PAYLOAD_BYTES / 2 };
-    }
-    [[nodiscard]] std::span<uint32_t, CAN_PAYLOAD_BYTES / 4> getDataAsDWords()
-    {
-        return std::span<uint32_t, CAN_PAYLOAD_BYTES / 4>{ reinterpret_cast<uint32_t *>(data.data()),
-                                                           CAN_PAYLOAD_BYTES / 4 };
-    }
-    [[nodiscard]] std::span<uint64_t, CAN_PAYLOAD_BYTES / 8> getDataAsQWords()
-    {
-        return std::span<uint64_t, CAN_PAYLOAD_BYTES / 8>{ reinterpret_cast<uint64_t *>(data.data()),
-                                                           CAN_PAYLOAD_BYTES / 8 };
-    }
 };
 } // namespace io

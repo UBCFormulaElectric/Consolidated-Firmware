@@ -5,6 +5,7 @@
 #include "hw_hal.hpp"
 
 #include <array>
+#include <span>
 
 namespace hw
 {
@@ -26,7 +27,40 @@ struct CanMsg
 
     uint32_t                               std_id = 0;
     uint32_t                               dlc    = 0;
-    std::array<uint8_t, CAN_PAYLOAD_BYTES> data{};
+    mutable std::array<uint8_t, CAN_PAYLOAD_BYTES> data{};
+
+    [[nodiscard]] std::span<uint16_t, CAN_PAYLOAD_BYTES / 2> getDataAsWords()
+    {
+        return std::span<uint16_t, CAN_PAYLOAD_BYTES / 2>{ reinterpret_cast<uint16_t *>(data.data()),
+                                                           CAN_PAYLOAD_BYTES / 2 };
+    }
+    [[nodiscard]] std::span<uint32_t, CAN_PAYLOAD_BYTES / 4> getDataAsDWords()
+    {
+        return std::span<uint32_t, CAN_PAYLOAD_BYTES / 4>{ reinterpret_cast<uint32_t *>(data.data()),
+                                                           CAN_PAYLOAD_BYTES / 4 };
+    }
+    [[nodiscard]] std::span<uint64_t, CAN_PAYLOAD_BYTES / 8> getDataAsQWords()
+    {
+        return std::span<uint64_t, CAN_PAYLOAD_BYTES / 8>{ reinterpret_cast<uint64_t *>(data.data()),
+                                                           CAN_PAYLOAD_BYTES / 8 };
+    }
+
+
+    [[nodiscard]] std::span<const uint16_t, CAN_PAYLOAD_BYTES / 2> getDataAsWords() const
+    {
+        return std::span<const uint16_t, CAN_PAYLOAD_BYTES / 2>{ reinterpret_cast<const uint16_t *>(data.data()),
+                                                                 CAN_PAYLOAD_BYTES / 2 };
+    }
+    [[nodiscard]] std::span<const uint32_t, CAN_PAYLOAD_BYTES / 4> getDataAsDWords() const
+    {
+        return std::span<const uint32_t, CAN_PAYLOAD_BYTES / 4>{ reinterpret_cast<const uint32_t *>(data.data()),
+                                                                 CAN_PAYLOAD_BYTES / 4 };
+    }
+    [[nodiscard]] std::span<const uint64_t, CAN_PAYLOAD_BYTES / 8> getDataAsQWords() const
+    {
+        return std::span<const uint64_t, CAN_PAYLOAD_BYTES / 8>{ reinterpret_cast<const uint64_t *>(data.data()),
+                                                                 CAN_PAYLOAD_BYTES / 8 };
+    }
 };
 
 class BaseCan

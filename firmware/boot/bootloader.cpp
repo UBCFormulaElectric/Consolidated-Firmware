@@ -1,4 +1,3 @@
-#include "app_canUtils.hpp"
 #include "hw_bootup.hpp"
 #include "hw_hardFaultHandler.hpp"
 #include "hw_flash.hpp"
@@ -167,7 +166,7 @@ void bootloader::init(config &boot_config)
             continue;
         }
 
-        const io::CanMsg command = can_msg.value();
+        const hw::CanMsg command = can_msg.value();
 
         if (command.std_id == (boot_config.BOARD_HIGHBITS | START_UPDATE_ID_LOWBITS))
         {
@@ -176,7 +175,7 @@ void bootloader::init(config &boot_config)
             update_in_progress = true;
 
             // Send ACK message that programming has started.
-            io::CanMsg reply{};
+            hw::CanMsg reply{};
             reply.std_id = boot_config.BOARD_HIGHBITS | UPDATE_ACK_ID_LOWBITS;
             reply.dlc    = 0;
             boot_config.can_tx_queue.push(reply);
@@ -187,7 +186,7 @@ void bootloader::init(config &boot_config)
             const uint8_t sector = command.data[0];
             auto          status = hw::flash::eraseSector(sector);
 
-            io::CanMsg reply{};
+            hw::CanMsg reply{};
             if (not status)
             {
                 // if we failed to erase a flash sector after set number of retries exit
@@ -214,7 +213,7 @@ void bootloader::init(config &boot_config)
             {
                 // program failed meaning we need to stop and tell the application that program has failed
                 // and stop the bootloader
-                io::CanMsg reply{};
+                hw::CanMsg reply{};
                 reply.std_id = { boot_config.BOARD_HIGHBITS | PROGRAM_ID_FAILED_LOWBITS };
                 reply.dlc    = 0;
                 boot_config.can_tx_queue.push(reply);
@@ -226,7 +225,7 @@ void bootloader::init(config &boot_config)
         else if (command.std_id == (boot_config.BOARD_HIGHBITS | VERIFY_ID_LOWBITS) && update_in_progress)
         {
             // Verify received checksum matches the one saved in flash.
-            io::CanMsg reply{};
+            hw::CanMsg reply{};
             reply.std_id = (boot_config.BOARD_HIGHBITS | APP_VALIDITY_ID_LOWBITS);
             reply.dlc    = 1;
             verifyAppCodeChecksum();
@@ -267,7 +266,7 @@ void bootloader::init(config &boot_config)
         if (!update_in_progress)
         {
             // Broadcast a message at 1Hz so we can check status over CAN.
-            io::CanMsg status_msg{};
+            hw::CanMsg status_msg{};
             status_msg.std_id                      = boot_config.BOARD_HIGHBITS | STATUS_10HZ_ID_LOWBITS;
             status_msg.dlc                         = 5;
             status_msg.getDataAsDWords().data()[0] = boot_config.GIT_COMMIT_HASH;
@@ -290,27 +289,15 @@ void bootloader::init(config &boot_config)
 
         if (not tx_msg)
             continue;
-        if (const auto &m = tx_msg.value(); m.bus == app::can_utils::BusEnum::Bus_FDCAN)
+        else
         {
             const auto res =
 #if defined(STM32H733xx) || defined(STM32H562xx)
-                boot_config.fdcan_handle.fdcan_transmit(hw::CanMsg{
-                    m.std_id,
-                    m.dlc,
-                    m.data,
-                });
+                boot_config.fdcan_handle.fdcan_transmit(tx_msg.value());
 #elif defined(STM32F412Rx)
-                boot_config.can_handle.can_transmit(hw::CanMsg{
-                    m.std_id,
-                    m.dlc,
-                    m.data,
-                });
+                boot_config.can_handle.can_transmit(tx_msg.value());
 #endif
             LOG_IF_ERR(res);
-        }
-        else
-        {
-            LOG_ERROR("INVALID BUS %d", m.bus);
         }
     }
 }
