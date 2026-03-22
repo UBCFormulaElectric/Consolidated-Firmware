@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
-#[derive(PartialEq)]
-#[derive(Debug)]
+#[derive(PartialEq, Debug)]
 pub struct CanBus {
     pub name: String,
     pub bus_speed: u32,
@@ -47,8 +46,7 @@ pub struct CanNode {
     pub enums: Vec<CanEnum>,
 }
 
-#[derive(Clone, Debug)]
-#[derive(PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum CanSignalType {
     Numerical,
     Boolean,
@@ -57,7 +55,8 @@ pub enum CanSignalType {
 }
 impl CanSignalType {
     pub fn from(x: u32) -> CanSignalType {
-        match x { // this is definately very suspicious
+        match x {
+            // this is definately very suspicious
             0 => CanSignalType::Numerical,
             1 => CanSignalType::Boolean,
             2 => CanSignalType::Enum,
@@ -205,8 +204,7 @@ impl CanEnum {
     }
 
     pub fn max_value(&self) -> u32 {
-        self
-            .values
+        self.values
             .values()
             .cloned()
             .max()
