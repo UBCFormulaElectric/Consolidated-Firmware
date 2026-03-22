@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use axum::{Json, Router, extract::{Query, State}, http::StatusCode, response::IntoResponse, routing::get};
+use axum::{Json, Router, extract::{Path, State}, http::StatusCode, response::IntoResponse, routing::get};
 use jsoncan_rust::can_database::CanMessage;
 use serde::{Deserialize, Serialize};
 use regex::Regex;
@@ -41,7 +41,7 @@ struct SignalMetadata {
  * Pass signal names (regex) in `name` parameter.
  * E.g. `/signal/metadata?name=INVFR_bError`
  */
-async fn metadata(Query(mut param): Query<MetadataParam>, State(state): State<AppState>) -> impl IntoResponse {
+async fn metadata(axum::extract::Query(mut param): axum::extract::Query<MetadataParam>, State(state): State<AppState>) -> impl IntoResponse {
     let regex = match Regex::new(param.name.get_or_insert(".*".to_string())) {
         Ok(regex) => regex,
         Err(_) => {
@@ -84,6 +84,32 @@ async fn signal() -> impl IntoResponse {
     return (StatusCode::OK, serde_json::to_string(&Vec::<String>::new()).unwrap());
 }
 
+async fn signal_date(Path(date): Path<String>, State(state): State<AppState>) -> impl IntoResponse {
+    let re = Regex::new(r"^\d{4}-\d{2}-\d{2}$").unwrap();
+    if !re.is_match(&date) {
+        return (StatusCode::BAD_REQUEST, "Bad date format, should be YYYY-MM-DD");
+    }
+
+    let date_query = format!("
+        from(bucket: \"can_data\")
+            |> range(start: 2026-03-21T00:00:00Z, stop:2026-03-21T23:59:59Z)
+            |> filter(fn: (r) => r[\"_measurement\"] == \"quintuna_live\")
+    ");
+
+    let req = state.influx_client.query(Some(influxdb2::models::Query::new(date_query))).await;
+
+    match req {
+        Ok(res) => {
+            println!("{res:?}");
+            return (StatusCode::OK, "bruh");
+        },
+        Err(e) => {
+            return (StatusCode::BAD_REQUEST, &format!("{e:?}"));
+        }
+    }
+
+}
+
 async fn signal_csv() -> impl IntoResponse {
     // TODO implement
     // todo!("to implement signal csv download");
@@ -95,5 +121,6 @@ pub fn get_signal_router() -> Router<AppState> {
         .route("/signal/nodes", get(nodes))
         .route("/signal/metadata", get(metadata))
         .route("/signal", get(signal))
+        .route("/signal/{date}", get(signal_date))
         .route("/signal/csv", get(signal_csv));
 }

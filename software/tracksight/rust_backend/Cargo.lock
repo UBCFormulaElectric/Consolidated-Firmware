@@ -215,6 +215,7 @@ dependencies = [
  "futures",
  "if-addrs",
  "influxdb2",
+ "influxdb2-structmap",
  "jsoncan_rust",
  "mdns-sd",
  "regex",
