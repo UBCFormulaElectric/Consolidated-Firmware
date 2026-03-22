@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { randomInt } from "crypto";
 
 type Session = {
     id: string;
@@ -54,12 +55,13 @@ const getCalendarDays = (displayMonth: Date) => {
     });
 };
 
-// random temp function to moc data 
+// random temp function to moc data; we'd actually fetch data here
 const getSessionsForDate = (date: Date): Session[] => {
     const baseHour = 8 + (date.getDate() % 5);
     const minuteOffset = (date.getDate() % 3) * 10;
+    const num = Math.floor(Math.random() * 8) + 1
 
-    return Array.from({ length: 5 }, (_, index) => {
+    return Array.from({ length: num }, (_, index) => {
         const startMinutes = baseHour * 60 + minuteOffset + index * 45;
         const endMinutes = startMinutes + 35;
 
@@ -240,14 +242,13 @@ const CalendarDropdown = () => {
                                         key={session.id}
                                         type="button"
                                         className={cn(
-                                            "grid w-full min-w-0 gap-1 rounded-2xl border px-5 py-4 text-left transition-colors cursor-grab",
+                                            "grid w-full min-w-0 gap-1 rounded-2xl border px-5 py-4 text-left transition-colors cursor-grab duration-500",
                                             isSelected
                                                 ? "border-blue-600 bg-blue-600 text-white shadow-[0_10px_22px_rgba(37,99,235,0.28)]"
                                                 : "border-transparent bg-white text-gray-800 hover:bg-gray-50"
                                         )}
                                         onClick={() => {
                                             setSelectedSessionId(session.id);
-                                            setCalendarOpen(false);
                                         }}
                                     >
                                         <span className="min-w-0 text-lg font-semibold leading-tight">
