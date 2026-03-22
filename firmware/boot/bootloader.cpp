@@ -11,7 +11,6 @@
 #include "cmsis_gcc.h"
 #include "cmsis_os.h"
 #include "hw_can.hpp"
-#include "io_canMsg.hpp"
 #include "io_queue.hpp"
 #include <expected>
 #include "util_errorCodes.hpp"
