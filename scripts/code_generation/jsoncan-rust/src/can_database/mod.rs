@@ -195,7 +195,25 @@ impl CanDatabase {
                 msg.tx_node_name,
                 serde_json::to_string(&msg.modes).unwrap()
             ],
-        ).map_err(|e| CanDBError::SqlLiteError(e))?;
+        ).map_err(
+            |e| {
+                match e {
+                    rusqlite::Error::SqliteFailure(err, Some(err_msg))
+                    if err.code == rusqlite::ErrorCode::ConstraintViolation && err_msg.contains("UNIQUE constraint failed: messages.name") => {
+                        CanDBError::DuplicateTxMsgName {
+                            tx_node_name_1: msg.tx_node_name,
+                            tx_node_name_2: self.get_connection().unwrap().query_row(
+                                "SELECT tx_node_name FROM messages WHERE name = ?1",
+                                rusqlite::params![msg.name],
+                                |row| row.get::<_, String>(0),
+                            ).expect("Failed to query for duplicate message name"),
+                            tx_msg_name: msg.name.clone(),
+                        }
+                    },
+                    _ => CanDBError::SqlLiteError(e)
+                }
+            }
+        )?;
 
         let msg_id = msg.id;
         for signal in msg.signals.iter() {
@@ -225,7 +243,13 @@ impl CanDatabase {
                 if signal.big_endian { 1 } else { 0 },
                 signal.signal_type.clone() as u32,
             ],
-        ).map_err(|e| CanDBError::SqlLiteError(e))?;
+        ).map_err(
+            |e| {
+                match e {
+                    _ => CanDBError::SqlLiteError(e)
+                }
+            }
+        )?;
 
         Ok(())
     }
