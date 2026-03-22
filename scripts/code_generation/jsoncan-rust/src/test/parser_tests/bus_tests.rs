@@ -1,4 +1,4 @@
-use crate::test::{assert_setequal, setup};
+use crate::test::{assert_setequal, parser_tests::setup};
 
 #[test]
 fn test_busses_present() {

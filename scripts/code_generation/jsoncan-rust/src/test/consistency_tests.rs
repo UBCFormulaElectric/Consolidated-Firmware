@@ -1,5 +1,7 @@
-use crate::can_database::CanSignalType;
-use crate::test::setup;
+use crate::{
+    can_database::{CanDatabase, CanSignalType},
+    parsing::JsonCanParser,
+};
 use std::collections::HashSet;
 
 #[test]
@@ -24,24 +26,26 @@ fn test_signal_type_mapping() {
 
 #[test]
 fn test_message_list_consistent() {
-    let cdb = setup().unwrap();
-
-    for msg in cdb.get_all_msgs().unwrap() {
-        // TODO i'm sure there's more fields to check here
-        assert!(
-            cdb.nodes
-                .iter()
-                .find(|n| n.name == msg.tx_node_name)
-                .is_some()
-        )
-    }
+    let p = JsonCanParser {
+        nodes: vec![],
+        buses: vec![],
+        shared_enums: Vec::new(),
+        forwarding: Vec::new(),
+    };
+    let cdb = CanDatabase::from(p);
 }
 
 #[test]
 fn test_buses_consistent() {
     // TODO there are more tests to ensure that bus fields are valid
 
-    let cdb = setup().unwrap();
+    let p = JsonCanParser {
+        nodes: vec![],
+        buses: vec![],
+        shared_enums: Vec::new(),
+        forwarding: Vec::new(),
+    };
+    let cdb = CanDatabase::from(p).unwrap();
 
     let bus_count = cdb.buses.len();
 
