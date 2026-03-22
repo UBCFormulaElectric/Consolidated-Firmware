@@ -196,9 +196,9 @@ const CalendarDropdown = () => {
                         </div>
 
                         <div className="grid grid-cols-7 gap-y-3 rounded-[1.35rem] bg-white px-3 py-4">
-                            {WEEKDAY_LABELS.map((label) => (
+                            {WEEKDAY_LABELS.map((label, index) => (
                                 <div
-                                    key={label}
+                                    key={`${label}-${index}`}
                                     className="pb-1 text-center text-sm font-semibold uppercase tracking-[0.18em] text-gray-500"
                                 >
                                     {label}
