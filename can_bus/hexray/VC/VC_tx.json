@@ -480,5 +480,11 @@
                 "unit": "W"
             }
         }
+    },
+    "Bootup": {
+        "msg_id": 234,
+        "cycle_time": null,
+        "description": "Async bootup message!",
+        "signals": {}
     }
 }
