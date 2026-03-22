@@ -67,6 +67,5 @@ class Uart
 
     [[nodiscard]] const UART_HandleTypeDef &getHandle() const { return handle; }
 };
-
 [[nodiscard]] const Uart &getUartFromHandle(const UART_HandleTypeDef *handle);
 } // namespace hw
