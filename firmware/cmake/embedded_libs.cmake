@@ -18,7 +18,24 @@ function(commit_info_library
     target_include_directories(${LIB_NAME} INTERFACE ${COMMIT_INFO_INCLUDE_DIR})
 endfunction()
 
-message("  🔃 Registered jsoncan_library_cpp() function")
+# Generates library ${CAR}_${BOARD}_jsoncan
+message("  🔃 Registered jsoncan_library() function")
+function(jsoncan_embedded_library BOARD CAR JSONCAN_DIR)
+    jsoncan_sources(
+            ${BOARD}
+            ${JSONCAN_DIR}
+            TRUE
+            "${CAN_DIR}/dbcs/${CAR}.dbc"
+            "${CAN_DIR}/${CAR}"
+    )
+    add_library("${CAR}_${BOARD}_jsoncan" INTERFACE)
+    target_sources("${CAR}_${BOARD}_jsoncan" INTERFACE ${CAN_SRCS})
+    no_checks("${CAN_SRCS}")
+
+    target_include_directories("${CAR}_${BOARD}_jsoncan" SYSTEM INTERFACE ${CAN_INCLUDE_DIRS})
+endfunction()
+
+message("  🔃 Registered jsoncan_library() function")
 function(jsoncan_embedded_library_cpp BOARD CAR JSONCAN_DIR)
     jsoncan_sources_cpp(
             ${BOARD}
