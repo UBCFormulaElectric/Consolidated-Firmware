@@ -52,7 +52,7 @@ std::expected<void, ErrorCode> hw::Uart::transmit(const std::span<const uint8_t>
         return std::unexpected(ErrorCode::BUSY);
     }
 
-    // Save current task before starting a SPI transaction.
+    // Save current task before starting a UART transaction.
     taskInProgress = xTaskGetCurrentTaskHandle();
 
     auto exit = hw_utils_convertHalStatus(HAL_UART_Transmit_IT(&handle, tx.data(), static_cast<uint16_t>(tx.size())));
@@ -113,5 +113,5 @@ extern "C" void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 
 extern "C" void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
-    LOG_ERROR("SPI error: 0x%X", huart->ErrorCode);
+    LOG_ERROR("UART error: 0x%X", huart->ErrorCode);
 }
