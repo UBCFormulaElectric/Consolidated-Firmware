@@ -343,8 +343,8 @@ jobs:
     env:
       CARGO_TERM_COLOR: always
       BUILD_DIR: build_fw_test
-    container:
-      image: ubcformulaelectric/environment:cigoat
+    # container:
+    #   image: ubcformulaelectric/environment:cigoat
     steps:
       - uses: actions/checkout@v4
       - run: rustup update stable && rustup default stable
