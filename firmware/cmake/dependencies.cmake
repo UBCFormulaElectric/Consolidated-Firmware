@@ -104,6 +104,15 @@ ELSEIF ("${TARGET}" STREQUAL "test")
         GIT_SHALLOW TRUE
         DOWNLOAD_ONLY TRUE
     )
+
+    # pybind 11: library for creating python bindings for C++ code
+    CPMAddPackage(
+        NAME pybind11
+        GIT_REPOSITORY https://github.com/pybind/pybind11.git
+        VERSION 3.0.2
+        DOWNLOAD_ONLY TRUE
+    )
+    add_subdirectory(${pybind11_SOURCE_DIR})
 ENDIF ()
 
 # protobufs

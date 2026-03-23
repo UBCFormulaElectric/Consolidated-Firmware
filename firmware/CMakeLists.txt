@@ -38,7 +38,6 @@ ELSEIF ("${TARGET}" STREQUAL "test")
 ENDIF ()
 
 # libraries
-add_subdirectory(third_party)
 add_subdirectory(shared)
 add_subdirectory(logfs)
 
