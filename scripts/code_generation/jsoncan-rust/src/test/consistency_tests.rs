@@ -144,7 +144,7 @@ fn test_bus_forwarding_has_invalid_bus() {
     assert!(cdb.is_err());
     assert!(matches!(
         cdb.err().unwrap(),
-        CanDBError::BusForwarderReferencesUndefinedBus {
+        CanDBError::ForwarderReferencesUndefinedBus {
             forwarder_name,
             bus_name
         } if forwarder_name == "Forwarder1" && bus_name == "Bus2"
@@ -178,7 +178,7 @@ fn test_bus_forwarding_has_invalid_bus() {
     assert!(cdb.is_err());
     assert!(matches!(
         cdb.err().unwrap(),
-        CanDBError::BusForwarderReferencesUndefinedBus {
+        CanDBError::ForwarderReferencesUndefinedBus {
             forwarder_name,
             bus_name
         } if forwarder_name == "Forwarder1" && bus_name == "Bus2"
@@ -215,7 +215,7 @@ fn test_bus_forwarding_has_same_bus() {
     assert!(cdb.is_err());
     assert!(matches!(
         cdb.err().unwrap(),
-        CanDBError::BusForwarderReferencesSameBus {
+        CanDBError::ForwarderReferencesSameBus {
             forwarder_name,
             bus_name
         } if forwarder_name == "Forwarder1" && bus_name == "Bus1"
@@ -255,6 +255,39 @@ fn test_buses_consistent() {
             assert!(node_names.contains(&node_name));
         }
     }
+}
+
+#[test]
+fn test_bus_name_collision() {
+    let p = JsonCanParser {
+        nodes: vec![],
+        buses: vec![
+            CanBus {
+                name: "Bus1".to_string(),
+                node_names: vec![],
+                bus_speed: 500,
+                modes: vec!["ABC".into()],
+                default_mode: "ABC".into(),
+                fd: false,
+            },
+            CanBus {
+                name: "Bus1".to_string(),
+                node_names: vec![],
+                bus_speed: 500,
+                modes: vec!["ABC".into()],
+                default_mode: "ABC".into(),
+                fd: false,
+            },
+        ],
+        shared_enums: Vec::new(),
+        forwarding: Vec::new(),
+    };
+    let cdb = CanDatabase::from(p);
+    assert!(cdb.is_err());
+    assert!(matches!(
+        cdb.err().unwrap(),
+        CanDBError::BusNameCollision { bus_name } if bus_name == "Bus1"
+    ));
 }
 
 #[test]

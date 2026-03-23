@@ -418,7 +418,7 @@ impl CanDatabase {
         // figure out forwarding
         for x in &parser.forwarding {
             if x.bus1_name == x.bus2_name {
-                return Err(CanDBError::BusForwarderReferencesSameBus {
+                return Err(CanDBError::ForwarderReferencesSameBus {
                     forwarder_name: x.forwarder_name.clone(),
                     bus_name: x.bus1_name.clone(),
                 });
@@ -428,7 +428,7 @@ impl CanDatabase {
                 match &parser.buses.iter().find(|b| b.name == x.bus1_name) {
                     Some(bus) => &bus.node_names,
                     None => {
-                        return Err(CanDBError::BusForwarderReferencesUndefinedBus {
+                        return Err(CanDBError::ForwarderReferencesUndefinedBus {
                             forwarder_name: x.forwarder_name.clone(),
                             bus_name: x.bus1_name.clone(),
                         });
@@ -443,7 +443,7 @@ impl CanDatabase {
             let bus_2_node_names = match &parser.buses.iter().find(|b| b.name == x.bus2_name) {
                 Some(bus) => &bus.node_names,
                 None => {
-                    return Err(CanDBError::BusForwarderReferencesUndefinedBus {
+                    return Err(CanDBError::ForwarderReferencesUndefinedBus {
                         forwarder_name: x.forwarder_name.clone(),
                         bus_name: x.bus2_name.clone(),
                     });
@@ -463,6 +463,12 @@ impl CanDatabase {
                 return Err(CanDBError::BusDefaultModeNotInModes {
                     bus_name: bus.name.clone(),
                     default_mode: bus.default_mode.clone(),
+                });
+            }
+
+            if parser.buses.iter().filter(|b| b.name == bus.name).count() > 1 {
+                return Err(CanDBError::BusNameCollision {
+                    bus_name: bus.name.clone(),
                 });
             }
         }

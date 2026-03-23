@@ -49,11 +49,14 @@ pub enum CanDBError {
         bus_name: String,
         default_mode: String,
     },
-    BusForwarderReferencesUndefinedBus {
+    BusNameCollision {
+        bus_name: String,
+    },
+    ForwarderReferencesUndefinedBus {
         forwarder_name: String,
         bus_name: String,
     },
-    BusForwarderReferencesSameBus {
+    ForwarderReferencesSameBus {
         forwarder_name: String,
         bus_name: String,
     },
@@ -155,7 +158,12 @@ impl Debug for CanDBError {
                 "Bus '{}' has default mode '{}' which is not in its list of modes",
                 bus_name, default_mode
             ),
-            CanDBError::BusForwarderReferencesUndefinedBus {
+            CanDBError::BusNameCollision { bus_name } => write!(
+                f,
+                "Multiple buses with the name '{}' found. Bus names must be unique.",
+                bus_name
+            ),
+            CanDBError::ForwarderReferencesUndefinedBus {
                 forwarder_name,
                 bus_name,
             } => write!(
@@ -163,7 +171,7 @@ impl Debug for CanDBError {
                 "Bus forwarder '{}' references bus '{}' which is not defined",
                 forwarder_name, bus_name
             ),
-            CanDBError::BusForwarderReferencesSameBus {
+            CanDBError::ForwarderReferencesSameBus {
                 forwarder_name,
                 bus_name,
             } => write!(
