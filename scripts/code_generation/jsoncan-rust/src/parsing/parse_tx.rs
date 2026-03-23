@@ -137,8 +137,6 @@ pub fn parse_tx_data(can_data_dir: &String, tx_node_name: &String) -> Vec<JsonCa
                     msg_name, tx_node_name
                 );
             }
-            println!("{}_{}", tx_node_name, msg_name);
-            dbg!(&msg.signals);
             JsonCanMessage {
                 name: format!("{}_{}", tx_node_name, msg_name),
                 id: msg.msg_id,
