@@ -445,26 +445,26 @@ impl CanDatabase {
         }
 
         // one can check that all fields of parser are used here
-        let mut db = CanDatabase::new(parser.buses, parser.forwarding, parser.shared_enums)?;
+        let mut db = CanDatabase::construct(parser.buses, parser.forwarding, parser.shared_enums)?;
 
+        // stupid ahh lifetime hacks
         let mut rx_msg_names_to_resolve: Vec<(String, Vec<String>)> = Vec::new();
-
-        let mut enum_names: HashMap<String, Vec<String>> = HashMap::new();
-        enum_names.extend(
-            db.shared_enums
-                .iter()
-                .map(|e| (e.name.clone(), vec!["shared".into()])),
-        );
+        let mut enum_names: HashMap<String, Vec<String>> = db
+            .shared_enums
+            .iter()
+            .map(|e| (e.name.clone(), vec!["shared".into()]))
+            .collect();
 
         // first handle adding nodes and their tx_msgs
         for n in parser.nodes {
-            let tx_node_name = n.name.clone();
             enum_names.extend(
                 n.enums
                     .iter()
-                    .map(|e| (e.name.clone(), vec![tx_node_name.clone()])),
+                    .map(|e| (e.name.clone(), vec![n.name.clone()])),
             );
-            let node = CanNode {
+
+            let tx_node_name = n.name.clone(); // lifetime hack
+            db.add_node(CanNode {
                 rx_msgs_names: match n.rx_msgs {
                     JsonRxMsgNames::All => RxMsgs::All,
                     JsonRxMsgNames::RxMsgs(rx_msgs) => {
@@ -486,8 +486,7 @@ impl CanDatabase {
                     faults_count_id: a.faults.count_id,
                 }),
                 enums: n.enums,
-            };
-            db.add_node(node);
+            });
 
             // find the node in the list of nodes
             for msg in n.tx_msgs {
@@ -516,12 +515,25 @@ impl CanDatabase {
             }
         }
 
+        // consistency check to ensure uniqueness of enum names across all enum definitions
         for (enum_name, broadcasters) in enum_names {
             if broadcasters.len() > 1 {
                 return Err(CanDBError::EnumMultipleBroadcasters {
                     enum_name,
                     broadcasters,
                 });
+            }
+        }
+
+        // check that all nodes on busses are valid
+        for bus in &db.buses {
+            for node_name in &bus.node_names {
+                if !db.nodes.iter().any(|n| &n.name == node_name) {
+                    return Err(CanDBError::BusReferencesUndefinedNode {
+                        bus_name: bus.name.clone(),
+                        node_name: node_name.clone(),
+                    });
+                }
             }
         }
 
@@ -571,7 +583,11 @@ impl CanDatabase {
                 match &mut n.rx_msgs_names {
                     RxMsgs::All => (),
                     RxMsgs::RxMsgs(rx_msgs) => {
-                        assert!(!rx_msgs.contains(&id), "Node {} is trying to receive ALERT message ID {}, but that ID is already in its rx_msgs list. Note that all alerts are already RXd by default", n.name, id);
+                        assert!(
+                            !rx_msgs.contains(&id),
+                            "Node {} is trying to receive ALERT message ID {}, but that ID is already in its rx_msgs list. Note that all alerts are already RXd by default",
+                            n.name, id
+                        );
                         rx_msgs.push(id);
                     }
                 }

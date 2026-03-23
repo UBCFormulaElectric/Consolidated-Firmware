@@ -1,8 +1,8 @@
 use crate::{
-    can_database::{CanDatabase, CanSignalType},
-    parsing::JsonCanParser,
+    can_database::{BusForwarder, CanBus, CanDatabase, CanSignalType, error::CanDBError},
+    parsing::{JsonCanParser, JsonNode, JsonRxMsgNames},
 };
-use std::collections::HashSet;
+use std::{collections::HashSet, vec};
 
 #[test]
 fn test_signal_type_mapping() {
@@ -25,7 +25,7 @@ fn test_signal_type_mapping() {
 }
 
 #[test]
-fn test_message_list_consistent() {
+fn test_null() {
     let p = JsonCanParser {
         nodes: vec![],
         buses: vec![],
@@ -33,7 +33,238 @@ fn test_message_list_consistent() {
         forwarding: Vec::new(),
     };
     let cdb = CanDatabase::from(p);
+    assert!(cdb.is_ok());
 }
+
+#[test]
+fn test_valid_node_on_valid_bus() {
+    let p = JsonCanParser {
+        nodes: vec![JsonNode {
+            name: "Node1".to_string(),
+            collects_data: true,
+            enums: Vec::new(),
+            alerts: None,
+            tx_msgs: Vec::new(),
+            rx_msgs: JsonRxMsgNames::RxMsgs(Vec::new()),
+        }],
+        buses: vec![CanBus {
+            name: "Bus1".to_string(),
+            node_names: vec!["Node1".to_string()],
+            bus_speed: 500,
+            modes: vec![],
+            default_mode: "ABC".into(),
+            fd: false,
+        }],
+        shared_enums: Vec::new(),
+        forwarding: Vec::new(),
+    };
+    let cdb = CanDatabase::from(p);
+    assert!(cdb.is_ok());
+}
+
+#[test]
+fn test_invalid_node_on_valid_bus() {
+    let p = JsonCanParser {
+        nodes: vec![],
+        buses: vec![CanBus {
+            name: "Bus1".to_string(),
+            node_names: vec!["Node1".to_string()],
+            bus_speed: 500,
+            modes: vec!["ABC".into()],
+            default_mode: "ABC".into(),
+            fd: false,
+        }],
+        shared_enums: vec![],
+        forwarding: vec![],
+    };
+    let cdb = CanDatabase::from(p);
+    assert!(cdb.is_err());
+    assert!(matches!(
+        cdb.err().unwrap(),
+        CanDBError::BusReferencesUndefinedNode {
+            bus_name,
+            node_name,
+        } if bus_name == "Bus1" && node_name == "Node1"
+    ));
+}
+
+#[test]
+fn test_bus_default_mode_invalid() {
+    let p = JsonCanParser {
+        nodes: vec![],
+        buses: vec![CanBus {
+            name: "Bus1".to_string(),
+            node_names: vec![],
+            bus_speed: 500,
+            modes: vec!["ABC".into()],
+            default_mode: "XYZ".into(),
+            fd: false,
+        }],
+        shared_enums: vec![],
+        forwarding: vec![],
+    };
+    let cdb = CanDatabase::from(p);
+    assert!(cdb.is_err());
+    assert!(matches!(
+        cdb.err().unwrap(),
+        CanDBError::BusDefaultModeNotInModes {
+            bus_name,
+            default_mode,
+        } if bus_name == "Bus1" && default_mode == "XYZ"
+    ));
+}
+
+#[test]
+fn test_bus_forwarding_has_invalid_bus() {
+    let p = JsonCanParser {
+        nodes: vec![JsonNode {
+            name: "Forwarder1".into(),
+            collects_data: false,
+            enums: vec![],
+            alerts: None,
+            tx_msgs: vec![],
+            rx_msgs: JsonRxMsgNames::All,
+        }],
+        buses: vec![CanBus {
+            name: "Bus1".to_string(),
+            node_names: vec![],
+            bus_speed: 500,
+            modes: vec!["ABC".into()],
+            default_mode: "ABC".into(),
+            fd: false,
+        }],
+        shared_enums: vec![],
+        forwarding: vec![BusForwarder {
+            bus1_name: "Bus1".into(),
+            bus2_name: "Bus2".into(),
+            forwarder_name: "Forwarder1".into(),
+        }],
+    };
+    let cdb = CanDatabase::from(p);
+    assert!(cdb.is_err());
+    assert!(matches!(
+        cdb.err().unwrap(),
+        CanDBError::BusForwarderReferencesUndefinedBus {
+            forwarder_name,
+            bus_name
+        } if forwarder_name == "Forwarder1" && bus_name == "Bus2"
+    ));
+
+    let p = JsonCanParser {
+        nodes: vec![JsonNode {
+            name: "Forwarder1".into(),
+            collects_data: false,
+            enums: vec![],
+            alerts: None,
+            tx_msgs: vec![],
+            rx_msgs: JsonRxMsgNames::All,
+        }],
+        buses: vec![CanBus {
+            name: "Bus1".to_string(),
+            node_names: vec![],
+            bus_speed: 500,
+            modes: vec!["ABC".into()],
+            default_mode: "ABC".into(),
+            fd: false,
+        }],
+        shared_enums: vec![],
+        forwarding: vec![BusForwarder {
+            bus1_name: "Bus2".into(),
+            bus2_name: "Bus1".into(),
+            forwarder_name: "Forwarder1".into(),
+        }],
+    };
+    let cdb = CanDatabase::from(p);
+    assert!(cdb.is_err());
+    assert!(matches!(
+        cdb.err().unwrap(),
+        CanDBError::BusForwarderReferencesUndefinedBus {
+            forwarder_name,
+            bus_name
+        } if forwarder_name == "Forwarder1" && bus_name == "Bus2"
+    ));
+}
+
+#[test]
+fn test_bus_forwarding_has_same_bus() {
+    let p = JsonCanParser {
+        nodes: vec![JsonNode {
+            name: "Forwarder1".into(),
+            collects_data: false,
+            enums: vec![],
+            alerts: None,
+            tx_msgs: vec![],
+            rx_msgs: JsonRxMsgNames::All,
+        }],
+        buses: vec![CanBus {
+            name: "Bus1".to_string(),
+            node_names: vec![],
+            bus_speed: 500,
+            modes: vec!["ABC".into()],
+            default_mode: "ABC".into(),
+            fd: false,
+        }],
+        shared_enums: vec![],
+        forwarding: vec![BusForwarder {
+            bus1_name: "Bus1".into(),
+            bus2_name: "Bus1".into(),
+            forwarder_name: "Forwarder1".into(),
+        }],
+    };
+    let cdb = CanDatabase::from(p);
+    assert!(cdb.is_err());
+    assert!(matches!(
+        cdb.err().unwrap(),
+        CanDBError::BusForwarderReferencesSameBus {
+            forwarder_name,
+            bus_name
+        } if forwarder_name == "Forwarder1" && bus_name == "Bus1"
+    ));
+}
+
+#[test]
+fn test_bus_forwarding_has_invalid_forwarder() {
+    let p = JsonCanParser {
+        nodes: vec![],
+        buses: vec![
+            CanBus {
+                name: "Bus1".to_string(),
+                node_names: vec![],
+                bus_speed: 500,
+                modes: vec!["ABC".into()],
+                default_mode: "ABC".into(),
+                fd: false,
+            },
+            CanBus {
+                name: "Bus2".to_string(),
+                node_names: vec![],
+                bus_speed: 500,
+                modes: vec!["ABC".into()],
+                default_mode: "ABC".into(),
+                fd: false,
+            },
+        ],
+        shared_enums: vec![],
+        forwarding: vec![BusForwarder {
+            bus1_name: "Bus1".into(),
+            bus2_name: "Bus2".into(),
+            forwarder_name: "Forwarder1".into(),
+        }],
+    };
+    let cdb = CanDatabase::from(p);
+    assert!(cdb.is_err());
+    assert!(matches!(
+        cdb.err().unwrap(),
+        CanDBError::BusForwarderReferencesUndefinedNode {
+            node_name,
+            bus1_name,
+            bus2_name
+        } if bus1_name == "Bus1" && bus2_name == "Bus2" && node_name == "Forwarder1"
+    ));
+}
+
+#[test]
+fn test_logger_undefinded() {}
 
 #[test]
 fn test_buses_consistent() {
@@ -92,14 +323,20 @@ fn test_c() {
 
 #[test]
 fn test_forwarders_consistent() {
-    let cdb = setup().unwrap();
-    let bus_names: Vec<String> = cdb.buses.iter().map(|b| b.name.clone()).collect();
-    let node_names: Vec<String> = cdb.nodes.iter().map(|n| n.name.clone()).collect();
-    for f in cdb.forwarding {
-        assert!(bus_names.contains(&f.bus1_name));
-        assert!(bus_names.contains(&f.bus2_name));
-        assert!(node_names.contains(&f.forwarder_name));
-    }
+    let p = JsonCanParser {
+        nodes: vec![],
+        buses: vec![],
+        shared_enums: Vec::new(),
+        forwarding: Vec::new(),
+    };
+    let cdb = CanDatabase::from(p);
+    // let bus_names: Vec<String> = cdb.buses.iter().map(|b| b.name.clone()).collect();
+    // let node_names: Vec<String> = cdb.nodes.iter().map(|n| n.name.clone()).collect();
+    // for f in cdb.forwarding {
+    //     assert!(bus_names.contains(&f.bus1_name));
+    //     assert!(bus_names.contains(&f.bus2_name));
+    //     assert!(node_names.contains(&f.forwarder_name));
+    // }
 }
 
 #[test]

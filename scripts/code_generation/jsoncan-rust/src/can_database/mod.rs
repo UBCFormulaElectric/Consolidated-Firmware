@@ -66,7 +66,11 @@ pub struct CanDatabase {
 }
 
 impl CanDatabase {
-    pub fn new(
+    /**
+     * Note that this function will return a CanDatabase object which is still INVALID
+     * Additional validity checks are required by seperate constructors.
+     */
+    fn construct(
         buses: Vec<CanBus>,
         forwarding: Vec<BusForwarder>,
         shared_enums: Vec<CanEnum>,

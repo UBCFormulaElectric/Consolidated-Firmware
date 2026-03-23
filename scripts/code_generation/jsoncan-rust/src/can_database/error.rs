@@ -41,6 +41,27 @@ pub enum CanDBError {
         enum_name: String,
         broadcasters: Vec<String>,
     },
+    BusReferencesUndefinedNode {
+        bus_name: String,
+        node_name: String,
+    },
+    BusDefaultModeNotInModes {
+        bus_name: String,
+        default_mode: String,
+    },
+    BusForwarderReferencesUndefinedBus {
+        forwarder_name: String,
+        bus_name: String,
+    },
+    BusForwarderReferencesSameBus {
+        forwarder_name: String,
+        bus_name: String,
+    },
+    BusForwarderReferencesUndefinedNode {
+        node_name: String,
+        bus1_name: String,
+        bus2_name: String,
+    },
     PoolConnectionError(r2d2::Error),
 }
 
@@ -122,6 +143,47 @@ impl Debug for CanDBError {
                 f,
                 "Enum '{}' is broadcast by multiple nodes: {:?}",
                 enum_name, broadcasters
+            ),
+            CanDBError::BusReferencesUndefinedNode {
+                bus_name,
+                node_name,
+            } => write!(
+                f,
+                "Bus '{}' references node '{}' which is not defined",
+                bus_name, node_name
+            ),
+            CanDBError::BusDefaultModeNotInModes {
+                bus_name,
+                default_mode,
+            } => write!(
+                f,
+                "Bus '{}' has default mode '{}' which is not in its list of modes",
+                bus_name, default_mode
+            ),
+            CanDBError::BusForwarderReferencesUndefinedBus {
+                forwarder_name,
+                bus_name,
+            } => write!(
+                f,
+                "Bus forwarder '{}' references bus '{}' which is not defined",
+                forwarder_name, bus_name
+            ),
+            CanDBError::BusForwarderReferencesSameBus {
+                forwarder_name,
+                bus_name,
+            } => write!(
+                f,
+                "Bus forwarder '{}' references the same bus '{}' for both sides of the forwarder. A forwarder must connect two different buses.",
+                forwarder_name, bus_name
+            ),
+            CanDBError::BusForwarderReferencesUndefinedNode {
+                node_name,
+                bus1_name,
+                bus2_name,
+            } => write!(
+                f,
+                "Bus forwarder connecting '{}' and '{}' references forwarder node '{}' which is not defined",
+                bus1_name, bus2_name, node_name
             ),
             CanDBError::PoolConnectionError(error) => write!(f, "Pool connection error: {}", error),
         }
