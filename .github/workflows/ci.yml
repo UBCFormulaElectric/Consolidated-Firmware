@@ -342,7 +342,6 @@ jobs:
     needs: [ clang-format ]
     env:
       CARGO_TERM_COLOR: always
-      BUILD_DIR: build_fw_test
     steps:
       - uses: actions/checkout@v4
       - run: rustup update stable && rustup default stable
