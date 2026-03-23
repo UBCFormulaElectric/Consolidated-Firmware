@@ -415,31 +415,54 @@ fn generate_node_alert_msgs(node_name: &String, alerts_json: &NodeAlerts) -> [Ca
 
 impl CanDatabase {
     pub fn from(parser: JsonCanParser) -> Result<Self, CanDBError> {
+        // figure out forwarding
         for x in &parser.forwarding {
-            let bus_1_node_names: &Vec<String> = &parser
-                .buses
-                .iter()
-                .find(|b| b.name == x.bus1_name)
-                .expect("must exist")
-                .node_names;
+            if x.bus1_name == x.bus2_name {
+                return Err(CanDBError::BusForwarderReferencesSameBus {
+                    forwarder_name: x.forwarder_name.clone(),
+                    bus_name: x.bus1_name.clone(),
+                });
+            }
+
+            let bus_1_node_names: &Vec<String> =
+                match &parser.buses.iter().find(|b| b.name == x.bus1_name) {
+                    Some(bus) => &bus.node_names,
+                    None => {
+                        return Err(CanDBError::BusForwarderReferencesUndefinedBus {
+                            forwarder_name: x.forwarder_name.clone(),
+                            bus_name: x.bus1_name.clone(),
+                        });
+                    }
+                };
             if !bus_1_node_names.contains(&x.forwarder_name) {
-                // println!("{:?} {}", bus_1_node_names, &x.forwarder_name);
                 return Err(CanDBError::NodeCannotForwardFrom {
                     node_name: x.forwarder_name.clone(),
                     bus_not_on: x.bus1_name.clone(),
                 });
             }
-            let bus_2_node_names = &parser
-                .buses
-                .iter()
-                .find(|b| b.name == x.bus2_name)
-                .expect("must exist")
-                .node_names;
+            let bus_2_node_names = match &parser.buses.iter().find(|b| b.name == x.bus2_name) {
+                Some(bus) => &bus.node_names,
+                None => {
+                    return Err(CanDBError::BusForwarderReferencesUndefinedBus {
+                        forwarder_name: x.forwarder_name.clone(),
+                        bus_name: x.bus2_name.clone(),
+                    });
+                }
+            };
             if !bus_2_node_names.contains(&x.forwarder_name) {
-                // println!("{:?} {}", bus_2_node_names, &x.forwarder_name);
                 return Err(CanDBError::NodeCannotForwardTo {
                     node_name: x.forwarder_name.clone(),
                     bus_not_on: x.bus2_name.clone(),
+                });
+            }
+        }
+
+        // check bus validity
+        for bus in &parser.buses {
+            if !bus.modes.contains(&bus.default_mode) {
+                return Err(CanDBError::BusDefaultModeNotInModes {
+                    bus_name: bus.name.clone(),
+                    default_mode: bus.default_mode.clone(),
                 });
             }
         }

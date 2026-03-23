@@ -57,11 +57,6 @@ pub enum CanDBError {
         forwarder_name: String,
         bus_name: String,
     },
-    BusForwarderReferencesUndefinedNode {
-        node_name: String,
-        bus1_name: String,
-        bus2_name: String,
-    },
     PoolConnectionError(r2d2::Error),
 }
 
@@ -175,15 +170,6 @@ impl Debug for CanDBError {
                 f,
                 "Bus forwarder '{}' references the same bus '{}' for both sides of the forwarder. A forwarder must connect two different buses.",
                 forwarder_name, bus_name
-            ),
-            CanDBError::BusForwarderReferencesUndefinedNode {
-                node_name,
-                bus1_name,
-                bus2_name,
-            } => write!(
-                f,
-                "Bus forwarder connecting '{}' and '{}' references forwarder node '{}' which is not defined",
-                bus1_name, bus2_name, node_name
             ),
             CanDBError::PoolConnectionError(error) => write!(f, "Pool connection error: {}", error),
         }

@@ -51,7 +51,7 @@ fn test_valid_node_on_valid_bus() {
             name: "Bus1".to_string(),
             node_names: vec!["Node1".to_string()],
             bus_speed: 500,
-            modes: vec![],
+            modes: vec!["ABC".into()],
             default_mode: "ABC".into(),
             fd: false,
         }],
@@ -127,7 +127,7 @@ fn test_bus_forwarding_has_invalid_bus() {
         }],
         buses: vec![CanBus {
             name: "Bus1".to_string(),
-            node_names: vec![],
+            node_names: vec!["Forwarder1".into()],
             bus_speed: 500,
             modes: vec!["ABC".into()],
             default_mode: "ABC".into(),
@@ -198,7 +198,7 @@ fn test_bus_forwarding_has_same_bus() {
         }],
         buses: vec![CanBus {
             name: "Bus1".to_string(),
-            node_names: vec![],
+            node_names: vec!["Forwarder1".into()],
             bus_speed: 500,
             modes: vec!["ABC".into()],
             default_mode: "ABC".into(),
@@ -221,50 +221,6 @@ fn test_bus_forwarding_has_same_bus() {
         } if forwarder_name == "Forwarder1" && bus_name == "Bus1"
     ));
 }
-
-#[test]
-fn test_bus_forwarding_has_invalid_forwarder() {
-    let p = JsonCanParser {
-        nodes: vec![],
-        buses: vec![
-            CanBus {
-                name: "Bus1".to_string(),
-                node_names: vec![],
-                bus_speed: 500,
-                modes: vec!["ABC".into()],
-                default_mode: "ABC".into(),
-                fd: false,
-            },
-            CanBus {
-                name: "Bus2".to_string(),
-                node_names: vec![],
-                bus_speed: 500,
-                modes: vec!["ABC".into()],
-                default_mode: "ABC".into(),
-                fd: false,
-            },
-        ],
-        shared_enums: vec![],
-        forwarding: vec![BusForwarder {
-            bus1_name: "Bus1".into(),
-            bus2_name: "Bus2".into(),
-            forwarder_name: "Forwarder1".into(),
-        }],
-    };
-    let cdb = CanDatabase::from(p);
-    assert!(cdb.is_err());
-    assert!(matches!(
-        cdb.err().unwrap(),
-        CanDBError::BusForwarderReferencesUndefinedNode {
-            node_name,
-            bus1_name,
-            bus2_name
-        } if bus1_name == "Bus1" && bus2_name == "Bus2" && node_name == "Forwarder1"
-    ));
-}
-
-#[test]
-fn test_logger_undefinded() {}
 
 #[test]
 fn test_buses_consistent() {
