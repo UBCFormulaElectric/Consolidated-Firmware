@@ -352,7 +352,7 @@ jobs:
         working-directory: ./scripts/code_generation/jsoncan-rust
         run: cargo test --verbose
   test-rust-integration:
-    name: Test Rust Integration
+    name: Test Rust JSONCAN Integration
     runs-on: ubuntu-latest
     needs: [ clang-format ]
     env:
