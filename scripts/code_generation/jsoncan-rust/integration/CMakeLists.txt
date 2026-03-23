@@ -1,5 +1,5 @@
 message(STATUS "Configuring jsoncan_test")
-jsoncan_sources(
+jsoncan_sources_cpp(
         "ECU1"
         "${CMAKE_CURRENT_BINARY_DIR}"
         TRUE
