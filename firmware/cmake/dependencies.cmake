@@ -112,7 +112,7 @@ ELSEIF ("${TARGET}" STREQUAL "test")
         VERSION 3.0.2
         DOWNLOAD_ONLY TRUE
     )
-    add_subdirectory(${pybind11_SOURCE_DIR})
+    add_subdirectory(${pybind11_SOURCE_DIR} ${pybind11_BINARY_DIR})
 ENDIF ()
 
 # protobufs
