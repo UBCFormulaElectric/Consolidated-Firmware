@@ -22,7 +22,7 @@ IF ("${TARGET}" STREQUAL "test")
     compile_gtest_executable("shared_test_cpp" "${SRCS_CPP}" "${INCLUDE_DIRS_CPP}")
 
     # jsoncan lib
-    jsoncan_library("Debug" "quintuna" "${CMAKE_CURRENT_BINARY_DIR}")
+    jsoncan_library_cpp("Debug" "quintuna" "${CMAKE_CURRENT_BINARY_DIR}")
 
     # io time :)
     set(HDRS_TO_FAKE
