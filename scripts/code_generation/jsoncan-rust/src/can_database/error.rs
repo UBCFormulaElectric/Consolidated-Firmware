@@ -37,9 +37,9 @@ pub enum CanDBError {
         node_name: String,
         bus_not_on: String,
     },
-    EnumMultipleBroadcasters {
+    EnumMultipleDefinitions {
         enum_name: String,
-        broadcasters: Vec<String>,
+        definition_locs: Vec<String>,
     },
     BusReferencesUndefinedNode {
         bus_name: String,
@@ -134,13 +134,13 @@ impl Debug for CanDBError {
                 "{} cannot forward to {} as it is not on it",
                 node_name, bus_not_on
             ),
-            CanDBError::EnumMultipleBroadcasters {
+            CanDBError::EnumMultipleDefinitions {
                 enum_name,
-                broadcasters,
+                definition_locs,
             } => write!(
                 f,
                 "Enum '{}' is broadcast by multiple nodes: {:?}",
-                enum_name, broadcasters
+                enum_name, definition_locs
             ),
             CanDBError::BusReferencesUndefinedNode {
                 bus_name,

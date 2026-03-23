@@ -486,11 +486,12 @@ impl CanDatabase {
 
         // first handle adding nodes and their tx_msgs
         for n in parser.nodes {
-            enum_names.extend(
-                n.enums
-                    .iter()
-                    .map(|e| (e.name.clone(), vec![n.name.clone()])),
-            );
+            for e in &n.enums {
+                enum_names
+                    .entry(e.name.clone())
+                    .and_modify(|broadcasters| broadcasters.push(n.name.clone()))
+                    .or_insert(vec![n.name.clone()]);
+            }
 
             let tx_node_name = n.name.clone(); // lifetime hack
             db.add_node(CanNode {
@@ -547,9 +548,9 @@ impl CanDatabase {
         // consistency check to ensure uniqueness of enum names across all enum definitions
         for (enum_name, broadcasters) in enum_names {
             if broadcasters.len() > 1 {
-                return Err(CanDBError::EnumMultipleBroadcasters {
+                return Err(CanDBError::EnumMultipleDefinitions {
                     enum_name,
-                    broadcasters,
+                    definition_locs: broadcasters,
                 });
             }
         }
@@ -585,7 +586,7 @@ impl CanDatabase {
                 *old_rx_msgs = rx_msgs;
             } else {
                 panic!(
-                    "Node {} was marked as receiving all messages, but is also trying to explicitly receive some messages. Please fix the JSON input.",
+                    "Node {} was marked as receiving all messages, but is also trying to explicitly receive some messages. This is a code bug probably.",
                     rx_name
                 );
             }
