@@ -66,6 +66,7 @@ impl CanSignalType {
     }
 }
 
+#[derive(Debug)]
 pub struct CanSignal {
     // Name of this CAN signal
     pub name: String,

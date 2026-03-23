@@ -55,7 +55,7 @@ void {{msg.name}}_sendAperiodic()
     {%- for msg_bus_name in busses %}
     if (
     {%- for mode in msg.modes %}
-        can_mode_{{msg_bus_name}} & static_cast<uint32_t>(app::can_utils::{{msg_bus_name}}Mode::{{msg_bus_name.to_uppercase()}}_MODE_{{mode.to_uppercase()}}){%- if loop.last == false %} || {% endif -%}
+        can_mode_{{msg_bus_name}} & static_cast<uint32_t>(app::can_utils::{{msg_bus_name}}Mode::{{msg_bus_name.to_uppercase()}}_MODE_{{mode}}){%- if loop.last == false %} || {% endif -%}
     {%- endfor %}
     )
     {

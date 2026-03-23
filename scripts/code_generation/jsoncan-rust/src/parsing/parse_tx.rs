@@ -1,9 +1,9 @@
+use indexmap::IndexMap;
 use serde::Deserialize;
-use std::collections::HashMap;
 
 use crate::parsing::DEFAULT_BUS_MODE;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(untagged)]
 pub enum JsonCanSignal {
     ScaleOffsetBits {
@@ -92,7 +92,7 @@ struct JsonDataCapture {
 #[derive(Deserialize)]
 struct JsonTxMsg {
     msg_id: u32, // todo extra validity checks
-    signals: HashMap<String, JsonCanSignal>,
+    signals: IndexMap<String, JsonCanSignal>,
     cycle_time: Option<u32>, // todo extra validity checks
     disabled: Option<bool>,
     description: Option<String>,
@@ -103,7 +103,7 @@ struct JsonTxMsg {
 pub struct JsonCanMessage {
     pub name: String,
     pub id: u32,
-    pub signals: HashMap<String, JsonCanSignal>,
+    pub signals: IndexMap<String, JsonCanSignal>,
     pub cycle_time: Option<u32>,
     pub description: Option<String>,
     pub log_cycle_time: Option<u32>,
@@ -119,7 +119,7 @@ pub fn parse_tx_data(can_data_dir: &String, tx_node_name: &String) -> Vec<JsonCa
         tx_node_name
     ));
 
-    let json_tx_msgs: HashMap<String, JsonTxMsg> = match serde_json::from_str(&file_content) {
+    let json_tx_msgs: IndexMap<String, JsonTxMsg> = match serde_json::from_str(&file_content) {
         Ok(data) => data,
         Err(e) => panic!(
             "Failed to parse TX JSON file for node {}: {}",
@@ -137,6 +137,8 @@ pub fn parse_tx_data(can_data_dir: &String, tx_node_name: &String) -> Vec<JsonCa
                     msg_name, tx_node_name
                 );
             }
+            println!("{}_{}", tx_node_name, msg_name);
+            dbg!(&msg.signals);
             JsonCanMessage {
                 name: format!("{}_{}", tx_node_name, msg_name),
                 id: msg.msg_id,

@@ -186,6 +186,8 @@ impl CanDatabase {
         let mut s = binding.prepare("SELECT * FROM messages").unwrap();
 
         match s.query_map([], |row| {
+            let mut signals = self.get_signals_for_message(row.get(1)?).unwrap();
+            signals.sort_by(|a, b| a.start_bit.cmp(&b.start_bit));
             Ok(CanMessage {
                 name: row.get(0)?,
                 id: row.get(1)?,
@@ -195,7 +197,7 @@ impl CanDatabase {
                 telem_cycle_time: row.get(5).unwrap_or_default(),
                 tx_node_name: row.get(6)?,
                 modes: serde_json::from_str::<Vec<String>>(&row.get::<_, String>(7)?).unwrap(),
-                signals: self.get_signals_for_message(row.get(1)?).unwrap(),
+                signals,
             })
         }) {
             Err(e) => Err(CanDBError::SqlLiteError(e)),

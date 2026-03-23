@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use indexmap::IndexMap;
+
 use crate::can_database::RxMsgs;
 use crate::{
     can_database::{
@@ -186,7 +188,7 @@ fn parse_signal(
 }
 
 fn parse_tx_msg_signals(
-    json_signals: HashMap<String, JsonCanSignal>,
+    json_signals: IndexMap<String, JsonCanSignal>,
     node_enums: &Vec<CanEnum>,
     shared_enums: &Vec<CanEnum>,
     // also useful

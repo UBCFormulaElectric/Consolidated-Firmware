@@ -126,6 +126,15 @@ struct {{ message.name }}_Signals
     {{ signal.datatype() }} {{ signal.name }}_value = {{ signal.start_val_macro()}};
     {%- endfor %}
     explicit {{ message.name }}_Signals(std::span<const uint8_t> data);
+    explicit {{ message.name }}_Signals(
+        {%- for signal in message.signals -%}
+        const {{ signal.datatype() }} {{ signal.name }}_value_arg{%- if !loop.last %}, {% endif %}
+        {%- endfor %}
+    ) :
+    {%- for signal in message.signals -%}
+    {{ signal.name }}_value({{ signal.name }}_value_arg){% if !loop.last %}, {% endif %}
+    {%- endfor %}
+    {}
     {%- endif %}
     {{ message.name }}_Signals() = default;
 
