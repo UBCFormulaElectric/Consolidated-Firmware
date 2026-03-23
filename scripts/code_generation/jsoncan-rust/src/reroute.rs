@@ -3,14 +3,12 @@ use std::collections::{HashMap, HashSet};
 
 pub struct CanRxConfig {
     map_by_bus: HashMap<String, Vec<u32>>,
-    // map_by_msg: HashMap<u32, String>,
 }
 
 impl CanRxConfig {
     pub fn new() -> Self {
         CanRxConfig {
             map_by_bus: HashMap::new(),
-            // map_by_msg: HashMap::new(),
         }
     }
 
