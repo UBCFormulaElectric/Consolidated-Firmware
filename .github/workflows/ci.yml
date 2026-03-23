@@ -337,10 +337,14 @@ jobs:
           pytest -v firmware/logfs/test
 
   test-rust-jsoncan:
-    env:
-      CARGO_TERM_COLOR: always
     name: Test Rust JSONCAN
     runs-on: ubuntu-latest
+    needs: [ clang-format ]
+    env:
+      CARGO_TERM_COLOR: always
+      BUILD_DIR: build_fw_test
+    container:
+      image: ubcformulaelectric/environment:cigoat
     steps:
       - uses: actions/checkout@v4
       - run: rustup update stable && rustup default stable
