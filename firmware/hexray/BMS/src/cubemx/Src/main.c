@@ -135,7 +135,7 @@ int main(void)
     MX_TIM1_Init();
     MX_TIM3_Init();
     MX_TIM5_Init();
-    MX_USB_OTG_HS_PCD_Init();
+    //MX_USB_OTG_HS_PCD_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
     /* USER CODE END 2 */
