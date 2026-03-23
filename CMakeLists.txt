@@ -66,6 +66,7 @@ message("")
 message("⚙️ Configuring for \"${PLATFORM}\" platform and \"${TARGET}\" build target")
 IF ("${PLATFORM}" STREQUAL "firmware")
     include(scripts/code_generation/jsoncan-rust/jsoncan.cmake)
+    include(scripts/code_generation/jsoncan/jsoncan.cmake)
 
     # ======== Compiler ========
     IF ("${TARGET}" STREQUAL "binary")
