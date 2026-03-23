@@ -4,7 +4,7 @@
 
 using namespace std;
 
-static constexpr uint8_t MAX_NUM_ATTEMPTS = 10U;
+static constexpr uint8_t MAX_NUM_ATTEMPTS = 20U;
 static constexpr uint8_t GPIOS_PER_GROUP  = 3U;
 
 static array<array<uint8_t, io::adbms::REG_GROUP_SIZE>, io::NUM_SEGMENTS> reg_group;

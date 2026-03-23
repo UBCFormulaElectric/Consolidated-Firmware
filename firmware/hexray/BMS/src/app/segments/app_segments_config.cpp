@@ -120,7 +120,7 @@ expected<void, ErrorCode> configSync()
         else
         {
             const auto equal = isConfigEqual();
-            if (!equal)
+            if (equal)
             {
                 return {};
             }

@@ -59,16 +59,23 @@ void jobs_adbms_init() {
 void jobs_runAdbmsVoltages_tick()
 {
     spi_bus_lock.take(io::MAX_TIMEOUT);
-    const bool balancing_enabled = true;
-    io::adbms::wakeup();
-    app::segments::configSync();
+    //const bool balancing_enabled = false;
+    LOG_IF_ERR(io::adbms::wakeup());
+    LOG_IF_ERR(app::segments::configSync());
 
-    LOG_IF_ERR(app::segments::runVoltageConversion());
-    app::segments::broadcastCellVoltages();
-    app::segments::balancingTick(balancing_enabled);
+    // LOG_IF_ERR(app::segments::runVoltageConversion());  
+    // app::segments::broadcastCellVoltages();
+    // app::segments::balancingTick(balancing_enabled);
 
-    io::adbms::readStatusReg(stat_reg, stat_regs_success);
+    //io::adbms::readStatusReg(stat_reg, stat_regs_success);
+    
 
+    LOG_IF_ERR(app::segments::runAuxConversion());
+    app::segments::broadcastCellTemps();
+    LOG_IF_ERR(app::segments::configSync());
+
+    
+    LOG_INFO("good shi");
     spi_bus_lock.give();
 }
 

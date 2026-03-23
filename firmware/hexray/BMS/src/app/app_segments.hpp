@@ -34,6 +34,7 @@ expected<void, ErrorCode> writeConfig();
 void balancingInit();
 void balancingTick(bool enable);
 void broadcastCellVoltages();
+void broadcastCellTemps();
 
 float     getPackVoltage();
 CellParam getMaxCellVoltage();
@@ -42,5 +43,6 @@ CellParam getMaxCellTemp();
 CellParam getMinCellTemp();
 
 expected<void, ErrorCode> runVoltageConversion();
+expected<void, ErrorCode> runAuxConversion();
 
 } // namespace app::segments

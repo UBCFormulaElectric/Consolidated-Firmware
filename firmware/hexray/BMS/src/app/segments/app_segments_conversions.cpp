@@ -47,6 +47,7 @@ expected<void, ErrorCode> runAuxConversion()
         const ThermistorMux mux = static_cast<ThermistorMux>(mux_index);
         setThermistorConfig(mux);
         writeConfig();
+        configSync();
 
         RETURN_IF_ERR(io::adbms::startTempAdcConversion());
         io::time::delay(TEMP_CONV_TIME_MS);
