@@ -367,5 +367,5 @@ jobs:
           cmake --build $BUILD_DIR --target jsoncan_test
       - name: Run jsonCAN integration tests
         run: |
-          cd $BUILD_DIR/scripts/code_generation/jsoncan-rust/test/integration
+          cd $BUILD_DIR/scripts/code_generation/jsoncan-rust/integration
           valgrind --tool=memcheck --leak-check=yes ./jsoncan_test
