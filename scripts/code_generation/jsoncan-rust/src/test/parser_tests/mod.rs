@@ -5,7 +5,11 @@ use crate::{
 
 #[allow(dead_code)]
 pub fn setup() -> Result<CanDatabase, CanDBError> {
-    let _can_data_dir = std::path::Path::new(file!()).parent().unwrap();
+    let _can_data_dir = std::path::Path::new(file!())
+        .parent()
+        .unwrap()
+        .parent()
+        .unwrap();
     CanDatabase::from(JsonCanParser::new(format!(
         "{}/json_configs/valid_json1",
         _can_data_dir.display()
