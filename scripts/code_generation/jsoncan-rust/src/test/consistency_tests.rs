@@ -1,5 +1,7 @@
 use crate::{
-    can_database::{BusForwarder, CanBus, CanDatabase, CanEnum, CanSignalType, error::CanDBError},
+    can_database::{
+        BusForwarder, CanBus, CanDatabase, CanEnum, CanMessage, CanSignalType, error::CanDBError,
+    },
     parsing::{JsonCanParser, JsonNode, JsonRxMsgNames},
 };
 use std::{
@@ -330,5 +332,109 @@ fn test_enum_name_collision() {
         cdb.err().unwrap(),
         CanDBError::EnumMultipleDefinitions { enum_name, definition_locs }
         if enum_name == "Enum1" && definition_locs.contains(&"Node1".into()) && definition_locs.contains(&"Node2".into())
+    ));
+
+    let p = JsonCanParser {
+        nodes: vec![JsonNode {
+            name: "Node1".to_string(),
+            collects_data: true,
+            enums: vec![CanEnum {
+                name: "Enum1".into(),
+                values: HashMap::new(),
+            }],
+            alerts: None,
+            tx_msgs: Vec::new(),
+            rx_msgs: JsonRxMsgNames::RxMsgs(Vec::new()),
+        }],
+        buses: vec![],
+        shared_enums: vec![CanEnum {
+            name: "Enum1".into(),
+            values: HashMap::new(),
+        }],
+        forwarding: Vec::new(),
+    };
+    let cdb = CanDatabase::from(p);
+    assert!(cdb.is_err());
+    assert!(matches!(
+        cdb.err().unwrap(),
+        CanDBError::EnumMultipleDefinitions { enum_name, definition_locs }
+        if enum_name == "Enum1" && definition_locs.contains(&"Node1".into()) && definition_locs.contains(&"shared".into())
+    ));
+}
+
+#[test]
+fn test_msg_name_collision() {
+    let p = JsonCanParser {
+        nodes: vec![JsonNode {
+            name: "Node1".to_string(),
+            collects_data: true,
+            enums: Vec::new(),
+            alerts: None,
+            tx_msgs: Vec::new(),
+            rx_msgs: JsonRxMsgNames::RxMsgs(Vec::new()),
+        }],
+        buses: Vec::new(),
+        shared_enums: Vec::new(),
+        forwarding: Vec::new(),
+    };
+    let cdb = CanDatabase::from(p);
+    assert!(cdb.is_ok());
+    let mut cdb = cdb.unwrap();
+
+    let r = cdb.add_tx_msg(CanMessage {
+        name: "Msg1".into(),
+        id: 0x123,
+        description: None,
+        cycle_time: None,
+        signals: Vec::new(),
+        log_cycle_time: None,
+        telem_cycle_time: None,
+        tx_node_name: "Node1".into(),
+        modes: Vec::new(),
+    });
+    assert!(r.is_ok());
+
+    let r = cdb.add_tx_msg(CanMessage {
+        name: "Msg1".into(),
+        id: 0x124,
+        description: None,
+        cycle_time: None,
+        signals: Vec::new(),
+        log_cycle_time: None,
+        telem_cycle_time: None,
+        tx_node_name: "Node1".into(),
+        modes: Vec::new(),
+    });
+    assert!(r.is_err());
+    assert!(matches!(
+        r.err().unwrap(),
+        CanDBError::DuplicateTxMsgName {
+            tx_node_name_1,
+            tx_node_name_2,
+            tx_msg_name
+        } if tx_node_name_1 == "Node1" && tx_node_name_2 == "Node1" && tx_msg_name == "Msg1"
+    ));
+
+    let r = cdb.add_tx_msg(CanMessage {
+        name: "Msg2".into(),
+        id: 0x123,
+        description: None,
+        cycle_time: None,
+        signals: Vec::new(),
+        log_cycle_time: None,
+        telem_cycle_time: None,
+        tx_node_name: "Node1".into(),
+        modes: Vec::new(),
+    });
+    assert!(r.is_err());
+    let e = r.err().unwrap();
+    println!("Error: {:?}", e);
+    assert!(matches!(
+        e,
+        CanDBError::DuplicateTxMsgID {
+            tx_node_name_1,
+            tx_node_name_2,
+            tx_msg_name
+        } if tx_node_name_1 == "Node1" && tx_node_name_2 == "Node1" && tx_msg_name == "Msg2"
     ));
 }

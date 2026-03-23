@@ -214,6 +214,18 @@ impl CanDatabase {
                             tx_msg_name: msg.name.clone(),
                         }
                     },
+                    rusqlite::Error::SqliteFailure(err, Some(err_msg))
+                    if err.code == rusqlite::ErrorCode::ConstraintViolation && err_msg.contains("UNIQUE constraint failed: messages.id") => {
+                        CanDBError::DuplicateTxMsgID {
+                            tx_node_name_1: msg.tx_node_name,
+                            tx_node_name_2: self.get_connection().unwrap().query_row(
+                                "SELECT tx_node_name FROM messages WHERE id = ?1",
+                                rusqlite::params![msg.id],
+                                |row| row.get::<_, String>(0),
+                            ).expect("Failed to query for duplicate message ID"),
+                            tx_msg_name: msg.name.clone(),
+                        }
+                    }
                     _ => CanDBError::SqlLiteError(e)
                 }
             }
