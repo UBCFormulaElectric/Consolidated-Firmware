@@ -2,6 +2,7 @@
 #include "io_efuse.hpp"
 #include "io_efuse_TI_TPS28.hpp"
 #include "io_efuse_TI_TPS25.hpp"
+#include "app_canTx.hpp"
 
 namespace app::powerManager
 {
