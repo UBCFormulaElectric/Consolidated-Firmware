@@ -5,7 +5,8 @@ import { RefObject, useEffect, useRef } from "react";
 import { AlertSeries } from "./CanvasChartTypes";
 import { useSyncedGraph } from "../SyncedGraphContainer";
 
-const INITIAL_SLIP_STREAM_LANES = 4;
+const INITIAL_SLIP_STREAM_LANES = 5;
+const MAX_SLIP_STREAM_LANES = 5;
 const SLIP_STREAM_GAP = 5;
 const PROCESSING_INTERVAL_MS = 1;
 const SLIP_STREAM_ROUNDING_RADIUS = 8;
@@ -159,6 +160,7 @@ const renderAlertTimeline = (
   height: number,
   leftEdge: number,
   rightEdge: number,
+  bottom: number,
   liveTime: number,
   slipStreamLanes: number,
   hover: HoverInfo,
@@ -190,7 +192,7 @@ const renderAlertTimeline = (
     // NOTE(evan): The rounding instantly going away jumps out at ur eyes so 
     //             smoothe it it doesn't look good if u stare at it but because it
     //             doesn't jump out you shouldn't see it most of the time.
-    const distanceFromRightEdgePx = (liveTime - endTime) * pixelsPerMillisecond;
+    const distanceFromRightEdgePx = (rightEdge - endTime) * pixelsPerMillisecond;
     const rightRadius = Math.min(Math.max(distanceFromRightEdgePx * SLIP_STREAM_ROUNDING_SPEED, 0), SLIP_STREAM_ROUNDING_RADIUS);
 
     ctx.beginPath();
@@ -246,7 +248,7 @@ const renderAlertTimeline = (
   const tooltipWidth = textWidth + TOOLTIP_PADDING_X * 2;
   const tooltipHeight = 14 + TOOLTIP_PADDING_Y * 2;
   
-  const isAboveTooltip = alert.streamIndex === slipStreamLanes - 1;
+  const isAboveTooltip = laneY + heightPerLane + tooltipHeight + TOOLTIP_TRIANGLE_SIZE + TOOLTIP_GAP > bottom;
   
   const triangleTop = isAboveTooltip ? laneY - TOOLTIP_GAP : barBottom + TOOLTIP_GAP;
   const tooltipTop = isAboveTooltip ? triangleTop - TOOLTIP_TRIANGLE_SIZE : triangleTop + TOOLTIP_TRIANGLE_SIZE;
@@ -273,6 +275,7 @@ const renderAlertTimeline = (
 function AlertTimeline() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const scrollableRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const animationFrame = useRef<number | null>(null);
 
   const {
@@ -335,6 +338,10 @@ function AlertTimeline() {
         ctx,
       );
 
+      const wrapperClientRect = wrapperRef.current?.getBoundingClientRect();
+      const top = wrapperRef.current?.scrollTop ?? 0;
+      const bottom = top + (wrapperClientRect?.height ?? 0);
+
       renderAlertTimeline(
         ctx,
         renderState.current,
@@ -342,6 +349,7 @@ function AlertTimeline() {
         rect.height,
         leftEdge,
         rightEdge - 15 / scalePxPerSecRef.current,
+        bottom,
         liveTime,
         slipStreamLanes.current,
         hoverInfo.current,
@@ -415,20 +423,26 @@ function AlertTimeline() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div
-        className="relative flex w-full"
-        ref={scrollableRef}
+      <div className="overflow-y-scroll scrollbar-hidden overscroll-none"
+        ref={wrapperRef}
         style={{
-          backgroundColor: "lightgray",
-          height: `${INITIAL_SLIP_STREAM_LANES * 32}px`,
+          maxHeight: `${MAX_SLIP_STREAM_LANES * 32 + (MAX_SLIP_STREAM_LANES - 1) * SLIP_STREAM_GAP}px`,
         }}
       >
-        <canvas
-          className="w-full h-full"
-          ref={canvasRef}
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
-        ></canvas>
+        <div
+          className="relative flex w-full"
+          ref={scrollableRef}
+          style={{
+            height: `${INITIAL_SLIP_STREAM_LANES * 32}px`,
+          }}
+        >
+          <canvas
+            className="w-full h-full"
+            ref={canvasRef}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+          ></canvas>
+        </div>
       </div>
     </div>
   );
