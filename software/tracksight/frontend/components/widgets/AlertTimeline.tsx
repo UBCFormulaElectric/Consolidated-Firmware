@@ -145,9 +145,7 @@ const hitTestAlerts = (
     ctx.font = LABEL_FONT;
     const textWidth = ctx.measureText(alert.signal).width;
 
-    if (visibleWidth < textWidth + LABEL_PADDING * 2) {
-      return { alertIndex: i };
-    }
+    if (visibleWidth < textWidth + LABEL_PADDING * 2) return { alertIndex: i };
     return null;
   }
 
@@ -211,65 +209,65 @@ const renderAlertTimeline = (
     ctx.font = LABEL_FONT;
     const textWidth = ctx.measureText(alert.signal).width;
 
-    if (visibleWidth >= textWidth + LABEL_PADDING * 2) {
-      ctx.save();
-      ctx.beginPath();
-      ctx.rect(visibleStartX, laneY, visibleWidth, heightPerLane);
-      ctx.clip();
+    if (visibleWidth < textWidth + LABEL_PADDING * 2) return;
 
-      ctx.fillStyle = "#ffffff";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(
-        alert.signal,
-        visibleStartX + visibleWidth / 2,
-        laneY + heightPerLane / 2,
-      );
-      ctx.restore();
-    }
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(visibleStartX, laneY, visibleWidth, heightPerLane);
+    ctx.clip();
+
+    ctx.fillStyle = "#ffffff";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(
+      alert.signal,
+      visibleStartX + visibleWidth / 2,
+      laneY + heightPerLane / 2,
+    );
+    ctx.restore();
   });
 
-  if (hover && hover.alertIndex < state.length) {
-    const alert = state[hover.alertIndex];
-    if (alert.streamIndex < slipStreamLanes) {
-      const laneY = alert.streamIndex * (heightPerLane + laneGap);
-      const alertStartX = alert.startTime < leftEdge ? 0 : (alert.startTime - leftEdge) * pixelsPerMillisecond;
-      const alertEndX = alert.endTime ? (alert.endTime - leftEdge) * pixelsPerMillisecond : (liveTime - leftEdge) * pixelsPerMillisecond;
-      const visibleStartX = Math.max(alertStartX, 0);
-      const visibleEndX = Math.min(alertEndX, width);
-      const visibleWidth = visibleEndX - visibleStartX;
-      const centerX = visibleStartX + visibleWidth / 2;
-      const barBottom = laneY + heightPerLane;
+  if (!hover || hover.alertIndex >= state.length) return;
+  const alert = state[hover.alertIndex];
+  
+  if (alert.streamIndex >= slipStreamLanes) return;
 
-      ctx.font = TOOLTIP_FONT;
-      const textWidth = ctx.measureText(alert.signal).width;
-      const tooltipWidth = textWidth + TOOLTIP_PADDING_X * 2;
-      const tooltipHeight = 14 + TOOLTIP_PADDING_Y * 2;
-      
-      const isAboveTooltip = alert.streamIndex === slipStreamLanes - 1;
-      
-      const triangleTop = isAboveTooltip ? laneY - TOOLTIP_GAP : barBottom + TOOLTIP_GAP;
-      const tooltipTop = isAboveTooltip ? triangleTop - TOOLTIP_TRIANGLE_SIZE : triangleTop + TOOLTIP_TRIANGLE_SIZE;
+  const laneY = alert.streamIndex * (heightPerLane + laneGap);
+  const alertStartX = alert.startTime < leftEdge ? 0 : (alert.startTime - leftEdge) * pixelsPerMillisecond;
+  const alertEndX = alert.endTime ? (alert.endTime - leftEdge) * pixelsPerMillisecond : (liveTime - leftEdge) * pixelsPerMillisecond;
+  const visibleStartX = Math.max(alertStartX, 0);
+  const visibleEndX = Math.min(alertEndX, width);
+  const visibleWidth = visibleEndX - visibleStartX;
+  const centerX = visibleStartX + visibleWidth / 2;
+  const barBottom = laneY + heightPerLane;
 
-      ctx.fillStyle = "#ffffff";
-      ctx.beginPath();
-      ctx.moveTo(centerX - TOOLTIP_TRIANGLE_SIZE, isAboveTooltip ? triangleTop - TOOLTIP_TRIANGLE_SIZE : triangleTop + TOOLTIP_TRIANGLE_SIZE);
-      ctx.lineTo(centerX, triangleTop);
-      ctx.lineTo(centerX + TOOLTIP_TRIANGLE_SIZE, isAboveTooltip ? triangleTop - TOOLTIP_TRIANGLE_SIZE : triangleTop + TOOLTIP_TRIANGLE_SIZE);
-      ctx.closePath();
-      ctx.fill();
+  ctx.font = TOOLTIP_FONT;
+  const textWidth = ctx.measureText(alert.signal).width;
+  const tooltipWidth = textWidth + TOOLTIP_PADDING_X * 2;
+  const tooltipHeight = 14 + TOOLTIP_PADDING_Y * 2;
+  
+  const isAboveTooltip = alert.streamIndex === slipStreamLanes - 1;
+  
+  const triangleTop = isAboveTooltip ? laneY - TOOLTIP_GAP : barBottom + TOOLTIP_GAP;
+  const tooltipTop = isAboveTooltip ? triangleTop - TOOLTIP_TRIANGLE_SIZE : triangleTop + TOOLTIP_TRIANGLE_SIZE;
 
-      const tooltipX = Math.max(0, Math.min(centerX - tooltipWidth / 2, width - tooltipWidth));
-      ctx.beginPath();
-      ctx.roundRect(tooltipX, tooltipTop + (isAboveTooltip ? -tooltipHeight : 0), tooltipWidth, tooltipHeight, 4);
-      ctx.fill();
+  ctx.fillStyle = "#ffffff";
+  ctx.beginPath();
+  ctx.moveTo(centerX - TOOLTIP_TRIANGLE_SIZE, isAboveTooltip ? triangleTop - TOOLTIP_TRIANGLE_SIZE : triangleTop + TOOLTIP_TRIANGLE_SIZE);
+  ctx.lineTo(centerX, triangleTop);
+  ctx.lineTo(centerX + TOOLTIP_TRIANGLE_SIZE, isAboveTooltip ? triangleTop - TOOLTIP_TRIANGLE_SIZE : triangleTop + TOOLTIP_TRIANGLE_SIZE);
+  ctx.closePath();
+  ctx.fill();
 
-      ctx.fillStyle = "#333333";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(alert.signal, tooltipX + tooltipWidth / 2, tooltipTop + (isAboveTooltip ? -tooltipHeight : tooltipHeight) / 2);
-    }
-  }
+  const tooltipX = Math.max(0, Math.min(centerX - tooltipWidth / 2, width - tooltipWidth));
+  ctx.beginPath();
+  ctx.roundRect(tooltipX, tooltipTop + (isAboveTooltip ? -tooltipHeight : 0), tooltipWidth, tooltipHeight, 4);
+  ctx.fill();
+
+  ctx.fillStyle = "#333333";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(alert.signal, tooltipX + tooltipWidth / 2, tooltipTop + (isAboveTooltip ? -tooltipHeight : tooltipHeight) / 2);
 };
 
 function AlertTimeline() {
