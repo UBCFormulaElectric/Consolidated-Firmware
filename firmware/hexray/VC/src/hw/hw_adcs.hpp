@@ -4,18 +4,18 @@
 
 namespace hw::adcs
 {
-void                chipsInit();
-extern const float *front_sns;
-extern const float *r_inv_sns;
-extern const float *bms_sns;
-extern const float *rl_pump_i_sns;
-extern const float *l_rad_fan_i_sns;
-extern const float *rr_pump_i_sns;
-extern const float *dam_sns;
-extern const float *r_rad_fan_i_sns;
-extern const float *misc_fuse_sns;
-extern const float *f_inv_sns;
-extern const float *rsm_sns;
+void             chipsInit();
+extern const Adc adc_front;
+extern const Adc adc_r_inv;
+extern const Adc adc_bms;
+extern const Adc adc_rl_pump;
+extern const Adc adc_l_rad_fan;
+extern const Adc adc_rr_pump;
+extern const Adc adc_dam;
+extern const Adc adc_r_rad_fan;
+extern const Adc adc_misc_fuse;
+extern const Adc adc_f_inv;
+extern const Adc adc_rsm;
 } // namespace hw::adcs
 
 extern "C"

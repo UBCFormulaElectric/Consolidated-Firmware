@@ -17,3 +17,8 @@ enum GpioNetName {
   GPIO_SD_FAIL = 11;
   GPIO_D_P_PULLUP = 12;
 }
+
+enum UartNetName {
+  UART_NET_NAME_UNSPECIFIED = 0;
+  UART_RADIO = 1;
+}

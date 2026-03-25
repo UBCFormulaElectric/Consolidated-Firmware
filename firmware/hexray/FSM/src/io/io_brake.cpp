@@ -14,25 +14,25 @@ constexpr float BRAKE_ACTUATED_THRESHOLD_PSI  = 200.0f; // Minimum pressure (in 
 constexpr float BRAKE_PSI_PER_VOLT = (2500.0f / (BRAKE_PRESSURE_SC_THRESHOLD_V - BRAKE_PRESSURE_OC_THRESHOLD_V));
 
 // Converts an ADC voltage reading to brake pressure (in Psi)
-static float pressureFromVoltage(float voltage)
+static float pressureFromVoltage(const float voltage)
 {
     // The sensor's effective input range is reduced by the voltage divider.
     // Calculation: (ADC Voltage - Minimum Input Voltage) * Psi Per Volt
     return BRAKE_PSI_PER_VOLT * (voltage - BRAKE_PRESSURE_OC_THRESHOLD_V);
 }
 
-bool isActuated(void)
+bool isActuated()
 {
-    return io::brake::getFrontPressurePsi() > BRAKE_ACTUATED_THRESHOLD_PSI;
+    return getFrontPressurePsi() > BRAKE_ACTUATED_THRESHOLD_PSI;
 }
 
-float getFrontPressurePsi(void)
+float getFrontPressurePsi()
 {
     return pressureFromVoltage(hw::adcs::bps_f.getVoltage());
 }
 
-bool OCSC(void)
+bool OCSC()
 {
-    return !hw::gpios::nbps_f_ocsc.readPin();
+    return !nbps_f_ocsc.readPin();
 }
 } // namespace io::brake
