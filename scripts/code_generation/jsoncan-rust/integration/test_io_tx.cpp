@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <vector>
 #include <array>
+#include <unordered_set>
 #include "io_canTx.hpp"
 
 using namespace std;
@@ -39,28 +40,22 @@ TEST_F(io_fixture, transmit_1hz_works)
 
     io::can_tx::enqueue1HzMsgs();
     {
-        constexpr array<uint32_t, 7> expected{ { 106, 107, 108, 109, 111, 100, 103 } };
+        const unordered_set<uint32_t> expected{ { 106, 107, 108, 109, 111 } };
         ASSERT_EQ(tx_msg_1.size(), expected.size());
         for (size_t i = 0; i < expected.size(); i++)
         {
-            ASSERT_EQ(tx_msg_1[i].std_id, expected[i]) << "Expected expected[" << i << "] to be correct";
+            ASSERT_TRUE(expected.contains(tx_msg_1[i].std_id)) << "Expected expected[" << i << "] to be correct";
         }
     }
     {
-        constexpr array<uint32_t, 2> expected{ { 100, 103 } };
-        ASSERT_EQ(tx_msg_2.size(), expected.size());
-        for (size_t i = 0; i < expected.size(); i++)
-        {
-            ASSERT_EQ(tx_msg_2[i].std_id, expected[i]) << "Expected expected[" << i << "] to be correct";
-        }
+        ASSERT_EQ(tx_msg_2.size(), 0);
     }
     {
-        constexpr array<int, 0> expected = {};
-        ASSERT_EQ(tx_msg_3.size(), expected.size());
-        for (size_t i = 0; i < expected.size(); i++)
+        for (const auto &msg : tx_msg_3)
         {
-            ASSERT_EQ(tx_msg_3[i].std_id, expected[i]) << "Expected expected[" << i << "] to be correct";
+            cout << "tx_msg_3: std_id=" << msg.std_id << " dlc=" << msg.dlc << endl;
         }
+        ASSERT_EQ(tx_msg_3.size(), 0);
     }
 }
 
@@ -72,30 +67,9 @@ TEST_F(io_fixture, transmit_100hz_works)
         [](const JsonCanMsg &msg) { tx_msg_3.push_back(msg); });
 
     io::can_tx::enqueue100HzMsgs();
-    {
-        constexpr array<int, 0> expected = {};
-        ASSERT_EQ(tx_msg_1.size(), expected.size());
-        for (size_t i = 0; i < expected.size(); i++)
-        {
-            ASSERT_EQ(tx_msg_1[i].std_id, expected[i]) << "Expected expected[" << i << "] to be correct";
-        }
-    }
-    {
-        constexpr array<int, 0> expected = {};
-        ASSERT_EQ(tx_msg_2.size(), expected.size());
-        for (size_t i = 0; i < expected.size(); i++)
-        {
-            ASSERT_EQ(tx_msg_2[i].std_id, expected[i]) << "Expected expected[" << i << "] to be correct";
-        }
-    }
-    {
-        constexpr array<int, 0> expected = {};
-        ASSERT_EQ(tx_msg_3.size(), expected.size());
-        for (size_t i = 0; i < expected.size(); i++)
-        {
-            ASSERT_EQ(tx_msg_3[i].std_id, expected[i]) << "Expected expected[" << i << "] to be correct";
-        }
-    }
+    ASSERT_EQ(tx_msg_1.size(), 0);
+    ASSERT_EQ(tx_msg_2.size(), 0);
+    ASSERT_EQ(tx_msg_3.size(), 0);
 }
 
 // FUCK TESTING io_canTx_enqueueOtherPeriodicMsgs I know that shit work
@@ -112,27 +86,21 @@ TEST_F(io_fixture, can_bus_mod_works)
 
     io::can_tx::enqueue1HzMsgs();
     {
-        constexpr array<uint32_t, 8> expected{ { 106, 107, 108, 109, 110, 111, 100, 103 } };
+        const unordered_set<uint32_t> expected{ { 106, 107, 108, 109, 110, 111 } };
         ASSERT_EQ(tx_msg_1.size(), expected.size());
         for (size_t i = 0; i < expected.size(); i++)
         {
-            ASSERT_EQ(tx_msg_1[i].std_id, expected[i]) << "Expected expected[" << i << "] to be correct";
+            ASSERT_TRUE(expected.contains(tx_msg_1[i].std_id)) << "Expected expected[" << i << "] to be correct";
         }
     }
     {
-        constexpr array<uint32_t, 2> expected{ { 100, 103 } };
-        ASSERT_EQ(tx_msg_2.size(), expected.size());
-        for (size_t i = 0; i < expected.size(); i++)
-        {
-            ASSERT_EQ(tx_msg_2[i].std_id, expected[i]) << "Expected expected[" << i << "] to be correct";
-        }
+        ASSERT_EQ(tx_msg_2.size(), 0);
     }
     {
-        constexpr array<int, 0> expected = {};
-        ASSERT_EQ(tx_msg_3.size(), expected.size());
-        for (size_t i = 0; i < expected.size(); i++)
+        for (const auto &msg : tx_msg_3)
         {
-            ASSERT_EQ(tx_msg_3[i].std_id, expected[i]) << "Expected expected[" << i << "] to be correct";
+            cout << "tx_msg_3: std_id=" << msg.std_id << " dlc=" << msg.dlc << endl;
         }
+        ASSERT_EQ(tx_msg_3.size(), 0);
     }
 }

@@ -57,7 +57,7 @@ TEST(PackUnpackTests, test_basic_signal_types)
         std::array<uint8_t, 8> payload{};
         in_msgs[i].pack(payload);
         // Confirm encoded payload matches the expected value.
-        ASSERT_EQ(expected_payloads[i], *reinterpret_cast<uint64_t *>(payload.data()));
+        ASSERT_EQ(expected_payloads[i], *reinterpret_cast<uint64_t *>(payload.data())) << " for message index " << i;
 
         // Confirm we can decode the payload, which should match the original message.
         app::can_utils::ECU1_BasicSignalTypes_Signals out_msg{ payload };
@@ -105,7 +105,7 @@ TEST(PackUnpackTests, test_decimal_numbers)
         in_msgs[i].pack(payload);
 
         // Confirm encoded payload matches the expected value.
-        ASSERT_EQ(expected_payloads[i], *reinterpret_cast<uint64_t *>(payload.data()));
+        ASSERT_EQ(expected_payloads[i], *reinterpret_cast<uint64_t *>(payload.data())) << " for message index " << i;
 
         // Confirm we can decode the payload, which should match the original message.
         const app::can_utils::ECU1_DecimalNumbers_Signals out_msg{ payload };
@@ -141,12 +141,14 @@ TEST(PackUnpackTests, test_signed_numbers)
         in_msgs[i].pack(payload);
 
         // Confirm encoded payload matches the expected value.
-        ASSERT_EQ(expected_payloads[i], *reinterpret_cast<uint64_t *>(payload.data()));
+        ASSERT_EQ(expected_payloads[i], *reinterpret_cast<uint64_t *>(payload.data())) << " for message index " << i;
 
         // Confirm we can decode the payload, which should match the original message.
         app::can_utils::ECU1_DbcMatching_Signals out_msg{ payload };
-        ASSERT_NEAR(out_msg.ECU1_DbcMatchingTemp_value, in_msgs[i].ECU1_DbcMatchingTemp_value, 0.1);
-        ASSERT_EQ(out_msg.ECU1_DbcMatchingRpm_value, in_msgs[i].ECU1_DbcMatchingRpm_value);
+        ASSERT_NEAR(out_msg.ECU1_DbcMatchingTemp_value, in_msgs[i].ECU1_DbcMatchingTemp_value, 0.1)
+            << " for message index " << i;
+        ASSERT_EQ(out_msg.ECU1_DbcMatchingRpm_value, in_msgs[i].ECU1_DbcMatchingRpm_value)
+            << " for message index " << i;
     }
 }
 
@@ -164,7 +166,7 @@ TEST(PackUnpackTests, test_long_message)
     // Confirm encoded payload matches the expected value.
     for (int i = 0; i < 16; i++)
     {
-        ASSERT_EQ(payload.words[i], i + 1);
+        ASSERT_EQ(payload.words[i], i + 1) << " for signal index " << i;
     }
 
     // Confirm we can decode the payload, which should match the original message.

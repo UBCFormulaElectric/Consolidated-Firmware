@@ -105,10 +105,16 @@ impl CanSignal {
         format!("CANSIG_{}_OFFSET", self.snake_name().to_uppercase())
     }
 
+    pub fn is_integral(self: &Self) -> bool {
+        matches!(self.signal_type, CanSignalType::Numerical)
+            && self.scale.fract() == 0.0
+            && self.offset.fract() == 0.0
+    }
+
     pub fn datatype(self: &Self) -> String {
         match self.signal_type {
             CanSignalType::Numerical => {
-                if self.scale != 1.0 || self.offset != 0.0 {
+                if !self.is_integral() {
                     "float".to_string()
                 } else if self.signed {
                     match self.bits {
@@ -177,16 +183,24 @@ impl CanSignal {
 
     fn val_name(self: &Self, value: f64) -> String {
         match self.signal_type {
-            CanSignalType::Numerical => {
+            CanSignalType::Numerical if !self.is_integral() => {
                 format!("{:?}f", value)
             }
-            CanSignalType::Boolean => {
-                if value == 0f64 {
-                    "false".to_string()
+            CanSignalType::Numerical => {
+                if value < 0.0 {
+                    format!("{:?}", value as i64)
                 } else {
-                    "true".to_string()
+                    format!("{:?}", value as u64)
                 }
             }
+            CanSignalType::Boolean => match value {
+                0f64 => "false".to_string(),
+                1f64 => "true".to_string(),
+                _ => panic!(
+                    "Boolean signal {} has non-boolean value {}",
+                    self.name, value
+                ),
+            },
             CanSignalType::Enum => format!(
                 "static_cast<{}>({})",
                 self.enum_name.as_ref().expect(&format!(
@@ -211,12 +225,44 @@ impl CanSignal {
         self.val_name(self.min)
     }
 
+    fn offset_scale_val_name(self: &Self, value: f64) -> String {
+        match self.signal_type {
+            CanSignalType::Numerical => self.val_name(value),
+            CanSignalType::Boolean | CanSignalType::Alert => match value {
+                0f64 => "0".to_string(),
+                1f64 => "1".to_string(),
+                _ => panic!(
+                    "Boolean/Alert signal {} has non-boolean value {}",
+                    self.name, value
+                ),
+            },
+            CanSignalType::Enum => (value as u64).to_string(),
+        }
+    }
+
     pub fn scale_val_name(self: &Self) -> String {
-        format!("{:?}f", self.scale)
+        self.offset_scale_val_name(self.scale)
     }
 
     pub fn offset_val_name(self: &Self) -> String {
-        format!("{:?}f", self.offset)
+        self.offset_scale_val_name(self.offset)
+    }
+
+    pub fn offset_scale_datatype(self: &Self) -> String {
+        match self.signal_type {
+            CanSignalType::Numerical => {
+                if self.scale.fract() != 0.0 || self.offset.fract() != 0.0 {
+                    "float".to_string()
+                } else if self.signed {
+                    "int64_t".to_string()
+                } else {
+                    "uint64_t".to_string()
+                }
+            }
+            CanSignalType::Boolean => "bool".to_string(),
+            CanSignalType::Enum => "uint32_t".to_string(),
+            CanSignalType::Alert => "bool".to_string(),
+        }
     }
 }
 

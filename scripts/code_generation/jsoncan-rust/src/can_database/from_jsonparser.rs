@@ -161,7 +161,7 @@ fn parse_signal(
                     (-1_i128 << (bits - 1)) as f64,
                     ((1_u128 << (bits - 1)) - 1) as f64,
                 ),
-                Some(false) | None => (0.0, (1u128 << bits - 1) as f64),
+                Some(false) | None => (0.0, ((1u128 << bits) - 1) as f64),
             };
 
             CanSignal {
@@ -333,7 +333,7 @@ fn generate_node_alert_msgs(node_name: &String, alerts_json: &NodeAlerts) -> [Ca
     let (info_signals, info_counts_signals) =
         parse_node_alert_signals(node_name, &alerts_json.infos, CanAlertType::Info);
 
-    static WARNINGS_ALERTS_CYCLE_TIME: Option<u32> = Some(1000);
+    static WARNINGS_ALERTS_CYCLE_TIME: Option<u32> = Some(100);
     static FAULTS_ALERTS_CYCLE_TIME: Option<u32> = Some(100);
     static INFO_ALERTS_CYCLE_TIME: Option<u32> = Some(100);
 
