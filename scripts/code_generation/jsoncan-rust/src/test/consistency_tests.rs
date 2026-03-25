@@ -1,6 +1,7 @@
 use crate::{
     can_database::{
-        BusForwarder, CanBus, CanDatabase, CanEnum, CanMessage, CanSignalType, error::CanDBError,
+        BusForwarder, CanBus, CanBusModes, CanDatabase, CanEnum, CanMessage, CanSignalType,
+        error::CanDBError,
     },
     parsing::{JsonCanParser, JsonNode, JsonRxMsgNames},
 };
@@ -390,7 +391,7 @@ fn test_msg_name_collision() {
         log_cycle_time: None,
         telem_cycle_time: None,
         tx_node_name: "Node1".into(),
-        modes: Vec::new(),
+        modes: CanBusModes::All,
     });
     assert!(r.is_ok());
 
@@ -403,7 +404,7 @@ fn test_msg_name_collision() {
         log_cycle_time: None,
         telem_cycle_time: None,
         tx_node_name: "Node1".into(),
-        modes: Vec::new(),
+        modes: CanBusModes::All,
     });
     assert!(r.is_err());
     assert!(matches!(
@@ -424,7 +425,7 @@ fn test_msg_name_collision() {
         log_cycle_time: None,
         telem_cycle_time: None,
         tx_node_name: "Node1".into(),
-        modes: Vec::new(),
+        modes: CanBusModes::All,
     });
     assert!(r.is_err());
     let e = r.err().unwrap();
