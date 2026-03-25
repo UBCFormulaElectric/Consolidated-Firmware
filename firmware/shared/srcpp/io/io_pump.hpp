@@ -4,7 +4,8 @@
 #include "hw_i2cs.hpp"
 #include "io_efuses.h"
 #include "io_pump.h"
-using namespace io{
+
+namespace io{
     class pump
     {
     public:
@@ -13,161 +14,39 @@ using namespace io{
         bool invert, 
         io::Efuse *efuse)
         : pot_{&pumps_pot}, wiper_{wiper}, invert_{invert}, efuse_{efuse}{}
-        static ExitCode requirePumpResource(const PumpConfig *cfg, const void *resource, ExitCode err_code)
-        {
-            if (cfg == NULL || resource == NULL)
-            {
-                return err_code;
-            }
-            return EXIT_CODE_OK;
-        }
 
-        void init(const PumpConfig *table, size_t count)
-        {
-            assert(table != NULL || count == 0u);
-            assert(count <= PUMP_COUNT);
+        struct PumpConfig{
+            const Potentiometer* pot;
+            Wiper wiper;
+            bool invert;
+            io::Efuse* efuse;
+        };
+        void init(const PumpConfig *pump, size_t count);
+        static const std::Expected<PumpConfig, ErrorCode> lookupPump(PumpID id);
+        std::Expected<void,ErrorCode> setPercent(PumpID id, uint8_t percent);
+        std::Expected<,ErrorCode> getPercent(PumpID id, uint8_t *percent_out);
+        std::Expected<void ,ErrorCode> enable(PumpID id, bool enable);
+        const bool isEnabled(PumpID id);
+        const bool getHealth(PumpID id);
 
-            for (size_t i = 0u; i < count; i++)
-            {
-                pump_table[i] = &table[i];
-            }
-            for (size_t i = count; i < PUMP_COUNT; i++)
-            {
-                pump_table[i] = NULL;
-            }
-
-            pump_count = count;
-        }
-
-        void registerConfig(PumpConfig *const table[], size_t count)
-        {
-            assert(table != NULL || count == 0u);
-            assert(count <= PUMP_COUNT);
-
-            for (size_t i = 0u; i < count; ++i)
-            {
-                pump_table[i] = table[i];
-            }
-            for (size_t i = count; i < PUMP_COUNT; ++i)
-            {
-                pump_table[i] = NULL;
-            }
-
-            pump_count = count;
-        }
-
-        static const PumpConfig lookupPump(PumpID id)
-        {
-            if (id >= pump_count || pump_table[id] == NULL)
-            {
-                assert(false);
-                return NULL;
-            }
-            return pump_table[id];
-        }
-
-        static uint8_t logicalToHw(const PumpConfig *cfg, uint8_t logical_percent)
-        {
-            return cfg->invert ? (uint8_t)(100u - logical_percent) : logical_percent;
-        }
-
-        static uint8_t hwToLogical(const PumpConfig *cfg, uint8_t hw_percent)
-        {
-            return cfg->invert ? (uint8_t)(100u - hw_percent) : hw_percent;
-        }
-
-        ExitCode setPercent(PumpID id, uint8_t percent)
-        {
-            const PumpConfig *cfg    = lookupPump(id);
-            ExitCode          status = requirePumpResource(cfg, cfg != NULL ? cfg->pot : NULL, EXIT_CODE_INVALID_ARGS);
-            if (status != EXIT_CODE_OK)
-            {
-                return status;
-            }
-
-            const uint8_t hw_percent = logicalToHw(cfg, percent);
-            return io_potentiometer_writePercentage(cfg->pot, cfg->wiper, hw_percent);
-        }
-
-        ExitCode getPercent(PumpID id, uint8_t *percent_out)
-        {
-            if (percent_out == NULL)
-            {
-                return EXIT_CODE_INVALID_ARGS;
-            }
-
-            const PumpConfig *cfg    = lookupPump(id);
-            ExitCode          status = requirePumpResource(cfg, cfg != NULL ? cfg->pot : NULL, EXIT_CODE_INVALID_ARGS);
-            if (status != EXIT_CODE_OK)
-            {
-                return status;
-            }
-
-            uint8_t hw_percent = 0u;
-            status             = io_potentiometer_readPercentage(cfg->pot, cfg->wiper, &hw_percent);
-            if (status != EXIT_CODE_OK)
-            {
-                return status;
-            }
-
-            *percent_out = hwToLogical(cfg, hw_percent);
-            return EXIT_CODE_OK;
-        }
-
-        ExitCode enable(PumpID id, bool enable)
-        {
-            const PumpConfig *cfg    = lookupPump(id);
-            ExitCode          status = requirePumpResource(cfg, cfg != NULL ? cfg->efuse : NULL, EXIT_CODE_UNIMPLEMENTED);
-            if (status != EXIT_CODE_OK)
-            {
-                return status;
-            }
-
-            io_efuse_setChannel(cfg->efuse, enable);
-            return EXIT_CODE_OK;
-        }
-
-        ExitCode isEnabled(PumpID id, bool *enabled_out)
-        {
-            if (enabled_out == NULL)
-            {
-                return EXIT_CODE_INVALID_ARGS;
-            }
-
-            const PumpConfig *cfg    = lookupPump(id);
-            ExitCode          status = requirePumpResource(cfg, cfg != NULL ? cfg->efuse : NULL, EXIT_CODE_UNIMPLEMENTED);
-            if (status != EXIT_CODE_OK)
-            {
-                return status;
-            }
-
-            *enabled_out = io_efuse_isChannelEnabled(cfg->efuse);
-            return EXIT_CODE_OK;
-        }
-
-        ExitCode getHealth(PumpID id, bool *pgood_out)
-        {
-            if (pgood_out == NULL)
-            {
-                return EXIT_CODE_INVALID_ARGS;
-            }
-
-            const PumpConfig *cfg    = lookupPump(id);
-            ExitCode          status = requirePumpResource(cfg, cfg != NULL ? cfg->efuse : NULL, EXIT_CODE_UNIMPLEMENTED);
-            if (status != EXIT_CODE_OK)
-            {
-                return status;
-            }
-
-            *pgood_out = io_efuse_pgood(cfg->efuse);
-            return EXIT_CODE_OK;
-        }
-    
         private:
         const Potentiometer *pot_;
         Wiper wiper_;
         bool invert_;
         io::Efuse* efuse_;
+        static std::Expected<,ErrorCode> requirePumpResource(const PumpConfig *cfg, const void *resource, ErrorCode err_code);                
+        void registerConfig(PumpConfig *const table[], size_t count);
+
+        static inline uint8_t logicalToHw(const PumpConfig *cfg, uint8_t logical_percent)
+        {
+            return cfg->invert ? (uint8_t)(100u - logical_percent) : logical_percent;
+        }
+
+        static inline uint8_t hwToLogical(const PumpConfig *cfg, uint8_t hw_percent)
+        {
+            return cfg->invert ? (uint8_t)(100u - hw_percent) : hw_percent;
+        }
+
     }
 }// namespace io::pump
 static const PumpConfig *pump_table[PUMP_COUNT] = { NULL };
