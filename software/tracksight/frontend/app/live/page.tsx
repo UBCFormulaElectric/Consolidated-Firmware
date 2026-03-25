@@ -3,58 +3,58 @@
 import { WidgetAdder } from "@/app/live/WidgetAdder";
 import DataDashboard from "@/components/DataDashboard";
 import {
-  DisplayControlProvider,
-  PausePlayButton,
-  ViewportLockButton,
+    DisplayControlProvider,
+    PausePlayButton,
+    ViewportLockButton,
 } from "@/components/PausePlayControl";
 import SyncedGraphContainer from "@/components/SyncedGraphContainer";
 import {
-  useWidgetManager,
-  WidgetManager,
+    useWidgetManager,
+    WidgetManager,
 } from "@/components/widgets/WidgetManagerContext";
 import { LiveSignalStoreProvider } from "@/lib/contexts/signalStores/LiveSignalStoreContext";
 import { MockSignalStoreProvider } from "@/lib/contexts/signalStores/MockSignalStoreContext";
 
-const USE_MOCK_DATA = process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true";
+const USE_MOCK_DATA = process.env.NEXT_PUBLIC_USE_MOCK_DATA === "false";
 // console.log("Using mock data:", USE_MOCK_DATA);
 console.log(process.env.NEXT_PUBLIC_USE_MOCK_DATA);
 
 function Content() {
-  const { initializedFromLocalStorage } = useWidgetManager();
-  const DataSourceProvider = USE_MOCK_DATA
-    ? MockSignalStoreProvider
-    : LiveSignalStoreProvider;
+    const { initializedFromLocalStorage } = useWidgetManager();
+    const DataSourceProvider = USE_MOCK_DATA
+        ? MockSignalStoreProvider
+        : LiveSignalStoreProvider;
 
-  return (
-    <DataSourceProvider>
-      <div className="sticky top-20 z-20 ml-auto mr-6 flex w-fit gap-3">
-        <PausePlayButton />
-        <ViewportLockButton />
-      </div>
-      {initializedFromLocalStorage ? (
-        <>
-          <DataDashboard />
-          <WidgetAdder />
-        </>
-      ) : (
-        <div className="grid h-full place-items-center text-gray-500">
-          Loading Widgets
-        </div>
-      )}
-    </DataSourceProvider>
-  );
+    return (
+        <DataSourceProvider>
+            <div className="sticky top-20 z-20 ml-auto mr-6 flex w-fit gap-3">
+                <PausePlayButton />
+                <ViewportLockButton />
+            </div>
+            {initializedFromLocalStorage ? (
+                <>
+                    <DataDashboard />
+                    <WidgetAdder />
+                </>
+            ) : (
+                <div className="grid h-full place-items-center text-gray-500">
+                    Loading Widgets
+                </div>
+            )}
+        </DataSourceProvider>
+    );
 }
 
 export default function LiveDataPage() {
-  return (
-    <div id="live-page" className="pt-14 h-screen">
-      <DisplayControlProvider>
-        <SyncedGraphContainer>
-          <WidgetManager>
-            <Content />
-          </WidgetManager>
-        </SyncedGraphContainer>
-      </DisplayControlProvider>
-    </div>
-  );
+    return (
+        <div id="live-page" className="pt-14 h-screen">
+            <DisplayControlProvider>
+                <SyncedGraphContainer>
+                    <WidgetManager>
+                        <Content />
+                    </WidgetManager>
+                </SyncedGraphContainer>
+            </DisplayControlProvider>
+        </div>
+    );
 }
