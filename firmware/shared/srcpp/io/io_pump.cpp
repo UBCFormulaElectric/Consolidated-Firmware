@@ -1,128 +1,107 @@
 #include "io_pump.hpp"
 
-namespace::io{
-    // void init(const PumpConfig *pump, size_t count)
-    // {    }
-
-    // static const std::Expected<PumpConfig, ErrorCode> lookupPump(PumpID id)
-    // {
-    //     if (id >= pump_count || pump_table[id] == NULL)
-    //     {
-    //         assert(false);
-    //         return NULL;
-    //     }
-    //     return pump_table[id];
-    // }
-
-    std::Expected<void,ErrorCode> setPercent(uint8_t percent)
+namespace io
+{
+std::expected<void, ErrorCode> Pump::setPercentage(uint8_t percent) const
+{
+    if (auto status = requirePot(); !status)
     {
-        auto status = requirePumpResource(cfg, cfg != NULL ? cfg->pot : NULL, ErrorCode::Error);
-        if (status)
-        {
-            return status;
-        }
+        return std::unexpected(status.error());
+    }
+    const uint8_t hw_percent = logicalToHw(invert_, percent);
+    return pot_->writePercentage(hw_percent);
+}
 
-        const uint8_t hw_percent = logicalToHw(cfg, percent);
-        return io_potentiometer_writePercentage(cfg->pot, cfg->wiper, hw_percent);
+std::expected<uint8_t, ErrorCode> Pump::getPercentage() const
+{
+    if (auto status = requirePot(); !status)
+    {
+        return std::unexpected(status.error());
     }
 
-
-    std::Expected<void ,ErrorCode> getPercent(PumpID id, uint8_t *percent_out)
+    uint8_t hw_percent = 0u;
+    if (auto status = pot_->readPercentage(hw_percent); !status)
     {
-        if (percent_out == NULL)
-        {
-            return EXIT_CODE_INVALID_ARGS;
-        }
-
-        const PumpConfig *cfg    = lookupPump(id);
-        const auto          status = requirePumpResource(cfg, cfg != NULL ? cfg->pot : NULL, EXIT_CODE_INVALID_ARGS);
-        if (status != EXIT_CODE_OK)
-        {
-            return status;
-        }
-
-        uint8_t hw_percent = 0u;
-        status             = io_potentiometer_readPercentage(cfg->pot, cfg->wiper, &hw_percent);
-        if (status != EXIT_CODE_OK)
-        {
-            return status;
-        }
-
-        *percent_out = hwToLogical(cfg, hw_percent);
-        return EXIT_CODE_OK;
+        return std::unexpected(status.error());
     }
 
-            std::Expected<void ,ErrorCode> enable(PumpID id, bool enable)
-    {
-        const PumpConfig *cfg    = lookupPump(id);
-        const auto          status = requirePumpResource(cfg, cfg != NULL ? cfg->efuse : NULL, EXIT_CODE_UNIMPLEMENTED);
-        if (status != EXIT_CODE_OK)
-        {
-            return status;
-        }
+    return hwToLogical(invert_, hw_percent);
+}
 
-        io_efuse_setChannel(cfg->efuse, enable);
-        return EXIT_CODE_OK;
+std::expected<void, ErrorCode> enable(bool enable) const
+{
+    if (auto status = requireEfuse(); !status)
+    {
+        return std::unexpected(status.error());
     }
 
-            bool isEnabled(PumpID id)
+    setChannel(enable_state);
+    return {};
+}
+
+std::expected<bool, ErrorCode> Pump::isEnabled() const
+{
+    if (auto status = requireEfuse(); !status)
     {
-        if (enabled_out == NULL)
-        {
-            return EXIT_CODE_INVALID_ARGS;
-        }
-
-        const PumpConfig *cfg    = lookupPump(id);
-        auto    const      status = requirePumpResource(cfg, cfg != NULL ? cfg->efuse : NULL, EXIT_CODE_UNIMPLEMENTED);
-        if (status != EXIT_CODE_OK)
-        {
-            return status;
-        }
-
-        *enabled_out = io_efuse_isChannelEnabled(cfg->efuse);
-        return EXIT_CODE_OK;
+        return std::unexpected(status.error());
     }
 
-    const bool getHealth(PumpID id)
+    return efuse_->isChannelEnabled();
+}
+
+std::expected<bool, ErrorCode> Pump::ok() const
+{
+    if (auto status = requireEfuse(); !status)
     {
-        if (pgood_out == NULL)
-        {
-            return EXIT_CODE_INVALID_ARGS;
-        }
-
-        const PumpConfig *cfg    = lookupPump(id);
-        auto const          status = requirePumpResource(cfg, cfg != NULL ? cfg->efuse : NULL, EXIT_CODE_UNIMPLEMENTED);
-        if (status != EXIT_CODE_OK)
-        {
-            return status;
-        }
-
-        *pgood_out = io_efuse_pgood(cfg->efuse);
-        return EXIT_CODE_OK;
+        return std::unexpected(status.error());
     }
+    return efuse_->ok();
+}
 
-    static std::Expected<void ,ErrorCode> requirePumpResource(const void *resource, ErrorCode err_code)
+std::expected<bool, ErrorCode> Pump::pgood() const
+{
+    if (auto status = requireEfuse(); !status)
     {
-        if (cfg == NULL || resource == NULL)
-        {
-            return err_code;
-        }
-        return;
+        return std::unexpected(status.error());
     }
-            void registerConfig(size_t count)
+    return efuse_->pgood();
+}
+
+std::expected<bool, ErrorCode> Pump::isReady() const
+{
+    auto healthy = ok();
+    if (!healthy)
     {
-        assert(table != NULL || count == 0u);
-        assert(count <= PUMP_COUNT);
+        return std::unexpected(healthy.error());
+    }
+    auto enabled = isEnabled();
+    if (!enabled)
+    {
+        return std::unexpected(enabled.error());
+    }
+    return *healthy && *enabled;
+}
 
-        for (size_t i = 0u; i < count; ++i)
-        {
-            pump_table[i] = table[i];
-        }
-        for (size_t i = count; i < PUMP_COUNT; ++i)
-        {
-            pump_table[i] = NULL;
-        }
+std::expected<void, ErrorCode> Pump::requirePot() const
+{
+    if (pot_ == nullptr)
+    {
+        return std::unexpected(ErrorCode::InvalidArgs);
+    }
+    return {};
+}
 
-        pump_count = count;
-            }        
+std::expected<void, ErrorCode> Pump::requireEfuse() const
+{
+    if (efuse_ == nullptr)
+    {
+        return std::unexpected(ErrorCode::Unimplemented);
+    }
+    return {};
+}
+
+std::expected<bool, ErrorCode> Pump::getHealth() const
+{
+    return pgood();
+}
 } // namespace io

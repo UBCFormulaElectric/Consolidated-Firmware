@@ -1,8 +1,7 @@
 #pragma once
+#include "io_pumpControl.hpp"
 
 namespace app::pumpControl
 {
-static void rampUp();
-static void stopFlow();
-void        MonitorPumps();
+void MonitorPumps();
 } // namespace app::pumpControl
