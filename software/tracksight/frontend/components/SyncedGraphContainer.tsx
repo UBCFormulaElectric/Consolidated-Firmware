@@ -60,6 +60,7 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
     // object refs
     const contentRef = useRef<HTMLDivElement | null>(null); // Renamed from containerRef, this one grows
     const scrollContainerRef = useRef<HTMLDivElement | null>(null); // NEW: Ref for the scrolling wrapper
+    const isViewportLockedRef = useRef(isViewportLocked);
 
     // zoom management
     const scalePxPerSecRef = useRef<number>(1);
@@ -69,6 +70,11 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
     const globalTimeRangeRef = useRef<TimeRange | null>(null);
     // manage left scroll variable
     const scrollLeftRef = useRef<number>(0);
+
+    useEffect(() => {
+        isViewportLockedRef.current = isViewportLocked;
+    }, [isViewportLocked]);
+
     // Update width when zoom changes
     const updateGraphWidth = useCallback(() => {
         const global_tr = globalTimeRangeRef.current;
@@ -78,7 +84,7 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
             const nextScrollLeft = Math.max(container_width + SCROLL_PAD - container.clientWidth, 0);
             contentRef.current.style.width = `${container_width + RIGHT_PAD}px`;
 
-            if (isViewportLocked) {
+            if (isViewportLockedRef.current) {
                 scrollLeftRef.current = nextScrollLeft;
                 container.scrollLeft = nextScrollLeft;
                 return;
@@ -90,7 +96,7 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
                 container.scrollLeft = clampedScrollLeft;
             }
         }
-    }, [contentRef, globalTimeRangeRef, isViewportLocked, scalePxPerSecRef, scrollContainerRef, scrollLeftRef]);
+    }, [contentRef, globalTimeRangeRef, scalePxPerSecRef, scrollContainerRef, scrollLeftRef]);
 
     const updateWithTimestamp = useCallback((timestamp: number) => {
         if (!globalTimeRangeRef.current || timestamp < globalTimeRangeRef.current.min || timestamp > globalTimeRangeRef.current.max) {
@@ -105,7 +111,7 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
     const updateLeftScroll = useCallback((e: UIEvent<HTMLDivElement>) => {
         const container = e.target as HTMLDivElement;
 
-        if (isViewportLocked) {
+        if (isViewportLockedRef.current) {
             const latestScrollLeft = Math.max(container.scrollWidth - container.clientWidth, 0);
             if (container.scrollLeft !== latestScrollLeft) {
                 container.scrollLeft = latestScrollLeft;
@@ -115,7 +121,7 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
         }
 
         scrollLeftRef.current = container.scrollLeft;
-    }, [isViewportLocked, scrollLeftRef]);
+    }, [scrollLeftRef]);
 
     useEffect(() => {
         const container = scrollContainerRef.current;
