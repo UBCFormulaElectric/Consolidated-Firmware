@@ -171,8 +171,9 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI48 | RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
+    RCC_OscInitStruct.HSI48State     = RCC_HSI48_ON;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 1;
@@ -915,9 +916,8 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(IMU_INT3_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : TSMS_3V3_OUT_Pin BAT_CHRG_nSHDN_Pin BMS_EN_Pin FRONT_EN_Pin
-                             RL_PUMP_EN_Pin */
-    GPIO_InitStruct.Pin   = TSMS_3V3_OUT_Pin | BAT_CHRG_nSHDN_Pin | BMS_EN_Pin | FRONT_EN_Pin | RL_PUMP_EN_Pin;
+    /*Configure GPIO pins : TSMS_3V3_OUT_Pin BAT_CHRG_nSHDN_Pin BMS_EN_Pin FRONT_EN_Pin */
+    GPIO_InitStruct.Pin   = TSMS_3V3_OUT_Pin | BAT_CHRG_nSHDN_Pin | BMS_EN_Pin | FRONT_EN_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -967,7 +967,7 @@ static void MX_GPIO_Init(void)
 
     /*Configure GPIO pin : RR_PUMP_EN_Pin */
     GPIO_InitStruct.Pin   = RR_PUMP_EN_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_OD;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(RR_PUMP_EN_GPIO_Port, &GPIO_InitStruct);
@@ -977,6 +977,13 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(RR_PUMP_PGOOD_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : RL_PUMP_EN_Pin */
+    GPIO_InitStruct.Pin   = RL_PUMP_EN_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_OD;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(RL_PUMP_EN_GPIO_Port, &GPIO_InitStruct);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
 

@@ -1,28 +1,38 @@
 use std::sync::Arc;
 use axum::Router;
-use colored::Colorize;
 use tokio::select;
-use tokio::sync::{RwLock, broadcast};
+use tokio::sync::RwLock;
 use tokio::net::TcpListener;
 use socketioxide::{SocketIo, extract::SocketRef};
 use jsoncan_rust::can_database::CanDatabase;
 use tower_http::cors::{CorsLayer, Any};
 use mdns_sd::{ServiceDaemon, ServiceInfo};
 
+#[allow(unused_imports)]
+use crate::utils::yellow;
 use crate::config::CONFIG;
+use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, ResultExt, ShutdownReceiver, Task};
 use crate::tasks::client_api::AppState;
 use crate::tasks::client_api::clients::Clients;
 use crate::tasks::client_api::signal_api_handler::get_signal_router;
 use crate::tasks::client_api::subtable_api_handler::get_subtable_router;
+use crate::vprintln;
 
-pub async fn run_api_handler(mut shutdown_rx: broadcast::Receiver<()>, clients: Arc<RwLock<Clients>>, can_db: Arc<CanDatabase>) {
-    println!("{}", "API handler task started.".yellow());
+pub async fn run_api_handler(
+    mut shutdown_rx: ShutdownReceiver, 
+    health_check_tx: HealthCheckSender, 
+    clients: Arc<RwLock<Clients>>, 
+    can_db: Arc<CanDatabase>
+) {
+    vprintln!("{}", yellow("API handler task started."));
     
     // Axum
     let addr = format!("0.0.0.0:{}", CONFIG.backend_port);
-    let listener = TcpListener::bind(addr).await.unwrap();
+    let listener = TcpListener::bind(addr).await
+        .unwrap_or_fail_health_check(&health_check_tx, Task::ApiHandler).await;
 
-    let mdns = ServiceDaemon::new().unwrap();
+    let mdns = ServiceDaemon::new()
+        .unwrap_or_fail_health_check(&health_check_tx, Task::ApiHandler).await;
 
     let service_type = "_http._tcp.local.";
     let instance_name = "server";
@@ -34,9 +44,10 @@ pub async fn run_api_handler(mut shutdown_rx: broadcast::Receiver<()>, clients: 
         &CONFIG.mdns_local_ip,
         CONFIG.backend_port,
         None,
-    ).unwrap();
+    ).unwrap_or_fail_health_check(&health_check_tx, Task::ApiHandler).await;
 
-    mdns.register(service_info).unwrap();
+    mdns.register(service_info)
+        .unwrap_or_fail_health_check(&health_check_tx, Task::ApiHandler).await;
     // running at this location
     println!("Server hosted on {} running at http://{}.local:{}", CONFIG.mdns_local_ip, instance_name, CONFIG.backend_port);
 
@@ -74,16 +85,19 @@ pub async fn run_api_handler(mut shutdown_rx: broadcast::Receiver<()>, clients: 
         .layer(cors)
         .into_make_service();
 
+    // set up complete, send health_check
+    health_check_tx.send_health_check(Task::ApiHandler, true).await;
+
     // this is so quirky it's amazing
     // the select macro waits for one of these to finish
     // if shutdown finishes first, leave select block
     select! {
         _ = shutdown_rx.recv() => {
-            println!("API handler task shutting down.");
+            vprintln!("API handler task shutting down.");
         },
         _ = axum::serve(listener, app) => {
             println!("Error occurred");
         }
     }
-    println!("{}", "API handler task ended.".yellow());
+    vprintln!("{}", yellow("API handler task ended."));
 }

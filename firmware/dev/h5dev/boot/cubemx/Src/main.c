@@ -22,10 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "app_freertos.h"
 #include "bootloader.h"
-#include "hw_fdcan.h"
-#include "io_canQueue.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -48,7 +45,6 @@
 FDCAN_HandleTypeDef hfdcan1;
 
 /* USER CODE BEGIN PV */
-CanHandle can = { .hcan = &hfdcan1, .bus_num = 1, .receive_callback = io_canQueue_pushRx };
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -73,7 +69,6 @@ int main(void)
 {
     /* USER CODE BEGIN 1 */
     // Turn on boot LED
-    HAL_GPIO_WritePin(BOOT_GPIO_Port, BOOT_Pin, GPIO_PIN_SET);
     bootloader_preInit();
     /* USER CODE END 1 */
 
@@ -100,14 +95,6 @@ int main(void)
     bootloader_init();
 
     /* USER CODE END 2 */
-
-    /* Init scheduler */
-    osKernelInitialize();
-    /* Call init function for freertos objects (in app_freertos.c) */
-    MX_FREERTOS_Init();
-
-    /* Start scheduler */
-    osKernelStart();
 
     /* We should never get here as control is now taken by the scheduler */
 

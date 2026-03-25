@@ -2,32 +2,38 @@
 #include "hw_hal.hpp"
 #include "FreeRTOS.h"
 
-// Defined in linker script.
-extern uint32_t __app_code_start__;
+volatile __attribute__((section(".boot_request"))) hw::bootup::BootRequestData hw::bootup::boot_request;
 
-namespace hw::bootup
+void hw::bootup::setBootRequest(const hw::bootup::BootRequest request)
 {
-void enableInterruptsForApp()
-{
-    // Set vector table offset register.
-    // The startup handler sets the VTOR to the default value (0x8000000), so even though we update it
-    // in the bootloader, we have to update it again here.
-    // (In SystemInit(), which is defined in system_stm32fXxx.c)
-    SCB->VTOR = (uint32_t)&__app_code_start__;
-
-    // We also need to re-enable interrupts since they are disabled by the bootloader before jumping to the app, to
-    // prevent interrupts occurring mid-jump.
-    __enable_irq();
-
-    // Any RTOS functions called in the bootloader before its RTOS is started will break interrupts. RTOS functions
-    // invoke enter/exit critical to provide thread safety, which essentially just disables interrupts. FreeRTOS also
-    // provides critical section nesting, which is kept track of in a static variable. However, this static variable is
-    // initialized to a seemingly random large value before the RTOS starts. This means that if we call an RTOS
-    // function, the critical section exit logic doesn't run, and interrupts aren't re-enabled.
-    //
-    // So: If any RTOS code runs in the bootloader before its RTOS starts (even initialization stuff), interrupts
-    // are broken until the scheduler starts. So, re-enable interrupts here in case that happened, since the app we're
-    // jumping too might rely on interrupts in initialization code (like for HAL_Delay, for example).
-    portENABLE_INTERRUPTS();
+    hw::bootup::boot_request.magic                 = BOOT_MAGIC;
+    hw::bootup::boot_request.request.target        = request.target;
+    hw::bootup::boot_request.request.context       = request.context;
+    hw::bootup::boot_request.request._unused       = request._unused;
+    hw::bootup::boot_request.request.context_value = request.context_value;
 }
-} // namespace hw::bootup
+
+hw::bootup::BootRequest hw::bootup::getBootRequest()
+{
+    if (boot_request.magic == BOOT_MAGIC)
+    {
+        hw::bootup::BootRequest r;
+        r.target        = hw::bootup::boot_request.request.target;
+        r.context       = hw::bootup::boot_request.request.context;
+        r._unused       = hw::bootup::boot_request.request._unused;
+        r.context_value = hw::bootup::boot_request.request.context_value;
+
+        return r;
+    }
+    else
+    {
+        // Default to app if magic not present.
+        const hw::bootup::BootRequest request = {
+            .target        = hw::bootup::BootTarget::BOOT_TARGET_APP,
+            .context       = hw::bootup::BootContext::BOOT_CONTEXT_NONE,
+            ._unused       = 0xFFFF,
+            .context_value = 0,
+        };
+        return request;
+    }
+}

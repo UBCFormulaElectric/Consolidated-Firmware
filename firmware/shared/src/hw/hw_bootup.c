@@ -15,8 +15,6 @@ typedef struct
     uint32_t    magic;
     BootRequest request;
 } BootRequestData;
-
-// The boot_request RAM section gets exactly 16 bytes at the end of the stack.
 static_assert(sizeof(BootRequestData) == 12, "");
 static_assert(_Alignof(BootRequestData) == 4, "");
 
