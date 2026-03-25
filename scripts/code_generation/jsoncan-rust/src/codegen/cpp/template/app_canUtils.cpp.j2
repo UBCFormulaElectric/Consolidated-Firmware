@@ -4,6 +4,7 @@
 // clang-format off
 
 #include <span>
+#include <cassert>
 #include "app_canUtils.hpp"
 
 namespace app::can_utils {
@@ -88,6 +89,7 @@ static int SIGNED_DECODE(const uint32_t input, const uint32_t bits, const uint32
 // pack function for {{ msg.name }}
 void {{ msg.name }}_Signals::pack(const std::span<uint8_t> out_data) const
 {
+    assert(out_data.size() >= {{ msg.message_length() }});
     // Pack message {{ msg.name }}.
     // {{ signal_placement_comment(msg) }}
     {% if msg.signals.len() == 0 %}

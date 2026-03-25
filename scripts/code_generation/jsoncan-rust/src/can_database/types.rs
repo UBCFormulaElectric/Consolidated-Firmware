@@ -140,20 +140,22 @@ fn bits_to_bytes(bits: u16) -> u16 {
     (bits + 7) / 8
 }
 impl CanMessage {
+    pub fn message_length(&self) -> u16 {
+        bits_to_bytes(
+            self.signals
+                .iter()
+                .map(|signal| signal.start_bit + signal.bits)
+                .max()
+                .unwrap_or(0),
+        )
+    }
+
     pub fn dlc(&self) -> u16 {
         // Length of payload, in bytes.
         if self.signals.len() == 0 {
             return 0;
         }
-
-        let useful_length = bits_to_bytes(
-            self.signals
-                .iter()
-                .map(|signal| signal.start_bit + signal.bits)
-                .max()
-                .expect("Message has signals (already checked length > 0)"),
-        );
-
+        let useful_length = self.message_length();
         for length in ALLOWABLE_MSG_LENGTHS.iter() {
             if *length >= useful_length {
                 return *length;

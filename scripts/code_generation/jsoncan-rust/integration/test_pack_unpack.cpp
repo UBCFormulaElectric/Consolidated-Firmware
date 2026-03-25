@@ -54,7 +54,7 @@ TEST(PackUnpackTests, test_basic_signal_types)
 
     for (size_t i = 0; i < 3; i++)
     {
-        std::array<uint8_t, 3> payload{};
+        std::array<uint8_t, 8> payload{};
         in_msgs[i].pack(payload);
         // Confirm encoded payload matches the expected value.
         ASSERT_EQ(expected_payloads[i], *reinterpret_cast<uint64_t *>(payload.data()));
