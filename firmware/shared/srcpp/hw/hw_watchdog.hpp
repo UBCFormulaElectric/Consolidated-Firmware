@@ -34,6 +34,7 @@
 #include <cmsis_os.h>
 #include "io_log.hpp"
 #include <array>
+#include <stm32h5xx_hal_def.h>
 #include <stm32h5xx_hal_iwdg.h>
 
 namespace hw::watchdog
@@ -91,7 +92,7 @@ namespace hw::watchdog
         public: 
         constexpr explicit monitor(WatchdogInstance *watchdog_instance_in,
                                     IWDG_HandleTypeDef &handle_in, 
-                                    void (*refresh_watchdog_in)(IWDG_HandleTypeDef), 
+                                    HAL_StatusTypeDef (*refresh_watchdog_in)(IWDG_HandleTypeDef), 
                                     std::optional<void>(*timeout_callback_in)(WatchdogInstance*))
         :
         watchdog_instance(watchdog_instance_in), 

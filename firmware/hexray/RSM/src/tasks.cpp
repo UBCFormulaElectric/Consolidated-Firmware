@@ -22,7 +22,7 @@
     const uint32_t period_ms = 1000U;
     const uint32_t watchdog_grace_period_ms = 50U;
     hw::watchdog::WatchdogInstance watchdog1hz {period_ms + watchdog_grace_period_ms};
-    hw::watchdog::monitor watchdogRSM {&watchdog1hz, hiwdg, HAL_IWDG_Refresh, NULL}
+    hw::watchdog::monitor watchdogRSM {&watchdog1hz, hiwdg, HAL_IWDG_Refresh, nullptr}
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
