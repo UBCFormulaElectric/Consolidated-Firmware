@@ -88,7 +88,17 @@ static int64_t CAN_ENCODE(const int64_t input, const int64_t scale, const int64_
  * Decode payload representation of signal to signal value, w/ scale and offset.
  */
 template<typename T>
-static T CAN_DECODE(const float input, const float scale, const float offset)
+static T CAN_DECODE(const uint32_t input, const float scale, const float offset)
+{
+    return static_cast<T>(input * scale + offset);
+}
+template<typename T>
+static T CAN_DECODE(const uint32_t input, const uint64_t scale, const uint64_t offset)
+{
+    return static_cast<T>(input * scale + offset);
+}
+template<typename T>
+static T CAN_DECODE(const uint32_t input, const int64_t scale, const int64_t offset)
 {
     return static_cast<T>(input * scale + offset);
 }
@@ -158,14 +168,14 @@ void {{ msg.name }}_Signals::pack(const std::span<uint8_t> out_data) const
     {% for iteration in iterations(signal) -%}
     {%- decl unpackShift -%}
     {%- if iteration.shift >= 0 -%}
-    {%- let unpackShift = "unpackShiftRight" -%}
-    {%- else -%}
     {%- let unpackShift = "unpackShiftLeft" -%}
+    {%- else -%}
+    {%- let unpackShift = "unpackShiftRight" -%}
     {%- endif -%}
     {{ signal.name }}_raw |= {{ unpackShift }}(data[{{ iteration.starting_byte }}], {{ iteration.shift.abs() }}, {{ iteration.mask_text }}); // Unpacks bits {{ iteration.comment_data }} from byte {{ iteration.starting_byte }}
     {% endfor -%}
     {%- if signal.signed -%}
-    const int {{ signal.name }}_signed = SIGNED_DECODE({{ signal.name }}_raw, {{ signal.bits }}, {{ max_uint_for_bits(signal.bits) }});
+    const int32_t {{ signal.name }}_signed = SIGNED_DECODE({{ signal.name }}_raw, {{ signal.bits }}, {{ max_uint_for_bits(signal.bits) }});
     {{ signal.name }}_value = CAN_DECODE<{{ signal.datatype() }}>({{ signal.name }}_signed, {{ signal.scale_macro() }}, {{ signal.offset_macro() }});
     {%- else -%}
     {{ signal.name }}_value = CAN_DECODE<{{ signal.datatype() }}>({{ signal.name }}_raw, {{ signal.scale_macro() }}, {{ signal.offset_macro() }});

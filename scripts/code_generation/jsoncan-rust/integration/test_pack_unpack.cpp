@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "app_canUtils.hpp"
 
-#define LSHIFT(value, shift) ((uint64_t)value << shift)
+#define LSHIFT(value, shift) (static_cast<uint64_t>(value) << shift)
 #define ENCODE(input, scale, offset) (((input - offset) / scale))
 #define TWOS_COMP(input, max) (0xFFFF - input + 1U)
 
@@ -31,16 +31,16 @@ TEST(PackUnpackTests, test_basic_signal_types)
             true,
             false,
             app::can_utils::EnumExample::ENUM_EX_1,
-            123,
             0xFE,
+            123,
             0xFAFAFAFA,
         },
     } };
     constexpr std::array<uint64_t, 3>                                  expected_payloads{ {
         0,
-        0 | LSHIFT(true, 0) | // Boolean1
-            LSHIFT(true, 1) | // Boolean2
-            LSHIFT(static_cast<uint64_t>(app::can_utils::EnumExample::ENUM_EX_2), 2) | // Enum
+        0 | LSHIFT(true, 0) |                                   // Boolean1
+            LSHIFT(true, 1) |                                   // Boolean2
+            LSHIFT(app::can_utils::EnumExample::ENUM_EX_2, 2) | // Enum
             LSHIFT(0xFF, 4) |                                   // Uint8
             LSHIFT(0xFFFF, 12) |                                // Uint16
             LSHIFT(0xFFFFFFFF, 28),                             // Uint32

@@ -249,19 +249,12 @@ impl CanSignal {
     }
 
     pub fn offset_scale_datatype(self: &Self) -> String {
-        match self.signal_type {
-            CanSignalType::Numerical => {
-                if self.scale.fract() != 0.0 || self.offset.fract() != 0.0 {
-                    "float".to_string()
-                } else if self.signed {
-                    "int64_t".to_string()
-                } else {
-                    "uint64_t".to_string()
-                }
-            }
-            CanSignalType::Boolean => "bool".to_string(),
-            CanSignalType::Enum => "uint32_t".to_string(),
-            CanSignalType::Alert => "bool".to_string(),
+        if self.scale.fract() != 0.0 || self.offset.fract() != 0.0 {
+            "float".to_string()
+        } else if self.signed {
+            "int64_t".to_string()
+        } else {
+            "uint64_t".to_string()
         }
     }
 }

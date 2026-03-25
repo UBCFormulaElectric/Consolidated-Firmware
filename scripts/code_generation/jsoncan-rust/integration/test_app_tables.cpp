@@ -51,7 +51,7 @@ TEST_F(JsonCanTablesTest, test_tx_basic_signals)
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
-    app::can_tx::ECU1_Enum_set(static_cast<app::can_utils::EnumExample>(0xFF));
+    app::can_tx::ECU1_Enum_set(app::can_utils::EnumExample::ENUM_EX_2);
     app::can_tx::ECU1_UInt8_set(0xFFFFFFFF);
     app::can_tx::ECU1_UInt16_set(0xFFFFFFFF);
     app::can_tx::ECU1_UInt32_set(0xFFFFFFFF);
@@ -126,7 +126,7 @@ TEST_F(JsonCanTablesTest, test_rx_basic_signals)
     {
         ASSERT_EQ(app::can_rx::ECU2_Boolean1_get(), true);
         ASSERT_EQ(app::can_rx::ECU2_Boolean2_get(), true);
-        ASSERT_EQ(app::can_rx::ECU2_Enum_get(), app::can_utils::EnumExample::ENUM_EX_2);
+        ASSERT_EQ(app::can_rx::ECU2_Enum_get(), static_cast<app::can_utils::EnumExample>(0x03));
         ASSERT_EQ(app::can_rx::ECU2_UInt8_get(), 0xFF);
         ASSERT_EQ(app::can_rx::ECU2_UInt16_get(), 0xFFFF);
         ASSERT_EQ(app::can_rx::ECU2_UInt32_get(), 0xFFFFFFFF);
