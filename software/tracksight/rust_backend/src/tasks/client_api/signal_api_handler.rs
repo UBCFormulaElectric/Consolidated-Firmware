@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use axum::{Json, Router, extract::{Path, State}, http::StatusCode, response::IntoResponse, routing::get};
+use influxdb2::FromMap;
 use jsoncan_rust::can_database::CanMessage;
 use serde::{Deserialize, Serialize};
 use regex::Regex;
@@ -84,10 +85,25 @@ async fn signal() -> impl IntoResponse {
     return (StatusCode::OK, serde_json::to_string(&Vec::<String>::new()).unwrap());
 }
 
+#[derive(Debug, Deserialize, Default)]
+struct InfluxRow {
+    time: String,
+    value: f64,
+    field: String,
+    measurement: String,
+}
+
+impl FromMap for InfluxRow {
+    fn from_genericmap(map: influxdb2_structmap::GenericMap) -> Self {
+        println!("values: {:?}", map.iter().collect::<Vec<_>>());
+
+        Self::default()
+    }
+}
 async fn signal_date(Path(date): Path<String>, State(state): State<AppState>) -> impl IntoResponse {
     let re = Regex::new(r"^\d{4}-\d{2}-\d{2}$").unwrap();
     if !re.is_match(&date) {
-        return (StatusCode::BAD_REQUEST, "Bad date format, should be YYYY-MM-DD");
+        return (StatusCode::BAD_REQUEST, "Bad date format, should be YYYY-MM-DD".to_string());
     }
 
     let date_query = format!("
@@ -96,15 +112,14 @@ async fn signal_date(Path(date): Path<String>, State(state): State<AppState>) ->
             |> filter(fn: (r) => r[\"_measurement\"] == \"quintuna_live\")
     ");
 
-    let req = state.influx_client.query(Some(influxdb2::models::Query::new(date_query))).await;
+    let req: Result<Vec<_>, influxdb2::RequestError> = state.influx_client.query::<InfluxRow>(Some(influxdb2::models::Query::new(date_query))).await;
 
     match req {
         Ok(res) => {
-            println!("{res:?}");
-            return (StatusCode::OK, "bruh");
+            return (StatusCode::OK, format!("{res:?}"));
         },
         Err(e) => {
-            return (StatusCode::BAD_REQUEST, &format!("{e:?}"));
+            return (StatusCode::BAD_REQUEST, format!("{e:?}"));
         }
     }
 
