@@ -2,13 +2,14 @@ use std::collections::HashMap;
 
 use indexmap::IndexMap;
 
-use crate::can_database::RxMsgs;
+use crate::can_database::{CanBusModes, RxMsgs};
+use crate::parsing::JsonCanBusMode;
 use crate::{
     can_database::{
         CanAlert, CanAlertType, CanDatabase, CanEnum, CanMessage, CanNode, CanSignal,
         CanSignalType, JsonRxMsgNames, NodeAlerts, error::CanDBError,
     },
-    parsing::{DEFAULT_BUS_MODE, JsonCanParser, JsonCanSignal},
+    parsing::{JsonCanParser, JsonCanSignal},
 };
 
 fn calculate_scale_offset(min: f64, max: f64, bits: u16) -> (f64, f64) {
@@ -346,7 +347,7 @@ fn generate_node_alert_msgs(node_name: &String, alerts_json: &NodeAlerts) -> [Ca
             telem_cycle_time: INFO_ALERTS_CYCLE_TIME,
             signals: info_signals,
             tx_node_name: node_name.clone(),
-            modes: vec![DEFAULT_BUS_MODE.to_string()],
+            modes: CanBusModes::All,
         },
         CanMessage {
             name: warnings_name,
@@ -357,7 +358,7 @@ fn generate_node_alert_msgs(node_name: &String, alerts_json: &NodeAlerts) -> [Ca
             telem_cycle_time: WARNINGS_ALERTS_CYCLE_TIME,
             signals: warnings_signals,
             tx_node_name: node_name.clone(),
-            modes: vec![DEFAULT_BUS_MODE.to_string()],
+            modes: CanBusModes::All,
         },
         CanMessage {
             name: faults_name,
@@ -368,7 +369,7 @@ fn generate_node_alert_msgs(node_name: &String, alerts_json: &NodeAlerts) -> [Ca
             telem_cycle_time: FAULTS_ALERTS_CYCLE_TIME,
             signals: faults_signals,
             tx_node_name: node_name.clone(),
-            modes: vec![DEFAULT_BUS_MODE.to_string()],
+            modes: CanBusModes::All,
         },
         CanMessage {
             name: info_counts_name,
@@ -382,7 +383,7 @@ fn generate_node_alert_msgs(node_name: &String, alerts_json: &NodeAlerts) -> [Ca
             telem_cycle_time: INFO_ALERTS_CYCLE_TIME,
             signals: info_counts_signals,
             tx_node_name: node_name.clone(),
-            modes: vec![DEFAULT_BUS_MODE.to_string()],
+            modes: CanBusModes::All,
         },
         CanMessage {
             name: warnings_counts_name,
@@ -396,7 +397,7 @@ fn generate_node_alert_msgs(node_name: &String, alerts_json: &NodeAlerts) -> [Ca
             telem_cycle_time: WARNINGS_ALERTS_CYCLE_TIME,
             signals: warnings_counts_signals,
             tx_node_name: node_name.clone(),
-            modes: vec![DEFAULT_BUS_MODE.to_string()],
+            modes: CanBusModes::All,
         },
         CanMessage {
             name: faults_counts_name,
@@ -410,7 +411,7 @@ fn generate_node_alert_msgs(node_name: &String, alerts_json: &NodeAlerts) -> [Ca
             telem_cycle_time: FAULTS_ALERTS_CYCLE_TIME,
             signals: faults_counts_signals,
             tx_node_name: node_name.clone(),
-            modes: vec![DEFAULT_BUS_MODE.to_string()],
+            modes: CanBusModes::All,
         },
     ]
 }
@@ -541,7 +542,10 @@ impl CanDatabase {
                     log_cycle_time: msg.log_cycle_time,
                     telem_cycle_time: msg.telem_cycle_time,
                     tx_node_name: tx_node_name.clone(),
-                    modes: msg.modes,
+                    modes: match msg.modes {
+                        JsonCanBusMode::Some(modes) => CanBusModes::Some(modes),
+                        JsonCanBusMode::All => CanBusModes::All,
+                    },
                     signals,
                 })?;
             }

@@ -1,7 +1,7 @@
 use askama::Template;
 
 use crate::{
-    can_database::{CanBus, CanDatabase, CanMessage},
+    can_database::{CanBus, CanBusModes, CanDatabase, CanMessage},
     codegen::cpp::CPPGenerator,
     reroute::CanTxConfig,
 };
@@ -11,6 +11,14 @@ use crate::{
 struct IoCanTxModuleSource<'a> {
     node_buses: &'a Vec<&'a CanBus>,
     board_tx_msgs_and_busses: &'a Vec<(CanMessage, Vec<String>)>,
+}
+impl IoCanTxModuleSource<'_> {
+    fn unwrap_mode_names<'a>(&self, modes: &'a CanBusModes) -> &'a Vec<String> {
+        match modes {
+            CanBusModes::All => panic!("Can't unwrap mode names if modes is All"),
+            CanBusModes::Some(names) => names,
+        }
+    }
 }
 
 #[derive(Template)]

@@ -1,8 +1,6 @@
 use indexmap::IndexMap;
 use serde::Deserialize;
 
-use crate::parsing::DEFAULT_BUS_MODE;
-
 #[derive(Deserialize, Debug)]
 #[serde(untagged)]
 pub enum JsonCanSignal {
@@ -100,6 +98,11 @@ struct JsonTxMsg {
     data_capture: Option<JsonDataCapture>,
 }
 
+pub enum JsonCanBusMode {
+    All,
+    Some(Vec<String>),
+}
+
 pub struct JsonCanMessage {
     pub name: String,
     pub id: u32,
@@ -108,7 +111,7 @@ pub struct JsonCanMessage {
     pub description: Option<String>,
     pub log_cycle_time: Option<u32>,
     pub telem_cycle_time: Option<u32>,
-    pub modes: Vec<String>,
+    pub modes: JsonCanBusMode,
 }
 
 pub fn parse_tx_data(can_data_dir: &String, tx_node_name: &String) -> Vec<JsonCanMessage> {
@@ -151,9 +154,9 @@ pub fn parse_tx_data(can_data_dir: &String, tx_node_name: &String) -> Vec<JsonCa
                     Some(data_capture) => data_capture.telem_cycle_time,
                     None => None,
                 },
-                modes: match &msg.allowed_modes {
-                    Some(modes) => modes.clone(),
-                    None => vec![DEFAULT_BUS_MODE.to_string()] // TODO revisit default behaviour?
+                modes: match msg.allowed_modes {
+                    Some(modes) => JsonCanBusMode::Some(modes),
+                    None => JsonCanBusMode::All,
                 },
             }
         })

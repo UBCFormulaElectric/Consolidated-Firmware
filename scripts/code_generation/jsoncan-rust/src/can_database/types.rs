@@ -103,6 +103,12 @@ pub struct CanSignal {
     // however you need to trust that this is correct
 }
 
+#[derive(PartialEq)]
+pub enum CanBusModes {
+    All,
+    Some(Vec<String>),
+}
+
 pub struct CanMessage {
     // Name of this CAN message
     pub name: String,
@@ -125,7 +131,7 @@ pub struct CanMessage {
     pub tx_node_name: String,
 
     // if this is None, then only use the bus default
-    pub modes: Vec<String>,
+    pub modes: CanBusModes,
 }
 
 const ALLOWABLE_MSG_LENGTHS: [u16; 16] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64];

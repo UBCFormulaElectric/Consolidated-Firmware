@@ -197,7 +197,10 @@ impl CanDatabase {
                 msg.log_cycle_time,
                 msg.telem_cycle_time,
                 msg.tx_node_name,
-                serde_json::to_string(&msg.modes).unwrap()
+                match &msg.modes {
+                    CanBusModes::Some(modes) => serde_json::to_string(modes).unwrap(),
+                    CanBusModes::All => "".to_string(),
+                }
             ],
         ).map_err(
             |e| {

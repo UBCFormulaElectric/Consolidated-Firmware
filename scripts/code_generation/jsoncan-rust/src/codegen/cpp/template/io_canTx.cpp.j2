@@ -53,14 +53,18 @@ void {{msg.name}}_sendAperiodic()
     unlock();
     #endif
     {%- for msg_bus_name in busses %}
+    {%- if msg.modes != CanBusModes::All %}
     if (
-    {%- for mode in msg.modes %}
+    {%- for mode in unwrap_mode_names(msg.modes) %}
         can_mode_{{msg_bus_name}} & static_cast<uint32_t>(app::can_utils::{{msg_bus_name}}Mode::{{msg_bus_name.to_uppercase()}}_MODE_{{mode}}){%- if loop.last == false %} || {% endif -%}
     {%- endfor %}
     )
     {
         enqueue_func_{{msg_bus_name}}(tx_msg);
     }
+    {%- else %}
+    enqueue_func_{{msg_bus_name}}(tx_msg);
+    {%- endif %}
     {%- endfor %}
 }
 {% endfor %}
