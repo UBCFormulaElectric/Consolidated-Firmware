@@ -24,6 +24,7 @@
 #include "tasks.h"
 #include <stm32h5xx_hal.h>
 #include <stm32h5xx_hal_gpio.h>
+#include "hw_error.hpp"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
