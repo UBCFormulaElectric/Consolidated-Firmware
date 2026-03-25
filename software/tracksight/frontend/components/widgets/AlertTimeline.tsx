@@ -245,27 +245,29 @@ const renderAlertTimeline = (
       const textWidth = ctx.measureText(alert.signal).width;
       const tooltipWidth = textWidth + TOOLTIP_PADDING_X * 2;
       const tooltipHeight = 14 + TOOLTIP_PADDING_Y * 2;
-
-      const triangleTop = barBottom + TOOLTIP_GAP;
-      const tooltipTop = triangleTop + TOOLTIP_TRIANGLE_SIZE;
+      
+      const isAboveTooltip = alert.streamIndex === slipStreamLanes - 1;
+      
+      const triangleTop = isAboveTooltip ? laneY - TOOLTIP_GAP : barBottom + TOOLTIP_GAP;
+      const tooltipTop = isAboveTooltip ? triangleTop - TOOLTIP_TRIANGLE_SIZE : triangleTop + TOOLTIP_TRIANGLE_SIZE;
 
       ctx.fillStyle = "#ffffff";
       ctx.beginPath();
-      ctx.moveTo(centerX - TOOLTIP_TRIANGLE_SIZE, triangleTop + TOOLTIP_TRIANGLE_SIZE);
+      ctx.moveTo(centerX - TOOLTIP_TRIANGLE_SIZE, isAboveTooltip ? triangleTop - TOOLTIP_TRIANGLE_SIZE : triangleTop + TOOLTIP_TRIANGLE_SIZE);
       ctx.lineTo(centerX, triangleTop);
-      ctx.lineTo(centerX + TOOLTIP_TRIANGLE_SIZE, triangleTop + TOOLTIP_TRIANGLE_SIZE);
+      ctx.lineTo(centerX + TOOLTIP_TRIANGLE_SIZE, isAboveTooltip ? triangleTop - TOOLTIP_TRIANGLE_SIZE : triangleTop + TOOLTIP_TRIANGLE_SIZE);
       ctx.closePath();
       ctx.fill();
 
       const tooltipX = Math.max(0, Math.min(centerX - tooltipWidth / 2, width - tooltipWidth));
       ctx.beginPath();
-      ctx.roundRect(tooltipX, tooltipTop, tooltipWidth, tooltipHeight, 4);
+      ctx.roundRect(tooltipX, tooltipTop + (isAboveTooltip ? -tooltipHeight : 0), tooltipWidth, tooltipHeight, 4);
       ctx.fill();
 
       ctx.fillStyle = "#333333";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText(alert.signal, tooltipX + tooltipWidth / 2, tooltipTop + tooltipHeight / 2);
+      ctx.fillText(alert.signal, tooltipX + tooltipWidth / 2, tooltipTop + (isAboveTooltip ? -tooltipHeight : tooltipHeight) / 2);
     }
   }
 };
@@ -329,7 +331,7 @@ function AlertTimeline() {
         rect.width,
         rect.height,
         leftEdge,
-        rightEdge,
+        rightEdge - 15 / scalePxPerSecRef.current,
         liveTime,
         slipStreamLanes.current,
         ctx,
