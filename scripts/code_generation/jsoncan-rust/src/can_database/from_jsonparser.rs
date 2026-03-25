@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 
+use crate::can_database::RxMsgs;
 use crate::{
     can_database::{
-        error::CanDBError, CanAlert, CanAlertType, CanDatabase, CanEnum, CanMessage, CanNode,
-        CanSignal, CanSignalType, NodeAlerts, JsonRxMsgNames
+        CanAlert, CanAlertType, CanDatabase, CanEnum, CanMessage, CanNode, CanSignal,
+        CanSignalType, JsonRxMsgNames, NodeAlerts, error::CanDBError,
     },
-    parsing::{JsonCanParser, JsonCanSignal, DEFAULT_BUS_MODE},
+    parsing::{DEFAULT_BUS_MODE, JsonCanParser, JsonCanSignal},
 };
-use crate::can_database::RxMsgs;
 
 fn calculate_scale_offset(min: f64, max: f64, bits: u16) -> (f64, f64) {
     // return scale, offset
@@ -49,7 +49,11 @@ fn parse_signal(
             signed: signed.unwrap_or(false),
             description: None,
             big_endian: big_endian.unwrap_or(false),
-            signal_type: if min == 0f64 && max == 1f64 && scale == 1f64 && offset == 0f64 {CanSignalType::Boolean} else {CanSignalType::Numerical},
+            signal_type: if min == 0f64 && max == 1f64 && scale == 1f64 && offset == 0f64 {
+                CanSignalType::Boolean
+            } else {
+                CanSignalType::Numerical
+            },
         },
         JsonCanSignal::BitsMinMax {
             bits,
@@ -76,7 +80,11 @@ fn parse_signal(
                 signed: signed.unwrap_or(false),
                 description: None,
                 big_endian: big_endian.unwrap_or(false),
-                signal_type: if min == 0f64 && max == 1f64 && bits == 1 { CanSignalType::Boolean } else {CanSignalType::Numerical},
+                signal_type: if min == 0f64 && max == 1f64 && bits == 1 {
+                    CanSignalType::Boolean
+                } else {
+                    CanSignalType::Numerical
+                },
             }
         }
         JsonCanSignal::ResolutionMinMax {
@@ -147,10 +155,10 @@ fn parse_signal(
         } => {
             let (min, max) = match signed {
                 Some(true) => (
-                    (-1_i128 << (bits-1)) as f64,
-                    ((1_u128 << (bits-1)) - 1) as f64,
+                    (-1_i128 << (bits - 1)) as f64,
+                    ((1_u128 << (bits - 1)) - 1) as f64,
                 ),
-                Some(false) | None => (0.0, (1u128<<bits - 1) as f64),
+                Some(false) | None => (0.0, (1u128 << bits - 1) as f64),
             };
 
             CanSignal {
@@ -167,7 +175,11 @@ fn parse_signal(
                 signed: signed.unwrap_or(false),
                 description: None,
                 big_endian: big_endian.unwrap_or(false),
-                signal_type: if bits == 1 { CanSignalType::Boolean } else { CanSignalType::Numerical },
+                signal_type: if bits == 1 {
+                    CanSignalType::Boolean
+                } else {
+                    CanSignalType::Numerical
+                },
             }
         }
     }
@@ -188,30 +200,27 @@ fn parse_tx_msg_signals(
     let mut next_available_bit: u16 = 0;
     let mut occupied_bits: Vec<Option<String>> = vec![None; MAX_LEN_BITS];
 
-    // bombastic side eye
-    if json_signals.len() > 0
-        && json_signals.iter().any(|(_, s)| match s {
-            JsonCanSignal::ScaleOffsetBits { start_bit, .. }
-            | JsonCanSignal::BitsMinMax { start_bit, .. }
-            | JsonCanSignal::ResolutionMinMax { start_bit, .. }
-            | JsonCanSignal::Enum { start_bit, .. }
-            | JsonCanSignal::Bits { start_bit, .. } => start_bit.is_some(),
-        }) != json_signals.iter().all(|(_, s)| match s {
-            JsonCanSignal::ScaleOffsetBits { start_bit, .. }
-            | JsonCanSignal::BitsMinMax { start_bit, .. }
-            | JsonCanSignal::ResolutionMinMax { start_bit, .. }
-            | JsonCanSignal::Enum { start_bit, .. }
-            | JsonCanSignal::Bits { start_bit, .. } => start_bit.is_some(),
-        })
-    {
-        panic!(
-            "In message '{}', either all signals must specify start bits, or none of them should.",
-            msg_name
-        );
-    }
-
     // Parse message signals
     for (signal_name, signal_data) in json_signals {
+        if match signal_data {
+            JsonCanSignal::ScaleOffsetBits { start_bit, .. }
+            | JsonCanSignal::BitsMinMax { start_bit, .. }
+            | JsonCanSignal::ResolutionMinMax { start_bit, .. }
+            | JsonCanSignal::Enum { start_bit, .. }
+            | JsonCanSignal::Bits { start_bit, .. } => start_bit.is_some(),
+        } != match signal_data {
+            JsonCanSignal::ScaleOffsetBits { start_bit, .. }
+            | JsonCanSignal::BitsMinMax { start_bit, .. }
+            | JsonCanSignal::ResolutionMinMax { start_bit, .. }
+            | JsonCanSignal::Enum { start_bit, .. }
+            | JsonCanSignal::Bits { start_bit, .. } => start_bit.is_some(),
+        } {
+            panic!(
+                "In message '{}', either all signals must specify start bits, or none of them should.",
+                msg_name
+            );
+        }
+
         let signal = parse_signal(
             format!("{}_{}", tx_node_name, signal_name),
             signal_data,
@@ -407,15 +416,25 @@ fn generate_node_alert_msgs(node_name: &String, alerts_json: &NodeAlerts) -> [Ca
 impl CanDatabase {
     pub fn from(parser: JsonCanParser) -> Result<Self, CanDBError> {
         for x in &parser.forwarding {
-            let bus_1_node_names: &Vec<String> = &parser.buses.iter().find(|b| b.name == x.bus1_name).expect("must exist").node_names;
+            let bus_1_node_names: &Vec<String> = &parser
+                .buses
+                .iter()
+                .find(|b| b.name == x.bus1_name)
+                .expect("must exist")
+                .node_names;
             if !bus_1_node_names.contains(&x.forwarder_name) {
                 // println!("{:?} {}", bus_1_node_names, &x.forwarder_name);
                 return Err(CanDBError::NodeCannotForwardFrom {
                     node_name: x.forwarder_name.clone(),
                     bus_not_on: x.bus1_name.clone(),
-                })
+                });
             }
-            let bus_2_node_names = &parser.buses.iter().find(|b| b.name == x.bus2_name).expect("must exist").node_names;
+            let bus_2_node_names = &parser
+                .buses
+                .iter()
+                .find(|b| b.name == x.bus2_name)
+                .expect("must exist")
+                .node_names;
             if !bus_2_node_names.contains(&x.forwarder_name) {
                 // println!("{:?} {}", bus_2_node_names, &x.forwarder_name);
                 return Err(CanDBError::NodeCannotForwardTo {
@@ -430,9 +449,21 @@ impl CanDatabase {
 
         let mut rx_msg_names_to_resolve: Vec<(String, Vec<String>)> = Vec::new();
 
+        let mut enum_names: HashMap<String, Vec<String>> = HashMap::new();
+        enum_names.extend(
+            db.shared_enums
+                .iter()
+                .map(|e| (e.name.clone(), vec!["shared".into()])),
+        );
+
         // first handle adding nodes and their tx_msgs
         for n in parser.nodes {
             let tx_node_name = n.name.clone();
+            enum_names.extend(
+                n.enums
+                    .iter()
+                    .map(|e| (e.name.clone(), vec![tx_node_name.clone()])),
+            );
             let node = CanNode {
                 rx_msgs_names: match n.rx_msgs {
                     JsonRxMsgNames::All => RxMsgs::All,
@@ -462,8 +493,12 @@ impl CanDatabase {
             for msg in n.tx_msgs {
                 let signals = parse_tx_msg_signals(
                     msg.signals,
+                    &db.nodes
+                        .iter()
+                        .find(|n| n.name == tx_node_name)
+                        .unwrap()
+                        .enums,
                     &db.shared_enums,
-                    &db.nodes.iter().find(|n| n.name == tx_node_name).unwrap().enums,
                     &msg.name,
                     &tx_node_name,
                 );
@@ -481,23 +516,49 @@ impl CanDatabase {
             }
         }
 
+        for (enum_name, broadcasters) in enum_names {
+            if broadcasters.len() > 1 {
+                return Err(CanDBError::EnumMultipleBroadcasters {
+                    enum_name,
+                    broadcasters,
+                });
+            }
+        }
+
         // resolve explicit rx messages
         for (rx_name, rx_msg_names) in rx_msg_names_to_resolve.into_iter() {
             let rx_msgs: Vec<u32> = rx_msg_names
                 .iter()
-                .map(|m| db.get_message_id_by_name(m).expect(&format!("Message {} not found in database", m)))
+                .map(|m| {
+                    db.get_message_id_by_name(m)
+                        .expect(&format!("Message {} not found in database", m))
+                })
                 .collect();
-            if let RxMsgs::RxMsgs(old_rx_msgs) = &mut db.nodes.iter_mut().find(|n| n.name == rx_name).expect(&format!("Node {} not found in database", rx_name)).rx_msgs_names {
+            if let RxMsgs::RxMsgs(old_rx_msgs) = &mut db
+                .nodes
+                .iter_mut()
+                .find(|n| n.name == rx_name)
+                .expect(&format!("Node {} not found in database", rx_name))
+                .rx_msgs_names
+            {
                 *old_rx_msgs = rx_msgs;
             } else {
-                panic!("Node {} was marked as receiving all messages, but is also trying to explicitly receive some messages. Please fix the JSON input.", rx_name);
+                panic!(
+                    "Node {} was marked as receiving all messages, but is also trying to explicitly receive some messages. Please fix the JSON input.",
+                    rx_name
+                );
             }
         }
 
         // alert tx msgs
-        let alert_tx_msgs: Vec<CanMessage> = db.nodes
+        let alert_tx_msgs: Vec<CanMessage> = db
+            .nodes
             .iter()
-            .filter_map(|n| n.alerts.as_ref().map(|alerts| generate_node_alert_msgs(&n.name, alerts)))
+            .filter_map(|n| {
+                n.alerts
+                    .as_ref()
+                    .map(|alerts| generate_node_alert_msgs(&n.name, alerts))
+            })
             .flatten()
             .collect();
         for msg in alert_tx_msgs {

@@ -54,8 +54,6 @@ void TI_TPS28_Efuse::reset()
 
 [[nodiscard]] bool TI_TPS28_Efuse::ok()
 {
-    this->diag_en_gpio.writePin(true);
-
     const bool  channel_enabled = this->isChannelEnabled();
     const float voltage         = this->sns_adc_channel.getVoltage();
 
@@ -78,8 +76,6 @@ void TI_TPS28_Efuse::reset()
         this->faults.flags.overcurrent  = (channel_enabled && IS_IN_RANGE(V_SNSFH_MIN, V_SNSFH_MAX, voltage));
         this->faults.flags.thermal_shdn = (channel_enabled && IS_IN_RANGE(V_SNSFH_MIN, V_SNSFH_MAX, voltage));
     }
-
-    this->diag_en_gpio.writePin(false);
 
     return is_ok;
 }

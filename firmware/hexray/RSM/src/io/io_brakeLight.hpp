@@ -1,11 +1,12 @@
 #pragma once
 
-/*
-*Brake light control
-val = value of the brake light
-*/
+#include "hw_gpios.hpp"
 
 namespace io::brakeLight
 {
-void set(const bool val);
-}
+/*
+ * Brake light control
+ * value = value of the brake light
+ */
+void set(const bool value);
+} // namespace io::brakeLight

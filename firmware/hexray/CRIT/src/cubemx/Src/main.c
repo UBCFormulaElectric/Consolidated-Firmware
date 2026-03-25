@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
+#include "hw_error.hpp"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -83,7 +84,7 @@ static void MX_USB_PCD_Init(void);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
+    tasks_preInit();
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -196,20 +197,22 @@ void PeriphCommonClock_Config(void)
 
     /** Initializes the peripherals clock
      */
-    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SPI1 | RCC_PERIPHCLK_SPI2 | RCC_PERIPHCLK_SPI3;
-    PeriphClkInitStruct.PLL2.PLL2Source      = RCC_PLL2_SOURCE_HSE;
-    PeriphClkInitStruct.PLL2.PLL2M           = 2;
-    PeriphClkInitStruct.PLL2.PLL2N           = 125;
-    PeriphClkInitStruct.PLL2.PLL2P           = 120;
-    PeriphClkInitStruct.PLL2.PLL2Q           = 2;
-    PeriphClkInitStruct.PLL2.PLL2R           = 2;
-    PeriphClkInitStruct.PLL2.PLL2RGE         = RCC_PLL2_VCIRANGE_2;
-    PeriphClkInitStruct.PLL2.PLL2VCOSEL      = RCC_PLL2_VCORANGE_WIDE;
-    PeriphClkInitStruct.PLL2.PLL2FRACN       = 0;
-    PeriphClkInitStruct.PLL2.PLL2ClockOut    = RCC_PLL2_DIVP;
-    PeriphClkInitStruct.Spi1ClockSelection   = RCC_SPI1CLKSOURCE_PLL2P;
-    PeriphClkInitStruct.Spi2ClockSelection   = RCC_SPI2CLKSOURCE_PLL2P;
-    PeriphClkInitStruct.Spi3ClockSelection   = RCC_SPI3CLKSOURCE_PLL2P;
+    PeriphClkInitStruct.PeriphClockSelection =
+        RCC_PERIPHCLK_FDCAN | RCC_PERIPHCLK_SPI1 | RCC_PERIPHCLK_SPI2 | RCC_PERIPHCLK_SPI3;
+    PeriphClkInitStruct.PLL2.PLL2Source     = RCC_PLL2_SOURCE_HSE;
+    PeriphClkInitStruct.PLL2.PLL2M          = 1;
+    PeriphClkInitStruct.PLL2.PLL2N          = 24;
+    PeriphClkInitStruct.PLL2.PLL2P          = 20;
+    PeriphClkInitStruct.PLL2.PLL2Q          = 2;
+    PeriphClkInitStruct.PLL2.PLL2R          = 2;
+    PeriphClkInitStruct.PLL2.PLL2RGE        = RCC_PLL2_VCIRANGE_3;
+    PeriphClkInitStruct.PLL2.PLL2VCOSEL     = RCC_PLL2_VCORANGE_WIDE;
+    PeriphClkInitStruct.PLL2.PLL2FRACN      = 0;
+    PeriphClkInitStruct.PLL2.PLL2ClockOut   = RCC_PLL2_DIVP | RCC_PLL2_DIVQ;
+    PeriphClkInitStruct.FdcanClockSelection = RCC_FDCANCLKSOURCE_PLL2Q;
+    PeriphClkInitStruct.Spi1ClockSelection  = RCC_SPI1CLKSOURCE_PLL2P;
+    PeriphClkInitStruct.Spi2ClockSelection  = RCC_SPI2CLKSOURCE_PLL2P;
+    PeriphClkInitStruct.Spi3ClockSelection  = RCC_SPI3CLKSOURCE_PLL2P;
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
     {
         Error_Handler();
@@ -232,21 +235,21 @@ static void MX_FDCAN1_Init(void)
     /* USER CODE END FDCAN1_Init 1 */
     hfdcan1.Instance                  = FDCAN1;
     hfdcan1.Init.ClockDivider         = FDCAN_CLOCK_DIV1;
-    hfdcan1.Init.FrameFormat          = FDCAN_FRAME_CLASSIC;
+    hfdcan1.Init.FrameFormat          = FDCAN_FRAME_FD_NO_BRS;
     hfdcan1.Init.Mode                 = FDCAN_MODE_NORMAL;
-    hfdcan1.Init.AutoRetransmission   = DISABLE;
+    hfdcan1.Init.AutoRetransmission   = ENABLE;
     hfdcan1.Init.TransmitPause        = DISABLE;
     hfdcan1.Init.ProtocolException    = DISABLE;
-    hfdcan1.Init.NominalPrescaler     = 16;
-    hfdcan1.Init.NominalSyncJumpWidth = 1;
-    hfdcan1.Init.NominalTimeSeg1      = 1;
-    hfdcan1.Init.NominalTimeSeg2      = 1;
-    hfdcan1.Init.DataPrescaler        = 1;
-    hfdcan1.Init.DataSyncJumpWidth    = 1;
-    hfdcan1.Init.DataTimeSeg1         = 1;
-    hfdcan1.Init.DataTimeSeg2         = 1;
-    hfdcan1.Init.StdFiltersNbr        = 0;
-    hfdcan1.Init.ExtFiltersNbr        = 0;
+    hfdcan1.Init.NominalPrescaler     = 6;
+    hfdcan1.Init.NominalSyncJumpWidth = 2;
+    hfdcan1.Init.NominalTimeSeg1      = 13;
+    hfdcan1.Init.NominalTimeSeg2      = 2;
+    hfdcan1.Init.DataPrescaler        = 3;
+    hfdcan1.Init.DataSyncJumpWidth    = 2;
+    hfdcan1.Init.DataTimeSeg1         = 5;
+    hfdcan1.Init.DataTimeSeg2         = 2;
+    hfdcan1.Init.StdFiltersNbr        = 1;
+    hfdcan1.Init.ExtFiltersNbr        = 1;
     hfdcan1.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
     if (HAL_FDCAN_Init(&hfdcan1) != HAL_OK)
     {
@@ -367,7 +370,7 @@ static void MX_SPI3_Init(void)
     hspi3.Instance                     = SPI3;
     hspi3.Init.Mode                    = SPI_MODE_MASTER;
     hspi3.Init.Direction               = SPI_DIRECTION_2LINES_TXONLY;
-    hspi3.Init.DataSize                = SPI_DATASIZE_8BIT;
+    hspi3.Init.DataSize                = SPI_DATASIZE_16BIT;
     hspi3.Init.CLKPolarity             = SPI_POLARITY_LOW;
     hspi3.Init.CLKPhase                = SPI_PHASE_1EDGE;
     hspi3.Init.NSS                     = SPI_NSS_SOFT;

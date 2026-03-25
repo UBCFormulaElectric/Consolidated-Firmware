@@ -11,7 +11,10 @@
 
 static PowerLimitingInputs powerLimitingInputs;
 
-void app_wheelVerticalForces_broadcast(const ImuData *imu_data, TractionControl_Inputs *inputs)
+void app_wheelVerticalForces_broadcast(
+    const ImuData *imu_data,
+    TractionControl_Inputs
+        *inputs) void app_wheelVerticalForces_broadcast(const ImuData *imu_data, TractionControl_Inputs *inputs)
 {
     app_canTx_VC_FrontLeftWheelVerticalForce_set(
         (uint32_t)(((FRONT_AXLE_WEIGHT_DISTRIBUTION - LONG_ACCEL_TERM_VERTICAL_FORCE(imu_data->long_accel)) / 2.0f) -

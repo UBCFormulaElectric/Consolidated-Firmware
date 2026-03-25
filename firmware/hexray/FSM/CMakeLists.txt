@@ -49,7 +49,8 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmOutput.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmInput.cpp"
-
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_assert.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -58,8 +59,8 @@ set(HW_INCLUDE_DIRS
 )
 
 # chimera sources
-set(CHIMERA_SRCS ${HW_SRCS} ${IO_SRCS} "${CMAKE_CURRENT_SOURCE_DIR}/src/chimera.cpp")
-set(CHIMERA_INCLUDE_DIRS ${HW_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${APP_INCLUDE_DIRS})
+set(CHIMERA_SRCS ${HW_SRCS} "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/src/chimera.cpp")
+set(CHIMERA_INCLUDE_DIRS ${HW_INCLUDE_DIRS} ${IO_INCLUDE_DIRS})
 
 if ("${TARGET}" STREQUAL "binary")
     set(ARM_CORE "cm33")

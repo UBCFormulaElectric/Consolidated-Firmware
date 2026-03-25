@@ -1,8 +1,8 @@
 // Signal type classification
-export enum SignalType {
-  Numerical = "numerical",
-  Enumeration = "enumeration",
-}
+// export enum SignalType {
+//   Numerical = "numerical",
+//   Enumeration = "enumeration",
+// }
 
 // Signal metadata interface
 export interface SignalMeta {

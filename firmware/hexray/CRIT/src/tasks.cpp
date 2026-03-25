@@ -1,4 +1,5 @@
 #include "tasks.h"
+#include "hw_pwmOutputs.hpp"
 #include "jobs.hpp"
 
 #include "app_jsoncan.hpp"
@@ -7,6 +8,7 @@
 #include <io_canRx.hpp>
 #include "io_canQueues.hpp"
 
+#include "hw_hardFaultHandler.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_cans.hpp"
 
@@ -56,7 +58,7 @@
             continue;
         if (const auto &m = msg.value(); m.bus == app::can_utils::BusEnum::Bus_FDCAN)
         {
-            const auto res = hw::can::fdcan1.can_transmit(hw::CanMsg{
+            const auto res = hw::can::fdcan1.fdcan_transmit(hw::CanMsg{
                 m.std_id,
                 m.dlc,
                 m.data,
@@ -95,10 +97,16 @@ static void CRIT_StartAllTasks()
     TaskCanTx.start();
 }
 
-void tasks_preInit() {}
+void tasks_preInit()
+{
+    hw_hardFaultHandler_init();
+}
 
 void tasks_init()
 {
+    hw::can::fdcan1.init();
+    led_dimming.start();
+    led_dimming.setDutyCycle(95);
     jobs_init();
     osKernelInitialize();
     CRIT_StartAllTasks();
