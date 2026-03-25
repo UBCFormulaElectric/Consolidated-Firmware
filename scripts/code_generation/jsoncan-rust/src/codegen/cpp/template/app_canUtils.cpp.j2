@@ -87,18 +87,8 @@ static int64_t CAN_ENCODE(const int64_t input, const int64_t scale, const int64_
 /**
  * Decode payload representation of signal to signal value, w/ scale and offset.
  */
-template<typename T>
-static T CAN_DECODE(const uint32_t input, const float scale, const float offset)
-{
-    return static_cast<T>(input * scale + offset);
-}
-template<typename T>
-static T CAN_DECODE(const uint32_t input, const uint64_t scale, const uint64_t offset)
-{
-    return static_cast<T>(input * scale + offset);
-}
-template<typename T>
-static T CAN_DECODE(const uint32_t input, const int64_t scale, const int64_t offset)
+template<typename T, typename S, typename R>
+static T CAN_DECODE(const S input, const R scale, const R offset)
 {
     return static_cast<T>(input * scale + offset);
 }

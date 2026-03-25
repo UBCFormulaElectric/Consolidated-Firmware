@@ -1,9 +1,22 @@
 #include <gtest/gtest.h>
 #include "app_canUtils.hpp"
 
-#define LSHIFT(value, shift) (static_cast<uint64_t>(value) << shift)
-#define ENCODE(input, scale, offset) (((input - offset) / scale))
-#define TWOS_COMP(input, max) (0xFFFF - input + 1U)
+// #define ENCODE(input, scale, offset) (((input - offset) / scale))
+static constexpr uint64_t LSHIFT(const auto value, const uint8_t shift)
+{
+    return static_cast<uint64_t>(value) << shift;
+}
+static constexpr uint64_t ENCODE(const auto input, const auto scale, const auto offset, const size_t length)
+{
+    return static_cast<uint64_t>((input - offset) / scale) & ((1ull << length) - 1);
+}
+
+// enforce that T is unsigned integer type
+template <std::unsigned_integral T>
+static constexpr T TWOS_COMP(const T input, const T max = std::numeric_limits<T>::max())
+{
+    return max - input + 1U;
+}
 
 TEST(PackUnpackTests, test_basic_signal_types)
 {
@@ -80,16 +93,16 @@ TEST(PackUnpackTests, test_decimal_numbers)
         app::can_utils::ECU1_DecimalNumbers_Signals{ 100.0f, 3.0f },
     } };
     constexpr std::array<uint64_t, 5>                                expected_payloads{ {
-        0 | LSHIFT(ENCODE(-100.0f, 0.1f, -100.0f), 0) | // Decimal1
-            LSHIFT(ENCODE(2.0f, 0.01f, 2.0f), 11),      // Decimal2
-        0 | LSHIFT(ENCODE(-54.61f, 0.1f, -100.0f), 0) | // Decimal1
-            LSHIFT(ENCODE(2.1243f, 0.01f, 2.0f), 11),   // Decimal2
-        0 | LSHIFT(ENCODE(0.0f, 0.1f, -100.0f), 0) |    // Decimal1
-            LSHIFT(ENCODE(2.5f, 0.01f, 2.0f), 11),      // Decimal2
-        0 | LSHIFT(ENCODE(72.34f, 0.1f, -100.0f), 0) |  // Decimal1
-            LSHIFT(ENCODE(2.781f, 0.01f, 2.0f), 11),    // Decimal2
-        0 | LSHIFT(ENCODE(100.0f, 0.1f, -100.0f), 0) |  // Decimal1
-            LSHIFT(ENCODE(3.0f, 0.01f, 2.0f), 11),      // Decimal2
+        0 | LSHIFT(ENCODE(-100.0f, 0.1f, -100.0f, 11), 0) | // Decimal1
+            LSHIFT(ENCODE(2.0f, 0.01f, 2.0f, 11), 11),      // Decimal2
+        0 | LSHIFT(ENCODE(-54.61f, 0.1f, -100.0f, 11), 0) | // Decimal1
+            LSHIFT(ENCODE(2.1243f, 0.01f, 2.0f, 11), 11),   // Decimal2
+        0 | LSHIFT(ENCODE(0.0f, 0.1f, -100.0f, 11), 0) |    // Decimal1
+            LSHIFT(ENCODE(2.5f, 0.01f, 2.0f, 11), 11),      // Decimal2
+        0 | LSHIFT(ENCODE(72.34f, 0.1f, -100.0f, 11), 0) |  // Decimal1
+            LSHIFT(ENCODE(2.781f, 0.01f, 2.0f, 11), 11),    // Decimal2
+        0 | LSHIFT(ENCODE(100.0f, 0.1f, -100.0f, 11), 0) |  // Decimal1
+            LSHIFT(ENCODE(3.0f, 0.01f, 2.0f, 11), 11),      // Decimal2
     } };
     const std::array<app::can_utils::ECU1_DecimalNumbers_Signals, 5> expected_unpacked{ {
         app::can_utils::ECU1_DecimalNumbers_Signals{ -100.0f, 2.0f },
@@ -125,14 +138,14 @@ TEST(PackUnpackTests, test_signed_numbers)
     } };
     constexpr std::array<uint64_t, 5>                             expected_payloads{ {
         0,
-        0 | LSHIFT(ENCODE(1.0, 0.1, 0), 0) |                        // Temp
-            LSHIFT(ENCODE(1, 1, 0), 32),                            // RPM
-        0 | LSHIFT(TWOS_COMP(ENCODE(1.0, 0.1, 0), 0xFFFF), 0) |     // Temp
-            LSHIFT(TWOS_COMP(ENCODE(1, 1, 0), 0xFFFF), 32),         // RPM
-        0 | LSHIFT(ENCODE(3276.7, 0.1, 0), 0) |                     // Temp
-            LSHIFT(ENCODE(32767, 1, 0), 32),                        // RPM
-        0 | LSHIFT(TWOS_COMP(ENCODE(3276.8, 0.1, 0), 0xFFFF), 32) | // Temp
-            LSHIFT(TWOS_COMP(ENCODE(32768, 1, 0), 0xFFFF), 0),      // RPM
+        0 | LSHIFT(ENCODE(1.0f, 0.1f, 0.0f, 16), 0) |                           // Temp
+            LSHIFT(ENCODE(1.0f, 1.0f, 0.0f, 16), 32),                           // RPM
+        0 | LSHIFT(TWOS_COMP(ENCODE(1.0f, 0.1f, 0.0f, 16), 0xFFFFull), 0) |     // Temp
+            LSHIFT(TWOS_COMP(ENCODE(1.0f, 1.0f, 0.0f, 16), 0xFFFFull), 32),     // RPM
+        0 | LSHIFT(ENCODE(3276.7f, 0.1f, 0.0f, 16), 0) |                        // Temp
+            LSHIFT(ENCODE(32767.0f, 1.0f, 0.0f, 16), 32),                       // RPM
+        0 | LSHIFT(TWOS_COMP(ENCODE(3276.8f, 0.1f, 0.0f, 16), 0xFFFFull), 32) | // Temp
+            LSHIFT(TWOS_COMP(ENCODE(32768.0f, 1.0f, 0.0f, 16), 0xFFFFull), 0),  // RPM
     } };
 
     for (size_t i = 0; i < 4; i++)
