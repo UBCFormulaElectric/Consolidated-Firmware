@@ -50,8 +50,9 @@ impl CanRxConfig {
     }
 }
 
+#[derive(Debug)]
 pub struct CanTxConfig {
-    map_by_bus: HashMap<String, Vec<u32>>,
+    map_by_bus: HashMap<String, HashSet<u32>>,
 }
 
 impl CanTxConfig {
@@ -64,8 +65,8 @@ impl CanTxConfig {
     pub fn add_bus_to_msg(self: &mut Self, msg_id: u32, bus_name: &String) {
         self.map_by_bus
             .entry(bus_name.clone())
-            .or_insert(Vec::new())
-            .push(msg_id);
+            .or_insert(HashSet::new())
+            .insert(msg_id);
     }
 
     pub fn get_all(self: &Self) -> Vec<(u32, Vec<String>)> {
