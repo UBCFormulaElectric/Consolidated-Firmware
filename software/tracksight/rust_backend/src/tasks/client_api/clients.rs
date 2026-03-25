@@ -32,8 +32,8 @@ impl Clients {
     /**
      * Retrieves a list of clients
      */
-    pub fn get_clients(&self) -> Vec<&String> {
-        return self.sockets.keys().collect();
+    pub fn get_clients(&self) -> Vec<String> {
+        return self.sockets.keys().cloned().collect();
     }
 
     pub fn get_client_socket(&self, client: &String) -> Option<&SocketRef> {
