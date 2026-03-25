@@ -18,6 +18,9 @@ const TOOLTIP_PADDING_X = 8;
 const TOOLTIP_PADDING_Y = 4;
 const TOOLTIP_TRIANGLE_SIZE = 5;
 const TOOLTIP_GAP = 2;
+const TOOLTIP_COLOR = "#000000ac";
+const TOOLTIP_TEXT_COLOR = "white";
+const TOOLTIP_BORDER_COLOR = "black";
 
 type HoverInfo = {
   alertIndex: number;
@@ -196,6 +199,7 @@ const renderAlertTimeline = (
     const rightRadius = Math.min(Math.max(distanceFromRightEdgePx * SLIP_STREAM_ROUNDING_SPEED, 0), SLIP_STREAM_ROUNDING_RADIUS);
 
     ctx.beginPath();
+
     ctx.roundRect(alertStartX, laneY, alertEndX - alertStartX, heightPerLane, [
       isOffLeftEdge ? 0 : SLIP_STREAM_ROUNDING_RADIUS,
       rightRadius,
@@ -253,11 +257,14 @@ const renderAlertTimeline = (
   const triangleTop = isAboveTooltip ? laneY - TOOLTIP_GAP : barBottom + TOOLTIP_GAP;
   const tooltipTop = isAboveTooltip ? triangleTop - TOOLTIP_TRIANGLE_SIZE : triangleTop + TOOLTIP_TRIANGLE_SIZE;
 
-  ctx.fillStyle = "#ffffff";
+  ctx.strokeStyle = TOOLTIP_BORDER_COLOR;
+  ctx.lineWidth = 1;
+  ctx.fillStyle = TOOLTIP_COLOR;
   ctx.beginPath();
   ctx.moveTo(centerX - TOOLTIP_TRIANGLE_SIZE, isAboveTooltip ? triangleTop - TOOLTIP_TRIANGLE_SIZE : triangleTop + TOOLTIP_TRIANGLE_SIZE);
   ctx.lineTo(centerX, triangleTop);
   ctx.lineTo(centerX + TOOLTIP_TRIANGLE_SIZE, isAboveTooltip ? triangleTop - TOOLTIP_TRIANGLE_SIZE : triangleTop + TOOLTIP_TRIANGLE_SIZE);
+  ctx.stroke();
   ctx.closePath();
   ctx.fill();
 
@@ -265,8 +272,9 @@ const renderAlertTimeline = (
   ctx.beginPath();
   ctx.roundRect(tooltipX, tooltipTop + (isAboveTooltip ? -tooltipHeight : 0), tooltipWidth, tooltipHeight, 4);
   ctx.fill();
+  ctx.stroke();
 
-  ctx.fillStyle = "#333333";
+  ctx.fillStyle = TOOLTIP_TEXT_COLOR;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillText(alert.signal, tooltipX + tooltipWidth / 2, tooltipTop + (isAboveTooltip ? -tooltipHeight : tooltipHeight) / 2);
