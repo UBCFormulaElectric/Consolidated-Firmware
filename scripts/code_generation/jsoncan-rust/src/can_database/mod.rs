@@ -6,9 +6,8 @@ mod types;
 use error::CanDBError;
 use r2d2::{Pool, PooledConnection};
 use r2d2_sqlite::SqliteConnectionManager;
-use uuid::Uuid;
 pub use types::*;
-
+use uuid::Uuid;
 
 const IN_MEMORY_PATH: &str = "can_db";
 
@@ -72,11 +71,13 @@ impl CanDatabase {
         forwarding: Vec<BusForwarder>,
         shared_enums: Vec<CanEnum>,
     ) -> Result<Self, CanDBError> {
-        let manager = SqliteConnectionManager::file(
-            format!("file:{}-{}?mode=memory&cache=shared", IN_MEMORY_PATH, Uuid::new_v4())
-        )
-            .with_init(|conn| {
-                conn.execute(
+        let manager = SqliteConnectionManager::file(format!(
+            "file:{}-{}?mode=memory&cache=shared",
+            IN_MEMORY_PATH,
+            Uuid::new_v4()
+        ))
+        .with_init(|conn| {
+            conn.execute(
                 "CREATE TABLE IF NOT EXISTS messages (
                     name TEXT UNIQUE NOT NULL,
                     id INTEGER PRIMARY KEY NOT NULL,
@@ -86,10 +87,11 @@ impl CanDatabase {
                     telem_cycle_time INTEGER,
                     tx_node_name TEXT NOT NULL,
                     modes TEXT NOT NULL
-			        )", []
-                )?;
+			        )",
+                [],
+            )?;
 
-                conn.execute(
+            conn.execute(
                 "CREATE TABLE IF NOT EXISTS signals (
                     name TEXT NOT NULL,
                     message_id INTEGER NOT NULL,
@@ -108,13 +110,15 @@ impl CanDatabase {
                     signal_type INTEGER NOT NULL,
                     FOREIGN KEY(message_id) REFERENCES messages(id)
                     )",
-            [])?;
-                return Ok(());
-            });
+                [],
+            )?;
+            return Ok(());
+        });
 
         let pool = Pool::builder()
             .max_size(8)
-            .build(manager).map_err(|e| CanDBError::PoolConnectionError(e))?;
+            .build(manager)
+            .map_err(|e| CanDBError::PoolConnectionError(e))?;
 
         Ok(CanDatabase {
             pool,
@@ -191,7 +195,25 @@ impl CanDatabase {
                 msg.tx_node_name,
                 serde_json::to_string(&msg.modes).unwrap()
             ],
-        ).map_err(|e| CanDBError::SqlLiteError(e))?;
+        ).map_err(
+            |e| {
+                match e {
+                    rusqlite::Error::SqliteFailure(err, Some(err_msg))
+                    if err.code == rusqlite::ErrorCode::ConstraintViolation && err_msg.contains("UNIQUE constraint failed: messages.name") => {
+                        CanDBError::DuplicateTxMsgName {
+                            tx_node_name_1: msg.tx_node_name,
+                            tx_node_name_2: self.get_connection().unwrap().query_row(
+                                "SELECT tx_node_name FROM messages WHERE name = ?1",
+                                rusqlite::params![msg.name],
+                                |row| row.get::<_, String>(0),
+                            ).expect("Failed to query for duplicate message name"),
+                            tx_msg_name: msg.name.clone(),
+                        }
+                    },
+                    _ => CanDBError::SqlLiteError(e)
+                }
+            }
+        )?;
 
         let msg_id = msg.id;
         for signal in msg.signals.iter() {
@@ -221,7 +243,13 @@ impl CanDatabase {
                 if signal.big_endian { 1 } else { 0 },
                 signal.signal_type.clone() as u32,
             ],
-        ).map_err(|e| CanDBError::SqlLiteError(e))?;
+        ).map_err(
+            |e| {
+                match e {
+                    _ => CanDBError::SqlLiteError(e)
+                }
+            }
+        )?;
 
         Ok(())
     }
@@ -245,7 +273,9 @@ impl CanDatabase {
      * Wrapper to just convert error into CanDBError
      */
     fn get_connection(&self) -> Result<PooledConnection<SqliteConnectionManager>, CanDBError> {
-        self.pool.get().map_err(|e| CanDBError::PoolConnectionError(e))
+        self.pool
+            .get()
+            .map_err(|e| CanDBError::PoolConnectionError(e))
     }
 }
 
@@ -256,5 +286,5 @@ pub struct DecodedSignal {
     pub timestamp: Option<u64>,
     pub label: Option<String>,
     pub unit: Option<String>,
-    pub signal_type: CanSignalType
+    pub signal_type: CanSignalType,
 }

@@ -13,7 +13,7 @@ namespace io::telemUart
  */
 std::expected<void, ErrorCode> transmitPoll(std::span<const uint8_t> tx_data)
 {
-    return _900k_uart.transmitPoll(tx_data);
+    return _900k_uart.transmit(tx_data);
 }
 
 /**
