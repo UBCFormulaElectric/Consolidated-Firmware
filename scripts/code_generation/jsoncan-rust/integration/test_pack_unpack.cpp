@@ -138,14 +138,14 @@ TEST(PackUnpackTests, test_signed_numbers)
     } };
     constexpr std::array<uint64_t, 5>                             expected_payloads{ {
         0,
-        0 | LSHIFT(ENCODE(1.0f, 0.1f, 0.0f, 16), 0) |                           // Temp
-            LSHIFT(ENCODE(1.0f, 1.0f, 0.0f, 16), 32),                           // RPM
-        0 | LSHIFT(TWOS_COMP(ENCODE(1.0f, 0.1f, 0.0f, 16), 0xFFFFull), 0) |     // Temp
-            LSHIFT(TWOS_COMP(ENCODE(1.0f, 1.0f, 0.0f, 16), 0xFFFFull), 32),     // RPM
-        0 | LSHIFT(ENCODE(3276.7f, 0.1f, 0.0f, 16), 0) |                        // Temp
-            LSHIFT(ENCODE(32767.0f, 1.0f, 0.0f, 16), 32),                       // RPM
-        0 | LSHIFT(TWOS_COMP(ENCODE(3276.8f, 0.1f, 0.0f, 16), 0xFFFFull), 32) | // Temp
-            LSHIFT(TWOS_COMP(ENCODE(32768.0f, 1.0f, 0.0f, 16), 0xFFFFull), 0),  // RPM
+        0 | LSHIFT(ENCODE(1.0f, 0.1f, 0.0f, 16), 0) | // Temp
+            LSHIFT(ENCODE(1.0f, 1.0f, 0.0f, 16), 32), // RPM
+        0 | LSHIFT(TWOS_COMP(ENCODE(1.0f, 0.1f, 0.0f, 16), static_cast<uint64_t>(0xFFFF)), 0) | // Temp
+            LSHIFT(TWOS_COMP(ENCODE(1.0f, 1.0f, 0.0f, 16), static_cast<uint64_t>(0xFFFF)), 32), // RPM
+        0 | LSHIFT(ENCODE(3276.7f, 0.1f, 0.0f, 16), 0) |  // Temp
+            LSHIFT(ENCODE(32767.0f, 1.0f, 0.0f, 16), 32), // RPM
+        0 | LSHIFT(TWOS_COMP(ENCODE(3276.8f, 0.1f, 0.0f, 16), static_cast<uint64_t>(0xFFFF)), 32) | // Temp
+            LSHIFT(TWOS_COMP(ENCODE(32768.0f, 1.0f, 0.0f, 16), static_cast<uint64_t>(0xFFFF)), 0), // RPM
     } };
 
     for (size_t i = 0; i < 4; i++)
