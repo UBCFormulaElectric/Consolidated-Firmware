@@ -1,4 +1,4 @@
-import SignalStore, { SignalStoreReturnType } from "@/lib/signals/SignalStore";
+import SignalStore from "@/lib/signals/SignalStore";
 import { SignalMetadata, SignalType } from "../types/Signal";
 
 export const MOCK_STATES = [ // needed to hardcode for widgetadder
@@ -15,6 +15,19 @@ export const ALERT_SIGNALS = [
   "Temperature",
   "Power Consumption",
   "Fan Speed",
+  "GPU Usage",
+  "Battery Level",
+  "Process Count",
+  "Thread Count",
+  "IO Wait",
+  "Page Faults",
+  "Context Switches",
+  "Interrupts",
+  "System Load",
+  "Swap Usage",
+  "Latency",
+  "Error Rate",
+  "Throughput",
 ]
 
 function generateRandomNumericalValue(time: number, index: number = 0, min: number, max: number) {
@@ -43,6 +56,14 @@ function generateRandomEnumValue() {
   };
 }
 
+function generateRandomAlertValue(prev: number) {
+  const shouldChange = Math.random() < 0.001;
+  if (!shouldChange) return prev;
+
+  const change = prev === 0 ? 1 : 0;
+  return change;
+}
+
 class MockSignalStore extends SignalStore {
   private signalSubscriptionIntervals: Map<string, number>;
 
@@ -52,6 +73,20 @@ class MockSignalStore extends SignalStore {
     super(updateWithTimestamp);
 
     this.signalSubscriptionIntervals = new Map();
+    
+    ALERT_SIGNALS.forEach(signalName => {
+      let previousValue = 0;
+
+      const intervalId = setInterval(() => {
+        const now = Date.now();
+        const value = generateRandomAlertValue(previousValue);
+        previousValue = value;
+
+        this.addAlertDataPoint(signalName, now, value);
+      }, 1);
+
+      this.signalSubscriptionIntervals.set(signalName, intervalId as unknown as number);
+    });
   }
 
   // FIXME(evan): Type stuff I can't be bothered to do right now
