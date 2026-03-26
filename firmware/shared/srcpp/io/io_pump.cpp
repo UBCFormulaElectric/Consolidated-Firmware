@@ -99,9 +99,4 @@ std::expected<void, ErrorCode> Pump::requireEfuse() const
     }
     return {};
 }
-
-std::expected<bool, ErrorCode> Pump::getHealth() const
-{
-    return pgood();
-}
 } // namespace io
