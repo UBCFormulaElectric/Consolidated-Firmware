@@ -107,6 +107,8 @@ extern "C"
 #define nSUSP_FL_OCSC_GPIO_Port GPIOC
 #define nSUSP_FR_OCSC_Pin GPIO_PIN_11
 #define nSUSP_FR_OCSC_GPIO_Port GPIOC
+#define D_P_PULLUP_Pin GPIO_PIN_2
+#define D_P_PULLUP_GPIO_Port GPIOD
 #define DEBUG_LED_Pin GPIO_PIN_4
 #define DEBUG_LED_GPIO_Port GPIOB
 #define BOOT_LED_Pin GPIO_PIN_5
