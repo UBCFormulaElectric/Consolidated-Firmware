@@ -1,12 +1,13 @@
 use std::collections::HashMap;
 
-use axum::{Json, Router, extract::{Path, State}, http::StatusCode, response::IntoResponse, routing::get};
-use influxdb2::FromMap;
+use axum::{Json, Router, extract::{Path, Query, State}, http::StatusCode, response::IntoResponse, routing::get};
+use influxdb2::{FromDataPoint};
 use jsoncan_rust::can_database::CanMessage;
 use serde::{Deserialize, Serialize};
 use regex::Regex;
+use chrono::{DateTime, FixedOffset};
 
-use crate::tasks::client_api::AppState;
+use crate::{config::CONFIG, tasks::client_api::AppState};
 
 /**
  * Gets the list of all nodes (str) in the current parser.
@@ -20,7 +21,7 @@ async fn nodes(State(state): State<AppState>) -> impl IntoResponse {
 }
 
 #[derive(Debug, Deserialize)]
-struct MetadataParam {
+struct SignalNameParam {
     name: Option<String>,
 }
 
@@ -42,7 +43,7 @@ struct SignalMetadata {
  * Pass signal names (regex) in `name` parameter.
  * E.g. `/signal/metadata?name=INVFR_bError`
  */
-async fn metadata(axum::extract::Query(mut param): axum::extract::Query<MetadataParam>, State(state): State<AppState>) -> impl IntoResponse {
+async fn metadata(Query(mut param): Query<SignalNameParam>, State(state): State<AppState>) -> impl IntoResponse {
     let regex = match Regex::new(param.name.get_or_insert(".*".to_string())) {
         Ok(regex) => regex,
         Err(_) => {
@@ -85,38 +86,56 @@ async fn signal() -> impl IntoResponse {
     return (StatusCode::OK, serde_json::to_string(&Vec::<String>::new()).unwrap());
 }
 
-#[derive(Debug, Deserialize, Default)]
+#[derive(Debug, Serialize, FromDataPoint, Default)]
 struct InfluxRow {
-    time: String,
+    // rename influx field names to match with frontend names
+    #[serde(rename = "timestamp")]
+    time: DateTime<FixedOffset>,
     value: f64,
-    field: String,
     measurement: String,
+    #[serde(rename = "name")]
+    signal_name: String,
 }
 
-impl FromMap for InfluxRow {
-    fn from_genericmap(map: influxdb2_structmap::GenericMap) -> Self {
-        println!("values: {:?}", map.iter().collect::<Vec<_>>());
-
-        Self::default()
-    }
-}
-async fn signal_date(Path(date): Path<String>, State(state): State<AppState>) -> impl IntoResponse {
+/**
+ * Gets signal values, timestamp, and name.
+ * Format date as YYYY-MM-DD
+ * Pass signal names (regex) in `name` parameter.
+ * E.g. `/signal/2026-03-01?name=BMS_TractiveSystemVoltage`
+ */
+async fn signal_date(Path(date): Path<String>, Query(param): Query<SignalNameParam>, State(state): State<AppState>) -> impl IntoResponse {
     let re = Regex::new(r"^\d{4}-\d{2}-\d{2}$").unwrap();
     if !re.is_match(&date) {
         return (StatusCode::BAD_REQUEST, "Bad date format, should be YYYY-MM-DD".to_string());
     }
+    
+    let mut date_query = format!(r#"
+    from(bucket: "{}")
+    |> range(start: {date}T00:00:00Z, stop: {date}T23:59:59Z)
+    |> filter(fn: (r) => r["_measurement"] == "{}")
+    "#, &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement);
+    
+    if let Some(signal) = param.name {
+        let _ = match Regex::new(&signal) {
+            Ok(_) => {},
+            Err(_) => {
+                return (StatusCode::BAD_REQUEST, "Bad name regex format".to_string());
+            }
+        };
+        date_query.push_str(&format!(
+            r#"|> filter(fn: (r) => r["signal_name"] =~ /^{}/)"#,
+            signal
+        ));
+    }
 
-    let date_query = format!("
-        from(bucket: \"can_data\")
-            |> range(start: 2026-03-21T00:00:00Z, stop:2026-03-21T23:59:59Z)
-            |> filter(fn: (r) => r[\"_measurement\"] == \"quintuna_live\")
-    ");
-
-    let req: Result<Vec<_>, influxdb2::RequestError> = state.influx_client.query::<InfluxRow>(Some(influxdb2::models::Query::new(date_query))).await;
+    let req: Result<Vec<_>, influxdb2::RequestError> = 
+        state.influx_client.query::<InfluxRow>(
+            Some(influxdb2::models::Query::new(date_query))
+        ).await;
 
     match req {
         Ok(res) => {
-            return (StatusCode::OK, format!("{res:?}"));
+            return (StatusCode::OK, serde_json::to_string(&res).unwrap());
         },
         Err(e) => {
             return (StatusCode::BAD_REQUEST, format!("{e:?}"));
