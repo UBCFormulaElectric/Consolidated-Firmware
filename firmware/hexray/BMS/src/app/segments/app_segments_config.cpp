@@ -5,7 +5,7 @@
 
 using namespace std;
 
-inline constexpr uint8_t  NUM_CONFIG_SYNC_TRIES = 5;
+inline constexpr uint8_t  NUM_CONFIG_SYNC_TRIES = 20;
 inline constexpr uint16_t VUV                   = 0x800; // VUV × 16 × 150 μV + 1.5 V (TO DO)
 inline constexpr uint16_t VOV                   = 0x7FF; // VOV × 16 × 150 μV + 1.5 V (TO DO)
 
@@ -71,15 +71,15 @@ void setThermistorConfig(ThermistorMux mux)
     {
         (void)reg_b;
 
-        if (mux == ThermistorMux::THERMISTOR_MUX_0_7)
-        {
-            reg_a.gpio_1_8  = 0xFF;
-            reg_a.gpio_9_10 = 0x02;
-        }
-        else
+        if (mux == ThermistorMux::THERMISTOR_MUX_0_6)
         {
             reg_a.gpio_1_8  = 0xFF;
             reg_a.gpio_9_10 = 0x03;
+        }
+        else
+        {
+            reg_a.gpio_1_8  = 0x00;
+            reg_a.gpio_9_10 = 0x02;
         }
     }
 }

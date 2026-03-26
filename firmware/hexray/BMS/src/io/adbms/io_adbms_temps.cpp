@@ -4,7 +4,7 @@
 
 using namespace std;
 
-static constexpr uint8_t MAX_NUM_ATTEMPTS = 20U;
+static constexpr uint8_t MAX_NUM_ATTEMPTS = 10U;
 static constexpr uint8_t GPIOS_PER_GROUP  = 3U;
 
 static array<array<uint8_t, io::adbms::REG_GROUP_SIZE>, io::NUM_SEGMENTS> reg_group;
@@ -43,8 +43,8 @@ expected<void, ErrorCode> pollTempAdcConversion()
 }
 
 void readCellTempReg(
-    array<array<uint16_t, GPIOS_PER_SEGMENT>, NUM_SEGMENTS>                  &cell_temp_regs,
-    array<array<expected<void, ErrorCode>, GPIOS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success)
+    array<array<uint16_t, THERM_GPIOS_PER_SEGMENT>, NUM_SEGMENTS>                  &cell_temp_regs,
+    array<array<expected<void, ErrorCode>, THERM_GPIOS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success)
 {
     const expected<void, ErrorCode> poll_ok = pollTempAdcConversion();
 
@@ -70,10 +70,10 @@ void readCellTempReg(
                 continue;
             }
 
-            for (size_t gpio_in_group = 0U; gpio_in_group < GPIOS_PER_SEGMENT; gpio_in_group++)
+            for (size_t gpio_in_group = 0U; gpio_in_group < GPIOS_PER_GROUP; gpio_in_group++)
             {
                 const size_t gpio = group * GPIOS_PER_GROUP + gpio_in_group;
-                if (gpio < GPIOS_PER_SEGMENT)
+                if (gpio < THERM_GPIOS_PER_SEGMENT)
                 {
                     const uint16_t low         = reg_group[seg][gpio_in_group * 2U];
                     const uint16_t high        = reg_group[seg][gpio_in_group * 2U + 1U];

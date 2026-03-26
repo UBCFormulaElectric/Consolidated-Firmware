@@ -19,6 +19,7 @@ namespace adbms
     inline constexpr uint8_t NUM_TEMP_REG_GROUPS = 4; // A..D only
     inline constexpr uint8_t NUM_STAT_REG_GROUPS = 5;
     inline constexpr uint8_t GPIOS_PER_SEGMENT   = 10;
+    inline constexpr uint8_t THERM_GPIOS_PER_SEGMENT = 8;
 
     /**
      * @file adbms/io_adbms_configs.cpp
@@ -194,8 +195,8 @@ namespace adbms
 
     std::expected<void, ErrorCode> startTempAdcConversion();
     void                           readCellTempReg(
-                                  std::array<std::array<uint16_t, GPIOS_PER_SEGMENT>, NUM_SEGMENTS>                       &cell_temp_regs,
-                                  std::array<std::array<std::expected<void, ErrorCode>, GPIOS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success);
+                                  std::array<std::array<uint16_t, THERM_GPIOS_PER_SEGMENT>, NUM_SEGMENTS>                       &cell_temp_regs,
+                                  std::array<std::array<std::expected<void, ErrorCode>, THERM_GPIOS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success);
 
     std::expected<void, ErrorCode> owcCells(OpenWireSwitch owcSwitch);
     std::expected<void, ErrorCode> owcTherms(OpenWireSwitch owcSwitch);

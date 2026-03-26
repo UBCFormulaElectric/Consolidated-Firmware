@@ -30,9 +30,8 @@ extern array<array<uint16_t, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>          
 extern array<array<expected<void, ErrorCode>, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> cell_voltage_success;
 extern array<array<float, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>                     cell_voltages;
 
-extern array<array<array<uint16_t, io::adbms::GPIOS_PER_SEGMENT>, io::NUM_SEGMENTS>, 2> cell_temp_regs;
-extern array<array<array<expected<void, ErrorCode>, io::adbms::GPIOS_PER_SEGMENT>, io::NUM_SEGMENTS>, 2>
-                                                                          cell_temp_success;
+extern array<array<array<uint16_t, io::adbms::THERM_GPIOS_PER_SEGMENT>, io::NUM_SEGMENTS>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)> cell_temp_regs;
+extern array<array<array<expected<void, ErrorCode>, io::adbms::THERM_GPIOS_PER_SEGMENT>, io::NUM_SEGMENTS>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)> cell_temp_success;
 extern array<array<float, io::THERMISTORS_PER_SEGMENT>, io::NUM_SEGMENTS> cell_temps;
 
 extern array<array<uint16_t, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>                  cell_owc_odd_regs;

@@ -11,8 +11,8 @@ namespace app::segments
 {
 enum class ThermistorMux
 {
-    THERMISTOR_MUX_0_7,
-    THERMISTOR_MUX_8_13,
+    THERMISTOR_MUX_0_6,
+    THERMISTOR_MUX_7_13,
     THERMISTOR_MUX_COUNT,
 };
 

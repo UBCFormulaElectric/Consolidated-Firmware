@@ -144,22 +144,18 @@ void readRegGroup(
         return;
     }
 
-    if (cmd == RDSTATA) {
+    if (cmd == RDAUXA) {
         [[maybe_unused]] int j = 0;
     }
-    if (cmd == RDSTATB) {
+    if (cmd == RDAUXB) {
         [[maybe_unused]] int j = 0;
     }
-    if (cmd == RDSTATC) {
+    if (cmd == RDAUXC) {
         [[maybe_unused]] int j = 0;
     }
-    if (cmd == RDSTATD) {
+    if (cmd == RDAUXD) {
         [[maybe_unused]] int j = 0;
     }
-    if (cmd == RDSTATE) {
-        [[maybe_unused]] int j = 0;
-    }
-    
 
     for (size_t segment = 0U; segment < NUM_SEGMENTS; ++segment)
     {
