@@ -5,21 +5,27 @@
 #include "app_timer.hpp"
 #include "io_irs.hpp"
 #include "io_charger.hpp"
+#include "app_charger.hpp"
 // #include "app_segments.hpp"
 #include "app_canUtils.hpp"
 #include "app_canRx.hpp"
 #include "app_canTx.hpp"
 
+// OVERALL TODO: Refer to FIRM-175 and FIRM-544
+
 // Charger/pack constants
 namespace
 {
-// TODO: Change back if we ever get to 10 segments again
-// constexpr float PACK_VOLTAGE_DC 581.0f // V – the battery pack’s nominal voltage (4.15V per cell * 14 cell per seg *
-// 10 seg)
-constexpr float PACK_VOLTAGE_DC    = 464.8f; // V – (4.15V * 14 cells/seg * 8 seg)
-constexpr float CHARGER_EFFICIENCY = 0.93f;  // 93% – average DC-side efficiency of the Elcon
-constexpr float MAX_DC_CURRENT     = 13.0f;  // A – battery limit of DC output current
+// TODO: Change to be in terms of segments constants once segments module is in place
+constexpr float PACK_VOLTAGE_DC =
+    581.0f; // V – the battery pack’s nominal voltage (4.15V per cell * 14 cell per seg *10 seg)
+constexpr float CHARGER_EFFICIENCY = 0.93f; // 93% – average DC-side efficiency of the Elcon
+// TODO look at datasheet for p30b cells, they have 3A standard (9A max) for charging current * 4 in parallel should be
+// around 12 Combine this with the maximum power limit we're able to draw from outlets at comp and get some kind of
+// minimum
+constexpr float MAX_DC_CURRENT = 12.0f; // A – battery limit of DC input current to the pack
 
+// TODO: Double-check these constants, refer to FIRM-175 I think the receptacle is 208V and max amperage is 20A
 constexpr float VAC_MIN = 208.0f; // V – lower end of typical North American grid
 constexpr float VAC_MAX = 240.0f; // V – upper end of typical North American grid
 constexpr float CAC_MAX = 32.0f;  // A – max current available of typical NA grid
@@ -177,7 +183,7 @@ namespace chargeState
 
         // For now, command nominal pack voltage and a debug-selected current
         const ElconTx tx{
-            .maxVoltage_V = PACK_VOLTAGE_DC, // cap at 464.8V (8 segments)
+            .maxVoltage_V = PACK_VOLTAGE_DC, // cap voltage of pack
             // .maxCurrent_A = idc_range.idc_min,                 // conservative min DC current (when enabled)
             .maxCurrent_A = app::can_rx::Debug_ChargingCurrent_get(), // debug-controlled current
             .stopCharging = !userEnable,
