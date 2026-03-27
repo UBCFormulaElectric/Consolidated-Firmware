@@ -34,6 +34,7 @@ inline constexpr float DIST_REAR_AXLE_CG_m =
 inline constexpr float DIST_HEIGHT_CG_m = 30.0f * CM_TO_M; // CG height (from suspension team)
 
 // Derived weight distribution properties
+inline constexpr float CAR_WEIGHT = CAR_MASS_AT_CG_KG * GRAVITY;
 inline constexpr float WEIGHT_ACROSS_BODY        = CAR_MASS_AT_CG_KG * GRAVITY / WHEELBASE_m;
 inline constexpr float REAR_WEIGHT_DISTRIBUTION  = WEIGHT_ACROSS_BODY * DIST_REAR_AXLE_CG_m;
 inline constexpr float FRONT_WEIGHT_DISTRIBUTION = WEIGHT_ACROSS_BODY * DIST_FRONT_AXLE_CG_m;

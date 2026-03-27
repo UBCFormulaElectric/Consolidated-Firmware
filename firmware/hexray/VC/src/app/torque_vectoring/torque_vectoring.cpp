@@ -1,9 +1,12 @@
+#include "torque_vectoring/estimation/dynamics_estimation.hpp"
 #include "torque_vectoring/estimation/tire_model.hpp"
 
 namespace app::tv
 {
 namespace
 {
+[[maybe_unused]] estimation::vehicleDynamics vehicle_dynamics_estimator{};
+
 estimation::TireModel front_left_tire_model{
     estimation::TireModel::TirePressure::PSI_12,
     estimation::TireModel::WheelSide::Left,
