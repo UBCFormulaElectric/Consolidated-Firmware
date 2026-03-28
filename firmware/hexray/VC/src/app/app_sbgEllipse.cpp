@@ -1,21 +1,13 @@
 
 #include "app_sbgEllipse.hpp"
-#include "app_canTx.cpp"
+#include "app_canTx.hpp"
 #include "app_canRx.hpp"
 #include "util_utils.hpp"
-#include "hw_assert.cpp"
 #include "app_math.hpp"
-
-extern "C"
-{
-    // #include "app_units.h"
-    // #include "app_vehicleDynamicsConstants.h"
-}
 
 namespace app::sbgEllipse
 {
 static app::can_utils::VcEkfStatus ekf_solution_mode;
-static float                       vehicle_velocity;
 static constexpr int               NUM_VC_EKF_STATUS_CHOICES{ 5 };
 
 void broadcast()
@@ -33,14 +25,13 @@ void broadcast()
     app::can_tx::VC_EllipseTimestamp_set(timestamp_us);
 
     // EKF
-    const static io::sbgEllipse::VelocityData VelData   = io::sbgEllipse::getEkfNavVelocityData();
-    float                                     ekf_vel_N = VelData.north;
-    float                                     ekf_vel_E = VelData.east;
-    float                                     ekf_vel_D = VelData.down;
-    // vehicle_velocity                     = getVehicleVelocity(VelData);
-    const float ekf_vel_N_accuracy = VelData.north_std_dev;
-    const float ekf_vel_E_accuracy = VelData.east_std_dev;
-    const float ekf_vel_D_accuracy = VelData.down_std_dev;
+    const static io::sbgEllipse::VelocityData VelData            = io::sbgEllipse::getEkfNavVelocityData();
+    float                                     ekf_vel_N          = VelData.north;
+    float                                     ekf_vel_E          = VelData.east;
+    float                                     ekf_vel_D          = VelData.down;
+    const float                               ekf_vel_N_accuracy = VelData.north_std_dev;
+    const float                               ekf_vel_E_accuracy = VelData.east_std_dev;
+    const float                               ekf_vel_D_accuracy = VelData.down_std_dev;
 
     app::can_tx::VC_VelocityNorth_set(ekf_vel_N);
     app::can_tx::VC_VelocityEast_set(ekf_vel_E);

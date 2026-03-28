@@ -1,45 +1,4 @@
 {
-    "Vitals": {
-        "msg_id": 400,
-        "cycle_time": 10,
-        "description": "Vitals message for the BMS.",
-        "signals": {
-            "Heartbeat": {
-                "bits": 1
-            },
-            "State": {
-                "enum": "BmsState"
-            }
-        }
-    },
-  "LatchStatus": {
-    "msg_id": 410,
-    "cycle_time": 10,
-    "description": "Latched faults for the BMS",
-    "signals": {
-      "BmsCurrentlyOk": {
-        "bits": 1
-      },
-      "ImdCurrentlyOk": {
-        "bits": 1
-      },
-      "BspdCurrentlyOk": {
-        "bits": 1
-      },
-      "BmsLatchOk": {
-        "bits": 1
-      },
-      "ImdLatchOk": {
-        "bits": 1
-      },
-      "BspdLatchOk": {
-        "bits": 1
-      }
-    }
-  },
-
-    "Contactors": {
-    "msg_id": 417,
   "Vitals": {
     "msg_id": 400,
     "cycle_time": 10,
@@ -129,8 +88,6 @@
       }
     }
   },
-        "BMSShdnNodeStatus": {
-    "msg_id": 420,
   "Charger": {
     "msg_id": 413,
     "cycle_time": 100,
@@ -2818,9 +2775,6 @@
         "bits": 1
       }
     }
-  }
-
-
   },
   "OpenWireCheck": {
     "msg_id": 477,
@@ -2838,5 +2792,4 @@
     "description": "Async bootup message!",
     "signals": {}
   }
-}
 }
