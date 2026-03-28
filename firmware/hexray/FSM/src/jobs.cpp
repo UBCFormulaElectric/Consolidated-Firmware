@@ -2,6 +2,7 @@
 
 #include "app_apps.hpp"
 #include "app_brake.hpp"
+#include "app_fmacTest.hpp"
 #include "app_imu.hpp"
 #include "app_jsoncan.hpp"
 #include "app_steering.hpp"
@@ -28,6 +29,9 @@ void jobs_init()
         });
 
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
+
+    app::imu::init();
+    app::fmac_test::init();
 }
 void jobs_run1Hz_tick()
 {
@@ -40,6 +44,7 @@ void jobs_run1Hz_tick()
 }
 void jobs_run100Hz_tick()
 {
+    app::fmac_test::broadcast();
     io::can_tx::enqueue100HzMsgs();
 }
 void jobs_run1kHz_tick()
