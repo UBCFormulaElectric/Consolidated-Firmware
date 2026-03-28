@@ -14,7 +14,7 @@ export enum SignalType {
 export type EnumSignalMetadata = CommonSignalMetadata & {
   type: SignalType.ENUM;
   enum: {
-    items: Record<number, string>; // maps raw value to enum display name
+    items: Record<number, string>;
     name: string;
   };
   min_val: number;
@@ -45,9 +45,7 @@ export const isAlertSignalMetadata = (signal: SignalMetadata): signal is AlertSi
   return signal.type === SignalType.ALERT;
 };
 
-export const isNumericalSignalMetadata = (
-  signal: SignalMetadata
-): signal is NumericalSignalMetadata => {
+export const isNumericalSignalMetadata = (signal: SignalMetadata): signal is NumericalSignalMetadata => {
   return signal.type === SignalType.NUMERICAL;
 };
 
