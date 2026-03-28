@@ -22,6 +22,7 @@
 #include "stm32h7xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "SEGGER_SYSVIEW.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -206,11 +207,11 @@ void DMA1_Stream1_IRQHandler(void)
 void DMA1_Stream2_IRQHandler(void)
 {
     /* USER CODE BEGIN DMA1_Stream2_IRQn 0 */
-
+    SEGGER_SYSVIEW_RecordEnterISR();
     /* USER CODE END DMA1_Stream2_IRQn 0 */
     HAL_DMA_IRQHandler(&hdma_spi4_rx);
     /* USER CODE BEGIN DMA1_Stream2_IRQn 1 */
-
+    SEGGER_SYSVIEW_RecordExitISR();
     /* USER CODE END DMA1_Stream2_IRQn 1 */
 }
 
@@ -220,11 +221,11 @@ void DMA1_Stream2_IRQHandler(void)
 void DMA1_Stream3_IRQHandler(void)
 {
     /* USER CODE BEGIN DMA1_Stream3_IRQn 0 */
-
+    SEGGER_SYSVIEW_RecordEnterISR();
     /* USER CODE END DMA1_Stream3_IRQn 0 */
     HAL_DMA_IRQHandler(&hdma_spi4_tx);
     /* USER CODE BEGIN DMA1_Stream3_IRQn 1 */
-
+    SEGGER_SYSVIEW_RecordExitISR();
     /* USER CODE END DMA1_Stream3_IRQn 1 */
 }
 
@@ -402,11 +403,11 @@ void OTG_HS_IRQHandler(void)
 void SPI4_IRQHandler(void)
 {
     /* USER CODE BEGIN SPI4_IRQn 0 */
-
+    SEGGER_SYSVIEW_RecordEnterISR();
     /* USER CODE END SPI4_IRQn 0 */
     HAL_SPI_IRQHandler(&hspi4);
     /* USER CODE BEGIN SPI4_IRQn 1 */
-
+    SEGGER_SYSVIEW_RecordExitISR();
     /* USER CODE END SPI4_IRQn 1 */
 }
 

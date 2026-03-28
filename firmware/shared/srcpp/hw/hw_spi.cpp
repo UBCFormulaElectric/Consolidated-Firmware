@@ -347,11 +347,6 @@ std::expected<void, ErrorCode> SpiDevice::receiveDma(const std::span<uint8_t> rx
     return {};
 }
 
-/* -------- Weak DMA ADC hooks (overridden by board-specific adbms.cpp) --------- */
-extern "C" __attribute__((weak)) bool isDmaAdcBusy() { return false; }
-extern "C" __attribute__((weak)) void onDmaAdcComplete() {}
-extern "C" __attribute__((weak)) void onDmaAdcError() {}
-
 /* ---------------------------- HAL callbacks --------------------------- */
 extern "C" void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
 {
@@ -367,25 +362,11 @@ extern "C" void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
 
 extern "C" void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 {
-    if (isDmaAdcBusy())
-    {
-        onDmaAdcComplete();
-    }
-    else
-    {
-        const auto &bus = getBusFromHandle(hspi);
-        bus.onTransactionCompleteFromISR();
-    }
+    const auto &bus = getBusFromHandle(hspi);
+    bus.onTransactionCompleteFromISR();
 }
 
 extern "C" void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
 {
-    if (isDmaAdcBusy())
-    {
-        onDmaAdcError();
-    }
-    else
-    {
-        LOG_ERROR("SPI error: 0x%X", hspi->ErrorCode);
-    }
+    LOG_ERROR("SPI error: 0x%X", hspi->ErrorCode);
 }
