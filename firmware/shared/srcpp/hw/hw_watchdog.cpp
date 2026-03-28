@@ -12,36 +12,49 @@ void hw::watchdog::monitor::registerWatchdogInstance()
     }
     LOG_ERROR("Failed to register watchdog instance. Maximum number of watchdog instances reached.");
 }
-
+/**
+ * Check if any software watchdog has expired.
+ * @note  If no software watchdog has expired, the hardware watchdog is
+ *        refreshed. If any software watchdog has expired, the callback function
+ *        is called and the hardware watchdog will no longer be refreshed.
+ * @note  This function must be called periodically. It is good practice to call
+ *        it from the system tick handler.
+ */
 void hw::watchdog::monitor::checkForTimeouts()
         {
             // If a timeout is detected, let the hardware watchdog timeout reset the
             // system. We don't reboot immediately because we need some time to log
             // information for further debugging.
-            for (watchdog_instance : watchdogs)
+            for (WatchdogInstance *instance : watchdogs)
             {
+                if (instance == nullptr)
+                    continue;
+                
                 // Only check for timeout if the watchdog has been initialized
-                if (!watchdog_instance->initialized)
+                if (!instance->initialized)
                     continue;
 
-                if (osKernelGetTickCount() >= watchdog_instance->deadline)
+                if (osKernelGetTickCount() >= instance->deadline)
                 {
                     // Check if the check-in status is set
-                    if (watchdog_instance->check_in_status)
+                    if (instance->check_in_status)
                     {
                         // Clear the check-in status
-                        watchdog_instance->check_in_status = false;
+                        instance->check_in_status = false;
 
                         // Update deadline
-                        watchdog_instance->deadline += watchdog_instance->period;
+                        instance->deadline += instance->period;
 
                         refresh_hardware_watchdog();
                     }
                     else
                     {
-                        timeout_callback(watchdog_instance);
                         timeout_detected = true;
-                        break;
+                        if (timeout_callback != nullptr)
+                        {
+                            timeout_callback(instance);
+                            break;
+                        }
                     }
                 }
             }

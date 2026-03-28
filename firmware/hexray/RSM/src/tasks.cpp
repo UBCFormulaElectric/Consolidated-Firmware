@@ -14,22 +14,22 @@
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_cans.hpp"
 #include "main.h"
-
+#include <optional>
 #include "hw_watchdog.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
     const uint32_t period_ms = 1000U;
     const uint32_t watchdog_grace_period_ms = 50U;
-    hw::watchdog::WatchdogInstance watchdog1hz {period_ms + watchdog_grace_period_ms};
-    hw::watchdog::monitor watchdogRSM {&watchdog1hz, hiwdg, HAL_IWDG_Refresh, nullptr}
+    // hw::watchdog::WatchdogInstance watchdog1hz {period_ms + watchdog_grace_period_ms};
+    // hw::watchdog::monitor watchdogRSM {&watchdog1hz, hiwdg, HAL_IWDG_Refresh};
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
         jobs_run1Hz_tick();
 
-        watchdog1hz.checkIn();
+        // watchdog1hz.checkIn();
 
         start_ticks += period_ms;
         io::time::delayUntil(start_ticks);
@@ -40,8 +40,8 @@
 {
     const uint32_t period_ms = 10U;
     const uint32_t watchdog_grace_period_ms = 2U;
-    hw::watchdog::WatchdogInstance watchdog100hz {period_ms + watchdog_grace_period_ms};
-    hw::watchdog::monitor::registerWatchdogInstance(&watchdog100hz);
+    // hw::watchdog::WatchdogInstance watchdog100hz {period_ms + watchdog_grace_period_ms};
+    // hw::watchdog::monitor::registerWatchdogInstance(&watchdog100hz);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -49,7 +49,7 @@
         jobs_run100Hz_tick();
         io::can_tx::enqueue100HzMsgs();
 
-        watchdog100hz.checkIn();
+        // watchdog100hz.checkIn();
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -59,17 +59,17 @@
 {
     const uint32_t period_ms = 1U;
     const uint32_t watchdog_grace_period_ms = 1U;
-    hw::watchdog::WatchdogInstance watchdog1khz {period_ms + watchdog_grace_period_ms};
-    hw::watchdog::monitor::registerWatchdogInstance(&watchdog1khz);
+    // hw::watchdog::WatchdogInstance watchdog1khz {period_ms + watchdog_grace_period_ms};
+    // hw::watchdog::monitor::registerWatchdogInstance(&watchdog1khz);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
-        hw::watchdog::monitor::checkForTimeouts();
+        // hw::watchdog::monitor::checkForTimeouts();
         
         jobs_run1kHz_tick();
 
-        watchdog1khz.checkIn();
+        // watchdog1khz.checkIn();
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
