@@ -34,13 +34,13 @@
 #include <cmsis_os.h>
 #include "io_log.hpp"
 #include <array>
-#include <stm32h5xx_hal_def.h>
+#include <stm32h5xx_hal.h>
 #include <stm32h5xx_hal_iwdg.h>
 
 namespace hw::watchdog
 {
-    struct WatchdogInstance
-    {
+struct WatchdogInstance
+{
     // Is this watchdog ready to be used?
     bool initialized;
     // The tick period of the task being monitored.
@@ -71,49 +71,46 @@ namespace hw::watchdog
         assert(initialized == true);
         check_in_status = true;
     }
-    };
-    class monitor
-    {
-        private:
-            constexpr static int MAX_WATCHDOG_INSTANCES = 10;
-            std::array<WatchdogInstance*, MAX_WATCHDOG_INSTANCES> watchdogs{};
-            bool timeout_detected = false;
+};
+class monitor
+{
+  private:
+    constexpr static int                                   MAX_WATCHDOG_INSTANCES = 10;
+    std::array<WatchdogInstance *, MAX_WATCHDOG_INSTANCES> watchdogs{};
+    bool                                                   timeout_detected = false;
 
-            WatchdogInstance *watchdog_instance;
-            IWDG_HandleTypeDef &handle;
-            HAL_StatusTypeDef (*refresh_watchdog)(IWDG_HandleTypeDef*){};
-            void (*timeout_callback)(WatchdogInstance*){};
+    WatchdogInstance   *watchdog_instance;
+    IWDG_HandleTypeDef &handle;
+    HAL_StatusTypeDef (*refresh_watchdog)(IWDG_HandleTypeDef *){};
+    void (*timeout_callback)(WatchdogInstance *){};
 
-            // Function to refresh hardware watchdog
-            void refresh_hardware_watchdog()
-            {
-                refresh_watchdog(&handle);
-            }
+    // Function to refresh hardware watchdog
+    void refresh_hardware_watchdog() { refresh_watchdog(&handle); }
 
-        public: 
-        constexpr explicit monitor(WatchdogInstance *watchdog_instance_in,
-                                    IWDG_HandleTypeDef &handle_in, 
-                                    HAL_StatusTypeDef (*refresh_watchdog_in)(IWDG_HandleTypeDef*), 
-                                    void (*timeout_callback_in)(WatchdogInstance*) = nullptr)
-        :
-        watchdog_instance(watchdog_instance_in), 
+  public:
+    constexpr explicit monitor(
+        WatchdogInstance   *watchdog_instance_in,
+        IWDG_HandleTypeDef &handle_in,
+        HAL_StatusTypeDef (*refresh_watchdog_in)(IWDG_HandleTypeDef *),
+        void (*timeout_callback_in)(WatchdogInstance *) = nullptr)
+      : watchdog_instance(watchdog_instance_in),
         handle(handle_in),
         refresh_watchdog(refresh_watchdog_in),
         timeout_callback(timeout_callback_in){};
 
-        void registerWatchdogInstance();
+    void registerWatchdogInstance();
 
-        /**
-        * Check if any software watchdog has expired.
-        * @note  If no software watchdog has expired, the hardware watchdog is
-        *        refreshed. If any software watchdog has expired, the callback function
-        *        is called and the hardware watchdog will no longer be refreshed.
-        * @note  This function must be called periodically. It is good practice to call
-        *        it from the system tick handler.
-        */
-        void checkForTimeouts();
+    /**
+     * Check if any software watchdog has expired.
+     * @note  If no software watchdog has expired, the hardware watchdog is
+     *        refreshed. If any software watchdog has expired, the callback function
+     *        is called and the hardware watchdog will no longer be refreshed.
+     * @note  This function must be called periodically. It is good practice to call
+     *        it from the system tick handler.
+     */
+    void checkForTimeouts();
 };
-}
+} // namespace hw::watchdog
 // namespace hw::watchdog
 
 /*
@@ -121,5 +118,3 @@ namespace hw::watchdog
  * Callback function used to perform additional operations prior to the reset of the microcontroller.
  * For example, a message may be written to a log file.
  */
-
-

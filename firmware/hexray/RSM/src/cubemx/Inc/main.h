@@ -61,7 +61,7 @@ extern "C"
     extern TIM_HandleTypeDef   htim1;
     extern TIM_HandleTypeDef   htim3;
     extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
-    extern IWDG_HandleTypeDef hiwdg;
+    extern IWDG_HandleTypeDef  hiwdg;
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

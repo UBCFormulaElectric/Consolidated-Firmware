@@ -21,43 +21,43 @@ void hw::watchdog::monitor::registerWatchdogInstance()
  *        it from the system tick handler.
  */
 void hw::watchdog::monitor::checkForTimeouts()
+{
+    // If a timeout is detected, let the hardware watchdog timeout reset the
+    // system. We don't reboot immediately because we need some time to log
+    // information for further debugging.
+    for (WatchdogInstance *instance : watchdogs)
+    {
+        if (instance == nullptr)
+            continue;
+
+        // Only check for timeout if the watchdog has been initialized
+        if (!instance->initialized)
+            continue;
+
+        if (osKernelGetTickCount() >= instance->deadline)
         {
-            // If a timeout is detected, let the hardware watchdog timeout reset the
-            // system. We don't reboot immediately because we need some time to log
-            // information for further debugging.
-            for (WatchdogInstance *instance : watchdogs)
+            // Check if the check-in status is set
+            if (instance->check_in_status)
             {
-                if (instance == nullptr)
-                    continue;
-                
-                // Only check for timeout if the watchdog has been initialized
-                if (!instance->initialized)
-                    continue;
+                // Clear the check-in status
+                instance->check_in_status = false;
 
-                if (osKernelGetTickCount() >= instance->deadline)
+                // Update deadline
+                instance->deadline += instance->period;
+
+                refresh_hardware_watchdog();
+            }
+            else
+            {
+                timeout_detected = true;
+                if (timeout_callback != nullptr)
                 {
-                    // Check if the check-in status is set
-                    if (instance->check_in_status)
-                    {
-                        // Clear the check-in status
-                        instance->check_in_status = false;
-
-                        // Update deadline
-                        instance->deadline += instance->period;
-
-                        refresh_hardware_watchdog();
-                    }
-                    else
-                    {
-                        timeout_detected = true;
-                        if (timeout_callback != nullptr)
-                        {
-                            timeout_callback(instance);
-                            break;
-                        }
-                    }
+                    timeout_callback(instance);
+                    break;
                 }
             }
         }
+    }
+}
 
- // namespace hw::watchdog
+// namespace hw::watchdog
