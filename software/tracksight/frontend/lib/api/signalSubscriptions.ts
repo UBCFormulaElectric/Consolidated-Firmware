@@ -79,14 +79,4 @@ const unsubscribeFromSignal = async (signalName: string) => {
     });
 };
 
-const pauseSignalStream = async () => {
-    const sid = await waitForSocketId();
-    return postSubscriptionAction(`/${sid}/pause`, {}, [209]);
-};
-
-const resumeSignalStream = async () => {
-    const sid = await waitForSocketId();
-    return postSubscriptionAction(`/${sid}/play`, {}, [209]);
-};
-
-export { pauseSignalStream, resumeSignalStream, subscribeToSignal, unsubscribeFromSignal, waitForSocketId };
+export { subscribeToSignal, unsubscribeFromSignal, waitForSocketId };
