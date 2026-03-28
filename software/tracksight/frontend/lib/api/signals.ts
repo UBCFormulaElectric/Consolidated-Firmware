@@ -1,6 +1,6 @@
 import { SignalMetadata, SignalType } from "@/lib/types/Signal";
 
-const getSignalType = (signal: Omit<SignalMetadata, "type">): SignalMetadata["type"] => {
+export const getSignalMetadataType = (signal: Omit<SignalMetadata, "type">): SignalMetadata["type"] => {
   if ("enum" in signal) {
     return SignalType.ENUM;
   } else if (signal.max_val === 1 && signal.min_val === 0) {
@@ -22,7 +22,7 @@ const fetchSignalMetadata = async (apiBaseUrl: string): Promise<SignalMetadata[]
 
     const data: { [signalName: string]: Omit<SignalMetadata, "type"> } = await response.json();
     
-    return Object.entries(data).map(([name, metadata]) => ({ ...metadata, name, type: getSignalType(metadata) })) as SignalMetadata[];
+    return Object.entries(data).map(([name, metadata]) => ({ ...metadata, name, type: getSignalMetadataType(metadata) })) as SignalMetadata[];
   } catch (error) {
     console.error("Error fetching signal metadata:", error);
     throw error;

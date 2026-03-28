@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { API_BASE_URL } from "@/lib/constants";
 import { SignalMetadata } from "@/lib/types/Signal";
+import { getSignalMetadataType } from "../api/signals";
 
 /**
  * Hook to fetch metadata for a specific signal.
@@ -23,14 +24,15 @@ export default function useSignalMetadata(signalName: string | null) {
       }
 
       // TODO when the query/find signal endpoints are seperated, change this to recieve a single SignalMetadata object
-      const json = (await response.json()) as SignalMetadata[];
-      // FIXME(broken);
-      console.log(json);
-      const signal = json.find((s) => s.name === signalName);
+      const json = (await response.json()) as { [signalName: string]: Omit<SignalMetadata, "type"> };
+      const signal = Object.values(json).find((s) => s.name === signalName);
+
       if (!signal) {
         throw new Error(`Signal not found: ${signalName}`);
       }
-      return signal;
+
+      const type = getSignalMetadataType(signal);
+      return { ...signal, type };
     },
     retryOnMount: false,
     retry: (failureCount, error) => {
