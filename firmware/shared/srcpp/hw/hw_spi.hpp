@@ -79,17 +79,23 @@ class SpiDevice
     [[nodiscard]] std::expected<void, ErrorCode>
         transmitThenReceive(std::span<const uint8_t> tx, std::span<uint8_t> rx) const;
 
+    [[nodiscard]] std::expected<void, ErrorCode> transmitDma(std::span<const uint8_t> tx) const;
+    [[nodiscard]] std::expected<void, ErrorCode> receiveDma(std::span<uint8_t> rx) const;
+    [[nodiscard]] std::expected<void, ErrorCode>
+        transmitThenReceiveDma(std::span<const uint8_t> tx, std::span<uint8_t> rx) const;
+
   private:
     const SpiBus             &bus;
     const std::optional<Gpio> nss;
     uint32_t                  timeoutMs;
 
+    // 32-byte aligned for D-cache clean/invalidate operations (must be in DMA-accessible SRAM, not DTCM)
+    alignas(32) mutable uint8_t dma_tx_buf[256]{};
+    alignas(32) mutable uint8_t dma_rx_buf[256]{};
+
     void enableNss() const;
     void disableNss() const;
 
-    /**
-     * @return idk
-     */
     [[nodiscard]] std::expected<void, ErrorCode> waitForNotification() const;
 };
 

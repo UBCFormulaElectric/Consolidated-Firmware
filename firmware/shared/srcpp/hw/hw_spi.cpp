@@ -55,8 +55,7 @@ std::expected<void, ErrorCode> SpiDevice::waitForNotification() const
     return {};
 }
 
-std::expected<void, ErrorCode> SpiDevice::
-transmit(const std::span<const uint8_t> tx) const
+std::expected<void, ErrorCode> SpiDevice::transmit(const std::span<const uint8_t> tx) const
 {
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
@@ -198,6 +197,161 @@ std::expected<void, ErrorCode> SpiDevice::receive(const std::span<uint8_t> rx) c
     return {};
 }
 
+/* ------------------------------ DMA SpiDevice ----------------------------- */
+
+std::expected<void, ErrorCode> SpiDevice::transmitDma(const std::span<const uint8_t> tx) const
+{
+    if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
+    {
+        // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
+        enableNss();
+        const std::expected<void, ErrorCode> st = hw_utils_convertHalStatus(
+            HAL_SPI_Transmit(&bus.handle, tx.data(), static_cast<uint16_t>(tx.size()), timeoutMs));
+        disableNss();
+        return st;
+    }
+
+    if (bus.taskInProgress != nullptr)
+    {
+        // There is a task currently in progress!
+        return std::unexpected(ErrorCode::BUSY);
+    }
+
+    // Save current task before starting a SPI transaction.
+    bus.taskInProgress = xTaskGetCurrentTaskHandle();
+
+    std::memcpy(dma_tx_buf, tx.data(), tx.size());
+    SCB_CleanDCache_by_Addr(reinterpret_cast<uint32_t *>(dma_tx_buf), tx.size());
+
+    enableNss();
+
+    auto exit =
+        hw_utils_convertHalStatus(HAL_SPI_Transmit_DMA(&bus.handle, dma_tx_buf, static_cast<uint16_t>(tx.size())));
+    if (not exit)
+    {
+        bus.taskInProgress = nullptr;
+        disableNss();
+        return exit;
+    }
+
+    exit = waitForNotification();
+    disableNss();
+    return exit;
+}
+
+std::expected<void, ErrorCode> SpiDevice::receiveDma(const std::span<uint8_t> rx) const
+{
+    if (bus.taskInProgress != nullptr || xPortIsInsideInterrupt())
+    {
+        // There is a task currently in progress!
+        return std::unexpected(ErrorCode::BUSY);
+    }
+
+    if (osKernelGetState() != taskSCHEDULER_RUNNING)
+    {
+        // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
+        enableNss();
+        const std::expected<void, ErrorCode> exit = hw_utils_convertHalStatus(
+            HAL_SPI_Receive(&bus.handle, rx.data(), static_cast<uint16_t>(rx.size()), timeoutMs));
+        disableNss();
+        return exit;
+    }
+
+    bus.taskInProgress = xTaskGetCurrentTaskHandle();
+
+    SCB_InvalidateDCache_by_Addr(reinterpret_cast<uint32_t *>(dma_rx_buf), rx.size());
+
+    enableNss();
+
+    std::expected<void, ErrorCode> exit =
+        hw_utils_convertHalStatus(HAL_SPI_Receive_DMA(&bus.handle, dma_rx_buf, static_cast<uint16_t>(rx.size())));
+    if (not exit)
+    {
+        bus.taskInProgress = nullptr;
+        disableNss();
+        return exit;
+    }
+
+    exit = waitForNotification();
+    disableNss();
+    if (exit)
+    {
+        std::memcpy(rx.data(), dma_rx_buf, rx.size());
+    }
+    return exit;
+}
+
+[[nodiscard]] std::expected<void, ErrorCode>
+    SpiDevice::transmitThenReceiveDma(const std::span<const uint8_t> tx, const std::span<uint8_t> rx) const
+{
+    const auto combined = static_cast<uint16_t>(tx.size() + rx.size());
+    if (combined > MAX_SPI_BUFFER)
+    {
+        return std::unexpected(ErrorCode::INVALID_ARGS);
+    }
+
+    // Build full-duplex TX frame: command bytes followed by dummy 0x00 for the receive phase.
+    std::memset(dma_tx_buf, 0, combined);
+    std::memcpy(dma_tx_buf, tx.data(), tx.size());
+
+    if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
+    {
+        // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
+        uint8_t pollRx[MAX_SPI_BUFFER];
+        enableNss();
+        const std::expected<void, ErrorCode> exit =
+            hw_utils_convertHalStatus(HAL_SPI_TransmitReceive(&bus.handle, dma_tx_buf, pollRx, combined, timeoutMs));
+        disableNss();
+
+        // Data will not be returned over SPI until command has finished, so data in first tx_buffer_size bytes not
+        // relevant. Copy entries at the end of padded_rx_buffer back into rx_buffer.
+        std::memcpy(rx.data(), pollRx + tx.size(), rx.size());
+
+        return exit;
+    }
+
+    if (bus.taskInProgress != nullptr)
+    {
+        // There is a task currently in progress!
+        return std::unexpected(ErrorCode::BUSY);
+    }
+
+    // Save current task before starting a SPI transaction.
+    bus.taskInProgress = xTaskGetCurrentTaskHandle();
+
+    SCB_CleanDCache_by_Addr(reinterpret_cast<uint32_t *>(dma_tx_buf), combined);
+    SCB_InvalidateDCache_by_Addr(reinterpret_cast<uint32_t *>(dma_rx_buf), combined);
+
+    enableNss();
+
+    std::expected<void, ErrorCode> exit =
+        hw_utils_convertHalStatus(HAL_SPI_TransmitReceive_DMA(&bus.handle, dma_tx_buf, dma_rx_buf, combined));
+    if (not exit)
+    {
+        bus.taskInProgress = nullptr;
+        disableNss();
+        return exit;
+    }
+
+    exit = waitForNotification();
+    disableNss();
+    if (not exit)
+    {
+        return exit;
+    }
+
+    /* Data will not be returned over SPI until command has finished, so data in first tx_buffer_size bytes not relevant.
+    Copy entries at the end of dma_rx_buf back into rx_buffer. */
+    std::memcpy(rx.data(), dma_rx_buf + tx.size(), rx.size());
+
+    return {};
+}
+
+/* -------- Weak DMA ADC hooks (overridden by board-specific adbms.cpp) --------- */
+extern "C" __attribute__((weak)) bool isDmaAdcBusy() { return false; }
+extern "C" __attribute__((weak)) void onDmaAdcComplete() {}
+extern "C" __attribute__((weak)) void onDmaAdcError() {}
+
 /* ---------------------------- HAL callbacks --------------------------- */
 extern "C" void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
 {
@@ -213,11 +367,25 @@ extern "C" void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
 
 extern "C" void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 {
-    const auto &bus = getBusFromHandle(hspi);
-    bus.onTransactionCompleteFromISR();
+    if (isDmaAdcBusy())
+    {
+        onDmaAdcComplete();
+    }
+    else
+    {
+        const auto &bus = getBusFromHandle(hspi);
+        bus.onTransactionCompleteFromISR();
+    }
 }
 
 extern "C" void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
 {
-    LOG_ERROR("SPI error: 0x%X", hspi->ErrorCode);
+    if (isDmaAdcBusy())
+    {
+        onDmaAdcError();
+    }
+    else
+    {
+        LOG_ERROR("SPI error: 0x%X", hspi->ErrorCode);
+    }
 }

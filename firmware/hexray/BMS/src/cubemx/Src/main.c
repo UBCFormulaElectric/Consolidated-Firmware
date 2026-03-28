@@ -55,6 +55,8 @@ IWDG_HandleTypeDef hiwdg1;
 SD_HandleTypeDef hsd1;
 
 SPI_HandleTypeDef hspi4;
+DMA_HandleTypeDef hdma_spi4_rx;
+DMA_HandleTypeDef hdma_spi4_tx;
 
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim3;
@@ -127,11 +129,11 @@ int main(void)
     MX_ADC1_Init();
     MX_FDCAN1_Init();
     MX_FDCAN2_Init();
-    //MX_SDMMC1_SD_Init();
+    // MX_SDMMC1_SD_Init();
     MX_SPI4_Init();
     MX_ADC3_Init();
     MX_CRC_Init();
-    //MX_IWDG1_Init();
+    MX_IWDG1_Init();
     MX_TIM1_Init();
     MX_TIM3_Init();
     MX_TIM5_Init();
@@ -863,6 +865,12 @@ static void MX_DMA_Init(void)
     /* DMA1_Stream1_IRQn interrupt configuration */
     HAL_NVIC_SetPriority(DMA1_Stream1_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(DMA1_Stream1_IRQn);
+    /* DMA1_Stream2_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA1_Stream2_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(DMA1_Stream2_IRQn);
+    /* DMA1_Stream3_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA1_Stream3_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(DMA1_Stream3_IRQn);
 }
 
 /**

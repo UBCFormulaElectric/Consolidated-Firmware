@@ -133,7 +133,7 @@ void readRegGroup(
     const TxCmd                          tx_cmd{ cmd };
     array<RegGroupPayload, NUM_SEGMENTS> rx_buffer{};
 
-    const auto tx_status = hw::spi::adbms_spi_ls.transmitThenReceive(
+    const auto tx_status = hw::spi::adbms_spi_ls.transmitThenReceiveDma(
         { reinterpret_cast<const uint8_t *>(&tx_cmd), sizeof(tx_cmd) },
         { reinterpret_cast<uint8_t *>(rx_buffer.data()), sizeof(rx_buffer) });
 
