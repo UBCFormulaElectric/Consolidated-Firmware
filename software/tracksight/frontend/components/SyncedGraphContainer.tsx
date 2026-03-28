@@ -28,8 +28,7 @@ export function useSyncedGraph() {
     return ctx;
 }
 
-const RIGHT_PAD = 5 * 60; // 5 secs right 
-const SCROLL_PAD = 15;
+const RIGHT_PAD = 10;
 const MIN_SCALE_PX_PER_SEC = 0.001;
 const MAX_SCALE_PX_PER_SEC = 10000;
 
@@ -80,16 +79,19 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
         const container = scrollContainerRef.current;
         if (contentRef.current && global_tr && container) {
             const container_width = scalePxPerSecRef.current * (global_tr.max - global_tr.min);
-            const nextScrollLeft = Math.max(container_width + SCROLL_PAD - container.clientWidth, 0);
             contentRef.current.style.width = `${container_width + RIGHT_PAD}px`;
 
             if (isViewportLockedRef.current) {
-                scrollLeftRef.current = nextScrollLeft;
-                container.scrollLeft = nextScrollLeft;
+                // When locked, scroll to show the rightmost data at the right edge of the viewport
+                const lockedScrollLeft = Math.max(container_width - container.clientWidth, 0);
+                scrollLeftRef.current = lockedScrollLeft;
+                container.scrollLeft = lockedScrollLeft;
                 return;
             }
 
-            const clampedScrollLeft = Math.min(scrollLeftRef.current, nextScrollLeft);
+            // When unlocked, just clamp to valid bounds
+            const maxScrollLeft = Math.max(container_width + RIGHT_PAD - container.clientWidth, 0);
+            const clampedScrollLeft = Math.min(scrollLeftRef.current, maxScrollLeft);
             scrollLeftRef.current = clampedScrollLeft;
             if (container.scrollLeft !== clampedScrollLeft) {
                 container.scrollLeft = clampedScrollLeft;
@@ -134,12 +136,22 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
             const deltaScale = event.deltaY * -0.005; // invert for natural zoom
             if (deltaScale === 0) return;
 
+            const prevScale = scalePxPerSecRef.current;
             const nextScale = Math.min(
-                Math.max(scalePxPerSecRef.current * Math.exp(deltaScale), MIN_SCALE_PX_PER_SEC),
+                Math.max(prevScale * Math.exp(deltaScale), MIN_SCALE_PX_PER_SEC),
                 MAX_SCALE_PX_PER_SEC
             );
-            if (nextScale === scalePxPerSecRef.current) {
+            if (nextScale === prevScale) {
                 return;
+            }
+
+            // Anchor zoom to center of viewport when unlocked
+            if (!isViewportLockedRef.current) {
+                const viewportCenter = scrollLeftRef.current + container.clientWidth / 2;
+                const centerTime = viewportCenter / prevScale;
+                const newCenterPos = centerTime * nextScale;
+                const newScrollLeft = newCenterPos - container.clientWidth / 2;
+                scrollLeftRef.current = Math.max(0, newScrollLeft);
             }
 
             scalePxPerSecRef.current = nextScale;
