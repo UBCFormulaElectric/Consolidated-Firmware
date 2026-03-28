@@ -1,39 +1,12 @@
 IF (NOT "${SHARED_CMAKE_INCLUDED}" STREQUAL "TRUE")
     message(FATAL_ERROR "❌ shared.cmake must be included before embedded.cmake")
 ENDIF ()
-IF (NOT "${STM32LIB_CMAKE_INCLUDED}" STREQUAL "TRUE")
-    message(FATAL_ERROR "❌ stm32lib.cmake must be included before embedded.cmake")
-ENDIF ()
-IF (NOT "${EMBEDDED_LIBS_INCLUDED}" STREQUAL "TRUE")
-    message(FATAL_ERROR "❌ embedded_libs.cmake must be included before embedded.cmake")
-ENDIF ()
 message("")
 message("💽 [embedded.cmake] Configuring Embedded Build")
 set(EMBEDDED_CMAKE_INCLUDED TRUE)
 
 # ===== OPTIONS =====
 option(BUILD_ASM "Build the assembly files" OFF)
-
-# STM32CUBEMX Binary Path
-IF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
-    # check if you have the STM32CubeMX_PATH environment variable set
-    if (NOT "$ENV{STM32CubeMX_PATH}" STREQUAL "")
-        set(STM32CUBEMX_BIN_PATH "$ENV{STM32CubeMX_PATH}/STM32CubeMX.exe")
-    else ()
-        # if not, guess the you have it here
-        set(STM32CUBEMX_BIN_PATH "C:/Program Files/STMicroelectronics/STM32Cube/STM32CubeMX/STM32CubeMX.exe")
-        # check if the file exists
-        if (NOT EXISTS ${STM32CUBEMX_BIN_PATH})
-            message(FATAL_ERROR "❌ STM32CubeMX not found at ${STM32CUBEMX_BIN_PATH}")
-        endif ()
-    endif ()
-ELSEIF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
-    set(STM32CUBEMX_BIN_PATH "/Applications/STMicroelectronics/STM32CubeMX.app/Contents/MacOs/STM32CubeMX")
-ELSEIF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
-    set(STM32CUBEMX_BIN_PATH "/usr/local/STM32CubeMX/STM32CubeMX")
-ELSE ()
-    message(FATAL_ERROR "❌ Unsupported host system: ${CMAKE_HOST_SYSTEM_NAME}")
-ENDIF ()
 
 set(SHARED_COMPILER_DEFINES
         -D__weak=__attribute__\(\(weak\)\)
@@ -141,16 +114,14 @@ function(embedded_object_library
                 PUBLIC
                 ${LIB_INCLUDE_DIRS}
         )
+        target_compile_options(${LIB_NAME} PRIVATE ${SHARED_GNU_COMPILER_CHECKS})
     ELSE ()
         target_include_directories(${LIB_NAME} PUBLIC ${LIB_INCLUDE_DIRS})
-        target_compile_options(${LIB_NAME} PRIVATE -Werror)
+        target_compile_options(${LIB_NAME} PRIVATE ${SHARED_GNU_COMPILER_CHECKS_STRICT})
     ENDIF ()
 
     target_compile_definitions(${LIB_NAME} PRIVATE ${SHARED_COMPILER_DEFINES})
-    target_compile_options(${LIB_NAME} PRIVATE
-            ${SHARED_COMPILER_FLAGS}
-            ${SHARED_GNU_COMPILER_CHECKS}
-    )
+    target_compile_options(${LIB_NAME} PRIVATE ${SHARED_COMPILER_FLAGS})
     embedded_arm_core_flags(${LIB_NAME} ${ARM_CORE})
 endfunction()
 
@@ -175,10 +146,16 @@ function(embedded_binary
     target_compile_definitions(${ELF_NAME} PRIVATE ${SHARED_COMPILER_DEFINES})
     target_compile_options(${ELF_NAME} PRIVATE
             ${SHARED_COMPILER_FLAGS}
-            ${SHARED_GNU_COMPILER_CHECKS} -Werror
+            ${SHARED_GNU_COMPILER_CHECKS_STRICT}
     )
     IF (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
         target_compile_options(${ELF_NAME} PRIVATE -fsanitize=undefined)
+        set_property(SOURCE "${SHARED_HW_INCLUDE_DIR_CPP}/hw_ubsan.cpp" APPEND PROPERTY COMPILE_OPTIONS
+                -fno-sanitize=undefined
+                -Wno-error=suggest-attribute=noreturn
+                -Wno-suggest-attribute=noreturn
+        )
+        target_sources(${ELF_NAME} PRIVATE "${SHARED_HW_INCLUDE_DIR_CPP}/hw_ubsan.cpp")
     ENDIF ()
 
     target_link_options(${ELF_NAME} PRIVATE

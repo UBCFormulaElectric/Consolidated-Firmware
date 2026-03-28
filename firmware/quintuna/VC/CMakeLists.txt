@@ -19,6 +19,7 @@ list(APPEND APP_SRCS
         "${SHARED_APP_INCLUDE_DIR}/app_signal.c"
         "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
         "${SHARED_APP_INCLUDE_DIR}/app_sensor_filter.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_pid.c"
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_QUINTUNA_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/src/app/vehicle_dynamics")
 
@@ -29,12 +30,21 @@ list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_canLogging.c"
         "${SHARED_IO_INCLUDE_DIR}/io_led.c"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
-        "${SHARED_IO_INCLUDE_DIR}/io_loadswitch.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_efuse/io_efuse.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_efuse/io_efuse_ST_VND5/io_efuse_ST_VND5.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_efuse/io_efuse_TI_TPS25/io_efuse_TI_TPS25.c"
         "${SHARED_IO_INCLUDE_DIR}/io_potentiometer.c"
         "${SHARED_IO_INCLUDE_DIR}/io_bootHandler.c"
         "${SHARED_IO_INCLUDE_DIR}/io_imu.c"
 )
-set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_QUINTUNA_DIR}")
+set(IO_INCLUDE_DIRS 
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io" 
+        "${SHARED_IO_INCLUDE_DIR}" 
+        "${SHARED_IO_INCLUDE_DIR}/io_efuse" 
+        "${SHARED_IO_INCLUDE_DIR}/io_efuse/io_efuse_TI_TPS25" 
+        "${SHARED_IO_INCLUDE_DIR}/io_efuse/io_efuse_ST_VND5" 
+        "${SHARED_IO_INCLUDE_QUINTUNA_DIR}"
+)
 
 file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c")
 list(APPEND HW_SRCS
@@ -52,7 +62,6 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_can_hx.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_resetReason.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_freeRtosConfigs.c"
 )
@@ -103,6 +112,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${CUBEMX_INCLUDES}"
             TRUE
             "${ARM_CORE}"
+            FALSE
     )
 
     # JSONCAN
@@ -121,7 +131,7 @@ if ("${TARGET}" STREQUAL "binary")
             "quintuna_VC_commit_info"
             "logfs_cm7"
             "sbg_ecom_cm7"
-            "chimera_v2_proto_cm7"
+            "quintuna_chimera_v2_proto_cm7"
             m)
 
 

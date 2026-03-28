@@ -11,6 +11,7 @@ file(GLOB EMBEDDED_SRCS CONFIGURE_DEPENDS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
 )
 list(APPEND EMBEDDED_SRCS
+        "${SHARED_APP_INCLUDE_DIR}/app_crc8.c"
         "${SHARED_IO_INCLUDE_DIR}/io_canQueue.c"
         "${SHARED_IO_INCLUDE_DIR}/io_canLogging.c"
         "${SHARED_IO_INCLUDE_DIR}/io_fileSystem_logfs.c"
@@ -20,7 +21,6 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_sd.c"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_gpio.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_can_hx.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_usb.c"
@@ -82,6 +82,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "${CUBEMX_INCLUDE_DIRS}"
             TRUE
             "${ARM_CORE}"
+            TRUE
     )
 
     # JSONCAN
@@ -115,7 +116,7 @@ IF ("${TARGET}" STREQUAL "binary")
     file(GLOB BOOT_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
     file(GLOB BOOT_CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
     set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
-    stm32h7_boot_binary(
+    stm32h7_boot_binary_c(
             "h7dev_boot"
             "${BOOT_SRCS}"
             "${BOOT_CUBEMX_SRCS}"

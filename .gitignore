@@ -12,6 +12,7 @@
 !**/.clang-format
 !inverter-eeprom-config/
 !.gdbinit
+!.dockerignore
 
 # User-specific uVision files
 # Need to keep .opt/.uvopt/.uvoptx, or else STM32CubeMX code generation will throw an error
@@ -140,6 +141,7 @@ build_fw_deploy
 build_fw_deploy_wsl
 build_fw_dev
 build_fw_dev_wsl
+build_fw_chimera
 build_fw_test
 build_fw_test_wsl
 

@@ -28,14 +28,18 @@ include(get_cpm.cmake)
 message("✅ Downloaded CPM.cmake")
 
 # ======== Host system specific settings ========
+
 message("")
 message("🖥️ Host System: ${CMAKE_HOST_SYSTEM_NAME}")
 IF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
     message("🪟 Building for Windows")
+    set(EXECUTABLE_SUFFIX ".exe")
 ELSEIF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
     message("🍎 Building for Apples")
+    set(EXECUTABLE_SUFFIX "")
 ELSEIF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
     message("🐧 Building for Linux")
+    set(EXECUTABLE_SUFFIX "")
 ELSE ()
     message(FATAL_ERROR "❌ Unsupported host system: ${CMAKE_HOST_SYSTEM_NAME}")
 ENDIF ()
@@ -82,6 +86,7 @@ IF ("${PLATFORM}" STREQUAL "firmware")
             file(GLOB HOMEBREW_GCC_CANDIDATES
                     "/opt/homebrew/bin/gcc-[0-9]*"
                     "/usr/local/bin/gcc-[0-9]*"
+                    "/usr/bin/gcc"
             )
 
             IF (HOMEBREW_GCC_CANDIDATES)
@@ -107,7 +112,7 @@ IF ("${PLATFORM}" STREQUAL "firmware")
     ENDIF ()
 ELSEIF ("${PLATFORM}" STREQUAL "dimos")
     project("UBC Formula Electric Software" VERSION 0.1 LANGUAGES C CXX)
-    add_subdirectory(software/dimos)
+    add_subdirectory(software/dimos_qt)
 ELSE ()
     message(FATAL_ERROR "❌ Please set the PLATFORM variable to 'firmware' or 'dimos'. To do this, set the -DPLATFORM=<platform>")
 ENDIF ()

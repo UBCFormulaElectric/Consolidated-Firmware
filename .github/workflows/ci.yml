@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     #    container:
-    #      image: ubcformulaelectric/environment:arm_14
+    #      image: ubcformulaelectric/environment:cigoat
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -72,7 +72,7 @@ jobs:
 
     # both packages shouldn't need to use python dependences that we need...
     #    container:
-    #      image: ubcformulaelectric/environment:arm_14
+    #      image: ubcformulaelectric/environment:cigoat
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -114,23 +114,14 @@ jobs:
           - board: f4dev.elf
           - board: h7dev.hex
           - board: h5dev.hex
-          - board: quintuna_BMS.hex
-          - board: quintuna_CRIT.hex
-          - board: quintuna_DAM.hex
-          - board: quintuna_FSM.hex
-          - board: quintuna_RSM.hex
-          - board: quintuna_VC.hex
-          - board: quintuna_VCR_app.elf
-          - board: quintuna_PCM_app.elf
           - board: hexray_BMS_app.hex
           - board: hexray_CRIT_app.hex
           - board: hexray_DAM_app.hex
           - board: hexray_FSM_app.hex
           - board: hexray_RSM_app.hex
           - board: hexray_VC_app.hex
-
     container:
-      image: ubcformulaelectric/environment:arm_14
+      image: ubcformulaelectric/environment:cigoat
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.docker_token }}
@@ -142,6 +133,45 @@ jobs:
       - uses: ./.github/actions/build_binary
         with:
           board: ${{ matrix.board }}
+
+  build-chimera:
+    needs: [ clang-format, codegen ]
+    name: Build Chimera Binaries
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - board: hexray_BMS_chimera.elf
+          - board: hexray_CRIT_chimera.elf
+          - board: hexray_DAM_chimera.elf
+          - board: hexray_FSM_chimera.elf
+          - board: hexray_RSM_chimera.elf
+          - board: hexray_VC_chimera.elf
+
+    container:
+      image: ubcformulaelectric/environment:cigoat
+
+    env:
+      BUILD_DIR: build_fw_dev
+
+    steps:
+      - name: Setup git
+        run: git config --global --add safe.directory $(realpath .)
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Configure
+        run: cmake --preset "FW Deploy CI" -B $BUILD_DIR
+
+      - name: Build
+        run: |
+          cmake --preset "FW Deploy CI" -B $BUILD_DIR 
+          cmake --build $BUILD_DIR --target ${{ matrix.board }} -- -j $(nproc)
 
   test-firmware:
     needs: [ clang-format ]
@@ -161,8 +191,8 @@ jobs:
           #  car: quintuna
           #- board: RSM
           #  car: quintuna
-          - board: VC
-            car: quintuna
+          #- board: VC
+          #  car: quintuna
           - board: BMS
             car: hexray
           - board: CRIT
@@ -177,7 +207,7 @@ jobs:
             car: hexray
 
     container:
-      image: ubcformulaelectric/environment:arm_14
+      image: ubcformulaelectric/environment:cigoat
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -215,7 +245,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     container:
-      image: ubcformulaelectric/environment:arm_14
+      image: ubcformulaelectric/environment:cigoat
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -249,7 +279,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     container:
-      image: ubcformulaelectric/environment:arm_14
+      image: ubcformulaelectric/environment:cigoat
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -282,7 +312,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     container:
-      image: ubcformulaelectric/environment:arm_14
+      image: ubcformulaelectric/environment:cigoat
     #      credentials:
     #        username: ubcformulaelectric
     #        password: ${{ secrets.DOCKER_TOKEN }}
@@ -310,7 +340,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: [ clang-format ]
     container:
-      image: ubcformulaelectric/environment:arm_14
+      image: ubcformulaelectric/environment:cigoat
     env:
       BUILD_DIR: build_fw_test
     steps:
@@ -328,3 +358,18 @@ jobs:
         run: |
           cd $BUILD_DIR/scripts/code_generation/jsoncan/test/integration
           valgrind --tool=memcheck --leak-check=yes ./jsoncan_test
+
+  test-rust-jsoncan:
+    env:
+      CARGO_TERM_COLOR: always
+    name: Test Rust JSONCAN
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup update stable && rustup default stable
+      - name: Build Rust JSONCAN
+        working-directory: ./scripts/code_generation/jsoncan-rust
+        run: cargo build --verbose
+      - name: Test Rust JSONCAN
+        working-directory: ./scripts/code_generation/jsoncan-rust
+        run: cargo test --verbose

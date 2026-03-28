@@ -46,7 +46,6 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR}/hw_chimera_v2.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_watchdog.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_ubsan.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_resetReason.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_assert.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_hardFaultHandler.c"
@@ -112,6 +111,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${CUBEMX_INCLUDES}"
             TRUE
             "${ARM_CORE}"
+            FALSE
     )
 
     # JSONCAN
@@ -124,7 +124,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    target_link_libraries("quintuna_BMS_app.elf" PRIVATE "quintuna_BMS_stm32" "quintuna_BMS_jsoncan" "quintuna_BMS_commit_info" "chimera_v2_proto_cm7" "logfs_cm7")
+    target_link_libraries("quintuna_BMS_app.elf" PRIVATE "quintuna_BMS_stm32" "quintuna_BMS_jsoncan" "quintuna_BMS_commit_info" "quintuna_chimera_v2_proto_cm7 logfs_cm7")
     target_compile_definitions("quintuna_BMS_app.elf" PUBLIC TARGET_HV_SUPPLY)
 
     if ("${BOOTLOAD}" STREQUAL "ON")
@@ -178,6 +178,5 @@ elseif ("${TARGET}" STREQUAL "test")
     )
 
     target_link_libraries("quintuna_BMS_test" PRIVATE "quintuna_BMS_jsoncan" "quintuna_BMS_jsoncan_fakes" "quintuna_BMS_commit_info")
-    target_compile_definitions("quintuna_BMS_test" PRIVATE STM32H733xx)
     target_compile_definitions("quintuna_BMS_test" PRIVATE STM32H733xx)
 endif ()

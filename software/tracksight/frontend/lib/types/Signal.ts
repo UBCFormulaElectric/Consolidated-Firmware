@@ -1,4 +1,4 @@
-type CommonSignalMetadata = {
+export type CommonSignalMetadata = {
   name: string;
   tx_node: string;
   msg_name: string;
@@ -9,13 +9,12 @@ export enum SignalType {
   ENUM = "enum",
   NUMERICAL = "numerical",
   ALERT = "alert",
-  MOCK = "mock",
 }
 
 export type EnumSignalMetadata = CommonSignalMetadata & {
   type: SignalType.ENUM;
   enum: {
-    items: Record<number, string>; // maps raw value to enum display name
+    items: Record<number, string>;
     name: string;
   };
   min_val: number;
@@ -41,10 +40,17 @@ export type AlertSignalMetadata = CommonSignalMetadata & {
 export const isEnumSignalMetadata = (signal: SignalMetadata): signal is EnumSignalMetadata => {
   return signal.type === SignalType.ENUM;
 };
+
 export const isAlertSignalMetadata = (signal: SignalMetadata): signal is AlertSignalMetadata => {
   return signal.type === SignalType.ALERT;
 };
+
 export const isNumericalSignalMetadata = (signal: SignalMetadata): signal is NumericalSignalMetadata => {
   return signal.type === SignalType.NUMERICAL;
 };
+
 export type SignalMetadata = EnumSignalMetadata | NumericalSignalMetadata | AlertSignalMetadata;
+export type WidgetSignalMetadata =
+  | EnumSignalMetadata[]
+  | NumericalSignalMetadata[]
+  | AlertSignalMetadata[];

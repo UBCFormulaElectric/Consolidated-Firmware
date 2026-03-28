@@ -7,6 +7,12 @@ extern "C"
 {
 #endif
 
+    typedef enum
+    {
+        DISK_CACHE_FETCH      = 0x01,
+        DISK_CACHE_WRITE_BACK = 0x02,
+    } DiskCacheExchangeFlags;
+
     /**
      * Write data to a block on the disk.
      *
@@ -35,11 +41,10 @@ extern "C"
      * @param fs Filesystem object.
      * @param cache Cache object to change the cached block address of.
      * @param block New block to put in the cache.
-     * @param write_back Whether or not to write back cached data (if block isn't already in the cache).
-     * @param fetch Whether or not to fetch the new block's data (if block isn't already in the cache).
+     * @param flags Configure whether or not to fetch from disk, or write cached data back to disk.
      * @return LOGFS_ERR_OK if successful, or an error code.
      */
-    LogFsErr disk_exchangeCache(const LogFs *fs, LogFsCache *cache, uint32_t block, bool write_back, bool fetch);
+    LogFsErr disk_exchangeCache(const LogFs *fs, LogFsCache *cache, uint32_t block, DiskCacheExchangeFlags flags);
 
     /**
      * Sync a cache (write its data to disk).
@@ -59,7 +64,7 @@ extern "C"
     void disk_newPair(LogFsPair *pair, uint32_t block);
 
     /**
-     * Fetch a pair's state from the disk.
+     * Fetch a pair's state from the disk, and read it.
      *
      * @param fs Filesystem object.
      * @param pair Pair object to fetch to.
