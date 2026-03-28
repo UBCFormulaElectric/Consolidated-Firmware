@@ -1,6 +1,6 @@
 import { SignalMetadata, SignalType } from "@/lib/types/Signal";
 
-const getSignalType = (signal: Omit<SignalMetadata, "type">): SignalMetadata["type"] => {
+export const getSignalType = (signal: Omit<SignalMetadata, "type">): SignalMetadata["type"] => {
   if ("enum_type" in signal && signal["enum_type"] !== null) {
     return SignalType.ENUM;
   } else if (signal.max_val === 1 && signal.min_val === 0) {
