@@ -22,6 +22,7 @@
 #include "stm32h5xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "hw_hardFaultHandler.hpp"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -60,6 +61,7 @@ extern DMA_QListTypeDef    List_GPDMA1_Channel0;
 extern DMA_HandleTypeDef   handle_GPDMA1_Channel0;
 extern ADC_HandleTypeDef   hadc1;
 extern FDCAN_HandleTypeDef hfdcan1;
+extern TIM_HandleTypeDef   htim2;
 extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
 extern TIM_HandleTypeDef   htim6;
 
@@ -91,7 +93,7 @@ void NMI_Handler(void)
 void HardFault_Handler(void)
 {
     /* USER CODE BEGIN HardFault_IRQn 0 */
-
+    hw_hardFaultHandler_handleFault();
     /* USER CODE END HardFault_IRQn 0 */
     while (1)
     {
@@ -219,6 +221,20 @@ void FDCAN1_IT1_IRQHandler(void)
     /* USER CODE BEGIN FDCAN1_IT1_IRQn 1 */
 
     /* USER CODE END FDCAN1_IT1_IRQn 1 */
+}
+
+/**
+ * @brief This function handles TIM2 global interrupt.
+ */
+void TIM2_IRQHandler(void)
+{
+    /* USER CODE BEGIN TIM2_IRQn 0 */
+
+    /* USER CODE END TIM2_IRQn 0 */
+    HAL_TIM_IRQHandler(&htim2);
+    /* USER CODE BEGIN TIM2_IRQn 1 */
+
+    /* USER CODE END TIM2_IRQn 1 */
 }
 
 /**

@@ -67,6 +67,10 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define TIM2_FREQUENCY 1000
+#define TIM2_PRESCALER 250
+#define TIM2_ARR (TIMx_FREQUENCY / TIM2_PRESCALER / TIM2_FREQUENCY)
+#define TIMx_FREQUENCY 96000000
 #define BOTS_3V3_Pin GPIO_PIN_0
 #define BOTS_3V3_GPIO_Port GPIOC
 #define COCKPIT_SHDN_3V3_Pin GPIO_PIN_1
@@ -75,6 +79,10 @@ extern "C"
 #define FR_INT_3V3_GPIO_Port GPIOC
 #define FL_INT_3V3_Pin GPIO_PIN_3
 #define FL_INT_3V3_GPIO_Port GPIOC
+#define SUSP_FR_3V3_Pin GPIO_PIN_0
+#define SUSP_FR_3V3_GPIO_Port GPIOA
+#define SUSP_FL_3V3_Pin GPIO_PIN_1
+#define SUSP_FL_3V3_GPIO_Port GPIOA
 #define nBPS_F_OCSC_Pin GPIO_PIN_2
 #define nBPS_F_OCSC_GPIO_Port GPIOA
 #define nSTR_ANGLE_OCSC_Pin GPIO_PIN_3
@@ -87,10 +95,20 @@ extern "C"
 #define IMU_SDI_GPIO_Port GPIOA
 #define IMU_SDO_Pin GPIO_PIN_7
 #define IMU_SDO_GPIO_Port GPIOA
+#define STR_ANGLE_3V3_Pin GPIO_PIN_4
+#define STR_ANGLE_3V3_GPIO_Port GPIOC
+#define BPS_F_3V3_Pin GPIO_PIN_5
+#define BPS_F_3V3_GPIO_Port GPIOC
+#define APPS1_3V3_Pin GPIO_PIN_0
+#define APPS1_3V3_GPIO_Port GPIOB
+#define APPS2_3V3_Pin GPIO_PIN_1
+#define APPS2_3V3_GPIO_Port GPIOB
 #define nSUSP_FL_OCSC_Pin GPIO_PIN_10
 #define nSUSP_FL_OCSC_GPIO_Port GPIOC
 #define nSUSP_FR_OCSC_Pin GPIO_PIN_11
 #define nSUSP_FR_OCSC_GPIO_Port GPIOC
+#define D_P_PULLUP_Pin GPIO_PIN_2
+#define D_P_PULLUP_GPIO_Port GPIOD
 #define DEBUG_LED_Pin GPIO_PIN_4
 #define DEBUG_LED_GPIO_Port GPIOB
 #define BOOT_LED_Pin GPIO_PIN_5

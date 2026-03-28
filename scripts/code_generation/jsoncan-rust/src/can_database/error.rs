@@ -36,7 +36,12 @@ pub enum CanDBError {
     NodeCannotForwardTo {
         node_name: String,
         bus_not_on: String,
-    }
+    },
+    EnumMultipleBroadcasters {
+        enum_name: String,
+        broadcasters: Vec<String>,
+    },
+    PoolConnectionError(r2d2::Error),
 }
 
 impl Debug for CanDBError {
@@ -94,8 +99,31 @@ impl Debug for CanDBError {
                 rx_msg_name, rx_node_name
             ),
             CanDBError::SqlLiteError(error) => write!(f, "SQLite error: {}", error),
-            CanDBError::NodeCannotForwardFrom { node_name, bus_not_on } => write!(f,  "{} cannot forward from {} as it is not on it", node_name, bus_not_on),
-            CanDBError::NodeCannotForwardTo { node_name, bus_not_on } => write!(f,  "{} cannot forward to {} as it is not on it", node_name, bus_not_on),
+            CanDBError::NodeCannotForwardFrom {
+                node_name,
+                bus_not_on,
+            } => write!(
+                f,
+                "{} cannot forward from {} as it is not on it",
+                node_name, bus_not_on
+            ),
+            CanDBError::NodeCannotForwardTo {
+                node_name,
+                bus_not_on,
+            } => write!(
+                f,
+                "{} cannot forward to {} as it is not on it",
+                node_name, bus_not_on
+            ),
+            CanDBError::EnumMultipleBroadcasters {
+                enum_name,
+                broadcasters,
+            } => write!(
+                f,
+                "Enum '{}' is broadcast by multiple nodes: {:?}",
+                enum_name, broadcasters
+            ),
+            CanDBError::PoolConnectionError(error) => write!(f, "Pool connection error: {}", error),
         }
     }
 }
