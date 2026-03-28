@@ -12,16 +12,6 @@ DATASHEET: https://www.zotero.org/groups/5938751/ubc_formula_electric_firmware/c
 namespace io::batteryMonitoring 
 {
 
-// TODO: use this helper fucntion for every time i repeat ts
-std::expected<uint16_t, ErrorCode> read_register(uint16_t cmd)
-{
-    std::array<uint8_t, 2> buf;
-    RETURN_IF_ERR(hw::i2c::bat_mon.memoryRead(cmd, buf));
-    
-    uint16_t result = (uint16_t)((buf[1] << 8) | buf[0]);
-    
-    return result;
-}
 // should contain a 0 for cell_voltage[2] as per the interconnect [x, x, 0, x, x]
 uint16_t cell_voltages[5]; 
 
@@ -148,8 +138,10 @@ std::expected<void, ErrorCode> init(void)
     std::array<uint8_t, 2> stat_buf;
     
     // check in 0x12 if its in regular sleep mode 
-    RETURN_IF_ERR_SILENT(hw::i2c::bat_mon.memoryRead(CMD_BATTERY_STATUS, stat_buf));
-    uint16_t battery_status = (uint16_t)((stat_buf[1] << 8) | stat_buf[0]);
+    //RETURN_IF_ERR_SILENT(hw::i2c::bat_mon.memoryRead(CMD_BATTERY_STATUS, stat_buf));
+   //uint16_t battery_status = (uint16_t)((stat_buf[1] << 8) | stat_buf[0]);
+    read_register(CMD_BATTERY_STATUS, stat_buf);
+    uint16_t battery_status =  read_register(CMD_BATTERY_STATUS, stat_buf);
     if (battery_status & BAT_STAT_SLEEP) {
         RETURN_IF_ERR(write_command_buffer(CMD_WAKE_SLEEP, std::span<const uint8_t>())); /* doesnt send data and refer to the exit 
         statement in func that handles ts, send size 0*/
