@@ -2,7 +2,7 @@ import { API_BASE_URL } from "@/lib/constants";
 import socket from "@/lib/realtime/socket";
 
 const subscribeToSignal = async (signalName: string) => {
-  const response = await fetch(`${API_BASE_URL}/subscribe`, {
+  const response = await fetch(`${API_BASE_URL}/api/v1/subscribe`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -21,7 +21,7 @@ const subscribeToSignal = async (signalName: string) => {
 };
 
 const unsubscribeFromSignal = async (signalName: string) => {
-  const response = await fetch(`${API_BASE_URL}/unsubscribe`, {
+  const response = await fetch(`${API_BASE_URL}/api/v1/unsubscribe`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
