@@ -73,7 +73,7 @@ const subscribeToSignal = async (signalName: string) => {
 
 const unsubscribeFromSignal = async (signalName: string) => {
     const sid = await waitForSocketId();
-    return postSubscriptionAction("/unsubscribe", {
+    return postSubscriptionAction("/api/v1/unsubscribe", {
         sid,
         signal: signalName,
     });
