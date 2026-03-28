@@ -322,6 +322,48 @@ void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef *hfdcan)
 }
 
 /**
+ * @brief FMAC MSP Initialization
+ * This function configures the hardware resources used in this example
+ * @param hfmac: FMAC handle pointer
+ * @retval None
+ */
+void HAL_FMAC_MspInit(FMAC_HandleTypeDef *hfmac)
+{
+    if (hfmac->Instance == FMAC)
+    {
+        /* USER CODE BEGIN FMAC_MspInit 0 */
+
+        /* USER CODE END FMAC_MspInit 0 */
+        /* Peripheral clock enable */
+        __HAL_RCC_FMAC_CLK_ENABLE();
+        /* USER CODE BEGIN FMAC_MspInit 1 */
+
+        /* USER CODE END FMAC_MspInit 1 */
+    }
+}
+
+/**
+ * @brief FMAC MSP De-Initialization
+ * This function freeze the hardware resources used in this example
+ * @param hfmac: FMAC handle pointer
+ * @retval None
+ */
+void HAL_FMAC_MspDeInit(FMAC_HandleTypeDef *hfmac)
+{
+    if (hfmac->Instance == FMAC)
+    {
+        /* USER CODE BEGIN FMAC_MspDeInit 0 */
+
+        /* USER CODE END FMAC_MspDeInit 0 */
+        /* Peripheral clock disable */
+        __HAL_RCC_FMAC_CLK_DISABLE();
+        /* USER CODE BEGIN FMAC_MspDeInit 1 */
+
+        /* USER CODE END FMAC_MspDeInit 1 */
+    }
+}
+
+/**
  * @brief SPI MSP Initialization
  * This function configures the hardware resources used in this example
  * @param hspi: SPI handle pointer
@@ -356,7 +398,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
         PA6     ------> SPI1_MISO
         PA7     ------> SPI1_MOSI
         */
-        GPIO_InitStruct.Pin       = IMU_CS_Pin | IMU_CSA5_Pin | IMU_SDI_Pin | IMU_SDO_Pin;
+        GPIO_InitStruct.Pin       = IMU_CS_Pin | IMU_SPC_Pin | IMU_SDI_Pin | IMU_SDO_Pin;
         GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
         GPIO_InitStruct.Pull      = GPIO_NOPULL;
         GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
@@ -391,7 +433,7 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
         PA6     ------> SPI1_MISO
         PA7     ------> SPI1_MOSI
         */
-        HAL_GPIO_DeInit(GPIOA, IMU_CS_Pin | IMU_CSA5_Pin | IMU_SDI_Pin | IMU_SDO_Pin);
+        HAL_GPIO_DeInit(GPIOA, IMU_CS_Pin | IMU_SPC_Pin | IMU_SDI_Pin | IMU_SDO_Pin);
 
         /* USER CODE BEGIN SPI1_MspDeInit 1 */
 

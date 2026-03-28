@@ -4,7 +4,9 @@
 
 enum class ErrorCode
 {
-    INVALID_ARGS = 0,
+    OK = 0, // added so that ErrorCode-returning APIs like process() and stop() in hw_fmac.cpp can return and check
+            // success without using std::expected
+    INVALID_ARGS,
     OUT_OF_RANGE,
     TIMEOUT,
     ERROR,
