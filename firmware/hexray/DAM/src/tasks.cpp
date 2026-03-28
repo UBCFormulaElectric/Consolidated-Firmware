@@ -56,7 +56,7 @@ extern "C"
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
-        HAL_IWDG_Refresh(&hiwdg);
+        //HAL_IWDG_Refresh(&hiwdg);
         jobs_run1kHz_tick();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -130,12 +130,12 @@ extern "C"
 // Define the task with StaticTask Class
 static hw::rtos::StaticTask<8096> Task100Hz(osPriorityRealtime, "Task100Hz", tasks_run100Hz);
 static hw::rtos::StaticTask<512>  TaskCanTx(osPriorityAboveNormal, "TaskCanTx", tasks_runCanTx);
-static hw::rtos::StaticTask<512>  TaskCanRx(osPriorityHigh, "TaskCanRx", tasks_runCanRx);
+static hw::rtos::StaticTask<512 * 4>  TaskCanRx(osPriorityHigh, "TaskCanRx", tasks_runCanRx);
 static hw::rtos::StaticTask<512>  Task1kHz(osPriorityBelowNormal, "Task1kHz", tasks_run1kHz);
-static hw::rtos::StaticTask<512>  Task1Hz(osPriorityBelowNormal, "Task1Hz", tasks_run1Hz);
+static hw::rtos::StaticTask<1024>  Task1Hz(osPriorityHigh, "Task1Hz", tasks_run1Hz);
 static hw::rtos::StaticTask<1024> TaskLogging(osPriorityHigh, "TaskLogging", tasks_runLogging);
 static hw::rtos::StaticTask<512>  TaskTelem(osPriorityHigh, "TaskTelem", tasks_runTelem);
-static hw::rtos::StaticTask<512>  TaskTelemRx(osPriorityHigh, "TaskTelemRx", tasks_runTelemRx);
+static hw::rtos::StaticTask<1024>  TaskTelemRx(osPriorityHigh, "TaskTelemRx", tasks_runTelemRx);
 
 void DAM_StartAllTasks()
 {

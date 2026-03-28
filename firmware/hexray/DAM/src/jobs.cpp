@@ -1,10 +1,10 @@
 #include "jobs.hpp"
 
+#include "hw_uarts.hpp"
 #include "io_canQueues.hpp"
 #include "io_log.hpp"
 #include "io_telemMessage.hpp"
 #include "io_telemRx.hpp"
-#include "io_telemUart.hpp"
 #include "io_queue.hpp"
 #include "io_telemQueue.hpp"
 #include "app_jsoncan.hpp"
@@ -26,8 +26,8 @@ void jobs_init()
         {
             const io::CanMsg msg    = app::jsoncan::copyToCanMsg(tx_msg);
             auto             result = can_tx_queue.push(msg);
-            if (not result)
-                LOG_ERROR("Failed to push TX CAN message: %d", static_cast<int>(result.error()));
+            // if (not result)
+                // LOG_ERROR("Failed to push TX CAN message: %d", static_cast<int>(result.error()));
         });
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
     telem_tx_queue.init();
@@ -35,7 +35,7 @@ void jobs_init()
 void jobs_run1Hz_tick()
 {
     // call transmitNTPStartMsg from io_telemRx.cpp
-    transmitNTPStartMsg();
+    // transmitNTPStartMsg();
 }
 void jobs_run100Hz_tick()
 {
@@ -58,7 +58,7 @@ void jobs_runTelem_tick()
 
     const auto &msg = result.value();
     const auto  tx_result =
-        io::telemUart::transmitIt(std::span<const uint8_t>{ reinterpret_cast<const uint8_t *>(&msg), msg.wireSize() });
+        _900k_uart.transmit(std::span<const uint8_t>{ reinterpret_cast<const uint8_t *>(&msg), msg.wireSize() });
     if (not tx_result)
     {
         LOG_ERROR("Failed to transmit telem message: %d", static_cast<int>(tx_result.error()));
@@ -67,5 +67,6 @@ void jobs_runTelem_tick()
 
 void jobs_runTelemRx()
 {
-    io_telemRx();
+    //io_telemRx();
+    receiveTest();
 }

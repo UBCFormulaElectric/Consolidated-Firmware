@@ -60,7 +60,7 @@ Header::Header(const uint8_t *payload, uint8_t payload_length)
 //     header         = Header(reinterpret_cast<const uint8_t *>(&msg), static_cast<uint8_t>(sizeof(msg)));
 // }
 
-TelemCanMsg::TelemCanMsg(const io::CanMsg &rx_msg, float time_offset)
+TelemCanMsg::TelemCanMsg(const io::CanMsg &rx_msg, uint64_t time_offset)
 {
     const uint32_t can_payload_size = payloadSizeFromDlc(rx_msg.dlc);
 

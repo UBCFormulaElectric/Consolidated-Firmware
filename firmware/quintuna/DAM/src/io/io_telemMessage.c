@@ -90,7 +90,7 @@ TelemNTPMsg io_buildNTPMessage(void)
     TelemNTPMsg ntp_msg;
 
     ntp_msg.identifier = 2;
-    ntp_msg.header = io_telemMessage_buildHeader(&ntp_msg.identifier, 1);
+    ntp_msg.header     = io_telemMessage_buildHeader(&ntp_msg.identifier, 1);
 
     return ntp_msg;
 }

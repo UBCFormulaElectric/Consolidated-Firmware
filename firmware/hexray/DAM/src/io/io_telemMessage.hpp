@@ -46,7 +46,7 @@ struct [[gnu::packed]] CanMsgBody
 {
     uint8_t  identifier;
     uint32_t can_id;
-    float    time_offset;
+    uint64_t time_offset;
     uint8_t  payload[64]; // payload at end so we can truncate
 };
 
@@ -55,7 +55,7 @@ struct [[gnu::packed]] TelemCanMsg
     Header     header;
     CanMsgBody msg;
     TelemCanMsg() = default;
-    explicit TelemCanMsg(const io::CanMsg &rx_msg, float time_offset);
+    explicit TelemCanMsg(const io::CanMsg &rx_msg, uint64_t time_offset);
     [[nodiscard]] size_t wireSize() const;
 };
 

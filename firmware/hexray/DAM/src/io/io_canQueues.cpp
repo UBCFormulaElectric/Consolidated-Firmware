@@ -4,7 +4,7 @@
 static void tx_overflow_callback(const uint32_t overflow_count)
 {
     UNUSED(overflow_count);
-    LOG_WARN("CAN TX queue overflow");
+    // LOG_WARN("CAN TX queue overflow");
 }
 static void rx_overflow_callback(const uint32_t overflow_count)
 {
