@@ -39,10 +39,10 @@ struct SignalMetadata {
 /**
  * Gets metadata of the signal of the current parser.
  * Pass signal names (regex) in `name` parameter.
- * E.g. `/signal?name=INVFR_bError,*_bReserve`
+ * E.g. `/signal/metadata?name=INVFR_bError`
  */
 async fn metadata(Query(mut param): Query<MetadataParam>, State(state): State<AppState>) -> impl IntoResponse {
-    let regex = match Regex::new(param.name.get_or_insert("*".to_string())) {
+    let regex = match Regex::new(param.name.get_or_insert(".*".to_string())) {
         Ok(regex) => regex,
         Err(_) => {
             return (StatusCode::BAD_REQUEST, Json::default());

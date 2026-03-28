@@ -30,41 +30,17 @@ export function useSyncedGraph() {
 
 const RIGHT_PAD = 5 * 60; // 5 secs right 
 const SCROLL_PAD = 15;
-const MIN_SCALE_PX_PER_SEC = 0;
+const MIN_SCALE_PX_PER_SEC = 0.001;
 const MAX_SCALE_PX_PER_SEC = 10000;
 
-function useZoomPanManager(containerRef: RefObject<HTMLDivElement | null>) {
-    const scalePxPerSecRef = useRef<number>(1);
-
-    // scale update on ctrl + wheel
-    useEffect(() => {
-        const container = containerRef.current;
-        if (!container) return;
-
-        const handleWheelZoom = (event: WheelEvent) => {
-            if (event.ctrlKey === false) {
-                return;
-            }
-            event.preventDefault();
-            const deltaScale = event.deltaY * -0.005; // invert for natural zoom 
-            if (deltaScale === 0) return;
-
-            // deltaScale usually in {-1,1}
-            scalePxPerSecRef.current = Math.min(Math.max(scalePxPerSecRef.current * Math.exp(deltaScale), MIN_SCALE_PX_PER_SEC), MAX_SCALE_PX_PER_SEC);
-        }
-        window.addEventListener("wheel", handleWheelZoom, { passive: false });
-        return () => {
-            window.removeEventListener("wheel", handleWheelZoom);
-        };
-    }, [scalePxPerSecRef, containerRef]);
-
+function useSuppressScrollWhilePlaying(containerRef: RefObject<HTMLDivElement | null>) {
     // suppress scroll when playing
     const { isPaused } = useDisplayControlContext();
     useEffect(() => { // handle scroll events (needs to be here because of passive: false)
         const container = containerRef.current;
         if (!container) return;
-        const suppressScroll = (e: Event) => {
-            if (!isPaused) {
+        const suppressScroll = (e: WheelEvent) => {
+            if (!isPaused && Math.abs(e.deltaX) > 0) {
                 e.preventDefault();
             }
         }
@@ -75,8 +51,6 @@ function useZoomPanManager(containerRef: RefObject<HTMLDivElement | null>) {
             container.removeEventListener("mousewheel", suppressScroll);
         };
     }, [containerRef, isPaused]);
-
-    return scalePxPerSecRef;
 }
 
 export default function SyncedGraphContainer({ children }: { children: ReactNode }) {
@@ -84,21 +58,26 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
     const contentRef = useRef<HTMLDivElement | null>(null); // Renamed from containerRef, this one grows
     const scrollContainerRef = useRef<HTMLDivElement | null>(null); // NEW: Ref for the scrolling wrapper
 
-    // zoom management (attach wheel listener to the scroll container)
-    const scalePxPerSecRef = useZoomPanManager(scrollContainerRef);
+    // zoom management
+    const scalePxPerSecRef = useRef<number>(1);
+    useSuppressScrollWhilePlaying(scrollContainerRef);
 
     // glokbal time range
     const globalTimeRangeRef = useRef<TimeRange | null>(null);
+    // manage left scroll variable
+    const scrollLeftRef = useRef<number>(0);
     // Update width when zoom changes
     const updateGraphWidth = useCallback(() => {
         const global_tr = globalTimeRangeRef.current;
         const container = scrollContainerRef.current;
         if (contentRef.current && global_tr && container) {
             const container_width = scalePxPerSecRef.current * (global_tr.max - global_tr.min);
-            container.scrollLeft = Math.max(container_width + SCROLL_PAD - container.clientWidth, 0);
+            const nextScrollLeft = Math.max(container_width + SCROLL_PAD - container.clientWidth, 0);
+            scrollLeftRef.current = nextScrollLeft;
+            container.scrollLeft = nextScrollLeft;
             contentRef.current.style.width = `${container_width + RIGHT_PAD}px`;
         }
-    }, [globalTimeRangeRef, scalePxPerSecRef, scrollContainerRef, contentRef]);
+    }, [globalTimeRangeRef, scalePxPerSecRef, scrollContainerRef, contentRef, scrollLeftRef]);
     const updateWithTimestamp = useCallback((timestamp: number) => {
         if (!globalTimeRangeRef.current || timestamp < globalTimeRangeRef.current.min || timestamp > globalTimeRangeRef.current.max) {
             globalTimeRangeRef.current = {
@@ -109,11 +88,40 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
         }
     }, [updateGraphWidth])
 
-    // manage left scroll variable
-    const scrollLeftRef = useRef<number>(0);
     const updateLeftScroll = useCallback((e: UIEvent<HTMLDivElement>) => {
         scrollLeftRef.current = (e.target as HTMLDivElement).scrollLeft;
     }, [scrollLeftRef]);
+
+    useEffect(() => {
+        const container = scrollContainerRef.current;
+        if (!container) return;
+
+        const handleWheelZoom = (event: WheelEvent) => {
+            if (!event.ctrlKey) {
+                return;
+            }
+
+            event.preventDefault();
+            const deltaScale = event.deltaY * -0.005; // invert for natural zoom
+            if (deltaScale === 0) return;
+
+            const nextScale = Math.min(
+                Math.max(scalePxPerSecRef.current * Math.exp(deltaScale), MIN_SCALE_PX_PER_SEC),
+                MAX_SCALE_PX_PER_SEC
+            );
+            if (nextScale === scalePxPerSecRef.current) {
+                return;
+            }
+
+            scalePxPerSecRef.current = nextScale;
+            updateGraphWidth();
+        };
+
+        container.addEventListener("wheel", handleWheelZoom, { passive: false });
+        return () => {
+            container.removeEventListener("wheel", handleWheelZoom);
+        };
+    }, [scrollContainerRef, scalePxPerSecRef, updateGraphWidth]);
 
     // screen space conversions
     /**
