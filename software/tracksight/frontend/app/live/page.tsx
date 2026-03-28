@@ -9,7 +9,7 @@ import { LiveSignalStoreProvider } from "@/lib/contexts/signalStores/LiveSignalS
 import { MockSignalStoreProvider } from "@/lib/contexts/signalStores/MockSignalStoreContext";
 import AlertTimeline from "@/components/widgets/AlertTimeline";
 
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA = false;
 
 function Content() {
   const { initializedFromLocalStorage } = useWidgetManager();
