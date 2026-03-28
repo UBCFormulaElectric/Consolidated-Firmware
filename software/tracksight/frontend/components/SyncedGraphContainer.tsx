@@ -74,7 +74,6 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
     useEffect(() => {
         isViewportLockedRef.current = isViewportLocked;
     }, [isViewportLocked]);
-
     // Update width when zoom changes
     const updateGraphWidth = useCallback(() => {
         const global_tr = globalTimeRangeRef.current;
@@ -97,7 +96,6 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
             }
         }
     }, [contentRef, globalTimeRangeRef, scalePxPerSecRef, scrollContainerRef, scrollLeftRef]);
-
     const updateWithTimestamp = useCallback((timestamp: number) => {
         if (!globalTimeRangeRef.current || timestamp < globalTimeRangeRef.current.min || timestamp > globalTimeRangeRef.current.max) {
             globalTimeRangeRef.current = {
@@ -161,7 +159,6 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
 
         updateGraphWidth();
     }, [isViewportLocked, updateGraphWidth]);
-
     // screen space conversions
     /**
      * given a screen space x, gets the time associated with it based on the current zoom and scroll

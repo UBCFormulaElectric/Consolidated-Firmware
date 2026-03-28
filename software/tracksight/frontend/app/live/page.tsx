@@ -2,6 +2,7 @@
 
 import { WidgetAdder } from "@/app/live/WidgetAdder";
 import DataDashboard from "@/components/DataDashboard";
+import AlertTimeline from "@/components/widgets/AlertTimeline";
 import {
     DisplayControlProvider,
     PausePlayButton,
@@ -29,6 +30,7 @@ function Content() {
                 <PausePlayButton />
                 <ViewportLockButton />
             </div>
+            <AlertTimeline />
             {initializedFromLocalStorage ? (
                 <>
                     <DataDashboard />
