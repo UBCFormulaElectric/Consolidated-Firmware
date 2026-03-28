@@ -6,9 +6,9 @@ mod parse_tx;
 
 use crate::can_database::{BusForwarder, CanBus, CanEnum};
 
-pub use parse_alert::JsonAlerts;
-pub use parse_tx::{JsonCanSignal, JsonCanMessage};
 pub use crate::can_database::JsonRxMsgNames;
+pub use parse_alert::JsonAlerts;
+pub use parse_tx::{JsonCanMessage, JsonCanSignal};
 
 use parse_alert::parse_alert_data;
 use parse_bus::parse_bus_data;
@@ -44,7 +44,8 @@ pub struct JsonCanParser {
 fn list_nodes_from_folders(can_data_dir: &String) -> Vec<String> {
     let mut node_names: Vec<String> = Vec::new();
 
-    let entries = std::fs::read_dir(can_data_dir).expect(&format!("Unable to read dir {can_data_dir}"));
+    let entries =
+        std::fs::read_dir(can_data_dir).expect(&format!("Unable to read dir {can_data_dir}"));
     for entry in entries {
         let entry = entry.expect("Failed to read entry"); // surely??
         let path = entry.path();
