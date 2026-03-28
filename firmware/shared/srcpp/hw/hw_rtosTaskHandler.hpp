@@ -1,13 +1,16 @@
 #pragma once
+#include <cstdint>
+#include <cstddef>
 #include "cmsis_os2.h"
 #include "FreeRTOS.h"
 #include <string>
+#include "timers.h"
 namespace hw::rtos
 {
-template <size_t StackBytes> class StaticTask
+template <size_t StackWords> class StaticTask
 {
   public:
-    constexpr explicit StaticTask(const osPriority_t priority, const char *name, const osThreadFunc_t func)
+    constexpr explicit StaticTask(osPriority_t priority, const char *name, osThreadFunc_t func)
       : prio_(priority), argument_(nullptr), name_(name), fn_(func)
 
     {
@@ -16,7 +19,7 @@ template <size_t StackBytes> class StaticTask
         attr_.cb_mem     = &cb_;
         attr_.cb_size    = sizeof(cb_);
         attr_.stack_mem  = stack_;
-        attr_.stack_size = StackBytes * sizeof(uint8_t);
+        attr_.stack_size = StackWords * sizeof(uint32_t);
         attr_.priority   = prio_;
     }
 
@@ -29,7 +32,7 @@ template <size_t StackBytes> class StaticTask
         attr_.cb_mem     = &cb_;
         attr_.cb_size    = sizeof(cb_);
         attr_.stack_mem  = stack_;
-        attr_.stack_size = StackBytes * sizeof(uint8_t);
+        attr_.stack_size = StackWords * sizeof(uint32_t);
         attr_.priority   = prio_;
     }
 
@@ -48,6 +51,6 @@ template <size_t StackBytes> class StaticTask
     StaticTask_t       cb_{};
     void              *argument_{};
     osThreadAttr_t     attr_{};
-    alignas(8) uint8_t stack_[StackBytes];
+    alignas(8) uint32_t stack_[StackWords];
 };
 } // namespace  hw::rtos
