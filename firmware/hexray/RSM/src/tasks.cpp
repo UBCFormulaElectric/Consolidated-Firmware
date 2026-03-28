@@ -70,7 +70,7 @@
     {
         jobs_run1kHz_tick();
 
-        monitor1khz.checkForTimeouts();
+        // monitor1khz.checkForTimeouts();
         watchdog1khz.checkIn();
 
         start_ticks += period_ms;
@@ -133,12 +133,20 @@ void tasks_preInit()
 
 void tasks_init()
 {
-    __HAL_DBGMCU_FREEZE_IWDG();
+    // __HAL_DBGMCU_FREEZE_IWDG();
     hw::adcs::chipsInit();
     hw::can::can1.init();
     jobs_init();
     osKernelInitialize();
     RSM_StartAllTasks();
     osKernelStart();
+    int count = 1;
+    if (count == 2)
+    {
+        LOG_WARN("MCU is reset");
+    }
+    count++;
+    
+    
     forever {}
 }
