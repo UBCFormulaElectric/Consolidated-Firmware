@@ -272,7 +272,7 @@ export const getAlertSignalType = (name: string): AlertSignalType | null => {
   return null;
 };
 
-const backend_port: number = process.env.NEXT_PUBLIC_BACKEND_PORT ? parseInt(process.env.NEXT_PUBLIC_BACKEND_PORT) : 5000;
+const backend_port: number = process.env.NEXT_PUBLIC_BACKEND_PORT ? parseInt(process.env.NEXT_PUBLIC_BACKEND_PORT) : 5001;
 
 if (!process.env.NEXT_PUBLIC_BACKEND_PORT) {
   console.warn(`NEXT_PUBLIC_BACKEND_PORT not set, defaulting to ${backend_port}. Ensure your .env.local file is configured correctly: NEXT_PUBLIC_BACKEND_PORT=xxx`);

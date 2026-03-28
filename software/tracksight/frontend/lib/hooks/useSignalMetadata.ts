@@ -17,13 +17,15 @@ export default function useSignalMetadata(signalName: string | null) {
         return null;
       }
 
-      const response = await fetch(`${API_BASE_URL}/signal?name=${encodeURIComponent(signalName)}`);
+      const response = await fetch(`${API_BASE_URL}/api/v1/signal/metadata?name=${encodeURIComponent(signalName)}`);
       if (!response.ok) {
         throw new Error(`Failed to fetch signals: ${response.statusText}`);
       }
 
       // TODO when the query/find signal endpoints are seperated, change this to recieve a single SignalMetadata object
       const json = (await response.json()) as SignalMetadata[];
+      // FIXME(broken);
+      console.log(json);
       const signal = json.find((s) => s.name === signalName);
       if (!signal) {
         throw new Error(`Signal not found: ${signalName}`);
