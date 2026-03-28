@@ -1,38 +1,35 @@
 "use client";
 
+import { WidgetAdder } from "@/app/live/WidgetAdder";
 import { DisplayControlProvider, PausePlayButton } from "@/components/PausePlayControl";
 import SyncedGraphContainer from "@/components/SyncedGraphContainer";
-import { WidgetAdder } from "@/app/live/WidgetAdder";
+import DataDashboard from "@/components/DataDashboard";
 import { useWidgetManager, WidgetManager } from "@/components/widgets/WidgetManagerContext";
 import { LiveSignalStoreProvider } from "@/lib/contexts/signalStores/LiveSignalStoreContext";
 import { MockSignalStoreProvider } from "@/lib/contexts/signalStores/MockSignalStoreContext";
-import DataDashboard from "@/components/DataDashboard";
+import AlertTimeline from "@/components/widgets/AlertTimeline";
 
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA = false;
 
 function Content() {
   const { initializedFromLocalStorage } = useWidgetManager();
-
   const DataSourceProvider = USE_MOCK_DATA ? MockSignalStoreProvider : LiveSignalStoreProvider;
 
   return (
-    <>
-      <DataSourceProvider>
-        <PausePlayButton />
-        {/* <AlertTimeline /> */}
-        {
-          initializedFromLocalStorage ?
-            <>
-              <DataDashboard />
-              <WidgetAdder />
-            </>
-            :
-            <div className='grid place-items-center h-full text-gray-500'>
-              Loading Widgets
-            </div>
-        }
-      </DataSourceProvider>
-    </>
+    <DataSourceProvider>
+      <PausePlayButton />
+      <AlertTimeline />
+      {initializedFromLocalStorage ? (
+        <>
+          <DataDashboard />
+          <WidgetAdder />
+        </>
+      ) : (
+        <div className="grid h-full place-items-center text-gray-500">
+          Loading Widgets
+        </div>
+      )}
+    </DataSourceProvider>
   );
 }
 
@@ -45,7 +42,7 @@ export default function LiveDataPage() {
             <Content />
           </WidgetManager>
         </SyncedGraphContainer>
-      </DisplayControlProvider >
+      </DisplayControlProvider>
     </div>
   );
 }

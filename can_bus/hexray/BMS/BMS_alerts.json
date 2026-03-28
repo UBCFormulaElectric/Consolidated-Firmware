@@ -19,6 +19,10 @@
     "ModuleCommunicationError": {
       "id": 428,
       "description": "Failed to communicate with LTC6813 modules."
+    },
+    "TsOvercurrent": {
+      "id": 439,
+      "description": "Tractive system overcurrent detected."
     }
   },
   "faults": {

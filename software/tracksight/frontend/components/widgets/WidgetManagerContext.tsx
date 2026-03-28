@@ -1,11 +1,9 @@
-import { createContext, useCallback, useContext, useMemo, ReactNode } from "react";
-
-import { v4 as uuidv4 } from 'uuid';
+import { ReactNode, createContext, useCallback, useContext, useMemo } from "react";
 
 import chroma from "chroma-js";
+import { v4 as uuidv4 } from "uuid";
 
 import { IS_DEBUG } from "@/lib/constants";
-
 import { useLocalState } from "@/lib/hooks/useLocalState";
 import { WidgetData, WidgetType } from "@/lib/types/Widget";
 
@@ -16,9 +14,8 @@ interface WidgetManagerContext {
   initializedFromLocalStorage: boolean;
   appendWidget: (newWidget: WidgetData) => void;
   removeWidget: (widgetToRemove: string) => void;
-  // setEnumSignal: (widgetID: string, newSignal: string) => void;
   appendSignal: <T extends WidgetType, Widget extends Extract<WidgetData, { type: T }>>(widget: Widget, newSignal: Widget["signals"][number]) => void;
-  removeSignal: (widget: WidgetData, nameOfSignalToRemvoe: string) => void;
+  removeSignal: (widget: WidgetData, nameOfSignalToRemove: string) => void;
   updateWidget: <T extends WidgetType, Widget extends Extract<WidgetData, { type: T }>>(widget: Widget, updater: (prevWidget: Widget) => Widget) => void;
 }
 
@@ -26,191 +23,217 @@ const WidgetManagerContext = createContext<WidgetManagerContext | null>(null);
 
 export function useWidgetManager() {
   const ctx = useContext(WidgetManagerContext);
-  if (!ctx) { throw new Error("useWidgetManagerContext must be used within a WidgetManagerProvider"); }
+  if (!ctx) {
+    throw new Error("useWidgetManagerContext must be used within a WidgetManagerProvider");
+  }
   return ctx;
 }
 
 function WidgetSerialize(widgets: WidgetData[]): string {
-  return JSON.stringify(widgets.map(w => {
-    if (w.type == "enumTimeline") {
+  return JSON.stringify(widgets.map((widget) => {
+    if (widget.type === "enumTimeline") {
       return {
-        ...w,
+        ...widget,
         options: {
-          ...w.options,
-          colorPalette: Object.fromEntries(Object.entries(w.options.colorPalette).map(([signalName, enumColors]) => [
+          ...widget.options,
+          colorPalette: Object.fromEntries(Object.entries(widget.options.colorPalette).map(([signalName, enumColors]) => [
             signalName,
             {
               color: enumColors.color.hex(),
               enumValueColors: Object.fromEntries(Object.entries(enumColors.enumValueColors).map(([enumVal, color]) => [
                 enumVal,
-                color.hex()
-              ]))
-            }
-          ]))
-        }
-      }
-    }
-    else if (w.type == "numericalGraph") {
-      return {
-        ...w,
-        options: {
-          ...w.options,
-          colorPalette: Object.fromEntries(Object.entries(w.options.colorPalette).map(([signalName, color]) => [
-            signalName,
-            color.hex()
+                color.hex(),
+              ])),
+            },
           ])),
-        }
-      }
+        },
+      };
     }
+
+    return {
+      ...widget,
+      options: {
+        ...widget.options,
+        colorPalette: Object.fromEntries(Object.entries(widget.options.colorPalette).map(([signalName, color]) => [
+          signalName,
+          color.hex(),
+        ])),
+      },
+    };
   }));
 }
 
-// yolo if it doesn't have it it is what it is fr
 function WidgetDeserialize(widgetString: string): WidgetData[] {
-  const back = JSON.parse(widgetString) as unknown & WidgetData[];
+  const back = JSON.parse(widgetString) as unknown;
 
   if (!Array.isArray(back)) {
     throw new Error("Deserialized widget config is not an array");
   }
 
-  return back.map(b => {
-    if (b.type === "enumTimeline") {
+  return back.map((widget) => {
+    if (!widget || typeof widget !== "object" || !("type" in widget)) {
+      throw new Error("Deserialized widget has invalid shape");
+    }
+
+    const candidate = widget as any;
+
+    if (candidate.type === "enumTimeline") {
       return {
-        id: b.id,
+        id: candidate.id,
         type: "enumTimeline",
-        data: b.data,
-        signals: b.signals,
+        data: candidate.data,
+        signals: candidate.signals,
         options: {
-          height: b.options.height,
-          timeTickCount: b.options.timeTickCount,
-          colorPalette: Object.keys(b.options.colorPalette).reduce((acc, signalName) => ({
-            ...acc,
-            [signalName]: Object.keys(b.options.colorPalette[signalName]).reduce((enumAcc, enumVal) => ({
-              ...enumAcc,
-              [enumVal]: {
-                color: chroma(b.options.colorPalette[signalName].color),
-                enumValueColors: Object.fromEntries(Object.entries(b.options.colorPalette[signalName].enumValueColors).map(([enumVal, color]) => [
-                  enumVal,
-                  chroma(color)
-                ]))
-              }
-            }), {})
-          }), {})
-        }
-      }
-    }
-    else if (b.type === "numericalGraph") {
-      return {
-        id: b.id,
-        type: "numericalGraph",
-        signals: b.signals,
-        data: b.data,
-        options: {
-          colorPalette: Object.fromEntries(Object.entries(b.options.colorPalette).map(([signalName, color]) => [
+          height: candidate.options.height,
+          timeTickCount: candidate.options.timeTickCount,
+          colorPalette: Object.fromEntries(Object.entries(candidate.options.colorPalette).map(([signalName, palette]) => [
             signalName,
-            chroma(color)
+            {
+              color: chroma((palette as { color: string }).color),
+              enumValueColors: Object.fromEntries(Object.entries((palette as { enumValueColors: Record<string, string> }).enumValueColors).map(([enumVal, color]) => [
+                enumVal,
+                chroma(color),
+              ])),
+            },
           ])),
-          height: b.options.height,
-          timeTickCount: b.options.timeTickCount,
-        }
-      }
+        },
+      } satisfies WidgetData;
     }
-    else {
-      throw new Error("Deserialized widget has invalid type: " + (b as any).type);
+
+    if (candidate.type === "numericalGraph") {
+      return {
+        id: candidate.id,
+        type: "numericalGraph",
+        signals: candidate.signals,
+        data: candidate.data,
+        options: {
+          colorPalette: Object.fromEntries(Object.entries(candidate.options.colorPalette).map(([signalName, color]) => [
+            signalName,
+            chroma(color as string),
+          ])),
+          height: candidate.options.height,
+          timeTickCount: candidate.options.timeTickCount,
+        },
+      } satisfies WidgetData;
     }
-  })
+
+    throw new Error(`Deserialized widget has invalid type: ${candidate.type}`);
+  });
+}
+
+function removeSignalFromWidget(widget: WidgetData, signalName: string): WidgetData {
+  if (widget.type === "enumTimeline") {
+    const nextPalette = { ...widget.options.colorPalette };
+    delete nextPalette[signalName];
+
+    return {
+      ...widget,
+      signals: widget.signals.filter((signal) => signal.name !== signalName),
+      options: {
+        ...widget.options,
+        colorPalette: nextPalette,
+      },
+    };
+  }
+
+  const nextPalette = { ...widget.options.colorPalette };
+  delete nextPalette[signalName];
+
+  return {
+    ...widget,
+    signals: widget.signals.filter((signal) => signal.name !== signalName),
+    options: {
+      ...widget.options,
+      colorPalette: nextPalette,
+    },
+  };
 }
 
 export function WidgetManager({ children }: { children: ReactNode }) {
   const [widgets, setWidgets, isInitialized] = useLocalState<WidgetData[]>(LOCAL_STORAGE_KEY, [], WidgetSerialize, WidgetDeserialize);
 
   const appendWidget = useCallback((newWidget: WidgetData) => {
-    newWidget.id = uuidv4();
-    setWidgets((prev) => [...prev, newWidget]);
-  }, []);
+    setWidgets((prev) => [...prev, { ...newWidget, id: uuidv4() }]);
+  }, [setWidgets]);
 
   const removeWidget = useCallback((widgetToRemove: string) => {
     setWidgets((prev) => {
-      const widgetIndex = prev.findIndex((w) => w.id === widgetToRemove);
+      const widgetIndex = prev.findIndex((widget) => widget.id === widgetToRemove);
       if (widgetIndex === -1) {
         IS_DEBUG && console.warn("Widget to remove not found");
         return prev;
       }
-      const newWidgets = [...prev];
-      newWidgets.splice(widgetIndex, 1);
-      return newWidgets;
+
+      const nextWidgets = [...prev];
+      nextWidgets.splice(widgetIndex, 1);
+      return nextWidgets;
     });
-  }, []);
+  }, [setWidgets]);
 
   const appendSignal = useCallback(<T extends WidgetType, Widget extends Extract<WidgetData, { type: T }>>(widget: Widget, newSignal: Widget["signals"][number]) => {
     setWidgets((prev) => {
-      const newWidgets = [...prev];
-      let updateWidget = newWidgets.find((w) => w.id === widget.id) as Widget;
-
-      if (!updateWidget) {
+      const widgetIndex = prev.findIndex((candidate) => candidate.id === widget.id);
+      if (widgetIndex === -1) {
         IS_DEBUG && console.warn("Widget to edit not found");
         return prev;
       }
 
-      if (updateWidget.signals.some(c => c.name === newSignal.name)) {
-        IS_DEBUG && console.warn("Signal already exists in widget: " + newSignal.name);
+      const existingWidget = prev[widgetIndex] as Widget;
+      if (existingWidget.signals.some((signal) => signal.name === newSignal.name)) {
+        IS_DEBUG && console.warn(`Signal already exists in widget: ${newSignal.name}`);
         return prev;
       }
 
-      updateWidget = {
-        ...updateWidget,
-        signals: [...updateWidget.signals, newSignal],
+      const nextWidgets = [...prev];
+      nextWidgets[widgetIndex] = {
+        ...existingWidget,
+        signals: [...existingWidget.signals, newSignal],
       };
-
-      return newWidgets;
+      return nextWidgets;
     });
-  }, []);
+  }, [setWidgets]);
 
   const removeSignal = useCallback((widget: WidgetData, nameOfSignalToRemove: string) => {
     setWidgets((prev) => {
-      const newWidgets = [...prev];
-
-      let updateWidget = newWidgets.find((w) => w.id === widget.id);
-
-      if (!updateWidget) {
+      const widgetIndex = prev.findIndex((candidate) => candidate.id === widget.id);
+      if (widgetIndex === -1) {
         IS_DEBUG && console.warn("Widget to edit not found");
         return prev;
       }
 
-      updateWidget = {
-        ...updateWidget,
-        signals: updateWidget.signals.filter(c => c.name !== nameOfSignalToRemove) as Array<any> // trust
-      };
-
-      return newWidgets;
+      const nextWidgets = [...prev];
+      nextWidgets[widgetIndex] = removeSignalFromWidget(prev[widgetIndex], nameOfSignalToRemove);
+      return nextWidgets;
     });
-  }, []);
+  }, [setWidgets]);
 
   const updateWidget = useCallback(<T extends WidgetType, Widget extends Extract<WidgetData, { type: T }>>(widget: Widget, updater: (prevWidget: Widget) => Widget) => {
     setWidgets((prev) => {
-      const updateWidget = updater(widget);
+      const widgetIndex = prev.findIndex((candidate) => candidate.id === widget.id);
+      if (widgetIndex === -1) {
+        IS_DEBUG && console.warn("Widget to update not found");
+        return prev;
+      }
 
-      return [
-        ...prev.filter((w) => w.id !== widget.id),
-        updateWidget
-      ]
+      const nextWidgets = [...prev];
+      nextWidgets[widgetIndex] = updater(prev[widgetIndex] as Widget);
+      return nextWidgets;
     });
-  }, []);
+  }, [setWidgets]);
 
-  const CTXVAL = useMemo<WidgetManagerContext>(() => ({
-    widgets, appendWidget, removeWidget,
-    appendSignal, removeSignal,
+  const contextValue = useMemo<WidgetManagerContext>(() => ({
+    widgets,
+    appendWidget,
+    removeWidget,
+    appendSignal,
+    removeSignal,
     updateWidget,
-    initializedFromLocalStorage: isInitialized
-  }), [
-    widgets, appendWidget, removeWidget,
-    appendSignal, removeSignal,
-    updateWidget, isInitialized
-  ]);
+    initializedFromLocalStorage: isInitialized,
+  }), [widgets, appendWidget, removeWidget, appendSignal, removeSignal, updateWidget, isInitialized]);
 
   return (
-    <WidgetManagerContext value={CTXVAL} >
+    <WidgetManagerContext value={contextValue}>
       {children}
     </WidgetManagerContext>
-  )
+  );
 }
