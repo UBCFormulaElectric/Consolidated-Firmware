@@ -329,7 +329,7 @@ static bool evaluateRequest(const config &c, const ChimeraV2Request &request, Ch
             response.payload.uart_transmit.success =
                 device.value()
                     .get()
-                    .transmitPoll({ reinterpret_cast<const uint8_t *>(&payload.data.bytes), payload.data.size }, 1000)
+                    .transmit({ reinterpret_cast<const uint8_t *>(&payload.data.bytes), payload.data.size }, 1000)
                     .has_value();
             return true;
         }
@@ -350,7 +350,7 @@ static bool evaluateRequest(const config &c, const ChimeraV2Request &request, Ch
             }
 
             const std::span data_span = { rx_buffer.data(), payload.length };
-            if (const auto r = device.value().get().receivePoll(data_span, 1000); not r.has_value())
+            if (const auto r = device.value().get().receive(data_span, 1000); not r.has_value())
             {
                 LOG_ERROR("Chimera: Error receiving UART data.");
                 return false;
