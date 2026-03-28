@@ -1,3 +1,4 @@
+mod can_alert_gen;
 pub mod error;
 mod from_jsonparser;
 mod queries;
