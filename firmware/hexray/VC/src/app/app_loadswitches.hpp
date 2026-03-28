@@ -1,5 +1,6 @@
 #pragma once
-#define NUM_EFUSE_CHANNELS 10
+#include <cstddef>
+constexpr inline size_t NUM_EFUSE_CHANNELS = 10;
 
 namespace app::loadswitches
 {

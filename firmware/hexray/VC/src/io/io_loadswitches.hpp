@@ -8,8 +8,8 @@
 // Actual efuse handlers
 extern io::TI_TPS25_Efuse RR_PUMP_Efuse;
 extern io::TI_TPS25_Efuse RL_PUMP_Efuse;
-extern io::TI_TPS25_Efuse R_RAD_Efuse;
-extern io::TI_TPS25_Efuse L_RAD_Efuse;
+extern io::TI_TPS28_Efuse R_RAD_Efuse;
+extern io::TI_TPS28_Efuse L_RAD_Efuse;
 extern io::TI_TPS28_Efuse F_INV_Efuse;
 extern io::TI_TPS28_Efuse R_INV_Efuse;
 extern io::TI_TPS28_Efuse RSM_Efuse;

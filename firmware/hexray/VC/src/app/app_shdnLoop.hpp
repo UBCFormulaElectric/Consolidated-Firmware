@@ -5,7 +5,7 @@
 namespace app::shdnLoop
 {
 // broadcase the shutdown states
-void inline broadcast(void)
+inline void broadcast()
 {
     tsms_node.can_broadcast();
     inertia_stop_node.can_broadcast();

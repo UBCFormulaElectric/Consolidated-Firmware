@@ -15,4 +15,5 @@ class VCBaseTest : public EcuTestBase
     void tick_100hz() {}
     void tick_1hz() {}
     void tick_1khz() {}
+    void jobs_init() {}
 };

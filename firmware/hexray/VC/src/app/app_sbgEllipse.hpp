@@ -2,8 +2,7 @@
 
 #include <cstdint>
 #include "io_sbgEllipse.hpp"
-#include "app_math.hpp"
-#include "io_log.hpp"
+#include "app_canUtils.hpp"
 
 namespace app::sbgEllipse
 {
@@ -15,7 +14,7 @@ void broadcast(void);
 /*
  * Get vehicle velocity
  */
-float getVehicleVelocity(void);
+float getVehicleVelocity(io::sbgEllipse::VelocityData *VelData);
 
 /*
  * Get vehicle velocity

@@ -13,7 +13,7 @@ namespace io
 class Pump
 {
   public:
-    constexpr explicit Pump(const Potentiometer *pot, bool invert, Efuse *efuse) noexcept
+    constexpr explicit Pump(const Potentiometer &pot, bool invert, Efuse &efuse)
       : pot_{ pot }, invert_{ invert }, efuse_{ efuse }
     {
     }
@@ -23,13 +23,13 @@ class Pump
     std::expected<void, ErrorCode>    enable(bool enable) const;
     std::expected<bool, ErrorCode>    isEnabled() const;
     std::expected<bool, ErrorCode>    ok() const;
-    std::expected<bool, ErrorCode>    pgood() const;
-    std::expected<bool, ErrorCode>    isReady() const;
+    // std::expected<bool, ErrorCode>    pgood() const;
+    std::expected<bool, ErrorCode> isReady() const;
 
   private:
-    std::expected<void, ErrorCode> requirePot() const;
-    std::expected<void, ErrorCode> requireEfuse() const;
-    static constexpr uint8_t       logicalToHw(bool invert, uint8_t percent)
+    // std::expected<void, ErrorCode> requirePot() const;
+    // std::expected<void, ErrorCode> requireEfuse() const;
+    static constexpr uint8_t logicalToHw(bool invert, uint8_t percent)
     {
         return invert ? static_cast<uint8_t>(100u - percent) : percent;
     }
@@ -39,9 +39,9 @@ class Pump
         return invert ? static_cast<uint8_t>(100u - percent) : percent;
     }
 
-    const Potentiometer *pot_;
+    const Potentiometer &pot_;
     bool                 invert_;
-    Efuse               *efuse_;
+    Efuse               &efuse_;
 };
 
 } // namespace io

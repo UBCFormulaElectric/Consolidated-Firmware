@@ -319,6 +319,17 @@
             }
         }
     },
+    "EllipseTime": {
+        "msg_id": 554,
+        "cycle_time": 100,
+        "description": "Timestamp from the SBG Ellipse N sensor.",
+        "signals": {
+            "EllipseTimestamp": {
+                "bits": 32,
+                "unit": "us"
+            }
+        }
+    },
     "EllipseStatus": {
         "msg_id": 555,
         "cycle_time": 100,
@@ -341,8 +352,108 @@
             }
         }
     },
-    "MainBoardEfuse": {
+    "EllipseAngularVelocity": {
+        "disabled": true,
         "msg_id": 556,
+        "cycle_time": 1000,
+        "description": "Angular velocity from the SBG Ellipse N sensor.",
+        "signals": {
+            "AngularVelocityRoll": {
+                "min": -360,
+                "max": 360,
+                "resolution": 1,
+                "unit": "deg/s"
+            },
+            "AngularVelocityPitch": {
+                "min": -360,
+                "max": 360,
+                "resolution": 1,
+                "unit": "deg/s"
+            },
+            "AngularVelocityYaw": {
+                "min": -360,
+                "max": 360,
+                "resolution": 1,
+                "unit": "deg/s"
+            }
+        }
+    },
+    "EllipseEulerAngles": {
+        "msg_id": 557,
+        "cycle_time": 1000,
+        "description": "Euler angles from the SBG Ellipse N sensor.",
+        "signals": {
+            "EulerAnglesRoll": {
+                "min": -180,
+                "max": 180,
+                "resolution": 0.1,
+                "signed": true,
+                "unit": "deg"
+            },
+            "EulerAnglesPitch": {
+                "min": -180,
+                "max": 180,
+                "resolution": 0.1,
+                "signed": true,
+                "unit": "deg"
+            },
+            "EulerAnglesYaw": {
+                "min": -180,
+                "max": 180,
+                "resolution": 0.1,
+                "signed": true,
+                "unit": "deg"
+            }
+        }
+    },
+    "EllipseEkfNavVelocity": {
+        "msg_id": 218,
+        "cycle_time": 100,
+        "description": "Car Velocity info",
+        "signals": {
+            "VelocityNorth": {
+                "resolution": 0.05,
+                "signed": true,
+                "min": -35,
+                "max": 35,
+                "unit": "m/s"
+            },
+            "VelocityNorthAccuracy": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 35,
+                "unit": "m/s"
+            },
+            "VelocityEast": {
+                "resolution": 0.05,
+                "signed": true,
+                "min": -35,
+                "max": 35,
+                "unit": "m/s"
+            },
+            "VelocityEastAccuracy": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 35,
+                "unit": "m/s"
+            },
+            "VelocityDown": {
+                "resolution": 0.05,
+                "signed": true,
+                "min": -35,
+                "max": 35,
+                "unit": "m/s"
+            },
+            "VelocityDownAccuracy": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 35,
+                "unit": "m/s"
+            }
+        }
+    },
+    "MainBoardEfuse": {
+        "msg_id": 559,
         "cycle_time": 1,
         "description": "Efuse info for shdn/LV/pump/aux/INVR/INVL efuses.",
         "signals": {

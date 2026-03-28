@@ -28,31 +28,18 @@
       "DriveMode": { "enum": "DriveMode" }
     }
   },
-
-  "TelemMarkEvent": {
+    "TelemMarkEvent": {
     "msg_id": 912,
     "cycle_time": null,
     "description": "Marks an event in the telemetry data. Can be used to mark the start of a run, or any other significant event.",
     "signals": {}
-  },
+    },
     "Switches": {
     "msg_id": 920,
     "cycle_time": 100,
     "description": "States of the switches on the CRIT.",
     "signals": {
       "StartSwitch": {
-        "enum": "SwitchState"
-      },
-      "RegenSwitch": {
-        "enum": "SwitchState"
-      },
-      "VanillaOverrideSwitch": {
-        "enum": "SwitchState"
-      },
-      "LaunchControlSwitch": {
-        "enum": "SwitchState"
-      },
-      "TelemSwitch": {
         "enum": "SwitchState"
       }
     }
