@@ -1,10 +1,10 @@
 use askama::Template;
 
+use crate::can_database::CanBus;
 use crate::{
     can_database::{CanDatabase, CanEnum, CanMessage, CanSignal},
     codegen::cpp::CPPGenerator,
 };
-use crate::can_database::CanBus;
 
 mod filters {}
 
@@ -116,10 +116,10 @@ pub struct AppCanUtilsModule<'a> {
 impl AppCanUtilsModule<'_> {
     pub fn new<'a>(can_db: &'a CanDatabase, board: &String) -> AppCanUtilsModule<'a> {
         let node_buses: Vec<&'a CanBus> = can_db
-                .buses
-                .iter()
-                .filter(|b| b.node_names.contains(board))
-                .collect();
+            .buses
+            .iter()
+            .filter(|b| b.node_names.contains(board))
+            .collect();
         AppCanUtilsModule {
             messages: can_db.get_all_msgs().expect("get all msgs should not fail"),
             node_names: can_db.nodes.iter().map(|n| n.name.clone()).collect(),

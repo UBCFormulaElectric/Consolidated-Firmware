@@ -50,7 +50,7 @@ abstract class SignalStore {
   abstract getReferenceToSignal<T extends SignalMetadata>(signal: T): SignalStoreReturnType<T>;
   abstract purgeReferenceToSignal(signal: SignalMetadata): void;
 
-  private addAlertDataPoint(signalName: string, timestamp: number, value: number): void {
+  protected addAlertDataPoint(signalName: string, timestamp: number, value: number): void {
     this.updateWithTimestamp(timestamp);
     const entry = this.alertDataStorage[signalName];
 
@@ -66,8 +66,8 @@ abstract class SignalStore {
     }
   }
 
-  private getAlertData(): AlertSeries[] {
-    return Object.values(this.alertDataStorage);
+  public getAlertData(): { [signalName: string]: AlertSeries } {
+    return this.alertDataStorage;
   }
 
   private createSignalDataEntry<T extends SignalMetadata>(signal: T): void {

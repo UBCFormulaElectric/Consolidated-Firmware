@@ -78,6 +78,25 @@ STM32F412_MCU = Microcontroller(
     ],
 )
 
+#The h5 has 127 sectors for each bank (fuck me I guess) so we need to approach this a little differently 
+#Each sector size is 8KB which is 0x20000
+#Bootloader occupies the first 16 sectors meaning sector 0-15
+#Base bootloader address is 0x08000000
+STM32H562_MCU = Microcontroller(
+    name="STM32H562xx",
+    # Referenced from ST RM0402.
+    # (https://www.st.com/resource/en/reference_manual/dm00180369-stm32f412-advanced-arm-based-32-bit-mcus-stmicroelectronics.pdf)
+    flash_sectors = [
+        FlashSector(
+            id=sector_id,
+            base_address=0x8000000 + (sector_id * 8 * KB),
+            size=8 * KB,  # 8KB
+            write_protect=(sector_id < 16),
+        )
+        for sector_id in range(128)
+    ]
+)
+
 STM32H733_MCU = Microcontroller(
     name="STM32H733xx",
     # Referenced from ST RM0468.
@@ -154,6 +173,14 @@ h7dev = Board(
     path=os.path.join("firmware", "dev", "h7dev", "h7dev_app_metadata.hex"),
 )
 
+h5dev = Board(
+    name = "h5dev",
+    boot_id_range_start=0x1C000000,
+    app_id_range_start=1200,
+    mcu=STM32H562_MCU,
+    path=os.path.join("firmware", "dev", "h5dev", "h5dev_app_metadata.hex")
+)
+
 CONFIGS = {
     "quintuna_FSM": [quintuna_FSM],
     "quintuna_RSM": [quintuna_RSM],
@@ -165,4 +192,5 @@ CONFIGS = {
     "quintuna_Sx" : [quintuna_CRIT, quintuna_FSM, quintuna_RSM],
     "quintuna" : [quintuna_RSM, quintuna_BMS, quintuna_CRIT, quintuna_DAM, quintuna_CRIT, quintuna_FSM, quintuna_VC],
     "h7dev": [h7dev],
+    "h5dev": [h5dev],
 }
