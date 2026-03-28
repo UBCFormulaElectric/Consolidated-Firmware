@@ -22,7 +22,7 @@ const fetchSignalMetadata = async (apiBaseUrl: string): Promise<SignalMetadata[]
 
     const data: { [signalName: string]: Omit<SignalMetadata, "type"> } = await response.json();
     
-    return Object.entries(data).map(([name, metadata]) => ({ ...metadata, name, type: getSignalType(metadata) }));
+    return Object.entries(data).map(([name, metadata]) => ({ ...metadata, name, type: getSignalType(metadata) })) as SignalMetadata[];
   } catch (error) {
     console.error("Error fetching signal metadata:", error);
     throw error;
