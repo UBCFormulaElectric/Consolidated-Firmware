@@ -68,10 +68,9 @@
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
-        monitor1khz.checkForTimeouts();
-
         jobs_run1kHz_tick();
 
+        monitor1khz.checkForTimeouts();
         watchdog1khz.checkIn();
 
         start_ticks += period_ms;
