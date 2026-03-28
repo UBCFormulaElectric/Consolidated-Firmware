@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -13,17 +14,22 @@ import 'package:flutter/material.dart';
 
 /* CAN Warnings */
 class WarningsList extends ChangeNotifier {
-  final List<String> _warnings = <String>["hey"];
-  List<String> get warnings => _warnings.toList();
+  final LinkedHashSet<String> _warnings = LinkedHashSet<String>();
+  List<String> get warnings => _warnings.toList(growable: false);
 
-  void updateListDev(String data) {
-    _warnings.add(data);
-    notifyListeners();
+  void setWarning(String warningId, bool active) {
+    final changed = active ? _warnings.add(warningId) : _warnings.remove(warningId);
+    if (changed) notifyListeners();
   }
 
-  void updateListCan() {
-    // for now triggers on recieving frames, just put dummy
-    _warnings.add("TRIGGERED");
+  void updateListDev(String data) {
+    // Dev path: treat the string as a warning id and keep it active.
+    setWarning(data, true);
+  }
+
+  void clearAll() {
+    if (_warnings.isEmpty) return;
+    _warnings.clear();
     notifyListeners();
   }
 }

@@ -16,6 +16,7 @@ class JsonCanFfi {
   late final void Function(int stdId, int dlc, ffi.Pointer<ffi.Uint8> data)
       _processFrame;
   late final int Function() _getDemoU32;
+  late final int Function() _getPumpFailureU8;
 
   void ensureLoaded() {
     if (_initialized) return;
@@ -35,6 +36,9 @@ class JsonCanFfi {
     );
     _getDemoU32 = _lib.lookupFunction<ffi.Uint32 Function(), int Function()>(
       'dimos_jsoncan_get_demo_u32',
+    );
+    _getPumpFailureU8 = _lib.lookupFunction<ffi.Uint8 Function(), int Function()>(
+      'dimos_jsoncan_get_vc_pump_failure_u8',
     );
 
     _init();
@@ -60,5 +64,10 @@ class JsonCanFfi {
   int getDemoU32() {
     ensureLoaded();
     return _getDemoU32();
+  }
+
+  bool getPumpFailure() {
+    ensureLoaded();
+    return _getPumpFailureU8() != 0;
   }
 }
