@@ -36,3 +36,8 @@ uint32_t dimos_jsoncan_get_demo_u32(void)
     // when switching CAN databases.
     return app_canRx_VC_CanLoggingRemainingErrors_get();
 }
+
+uint8_t dimos_jsoncan_get_vc_pump_failure_u8(void)
+{
+    return app_canRx_VC_PumpFailure_get() ? 1U : 0U;
+}
