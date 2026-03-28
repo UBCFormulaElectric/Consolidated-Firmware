@@ -72,6 +72,7 @@ void jobs_init(void)
     app_canTx_BMS_Clean_set(GIT_COMMIT_CLEAN);
     app_canTx_BMS_Heartbeat_set(true);
 
+    app_tractiveSystem_init();
     app_precharge_init();
 
 #ifndef TARGET_HV_SUPPLY

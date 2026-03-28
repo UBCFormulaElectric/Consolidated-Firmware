@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
+#include "hw_error.hpp"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -83,7 +84,7 @@ static void MX_TIM2_Init(void);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
+    tasks_preInit();
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -518,7 +519,7 @@ static void MX_GPIO_Init(void)
     __HAL_RCC_GPIOD_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOD, GPIO_PIN_2, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(D_P_PULLUP_GPIO_Port, D_P_PULLUP_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOB, DEBUG_LED_Pin | BOOT_LED_Pin | IMU_FSYNC_Pin, GPIO_PIN_RESET);
@@ -543,12 +544,12 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : PD2 */
-    GPIO_InitStruct.Pin   = GPIO_PIN_2;
+    /*Configure GPIO pin : D_P_PULLUP_Pin */
+    GPIO_InitStruct.Pin   = D_P_PULLUP_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_PULLUP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+    HAL_GPIO_Init(D_P_PULLUP_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pins : DEBUG_LED_Pin BOOT_LED_Pin IMU_FSYNC_Pin */
     GPIO_InitStruct.Pin   = DEBUG_LED_Pin | BOOT_LED_Pin | IMU_FSYNC_Pin;

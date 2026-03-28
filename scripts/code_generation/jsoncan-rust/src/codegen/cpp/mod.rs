@@ -110,8 +110,7 @@ impl CanSignal {
             CanSignalType::Numerical => {
                 if self.scale != 1.0 || self.offset != 0.0 {
                     "float".to_string()
-                }
-                else if self.signed {
+                } else if self.signed {
                     match self.bits {
                         0_u16..=8_u16 => "int8_t".to_string(),
                         9_u16..=16_u16 => "int16_t".to_string(),
@@ -128,14 +127,17 @@ impl CanSignal {
                         _ => "unsigned int".to_string(), // Fallback for unusual bit lengths
                     }
                 }
-            },
+            }
             CanSignalType::Boolean => "bool".to_string(),
             CanSignalType::Enum => {
                 format!(
                     "app::can_utils::{}",
-                    self.enum_name.as_ref().expect(&format!("{} is enum signal but has no enum name", &self.name))
+                    self.enum_name.as_ref().expect(&format!(
+                        "{} is enum signal but has no enum name",
+                        &self.name
+                    ))
                 )
-            },
+            }
             CanSignalType::Alert => "bool".to_string(),
         }
     }
@@ -177,17 +179,20 @@ impl CanSignal {
         match self.signal_type {
             CanSignalType::Numerical => {
                 format!("{:?}f", value)
-            },
+            }
             CanSignalType::Boolean => {
                 if value == 0f64 {
                     "false".to_string()
                 } else {
                     "true".to_string()
                 }
-            },
+            }
             CanSignalType::Enum => format!(
                 "static_cast<{}>({})",
-                self.enum_name.as_ref().expect(&format!("{} is enum signal but has no enum name", &self.name)),
+                self.enum_name.as_ref().expect(&format!(
+                    "{} is enum signal but has no enum name",
+                    &self.name
+                )),
                 value as i64
             ),
             CanSignalType::Alert => "false".to_string(),
@@ -215,7 +220,8 @@ impl CanSignal {
     }
 }
 
-pub fn id_macro(name: &str) -> String { // TODO this feels jank
+pub fn id_macro(name: &str) -> String {
+    // TODO this feels jank
     format!("CAN_MSG_{}_ID", name.to_case(Case::Snake).to_uppercase())
 }
 

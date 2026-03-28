@@ -8,7 +8,7 @@ namespace io::telemUart
 
 std::expected<void, ErrorCode> transmit(std::span<const uint8_t> tx_data)
 {
-    return _900k_uart.transmitPoll(tx_data);
+    return _900k_uart.transmit(tx_data);
 }
 
 } // namespace io::telemUart
