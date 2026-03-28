@@ -4,7 +4,7 @@
 #include "app_math.h"
 #include "app_tractiveSystem.h"
 #include "app_canTx.h"
-#include "io_sds.h"
+#include "io_socStorage.h"
 #include "io_irs.h"
 
 #include <stdint.h>
@@ -146,13 +146,11 @@ void app_soc_updateSocStats(void)
 
 float app_soc_getMinSocCoulombs(void)
 {
-    // return SOC in Coulombs
     return (float)soc_charge_c;
 }
 
 float app_soc_getMinSocPercent(void)
 {
-    // return SOC in %
     float soc_percent = ((float)soc_charge_c / SERIES_ELEMENT_FULL_CHARGE_C) * 100.0f;
     return soc_percent;
 }
@@ -168,12 +166,9 @@ void app_soc_resetSocFromVoltage(void)
     const CellParam min_cell_voltage = app_segments_getMinCellVoltage();
     const float     soc_percent      = app_soc_getSocFromOcv(min_cell_voltage.value);
 
-    // convert from percent to coulombs
     soc_charge_c = (double)(SERIES_ELEMENT_FULL_CHARGE_C * soc_percent / 100.0f);
 
-    // Mark SOC as corrupt anytime SOC is reset
     soc_is_corrupt = true;
-    // TODO: uncomment when can msg is added
     app_canTx_BMS_SocCorrupt_set(soc_is_corrupt);
 }
 
@@ -181,20 +176,18 @@ void app_soc_resetSocCustomValue(float soc_percent)
 {
     soc_charge_c = (double)(soc_percent / 100.0f * SERIES_ELEMENT_FULL_CHARGE_C);
 
-    // Mark SOC as corrupt anytime SOC is reset
     soc_is_corrupt = true;
-    // TODO: uncomment when can msg is added
     app_canTx_BMS_SocCorrupt_set(soc_is_corrupt);
 }
 
 bool app_soc_readSocFromSd(float *saved_soc_c)
 {
-    return io_sds_readSocFromSd(saved_soc_c);
+    return io_socStorage_read(saved_soc_c);
 }
 
 bool app_soc_writeSocToSd(float soc)
 {
-    return io_sds_writeSocToSd(soc);
+    return io_socStorage_write(soc);
 }
 
 void app_soc_broadcast(void)

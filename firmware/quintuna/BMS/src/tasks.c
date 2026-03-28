@@ -9,7 +9,7 @@
 
 #include "io_log.h"
 #include "io_canQueue.h"
-#include "io_sds.h"
+#include "io_socStorage.h"
 #include "io_canRx.h"
 #include "io_canTx.h"
 #include "io_canMsg.h"
@@ -105,11 +105,10 @@ void tasks_init(void)
 
     // Shutdown loop power comes from a load switch on the BMS.
     hw_gpio_writePin(&shdn_en_pin, true);
-
+    io_socStorage_init();
+    
     jobs_init();
 
-    // TODO: Uncomment after SoC and SD card are tested
-    // io_sds_queue_init();
     io_canTx_BMS_Bootup_sendAperiodic(); // TODO do this in jobs_init
 }
 

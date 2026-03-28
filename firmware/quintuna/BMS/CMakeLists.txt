@@ -26,6 +26,7 @@ list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
         "${SHARED_IO_INCLUDE_DIR}/io_bootHandler.c"
         "${SHARED_IO_INCLUDE_DIR}/io_semaphore.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_fileSystem_logfs.c"
 )
 set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}")
 
@@ -123,7 +124,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    target_link_libraries("quintuna_BMS_app.elf" PRIVATE "quintuna_BMS_stm32" "quintuna_BMS_jsoncan" "quintuna_BMS_commit_info" "chimera_v2_proto_cm7")
+    target_link_libraries("quintuna_BMS_app.elf" PRIVATE "quintuna_BMS_stm32" "quintuna_BMS_jsoncan" "quintuna_BMS_commit_info" "chimera_v2_proto_cm7" "logfs_cm7")
     target_compile_definitions("quintuna_BMS_app.elf" PUBLIC TARGET_HV_SUPPLY)
 
     if ("${BOOTLOAD}" STREQUAL "ON")
