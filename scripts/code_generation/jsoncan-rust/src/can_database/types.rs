@@ -12,12 +12,10 @@ pub struct CanBus {
     pub node_names: Vec<String>,
 }
 
-#[derive(Clone)]
-pub enum JsonRxMsgNames {
-    All,
-    RxMsgs(Vec<String>),
-}
-
+/**
+ * This is just a lightweight representation of the alerts a node can have.
+ * The actual messages backing the alerts are stored as regular messages
+ */
 pub struct NodeAlerts {
     pub infos: Vec<CanAlert>,
     pub warnings: Vec<CanAlert>,
@@ -43,7 +41,7 @@ pub struct CanNode {
     pub rx_msgs_names: RxMsgs, // list of messages that it is listening
     pub collects_data: bool,
     pub alerts: Option<NodeAlerts>,
-    pub enums: Vec<CanEnum>,
+    pub enums: Vec<CanEnum>, // a node's enums are private so that only they can TX this enum
 }
 
 #[derive(Clone, Debug, PartialEq)]

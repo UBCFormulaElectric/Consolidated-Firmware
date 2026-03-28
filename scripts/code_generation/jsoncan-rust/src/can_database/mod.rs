@@ -285,6 +285,9 @@ impl CanDatabase {
     }
 
     pub fn add_node(self: &mut Self, node: CanNode) -> &CanNode {
+        if self.nodes.iter().any(|n| n.name == node.name) {
+            panic!("Node with name '{}' already exists", node.name);
+        }
         self.nodes.push(node);
         self.nodes.last().unwrap()
     }

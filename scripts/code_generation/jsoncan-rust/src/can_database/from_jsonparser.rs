@@ -2,11 +2,11 @@ use std::collections::HashMap;
 
 use crate::{
     can_database::{
-        CanBusModes, CanDatabase, CanMessage, CanNode, JsonRxMsgNames, NodeAlerts, RxMsgs,
+        CanBusModes, CanDatabase, CanMessage, CanNode, NodeAlerts, RxMsgs,
         can_alert_gen::generate_node_alert_msgs, error::CanDBError,
         signal_parse::parse_tx_msg_signals,
     },
-    parsing::{JsonCanBusMode, JsonCanParser},
+    parsing::{JsonCanBusMode, JsonCanParser, JsonRxMsgNames},
 };
 
 impl CanDatabase {

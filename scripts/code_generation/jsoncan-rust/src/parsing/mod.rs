@@ -6,7 +6,7 @@ mod parse_tx;
 
 use crate::can_database::{BusForwarder, CanBus, CanEnum};
 
-pub use crate::can_database::JsonRxMsgNames;
+pub use crate::parsing::parse_rx::JsonRxMsgNames;
 pub use parse_alert::JsonAlerts;
 pub use parse_tx::{JsonCanBusMode, JsonCanMessage, JsonCanSignal};
 
