@@ -58,7 +58,7 @@
     const uint32_t                 watchdog_grace_period_ms = 1U;
     hw::watchdog::WatchdogInstance watchdog1khz{ period_ms + watchdog_grace_period_ms };
     hw::watchdog::monitor          monitor1khz{ &watchdog1khz, hiwdg1, HAL_IWDG_Refresh };
-    monitor1khz.registerWatchdogInstance(); 
+    monitor1khz.registerWatchdogInstance();
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
