@@ -1,5 +1,5 @@
 use crate::{
-    can_database::{CanEnum, CanSignal, CanSignalType},
+    can_database::{CanEnum, CanMessage, CanSignal, CanSignalType},
     parsing::JsonCanSignal,
 };
 use indexmap::IndexMap;
@@ -10,7 +10,7 @@ fn calculate_scale_offset(min: f64, max: f64, bits: u16) -> (f64, f64) {
     ((max - min) / (1u128 << bits - 1) as f64, min)
 }
 
-fn parse_signal(
+fn parse_signal<'a>(
     signal_name: String,
     signal: JsonCanSignal,
     next_available_bit: u16,
@@ -180,12 +180,12 @@ fn parse_signal(
     }
 }
 
-pub fn parse_tx_msg_signals(
+pub fn parse_tx_msg_signals<'a>(
     json_signals: IndexMap<String, JsonCanSignal>,
     node_enums: &Vec<CanEnum>,
     shared_enums: &Vec<CanEnum>,
     // also useful
-    msg_name: &String,
+    parent_msg: &'a CanMessage,
     tx_node_name: &String,
 ) -> Vec<CanSignal> {
     static MAX_LEN_BITS: usize = 64 * 8; // 64 bytes
@@ -212,7 +212,7 @@ pub fn parse_tx_msg_signals(
         } {
             panic!(
                 "In message '{}', either all signals must specify start bits, or none of them should.",
-                msg_name
+                parent_msg.name
             );
         }
 
@@ -229,13 +229,13 @@ pub fn parse_tx_msg_signals(
             if idx >= MAX_LEN_BITS {
                 panic!(
                     "Signal '{}' in '{}' is requesting to put a bit at invalid position {}. Messages have a maximum length of 64 bytes.",
-                    signal.name, msg_name, idx
+                    signal.name, parent_msg.name, idx
                 );
             } else if occupied_bits[idx].is_some() {
                 panic!(
                     "Signal '{}' in '{}' is requesting to put a bit at invalid position {}. That position is already occupied by the signal '{}'.",
                     signal.name,
-                    msg_name,
+                    parent_msg.name,
                     idx,
                     occupied_bits[idx].as_ref().unwrap()
                 );

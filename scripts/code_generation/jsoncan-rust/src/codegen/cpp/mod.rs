@@ -86,23 +86,23 @@ impl CanSignal {
     }
 
     pub fn start_val_macro(self: &Self) -> String {
-        format!("CANSIG_{}_START_VAL", self.snake_name().to_uppercase())
+        format!("{}_START_VAL", self.snake_name().to_uppercase())
     }
 
     pub fn max_val_macro(self: &Self) -> String {
-        format!("CANSIG_{}_MAX_VAL", self.snake_name().to_uppercase())
+        format!("{}_MAX_VAL", self.snake_name().to_uppercase())
     }
 
     pub fn min_val_macro(self: &Self) -> String {
-        format!("CANSIG_{}_MIN_VAL", self.snake_name().to_uppercase())
+        format!("{}_MIN_VAL", self.snake_name().to_uppercase())
     }
 
     pub fn scale_macro(self: &Self) -> String {
-        format!("CANSIG_{}_SCALE", self.snake_name().to_uppercase())
+        format!("{}_SCALE", self.snake_name().to_uppercase())
     }
 
     pub fn offset_macro(self: &Self) -> String {
-        format!("CANSIG_{}_OFFSET", self.snake_name().to_uppercase())
+        format!("{}_OFFSET", self.snake_name().to_uppercase())
     }
 
     pub fn is_integral(self: &Self) -> bool {
@@ -259,11 +259,6 @@ impl CanSignal {
     }
 }
 
-pub fn id_macro(name: &str) -> String {
-    // TODO this feels jank
-    format!("CAN_MSG_{}_ID", name.to_case(Case::Snake).to_uppercase())
-}
-
 impl CanMessage {
     fn c_type(self: &Self) -> String {
         format!("{}_Signals", self.name)
@@ -275,17 +270,5 @@ impl CanMessage {
 
     fn screaming_snake_name(&self) -> String {
         self.name.to_case(Case::Snake).to_uppercase()
-    }
-
-    pub fn id_macro(&self) -> String {
-        id_macro(&self.name)
-    }
-
-    pub fn dlc_macro(&self) -> String {
-        format!("CAN_MSG_{}_DLC", self.snake_name().to_uppercase())
-    }
-
-    pub fn cycle_time_macro(&self) -> String {
-        format!("CAN_MSG_{}_CYCLE_TIME_MS", self.snake_name().to_uppercase())
     }
 }

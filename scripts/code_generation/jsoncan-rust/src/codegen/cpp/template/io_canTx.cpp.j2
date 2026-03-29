@@ -41,8 +41,8 @@ void {{msg.name}}_sendAperiodic()
 {%- endif %}
 {
     JsonCanMsg tx_msg{
-        app::can_utils::{{msg.id_macro()}},
-        app::can_utils::{{msg.dlc_macro()}},
+        app::can_utils::{{msg.name}}_Signals::MSG_ID,
+        app::can_utils::{{msg.name}}_Signals::MSG_DLC,
         {}
     };
     #ifdef THREAD_SAFE_CAN_PACKING
@@ -114,7 +114,7 @@ void enqueue100HzMsgs()
 void enqueueOtherPeriodicMsgs(const uint32_t time_ms)
 {
     {%- for (msg, busses) in board_tx_msgs_and_busses if msg.cycle_time.is_some() && msg.cycle_time.unwrap() != 1000 && msg.cycle_time.unwrap() != 10 %}
-    if (time_ms % app::can_utils::{{msg.cycle_time_macro()}} == 0)
+    if (time_ms % app::can_utils::{{msg.name}}_Signals::MSG_CYCLE_TIME == 0)
     {
         {{msg.name}}_sendPeriodic();
     }

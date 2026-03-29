@@ -114,7 +114,8 @@ impl CanDatabase {
                     description TEXT,
                     big_endian INTEGER NOT NULL,
                     signal_type INTEGER NOT NULL,
-                    FOREIGN KEY(message_id) REFERENCES messages(id)
+                    FOREIGN KEY(message_id) REFERENCES messages(id),
+                    UNIQUE(name, message_id)
                     )",
                 [],
             )?;
@@ -240,6 +241,13 @@ impl CanDatabase {
         ).map_err(
             |e| {
                 match e {
+                    rusqlite::Error::SqliteFailure(err, Some(err_msg))
+                    if err.code == rusqlite::ErrorCode::ConstraintViolation && err_msg.contains("UNIQUE constraint failed: signals.name, signals.message_id") => {
+                        CanDBError::DuplicateTxSignalName {
+                            signal_name: signal.name.clone(),
+                            tx_msg_name: self.get_message_by_id(*msg_id).unwrap().name.clone(),
+                        }
+                    },
                     _ => CanDBError::SqlLiteError(e)
                 }
             }

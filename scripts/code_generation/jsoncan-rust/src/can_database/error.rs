@@ -12,9 +12,9 @@ pub enum CanDBError {
         tx_msg_name: String,
     },
     DuplicateTxSignalName {
+        // duplicate within a single message
         signal_name: String,
-        tx_msg_name_1: String,
-        tx_msg_name_2: String,
+        tx_msg_name: String,
     },
     RxMsgNotFound {
         rx_node_name: String,
@@ -86,12 +86,11 @@ impl Debug for CanDBError {
             ),
             CanDBError::DuplicateTxSignalName {
                 signal_name,
-                tx_msg_name_1,
-                tx_msg_name_2,
+                tx_msg_name,
             } => write!(
                 f,
-                "Duplicate transmitted signal name '{}' found in messages '{}' and '{}'. Signal names must be unique across all transmitted messages.",
-                signal_name, tx_msg_name_1, tx_msg_name_2
+                "Duplicate transmitted signal name '{}' found in message '{}'. Signal names must be unique across all transmitted messages.",
+                signal_name, tx_msg_name
             ),
             CanDBError::RxMsgNotFound {
                 rx_node_name,

@@ -116,18 +116,7 @@ impl CanDatabase {
 
             // find the node in the list of nodes
             for msg in n.tx_msgs {
-                let signals = parse_tx_msg_signals(
-                    msg.signals,
-                    &db.nodes
-                        .iter()
-                        .find(|n| n.name == tx_node_name)
-                        .unwrap()
-                        .enums,
-                    &db.shared_enums,
-                    &msg.name,
-                    &tx_node_name,
-                );
-                db.add_tx_msg(CanMessage {
+                let mut m = CanMessage {
                     name: msg.name,
                     id: msg.id,
                     description: msg.description,
@@ -139,8 +128,20 @@ impl CanDatabase {
                         JsonCanBusMode::Some(modes) => CanBusModes::Some(modes),
                         JsonCanBusMode::All => CanBusModes::All,
                     },
-                    signals,
-                })?;
+                    signals: Vec::new(), // :(
+                };
+                m.signals = parse_tx_msg_signals(
+                    msg.signals,
+                    &db.nodes
+                        .iter()
+                        .find(|n| n.name == tx_node_name)
+                        .unwrap()
+                        .enums,
+                    &db.shared_enums,
+                    &m,
+                    &tx_node_name,
+                );
+                db.add_tx_msg(m)?;
             }
         }
 

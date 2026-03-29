@@ -99,14 +99,18 @@ pub struct CanSignal {
     // note I am way too lazy to make cansignal a proper union type
     // hence this will do
     // however you need to trust that this is correct
+
+    // note: please do not add a parent reference to the CanMessage
+    // as usually if you have signals you usually have the message in the first place
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub enum CanBusModes {
     All,
     Some(Vec<String>),
 }
 
+#[derive(Debug)]
 pub struct CanMessage {
     // Name of this CAN message
     pub name: String,

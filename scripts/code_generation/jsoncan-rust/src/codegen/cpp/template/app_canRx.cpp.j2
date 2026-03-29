@@ -46,13 +46,13 @@ void {{ signal.name }}_update({{ signal.datatype() }} value)
     {%- endif %}
     // Clamp value to min/max
     {%- if signal.has_unrepresentable_values() %}
-    if (value >= can_utils::{{ signal.max_val_macro() }})
+    if (value >= can_utils::{{msg.name}}_Signals::{{ signal.max_val_macro() }})
     {
-        value = can_utils::{{ signal.max_val_macro() }};
+        value = can_utils::{{msg.name}}_Signals::{{ signal.max_val_macro() }};
     }
-    if (value <= can_utils::{{ signal.min_val_macro() }})
+    if (value <= can_utils::{{msg.name}}_Signals::{{ signal.min_val_macro() }})
     {
-        value = can_utils::{{ signal.min_val_macro() }};
+        value = can_utils::{{msg.name}}_Signals::{{ signal.min_val_macro() }};
     }
     {%- endif %}
     rx_table.{{ msg.name }}_signals.{{ signal.name }}_value = value; // Set value
