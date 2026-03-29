@@ -22,7 +22,7 @@ class Pump
     std::expected<void, ErrorCode>    enable(bool enable) const;
     std::expected<bool, ErrorCode>    isEnabled() const;
     std::expected<bool, ErrorCode>    ok() const;
-    std::expected<bool, ErrorCode> isReady() const;
+    std::expected<bool, ErrorCode>    isReady() const;
 
   private:
     static constexpr uint8_t logicalToHw(bool invert, uint8_t percent)
