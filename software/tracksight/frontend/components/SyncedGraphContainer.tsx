@@ -202,7 +202,12 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
     return (
         <SyncedGraphContext.Provider value={CTXVAL}>
             {/* outer wrapper handles overflow/scrolling; this the viewport */}
-            <div ref={scrollContainerRef} className={isViewportLocked ? "w-full overflow-x-hidden overflow-y-scroll h-full" : "w-full overflow-x-auto overflow-y-scroll h-full"} onScroll={updateLeftScroll}>
+            <div
+                ref={scrollContainerRef}
+                className={isViewportLocked ? "w-full overflow-x-hidden overflow-y-scroll h-full" : "w-full overflow-x-auto overflow-y-scroll h-full"}
+                style={{ overscrollBehaviorX: "contain" }}
+                onScroll={updateLeftScroll}
+            >
                 {/* inner content grows in width */}
                 <div ref={contentRef} className="min-w-full relative">
                     <div className="sticky left-0"
