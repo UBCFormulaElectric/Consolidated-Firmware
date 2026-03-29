@@ -32,7 +32,7 @@ void jobs_init()
 
     app::imu::init();
     app::fmac_test::init();
-    
+}
 void jobs_run1Hz_tick()
 {
     app::apps::broadcast();
