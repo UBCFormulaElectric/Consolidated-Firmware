@@ -264,10 +264,6 @@ impl CanMessage {
         format!("{}_Signals", self.name)
     }
 
-    fn snake_name(&self) -> String {
-        self.name.to_case(Case::Snake)
-    }
-
     fn screaming_snake_name(&self) -> String {
         self.name.to_case(Case::Snake).to_uppercase()
     }
