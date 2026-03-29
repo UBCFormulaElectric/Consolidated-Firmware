@@ -136,10 +136,10 @@ void tasks_preInit()
 
 void tasks_init()
 {
-    __HAL_DBGMCU_FREEZE_IWDG();
+    // __HAL_DBGMCU_FREEZE_IWDG();
     hw::adcs::chipsInit();
     hw::can::can1.init();
-    ResetReason reason = hw_resetReason_get();
+    ResetReason reason = hw::resetReason::get();
     if (reason == RESET_REASON_WATCHDOG)
     {
         LOG_WARN("Detected watchdog timeout on the previous boot cycle!");

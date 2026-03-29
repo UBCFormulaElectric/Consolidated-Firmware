@@ -88,9 +88,5 @@ ResetReason get(void)
 
     reason_read = true;
     return reason;
-<<<<<<< HEAD
-}
-=======
 }
 } // namespace hw::resetReason
->>>>>>> master
