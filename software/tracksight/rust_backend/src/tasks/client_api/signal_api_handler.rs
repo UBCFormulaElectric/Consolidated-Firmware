@@ -9,6 +9,8 @@ use chrono::{DateTime, FixedOffset};
 
 use crate::{config::CONFIG, tasks::client_api::AppState};
 
+const INFLUX_MAX_POINTS: usize = 50000;
+
 /**
  * Gets the list of all nodes (str) in the current parser.
  */
@@ -80,12 +82,6 @@ async fn metadata(Query(mut param): Query<SignalNameParam>, State(state): State<
     return (StatusCode::OK, Json(metadatas));
 }
 
-async fn signal() -> impl IntoResponse {
-    // TODO implement
-    // todo!("query from influxdb");
-    return (StatusCode::OK, serde_json::to_string(&Vec::<String>::new()).unwrap());
-}
-
 #[derive(Debug, Serialize, FromDataPoint, Default)]
 struct InfluxRow {
     // rename influx field names to match with frontend names
@@ -99,19 +95,27 @@ struct InfluxRow {
 
 /**
  * Gets signal values, timestamp, and name.
- * Format date as YYYY-MM-DD
+ * Format date as YYYY-MM-DDTHH:MM:SSZ
+ * Format res as number followed by unit (ms, s, m, h, d)
  * Pass signal names (regex) in `name` parameter.
- * E.g. `/signal/2026-03-01?name=BMS_TractiveSystemVoltage`
+ * E.g. `/signal/{start}/{end}/{res}?name=BMS_TractiveSystemVoltage`
  */
-async fn signal_date(Path(date): Path<String>, Query(param): Query<SignalNameParam>, State(state): State<AppState>) -> impl IntoResponse {
-    let re = Regex::new(r"^\d{4}-\d{2}-\d{2}$").unwrap();
-    if !re.is_match(&date) {
-        return (StatusCode::BAD_REQUEST, "Bad date format, should be YYYY-MM-DD".to_string());
+async fn signal_time_range(Path((start, end, res)): Path<(String, String, String)>, Query(param): Query<SignalNameParam>, State(state): State<AppState>) -> impl IntoResponse {
+    // check YYYY-MM-DDTHH:MM:SSZ format
+    let time_re = Regex::new(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$").unwrap();
+    if !time_re.is_match(&start) || !time_re.is_match(&end) {
+        return (StatusCode::BAD_REQUEST, "Bad date format, should be YYYY-MM-DDTHH:MM:SSZ".to_string());
+    }   
+
+    let res_re = Regex::new(r"^\d+(ms|s|m|h|d)$").unwrap();
+    if !res_re.is_match(&res) {
+        return (StatusCode::BAD_REQUEST, "Bad resolution format, should be a number followed by unit".to_string());
     }
-    
+
     let mut date_query = format!(r#"
     from(bucket: "{}")
-    |> range(start: {date}T00:00:00Z, stop: {date}T23:59:59Z)
+    |> range(start: {start}, stop: {end})
+    |> aggregateWindow(every: {res}, fn: mean, createEmpty: false)
     |> filter(fn: (r) => r["_measurement"] == "{}")
     "#, &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement);
     
@@ -128,6 +132,10 @@ async fn signal_date(Path(date): Path<String>, Query(param): Query<SignalNamePar
         ));
     }
 
+    date_query.push_str(&format!(
+        r#"|> limit(n: {INFLUX_MAX_POINTS})"#
+    ));
+
     let req: Result<Vec<_>, influxdb2::RequestError> = 
         state.influx_client.query::<InfluxRow>(
             Some(influxdb2::models::Query::new(date_query))
@@ -135,13 +143,17 @@ async fn signal_date(Path(date): Path<String>, Query(param): Query<SignalNamePar
 
     match req {
         Ok(res) => {
+            if res.len() >= INFLUX_MAX_POINTS {
+                println!("1");
+                return (StatusCode::BAD_REQUEST, format!("Query returned more than {INFLUX_MAX_POINTS} points, lower the resolution!"));
+            }
             return (StatusCode::OK, serde_json::to_string(&res).unwrap());
         },
         Err(e) => {
-            return (StatusCode::BAD_REQUEST, format!("{e:?}"));
+            println!("2");
+            return (StatusCode::BAD_REQUEST, format!("{}", e.to_string()));
         }
     }
-
 }
 
 async fn signal_csv() -> impl IntoResponse {
@@ -154,7 +166,6 @@ pub fn get_signal_router() -> Router<AppState> {
     return Router::new()
         .route("/signal/nodes", get(nodes))
         .route("/signal/metadata", get(metadata))
-        .route("/signal", get(signal))
-        .route("/signal/{date}", get(signal_date))
+        .route("/signal/{start}/{end}/{res}", get(signal_time_range))
         .route("/signal/csv", get(signal_csv));
 }
