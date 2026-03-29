@@ -15,7 +15,7 @@ namespace app::can_data_capture {
 
 {%- for msg in messages %}
 {%- if msg.log_cycle_time.is_some() && msg.log_cycle_time != msg.cycle_time %}
-static constexpr uint32_t {{ msg.name }}_LOG_CYCLE_TIME = ({{ msg.log_cycle_time.unwrap() }})
+static constexpr uint32_t {{ msg.name }}_LOG_CYCLE_TIME = {{ msg.log_cycle_time.unwrap() }};
 {%- endif %}
 {%- endfor %}
 
