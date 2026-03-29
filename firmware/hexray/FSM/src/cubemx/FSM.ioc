@@ -406,10 +406,18 @@ SH.ADCx_INP9.0=ADC1_INP9,IN9-Single-Ended
 SH.ADCx_INP9.ConfNb=1
 SH.GPXTI13.0=GPIO_EXTI13
 SH.GPXTI13.ConfNb=1
+<<<<<<< HEAD
 SPI1.CalculateBaudRate=16.0 MBits/s
 SPI1.DataSize=SPI_DATASIZE_8BIT
 SPI1.Direction=SPI_DIRECTION_2LINES
 SPI1.IPParameters=VirtualType,Mode,Direction,CalculateBaudRate,VirtualNSS,DataSize
+=======
+SPI1.BaudRatePrescaler=SPI_BAUDRATEPRESCALER_4
+SPI1.CalculateBaudRate=8.0 MBits/s
+SPI1.DataSize=SPI_DATASIZE_8BIT
+SPI1.Direction=SPI_DIRECTION_2LINES
+SPI1.IPParameters=VirtualType,Mode,Direction,CalculateBaudRate,VirtualNSS,BaudRatePrescaler,DataSize
+>>>>>>> 9889c240aa6bb2675a6af9558c30a87718fc91b6
 SPI1.Mode=SPI_MODE_MASTER
 SPI1.VirtualNSS=VM_NSSHARD
 SPI1.VirtualType=VM_MASTER
