@@ -29,14 +29,10 @@ void jobs_init()
         });
 
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
-<<<<<<< HEAD
 
     app::imu::init();
     app::fmac_test::init();
-=======
-    app::imu::init();
->>>>>>> 9889c240aa6bb2675a6af9558c30a87718fc91b6
-}
+    
 void jobs_run1Hz_tick()
 {
     app::apps::broadcast();
