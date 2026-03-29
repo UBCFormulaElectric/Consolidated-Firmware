@@ -3,7 +3,8 @@ extern "C"
 {
 #include "main.h"
 }
-
+namespace hw::resetReason
+{
 static bool        reason_read;
 static ResetReason reason;
 
@@ -88,3 +89,4 @@ ResetReason hw_resetReason_get(void)
     reason_read = true;
     return reason;
 }
+} // namespace hw::resetReason
