@@ -1,14 +1,12 @@
 'use client'
 
 import { createContext, useContext, ReactNode, useCallback } from 'react'
-import { Lock, LockOpen, Pause, Play } from 'lucide-react'
+import { Lock, LockOpen } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useLocalState } from '../lib/hooks/useLocalState'
 
 interface DisplayControlContextType {
-    isPaused: boolean
     isViewportLocked: boolean
-    togglePause: () => void
     toggleViewportLock: () => void
 }
 
@@ -22,16 +20,10 @@ export function useDisplayControlContext() {
     return context
 }
 
-const PAUSE_STATE_STORAGE_KEY = 'tracksight_pause_state_v2'
 const VIEWPORT_LOCK_STORAGE_KEY = 'tracksight_viewport_lock_state_v1'
 
 export function DisplayControlProvider({ children }: { children: ReactNode }) {
-    const [isPaused, setIsPaused] = useLocalState<boolean>(PAUSE_STATE_STORAGE_KEY, false)
     const [isViewportLocked, setIsViewportLocked] = useLocalState<boolean>(VIEWPORT_LOCK_STORAGE_KEY, true)
-
-    const togglePause = useCallback(() => {
-        setIsPaused((previousState) => !previousState)
-    }, [setIsPaused])
 
     const toggleViewportLock = useCallback(() => {
         setIsViewportLocked((previousState) => !previousState)
@@ -39,9 +31,7 @@ export function DisplayControlProvider({ children }: { children: ReactNode }) {
 
     return (
         <DisplayControlContext.Provider value={{
-            isPaused,
             isViewportLocked,
-            togglePause,
             toggleViewportLock,
         }}>
             {children}
