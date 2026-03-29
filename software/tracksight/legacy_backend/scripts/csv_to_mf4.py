@@ -14,6 +14,7 @@ NUM_SIGNALS_BEFORE_LOG = 100
 logger = logging.getLogger(__name__)
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
+
 def csv_to_mf4(input: str, output: str = "../data_mf4", file: str = None) -> None:
     """
     Convert csv files to mf4 files. Defaults to taking files in the software/tracksight/backend/data
@@ -24,13 +25,16 @@ def csv_to_mf4(input: str, output: str = "../data_mf4", file: str = None) -> Non
 
     try:
         for csv_name in sorted(os.listdir(path=input)):
-
             # Write out MDF file.
             csv_name_no_extension = os.path.splitext(csv_name)
-            out_path = os.path.abspath(os.path.join(output, csv_name_no_extension[0] + ".mf4"))
+            out_path = os.path.abspath(
+                os.path.join(output, csv_name_no_extension[0] + ".mf4")
+            )
 
             if os.path.exists(out_path) and files is None:
-                logger.info(f"Skipping '{csv_name}', MDF file '{out_path}' already exists.")
+                logger.info(
+                    f"Skipping '{csv_name}', MDF file '{out_path}' already exists."
+                )
                 continue
 
             if files is not None and csv_name not in files:
@@ -56,15 +60,18 @@ def csv_to_mf4(input: str, output: str = "../data_mf4", file: str = None) -> Non
                 # TODO: Support enums/value tables.
                 signal_name = signal["signal"]
                 signal_values = np.array(signal["value"], dtype=float)
-                signal_datetimes = pd.to_datetime(np.array(signal["time"]), format="ISO8601")
+                signal_datetimes = pd.to_datetime(
+                    np.array(signal["time"]), format="ISO8601"
+                )
                 base = signal_datetimes[0]
                 signal_datetimes = signal_datetimes - base
                 signal_unit = signal["unit"][0] if len(signal["unit"]) > 0 else ""
 
                 # Round timestamp to nearest millisecond.
-                signal_timestamps_ms = (signal_datetimes.astype("int64") // 1e6).to_numpy()
+                signal_timestamps_ms = (
+                    signal_datetimes.astype("int64") // 1e6
+                ).to_numpy()
                 signal_timestamps_s = signal_timestamps_ms.astype("float64") / 1e3
-                
 
                 mdf.append(
                     signals=Signal(
@@ -80,7 +87,9 @@ def csv_to_mf4(input: str, output: str = "../data_mf4", file: str = None) -> Non
                 # Log an update.
                 if i % NUM_SIGNALS_BEFORE_LOG == 0:
                     percent_converted = i / len(df_signals) * 100
-                    logger.info(f"Converted {int(percent_converted)}% signals in CSV file.")
+                    logger.info(
+                        f"Converted {int(percent_converted)}% signals in CSV file."
+                    )
 
             if not os.path.exists(os.path.dirname(out_path)):
                 # Create output path if it doesn't already exist.
@@ -88,11 +97,12 @@ def csv_to_mf4(input: str, output: str = "../data_mf4", file: str = None) -> Non
 
             mdf.save(out_path, overwrite=True)
     except Exception as e:
-            logger.error(f"Error occurred while converting '{csv_name}': {e}")
-            # Ensure incomplete or corrupted file is removed
-            if os.path.exists(out_path):
-                os.remove(out_path)
-                logger.info(f"Deleted incomplete MDF file: {out_path}")
+        logger.error(f"Error occurred while converting '{csv_name}': {e}")
+        # Ensure incomplete or corrupted file is removed
+        if os.path.exists(out_path):
+            os.remove(out_path)
+            logger.info(f"Deleted incomplete MDF file: {out_path}")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

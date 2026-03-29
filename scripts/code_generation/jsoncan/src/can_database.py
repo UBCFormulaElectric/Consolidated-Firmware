@@ -7,7 +7,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Set, Union
-
+import math
 import pandas as pd
 from strenum import StrEnum
 
@@ -113,7 +113,7 @@ class CanMessage:
 
     def dlc_macro(self) -> str:
         return f"CAN_MSG_{self.snake_name().upper()}_DLC"
-    
+
     def build_cantools_message(self) -> CanToolsMessage:
         return CanToolsMessage(
             frame_id=self.id, name=self.name, length=self.dlc(),
@@ -123,7 +123,7 @@ class CanMessage:
                 unit=signal.unit
             ) for signal in self.signals]
         )
-    
+
     def unpack(self, data: bytes) -> List[DecodedSignal]:
         """
         Unpack a CAN dataframe.
@@ -162,7 +162,7 @@ class CanMessage:
             decoded_signals.append(decoded)
 
         return decoded_signals
-    
+
     def pack(self, data: EncodeInputType) -> bytes:
         ctm = self.build_cantools_message()
         return ctm.encode(data)
@@ -223,9 +223,23 @@ class CanNode:
 @dataclass
 class DecodedSignal:
     name: str
-    value: float
-    unit: Optional[str] = None
+    value: int | float
+    timestamp: Optional[pd.Timestamp] = None
     label: Optional[str] = None
+    unit: Optional[str] = None
+
+    def __str__(self) -> str:
+        if self.label is not None:
+            return f"{self.timestamp}: {self.name} = {self.label}"
+        else:
+            return f"{self.timestamp}: {self.name} = {self.value}{'' if self.unit is None else self.unit }"
+
+
+@dataclass
+class DecodedMessage:
+    name: str
+    signals: List[DecodedSignal]
+    timestamp: pd.Timestamp
 
 
 @dataclass(frozen=True)
@@ -277,7 +291,97 @@ class CanDatabase:
         pandas_data = pd.DataFrame(data)
         return pandas_data
 
-    def get_message_by_id(self, id: int):
+    def unpack(
+        self, msg_id: int, data: bytes, timestamp: Optional[pd.Timestamp] = None
+    ) -> List[DecodedSignal]:
+        """
+        Unpack a CAN dataframe.
+        Returns a list of decoded signals as `DecodedSignal` objects.
+        TODO: Big-endian support!
+        """
+        msg = self.get_message_by_id(msg_id)
+        if msg is None:
+            logger.warning(f"Message ID '{msg_id}' is not defined in the JSON.")
+            return []
+
+        decoded_signals: List[DecodedSignal] = []
+        data_uint = int.from_bytes(data, byteorder="little", signed=False)
+
+        for signal in msg.signals:
+            # Extract the bits representing the current signal.
+            data_shifted = data_uint >> signal.start_bit
+            bitmask = (1 << signal.bits) - 1
+            raw_value = data_shifted & bitmask
+
+            # Handle signed values via 2's complement
+            if signal.signed and (raw_value & (1 << (signal.bits - 1))):
+                raw_value = raw_value - (1 << signal.bits)
+
+            # Apply scale and offset
+            scaled_value = raw_value * signal.scale + signal.offset
+
+            # Initialize decoded signal
+            decoded = DecodedSignal(
+                name=signal.name, value=scaled_value, timestamp=timestamp
+            )
+
+            if signal.unit:
+                decoded.unit = signal.unit
+
+            if signal.enum:
+                enum_label = signal.enum.items.get(int(scaled_value))
+                if enum_label is None:
+                    logger.warning(
+                        f"Signal value '{scaled_value}' not found in enum '{signal.enum.name}' for signal '{signal.name}'."
+                    )
+                    continue
+                decoded.label = enum_label
+
+            decoded_signals.append(decoded)
+
+        return decoded_signals
+
+    def pack(self, decoded_msg: DecodedMessage) -> tuple[int, bytes]:
+        """
+        Pack a CAN dataframe.
+        TODO: Big-endian support!
+        """
+        msg = self.msgs.get(decoded_msg.name)
+        if msg is None:
+            logger.warning(
+                f"Message named '{decoded_msg.name}' is not defined in the JSON."
+            )
+            return b""
+
+        signal_map = {signal.name: signal for signal in msg.signals}
+        data_uint = 0
+
+        for decoded_signal in decoded_msg.signals:
+            if decoded_signal.name not in signal_map:
+                logger.warning(
+                    f"Signal named '{decoded_signal.name}' is not defined for message '{msg.name}'."
+                )
+                continue
+
+            signal = signal_map[decoded_signal.name]
+
+            # Apply scale and offset.
+            raw_value = math.floor(
+                (decoded_signal.value - signal.offset) / signal.scale
+            )
+
+            # Shift the bits representing the current signal.
+            bitmask = (1 << signal.bits) - 1
+            data_shifted = (raw_value & bitmask) << signal.start_bit
+
+            # Pack into uint.
+            data_uint |= data_shifted
+
+        return msg.id, data_uint.to_bytes(
+            length=msg.dlc(), byteorder="little", signed=False
+        )
+
+    def get_message_by_id(self, id: int) -> Optional[CanMessage]:
         for msg in self.msgs.values():
             if msg.id == id:
                 return msg

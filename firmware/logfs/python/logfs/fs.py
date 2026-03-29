@@ -1,8 +1,30 @@
-from typing import Union, Optional, Type, Any
+import os
+import sys
+from typing import Union, Optional, Type, Any, Dict
 import logging
+from tabulate import tabulate
+import humanize
 from .disk import LogFsDisk
-from .logfs_src import LogFsErr, PyLogFs, PyLogFsFile, PyLogFsReadFlags, PyLogFsOpenFlags
+from . import can_logger
+from .logfs_src import (
+    LogFsErr,
+    PyLogFs,
+    PyLogFsFile,
+    PyLogFsReadFlags,
+    PyLogFsOpenFlags,
+)
 
+
+# Path fuckery so we can import JSONCAN.
+script_dir = os.path.dirname(os.path.abspath(__file__))
+root_dir = os.path.join(script_dir, "..", "..", "..", "..")
+if root_dir not in sys.path:
+    sys.path.append(root_dir)
+
+from scripts.code_generation.jsoncan.src.json_parsing.json_can_parsing import (
+    JsonCanParser,
+    CanDatabase,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +53,34 @@ def _raise_err(err: LogFsErr) -> None:
         raise LogFsError(err)
 
 
+def _err2str(err: LogFsErr) -> None:
+    match err:
+        case LogFsErr.OK:
+            return "OK!"
+        case LogFsErr.IO:
+            return "A disk I/O operation failed."
+        case LogFsErr.CORRUPT:
+            return "The data you're trying to access was corrupted."
+        case LogFsErr.INVALID_ARG:
+            return "Argument is invalid."
+        case LogFsErr.INVALID_PATH:
+            return "Path is invalid. (your path either doesn't start with / or is too long!)"
+        case LogFsErr.UNMOUNTED:
+            return "Filesystem isn't mounted."
+        case LogFsErr.NOMEM:
+            return "Filesystem image used up all available memory."
+        case LogFsErr.NOT_OPEN:
+            return "File isn't open."
+        case LogFsErr.RD_ONLY:
+            return "Filesystem is read-only, and you tried to write."
+        case LogFsErr.WR_ONLY:
+            return "Filesystem is write-only, and you tried to read."
+        case LogFsErr.DNE:
+            return "Item does not exist."
+        case LogFsErr.DNE:
+            return "No more files remaining."
+
+
 class LogFsError(Exception):
     """
     Helper class for raising logfs-related exceptions.
@@ -45,7 +95,7 @@ class LogFsError(Exception):
         return f"<{self.__class__.__name__}({self.err})>"
 
     def __str__(self) -> str:
-        return f"LogFsErr: {self.err}"
+        return f"LogFS error: {self.err}\n{_err2str(self.err)}"
 
 
 class LogFsFile:
@@ -74,7 +124,7 @@ class LogFsFile:
         err = self.fs.write(self.file, data)
         _raise_err(err)
 
-    def read(self, size: Optional[int] = None) -> int:
+    def read(self, size: Optional[int] = None) -> bytes:
         """
         Read data from a file.
 
@@ -148,6 +198,24 @@ class LogFsFile:
         """
         _raise_err(self.fs.sync(self.file))
 
+    def size(self) -> int:
+        """
+        Read the size of a file's data in bytes.
+
+        """
+        err, size = self.fs.size(self.file)
+        _raise_err(err)
+        return size
+
+    def metadata_size(self) -> int:
+        """
+        Read the size of a file's metadata in bytes.
+
+        """
+        err, size = self.fs.metadata_size(self.file)
+        _raise_err(err)
+        return size
+
     def __enter__(self) -> "LogFsFile":
         """
         Context manager protocol (for use with the `with` statement).
@@ -201,6 +269,9 @@ class LogFs:
         self.write_cycles = write_cycles
         self.disk = disk
         self.fs = PyLogFs(block_size, block_count, write_cycles, rd_only, disk)
+
+        # Alias
+        self.ls = self.list_dir_table
 
         if format:
             self.format()
@@ -258,7 +329,7 @@ class LogFs:
         _raise_err(self.fs.open(file, path, flags))
         return LogFsFile(file=file, fs=self.fs, block_size=self.block_size)
 
-    def list_dir(self, matches: str = "/"):
+    def list_dir(self, matches: str = "/") -> Dict:
         """
         List contents of the filesystem.
 
@@ -271,7 +342,7 @@ class LogFs:
         while True:
             err, path, path_str = self.fs.next_path(path)
             if err == LogFsErr.NO_MORE_FILES:
-                # Error code of invalid path indictes no more files.
+                # Error code of invalid path indicates no more files.
                 break
 
             _raise_err(err)
@@ -282,10 +353,33 @@ class LogFs:
             paths.remove("/.root")
 
         # Filter by provided prefix.
-        filtered_paths = [path for path in paths if path.startswith(matches)]
-        return filtered_paths
+        filtered_files = {}
+        for path in paths:
+            if path.startswith(matches):
+                file = self.open(path=path, flags="r")
+                filtered_files[path] = {
+                    "metadata_size": file.metadata_size(),
+                    "size": file.size(),
+                }
 
-    def cat(self, path: str) -> None:
+        return filtered_files
+
+    def list_dir_table(self, matches: str = "/") -> None:
+        files = self.list_dir(matches=matches)
+
+        data = []
+        for file, file_sizes in files.items():
+            data.append(
+                [
+                    file,
+                    humanize.naturalsize(file_sizes["metadata_size"], binary=True),
+                    humanize.naturalsize(file_sizes["size"], binary=True),
+                ]
+            )
+
+        print(tabulate(data, headers=["File", "Metadata", "Data"], tablefmt="pretty"))
+
+    def cat(self, path: str, decode: Optional[str] = None, **kwargs) -> None:
         """
         Linux command to print contents of a file.
 
@@ -294,7 +388,13 @@ class LogFs:
         metadata = file.read_metadata()
         data = file.read()
 
-        print("Metadata:")
-        print(metadata)
-        print("Data:")
-        print(data)
+        if decode == None:
+            print("Metadata:")
+            print(metadata)
+            print("Data:")
+            print(data)
+        elif decode == "can":
+            db = JsonCanParser(can_data_dir=kwargs["jsoncan_dir"]).make_database()
+            decoder = can_logger.Decoder(db=db)
+            signals = decoder.decode(metadata=metadata, data=data)
+            print("\n".join(map(str, signals)))

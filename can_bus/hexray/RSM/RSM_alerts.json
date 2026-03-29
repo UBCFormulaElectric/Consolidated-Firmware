@@ -1,1 +1,57 @@
-{}
+{
+  "warnings_id": 715,
+  "faults_id": 716,
+  "warnings_counts_id": 717,
+  "faults_counts_id": 718,
+  "info_id": 719,
+  "info_counts_id": 720,
+  "warnings": {
+    "ImuInitFailed": {
+      "id": 721,
+      "description": "IMU initialization failed"
+    },
+    "ImuDataBad": {
+      "id": 722,
+      "description": "IMU data is bad"
+    }
+  },
+  "faults": {},
+  "info": {
+    "RearBrakePressureOutOfRange": {
+      "id": 723,
+      "description": "Rear brake pressure out of range."
+    },
+    "FlowMeterUnderflow": {
+      "id": 724,
+      "description": "Flow meter underflow"
+    },
+    "FlowRateOutOfRange": {
+      "id": 725,
+      "description": "Coolant flow out of range"
+    },
+    "RearLeftSuspension_OCSC": {
+      "id": 726,
+      "description": "Rear left suspension open or short circuit"
+    },
+    "RearRightSuspension_OCSC": {
+      "id": 727,
+      "description": "Rear right suspension open or short circuit"
+    },
+    "MissingFSMHeartbeat": {
+      "id": 728,
+      "description": "Missing FSM heartbeat"
+    },
+    "StackOverflow": {
+      "id": 729,
+      "description": "An RTOS task stack overflowed on the previous boot cycle."
+    },
+    "WatchdogTimeout": {
+      "id": 730,
+      "description": "Watchdog timeout detected."
+    },
+    "TireTemperatureOutOfRange": {
+      "id": 731,
+      "description": "Tire Temperature Out of Sensor Range"
+    }
+  }
+}

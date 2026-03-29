@@ -17,7 +17,7 @@ if not DOCKERIZED:
     else:
         raise FileNotFoundError(f"Environment file not found at {_DOTENV_PATH}")
 
-
+INFLUX_ON: bool = os.environ.get("INFLUX_ON", "TRUE").upper() == "TRUE"
 INFLUX_BUCKET: str = os.environ.get("INFLUXDB_BUCKET", "can_data")
 INFLUX_URL: str | None = os.environ.get("INFLUXDB_URL")
 INFLUX_ORG: str | None = os.environ.get("INFLUXDB_ORG")
@@ -28,11 +28,11 @@ if "CAR_NAME" not in os.environ:
 CAR_NAME: str = os.environ["CAR_NAME"]
 
 # booting configure
-DATA_SOURCE = os.environ.get("DATA_SOURCE").upper()
+DATA_SOURCE = os.environ.get("DATA_SOURCE", "mock").upper()
 ENABLE_MOCK = get_env_bool("ENABLE_MOCK")
 ENABLE_WIRELESS = get_env_bool("ENABLE_WIRELESS")
 
-BACKEND_PORT = int(os.environ.get("BACKEND_PORT"))
+BACKEND_PORT = int(os.environ.get("BACKEND_PORT", "5000"))
 SERIAL_PORT = os.environ.get("SERIAL_PORT")
 DATA_FILE = os.environ.get("DATA_FILE")
 DEBUG = get_env_bool("DEBUG")

@@ -14,6 +14,22 @@ extern "C"
         (void)ms;
     }
 }
+#include "io_time.hpp"
+namespace io::time
+{
+uint32_t getCurrentMs()
+{
+    return current_time_ms;
+}
+void delay(const uint32_t ms)
+{
+    // TODO
+}
+void delayUntil(const uint32_t time)
+{
+    // TODO
+}
+} // namespace io::time
 
 namespace fakes::time
 {

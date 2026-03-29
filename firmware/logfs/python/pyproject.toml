@@ -3,6 +3,11 @@ name = "logfs"
 version = "0.1.0"
 description = "Python bindings for LogFS"
 requires-python = ">=3.9"
+dependencies = [
+    "tabulate",
+    "humanize",
+    "crc8"
+]
 
 # this is equivalent to entry_points["console_scripts"]
 [project.scripts]
@@ -13,7 +18,7 @@ logfs = "logfs.shell:main"
 requires = [
     "scikit-build-core>=0.7.0",
     "pybind11",
-    "wheel"
+    "wheel",
 ]
 build-backend = "scikit_build_core.build"
 

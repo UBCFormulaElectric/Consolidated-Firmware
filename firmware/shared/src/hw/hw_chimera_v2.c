@@ -1,7 +1,7 @@
-#include "hw_chimera_v2.h"
+#include "../hw/hw_chimera_v2.h"
 
 #include "main.h"
-#include "hw_usb.h"
+#include "../hw/hw_usb.h"
 #include "io_log.h"
 
 // Protobuf.
@@ -18,7 +18,7 @@ static pb_byte_t out_buffer[OUT_BUFFER_SIZE];
 bool hw_chimera_v2_enabled = false;
 
 #ifdef HAL_GPIO_MODULE_ENABLED
-#include "hw_gpio.h"
+#include "../hw/hw_gpio.h"
 
 /**
  * @brief Extract the gpio peripheral corresponding to the protobuf-specified gpio pin.
@@ -58,7 +58,7 @@ static const Gpio *hw_chimera_v2_getGpio(const hw_chimera_v2_Config *config, con
 #endif
 
 #ifdef HAL_ADC_MODULE_ENABLED
-#include "hw_adc.h"
+#include "../hw/hw_adc.h"
 
 /**
  * @brief Extract the adc peripheral corresponding to the protobuf-specified adc channel.
@@ -89,7 +89,7 @@ static const AdcChannel *hw_chimera_v2_getAdc(const hw_chimera_v2_Config *config
 #endif
 
 #ifdef HAL_I2C_MODULE_ENABLED
-#include "hw_i2c.h"
+#include "../hw/hw_i2c.h"
 
 /**
  * @brief Extract the i2c peripheral corresponding to the protobuf-specified i2c name.
@@ -120,7 +120,7 @@ static const I2cDevice *hw_chimera_v2_getI2c(const hw_chimera_v2_Config *config,
 #endif
 
 #ifdef HAL_SPI_MODULE_ENABLED
-#include "hw_spi.h"
+#include "../hw/hw_spi.h"
 
 /**
  * @brief Extract the spi peripheral corresponding to the protobuf-specified spi name.

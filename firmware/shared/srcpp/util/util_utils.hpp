@@ -2,6 +2,21 @@
 
 #define NUM_ELEMENTS_IN_ARRAY(array_pointer) sizeof(array_pointer) / sizeof(array_pointer[0])
 
+#ifndef MIN
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+#endif
+
+#ifndef MAX
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))
+#endif
+
+#define MIN3(x, y, z) (MIN(MIN((x), (y)), (z)))
+#define MIN4(w, x, y, z) (MIN(MIN(MIN((w), (x)), (y)), (z)))
+#define CLAMP(x, min, max) (MAX(MIN(x, max), min))
+#define CLAMP_TO_ONE(x) (((x) <= 0) ? 1 : ((x) > 1 ? 1 : (x))) // initialize to 1 if value is <=0
+#define SQUARE(x) ((x) * (x))
+#define IS_IN_RANGE(min, max, val) (((val) > (min)) && ((val) < (max)))
+
 /* @brief Extract the basename from a file path */
 #define __BASENAME__(path) (__builtin_strrchr(path, '/') ? __builtin_strrchr(path, '/') + 1 : path)
 
@@ -15,6 +30,8 @@
     {                          \
         unsigned char _unused; \
     } name;
+
+#define NUM_ELEMENTS_IN_ARRAY(array_pointer) sizeof(array_pointer) / sizeof(array_pointer[0])
 
 #ifdef __cplusplus
 #define CFUNC extern "C"
@@ -40,15 +57,19 @@
 #define IS_DEBUGGER_PRESENT() (IsDebuggerPresent() != 0)
 #define DEBUG_BREAK() __debugbreak()
 #elif defined(__APPLE__) || defined(__linux__)
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <signal.h>
 #include <unistd.h>
-
+#if defined(__APPLE__)
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#endif
 static inline int IS_DEBUGGER_PRESENT(void)
 {
 #if defined(__APPLE__)
     // macOS: use sysctl to detect debugger
-#include <sys/types.h>
-#include <sys/sysctl.h>
     int               mib[4];
     struct kinfo_proc info;
     size_t            size = sizeof(info);
@@ -98,3 +119,4 @@ static inline int IS_DEBUGGER_PRESENT(void)
 #else
 #error "TARGET_EMBEDDED or TARGET_TEST must be defined"
 #endif
+#undef ERROR

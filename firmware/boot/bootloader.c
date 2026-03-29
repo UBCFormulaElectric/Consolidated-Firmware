@@ -20,9 +20,9 @@
 #include "hw_utils.h"
 #include "hw_hal.h"
 
-#ifdef STM32H733xx
+#if defined(STM32H733xx) || defined(STM32H562xx)
 #include "hw_fdcan.h"
-#elif STM32F412Rx
+#elif defined(STM32F412Rx)
 #include "hw_can.h"
 #else
 #error "Please define what MCU is used"
@@ -30,21 +30,22 @@
 
 #include "app_utils.h"
 
+// SYS tick timer
 extern TIM_HandleTypeDef htim6;
 
-// Need these to be created an initialized elsewhere
+// Need these to be created an initialized elsewhere (main.c)
 extern CanHandle can;
 
 void canRxQueueOverflowCallBack(const uint32_t unused)
 {
     UNUSED(unused);
-    BREAK_IF_DEBUGGER_CONNECTED();
+    // BREAK_IF_DEBUGGER_CONNECTED();
 }
 
 void canTxQueueOverflowCallBack(const uint32_t unused)
 {
     UNUSED(unused);
-    BREAK_IF_DEBUGGER_CONNECTED();
+    // BREAK_IF_DEBUGGER_CONNECTED();
 }
 
 // App code block. Start/size included from the linker script.
@@ -274,9 +275,9 @@ _Noreturn void bootloader_runCanTxTask(void)
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx(&can_tx_queue);
-#ifdef STM32H733xx
+#if defined(STM32H733xx) || defined(STM32H562xx)
         LOG_IF_ERR(hw_fdcan_transmit(&can, &tx_msg));
-#elif STM32F412Rx
+#elif defined(STM32F412Rx)
         LOG_IF_ERR(hw_can_transmit(&can, &tx_msg));
 #endif
     }

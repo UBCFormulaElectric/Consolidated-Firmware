@@ -1,0 +1,11 @@
+name: tracksight-wireless
+services:
+  influx:
+    extends:
+      file: common.yml
+      service: influx
+  live_data:
+    extends:
+      file: common.yml
+      service: live_data
+    command: ["python3", "app/app.py"]

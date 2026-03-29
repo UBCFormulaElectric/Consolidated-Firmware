@@ -12,22 +12,21 @@
 #define NUM_MOUNT_ATTEMPTS 3
 #define RETRY_COUNT 3
 #define RETRY_DELAY_MS 50
+#define MAX_WRITE_CYCLES (1000)
 
 static LogFsErr logfsCfgRead(const LogFsCfg *cfg, uint32_t block, void *buf);
 static LogFsErr logfsCfgWrite(const LogFsCfg *cfg, uint32_t block, void *buf);
 
 // state
 static uint8_t        cache[HW_DEVICE_SECTOR_SIZE];
-static const LogFsCfg fs_cfg = {
-    .block_count  = 1024 * 1024 * 15, // ~7.5GB
-    .block_size   = HW_DEVICE_SECTOR_SIZE,
-    .cache        = cache,
-    .rd_only      = false,
-    .read         = logfsCfgRead,
-    .write        = logfsCfgWrite,
-    .write_cycles = 0 // Disable wear levelling.
-};
-static LogFs fs;
+static const LogFsCfg fs_cfg = { .block_count  = 1024 * 1024 * 15, // ~7.5GB
+                                 .block_size   = HW_DEVICE_SECTOR_SIZE,
+                                 .cache        = cache,
+                                 .rd_only      = false,
+                                 .read         = logfsCfgRead,
+                                 .write        = logfsCfgWrite,
+                                 .write_cycles = MAX_WRITE_CYCLES };
+static LogFs          fs;
 
 static LogFsFileCfg files_cfg[MAX_FILE_NUMBER];
 static LogFsFile    files[MAX_FILE_NUMBER];
@@ -236,12 +235,20 @@ FileSystemError io_fileSystem_read(uint32_t fd, void *buf, const size_t size)
     return FILE_OK;
 }
 
-FileSystemError io_fileSystem_write(uint32_t fd, void *buf, const size_t size)
+FileSystemError io_fileSystem_write(uint32_t fd, const void *buf, const size_t size)
 {
     CHECK_MOUNT();
     CHECK_FILE_DESCRIPTOR(fd);
 
     return logfsErrorToFsError(logfs_write(&fs, &files[fd], buf, size));
+}
+
+FileSystemError io_fileSystem_writeMetadata(uint32_t fd, const void *buf, size_t size)
+{
+    CHECK_MOUNT();
+    CHECK_FILE_DESCRIPTOR(fd);
+
+    return logfsErrorToFsError(logfs_writeMetadata(&fs, &files[fd], buf, size));
 }
 
 FileSystemError io_fileSystem_getBootCount(uint32_t *bootcount)

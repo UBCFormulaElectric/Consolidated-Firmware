@@ -1,1 +1,73 @@
-{}
+{
+  "warnings_id": 616,
+  "faults_id": 617,
+  "warnings_counts_id": 618,
+  "faults_counts_id": 619,
+  "info_id": 620,
+  "info_counts_id": 621,
+  "info": {
+    "WatchdogTimeout": {
+      "id": 622,
+      "description": "Watchdog timed out."
+    },
+    "TxOverflow": {
+      "id": 623,
+      "description": "CanTx queue overflowed."
+    },
+    "RxOverflow": {
+      "id": 624,
+      "description": "CanRx queue overflowed."
+    },
+    "SteeringAngleOCSC": {
+      "id": 625,
+      "description": "Steering sensor voltage out of acceptable range (OCSC)."
+    },
+    "SteeringAngleOutOfRange": {
+      "id": 626,
+      "description": "Steering angle out of range."
+    },
+    "FrontBrakePressureOCSC": {
+      "id": 627,
+      "description": "Front brake pressure sensor voltage out of acceptable range (OCSC)."
+    },
+    "LeftSuspensionOCSC": {
+      "id": 628,
+      "description": "Left suspension sensor voltage out of acceptable range (OCSC)."
+    },
+    "RightSuspensionOCSC": {
+      "id": 629,
+      "description": "Right suspension sensor voltage out of acceptable range (OCSC)."
+    },
+    "StackOverflow": {
+      "id": 630,
+      "description": "An RTOS task stack overflowed on the previous boot cycle."
+    },
+    "FrontBrakePressureOutOfRange": {
+      "id": 631,
+      "description": "Front brake pressure out of range."
+    }
+  },
+  "warnings": {
+    "AppsDisagreement": {
+      "id": 632,
+      "description": "Conflict between primary and secondary accelerator pedals."
+    },
+    "PappsOCSC": {
+      "id": 633,
+      "description": "Primary accelerator pedal voltage out of acceptable range (OCSC)."
+    },
+    "SappsOCSC": {
+      "id": 634,
+      "description": "Secondary accelerator pedal voltage out of acceptable range (OCSC)."
+    },
+    "ImuInitFailed": {
+      "id": 635,
+      "description": "IMU initialization failed"
+    },
+    "ImuDataBad": {
+      "id": 636,
+      "description": "IMU data is bad"
+    }
+  },
+  "faults": {}
+}

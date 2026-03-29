@@ -22,6 +22,7 @@
 #include "stm32h5xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "hw_hardFaultHandler.hpp"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -55,7 +56,10 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-extern TIM_HandleTypeDef htim6;
+extern FDCAN_HandleTypeDef hfdcan1;
+extern UART_HandleTypeDef  huart2;
+extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
+extern TIM_HandleTypeDef   htim2;
 
 /* USER CODE BEGIN EV */
 
@@ -85,7 +89,7 @@ void NMI_Handler(void)
 void HardFault_Handler(void)
 {
     /* USER CODE BEGIN HardFault_IRQn 0 */
-
+    hw_hardFaultHandler_handleFault();
     /* USER CODE END HardFault_IRQn 0 */
     while (1)
     {
@@ -160,17 +164,73 @@ void DebugMon_Handler(void)
 /******************************************************************************/
 
 /**
- * @brief This function handles TIM6 global interrupt.
+ * @brief This function handles FDCAN1 interrupt 0.
  */
-void TIM6_IRQHandler(void)
+void FDCAN1_IT0_IRQHandler(void)
 {
-    /* USER CODE BEGIN TIM6_IRQn 0 */
+    /* USER CODE BEGIN FDCAN1_IT0_IRQn 0 */
 
-    /* USER CODE END TIM6_IRQn 0 */
-    HAL_TIM_IRQHandler(&htim6);
-    /* USER CODE BEGIN TIM6_IRQn 1 */
+    /* USER CODE END FDCAN1_IT0_IRQn 0 */
+    HAL_FDCAN_IRQHandler(&hfdcan1);
+    /* USER CODE BEGIN FDCAN1_IT0_IRQn 1 */
 
-    /* USER CODE END TIM6_IRQn 1 */
+    /* USER CODE END FDCAN1_IT0_IRQn 1 */
+}
+
+/**
+ * @brief This function handles FDCAN1 interrupt 1.
+ */
+void FDCAN1_IT1_IRQHandler(void)
+{
+    /* USER CODE BEGIN FDCAN1_IT1_IRQn 0 */
+
+    /* USER CODE END FDCAN1_IT1_IRQn 0 */
+    HAL_FDCAN_IRQHandler(&hfdcan1);
+    /* USER CODE BEGIN FDCAN1_IT1_IRQn 1 */
+
+    /* USER CODE END FDCAN1_IT1_IRQn 1 */
+}
+
+/**
+ * @brief This function handles TIM2 global interrupt.
+ */
+void TIM2_IRQHandler(void)
+{
+    /* USER CODE BEGIN TIM2_IRQn 0 */
+
+    /* USER CODE END TIM2_IRQn 0 */
+    HAL_TIM_IRQHandler(&htim2);
+    /* USER CODE BEGIN TIM2_IRQn 1 */
+
+    /* USER CODE END TIM2_IRQn 1 */
+}
+
+/**
+ * @brief This function handles USART2 global interrupt.
+ */
+void USART2_IRQHandler(void)
+{
+    /* USER CODE BEGIN USART2_IRQn 0 */
+
+    /* USER CODE END USART2_IRQn 0 */
+    HAL_UART_IRQHandler(&huart2);
+    /* USER CODE BEGIN USART2_IRQn 1 */
+
+    /* USER CODE END USART2_IRQn 1 */
+}
+
+/**
+ * @brief This function handles USB FS global interrupt.
+ */
+void USB_DRD_FS_IRQHandler(void)
+{
+    /* USER CODE BEGIN USB_DRD_FS_IRQn 0 */
+
+    /* USER CODE END USB_DRD_FS_IRQn 0 */
+    HAL_PCD_IRQHandler(&hpcd_USB_DRD_FS);
+    /* USER CODE BEGIN USB_DRD_FS_IRQn 1 */
+
+    /* USER CODE END USB_DRD_FS_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

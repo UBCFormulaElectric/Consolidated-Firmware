@@ -269,7 +269,7 @@ void tasks_runLtcVoltages(void)
 #ifdef TARGET_HV_SUPPLY
     for (;;)
         osDelay(osWaitForever);
-#elif
+#else
     static const TickType_t period_ms = 500U; // 2Hz
     jobs_initLTCVoltages();
     for (;;)
@@ -295,7 +295,7 @@ void tasks_runLtcTemps(void)
 #ifdef TARGET_HV_SUPPLY
     for (;;)
         osDelay(osWaitForever);
-#elif
+#else
     static const TickType_t period_ms = 500U; // 2Hz
     jobs_initLTCTemps();
     for (;;)
@@ -323,7 +323,7 @@ void tasks_runLtcDiagnostics(void)
 #ifdef TARGET_HV_SUPPLY
     for (;;)
         osDelay(osWaitForever);
-#elif
+#else
     static const TickType_t period_ms = 10000U; // Every 10s
     jobs_initLTCDiagnostics();
     for (;;)
