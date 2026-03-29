@@ -120,7 +120,7 @@ TEST_F(JsonCanTablesTest, test_rx_basic_signals)
     }
 
     // Test clamping and unpacking.
-    JsonCanMsg test_rx_msg = { app::can_utils::CAN_MSG_ECU_2_BASIC_SIGNAL_TYPES_ID, 8, {} };
+    JsonCanMsg test_rx_msg = { app::can_utils::ECU2_BasicSignalTypes_Signals::MSG_ID, 8, {} };
     memset(&test_rx_msg.data, 0xFF, 8);
     io::can_rx::updateRxTableWithMessage(test_rx_msg);
     {
