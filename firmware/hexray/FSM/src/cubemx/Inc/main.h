@@ -50,6 +50,7 @@ extern "C"
     extern SPI_HandleTypeDef   hspi1;
     extern TIM_HandleTypeDef   htim2;
     extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
+    extern IWDG_HandleTypeDef hiwdg;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/
@@ -67,10 +68,13 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define TIM2_FREQUENCY 1000
-#define TIM2_PRESCALER 250
 #define TIM2_ARR (TIMx_FREQUENCY / TIM2_PRESCALER / TIM2_FREQUENCY)
+#define TIM2_PRESCALER 250
+#define TIM2_FREQUENCY 1000
 #define TIMx_FREQUENCY 96000000
+#define IWDG_RESET_FREQUENCY 5
+#define IWDG_PRESCALER 4
+#define LSI_FREQUENCY 32000
 #define BOTS_3V3_Pin GPIO_PIN_0
 #define BOTS_3V3_GPIO_Port GPIOC
 #define COCKPIT_SHDN_3V3_Pin GPIO_PIN_1

@@ -13,15 +13,24 @@
 #include "hw_cans.hpp"
 #include "hw_watchdog.hpp"
 #include "hw_resetReason.hpp"
+#include "main.h"
+#include "app_canAlerts.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
-    const uint32_t period_ms = 1000U;
+    const uint32_t                 period_ms                = 1000U;
+    const uint32_t                 watchdog_grace_period_ms = 50U;
+    hw::watchdog::WatchdogInstance watchdog1hz{ period_ms + watchdog_grace_period_ms };
+    hw::watchdog::monitor          monitor1hz{ &watchdog1hz, hiwdg, HAL_IWDG_Refresh };
+    monitor1hz.registerWatchdogInstance();
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
         jobs_run1Hz_tick();
+
+        watchdog1hz.checkIn();
+
         start_ticks += period_ms;
         io::time::delayUntil(start_ticks);
         osDelayUntil(start_ticks);
@@ -29,24 +38,39 @@
 }
 [[noreturn]] static void tasks_run100Hz(void *arg)
 {
-    const uint32_t period_ms = 10U;
+    const uint32_t                 period_ms                = 10U;
+    const uint32_t                 watchdog_grace_period_ms = 2U;
+    hw::watchdog::WatchdogInstance watchdog100hz{ period_ms + watchdog_grace_period_ms };
+    hw::watchdog::monitor          monitor100hz{ &watchdog100hz, hiwdg, HAL_IWDG_Refresh };
+    monitor100hz.registerWatchdogInstance();
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
         jobs_run100Hz_tick();
+
+        watchdog100hz.checkIn();
+
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
 }
 [[noreturn]] static void tasks_run1kHz(void *arg)
 {
-    const uint32_t period_ms = 1U;
+    const uint32_t                 period_ms                = 1U;
+    const uint32_t                 watchdog_grace_period_ms = 1U;
+    hw::watchdog::WatchdogInstance watchdog1khz{ period_ms + watchdog_grace_period_ms };
+    hw::watchdog::monitor          monitor1khz{ &watchdog1khz, hiwdg, HAL_IWDG_Refresh };
+    monitor1khz.registerWatchdogInstance();
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
         jobs_run1kHz_tick();
+
+        monitor1khz.checkForTimeouts();
+        watchdog1khz.checkIn();
+
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -109,6 +133,12 @@ void tasks_init()
     hw::can::fdcan1.init();
     led_dimming.start();
     led_dimming.setDutyCycle(95);
+    ResetReason reason = hw::resetReason::get();
+    if (reason == RESET_REASON_WATCHDOG)
+    {
+        LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
+        app::can_alerts::infos::WatchdogTimeout_set(true);
+    }
     jobs_init();
     osKernelInitialize();
     CRIT_StartAllTasks();

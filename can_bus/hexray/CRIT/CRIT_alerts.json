@@ -5,7 +5,12 @@
   "faults_counts_id": 904,
   "info_id": 905,
   "info_counts_id": 906,
-  "info": {},
+  "info": {
+    "WatchdogTimeout": {
+      "id": 982,
+      "description": "Watchdog timeout detected."
+    }
+  },
   "warnings": {},
   "faults": {}
 }
