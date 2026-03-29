@@ -34,8 +34,13 @@
 #include <cmsis_os.h>
 #include "io_log.hpp"
 #include <array>
+#ifdef STM32H562xx
 #include <stm32h5xx_hal.h>
 #include <stm32h5xx_hal_iwdg.h>
+#elif defined(STM32H733xx)
+#include <stm32h7xx_hal.h>
+#include <stm32h7xx_hal_iwdg.h>
+#endif
 
 namespace hw::watchdog
 {
