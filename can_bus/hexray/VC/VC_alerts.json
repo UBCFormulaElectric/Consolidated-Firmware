@@ -10,5 +10,9 @@
   "info_id": 505,
   "info_counts_id": 506,
   "info": {
+    "WatchdogTimeout": {
+      "id": 582,
+      "description": "Watchdog timeout detected."
+    }
   }
 }

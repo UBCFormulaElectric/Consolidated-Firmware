@@ -53,6 +53,7 @@ extern "C"
     extern TIM_HandleTypeDef   htim3;
     extern UART_HandleTypeDef  huart8;
     extern PCD_HandleTypeDef   hpcd_USB_OTG_HS;
+    extern IWDG_HandleTypeDef hiwdg1;
 
     /* USER CODE END EC */
 
@@ -69,6 +70,9 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define LSI_FREQUENCY 32000
+#define IWDG_RESET_FREQUENCY 5
+#define IWDG_PRESCALER 4
 #define IMU_CS1_Pin GPIO_PIN_2
 #define IMU_CS1_GPIO_Port GPIOE
 #define IMU_CS2_Pin GPIO_PIN_3
