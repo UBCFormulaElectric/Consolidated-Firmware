@@ -27,7 +27,7 @@ pub struct AppCanRxModule<'a> {
 
 impl AppCanRxModule<'_> {
     pub fn new<'a>(
-        can_db: &CanDatabase,
+        can_db: &'a CanDatabase,
         node: &'a String,
         rx_config: &CanRxConfig,
     ) -> AppCanRxModule<'a> {
