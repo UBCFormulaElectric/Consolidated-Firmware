@@ -40,8 +40,8 @@ class BMSChimeraConfig final : public chimera_v2::config
                 return std::cref(hv_p_intlck_sns);
             case bms_GpioNetName_GPIO_HV_N_INTLCK_SNS:
                 return std::cref(hv_n_intlck_sns);
-            case bms_GpioNetName_GPIO_IMD_LATCH:
-                return std::cref(imd_latch);
+            case bms_GpioNetName_GPIO_nIMD_LATCH:
+                return std::cref(n_imd_latch_status);
             case bms_GpioNetName_GPIO_DIAG:
                 return std::cref(diag_ts);
             case bms_GpioNetName_GPIO_SD_CD:

@@ -24,8 +24,11 @@ typedef enum
     // Brownout reset (voltage drop below threshold) or sleep reset.
     RESET_REASON_BROWN_OUT_OR_SLEEP = 5,
 } ResetReason;
+namespace hw::resetReason
+{
 
 /*
  * Returns the reason the microcontroller reset.
  */
-ResetReason hw_resetReason_get(void);
+ResetReason get(void);
+} // namespace hw::resetReason
