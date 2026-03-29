@@ -2,6 +2,6 @@
 
 namespace app::fmac_test
 {
-void init();
-void broadcast();
+__attribute__((weak)) inline void init() {}
+__attribute__((weak)) inline void broadcast() {}
 } // namespace app::fmac_test
