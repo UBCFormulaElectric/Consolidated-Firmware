@@ -14,7 +14,7 @@ namespace
 
     void sequenceWhileIdle()
     {
-        for (int ch = 0; ch < NUM_EFUSE_CHANNELS; ch++)
+        for (size_t ch = 0; ch < NUM_EFUSE_CHANNELS; ch++)
         {
             if (sequencing_timer_.updateAndGetState() != app::Timer::TimerState::IDLE)
                 break;

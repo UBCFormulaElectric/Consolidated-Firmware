@@ -458,7 +458,7 @@
         "description": "Efuse info for shdn/LV/pump/aux/INVR/INVL efuses.",
         "signals": {
             "FrontInvertersCurrent": {
-                "resolution": 0.01,
+                "resolution": 0.001,
                 "min": 0,
                 "max": 5,
                 "unit": "A"
@@ -467,7 +467,7 @@
                 "bits": 1
             },
             "RSMCurrent": {
-                "resolution": 0.01,
+                "resolution": 0.001,
                 "min": 0,
                 "max": 20,
                 "unit": "A"
@@ -476,7 +476,7 @@
                 "bits": 1
             },
             "BMSCurrent": {
-                "resolution": 0.01,
+                "resolution": 0.001,
                 "min": 0,
                 "max": 5,
                 "unit": "A"
@@ -485,7 +485,7 @@
                 "bits": 1
             },
             "RearInvertersCurrent": {
-                "resolution": 0.01,
+                "resolution": 0.001,
                 "min": 0,
                 "max": 5,
                 "unit": "A"
@@ -494,7 +494,7 @@
                 "bits": 1
             },
             "DAMCurrent": {
-                "resolution": 0.01,
+                "resolution": 0.001,
                 "min": 0,
                 "max": 5,
                 "unit": "A"
@@ -503,7 +503,7 @@
                 "bits": 1
             },
             "FrontCurrent": {
-                "resolution": 0.01,
+                "resolution": 0.001,
                 "min": 0,
                 "max": 5,
                 "unit": "A"

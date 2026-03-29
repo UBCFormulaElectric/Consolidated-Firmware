@@ -12,10 +12,14 @@ namespace io
 class Pump
 {
   public:
+#ifdef TARGET_EMBEDDED
     constexpr explicit Pump(const Potentiometer &pot, bool invert, Efuse &efuse)
       : pot_{ pot }, invert_{ invert }, efuse_{ efuse }
     {
     }
+#elif defined(TARGET_TEST)
+    constexpr explicit Pump() {}
+#endif
 
     std::expected<void, ErrorCode>    setPercentage(uint8_t percentage) const;
     std::expected<uint8_t, ErrorCode> getPercentage() const;
@@ -35,9 +39,10 @@ class Pump
         return invert ? static_cast<uint8_t>(100u - percent) : percent;
     }
 
+#ifdef TARGET_EMBEDDED
     const Potentiometer &pot_;
     bool                 invert_;
     Efuse               &efuse_;
+#endif
 };
-
 } // namespace io

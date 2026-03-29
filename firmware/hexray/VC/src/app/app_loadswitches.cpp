@@ -1,7 +1,7 @@
 #include "app_loadswitches.hpp"
 #include "app_canTx.hpp"
 #include "io_efuse.hpp"
-#include "io_loadswitches.hpp"
+#include "io_efuses.hpp"
 #include <array>
 
 /*
@@ -18,16 +18,16 @@ struct EfuseCanMsg
 };
 // one array for all the setter CAN signals
 EfuseCanMsg efuse_channel_setters[NUM_EFUSE_CHANNELS] = {
-    { F_INV_Efuse, app::can_tx::VC_FrontInvertersStatus_set, app::can_tx::VC_FrontInvertersCurrent_set },
-    { RSM_Efuse, app::can_tx::VC_RSMStatus_set, app::can_tx::VC_RSMCurrent_set },
-    { BMS_Efuse, app::can_tx::VC_BMSStatus_set, app::can_tx::VC_BMSCurrent_set },
-    { R_INV_Efuse, app::can_tx::VC_RearInvertersStatus_set, app::can_tx::VC_RearInvertersCurrent_set },
-    { DAM_Efuse, app::can_tx::VC_DAMStatus_set, app::can_tx::VC_DAMCurrent_set },
-    { FRONT_Efuse, app::can_tx::VC_FrontStatus_set, app::can_tx::VC_FrontCurrent_set },
-    { RL_PUMP_Efuse, app::can_tx::VC_RearLeftPumpStatus_set, app::can_tx::VC_RearLeftPumpCurrent_set },
-    { R_RAD_Efuse, app::can_tx::VC_RightRadiatorFanStatus_set, app::can_tx::VC_RightRadiatorFanCurrent_set },
-    { RR_PUMP_Efuse, app::can_tx::VC_RearRightPumpStatus_set, app::can_tx::VC_RearRightPumpCurrent_set },
-    { L_RAD_Efuse, app::can_tx::VC_LeftRadiatorFanStatus_set, app::can_tx::VC_LeftRadiatorFanCurrent_set },
+    { f_inv_efuse, app::can_tx::VC_FrontInvertersStatus_set, app::can_tx::VC_FrontInvertersCurrent_set },
+    { r_inv_efuse, app::can_tx::VC_RSMStatus_set, app::can_tx::VC_RSMCurrent_set },
+    { bms_efuse, app::can_tx::VC_BMSStatus_set, app::can_tx::VC_BMSCurrent_set },
+    { rsm_efuse, app::can_tx::VC_RearInvertersStatus_set, app::can_tx::VC_RearInvertersCurrent_set },
+    { dam_efuse, app::can_tx::VC_DAMStatus_set, app::can_tx::VC_DAMCurrent_set },
+    { front_efuse, app::can_tx::VC_FrontStatus_set, app::can_tx::VC_FrontCurrent_set },
+    { l_rad_fan_efuse, app::can_tx::VC_RearLeftPumpStatus_set, app::can_tx::VC_RearLeftPumpCurrent_set },
+    { r_rad_fan_efuse, app::can_tx::VC_RightRadiatorFanStatus_set, app::can_tx::VC_RightRadiatorFanCurrent_set },
+    { rr_pump_efuse, app::can_tx::VC_RearRightPumpStatus_set, app::can_tx::VC_RearRightPumpCurrent_set },
+    { rl_pump_efuse, app::can_tx::VC_LeftRadiatorFanStatus_set, app::can_tx::VC_LeftRadiatorFanCurrent_set },
 };
 
 void efuse_broadcast()
