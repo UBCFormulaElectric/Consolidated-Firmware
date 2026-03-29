@@ -5,7 +5,28 @@
   "faults_counts_id": 916,
   "info_id": 917,
   "info_counts_id": 918,
-  "info": {},
+  "info": {    
+    "MissingBMSHeartbeat": {
+      "id": 950,
+      "description": "Missing heartbeat signal from the BMS."
+    },
+    "MissingFSMHeartbeat": {
+      "id": 951,
+      "description": "Missing heartbeat signal from the FSM."
+    },
+    "MissingVCHeartbeat": {
+      "id": 953,
+      "description": "Missing heartbeat signal from the VC."
+    },
+    "MissingRSMHeartbeat": {
+      "id": 952,
+      "description": "Missing heartbeat signal from the RSM."
+    },
+    "MissingDAMHeartbeat": {
+      "id": 952,
+      "description": "Missing heartbeat signal from the DAM."
+    }
+},
   "warnings": {},
   "faults": {}
 }

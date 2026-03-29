@@ -3,7 +3,6 @@
 #include <cstdint>
 #include <expected>
 #include "util_errorCodes.hpp"
-#include "hw_i2cs.hpp"
 #include "io_efuses.hpp"
 #include "io_pump.hpp"
 #include "io_potentiometer.hpp"
@@ -23,12 +22,9 @@ class Pump
     std::expected<void, ErrorCode>    enable(bool enable) const;
     std::expected<bool, ErrorCode>    isEnabled() const;
     std::expected<bool, ErrorCode>    ok() const;
-    // std::expected<bool, ErrorCode>    pgood() const;
     std::expected<bool, ErrorCode> isReady() const;
 
   private:
-    // std::expected<void, ErrorCode> requirePot() const;
-    // std::expected<void, ErrorCode> requireEfuse() const;
     static constexpr uint8_t logicalToHw(bool invert, uint8_t percent)
     {
         return invert ? static_cast<uint8_t>(100u - percent) : percent;
