@@ -13,18 +13,12 @@ TEST_F(io_rx_fixture, io_rx_filtering)
 {
     constexpr int MAX_CANID    = 1 << 11;
     const set     can1_present = {
-        app::can_utils::CAN_MSG_ECU_4_WARNINGS_COUNTS_ID,
-        app::can_utils::CAN_MSG_ECU_4_WARNINGS_ID,
-        app::can_utils::CAN_MSG_ECU_3_INFO_COUNTS_ID,
-        app::can_utils::CAN_MSG_ECU_4_FAULTS_ID,
-        app::can_utils::CAN_MSG_ECU_4_INFO_ID,
-        app::can_utils::CAN_MSG_ECU_3_WARNINGS_COUNTS_ID,
-        app::can_utils::CAN_MSG_ECU_3_FAULTS_ID,
-        app::can_utils::CAN_MSG_ECU_4_FAULTS_COUNTS_ID,
-        app::can_utils::CAN_MSG_ECU_3_WARNINGS_ID,
-        app::can_utils::CAN_MSG_ECU_3_INFO_ID,
-        app::can_utils::CAN_MSG_ECU_4_INFO_COUNTS_ID,
-        app::can_utils::CAN_MSG_ECU_3_FAULTS_COUNTS_ID,
+        app::can_utils::ECU4_WarningsCounts_Signals::MSG_ID, app::can_utils::ECU4_Warnings_Signals::MSG_ID,
+        app::can_utils::ECU3_InfoCounts_Signals::MSG_ID,     app::can_utils::ECU4_Faults_Signals::MSG_ID,
+        app::can_utils::ECU4_Info_Signals::MSG_ID,           app::can_utils::ECU3_WarningsCounts_Signals::MSG_ID,
+        app::can_utils::ECU3_Faults_Signals::MSG_ID,         app::can_utils::ECU4_FaultsCounts_Signals::MSG_ID,
+        app::can_utils::ECU3_Warnings_Signals::MSG_ID,       app::can_utils::ECU3_Info_Signals::MSG_ID,
+        app::can_utils::ECU4_InfoCounts_Signals::MSG_ID,     app::can_utils::ECU3_FaultsCounts_Signals::MSG_ID,
     };
     for (uint32_t i = 0; i <= MAX_CANID; i++)
     {
@@ -32,16 +26,16 @@ TEST_F(io_rx_fixture, io_rx_filtering)
     }
 
     const set can2_present = {
-        app::can_utils::CAN_MSG_ECU_5_FAULTS_ID,      app::can_utils::CAN_MSG_ECU_5_FAULTS_COUNTS_ID,
-        app::can_utils::CAN_MSG_ECU_5_INFO_COUNTS_ID, app::can_utils::CAN_MSG_ECU_5_INFO_ID,
-        app::can_utils::CAN_MSG_ECU_5_WARNINGS_ID,    app::can_utils::CAN_MSG_ECU_5_WARNINGS_COUNTS_ID,
+        app::can_utils::ECU5_Faults_Signals::MSG_ID,     app::can_utils::ECU5_FaultsCounts_Signals::MSG_ID,
+        app::can_utils::ECU5_InfoCounts_Signals::MSG_ID, app::can_utils::ECU5_Info_Signals::MSG_ID,
+        app::can_utils::ECU5_Warnings_Signals::MSG_ID,   app::can_utils::ECU5_WarningsCounts_Signals::MSG_ID,
     };
     for (uint32_t i = 0; i <= MAX_CANID; i++)
     {
         EXPECT_EQ(io::can_rx::filterMessageId_can2(i), can2_present.contains(i));
     }
 
-    const set can3_present = { app::can_utils::CAN_MSG_ECU_2_BASIC_SIGNAL_TYPES_ID };
+    const set can3_present = { app::can_utils::ECU2_BasicSignalTypes_Signals::MSG_ID };
     for (uint32_t i = 0; i <= MAX_CANID; i++)
     {
         EXPECT_EQ(io::can_rx::filterMessageId_can3(i), can3_present.contains(i));
