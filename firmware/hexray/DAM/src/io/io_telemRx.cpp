@@ -15,38 +15,38 @@ void io_telemRx()
     pollForRadioMessages();
 }
 
-void asyncUartTest()
-{
-    const auto rx = io::telemMessage::mock::buildVcPumpStatusCanMsg(true, 42.3F);
+// void asyncUartTest()
+// {
+//     const auto rx = io::telemMessage::mock::buildVcPumpStatusCanMsg(true, 42.3F);
 
-    io::telemMessage::TelemCanMsg msg {rx, 5};
-    if (!_900k_uart.transmit(std::span{reinterpret_cast<uint8_t*>(&msg), msg.wireSize()}))
-    {
-        LOG_ERROR("Failed to transmit");
-        return;
-    }
-    LOG_INFO("Sent");
-}
+//     io::telemMessage::TelemCanMsg msg{ rx, 5 };
+//     if (!_900k_uart.transmit(std::span{ reinterpret_cast<uint8_t *>(&msg), msg.wireSize() }))
+//     {
+//         LOG_ERROR("Failed to transmit");
+//         return;
+//     }
+//     LOG_INFO("Sent");
+// }
 
-void receiveTest()
-{
-    std::array<uint8_t, 8> buffer{};
-    std::span<uint8_t> rx(buffer);
+// void receiveTest()
+// {
+//     std::array<uint8_t, 8> buffer{};
+//     std::span<uint8_t>     rx(buffer);
 
-    auto result = _900k_uart.receive(rx); // 1 second timeout
+//     auto result = _900k_uart.receive(rx); // 1 second timeout
 
-    if (!result.has_value())
-    {
-        LOG_ERROR("UART receive failed! Error: %d\n", static_cast<int>(result.error()));
-        return;
-    }
+//     if (!result.has_value())
+//     {
+//         LOG_ERROR("UART receive failed! Error: %d\n", static_cast<int>(result.error()));
+//         return;
+//     }
 
-    LOG_INFO("UART receive succeeded. Data:\n");
-    for (auto b : buffer)
-    {
-        LOG_INFO("0x%02X ", b);
-    }
-}
+//     LOG_INFO("UART receive succeeded. Data:\n");
+//     for (auto b : buffer)
+//     {
+//         LOG_INFO("0x%02X ", b);
+//     }
+// }
 
 // Send message to backend through radio to get t1,t2. Called periodically
 void transmitNTPStartMsg(void)
@@ -62,7 +62,7 @@ void transmitNTPStartMsg(void)
 
     const io::telemMessage::NTPMsg ntp_msg = io::telemMessage::NTPMsg();
     if (!_900k_uart.transmit(
-        std::span<const uint8_t>{ reinterpret_cast<const uint8_t *>(&ntp_msg), ntp_msg.wireSize() }))
+            std::span<const uint8_t>{ reinterpret_cast<const uint8_t *>(&ntp_msg), ntp_msg.wireSize() }))
     {
         LOG_ERROR("Failed to transmit NTP message");
         return;
@@ -76,7 +76,7 @@ void pollForRadioMessages(void)
     // Structure: First 2 bytes is magic bytes, 3rd is size of the body, remaining 4 is CRC
     uint8_t            headerData[7];
     std::span<uint8_t> rxBufferHeader(headerData, 7);
-    auto result = _900k_uart.receive(rxBufferHeader);
+    auto               result = _900k_uart.receive(rxBufferHeader);
     if (!result)
     {
         LOG_ERROR("Could not get rxBufferHeader, error %d", result.error());
@@ -144,8 +144,8 @@ void parseNTPPacketBody(std::span<uint8_t> body)
         return; // Received non-ntp message
 
     // Body is 17 bytes: 1 byte header + 8 bytes t1 + 8 bytes t2
-    uint64_t t1 = *reinterpret_cast<uint64_t*>(&body[1]);
-    uint64_t t2 = *reinterpret_cast<uint64_t*>(&body[9]);
+    uint64_t t1 = *reinterpret_cast<uint64_t *>(&body[1]);
+    uint64_t t2 = *reinterpret_cast<uint64_t *>(&body[9]);
 
     ntpTimestamps.t1 = t1;
     ntpTimestamps.t2 = t2;

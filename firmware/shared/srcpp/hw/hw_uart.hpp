@@ -27,12 +27,15 @@ class Uart
      * @return
      */
     std::expected<void, ErrorCode> waitForNotification(uint32_t timeoutMs) const;
+    mutable bool                   last_read_fault = false;
 
   public:
     /**
      *
      */
     void onTransactionCompleteFromISR() const;
+
+    void onErrorFromISR() const;
 
     /**
      * Transmits an amount of data in polling mode (blocking).

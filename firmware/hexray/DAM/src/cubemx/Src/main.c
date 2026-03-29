@@ -113,7 +113,7 @@ int main(void)
     MX_USB_PCD_Init();
     MX_CRC_Init();
     MX_FDCAN1_Init();
-    //MX_IWDG_Init();
+    MX_IWDG_Init();
     MX_RTC_Init();
     MX_SDMMC1_SD_Init();
     /* USER CODE BEGIN 2 */
@@ -445,7 +445,7 @@ static void MX_USART2_UART_Init(void)
     {
         Error_Handler();
     }
-    if (HAL_UARTEx_DisableFifoMode(&huart2) != HAL_OK)
+    if (HAL_UARTEx_EnableFifoMode(&huart2) != HAL_OK)
     {
         Error_Handler();
     }

@@ -21,6 +21,16 @@ void hw::Uart::onTransactionCompleteFromISR() const
     portYIELD_FROM_ISR(higherPriorityTaskWoken);
 }
 
+void hw::Uart::onErrorFromISR() const
+{
+    assert(taskInProgress != nullptr);
+    BaseType_t higherPriorityTaskWoken = pdFALSE;
+    vTaskNotifyGiveFromISR(taskInProgress, &higherPriorityTaskWoken);
+    portYIELD_FROM_ISR(higherPriorityTaskWoken);
+
+    last_read_fault = true;
+}
+
 std::expected<void, ErrorCode> hw::Uart::waitForNotification(const uint32_t timeoutMs) const
 {
     const uint32_t num_notifications = ulTaskNotifyTake(pdTRUE, timeoutMs);
@@ -32,6 +42,10 @@ std::expected<void, ErrorCode> hw::Uart::waitForNotification(const uint32_t time
         (void)HAL_UART_Abort_IT(&handle);
         LOG_WARN("UART transaction timed out");
         return std::unexpected(ErrorCode::TIMEOUT);
+    }
+    if (last_read_fault)
+    {
+        return std::unexpected(ErrorCode::ERROR);
     }
     return {};
 }
@@ -83,7 +97,8 @@ std::expected<void, ErrorCode> hw::Uart::receive(std::span<uint8_t> rx, const ui
         return exit;
     }
 
-    taskInProgress = xTaskGetCurrentTaskHandle();
+    taskInProgress  = xTaskGetCurrentTaskHandle();
+    last_read_fault = false;
 
     std::expected<void, ErrorCode> exit =
         hw_utils_convertHalStatus(HAL_UART_Receive_IT(&handle, rx.data(), static_cast<uint16_t>(rx.size())));
@@ -114,4 +129,6 @@ extern "C" void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 extern "C" void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
     LOG_ERROR("UART error: 0x%X", huart->ErrorCode);
+    const hw::Uart &bus = hw::getUartFromHandle(huart);
+    bus.onErrorFromISR();
 }

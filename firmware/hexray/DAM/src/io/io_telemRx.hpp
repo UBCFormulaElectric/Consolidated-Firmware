@@ -24,7 +24,6 @@ typedef struct
     uint64_t t3;
 } NTPTimestamps;
 
-
 #pragma once
 
 #include <algorithm>
@@ -52,11 +51,7 @@ inline constexpr uint32_t VC_PUMP_STATUS_DLC    = 2U;
     payload[1] = static_cast<uint8_t>((ramp_raw >> 7U) & 0x07U);
 
     return io::CanMsg{
-        VC_PUMP_STATUS_CAN_ID,
-        VC_PUMP_STATUS_DLC,
-        payload,
-        false,
-        app::can_utils::BusEnum::Bus_FDCAN,
+        VC_PUMP_STATUS_CAN_ID, VC_PUMP_STATUS_DLC, payload, false, app::can_utils::BusEnum::Bus_FDCAN,
     };
 }
 

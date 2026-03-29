@@ -6,6 +6,4 @@
 #include <stdint.h>
 #include <util_errorCodes.h>
 
-void io_telemRx(void)
-{
-}
+void io_telemRx(void) {}

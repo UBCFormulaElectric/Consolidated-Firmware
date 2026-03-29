@@ -27,7 +27,7 @@ void jobs_init()
             const io::CanMsg msg    = app::jsoncan::copyToCanMsg(tx_msg);
             auto             result = can_tx_queue.push(msg);
             // if (not result)
-                // LOG_ERROR("Failed to push TX CAN message: %d", static_cast<int>(result.error()));
+            // LOG_ERROR("Failed to push TX CAN message: %d", static_cast<int>(result.error()));
         });
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
     telem_tx_queue.init();
@@ -35,7 +35,7 @@ void jobs_init()
 void jobs_run1Hz_tick()
 {
     // call transmitNTPStartMsg from io_telemRx.cpp
-    // transmitNTPStartMsg();
+    transmitNTPStartMsg();
 }
 void jobs_run100Hz_tick()
 {
@@ -67,6 +67,5 @@ void jobs_runTelem_tick()
 
 void jobs_runTelemRx()
 {
-    //io_telemRx();
-    receiveTest();
+    io_telemRx();
 }
