@@ -1,11 +1,13 @@
 #include "tasks.h"
 #include "hw_adcs.hpp"
+#include "hw_gpios.hpp"
 #include "jobs.hpp"
 
 #include "app_jsoncan.hpp"
 
 #include "io_time.hpp"
 #include "io_canQueues.hpp"
+#include <app_canAlerts.hpp>
 #include <io_canRx.hpp>
 #include <io_canTx.hpp>
 #include <stm32h5xx_hal.h>
@@ -16,6 +18,7 @@
 #include "main.h"
 #include <optional>
 #include "hw_watchdog.hpp"
+#include "hw_resetReason.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
@@ -70,7 +73,7 @@
     {
         jobs_run1kHz_tick();
 
-        // monitor1khz.checkForTimeouts();
+        monitor1khz.checkForTimeouts();
         watchdog1khz.checkIn();
 
         start_ticks += period_ms;
@@ -133,20 +136,18 @@ void tasks_preInit()
 
 void tasks_init()
 {
-    // __HAL_DBGMCU_FREEZE_IWDG();
+    __HAL_DBGMCU_FREEZE_IWDG();
     hw::adcs::chipsInit();
     hw::can::can1.init();
+    ResetReason reason = hw_resetReason_get();
+    if (reason == RESET_REASON_WATCHDOG)
+    {
+        LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
+        app::can_alerts::infos::WatchdogTimeout_set(true);
+    }
     jobs_init();
     osKernelInitialize();
     RSM_StartAllTasks();
     osKernelStart();
-    int count = 1;
-    if (count == 2)
-    {
-        LOG_WARN("MCU is reset");
-    }
-    count++;
-    
-    
     forever {}
 }
