@@ -11,6 +11,8 @@
 #include "hw_hardFaultHandler.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_cans.hpp"
+#include "hw_watchdog.hpp"
+#include "hw_resetReason.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {

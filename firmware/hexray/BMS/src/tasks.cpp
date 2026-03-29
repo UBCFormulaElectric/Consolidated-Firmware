@@ -15,6 +15,8 @@
 #include "io_canQueues.hpp"
 #include <stm32h7xx_hal.h>
 #include "main.h"
+#include "hw_resetReason.hpp"
+#include "app_canAlerts.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
@@ -141,7 +143,12 @@ void tasks_init()
     hw::adc::chipsInit();
     hw::can::fdcan1.init();
     hw::can::fdcan2.init();
-
+    ResetReason reason = hw::resetReason::get();
+    if (reason == RESET_REASON_WATCHDOG)
+    {
+        LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
+        app::can_alerts::infos::WatchdogTimeout_set(true);
+    }
     jobs_init();
     osKernelInitialize();
     BMS_StartAllTasks();
