@@ -145,33 +145,6 @@ impl CanDatabase {
         // 3. adds all the signals into the global dump of signals (self._signals_to_msgs)
         // Note this function expects a valid CanMessage object
 
-        // Check if this message name is a duplicate
-        // TODO move this
-        // if let Some(dup_msg) = msgs.iter().find(|m| m.name == msg.name) {
-        //     return Err(ParseError::DuplicateTxMsgName {
-        //         tx_node_name_1: tx_node_name.clone(),
-        //         tx_node_name_2: dup_msg.tx_node_name.clone(),
-        //         tx_msg_name: msg.name.clone(),
-        //     });
-        // }
-
-        // TODO move this
-        // if let Some(dup_msg) = msgs.iter().find(|m| m.id == msg.id) {
-        //     return Err(ParseError::DuplicateTxMsgID {
-        //         tx_msg_name: msg.name.clone(),
-        //         tx_node_name_1: tx_node_name.clone(),
-        //         tx_node_name_2: dup_msg.tx_node_name.clone(),
-        //     });
-        // }
-
-        // TODO determine if a message is FD compatible when it is routed
-        // if msg.requires_fd() && !tx_node.fd {
-        //     return Err(ParseError::TxFDUnsupported {
-        //         fd_msg_name: msg.name.clone(),
-        //         non_fd_node_name: tx_node_name.clone(),
-        //     });
-        // }
-
         // register the message with the database of all messages
 
         // TODO figure out how to find conflicting signal names across messages
