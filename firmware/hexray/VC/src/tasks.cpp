@@ -20,7 +20,7 @@
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
-    const uint32_t period_ms = 1000U;
+    const uint32_t                 period_ms                = 1000U;
     const uint32_t                 watchdog_grace_period_ms = 50U;
     hw::watchdog::WatchdogInstance watchdog1hz{ period_ms + watchdog_grace_period_ms };
     hw::watchdog::monitor          monitor1hz{ &watchdog1hz, hiwdg1, HAL_IWDG_Refresh };
@@ -38,7 +38,7 @@
 }
 [[noreturn]] static void tasks_run100Hz(void *arg)
 {
-    const uint32_t period_ms = 10U;
+    const uint32_t                 period_ms                = 10U;
     const uint32_t                 watchdog_grace_period_ms = 2U;
     hw::watchdog::WatchdogInstance watchdog100hz{ period_ms + watchdog_grace_period_ms };
     hw::watchdog::monitor          monitor100hz{ &watchdog100hz, hiwdg1, HAL_IWDG_Refresh };
@@ -55,7 +55,7 @@
 }
 [[noreturn]] static void tasks_run1kHz(void *arg)
 {
-    const uint32_t period_ms = 1U;
+    const uint32_t                 period_ms                = 1U;
     const uint32_t                 watchdog_grace_period_ms = 1U;
     hw::watchdog::WatchdogInstance watchdog1khz{ period_ms + watchdog_grace_period_ms };
     hw::watchdog::monitor          monitor1khz{ &watchdog1khz, hiwdg1, HAL_IWDG_Refresh };
@@ -152,6 +152,7 @@ void tasks_preInit()
 
 void tasks_init()
 {
+    // __HAL_DBGMCU_FREEZE_IWDG();
     hw::can::fdcan1.init();
     hw::can::invcan.init();
 

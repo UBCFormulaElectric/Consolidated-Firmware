@@ -53,7 +53,7 @@ extern "C"
     extern TIM_HandleTypeDef   htim3;
     extern UART_HandleTypeDef  huart8;
     extern PCD_HandleTypeDef   hpcd_USB_OTG_HS;
-    extern IWDG_HandleTypeDef hiwdg1;
+    extern IWDG_HandleTypeDef  hiwdg1;
 
     /* USER CODE END EC */
 
