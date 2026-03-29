@@ -8,7 +8,7 @@ namespace hw::resetReason
 static bool        reason_read;
 static ResetReason reason;
 
-ResetReason hw_resetReason_get(void)
+ResetReason get(void)
 {
     // If the reset reason has already been determined, return it. When
     // determining the reason we clear all the reset flags, so they aren't

@@ -31,5 +31,5 @@ namespace hw::resetReason
 /*
  * Returns the reason the microcontroller reset.
  */
-ResetReason hw_resetReason_get(void);
+ResetReason get(void);
 } // namespace hw::resetReason
