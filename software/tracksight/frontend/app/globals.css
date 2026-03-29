@@ -24,6 +24,10 @@
   }
 }
 
+html, body {
+    overscroll-behavior-x: none;
+}
+
 /* NOTE(evan): Utility classes to remove scrollbars because they're ugly */
 
 .scrollbar-hidden {

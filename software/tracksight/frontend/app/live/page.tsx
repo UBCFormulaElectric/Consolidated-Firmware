@@ -5,7 +5,6 @@ import DataDashboard from "@/components/DataDashboard";
 import AlertTimeline from "@/components/widgets/AlertTimeline";
 import {
     DisplayControlProvider,
-    PausePlayButton,
     ViewportLockButton,
 } from "@/components/PausePlayControl";
 import SyncedGraphContainer from "@/components/SyncedGraphContainer";
@@ -26,10 +25,6 @@ function Content() {
 
     return (
         <DataSourceProvider>
-            <div className="sticky top-20 z-20 ml-auto mr-6 flex w-fit gap-3">
-                <PausePlayButton />
-                <ViewportLockButton />
-            </div>
             <AlertTimeline />
             {initializedFromLocalStorage ? (
                 <>
@@ -49,6 +44,9 @@ export default function LiveDataPage() {
     return (
         <div id="live-page" className="pt-14 h-screen">
             <DisplayControlProvider>
+                <div className="sticky top-15 z-10 mr-auto ml-2">
+                    <ViewportLockButton />
+                </div>
                 <SyncedGraphContainer>
                     <WidgetManager>
                         <Content />

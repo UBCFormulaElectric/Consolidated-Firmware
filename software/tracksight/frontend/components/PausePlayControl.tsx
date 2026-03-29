@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, ReactNode, useCallback, useEffect } from 'react'
+import { createContext, useContext, ReactNode, useCallback } from 'react'
 import { Lock, LockOpen, Pause, Play } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useLocalState } from '../lib/hooks/useLocalState'
@@ -66,20 +66,6 @@ function ControlButton(props: {
         >
             {props.children}
         </button>
-    )
-}
-
-export function PausePlayButton() {
-    const { isPaused, togglePause } = useDisplayControlContext()
-
-    return (
-        <ControlButton
-            onClick={togglePause}
-            className={isPaused ? "bg-green-500 border-green-600 hover:bg-green-600 text-white" : "bg-red-500 border-red-600 hover:bg-red-600 text-white"}
-            title={isPaused ? "Resume live data" : "Pause live data"}
-        >
-            {isPaused ? <Play className="w-full h-full" fill="currentColor" /> : <Pause className="w-full h-full" fill="currentColor" />}
-        </ControlButton>
     )
 }
 
