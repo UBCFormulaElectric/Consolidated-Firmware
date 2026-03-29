@@ -3,37 +3,19 @@
 #include "io_efuses.hpp"
 #include "app_canTx.hpp"
 
-#define BUFFER 5
+#define BUFFER 5.0f
 
 namespace app::pumpControl
 {
-constexpr uint8_t SLOPE            = 1 / 2; // if specs have not changed
-constexpr uint8_t CURRENT_THRESH   = 1 / 40;
-static bool       finished_ramp_up = false;
-static uint16_t   time_ms          = 0;
+constexpr float SLOPE            = 1.0f / 2; // if specs have not changed
+static bool     finished_ramp_up = false;
+static uint16_t time_ms          = 0;
 
-static void rampUp()
+static float rampUpSetPoint(uint16_t time_ms)
 {
-    if (finished_ramp_up)
-    {
-        return;
-    }
-
     const float percentage = SLOPE * static_cast<float>(time_ms);
     app::can_tx::VC_PumpRampUpSetPoint_set(percentage);
-
-    if (percentage >= 100.0f - BUFFER)
-    {
-        time_ms          = 0;
-        finished_ramp_up = true;
-    }
-}
-
-static void stopFlow()
-{
-    app::can_tx::VC_PumpFailure_set(true);
-    finished_ramp_up = false;
-    time_ms          = 0;
+    return percentage;
 }
 
 void MonitorPumps()
@@ -49,11 +31,22 @@ void MonitorPumps()
     if (ramp_up_rl_pump && ramp_up_rr_pump)
     {
         app::can_tx::VC_PumpFailure_set(false);
-        rampUp();
+        if (!finished_ramp_up)
+        {
+            const float percentage = rampUpSetPoint(time_ms);
+            if (percentage >= 100.0f - BUFFER)
+            {
+                time_ms          = 0;
+                finished_ramp_up = true;
+            }
+        }
     }
     else
     {
-        stopFlow();
+        // stops the flow to reramp up to a setpoint
+        app::can_tx::VC_PumpFailure_set(true);
+        finished_ramp_up = false;
+        time_ms          = 0;
     }
 
     app::can_tx::VC_RsmTurnOnPump_set(ramp_up_rl_pump && ramp_up_rr_pump);
