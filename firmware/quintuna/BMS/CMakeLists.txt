@@ -94,8 +94,6 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_hal_pcd_ex.c"
             "stm32h7xx_hal_tim_ex.c"
             "stm32h7xx_hal_tim.c"
-            "stm32h7xx_hal_uart_ex.c"
-            "stm32h7xx_hal_uart.c"
             "stm32h7xx_hal.c"
             "stm32h7xx_ll_sdmmc.c"
             "stm32h7xx_hal_pcd.c"
@@ -124,7 +122,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    target_link_libraries("quintuna_BMS_app.elf" PRIVATE "quintuna_BMS_stm32" "quintuna_BMS_jsoncan" "quintuna_BMS_commit_info" "quintuna_chimera_v2_proto_cm7 logfs_cm7")
+    target_link_libraries("quintuna_BMS_app.elf" PRIVATE "quintuna_BMS_stm32" "quintuna_BMS_jsoncan" "quintuna_BMS_commit_info" "quintuna_chimera_v2_proto_cm7" "logfs_cm7")
     target_compile_definitions("quintuna_BMS_app.elf" PUBLIC TARGET_HV_SUPPLY)
 
     if ("${BOOTLOAD}" STREQUAL "ON")
@@ -133,7 +131,7 @@ if ("${TARGET}" STREQUAL "binary")
         file(GLOB BOOT_CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
         set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
         no_checks("${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c")
-        stm32h7_boot_binary(
+        stm32h7_boot_binary_c(
                 "quintuna_BMS_boot"
                 "${BOOT_SRCS}"
                 "${BOOT_CUBEMX_SRCS}"

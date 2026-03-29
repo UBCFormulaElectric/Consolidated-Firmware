@@ -185,7 +185,7 @@ const osThreadAttr_t TaskInit_attributes = {
 };
 /* Definitions for TaskSDCard */
 osThreadId_t         TaskSDCardHandle;
-uint32_t             TaskSDCardBuffer[128];
+uint32_t             TaskSDCardBuffer[256];
 osStaticThreadDef_t  TaskSDCardControlBlock;
 const osThreadAttr_t TaskSDCard_attributes = {
     .name       = "TaskSDCard",

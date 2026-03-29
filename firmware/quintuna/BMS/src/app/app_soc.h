@@ -5,7 +5,7 @@
 #include "app_timer.h"
 
 #define STATE_OF_HEALTH (1.00f)
-#define SERIES_ELEMENT_FULL_CHARGE_C (2.6f * 3600.0f * 5.0f * STATE_OF_HEALTH)
+#define SERIES_ELEMENT_FULL_CHARGE_C (2.8f * 3600.0f * 5.0f * STATE_OF_HEALTH)
 
 #ifndef TARGET_EMBEDDED
 /**

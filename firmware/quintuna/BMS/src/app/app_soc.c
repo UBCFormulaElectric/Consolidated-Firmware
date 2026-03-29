@@ -110,13 +110,13 @@ void app_soc_init(void)
     soc_charge_c   = -1;
 
     // A negative SOC value will indicate to app_soc_Create that saved SOC value is corrupted
-    float saved_soc_c = -1.0f;
+    float saved_soc_percent = -1.0f;
 
-    if (app_soc_readSocFromSd(&saved_soc_c))
+    if (app_soc_readSocFromSd(&saved_soc_percent))
     {
-        if (IS_IN_RANGE(0.0f, SERIES_ELEMENT_FULL_CHARGE_C * 1.25f, saved_soc_c))
+        if (IS_IN_RANGE(0.0f, 100.0f, saved_soc_percent))
         {
-            soc_charge_c   = (double)saved_soc_c;
+            soc_charge_c   = (double)(saved_soc_percent / 100.0f * SERIES_ELEMENT_FULL_CHARGE_C);
             soc_is_corrupt = false;
         }
     }
@@ -180,14 +180,14 @@ void app_soc_resetSocCustomValue(float soc_percent)
     app_canTx_BMS_SocCorrupt_set(soc_is_corrupt);
 }
 
-bool app_soc_readSocFromSd(float *saved_soc_c)
+bool app_soc_readSocFromSd(float *saved_soc_percent)
 {
-    return io_socStorage_read(saved_soc_c);
+    return io_socStorage_read(saved_soc_percent);
 }
 
-bool app_soc_writeSocToSd(float soc)
+bool app_soc_writeSocToSd(float soc_percent)
 {
-    return io_socStorage_write(soc);
+    return io_socStorage_write(soc_percent);
 }
 
 void app_soc_broadcast(void)

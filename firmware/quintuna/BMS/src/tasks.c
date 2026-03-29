@@ -106,7 +106,7 @@ void tasks_init(void)
     // Shutdown loop power comes from a load switch on the BMS.
     hw_gpio_writePin(&shdn_en_pin, true);
     io_socStorage_init();
-    
+
     jobs_init();
 
     io_canTx_BMS_Bootup_sendAperiodic(); // TODO do this in jobs_init
@@ -269,7 +269,7 @@ void tasks_runLtcDiagnostics(void)
 
 void tasks_runSdCard(void)
 {
-    static const TickType_t period_ms = 10000U; // Every 10s
+    static const TickType_t period_ms = 1000U; // Every 1s
     for (;;)
     {
         const uint32_t start_ticks = osKernelGetTickCount();

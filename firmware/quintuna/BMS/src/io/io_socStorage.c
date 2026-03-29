@@ -7,27 +7,27 @@
 
 #define SOC_STORAGE_PATH "/soc.txt"
 
-#define CHECK_SOC_STORAGE_ERR_CRITICAL(f)                                \
-    if (!(f))                                                            \
-    {                                                                    \
-        soc_storage_error_remaining = 0;                                 \
+#define CHECK_SOC_STORAGE_ERR_CRITICAL(f)                               \
+    if (!(f))                                                           \
+    {                                                                   \
+        soc_storage_error_remaining = 0;                                \
         LOG_ERROR("Critical SoC storage failure, storage unavailable"); \
-        return;                                                          \
+        return;                                                         \
     }
 
-#define CHECK_SOC_STORAGE_ENABLED_RET_FALSE()                \
-    if (soc_storage_error_remaining == 0)                    \
-    {                                                        \
-        LOG_ERROR("SoC storage disabled, not continuing");  \
-        return false;                                        \
+#define CHECK_SOC_STORAGE_ENABLED_RET_FALSE()              \
+    if (soc_storage_error_remaining == 0)                  \
+    {                                                      \
+        LOG_ERROR("SoC storage disabled, not continuing"); \
+        return false;                                      \
     }
 
-#define CHECK_SOC_STORAGE_ERR_RET_FALSE(f)                \
-    if (!(f))                                             \
-    {                                                     \
-        soc_storage_error_remaining--;                    \
-        LOG_ERROR("SoC storage operation failed");       \
-        return false;                                     \
+#define CHECK_SOC_STORAGE_ERR_RET_FALSE(f)         \
+    if (!(f))                                      \
+    {                                              \
+        soc_storage_error_remaining--;             \
+        LOG_ERROR("SoC storage operation failed"); \
+        return false;                              \
     }
 
 static uint32_t soc_fd;
