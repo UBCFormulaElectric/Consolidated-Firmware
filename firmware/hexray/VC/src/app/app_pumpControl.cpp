@@ -11,9 +11,9 @@ constexpr float SLOPE            = 1.0f / 2; // if specs have not changed
 static bool     finished_ramp_up = false;
 static uint16_t time_ms          = 0;
 
-static float rampUpSetPoint(uint16_t time_ms)
+static float rampUpSetPoint(uint16_t current_time_ms)
 {
-    const float percentage = SLOPE * static_cast<float>(time_ms);
+    const float percentage = SLOPE * static_cast<float>(current_time_ms);
     app::can_tx::VC_PumpRampUpSetPoint_set(percentage);
     return percentage;
 }
