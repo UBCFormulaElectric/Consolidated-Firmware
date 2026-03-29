@@ -18,8 +18,8 @@ namespace app::fmac_test
  *
  * All coefficients in Q1.15 format (multiply float by 32768).
  */
-static constexpr int16_t kCoefB[] = { 12644, 0 };  // b0 ≈ 0.3859,  b1 = 0
-static constexpr int16_t kCoefA[] = { 20125 };      // a1 ≈ 0.6141
+static constexpr int16_t kCoefB[] = { 12644, 0 }; // b0 ≈ 0.3859,  b1 = 0
+static constexpr int16_t kCoefA[] = { 20125 };    // a1 ≈ 0.6141
 static constexpr uint8_t kGainExp = 0;
 
 static hw::fmac::FmacIir yaw_filter(hfmac);
