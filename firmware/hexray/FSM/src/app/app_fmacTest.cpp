@@ -4,6 +4,8 @@
 #include "app_canTx.hpp"
 #include "main.h"
 
+extern "C" FMAC_HandleTypeDef hfmac;
+
 namespace app::fmac_test
 {
 
