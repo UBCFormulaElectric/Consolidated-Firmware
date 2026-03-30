@@ -1,7 +1,11 @@
 [package]
 name = "backend"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
+
+[features]
+verbose = []
+debug = ["verbose"]
 
 [dependencies]
 serialport = "4.0"
@@ -19,7 +23,6 @@ serde_json = "1.0.145"
 regex = "1.12.2"
 tower-http = { version = "0.5", features = ["cors"] }
 futures = "0.3.32"
-colored = "3.1.1"
 mdns-sd = "0.18.1"
 if-addrs = "0.15.0"
 

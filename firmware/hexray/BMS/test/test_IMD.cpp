@@ -48,12 +48,14 @@ TEST_F(ImdTest, check_insulation_resistance_normal_and_undervoltage_conditions)
         fakes::imd::setDutyCycle(MIN_VALID_DUTY_CYCLE);
         condition = app::imd::getCondition();
         ASSERT_EQ(true, condition.valid_duty_cycle);
-        ASSERT_EQ(50000, condition.payload.insulation_measurement_dcp_kohms);
+        ASSERT_TRUE(condition.insulation_measurement_dcp_kohms.has_value());
+        ASSERT_EQ(50000, *condition.insulation_measurement_dcp_kohms);
 
         fakes::imd::setDutyCycle((MIN_VALID_DUTY_CYCLE + MAX_VALID_DUTY_CYCLE) / 2.0f);
         condition = app::imd::getCondition();
         ASSERT_EQ(true, condition.valid_duty_cycle);
-        ASSERT_EQ(1200, condition.payload.insulation_measurement_dcp_kohms);
+        ASSERT_TRUE(condition.insulation_measurement_dcp_kohms.has_value());
+        ASSERT_EQ(1200, *condition.insulation_measurement_dcp_kohms);
 
         fakes::imd::setDutyCycle(MAX_VALID_DUTY_CYCLE + 0.01f);
         condition = app::imd::getCondition();
@@ -62,7 +64,8 @@ TEST_F(ImdTest, check_insulation_resistance_normal_and_undervoltage_conditions)
         fakes::imd::setDutyCycle(MAX_VALID_DUTY_CYCLE);
         condition = app::imd::getCondition();
         ASSERT_EQ(true, condition.valid_duty_cycle);
-        ASSERT_EQ(0, condition.payload.insulation_measurement_dcp_kohms);
+        ASSERT_TRUE(condition.insulation_measurement_dcp_kohms.has_value());
+        ASSERT_EQ(0, *condition.insulation_measurement_dcp_kohms);
     }
 }
 
@@ -88,12 +91,14 @@ TEST_F(ImdTest, check_good_and_bad_sst_condition_eval)
     fakes::imd::setDutyCycle(GOOD_MIN_DUTY_CYCLE);
     auto condition = app::imd::getCondition();
     ASSERT_EQ(true, condition.valid_duty_cycle);
-    ASSERT_EQ(Sst::GOOD, condition.payload.speed_start_status);
+    ASSERT_TRUE(condition.speed_start_status.has_value());
+    ASSERT_EQ(Sst::GOOD, *condition.speed_start_status);
 
     fakes::imd::setDutyCycle(GOOD_MAX_DUTY_CYCLE);
     condition = app::imd::getCondition();
     ASSERT_EQ(true, condition.valid_duty_cycle);
-    ASSERT_EQ(Sst::GOOD, condition.payload.speed_start_status);
+    ASSERT_TRUE(condition.speed_start_status.has_value());
+    ASSERT_EQ(Sst::GOOD, *condition.speed_start_status);
 
     fakes::imd::setDutyCycle(GOOD_MAX_DUTY_CYCLE + 0.1f);
     ASSERT_EQ(false, app::imd::getCondition().valid_duty_cycle);
@@ -107,12 +112,14 @@ TEST_F(ImdTest, check_good_and_bad_sst_condition_eval)
     fakes::imd::setDutyCycle(BAD_MIN_DUTY_CYCLE);
     condition = app::imd::getCondition();
     ASSERT_EQ(true, condition.valid_duty_cycle);
-    ASSERT_EQ(Sst::BAD, condition.payload.speed_start_status);
+    ASSERT_TRUE(condition.speed_start_status.has_value());
+    ASSERT_EQ(Sst::BAD, *condition.speed_start_status);
 
     fakes::imd::setDutyCycle(BAD_MAX_DUTY_CYCLE);
     condition = app::imd::getCondition();
     ASSERT_EQ(true, condition.valid_duty_cycle);
-    ASSERT_EQ(Sst::BAD, condition.payload.speed_start_status);
+    ASSERT_TRUE(condition.speed_start_status.has_value());
+    ASSERT_EQ(Sst::BAD, *condition.speed_start_status);
 
     fakes::imd::setDutyCycle(BAD_MAX_DUTY_CYCLE + 0.1f);
     ASSERT_EQ(false, app::imd::getCondition().valid_duty_cycle);

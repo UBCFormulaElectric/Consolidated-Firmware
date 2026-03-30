@@ -64,6 +64,8 @@ Condition getCondition()
     Condition condition{};
     condition.name = (pwm_frequency < 0.001f) ? app::can_utils::ImdConditionName::IMD_CONDITION_SHORT_CIRCUIT
                                               : estimateConditionName(pwm_frequency);
+    condition.insulation_measurement_dcp_kohms.reset();
+    condition.speed_start_status.reset();
 
     // Decode the information encoded in the PWM frequency and duty cycle
     switch (condition.name)
@@ -82,14 +84,13 @@ Condition getCondition()
             {
                 if (pwm_duty_cycle - 5.0f < 0.001f)
                 {
-                    condition.payload.insulation_measurement_dcp_kohms = 50000;
+                    condition.insulation_measurement_dcp_kohms = 50000;
                 }
                 else
                 {
                     const uint16_t resistance =
                         static_cast<uint16_t>((1080.0f / (pwm_duty_cycle / 100.0f - 0.05f)) - 1200.0f);
-                    condition.payload.insulation_measurement_dcp_kohms =
-                        std::min(resistance, static_cast<uint16_t>(50000));
+                    condition.insulation_measurement_dcp_kohms = std::min(resistance, static_cast<uint16_t>(50000));
                 }
             }
         }
@@ -105,11 +106,11 @@ Condition getCondition()
             {
                 if (pwm_duty_cycle >= 5.0f && pwm_duty_cycle <= 10.0f)
                 {
-                    condition.payload.speed_start_status = Sst::GOOD;
+                    condition.speed_start_status = Sst::GOOD;
                 }
                 else if (pwm_duty_cycle >= 90.0f && pwm_duty_cycle <= 95.0f)
                 {
-                    condition.payload.speed_start_status = Sst::BAD;
+                    condition.speed_start_status = Sst::BAD;
                 }
             }
         }
@@ -148,27 +149,28 @@ void broadcast()
         break;
         case app::can_utils::ImdConditionName::IMD_CONDITION_NORMAL:
         {
-            if (condition.valid_duty_cycle)
+            if (condition.valid_duty_cycle && condition.insulation_measurement_dcp_kohms.has_value())
             {
-                app::can_tx::BMS_ImdInsulationMeasurementDcp10Hz_set(
-                    condition.payload.insulation_measurement_dcp_kohms);
+                app::can_tx::BMS_ImdInsulationMeasurementDcp10Hz_set(*condition.insulation_measurement_dcp_kohms);
                 app::can_tx::BMS_ImdActiveFrequency_set(app::can_utils::ImdActiveFrequency::IMD_10Hz);
             }
         }
         break;
         case app::can_utils::ImdConditionName::IMD_CONDITION_UNDERVOLTAGE_DETECTED:
         {
-            if (condition.valid_duty_cycle)
+            if (condition.valid_duty_cycle && condition.insulation_measurement_dcp_kohms.has_value())
             {
-                app::can_tx::BMS_ImdInsulationMeasurementDcp20Hz_set(
-                    condition.payload.insulation_measurement_dcp_kohms);
+                app::can_tx::BMS_ImdInsulationMeasurementDcp20Hz_set(*condition.insulation_measurement_dcp_kohms);
                 app::can_tx::BMS_ImdActiveFrequency_set(app::can_utils::ImdActiveFrequency::IMD_20Hz);
             }
         }
         break;
         case app::can_utils::ImdConditionName::IMD_CONDITION_SST:
         {
-            app::can_tx::BMS_ImdSpeedStartStatus30Hz_set((float)condition.payload.speed_start_status);
+            if (condition.speed_start_status.has_value())
+            {
+                app::can_tx::BMS_ImdSpeedStartStatus30Hz_set(static_cast<float>(*condition.speed_start_status));
+            }
             app::can_tx::BMS_ImdActiveFrequency_set(app::can_utils::ImdActiveFrequency::IMD_30Hz);
         }
         break;

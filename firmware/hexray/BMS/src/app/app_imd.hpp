@@ -1,4 +1,5 @@
 #pragma once
+#include <optional>
 #include "app_canUtils.hpp"
 
 namespace app::imd
@@ -15,11 +16,8 @@ struct Condition
 {
     app::can_utils::ImdConditionName name;
     bool                             valid_duty_cycle;
-    union Payload
-    {
-        uint16_t insulation_measurement_dcp_kohms;
-        Sst      speed_start_status;
-    } payload;
+    std::optional<uint16_t>          insulation_measurement_dcp_kohms;
+    std::optional<Sst>               speed_start_status;
 };
 
 /**

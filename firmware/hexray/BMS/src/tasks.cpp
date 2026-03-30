@@ -6,12 +6,14 @@
 #include "io_time.hpp"
 #include <io_canRx.hpp>
 
+#include "hw_adcs.hpp"
 #include "hw_watchdog.hpp"
 #include "hw_cans.hpp"
 #include "hw_error.hpp"
 #include "hw_hardFaultHandler.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "io_canQueues.hpp"
+#include <stm32h7xx_hal.h>
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
@@ -129,6 +131,8 @@ void tasks_preInit()
 
 void tasks_init()
 {
+    __HAL_DBGMCU_FREEZE_IWDG1();
+    hw::adc::chipsInit();
     hw::can::fdcan1.init();
     hw::can::fdcan2.init();
 

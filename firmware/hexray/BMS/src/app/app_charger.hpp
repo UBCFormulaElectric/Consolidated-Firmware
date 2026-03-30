@@ -2,17 +2,9 @@
 
 namespace app::charger
 {
-
 /**
- * Charger utilities
+ * Get available charging current (A) computed from EVSE CP duty cycle.
+ * Returns 0.0f when the duty cycle is outside supported ranges.
  */
-class Charger
-{
-  public:
-    /**
-     * Get available charging current (A) computed from EVSE CP duty cycle.
-     * Returns 0.0f when the duty cycle is outside supported ranges.
-     */
-    static float getAvailableCurrent();
-};
+float getAvailableCurrent();
 } // namespace app::charger

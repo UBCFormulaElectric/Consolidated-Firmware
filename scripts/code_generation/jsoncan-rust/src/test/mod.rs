@@ -2,20 +2,6 @@ use std::collections::HashMap;
 use std::fmt::Debug;
 use std::hash::Hash;
 
-use crate::{
-    can_database::{CanDatabase, error::CanDBError},
-    parsing::JsonCanParser,
-};
-
-#[allow(dead_code)]
-pub fn setup() -> Result<CanDatabase, CanDBError> {
-    let _can_data_dir = std::path::Path::new(file!()).parent().unwrap();
-    CanDatabase::from(JsonCanParser::new(format!(
-        "{}/json_configs/valid_json1",
-        _can_data_dir.display()
-    )))
-}
-
 #[allow(dead_code)]
 pub fn assert_setequal<S, T, I1, I2>(iter1: I1, iter2: I2)
 where
@@ -38,11 +24,7 @@ where
     assert!(counts1 == counts2, "{:?} {:?}", counts1, counts2)
 }
 
-#[cfg(test)]
-mod node_tests;
-
-#[cfg(test)]
-mod bus_tests;
+mod parser_tests;
 
 #[cfg(test)]
 mod consistency_tests;
