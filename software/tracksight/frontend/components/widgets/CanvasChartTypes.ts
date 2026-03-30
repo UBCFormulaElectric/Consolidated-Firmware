@@ -14,6 +14,17 @@ export type NumericalSeries = SeriesBase & {
   data: SeriesData;
 };
 
+export type LODLevel = {
+  sampleIntervalMs: number;
+  data: SeriesData;
+  timestamps: number[];
+};
+
+export type LODAwareNumericalSeries = {
+  label: string;
+  lods: LODLevel[];
+};
+
 export type AlertSeries = SeriesBase & {
   data: Array<number>;
 };

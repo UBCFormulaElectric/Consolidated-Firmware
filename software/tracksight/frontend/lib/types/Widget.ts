@@ -1,4 +1,4 @@
-import { EnumSeries, NumericalSeries } from "@/components/widgets/CanvasChartTypes";
+import { EnumSeries, LODAwareNumericalSeries } from "@/components/widgets/CanvasChartTypes";
 import { Color } from "chroma-js";
 import type { FC, RefObject } from "react";
 import { EnumSignalMetadata, NumericalSignalMetadata } from "./Signal";
@@ -22,7 +22,7 @@ export type EnumTimelineWidgetSchema = {
 
 export type NumericalGraphWidgetSchema = {
   type: "numericalGraph";
-  data: NumericalSeries[];
+  data: LODAwareNumericalSeries[];
   options: {
     colorPalette: {
       [signalName: string]: Color;

@@ -1,11 +1,11 @@
-import { AlertSeries, EnumSeries, NumericalSeries } from "@/components/widgets/CanvasChartTypes";
+import { AlertSeries, EnumSeries, LODAwareNumericalSeries, NumericalSeries } from "@/components/widgets/CanvasChartTypes";
 import { SignalMetadata, SignalType } from "../types/Signal";
 import { SeriesData } from "../seriesData";
 
 export type SignalStoreReturnType<T extends SignalMetadata> = T["type"] extends SignalType.ENUM
   ? EnumSeries
   : T["type"] extends SignalType.NUMERICAL
-  ? NumericalSeries
+  ? LODAwareNumericalSeries
   : T["type"] extends SignalType.ALERT
   ? NumericalSeries
   : never
@@ -19,7 +19,7 @@ type SignalStorageEntry = {
       storeType: SignalType.ALERT
     }
     | {
-      data: NumericalSeries
+      data: LODAwareNumericalSeries
       storeType: SignalType.NUMERICAL
     }
     | {
@@ -93,10 +93,9 @@ abstract class SignalStore {
         this.storage[signal.name] = {
           ...storageBase,
           data: {
-            data: new SeriesData(),
-            timestamps: [],
             label: signal.name,
-          } satisfies NumericalSeries,
+            lods: [{ sampleIntervalMs: 0, data: new SeriesData(), timestamps: [] }],
+          } satisfies LODAwareNumericalSeries,
           storeType: SignalType.NUMERICAL,
         }
         break;
@@ -159,6 +158,20 @@ abstract class SignalStore {
     this.storage[signalName].error = error;
   }
 
+  addDataPointAtLOD(signalName: string, lod: number, sampleIntervalMs: number, timestamp: number, value: number): void {
+    this.updateWithTimestamp(timestamp);
+    const entry = this.storage[signalName];
+
+    if (!entry || entry.storeType !== SignalType.NUMERICAL) return;
+
+    while (entry.data.lods.length <= lod) {
+      entry.data.lods.push({ sampleIntervalMs: 0, data: new SeriesData(), timestamps: [] });
+    }
+    entry.data.lods[lod].sampleIntervalMs = sampleIntervalMs;
+    entry.data.lods[lod].data.push(value);
+    entry.data.lods[lod].timestamps.push(timestamp);
+  }
+
   addDataPoint(signalName: string, timestamp: number, value: number): void {
     this.updateWithTimestamp(timestamp);
     const entry = this.storage[signalName];
@@ -171,8 +184,8 @@ abstract class SignalStore {
         entry.data.timestamps.push(timestamp);
         break;
       case SignalType.NUMERICAL:
-        entry.data.data.push(value);
-        entry.data.timestamps.push(timestamp);
+        entry.data.lods[0].data.push(value);
+        entry.data.lods[0].timestamps.push(timestamp);
         break;
     }
   }

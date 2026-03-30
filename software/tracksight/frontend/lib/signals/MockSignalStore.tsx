@@ -1,5 +1,6 @@
 import SignalStore from "@/lib/signals/SignalStore";
 import { SignalMetadata, SignalType } from "../types/Signal";
+import propagateHaar from "../utils/propagateHaar";
 
 export const MOCK_STATES = [ // needed to hardcode for widgetadder
   "IDLE", "ACTIVE", "ERROR", "WAITING", "CHARGING", "SKIBIDI",
@@ -29,6 +30,8 @@ export const ALERT_SIGNALS = [
   "Error Rate",
   "Throughput",
 ]
+
+const NUM_LOD_LEVELS = 4;
 
 function generateRandomNumericalValue(time: number, index: number = 0, min: number, max: number) {
   if (min !== undefined && max !== undefined) {
@@ -65,15 +68,20 @@ function generateRandomAlertValue(prev: number) {
 }
 
 class MockSignalStore extends SignalStore {
-  private signalSubscriptionIntervals: Map<string, number>;
+  private signalSubscriptionInterval: Map<string, number>;
+  private waveletBuffers: Map<string, Array<{
+    timestamp: number;
+    value: number;
+  } | null>>;
 
   constructor(
     updateWithTimestamp: (timestamp: number) => void,
   ) {
     super(updateWithTimestamp);
 
-    this.signalSubscriptionIntervals = new Map();
-    
+    this.signalSubscriptionInterval = new Map();
+    this.waveletBuffers = new Map();
+
     ALERT_SIGNALS.forEach(signalName => {
       let previousValue = 0;
 
@@ -85,7 +93,7 @@ class MockSignalStore extends SignalStore {
         this.addAlertDataPoint(signalName, now, value);
       }, 1);
 
-      this.signalSubscriptionIntervals.set(signalName, intervalId as unknown as number);
+      this.signalSubscriptionInterval.set(signalName, intervalId as unknown as number);
     });
   }
 
@@ -96,27 +104,38 @@ class MockSignalStore extends SignalStore {
 
     if (this.getSubscriberCount(signal.name) !== 1) return signalData.data as any;
 
-    let previousValue = 0;
-
     // NOTE(evan): When a browser tab isn't focused setInterval is throttled to run once per second.
-    //             This can make the renderers appear frozen if they rely on frequent updates. In 
+    //             This can make the renderers appear frozen if they rely on frequent updates. In
     //             production when using an actual signal source this shouldn't be an issue.
-    const intervalId = setInterval(() => {
-      const now = Date.now();
-
-      if (signal.type === SignalType.NUMERICAL) {
-        const { min_val, max_val } = signal;
+    if (signal.type === SignalType.NUMERICAL) {
+      const { min_val, max_val } = signal;
+      const intervalId = setInterval(() => {
+        const now = Date.now();
         const value = generateRandomNumericalValue(now, 0, min_val, max_val);
-        previousValue = value;
-        this.addDataPoint(signal.name, now, value);
-      } else if (signal.type === SignalType.ENUM) {
-        const value = generateRandomEnumValue();
-        previousValue = value.idx;
-        this.addDataPoint(signal.name, now, value.idx);
-      }
-    }, 1);
+        this.addDataPointAtLOD(signal.name, 0, 1, now, value);
 
-    this.signalSubscriptionIntervals.set(signal.name, intervalId as unknown as number);
+        propagateHaar(
+          this.waveletBuffers.get(signal.name) || [],
+          0,
+          now,
+          value,
+          (level, intervalMs, timestamp, value) => {
+            this.addDataPointAtLOD(signal.name, level, intervalMs, timestamp, value);
+          },
+          NUM_LOD_LEVELS
+        );
+      }, 1) as unknown as number;
+
+      this.signalSubscriptionInterval.set(signal.name, intervalId);
+      this.waveletBuffers.set(signal.name, new Array(NUM_LOD_LEVELS).fill(null));
+    } else if (signal.type === SignalType.ENUM) {
+      const intervalId = setInterval(() => {
+        const now = Date.now();
+        const value = generateRandomEnumValue();
+        this.addDataPoint(signal.name, now, value.idx);
+      }, 1) as unknown as number;
+      this.signalSubscriptionInterval.set(signal.name, intervalId);
+    }
 
     return signalData.data as any;
   }
@@ -128,8 +147,11 @@ class MockSignalStore extends SignalStore {
 
     this.markAsUnsubscribed(signal.name);
 
-    clearInterval(this.signalSubscriptionIntervals.get(signal.name));
-    this.signalSubscriptionIntervals.delete(signal.name);
+    const intervalId = this.signalSubscriptionInterval.get(signal.name);
+    if (intervalId) {
+      clearInterval(intervalId);
+      this.signalSubscriptionInterval.delete(signal.name);
+    }
   }
 }
 

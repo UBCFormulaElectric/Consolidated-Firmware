@@ -15,7 +15,11 @@ import {
 import { LiveSignalStoreProvider } from "@/lib/contexts/signalStores/LiveSignalStoreContext";
 import { MockSignalStoreProvider } from "@/lib/contexts/signalStores/MockSignalStoreContext";
 
+<<<<<<< HEAD
 const USE_MOCK_DATA = process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true";
+=======
+const USE_MOCK_DATA = true;
+>>>>>>> 9adffcc7d (add lod to mock and live data)
 
 function Content() {
     const { initializedFromLocalStorage } = useWidgetManager();

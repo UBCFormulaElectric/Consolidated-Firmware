@@ -3,8 +3,7 @@ import { RefObject } from "react";
 // constants
 import { ENUM_COLORS } from "@/lib/constants";
 // types
-import { SignalType } from "@/lib/types/Signal";
-import { ChartData, ChartLayout, EnumSeries, NumericalSeries } from "./CanvasChartTypes";
+import { ChartLayout, LODAwareNumericalSeries, LODLevel } from "./CanvasChartTypes";
 // utils
 import { bisect } from "@/lib/bisect";
 import { EnumTimelineWidgetData, NumericalGraphWidgetData, WidgetData } from "@/lib/types/Widget";
@@ -54,8 +53,19 @@ const DATE_FORMATTER = new Intl.DateTimeFormat(undefined, {
   day: "2-digit",
 });
 const CHART_PADDING = { top: 15, right: 0, bottom: 40, left: 60 };
-const ENUM_STRIP_HEIGHT = 20;
-const ENUM_STRIP_GAP = 10;
+
+function selectLOD(series: LODAwareNumericalSeries, visibleTimeRange: number, chartWidth: number): LODLevel {
+  const totalLODCount = series.lods.length;
+  const timePerPixel = visibleTimeRange / chartWidth;
+
+  for (let i = 0; i < totalLODCount; i++) {
+    if (series.lods[i].sampleIntervalMs <= timePerPixel) continue;
+
+    return series.lods[Math.max(0, i - 1)];
+  }
+
+  return series.lods[totalLODCount - 1];
+}
 
 function niceNumber(range: number, round: boolean) {
   const exponent = Math.floor(Math.log10(range));
@@ -178,16 +188,16 @@ function render_numerical(
     return [];
   }
 
-  const signalConfigByName = new Map(widgetConfig.signals.map((signal) => [signal.name, signal]));
+  const selectedLODs = series.map(s => selectLOD(s, visibleEndTime - visibleStartTime, chartWidth));
 
-  const series_bounds = series.map(s => {
-    const left = bisect(s.timestamps, visibleStartTime);
-    const right = bisect(s.timestamps, visibleEndTime);
+  const series_bounds = selectedLODs.map(lod => {
+    const left = bisect(lod.timestamps, visibleStartTime);
+    const right = bisect(lod.timestamps, visibleEndTime);
     return ({
       left,
       right,
-      min: s.data.get_min(left, right) - 0.2,
-      max: s.data.get_max(left, right) + 0.2
+      min: lod.data.get_min(left, right) - 0.2,
+      max: lod.data.get_max(left, right) + 0.2
     });
   });
 
@@ -243,15 +253,16 @@ function render_numerical(
   context.clip();
 
   for (let seriesIndex = 0; seriesIndex < series.length; seriesIndex++) {
-    const s = series[seriesIndex];
+    const lodSeries = series[seriesIndex];
+    const lod = selectedLODs[seriesIndex];
     const { left, right } = series_bounds[seriesIndex];
 
     let strokeCol = widgetConfig.options.colorPalette[widgetConfig.signals[seriesIndex]?.name ?? ""]?.hex() ?? "#333";
     let lineWidth = 2;
 
-    if (hoveredSignal?.current && hoveredSignal.current !== s.label) {
+    if (hoveredSignal?.current && hoveredSignal.current !== lodSeries.label) {
       strokeCol = "#808080";
-    } else if (hoveredSignal?.current && hoveredSignal.current === s.label) {
+    } else if (hoveredSignal?.current && hoveredSignal.current === lodSeries.label) {
       lineWidth = 3;
     }
 
@@ -262,8 +273,8 @@ function render_numerical(
     let initialMove = false;
 
     for (let i = left - 1; i <= right + 1; i++) {
-      const time = s.timestamps[i];
-      const value = s.data.get(i);
+      const time = lod.timestamps[i];
+      const value = lod.data.get(i);
       const x = timeToX(time);
       const y =
         numericalTop +
@@ -284,22 +295,23 @@ function render_numerical(
     const result: Array<{ name: string; value: string }> = [];
 
     for (let seriesIndex = 0; seriesIndex < series.length; seriesIndex++) {
-      const s = series[seriesIndex];
-      if (s.timestamps.length === 0) continue;
+      const lodSeries = series[seriesIndex];
+      const lod = selectedLODs[seriesIndex];
+      if (lod.timestamps.length === 0) continue;
 
-      const idx = bisect(s.timestamps, hoverTime);
+      const idx = bisect(lod.timestamps, hoverTime);
       let closestIdx = idx;
 
-      if (idx >= s.timestamps.length) {
-        closestIdx = s.timestamps.length - 1;
+      if (idx >= lod.timestamps.length) {
+        closestIdx = lod.timestamps.length - 1;
       } else if (idx > 0) {
-        const diffLeft = Math.abs(s.timestamps[idx - 1] - hoverTime);
-        const diffRight = Math.abs(s.timestamps[idx] - hoverTime);
+        const diffLeft = Math.abs(lod.timestamps[idx - 1] - hoverTime);
+        const diffRight = Math.abs(lod.timestamps[idx] - hoverTime);
         closestIdx = diffLeft < diffRight ? idx - 1 : idx;
       }
 
-      const value = s.data.get(closestIdx);
-      const drawX = timeToX(s.timestamps[closestIdx]);
+      const value = lod.data.get(closestIdx);
+      const drawX = timeToX(lod.timestamps[closestIdx]);
       const y =
         numericalTop +
         chartHeight -
@@ -314,7 +326,7 @@ function render_numerical(
       context.stroke();
 
       result.push({
-        name: s.label,
+        name: lodSeries.label,
         value: value.toFixed(2),
       });
     }
