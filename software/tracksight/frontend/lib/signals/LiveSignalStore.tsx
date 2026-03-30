@@ -10,7 +10,7 @@ type SignalSubscriptionCallbacks = {
 
 type SignalMutationFunction = (signalName: string, callbacks?: SignalSubscriptionCallbacks) => void;
 
-const NUM_LOD_LEVELS = 4;
+const NUM_LOD_LEVELS = 10;
 
 class LiveSignalStore extends SignalStore {
   private subscribeToSignal: SignalMutationFunction;

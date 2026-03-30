@@ -33,7 +33,7 @@ export const ALERT_SIGNALS = [
 
 const INITIAL_DATA_POINTS = 0;
 
-const NUM_LOD_LEVELS = 6;
+const NUM_LOD_LEVELS = 10;
 
 function generateRandomNumericalValue(time: number, index: number = 0, min: number, max: number) {
   if (min !== undefined && max !== undefined) {
