@@ -4,3 +4,6 @@
 [submodule "firmware/third_party/pybind11"]
 	path = firmware/third_party/pybind11
 	url = https://github.com/pybind/pybind11.git
+[submodule "software/dimos"]
+	path = software/dimos
+	url = https://github.com/UBCFormulaElectric/dimos-assets.git
