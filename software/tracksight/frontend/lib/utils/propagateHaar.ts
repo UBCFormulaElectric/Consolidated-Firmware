@@ -19,7 +19,7 @@ const propagateHaar = (
 
   buffer[level] = null;
 
-  callback(level + 1, 2**level, avgTimestamp, avgValue);
+  callback(level + 1, 2**(level+1), avgTimestamp, avgValue);
 
   propagateHaar(buffer, level + 1, avgTimestamp, avgValue, callback, maxLevels);
 }

@@ -31,7 +31,9 @@ export const ALERT_SIGNALS = [
   "Throughput",
 ]
 
-const NUM_LOD_LEVELS = 4;
+const INITIAL_DATA_POINTS = 0;
+
+const NUM_LOD_LEVELS = 6;
 
 function generateRandomNumericalValue(time: number, index: number = 0, min: number, max: number) {
   if (min !== undefined && max !== undefined) {
@@ -60,7 +62,7 @@ function generateRandomEnumValue() {
 }
 
 function generateRandomAlertValue(prev: number) {
-  const shouldChange = Math.random() < 0.001;
+  const shouldChange = Math.random() < 0.0001;
   if (!shouldChange) return prev;
 
   const change = prev === 0 ? 1 : 0;
@@ -92,6 +94,13 @@ class MockSignalStore extends SignalStore {
 
         this.addAlertDataPoint(signalName, now, value);
       }, 1);
+
+      for (let i = 0; i < INITIAL_DATA_POINTS; i++) {
+        const timestamp = Date.now() - (INITIAL_DATA_POINTS - i);
+        const value = generateRandomAlertValue(previousValue);
+        previousValue = value;
+        this.addAlertDataPoint(signalName, timestamp, value);
+      }
 
       this.signalSubscriptionInterval.set(signalName, intervalId as unknown as number);
     });
@@ -128,6 +137,23 @@ class MockSignalStore extends SignalStore {
 
       this.signalSubscriptionInterval.set(signal.name, intervalId);
       this.waveletBuffers.set(signal.name, new Array(NUM_LOD_LEVELS).fill(null));
+
+      for (let i = 0; i < INITIAL_DATA_POINTS; i++) {
+        const timestamp = Date.now() - (INITIAL_DATA_POINTS - i);
+        const value = generateRandomNumericalValue(timestamp, 0, min_val, max_val);
+        this.addDataPointAtLOD(signal.name, 0, 1, timestamp, value);
+
+        propagateHaar(
+          this.waveletBuffers.get(signal.name) || [],
+          0,
+          timestamp,
+          value,
+          (level, intervalMs, timestamp, value) => {
+            this.addDataPointAtLOD(signal.name, level, intervalMs, timestamp, value);
+          },
+          NUM_LOD_LEVELS
+        );
+      }
     } else if (signal.type === SignalType.ENUM) {
       const intervalId = setInterval(() => {
         const now = Date.now();
@@ -135,6 +161,12 @@ class MockSignalStore extends SignalStore {
         this.addDataPoint(signal.name, now, value.idx);
       }, 1) as unknown as number;
       this.signalSubscriptionInterval.set(signal.name, intervalId);
+
+      for (let i = 0; i < INITIAL_DATA_POINTS; i++) {
+        const timestamp = Date.now() - (INITIAL_DATA_POINTS - i);
+        const value = generateRandomEnumValue();
+        this.addDataPoint(signal.name, timestamp, value.idx);
+      }
     }
 
     return signalData.data as any;
