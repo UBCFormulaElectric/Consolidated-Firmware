@@ -13,8 +13,8 @@ class TI_TPS28_Efuse final : public Efuse
     {
         struct __attribute__((packed))
         {
-            uint8_t overcurrent_or_thermal_shdn : 1;
-            uint8_t open_load : 1;
+            uint8_t overcurrent : 1;
+            uint8_t thermal_shdn : 1;
             uint8_t padding : 6;
         } flags;
         uint8_t raw = 0U;
