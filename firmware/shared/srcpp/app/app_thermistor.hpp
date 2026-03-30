@@ -28,8 +28,7 @@ namespace therm
             // Runtime check because `size` is not a compile-time constant here
             assert(size <= 0xFFFF && "LUT too large for uint16_t size");
 
-            // Binary search assumes strictly descending entries.
-            assert(valid_ && "Thermistor LUT must be strictly descending");
+            assert(valid_ && "Thermistor LUT must be non-increasing");
         }
 
         template <std::size_t N>
@@ -42,8 +41,7 @@ namespace therm
         {
             static_assert(N <= 0xFFFF, "LUT too large for uint16_t size");
 
-            // Binary search assumes strictly descending entries.
-            assert(valid_ && "Thermistor LUT must be strictly descending");
+            assert(valid_ && "Thermistor LUT must be non-increasing");
         }
 
         /**
