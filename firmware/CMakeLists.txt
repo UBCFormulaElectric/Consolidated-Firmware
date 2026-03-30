@@ -1,6 +1,4 @@
 include(cmake/dependencies.cmake)
-include(../scripts/code_generation/jsoncan/jsoncan.cmake)
-include(../scripts/code_generation/jsoncan-rust/jsoncan.cmake)
 include(../scripts/code_generation/commit_info_gen/commit_info.cmake)
 include(cmake/eigenlib.cmake)   
 include(cmake/autodiff.cmake)
@@ -38,7 +36,6 @@ ELSEIF ("${TARGET}" STREQUAL "test")
 ENDIF ()
 
 # libraries
-add_subdirectory(third_party)
 add_subdirectory(shared)
 add_subdirectory(logfs)
 

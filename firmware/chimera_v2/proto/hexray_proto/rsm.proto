@@ -22,7 +22,6 @@ enum AdcNetName {
   ADC_SUSP_TRAVEL_RL_3V3 = 2;
   ADC_SUSP_TRAVEL_RR_3V3 = 3; 
   ADC_BPS_3V3 = 4;
-  ADC_nBSPD_BRAKE_PRESSED = 5;
 }
 
 enum I2cNetName {
