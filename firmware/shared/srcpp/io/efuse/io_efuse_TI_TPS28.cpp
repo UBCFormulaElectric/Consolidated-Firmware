@@ -33,10 +33,9 @@ static constexpr float R_SNS = 1000.0f;
 // static constexpr float I_LIM_TYP = (K_CL_TYP / R_PD);
 // static constexpr float I_LIM_MAX = (K_CL_MAX / R_PD);
 
-// There are different V_SNSFH thresholds if DIAG_EN gpio is set to LOw (3.3V) or HIGH (5V)
-static constexpr float VSNS_FAULT_MIN = 3.5f;
-// static constexpr float V_SNSFH     = 3.95f;
-static constexpr float VSNS_FAULT_MAX = 4.4f;
+// There are different V_SNSFH thresholds if DIAG_EN gpio is set to LOW (3.3V) or HIGH (5V)
+static constexpr float VSNS_FAULT_MIN = 3.0f;
+static constexpr float VSNS_FAULT_MAX = 3.3f;
 
 [[nodiscard]] float TI_TPS28_Efuse::getChannelCurrent()
 {
@@ -57,7 +56,7 @@ void TI_TPS28_Efuse::reset()
     this->diag_en_gpio.writePin(true);
 
     const bool  channel_enabled = this->isChannelEnabled();
-    const float Isns_voltage         = this->sns_adc_channel.getVoltage();
+    const float Isns_voltage    = this->sns_adc_channel.getVoltage();
 
     /**
      * Note: Table 8.2 DIAG_EN Logic Table
@@ -74,7 +73,8 @@ void TI_TPS28_Efuse::reset()
 
     if (is_ok == false)
     {
-        this->faults.flags.overcurrent_or_thermal_shdn  = (channel_enabled && IS_IN_RANGE(VSNS_FAULT_MIN, VSNS_FAULT_MAX, Isns_voltage));
+        this->faults.flags.overcurrent_or_thermal_shdn =
+            (channel_enabled && IS_IN_RANGE(VSNS_FAULT_MIN, VSNS_FAULT_MAX, Isns_voltage));
         this->faults.flags.open_load = (!channel_enabled && IS_IN_RANGE(VSNS_FAULT_MIN, VSNS_FAULT_MAX, Isns_voltage));
     }
 
