@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, time::Duration};
 
 use axum::{Json, Router, extract::{Path, Query, State}, http::StatusCode, response::IntoResponse, routing::get};
 use influxdb2::{FromDataPoint};
@@ -6,10 +6,12 @@ use jsoncan_rust::can_database::CanMessage;
 use serde::{Deserialize, Serialize};
 use regex::Regex;
 use chrono::{DateTime, FixedOffset};
+use tokio::{select, time::sleep};
 
 use crate::{config::CONFIG, tasks::client_api::AppState};
 
 const INFLUX_MAX_POINTS: usize = 50000;
+const INFLUX_QUERY_TIMEOUT_S: u64 = 5;
 
 /**
  * Gets the list of all nodes (str) in the current parser.
@@ -136,21 +138,24 @@ async fn signal_time_range(Path((start, end, res)): Path<(String, String, String
         r#"|> limit(n: {INFLUX_MAX_POINTS})"#
     ));
 
-    let req: Result<Vec<_>, influxdb2::RequestError> = 
-        state.influx_client.query::<InfluxRow>(
+    let req: Result<Vec<_>, influxdb2::RequestError> = select! {
+        val = state.influx_client.query::<InfluxRow>(
             Some(influxdb2::models::Query::new(date_query))
-        ).await;
+        ) => val,
+        _ = sleep(Duration::from_secs(INFLUX_QUERY_TIMEOUT_S)) => {
+            return (StatusCode::REQUEST_TIMEOUT, "InfluxDB query timed out, try smaller query!".to_string());
+        }
+    };
+        
 
     match req {
         Ok(res) => {
             if res.len() >= INFLUX_MAX_POINTS {
-                println!("1");
                 return (StatusCode::BAD_REQUEST, format!("Query returned more than {INFLUX_MAX_POINTS} points, lower the resolution!"));
             }
             return (StatusCode::OK, serde_json::to_string(&res).unwrap());
         },
         Err(e) => {
-            println!("2");
             return (StatusCode::BAD_REQUEST, format!("{}", e.to_string()));
         }
     }
