@@ -3,18 +3,19 @@
 #include <limits>
 #include "app_thermistor.hpp"
 
-
 // Simple monotonic decreasing LUT for hand-calculated expectations
-static constexpr float simple_resistances[] = {100.0f, 80.0f, 60.0f, 40.0f, 20.0f};
+static constexpr float simple_resistances[] = { 100.0f, 80.0f, 60.0f, 40.0f, 20.0f };
 
 // Constexpr / compile-time checks
-static_assert(app::therm::ThermistorLUT(simple_resistances, 0.0f, 1.0f).size() == 5U, "ThermistorLUT size mismatch at compile time");
+static_assert(
+    app::therm::ThermistorLUT(simple_resistances, 0.0f, 1.0f).size() == 5U,
+    "ThermistorLUT size mismatch at compile time");
 
 TEST(ThermistorLUTTest, compile_time_constructor_and_accessors)
 {
-    constexpr float starting = 0.0f;
-    constexpr float resolution = 1.0f;
-    constexpr app::therm::ThermistorLUT lut( simple_resistances, starting, resolution);
+    constexpr float                     starting   = 0.0f;
+    constexpr float                     resolution = 1.0f;
+    constexpr app::therm::ThermistorLUT lut(simple_resistances, starting, resolution);
 
     ASSERT_EQ(lut.size(), 5u);
     ASSERT_FLOAT_EQ(lut.starting_temp(), starting);
@@ -42,7 +43,7 @@ TEST(ThermistorLUTTest, basic_interpolation_value_checks)
     ASSERT_NEAR(lut.resistanceToTemp(70.0f), 1.5f, 1e-3f);
     ASSERT_NEAR(lut.resistanceToTemp(50.0f), 2.5f, 1e-3f);
     ASSERT_NEAR(lut.resistanceToTemp(30.0f), 3.5f, 1e-3f);
-    
+
     // Test a 25% alignment. 85 is 75% between 100 (idx 0) and 80 (idx 1).
     // 85 is 15 away from 100, meaning 15/20 (0.75) along the temperature change.
     // Temperature for 100 is 0, for 80 is 1. (85-80)*((0-1)/(100-80)) + 1 = 5*(-1/20) + 1 = -0.25 + 1 = 0.75.
@@ -55,14 +56,14 @@ TEST(ThermistorLUTTest, out_of_range)
     app::therm::ThermistorLUT lut(simple_resistances, 0.0f, 1.0f);
 
     // Out of bounds (higher than first, lower than last) should return -1.0f
-    ASSERT_FLOAT_EQ(lut.resistanceToTemp(100.1f), -1.0f); 
+    ASSERT_FLOAT_EQ(lut.resistanceToTemp(100.1f), -1.0f);
     ASSERT_FLOAT_EQ(lut.resistanceToTemp(19.9f), -1.0f);
 }
 
 //* Check with Kevin if overlapping with header file tests
 TEST(ThermistorLUTTest, single_entry)
 {
-    constexpr float single[] = {100.0f};
+    constexpr float           single[] = { 100.0f };
     app::therm::ThermistorLUT lut(single, 5.0f, 1.0f);
 
     ASSERT_FLOAT_EQ(lut.resistanceToTemp(100.0f), 5.0f);
@@ -82,7 +83,7 @@ TEST(ThermistorLUTTest, nan_and_inf)
 
 TEST(ThermistorLUTTest, degenerate_adjacent_equal)
 {
-    constexpr float degenerate[] = {100.0f, 80.0f, 80.0f, 60.0f};
+    constexpr float           degenerate[] = { 100.0f, 80.0f, 80.0f, 60.0f };
     app::therm::ThermistorLUT lut(degenerate, 0.0f, 1.0f);
 
     // According to the code, if y2 == y1, it returns x1 (the temp of the higher index)
@@ -94,7 +95,7 @@ TEST(ThermistorLUTTest, degenerate_adjacent_equal)
 
 TEST(ThermistorLUTTest, binary_search_edge_cases)
 {
-    constexpr float binary_res[] = {100.0f, 90.0f, 80.0f, 70.0f, 60.0f, 50.0f, 40.0f, 30.0f, 20.0f};
+    constexpr float           binary_res[] = { 100.0f, 90.0f, 80.0f, 70.0f, 60.0f, 50.0f, 40.0f, 30.0f, 20.0f };
     app::therm::ThermistorLUT lut(binary_res, 0.0f, 1.0f);
 
     // Pick points exactly between array entries specifically to trace through low/mid/high index shifts thoroughly
@@ -105,18 +106,17 @@ TEST(ThermistorLUTTest, binary_search_edge_cases)
 
 TEST(ThermistorLUTTest, precondition_decreasing_resistances)
 {
-    // The class explicitly asserts on non-decreasing arrays. 
+    // The class explicitly asserts on non-decreasing arrays.
     // We expect the program to "die" (crash via assertion) if we try to build it.
-    constexpr float non_monotonic[] = {100.0f, 60.0f, 80.0f, 20.0f};
-    
-    EXPECT_DEATH({
-        app::therm::ThermistorLUT lut(non_monotonic, 0.0f, 1.0f);
-    }, "strictly descending");
+    constexpr float non_monotonic[] = { 100.0f, 60.0f, 80.0f, 20.0f };
+
+    EXPECT_DEATH({ app::therm::ThermistorLUT lut(non_monotonic, 0.0f, 1.0f); }, "strictly descending");
 }
 
-//Uses other constructor
-TEST(ThermistorLUTTest, null_pointer_and_empty_test) {
-     // Test explicit pointer constructor with nullptr and size 0
+// Uses other constructor
+TEST(ThermistorLUTTest, null_pointer_and_empty_test)
+{
+    // Test explicit pointer constructor with nullptr and size 0
     app::therm::ThermistorLUT null_lut(nullptr, 0.0f, 1.0f, 0U);
     ASSERT_FLOAT_EQ(null_lut.resistanceToTemp(50.0f), -1.0f);
 
@@ -125,15 +125,15 @@ TEST(ThermistorLUTTest, null_pointer_and_empty_test) {
     ASSERT_FLOAT_EQ(empty_lut.resistanceToTemp(50.0f), -1.0f);
 }
 
-//tested because a size 2 lut skips while (high_index > low_index + 1U)
+// tested because a size 2 lut skips while (high_index > low_index + 1U)
 TEST(ThermistorLUTTest, two_entry_lut)
 {
-    constexpr float two_entries[] = {100.0f, 50.0f};
+    constexpr float           two_entries[] = { 100.0f, 50.0f };
     app::therm::ThermistorLUT lut(two_entries, 10.0f, 2.0f); // 100 -> 10C, 50 -> 12C
 
     // Exactly halfway: 75 ohms should be 11C
     ASSERT_NEAR(lut.resistanceToTemp(75.0f), 11.0f, 1e-4f);
-    
+
     // Bounds limits
     ASSERT_FLOAT_EQ(lut.resistanceToTemp(100.1f), -1.0f);
     ASSERT_FLOAT_EQ(lut.resistanceToTemp(49.9f), -1.0f);
@@ -142,16 +142,16 @@ TEST(ThermistorLUTTest, two_entry_lut)
 TEST(ThermistorLUTTest, four_input_constructor)
 {
     // Pass strictly as a pointer and specific size to trigger the non-template constructor
-    const float* ptr = simple_resistances;
+    const float              *ptr = simple_resistances;
     app::therm::ThermistorLUT lut(ptr, 5.0f, 0.5f, 3U); // Artificially restricting size to 3
 
     ASSERT_EQ(lut.size(), 3U);
-    
+
     // Should pass since 60 is within the first 3 elements (100, 80, 60)
-    ASSERT_NEAR(lut.resistanceToTemp(60.0f), 6.0f, 1e-4f); 
-    
+    ASSERT_NEAR(lut.resistanceToTemp(60.0f), 6.0f, 1e-4f);
+
     // 40 is valid in the array, but out of bounds based on our restricted size parameter
-    ASSERT_FLOAT_EQ(lut.resistanceToTemp(40.0f), -1.0f); 
+    ASSERT_FLOAT_EQ(lut.resistanceToTemp(40.0f), -1.0f);
 }
 
 TEST(ThermistorLUTTest, production_array_integration)
@@ -176,12 +176,12 @@ TEST(ThermistorLUTTest, production_array_integration)
         1414.0f,  1393.6f,  1373.6f,  1353.9f,  1334.5f,  1315.4f,  1296.7f,  1278.3f,  1260.2f,  1242.3f,  1224.8f,
         1207.6f,  1190.6f,  1174.0f,  1157.6f,  1141.4f,  1125.6f,  1110.0f,  1094.6f,  1079.5f,  1064.7f,  1050.1f,
         1035.7f,  1021.5f,  1007.6f,  993.9f,   980.4f,   967.2f,   954.1f,   941.3f,   928.6f,   916.2f,   903.9f,
-        891.9f,   880.0f,   868.4f 
+        891.9f,   880.0f,   868.4f
     };
 
     // Starting temp = 0.0f, Resolution = 0.5f
     app::therm::ThermistorLUT lut(adbms_ntc10k_lut_buffer, 0.0f, 0.5f);
-    
+
     ASSERT_EQ(lut.size(), 201U);
 
     // Exact matches
