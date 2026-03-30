@@ -14,7 +14,7 @@ function normalizeSearchText(value: string): string {
 }
 
 function getSignalSubtitle(signal: EnumSignalMetadata): string {
-  const parts = [signal.msg_name, signal.tx_node, signal.enum.name];
+  const parts = [signal.msg_name, signal.tx_node, signal.enum_type];
 
   if (signal.cycle_time_ms !== null) {
     parts.push(`${signal.cycle_time_ms}ms`);
@@ -42,7 +42,7 @@ export const EnumSignalPicker = memo(function EnumSignalPicker(props: { query: s
   const searchableSignals = useMemo(() => {
     return availableSignals.map((signal) => ({
       signal,
-      searchableText: normalizeSearchText([signal.name, signal.msg_name, signal.tx_node, signal.enum.name].filter(Boolean).join(" ")),
+      searchableText: normalizeSearchText([signal.name, signal.msg_name, signal.tx_node, signal.enum_type].filter(Boolean).join(" ")),
     }));
   }, [availableSignals]);
 
@@ -139,7 +139,7 @@ export const EnumSignalPicker = memo(function EnumSignalPicker(props: { query: s
                     >
                       <div className="flex items-center justify-between gap-3">
                         <span className="font-medium text-gray-900">{signal.name}</span>
-                        <span className="shrink-0 text-xs uppercase tracking-wide text-gray-500">{signal.enum.name}</span>
+                        <span className="shrink-0 text-xs uppercase tracking-wide text-gray-500">{signal.enum_type}</span>
                       </div>
                       <p className="mt-1 text-xs text-gray-500">{getSignalSubtitle(signal)}</p>
                     </button>
