@@ -171,8 +171,9 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI48 | RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
+    RCC_OscInitStruct.HSI48State     = RCC_HSI48_ON;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 1;
@@ -883,7 +884,9 @@ static void MX_GPIO_Init(void)
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
-        GPIOD, F_INV_EN_Pin | SB_SHDN_3V3_OUT_Pin | RSM_EN_Pin | R_INV_EN_Pin | R_RAD_FAN_EN_Pin | L_RAD_FAN_EN_Pin,
+        GPIOD,
+        F_INV_EN_Pin | SB_SHDN_3V3_OUT_Pin | RSM_EN_Pin | R_INV_EN_Pin | MISC_FUSE_EN_Pin | R_RAD_FAN_EN_Pin |
+            L_RAD_FAN_EN_Pin,
         GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
@@ -913,9 +916,8 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(IMU_INT3_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : TSMS_3V3_OUT_Pin BAT_CHRG_nSHDN_Pin BMS_EN_Pin FRONT_EN_Pin
-                             RL_PUMP_EN_Pin */
-    GPIO_InitStruct.Pin   = TSMS_3V3_OUT_Pin | BAT_CHRG_nSHDN_Pin | BMS_EN_Pin | FRONT_EN_Pin | RL_PUMP_EN_Pin;
+    /*Configure GPIO pins : TSMS_3V3_OUT_Pin BAT_CHRG_nSHDN_Pin BMS_EN_Pin FRONT_EN_Pin */
+    GPIO_InitStruct.Pin   = TSMS_3V3_OUT_Pin | BAT_CHRG_nSHDN_Pin | BMS_EN_Pin | FRONT_EN_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -934,16 +936,17 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : R_INV_PG_Pin F_INV_PG_Pin L_RAD_FAN_PG_Pin R_RAD_FAN_PG_Pin */
-    GPIO_InitStruct.Pin  = R_INV_PG_Pin | F_INV_PG_Pin | L_RAD_FAN_PG_Pin | R_RAD_FAN_PG_Pin;
+    /*Configure GPIO pins : R_INV_PG_Pin F_INV_PG_Pin MISC_FUSE_PG_Pin L_RAD_FAN_PG_Pin
+                             R_RAD_FAN_PG_Pin */
+    GPIO_InitStruct.Pin  = R_INV_PG_Pin | F_INV_PG_Pin | MISC_FUSE_PG_Pin | L_RAD_FAN_PG_Pin | R_RAD_FAN_PG_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
     /*Configure GPIO pins : F_INV_EN_Pin SB_SHDN_3V3_OUT_Pin RSM_EN_Pin R_INV_EN_Pin
-                             R_RAD_FAN_EN_Pin L_RAD_FAN_EN_Pin */
-    GPIO_InitStruct.Pin =
-        F_INV_EN_Pin | SB_SHDN_3V3_OUT_Pin | RSM_EN_Pin | R_INV_EN_Pin | R_RAD_FAN_EN_Pin | L_RAD_FAN_EN_Pin;
+                             MISC_FUSE_EN_Pin R_RAD_FAN_EN_Pin L_RAD_FAN_EN_Pin */
+    GPIO_InitStruct.Pin = F_INV_EN_Pin | SB_SHDN_3V3_OUT_Pin | RSM_EN_Pin | R_INV_EN_Pin | MISC_FUSE_EN_Pin |
+                          R_RAD_FAN_EN_Pin | L_RAD_FAN_EN_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -964,7 +967,7 @@ static void MX_GPIO_Init(void)
 
     /*Configure GPIO pin : RR_PUMP_EN_Pin */
     GPIO_InitStruct.Pin   = RR_PUMP_EN_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_OD;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(RR_PUMP_EN_GPIO_Port, &GPIO_InitStruct);
@@ -974,6 +977,13 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(RR_PUMP_PGOOD_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : RL_PUMP_EN_Pin */
+    GPIO_InitStruct.Pin   = RL_PUMP_EN_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_OD;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(RL_PUMP_EN_GPIO_Port, &GPIO_InitStruct);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
 

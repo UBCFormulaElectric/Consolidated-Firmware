@@ -1,9 +1,7 @@
-import 'dart:math';
 
 import 'package:linux_can/linux_can.dart';
 import 'dart:async';
 import 'dart:isolate';
-import 'dart:io';
 
 // WE MIGHT NEED FFI AT THIS POINT
 // lowkey I remember how this works

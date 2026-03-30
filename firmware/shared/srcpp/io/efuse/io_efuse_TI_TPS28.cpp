@@ -53,8 +53,6 @@ void TI_TPS28_Efuse::reset()
 
 [[nodiscard]] bool TI_TPS28_Efuse::ok()
 {
-    this->diag_en_gpio.writePin(true);
-
     const bool  channel_enabled = this->isChannelEnabled();
     const float Isns_voltage    = this->sns_adc_channel.getVoltage();
 
@@ -77,8 +75,6 @@ void TI_TPS28_Efuse::reset()
             (channel_enabled && IS_IN_RANGE(VSNS_FAULT_MIN, VSNS_FAULT_MAX, Isns_voltage));
         this->faults.flags.open_load = (!channel_enabled && IS_IN_RANGE(VSNS_FAULT_MIN, VSNS_FAULT_MAX, Isns_voltage));
     }
-
-    this->diag_en_gpio.writePin(false);
 
     return is_ok;
 }
