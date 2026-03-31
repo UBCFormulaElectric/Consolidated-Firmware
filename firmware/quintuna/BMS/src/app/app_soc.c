@@ -17,6 +17,8 @@
 
 #define V_TO_SOC_LUT_SIZE (201U)
 #define LUT_BASE_SOC (0.0f)
+#define SOC_HUNDREDTHS_UNAVAILABLE (UINT32_MAX)
+#define SOC_PERCENT_TO_HUNDREDTHS(soc_percent) ((uint32_t)((soc_percent) * 100.0f + 0.5f))
 
 // charge in cell in coulombs
 static double soc_charge_c;
@@ -25,7 +27,8 @@ static double soc_charge_c;
 static float soc_prev_current_A;
 
 // Indicates if SOC from SD was corrupt at startup
-static bool soc_is_corrupt;
+static bool     soc_is_corrupt;
+static uint32_t soc_last_saved_hundredths;
 
 static TimerChannel soc_timer;
 
@@ -109,6 +112,8 @@ void app_soc_init(void)
     soc_is_corrupt = true;
     soc_charge_c   = -1;
 
+    soc_last_saved_hundredths = SOC_HUNDREDTHS_UNAVAILABLE;
+
     // A negative SOC value will indicate to app_soc_Create that saved SOC value is corrupted
     float saved_soc_percent = -1.0f;
 
@@ -116,8 +121,9 @@ void app_soc_init(void)
     {
         if (IS_IN_RANGE(0.0f, 100.0f, saved_soc_percent))
         {
-            soc_charge_c   = (double)(saved_soc_percent / 100.0f * SERIES_ELEMENT_FULL_CHARGE_C);
-            soc_is_corrupt = false;
+            soc_charge_c              = (double)(saved_soc_percent / 100.0f * SERIES_ELEMENT_FULL_CHARGE_C);
+            soc_is_corrupt            = false;
+            soc_last_saved_hundredths = SOC_PERCENT_TO_HUNDREDTHS(saved_soc_percent);
         }
     }
 
@@ -187,7 +193,30 @@ bool app_soc_readSocFromSd(float *saved_soc_percent)
 
 bool app_soc_writeSocToSd(float soc_percent)
 {
-    return io_socStorage_write(soc_percent);
+    const bool write_success = io_socStorage_write(soc_percent);
+    if (write_success && IS_IN_RANGE(0.0f, 100.0f, soc_percent))
+    {
+        soc_last_saved_hundredths = SOC_PERCENT_TO_HUNDREDTHS(soc_percent);
+    }
+
+    return write_success;
+}
+
+uint32_t app_soc_getLastWrittenSocHundredths(void)
+{
+    if (soc_last_saved_hundredths != SOC_HUNDREDTHS_UNAVAILABLE)
+    {
+        return soc_last_saved_hundredths;
+    }
+
+    float saved_soc_percent = -1.0f;
+    if (app_soc_readSocFromSd(&saved_soc_percent) && IS_IN_RANGE(0.0f, 100.0f, saved_soc_percent))
+    {
+        soc_last_saved_hundredths = SOC_PERCENT_TO_HUNDREDTHS(saved_soc_percent);
+        return soc_last_saved_hundredths;
+    }
+
+    return SOC_HUNDREDTHS_UNAVAILABLE;
 }
 
 void app_soc_broadcast(void)
@@ -212,7 +241,7 @@ void app_soc_saveToSd(void)
     }
     else
     {
-        uint32_t min_soc_rounded = (uint32_t)(min_soc * 100.0f); // Convert to hundredths of a percent
+        uint32_t min_soc_rounded = SOC_PERCENT_TO_HUNDREDTHS(min_soc);
         xTaskNotify(TaskSDCardHandle, min_soc_rounded, eSetValueWithOverwrite);
     }
 }

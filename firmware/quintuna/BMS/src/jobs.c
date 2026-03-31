@@ -324,8 +324,16 @@ void jobs_runLTCDiagnostics(void)
 void jobs_runSdCard_tick(void)
 {
     uint32_t rounded_soc;
+    uint32_t last_written_soc;
+
     if (xTaskNotifyWait(0, ULONG_MAX, &rounded_soc, 0) == pdTRUE)
     {
+        last_written_soc = app_soc_getLastWrittenSocHundredths();
+        if (last_written_soc != UINT32_MAX && last_written_soc == rounded_soc)
+        {
+            return;
+        }
+
         app_soc_writeSocToSd((float)rounded_soc / 100.0f);
     }
 }
