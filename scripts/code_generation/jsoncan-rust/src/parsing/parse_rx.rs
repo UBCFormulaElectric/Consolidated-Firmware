@@ -1,4 +1,3 @@
-use crate::can_database::JsonRxMsgNames;
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -11,6 +10,12 @@ enum JsonRxEntry {
 #[derive(Deserialize)]
 struct JsonRxData {
     messages: JsonRxEntry,
+}
+
+#[derive(Clone)]
+pub enum JsonRxMsgNames {
+    All,
+    RxMsgs(Vec<String>),
 }
 
 pub fn parse_json_rx_data(can_data_dir: &str, rx_node_name: &str) -> JsonRxMsgNames {

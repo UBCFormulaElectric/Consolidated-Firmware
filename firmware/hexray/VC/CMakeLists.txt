@@ -15,15 +15,17 @@ set(SYSTEM_INCLUDE_DIRS
         #        "${CMAKE_CURRENT_SOURCE_DIR}/boot"
 )
 
-file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/**/*.cpp")
+file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp")
 list(APPEND APP_SRCS)
 set(APP_INCLUDE_DIRS
-        # "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
         "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR_CPP}" "${CMAKE_CURRENT_SOURCE_DIR}/src/app/"
 )
 
 file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.cpp")
 list(APPEND IO_SRCS
+        "${SHARED_IO_INCLUDE_DIR_CPP}/efuse/io_efuse_TI_TPS28.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/efuse/io_efuse_TI_TPS25.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/util/"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
         "${SHARED_IO_INCLUDE_DIR_CPP}/efuse/io_efuse_TI_TPS28.cpp"
         "${SHARED_IO_INCLUDE_DIR_CPP}/efuse/io_efuse_TI_TPS25.cpp"
@@ -31,6 +33,7 @@ list(APPEND IO_SRCS
 set(IO_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
         "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_DIR_CPP}"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/efuse"
 )
 
 file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp")
@@ -135,10 +138,12 @@ elseif ("${TARGET}" STREQUAL "test")
     set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS}
             "${SHARED_FAKES_DIR_CPP}/io_imu.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
+            "${SHARED_FAKES_DIR_CPP}/io_pump.cpp"
+            "${SHARED_APP_INCLUDE_DIR_CPP}/app_timer.cpp"
     )
     set(INCLUDE_DIRS
-            # "${CMAKE_CURRENT_SOURCE_DIR}/test"
-            ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP}
+            "${CMAKE_CURRENT_SOURCE_DIR}/test"
+            ${APP_INCLUDE_DIRS} ${SHARED_FAKES_DIR_CPP} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP}
     )
     compile_gtest_executable(
             "hexray_VC_test"

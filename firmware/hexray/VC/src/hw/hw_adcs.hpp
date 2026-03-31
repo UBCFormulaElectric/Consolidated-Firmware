@@ -17,7 +17,3 @@ extern const Adc adc_misc_fuse;
 extern const Adc adc_f_inv;
 extern const Adc adc_rsm;
 } // namespace hw::adcs
-
-extern "C"
-{
-}
