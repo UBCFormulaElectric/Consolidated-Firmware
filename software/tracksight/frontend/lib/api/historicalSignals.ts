@@ -56,6 +56,6 @@ export async function fetchHistoricalSignal(params: {
     return rows.map((row) => ({
         name: row.name,
         value: row.value,
-        timestampMs: new Date(row.timestamp).getTime(),
+        timestampMs: Date.parse(row.timestamp),
     }));
 }
