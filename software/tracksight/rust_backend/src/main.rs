@@ -11,7 +11,7 @@ use tokio::task::{JoinError, JoinSet};
 use crate::config::CONFIG;
 use crate::tasks::{HealthCheckError, Task};
 use crate::tasks::can_data::load_can_database;
-use crate::utils::green;
+use crate::utils::{green};
 
 mod mock;
 mod config;

@@ -1,15 +1,19 @@
 use std::net::IpAddr;
 use std::{env::var, str::FromStr};
 use std::sync::LazyLock;
+use chrono::{DateTime, FixedOffset, Local, TimeZone, Utc};
 use dotenv::{ dotenv, from_filename};
+use regex::Regex;
+use tokio_tungstenite::tungstenite::util;
 
-use crate::utils::red;
+use crate::utils::{red, str_to_utc};
 use crate::vprintln;
 
 pub struct Config {
     pub mock: bool,
     pub serial_port: String,
     pub serial_baud_rate: u32,
+    pub time_zone: String,
     pub influxdb_url: String,
     pub influxdb_org: String,
     pub influxdb_token: String,
@@ -34,6 +38,11 @@ fn load_env_file() -> Config {
     let serial_port: String = get_var::<String>("SERIAL_PORT").unwrap();
 
     let serial_baud_rate: u32 = get_var::<u32>("SERIAL_BAUD_RATE").unwrap();
+
+    let time_zone: String = get_var::<String>("TIME_ZONE").unwrap_or(Local::now().offset().to_string());
+    if !Regex::new(r"^[+-]\d{2}:\d{2}$").unwrap().is_match(&time_zone) {
+        panic!("Invalid TIME_ZONE format, should be in format like +00:00 or -08:00");
+    }
 
     let influxdb_url: String = get_var::<String>("INFLUXDB_URL").unwrap();
 
@@ -81,6 +90,7 @@ fn load_env_file() -> Config {
         mock: mock,
         serial_port: serial_port,
         serial_baud_rate: serial_baud_rate,
+        time_zone: time_zone,
         influxdb_url: influxdb_url,
         influxdb_org: influxdb_org,
         influxdb_token: influxdb_token,
@@ -92,8 +102,11 @@ fn load_env_file() -> Config {
     }
 }
 
-fn get_var<T: std::str::FromStr>(env_key: &str) -> Result<T, <T as FromStr>::Err> {
-    return var(env_key)
-        .expect(&red(format!("{env_key} is missing from the ENV configuration!\nAre you sure your env file is up to date with template?")))
-        .parse::<T>()
+fn get_var<T: std::str::FromStr>(env_key: &str) -> Result<T, Box<dyn std::error::Error>> {
+    match var(env_key) {
+        Ok(val) => val.parse::<T>().map_err(|_| format!("{env_key} failed to parse").into()),
+        Err(_) => Err(
+            red(format!("{env_key} is missing from the ENV configuration!\nAre you sure your env file is up to date with template?")).into()
+        ),
+    }
 }

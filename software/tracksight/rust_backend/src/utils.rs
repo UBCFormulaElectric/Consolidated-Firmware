@@ -4,6 +4,10 @@
     COLOR PRINT
  */
 
+use chrono::{DateTime, FixedOffset, Utc};
+
+use crate::config::CONFIG;
+
 const RED: &str = "31m";
 const GRE: &str = "32m";
 const YEL: &str = "33m";
@@ -62,4 +66,20 @@ macro_rules! dprintln {
             println!("{}", format!($($arg)*));
         }
     }};
+}
+
+/**
+ * InfluxDB uses UTC time, convert string to YYYY-MM-DDTHH:MM:SSZ format (UTC)
+ * `str` should be in format YYYY-MM-DDTHH:MM:SS
+ */
+pub fn str_to_utc(str: &String) -> Option<String> {
+    match format!("{str}{}", &CONFIG.time_zone).parse::<DateTime<FixedOffset>>() {
+        Ok(local) => {
+            let utc = local.with_timezone(&Utc);
+            return Some(utc.to_rfc3339());
+        }
+        Err(_) => {
+            return None;
+        }
+    }
 }
