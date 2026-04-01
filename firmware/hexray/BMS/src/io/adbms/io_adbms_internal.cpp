@@ -144,19 +144,6 @@ void readRegGroup(
         return;
     }
 
-    if (cmd == RDAUXA) {
-        [[maybe_unused]] int j = 0;
-    }
-    if (cmd == RDAUXB) {
-        [[maybe_unused]] int j = 0;
-    }
-    if (cmd == RDAUXC) {
-        [[maybe_unused]] int j = 0;
-    }
-    if (cmd == RDAUXD) {
-        [[maybe_unused]] int j = 0;
-    }
-
     for (size_t segment = 0U; segment < NUM_SEGMENTS; ++segment)
     {
         const auto &payload      = rx_buffer[segment];

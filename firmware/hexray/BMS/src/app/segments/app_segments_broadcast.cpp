@@ -12,11 +12,11 @@ constexpr float convertRegToVoltage(uint16_t reg)
 }
 
 constexpr float convertRegToTemp(uint16_t reg) {
-    // float voltage = convertRegToVoltage(reg);
-    // float resistance = 10e3f * (voltage / (3.3f - voltage));
-    // float inv_temp = (1.0f/298.15f) + (1.0f/3610.0f) * std::log(resistance/10e3f);
-    // return (1.0f / inv_temp) - 273.15f;
-    return convertRegToVoltage(reg);
+    float voltage = convertRegToVoltage(reg);
+    float resistance = 10e3f * (voltage / (3.3f - voltage));
+    float inv_temp = (1.0f/298.15f) + (1.0f/3610.0f) * std::log(resistance/10e3f);
+    return (1.0f / inv_temp) - 273.15f;
+    //return convertRegToVoltage(reg);
 }
 
 namespace app::segments
@@ -32,16 +32,22 @@ void broadcastCellVoltages()
 {
     CellParam candidate_max_cell_voltage = { .segment = 0, .cell = 0, .voltage = __FLT_MIN__, .temp = 0.0f  };
     CellParam candidate_min_cell_voltage = { .segment = 0, .cell = 0, .voltage = __FLT_MAX__, .temp = 0.0f };
+   
 
     for (size_t seg = 0U; seg < io::NUM_SEGMENTS; seg++)
     {
+        bool segment_comm_ok = false;
         for (size_t cell = 0U; cell < io::CELLS_PER_SEGMENT; cell++)
         {
             if (!cell_voltage_success[seg][cell])
             {
+
+                cell_voltages[seg][cell] = -0.1f;
                 cell_voltage_setters[seg][cell](-0.1f);
                 continue;
             }
+
+            segment_comm_ok = true;
 
             const float voltage      = convertRegToVoltage(cell_voltage_regs[seg][cell]);
             cell_voltages[seg][cell] = voltage;
@@ -60,6 +66,7 @@ void broadcastCellVoltages()
                 candidate_min_cell_voltage.temp = cell_temps[seg][cell];
             }
         }
+        segment_comm_ok_setters[seg](segment_comm_ok);
     }
 
     max_cell_voltage = candidate_max_cell_voltage;
@@ -67,12 +74,36 @@ void broadcastCellVoltages()
     
 }
 
+void broadcastFilteredCellVoltages()
+{
+    for (size_t seg = 0U; seg < io::NUM_SEGMENTS; seg++)
+    {
+        bool segment_comm_ok = false;
+        for (size_t cell = 0U; cell < io::CELLS_PER_SEGMENT; cell++)
+        {
+            if (!filtered_cell_voltage_success[seg][cell])
+            {
+                filtered_cell_voltages[seg][cell] = -0.1f;
+                filtered_cell_voltage_setters[seg][cell](-0.1f);
+                continue;
+            }
+            segment_comm_ok = true;
+
+            const float voltage      = convertRegToVoltage(cell_voltage_regs[seg][cell]);
+            filtered_cell_voltages[seg][cell] = voltage;
+            filtered_cell_voltage_setters[seg][cell](voltage);
+        }
+        segment_comm_ok_setters[seg](segment_comm_ok);
+    }
+    
+}
+
 void broadcastCellTemps() {
     CellParam candidate_max_cell_temp = { .segment = 0, .cell = 0, .voltage = 0.0f, .temp = __FLT_MIN__ };
     CellParam candidate_min_cell_temp = { .segment = 0, .cell = 0, .voltage = 0.0f, .temp = __FLT_MAX__ };
 
-    
     for (size_t seg = 0U; seg < io::NUM_SEGMENTS; seg++) {
+        bool segment_comm_ok = false;
         for (size_t mux = 0U; mux < static_cast<size_t> (ThermistorMux::THERMISTOR_MUX_COUNT); mux++) {
             for (size_t gpio = 0U; gpio < io::adbms::THERM_GPIOS_PER_SEGMENT; gpio++) {
                 size_t cell = gpio + mux * 7U;
@@ -81,9 +112,11 @@ void broadcastCellTemps() {
                 }
 
                 if (!cell_temp_success[mux][seg][gpio]) {
+                    cell_temps[seg][cell] = -0.1f;
                     cell_temperature_setters[seg][cell](-0.1f);
                     continue;
                 }
+                segment_comm_ok = true;
                 const float temperature = convertRegToTemp(cell_temp_regs[mux][seg][gpio]);
                 cell_temps[seg][cell] = temperature;
                 cell_temperature_setters[seg][cell](temperature);
@@ -99,11 +132,36 @@ void broadcastCellTemps() {
                     candidate_min_cell_temp.voltage = cell_voltages[seg][cell];
                     candidate_min_cell_temp.temp = temperature;
                 }
-            
             }
+        }
+        segment_comm_ok_setters[seg](segment_comm_ok);
+    }
+    max_cell_temp = candidate_max_cell_temp;
+    min_cell_temp = candidate_min_cell_temp;
+}
+
+void broadcastOpenWireCheck() {
+    for (size_t seg = 0U; seg < io::NUM_SEGMENTS; seg++) {
+        for (size_t gpio = 0U; cell < io::adbms::THERM_GPIOS_PER_SEGMENT; gpio++) {
+            if (!therm_owc_odd_success[seg][gpio])
+            {
+                therm_owc_ok[seg][gpio] = false;
+                therm_owc_setters[seg][gpio](false);
+                continue;
+            }
+            if (!therm_owc_even_success[seg][gpio])
+            {
+                therm_owc_ok[seg][gpio] = false;
+                therm_owc_setters[seg][gpio](false);
+                continue;
+            }
+            //do ts
         }
     }
 }
+
+
+
 
 
 

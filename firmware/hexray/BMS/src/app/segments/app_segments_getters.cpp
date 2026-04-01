@@ -3,6 +3,7 @@
 
 using namespace std;
 
+//idk what ts is used for 
 namespace app::segments
 {
 float getPackVoltage(void)

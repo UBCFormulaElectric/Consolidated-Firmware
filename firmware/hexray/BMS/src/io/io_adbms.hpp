@@ -182,35 +182,35 @@ namespace adbms
         EvenChannels
     };
 
-    void readConfigReg(
-        std::array<SegmentConfig, NUM_SEGMENTS>                  &configs,
-        std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS> &success);
     std::expected<void, ErrorCode> writeConfigReg(std::array<SegmentConfig, NUM_SEGMENTS> &config);
     std::expected<void, ErrorCode> writePwmReg(std::array<PWMConfig, NUM_SEGMENTS> &pwm_config);
-    std::expected<void, ErrorCode> sendBalanceCmd();
-    std::expected<void, ErrorCode> sendStopBalanceCmd();
+
+    void                           readConfigReg(
+                                  std::array<SegmentConfig, NUM_SEGMENTS>                  &configs,
+                                  std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS> &success);
     void                           readCellVoltageReg(
                                   std::array<std::array<uint16_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS>                       &cell_voltage_regs,
                                   std::array<std::array<std::expected<void, ErrorCode>, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success);
-
-    std::expected<void, ErrorCode> startTempAdcConversion();
+    void                           readFilteredCellVoltageReg(
+                                  std::array<std::array<uint16_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS>                       &filtered_cell_voltage_regs,
+                                  std::array<std::array<std::expected<void, ErrorCode>, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success);                              
     void                           readCellTempReg(
                                   std::array<std::array<uint16_t, THERM_GPIOS_PER_SEGMENT>, NUM_SEGMENTS>                       &cell_temp_regs,
                                   std::array<std::array<std::expected<void, ErrorCode>, THERM_GPIOS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success);
+    void                           readStatusReg(
+                                    std::array<StatusGroups, NUM_SEGMENTS>                   &stat_regs,
+                                    std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS> &stat_regs_success);
 
     std::expected<void, ErrorCode> owcCells(OpenWireSwitch owcSwitch);
     std::expected<void, ErrorCode> owcTherms(OpenWireSwitch owcSwitch);
 
     std::expected<void, ErrorCode> startCellsAdcConversion();
+    std::expected<void, ErrorCode> startTempAdcConversion();
     std::expected<void, ErrorCode> pollCellsAdcConversion();
-    std::expected<void, ErrorCode> wakeup();
     std::expected<void, ErrorCode> pollAdcConversions();
-
-
-    void readStatusReg(
-    std::array<StatusGroups, NUM_SEGMENTS>              &stat_regs,
-    std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS> &stat_regs_success);
-    
+    std::expected<void, ErrorCode> sendBalanceCmd();
+    std::expected<void, ErrorCode> sendStopBalanceCmd();
+    std::expected<void, ErrorCode> wakeup();
 
 } // namespace adbms
 } // namespace io

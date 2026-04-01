@@ -109,6 +109,25 @@ using namespace hw::watchdog;
     }
 }
 
+[[noreturn]] static void tasks_runAdbmsFilteredVoltages(void *arg)
+{
+    const uint32_t period_ms                = 500U;
+    const uint32_t watchdog_grace_period_ms = 25U;
+    // WatchdogInstance watchdog = WatchdogInstance(TaskIndex_e::TASK_INDEX_ADBMSVOLTAGES, period_ms +
+    // watchdog_grace_period_ms);
+
+    uint32_t start_ticks = osKernelGetTickCount();
+    forever
+    {
+        const uint32_t start_time = io::time::getCurrentMs();
+        jobs_runAdbmsFilteredVoltages_tick();
+
+        // watchdog.checkIn();
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
+}
+
 [[noreturn]] static void tasks_runAdbmsTemperatures(void *arg)
 {
     const uint32_t period_ms                = 500U;
@@ -154,10 +173,9 @@ static hw::rtos::StaticTask<512> Task100Hz(osPriorityHigh, "Task100Hz", tasks_ru
 static hw::rtos::StaticTask<512> TaskCanRx(osPriorityBelowNormal, "TaskCanRx", tasks_runCanRx);
 static hw::rtos::StaticTask<512> TaskCanTx(osPriorityBelowNormal, "TaskCanTx", tasks_runCanTx);
 static hw::rtos::StaticTask<512> TaskAdbmsVoltages(osPriorityNormal, "TaskAdbmsVoltages", tasks_runAdbmsVoltages);
-static hw::rtos::StaticTask<512>
-    TaskAdbmsTemperatures(osPriorityNormal, "TaskAdbmsTemperatures", tasks_runAdbmsTemperatures);
-static hw::rtos::StaticTask<512>
-    TaskAdbmsDiagnostics(osPriorityNormal, "TaskAdbmsDiagnostics", tasks_runAdbmsDiagnostics);
+static hw::rtos::StaticTask<512> TaskAdbmsFilteredVoltages(osPriorityNormal, "TaskAdbmsFilteredVoltages", tasks_runAdbmsFilteredVoltages);
+static hw::rtos::StaticTask<512> TaskAdbmsTemperatures(osPriorityNormal, "TaskAdbmsTemperatures", tasks_runAdbmsTemperatures);
+static hw::rtos::StaticTask<512> TaskAdbmsDiagnostics(osPriorityNormal, "TaskAdbmsDiagnostics", tasks_runAdbmsDiagnostics);
 
 void BMS_StartAllTasks()
 {
@@ -167,6 +185,7 @@ void BMS_StartAllTasks()
     TaskCanRx.start();
     TaskCanTx.start();
     TaskAdbmsVoltages.start();
+    TaskAdbmsFilteredVoltages.start();
     TaskAdbmsTemperatures.start();
     TaskAdbmsDiagnostics.start();
 }

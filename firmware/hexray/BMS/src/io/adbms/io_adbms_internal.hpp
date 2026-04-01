@@ -58,6 +58,7 @@ inline constexpr uint16_t CLRCELL = 0x0711U;
 inline constexpr uint16_t CLRAUX  = 0x0712U;
 inline constexpr uint16_t CLRFLAG = 0x747U;
 inline constexpr uint16_t CLOVUV  = 0x547U;
+inline constexpr uint16_t CLRFC   = 0x714U;
 
 // Poll
 inline constexpr uint16_t PLADC  = 0x0718U;

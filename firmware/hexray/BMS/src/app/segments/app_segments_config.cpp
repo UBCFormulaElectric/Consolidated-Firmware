@@ -22,6 +22,7 @@ void setDefaultConfig()
         reg_a.ref_on    = 0x01;
         reg_a.gpio_1_8  = 0xFF;
         reg_a.gpio_9_10 = 0x03;
+        reg_a.fc        = 0x03;
 
         reg_b.vuv_0_7  = static_cast<uint8_t>(VUV & 0xFF);
         reg_b.vuv_8_11 = static_cast<uint8_t>(VUV >> 8 & 0x0F);
@@ -34,6 +35,7 @@ void setBalanceConfig(array<array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS
 {
     for (uint8_t seg = 0; seg < io::NUM_SEGMENTS; seg++)
     {
+
         auto &[reg_a, reg_b] = segment_config[seg];
         uint16_t dcc_bits    = 0U;
 

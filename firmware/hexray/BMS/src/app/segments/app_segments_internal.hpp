@@ -30,6 +30,10 @@ extern array<array<uint16_t, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>          
 extern array<array<expected<void, ErrorCode>, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> cell_voltage_success;
 extern array<array<float, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>                     cell_voltages;
 
+extern array<array<uint16_t, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>                  filtered_cell_voltage_regs;
+extern array<array<expected<void, ErrorCode>, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> filtered_cell_voltage_success;
+extern array<array<float, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>                     filtered_cell_voltages;
+
 extern array<array<array<uint16_t, io::adbms::THERM_GPIOS_PER_SEGMENT>, io::NUM_SEGMENTS>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)> cell_temp_regs;
 extern array<array<array<expected<void, ErrorCode>, io::adbms::THERM_GPIOS_PER_SEGMENT>, io::NUM_SEGMENTS>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)> cell_temp_success;
 extern array<array<float, io::THERMISTORS_PER_SEGMENT>, io::NUM_SEGMENTS> cell_temps;
@@ -39,10 +43,15 @@ extern array<array<expected<void, ErrorCode>, io::CELLS_PER_SEGMENT>, io::NUM_SE
 extern array<array<uint16_t, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>                  cell_owc_even_regs;
 extern array<array<expected<void, ErrorCode>, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> cell_owc_even_success;
 
-extern array<array<uint16_t, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>                  therm_owc_odd_regs;
-extern array<array<expected<void, ErrorCode>, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> therm_owc_odd_success;
-extern array<array<uint16_t, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>                  therm_owc_even_regs;
-extern array<array<expected<void, ErrorCode>, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> therm_owc_even_success;
+extern array<array<uint16_t, io::adbms::THERM_GPIOS_PER_SEGMENT>, io::NUM_SEGMENTS>                  therm_owc_odd_regs;
+extern array<array<expected<void, ErrorCode>, io::adbms::THERM_GPIOS_PER_SEGMENT>, io::NUM_SEGMENTS> therm_owc_odd_success;
+extern array<array<uint16_t, io::adbms::THERM_GPIOS_PER_SEGMENT>, io::NUM_SEGMENTS>                  therm_owc_even_regs;
+extern array<array<expected<void, ErrorCode>, io::adbms::THERM_GPIOS_PER_SEGMENT>, io::NUM_SEGMENTS> therm_owc_even_success;
+extern array<array<bool, io::adbms::THERM_GPIOS_PER_SEGMENT>, io::NUM_SEGMENTS>                      therm_owc_ok;
+
+
+extern array<io::adbms::StatusGroups, io::NUM_SEGMENTS>                                 stat_regs;
+extern array<expected<void, ErrorCode>, io::NUM_SEGMENTS>                               stat_success;
 
 /**
  * @file segments/app_segments_getters.cpp
@@ -52,12 +61,18 @@ extern array<array<expected<void, ErrorCode>, io::CELLS_PER_SEGMENT>, io::NUM_SE
  * @file segments/app_segments_setters.cpp
  */
 using CellVoltageSetters     = void (*)(float);
+using FilteredCellVoltageSetters     = void (*)(float);
 using CellTemperatureSetters = void (*)(float);
 using CellOwcSetters         = void (*)(bool);
+using ThermOwcSetters        = void (*)(bool);
+using SegmentCommOkSetters   = void (*)(bool);
 
 static constexpr uint8_t OWC_CHANNELS_PER_SEGMENT = 15U; // CELLS_PER_SEGMENT + 1
 
 extern CellVoltageSetters     cell_voltage_setters[MAX_NUM_SEGMENTS][io::CELLS_PER_SEGMENT];
 extern CellTemperatureSetters cell_temperature_setters[MAX_NUM_SEGMENTS][io::THERMISTORS_PER_SEGMENT];
+extern FilteredCellVoltageSetters filtered_cell_voltage_setters[MAX_NUM_SEGMENTS][io::THERMISTORS_PER_SEGMENT];
 extern CellOwcSetters         cell_owc_setters[MAX_NUM_SEGMENTS][OWC_CHANNELS_PER_SEGMENT];
+extern ThermOwcSetters        therm_owc_setters[MAX_NUM_SEGMENTS][io::adbms::THERM_GPIOS_PER_SEGMENT];
+extern SegmentCommOkSetters   segment_comm_ok_setters[MAX_NUM_SEGMENTS];
 } // namespace app::segments

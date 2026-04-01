@@ -30,15 +30,18 @@ void readStatusReg(
     array<StatusGroups, NUM_SEGMENTS>              &stat_regs,
     array<expected<void, ErrorCode>, NUM_SEGMENTS> &stat_regs_success)
 {
-    const auto poll_ok = pollTempAdcConversion();
-
-    if (!poll_ok)
+    if (const auto ok = pollCellsAdcConversion(); !ok)
     {
-        stat_regs_success.fill(poll_ok);
+        stat_regs_success.fill(ok);
         return;
     }
 
-    stat_regs_success.fill({});
+    if (const auto ok = pollTempAdcConversion(); !ok)
+    {
+        stat_regs_success.fill(ok);
+        return;
+    }
+    
 
     for (size_t group = 0U; group < NUM_STAT_REG_GROUPS; group++)
     {
@@ -46,11 +49,6 @@ void readStatusReg(
 
         for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
         {
-            if (!stat_regs_success[seg])
-            {
-                continue;
-            }
-
             if (!reg_group_success[seg])
             {
                 stat_regs_success[seg] = reg_group_success[seg];
