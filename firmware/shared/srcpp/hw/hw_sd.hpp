@@ -20,38 +20,50 @@ namespace hw
 class SdCard
 {
   private:
-    SD_HandleTypeDef *hsd;          /* HAL SD handle that holds the state of the SD card */
-    uint32_t          timeout;      /* the timeout for the SD card operations */
-    const Gpio       *present_gpio; /* gpio for sd_cd */
-    volatile bool     dma_tx_completed = true;
+    SD_HandleTypeDef *const _hsd;          /* HAL SD handle that holds the state of the SD card */
+    uint32_t                _timeout;      /* the timeout for the SD card operations */
+    const Gpio             &_present_gpio; /* gpio for sd_cd */
+    mutable volatile bool   dma_tx_completed = true;
+    mutable volatile bool   dma_rx_completed = true;
 
-    static inline bool OFFSET_SIZE_VALID(uint32_t offset, uint32_t size)
+    static bool OFFSET_SIZE_VALID(const uint32_t offset, const uint32_t size)
     {
         return (offset % HW_DEVICE_SECTOR_SIZE == 0) && (size % HW_DEVICE_SECTOR_SIZE == 0);
     }
 
-    inline ExitCode CHECK_SD_PRESENT()
-    {
-        if (!sdPresent())
-            return ExitCode::EXIT_CODE_ERROR;
+#define CHECK_SD_PRESENT()                            \
+    {                                                 \
+        if (!sdPresent())                             \
+        {                                             \
+            return std::unexpected(ErrorCode::ERROR); \
+        }                                             \
     }
 
   public:
     /* Constructor */
-    constexpr SdCard(SD_HandleTypeDef *hsd, uint32_t timeout, const Gpio *present_gpio)
-      : hsd(hsd), timeout(timeout), present_gpio(present_gpio)
+    consteval explicit SdCard(SD_HandleTypeDef *const hsd, const uint32_t timeout, const Gpio &present_gpio)
+      : _hsd(hsd), _timeout(timeout), _present_gpio(present_gpio)
     {
     }
 
     /* Getters for private fields */
-    SD_HandleTypeDef *getHsd() const { return hsd; }
+    SD_HandleTypeDef *getHsd() const { return _hsd; }
 
-    uint32_t getTimeout() const { return timeout; }
+    uint32_t getTimeout() const { return _timeout; }
 
-    const Gpio *getPresentGpio() const { return present_gpio; }
+    const Gpio &getPresentGpio() const { return _present_gpio; }
 
     /* Setters for private fields */
-    void setDmaTxCompleted(bool value) { dma_tx_completed = value; }
+    void setDmaTxCompleted(const bool value) const
+    {
+        dma_tx_completed = value;
+        // TODO signaling to blocked here
+    }
+    void setDmaRxCompleted(const bool value) const
+    {
+        dma_rx_completed = value;
+        // TODO signaling to blocked here
+    }
 
     /**
      * @brief   Read from sd card.
@@ -61,7 +73,7 @@ class SdCard
      * @return  the ExitCode of the opeation
      *
      */
-    ExitCode read(std::span<uint8_t> pdata, uint32_t block_addr);
+    std::expected<void, ErrorCode> read(std::span<uint8_t> pdata, uint32_t block_addr) const;
 
     /**
      * @brief   Write to the sd card.
@@ -71,8 +83,8 @@ class SdCard
      * @return  the ExitCode of the opeation
      *
      */
-    ExitCode write(std::span<uint8_t> pdata, uint32_t block_addr);
-    ExitCode writeDma(std::span<uint8_t> pdata, uint32_t block_addr);
+    std::expected<void, ErrorCode> write(std::span<uint8_t> pdata, uint32_t block_addr) const;
+    std::expected<void, ErrorCode> writeDma(std::span<uint8_t> pdata, uint32_t block_addr) const;
 
     /**
      * @brief   Read interface with offset and size argument, interface for littlefs
@@ -83,7 +95,7 @@ class SdCard
      * @return  the ExitCode of the opeation
      *
      */
-    ExitCode readOffset(std::span<uint8_t> pdata, uint32_t block_addr, uint32_t offset);
+    std::expected<void, ErrorCode> readOffset(std::span<uint8_t> pdata, uint32_t block_addr, uint32_t offset) const;
 
     /**
      * @brief   Write interface with offset and size, interface for littlefs
@@ -94,7 +106,7 @@ class SdCard
      * @return  the ExitCode of the opeation
      *
      */
-    ExitCode writeOffset(std::span<uint8_t> pdata, uint32_t block_addr, uint32_t offset);
+    std::expected<void, ErrorCode> writeOffset(std::span<uint8_t> pdata, uint32_t block_addr, uint32_t offset) const;
 
     /**
      * @brief  Erase data from the sd card [start_addr, end_addr], inclusive
@@ -102,19 +114,19 @@ class SdCard
      * @param  end_addr end of block index
      * @return the ExitCode of the opeation
      */
-    ExitCode erase(uint32_t start_addr, uint32_t end_addr);
+    std::expected<void, ErrorCode> erase(uint32_t start_addr, uint32_t end_addr) const;
 
     /**
      * @brief  Detect if the sd card is present.
      * @return True if the card is inserted, false otherwise
      */
-    bool sdPresent(void);
+    bool sdPresent() const;
 
     /**
      * @brief   Abort the current operation
      * @return  the SdCardStatus of the opeation
      */
-    ExitCode abort(void);
+    std::expected<void, ErrorCode> abort() const;
 };
 
 /**
@@ -122,6 +134,6 @@ class SdCard
  * @param   hsd  the SD handle
  * @return  the SdCard instance as a reference
  */
-SdCard &getSdFromHandle(SD_HandleTypeDef *hsd);
+const SdCard &getSdFromHandle(SD_HandleTypeDef *hsd);
 
 } // namespace hw

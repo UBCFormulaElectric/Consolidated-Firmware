@@ -1,37 +1,63 @@
-import { SignalType } from "@/lib/types/Signal";
-import type { FC } from "react";
+import { EnumSeries, NumericalSeries } from "@/components/widgets/CanvasChartTypes";
+import { Color } from "chroma-js";
+import type { FC, RefObject } from "react";
+import { EnumSignalMetadata, NumericalSignalMetadata } from "./Signal";
 
-type WidgetDataBase = {
-  id: string;
-}
-
-interface enumProps {
-  type: SignalType.ENUM;
-  signal: string | null;
+export type EnumTimelineWidgetSchema = {
+  type: "enumTimeline";
+  data: EnumSeries[];
   options: {
-    colorPalette: string[],
+    colorPalette: {
+      [signalName: string]: {
+        color: Color;
+        enumValueColors: {
+          [enumValue: number]: Color;
+        }
+      };
+    };
+    height: number;
+    timeTickCount: number;
   };
 }
-export type WidgetDataEnum = WidgetDataBase & enumProps;
 
-interface numericalProps {
-  type: SignalType.NUMERICAL;
-  signals: string[];
-}
-export type WidgetDataNumerical = WidgetDataBase & numericalProps;
-
-export interface MockGraphConfig {
-  type: "numerical" | "enumeration";
-  delay: number; // ms
-  initialPoints: number;
-  signalName: string;
+export type NumericalGraphWidgetSchema = {
+  type: "numericalGraph";
+  data: NumericalSeries[];
+  options: {
+    colorPalette: {
+      [signalName: string]: Color;
+    };
+    height: number;
+    timeTickCount: number;
+  };
 }
 
-interface mockProps {
-    type: SignalType.MOCK;
-    configs: MockGraphConfig[];
-}
-export type WidgetDataMock = WidgetDataBase & mockProps;
+export type WidgetSchema =
+  | NumericalGraphWidgetSchema
+  | EnumTimelineWidgetSchema;
 
-export type WidgetData = WidgetDataEnum | WidgetDataNumerical | WidgetDataMock;
-export type WidgetRenderer = FC<WidgetData>;
+type WidgetType = WidgetSchema["type"];
+
+export type BaseWidgetRenderer = {
+  id: string;
+  hoveredSignal?: RefObject<string | null>;
+  onHoverTimestampChange?: (timestamp: number | null) => void;
+};
+
+export type EnumTimelineWidgetData = BaseWidgetRenderer & EnumTimelineWidgetSchema & {
+  signals: EnumSignalMetadata[];
+}
+
+export type NumericalGraphWidgetData = BaseWidgetRenderer & NumericalGraphWidgetSchema & {
+  signals: NumericalSignalMetadata[];
+}
+
+type WidgetData = (
+  | EnumTimelineWidgetData
+  | NumericalGraphWidgetData
+);
+
+type WidgetRendererProps = WidgetData;
+type WidgetRenderer = FC<WidgetRendererProps>;
+
+export type { WidgetData, WidgetRenderer, WidgetRendererProps, WidgetType };

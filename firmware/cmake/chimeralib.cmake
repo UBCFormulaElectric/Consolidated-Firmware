@@ -15,7 +15,7 @@ function(add_chimera_stm32f4 NAME SRCS INCLUDE_DIRS CHIMERA_NAME)
             "${NAME}"
             "${SRCS}"
             "${INCLUDE_DIRS}"
-            "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_boot.ld"
+            "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_app_only.ld"
             "cm4"
     )
     target_link_libraries("${NAME}.elf" PRIVATE "${CHIMERA_NAME}")
@@ -33,7 +33,7 @@ function(add_chimera_stm32h5 NAME SRCS INCLUDE_DIRS CHIMERA_NAME)
             "${NAME}"
             "${SRCS}"
             "${INCLUDE_DIRS}"
-            "${LINKER_DIR}/stm32h562ritx/stm32h562ritx_boot.ld"
+            "${LINKER_DIR}/stm32h562ritx/stm32h562ritx_app_only.ld"
             "cm33"
     )
     target_link_libraries("${NAME}.elf" PRIVATE "${CHIMERA_NAME}")
@@ -51,7 +51,7 @@ function(add_chimera_stm32h7 NAME SRCS INCLUDE_DIRS CHIMERA_NAME)
             "${NAME}"
             "${SRCS}"
             "${INCLUDE_DIRS}"
-            "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_boot.ld"
+            "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app_only.ld"
             "cm7"
     )
     target_link_libraries("${NAME}.elf" PRIVATE "${CHIMERA_NAME}")

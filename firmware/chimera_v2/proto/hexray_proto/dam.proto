@@ -4,7 +4,7 @@ package dam;
 
 enum GpioNetName {
   GPIO_NET_NAME_UNSPECIFIED = 0;
-  GPIO_TELEM_PWR_EN = 1;
+  GPIO_NTP = 1;
   GPIO_BUZZER_PWR_EN = 2;
   GPIO_TSIM_RED_EN = 3;
   GPIO_NTSIM_GRN_EN = 4;
@@ -13,12 +13,12 @@ enum GpioNetName {
   GPIO_LED = 7;
   GPIO_BOOT = 8;
   GPIO_SD_PRESENT = 9;
-  GPIO_N_RTC_INT1 = 10;
-  GPIO_900M = 11;
-  GPIO_SD_FAIL = 12;
+  GPIO_900M = 10;
+  GPIO_SD_FAIL = 11;
+  GPIO_D_P_PULLUP = 12;
 }
 
-enum I2cNetName {
-  I2C_NET_NAME_UNSPECIFIED = 0;
-  I2C_RTC = 1;
+enum UartNetName {
+  UART_NET_NAME_UNSPECIFIED = 0;
+  UART_RADIO = 1;
 }

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub struct CanBus {
     pub name: String,
     pub bus_speed: u32,
@@ -12,16 +12,25 @@ pub struct CanBus {
     pub node_names: Vec<String>,
 }
 
-#[derive(Clone)]
-pub enum RxMsgNames {
-    All,
-    RxMsgs(Vec<String>),
-}
-
-pub struct GroupedAlerts {
-    pub info: Vec<CanAlert>,
+/**
+ * This is just a lightweight representation of the alerts a node can have.
+ * The actual messages backing the alerts are stored as regular messages
+ */
+pub struct NodeAlerts {
+    pub infos: Vec<CanAlert>,
     pub warnings: Vec<CanAlert>,
     pub faults: Vec<CanAlert>,
+    pub infos_id: u32,
+    pub infos_count_id: u32,
+    pub warnings_id: u32,
+    pub warnings_count_id: u32,
+    pub faults_id: u32,
+    pub faults_count_id: u32,
+}
+
+pub enum RxMsgs {
+    All,
+    RxMsgs(Vec<u32>),
 }
 
 //     struct for fully describing a CAN node.
@@ -29,18 +38,33 @@ pub struct GroupedAlerts {
 pub struct CanNode {
     // Name of this CAN node
     pub name: String,
-    pub rx_msgs_names: RxMsgNames, // list of messages that it is listening
+    pub rx_msgs_names: RxMsgs, // list of messages that it is listening
     pub collects_data: bool,
-    pub alerts: Option<GroupedAlerts>,
-    pub enums: Vec<CanEnum>,
+    pub alerts: Option<NodeAlerts>,
+    pub enums: Vec<CanEnum>, // a node's enums are private so that only they can TX this enum
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum CanSignalType {
     Numerical,
+    Boolean,
     Enum,
     Alert,
 }
+impl CanSignalType {
+    pub fn from(x: u32) -> CanSignalType {
+        match x {
+            // this is definately very suspicious
+            0 => CanSignalType::Numerical,
+            1 => CanSignalType::Boolean,
+            2 => CanSignalType::Enum,
+            3 => CanSignalType::Alert,
+            _ => panic!("Invalid signal type {} in database", x),
+        }
+    }
+}
+
+#[derive(Debug)]
 pub struct CanSignal {
     // Name of this CAN signal
     pub name: String,
@@ -48,6 +72,8 @@ pub struct CanSignal {
     pub start_bit: u16,
     // Number of bits used to represent this signal in the message payload
     pub bits: u16,
+    // NOTE: that all scale, offset, min and max are required, as there are signals which
+    // do not completely exaust all permutations of bits
     // Scaling factor for encoding/decoding this signal
     pub scale: f64,
     // Offset for encoding/decoding this signal
@@ -70,8 +96,21 @@ pub struct CanSignal {
     pub big_endian: bool, // TODO: Add tests for big endianness
 
     pub signal_type: CanSignalType,
+    // note I am way too lazy to make cansignal a proper union type
+    // hence this will do
+    // however you need to trust that this is correct
+
+    // note: please do not add a parent reference to the CanMessage
+    // as usually if you have signals you usually have the message in the first place
 }
 
+#[derive(PartialEq, Debug)]
+pub enum CanBusModes {
+    All,
+    Some(Vec<String>),
+}
+
+#[derive(Debug)]
 pub struct CanMessage {
     // Name of this CAN message
     pub name: String,
@@ -94,7 +133,7 @@ pub struct CanMessage {
     pub tx_node_name: String,
 
     // if this is None, then only use the bus default
-    pub modes: Vec<String>,
+    pub modes: CanBusModes,
 }
 
 const ALLOWABLE_MSG_LENGTHS: [u16; 16] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64];
@@ -103,20 +142,22 @@ fn bits_to_bytes(bits: u16) -> u16 {
     (bits + 7) / 8
 }
 impl CanMessage {
+    pub fn message_length(&self) -> u16 {
+        bits_to_bytes(
+            self.signals
+                .iter()
+                .map(|signal| signal.start_bit + signal.bits)
+                .max()
+                .unwrap_or(0),
+        )
+    }
+
     pub fn dlc(&self) -> u16 {
         // Length of payload, in bytes.
         if self.signals.len() == 0 {
             return 0;
         }
-
-        let useful_length = bits_to_bytes(
-            self.signals
-                .iter()
-                .map(|signal| signal.start_bit + signal.bits)
-                .max()
-                .expect("Message has signals (already checked length > 0)"),
-        );
-
+        let useful_length = self.message_length();
         for length in ALLOWABLE_MSG_LENGTHS.iter() {
             if *length >= useful_length {
                 return *length;
@@ -174,12 +215,11 @@ impl CanEnum {
     }
 
     pub fn max_value(&self) -> u32 {
-        return self
-            .values
+        self.values
             .values()
             .cloned()
             .max()
-            .expect("Enum has at least one value");
+            .expect("Enum has at least one value")
     }
 
     pub fn min_value(&self) -> u32 {

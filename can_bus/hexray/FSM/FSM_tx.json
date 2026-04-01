@@ -91,43 +91,43 @@
   "IMU": {
     "msg_id": 614,
     "cycle_time": 10,
-    "description": "IMU sensor data",
+    "description": "IMU data",
     "signals": {
-      "LinearAccelerationX": {
+      "AccelX": {
         "resolution": 0.1,
         "min": -20,
         "max": 20,
         "unit": "m/s^2"
       },
-      "LinearAccelerationY": {
+      "AccelY": {
         "resolution": 0.1,
         "min": -20,
         "max": 20,
         "unit": "m/s^2"
       },
-      "LinearAccelerationZ": {
+      "AccelZ": {
         "resolution": 0.1,
         "min": -20,
         "max": 20,
         "unit": "m/s^2"
       },
-      "RollRate": {
+      "GyroX": {
         "resolution": 0.1,
         "min": -20,
         "max": 20,
-        "unit": "deg/s"
+        "unit": "deg/s^2"
       },
-      "PitchRate": {
+      "GyroY": {
         "resolution": 0.1,
         "min": -20,
         "max": 20,
-        "unit": "deg/s"
+        "unit": "deg/s^2"
       },
-      "YawRate": {
+      "GyroZ": {
         "resolution": 0.1,
         "min": -20,
         "max": 20,
-        "unit": "deg/s"
+        "unit": "deg/s^2"
       }
     }
   },

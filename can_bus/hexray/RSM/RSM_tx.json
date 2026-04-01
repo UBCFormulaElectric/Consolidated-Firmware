@@ -32,7 +32,7 @@
     }
   },
   "CommitInfo": {
-    "msg_id": 709,
+    "msg_id": 708,
     "cycle_time": 100,
     "description": "RSM Commit Info",
     "signals": {
@@ -45,7 +45,7 @@
     }
   },
   "Coolant": {
-    "msg_id": 710,
+    "msg_id": 709,
     "cycle_time": 1000,
     "signals": {
       "CoolantFlowRate": {
@@ -57,7 +57,7 @@
     }
   },
   "SuspensionTravel": {
-    "msg_id": 711,
+    "msg_id": 710,
     "cycle_time": 1000,
     "description": "Suspension travel",
     "signals": {
@@ -76,41 +76,41 @@
     }
   },
   "IMU": {
-    "msg_id": 712,
-    "cycle_time": 1000,
+    "msg_id": 711,
+    "cycle_time": 10,
     "description": "IMU data",
     "signals": {
-      "LinearAccelerationInX": {
+      "AccelX": {
         "resolution": 0.1,
         "min": -20,
         "max": 20,
         "unit": "m/s^2"
       },
-      "LinearAccelerationInY": {
+      "AccelY": {
         "resolution": 0.1,
         "min": -20,
         "max": 20,
         "unit": "m/s^2"
       },
-      "LinearAccelerationInZ": {
+      "AccelZ": {
         "resolution": 0.1,
         "min": -20,
         "max": 20,
         "unit": "m/s^2"
       },
-      "RollAngularAcceleration": {
+      "GyroX": {
         "resolution": 0.1,
         "min": -20,
         "max": 20,
         "unit": "deg/s^2"
       },
-      "PitchAngularAcceleration": {
+      "GyroY": {
         "resolution": 0.1,
         "min": -20,
         "max": 20,
         "unit": "deg/s^2"
       },
-      "YawAngularAcceleration": {
+      "GyroZ": {
         "resolution": 0.1,
         "min": -20,
         "max": 20,
@@ -119,7 +119,7 @@
     }
   },
   "Brakes": {
-    "msg_id": 713,
+    "msg_id": 712,
     "cycle_time": 1000,
     "description": "Front and rear brake pressures",
     "signals": {
@@ -135,7 +135,7 @@
     }
   },
   "ShdnNodeStatus": {
-    "msg_id": 714,
+    "msg_id": 713,
     "cycle_time": 10,
     "description": "RSM shutdown nodes",
     "signals": {
@@ -151,7 +151,7 @@
     "signals": {}
   },
   "TireSensor" : {
-    "msg_id": 715,
+    "msg_id": 714,
     "cycle_time" : 100,
     "description" :" Tire sensor information",
     "signals" : {

@@ -363,7 +363,7 @@ function(stm32h562xx_cube_library
     # Currently, all our USB devices are of the Communications Device Class (CDC).
     # If we want to ever support different device classes,
     # you will need to add a argument to this function with the requested class.
-    if (USB_ENABLED)
+    if (${USB_ENABLED})
         set(USB_MIDDLEWARE_DIR "${STM32CUBEH5_SOURCE_DIR}/Middlewares/ST/STM32_USB_Device_Library")
         list(APPEND STM32CUBE_SRCS
                 "${USB_MIDDLEWARE_DIR}/Class/CDC/Src/usbd_cdc.c"

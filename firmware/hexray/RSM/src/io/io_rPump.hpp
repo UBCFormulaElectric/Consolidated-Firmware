@@ -1,31 +1,24 @@
 #pragma once
 
-#include "util_errorCodes.hpp"
-
-#ifdef TARGET_EMBEDDED
-// #include "hw_i2cs.hpp" //Not created yet
-#endif
+#include "io_potentiometer.hpp"
+#include <cstdint>
 
 namespace io::rPump
 {
+extern const Potentiometer rPump;
+
 /*
  * Checks rPump is communicating over I2C
- * returns True if the I2C is ready
  */
-ExitCode isPumpReady();
+std::expected<void, ErrorCode> isPumpReady();
 
 /*
- * data to write to the pump controller
- * return success of operation
+ * Sends the percentage the wiper should be at
  */
-ExitCode write(uint8_t data);
+std::expected<void, ErrorCode> setPercentage(uint8_t percentage);
 
 /*
- * dest (destination) to write the data to
- * return success of operation
+ * Reads the percentage the wiper is at
  */
-ExitCode read(uint8_t *dest);
-
-ExitCode setPercentage(float percentage);
-ExitCode readPercentage(float *dest);
+std::expected<void, ErrorCode> readPercentage(uint8_t &dest);
 } // namespace io::rPump

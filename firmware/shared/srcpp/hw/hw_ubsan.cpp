@@ -1,5 +1,4 @@
 #include <cstdint>
-#include <cstddef>
 #include "io_log.hpp"
 #include "hw_error.hpp"
 #include "hw_ubsan.hpp"
@@ -19,6 +18,7 @@ extern "C"
     void __ubsan_handle_nonnull_arg(void *_data);                                // NOLINT(*-reserved-identifier)
     void __ubsan_handle_vla_bound_not_positive(void *_data, void *bound);        // NOLINT(*-reserved-identifier)
     void __ubsan_handle_pointer_overflow(void *_data, void *base, void *result); // NOLINT(*-reserved-identifier)
+    void __ubsan_handle_divrem_overflow(void *_data, void *lhs, void *rhs);      // NOLINT(*-reserved-identifier)
 } // extern "C"
 
 #define VALUE_LENGTH 40
@@ -281,7 +281,22 @@ void __ubsan_handle_negate_overflow(void *_data, void *old_val)
     LOG_ERROR("negation of %s cannot be represented in type %s", old_val_str, data->type->type_name);
     hw_error(data->location.file_name, static_cast<int>(data->location.row_col.line), "negation-overflow");
 }
-// void __ubsan_handle_divrem_overflow(void *_data, void *lhs, void *rhs) {}
+void __ubsan_handle_divrem_overflow(void *_data, void *lhs, void *rhs)
+{
+    const auto data = static_cast<overflow_data *>(_data);
+    char       lhs_val_str[VALUE_LENGTH];
+    if (suppress_report(&data->location))
+    {
+        return;
+    }
+    ubsan_prologue(&data->location, "division-overflow");
+    val_to_string(lhs_val_str, sizeof(lhs_val_str), data->type, lhs);
+    if (type_is_signed(data->type) && get_signed_val(data->type, rhs) == -1)
+        LOG_ERROR("division of %s by -1 cannot be represented in type %s\n", lhs_val_str, data->type->type_name);
+    else
+        LOG_ERROR("division by zero\n");
+    hw_error(data->location.file_name, 0, "divrem-overflow");
+}
 
 // void __ubsan_handle_implicit_conversion(void *_data, void *lhs, void *rhs) {}
 // void __ubsan_handle_type_mismatch(struct type_mismatch_data *data, void *ptr) {}

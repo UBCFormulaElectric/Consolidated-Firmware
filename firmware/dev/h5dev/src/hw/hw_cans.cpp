@@ -1,17 +1,20 @@
-#include "main.h"
-#include <cassert>
-#include <io_canQueue.h>
 #include "hw_cans.hpp"
-#include "io_bootHandler.h"
-#include "io_canMsgQueues.hpp"
-#include "io_canMsg.hpp"
 
-static void canRxCallback(const io::CanMsg *msg)
+#include "main.h"
+#include "io_canQueues.hpp"
+#include "io_bootHandler.hpp"
+#include "app_canUtils.hpp"
+
+#include <cassert>
+
+static void canRxCallback(const hw::CanMsg &msg)
 {
-    can_rx_queue.pushMsgToQueue(msg);
+    io::bootHandler::processBootRequest(msg);
+    LOG_IF_ERR(
+        can_rx_queue.push(io::CanMsg{ msg.std_id, msg.dlc, msg.data, false, app::can_utils::BusEnum::Bus_FDCAN }));
 }
 
-hw::fdcan fdcan1(hfdcan1, 0, canRxCallback);
+hw::fdcan fdcan1(hfdcan1, canRxCallback);
 
 const hw::fdcan &hw::fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
 {

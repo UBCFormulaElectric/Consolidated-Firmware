@@ -1,34 +1,79 @@
 #pragma once
 
-#include "io_canMsg.hpp"
 #include "util_errorCodes.hpp"
-#include "hw_hal.h"
 #include "cmsis_os.h"
+#include "hw_hal.hpp"
 
-#if defined(STM32H733xx)
-#include "stm32h7xx_hal_fdcan.h"
-#elif defined(STM32H562xx)
-#include "stm32h5xx_hal_fdcan.h"
-#endif
+#include <array>
+#include <span>
 
 namespace hw
 {
+#if defined(STM32F412Rx)
+inline constexpr size_t CAN_PAYLOAD_BYTES = 8;
+#elif defined(STM32H733xx) or defined(STM32H562xx)
+inline constexpr size_t CAN_PAYLOAD_BYTES = 64;
+#else
+#error "Please define what MCU is used."
+#endif
+struct CanMsg
+{
+    CanMsg(const uint32_t _std_id, const uint32_t _dlc, const std::array<uint8_t, CAN_PAYLOAD_BYTES> &_data)
+      : std_id(_std_id), dlc(_dlc), data(_data)
+    {
+    }
+
+    explicit CanMsg() = default;
+
+    uint32_t                                       std_id = 0;
+    uint32_t                                       dlc    = 0;
+    mutable std::array<uint8_t, CAN_PAYLOAD_BYTES> data{};
+
+    [[nodiscard]] std::span<uint16_t, CAN_PAYLOAD_BYTES / 2> getDataAsWords()
+    {
+        return std::span<uint16_t, CAN_PAYLOAD_BYTES / 2>{ reinterpret_cast<uint16_t *>(data.data()),
+                                                           CAN_PAYLOAD_BYTES / 2 };
+    }
+    [[nodiscard]] std::span<uint32_t, CAN_PAYLOAD_BYTES / 4> getDataAsDWords()
+    {
+        return std::span<uint32_t, CAN_PAYLOAD_BYTES / 4>{ reinterpret_cast<uint32_t *>(data.data()),
+                                                           CAN_PAYLOAD_BYTES / 4 };
+    }
+    [[nodiscard]] std::span<uint64_t, CAN_PAYLOAD_BYTES / 8> getDataAsQWords()
+    {
+        return std::span<uint64_t, CAN_PAYLOAD_BYTES / 8>{ reinterpret_cast<uint64_t *>(data.data()),
+                                                           CAN_PAYLOAD_BYTES / 8 };
+    }
+
+    [[nodiscard]] std::span<const uint16_t, CAN_PAYLOAD_BYTES / 2> getDataAsWords() const
+    {
+        return std::span<const uint16_t, CAN_PAYLOAD_BYTES / 2>{ reinterpret_cast<const uint16_t *>(data.data()),
+                                                                 CAN_PAYLOAD_BYTES / 2 };
+    }
+    [[nodiscard]] std::span<const uint32_t, CAN_PAYLOAD_BYTES / 4> getDataAsDWords() const
+    {
+        return std::span<const uint32_t, CAN_PAYLOAD_BYTES / 4>{ reinterpret_cast<const uint32_t *>(data.data()),
+                                                                 CAN_PAYLOAD_BYTES / 4 };
+    }
+    [[nodiscard]] std::span<const uint64_t, CAN_PAYLOAD_BYTES / 8> getDataAsQWords() const
+    {
+        return std::span<const uint64_t, CAN_PAYLOAD_BYTES / 8>{ reinterpret_cast<const uint64_t *>(data.data()),
+                                                                 CAN_PAYLOAD_BYTES / 8 };
+    }
+};
 
 class BaseCan
 {
   protected:
-    mutable bool  ready = false;
-    const uint8_t bus_num;
+    mutable bool ready = false;
 
   public:
-    void (*const receive_callback)(const io::CanMsg *rx_msg);
-    TaskHandle_t transmit_task = nullptr;
+    virtual ~BaseCan() = default;
+    void (*const receive_callback)(const CanMsg &rx_msg);
+    mutable TaskHandle_t transmit_task = nullptr;
 
-    constexpr explicit BaseCan(const uint8_t bus_num_in, void (*const receive_callback_in)(const io::CanMsg *rx_msg))
-      : bus_num(bus_num_in), receive_callback(receive_callback_in)
-    {
-        assert(receive_callback != nullptr);
-    };
+    consteval explicit BaseCan(void (*const receive_callback_in)(const CanMsg &rx_msg))
+      : receive_callback(receive_callback_in){};
 
     /**
      * Initialize CAN driver.
@@ -43,23 +88,18 @@ class BaseCan
 
     /**
      * Transmit a CAN msg on the bus, blocking until completed.
-     * @param can_handle Can handle to transmit from
      * @param msg CAN msg to be TXed.
      * @return Whether or not the transmission was successful.
      */
-    virtual ExitCode can_transmit(const io::CanMsg &msg) = 0;
+    virtual std::expected<void, ErrorCode> can_transmit(const CanMsg &msg) const = 0;
 
     /**
      * Receive a CAN msg from the bus, returning whether or not a message is available.
      * This function also passes up the CanMsg to a callback function.
-     * @param can_handle Can handle to receive from
-     * @param msg CAN msg to be RXed.
      * @param rx_fifo Which RX FIFO to receive a message from.
      * @return Whether or not the reception was successful.
      */
-    virtual ExitCode receive(uint32_t rx_fifo, io::CanMsg &msg) const = 0;
-
-    constexpr uint8_t getBusNum() const { return bus_num; }
+    virtual std::expected<CanMsg, ErrorCode> receive(uint32_t rx_fifo) const = 0;
 };
 /**
  * @attention THIS MUST BE DEFINED IN YOUR CONFIGURATIONS
@@ -73,14 +113,12 @@ class can final : public BaseCan
     CAN_HandleTypeDef *const hcan;
 
   private:
-    ExitCode tx(CAN_TxHeaderTypeDef &tx_header, io::CanMsg *msg);
+    std::expected<void, ErrorCode> tx(const CAN_TxHeaderTypeDef &tx_header, const CanMsg &msg) const;
 
   public:
-    constexpr explicit can(
-        CAN_HandleTypeDef &hcan_in,
-        const uint8_t      bus_num_in,
-        void (*const receive_callback_in)(const io::CanMsg *rx_msg))
-      : BaseCan(bus_num_in, receive_callback_in), hcan(&hcan_in){};
+    ~can() override = default;
+    consteval explicit can(CAN_HandleTypeDef &hcan_in, void (*const receive_callback_in)(const CanMsg &rx_msg))
+      : BaseCan(receive_callback_in), hcan(&hcan_in){};
 
     constexpr CAN_HandleTypeDef *getHcan() const { return hcan; }
 
@@ -88,26 +126,22 @@ class can final : public BaseCan
 
     void deinit() const override;
 
-    ExitCode can_transmit(const io::CanMsg &msg) override;
+    std::expected<void, ErrorCode> can_transmit(const CanMsg &msg) const override;
 
-    ExitCode receive(const uint32_t rx_fifo, io::CanMsg &msg) const override;
+    std::expected<CanMsg, ErrorCode> receive(uint32_t rx_fifo) const override;
 };
 
 const can &can_getHandle(const CAN_HandleTypeDef *hcan);
 #elif defined(STM32H733xx) or defined(STM32H562xx)
 class fdcan final : public BaseCan
 {
-    FDCAN_HandleTypeDef *const hfdcan;
-
-  private:
-    ExitCode tx(FDCAN_TxHeaderTypeDef &tx_header, io::CanMsg *msg);
+    FDCAN_HandleTypeDef *const     hfdcan;
+    std::expected<void, ErrorCode> tx(FDCAN_TxHeaderTypeDef &tx_header, const CanMsg &msg) const;
 
   public:
-    constexpr explicit fdcan(
-        FDCAN_HandleTypeDef &hfdcan_in,
-        const uint8_t        bus_num_in,
-        void (*const receive_callback_in)(const io::CanMsg *rx_msg))
-      : BaseCan(bus_num_in, receive_callback_in), hfdcan(&hfdcan_in){};
+    ~fdcan() override = default;
+    consteval explicit fdcan(FDCAN_HandleTypeDef &hfdcan_in, void (*const receive_callback_in)(const CanMsg &rx_msg))
+      : BaseCan(receive_callback_in), hfdcan(&hfdcan_in){};
 
     constexpr FDCAN_HandleTypeDef *getHfdcan() const { return hfdcan; }
 
@@ -115,11 +149,11 @@ class fdcan final : public BaseCan
 
     void deinit() const override;
 
-    ExitCode can_transmit(const io::CanMsg &msg) override;
+    std::expected<void, ErrorCode> can_transmit(const CanMsg &msg) const override;
 
-    ExitCode fdcan_transmit(const io::CanMsg &msg);
+    std::expected<void, ErrorCode> fdcan_transmit(const CanMsg &msg) const;
 
-    ExitCode receive(const uint32_t rx_fifo, io::CanMsg &msg) const override;
+    std::expected<CanMsg, ErrorCode> receive(uint32_t rx_fifo) const override;
 };
 
 const fdcan &fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan);

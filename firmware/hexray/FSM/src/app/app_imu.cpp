@@ -1,30 +1,38 @@
 #include "app_imu.hpp"
-extern "C"
-{
-#include "io_imu.h"
-#include "app_canTx.h"
-#include "io_log.h"
-}
+#include "io_imus.hpp"
+#include "util_errorCodes.hpp"
 
+#include "app_canTx.hpp"
+#include "app_canAlerts.hpp"
+
+#ifdef TARGET_TEST
+io::Imu imu_config;
+#endif // TARGET_TEST
 namespace app::imu
 {
-void broadcast(void)
+static FSMImuResults imu_results = { .accel_x_res = std::unexpected(ErrorCode::ERROR),
+                                     .accel_y_res = std::unexpected(ErrorCode::ERROR),
+                                     .accel_z_res = std::unexpected(ErrorCode::ERROR),
+                                     .gyro_x_res  = std::unexpected(ErrorCode::ERROR),
+                                     .gyro_y_res  = std::unexpected(ErrorCode::ERROR),
+                                     .gyro_z_res  = std::unexpected(ErrorCode::ERROR) };
+
+void init()
 {
-    float x_lin_accel, y_lin_accel, z_lin_accel;
-    float roll_ang_vel, pitch_ang_vel, yaw_ang_vel;
+    auto ec = io::imus::init();
+    can_alerts::warnings::ImuInitFailed_set(not ec.has_value());
+}
 
-    LOG_IF_ERR(io_imu_getLinearAccelerationX(&x_lin_accel));
-    LOG_IF_ERR(io_imu_getLinearAccelerationY(&y_lin_accel));
-    LOG_IF_ERR(io_imu_getLinearAccelerationZ(&z_lin_accel));
-    LOG_IF_ERR(io_imu_getAngularVelocityRoll(&roll_ang_vel));
-    LOG_IF_ERR(io_imu_getAngularVelocityPitch(&pitch_ang_vel));
-    LOG_IF_ERR(io_imu_getAngularVelocityYaw(&yaw_ang_vel));
+void broadcast()
+{
+    imu_results = { io::imus::imu_front.getAccelX(), io::imus::imu_front.getAccelY(), io::imus::imu_front.getAccelZ(),
+                    io::imus::imu_front.getGyroX(),  io::imus::imu_front.getGyroY(),  io::imus::imu_front.getGyroZ() };
 
-    app_canTx_FSM_LinearAccelerationX_set(x_lin_accel);
-    app_canTx_FSM_LinearAccelerationY_set(y_lin_accel);
-    app_canTx_FSM_LinearAccelerationZ_set(z_lin_accel);
-    app_canTx_FSM_RollRate_set(roll_ang_vel);
-    app_canTx_FSM_PitchRate_set(pitch_ang_vel);
-    app_canTx_FSM_YawRate_set(yaw_ang_vel);
+    can_tx::FSM_AccelX_set(imu_results.accel_x_res.value_or(0.0f));
+    can_tx::FSM_AccelY_set(imu_results.accel_y_res.value_or(0.0f));
+    can_tx::FSM_AccelZ_set(imu_results.accel_z_res.value_or(0.0f));
+    can_tx::FSM_GyroX_set(imu_results.gyro_x_res.value_or(0.0f));
+    can_tx::FSM_GyroY_set(imu_results.gyro_y_res.value_or(0.0f));
+    can_tx::FSM_GyroZ_set(imu_results.gyro_z_res.value_or(0.0f));
 }
 } // namespace app::imu
