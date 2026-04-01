@@ -4,19 +4,6 @@
 //   Enumeration = "enumeration",
 // }
 
-// Signal metadata interface
-export interface SignalMeta {
-  name: string;
-  unit: string;
-  cycle_time_ms?: number;
-  msg_id: number;
-  msg_name: string;
-  enum?: {
-    name: string,
-    items: Record<string, string>
-  };
-}
-
 export type AlertType = "Fault" | "Warning" | "Info";
 export type AlertSignalType =
   | AlertType
@@ -232,17 +219,6 @@ export class SignalDataStore {
     return this.dataPoints.length;
   }
 
-  // Prune data to keep only the last N points
-  pruneToLastN(maxPoints: number): void {
-    if (this.dataPoints.length <= maxPoints) return;
-
-    const pointsToRemove = this.dataPoints.length - maxPoints;
-    this.dataPoints.splice(0, pointsToRemove);
-
-    // Rebuild all indices since positions changed
-    this.rebuildIndices();
-  }
-
   private rebuildIndices(): void {
     // Clear existing indices
     this.timeIndex.clear();
@@ -297,8 +273,12 @@ export const getAlertSignalType = (name: string): AlertSignalType | null => {
 };
 
 const backend_port: number = process.env.NEXT_PUBLIC_BACKEND_PORT ? parseInt(process.env.NEXT_PUBLIC_BACKEND_PORT) : 5000;
+
+if (!process.env.NEXT_PUBLIC_BACKEND_PORT) {
+  console.warn(`NEXT_PUBLIC_BACKEND_PORT not set, defaulting to ${backend_port}. Ensure your .env.local file is configured correctly: NEXT_PUBLIC_BACKEND_PORT=xxx`);
+}
+
 // Default maximum number of data points to keep
-export const DEFAULT_MAX_DATA_POINTS = 1000; // lowk we wanna keep it all
 export const BACKEND_URL =
   typeof window !== "undefined"
     ? `http://${window.location.hostname}:${backend_port}`

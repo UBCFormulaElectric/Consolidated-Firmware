@@ -3,7 +3,11 @@ use std::{env::var, str::FromStr};
 use std::sync::LazyLock;
 use dotenv::{ dotenv, from_filename};
 
+use crate::utils::red;
+use crate::vprintln;
+
 pub struct Config {
+    pub mock: bool,
     pub serial_port: String,
     pub serial_baud_rate: u32,
     pub influxdb_url: String,
@@ -25,7 +29,11 @@ fn load_env_file() -> Config {
     from_filename(DEFAULT_BACKEND_ENV_FILE)
         .expect(&format!("{} file not found, could not load env file!", DEFAULT_BACKEND_ENV_FILE));
 
+    let mock: bool = get_var::<bool>("MOCK").unwrap_or(false);
+
     let serial_port: String = get_var::<String>("SERIAL_PORT").unwrap();
+
+    let serial_baud_rate: u32 = get_var::<u32>("SERIAL_BAUD_RATE").unwrap();
 
     let influxdb_url: String = get_var::<String>("INFLUXDB_URL").unwrap();
 
@@ -64,14 +72,15 @@ fn load_env_file() -> Config {
                     break;
                 }
             }
-            println!("Invalid Ipv4 address provided or empty, using first default: {}", default_ip);
+            vprintln!("Invalid Ipv4 address provided or empty, using first default: {}", default_ip);
             default_ip
         }
     };
 
     return Config {
+        mock: mock,
         serial_port: serial_port,
-        serial_baud_rate: 57600, // hardcoded baudrate, probably wont ever change this
+        serial_baud_rate: serial_baud_rate,
         influxdb_url: influxdb_url,
         influxdb_org: influxdb_org,
         influxdb_token: influxdb_token,
@@ -85,6 +94,6 @@ fn load_env_file() -> Config {
 
 fn get_var<T: std::str::FromStr>(env_key: &str) -> Result<T, <T as FromStr>::Err> {
     return var(env_key)
-        .expect(&format!("{} is missing!", env_key))
+        .expect(&red(format!("{} is missing from the ENV configuration!", env_key)))
         .parse::<T>()
 }

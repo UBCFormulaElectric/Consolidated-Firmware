@@ -12,4 +12,5 @@ use crate::tasks::client_api::clients::Clients;
 pub struct AppState {
     pub can_db: Arc<CanDatabase>,
     pub clients: Arc<RwLock<Clients>>,
+    pub influx_client: Arc<influxdb2::Client>
 }

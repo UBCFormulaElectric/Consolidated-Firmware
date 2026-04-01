@@ -12,7 +12,7 @@ enum GpioNetName {
     GPIO_MSD_SHDN_SNS = 6;
     GPIO_HV_P_INTLCK_SNS = 7;
     GPIO_HV_N_INTLCK_SNS = 8;
-    GPIO_IMD_LATCH = 9;
+    GPIO_nIMD_LATCH = 9;
     GPIO_DIAG = 10;
     GPIO_SD_CD = 11;
     GPIO_LEDR = 12;

@@ -116,7 +116,7 @@ IF ("${TARGET}" STREQUAL "binary")
     file(GLOB BOOT_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
     file(GLOB BOOT_CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
     set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
-    stm32h7_boot_binary(
+    stm32h7_boot_binary_c(
             "h7dev_boot"
             "${BOOT_SRCS}"
             "${BOOT_CUBEMX_SRCS}"

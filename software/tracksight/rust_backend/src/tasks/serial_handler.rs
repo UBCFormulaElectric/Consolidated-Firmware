@@ -4,18 +4,24 @@ use tokio::sync::{broadcast, mpsc};
 use tokio_serial::{SerialPortBuilderExt, SerialStream};
 use std::io::{Error, ErrorKind};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
-use crc::{Crc, CRC_32_ISO_HDLC};
-use colored::Colorize;
 
 use crate::config::CONFIG;
-use crate::tasks::telem_message::TelemetryOutgoingMessage;
+use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, ResultExt, Task};
+use crate::tasks::telem_message::{CRC32_CALC, TelemetryOutgoingMessage};
+#[allow(unused_imports)]
+use crate::utils::yellow;
+use crate::vprintln;
 use super::telem_message::{TelemetryIncomingMessage, CanPayload};
 
 /**
  * Handling serial signals from radio. Main task
  */
-pub async fn run_serial_task(mut shutdown_rx: broadcast::Receiver<()>, can_queue_tx: broadcast::Sender<CanPayload>) {
-    println!("{}", "Serial handler task started.".yellow());
+pub async fn run_serial_task(
+    mut shutdown_rx: broadcast::Receiver<()>, 
+    health_check_tx: HealthCheckSender,
+    can_queue_tx: broadcast::Sender<CanPayload>
+) {
+    vprintln!("{}", yellow("Serial handler task started."));
 
     let serial_port = tokio_serial::new(
         &CONFIG.serial_port,
@@ -23,7 +29,7 @@ pub async fn run_serial_task(mut shutdown_rx: broadcast::Receiver<()>, can_queue
     )
     .timeout(Duration::from_millis(1000)) // i love magic numbers
     .open_native_async()
-    .expect("Failed to open serial port");
+    .unwrap_or_fail_health_check(&health_check_tx, Task::SerialHandler).await;
 
     // split serial port into respective reads and writes
     let (serial_read, serial_write) = tokio::io::split(serial_port);
@@ -44,12 +50,15 @@ pub async fn run_serial_task(mut shutdown_rx: broadcast::Receiver<()>, can_queue
         tokio::spawn(packet_sender_handler(shutdown_rx, serial_write, out_packet_rx))
     };
 
+    // no set up involved with packet sender and reader thread, send health check
+    health_check_tx.send_health_check(Task::SerialHandler, true).await;
+
     // loop select check for shutdown signal
     // if shutdown signal, select block breaks loop early
     loop {
         select! {
             _ = shutdown_rx.recv() => {
-                println!("Shutting down serial task.");
+                vprintln!("Shutting down serial task.");
                 break;
             }
             Some(packet) = in_packet_rx.recv() => {
@@ -88,7 +97,7 @@ pub async fn run_serial_task(mut shutdown_rx: broadcast::Receiver<()>, can_queue
     }
     packet_reader.await.ok();
     packet_sender.await.ok();
-    println!("{}", "Serial handler task ended.".yellow());
+    vprintln!("{}", yellow("Serial handler task ended."));
 }
 
 /**
@@ -98,10 +107,12 @@ fn parse_incoming_telem_message(payload: Vec<u8>) -> Result<TelemetryIncomingMes
     let parsed_message: TelemetryIncomingMessage = match payload[0] {
         TelemetryIncomingMessage::CAN_BYTE => {
             let can_id = u32::from_le_bytes([payload[1], payload[2], payload[3], payload[4]]);
-            // this should also probably be u64 for epoch unix time, awaiting confirmation
-            let can_timestamp = u32::from_le_bytes([payload[5], payload[6], payload[7], payload[8]]);
+            let can_timestamp = u64::from_le_bytes(
+                [payload[5], payload[6], payload[7], payload[8],
+                payload[9], payload[10], payload[11], payload[12]]
+            );
 
-            let can_payload = payload[9..].to_vec();
+            let can_payload = payload[13..].to_vec();
             TelemetryIncomingMessage::Can {
                 body: CanPayload {
                     can_id: can_id,
@@ -124,20 +135,14 @@ fn parse_incoming_telem_message(payload: Vec<u8>) -> Result<TelemetryIncomingMes
 // Serial reading stuff
 //
 
-// These magic bytes are chosen so that the pattern of the bits 
-// wouldn't be confused with each other
-const MAGIC_INCOMING: [u8; 2] = [0xaa, 0x55];
-const MAGIC_OUTGOING: [u8; 2] = [0xcc, 0x33];
-// 2 for magic bytes, 1 for length, 4 for checksum
-const HEADER_SIZE: usize = 7;
-const MAX_PAYLOAD_SIZE: usize = 100;
-// calc is short for calculator for those new to the chat
-const CRC32_CALC: Crc<u32> = Crc::<u32>::new(&CRC_32_ISO_HDLC);
-
 /**
  * Subhandler that manages packet reading, sends packet bytes to main task
  */
-async fn packet_reader_handler(mut shutdown_flag: broadcast::Receiver<()>, mut serial_read: ReadHalf<SerialStream>, packet_tx: mpsc::Sender<Vec<u8>>) {   
+async fn packet_reader_handler(
+    mut shutdown_flag: broadcast::Receiver<()>, 
+    mut serial_read: ReadHalf<SerialStream>, 
+    packet_tx: mpsc::Sender<Vec<u8>>
+) {   
     loop {
         select! {
             _ = shutdown_flag.recv() => break,
@@ -158,7 +163,7 @@ async fn packet_reader_handler(mut shutdown_flag: broadcast::Receiver<()>, mut s
  * Reading bytes until legitimate packet is formed
  */
 async fn read_packet(serial_read: &mut ReadHalf<SerialStream>) -> Result<Vec<u8>, Error> {
-    let mut header_buffer = [0x0; HEADER_SIZE];
+    let mut header_buffer = [0x0; TelemetryIncomingMessage::HEADER_SIZE];
     let mut index = 0;
 
     // keep reading until magic bytes
@@ -169,7 +174,7 @@ async fn read_packet(serial_read: &mut ReadHalf<SerialStream>) -> Result<Vec<u8>
                 Err(e) => return Err(e)
             }
         }
-        if header_buffer[0..2] == MAGIC_INCOMING {
+        if header_buffer[0..2] == TelemetryIncomingMessage::MAGIC {
             break;
         }
         // if magic byte not matched, rotate buffer
@@ -183,7 +188,7 @@ async fn read_packet(serial_read: &mut ReadHalf<SerialStream>) -> Result<Vec<u8>
     // header has been read, now read until payload is fully read
     let payload_length = header_buffer[2] as usize;
     // assert payload length is less than max
-    if payload_length > MAX_PAYLOAD_SIZE {
+    if payload_length > TelemetryIncomingMessage::MAX_PAYLOAD_SIZE {
         // TODO wow this is horrible, probably just log and return generic error
         return Err(Error::new(
             ErrorKind::InvalidData,
@@ -219,7 +224,11 @@ async fn read_packet(serial_read: &mut ReadHalf<SerialStream>) -> Result<Vec<u8>
 /**
  * Subhandler that manages packet sending, handles outgoing telemetry messages from main task
  */
-async fn packet_sender_handler(mut shutdown_flag: broadcast::Receiver<()>, mut serial_write: WriteHalf<SerialStream>, mut out_packet_rx: mpsc::Receiver<TelemetryOutgoingMessage>) {
+async fn packet_sender_handler(
+    mut shutdown_flag: broadcast::Receiver<()>, 
+    mut serial_write: WriteHalf<SerialStream>, 
+    mut out_packet_rx: mpsc::Receiver<TelemetryOutgoingMessage>
+) {
     loop {
         select! {
             _ = shutdown_flag.recv() => break,
@@ -237,18 +246,7 @@ async fn packet_sender_handler(mut shutdown_flag: broadcast::Receiver<()>, mut s
 }
 
 /**
- * Generate telem packet bytes in the form of
- * [
- *  MAGIC BYTE 1
- *  MAGIC BYTE 2
- *  LENGTH OF PAYLOAD
- *  CHECK SUM 1
- *  CHECK SUM 2
- *  CHECK SUM 3
- *  CHECK SUM 4
- *  PAYLOAD ...
- *  MESSAGE TYPE BYTE (usually first byte of payload)
- * ]
+ * See `TelemetryOutgoingMessage` to see how packets are generated
  */
 fn generate_packet(message: TelemetryOutgoingMessage) -> Vec<u8> {
     let mut payload = Vec::<u8>::new();
@@ -274,7 +272,7 @@ fn generate_packet(message: TelemetryOutgoingMessage) -> Vec<u8> {
     let checksum: [u8; 4] = CRC32_CALC.checksum(&payload).to_le_bytes();
 
     let mut packet = Vec::new();
-    packet.extend_from_slice(&MAGIC_OUTGOING);
+    packet.extend_from_slice(&TelemetryOutgoingMessage::MAGIC);
     packet.extend_from_slice(&length);
     packet.extend_from_slice(&checksum);
     packet.extend_from_slice(&payload);
