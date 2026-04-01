@@ -55,8 +55,13 @@ pub async fn run_api_handler(
     let (socket_layer, io) = SocketIo::new_layer();
 
     let app_state = AppState {
-        can_db,
+        can_db: can_db,
         clients: clients.clone(),
+        influx_client: Arc::new(influxdb2::Client::new(
+            &CONFIG.influxdb_url,
+            &CONFIG.influxdb_org,
+            &CONFIG.influxdb_token
+        ))
     };
 
     let cors = CorsLayer::new()
