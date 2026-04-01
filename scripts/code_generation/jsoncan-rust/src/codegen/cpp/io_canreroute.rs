@@ -2,26 +2,28 @@ use askama::Template;
 
 use crate::{
     can_database::{CanBus, CanDatabase},
-    codegen::cpp::{CPPGenerator, id_macro},
+    codegen::cpp::CPPGenerator,
     reroute::CanForward,
 };
 
 #[derive(Template)]
-#[template(path = "io_canReroute.c.j2")]
+#[template(path = "io_canReroute.cpp.j2")]
 struct IoCanRerouteModuleSource<'a> {
     can_db: &'a CanDatabase,
     node_busses: &'a Vec<&'a CanBus>,
     reroutes: &'a CanForward,
 }
 impl IoCanRerouteModuleSource<'_> {
-    fn id_macro(self: &Self, msg_id: &u32) -> String {
-        let name = self.can_db.get_message_name_by_id(*msg_id).unwrap();
-        id_macro(&name)
+    fn msg_name_from_id(self: &Self, msg_id: &u32) -> String {
+        self.can_db
+            .get_message_name_by_id(*msg_id)
+            .unwrap()
+            .to_string()
     }
 }
 
 #[derive(Template)]
-#[template(path = "io_canReroute.h.j2")]
+#[template(path = "io_canReroute.hpp.j2")]
 struct IoCanRerouteModuleHeader<'a> {
     node_busses: &'a Vec<&'a CanBus>,
 }
@@ -29,7 +31,7 @@ struct IoCanRerouteModuleHeader<'a> {
 pub struct IoCanRerouteModule<'a> {
     can_db: &'a CanDatabase,
     reroute_config: &'a CanForward,
-    node_busses: Vec<&'a CanBus>,
+    node_busses: Vec<&'a CanBus>, // list of CanBusses that this node sits on
 }
 impl IoCanRerouteModule<'_> {
     pub fn new<'a>(
@@ -46,7 +48,7 @@ impl IoCanRerouteModule<'_> {
         IoCanRerouteModule {
             can_db,
             reroute_config,
-            node_busses: node_busses,
+            node_busses,
         }
     }
 }
@@ -65,5 +67,8 @@ impl CPPGenerator for IoCanRerouteModule<'_> {
             reroutes: self.reroute_config,
         }
         .render()
+    }
+    fn file_stem(&self) -> String {
+        "io_canReroute".to_string()
     }
 }

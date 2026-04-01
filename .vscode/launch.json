@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "configurations": [
+  "configurations": [ 
     {
       "name": "Debug Pytest",
       "type": "python",
@@ -226,6 +226,88 @@
         "decoders": [
           {
             "label": "Debug logs: RSM",
+            "port": 0,
+            "type": "console"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Debug Chimera: CRIT (Hexray)",
+      "cwd": "${workspaceRoot}",
+      "executable": "build_fw_dev/firmware/hexray/CRIT/hexray_CRIT_chimera.elf",
+      "symbolFiles": [
+        // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/hexray/CRIT/hexray_CRIT_chimera.elf"
+      ],
+      "preLaunchTask": "Build Chimera: CRIT (Hexray)",
+      // cortex configurations
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "jlink",
+      "linux": {
+        "serverpath": "JLinkGDBServerCLExe"
+      },
+      "osx": {
+        "serverpath": "JLinkGDBServer"
+      },
+      "windows": {
+        "serverpath": "JLinkGDBServerCL"
+      },
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
+      "device": "STM32H562RI",
+      "interface": "swd",
+      "showDevDebugOutput": "none",
+      "rttConfig": {
+        "enabled": true,
+        "address": "auto",
+        "decoders": [
+          {
+            "label": "Debug logs: CRIT",
+            "port": 0,
+            "type": "console"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Debug Embedded: CRIT (Hexray)",
+      "cwd": "${workspaceRoot}",
+      "executable": "build_fw_dev/firmware/hexray/CRIT/hexray_CRIT_app.elf",
+      "symbolFiles": [
+        // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/hexray/CRIT/hexray_CRIT_app.elf"
+      ],
+      "preLaunchTask": "Build Embedded: CRIT (Hexray)",
+      // cortex configurations
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "jlink",
+      "linux": {
+        "serverpath": "JLinkGDBServerCLExe"
+      },
+      "osx": {
+        "serverpath": "JLinkGDBServer"
+      },
+      "windows": {
+        "serverpath": "JLinkGDBServerCL"
+      },
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
+      "device": "STM32H562RI",
+      "interface": "swd",
+      "showDevDebugOutput": "none",
+      "rttConfig": {
+        "enabled": true,
+        "address": "auto",
+        "decoders": [
+          {
+            "label": "Debug logs: CRIT",
             "port": 0,
             "type": "console"
           }
@@ -768,6 +850,47 @@
         ]
       }
     },
+        {
+      "name": "Debug Embedded: RSM (Hexray)",
+      "cwd": "${workspaceRoot}",
+      "executable": "build_fw_dev/firmware/hexray/RSM/hexray_RSM_app.elf",
+      "symbolFiles": [
+        // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/hexray/RSM/hexray_RSM_app.elf"
+      ],
+      "preLaunchTask": "Build Embedded: RSM (Hexray)",
+      // cortex configurations
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "jlink",
+      "linux": {
+        "serverpath": "JLinkGDBServerCLExe"
+      },
+      "osx": {
+        "serverpath": "JLinkGDBServer"
+      },
+      "windows": {
+        "serverpath": "JLinkGDBServerCL"
+      },
+      "serverArgs": [
+        "-speed",
+        "4000"
+      ],
+      "device": "STM32H562RI",
+      "interface": "swd",
+      "showDevDebugOutput": "none",
+      "rttConfig": {
+        "enabled": true,
+        "address": "auto",
+        "decoders": [
+          {
+            "label": "Debug logs: RSM",
+            "port": 0,
+            "type": "console"
+          }
+        ]
+      }
+    },
     {
       "name": "Debug Embedded: SSM",
       "cwd": "${workspaceRoot}",
@@ -975,7 +1098,7 @@
       "name": "Debug Tests: BMS (Hexray)",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceRoot}/build_fw_test/firmware/hexray/BMS/hexray_VC_test",
+      "program": "${workspaceRoot}/build_fw_test/firmware/hexray/BMS/hexray_BMS_test",
       "cwd": "${workspaceRoot}",
       "preLaunchTask": "Build Tests: BMS (Hexray)",
       "linux": {
@@ -1074,6 +1197,20 @@
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceRoot}/build_fw_test/firmware/shared/shared_test",
+      "cwd": "${workspaceRoot}",
+      "preLaunchTask": "Build Tests: Shared",
+      "linux": {
+        "MIMode": "gdb"
+      },
+      "osx": {
+        "MIMode": "lldb"
+      }
+    },
+    {
+      "name": "Debug Tests: Shared C++",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/build_fw_test/firmware/shared/shared_test_cpp",
       "cwd": "${workspaceRoot}",
       "preLaunchTask": "Build Tests: Shared",
       "linux": {

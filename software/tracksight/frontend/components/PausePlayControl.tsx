@@ -1,98 +1,74 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect, ReactNode, Dispatch, SetStateAction, useCallback } from 'react'
-import { Play, Pause } from 'lucide-react'
+import { createContext, useContext, ReactNode, useCallback } from 'react'
+import { Lock, LockOpen } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useLocalState } from '../lib/hooks/useLocalState'
 
-// Context for global display control state (pause/play and visual settings)
 interface DisplayControlContextType {
-  isPaused: boolean
-  togglePause: () => void
-  horizontalScale: number
-  setHorizontalScale: (scale: number) => void
-  isAutoscrollEnabled: boolean
-  toggleAutoscroll: () => void
+    isViewportLocked: boolean
+    toggleViewportLock: () => void
 }
+
 const DisplayControlContext = createContext<DisplayControlContextType | undefined>(undefined)
-// Hook to use the display control state
-export function useDisplayControl() {
-  const context = useContext(DisplayControlContext)
-  if (!context) {
-    throw new Error('useDisplayControl must be used within a DisplayControlProvider')
-  }
-  return context
-}
-// Maintain backward compatibility
-export const usePausePlay = useDisplayControl
 
-// TODO move to a util folder?
-function useLocalState<T>(name: string, defaultValue: T): [T, Dispatch<SetStateAction<T>>] {
-  const [state, setState] = useState<T>(defaultValue);
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
+export function useDisplayControlContext() {
+    const context = useContext(DisplayControlContext)
+    if (!context) {
+        throw new Error('useDisplayControl must be used within a DisplayControlProvider')
     }
-    const saved = localStorage.getItem(name);
-    if (saved !== null) setState(JSON.parse(saved));
-  }, [])
-
-  const setLocalState: Dispatch<SetStateAction<T>> = (value) => {
-    localStorage.setItem(name, JSON.stringify(value));
-    setState(value);
-  }
-
-  return [state, setLocalState];
+    return context
 }
 
-const PAUSE_STATE_STORAGE_KEY = "tracksight_pause_state_v1";
-// Provider component to wrap the entire app
+const VIEWPORT_LOCK_STORAGE_KEY = 'tracksight_viewport_lock_state_v1'
+
 export function DisplayControlProvider({ children }: { children: ReactNode }) {
-  const [isPaused, setIsPaused] = useLocalState<boolean>(PAUSE_STATE_STORAGE_KEY, true);
-  const [horizontalScale, setHorizontalScale] = useState(100)
-  const [isAutoscrollEnabled, setIsAutoscrollEnabled] = useState(false)
+    const [isViewportLocked, setIsViewportLocked] = useLocalState<boolean>(VIEWPORT_LOCK_STORAGE_KEY, true)
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem(PAUSE_STATE_STORAGE_KEY, JSON.stringify(isPaused));
-    }
-  }, [isPaused]);
+    const toggleViewportLock = useCallback(() => {
+        setIsViewportLocked((previousState) => !previousState)
+    }, [setIsViewportLocked])
 
-  const togglePause = useCallback(() => { setIsPaused(prev => !prev) }, [setIsPaused])
-  const toggleAutoscroll = useCallback(() => { setIsAutoscrollEnabled(prev => !prev) }, [setIsAutoscrollEnabled])
-
-  return (
-    <DisplayControlContext.Provider value={{
-      isPaused,
-      togglePause,
-      horizontalScale,
-      setHorizontalScale,
-      isAutoscrollEnabled,
-      toggleAutoscroll
-    }}>
-      {children}
-    </DisplayControlContext.Provider>
-  )
+    return (
+        <DisplayControlContext.Provider value={{
+            isViewportLocked,
+            toggleViewportLock,
+        }}>
+            {children}
+        </DisplayControlContext.Provider>
+    )
 }
 
-// The circular play/pause button component
-export function PausePlayButton() {
-  const { isPaused, togglePause } = useDisplayControl()
-  return (
-    <button
-      onClick={togglePause}
-      className={cn(
-        "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg border-2 hover:scale-105 active:scale-95",
-        isPaused
-          ? "bg-green-500 border-green-600 hover:bg-green-600 text-white"
-          : "bg-red-500 border-red-600 hover:bg-red-600 text-white"
-      )}
-      title={isPaused ? "Resume data updates" : "Pause data updates"}
-    >
-      {isPaused ? (
-        <Play className="w-5 h-5 ml-0.5" fill="currentColor" />
-      ) : (
-        <Pause className="w-5 h-5" fill="currentColor" />
-      )}
-    </button>
-  )
+function ControlButton(props: {
+    className: string
+    onClick: () => void
+    title: string
+    children: ReactNode
+}) {
+    return (
+        <button
+            onClick={props.onClick}
+            className={cn(
+                "size-16 p-4 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg border-2 hover:scale-105 active:scale-95 cursor-pointer",
+                props.className
+            )}
+            title={props.title}
+        >
+            {props.children}
+        </button>
+    )
+}
+
+export function ViewportLockButton() {
+    const { isViewportLocked, toggleViewportLock } = useDisplayControlContext()
+
+    return (
+        <ControlButton
+            onClick={toggleViewportLock}
+            className={isViewportLocked ? "bg-blue-500 border-blue-600 hover:bg-blue-600 text-white" : "bg-amber-500 border-amber-600 hover:bg-amber-600 text-white"}
+            title={isViewportLocked ? "Unlock viewport" : "Lock viewport to newest data"}
+        >
+            {isViewportLocked ? <Lock className="w-full h-full" /> : <LockOpen className="w-full h-full" />}
+        </ControlButton>
+    )
 }

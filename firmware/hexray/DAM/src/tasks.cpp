@@ -1,34 +1,71 @@
 #include "tasks.h"
+#include "main.h"
 #include "jobs.hpp"
+
+#include "app_jsoncan.hpp"
+
 #include "io_time.hpp"
+#include "io_telemMessage.hpp"
+#include "io_canQueues.hpp"
+#include "io_canQueues.hpp"
+#include <io_canRx.hpp>
+
+#include "hw_hardFaultHandler.hpp"
 #include "hw_rtosTaskHandler.hpp"
+#include "io_telemQueue.hpp"
+
+#include <span>
+
+extern "C"
+{
+#include "io_rtc.h"
+}
+
+// static IoRtcTime boot_time{};
+#include "hw_cans.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
+    const uint32_t period_ms = 1000U;
+
+    uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
-        const uint32_t start_time = io::time::getCurrentMs();
         jobs_run1Hz_tick();
-        io::time::delayUntil(start_time + 1000);
+        start_ticks += period_ms;
+        io::time::delayUntil(start_ticks);
+        osDelayUntil(start_ticks);
     }
 }
 [[noreturn]] static void tasks_run100Hz(void *arg)
 {
+    const uint32_t period_ms = 10U;
+
+    uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
         jobs_run100Hz_tick();
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
     }
 }
 [[noreturn]] static void tasks_run1kHz(void *arg)
 {
+    const uint32_t period_ms = 1U;
+
+    uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
+        HAL_IWDG_Refresh(&hiwdg);
         jobs_run1kHz_tick();
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
     }
 }
 
 [[noreturn]] static void tasks_runLogging(void *arg)
 {
+    osDelayUntil(osWaitForever);
     forever
     {
         jobs_runLogging_tick();
@@ -36,6 +73,10 @@
 }
 [[noreturn]] static void tasks_runTelem(void *arg)
 {
+    // const io::telemMessage::BaseTimeRegMsg base_time_msg(boot_time);
+    // LOG_IF_ERR(_900k_uart.transmitPoll(
+    //     std::span<const uint8_t>{ reinterpret_cast<const uint8_t *>(&base_time_msg), sizeof(base_time_msg) }));
+
     forever
     {
         jobs_runTelem_tick();
@@ -43,6 +84,7 @@
 }
 [[noreturn]] static void tasks_runTelemRx(void *arg)
 {
+    osDelayUntil(osWaitForever);
     forever
     {
         jobs_runTelemRx();
@@ -53,14 +95,35 @@
 {
     forever
     {
-        jobs_runCanTx_tick();
+        const auto msg = can_tx_queue.pop();
+        if (not msg)
+            continue;
+        if (const auto &m = msg.value(); m.bus == app::can_utils::BusEnum::Bus_FDCAN)
+        {
+            const auto res = hw::can::fdcan1.fdcan_transmit(hw::CanMsg{
+                m.std_id,
+                m.dlc,
+                m.data,
+            });
+            if (not res)
+            {
+                LOG_ERROR("fdcan1.fdcan_transmit(...) exited with an error: %d", static_cast<int>(res.error()));
+            }
+        }
+        else
+        {
+            LOG_ERROR("INVALID BUS %d", m.bus);
+        }
     }
 }
 [[noreturn]] static void tasks_runCanRx(void *arg)
 {
     forever
     {
-        jobs_runCanRx_tick();
+        const auto msg = can_rx_queue.pop();
+        if (not msg)
+            continue;
+        io::can_rx::updateRxTableWithMessage(app::jsoncan::copyFromCanMsg(msg.value()));
     }
 }
 
@@ -81,17 +144,21 @@ void DAM_StartAllTasks()
     TaskCanRx.start();
     Task1kHz.start();
     Task1Hz.start();
-    TaskLogging.start();
-    TaskTelem.start();
-    TaskTelemRx.start();
+    // TaskLogging.start();
+    // TaskTelem.start();
+    // TaskTelemRx.start();
 }
 
-void tasks_preInit() {}
+void tasks_preInit()
+{
+    hw_hardFaultHandler_init();
+}
 
 void tasks_init()
 {
-    jobs_init();
+    hw::can::fdcan1.init();
     osKernelInitialize();
+    jobs_init();
     DAM_StartAllTasks();
     osKernelStart();
     forever {}

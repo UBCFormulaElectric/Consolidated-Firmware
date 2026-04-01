@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "io_loadswitches.h"
+#include "io_efuses.h"
 
 typedef struct
 {

@@ -4,6 +4,7 @@
 #include "io_log.hpp"
 #include "hw_usb.hpp"
 #include "hw_rtosTaskHandler.hpp"
+#include "hw_hardFaultHandler.hpp"
 #include "hw_gpios.hpp"
 #include "hw_spis.hpp"
 #include "hw_adcs.hpp"
@@ -28,29 +29,29 @@ class FSMChimeraConfig : public chimera_v2::config
         switch (gnn->name.fsm_net_name)
         {
             case fsm_GpioNetName_GPIO_BOTS_3v3:
-                return std::cref(hw::gpios::boot_led);
+                return std::cref(bots_3v3);
             case fsm_GpioNetName_GPIO_COCKPIT_SHDN_3v3:
-                return std::cref(hw::gpios::cockpit_shdn_3v3);
+                return std::cref(cockpit_shdn_3v3);
             case fsm_GpioNetName_GPIO_IMU_NSS:
-                return std::cref(hw::gpios::imu_nss);
+                return std::cref(::imu_nss);
             case fsm_GpioNetName_GPIO_IMU_FSYNC:
-                return std::cref(hw::gpios::imu_fsync);
+                return std::cref(imu_fsync);
             case fsm_GpioNetName_GPIO_NSUSP_FL_OCSC:
-                return std::cref(hw::gpios::nsusp_fl_ocsc);
+                return std::cref(nsusp_fl_ocsc);
             case fsm_GpioNetName_GPIO_NSUSP_FR_OCSC:
-                return std::cref(hw::gpios::nsusp_fr_ocsc);
+                return std::cref(nsusp_fr_ocsc);
             case fsm_GpioNetName_GPIO_FR_INT_3v3:
-                return std::cref(hw::gpios::fr_int_3v3);
+                return std::cref(fr_int_3v3);
             case fsm_GpioNetName_GPIO_FL_INT_3v3:
-                return std::cref(hw::gpios::fl_int_3v3);
+                return std::cref(fl_int_3v3);
             case fsm_GpioNetName_GPIO_DEBUG_LED:
-                return std::cref(hw::gpios::debug_led);
+                return std::cref(debug_led);
             case fsm_GpioNetName_GPIO_NSTR_ANGLE_OCSC:
-                return std::cref(hw::gpios::nstr_angle_ocsc);
+                return std::cref(nstr_angle_ocsc);
             case fsm_GpioNetName_GPIO_NBPS_F_OCSC:
-                return std::cref(hw::gpios::nbps_f_ocsc);
+                return std::cref(nbps_f_ocsc);
             case fsm_GpioNetName_GPIO_BOOT_LED:
-                return std::cref(hw::gpios::boot_led);
+                return std::cref(boot_led);
             default:
             case fsm_GpioNetName_GPIO_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified GPIO net name");
@@ -100,11 +101,21 @@ class FSMChimeraConfig : public chimera_v2::config
         switch (snn->name.fsm_net_name)
         {
             case fsm_SpiNetName_SPI_IMU:
-                return std::cref(imu_spi);
+                return std::cref(hw::spi::imu_spi);
             default:
             case fsm_SpiNetName_SPI_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified SPI net name");
                 return std::nullopt;
+        }
+        return std::nullopt;
+    }
+
+    std::optional<std::reference_wrapper<const hw::PwmOutput>> id_to_pwm(const _PwmNetName *pnn) const override
+    {
+        if (pnn->which_name != pwm_net_name_tag)
+        {
+            LOG_ERROR("Chimera: Expected PWM net name with tag %d, got %d", pwm_net_name_tag, pnn->which_name);
+            return std::nullopt;
         }
         return std::nullopt;
     }
@@ -127,6 +138,7 @@ char USBD_PRODUCT_STRING_FS[] = "fsm";
 
 [[noreturn]] void tasks_init()
 {
+    hw::adcs::chipsInit();
     assert(hw::usb::init());
     osKernelInitialize();
     TaskChimera.start();

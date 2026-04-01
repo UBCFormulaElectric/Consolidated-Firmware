@@ -1,18 +1,19 @@
 use askama::Template;
 
+#[allow(unused_imports)]
 use crate::{
-    can_database::{CanDatabase, CanMessage},
+    can_database::{CanDatabase, CanMessage, CanSignalType},
     codegen::cpp::CPPGenerator,
 };
 
 #[derive(Template)]
-#[template(path = "app_canTx.c.j2")]
+#[template(path = "app_canTx.cpp.j2")]
 struct AppCanTxModuleSource<'a> {
     tx_messages: &'a Vec<CanMessage>,
 }
 
 #[derive(Template)]
-#[template(path = "app_canTx.h.j2")]
+#[template(path = "app_canTx.hpp.j2")]
 struct AppCanTxModuleHeader<'a> {
     tx_messages: &'a Vec<CanMessage>,
 }
@@ -41,5 +42,8 @@ impl CPPGenerator for AppCanTxModule {
             tx_messages: &self.tx_messages,
         }
         .render()
+    }
+    fn file_stem(&self) -> String {
+        "app_canTx".to_string()
     }
 }
