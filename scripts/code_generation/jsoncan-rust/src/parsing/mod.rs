@@ -6,17 +6,15 @@ mod parse_tx;
 
 use crate::can_database::{BusForwarder, CanBus, CanEnum};
 
-pub use crate::can_database::JsonRxMsgNames;
+pub use crate::parsing::parse_rx::JsonRxMsgNames;
 pub use parse_alert::JsonAlerts;
-pub use parse_tx::{JsonCanMessage, JsonCanSignal};
+pub use parse_tx::{JsonCanBusMode, JsonCanMessage, JsonCanSignal};
 
 use parse_alert::parse_alert_data;
 use parse_bus::parse_bus_data;
 use parse_enum::{parse_node_enum_data, parse_shared_enums};
 use parse_rx::parse_json_rx_data;
 use parse_tx::parse_tx_data;
-
-pub static DEFAULT_BUS_MODE: &str = "default";
 
 pub struct JsonNode {
     pub name: String,
@@ -71,14 +69,20 @@ impl JsonCanParser {
      */
     pub fn new(can_data_dir: String) -> Self {
         let node_names: Vec<String> = list_nodes_from_folders(&can_data_dir);
-        let (buses, forwarding, loggers) = parse_bus_data(&can_data_dir, &node_names);
+        let (buses, forwarding, loggers) = parse_bus_data(&can_data_dir);
+
+        for logger in &loggers {
+            if !node_names.contains(logger) {
+                panic!("Logger '{}' is not defined in the node JSON.", logger);
+            }
+        }
 
         // create node objects for each node
         let nodes: Vec<JsonNode> = node_names
-            .iter()
+            .into_iter()
             .map(|node_name| {
                 let bus_names_with_node = buses.iter().filter_map(|bus| {
-                    if bus.node_names.contains(node_name) {
+                    if bus.node_names.contains(&node_name) {
                         Some(&bus.name)
                     } else {
                         None
@@ -91,12 +95,12 @@ impl JsonCanParser {
                 );
 
                 return JsonNode {
-                    name: node_name.clone(),
-                    collects_data: loggers.contains(node_name),
+                    collects_data: loggers.contains(&node_name),
                     enums: parse_node_enum_data(&can_data_dir, &node_name),
                     alerts: parse_alert_data(&can_data_dir, &node_name),
                     rx_msgs: parse_json_rx_data(&can_data_dir, &node_name),
                     tx_msgs: parse_tx_data(&can_data_dir, &node_name),
+                    name: node_name,
                 };
             })
             .collect();

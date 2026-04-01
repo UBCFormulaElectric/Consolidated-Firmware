@@ -1,4 +1,7 @@
-use crate::test::{assert_setequal, setup};
+use crate::{
+    reroute::resolve_tx_rx_reroute,
+    test::{assert_setequal, parser_tests::setup},
+};
 
 #[test]
 fn test_busses_present() {
@@ -49,4 +52,10 @@ fn test_bus3_properties() {
         can3.modes.iter(),
         ["default".to_string(), "debug".to_string()].iter(),
     );
+}
+
+#[test]
+fn test_rereroute() {
+    let cdb = setup().unwrap();
+    let (_tx_configs, _rx_configs, _reroute_configs) = resolve_tx_rx_reroute(&cdb);
 }

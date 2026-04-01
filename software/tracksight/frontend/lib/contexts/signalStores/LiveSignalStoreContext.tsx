@@ -10,12 +10,15 @@ const LiveSignalStoreProvider = memo(({ children }: { children: React.ReactNode 
     const subscribeToSignalMutation = useSubscribeToSignal();
     const unsubscribeFromSignalMutation = useUnsubscribeToSignal();
     const { updateWithTimestamp } = useSyncedGraph();
+    const liveSignalStore = useRef<LiveSignalStore>(null!);
 
-    const liveSignalStore = useRef(new LiveSignalStore(
-        updateWithTimestamp,
-        subscribeToSignalMutation.mutate,
-        unsubscribeFromSignalMutation.mutate
-    ));
+    if (!liveSignalStore.current) {
+        liveSignalStore.current = new LiveSignalStore(
+            updateWithTimestamp,
+            subscribeToSignalMutation.mutate,
+            unsubscribeFromSignalMutation.mutate
+        );
+    }
 
     return (
         <SignalDataStoreProvider signalStore={liveSignalStore}>
