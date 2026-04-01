@@ -29,7 +29,7 @@ class FSMChimeraConfig : public chimera_v2::config
         switch (gnn->name.fsm_net_name)
         {
             case fsm_GpioNetName_GPIO_BOTS_3v3:
-                return std::cref(boot_led);
+                return std::cref(bots_3v3);
             case fsm_GpioNetName_GPIO_COCKPIT_SHDN_3v3:
                 return std::cref(cockpit_shdn_3v3);
             case fsm_GpioNetName_GPIO_IMU_NSS:

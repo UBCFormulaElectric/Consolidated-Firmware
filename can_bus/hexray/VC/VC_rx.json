@@ -1,3 +1,31 @@
 {
-    "messages": []
+    "messages": [
+        "BMS_Vitals",
+        "FSM_Vitals",
+        "RSM_Vitals",
+        "CRIT_Vitals",
+        "DAM_Vitals",
+        "BMS_Contactors",
+        "FSM_ShdnNodeStatus",
+        "DAM_ShdnNodeStatus",
+        "RSM_ShdnNodeStatus",
+        "BMS_BMSShdnNodeStatus",
+        "INVFL_FLInverterInfo1",
+        "INVFR_FRInverterInfo1",
+        "INVRL_RLInverterInfo1",
+        "INVRR_RRInverterInfo1",
+        "INVFL_FLInverterInfo2",
+        "INVFR_FRInverterInfo2",
+        "INVRL_RLInverterInfo2",
+        "INVRR_RRInverterInfo2",
+        "BMS_LatchStatus",
+        "VC_Imu1LinearData",
+        "VC_Imu2LinearData",
+        "VC_Imu3LinearData",
+        "VC_Imu1AngularData",
+        "VC_Imu2AngularData",
+        "VC_Imu3AngularData",
+        "FSM_Brake",
+        "CRIT_Switches"
+    ]
 }

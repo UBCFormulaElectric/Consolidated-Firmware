@@ -65,6 +65,9 @@ option(TARGET "The target to build for. Choose between \"binary\" and \"test\"."
 message("")
 message("⚙️ Configuring for \"${PLATFORM}\" platform and \"${TARGET}\" build target")
 IF ("${PLATFORM}" STREQUAL "firmware")
+    include(scripts/code_generation/jsoncan-rust/jsoncan.cmake)
+    include(scripts/code_generation/jsoncan/jsoncan.cmake)
+
     # ======== Compiler ========
     IF ("${TARGET}" STREQUAL "binary")
         project("UBC Formula Electric Software" C CXX ASM)
@@ -108,7 +111,7 @@ IF ("${PLATFORM}" STREQUAL "firmware")
     add_subdirectory(firmware)
     IF ("${TARGET}" STREQUAL "test")
         add_subdirectory(scripts/code_generation/fakegen)
-        add_subdirectory(scripts/code_generation/jsoncan/test)
+        add_subdirectory(scripts/code_generation/jsoncan-rust/integration)
     ENDIF ()
 ELSEIF ("${PLATFORM}" STREQUAL "dimos")
     project("UBC Formula Electric Software" VERSION 0.1 LANGUAGES C CXX)
