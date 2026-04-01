@@ -52,6 +52,18 @@ class LiveSignalStore extends SignalStore {
         )
       }
     });
+
+    socket.on("connect", () => {
+      Object.entries(this.subscriberCounts).forEach(([signalName, subscriberCount]) => {
+        if (subscriberCount <= 0) return;
+
+        this.subscribeToSignal(signalName, {
+          onError: (error) => {
+            this.setError(signalName, error);
+          },
+        });
+      });
+    });
   }
 
   getReferenceToSignal<T extends SignalMetadata>(signal: T) {
