@@ -44,9 +44,6 @@ impl Clients {
      * Remove client from connected sockets and all signals
      */
     pub fn remove_client(&mut self, client: &String) {
-        println!("{:?}", self.client_to_signal);
-        println!("{:?}", self.signal_to_client);
-
         if let Some(client_socket) = self.sockets.remove(client) {
             if let Err(e) = client_socket.disconnect() {
                 eprintln!("Socket error while disconnecting {}'s socket: {}", client, e);
@@ -62,9 +59,6 @@ impl Clients {
 
             self.client_to_signal.remove(client);
         }
-
-        println!("{:?}", self.client_to_signal);
-        println!("{:?}", self.signal_to_client);
     }
 
     /**
