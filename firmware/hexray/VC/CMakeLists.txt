@@ -19,6 +19,10 @@ file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/ap
 list(APPEND APP_SRCS)
 set(APP_INCLUDE_DIRS
         "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR_CPP}" "${CMAKE_CURRENT_SOURCE_DIR}/src/app/"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app/torque_vectoring"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app/torque_vectoring/datatypes"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app/torque_vectoring/controllers"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app/torque_vectoring/controllers/yaw_rate_control"
 )
 
 file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.cpp")
@@ -143,7 +147,7 @@ elseif ("${TARGET}" STREQUAL "test")
     )
     set(INCLUDE_DIRS
             "${CMAKE_CURRENT_SOURCE_DIR}/test"
-            ${APP_INCLUDE_DIRS} ${SHARED_FAKES_DIR_CPP} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP}
+            ${APP_INCLUDE_DIRS} ${SHARED_FAKES_DIR_CPP} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR} ${SHARED_UTIL_INCLUDE_DIR_CPP}
     )
     compile_gtest_executable(
             "hexray_VC_test"
