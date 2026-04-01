@@ -5,8 +5,7 @@
  */
 
 use chrono::{DateTime, FixedOffset, Utc};
-
-use crate::config::CONFIG;
+use regex::Regex;
 
 const RED: &str = "31m";
 const GRE: &str = "32m";
@@ -69,17 +68,29 @@ macro_rules! dprintln {
 }
 
 /**
- * InfluxDB uses UTC time, convert string to YYYY-MM-DDTHH:MM:SSZ format (UTC)
- * `str` should be in format YYYY-MM-DDTHH:MM:SS
+ * Check if string time is in format YYYY-MM-DDTHH:MM:SS[+-]00:00
+ * Convert to UTC and return in RFC3339 format if valid, otherwise return None
+ * E.g. 2024-01-01T00:00:00-07:00 -> 2024-01-01T07:10:00Z
  */
-pub fn str_to_utc(str: &String) -> Option<String> {
-    match format!("{str}{}", &CONFIG.time_zone).parse::<DateTime<FixedOffset>>() {
-        Ok(local) => {
-            let utc = local.with_timezone(&Utc);
-            return Some(utc.to_rfc3339());
-        }
-        Err(_) => {
-            return None;
+pub fn rfc3339_to_utc(str: &String) -> Option<String> {
+    let offset_re = Regex::new(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}$").unwrap();
+    let utc_re = Regex::new(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$").unwrap();
+
+    if utc_re.is_match(str) {
+        return Some(str.clone());
+    }
+
+    if offset_re.is_match(str) {
+        match str.parse::<DateTime<FixedOffset>>() {
+            Ok(local) => {
+                let utc = local.with_timezone(&Utc);
+                return Some(utc.to_rfc3339());
+            }
+            Err(_) => {
+                return None;
+            }
         }
     }
+
+    return None;
 }
