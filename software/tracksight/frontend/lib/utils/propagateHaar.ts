@@ -1,5 +1,7 @@
+type HaarLodBuffer = { timestamp: number; value: number }[] | null;
+
 const propagateHaar = (
-    buffer: Array<{ timestamp: number; value: number } | null>,
+    buffer: HaarLodBuffer[],
     level: number,
     timestamp: number,
     value: number,
@@ -10,12 +12,12 @@ const propagateHaar = (
 
   const pending = buffer[level];
   if (!pending) {
-    buffer[level] = { timestamp, value };
+    buffer[level] = [{ timestamp, value }];
     return;
   }
 
-  const avgValue = (pending.value + value) / 2;
-  const avgTimestamp = Math.round((pending.timestamp + timestamp) / 2);
+  const avgValue = (pending[0].value + value) / 2;
+  const avgTimestamp = Math.round((pending[0].timestamp + timestamp) / 2);
 
   buffer[level] = null;
 
@@ -24,4 +26,5 @@ const propagateHaar = (
   propagateHaar(buffer, level + 1, avgTimestamp, avgValue, callback, maxLevels);
 }
 
+export type { HaarLodBuffer };
 export default propagateHaar;

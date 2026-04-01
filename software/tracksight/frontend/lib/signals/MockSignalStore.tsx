@@ -1,6 +1,7 @@
 import SignalStore from "@/lib/signals/SignalStore";
 import { SignalMetadata, SignalType } from "../types/Signal";
-import propagateHaar from "../utils/propagateHaar";
+import propagateHaar, { HaarLodBuffer } from "../utils/propagateHaar";
+import propagateMode, { ModeLodBuffer } from "../utils/propagateMode";
 
 export const MOCK_STATES = [ // needed to hardcode for widgetadder
   "IDLE", "ACTIVE", "ERROR", "WAITING", "CHARGING", "SKIBIDI",
@@ -31,9 +32,9 @@ export const ALERT_SIGNALS = [
   "Throughput",
 ]
 
-const INITIAL_DATA_POINTS = 0;
+const INITIAL_DATA_POINTS = 1_000_000;
 
-const NUM_LOD_LEVELS = 10;
+const NUM_LOD_LEVELS = 15;
 
 function generateRandomNumericalValue(time: number, index: number = 0, min: number, max: number) {
   if (min !== undefined && max !== undefined) {
@@ -71,10 +72,7 @@ function generateRandomAlertValue(prev: number) {
 
 class MockSignalStore extends SignalStore {
   private signalSubscriptionInterval: Map<string, number>;
-  private waveletBuffers: Map<string, Array<{
-    timestamp: number;
-    value: number;
-  } | null>>;
+  private lodBuffers: Map<string, (HaarLodBuffer | ModeLodBuffer)[]>;
 
   constructor(
     updateWithTimestamp: (timestamp: number) => void,
@@ -82,7 +80,7 @@ class MockSignalStore extends SignalStore {
     super(updateWithTimestamp);
 
     this.signalSubscriptionInterval = new Map();
-    this.waveletBuffers = new Map();
+    this.lodBuffers = new Map();
 
     ALERT_SIGNALS.forEach(signalName => {
       let previousValue = 0;
@@ -124,7 +122,7 @@ class MockSignalStore extends SignalStore {
         this.addDataPointAtLOD(signal.name, 0, 1, now, value);
 
         propagateHaar(
-          this.waveletBuffers.get(signal.name) || [],
+          this.lodBuffers.get(signal.name) as HaarLodBuffer[] || [],
           0,
           now,
           value,
@@ -136,7 +134,7 @@ class MockSignalStore extends SignalStore {
       }, 1) as unknown as number;
 
       this.signalSubscriptionInterval.set(signal.name, intervalId);
-      this.waveletBuffers.set(signal.name, new Array(NUM_LOD_LEVELS).fill(null));
+      this.lodBuffers.set(signal.name, new Array(NUM_LOD_LEVELS).fill(null));
 
       for (let i = 0; i < INITIAL_DATA_POINTS; i++) {
         const timestamp = Date.now() - (INITIAL_DATA_POINTS - i);
@@ -144,12 +142,12 @@ class MockSignalStore extends SignalStore {
         this.addDataPointAtLOD(signal.name, 0, 1, timestamp, value);
 
         propagateHaar(
-          this.waveletBuffers.get(signal.name) || [],
+          this.lodBuffers.get(signal.name) as HaarLodBuffer[] || [],
           0,
           timestamp,
           value,
           (level, intervalMs, timestamp, value) => {
-            this.addDataPointAtLOD(signal.name, level, intervalMs, timestamp, value);
+            this.addDataPointAtLOD(signal.name, level-1, intervalMs, timestamp, value);
           },
           NUM_LOD_LEVELS
         );
@@ -158,14 +156,37 @@ class MockSignalStore extends SignalStore {
       const intervalId = setInterval(() => {
         const now = Date.now();
         const value = generateRandomEnumValue();
-        this.addDataPoint(signal.name, now, value.idx);
+        this.addDataPointAtLOD(signal.name, 0, 1, now, value.idx);
+
+        propagateMode(
+          this.lodBuffers.get(signal.name) as ModeLodBuffer[] || [],
+          0,
+          now,
+          { [value.idx]: 1 },
+          (level, intervalMs, timestamp, value) => {
+            this.addDataPointAtLOD(signal.name, level, intervalMs, timestamp, value);
+          },
+          NUM_LOD_LEVELS
+        );
       }, 1) as unknown as number;
       this.signalSubscriptionInterval.set(signal.name, intervalId);
+      this.lodBuffers.set(signal.name, new Array(NUM_LOD_LEVELS).fill([]));
 
       for (let i = 0; i < INITIAL_DATA_POINTS; i++) {
         const timestamp = Date.now() - (INITIAL_DATA_POINTS - i);
         const value = generateRandomEnumValue();
-        this.addDataPoint(signal.name, timestamp, value.idx);
+        this.addDataPointAtLOD(signal.name, 0, 1, timestamp, value.idx);
+
+        propagateMode(
+          this.lodBuffers.get(signal.name) as ModeLodBuffer[] || [],
+          0,
+          timestamp,
+          { [value.idx]: 1 },
+          (level, intervalMs, timestamp, value) => {
+            this.addDataPointAtLOD(signal.name, level-1, intervalMs, timestamp, value);
+          },
+          NUM_LOD_LEVELS
+        );
       }
     }
 
