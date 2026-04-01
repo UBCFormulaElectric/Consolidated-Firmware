@@ -209,14 +209,17 @@ name = "backend"
 version = "0.1.1"
 dependencies = [
  "axum",
+ "chrono",
  "crc",
  "ctrlc",
  "dotenv",
  "futures",
  "if-addrs",
  "influxdb2",
+ "influxdb2-structmap",
  "jsoncan_rust",
  "mdns-sd",
+ "num-traits",
  "regex",
  "serde",
  "serde_json",
