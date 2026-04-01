@@ -19,5 +19,5 @@ std::expected<void, ErrorCode> setPercentage(uint8_t percentage)
 std::expected<void, ErrorCode> readPercentage(uint8_t &dest)
 {
     return rPump.readPercentage(dest);
-};
+}
 } // namespace io::rPump

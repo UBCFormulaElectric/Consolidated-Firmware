@@ -124,6 +124,11 @@ namespace rPump
     {
         return {};
     }
+
+    std::expected<void, ErrorCode> readPercentage(uint8_t &dest)
+    {
+        return {};
+    }
 } // namespace rPump
 
 namespace tireTemp
