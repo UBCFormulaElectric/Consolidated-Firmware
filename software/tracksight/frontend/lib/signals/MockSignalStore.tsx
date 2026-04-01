@@ -32,7 +32,7 @@ export const ALERT_SIGNALS = [
   "Throughput",
 ]
 
-const INITIAL_DATA_POINTS = 1_000_000;
+const INITIAL_DATA_POINTS = 0;
 
 const NUM_LOD_LEVELS = 15;
 
