@@ -19,6 +19,12 @@ export type SyncedGraphContext_t = {
     timeToX(t: number): number;
     XToTime(x: number): number;
 };
+
+type SyncedGraphContainerProps = {
+    children: ReactNode;
+    initialTimeRange?: TimeRange;
+};
+
 const SyncedGraphContext = createContext<SyncedGraphContext_t | null>(null);
 export function useSyncedGraph() {
     const ctx = useContext(SyncedGraphContext);
@@ -53,7 +59,7 @@ function useSuppressScrollWhileLocked(containerRef: RefObject<HTMLDivElement | n
     }, [containerRef, isViewportLocked]);
 }
 
-export default function SyncedGraphContainer({ children }: { children: ReactNode }) {
+export default function SyncedGraphContainer({ children, initialTimeRange }: SyncedGraphContainerProps) {
     const { isViewportLocked } = useDisplayControlContext();
 
     // object refs
@@ -107,6 +113,11 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
             updateGraphWidth();
         }
     }, [updateGraphWidth])
+
+    useEffect(() => { // init for historical graphs
+        globalTimeRangeRef.current = initialTimeRange ?? null;
+        updateGraphWidth();
+    }, [initialTimeRange, updateGraphWidth]);
 
     const updateLeftScroll = useCallback((e: UIEvent<HTMLDivElement>) => {
         const container = e.target as HTMLDivElement;
