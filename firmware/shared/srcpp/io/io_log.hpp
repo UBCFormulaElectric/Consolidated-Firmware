@@ -5,7 +5,6 @@
 #include <source_location>
 #include <string_view>
 #include <array>
-#include <charconv>
 
 /*
 This logging module users SEGGER Real-Time Transfer (RTT) for printf-style debugging.
@@ -40,7 +39,10 @@ inline constexpr std::string_view ANSI_RESET       = "\x1B[1;0m";
 #define _LOG_PRINTF(format, ...) SEGGER_RTT_printf(0, format, ##__VA_ARGS__)
 #else
 #include <cstdio>
-#define _LOG_PRINTF(format, ...) printf(format, ##__VA_ARGS__)
+template <typename... Args> void _LOG_PRINTF(const char *format, Args &&...args)
+{
+    printf(format, args...);
+}
 #endif
 
 template <std::string_view const &...Strs> struct join
@@ -82,7 +84,7 @@ struct LogContext
 
 template <typename... Args> void LOG(const std::string_view level, const LogContext &ctx, Args &&...args)
 {
-    _LOG_PRINTF("[%s] %s:%u: ", level.data(), ctx.loc.file_name(), ctx.loc.line());
+    _LOG_PRINTF("[%s] %s:%u: ", level.data(), __BASENAME__(ctx.loc.file_name()), ctx.loc.line());
     _LOG_PRINTF(ctx.fmt, std::forward<Args>(args)...);
     _LOG_PRINTF("\r\n");
 }

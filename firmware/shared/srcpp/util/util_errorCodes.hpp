@@ -39,6 +39,7 @@ constexpr std::string_view error_code_to_string(const ErrorCode code)
             return "Checksum fail";
         case ErrorCode::ERROR_INDETERMINATE:
             return "Indeterminate error";
+        case ErrorCode::NUM_EXIT_CODES:
         default:
             return "Unknown error code";
     }
