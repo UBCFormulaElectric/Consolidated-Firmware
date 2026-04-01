@@ -5,13 +5,6 @@ import { useMemo, useState } from "react";
 
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { randomInt } from "crypto";
-
-type Session = {
-    id: string;
-    label: string;
-    time: string;
-};
 
 const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December",];
 
@@ -55,47 +48,16 @@ const getCalendarDays = (displayMonth: Date) => {
     });
 };
 
-// random temp function to moc data; we'd actually fetch data here
-const getSessionsForDate = (date: Date): Session[] => {
-    const baseHour = 8 + (date.getDate() % 5);
-    const minuteOffset = (date.getDate() % 3) * 10;
-    const num = Math.floor(Math.random() * 8) + 1
-
-    return Array.from({ length: num }, (_, index) => {
-        const startMinutes = baseHour * 60 + minuteOffset + index * 45;
-        const endMinutes = startMinutes + 35;
-
-        const formatTime = (totalMinutes: number) => {
-            const hours24 = Math.floor(totalMinutes / 60);
-            const minutes = totalMinutes % 60;
-            const suffix = hours24 >= 12 ? "pm" : "am";
-            const hours12 = hours24 % 12 === 0 ? 12 : hours24 % 12;
-
-            return `${hours12}:${minutes.toString().padStart(2, "0")}${suffix}`;
-        };
-
-        return {
-            id: `session-${index + 1}`,
-            label: `Session ${index + 1}`,
-            time: `${formatTime(startMinutes)}-${formatTime(endMinutes)}`,
-        };
-    });
-};
-
 const CalendarDropdown = () => {
     const [calendarOpen, setCalendarOpen] = useState<boolean>(false);
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
     const [displayMonth, setDisplayMonth] = useState<Date>(new Date());
-    const [selectedSessionId, setSelectedSessionId] = useState<string>("session-1");
 
     const calendarDays = useMemo(() => getCalendarDays(displayMonth), [displayMonth]);
-    const sessions = useMemo(() => getSessionsForDate(selectedDate), [selectedDate]);
 
-    const selectedSession = sessions.find((session) => session.id === selectedSessionId) ?? sessions[0] ?? null;
 
     const handleDateSelect = (date: Date) => {
         setSelectedDate(date);
-        setSelectedSessionId("session-1");
     };
 
     const handleMonthChange = (month: number) => {
@@ -121,11 +83,6 @@ const CalendarDropdown = () => {
                             <div className="text-[1.9rem] font-semibold leading-none text-gray-950">
                                 {MONTH_NAMES[selectedDate.getMonth()]} {getOrdinalDay(selectedDate.getDate())}, {selectedDate.getFullYear()}
                             </div>
-                            <div className="mt-1 text-[1.45rem] leading-none text-gray-600">
-                                {selectedSession
-                                    ? `${selectedSession.label} - ${selectedSession.time}`
-                                    : "No Session Selected"}
-                            </div>
                         </div>
                     </div>
                     <ChevronDown
@@ -141,9 +98,9 @@ const CalendarDropdown = () => {
             <PopoverContent
                 align="start"
                 sideOffset={14}
-                className="w-200 rounded-[2rem] border border-gray-200 bg-white p-6 shadow-[0_28px_70px_rgba(15,23,42,0.16)]"
+                className="w-150 rounded-[2rem] border border-gray-200 bg-white p-6 shadow-[0_28px_70px_rgba(15,23,42,0.16)]"
             >
-                <div className="grid gap-4 md:grid-cols-[minmax(0,1.45fr)_minmax(0,0.72fr)]">
+                <div>
                     <section className="min-w-0 rounded-[1.6rem] bg-gray-100 p-4">
                         <div className="mb-4 flex items-center gap-3">
                             <button
@@ -221,47 +178,6 @@ const CalendarDropdown = () => {
                                         onClick={() => handleDateSelect(date)}
                                     >
                                         {date.getDate()}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </section>
-
-                    {/* session picker */}
-                    <section className="min-w-0 rounded-[1.6rem] bg-gray-100 p-4">
-                        <div className="mb-3 px-1 text-sm font-semibold uppercase tracking-[0.16em] text-gray-500">
-                            Session
-                        </div>
-
-                        <div className="min-w-0 space-y-3">
-                            {sessions.map((session) => {
-                                const isSelected = session.id === selectedSession?.id;
-
-                                return (
-                                    <button
-                                        key={session.id}
-                                        type="button"
-                                        className={cn(
-                                            "grid w-full min-w-0 gap-1 rounded-2xl border px-5 py-4 text-left transition-colors cursor-grab duration-500",
-                                            isSelected
-                                                ? "border-blue-600 bg-blue-600 text-white shadow-[0_10px_22px_rgba(37,99,235,0.28)]"
-                                                : "border-transparent bg-white text-gray-800 hover:bg-gray-50"
-                                        )}
-                                        onClick={() => {
-                                            setSelectedSessionId(session.id);
-                                        }}
-                                    >
-                                        <span className="min-w-0 text-lg font-semibold leading-tight">
-                                            {session.label}
-                                        </span>
-                                        <span
-                                            className={cn(
-                                                "min-w-0 text-base leading-tight",
-                                                isSelected ? "text-blue-100" : "text-gray-500"
-                                            )}
-                                        >
-                                            {session.time}
-                                        </span>
                                     </button>
                                 );
                             })}

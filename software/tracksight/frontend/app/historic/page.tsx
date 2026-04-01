@@ -1,6 +1,9 @@
+"use client"
+
 import CalendarDropdown from "@/components/icons/CalendarDropdown";
 
 export default function Historic() {
+
     return (
         <div>
             {/** TODO(evan): Make this dynamic and a selector **/}
