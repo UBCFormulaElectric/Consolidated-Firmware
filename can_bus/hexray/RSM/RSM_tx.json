@@ -32,7 +32,7 @@
     }
   },
   "Bootup": {
-    "msg_id": 708,
+    "msg_id": 799,
     "cycle_time": null,
     "description": "Async bootup message!",
     "signals": {}
@@ -151,7 +151,7 @@
     }
   },
   "RearPumpPercentage" : {
-    "msg_id": 715, 
+    "msg_id": 714, 
     "cycle_time": 1000,
     "description": "Rear pump information",
     "signals" : {
@@ -164,7 +164,7 @@
     }
   },
   "TireSensor" : {
-    "msg_id": 714,
+    "msg_id": 798,
     "cycle_time" : 100,
     "description" :" Tire sensor information",
     "signals" : {
