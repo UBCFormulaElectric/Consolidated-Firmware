@@ -37,6 +37,7 @@ inline constexpr std::string_view ANSI_RESET       = "\x1B[1;0m";
 // Do not use these macros directly!
 #ifdef TARGET_EMBEDDED
 #include "SEGGER_RTT.h"
+#define _LOG_PRINTF(format, ...) SEGGER_RTT_printf(0, format, ##__VA_ARGS__)
 #else
 #include <cstdio>
 #define _LOG_PRINTF(format, ...) printf(format, ##__VA_ARGS__)
@@ -81,9 +82,9 @@ struct LogContext
 
 template <typename... Args> void LOG(const std::string_view level, const LogContext &ctx, Args &&...args)
 {
-    SEGGER_RTT_printf(0, "[%s] %s:%u: ", level.data(), ctx.loc.file_name(), ctx.loc.line());
-    SEGGER_RTT_printf(0, ctx.fmt, std::forward<Args>(args)...);
-    SEGGER_RTT_printf(0, "\r\n");
+    _LOG_PRINTF("[%s] %s:%u: ", level.data(), ctx.loc.file_name(), ctx.loc.line());
+    _LOG_PRINTF(ctx.fmt, std::forward<Args>(args)...);
+    _LOG_PRINTF("\r\n");
 }
 
 template <typename... Args> void LOG_INFO(const LogContext ctx, Args &&...args)
