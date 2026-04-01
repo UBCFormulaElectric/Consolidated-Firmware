@@ -5,6 +5,7 @@
 #include "io_rtc.hpp"
 #include <stdint.h>
 #include <util_errorCodes.h>
+#include <cstring>
 
 constexpr uint32_t PREDIV_S = 999;
 
@@ -67,7 +68,6 @@ void transmitNTPStartMsg(void)
         LOG_ERROR("Failed to transmit NTP message");
         return;
     }
-
     LOG_INFO("Sent NTP Msg");
 }
 
@@ -140,12 +140,15 @@ void parseNTPPacketBody(std::span<uint8_t> body)
         return; // Invalid packet body size.
 
     uint64_t messageID = body[0];
-    if (messageID != 2)
+    if (messageID != 1)
         return; // Received non-ntp message
 
     // Body is 17 bytes: 1 byte header + 8 bytes t1 + 8 bytes t2
-    uint64_t t1 = *reinterpret_cast<uint64_t *>(&body[1]);
-    uint64_t t2 = *reinterpret_cast<uint64_t *>(&body[9]);
+    uint64_t t1;
+    std::memcpy(&t1, &body[1], sizeof(uint64_t));
+
+    uint64_t t2;
+    std::memcpy(&t2, &body[9], sizeof(uint64_t));
 
     ntpTimestamps.t1 = t1;
     ntpTimestamps.t2 = t2;
@@ -188,7 +191,13 @@ void tuneRTC(void)
     if (!io::rtc::set_time(newRtcTime))
         LOG_ERROR("Failed to tune RTC");
 
-    LOG_INFO("Tuned RTC!"); // Debug msg
+    // ------------- Debug message -------------
+    LOG_INFO("Tuned RTC!");
+    LOG_INFO("New Time: %02u:%02u:%02u.%03lu",
+         newRtcTime.hours,
+         newRtcTime.minutes,
+         newRtcTime.seconds,
+         (unsigned long)(999 - newRtcTime.subseconds));
 }
 
 uint64_t RtcTimeToMs(io::rtc::Time t)

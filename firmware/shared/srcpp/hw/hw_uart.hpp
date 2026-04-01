@@ -16,26 +16,23 @@ class Uart
 {
 #ifdef TARGET_EMBEDDED
   private:
-    mutable TaskHandle_t taskInProgress;
+    mutable TaskHandle_t Rx_taskInProgress;
+    mutable TaskHandle_t Tx_taskInProgress;
     UART_HandleTypeDef  &handle; // pointer to structure containing UART module configuration information
   public:
-    explicit consteval Uart(UART_HandleTypeDef &in_handle) : taskInProgress(nullptr), handle(in_handle) {}
+    explicit consteval Uart(UART_HandleTypeDef &in_handle)
+    : Rx_taskInProgress(nullptr), Tx_taskInProgress(nullptr), handle(in_handle) {}
 #endif
   private:
-    /**
-     * @param timeoutMs
-     * @return
-     */
-    std::expected<void, ErrorCode> waitForNotification(uint32_t timeoutMs) const;
+    std::expected<void, ErrorCode> waitForNotification_Rx(uint32_t timeoutMs) const;
+    std::expected<void, ErrorCode> waitForNotification_Tx(uint32_t timeoutMs) const;
     mutable bool                   last_read_fault = false;
 
   public:
-    /**
-     *
-     */
-    void onTransactionCompleteFromISR() const;
-
-    void onErrorFromISR() const;
+    void onTransactionCompleteFromISR_Rx() const;
+    void onErrorFromISR_Rx() const;
+    void onTransactionCompleteFromISR_Tx() const;
+    void onErrorFromISR_Tx() const;
 
     /**
      * Transmits an amount of data in polling mode (blocking).
