@@ -120,6 +120,9 @@ async fn metadata(Query(mut param): Query<SignalNameParam>, State(state): State<
         return (StatusCode::BAD_REQUEST, "Bad resolution format, should be a number followed by unit".to_string());
     }
 
+    let start_utc = str_to_utc(&start).unwrap_or_default();
+    let end_utc = str_to_utc(&end).unwrap_or_default();
+
     let mut date_query = format!(r#"
     from(bucket: "{}")
     |> range(start: {start_utc}, stop: {end_utc})
