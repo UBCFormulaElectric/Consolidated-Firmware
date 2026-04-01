@@ -94,6 +94,6 @@ fn load_env_file() -> Config {
 
 fn get_var<T: std::str::FromStr>(env_key: &str) -> Result<T, <T as FromStr>::Err> {
     return var(env_key)
-        .expect(&red(format!("{} is missing from the ENV configuration!", env_key)))
+        .expect(&red(format!("{env_key} is missing from the ENV configuration!\nAre you sure your env file is up to date with template?")))
         .parse::<T>()
 }
