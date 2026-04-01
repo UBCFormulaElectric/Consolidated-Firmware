@@ -73,7 +73,12 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
             });
 
             if (failures.length > 0) {
-                setError(`Failed to load ${failures.length} signal(s).`);
+                let failString: string = "";
+                failures.forEach((failure) => {
+                    failString += failure.reason + "\n";
+                });
+
+                setError(failString);
             }
 
             setIsLoading(false);
@@ -88,8 +93,19 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
 
     return (
         <SignalDataStoreProvider signalStore={signalStoreRef}>
-            {error ? <div className="mx-4 mb-3 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">{error}</div> : null}
-            {isLoading ? <div className="mx-4 mb-3 text-sm text-gray-600">Loading historical data...</div> : null}
+            {error ? <div className="mx-4 mb-3 rounded-md border border-red-800 bg-red-300 px-3 py-2 text-sm text-black">{error}</div> : null}
+            {isLoading ? (
+                <div className="mx-4 mb-3 flex items-center gap-3 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg animate-pulse">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce" />
+                    <span className="text-sm font-medium text-gray-600">Syncing historical data...</span>
+                </div>
+            ) :
+                (!error ?
+                    <div className="mx-4 mb-3 flex items-center gap-3 px-3 py-2 bg-green-100 border border-gray-200 rounded-lg ">
+                        <span className="text-sm font-medium text-gray-600">Data Synced</span>
+                    </div>
+                    : null)
+            }
             {children}
         </SignalDataStoreProvider>
     );
