@@ -48,16 +48,27 @@ const getCalendarDays = (displayMonth: Date) => {
     });
 };
 
-const CalendarDropdown = () => {
+type CalendarDropdownProps = {
+    selectedDate?: Date;
+    onDateSelect?: (date: Date) => void;
+};
+
+const CalendarDropdown = ({ selectedDate, onDateSelect }: CalendarDropdownProps) => {
     const [calendarOpen, setCalendarOpen] = useState<boolean>(false);
-    const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+    const [internalSelectedDate, setInternalSelectedDate] = useState<Date>(new Date());
     const [displayMonth, setDisplayMonth] = useState<Date>(new Date());
+
+    const activeSelectedDate = selectedDate ?? internalSelectedDate;
 
     const calendarDays = useMemo(() => getCalendarDays(displayMonth), [displayMonth]);
 
 
     const handleDateSelect = (date: Date) => {
-        setSelectedDate(date);
+        if (!selectedDate) {
+            setInternalSelectedDate(date);
+        }
+        onDateSelect?.(date);
+        setCalendarOpen(false);
     };
 
     const handleMonthChange = (month: number) => {
@@ -81,7 +92,7 @@ const CalendarDropdown = () => {
                         </div>
                         <div>
                             <div className="text-[1.9rem] font-semibold leading-none text-gray-950">
-                                {MONTH_NAMES[selectedDate.getMonth()]} {getOrdinalDay(selectedDate.getDate())}, {selectedDate.getFullYear()}
+                                {MONTH_NAMES[activeSelectedDate.getMonth()]} {getOrdinalDay(activeSelectedDate.getDate())}, {activeSelectedDate.getFullYear()}
                             </div>
                         </div>
                     </div>
@@ -163,7 +174,7 @@ const CalendarDropdown = () => {
                             ))}
 
                             {calendarDays.map(({ date, inCurrentMonth }) => {
-                                const isSelected = date.getFullYear() === selectedDate.getFullYear() && date.getMonth() === selectedDate.getMonth() && date.getDate() === selectedDate.getDate();
+                                const isSelected = date.getFullYear() === activeSelectedDate.getFullYear() && date.getMonth() === activeSelectedDate.getMonth() && date.getDate() === activeSelectedDate.getDate();
 
                                 return (
                                     <button
