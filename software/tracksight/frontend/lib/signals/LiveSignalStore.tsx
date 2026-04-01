@@ -18,7 +18,7 @@ class LiveSignalStore extends SignalStore {
   private waveletBuffers: Map<string, Array<{
     timestamp: number;
     value: number;
-  } | null>>;
+  }[] | null>>;
 
   constructor(
     updateWithTimestamp: (timestamp: number) => void,
