@@ -8,7 +8,7 @@ use regex::Regex;
 use chrono::{DateTime, FixedOffset};
 use tokio::{select, time::sleep};
 
-use crate::{config::CONFIG, tasks::client_api::AppState, utils::str_to_utc};
+use crate::{config::CONFIG, tasks::client_api::AppState, utils::rfc3339_to_utc};
 
 const INFLUX_MAX_POINTS: usize = 50000;
 const INFLUX_QUERY_TIMEOUT_S: u64 = 5;
@@ -97,25 +97,30 @@ struct InfluxRow {
 
 /**
  * Gets signal values, timestamp, and name.
- * Format date as YYYY-MM-DDTHH:MM:SS
+ * Format date as RFC3339
  * Format res as number followed by unit (ms, s, m, h, d)
  * Pass signal names (regex) in `name` parameter.
  * E.g. `/signal/{start}/{end}/{res}?name=BMS_TractiveSystemVoltage`
  */
 async fn signal_time_range(Path((start, end, res)): Path<(String, String, String)>, Query(param): Query<SignalNameParam>, State(state): State<AppState>) -> impl IntoResponse {
-    // check YYYY-MM-DDTHH:MM:SS format
-    let time_re = Regex::new(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$").unwrap();
-    if !time_re.is_match(&start) || !time_re.is_match(&end) {
-        return (StatusCode::BAD_REQUEST, "Bad date format, should be YYYY-MM-DDTHH:MM:SS".to_string());
-    }
+    // check RFC3339 format
+    let start_utc = match rfc3339_to_utc(&start) {
+        Some(time) => time,
+        None => {
+            return (StatusCode::BAD_REQUEST, "Bad date format, should be RFC3339 format".to_string());
+        }
+    };
+    let end_utc = match rfc3339_to_utc(&end) {
+        Some(time) => time,
+        None => {
+            return (StatusCode::BAD_REQUEST, "Bad date format, should be RFC3339 format".to_string());
+        }
+    };
 
     let res_re = Regex::new(r"^\d+(ms|s|m|h|d)$").unwrap();
     if !res_re.is_match(&res) {
         return (StatusCode::BAD_REQUEST, "Bad resolution format, should be a number followed by unit".to_string());
     }
-
-    let start_utc = str_to_utc(&start).unwrap_or_default();
-    let end_utc = str_to_utc(&end).unwrap_or_default();
 
     let mut date_query = format!(r#"
     from(bucket: "{}")
