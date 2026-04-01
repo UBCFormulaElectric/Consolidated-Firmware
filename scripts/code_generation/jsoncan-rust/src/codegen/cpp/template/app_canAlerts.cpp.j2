@@ -1,0 +1,238 @@
+/**
+ * @note This file is auto-generated. Do not modify!
+ * @name app_canAlerts.cpp
+ */
+// clang-format off
+
+
+/* ------------------------------- Includes ------------------------------- */
+
+#include "app_canAlerts.hpp"
+#include "app_canTx.hpp"
+#include "app_canRx.hpp"
+
+namespace app::can_alerts {
+/* ------------------------- Function Definitions ------------------------- */
+/* ----------- Infos -----------*/
+{%- for alert in board_alerts.infos %}
+void infos::{{ alert.name }}_set(const bool set_alert)
+{
+    // Increment alert counter.
+    if (set_alert and not can_tx::{{node_name}}_Info_{{ alert.name }}_get())
+    {
+        can_tx::{{node_name}}_Info_{{ alert.name }}_Count_set(can_tx::{{node_name}}_Info_{{ alert.name }}_Count_get() + 1);
+    }
+    // Set alert.
+    can_tx::{{node_name}}_Info_{{ alert.name }}_set(set_alert);
+}
+{%- endfor %}
+/* ----------- Warnings -----------*/
+{%- for alert in board_alerts.warnings %}
+void warnings::{{ alert.name }}_set(const bool set_alert)
+{
+    // Increment alert counter.
+    if (set_alert and not can_tx::{{node_name}}_Warning_{{ alert.name }}_get())
+    {
+        can_tx::{{node_name}}_Warning_{{ alert.name }}_Count_set(can_tx::{{node_name}}_Warning_{{ alert.name }}_Count_get() + 1);
+    }
+    // Set alert.
+    can_tx::{{node_name}}_Warning_{{ alert.name }}_set(set_alert);
+}
+{%- endfor %}
+/* ----------- Faults -----------*/
+{%- for alert in board_alerts.faults %}
+void faults::{{ alert.name }}_set(const bool set_alert)
+{
+    // Increment alert counter.
+    if (set_alert and not can_tx::{{node_name}}_Fault_{{ alert.name }}_get())
+    {
+        can_tx::{{node_name}}_Fault_{{ alert.name }}_Count_set(can_tx::{{node_name}}_Fault_{{ alert.name }}_Count_get() + 1);
+    }
+    // Set alert.
+    can_tx::{{node_name}}_Fault_{{ alert.name }}_set(set_alert);
+}
+{%- endfor %}
+
+bool BoardHasInfo(const can_utils::CanNode board)
+{
+    switch (board)
+    {
+        {%- for (board_name, board_alerts) in all_node_name_and_alerts %}
+        case can_utils::CanNode::{{board_name.to_uppercase()}}_NODE:
+        {
+            {%- if board_alerts.infos.len() > 0 %}
+            return (
+                {% for alert in board_alerts.infos -%}
+                {% if board_name == node_name -%}
+                can_tx::{{board_name.to_uppercase()}}_Info_{{ alert.name }}_get()
+                {% else -%}
+                can_rx::{{board_name.to_uppercase()}}_Info_{{ alert.name }}_get()
+                {% endif -%}
+                {%- if loop.last == false %} || {% endif -%}
+                {%- endfor %}
+            );
+            {%- else %}
+            return false;
+            {%- endif %}
+        }
+        {%- endfor %}
+        default:
+            break;
+    }
+    return false;
+}
+bool BoardHasWarning(const can_utils::CanNode board)
+{
+    switch (board)
+    {
+        {%- for (board_name, board_alerts) in all_node_name_and_alerts %}
+        case can_utils::CanNode::{{board_name.to_uppercase()}}_NODE:
+        {
+            {%- if board_alerts.warnings.len() > 0 %}
+            return (
+                {%- for alert in board_alerts.warnings %}
+                {% if board_name == node_name -%}
+                can_tx::{{board_name.to_uppercase()}}_Warning_{{ alert.name }}_get()
+                {% else -%}
+                can_rx::{{board_name.to_uppercase()}}_Warning_{{ alert.name }}_get()
+                {% endif -%}
+                {%- if loop.last == false %} || {% endif -%}
+                {%- endfor %}
+            );
+            {%- else %}
+            return false;
+            {%- endif %}
+        }
+        {%- endfor %}
+        default:
+            break;
+    }
+    return false;
+}
+bool BoardHasFault(const can_utils::CanNode board)
+{
+    switch (board)
+    {
+        {%- for (board_name, board_alerts) in all_node_name_and_alerts %}
+        case can_utils::CanNode::{{board_name.to_uppercase()}}_NODE:
+        {
+            {%- if board_alerts.faults.len() > 0 %}
+            return (
+                {%- for alert in board_alerts.faults %}
+                {% if board_name == node_name -%}
+                can_tx::{{board_name.to_uppercase()}}_Fault_{{ alert.name }}_get()
+                {% else -%}
+                can_rx::{{board_name.to_uppercase()}}_Fault_{{ alert.name }}_get()
+                {% endif -%}
+                {%- if loop.last == false %} || {% endif -%}
+                {%- endfor %}
+            );
+            {%- else %}
+            return false;
+            {%- endif %}
+        }
+        {% endfor %}
+        default:
+            break;
+    }
+    return false;
+}
+
+
+bool AnyBoardHasInfo()
+{
+    // Check if any board has an info
+    return (
+{%- for (board_name, _) in all_node_name_and_alerts %}
+        BoardHasInfo(can_utils::CanNode::{{ board_name.to_uppercase() }}_NODE){% if loop.last == false %} ||{% endif %}
+{%- endfor %}
+    );
+}
+
+bool AnyBoardHasWarning()
+{
+    //Check if any board has a warning
+    return (
+{%- for (board_name, _) in all_node_name_and_alerts %}
+        BoardHasWarning(can_utils::CanNode::{{ board_name.to_uppercase() }}_NODE){% if loop.last == false %} ||{% endif %}
+{%- endfor %}
+    );
+}
+
+bool AnyBoardHasFault()
+{
+    //Check if any board has a fault
+    return (
+{%- for (board_name, _) in all_node_name_and_alerts %}
+        BoardHasFault(can_utils::CanNode::{{ board_name.to_uppercase() }}_NODE){% if loop.last == false %} ||{% endif %}
+{%- endfor %}
+    );
+}
+
+
+uint8_t InfoInfo(const std::span<Alert_Info> alert_array)
+{
+    uint8_t element_num = 0;
+    {%- for (board_name, board_alerts) in all_node_name_and_alerts %}
+    // {{board_name}} infos info
+    {%- for alert in board_alerts.infos %}
+    {%- if board_name == node_name %}
+    if (can_tx::{{board_name}}_Info_{{ alert.name }}_get())
+    {% else %}
+    if (can_rx::{{board_name}}_Info_{{ alert.name }}_get())
+    {% endif -%}
+    {
+        alert_array[element_num].name = "{{ alert.name }}";
+        alert_array[element_num].description = "{{ alert.description }}";
+        alert_array[element_num].id = {{ alert.id }};
+        element_num++;
+    }
+    {%- endfor %}
+    {%- endfor %}
+    return element_num;
+}
+
+uint8_t WarningInfo(const std::span<Alert_Info> alert_array)
+{
+    uint8_t element_num = 0;
+    {%- for (board_name, board_alerts) in all_node_name_and_alerts %}
+    // {{ board_name }} warnings info
+    {%- for alert in board_alerts.warnings %}
+    {%- if board_name == node_name %}
+    if (can_tx::{{board_name}}_Warning_{{ alert.name }}_get())
+    {% else %}
+    if (can_rx::{{board_name}}_Warning_{{ alert.name }}_get())
+    {% endif -%}
+    {
+        alert_array[element_num].name = "{{ alert.name }}";
+        alert_array[element_num].description = "{{ alert.description }}";
+        alert_array[element_num].id = {{ alert.id }};
+        element_num++;
+    }
+    {%- endfor %}
+    {%- endfor %}
+    return element_num;
+}
+
+uint8_t FaultInfo(const std::span<Alert_Info> alert_array)
+{
+    uint8_t element_num = 0;
+    {%- for (board_name, board_alerts) in all_node_name_and_alerts %}
+    // {{ board_name }} faults info
+    {%- for alert in board_alerts.faults %}
+    {%- if board_name == node_name %}
+    if (can_tx::{{board_name}}_Fault_{{ alert.name }}_get())
+    {% else %}
+    if (can_rx::{{board_name}}_Fault_{{ alert.name }}_get())
+    {% endif -%}
+    {
+        alert_array[element_num].name = "{{ alert.name }}";
+        alert_array[element_num].description = "{{ alert.description }}";
+        alert_array[element_num].id = {{ alert.id }};
+        element_num++;
+    }
+    {%- endfor %}
+    {%- endfor %}
+    return element_num;
+}
+}

@@ -76,7 +76,7 @@ TEST(PackUnpackTests, test_decimal_numbers)
         { .ECU1_Decimal1_value = -100.0f, .ECU1_Decimal2_value = 2.0f },
         { .ECU1_Decimal1_value = -54.61f, .ECU1_Decimal2_value = 2.1243f },
         { .ECU1_Decimal1_value = 0.0f, .ECU1_Decimal2_value = 2.5f },
-        { .ECU1_Decimal1_value = 72.34, .ECU1_Decimal2_value = 2.784f },
+        { .ECU1_Decimal1_value = 72.34f, .ECU1_Decimal2_value = 2.784f },
         { .ECU1_Decimal1_value = 100.0f, .ECU1_Decimal2_value = 3.0f },
     };
     const uint64_t expected_payloads[5] = {
@@ -95,7 +95,7 @@ TEST(PackUnpackTests, test_decimal_numbers)
         { .ECU1_Decimal1_value = -100.0f, .ECU1_Decimal2_value = 2.0f },
         { .ECU1_Decimal1_value = -54.7f, .ECU1_Decimal2_value = 2.12f },
         { .ECU1_Decimal1_value = 0.0f, .ECU1_Decimal2_value = 2.5f },
-        { .ECU1_Decimal1_value = 72.3, .ECU1_Decimal2_value = 2.78f },
+        { .ECU1_Decimal1_value = 72.3f, .ECU1_Decimal2_value = 2.78f },
         { .ECU1_Decimal1_value = 100.0f, .ECU1_Decimal2_value = 3.0f },
     };
 
@@ -142,7 +142,7 @@ TEST(PackUnpackTests, test_signed_numbers)
             LSHIFT(ENCODE(1, 1, 0), 32),                            // RPM
         0 | LSHIFT(TWOS_COMP(ENCODE(1.0, 0.1, 0), 0xFFFF), 0) |     // Temp
             LSHIFT(TWOS_COMP(ENCODE(1, 1, 0), 0xFFFF), 32),         // RPM
-        0 | LSHIFT(ENCODE(3276.7f, 0.1, 0), 0) |                    // Temp
+        0 | LSHIFT(ENCODE(3276.7, 0.1, 0), 0) |                     // Temp
             LSHIFT(ENCODE(32767, 1, 0), 32),                        // RPM
         0 | LSHIFT(TWOS_COMP(ENCODE(3276.8, 0.1, 0), 0xFFFF), 32) | // Temp
             LSHIFT(TWOS_COMP(ENCODE(32768, 1, 0), 0xFFFF), 0),      // RPM

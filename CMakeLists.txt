@@ -8,7 +8,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
 set(CMAKE_COLOR_DIAGNOSTICS ON)
 # use this for debugging
-#set(CMAKE_VERBOSE_MAKEFILE on)
+#set(CMAKE_VERBOSE_MAKEFILE ON CACHE BOOL "ON" FORCE)
 # Generates a comple_commands.json file which helps with VSCode intellisense
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_compile_definitions("DEBUG=$<CONFIG:Debug>")
@@ -28,22 +28,25 @@ include(get_cpm.cmake)
 message("✅ Downloaded CPM.cmake")
 
 # ======== Host system specific settings ========
+
 message("")
 message("🖥️ Host System: ${CMAKE_HOST_SYSTEM_NAME}")
 IF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
     message("🪟 Building for Windows")
+    set(EXECUTABLE_SUFFIX ".exe")
 ELSEIF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
     message("🍎 Building for Apples")
+    set(EXECUTABLE_SUFFIX "")
 ELSEIF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Linux")
     message("🐧 Building for Linux")
+    set(EXECUTABLE_SUFFIX "")
 ELSE ()
     message(FATAL_ERROR "❌ Unsupported host system: ${CMAKE_HOST_SYSTEM_NAME}")
 ENDIF ()
 
 # ========== INCLUDES ==========
-include("python.cmake")
-include(scripts/code_generation/jsoncan/jsoncan.cmake)
-include(scripts/code_generation/commit_info_gen/commit_info.cmake)
+include(python.cmake)
+include(shared.cmake)
 
 # ======== Clang-Format ========
 set(FIX_FORMATTING_SCRIPT scripts/utilities/fix_formatting.py)
@@ -62,7 +65,8 @@ option(TARGET "The target to build for. Choose between \"binary\" and \"test\"."
 message("")
 message("⚙️ Configuring for \"${PLATFORM}\" platform and \"${TARGET}\" build target")
 IF ("${PLATFORM}" STREQUAL "firmware")
-    include(firmware/cmake/shared.cmake) # TODO move this
+    include(scripts/code_generation/jsoncan-rust/jsoncan.cmake)
+    include(scripts/code_generation/jsoncan/jsoncan.cmake)
 
     # ======== Compiler ========
     IF ("${TARGET}" STREQUAL "binary")
@@ -85,6 +89,7 @@ IF ("${PLATFORM}" STREQUAL "firmware")
             file(GLOB HOMEBREW_GCC_CANDIDATES
                     "/opt/homebrew/bin/gcc-[0-9]*"
                     "/usr/local/bin/gcc-[0-9]*"
+                    "/usr/bin/gcc"
             )
 
             IF (HOMEBREW_GCC_CANDIDATES)
@@ -106,11 +111,11 @@ IF ("${PLATFORM}" STREQUAL "firmware")
     add_subdirectory(firmware)
     IF ("${TARGET}" STREQUAL "test")
         add_subdirectory(scripts/code_generation/fakegen)
-        add_subdirectory(scripts/code_generation/jsoncan/test)
+        add_subdirectory(scripts/code_generation/jsoncan-rust/integration)
     ENDIF ()
 ELSEIF ("${PLATFORM}" STREQUAL "dimos")
     project("UBC Formula Electric Software" VERSION 0.1 LANGUAGES C CXX)
-    add_subdirectory(software/dimos)
+    add_subdirectory(software/dimos_qt)
 ELSE ()
     message(FATAL_ERROR "❌ Please set the PLATFORM variable to 'firmware' or 'dimos'. To do this, set the -DPLATFORM=<platform>")
 ENDIF ()

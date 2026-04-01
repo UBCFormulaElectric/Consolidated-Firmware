@@ -88,6 +88,16 @@
       ]
     },
     {
+      "label": "Run Tests: BMS (Quintuna)",
+      "type": "shell",
+      "command": "${workspaceFolder}/build_fw_test/firmware/quintuna/BMS/quintuna_BMS_test",
+      "group": "test",
+      "presentation": {
+        "reveal": "always"
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "Build Embedded: VC (Quintuna)",
       "group": "build",
       "type": "cmake",
@@ -160,6 +170,15 @@
       ]
     },
     {
+      "label": "Build Embedded: h5dev",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+        "h5dev.hex"
+      ]
+    },
+    {
       "label": "Build Embedded: SSM",
       "group": "build",
       "type": "cmake",
@@ -214,6 +233,15 @@
       ]
     },
     {
+      "label": "Build Chimera: BMS (Hexray)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+      "hexray_BMS_chimera.elf"
+      ]
+    },
+    {
       "label": "Build Embedded: CRIT (Hexray)",
       "group": "build",
       "type": "cmake",
@@ -229,6 +257,15 @@
       "command": "build",
       "targets": [
         "hexray_CRIT_test"
+      ]
+    },
+    {
+      "label": "Build Chimera: CRIT (Hexray)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+      "hexray_CRIT_chimera.elf"
       ]
     },
     {
@@ -250,6 +287,15 @@
       ]
     },
     {
+      "label": "Build Chimera: DAM (Hexray)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+      "hexray_DAM_chimera.elf"
+      ]
+    },
+    {
       "label": "Build Embedded: FSM (Hexray)",
       "group": "build",
       "type": "cmake",
@@ -265,6 +311,15 @@
       "command": "build",
       "targets": [
         "hexray_FSM_test"
+      ]
+    },
+    {
+      "label": "Build Chimera: FSM (Hexray)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+      "hexray_FSM_chimera.elf"
       ]
     },
     {
@@ -286,6 +341,15 @@
       ]
     },
     {
+      "label": "Build Chimera: RSM (Hexray)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+      "hexray_RSM_chimera.elf"
+      ]
+    },
+    {
       "label": "Build Embedded: VC (Hexray)",
       "group": "build",
       "type": "cmake",
@@ -304,12 +368,22 @@
       ]
     },
     {
+      "label": "Build Chimera: VC (Hexray)",
+      "group": "build",
+      "type": "cmake",
+      "command": "build",
+      "targets": [
+      "hexray_VC_chimera.elf"
+      ]
+    },
+    {
       "label": "Build Tests: Shared",
       "group": "build",
       "type": "cmake",
       "command": "build",
       "targets": [
-        "shared_test"
+        "shared_test",
+        "shared_test_cpp"
       ]
     },
     {

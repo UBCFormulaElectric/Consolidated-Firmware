@@ -1,35 +1,48 @@
 {
-    "Vitals": {
-        "msg_id": 900,
-        "cycle_time": 100,
-        "description": "CRIT vitals message.",
-        "signals": {
-            "Heartbeat": {
-                "bits": 1
-            }
-        }
+  "Vitals": {
+    "msg_id": 900,
+    "cycle_time": 100,
+    "description": "CRIT vitals message.",
+    "signals": {
+      "Heartbeat": { "bits": 1 }
+    }
+  },
+  "CommitInfo": {
+    "msg_id": 909,
+    "cycle_time": 100,
+    "description": "CRIT Current Running Git Commit Info",
+    "signals": {
+      "Hash": { "bits": 32 },
+      "Clean": { "bits": 1 }
+    }
+  },
+  "ButtonsAndSwitches": {
+    "msg_id": 911,
+    "cycle_time": 100,
+    "description": "State of buttons and switches on the CRIT",
+    "signals": {
+      "StartButton": { "bits": 1 },
+      "RegenSwitch": { "bits": 1 },
+      "LaunchControlSwitch": { "bits": 1 },
+      "TorqueVectoringSwitch": { "bits": 1 },
+      "DriveMode": { "enum": "DriveMode" }
+    }
+  },
+    "TelemMarkEvent": {
+    "msg_id": 912,
+    "cycle_time": null,
+    "description": "Marks an event in the telemetry data. Can be used to mark the start of a run, or any other significant event.",
+    "signals": {}
     },
     "Switches": {
-        "msg_id": 910,
-        "cycle_time": 100,
-        "description": "States of the switches on the CRIT.",
-        "signals": {
-            "RegenSwitch": {
-                "enum": "SwitchState"
-            },
-            "VanillaOverrideSwitch": {
-                "enum": "SwitchState"
-            }
-        }
-    },
-    "DriveMode": {
-        "msg_id": 911,
-        "cycle_time": 100,
-        "description": "Drive Mode.",
-        "signals": {
-            "DriveMode": {
-                "enum": "DriveMode"
-            }
-        }
+    "msg_id": 920,
+    "cycle_time": 100,
+    "description": "States of the switches on the CRIT.",
+    "signals": {
+      "StartSwitch": {
+        "enum": "SwitchState"
+      }
     }
+  }
+
 }

@@ -1,9 +1,30 @@
 #include "hw_error.h"
 #include "hw_ubsan.h"
 
-#include "io_log.h"
+void __ubsan_handle_add_overflow(void *data, void *lhs, void *rhs); // NOLINT(*-reserved-identifier)
+void __ubsan_handle_sub_overflow(void *data, void *lhs, void *rhs); // NOLINT(*-reserved-identifier)
+void __ubsan_handle_mul_overflow(void *data, void *lhs, void *rhs); // NOLINT(*-reserved-identifier)
+void __ubsan_handle_negate_overflow(void *_data, void *old_val);    // NOLINT(*-reserved-identifier)
+// void __ubsan_handle_divrem_overflow(void *_data, void *lhs, void *rhs);
 
-#include <hw_utils.h>
+// void __ubsan_handle_implicit_conversion(void *_data, void *lhs, void *rhs);
+// void __ubsan_handle_type_mismatch(struct type_mismatch_data *data, void *ptr);
+_Noreturn void __ubsan_handle_type_mismatch_v1(void *_data, void *ptr);               // NOLINT(*-reserved-identifier)
+void           __ubsan_handle_out_of_bounds(void *_data, void *index);                // NOLINT(*-reserved-identifier)
+void           __ubsan_handle_shift_out_of_bounds(void *_data, void *lhs, void *rhs); // NOLINT(*-reserved-identifier)
+// void __ubsan_handle_builtin_unreachable(void *_data);
+void __ubsan_handle_load_invalid_value(void *_data, void *val); // NOLINT(*-reserved-identifier)
+// void __ubsan_handle_alignment_assumption(void *_data, unsigned long ptr, unsigned long align, unsigned long offset);
+
+/*
+ * Not handled by linux
+ */
+void __ubsan_handle_nonnull_arg(void *_data);                                // NOLINT(*-reserved-identifier)
+void __ubsan_handle_vla_bound_not_positive(void *_data, void *bound);        // NOLINT(*-reserved-identifier)
+void __ubsan_handle_pointer_overflow(void *_data, void *base, void *result); // NOLINT(*-reserved-identifier)
+
+#include "io_log.h"
+#include "app_utils.h"
 #include <stdbool.h>
 
 #define VALUE_LENGTH 40

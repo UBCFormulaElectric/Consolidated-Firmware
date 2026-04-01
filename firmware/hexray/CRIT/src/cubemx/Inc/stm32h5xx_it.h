@@ -6,7 +6,7 @@
  ******************************************************************************
  * @attention
  *
- * Copyright (c) 2025 STMicroelectronics.
+ * Copyright (c) 2026 STMicroelectronics.
  * All rights reserved.
  *
  * This software is licensed under terms that can be found in the LICENSE file
@@ -52,10 +52,16 @@ extern "C"
     void MemManage_Handler(void);
     void BusFault_Handler(void);
     void UsageFault_Handler(void);
-    void SVC_Handler(void);
     void DebugMon_Handler(void);
-    void PendSV_Handler(void);
-    void SysTick_Handler(void);
+    void FDCAN1_IT0_IRQHandler(void);
+    void FDCAN1_IT1_IRQHandler(void);
+    void TIM3_IRQHandler(void);
+    void TIM4_IRQHandler(void);
+    void TIM6_IRQHandler(void);
+    void SPI1_IRQHandler(void);
+    void SPI2_IRQHandler(void);
+    void SPI3_IRQHandler(void);
+    void USB_DRD_FS_IRQHandler(void);
     /* USER CODE BEGIN EFP */
 
     /* USER CODE END EFP */

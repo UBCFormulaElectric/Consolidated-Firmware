@@ -1,0 +1,25 @@
+flask == 3.1.0
+influxdb-client == 1.47.0
+flask-cors == 5.0.0
+python-dotenv == 1.0.1
+flask-socketio == 5.5.1
+pandas == 2.2.3
+requests == 2.32.3
+pySerial == 3.5
+protobuf == 5.29.3
+crc
+zeroconf
+gunicorn
+protobuf==5.29.3
+psutil
+StrEnum
+ntplib
+cantools
+schema
+gevent
+
+# Install in-house dependencies from GitHub
+# jsonca
+git+https://github.com/UBCFormulaElectric/Consolidated-Firmware.git@master#subdirectory=scripts/code_generation
+# logfs
+git+https://github.com/UBCFormulaElectric/Consolidated-Firmware.git@master#subdirectory=firmware/logfs/python

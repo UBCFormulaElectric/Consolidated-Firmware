@@ -57,7 +57,7 @@ static uint32_t payload_size_from_dlc(const uint32_t dlc)
     if (dlc <= 12)
         return (dlc - 6) * 4;
     if (dlc == 13)
-        return 36;
+        return 32;
     if (dlc == 14)
         return 48;
     if (dlc == 15)

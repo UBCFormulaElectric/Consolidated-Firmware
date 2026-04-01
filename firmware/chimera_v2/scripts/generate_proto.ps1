@@ -1,0 +1,1 @@
+protoc -I ..\proto\hexray_proto\ --python_out ..\proto_autogen_hex\ ..\proto\hexray_proto\vc.proto

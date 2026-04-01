@@ -4,6 +4,9 @@
 // clang-format off
 
 #pragma once
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* ------------------------------- Includes ------------------------------- */
 
@@ -24,3 +27,7 @@ bool io_canRx_filterMessageId_{{bus}}(uint32_t std_id);
  * Unpack a received message and update the CAN RX table.
  */
 void io_canRx_updateRxTableWithMessage(JsonCanMsg* msg);
+
+#ifdef __cplusplus
+}
+#endif

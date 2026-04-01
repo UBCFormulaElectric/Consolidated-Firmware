@@ -30,10 +30,8 @@ extern "C"
 /* Includes ------------------------------------------------------------------*/
 #include "stm32h7xx_hal.h"
 
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
-#include "hw_error.h"
-#include "cmsis_os.h"
+    /* Private includes ----------------------------------------------------------*/
+    /* USER CODE BEGIN Includes */
     /* USER CODE END Includes */
 
     /* Exported types ------------------------------------------------------------*/

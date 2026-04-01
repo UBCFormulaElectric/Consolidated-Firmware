@@ -14,6 +14,7 @@ typedef struct
     double           roll_offset;
 } imuConfig;
 #else
+#include "util_errorCodes.h"
 #include "app_utils.h"
 EMPTY_STRUCT(imuConfig)
 #endif
@@ -65,4 +66,11 @@ ExitCode io_imu_getAngularVelocityPitch(double *pitch_velocity);
  * @param yaw_velocity Pointer to store the yaw angular velocity
  * @return True if the read is successful, false otherwise
  */
-ExitCode io_imu_getAngularVelocityYaw(double *yaw_velocity);
+ExitCode io_imu_getAngularVelocityYaw(float *yaw_velocity);
+
+/**
+ * @brief Gets the Fault status of the IMU due to
+ * initialization or transactions
+ * @return True if IMU has faulted
+ */
+bool io_imu_getFaultStatus();

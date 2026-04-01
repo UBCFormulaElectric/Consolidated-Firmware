@@ -42,7 +42,14 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
-
+    extern ADC_HandleTypeDef   hadc1;
+    extern DMA_NodeTypeDef     Node_GPDMA1_Channel0;
+    extern DMA_QListTypeDef    List_GPDMA1_Channel0;
+    extern DMA_HandleTypeDef   handle_GPDMA1_Channel0;
+    extern FDCAN_HandleTypeDef hfdcan1;
+    extern SPI_HandleTypeDef   hspi1;
+    extern TIM_HandleTypeDef   htim2;
+    extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/
@@ -54,10 +61,60 @@ extern "C"
     void Error_Handler(void);
 
     /* USER CODE BEGIN EFP */
+    // void FSM_StartAllTasks(void);
+    /* USER CODE BEGIN EFP */
 
-    /* USER CODE END EFP */
+/* USER CODE END EFP */
 
-    /* Private defines -----------------------------------------------------------*/
+/* Private defines -----------------------------------------------------------*/
+#define TIM2_FREQUENCY 1000
+#define TIM2_PRESCALER 250
+#define TIM2_ARR (TIMx_FREQUENCY / TIM2_PRESCALER / TIM2_FREQUENCY)
+#define TIMx_FREQUENCY 96000000
+#define BOTS_3V3_Pin GPIO_PIN_0
+#define BOTS_3V3_GPIO_Port GPIOC
+#define COCKPIT_SHDN_3V3_Pin GPIO_PIN_1
+#define COCKPIT_SHDN_3V3_GPIO_Port GPIOC
+#define FR_INT_3V3_Pin GPIO_PIN_2
+#define FR_INT_3V3_GPIO_Port GPIOC
+#define FL_INT_3V3_Pin GPIO_PIN_3
+#define FL_INT_3V3_GPIO_Port GPIOC
+#define SUSP_FR_3V3_Pin GPIO_PIN_0
+#define SUSP_FR_3V3_GPIO_Port GPIOA
+#define SUSP_FL_3V3_Pin GPIO_PIN_1
+#define SUSP_FL_3V3_GPIO_Port GPIOA
+#define nBPS_F_OCSC_Pin GPIO_PIN_2
+#define nBPS_F_OCSC_GPIO_Port GPIOA
+#define nSTR_ANGLE_OCSC_Pin GPIO_PIN_3
+#define nSTR_ANGLE_OCSC_GPIO_Port GPIOA
+#define IMU_CS_Pin GPIO_PIN_4
+#define IMU_CS_GPIO_Port GPIOA
+#define IMU_SPC_Pin GPIO_PIN_5
+#define IMU_SPC_GPIO_Port GPIOA
+#define IMU_SDI_Pin GPIO_PIN_6
+#define IMU_SDI_GPIO_Port GPIOA
+#define IMU_SDO_Pin GPIO_PIN_7
+#define IMU_SDO_GPIO_Port GPIOA
+#define STR_ANGLE_3V3_Pin GPIO_PIN_4
+#define STR_ANGLE_3V3_GPIO_Port GPIOC
+#define BPS_F_3V3_Pin GPIO_PIN_5
+#define BPS_F_3V3_GPIO_Port GPIOC
+#define APPS1_3V3_Pin GPIO_PIN_0
+#define APPS1_3V3_GPIO_Port GPIOB
+#define APPS2_3V3_Pin GPIO_PIN_1
+#define APPS2_3V3_GPIO_Port GPIOB
+#define nSUSP_FL_OCSC_Pin GPIO_PIN_10
+#define nSUSP_FL_OCSC_GPIO_Port GPIOC
+#define nSUSP_FR_OCSC_Pin GPIO_PIN_11
+#define nSUSP_FR_OCSC_GPIO_Port GPIOC
+#define D_P_PULLUP_Pin GPIO_PIN_2
+#define D_P_PULLUP_GPIO_Port GPIOD
+#define DEBUG_LED_Pin GPIO_PIN_4
+#define DEBUG_LED_GPIO_Port GPIOB
+#define BOOT_LED_Pin GPIO_PIN_5
+#define BOOT_LED_GPIO_Port GPIOB
+#define IMU_FSYNC_Pin GPIO_PIN_6
+#define IMU_FSYNC_GPIO_Port GPIOB
 
     /* USER CODE BEGIN Private defines */
 

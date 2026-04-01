@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo -e "\033[0;33mWarning: this script is deprecated, see README.md\033[0m" 
+exit
+
 show_help() {
 cat << EOF
 Usage: ${0##*/} [-h|--help] [-c|--clean] -f|--file FILE

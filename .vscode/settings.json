@@ -12,13 +12,6 @@
     // "--compile-commands-dir=build_fw_test",
     "--query-driver=/usr/local/bin/arm-none-eabi-gcc"
   ],
-  "files.associations": {
-    "*.dbclient-js": "javascript",
-    "app_sbgellipse.h": "c",
-    "io_imu_config.h": "c",
-    "app_cantx.h": "c",
-    "app_vehicledynamicsconstants.h": "c",
-    "app_dynamicsestimations.h": "c",
-    "app_vd_constants.h": "c"
-  }
+  "C_Cpp.default.cppStandard": "c++23",
+  "cortex-debug.variableUseNaturalFormat": true
 }

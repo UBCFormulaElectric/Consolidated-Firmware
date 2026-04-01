@@ -41,7 +41,7 @@ void app_yawRateController_computeRefYawRate(YawRateController *yrc)
 
 void app_yawRateController_pidCompute(YawRateController *yrc)
 {
-    yaw_moment = app_pid_compute(yrc->pid, ref_yaw_rate_rad, yrc->real_yaw_rate_rad);
+    yaw_moment = app_pid_compute(yrc->pid, ref_yaw_rate_rad, yrc->real_yaw_rate_rad, 0.0f);
 }
 
 void app_yawRateController_run(YawRateController *yrc)
