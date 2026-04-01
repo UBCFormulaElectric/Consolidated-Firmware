@@ -328,12 +328,12 @@ void jobs_runSdCard_tick(void)
 
     if (xTaskNotifyWait(0, ULONG_MAX, &rounded_soc, 0) == pdTRUE)
     {
-        last_written_soc = app_soc_getLastWrittenSocHundredths();
+        last_written_soc = app_soc_getLastWrittenSocTenths();
         if (last_written_soc != UINT32_MAX && last_written_soc == rounded_soc)
         {
             return;
         }
 
-        app_soc_writeSocToSd((float)rounded_soc / 100.0f);
+        app_soc_writeSocToSd((float)rounded_soc / 10.0f);
     }
 }

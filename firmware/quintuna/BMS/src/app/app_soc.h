@@ -91,10 +91,10 @@ bool app_soc_readSocFromSd(float *saved_soc_c);
 bool app_soc_writeSocToSd(float soc);
 
 /**
- * @brief Get the last SoC value written to SD card in hundredths of a percent.
- * @return SoC value where 100.00% == 10000, or UINT32_MAX if unavailable
+ * @brief Get the last SoC value written to SD card in tenths of a percent.
+ * @return SoC value where 100.0% == 1000, or UINT32_MAX if unavailable
  */
-uint32_t app_soc_getLastWrittenSocHundredths(void);
+uint32_t app_soc_getLastWrittenSocTenths(void);
 
 /**
  * @brief Broadcast SOC related CAN signals
