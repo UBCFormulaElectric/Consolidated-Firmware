@@ -1,6 +1,17 @@
 #pragma once
 #include "util_errorCodes.hpp"
 #include "io_imu.hpp"
+#include "io_shdnLoopNode.hpp"
+#include "io_imus.hpp"
+#include "io_pumpControl.hpp"
+#include "io_pump.hpp"
+#include "io_efuses.hpp"
+#include "io_sbgEllipse.hpp"
+#include "io_powerMonitoring.hpp"
+#include "io_vcShdn.hpp"
+#include "io_efuse_TI_TPS25.hpp"
+#include "io_efuse_TI_TPS28.hpp"
+#include "app_canTx.hpp"
 
 // IMUs
 io::Imu IMU1;
@@ -49,7 +60,7 @@ namespace pumpController
     void pumps_enabled(bool enabled);
 } // namespace pumpController
 
-namespace sbgEllipses
+namespace sbgEllipse
 {
     struct Attitude
     {
@@ -71,7 +82,7 @@ namespace sbgEllipses
     void setAttitude(float roll, float pitch, float yaw);
     void setAngularVelocity(float roll_rate, float pitch_rate, float yaw_rate);
     void setLinearAcceleration(float x_accel, float y_accel, float z_accel);
-} // namespace sbgEllipses
+} // namespace sbgEllipse
 
 namespace shdnLoop
 {
@@ -82,9 +93,9 @@ namespace startSwitch
 {
 }
 
-namespace warningHandling
+namespace bspdWarning
 {
     void set_papps_pedal_percentage(float percentage);
-    void set_brake_actuation_state(bool actuated);
-} // namespace warningHandling
+    void set_BrakeActuated_state(bool actuated);
+} // namespace bspdWarning
 } // namespace fakes::io

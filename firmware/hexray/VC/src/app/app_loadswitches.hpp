@@ -4,5 +4,13 @@
 
 namespace app::loadswitches
 {
+struct EfuseCanMsg
+{
+    io::Efuse &efuse;
+    void (*can_setter_enabled)(bool);
+    void (*can_setter_current)(float);
+};
+extern EfuseCanMsg efuse_channel_setters;
+    
 void efuse_broadcast();
 } // namespace app::loadswitches

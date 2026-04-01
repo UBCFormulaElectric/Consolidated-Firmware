@@ -1,17 +1,19 @@
 #include "vc_fakes.hpp"
-#include "app_canTx.hpp"
-#include "io_imus.hpp"
-#include "io_pumpControl.hpp"
-#include "io_efuses.hpp"
-#include "io_sbgEllipse.hpp"
-#include "io_powerMonitoring.hpp"
-#include "io_vcShdn.hpp"
-#include "io_shdnLoopNode.hpp"
-#include "io_efuse_TI_TPS25.hpp"
-#include "io_efuse_TI_TPS28.hpp"
 
-namespace io // Define the mocked functions here
+namespace fakes::io // Define the mocked functions here
 {
+namespace bspdWarning
+{
+    float papps_pedal_percentage = 0.0f;
+    bool brake_actuation_state = false;
+    void set_papps_pedal_percentage(float percentage){
+        papps_pedal_percentage = percentage;
+    }
+    void set_BrakeActuated_state(bool actuated){
+        brake_actuation_state = actuated;
+    }
+} // namespace bspdWarning
+
 namespace imus
 {
     std::expected<void, ErrorCode> initAll()
@@ -30,6 +32,7 @@ namespace imus
         }
         return {};
     }
+    
 } // namespace imus
 
 namespace sbgEllipse
@@ -88,4 +91,4 @@ namespace powerMonitoring
 namespace imus
 {
 } // namespace imus
-} // namespace io
+} // namespace io::fakes
