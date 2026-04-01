@@ -10,7 +10,6 @@ use tokio::{select, time::sleep};
 
 use crate::{config::CONFIG, tasks::client_api::AppState, utils::rfc3339_to_utc};
 
-const INFLUX_MAX_POINTS: usize = 50000;
 const INFLUX_QUERY_TIMEOUT_S: u64 = 5;
 
 /**
@@ -142,10 +141,6 @@ async fn signal_time_range(Path((start, end, res)): Path<(String, String, String
         ));
     }
 
-    date_query.push_str(&format!(
-        r#"|> limit(n: {INFLUX_MAX_POINTS})"#
-    ));
-
     let req: Result<Vec<_>, influxdb2::RequestError> = select! {
         val = state.influx_client.query::<InfluxRow>(
             Some(influxdb2::models::Query::new(date_query))
@@ -157,9 +152,6 @@ async fn signal_time_range(Path((start, end, res)): Path<(String, String, String
         
     match req {
         Ok(res) => {
-            if res.len() >= INFLUX_MAX_POINTS {
-                return (StatusCode::BAD_REQUEST, format!("Query returned more than {INFLUX_MAX_POINTS} points, lower the resolution!"));
-            }
             return (StatusCode::OK, serde_json::to_string(&res).unwrap());
         },
         Err(e) => {
