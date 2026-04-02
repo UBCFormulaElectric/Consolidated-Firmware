@@ -1,5 +1,6 @@
 use std::sync::Arc;
 use axum::Router;
+use dashmap::DashMap;
 use tokio::select;
 use tokio::sync::RwLock;
 use tokio::net::TcpListener;
@@ -61,7 +62,9 @@ pub async fn run_api_handler(
             &CONFIG.influxdb_url,
             &CONFIG.influxdb_org,
             &CONFIG.influxdb_token
-        ))
+        )),
+
+        signal_tile_cache: Arc::new(DashMap::new()),
     };
 
     let cors = CorsLayer::new()

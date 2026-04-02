@@ -13,7 +13,7 @@ ctrlc = "3.5"
 tokio = { version = "1", features = ["full"] }
 tokio-serial = "5"
 tokio-tungstenite = "0.28.0"
-axum = { version = "0.8.8", features = ["ws"] }
+axum = { version = "0.8.8", features = ["ws", "macros"] }
 socketioxide = "0.18.1"
 influxdb2 = "0.5"
 influxdb2-structmap = "0.2"
@@ -26,6 +26,7 @@ tower-http = { version = "0.5", features = ["cors"] }
 futures = "0.3.32"
 mdns-sd = "0.18.1"
 if-addrs = "0.15.0"
+dashmap = "6.1.0"
 
 jsoncan_rust = { path = "../../../scripts/code_generation/jsoncan-rust" }
 chrono = "0.4.44"
