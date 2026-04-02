@@ -1,17 +1,12 @@
 use std::{collections::HashMap, time::Duration};
 
 use axum::{Json, Router, extract::{Path, Query, State}, http::StatusCode, response::IntoResponse, routing::get};
-use futures::future::try_join_all;
-use influxdb2::{FromDataPoint};
 use jsoncan_rust::can_database::CanMessage;
 use serde::{Deserialize, Serialize};
 use regex::Regex;
-use chrono::{DateTime, FixedOffset};
 use tokio::{select, time::sleep};
 
-use crate::{config::CONFIG, tasks::client_api::AppState, utils::{rfc3339_to_utc, rfc3339_to_utc_str}};
-
-const INFLUX_QUERY_TIMEOUT_S: u64 = 5;
+use crate::{config::CONFIG, tasks::client_api::{AppState, signal_tile::{SignalRow, get_signals}}, utils::{rfc3339_to_utc, rfc3339_to_utc_str}};
 
 /**
  * Gets the list of all nodes (str) in the current parser.
@@ -84,17 +79,6 @@ async fn metadata(Query(mut param): Query<SignalNameParam>, State(state): State<
     return (StatusCode::OK, Json(metadatas));
 }
 
-#[derive(Debug, Serialize, FromDataPoint, Default)]
-struct InfluxRow {
-    // rename influx field names to match with frontend names
-    #[serde(rename = "timestamp")]
-    time: DateTime<FixedOffset>,
-    value: f64,
-    measurement: String,
-    #[serde(rename = "name")]
-    signal_name: String,
-}
-
 /**
  * Gets signal values, timestamp, and name.
  * Format date as RFC3339 (i.e. YYYY-MM-DDTHH:mm:ssZ or YYYY-MM-DDTHH:mm:ss[+-]OO:oo)
@@ -102,7 +86,8 @@ struct InfluxRow {
  * Pass signal names (regex) in `name` parameter.
  * E.g. `/signal/{start}/{end}/{res}?name=BMS_TractiveSystemVoltage`
  */
-async fn signal_time_range(Path((start, end, res)): Path<(String, String, String)>, Query(param): Query<SignalNameParam>, State(state): State<AppState>) -> impl IntoResponse {
+#[deprecated(note = "Use signal_tiles instead")]
+ async fn signal_time_range(Path((start, end, res)): Path<(String, String, String)>, Query(param): Query<SignalNameParam>, State(state): State<AppState>) -> impl IntoResponse {
     // check RFC3339 format
     let (start_utc, end_utc) = 
         if let (Some(s), Some(e)) = 
@@ -139,10 +124,10 @@ async fn signal_time_range(Path((start, end, res)): Path<(String, String, String
     }
 
     let req: Result<Vec<_>, influxdb2::RequestError> = select! {
-        val = state.influx_client.query::<InfluxRow>(
+        val = state.influx_client.query::<SignalRow>(
             Some(influxdb2::models::Query::new(date_query))
         ) => val,
-        _ = sleep(Duration::from_secs(INFLUX_QUERY_TIMEOUT_S)) => {
+        _ = sleep(Duration::from_secs(3)) => {
             return (StatusCode::REQUEST_TIMEOUT, "InfluxDB query timed out, try smaller query!".to_string());
         }
     };
@@ -157,31 +142,6 @@ async fn signal_time_range(Path((start, end, res)): Path<(String, String, String
     }
 }
 
-// time interval [a, b] -> bucket sizes/resolution based on max points, round to finer resolution (round down)
-// resolution -> tiles (based on predefined buckets (# of points) per tile, hence tilewidth)
-// with each tile, check cache
-// return data and possibly metadata about tiles and resolution
-const WINDOW_SIZE: u64 = 2096; // (min) number of points per query given start and end
-const TILE_SIZE: u64 = 512; // number of points per tile
-
-/**
- * Round the bucket resolution down to a predefined set of resolutions
- * Resolution is in seconds
- * Returns the rounded resolution in seconds and aggregate string for InfluxDB2 query with appropriate units
- */
-fn round_resolution_ms(res_ms: f64) -> u64 {
-    match res_ms {
-        r if r < 100.0 => 10, // 10ms
-        r if r < 500.0 => 100, // 100ms
-        r if r < 1000.0 => 500, // 500ms
-        r if r < 10000.0 => 1000, // 1s
-        r if r < 60000.0 => 10000, // 10s
-        r if r < 600000.0 => 60000, // 1m
-        r if r < 3600000.0 => 600000, // 10m
-        r if r < 3600000.0 => 3600000, // 1h
-        _ => 3600000, // 1h
-    }
-}
 
 /**
  * Gets signal values, timestamp, and name.
@@ -197,77 +157,20 @@ async fn signal_tiles(
 
     let (start_utc, end_utc) = 
         if let (Some(s), Some(e)) = 
-            (rfc3339_to_utc(&start), rfc3339_to_utc(&end)) 
-        {
+        (rfc3339_to_utc(&start), rfc3339_to_utc(&end)) {
             (s, e)
         } else {
             return (StatusCode::BAD_REQUEST, "Bad date format, should be RFC3339 format".to_string());
         };
     
-    // resolution in seconds
-    let resolution_ms = round_resolution_ms((end_utc - start_utc).as_seconds_f64() * 1000.0 / (WINDOW_SIZE as f64));
-    let tile_duration_ms = TILE_SIZE * resolution_ms;
-    
-    // get tiles
-    let mut tiles_str: Vec<String> = Vec::new();
-    // floor start time to nearest tile duration
-    let mut tile_start = 
-        match DateTime::from_timestamp_millis(
-            start_utc.timestamp_millis() - (start_utc.timestamp_millis() % tile_duration_ms as i64)
-        ){
-            Some(t) => t,
-            None => {
-                return (StatusCode::INTERNAL_SERVER_ERROR, "Could not find start time for tile".to_string());
-            }
-        };
-    while tile_start < end_utc {
-        tiles_str.push(tile_start.to_rfc3339_opts(chrono::SecondsFormat::Millis, true));
-        tile_start = tile_start + Duration::from_millis(tile_duration_ms);
-    }
-
-    let get_tile_query = |tile_start: &String| -> String {
-        format!(r#"
-        import "date"
-        from(bucket: "{}")
-        |> range(start: {tile_start}, stop: date.add(d: {tile_duration_ms}ms, to: {tile_start}))
-        |> aggregateWindow(every: {resolution_ms}ms, fn: mean, createEmpty: false)
-        |> filter(fn: (r) => r["_measurement"] == "{}")
-        |> filter(fn: (r) => r["signal_name"] == "{signal}")"#
-        , &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement)
-    };
-
-    let mut tile_queries = Vec::new();
-    for tile_start in &tiles_str {
-        let query = state.influx_client.query::<InfluxRow>(
-            Some(influxdb2::models::Query::new(get_tile_query(tile_start)))
-        );
-        tile_queries.push(query);
-    }
-
-    let result = select! {
-        val = try_join_all(tile_queries) => {
-            match val {
-                Ok(res) => res.into_iter().flatten().collect::<Vec<InfluxRow>>(),
-                Err(e) => {
-                    return (StatusCode::INTERNAL_SERVER_ERROR, format!("InfluxDB query error: {e}"));
-                }
-            }
+    match get_signals(state.influx_client, state.signal_tile_cache, signal, start_utc, end_utc).await {
+        Ok(res) => {
+            return (StatusCode::OK, serde_json::to_string(&res).unwrap());
         },
-        _ = sleep(Duration::from_secs(INFLUX_QUERY_TIMEOUT_S)) => {
-            return (StatusCode::REQUEST_TIMEOUT, "InfluxDB query timed out!".to_string());
+        Err(e) => {
+            return e;
         }
     };
-    
-    let output = format!(
-        "duration_ms:{}\nresolution_ms:{}\nn_tiles:{}\ntiles:{:?}\nn_res:{}\n",
-        (end_utc - start_utc).as_seconds_f64() * 1000.0,
-        resolution_ms,
-        tiles_str.len(),
-        tiles_str,
-        result.len(),
-    );
-    println!("{}", output);
-    return (StatusCode::OK, serde_json::to_string(&result).unwrap());
 }
 
 async fn signal_csv() -> impl IntoResponse {
