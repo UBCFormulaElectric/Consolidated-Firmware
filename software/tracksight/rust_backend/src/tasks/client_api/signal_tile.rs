@@ -191,16 +191,5 @@ pub async fn get_signals(
             return Err((StatusCode::REQUEST_TIMEOUT, "InfluxDB query timed out!".to_string()));
         }
     };
-
-    let output = format!(
-        "duration_ms:{}\nresolution_ms:{}\nn_tiles:{}\ntiles:{:?}\nn_res:{}\nrow_bytes:{}",
-        (end - start).as_seconds_f64() * 1000.0,
-        resolution_ms,
-        tiles_str.len(),
-        tiles_str,
-        result.len(),
-        std::mem::size_of::<SignalRow>()
-    );
-    println!("{}", output);
     return Ok(result);
 }

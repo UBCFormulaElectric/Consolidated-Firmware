@@ -1,4 +1,4 @@
-use std::{collections::HashMap, time::Duration};
+use std::{alloc::System, collections::HashMap, mem, time::{Duration, SystemTime}};
 
 use axum::{Json, Router, extract::{Path, Query, State}, http::StatusCode, response::IntoResponse, routing::get};
 use jsoncan_rust::can_database::CanMessage;
@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use regex::Regex;
 use tokio::{select, time::sleep};
 
-use crate::{config::CONFIG, tasks::client_api::{AppState, signal_tile::{SignalRow, get_signals}}, utils::{rfc3339_to_utc, rfc3339_to_utc_str}};
+use crate::{config::CONFIG, dprintln, tasks::client_api::{AppState, signal_tile::{SignalRow, get_signals}}, utils::{rfc3339_to_utc, rfc3339_to_utc_str}};
 
 /**
  * Gets the list of all nodes (str) in the current parser.
@@ -154,7 +154,7 @@ async fn signal_tiles(
 ) -> impl IntoResponse {
     // todo optionally check if signal name is valid
     // todo actually cache the tiles
-
+    let start_time = SystemTime::now();
     let (start_utc, end_utc) = 
         if let (Some(s), Some(e)) = 
         (rfc3339_to_utc(&start), rfc3339_to_utc(&end)) {
@@ -163,8 +163,15 @@ async fn signal_tiles(
             return (StatusCode::BAD_REQUEST, "Bad date format, should be RFC3339 format".to_string());
         };
     
-    match get_signals(state.influx_client, state.signal_tile_cache, signal, start_utc, end_utc).await {
+    
+    match get_signals(state.influx_client, state.signal_tile_cache.clone(), signal, start_utc, end_utc).await {
         Ok(res) => {
+            dprintln!("Querying signals took {}ms", start_time.elapsed().unwrap().as_millis());
+            let total_size: usize = state.signal_tile_cache.iter().map(|entry| {
+                // Size of key + size of value + approximate per-entry overhead
+                mem::size_of_val(entry.key()) + mem::size_of_val(entry.value()) + 16
+            }).sum();
+            dprintln!("Current cache size in bytes: {}", total_size);
             return (StatusCode::OK, serde_json::to_string(&res).unwrap());
         },
         Err(e) => {
