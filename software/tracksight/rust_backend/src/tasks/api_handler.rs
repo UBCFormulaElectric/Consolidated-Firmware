@@ -1,6 +1,6 @@
 use std::sync::Arc;
 use axum::Router;
-use dashmap::DashMap;
+use moka::future::Cache;
 use tokio::select;
 use tokio::sync::RwLock;
 use tokio::net::TcpListener;
@@ -9,6 +9,7 @@ use jsoncan_rust::can_database::CanDatabase;
 use tower_http::cors::{CorsLayer, Any};
 use mdns_sd::{ServiceDaemon, ServiceInfo};
 
+use crate::tasks::client_api::signal_tile::LRU_CACHE_CAPACITY;
 #[allow(unused_imports)]
 use crate::utils::yellow;
 use crate::config::CONFIG;
@@ -64,7 +65,9 @@ pub async fn run_api_handler(
             &CONFIG.influxdb_token
         )),
 
-        signal_tile_cache: Arc::new(DashMap::new()),
+        signal_tile_cache: Cache::builder()
+            .max_capacity(LRU_CACHE_CAPACITY) // max number of tiles in cache, adjust as needed
+            .build(),
     };
 
     let cors = CorsLayer::new()

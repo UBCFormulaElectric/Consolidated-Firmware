@@ -167,9 +167,8 @@ async fn signal_tiles(
     match get_signals(state.influx_client, state.signal_tile_cache.clone(), signal, start_utc, end_utc).await {
         Ok(res) => {
             dprintln!("Querying signals took {}ms", start_time.elapsed().unwrap().as_millis());
-            let total_size: usize = state.signal_tile_cache.iter().map(|entry| {
-                // Size of key + size of value + approximate per-entry overhead
-                mem::size_of_val(entry.key()) + mem::size_of_val(entry.value()) + 16
+            let total_size: usize = state.signal_tile_cache.iter().map(|(key, value)| {
+                mem::size_of_val(&key) + mem::size_of_val(&value)
             }).sum();
             dprintln!("Current cache size in bytes: {}", total_size);
             return (StatusCode::OK, serde_json::to_string(&res).unwrap());

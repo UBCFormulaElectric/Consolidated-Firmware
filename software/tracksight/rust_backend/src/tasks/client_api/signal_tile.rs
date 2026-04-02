@@ -7,19 +7,15 @@ use std::{pin::Pin, sync::Arc, time::Duration};
 
 use axum::http::StatusCode;
 use chrono::{DateTime, FixedOffset, Utc};
-use dashmap::DashMap;
 use futures::future::{ready, try_join_all};
 use influxdb2::{FromDataPoint, RequestError, models::Query};
+use moka::future::Cache;
 use serde::Serialize;
 use tokio::{select, time::sleep};
 
 use crate::{config::CONFIG, dprintln};
 
 const INFLUX_QUERY_TIMEOUT_S: u64 = 5;
-
-pub type SignalTileCache = Arc<DashMap<SignalTileKey, Vec<SignalTilePoint>>>;
-
-type SignalFuture = Pin<Box<dyn Future<Output = Result<Vec<SignalRow>, RequestError>> + Send>>;
 
 /**
  * The row for each signal value returned from InfluxDB
@@ -35,13 +31,32 @@ pub struct SignalRow {
     signal_name: String,
 }
 
-
 // time interval [a, b] -> bucket sizes/resolution based on max points, round to finer resolution (round down)
 // resolution -> tiles (based on predefined buckets (# of points) per tile, hence tilewidth)
 // with each tile, check cache
 // return data and possibly metadata about tiles and resolution
-const WINDOW_SIZE: u64 = 2096; // (min) number of points per query given start and end
-const TILE_SIZE: u64 = 512; // number of points per tile
+/**
+ * This determines the minimum number of points to fetch given time window
+ * This also dictates API latency for fresh data, i.e. cache misses
+ */
+const WINDOW_SIZE: u64 = 2096;
+/**
+ * Number of points per tile, each point being 16 bytes 
+ * This dictates size of cache, as well as performance of fetching missed tiles
+ */
+const TILE_SIZE: u64 = 512; 
+/**
+ * LRU cache size
+ * This determines the absolute max size in memory
+ * Currently about 4096*512*8 bytes = 16mb
+ */
+pub const LRU_CACHE_CAPACITY: u64 = 4096;
+pub type SignalTileCache = Cache<SignalTileKey, Vec<SignalTilePoint>>;
+
+/**
+ * Used to clump results from cache hits and misses
+ */
+type SignalFuture = Pin<Box<dyn Future<Output = Result<Vec<SignalRow>, RequestError>> + Send>>;
 
 /**
  * Used to group tile data so that strings and resolutions aren't repeated
@@ -54,11 +69,11 @@ pub struct SignalTileKey {
 }
 
 /**
- * Values stores in a tile
+ * Values stores in a tile, where time is UTC millis
  */
 #[derive(Clone)]
 pub struct SignalTilePoint {
-    time: DateTime<FixedOffset>,
+    time_utc_ms: i64,
     value: f64,
 }
 
@@ -133,19 +148,30 @@ pub async fn get_signals(
             resolution_ms
         };
 
-        let cache_fetch = signal_tile_cache.get(&tile_key).map(|r| r.clone());
+        let cache_fetch = signal_tile_cache.get(&tile_key).await;
         match cache_fetch {
             Some(cached_tile) => {
                 dprintln!("Cache hit! Tile starting at {} with res {}", 
-                tile_start.to_rfc3339_opts(chrono::SecondsFormat::Millis, true), 
-                resolution_ms
-            );
-            // Don't need to asynchronize the transformation process unless tile sizes are super large like 10k
-                let signal_rows = cached_tile.into_iter().map(|point| SignalRow {
-                    time: point.time,
-                    value: point.value,
-                    measurement: CONFIG.influxdb_measurement.clone(),
-                    signal_name: signal.clone(),
+                    tile_start.to_rfc3339_opts(chrono::SecondsFormat::Millis, true), 
+                    resolution_ms
+                );
+                // Don't need to asynchronize the transformation process unless tile sizes are super large like 10k
+                let signal_rows = cached_tile.into_iter().filter_map(|point| {
+                    // Just a sanity check, otherwise something has gone very wrong with the timestamp
+                    let time_utc = DateTime::from_timestamp_millis(point.time_utc_ms);
+                    if time_utc.is_none() {
+                        eprintln!("Invalid time in cache for tile starting at {} with res {}, skipping point with time {}", 
+                            tile_start.to_rfc3339_opts(chrono::SecondsFormat::Millis, true), 
+                            resolution_ms,
+                            point.time_utc_ms
+                        );
+                    }
+                    Some(SignalRow {
+                        time: time_utc?.into(),
+                        value: point.value,
+                        measurement: CONFIG.influxdb_measurement.clone(),
+                        signal_name: signal.clone(),
+                    })
                 }).collect::<Vec<SignalRow>>();
                 tile_queries.push(Box::pin(ready(Ok(signal_rows))));
             }
@@ -166,10 +192,10 @@ pub async fn get_signals(
                     cache_clone.insert(
                         tile_key, 
                         signal_rows.iter().map(|row| SignalTilePoint {
-                            time: row.time,
+                            time_utc_ms: row.time.timestamp_millis(),
                             value: row.value,
                         }).collect::<Vec<SignalTilePoint>>()
-                    );
+                    ).await;
 
                     Ok(signal_rows)
                 };
