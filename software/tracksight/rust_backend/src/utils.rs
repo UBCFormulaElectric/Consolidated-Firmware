@@ -68,21 +68,20 @@ macro_rules! dprintln {
 }
 
 pub fn rfc3339_to_utc(str: &String) -> Option<DateTime<Utc>> {
-    let offset_re = Regex::new(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}$").unwrap();
-    let utc_re = Regex::new(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$").unwrap();
+    let rfc3339_re = Regex::new(r"^((?:(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2}(?:\.\d+)?))(Z|[\+-]\d{2}:\d{2})?)$").unwrap();
 
-    if offset_re.is_match(str) || utc_re.is_match(str) {
-        match str.parse::<DateTime<FixedOffset>>() {
-            Ok(local) => {
-                return Some(local.with_timezone(&Utc));
-            }
-            Err(_) => {
-                return None;
-            }
-        }
+    if !rfc3339_re.is_match(str) {
+        return None;
     }
 
-    return None;
+    match str.parse::<DateTime<FixedOffset>>() {
+        Ok(local) => {
+            return Some(local.with_timezone(&Utc));
+        }
+        Err(_) => {
+            return None;
+        }
+    }
 }
 
 /**
