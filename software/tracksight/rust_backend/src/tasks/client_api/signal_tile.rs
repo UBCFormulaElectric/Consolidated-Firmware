@@ -3,7 +3,7 @@
     TBH a lot of these could probably be implemented with a few libraries but this is pretty cool
 */
 
-use std::{pin::Pin, sync::Arc, time::Duration};
+use std::{pin::Pin, sync::Arc, time::{Duration, SystemTime, UNIX_EPOCH}};
 
 use axum::http::StatusCode;
 use chrono::{DateTime, FixedOffset, Utc};
@@ -79,21 +79,22 @@ pub struct SignalTilePoint {
 
 /**
  * Round the bucket resolution down to a predefined set of resolutions
- * Resolution is in seconds
- * Returns the rounded resolution in seconds and aggregate string for InfluxDB2 query with appropriate units
+ * For resolutions too small or too large, round to smallest or largest resolution respectively
+ * Otherwise, always round down to nearest resolution
  */
+const RESOLUTIONS_MS: [u64; 8] = [10, 100, 500, 1000, 10000, 60000, 600000, 3600000];
 fn round_resolution_ms(res_ms: f64) -> u64 {
-    match res_ms {
-        r if r < 100.0 => 10, // 10ms
-        r if r < 500.0 => 100, // 100ms
-        r if r < 1000.0 => 500, // 500ms
-        r if r < 10000.0 => 1000, // 1s
-        r if r < 60000.0 => 10000, // 10s
-        r if r < 600000.0 => 60000, // 1m
-        r if r < 3600000.0 => 600000, // 10m
-        r if r < 3600000.0 => 3600000, // 1h
-        _ => 3600000, // 1h
+    if res_ms < RESOLUTIONS_MS[0] as f64 {
+        return RESOLUTIONS_MS[0];
     }
+
+    for i in 1..RESOLUTIONS_MS.len() {
+        if res_ms < RESOLUTIONS_MS[i] as f64 {
+            return RESOLUTIONS_MS[i-1];
+        }
+    }
+
+    return RESOLUTIONS_MS[RESOLUTIONS_MS.len() - 1];
 }
 
 /**
@@ -139,7 +140,9 @@ pub async fn get_signals(
         |> filter(fn: (r) => r["signal_name"] == "{signal}")"#
         , &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement)
     };
-
+    
+    // track current time in ms to prevent caching currently written tiles
+    let curr_time_ms = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis() as i64;
     let mut tile_queries: Vec<SignalFuture> = Vec::new();
     for tile_start in &tiles_str {
         let tile_key = SignalTileKey {
@@ -183,23 +186,28 @@ pub async fn get_signals(
                 let influx_clone = influx_client.clone();
                 let cache_clone = signal_tile_cache.clone();
                 let tile_query_str = get_tile_query(&tile_start);
-                let query = async move {
+                // make sure tile isn't currently being changed by checking it's end time
+                let tile_end_ms = tile_start.timestamp_millis() + tile_duration_ms as i64;
+                let query_block = async move {
                     let signal_rows = influx_clone.query::<SignalRow>(
                         Some(Query::new(tile_query_str))
                     ).await?;
 
                     // If fetch success, insert into cache
-                    cache_clone.insert(
-                        tile_key, 
-                        signal_rows.iter().map(|row| SignalTilePoint {
-                            time_utc_ms: row.time.timestamp_millis(),
-                            value: row.value,
-                        }).collect::<Vec<SignalTilePoint>>()
-                    ).await;
+                    if tile_end_ms < curr_time_ms {
+                        // tile is in the past, insert into cache
+                        cache_clone.insert(
+                            tile_key, 
+                            signal_rows.iter().map(|row| SignalTilePoint {
+                                time_utc_ms: row.time.timestamp_millis(),
+                                value: row.value,
+                            }).collect::<Vec<SignalTilePoint>>()
+                        ).await;
+                    }
 
                     Ok(signal_rows)
                 };
-                tile_queries.push(Box::pin(query));
+                tile_queries.push(Box::pin(query_block));
             }
         }
     }

@@ -51,7 +51,7 @@ macro_rules! error_println {
 #[macro_export]
 macro_rules! vprintln {
     ($($arg:tt)*) => {{
-        #[cfg(feature = "verbose")] {
+        if cfg!(feature = "verbose") {
             println!("{}", format!($($arg)*));
         }
     }};
@@ -61,7 +61,7 @@ macro_rules! vprintln {
 #[macro_export]
 macro_rules! dprintln {
     ($($arg:tt)*) => {{
-        #[cfg(feature = "debug")] {
+        if cfg!(feature = "debug") {
             println!("{}", format!($($arg)*));
         }
     }};
