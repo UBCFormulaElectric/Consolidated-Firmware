@@ -9,7 +9,19 @@ constexpr uint16_t CMD_CELL2 = 0x16;
 constexpr uint16_t CMD_CELL3 = 0x1A;
 constexpr uint16_t CMD_CELL4 = 0x1C;
 
-// register addresses 
+// Internal regulator adresses
+constexpr uint16_t REG0_CONFIG = 0x9237;
+constexpr uint16_t REG1_CONFIG = 0x9236;
+
+// Multifunction Pin Controls
+constexpr uint16_t ALERT = 0x092FC;
+
+// I2C
+constexpr uint16_t COMM_TYPE = 0x9239;
+constexpr uint16_t I2C_ADDY = 0x923A;
+
+// Vcell Mode 
+constexpr uint16_t VCELL_MODE = 0x9304;
 
 // command/subcommand addresses 
 constexpr uint16_t REG_LOWER     = 0x3E;
@@ -25,6 +37,9 @@ constexpr uint16_t CMD_CONTROL_STATUS = 0x00;
 constexpr uint16_t CMD_BATTERY_STATUS = 0x12;
 constexpr uint16_t CTRL_STATUS_DEEPSLEEP = (1 << 2);
 constexpr uint16_t BAT_STATUS_SLEEP      = (1 << 15);
+
+// CFG Check 
+constexpr uint16_t CFGUPDATE_STATUS = (1 << 0);
 
 // wake commands
 constexpr uint16_t CMD_WAKE_SLEEP     = 0x009A;
