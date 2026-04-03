@@ -14,6 +14,8 @@ const HISTORIC_WIDGET_STORAGE_KEY = "tracksight_historic_widgets_config_v1";
 const RESOLUTION_OPTIONS = ["1ms", "2s", "5s", "10s", "30s", "1m", "5m"] as const; // change later, we'll probably aim for x points on screen or something
 type Resolution = typeof RESOLUTION_OPTIONS[number];
 
+// TOOO: KEEP TRACK OF LOADED TIME RANGE AND ALLOW USER TO LOAD MORE DATA BUT DIFF THE TIMESTAMPS
+
 const getUtcDayRange = (date: Date) => {
     const year = date.getUTCFullYear();
     const month = date.getUTCMonth();

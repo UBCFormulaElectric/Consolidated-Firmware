@@ -14,6 +14,7 @@ export type SyncedGraphContext_t = {
 
     // mutations
     updateWithTimestamp(timestamp: number): void; // NOTE: PLEASE CALL THIS EVERY SINGLE TIME A NEW DATA POINT IS ADDED!!!
+    setTimeRange(range: TimeRange, fitViewport?: boolean): void;
 
     // transformations
     timeToX(t: number): number;
@@ -35,7 +36,6 @@ export function useSyncedGraph() {
 }
 
 const RIGHT_PAD = 10;
-const MIN_SCALE_PX_PER_SEC = 0.001;
 const MAX_SCALE_PX_PER_SEC = 10000;
 
 function useSuppressScrollWhileLocked(containerRef: RefObject<HTMLDivElement | null>) {
@@ -114,6 +114,23 @@ export default function SyncedGraphContainer({ children, initialTimeRange }: Syn
         }
     }, [updateGraphWidth])
 
+    const setTimeRange = useCallback((range: TimeRange, fitViewport = false) => {
+        globalTimeRangeRef.current = range;
+
+        if (fitViewport) {
+            const container = scrollContainerRef.current;
+            if (container) {
+                const timeRange = Math.max(range.max - range.min, 1);
+                const availableWidth = Math.max(container.clientWidth - RIGHT_PAD, 1);
+                scalePxPerSecRef.current = availableWidth / timeRange;
+                scrollLeftRef.current = 0;
+                container.scrollLeft = 0;
+            }
+        }
+
+        updateGraphWidth();
+    }, [globalTimeRangeRef, scalePxPerSecRef, scrollContainerRef, scrollLeftRef, updateGraphWidth]);
+
     useEffect(() => { // init for historical graphs
         globalTimeRangeRef.current = initialTimeRange ?? null;
         updateGraphWidth();
@@ -149,7 +166,7 @@ export default function SyncedGraphContainer({ children, initialTimeRange }: Syn
 
             const prevScale = scalePxPerSecRef.current;
             const nextScale = Math.min(
-                Math.max(prevScale * Math.exp(deltaScale), MIN_SCALE_PX_PER_SEC),
+                Math.max(prevScale * Math.exp(deltaScale), Number.EPSILON),
                 MAX_SCALE_PX_PER_SEC
             );
             if (nextScale === prevScale) {
@@ -205,10 +222,11 @@ export default function SyncedGraphContainer({ children, initialTimeRange }: Syn
         hoverTimestampRef,
         globalTimeRangeRef,
         updateWithTimestamp,
+        setTimeRange,
         scrollLeftRef,
         timeToX,
         XToTime
-    }), [scalePxPerSecRef, hoverTimestampRef, globalTimeRangeRef, updateWithTimestamp, scrollLeftRef, timeToX, XToTime]);
+    }), [scalePxPerSecRef, hoverTimestampRef, globalTimeRangeRef, updateWithTimestamp, setTimeRange, scrollLeftRef, timeToX, XToTime]);
 
     return (
         <SyncedGraphContext.Provider value={CTXVAL}>
