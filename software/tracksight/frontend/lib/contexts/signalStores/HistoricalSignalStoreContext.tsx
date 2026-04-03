@@ -17,7 +17,7 @@ type HistoricalSignalStoreProviderProps = {
 export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStoreProvider(props: HistoricalSignalStoreProviderProps) {
     const { children, startUtcMs, endUtcMs, resolution } = props;
     const { widgets } = useWidgetManager();
-    const { updateWithTimestamp } = useSyncedGraph();
+    const { updateWithTimestamp, setTimeRange } = useSyncedGraph();
     const signalStoreRef = useRef<HistoricalSignalStore>(null!);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -72,6 +72,16 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
                 signalStoreRef.current.hydrateSignal(result.value.signal, result.value.points);
             });
 
+            const allTimestamps = successes
+                .flatMap((result) => result.value.points)
+                .map((point) => point.timestampMs);
+
+            if (allTimestamps.length > 0) {
+                const minTimestamp = Math.min(...allTimestamps);
+                const maxTimestamp = Math.max(...allTimestamps);
+                setTimeRange({ min: minTimestamp, max: maxTimestamp }, true);
+            }
+
             if (failures.length > 0) {
                 let failString: string = "";
                 failures.forEach((failure) => {
@@ -89,7 +99,7 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
         return () => {
             isCancelled = true;
         };
-    }, [endUtcMs, resolution, selectedSignals, startUtcMs]);
+    }, [endUtcMs, resolution, selectedSignals, setTimeRange, startUtcMs]);
 
     return (
         <SignalDataStoreProvider signalStore={signalStoreRef}>
