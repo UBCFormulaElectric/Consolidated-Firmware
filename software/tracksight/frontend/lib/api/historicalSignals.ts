@@ -16,10 +16,6 @@ function toIsoUtcSeconds(timestampMs: number): string {
     return new Date(timestampMs).toISOString().slice(0, 19) + "Z";
 }
 
-function escapeRegexLiteral(value: string): string {
-    return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
 function parseHistoricalPayload(payloadText: string): HistoricalSignalRow[] {
     const parsed = JSON.parse(payloadText) as unknown;
     if (!Array.isArray(parsed)) {

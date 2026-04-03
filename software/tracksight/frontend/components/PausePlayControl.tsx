@@ -22,8 +22,21 @@ export function useDisplayControlContext() {
 
 const VIEWPORT_LOCK_STORAGE_KEY = 'tracksight_viewport_lock_state_v1'
 
-export function DisplayControlProvider({ children }: { children: ReactNode }) {
-    const [isViewportLocked, setIsViewportLocked] = useLocalState<boolean>(VIEWPORT_LOCK_STORAGE_KEY, true)
+type DisplayControlProviderProps = {
+    children: ReactNode
+    defaultViewportLocked?: boolean
+    viewportLockStorageKey?: string
+}
+
+export function DisplayControlProvider({
+    children,
+    defaultViewportLocked = true,
+    viewportLockStorageKey = VIEWPORT_LOCK_STORAGE_KEY,
+}: DisplayControlProviderProps) {
+    const [isViewportLocked, setIsViewportLocked] = useLocalState<boolean>(
+        viewportLockStorageKey,
+        defaultViewportLocked
+    )
 
     const toggleViewportLock = useCallback(() => {
         setIsViewportLocked((previousState) => !previousState)
