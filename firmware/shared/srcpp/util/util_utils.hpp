@@ -16,6 +16,7 @@
 #define CLAMP_TO_ONE(x) (((x) <= 0) ? 1 : ((x) > 1 ? 1 : (x))) // initialize to 1 if value is <=0
 #define SQUARE(x) ((x) * (x))
 #define IS_IN_RANGE(min, max, val) (((val) > (min)) && ((val) < (max)))
+#define SIGN(val) (int)(((val) > 0) ? 1 : (((val) < 0) ? -1 : 0))
 
 /* @brief Extract the basename from a file path */
 #ifdef _MSC_VER

@@ -64,6 +64,7 @@ inline constexpr uint16_t POWER_TO_TORQUE_CONVERSION_FACTOR = 9550; // 60/(2*pi)
 // POWER & THERMAL LIMITS
 // =============================================================================
 
+// TODO: Verify all of these
 // Power Limits
 inline constexpr float RULES_BASED_POWER_LIMIT_KW = 80.0f; // FSAE maximum allowed power
 inline constexpr float POWER_LIMIT_CAR_kW         = 40.0f; // TODO: Update with hexray constants or remove
@@ -87,7 +88,7 @@ inline constexpr float PID_POWER_FACTOR_MIN = -0.9f;   // TODO: May need adjustm
 inline constexpr float PID_POWER_FACTOR_MAX = 0.1f;    // TODO: May need adjustment
 
 // =============================================================================
-// TIRE & TRACTION PARAMETERS
+// WHEEL AND STEERING PARAMETERS
 // =============================================================================
 
 inline constexpr float SLIP_RATIO_IDEAL = 0.05f; // Ideal slip ratio for maximum traction
@@ -95,6 +96,15 @@ inline constexpr float SLIP_RATIO_IDEAL = 0.05f; // Ideal slip ratio for maximum
 inline constexpr float APPROX_STEERING_TO_WHEEL_ANGLE = 0.3f;
 // Note: Underestimate for wheel angles > 40° (see Confluence/Steering System)
 inline constexpr float MAX_AX_MPS2 = 30; // TODO idk this number bruh
+inline constexpr float STEER_RATIO         = M_PI_F; // TODO: Verify
+inline constexpr float ACKERMAN_PERCENTAGE = 150.0f / 100.0f;
+
+// Note: Bump camber is the amount the camber changes in degrees due to compression
+inline constexpr float STATIC_CAMBER_FRONT_deg  = -1.0f;
+inline constexpr float FRONT_BUMP_CAMBER_deg_mm = 0.02f;
+
+inline constexpr float STATIC_CAMBER_REAR_deg  = -0.75f;
+inline constexpr float REAR_BUMP_CAMBER_deg_mm = 0.06f;
 
 // =============================================================================
 // UTILITY FUNCTIONS & CONVERSION HELPERS
