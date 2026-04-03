@@ -1,4 +1,4 @@
-pub mod clients;
+pub mod subtable_clients;
 pub mod subtable_api_handler;
 pub mod signal_api_handler;
 pub mod signal_tile;
@@ -7,7 +7,7 @@ pub mod signal_tile;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use jsoncan_rust::can_database::CanDatabase;
-use crate::tasks::client_api::{clients::Clients, signal_tile::SignalTileCache};
+use crate::tasks::client_api::{subtable_clients::Clients, signal_tile::SignalTileCache};
 
 #[derive(Clone)]
 pub struct AppState {

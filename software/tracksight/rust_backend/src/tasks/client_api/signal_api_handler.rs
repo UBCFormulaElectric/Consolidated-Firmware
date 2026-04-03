@@ -1,4 +1,4 @@
-use std::{alloc::System, collections::HashMap, mem, time::{Duration, SystemTime}};
+use std::{collections::HashMap, mem, time::{Duration, SystemTime}};
 
 use axum::{Json, Router, extract::{Path, Query, State}, http::StatusCode, response::IntoResponse, routing::get};
 use jsoncan_rust::can_database::CanMessage;
