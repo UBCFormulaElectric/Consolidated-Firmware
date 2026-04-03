@@ -4,13 +4,14 @@ import { useMemo, useState } from "react";
 
 import DataDashboard from "@/components/DataDashboard";
 import CalendarDropdown from "@/components/icons/CalendarDropdown";
-import { ViewportLockButton, DisplayControlProvider } from "@/components/PausePlayControl";
+import { DisplayControlProvider } from "@/components/PausePlayControl";
 import SyncedGraphContainer from "@/components/SyncedGraphContainer";
 import { WidgetManager, useWidgetManager } from "@/components/widgets/WidgetManagerContext";
 import { WidgetAdder } from "@/app/live/WidgetAdder";
 import { HistoricalSignalStoreProvider } from "@/lib/contexts/signalStores/HistoricalSignalStoreContext";
 
 const HISTORIC_WIDGET_STORAGE_KEY = "tracksight_historic_widgets_config_v1";
+const HISTORIC_VIEWPORT_LOCK_STORAGE_KEY = "tracksight_historic_viewport_lock_state_v1";
 
 // TOOO: KEEP TRACK OF LOADED TIME RANGE AND ALLOW USER TO LOAD MORE DATA BUT DIFF THE TIMESTAMPS
 
@@ -51,12 +52,13 @@ export default function Historic() {
     const selectedRange = useMemo(() => getUtcDayRange(selectedDate), [selectedDate]);
 
     return (
-        <DisplayControlProvider>
+        <DisplayControlProvider
+            defaultViewportLocked={false}
+            viewportLockStorageKey={HISTORIC_VIEWPORT_LOCK_STORAGE_KEY}
+        >
             <div className="pt-14 h-screen bg">
                 <div className="mx-4 mb-4 flex items-center gap-4">
                     <CalendarDropdown selectedDate={selectedDate} onDateSelect={setSelectedDate} />
-
-                    <ViewportLockButton />
                 </div>
 
                 <div className="mx-4 mb-3 text-sm font-medium text-gray-600">
