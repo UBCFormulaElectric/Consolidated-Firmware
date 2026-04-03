@@ -11,11 +11,10 @@ type HistoricalSignalStoreProviderProps = {
     children: React.ReactNode;
     startUtcMs: number;
     endUtcMs: number;
-    resolution: string;
 };
 
 export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStoreProvider(props: HistoricalSignalStoreProviderProps) {
-    const { children, startUtcMs, endUtcMs, resolution } = props;
+    const { children, startUtcMs, endUtcMs } = props;
     const { widgets } = useWidgetManager();
     const { updateWithTimestamp, setTimeRange } = useSyncedGraph();
     const signalStoreRef = useRef<HistoricalSignalStore>(null!);
@@ -56,7 +55,6 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
                         signalName: signal.name,
                         startUtcMs,
                         endUtcMs,
-                        resolution,
                     }),
                 }))
             );
@@ -99,7 +97,7 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
         return () => {
             isCancelled = true;
         };
-    }, [endUtcMs, resolution, selectedSignals, setTimeRange, startUtcMs]);
+    }, [endUtcMs, selectedSignals, setTimeRange, startUtcMs]);
 
     return (
         <SignalDataStoreProvider signalStore={signalStoreRef}>
