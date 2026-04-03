@@ -32,14 +32,13 @@ export async function fetchHistoricalSignal(params: {
     signalName: string;
     startUtcMs: number;
     endUtcMs: number;
-    resolution: string;
 }): Promise<HistoricalSignalPoint[]> {
-    const { signalName, startUtcMs, endUtcMs, resolution } = params;
+    const { signalName, startUtcMs, endUtcMs } = params;
 
     const start = toIsoUtcSeconds(startUtcMs);
     const end = toIsoUtcSeconds(endUtcMs);
-    const exactRegex = `(?:^${escapeRegexLiteral(signalName)}$)`;
-    const url = `${API_BASE_URL}/api/v1/signal/${encodeURIComponent(start)}/${encodeURIComponent(end)}/${encodeURIComponent(resolution)}?name=${encodeURIComponent(exactRegex)}`;
+    const url = `${API_BASE_URL}/api/v1/signal/tiles/${signalName}/${start}/${end}`;
+    console.log(url);
 
     const response = await fetch(url, {
         cache: "no-store",
