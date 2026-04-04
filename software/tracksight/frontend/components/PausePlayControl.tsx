@@ -62,7 +62,7 @@ function ControlButton(props: {
         <button
             onClick={props.onClick}
             className={cn(
-                "size-16 p-4 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg border-2 hover:scale-105 active:scale-95 cursor-pointer",
+                "size-16 p-4 rounded-full flex items-center justify-center transition-all duration-200 border-2 hover:scale-105 active:scale-95 cursor-pointer",
                 props.className
             )}
             title={props.title}

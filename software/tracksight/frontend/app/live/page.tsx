@@ -44,7 +44,7 @@ export default function LiveDataPage() {
     return (
         <div id="live-page" className="h-[calc(100vh-72px)]">
             <DisplayControlProvider>
-                <div className="sticky top-15 z-10 mr-auto ml-2">
+                <div className="sticky top-20 z-10 mr-auto ml-2">
                     <ViewportLockButton />
                 </div>
                 <SyncedGraphContainer>
