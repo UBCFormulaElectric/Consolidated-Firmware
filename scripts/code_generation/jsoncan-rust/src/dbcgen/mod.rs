@@ -26,7 +26,7 @@ impl DBCTemplate<'_> {
             })
             .cloned()
             .collect::<Vec<String>>()
-            .join(" ")
+            .join(",")
     }
 
     fn enumfuckshit(self: &Self, enum_name: &str) -> String {
