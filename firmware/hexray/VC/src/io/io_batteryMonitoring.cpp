@@ -313,6 +313,24 @@ std::expected<uint16_t, ErrorCode> get_voltage(std::span<uint8_t> voltage_cell)
     uint16_t voltage = (uint16_t)(voltage_buffer[0] | (voltage_buffer[1] << 8));
     return voltage;
 }
+
+std::expected<uint16_t, ErrorCode> raw_voltages_and_currents(int cell_num, int measurement_type) 
+{
+    std::span<uint8_t> raw_reading[8];
+    uint8_t reading;
+    read_subcommand(0x0071, volatge_and_current);
+
+    if (measurement_type == CURRENT)
+    {
+        reading = uint8_t((volatge_and_current[cell_num]) & 0x0F);
+    }
+    else 
+    {
+        reading = uint8_t((volatge_and_current[cell_num] >> 0x04) & 0x0F);
+    }
+
+    return {};
+}
 //TODO: OTP configuration
 std::expected<void, ErrorCode> OTP(void)
 {

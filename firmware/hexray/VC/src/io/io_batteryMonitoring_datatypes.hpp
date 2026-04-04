@@ -4,6 +4,12 @@
 #include <cstdint>
 
 // MVolateg Measurement
+typedef enum 
+{
+    VOLTAGE,
+    CURRENT
+} Measurement;
+
 constexpr uint16_t CELL1_MV = 0x14;
 constexpr uint16_t CELL2_MV = 0x16;
 constexpr uint16_t CELL3_MV = 0x1A;
@@ -60,3 +66,8 @@ constexpr uint16_t EXIT_CFGUPDATE = 0x0092;
 // OTP
 constexpr uint16_t OTP_WR_CHECK = 0x00A0;
 constexpr uint16_t OTP_WRITE    = 0x00A1;
+
+// Synchronous voltage and current 
+constexpr uint16_t CMD_V_C_COUNT1 = 0x0071; // cell 1, 2, 3, 4
+constexpr uint16_t CMD_V_C_COUNT2 = 0x0072; // cell 5
+
