@@ -71,3 +71,13 @@ std::expected<float, ErrorCode> Imu::getGyroZ() const
 {
     return _gyro_z_fake;
 }
+
+std::expected<Imu::AccelData, ErrorCode> Imu::getAccelAll() const
+{
+    return AccelData{ _accel_x_fake, _accel_y_fake, _accel_z_fake };
+}
+
+std::expected<Imu::GyroData, ErrorCode> Imu::getGyroAll() const
+{
+    return GyroData{ _gyro_x_fake, _gyro_y_fake, _gyro_z_fake };
+}

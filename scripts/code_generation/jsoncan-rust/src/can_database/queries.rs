@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 
-use crate::can_database::{CanDatabase, CanMessage, CanSignal, CanSignalType, DecodedSignal, error::CanDBError};
+use crate::can_database::{
+    CanBusModes, CanDatabase, CanMessage, CanSignal, CanSignalType, DecodedSignal,
+    error::CanDBError,
+};
 
 impl CanDatabase {
     pub fn get_message_by_node(
@@ -22,7 +25,10 @@ impl CanDatabase {
                 log_cycle_time: row.get(4).unwrap_or_default(), // INCREDIBLY SUS
                 telem_cycle_time: row.get(5).unwrap_or_default(), // INCREDIBLY SUSSY
                 tx_node_name: row.get(6)?,
-                modes: serde_json::from_str::<Vec<String>>(&row.get::<_, String>(7)?).unwrap(),
+                modes: match row.get::<_, String>(7)?.as_str() {
+                    "" => CanBusModes::All,
+                    mode_str => CanBusModes::Some(serde_json::from_str(mode_str).unwrap()),
+                },
                 signals: self.get_signals_for_message(row.get(1)?).unwrap(),
             })
         }) {
@@ -49,7 +55,7 @@ impl CanDatabase {
         let mut s = binding
             .prepare("SELECT * FROM signals WHERE message_id = ?1")
             .unwrap();
-        
+
         match s.query_map([message_id], |row| {
             Ok(CanSignal {
                 name: row.get(0)?,
@@ -97,7 +103,8 @@ impl CanDatabase {
             .prepare("SELECT id FROM messages WHERE tx_node_name != ?1")
             .unwrap();
 
-        let res = s.query_map([node_name], |row| Ok(row.get::<_, u32>(0)?))
+        let res = s
+            .query_map([node_name], |row| Ok(row.get::<_, u32>(0)?))
             .unwrap()
             .map(|res| res.unwrap())
             .collect();
@@ -120,7 +127,10 @@ impl CanDatabase {
                 log_cycle_time: row.get(4).unwrap_or_default(),
                 telem_cycle_time: row.get(5).unwrap_or_default(),
                 tx_node_name: row.get(6)?,
-                modes: serde_json::from_str::<Vec<String>>(&row.get::<_, String>(7)?).unwrap(),
+                modes: match row.get::<_, String>(7)?.as_str() {
+                    "" => CanBusModes::All,
+                    mode_str => CanBusModes::Some(serde_json::from_str(mode_str).unwrap()),
+                },
                 signals: self.get_signals_for_message(row.get(1)?).unwrap(),
             })
         }) {
@@ -169,7 +179,10 @@ impl CanDatabase {
                 log_cycle_time: row.get(4).unwrap_or_default(),
                 telem_cycle_time: row.get(5).unwrap_or_default(),
                 tx_node_name: row.get(6)?,
-                modes: serde_json::from_str::<Vec<String>>(&row.get::<_, String>(7)?).unwrap(),
+                modes: match row.get::<_, String>(7)?.as_str() {
+                    "" => CanBusModes::All,
+                    mode_str => CanBusModes::Some(serde_json::from_str(mode_str).unwrap()),
+                },
                 signals: self.get_signals_for_message(row.get(1)?).unwrap(),
             })
         }) {
@@ -183,6 +196,8 @@ impl CanDatabase {
         let mut s = binding.prepare("SELECT * FROM messages").unwrap();
 
         match s.query_map([], |row| {
+            let mut signals = self.get_signals_for_message(row.get(1)?).unwrap();
+            signals.sort_by(|a, b| a.start_bit.cmp(&b.start_bit));
             Ok(CanMessage {
                 name: row.get(0)?,
                 id: row.get(1)?,
@@ -191,8 +206,11 @@ impl CanDatabase {
                 log_cycle_time: row.get(4).unwrap_or_default(),
                 telem_cycle_time: row.get(5).unwrap_or_default(),
                 tx_node_name: row.get(6)?,
-                modes: serde_json::from_str::<Vec<String>>(&row.get::<_, String>(7)?).unwrap(),
-                signals: self.get_signals_for_message(row.get(1)?).unwrap(),
+                modes: match row.get::<_, String>(7)?.as_str() {
+                    "" => CanBusModes::All,
+                    mode_str => CanBusModes::Some(serde_json::from_str(mode_str).unwrap()),
+                },
+                signals,
             })
         }) {
             Err(e) => Err(CanDBError::SqlLiteError(e)),
@@ -200,11 +218,18 @@ impl CanDatabase {
         }
     }
 
-    pub fn pack(self: &Self, msg_name: &str, signals: &[DecodedSignal]) -> Result<(u32, Vec<u8>), CanDBError> {
+    pub fn pack(
+        self: &Self,
+        msg_name: &str,
+        signals: &[DecodedSignal],
+    ) -> Result<(u32, Vec<u8>), CanDBError> {
         let msg = match self.get_message_by_name(msg_name) {
             Ok(m) => m,
             Err(_) => {
-                eprintln!("Message named '{}' is not defined in the database.", msg_name);
+                eprintln!(
+                    "Message named '{}' is not defined in the database.",
+                    msg_name
+                );
                 return Err(CanDBError::SqlLiteError(rusqlite::Error::InvalidQuery));
             }
         };
@@ -220,7 +245,10 @@ impl CanDatabase {
             let signal = match signal_map.get(&decoded_signal.name) {
                 Some(s) => s,
                 None => {
-                    eprintln!("Signal named '{}' is not defined for message '{}'.", decoded_signal.name, msg.name);
+                    eprintln!(
+                        "Signal named '{}' is not defined for message '{}'.",
+                        decoded_signal.name, msg.name
+                    );
                     continue;
                 }
             };
@@ -266,12 +294,12 @@ impl CanDatabase {
             Ok(m) => m,
             Err(_) => {
                 eprintln!("Message ID {} not found in database", msg_id);
-                return Vec::new()
-            },
+                return Vec::new();
+            }
         };
 
         let mut decoded_signals: Vec<DecodedSignal> = Vec::new();
-        
+
         let mut buf = [0u8; 4];
         let len = data.len().min(4);
         buf[..len].copy_from_slice(&data[..len]);
@@ -290,7 +318,7 @@ impl CanDatabase {
                     val - (1 << signal.bits)
                 } else {
                     val
-                }         
+                }
             };
 
             // Apply scaling and offset
@@ -305,12 +333,14 @@ impl CanDatabase {
                 unit: signal.unit,
                 label: signal.enum_name.as_deref().and_then(|enum_name| {
                     self.get_enum(enum_name).and_then(|can_enum| {
-                        can_enum.values.iter()
+                        can_enum
+                            .values
+                            .iter()
                             .find(|(_, val)| **val as f64 == scaled_value)
                             .map(|(k, _)| k.clone())
                     })
                 }),
-                signal_type: signal.signal_type
+                signal_type: signal.signal_type,
             };
 
             if signal.enum_name.is_some() {
@@ -330,7 +360,7 @@ impl CanDatabase {
             Ok(b) => b,
             Err(_) => return false,
         };
-       
+
         let mut s = binding
             .prepare("SELECT COUNT(*) FROM signals WHERE name = ?1")
             .unwrap();

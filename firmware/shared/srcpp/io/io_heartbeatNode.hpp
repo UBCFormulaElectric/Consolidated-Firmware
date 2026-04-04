@@ -30,7 +30,6 @@ class node
     bool (*const fault_getter)();
     // fault broadcasters for each board's heartbeat from this board
     void (*const fault_setter)(bool);
-
     explicit node(
         bool (*const in_getter)(),
         void (*const in_resetter)(bool),

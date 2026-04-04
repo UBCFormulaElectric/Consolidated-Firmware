@@ -1,7 +1,7 @@
 // react
 import { RefObject } from "react";
 // constants
-import { ENUM_COLORS } from "@/components/widgets/depr/signalColors";
+import { ENUM_COLORS } from "@/lib/constants";
 // types
 import { SignalType } from "@/lib/types/Signal";
 import { ChartData, ChartLayout, EnumSeries, NumericalSeries } from "./CanvasChartTypes";

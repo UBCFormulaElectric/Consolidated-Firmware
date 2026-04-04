@@ -89,8 +89,8 @@ extern "C"
 #define nSTR_ANGLE_OCSC_GPIO_Port GPIOA
 #define IMU_CS_Pin GPIO_PIN_4
 #define IMU_CS_GPIO_Port GPIOA
-#define IMU_CSA5_Pin GPIO_PIN_5
-#define IMU_CSA5_GPIO_Port GPIOA
+#define IMU_SPC_Pin GPIO_PIN_5
+#define IMU_SPC_GPIO_Port GPIOA
 #define IMU_SDI_Pin GPIO_PIN_6
 #define IMU_SDI_GPIO_Port GPIOA
 #define IMU_SDO_Pin GPIO_PIN_7
@@ -107,6 +107,8 @@ extern "C"
 #define nSUSP_FL_OCSC_GPIO_Port GPIOC
 #define nSUSP_FR_OCSC_Pin GPIO_PIN_11
 #define nSUSP_FR_OCSC_GPIO_Port GPIOC
+#define D_P_PULLUP_Pin GPIO_PIN_2
+#define D_P_PULLUP_GPIO_Port GPIOD
 #define DEBUG_LED_Pin GPIO_PIN_4
 #define DEBUG_LED_GPIO_Port GPIOB
 #define BOOT_LED_Pin GPIO_PIN_5
