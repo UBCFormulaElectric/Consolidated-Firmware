@@ -1,10 +1,10 @@
 #pragma once
 
-namespace app::plim
+namespace app::clim
 {
 
 /**
  * @brief runs the power and current limit checking algorithm and updates all the current limit CAN messages
  */
 void broadcast();
-} // namespace app::plim
+} // namespace app::clim

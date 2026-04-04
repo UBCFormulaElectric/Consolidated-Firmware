@@ -15,17 +15,17 @@
     "CONTACTOR_STATE_OPEN": 0,
     "CONTACTOR_STATE_CLOSED": 1
   },
-  "DischargePowerLimitCondition": {
-    "NO_DISCHARGE_POWER_LIMIT": 0,
-    "HIGH_TEMP_DISCHARGE_POWER_LIMIT": 1,
-    "LOW_VOLT_DISCHARGE_POWER_LIMIT": 2,
-    "LOW_SOC_DISCHARGE_POWER_LIMIT": 3
+  "DischargeClimCondition": {
+    "NO_LIMIT": 0,
+    "HIGH_TEMPERATURE_LIMIT": 1,
+    "LOW_VOLTAGE_LIMIT": 2,
+    "LOW_SOC_LIMIT": 3
   },
-  "ChargePowerLimitCondition": {
-    "NO_CHARGE_POWER_LIMIT": 0,
-    "HIGH_TEMP_CHARGE_POWER_LIMIT": 1,
-    "LOW_TEMP_CHARGE_POWER_LIMIT": 2,
-    "HIGH_VOLT_CHARGE_POWER_LIMIT": 3
+  "ChargeClimCondition": {
+    "NO_LIMIT": 0,
+    "HIGH_TEMPERATURE_LIMIT": 1,
+    "HIGH_VOLTAGE_LIMIT": 2,
+    "HIGH_SOC_LIMIT": 3
   },
   "ImdConditionName": {
     "IMD_CONDITION_SHORT_CIRCUIT": 0,
