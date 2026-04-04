@@ -14,7 +14,7 @@ constexpr uint16_t REG0_CONFIG = 0x9237;
 constexpr uint16_t REG1_CONFIG = 0x9236;
 
 // Multifunction Pin Controls
-constexpr uint16_t ALERT = 0x092FC;
+constexpr uint16_t ALERT = 0x92FC;
 
 // I2C
 constexpr uint16_t COMM_TYPE = 0x9239;
@@ -37,6 +37,12 @@ constexpr uint16_t CMD_CONTROL_STATUS = 0x00;
 constexpr uint16_t CMD_BATTERY_STATUS = 0x12;
 constexpr uint16_t CTRL_STATUS_DEEPSLEEP = (1 << 2);
 constexpr uint16_t BAT_STATUS_SLEEP      = (1 << 15);
+
+// Security stuff
+constexpr uint16_t SECURITY_UNSEAL_FIRST  = 0x0414;
+constexpr uint16_t SECURITY_UNSEAL_SECOND = 0x3672;
+constexpr uint16_t FULL_ACCESS_EDIT     = 0x925D;
+constexpr uint16_t SECURITY_FULLACESS   = 0xFFFF; 
 
 // CFG Check 
 constexpr uint16_t CFGUPDATE_STATUS = (1 << 0);

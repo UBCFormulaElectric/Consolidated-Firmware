@@ -49,7 +49,7 @@ static std::expected<void, ErrorCode> write_transfer(uint16_t sub_cmd, std::span
     {
         sum += byte;
     }
-    uint8_t checksum = (uint8_t)(sum ^ 0xFF);
+    uint8_t checksum = static_cast<uint8_t>(0xFFu - (sum & 0x00FFu));;
 
     RETURN_IF_ERR(write_register_byte(REG_LOWER, low_byte));
     RETURN_IF_ERR(write_register_byte(REG_UPPER, high_byte));
@@ -121,7 +121,7 @@ static std::expected<void, ErrorCode> write_transfer(uint16_t sub_cmd, std::span
         sum += byte;
     }
 
-    uint8_t expected_checksum = (uint8_t)(sum ^ 0xFF);
+    uint8_t expected_checksum = static_cast<uint8_t>(0xFFu - (sum & 0x00FFu));
     if (received_checksum != expected_checksum)
     {
         return std::unexpected(ErrorCode::CHECKSUM_FAIL);
@@ -189,35 +189,17 @@ static std::expected<void, ErrorCode> write_data_memory(uint16_t addr, std::span
 
 std::expected<void, ErrorCode> init(void)
 {
-    /* TODO: For now i assumed that deviuce is in full acess mode.
-    read Battery Status
-    check SEC1/SEC0
-    if SEALED:
-        send unseal key step 1
-        send unseal key step 2
-        re-read Battery Status
-    if UNSEALED:
-        send full access key step 1
-        send full access key step 2
-        re-read Battery Status
-    if FULL ACCESS:
-        send SET_CFGUPDATE
-    */
-
     //The device exits SHUTDOWN when it detects a charger, a load detect (our batteries), changing volatge on TS pins? or wake pin. 
     io::time::delay(300);
     RETURN_IF_ERR(hw::i2c::bat_mon.isTargetReady()); // does not CONFIRM the device is out of SHUTDOWN
 
-    // Place the device into CONFIG_UPDATE mode by sending the 0x0090 SET_CFGUPDATE() subcommand. The device will 
-    // then automatically disable the protection FETs if they are enabled.
-
-    // Check for deepsleep & wakeup if neccesary
+   // Check for deepsleep & wakeup if neccesary
     uint16_t control_status = 0;
     RETURN_IF_ERR(read_register_word(CMD_CONTROL_STATUS, control_status));
     if (control_status & CTRL_STATUS_DEEPSLEEP) //the 2nd bit (DEEPSLEEP)
     {
-        RETURN_IF_ERR(write_subcommand(CMD_WAKE_DEEPSLEEP, std::span<const uint8_t>())); //send the SET_CFGUPDATE()
-        io::time::delay(5);
+        RETURN_IF_ERR(write_subcommand(CMD_WAKE_DEEPSLEEP, {})); //send the SET_CFGUPDATE()
+        io::time::delay(10);
     }
 
     // Check for regular sleep & wakeup if neccesary
@@ -225,27 +207,65 @@ std::expected<void, ErrorCode> init(void)
     RETURN_IF_ERR(read_register_word(CMD_BATTERY_STATUS, battery_status));
     if (battery_status & BAT_STATUS_SLEEP) //the MSB
     {
-        RETURN_IF_ERR(write_subcommand(CMD_WAKE_SLEEP, std::span<const uint8_t>()));
+        RETURN_IF_ERR(write_subcommand(CMD_WAKE_SLEEP, {}));
         io::time::delay(300);
     }
     //io::time::delay(10); // Wake up delay
 
-    // CONFIG UPDATE MODE
+    /*SECURITY MODES*/
+    uint16_t security_state;
+    RETURN_IF_ERR(read_register_word(CMD_BATTERY_STATUS, security_state));
+    security_state = ((security_state & 0x0300) >> 8);
+ 
+    uint16_t full_access = 0x1100; //idk anything but 0xFFFF
+    std::array<uint8_t, 2> full_access_bytes = {{static_cast<uint8_t>(full_access & 0x00FF), 
+    static_cast<uint8_t>((full_access >> 8) & 0x00FF)}};
+
+    RETURN_IF_ERR(write_data_memory(FULL_ACCESS_EDIT, full_access_bytes));
+ 
+    if (security_state == 0x3) 
+    {
+        RETURN_IF_ERR(write_subcommand(SECURITY_UNSEAL_FIRST, {}));
+        RETURN_IF_ERR(write_subcommand(SECURITY_UNSEAL_SECOND, {}));
+    }
+ 
+    RETURN_IF_ERR(read_register_word(CMD_BATTERY_STATUS, security_state));
+    security_state = ((security_state & 0x0300) >> 8);
+ 
+    if (security_state == 0x2) 
+    {
+        RETURN_IF_ERR(write_subcommand(SECURITY_FULLACESS, {}));
+        RETURN_IF_ERR(write_subcommand(full_access, {}));
+    }
+ 
+    RETURN_IF_ERR(read_register_word(CMD_BATTERY_STATUS, security_state));
+    security_state = ((security_state & 0x0300) >> 8);
+
+    /* Place the device into CONFIG_UPDATE mode by sending the 0x0090 SET_CFGUPDATE() subcommand. The device will 
+    then automatically disable the protection FETs if they are enabled. */
+
+    /*CONFIG UPDATE MODE*/
     // 1. Put device into configuration mode
-    RETURN_IF_ERR(write_subcommand(SET_CFGUPDATE, std::span<const uint8_t>()));
+    if (security_state == 0x1) 
+    {
+        RETURN_IF_ERR(write_subcommand(SET_CFGUPDATE, {}));
+    }
 
     // 2. Wait for the 0x12 Battery Status()[CFGUPDATE] flag to set.
     uint16_t cfgupdate_flag = 0;
     do {
-
         read_register_word(CMD_BATTERY_STATUS, cfgupdate_flag);
         cfgupdate_flag = cfgupdate_flag & CFGUPDATE_STATUS;
         io::time::delay(1);
     } while ((cfgupdate_flag & CFGUPDATE_STATUS) == 0);
 
-    // 3. Modify settings
-    // TODO: Calibration for each cell (TESTING PHASE)
 
+
+    // 3. Modify settings
+    // TODO: 
+    /* CALIBRATION (TESTING PHASE) */
+
+    /* CONFIGURATION */
     // REG0 needs to feed REG1, confugure first because we don't have external supply for REGIN 5V
     uint8_t reg0;
     RETURN_IF_ERR(read_data_memory(REG0_CONFIG, std::span<uint8_t>(&reg0, 1))); //0000000_(RSVD)_(EN)
@@ -268,10 +288,12 @@ std::expected<void, ErrorCode> init(void)
     uint8_t vcell_mode = 0x1B; //00011011
     RETURN_IF_ERR(write_data_memory(VCELL_MODE, std::span<const uint8_t>(&vcell_mode, 1)));
 
-    // Look into the power stuff
+    /* PROTECTION */
+
+
     
      // 4. Take device out of configuration mode 
-    RETURN_IF_ERR(write_subcommand(EXIT_CFGUPDATE, std::span<const uint8_t>()));
+    RETURN_IF_ERR(write_subcommand(EXIT_CFGUPDATE, {}));
 
     return {};
 }
@@ -292,7 +314,6 @@ std::expected<uint16_t, ErrorCode> get_voltage(std::span<uint8_t> voltage_cell)
     uint16_t voltage = (uint16_t)(voltage_buffer[0] | (voltage_buffer[1] << 8));
     return voltage;
 }
-
 //TODO: OTP configuration
 std::expected<void, ErrorCode> OTP(void)
 {
