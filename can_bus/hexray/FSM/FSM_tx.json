@@ -151,7 +151,7 @@
     }
   },
   "FmacDebug": {
-    "msg_id": 616,
+    "msg_id": 622,
     "cycle_time": 10,
     "description": "FMAC filter debug: raw vs filtered yaw rate for CANoe plotting",
     "signals": {
