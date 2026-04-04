@@ -3,11 +3,13 @@
 #pragma once
 #include <cstdint>
 
-// 4 cells, no need for CELLx (0x18)
-constexpr uint16_t CMD_CELL1 = 0x14;
-constexpr uint16_t CMD_CELL2 = 0x16;
-constexpr uint16_t CMD_CELL3 = 0x1A;
-constexpr uint16_t CMD_CELL4 = 0x1C;
+// MVolateg Measurement
+constexpr uint16_t CELL1_MV = 0x14;
+constexpr uint16_t CELL2_MV = 0x16;
+constexpr uint16_t CELL3_MV = 0x1A;
+constexpr uint16_t CELL4_MV = 0x1C;
+constexpr uint16_t PACK_MV  = 0x36;
+constexpr uint16_t LOAD_MV  = 0x38;
 
 // Internal regulator adresses
 constexpr uint16_t REG0_CONFIG = 0x9237;

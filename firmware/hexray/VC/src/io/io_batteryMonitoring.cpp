@@ -217,11 +217,11 @@ std::expected<void, ErrorCode> init(void)
     RETURN_IF_ERR(read_register_word(CMD_BATTERY_STATUS, security_state));
     security_state = ((security_state & 0x0300) >> 8);
  
-    uint16_t full_access = 0x1100; //idk anything but 0xFFFF
+    /* uint16_t full_access = 0x1100; //idk anything but 0xFFFF
     std::array<uint8_t, 2> full_access_bytes = {{static_cast<uint8_t>(full_access & 0x00FF), 
     static_cast<uint8_t>((full_access >> 8) & 0x00FF)}};
 
-    RETURN_IF_ERR(write_data_memory(FULL_ACCESS_EDIT, full_access_bytes));
+    RETURN_IF_ERR(write_data_memory(FULL_ACCESS_EDIT, full_access_bytes)); */
  
     if (security_state == 0x3) 
     {
@@ -235,7 +235,8 @@ std::expected<void, ErrorCode> init(void)
     if (security_state == 0x2) 
     {
         RETURN_IF_ERR(write_subcommand(SECURITY_FULLACESS, {}));
-        RETURN_IF_ERR(write_subcommand(full_access, {}));
+        RETURN_IF_ERR(write_subcommand(SECURITY_FULLACESS, {})); // look into ts
+        //RETURN_IF_ERR(write_subcommand(full_access, {}));
     }
  
     RETURN_IF_ERR(read_register_word(CMD_BATTERY_STATUS, security_state));
@@ -280,7 +281,7 @@ std::expected<void, ErrorCode> init(void)
     uint8_t i2c_addy = 0x10;
     RETURN_IF_ERR(write_data_memory(I2C_ADDY, std::span<const uint8_t>(&i2c_addy, 1)));
 
-    // ALERT
+    // ALERT: rmr to interpret this as nALERT on the MCU
     uint8_t alert = 0x2A; //00101010
     RETURN_IF_ERR(write_data_memory(ALERT, std::span<const uint8_t>(&alert, 1)));
 
@@ -289,8 +290,6 @@ std::expected<void, ErrorCode> init(void)
     RETURN_IF_ERR(write_data_memory(VCELL_MODE, std::span<const uint8_t>(&vcell_mode, 1)));
 
     /* PROTECTION */
-
-
     
      // 4. Take device out of configuration mode 
     RETURN_IF_ERR(write_subcommand(EXIT_CFGUPDATE, {}));
