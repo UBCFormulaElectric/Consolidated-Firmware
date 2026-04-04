@@ -23,13 +23,12 @@ namespace therm
             starting_temp_(starting_temp),
             resolution_(resolution),
             size_((size <= 0xFFFFU) ? (uint16_t)size : 0U),
-            valid_((size <= 0xFFFFU) && isStrictlyDescending(resistances, size))
+            valid_((size <= 0xFFFFU) && isNonIncreasing(resistances, size))
         {
             // Runtime check because `size` is not a compile-time constant here
             assert(size <= 0xFFFF && "LUT too large for uint16_t size");
 
-            // Binary search assumes strictly descending entries.
-            assert(valid_ && "Thermistor LUT must be strictly descending");
+            assert(valid_ && "Thermistor LUT must be non-increasing");
         }
 
         template <std::size_t N>
@@ -38,12 +37,11 @@ namespace therm
             starting_temp_(starting_temp),
             resolution_(resolution),
             size_((uint16_t)N),
-            valid_(isStrictlyDescending(arr, N))
+            valid_(isNonIncreasing(arr, N))
         {
             static_assert(N <= 0xFFFF, "LUT too large for uint16_t size");
 
-            // Binary search assumes strictly descending entries.
-            assert(valid_ && "Thermistor LUT must be strictly descending");
+            assert(valid_ && "Thermistor LUT must be non-increasing");
         }
 
         /**
@@ -123,14 +121,14 @@ namespace therm
         constexpr bool         valid() const noexcept { return valid_; }
 
       private:
-        static constexpr bool isStrictlyDescending(const float *resistances, std::size_t size) noexcept
+        static constexpr bool isNonIncreasing(const float *resistances, std::size_t size) noexcept
         {
             if (resistances == nullptr || size <= 1U)
                 return true;
 
             for (std::size_t i = 1U; i < size; ++i)
             {
-                if (!(resistances[i - 1U] > resistances[i]))
+                if (!(resistances[i - 1U] >= resistances[i]))
                     return false;
             }
 
