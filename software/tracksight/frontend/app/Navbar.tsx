@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 function Navbar() {
 
     // const [backendStatus, setBackendStatus] = useState(false);
-    const [isConnected, setIsConected] = useState<boolean>(socket.connected);
+    const [isConnected, setIsConected] = useState<boolean>(false);
 
     useEffect(() => {
         socket.on("connect", () => setIsConected(true));
@@ -22,9 +22,21 @@ function Navbar() {
                 <Link href="/">Home</Link>
                 <Link href="/live">Live Data</Link>
                 <Link href="/historic">Historical Data</Link>
-                <div className="ml-auto flex justify-center">Backend:
-                    {isConnected ? "green" : "red"}
+                <div className="ml-auto flex justify-center">
+                    {isConnected ?
+                        <div className="flex items-center gap-3 px-3 py-2 bg-green-100 border border-gray-200 rounded-lg">
+                            <div className="w-2 h-2 bg-green-500 rounded-full" />
+                            <div className="text-sm font-medium text-gray-600">Backend OK</div>
+                        </div>
+                        :
+                        <div className="flex items-center gap-3 px-3 py-2 bg-red-100 border border-gray-200 rounded-lg">
+                            <div className="w-2 h-2 bg-red-500 rounded-full" />
+                            <div className="text-sm font-medium text-gray-600">Backend Disconnected</div>
+                        </div>
+                    }
                 </div>
+
+
             </div>
         </nav>
     );
