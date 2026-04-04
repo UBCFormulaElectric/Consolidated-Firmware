@@ -2,12 +2,15 @@
 
 import Link from "next/link";
 import socket from "@/lib/realtime/socket";
+import { TriangleAlert } from "lucide-react";
 import { useEffect, useState } from "react";
 
-function Navbar() {
+const USE_MOCK_DATA = process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true";
 
-    // const [backendStatus, setBackendStatus] = useState(false);
+function Navbar() {
+ 
     const [isConnected, setIsConected] = useState<boolean>(false);
+    const [isUsingFrontendMockData] = useState<boolean>(USE_MOCK_DATA);
 
     useEffect(() => {
         socket.on("connect", () => setIsConected(true));
@@ -17,12 +20,16 @@ function Navbar() {
 
 
     return (
-        <nav className="fixed top-0 left-0 z-50 h-min w-screen bg-white border-b border-b-gray-200">
+        <nav className="sticky top-0 z-50 w-full bg-white border-b border-b-gray-200">
             <div className="flex flex-row items-center gap-6 select-none px-8 py-4">
                 <Link href="/">Home</Link>
                 <Link href="/live">Live Data</Link>
                 <Link href="/historic">Historical Data</Link>
-                <div className="ml-auto flex justify-center">
+                <div className="ml-auto flex">
+                    {isUsingFrontendMockData && <div className="flex items-center mr-2 gap-3 px-3 py-2 bg-amber-100 border border-gray-200 rounded-lg">
+                        <TriangleAlert size={14} />
+                        <div className="text-sm font-medium text-gray-600">Using Mock Data from Frontend</div>
+                    </div>}
                     {isConnected ?
                         <div className="flex items-center gap-3 px-3 py-2 bg-green-100 border border-gray-200 rounded-lg">
                             <div className="w-2 h-2 bg-green-500 rounded-full" />

@@ -56,7 +56,7 @@ export default function Historic() {
             defaultViewportLocked={false}
             viewportLockStorageKey={HISTORIC_VIEWPORT_LOCK_STORAGE_KEY}
         >
-            <div className="pt-14 h-screen bg">
+            <div className="h-[calc(100vh-72px)] bg">
                 <div className="mx-4 mb-4 flex items-center gap-4">
                     <CalendarDropdown selectedDate={selectedDate} onDateSelect={setSelectedDate} />
                 </div>
