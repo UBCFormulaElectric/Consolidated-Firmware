@@ -17,7 +17,7 @@ enum class ErrorCode
     NUM_EXIT_CODES,
 };
 
-constexpr std::string_view error_code_to_string(const ErrorCode code)
+constexpr const char *error_code_to_string(const ErrorCode code)
 {
     switch (code)
     {
@@ -70,7 +70,7 @@ void _log_if_err(
 {
     if (not out)
     {
-        LOG_ERROR("%s exited with an error: %s", err_expr, error_code_to_string(out.error()), loc);
+        LOG_ERROR({ "%s exited with an error: %s", loc }, err_expr, error_code_to_string(out.error()));
     }
 }
 // this needs to be a macro because it takes an expression and converts it to string
