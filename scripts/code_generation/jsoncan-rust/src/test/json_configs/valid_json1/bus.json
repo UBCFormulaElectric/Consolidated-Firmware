@@ -9,6 +9,11 @@
       "forwarder": "ECU1",
       "bus1": "can1",
       "bus2": "can2"
+    },
+    {
+      "forwarder": "ECU1",
+      "bus1": "can2",
+      "bus2": "can3"
     }
   ],
   "buses": [

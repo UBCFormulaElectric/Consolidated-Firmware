@@ -81,7 +81,8 @@ async fn flush_buffer(buffer: &mut Vec<DataPoint>, client: &Client) {
  */
 fn build_data_point(decoded_signal: DecodedSignal) -> Result<DataPoint, DataPointError> {
     DataPoint::builder(&CONFIG.influxdb_measurement)
-        .field(&decoded_signal.name, decoded_signal.value)
+        .field("_value", decoded_signal.value)
+        .tag("signal_name", &decoded_signal.name)
         .timestamp(decoded_signal.timestamp.unwrap_or_default() as i64)
         .build()
 }
