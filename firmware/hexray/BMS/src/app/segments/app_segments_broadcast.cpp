@@ -12,11 +12,11 @@ constexpr float convertRegToVoltage(uint16_t reg)
 }
 
 constexpr float convertRegToTemp(uint16_t reg) {
-    float voltage = convertRegToVoltage(reg);
-    float resistance = 10e3f * (voltage / (3.3f - voltage));
-    float inv_temp = (1.0f/298.15f) + (1.0f/3610.0f) * std::log(resistance/10e3f);
-    return (1.0f / inv_temp) - 273.15f;
-    //return convertRegToVoltage(reg);
+    // float voltage = convertRegToVoltage(reg);
+    // float resistance = 10e3f * (voltage / (3.0f - voltage));
+    // float inv_temp = (1.0f/298.15f) + (1.0f/3610.0f) * std::log(resistance/10e3f);
+    // return (1.0f / inv_temp) - 273.15f;
+    return convertRegToVoltage(reg);
 }
 
 namespace app::segments
@@ -33,7 +33,6 @@ void broadcastCellVoltages()
     CellParam candidate_max_cell_voltage = { .segment = 0, .cell = 0, .voltage = __FLT_MIN__, .temp = 0.0f  };
     CellParam candidate_min_cell_voltage = { .segment = 0, .cell = 0, .voltage = __FLT_MAX__, .temp = 0.0f };
    
-
     for (size_t seg = 0U; seg < io::NUM_SEGMENTS; seg++)
     {
         bool segment_comm_ok = false;
@@ -71,7 +70,6 @@ void broadcastCellVoltages()
 
     max_cell_voltage = candidate_max_cell_voltage;
     min_cell_voltage = candidate_min_cell_voltage;
-    
 }
 
 void broadcastFilteredCellVoltages()
@@ -106,7 +104,7 @@ void broadcastCellTemps() {
         bool segment_comm_ok = false;
         for (size_t mux = 0U; mux < static_cast<size_t> (ThermistorMux::THERMISTOR_MUX_COUNT); mux++) {
             for (size_t gpio = 0U; gpio < io::adbms::THERM_GPIOS_PER_SEGMENT; gpio++) {
-                size_t cell = gpio + mux * 7U;
+                size_t cell = gpio + mux * io::adbms::THERM_GPIOS_PER_SEGMENT;
                 if (cell >= io::CELLS_PER_SEGMENT) {
                     continue;
                 }
@@ -140,9 +138,13 @@ void broadcastCellTemps() {
     min_cell_temp = candidate_min_cell_temp;
 }
 
-void broadcastOpenWireCheck() {
+void broadcastStatus() {
+    
+}
+
+void broadcastCellOpenWireCheck() {
     for (size_t seg = 0U; seg < io::NUM_SEGMENTS; seg++) {
-        for (size_t gpio = 0U; cell < io::adbms::THERM_GPIOS_PER_SEGMENT; gpio++) {
+        for (size_t gpio = 0U; gpio < io::adbms::THERM_GPIOS_PER_SEGMENT; gpio++) {
             if (!therm_owc_odd_success[seg][gpio])
             {
                 therm_owc_ok[seg][gpio] = false;
@@ -155,7 +157,27 @@ void broadcastOpenWireCheck() {
                 therm_owc_setters[seg][gpio](false);
                 continue;
             }
-            //do ts
+            
+        }
+    }
+}
+
+void broadcastThermOpenWireCheck() {
+    for (size_t seg = 0U; seg < io::NUM_SEGMENTS; seg++) {
+        for (size_t gpio = 0U; gpio < io::adbms::THERM_GPIOS_PER_SEGMENT; gpio++) {
+            if (!therm_owc_odd_success[seg][gpio])
+            {
+                therm_owc_ok[seg][gpio] = false;
+                therm_owc_setters[seg][gpio](false);
+                continue;
+            }
+            if (!therm_owc_even_success[seg][gpio])
+            {
+                therm_owc_ok[seg][gpio] = false;
+                therm_owc_setters[seg][gpio](false);
+                continue;
+            }
+            
         }
     }
 }

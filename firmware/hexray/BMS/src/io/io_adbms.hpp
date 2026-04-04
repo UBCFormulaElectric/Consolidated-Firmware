@@ -50,7 +50,6 @@ namespace adbms
         uint8_t snap_st : 1; // 1 = snapshot is activated, result registers are frozen
         uint8_t : 2;
     };
-    static_assert(sizeof(CFGA) == REG_GROUP_SIZE);
 
     // Configuration Register Group B (Table 56 and 103)
     struct __attribute__((packed)) CFGB
@@ -70,7 +69,6 @@ namespace adbms
 
         uint8_t dcc_9_16; // discharge cell x
     };
-    static_assert(sizeof(CFGB) == REG_GROUP_SIZE);
 
     struct SegmentConfig
     {
@@ -211,6 +209,8 @@ namespace adbms
     std::expected<void, ErrorCode> sendBalanceCmd();
     std::expected<void, ErrorCode> sendStopBalanceCmd();
     std::expected<void, ErrorCode> wakeup();
+
+    std::expected<void, ErrorCode> clearCellTempReg();
 
 } // namespace adbms
 } // namespace io

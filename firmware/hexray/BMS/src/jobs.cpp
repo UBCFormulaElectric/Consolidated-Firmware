@@ -91,7 +91,6 @@ void jobs_runAdbmsFilteredVoltages_tick() {
     spi_bus_lock.take(io::MAX_TIMEOUT);
 
     LOG_IF_ERR(io::adbms::wakeup());
-    LOG_IF_ERR(app::segments::configSync());
     LOG_IF_ERR(app::segments::runFilteredVoltageConversion());  
 
     spi_bus_lock.give();
@@ -125,6 +124,26 @@ void jobs_runAdbmsDiagnostics_tick() {
     spi_bus_lock.take(io::MAX_TIMEOUT);
 
     LOG_IF_ERR(io::adbms::wakeup());
+    LOG_IF_ERR(app::segments::runStatusConversion());
+    LOG_IF_ERR(app::segments::runCellOpenWireCheck());
+    LOG_IF_ERR(app::segments::runThermOpenWireCheck());
+
+    spi_bus_lock.give();
+
+    adbms_app_lock.take(io::MAX_TIMEOUT);
+
+    app::segments::broadcastStatus();
+    app::segments::broadcastCellOpenWireCheck();
+    app::segments::broadcastThermOpenWireCheck();
+
+    adbms_app_lock.give();
+}
+
+void jobs_runAdbmsTest_tick() {
+    spi_bus_lock.take(io::MAX_TIMEOUT);
+    
+    app::segments::setDefaultConfig();
+    LOG_IF_ERR(io::adbms::wakeup());
     LOG_IF_ERR(app::segments::configSync());
 
     spi_bus_lock.give();
@@ -133,5 +152,5 @@ void jobs_runAdbmsDiagnostics_tick() {
 
 
 
-    adbms_app_lock.give();
+    adbms_app_lock.give();  
 }

@@ -101,7 +101,8 @@ using namespace hw::watchdog;
     forever
     {
         const uint32_t start_time = io::time::getCurrentMs();
-        jobs_runAdbmsVoltages_tick();
+        //jobs_runAdbmsVoltages_tick();
+        //jobs_runAdbmsTest_tick();
 
         // watchdog.checkIn();
         start_ticks += period_ms;
@@ -120,7 +121,7 @@ using namespace hw::watchdog;
     forever
     {
         const uint32_t start_time = io::time::getCurrentMs();
-        jobs_runAdbmsFilteredVoltages_tick();
+        //jobs_runAdbmsFilteredVoltages_tick();
 
         // watchdog.checkIn();
         start_ticks += period_ms;
@@ -158,7 +159,7 @@ using namespace hw::watchdog;
     forever
     {
         // const uint32_t start_time = io::time::getCurrentMs();
-        jobs_runAdbmsDiagnostics_tick();
+        //jobs_runAdbmsDiagnostics_tick();
 
         // watchdog.checkIn();
         start_ticks += period_ms;

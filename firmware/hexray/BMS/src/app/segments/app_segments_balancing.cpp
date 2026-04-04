@@ -61,7 +61,7 @@ static void updateCellsToBalance()
         }
     }
 
-    app::segments::setBalanceConfig(discharge_enabled);
+    app::segments::setBalanceConfig(discharge_enabled, true);
     app::segments::setPwmConfig(pwm_duty);
     app::segments::writeConfig();
 }
@@ -70,7 +70,7 @@ static void disableBalance()
 {
     memset(&discharge_enabled, 0, sizeof(discharge_enabled));
     memset(&pwm_duty, 0, sizeof(pwm_duty));
-    app::segments::setBalanceConfig(discharge_enabled);
+    app::segments::setBalanceConfig(discharge_enabled, false);
     app::segments::setPwmConfig(pwm_duty);
     app::segments::writeConfig();
 }

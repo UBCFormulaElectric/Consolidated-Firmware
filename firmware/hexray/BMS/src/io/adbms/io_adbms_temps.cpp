@@ -61,11 +61,6 @@ void readCellTempReg(
     {
         readRegGroup(reg_groups[group], reg_group, reg_group_success);
 
-        const size_t gpio_start    = group * GPIOS_PER_GROUP;
-        const size_t gpios_in_group = (gpio_start < THERM_GPIOS_PER_SEGMENT)
-            ? min<size_t>(GPIOS_PER_GROUP, THERM_GPIOS_PER_SEGMENT - gpio_start)
-            : 0U;
-
         for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
         {
             if (!reg_group_success[seg])
@@ -75,20 +70,22 @@ void readCellTempReg(
                 continue;
             }
 
-            for (size_t i = 0U; i < gpios_in_group; i++)
+            for (size_t gpio_in_group = 0U; gpio_in_group < GPIOS_PER_GROUP; gpio_in_group++)
             {
-                const size_t   gpio        = gpio_start + i;
-                const uint16_t low         = reg_group[seg][i * 2U];
-                const uint16_t high        = reg_group[seg][i * 2U + 1U];
-                const uint16_t temperature = static_cast<uint16_t>(low) | (static_cast<uint16_t>(high) << 8U);
+                const size_t gpio = group * GPIOS_PER_GROUP + gpio_in_group;
+                if (gpio < THERM_GPIOS_PER_SEGMENT)
+                {
+                    const uint16_t low         = reg_group[seg][gpio_in_group * 2U];
+                    const uint16_t high        = reg_group[seg][gpio_in_group * 2U + 1U];
+                    const uint16_t temperature = static_cast<uint16_t>(low) | (static_cast<uint16_t>(high) << 8U);
 
-                if (temperature == 0xFFFF || temperature == 0x8000)
-                {
-                    cell_temp_regs[seg][gpio] = 0U;
-                    comm_success[seg][gpio]   = std::unexpected(ErrorCode::ERROR);
-                }
-                else
-                {
+                    if (temperature == 0xFFFF || temperature == 0x8000)
+                    {
+                        cell_temp_regs[seg][gpio] = 0U;
+                        comm_success[seg][gpio]   = std::unexpected(ErrorCode::ERROR);
+                        continue;
+                    }
+
                     cell_temp_regs[seg][gpio] = temperature;
                     comm_success[seg][gpio]   = {};
                 }

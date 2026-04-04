@@ -31,7 +31,7 @@ void setDefaultConfig()
     }
 }
 
-void setBalanceConfig(array<array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> &balance_config)
+void setBalanceConfig(array<array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> &balance_config, bool balancing_enabled)
 {
     for (uint8_t seg = 0; seg < io::NUM_SEGMENTS; seg++)
     {
@@ -44,9 +44,15 @@ void setBalanceConfig(array<array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS
         {
             dcc_bits |= static_cast<uint16_t>((balance_config[seg][cell] ? 1U : 0U) << cell);
         }
+        if (balancing_enabled) {
+            reg_a.mute_st = 0x00;
+        } else {
+            reg_a.mute_st = 0x01;
+        }
 
         reg_b.dcc_1_8  = static_cast<uint8_t>(dcc_bits & 0xFF);
         reg_b.dcc_9_16 = static_cast<uint8_t>(dcc_bits >> 8 & 0xFF);
+     
     }
 }
 
@@ -73,15 +79,15 @@ void setThermistorConfig(ThermistorMux mux)
     {
         (void)reg_b;
 
-        if (mux == ThermistorMux::THERMISTOR_MUX_0_6)
+        if (mux == ThermistorMux::THERMISTOR_MUX_0_7)
         {
             reg_a.gpio_1_8  = 0xFF;
-            reg_a.gpio_9_10 = 0x03;
+            reg_a.gpio_9_10 = 0x02;
         }
         else
         {
-            reg_a.gpio_1_8  = 0x00;
-            reg_a.gpio_9_10 = 0x02;
+            reg_a.gpio_1_8  = 0xFF;
+            reg_a.gpio_9_10 = 0x03;
         }
     }
 }

@@ -9,7 +9,7 @@ using namespace app::segments;
 
 // check later
 static constexpr uint8_t VOLT_CONV_TIME_MS      = 2U;
-static constexpr uint8_t TEMP_CONV_TIME_MS      = 4U;
+static constexpr uint8_t AUX_CONV_TIME_MS      = 4U;
 static constexpr uint8_t OWC_CONVERSION_TIME_MS = 2U;
 
 namespace app::segments
@@ -42,7 +42,6 @@ array<expected<void, ErrorCode>, io::NUM_SEGMENTS>                              
 
 expected<void, ErrorCode> runVoltageConversion()
 {
-    setDefaultConfig();
     RETURN_IF_ERR(writeConfig());
     RETURN_IF_ERR(configSync());
     
@@ -54,7 +53,6 @@ expected<void, ErrorCode> runVoltageConversion()
 
 expected<void, ErrorCode> runFilteredVoltageConversion()
 {
-    setDefaultConfig();
     RETURN_IF_ERR(writeConfig());
     RETURN_IF_ERR(configSync());
     
@@ -69,13 +67,13 @@ expected<void, ErrorCode> runAuxConversion()
 {
     for (uint8_t mux_index = 0U; mux_index < static_cast<uint8_t>(ThermistorMux::THERMISTOR_MUX_COUNT); mux_index++)
     {
-        const ThermistorMux mux = static_cast<ThermistorMux>(mux_index);
-        setThermistorConfig(mux);
+        setDefaultConfig();
+        setThermistorConfig(static_cast<ThermistorMux>(mux_index));
         RETURN_IF_ERR(writeConfig());
-        RETURN_IF_ERR(configSync());
 
         RETURN_IF_ERR(io::adbms::startTempAdcConversion());
-        io::time::delay(TEMP_CONV_TIME_MS);
+        io::adbms::clearCellTempReg();
+        io::time::delay(AUX_CONV_TIME_MS);
         io::adbms::readCellTempReg(cell_temp_regs[mux_index], cell_temp_success[mux_index]);
     }
     return {};
@@ -85,7 +83,7 @@ expected<void, ErrorCode> runStatusConversion()
 {
     RETURN_IF_ERR(io::adbms::startCellsAdcConversion());
     RETURN_IF_ERR(io::adbms::startTempAdcConversion());
-    io::time::delay(TEMP_CONV_TIME_MS);
+    io::time::delay(AUX_CONV_TIME_MS);
     io::adbms::readStatusReg(stat_regs, stat_success);
     return {};
 }

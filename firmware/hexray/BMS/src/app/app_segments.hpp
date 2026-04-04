@@ -11,8 +11,8 @@ namespace app::segments
 {
 enum class ThermistorMux
 {
-    THERMISTOR_MUX_0_6,
-    THERMISTOR_MUX_7_13,
+    THERMISTOR_MUX_0_7,
+    THERMISTOR_MUX_8_13,
     THERMISTOR_MUX_COUNT,
 };
 
@@ -25,7 +25,7 @@ struct CellParam
 };
 
 void                      setDefaultConfig();
-void                      setBalanceConfig(array<array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> &balance_config);
+void                      setBalanceConfig(array<array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> &balance_config, bool balancing_enabled);
 void                      setPwmConfig(array<array<uint8_t, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> &pwm_duty);
 void                      setThermistorConfig(ThermistorMux mux);
 expected<void, ErrorCode> configSync();
@@ -36,6 +36,10 @@ void balancingTick(bool enable);
 void broadcastCellVoltages();
 void broadcastFilteredCellVoltages();
 void broadcastCellTemps();
+void broadcastStatus();
+void broadcastCellOpenWireCheck();
+void broadcastThermOpenWireCheck();
+
 
 float     getPackVoltage();
 CellParam getMaxCellVoltage();
@@ -47,5 +51,7 @@ expected<void, ErrorCode> runVoltageConversion();
 expected<void, ErrorCode> runFilteredVoltageConversion();
 expected<void, ErrorCode> runAuxConversion();
 expected<void, ErrorCode> runStatusConversion();
+expected<void, ErrorCode> runCellOpenWireCheck();
+expected<void, ErrorCode> runThermOpenWireCheck();
 
 } // namespace app::segments
