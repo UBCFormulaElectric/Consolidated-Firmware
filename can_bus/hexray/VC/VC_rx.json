@@ -1,5 +1,6 @@
 {
     "messages": [
+        "BMS_TractiveSystem",
         "BMS_Vitals",
         "FSM_Vitals",
         "RSM_Vitals",
