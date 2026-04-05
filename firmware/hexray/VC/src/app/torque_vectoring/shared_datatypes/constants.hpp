@@ -11,6 +11,12 @@ namespace app::tv::datatypes::vd_constants
 
 inline constexpr float GRAVITY       = 9.81f;     // m/s^2
 inline constexpr float SMALL_EPSILON = 0.000001f; // Numerical stability for division
+inline constexpr float FRONTAL_AREA_M2    = 0.94f;   // m^2 from aero team
+inline constexpr float AIR_DENSITY_KGPM3  = 1.2205f; // kg/m^3
+inline constexpr float LIFT_COEFF         = 1.7f;    // from aero team
+inline constexpr float DRAG_COEFF         = 0.92f;
+inline constexpr float COP_REAR           = 0.68f;   // fraction of aero load acting behind the CG
+inline constexpr float COP_RIGHT          = 0.5f;    // fraction of aero load acting on the right side
 
 // =============================================================================
 // VEHICLE DIMENSIONS
@@ -21,6 +27,7 @@ inline constexpr float WHEELBASE_m  = WHEELBASE_mm * MM_TO_M;
 
 inline constexpr float TRACK_WIDTH_mm = 1100.0f;
 inline constexpr float TRACK_WIDTH_m  = TRACK_WIDTH_mm * MM_TO_M;
+inline constexpr float WHEEL_RADIUS_M = WHEEL_DIAMETER_IN * IN_TO_M / 2.0f;
 
 // =============================================================================
 // VEHICLE MASS & CENTER OF GRAVITY
@@ -119,77 +126,6 @@ inline constexpr float APPROX_STEERING_TO_WHEEL_ANGLE =
     return (power * static_cast<float>(POWER_TO_TORQUE_CONVERSION_FACTOR)) / (std::fmax(rpm, 0.00001f) / GEAR_RATIO);
 }
 
-// =============================================================================
-// VEHICLE DYNAMICS - VERTICAL LOAD TRANSFER
-// Reference: https://www.zotero.org/groups/5809911/vehicle_controls_2024/items/N4TQBR67/reader
-// =============================================================================
-
-/**
- * Longitudinal load transfer component (page 21)
- * Positive long_accel transfers load to rear axle
- *
- * @param long_accel Longitudinal acceleration (m/s^2)
- * @return Load transfer force (N)
- */
-[[nodiscard]] inline constexpr float LONG_ACCEL_TERM_VERTICAL_FORCE(const float long_accel)
-{
-    return (CAR_MASS_AT_CG_KG * long_accel * DIST_HEIGHT_CG_m) / WHEELBASE_m;
-}
-
-/**
- * Lateral load transfer component (page 21)
- * Transfers load to outside wheels during cornering
- *
- * @param lat_accel Lateral acceleration (m/s^2)
- * @return Load transfer force per side (N)
- */
-[[nodiscard]] inline constexpr float LAT_ACCEL_TERM_VERTICAL_FORCE(const float lat_accel)
-{
-    return (CAR_MASS_AT_CG_KG * lat_accel * DIST_HEIGHT_CG_m) / (2.0f * TRACK_WIDTH_m);
-}
-
-[[nodiscard]] inline constexpr float REAR_RIGHT_WHEEL_VERTICAL_FORCE(const float long_accel, const float lat_accel)
-{
-    return REAR_WEIGHT_DISTRIBUTION + LONG_ACCEL_TERM_VERTICAL_FORCE(long_accel / 4.0f) +
-           LAT_ACCEL_TERM_VERTICAL_FORCE(lat_accel);
-}
-
-[[nodiscard]] inline constexpr float REAR_LEFT_WHEEL_VERTICAL_FORCE(const float long_accel, const float lat_accel)
-{
-    return REAR_WEIGHT_DISTRIBUTION + LONG_ACCEL_TERM_VERTICAL_FORCE(long_accel / 4.0f) -
-           LAT_ACCEL_TERM_VERTICAL_FORCE(lat_accel);
-}
-
-// TODO: Check if front wheels use rear weight or front weight distribution
-[[nodiscard]] inline constexpr float FRONT_RIGHT_WHEEL_VERTICAL_FORCE(const float long_accel, const float lat_accel)
-{
-    return REAR_WEIGHT_DISTRIBUTION + LONG_ACCEL_TERM_VERTICAL_FORCE(long_accel / 4.0f) +
-           LAT_ACCEL_TERM_VERTICAL_FORCE(lat_accel);
-}
-
-[[nodiscard]] inline constexpr float FRONT_LEFT_WHEEL_VERTICAL_FORCE(const float long_accel, const float lat_accel)
-{
-    return REAR_WEIGHT_DISTRIBUTION - LONG_ACCEL_TERM_VERTICAL_FORCE(long_accel / 4.0f) -
-           LAT_ACCEL_TERM_VERTICAL_FORCE(lat_accel);
-}
-
-/**
- * Yaw moment distribution factor Kmz (page 57)
- * Accounts for load transfer effect on yaw moment generation capacity
- *
- * @param long_accel Longitudinal acceleration (m/s^2)
- * @return Effective moment arm (m)
- */
-[[nodiscard]] inline constexpr float ACCELERATION_TERM_KMZ(const float long_accel)
-{
-    return DIST_FRONT_AXLE_CG_m + (long_accel * DIST_HEIGHT_CG_m) / GRAVITY;
-}
-
-/**
- * Moment scaling factor F (page 58)
- * Relates torque differential to yaw moment through track width and effective radius
- */
-inline constexpr float F = (TRACK_WIDTH_m / ((WHEEL_DIAMETER_IN / 2.0f) * 2.54f)) * GEAR_RATIO;
 
 // =============================================================================
 // EXTERNAL CONFIGURATION (Commented Out)

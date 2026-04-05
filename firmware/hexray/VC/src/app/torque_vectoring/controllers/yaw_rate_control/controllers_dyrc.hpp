@@ -21,7 +21,7 @@ namespace app::tv::controllers::dyrc
  *
  * @return The reference yaw rate to target in rad/s
  */
-[[nodiscard]] inline float computeRefYawRate(const float steer_ang_rad, const float body_velx_mps);
+[[nodiscard]] float computeRefYawRate(const float steer_ang_rad, const float body_velx_mps);
 
 /**
  * @brief Computes the corrective yaw moment to apply on the vehicle to target a reference yaw rate
@@ -34,8 +34,7 @@ namespace app::tv::controllers::dyrc
  *
  * @return The corrective yaw moment in Nm to apply on the vehicle
  */
-[[nodiscard]] inline float
-    computeYawMoment(const float r_actual_rad, const float steer_ang_rad, const float body_velx_mps);
+[[nodiscard]] float computeYawMoment(const float r_actual_rad, const float steer_ang_rad, const float body_velx_mps);
 
 // The functions below are getters for CAN debugging
 

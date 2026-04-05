@@ -3,6 +3,7 @@
 #include <cmath>
 
 #include "torque_vectoring/shared_datatypes/constants.hpp"
+#include "torque_vectoring/shared_datatypes/datatypes.hpp"
 
 namespace app::tv::estimation
 {
@@ -43,6 +44,7 @@ public:
         float slip_angle_rad       = 0.0f;
         float longitudinal_force_N = 0.0f;
         float lateral_force_N      = 0.0f;
+        float dFx_dKappa           = 0.0f; // ∂Fx/∂κ — sensitivity of longitudinal force to slip ratio
     };
 
     constexpr TireModel(const TirePressure tire_pressure, const WheelSide wheel_side, const WheelAxle wheel_axle)
@@ -55,8 +57,16 @@ public:
 
     [[nodiscard]] Outputs estimate(const StateInputs& inputs);
     [[nodiscard]] float slipRatioToWheelAngularVelocity(const float slip_ratio, const float wheel_vel_x_mps) const;
+    [[nodiscard]] float slipRatioToWheelAngularVelocity(
+        const float slip_ratio, const datatypes::datatypes::VehicleState& vehicle_state) const;
 
 private:
+    struct WheelVelocities
+    {
+        float x_mps = 0.0f;
+        float y_mps = 0.0f;
+    };
+
     struct TireCoefficents_Fy
     {
         float cy_1;
@@ -237,19 +247,18 @@ private:
         const float cornering_stiffness, const float shape_factor, const float peak_factor);
     [[nodiscard]] constexpr float pureFy_Sv(const float normal_load_N, const float normalized_load_delta) const;
     void pureFxMagicFormulaCoefficients(const float normal_load_N);
-    [[nodiscard]] constexpr float pure_Fx() const;
     void pureFyMagicFormulaCoefficients(const float normal_load_N);
     [[nodiscard]] constexpr float pure_Fy() const;
 
     [[nodiscard]] float wheelLongOffset_m() const;
     [[nodiscard]] float wheelLatOffset_m() const;
     [[nodiscard]] float wheelSteeringAngle_rad(const float steering_angle_rad) const;
-    void estimateWheelVelocities(float vehicle_velocity_x_mps, float vehicle_velocity_y_mps, float yaw_rate_radps);
+    [[nodiscard]] WheelVelocities wheelVelocities(
+        float vehicle_velocity_x_mps, float vehicle_velocity_y_mps, float yaw_rate_radps) const;
     void estimateSlipAngle(float steering_angle_rad);
     void estimateSlipRatio(const float wheel_angular_velocity_radps);
     void computePureLongitudinalForce(const float normal_load_N);
     void computePureLateralForce(const float normal_load_N);
-    void estimateForces(const float normal_load_N);
 
     const TireCoefficents_Fx coeff_fx_;
     const TireCoefficents_Fy coeff_fy_;

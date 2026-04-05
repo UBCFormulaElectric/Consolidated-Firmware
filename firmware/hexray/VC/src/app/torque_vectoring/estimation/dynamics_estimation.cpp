@@ -24,7 +24,34 @@ float vehicleDynamics::estimateBodySlip(float v_x_mps, float v_y_mps) const
     return std::atan2(v_y_mps, safeLongitudinalVelocity(v_x_mps));
 }
 
-vehicleDynamics::normal_force_t vehicleDynamics::estimateNormalForce_N(
+float vehicleDynamics::estimateYawMoment_Nm(
+    const app::tv::datatypes::datatypes::wheel_set& longitudinal_forces_N,
+    const app::tv::datatypes::datatypes::wheel_set& lateral_forces_N,
+    const float steering_angle_rad) const
+{
+    const float cos_delta = std::cos(steering_angle_rad);
+    const float sin_delta = std::sin(steering_angle_rad);
+    const float half_track_m = TRACK_WIDTH_m * 0.5f;
+
+    const float fl_fx_body = (cos_delta * longitudinal_forces_N.fl) - (sin_delta * lateral_forces_N.fl);
+    const float fl_fy_body = (sin_delta * longitudinal_forces_N.fl) + (cos_delta * lateral_forces_N.fl);
+    const float fr_fx_body = (cos_delta * longitudinal_forces_N.fr) - (sin_delta * lateral_forces_N.fr);
+    const float fr_fy_body = (sin_delta * longitudinal_forces_N.fr) + (cos_delta * lateral_forces_N.fr);
+
+    const float rl_fx_body = longitudinal_forces_N.rl;
+    const float rl_fy_body = lateral_forces_N.rl;
+    const float rr_fx_body = longitudinal_forces_N.rr;
+    const float rr_fy_body = lateral_forces_N.rr;
+
+    const float fl_moment = (DIST_FRONT_AXLE_CG_m * fl_fy_body) - (half_track_m * fl_fx_body);
+    const float fr_moment = (DIST_FRONT_AXLE_CG_m * fr_fy_body) + (half_track_m * fr_fx_body);
+    const float rl_moment = (-DIST_REAR_AXLE_CG_m * rl_fy_body) - (half_track_m * rl_fx_body);
+    const float rr_moment = (-DIST_REAR_AXLE_CG_m * rr_fy_body) + (half_track_m * rr_fx_body);
+
+    return fl_moment + fr_moment + rl_moment + rr_moment;
+}
+
+app::tv::datatypes::datatypes::wheel_set vehicleDynamics::estimateNormalForce_N(
     const float a_x_MPS2, const float a_y_MPS2, const float v_x_mps) const
 {
     const float long_load_tf = LONG_ACCEL_TERM_VERTICAL_FORCE(a_x_MPS2);
@@ -37,18 +64,18 @@ vehicleDynamics::normal_force_t vehicleDynamics::estimateNormalForce_N(
     const float rear_down_force_n  = down_force_n * (1.0f - front_cop);
 
     return {
-        .fz_fl_N = std::fmax(
+        .fl = std::fmax(
             0.0f,
             STATIC_FRONT_WHEEL_LOAD_N - (0.5f * long_load_tf) - lat_load_tf +
                 (front_down_force_n * (1.0f - right_cop))),
-        .fz_fr_N = std::fmax(
+        .fr = std::fmax(
             0.0f,
             STATIC_FRONT_WHEEL_LOAD_N - (0.5f * long_load_tf) + lat_load_tf + (front_down_force_n * right_cop)),
-        .fz_rl_N = std::fmax(
+        .rl = std::fmax(
             0.0f,
             STATIC_REAR_WHEEL_LOAD_N + (0.5f * long_load_tf) - lat_load_tf +
                 (rear_down_force_n * (1.0f - right_cop))),
-        .fz_rr_N = std::fmax(
+        .rr = std::fmax(
             0.0f,
             STATIC_REAR_WHEEL_LOAD_N + (0.5f * long_load_tf) + lat_load_tf + (rear_down_force_n * right_cop)),
     };

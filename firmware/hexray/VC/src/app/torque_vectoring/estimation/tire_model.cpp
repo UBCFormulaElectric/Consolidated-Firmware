@@ -1,6 +1,7 @@
 #include "tire_model.hpp"
 
 #include <cmath>
+#include <dual.hpp>
 
 using namespace app::tv::datatypes::vd_constants;
 
@@ -16,7 +17,10 @@ namespace
 
 [[nodiscard]] TireModel::Outputs TireModel::estimate(const StateInputs& inputs)
 {
-    estimateWheelVelocities(inputs.vehicle_velocity_x_mps, inputs.vehicle_velocity_y_mps, inputs.yaw_rate_radps);
+    const auto wheel_velocities =
+        wheelVelocities(inputs.vehicle_velocity_x_mps, inputs.vehicle_velocity_y_mps, inputs.yaw_rate_radps);
+    wheel_vel_x_mps_ = wheel_velocities.x_mps;
+    wheel_vel_y_mps_ = wheel_velocities.y_mps;
     estimateSlipAngle(inputs.steering_angle_rad);
     estimateSlipRatio(inputs.wheel_angular_velocity_radps);
     computePureLongitudinalForce(inputs.normal_load_N);
@@ -28,6 +32,14 @@ namespace
 {
     const float wheel_surface_speed_mps = wheel_vel_x_mps * (1.0f + slip_ratio);
     return wheel_surface_speed_mps / safeMagnitude(WHEEL_RADIUS_M);
+}
+
+[[nodiscard]] float TireModel::slipRatioToWheelAngularVelocity(
+    const float slip_ratio, const datatypes::datatypes::VehicleState& vehicle_state) const
+{
+    const auto wheel_velocities =
+        wheelVelocities(vehicle_state.v_x_mps, vehicle_state.v_y_mps, vehicle_state.yaw_rate_radps);
+    return slipRatioToWheelAngularVelocity(slip_ratio, wheel_velocities.x_mps);
 }
 
 [[nodiscard]] float TireModel::wheelLongOffset_m() const
@@ -45,10 +57,15 @@ namespace
     return wheel_axle_ == WheelAxle::Front ? steering_angle_rad : 0.0f;
 }
 
-void TireModel::estimateWheelVelocities(float vehicle_velocity_x_mps, float vehicle_velocity_y_mps, float yaw_rate_radps)
+[[nodiscard]] TireModel::WheelVelocities TireModel::wheelVelocities(
+    const float vehicle_velocity_x_mps, const float vehicle_velocity_y_mps, const float yaw_rate_radps) const
 {
-    wheel_vel_x_mps_ = vehicle_velocity_x_mps - (yaw_rate_radps * wheelLatOffset_m());
-    wheel_vel_y_mps_ = vehicle_velocity_y_mps + (yaw_rate_radps * wheelLongOffset_m());
+    // Rigid-body planar kinematics in the body frame:
+    // v_wheel = v_cg + omega_z x r_wheel, where r_wheel = [x_offset, y_offset, 0].
+    return {
+        .x_mps = vehicle_velocity_x_mps - (yaw_rate_radps * wheelLatOffset_m()),
+        .y_mps = vehicle_velocity_y_mps + (yaw_rate_radps * wheelLongOffset_m()),
+    };
 }
 
 void TireModel::estimateSlipAngle(float steering_angle_rad)
@@ -58,8 +75,9 @@ void TireModel::estimateSlipAngle(float steering_angle_rad)
 
 void TireModel::estimateSlipRatio(const float wheel_angular_velocity_radps)
 {
-    const float wheel_surface_speed_mps = wheel_angular_velocity_radps * WHEEL_RADIUS_M;
-    const float effective_wheel_speed_mps = std::cos(tire_outputs_.slip_angle_rad) * wheel_vel_x_mps_;
+    const float wheel_surface_speed_mps   = wheel_angular_velocity_radps * WHEEL_RADIUS_M;
+    const float wheel_speed_magnitude_mps = std::hypot(wheel_vel_x_mps_, wheel_vel_y_mps_);
+    const float effective_wheel_speed_mps = wheel_speed_magnitude_mps * std::cos(tire_outputs_.slip_angle_rad);
 
     tire_outputs_.slip_ratio =
         (wheel_surface_speed_mps - effective_wheel_speed_mps) / safeMagnitude(effective_wheel_speed_mps);
@@ -89,21 +107,6 @@ void TireModel::pureFxMagicFormulaCoefficients(const float normal_load_N)
         .e_x     = e_x,
         .s_vx    = s_vx,
     };
-}
-
-constexpr float TireModel::pure_Fx() const
-{
-    // Pacejka Page 179 (4.E9): F_x0
-    const float b_x_kappa_x = pure_fx_mj_coefficients_.b_x * pure_fx_mj_coefficients_.kappa_x;
-
-    return pure_fx_mj_coefficients_.d_x *
-               std::sin(
-                   pure_fx_mj_coefficients_.c_x *
-                   std::atan(
-                       b_x_kappa_x -
-                       (pure_fx_mj_coefficients_.e_x *
-                        (b_x_kappa_x - std::atan(b_x_kappa_x))))) +
-           pure_fx_mj_coefficients_.s_vx;
 }
 
 void TireModel::pureFyMagicFormulaCoefficients(const float normal_load_N)
@@ -147,7 +150,23 @@ constexpr float TireModel::pure_Fy() const
 void TireModel::computePureLongitudinalForce(const float normal_load_N)
 {
     pureFxMagicFormulaCoefficients(normal_load_N);
-    tire_outputs_.longitudinal_force_N = pure_Fx();
+
+    // Use forward-mode autodiff to compute Fx and ∂Fx/∂κ simultaneously.
+    // All Pacejka coefficients are fixed at this operating point; kappa_x is the only variable.
+    const auto& c = pure_fx_mj_coefficients_;
+    autodiff::dual kappa_x = c.kappa_x;
+
+    auto fx_formula = [&](autodiff::dual k) -> autodiff::dual {
+        autodiff::dual u   = c.b_x * k;
+        autodiff::dual phi = u - c.e_x * (u - atan(u));
+        return c.d_x * sin(c.c_x * atan(phi)) + c.s_vx;
+    };
+
+    const autodiff::dual fx_result = fx_formula(kappa_x);
+    const auto dFx_dKappa = autodiff::derivative(fx_formula, autodiff::wrt(kappa_x), autodiff::at(kappa_x));
+
+    tire_outputs_.longitudinal_force_N = static_cast<float>(autodiff::val(fx_result));
+    tire_outputs_.dFx_dKappa           = static_cast<float>(dFx_dKappa);
 }
 
 void TireModel::computePureLateralForce(const float normal_load_N)
