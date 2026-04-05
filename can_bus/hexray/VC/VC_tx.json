@@ -597,5 +597,31 @@
         "cycle_time": null,
         "description": "Async bootup message!",
         "signals": {}
+    },
+    "EMeterTeamMessage1": {
+        "msg_id": 781,
+        "cycle_time": 100,
+        "description": "EMeter Team Message 1",
+        "signals": {
+            "TeamSignal1": {
+                "bits": 32
+            },
+            "TeamSignal2": {
+                "bits": 32
+            }
+        }
+    },
+    "EMeterTeamMessage2": {
+        "msg_id": 782,
+        "cycle_time": 100,
+        "description": "EMeter Team Message 1",
+        "signals": {
+            "TeamSignal3": {
+                "bits": 32
+            },
+            "TeamSignal4": {
+                "bits": 32
+            }
+        }
     }
 }

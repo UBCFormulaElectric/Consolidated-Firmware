@@ -20,15 +20,19 @@
     "description": "Status EMeter Message",
     "signals": {
       "Violation": {
-        "start_bit": 0,
         "bits": 1
       },
       "Logging": {
-        "start_bit": 1,
+        "bits": 1
+      },
+      "FaultActive": {
+        "bits": 1
+      },
+      "FaultPrevActive": {
         "bits": 1
       },
       "Energy": {
-        "start_bit": 4,
+        "start_bit": 8,
         "bits": 32,
         "unit": "Whr"
       }
