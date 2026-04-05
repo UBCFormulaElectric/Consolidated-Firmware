@@ -12,38 +12,74 @@ void hw::Uart::deinit() const
     HAL_UART_DeInit(&handle);
 }
 
-void hw::Uart::onTransactionCompleteFromISR() const
+void hw::Uart::onTxTransactionCompleteFromISR() const
 {
-    assert(taskInProgress != nullptr);
+    assert(txTaskInProgress != nullptr);
 
     BaseType_t higherPriorityTaskWoken = pdFALSE;
-    vTaskNotifyGiveFromISR(taskInProgress, &higherPriorityTaskWoken);
+    vTaskNotifyGiveFromISR(txTaskInProgress, &higherPriorityTaskWoken);
+    portYIELD_FROM_ISR(higherPriorityTaskWoken);
+}
+
+void hw::Uart::onRxTransactionCompleteFromISR() const
+{
+    assert(rxTaskInProgress != nullptr);
+
+    BaseType_t higherPriorityTaskWoken = pdFALSE;
+    vTaskNotifyGiveFromISR(rxTaskInProgress, &higherPriorityTaskWoken);
     portYIELD_FROM_ISR(higherPriorityTaskWoken);
 }
 
 void hw::Uart::onErrorFromISR() const
 {
-    assert(taskInProgress != nullptr);
+    // just wake both up lmao
     BaseType_t higherPriorityTaskWoken = pdFALSE;
-    vTaskNotifyGiveFromISR(taskInProgress, &higherPriorityTaskWoken);
+    assert(txTaskInProgress != nullptr || rxTaskInProgress != nullptr);
+    if (txTaskInProgress != nullptr)
+    {
+        vTaskNotifyGiveFromISR(txTaskInProgress, &higherPriorityTaskWoken);
+        last_write_fault = true;
+    }
+    if (rxTaskInProgress != nullptr)
+    {
+        vTaskNotifyGiveFromISR(rxTaskInProgress, &higherPriorityTaskWoken);
+        last_read_fault = true;
+    }
     portYIELD_FROM_ISR(higherPriorityTaskWoken);
-
-    last_read_fault = true;
 }
 
-std::expected<void, ErrorCode> hw::Uart::waitForNotification(const uint32_t timeoutMs) const
+std::expected<void, ErrorCode> hw::Uart::waitForRxNotification(const uint32_t timeoutMs) const
 {
     const uint32_t num_notifications = ulTaskNotifyTake(pdTRUE, timeoutMs);
-    taskInProgress                   = nullptr;
+    rxTaskInProgress                 = nullptr;
 
     if (const bool transaction_timed_out = num_notifications; transaction_timed_out == 0)
     {
         // If the transaction didn't complete within the timeout, manually abort it.
-        (void)HAL_UART_Abort_IT(&handle);
+        (void)HAL_UART_AbortReceive_IT(&handle);
         LOG_WARN("UART transaction timed out");
         return std::unexpected(ErrorCode::TIMEOUT);
     }
     if (last_read_fault)
+    {
+        return std::unexpected(ErrorCode::ERROR);
+    }
+    return {};
+}
+
+std::expected<void, ErrorCode> hw::Uart::waitForTxNotification(const uint32_t timeoutMs) const
+{
+    const uint32_t num_notifications = ulTaskNotifyTake(pdTRUE, timeoutMs);
+    txTaskInProgress                 = nullptr;
+
+    if (const bool transaction_timed_out = num_notifications; transaction_timed_out == 0)
+    {
+        // If the transaction didn't complete within the timeout, manually abort it.
+        (void)HAL_UART_AbortTransmit_IT(&handle);
+        LOG_WARN("UART transaction timed out");
+        return std::unexpected(ErrorCode::TIMEOUT);
+    }
+    if (last_write_fault)
     {
         return std::unexpected(ErrorCode::ERROR);
     }
@@ -60,30 +96,30 @@ std::expected<void, ErrorCode> hw::Uart::transmit(const std::span<const uint8_t>
         return st;
     }
 
-    if (taskInProgress != nullptr)
+    if (txTaskInProgress != nullptr)
     {
         // There is a task currently in progress!
         return std::unexpected(ErrorCode::BUSY);
     }
 
     // Save current task before starting a UART transaction.
-    taskInProgress = xTaskGetCurrentTaskHandle();
+    txTaskInProgress = xTaskGetCurrentTaskHandle();
 
     auto exit = hw_utils_convertHalStatus(HAL_UART_Transmit_IT(&handle, tx.data(), static_cast<uint16_t>(tx.size())));
     if (not exit.has_value())
     {
         // Mark this transaction as no longer in progress.
-        taskInProgress = nullptr;
+        txTaskInProgress = nullptr;
         return exit;
     }
 
-    exit = waitForNotification(timeout);
+    exit = waitForTxNotification(timeout);
     return exit;
 }
 
 std::expected<void, ErrorCode> hw::Uart::receive(std::span<uint8_t> rx, const uint32_t timeout) const
 {
-    if (taskInProgress != nullptr || xPortIsInsideInterrupt())
+    if (rxTaskInProgress != nullptr || xPortIsInsideInterrupt())
     {
         // There is a task currently in progress!
         return std::unexpected(ErrorCode::BUSY);
@@ -97,19 +133,19 @@ std::expected<void, ErrorCode> hw::Uart::receive(std::span<uint8_t> rx, const ui
         return exit;
     }
 
-    taskInProgress  = xTaskGetCurrentTaskHandle();
-    last_read_fault = false;
+    rxTaskInProgress = xTaskGetCurrentTaskHandle();
+    last_read_fault  = false;
 
     std::expected<void, ErrorCode> exit =
         hw_utils_convertHalStatus(HAL_UART_Receive_IT(&handle, rx.data(), static_cast<uint16_t>(rx.size())));
     if (not exit.has_value())
     {
         // Mark this transaction as no longer in progress.
-        taskInProgress = nullptr;
+        rxTaskInProgress = nullptr;
         return exit;
     }
 
-    exit = waitForNotification(timeout);
+    exit = waitForRxNotification(timeout);
     return exit;
 }
 
@@ -117,18 +153,39 @@ std::expected<void, ErrorCode> hw::Uart::receive(std::span<uint8_t> rx, const ui
 extern "C" void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
     const hw::Uart &bus = hw::getUartFromHandle(huart);
-    bus.onTransactionCompleteFromISR();
+    bus.onRxTransactionCompleteFromISR();
 }
 
 extern "C" void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
     const hw::Uart &bus = hw::getUartFromHandle(huart);
-    bus.onTransactionCompleteFromISR();
+    bus.onTxTransactionCompleteFromISR();
+}
+
+static const char *uart_error_to_name(const uint32_t err)
+{
+    switch (err)
+    {
+        case HAL_UART_ERROR_NONE:
+            return "NONE";
+        case HAL_UART_ERROR_PE:
+            return "Parity Error";
+        case HAL_UART_ERROR_NE:
+            return "Noise Error";
+        case HAL_UART_ERROR_FE:
+            return "Frame Error";
+        case HAL_UART_ERROR_ORE:
+            return "Overrun Error";
+        case HAL_UART_ERROR_DMA:
+            return "DMA Error";
+        default:
+            return "UNKNOWN";
+    }
 }
 
 extern "C" void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
-    LOG_ERROR("UART error: 0x%X", huart->ErrorCode);
+    LOG_ERROR("UART error: %s", uart_error_to_name(HAL_UART_GetError(huart)));
     const hw::Uart &bus = hw::getUartFromHandle(huart);
     bus.onErrorFromISR();
 }
