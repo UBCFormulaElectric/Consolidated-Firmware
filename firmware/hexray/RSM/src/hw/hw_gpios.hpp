@@ -4,6 +4,7 @@
 namespace hw::gpio
 {
 extern const Gpio brake_ocsc_ok;
+extern const Gpio nbspd_brake_pressed_3v3;
 extern const Gpio rl_int;
 extern const Gpio susp_travel_rl_ocsc;
 extern const Gpio susp_travel_rr_ocsc;
