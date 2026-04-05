@@ -16,13 +16,17 @@ TEST_F(VCLoadSwitchTest, load_switch_broadcast)
 {
     efuse_channel_setters[0].can_setter_enabled(true);
     efuse_channel_setters[0].can_setter_current(1.23f);
+    LetTimePass(1);
     app::loadswitches::efuse_broadcast();
+    LetTimePass(1);
     ASSERT_TRUE(efuse_channel_setters[0].efuse.isChannelEnabled());
     ASSERT_FLOAT_EQ(1.23f, efuse_channel_setters[0].efuse.getChannelCurrent());
-    letTimePass(1);
+    LetTimePass(1);
     efuse_channel_setters[0].can_setter_enabled(false);
     efuse_channel_setters[0].can_setter_current(0.23f);
+    LetTimePass(1);
     app::loadswitches::efuse_broadcast();
+    LetTimePass(1);
     ASSERT_FALSE(efuse_channel_setters[0].efuse.isChannelEnabled());
     ASSERT_FLOAT_EQ(0.23f, efuse_channel_setters[0].efuse.getChannelCurrent());
 }

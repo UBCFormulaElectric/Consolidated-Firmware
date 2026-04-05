@@ -12,6 +12,7 @@
 #include "io_efuse_TI_TPS25.hpp"
 #include "io_efuse_TI_TPS28.hpp"
 #include "app_canTx.hpp"
+#include "ecuTestBase.hpp"
 
 // IMUs
 io::Imu IMU1;

@@ -1,6 +1,5 @@
 #include "app_loadswitches.hpp"
 #include "app_canTx.hpp"
-#include "io_efuse.hpp"
 #include "io_efuses.hpp"
 #include <array>
 

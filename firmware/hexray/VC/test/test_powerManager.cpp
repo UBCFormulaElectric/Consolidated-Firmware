@@ -5,6 +5,7 @@
 #include "util_errorCodes.hpp"
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
+#include "app_loadSwitches.hpp"
 
 class VCPowerManagerTest : public VCBaseTest
 {
@@ -28,10 +29,10 @@ TEST_F(VCPowerManagerTest, efuse_control_test) {
         state.efuse_configs[0].max_retry = 2;
         state.efuse_configs[0].timeout = 1;
         app::powerManager::sequenceWhileIdle();
-        ASSERT_TRUE(app::powerManager::getEfuse(0).isChannelEnabled());
+        ASSERT_TRUE(&app::powerManager::getEfuse(0).isChannelEnabled());
     
         // disable channel 0
         state.efuse_configs[0].efuse_enable = false;
         app::powerManager::sequenceWhileIdle();
-        ASSERT_FALSE(app::powerManager::getEfuse(0).isChannelEnabled());
+        ASSERT_FALSE(&app::powerManager::getEfuse(0).isChannelEnabled());
 }

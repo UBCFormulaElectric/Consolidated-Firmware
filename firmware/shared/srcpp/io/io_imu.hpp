@@ -216,6 +216,7 @@ class Imu
     mutable bool  initialized   = false;
     mutable float _accel_x_fake = 0.0f, _accel_y_fake = 0.0f, _accel_z_fake = 0.0f, _gyro_x_fake = 0.0f,
                   _gyro_y_fake = 0.0f, _gyro_z_fake = 0.0f;
+    mutable std::expected<void, ErrorCode> init_status = {};
 
     void reset_init();
     bool get_init() const;
@@ -225,6 +226,7 @@ class Imu
     void set_GyroRoll(float gyro_x_fake) const;
     void set_GyroPitch(float gyro_y_fake) const;
     void set_GyroYaw(float gyro_z_fake) const;
+    void imu_status_set(bool status);
 #endif
 };
 } // namespace io

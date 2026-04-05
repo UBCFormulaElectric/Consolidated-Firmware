@@ -1,5 +1,9 @@
 // refactor needed
 #include "io_imus.hpp"
+#include "io_imu.hpp"
+#ifdef TARGET_EMBEDDED
+#include "io_efuse.hpp"
+#endif
 
 namespace app::imus
 {

@@ -1,6 +1,9 @@
 #pragma once
 #include <cstddef>
 // constexpr inline size_t NUM_EFUSE_CHANNELS = 10;
+#ifdef TARGET_EMBEDDED
+#include "io_efuse.hpp"
+#endif
 
 namespace app::loadswitches
 {

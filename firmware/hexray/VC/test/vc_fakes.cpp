@@ -14,26 +14,26 @@ namespace bspdWarning
     }
 } // namespace bspdWarning
 
-namespace imus
-{
-    std::expected<void, ErrorCode> initAll()
-    {
-        if (auto result = IMU1.init(); not result)
-        {
-            return result;
-        }
-        if (auto result = IMU2.init(); not result)
-        {
-            return result;
-        }
-        if (auto result = IMU3.init(); not result)
-        {
-            return result;
-        }
-        return {};
-    }
+// namespace imus
+// {
+//     std::expected<void, ErrorCode> initAll_status(bool imu1_status, bool imu2_status, bool imu3_status)
+//     {
+//         if (auto result = IMU1.init(); not result)
+//         {
+//             return result;
+//         }
+//         if (auto result = IMU2.init(); not result)
+//         {
+//             return result;
+//         }
+//         if (auto result = IMU3.init(); not result)
+//         {
+//             return result;
+//         }
+//         return {};
+//     }
     
-} // namespace imus
+// } // namespace imus
 
 namespace sbgEllipse
 {
