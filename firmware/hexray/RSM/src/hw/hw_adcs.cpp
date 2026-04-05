@@ -14,7 +14,7 @@ void chipsInit()
 Adc lc3_out{ Adc_Chip.getChannel(0) };
 Adc susp_travel_rl_3v3{ Adc_Chip.getChannel(1) };
 Adc susp_travel_rr_3v3{ Adc_Chip.getChannel(2) };
-Adc bps_3v3{ Adc_Chip.getChannel(3) };
+Adc bps_3v3{ Adc_Chip.getChannel(1) };
 
 } // namespace hw::adcs
 
