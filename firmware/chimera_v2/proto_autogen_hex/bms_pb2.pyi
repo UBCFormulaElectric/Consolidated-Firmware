@@ -28,7 +28,7 @@ class _GpioNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._En
     GPIO_MSD_SHDN_SNS: _GpioNetName.ValueType
     GPIO_HV_P_INTLCK_SNS: _GpioNetName.ValueType
     GPIO_HV_N_INTLCK_SNS: _GpioNetName.ValueType
-    GPIO_IMD_LATCH: _GpioNetName.ValueType
+    GPIO_nIMD_LATCH: _GpioNetName.ValueType
     GPIO_DIAG: _GpioNetName.ValueType
     GPIO_SD_CD: _GpioNetName.ValueType
     GPIO_LEDR: _GpioNetName.ValueType
@@ -66,7 +66,7 @@ GPIO_nHIGH_CURRENT_BSPD: GpioNetName.ValueType
 GPIO_MSD_SHDN_SNS: GpioNetName.ValueType
 GPIO_HV_P_INTLCK_SNS: GpioNetName.ValueType
 GPIO_HV_N_INTLCK_SNS: GpioNetName.ValueType
-GPIO_IMD_LATCH: GpioNetName.ValueType
+GPIO_nIMD_LATCH: GpioNetName.ValueType
 GPIO_DIAG: GpioNetName.ValueType
 GPIO_SD_CD: GpioNetName.ValueType
 GPIO_LEDR: GpioNetName.ValueType
@@ -92,7 +92,7 @@ GPIO_PGOOD_3V3: GpioNetName.ValueType
 GPIO_PGOOD_5V: GpioNetName.ValueType
 GPIO_SHDN_DIAG_EN: GpioNetName.ValueType
 GPIO_SHDN_FAULT: GpioNetName.ValueType
-Global___GpioNetName: typing_extensions.TypeAlias = GpioNetName
+global___GpioNetName = GpioNetName
 
 class _AdcNetName:
     ValueType = typing.NewType('ValueType', builtins.int)
@@ -119,7 +119,7 @@ ADC_SHDN_SNS: AdcNetName.ValueType
 ADC_EMETER_THERM_SNS: AdcNetName.ValueType
 ADC_TS_ISENSE_400A: AdcNetName.ValueType
 ADC_TS_ISENSE_50A: AdcNetName.ValueType
-Global___AdcNetName: typing_extensions.TypeAlias = AdcNetName
+global___AdcNetName = AdcNetName
 
 class _SpiNetName:
     ValueType = typing.NewType('ValueType', builtins.int)
@@ -136,7 +136,7 @@ class SpiNetName(_SpiNetName, metaclass=_SpiNetNameEnumTypeWrapper):
 SPI_NET_NAME_UNSPECIFIED: SpiNetName.ValueType
 SPI_LTC6813_LS: SpiNetName.ValueType
 SPI_LTC6813_HS: SpiNetName.ValueType
-Global___SpiNetName: typing_extensions.TypeAlias = SpiNetName
+global___SpiNetName = SpiNetName
 
 class _I2cNetName:
     ValueType = typing.NewType('ValueType', builtins.int)
@@ -149,4 +149,4 @@ class _I2cNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._Enu
 class I2cNetName(_I2cNetName, metaclass=_I2cNetNameEnumTypeWrapper):
     ...
 I2C_NET_NAME_UNSPECIFIED: I2cNetName.ValueType
-Global___I2cNetName: typing_extensions.TypeAlias = I2cNetName
+global___I2cNetName = I2cNetName

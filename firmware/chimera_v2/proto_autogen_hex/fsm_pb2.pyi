@@ -48,7 +48,7 @@ GPIO_DEBUG_LED: GpioNetName.ValueType
 GPIO_NSTR_ANGLE_OCSC: GpioNetName.ValueType
 GPIO_NBPS_F_OCSC: GpioNetName.ValueType
 GPIO_BOOT_LED: GpioNetName.ValueType
-Global___GpioNetName: typing_extensions.TypeAlias = GpioNetName
+global___GpioNetName = GpioNetName
 
 class _AdcNetName:
     ValueType = typing.NewType('ValueType', builtins.int)
@@ -73,7 +73,7 @@ ADC_APPS2: AdcNetName.ValueType
 ADC_BPS_F: AdcNetName.ValueType
 ADC_STR_ANGLE: AdcNetName.ValueType
 ADC_APPS1: AdcNetName.ValueType
-Global___AdcNetName: typing_extensions.TypeAlias = AdcNetName
+global___AdcNetName = AdcNetName
 
 class _SpiNetName:
     ValueType = typing.NewType('ValueType', builtins.int)
@@ -88,4 +88,4 @@ class SpiNetName(_SpiNetName, metaclass=_SpiNetNameEnumTypeWrapper):
     ...
 SPI_NET_NAME_UNSPECIFIED: SpiNetName.ValueType
 SPI_IMU: SpiNetName.ValueType
-Global___SpiNetName: typing_extensions.TypeAlias = SpiNetName
+global___SpiNetName = SpiNetName

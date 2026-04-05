@@ -5,10 +5,6 @@
 #include "io_imus.hpp"
 #include "fsmMocks.hpp"
 
-extern "C"
-{
-}
-
 class FSMImuTest : public FSMBaseTest
 {
 };

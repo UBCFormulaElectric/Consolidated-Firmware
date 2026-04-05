@@ -25,14 +25,14 @@ template <size_t NODE_COUNT> class monitor
     }
 
   public:
-    explicit monitor(
+    constexpr monitor(
         void (*const in_checkin_self)(bool),
         const std::array<io::heartbeat::node *const, NODE_COUNT> in_heartbeat_nodes)
       : heartbeat_nodes(std::move(in_heartbeat_nodes)), checkin_self(in_checkin_self)
     {
         init();
     }
-    explicit monitor(
+    constexpr monitor(
         void (*const in_checkin_self)(bool),
         const std::array<io::heartbeat::node *const, NODE_COUNT> in_heartbeat_nodes,
         bool                                                     in_block_faults)

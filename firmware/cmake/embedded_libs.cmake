@@ -19,7 +19,7 @@ function(commit_info_library
 endfunction()
 
 # Generates library ${CAR}_${BOARD}_jsoncan
-message("  🔃 Registered jsoncan_library() function")
+message("  🔃 Registered jsoncan_embedded_library() function")
 function(jsoncan_embedded_library BOARD CAR JSONCAN_DIR)
     jsoncan_sources(
             ${BOARD}
@@ -35,7 +35,7 @@ function(jsoncan_embedded_library BOARD CAR JSONCAN_DIR)
     target_include_directories("${CAR}_${BOARD}_jsoncan" SYSTEM INTERFACE ${CAN_INCLUDE_DIRS})
 endfunction()
 
-message("  🔃 Registered jsoncan_library() function")
+message("  🔃 Registered jsoncan_embedded_library_cpp() function")
 function(jsoncan_embedded_library_cpp BOARD CAR JSONCAN_DIR)
     jsoncan_sources_cpp(
             ${BOARD}

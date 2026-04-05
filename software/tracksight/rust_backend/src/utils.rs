@@ -1,5 +1,9 @@
 // I did not like the colorized library, so use own utils hehe
 
+/*
+    COLOR PRINT
+ */
+
 const RED: &str = "31m";
 const GRE: &str = "32m";
 const YEL: &str = "33m";
@@ -24,9 +28,9 @@ fn format_color(str: impl AsRef<str>, color: &str) -> String {
     format!("\x1b[{color}{}\x1b[{NON}", str.as_ref())
 }
 
-//
-// Verbose/Debug print macros
-//
+/*
+    VERBOSE/DEBUG MACROS
+*/
 
 // First level: verbose
 // Second level: verbose AND debug
