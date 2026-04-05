@@ -42,7 +42,7 @@ class RSMChimeraConfig : public chimera_v2::config
                 return std::cref(hw::gpio::susp_travel_rr_ocsc);
             case rsm_GpioNetName_GPIO_SUSP_TRAVEL_RL_OCSC:
                 return std::cref(hw::gpio::susp_travel_rl_ocsc);
-            case rsm_GpioNetName_GPIO_NBSPD_BRAKE_PRESSED_3V3:
+            case rsm_GpioNetName_GPIO_NBSPD_BRAKE_PRESSED:
                 return std::cref(hw::gpio::nbspd_brake_pressed_3v3);
             case rsm_GpioNetName_GPIO_BRAKE_OCSC_OK:
                 return std::cref(hw::gpio::brake_ocsc_ok);
