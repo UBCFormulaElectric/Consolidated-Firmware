@@ -28,4 +28,4 @@ class GpioNetName(_GpioNetName, metaclass=_GpioNetNameEnumTypeWrapper):
 GPIO_NET_NAME_UNSPECIFIED: GpioNetName.ValueType
 GPIO_6: GpioNetName.ValueType
 GPIO_5: GpioNetName.ValueType
-global___GpioNetName = GpioNetName
+Global___GpioNetName: typing_extensions.TypeAlias = GpioNetName
