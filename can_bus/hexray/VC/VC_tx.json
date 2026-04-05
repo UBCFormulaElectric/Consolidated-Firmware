@@ -600,7 +600,7 @@
     },
     "EMeterTeamMessage1": {
         "msg_id": 781,
-        "cycle_time": 100,
+        "cycle_time": null,
         "description": "EMeter Team Message 1",
         "signals": {
             "TeamSignal1": {
@@ -613,7 +613,7 @@
     },
     "EMeterTeamMessage2": {
         "msg_id": 782,
-        "cycle_time": 100,
+        "cycle_time": null,
         "description": "EMeter Team Message 1",
         "signals": {
             "TeamSignal3": {
