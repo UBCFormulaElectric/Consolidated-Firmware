@@ -63,7 +63,7 @@ FT_IGNORE: FieldType.ValueType
 'Ignore the field completely.'
 FT_INLINE: FieldType.ValueType
 "Legacy option, use the separate 'fixed_length' option instead"
-global___FieldType = FieldType
+Global___FieldType: typing_extensions.TypeAlias = FieldType
 
 class _IntSize:
     ValueType = typing.NewType('ValueType', builtins.int)
@@ -86,7 +86,7 @@ IS_8: IntSize.ValueType
 IS_16: IntSize.ValueType
 IS_32: IntSize.ValueType
 IS_64: IntSize.ValueType
-global___IntSize = IntSize
+Global___IntSize: typing_extensions.TypeAlias = IntSize
 
 class _TypenameMangling:
     ValueType = typing.NewType('ValueType', builtins.int)
@@ -113,7 +113,7 @@ M_FLATTEN: TypenameMangling.ValueType
 'Only use last path component'
 M_PACKAGE_INITIALS: TypenameMangling.ValueType
 'Replace the package name by the initials'
-global___TypenameMangling = TypenameMangling
+Global___TypenameMangling: typing_extensions.TypeAlias = TypenameMangling
 
 class _DescriptorSize:
     ValueType = typing.NewType('ValueType', builtins.int)
@@ -144,7 +144,7 @@ DS_4: DescriptorSize.ValueType
 '4 words; up to 2^32-1 byte fields, 2^16-1 entry arrays'
 DS_8: DescriptorSize.ValueType
 '8 words; up to 2^32-1 entry arrays'
-global___DescriptorSize = DescriptorSize
+Global___DescriptorSize: typing_extensions.TypeAlias = DescriptorSize
 
 @typing.final
 class NanoPBOptions(google.protobuf.message.Message):
@@ -194,11 +194,11 @@ class NanoPBOptions(google.protobuf.message.Message):
     "Maximum length for 'string' fields. Setting this is equivalent\n    to setting max_size to a value of length+1.\n    "
     max_count: builtins.int
     "Allocated number of entries in arrays ('repeated' fields)"
-    int_size: global___IntSize.ValueType
+    int_size: Global___IntSize.ValueType
     "Size of integer fields. Can save some memory if you don't need\n    full 32 bits for the value.\n    "
-    enum_intsize: global___IntSize.ValueType
+    enum_intsize: Global___IntSize.ValueType
     'Size for enum fields. Supported by C++11 and C23 standards.'
-    type: global___FieldType.ValueType
+    type: Global___FieldType.ValueType
     'Force type of field (callback or static allocation)'
     long_names: builtins.bool
     'Use long names for enums, i.e. EnumName_EnumValue.'
@@ -228,13 +228,13 @@ class NanoPBOptions(google.protobuf.message.Message):
     'Generate repeated field with fixed count'
     submsg_callback: builtins.bool
     'Generate message-level callback that is called before decoding submessages.\n    This can be used to set callback fields for submsgs inside oneofs.\n    '
-    mangle_names: global___TypenameMangling.ValueType
+    mangle_names: Global___TypenameMangling.ValueType
     'Shorten or remove package names from type names.\n    This option applies only on the file level.\n    '
     callback_datatype: builtins.str
     'Data type for storage associated with callback fields.'
     callback_function: builtins.str
     'Callback function used for encoding and decoding.\n    Prior to nanopb-0.4.0, the callback was specified in per-field pb_callback_t\n    structure. This is still supported, but does not work inside e.g. oneof or pointer\n    fields. Instead, a new method allows specifying a per-message callback that\n    will be called for all callback fields in a message type.\n    '
-    descriptorsize: global___DescriptorSize.ValueType
+    descriptorsize: Global___DescriptorSize.ValueType
     'Select the size of field descriptors. This option has to be defined\n    for the whole message, not per-field. Usually automatic selection is\n    ok, but if it results in compilation errors you can increase the field\n    size here.\n    '
     default_has: builtins.bool
     'Set default value for has_ fields.'
@@ -246,7 +246,7 @@ class NanoPBOptions(google.protobuf.message.Message):
     'Override of the label of the field (see FieldDescriptorProto.Label). Can be used to create\n    fields which nanopb considers required in proto3, or whether nanopb treats the field as\n    optional/required/repeated.\n    '
     sort_by_tag: builtins.bool
     'Due to historical reasons, nanopb orders fields in structs by their tag number\n    instead of the order in .proto. Set this to false to keep the .proto order.\n    The default value will probably change to false in nanopb-0.5.0.\n    '
-    fallback_type: global___FieldType.ValueType
+    fallback_type: Global___FieldType.ValueType
     'Set the FT_DEFAULT field conversion strategy.\n    A field that can become a static member of a c struct (e.g. int, bool, etc)\n    will be a a static field.\n    Fields with dynamic length are converted to either a pointer or a callback.\n    '
     initializer: builtins.str
     'Override initializer used in generated MyMessage_init_zero and MyMessage_init_default macros\n    By default decided automatically based on field default value and datatype.\n    '
@@ -265,7 +265,7 @@ class NanoPBOptions(google.protobuf.message.Message):
         Same as nanopb_generator.py command line flag -x.
         """
 
-    def __init__(self, *, max_size: builtins.int | None=..., max_length: builtins.int | None=..., max_count: builtins.int | None=..., int_size: global___IntSize.ValueType | None=..., enum_intsize: global___IntSize.ValueType | None=..., type: global___FieldType.ValueType | None=..., long_names: builtins.bool | None=..., packed_struct: builtins.bool | None=..., packed_enum: builtins.bool | None=..., skip_message: builtins.bool | None=..., no_unions: builtins.bool | None=..., msgid: builtins.int | None=..., anonymous_oneof: builtins.bool | None=..., proto3: builtins.bool | None=..., proto3_singular_msgs: builtins.bool | None=..., enum_to_string: builtins.bool | None=..., enum_validate: builtins.bool | None=..., fixed_length: builtins.bool | None=..., fixed_count: builtins.bool | None=..., submsg_callback: builtins.bool | None=..., mangle_names: global___TypenameMangling.ValueType | None=..., callback_datatype: builtins.str | None=..., callback_function: builtins.str | None=..., descriptorsize: global___DescriptorSize.ValueType | None=..., default_has: builtins.bool | None=..., include: collections.abc.Iterable[builtins.str] | None=..., exclude: collections.abc.Iterable[builtins.str] | None=..., package: builtins.str | None=..., type_override: google.protobuf.descriptor_pb2.FieldDescriptorProto.Type.ValueType | None=..., label_override: google.protobuf.descriptor_pb2.FieldDescriptorProto.Label.ValueType | None=..., sort_by_tag: builtins.bool | None=..., fallback_type: global___FieldType.ValueType | None=..., initializer: builtins.str | None=..., discard_unused_automatic_types: builtins.bool | None=..., discard_deprecated: builtins.bool | None=...) -> None:
+    def __init__(self, *, max_size: builtins.int | None=..., max_length: builtins.int | None=..., max_count: builtins.int | None=..., int_size: Global___IntSize.ValueType | None=..., enum_intsize: Global___IntSize.ValueType | None=..., type: Global___FieldType.ValueType | None=..., long_names: builtins.bool | None=..., packed_struct: builtins.bool | None=..., packed_enum: builtins.bool | None=..., skip_message: builtins.bool | None=..., no_unions: builtins.bool | None=..., msgid: builtins.int | None=..., anonymous_oneof: builtins.bool | None=..., proto3: builtins.bool | None=..., proto3_singular_msgs: builtins.bool | None=..., enum_to_string: builtins.bool | None=..., enum_validate: builtins.bool | None=..., fixed_length: builtins.bool | None=..., fixed_count: builtins.bool | None=..., submsg_callback: builtins.bool | None=..., mangle_names: Global___TypenameMangling.ValueType | None=..., callback_datatype: builtins.str | None=..., callback_function: builtins.str | None=..., descriptorsize: Global___DescriptorSize.ValueType | None=..., default_has: builtins.bool | None=..., include: collections.abc.Iterable[builtins.str] | None=..., exclude: collections.abc.Iterable[builtins.str] | None=..., package: builtins.str | None=..., type_override: google.protobuf.descriptor_pb2.FieldDescriptorProto.Type.ValueType | None=..., label_override: google.protobuf.descriptor_pb2.FieldDescriptorProto.Label.ValueType | None=..., sort_by_tag: builtins.bool | None=..., fallback_type: Global___FieldType.ValueType | None=..., initializer: builtins.str | None=..., discard_unused_automatic_types: builtins.bool | None=..., discard_deprecated: builtins.bool | None=...) -> None:
         ...
 
     def HasField(self, field_name: typing.Literal['anonymous_oneof', b'anonymous_oneof', 'callback_datatype', b'callback_datatype', 'callback_function', b'callback_function', 'default_has', b'default_has', 'descriptorsize', b'descriptorsize', 'discard_deprecated', b'discard_deprecated', 'discard_unused_automatic_types', b'discard_unused_automatic_types', 'enum_intsize', b'enum_intsize', 'enum_to_string', b'enum_to_string', 'enum_validate', b'enum_validate', 'fallback_type', b'fallback_type', 'fixed_count', b'fixed_count', 'fixed_length', b'fixed_length', 'initializer', b'initializer', 'int_size', b'int_size', 'label_override', b'label_override', 'long_names', b'long_names', 'mangle_names', b'mangle_names', 'max_count', b'max_count', 'max_length', b'max_length', 'max_size', b'max_size', 'msgid', b'msgid', 'no_unions', b'no_unions', 'package', b'package', 'packed_enum', b'packed_enum', 'packed_struct', b'packed_struct', 'proto3', b'proto3', 'proto3_singular_msgs', b'proto3_singular_msgs', 'skip_message', b'skip_message', 'sort_by_tag', b'sort_by_tag', 'submsg_callback', b'submsg_callback', 'type', b'type', 'type_override', b'type_override']) -> builtins.bool:
@@ -273,12 +273,12 @@ class NanoPBOptions(google.protobuf.message.Message):
 
     def ClearField(self, field_name: typing.Literal['anonymous_oneof', b'anonymous_oneof', 'callback_datatype', b'callback_datatype', 'callback_function', b'callback_function', 'default_has', b'default_has', 'descriptorsize', b'descriptorsize', 'discard_deprecated', b'discard_deprecated', 'discard_unused_automatic_types', b'discard_unused_automatic_types', 'enum_intsize', b'enum_intsize', 'enum_to_string', b'enum_to_string', 'enum_validate', b'enum_validate', 'exclude', b'exclude', 'fallback_type', b'fallback_type', 'fixed_count', b'fixed_count', 'fixed_length', b'fixed_length', 'include', b'include', 'initializer', b'initializer', 'int_size', b'int_size', 'label_override', b'label_override', 'long_names', b'long_names', 'mangle_names', b'mangle_names', 'max_count', b'max_count', 'max_length', b'max_length', 'max_size', b'max_size', 'msgid', b'msgid', 'no_unions', b'no_unions', 'package', b'package', 'packed_enum', b'packed_enum', 'packed_struct', b'packed_struct', 'proto3', b'proto3', 'proto3_singular_msgs', b'proto3_singular_msgs', 'skip_message', b'skip_message', 'sort_by_tag', b'sort_by_tag', 'submsg_callback', b'submsg_callback', 'type', b'type', 'type_override', b'type_override']) -> None:
         ...
-global___NanoPBOptions = NanoPBOptions
+Global___NanoPBOptions: typing_extensions.TypeAlias = NanoPBOptions
 NANOPB_FILEOPT_FIELD_NUMBER: builtins.int
 NANOPB_MSGOPT_FIELD_NUMBER: builtins.int
 NANOPB_ENUMOPT_FIELD_NUMBER: builtins.int
 NANOPB_FIELD_NUMBER: builtins.int
-nanopb_fileopt: google.protobuf.internal.extension_dict._ExtensionFieldDescriptor[google.protobuf.descriptor_pb2.FileOptions, global___NanoPBOptions]
-nanopb_msgopt: google.protobuf.internal.extension_dict._ExtensionFieldDescriptor[google.protobuf.descriptor_pb2.MessageOptions, global___NanoPBOptions]
-nanopb_enumopt: google.protobuf.internal.extension_dict._ExtensionFieldDescriptor[google.protobuf.descriptor_pb2.EnumOptions, global___NanoPBOptions]
-nanopb: google.protobuf.internal.extension_dict._ExtensionFieldDescriptor[google.protobuf.descriptor_pb2.FieldOptions, global___NanoPBOptions]
+nanopb_fileopt: google.protobuf.internal.extension_dict._ExtensionFieldDescriptor[google.protobuf.descriptor_pb2.FileOptions, Global___NanoPBOptions]
+nanopb_msgopt: google.protobuf.internal.extension_dict._ExtensionFieldDescriptor[google.protobuf.descriptor_pb2.MessageOptions, Global___NanoPBOptions]
+nanopb_enumopt: google.protobuf.internal.extension_dict._ExtensionFieldDescriptor[google.protobuf.descriptor_pb2.EnumOptions, Global___NanoPBOptions]
+nanopb: google.protobuf.internal.extension_dict._ExtensionFieldDescriptor[google.protobuf.descriptor_pb2.FieldOptions, Global___NanoPBOptions]

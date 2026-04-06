@@ -5,6 +5,7 @@
 namespace hw::gpio
 {
 const Gpio brake_ocsc_ok(BRAKE_OCSC_OK_3V3_GPIO_Port, BRAKE_OCSC_OK_3V3_Pin);
+const Gpio nbspd_brake_pressed_3v3(NBSPD_BRAKE_PRESSED_3V3_GPIO_Port, NBSPD_BRAKE_PRESSED_3V3_Pin);
 const Gpio rl_int(RL_INT_3V3_SENS_GPIO_Port, RL_INT_3V3_SENS_Pin);
 const Gpio susp_travel_rl_ocsc(SUSP_TRAVEL_RL_OCSC_GPIO_Port, SUSP_TRAVEL_RL_OCSC_Pin);
 const Gpio susp_travel_rr_ocsc(SUSP_TRAVEL_RR_OCSC_GPIO_Port, SUSP_TRAVEL_RR_OCSC_Pin);

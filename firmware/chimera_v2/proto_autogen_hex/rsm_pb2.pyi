@@ -30,6 +30,7 @@ class _GpioNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._En
     GPIO_SUSP_TRAVEL_RL_OCSC: _GpioNetName.ValueType
     GPIO_BRAKE_OCSC_OK: _GpioNetName.ValueType
     GPIO_D_P_PULLUP: _GpioNetName.ValueType
+    GPIO_NBSPD_BRAKE_PRESSED: _GpioNetName.ValueType
 
 class GpioNetName(_GpioNetName, metaclass=_GpioNetNameEnumTypeWrapper):
     ...
@@ -44,7 +45,8 @@ GPIO_SUSP_TRAVEL_RR_OCSC: GpioNetName.ValueType
 GPIO_SUSP_TRAVEL_RL_OCSC: GpioNetName.ValueType
 GPIO_BRAKE_OCSC_OK: GpioNetName.ValueType
 GPIO_D_P_PULLUP: GpioNetName.ValueType
-global___GpioNetName = GpioNetName
+GPIO_NBSPD_BRAKE_PRESSED: GpioNetName.ValueType
+Global___GpioNetName: typing_extensions.TypeAlias = GpioNetName
 
 class _AdcNetName:
     ValueType = typing.NewType('ValueType', builtins.int)
@@ -65,7 +67,7 @@ ADC_LC3_OUT: AdcNetName.ValueType
 ADC_SUSP_TRAVEL_RL_3V3: AdcNetName.ValueType
 ADC_SUSP_TRAVEL_RR_3V3: AdcNetName.ValueType
 ADC_BPS_3V3: AdcNetName.ValueType
-global___AdcNetName = AdcNetName
+Global___AdcNetName: typing_extensions.TypeAlias = AdcNetName
 
 class _I2cNetName:
     ValueType = typing.NewType('ValueType', builtins.int)
@@ -80,7 +82,7 @@ class I2cNetName(_I2cNetName, metaclass=_I2cNetNameEnumTypeWrapper):
     ...
 I2C_NET_NAME_UNSPECIFIED: I2cNetName.ValueType
 I2C_R_PUMP: I2cNetName.ValueType
-global___I2cNetName = I2cNetName
+Global___I2cNetName: typing_extensions.TypeAlias = I2cNetName
 
 class _SpiNetName:
     ValueType = typing.NewType('ValueType', builtins.int)
@@ -95,4 +97,4 @@ class SpiNetName(_SpiNetName, metaclass=_SpiNetNameEnumTypeWrapper):
     ...
 SPI_NET_NAME_UNSPECIFIED: SpiNetName.ValueType
 SPI_IMU: SpiNetName.ValueType
-global___SpiNetName = SpiNetName
+Global___SpiNetName: typing_extensions.TypeAlias = SpiNetName

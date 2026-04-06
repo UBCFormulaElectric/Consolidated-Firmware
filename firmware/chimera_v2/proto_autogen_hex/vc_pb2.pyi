@@ -92,7 +92,7 @@ GPIO_TSMS_3V3_OUT: GpioNetName.ValueType
 GPIO_IMU_CS1: GpioNetName.ValueType
 GPIO_IMU_CS2: GpioNetName.ValueType
 GPIO_IMU_CS3: GpioNetName.ValueType
-global___GpioNetName = GpioNetName
+Global___GpioNetName: typing_extensions.TypeAlias = GpioNetName
 
 class _AdcNetName:
     ValueType = typing.NewType('ValueType', builtins.int)
@@ -127,7 +127,7 @@ ADC_BMS: AdcNetName.ValueType
 ADC_FRONT: AdcNetName.ValueType
 ADC_RSM: AdcNetName.ValueType
 ADC_MISC_FUSE: AdcNetName.ValueType
-global___AdcNetName = AdcNetName
+Global___AdcNetName: typing_extensions.TypeAlias = AdcNetName
 
 class _I2cNetName:
     ValueType = typing.NewType('ValueType', builtins.int)
@@ -144,7 +144,7 @@ class I2cNetName(_I2cNetName, metaclass=_I2cNetNameEnumTypeWrapper):
 I2C_NET_NAME_UNSPECIFIED: I2cNetName.ValueType
 I2C_BAT_MON: I2cNetName.ValueType
 I2C_PWR_PUMP: I2cNetName.ValueType
-global___I2cNetName = I2cNetName
+Global___I2cNetName: typing_extensions.TypeAlias = I2cNetName
 
 class _SpiNetName:
     ValueType = typing.NewType('ValueType', builtins.int)
@@ -165,4 +165,4 @@ IMU1: SpiNetName.ValueType
 IMU2: SpiNetName.ValueType
 IMU3: SpiNetName.ValueType
 RPI: SpiNetName.ValueType
-global___SpiNetName = SpiNetName
+Global___SpiNetName: typing_extensions.TypeAlias = SpiNetName
