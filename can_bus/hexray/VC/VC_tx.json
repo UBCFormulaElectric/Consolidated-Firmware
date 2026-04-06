@@ -479,5 +479,303 @@
                 "signed": true
             }
         }
+    },
+    "ShdnNodeStatus": {
+        "msg_id": 550,
+        "cycle_time": 100,
+        "description": "VC Shutdown Node Status",
+        "signals": {
+            "RearRightMotorInterlock": {
+                "bits": 1
+            },
+            "InertiaSwitch": {
+                "bits": 1
+            },
+            "TSMSOKStatus": {
+                "bits": 1
+            },
+            "MSDOrEMeterOKStatus": {
+                "bits": 1
+            }
+        }
+    },
+    "EllipseTime": {
+        "msg_id": 554,
+        "cycle_time": 100,
+        "description": "Timestamp from the SBG Ellipse N sensor.",
+        "signals": {
+            "EllipseTimestamp": {
+                "bits": 32,
+                "unit": "us"
+            }
+        }
+    },
+    "EllipseStatus": {
+        "msg_id": 555,
+        "cycle_time": 100,
+        "description": "Status of the SBG Ellipse N sensor.",
+        "signals": {
+            "EllipseGeneralStatusBitmask": {
+                "bits": 16
+            },
+            "EllipseComStatusBitmask": {
+                "bits": 32
+            },
+            "EllipseErrorCode": {
+                "enum": "EllipseErrorCode"
+            },
+            "EkfSolutionMode": {
+                "enum": "VcEkfStatus"
+            },
+            "EllipseQueueOverflowCount": {
+                "bits": 8
+            }
+        }
+    },
+    "EllipseAngularVelocity": {
+        "disabled": true,
+        "msg_id": 556,
+        "cycle_time": 1000,
+        "description": "Angular velocity from the SBG Ellipse N sensor.",
+        "signals": {
+            "AngularVelocityRoll": {
+                "min": -360,
+                "max": 360,
+                "resolution": 1,
+                "unit": "deg/s"
+            },
+            "AngularVelocityPitch": {
+                "min": -360,
+                "max": 360,
+                "resolution": 1,
+                "unit": "deg/s"
+            },
+            "AngularVelocityYaw": {
+                "min": -360,
+                "max": 360,
+                "resolution": 1,
+                "unit": "deg/s"
+            }
+        }
+    },
+    "EllipseEulerAngles": {
+        "msg_id": 557,
+        "cycle_time": 1000,
+        "description": "Euler angles from the SBG Ellipse N sensor.",
+        "signals": {
+            "EulerAnglesRoll": {
+                "min": -180,
+                "max": 180,
+                "resolution": 0.1,
+                "signed": true,
+                "unit": "deg"
+            },
+            "EulerAnglesPitch": {
+                "min": -180,
+                "max": 180,
+                "resolution": 0.1,
+                "signed": true,
+                "unit": "deg"
+            },
+            "EulerAnglesYaw": {
+                "min": -180,
+                "max": 180,
+                "resolution": 0.1,
+                "signed": true,
+                "unit": "deg"
+            }
+        }
+    },
+    "EllipseEkfNavVelocity": {
+        "msg_id": 218,
+        "cycle_time": 100,
+        "description": "Car Velocity info",
+        "signals": {
+            "VelocityNorth": {
+                "resolution": 0.05,
+                "signed": true,
+                "min": -35,
+                "max": 35,
+                "unit": "m/s"
+            },
+            "VelocityNorthAccuracy": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 35,
+                "unit": "m/s"
+            },
+            "VelocityEast": {
+                "resolution": 0.05,
+                "signed": true,
+                "min": -35,
+                "max": 35,
+                "unit": "m/s"
+            },
+            "VelocityEastAccuracy": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 35,
+                "unit": "m/s"
+            },
+            "VelocityDown": {
+                "resolution": 0.05,
+                "signed": true,
+                "min": -35,
+                "max": 35,
+                "unit": "m/s"
+            },
+            "VelocityDownAccuracy": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 35,
+                "unit": "m/s"
+            }
+        }
+    },
+    "MainBoardEfuse": {
+        "msg_id": 559,
+        "cycle_time": 1,
+        "description": "Efuse info for shdn/LV/pump/aux/INVR/INVL efuses.",
+        "signals": {
+            "FrontInvertersCurrent": {
+                "resolution": 0.001,
+                "min": 0,
+                "max": 5,
+                "unit": "A"
+            },
+            "FrontInvertersStatus": {
+                "bits": 1
+            },
+            "RSMCurrent": {
+                "resolution": 0.001,
+                "min": 0,
+                "max": 20,
+                "unit": "A"
+            },
+            "RSMStatus": {
+                "bits": 1
+            },
+            "BMSCurrent": {
+                "resolution": 0.001,
+                "min": 0,
+                "max": 5,
+                "unit": "A"
+            },
+            "BMSStatus": {
+                "bits": 1
+            },
+            "RearInvertersCurrent": {
+                "resolution": 0.001,
+                "min": 0,
+                "max": 5,
+                "unit": "A"
+            },
+            "RearInvertersStatus": {
+                "bits": 1
+            },
+            "DAMCurrent": {
+                "resolution": 0.001,
+                "min": 0,
+                "max": 5,
+                "unit": "A"
+            },
+            "DAMStatus": {
+                "bits": 1
+            },
+            "FrontCurrent": {
+                "resolution": 0.001,
+                "min": 0,
+                "max": 5,
+                "unit": "A"
+            },
+            "FrontStatus": {
+                "bits": 1
+            }
+        }
+    },
+    "PowerMonitoring": {
+        "msg_id": 560,
+        "cycle_time": 100,
+        "description": "Power monitoring chip",
+        "signals": {
+            "ChannelOneVoltage": {
+                "resolution": 0.1,
+                "min": 0.0,
+                "max": 24.0,
+                "unit": "V"
+            },
+            "ChannelTwoVoltage": {
+                "resolution": 0.1,
+                "min": 0.0,
+                "max": 32.0,
+                "unit": "V"
+            },
+            "ChannelThreeVoltage": {
+                "resolution": 0.1,
+                "min": 0.0,
+                "max": 32.0,
+                "unit": "V"
+            },
+            "ChannelFourVoltage": {
+                "resolution": 0.1,
+                "min": 0.0,
+                "max": 32.0,
+                "unit": "V"
+            },
+            "ChannelOneCurrent": {
+                "resolution": 0.1,
+                "min": 0.0,
+                "max": 25.0,
+                "unit": "A"
+            },
+            "ChannelTwoCurrent": {
+                "resolution": 0.1,
+                "min": 0.0,
+                "max": 25.0,
+                "unit": "A"
+            },
+            "ChannelThreeCurrent": {
+                "resolution": 0.1,
+                "min": 0.0,
+                "max": 25.0,
+                "unit": "A"
+            },
+            "ChannelFourCurrent": {
+                "resolution": 0.1,
+                "min": 0.0,
+                "max": 25.0,
+                "unit": "A"
+            },
+            "ChannelOnePower": {
+                "resolution": 0.1,
+                "min": 0.0,
+                "max": 800.0,
+                "unit": "W"
+            },
+            "ChannelTwoPower": {
+                "resolution": 0.1,
+                "min": 0.0,
+                "max": 800.0,
+                "unit": "W"
+            },
+            "ChannelThreePower": {
+                "resolution": 0.1,
+                "min": 0.0,
+                "max": 800.0,
+                "unit": "W"
+            },
+            "ChannelFourPower": {
+                "resolution": 0.1,
+                "min": 0.0,
+                "max": 800.0,
+                "unit": "W"
+            }
+        }
+    },
+    "Bootup": {
+        "msg_id": 234,
+        "cycle_time": null,
+        "description": "Async bootup message!",
+        "signals": {}
     }
 }
