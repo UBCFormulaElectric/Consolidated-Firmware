@@ -6,6 +6,7 @@
 #include "app_jsoncan.hpp"
 #include "app_suspension.hpp"
 #include "app_tireTemp.hpp"
+#include "app_pumpControl.hpp"
 #include <app_canUtils.hpp>
 
 #include "io_canQueues.hpp"
@@ -37,6 +38,7 @@ void jobs_run100Hz_tick()
     app::suspension::broadcast();
     app::tireTemp::broadcast();
     app::coolant::broadcast();
+    app::pumpControl::broadcast();
     io::can_tx::enqueue100HzMsgs();
 }
 void jobs_run1kHz_tick()
