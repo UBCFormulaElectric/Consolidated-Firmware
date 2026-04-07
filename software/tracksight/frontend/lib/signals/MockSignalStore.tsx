@@ -2,135 +2,135 @@ import SignalStore from "@/lib/signals/SignalStore";
 import { SignalMetadata, SignalType } from "../types/Signal";
 
 export const MOCK_STATES = [ // needed to hardcode for widgetadder
-  "IDLE", "ACTIVE", "ERROR", "WAITING", "CHARGING", "SKIBIDI",
-  "TOILET", "MORE", "SIGNALS", "TO", "TEST", "RANDOM",
-  "ENUM", "COLOR", "GEN"
+    "IDLE", "ACTIVE", "ERROR", "WAITING", "CHARGING", "SKIBIDI",
+    "TOILET", "MORE", "SIGNALS", "TO", "TEST", "RANDOM",
+    "ENUM", "COLOR", "GEN"
 ];
 
 export const ALERT_SIGNALS = [
-  "CPU Usage",
-  "Memory Usage",
-  "Disk Space",
-  "Network Traffic",
-  "Temperature",
-  "Power Consumption",
-  "Fan Speed",
-  "GPU Usage",
-  "Battery Level",
-  "Process Count",
-  "Thread Count",
-  "IO Wait",
-  "Page Faults",
-  "Context Switches",
-  "Interrupts",
-  "System Load",
-  "Swap Usage",
-  "Latency",
-  "Error Rate",
-  "Throughput",
+    "CPU Usage",
+    "Memory Usage",
+    "Disk Space",
+    "Network Traffic",
+    "Temperature",
+    "Power Consumption",
+    "Fan Speed",
+    "GPU Usage",
+    "Battery Level",
+    "Process Count",
+    "Thread Count",
+    "IO Wait",
+    "Page Faults",
+    "Context Switches",
+    "Interrupts",
+    "System Load",
+    "Swap Usage",
+    "Latency",
+    "Error Rate",
+    "Throughput",
 ]
 
 function generateRandomNumericalValue(time: number, index: number = 0, min: number, max: number) {
-  if (min !== undefined && max !== undefined) {
-    const range = max - min;
-    // Generate a wave within the range
-    const normalized = (Math.sin(time / 1000 + index) + 1) / 2; // 0 to 1
+    if (min !== undefined && max !== undefined) {
+        const range = max - min;
+        // Generate a wave within the range
+        const normalized = (Math.sin(time / 1000 + index) + 1) / 2; // 0 to 1
 
-    // Add some noise
-    const noise = (Math.random() - 0.5) * 0.1; // -0.05 to 0.05
-    let n = normalized + noise;
-    n = Math.max(0, Math.min(1, n));
-    return min + n * range;
-  }
+        // Add some noise
+        const noise = (Math.random() - 0.5) * 0.1; // -0.05 to 0.05
+        let n = normalized + noise;
+        n = Math.max(0, Math.min(1, n));
+        return min + n * range;
+    }
 
-  return (
-    Math.sin(time / 1000 + index) * 50 + Math.random() * 10 + 50 + index * 20
-  );
+    return (
+        Math.sin(time / 1000 + index) * 50 + Math.random() * 10 + 50 + index * 20
+    );
 }
 
 function generateRandomEnumValue() {
-  const v = Math.floor(Math.random() * MOCK_STATES.length);
-  return {
-    name: MOCK_STATES[v],
-    idx: v,
-  };
+    const v = Math.floor(Math.random() * MOCK_STATES.length);
+    return {
+        name: MOCK_STATES[v],
+        idx: v,
+    };
 }
 
 function generateRandomAlertValue(prev: number) {
-  const shouldChange = Math.random() < 0.001;
-  if (!shouldChange) return prev;
+    const shouldChange = Math.random() < 0.001;
+    if (!shouldChange) return prev;
 
-  const change = prev === 0 ? 1 : 0;
-  return change;
+    const change = prev === 0 ? 1 : 0;
+    return change;
 }
 
 class MockSignalStore extends SignalStore {
-  private signalSubscriptionIntervals: Map<string, number>;
+    private signalSubscriptionIntervals: Map<string, number>;
 
-  constructor(
-    updateWithTimestamp: (timestamp: number) => void,
-  ) {
-    super(updateWithTimestamp);
+    constructor(
+        updateWithTimestamp: (timestamp: number) => void,
+    ) {
+        super(updateWithTimestamp);
 
-    this.signalSubscriptionIntervals = new Map();
-    
-    ALERT_SIGNALS.forEach(signalName => {
-      let previousValue = 0;
+        this.signalSubscriptionIntervals = new Map();
 
-      const intervalId = setInterval(() => {
-        const now = Date.now();
-        const value = generateRandomAlertValue(previousValue);
-        previousValue = value;
+        ALERT_SIGNALS.forEach(signalName => {
+            let previousValue = 0;
 
-        this.addAlertDataPoint(signalName, now, value);
-      }, 1);
+            const intervalId = setInterval(() => {
+                const now = Date.now();
+                const value = generateRandomAlertValue(previousValue);
+                previousValue = value;
 
-      this.signalSubscriptionIntervals.set(signalName, intervalId as unknown as number);
-    });
-  }
+                this.addAlertDataPoint(signalName, now, value);
+            }, 1);
 
-  // FIXME(evan): Type stuff I can't be bothered to do right now
-  getReferenceToSignal<T extends SignalMetadata>(signal: T) {
-    const signalData = this.getOrCreateSignalData(signal);
-    this.incrementSubscribers(signal.name);
+            this.signalSubscriptionIntervals.set(signalName, intervalId as unknown as number);
+        });
+    }
 
-    if (this.getSubscriberCount(signal.name) !== 1) return signalData.data as any;
+    // FIXME(evan): Type stuff I can't be bothered to do right now
+    getReferenceToSignal<T extends SignalMetadata>(signal: T) {
+        const signalData = this.getOrCreateSignalData(signal);
+        this.incrementSubscribers(signal.name);
 
-    let previousValue = 0;
+        if (this.getSubscriberCount(signal.name) !== 1) return signalData.data as any;
 
-    // NOTE(evan): When a browser tab isn't focused setInterval is throttled to run once per second.
-    //             This can make the renderers appear frozen if they rely on frequent updates. In 
-    //             production when using an actual signal source this shouldn't be an issue.
-    const intervalId = setInterval(() => {
-      const now = Date.now();
+        let previousValue = 0;
 
-      if (signal.type === SignalType.NUMERICAL) {
-        const { min_val, max_val } = signal;
-        const value = generateRandomNumericalValue(now, 0, min_val, max_val);
-        previousValue = value;
-        this.addDataPoint(signal.name, now, value);
-      } else if (signal.type === SignalType.ENUM) {
-        const value = generateRandomEnumValue();
-        previousValue = value.idx;
-        this.addDataPoint(signal.name, now, value.idx);
-      }
-    }, 1);
+        // NOTE(evan): When a browser tab isn't focused setInterval is throttled to run once per second.
+        //             This can make the renderers appear frozen if they rely on frequent updates. In 
+        //             production when using an actual signal source this shouldn't be an issue.
+        const intervalId = setInterval(() => {
+            const now = Date.now();
 
-    this.signalSubscriptionIntervals.set(signal.name, intervalId as unknown as number);
+            if (signal.type === SignalType.NUMERICAL) {
+                const { min_val, max_val } = signal;
+                const value = generateRandomNumericalValue(now, 0, min_val, max_val);
+                previousValue = value;
+                this.addDataPoint(signal.name, now, value);
+            } else if (signal.type === SignalType.ENUM) {
+                const value = generateRandomEnumValue();
+                previousValue = value.idx;
+                this.addDataPoint(signal.name, now, value.idx);
+            }
+        }, 1);
 
-    return signalData.data as any;
-  }
+        this.signalSubscriptionIntervals.set(signal.name, intervalId as unknown as number);
 
-  purgeReferenceToSignal<T extends SignalMetadata>(signal: T) {
-    const shouldCleanup = this.decrementSubscribers(signal.name);
+        return signalData.data as any;
+    }
 
-    if (!shouldCleanup) return;
+    purgeReferenceToSignal<T extends SignalMetadata>(signal: T) {
+        const shouldCleanup = this.decrementSubscribers(signal.name);
 
-    this.markAsUnsubscribed(signal.name);
+        if (!shouldCleanup) return;
 
-    clearInterval(this.signalSubscriptionIntervals.get(signal.name));
-    this.signalSubscriptionIntervals.delete(signal.name);
-  }
+        this.markAsUnsubscribed(signal.name);
+
+        clearInterval(this.signalSubscriptionIntervals.get(signal.name));
+        this.signalSubscriptionIntervals.delete(signal.name);
+    }
 }
 
 export default MockSignalStore;
