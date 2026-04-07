@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Socket } from "socket.io-client";
 import { BACKEND_URL, DEBUG } from "@/lib/SignalConfig";
 
@@ -12,11 +12,8 @@ export function useSubscribers(socket: Socket, pruneSignalData: (name: string) =
     const getSignalRefCount = useCallback((name: string) => signalSubscriberCount.current[name] || 0, []);
 
     // Trigger re-computation when subscriber counts change (since we store them in a ref)
-    const [tick, setTick] = useState(0);
-    const activeSignals = useMemo(
-        () => Object.keys(signalSubscriberCount.current).filter(k => signalSubscriberCount.current[k] > 0),
-        [tick]
-    );
+    const [, setTick] = useState(0);
+    const activeSignals = Object.keys(signalSubscriberCount.current).filter((k) => signalSubscriberCount.current[k] > 0);
     const isSubscribed = useCallback((signalName: string) => (signalSubscriberCount.current[signalName] || 0) > 0, [signalSubscriberCount]);
 
     // SUB MANAGEMENT

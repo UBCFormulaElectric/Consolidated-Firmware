@@ -373,7 +373,7 @@ function AlertTimeline() {
         cancelAnimationFrame(animationFrame.current);
       }
     };
-  }, [canvasRef.current]);
+  }, [canvasRef, globalTimeRangeRef, scalePxPerSecRef]);
 
   useEffect(() => {
     if (!data.current) return;
@@ -409,7 +409,7 @@ function AlertTimeline() {
     return () => {
       clearInterval(intervalId);
     };
-  }, [data.current]);
+  }, [data]);
   
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;

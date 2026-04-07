@@ -27,4 +27,6 @@ const LiveSignalStoreProvider = memo(({ children }: { children: React.ReactNode 
     );
 });
 
+LiveSignalStoreProvider.displayName = "LiveSignalStoreProvider";
+
 export { LiveSignalStoreProvider };

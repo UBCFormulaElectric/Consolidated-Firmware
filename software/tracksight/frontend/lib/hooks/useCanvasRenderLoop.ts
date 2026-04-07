@@ -49,5 +49,5 @@ export function useCanvasRenderLoop(
         animationFrameId.current = null;
       }
     };
-  }, [canvasRef.current, height, dpr]);
+  }, [canvasRef, height, dpr]);
 }

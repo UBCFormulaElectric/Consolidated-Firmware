@@ -28,10 +28,12 @@ const useSignalDataStore = <T extends SignalMetadata>(signal: T) => {
   const cachedReferenceRef = useRef<SignalStoreReturnType<T> | null>(null);
 
   useEffect(() => {
-    return () => {
-      if (!signalStore.current) return;
+    const store = signalStore.current;
 
-      signalStore.current.purgeReferenceToSignal(signal);
+    return () => {
+      if (!store) return;
+
+      store.purgeReferenceToSignal(signal);
     };
   }, [signal, signalStore]);
 
@@ -56,11 +58,13 @@ const useSignalDataStores = <T extends SignalMetadata[]>(signals: T) => {
   const cachedReferencesRef = useRef<SignalStoreReturnType<T[number]>[]>([]);
 
   useEffect(() => {
+    const store = signalStore.current;
+
     return () => {
-      if (!signalStore.current) return;
+      if (!store) return;
 
       signals.forEach((signal) => {
-        signalStore.current!.purgeReferenceToSignal(signal);
+        store.purgeReferenceToSignal(signal);
       });
     };
   }, [signals, signalStore]);
@@ -99,4 +103,3 @@ const useAlertDataStores = () => {
 }
 
 export { SignalDataStoreProvider, useSignalDataStore, useSignalDataStores, useAlertDataStores };
-

@@ -113,7 +113,7 @@ export function ScrollProvider({ children, initialTimestamp }: ScrollProviderPro
 
             cancelAnimationFrame(animationFrame.current);
         };
-    }, []);
+    }, [initialTimestamp]);
 
     useEffect(() => {
         const handleMouseMove = (event: MouseEvent) => {
@@ -122,7 +122,7 @@ export function ScrollProvider({ children, initialTimestamp }: ScrollProviderPro
 
         document.addEventListener("mousemove", handleMouseMove);
         return () => document.removeEventListener("mousemove", handleMouseMove);
-    }, []);
+    }, [initialTimestamp]);
 
     useEffect(() => {
         let scrollTimeout: number;
@@ -150,7 +150,7 @@ export function ScrollProvider({ children, initialTimestamp }: ScrollProviderPro
             document.removeEventListener("scroll", handleUniversalScrollStart);
             document.removeEventListener("scrollend", handleUniversalScrollEnd);
         };
-    }, []);
+    }, [initialTimestamp]);
 
     useEffect(() => {
         const scrollableElement = scrollableRef.current;
@@ -191,7 +191,7 @@ export function ScrollProvider({ children, initialTimestamp }: ScrollProviderPro
         return () => {
             scrollableElement.removeEventListener("scroll", handleScroll);
         };
-    }, []);
+    }, [initialTimestamp]);
 
     useEffect(() => {
         const handleWheel = (event: WheelEvent) => {
@@ -249,7 +249,7 @@ export function ScrollProvider({ children, initialTimestamp }: ScrollProviderPro
         return () => {
             scrollableElement.removeEventListener("wheel", handleWheel);
         };
-    }, []);
+    }, [initialTimestamp]);
 
     useEffect(() => {
         const scrollableElement = scrollableRef.current;
