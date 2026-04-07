@@ -93,6 +93,8 @@ function Selector<T extends any>(props: SelectorProps<T>) {
   }, [path, options]);
 
   useEffect(() => {
+    const button = buttonElement.current;
+
     const handleClickOutside = (event: MouseEvent) => {
       // Close dropdown if clicking outside both the dropdown and button
       if (buttonElement.current && !buttonElement.current.contains(event.target as Node)) {
@@ -123,11 +125,11 @@ function Selector<T extends any>(props: SelectorProps<T>) {
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    buttonElement.current?.addEventListener("click", handleButtonClick);
+    button?.addEventListener("click", handleButtonClick);
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
-      buttonElement.current?.removeEventListener("click", handleButtonClick);
+      button?.removeEventListener("click", handleButtonClick);
     };
   }, [buttonElement, dropdownRef]);
 

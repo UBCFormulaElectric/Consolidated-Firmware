@@ -19,4 +19,6 @@ const MockSignalStoreProvider = memo(({ children }: { children: React.ReactNode 
     );
 });
 
+MockSignalStoreProvider.displayName = "MockSignalStoreProvider";
+
 export { MockSignalStoreProvider };

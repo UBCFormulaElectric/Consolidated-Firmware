@@ -29,7 +29,7 @@ export function useLocalState<T>(
       }
     }
     setIsInitialized(true);
-  }, [name]);
+  }, [deser, name]);
 
   //setting
   const setLocalState: Dispatch<SetStateAction<T>> = (value) => {
