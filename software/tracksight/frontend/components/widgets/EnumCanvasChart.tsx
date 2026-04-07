@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, RefObject, useEffect } from "react";
+import { useRef } from "react";
 import render, { render_empty } from "@/components/widgets/render";
 import { ChartLayout } from "@/components/widgets/CanvasChartTypes";
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
