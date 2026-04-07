@@ -13,6 +13,8 @@
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_cans.hpp"
 
+#include "hw_bootup.hpp"
+
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
     const uint32_t period_ms = 1000U;
@@ -102,6 +104,7 @@ static void RSM_StartAllTasks()
 
 void tasks_preInit()
 {
+    hw::bootup::enableInterruptsForApp();
     hw_hardFaultHandler_init();
 }
 
@@ -109,6 +112,21 @@ void tasks_init()
 {
     hw::adcs::chipsInit();
     hw::can::can1.init();
+
+    hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
+    if (boot_request.context != hw::bootup::BootContext::BOOT_CONTEXT_NONE)
+    {
+        if (boot_request.context == hw::bootup::BootContext::BOOT_CONTEXT_STACK_OVERFLOW)
+        {
+            LOG_WARN("Detected stack overflow on the previous boot cycle!");
+        }
+
+        const_cast<hw::bootup::BootRequest &> (boot_request).context = hw::bootup::BootContext::BOOT_CONTEXT_NONE;
+        const_cast<hw::bootup::BootRequest &> (boot_request).context_value = 0;
+        hw::bootup::setBootRequest(boot_request);
+    }
+    
+
     jobs_init();
     osKernelInitialize();
     RSM_StartAllTasks();
