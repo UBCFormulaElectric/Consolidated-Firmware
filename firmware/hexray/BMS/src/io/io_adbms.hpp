@@ -191,7 +191,10 @@ namespace adbms
                                   std::array<std::array<std::expected<void, ErrorCode>, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success);
     void                           readFilteredCellVoltageReg(
                                   std::array<std::array<uint16_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS>                       &filtered_cell_voltage_regs,
-                                  std::array<std::array<std::expected<void, ErrorCode>, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success);                              
+                                  std::array<std::array<std::expected<void, ErrorCode>, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success);   
+    void                           readRedundantCellVoltageReg(
+                                  std::array<std::array<uint16_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS>                       &redundant_cell_voltage_regs,
+                                  std::array<std::array<std::expected<void, ErrorCode>, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success);                             
     void                           readCellTempReg(
                                   std::array<std::array<uint16_t, THERM_GPIOS_PER_SEGMENT>, NUM_SEGMENTS>                       &cell_temp_regs,
                                   std::array<std::array<std::expected<void, ErrorCode>, THERM_GPIOS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success);
@@ -199,6 +202,7 @@ namespace adbms
                                     std::array<StatusGroups, NUM_SEGMENTS>                   &stat_regs,
                                     std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS> &stat_regs_success);
 
+    std::expected<void, ErrorCode> baselineCells();
     std::expected<void, ErrorCode> owcCells(OpenWireSwitch owcSwitch);
     std::expected<void, ErrorCode> owcTherms(OpenWireSwitch owcSwitch);
 

@@ -5,18 +5,29 @@
 #include "app_segments.hpp"
 #include "app_canTx.hpp"
 
+static constexpr float OW_RELATIVE_THRESHOLD = 0.70f;
+static constexpr float OW_ABSOLUTE_THRESHOLD = 0.5f;
 
 constexpr float convertRegToVoltage(uint16_t reg)
 {
-    return (static_cast<float>(reg) * 150e-6f) + 1.5f;
+    return (static_cast<float>(static_cast<int16_t>(reg)) * 150e-6f) + 1.5f;
 }
 
 constexpr float convertRegToTemp(uint16_t reg) {
-    // float voltage = convertRegToVoltage(reg);
-    // float resistance = 10e3f * (voltage / (3.0f - voltage));
-    // float inv_temp = (1.0f/298.15f) + (1.0f/3610.0f) * std::log(resistance/10e3f);
-    // return (1.0f / inv_temp) - 273.15f;
-    return convertRegToVoltage(reg);
+    float voltage = convertRegToVoltage(reg);
+    float resistance = 10e3f * (voltage / (3.0f - voltage));
+    float inv_temp = (1.0f/298.15f) + (1.0f/3610.0f) * std::log(resistance/10e3f);
+    return (1.0f / inv_temp) - 273.15f;
+}
+
+constexpr bool checkOwcOk(float baselineVoltage, float owcVoltage) {
+    if (owcVoltage < baselineVoltage * OW_RELATIVE_THRESHOLD) {
+        return false;
+    }
+    if (owcVoltage < OW_ABSOLUTE_THRESHOLD) {
+        return false;
+    }
+    return true;
 }
 
 namespace app::segments
@@ -144,20 +155,23 @@ void broadcastStatus() {
 
 void broadcastCellOpenWireCheck() {
     for (size_t seg = 0U; seg < io::NUM_SEGMENTS; seg++) {
-        for (size_t gpio = 0U; gpio < io::adbms::THERM_GPIOS_PER_SEGMENT; gpio++) {
-            if (!therm_owc_odd_success[seg][gpio])
+        for (size_t cell = 0U; cell < io::CELLS_PER_SEGMENT; cell++) {
+            
+            
+            if (!cell_baseline_success[seg][cell] || !cell_owc_even_success[seg][cell] || !cell_owc_odd_success[seg][cell])
             {
-                therm_owc_ok[seg][gpio] = false;
-                therm_owc_setters[seg][gpio](false);
-                continue;
-            }
-            if (!therm_owc_even_success[seg][gpio])
-            {
-                therm_owc_ok[seg][gpio] = false;
-                therm_owc_setters[seg][gpio](false);
+                cell_owc_ok[seg][cell] = false;
+                cell_owc_setters[seg][cell](false);
                 continue;
             }
             
+            float baseline_voltage = convertRegToVoltage(cell_baseline_regs[seg][cell]);
+            float owc_voltage = (cell % 2 == 0) ? convertRegToVoltage(cell_owc_odd_regs[seg][cell]) : convertRegToVoltage(cell_owc_even_regs[seg][cell]);
+            cell_owc_ok[seg][cell] = checkOwcOk(baseline_voltage,owc_voltage);
+
+            //need to disbale balancing 
+            //maybe add sm number of consecutuive faults
+    
         }
     }
 }
@@ -165,19 +179,12 @@ void broadcastCellOpenWireCheck() {
 void broadcastThermOpenWireCheck() {
     for (size_t seg = 0U; seg < io::NUM_SEGMENTS; seg++) {
         for (size_t gpio = 0U; gpio < io::adbms::THERM_GPIOS_PER_SEGMENT; gpio++) {
-            if (!therm_owc_odd_success[seg][gpio])
+            if (!therm_owc_odd_success[seg][gpio] || !therm_owc_even_success[seg][gpio])
             {
                 therm_owc_ok[seg][gpio] = false;
                 therm_owc_setters[seg][gpio](false);
                 continue;
-            }
-            if (!therm_owc_even_success[seg][gpio])
-            {
-                therm_owc_ok[seg][gpio] = false;
-                therm_owc_setters[seg][gpio](false);
-                continue;
-            }
-            
+            }  
         }
     }
 }

@@ -27,6 +27,14 @@ inline constexpr uint16_t RDCVD = 0x000AU;
 inline constexpr uint16_t RDCVE = 0x0009U;
 inline constexpr uint16_t RDCVF = 0x000BU;
 
+// Redundant cell voltages (S-ADC)
+inline constexpr uint16_t RDSVA = 0x0003U;
+inline constexpr uint16_t RDSVB = 0x0005U;
+inline constexpr uint16_t RDSVC = 0x0007U;
+inline constexpr uint16_t RDSVD = 0x000DU;
+inline constexpr uint16_t RDSVE = 0x000EU;
+inline constexpr uint16_t RDSVF = 0x000FU;
+
 // Filtered cell voltages
 inline constexpr uint16_t RDFCA = 0x0012U;
 inline constexpr uint16_t RDFCB = 0x0013U;

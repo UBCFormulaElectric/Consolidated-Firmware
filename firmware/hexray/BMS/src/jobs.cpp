@@ -64,25 +64,16 @@ void jobs_runAdbmsVoltages_tick()
     
     spi_bus_lock.take(io::MAX_TIMEOUT);
 
-    app::segments::setDefaultConfig();
     LOG_IF_ERR(io::adbms::wakeup());
     LOG_IF_ERR(app::segments::configSync());
-
-    if (balancing_enabled) {
-        LOG_IF_ERR(io::adbms::sendBalanceCmd());
-    } else {
-        LOG_IF_ERR(io::adbms::sendStopBalanceCmd());
-    }
- 
     LOG_IF_ERR(app::segments::runVoltageConversion());  
+    app::segments::balancingTick(balancing_enabled);
 
     spi_bus_lock.give();
 
     adbms_app_lock.take(io::MAX_TIMEOUT);
 
     app::segments::broadcastCellVoltages();
-    //app::segments::broadcastCellVoltageStats();
-    app::segments::balancingTick(balancing_enabled);
 
     adbms_app_lock.give();
 }
@@ -91,6 +82,7 @@ void jobs_runAdbmsFilteredVoltages_tick() {
     spi_bus_lock.take(io::MAX_TIMEOUT);
 
     LOG_IF_ERR(io::adbms::wakeup());
+    LOG_IF_ERR(app::segments::configSync());
     LOG_IF_ERR(app::segments::runFilteredVoltageConversion());  
 
     spi_bus_lock.give();
@@ -106,6 +98,7 @@ void jobs_runAdbmsTemperatures_tick() {
     spi_bus_lock.take(io::MAX_TIMEOUT);
 
     LOG_IF_ERR(io::adbms::wakeup());
+    LOG_IF_ERR(app::segments::configSync());
     LOG_IF_ERR(app::segments::runAuxConversion());  
 
     spi_bus_lock.give();
@@ -113,8 +106,6 @@ void jobs_runAdbmsTemperatures_tick() {
     adbms_app_lock.take(io::MAX_TIMEOUT);
 
     app::segments::broadcastCellTemps();
-    //app::segments::broadcastCellTempsStats();
-
 
     adbms_app_lock.give();
 }
@@ -124,6 +115,7 @@ void jobs_runAdbmsDiagnostics_tick() {
     spi_bus_lock.take(io::MAX_TIMEOUT);
 
     LOG_IF_ERR(io::adbms::wakeup());
+    LOG_IF_ERR(app::segments::configSync());
     LOG_IF_ERR(app::segments::runStatusConversion());
     LOG_IF_ERR(app::segments::runCellOpenWireCheck());
     LOG_IF_ERR(app::segments::runThermOpenWireCheck());
@@ -137,20 +129,4 @@ void jobs_runAdbmsDiagnostics_tick() {
     app::segments::broadcastThermOpenWireCheck();
 
     adbms_app_lock.give();
-}
-
-void jobs_runAdbmsTest_tick() {
-    spi_bus_lock.take(io::MAX_TIMEOUT);
-    
-    app::segments::setDefaultConfig();
-    LOG_IF_ERR(io::adbms::wakeup());
-    LOG_IF_ERR(app::segments::configSync());
-
-    spi_bus_lock.give();
-
-    adbms_app_lock.take(io::MAX_TIMEOUT);
-
-
-
-    adbms_app_lock.give();  
 }

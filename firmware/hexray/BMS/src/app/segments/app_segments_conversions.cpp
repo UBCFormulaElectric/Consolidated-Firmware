@@ -10,7 +10,7 @@ using namespace app::segments;
 // check later
 static constexpr uint8_t VOLT_CONV_TIME_MS      = 2U;
 static constexpr uint8_t AUX_CONV_TIME_MS      = 4U;
-static constexpr uint8_t OWC_CONVERSION_TIME_MS = 2U;
+static constexpr uint8_t OWC_CONVERSION_TIME_MS = 8U;
 
 namespace app::segments
 {
@@ -26,10 +26,13 @@ array<array<array<uint16_t, io::adbms::THERM_GPIOS_PER_SEGMENT>, io::NUM_SEGMENT
 array<array<array<expected<void, ErrorCode>, io::adbms::THERM_GPIOS_PER_SEGMENT>, io::NUM_SEGMENTS>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)> cell_temp_success;
 array<array<float, io::THERMISTORS_PER_SEGMENT>, io::NUM_SEGMENTS>                                                                                             cell_temps;
 
+array<array<uint16_t, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>                  cell_baseline_regs;
+array<array<expected<void, ErrorCode>, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> cell_baseline_success;
 array<array<uint16_t, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>                  cell_owc_odd_regs;
 array<array<expected<void, ErrorCode>, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> cell_owc_odd_success;
 array<array<uint16_t, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>                  cell_owc_even_regs;
 array<array<expected<void, ErrorCode>, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> cell_owc_even_success;
+array<array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>                      cell_owc_ok;
 
 array<array<uint16_t, io::adbms::THERM_GPIOS_PER_SEGMENT>, io::NUM_SEGMENTS>                  therm_owc_odd_regs;
 array<array<expected<void, ErrorCode>, io::adbms::THERM_GPIOS_PER_SEGMENT>, io::NUM_SEGMENTS> therm_owc_odd_success;
@@ -42,9 +45,6 @@ array<expected<void, ErrorCode>, io::NUM_SEGMENTS>                              
 
 expected<void, ErrorCode> runVoltageConversion()
 {
-    RETURN_IF_ERR(writeConfig());
-    RETURN_IF_ERR(configSync());
-    
     RETURN_IF_ERR(io::adbms::startCellsAdcConversion());
     io::time::delay(VOLT_CONV_TIME_MS);
     io::adbms::readCellVoltageReg(cell_voltage_regs, cell_voltage_success);
@@ -53,9 +53,6 @@ expected<void, ErrorCode> runVoltageConversion()
 
 expected<void, ErrorCode> runFilteredVoltageConversion()
 {
-    RETURN_IF_ERR(writeConfig());
-    RETURN_IF_ERR(configSync());
-    
     RETURN_IF_ERR(io::adbms::startCellsAdcConversion());
     io::time::delay(VOLT_CONV_TIME_MS);
     io::adbms::readFilteredCellVoltageReg(filtered_cell_voltage_regs, filtered_cell_voltage_success);
@@ -67,10 +64,8 @@ expected<void, ErrorCode> runAuxConversion()
 {
     for (uint8_t mux_index = 0U; mux_index < static_cast<uint8_t>(ThermistorMux::THERMISTOR_MUX_COUNT); mux_index++)
     {
-        setDefaultConfig();
         setThermistorConfig(static_cast<ThermistorMux>(mux_index));
-        RETURN_IF_ERR(writeConfig());
-
+        RETURN_IF_ERR(configSync());
         RETURN_IF_ERR(io::adbms::startTempAdcConversion());
         io::adbms::clearCellTempReg();
         io::time::delay(AUX_CONV_TIME_MS);
@@ -90,6 +85,10 @@ expected<void, ErrorCode> runStatusConversion()
 
 expected<void, ErrorCode> runCellOpenWireCheck()
 {
+    RETURN_IF_ERR(io::adbms::baselineCells());
+    io::time::delay(OWC_CONVERSION_TIME_MS);
+    io::adbms::readCellVoltageReg(cell_baseline_regs, cell_baseline_success);
+
     RETURN_IF_ERR(io::adbms::owcCells(io::adbms::OpenWireSwitch::OddChannels));
     io::time::delay(OWC_CONVERSION_TIME_MS);
     io::adbms::readCellVoltageReg(cell_owc_odd_regs, cell_owc_odd_success);
@@ -111,7 +110,4 @@ expected<void, ErrorCode> runThermOpenWireCheck()
     io::adbms::readCellTempReg(therm_owc_even_regs, therm_owc_even_success);
     return {};
 }
-
-
-
 } // namespace app::segments

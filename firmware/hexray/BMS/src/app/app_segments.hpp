@@ -40,7 +40,6 @@ void broadcastStatus();
 void broadcastCellOpenWireCheck();
 void broadcastThermOpenWireCheck();
 
-
 float     getPackVoltage();
 CellParam getMaxCellVoltage();
 CellParam getMinCellVoltage();
