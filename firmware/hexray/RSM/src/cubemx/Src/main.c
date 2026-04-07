@@ -612,8 +612,8 @@ static void MX_GPIO_Init(void)
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
 
-    /*Configure GPIO pins : BRAKE_OCSC_OK_3V3_Pin SUSP_TRAVEL_RL_OCSC_Pin */
-    GPIO_InitStruct.Pin  = BRAKE_OCSC_OK_3V3_Pin | SUSP_TRAVEL_RL_OCSC_Pin;
+    /*Configure GPIO pins : NBSPD_BRAKE_PRESSED_3V3_Pin BRAKE_OCSC_OK_3V3_Pin SUSP_TRAVEL_RL_OCSC_Pin */
+    GPIO_InitStruct.Pin  = NBSPD_BRAKE_PRESSED_3V3_Pin | BRAKE_OCSC_OK_3V3_Pin | SUSP_TRAVEL_RL_OCSC_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
