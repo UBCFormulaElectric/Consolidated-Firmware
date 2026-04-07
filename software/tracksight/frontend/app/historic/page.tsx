@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import DataDashboard from "@/components/DataDashboard";
 import CalendarDropdown from "@/components/icons/CalendarDropdown";
 import { DisplayControlProvider } from "@/components/PausePlayControl";
-import SyncedGraphContainer, { TimeRange } from "@/components/SyncedGraphContainer";
+import SyncedGraphContainer from "@/components/SyncedGraphContainer";
 import { WidgetManager, useWidgetManager } from "@/components/widgets/WidgetManagerContext";
 import { WidgetAdder } from "@/app/live/WidgetAdder";
 import { HistoricalSignalStoreProvider } from "@/lib/contexts/signalStores/HistoricalSignalStoreContext";
@@ -23,7 +23,7 @@ const getUtcDayRange = (date: Date) => {
     const min = Date.UTC(year, month, day, 0, 0, 0, 0);
     const max = Date.UTC(year, month, day + 1, 0, 0, 0, 0);
 
-    return { min, max } satisfies TimeRange;
+    return { min, max };
 };
 
 function HistoricContent(props: { selectedRange: { min: number; max: number }; }) {
