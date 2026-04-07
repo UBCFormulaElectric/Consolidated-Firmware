@@ -19,7 +19,7 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 1. Install Node.js > v18.8.0. `sudo apt install node` on Linux will install an outdated version so you need to manually seek it (should probably use `nvm`).
 2. We are managing packages with [yarn](https://classic.yarnpkg.com/en/). Run `npm install --global yarn` to install it.
 2. Install packages with `yarn install` inside this directory.
-3. Run the development server: `yarn run dev`.
+3. Run the development server: `yarn dev`.
 
 Open [http://localhost:3000](http://localhost:3000) (or whichever the specified port is) with your browser to see the result.
 
@@ -113,7 +113,7 @@ This is the mode for using Tracksight but mocking the CAN bus messages from car.
 
 1. Start the frontend and InfluxDB database with docker. Navigate to `Consolidated-Firmware/software/tracksight` and run `docker compose -f docker/mock.yml up --build`. Note: this can be done without docker but I have issues setting up Influx without it.
 2. Start backend. Navigate to `Consolidated-Firmware/software/tracksight/backend/app`  and run `python3 telemetry.py --debug --mode mock --data-file mock_data/sample_data1.csv` You will now see data being printed to your console
-3. Open new terminal and navigate to  `Consolidated-Firmware/software/tracksight/frontned/` and run `npm run dev`
+3. Open new terminal and navigate to `Consolidated-Firmware/software/tracksight/frontend/` and run `yarn dev`
 
 ## Log Files
 
