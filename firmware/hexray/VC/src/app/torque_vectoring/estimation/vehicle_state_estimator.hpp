@@ -14,9 +14,9 @@ public:
     struct Inputs
     {
         datatypes::datatypes::VehicleState measured_state{};
-        datatypes::datatypes::wheel_set    wheel_angular_velocities_radps{};
-        datatypes::datatypes::wheel_set    longitudinal_forces_N{};
-        datatypes::datatypes::wheel_set    lateral_forces_N{};
+        datatypes::datatypes::wheel_set<float> wheel_angular_velocities_radps{};
+        datatypes::datatypes::wheel_set<float> longitudinal_forces_N{};
+        datatypes::datatypes::wheel_set<float> lateral_forces_N{};
     };
 
     struct Outputs

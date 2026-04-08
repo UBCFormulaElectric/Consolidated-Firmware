@@ -5,16 +5,17 @@
 
 namespace app::tv::estimation
 {
-using namespace app::tv::datatypes::vd_constants;
+using namespace app::tv::shared_datatypes::vd_constants;
 class vehicleDynamics
 {
 public:
 
-    [[nodiscard]] app::tv::datatypes::datatypes::wheel_set estimateNormalForce_N(float a_x_MPS2, float a_y_MPS2, float v_x_mps) const;
+    [[nodiscard]] app::tv::datatypes::datatypes::wheel_set<float> estimateNormalForce_N(
+        float a_x_MPS2, float a_y_MPS2, float v_x_mps) const;
     [[nodiscard]] float estimateBodySlip(float v_x_mps, float v_y_mps) const;
     [[nodiscard]] float estimateYawMoment_Nm(
-        const app::tv::datatypes::datatypes::wheel_set& longitudinal_forces_N,
-        const app::tv::datatypes::datatypes::wheel_set& lateral_forces_N,
+        const app::tv::datatypes::datatypes::wheel_set<float>& longitudinal_forces_N,
+        const app::tv::datatypes::datatypes::wheel_set<float>& lateral_forces_N,
         float steering_angle_rad) const;
     [[nodiscard]] float estimateDrag_N(float v_x_mps) const;
     [[nodiscard]] float estimateDownForce_N(float v_x_mps) const;

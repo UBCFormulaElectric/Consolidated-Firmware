@@ -2,7 +2,7 @@
 
 #include "util_units.hpp"
 
-namespace app::tv::datatypes::vd_constants
+namespace app::tv::shared_datatypes::vd_constants
 {
 
 // =============================================================================
@@ -135,4 +135,9 @@ inline constexpr float APPROX_STEERING_TO_WHEEL_ANGLE =
 // extern const PID_Config PID_TRACTION_CONTROL_CONFIG;
 // extern const PID_Config PID_YAW_RATE_CONTROLLER_CONFIG;
 // extern const YawRateController_Config YAW_RATE_CONTROLLER_CONFIG;
-} // namespace app::tv::datatypes::vd_constants
+} // namespace app::tv::shared_datatypes::vd_constants
+
+namespace app::tv::datatypes
+{
+namespace vd_constants = app::tv::shared_datatypes::vd_constants;
+}

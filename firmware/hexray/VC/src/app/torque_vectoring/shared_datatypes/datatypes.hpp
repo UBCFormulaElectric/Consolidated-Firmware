@@ -1,13 +1,15 @@
 #pragma once
 
-namespace app::tv::datatypes::datatypes
+namespace app::tv::shared_datatypes::datatypes
 {
+
+template <typename T>
 struct wheel_set
 {
-    float fl = 0.0f;
-    float fr = 0.0f;
-    float rl = 0.0f;
-    float rr = 0.0f;
+    T fl;
+    T fr;
+    T rl;
+    T rr;
 };
 
 struct VehicleState
@@ -19,4 +21,10 @@ struct VehicleState
     float a_x_mps2       = 0.0f;
     float a_y_mps2       = 0.0f;
 };
-} // namespace app::tv::datatypes::datatypes
+
+} // namespace app::tv::shared_datatypes::datatypes
+
+namespace app::tv::datatypes
+{
+namespace datatypes = app::tv::shared_datatypes::datatypes;
+}

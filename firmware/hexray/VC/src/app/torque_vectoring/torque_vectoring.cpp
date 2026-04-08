@@ -5,6 +5,7 @@
 #include "torque_vectoring/controllers/torque_allocator/torque_allocator.hpp"
 #include "torque_vectoring/shared_datatypes/constants.hpp"
 #include "torque_vectoring/shared_datatypes/datatypes.hpp"
+#include "torque_vectoring/shared_datatypes/low_speed_blend.hpp"
 
 #include <cmath>
 
@@ -12,33 +13,19 @@ namespace app::tv
 {
 namespace
 {
-using namespace datatypes::datatypes;
-using namespace datatypes::vd_constants;
+using namespace shared_datatypes::datatypes;
+using namespace shared_datatypes::vd_constants;
 
 //------------------------------------- ESTIMATION MODULES ----------------------------------//
 
 static estimation::vehicleDynamics vehicle_dynamics_estimator{};
 static estimation::VehicleStateEstimator vehicle_state_estimator{};
-
-static estimation::TireModel fl_tire_model{
-    estimation::TireModel::TirePressure::PSI_12,
-    estimation::TireModel::WheelSide::Left,
-    estimation::TireModel::WheelAxle::Front};
-
-static estimation::TireModel fr_tire_model{
-    estimation::TireModel::TirePressure::PSI_12,
-    estimation::TireModel::WheelSide::Right,
-    estimation::TireModel::WheelAxle::Front};
-
-static estimation::TireModel rl_tire_model{
-    estimation::TireModel::TirePressure::PSI_12,
-    estimation::TireModel::WheelSide::Left,
-    estimation::TireModel::WheelAxle::Rear};
-
-static estimation::TireModel rr_tire_model{
-    estimation::TireModel::TirePressure::PSI_12,
-    estimation::TireModel::WheelSide::Right,
-    estimation::TireModel::WheelAxle::Rear};
+static wheel_set<estimation::TireModel> tire_models{
+    .fl = estimation::TireModel(estimation::TireModel::WheelSide::Left,  estimation::TireModel::WheelAxle::Front),
+    .fr = estimation::TireModel(estimation::TireModel::WheelSide::Right, estimation::TireModel::WheelAxle::Front),
+    .rl = estimation::TireModel(estimation::TireModel::WheelSide::Left,  estimation::TireModel::WheelAxle::Rear),
+    .rr = estimation::TireModel(estimation::TireModel::WheelSide::Right, estimation::TireModel::WheelAxle::Rear),
+};
 
 //------------------------------------- CONTROLLERS -----------------------------------------//
 
@@ -46,13 +33,14 @@ static controllers::allocator::TorqueAllocator torque_allocator{};
 
 //------------------------------------- STATE VARIABLES -------------------------------------//
 
-static wheel_set acc_f_x{};
-static wheel_set acc_f_y{};
-static wheel_set acc_f_z{};
-static wheel_set acc_slip_ratio{};
-static wheel_set acc_slip_angle{};
-static wheel_set slip_ratio_opt{};
-[[maybe_unused]] static float est_yaw_moment_nm{};
+// These wheel-set caches carry the previous update's estimated tire state/forces into the next cycle.
+// The state estimator and optimizer both consume them as warm starts / feedback, so they remain module-local.
+static wheel_set<float> acc_f_x{};
+static wheel_set<float> acc_f_y{};
+static wheel_set<float> acc_f_z{};
+static wheel_set<float> acc_slip_ratio{};
+static wheel_set<float> acc_slip_angle{};
+static wheel_set<float> slip_ratio_opt{};
 
 // Build TireModel::StateInputs from VehicleState + per-wheel data
 [[nodiscard]] estimation::TireModel::StateInputs buildTireInputs(
@@ -68,7 +56,8 @@ static wheel_set slip_ratio_opt{};
     };
 }
 
-// Unpack four tire model outputs into the module-level wheel_set variables
+// Copy the current tire estimates into the module-local wheel-set caches so the rest of the
+// pipeline can use a consistent per-wheel state snapshot for this update tick.
 void unpackTireOutputs(
     const estimation::TireModel::Outputs& fl,
     const estimation::TireModel::Outputs& fr,
@@ -94,6 +83,8 @@ void update(const VehicleState& state, const float pedal_percentage,
             const float rl_omega, const float rr_omega)
 {
     //------------------------------------- STATE ESTIMATION  --------------------------------//
+    // Fuse the measured chassis state with the previous tire-force estimate to obtain the
+    // filtered vehicle state used consistently by all downstream control blocks this tick.
 
     const auto state_estimate = vehicle_state_estimator.estimate({
         .measured_state = state,
@@ -103,27 +94,24 @@ void update(const VehicleState& state, const float pedal_percentage,
     });
 
     const VehicleState estimated_state = state_estimate.vehicle_state;
-    est_yaw_moment_nm                  = state_estimate.yaw_moment_nm;
 
     // Normal forces from longitudinal/lateral load transfer + downforce
     acc_f_z = vehicle_dynamics_estimator.estimateNormalForce_N(
         estimated_state.a_x_mps2, estimated_state.a_y_mps2, estimated_state.v_x_mps);
 
     // Tire model estimation from current sensor data using the filtered vehicle state.
-    const auto fl_out = fl_tire_model.estimate(buildTireInputs(estimated_state, fl_omega, acc_f_z.fl));
-    const auto fr_out = fr_tire_model.estimate(buildTireInputs(estimated_state, fr_omega, acc_f_z.fr));
-    const auto rl_out = rl_tire_model.estimate(buildTireInputs(estimated_state, rl_omega, acc_f_z.rl));
-    const auto rr_out = rr_tire_model.estimate(buildTireInputs(estimated_state, rr_omega, acc_f_z.rr));
+    const auto fl_out = tire_models.fl.estimate(buildTireInputs(estimated_state, fl_omega, acc_f_z.fl));
+    const auto fr_out = tire_models.fr.estimate(buildTireInputs(estimated_state, fr_omega, acc_f_z.fr));
+    const auto rl_out = tire_models.rl.estimate(buildTireInputs(estimated_state, rl_omega, acc_f_z.rl));
+    const auto rr_out = tire_models.rr.estimate(buildTireInputs(estimated_state, rr_omega, acc_f_z.rr));
     unpackTireOutputs(fl_out, fr_out, rl_out, rr_out);
-
-    const float acc_yaw_moment_nm = vehicle_dynamics_estimator.estimateYawMoment_Nm(
-        acc_f_x, acc_f_y, estimated_state.steer_ang_rad);
 
     //------------------------------------- HIGH LEVEL CONTROLLER ----------------------------//
 
-    // Desired per-wheel longitudinal force from pedal request, projected along tire heading
+    // Convert the driver's pedal request into a nominal per-wheel longitudinal force target.
+    // The cosine projection keeps the request aligned with the tire heading under nonzero slip angle.
     const float per_wheel_tq = MAX_TORQUE_REQUEST_NM * pedal_percentage;
-    wheel_set des_f_x = {
+    wheel_set<float> des_f_x = {
         .fl = per_wheel_tq * std::cos(acc_slip_angle.fl) * WHEEL_RADIUS_M ,
         .fr = per_wheel_tq * std::cos(acc_slip_angle.fr) * WHEEL_RADIUS_M,
         .rl = per_wheel_tq * std::cos(acc_slip_angle.rl) * WHEEL_RADIUS_M,
@@ -144,9 +132,23 @@ void update(const VehicleState& state, const float pedal_percentage,
 
     //------------------------------------- LOW LEVEL CONTROLLER -----------------------------//
 
-    // Gauss-Newton optimizer: find slip ratios that minimize combined force + moment tracking error
+    // Compute the low-speed blend once at the orchestration layer and pass it down explicitly.
+    // This keeps the low-speed force-availability heuristic visible in one place instead of
+    // recomputing it independently inside the optimizer.
+    const float vehicle_speed_mps = std::hypot(estimated_state.v_x_mps, estimated_state.v_y_mps);
+    const float low_speed_blend   = shared_datatypes::velocityBlend(vehicle_speed_mps);
+
+    // Gauss-Newton optimizer: invert the combined-slip tire model to find the slip ratios whose
+    // predicted forces best match the desired per-wheel force split and desired yaw moment.
     slip_ratio_opt = torque_allocator.optimize(
-        des_f_x, acc_f_z, acc_slip_ratio, estimated_state, acc_yaw_moment_nm, des_yaw_moment_nm);
+        tire_models,
+        des_f_x,
+        acc_f_z,
+        acc_slip_ratio,
+        acc_slip_angle,
+        low_speed_blend,
+        estimated_state.steer_ang_rad,
+        des_yaw_moment_nm);
 
     //------------------------------------- POWER LIMITER -----------------------------------//
 

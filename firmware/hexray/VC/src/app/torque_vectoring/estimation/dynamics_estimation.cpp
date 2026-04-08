@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-using namespace app::tv::datatypes::vd_constants;
+using namespace app::tv::shared_datatypes::vd_constants;
 
 namespace app::tv::estimation
 {
@@ -25,8 +25,8 @@ float vehicleDynamics::estimateBodySlip(float v_x_mps, float v_y_mps) const
 }
 
 float vehicleDynamics::estimateYawMoment_Nm(
-    const app::tv::datatypes::datatypes::wheel_set& longitudinal_forces_N,
-    const app::tv::datatypes::datatypes::wheel_set& lateral_forces_N,
+    const app::tv::datatypes::datatypes::wheel_set<float>& longitudinal_forces_N,
+    const app::tv::datatypes::datatypes::wheel_set<float>& lateral_forces_N,
     const float steering_angle_rad) const
 {
     const float cos_delta = std::cos(steering_angle_rad);
@@ -51,7 +51,7 @@ float vehicleDynamics::estimateYawMoment_Nm(
     return fl_moment + fr_moment + rl_moment + rr_moment;
 }
 
-app::tv::datatypes::datatypes::wheel_set vehicleDynamics::estimateNormalForce_N(
+app::tv::datatypes::datatypes::wheel_set<float> vehicleDynamics::estimateNormalForce_N(
     const float a_x_MPS2, const float a_y_MPS2, const float v_x_mps) const
 {
     const float long_load_tf = LONG_ACCEL_TERM_VERTICAL_FORCE(a_x_MPS2);

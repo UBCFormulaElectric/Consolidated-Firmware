@@ -5,7 +5,7 @@
 
 #include "torque_vectoring/shared_datatypes/constants.hpp"
 
-using namespace app::tv::datatypes::vd_constants;
+using namespace app::tv::shared_datatypes::vd_constants;
 
 namespace app::tv::estimation
 {
@@ -161,7 +161,7 @@ static constexpr float ESTIMATOR_YAW_INERTIA = 110.0f;  // TODO: Replace with me
     return inputs.measured_state.steer_ang_rad;
 }
 
-[[nodiscard]] datatypes::datatypes::wheel_set readWheelAngularVelocitiesRadps(
+[[nodiscard]] datatypes::datatypes::wheel_set<float> readWheelAngularVelocitiesRadps(
     const VehicleStateEstimator::Inputs& inputs)
 {
     // TODO: Replace with app_canRx_* when the Hexray signal table is ready.
@@ -169,7 +169,7 @@ static constexpr float ESTIMATOR_YAW_INERTIA = 110.0f;  // TODO: Replace with me
 }
 
 [[nodiscard]] Measurement pseudoMeasurementFromWheelSpeeds(
-    const datatypes::datatypes::wheel_set& wheel_angular_velocities_radps,
+    const datatypes::datatypes::wheel_set<float>& wheel_angular_velocities_radps,
     const float yaw_rate_radps,
     const float steering_angle_rad,
     const StateVector& previous_state)
