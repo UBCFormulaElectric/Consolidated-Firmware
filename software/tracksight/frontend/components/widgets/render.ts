@@ -317,13 +317,15 @@ function render_numerical(context: CanvasRenderingContext2D, width: number, char
     return [];
 }
 
-function render_tooltip(
+export function render_tooltip(
     context: CanvasRenderingContext2D,
     width: number,
     height: number, // layout
     hoverTime: number,
     hover_value: Array<{ name: string; value: string }>,
-    timeToX: (t: number) => number
+    timeToX: (t: number) => number,
+    topOffset = 0,
+    includeTopPaddingInOffset = true
 ) {
     if (timeToX(hoverTime) < CHART_PADDING.left || timeToX(hoverTime) > width - CHART_PADDING.right) {
         return;
@@ -338,8 +340,8 @@ function render_tooltip(
     context.strokeStyle = "rgba(0,0,0,0.6)";
     context.lineWidth = 1;
     context.beginPath();
-    context.moveTo(timeToX(hoverTime), CHART_PADDING.top);
-    context.lineTo(timeToX(hoverTime), height - CHART_PADDING.bottom);
+    context.moveTo(timeToX(hoverTime), includeTopPaddingInOffset ? CHART_PADDING.top : 0);
+    context.lineTo(timeToX(hoverTime), includeTopPaddingInOffset ? height - CHART_PADDING.bottom : height); 
     context.stroke();
     context.setLineDash([]);
 
@@ -361,7 +363,7 @@ function render_tooltip(
     }
 
     // determine tooltip Y
-    let tooltipY = CHART_PADDING.top + 20;
+    let tooltipY = CHART_PADDING.top + 20 + topOffset;
 
     const minY = CHART_PADDING.top;
     const maxY = height - CHART_PADDING.bottom - tooltipHeight;

@@ -61,7 +61,7 @@ function generateRandomEnumValue() {
 }
 
 function generateRandomAlertValue(prev: number) {
-  const shouldChange = Math.random() < 0.0001;
+  const shouldChange = Math.random() < 0.01;
   if (!shouldChange) return prev;
 
   const change = prev === 0 ? 1 : 0;
