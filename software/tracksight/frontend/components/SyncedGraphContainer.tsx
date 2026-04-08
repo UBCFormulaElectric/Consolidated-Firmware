@@ -24,6 +24,7 @@ export type SyncedGraphContext_t = {
 type SyncedGraphContainerProps = {
     children: ReactNode;
     initialTimeRange?: TimeRange;
+    onViewportSettled?: (range: TimeRange) => void;
 };
 
 const SyncedGraphContext = createContext<SyncedGraphContext_t | null>(null);
@@ -59,13 +60,15 @@ function useSuppressScrollWhileLocked(containerRef: RefObject<HTMLDivElement | n
     }, [containerRef, isViewportLocked]);
 }
 
-export default function SyncedGraphContainer({ children, initialTimeRange }: SyncedGraphContainerProps) {
+export default function SyncedGraphContainer({ children, initialTimeRange, onViewportSettled }: SyncedGraphContainerProps) {
     const { isViewportLocked } = useDisplayControlContext();
 
     // object refs
     const contentRef = useRef<HTMLDivElement | null>(null); // Renamed from containerRef, this one grows
     const scrollContainerRef = useRef<HTMLDivElement | null>(null); // NEW: Ref for the scrolling wrapper
     const isViewportLockedRef = useRef(isViewportLocked);
+    const viewportSettleTimeoutRef = useRef<number | null>(null);
+    const ignoreProgrammaticScrollRef = useRef(false); //clamping scroll position or fitting the window would cause refetches to jack's api
 
     // zoom management
     const scalePxPerSecRef = useRef<number>(1);
@@ -76,9 +79,58 @@ export default function SyncedGraphContainer({ children, initialTimeRange }: Syn
     // manage left scroll variable
     const scrollLeftRef = useRef<number>(0);
 
+    const getViewportRange = useCallback((): TimeRange | null => {
+        const container = scrollContainerRef.current;
+        const globalTimeRange = globalTimeRangeRef.current;
+
+        if (!container || !globalTimeRange) {
+            return null;
+        }
+
+        const min = scrollLeftRef.current / scalePxPerSecRef.current + globalTimeRange.min;
+        const max = (scrollLeftRef.current + container.clientWidth) / scalePxPerSecRef.current + globalTimeRange.min;
+
+        return { min, max };
+    }, [globalTimeRangeRef, scalePxPerSecRef, scrollContainerRef, scrollLeftRef]);
+
+    const scheduleViewportSettled = useCallback(() => {
+        if (!onViewportSettled) {
+            return;
+        }
+
+        if (viewportSettleTimeoutRef.current !== null) {
+            window.clearTimeout(viewportSettleTimeoutRef.current);
+        }
+
+        viewportSettleTimeoutRef.current = window.setTimeout(() => {
+            const viewportRange = getViewportRange();
+            if (viewportRange) {
+                onViewportSettled(viewportRange);
+            }
+        }, 200);
+    }, [getViewportRange, onViewportSettled]);
+
+    const syncContainerScrollLeft = useCallback((container: HTMLDivElement, nextScrollLeft: number) => {
+        scrollLeftRef.current = nextScrollLeft;
+
+        if (container.scrollLeft === nextScrollLeft) {
+            return;
+        }
+
+        ignoreProgrammaticScrollRef.current = true;
+        container.scrollLeft = nextScrollLeft;
+    }, [scrollLeftRef]);
+
     useEffect(() => {
         isViewportLockedRef.current = isViewportLocked;
     }, [isViewportLocked]);
+
+    useEffect(() => () => {
+        if (viewportSettleTimeoutRef.current !== null) {
+            window.clearTimeout(viewportSettleTimeoutRef.current);
+        }
+    }, []);
+
     // Update width when zoom changes
     const updateGraphWidth = useCallback(() => {
         const global_tr = globalTimeRangeRef.current;
@@ -90,20 +142,16 @@ export default function SyncedGraphContainer({ children, initialTimeRange }: Syn
             if (isViewportLockedRef.current) {
                 // When locked, scroll to show the rightmost data at the right edge of the viewport
                 const lockedScrollLeft = Math.max(container_width - container.clientWidth, 0);
-                scrollLeftRef.current = lockedScrollLeft;
-                container.scrollLeft = lockedScrollLeft;
+                syncContainerScrollLeft(container, lockedScrollLeft);
                 return;
             }
 
             // When unlocked, just clamp to valid bounds
             const maxScrollLeft = Math.max(container_width + RIGHT_PAD - container.clientWidth, 0);
             const clampedScrollLeft = Math.min(scrollLeftRef.current, maxScrollLeft);
-            scrollLeftRef.current = clampedScrollLeft;
-            if (container.scrollLeft !== clampedScrollLeft) {
-                container.scrollLeft = clampedScrollLeft;
-            }
+            syncContainerScrollLeft(container, clampedScrollLeft);
         }
-    }, [contentRef, globalTimeRangeRef, scalePxPerSecRef, scrollContainerRef, scrollLeftRef]);
+    }, [contentRef, globalTimeRangeRef, scalePxPerSecRef, scrollContainerRef, syncContainerScrollLeft]);
     const updateWithTimestamp = useCallback((timestamp: number) => {
         if (!globalTimeRangeRef.current || timestamp < globalTimeRangeRef.current.min || timestamp > globalTimeRangeRef.current.max) {
             globalTimeRangeRef.current = {
@@ -123,13 +171,12 @@ export default function SyncedGraphContainer({ children, initialTimeRange }: Syn
                 const timeRange = Math.max(range.max - range.min, 1);
                 const availableWidth = Math.max(container.clientWidth - RIGHT_PAD, 1);
                 scalePxPerSecRef.current = availableWidth / timeRange;
-                scrollLeftRef.current = 0;
-                container.scrollLeft = 0;
+                syncContainerScrollLeft(container, 0);
             }
         }
 
         updateGraphWidth();
-    }, [globalTimeRangeRef, scalePxPerSecRef, scrollContainerRef, scrollLeftRef, updateGraphWidth]);
+    }, [globalTimeRangeRef, scalePxPerSecRef, scrollContainerRef, syncContainerScrollLeft, updateGraphWidth]);
 
     useEffect(() => { // init for historical graphs
         globalTimeRangeRef.current = initialTimeRange ?? null;
@@ -138,18 +185,29 @@ export default function SyncedGraphContainer({ children, initialTimeRange }: Syn
 
     const updateLeftScroll = useCallback((e: UIEvent<HTMLDivElement>) => {
         const container = e.target as HTMLDivElement;
+        const previousScrollLeft = scrollLeftRef.current;
+
+        if (ignoreProgrammaticScrollRef.current) {
+            ignoreProgrammaticScrollRef.current = false;
+            scrollLeftRef.current = container.scrollLeft;
+            return;
+        }
 
         if (isViewportLockedRef.current) {
             const latestScrollLeft = Math.max(container.scrollWidth - container.clientWidth, 0);
             if (container.scrollLeft !== latestScrollLeft) {
-                container.scrollLeft = latestScrollLeft;
+                syncContainerScrollLeft(container, latestScrollLeft);
+                return;
             }
             scrollLeftRef.current = latestScrollLeft;
             return;
         }
 
         scrollLeftRef.current = container.scrollLeft;
-    }, [scrollLeftRef]);
+        if (container.scrollLeft !== previousScrollLeft) {
+            scheduleViewportSettled();
+        }
+    }, [scheduleViewportSettled, scrollLeftRef, syncContainerScrollLeft]);
 
     useEffect(() => {
         const container = scrollContainerRef.current;
@@ -184,13 +242,14 @@ export default function SyncedGraphContainer({ children, initialTimeRange }: Syn
 
             scalePxPerSecRef.current = nextScale;
             updateGraphWidth();
+            scheduleViewportSettled();
         };
 
         container.addEventListener("wheel", handleWheelZoom, { passive: false });
         return () => {
             container.removeEventListener("wheel", handleWheelZoom);
         };
-    }, [scrollContainerRef, scalePxPerSecRef, updateGraphWidth]);
+    }, [scalePxPerSecRef, scheduleViewportSettled, scrollContainerRef, updateGraphWidth]);
 
     useEffect(() => {
         if (!isViewportLocked) {

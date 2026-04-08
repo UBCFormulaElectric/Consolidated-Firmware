@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import DataDashboard from "@/components/DataDashboard";
 import CalendarDropdown from "@/components/icons/CalendarDropdown";
@@ -47,24 +47,52 @@ const getUtcDayRange = (date: Date) => {
     return { min, max } satisfies TimeRange;
 };
 
+const expandViewportFetchRange = (range: TimeRange, bounds: TimeRange): TimeRange => {
+    const width = Math.max(range.max - range.min, 1);
+    const padding = width * 0.5; // + 0.5x viewport range padding
+
+    return {
+        min: Math.max(Math.floor(range.min - padding), bounds.min),
+        max: Math.min(Math.ceil(range.max + padding), bounds.max),
+    };
+};
+
 function HistoricContent(props: { selectedRange: { min: number; max: number }; }) {
     const { selectedRange } = props;
     const { widgets } = useWidgetManager();
+    const [fetchRange, setFetchRange] = useState<TimeRange>(selectedRange);
+
+    useEffect(() => {
+        setFetchRange(selectedRange);
+    }, [selectedRange]);
+
+    const handleViewportSettled = useCallback((viewportRange: TimeRange) => {
+        const nextFetchRange = expandViewportFetchRange(viewportRange, selectedRange);
+
+        setFetchRange((currentFetchRange) => (
+            currentFetchRange.min === nextFetchRange.min && currentFetchRange.max === nextFetchRange.max
+                ? currentFetchRange
+                : nextFetchRange
+        ));
+    }, [selectedRange]);
 
     return (
-        <HistoricalSignalStoreProvider
-            startUtcMs={selectedRange.min}
-            endUtcMs={selectedRange.max}
-        >
-            {widgets.length === 0 ? (
-                <div className="grid h-full place-items-center text-gray-500">
-                    Select signals by adding a widget and choosing signals.
-                </div>
-            ) : (
-                <DataDashboard />
-            )}
-            <WidgetAdder />
-        </HistoricalSignalStoreProvider>
+        <SyncedGraphContainer initialTimeRange={selectedRange} onViewportSettled={handleViewportSettled}>
+            <HistoricalSignalStoreProvider
+                startUtcMs={fetchRange.min}
+                endUtcMs={fetchRange.max}
+                selectedRange={selectedRange}
+            >
+                {widgets.length === 0 ? (
+                    <div className="grid h-full place-items-center text-gray-500">
+                        Select signals by adding a widget and choosing signals.
+                    </div>
+                ) : (
+                    <DataDashboard />
+                )}
+                <WidgetAdder />
+            </HistoricalSignalStoreProvider>
+        </SyncedGraphContainer>
     );
 }
 
@@ -86,11 +114,9 @@ export default function Historic() {
                     Time axis shown in UTC!! ts aint pst.
                 </div>
 
-                <SyncedGraphContainer initialTimeRange={selectedRange}>
-                    <WidgetManager storageKey={HISTORIC_WIDGET_STORAGE_KEY}>
-                        <HistoricContent selectedRange={selectedRange} />
-                    </WidgetManager>
-                </SyncedGraphContainer>
+                <WidgetManager storageKey={HISTORIC_WIDGET_STORAGE_KEY}>
+                    <HistoricContent selectedRange={selectedRange} />
+                </WidgetManager>
             </div>
         </DisplayControlProvider>
     );
