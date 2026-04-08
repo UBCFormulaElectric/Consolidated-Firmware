@@ -1,10 +1,10 @@
 import SignalStore from "@/lib/signals/SignalStore";
 import { SignalMetadata, SignalType } from "../types/Signal";
+import propagateHaar, { HaarLodBuffer } from "../utils/propagateHaar";
+import propagateMode, { ModeLodBuffer } from "../utils/propagateMode";
 
 export const MOCK_STATES = [ // needed to hardcode for widgetadder
   "IDLE", "ACTIVE", "ERROR", "WAITING", "CHARGING", "SKIBIDI",
-  "TOILET", "MORE", "SIGNALS", "TO", "TEST", "RANDOM",
-  "ENUM", "COLOR", "GEN"
 ];
 
 export const ALERT_SIGNALS = [
@@ -29,6 +29,10 @@ export const ALERT_SIGNALS = [
   "Error Rate",
   "Throughput",
 ]
+
+const INITIAL_DATA_POINTS = 0;
+
+const NUM_LOD_LEVELS = 15;
 
 function generateRandomNumericalValue(time: number, index: number = 0, min: number, max: number) {
   if (min !== undefined && max !== undefined) {
@@ -57,7 +61,7 @@ function generateRandomEnumValue() {
 }
 
 function generateRandomAlertValue(prev: number) {
-  const shouldChange = Math.random() < 0.001;
+  const shouldChange = Math.random() < 0.01;
   if (!shouldChange) return prev;
 
   const change = prev === 0 ? 1 : 0;
@@ -65,15 +69,17 @@ function generateRandomAlertValue(prev: number) {
 }
 
 class MockSignalStore extends SignalStore {
-  private signalSubscriptionIntervals: Map<string, number>;
+  private signalSubscriptionInterval: Map<string, number>;
+  private lodBuffers: Map<string, (HaarLodBuffer | ModeLodBuffer)[]>;
 
   constructor(
     updateWithTimestamp: (timestamp: number) => void,
   ) {
     super(updateWithTimestamp);
 
-    this.signalSubscriptionIntervals = new Map();
-    
+    this.signalSubscriptionInterval = new Map();
+    this.lodBuffers = new Map();
+
     ALERT_SIGNALS.forEach(signalName => {
       let previousValue = 0;
 
@@ -85,7 +91,14 @@ class MockSignalStore extends SignalStore {
         this.addAlertDataPoint(signalName, now, value);
       }, 1);
 
-      this.signalSubscriptionIntervals.set(signalName, intervalId as unknown as number);
+      for (let i = 0; i < INITIAL_DATA_POINTS; i++) {
+        const timestamp = Date.now() - (INITIAL_DATA_POINTS - i);
+        const value = generateRandomAlertValue(previousValue);
+        previousValue = value;
+        this.addAlertDataPoint(signalName, timestamp, value);
+      }
+
+      this.signalSubscriptionInterval.set(signalName, intervalId as unknown as number);
     });
   }
 
@@ -96,27 +109,84 @@ class MockSignalStore extends SignalStore {
 
     if (this.getSubscriberCount(signal.name) !== 1) return signalData.data as any;
 
-    let previousValue = 0;
-
     // NOTE(evan): When a browser tab isn't focused setInterval is throttled to run once per second.
-    //             This can make the renderers appear frozen if they rely on frequent updates. In 
+    //             This can make the renderers appear frozen if they rely on frequent updates. In
     //             production when using an actual signal source this shouldn't be an issue.
-    const intervalId = setInterval(() => {
-      const now = Date.now();
-
-      if (signal.type === SignalType.NUMERICAL) {
-        const { min_val, max_val } = signal;
+    if (signal.type === SignalType.NUMERICAL) {
+      const { min_val, max_val } = signal;
+      const intervalId = setInterval(() => {
+        const now = Date.now();
         const value = generateRandomNumericalValue(now, 0, min_val, max_val);
-        previousValue = value;
         this.addDataPoint(signal.name, now, value);
-      } else if (signal.type === SignalType.ENUM) {
-        const value = generateRandomEnumValue();
-        previousValue = value.idx;
-        this.addDataPoint(signal.name, now, value.idx);
-      }
-    }, 1);
 
-    this.signalSubscriptionIntervals.set(signal.name, intervalId as unknown as number);
+        propagateHaar(
+          this.lodBuffers.get(signal.name) as HaarLodBuffer[] || [],
+          0,
+          now,
+          value,
+          (level, intervalMs, timestamp, value) => {
+            this.addDataPointAtLOD(signal.name, level, intervalMs, timestamp, value);
+          },
+          NUM_LOD_LEVELS
+        );
+      }, 1) as unknown as number;
+
+      this.signalSubscriptionInterval.set(signal.name, intervalId);
+      this.lodBuffers.set(signal.name, new Array(NUM_LOD_LEVELS).fill(null));
+
+      for (let i = 0; i < INITIAL_DATA_POINTS; i++) {
+        const timestamp = Date.now() - (INITIAL_DATA_POINTS - i);
+        const value = generateRandomNumericalValue(timestamp, 0, min_val, max_val);
+        this.addDataPoint(signal.name, timestamp, value);
+
+        propagateHaar(
+          this.lodBuffers.get(signal.name) as HaarLodBuffer[] || [],
+          0,
+          timestamp,
+          value,
+          (level, intervalMs, timestamp, value) => {
+            this.addDataPointAtLOD(signal.name, level - 1, intervalMs, timestamp, value);
+          },
+          NUM_LOD_LEVELS
+        );
+      }
+    } else if (signal.type === SignalType.ENUM) {
+      const intervalId = setInterval(() => {
+        const now = Date.now();
+        const value = generateRandomEnumValue();
+        this.addDataPoint(signal.name, now, value.idx);
+
+        propagateMode(
+          this.lodBuffers.get(signal.name) as ModeLodBuffer[] || [],
+          0,
+          now,
+          { [value.idx]: 1 },
+          (level, intervalMs, timestamp, value) => {
+            this.addDataPointAtLOD(signal.name, level, intervalMs, timestamp, value);
+          },
+          NUM_LOD_LEVELS
+        );
+      }, 1) as unknown as number;
+      this.signalSubscriptionInterval.set(signal.name, intervalId);
+      this.lodBuffers.set(signal.name, new Array(NUM_LOD_LEVELS).fill([]));
+
+      for (let i = 0; i < INITIAL_DATA_POINTS; i++) {
+        const timestamp = Date.now() - (INITIAL_DATA_POINTS - i);
+        const value = generateRandomEnumValue();
+        this.addDataPointAtLOD(signal.name, 0, 1, timestamp, value.idx);
+
+        propagateMode(
+          this.lodBuffers.get(signal.name) as ModeLodBuffer[] || [],
+          0,
+          timestamp,
+          { [value.idx]: 1 },
+          (level, intervalMs, timestamp, value) => {
+            this.addDataPointAtLOD(signal.name, level - 1, intervalMs, timestamp, value);
+          },
+          NUM_LOD_LEVELS
+        );
+      }
+    }
 
     return signalData.data as any;
   }
@@ -128,8 +198,11 @@ class MockSignalStore extends SignalStore {
 
     this.markAsUnsubscribed(signal.name);
 
-    clearInterval(this.signalSubscriptionIntervals.get(signal.name));
-    this.signalSubscriptionIntervals.delete(signal.name);
+    const intervalId = this.signalSubscriptionInterval.get(signal.name);
+    if (intervalId) {
+      clearInterval(intervalId);
+      this.signalSubscriptionInterval.delete(signal.name);
+    }
   }
 }
 

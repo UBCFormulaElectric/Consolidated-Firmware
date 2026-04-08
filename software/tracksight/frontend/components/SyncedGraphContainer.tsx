@@ -85,7 +85,8 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
                 // When locked, scroll to show the rightmost data at the right edge of the viewport
                 const lockedScrollLeft = Math.max(container_width - container.clientWidth, 0);
                 scrollLeftRef.current = lockedScrollLeft;
-                container.scrollLeft = lockedScrollLeft;
+                // container.scrollLeft = lockedScrollLeft;
+                container.scrollTo({ left: lockedScrollLeft, top: container.scrollTop, behavior: 'instant' });
                 return;
             }
 
@@ -94,7 +95,8 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
             const clampedScrollLeft = Math.min(scrollLeftRef.current, maxScrollLeft);
             scrollLeftRef.current = clampedScrollLeft;
             if (container.scrollLeft !== clampedScrollLeft) {
-                container.scrollLeft = clampedScrollLeft;
+                // container.scrollLeft = clampedScrollLeft;
+                container.scrollTo({ left: clampedScrollLeft, top: container.scrollTop, behavior: 'instant' });
             }
         }
     }, [contentRef, globalTimeRangeRef, scalePxPerSecRef, scrollContainerRef, scrollLeftRef]);
@@ -114,7 +116,8 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
         if (isViewportLockedRef.current) {
             const latestScrollLeft = Math.max(container.scrollWidth - container.clientWidth, 0);
             if (container.scrollLeft !== latestScrollLeft) {
-                container.scrollLeft = latestScrollLeft;
+                // container.scrollLeft = latestScrollLeft;
+                container.scrollTo({ left: latestScrollLeft, top: container.scrollTop, behavior: 'instant' });
             }
             scrollLeftRef.current = latestScrollLeft;
             return;
@@ -205,7 +208,7 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
             <div
                 ref={scrollContainerRef}
                 className={isViewportLocked ? "w-full overflow-x-hidden overflow-y-scroll h-full" : "w-full overflow-x-auto overflow-y-scroll h-full"}
-                style={{ overscrollBehaviorX: "contain" }}
+                style={{ overscrollBehaviorX: "contain", overflowAnchor: "none" }}
                 onScroll={updateLeftScroll}
             >
                 {/* inner content grows in width */}

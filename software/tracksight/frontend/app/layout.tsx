@@ -35,7 +35,7 @@ export default async function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Tracksight" />
         <link rel="manifest" href="/favicon/site.webmanifest" />
       </head>
-      <body className={`${inter.className}`} style={{ overflow: "overlay" }}>
+      <body className={`${inter.className} overflow-y-hidden`} style={{ overflowX: "overlay" }}>
         <QueryProvider>
           <Navbar />
           <main>{children}</main>
