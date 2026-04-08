@@ -10,10 +10,20 @@ typedef enum
     CURRENT
 } Measurement;
 
+typedef enum
+{
+    CELL1 = 1,
+    CELL2 = 2, 
+    CELL3 = 3, 
+    CELL4 = 4, 
+    CELL5 = 5
+} CellNum;
+
 constexpr uint16_t CELL1_MV = 0x14;
 constexpr uint16_t CELL2_MV = 0x16;
-constexpr uint16_t CELL3_MV = 0x1A;
-constexpr uint16_t CELL4_MV = 0x1C;
+constexpr uint16_t CELL3_MV = 0x18;
+constexpr uint16_t CELL4_MV = 0x1A;
+constexpr uint16_t CELL5_MV = 0x1C;
 constexpr uint16_t PACK_MV  = 0x36;
 constexpr uint16_t LOAD_MV  = 0x38;
 
@@ -71,3 +81,5 @@ constexpr uint16_t OTP_WRITE    = 0x00A1;
 constexpr uint16_t CMD_V_C_COUNT1 = 0x0071; // cell 1, 2, 3, 4
 constexpr uint16_t CMD_V_C_COUNT2 = 0x0072; // cell 5
 
+// Protections 
+constexpr uint16_t MFG_STATUS_INIT = 0x9343;
