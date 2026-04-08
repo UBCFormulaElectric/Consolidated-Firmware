@@ -3,11 +3,13 @@
 #include "hw_uart.hpp"
 #include "io_telemMessage.hpp"
 #include "io_rtc.hpp"
+#include <portmacro.h>
 #include <stdint.h>
 #include <util_errorCodes.h>
 #include <cstring>
 
 constexpr uint32_t PREDIV_S = 999;
+constexpr uint64_t MS_PER_DAY = 86400000ULL;
 
 static NTPTimestamps ntpTimestamps;
 
@@ -15,19 +17,6 @@ void io_telemRx()
 {
     pollForRadioMessages();
 }
-
-// void asyncUartTest()
-// {
-//     const auto rx = io::telemMessage::mock::buildVcPumpStatusCanMsg(true, 42.3F);
-
-//     io::telemMessage::TelemCanMsg msg{ rx, 5 };
-//     if (!_900k_uart.transmit(std::span{ reinterpret_cast<uint8_t *>(&msg), msg.wireSize() }))
-//     {
-//         LOG_ERROR("Failed to transmit");
-//         return;
-//     }
-//     LOG_INFO("Sent");
-// }
 
 // void receiveTest()
 // {
@@ -68,7 +57,9 @@ void transmitNTPStartMsg(void)
         LOG_ERROR("Failed to transmit NTP message");
         return;
     }
-    LOG_INFO("Sent NTP Msg");
+
+    // --------------------------- Debug message
+    LOG_INFO("Sent NTP Msg! at time: %02u:%02u:%02u.%03lu", t0.hours, t0.minutes, t0.seconds, (unsigned long)(999 - t0.subseconds));
 }
 
 void pollForRadioMessages(void)
@@ -130,6 +121,16 @@ void pollForRadioMessages(void)
     // Parse t1 and t2 from rxBufferBody.
     parseNTPPacketBody(rxBufferBody);
 
+    // ---------------- Debug Prints -------------------
+    io::rtc::Time t = MsToRtcTime(ntpTimestamps.t0);
+    LOG_INFO("Noted t0:    %02u:%02u:%02u.%03lu", t.hours, t.minutes, t.seconds, (unsigned long)(999 - t.subseconds));
+    io::rtc::Time tt = MsToRtcTime(ntpTimestamps.t1);
+    LOG_INFO("Received t1: %02u:%02u:%02u.%03lu", tt.hours, tt.minutes, tt.seconds, (unsigned long)(999 - tt.subseconds));
+    io::rtc::Time ttt = MsToRtcTime(ntpTimestamps.t2);
+    LOG_INFO("Received t2: %02u:%02u:%02u.%03lu", ttt.hours, ttt.minutes, ttt.seconds, (unsigned long)(999 - ttt.subseconds));
+    io::rtc::Time tttt = MsToRtcTime(ntpTimestamps.t3);
+    LOG_INFO("Noted t3:    %02u:%02u:%02u.%03lu", tttt.hours, tttt.minutes, tttt.seconds, (unsigned long)(999 - tttt.subseconds));
+
     // Tune RTC with collected t0, t1, t2, t3
     tuneRTC();
 }
@@ -137,7 +138,7 @@ void pollForRadioMessages(void)
 void parseNTPPacketBody(std::span<uint8_t> body)
 {
     if (body.size() < 17)
-        return; // Invalid packet body size.
+        return; // Invalid packet body size
 
     uint64_t messageID = body[0];
     if (messageID != 1)
@@ -145,21 +146,20 @@ void parseNTPPacketBody(std::span<uint8_t> body)
 
     // Body is 17 bytes: 1 byte header + 8 bytes t1 + 8 bytes t2
     uint64_t t1;
-    std::memcpy(&t1, &body[1], sizeof(uint64_t));
-
     uint64_t t2;
+
+    std::memcpy(&t1, &body[1], sizeof(uint64_t));
     std::memcpy(&t2, &body[9], sizeof(uint64_t));
 
-    ntpTimestamps.t1 = t1;
-    ntpTimestamps.t2 = t2;
+    ntpTimestamps.t1 = t1 % MS_PER_DAY;
+    ntpTimestamps.t2 = t2 % MS_PER_DAY;
 }
 
 void tuneRTC(void)
 {
     // Calculate the offset theta using the formula
-    int64_t theta = ((int64_t)ntpTimestamps.t1 - (int64_t)ntpTimestamps.t0 + (int64_t)ntpTimestamps.t2 -
-                     (int64_t)ntpTimestamps.t3) /
-                    2;
+    int64_t theta = ((int64_t)(ntpTimestamps.t1 - ntpTimestamps.t0) +
+                     (int64_t)(ntpTimestamps.t2 - ntpTimestamps.t3)) / 2;
 
     io::rtc::Time currTime;
     if (!io::rtc::get_time(currTime))
@@ -177,27 +177,24 @@ void tuneRTC(void)
     io::rtc::Time newRtcTime = MsToRtcTime(static_cast<uint64_t>(newMs));
 
     // extract the ms
-    uint32_t ms = PREDIV_S - newRtcTime.subseconds;
+    //uint32_t ms = PREDIV_S - newRtcTime.subseconds;
+
+    // delay the ms amount of time (this calls os_delay so it is non-blocking)
+    //if (theta > 0) // only delay when moving forward - we want to apply negative adjustments asap
+        //io::time::delay(ms); 
 
     // round the newRtcTime ms field up to the nearest second
     // this needs to be done because io::rtc::set_time() doesn't use the subseconds field to set rtc time
     newRtcTime.subseconds = 0;
-
-    // delay the ms amount of time (this calls os_delay so it is non-blocking)
-    if (theta > 0) // only delay when moving forward - we want to apply negative adjustments asap
-        io::time::delay(ms);
 
     // Tune the RTC
     if (!io::rtc::set_time(newRtcTime))
         LOG_ERROR("Failed to tune RTC");
 
     // ------------- Debug message -------------
-    LOG_INFO("Tuned RTC!");
-    LOG_INFO("New Time: %02u:%02u:%02u.%03lu",
-         newRtcTime.hours,
-         newRtcTime.minutes,
-         newRtcTime.seconds,
-         (unsigned long)(999 - newRtcTime.subseconds));
+    LOG_INFO(
+        "Tuned RTC! New Time: %02u:%02u:%02u.%03lu", newRtcTime.hours, newRtcTime.minutes, newRtcTime.seconds,
+        (unsigned long)(999 - newRtcTime.subseconds));
 }
 
 uint64_t RtcTimeToMs(io::rtc::Time t)
