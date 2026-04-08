@@ -41,11 +41,8 @@
 
 namespace hw::cordic
 {
-inline constexpr uint32_t CORDIC_TIMEOUT = 10;
-inline constexpr float    CONVERSION     = static_cast<float>(1U << 31);
-inline constexpr float    CONVERSION_INV = 1.0f / CONVERSION;
-
-static CORDIC_ConfigTypeDef config;
+inline constexpr float CONVERSION     = static_cast<float>(1U << 31);
+inline constexpr float CONVERSION_INV = 1.0f / CONVERSION;
 
 inline int32_t convertAngleToFixedPoint(float angle)
 {
@@ -78,25 +75,8 @@ inline float convertToFloat(int32_t fixed_point)
  * - Number of 32 bit R/W expected before and after calculation
  * - Precision: 1 - 15 cycles (Higher -> More Precision)
  */
-inline std::expected<void, ErrorCode> configure(uint32_t func, uint32_t scale, uint32_t nbwrite)
-{
-    config.Function  = func;
-    config.Scale     = scale;
-    config.InSize    = CORDIC_INSIZE_32BITS;
-    config.OutSize   = CORDIC_OUTSIZE_32BITS;
-    config.NbRead    = CORDIC_NBREAD_1;
-    config.NbWrite   = nbwrite;
-    config.Precision = CORDIC_PRECISION_15CYCLES;
+std::expected<void, ErrorCode> configure(uint32_t func, uint32_t scale, uint32_t nbwrite);
 
-    RETURN_IF_ERR(hw_utils_convertHalStatus(HAL_CORDIC_Configure(&hcordic, &config)));
-    return {};
-}
-
-inline std::expected<void, ErrorCode>
-    calculate(uint32_t nbwrite, std::span<const int32_t> args, std::span<int32_t> result)
-{
-    RETURN_IF_ERR(hw_utils_convertHalStatus(
-        HAL_CORDIC_CalculateZO(&hcordic, args.data(), result.data(), nbwrite, CORDIC_TIMEOUT)));
-    return {};
-}
+std::expected<void, ErrorCode>
+    calculate(uint32_t nbwrite, std::span<const int32_t> args, std::span<int32_t> result);
 }; // namespace hw::cordic
