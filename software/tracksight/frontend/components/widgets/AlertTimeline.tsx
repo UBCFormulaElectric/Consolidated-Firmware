@@ -4,7 +4,7 @@ import { useAlertDataStores } from "@/lib/contexts/signalStores/SignalStoreConte
 import { RefObject, useEffect, useRef } from "react";
 import { AlertSeries } from "./CanvasChartTypes";
 import { useSyncedGraph } from "../SyncedGraphContainer";
-import { CHART_PADDING } from "./render";
+import { CHART_PADDING, render_tooltip } from "./render";
 
 const INITIAL_SLIP_STREAM_LANES = 5;
 const MAX_SLIP_STREAM_LANES = 5;
@@ -291,10 +291,14 @@ function AlertTimeline() {
     globalTimeRangeRef,
     scalePxPerSecRef,
     XToTime,
+    timeToX,
+    hoverTimestampRef: externalHoverTimestampRef,
   } = useSyncedGraph();
 
   const XToTimeRef = useRef(XToTime);
   XToTimeRef.current = XToTime;
+  const timeToXRef = useRef(timeToX);
+  timeToXRef.current = timeToX;
 
   const cursorIndices = useRef<CursorIndices>({});
   const slipStreamLanes = useRef(INITIAL_SLIP_STREAM_LANES);
@@ -333,7 +337,7 @@ function AlertTimeline() {
 
       const leftEdge = XToTimeRef.current(0);
       const rightEdge = XToTimeRef.current(rect.width);
-      const liveTime = globalTimeRangeRef.current!.max;;
+      const liveTime = globalTimeRangeRef.current!.max;
 
       hoverInfo.current = hitTestAlerts(
         mousePos.current,
@@ -362,6 +366,28 @@ function AlertTimeline() {
         liveTime,
         slipStreamLanes.current,
         hoverInfo.current,
+      );
+
+      if (!externalHoverTimestampRef.current) {
+        animationFrame.current = requestAnimationFrame(renderSlipStream);
+        return;
+      }
+
+      const visibleStart = XToTimeRef.current(0);
+      const visibleEnd = XToTimeRef.current(rect.width);
+      const chartWidth = rect.width - CHART_PADDING.left - CHART_PADDING.right;
+      const timeRange = Math.max(1, visibleEnd - visibleStart);
+      const localTimeToX = (t: number) => CHART_PADDING.left + ((t - visibleStart) / timeRange) * chartWidth;
+
+      render_tooltip(
+        ctx,
+        rect.width,
+        rect.height,
+        externalHoverTimestampRef.current!,
+        [],
+        localTimeToX,
+        wrapperRef.current?.scrollTop ?? 0,
+        false
       );
 
       animationFrame.current = requestAnimationFrame(renderSlipStream);
