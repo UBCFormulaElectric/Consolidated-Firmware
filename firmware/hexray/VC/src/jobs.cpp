@@ -7,6 +7,7 @@
 #include <io_canTx.hpp>
 #include "io_canQueues.hpp"
 #include "io_time.hpp"
+#include "io_batteryMonitoring.hpp"
 
 #include <util_errorCodes.hpp>
 
@@ -30,7 +31,18 @@ void jobs_init()
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
     io::can_tx::enableMode_InvCAN(app::can_utils::InvCANMode::INVCAN_MODE_DEFAULT, true);
 }
-void jobs_run1Hz_tick() {}
+void jobs_run1Hz_tick()
+{
+    CellNum arr[5] = { CellNum::CELL1, CellNum::CELL2, CellNum::CELL3, CellNum::CELL4, CellNum::CELL5 };
+    for (auto cell : arr)
+    {
+        auto v = io::batteryMonitoring::get_voltage(cell);
+        if (v.has_value())
+            LOG_INFO("%u mv", static_cast<int>(cell), v.value());
+        else
+            LOG_ERROR("Read failed");
+    }
+}
 void jobs_run100Hz_tick()
 {
     io::can_tx::enqueue100HzMsgs();
