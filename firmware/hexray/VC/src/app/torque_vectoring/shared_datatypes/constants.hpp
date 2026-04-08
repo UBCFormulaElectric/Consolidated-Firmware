@@ -9,14 +9,14 @@ namespace app::tv::shared_datatypes::vd_constants
 // PHYSICAL CONSTANTS
 // =============================================================================
 
-inline constexpr float GRAVITY       = 9.81f;     // m/s^2
-inline constexpr float SMALL_EPSILON = 0.000001f; // Numerical stability for division
-inline constexpr float FRONTAL_AREA_M2    = 0.94f;   // m^2 from aero team
-inline constexpr float AIR_DENSITY_KGPM3  = 1.2205f; // kg/m^3
-inline constexpr float LIFT_COEFF         = 1.7f;    // from aero team
-inline constexpr float DRAG_COEFF         = 0.92f;
-inline constexpr float COP_REAR           = 0.68f;   // fraction of aero load acting behind the CG
-inline constexpr float COP_RIGHT          = 0.5f;    // fraction of aero load acting on the right side
+inline constexpr float GRAVITY           = 9.81f;     // m/s^2
+inline constexpr float SMALL_EPSILON     = 0.000001f; // Numerical stability for division
+inline constexpr float FRONTAL_AREA_M2   = 0.94f;     // m^2 from aero team
+inline constexpr float AIR_DENSITY_KGPM3 = 1.2205f;   // kg/m^3
+inline constexpr float LIFT_COEFF        = 1.7f;      // from aero team
+inline constexpr float DRAG_COEFF        = 0.92f;
+inline constexpr float COP_REAR          = 0.68f; // fraction of aero load acting behind the CG
+inline constexpr float COP_RIGHT         = 0.5f;  // fraction of aero load acting on the right side
 
 // =============================================================================
 // VEHICLE DIMENSIONS
@@ -41,7 +41,7 @@ inline constexpr float DIST_REAR_AXLE_CG_m =
 inline constexpr float DIST_HEIGHT_CG_m = 30.0f * CM_TO_M; // CG height (from suspension team)
 
 // Derived weight distribution properties
-inline constexpr float CAR_WEIGHT = CAR_MASS_AT_CG_KG * GRAVITY;
+inline constexpr float CAR_WEIGHT                = CAR_MASS_AT_CG_KG * GRAVITY;
 inline constexpr float WEIGHT_ACROSS_BODY        = CAR_MASS_AT_CG_KG * GRAVITY / WHEELBASE_m;
 inline constexpr float REAR_WEIGHT_DISTRIBUTION  = WEIGHT_ACROSS_BODY * DIST_REAR_AXLE_CG_m;
 inline constexpr float FRONT_WEIGHT_DISTRIBUTION = WEIGHT_ACROSS_BODY * DIST_FRONT_AXLE_CG_m;
@@ -104,7 +104,7 @@ inline constexpr float APPROX_STEERING_TO_WHEEL_ANGLE =
  * Input: torque in Nm
  * Output: int16_t representing (torque/nominal) * 1000
  */
-[[nodiscard]] inline constexpr int16_t MOTOR_TORQUE_REQUEST(const float torque)
+[[nodiscard]] constexpr int16_t MOTOR_TORQUE_REQUEST(const float torque)
 {
     return static_cast<int16_t>((torque / NOMINAL_TORQUE_REQUEST_NM) * 1000.0f);
 }
@@ -112,7 +112,7 @@ inline constexpr float APPROX_STEERING_TO_WHEEL_ANGLE =
 /**
  * Convert torque and RPM to power (kW)
  */
-[[nodiscard]] inline constexpr float TORQUE_TO_POWER(const float torque, const float rpm)
+[[nodiscard]] constexpr float TORQUE_TO_POWER(const float torque, const float rpm)
 {
     return (torque * (rpm / GEAR_RATIO)) / static_cast<float>(POWER_TO_TORQUE_CONVERSION_FACTOR);
 }
@@ -121,11 +121,10 @@ inline constexpr float APPROX_STEERING_TO_WHEEL_ANGLE =
  * Convert power (kW) and RPM to torque (Nm)
  * Includes safety guard against division by zero
  */
-[[nodiscard]] inline constexpr float POWER_TO_TORQUE(const float power, const float rpm)
+[[nodiscard]] constexpr float POWER_TO_TORQUE(const float power, const float rpm)
 {
     return (power * static_cast<float>(POWER_TO_TORQUE_CONVERSION_FACTOR)) / (std::fmax(rpm, 0.00001f) / GEAR_RATIO);
 }
-
 
 // =============================================================================
 // EXTERNAL CONFIGURATION (Commented Out)

@@ -250,7 +250,7 @@ VehicleStateEstimator::Outputs VehicleStateEstimator::estimate(const Inputs& inp
         previous_state);
 
     z(static_cast<Eigen::Index>(R))  = measured_yaw_rate_radps;
-    z(static_cast<Eigen::Index>(MZ)) = dynamics_estimator_.estimateYawMoment_Nm(
+    z(static_cast<Eigen::Index>(MZ)) = dynamics_estimator_.est_Mz_N(
         inputs.longitudinal_forces_N,
         inputs.lateral_forces_N,
         measured_steering_angle);

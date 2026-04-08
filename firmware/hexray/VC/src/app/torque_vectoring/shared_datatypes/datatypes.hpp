@@ -2,9 +2,7 @@
 
 namespace app::tv::shared_datatypes::datatypes
 {
-
-template <typename T>
-struct wheel_set
+template <typename T> struct wheel_set
 {
     T fl;
     T fr;
@@ -14,12 +12,17 @@ struct wheel_set
 
 struct VehicleState
 {
-    float v_x_mps        = 0.0f;
-    float v_y_mps        = 0.0f;
-    float yaw_rate_radps = 0.0f;
-    float steer_ang_rad  = 0.0f;
-    float a_x_mps2       = 0.0f;
-    float a_y_mps2       = 0.0f;
+    float v_x_mps          = 0.0f;
+    float v_y_mps          = 0.0f;
+    float yaw_rate_radps   = 0.0f;
+    float steer_ang_rad    = 0.0f;
+    float a_x_mps2         = 0.0f;
+    float a_y_mps2         = 0.0f;
+    float pedal_percentage = 0.0f;
+
+    wheel_set<float> wheel_angular_velocities_radps{};
+    wheel_set<float> longitudinal_forces_N{};
+    wheel_set<float> lateral_forces_N{};
 };
 
 } // namespace app::tv::shared_datatypes::datatypes

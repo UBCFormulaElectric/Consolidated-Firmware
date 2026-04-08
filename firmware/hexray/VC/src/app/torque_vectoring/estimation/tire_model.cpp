@@ -1,4 +1,6 @@
 #include "tire_model.hpp"
+#include "torque_vectoring/shared_datatypes/constants.hpp"
+#include "torque_vectoring/shared_datatypes/low_speed_blend.hpp"
 
 #include <cmath>
 #include <dual.hpp>
@@ -9,68 +11,65 @@ namespace app::tv::estimation
 {
 namespace
 {
-[[nodiscard]] float safeMagnitude(const float value)
-{
-    return std::fmax(std::fabs(value), SMALL_EPSILON);
-}
+    [[nodiscard]] float safeMagnitude(const float value)
+    {
+        return std::fmax(std::fabs(value), SMALL_EPSILON);
+    }
 
-[[nodiscard]] float primalValue(const float value)
-{
-    return value;
-}
-
-[[nodiscard]] float primalValue(const autodiff::dual& value)
-{
-    return static_cast<float>(autodiff::val(value));
-}
-
-template <typename T>
-[[nodiscard]] T safeTemplateDenominator(const T& value)
-{
-    const float primal = primalValue(value);
-
-    if (std::fabs(primal) >= SMALL_EPSILON)
+    [[nodiscard]] float primalValue(const float value)
     {
         return value;
     }
 
-    return T(primal < 0.0f ? -SMALL_EPSILON : SMALL_EPSILON);
-}
+    [[nodiscard]] float primalValue(const autodiff::dual &value)
+    {
+        return static_cast<float>(autodiff::val(value));
+    }
+
+    template <typename T> [[nodiscard]] T safeTemplateDenominator(const T &value)
+    {
+        const float primal = primalValue(value);
+
+        if (std::fabs(primal) >= SMALL_EPSILON)
+        {
+            return value;
+        }
+
+        return T(primal < 0.0f ? -SMALL_EPSILON : SMALL_EPSILON);
+    }
 } // namespace
 
-[[nodiscard]] TireModel::Outputs TireModel::estimate(const StateInputs& inputs) const
+[[nodiscard]] TireModel::Outputs TireModel::estimate(const StateInputs &inputs) const
 {
     const float vehicle_speed_mps = std::hypot(inputs.vehicle_velocity_x_mps, inputs.vehicle_velocity_y_mps);
     const float low_speed_blend   = shared_datatypes::velocityBlend(vehicle_speed_mps);
-    const auto wheel_velocities =
+    const auto [x_mps, y_mps] =
         wheelVelocities(inputs.vehicle_velocity_x_mps, inputs.vehicle_velocity_y_mps, inputs.yaw_rate_radps);
-    const float slip_angle_rad =
-        estimateSlipAngle(wheel_velocities.x_mps, wheel_velocities.y_mps, inputs.steering_angle_rad);
-    const float slip_ratio = estimateSlipRatio(
-        wheel_velocities.x_mps, wheel_velocities.y_mps, slip_angle_rad, inputs.wheel_angular_velocity_radps);
+    const float slip_angle_rad = estimateSlipAngle(x_mps, y_mps, inputs.steering_angle_rad);
+    const float slip_ratio     = estimateSlipRatio(x_mps, y_mps, slip_angle_rad, inputs.wheel_angular_velocity_radps);
 
     return {
         .slip_ratio           = slip_ratio,
         .slip_angle_rad       = slip_angle_rad,
         .longitudinal_force_N = static_cast<float>(
             computeCombinedFx_N<float>(inputs.normal_load_N, slip_angle_rad, low_speed_blend, slip_ratio)),
-        .lateral_force_N      = computeCombinedFy_N(
-            inputs.normal_load_N, slip_angle_rad, low_speed_blend, slip_ratio),
+        .lateral_force_N = computeCombinedFy_N(inputs.normal_load_N, slip_angle_rad, low_speed_blend, slip_ratio),
     };
 }
 
-[[nodiscard]] float TireModel::slipRatioToWheelAngularVelocity(const float slip_ratio, const float wheel_vel_x_mps) const
+[[nodiscard]] float TireModel::slipRatioToWheelAngularVelocity(const float slip_ratio, const float wheel_vel_x_mps)
 {
     const float wheel_surface_speed_mps = wheel_vel_x_mps * (1.0f + slip_ratio);
     return wheel_surface_speed_mps / safeMagnitude(WHEEL_RADIUS_M);
 }
 
 [[nodiscard]] float TireModel::slipRatioToWheelAngularVelocity(
-    const float slip_ratio, const datatypes::datatypes::VehicleState& vehicle_state) const
+    const float                               slip_ratio,
+    const datatypes::datatypes::VehicleState &vehicle_state) const
 {
-    const auto wheel_velocities =
+    const auto [x_mps, y_mps] =
         wheelVelocities(vehicle_state.v_x_mps, vehicle_state.v_y_mps, vehicle_state.yaw_rate_radps);
-    return slipRatioToWheelAngularVelocity(slip_ratio, wheel_velocities.x_mps);
+    return slipRatioToWheelAngularVelocity(slip_ratio, x_mps);
 }
 
 [[nodiscard]] float TireModel::wheelLongOffset_m() const
@@ -89,7 +88,9 @@ template <typename T>
 }
 
 [[nodiscard]] TireModel::WheelVelocities TireModel::wheelVelocities(
-    const float vehicle_velocity_x_mps, const float vehicle_velocity_y_mps, const float yaw_rate_radps) const
+    const float vehicle_velocity_x_mps,
+    const float vehicle_velocity_y_mps,
+    const float yaw_rate_radps) const
 {
     // Rigid-body planar kinematics in the body frame:
     // v_wheel = v_cg + omega_z x r_wheel, where r_wheel = [x_offset, y_offset, 0].
@@ -100,7 +101,9 @@ template <typename T>
 }
 
 [[nodiscard]] float TireModel::estimateSlipAngle(
-    const float wheel_vel_x_mps, const float wheel_vel_y_mps, const float steering_angle_rad) const
+    const float wheel_vel_x_mps,
+    const float wheel_vel_y_mps,
+    const float steering_angle_rad) const
 {
     return std::atan2(wheel_vel_y_mps, wheel_vel_x_mps) - wheelSteeringAngle_rad(steering_angle_rad);
 }
@@ -109,7 +112,7 @@ template <typename T>
     const float wheel_vel_x_mps,
     const float wheel_vel_y_mps,
     const float slip_angle_rad,
-    const float wheel_angular_velocity_radps) const
+    const float wheel_angular_velocity_radps)
 {
     const float wheel_surface_speed_mps   = wheel_angular_velocity_radps * WHEEL_RADIUS_M;
     const float wheel_speed_magnitude_mps = std::hypot(wheel_vel_x_mps, wheel_vel_y_mps);
@@ -118,24 +121,24 @@ template <typename T>
     return (wheel_surface_speed_mps - effective_wheel_speed_mps) / safeMagnitude(effective_wheel_speed_mps);
 }
 
-//-------------------------------------------------------------------- Pacejka 5.2 ----------------------------------------------------------------------//
-
+//-------------------------------------------------------------------- Pacejka 5.2
+//----------------------------------------------------------------------//
 
 template <typename T>
-TireModel::PureFxMagicFormulaCoefficients<T> TireModel::pureFxMagicFormulaCoefficients(
-    const float normal_load_N, const T& slip_ratio) const
+TireModel::PureFxMagicFormulaCoefficients<T>
+    TireModel::pureFxMagicFormulaCoefficients(const float normal_load_N, const T &slip_ratio) const
 {
     // Assumes lambda terms are 1.0, gamma = 0, and pressure effects are captured by the fixed 12_PSI fitted row.
     const float clamped_normal_load_N = std::fmax(normal_load_N, 0.0f);
     const float normalized_load_delta = normalizedLoadDelta(clamped_normal_load_N);
-    const float s_hx                 = pureFx_Sh(normalized_load_delta);
-    const T     kappa_x              = pureFx_Kappa(normalized_load_delta, slip_ratio);
-    const float c_x                  = pureFx_C();
-    const float d_x                  = pureFx_D(clamped_normal_load_N, normalized_load_delta);
-    const T     e_x                  = pureFx_E(normalized_load_delta, kappa_x);
-    const float k_x                  = pureFx_K(clamped_normal_load_N, normalized_load_delta);
-    const float b_x                  = pureFx_B(k_x, c_x, d_x);
-    const float s_vx                 = pureFx_Sv(clamped_normal_load_N, normalized_load_delta);
+    const float s_hx                  = pureFx_Sh(normalized_load_delta);
+    const T     kappa_x               = pureFx_Kappa(normalized_load_delta, slip_ratio);
+    const float c_x                   = pureFx_C();
+    const float d_x                   = pureFx_D(clamped_normal_load_N, normalized_load_delta);
+    const T     e_x                   = pureFx_E(normalized_load_delta, kappa_x);
+    const float k_x                   = pureFx_K(clamped_normal_load_N, normalized_load_delta);
+    const float b_x                   = pureFx_B(k_x, c_x, d_x);
+    const float s_vx                  = pureFx_Sv(clamped_normal_load_N, normalized_load_delta);
 
     return {
         .s_hx    = T(s_hx),
@@ -148,20 +151,20 @@ TireModel::PureFxMagicFormulaCoefficients<T> TireModel::pureFxMagicFormulaCoeffi
     };
 }
 
-TireModel::PureFyMagicFormulaCoefficients TireModel::pureFyMagicFormulaCoefficients(
-    const float normal_load_N, const float slip_angle_rad) const
+TireModel::PureFyMagicFormulaCoefficients
+    TireModel::pureFyMagicFormulaCoefficients(const float normal_load_N, const float slip_angle_rad) const
 {
     // Assumes gamma = 0, lambda terms are 1.0, and pressure effects are captured by the fixed 12_PSI fitted row.
     const float clamped_normal_load_N = std::fmax(normal_load_N, 0.0f);
     const float normalized_load_delta = normalizedLoadDelta(clamped_normal_load_N);
-    const float s_hy                 = pureFy_Sh(normalized_load_delta);
-    const float alpha_y              = pureFy_Alpha(normalized_load_delta, slip_angle_rad);
-    const float c_y                  = pureFy_C();
-    const float d_y                  = pureFy_D(clamped_normal_load_N, normalized_load_delta);
-    const float e_y                  = pureFy_E(normalized_load_delta, alpha_y);
-    const float k_y                  = pureFy_K(clamped_normal_load_N);
-    const float b_y                  = pureFy_B(k_y, c_y, d_y);
-    const float s_vy                 = pureFy_Sv(clamped_normal_load_N, normalized_load_delta);
+    const float s_hy                  = pureFy_Sh(normalized_load_delta);
+    const float alpha_y               = pureFy_Alpha(normalized_load_delta, slip_angle_rad);
+    const float c_y                   = pureFy_C();
+    const float d_y                   = pureFy_D(clamped_normal_load_N, normalized_load_delta);
+    const float e_y                   = pureFy_E(normalized_load_delta, alpha_y);
+    const float k_y                   = pureFy_K(clamped_normal_load_N);
+    const float b_y                   = pureFy_B(k_y, c_y, d_y);
+    const float s_vy                  = pureFy_Sv(clamped_normal_load_N, normalized_load_delta);
 
     return {
         .s_hy    = s_hy,
@@ -174,15 +177,14 @@ TireModel::PureFyMagicFormulaCoefficients TireModel::pureFyMagicFormulaCoefficie
     };
 }
 
-template <typename T>
-T TireModel::computePureFx_N(const float normal_load_N, const T& slip_ratio) const
+template <typename T> T TireModel::computePureFx_N(const float normal_load_N, const T &slip_ratio) const
 {
     using std::atan;
     using std::sin;
 
     const auto coefficients = pureFxMagicFormulaCoefficients<T>(normal_load_N, slip_ratio);
-    const T u   = coefficients.b_x * coefficients.kappa_x;
-    const T phi = u - coefficients.e_x * (u - atan(u));
+    const T    u            = coefficients.b_x * coefficients.kappa_x;
+    const T    phi          = u - coefficients.e_x * (u - atan(u));
     return coefficients.d_x * sin(coefficients.c_x * atan(phi)) + coefficients.s_vx;
 }
 
@@ -196,20 +198,20 @@ float TireModel::computePureFy_N(const float normal_load_N, const float slip_ang
     return coefficients.d_y *
                std::sin(
                    coefficients.c_y *
-                   std::atan(
-                       b_y_alpha_y -
-                       (coefficients.e_y *
-                        (b_y_alpha_y - std::atan(b_y_alpha_y))))) +
+                   std::atan(b_y_alpha_y - (coefficients.e_y * (b_y_alpha_y - std::atan(b_y_alpha_y))))) +
            coefficients.s_vy;
 }
 
 template <typename T>
 T TireModel::computeCombinedFx_N(
-    const float normal_load_N, const float slip_angle_rad, const float low_speed_blend, const T& slip_ratio) const
+    const float normal_load_N,
+    const float slip_angle_rad,
+    const float low_speed_blend,
+    const T    &slip_ratio) const
 {
-    const T pure_fx_0 = computePureFx_N<T>(normal_load_N, slip_ratio);
+    const T    pure_fx_0    = computePureFx_N<T>(normal_load_N, slip_ratio);
     const auto coefficients = combinedFxMagicFormulaCoefficients<T>(normal_load_N, slip_angle_rad, slip_ratio);
-    const T force_blend = T(low_speed_blend);
+    const T    force_blend  = T(low_speed_blend);
 
     // Low-speed safeguard:
     // Below a small vehicle-speed threshold the tire model can predict unrealistically large
@@ -223,11 +225,14 @@ T TireModel::computeCombinedFx_N(
 
 template <typename T>
 T TireModel::computeCombinedFy_N(
-    const float normal_load_N, const float slip_angle_rad, const float low_speed_blend, const T& slip_ratio) const
+    const float normal_load_N,
+    const float slip_angle_rad,
+    const float low_speed_blend,
+    const T    &slip_ratio) const
 {
-    const float pure_fy_0 = computePureFy_N(normal_load_N, slip_angle_rad);
+    const float pure_fy_0    = computePureFy_N(normal_load_N, slip_angle_rad);
     const auto  coefficients = combinedFyMagicFormulaCoefficients(normal_load_N, slip_angle_rad, slip_ratio);
-    const T force_blend = T(low_speed_blend);
+    const T     force_blend  = T(low_speed_blend);
 
     // Apply the same low-speed force-availability blend used for Fx so the optimizer sees a
     // self-consistent pair of tire forces as the vehicle approaches a stop.
@@ -260,8 +265,7 @@ float TireModel::combinedFx_Exa(const float normalized_load_delta) const
     return std::fmin(fit_comb_fx_.rEx1 + (fit_comb_fx_.rEx2 * normalized_load_delta), 1.0f);
 }
 
-template <typename T>
-T TireModel::combinedFx_Bxa(const T& slip_ratio) const
+template <typename T> T TireModel::combinedFx_Bxa(const T &slip_ratio) const
 {
     using std::atan;
     using std::cos;
@@ -270,8 +274,7 @@ T TireModel::combinedFx_Bxa(const T& slip_ratio) const
     return T(fit_comb_fx_.rBx1) * cos(atan(T(fit_comb_fx_.rBx2) * slip_ratio));
 }
 
-template <typename T>
-T TireModel::combinedFx_Gxao(const CombinedFxMagicFormulaCoefficients<T>& coefficients) const
+template <typename T> T TireModel::combinedFx_Gxao(const CombinedFxMagicFormulaCoefficients<T> &coefficients) const
 {
     using std::atan;
     using std::cos;
@@ -282,8 +285,7 @@ T TireModel::combinedFx_Gxao(const CombinedFxMagicFormulaCoefficients<T>& coeffi
     return cos(coefficients.c_xa * atan(phi));
 }
 
-template <typename T>
-T TireModel::combinedFx_Gxa(const CombinedFxMagicFormulaCoefficients<T>& coefficients) const
+template <typename T> T TireModel::combinedFx_Gxa(const CombinedFxMagicFormulaCoefficients<T> &coefficients) const
 {
     using std::atan;
     using std::cos;
@@ -298,7 +300,9 @@ T TireModel::combinedFx_Gxa(const CombinedFxMagicFormulaCoefficients<T>& coeffic
 
 template <typename T>
 TireModel::CombinedFxMagicFormulaCoefficients<T> TireModel::combinedFxMagicFormulaCoefficients(
-    const float normal_load_N, const float slip_angle_rad, const T& slip_ratio) const
+    const float normal_load_N,
+    const float slip_angle_rad,
+    const T    &slip_ratio) const
 {
     const float clamped_normal_load_N = std::fmax(normal_load_N, 0.0f);
     const float normalized_load_delta = normalizedLoadDelta(clamped_normal_load_N);
@@ -324,8 +328,7 @@ float TireModel::combinedFy_SHyk(const float normalized_load_delta) const
     return fit_comb_fy_.rHy1 + (fit_comb_fy_.rHy2 * normalized_load_delta);
 }
 
-template <typename T>
-T TireModel::combinedFy_Kappa_s(const float normalized_load_delta, const T& slip_ratio) const
+template <typename T> T TireModel::combinedFy_Kappa_s(const float normalized_load_delta, const T &slip_ratio) const
 {
     // Pacejka Page 181 (4.E61): kappa_s = kappa + S_Hyk
     return slip_ratio + T(combinedFy_SHyk(normalized_load_delta));
@@ -353,7 +356,9 @@ float TireModel::combinedFy_Byk(const float slip_angle_rad) const
 }
 
 float TireModel::combinedFy_Dvyk(
-    const float normal_load_N, const float normalized_load_delta, const float slip_angle_rad) const
+    const float normal_load_N,
+    const float normalized_load_delta,
+    const float slip_angle_rad) const
 {
     using std::atan;
     using std::cos;
@@ -364,8 +369,7 @@ float TireModel::combinedFy_Dvyk(
            cos(atan(fit_comb_fy_.rVy4 * slip_angle_rad));
 }
 
-template <typename T>
-T TireModel::combinedFy_Svyk(const T& d_vyk, const T& slip_ratio) const
+template <typename T> T TireModel::combinedFy_Svyk(const T &d_vyk, const T &slip_ratio) const
 {
     using std::atan;
     using std::sin;
@@ -374,8 +378,7 @@ T TireModel::combinedFy_Svyk(const T& d_vyk, const T& slip_ratio) const
     return d_vyk * sin(T(fit_comb_fy_.rVy5) * atan(T(fit_comb_fy_.rVy6) * slip_ratio));
 }
 
-template <typename T>
-T TireModel::combinedFy_Gyko(const CombinedFyMagicFormulaCoefficients<T>& coefficients) const
+template <typename T> T TireModel::combinedFy_Gyko(const CombinedFyMagicFormulaCoefficients<T> &coefficients) const
 {
     using std::atan;
     using std::cos;
@@ -386,8 +389,7 @@ T TireModel::combinedFy_Gyko(const CombinedFyMagicFormulaCoefficients<T>& coeffi
     return cos(coefficients.c_yk * atan(phi));
 }
 
-template <typename T>
-T TireModel::combinedFy_Gyk(const CombinedFyMagicFormulaCoefficients<T>& coefficients) const
+template <typename T> T TireModel::combinedFy_Gyk(const CombinedFyMagicFormulaCoefficients<T> &coefficients) const
 {
     using std::atan;
     using std::cos;
@@ -402,7 +404,9 @@ T TireModel::combinedFy_Gyk(const CombinedFyMagicFormulaCoefficients<T>& coeffic
 
 template <typename T>
 TireModel::CombinedFyMagicFormulaCoefficients<T> TireModel::combinedFyMagicFormulaCoefficients(
-    const float normal_load_N, const float slip_angle_rad, const T& slip_ratio) const
+    const float normal_load_N,
+    const float slip_angle_rad,
+    const T    &slip_ratio) const
 {
     const float clamped_normal_load_N = std::fmax(normal_load_N, 0.0f);
     const float normalized_load_delta = normalizedLoadDelta(clamped_normal_load_N);
@@ -424,7 +428,6 @@ TireModel::CombinedFyMagicFormulaCoefficients<T> TireModel::combinedFyMagicFormu
     coefficients.g_yk  = combinedFy_Gyk(coefficients);
     return coefficients;
 }
-
 
 constexpr float TireModel::safeSignedDenominator(const float value)
 {
@@ -451,8 +454,8 @@ constexpr float TireModel::signum(const float value)
     return 0.0f;
 }
 
-//-------------------------------------------------------------------- MJ Pure Coefficents 5.2 ----------------------------------------------------------------------//
-
+//-------------------------------------------------------------------- MJ Pure Coefficents 5.2
+//----------------------------------------------------------------------//
 
 constexpr float TireModel::normalizedLoadDelta(const float normal_load_N)
 {
@@ -465,8 +468,7 @@ constexpr float TireModel::pureFx_Sh(const float normalized_load_delta) const
     return fit_pure_fx_.hx_1 + (fit_pure_fx_.hx_2 * normalized_load_delta);
 }
 
-template <typename T>
-T TireModel::pureFx_Kappa(const float normalized_load_delta, const T& slip_ratio) const
+template <typename T> T TireModel::pureFx_Kappa(const float normalized_load_delta, const T &slip_ratio) const
 {
     // Pacejka Page 179 (4.E10): kappa_x = kappa + S_Hx
     return slip_ratio + T(pureFx_Sh(normalized_load_delta));
@@ -490,12 +492,11 @@ constexpr float TireModel::pureFx_D(const float normal_load_N, const float norma
     return pureFx_mu(normalized_load_delta) * normal_load_N;
 }
 
-template <typename T>
-T TireModel::pureFx_E(const float normalized_load_delta, const T& kappa_x) const
+template <typename T> T TireModel::pureFx_E(const float normalized_load_delta, const T &kappa_x) const
 {
     // Pacejka Page 179 (4.E14): E_x
     const float normalized_load_delta_squared = normalized_load_delta * normalized_load_delta;
-    const float base_e_x = fit_pure_fx_.ex_1 + (fit_pure_fx_.ex_2 * normalized_load_delta) +
+    const float base_e_x                      = fit_pure_fx_.ex_1 + (fit_pure_fx_.ex_2 * normalized_load_delta) +
                            (fit_pure_fx_.ex_3 * normalized_load_delta_squared);
     const float kappa_x_value = primalValue(kappa_x);
 
@@ -509,8 +510,7 @@ constexpr float TireModel::pureFx_K(const float normal_load_N, const float norma
            std::exp(fit_pure_fx_.kx_3 * normalized_load_delta);
 }
 
-constexpr float TireModel::pureFx_B(
-    const float slip_stiffness, const float shape_factor, const float peak_factor)
+constexpr float TireModel::pureFx_B(const float slip_stiffness, const float shape_factor, const float peak_factor)
 {
     // Pacejka Page 179 (4.E16): B_x = K_xk / (C_x * D_x + epsilon_x)
     return slip_stiffness / safeSignedDenominator(shape_factor * peak_factor);
@@ -563,12 +563,10 @@ constexpr float TireModel::pureFy_K(const float normal_load_N) const
 {
     // Pacejka Page 180 (4.E25): K_yalpha with gamma/pressure terms reduced to zero.
     const float denominator = safeSignedDenominator(fit_pure_fy_.ky_2 * NOMINAL_FZ_N);
-    return fit_pure_fy_.ky_1 * NOMINAL_FZ_N *
-           std::sin(2.0f * std::atan(normal_load_N / denominator));
+    return fit_pure_fy_.ky_1 * NOMINAL_FZ_N * std::sin(2.0f * std::atan(normal_load_N / denominator));
 }
 
-constexpr float TireModel::pureFy_B(
-    const float cornering_stiffness, const float shape_factor, const float peak_factor)
+constexpr float TireModel::pureFy_B(const float cornering_stiffness, const float shape_factor, const float peak_factor)
 {
     // Pacejka Page 180 (4.E26): B_y = K_yalpha / (C_y * D_y + epsilon_y)
     return cornering_stiffness / safeSignedDenominator(shape_factor * peak_factor);
@@ -581,12 +579,24 @@ constexpr float TireModel::pureFy_Sv(const float normal_load_N, const float norm
 }
 
 template float TireModel::computeCombinedFx_N<float>(
-    const float normal_load_N, const float slip_angle_rad, const float low_speed_blend, const float& slip_ratio) const;
+    const float  normal_load_N,
+    const float  slip_angle_rad,
+    const float  low_speed_blend,
+    const float &slip_ratio) const;
 template autodiff::dual TireModel::computeCombinedFx_N<autodiff::dual>(
-    const float normal_load_N, const float slip_angle_rad, const float low_speed_blend, const autodiff::dual& slip_ratio) const;
+    const float           normal_load_N,
+    const float           slip_angle_rad,
+    const float           low_speed_blend,
+    const autodiff::dual &slip_ratio) const;
 template float TireModel::computeCombinedFy_N<float>(
-    const float normal_load_N, const float slip_angle_rad, const float low_speed_blend, const float& slip_ratio) const;
+    const float  normal_load_N,
+    const float  slip_angle_rad,
+    const float  low_speed_blend,
+    const float &slip_ratio) const;
 template autodiff::dual TireModel::computeCombinedFy_N<autodiff::dual>(
-    const float normal_load_N, const float slip_angle_rad, const float low_speed_blend, const autodiff::dual& slip_ratio) const;
+    const float           normal_load_N,
+    const float           slip_angle_rad,
+    const float           low_speed_blend,
+    const autodiff::dual &slip_ratio) const;
 
 } // namespace app::tv::estimation
