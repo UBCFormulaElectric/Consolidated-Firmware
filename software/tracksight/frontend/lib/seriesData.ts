@@ -95,6 +95,13 @@ export class SeriesData {
 		}
 	}
 
+	clear(): void {
+		this.data = [];
+		this.minTree = [Infinity, Infinity];
+		this.maxTree = [-Infinity, -Infinity];
+		this.capacity = 1;
+	}
+
 	private ensureCapacity(requiredSize: number): void {
 		if (requiredSize <= this.capacity) {
 			return;

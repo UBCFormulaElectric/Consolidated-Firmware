@@ -148,6 +148,31 @@ abstract class SignalStore {
     this.storage[signalName].isSubscribed = false;
   }
 
+  protected clearSignalData(signalName: string): void {
+    const entry = this.storage[signalName];
+
+    if (!entry) return;
+
+    entry.error = null;
+    entry.isSubscribed = true;
+
+    switch (entry.storeType) {
+      case SignalType.ENUM:
+        entry.data.data.length = 0;
+        entry.data.timestamps.length = 0;
+        entry.data.enumValuesToNames = {};
+        break;
+      case SignalType.NUMERICAL:
+        entry.data.data.clear();
+        entry.data.timestamps.length = 0;
+        break;
+      case SignalType.ALERT:
+        entry.data.data.clear();
+        entry.data.timestamps.length = 0;
+        break;
+    }
+  }
+
   removeSignal(signalName: string): void {
     delete this.storage[signalName];
     delete this.subscriberCounts[signalName];
