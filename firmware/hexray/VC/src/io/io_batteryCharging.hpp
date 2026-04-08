@@ -1,8 +1,8 @@
-namespace io::batteryCharging 
+namespace io::batteryCharging
 {
-    void chargerEnable(void);
-    void chargerDisable(void);
-} //io::batteryCharging
+void chargerEnable(void);
+void chargerDisable(void);
+} // namespace io::batteryCharging
 
 enum enable
 {
