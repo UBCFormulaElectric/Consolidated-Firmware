@@ -4,6 +4,7 @@ import { useAlertDataStores } from "@/lib/contexts/signalStores/SignalStoreConte
 import { RefObject, useEffect, useRef } from "react";
 import { AlertSeries } from "./CanvasChartTypes";
 import { useSyncedGraph } from "../SyncedGraphContainer";
+import { CHART_PADDING } from "./render";
 
 const INITIAL_SLIP_STREAM_LANES = 5;
 const MAX_SLIP_STREAM_LANES = 5;
@@ -339,8 +340,8 @@ function AlertTimeline() {
         renderState.current,
         rect.width,
         rect.height,
-        leftEdge,
-        rightEdge - 60 / scalePxPerSecRef.current,
+        leftEdge - CHART_PADDING.left / scalePxPerSecRef.current,
+        rightEdge - CHART_PADDING.right / scalePxPerSecRef.current,
         liveTime,
         slipStreamLanes.current,
         ctx,
@@ -355,8 +356,8 @@ function AlertTimeline() {
         renderState.current,
         rect.width,
         rect.height,
-        leftEdge - 60 / scalePxPerSecRef.current,
-        rightEdge,
+        leftEdge - CHART_PADDING.left / scalePxPerSecRef.current,
+        rightEdge - CHART_PADDING.right / scalePxPerSecRef.current,
         bottom,
         liveTime,
         slipStreamLanes.current,
