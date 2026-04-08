@@ -3,6 +3,7 @@ use std::{env::var, str::FromStr};
 use std::sync::LazyLock;
 use dotenv::{ dotenv, from_filename};
 
+use crate::utils::red;
 use crate::vprintln;
 
 pub struct Config {
@@ -93,6 +94,6 @@ fn load_env_file() -> Config {
 
 fn get_var<T: std::str::FromStr>(env_key: &str) -> Result<T, <T as FromStr>::Err> {
     return var(env_key)
-        .expect(&format!("{} is missing!", env_key))
+        .expect(&red(format!("{} is missing from the ENV configuration!", env_key)))
         .parse::<T>()
 }

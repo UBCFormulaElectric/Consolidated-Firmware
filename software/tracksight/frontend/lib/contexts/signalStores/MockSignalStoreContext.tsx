@@ -6,7 +6,11 @@ import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 
 const MockSignalStoreProvider = memo(({ children }: { children: React.ReactNode }) => {
     const { updateWithTimestamp } = useSyncedGraph();
-    const mockSignalStore = useRef(new MockSignalStore(updateWithTimestamp));
+    const mockSignalStore = useRef<MockSignalStore>(null!);
+
+    if (!mockSignalStore.current) {
+        mockSignalStore.current = new MockSignalStore(updateWithTimestamp);
+    }
 
     return (
         <SignalDataStoreProvider signalStore={mockSignalStore}>

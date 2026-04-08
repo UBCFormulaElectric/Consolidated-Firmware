@@ -1,6 +1,6 @@
 // These tests check that nodes are created correctly.
 
-use crate::test::{assert_setequal, setup};
+use crate::test::{assert_setequal, parser_tests::setup};
 
 static ECU1_MSGS: [&str; 6] = [
     "ECU1_BasicSignalTypes",

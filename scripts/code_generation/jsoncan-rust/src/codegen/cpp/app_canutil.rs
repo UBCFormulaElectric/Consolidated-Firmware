@@ -55,37 +55,47 @@ impl AppCanUtilsModuleSource<'_> {
     fn iterations(self: &Self, signal: &CanSignal) -> Vec<Iteration> {
         static BYTE_SIZE: u16 = 8;
         let mut packed_bits = 0;
-        let mut iterations: Vec<Iteration> = Vec::new();
+        let mut out: Vec<Iteration> = Vec::new();
 
+        // while there are still bits left to pack for the given signal
         while packed_bits < signal.bits {
-            let bit_start = signal.start_bit + packed_bits;
-            let bit_in_byte = bit_start % BYTE_SIZE;
-            let bits_to_pack = std::cmp::min(BYTE_SIZE - bit_in_byte, signal.bits - packed_bits);
+            let start_bit = signal.start_bit + packed_bits;
+            let start_bit_mod_byte = start_bit % BYTE_SIZE;
+            let bits_to_pack_in_this_byte = std::cmp::min(
+                BYTE_SIZE - start_bit_mod_byte, // number of bits you can fit into this byte
+                signal.bits - packed_bits,      // number of bits you have left to pack
+            );
 
-            let mut comment_data = vec!["_"; BYTE_SIZE as usize];
-            for i in (bit_start % BYTE_SIZE)..((bit_start % BYTE_SIZE) + bits_to_pack) {
+            // building the comment
+            let mut comment_data: Vec<&str> = vec!["_"; BYTE_SIZE as usize];
+            for i in start_bit_mod_byte..(start_bit_mod_byte + bits_to_pack_in_this_byte) {
                 comment_data[i as usize] = "#";
             }
 
-            iterations.push(Iteration {
-                starting_byte: bit_start / BYTE_SIZE,
+            // push iteration
+            out.push(Iteration {
+                starting_byte: start_bit / BYTE_SIZE,
                 shift: if signal.big_endian {
                     signal.bits as i16
                         - packed_bits as i16
-                        - bits_to_pack as i16
-                        - bit_in_byte as i16
+                        - bits_to_pack_in_this_byte as i16
+                        - start_bit_mod_byte as i16
                 } else {
                     // little endian case
-                    packed_bits as i16 - bit_in_byte as i16
+                    packed_bits as i16 - start_bit_mod_byte as i16
                 },
-                mask_text: format!("0x{:X}", (1 << bits_to_pack) - (1 << bit_in_byte)),
+                mask_text: format!(
+                    "0x{:X}",
+                    (1u16 << (bits_to_pack_in_this_byte + start_bit_mod_byte))
+                        - (1u16 << start_bit_mod_byte) // this should be a u8
+                ),
                 comment_data: comment_data.into_iter().rev().collect::<String>(),
             });
 
-            packed_bits += bits_to_pack;
+            packed_bits += bits_to_pack_in_this_byte;
         }
 
-        iterations
+        out
     }
 
     fn max_uint_for_bits(self: &Self, bits: &u16) -> u32 {

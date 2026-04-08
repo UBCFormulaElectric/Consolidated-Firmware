@@ -1,6 +1,8 @@
+mod can_alert_gen;
 pub mod error;
 mod from_jsonparser;
 mod queries;
+mod signal_parse;
 mod types;
 
 use error::CanDBError;
@@ -66,7 +68,11 @@ pub struct CanDatabase {
 }
 
 impl CanDatabase {
-    pub fn new(
+    /**
+     * Note that this function will return a CanDatabase object which is still INVALID
+     * Additional validity checks are required by seperate constructors.
+     */
+    fn construct(
         buses: Vec<CanBus>,
         forwarding: Vec<BusForwarder>,
         shared_enums: Vec<CanEnum>,
@@ -108,7 +114,8 @@ impl CanDatabase {
                     description TEXT,
                     big_endian INTEGER NOT NULL,
                     signal_type INTEGER NOT NULL,
-                    FOREIGN KEY(message_id) REFERENCES messages(id)
+                    FOREIGN KEY(message_id) REFERENCES messages(id),
+                    UNIQUE(name, message_id)
                     )",
                 [],
             )?;
@@ -139,33 +146,6 @@ impl CanDatabase {
         // 3. adds all the signals into the global dump of signals (self._signals_to_msgs)
         // Note this function expects a valid CanMessage object
 
-        // Check if this message name is a duplicate
-        // TODO move this
-        // if let Some(dup_msg) = msgs.iter().find(|m| m.name == msg.name) {
-        //     return Err(ParseError::DuplicateTxMsgName {
-        //         tx_node_name_1: tx_node_name.clone(),
-        //         tx_node_name_2: dup_msg.tx_node_name.clone(),
-        //         tx_msg_name: msg.name.clone(),
-        //     });
-        // }
-
-        // TODO move this
-        // if let Some(dup_msg) = msgs.iter().find(|m| m.id == msg.id) {
-        //     return Err(ParseError::DuplicateTxMsgID {
-        //         tx_msg_name: msg.name.clone(),
-        //         tx_node_name_1: tx_node_name.clone(),
-        //         tx_node_name_2: dup_msg.tx_node_name.clone(),
-        //     });
-        // }
-
-        // TODO determine if a message is FD compatible when it is routed
-        // if msg.requires_fd() && !tx_node.fd {
-        //     return Err(ParseError::TxFDUnsupported {
-        //         fd_msg_name: msg.name.clone(),
-        //         non_fd_node_name: tx_node_name.clone(),
-        //     });
-        // }
-
         // register the message with the database of all messages
 
         // TODO figure out how to find conflicting signal names across messages
@@ -193,7 +173,10 @@ impl CanDatabase {
                 msg.log_cycle_time,
                 msg.telem_cycle_time,
                 msg.tx_node_name,
-                serde_json::to_string(&msg.modes).unwrap()
+                match &msg.modes {
+                    CanBusModes::Some(modes) => serde_json::to_string(modes).unwrap(),
+                    CanBusModes::All => "".to_string(),
+                }
             ],
         ).map_err(
             |e| {
@@ -210,6 +193,18 @@ impl CanDatabase {
                             tx_msg_name: msg.name.clone(),
                         }
                     },
+                    rusqlite::Error::SqliteFailure(err, Some(err_msg))
+                    if err.code == rusqlite::ErrorCode::ConstraintViolation && err_msg.contains("UNIQUE constraint failed: messages.id") => {
+                        CanDBError::DuplicateTxMsgID {
+                            tx_node_name_1: msg.tx_node_name,
+                            tx_node_name_2: self.get_connection().unwrap().query_row(
+                                "SELECT tx_node_name FROM messages WHERE id = ?1",
+                                rusqlite::params![msg.id],
+                                |row| row.get::<_, String>(0),
+                            ).expect("Failed to query for duplicate message ID"),
+                            tx_msg_name: msg.name.clone(),
+                        }
+                    }
                     _ => CanDBError::SqlLiteError(e)
                 }
             }
@@ -246,6 +241,13 @@ impl CanDatabase {
         ).map_err(
             |e| {
                 match e {
+                    rusqlite::Error::SqliteFailure(err, Some(err_msg))
+                    if err.code == rusqlite::ErrorCode::ConstraintViolation && err_msg.contains("UNIQUE constraint failed: signals.name, signals.message_id") => {
+                        CanDBError::DuplicateTxSignalName {
+                            signal_name: signal.name.clone(),
+                            tx_msg_name: self.get_message_by_id(*msg_id).unwrap().name.clone(),
+                        }
+                    },
                     _ => CanDBError::SqlLiteError(e)
                 }
             }
@@ -264,6 +266,9 @@ impl CanDatabase {
     }
 
     pub fn add_node(self: &mut Self, node: CanNode) -> &CanNode {
+        if self.nodes.iter().any(|n| n.name == node.name) {
+            panic!("Node with name '{}' already exists", node.name);
+        }
         self.nodes.push(node);
         self.nodes.last().unwrap()
     }
