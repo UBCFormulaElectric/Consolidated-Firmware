@@ -52,7 +52,7 @@ const DATE_FORMATTER = new Intl.DateTimeFormat(undefined, {
     month: "short",
     day: "2-digit",
 });
-const CHART_PADDING = { top: 15, right: 0, bottom: 40, left: 60 };
+export const CHART_PADDING = { top: 15, right: 0, bottom: 40, left: 60 };
 
 function selectLOD(series: LODAwareSeries, visibleTimeRange: number, chartWidth: number): number {
     const totalLODCount = series.lods.length;
