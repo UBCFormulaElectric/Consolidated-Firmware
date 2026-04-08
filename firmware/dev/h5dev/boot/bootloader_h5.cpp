@@ -6,7 +6,7 @@
 #include "bootloader_h5.hpp"
 
 extern "C"
-{
+{ 
 #include <app_commitInfo.h>
 }
 
