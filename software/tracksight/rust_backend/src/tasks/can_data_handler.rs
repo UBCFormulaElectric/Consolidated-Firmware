@@ -9,7 +9,7 @@ use crate::tasks::can_data::live_data_handler::run_live_data_handler;
 use crate::utils::yellow;
 use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, Task};
 use crate::tasks::telem_message::CanPayload;
-use crate::tasks::client_api::clients::Clients;
+use crate::tasks::client_api::subtable_clients::Clients;
 use crate::{vprintln};
 
 use jsoncan_rust::can_database::{CanDatabase, DecodedSignal};

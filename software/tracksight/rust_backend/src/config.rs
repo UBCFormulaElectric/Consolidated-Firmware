@@ -1,9 +1,9 @@
 use std::net::IpAddr;
-use std::{env::var, str::FromStr};
+use std::env::var;
 use std::sync::LazyLock;
-use dotenv::{ dotenv, from_filename};
+use dotenv::{dotenv, from_filename};
 
-use crate::utils::red;
+use crate::utils::{red};
 use crate::vprintln;
 
 pub struct Config {
@@ -92,8 +92,11 @@ fn load_env_file() -> Config {
     }
 }
 
-fn get_var<T: std::str::FromStr>(env_key: &str) -> Result<T, <T as FromStr>::Err> {
-    return var(env_key)
-        .expect(&red(format!("{} is missing from the ENV configuration!", env_key)))
-        .parse::<T>()
+fn get_var<T: std::str::FromStr>(env_key: &str) -> Result<T, Box<dyn std::error::Error>> {
+    match var(env_key) {
+        Ok(val) => val.parse::<T>().map_err(|_| format!("{env_key} failed to parse").into()),
+        Err(_) => Err(
+            red(format!("{env_key} is missing from the ENV configuration!\nAre you sure your env file is up to date with template?")).into()
+        ),
+    }
 }
