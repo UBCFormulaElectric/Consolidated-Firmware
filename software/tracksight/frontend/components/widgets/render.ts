@@ -176,9 +176,6 @@ function render_numerical(context: CanvasRenderingContext2D, width: number, char
     }
 
     const selectedLODs = series.map((s) => s.lods[selectLOD(s, visibleEndTime - visibleStartTime, chartWidth)]);
-    for (let i = 0; i < selectedLODs.length; i++) {
-        console.log(`Selected LOD with ${selectedLODs[i].timestamps.length} points for signal ${widgetConfig.signals[i]?.name ?? ""}`);
-    }
 
     const series_bounds = selectedLODs.map((lod) => {
         const left = bisect(lod.timestamps, visibleStartTime);

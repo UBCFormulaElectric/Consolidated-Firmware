@@ -7,7 +7,6 @@ import { useRef } from "react";
 function DataDashboard() {
   const { widgets } = useWidgetManager();
 
-
   const hoveredSignal = useRef<string | null>(null);
 
   return (
@@ -15,7 +14,7 @@ function DataDashboard() {
       className="w-full h-fit"
     >
       <div
-        className="flex h-full min-w-full flex-col gap-16"
+        className="flex h-full min-w-full flex-col gap-16 scrollbar-hiden"
       >
         {widgets.map((widget, index) => (
           <div key={widget.id} className="sticky left-0 w-screen" style={{ zIndex: widgets.length - index }}>

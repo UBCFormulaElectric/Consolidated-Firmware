@@ -28,5 +28,9 @@ mdns-sd = "0.18.1"
 if-addrs = "0.15.0"
 
 jsoncan_rust = { path = "../../../scripts/code_generation/jsoncan-rust" }
+<<<<<<< Updated upstream
 chrono = "0.4.44"
 num-traits = "0.2.19"
+=======
+rand = "0.10.0"
+>>>>>>> Stashed changes
