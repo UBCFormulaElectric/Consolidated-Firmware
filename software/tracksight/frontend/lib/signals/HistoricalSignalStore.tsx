@@ -23,8 +23,8 @@ class HistoricalSignalStore extends SignalStore {
 
     clearSignals(signals: SignalMetadata[]): void {
         signals.forEach((signal) => {
-            this.removeSignal(signal.name);
             this.getOrCreateSignalData(signal);
+            this.clearSignalData(signal.name);
         });
     }
 

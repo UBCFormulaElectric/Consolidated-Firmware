@@ -49,7 +49,7 @@ const getUtcDayRange = (date: Date) => {
 
 const expandViewportFetchRange = (range: TimeRange, bounds: TimeRange): TimeRange => {
     const width = Math.max(range.max - range.min, 1);
-    const padding = width * 0.5; // + 0.5x viewport range padding
+    const padding = width * 0.5; // + 0.5x viewport range padding on both sides
 
     return {
         min: Math.max(Math.floor(range.min - padding), bounds.min),
