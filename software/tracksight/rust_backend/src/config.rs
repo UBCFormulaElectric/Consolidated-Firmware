@@ -38,7 +38,11 @@ fn load_env_file() -> Config {
 
     let serial_baud_rate: u32 = get_var::<u32>("SERIAL_BAUD_RATE").unwrap();
 
-    let influxdb_url: String = get_var::<String>("INFLUXDB_URL").unwrap();
+    let influxdb_url: String = if docker {
+        "http://influx:8086".to_string()
+    } else {
+        get_var::<String>("INFLUXDB_URL").unwrap()
+    };
 
     let influxdb_org: String = get_var::<String>("INFLUXDB_ORG").unwrap();
 
