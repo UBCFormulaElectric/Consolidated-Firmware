@@ -11,6 +11,8 @@ TODO: could perchance add a fucntion that differs from subcommands vs direct com
 namespace io::batteryMonitoring 
 {
 
+static std::expected<void, ErrorCode> write_data_memory(uint16_t addr, std::span<const uint8_t> data);
+
 static std::expected<void, ErrorCode> write_register_byte(uint16_t reg, uint8_t value)
 {
     return hw::i2c::bat_mon.memoryWrite(reg, std::span<const uint8_t>(&value, 1));
@@ -26,6 +28,14 @@ static std::expected<void, ErrorCode> read_register_word(uint16_t reg, uint16_t 
     std::array<uint8_t, 2> buf;
     RETURN_IF_ERR_SILENT(hw::i2c::bat_mon.memoryRead(reg, buf));
     value = (uint16_t)((buf[1] << 8) | buf[0]);
+    return {};
+}
+
+static std::expected<void, ErrorCode> protectionInit(void)
+{
+    uint8_t autonomous_protection = 0x10; //00010000
+    RETURN_IF_ERR(write_data_memory(MFG_STATUS_INIT, std::span<const uint8_t>(&autonomous_protection, 1)));
+
     return {};
 }
 
@@ -198,8 +208,9 @@ std::expected<void, ErrorCode> init(void)
     RETURN_IF_ERR(read_register_word(CMD_CONTROL_STATUS, control_status));
     if (control_status & CTRL_STATUS_DEEPSLEEP) //the 2nd bit (DEEPSLEEP)
     {
+        LOG_INFO("Battery is currently in deepsleep mode");
         RETURN_IF_ERR(write_subcommand(CMD_WAKE_DEEPSLEEP, {})); //send the SET_CFGUPDATE()
-        io::time::delay(10);
+        io::time::delay(300);
     }
 
     // Check for regular sleep & wakeup if neccesary
@@ -207,6 +218,7 @@ std::expected<void, ErrorCode> init(void)
     RETURN_IF_ERR(read_register_word(CMD_BATTERY_STATUS, battery_status));
     if (battery_status & BAT_STATUS_SLEEP) //the MSB
     {
+        LOG_INFO("Battery is currently in sleep mode");
         RETURN_IF_ERR(write_subcommand(CMD_WAKE_SLEEP, {}));
         io::time::delay(300);
     }
@@ -255,12 +267,10 @@ std::expected<void, ErrorCode> init(void)
     // 2. Wait for the 0x12 Battery Status()[CFGUPDATE] flag to set.
     uint16_t cfgupdate_flag = 0;
     do {
-        read_register_word(CMD_BATTERY_STATUS, cfgupdate_flag);
+        RETURN_IF_ERR(read_register_word(CMD_BATTERY_STATUS, cfgupdate_flag));
         cfgupdate_flag = cfgupdate_flag & CFGUPDATE_STATUS;
         io::time::delay(1);
     } while ((cfgupdate_flag & CFGUPDATE_STATUS) == 0);
-
-
 
     // 3. Modify settings
     // TODO: 
@@ -290,6 +300,7 @@ std::expected<void, ErrorCode> init(void)
     RETURN_IF_ERR(write_data_memory(VCELL_MODE, std::span<const uint8_t>(&vcell_mode, 1)));
 
     /* PROTECTION */
+    RETURN_IF_ERR(protectionInit());
     
      // 4. Take device out of configuration mode 
     RETURN_IF_ERR(write_subcommand(EXIT_CFGUPDATE, {}));
@@ -299,37 +310,80 @@ std::expected<void, ErrorCode> init(void)
 
 /**
  * @brief Gets the cell voltage or the entire stack voltage
- * @param uint8_t The subcommand used to read the voltage.
- * @return The battery voltage on success, erorcode if messed up
+ * @param CellNum The command used to read the voltage
+ * @return The voltage on success, erorcode if messed up
  */
-std::expected<uint16_t, ErrorCode> get_voltage(std::span<uint8_t> voltage_cell)
+std::expected<uint16_t, ErrorCode> get_voltage(CellNum cell)
 {
-    std::span<uint8_t> voltage_cmd = voltage_cell;
-    RETURN_IF_ERR(hw::i2c::bat_mon.transmit(voltage_cmd));
-    
-    std::span<uint8_t> voltage_buffer;
-    RETURN_IF_ERR(hw::i2c::bat_mon.receive(voltage_buffer));
+    uint16_t voltage_cmd = 0;
 
-    uint16_t voltage = (uint16_t)(voltage_buffer[0] | (voltage_buffer[1] << 8));
+    switch (cell)
+    {
+        case CELL1:
+            voltage_cmd = CELL1_MV;
+            break;
+        case CELL2:
+            voltage_cmd = CELL2_MV;
+            break;
+        case CELL3:
+            voltage_cmd = CELL3_MV; // Should read 0
+            break;
+        case CELL4:
+            voltage_cmd = CELL4_MV;
+            break;
+        case CELL5:
+            voltage_cmd = CELL5_MV;
+            break;
+        default:
+            return std::unexpected(ErrorCode::OUT_OF_RANGE);
+    }
+
+    uint16_t voltage = 0;
+    RETURN_IF_ERR(read_register_word(voltage_cmd, voltage));
     return voltage;
 }
 
-std::expected<uint16_t, ErrorCode> raw_voltages_and_currents(int cell_num, int measurement_type) 
+/**
+ * @brief Gets the raw ADCs for the current and volatge
+ * @param CellNum The subcommand
+ * @return The ADC voltage/current on success, erorcode if messed up
+ */
+std::expected<uint32_t, ErrorCode> raw_voltages_and_currents(CellNum cell, Measurement measurement_type)
 {
-    std::span<uint8_t> raw_reading[8];
-    uint8_t reading;
-    read_subcommand(0x0071, volatge_and_current);
+    uint16_t subcmd = 0;
 
-    if (measurement_type == CURRENT)
+    if (cell == CELL5) 
     {
-        reading = uint8_t((volatge_and_current[cell_num]) & 0x0F);
+        subcmd = CMD_V_C_COUNT2;
     }
     else 
     {
-        reading = uint8_t((volatge_and_current[cell_num] >> 0x04) & 0x0F);
+        subcmd = CMD_V_C_COUNT1;
     }
 
-    return {};
+    std::array<uint8_t, 32> data{};
+    RETURN_IF_ERR(read_subcommand(subcmd, data));
+
+    // Each cell block is 8 bytes: first 4 bytes voltage, next 4 bytes current.
+    uint32_t cell_start = 0;
+    if (cell != CELL5)
+    {
+        cell_start = (static_cast<uint32_t>(cell) - 1u) * 8u;
+    }
+
+    uint32_t value_start = cell_start;
+    
+    if (measurement_type == CURRENT)
+    {
+        value_start = cell_start + 4u;
+    }
+
+    uint32_t reading = static_cast<uint32_t>(data[value_start])
+                     | (static_cast<uint32_t>(data[value_start + 1]) << 8)
+                     | (static_cast<uint32_t>(data[value_start + 2]) << 16)
+                     | (static_cast<uint32_t>(data[value_start + 3]) << 24);
+
+    return reading;
 }
 //TODO: OTP configuration
 std::expected<void, ErrorCode> OTP(void)
@@ -340,8 +394,8 @@ std::expected<void, ErrorCode> OTP(void)
     // SEALED -> UNSEALED -> FULLACCESS -> FULL CONFIG MODE
 
     //CRC = x^8 + x^2 + x + 1
-    std::span<uint8_t> otp_programming_ok;
-    read_subcommand(OTP_WR_CHECK, otp_programming_ok);
+    // std::span<uint8_t> otp_programming_ok;
+    // read_subcommand(OTP_WR_CHECK, otp_programming_ok);
 
     return {};
 }
