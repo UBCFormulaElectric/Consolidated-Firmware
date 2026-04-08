@@ -13,6 +13,8 @@ extern State pcmOn_state;
 extern State hvInit_state;
 extern State hv_state;
 
+extern State fault_state;
+
 extern State drive_state;
 extern State inverter_fault_handling_state;
 
