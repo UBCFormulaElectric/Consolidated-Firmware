@@ -1,11 +1,11 @@
 "use client"
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import DataDashboard from "@/components/DataDashboard";
 import CalendarDropdown from "@/components/icons/CalendarDropdown";
 import { DisplayControlProvider } from "@/components/PausePlayControl";
-import SyncedGraphContainer from "@/components/SyncedGraphContainer";
+import SyncedGraphContainer, { TimeRange } from "@/components/SyncedGraphContainer";
 import { WidgetManager, useWidgetManager } from "@/components/widgets/WidgetManagerContext";
 import { WidgetAdder } from "@/app/live/WidgetAdder";
 import { HistoricalSignalStoreProvider } from "@/lib/contexts/signalStores/HistoricalSignalStoreContext";
@@ -15,6 +15,27 @@ const HISTORIC_VIEWPORT_LOCK_STORAGE_KEY = "tracksight_historic_viewport_lock_st
 
 // TOOO: KEEP TRACK OF LOADED TIME RANGE AND ALLOW USER TO LOAD MORE DATA BUT DIFF THE TIMESTAMPS
 
+const getFixedWidthRangeFromNow = (width: number): TimeRange => {
+    const d = new Date();
+    return {
+        min: getUtcFromIsoDate(d.toISOString()) - width * 1000,
+        max: getUtcFromIsoDate(d.toISOString()) + width * 1000
+    }
+}
+
+const getUtcFromIsoDate = (isoDate: string): number => {
+    const date = new Date(isoDate);
+    return Date.UTC(
+        date.getUTCFullYear(),
+        date.getUTCMonth(),
+        date.getUTCDate(),
+        date.getUTCHours(),
+        date.getUTCMinutes(),
+        date.getUTCSeconds(),
+        date.getUTCMilliseconds()
+    );
+};
+
 const getUtcDayRange = (date: Date) => {
     const year = date.getUTCFullYear();
     const month = date.getUTCMonth();
@@ -23,7 +44,7 @@ const getUtcDayRange = (date: Date) => {
     const min = Date.UTC(year, month, day, 0, 0, 0, 0);
     const max = Date.UTC(year, month, day + 1, 0, 0, 0, 0);
 
-    return { min, max };
+    return { min, max } satisfies TimeRange;
 };
 
 function HistoricContent(props: { selectedRange: { min: number; max: number }; }) {
