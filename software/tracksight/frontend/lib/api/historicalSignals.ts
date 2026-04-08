@@ -34,7 +34,6 @@ export async function fetchHistoricalSignal(params: {
     const start = toIsoUtcSeconds(startUtcMs);
     const end = toIsoUtcSeconds(endUtcMs);
     const url = `${API_BASE_URL}/api/v1/signal/tiles/${signalName}/${start}/${end}`;
-    console.log(url);
 
     const response = await fetch(url, {
         cache: "no-store",
@@ -47,6 +46,8 @@ export async function fetchHistoricalSignal(params: {
 
     const payloadText = await response.text();
     const rows = parseHistoricalPayload(payloadText);
+
+    console.log(start, end, rows.length);
 
     return rows.map((row) => ({
         name: row.name,

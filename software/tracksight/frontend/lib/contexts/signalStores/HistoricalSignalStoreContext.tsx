@@ -11,13 +11,18 @@ type HistoricalSignalStoreProviderProps = {
     children: React.ReactNode;
     startUtcMs: number;
     endUtcMs: number;
+    selectedRange: {
+        min: number;
+        max: number;
+    };
 };
 
 export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStoreProvider(props: HistoricalSignalStoreProviderProps) {
-    const { children, startUtcMs, endUtcMs } = props;
+    const { children, startUtcMs, endUtcMs, selectedRange } = props;
     const { widgets } = useWidgetManager();
     const { updateWithTimestamp, setTimeRange } = useSyncedGraph();
     const signalStoreRef = useRef<HistoricalSignalStore>(null!);
+    const initializedSelectedRangeKeyRef = useRef<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -34,6 +39,8 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
         });
         return [...signalsByName.values()];
     }, [widgets]);
+
+    const selectedRangeKey = `${selectedRange.min}:${selectedRange.max}`;
 
     useEffect(() => {
         let isCancelled = false;
@@ -77,7 +84,11 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
             if (allTimestamps.length > 0) {
                 const minTimestamp = Math.min(...allTimestamps);
                 const maxTimestamp = Math.max(...allTimestamps);
-                setTimeRange({ min: minTimestamp, max: maxTimestamp }, true);
+                const shouldFitViewport = initializedSelectedRangeKeyRef.current !== selectedRangeKey;
+                if (shouldFitViewport) {
+                    setTimeRange({ min: minTimestamp, max: maxTimestamp }, true);
+                    initializedSelectedRangeKeyRef.current = selectedRangeKey;
+                }
             }
 
             if (failures.length > 0) {
@@ -97,7 +108,7 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
         return () => {
             isCancelled = true;
         };
-    }, [endUtcMs, selectedSignals, setTimeRange, startUtcMs]);
+    }, [endUtcMs, selectedRangeKey, selectedSignals, setTimeRange, startUtcMs]);
 
     return (
         <SignalDataStoreProvider signalStore={signalStoreRef}>
