@@ -160,7 +160,6 @@ abstract class SignalStore {
   }
 
   addDataPointAtLOD(signalName: string, lod: number, sampleIntervalMs: number, timestamp: number, value: number): void {
-    this.updateWithTimestamp(timestamp);
     const entry = this.storage[signalName];
 
     if (!entry || entry.storeType === SignalType.ALERT) return;

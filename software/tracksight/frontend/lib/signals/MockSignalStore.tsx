@@ -5,8 +5,6 @@ import propagateMode, { ModeLodBuffer } from "../utils/propagateMode";
 
 export const MOCK_STATES = [ // needed to hardcode for widgetadder
   "IDLE", "ACTIVE", "ERROR", "WAITING", "CHARGING", "SKIBIDI",
-  "TOILET", "MORE", "SIGNALS", "TO", "TEST", "RANDOM",
-  "ENUM", "COLOR", "GEN"
 ];
 
 export const ALERT_SIGNALS = [
@@ -119,7 +117,7 @@ class MockSignalStore extends SignalStore {
       const intervalId = setInterval(() => {
         const now = Date.now();
         const value = generateRandomNumericalValue(now, 0, min_val, max_val);
-        this.addDataPointAtLOD(signal.name, 0, 1, now, value);
+        this.addDataPoint(signal.name, now, value);
 
         propagateHaar(
           this.lodBuffers.get(signal.name) as HaarLodBuffer[] || [],
@@ -139,7 +137,7 @@ class MockSignalStore extends SignalStore {
       for (let i = 0; i < INITIAL_DATA_POINTS; i++) {
         const timestamp = Date.now() - (INITIAL_DATA_POINTS - i);
         const value = generateRandomNumericalValue(timestamp, 0, min_val, max_val);
-        this.addDataPointAtLOD(signal.name, 0, 1, timestamp, value);
+        this.addDataPoint(signal.name, timestamp, value);
 
         propagateHaar(
           this.lodBuffers.get(signal.name) as HaarLodBuffer[] || [],
@@ -147,7 +145,7 @@ class MockSignalStore extends SignalStore {
           timestamp,
           value,
           (level, intervalMs, timestamp, value) => {
-            this.addDataPointAtLOD(signal.name, level-1, intervalMs, timestamp, value);
+            this.addDataPointAtLOD(signal.name, level - 1, intervalMs, timestamp, value);
           },
           NUM_LOD_LEVELS
         );
@@ -156,7 +154,7 @@ class MockSignalStore extends SignalStore {
       const intervalId = setInterval(() => {
         const now = Date.now();
         const value = generateRandomEnumValue();
-        this.addDataPointAtLOD(signal.name, 0, 1, now, value.idx);
+        this.addDataPoint(signal.name, now, value.idx);
 
         propagateMode(
           this.lodBuffers.get(signal.name) as ModeLodBuffer[] || [],
@@ -183,7 +181,7 @@ class MockSignalStore extends SignalStore {
           timestamp,
           { [value.idx]: 1 },
           (level, intervalMs, timestamp, value) => {
-            this.addDataPointAtLOD(signal.name, level-1, intervalMs, timestamp, value);
+            this.addDataPointAtLOD(signal.name, level - 1, intervalMs, timestamp, value);
           },
           NUM_LOD_LEVELS
         );

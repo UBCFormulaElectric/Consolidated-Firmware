@@ -35,7 +35,7 @@ pub async fn run_mock_task(
             _ = async {
                 // Simulate sending mock CAN payloads
                 i += 1;
-                let value = (i as f64 * TAU/100.0).sin() * 10.0 + 10.0;
+                let value = (i as f64 * TAU/100.0).sin() * 5.0 + 10.0;
                 let signals = vec![
                     DecodedSignal {
                         name: "BMS_TractiveSystemVoltage".to_string(),
@@ -55,7 +55,7 @@ pub async fn run_mock_task(
                 if let Err(e) = can_queue_tx.send(mock_payload) {
                     panic!("can_queue_tx send error: {}", e);
                 }
-                tokio::time::sleep(tokio::time::Duration::from_millis(20)).await;
+                tokio::time::sleep(tokio::time::Duration::from_millis(1)).await;
             } => {}
         }
     }

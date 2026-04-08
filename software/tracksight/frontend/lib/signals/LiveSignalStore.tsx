@@ -37,7 +37,7 @@ class LiveSignalStore extends SignalStore {
       if (!this.storage[signalName]) return;
 
       const ts = new Date(timestamp).getTime();
-      this.addDataPointAtLOD(signalName, 0, 1, ts, value);
+      this.addDataPoint(signalName, ts, value);
 
       if (this.storage[signalName].storeType === SignalType.NUMERICAL) {
         propagateHaar(

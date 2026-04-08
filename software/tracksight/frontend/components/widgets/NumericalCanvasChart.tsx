@@ -10,65 +10,65 @@ import { useCanvasHover } from "@/lib/hooks/useCanvasHover";
 import { NumericalGraphWidgetData } from "@/lib/types/Widget";
 
 export default function NumericalCanvasChart({
-    id,
-    options,
-    signals,
-    hoveredSignal,
-    onHoverTimestampChange,
+  id,
+  options,
+  signals,
+  hoveredSignal,
+  onHoverTimestampChange,
 }: NumericalGraphWidgetData) {
-    const canvasRef = useRef<HTMLCanvasElement | null>(null);
-    const layoutRef = useRef<ChartLayout | null>(null);
-    const {
-        globalTimeRangeRef,
-        hoverTimestampRef: externalHoverTimestampRef,
-        XToTime,
-    } = useSyncedGraph();
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const layoutRef = useRef<ChartLayout | null>(null);
+  const {
+    globalTimeRangeRef,
+    hoverTimestampRef: externalHoverTimestampRef,
+    XToTime,
+  } = useSyncedGraph();
 
-    const { height, timeTickCount } = options;
+  const { height, timeTickCount } = options;
 
-    const chartData = useSignalDataStores(signals);
+  const chartData = useSignalDataStores(signals);
 
-    useCanvasRenderLoop(canvasRef, height, (context, cssWidth) => {
-        if (!globalTimeRangeRef.current) {
-            render_empty(context, cssWidth, height);
-        } else {
-            render(
-                context,
-                cssWidth,
-                height,
-                layoutRef,
-                {
-                    type: "numericalGraph",
-                    signals,
-                    options,
-                    data: chartData.current,
-                    id,
-                },
-                timeTickCount,
-                externalHoverTimestampRef.current,
-                hoveredSignal,
-                {
-                    min: XToTime(0),
-                    max: XToTime(cssWidth),
-                }
-            );
-        }
-    });
-
-    const { handleMouseMove, handleMouseLeave } = useCanvasHover(
-        canvasRef,
+  useCanvasRenderLoop(canvasRef, height, (context, cssWidth) => {
+    if (!globalTimeRangeRef.current) {
+      render_empty(context, cssWidth, height);
+    } else {
+      render(
+        context,
+        cssWidth,
+        height,
         layoutRef,
-        externalHoverTimestampRef,
-        onHoverTimestampChange
-    );
+        {
+          type: "numericalGraph",
+          signals,
+          options,
+          data: chartData.current,
+          id,
+        },
+        timeTickCount,
+        externalHoverTimestampRef.current,
+        hoveredSignal,
+        {
+          min: XToTime(0),
+          max: XToTime(cssWidth),
+        }
+      );
+    }
+  });
 
-    return (
-        <canvas
-            className="block w-full"
-            ref={canvasRef}
-            style={{ height }}
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-        />
-    );
+  const { handleMouseMove, handleMouseLeave } = useCanvasHover(
+    canvasRef,
+    layoutRef,
+    externalHoverTimestampRef,
+    onHoverTimestampChange
+  );
+
+  return (
+    <canvas
+      className="block w-full"
+      ref={canvasRef}
+      style={{ height }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    />
+  );
 }
