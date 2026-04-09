@@ -9,6 +9,7 @@
 #include <gradient.hpp>
 
 #include "torque_vectoring/shared_datatypes/constants.hpp"
+#include "torque_vectoring/estimation/tire_model.hpp"
 using namespace app::tv::shared_datatypes;
 using namespace app::tv::shared_datatypes::vd_constants;
 
@@ -107,26 +108,29 @@ namespace
     // stays allocation-free and predictable on embedded targets.
     const auto residualVector = [&](const DualVec4 &kappa) -> DualVec5
     {
+        const auto [fz_fl, fz_fr, fz_rl, fz_rr] = state.est_Fz_N();
+        const auto alphas                       = state.alphas();
+
         const wheel_set<autodiff::dual> predicted_fx{
-            .fl = tire_models.fl.computeCombinedFx_N<autodiff::dual>(
-                normal_forces_N.fl, current_slip_angles.fl, low_speed_blend, kappa(0)),
-            .fr = tire_models.fr.computeCombinedFx_N<autodiff::dual>(
-                normal_forces_N.fr, current_slip_angles.fr, low_speed_blend, kappa(1)),
-            .rl = tire_models.rl.computeCombinedFx_N<autodiff::dual>(
-                normal_forces_N.rl, current_slip_angles.rl, low_speed_blend, kappa(2)),
-            .rr = tire_models.rr.computeCombinedFx_N<autodiff::dual>(
-                normal_forces_N.rr, current_slip_angles.rr, low_speed_blend, kappa(3)),
+            .fl = estimation::tire_models.fl.computeCombinedFx_N<autodiff::dual>(
+                fz_fl, current_slip_angles.fl, low_speed_blend, kappa(0)),
+            .fr = estimation::tire_models.fr.computeCombinedFx_N<autodiff::dual>(
+                fz_fr, current_slip_angles.fr, low_speed_blend, kappa(1)),
+            .rl = estimation::tire_models.rl.computeCombinedFx_N<autodiff::dual>(
+                fz_rl, current_slip_angles.rl, low_speed_blend, kappa(2)),
+            .rr = estimation::tire_models.rr.computeCombinedFx_N<autodiff::dual>(
+                fz_rr, current_slip_angles.rr, low_speed_blend, kappa(3)),
         };
 
         const wheel_set<autodiff::dual> predicted_fy{
-            .fl = tire_models.fl.computeCombinedFy_N<autodiff::dual>(
-                normal_forces_N.fl, current_slip_angles.fl, low_speed_blend, kappa(0)),
-            .fr = tire_models.fr.computeCombinedFy_N<autodiff::dual>(
-                normal_forces_N.fr, current_slip_angles.fr, low_speed_blend, kappa(1)),
-            .rl = tire_models.rl.computeCombinedFy_N<autodiff::dual>(
-                normal_forces_N.rl, current_slip_angles.rl, low_speed_blend, kappa(2)),
-            .rr = tire_models.rr.computeCombinedFy_N<autodiff::dual>(
-                normal_forces_N.rr, current_slip_angles.rr, low_speed_blend, kappa(3)),
+            .fl = estimation::tire_models.fl.computeCombinedFy_N<autodiff::dual>(
+                fz_fl, current_slip_angles.fl, low_speed_blend, kappa(0)),
+            .fr = estimation::tire_models.fr.computeCombinedFy_N<autodiff::dual>(
+                fz_fr, current_slip_angles.fr, low_speed_blend, kappa(1)),
+            .rl = estimation::tire_models.rl.computeCombinedFy_N<autodiff::dual>(
+                fz_rl, current_slip_angles.rl, low_speed_blend, kappa(2)),
+            .rr = estimation::tire_models.rr.computeCombinedFy_N<autodiff::dual>(
+                fz_rr, current_slip_angles.rr, low_speed_blend, kappa(3)),
         };
         const autodiff::dual predicted_mz = yawMomentFromTireForces(predicted_fx, predicted_fy, steering_angle_rad);
 

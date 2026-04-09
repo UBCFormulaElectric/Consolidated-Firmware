@@ -1,9 +1,12 @@
 #pragma once
 
-#include "torque_vectoring/shared_datatypes/datatypes.hpp"
+#include <autodiff/forward/dual.hpp>
 
 namespace app::tv::estimation
 {
+template <typename T>
+concept DecimalOrDual = std::same_as<T, float> || std::same_as<T, double> || std::same_as<T, autodiff::dual>;
+
 class TireModel
 {
   public:
@@ -19,54 +22,23 @@ class TireModel
         Rear
     };
 
-    struct StateInputs
+    template <DecimalOrDual T> struct Forces
     {
-        float wheel_angular_velocity_radps = 0.0f;
-        float vehicle_velocity_x_mps       = 0.0f;
-        float vehicle_velocity_y_mps       = 0.0f;
-        float yaw_rate_radps               = 0.0f;
-        float steering_angle_rad           = 0.0f;
-        float normal_load_N                = 0.0f;
+        T fx_N;
+        T fy_N;
     };
-
-    struct Outputs
+    template <DecimalOrDual T>
+    [[nodiscard]] Forces<T> estimate(const T &kappa, const float alpha_rad, const float fz_N) const
     {
-        float slip_ratio           = 0.0f;
-        float slip_angle_rad       = 0.0f;
-        float longitudinal_force_N = 0.0f;
-        float lateral_force_N      = 0.0f;
-    };
-
-    constexpr TireModel(const WheelSide wheel_side, const WheelAxle wheel_axle)
-      : fit_pure_fx_(FIT_PURE_FX_12_PSI),
-        fit_pure_fy_(FIT_PURE_FY_12_PSI),
-        fit_comb_fx_(FIT_COMB_FX_12_PSI),
-        fit_comb_fy_(FIT_COMB_FY_12_PSI),
-        wheel_side_(wheel_side),
-        wheel_axle_(wheel_axle)
-    {
+        return {
+            computeCombinedFx_N(fz_N, alpha_rad, kappa),
+            computeCombinedFy_N(fz_N, alpha_rad, kappa),
+        };
     }
 
-    [[nodiscard]] Outputs estimate(const StateInputs &inputs) const;
-    template <typename T>
-    [[nodiscard]] T
-        computeCombinedFx_N(float normal_load_N, float slip_angle_rad, float low_speed_blend, const T &slip_ratio)
-            const;
-    template <typename T>
-    [[nodiscard]] T
-        computeCombinedFy_N(float normal_load_N, float slip_angle_rad, float low_speed_blend, const T &slip_ratio)
-            const;
-    [[nodiscard]] static float slipRatioToWheelAngularVelocity(float slip_ratio, float wheel_vel_x_mps);
-    [[nodiscard]] float        slipRatioToWheelAngularVelocity(
-               float                                     slip_ratio,
-               const datatypes::datatypes::VehicleState &vehicle_state) const;
-
-  private:
-    struct WheelVelocities
-    {
-        float x_mps = 0.0f;
-        float y_mps = 0.0f;
-    };
+    // [[nodiscard]] static float slipRatioToWheelAngularVelocity(float slip_ratio, float wheel_vel_x_mps);
+    // [[nodiscard]] float
+    //     slipRatioToWheelAngularVelocity(float slip_ratio, const shared_datatypes::VehicleState &vehicle_state) const;
 
     struct TireFitPureParamFy
     {
@@ -139,7 +111,26 @@ class TireModel
         float rVy6;
     };
 
-    template <typename T> struct PureFxMagicFormulaCoefficients
+    TireModel() = delete;
+
+  protected:
+    constexpr TireModel(
+        const TireFitPureParamFx &fit_pure_fx,
+        const TireFitPureParamFy &fit_pure_fy,
+        const TireFitCombParamFx &fit_comb_fx,
+        const TireFitCombParamFy &fit_comb_fy)
+      : fit_pure_fx_(fit_pure_fx), fit_pure_fy_(fit_pure_fy), fit_comb_fx_(fit_comb_fx), fit_comb_fy_(fit_comb_fy)
+    {
+    }
+
+  private:
+    // note that these only exist for float, dual
+    template <DecimalOrDual T>
+    [[nodiscard]] T computeCombinedFx_N(float normal_load_N, float slip_angle_rad, const T &slip_ratio) const;
+    template <DecimalOrDual T>
+    [[nodiscard]] T computeCombinedFy_N(float normal_load_N, float slip_angle_rad, const T &slip_ratio) const;
+
+    template <DecimalOrDual T> struct PureFxMagicFormulaCoefficients
     {
         T s_hx    = T(0.0f);
         T kappa_x = T(0.0f);
@@ -150,7 +141,7 @@ class TireModel
         T s_vx    = T(0.0f);
     };
 
-    template <typename T> struct CombinedFxMagicFormulaCoefficients
+    template <DecimalOrDual T> struct CombinedFxMagicFormulaCoefficients
     {
         T s_hxa   = T(0.0f);
         T alpha_s = T(0.0f);
@@ -172,7 +163,7 @@ class TireModel
         float s_vy    = 0.0f;
     };
 
-    template <typename T> struct CombinedFyMagicFormulaCoefficients
+    template <DecimalOrDual T> struct CombinedFyMagicFormulaCoefficients
     {
         T s_hyk   = T(0.0f);
         T kappa_s = T(0.0f);
@@ -185,23 +176,99 @@ class TireModel
         T g_yk    = T(0.0f);
     };
 
+    static constexpr float NOMINAL_FZ_N = 750.0f;
+    //-------------------------------------------------------------------- Class Helpers
+    //----------------------------------------------------------------------//
+
+    [[nodiscard]] static constexpr float safeSignedDenominator(float value);
+    [[nodiscard]] static constexpr float sign(float value);
+    [[nodiscard]] static constexpr float normalizedLoadDelta(float normal_load_N);
+    // Reduced-model assumptions for combined slip in this pass:
+    // gamma* = 0, lambda_xa = 1, lambda_yk = 1, lambda_vyk = 1, zeta_2 = 1.
+    // Pressure dependence is captured by the fixed 12_PSI fitted parameter row.
+    //-------------------------------------------------------------------- Pure Pacejka 5.2 Helpers
+    //----------------------------------------------------------------------//
+    [[nodiscard]] constexpr float              pureFx_Sh(float normalized_load_delta) const;
+    template <DecimalOrDual T> [[nodiscard]] T pureFx_Kappa(float normalized_load_delta, const T &slip_ratio) const;
+    [[nodiscard]] constexpr float              pureFx_C() const;
+    [[nodiscard]] constexpr float              pureFx_mu(float normalized_load_delta) const;
+    [[nodiscard]] constexpr float              pureFx_D(float normal_load_N, float normalized_load_delta) const;
+    template <DecimalOrDual T> [[nodiscard]] T pureFx_E(float normalized_load_delta, const T &kappa_x) const;
+    [[nodiscard]] constexpr float              pureFx_K(float normal_load_N, float normalized_load_delta) const;
+    [[nodiscard]] static constexpr float       pureFx_B(float slip_stiffness, float shape_factor, float peak_factor);
+    [[nodiscard]] constexpr float              pureFx_Sv(float normal_load_N, float normalized_load_delta) const;
+    [[nodiscard]] constexpr float              pureFy_Sh(float normalized_load_delta) const;
+    [[nodiscard]] constexpr float              pureFy_Alpha(float normalized_load_delta, float slip_angle_rad) const;
+    [[nodiscard]] constexpr float              pureFy_C() const;
+    [[nodiscard]] constexpr float              pureFy_mu(float normalized_load_delta) const;
+    [[nodiscard]] constexpr float              pureFy_D(float normal_load_N, float normalized_load_delta) const;
+    [[nodiscard]] constexpr float              pureFy_E(float normalized_load_delta, float alpha_y) const;
+    [[nodiscard]] constexpr float              pureFy_K(float normal_load_N) const;
+    [[nodiscard]] static constexpr float pureFy_B(float cornering_stiffness, float shape_factor, float peak_factor);
+    [[nodiscard]] constexpr float        pureFy_Sv(float normal_load_N, float normalized_load_delta) const;
+    template <DecimalOrDual T>
+    [[nodiscard]] PureFxMagicFormulaCoefficients<T>
+        pureFxMagicFormulaCoefficients(float normal_load_N, const T &slip_ratio) const;
+    [[nodiscard]] PureFyMagicFormulaCoefficients
+        pureFyMagicFormulaCoefficients(float normal_load_N, float slip_angle_rad) const;
+    //-------------------------------------------------------------------- Combined Pacejka 5.2 Helpers
+    //----------------------------------------------------------------------//
+    [[nodiscard]] constexpr float              combinedFx_SHxa() const;
+    [[nodiscard]] constexpr float              combinedFx_Alpha_s(float slip_angle_rad) const;
+    [[nodiscard]] constexpr float              combinedFx_Cxa() const;
+    [[nodiscard]] float                        combinedFx_Exa(float normalized_load_delta) const;
+    template <DecimalOrDual T> [[nodiscard]] T combinedFx_Bxa(const T &slip_ratio) const;
+    template <DecimalOrDual T>
+    [[nodiscard]] T combinedFx_Gxao(const CombinedFxMagicFormulaCoefficients<T> &coefficients) const;
+    template <DecimalOrDual T>
+    [[nodiscard]] T combinedFx_Gxa(const CombinedFxMagicFormulaCoefficients<T> &coefficients) const;
+    template <DecimalOrDual T>
+    [[nodiscard]] CombinedFxMagicFormulaCoefficients<T>
+        combinedFxMagicFormulaCoefficients(float normal_load_N, float slip_angle_rad, const T &slip_ratio) const;
+    [[nodiscard]] float combinedFy_SHyk(float normalized_load_delta) const;
+    template <DecimalOrDual T>
+    [[nodiscard]] T               combinedFy_Kappa_s(float normalized_load_delta, const T &slip_ratio) const;
+    [[nodiscard]] constexpr float combinedFy_Cyk() const;
+    [[nodiscard]] float           combinedFy_Eyk(float normalized_load_delta) const;
+    [[nodiscard]] float           combinedFy_Byk(float slip_angle_rad) const;
+    [[nodiscard]] float combinedFy_Dvyk(float normal_load_N, float normalized_load_delta, float slip_angle_rad) const;
+    template <DecimalOrDual T> [[nodiscard]] T combinedFy_Svyk(const T &d_vyk, const T &slip_ratio) const;
+    template <DecimalOrDual T>
+    [[nodiscard]] T combinedFy_Gyko(const CombinedFyMagicFormulaCoefficients<T> &coefficients) const;
+    template <DecimalOrDual T>
+    [[nodiscard]] T combinedFy_Gyk(const CombinedFyMagicFormulaCoefficients<T> &coefficients) const;
+    template <DecimalOrDual T>
+    [[nodiscard]] CombinedFyMagicFormulaCoefficients<T>
+        combinedFyMagicFormulaCoefficients(float normal_load_N, float slip_angle_rad, const T &slip_ratio) const;
+
+    template <DecimalOrDual T> [[nodiscard]] T computePureFx_N(float normal_load_N, const T &slip_ratio) const;
+    [[nodiscard]] float                        computePureFy_N(float normal_load_N, float slip_angle_rad) const;
+
+    const TireFitPureParamFx &fit_pure_fx_;
+    const TireFitPureParamFy &fit_pure_fy_;
+    const TireFitCombParamFx &fit_comb_fx_;
+    const TireFitCombParamFy &fit_comb_fy_;
+};
+
+class HoosierTireModel : public TireModel
+{
     /*
     Current model uses the 12_PSI fitted workbook row as a fixed-pressure operating assumption.
     If pressure becomes a runtime input later, add pressure interpolation or a refit against the raw tire data.
     */
-    static constexpr TireFitPureParamFx FIT_PURE_FX_12_PSI = {
+    static constexpr TireFitPureParamFx HOOSIER_FIT_PURE_FX_12_PSI = {
         0.008656294312f, 366.1925838f,     -57.2826791f,      8.208916842f,   1.134744942f,
         0.04728092792f,  -0.02191230313f,  -0.01799018414f,   62.46585932f,   1.390484252f,
         -0.3909753489f,  0.0005429909716f, -0.0007019708842f, 0.01286770906f, 0.004135955934f,
     };
 
-    static constexpr TireFitPureParamFy FIT_PURE_FY_12_PSI = {
+    static constexpr TireFitPureParamFy HOOSIER_FIT_PURE_FY_12_PSI = {
         0.90721342f,     -3.824114982f,  -0.4280518359f, 15.56383821f,    1.218066219f, 0.3097318297f,
         -0.02930740966f, 0.2068388689f,  -54.60640233f,  2.122730258f,    1.671281037f, -0.004171875264f,
         -0.00360720284f, -0.0787609381f, -0.1057253032f, -0.02043816084f, 0.83972231f,  1.494231303f,
     };
 
-    static constexpr TireFitCombParamFx FIT_COMB_FX_12_PSI = {
+    static constexpr TireFitCombParamFx HOOSIER_FIT_COMB_FX_12_PSI = {
         .rBx1 = 13.046f,
         .rBx2 = 9.718f,
         .rBx3 = 0.0f,
@@ -211,7 +278,7 @@ class TireModel
         .rHx1 = -0.0001f,
     };
 
-    static constexpr TireFitCombParamFy FIT_COMB_FY_12_PSI = {
+    static constexpr TireFitCombParamFy HOOSIER_FIT_COMB_FY_12_PSI = {
         .rBy1 = 10.622f,
         .rBy2 = 7.82f,
         .rBy3 = 0.00204f,
@@ -229,89 +296,17 @@ class TireModel
         .rVy6 = 23.8f,
     };
 
-    static constexpr float NOMINAL_FZ_N = 750.0f;
-    //-------------------------------------------------------------------- Class Helpers
-    //----------------------------------------------------------------------//
-
-    [[nodiscard]] static constexpr float safeSignedDenominator(float value);
-    [[nodiscard]] static constexpr float signum(float value);
-    [[nodiscard]] static constexpr float normalizedLoadDelta(float normal_load_N);
-    // Reduced-model assumptions for combined slip in this pass:
-    // gamma* = 0, lambda_xa = 1, lambda_yk = 1, lambda_vyk = 1, zeta_2 = 1.
-    // Pressure dependence is captured by the fixed 12_PSI fitted parameter row.
-    //-------------------------------------------------------------------- Pure Pacejka 5.2 Helpers
-    //----------------------------------------------------------------------//
-    [[nodiscard]] constexpr float         pureFx_Sh(float normalized_load_delta) const;
-    template <typename T> [[nodiscard]] T pureFx_Kappa(float normalized_load_delta, const T &slip_ratio) const;
-    [[nodiscard]] constexpr float         pureFx_C() const;
-    [[nodiscard]] constexpr float         pureFx_mu(float normalized_load_delta) const;
-    [[nodiscard]] constexpr float         pureFx_D(float normal_load_N, float normalized_load_delta) const;
-    template <typename T> [[nodiscard]] T pureFx_E(float normalized_load_delta, const T &kappa_x) const;
-    [[nodiscard]] constexpr float         pureFx_K(float normal_load_N, float normalized_load_delta) const;
-    [[nodiscard]] static constexpr float  pureFx_B(float slip_stiffness, float shape_factor, float peak_factor);
-    [[nodiscard]] constexpr float         pureFx_Sv(float normal_load_N, float normalized_load_delta) const;
-    [[nodiscard]] constexpr float         pureFy_Sh(float normalized_load_delta) const;
-    [[nodiscard]] constexpr float         pureFy_Alpha(float normalized_load_delta, float slip_angle_rad) const;
-    [[nodiscard]] constexpr float         pureFy_C() const;
-    [[nodiscard]] constexpr float         pureFy_mu(float normalized_load_delta) const;
-    [[nodiscard]] constexpr float         pureFy_D(float normal_load_N, float normalized_load_delta) const;
-    [[nodiscard]] constexpr float         pureFy_E(float normalized_load_delta, float alpha_y) const;
-    [[nodiscard]] constexpr float         pureFy_K(float normal_load_N) const;
-    [[nodiscard]] static constexpr float  pureFy_B(float cornering_stiffness, float shape_factor, float peak_factor);
-    [[nodiscard]] constexpr float         pureFy_Sv(float normal_load_N, float normalized_load_delta) const;
-    template <typename T>
-    [[nodiscard]] PureFxMagicFormulaCoefficients<T>
-        pureFxMagicFormulaCoefficients(float normal_load_N, const T &slip_ratio) const;
-    [[nodiscard]] PureFyMagicFormulaCoefficients
-        pureFyMagicFormulaCoefficients(float normal_load_N, float slip_angle_rad) const;
-    //-------------------------------------------------------------------- Combined Pacejka 5.2 Helpers
-    //----------------------------------------------------------------------//
-    [[nodiscard]] constexpr float         combinedFx_SHxa() const;
-    [[nodiscard]] constexpr float         combinedFx_Alpha_s(float slip_angle_rad) const;
-    [[nodiscard]] constexpr float         combinedFx_Cxa() const;
-    [[nodiscard]] float                   combinedFx_Exa(float normalized_load_delta) const;
-    template <typename T> [[nodiscard]] T combinedFx_Bxa(const T &slip_ratio) const;
-    template <typename T>
-    [[nodiscard]] T combinedFx_Gxao(const CombinedFxMagicFormulaCoefficients<T> &coefficients) const;
-    template <typename T>
-    [[nodiscard]] T combinedFx_Gxa(const CombinedFxMagicFormulaCoefficients<T> &coefficients) const;
-    template <typename T>
-    [[nodiscard]] CombinedFxMagicFormulaCoefficients<T>
-        combinedFxMagicFormulaCoefficients(float normal_load_N, float slip_angle_rad, const T &slip_ratio) const;
-    [[nodiscard]] float                   combinedFy_SHyk(float normalized_load_delta) const;
-    template <typename T> [[nodiscard]] T combinedFy_Kappa_s(float normalized_load_delta, const T &slip_ratio) const;
-    [[nodiscard]] constexpr float         combinedFy_Cyk() const;
-    [[nodiscard]] float                   combinedFy_Eyk(float normalized_load_delta) const;
-    [[nodiscard]] float                   combinedFy_Byk(float slip_angle_rad) const;
-    [[nodiscard]] float combinedFy_Dvyk(float normal_load_N, float normalized_load_delta, float slip_angle_rad) const;
-    template <typename T> [[nodiscard]] T combinedFy_Svyk(const T &d_vyk, const T &slip_ratio) const;
-    template <typename T>
-    [[nodiscard]] T combinedFy_Gyko(const CombinedFyMagicFormulaCoefficients<T> &coefficients) const;
-    template <typename T>
-    [[nodiscard]] T combinedFy_Gyk(const CombinedFyMagicFormulaCoefficients<T> &coefficients) const;
-    template <typename T>
-    [[nodiscard]] CombinedFyMagicFormulaCoefficients<T>
-        combinedFyMagicFormulaCoefficients(float normal_load_N, float slip_angle_rad, const T &slip_ratio) const;
-
-    [[nodiscard]] float wheelLongOffset_m() const;
-    [[nodiscard]] float wheelLatOffset_m() const;
-    [[nodiscard]] float wheelSteeringAngle_rad(float steering_angle_rad) const;
-    [[nodiscard]] WheelVelocities
-        wheelVelocities(float vehicle_velocity_x_mps, float vehicle_velocity_y_mps, float yaw_rate_radps) const;
-    [[nodiscard]] float estimateSlipAngle(float wheel_vel_x_mps, float wheel_vel_y_mps, float steering_angle_rad) const;
-    [[nodiscard]] static float estimateSlipRatio(
-        float wheel_vel_x_mps,
-        float wheel_vel_y_mps,
-        float slip_angle_rad,
-        float wheel_angular_velocity_radps);
-    template <typename T> [[nodiscard]] T computePureFx_N(float normal_load_N, const T &slip_ratio) const;
-    [[nodiscard]] float                   computePureFy_N(float normal_load_N, float slip_angle_rad) const;
-
-    const TireFitPureParamFx fit_pure_fx_;
-    const TireFitPureParamFy fit_pure_fy_;
-    const TireFitCombParamFx fit_comb_fx_;
-    const TireFitCombParamFy fit_comb_fy_;
-    const WheelSide          wheel_side_;
-    const WheelAxle          wheel_axle_;
+  public:
+    constexpr HoosierTireModel()
+      : TireModel(
+            HOOSIER_FIT_PURE_FX_12_PSI,
+            HOOSIER_FIT_PURE_FY_12_PSI,
+            HOOSIER_FIT_COMB_FX_12_PSI,
+            HOOSIER_FIT_COMB_FY_12_PSI)
+    {
+    }
 };
+
+inline constexpr HoosierTireModel tire_model{};
+
 } // namespace app::tv::estimation

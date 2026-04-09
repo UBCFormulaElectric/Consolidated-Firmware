@@ -22,10 +22,7 @@ static constexpr float SPEED_MAX_MPS = 3.0f;
     if (vehicle_speed_mps >= SPEED_MAX_MPS)
         return 1.0f;
 
-    return std::clamp(
-        (vehicle_speed_mps - SPEED_MIN_MPS) / (SPEED_MAX_MPS - SPEED_MIN_MPS),
-        0.0f,
-        1.0f);
+    return std::clamp((vehicle_speed_mps - SPEED_MIN_MPS) / (SPEED_MAX_MPS - SPEED_MIN_MPS), 0.0f, 1.0f);
 }
 
 } // namespace app::tv::shared_datatypes

@@ -7,12 +7,11 @@
  * @param state The current measured vehicle state, note that intent is in here as well
  * @return The per-wheel torque requests to achieve the desired accelerations, in Newton-meters
  */
-app::tv::shared_datatypes::datatypes::ControlOutput update(const app::tv::estimation::Measurements &state);
+app::tv::shared_datatypes::ControlOutput update(const app::tv::estimation::Measurements &state);
 
 /**
  * This is the main entrypoint into the low level vehicle controls algorithm for autonomous
  * @param state The current measured vehicle state, note that intent is in here as well
  * @return
  */
-app::tv::shared_datatypes::datatypes::ControlOutputAutonomous
-    update_autonomous(const app::tv::estimation::Measurements &state);
+app::tv::shared_datatypes::ControlOutputAutonomous update_autonomous(const app::tv::estimation::Measurements &state);

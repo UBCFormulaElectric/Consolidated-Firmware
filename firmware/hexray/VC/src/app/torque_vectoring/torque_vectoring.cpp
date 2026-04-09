@@ -1,28 +1,17 @@
-#include "torque_vectoring/estimation/dynamics_estimation.hpp"
-#include "torque_vectoring/estimation/tire_model.hpp"
+#include "torque_vectoring.hpp"
+
 #include "torque_vectoring/estimation/vehicle_state_estimator.hpp"
 #include "torque_vectoring/controllers/yaw_rate_control/controllers_dyrc.hpp"
 #include "torque_vectoring/controllers/torque_allocator/torque_allocator.hpp"
 #include "torque_vectoring/shared_datatypes/constants.hpp"
 #include "torque_vectoring/shared_datatypes/datatypes.hpp"
-#include "torque_vectoring/shared_datatypes/low_speed_blend.hpp"
-
-#include <cmath>
 
 namespace app::tv
 {
 namespace
 {
-    using namespace shared_datatypes::datatypes;
+    using namespace shared_datatypes;
     using namespace shared_datatypes::vd_constants;
-
-    //------------------------------------- ESTIMATION MODULES ----------------------------------//
-    wheel_set tire_models{
-        .fl = estimation::TireModel(estimation::TireModel::WheelSide::Left, estimation::TireModel::WheelAxle::Front),
-        .fr = estimation::TireModel(estimation::TireModel::WheelSide::Right, estimation::TireModel::WheelAxle::Front),
-        .rl = estimation::TireModel(estimation::TireModel::WheelSide::Left, estimation::TireModel::WheelAxle::Rear),
-        .rr = estimation::TireModel(estimation::TireModel::WheelSide::Right, estimation::TireModel::WheelAxle::Rear),
-    };
 
     //------------------------------------- STATE VARIABLES -------------------------------------//
 
@@ -100,8 +89,8 @@ ControlOutput update(const estimation::Measurements &measurement)
     // Compute the low-speed blend once at the orchestration layer and pass it down explicitly.
     // This keeps the low-speed force-availability heuristic visible in one place instead of
     // recomputing it independently inside the optimizer.
-    const float vehicle_speed_mps = std::hypot(estimated_state.v_x_mps, estimated_state.v_y_mps);
-    const float low_speed_blend   = shared_datatypes::velocityBlend(vehicle_speed_mps);
+    // const float vehicle_speed_mps = std::hypot(estimated_state.v_x_mps, estimated_state.v_y_mps);
+    // const float low_speed_blend   = shared_datatypes::velocityBlend(vehicle_speed_mps);
 
     // Gauss-Newton optimizer: invert the combined-slip tire model to find the slip ratios whose
     // predicted forces best match the desired per-wheel force split and desired yaw moment.
@@ -113,16 +102,21 @@ ControlOutput update(const estimation::Measurements &measurement)
     // TODO: slip_ratio_opt -> slipRatioToWheelAngularVelocity() -> power limiter -> torque request
 
     return {
-        .fl_kappa = kappa_opt.fl,
-        .fr_kappa = kappa_opt.fr,
-        .rl_kappa = kappa_opt.rl,
-        .rr_kappa = kappa_opt.rr,
+        .fl_kappa   = kappa_opt.fl,
+        .fr_kappa   = kappa_opt.fr,
+        .rl_kappa   = kappa_opt.rl,
+        .rr_kappa   = kappa_opt.rr,
+        .max_torque = 0,
+        .min_torque = 0,
     };
 }
 
 ControlOutputAutonomous
     update_autonomous(const estimation::Measurements &measurement, const float ax, const float omega_dot)
 {
+    (void)measurement;
+    (void)ax;
+    (void)omega_dot;
     // TODO inshallah one day
     return {};
 }

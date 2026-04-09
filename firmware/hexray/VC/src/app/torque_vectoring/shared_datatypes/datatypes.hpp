@@ -50,6 +50,8 @@ struct VehicleState
         return { steer_ang_rad, steer_ang_rad, 0, 0 };
     }
 
+    wheel_set<float> alphas() const {}
+
     [[nodiscard]] wheel_set<float> kappas() const
     {
         const auto tire_angles = get_tire_angle();
@@ -203,6 +205,8 @@ struct ControlOutput
     const float fr_kappa;
     const float rl_kappa;
     const float rr_kappa;
+    const float max_torque;
+    const float min_torque;
 };
 struct ControlOutputAutonomous
 {
@@ -211,5 +215,7 @@ struct ControlOutputAutonomous
     const float rl_kappa;
     const float rr_kappa;
     const float delta;
+    const float max_torque;
+    const float min_torque;
 };
 } // namespace app::tv::shared_datatypes
