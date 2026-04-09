@@ -8,6 +8,8 @@ verbose = []
 debug = ["verbose"]
 
 [dependencies]
+jsoncan_rust = { git = "https://github.com/UBCFormulaElectric/Consolidated-Firmware.git", branch = "master" }
+
 serialport = "4.0"
 ctrlc = "3.5"
 tokio = { version = "1", features = ["full"] }
@@ -27,7 +29,6 @@ futures = "0.3.32"
 mdns-sd = "0.18.1"
 if-addrs = "0.15.0"
 moka = { version = "0.12.15", features=["future"] }
-
-jsoncan_rust = { path = "../../../scripts/code_generation/jsoncan-rust" }
 chrono = "0.4.44"
 num-traits = "0.2.19"
+

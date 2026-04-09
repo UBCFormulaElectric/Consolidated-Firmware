@@ -1,0 +1,10 @@
+name: tracksight-wireless
+services:
+  influx:
+    extends:
+      file: ../common.yml
+      service: influx
+  backend:
+    extends:
+      file: ../common.yml
+      service: backend
