@@ -5,6 +5,7 @@
 
 #include "io_time.hpp"
 #include "io_canQueues.hpp"
+#include "io_batteryMonitoring.hpp"
 #include <hw_can.hpp>
 #include <io_canRx.hpp>
 #include <io_canTx.hpp>
@@ -139,6 +140,7 @@ void tasks_init()
     rsm_en.writePin(true);
     front_en.writePin(true);
     bms_en.writePin(true);
+    LOG_IF_ERR(io::batteryMonitoring::init());
     jobs_init();
     osKernelInitialize();
     VC_StartAllTasks();
