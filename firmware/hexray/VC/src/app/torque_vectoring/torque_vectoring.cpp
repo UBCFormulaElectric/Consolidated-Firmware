@@ -17,8 +17,6 @@ namespace
     using namespace shared_datatypes::vd_constants;
 
     //------------------------------------- ESTIMATION MODULES ----------------------------------//
-
-    estimation::vehicleDynamics       vehicle_dynamics_estimator{};
     estimation::VehicleStateEstimator vehicle_state_estimator{};
 
     wheel_set tire_models{
@@ -34,15 +32,6 @@ namespace
 
     //------------------------------------- STATE VARIABLES -------------------------------------//
 
-    // These wheel-set caches carry the previous update's estimated tire state/forces into the next cycle.
-    // The state estimator and optimizer both consume them as warm starts / feedback, so they remain module-local.
-    wheel_set<float> acc_f_x{};
-    wheel_set<float> acc_f_y{};
-    wheel_set<float> acc_f_z{};
-    wheel_set<float> acc_slip_ratio{};
-    wheel_set<float> acc_slip_angle{};
-    wheel_set<float> slip_ratio_opt{};
-
     // Build TireModel::StateInputs from VehicleState + per-wheel data
     [[nodiscard]] estimation::TireModel::StateInputs
         buildTireInputs(const VehicleState &state, const float omega, const float fz)
@@ -57,6 +46,14 @@ namespace
         };
     }
 
+    // These wheel-set caches carry the previous update's estimated tire state/forces into the next cycle.
+    // The state estimator and optimizer both consume them as warm starts / feedback, so they remain module-local.
+    wheel_set<float> acc_f_x{};
+    wheel_set<float> acc_f_y{};
+    wheel_set<float> acc_f_z{};
+    wheel_set<float> acc_slip_ratio{};
+    wheel_set<float> acc_slip_angle{};
+    wheel_set<float> slip_ratio_opt{};
     // Copy the current tire estimates into the module-local wheel-set caches so the rest of the
     // pipeline can use a consistent per-wheel state snapshot for this update tick.
     void unpackTireOutputs(
@@ -80,18 +77,19 @@ namespace
 } // namespace
 
 //------------------------------------- TORQUE VECTORING UPDATE CYCLE -------------------------//
-
-void update(const VehicleState &state)
+ControlOutput
+    update(const estimation::VehicleStateEstimator::Measurements &measurement, const float ax, const float omega_dot)
 {
     //------------------------------------- STATE ESTIMATION  --------------------------------//
     // Fuse the measured chassis state with the previous tire-force estimate to obtain the
     // filtered vehicle state used consistently by all downstream control blocks this tick.
 
-    const auto [estimated_state, _yaw_moment_nm] = vehicle_state_estimator.estimate(state);
+    // const auto [estimated_state, _yaw_moment_nm] = vehicle_state_estimator.estimate(state);
+    const VehicleState state = vehicle_state_estimator.estimate(measurement);
 
     // Normal forces from longitudinal/lateral load transfer + downforce
-    acc_f_z = vehicle_dynamics_estimator.est_Fz_N(
-        estimated_state.a_x_mps2, estimated_state.a_y_mps2, estimated_state.v_x_mps);
+    // acc_f_z = vehicle_dynamics_estimator.est_Fz_N(
+    //     estimated_state.a_x_mps2, estimated_state.a_y_mps2, estimated_state.v_x_mps);
 
     // Tire model estimation from current sensor data using the filtered vehicle state.
     unpackTireOutputs(
@@ -139,8 +137,9 @@ void update(const VehicleState &state)
         des_yaw_moment_nm);
 
     //------------------------------------- POWER LIMITER -----------------------------------//
-
     // TODO: slip_ratio_opt -> slipRatioToWheelAngularVelocity() -> power limiter -> torque request
+
+    return {};
 }
 
 } // namespace app::tv

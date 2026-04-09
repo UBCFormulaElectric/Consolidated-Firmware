@@ -25,6 +25,21 @@ struct VehicleState
     wheel_set<float> lateral_forces_N{};
 };
 
+struct ControlOutput
+{
+    const float fl_omega_radps;
+    const float fr_omega_radps;
+    const float rl_omega_radps;
+    const float rr_omega_radps;
+};
+struct ControlOutputAutonomous
+{
+    const float fl_omega_radps;
+    const float fr_omega_radps;
+    const float rl_omega_radps;
+    const float rr_omega_radps;
+    const float delta;
+};
 } // namespace app::tv::shared_datatypes::datatypes
 
 namespace app::tv::datatypes
