@@ -1,0 +1,13 @@
+[package]
+name = "logfs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+[build-dependencies]
+bindgen = "0.72.1"
+
+[lib]
+name = "logfs"
+path = "src/lib.rs"
