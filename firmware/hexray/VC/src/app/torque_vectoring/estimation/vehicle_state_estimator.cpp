@@ -102,7 +102,7 @@ namespace
         } };
     }
 
-    [[nodiscard]] consteval Filter::N_N processNoise()
+    [[nodiscard]] constexpr Filter::N_N processNoise()
     {
         Filter::N_N q                                                   = Filter::N_N::Zero();
         q(static_cast<Eigen::Index>(VX), static_cast<Eigen::Index>(VX)) = 0.05f;
@@ -112,7 +112,7 @@ namespace
         return q;
     }
 
-    [[nodiscard]] consteval Filter::M_M measurementNoise()
+    [[nodiscard]] constexpr Filter::M_M measurementNoise()
     {
         Filter::M_M r                                                   = Filter::M_M::Zero();
         r(static_cast<Eigen::Index>(VX), static_cast<Eigen::Index>(VX)) = 0.75f;
@@ -122,12 +122,12 @@ namespace
         return r;
     }
 
-    [[nodiscard]] consteval StateVector initialState()
+    [[nodiscard]] constexpr StateVector initialState()
     {
         return StateVector::Zero();
     }
 
-    [[nodiscard]] consteval Filter::N_N initialCovariance()
+    [[nodiscard]] constexpr Filter::N_N initialCovariance()
     {
         Filter::N_N p0                                                   = Filter::N_N::Identity();
         p0(static_cast<Eigen::Index>(VX), static_cast<Eigen::Index>(VX)) = 5.0f;
@@ -182,49 +182,58 @@ namespace
         z(static_cast<Eigen::Index>(VY)) = 0.25f * (fl_vy + fr_vy + rl_vy + rr_vy);
         return z;
     }
+
+    [[nodiscard]] constexpr Filter createFilter()
+    {
+        return Filter(
+            createStateFunctions(), createMeasurementFunctions(), processNoise(), measurementNoise(), initialState(),
+            initialCovariance());
+    }
 } // namespace
 
-constexpr Filter VehicleStateEstimator::createFilter()
+namespace VehicleStateEstimator
 {
-    return Filter(
-        createStateFunctions(), createMeasurementFunctions(), processNoise(), measurementNoise(), initialState(),
-        initialCovariance());
-}
+    Filter filter_ = createFilter();
+    void   reset_filter()
+    {
+        filter_ = createFilter();
+    }
 
-[[nodiscard]] app::tv::shared_datatypes::datatypes::VehicleState
-    VehicleStateEstimator::estimate(const Measurements &state) const
-{
-    InputVector u                    = InputVector::Zero();
-    u(static_cast<Eigen::Index>(AX)) = state.ax;
-    u(static_cast<Eigen::Index>(AY)) = state.ay;
+    [[nodiscard]] shared_datatypes::datatypes::VehicleState estimate(const Measurements &state)
+    {
+        InputVector u                    = InputVector::Zero();
+        u(static_cast<Eigen::Index>(AX)) = state.ax;
+        u(static_cast<Eigen::Index>(AY)) = state.ay;
 
-    const float                                  measured_yaw_rate_radps  = state.yaw_rate;
-    const float                                  measured_steering_angle  = state.delta;
-    const datatypes::datatypes::wheel_set<float> wheel_angular_velocities = state.omegas;
-    const auto                                  &previous_state           = filter_.state();
+        const float                                  measured_yaw_rate_radps  = state.yaw_rate;
+        const float                                  measured_steering_angle  = state.delta;
+        const datatypes::datatypes::wheel_set<float> wheel_angular_velocities = state.omegas;
+        const auto                                  &previous_state           = filter_.state();
 
-    Measurement z = pseudoMeasurementFromWheelSpeeds(
-        wheel_angular_velocities, measured_yaw_rate_radps, measured_steering_angle, previous_state);
+        Measurement z = pseudoMeasurementFromWheelSpeeds(
+            wheel_angular_velocities, measured_yaw_rate_radps, measured_steering_angle, previous_state);
 
-    z(static_cast<Eigen::Index>(R)) = measured_yaw_rate_radps;
-    // z(static_cast<Eigen::Index>(MZ)) =
-    //     dynamics_estimator_.est_Mz_N(inputs.longitudinal_forces_N, inputs.lateral_forces_N, measured_steering_angle);
+        z(static_cast<Eigen::Index>(R)) = measured_yaw_rate_radps;
+        // z(static_cast<Eigen::Index>(MZ)) =
+        //     dynamics_estimator_.est_Mz_N(inputs.longitudinal_forces_N, inputs.lateral_forces_N,
+        //     measured_steering_angle);
 
-    const StateVector estimated_state = filter_.estimated_states(u, z);
+        const StateVector estimated_state = filter_.estimated_states(u, z);
 
-    // outputs_.yaw_moment_nm = estimated_state(static_cast<Eigen::Index>(MZ));
-    return {
-        .v_x_mps        = estimated_state(static_cast<Eigen::Index>(VX)),
-        .v_y_mps        = estimated_state(static_cast<Eigen::Index>(VY)),
-        .yaw_rate_radps = estimated_state(static_cast<Eigen::Index>(R)),
-        .steer_ang_rad  = measured_steering_angle,
-        .a_x_mps2       = u(static_cast<Eigen::Index>(AX)),
-        .a_y_mps2       = u(static_cast<Eigen::Index>(AY)),
-    };
-}
+        // outputs_.yaw_moment_nm = estimated_state(static_cast<Eigen::Index>(MZ));
+        return {
+            .v_x_mps        = estimated_state(static_cast<Eigen::Index>(VX)),
+            .v_y_mps        = estimated_state(static_cast<Eigen::Index>(VY)),
+            .yaw_rate_radps = estimated_state(static_cast<Eigen::Index>(R)),
+            .steer_ang_rad  = measured_steering_angle,
+            .a_x_mps2       = u(static_cast<Eigen::Index>(AX)),
+            .a_y_mps2       = u(static_cast<Eigen::Index>(AY)),
+        };
+    }
 
-const VehicleStateEstimator::Covariance &VehicleStateEstimator::covariance() const
-{
-    return filter_.covariance();
-}
+    const Covariance &covariance()
+    {
+        return filter_.covariance();
+    }
+} // namespace VehicleStateEstimator
 } // namespace app::tv::estimation

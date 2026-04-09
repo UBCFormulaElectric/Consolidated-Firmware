@@ -8,91 +8,81 @@
 #include <dual.hpp>
 #include <gradient.hpp>
 
+#include "torque_vectoring/shared_datatypes/constants.hpp"
+using namespace app::tv::shared_datatypes;
 using namespace app::tv::shared_datatypes::vd_constants;
-using namespace app::tv::shared_datatypes::datatypes;
 
 namespace app::tv::controllers::allocator
 {
 namespace
 {
+    // ---- Optimizer tuning ----
+    constexpr float W_FX              = 2.0f / 3.0f;
+    constexpr float W_MZ              = 1.0f / 3.0f;
+    constexpr int   MAX_ITER          = 8;
+    constexpr float SLIP_CLAMP        = 0.3f;
+    constexpr float NORMAL_MATRIX_EPS = 1e-6f;
+    constexpr float STEP_TOLERANCE    = 1e-5f;
+    constexpr float COST_TOLERANCE    = 1e-6f;
 
-// ---- Optimizer tuning (module-private) ----
-static constexpr float W_FX                = 2.0f / 3.0f;
-static constexpr float W_MZ                = 1.0f / 3.0f;
-static constexpr int   MAX_ITER            = 8;
-static constexpr float SLIP_CLAMP          = 0.3f;
-static constexpr float NORMAL_MATRIX_EPS   = 1e-6f;
-static constexpr float STEP_TOLERANCE      = 1e-5f;
-static constexpr float COST_TOLERANCE      = 1e-6f;
+    using Vec4f    = Eigen::Matrix<float, 4, 1>;
+    using Vec5f    = Eigen::Matrix<float, 5, 1>;
+    using Mat54f   = Eigen::Matrix<float, 5, 4>;
+    using Mat44f   = Eigen::Matrix<float, 4, 4>;
+    using DualVec4 = Eigen::Matrix<autodiff::dual, 4, 1>;
+    using DualVec5 = Eigen::Matrix<autodiff::dual, 5, 1>;
 
-using Vec4f     = Eigen::Matrix<float, 4, 1>;
-using Vec5f     = Eigen::Matrix<float, 5, 1>;
-using Mat54f    = Eigen::Matrix<float, 5, 4>;
-using Mat44f    = Eigen::Matrix<float, 4, 4>;
-using DualVec4  = Eigen::Matrix<autodiff::dual, 4, 1>;
-using DualVec5  = Eigen::Matrix<autodiff::dual, 5, 1>;
-
-template <typename T>
-[[nodiscard]] T yawMomentFromTireForces(
-    const wheel_set<T>& f_x, const wheel_set<T>& f_y, const float steering_angle_rad)
-{
-    const float cos_delta    = std::cos(steering_angle_rad);
-    const float sin_delta    = std::sin(steering_angle_rad);
-    const float half_track_m = TRACK_WIDTH_m * 0.5f;
-
-    const T fl_fx_body = (T(cos_delta) * f_x.fl) - (T(sin_delta) * f_y.fl);
-    const T fl_fy_body = (T(sin_delta) * f_x.fl) + (T(cos_delta) * f_y.fl);
-    const T fr_fx_body = (T(cos_delta) * f_x.fr) - (T(sin_delta) * f_y.fr);
-    const T fr_fy_body = (T(sin_delta) * f_x.fr) + (T(cos_delta) * f_y.fr);
-
-    const T fl_moment = (T(DIST_FRONT_AXLE_CG_m) * fl_fy_body) - (T(half_track_m) * fl_fx_body);
-    const T fr_moment = (T(DIST_FRONT_AXLE_CG_m) * fr_fy_body) + (T(half_track_m) * fr_fx_body);
-    const T rl_moment = (T(-DIST_REAR_AXLE_CG_m) * f_y.rl) - (T(half_track_m) * f_x.rl);
-    const T rr_moment = (T(-DIST_REAR_AXLE_CG_m) * f_y.rr) + (T(half_track_m) * f_x.rr);
-
-    return fl_moment + fr_moment + rl_moment + rr_moment;
-}
-
+    // template <typename T>
+    // [[nodiscard]] T yawMomentFromTireForces(
+    //     const shared_datatypes::wheel_set<T> &f_x,
+    //     const shared_datatypes::wheel_set<T> &f_y,
+    //     const float                           steering_angle_rad)
+    // {
+    //     constexpr float half_track_m = TRACK_WIDTH_m * 0.5f;
+    //
+    //     const float cos_delta = std::cos(steering_angle_rad);
+    //     const float sin_delta = std::sin(steering_angle_rad);
+    //
+    //     const T fl_fx_body = (T(cos_delta) * f_x.fl) - (T(sin_delta) * f_y.fl);
+    //     const T fl_fy_body = (T(sin_delta) * f_x.fl) + (T(cos_delta) * f_y.fl);
+    //     const T fr_fx_body = (T(cos_delta) * f_x.fr) - (T(sin_delta) * f_y.fr);
+    //     const T fr_fy_body = (T(sin_delta) * f_x.fr) + (T(cos_delta) * f_y.fr);
+    //     const T fl_moment  = (T(DIST_FRONT_AXLE_CG_m) * fl_fy_body) - (T(half_track_m) * fl_fx_body);
+    //     const T fr_moment  = (T(DIST_FRONT_AXLE_CG_m) * fr_fy_body) + (T(half_track_m) * fr_fx_body);
+    //     const T rl_moment  = (T(-DIST_REAR_AXLE_CG_m) * f_y.rl) - (T(half_track_m) * f_x.rl);
+    //     const T rr_moment  = (T(-DIST_REAR_AXLE_CG_m) * f_y.rr) + (T(half_track_m) * f_x.rr);
+    //     return fl_moment + fr_moment + rl_moment + rr_moment;
+    // }
 } // namespace
 
-wheel_set<float> TorqueAllocator::optimize(
-    const wheel_set<estimation::TireModel>& tire_models,
-    const wheel_set<float>& des_f_x,
-    const wheel_set<float>& normal_forces_N,
-    const wheel_set<float>& current_slip_ratios,
-    const wheel_set<float>& current_slip_angles,
-    const float low_speed_blend,
-    const float steering_angle_rad,
-    const float des_M_z)
+[[nodiscard]] wheel_set<float> optimize(const VehicleState &state, float ax_setpoint, float omegadot_setpoint)
 {
     // Low-speed safeguard:
     // torque_vectoring.cpp computes a single force-availability blend from vehicle speed and passes it
     // into the allocator. Keeping that policy decision outside the optimizer makes the heuristic explicit
     // at the orchestration layer while the optimizer itself only consumes the already-decided scaling.
-    //
+
     // Below a very small blend threshold, there is no meaningful traction allocation problem to solve,
     // so return zero requested slip immediately.
-    if (low_speed_blend < 0.05f)
-    {
-        return { .fl = 0.0f, .fr = 0.0f, .rl = 0.0f, .rr = 0.0f };
-    }
+    // if (low_speed_blend < 0.05f)
+    // {
+    //     return { .fl = 0.0f, .fr = 0.0f, .rl = 0.0f, .rr = 0.0f };
+    // }
 
-    const wheel_set<float> blended_des_f_x{
-        .fl = low_speed_blend * des_f_x.fl,
-        .fr = low_speed_blend * des_f_x.fr,
-        .rl = low_speed_blend * des_f_x.rl,
-        .rr = low_speed_blend * des_f_x.rr,
-    };
-    const float blended_des_m_z = low_speed_blend * des_M_z;
+    // const wheel_set<float> blended_des_f_x{
+    //     .fl = low_speed_blend * des_f_x.fl,
+    //     .fr = low_speed_blend * des_f_x.fr,
+    //     .rl = low_speed_blend * des_f_x.rl,
+    //     .rr = low_speed_blend * des_f_x.rr,
+    // };
+    // const float blended_des_m_z = low_speed_blend * des_M_z;
 
-    Vec4f opt_slip;
-    opt_slip << current_slip_ratios.fl,
-                current_slip_ratios.fr,
-                current_slip_ratios.rl,
-                current_slip_ratios.rr;
+    Vec4f opt_slip; // output variable
+    const auto [kappa_fl, kappa_fr, kappa_rl, kappa_rr] = state.kappas();
+    opt_slip << kappa_fl, kappa_fr, kappa_rl, kappa_rr;
 
-    const float sqrt_w_fx = std::sqrt(W_FX);
-    const float sqrt_w_mz = std::sqrt(W_MZ);
+    // const float sqrt_w_fx = std::sqrt(W_FX);
+    // const float sqrt_w_mz = std::sqrt(W_MZ);
 
     // Reference material used to shape this implementation:
     // - Video walkthrough: https://www.youtube.com/watch?v=C6DCtQjKkdY
@@ -115,7 +105,8 @@ wheel_set<float> TorqueAllocator::optimize(
     //
     // We keep all vectors/matrices fixed-size (4 decision variables, 5 residuals) so the optimizer
     // stays allocation-free and predictable on embedded targets.
-    const auto residualVector = [&](const DualVec4& kappa) -> DualVec5 {
+    const auto residualVector = [&](const DualVec4 &kappa) -> DualVec5
+    {
         const wheel_set<autodiff::dual> predicted_fx{
             .fl = tire_models.fl.computeCombinedFx_N<autodiff::dual>(
                 normal_forces_N.fl, current_slip_angles.fl, low_speed_blend, kappa(0)),
@@ -175,7 +166,7 @@ wheel_set<float> TorqueAllocator::optimize(
         Mat44f normal_matrix = jacobian.transpose() * jacobian;
         normal_matrix.diagonal().array() += NORMAL_MATRIX_EPS;
 
-        const Vec4f rhs = -jacobian.transpose() * residuals;
+        const Vec4f         rhs = -jacobian.transpose() * residuals;
         Eigen::LDLT<Mat44f> ldlt(normal_matrix);
 
         if (ldlt.info() != Eigen::Success)

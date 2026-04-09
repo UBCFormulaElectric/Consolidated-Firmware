@@ -4,7 +4,6 @@
 
 namespace app::tv::shared_datatypes::vd_constants
 {
-
 // =============================================================================
 // PHYSICAL CONSTANTS
 // =============================================================================
@@ -88,9 +87,10 @@ inline constexpr float PID_POWER_FACTOR_MAX = 0.1f;    // TODO: May need adjustm
 // =============================================================================
 
 inline constexpr float SLIP_RATIO_IDEAL = 0.05f; // Ideal slip ratio for maximum traction
-inline constexpr float APPROX_STEERING_TO_WHEEL_ANGLE =
-    0.3f; // TODO: Replace with reverse/anti-Ackermann model
-          // Note: Underestimate for wheel angles > 40° (see Confluence/Steering System)
+// TODO: Replace with reverse/anti-Ackermann model
+inline constexpr float APPROX_STEERING_TO_WHEEL_ANGLE = 0.3f;
+// Note: Underestimate for wheel angles > 40° (see Confluence/Steering System)
+inline constexpr float MAX_AX = 10; // TODO idk this number bruh
 
 // =============================================================================
 // UTILITY FUNCTIONS & CONVERSION HELPERS
@@ -106,7 +106,7 @@ inline constexpr float APPROX_STEERING_TO_WHEEL_ANGLE =
  */
 [[nodiscard]] constexpr int16_t MOTOR_TORQUE_REQUEST(const float torque)
 {
-    return static_cast<int16_t>((torque / NOMINAL_TORQUE_REQUEST_NM) * 1000.0f);
+    return static_cast<int16_t>(torque / NOMINAL_TORQUE_REQUEST_NM * 1000.0f);
 }
 
 /**
@@ -114,7 +114,7 @@ inline constexpr float APPROX_STEERING_TO_WHEEL_ANGLE =
  */
 [[nodiscard]] constexpr float TORQUE_TO_POWER(const float torque, const float rpm)
 {
-    return (torque * (rpm / GEAR_RATIO)) / static_cast<float>(POWER_TO_TORQUE_CONVERSION_FACTOR);
+    return torque * (rpm / GEAR_RATIO) / static_cast<float>(POWER_TO_TORQUE_CONVERSION_FACTOR);
 }
 
 /**
@@ -135,8 +135,3 @@ inline constexpr float APPROX_STEERING_TO_WHEEL_ANGLE =
 // extern const PID_Config PID_YAW_RATE_CONTROLLER_CONFIG;
 // extern const YawRateController_Config YAW_RATE_CONTROLLER_CONFIG;
 } // namespace app::tv::shared_datatypes::vd_constants
-
-namespace app::tv::datatypes
-{
-namespace vd_constants = app::tv::shared_datatypes::vd_constants;
-}

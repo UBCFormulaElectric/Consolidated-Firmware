@@ -19,14 +19,13 @@ static float r_ref_rad     = 0.0f;
 
 [[nodiscard]] float computeRefYawRate(const float steer_ang_rad, const float body_velx_mps)
 {
-    r_ref_rad = (body_velx_mps * steer_ang_rad) / (WHEELBASE_m * (1.0f + ku * body_velx_mps * body_velx_mps));
-    return r_ref_rad;
+    return (body_velx_mps * steer_ang_rad) / (WHEELBASE_m * (1.0f + ku * body_velx_mps * body_velx_mps));
 }
 
 [[nodiscard]] float computeYawMoment(const float r_actual_rad, const float steer_ang_rad, const float body_velx_mps)
 {
-    yaw_moment_Nm = pid.compute(computeRefYawRate(steer_ang_rad, body_velx_mps), r_actual_rad, 0.0f);
-    return yaw_moment_Nm;
+    r_ref_rad            = computeRefYawRate(steer_ang_rad, body_velx_mps);
+    return yaw_moment_Nm = pid.compute(r_ref_rad, r_actual_rad, 0.0f);
 }
 
 [[nodiscard]] float getYawMoment()
