@@ -1,14 +1,25 @@
 #include "jobs.hpp"
-
 #include <app_canUtils.hpp>
 #include "app_jsoncan.hpp"
-
 #include "io_canMsg.hpp"
 #include <io_canTx.hpp>
 #include "io_canQueues.hpp"
 #include "io_time.hpp"
+#include "io_canReroute.hpp"
 
 #include <util_errorCodes.hpp>
+
+static void fdcan_tx(const JsonCanMsg &tx_msg)
+{
+    const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
+    fdcan_tx_queue.push(msg);
+}
+
+static void invcan_tx(const JsonCanMsg &tx_msg)
+{
+    const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
+    invcan_tx_queue.push(msg);
+}
 
 void jobs_init()
 {
@@ -29,6 +40,8 @@ void jobs_init()
         });
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
     io::can_tx::enableMode_InvCAN(app::can_utils::InvCANMode::INVCAN_MODE_DEFAULT, true);
+
+    io::can_reroute::init(fdcan_tx, invcan_tx);
 }
 void jobs_run1Hz_tick() {}
 void jobs_run100Hz_tick()

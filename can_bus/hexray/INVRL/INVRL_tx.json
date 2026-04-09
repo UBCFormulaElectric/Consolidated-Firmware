@@ -1,6 +1,6 @@
 {
 	"RLInverterInfo1": {
-		"msg_id": 300,
+		"msg_id": 647,
 		"cycle_time": 5,
 		"signals": {
 			"bReserve": {
@@ -61,7 +61,7 @@
 		}
 	},
 	"RLInverterInfo2": {
-		"msg_id": 301,
+		"msg_id": 649,
 		"cycle_time": 5,
 		"signals": {
 			"MotorTemperature": {
@@ -92,7 +92,7 @@
 		}
 	},
 	"RLInverterInfo3": {
-		"msg_id": 302,
+		"msg_id": 665,
 		"cycle_time": 5,
 		"signals": {
 			"MotorPeakCurrent": {
