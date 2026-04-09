@@ -11,6 +11,8 @@ TODO: could perchance add a fucntion that differs from subcommands vs direct com
 
 namespace io::batteryMonitoring
 {
+constexpr uint32_t SUBCOMMAND_READY_RETRIES = 100u;
+constexpr uint32_t CFGUPDATE_RETRIES        = 100u;
 
 // Helper Funcrtions
 static std::expected<void, ErrorCode> write_data_memory(uint16_t addr, std::span<const uint8_t> data);
@@ -35,8 +37,8 @@ static std::expected<void, ErrorCode> read_register_word(uint16_t reg, uint16_t 
 
 static std::expected<void, ErrorCode> protectionInit(void)
 {
-    uint8_t autonomous_protection = 0x10; // 00010000
-    RETURN_IF_ERR(write_data_memory(MFG_STATUS_INIT, std::span<const uint8_t>(&autonomous_protection, 1)));
+    /*uint8_t manual_protection = 0x10; // 00010000
+    RETURN_IF_ERR(write_data_memory(MFG_STATUS_INIT, std::span<const uint8_t>(&autonomous_protection, 1))); */
 
     uint8_t sleep_chg = 0x02;
     RETURN_IF_ERR(write_data_memory(FET_FET_OPTION, std::span<const uint8_t>(&sleep_chg, 1)));
@@ -105,11 +107,21 @@ static std::expected<void, ErrorCode> write_transfer(uint16_t sub_cmd, std::span
     until it returns what was written originally */
     uint8_t low_status  = 0xFF;
     uint8_t high_status = 0xFF;
-    while ((low_status != low_byte) || (high_status != high_byte)) // should change to a for loop and have retries
+    bool    subcmd_ready = false;
+    for (uint32_t attempt = 0; attempt < SUBCOMMAND_READY_RETRIES; attempt++)
     {
         RETURN_IF_ERR(read_register_byte(REG_LOWER, low_status));
         RETURN_IF_ERR(read_register_byte(REG_UPPER, high_status));
+        if ((low_status == low_byte) && (high_status == high_byte))
+        {
+            subcmd_ready = true;
+            break;
+        }
         io::time::delay(1);
+    }
+    if (!subcmd_ready)
+    {
+        return std::unexpected(ErrorCode::TIMEOUT);
     }
 
     // 4. Read the length of response from 0x61
@@ -204,7 +216,7 @@ static std::expected<void, ErrorCode> write_data_memory(uint16_t addr, std::span
     return write_transfer(addr, data);
 }
 
-[[maybe_unused]] static std::expected<void, ErrorCode> fetsInit(void)
+static std::expected<void, ErrorCode> fetsInit(void)
 {
     RETURN_IF_ERR(write_subcommand(CMD_ALL_FETS_ON, {})); // 0x0096
     LOG_INFO("FETs enabled");
@@ -223,7 +235,7 @@ std::expected<void, ErrorCode> init(void)
     RETURN_IF_ERR(read_register_word(CMD_CONTROL_STATUS, control_status));
     if (control_status & CTRL_STATUS_DEEPSLEEP) // the 2nd bit (DEEPSLEEP)
     {
-        LOG_INFO("Battery is currently in deepsleep mode");
+        LOG_INFO("Battery in deepsleep mode");
         RETURN_IF_ERR(write_subcommand(CMD_WAKE_DEEPSLEEP, {})); // send the SET_CFGUPDATE()
         io::time::delay(300);
     }
@@ -233,7 +245,7 @@ std::expected<void, ErrorCode> init(void)
     RETURN_IF_ERR(read_register_word(CMD_BATTERY_STATUS, battery_status));
     if (battery_status & BAT_STATUS_SLEEP) // the MSB
     {
-        LOG_INFO("Battery is currently in sleep mode");
+        LOG_INFO("Battery in sleep mode");
         RETURN_IF_ERR(write_subcommand(CMD_WAKE_SLEEP, {}));
         io::time::delay(300);
     }
@@ -293,13 +305,22 @@ std::expected<void, ErrorCode> init(void)
     RETURN_IF_ERR(write_subcommand(SET_CFGUPDATE, {}));
 
     // 2. Wait for the 0x12 Battery Status()[CFGUPDATE] flag to set.
-    uint16_t cfgupdate_flag = 0;
-    do
+    uint16_t cfgupdate_flag  = 0;
+    bool     cfgupdate_ready = false;
+    for (uint32_t attempt = 0; attempt < CFGUPDATE_RETRIES; attempt++)
     {
         RETURN_IF_ERR(read_register_word(CMD_BATTERY_STATUS, cfgupdate_flag));
-        cfgupdate_flag = cfgupdate_flag & CFGUPDATE_STATUS;
+        if ((cfgupdate_flag & CFGUPDATE_STATUS) != 0u)
+        {
+            cfgupdate_ready = true;
+            break;
+        }
         io::time::delay(1);
-    } while ((cfgupdate_flag & CFGUPDATE_STATUS) == 0);
+    }
+    if (!cfgupdate_ready)
+    {
+        return std::unexpected(ErrorCode::TIMEOUT);
+    }
 
     // 3. Modify settings
     // TODO:
@@ -336,7 +357,7 @@ std::expected<void, ErrorCode> init(void)
     // 4. Take device out of configuration mode
     RETURN_IF_ERR(write_subcommand(EXIT_CFGUPDATE, {}));
 
-    //RETURN_IF_ERR(write_subcommand(CMD_ALL_FETS_ON, {}));
+    fetsInit();
 
     return {};
 }

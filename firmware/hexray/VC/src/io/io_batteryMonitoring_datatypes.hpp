@@ -63,8 +63,8 @@ constexpr uint8_t SUBCOMMAND_BYTES = 4; // account for the 0x3E/0x3F and 0x61 an
 // DEEPSLEEP/SLEEP Checks
 constexpr uint16_t CMD_CONTROL_STATUS    = 0x00;
 constexpr uint16_t CMD_BATTERY_STATUS    = 0x12;
-constexpr uint8_t  CTRL_STATUS_DEEPSLEEP = (1 << 2);
-constexpr uint8_t  BAT_STATUS_SLEEP      = (1 << 15);
+constexpr uint8_t CTRL_STATUS_DEEPSLEEP = (1 << 2);
+constexpr uint16_t BAT_STATUS_SLEEP      = (1 << 15);
 
 // Security stuff
 constexpr uint16_t SECURITY_UNSEAL_FIRST  = 0x0414;
