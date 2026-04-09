@@ -25,9 +25,12 @@ pub static CONFIG: LazyLock<Config> = LazyLock::new(|| load_env_file());
 const DEFAULT_BACKEND_ENV_FILE: &str = "backend.env";
 fn load_env_file() -> Config {
     dotenv().ok();
+    let docker: bool = get_var::<bool>("DOCKER").unwrap_or(false);
 
-    from_filename(DEFAULT_BACKEND_ENV_FILE)
-        .expect(&format!("{} file not found, could not load env file!", DEFAULT_BACKEND_ENV_FILE));
+    if !docker {
+        from_filename(DEFAULT_BACKEND_ENV_FILE)
+            .expect(&format!("{} file not found, could not load env file!", DEFAULT_BACKEND_ENV_FILE));
+    }
 
     let mock: bool = get_var::<bool>("MOCK").unwrap_or(false);
 
@@ -35,7 +38,11 @@ fn load_env_file() -> Config {
 
     let serial_baud_rate: u32 = get_var::<u32>("SERIAL_BAUD_RATE").unwrap();
 
-    let influxdb_url: String = get_var::<String>("INFLUXDB_URL").unwrap();
+    let influxdb_url: String = if docker {
+        "http://influx:8086".to_string()
+    } else {
+        get_var::<String>("INFLUXDB_URL").unwrap()
+    };
 
     let influxdb_org: String = get_var::<String>("INFLUXDB_ORG").unwrap();
 
@@ -48,7 +55,11 @@ fn load_env_file() -> Config {
     let influxdb_measurement: String = format!("{car_name}_live");
 
     // i love hardcoding
-    let jsoncan_config_path: String = format!("../../../can_bus/{car_name}");
+    let jsoncan_config_path: String = if docker {
+        format!("can_bus/{car_name}")
+    } else {
+        format!("../../../can_bus/{car_name}")
+    };
 
     let backend_port: u16 = get_var::<u16>("BACKEND_PORT").unwrap();
 
