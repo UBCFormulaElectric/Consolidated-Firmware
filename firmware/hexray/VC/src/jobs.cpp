@@ -38,9 +38,9 @@ void jobs_run1Hz_tick()
     {
         auto v = io::batteryMonitoring::get_voltage(cell);
         if (v.has_value())
-            LOG_INFO("%u mv", static_cast<int>(cell), v.value());
+            LOG_INFO("Cell %u: %u mv", static_cast<int>(cell), v.value());
         else
-            LOG_ERROR("Read failed");
+            LOG_ERROR("Cell %u: Read failed", static_cast<int>(cell));
     }
 }
 void jobs_run100Hz_tick()
