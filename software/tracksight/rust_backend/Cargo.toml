@@ -9,6 +9,7 @@ debug = ["verbose"]
 
 [dependencies]
 jsoncan_rust = { git = "https://github.com/UBCFormulaElectric/Consolidated-Firmware.git", branch = "master" }
+logfs = { git = "https://github.com/UBCFormulaElectric/Consolidated-Firmware.git", branch = "jackyao/data-111/sd-card-rust" }
 
 serialport = "4.0"
 ctrlc = "3.5"
