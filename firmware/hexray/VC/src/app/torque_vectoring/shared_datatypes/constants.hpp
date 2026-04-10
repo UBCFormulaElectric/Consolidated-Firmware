@@ -34,6 +34,8 @@ inline constexpr float WHEEL_RADIUS_M = WHEEL_DIAMETER_IN * IN_TO_M / 2.0f;
 // =============================================================================
 
 inline constexpr float CAR_MASS_AT_CG_KG = 300.0f; // Mass with driver (verified with suspension team)
+// Estimated yaw moment of inertia about CG (TODO: Update with suspension team)
+inline constexpr float CAR_YAW_MOMENT_INERTIA_KGM2 = 150.0f;
 
 inline constexpr float DIST_FRONT_AXLE_CG_m = 0.837f; // Distance from front axle to CG (parameter 'a')
 inline constexpr float DIST_REAR_AXLE_CG_m =

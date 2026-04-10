@@ -196,10 +196,9 @@ float TireModel::computePureFy_N(const float normal_load_N, const float slip_ang
     // Pacejka Page 180 (4.E19): F_y0
     const float b_y_alpha_y = coefficients.b_y * coefficients.alpha_y;
 
-    return coefficients.d_y *
-               std::sin(
-                   coefficients.c_y *
-                   std::atan(b_y_alpha_y - (coefficients.e_y * (b_y_alpha_y - std::atan(b_y_alpha_y))))) +
+    return coefficients.d_y * std::sin(
+                                  coefficients.c_y *
+                                  std::atan(b_y_alpha_y - coefficients.e_y * (b_y_alpha_y - std::atan(b_y_alpha_y)))) +
            coefficients.s_vy;
 }
 
@@ -224,7 +223,7 @@ constexpr float TireModel::combinedFx_Cxa() const
 float TireModel::combinedFx_Exa(const float normalized_load_delta) const
 {
     // Pacejka Page 181 (4.E56): E_xa with reduced-model assumptions and E_xa <= 1.
-    return std::fmin(fit_comb_fx_.rEx1 + (fit_comb_fx_.rEx2 * normalized_load_delta), 1.0f);
+    return std::fmin(fit_comb_fx_.rEx1 + fit_comb_fx_.rEx2 * normalized_load_delta, 1.0f);
 }
 
 template <DecimalOrDual T> T TireModel::combinedFx_Bxa(const T &slip_ratio) const
@@ -287,7 +286,7 @@ TireModel::CombinedFxMagicFormulaCoefficients<T> TireModel::combinedFxMagicFormu
 float TireModel::combinedFy_SHyk(const float normalized_load_delta) const
 {
     // Pacejka Page 182 (4.E65): S_Hyk
-    return fit_comb_fy_.rHy1 + (fit_comb_fy_.rHy2 * normalized_load_delta);
+    return fit_comb_fy_.rHy1 + fit_comb_fy_.rHy2 * normalized_load_delta;
 }
 
 template <DecimalOrDual T> T TireModel::combinedFy_Kappa_s(const float normalized_load_delta, const T &slip_ratio) const
@@ -305,7 +304,7 @@ constexpr float TireModel::combinedFy_Cyk() const
 float TireModel::combinedFy_Eyk(const float normalized_load_delta) const
 {
     // Pacejka Page 182 (4.E64): E_yk with reduced-model assumptions and E_yk <= 1.
-    return std::fmin(fit_comb_fy_.rEy1 + (fit_comb_fy_.rEy2 * normalized_load_delta), 1.0f);
+    return std::fmin(fit_comb_fy_.rEy1 + fit_comb_fy_.rEy2 * normalized_load_delta, 1.0f);
 }
 
 float TireModel::combinedFy_Byk(const float slip_angle_rad) const
@@ -321,7 +320,7 @@ float TireModel::combinedFy_Dvyk(
 {
     // Pacejka Page 182 (4.E67): D_vyk with gamma* = 0 and zeta_2 = 1.
     return pureFy_mu(normalized_load_delta) * normal_load_N *
-           (fit_comb_fy_.rVy1 + (fit_comb_fy_.rVy2 * normalized_load_delta)) *
+           (fit_comb_fy_.rVy1 + fit_comb_fy_.rVy2 * normalized_load_delta) *
            std::cos(std::atan(fit_comb_fy_.rVy4 * slip_angle_rad));
 }
 
@@ -391,7 +390,7 @@ constexpr float TireModel::normalizedLoadDelta(const float normal_load_N)
 constexpr float TireModel::pureFx_Sh(const float normalized_load_delta) const
 {
     // Pacejka Page 179 (4.E17): S_Hx
-    return fit_pure_fx_.hx_1 + (fit_pure_fx_.hx_2 * normalized_load_delta);
+    return fit_pure_fx_.hx_1 + fit_pure_fx_.hx_2 * normalized_load_delta;
 }
 
 template <DecimalOrDual T> T TireModel::pureFx_Kappa(const float normalized_load_delta, const T &slip_ratio) const
@@ -409,7 +408,7 @@ constexpr float TireModel::pureFx_C() const
 constexpr float TireModel::pureFx_mu(const float normalized_load_delta) const
 {
     // Pacejka Page 179 (4.E13): mu_x with pressure/camber terms reduced to the current assumptions.
-    return fit_pure_fx_.dx_1 + (fit_pure_fx_.dx_2 * normalized_load_delta);
+    return fit_pure_fx_.dx_1 + fit_pure_fx_.dx_2 * normalized_load_delta;
 }
 
 constexpr float TireModel::pureFx_D(const float normal_load_N, const float normalized_load_delta) const
@@ -443,13 +442,13 @@ constexpr float TireModel::pureFx_B(const float slip_stiffness, const float shap
 constexpr float TireModel::pureFx_Sv(const float normal_load_N, const float normalized_load_delta) const
 {
     // Pacejka Page 179 (4.E18): S_Vx
-    return normal_load_N * (fit_pure_fx_.vx_1 + (fit_pure_fx_.vx_2 * normalized_load_delta));
+    return normal_load_N * (fit_pure_fx_.vx_1 + fit_pure_fx_.vx_2 * normalized_load_delta);
 }
 
 constexpr float TireModel::pureFy_Sh(const float normalized_load_delta) const
 {
     // Pacejka Page 180 (4.E27): S_Hy with gamma terms reduced to zero.
-    return fit_pure_fy_.hy_1 + (fit_pure_fy_.hy_2 * normalized_load_delta);
+    return fit_pure_fy_.hy_1 + fit_pure_fy_.hy_2 * normalized_load_delta;
 }
 
 constexpr float TireModel::pureFy_Alpha(const float normalized_load_delta, const float slip_angle_rad) const
@@ -467,7 +466,7 @@ constexpr float TireModel::pureFy_C() const
 constexpr float TireModel::pureFy_mu(const float normalized_load_delta) const
 {
     // Pacejka Page 180 (4.E23): mu_y with pressure/camber terms reduced to the current assumptions.
-    return fit_pure_fy_.dy_1 + (fit_pure_fy_.dy_2 * normalized_load_delta);
+    return fit_pure_fy_.dy_1 + fit_pure_fy_.dy_2 * normalized_load_delta;
 }
 
 constexpr float TireModel::pureFy_D(const float normal_load_N, const float normalized_load_delta) const
@@ -479,8 +478,7 @@ constexpr float TireModel::pureFy_D(const float normal_load_N, const float norma
 constexpr float TireModel::pureFy_E(const float normalized_load_delta, const float alpha_y) const
 {
     // Pacejka Page 180 (4.E24): E_y with gamma terms reduced to zero.
-    return (fit_pure_fy_.ey_1 + (fit_pure_fy_.ey_2 * normalized_load_delta)) *
-           (1.0f - (fit_pure_fy_.ey_3 * sign(alpha_y)));
+    return (fit_pure_fy_.ey_1 + fit_pure_fy_.ey_2 * normalized_load_delta) * (1.0f - fit_pure_fy_.ey_3 * sign(alpha_y));
 }
 
 constexpr float TireModel::pureFy_K(const float normal_load_N) const
@@ -499,6 +497,6 @@ constexpr float TireModel::pureFy_B(const float cornering_stiffness, const float
 constexpr float TireModel::pureFy_Sv(const float normal_load_N, const float normalized_load_delta) const
 {
     // Pacejka Page 180 (4.E29): S_Vy with gamma terms reduced to zero.
-    return normal_load_N * (fit_pure_fy_.vy_1 + (fit_pure_fy_.vy_2 * normalized_load_delta));
+    return normal_load_N * (fit_pure_fy_.vy_1 + fit_pure_fy_.vy_2 * normalized_load_delta);
 }
 } // namespace app::tv::estimation

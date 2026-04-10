@@ -222,6 +222,7 @@ struct VehicleState
      */
     template <DecimalOrDual T> [[nodiscard]] T est_Mz_N(wheel_set<Pair<T>> tires_F_N) const
     {
+        // TODO aligning moment contributions to the yaw moment equation
         tires_F_N.rotate(get_tire_angle());
         const T fl_moment =
             (vd_constants::DIST_FRONT_AXLE_CG_m * tires_F_N.fl.y) - (vd_constants::HALF_TRACK_M * tires_F_N.fl.x);
