@@ -6,6 +6,9 @@
 #include "io_time.hpp"
 #include "io_canQueues.hpp"
 #include "io_batteryMonitoring.hpp"
+#include "hw_hardFaultHandler.hpp"
+#include "hw_error.hpp"
+
 #include <hw_can.hpp>
 #include <io_canRx.hpp>
 #include <io_canTx.hpp>
@@ -55,46 +58,18 @@
 
 [[noreturn]] static void tasks_runCan1Tx(void *arg)
 {
+    UNUSED(arg);
     forever
     {
-        const auto msg = fdcan_tx_queue.pop();
-        if (not msg)
-            continue;
-        if (const auto &m = msg.value(); m.bus == app::can_utils::BusEnum::Bus_FDCAN)
-        {
-            const auto res = hw::can::fdcan1.fdcan_transmit(hw::CanMsg{
-                m.std_id,
-                m.dlc,
-                m.data,
-            });
-            LOG_IF_ERR(res);
-        }
-        else
-        {
-            LOG_ERROR("INVALID BUS %d", m.bus);
-        }
+        osDelay(1000);
     }
 }
 [[noreturn]] static void tasks_runCan2Tx(void *arg)
 {
+    UNUSED(arg);
     forever
     {
-        const auto msg = invcan_tx_queue.pop();
-        if (not msg)
-            continue;
-        if (const auto &m = msg.value(); m.bus == app::can_utils::BusEnum::Bus_FDCAN)
-        {
-            const auto res = hw::can::invcan.can_transmit(hw::CanMsg{
-                m.std_id,
-                m.dlc,
-                m.data,
-            });
-            LOG_IF_ERR(res);
-        }
-        else
-        {
-            LOG_ERROR("INVALID BUS %d", m.bus);
-        }
+        osDelay(1000);
     }
 }
 [[noreturn]] static void tasks_runCanRx(void *arg)
@@ -111,7 +86,7 @@
 // Define the task with StaticTask Class
 static hw::rtos::StaticTask<8096> Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz);
 static hw::rtos::StaticTask<512>  Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz);
-static hw::rtos::StaticTask<512>  Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz);
+static hw::rtos::StaticTask<1024>  Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz);
 static hw::rtos::StaticTask<512>  TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_runCanRx);
 static hw::rtos::StaticTask<512>  TaskCan1Tx(osPriorityNormal, "TaskCanTx", tasks_runCan1Tx);
 static hw::rtos::StaticTask<512>  TaskCan2Tx(osPriorityNormal, "TaskCanTx", tasks_runCan2Tx);
@@ -135,15 +110,16 @@ void tasks_init()
 {
     hw::can::fdcan1.init();
     hw::can::invcan.init();
-
     dam_en.writePin(true);
     rsm_en.writePin(true);
     front_en.writePin(true);
     bms_en.writePin(true);
-    LOG_IF_ERR(io::batteryMonitoring::init());
     jobs_init();
     osKernelInitialize();
     VC_StartAllTasks();
+    //io::batteryMonitoring::init();
     osKernelStart();
-    forever {}
+    
+    Error_Handler();
+
 }

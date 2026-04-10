@@ -33,7 +33,7 @@ void jobs_init()
 }
 void jobs_run1Hz_tick()
 {
-    CellNum arr[5] = { CellNum::CELL1, CellNum::CELL2, CellNum::CELL3, CellNum::CELL4, CellNum::CELL5 };
+    /*CellNum arr[5] = { CellNum::CELL1, CellNum::CELL2, CellNum::CELL3, CellNum::CELL4, CellNum::CELL5 };
     for (auto cell : arr)
     {
         auto v = io::batteryMonitoring::get_voltage(cell);
@@ -41,7 +41,8 @@ void jobs_run1Hz_tick()
             LOG_INFO("Cell %u: %u mv", static_cast<int>(cell), v.value());
         else
             LOG_ERROR("Cell %u: Read failed", static_cast<int>(cell));
-    }
+    } */
+    io::batteryMonitoring::tick();
 }
 void jobs_run100Hz_tick()
 {
