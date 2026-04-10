@@ -56,11 +56,10 @@ namespace
 } // namespace
 
 template <DecimalOrDual T>
-[[nodiscard]] T
-    TireModel::computeCombinedFx_N(const float normal_load_N, const float slip_angle_rad, const T &slip_ratio) const
+[[nodiscard]] T TireModel::computeCombinedFx_N(const float fz_N, const float alpha_rad, const T &kappa) const
 {
-    const T    pure_fx_0    = computePureFx_N<T>(normal_load_N, slip_ratio);
-    const auto coefficients = combinedFxMagicFormulaCoefficients<T>(normal_load_N, slip_angle_rad, slip_ratio);
+    const T    pure_fx_0    = computePureFx_N<T>(fz_N, kappa);
+    const auto coefficients = combinedFxMagicFormulaCoefficients<T>(fz_N, alpha_rad, kappa);
     // Low-speed safeguard:
     // Below a small vehicle-speed threshold the tire model can predict unrealistically large
     // forces because the slip calculation becomes ill-conditioned while the fitted Pacejka
@@ -77,11 +76,10 @@ template autodiff::dual TireModel::computeCombinedFx_N<autodiff::dual>(
     const autodiff::dual &slip_ratio) const;
 
 template <DecimalOrDual T>
-[[nodiscard]] T
-    TireModel::computeCombinedFy_N(const float normal_load_N, const float slip_angle_rad, const T &slip_ratio) const
+[[nodiscard]] T TireModel::computeCombinedFy_N(const float fz_N, const float alpha_rad, const T &kappa) const
 {
-    const float pure_fy_0    = computePureFy_N(normal_load_N, slip_angle_rad);
-    const auto  coefficients = combinedFyMagicFormulaCoefficients(normal_load_N, slip_angle_rad, slip_ratio);
+    const float pure_fy_0    = computePureFy_N(fz_N, alpha_rad);
+    const auto  coefficients = combinedFyMagicFormulaCoefficients(fz_N, alpha_rad, kappa);
 
     // Apply the same low-speed force-availability blend used for Fx so the optimizer sees a
     // self-consistent pair of tire forces as the vehicle approaches a stop.
@@ -154,13 +152,13 @@ TireModel::PureFxMagicFormulaCoefficients<T>
 }
 
 TireModel::PureFyMagicFormulaCoefficients
-    TireModel::pureFyMagicFormulaCoefficients(const float normal_load_N, const float slip_angle_rad) const
+    TireModel::pureFyMagicFormulaCoefficients(const float fz, const float alpha) const
 {
     // Assumes gamma = 0, lambda terms are 1.0, and pressure effects are captured by the fixed 12_PSI fitted row.
-    const float clamped_normal_load_N = std::fmax(normal_load_N, 0.0f);
+    const float clamped_normal_load_N = std::fmax(fz, 0.0f);
     const float normalized_load_delta = normalizedLoadDelta(clamped_normal_load_N);
     const float s_hy                  = pureFy_Sh(normalized_load_delta);
-    const float alpha_y               = pureFy_Alpha(normalized_load_delta, slip_angle_rad);
+    const float alpha_y               = pureFy_Alpha(normalized_load_delta, alpha);
     const float c_y                   = pureFy_C();
     const float d_y                   = pureFy_D(clamped_normal_load_N, normalized_load_delta);
     const float e_y                   = pureFy_E(normalized_load_delta, alpha_y);
@@ -179,19 +177,19 @@ TireModel::PureFyMagicFormulaCoefficients
     };
 }
 
-template <DecimalOrDual T> T TireModel::computePureFx_N(const float normal_load_N, const T &slip_ratio) const
+template <DecimalOrDual T> T TireModel::computePureFx_N(const float fz, const T &kappa) const
 {
     using std::sin, std::atan;
 
-    const auto coefficients = pureFxMagicFormulaCoefficients<T>(normal_load_N, slip_ratio);
+    const auto coefficients = pureFxMagicFormulaCoefficients<T>(fz, kappa);
     const T    u            = coefficients.b_x * coefficients.kappa_x;
     const T    phi          = u - coefficients.e_x * (u - atan(u));
     return coefficients.d_x * sin(coefficients.c_x * atan(phi)) + coefficients.s_vx;
 }
 
-float TireModel::computePureFy_N(const float normal_load_N, const float slip_angle_rad) const
+float TireModel::computePureFy_N(const float fz_N, const float alpha) const
 {
-    const auto coefficients = pureFyMagicFormulaCoefficients(normal_load_N, slip_angle_rad);
+    const auto coefficients = pureFyMagicFormulaCoefficients(fz_N, alpha);
 
     // Pacejka Page 180 (4.E19): F_y0
     const float b_y_alpha_y = coefficients.b_y * coefficients.alpha_y;
@@ -208,10 +206,10 @@ constexpr float TireModel::combinedFx_SHxa() const
     return fit_comb_fx_.rHx1;
 }
 
-constexpr float TireModel::combinedFx_Alpha_s(const float slip_angle_rad) const
+constexpr float TireModel::combinedFx_Alpha_s(const float alpha) const
 {
     // Pacejka Page 181 (4.E53): alpha_s = alpha* + S_Hxa
-    return slip_angle_rad + combinedFx_SHxa();
+    return alpha + combinedFx_SHxa();
 }
 
 constexpr float TireModel::combinedFx_Cxa() const
@@ -226,13 +224,13 @@ float TireModel::combinedFx_Exa(const float normalized_load_delta) const
     return std::fmin(fit_comb_fx_.rEx1 + fit_comb_fx_.rEx2 * normalized_load_delta, 1.0f);
 }
 
-template <DecimalOrDual T> T TireModel::combinedFx_Bxa(const T &slip_ratio) const
+template <DecimalOrDual T> T TireModel::combinedFx_Bxa(const T &kappa) const
 {
     using std::atan;
     using std::cos;
 
     // Pacejka Page 181 (4.E54): B_xa with gamma* = 0 and lambda_xa = 1.
-    return T(fit_comb_fx_.rBx1) * cos(atan(T(fit_comb_fx_.rBx2) * slip_ratio));
+    return T(fit_comb_fx_.rBx1) * cos(atan(T(fit_comb_fx_.rBx2) * kappa));
 }
 
 template <DecimalOrDual T> T TireModel::combinedFx_Gxao(const CombinedFxMagicFormulaCoefficients<T> &coefficients) const

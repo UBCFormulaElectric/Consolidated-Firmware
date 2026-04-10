@@ -18,20 +18,9 @@ class TireModel
         Rear
     };
 
-    template <DecimalOrDual T>
-    [[nodiscard]] shared_datatypes::Pair<T> estimate(const T &kappa, const float alpha_rad, const float fz_N) const
-    {
-        return {
-            computeCombinedFx_N(fz_N, alpha_rad, kappa),
-            computeCombinedFy_N(fz_N, alpha_rad, kappa),
-        };
-    }
-
     // note that these only exist for float, dual
-    template <DecimalOrDual T>
-    [[nodiscard]] T computeCombinedFx_N(float normal_load_N, float slip_angle_rad, const T &slip_ratio) const;
-    template <DecimalOrDual T>
-    [[nodiscard]] T computeCombinedFy_N(float normal_load_N, float slip_angle_rad, const T &slip_ratio) const;
+    template <DecimalOrDual T> [[nodiscard]] T computeCombinedFx_N(float fz_N, float alpha_rad, const T &kappa) const;
+    template <DecimalOrDual T> [[nodiscard]] T computeCombinedFy_N(float fz_N, float alpha_rad, const T &kappa) const;
 
     struct TireFitPureParamFy
     {
@@ -193,15 +182,14 @@ class TireModel
     template <DecimalOrDual T>
     [[nodiscard]] PureFxMagicFormulaCoefficients<T>
         pureFxMagicFormulaCoefficients(float normal_load_N, const T &slip_ratio) const;
-    [[nodiscard]] PureFyMagicFormulaCoefficients
-        pureFyMagicFormulaCoefficients(float normal_load_N, float slip_angle_rad) const;
+    [[nodiscard]] PureFyMagicFormulaCoefficients pureFyMagicFormulaCoefficients(float fz, float alpha) const;
     //-------------------------------------------------------------------- Combined Pacejka 5.2 Helpers
     //----------------------------------------------------------------------//
     [[nodiscard]] constexpr float              combinedFx_SHxa() const;
-    [[nodiscard]] constexpr float              combinedFx_Alpha_s(float slip_angle_rad) const;
+    [[nodiscard]] constexpr float              combinedFx_Alpha_s(float alpha) const;
     [[nodiscard]] constexpr float              combinedFx_Cxa() const;
     [[nodiscard]] float                        combinedFx_Exa(float normalized_load_delta) const;
-    template <DecimalOrDual T> [[nodiscard]] T combinedFx_Bxa(const T &slip_ratio) const;
+    template <DecimalOrDual T> [[nodiscard]] T combinedFx_Bxa(const T &kappa) const;
     template <DecimalOrDual T>
     [[nodiscard]] T combinedFx_Gxao(const CombinedFxMagicFormulaCoefficients<T> &coefficients) const;
     template <DecimalOrDual T>
@@ -225,8 +213,8 @@ class TireModel
     [[nodiscard]] CombinedFyMagicFormulaCoefficients<T>
         combinedFyMagicFormulaCoefficients(float normal_load_N, float slip_angle_rad, const T &slip_ratio) const;
 
-    template <DecimalOrDual T> [[nodiscard]] T computePureFx_N(float normal_load_N, const T &slip_ratio) const;
-    [[nodiscard]] float                        computePureFy_N(float normal_load_N, float slip_angle_rad) const;
+    template <DecimalOrDual T> [[nodiscard]] T computePureFx_N(float fz, const T &kappa) const;
+    [[nodiscard]] float                        computePureFy_N(float fz_N, float alpha) const;
 
     const TireFitPureParamFx &fit_pure_fx_;
     const TireFitPureParamFy &fit_pure_fy_;
