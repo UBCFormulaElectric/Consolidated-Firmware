@@ -10,7 +10,6 @@ use tower_http::cors::{CorsLayer, Any};
 use mdns_sd::{ServiceDaemon, ServiceInfo};
 
 use crate::tasks::client_api::signal_tile::LRU_CACHE_CAPACITY;
-#[allow(unused_imports)]
 use crate::utils::yellow;
 use crate::config::CONFIG;
 use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, ResultExt, ShutdownReceiver, Task};
@@ -18,6 +17,7 @@ use crate::tasks::client_api::AppState;
 use crate::tasks::client_api::subtable_clients::Clients;
 use crate::tasks::client_api::signal_api_handler::get_signal_router;
 use crate::tasks::client_api::subtable_api_handler::get_subtable_router;
+use crate::tasks::client_api::sd_api_handler::get_sd_router;
 use crate::vprintln;
 
 pub async fn run_api_handler(
@@ -92,6 +92,7 @@ pub async fn run_api_handler(
         .layer(socket_layer)
         .nest("/api/v1/", get_subtable_router())
         .nest("/api/v1/", get_signal_router())
+        .nest("/api/v1/", get_sd_router())
         .with_state(app_state)
         .layer(cors)
         .into_make_service();

@@ -2,7 +2,6 @@ use influxdb2::{Client, api::write::TimestampPrecision, models::{DataPoint, data
 use tokio::sync::{broadcast::Receiver};
 use futures::stream;
 
-#[allow(unused_imports)]
 use crate::utils::yellow;
 use crate::{config::CONFIG, tasks::{HealthCheckSender, HealthCheckSenderExt, ResultExt, Task}, vprintln};
 
