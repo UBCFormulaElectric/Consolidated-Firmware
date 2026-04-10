@@ -12,17 +12,14 @@ const GRE: &str = "32m";
 const YEL: &str = "33m";
 const NON: &str = "0m";
 
-#[allow(dead_code)]
 pub fn red(str: impl AsRef<str>) -> String {
     format_color(str, RED)
 }
 
-#[allow(dead_code)]
 pub fn yellow(str: impl AsRef<str>) -> String {
     format_color(str, YEL)
 }
 
-#[allow(dead_code)]
 pub fn green(str: impl AsRef<str>) -> String {
     format_color(str, GRE)
 }

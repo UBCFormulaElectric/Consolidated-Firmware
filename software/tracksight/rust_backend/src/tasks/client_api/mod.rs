@@ -2,6 +2,7 @@ pub mod subtable_clients;
 pub mod subtable_api_handler;
 pub mod signal_api_handler;
 pub mod signal_tile;
+pub mod sd_api_handler;
 
 
 use std::sync::Arc;

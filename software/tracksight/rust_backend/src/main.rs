@@ -27,7 +27,6 @@ use tasks::client_api::subtable_clients::Clients;
 use tasks::serial_handler::run_serial_task;
 use tasks::telem_message::CanPayload;
 use utils::red;
-#[allow(unused_imports)]
 use utils::yellow;
 
 #[tokio::main]
