@@ -9,36 +9,42 @@ concept DecimalOrDual = std::same_as<T, float> || std::same_as<T, double> || std
 
 namespace app::tv::shared_datatypes
 {
+struct Pair
+{
+    float x;
+    float y;
+};
+
 template <typename T> struct wheel_set
 {
     T fl;
     T fr;
     T rl;
     T rr;
+};
 
-    // void rotate(const wheel_set<float> tire_angles)
-    // {
-    //     const float cos_delta_fl = std::cos(tire_angles.fl);
-    //     const float sin_delta_fl = std::sin(tire_angles.fl);
-    //     fl                       = (cos_delta_fl * fl) - (sin_delta_fl * fl);
-    //
-    //     const float cos_delta_fr = std::cos(tire_angles.fr);
-    //     const float sin_delta_fr = std::sin(tire_angles.fr);
-    //     fr                       = (cos_delta_fr * fr) - (sin_delta_fr * fr);
-    //
-    //     if (tire_angles.rl != 0.0f)
-    //     {
-    //         const float cos_delta_rl = std::cos(tire_angles.rl);
-    //         const float sin_delta_rl = std::sin(tire_angles.rl);
-    //         rl                       = (cos_delta_rl * rl) - (sin_delta_rl * rl);
-    //     }
-    //     if (tire_angles.rr != 0.0f)
-    //     {
-    //         const float cos_delta_rr = std::cos(tire_angles.rr);
-    //         const float sin_delta_rr = std::sin(tire_angles.rr);
-    //         rr                       = (cos_delta_rr * rr) - (sin_delta_rr * rr);
-    //     }
-    // }
+template <> struct wheel_set<Pair>
+{
+    Pair fl;
+    Pair fr;
+    Pair rl;
+    Pair rr;
+
+    /**
+     * rotates each pair in the z-axis by the respective angle in z_rot
+     * @param z_rot_rad rotation angles for each wheel in radians
+     */
+    void rotate(const wheel_set<float> &z_rot_rad)
+    {
+        fl = { fl.x * std::cos(z_rot_rad.fl) + fl.y * std::sin(z_rot_rad.fl),
+               fl.y * std::cos(z_rot_rad.fl) - fl.x * std::sin(z_rot_rad.fl) };
+        fr = { fr.x * std::cos(z_rot_rad.fr) + fr.y * std::sin(z_rot_rad.fr),
+               fr.y * std::cos(z_rot_rad.fr) - fr.x * std::sin(z_rot_rad.fr) };
+        rl = { rl.x * std::cos(z_rot_rad.rl) + rl.y * std::sin(z_rot_rad.rl),
+               rl.y * std::cos(z_rot_rad.rl) - rl.x * std::sin(z_rot_rad.rl) };
+        rr = { rr.x * std::cos(z_rot_rad.rr) + rr.y * std::sin(z_rot_rad.rr),
+               rr.y * std::cos(z_rot_rad.rr) - rr.x * std::sin(z_rot_rad.rr) };
+    }
 };
 
 inline float slipRatioToWheelAngularVelocity(const float slip_ratio, const float v_x_mps)
@@ -77,48 +83,42 @@ struct VehicleState
         return { steer_ang_rad, steer_ang_rad, 0, 0 };
     }
 
-    struct Pair
-    {
-        float x;
-        float y;
-    };
-
     /**
      * @return vector of vy each in the frame of the respective tire
      */
     wheel_set<Pair> v_in_tire_frame() const
     {
-        const wheel_set vx_s = {
-            v_x_mps - yaw_rate_radps * vd_constants::HALF_TRACK_M,
-            v_x_mps - yaw_rate_radps * -vd_constants::HALF_TRACK_M,
-            v_x_mps - yaw_rate_radps * vd_constants::HALF_TRACK_M,
-            v_x_mps - yaw_rate_radps * -vd_constants::HALF_TRACK_M,
+        wheel_set<Pair> v = {
+            {
+                v_x_mps - yaw_rate_radps * vd_constants::HALF_TRACK_M,
+                v_y_mps + yaw_rate_radps * vd_constants::DIST_FRONT_AXLE_CG_m,
+            },
+            {
+                v_x_mps - yaw_rate_radps * -vd_constants::HALF_TRACK_M,
+                v_y_mps + yaw_rate_radps * vd_constants::DIST_FRONT_AXLE_CG_m,
+            },
+            {
+                v_x_mps - yaw_rate_radps * vd_constants::HALF_TRACK_M,
+                v_y_mps + yaw_rate_radps * -vd_constants::DIST_FRONT_AXLE_CG_m,
+            },
+            {
+                v_x_mps - yaw_rate_radps * -vd_constants::HALF_TRACK_M,
+                v_y_mps + yaw_rate_radps * -vd_constants::DIST_FRONT_AXLE_CG_m,
+            },
         };
-        const wheel_set v_ys = {
-            v_y_mps + yaw_rate_radps * vd_constants::DIST_FRONT_AXLE_CG_m,
-            v_y_mps + yaw_rate_radps * vd_constants::DIST_FRONT_AXLE_CG_m,
-            v_y_mps + yaw_rate_radps * -vd_constants::DIST_FRONT_AXLE_CG_m,
-            v_y_mps + yaw_rate_radps * -vd_constants::DIST_FRONT_AXLE_CG_m,
-        };
-        return {
-            { vx_s.fl * std::cos(steer_ang_rad) + v_ys.fl * std::sin(steer_ang_rad),
-              v_ys.fl * std::cos(steer_ang_rad) - vx_s.fl * std::sin(steer_ang_rad) },
-            { vx_s.fr * std::cos(steer_ang_rad) + v_ys.fr * std::sin(steer_ang_rad),
-              v_ys.fr * std::cos(steer_ang_rad) - vx_s.fr * std::sin(steer_ang_rad) },
-            { vx_s.rl, v_ys.rl },
-            { vx_s.rr, v_ys.rr },
-        };
+        v.rotate(get_tire_angle());
+        return v;
     }
 
     wheel_set<float> alphas() const
     {
-        const auto [fl_v, fr_v, rl_v, rr_v] = v_in_tire_frame();
-        const wheel_set<float> tire_angles  = get_tire_angle();
+        const auto [fl_v, fr_v, rl_v, rr_v]         = v_in_tire_frame();
+        const auto [fl_rot, fr_rot, rl_rot, rr_rot] = get_tire_angle();
         return {
-            std::atan2(fl_v.y, safe_vx(fl_v.x)) - tire_angles.fl,
-            std::atan2(fr_v.y, safe_vx(fr_v.x)) - tire_angles.fr,
-            std::atan2(rl_v.y, safe_vx(rl_v.x)),
-            std::atan2(rr_v.y, safe_vx(rr_v.x)),
+            std::atan2(fl_v.y, safe_vx(fl_v.x)) - fl_rot,
+            std::atan2(fr_v.y, safe_vx(fr_v.x)) - fr_rot,
+            std::atan2(rl_v.y, safe_vx(rl_v.x)) - rl_rot,
+            std::atan2(rr_v.y, safe_vx(rr_v.x)) - rr_rot,
         };
     }
 
@@ -224,8 +224,8 @@ struct VehicleState
      */
     template <DecimalOrDual T> [[nodiscard]] T est_Mz_N(wheel_set<T> tires_Fx_N, wheel_set<T> tires_Fy_N) const
     {
-        tires_Fx_N.rotate(get_tire_angle());
-        tires_Fy_N.rotate(get_tire_angle());
+        // tires_Fx_N.rotate(get_tire_angle());
+        // tires_Fy_N.rotate(get_tire_angle());
 
         // contributions to moment of each tire
         const T fl_moment =
