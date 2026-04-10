@@ -26,6 +26,7 @@ inline constexpr float WHEELBASE_m  = WHEELBASE_mm * MM_TO_M;
 
 inline constexpr float TRACK_WIDTH_mm = 1100.0f;
 inline constexpr float TRACK_WIDTH_m  = TRACK_WIDTH_mm * MM_TO_M;
+inline constexpr float HALF_TRACK_M   = TRACK_WIDTH_m * 0.5f;
 inline constexpr float WHEEL_RADIUS_M = WHEEL_DIAMETER_IN * IN_TO_M / 2.0f;
 
 // =============================================================================

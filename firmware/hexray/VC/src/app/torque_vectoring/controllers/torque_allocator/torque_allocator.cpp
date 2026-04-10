@@ -32,28 +32,6 @@ namespace
     using Mat44f   = Eigen::Matrix<float, 4, 4>;
     using DualVec4 = Eigen::Matrix<autodiff::dual, 4, 1>;
     using DualVec5 = Eigen::Matrix<autodiff::dual, 5, 1>;
-
-    // template <typename T>
-    // [[nodiscard]] T yawMomentFromTireForces(
-    //     const shared_datatypes::wheel_set<T> &f_x,
-    //     const shared_datatypes::wheel_set<T> &f_y,
-    //     const float                           steering_angle_rad)
-    // {
-    //     constexpr float half_track_m = TRACK_WIDTH_m * 0.5f;
-    //
-    //     const float cos_delta = std::cos(steering_angle_rad);
-    //     const float sin_delta = std::sin(steering_angle_rad);
-    //
-    //     const T fl_fx_body = (T(cos_delta) * f_x.fl) - (T(sin_delta) * f_y.fl);
-    //     const T fl_fy_body = (T(sin_delta) * f_x.fl) + (T(cos_delta) * f_y.fl);
-    //     const T fr_fx_body = (T(cos_delta) * f_x.fr) - (T(sin_delta) * f_y.fr);
-    //     const T fr_fy_body = (T(sin_delta) * f_x.fr) + (T(cos_delta) * f_y.fr);
-    //     const T fl_moment  = (T(DIST_FRONT_AXLE_CG_m) * fl_fy_body) - (T(half_track_m) * fl_fx_body);
-    //     const T fr_moment  = (T(DIST_FRONT_AXLE_CG_m) * fr_fy_body) + (T(half_track_m) * fr_fx_body);
-    //     const T rl_moment  = (T(-DIST_REAR_AXLE_CG_m) * f_y.rl) - (T(half_track_m) * f_x.rl);
-    //     const T rr_moment  = (T(-DIST_REAR_AXLE_CG_m) * f_y.rr) + (T(half_track_m) * f_x.rr);
-    //     return fl_moment + fr_moment + rl_moment + rr_moment;
-    // }
 } // namespace
 
 [[nodiscard]] wheel_set<float> optimize(const VehicleState &state, float ax_setpoint, float omegadot_setpoint)
@@ -108,44 +86,35 @@ namespace
     // stays allocation-free and predictable on embedded targets.
     const auto residualVector = [&](const DualVec4 &kappa) -> DualVec5
     {
-        const auto [fz_fl, fz_fr, fz_rl, fz_rr] = state.est_Fz_N();
-        const auto alphas                       = state.alphas();
+        const auto [fz_fl, fz_fr, fz_rl, fz_rr]             = state.est_Fz_N();
+        const auto [alpha_fl, alpha_fr, alpha_rl, alpha_rr] = state.alphas();
 
-        const wheel_set<autodiff::dual> predicted_fx{
-            .fl = estimation::tire_models.fl.computeCombinedFx_N<autodiff::dual>(
-                fz_fl, current_slip_angles.fl, low_speed_blend, kappa(0)),
-            .fr = estimation::tire_models.fr.computeCombinedFx_N<autodiff::dual>(
-                fz_fr, current_slip_angles.fr, low_speed_blend, kappa(1)),
-            .rl = estimation::tire_models.rl.computeCombinedFx_N<autodiff::dual>(
-                fz_rl, current_slip_angles.rl, low_speed_blend, kappa(2)),
-            .rr = estimation::tire_models.rr.computeCombinedFx_N<autodiff::dual>(
-                fz_rr, current_slip_angles.rr, low_speed_blend, kappa(3)),
+        const wheel_set predicted_fx{
+            .fl = estimation::tire_model.computeCombinedFx_N(fz_fl, alpha_fl, kappa(0)),
+            .fr = estimation::tire_model.computeCombinedFx_N(fz_fr, alpha_fr, kappa(1)),
+            .rl = estimation::tire_model.computeCombinedFx_N(fz_rl, alpha_rl, kappa(2)),
+            .rr = estimation::tire_model.computeCombinedFx_N(fz_rr, alpha_rr, kappa(3)),
         };
-
-        const wheel_set<autodiff::dual> predicted_fy{
-            .fl = estimation::tire_models.fl.computeCombinedFy_N<autodiff::dual>(
-                fz_fl, current_slip_angles.fl, low_speed_blend, kappa(0)),
-            .fr = estimation::tire_models.fr.computeCombinedFy_N<autodiff::dual>(
-                fz_fr, current_slip_angles.fr, low_speed_blend, kappa(1)),
-            .rl = estimation::tire_models.rl.computeCombinedFy_N<autodiff::dual>(
-                fz_rl, current_slip_angles.rl, low_speed_blend, kappa(2)),
-            .rr = estimation::tire_models.rr.computeCombinedFy_N<autodiff::dual>(
-                fz_rr, current_slip_angles.rr, low_speed_blend, kappa(3)),
+        const wheel_set predicted_fy{
+            .fl = estimation::tire_model.computeCombinedFy_N<autodiff::dual>(fz_fl, alpha_fl, kappa(0)),
+            .fr = estimation::tire_model.computeCombinedFy_N<autodiff::dual>(fz_fr, alpha_fr, kappa(1)),
+            .rl = estimation::tire_model.computeCombinedFy_N<autodiff::dual>(fz_rl, alpha_rl, kappa(2)),
+            .rr = estimation::tire_model.computeCombinedFy_N<autodiff::dual>(fz_rr, alpha_rr, kappa(3)),
         };
-        const autodiff::dual predicted_mz = yawMomentFromTireForces(predicted_fx, predicted_fy, steering_angle_rad);
+        [[maybe_unused]] const autodiff::dual predicted_mz = state.est_Mz_N(predicted_fx, predicted_fy);
 
         DualVec5 residuals;
-        residuals(0) = autodiff::dual(sqrt_w_fx) * (predicted_fx.fl - blended_des_f_x.fl);
-        residuals(1) = autodiff::dual(sqrt_w_fx) * (predicted_fx.fr - blended_des_f_x.fr);
-        residuals(2) = autodiff::dual(sqrt_w_fx) * (predicted_fx.rl - blended_des_f_x.rl);
-        residuals(3) = autodiff::dual(sqrt_w_fx) * (predicted_fx.rr - blended_des_f_x.rr);
-        residuals(4) = autodiff::dual(sqrt_w_mz) * (predicted_mz - blended_des_m_z);
+        // residuals(0) = autodiff::dual(sqrt_w_fx) * (predicted_fx.fl - blended_des_f_x.fl);
+        // residuals(1) = autodiff::dual(sqrt_w_fx) * (predicted_fx.fr - blended_des_f_x.fr);
+        // residuals(2) = autodiff::dual(sqrt_w_fx) * (predicted_fx.rl - blended_des_f_x.rl);
+        // residuals(3) = autodiff::dual(sqrt_w_fx) * (predicted_fx.rr - blended_des_f_x.rr);
+        // residuals(4) = autodiff::dual(sqrt_w_mz) * (predicted_mz - blended_des_m_z);
         return residuals;
     };
 
     float previous_cost = std::numeric_limits<float>::infinity();
 
-    for (int iter = 0; iter < MAX_ITER; ++iter)
+    for (uint32_t iter = 0; iter < MAX_ITER; ++iter)
     {
         DualVec4 kappa_dual;
         for (int i = 0; i < 4; ++i)

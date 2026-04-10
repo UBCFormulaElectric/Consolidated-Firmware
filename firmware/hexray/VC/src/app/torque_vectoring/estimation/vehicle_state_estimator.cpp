@@ -138,10 +138,10 @@ namespace
     }
 
     [[nodiscard]] Measurement pseudoMeasurementFromWheelSpeeds(
-        const datatypes::datatypes::wheel_set<float> &wheel_angular_velocities_radps,
-        const float                                   yaw_rate_radps,
-        const float                                   steering_angle_rad,
-        const StateVector                            &previous_state)
+        const shared_datatypes::wheel_set<float> &wheel_angular_velocities_radps,
+        const float                               yaw_rate_radps,
+        const float                               steering_angle_rad,
+        const StateVector                        &previous_state)
     {
         const float     front_cos    = std::cos(steering_angle_rad);
         const float     front_sin    = std::sin(steering_angle_rad);
@@ -199,16 +199,16 @@ namespace VehicleStateEstimator
         filter_ = createFilter();
     }
 
-    [[nodiscard]] shared_datatypes::datatypes::VehicleState estimate(const Measurements &state)
+    [[nodiscard]] shared_datatypes::VehicleState estimate(const Measurements &state)
     {
         InputVector u                    = InputVector::Zero();
         u(static_cast<Eigen::Index>(AX)) = state.ax;
         u(static_cast<Eigen::Index>(AY)) = state.ay;
 
-        const float                                  measured_yaw_rate_radps  = state.yaw_rate;
-        const float                                  measured_steering_angle  = state.delta;
-        const datatypes::datatypes::wheel_set<float> wheel_angular_velocities = state.omegas;
-        const auto                                  &previous_state           = filter_.state();
+        const float                              measured_yaw_rate_radps  = state.yaw_rate;
+        const float                              measured_steering_angle  = state.delta;
+        const shared_datatypes::wheel_set<float> wheel_angular_velocities = state.omegas;
+        const auto                              &previous_state           = filter_.state();
 
         Measurement z = pseudoMeasurementFromWheelSpeeds(
             wheel_angular_velocities, measured_yaw_rate_radps, measured_steering_angle, previous_state);

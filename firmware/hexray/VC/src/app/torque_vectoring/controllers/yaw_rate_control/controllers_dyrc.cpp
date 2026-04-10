@@ -2,7 +2,7 @@
 #include "torque_vectoring/controllers/controllers_config.hpp"
 #include "torque_vectoring/shared_datatypes/constants.hpp"
 
-using namespace app::tv::datatypes::vd_constants;
+using namespace app::tv::shared_datatypes::vd_constants;
 
 namespace app::tv::controllers::dyrc
 {

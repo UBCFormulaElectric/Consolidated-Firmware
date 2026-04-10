@@ -1,12 +1,8 @@
 #pragma once
-
-#include <autodiff/forward/dual.hpp>
+#include "torque_vectoring/shared_datatypes/datatypes.hpp"
 
 namespace app::tv::estimation
 {
-template <typename T>
-concept DecimalOrDual = std::same_as<T, float> || std::same_as<T, double> || std::same_as<T, autodiff::dual>;
-
 class TireModel
 {
   public:
@@ -36,9 +32,11 @@ class TireModel
         };
     }
 
-    // [[nodiscard]] static float slipRatioToWheelAngularVelocity(float slip_ratio, float wheel_vel_x_mps);
-    // [[nodiscard]] float
-    //     slipRatioToWheelAngularVelocity(float slip_ratio, const shared_datatypes::VehicleState &vehicle_state) const;
+    // note that these only exist for float, dual
+    template <DecimalOrDual T>
+    [[nodiscard]] T computeCombinedFx_N(float normal_load_N, float slip_angle_rad, const T &slip_ratio) const;
+    template <DecimalOrDual T>
+    [[nodiscard]] T computeCombinedFy_N(float normal_load_N, float slip_angle_rad, const T &slip_ratio) const;
 
     struct TireFitPureParamFy
     {
@@ -124,12 +122,6 @@ class TireModel
     }
 
   private:
-    // note that these only exist for float, dual
-    template <DecimalOrDual T>
-    [[nodiscard]] T computeCombinedFx_N(float normal_load_N, float slip_angle_rad, const T &slip_ratio) const;
-    template <DecimalOrDual T>
-    [[nodiscard]] T computeCombinedFy_N(float normal_load_N, float slip_angle_rad, const T &slip_ratio) const;
-
     template <DecimalOrDual T> struct PureFxMagicFormulaCoefficients
     {
         T s_hx    = T(0.0f);
@@ -179,9 +171,6 @@ class TireModel
     static constexpr float NOMINAL_FZ_N = 750.0f;
     //-------------------------------------------------------------------- Class Helpers
     //----------------------------------------------------------------------//
-
-    [[nodiscard]] static constexpr float safeSignedDenominator(float value);
-    [[nodiscard]] static constexpr float sign(float value);
     [[nodiscard]] static constexpr float normalizedLoadDelta(float normal_load_N);
     // Reduced-model assumptions for combined slip in this pass:
     // gamma* = 0, lambda_xa = 1, lambda_yk = 1, lambda_vyk = 1, zeta_2 = 1.
