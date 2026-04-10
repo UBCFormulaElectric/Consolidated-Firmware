@@ -15,7 +15,7 @@ template <DecimalOrDual T> struct Pair
     T y;
 };
 
-template <typename T> struct wheel_set
+template <DecimalOrDual T> struct wheel_set
 {
     T fl;
     T fr;

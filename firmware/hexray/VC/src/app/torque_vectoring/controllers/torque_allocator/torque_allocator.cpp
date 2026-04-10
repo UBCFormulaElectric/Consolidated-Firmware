@@ -49,7 +49,7 @@ namespace
     //     return { .fl = 0.0f, .fr = 0.0f, .rl = 0.0f, .rr = 0.0f };
     // }
 
-    static constexpr float SQRT_W_MX = std::sqrt(W_FX);
+    static constexpr float SQRT_W_FX = std::sqrt(W_FX);
     static constexpr float SQRT_W_MZ = std::sqrt(W_MZ);
 
     // const wheel_set<float> blended_des_f_x{
