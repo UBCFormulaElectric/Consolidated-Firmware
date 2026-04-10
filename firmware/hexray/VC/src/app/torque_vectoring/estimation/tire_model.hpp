@@ -18,13 +18,8 @@ class TireModel
         Rear
     };
 
-    template <DecimalOrDual T> struct Forces
-    {
-        T fx_N;
-        T fy_N;
-    };
     template <DecimalOrDual T>
-    [[nodiscard]] Forces<T> estimate(const T &kappa, const float alpha_rad, const float fz_N) const
+    [[nodiscard]] shared_datatypes::Pair<T> estimate(const T &kappa, const float alpha_rad, const float fz_N) const
     {
         return {
             computeCombinedFx_N(fz_N, alpha_rad, kappa),

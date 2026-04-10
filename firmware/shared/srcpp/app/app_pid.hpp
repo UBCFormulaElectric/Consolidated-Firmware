@@ -52,7 +52,7 @@ class PID
         assert(sample_time > 0.0f);
     }
 
-    [[nodiscard]] float compute(const float setpoint, const float input, const float disturbance = 0.0f);
+    [[nodiscard]] float compute(float setpoint, float input, float disturbance = 0.0f);
     void                reset();
     [[nodiscard]] float getIntegral();
     [[nodiscard]] float getDerivative();

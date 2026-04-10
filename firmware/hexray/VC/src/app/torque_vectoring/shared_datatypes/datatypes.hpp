@@ -46,19 +46,24 @@ template <DecimalOrDual T> struct wheel_set<Pair<T>>
     }
 };
 
-inline float slipRatioToWheelAngularVelocity(const float slip_ratio, const float v_x_mps)
-{
-    // Avoid division by zero at very low speeds
-    if (std::fabs(v_x_mps) < vd_constants::SMALL_EPSILON)
-        return 0.0f;
-    return (1.0f + slip_ratio) * (v_x_mps / vd_constants::WHEEL_RADIUS_M);
-}
+// inline float slipRatioToWheelAngularVelocity(const float slip_ratio, const float v_x_mps)
+// {
+//     // Avoid division by zero at very low speeds
+//     if (std::fabs(v_x_mps) < vd_constants::SMALL_EPSILON)
+//         return 0.0f;
+//     return (1.0f + slip_ratio) * (v_x_mps / vd_constants::WHEEL_RADIUS_M);
+// }
 
 [[nodiscard]] inline float safe_vx(const float v_x_mps)
 {
     if (std::fabs(v_x_mps) >= vd_constants::SMALL_EPSILON)
         return v_x_mps;
     return v_x_mps < 0.0f ? -vd_constants::SMALL_EPSILON : vd_constants::SMALL_EPSILON;
+}
+
+inline float calculateSlipRatio(const float omega, const float vx)
+{
+    return (vx - omega * vd_constants::WHEEL_RADIUS_M) / safe_vx(vx);
 }
 
 struct VehicleState
@@ -72,9 +77,7 @@ struct VehicleState
     float a_y_mps2         = 0.0f;
     float pedal_percentage = 0.0f;
 
-    wheel_set<float> omegas_radps{};
-    wheel_set<float> Fxs_N{};
-    wheel_set<float> Fys_N{};
+    wheel_set<float> motorspeed_radps{};
 
     [[nodiscard]] wheel_set<float> get_tire_angle() const
     {
@@ -125,10 +128,10 @@ struct VehicleState
     {
         const auto [fl, fr, rl, rr] = v_in_tire_frame();
         return {
-            .fl = slipRatioToWheelAngularVelocity(omegas_radps.fl, fl.x),
-            .fr = slipRatioToWheelAngularVelocity(omegas_radps.fr, fr.x),
-            .rl = slipRatioToWheelAngularVelocity(omegas_radps.rl, rl.x),
-            .rr = slipRatioToWheelAngularVelocity(omegas_radps.rr, rr.x),
+            .fl = calculateSlipRatio(motorspeed_radps.fl, fl.x),
+            .fr = calculateSlipRatio(motorspeed_radps.fr, fr.x),
+            .rl = calculateSlipRatio(motorspeed_radps.rl, rl.x),
+            .rr = calculateSlipRatio(motorspeed_radps.rr, rr.x),
         };
     }
 
