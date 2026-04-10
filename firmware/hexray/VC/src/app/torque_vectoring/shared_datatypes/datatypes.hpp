@@ -9,10 +9,10 @@ concept DecimalOrDual = std::same_as<T, float> || std::same_as<T, double> || std
 
 namespace app::tv::shared_datatypes
 {
-struct Pair
+template <DecimalOrDual T> struct Pair
 {
-    float x;
-    float y;
+    T x;
+    T y;
 };
 
 template <typename T> struct wheel_set
@@ -22,13 +22,12 @@ template <typename T> struct wheel_set
     T rl;
     T rr;
 };
-
-template <> struct wheel_set<Pair>
+template <DecimalOrDual T> struct wheel_set<Pair<T>>
 {
-    Pair fl;
-    Pair fr;
-    Pair rl;
-    Pair rr;
+    Pair<T> fl;
+    Pair<T> fr;
+    Pair<T> rl;
+    Pair<T> rr;
 
     /**
      * rotates each pair in the z-axis by the respective angle in z_rot
@@ -86,9 +85,9 @@ struct VehicleState
     /**
      * @return vector of vy each in the frame of the respective tire
      */
-    wheel_set<Pair> v_in_tire_frame() const
+    wheel_set<Pair<float>> v_in_tire_frame() const
     {
-        wheel_set<Pair> v = {
+        wheel_set<Pair<float>> v = {
             {
                 v_x_mps - yaw_rate_radps * vd_constants::HALF_TRACK_M,
                 v_y_mps + yaw_rate_radps * vd_constants::DIST_FRONT_AXLE_CG_m,
@@ -218,27 +217,23 @@ struct VehicleState
     [[nodiscard]] float est_beta_rad() const { return std::atan2(v_y_mps, safe_vx(v_x_mps)); }
 
     /**
-     * @param tires_Fx_N tire longitudinal forces in Newtons
-     * @param tires_Fy_N tire lateral forces in Newtons
+     * @param tires_F_N tire forces
      * @return Given certain tire forces, what would be the resulting yaw moment Mz about the CG?
      */
-    template <DecimalOrDual T> [[nodiscard]] T est_Mz_N(wheel_set<T> tires_Fx_N, wheel_set<T> tires_Fy_N) const
+    template <DecimalOrDual T> [[nodiscard]] T est_Mz_N(wheel_set<Pair<T>> tires_F_N) const
     {
-        // tires_Fx_N.rotate(get_tire_angle());
-        // tires_Fy_N.rotate(get_tire_angle());
-
-        // contributions to moment of each tire
+        tires_F_N.rotate(get_tire_angle());
         const T fl_moment =
-            (vd_constants::DIST_FRONT_AXLE_CG_m * tires_Fy_N.fl) - (vd_constants::HALF_TRACK_M * tires_Fx_N.fl);
+            (vd_constants::DIST_FRONT_AXLE_CG_m * tires_F_N.fl.y) - (vd_constants::HALF_TRACK_M * tires_F_N.fl.x);
         const T fr_moment =
-            (vd_constants::DIST_FRONT_AXLE_CG_m * tires_Fy_N.fr) + (vd_constants::HALF_TRACK_M * tires_Fx_N.fr);
+            (vd_constants::DIST_FRONT_AXLE_CG_m * tires_F_N.fr.y) + (vd_constants::HALF_TRACK_M * tires_F_N.fr.x);
         const T rl_moment =
-            (-vd_constants::DIST_REAR_AXLE_CG_m * tires_Fy_N.rl) - (vd_constants::HALF_TRACK_M * tires_Fx_N.rl);
+            (-vd_constants::DIST_REAR_AXLE_CG_m * tires_F_N.rl.y) - (vd_constants::HALF_TRACK_M * tires_F_N.rl.x);
         const T rr_moment =
-            (-vd_constants::DIST_REAR_AXLE_CG_m * tires_Fy_N.rr) + (vd_constants::HALF_TRACK_M * tires_Fx_N.rr);
-
+            (-vd_constants::DIST_REAR_AXLE_CG_m * tires_F_N.rr.y) + (vd_constants::HALF_TRACK_M * tires_F_N.rr.x);
         return fl_moment + fr_moment + rl_moment + rr_moment;
     }
+
     /**
      * Yaw moment distribution factor Kmz (page 57)
      * Accounts for load transfer effect on yaw moment generation capacity

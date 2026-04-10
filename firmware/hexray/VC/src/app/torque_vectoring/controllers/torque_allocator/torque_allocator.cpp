@@ -89,19 +89,25 @@ namespace
         const auto [fz_fl, fz_fr, fz_rl, fz_rr]             = state.est_Fz_N();
         const auto [alpha_fl, alpha_fr, alpha_rl, alpha_rr] = state.alphas();
 
-        const wheel_set predicted_fx{
-            .fl = estimation::tire_model.computeCombinedFx_N(fz_fl, alpha_fl, kappa(0)),
-            .fr = estimation::tire_model.computeCombinedFx_N(fz_fr, alpha_fr, kappa(1)),
-            .rl = estimation::tire_model.computeCombinedFx_N(fz_rl, alpha_rl, kappa(2)),
-            .rr = estimation::tire_model.computeCombinedFx_N(fz_rr, alpha_rr, kappa(3)),
+        const wheel_set<Pair<autodiff::dual>> predicted_f{
+            {
+                estimation::tire_model.computeCombinedFx_N(fz_fl, alpha_fl, kappa(0)),
+                estimation::tire_model.computeCombinedFy_N<autodiff::dual>(fz_fl, alpha_fl, kappa(0)),
+            },
+            {
+                estimation::tire_model.computeCombinedFx_N(fz_fr, alpha_fr, kappa(1)),
+                estimation::tire_model.computeCombinedFy_N<autodiff::dual>(fz_fr, alpha_fr, kappa(1)),
+            },
+            {
+                estimation::tire_model.computeCombinedFx_N(fz_rl, alpha_rl, kappa(2)),
+                estimation::tire_model.computeCombinedFy_N<autodiff::dual>(fz_rl, alpha_rl, kappa(2)),
+            },
+            {
+                estimation::tire_model.computeCombinedFx_N(fz_rr, alpha_rr, kappa(3)),
+                estimation::tire_model.computeCombinedFy_N<autodiff::dual>(fz_rr, alpha_rr, kappa(3)),
+            },
         };
-        const wheel_set predicted_fy{
-            .fl = estimation::tire_model.computeCombinedFy_N<autodiff::dual>(fz_fl, alpha_fl, kappa(0)),
-            .fr = estimation::tire_model.computeCombinedFy_N<autodiff::dual>(fz_fr, alpha_fr, kappa(1)),
-            .rl = estimation::tire_model.computeCombinedFy_N<autodiff::dual>(fz_rl, alpha_rl, kappa(2)),
-            .rr = estimation::tire_model.computeCombinedFy_N<autodiff::dual>(fz_rr, alpha_rr, kappa(3)),
-        };
-        [[maybe_unused]] const autodiff::dual predicted_mz = state.est_Mz_N(predicted_fx, predicted_fy);
+        [[maybe_unused]] const autodiff::dual predicted_mz = state.est_Mz_N(predicted_f);
 
         DualVec5 residuals;
         // residuals(0) = autodiff::dual(sqrt_w_fx) * (predicted_fx.fl - blended_des_f_x.fl);
