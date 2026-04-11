@@ -63,7 +63,7 @@ constexpr uint8_t SUBCOMMAND_BYTES = 4; // account for the 0x3E/0x3F and 0x61 an
 // DEEPSLEEP/SLEEP Checks
 constexpr uint16_t CMD_CONTROL_STATUS    = 0x00;
 constexpr uint16_t CMD_BATTERY_STATUS    = 0x12;
-constexpr uint8_t CTRL_STATUS_DEEPSLEEP = (1 << 2);
+constexpr uint8_t  CTRL_STATUS_DEEPSLEEP = (1 << 2);
 constexpr uint16_t BAT_STATUS_SLEEP      = (1 << 15);
 
 // Security stuff
@@ -129,5 +129,5 @@ constexpr uint8_t SAFETY_C_PTO  = (1u << 2);
 constexpr uint8_t SAFETY_C_HWDF = (1u << 1);
 
 // FET stuff
-constexpr uint16_t FET_FET_OPTION = 0x9308;
+constexpr uint16_t FET_FET_OPTION  = 0x9308;
 constexpr uint16_t CMD_ALL_FETS_ON = 0x0096;

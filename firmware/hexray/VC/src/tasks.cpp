@@ -86,7 +86,7 @@
 // Define the task with StaticTask Class
 static hw::rtos::StaticTask<8096> Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz);
 static hw::rtos::StaticTask<512>  Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz);
-static hw::rtos::StaticTask<1024>  Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz);
+static hw::rtos::StaticTask<1024> Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz);
 static hw::rtos::StaticTask<512>  TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_runCanRx);
 static hw::rtos::StaticTask<512>  TaskCan1Tx(osPriorityNormal, "TaskCanTx", tasks_runCan1Tx);
 static hw::rtos::StaticTask<512>  TaskCan2Tx(osPriorityNormal, "TaskCanTx", tasks_runCan2Tx);
@@ -117,9 +117,8 @@ void tasks_init()
     jobs_init();
     osKernelInitialize();
     VC_StartAllTasks();
-    //io::batteryMonitoring::init();
+    // io::batteryMonitoring::init();
     osKernelStart();
-    
-    Error_Handler();
 
+    Error_Handler();
 }

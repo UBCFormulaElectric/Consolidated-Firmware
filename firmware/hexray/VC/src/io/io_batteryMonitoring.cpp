@@ -5,6 +5,7 @@ TODO: could perchance add a fucntion that differs from subcommands vs direct com
 */
 
 #include "hw_i2cs.hpp"
+#include "hw_gpios.hpp"
 #include "io_time.hpp"
 #include "io_batteryMonitoring.hpp"
 #include "io_batteryMonitoring_datatypes.hpp"
@@ -111,8 +112,8 @@ static std::expected<void, ErrorCode> write_transfer(uint16_t sub_cmd, std::span
     /* 3. Read 0x3E and 0x3F. If this returns 0xFF, this indicates the subcommand has not completed operation  yet. When
     the subcommand has completed, the readback will return what was originally written. Continue reading 0x3E and 0x3F
     until it returns what was written originally */
-    uint8_t low_status  = 0xFF;
-    uint8_t high_status = 0xFF;
+    uint8_t low_status   = 0xFF;
+    uint8_t high_status  = 0xFF;
     bool    subcmd_ready = false;
     for (uint32_t attempt = 0; attempt < SUBCOMMAND_READY_RETRIES; attempt++)
     {
@@ -231,10 +232,16 @@ static std::expected<void, ErrorCode> fetsInit(void)
 
 std::expected<void, ErrorCode> tick(void)
 {
+
     debug_tick_stage      = 0u;
     debug_tick_last_error = -1;
 
-    RETURN_IF_ERR(hw::i2c::bat_mon.isTargetReady());
+    auto ready = hw::i2c::bat_mon.isTargetReady();
+    if (!ready)
+    {
+        debug_tick_last_error = static_cast<int32_t>(ready.error());
+        return ready;
+    }
     debug_tick_stage = 2u;
 
     uint8_t lower_reg = 0u;
@@ -248,10 +255,11 @@ std::expected<void, ErrorCode> tick(void)
 
 std::expected<void, ErrorCode> init(void)
 {
+
     // The device exits SHUTDOWN when it detects a charger, a load detect (our batteries), changing volatge on TS pins?
     // or wake pin.
-    //io::time::delay(300);
-   RETURN_IF_ERR(hw::i2c::bat_mon.isTargetReady()); // does not CONFIRM the device is out of SHUTDOWN
+    // io::time::delay(300);
+    RETURN_IF_ERR(hw::i2c::bat_mon.isTargetReady()); // does not CONFIRM the device is out of SHUTDOWN
 
     // Check for deepsleep & wakeup if neccesary
     uint16_t control_status = 0;
@@ -260,7 +268,7 @@ std::expected<void, ErrorCode> init(void)
     {
         LOG_INFO("Battery in deepsleep mode");
         RETURN_IF_ERR(write_subcommand(CMD_WAKE_DEEPSLEEP, {})); // send the SET_CFGUPDATE()
-        //io::time::delay(300);
+        // io::time::delay(300);
     }
 
     // Check for regular sleep & wakeup if neccesary
@@ -270,7 +278,7 @@ std::expected<void, ErrorCode> init(void)
     {
         LOG_INFO("Battery in sleep mode");
         RETURN_IF_ERR(write_subcommand(CMD_WAKE_SLEEP, {}));
-        //io::time::delay(300);
+        // io::time::delay(300);
     }
     // io::time::delay(10); // Wake up delay
 
@@ -293,7 +301,7 @@ std::expected<void, ErrorCode> init(void)
         RETURN_IF_ERR(write_register_byte(REG_UPPER, static_cast<uint8_t>(SECURITY_UNSEAL_FIRST >> 8)));
         RETURN_IF_ERR(write_register_byte(REG_LOWER, static_cast<uint8_t>(SECURITY_UNSEAL_SECOND)));
         RETURN_IF_ERR(write_register_byte(REG_UPPER, static_cast<uint8_t>(SECURITY_UNSEAL_SECOND >> 8)));
-        //io::time::delay(10);
+        // io::time::delay(10);
 
         RETURN_IF_ERR(read_register_word(CMD_BATTERY_STATUS, security_state_unfiltered));
         security_state = static_cast<SecurityState>((security_state_unfiltered & 0x0300u) >> 8u);
@@ -313,7 +321,7 @@ std::expected<void, ErrorCode> init(void)
         RETURN_IF_ERR(write_register_byte(REG_LOWER, static_cast<uint8_t>(SECURITY_FULLACESS)));
         RETURN_IF_ERR(write_register_byte(REG_UPPER, static_cast<uint8_t>(SECURITY_FULLACESS >> 8)));
         // RETURN_IF_ERR(write_subcommand(full_access, {}));
-        //io::time::delay(10);
+        // io::time::delay(10);
 
         RETURN_IF_ERR(read_register_word(CMD_BATTERY_STATUS, security_state_unfiltered));
         security_state = static_cast<SecurityState>((security_state_unfiltered & 0x0300u) >> 8u);
@@ -338,7 +346,7 @@ std::expected<void, ErrorCode> init(void)
             cfgupdate_ready = true;
             break;
         }
-        //io::time::delay(1);
+        // io::time::delay(1);
     }
     if (!cfgupdate_ready)
     {
@@ -382,7 +390,7 @@ std::expected<void, ErrorCode> init(void)
 
     fetsInit();
 
-    return {}; 
+    return {};
 }
 
 /**
