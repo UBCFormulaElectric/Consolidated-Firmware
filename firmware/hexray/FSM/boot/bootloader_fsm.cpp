@@ -56,8 +56,10 @@ void bootloader_preInit(void)
     bootloader::preInit();
 }
 
-static hw::rtos::StaticTask<1024>
-    TaskRunInterface(osPriorityRealtime, "TaskRunInterface", [](void *) { bootloader::runInterfaceTask(fsm_boot_config); });
+static hw::rtos::StaticTask<1024> TaskRunInterface(
+    osPriorityRealtime,
+    "TaskRunInterface",
+    [](void *) { bootloader::runInterfaceTask(fsm_boot_config); });
 static hw::rtos::StaticTask<1024>
     TaskRunTickTask(osPriorityRealtime, "TaskRunTickTask", [](void *) { bootloader::runTickTask(fsm_boot_config); });
 static hw::rtos::StaticTask<1024>
