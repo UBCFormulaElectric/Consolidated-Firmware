@@ -87,7 +87,7 @@ namespace adbms
     {
         uint16_t vd;
         uint16_t va;
-        uint16_t : 16;
+        uint16_t vres;
     };
 
     struct __attribute__((packed)) STATC

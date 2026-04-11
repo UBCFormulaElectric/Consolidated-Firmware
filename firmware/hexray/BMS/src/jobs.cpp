@@ -118,7 +118,6 @@ void jobs_runAdbmsDiagnostics_tick() {
     LOG_IF_ERR(app::segments::configSync());
     LOG_IF_ERR(app::segments::runStatusConversion());
     LOG_IF_ERR(app::segments::runCellOpenWireCheck());
-    LOG_IF_ERR(app::segments::runThermOpenWireCheck());
 
     spi_bus_lock.give();
 
@@ -126,7 +125,7 @@ void jobs_runAdbmsDiagnostics_tick() {
 
     app::segments::broadcastStatus();
     app::segments::broadcastCellOpenWireCheck();
-    app::segments::broadcastThermOpenWireCheck();
+    
 
     adbms_app_lock.give();
 }

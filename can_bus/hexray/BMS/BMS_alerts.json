@@ -19,6 +19,14 @@
     "ModuleCommunicationError": {
       "id": 157,
       "description": "Failed to communicate with ADBMS modules."
+    },
+    "CellOpenWire": {
+      "id": 160,
+      "description": "Cell open wire detected"
+    },
+    "ThermOpenWire": {
+      "id": 161,
+      "description": "Thermistor open wire detected"
     }
   },
   "faults": {
@@ -37,6 +45,10 @@
     "ModuleCommunicationError": {
       "id": 157,
       "description": "Failed to communicate with ADBMS modules."
+    },
+    "CellOpenWire": {
+      "id": 160,
+      "description": "Cell open wire detected"
     },
     "TESTFAULT": {
       "id": 999,

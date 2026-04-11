@@ -539,6 +539,9 @@
   "Balancing": {
     "msg_id": 466,
     "cycle_time": 1000,
+    "allowed_modes": [
+      "DEBUG"
+    ],
     "description": "Info about balancing",
     "signals": {
       "BalancingState": {
@@ -3335,6 +3338,9 @@
   "BMSShdnNodeStatus": {
     "msg_id": 454,
     "cycle_time": 100,
+    "allowed_modes": [
+      "DEBUG"
+    ],
     "description": "BMS Shutdown Nodes Status",
     "signals": {
       "HVPShdnOKStatus": {
@@ -3348,6 +3354,9 @@
   "OpenWireCheck": {
     "msg_id": 477,
     "cycle_time": 100,
+    "allowed_modes": [
+      "DEBUG"
+    ],
     "description": "Open wire check status",
     "signals": {
       "OpenWireCheckStatus": {
