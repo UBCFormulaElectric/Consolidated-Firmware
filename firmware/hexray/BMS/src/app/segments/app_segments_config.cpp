@@ -31,11 +31,12 @@ void setDefaultConfig()
     }
 }
 
-void setBalanceConfig(array<array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> &balance_config, bool balancing_enabled)
+void setBalanceConfig(
+    array<array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> &balance_config,
+    bool                                                         balancing_enabled)
 {
     for (uint8_t seg = 0; seg < io::NUM_SEGMENTS; seg++)
     {
-
         auto &[reg_a, reg_b] = segment_config[seg];
         uint16_t dcc_bits    = 0U;
 
@@ -44,15 +45,17 @@ void setBalanceConfig(array<array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS
         {
             dcc_bits |= static_cast<uint16_t>((balance_config[seg][cell] ? 1U : 0U) << cell);
         }
-        if (balancing_enabled) {
+        if (balancing_enabled)
+        {
             reg_a.mute_st = 0x00;
-        } else {
+        }
+        else
+        {
             reg_a.mute_st = 0x01;
         }
 
         reg_b.dcc_1_8  = static_cast<uint8_t>(dcc_bits & 0xFF);
         reg_b.dcc_9_16 = static_cast<uint8_t>(dcc_bits >> 8 & 0xFF);
-     
     }
 }
 

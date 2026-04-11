@@ -126,7 +126,6 @@ using namespace hw::watchdog;
     {
         const uint32_t start_time = io::time::getCurrentMs();
         jobs_runAdbmsVoltages_tick();
-    
 
         // watchdog.checkIn();
         start_ticks += period_ms;
@@ -198,9 +197,12 @@ static hw::rtos::StaticTask<512> Task100Hz(osPriorityHigh, "Task100Hz", tasks_ru
 static hw::rtos::StaticTask<512> TaskCanRx(osPriorityBelowNormal, "TaskCanRx", tasks_runCanRx);
 static hw::rtos::StaticTask<512> TaskCanTx(osPriorityBelowNormal, "TaskCanTx", tasks_runCanTx);
 static hw::rtos::StaticTask<512> TaskAdbmsVoltages(osPriorityNormal, "TaskAdbmsVoltages", tasks_runAdbmsVoltages);
-static hw::rtos::StaticTask<512> TaskAdbmsFilteredVoltages(osPriorityNormal, "TaskAdbmsFilteredVoltages", tasks_runAdbmsFilteredVoltages);
-static hw::rtos::StaticTask<512> TaskAdbmsTemperatures(osPriorityNormal, "TaskAdbmsTemperatures", tasks_runAdbmsTemperatures);
-static hw::rtos::StaticTask<512> TaskAdbmsDiagnostics(osPriorityNormal, "TaskAdbmsDiagnostics", tasks_runAdbmsDiagnostics);
+static hw::rtos::StaticTask<512>
+    TaskAdbmsFilteredVoltages(osPriorityNormal, "TaskAdbmsFilteredVoltages", tasks_runAdbmsFilteredVoltages);
+static hw::rtos::StaticTask<512>
+    TaskAdbmsTemperatures(osPriorityNormal, "TaskAdbmsTemperatures", tasks_runAdbmsTemperatures);
+static hw::rtos::StaticTask<512>
+    TaskAdbmsDiagnostics(osPriorityNormal, "TaskAdbmsDiagnostics", tasks_runAdbmsDiagnostics);
 
 void BMS_StartAllTasks()
 {

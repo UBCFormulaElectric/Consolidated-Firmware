@@ -44,13 +44,13 @@ extern "C"
 #include "io_faultLatch.hpp"
 #include <io_canTx.hpp>
 
-//temp
-#include "io_adbms.hpp" 
+// temp
+#include "io_adbms.hpp"
 
-//static array<io::adbms::StatusGroups, io::NUM_SEGMENTS> stat_reg; 
+// static array<io::adbms::StatusGroups, io::NUM_SEGMENTS> stat_reg;
 static array<expected<void, ErrorCode>, io::NUM_SEGMENTS> stat_regs_success;
-static io::semaphore spi_bus_lock(true);
-static io::semaphore adbms_app_lock(true);
+static io::semaphore                                      spi_bus_lock(true);
+static io::semaphore                                      adbms_app_lock(true);
 
 // TODO: Uncomment when segments are added
 // static Semaphore isospi_bus_access_lock;
@@ -181,7 +181,8 @@ void jobs_run1kHz_tick()
     io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
 }
 
-void jobs_adbms_init() {
+void jobs_adbms_init()
+{
     app::segments::setDefaultConfig();
     LOG_IF_ERR(io::adbms::wakeup());
     LOG_IF_ERR(app::segments::configSync());
@@ -190,12 +191,12 @@ void jobs_adbms_init() {
 void jobs_runAdbmsVoltages_tick()
 {
     const bool balancing_enabled = false;
-    
+
     spi_bus_lock.take(io::MAX_TIMEOUT);
 
     LOG_IF_ERR(io::adbms::wakeup());
     LOG_IF_ERR(app::segments::configSync());
-    LOG_IF_ERR(app::segments::runVoltageConversion());  
+    LOG_IF_ERR(app::segments::runVoltageConversion());
     app::segments::balancingTick(balancing_enabled);
 
     spi_bus_lock.give();
@@ -207,12 +208,13 @@ void jobs_runAdbmsVoltages_tick()
     adbms_app_lock.give();
 }
 
-void jobs_runAdbmsFilteredVoltages_tick() {
+void jobs_runAdbmsFilteredVoltages_tick()
+{
     spi_bus_lock.take(io::MAX_TIMEOUT);
 
     LOG_IF_ERR(io::adbms::wakeup());
     LOG_IF_ERR(app::segments::configSync());
-    LOG_IF_ERR(app::segments::runFilteredVoltageConversion());  
+    LOG_IF_ERR(app::segments::runFilteredVoltageConversion());
 
     spi_bus_lock.give();
 
@@ -223,12 +225,13 @@ void jobs_runAdbmsFilteredVoltages_tick() {
     adbms_app_lock.give();
 }
 
-void jobs_runAdbmsTemperatures_tick() {
+void jobs_runAdbmsTemperatures_tick()
+{
     spi_bus_lock.take(io::MAX_TIMEOUT);
 
     LOG_IF_ERR(io::adbms::wakeup());
     LOG_IF_ERR(app::segments::configSync());
-    LOG_IF_ERR(app::segments::runAuxConversion());  
+    LOG_IF_ERR(app::segments::runAuxConversion());
 
     spi_bus_lock.give();
 
@@ -239,8 +242,8 @@ void jobs_runAdbmsTemperatures_tick() {
     adbms_app_lock.give();
 }
 
-void jobs_runAdbmsDiagnostics_tick() {
-
+void jobs_runAdbmsDiagnostics_tick()
+{
     spi_bus_lock.take(io::MAX_TIMEOUT);
 
     LOG_IF_ERR(io::adbms::wakeup());
@@ -254,7 +257,6 @@ void jobs_runAdbmsDiagnostics_tick() {
 
     app::segments::broadcastStatus();
     app::segments::broadcastCellOpenWireCheck();
-    
 
     adbms_app_lock.give();
 }

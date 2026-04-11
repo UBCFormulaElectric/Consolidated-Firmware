@@ -41,7 +41,6 @@ void readStatusReg(
         stat_regs_success.fill(ok);
         return;
     }
-    
 
     for (size_t group = 0U; group < NUM_STAT_REG_GROUPS; group++)
     {

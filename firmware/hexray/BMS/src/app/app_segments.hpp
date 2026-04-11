@@ -24,8 +24,10 @@ struct CellParam
     float   temp;
 };
 
-void                      setDefaultConfig();
-void                      setBalanceConfig(array<array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> &balance_config, bool balancing_enabled);
+void setDefaultConfig();
+void setBalanceConfig(
+    array<array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> &balance_config,
+    bool                                                         balancing_enabled);
 void                      setPwmConfig(array<array<uint8_t, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> &pwm_duty);
 void                      setThermistorConfig(ThermistorMux mux);
 expected<void, ErrorCode> configSync();

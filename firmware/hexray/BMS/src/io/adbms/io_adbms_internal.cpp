@@ -129,7 +129,6 @@ void readRegGroup(
     array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs,
     array<expected<void, ErrorCode>, NUM_SEGMENTS>      &comm_success)
 {
-
     const TxCmd                          tx_cmd{ cmd };
     array<RegGroupPayload, NUM_SEGMENTS> rx_buffer{};
 

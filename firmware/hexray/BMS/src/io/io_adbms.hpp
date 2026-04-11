@@ -14,11 +14,11 @@ inline constexpr uint8_t THERMISTORS_PER_SEGMENT = 14;
 
 namespace adbms
 {
-    inline constexpr uint8_t REG_GROUP_SIZE      = 6; // bytes
-    inline constexpr uint8_t NUM_VOLT_REG_GROUPS = 5; // A..E only (F not used; 14 cells measured)
-    inline constexpr uint8_t NUM_TEMP_REG_GROUPS = 4; // A..D only
-    inline constexpr uint8_t NUM_STAT_REG_GROUPS = 5;
-    inline constexpr uint8_t GPIOS_PER_SEGMENT   = 10;
+    inline constexpr uint8_t REG_GROUP_SIZE          = 6; // bytes
+    inline constexpr uint8_t NUM_VOLT_REG_GROUPS     = 5; // A..E only (F not used; 14 cells measured)
+    inline constexpr uint8_t NUM_TEMP_REG_GROUPS     = 4; // A..D only
+    inline constexpr uint8_t NUM_STAT_REG_GROUPS     = 5;
+    inline constexpr uint8_t GPIOS_PER_SEGMENT       = 10;
     inline constexpr uint8_t THERM_GPIOS_PER_SEGMENT = 8;
 
     /**
@@ -183,24 +183,24 @@ namespace adbms
     std::expected<void, ErrorCode> writeConfigReg(std::array<SegmentConfig, NUM_SEGMENTS> &config);
     std::expected<void, ErrorCode> writePwmReg(std::array<PWMConfig, NUM_SEGMENTS> &pwm_config);
 
-    void                           readConfigReg(
-                                  std::array<SegmentConfig, NUM_SEGMENTS>                  &configs,
-                                  std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS> &success);
-    void                           readCellVoltageReg(
-                                  std::array<std::array<uint16_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS>                       &cell_voltage_regs,
-                                  std::array<std::array<std::expected<void, ErrorCode>, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success);
-    void                           readFilteredCellVoltageReg(
-                                  std::array<std::array<uint16_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS>                       &filtered_cell_voltage_regs,
-                                  std::array<std::array<std::expected<void, ErrorCode>, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success);   
-    void                           readRedundantCellVoltageReg(
-                                  std::array<std::array<uint16_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS>                       &redundant_cell_voltage_regs,
-                                  std::array<std::array<std::expected<void, ErrorCode>, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success);                             
-    void                           readCellTempReg(
-                                  std::array<std::array<uint16_t, THERM_GPIOS_PER_SEGMENT>, NUM_SEGMENTS>                       &cell_temp_regs,
-                                  std::array<std::array<std::expected<void, ErrorCode>, THERM_GPIOS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success);
-    void                           readStatusReg(
-                                    std::array<StatusGroups, NUM_SEGMENTS>                   &stat_regs,
-                                    std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS> &stat_regs_success);
+    void readConfigReg(
+        std::array<SegmentConfig, NUM_SEGMENTS>                  &configs,
+        std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS> &success);
+    void readCellVoltageReg(
+        std::array<std::array<uint16_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS>                       &cell_voltage_regs,
+        std::array<std::array<std::expected<void, ErrorCode>, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success);
+    void readFilteredCellVoltageReg(
+        std::array<std::array<uint16_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &filtered_cell_voltage_regs,
+        std::array<std::array<std::expected<void, ErrorCode>, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success);
+    void readRedundantCellVoltageReg(
+        std::array<std::array<uint16_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &redundant_cell_voltage_regs,
+        std::array<std::array<std::expected<void, ErrorCode>, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success);
+    void readCellTempReg(
+        std::array<std::array<uint16_t, THERM_GPIOS_PER_SEGMENT>, NUM_SEGMENTS>                       &cell_temp_regs,
+        std::array<std::array<std::expected<void, ErrorCode>, THERM_GPIOS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success);
+    void readStatusReg(
+        std::array<StatusGroups, NUM_SEGMENTS>                   &stat_regs,
+        std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS> &stat_regs_success);
 
     std::expected<void, ErrorCode> baselineCells();
     std::expected<void, ErrorCode> owcCells(OpenWireSwitch owcSwitch);

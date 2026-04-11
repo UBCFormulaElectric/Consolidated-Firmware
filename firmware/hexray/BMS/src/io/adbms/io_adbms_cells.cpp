@@ -86,7 +86,6 @@ expected<void, ErrorCode> pollRedundantCellsAdcConversion()
     return unexpected(ErrorCode::TIMEOUT);
 }
 
-
 void readCellVoltageReg(
     array<array<uint16_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS>                  &cell_voltage_regs,
     array<array<expected<void, ErrorCode>, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success)
@@ -179,12 +178,12 @@ void readFilteredCellVoltageReg(
                     if (voltage == 0xFFFF || voltage == 0x8000)
                     {
                         filtered_cell_voltage_regs[seg][cell] = 0U;
-                        comm_success[seg][cell]      = std::unexpected(ErrorCode::ERROR);
+                        comm_success[seg][cell]               = std::unexpected(ErrorCode::ERROR);
                         continue;
                     }
 
                     filtered_cell_voltage_regs[seg][cell] = voltage;
-                    comm_success[seg][cell]      = {};
+                    comm_success[seg][cell]               = {};
                 }
             }
         }
@@ -231,18 +230,16 @@ void readRedundantCellVoltageReg(
                     if (voltage == 0xFFFF || voltage == 0x8000)
                     {
                         redundant_cell_voltage_regs[seg][cell] = 0U;
-                        comm_success[seg][cell]      = std::unexpected(ErrorCode::ERROR);
+                        comm_success[seg][cell]                = std::unexpected(ErrorCode::ERROR);
                         continue;
                     }
 
                     redundant_cell_voltage_regs[seg][cell] = voltage;
-                    comm_success[seg][cell]      = {};
+                    comm_success[seg][cell]                = {};
                 }
             }
         }
     }
 }
-
-
 
 } // namespace io::adbms

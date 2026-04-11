@@ -9,7 +9,6 @@ std::expected<void, ErrorCode> baselineCells()
     return sendCmd(ADCV_BASE);
 }
 
-
 std::expected<void, ErrorCode> owcCells(const OpenWireSwitch owcSwitch)
 {
     const uint16_t cmd = (owcSwitch == OpenWireSwitch::EvenChannels) ? (ADCV_BASE | OW0) : (ADCV_BASE | OW1);

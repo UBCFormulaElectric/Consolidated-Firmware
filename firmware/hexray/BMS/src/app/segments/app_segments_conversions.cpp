@@ -9,7 +9,7 @@ using namespace app::segments;
 
 // check later
 static constexpr uint8_t VOLT_CONV_TIME_MS      = 2U;
-static constexpr uint8_t AUX_CONV_TIME_MS      = 4U;
+static constexpr uint8_t AUX_CONV_TIME_MS       = 4U;
 static constexpr uint8_t OWC_CONVERSION_TIME_MS = 8U;
 
 namespace app::segments
@@ -20,8 +20,14 @@ array<array<expected<void, ErrorCode>, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>
 array<array<uint16_t, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>                  filtered_cell_voltage_regs;
 array<array<expected<void, ErrorCode>, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> filtered_cell_voltage_success;
 
-array<array<array<uint16_t, io::adbms::THERM_GPIOS_PER_SEGMENT>, io::NUM_SEGMENTS>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>                  cell_temp_regs;
-array<array<array<expected<void, ErrorCode>, io::adbms::THERM_GPIOS_PER_SEGMENT>, io::NUM_SEGMENTS>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)> cell_temp_success;
+array<
+    array<array<uint16_t, io::adbms::THERM_GPIOS_PER_SEGMENT>, io::NUM_SEGMENTS>,
+    static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
+    cell_temp_regs;
+array<
+    array<array<expected<void, ErrorCode>, io::adbms::THERM_GPIOS_PER_SEGMENT>, io::NUM_SEGMENTS>,
+    static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
+    cell_temp_success;
 
 array<array<uint16_t, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>                  cell_baseline_regs;
 array<array<expected<void, ErrorCode>, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> cell_baseline_success;
@@ -30,8 +36,8 @@ array<array<expected<void, ErrorCode>, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>
 array<array<uint16_t, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>                  cell_owc_even_regs;
 array<array<expected<void, ErrorCode>, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> cell_owc_even_success;
 
-array<io::adbms::StatusGroups, io::NUM_SEGMENTS>                                 stat_regs;
-array<expected<void, ErrorCode>, io::NUM_SEGMENTS>                               stat_success;
+array<io::adbms::StatusGroups, io::NUM_SEGMENTS>   stat_regs;
+array<expected<void, ErrorCode>, io::NUM_SEGMENTS> stat_success;
 
 expected<void, ErrorCode> runVoltageConversion()
 {
@@ -48,7 +54,6 @@ expected<void, ErrorCode> runFilteredVoltageConversion()
     io::adbms::readFilteredCellVoltageReg(filtered_cell_voltage_regs, filtered_cell_voltage_success);
     return {};
 }
-
 
 expected<void, ErrorCode> runAuxConversion()
 {
