@@ -3,13 +3,13 @@ use std::sync::Arc;
 use tokio::{select, spawn};
 use tokio::sync::{RwLock, broadcast};
 
-use super::influx_handler::run_influx_handler;
-use super::live_data_handler::run_live_data_handler;
+use crate::tasks::can_data::influx_handler::run_influx_handler;
+use crate::tasks::can_data::live_data_handler::run_live_data_handler;
 #[allow(unused_imports)]
 use crate::utils::yellow;
 use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, Task};
 use crate::tasks::telem_message::CanPayload;
-use crate::tasks::client_api::clients::Clients;
+use crate::tasks::client_api::subtable_clients::Clients;
 use crate::{vprintln};
 
 use jsoncan_rust::can_database::{CanDatabase, DecodedSignal};
