@@ -42,6 +42,8 @@ class RSMChimeraConfig : public chimera_v2::config
                 return std::cref(hw::gpio::susp_travel_rr_ocsc);
             case rsm_GpioNetName_GPIO_SUSP_TRAVEL_RL_OCSC:
                 return std::cref(hw::gpio::susp_travel_rl_ocsc);
+            case rsm_GpioNetName_GPIO_NBSPD_BRAKE_PRESSED:
+                return std::cref(hw::gpio::nbspd_brake_pressed_3v3);
             case rsm_GpioNetName_GPIO_BRAKE_OCSC_OK:
                 return std::cref(hw::gpio::brake_ocsc_ok);
             case rsm_GpioNetName_GPIO_D_P_PULLUP:
@@ -69,8 +71,6 @@ class RSMChimeraConfig : public chimera_v2::config
                 return std::cref(hw::adcs::susp_travel_rr_3v3);
             case rsm_AdcNetName_ADC_BPS_3V3:
                 return std::cref(hw::adcs::bps_3v3);
-            case rsm_AdcNetName_ADC_nBSPD_BRAKE_PRESSED:
-                return std::cref(hw::adcs::nBSPD_brake_pressed);
             default:
             case rsm_AdcNetName_ADC_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified ADC net name");
@@ -139,6 +139,7 @@ char USBD_PRODUCT_STRING_FS[] = "rsm";
 [[noreturn]] void tasks_init()
 {
     hw_hardFaultHandler_init();
+    hw::adcs::chipsInit();
     assert(hw::usb::init());
     hw::gpio::d_p_pullup.writePin(true); // enable USB D+ pullup
     osKernelInitialize();

@@ -1,9 +1,12 @@
 #include "io_tractiveSystem.hpp"
 #include "hw_adcs.hpp"
 #include "hw_gpios.hpp"
+#include "hw_hal.hpp"
 
 #include <cassert>
 #include <cmath>
+
+using namespace hw::adc;
 
 // Percent error used to compensate for resistor errors. Determined from testing with the HW
 // TODO: Test with HW to determine compensation
@@ -73,8 +76,8 @@ float getVoltage(void)
     //                Voltage Ratio x Amplifier Gain
 
     // TODO: Test differential ADC for voltage measurement
-    const float ts_vsense_P = hw::adc::ts_vsense_p.getVoltage();
-    const float ts_vsense_N = hw::adc::ts_vsense_n.getVoltage();
+    const float ts_vsense_P = ts_vsense_p.getVoltage();
+    const float ts_vsense_N = ts_vsense_n.getVoltage();
     const float ts_vsense   = ts_vsense_P - ts_vsense_N;
 
     if (ts_vsense < 0.0f)
@@ -88,9 +91,9 @@ float getVoltage(void)
     }
 }
 
-float getCurrentHighestResolution(void)
+float getCurrentHighResolution(void)
 {
-    float adc_voltage = hw::adc::ts_isense_50a.getVoltage();
+    float adc_voltage = ts_isense_50a.getVoltage();
 
     if (adc_voltage < 0.0f)
     {
@@ -141,7 +144,7 @@ float getCurrentHighestResolution(void)
 
 float getCurrentLowResolution(void)
 {
-    float adc_voltage = hw::adc::ts_isense_400a.getVoltage();
+    float adc_voltage = ts_isense_400a.getVoltage();
 
     if (adc_voltage < 0.0f)
     {

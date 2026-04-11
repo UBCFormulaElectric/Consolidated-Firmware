@@ -9,7 +9,7 @@ extern "C"
 }
 
 // Note: A few PWM still need to be configured.
-namespace hw::pwms
+namespace hw::pwm
 {
 
 /* * IMD PWM Input
@@ -44,17 +44,17 @@ void init(void)
     evse_pwm_input.init();
 }
 
-} // namespace hw::pwms
+} // namespace hw::pwm
 
 // HAL Interrupt Callback
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
-    if (htim == hw::pwms::imd_pwm_input.get_timer_handle())
+    if (htim == hw::pwm::imd_pwm_input.get_timer_handle())
     {
-        hw::pwms::imd_pwm_input.tick();
+        hw::pwm::imd_pwm_input.tick();
     }
-    else if (htim == hw::pwms::evse_pwm_input.get_timer_handle())
+    else if (htim == hw::pwm::evse_pwm_input.get_timer_handle())
     {
-        hw::pwms::evse_pwm_input.tick();
+        hw::pwm::evse_pwm_input.tick();
     }
 }

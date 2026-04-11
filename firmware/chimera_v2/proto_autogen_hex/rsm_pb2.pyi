@@ -30,6 +30,7 @@ class _GpioNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._En
     GPIO_SUSP_TRAVEL_RL_OCSC: _GpioNetName.ValueType
     GPIO_BRAKE_OCSC_OK: _GpioNetName.ValueType
     GPIO_D_P_PULLUP: _GpioNetName.ValueType
+    GPIO_NBSPD_BRAKE_PRESSED: _GpioNetName.ValueType
 
 class GpioNetName(_GpioNetName, metaclass=_GpioNetNameEnumTypeWrapper):
     ...
@@ -44,6 +45,7 @@ GPIO_SUSP_TRAVEL_RR_OCSC: GpioNetName.ValueType
 GPIO_SUSP_TRAVEL_RL_OCSC: GpioNetName.ValueType
 GPIO_BRAKE_OCSC_OK: GpioNetName.ValueType
 GPIO_D_P_PULLUP: GpioNetName.ValueType
+GPIO_NBSPD_BRAKE_PRESSED: GpioNetName.ValueType
 Global___GpioNetName: typing_extensions.TypeAlias = GpioNetName
 
 class _AdcNetName:
@@ -57,7 +59,6 @@ class _AdcNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._Enu
     ADC_SUSP_TRAVEL_RL_3V3: _AdcNetName.ValueType
     ADC_SUSP_TRAVEL_RR_3V3: _AdcNetName.ValueType
     ADC_BPS_3V3: _AdcNetName.ValueType
-    ADC_nBSPD_BRAKE_PRESSED: _AdcNetName.ValueType
 
 class AdcNetName(_AdcNetName, metaclass=_AdcNetNameEnumTypeWrapper):
     ...
@@ -66,7 +67,6 @@ ADC_LC3_OUT: AdcNetName.ValueType
 ADC_SUSP_TRAVEL_RL_3V3: AdcNetName.ValueType
 ADC_SUSP_TRAVEL_RR_3V3: AdcNetName.ValueType
 ADC_BPS_3V3: AdcNetName.ValueType
-ADC_nBSPD_BRAKE_PRESSED: AdcNetName.ValueType
 Global___AdcNetName: typing_extensions.TypeAlias = AdcNetName
 
 class _I2cNetName:

@@ -15,12 +15,14 @@ constexpr std::array<float, SIZE_OF_TEMPERATURE_LUT> lut_resistances = {
     { 32650.0f, 25390.0f, 19900.0f, 15710.0f, 12490.0f, 10000.0f, 8057.0f, 6531.0f, 5327.0f, 4369.0f, 3603.0f,
       2986.0f,  2488.0f,  2083.0f,  1752.0f,  1481.0f,  1258.0f,  1072.0f, 917.7f,  788.5f,  680.0f }
 };
-
-const app::therm::ThermistorLUT b57861s_lut(0.0f, 5.0f, lut_resistances.data(), SIZE_OF_TEMPERATURE_LUT);
 } // namespace
 
+// TODO: Consider moving around LUT/thermistor code to better fit io/app logic split.
+// Otherwise we are using app classes in io layer. Keep LUTs are also used for app_thermistors.cpp fo adbms.
 namespace io::therm
 {
+constexpr app::therm::ThermistorLUT b57861s_lut(lut_resistances.data(), 0.0f, 5.0f, SIZE_OF_TEMPERATURE_LUT);
+
 bool muxSelect(const uint8_t channel)
 {
     if (channel > 7)

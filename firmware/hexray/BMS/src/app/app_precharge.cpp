@@ -5,11 +5,8 @@
 #include "app_timer.hpp"
 #include "app_tractiveSystem.hpp"
 #include "io_irs.hpp"
-#include "app_segments.hpp"
-
 #include "app_canAlerts.hpp"
-#include "app_canTx.hpp"
-#include "app_canUtils.hpp"
+// #include "app_segments.hpp"
 
 namespace app::precharge
 {
@@ -32,6 +29,8 @@ void init()
 
 void restart()
 {
+    // Reset the failure retry cooldown timer to being idle.
+    cooldown_timer.stop();
     // Restart timers for checking if we're precharging too slow/quick.
     lower_bound_timer.restart();
     upper_bound_timer.restart();
@@ -61,17 +60,22 @@ State poll(bool precharge_for_charging)
 #define HV_SUPPLY_VOLTAGE (588.0f)
     const float threshold_voltage = HV_SUPPLY_VOLTAGE * PRECHARGE_ACC_V_THRESHOLD;
 #else
-    const float threshold_voltage = app::segments::getPackVoltage() * PRECHARGE_ACC_V_THRESHOLD;
+    // TODO: Change back if we ever get to 10 segments again
+    // const float threshold_voltage = app::segments::getPackVoltage() * PRECHARGE_ACC_V_THRESHOLD;
+    const float threshold_voltage = 400.0f * PRECHARGE_ACC_V_THRESHOLD;
 #endif
 
     const bool is_air_negative_open =
         (io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
 
+    const Timer::TimerState upper_bound_state = upper_bound_timer.updateAndGetState();
+    const Timer::TimerState lower_bound_state = lower_bound_timer.updateAndGetState();
+
     const bool is_ts_rising_slowly =
-        (ts_voltage < threshold_voltage) && (upper_bound_timer.updateAndGetState() == Timer::TimerState::EXPIRED);
+        (ts_voltage < threshold_voltage) && (upper_bound_state == Timer::TimerState::EXPIRED);
 
     const bool is_ts_rising_quickly =
-        (ts_voltage > threshold_voltage) && (lower_bound_timer.updateAndGetState() == Timer::TimerState::RUNNING);
+        (ts_voltage > threshold_voltage) && (lower_bound_state == Timer::TimerState::RUNNING);
 
     // For charging we only consider "rising slowly" as a fault; otherwise consider both.
     bool has_precharge_fault =
@@ -85,7 +89,7 @@ State poll(bool precharge_for_charging)
     }
 
     precharge_limit_exceeded = (num_precharge_failures >= MAX_PRECHARGE_ATTEMPTS);
-    app::can_tx::BMS_Info_CriticalPrechargeFailure_set(precharge_limit_exceeded);
+    app::can_alerts::infos::CriticalPrechargeFailure_set(precharge_limit_exceeded);
 
     // Fault handling
     if (has_precharge_fault)

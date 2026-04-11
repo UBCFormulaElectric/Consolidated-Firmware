@@ -1,4 +1,5 @@
 #include "io_fans.hpp"
+#include "hw_gpio.hpp"
 #include "hw_gpios.hpp"
 #include <stdint.h>
 

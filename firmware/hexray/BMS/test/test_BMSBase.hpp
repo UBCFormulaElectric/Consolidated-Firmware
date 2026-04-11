@@ -4,29 +4,36 @@
 #include "jobs.hpp"
 #include "states/app_states.hpp"
 #include "app_stateMachine.hpp"
-
-extern "C"
-{
-#include "app_canRx.h"
-#include "io_canRx.h"
-}
+#include "app_canRx.hpp"
+#include "app_canTx.hpp"
+#include "app_canUtils.hpp"
+#include "io_canRx.hpp"
 
 #define ADBMS_CONVERSION_PERIOD_MS (1000U)
 
 using namespace app::states;
+using namespace app::can_utils;
 
 class BMSBaseTest : public EcuTestBase
 {
   protected:
     void board_setup() override
     {
-        fakes::faultLatches::resetFaultLatch(&bms_ok_latch);
-        fakes::faultLatches::resetFaultLatch(&imd_ok_latch);
-        fakes::faultLatches::resetFaultLatch(&bspd_ok_latch);
-        fakes::faultLatches::setCurrentStatus_resetCallCounts();
+        fakes::faultLatch::resetFaultLatch(&io::faultLatch::bms_ok_latch);
+        fakes::faultLatch::resetFaultLatch(&io::faultLatch::imd_ok_latch);
+        fakes::faultLatch::resetFaultLatch(&io::faultLatch::bspd_ok_latch);
+        fakes::faultLatch::setCurrentStatus_resetCallCounts();
+        fakes::charger::setConnectionStatus(ChargerConnectedType::CHARGER_DISCONNECTED);
 
-        fakes::segments::setPackVoltageEvenly(3.8f * NUM_SEGMENTS * CELLS_PER_SEGMENT);
+        app::can_rx::VC_State_update(VCState::VC_INIT_STATE);
+        app::can_tx::BMS_Fault_TESTFAULT_set(false);
+
+        // TODO: Change back to using constants once segments is added
+        // fakes::segments::setPackVoltageEvenly(3.8f * NUM_SEGMENTS * CELLS_PER_SEGMENT);
+        fakes::segments::setPackVoltageEvenly(3.8f * 10 * 14);
         fakes::segments::SetAuxRegs(15.0f); // Approx. 25C
+
+        fakes::ts::setVoltage(0.0f);
 
         jobs_init();
         // jobs_initAdbmsVoltages();
@@ -58,10 +65,13 @@ class BMSBaseTest : public EcuTestBase
     }
     void SetImdCondition(const ImdConditionName condition_name)
     {
-        const std::map<ImdConditionName, float> mapping{
-            { IMD_CONDITION_SHORT_CIRCUIT, 0.0f },          { IMD_CONDITION_NORMAL, 10.0f },
-            { IMD_CONDITION_UNDERVOLTAGE_DETECTED, 20.0f }, { IMD_CONDITION_SST, 30.0f },
-            { IMD_CONDITION_DEVICE_ERROR, 40.0f },          { IMD_CONDITION_GROUND_FAULT, 50.0f }
+        const std::map<app::can_utils::ImdConditionName, float> mapping{
+            { ImdConditionName::IMD_CONDITION_SHORT_CIRCUIT, 0.0f },
+            { ImdConditionName::IMD_CONDITION_NORMAL, 10.0f },
+            { ImdConditionName::IMD_CONDITION_UNDERVOLTAGE_DETECTED, 20.0f },
+            { ImdConditionName::IMD_CONDITION_SST, 30.0f },
+            { ImdConditionName::IMD_CONDITION_DEVICE_ERROR, 40.0f },
+            { ImdConditionName::IMD_CONDITION_GROUND_FAULT, 50.0f }
         };
         fakes::imd::setFrequency(mapping.at(condition_name));
     }
@@ -76,14 +86,14 @@ struct StateMetadata
 };
 
 constexpr inline std::array<StateMetadata, 10> state_metadata = { {
-    { &init_state, BMS_INIT_STATE, false, false },
-    { &fault_state, BMS_FAULT_STATE, false, true },
-    { &precharge_drive_state, BMS_PRECHARGE_DRIVE_STATE, true, false },
-    { &drive_state, BMS_DRIVE_STATE, true, false },
-    { &balancing_state, BMS_BALANCING_STATE, true, false },
-    { &precharge_latch_state, BMS_PRECHARGE_LATCH_STATE, true, false },
-    { &precharge_charge_state, BMS_PRECHARGE_CHARGE_STATE, true, false },
-    { &charge_state, BMS_CHARGE_STATE, true, false },
-    { &charge_init_state, BMS_CHARGE_INIT_STATE, true, false },
-    { &charge_fault_state, BMS_CHARGE_FAULT_STATE, true, false },
+    { &init_state, BmsState::BMS_INIT_STATE, false, false },
+    { &fault_state, BmsState::BMS_FAULT_STATE, false, true },
+    { &precharge_drive_state, BmsState::BMS_PRECHARGE_DRIVE_STATE, true, false },
+    { &drive_state, BmsState::BMS_DRIVE_STATE, true, false },
+    { &balancing_state, BmsState::BMS_BALANCING_STATE, true, false },
+    { &precharge_latch_state, BmsState::BMS_PRECHARGE_LATCH_STATE, true, false },
+    { &precharge_charge_state, BmsState::BMS_PRECHARGE_CHARGE_STATE, true, false },
+    { &charge_state, BmsState::BMS_CHARGE_STATE, true, false },
+    { &charge_init_state, BmsState::BMS_CHARGE_INIT_STATE, true, false },
+    { &charge_fault_state, BmsState::BMS_CHARGE_FAULT_STATE, true, false },
 } };

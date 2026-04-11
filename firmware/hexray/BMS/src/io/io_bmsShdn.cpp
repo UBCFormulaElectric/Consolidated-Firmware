@@ -1,8 +1,6 @@
 #include "io_bmsShdn.hpp"
 #include "hw_gpios.hpp"
 
-using namespace hw;
-
 namespace io::shdn
 {
 

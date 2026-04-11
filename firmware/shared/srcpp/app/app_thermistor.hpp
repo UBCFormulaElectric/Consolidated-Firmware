@@ -1,4 +1,6 @@
 #pragma once
+#include "app_math.hpp"
+
 #include <cstddef>
 #include <cstdint>
 #include <cassert>
@@ -13,21 +15,33 @@ namespace therm
       public:
         // Construct from explicit pointer + size
         constexpr ThermistorLUT(
+            const float *resistances,
             float        starting_temp,
             float        resolution,
-            const float *resistances,
             std::size_t  size) noexcept
-          : starting_temp_(starting_temp), resolution_(resolution), resistances_(resistances), size_((uint16_t)size)
+          : resistances_(resistances),
+            starting_temp_(starting_temp),
+            resolution_(resolution),
+            size_((size <= 0xFFFFU) ? (uint16_t)size : 0U),
+            valid_((size <= 0xFFFFU) && isNonIncreasing(resistances, size))
         {
             // Runtime check because `size` is not a compile-time constant here
             assert(size <= 0xFFFF && "LUT too large for uint16_t size");
+
+            assert(valid_ && "Thermistor LUT must be non-increasing");
         }
 
         template <std::size_t N>
-        constexpr explicit ThermistorLUT(float starting_temp, float resolution, const float (&arr)[N]) noexcept
-          : starting_temp_(starting_temp), resolution_(resolution), resistances_(arr), size_((uint16_t)N)
+        constexpr explicit ThermistorLUT(const float (&arr)[N], float starting_temp, float resolution) noexcept
+          : resistances_(arr),
+            starting_temp_(starting_temp),
+            resolution_(resolution),
+            size_((uint16_t)N),
+            valid_(isNonIncreasing(arr, N))
         {
             static_assert(N <= 0xFFFF, "LUT too large for uint16_t size");
+
+            assert(valid_ && "Thermistor LUT must be non-increasing");
         }
 
         /**
@@ -38,7 +52,7 @@ namespace therm
          */
         float resistanceToTemp(float thermistor_resistance) const noexcept
         {
-            if (resistances_ == nullptr || size_ == 0U)
+            if (!valid_ || resistances_ == nullptr || size_ == 0U)
                 return -1.0f;
 
             // Guard against NaN/inf inputs
@@ -48,7 +62,7 @@ namespace therm
             // Handle trivial single-entry LUT safely
             if (size_ == 1U)
             {
-                return std::fabs(thermistor_resistance - resistances_[0]) < 1e-6f ? starting_temp_ : -1.0f;
+                return APPROX_EQUAL_FLOAT(thermistor_resistance, resistances_[0], 0.0001f) ? starting_temp_ : -1.0f;
             }
 
             // Ensure resistance is within bounds: resistances[0] is highest, resistances[size-1] is lowest
@@ -59,7 +73,7 @@ namespace therm
 
             // Binary search for insertion point
             uint16_t low_index  = 0U;
-            uint16_t high_index = (uint16_t)(size_ - 1U);
+            uint16_t high_index = static_cast<uint16_t>(size_ - 1);
 
             // Ensure low and high are a range for interpolation
             while (high_index > low_index + 1U)
@@ -93,7 +107,7 @@ namespace therm
             const float x1 = starting_temp_ + (float)(therm_lut_index + 1U) * resolution_;
 
             // guard against degenerate LUT entries
-            if (std::fabs(y2 - y1) < 1e-9f)
+            if (APPROX_EQUAL_FLOAT(y2 - y1, 0.0f, 0.0001f))
                 return x1;
 
             return (thermistor_resistance - y1) * ((x2 - x1) / (y2 - y1)) + x1;
@@ -104,12 +118,28 @@ namespace therm
         constexpr float        resolution() const noexcept { return resolution_; }
         constexpr const float *resistances() const noexcept { return resistances_; }
         constexpr std::size_t  size() const noexcept { return size_; }
+        constexpr bool         valid() const noexcept { return valid_; }
 
       private:
+        static constexpr bool isNonIncreasing(const float *resistances, std::size_t size) noexcept
+        {
+            if (resistances == nullptr || size <= 1U)
+                return true;
+
+            for (std::size_t i = 1U; i < size; ++i)
+            {
+                if (!(resistances[i - 1U] >= resistances[i]))
+                    return false;
+            }
+
+            return true;
+        }
+
+        const float   *resistances_;
         const float    starting_temp_;
         const float    resolution_;
-        const float   *resistances_;
         const uint16_t size_;
+        const bool     valid_;
     };
 } // namespace therm
 } // namespace app

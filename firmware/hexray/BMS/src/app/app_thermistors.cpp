@@ -2,8 +2,9 @@
 #include "app_thermistor.hpp"
 
 #define ADBMS_THERMISTOR_LUT_SIZE 201U
-
-static constexpr std::array<const float, ADBMS_THERMISTOR_LUT_SIZE> adbms_ntc10k_lut_buffer = {
+namespace
+{
+constexpr std::array<const float, ADBMS_THERMISTOR_LUT_SIZE> adbms_ntc10k_lut_buffer = {
     { 29239.8f, 28571.6f, 27920.7f, 27286.6f, 26668.8f, 26066.9f, 25480.3f, 24908.8f, 24351.8f, 23808.9f, 23279.8f,
       22764.0f, 22261.2f, 21771.0f, 21293.0f, 20827.0f, 20372.5f, 19929.4f, 19497.2f, 19075.6f, 18664.4f, 18263.3f,
       17872.0f, 17490.3f, 17117.8f, 16754.3f, 16399.7f, 16053.6f, 15715.8f, 15386.1f, 15064.3f, 14750.1f, 14443.4f,
@@ -24,8 +25,8 @@ static constexpr std::array<const float, ADBMS_THERMISTOR_LUT_SIZE> adbms_ntc10k
       1035.7f,  1021.5f,  1007.6f,  993.9f,   980.4f,   967.2f,   954.1f,   941.3f,   928.6f,   916.2f,   903.9f,
       891.9f,   880.0f,   868.4f }
 };
-
+}
 namespace app::therm
 {
-constexpr ThermistorLUT adbms_ntc10k_lut(0.0f, 0.5f, adbms_ntc10k_lut_buffer.data(), adbms_ntc10k_lut_buffer.size());
+constexpr ThermistorLUT adbms_ntc10k_lut{ adbms_ntc10k_lut_buffer.data(), 0, 0.5f, adbms_ntc10k_lut_buffer.size() };
 } // namespace app::therm

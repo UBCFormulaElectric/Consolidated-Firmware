@@ -33,7 +33,6 @@ void broadcast()
     can_tx::RSM_GyroX_set(imu_results.gyro_x_res.value_or(0.0f));
     can_tx::RSM_GyroY_set(imu_results.gyro_y_res.value_or(0.0f));
     can_tx::RSM_GyroZ_set(imu_results.gyro_z_res.value_or(0.0f));
-
     can_alerts::warnings::ImuDataBad_set(imu_results.hasFault());
 }
 } // namespace app::imu

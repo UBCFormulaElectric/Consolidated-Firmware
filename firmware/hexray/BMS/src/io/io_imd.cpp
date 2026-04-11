@@ -2,21 +2,21 @@
 #include "io_time.hpp"
 #include "hw_pwms.hpp"
 
+using namespace hw::pwm;
+
 namespace io::imd
 {
 float getFrequency()
 {
-    if (!hw::pwms::imd_pwm_input.pwm_isActive())
-    {
-        return 0.0f;
-    }
+    // Frequency set to 0Hz if the signal is DC or not present, as per pwm input driver.
+    imd_pwm_input.pwm_isActive();
 
-    return hw::pwms::imd_pwm_input.get_frequency();
+    return imd_pwm_input.get_frequency();
 }
 
 float getDutyCycle()
 {
-    return hw::pwms::imd_pwm_input.get_dutyCycle();
+    return imd_pwm_input.get_dutyCycle();
 }
 
 uint32_t getTimeSincePowerOn()

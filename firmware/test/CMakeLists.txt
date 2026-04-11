@@ -78,9 +78,13 @@ function(compile_gtest_executable
         target_compile_options(${TEST_EXECUTABLE_NAME}
                 PRIVATE
                 ${SHARED_GNU_COMPILER_CHECKS_STRICT}
+                -Wno-format-security
+                -Wno-format-nonliteral
         )
-        target_compile_options(${TEST_EXECUTABLE_NAME} PRIVATE --coverage)
-        target_link_libraries(${TEST_EXECUTABLE_NAME} PRIVATE gcov)
+        if (NOT WIN32)
+            target_compile_options(${TEST_EXECUTABLE_NAME} PRIVATE --coverage)
+            target_link_libraries(${TEST_EXECUTABLE_NAME} PRIVATE gcov)
+        endif ()
     else ()
         message(WARNING "  ⚠️ Unsupported compiler for test executable ${TEST_EXECUTABLE_NAME}")
     endif ()

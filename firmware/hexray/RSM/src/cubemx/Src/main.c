@@ -24,6 +24,7 @@
 #include "tasks.h"
 #include <stm32h5xx_hal.h>
 #include <stm32h5xx_hal_gpio.h>
+#include "hw_error.hpp"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -57,6 +58,7 @@ TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim3;
 
 PCD_HandleTypeDef hpcd_USB_DRD_FS;
+
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -221,7 +223,7 @@ static void MX_ADC1_Init(void)
     hadc1.Init.EOCSelection          = ADC_EOC_SEQ_CONV;
     hadc1.Init.LowPowerAutoWait      = DISABLE;
     hadc1.Init.ContinuousConvMode    = DISABLE;
-    hadc1.Init.NbrOfConversion       = 5;
+    hadc1.Init.NbrOfConversion       = 4;
     hadc1.Init.DiscontinuousConvMode = DISABLE;
     hadc1.Init.ExternalTrigConv      = ADC_EXTERNALTRIG_T3_TRGO;
     hadc1.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_RISING;
@@ -249,8 +251,9 @@ static void MX_ADC1_Init(void)
 
     /** Configure Regular Channel
      */
-    sConfig.Channel = ADC_CHANNEL_19;
-    sConfig.Rank    = ADC_REGULAR_RANK_2;
+    sConfig.Channel      = ADC_CHANNEL_19;
+    sConfig.Rank         = ADC_REGULAR_RANK_2;
+    sConfig.SamplingTime = ADC_SAMPLETIME_47CYCLES_5;
     if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
     {
         Error_Handler();
@@ -269,15 +272,6 @@ static void MX_ADC1_Init(void)
      */
     sConfig.Channel = ADC_CHANNEL_12;
     sConfig.Rank    = ADC_REGULAR_RANK_4;
-    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-    {
-        Error_Handler();
-    }
-
-    /** Configure Regular Channel
-     */
-    sConfig.Channel = ADC_CHANNEL_14;
-    sConfig.Rank    = ADC_REGULAR_RANK_5;
     if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
     {
         Error_Handler();
@@ -343,7 +337,7 @@ static void MX_GPDMA1_Init(void)
     __HAL_RCC_GPDMA1_CLK_ENABLE();
 
     /* GPDMA1 interrupt Init */
-    HAL_NVIC_SetPriority(GPDMA1_Channel0_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(GPDMA1_Channel0_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(GPDMA1_Channel0_IRQn);
 
     /* USER CODE BEGIN GPDMA1_Init 1 */
@@ -467,7 +461,7 @@ static void MX_TIM1_Init(void)
     htim1.Instance               = TIM1;
     htim1.Init.Prescaler         = TIM1_PRESCALER - 1;
     htim1.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim1.Init.Period            = 9999;
+    htim1.Init.Period            = 999;
     htim1.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim1.Init.RepetitionCounter = 0;
     htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -618,8 +612,8 @@ static void MX_GPIO_Init(void)
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
 
-    /*Configure GPIO pins : BRAKE_OCSC_OK_3V3_Pin SUSP_TRAVEL_RL_OCSC_Pin */
-    GPIO_InitStruct.Pin  = BRAKE_OCSC_OK_3V3_Pin | SUSP_TRAVEL_RL_OCSC_Pin;
+    /*Configure GPIO pins : NBSPD_BRAKE_PRESSED_3V3_Pin BRAKE_OCSC_OK_3V3_Pin SUSP_TRAVEL_RL_OCSC_Pin */
+    GPIO_InitStruct.Pin  = NBSPD_BRAKE_PRESSED_3V3_Pin | BRAKE_OCSC_OK_3V3_Pin | SUSP_TRAVEL_RL_OCSC_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);

@@ -28,7 +28,7 @@ class _GpioNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._En
     GPIO_MSD_SHDN_SNS: _GpioNetName.ValueType
     GPIO_HV_P_INTLCK_SNS: _GpioNetName.ValueType
     GPIO_HV_N_INTLCK_SNS: _GpioNetName.ValueType
-    GPIO_IMD_LATCH: _GpioNetName.ValueType
+    GPIO_nIMD_LATCH: _GpioNetName.ValueType
     GPIO_DIAG: _GpioNetName.ValueType
     GPIO_SD_CD: _GpioNetName.ValueType
     GPIO_LEDR: _GpioNetName.ValueType
@@ -66,7 +66,7 @@ GPIO_nHIGH_CURRENT_BSPD: GpioNetName.ValueType
 GPIO_MSD_SHDN_SNS: GpioNetName.ValueType
 GPIO_HV_P_INTLCK_SNS: GpioNetName.ValueType
 GPIO_HV_N_INTLCK_SNS: GpioNetName.ValueType
-GPIO_IMD_LATCH: GpioNetName.ValueType
+GPIO_nIMD_LATCH: GpioNetName.ValueType
 GPIO_DIAG: GpioNetName.ValueType
 GPIO_SD_CD: GpioNetName.ValueType
 GPIO_LEDR: GpioNetName.ValueType

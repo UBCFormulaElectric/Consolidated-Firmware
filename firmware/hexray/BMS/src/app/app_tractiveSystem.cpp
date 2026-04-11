@@ -3,15 +3,14 @@
 #include "app_math.hpp"
 #include "io_tractiveSystem.hpp"
 #include "app_canTx.hpp"
+#include "app_canAlerts.hpp"
 
 #define HIGH_RES_MAX_CURRENT_READING 50.0f
 #define W_TO_KW 1.0e-3f
 
-using namespace app;
 namespace app::ts
 {
-
-static Timer overcurrent_warning_timer(TS_OVERCURRENT_DEBOUNCE_DURATION_MS);
+static Timer overcurrent_warning_timer{ TS_OVERCURRENT_DEBOUNCE_DURATION_MS };
 
 float getVoltage()
 {
@@ -40,16 +39,15 @@ void broadcast()
 
     const bool ts_voltage_sns_diag_state = io::ts::getVoltageSnsDiagState();
     const bool ts_current_sns_diag_state = io::ts::getCurrentSnsDiagState();
-    // const bool ts_overcurrent_warning =
-    // overcurrent_warning_timer.runIfCondition(!IS_IN_RANGE(MAX_TS_DISCHARGE_CURRENT_AMPS, MAX_TS_CHARGE_CURRENT_AMPS,
-    // ts_current)) == Timer::TimerState::RUNNING;
+    const bool ts_overcurrent_warning =
+        overcurrent_warning_timer.runIfCondition(!IS_IN_RANGE(
+            MAX_TS_DISCHARGE_CURRENT_AMPS, MAX_TS_CHARGE_CURRENT_AMPS, ts_current)) == Timer::TimerState::RUNNING;
 
     app::can_tx::BMS_TractiveSystemVoltage_set(ts_voltage);
     app::can_tx::BMS_TractiveSystemCurrent_set(ts_current);
     app::can_tx::BMS_TractiveSystemPower_set(ts_power_kw);
     app::can_tx::BMS_VoltageSensorOk_set(ts_voltage_sns_diag_state);
     app::can_tx::BMS_CurrentSensorOk_set(ts_current_sns_diag_state);
-    // app::can_tx::BMS_Warning_TsOvercurrent_set(ts_overcurrent_warning);
+    app::can_alerts::warnings::TsOvercurrent_set(ts_overcurrent_warning);
 }
-
 } // namespace app::ts

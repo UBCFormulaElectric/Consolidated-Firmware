@@ -112,7 +112,6 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         /**ADC1 GPIO Configuration
         PC2     ------> ADC1_INP12
         PA0     ------> ADC1_INP0
-        PA2     ------> ADC1_INP14
         PA5     ------> ADC1_INP19
         PA6     ------> ADC1_INP3
         */
@@ -121,8 +120,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(BPS_R_3V3_GPIO_Port, &GPIO_InitStruct);
 
-        GPIO_InitStruct.Pin =
-            LC3_OUT_Pin | nBSPD_BRAKE_PRESSED_3V3_Pin | SUSP_TRAVEL_RL_3V3_Pin | SUSP_TRAVEL_RR_3V3_Pin;
+        GPIO_InitStruct.Pin  = LC3_OUT_Pin | SUSP_TRAVEL_RL_3V3_Pin | SUSP_TRAVEL_RR_3V3_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -134,7 +132,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         NodeConfig.Init.BlkHWRequest                = DMA_BREQ_SINGLE_BURST;
         NodeConfig.Init.Direction                   = DMA_PERIPH_TO_MEMORY;
         NodeConfig.Init.SrcInc                      = DMA_SINC_FIXED;
-        NodeConfig.Init.DestInc                     = DMA_DINC_FIXED;
+        NodeConfig.Init.DestInc                     = DMA_DINC_INCREMENTED;
         NodeConfig.Init.SrcDataWidth                = DMA_SRC_DATAWIDTH_HALFWORD;
         NodeConfig.Init.DestDataWidth               = DMA_DEST_DATAWIDTH_HALFWORD;
         NodeConfig.Init.SrcBurstLength              = 1;
@@ -184,7 +182,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         }
 
         /* ADC1 interrupt Init */
-        HAL_NVIC_SetPriority(ADC1_IRQn, 0, 0);
+        HAL_NVIC_SetPriority(ADC1_IRQn, 5, 0);
         HAL_NVIC_EnableIRQ(ADC1_IRQn);
         /* USER CODE BEGIN ADC1_MspInit 1 */
 
@@ -211,14 +209,12 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
         /**ADC1 GPIO Configuration
         PC2     ------> ADC1_INP12
         PA0     ------> ADC1_INP0
-        PA2     ------> ADC1_INP14
         PA5     ------> ADC1_INP19
         PA6     ------> ADC1_INP3
         */
         HAL_GPIO_DeInit(BPS_R_3V3_GPIO_Port, BPS_R_3V3_Pin);
 
-        HAL_GPIO_DeInit(
-            GPIOA, LC3_OUT_Pin | nBSPD_BRAKE_PRESSED_3V3_Pin | SUSP_TRAVEL_RL_3V3_Pin | SUSP_TRAVEL_RR_3V3_Pin);
+        HAL_GPIO_DeInit(GPIOA, LC3_OUT_Pin | SUSP_TRAVEL_RL_3V3_Pin | SUSP_TRAVEL_RR_3V3_Pin);
 
         /* ADC1 DMA DeInit */
         HAL_DMA_DeInit(hadc->DMA_Handle);
@@ -531,7 +527,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim_base)
         /* Peripheral clock enable */
         __HAL_RCC_TIM3_CLK_ENABLE();
         /* TIM3 interrupt Init */
-        HAL_NVIC_SetPriority(TIM3_IRQn, 0, 0);
+        HAL_NVIC_SetPriority(TIM3_IRQn, 5, 0);
         HAL_NVIC_EnableIRQ(TIM3_IRQn);
         /* USER CODE BEGIN TIM3_MspInit 1 */
 

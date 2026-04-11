@@ -14,6 +14,7 @@ enum GpioNetName {
   GPIO_SUSP_TRAVEL_RL_OCSC = 8;
   GPIO_BRAKE_OCSC_OK = 9;
   GPIO_D_P_PULLUP = 10;
+  GPIO_NBSPD_BRAKE_PRESSED = 11;
 }
 
 enum AdcNetName {
@@ -22,7 +23,6 @@ enum AdcNetName {
   ADC_SUSP_TRAVEL_RL_3V3 = 2;
   ADC_SUSP_TRAVEL_RR_3V3 = 3; 
   ADC_BPS_3V3 = 4;
-  ADC_nBSPD_BRAKE_PRESSED = 5;
 }
 
 enum I2cNetName {

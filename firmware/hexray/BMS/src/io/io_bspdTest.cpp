@@ -22,5 +22,4 @@ bool isAccelBrakeOk(void)
 {
     return accel_brake_ok.readPin();
 }
-
 } // namespace io::bspdtest

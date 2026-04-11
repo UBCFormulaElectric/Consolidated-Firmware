@@ -17,17 +17,21 @@ class node
   public:
 #ifdef TARGET_EMBEDDED
     explicit node(const hw::Gpio &in_pin_in, void (*in_can_broadcast)(bool))
-      : pin(in_pin_in), can_broadcast(in_can_broadcast)
+      : can_broadcast(in_can_broadcast), pin(in_pin_in)
     {
     }
-#else
-    explicit node(void (*in_can_broadcast)(bool)) : can_broadcast(in_can_broadcast) {}
-    explicit node(bool in_status, void (*in_can_broadcast)(bool)) : status(in_status), can_broadcast(in_can_broadcast)
+#elif TARGET_TEST
+  private:
+    bool status;
+
+  public:
+    explicit node(bool in_status, void (*in_can_broadcast)(bool)) : can_broadcast(in_can_broadcast), status(in_status)
     {
     }
+    void set_status(bool in_status);
 #endif
 
-    void               set_status(bool in_status);
+  public:
     [[nodiscard]] bool is_ok() const;
     void               broadcast() const;
 };

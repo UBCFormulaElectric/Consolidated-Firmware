@@ -2,9 +2,18 @@
 
 namespace app::irs
 {
+// Strictly externally linked for unit testing purposes
+constexpr uint8_t N_DEBOUNCE_PERIOD_MS = 200;
 
 /**
- * Broadcast IRs status over CAN.
+ * @brief Checks if the negative contactor has been opened for at least the debounce period.
+ *
+ * @return true if the negative contactor has been opened for at least the debounce period, false otherwise.
+ */
+bool negativeOpenedDebounced();
+
+/**
+ *  @brief Broadcast IRs status over CAN.
  */
 void broadcast();
 } // namespace app::irs
