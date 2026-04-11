@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y \
     pkg-config \
     libudev-dev
 
-COPY software/tracksight/rust_backend/Cargo.toml software/tracksight/rust_backend/Cargo.lock .
+COPY software/tracksight/rust_backend/Cargo.toml .
 COPY software/tracksight/rust_backend/src src
 
 RUN cargo build --release
