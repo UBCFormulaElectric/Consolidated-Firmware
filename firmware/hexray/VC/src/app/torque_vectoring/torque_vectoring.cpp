@@ -1,8 +1,8 @@
 #include "torque_vectoring.hpp"
 
 #include "torque_vectoring/estimation/vehicle_state_estimator.hpp"
-#include "torque_vectoring/controllers/yaw_rate_control/controllers_dyrc.hpp"
-#include "torque_vectoring/controllers/torque_allocator/torque_allocator.hpp"
+#include "torque_vectoring/controllers/controllers_dyrc.hpp"
+#include "torque_vectoring/controllers/torque_allocator.hpp"
 #include "torque_vectoring/shared_datatypes/constants.hpp"
 #include "torque_vectoring/shared_datatypes/datatypes.hpp"
 
