@@ -45,17 +45,17 @@ void update()
     app::can_tx::VC_ChannelOneVoltage_set(ch1_voltage);
     app::can_tx::VC_ChannelTwoVoltage_set(ch2_voltage);
     app::can_tx::VC_ChannelThreeVoltage_set(ch3_voltage);
-    app::can_tx::VC_ChannelFourVoltage_set(ch3_voltage);
+    app::can_tx::VC_ChannelFourVoltage_set(ch4_voltage);
 
     app::can_tx::VC_ChannelOneCurrent_set(ch1_current);
     app::can_tx::VC_ChannelTwoCurrent_set(ch2_current);
     app::can_tx::VC_ChannelThreeCurrent_set(ch3_current);
-    app::can_tx::VC_ChannelFourCurrent_set(ch3_current);
+    app::can_tx::VC_ChannelFourCurrent_set(ch4_current);
 
     app::can_tx::VC_ChannelOnePower_set(ch1_power);
     app::can_tx::VC_ChannelTwoPower_set(ch2_power);
     app::can_tx::VC_ChannelThreePower_set(ch3_power);
-    app::can_tx::VC_ChannelFourPower_set(ch3_power);
+    app::can_tx::VC_ChannelFourPower_set(ch4_power);
 }
 
 } // namespace app::powerMonitoring

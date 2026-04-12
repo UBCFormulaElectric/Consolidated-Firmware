@@ -18,9 +18,7 @@ namespace
         {
             if (sequencing_timer_.updateAndGetState() != app::Timer::TimerState::IDLE)
                 break;
-            io::Efuse *efuse = efuses_[ch];
-            assert(efuse != nullptr);
-
+            io::Efuse *efuse   = efuses_[ch];
             const bool desired = state_.efuse_configs[ch].efuse_enable;
             const bool actual  = efuse->isChannelEnabled();
 
@@ -50,7 +48,7 @@ namespace
 
 void init()
 {
-    static const std::array<io::Efuse *, NUM_EFUSE_CHANNELS> &efuses = { {
+    static const std::array<io::Efuse *, NUM_EFUSE_CHANNELS> efuses = { {
         &rr_pump_efuse,
         &rl_pump_efuse,
         &r_rad_fan_efuse,
@@ -66,8 +64,9 @@ void init()
     for (auto *e : efuses)
     {
         assert(e != nullptr);
-        efuses_ = efuses;
     }
+
+    efuses_ = efuses;
 }
 
 void updateConfig(const PowerManagerConfig &new_cfg)

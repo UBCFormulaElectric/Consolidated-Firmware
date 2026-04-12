@@ -10,28 +10,43 @@ class VCSbgEllipsesTest : public VCBaseTest
 {
 };
 
-// Testing broadcating
-TEST_F(VCSbgEllipsesTest, test_broadcast) {
+TEST_F(VCSbgEllipsesTest, test_broadcast)
+{
+    io::sbgEllipse::setGeneralStatus(0x1234u);
+    io::sbgEllipse::setComStatus(0x56789ABCu);
+    io::sbgEllipse::setOverflowCount(7u);
+    io::sbgEllipse::setTimestampUs(424242u);
+    io::sbgEllipse::setVelocity(9u, 1.25f, -2.5f, 3.75f, 0.1f, 0.2f, 0.3f);
+    io::sbgEllipse::setSolutionMode(2u);
+    io::sbgEllipse::setAttitude(0.4f, -0.5f, 1.6f);
+
     app::sbgEllipse::broadcast();
-    ASSERT_FLOAT_EQ(0.0f, app::can_tx::VC_VelocityNorth_get());
-    ASSERT_FLOAT_EQ(0.0f, app::can_tx::VC_VelocityEast_get());
-    ASSERT_FLOAT_EQ(0.0f, app::can_tx::VC_VelocityDown_get());
+
+    ASSERT_EQ(0x1234u, app::can_tx::VC_EllipseGeneralStatusBitmask_get());
+    ASSERT_EQ(0x56789ABCu, app::can_tx::VC_EllipseComStatusBitmask_get());
+    ASSERT_EQ(7u, app::can_tx::VC_EllipseQueueOverflowCount_get());
+    ASSERT_EQ(424242u, app::can_tx::VC_EllipseTimestamp_get());
+    ASSERT_FLOAT_EQ(1.25f, app::can_tx::VC_VelocityNorth_get());
+    ASSERT_FLOAT_EQ(-2.5f, app::can_tx::VC_VelocityEast_get());
+    ASSERT_FLOAT_EQ(3.75f, app::can_tx::VC_VelocityDown_get());
+    ASSERT_FLOAT_EQ(0.1f, app::can_tx::VC_VelocityNorthAccuracy_get());
+    ASSERT_FLOAT_EQ(0.2f, app::can_tx::VC_VelocityEastAccuracy_get());
+    ASSERT_FLOAT_EQ(0.3f, app::can_tx::VC_VelocityDownAccuracy_get());
+    ASSERT_EQ(static_cast<app::can_utils::VcEkfStatus>(2), app::can_tx::VC_EkfSolutionMode_get());
+    ASSERT_FLOAT_EQ(0.4f, app::can_tx::VC_EulerAnglesRoll_get());
+    ASSERT_FLOAT_EQ(-0.5f, app::can_tx::VC_EulerAnglesPitch_get());
+    ASSERT_FLOAT_EQ(1.6f, app::can_tx::VC_EulerAnglesYaw_get());
 }
 
-// Testing getting vehicle velocity
-TEST_F(VCSbgEllipsesTest, test_get_vehicle_velocity) {
-        io::sbgEllipse::VelocityData velocityData{};
-        const auto result = app::sbgEllipse::getVehicleVelocity(&velocityData);
-        ASSERT_FLOAT_EQ(0.0f, velocityData.north);
-        ASSERT_FLOAT_EQ(0.0f, velocityData.east);
-        ASSERT_FLOAT_EQ(0.0f, velocityData.down);
-        // ASSERT_FLOAT_EQ(0.0f, velocityData.roll);
-        // ASSERT_FLOAT_EQ(0.0f, velocityData.pitch);
-        // ASSERT_FLOAT_EQ(0.0f, velocityData.yaw);
+TEST_F(VCSbgEllipsesTest, test_get_vehicle_velocity)
+{
+    io::sbgEllipse::VelocityData velocityData{ 0u, 3.0f, 4.0f, 12.0f, 0.0f, 0.0f, 0.0f };
+    ASSERT_FLOAT_EQ(13.0f, app::sbgEllipse::getVehicleVelocity(velocityData));
 }
 
-// Testing getting ekf solution mode
-TEST_F(VCSbgEllipsesTest, test_get_ekf_solution_mode) {
-    const auto ekfSolutionMode = app::sbgEllipse::getEkfSolutionMode();
-    ASSERT_EQ(0u, ekfSolutionMode);
+TEST_F(VCSbgEllipsesTest, test_get_ekf_solution_mode)
+{
+    io::sbgEllipse::setSolutionMode(3u);
+    app::sbgEllipse::broadcast();
+    ASSERT_EQ(static_cast<app::can_utils::VcEkfStatus>(3), app::sbgEllipse::getEkfSolutionMode());
 }

@@ -1,6 +1,7 @@
 #include "app_loadswitches.hpp"
 #include "app_canTx.hpp"
 #include "io_efuses.hpp"
+#include "io_efuse.hpp"
 #include <array>
 
 /*
@@ -9,6 +10,13 @@ current we want to send over CAN for each efuse channel.
 */
 namespace app::loadswitches
 {
+struct EfuseCanMsg
+{
+    io::Efuse &efuse;
+    void (*can_setter_enabled)(bool);
+    void (*can_setter_current)(float);
+};
+
 // one array for all the setter CAN signals
 EfuseCanMsg efuse_channel_setters[NUM_EFUSE_CHANNELS] = {
     { f_inv_efuse, app::can_tx::VC_FrontInvertersStatus_set, app::can_tx::VC_FrontInvertersCurrent_set },

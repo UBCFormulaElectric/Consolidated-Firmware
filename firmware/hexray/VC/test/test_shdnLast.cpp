@@ -10,35 +10,40 @@ class VCShdnLastTest : public VCBaseTest
 {
 };
 
-// Testing broadcating when each shutdown latch is not ok in order
-TEST_F(VCShdnLastTest, test_latch_not_ok_in_order) {
-    tsms_node::set_status(false);
-        LetTimePass(1);
+TEST_F(VCShdnLastTest, test_latch_not_ok_in_order)
+{
+    app::can_rx::BMS_BmsLatchOk_update(true);
+    app::can_rx::BMS_ImdLatchOk_update(true);
+    app::can_rx::BMS_BspdLatchOk_update(true);
+    app::can_rx::BMS_HVPShdnOKStatus_update(true);
+    app::can_rx::BMS_HVNShdnOKStatus_update(true);
+    app::can_tx::VC_MSDOrEMeterOKStatus_set(true);
+    app::can_rx::RSM_RearLeftMotorInterlock_update(true);
+    app::can_tx::VC_RearRightMotorInterlock_set(true);
+    app::can_rx::DAM_REStopOKStatus_update(true);
+    app::can_rx::DAM_LEStopOKStatus_update(true);
+    app::can_rx::FSM_COCKPITOKStatus_update(true);
+    app::can_rx::FSM_BOTSOKStatus_update(true);
+    app::can_rx::FSM_FrontLeftILCKInertiaOKStatus_update(true);
+    app::can_rx::FSM_FrontRightILCKOKStatus_update(true);
+    app::can_tx::VC_TSMSOKStatus_set(true);
+
+    app::can_tx::VC_TSMSOKStatus_set(false);
     app::shdnLast::broadcast();
-    LetTimePass(1);
-    ASSERT_FALSE(app::can_tx::VC_TSMSOKStatus_get());
+    ASSERT_EQ(app::can_utils::ShutdownNode::SHDN_TSMS, app::can_tx::VC_FirstFaultNode_get());
 
-    inertia_stop_node::set_status(false);
-        LetTimePass(1);
-
+    app::can_tx::VC_TSMSOKStatus_set(true);
+    app::can_rx::FSM_FrontRightILCKOKStatus_update(false);
     app::shdnLast::broadcast();
-        LetTimePass(1);
+    ASSERT_EQ(app::can_utils::ShutdownNode::SHDN_FR_ILCK, app::can_tx::VC_FirstFaultNode_get());
 
-    ASSERT_FALSE(app::can_tx::VC_InertiaSwitch_get());
-
-    rear_right_motor_interlock_node::set_status(false);
-        LetTimePass(1);
-
+    app::can_rx::FSM_FrontRightILCKOKStatus_update(true);
+    app::can_tx::VC_RearRightMotorInterlock_set(false);
     app::shdnLast::broadcast();
-        LetTimePass(1);
+    ASSERT_EQ(app::can_utils::ShutdownNode::SHDN_RR_ILCK, app::can_tx::VC_FirstFaultNode_get());
 
-    ASSERT_FALSE(app::can_tx::VC_RearRightMotorInterlock_get());
-
-    splitter_box_interlock_node::set_status(false);
-        LetTimePass(1);
-
+    app::can_tx::VC_RearRightMotorInterlock_set(true);
+    app::can_tx::VC_MSDOrEMeterOKStatus_set(false);
     app::shdnLast::broadcast();
-        LetTimePass(1);
-
-    ASSERT_FALSE(app::can_tx::VC_MSDOrEMeterOKStatus_get());
+    ASSERT_EQ(app::can_utils::ShutdownNode::SHDN_MSD_EMETER_ILCK, app::can_tx::VC_FirstFaultNode_get());
 }
