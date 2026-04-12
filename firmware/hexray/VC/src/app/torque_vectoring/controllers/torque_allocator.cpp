@@ -107,7 +107,7 @@ namespace
         const autodiff::dual sum_fx       = predicted_f.fl.x + predicted_f.fr.x + predicted_f.rl.x + predicted_f.rr.x;
         const autodiff::dual predicted_mz = state.est_Mz_N(predicted_f);
         return DualVec2{
-            SQRT_W_MX * (sum_fx - CAR_MASS_AT_CG_KG * ax_setpoint),
+            SQRT_W_FX * (sum_fx - CAR_MASS_AT_CG_KG * ax_setpoint),
             SQRT_W_MZ * (predicted_mz - CAR_YAW_MOMENT_INERTIA_KGM2 * omegadot_setpoint),
         };
     };
