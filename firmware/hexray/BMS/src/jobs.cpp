@@ -39,7 +39,8 @@
 #include <io_canTx.hpp>
 #include "io_adbms.hpp"
 
-extern "C" {
+extern "C"
+{
 #include "app_commitInfo.h"
 }
 

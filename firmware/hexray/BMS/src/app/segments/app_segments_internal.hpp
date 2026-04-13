@@ -29,7 +29,7 @@ extern array<
 extern array<
     array<array<expected<void, ErrorCode>, io::adbms::THERM_GPIOS_PER_SEGMENT>, io::NUM_SEGMENTS>,
     static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
-    cell_temp_success;
+                                                          cell_temp_success;
 extern array<io::adbms::StatusGroups, io::NUM_SEGMENTS>   stat_regs;
 extern array<expected<void, ErrorCode>, io::NUM_SEGMENTS> stat_success;
 
@@ -67,24 +67,24 @@ extern FilteredCellVoltageSetters filtered_cell_voltage_setters[MAX_NUM_SEGMENTS
 extern CellOwcSetters             cell_owc_setters[MAX_NUM_SEGMENTS][io::CELLS_PER_SEGMENT];
 extern ThermOwcSetters            therm_owc_setters[MAX_NUM_SEGMENTS][io::THERMISTORS_PER_SEGMENT];
 extern SegmentCommOkSetters       segment_comm_ok_setters[MAX_NUM_SEGMENTS];
-extern SegmentVref2Setters        segment_vref2_setters[MAX_NUM_SEGMENTS]; 
-extern SegmentITMPSetters         segment_itmp_setters[MAX_NUM_SEGMENTS]; 
-extern SegmentVDSetters           segment_vd_setters[MAX_NUM_SEGMENTS]; 
-extern SegmentVASetters           segment_va_setters[MAX_NUM_SEGMENTS]; 
-extern SegmentVRESSetters         segment_vres_setters[MAX_NUM_SEGMENTS]; 
-extern SegmentVaOvSetters         segment_va_ov_setters[MAX_NUM_SEGMENTS]; 
-extern SegmentVaUvSetters         segment_va_uv_setters[MAX_NUM_SEGMENTS]; 
-extern SegmentVdOvSetters         segment_vd_ov_setters[MAX_NUM_SEGMENTS]; 
-extern SegmentVdUvSetters         segment_vd_uv_setters[MAX_NUM_SEGMENTS]; 
-extern SegmentCedSetters          segment_ced_setters[MAX_NUM_SEGMENTS]; 
-extern SegmentCmedSetters         segment_cmed_setters[MAX_NUM_SEGMENTS]; 
-extern SegmentSedSetters          segment_sed_setters[MAX_NUM_SEGMENTS]; 
-extern SegmentSmedSetters         segment_smed_setters[MAX_NUM_SEGMENTS]; 
-extern SegmentVdeSetters          segment_vde_setters[MAX_NUM_SEGMENTS];  
-extern SegmentVdelSetters         segment_vdel_setters[MAX_NUM_SEGMENTS]; 
-extern SegmentThsdSetters         segment_thsd_setters[MAX_NUM_SEGMENTS]; 
-extern SegmentTmodchkSetters      segment_tmodchk_setters[MAX_NUM_SEGMENTS];  
-extern SegmentOscchkSetters       segment_oscchk_setters[MAX_NUM_SEGMENTS];  
-extern CellOvSetters              cell_ov_setters[MAX_NUM_SEGMENTS][io::CELLS_PER_SEGMENT]; 
-extern CellUvSetters              cell_uv_setters[MAX_NUM_SEGMENTS][io::CELLS_PER_SEGMENT]; 
+extern SegmentVref2Setters        segment_vref2_setters[MAX_NUM_SEGMENTS];
+extern SegmentITMPSetters         segment_itmp_setters[MAX_NUM_SEGMENTS];
+extern SegmentVDSetters           segment_vd_setters[MAX_NUM_SEGMENTS];
+extern SegmentVASetters           segment_va_setters[MAX_NUM_SEGMENTS];
+extern SegmentVRESSetters         segment_vres_setters[MAX_NUM_SEGMENTS];
+extern SegmentVaOvSetters         segment_va_ov_setters[MAX_NUM_SEGMENTS];
+extern SegmentVaUvSetters         segment_va_uv_setters[MAX_NUM_SEGMENTS];
+extern SegmentVdOvSetters         segment_vd_ov_setters[MAX_NUM_SEGMENTS];
+extern SegmentVdUvSetters         segment_vd_uv_setters[MAX_NUM_SEGMENTS];
+extern SegmentCedSetters          segment_ced_setters[MAX_NUM_SEGMENTS];
+extern SegmentCmedSetters         segment_cmed_setters[MAX_NUM_SEGMENTS];
+extern SegmentSedSetters          segment_sed_setters[MAX_NUM_SEGMENTS];
+extern SegmentSmedSetters         segment_smed_setters[MAX_NUM_SEGMENTS];
+extern SegmentVdeSetters          segment_vde_setters[MAX_NUM_SEGMENTS];
+extern SegmentVdelSetters         segment_vdel_setters[MAX_NUM_SEGMENTS];
+extern SegmentThsdSetters         segment_thsd_setters[MAX_NUM_SEGMENTS];
+extern SegmentTmodchkSetters      segment_tmodchk_setters[MAX_NUM_SEGMENTS];
+extern SegmentOscchkSetters       segment_oscchk_setters[MAX_NUM_SEGMENTS];
+extern CellOvSetters              cell_ov_setters[MAX_NUM_SEGMENTS][io::CELLS_PER_SEGMENT];
+extern CellUvSetters              cell_uv_setters[MAX_NUM_SEGMENTS][io::CELLS_PER_SEGMENT];
 } // namespace app::segments

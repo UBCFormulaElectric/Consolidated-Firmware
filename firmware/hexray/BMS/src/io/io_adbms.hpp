@@ -183,9 +183,9 @@ namespace adbms
     // Configuration and PWM access.
     std::expected<void, ErrorCode> writeConfigReg(std::array<SegmentConfig, NUM_SEGMENTS> &config);
     std::expected<void, ErrorCode> writePwmReg(std::array<PWMConfig, NUM_SEGMENTS> &pwm_config);
-    void readConfigReg(
-        std::array<SegmentConfig, NUM_SEGMENTS>                  &configs,
-        std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS> &success);
+    void                           readConfigReg(
+                                  std::array<SegmentConfig, NUM_SEGMENTS>                  &configs,
+                                  std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS> &success);
 
     // Measurement reads.
     void readCellVoltageReg(

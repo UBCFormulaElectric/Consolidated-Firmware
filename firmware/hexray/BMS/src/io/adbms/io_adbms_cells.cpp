@@ -23,8 +23,6 @@ static const array<uint16_t, io::adbms::NUM_VOLT_REG_GROUPS> filtered_reg_groups
     io::adbms::RDFCE,
 } };
 
-
-
 namespace io::adbms
 {
 
@@ -56,7 +54,6 @@ expected<void, ErrorCode> pollCellsAdcConversion()
     }
     return unexpected(ErrorCode::TIMEOUT);
 }
-
 
 void readCellVoltageReg(
     array<array<uint16_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS>                  &cell_voltage_regs,

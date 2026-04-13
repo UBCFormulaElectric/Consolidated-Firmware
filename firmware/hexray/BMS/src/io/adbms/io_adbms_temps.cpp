@@ -7,7 +7,7 @@ using namespace std;
 static constexpr uint8_t MAX_NUM_ATTEMPTS = 10U;
 static constexpr uint8_t GPIOS_PER_GROUP  = 3U;
 
-static const array<uint16_t, io::adbms::NUM_TEMP_REG_GROUPS>              reg_groups{ {
+static const array<uint16_t, io::adbms::NUM_TEMP_REG_GROUPS> reg_groups{ {
     io::adbms::RDAUXA,
     io::adbms::RDAUXB,
     io::adbms::RDAUXC,

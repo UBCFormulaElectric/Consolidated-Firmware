@@ -5,7 +5,7 @@
 
 using namespace std;
 
-static const array<uint16_t, io::adbms::NUM_STAT_REG_GROUPS>              reg_groups{ {
+static const array<uint16_t, io::adbms::NUM_STAT_REG_GROUPS> reg_groups{ {
     io::adbms::RDSTATA,
     io::adbms::RDSTATB,
     io::adbms::RDSTATC,

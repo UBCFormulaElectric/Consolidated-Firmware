@@ -7,7 +7,7 @@
 using namespace std;
 
 static constexpr uint16_t CRC10_POLY = 0x8F;
-static constexpr uint16_t CRC15_POLY = 0x4599;            
+static constexpr uint16_t CRC15_POLY = 0x4599;
 
 static constexpr std::array<uint16_t, 256> pecTable(const uint16_t poly, const uint16_t size)
 {
@@ -181,4 +181,3 @@ expected<void, ErrorCode>
 }
 
 } // namespace io::adbms
-

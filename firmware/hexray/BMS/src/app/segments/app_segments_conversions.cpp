@@ -8,11 +8,11 @@ using namespace std;
 using namespace app::segments;
 
 // check later
-static constexpr uint8_t VOLT_CONV_TIME_MS      = 2U;
-static constexpr uint8_t AUX_CONV_TIME_MS       = 4U;
-static constexpr uint8_t OWC_CONVERSION_TIME_MS = 8U;
-static constexpr float   OW_CELL_RELATIVE_THRESHOLD  = 0.7f;
-static constexpr float   OW_CELL_ABSOLUTE_THRESHOLD  = 0.5f;
+static constexpr uint8_t VOLT_CONV_TIME_MS          = 2U;
+static constexpr uint8_t AUX_CONV_TIME_MS           = 4U;
+static constexpr uint8_t OWC_CONVERSION_TIME_MS     = 8U;
+static constexpr float   OW_CELL_RELATIVE_THRESHOLD = 0.7f;
+static constexpr float   OW_CELL_ABSOLUTE_THRESHOLD = 0.5f;
 
 static constexpr float convertRegToVoltage(uint16_t reg)
 {
@@ -54,9 +54,7 @@ expected<void, ErrorCode> runVoltageConversion()
 
     for (size_t seg = 0; seg < io::NUM_SEGMENTS; seg++)
         for (size_t cell = 0; cell < io::CELLS_PER_SEGMENT; cell++)
-            cell_voltages[seg][cell] = cell_voltage_success[seg][cell]
-                ? convertRegToVoltage(regs[seg][cell])
-                : -0.1f;
+            cell_voltages[seg][cell] = cell_voltage_success[seg][cell] ? convertRegToVoltage(regs[seg][cell]) : -0.1f;
     return {};
 }
 
@@ -69,9 +67,8 @@ expected<void, ErrorCode> runFilteredVoltageConversion()
 
     for (size_t seg = 0; seg < io::NUM_SEGMENTS; seg++)
         for (size_t cell = 0; cell < io::CELLS_PER_SEGMENT; cell++)
-            filtered_cell_voltages[seg][cell] = filtered_cell_voltage_success[seg][cell]
-                ? convertRegToVoltage(regs[seg][cell])
-                : -0.1f;
+            filtered_cell_voltages[seg][cell] =
+                filtered_cell_voltage_success[seg][cell] ? convertRegToVoltage(regs[seg][cell]) : -0.1f;
     return {};
 }
 
@@ -100,8 +97,9 @@ expected<void, ErrorCode> runStatusConversion()
 expected<void, ErrorCode> runCellOpenWireCheck()
 {
     // Stack locals — only needed during this function, results go into cell_owc_ok[][]
-    array<array<uint16_t, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>                  baseline_regs, owc_odd_regs, owc_even_regs;
-    array<array<expected<void, ErrorCode>, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> baseline_success, owc_odd_success, owc_even_success;
+    array<array<uint16_t, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> baseline_regs, owc_odd_regs, owc_even_regs;
+    array<array<expected<void, ErrorCode>, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> baseline_success, owc_odd_success,
+        owc_even_success;
 
     RETURN_IF_ERR(io::adbms::baselineCells());
     io::time::delay(OWC_CONVERSION_TIME_MS);
@@ -126,10 +124,9 @@ expected<void, ErrorCode> runCellOpenWireCheck()
                 continue;
             }
 
-            float baseline = convertRegToVoltage(baseline_regs[seg][cell]);
-            float owc_v    = (cell % 2 == 0)
-                ? convertRegToVoltage(owc_odd_regs[seg][cell])
-                : convertRegToVoltage(owc_even_regs[seg][cell]);
+            float baseline         = convertRegToVoltage(baseline_regs[seg][cell]);
+            float owc_v            = (cell % 2 == 0) ? convertRegToVoltage(owc_odd_regs[seg][cell])
+                                                     : convertRegToVoltage(owc_even_regs[seg][cell]);
             cell_owc_ok[seg][cell] = checkCellOwcOk(baseline, owc_v);
         }
     }
