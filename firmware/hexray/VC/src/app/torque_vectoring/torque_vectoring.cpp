@@ -48,28 +48,37 @@ extern "C" void update_matlab(
     const double apps,
     const double delta_fl,
     const double delta_fr,
-    double       out[6])
+    double       kappas[4],
+    double       torque_max[4],
+    double       torque_min[4])
 {
-    const VehicleState state={ .v_x_mps        = v_x,
-                                                         .v_y_mps        = v_y,
-                                                         .yaw_rate_radps = yaw_rate,
-                                                         .a_x_mps2       = a_x,
-                                                         .a_y_mps2       = a_y,
-                                                         .apps           = apps,
-                                                         .delta          = {
-                                                             .fl = delta_fl,
-                                                             .fr = delta_fr,
-                                                             .rl = 0.0f,
-                                                             .rr = 0.0f,
-                                                }, };
-
-    const auto [fl_kappa, fr_kappa, rl_kappa, rr_kappa, max_torque, min_torque] = update(state);
-    out[0]                                                                      = fl_kappa;
-    out[1]                                                                      = fr_kappa;
-    out[2]                                                                      = rl_kappa;
-    out[3]                                                                      = rr_kappa;
-    out[4]                                                                      = max_torque;
-    out[5]                                                                      = min_torque;
+    const VehicleState state = { .v_x_mps        = v_x,
+                                 .v_y_mps        = v_y,
+                                 .yaw_rate_radps = yaw_rate,
+                                 .a_x_mps2       = a_x,
+                                 .a_y_mps2       = a_y,
+                                 .apps           = apps,
+                                 .delta          = {
+                                              .fl = delta_fl,
+                                              .fr = delta_fr,
+                                              .rl = 0.0f,
+                                              .rr = 0.0f,
+                                 } };
+    // bring it in
+    const auto [k_kappas, k_torque_max, k_torque_min] = update(state);
+    // update
+    kappas[0]     = k_kappas.fl;
+    kappas[1]     = k_kappas.fr;
+    kappas[2]     = k_kappas.rl;
+    kappas[3]     = k_kappas.rr;
+    torque_max[0] = k_torque_max.fl;
+    torque_max[1] = k_torque_max.fr;
+    torque_max[2] = k_torque_max.rl;
+    torque_max[3] = k_torque_max.rr;
+    torque_min[0] = k_torque_min.fl;
+    torque_min[1] = k_torque_min.fr;
+    torque_min[2] = k_torque_min.rl;
+    torque_min[3] = k_torque_min.rr;
 }
 
 template <Decimal T> ControlOutputAutonomous<T> update_autonomous(const VehicleState<T> &state)

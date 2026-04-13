@@ -2,6 +2,9 @@
 
 extern "C"
 {
+    /**
+     * Matlab Wrapper for update
+     */
     void update_matlab(
         double v_x,
         double v_y,
@@ -11,7 +14,12 @@ extern "C"
         double apps,
         double delta_fl,
         double delta_fr,
-        double out[6]);
+        double kappas[4],
+        double torque_max[4],
+        double torque_min[4]);
 
+    /**
+     * Matlab wrapper for kappa_update
+     */
     void kappa_update_matlab(double kappas[4], double v_x, double out[4]);
 }

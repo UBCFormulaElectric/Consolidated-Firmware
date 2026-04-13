@@ -5,23 +5,17 @@
 
 template <Decimal T> struct ControlOutput
 {
-    const T fl_kappa   = 0;
-    const T fr_kappa   = 0;
-    const T rl_kappa   = 0;
-    const T rr_kappa   = 0;
-    const T max_torque = 0;
-    const T min_torque = 0;
+    app::tv::shared_datatypes::wheel_set<T> kappas;
+    app::tv::shared_datatypes::wheel_set<T> torque_ub;
+    app::tv::shared_datatypes::wheel_set<T> torque_lb;
 };
 
 template <Decimal T> struct ControlOutputAutonomous
 {
-    const T fl_kappa   = 0;
-    const T fr_kappa   = 0;
-    const T rl_kappa   = 0;
-    const T rr_kappa   = 0;
-    const T delta      = 0;
-    const T max_torque = 0;
-    const T min_torque = 0;
+    app::tv::shared_datatypes::wheel_set<T> kappas;
+    app::tv::shared_datatypes::wheel_set<T> torque_ub;
+    app::tv::shared_datatypes::wheel_set<T> torque_lb;
+    const T                                 delta = 0;
 };
 
 /**
