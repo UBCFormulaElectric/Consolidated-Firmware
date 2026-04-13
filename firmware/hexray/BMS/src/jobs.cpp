@@ -12,7 +12,7 @@
 
 #include "states/app_states.hpp"
 #include "app_precharge.hpp"
-// #include "app_segments.hpp"
+#include "app_segments.hpp"
 #include "app_timer.hpp"
 #include "app_imd.hpp"
 #include "app_powerLimit.hpp"
@@ -25,12 +25,6 @@
 #include <app_canUtils.hpp>
 
 // io
-extern "C"
-{
-#include "io_semaphore.h"
-#include "app_commitInfo.h"
-}
-
 #include "io_canMsg.hpp"
 #include "io_canQueues.hpp"
 #include "io_canMsg.hpp"
@@ -43,9 +37,11 @@ extern "C"
 #include "io_fans.hpp"
 #include "io_faultLatch.hpp"
 #include <io_canTx.hpp>
-
-// temp
 #include "io_adbms.hpp"
+
+extern "C" {
+#include "app_commitInfo.h"
+}
 
 // static array<io::adbms::StatusGroups, io::NUM_SEGMENTS> stat_reg;
 static array<expected<void, ErrorCode>, io::NUM_SEGMENTS> stat_regs_success;
@@ -138,9 +134,8 @@ void jobs_run100Hz_tick()
 #ifdef TARGET_HV_SUPPLY
     const bool acc_fault = false;
 #else
-    // segments::checkWarnings();
-    // const bool acc_fault = segments::checkFaults();
-    const bool acc_fault = false;
+    segments::checkWarnings();
+    const bool acc_fault = segments::checkFaults();
 #endif
     using namespace io::faultLatch;
 
@@ -185,6 +180,9 @@ void jobs_adbms_init()
 {
     app::segments::setDefaultConfig();
     LOG_IF_ERR(io::adbms::wakeup());
+    LOG_IF_ERR(io::adbms::clearCellVoltageReg());
+    LOG_IF_ERR(io::adbms::clearFilteredCellVoltageReg());
+    LOG_IF_ERR(io::adbms::clearCellTempReg());
     LOG_IF_ERR(app::segments::configSync());
 }
 

@@ -134,7 +134,7 @@ void broadcast()
 {
     app::can_tx::BMS_ImdFrequency_set(io::imd::getFrequency());
     app::can_tx::BMS_ImdDutyCycle_set(io::imd::getDutyCycle());
-    app::can_tx::BMS_ImdTimeSincePowerOn_set(static_cast<float>(io::imd::getTimeSincePowerOn()));
+    app::can_tx::BMS_ImdTimeSincePowerOn_set(static_cast<uint16_t>(io::imd::getTimeSincePowerOn()));
 
     const Condition condition = app::imd::getCondition();
     app::can_tx::BMS_ImdCondition_set(condition.name);

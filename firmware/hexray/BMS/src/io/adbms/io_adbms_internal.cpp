@@ -7,7 +7,7 @@
 using namespace std;
 
 static constexpr uint16_t CRC10_POLY = 0x8F;
-static constexpr uint16_t CRC15_POLY = 0x4599;
+static constexpr uint16_t CRC15_POLY = 0x4599;            
 
 static constexpr std::array<uint16_t, 256> pecTable(const uint16_t poly, const uint16_t size)
 {
@@ -111,6 +111,9 @@ struct __attribute__((packed)) TxCmdPayload
 namespace io::adbms
 {
 
+array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> shared_reg_group;
+array<expected<void, ErrorCode>, NUM_SEGMENTS>      shared_reg_group_success;
+
 expected<void, ErrorCode> sendCmd(const uint16_t cmd)
 {
     const TxCmd tx_cmd{ cmd };
@@ -178,4 +181,4 @@ expected<void, ErrorCode>
 }
 
 } // namespace io::adbms
-// namespace io::adbms
+

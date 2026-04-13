@@ -17,7 +17,7 @@ class node
   public:
 #ifdef TARGET_EMBEDDED
     explicit node(const hw::Gpio &in_pin_in, void (*in_can_broadcast)(bool))
-      : can_broadcast(in_can_broadcast), pin(in_pin_in)
+      : pin(in_pin_in), can_broadcast(in_can_broadcast)
     {
     }
 #elif TARGET_TEST

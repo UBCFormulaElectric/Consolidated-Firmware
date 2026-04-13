@@ -1,29 +1,29 @@
 /**
  * @file io_adbms.hpp
- * @brief This file contains the interface to the ADBMS driver
+ * @brief Public interface for the Hexray BMS ADBMS driver.
  */
 #pragma once
+
 #include "util_errorCodes.hpp"
+
 #include <array>
 
 namespace io
 {
+// Physical daisy-chain dimensions for this ECU.
 inline constexpr uint8_t NUM_SEGMENTS            = 1;
 inline constexpr uint8_t CELLS_PER_SEGMENT       = 14;
 inline constexpr uint8_t THERMISTORS_PER_SEGMENT = 14;
 
 namespace adbms
 {
+    // Register layout constants.
     inline constexpr uint8_t REG_GROUP_SIZE          = 6; // bytes
     inline constexpr uint8_t NUM_VOLT_REG_GROUPS     = 5; // A..E only (F not used; 14 cells measured)
     inline constexpr uint8_t NUM_TEMP_REG_GROUPS     = 4; // A..D only
     inline constexpr uint8_t NUM_STAT_REG_GROUPS     = 5;
     inline constexpr uint8_t GPIOS_PER_SEGMENT       = 10;
     inline constexpr uint8_t THERM_GPIOS_PER_SEGMENT = 8;
-
-    /**
-     * @file adbms/io_adbms_configs.cpp
-     */
 
     // Configuration Register Group A (Table 55 and 102)
     struct __attribute__((packed)) CFGA
@@ -180,20 +180,19 @@ namespace adbms
         EvenChannels
     };
 
+    // Configuration and PWM access.
     std::expected<void, ErrorCode> writeConfigReg(std::array<SegmentConfig, NUM_SEGMENTS> &config);
     std::expected<void, ErrorCode> writePwmReg(std::array<PWMConfig, NUM_SEGMENTS> &pwm_config);
-
     void readConfigReg(
         std::array<SegmentConfig, NUM_SEGMENTS>                  &configs,
         std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS> &success);
+
+    // Measurement reads.
     void readCellVoltageReg(
         std::array<std::array<uint16_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS>                       &cell_voltage_regs,
         std::array<std::array<std::expected<void, ErrorCode>, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success);
     void readFilteredCellVoltageReg(
         std::array<std::array<uint16_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &filtered_cell_voltage_regs,
-        std::array<std::array<std::expected<void, ErrorCode>, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success);
-    void readRedundantCellVoltageReg(
-        std::array<std::array<uint16_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &redundant_cell_voltage_regs,
         std::array<std::array<std::expected<void, ErrorCode>, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success);
     void readCellTempReg(
         std::array<std::array<uint16_t, THERM_GPIOS_PER_SEGMENT>, NUM_SEGMENTS>                       &cell_temp_regs,
@@ -202,10 +201,12 @@ namespace adbms
         std::array<StatusGroups, NUM_SEGMENTS>                   &stat_regs,
         std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS> &stat_regs_success);
 
+    // Open-wire diagnostics.
     std::expected<void, ErrorCode> baselineCells();
     std::expected<void, ErrorCode> owcCells(OpenWireSwitch owcSwitch);
     std::expected<void, ErrorCode> owcTherms(OpenWireSwitch owcSwitch);
 
+    // Conversion control.
     std::expected<void, ErrorCode> startCellsAdcConversion();
     std::expected<void, ErrorCode> startTempAdcConversion();
     std::expected<void, ErrorCode> pollCellsAdcConversion();
@@ -214,7 +215,9 @@ namespace adbms
     std::expected<void, ErrorCode> sendStopBalanceCmd();
     std::expected<void, ErrorCode> wakeup();
 
+    // Register clear helpers.
     std::expected<void, ErrorCode> clearCellTempReg();
-
+    std::expected<void, ErrorCode> clearCellVoltageReg();
+    std::expected<void, ErrorCode> clearFilteredCellVoltageReg();
 } // namespace adbms
 } // namespace io

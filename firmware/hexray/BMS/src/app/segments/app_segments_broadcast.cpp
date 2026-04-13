@@ -5,36 +5,19 @@
 #include "app_segments.hpp"
 #include "app_canTx.hpp"
 
-static constexpr float OW_CELL_RELATIVE_THRESHOLD = 0.7f;
-static constexpr float OW_CELL_ABSOLUTE_THRESHOLD = 0.5f;
-static constexpr float OW_THERM_THRESHOLD         = -80.0f; // calibrate
+static constexpr float OW_THERM_THRESHOLD = -80.0f; // calibrate
 
-static std::array<bool, io::NUM_SEGMENTS> segment_comm_ok;
-
-constexpr float convertRegToVoltage(uint16_t reg)
+static constexpr float convertRegToVoltage(uint16_t reg)
 {
     return (static_cast<float>(static_cast<int16_t>(reg)) * 150e-6f) + 1.5f;
 }
 
-constexpr float convertRegToTemp(uint16_t reg)
+static constexpr float convertRegToTemp(uint16_t reg)
 {
     float voltage    = convertRegToVoltage(reg);
     float resistance = 10e3f * (voltage / (3.0f - voltage));
     float inv_temp   = (1.0f / 298.15f) + (1.0f / 3610.0f) * std::log(resistance / 10e3f);
     return (1.0f / inv_temp) - 273.15f;
-}
-
-constexpr bool checkCellOwcOk(float baselineVoltage, float owcVoltage)
-{
-    if (owcVoltage < baselineVoltage * OW_CELL_RELATIVE_THRESHOLD)
-    {
-        return false;
-    }
-    if (owcVoltage < OW_CELL_ABSOLUTE_THRESHOLD)
-    {
-        return false;
-    }
-    return true;
 }
 namespace app::segments
 {
@@ -58,23 +41,16 @@ void broadcastCellVoltages()
 
     for (size_t seg = 0U; seg < io::NUM_SEGMENTS; seg++)
     {
-        bool segment_comm_ok = false;
+        bool seg_ok = false;
         for (size_t cell = 0U; cell < io::CELLS_PER_SEGMENT; cell++)
         {
-            if (!cell_voltage_success[seg][cell])
-            {
-                cell_voltages[seg][cell] = -0.1f;
-                cell_voltage_setters[seg][cell](-0.1f);
-                continue;
-            }
-
-            segment_comm_ok = true;
-
-            const float voltage      = convertRegToVoltage(cell_voltage_regs[seg][cell]);
-            cell_voltages[seg][cell] = voltage;
+            const float voltage = cell_voltages[seg][cell];
             cell_voltage_setters[seg][cell](voltage);
 
-            // ow cells shouldnt count
+            if (!cell_voltage_success[seg][cell])
+                continue;
+
+            seg_ok = true;
 
             if (voltage > candidate_max_cell_voltage.voltage)
             {
@@ -91,7 +67,7 @@ void broadcastCellVoltages()
                 candidate_min_cell_voltage.temp    = cell_temps[seg][cell];
             }
         }
-        segment_comm_ok_setters[seg](segment_comm_ok);
+        segment_comm_ok_setters[seg](seg_ok);
     }
 
     max_cell_voltage = candidate_max_cell_voltage;
@@ -102,23 +78,19 @@ void broadcastFilteredCellVoltages()
 {
     for (size_t seg = 0U; seg < io::NUM_SEGMENTS; seg++)
     {
-        bool segment_comm_ok = false;
+        bool seg_ok = false;
         for (size_t cell = 0U; cell < io::CELLS_PER_SEGMENT; cell++)
         {
-            if (!filtered_cell_voltage_success[seg][cell])
-            {
-                filtered_cell_voltages[seg][cell] = -0.1f;
-                filtered_cell_voltage_setters[seg][cell](-0.1f);
-                continue;
-            }
-            segment_comm_ok = true;
-
-            const float voltage               = convertRegToVoltage(cell_voltage_regs[seg][cell]);
-            filtered_cell_voltages[seg][cell] = voltage;
+            const float voltage = filtered_cell_voltages[seg][cell];
             filtered_cell_voltage_setters[seg][cell](voltage);
+
+            if (!filtered_cell_voltage_success[seg][cell])
+                continue;
+
+            seg_ok = true;
         }
 
-        segment_comm_ok_setters[seg](segment_comm_ok);
+        segment_comm_ok_setters[seg](seg_ok);
     }
 }
 
@@ -265,31 +237,7 @@ void broadcastCellOpenWireCheck()
     {
         for (size_t cell = 0U; cell < io::CELLS_PER_SEGMENT; cell++)
         {
-            if (!cell_baseline_success[seg][cell] || !cell_owc_even_success[seg][cell] ||
-                !cell_owc_odd_success[seg][cell])
-            {
-                cell_owc_ok[seg][cell] = false;
-                cell_owc_setters[seg][cell](false);
-                continue;
-            }
-
-            float baseline_voltage = convertRegToVoltage(cell_baseline_regs[seg][cell]);
-            float owc_voltage      = (cell % 2 == 0) ? convertRegToVoltage(cell_owc_odd_regs[seg][cell])
-                                                     : convertRegToVoltage(cell_owc_even_regs[seg][cell]);
-            cell_owc_ok[seg][cell] = checkCellOwcOk(baseline_voltage, owc_voltage);
-
-            // need to disbale balancing
-            // maybe add sm number of consecutuive faults
-        }
-    }
-}
-
-void broadcastCommOk()
-{
-    for (size_t seg = 0U; seg < io::NUM_SEGMENTS; seg++)
-    {
-        for (size_t cell = 0U; cell < io::CELLS_PER_SEGMENT; cell++)
-        {
+            cell_owc_setters[seg][cell](cell_owc_ok[seg][cell]);
         }
     }
 }

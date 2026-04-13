@@ -4,11 +4,9 @@
 
 using namespace std;
 
-static constexpr uint8_t MAX_NUM_ATTEMPTS = 20U;
+static constexpr uint8_t MAX_NUM_ATTEMPTS = 10U;
 static constexpr uint8_t GPIOS_PER_GROUP  = 3U;
 
-static array<array<uint8_t, io::adbms::REG_GROUP_SIZE>, io::NUM_SEGMENTS> reg_group;
-static array<expected<void, ErrorCode>, io::NUM_SEGMENTS>                 reg_group_success;
 static const array<uint16_t, io::adbms::NUM_TEMP_REG_GROUPS>              reg_groups{ {
     io::adbms::RDAUXA,
     io::adbms::RDAUXB,
@@ -59,14 +57,14 @@ void readCellTempReg(
 
     for (size_t group = 0U; group < NUM_TEMP_REG_GROUPS; group++)
     {
-        readRegGroup(reg_groups[group], reg_group, reg_group_success);
+        readRegGroup(reg_groups[group], shared_reg_group, shared_reg_group_success);
 
         for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
         {
-            if (!reg_group_success[seg])
+            if (!shared_reg_group_success[seg])
             {
                 cell_temp_regs[seg].fill(0U);
-                comm_success[seg].fill(reg_group_success[seg]);
+                comm_success[seg].fill(shared_reg_group_success[seg]);
                 continue;
             }
 
@@ -75,8 +73,8 @@ void readCellTempReg(
                 const size_t gpio = group * GPIOS_PER_GROUP + gpio_in_group;
                 if (gpio < THERM_GPIOS_PER_SEGMENT)
                 {
-                    const uint16_t low         = reg_group[seg][gpio_in_group * 2U];
-                    const uint16_t high        = reg_group[seg][gpio_in_group * 2U + 1U];
+                    const uint16_t low         = shared_reg_group[seg][gpio_in_group * 2U];
+                    const uint16_t high        = shared_reg_group[seg][gpio_in_group * 2U + 1U];
                     const uint16_t temperature = static_cast<uint16_t>(low) | (static_cast<uint16_t>(high) << 8U);
 
                     if (temperature == 0xFFFF || temperature == 0x8000)

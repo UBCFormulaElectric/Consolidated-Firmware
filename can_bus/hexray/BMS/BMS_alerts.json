@@ -6,65 +6,77 @@
   "warnings": {
     "CellUndervoltage": {
       "id": 425,
-      "description": "Cell is critically undervoltage"
+      "description": "Cell is undervoltage"
     },
     "CellOvervoltage": {
       "id": 426,
-      "description": "Cell is critically overvoltage"
+      "description": "Cell is overvoltage"
     },
     "CellOvertemp": {
       "id": 427,
-      "description": "Cell is critically overtemp"
+      "description": "Cell is overtemp"
     },
     "ModuleCommunicationError": {
       "id": 428,
-      "description": "Failed to communicate with LTC6813 modules."
+      "description": "Failed to communicate with ADBMS modules"
     },
+    "CellOpenWire": {
+      "id": 429,
+      "description": "Open wire detected on cell voltage sense line"
+    },
+    "ThermistorOpenWire": {
+      "id": 430,
+      "description": "Open wire detected on thermistor sense line"
+    }, 
     "TsOvercurrent": {
-      "id": 439,
-      "description": "Tractive system overcurrent detected."
+      "id": 431,
+      "description": "Tractive system overcurrent detected"
     }
   },
   "faults": {
     "CellUndervoltage": {
-      "id": 429,
+      "id": 432,
       "description": "Cell is critically undervoltage"
     },
     "CellOvervoltage": {
-      "id": 430,
+      "id": 433,
       "description": "Cell is critically overvoltage"
     },
     "CellOvertemp": {
-      "id": 431,
+      "id": 434,
       "description": "Cell is critically overtemp"
     },
     "ModuleCommunicationError": {
-      "id": 432,
-      "description": "Failed to communicate with LTC6813 modules."
+      "id": 435,
+      "description": "Failed to communicate with ADBMS modules."
+    },
+    "CellOpenWire": {
+      "id": 436,
+      "description": "Open wire detected on cell voltage sense line"
     },
     "TESTFAULT": {
-      "id": 433,
+      "id": 437,
       "description": "FOR UNIT TESTING ONLY DO NOT EVER EVER THROW"
     }
   },
-  "info_id": 434,
-  "info_counts_id": 435,
+  "info_id": 438,
+  "info_counts_id": 439,
   "info": {
     "StackOverflow": {
-      "id": 436,
-      "description": "An RTOS task stack overflowed on the previous boot cycle."
+      "id": 440,
+      "description": "An RTOS task stack overflowed on the previous boot cycle"
     },
     "CriticalPrechargeFailure": {
-      "id": 437,
+      "id": 441,
       "description": "Precharge failed >3x"
     },
     "WatchdogTimeout": {
-      "id": 438,
-      "description": "Watchdog timeout detected."
+      "id": 442,
+      "description": "Watchdog timeout detected"
     },
-        "MissingVCHeartbeat": {
-      "id": 453,
-      "description": "Missing VC heartbeat signal."
+    "MissingVCHeartbeat": {
+      "id": 443,
+      "description": "Missing VC heartbeat signal"
     }
   }
 }

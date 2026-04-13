@@ -1,4 +1,5 @@
 #pragma once
+
 #include "io_adbms.hpp"
 #include "util_errorCodes.hpp"
 
@@ -9,7 +10,11 @@ using namespace std;
 
 namespace io::adbms
 {
+// Shared scratch buffers used by low-level register transactions.
+extern array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS>  shared_reg_group;
+extern array<expected<void, ErrorCode>, NUM_SEGMENTS>       shared_reg_group_success; 
 
+// Transaction framing constants.
 inline constexpr uint8_t CMD_BYTES = 2;
 inline constexpr uint8_t PEC_BYTES = 2;
 
@@ -106,42 +111,16 @@ inline constexpr uint16_t CH2 = (1U << 2);
 inline constexpr uint16_t CH1 = (1U << 1);
 inline constexpr uint16_t CH0 = (1U << 0);
 
-//
+// Poll commands return a packed readiness bitmap.
 inline constexpr uint32_t POLL_STATUS_READY = __builtin_bswap32(0xFFFFFFFFU >> (2 * NUM_SEGMENTS));
 
-/**
- * Sends the given command.
- * @param cmd The command to send
- * @return success of operation
- */
+// Raw command helpers.
 expected<void, ErrorCode> sendCmd(uint16_t cmd);
-
-/**
- * Send a poll command (see Table 45)
- * @param cmd The command to send
- * @param poll_buf Buffer to store the polled data
- */
 expected<void, ErrorCode> poll(uint16_t cmd, span<uint8_t> poll_buf);
-
-/**
- * Send a read reg group command and receive the values (see Table 47).
- * @param cmd The command to send
- * @param regs Buffer to store the received register values
- * @param comm_success Buffer to store the success of communication for each segment
- */
-
 void readRegGroup(
     uint16_t                                             cmd,
     array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs,
     array<expected<void, ErrorCode>, NUM_SEGMENTS>      &comm_success);
-
-/**
- * Send a write reg group command to write the values (see Table 46)
- * @param cmd The command to send
- * @param regs Buffer containing the register values to write
- * @return success of operation
- */
 expected<void, ErrorCode> writeRegGroup(uint16_t cmd, const array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs);
-
 expected<void, ErrorCode> pollTempAdcConversion();
 } // namespace io::adbms
