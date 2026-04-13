@@ -18,7 +18,19 @@
 #define IS_IN_RANGE(min, max, val) (((val) > (min)) && ((val) < (max)))
 
 /* @brief Extract the basename from a file path */
-#define __BASENAME__(path) (__builtin_strrchr(path, '/') ? __builtin_strrchr(path, '/') + 1 : path)
+constexpr const char *filename_only(const char *path)
+{
+    const char *last_slash = path;
+    for (const char *it = path; *it != '\0'; ++it)
+    {
+        if (*it == '/' || *it == '\\')
+        {
+            last_slash = it + 1;
+        }
+    }
+    return last_slash;
+}
+#define __BASENAME__(x) filename_only(x)
 
 // Extra guard because HAL defines the same macro
 #ifndef UNUSED

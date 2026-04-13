@@ -94,7 +94,7 @@ inline constexpr float SLIP_RATIO_IDEAL = 0.05f; // Ideal slip ratio for maximum
 // TODO: Replace with reverse/anti-Ackermann model
 inline constexpr float APPROX_STEERING_TO_WHEEL_ANGLE = 0.3f;
 // Note: Underestimate for wheel angles > 40° (see Confluence/Steering System)
-inline constexpr float MAX_AX = 10; // TODO idk this number bruh
+inline constexpr float MAX_AX_MPS2 = 10; // TODO idk this number bruh
 
 // =============================================================================
 // UTILITY FUNCTIONS & CONVERSION HELPERS

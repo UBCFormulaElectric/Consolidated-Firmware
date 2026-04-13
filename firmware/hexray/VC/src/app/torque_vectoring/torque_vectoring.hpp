@@ -6,15 +6,15 @@
 template <Decimal T> struct ControlOutput
 {
     app::tv::shared_datatypes::wheel_set<T> kappas;
-    app::tv::shared_datatypes::wheel_set<T> torque_ub;
-    app::tv::shared_datatypes::wheel_set<T> torque_lb;
+    app::tv::shared_datatypes::wheel_set<T> torque_max;
+    app::tv::shared_datatypes::wheel_set<T> torque_min;
 };
 
 template <Decimal T> struct ControlOutputAutonomous
 {
     app::tv::shared_datatypes::wheel_set<T> kappas;
-    app::tv::shared_datatypes::wheel_set<T> torque_ub;
-    app::tv::shared_datatypes::wheel_set<T> torque_lb;
+    app::tv::shared_datatypes::wheel_set<T> torque_max;
+    app::tv::shared_datatypes::wheel_set<T> torque_min;
     const T                                 delta = 0;
 };
 

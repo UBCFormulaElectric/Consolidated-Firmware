@@ -69,10 +69,9 @@ template <DecimalOrDual T>
     // Pacejka Page 181 (4.E50): F_x = G_xa * F_x0
     return coefficients.g_xa * pure_fx_0;
 }
-template float TireModel::computeCombinedFx_N(
-    const float  normal_load_N,
-    const float  slip_angle_rad,
-    const float &slip_ratio) const;
+template float TireModel::computeCombinedFx_N(float normal_load_N, float slip_angle_rad, const float &slip_ratio) const;
+template double
+    TireModel::computeCombinedFx_N(float normal_load_N, float slip_angle_rad, const double &slip_ratio) const;
 template autodiff::dual TireModel::computeCombinedFx_N<autodiff::dual>(
     float                 normal_load_N,
     float                 slip_angle_rad,
@@ -90,10 +89,10 @@ template <DecimalOrDual T>
     // Pacejka Pages 181-182 (4.E58): F_y = G_yk * F_y0 + S_vyk
     return coefficients.g_yk * T(pure_fy_0) + coefficients.s_vyk;
 }
-template float TireModel::computeCombinedFy_N<float>(
-    const float  normal_load_N,
-    const float  slip_angle_rad,
-    const float &slip_ratio) const;
+template float
+    TireModel::computeCombinedFy_N<float>(float normal_load_N, float slip_angle_rad, const float &slip_ratio) const;
+template double
+    TireModel::computeCombinedFy_N<double>(float normal_load_N, float slip_angle_rad, const double &slip_ratio) const;
 template autodiff::dual TireModel::computeCombinedFy_N<autodiff::dual>(
     float                 normal_load_N,
     float                 slip_angle_rad,

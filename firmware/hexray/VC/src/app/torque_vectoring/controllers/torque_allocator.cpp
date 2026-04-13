@@ -81,11 +81,10 @@ template <Decimal T>
     //
     // We keep all vectors/matrices fixed-size (4 decision variables, 2 residuals) so the optimizer
     // stays allocation-free and predictable on embedded targets.
-    const auto residualVector = [&](const DualVec4 &kappa) -> DualVec2
+    const auto [fz_fl, fz_fr, fz_rl, fz_rr]             = state.est_Fz_N();
+    const auto [alpha_fl, alpha_fr, alpha_rl, alpha_rr] = state.alphas();
+    const auto residualVector                           = [&](const DualVec4 &kappa) -> DualVec2
     {
-        const auto [fz_fl, fz_fr, fz_rl, fz_rr]             = state.est_Fz_N();
-        const auto [alpha_fl, alpha_fr, alpha_rl, alpha_rr] = state.alphas();
-
         const wheel_set<Pair<autodiff::dual>> predicted_f{
             {
                 estimation::tire_model.computeCombinedFx_N(fz_fl, alpha_fl, kappa(0)),

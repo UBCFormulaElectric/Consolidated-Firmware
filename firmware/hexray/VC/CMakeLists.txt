@@ -145,7 +145,8 @@ elseif ("${TARGET}" STREQUAL "test")
     )
     set(INCLUDE_DIRS
             "${CMAKE_CURRENT_SOURCE_DIR}/test"
-            ${APP_INCLUDE_DIRS} ${SHARED_FAKES_DIR_CPP} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP}
+            ${APP_INCLUDE_DIRS} ${SHARED_FAKES_DIR_CPP} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS}
+            ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP}
     )
     compile_gtest_executable(
             "hexray_VC_test"
@@ -169,6 +170,7 @@ elseif ("${TARGET}" STREQUAL "test")
     target_compile_definitions("hexray_VC_test" PRIVATE STM32H733xx)
 
 
+    # MATLAB STATIC LIBRARY
     file(GLOB_RECURSE TV_SRCS CONFIGURE_DEPENDS
             "${CMAKE_CURRENT_SOURCE_DIR}/src/app/torque_vectoring/*.cpp"
             "${SHARED_APP_INCLUDE_DIR_CPP}/app_pid.cpp"
@@ -177,4 +179,19 @@ elseif ("${TARGET}" STREQUAL "test")
     target_include_directories("hexray_VC_torque_vectoring" PUBLIC "${INCLUDE_DIRS}")
     target_link_libraries("hexray_VC_torque_vectoring" PUBLIC "autodiff_interface" "eigen_interface" "m")
     target_compile_options("hexray_VC_torque_vectoring" PRIVATE /MT)
+
+
+    # MATPLOTLIB TESTING
+    add_executable(test_controls)
+    target_sources(test_controls PRIVATE
+            "${CMAKE_CURRENT_SOURCE_DIR}/plot_tests.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/app/torque_vectoring/estimation/tire_model.cpp"
+    )
+    target_include_directories(test_controls PRIVATE
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
+            ${SHARED_UTIL_INCLUDE_DIR_CPP}
+    )
+    target_link_libraries(test_controls PRIVATE "matplotlib_cpp" "autodiff_interface")
+    target_compile_options(test_controls PRIVATE /Zi)
+    target_link_options(test_controls PRIVATE /DEBUG /INCREMENTAL:NO)
 endif ()

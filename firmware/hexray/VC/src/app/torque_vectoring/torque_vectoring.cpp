@@ -12,7 +12,7 @@ using namespace vd_constants;
 template <Decimal T> ControlOutput<T> update(const VehicleState<T> &state)
 {
     //------------------------------------- HIGH LEVEL CONTROLLER ----------------------------//
-    const T ax_mps2_setpoint = MAX_AX * state.apps;
+    const T ax_mps2_setpoint = MAX_AX_MPS2 * state.apps;
     // Direct yaw rate control: corrective yaw moment
     const T omegadot_radps2_setpoint = app::tv::controllers::dyrc::computeYawMoment(
         state.yaw_rate_radps, (state.delta.fl + state.delta.fr) / 2, state.v_x_mps);
@@ -32,7 +32,9 @@ template <Decimal T> ControlOutput<T> update(const VehicleState<T> &state)
     //------------------------------------- POWER LIMITER -----------------------------------//
     // TODO: slip_ratio_opt -> slipRatioToWheelAngularVelocity() -> power limiter -> torque request
 
-    return { { kappa_opt.fl, kappa_opt.fr, kappa_opt.rl, kappa_opt.rr }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } };
+    return { { kappa_opt.fl, kappa_opt.fr, kappa_opt.rl, kappa_opt.rr },
+             { ax_mps2_setpoint, omegadot_radps2_setpoint, 0, 0 },
+             { 0, 0, 0, 0 } };
 }
 template ControlOutput<float>  update(const VehicleState<float> &state);
 template ControlOutput<double> update(const VehicleState<double> &state);
