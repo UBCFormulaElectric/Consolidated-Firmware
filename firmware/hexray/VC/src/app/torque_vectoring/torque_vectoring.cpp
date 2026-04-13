@@ -32,9 +32,7 @@ template <Decimal T> ControlOutput<T> update(const VehicleState<T> &state)
     //------------------------------------- POWER LIMITER -----------------------------------//
     // TODO: slip_ratio_opt -> slipRatioToWheelAngularVelocity() -> power limiter -> torque request
 
-    return {
-        kappa_opt.fl, kappa_opt.fr, kappa_opt.rl, kappa_opt.rr, 0, 0,
-    };
+    return { { kappa_opt.fl, kappa_opt.fr, kappa_opt.rl, kappa_opt.rr }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 } };
 }
 template ControlOutput<float>  update(const VehicleState<float> &state);
 template ControlOutput<double> update(const VehicleState<double> &state);
