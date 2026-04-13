@@ -16,7 +16,9 @@ set(SYSTEM_INCLUDE_DIRS
 )
 
 file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp")
-list(APPEND APP_SRCS)
+list(APPEND APP_SRCS
+        "${SHARED_APP_INCLUDE_DIR_CPP}/app_pid.cpp"
+)
 set(APP_INCLUDE_DIRS
         "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR_CPP}" "${CMAKE_CURRENT_SOURCE_DIR}/src/app/"
 )
@@ -165,4 +167,14 @@ elseif ("${TARGET}" STREQUAL "test")
 
     target_link_libraries("hexray_VC_test" PRIVATE "hexray_VC_commit_info" "hexray_VC_jsoncan" "autodiff_interface")
     target_compile_definitions("hexray_VC_test" PRIVATE STM32H733xx)
+
+
+    file(GLOB_RECURSE TV_SRCS CONFIGURE_DEPENDS
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/app/torque_vectoring/*.cpp"
+            "${SHARED_APP_INCLUDE_DIR_CPP}/app_pid.cpp"
+    )
+    add_library("hexray_VC_torque_vectoring" STATIC ${TV_SRCS})
+    target_include_directories("hexray_VC_torque_vectoring" PUBLIC "${INCLUDE_DIRS}")
+    target_link_libraries("hexray_VC_torque_vectoring" PUBLIC "autodiff_interface" "eigen_interface" "m")
+    target_compile_options("hexray_VC_torque_vectoring" PRIVATE /MT)
 endif ()

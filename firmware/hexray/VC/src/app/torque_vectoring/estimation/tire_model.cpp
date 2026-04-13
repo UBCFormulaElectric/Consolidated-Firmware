@@ -31,7 +31,7 @@ namespace
             return value;
         return primal < 0.0 ? -SMALL_EPSILON : SMALL_EPSILON;
     }
-    constexpr float safeSignedDenominator(const float value)
+    float safeSignedDenominator(const float value)
     {
         if (std::fabs(value) >= SMALL_EPSILON)
             return value;
@@ -45,7 +45,7 @@ namespace
             return -1.0f;
         return 0.0f;
     }
-    constexpr autodiff::dual sign(const autodiff::dual &value)
+    autodiff::dual sign(const autodiff::dual &value)
     {
         if (value > 0.0f)
             return 1.0f;
@@ -69,7 +69,10 @@ template <DecimalOrDual T>
     // Pacejka Page 181 (4.E50): F_x = G_xa * F_x0
     return coefficients.g_xa * pure_fx_0;
 }
-template float TireModel::computeCombinedFx_N(const float normal_load_N, const float slip_angle_rad, const float &slip_ratio) const;
+template float TireModel::computeCombinedFx_N(
+    const float  normal_load_N,
+    const float  slip_angle_rad,
+    const float &slip_ratio) const;
 template autodiff::dual TireModel::computeCombinedFx_N<autodiff::dual>(
     float                 normal_load_N,
     float                 slip_angle_rad,
@@ -87,8 +90,10 @@ template <DecimalOrDual T>
     // Pacejka Pages 181-182 (4.E58): F_y = G_yk * F_y0 + S_vyk
     return coefficients.g_yk * T(pure_fy_0) + coefficients.s_vyk;
 }
-template float
-    TireModel::computeCombinedFy_N<float>(const float normal_load_N, const float slip_angle_rad, const float &slip_ratio) const;
+template float TireModel::computeCombinedFy_N<float>(
+    const float  normal_load_N,
+    const float  slip_angle_rad,
+    const float &slip_ratio) const;
 template autodiff::dual TireModel::computeCombinedFy_N<autodiff::dual>(
     float                 normal_load_N,
     float                 slip_angle_rad,
@@ -380,7 +385,7 @@ TireModel::CombinedFyMagicFormulaCoefficients<T> TireModel::combinedFyMagicFormu
 //-------------------------------------------------------------------- MJ Pure Coefficents 5.2
 //----------------------------------------------------------------------//
 
-constexpr float TireModel::normalizedLoadDelta(const float normal_load_N)
+float TireModel::normalizedLoadDelta(const float normal_load_N)
 {
     return (normal_load_N - NOMINAL_FZ_N) / safeSignedDenominator(NOMINAL_FZ_N);
 }
@@ -424,14 +429,14 @@ template <DecimalOrDual T> T TireModel::pureFx_E(const float normalized_load_del
     return base_e_x * (1.0f - fit_pure_fx_.ex_4 * sign(kappa_x));
 }
 
-constexpr float TireModel::pureFx_K(const float normal_load_N, const float normalized_load_delta) const
+float TireModel::pureFx_K(const float normal_load_N, const float normalized_load_delta) const
 {
     // Pacejka Page 179 (4.E15): K_xk
     return normal_load_N * (fit_pure_fx_.kx_1 + fit_pure_fx_.kx_2 * normalized_load_delta) *
            std::exp(fit_pure_fx_.kx_3 * normalized_load_delta);
 }
 
-constexpr float TireModel::pureFx_B(const float slip_stiffness, const float shape_factor, const float peak_factor)
+float TireModel::pureFx_B(const float slip_stiffness, const float shape_factor, const float peak_factor)
 {
     // Pacejka Page 179 (4.E16): B_x = K_xk / (C_x * D_x + epsilon_x)
     return slip_stiffness / safeSignedDenominator(shape_factor * peak_factor);
@@ -479,14 +484,14 @@ constexpr float TireModel::pureFy_E(const float normalized_load_delta, const flo
     return (fit_pure_fy_.ey_1 + fit_pure_fy_.ey_2 * normalized_load_delta) * (1.0f - fit_pure_fy_.ey_3 * sign(alpha_y));
 }
 
-constexpr float TireModel::pureFy_K(const float normal_load_N) const
+float TireModel::pureFy_K(const float normal_load_N) const
 {
     // Pacejka Page 180 (4.E25): K_yalpha with gamma/pressure terms reduced to zero.
     const float denominator = safeSignedDenominator(fit_pure_fy_.ky_2 * NOMINAL_FZ_N);
     return fit_pure_fy_.ky_1 * NOMINAL_FZ_N * std::sin(2.0f * std::atan(normal_load_N / denominator));
 }
 
-constexpr float TireModel::pureFy_B(const float cornering_stiffness, const float shape_factor, const float peak_factor)
+float TireModel::pureFy_B(const float cornering_stiffness, const float shape_factor, const float peak_factor)
 {
     // Pacejka Page 180 (4.E26): B_y = K_yalpha / (C_y * D_y + epsilon_y)
     return cornering_stiffness / safeSignedDenominator(shape_factor * peak_factor);

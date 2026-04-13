@@ -34,8 +34,8 @@ namespace
     using DualVec4 = Eigen::Matrix<autodiff::dual, 4, 1>;
 } // namespace
 
-[[nodiscard]] wheel_set<float>
-    optimize(const VehicleState &state, const float ax_setpoint, const float omegadot_setpoint)
+template <Decimal T>
+[[nodiscard]] wheel_set<T> optimize(const VehicleState<T> &state, const T ax_setpoint, const T omegadot_setpoint)
 {
     // Low-speed safeguard:
     // torque_vectoring.cpp computes a single force-availability blend from vehicle speed and passes it
@@ -49,8 +49,8 @@ namespace
     //     return { .fl = 0.0f, .fr = 0.0f, .rl = 0.0f, .rr = 0.0f };
     // }
 
-    static constexpr float SQRT_W_FX = std::sqrt(W_FX);
-    static constexpr float SQRT_W_MZ = std::sqrt(W_MZ);
+    static const float SQRT_W_FX = std::sqrt(W_FX);
+    static const float SQRT_W_MZ = std::sqrt(W_MZ);
 
     // const wheel_set<float> blended_des_f_x{
     //     .fl = low_speed_blend * des_f_x.fl,
@@ -112,10 +112,7 @@ namespace
         };
     };
 
-    Vec4f opt_slip; // output variable
-    // seed opt_slip
-    const auto [kappa_fl, kappa_fr, kappa_rl, kappa_rr] = state.kappas();
-    opt_slip << kappa_fl, kappa_fr, kappa_rl, kappa_rr;
+    Vec4f opt_slip{ 0, 0, 0, 0 }; // output variable
 
     float previous_cost = std::numeric_limits<float>::infinity();
 
@@ -182,4 +179,7 @@ namespace
         .rr = opt_slip(3),
     };
 }
+
+template wheel_set<float>  optimize(const VehicleState<float> &state, float ax_setpoint, float omegadot_setpoint);
+template wheel_set<double> optimize(const VehicleState<double> &state, double ax_setpoint, double omegadot_setpoint);
 } // namespace app::tv::controllers::allocator

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "util_units.hpp"
+#include <cmath>
 
 namespace app::tv::shared_datatypes::vd_constants
 {
@@ -124,7 +125,7 @@ inline constexpr float MAX_AX = 10; // TODO idk this number bruh
  * Convert power (kW) and RPM to torque (Nm)
  * Includes safety guard against division by zero
  */
-[[nodiscard]] constexpr float POWER_TO_TORQUE(const float power, const float rpm)
+[[nodiscard]] inline float POWER_TO_TORQUE(const float power, const float rpm)
 {
     return (power * static_cast<float>(POWER_TO_TORQUE_CONVERSION_FACTOR)) / (std::fmax(rpm, 0.00001f) / GEAR_RATIO);
 }

@@ -29,7 +29,7 @@ namespace
     constexpr float ESTIMATOR_DT_S        = 0.01f;  // Matches the 100 Hz control task.
     constexpr float ESTIMATOR_YAW_INERTIA = 110.0f; // TODO: Replace with measured Hexray yaw inertia.
 
-    [[nodiscard]] constexpr autodiff::dual stateTransitionVx(const StateInput &x)
+    [[nodiscard]] autodiff::dual stateTransitionVx(const StateInput &x)
     {
         const autodiff::dual &v_x = x(static_cast<Eigen::Index>(VX));
         const autodiff::dual &v_y = x(static_cast<Eigen::Index>(VY));
@@ -39,7 +39,7 @@ namespace
         return v_x + (ESTIMATOR_DT_S * (a_x + (v_y * r)));
     }
 
-    [[nodiscard]] constexpr autodiff::dual stateTransitionVy(const StateInput &x)
+    [[nodiscard]] autodiff::dual stateTransitionVy(const StateInput &x)
     {
         const autodiff::dual &v_x = x(static_cast<Eigen::Index>(VX));
         const autodiff::dual &v_y = x(static_cast<Eigen::Index>(VY));
@@ -49,7 +49,7 @@ namespace
         return v_y + (ESTIMATOR_DT_S * (a_y - (v_x * r)));
     }
 
-    [[nodiscard]] constexpr autodiff::dual stateTransitionYawRate(const StateInput &x)
+    [[nodiscard]] autodiff::dual stateTransitionYawRate(const StateInput &x)
     {
         const autodiff::dual &r  = x(static_cast<Eigen::Index>(R));
         const autodiff::dual &mz = x(static_cast<Eigen::Index>(MZ));
@@ -57,27 +57,27 @@ namespace
         return r + (ESTIMATOR_DT_S * (mz / ESTIMATOR_YAW_INERTIA));
     }
 
-    [[nodiscard]] constexpr autodiff::dual stateTransitionYawMoment(const StateInput &x)
+    [[nodiscard]] autodiff::dual stateTransitionYawMoment(const StateInput &x)
     {
         return x(static_cast<Eigen::Index>(MZ));
     }
 
-    [[nodiscard]] constexpr autodiff::dual measurementVx(const State &x)
+    [[nodiscard]] autodiff::dual measurementVx(const State &x)
     {
         return x(static_cast<Eigen::Index>(VX));
     }
 
-    [[nodiscard]] constexpr autodiff::dual measurementVy(const State &x)
+    [[nodiscard]] autodiff::dual measurementVy(const State &x)
     {
         return x(static_cast<Eigen::Index>(VY));
     }
 
-    [[nodiscard]] constexpr autodiff::dual measurementYawRate(const State &x)
+    [[nodiscard]] autodiff::dual measurementYawRate(const State &x)
     {
         return x(static_cast<Eigen::Index>(R));
     }
 
-    [[nodiscard]] constexpr autodiff::dual measurementYawMoment(const State &x)
+    [[nodiscard]] autodiff::dual measurementYawMoment(const State &x)
     {
         return x(static_cast<Eigen::Index>(MZ));
     }
@@ -102,7 +102,7 @@ namespace
         } };
     }
 
-    [[nodiscard]] constexpr Filter::N_N processNoise()
+    [[nodiscard]] Filter::N_N processNoise()
     {
         Filter::N_N q                                                   = Filter::N_N::Zero();
         q(static_cast<Eigen::Index>(VX), static_cast<Eigen::Index>(VX)) = 0.05f;
@@ -112,7 +112,7 @@ namespace
         return q;
     }
 
-    [[nodiscard]] constexpr Filter::M_M measurementNoise()
+    [[nodiscard]] Filter::M_M measurementNoise()
     {
         Filter::M_M r                                                   = Filter::M_M::Zero();
         r(static_cast<Eigen::Index>(VX), static_cast<Eigen::Index>(VX)) = 0.75f;
@@ -122,12 +122,12 @@ namespace
         return r;
     }
 
-    [[nodiscard]] constexpr StateVector initialState()
+    [[nodiscard]] StateVector initialState()
     {
         return StateVector::Zero();
     }
 
-    [[nodiscard]] constexpr Filter::N_N initialCovariance()
+    [[nodiscard]] Filter::N_N initialCovariance()
     {
         Filter::N_N p0                                                   = Filter::N_N::Identity();
         p0(static_cast<Eigen::Index>(VX), static_cast<Eigen::Index>(VX)) = 5.0f;
@@ -183,7 +183,7 @@ namespace
         return z;
     }
 
-    [[nodiscard]] constexpr Filter createFilter()
+    [[nodiscard]] Filter createFilter()
     {
         return Filter(
             createStateFunctions(), createMeasurementFunctions(), processNoise(), measurementNoise(), initialState(),
@@ -199,7 +199,7 @@ namespace VehicleStateEstimator
         filter_ = createFilter();
     }
 
-    [[nodiscard]] shared_datatypes::VehicleState estimate(const Measurements &state)
+    [[nodiscard]] shared_datatypes::VehicleState<float> estimate(const Measurements &state)
     {
         InputVector u                    = InputVector::Zero();
         u(static_cast<Eigen::Index>(AX)) = state.ax;
@@ -225,9 +225,9 @@ namespace VehicleStateEstimator
             .v_x_mps        = estimated_state(static_cast<Eigen::Index>(VX)),
             .v_y_mps        = estimated_state(static_cast<Eigen::Index>(VY)),
             .yaw_rate_radps = estimated_state(static_cast<Eigen::Index>(R)),
-            .steer_ang_rad  = measured_steering_angle,
             .a_x_mps2       = u(static_cast<Eigen::Index>(AX)),
             .a_y_mps2       = u(static_cast<Eigen::Index>(AY)),
+            .delta          = { measured_steering_angle, measured_steering_angle, 0, 0 },
         };
     }
 

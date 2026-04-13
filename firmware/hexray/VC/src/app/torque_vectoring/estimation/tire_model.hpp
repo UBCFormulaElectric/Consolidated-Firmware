@@ -1,5 +1,5 @@
 #pragma once
-#include "torque_vectoring/shared_datatypes/datatypes.hpp"
+#include "torque_vectoring/shared_datatypes/decimal_dual.hpp"
 
 namespace app::tv::estimation
 {
@@ -155,7 +155,7 @@ class TireModel
     static constexpr float NOMINAL_FZ_N = 750.0f;
     //-------------------------------------------------------------------- Class Helpers
     //----------------------------------------------------------------------//
-    [[nodiscard]] static constexpr float normalizedLoadDelta(float normal_load_N);
+    [[nodiscard]] static float normalizedLoadDelta(float normal_load_N);
     // Reduced-model assumptions for combined slip in this pass:
     // gamma* = 0, lambda_xa = 1, lambda_yk = 1, lambda_vyk = 1, zeta_2 = 1.
     // Pressure dependence is captured by the fixed 12_PSI fitted parameter row.
@@ -167,8 +167,8 @@ class TireModel
     [[nodiscard]] constexpr float              pureFx_mu(float normalized_load_delta) const;
     [[nodiscard]] constexpr float              pureFx_D(float normal_load_N, float normalized_load_delta) const;
     template <DecimalOrDual T> [[nodiscard]] T pureFx_E(float normalized_load_delta, const T &kappa_x) const;
-    [[nodiscard]] constexpr float              pureFx_K(float normal_load_N, float normalized_load_delta) const;
-    [[nodiscard]] static constexpr float       pureFx_B(float slip_stiffness, float shape_factor, float peak_factor);
+    [[nodiscard]] float                        pureFx_K(float normal_load_N, float normalized_load_delta) const;
+    [[nodiscard]] static float                 pureFx_B(float slip_stiffness, float shape_factor, float peak_factor);
     [[nodiscard]] constexpr float              pureFx_Sv(float normal_load_N, float normalized_load_delta) const;
     [[nodiscard]] constexpr float              pureFy_Sh(float normalized_load_delta) const;
     [[nodiscard]] constexpr float              pureFy_Alpha(float normalized_load_delta, float slip_angle_rad) const;
@@ -176,9 +176,9 @@ class TireModel
     [[nodiscard]] constexpr float              pureFy_mu(float normalized_load_delta) const;
     [[nodiscard]] constexpr float              pureFy_D(float normal_load_N, float normalized_load_delta) const;
     [[nodiscard]] constexpr float              pureFy_E(float normalized_load_delta, float alpha_y) const;
-    [[nodiscard]] constexpr float              pureFy_K(float normal_load_N) const;
-    [[nodiscard]] static constexpr float pureFy_B(float cornering_stiffness, float shape_factor, float peak_factor);
-    [[nodiscard]] constexpr float        pureFy_Sv(float normal_load_N, float normalized_load_delta) const;
+    [[nodiscard]] float                        pureFy_K(float normal_load_N) const;
+    [[nodiscard]] static float    pureFy_B(float cornering_stiffness, float shape_factor, float peak_factor);
+    [[nodiscard]] constexpr float pureFy_Sv(float normal_load_N, float normalized_load_delta) const;
     template <DecimalOrDual T>
     [[nodiscard]] PureFxMagicFormulaCoefficients<T>
         pureFxMagicFormulaCoefficients(float normal_load_N, const T &slip_ratio) const;
