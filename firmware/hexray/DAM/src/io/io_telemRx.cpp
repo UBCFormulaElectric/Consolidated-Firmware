@@ -101,6 +101,12 @@ void pollForRadioMessages(void)
     // Read rest of packet (contains t1, t2) using size given to you
     uint8_t size = rxBufferHeader[2];
 
+    if (size == 0)
+    {
+        LOG_ERROR("Invalid payload size: 0");
+        return;
+    }
+
     uint8_t            bodyData[256];
     std::span<uint8_t> rxBufferBody(bodyData, size);
 
@@ -112,6 +118,14 @@ void pollForRadioMessages(void)
         return;
     }
 
+    // Take note of t3 (receiving time) immediately after receive
+    if (!io::rtc::get_time(t3))
+    {
+        LOG_ERROR("Could not get RTC time for t3");
+        return;
+    }
+    ntpTimestamps.t3 = RtcTimeToMs(t3);
+
     // CRC validation: expected CRC is little-endian in header bytes [3..6]
     uint32_t expected_crc;
     std::memcpy(&expected_crc, &rxBufferHeader[3], sizeof(uint32_t));
@@ -120,14 +134,6 @@ void pollForRadioMessages(void)
         LOG_ERROR("CRC mismatch");
         return;
     }
-
-    // Take note of t3 (receiving time)
-    if (!io::rtc::get_time(t3))
-    {
-        LOG_ERROR("Could not get RTC time for t3");
-        return;
-    }
-    ntpTimestamps.t3 = RtcTimeToMs(t3);
 
     // Parse t1 and t2 from rxBufferBody.
     parseNTPPacketBody(rxBufferBody);
