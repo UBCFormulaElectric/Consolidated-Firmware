@@ -6,6 +6,7 @@
 #include <Eigen/Dense>
 #include <dual.hpp>
 #include <gradient.hpp>
+#include <cstdio>
 
 #include "torque_vectoring/shared_datatypes/constants.hpp"
 #include "torque_vectoring/estimation/tire_model.hpp"
@@ -17,8 +18,9 @@ namespace app::tv::controllers::allocator
 namespace
 {
     // ---- Optimizer tuning ----
-    constexpr float W_FX = 2.0f / 3.0f;
-    constexpr float W_MZ = 1.0f / 3.0f;
+    constexpr float ALPHA = 0.0f;
+    constexpr float W_FX = 1.0f - ALPHA;
+    constexpr float W_MZ = ALPHA;
 
     constexpr int                    MAX_ITER          = 8;
     [[maybe_unused]] constexpr float SLIP_CLAMP        = 0.3f;
@@ -147,11 +149,19 @@ template <Decimal T>
         const Eigen::LDLT<Mat44f> ldlt(normal_matrix);
 
         if (ldlt.info() != Eigen::Success)
-            break;
+            {
+                std::printf("optimizer :( 1\n");
+                std::fflush(stdout);
+                break;
+            }
 
         const Vec4f delta = ldlt.solve(rhs);
         if (!delta.allFinite())
-            break;
+            {
+                std::printf("optimizer :( 2\n");
+                std::fflush(stdout);
+                break;
+            }
 
         opt_slip += delta;
         // I would recommend not doing this
@@ -170,6 +180,9 @@ template <Decimal T>
 
         previous_cost = cost;
     }
+
+    std::printf("optimized :)\n");
+    std::fflush(stdout);
 
     return {
         .fl = opt_slip(0),

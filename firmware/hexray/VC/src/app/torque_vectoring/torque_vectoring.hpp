@@ -2,6 +2,7 @@
 #include "shared_datatypes/constants.hpp"
 #include "shared_datatypes/vehicle_state_estimator.hpp"
 #include "shared_datatypes/wheel_set.hpp"
+// #include <iostream>
 
 template <Decimal T> struct ControlOutput
 {
@@ -44,10 +45,15 @@ template <typename T>
 app::tv::shared_datatypes::wheel_set<T>
     kappa_update(const app::tv::shared_datatypes::wheel_set<T> &kappas, const T v_x_mps)
 {
+    // std::cout << "Vx: " << v_x_mps << std::endl;
+    // std::cout << "Kappas: " << kappas.fl << kappas.fr << kappas.rl << kappas.rr << std::endl;
+
+    T v_x_mps_capped = std::max(v_x_mps, static_cast<T>(1));
+
     return {
-        .fl = (1.0f + kappas.fl) * (v_x_mps / app::tv::shared_datatypes::vd_constants::WHEEL_RADIUS_M),
-        .fr = (1.0f + kappas.fr) * (v_x_mps / app::tv::shared_datatypes::vd_constants::WHEEL_RADIUS_M),
-        .rl = (1.0f + kappas.rl) * (v_x_mps / app::tv::shared_datatypes::vd_constants::WHEEL_RADIUS_M),
-        .rr = (1.0f + kappas.rr) * (v_x_mps / app::tv::shared_datatypes::vd_constants::WHEEL_RADIUS_M),
+        .fl = GEAR_RATIO * (static_cast<T>(1) + kappas.fl) * (v_x_mps_capped / static_cast<T>(app::tv::shared_datatypes::vd_constants::WHEEL_RADIUS_M)),
+        .fr = GEAR_RATIO * (static_cast<T>(1) + kappas.fr) * (v_x_mps_capped / static_cast<T>(app::tv::shared_datatypes::vd_constants::WHEEL_RADIUS_M)),
+        .rl = GEAR_RATIO * (static_cast<T>(1) + kappas.rl) * (v_x_mps_capped / static_cast<T>(app::tv::shared_datatypes::vd_constants::WHEEL_RADIUS_M)),
+        .rr = GEAR_RATIO * (static_cast<T>(1) + kappas.rr) * (v_x_mps_capped / static_cast<T>(app::tv::shared_datatypes::vd_constants::WHEEL_RADIUS_M)),
     };
 }

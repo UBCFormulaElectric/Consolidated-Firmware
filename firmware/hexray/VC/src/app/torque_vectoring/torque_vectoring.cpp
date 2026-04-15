@@ -33,8 +33,8 @@ template <Decimal T> ControlOutput<T> update(const VehicleState<T> &state)
     // TODO: slip_ratio_opt -> slipRatioToWheelAngularVelocity() -> power limiter -> torque request
 
     return { { kappa_opt.fl, kappa_opt.fr, kappa_opt.rl, kappa_opt.rr },
-             { ax_mps2_setpoint, omegadot_radps2_setpoint, 0, 0 },
-             { 0, 0, 0, 0 } };
+             { 5, 5, 5, 5 },
+             { -5, -5, -5, -5 } };
 }
 template ControlOutput<float>  update(const VehicleState<float> &state);
 template ControlOutput<double> update(const VehicleState<double> &state);
@@ -66,6 +66,7 @@ extern "C" void update_matlab(
                                  } };
     // bring it in
     const auto [k_kappas, k_torque_max, k_torque_min] = update(state);
+    // std::cout << "DIH" << std::endl;
     // update
     kappas[0]     = k_kappas.fl;
     kappas[1]     = k_kappas.fr;
