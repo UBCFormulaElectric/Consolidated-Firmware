@@ -3,12 +3,13 @@
 #include "hw_uart.hpp"
 #include "io_telemMessage.hpp"
 #include "io_rtc.hpp"
+#include "io_crc.hpp"
 #include <portmacro.h>
 #include <stdint.h>
 #include <util_errorCodes.h>
 #include <cstring>
 
-constexpr uint32_t PREDIV_S = 999;
+constexpr uint32_t PREDIV_S   = 999;
 constexpr uint64_t MS_PER_DAY = 86400000ULL;
 
 static NTPTimestamps ntpTimestamps;
@@ -59,7 +60,9 @@ void transmitNTPStartMsg(void)
     }
 
     // --------------------------- Debug message
-    LOG_INFO("Sent NTP Msg! at time: %02u:%02u:%02u.%03lu", t0.hours, t0.minutes, t0.seconds, (unsigned long)(999 - t0.subseconds));
+    LOG_INFO(
+        "Sent NTP Msg! at time: %02u:%02u:%02u.%03lu", t0.hours, t0.minutes, t0.seconds,
+        (unsigned long)(999 - t0.subseconds));
 }
 
 void pollForRadioMessages(void)
@@ -95,10 +98,9 @@ void pollForRadioMessages(void)
         "Header: %02X %02X %02X %02X %02X %02X %02X", rxBufferHeader[0], rxBufferHeader[1], rxBufferHeader[2],
         rxBufferHeader[3], rxBufferHeader[4], rxBufferHeader[5], rxBufferHeader[6]);
 
-    // TODO check CRC here
-
     // Read rest of packet (contains t1, t2) using size given to you
-    uint8_t            size = rxBufferHeader[3];
+    uint8_t size = rxBufferHeader[2];
+
     uint8_t            bodyData[256];
     std::span<uint8_t> rxBufferBody(bodyData, size);
 
@@ -107,6 +109,15 @@ void pollForRadioMessages(void)
     if (!_900k_uart.receive(rxBufferBody))
     {
         LOG_ERROR("Could not get rxBufferBody");
+        return;
+    }
+
+    // CRC validation: expected CRC is little-endian in header bytes [3..6]
+    uint32_t expected_crc;
+    std::memcpy(&expected_crc, &rxBufferHeader[3], sizeof(uint32_t));
+    if (expected_crc != io::crc::calculatePayloadCrc(rxBufferBody))
+    {
+        LOG_ERROR("CRC mismatch");
         return;
     }
 
@@ -125,11 +136,16 @@ void pollForRadioMessages(void)
     io::rtc::Time t = MsToRtcTime(ntpTimestamps.t0);
     LOG_INFO("Noted t0:    %02u:%02u:%02u.%03lu", t.hours, t.minutes, t.seconds, (unsigned long)(999 - t.subseconds));
     io::rtc::Time tt = MsToRtcTime(ntpTimestamps.t1);
-    LOG_INFO("Received t1: %02u:%02u:%02u.%03lu", tt.hours, tt.minutes, tt.seconds, (unsigned long)(999 - tt.subseconds));
+    LOG_INFO(
+        "Received t1: %02u:%02u:%02u.%03lu", tt.hours, tt.minutes, tt.seconds, (unsigned long)(999 - tt.subseconds));
     io::rtc::Time ttt = MsToRtcTime(ntpTimestamps.t2);
-    LOG_INFO("Received t2: %02u:%02u:%02u.%03lu", ttt.hours, ttt.minutes, ttt.seconds, (unsigned long)(999 - ttt.subseconds));
+    LOG_INFO(
+        "Received t2: %02u:%02u:%02u.%03lu", ttt.hours, ttt.minutes, ttt.seconds,
+        (unsigned long)(999 - ttt.subseconds));
     io::rtc::Time tttt = MsToRtcTime(ntpTimestamps.t3);
-    LOG_INFO("Noted t3:    %02u:%02u:%02u.%03lu", tttt.hours, tttt.minutes, tttt.seconds, (unsigned long)(999 - tttt.subseconds));
+    LOG_INFO(
+        "Noted t3:    %02u:%02u:%02u.%03lu", tttt.hours, tttt.minutes, tttt.seconds,
+        (unsigned long)(999 - tttt.subseconds));
 
     // Tune RTC with collected t0, t1, t2, t3
     tuneRTC();
@@ -158,8 +174,8 @@ void parseNTPPacketBody(std::span<uint8_t> body)
 void tuneRTC(void)
 {
     // Calculate the offset theta using the formula
-    int64_t theta = ((int64_t)(ntpTimestamps.t1 - ntpTimestamps.t0) +
-                     (int64_t)(ntpTimestamps.t2 - ntpTimestamps.t3)) / 2;
+    int64_t theta =
+        ((int64_t)(ntpTimestamps.t1 - ntpTimestamps.t0) + (int64_t)(ntpTimestamps.t2 - ntpTimestamps.t3)) / 2;
 
     io::rtc::Time currTime;
     if (!io::rtc::get_time(currTime))
@@ -177,11 +193,11 @@ void tuneRTC(void)
     io::rtc::Time newRtcTime = MsToRtcTime(static_cast<uint64_t>(newMs));
 
     // extract the ms
-    //uint32_t ms = PREDIV_S - newRtcTime.subseconds;
+    // uint32_t ms = PREDIV_S - newRtcTime.subseconds;
 
     // delay the ms amount of time (this calls os_delay so it is non-blocking)
-    //if (theta > 0) // only delay when moving forward - we want to apply negative adjustments asap
-        //io::time::delay(ms); 
+    // if (theta > 0) // only delay when moving forward - we want to apply negative adjustments asap
+    // io::time::delay(ms);
 
     // round the newRtcTime ms field up to the nearest second
     // this needs to be done because io::rtc::set_time() doesn't use the subseconds field to set rtc time
