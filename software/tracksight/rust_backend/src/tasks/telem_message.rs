@@ -1,10 +1,9 @@
 use std::time::Duration;
 
-use crc::{CRC_32_ISO_HDLC, Crc};
+use crc::{Crc, CRC_32_MPEG_2};
 
 // calc is short for calculator for those new to the chat
-pub const CRC32_CALC: Crc<u32> = Crc::<u32>::new(&CRC_32_ISO_HDLC);
-
+pub const CRC32_CALC: Crc<u32> = Crc::<u32>::new(&CRC_32_MPEG_2);
 
 /*
  * Telem packet bytes in the form of
@@ -26,10 +25,8 @@ pub const CRC32_CALC: Crc<u32> = Crc::<u32>::new(&CRC_32_ISO_HDLC);
  * Incoming messages from DAM to backend
  */
 pub enum TelemetryIncomingMessage {
-    Can {
-        body: CanPayload,
-    },
-    NTP
+    Can { body: CanPayload },
+    NTP,
 }
 
 impl TelemetryIncomingMessage {
@@ -47,7 +44,7 @@ impl TelemetryIncomingMessage {
  * Define with default cloning behaviour, as fields are more or less primitives
  */
 #[derive(Clone, Debug)]
- pub struct CanPayload {
+pub struct CanPayload {
     pub can_id: u32,
     pub can_timestamp: u64,
     pub payload: Vec<u8>,
@@ -58,8 +55,8 @@ pub enum TelemetryOutgoingMessage {
     NTP {
         // Only pack t1 in outgoing message
         // let the handler actually send the appropriate t2 when sending packet
-        t1: Duration
-    }
+        t1: Duration,
+    },
 }
 
 impl TelemetryOutgoingMessage {
