@@ -107,23 +107,24 @@ template <Decimal T>
     {
         const wheel_set<Pair<autodiff::dual>> predicted_f{
             {
-                estimation::tire_model.computeCombinedFx_N<autodiff::dual>(fz_fl, alpha_fl, kappa(0)) / 1000,
-                estimation::tire_model.computeCombinedFy_N<autodiff::dual>(fz_fl, alpha_fl, kappa(0)) / 1000,
+                estimation::tire_model.computeCombinedFx_N<autodiff::dual>(fz_fl, alpha_fl, kappa(0)),
+                estimation::tire_model.computeCombinedFy_N<autodiff::dual>(fz_fl, alpha_fl, kappa(0)),
             },
             {
-                estimation::tire_model.computeCombinedFx_N<autodiff::dual>(fz_fr, alpha_fr, kappa(1)) / 1000,
-                estimation::tire_model.computeCombinedFy_N<autodiff::dual>(fz_fr, alpha_fr, kappa(1)) / 1000,
+                estimation::tire_model.computeCombinedFx_N<autodiff::dual>(fz_fr, alpha_fr, kappa(1)),
+                estimation::tire_model.computeCombinedFy_N<autodiff::dual>(fz_fr, alpha_fr, kappa(1)),
             },
             {
-                estimation::tire_model.computeCombinedFx_N<autodiff::dual>(fz_rl, alpha_rl, kappa(2)) / 1000,
-                estimation::tire_model.computeCombinedFy_N<autodiff::dual>(fz_rl, alpha_rl, kappa(2)) / 1000,
+                estimation::tire_model.computeCombinedFx_N<autodiff::dual>(fz_rl, alpha_rl, kappa(2)),
+                estimation::tire_model.computeCombinedFy_N<autodiff::dual>(fz_rl, alpha_rl, kappa(2)),
             },
             {
-                estimation::tire_model.computeCombinedFx_N<autodiff::dual>(fz_rr, alpha_rr, kappa(3)) / 1000,
-                estimation::tire_model.computeCombinedFy_N<autodiff::dual>(fz_rr, alpha_rr, kappa(3)) / 1000,
+                estimation::tire_model.computeCombinedFx_N<autodiff::dual>(fz_rr, alpha_rr, kappa(3)),
+                estimation::tire_model.computeCombinedFy_N<autodiff::dual>(fz_rr, alpha_rr, kappa(3)),
             },
         };
-        const autodiff::dual sum_fx       = predicted_f.fl.x + predicted_f.fr.x + predicted_f.rl.x + predicted_f.rr.x;
+        const autodiff::dual sum_fx =
+            predicted_f.fl.x / 1000 + predicted_f.fr.x / 1000 + predicted_f.rl.x / 1000 + predicted_f.rr.x / 1000;
         const autodiff::dual predicted_mz = state.est_Mz_N(predicted_f);
         return DualVec6<T>{ SQRT_W_FX * (sum_fx - CAR_MASS_AT_CG_KG * ax_setpoint / 1000),
                             SQRT_W_MZ * (predicted_mz - CAR_YAW_MOMENT_INERTIA_KGM2 * omegadot_setpoint),
