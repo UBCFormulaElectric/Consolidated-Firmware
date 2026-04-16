@@ -58,5 +58,5 @@ int main()
         .delta          = 0,
     };
     const auto [fl, fr, rl, rr] = app::tv::controllers::allocator::optimize(state, 10.0, 0.0);
-    std::cout << fl << " " << fr << " " << rl << " " << rr << std::endl;
+    std::cout << "Optimal slip found: " << fl << " " << fr << " " << rl << " " << rr << std::endl;
 }

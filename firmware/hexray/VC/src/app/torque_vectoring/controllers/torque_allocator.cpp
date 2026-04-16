@@ -24,11 +24,11 @@ namespace
     constexpr double W_MZ = 0.0f;
     constexpr double W_R  = 15.5f;
 
-    constexpr int                    MAX_ITER          = 8;
-    [[maybe_unused]] constexpr float SLIP_CLAMP        = 0.3f;
-    constexpr float                  NORMAL_MATRIX_EPS = 1e-6f;
-    constexpr float                  STEP_TOLERANCE    = 1e-5f;
-    constexpr float                  COST_TOLERANCE    = 1e-6f;
+    constexpr int                     MAX_ITER          = 8;
+    [[maybe_unused]] constexpr double SLIP_CLAMP        = 0.3;
+    constexpr float                   NORMAL_MATRIX_EPS = 1e-6f;
+    constexpr float                   STEP_TOLERANCE    = 1e-5f;
+    constexpr float                   COST_TOLERANCE    = 1e-6f;
 
     using Vec6f    = Eigen::Matrix<double, 6, 1>;
     using Vec4f    = Eigen::Matrix<double, 4, 1>;
@@ -38,7 +38,7 @@ namespace
     using DualVec4 = Eigen::Matrix<autodiff::dual, 4, 1>;
 
     // print the normal_matrix
-    const Eigen::IOFormat CleanFmt(5, 0, ", ", "\n", "[", "]");
+    const Eigen::IOFormat CleanFmt(3, 0, ", ", "\n", "[", "]");
 
     void debug(const Mat44f &normal_matrix)
     {
@@ -167,18 +167,6 @@ template <Decimal T>
             autodiff::val(residual_at_kappa(2)), autodiff::val(residual_at_kappa(3)),
             autodiff::val(residual_at_kappa(4)), autodiff::val(residual_at_kappa(5)),
         };
-        // print residual_at_kapp and jacobian_residual_at_kappa
-        std::cout << "==============Iteration " << iter
-                  << "===============\n"
-                     "Kappa: \n"
-                  << opt_slip.format(CleanFmt)
-                  << "\n\n"
-                     "Residual at kappa:\n"
-                  << residuals_at_kappa_primal.format(CleanFmt)
-                  << "\n\n"
-                     "Jacobian of residual at kappa:\n"
-                  << jacobian_residual_at_kappa.format(CleanFmt) << std::endl;
-
         Mat44f normal_matrix = jacobian_residual_at_kappa.transpose() * jacobian_residual_at_kappa;
         normal_matrix.diagonal().array() += NORMAL_MATRIX_EPS; // condition problem lmao
         const Eigen::LDLT<Mat44f> ldlt(normal_matrix);
@@ -197,23 +185,19 @@ template <Decimal T>
             break;
         }
 
-        std::cout << "Delta: \n" << delta.format(CleanFmt) << std::endl;
-        opt_slip += delta;
-        // I would recommend not doing this
-        // consider the following: a large step is required which leaves the clamp space
-        // this would cause the loop to never converge as the step size at each iteration would be sufficiently large to
-        // continue
-        // for (int i = 0; i < 4; ++i)
-        //     opt_slip(i) = std::clamp(opt_slip(i), -SLIP_CLAMP, SLIP_CLAMP);
-
-        // Least-squares cost:
-        //   J = 0.5 * r^T r
+        Vec4f next_opt_slip = opt_slip + delta;
+        for (int i = 0; i < 4; ++i)
+            next_opt_slip(i) = std::clamp(next_opt_slip(i), -SLIP_CLAMP, SLIP_CLAMP);
+        // Least-squares cost: |r|_2^2
         // This is used only for convergence monitoring; the actual update is driven by J^T J and J^T r above.
-        const float cost = 0.5f * residuals_at_kappa_primal.squaredNorm();
+        const float cost = residuals_at_kappa_primal.squaredNorm();
+        std::cout << "Iter " << iter << ": cost = " << cost << ", opt_slip = [" << opt_slip.transpose()
+                  << "], delta = [" << delta.transpose() << "]\n";
         if (delta.norm() < STEP_TOLERANCE || std::fabs(previous_cost - cost) < COST_TOLERANCE)
             break;
 
         previous_cost = cost;
+        opt_slip      = next_opt_slip;
     }
     if (iter == MAX_ITER)
     {
