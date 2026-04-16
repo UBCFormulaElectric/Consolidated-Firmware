@@ -30,24 +30,24 @@ namespace
     constexpr float                   STEP_TOLERANCE    = 1e-5f;
     constexpr float                   COST_TOLERANCE    = 1e-6f;
 
-    using Vec6f    = Eigen::Matrix<double, 6, 1>;
-    using Vec4f    = Eigen::Matrix<double, 4, 1>;
-    using Mat64f   = Eigen::Matrix<double, 6, 4>;
-    using Mat44f   = Eigen::Matrix<double, 4, 4>;
-    using DualVec6 = Eigen::Matrix<autodiff::dual, 6, 1>;
-    using DualVec4 = Eigen::Matrix<autodiff::dual, 4, 1>;
+    template <Decimal T> using Vec6     = Eigen::Matrix<T, 6, 1>;
+    template <Decimal T> using Vec4     = Eigen::Matrix<T, 4, 1>;
+    template <Decimal T> using Mat64    = Eigen::Matrix<T, 6, 4>;
+    template <Decimal T> using Mat44    = Eigen::Matrix<T, 4, 4>;
+    template <Decimal T> using DualVec6 = Eigen::Matrix<DecimalDual<T>, 6, 1>;
+    template <Decimal T> using DualVec4 = Eigen::Matrix<DecimalDual<T>, 4, 1>;
 
     // print the normal_matrix
     const Eigen::IOFormat CleanFmt(3, 0, ", ", "\n", "[", "]");
 
-    void debug(const Mat44f &normal_matrix)
+    template <Decimal T> void debug(const Mat44<T> &normal_matrix)
     {
         std::cout << "Normal Matrix:\n" << normal_matrix.format(CleanFmt) << std::endl;
         // eigenvalues
-        const Eigen::EigenSolver<Mat44f> es(normal_matrix);
+        const Eigen::EigenSolver<Mat44<T>> es(normal_matrix);
         std::cout << "Eigenvalues:\n" << es.eigenvalues() << std::endl;
         // condition number
-        const Eigen::JacobiSVD<Mat44f> svd(normal_matrix);
+        const Eigen::JacobiSVD<Mat44<T>> svd(normal_matrix);
         const double cond = svd.singularValues()(0) / svd.singularValues()(svd.singularValues().size() - 1);
         std::cout << "Condition number: " << cond << std::endl;
     }
@@ -103,68 +103,68 @@ template <Decimal T>
     // stays allocation-free and predictable on embedded targets.
     const auto [fz_fl, fz_fr, fz_rl, fz_rr]             = state.est_Fz_N();
     const auto [alpha_fl, alpha_fr, alpha_rl, alpha_rr] = state.alphas();
-    const auto residualVector                           = [&](const DualVec4 &kappa) -> DualVec6
+    const auto residualVector                           = [&](const DualVec4<T> &kappa) -> DualVec6<T>
     {
         const wheel_set<Pair<autodiff::dual>> predicted_f{
             {
-                estimation::tire_model.computeCombinedFx_N<autodiff::dual>(fz_fl, alpha_fl, kappa(0)),
-                estimation::tire_model.computeCombinedFy_N<autodiff::dual>(fz_fl, alpha_fl, kappa(0)),
+                estimation::tire_model.computeCombinedFx_N<autodiff::dual>(fz_fl, alpha_fl, kappa(0)) / 1000,
+                estimation::tire_model.computeCombinedFy_N<autodiff::dual>(fz_fl, alpha_fl, kappa(0)) / 1000,
             },
             {
-                estimation::tire_model.computeCombinedFx_N<autodiff::dual>(fz_fr, alpha_fr, kappa(1)),
-                estimation::tire_model.computeCombinedFy_N<autodiff::dual>(fz_fr, alpha_fr, kappa(1)),
+                estimation::tire_model.computeCombinedFx_N<autodiff::dual>(fz_fr, alpha_fr, kappa(1)) / 1000,
+                estimation::tire_model.computeCombinedFy_N<autodiff::dual>(fz_fr, alpha_fr, kappa(1)) / 1000,
             },
             {
-                estimation::tire_model.computeCombinedFx_N<autodiff::dual>(fz_rl, alpha_rl, kappa(2)),
-                estimation::tire_model.computeCombinedFy_N<autodiff::dual>(fz_rl, alpha_rl, kappa(2)),
+                estimation::tire_model.computeCombinedFx_N<autodiff::dual>(fz_rl, alpha_rl, kappa(2)) / 1000,
+                estimation::tire_model.computeCombinedFy_N<autodiff::dual>(fz_rl, alpha_rl, kappa(2)) / 1000,
             },
             {
-                estimation::tire_model.computeCombinedFx_N<autodiff::dual>(fz_rr, alpha_rr, kappa(3)),
-                estimation::tire_model.computeCombinedFy_N<autodiff::dual>(fz_rr, alpha_rr, kappa(3)),
+                estimation::tire_model.computeCombinedFx_N<autodiff::dual>(fz_rr, alpha_rr, kappa(3)) / 1000,
+                estimation::tire_model.computeCombinedFy_N<autodiff::dual>(fz_rr, alpha_rr, kappa(3)) / 1000,
             },
         };
         const autodiff::dual sum_fx       = predicted_f.fl.x + predicted_f.fr.x + predicted_f.rl.x + predicted_f.rr.x;
         const autodiff::dual predicted_mz = state.est_Mz_N(predicted_f);
-        return DualVec6{ SQRT_W_FX * (sum_fx - CAR_MASS_AT_CG_KG * ax_setpoint),
-                         SQRT_W_MZ * (predicted_mz - CAR_YAW_MOMENT_INERTIA_KGM2 * omegadot_setpoint),
-                         SQRT_W_R * kappa[0],
-                         SQRT_W_R * kappa[1],
-                         SQRT_W_R * kappa[2],
-                         SQRT_W_R * kappa[3] };
+        return DualVec6<T>{ SQRT_W_FX * (sum_fx - CAR_MASS_AT_CG_KG * ax_setpoint / 1000),
+                            SQRT_W_MZ * (predicted_mz - CAR_YAW_MOMENT_INERTIA_KGM2 * omegadot_setpoint),
+                            SQRT_W_R * kappa[0],
+                            SQRT_W_R * kappa[1],
+                            SQRT_W_R * kappa[2],
+                            SQRT_W_R * kappa[3] };
     };
 
-    Vec4f    opt_slip{ 0, 0, 0, 0 }; // output variable
+    Vec4<T>  opt_slip{ 0, 0, 0, 0 }; // output variable
     float    previous_cost = std::numeric_limits<float>::infinity();
     uint32_t iter;
     for (iter = 0; iter < MAX_ITER; ++iter)
     {
-        DualVec4 kappa{
+        DualVec4<T> kappa{
             autodiff::dual(opt_slip(0)),
             autodiff::dual(opt_slip(1)),
             autodiff::dual(opt_slip(2)),
             autodiff::dual(opt_slip(3)),
         };
         // evaluate and calculate jacobian at kappa
-        DualVec6 residual_at_kappa;
-        Mat64f   jacobian_residual_at_kappa;
+        DualVec6<T> residual_at_kappa;
+        Mat64<T>    jacobian_residual_at_kappa;
         autodiff::jacobian(
             residualVector, autodiff::wrt(kappa), autodiff::at(kappa), residual_at_kappa, jacobian_residual_at_kappa);
-        const Vec6f residuals_at_kappa_primal{
+        const Vec6<T> residuals_at_kappa_primal{
             autodiff::val(residual_at_kappa(0)), autodiff::val(residual_at_kappa(1)),
             autodiff::val(residual_at_kappa(2)), autodiff::val(residual_at_kappa(3)),
             autodiff::val(residual_at_kappa(4)), autodiff::val(residual_at_kappa(5)),
         };
-        Mat44f normal_matrix = jacobian_residual_at_kappa.transpose() * jacobian_residual_at_kappa;
+        Mat44<T> normal_matrix = jacobian_residual_at_kappa.transpose() * jacobian_residual_at_kappa;
         normal_matrix.diagonal().array() += NORMAL_MATRIX_EPS; // condition problem lmao
-        const Eigen::LDLT<Mat44f> ldlt(normal_matrix);
+        const Eigen::LDLT<Mat44<T>> ldlt(normal_matrix);
         if (ldlt.info() != Eigen::Success)
         {
             std::cout << "optimizer :( 1\n" << ldlt.info() << std::endl;
             debug(normal_matrix);
             break;
         }
-        const Vec4f rhs   = -jacobian_residual_at_kappa.transpose() * residuals_at_kappa_primal;
-        const Vec4f delta = ldlt.solve(rhs);
+        const Vec4<T> rhs   = -jacobian_residual_at_kappa.transpose() * residuals_at_kappa_primal;
+        const Vec4<T> delta = ldlt.solve(rhs);
         if (!delta.allFinite())
         {
             std::printf("optimizer :( 2\n");
@@ -172,9 +172,9 @@ template <Decimal T>
             break;
         }
 
-        Vec4f next_opt_slip = opt_slip + delta;
+        Vec4<T> next_opt_slip = opt_slip + delta;
         for (int i = 0; i < 4; ++i)
-            next_opt_slip(i) = std::clamp(next_opt_slip(i), -SLIP_CLAMP, SLIP_CLAMP);
+            next_opt_slip(i) = std::clamp(next_opt_slip(i), -static_cast<T>(SLIP_CLAMP), static_cast<T>(SLIP_CLAMP));
         // Least-squares cost: |r|_2^2
         // This is used only for convergence monitoring; the actual update is driven by J^T J and J^T r above.
         const float cost = residuals_at_kappa_primal.squaredNorm();
@@ -199,6 +199,6 @@ template <Decimal T>
     };
 }
 
-// template wheel_set<float>  optimize(const VehicleState<float> &state, float ax_setpoint, float omegadot_setpoint);
+template wheel_set<float>  optimize(const VehicleState<float> &state, float ax_setpoint, float omegadot_setpoint);
 template wheel_set<double> optimize(const VehicleState<double> &state, double ax_setpoint, double omegadot_setpoint);
 } // namespace app::tv::controllers::allocator
