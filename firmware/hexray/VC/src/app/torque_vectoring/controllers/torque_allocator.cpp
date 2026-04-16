@@ -68,8 +68,6 @@ template <Decimal T>
     //     return { .fl = 0.0f, .fr = 0.0f, .rl = 0.0f, .rr = 0.0f };
     // }
 
-    std::cout << ax_setpoint << " " << omegadot_setpoint << std::endl;
-
     static const float SQRT_W_FX = std::sqrt(W_FX);
     static const float SQRT_W_MZ = std::sqrt(W_MZ);
     static const float SQRT_W_R  = std::sqrt(W_R);
@@ -127,15 +125,6 @@ template <Decimal T>
         };
         const autodiff::dual sum_fx       = predicted_f.fl.x + predicted_f.fr.x + predicted_f.rl.x + predicted_f.rr.x;
         const autodiff::dual predicted_mz = state.est_Mz_N(predicted_f);
-        // print out all forces and their gradients
-        // std::cout << "Predicted forces at kappa:\n"
-        //           << "FL: " << predicted_f.fl.x << " N, dFL/dkappa: " << autodiff::derivative(predicted_f.fl.x)
-        //           << "\nFR: " << predicted_f.fr.x << " N, dFR/dkappa: " << autodiff::derivative(predicted_f.fr.x)
-        //           << "\nRL: " << predicted_f.rl.x << " N, dRL/dkappa: " << autodiff::derivative(predicted_f.rl.x)
-        //           << "\nRR: " << predicted_f.rr.x << " N, dRR/dkappa: " << autodiff::derivative(predicted_f.rr.x)
-        //           << std::endl;
-        // print out sum_fx and its gradient
-        // std::cout << "Sum Fx: " << sum_fx << " N, d(Sum Fx)/dkappa: " << autodiff::derivative(sum_fx) << std::endl;
         return DualVec6{ SQRT_W_FX * (sum_fx - CAR_MASS_AT_CG_KG * ax_setpoint),
                          SQRT_W_MZ * (predicted_mz - CAR_YAW_MOMENT_INERTIA_KGM2 * omegadot_setpoint),
                          SQRT_W_R * kappa[0],
@@ -144,10 +133,8 @@ template <Decimal T>
                          SQRT_W_R * kappa[3] };
     };
 
-    Vec4f opt_slip{ 0, 0, 0, 0 }; // output variable
-
-    float previous_cost = std::numeric_limits<float>::infinity();
-
+    Vec4f    opt_slip{ 0, 0, 0, 0 }; // output variable
+    float    previous_cost = std::numeric_limits<float>::infinity();
     uint32_t iter;
     for (iter = 0; iter < MAX_ITER; ++iter)
     {
@@ -193,7 +180,7 @@ template <Decimal T>
         const float cost = residuals_at_kappa_primal.squaredNorm();
         std::cout << "Iter " << iter << ": cost = " << cost << ", opt_slip = [" << opt_slip.transpose()
                   << "], delta = [" << delta.transpose() << "]\n";
-        if (delta.norm() < STEP_TOLERANCE || std::fabs(previous_cost - cost) < COST_TOLERANCE)
+        if ((next_opt_slip - opt_slip).norm() < STEP_TOLERANCE || std::fabs(previous_cost - cost) < COST_TOLERANCE)
             break;
 
         previous_cost = cost;
