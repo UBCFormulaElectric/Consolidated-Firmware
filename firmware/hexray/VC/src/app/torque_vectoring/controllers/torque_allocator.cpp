@@ -21,10 +21,10 @@ namespace
 {
     // ---- Optimizer tuning ----
     constexpr double W_FX = 0.5f;
-    constexpr double W_MZ = 0.0f;
+    constexpr double W_MZ = 0.5f;
     constexpr double W_R  = 15.5f;
 
-    constexpr int                     MAX_ITER          = 8;
+    constexpr int                     MAX_ITER          = 20;
     [[maybe_unused]] constexpr double SLIP_CLAMP        = 0.3;
     constexpr float                   NORMAL_MATRIX_EPS = 1e-6f;
     constexpr float                   STEP_TOLERANCE    = 1e-5f;
@@ -179,8 +179,8 @@ template <Decimal T>
         // Least-squares cost: |r|_2^2
         // This is used only for convergence monitoring; the actual update is driven by J^T J and J^T r above.
         const float cost = residuals_at_kappa_primal.squaredNorm();
-        std::cout << "Iter " << iter << ": cost = " << cost << ", opt_slip = [" << opt_slip.transpose()
-                  << "], delta = [" << delta.transpose() << "]\n";
+        std::cout << "Iter " << iter << ": cost = " << cost << ", delta = " << delta.transpose().format(CleanFmt)
+                  << "\n";
         if ((next_opt_slip - opt_slip).norm() < STEP_TOLERANCE || std::fabs(previous_cost - cost) < COST_TOLERANCE)
             break;
 

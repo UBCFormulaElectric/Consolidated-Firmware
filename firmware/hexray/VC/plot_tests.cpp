@@ -48,8 +48,8 @@ static void plot_combined_fx()
 
 int main()
 {
-    constexpr app::tv::shared_datatypes::VehicleState<float> state{
-        .v_x_mps        = 0,
+    constexpr app::tv::shared_datatypes::VehicleState<double> state{
+        .v_x_mps        = 10,
         .v_y_mps        = 0,
         .yaw_rate_radps = 0,
         .a_x_mps2       = 1,
@@ -57,6 +57,6 @@ int main()
         .apps           = 0.2,
         .delta          = 0,
     };
-    const auto [fl, fr, rl, rr] = app::tv::controllers::allocator::optimize(state, 10.0f, 0.0f);
+    const auto [fl, fr, rl, rr] = app::tv::controllers::allocator::optimize(state, 10.0, 5.0);
     std::cout << "Optimal slip found: " << fl << " " << fr << " " << rl << " " << rr << std::endl;
 }
