@@ -49,7 +49,13 @@ static void plot_combined_fx()
 int main()
 {
     constexpr app::tv::shared_datatypes::VehicleState<double> state{
-        .v_x_mps = 0, .v_y_mps = 0, .yaw_rate_radps = 0, .a_x_mps2 = 1, .a_y_mps2 = 0, .apps = 0.2, .delta = 0
+        .v_x_mps        = 0,
+        .v_y_mps        = 0,
+        .yaw_rate_radps = 0,
+        .a_x_mps2       = 1,
+        .a_y_mps2       = 0,
+        .apps           = 0.2,
+        .delta          = 0,
     };
     const auto [fl, fr, rl, rr] = app::tv::controllers::allocator::optimize(state, 10.0, 0.0);
     std::cout << fl << " " << fr << " " << rl << " " << rr << std::endl;
