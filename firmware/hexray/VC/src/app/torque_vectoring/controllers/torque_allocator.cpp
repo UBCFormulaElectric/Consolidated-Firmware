@@ -10,6 +10,8 @@
 
 #include "torque_vectoring/shared_datatypes/constants.hpp"
 #include "torque_vectoring/estimation/tire_model.hpp"
+
+#include <iostream>
 using namespace app::tv::shared_datatypes;
 using namespace app::tv::shared_datatypes::vd_constants;
 
@@ -18,9 +20,11 @@ namespace app::tv::controllers::allocator
 namespace
 {
     // ---- Optimizer tuning ----
-    constexpr float ALPHA = 0.0f;
-    constexpr float W_FX = 1.0f - ALPHA;
-    constexpr float W_MZ = ALPHA;
+    constexpr float W_FX = 0.5f;
+    constexpr float W_MZ = 0.0f;
+    constexpr float W_R  = 0.5f; // regularization weight on slip sum to encourage convergence in edge cases where the
+                                 // problem is underdetermined
+    static_assert(W_FX + W_MZ + W_R == 1.0f, "Weights must sum to 1");
 
     constexpr int                    MAX_ITER          = 8;
     [[maybe_unused]] constexpr float SLIP_CLAMP        = 0.3f;
@@ -28,12 +32,15 @@ namespace
     constexpr float                  STEP_TOLERANCE    = 1e-5f;
     constexpr float                  COST_TOLERANCE    = 1e-6f;
 
-    using Vec2f    = Eigen::Matrix<float, 2, 1>;
+    using Vec6f    = Eigen::Matrix<float, 6, 1>;
     using Vec4f    = Eigen::Matrix<float, 4, 1>;
-    using Mat24f   = Eigen::Matrix<float, 2, 4>;
+    using Mat64f   = Eigen::Matrix<float, 6, 4>;
     using Mat44f   = Eigen::Matrix<float, 4, 4>;
-    using DualVec2 = Eigen::Matrix<autodiff::dual, 2, 1>;
+    using DualVec6 = Eigen::Matrix<autodiff::dual, 6, 1>;
     using DualVec4 = Eigen::Matrix<autodiff::dual, 4, 1>;
+
+    // print the normal_matrix
+    const Eigen::IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
 } // namespace
 
 template <Decimal T>
@@ -53,6 +60,7 @@ template <Decimal T>
 
     static const float SQRT_W_FX = std::sqrt(W_FX);
     static const float SQRT_W_MZ = std::sqrt(W_MZ);
+    static const float SQRT_W_R  = std::sqrt(W_R);
 
     // const wheel_set<float> blended_des_f_x{
     //     .fl = low_speed_blend * des_f_x.fl,
@@ -85,7 +93,7 @@ template <Decimal T>
     // stays allocation-free and predictable on embedded targets.
     const auto [fz_fl, fz_fr, fz_rl, fz_rr]             = state.est_Fz_N();
     const auto [alpha_fl, alpha_fr, alpha_rl, alpha_rr] = state.alphas();
-    const auto residualVector                           = [&](const DualVec4 &kappa) -> DualVec2
+    const auto residualVector                           = [&](const DualVec4 &kappa) -> DualVec6
     {
         const wheel_set<Pair<autodiff::dual>> predicted_f{
             {
@@ -107,13 +115,15 @@ template <Decimal T>
         };
         const autodiff::dual sum_fx       = predicted_f.fl.x + predicted_f.fr.x + predicted_f.rl.x + predicted_f.rr.x;
         const autodiff::dual predicted_mz = state.est_Mz_N(predicted_f);
-        return DualVec2{
-            SQRT_W_FX * (sum_fx - CAR_MASS_AT_CG_KG * ax_setpoint),
-            SQRT_W_MZ * (predicted_mz - CAR_YAW_MOMENT_INERTIA_KGM2 * omegadot_setpoint),
-        };
+        return DualVec6{ SQRT_W_FX * sum_fx - CAR_MASS_AT_CG_KG * ax_setpoint,
+                         SQRT_W_MZ * predicted_mz - CAR_YAW_MOMENT_INERTIA_KGM2 * omegadot_setpoint,
+                         SQRT_W_R * kappa[0],
+                         SQRT_W_R * kappa[1],
+                         SQRT_W_R * kappa[2],
+                         SQRT_W_R * kappa[3] };
     };
 
-    Vec4f opt_slip{ 0, 0, 0, 0 }; // output variable
+    Vec4f opt_slip{ 0.1, 0.1, 0.1, 0.1 }; // output variable
 
     float previous_cost = std::numeric_limits<float>::infinity();
 
@@ -126,43 +136,58 @@ template <Decimal T>
             autodiff::dual(opt_slip(3)),
         };
         // evaluate and calculate jacobian at kappa
-        DualVec2 residual_at_kappa;
-        Mat24f   jacobian_residual_at_kappa;
+        DualVec6 residual_at_kappa;
+        Mat64f   jacobian_residual_at_kappa;
         autodiff::jacobian(
             residualVector, autodiff::wrt(kappa), autodiff::at(kappa), residual_at_kappa, jacobian_residual_at_kappa);
-
-        // Gauss-Newton solves:
-        //   (J^T J) * delta = -J^T r
-        // where r is the residual vector and J is dr/dkappa at the current trial slip.
-        //
-        // J comes directly from autodiff::jacobian(...), so we do not hand-derive per-wheel slopes
-        // or yaw-moment sensitivities. The optimizer stays readable: define residuals first, then
-        // let autodiff provide the linearization used by Gauss-Newton.
-        Mat44f normal_matrix = jacobian_residual_at_kappa.transpose() * jacobian_residual_at_kappa;
-        normal_matrix.diagonal().array() += NORMAL_MATRIX_EPS;
-
-        const Vec2f residuals_at_kappa_primal{
+        const Vec6f residuals_at_kappa_primal{
             static_cast<float>(autodiff::val(residual_at_kappa(0))),
             static_cast<float>(autodiff::val(residual_at_kappa(1))),
+            static_cast<float>(autodiff::val(residual_at_kappa(2))),
+            static_cast<float>(autodiff::val(residual_at_kappa(3))),
+            static_cast<float>(autodiff::val(residual_at_kappa(4))),
+            static_cast<float>(autodiff::val(residual_at_kappa(5))),
         };
+        // print residual_at_kapp and jacobian_residual_at_kappa
+        std::cout << "==============Iteration " << iter
+                  << "===============\n"
+                     "Kappa: \n"
+                  << opt_slip.format(CleanFmt)
+                  << "\n\n"
+                     "Residual at kappa:\n"
+                  << residuals_at_kappa_primal.format(CleanFmt)
+                  << "\n\n"
+                     "Jacobian of residual at kappa:\n"
+                  << jacobian_residual_at_kappa.format(CleanFmt) << std::endl;
+
+        Mat44f normal_matrix = jacobian_residual_at_kappa.transpose() * jacobian_residual_at_kappa;
+        normal_matrix.diagonal().array() += NORMAL_MATRIX_EPS; // condition problem lmao
         const Vec4f               rhs = -jacobian_residual_at_kappa.transpose() * residuals_at_kappa_primal;
         const Eigen::LDLT<Mat44f> ldlt(normal_matrix);
-
         if (ldlt.info() != Eigen::Success)
-            {
-                std::printf("optimizer :( 1\n");
-                std::fflush(stdout);
-                break;
-            }
+        {
+            std::cout << "Normal Matrix:\n" << normal_matrix.format(CleanFmt) << std::endl;
+            // eigenvalues
+            const Eigen::EigenSolver<Mat44f> es(normal_matrix);
+            std::cout << "Eigenvalues:\n" << es.eigenvalues() << std::endl;
+            // condition number
+            const Eigen::JacobiSVD<Mat44f> svd(normal_matrix);
+            double cond = svd.singularValues()(0) / svd.singularValues()(svd.singularValues().size() - 1);
+            std::cout << "Condition number: " << cond << std::endl;
+            std::printf("optimizer :( 1, %d\n", ldlt.info());
+            std::fflush(stdout);
+            break;
+        }
 
         const Vec4f delta = ldlt.solve(rhs);
         if (!delta.allFinite())
-            {
-                std::printf("optimizer :( 2\n");
-                std::fflush(stdout);
-                break;
-            }
+        {
+            std::printf("optimizer :( 2\n");
+            std::fflush(stdout);
+            break;
+        }
 
+        std::cout << "Delta: \n" << delta.format(CleanFmt) << std::endl;
         opt_slip += delta;
         // I would recommend not doing this
         // consider the following: a large step is required which leaves the clamp space
@@ -180,9 +205,6 @@ template <Decimal T>
 
         previous_cost = cost;
     }
-
-    std::printf("optimized :)\n");
-    std::fflush(stdout);
 
     return {
         .fl = opt_slip(0),

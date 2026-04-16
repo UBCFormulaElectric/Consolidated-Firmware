@@ -1,6 +1,7 @@
 // ReSharper disable CppTooWideScope
 #include "matplotlibcpp.h"
 #include "torque_vectoring/estimation/tire_model.hpp"
+#include "torque_vectoring/controllers/torque_allocator.hpp"
 
 #include <vector>
 #include <string>
@@ -8,7 +9,7 @@
 
 namespace plt = matplotlibcpp;
 
-void plot_combined_fx()
+static void plot_combined_fx()
 {
     constexpr int   n_points = 301; // includes endpoints
     constexpr float fz_N     = 1000.0f;
@@ -45,4 +46,11 @@ void plot_combined_fx()
     plt::show();
 }
 
-int main() {}
+int main()
+{
+    constexpr app::tv::shared_datatypes::VehicleState<double> state{
+        .v_x_mps = 0, .v_y_mps = 0, .yaw_rate_radps = 0, .a_x_mps2 = 1, .a_y_mps2 = 0, .apps = 0.2, .delta = 0
+    };
+    const auto [fl, fr, rl, rr] = app::tv::controllers::allocator::optimize(state, 10.0, 0.0);
+    std::cout << fl << " " << fr << " " << rl << " " << rr << std::endl;
+}

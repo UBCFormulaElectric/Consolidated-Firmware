@@ -186,6 +186,7 @@ elseif ("${TARGET}" STREQUAL "test")
     target_sources(test_controls PRIVATE
             "${CMAKE_CURRENT_SOURCE_DIR}/plot_tests.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/app/torque_vectoring/estimation/tire_model.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/app/torque_vectoring/controllers/torque_allocator.cpp"
     )
     target_include_directories(test_controls PRIVATE
             "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
