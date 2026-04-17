@@ -68,9 +68,9 @@ template <Decimal T>
     //     return { .fl = 0.0f, .fr = 0.0f, .rl = 0.0f, .rr = 0.0f };
     // }
 
-    static const float SQRT_W_FX = std::sqrt(W_FX);
-    static const float SQRT_W_MZ = std::sqrt(W_MZ);
-    static const float SQRT_W_R  = std::sqrt(W_R);
+    static const T SQRT_W_FX = std::sqrt(W_FX);
+    static const T SQRT_W_MZ = std::sqrt(W_MZ);
+    static const T SQRT_W_R  = std::sqrt(W_R);
 
     // const wheel_set<float> blended_des_f_x{
     //     .fl = low_speed_blend * des_f_x.fl,
@@ -103,7 +103,7 @@ template <Decimal T>
     // stays allocation-free and predictable on embedded targets.
     const auto [fz_fl, fz_fr, fz_rl, fz_rr]             = state.est_Fz_N();
     const auto [alpha_fl, alpha_fr, alpha_rl, alpha_rr] = state.alphas();
-    const auto residualVector                           = [&](const DualVec4<T> &kappa) -> DualVec6<T>
+    const auto residualVector = [&](const DualVec4<T> &kappa, const bool debug = false) -> DualVec6<T>
     {
         const wheel_set<Pair<autodiff::dual>> predicted_f{
             {
@@ -123,15 +123,22 @@ template <Decimal T>
                 estimation::tire_model.computeCombinedFy_N<autodiff::dual>(fz_rr, alpha_rr, kappa(3)),
             },
         };
-        const autodiff::dual sum_fx =
+        const autodiff::dual sum_fx_over_1k =
             predicted_f.fl.x / 1000 + predicted_f.fr.x / 1000 + predicted_f.rl.x / 1000 + predicted_f.rr.x / 1000;
         const autodiff::dual predicted_mz = state.est_Mz_N(predicted_f);
-        return DualVec6<T>{ SQRT_W_FX * (sum_fx - CAR_MASS_AT_CG_KG * ax_setpoint / 1000),
-                            SQRT_W_MZ * (predicted_mz - CAR_YAW_MOMENT_INERTIA_KGM2 * omegadot_setpoint),
-                            SQRT_W_R * kappa[0],
-                            SQRT_W_R * kappa[1],
-                            SQRT_W_R * kappa[2],
-                            SQRT_W_R * kappa[3] };
+
+        if (debug)
+        {
+            std::cout << "f_x/1000=" << sum_fx_over_1k << " mz=" << predicted_mz << std::endl;
+        }
+        return DualVec6<T>{
+            SQRT_W_FX * (sum_fx_over_1k - CAR_MASS_AT_CG_KG * ax_setpoint / 1000),
+            SQRT_W_MZ * (predicted_mz - CAR_YAW_MOMENT_INERTIA_KGM2 * omegadot_setpoint),
+            SQRT_W_R * kappa[0],
+            SQRT_W_R * kappa[1],
+            SQRT_W_R * kappa[2],
+            SQRT_W_R * kappa[3],
+        };
     };
 
     Vec4<T>  opt_slip{ 0, 0, 0, 0 }; // output variable
@@ -191,6 +198,15 @@ template <Decimal T>
     {
         std::cout << "Reached max iterations without convergence.\n" << std::endl;
     }
+
+    const auto r = residualVector(
+        {
+            autodiff::dual(opt_slip(0)),
+            autodiff::dual(opt_slip(1)),
+            autodiff::dual(opt_slip(2)),
+            autodiff::dual(opt_slip(3)),
+        },
+        true);
 
     return {
         .fl = opt_slip(0),

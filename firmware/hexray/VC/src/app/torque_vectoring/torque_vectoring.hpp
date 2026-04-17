@@ -51,9 +51,13 @@ app::tv::shared_datatypes::wheel_set<T>
     T v_x_mps_capped = std::max(v_x_mps, static_cast<T>(1));
 
     return {
-        .fl = GEAR_RATIO * (static_cast<T>(1) + kappas.fl) * (v_x_mps_capped / static_cast<T>(app::tv::shared_datatypes::vd_constants::WHEEL_RADIUS_M)),
-        .fr = GEAR_RATIO * (static_cast<T>(1) + kappas.fr) * (v_x_mps_capped / static_cast<T>(app::tv::shared_datatypes::vd_constants::WHEEL_RADIUS_M)),
-        .rl = GEAR_RATIO * (static_cast<T>(1) + kappas.rl) * (v_x_mps_capped / static_cast<T>(app::tv::shared_datatypes::vd_constants::WHEEL_RADIUS_M)),
-        .rr = GEAR_RATIO * (static_cast<T>(1) + kappas.rr) * (v_x_mps_capped / static_cast<T>(app::tv::shared_datatypes::vd_constants::WHEEL_RADIUS_M)),
+        .fl = GEAR_RATIO * (static_cast<T>(1) + kappas.fl) *
+              (v_x_mps_capped / static_cast<T>(app::tv::shared_datatypes::vd_constants::WHEEL_RADIUS_M)),
+        .fr = GEAR_RATIO * (static_cast<T>(1) + kappas.fr) *
+              (v_x_mps_capped / static_cast<T>(app::tv::shared_datatypes::vd_constants::WHEEL_RADIUS_M)),
+        .rl = GEAR_RATIO * (static_cast<T>(1) + kappas.rl) *
+              (v_x_mps_capped / static_cast<T>(app::tv::shared_datatypes::vd_constants::WHEEL_RADIUS_M)),
+        .rr = GEAR_RATIO * (static_cast<T>(1) + kappas.rr) *
+              (v_x_mps_capped / static_cast<T>(app::tv::shared_datatypes::vd_constants::WHEEL_RADIUS_M)),
     };
 }

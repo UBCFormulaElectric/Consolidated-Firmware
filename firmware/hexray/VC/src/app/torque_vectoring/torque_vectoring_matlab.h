@@ -21,5 +21,5 @@ extern "C"
     /**
      * Matlab wrapper for kappa_update
      */
-    void kappa_update_matlab(double kappas[4], double v_x, double out[4]);
+    void kappa_update_matlab(double kappas[4], double v_x, double oemgas[4]);
 }

@@ -12,7 +12,7 @@ namespace plt = matplotlibcpp;
 static void plot_combined_fx()
 {
     constexpr int   n_points = 301; // includes endpoints
-    constexpr float fz_N     = 1000.0f;
+    constexpr float fz_N     = 700.0f;
 
     std::vector<double> kappas;
     kappas.reserve(n_points);
@@ -25,18 +25,19 @@ static void plot_combined_fx()
         kappas.push_back(kappa);
     }
 
-    for (const float alpha_rad : { 0.3f, 0.25f, 0.2f, 0.15f, 0.1f, 0.05f, 0.0f })
+    // for (const float alpha_rad : { 0.3f, 0.25f, 0.2f, 0.15f, 0.1f, 0.05f, 0.0f })
+    // {]
+    const float         alpha_rad = 0;
+    std::vector<double> fxs;
+    fxs.reserve(kappas.size());
+    for (const double kappa : kappas)
     {
-        std::vector<double> fxs;
-        fxs.reserve(kappas.size());
-        for (const double kappa : kappas)
-        {
-            fxs.push_back(app::tv::estimation::tire_model.computeCombinedFx_N<double>(fz_N, alpha_rad, kappa));
-        }
-        std::stringstream ss;
-        ss << "\\alpha = " << std::setprecision(2) << alpha_rad;
-        plt::named_plot(ss.str(), kappas, fxs);
+        fxs.push_back(app::tv::estimation::tire_model.computeCombinedFx_N<double>(fz_N, alpha_rad, kappa));
     }
+    std::stringstream ss;
+    ss << "\\alpha = " << std::setprecision(2) << alpha_rad;
+    plt::named_plot(ss.str(), kappas, fxs);
+    // }
 
     plt::title("F_x as a function of \\kappa and \\alpha");
     plt::xlabel("\\kappa");
@@ -59,4 +60,6 @@ int main()
     };
     const auto [fl, fr, rl, rr] = app::tv::controllers::allocator::optimize(state, 10.0, 5.0);
     std::cout << "Optimal slip found: " << fl << " " << fr << " " << rl << " " << rr << std::endl;
+
+    plot_combined_fx();
 }

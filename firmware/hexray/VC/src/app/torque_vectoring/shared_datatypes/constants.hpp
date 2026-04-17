@@ -34,7 +34,7 @@ inline constexpr float WHEEL_RADIUS_M = WHEEL_DIAMETER_IN * IN_TO_M / 2.0f;
 // VEHICLE MASS & CENTER OF GRAVITY
 // =============================================================================
 
-inline constexpr float CAR_MASS_AT_CG_KG = 300.0f; // Mass with driver (verified with suspension team)
+inline constexpr double CAR_MASS_AT_CG_KG = 300.0; // Mass with driver (verified with suspension team)
 // Estimated yaw moment of inertia about CG (TODO: Update with suspension team)
 inline constexpr float CAR_YAW_MOMENT_INERTIA_KGM2 = 150.0f;
 
@@ -94,7 +94,7 @@ inline constexpr float SLIP_RATIO_IDEAL = 0.05f; // Ideal slip ratio for maximum
 // TODO: Replace with reverse/anti-Ackermann model
 inline constexpr float APPROX_STEERING_TO_WHEEL_ANGLE = 0.3f;
 // Note: Underestimate for wheel angles > 40° (see Confluence/Steering System)
-inline constexpr float MAX_AX_MPS2 = 10; // TODO idk this number bruh
+inline constexpr float MAX_AX_MPS2 = 30; // TODO idk this number bruh
 
 // =============================================================================
 // UTILITY FUNCTIONS & CONVERSION HELPERS

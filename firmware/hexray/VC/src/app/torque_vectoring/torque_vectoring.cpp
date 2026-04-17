@@ -32,9 +32,7 @@ template <Decimal T> ControlOutput<T> update(const VehicleState<T> &state)
     //------------------------------------- POWER LIMITER -----------------------------------//
     // TODO: slip_ratio_opt -> slipRatioToWheelAngularVelocity() -> power limiter -> torque request
 
-    return { { kappa_opt.fl, kappa_opt.fr, kappa_opt.rl, kappa_opt.rr },
-             { 5, 5, 5, 5 },
-             { -5, -5, -5, -5 } };
+    return { { kappa_opt.fl, kappa_opt.fr, kappa_opt.rl, kappa_opt.rr }, { 21, 21, 21, 21 }, { -15, -15, -15, -15 } };
 }
 template ControlOutput<float>  update(const VehicleState<float> &state);
 template ControlOutput<double> update(const VehicleState<double> &state);
@@ -91,12 +89,12 @@ template <Decimal T> ControlOutputAutonomous<T> update_autonomous(const VehicleS
 template ControlOutputAutonomous<float>  update_autonomous(const VehicleState<float> &state);
 template ControlOutputAutonomous<double> update_autonomous(const VehicleState<double> &state);
 
-void kappa_update_matlab(double kappas[4], const double v_x, double out[4])
+void kappa_update_matlab(double kappas[4], const double v_x, double oemgas[4])
 {
     const auto [fl, fr, rl, rr] =
         kappa_update({ .fl = kappas[0], .fr = kappas[1], .rl = kappas[2], .rr = kappas[3] }, v_x);
-    out[0] = fl;
-    out[1] = fr;
-    out[2] = rl;
-    out[3] = rr;
+    oemgas[0] = fl;
+    oemgas[1] = fr;
+    oemgas[2] = rl;
+    oemgas[3] = rr;
 }
