@@ -38,7 +38,7 @@ extern "C"
 #include <io_canTx.hpp>
 
 #include <util_errorCodes.hpp>
-q
+
 // TODO: Uncomment when segments are added
 // static Semaphore isospi_bus_access_lock;
 // static Semaphore adbms_app_data_lock;
