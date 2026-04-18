@@ -2,9 +2,9 @@ use std::fs::OpenOptions;
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom, Write};
 use std::os::unix::fs::OpenOptionsExt;
+use std::os::raw::c_void;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
-
 use crate::bindings;
 use crate::bindings::*;
 
@@ -12,7 +12,7 @@ use crate::bindings::*;
 pub struct LogFsUnixDisk {
     pub block_size: u32,
     pub block_count: u32,
-    file: Arc<Mutex<File>>,
+    pub file: Arc<Mutex<File>>,
 }
 
 impl LogFsUnixDisk {
@@ -28,27 +28,41 @@ impl LogFsUnixDisk {
             file: Arc::new(Mutex::new(file)),
         })
     }
-
-    pub fn write_block(&self, block: u32, data: &[u8]) -> std::io::Result<()> {
-        let mut file = self.file.lock().unwrap();
-        file.seek(SeekFrom::Start(self.block_size as u64 * block as u64))?;
-        file.write_all(data)?;
-        Ok(())
-    }
-
-    pub fn read_block(&self, block: u32) -> std::io::Result<Vec<u8>> {
-        let mut file = self.file.lock().unwrap();
-        file.seek(SeekFrom::Start(self.block_size as u64 * block as u64))?;
-        let mut buf = vec![0u8; self.block_size as usize];
-        file.read_exact(&mut buf)?;
-        Ok(buf)
-    }
 }
 
 impl Drop for LogFsUnixDisk {
     fn drop(&mut self) {
         // File will be closed automatically
     }
+}
+
+unsafe extern "C" fn read_wrapper(cfg: *const LogFsCfg, block: u32, buf: *mut c_void) -> LogFsErr {
+    let disk_ptr = (*cfg).context as *const LogFsUnixDisk;
+    let disk = &*disk_ptr;
+    let mut file = disk.file.lock().unwrap();
+    if file.seek(SeekFrom::Start(disk.block_size as u64 * block as u64)).is_err() {
+        return LogFsErr_LOGFS_ERR_IO;
+    }
+    let mut tmp_buf = vec![0u8; disk.block_size as usize];
+    if let Err(_) = file.read_exact(&mut tmp_buf) {
+        return LogFsErr_LOGFS_ERR_IO;
+    }
+    std::ptr::copy_nonoverlapping(tmp_buf.as_ptr(), buf as *mut u8, disk.block_size as usize);
+    LogFsErr_LOGFS_ERR_OK
+}
+
+unsafe extern "C" fn write_wrapper(cfg: *const LogFsCfg, block: u32, buf: *mut c_void) -> LogFsErr {
+    let disk_ptr = (*cfg).context as *const LogFsUnixDisk;
+    let disk = &*disk_ptr;
+    let mut file = disk.file.lock().unwrap();
+    if file.seek(SeekFrom::Start(disk.block_size as u64 * block as u64)).is_err() {
+        return LogFsErr_LOGFS_ERR_IO;
+    }
+    let src = std::slice::from_raw_parts(buf as *const u8, disk.block_size as usize);
+    if let Err(_) = file.write_all(src) {
+        return LogFsErr_LOGFS_ERR_IO;
+    }
+    LogFsErr_LOGFS_ERR_OK
 }
 
 /// LogFsFile: Thin wrapper around a logfs file for Rust.
@@ -106,17 +120,18 @@ impl LogFsFile {
 pub struct LogFs {
     pub fs: Box<bindings::LogFs>,
     pub cfg: Box<bindings::LogFsCfg>,
-    pub disk: Arc<LogFsUnixDisk>,
+    pub _disk: Arc<LogFsUnixDisk>,
 }
 
 impl LogFs {
     pub fn new(block_size: u32, block_count: u32, disk: Arc<LogFsUnixDisk>, write_cycles: u32, rd_only: bool) -> Self {
+        let context_ptr = Arc::into_raw(disk.clone()) as *mut c_void;
         let cfg = Box::new(bindings::LogFsCfg {
-            context: std::ptr::null_mut(),
+            context: context_ptr,
             block_size,
             block_count,
-            read: None, // TODO: Implement read callback
-            write: None, // TODO: Implement write callback
+            read: Some(read_wrapper),
+            write: Some(write_wrapper),
             cache: std::ptr::null_mut(),
             write_cycles,
             rd_only,
@@ -125,7 +140,7 @@ impl LogFs {
             cfg: &*cfg as *const _,
             ..unsafe { std::mem::zeroed() }
         });
-        Self { fs, cfg, disk }
+        Self { fs, cfg, _disk: disk }
     }
 
     pub fn mount(&mut self) -> Result<(), LogFsErr> {
