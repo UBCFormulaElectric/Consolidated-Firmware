@@ -10,8 +10,14 @@ RUN apt-get update && apt-get install -y \
 COPY software/tracksight/rust_backend/Cargo.toml .
 COPY software/tracksight/rust_backend/src src
 
+# Cache dependencies
+RUN echo 'fn main() {}' > dummy.rs
+RUN sed -i 's#src/main.rs#dummy.rs#' Cargo.toml
 RUN cargo build --release
+RUN sed -i 's#dummy.rs#src/main.rs#' Cargo.toml
 
+# Build actual backend
+RUN cargo build --release
 # Runtime set up
 FROM debian:bookworm
 
