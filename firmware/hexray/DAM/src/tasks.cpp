@@ -8,10 +8,13 @@
 #include "io_telemMessage.hpp"
 #include "io_canQueues.hpp"
 #include "io_canQueues.hpp"
+#include "io_log.hpp"
+#include "io_telemRx.hpp"
 #include <io_canRx.hpp>
 
 #include "hw_hardFaultHandler.hpp"
 #include "hw_rtosTaskHandler.hpp"
+#include "hw_uarts.hpp"
 #include "io_telemQueue.hpp"
 
 #include <span>
@@ -31,7 +34,7 @@ extern "C"
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
-        jobs_run1Hz_tick();
+        transmitNTPStartMsg();
         start_ticks += period_ms;
         io::time::delayUntil(start_ticks);
         osDelayUntil(start_ticks);
@@ -79,7 +82,20 @@ extern "C"
 
     forever
     {
-        jobs_runTelem_tick();
+        const auto result = telem_tx_queue.pop();
+        if (not result)
+        {
+            LOG_ERROR("Failed to pop telem TX message: %d", static_cast<int>(result.error()));
+            continue;
+        }
+
+        const auto &msg = result.value();
+        const auto  tx_result = _900k_uart.transmit(
+            std::span<const uint8_t>{ reinterpret_cast<const uint8_t *>(&msg), msg.wireSize() });
+        if (not tx_result)
+        {
+            LOG_ERROR("Failed to transmit telem message: %d", static_cast<int>(tx_result.error()));
+        }
     }
 }
 [[noreturn]] static void tasks_runTelemRx(void *arg)
@@ -87,7 +103,7 @@ extern "C"
     osDelayUntil(osWaitForever);
     forever
     {
-        jobs_runTelemRx();
+        io_telemRx();
     }
 }
 
