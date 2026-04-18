@@ -8,6 +8,7 @@ libc = "0.2.185"
 
 [build-dependencies]
 bindgen = "0.72.1"
+cc = "1.2.60"
 
 [lib]
 name = "logfs"
