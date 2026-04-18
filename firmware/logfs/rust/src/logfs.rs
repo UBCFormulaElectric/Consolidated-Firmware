@@ -20,7 +20,7 @@ impl LogFsUnixDisk {
         let file = OpenOptions::new()
             .read(true)
             .write(true)
-            .custom_flags(libc::O_SYNC)
+            // .custom_flags(libc::O_SYNC)
             .open(disk_path)?;
         Ok(Self {
             block_size,
