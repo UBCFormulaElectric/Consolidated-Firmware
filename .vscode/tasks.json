@@ -220,7 +220,7 @@
       "type": "cmake",
       "command": "build",
       "targets": [
-        "hexray_BMS_app.hex"
+        "hexray_BMS.hex"
       ]
     },
     {
