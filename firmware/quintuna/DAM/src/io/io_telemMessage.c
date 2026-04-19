@@ -84,13 +84,3 @@ TelemCanMsg io_telemMessage_buildCanMsg(const CanMsg *rx_msg, const float time_o
 
     return telem_msg;
 }
-
-TelemNTPMsg io_buildNTPMessage(void)
-{
-    TelemNTPMsg ntp_msg;
-
-    ntp_msg.identifier = 2;
-    ntp_msg.header     = io_telemMessage_buildHeader(&ntp_msg.identifier, 1);
-
-    return ntp_msg;
-}

@@ -23,7 +23,6 @@
 #include "io_telemMessageQueue.h"
 #include "io_time.h"
 #include "io_shdn_loop.h"
-#include "io_telemRx.h"
 
 #include "hw_resetReason.h"
 
@@ -77,8 +76,6 @@ void jobs_init(void)
 
 void jobs_run1Hz_tick(void)
 {
-    transmitNTPStartMsg(); // Ping backend for t1, t2
-
     io_canTx_enqueue1HzMsgs();
 
     const bool debug_mode_enabled = app_canRx_Debug_EnableDebugMode_get();

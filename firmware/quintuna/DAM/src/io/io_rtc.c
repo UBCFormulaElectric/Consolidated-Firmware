@@ -407,12 +407,12 @@ ExitCode io_rtc_readTime(IoRtcTime *time)
     time->month    = (uint8_t)(bcd_to_integer(regMonths.months.MONTHS));
     time->year     = (uint8_t)(bcd_to_integer(regYears.years.YEARS));
 
-    // LOG_INFO(
-    //     "Reading RTC time: %02d:%02d:%02d %02d/%02d/%02d", time->hours, time->minutes, time->seconds, time->year,
-    //     time->month, time->day);
-    // LOG_INFO(
-    //     "Read from RTC: %02X %02X %02X %02X %02X %02X %02X", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4],
-    //     buffer[5], buffer[6]);
+    LOG_INFO(
+        "Reading RTC time: %02d:%02d:%02d %02d/%02d/%02d", time->hours, time->minutes, time->seconds, time->year,
+        time->month, time->day);
+    LOG_INFO(
+        "Read from RTC: %02X %02X %02X %02X %02X %02X %02X", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4],
+        buffer[5], buffer[6]);
     return su;
 }
 
