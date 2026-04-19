@@ -133,7 +133,7 @@ function(stm32h7_boot_binary
             "${INCLUDE_DIRS}"
             FALSE
             "${ARM_CORE}"
-            s TRUE
+            FALSE
     )
 
     embedded_binary(
@@ -279,7 +279,7 @@ function(stm32h7_boot_binary_c
             "${INCLUDE_DIRS}"
             FALSE
             "${ARM_CORE}"
-            s TRUE
+            FALSE
     )
 
     embedded_binary(
