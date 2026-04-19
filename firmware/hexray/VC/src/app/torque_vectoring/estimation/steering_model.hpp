@@ -32,17 +32,17 @@ struct WheelSteerAngles
 
 /**
  * @brief Linearly interpolate on a LUT for to determine wheel angles
- * 
+ *
  * @param steer_ang_rad: steering wheel angle in readiants
- * 
+ *
  * @return WheelSteerAngles influenced by steering wheel input, rear wheels always 0 here
  */
 inline WheelSteerAngles wheel_steer_angles(float steer_ang_rad)
 {
     const float steer_ang_mag_rad = CLAMP(std::abs(steer_ang_rad), 0.0f, STEER_WHEEL_RANGE_rad);
 
-    const float scaled_index = (static_cast<float>(LUT_LEN - 1) * steer_ang_mag_rad) / STEER_WHEEL_RANGE_rad;
-    const std::size_t lower_index = std::min(LUT_LEN - 2, static_cast<std::size_t>(scaled_index));
+    const float       scaled_index = (static_cast<float>(LUT_LEN - 1) * steer_ang_mag_rad) / STEER_WHEEL_RANGE_rad;
+    const std::size_t lower_index  = std::min(LUT_LEN - 2, static_cast<std::size_t>(scaled_index));
 
     const float t = scaled_index - static_cast<float>(lower_index);
 
