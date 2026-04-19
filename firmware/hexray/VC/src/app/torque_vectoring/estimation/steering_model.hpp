@@ -13,7 +13,7 @@ struct WheelSteerAngles
 };
 
 /**
- * @brief Linearly interpolate on a LUT for to determine wheel angles
+ * @brief Line fit mapping steering wheel angles to wheel angles
  *
  * @param steer_ang_rad: steering wheel angle in readiants
  *
