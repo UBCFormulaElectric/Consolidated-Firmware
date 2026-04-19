@@ -92,12 +92,9 @@ inline constexpr float PID_POWER_FACTOR_MAX = 0.1f;    // TODO: May need adjustm
 // =============================================================================
 
 inline constexpr float SLIP_RATIO_IDEAL = 0.05f; // Ideal slip ratio for maximum traction
-// TODO: Replace with reverse/anti-Ackermann model
-inline constexpr float APPROX_STEERING_TO_WHEEL_ANGLE = 0.3f;
-// Note: Underestimate for wheel angles > 40° (see Confluence/Steering System)
 inline constexpr float MAX_AX_MPS2 = 30; // TODO idk this number bruh
-inline constexpr float STEER_RATIO         = M_PI_F; // TODO: Verify
-inline constexpr float ACKERMAN_PERCENTAGE = 150.0f / 100.0f;
+inline constexpr float STEER_WHEEL_RANGE_rad = 1.48632f;
+inline constexpr float STEER_WHEEL_RANGE_deg = RAD_TO_DEG(1.48632f);
 
 // Note: Bump camber is the amount the camber changes in degrees due to compression
 inline constexpr float STATIC_CAMBER_FRONT_deg  = -1.0f;
