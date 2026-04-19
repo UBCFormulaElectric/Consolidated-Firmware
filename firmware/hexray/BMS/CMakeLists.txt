@@ -122,6 +122,8 @@ if ("${TARGET}" STREQUAL "binary")
     # JSONCAN
     jsoncan_embedded_library_cpp(BMS hexray "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
 
+    
+
     # CommitInfo
     commit_info_library(
             "hexray_BMS_app.elf"
