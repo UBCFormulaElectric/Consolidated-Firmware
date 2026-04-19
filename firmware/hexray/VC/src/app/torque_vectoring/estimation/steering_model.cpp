@@ -30,6 +30,14 @@ WheelSteerAngles wheel_steer_angles(float steer_ang_rad)
     const float steer_ang_mag_rad =
         CLAMP(std::abs(steer_ang_rad), 0.0f, app::tv::datatypes::vd_constants::STEER_WHEEL_RANGE_rad);
 
+    /**
+     * This model is based off of a table that maps steering wheel angle to wheel angle.
+     * Given the steering wheel angle, we scale it into an index, and then linearly interpolate
+     * across its upper and lower elements to determine the actual wheel angle
+     *
+     * Suspension Spreadsheet:
+     * https://docs.google.com/spreadsheets/d/1gB3h8JgjsrMDLsJRusXe3zQUWp_cwrUp/edit?gid=2114943012#gid=2114943012
+     */
     const float scaled_index =
         (static_cast<float>(LUT_LEN - 1) * steer_ang_mag_rad) / app::tv::datatypes::vd_constants::STEER_WHEEL_RANGE_rad;
     const std::size_t lower_index = std::min(LUT_LEN - 2, static_cast<std::size_t>(scaled_index));
