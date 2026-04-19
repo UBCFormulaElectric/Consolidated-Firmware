@@ -4,6 +4,7 @@
 #include "vc_fakes.hpp"
 #include "torque_vectoring/estimation/steering_model.hpp"
 #include "torque_vectoring/datatypes/datatypes_vd_constants.hpp"
+#include "util_utils.hpp"
 
 class TVSteeringModelTest : public VCBaseTest
 {

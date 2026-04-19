@@ -1,10 +1,9 @@
 #pragma once
 
-#include <cmath>
-#include <span>
-
 #define NUM_ELEMENTS_IN_ARRAY(array_pointer) sizeof(array_pointer) / sizeof(array_pointer[0])
 
+#ifdef __cplusplus
+#include <cmath>
 template <typename T, typename... U> [[nodiscard]] inline constexpr T MIN_OF(const T x, const U... y)
 {
     T result = x;
@@ -26,6 +25,7 @@ template <typename T> [[nodiscard]] inline constexpr bool SIGN(const T x)
 {
     return (x > 0) ? 1 : ((x < 0) ? -1 : 0);
 }
+#endif
 
 /* @brief Extract the basename from a file path */
 #ifdef _MSC_VER
