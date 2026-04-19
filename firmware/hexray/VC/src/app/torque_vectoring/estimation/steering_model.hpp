@@ -11,15 +11,15 @@ namespace app::tv::estimators::steering
 {
 static constexpr std::size_t LUT_LEN = 16;
 
-static constexpr std::array<float, LUT_LEN> inner_wheel_ang_rad = {
+static constexpr std::array<float, LUT_LEN> inner_wheel_ang_rad = {{
     0.000000000f, 0.027750735f, 0.055501470f, 0.083077672f, 0.110828408f, 0.138404610f, 0.166155345f, 0.193906080f,
     0.221656815f, 0.249756616f, 0.277681884f, 0.305956218f, 0.334230552f, 0.362679419f, 0.391477351f, 0.395840674f
-};
+}};
 
-static constexpr std::array<float, LUT_LEN> outer_wheel_ang_rad = {
+static constexpr std::array<float, LUT_LEN> outer_wheel_ang_rad = {{
     0.000000000f, 0.027750735f, 0.055676003f, 0.083775804f, 0.111875605f, 0.140324472f, 0.168773339f, 0.197571271f,
     0.226718270f, 0.256039801f, 0.285884931f, 0.315904595f, 0.346622389f, 0.377689250f, 0.409454243f, 0.414166631f
-};
+}};
 
 // We include rear wheels for convenience, in reality they are always 0
 struct WheelSteerAngles
