@@ -1,5 +1,6 @@
 #pragma once
-
-void io_telemRx(void);
+namespace io::telemRx
+{
 void transmitNTPStartMsg(void);
 void pollForRadioMessages(void);
+} // namespace io::telemRx

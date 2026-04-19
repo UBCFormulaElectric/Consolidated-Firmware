@@ -82,7 +82,7 @@ template <typename T, size_t QUEUE_SIZE> class queue
         {
             if (!this->overflow_flag)
             {
-                // LOG_WARN("%s overflow: %d", this->queue_attr.name, s);
+                LOG_WARN("%s overflow: %d", this->queue_attr.name, s);
                 this->overflow_flag = true;
             }
             this->overflow_callback(++this->overflow_count);

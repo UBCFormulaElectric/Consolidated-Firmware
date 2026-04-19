@@ -59,7 +59,7 @@ extern "C"
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
-        // HAL_IWDG_Refresh(&hiwdg);
+        HAL_IWDG_Refresh(&hiwdg);
         jobs_run1kHz_tick();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -103,7 +103,7 @@ extern "C"
     osDelayUntil(osWaitForever);
     forever
     {
-        io_telemRx();
+        io::telemRx::pollForRadioMessages();
     }
 }
 

@@ -12,11 +12,6 @@
 
 static app::ntp::Timestamps ntpTimestamps;
 
-void io_telemRx()
-{
-    pollForRadioMessages();
-}
-
 // void receiveTest()
 // {
 //     std::array<uint8_t, 8> buffer{};
@@ -38,7 +33,7 @@ void io_telemRx()
 // }
 
 // Send message to backend through radio to get t1,t2. Called periodically
-void transmitNTPStartMsg(void)
+void io::telemRx::transmitNTPStartMsg(void)
 {
     // Take note of the sending time (t0).
     io::rtc::Time t0;
@@ -63,7 +58,7 @@ void transmitNTPStartMsg(void)
         (unsigned long)(999 - t0.subseconds));
 }
 
-void pollForRadioMessages(void)
+void io::telemRx::pollForRadioMessages(void)
 {
     // Structure: First 2 bytes is magic bytes, 3rd is size of the body, remaining 4 is CRC
     uint8_t            headerData[7];

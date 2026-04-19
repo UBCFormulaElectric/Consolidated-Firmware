@@ -1,6 +1,10 @@
 #include "app_ntp.hpp"
 
 #include <cstring>
+#include <cstdint>
+
+constexpr uint32_t PREDIV_S   = 999;
+constexpr uint64_t MS_PER_DAY = 86400000ULL;
 
 namespace app::ntp
 {
