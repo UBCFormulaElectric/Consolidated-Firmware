@@ -3,6 +3,7 @@
 #include "bootloader.h"
 #include "hw_can.hpp"
 #include "main.h"
+#include "hw_rtosTaskHandler.hpp"
 #include <cassert>
 
 void tx_overflow_callback(const uint32_t overflow_count)
@@ -50,23 +51,23 @@ CFUNC void bootloader_preinit()
     bootloader::preInit();
 }
 
-CFUNC void bootloader_init()
+static hw::rtos::StaticTask<1024> bootInterfaceTask(
+    osPriorityRealtime,
+    "BootIntf",
+    [](void *) { bootloader::runInterfaceTask(hexray_bms_boot_config); });
+static hw::rtos::StaticTask<1024>
+    bootTickTask(osPriorityRealtime, "BootTick", [](void *) { bootloader::runTickTask(hexray_bms_boot_config); });
+static hw::rtos::StaticTask<1024>
+    bootCanTxTask(osPriorityRealtime, "BootCanTx", [](void *) { bootloader::runCanTxTask(hexray_bms_boot_config); });
+
+[[noreturn]] void bootloader_init()
 {
     HAL_GPIO_WritePin(LED_B_GPIO_Port, LED_B_Pin, GPIO_PIN_SET);
     bootloader::init(hexray_bms_boot_config);
-}
-
-CFUNC NORET void bootloader_runInterfaceTask()
-{
-    bootloader::runInterfaceTask(hexray_bms_boot_config);
-}
-
-CFUNC NORET void bootloader_runTickTask()
-{
-    bootloader::runTickTask(hexray_bms_boot_config);
-}
-
-CFUNC NORET void bootloader_runCanTxTask()
-{
-    bootloader::runCanTxTask(hexray_bms_boot_config);
+    osKernelInitialize();
+    bootInterfaceTask.start();
+    bootTickTask.start();
+    bootCanTxTask.start();
+    osKernelStart();
+    forever {}
 }
