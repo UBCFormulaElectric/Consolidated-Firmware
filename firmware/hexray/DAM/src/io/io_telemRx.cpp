@@ -45,8 +45,7 @@ void io::telemRx::transmitNTPStartMsg(void)
     ntpTimestamps.t0 = app::ntp::rtcTimeToMs(t0);
 
     const io::telemMessage::NTPMsg ntp_msg = io::telemMessage::NTPMsg();
-    if (!_900k_uart.transmit(
-            std::span<const uint8_t>{ reinterpret_cast<const uint8_t *>(&ntp_msg), ntp_msg.wireSize() }))
+    if (!_900k_uart.transmit(ntp_msg.asBytes()))
     {
         LOG_ERROR("Failed to transmit NTP message");
         return;

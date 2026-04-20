@@ -48,18 +48,6 @@ Header::Header(const uint8_t *payload, uint8_t payload_length)
     crc = io::crc::calculatePayloadCrc(std::span<const uint8_t>{ payload, payload_length });
 }
 
-// BaseTimeRegMsg::BaseTimeRegMsg(const IoRtcTime &rtc_time)
-// {
-//     msg.identifier = static_cast<uint8_t>(TelemMessageIds::BaseTimeReg);
-//     msg.year       = rtc_time.year;
-//     msg.month      = rtc_time.month;
-//     msg.day        = rtc_time.day;
-//     msg.hour       = rtc_time.hours;
-//     msg.minute     = rtc_time.minutes;
-//     msg.second     = rtc_time.seconds;
-//     header         = Header(reinterpret_cast<const uint8_t *>(&msg), static_cast<uint8_t>(sizeof(msg)));
-// }
-
 TelemCanMsg::TelemCanMsg(const io::CanMsg &rx_msg, uint64_t time_offset)
 {
     const uint32_t can_payload_size = payloadSizeFromDlc(rx_msg.dlc);
@@ -75,20 +63,10 @@ TelemCanMsg::TelemCanMsg(const io::CanMsg &rx_msg, uint64_t time_offset)
     header                     = Header(reinterpret_cast<const uint8_t *>(&msg), payload_size);
 }
 
-size_t TelemCanMsg::wireSize() const
-{
-    return sizeof(Header) + header.payload_size;
-}
-
 NTPMsg::NTPMsg()
 {
     identifier = static_cast<uint8_t>(TelemMessageIds::NTP);
     header     = Header(reinterpret_cast<const uint8_t *>(&identifier), static_cast<uint8_t>(sizeof(identifier)));
-}
-
-size_t NTPMsg::wireSize() const
-{
-    return sizeof(Header) + header.payload_size;
 }
 
 } // namespace io::telemMessage

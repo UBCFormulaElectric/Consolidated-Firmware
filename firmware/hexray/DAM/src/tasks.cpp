@@ -76,10 +76,6 @@ extern "C"
 }
 [[noreturn]] static void tasks_runTelem(void *arg)
 {
-    // const io::telemMessage::BaseTimeRegMsg base_time_msg(boot_time);
-    // LOG_IF_ERR(_900k_uart.transmitPoll(
-    //     std::span<const uint8_t>{ reinterpret_cast<const uint8_t *>(&base_time_msg), sizeof(base_time_msg) }));
-
     forever
     {
         const auto result = telem_tx_queue.pop();
@@ -89,9 +85,8 @@ extern "C"
             continue;
         }
 
-        const auto &msg = result.value();
-        const auto  tx_result =
-            _900k_uart.transmit(std::span<const uint8_t>{ reinterpret_cast<const uint8_t *>(&msg), msg.wireSize() });
+        const auto &msg       = result.value();
+        const auto  tx_result = _900k_uart.transmit(msg.asBytes());
         if (not tx_result)
         {
             LOG_ERROR("Failed to transmit telem message: %d", static_cast<int>(tx_result.error()));

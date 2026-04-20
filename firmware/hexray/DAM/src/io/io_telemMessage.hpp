@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <span>
 #include "io_canMsg.hpp"
 
 namespace io::telemMessage
@@ -8,10 +9,10 @@ namespace io::telemMessage
 
 enum class TelemMessageIds : uint8_t
 {
-    CAN         = 1,
-    NTP         = 2,
-    NTPDate     = 3,
-    BaseTimeReg = 4,
+    CAN     = 1,
+    NTP     = 2,
+    NTPDate = 3,
+    // BaseTimeReg = 4, deprecated see quintuna for previous definitions. delete later
 };
 
 struct [[gnu::packed]] Header
@@ -23,25 +24,6 @@ struct [[gnu::packed]] Header
     Header(const uint8_t *payload, uint8_t payload_length);
 };
 
-struct [[gnu::packed]] BaseTimeRegMsgBody
-{
-    uint8_t identifier;
-    uint8_t year;
-    uint8_t month;
-    uint8_t day;
-    uint8_t hour;
-    uint8_t minute;
-    uint8_t second;
-};
-
-// struct [[gnu::packed]] BaseTimeRegMsg
-// {
-//     Header             header;
-//     BaseTimeRegMsgBody msg;
-//     BaseTimeRegMsg() = default;
-//     explicit BaseTimeRegMsg(const IoRtcTime &rtc_time);
-// };
-
 struct [[gnu::packed]] CanMsgBody
 {
     uint8_t  identifier;
@@ -50,21 +32,27 @@ struct [[gnu::packed]] CanMsgBody
     uint8_t  payload[64]; // payload at end so we can truncate
 };
 
-struct [[gnu::packed]] TelemCanMsg
+struct [[gnu::packed]] TelemMessage
 {
-    Header     header;
+    Header                                 header;
+    [[nodiscard]] size_t                   wireSize() const { return sizeof(Header) + header.payload_size; }
+    [[nodiscard]] std::span<const uint8_t> asBytes() const
+    {
+        return { reinterpret_cast<const uint8_t *>(this), wireSize() };
+    }
+};
+
+struct [[gnu::packed]] TelemCanMsg : TelemMessage
+{
     CanMsgBody msg;
     TelemCanMsg() = default;
     explicit TelemCanMsg(const io::CanMsg &rx_msg, uint64_t time_offset);
-    [[nodiscard]] size_t wireSize() const;
 };
 
-struct [[gnu::packed]] NTPMsg
+struct [[gnu::packed]] NTPMsg : TelemMessage
 {
-    Header  header;
     uint8_t identifier;
     NTPMsg();
-    [[nodiscard]] size_t wireSize() const;
 };
 
 } // namespace io::telemMessage
