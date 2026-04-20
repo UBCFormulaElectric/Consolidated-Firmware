@@ -28,6 +28,7 @@ fdcan fdcan2(hfdcan2, [](const hw::CanMsg &msg) { (void)boot_can_rx_queue.push(m
 const hw::fdcan &hw::fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
 {
     assert(hfdcan == hw::cans::fdcan2.getHfdcan());
+    (void)hfdcan;
     return cans::fdcan2;
 }
 
@@ -63,8 +64,8 @@ static hw::rtos::StaticTask<1024>
 [[noreturn]] void bootloader_init()
 {
     HAL_GPIO_WritePin(LED_B_GPIO_Port, LED_B_Pin, GPIO_PIN_SET);
-    bootloader::init(hexray_bms_boot_config);
     osKernelInitialize();
+    bootloader::init(hexray_bms_boot_config);
     bootInterfaceTask.start();
     bootTickTask.start();
     bootCanTxTask.start();
