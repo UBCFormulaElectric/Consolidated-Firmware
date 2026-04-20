@@ -16,20 +16,12 @@ template <Decimal T> struct VelocityEstimatorInputs
 {
     struct
     {
-        T ax_mps2 = T{ 0 };
-        T ay_mps2 = T{ 0 };
-        T r_rads  = T{ 0 };
+        Pair<T> a_body_mps2{};
+        T       r_rads = T{ 0 };
     } control;
-    struct
-    {
-        wheel_set<T> rpm{};
-        wheel_set<T> steer_angles_rad{};
-    } wheels;
-    struct
-    {
-        T body_vx_mps = T{ 0 };
-        T body_vy_mps = T{ 0 };
-    } gps;
+    wheel_set<T> rpm{};
+    wheel_set<T> steer_angles_rad{};
+    Pair<T>      v_body_gps_mps{};
 };
 
 static constexpr std::size_t NUM_STATES           = 2;

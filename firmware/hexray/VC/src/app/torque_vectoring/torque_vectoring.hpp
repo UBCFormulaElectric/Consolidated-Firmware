@@ -26,7 +26,14 @@ template <Decimal T> struct ControlOutputAutonomous
  * @param apps, steer_ang_rad: pedal percent [0, 1] and steering wheel angle in radians
  * @return
  */
-template <Decimal T> app::tv::shared_datatypes::VehicleState<T> estimate(const T apps, const T steer_ang_rad);
+template <Decimal T>
+app::tv::shared_datatypes::VehicleState<T> estimate(
+    const T                                       apps,
+    const T                                       steer_ang_rad,
+    const T                                       a_x_mps2,
+    const T                                       a_y_mps2,
+    const T                                       yaw_rate_rads,
+    const app::tv::shared_datatypes::wheel_set<T> rpm);
 
 /**
  * This is the main entrypoint into the low level vehicle controls algorithm

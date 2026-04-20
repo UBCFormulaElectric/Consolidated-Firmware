@@ -38,11 +38,6 @@ autodiff::dual velocity_state_y(const EkfStateInp<float> &x)
     return vy + time_step * (ay + vx * yaw);
 }
 
-template <Decimal T> ProcessNoiseCov<T> Q = ProcessNoiseCov<T>::Identity() * static_cast<T>(0.001);
-
-template <Decimal T>
-typename VelocityEstimator<T>::PredictStep system_model = { { velocity_state_x, velocity_state_y } };
-
 /**
  * Measurement Model
  *
@@ -64,17 +59,21 @@ autodiff::dual velocity_meas_y(const EkfState<float> &x)
     return x(1);
 }
 
-template <Decimal T> WsNoiseCov<T>  R_ws  = WsNoiseCov<T>::Identity() * static_cast<T>(0.01);
-template <Decimal T> GpsNoiseCov<T> R_gps = GpsNoiseCov<T>::Identity() * static_cast<T>(0.1);
-
-template <Decimal T>
-typename VelocityEstimator<T>::UpdateSteps update_steps = typename VelocityEstimator<T>::UpdateSteps{
-    WsUpdateStep<T>{ .h = { { velocity_meas_x, velocity_meas_y } }, .R = R_ws<T> },
-    GpsUpdateStep<T>{ .h = { { velocity_meas_x, velocity_meas_y } }, .R = R_gps<T> },
-};
-
 // Velocity Estimator EKF instantiation
-template <Decimal T> VelocityEstimator<T> velocity_estimator(system_model<T>, Q<T>, update_steps<T>);
+template <Decimal T>
+VelocityEstimator<T> velocity_estimator(
+    typename VelocityEstimator<T>::PredictStep{ { velocity_state_x, velocity_state_y } },
+    ProcessNoiseCov<T>::Identity() * static_cast<T>(0.001),
+    typename VelocityEstimator<T>::UpdateSteps{
+        WsUpdateStep<T>{
+            .h = { { velocity_meas_x, velocity_meas_y } },
+            .R = WsNoiseCov<T>::Identity() * static_cast<T>(0.01),
+        },
+        GpsUpdateStep<T>{
+            .h = { { velocity_meas_x, velocity_meas_y } },
+            .R = GpsNoiseCov<T>::Identity() * static_cast<T>(0.1),
+        },
+    });
 
 // Helper functions for converting wheel velocity into body velocity
 namespace detail
@@ -112,26 +111,26 @@ namespace detail
     }
 
     template <Decimal T>
-    std::optional<WsMeasurement<T>> averageValidWheels(const wheel_set<Pair<T>> &wheel_velocities_mps, const T vx_state)
+    std::optional<WsMeasurement<T>> averageValidWheels(const wheel_set<Pair<T>> &wheel_vels_mps, const T vx_state)
     {
         T        sum_vx      = T{ 0 };
         T        sum_vy      = T{ 0 };
         uint32_t valid_count = 0;
 
-        const auto sum_if_valid = [&](const Pair<T> &wheel_velocity_mps)
+        const auto sum_if_valid = [&](const Pair<T> &wheel_vel_mps)
         {
-            if (std::abs(computeSlipRatio(wheel_velocity_mps.x, vx_state)) >= static_cast<T>(SLIP_THRES))
+            if (std::abs(computeSlipRatio(wheel_vel_mps.x, vx_state)) >= static_cast<T>(SLIP_THRES))
                 return;
 
-            sum_vx += wheel_velocity_mps.x;
-            sum_vy += wheel_velocity_mps.y;
+            sum_vx += wheel_vel_mps.x;
+            sum_vy += wheel_vel_mps.y;
             valid_count++;
         };
 
-        sum_if_valid(wheel_velocities_mps.fl);
-        sum_if_valid(wheel_velocities_mps.fr);
-        sum_if_valid(wheel_velocities_mps.rl);
-        sum_if_valid(wheel_velocities_mps.rr);
+        sum_if_valid(wheel_vels_mps.fl);
+        sum_if_valid(wheel_vels_mps.fr);
+        sum_if_valid(wheel_vels_mps.rl);
+        sum_if_valid(wheel_vels_mps.rr);
 
         if (valid_count == 0)
             return std::nullopt;
@@ -146,17 +145,17 @@ namespace detail
 template <Decimal T>
 static std::optional<WsMeasurement<T>> wheelSpeedToBodyVelocity(const VelocityEstimatorInputs<T> &inputs)
 {
-    const wheel_set<T> wheel_speeds_mps = detail::motorRpmToWheelSpeedMps(inputs.wheels.rpm);
+    const wheel_set<T> wheel_speeds_mps = detail::motorRpmToWheelSpeedMps(inputs.rpm);
     const T speed_sum_mps = wheel_speeds_mps.fl + wheel_speeds_mps.fr + wheel_speeds_mps.rl + wheel_speeds_mps.rr;
 
     if (speed_sum_mps <= T{ 0 })
         return WsMeasurement<T>::Zero();
 
-    const wheel_set<Pair<T>> wheel_velocities_mps =
-        detail::computeWheelVelocities(wheel_speeds_mps, inputs.wheels.steer_angles_rad, inputs.control.r_rads);
+    const wheel_set<Pair<T>> wheel_vels_mps =
+        detail::computeWheelVelocities(wheel_speeds_mps, inputs.steer_angles_rad, inputs.control.r_rads);
     const T vx_state = velocity_estimator<T>.state()(0);
 
-    return detail::averageValidWheels(wheel_velocities_mps, vx_state);
+    return detail::averageValidWheels(wheel_vels_mps, vx_state);
 }
 
 // GPS measurement handling
@@ -166,20 +165,24 @@ template <Decimal T> static std::optional<GpsMeasurement<T>> gpsMeasurement(cons
         return std::nullopt;
 
     GpsMeasurement<T> z;
-    z << inputs.gps.body_vx_mps, inputs.gps.body_vy_mps;
+    z << inputs.v_body_gps_mps.x, inputs.v_body_gps_mps.y;
     return z;
 }
 
 // Estimation entry point
 template <Decimal T> Pair<T> estimate_body_velocity(const VelocityEstimatorInputs<T> &inputs)
 {
-    const auto ws_meas  = wheelSpeedToBodyVelocity(inputs);
+    const auto ws_meas = wheelSpeedToBodyVelocity(inputs);
+#ifdef DISABLE_GPS_UPDATE
+    const auto gps_meas = std::nullopt;
+#else
     const auto gps_meas = gpsMeasurement(inputs);
+#endif
 
     typename VelocityEstimator<T>::Measurements measurements = std::make_tuple(ws_meas, gps_meas);
 
     Input<T> u;
-    u << inputs.control.ax_mps2, inputs.control.ay_mps2, inputs.control.r_rads;
+    u << inputs.control.a_body_mps2.x, inputs.control.a_body_mps2.y, inputs.control.r_rads;
 
     const auto velocity = velocity_estimator<T>.estimated_states(u, measurements);
 
@@ -194,7 +197,7 @@ template wheel_set<double> detail::motorRpmToWheelSpeedMps(const wheel_set<doubl
 template wheel_set<Pair<float>>
     detail::computeWheelVelocities(const wheel_set<float> &, const wheel_set<float> &, float);
 template wheel_set<Pair<double>>
-                detail::computeWheelVelocities(const wheel_set<double> &, const wheel_set<double> &, double);
+    detail::computeWheelVelocities(const wheel_set<double> &, const wheel_set<double> &, double);
 template float  detail::computeSlipRatio(float vx_wheel, float vx_state);
 template double detail::computeSlipRatio(double vx_wheel, double vx_state);
 template std::optional<WsMeasurement<float>>  detail::averageValidWheels(const wheel_set<Pair<float>> &, float);

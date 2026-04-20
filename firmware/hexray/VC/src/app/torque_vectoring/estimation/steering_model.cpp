@@ -60,4 +60,7 @@ template <Decimal T> [[nodiscard]] wheel_set<T> wheel_steer_angles(const T steer
 
     return wheel_ang_rad;
 }
+
+template wheel_set<float>  wheel_steer_angles(float steer_ang_rad);
+template wheel_set<double> wheel_steer_angles(double steer_ang_rad);
 } // namespace app::tv::estimators::steering

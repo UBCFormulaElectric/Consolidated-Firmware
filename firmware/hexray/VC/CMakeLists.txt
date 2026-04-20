@@ -199,6 +199,7 @@ elseif ("${TARGET}" STREQUAL "test")
             $<$<CXX_COMPILER_ID:MSVC>:/MT>
             $<$<CXX_COMPILER_ID:MSVC>:/bigobj>)
     target_compile_definitions("hexray_VC_torque_vectoring" PRIVATE
+            DISABLE_GPS_UPDATE
             $<$<CXX_COMPILER_ID:MSVC>:NOMINMAX>)
 
 

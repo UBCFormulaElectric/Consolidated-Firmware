@@ -22,4 +22,17 @@ extern "C"
      * Matlab wrapper for kappa_update
      */
     void kappa_update_matlab(double kappas[4], double v_x, double oemgas[4]);
+
+    /**
+     * Matlab wrapper for estimate
+     */
+    void estimate_matlab(
+        const double apps,
+        const double steering_angle,
+        const double a_x,
+        const double a_y,
+        const double yaw_rate,
+        double rpm[4],
+        double v_body_mps[2],
+        double delta[4]);
 }
