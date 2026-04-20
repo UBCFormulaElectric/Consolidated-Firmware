@@ -2,20 +2,30 @@
 
 #define NUM_ELEMENTS_IN_ARRAY(array_pointer) sizeof(array_pointer) / sizeof(array_pointer[0])
 
-#ifndef MIN
-#define MIN(a, b) (((a) < (b)) ? (a) : (b))
-#endif
+#ifdef __cplusplus
+#include <cmath>
+template <typename T, typename... U> [[nodiscard]] inline constexpr T MIN_OF(const T x, const U... y)
+{
+    T result = x;
+    ((result = std::min(result, y)), ...);
+    return result;
+}
 
-#ifndef MAX
-#define MAX(a, b) (((a) > (b)) ? (a) : (b))
-#endif
+template <typename T> [[nodiscard]] inline constexpr T SQUARE(const T x)
+{
+    return x * x;
+}
 
-#define MIN3(x, y, z) (MIN(MIN((x), (y)), (z)))
-#define MIN4(w, x, y, z) (MIN(MIN(MIN((w), (x)), (y)), (z)))
-#define CLAMP(x, min, max) (MAX(MIN(x, max), min))
-#define CLAMP_TO_ONE(x) (((x) <= 0) ? 1 : ((x) > 1 ? 1 : (x))) // initialize to 1 if value is <=0
-#define SQUARE(x) ((x) * (x))
-#define IS_IN_RANGE(min, max, val) (((val) > (min)) && ((val) < (max)))
+template <typename T> [[nodiscard]] inline constexpr bool IS_IN_RANGE(const T min, const T max, const T x)
+{
+    return (x > min) && (x < max);
+}
+
+template <typename T> [[nodiscard]] inline constexpr bool SIGN(const T x)
+{
+    return (x > 0) ? 1 : ((x < 0) ? -1 : 0);
+}
+#endif
 
 /* @brief Extract the basename from a file path */
 #ifdef _MSC_VER
@@ -46,8 +56,6 @@ constexpr const char *filename_only(const char *path)
     {                          \
         unsigned char _unused; \
     } name;
-
-#define NUM_ELEMENTS_IN_ARRAY(array_pointer) sizeof(array_pointer) / sizeof(array_pointer[0])
 
 #ifdef __cplusplus
 #define CFUNC extern "C"
