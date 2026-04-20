@@ -92,7 +92,8 @@ inline constexpr float PID_POWER_FACTOR_MAX = 0.1f;    // TODO: May need adjustm
 // =============================================================================
 
 inline constexpr float SLIP_RATIO_IDEAL = 0.05f; // Ideal slip ratio for maximum traction
-inline constexpr float MAX_AX_MPS2 = 30; // TODO idk this number bruh
+inline constexpr float MAX_AX_MPS2      = 30;    // TODO idk this number bruh
+
 inline constexpr float STEER_WHEEL_RANGE_rad = 1.48632f;
 inline constexpr float STEER_WHEEL_RANGE_deg = RAD_TO_DEG(1.48632f);
 

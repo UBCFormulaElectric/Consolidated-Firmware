@@ -1,17 +1,9 @@
 #pragma once
 
+#include "torque_vectoring/shared_datatypes/wheel_set.hpp"
+
 namespace app::tv::estimators::steering
 {
-// We include rear wheels for convenience, in reality they are always 0
-// TODO: Incorporate this with the wheel set data structure in algo step PR?
-struct WheelSteerAngles
-{
-    float rr_rad = 0.0f;
-    float rl_rad = 0.0f;
-    float fr_rad = 0.0f;
-    float fl_rad = 0.0f;
-};
-
 /**
  * @brief Line fit mapping steering wheel angles to wheel angles
  *
@@ -19,5 +11,6 @@ struct WheelSteerAngles
  *
  * @return WheelSteerAngles influenced by steering wheel input, rear wheels always 0 here
  */
-WheelSteerAngles wheel_steer_angles(float steer_ang_rad);
+template <Decimal T>
+[[nodiscard]] app::tv::shared_datatypes::wheel_set<T> wheel_steer_angles(const T steer_ang_rad);
 } // namespace app::tv::estimators::steering
