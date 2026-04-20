@@ -74,10 +74,28 @@ inline constexpr float GEAR_RATIO        = 14.3f; // Verified by Noah
 // VELOCITY CONVERSIONS
 // =============================================================================
 
+// Convert meters per second to kilometers per hour
+[[nodiscard]] inline constexpr float MPS_TO_KMH(const float mps)
+{
+    return mps * 3.6f;
+}
+
+// Convert kilometers per hour to meters per second
+[[nodiscard]] inline constexpr float KMH_TO_MPS(const float kmh)
+{
+    return kmh / 3.6f;
+}
+
 // Convert motor RPM to vehicle speed (km/h)
 [[nodiscard]] inline constexpr float MOTOR_RPM_TO_KMH(const float rpm)
 {
     return rpm * WHEEL_DIAMETER_IN * M_PI_F * INCH_TO_KM * MIN_TO_HOUR / GEAR_RATIO;
+}
+
+// Convert motor RPM to vehicle speed (mps)
+[[nodiscard]] inline constexpr float MOTOR_RPM_TO_MPS(const float rpm)
+{
+    return KMH_TO_MPS(MOTOR_RPM_TO_KMH(rpm));
 }
 
 // Convert vehicle speed (km/h) to motor RPM
@@ -90,16 +108,4 @@ inline constexpr float GEAR_RATIO        = 14.3f; // Verified by Noah
 [[nodiscard]] inline constexpr int WHEEL_KMH_TO_RPM(const float kmh)
 {
     return static_cast<int>(kmh / (WHEEL_DIAMETER_IN * M_PI_F * INCH_TO_KM * MIN_TO_HOUR));
-}
-
-// Convert meters per second to kilometers per hour
-[[nodiscard]] inline constexpr float MPS_TO_KMH(const float mps)
-{
-    return mps * 3.6f;
-}
-
-// Convert kilometers per hour to meters per second
-[[nodiscard]] inline constexpr float KMH_TO_MPS(const float kmh)
-{
-    return kmh / 3.6f;
 }

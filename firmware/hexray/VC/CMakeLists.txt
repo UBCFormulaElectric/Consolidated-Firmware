@@ -18,7 +18,9 @@ set(SYSTEM_INCLUDE_DIRS
 file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp")
 list(APPEND APP_SRCS
         "${SHARED_APP_INCLUDE_DIR_CPP}/app_pid.cpp"
+        "${SHARED_APP_INCLUDE_DIR_CPP}/state_estimation/app_kalman_filter.hpp"
 )
+
 set(APP_INCLUDE_DIRS
         "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR_CPP}" "${CMAKE_CURRENT_SOURCE_DIR}/src/app/"
 )
@@ -130,7 +132,14 @@ if ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    target_link_libraries("hexray_VC_app.elf" PRIVATE "hexray_VC_stm32" "hexray_VC_commit_info" "hexray_VC_jsoncan" "m" "autodiff_interface" "sbg_ecom_${ARM_CORE}")
+    target_link_libraries("hexray_VC_app.elf" PRIVATE 
+        "hexray_VC_stm32" 
+        "hexray_VC_commit_info" 
+        "hexray_VC_jsoncan" 
+        "m" 
+        "sbg_ecom_${ARM_CORE}" 
+        "eigen_interface" 
+        "autodiff_interface")
     target_compile_definitions("hexray_VC_app.elf" PRIVATE VC)
 
     add_chimera_stm32h7("hexray_VC_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}" "hexray_chimera_v2_proto_cm7")
@@ -166,7 +175,11 @@ elseif ("${TARGET}" STREQUAL "test")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    target_link_libraries("hexray_VC_test" PRIVATE "hexray_VC_commit_info" "hexray_VC_jsoncan" "autodiff_interface")
+    target_link_libraries("hexray_VC_test" PRIVATE 
+        "hexray_VC_commit_info" 
+        "hexray_VC_jsoncan"
+        "eigen_interface" 
+        "autodiff_interface")
     target_compile_definitions("hexray_VC_test" PRIVATE STM32H733xx)
 
 

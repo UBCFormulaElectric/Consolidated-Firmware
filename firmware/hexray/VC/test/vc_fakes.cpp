@@ -1,5 +1,6 @@
 #include "vc_fakes.hpp"
 #include "app_canTx.hpp"
+#include "app_canUtils.hpp"
 #include "io_imus.hpp"
 #include "io_pumpControl.hpp"
 #include "io_efuses.hpp"
@@ -59,9 +60,14 @@ namespace sbgEllipse
     {
         return Attitude{ 0.0f, 0.0f, 0.0f };
     }
+    static uint32_t ekf_sol_mode = 0; 
     uint32_t getEkfSolutionMode()
     {
-        return 0;
+        return ekf_sol_mode;
+    }
+    void setEkfSolutionMode(uint32_t ekf_sol_mode_) 
+    {
+        ekf_sol_mode = ekf_sol_mode_;
     }
     const VelocityData getEkfNavVelocityData()
     {
