@@ -48,7 +48,7 @@ std::expected<void, ErrorCode> io::telemRx::transmitNTPStartMsg()
     }
     ntpTimestamps.t0 = app::ntp::rtcTimeToMs(t0);
 
-    const io::telemMessage::NTPMsg ntp_msg = io::telemMessage::NTPMsg();
+    const io::telemMessage::NTPMsg ntp_msg   = io::telemMessage::NTPMsg();
     const auto                     tx_result = _900k_uart.transmit(ntp_msg.asBytes());
     if (!tx_result)
     {
