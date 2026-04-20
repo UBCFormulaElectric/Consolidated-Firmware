@@ -99,7 +99,8 @@ extern "C"
 }
 [[noreturn]] static void tasks_runTelemRx(void *arg)
 {
-    osDelayUntil(osWaitForever);
+    osDelayUntil(osWaitForever); // del this for final build
+    // wip this is sketch we have while (true) inside of forever loop
     forever
     {
         io::telemRx::pollForRadioMessages();
@@ -162,7 +163,7 @@ void DAM_StartAllTasks()
     TaskCanRx.start();
     Task1kHz.start();
     Task1Hz.start();
-    // TaskLogging.start();
+    TaskLogging.start();
     TaskTelem.start();
     TaskTelemRx.start();
 }
