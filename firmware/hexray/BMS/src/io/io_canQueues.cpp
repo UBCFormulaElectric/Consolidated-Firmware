@@ -3,12 +3,12 @@
 void tx_overflow_callback(const uint32_t overflow_count)
 {
     UNUSED(overflow_count);
-    // LOG_INFO("CAN TX OVERFLOW");
+    LOG_INFO("CAN TX OVERFLOW");
 }
 void rx_overflow_callback(const uint32_t overflow_count)
 {
     UNUSED(overflow_count);
-    // LOG_INFO("CAN RX OVERFLOW");
+    LOG_INFO("CAN RX OVERFLOW");
 }
 void tx_overflow_clear_callback() {}
 void rx_overflow_clear_callback() {}
