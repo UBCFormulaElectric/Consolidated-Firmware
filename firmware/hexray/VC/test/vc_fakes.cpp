@@ -60,12 +60,12 @@ namespace sbgEllipse
     {
         return Attitude{ 0.0f, 0.0f, 0.0f };
     }
-    static uint32_t ekf_sol_mode = 0; 
-    uint32_t getEkfSolutionMode()
+    static uint32_t ekf_sol_mode = 0;
+    uint32_t        getEkfSolutionMode()
     {
         return ekf_sol_mode;
     }
-    void setEkfSolutionMode(uint32_t ekf_sol_mode_) 
+    void setEkfSolutionMode(uint32_t ekf_sol_mode_)
     {
         ekf_sol_mode = ekf_sol_mode_;
     }

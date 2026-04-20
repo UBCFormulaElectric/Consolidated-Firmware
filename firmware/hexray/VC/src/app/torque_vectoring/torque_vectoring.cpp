@@ -5,9 +5,35 @@
 #include "torque_vectoring/controllers/controllers_dyrc.hpp"
 #include "torque_vectoring/controllers/torque_allocator.hpp"
 #include "torque_vectoring/shared_datatypes/constants.hpp"
+#include "torque_vectoring/estimation/velocity_estimator.hpp"
+// #include "torque_vectoring/estimation/vehicle_state_estimator.hpp"
 
 using namespace app::tv::shared_datatypes;
+using namespace app::tv::estimators;
 using namespace vd_constants;
+
+// TODO: should we input the actual sensor measurements or should we just grab them all in the function?
+template <Decimal T> VehicleState<T> estimate(const T apps, const T steer_ang_rad)
+{
+    VehicleState<T> state{};
+
+    state.apps = apps;
+
+    // TODO: replace these with actual sensor measurements
+    state.a_body_mps2.x = static_cast<T>(0.0);
+    state.a_body_mps2.y = static_cast<T>(0.0);
+    state.yaw_rate_rads = static_cast<T>(0.0);
+
+    // TODO: Replace with steering model once merged in
+    state.delta.fl = steer_ang_rad * static_cast<T>(0.3);
+    state.delta.fr = steer_ang_rad * static_cast<T>(0.3);
+
+    // TODO: fill in inputs
+    velocity_estimator::VelocityEstimatorInputs<T> inputs{};
+    state.v_body_mps = velocity_estimator::estimate_body_velocity(inputs);
+
+    return state;
+}
 
 template <Decimal T> ControlOutput<T> update(const VehicleState<T> &state)
 {
@@ -15,7 +41,7 @@ template <Decimal T> ControlOutput<T> update(const VehicleState<T> &state)
     const T ax_mps2_setpoint = MAX_AX_MPS2 * state.apps;
     // Direct yaw rate control: corrective yaw moment
     const T omegadot_radps2_setpoint = app::tv::controllers::dyrc::computeYawMoment(
-        state.yaw_rate_radps, (state.delta.fl + state.delta.fr) / 2, state.v_x_mps);
+        state.yaw_rate_rads, (state.delta.fl + state.delta.fr) / 2, state.v_body_mps.x);
 
     //------------------------------------- LOW LEVEL CONTROLLER -----------------------------//
 
@@ -50,18 +76,16 @@ extern "C" void update_matlab(
     double       torque_max[4],
     double       torque_min[4])
 {
-    const VehicleState state = { .v_x_mps        = v_x,
-                                 .v_y_mps        = v_y,
-                                 .yaw_rate_radps = yaw_rate,
-                                 .a_x_mps2       = a_x,
-                                 .a_y_mps2       = a_y,
-                                 .apps           = apps,
-                                 .delta          = {
-                                              .fl = delta_fl,
-                                              .fr = delta_fr,
-                                              .rl = 0.0f,
-                                              .rr = 0.0f,
-                                 } };
+    const VehicleState<double> state = { .v_body_mps    = { .x = v_x, .y = v_y },
+                                         .yaw_rate_rads = yaw_rate,
+                                         .a_body_mps2   = { .x = a_x, .y = a_y },
+                                         .apps          = apps,
+                                         .delta         = {
+                                                     .fl = delta_fl,
+                                                     .fr = delta_fr,
+                                                     .rl = 0.0,
+                                                     .rr = 0.0,
+                                         } };
     // bring it in
     const auto [k_kappas, k_torque_max, k_torque_min] = update(state);
     // std::cout << "DIH" << std::endl;

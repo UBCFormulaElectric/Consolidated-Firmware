@@ -190,8 +190,16 @@ elseif ("${TARGET}" STREQUAL "test")
     )
     add_library("hexray_VC_torque_vectoring" STATIC ${TV_SRCS})
     target_include_directories("hexray_VC_torque_vectoring" PUBLIC "${INCLUDE_DIRS}")
-    target_link_libraries("hexray_VC_torque_vectoring" PUBLIC "autodiff_interface" "eigen_interface" "m")
-    target_compile_options("hexray_VC_torque_vectoring" PRIVATE /MT)
+    target_link_libraries("hexray_VC_torque_vectoring" PUBLIC
+            "autodiff_interface"
+            "eigen_interface"
+            "hexray_VC_jsoncan"
+            "m")
+    target_compile_options("hexray_VC_torque_vectoring" PRIVATE
+            $<$<CXX_COMPILER_ID:MSVC>:/MT>
+            $<$<CXX_COMPILER_ID:MSVC>:/bigobj>)
+    target_compile_definitions("hexray_VC_torque_vectoring" PRIVATE
+            $<$<CXX_COMPILER_ID:MSVC>:NOMINMAX>)
 
 
     # MATPLOTLIB TESTING

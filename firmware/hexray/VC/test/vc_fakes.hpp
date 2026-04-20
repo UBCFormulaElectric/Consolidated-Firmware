@@ -45,7 +45,7 @@ namespace sbgEllipse
     void setAngularVelocity(float roll_rate, float pitch_rate, float yaw_rate);
     void setLinearAcceleration(float x_accel, float y_accel, float z_accel);
     void setEkfSolutionMode(uint32_t ekf_sol_mode_);
-} // namespace sbgEllipses
+} // namespace sbgEllipse
 
 namespace shdnLoop
 {

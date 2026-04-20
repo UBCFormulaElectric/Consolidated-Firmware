@@ -20,10 +20,10 @@ static constexpr float kTol       = 1e-5f;
 
 namespace app::tv::estimators::velocity_estimator
 {
-extern ProcessNoiseCov                 Q;
-extern VelocityEstimator::PredictStep  system_model;
-extern VelocityEstimator::UpdateSteps  update_steps;
-extern VelocityEstimator               velocity_estimator;
+extern ProcessNoiseCov                Q;
+extern VelocityEstimator::PredictStep system_model;
+extern VelocityEstimator::UpdateSteps update_steps;
+extern VelocityEstimator              velocity_estimator;
 } // namespace app::tv::estimators::velocity_estimator
 
 namespace io::sbgEllipse
@@ -53,17 +53,17 @@ void setGpsMode(const app::can_utils::VcEkfStatus mode)
 
 struct VehicleBodyMotion
 {
-    float vx_mps      = 0.0f;
-    float vy_mps      = 0.0f;
-    float yaw_rads    = 0.0f;
-    float ax_mps2     = 0.0f;
-    float ay_mps2     = 0.0f;
-    float ang_fr_rad  = 0.0f;
-    float ang_fl_rad  = 0.0f;
-    float rr_ws_mps   = 0.0f;
-    float rl_ws_mps   = 0.0f;
-    float fr_ws_mps   = 0.0f;
-    float fl_ws_mps   = 0.0f;
+    float vx_mps     = 0.0f;
+    float vy_mps     = 0.0f;
+    float yaw_rads   = 0.0f;
+    float ax_mps2    = 0.0f;
+    float ay_mps2    = 0.0f;
+    float ang_fr_rad = 0.0f;
+    float ang_fl_rad = 0.0f;
+    float rr_ws_mps  = 0.0f;
+    float rl_ws_mps  = 0.0f;
+    float fr_ws_mps  = 0.0f;
+    float fl_ws_mps  = 0.0f;
 };
 
 VehicleBodyMotion makeSteadyStateBodyMotion(float vx_mps, float vy_mps, float yaw_rads)
@@ -78,10 +78,10 @@ VehicleBodyMotion makeSteadyStateBodyMotion(float vx_mps, float vy_mps, float ya
     motion.ax_mps2 = vy_mps * yaw_rads;
     motion.ay_mps2 = -vx_mps * yaw_rads;
 
-    const float rr_vx_body   = vx_mps - yaw_rads * HALF_TRACK_WIDTH_m;
-    const float rl_vx_body   = vx_mps + yaw_rads * HALF_TRACK_WIDTH_m;
-    const float fr_vx_body   = vx_mps - yaw_rads * HALF_TRACK_WIDTH_m;
-    const float fl_vx_body   = vx_mps + yaw_rads * HALF_TRACK_WIDTH_m;
+    const float rr_vx_body    = vx_mps - yaw_rads * HALF_TRACK_WIDTH_m;
+    const float rl_vx_body    = vx_mps + yaw_rads * HALF_TRACK_WIDTH_m;
+    const float fr_vx_body    = vx_mps - yaw_rads * HALF_TRACK_WIDTH_m;
+    const float fl_vx_body    = vx_mps + yaw_rads * HALF_TRACK_WIDTH_m;
     const float front_vy_term = yaw_rads * DIST_FRONT_AXLE_CG_m - vy_mps;
 
     motion.rr_ws_mps  = rr_vx_body;
@@ -111,10 +111,8 @@ VelocityEstimatorInputs makeEstimatorInputs(const VehicleBodyMotion &motion)
     return inputs;
 }
 
-Velocity runEstimatorLoop(
-    const VelocityEstimatorInputs       &inputs,
-    const app::can_utils::VcEkfStatus    gps_mode,
-    uint32_t                             steps)
+Velocity
+    runEstimatorLoop(const VelocityEstimatorInputs &inputs, const app::can_utils::VcEkfStatus gps_mode, uint32_t steps)
 {
     setGpsMode(gps_mode);
 

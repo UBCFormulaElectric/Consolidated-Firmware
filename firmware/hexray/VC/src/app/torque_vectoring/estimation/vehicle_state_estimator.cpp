@@ -1,3 +1,4 @@
+#if 0
 #include "vehicle_state_estimator.hpp"
 
 #include <array>
@@ -237,3 +238,4 @@ namespace VehicleStateEstimator
     }
 } // namespace VehicleStateEstimator
 } // namespace app::tv::estimation
+#endif
