@@ -19,6 +19,7 @@ static constexpr float time_step  = 0.01f;
 static constexpr float SLIP_THRES = 0.0117f; // TODO: tune this
 static constexpr float VX_MIN_MPS = 0.5f;    // TODO: we should probably make a global threshold in constants.hpp
 
+// System/Process Model
 autodiff::dual velocity_state_x(const EkfStateInp<float> &x)
 {
     const autodiff::dual &vx  = x(0);
@@ -42,6 +43,17 @@ template <Decimal T> ProcessNoiseCov<T> Q = ProcessNoiseCov<T>::Identity() * sta
 template <Decimal T>
 typename VelocityEstimator<T>::PredictStep system_model = { { velocity_state_x, velocity_state_y } };
 
+/**
+ * Measurement Model
+ *
+ * Note:
+ *
+ * Wheel speed measurements are converted into body speed then passed into the EKF
+ * so the measurement model is trivial
+ *
+ * GPS measurements by default are in body velocity so its measurement model is also
+ * trivial
+ */
 autodiff::dual velocity_meas_x(const EkfState<float> &x)
 {
     return x(0);
@@ -61,8 +73,10 @@ typename VelocityEstimator<T>::UpdateSteps update_steps = typename VelocityEstim
     GpsUpdateStep<T>{ .h = { { velocity_meas_x, velocity_meas_y } }, .R = R_gps<T> },
 };
 
+// Velocity Estimator EKF instantiation
 template <Decimal T> VelocityEstimator<T> velocity_estimator(system_model<T>, Q<T>, update_steps<T>);
 
+// Helper functions for converting wheel velocity into body velocity
 namespace detail
 {
     template <Decimal T> wheel_set<T> motorRpmToWheelSpeedMps(const wheel_set<T> &rpm)
@@ -128,6 +142,7 @@ namespace detail
     }
 } // namespace detail
 
+// Wheel speed measurement handling
 template <Decimal T>
 static std::optional<WsMeasurement<T>> wheelSpeedToBodyVelocity(const VelocityEstimatorInputs<T> &inputs)
 {
@@ -144,6 +159,7 @@ static std::optional<WsMeasurement<T>> wheelSpeedToBodyVelocity(const VelocityEs
     return detail::averageValidWheels(wheel_velocities_mps, vx_state);
 }
 
+// GPS measurement handling
 template <Decimal T> static std::optional<GpsMeasurement<T>> gpsMeasurement(const VelocityEstimatorInputs<T> &inputs)
 {
     if (app::sbgEllipse::getEkfSolutionMode() != app::can_utils::VcEkfStatus::POSITION)
@@ -154,6 +170,7 @@ template <Decimal T> static std::optional<GpsMeasurement<T>> gpsMeasurement(cons
     return z;
 }
 
+// Estimation entry point
 template <Decimal T> Pair<T> estimate_body_velocity(const VelocityEstimatorInputs<T> &inputs)
 {
     const auto ws_meas  = wheelSpeedToBodyVelocity(inputs);
