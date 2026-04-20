@@ -197,7 +197,7 @@ template wheel_set<double> detail::motorRpmToWheelSpeedMps(const wheel_set<doubl
 template wheel_set<Pair<float>>
     detail::computeWheelVelocities(const wheel_set<float> &, const wheel_set<float> &, float);
 template wheel_set<Pair<double>>
-    detail::computeWheelVelocities(const wheel_set<double> &, const wheel_set<double> &, double);
+                detail::computeWheelVelocities(const wheel_set<double> &, const wheel_set<double> &, double);
 template float  detail::computeSlipRatio(float vx_wheel, float vx_state);
 template double detail::computeSlipRatio(double vx_wheel, double vx_state);
 template std::optional<WsMeasurement<float>>  detail::averageValidWheels(const wheel_set<Pair<float>> &, float);

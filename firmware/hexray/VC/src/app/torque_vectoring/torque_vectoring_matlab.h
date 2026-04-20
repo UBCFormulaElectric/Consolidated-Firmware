@@ -32,7 +32,7 @@ extern "C"
         const double a_x,
         const double a_y,
         const double yaw_rate,
-        double rpm[4],
-        double v_body_mps[2],
-        double delta[4]);
+        double       rpm[4],
+        double       v_body_mps[2],
+        double       delta[4]);
 }
