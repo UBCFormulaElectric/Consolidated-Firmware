@@ -1,7 +1,8 @@
 #include "io_filesystem.hpp"
 #include "hw_sd.hpp"
 
-extern "C" {
+extern "C"
+{
 #include "logfs.h"
 }
 
@@ -14,7 +15,7 @@ namespace io
 {
 LogFsErr logfsCfgRead(const LogFsCfg *cfg, uint32_t block, void *buf)
 {
-    auto *self = static_cast<io::FileSystem*>(cfg->context);
+    auto *self = static_cast<io::FileSystem *>(cfg->context);
 
     auto span = std::span<uint8_t>(static_cast<uint8_t *>(buf), HW_DEVICE_SECTOR_SIZE);
 
@@ -30,7 +31,7 @@ LogFsErr logfsCfgRead(const LogFsCfg *cfg, uint32_t block, void *buf)
 
 LogFsErr logfsCfgWrite(const LogFsCfg *cfg, uint32_t block, void *buf)
 {
-    auto *self = static_cast<io::FileSystem*>(cfg->context);
+    auto *self = static_cast<io::FileSystem *>(cfg->context);
 
     auto span = std::span<uint8_t>(static_cast<uint8_t *>(buf), HW_DEVICE_SECTOR_SIZE);
 
@@ -151,7 +152,7 @@ FileSystemError FileSystem::open(const char *path, uint32_t *fd)
     }
 
     files_cfg[*fd].path = path;
-    auto err = logfs_open(&fs, &files[*fd], &files_cfg[*fd], LOGFS_OPEN_RD_WR | LOGFS_OPEN_CREATE);
+    auto err            = logfs_open(&fs, &files[*fd], &files_cfg[*fd], LOGFS_OPEN_RD_WR | LOGFS_OPEN_CREATE);
     if (err != LOGFS_ERR_OK)
         return logfsErrorToFsError(err);
 
@@ -167,7 +168,7 @@ FileSystemError FileSystem::read(uint32_t fd, void *buf, const size_t size)
         return FileSystemError::FILE_ERROR;
 
     uint32_t num_read;
-    auto err = logfs_read(&fs, &files[fd], buf, size, LOGFS_READ_END, &num_read);
+    auto     err = logfs_read(&fs, &files[fd], buf, size, LOGFS_READ_END, &num_read);
     if (err != LOGFS_ERR_OK)
         return logfsErrorToFsError(err);
 
@@ -205,7 +206,7 @@ FileSystemError FileSystem::getBootCount(uint32_t *bootcount)
         return FileSystemError::FILE_MOUNT_FAILED;
 
     uint32_t num_read;
-    auto err = logfs_readMetadata(&fs, &bootcount_file, bootcount, sizeof(uint32_t), &num_read);
+    auto     err = logfs_readMetadata(&fs, &bootcount_file, bootcount, sizeof(uint32_t), &num_read);
     if (err != LOGFS_ERR_OK)
         return logfsErrorToFsError(err);
 
