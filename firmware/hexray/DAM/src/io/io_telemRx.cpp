@@ -1,5 +1,6 @@
 #include "io_telemRx.hpp"
 #include "app_ntp.hpp"
+#include "hw_mutexGuard.hpp"
 #include "hw_uarts.hpp"
 #include "hw_uart.hpp"
 #include "io_telemMessage.hpp"
@@ -35,6 +36,9 @@ static app::ntp::Timestamps ntpTimestamps;
 // Send message to backend through radio to get t1,t2. Called periodically
 void io::telemRx::transmitNTPStartMsg(void)
 {
+    // Take the UART lock first so any wait for an in-flight transmit happens *before* we capture t0.
+    hw::MutexGuard g{ _900k_uart_tx_mutex };
+
     // Take note of the sending time (t0).
     io::rtc::Time t0;
     if (!io::rtc::get_time(t0))

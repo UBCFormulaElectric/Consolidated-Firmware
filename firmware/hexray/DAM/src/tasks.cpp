@@ -13,6 +13,7 @@
 #include <io_canRx.hpp>
 
 #include "hw_hardFaultHandler.hpp"
+#include "hw_mutexGuard.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_uarts.hpp"
 #include "io_telemQueue.hpp"
@@ -85,11 +86,14 @@ extern "C"
             continue;
         }
 
-        const auto &msg       = result.value();
-        const auto  tx_result = _900k_uart.transmit(msg.asBytes());
-        if (not tx_result)
+        const auto &msg = result.value();
         {
-            LOG_ERROR("Failed to transmit telem message: %d", static_cast<int>(tx_result.error()));
+            hw::MutexGuard g{ _900k_uart_tx_mutex };
+            const auto     tx_result = _900k_uart.transmit(msg.asBytes());
+            if (not tx_result)
+            {
+                LOG_ERROR("Failed to transmit telem message: %d", static_cast<int>(tx_result.error()));
+            }
         }
     }
 }
@@ -156,7 +160,7 @@ void DAM_StartAllTasks()
     Task1kHz.start();
     Task1Hz.start();
     // TaskLogging.start();
-    // TaskTelem.start();
+    TaskTelem.start();
     TaskTelemRx.start();
 }
 
@@ -169,6 +173,7 @@ void tasks_init()
 {
     hw::can::fdcan1.init();
     osKernelInitialize();
+    hw_uarts_init();
     jobs_init();
     DAM_StartAllTasks();
     osKernelStart();
