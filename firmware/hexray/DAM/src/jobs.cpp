@@ -1,5 +1,5 @@
 #include "jobs.hpp"
-#include "io_ntp.hpp"
+#include "io_ntpButton.hpp"
 #include "io_telemRx.hpp"
 
 #include "io_canQueues.hpp"
@@ -29,7 +29,7 @@ void jobs_init()
 void jobs_run1Hz_tick() {}
 void jobs_run100Hz_tick()
 {
-    if (io::ntp::wasJustPressed())
+    if (io::ntpButton::wasJustPressed())
     {
         io::telemRx::transmitNTPStartMsg();
     }

@@ -1,7 +1,7 @@
-#include "io_ntp.hpp"
+#include "io_ntpButton.hpp"
 #include "hw_gpios.hpp"
 
-namespace io::ntp
+namespace io::ntpButton
 {
 bool wasJustPressed()
 {
@@ -11,4 +11,4 @@ bool wasJustPressed()
     prev_pressed             = now_pressed;
     return rising_edge;
 }
-} // namespace io::ntp
+} // namespace io::ntpButton
