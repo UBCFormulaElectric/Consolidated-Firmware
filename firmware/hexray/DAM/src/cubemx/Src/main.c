@@ -6,7 +6,7 @@
  ******************************************************************************
  * @attention
  *
- * Copyright (c) 2025 STMicroelectronics.
+ * Copyright (c) 2026 STMicroelectronics.
  * All rights reserved.
  *
  * This software is licensed under terms that can be found in the LICENSE file
@@ -508,7 +508,7 @@ static void MX_GPIO_Init(void)
     __HAL_RCC_GPIOD_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOC, NTP_Pin | LED_Pin | BOOT_Pin | SD_FAIL_Pin | BUZZER_PWR_EN_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOC, LED_Pin | BOOT_Pin | SD_FAIL_Pin | BUZZER_PWR_EN_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(_900M_GPIO_GPIO_Port, _900M_GPIO_Pin, GPIO_PIN_RESET);
@@ -519,9 +519,14 @@ static void MX_GPIO_Init(void)
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOB, nTSIM_GRN_EN_Pin | TSIM_RED_EN_Pin, GPIO_PIN_RESET);
 
-    /*Configure GPIO pins : NTP_Pin LED_Pin BOOT_Pin SD_FAIL_Pin
-                             BUZZER_PWR_EN_Pin */
-    GPIO_InitStruct.Pin   = NTP_Pin | LED_Pin | BOOT_Pin | SD_FAIL_Pin | BUZZER_PWR_EN_Pin;
+    /*Configure GPIO pins : NTP_Pin SD_CD_Pin */
+    GPIO_InitStruct.Pin  = NTP_Pin | SD_CD_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : LED_Pin BOOT_Pin SD_FAIL_Pin BUZZER_PWR_EN_Pin */
+    GPIO_InitStruct.Pin   = LED_Pin | BOOT_Pin | SD_FAIL_Pin | BUZZER_PWR_EN_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -539,12 +544,6 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : SD_CD_Pin */
-    GPIO_InitStruct.Pin  = SD_CD_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(SD_CD_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pin : D_P_PULLUP_Pin */
     GPIO_InitStruct.Pin   = D_P_PULLUP_Pin;

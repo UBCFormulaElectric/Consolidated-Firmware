@@ -34,7 +34,7 @@ extern "C"
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
-        transmitNTPStartMsg();
+        io::telemRx::transmitNTPStartMsg();
         start_ticks += period_ms;
         io::time::delayUntil(start_ticks);
         osDelayUntil(start_ticks);
