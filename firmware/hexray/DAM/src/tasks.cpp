@@ -138,7 +138,10 @@ extern "C"
         const auto msg = can_rx_queue.pop();
         if (not msg)
             continue;
-        io::can_rx::updateRxTableWithMessage(app::jsoncan::copyFromCanMsg(msg.value()));
+        const auto &can_msg = msg.value();
+        (void)telem_tx_queue.push(
+            io::telemMessage::TelemCanMsg(can_msg, static_cast<uint64_t>(io::time::getCurrentMs())));
+        io::can_rx::updateRxTableWithMessage(app::jsoncan::copyFromCanMsg(can_msg));
     }
 }
 

@@ -22,6 +22,8 @@ void jobs_init()
             auto             result = can_tx_queue.push(msg);
             // if (not result)
             // LOG_ERROR("Failed to push TX CAN message: %d", static_cast<int>(result.error()));
+            (void)telem_tx_queue.push(
+                io::telemMessage::TelemCanMsg(msg, static_cast<uint64_t>(io::time::getCurrentMs())));
         });
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
     telem_tx_queue.init();
