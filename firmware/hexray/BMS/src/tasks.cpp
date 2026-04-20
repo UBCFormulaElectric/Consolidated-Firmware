@@ -1,18 +1,21 @@
 #include "tasks.h"
-
-#include "app_jsoncan.hpp"
-
 #include "jobs.hpp"
+#include "app_jsoncan.hpp"
+#include "app_canTx.hpp"
+#include "app_canUtils.hpp"
+#include "app_canAlerts.hpp"
+#include "io_canQueues.hpp"
 #include "io_time.hpp"
-#include <io_canRx.hpp>
-
+#include "io_canRx.hpp"
 #include "hw_adcs.hpp"
 #include "hw_watchdog.hpp"
 #include "hw_cans.hpp"
 #include "hw_error.hpp"
 #include "hw_hardFaultHandler.hpp"
 #include "hw_rtosTaskHandler.hpp"
-#include "io_canQueues.hpp"
+#include "hw_resetReason.hpp"
+#include "hw_bootup.hpp"
+#include "hw_pwms.hpp"
 #include <stm32h7xx_hal.h>
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
@@ -131,10 +134,49 @@ void tasks_preInit()
 
 void tasks_init()
 {
+    SEGGER_SYSVIEW_Conf();
+    LOG_INFO("BMS reset!");
+
+#ifndef WATCHDOG_DISABLED
     __HAL_DBGMCU_FREEZE_IWDG1();
+#endif
+
     hw::adc::chipsInit();
+    hw::pwm::init();
     hw::can::fdcan1.init();
     hw::can::fdcan2.init();
+
+    const ResetReason reset_reason = hw::resetReason::get();
+    app::can_tx::BMS_ResetReason_set(static_cast<app::can_utils::CanResetReason>(reset_reason));
+
+    if (reset_reason == ResetReason::RESET_REASON_WATCHDOG)
+    {
+        LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
+        app::can_alerts::infos::WatchdogTimeout_set(true);
+    }
+
+    hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
+    if (boot_request.context != hw::bootup::BootContext::BOOT_CONTEXT_NONE)
+    {
+        // Check for stack overflow on a previous boot cycle and populate CAN alert.
+        if (boot_request.context == hw::bootup::BootContext::BOOT_CONTEXT_STACK_OVERFLOW)
+        {
+            LOG_WARN("Detected stack overflow on the previous boot cycle!");
+            app::can_alerts::infos::StackOverflow_set(true);
+            app::can_tx::BMS_StackOverflowTask_set(boot_request.context_value);
+        }
+        else if (boot_request.context == hw::bootup::BootContext::BOOT_CONTEXT_WATCHDOG_TIMEOUT)
+        {
+            // If the software driver detected a watchdog timeout the context should be set.
+            app::can_alerts::infos::WatchdogTimeout_set(true);
+            app::can_tx::BMS_WatchdogTimeoutTask_set(boot_request.context_value);
+        }
+
+        // Clear stack overflow bootup.
+        boot_request.context       = hw::bootup::BootContext::BOOT_CONTEXT_NONE;
+        boot_request.context_value = 0;
+        hw::bootup::setBootRequest(boot_request);
+    }
 
     jobs_init();
     osKernelInitialize();
