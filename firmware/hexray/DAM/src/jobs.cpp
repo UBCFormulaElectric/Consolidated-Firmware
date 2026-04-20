@@ -1,6 +1,7 @@
 #include "jobs.hpp"
 #include "io_ntpButton.hpp"
 #include "io_telemRx.hpp"
+#include "io_log.hpp"
 
 #include "io_canQueues.hpp"
 #include "io_queue.hpp"
@@ -33,7 +34,11 @@ void jobs_run100Hz_tick()
 {
     if (io::ntpButton::wasJustPressed())
     {
-        io::telemRx::transmitNTPStartMsg();
+        const auto ntp_result = io::telemRx::transmitNTPStartMsg();
+        if (!ntp_result)
+        {
+            LOG_ERROR("transmitNTPStartMsg() failed with error: %d", static_cast<int>(ntp_result.error()));
+        }
     }
     io::can_tx::enqueue100HzMsgs();
 }

@@ -35,7 +35,11 @@ extern "C"
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
-        io::telemRx::transmitNTPStartMsg();
+        const auto ntp_result = io::telemRx::transmitNTPStartMsg();
+        if (!ntp_result)
+        {
+            LOG_ERROR("transmitNTPStartMsg() failed with error: %d", static_cast<int>(ntp_result.error()));
+        }
         start_ticks += period_ms;
         io::time::delayUntil(start_ticks);
         osDelayUntil(start_ticks);
@@ -103,7 +107,11 @@ extern "C"
     // wip this is sketch we have while (true) inside of forever loop
     forever
     {
-        io::telemRx::pollForRadioMessages();
+        const auto rx_result = io::telemRx::pollForRadioMessages();
+        if (!rx_result)
+        {
+            LOG_ERROR("pollForRadioMessages() failed with error: %d", static_cast<int>(rx_result.error()));
+        }
     }
 }
 

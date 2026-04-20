@@ -8,7 +8,6 @@
 #include "io_crc.hpp"
 #include <portmacro.h>
 #include <stdint.h>
-#include <util_errorCodes.h>
 #include <cstring>
 
 static app::ntp::Timestamps ntpTimestamps;
@@ -34,34 +33,38 @@ static app::ntp::Timestamps ntpTimestamps;
 // }
 
 // Send message to backend through radio to get t1,t2. Called periodically
-void io::telemRx::transmitNTPStartMsg(void)
+std::expected<void, ErrorCode> io::telemRx::transmitNTPStartMsg()
 {
     // Take the UART lock first so any wait for an in-flight transmit happens *before* we capture t0.
     hw::MutexGuard g{ _900k_uart_tx_mutex };
 
     // Take note of the sending time (t0).
     io::rtc::Time t0;
-    if (!io::rtc::get_time(t0))
+    const auto    t0_result = io::rtc::get_time(t0);
+    if (!t0_result)
     {
         LOG_ERROR("Could not get RTC time");
-        return;
+        return std::unexpected(t0_result.error());
     }
     ntpTimestamps.t0 = app::ntp::rtcTimeToMs(t0);
 
     const io::telemMessage::NTPMsg ntp_msg = io::telemMessage::NTPMsg();
-    if (!_900k_uart.transmit(ntp_msg.asBytes()))
+    const auto                     tx_result = _900k_uart.transmit(ntp_msg.asBytes());
+    if (!tx_result)
     {
         LOG_ERROR("Failed to transmit NTP message");
-        return;
+        return std::unexpected(ErrorCode::ERROR);
     }
 
     // --------------------------- Debug message
     LOG_INFO(
         "Sent NTP Msg! at time: %02u:%02u:%02u.%03lu", t0.hours, t0.minutes, t0.seconds,
         (unsigned long)(999 - t0.subseconds));
+
+    return {};
 }
 
-void io::telemRx::pollForRadioMessages(void)
+std::expected<void, ErrorCode> io::telemRx::pollForRadioMessages()
 {
     // Structure: First 2 bytes is magic bytes, 3rd is size of the body, remaining 4 is CRC
     uint8_t            headerData[7];
@@ -70,7 +73,7 @@ void io::telemRx::pollForRadioMessages(void)
     if (!result)
     {
         LOG_ERROR("Could not get rxBufferHeader, error %d", result.error());
-        return;
+        return std::unexpected(ErrorCode::ERROR);
     }
 
     // Keep shifting until magic bytes found
@@ -86,7 +89,7 @@ void io::telemRx::pollForRadioMessages(void)
         if (!_900k_uart.receive(std::span<uint8_t>{ &rxBufferHeader[6], 1 }))
         {
             LOG_ERROR("Could not read 1 new header byte");
-            return;
+            return std::unexpected(ErrorCode::ERROR);
         }
     }
 
@@ -100,7 +103,7 @@ void io::telemRx::pollForRadioMessages(void)
     if (size == 0)
     {
         LOG_ERROR("Invalid payload size: 0");
-        return;
+        return std::unexpected(ErrorCode::INVALID_ARGS);
     }
 
     uint8_t            bodyData[256];
@@ -111,14 +114,15 @@ void io::telemRx::pollForRadioMessages(void)
     if (!_900k_uart.receive(rxBufferBody))
     {
         LOG_ERROR("Could not get rxBufferBody");
-        return;
+        return std::unexpected(ErrorCode::ERROR);
     }
 
     // Take note of t3 (receiving time) immediately after receive
-    if (!io::rtc::get_time(t3))
+    const auto t3_result = io::rtc::get_time(t3);
+    if (!t3_result)
     {
         LOG_ERROR("Could not get RTC time for t3");
-        return;
+        return std::unexpected(t3_result.error());
     }
     ntpTimestamps.t3 = app::ntp::rtcTimeToMs(t3);
 
@@ -128,14 +132,14 @@ void io::telemRx::pollForRadioMessages(void)
     if (expected_crc != io::crc::calculatePayloadCrc(rxBufferBody))
     {
         LOG_ERROR("CRC mismatch");
-        return;
+        return std::unexpected(ErrorCode::CHECKSUM_FAIL);
     }
 
     // Parse t1 and t2 from rxBufferBody.
     if (!app::ntp::parseNTPPacketBody(rxBufferBody, ntpTimestamps))
     {
         LOG_ERROR("Failed to parse NTP packet body");
-        return;
+        return std::unexpected(ErrorCode::ERROR);
     }
 
     // ---------------- Debug Prints -------------------
@@ -157,10 +161,11 @@ void io::telemRx::pollForRadioMessages(void)
     int64_t theta = app::ntp::computeOffset(ntpTimestamps);
 
     io::rtc::Time currTime;
-    if (!io::rtc::get_time(currTime))
+    const auto    curr_time_result = io::rtc::get_time(currTime);
+    if (!curr_time_result)
     {
         LOG_ERROR("Could not get RTC time");
-        return;
+        return std::unexpected(curr_time_result.error());
     }
 
     int64_t currMs = static_cast<int64_t>(app::ntp::rtcTimeToMs(currTime));
@@ -172,10 +177,16 @@ void io::telemRx::pollForRadioMessages(void)
     io::rtc::Time newRtcTime = app::ntp::msToRtcTime(static_cast<uint64_t>(newMs));
     newRtcTime.subseconds    = 0;
 
-    if (!io::rtc::set_time(newRtcTime))
+    const auto set_time_result = io::rtc::set_time(newRtcTime);
+    if (!set_time_result)
+    {
         LOG_ERROR("Failed to tune RTC");
+        return std::unexpected(set_time_result.error());
+    }
 
     LOG_INFO(
         "Tuned RTC! New Time: %02u:%02u:%02u.%03lu", newRtcTime.hours, newRtcTime.minutes, newRtcTime.seconds,
         (unsigned long)(999 - newRtcTime.subseconds));
+
+    return {};
 }

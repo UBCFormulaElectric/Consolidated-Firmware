@@ -1,6 +1,8 @@
 #include "io_canQueues.hpp"
 #include "io_ntpButton.hpp"
 #include "io_telemRx.hpp"
+#include <expected>
+#include <util_errorCodes.hpp>
 
 static void                overflow_callback() {}
 static void                overflow_callback(uint32_t) {}
@@ -12,4 +14,12 @@ bool io::ntpButton::wasJustPressed()
     return false;
 }
 
-void io::telemRx::transmitNTPStartMsg(void) {}
+std::expected<void, ErrorCode> io::telemRx::transmitNTPStartMsg()
+{
+    return {};
+}
+
+std::expected<void, ErrorCode> io::telemRx::pollForRadioMessages()
+{
+    return {};
+}
