@@ -2,5 +2,5 @@ name: tracksight-db
 services:
   influx:
     extends:
-      file: common.yml
+      file: ../common.yml
       service: influx
