@@ -38,13 +38,13 @@ void {{ signal.name }}_set({{ signal.datatype() }} value)
     {%- endif %}
     {%- if let CanSignalType::Numerical = signal.signal_type %}
     // Clamp value to min/max
-    if (value >= {{ signal.max_val_macro() }})
+    if (value >= app::can_utils::{{ msg.name }}_Signals::{{ signal.max_val_macro() }})
     {
-        value = {{ signal.max_val_macro() }};
+        value = app::can_utils::{{ msg.name }}_Signals::{{ signal.max_val_macro() }};
     }
-    if (value <= {{ signal.min_val_macro() }})
+    if (value <= app::can_utils::{{ msg.name }}_Signals::{{ signal.min_val_macro() }})
     {
-        value = {{ signal.min_val_macro() }};
+        value = app::can_utils::{{ msg.name }}_Signals::{{ signal.min_val_macro() }};
     }
     {%- endif %}
     tx_table.{{ msg.name }}_signals.{{ signal.name }}_value = value; // Set value

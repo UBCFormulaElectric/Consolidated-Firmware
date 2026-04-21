@@ -12,9 +12,9 @@ pub enum CanDBError {
         tx_msg_name: String,
     },
     DuplicateTxSignalName {
+        // duplicate within a single message
         signal_name: String,
-        tx_msg_name_1: String,
-        tx_msg_name_2: String,
+        tx_msg_name: String,
     },
     RxMsgNotFound {
         rx_node_name: String,
@@ -37,9 +37,28 @@ pub enum CanDBError {
         node_name: String,
         bus_not_on: String,
     },
-    EnumMultipleBroadcasters {
+    EnumMultipleDefinitions {
         enum_name: String,
-        broadcasters: Vec<String>,
+        definition_locs: Vec<String>,
+    },
+    BusReferencesUndefinedNode {
+        bus_name: String,
+        node_name: String,
+    },
+    BusDefaultModeNotInModes {
+        bus_name: String,
+        default_mode: String,
+    },
+    BusNameCollision {
+        bus_name: String,
+    },
+    ForwarderReferencesUndefinedBus {
+        forwarder_name: String,
+        bus_name: String,
+    },
+    ForwarderReferencesSameBus {
+        forwarder_name: String,
+        bus_name: String,
     },
     PoolConnectionError(r2d2::Error),
 }
@@ -67,12 +86,11 @@ impl Debug for CanDBError {
             ),
             CanDBError::DuplicateTxSignalName {
                 signal_name,
-                tx_msg_name_1,
-                tx_msg_name_2,
+                tx_msg_name,
             } => write!(
                 f,
-                "Duplicate transmitted signal name '{}' found in messages '{}' and '{}'. Signal names must be unique across all transmitted messages.",
-                signal_name, tx_msg_name_1, tx_msg_name_2
+                "Duplicate transmitted signal name '{}' found in message '{}'. Signal names must be unique across all transmitted messages.",
+                signal_name, tx_msg_name
             ),
             CanDBError::RxMsgNotFound {
                 rx_node_name,
@@ -115,13 +133,50 @@ impl Debug for CanDBError {
                 "{} cannot forward to {} as it is not on it",
                 node_name, bus_not_on
             ),
-            CanDBError::EnumMultipleBroadcasters {
+            CanDBError::EnumMultipleDefinitions {
                 enum_name,
-                broadcasters,
+                definition_locs,
             } => write!(
                 f,
                 "Enum '{}' is broadcast by multiple nodes: {:?}",
-                enum_name, broadcasters
+                enum_name, definition_locs
+            ),
+            CanDBError::BusReferencesUndefinedNode {
+                bus_name,
+                node_name,
+            } => write!(
+                f,
+                "Bus '{}' references node '{}' which is not defined",
+                bus_name, node_name
+            ),
+            CanDBError::BusDefaultModeNotInModes {
+                bus_name,
+                default_mode,
+            } => write!(
+                f,
+                "Bus '{}' has default mode '{}' which is not in its list of modes",
+                bus_name, default_mode
+            ),
+            CanDBError::BusNameCollision { bus_name } => write!(
+                f,
+                "Multiple buses with the name '{}' found. Bus names must be unique.",
+                bus_name
+            ),
+            CanDBError::ForwarderReferencesUndefinedBus {
+                forwarder_name,
+                bus_name,
+            } => write!(
+                f,
+                "Bus forwarder '{}' references bus '{}' which is not defined",
+                forwarder_name, bus_name
+            ),
+            CanDBError::ForwarderReferencesSameBus {
+                forwarder_name,
+                bus_name,
+            } => write!(
+                f,
+                "Bus forwarder '{}' references the same bus '{}' for both sides of the forwarder. A forwarder must connect two different buses.",
+                forwarder_name, bus_name
             ),
             CanDBError::PoolConnectionError(error) => write!(f, "Pool connection error: {}", error),
         }

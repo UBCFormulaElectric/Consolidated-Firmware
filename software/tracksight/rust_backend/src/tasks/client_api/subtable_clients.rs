@@ -120,7 +120,7 @@ impl Clients {
     /**
      * Check if client is subscribed to signal
      */
-    pub fn is_client_subscribed_to(&self, client: &String, signal: &String) -> bool {
+    pub fn _is_client_subscribed_to(&self, client: &String, signal: &String) -> bool {
         self.client_to_signal
             .get(client)
             .map_or(false, |signals| signals.contains(signal))
@@ -129,7 +129,7 @@ impl Clients {
     /**
      * Check if signal is subscribed to by client
      */
-    pub fn is_signal_subscribed_by(&self, signal: &String, client: &String) -> bool {
+    pub fn _is_signal_subscribed_by(&self, signal: &String, client: &String) -> bool {
         self.signal_to_client
             .get(signal)
             .map_or(false, |clients| clients.contains(client))

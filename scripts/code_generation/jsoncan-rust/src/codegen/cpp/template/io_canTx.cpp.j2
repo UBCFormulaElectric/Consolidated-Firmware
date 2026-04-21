@@ -41,8 +41,8 @@ void {{msg.name}}_sendAperiodic()
 {%- endif %}
 {
     JsonCanMsg tx_msg{
-        app::can_utils::{{msg.id_macro()}},
-        app::can_utils::{{msg.dlc_macro()}},
+        app::can_utils::{{msg.name}}_Signals::MSG_ID,
+        app::can_utils::{{msg.name}}_Signals::MSG_DLC,
         {}
     };
     #ifdef THREAD_SAFE_CAN_PACKING
@@ -53,14 +53,18 @@ void {{msg.name}}_sendAperiodic()
     unlock();
     #endif
     {%- for msg_bus_name in busses %}
+    {%- if msg.modes != CanBusModes::All %}
     if (
-    {%- for mode in msg.modes %}
-        can_mode_{{msg_bus_name}} & static_cast<uint32_t>(app::can_utils::{{msg_bus_name}}Mode::{{msg_bus_name.to_uppercase()}}_MODE_{{mode.to_uppercase()}}){%- if loop.last == false %} || {% endif -%}
+    {%- for mode in unwrap_mode_names(msg.modes) %}
+        can_mode_{{msg_bus_name}} & static_cast<uint32_t>(app::can_utils::{{msg_bus_name}}Mode::{{msg_bus_name.to_uppercase()}}_MODE_{{mode}}){%- if loop.last == false %} || {% endif -%}
     {%- endfor %}
     )
     {
         enqueue_func_{{msg_bus_name}}(tx_msg);
     }
+    {%- else %}
+    enqueue_func_{{msg_bus_name}}(tx_msg);
+    {%- endif %}
     {%- endfor %}
 }
 {% endfor %}
@@ -110,7 +114,7 @@ void enqueue100HzMsgs()
 void enqueueOtherPeriodicMsgs(const uint32_t time_ms)
 {
     {%- for (msg, busses) in board_tx_msgs_and_busses if msg.cycle_time.is_some() && msg.cycle_time.unwrap() != 1000 && msg.cycle_time.unwrap() != 10 %}
-    if (time_ms % app::can_utils::{{msg.cycle_time_macro()}} == 0)
+    if (time_ms % app::can_utils::{{msg.name}}_Signals::MSG_CYCLE_TIME == 0)
     {
         {{msg.name}}_sendPeriodic();
     }

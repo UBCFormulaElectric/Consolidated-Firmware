@@ -335,35 +335,13 @@ jobs:
         run: |
           pip install -e firmware/logfs/python
           pytest -v firmware/logfs/test
-  test-jsoncan:
-    name: Test jsonCAN
-    runs-on: ubuntu-22.04
-    needs: [ clang-format ]
-    container:
-      image: ubcformulaelectric/environment:cigoat
-    env:
-      BUILD_DIR: build_fw_test
-    steps:
-      - name: Setup git
-        run: git config --global --add safe.directory $(realpath .)
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Run jsoncan unit tests
-        run: python3 -m pytest ./scripts/code_generation/jsoncan/test
-      - name: Build jsonCAN integration tests
-        run: |
-          cmake --preset "FW Test CI" -B $BUILD_DIR
-          cmake --build $BUILD_DIR --target jsoncan_test
-      - name: Run jsonCAN integration tests
-        run: |
-          cd $BUILD_DIR/scripts/code_generation/jsoncan/test/integration
-          valgrind --tool=memcheck --leak-check=yes ./jsoncan_test
 
   test-rust-jsoncan:
-    env:
-      CARGO_TERM_COLOR: always
     name: Test Rust JSONCAN
     runs-on: ubuntu-latest
+    needs: [ clang-format ]
+    env:
+      CARGO_TERM_COLOR: always
     steps:
       - uses: actions/checkout@v4
       - run: rustup update stable && rustup default stable
@@ -373,3 +351,21 @@ jobs:
       - name: Test Rust JSONCAN
         working-directory: ./scripts/code_generation/jsoncan-rust
         run: cargo test --verbose
+  test-rust-integration:
+    name: Test Rust JSONCAN Integration
+    runs-on: ubuntu-latest
+    needs: [ clang-format ]
+    env:
+      BUILD_DIR: build_fw_test
+    container:
+      image: ubcformulaelectric/environment:cigoat
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build jsonCAN integration tests
+        run: |
+          cmake --preset "FW Test CI" -B $BUILD_DIR
+          cmake --build $BUILD_DIR --target jsoncan_test
+      - name: Run jsonCAN integration tests
+        run: |
+          cd $BUILD_DIR/scripts/code_generation/jsoncan-rust/integration
+          valgrind --tool=memcheck --leak-check=yes ./jsoncan_test
