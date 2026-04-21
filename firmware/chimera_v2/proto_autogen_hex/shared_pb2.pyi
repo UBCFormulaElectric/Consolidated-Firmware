@@ -11,8 +11,13 @@ from . import fsm_pb2
 import google.protobuf.descriptor
 import google.protobuf.message
 from . import rsm_pb2
+import sys
 import typing
 from . import vc_pb2
+if sys.version_info >= (3, 10):
+    import typing as typing_extensions
+else:
+    import typing_extensions
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
 @typing.final
@@ -45,7 +50,7 @@ class GpioNetName(google.protobuf.message.Message):
 
     def WhichOneof(self, oneof_group: typing.Literal['name', b'name']) -> typing.Literal['f4dev_net_name', 'crit_net_name', 'dam_net_name', 'rsm_net_name', 'fsm_net_name', 'bms_net_name', 'vc_net_name'] | None:
         ...
-global___GpioNetName = GpioNetName
+Global___GpioNetName: typing_extensions.TypeAlias = GpioNetName
 
 @typing.final
 class GpioReadRequest(google.protobuf.message.Message):
@@ -54,10 +59,10 @@ class GpioReadRequest(google.protobuf.message.Message):
     NET_NAME_FIELD_NUMBER: builtins.int
 
     @property
-    def net_name(self) -> global___GpioNetName:
+    def net_name(self) -> Global___GpioNetName:
         ...
 
-    def __init__(self, *, net_name: global___GpioNetName | None=...) -> None:
+    def __init__(self, *, net_name: Global___GpioNetName | None=...) -> None:
         ...
 
     def HasField(self, field_name: typing.Literal['net_name', b'net_name']) -> builtins.bool:
@@ -65,7 +70,7 @@ class GpioReadRequest(google.protobuf.message.Message):
 
     def ClearField(self, field_name: typing.Literal['net_name', b'net_name']) -> None:
         ...
-global___GpioReadRequest = GpioReadRequest
+Global___GpioReadRequest: typing_extensions.TypeAlias = GpioReadRequest
 
 @typing.final
 class GpioReadResponse(google.protobuf.message.Message):
@@ -78,7 +83,7 @@ class GpioReadResponse(google.protobuf.message.Message):
 
     def ClearField(self, field_name: typing.Literal['value', b'value']) -> None:
         ...
-global___GpioReadResponse = GpioReadResponse
+Global___GpioReadResponse: typing_extensions.TypeAlias = GpioReadResponse
 
 @typing.final
 class GpioWriteRequest(google.protobuf.message.Message):
@@ -89,10 +94,10 @@ class GpioWriteRequest(google.protobuf.message.Message):
     value: builtins.bool
 
     @property
-    def net_name(self) -> global___GpioNetName:
+    def net_name(self) -> Global___GpioNetName:
         ...
 
-    def __init__(self, *, net_name: global___GpioNetName | None=..., value: builtins.bool=...) -> None:
+    def __init__(self, *, net_name: Global___GpioNetName | None=..., value: builtins.bool=...) -> None:
         ...
 
     def HasField(self, field_name: typing.Literal['net_name', b'net_name']) -> builtins.bool:
@@ -100,7 +105,7 @@ class GpioWriteRequest(google.protobuf.message.Message):
 
     def ClearField(self, field_name: typing.Literal['net_name', b'net_name', 'value', b'value']) -> None:
         ...
-global___GpioWriteRequest = GpioWriteRequest
+Global___GpioWriteRequest: typing_extensions.TypeAlias = GpioWriteRequest
 
 @typing.final
 class GpioWriteResponse(google.protobuf.message.Message):
@@ -113,7 +118,7 @@ class GpioWriteResponse(google.protobuf.message.Message):
 
     def ClearField(self, field_name: typing.Literal['success', b'success']) -> None:
         ...
-global___GpioWriteResponse = GpioWriteResponse
+Global___GpioWriteResponse: typing_extensions.TypeAlias = GpioWriteResponse
 
 @typing.final
 class AdcNetName(google.protobuf.message.Message):
@@ -139,7 +144,7 @@ class AdcNetName(google.protobuf.message.Message):
 
     def WhichOneof(self, oneof_group: typing.Literal['name', b'name']) -> typing.Literal['rsm_net_name', 'fsm_net_name', 'bms_net_name', 'vc_net_name'] | None:
         ...
-global___AdcNetName = AdcNetName
+Global___AdcNetName: typing_extensions.TypeAlias = AdcNetName
 
 @typing.final
 class AdcReadRequest(google.protobuf.message.Message):
@@ -148,10 +153,10 @@ class AdcReadRequest(google.protobuf.message.Message):
     NET_NAME_FIELD_NUMBER: builtins.int
 
     @property
-    def net_name(self) -> global___AdcNetName:
+    def net_name(self) -> Global___AdcNetName:
         ...
 
-    def __init__(self, *, net_name: global___AdcNetName | None=...) -> None:
+    def __init__(self, *, net_name: Global___AdcNetName | None=...) -> None:
         ...
 
     def HasField(self, field_name: typing.Literal['net_name', b'net_name']) -> builtins.bool:
@@ -159,7 +164,7 @@ class AdcReadRequest(google.protobuf.message.Message):
 
     def ClearField(self, field_name: typing.Literal['net_name', b'net_name']) -> None:
         ...
-global___AdcReadRequest = AdcReadRequest
+Global___AdcReadRequest: typing_extensions.TypeAlias = AdcReadRequest
 
 @typing.final
 class AdcReadResponse(google.protobuf.message.Message):
@@ -172,7 +177,7 @@ class AdcReadResponse(google.protobuf.message.Message):
 
     def ClearField(self, field_name: typing.Literal['value', b'value']) -> None:
         ...
-global___AdcReadResponse = AdcReadResponse
+Global___AdcReadResponse: typing_extensions.TypeAlias = AdcReadResponse
 
 @typing.final
 class I2cNetName(google.protobuf.message.Message):
@@ -194,7 +199,7 @@ class I2cNetName(google.protobuf.message.Message):
 
     def WhichOneof(self, oneof_group: typing.Literal['name', b'name']) -> typing.Literal['rsm_net_name', 'vc_net_name'] | None:
         ...
-global___I2cNetName = I2cNetName
+Global___I2cNetName: typing_extensions.TypeAlias = I2cNetName
 
 @typing.final
 class I2cReadyRequest(google.protobuf.message.Message):
@@ -203,10 +208,10 @@ class I2cReadyRequest(google.protobuf.message.Message):
     NET_NAME_FIELD_NUMBER: builtins.int
 
     @property
-    def net_name(self) -> global___I2cNetName:
+    def net_name(self) -> Global___I2cNetName:
         ...
 
-    def __init__(self, *, net_name: global___I2cNetName | None=...) -> None:
+    def __init__(self, *, net_name: Global___I2cNetName | None=...) -> None:
         ...
 
     def HasField(self, field_name: typing.Literal['net_name', b'net_name']) -> builtins.bool:
@@ -214,7 +219,7 @@ class I2cReadyRequest(google.protobuf.message.Message):
 
     def ClearField(self, field_name: typing.Literal['net_name', b'net_name']) -> None:
         ...
-global___I2cReadyRequest = I2cReadyRequest
+Global___I2cReadyRequest: typing_extensions.TypeAlias = I2cReadyRequest
 
 @typing.final
 class I2cReadyResponse(google.protobuf.message.Message):
@@ -227,7 +232,7 @@ class I2cReadyResponse(google.protobuf.message.Message):
 
     def ClearField(self, field_name: typing.Literal['ready', b'ready']) -> None:
         ...
-global___I2cReadyResponse = I2cReadyResponse
+Global___I2cReadyResponse: typing_extensions.TypeAlias = I2cReadyResponse
 
 @typing.final
 class I2cReceiveRequest(google.protobuf.message.Message):
@@ -238,10 +243,10 @@ class I2cReceiveRequest(google.protobuf.message.Message):
     length: builtins.int
 
     @property
-    def net_name(self) -> global___I2cNetName:
+    def net_name(self) -> Global___I2cNetName:
         ...
 
-    def __init__(self, *, net_name: global___I2cNetName | None=..., length: builtins.int=...) -> None:
+    def __init__(self, *, net_name: Global___I2cNetName | None=..., length: builtins.int=...) -> None:
         ...
 
     def HasField(self, field_name: typing.Literal['net_name', b'net_name']) -> builtins.bool:
@@ -249,7 +254,7 @@ class I2cReceiveRequest(google.protobuf.message.Message):
 
     def ClearField(self, field_name: typing.Literal['length', b'length', 'net_name', b'net_name']) -> None:
         ...
-global___I2cReceiveRequest = I2cReceiveRequest
+Global___I2cReceiveRequest: typing_extensions.TypeAlias = I2cReceiveRequest
 
 @typing.final
 class I2cReceiveResponse(google.protobuf.message.Message):
@@ -262,7 +267,7 @@ class I2cReceiveResponse(google.protobuf.message.Message):
 
     def ClearField(self, field_name: typing.Literal['data', b'data']) -> None:
         ...
-global___I2cReceiveResponse = I2cReceiveResponse
+Global___I2cReceiveResponse: typing_extensions.TypeAlias = I2cReceiveResponse
 
 @typing.final
 class I2cTransmitRequest(google.protobuf.message.Message):
@@ -273,10 +278,10 @@ class I2cTransmitRequest(google.protobuf.message.Message):
     data: builtins.bytes
 
     @property
-    def net_name(self) -> global___I2cNetName:
+    def net_name(self) -> Global___I2cNetName:
         ...
 
-    def __init__(self, *, net_name: global___I2cNetName | None=..., data: builtins.bytes=...) -> None:
+    def __init__(self, *, net_name: Global___I2cNetName | None=..., data: builtins.bytes=...) -> None:
         ...
 
     def HasField(self, field_name: typing.Literal['net_name', b'net_name']) -> builtins.bool:
@@ -284,7 +289,7 @@ class I2cTransmitRequest(google.protobuf.message.Message):
 
     def ClearField(self, field_name: typing.Literal['data', b'data', 'net_name', b'net_name']) -> None:
         ...
-global___I2cTransmitRequest = I2cTransmitRequest
+Global___I2cTransmitRequest: typing_extensions.TypeAlias = I2cTransmitRequest
 
 @typing.final
 class I2cTransmitResponse(google.protobuf.message.Message):
@@ -297,7 +302,7 @@ class I2cTransmitResponse(google.protobuf.message.Message):
 
     def ClearField(self, field_name: typing.Literal['success', b'success']) -> None:
         ...
-global___I2cTransmitResponse = I2cTransmitResponse
+Global___I2cTransmitResponse: typing_extensions.TypeAlias = I2cTransmitResponse
 
 @typing.final
 class I2cMemoryReadRequest(google.protobuf.message.Message):
@@ -310,10 +315,10 @@ class I2cMemoryReadRequest(google.protobuf.message.Message):
     length: builtins.int
 
     @property
-    def net_name(self) -> global___I2cNetName:
+    def net_name(self) -> Global___I2cNetName:
         ...
 
-    def __init__(self, *, net_name: global___I2cNetName | None=..., memory_address: builtins.int=..., length: builtins.int=...) -> None:
+    def __init__(self, *, net_name: Global___I2cNetName | None=..., memory_address: builtins.int=..., length: builtins.int=...) -> None:
         ...
 
     def HasField(self, field_name: typing.Literal['net_name', b'net_name']) -> builtins.bool:
@@ -321,7 +326,7 @@ class I2cMemoryReadRequest(google.protobuf.message.Message):
 
     def ClearField(self, field_name: typing.Literal['length', b'length', 'memory_address', b'memory_address', 'net_name', b'net_name']) -> None:
         ...
-global___I2cMemoryReadRequest = I2cMemoryReadRequest
+Global___I2cMemoryReadRequest: typing_extensions.TypeAlias = I2cMemoryReadRequest
 
 @typing.final
 class I2cMemoryReadResponse(google.protobuf.message.Message):
@@ -334,7 +339,7 @@ class I2cMemoryReadResponse(google.protobuf.message.Message):
 
     def ClearField(self, field_name: typing.Literal['data', b'data']) -> None:
         ...
-global___I2cMemoryReadResponse = I2cMemoryReadResponse
+Global___I2cMemoryReadResponse: typing_extensions.TypeAlias = I2cMemoryReadResponse
 
 @typing.final
 class I2cMemoryWriteRequest(google.protobuf.message.Message):
@@ -347,10 +352,10 @@ class I2cMemoryWriteRequest(google.protobuf.message.Message):
     data: builtins.bytes
 
     @property
-    def net_name(self) -> global___I2cNetName:
+    def net_name(self) -> Global___I2cNetName:
         ...
 
-    def __init__(self, *, net_name: global___I2cNetName | None=..., memory_address: builtins.int=..., data: builtins.bytes=...) -> None:
+    def __init__(self, *, net_name: Global___I2cNetName | None=..., memory_address: builtins.int=..., data: builtins.bytes=...) -> None:
         ...
 
     def HasField(self, field_name: typing.Literal['net_name', b'net_name']) -> builtins.bool:
@@ -358,7 +363,7 @@ class I2cMemoryWriteRequest(google.protobuf.message.Message):
 
     def ClearField(self, field_name: typing.Literal['data', b'data', 'memory_address', b'memory_address', 'net_name', b'net_name']) -> None:
         ...
-global___I2cMemoryWriteRequest = I2cMemoryWriteRequest
+Global___I2cMemoryWriteRequest: typing_extensions.TypeAlias = I2cMemoryWriteRequest
 
 @typing.final
 class I2cMemoryWriteResponse(google.protobuf.message.Message):
@@ -371,7 +376,7 @@ class I2cMemoryWriteResponse(google.protobuf.message.Message):
 
     def ClearField(self, field_name: typing.Literal['success', b'success']) -> None:
         ...
-global___I2cMemoryWriteResponse = I2cMemoryWriteResponse
+Global___I2cMemoryWriteResponse: typing_extensions.TypeAlias = I2cMemoryWriteResponse
 
 @typing.final
 class SpiNetName(google.protobuf.message.Message):
@@ -399,7 +404,7 @@ class SpiNetName(google.protobuf.message.Message):
 
     def WhichOneof(self, oneof_group: typing.Literal['name', b'name']) -> typing.Literal['bms_net_name', 'crit_net_name', 'rsm_net_name', 'fsm_net_name', 'vc_net_name'] | None:
         ...
-global___SpiNetName = SpiNetName
+Global___SpiNetName: typing_extensions.TypeAlias = SpiNetName
 
 @typing.final
 class SpiTransmitRequest(google.protobuf.message.Message):
@@ -410,10 +415,10 @@ class SpiTransmitRequest(google.protobuf.message.Message):
     data: builtins.bytes
 
     @property
-    def net_name(self) -> global___SpiNetName:
+    def net_name(self) -> Global___SpiNetName:
         ...
 
-    def __init__(self, *, net_name: global___SpiNetName | None=..., data: builtins.bytes=...) -> None:
+    def __init__(self, *, net_name: Global___SpiNetName | None=..., data: builtins.bytes=...) -> None:
         ...
 
     def HasField(self, field_name: typing.Literal['net_name', b'net_name']) -> builtins.bool:
@@ -421,7 +426,7 @@ class SpiTransmitRequest(google.protobuf.message.Message):
 
     def ClearField(self, field_name: typing.Literal['data', b'data', 'net_name', b'net_name']) -> None:
         ...
-global___SpiTransmitRequest = SpiTransmitRequest
+Global___SpiTransmitRequest: typing_extensions.TypeAlias = SpiTransmitRequest
 
 @typing.final
 class SpiTransmitResponse(google.protobuf.message.Message):
@@ -434,7 +439,7 @@ class SpiTransmitResponse(google.protobuf.message.Message):
 
     def ClearField(self, field_name: typing.Literal['success', b'success']) -> None:
         ...
-global___SpiTransmitResponse = SpiTransmitResponse
+Global___SpiTransmitResponse: typing_extensions.TypeAlias = SpiTransmitResponse
 
 @typing.final
 class SpiReceiveRequest(google.protobuf.message.Message):
@@ -445,10 +450,10 @@ class SpiReceiveRequest(google.protobuf.message.Message):
     length: builtins.int
 
     @property
-    def net_name(self) -> global___SpiNetName:
+    def net_name(self) -> Global___SpiNetName:
         ...
 
-    def __init__(self, *, net_name: global___SpiNetName | None=..., length: builtins.int=...) -> None:
+    def __init__(self, *, net_name: Global___SpiNetName | None=..., length: builtins.int=...) -> None:
         ...
 
     def HasField(self, field_name: typing.Literal['net_name', b'net_name']) -> builtins.bool:
@@ -456,7 +461,7 @@ class SpiReceiveRequest(google.protobuf.message.Message):
 
     def ClearField(self, field_name: typing.Literal['length', b'length', 'net_name', b'net_name']) -> None:
         ...
-global___SpiReceiveRequest = SpiReceiveRequest
+Global___SpiReceiveRequest: typing_extensions.TypeAlias = SpiReceiveRequest
 
 @typing.final
 class SpiReceiveResponse(google.protobuf.message.Message):
@@ -469,7 +474,7 @@ class SpiReceiveResponse(google.protobuf.message.Message):
 
     def ClearField(self, field_name: typing.Literal['data', b'data']) -> None:
         ...
-global___SpiReceiveResponse = SpiReceiveResponse
+Global___SpiReceiveResponse: typing_extensions.TypeAlias = SpiReceiveResponse
 
 @typing.final
 class SpiTransactionRequest(google.protobuf.message.Message):
@@ -482,10 +487,10 @@ class SpiTransactionRequest(google.protobuf.message.Message):
     rx_length: builtins.int
 
     @property
-    def net_name(self) -> global___SpiNetName:
+    def net_name(self) -> Global___SpiNetName:
         ...
 
-    def __init__(self, *, net_name: global___SpiNetName | None=..., tx_data: builtins.bytes=..., rx_length: builtins.int=...) -> None:
+    def __init__(self, *, net_name: Global___SpiNetName | None=..., tx_data: builtins.bytes=..., rx_length: builtins.int=...) -> None:
         ...
 
     def HasField(self, field_name: typing.Literal['net_name', b'net_name']) -> builtins.bool:
@@ -493,7 +498,7 @@ class SpiTransactionRequest(google.protobuf.message.Message):
 
     def ClearField(self, field_name: typing.Literal['net_name', b'net_name', 'rx_length', b'rx_length', 'tx_data', b'tx_data']) -> None:
         ...
-global___SpiTransactionRequest = SpiTransactionRequest
+Global___SpiTransactionRequest: typing_extensions.TypeAlias = SpiTransactionRequest
 
 @typing.final
 class SpiTransactionResponse(google.protobuf.message.Message):
@@ -506,7 +511,7 @@ class SpiTransactionResponse(google.protobuf.message.Message):
 
     def ClearField(self, field_name: typing.Literal['rx_data', b'rx_data']) -> None:
         ...
-global___SpiTransactionResponse = SpiTransactionResponse
+Global___SpiTransactionResponse: typing_extensions.TypeAlias = SpiTransactionResponse
 
 @typing.final
 class UartNetName(google.protobuf.message.Message):
@@ -526,7 +531,7 @@ class UartNetName(google.protobuf.message.Message):
 
     def WhichOneof(self, oneof_group: typing.Literal['name', b'name']) -> typing.Literal['dam_net_name'] | None:
         ...
-global___UartNetName = UartNetName
+Global___UartNetName: typing_extensions.TypeAlias = UartNetName
 
 @typing.final
 class UartTransmitRequest(google.protobuf.message.Message):
@@ -537,10 +542,10 @@ class UartTransmitRequest(google.protobuf.message.Message):
     data: builtins.bytes
 
     @property
-    def net_name(self) -> global___UartNetName:
+    def net_name(self) -> Global___UartNetName:
         ...
 
-    def __init__(self, *, net_name: global___UartNetName | None=..., data: builtins.bytes=...) -> None:
+    def __init__(self, *, net_name: Global___UartNetName | None=..., data: builtins.bytes=...) -> None:
         ...
 
     def HasField(self, field_name: typing.Literal['net_name', b'net_name']) -> builtins.bool:
@@ -548,7 +553,7 @@ class UartTransmitRequest(google.protobuf.message.Message):
 
     def ClearField(self, field_name: typing.Literal['data', b'data', 'net_name', b'net_name']) -> None:
         ...
-global___UartTransmitRequest = UartTransmitRequest
+Global___UartTransmitRequest: typing_extensions.TypeAlias = UartTransmitRequest
 
 @typing.final
 class UartTransmitResponse(google.protobuf.message.Message):
@@ -561,7 +566,7 @@ class UartTransmitResponse(google.protobuf.message.Message):
 
     def ClearField(self, field_name: typing.Literal['success', b'success']) -> None:
         ...
-global___UartTransmitResponse = UartTransmitResponse
+Global___UartTransmitResponse: typing_extensions.TypeAlias = UartTransmitResponse
 
 @typing.final
 class UartRecieveRequest(google.protobuf.message.Message):
@@ -572,10 +577,10 @@ class UartRecieveRequest(google.protobuf.message.Message):
     length: builtins.int
 
     @property
-    def net_name(self) -> global___UartNetName:
+    def net_name(self) -> Global___UartNetName:
         ...
 
-    def __init__(self, *, net_name: global___UartNetName | None=..., length: builtins.int=...) -> None:
+    def __init__(self, *, net_name: Global___UartNetName | None=..., length: builtins.int=...) -> None:
         ...
 
     def HasField(self, field_name: typing.Literal['net_name', b'net_name']) -> builtins.bool:
@@ -583,7 +588,7 @@ class UartRecieveRequest(google.protobuf.message.Message):
 
     def ClearField(self, field_name: typing.Literal['length', b'length', 'net_name', b'net_name']) -> None:
         ...
-global___UartRecieveRequest = UartRecieveRequest
+Global___UartRecieveRequest: typing_extensions.TypeAlias = UartRecieveRequest
 
 @typing.final
 class UartReceiveResponse(google.protobuf.message.Message):
@@ -596,7 +601,7 @@ class UartReceiveResponse(google.protobuf.message.Message):
 
     def ClearField(self, field_name: typing.Literal['data', b'data']) -> None:
         ...
-global___UartReceiveResponse = UartReceiveResponse
+Global___UartReceiveResponse: typing_extensions.TypeAlias = UartReceiveResponse
 
 @typing.final
 class PwmNetName(google.protobuf.message.Message):
@@ -616,7 +621,7 @@ class PwmNetName(google.protobuf.message.Message):
 
     def WhichOneof(self, oneof_group: typing.Literal['name', b'name']) -> typing.Literal['crit_net_name'] | None:
         ...
-global___PwmNetName = PwmNetName
+Global___PwmNetName: typing_extensions.TypeAlias = PwmNetName
 
 @typing.final
 class PwmSetRequest(google.protobuf.message.Message):
@@ -630,10 +635,10 @@ class PwmSetRequest(google.protobuf.message.Message):
     '0.0 to 1.0'
 
     @property
-    def net_name(self) -> global___PwmNetName:
+    def net_name(self) -> Global___PwmNetName:
         ...
 
-    def __init__(self, *, net_name: global___PwmNetName | None=..., enable: builtins.bool=..., duty_cycle: builtins.float=...) -> None:
+    def __init__(self, *, net_name: Global___PwmNetName | None=..., enable: builtins.bool=..., duty_cycle: builtins.float=...) -> None:
         ...
 
     def HasField(self, field_name: typing.Literal['net_name', b'net_name']) -> builtins.bool:
@@ -641,7 +646,7 @@ class PwmSetRequest(google.protobuf.message.Message):
 
     def ClearField(self, field_name: typing.Literal['duty_cycle', b'duty_cycle', 'enable', b'enable', 'net_name', b'net_name']) -> None:
         ...
-global___PwmSetRequest = PwmSetRequest
+Global___PwmSetRequest: typing_extensions.TypeAlias = PwmSetRequest
 
 @typing.final
 class PwmSetResponse(google.protobuf.message.Message):
@@ -654,7 +659,7 @@ class PwmSetResponse(google.protobuf.message.Message):
 
     def ClearField(self, field_name: typing.Literal['success', b'success']) -> None:
         ...
-global___PwmSetResponse = PwmSetResponse
+Global___PwmSetResponse: typing_extensions.TypeAlias = PwmSetResponse
 
 @typing.final
 class ChimeraV2Request(google.protobuf.message.Message):
@@ -683,62 +688,62 @@ class ChimeraV2Request(google.protobuf.message.Message):
     PWM_SET_FIELD_NUMBER: builtins.int
 
     @property
-    def gpio_read(self) -> global___GpioReadRequest:
+    def gpio_read(self) -> Global___GpioReadRequest:
         """GPIO."""
 
     @property
-    def gpio_write(self) -> global___GpioWriteRequest:
+    def gpio_write(self) -> Global___GpioWriteRequest:
         ...
 
     @property
-    def adc_read(self) -> global___AdcReadRequest:
+    def adc_read(self) -> Global___AdcReadRequest:
         """ADC."""
 
     @property
-    def i2c_ready(self) -> global___I2cReadyRequest:
+    def i2c_ready(self) -> Global___I2cReadyRequest:
         """I2C."""
 
     @property
-    def i2c_receive(self) -> global___I2cReceiveRequest:
+    def i2c_receive(self) -> Global___I2cReceiveRequest:
         ...
 
     @property
-    def i2c_transmit(self) -> global___I2cTransmitRequest:
+    def i2c_transmit(self) -> Global___I2cTransmitRequest:
         ...
 
     @property
-    def i2c_memory_read(self) -> global___I2cMemoryReadRequest:
+    def i2c_memory_read(self) -> Global___I2cMemoryReadRequest:
         ...
 
     @property
-    def i2c_memory_write(self) -> global___I2cMemoryWriteRequest:
+    def i2c_memory_write(self) -> Global___I2cMemoryWriteRequest:
         ...
 
     @property
-    def spi_receive(self) -> global___SpiReceiveRequest:
+    def spi_receive(self) -> Global___SpiReceiveRequest:
         """SPI."""
 
     @property
-    def spi_transmit(self) -> global___SpiTransmitRequest:
+    def spi_transmit(self) -> Global___SpiTransmitRequest:
         ...
 
     @property
-    def spi_transaction(self) -> global___SpiTransactionRequest:
+    def spi_transaction(self) -> Global___SpiTransactionRequest:
         ...
 
     @property
-    def uart_receive(self) -> global___UartRecieveRequest:
+    def uart_receive(self) -> Global___UartRecieveRequest:
         """UART."""
 
     @property
-    def uart_transmit(self) -> global___UartTransmitRequest:
+    def uart_transmit(self) -> Global___UartTransmitRequest:
         ...
 
     @property
-    def pwm_set(self) -> global___PwmSetRequest:
+    def pwm_set(self) -> Global___PwmSetRequest:
         """PWM"""
 
-    def __init__(self, *, gpio_read: global___GpioReadRequest | None=..., gpio_write: global___GpioWriteRequest | None=..., adc_read: global___AdcReadRequest | None=..., i2c_ready: global___I2cReadyRequest | None=..., i2c_receive: global___I2cReceiveRequest | None=..., i2c_transmit: global___I2cTransmitRequest | None=..., i2c_memory_read: global___I2cMemoryReadRequest | None=..., i2c_memory_write: global___I2cMemoryWriteRequest | None=..., spi_receive: global___SpiReceiveRequest | None=..., spi_transmit: global___SpiTransmitRequest | None=..., spi_transaction: global___SpiTransactionRequest | None=..., uart_receive: global___UartRecieveRequest | None=..., uart_transmit: global___UartTransmitRequest | None=..., pwm_set: global___PwmSetRequest | None=...) -> None:
+    def __init__(self, *, gpio_read: Global___GpioReadRequest | None=..., gpio_write: Global___GpioWriteRequest | None=..., adc_read: Global___AdcReadRequest | None=..., i2c_ready: Global___I2cReadyRequest | None=..., i2c_receive: Global___I2cReceiveRequest | None=..., i2c_transmit: Global___I2cTransmitRequest | None=..., i2c_memory_read: Global___I2cMemoryReadRequest | None=..., i2c_memory_write: Global___I2cMemoryWriteRequest | None=..., spi_receive: Global___SpiReceiveRequest | None=..., spi_transmit: Global___SpiTransmitRequest | None=..., spi_transaction: Global___SpiTransactionRequest | None=..., uart_receive: Global___UartRecieveRequest | None=..., uart_transmit: Global___UartTransmitRequest | None=..., pwm_set: Global___PwmSetRequest | None=...) -> None:
         ...
 
     def HasField(self, field_name: typing.Literal['adc_read', b'adc_read', 'gpio_read', b'gpio_read', 'gpio_write', b'gpio_write', 'i2c_memory_read', b'i2c_memory_read', 'i2c_memory_write', b'i2c_memory_write', 'i2c_ready', b'i2c_ready', 'i2c_receive', b'i2c_receive', 'i2c_transmit', b'i2c_transmit', 'payload', b'payload', 'pwm_set', b'pwm_set', 'spi_receive', b'spi_receive', 'spi_transaction', b'spi_transaction', 'spi_transmit', b'spi_transmit', 'uart_receive', b'uart_receive', 'uart_transmit', b'uart_transmit']) -> builtins.bool:
@@ -749,7 +754,7 @@ class ChimeraV2Request(google.protobuf.message.Message):
 
     def WhichOneof(self, oneof_group: typing.Literal['payload', b'payload']) -> typing.Literal['gpio_read', 'gpio_write', 'adc_read', 'i2c_ready', 'i2c_receive', 'i2c_transmit', 'i2c_memory_read', 'i2c_memory_write', 'spi_receive', 'spi_transmit', 'spi_transaction', 'uart_receive', 'uart_transmit', 'pwm_set'] | None:
         ...
-global___ChimeraV2Request = ChimeraV2Request
+Global___ChimeraV2Request: typing_extensions.TypeAlias = ChimeraV2Request
 
 @typing.final
 class ChimeraV2Response(google.protobuf.message.Message):
@@ -770,62 +775,62 @@ class ChimeraV2Response(google.protobuf.message.Message):
     PWM_SET_FIELD_NUMBER: builtins.int
 
     @property
-    def gpio_read(self) -> global___GpioReadResponse:
+    def gpio_read(self) -> Global___GpioReadResponse:
         """GPIO."""
 
     @property
-    def gpio_write(self) -> global___GpioWriteResponse:
+    def gpio_write(self) -> Global___GpioWriteResponse:
         ...
 
     @property
-    def adc_read(self) -> global___AdcReadResponse:
+    def adc_read(self) -> Global___AdcReadResponse:
         """ADC."""
 
     @property
-    def i2c_ready(self) -> global___I2cReadyResponse:
+    def i2c_ready(self) -> Global___I2cReadyResponse:
         """I2C."""
 
     @property
-    def i2c_receive(self) -> global___I2cReceiveResponse:
+    def i2c_receive(self) -> Global___I2cReceiveResponse:
         ...
 
     @property
-    def i2c_transmit(self) -> global___I2cTransmitResponse:
+    def i2c_transmit(self) -> Global___I2cTransmitResponse:
         ...
 
     @property
-    def i2c_memory_read(self) -> global___I2cMemoryReadResponse:
+    def i2c_memory_read(self) -> Global___I2cMemoryReadResponse:
         ...
 
     @property
-    def i2c_memory_write(self) -> global___I2cMemoryWriteResponse:
+    def i2c_memory_write(self) -> Global___I2cMemoryWriteResponse:
         ...
 
     @property
-    def spi_receive(self) -> global___SpiReceiveResponse:
+    def spi_receive(self) -> Global___SpiReceiveResponse:
         """SPI."""
 
     @property
-    def spi_transmit(self) -> global___SpiTransmitResponse:
+    def spi_transmit(self) -> Global___SpiTransmitResponse:
         ...
 
     @property
-    def spi_transaction(self) -> global___SpiTransactionResponse:
+    def spi_transaction(self) -> Global___SpiTransactionResponse:
         ...
 
     @property
-    def uart_receive(self) -> global___UartReceiveResponse:
+    def uart_receive(self) -> Global___UartReceiveResponse:
         """UART."""
 
     @property
-    def uart_transmit(self) -> global___UartTransmitResponse:
+    def uart_transmit(self) -> Global___UartTransmitResponse:
         ...
 
     @property
-    def pwm_set(self) -> global___PwmSetResponse:
+    def pwm_set(self) -> Global___PwmSetResponse:
         """PWM"""
 
-    def __init__(self, *, gpio_read: global___GpioReadResponse | None=..., gpio_write: global___GpioWriteResponse | None=..., adc_read: global___AdcReadResponse | None=..., i2c_ready: global___I2cReadyResponse | None=..., i2c_receive: global___I2cReceiveResponse | None=..., i2c_transmit: global___I2cTransmitResponse | None=..., i2c_memory_read: global___I2cMemoryReadResponse | None=..., i2c_memory_write: global___I2cMemoryWriteResponse | None=..., spi_receive: global___SpiReceiveResponse | None=..., spi_transmit: global___SpiTransmitResponse | None=..., spi_transaction: global___SpiTransactionResponse | None=..., uart_receive: global___UartReceiveResponse | None=..., uart_transmit: global___UartTransmitResponse | None=..., pwm_set: global___PwmSetResponse | None=...) -> None:
+    def __init__(self, *, gpio_read: Global___GpioReadResponse | None=..., gpio_write: Global___GpioWriteResponse | None=..., adc_read: Global___AdcReadResponse | None=..., i2c_ready: Global___I2cReadyResponse | None=..., i2c_receive: Global___I2cReceiveResponse | None=..., i2c_transmit: Global___I2cTransmitResponse | None=..., i2c_memory_read: Global___I2cMemoryReadResponse | None=..., i2c_memory_write: Global___I2cMemoryWriteResponse | None=..., spi_receive: Global___SpiReceiveResponse | None=..., spi_transmit: Global___SpiTransmitResponse | None=..., spi_transaction: Global___SpiTransactionResponse | None=..., uart_receive: Global___UartReceiveResponse | None=..., uart_transmit: Global___UartTransmitResponse | None=..., pwm_set: Global___PwmSetResponse | None=...) -> None:
         ...
 
     def HasField(self, field_name: typing.Literal['adc_read', b'adc_read', 'gpio_read', b'gpio_read', 'gpio_write', b'gpio_write', 'i2c_memory_read', b'i2c_memory_read', 'i2c_memory_write', b'i2c_memory_write', 'i2c_ready', b'i2c_ready', 'i2c_receive', b'i2c_receive', 'i2c_transmit', b'i2c_transmit', 'payload', b'payload', 'pwm_set', b'pwm_set', 'spi_receive', b'spi_receive', 'spi_transaction', b'spi_transaction', 'spi_transmit', b'spi_transmit', 'uart_receive', b'uart_receive', 'uart_transmit', b'uart_transmit']) -> builtins.bool:
@@ -836,4 +841,4 @@ class ChimeraV2Response(google.protobuf.message.Message):
 
     def WhichOneof(self, oneof_group: typing.Literal['payload', b'payload']) -> typing.Literal['gpio_read', 'gpio_write', 'adc_read', 'i2c_ready', 'i2c_receive', 'i2c_transmit', 'i2c_memory_read', 'i2c_memory_write', 'spi_receive', 'spi_transmit', 'spi_transaction', 'uart_receive', 'uart_transmit', 'pwm_set'] | None:
         ...
-global___ChimeraV2Response = ChimeraV2Response
+Global___ChimeraV2Response: typing_extensions.TypeAlias = ChimeraV2Response
