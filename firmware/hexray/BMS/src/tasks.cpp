@@ -50,7 +50,7 @@
     forever
     {
         jobs_run100Hz_tick();
-        // watchdog100hz.checkIn();
+        watchdog100hz.checkIn();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -68,7 +68,7 @@
     {
         jobs_run1kHz_tick();
         monitor1khz.checkForTimeouts();
-        // watchdog1khz.checkIn();
+        watchdog1khz.checkIn();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -141,7 +141,7 @@ void tasks_preInit()
 void tasks_init()
 {
     // __HAL_DBGMCU_FREEZE_IWDG1();
-    hw::adc::chipsInit();
+    // hw::adc::chipsInit();
     hw::can::fdcan1.init();
     hw::can::fdcan2.init();
     ResetReason reason = hw::resetReason::get();

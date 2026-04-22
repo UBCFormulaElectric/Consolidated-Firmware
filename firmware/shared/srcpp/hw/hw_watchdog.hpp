@@ -81,8 +81,8 @@ class monitor
 {
   private:
     constexpr static int                                   MAX_WATCHDOG_INSTANCES = 10;
-    std::array<WatchdogInstance *, MAX_WATCHDOG_INSTANCES> watchdogs{};
-    bool                                                   timeout_detected = false;
+    static std::array<WatchdogInstance *, MAX_WATCHDOG_INSTANCES> watchdogs;
+    static bool timeout_detected;
 
     WatchdogInstance   *watchdog_instance;
     IWDG_HandleTypeDef &handle;

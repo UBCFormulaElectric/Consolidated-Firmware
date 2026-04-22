@@ -1,5 +1,9 @@
 #include "hw_watchdog.hpp"
 
+std::array<hw::watchdog::WatchdogInstance *, hw::watchdog::monitor::MAX_WATCHDOG_INSTANCES>
+    hw::watchdog::monitor::watchdogs{};
+bool hw::watchdog::monitor::timeout_detected = false;
+
 void hw::watchdog::monitor::registerWatchdogInstance()
 {
     for (WatchdogInstance *&instance : watchdogs)
@@ -25,6 +29,11 @@ void hw::watchdog::monitor::checkForTimeouts()
     // If a timeout is detected, let the hardware watchdog timeout reset the
     // system. We don't reboot immediately because we need some time to log
     // information for further debugging.
+        if (timeout_detected)
+        {
+            return;
+        }
+    
     for (WatchdogInstance *instance : watchdogs)
     {
         if (instance == nullptr)
@@ -53,8 +62,8 @@ void hw::watchdog::monitor::checkForTimeouts()
                 if (timeout_callback != nullptr)
                 {
                     timeout_callback(instance);
-                    break;
                 }
+                return;
             }
         }
     }
