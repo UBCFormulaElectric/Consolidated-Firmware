@@ -80,9 +80,9 @@ struct WatchdogInstance
 class monitor
 {
   private:
-    constexpr static int                                   MAX_WATCHDOG_INSTANCES = 10;
+    constexpr static int                                          MAX_WATCHDOG_INSTANCES = 10;
     static std::array<WatchdogInstance *, MAX_WATCHDOG_INSTANCES> watchdogs;
-    static bool timeout_detected;
+    static bool                                                   timeout_detected;
 
     WatchdogInstance   *watchdog_instance;
     IWDG_HandleTypeDef &handle;
