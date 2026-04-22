@@ -17,6 +17,7 @@
 #include "main.h"
 #include "hw_resetReason.hpp"
 #include "app_canAlerts.hpp"
+#include "hw_gpios.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
@@ -49,7 +50,7 @@
     forever
     {
         jobs_run100Hz_tick();
-        watchdog100hz.checkIn();
+        // watchdog100hz.checkIn();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -67,7 +68,7 @@
     {
         jobs_run1kHz_tick();
         monitor1khz.checkForTimeouts();
-        watchdog1khz.checkIn();
+        // watchdog1khz.checkIn();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }

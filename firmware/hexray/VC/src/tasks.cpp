@@ -6,6 +6,7 @@
 #include "io_time.hpp"
 #include "io_canQueues.hpp"
 #include <hw_can.hpp>
+#include <hw_gpio.hpp>
 #include <io_canRx.hpp>
 #include <io_canTx.hpp>
 
