@@ -3,8 +3,8 @@
 #include <cstring>
 #include <cstdint>
 
-constexpr uint32_t PREDIV_S   = 999;
-constexpr uint64_t MS_PER_DAY = 86400000ULL;
+static constexpr uint32_t PREDIV_S   = 999;
+static constexpr uint64_t MS_PER_DAY = 86400000ULL;
 
 namespace app::ntp
 {
