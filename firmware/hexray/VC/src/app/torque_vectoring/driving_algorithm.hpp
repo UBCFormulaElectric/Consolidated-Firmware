@@ -17,5 +17,7 @@ struct Inputs
     SwitchState  launch_switch = SwitchState::SWITCH_OFF;
 };
 
+void send_torque(float fl, float fr, float rl, float rr);
+void send_speed(float fl, float fr, float rl, float rr);
 void run(DriveMode mode, const Inputs &inputs);
 } // namespace app::tv::algo
