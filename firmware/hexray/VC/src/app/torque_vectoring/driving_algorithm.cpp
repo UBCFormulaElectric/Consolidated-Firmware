@@ -1,31 +1,12 @@
+#include "app_canTx.hpp"
 #include "driving_algorithm.hpp"
+#include "torque_vectoring/datatypes/torque_limits.hpp"
 #include "util_utils.hpp"
 
 namespace app::tv::algo
 {
 namespace
 {
-// TODO: replace both with wheel set later
-void send_torque(float fl, float fr, float rl, float rr)
-{
-    // TODO: implement
-    UNUSED(fl);
-    UNUSED(fr);
-    UNUSED(rl);
-    UNUSED(rr);
-    return;
-}
-
-void send_speed(float fl, float fr, float rl, float rr)
-{
-    // TODO: implement
-    UNUSED(fl);
-    UNUSED(fr);
-    UNUSED(rl);
-    UNUSED(rr);
-    return;
-}
-
 void run_vanilla(const Inputs &inputs)
 {
     (void)inputs;
@@ -55,6 +36,25 @@ void run_launch(const Inputs &inputs)
 }
 
 } // namespace
+
+// TODO: replace both with wheel set later
+void send_torque(float fl, float fr, float rl, float rr)
+{
+    app::can_tx::VC_INVFLTorqueSetpoint_set(app::tv::datatypes::torque_limits::TORQUE_REQUEST(fl));
+    app::can_tx::VC_INVFRTorqueSetpoint_set(app::tv::datatypes::torque_limits::TORQUE_REQUEST(fr));
+    app::can_tx::VC_INVRLTorqueSetpoint_set(app::tv::datatypes::torque_limits::TORQUE_REQUEST(rl));
+    app::can_tx::VC_INVRRTorqueSetpoint_set(app::tv::datatypes::torque_limits::TORQUE_REQUEST(rr));
+}
+
+void send_speed(float fl, float fr, float rl, float rr)
+{
+    // TODO: implement
+    UNUSED(fl);
+    UNUSED(fr);
+    UNUSED(rl);
+    UNUSED(rr);
+    return;
+}
 
 void run(const DriveMode mode, const Inputs &inputs)
 {
