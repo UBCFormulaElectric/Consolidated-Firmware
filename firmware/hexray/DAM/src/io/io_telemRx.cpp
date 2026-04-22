@@ -98,7 +98,7 @@ std::expected<void, ErrorCode> io::telemRx::pollForRadioMessages()
         rxBufferHeader[3], rxBufferHeader[4], rxBufferHeader[5], rxBufferHeader[6]);
 
     // Read rest of packet (contains t1, t2) using size given to you
-    uint8_t size = rxBufferHeader[2];
+    const uint8_t size = rxBufferHeader[2];
 
     if (size == 0)
     {
