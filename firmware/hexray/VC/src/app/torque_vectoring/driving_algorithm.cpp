@@ -1,4 +1,7 @@
 #include "app_canTx.hpp"
+#include "app_canRx.hpp"
+#include "app_imu.hpp"
+#include "app_sbgEllipse.hpp"
 #include "driving_algorithm.hpp"
 #include "torque_vectoring/datatypes/torque_limits.hpp"
 #include "util_utils.hpp"
@@ -26,7 +29,7 @@ void run_optimal_tv(const Inputs &inputs)
 // Send torque through optimal algo once launch switch is high.
 void run_launch(const Inputs &inputs)
 {
-    if (inputs.launch_switch == SwitchState::SWITCH_OFF)
+    if (inputs.launch_sw == SwitchState::SWITCH_OFF)
     {
         send_speed(0.0f, 0.0f, 0.0f, 0.0f);
         send_torque(0.0f, 0.0f, 0.0f, 0.0f);
@@ -56,27 +59,61 @@ void send_speed(float fl, float fr, float rl, float rr)
     return;
 }
 
-void run(const DriveMode mode, const Inputs &inputs)
+static SensorStatus sensor_checks()
 {
-    if (inputs.tv_switch == SwitchState::SWITCH_ON)
+    // TODO: In the steering out of range case, does it saturate or overflow or something else?
+    // TODO: add IMU fault check
+    return SensorStatus{ .imu_ok      = false,
+                         .steering_ok = app::can_rx::FSM_Info_SteeringAngleOCSC_get(),
+                         .gps_ok      = app::sbgEllipse::sbgInitOk() };
+}
+
+void run(float apps)
+{
+    // TODO: after CRIT Switches MR is merged change the switch getters
+    SwitchState tv_sw = static_cast<SwitchState>(app::can_rx::CRIT_TorqueVectoringSwitch_get());
+    SwitchState regen_sw = static_cast<SwitchState>(app::can_rx::CRIT_TorqueVectoringSwitch_get());
+    SwitchState launch_sw = static_cast<SwitchState>(app::can_rx::CRIT_TorqueVectoringSwitch_get());
+
+    if (regen_sw == SwitchState::SWITCH_ON)
+        apps = app::tv::datatypes::torque_limits::REGEN_PEDAL_MAP(apps);
+
+    // First check sensors, then grab inputs needed to run any algorithm
+    SensorStatus sc = sensor_checks();
+
+    const Inputs inputs = {
+        .apps = apps, .steering = app::can_rx::FSM_SteeringAngle_get(), .regen_sw = regen_sw, .launch_sw = launch_sw
+    };
+
+    if (tv_sw == SwitchState::SWITCH_ON)
     {
         run_vanilla(inputs);
         return;
     }
 
     // TODO: adjust apps if regen enabled
-
-    switch (mode)
+    // We intentionally fallthrough as if other modes are added and if the sensor checks 
+    // for one mode fail, we can go to the next best mode. Currently this logic does
+    // not really make sense because we dont have any fallback modes.
+    switch (app::can_rx::CRIT_DriveMode_get())
     {
         case DriveMode::VANILLA:
             run_vanilla(inputs);
             break;
         case DriveMode::TV:
-            run_optimal_tv(inputs);
-            break;
+            if (sc.gps_ok && sc.imu_ok && sc.steering_ok)
+            {
+                run_optimal_tv(inputs);
+                break;
+            } 
+            [[fallthrough]];
         case DriveMode::LAUNCH:
-            run_launch(inputs);
-            break;
+            if (sc.gps_ok && sc.imu_ok && sc.steering_ok)
+            {
+                run_launch(inputs);
+                break;
+            }
+            [[fallthrough]];
         case DriveMode::COUNT:
         default:
             run_vanilla(inputs);

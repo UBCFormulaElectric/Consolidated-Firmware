@@ -2,13 +2,22 @@
 #include "app_sbgEllipse.hpp"
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
+#include "app_canAlerts.hpp"
 #include "util_utils.hpp"
+#include "util_errorCodes.hpp"
 #include "app_math.hpp"
 
 namespace app::sbgEllipse
 {
 static app::can_utils::VcEkfStatus ekf_solution_mode;
 static constexpr int               NUM_VC_EKF_STATUS_CHOICES{ 5 };
+static std::expected<void, ErrorCode> sbg_init_ok = std::unexpected(ErrorCode::ERROR);
+
+void init()
+{
+    sbg_init_ok = io::sbgEllipse::init();
+    // can_alerts::warnings::SbgInitFailed_set(not sbg_init_ok.has_value());
+}
 
 void broadcast()
 {
@@ -62,6 +71,11 @@ void broadcast()
 float getVehicleVelocity(io::sbgEllipse::VelocityData &VelData)
 {
     return sqrtf(SQUARE(VelData.north) + SQUARE(VelData.east) + SQUARE(VelData.down));
+}
+
+bool sbgInitOk()
+{
+    return sbg_init_ok.has_value();
 }
 
 app::can_utils::VcEkfStatus getEkfSolutionMode(void)
