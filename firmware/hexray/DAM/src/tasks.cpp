@@ -7,7 +7,6 @@
 #include "io_time.hpp"
 #include "io_telemMessage.hpp"
 #include "io_canQueues.hpp"
-#include "io_canQueues.hpp"
 #include "io_log.hpp"
 #include "io_telemRx.hpp"
 #include "app_ntp.hpp"
@@ -110,6 +109,7 @@ extern "C"
 }
 [[noreturn]] static void tasks_runTelemRx(void *arg)
 {
+    // maybe move into jobs
     osDelayUntil(osWaitForever); // del this for final build
     std::array<uint8_t, app::telemRx::kChunkSize> scratch{};
     forever

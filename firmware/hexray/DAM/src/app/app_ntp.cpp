@@ -16,7 +16,7 @@ namespace app::ntp
 
 namespace
 {
-Timestamps g_ts{};
+    Timestamps g_ts{};
 }
 
 uint64_t rtcTimeToMs(const io::rtc::Time &t)
@@ -86,7 +86,7 @@ std::optional<uint64_t> handleFrame(std::span<const uint8_t> body, uint64_t t3_m
 
     g_ts.t3 = t3_ms;
 
-    const int64_t theta = computeOffset(g_ts);
+    const int64_t theta  = computeOffset(g_ts);
     int64_t       new_ms = static_cast<int64_t>(current_rtc_ms) + theta;
     if (new_ms < 0)
         new_ms = 0;

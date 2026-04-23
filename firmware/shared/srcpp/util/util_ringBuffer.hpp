@@ -40,10 +40,7 @@ template <typename T, std::size_t N> class RingBuffer
     }
 
     // Read T at logical offset from head without consuming.
-    [[nodiscard]] T peek(std::size_t offset) const
-    {
-        return buf_[(head_ + offset) % N];
-    }
+    [[nodiscard]] T peek(std::size_t offset) const { return buf_[(head_ + offset) % N]; }
 
     // Copy out a contiguous logical run starting at offset, without consuming.
     [[nodiscard]] std::expected<void, ErrorCode> copyOut(std::size_t offset, std::span<T> dst) const noexcept

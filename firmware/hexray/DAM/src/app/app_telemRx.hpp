@@ -11,8 +11,8 @@ inline constexpr std::size_t kRingCapacity = 512;
 inline constexpr std::size_t kChunkSize    = 32;
 inline constexpr std::size_t kMaxBodySize  = 256;
 
-inline constexpr uint8_t kMagic0     = 0xCC;
-inline constexpr uint8_t kMagic1     = 0x33;
+inline constexpr uint8_t     kMagic0     = 0xCC;
+inline constexpr uint8_t     kMagic1     = 0x33;
 inline constexpr std::size_t kHeaderSize = 7; // magic(2) + size(1) + crc(4)
 
 enum class MessageId : uint8_t
