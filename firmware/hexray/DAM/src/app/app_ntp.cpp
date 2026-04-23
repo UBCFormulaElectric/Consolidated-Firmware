@@ -3,33 +3,41 @@
 #include <cstring>
 #include <cstdint>
 
-static constexpr uint32_t PREDIV_S   = 999;
-static constexpr uint64_t MS_PER_DAY = 86400000ULL;
+static constexpr uint32_t PREDIV_S      = 999;
+static constexpr uint64_t MS_PER_DAY    = 86400000ULL;
+static constexpr uint64_t MS_PER_HOUR   = 3600000ULL;
+static constexpr uint64_t MS_PER_MINUTE = 60000ULL;
+static constexpr uint64_t MS_PER_SECOND = 1000ULL;
+
+static constexpr uint8_t MIN_NTP_PACKET_SIZE = 17;
 
 namespace app::ntp
 {
 
-uint64_t rtcTimeToMs(io::rtc::Time t)
+uint64_t rtcTimeToMs(const io::rtc::Time &t)
 {
-    uint32_t ms_part = PREDIV_S - t.subseconds;
-    return static_cast<uint64_t>(t.hours) * 3600000ULL + static_cast<uint64_t>(t.minutes) * 60000ULL +
-           static_cast<uint64_t>(t.seconds) * 1000ULL + static_cast<uint64_t>(ms_part);
+    const uint32_t clamped_subseconds = (t.subseconds > PREDIV_S) ? PREDIV_S : t.subseconds;
+    const uint32_t ms_part            = PREDIV_S - clamped_subseconds;
+
+    return static_cast<uint64_t>(t.hours) * MS_PER_HOUR + static_cast<uint64_t>(t.minutes) * MS_PER_MINUTE +
+           static_cast<uint64_t>(t.seconds) * MS_PER_SECOND + static_cast<uint64_t>(ms_part);
 }
 
-io::rtc::Time msToRtcTime(uint64_t ms)
+io::rtc::Time msToRtcTime(const uint64_t &ms)
 {
     io::rtc::Time t{};
+    uint64_t      remaining_ms = ms % MS_PER_DAY;
 
-    ms %= MS_PER_DAY;
-    t.hours = static_cast<uint8_t>(ms / 3600000ULL);
-    ms %= 3600000ULL;
-    t.minutes = static_cast<uint8_t>(ms / 60000ULL);
-    ms %= 60000ULL;
+    t.hours = static_cast<uint8_t>(remaining_ms / MS_PER_HOUR);
+    remaining_ms %= MS_PER_HOUR;
 
-    t.seconds             = static_cast<uint8_t>(ms / 1000ULL);
-    uint32_t ms_remainder = static_cast<uint32_t>(ms % 1000ULL);
+    t.minutes = static_cast<uint8_t>(remaining_ms / MS_PER_MINUTE);
+    remaining_ms %= MS_PER_MINUTE;
 
-    t.subseconds = PREDIV_S - ms_remainder;
+    t.seconds = static_cast<uint8_t>(remaining_ms / MS_PER_SECOND);
+
+    const uint32_t ms_remainder = static_cast<uint32_t>(remaining_ms % MS_PER_SECOND);
+    t.subseconds                = PREDIV_S - ms_remainder;
     return t;
 }
 
@@ -40,7 +48,7 @@ int64_t computeOffset(const Timestamps &ts)
 
 bool parseNTPPacketBody(std::span<uint8_t> body, Timestamps &ts)
 {
-    if (body.size() < 17)
+    if (body.size() < MIN_NTP_PACKET_SIZE)
         return false;
 
     uint64_t messageID = body[0];
