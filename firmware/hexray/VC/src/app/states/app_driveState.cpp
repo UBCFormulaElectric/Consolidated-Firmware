@@ -1,56 +1,58 @@
 #include "app_stateMachine.hpp"
 #include "app_states.hpp"
+#include "app_bspdwarning.hpp"
 #include "torque_vectoring/driving_algorithm.hpp"
 #include "app_bspdWarning.hpp"
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
 #include "app_canUtils.hpp"
+#include "app_canAlerts.hpp"
 
 using namespace app::can_utils;
+
+static volatile float       apps          = 0.0f;
+
+// TODO: add power manager
 
 namespace app::states
 {
 static bool driveStatePassPreCheck()
 {
 // TODO:
-// check inverter warnings
+// check inverter warnings  
+    
 // check board warnings
+    if (app::can_alerts::AnyBoardHasWarning())
+        return false;
 // check possibly other faults 
-// check switches and debounce them
-// check bspd
-// handle state transitions away from drive state
-// is this really needed ngl this could be consolidated into 100Hz tick
-return true;
-}
 
-/*
-static SwitchState read_tv_switch()
-{
-    // TODO: implement
-    static SwitchState last_state = SwitchState::SWITCH_OFF;
-    return last_state;
-}
+    // TODO: Should this be done at FSM?
+    bool papps_ocsc = app::can_rx::FSM_Warning_PappsOCSC_get();
+    bool sapps_ocsc = app::can_rx::FSM_Warning_SappsOCSC_get();
 
-static SwitchState read_regen_switch()
-{
-    // TODO: implement
-    static SwitchState last_state = SwitchState::SWITCH_OFF;
-    return last_state;
-}
+    // throttle pedal position is unreliable, do not drive
+    if (app::can_rx::FSM_Warning_AppsDisagreement_get() || (papps_ocsc && sapps_ocsc))
+        return false;
 
-static SwitchState read_launch_switch()
-{
-    // TODO: implement
-    static SwitchState last_state = SwitchState::SWITCH_OFF;
-    return last_state;
+    // if primary apps is unreliable, use secondary, else use primary
+    if (papps_ocsc)
+        apps = app::can_rx::FSM_SappsMappedPedalPercentage_get();
+    else
+        apps = app::can_rx::FSM_PappsMappedPedalPercentage_get();
+
+    if (app::bspdWarning::checkSoftwareBspd(apps))
+        return false;
+
+    // handle state transitions away from drive state
+    // is this really needed ngl this could be consolidated into 100Hz tick
+    return true;
 }
-*/
 
 static void driveStateRunOnEntry()
 {
 // TODO:
 // enable inverters
-    app::can_tx::VC_State_set(VCState::VC_INIT_STATE);
+    app::can_tx::VC_State_set(VCState::VC_DRIVE_STATE);
 
     // Ensure inverters are enabled
     inverter_enable_toggle(true, true, true, true);
@@ -58,20 +60,29 @@ static void driveStateRunOnEntry()
     set_torque_limit_negative(MAX_REGEN_TORQUE_Nm, MAX_REGEN_TORQUE_Nm, MAX_REGEN_TORQUE_Nm, MAX_REGEN_TORQUE_Nm);
     set_torque_limit_positive(
         MAX_TORQUE_REQUEST_Nm, MAX_TORQUE_REQUEST_Nm, MAX_TORQUE_REQUEST_Nm, MAX_TORQUE_REQUEST_Nm);
+    send_torque(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
 }
 
 static void driveStateRunOnTick100Hz(void)
 {
 // TODO:
-    if (!driveStatePassPreCheck())
+    if (!driveStatePassPreCheck()) 
+    {
+        send_torque(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
+        // TODO: set speed requests to 0 as well
         return;
-// run driving algo
+    }
+
+    app::tv::algo::run(apps);
 }
 
 static void driveStateRunOnExit(void)
 {
 // TODO:
 // disable inverters
+    inverter_enable_toggle(false, false, false, false);
+    set_torque_limit_negative(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
+    set_torque_limit_positive(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
 }
 
 app::State drive_state = { .name              = "DRIVE",

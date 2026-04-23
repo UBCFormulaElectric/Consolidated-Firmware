@@ -5,9 +5,13 @@
         "FSM_Vitals",
         "RSM_Vitals",
         "CRIT_Vitals",
+        "CRIT_ButtonsAndSwitches",
         "DAM_Vitals",
         "BMS_Contactors",
         "FSM_ShdnNodeStatus",
+        "FSM_Brake",
+        "FSM_Apps",
+        "FSM_Steering",
         "DAM_ShdnNodeStatus",
         "RSM_ShdnNodeStatus",
         "BMS_BMSShdnNodeStatus",
@@ -26,7 +30,6 @@
         "VC_Imu1AngularData",
         "VC_Imu2AngularData",
         "VC_Imu3AngularData",
-        "FSM_Brake",
         "CRIT_Switches"
     ]
 }
