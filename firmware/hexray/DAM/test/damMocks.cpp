@@ -14,12 +14,12 @@ bool io::ntpButton::wasJustPressed()
     return false;
 }
 
-std::expected<void, ErrorCode> io::telemRx::transmitNTPStartMsg()
+std::expected<io::rtc::Time, ErrorCode> io::telemRx::transmitNTPStartMsg()
 {
-    return {};
+    return io::rtc::Time{};
 }
 
-std::expected<void, ErrorCode> io::telemRx::pollForRadioMessages()
+std::expected<io::telemRx::RxChunk, ErrorCode> io::telemRx::pumpOnce(std::span<uint8_t>)
 {
-    return {};
+    return RxChunk{ {}, io::rtc::Time{} };
 }

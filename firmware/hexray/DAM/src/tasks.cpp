@@ -10,6 +10,8 @@
 #include "io_canQueues.hpp"
 #include "io_log.hpp"
 #include "io_telemRx.hpp"
+#include "app_ntp.hpp"
+#include "app_telemRx.hpp"
 #include <io_canRx.hpp>
 
 #include "hw_hardFaultHandler.hpp"
@@ -18,6 +20,7 @@
 #include "hw_uarts.hpp"
 #include "io_telemQueue.hpp"
 
+#include <array>
 #include <span>
 
 extern "C"
@@ -39,6 +42,10 @@ extern "C"
         if (!ntp_result)
         {
             LOG_ERROR("transmitNTPStartMsg() failed with error: %d", static_cast<int>(ntp_result.error()));
+        }
+        else
+        {
+            app::ntp::recordT0(app::ntp::rtcTimeToMs(*ntp_result));
         }
         start_ticks += period_ms;
         io::time::delayUntil(start_ticks);
@@ -104,14 +111,17 @@ extern "C"
 [[noreturn]] static void tasks_runTelemRx(void *arg)
 {
     osDelayUntil(osWaitForever); // del this for final build
-    // wip this is sketch we have while (true) inside of forever loop
+    std::array<uint8_t, app::telemRx::kChunkSize> scratch{};
     forever
     {
-        const auto rx_result = io::telemRx::pollForRadioMessages();
+        const auto rx_result = io::telemRx::pumpOnce(scratch);
         if (!rx_result)
         {
-            LOG_ERROR("pollForRadioMessages() failed with error: %d", static_cast<int>(rx_result.error()));
+            LOG_ERROR("pumpOnce() failed with error: %d", static_cast<int>(rx_result.error()));
+            continue;
         }
+        app::telemRx::ingest(rx_result->bytes, app::ntp::rtcTimeToMs(rx_result->rx_time));
+        app::telemRx::drain();
     }
 }
 

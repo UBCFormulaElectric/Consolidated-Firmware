@@ -1,4 +1,5 @@
 #include "jobs.hpp"
+#include "app_ntp.hpp"
 #include "io_ntpButton.hpp"
 #include "io_telemRx.hpp"
 #include "io_log.hpp"
@@ -38,6 +39,10 @@ void jobs_run100Hz_tick()
         if (!ntp_result)
         {
             LOG_ERROR("transmitNTPStartMsg() failed with error: %d", static_cast<int>(ntp_result.error()));
+        }
+        else
+        {
+            app::ntp::recordT0(app::ntp::rtcTimeToMs(*ntp_result));
         }
     }
     io::can_tx::enqueue100HzMsgs();

@@ -1,7 +1,7 @@
 #include "app_ntp.hpp"
 
-#include <cstring>
 #include <cstdint>
+#include <cstring>
 
 static constexpr uint32_t PREDIV_S      = 999;
 static constexpr uint64_t MS_PER_DAY    = 86400000ULL;
@@ -13,6 +13,11 @@ static constexpr uint8_t MIN_NTP_PACKET_SIZE = 17;
 
 namespace app::ntp
 {
+
+namespace
+{
+Timestamps g_ts{};
+}
 
 uint64_t rtcTimeToMs(const io::rtc::Time &t)
 {
@@ -46,24 +51,46 @@ int64_t computeOffset(const Timestamps &ts)
     return ((int64_t)(ts.t1 - ts.t0) + (int64_t)(ts.t2 - ts.t3)) / 2;
 }
 
-bool parseNTPPacketBody(std::span<uint8_t> body, Timestamps &ts)
+bool parseNTPPacketBody(std::span<const uint8_t> body, Timestamps &ts)
 {
     if (body.size() < MIN_NTP_PACKET_SIZE)
         return false;
 
-    uint64_t messageID = body[0];
-    if (messageID != 1)
+    if (body[0] != 1) // message id
         return false;
 
     uint64_t t1;
     uint64_t t2;
-
     std::memcpy(&t1, &body[1], sizeof(uint64_t));
     std::memcpy(&t2, &body[9], sizeof(uint64_t));
 
     ts.t1 = t1 % MS_PER_DAY;
     ts.t2 = t2 % MS_PER_DAY;
     return true;
+}
+
+void recordT0(uint64_t t0_ms)
+{
+    g_ts.t0 = t0_ms;
+}
+
+const Timestamps &timestamps()
+{
+    return g_ts;
+}
+
+std::optional<uint64_t> handleFrame(std::span<const uint8_t> body, uint64_t t3_ms, uint64_t current_rtc_ms)
+{
+    if (!parseNTPPacketBody(body, g_ts))
+        return std::nullopt;
+
+    g_ts.t3 = t3_ms;
+
+    const int64_t theta = computeOffset(g_ts);
+    int64_t       new_ms = static_cast<int64_t>(current_rtc_ms) + theta;
+    if (new_ms < 0)
+        new_ms = 0;
+    return static_cast<uint64_t>(new_ms);
 }
 
 } // namespace app::ntp
