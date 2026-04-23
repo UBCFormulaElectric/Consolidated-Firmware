@@ -3,24 +3,11 @@
 
 namespace io::switches
 {
-bool torque_vectoring_get()
-{
-    return torque_vectoring_sig.readPin();
-}
-bool launch_control_get()
-{
-    return launch_control_sig.readPin();
-}
-bool regen_get()
-{
-    return regen_sig.readPin();
-}
-bool start_get()
-{
-    return push_drive_sig.readPin();
-}
-bool telem_mark_get()
-{
-    return telem_sig.readPin();
-}
+static constexpr uint8_t SW_DEBOUNCE_TICKS = 5;
+
+Switch torque_vectoring_sw(SW_DEBOUNCE_TICKS, torque_vectoring_sig);
+Switch launch_control_sw(SW_DEBOUNCE_TICKS, launch_control_sig);
+Switch regen_sw(SW_DEBOUNCE_TICKS, regen_sig);
+Switch start_sw(SW_DEBOUNCE_TICKS, push_drive_sig);
+Switch telem_sw(SW_DEBOUNCE_TICKS, telem_sig);
 } // namespace io::switches
