@@ -5,7 +5,6 @@ python scripts/current_sensor/calibration.py --help
 """
 
 from __future__ import annotations
-
 import argparse
 import csv
 from numpy.polynomial import Polynomial
@@ -14,6 +13,7 @@ import importlib.util
 from pathlib import Path
 import statistics
 import time
+import chimera_v2
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -30,10 +30,9 @@ MIN_CURRENT_STEP = 0.0001
 MAX_CURRENT = 1.04
 SUPPLY_VOLTAGE = 5.0
 
-SETTLE_TIME_S = 1
-
-SAMPLES_PER_POINT = 20
-SAMPLE_DELAY_S = 0.5
+SETTLE_TIME_S = 2
+SAMPLES_PER_POINT = 1
+SAMPLE_DELAY_S = 2
 
 @dataclass (frozen=True)
 class SensorConfig:
@@ -43,10 +42,10 @@ class SensorConfig:
 
 @dataclass (frozen=True)
 class CalibrationPoint:
-    loop_count: int
-    commanded_current_a: float
-    measured_supply_current_a: float
-    effective_sensor_current_a: float
+    wires: int
+    commanded_current: float
+    measured_supply_current: float
+    effective_sensor_current: float
     adc_voltage_by_sensor: dict[str, float]
 
 
@@ -142,10 +141,10 @@ def wait_for_next_loop(loop_count: int) -> None:
 
 def save_and_print_results(rows: list[CalibrationPoint], sensors: list[SensorConfig], csv_path: str) -> None:
     fieldnames = [
-        "loop_count",
-        "commanded_current_a",
-        "measured_supply_current_a",
-        "effective_sensor_current_a",
+        "wires",
+        "commanded_current",
+        "measured_supply_current",
+        "effective_sensor_current",
     ]
     fieldnames.extend(f"adc_voltage_{sensor.name}_v" for sensor in sensors)
 
@@ -154,10 +153,10 @@ def save_and_print_results(rows: list[CalibrationPoint], sensors: list[SensorCon
         writer.writeheader()
         writer.writerows(
             {
-                "loop_count": row.loop_count,
-                "commanded_current_a": row.commanded_current_a,
-                "measured_supply_current_a": row.measured_supply_current_a,
-                "effective_sensor_current_a": row.effective_sensor_current_a,
+                "wires": row.wires,
+                "commanded_current": row.commanded_current,
+                "measured_supply_current": row.measured_supply_current,
+                "effective_sensor_current": row.effective_sensor_current,
                 **{
                     f"adc_voltage_{sensor.name}_v": row.adc_voltage_by_sensor[sensor.name]
                     for sensor in sensors
@@ -166,7 +165,7 @@ def save_and_print_results(rows: list[CalibrationPoint], sensors: list[SensorCon
             for row in rows
         )
 
-    measured_currents = [row.effective_sensor_current_a for row in rows]
+    measured_currents = [row.effective_sensor_current for row in rows]
 
     print("\nCalibration results")
     for sensor in sensors:
@@ -211,41 +210,32 @@ def run_calibration(supply: PowerSupply, bms: chimera_v2.BMS, sensors: list[Sens
 
     try:
         for loop_multiplier in range(1, max_loops + 2):
-            if loop_count > 1:
-                wait_for_next_loop(loop_count)
+            if loop_multiplier > 1:
+                wait_for_next_loop(loop_multiplier - 1)
 
-            print(f"\nStarting pass with {loop_count} loop(s) through the sensor")
-
+            print(f"\nStarting pass with {loop_multiplier} wires through the sensor")
+            supply.enable_output(CHANNEL)
             for commanded_current in commanded_currents:
                 supply.set_current(commanded_current, CHANNEL)
-                supply.enable_output(CHANNEL)
-                time.sleep(SETTLE_TIME_S)
+                
+                
+                measured_current, adc_voltage_by_sensor = average_measurements(supply, bms, sensors)
+                effective_sensor_current = measured_current * loop_multiplier
 
-                measured_current_a, adc_voltage_by_sensor = average_measurements(supply, bms, sensors)
-                effective_sensor_current_a = measured_current_a * loop_count
-
-                rows.append(
-                    CalibrationPoint(
-                        loop_count=loop_count,
-                        commanded_current_a=commanded_current,
-                        measured_supply_current_a=measured_current_a,
-                        effective_sensor_current_a=effective_sensor_current_a,
-                        adc_voltage_by_sensor=adc_voltage_by_sensor,
-                    )
-                )
+                rows.append(CalibrationPoint(loop_multiplier,commanded_current,measured_current,effective_sensor_current,adc_voltage_by_sensor))
 
                 line = (
-                    f"loops={loop_count:2d}  "
+                    f"wires={loop_multiplier:2d}  "
                     f"set={commanded_current:6.3f} A  "
-                    f"supply={measured_current_a:6.3f} A  "
-                    f"effective={effective_sensor_current_a:6.3f} A"
+                    f"supply={measured_current:6.3f} A  "
+                    f"effective={effective_sensor_current:6.3f} A"
                 )
                 for sensor in sensors:
                     line += f"  {sensor.name}={adc_voltage_by_sensor[sensor.name]:7.5f} V"
                 print(line)
 
-                supply.disable_output(CHANNEL)
-                time.sleep(0.2)
+                time.sleep(SETTLE_TIME_S)
+
 
     finally:
         supply.disable_output(CHANNEL)
@@ -256,7 +246,6 @@ def run_calibration(supply: PowerSupply, bms: chimera_v2.BMS, sensors: list[Sens
 def main() -> None:
     args = parse_args()
 
-    import chimera_v2
 
     supply = PowerSupply()
     bms = chimera_v2.BMS()
