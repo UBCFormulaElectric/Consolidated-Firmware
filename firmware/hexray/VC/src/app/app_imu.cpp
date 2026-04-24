@@ -202,10 +202,4 @@ bool getAllInitsFailed()
 {
     return not imu1_init_ok.has_value() && not imu2_init_ok.has_value() && not imu3_init_ok.has_value();
 }
-
-// TODO: state estimation for which IMU is faulty if any and maybe a way to determine if the IMU is giving bad data but
-// not fully broken (ex: values are all 0 or not changing at all) and then use the good IMUs to estimate what the bad
-// IMU should be outputting and broadcast that instead, and set a fault alert for that IMU as well. Could also use this
-// state estimation to determine which IMU data to trust if there is disagreement between the 3 IMUs (ex: 2 similar
-// outputs and 1 different output, then take the 2 similar outputs as correct and set a fault for the different one).
 } // namespace app::imus

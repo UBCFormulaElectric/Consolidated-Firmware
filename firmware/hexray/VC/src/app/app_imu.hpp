@@ -32,5 +32,5 @@ std::expected<float, ErrorCode> getGyroX();
 std::expected<float, ErrorCode> getGyroY();
 std::expected<float, ErrorCode> getGyroZ();
 bool                            getAllInitsFailed();
-// TODO: IMU state machine for averaging or taking median of sensors
+// TODO: transformation matrix to reorient IMU to vehicle body frame (do for FSM and RSM as well)
 } // namespace app::imus
