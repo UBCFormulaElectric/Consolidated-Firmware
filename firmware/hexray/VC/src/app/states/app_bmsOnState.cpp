@@ -11,22 +11,21 @@ namespace app::states
 namespace bmsOnStates
 {
 
-static void runOnEntry(void)
-{
-    app::can_tx::VC_State_set(VCState::VC_BMS_ON_STATE);
-}
-
-static void runOnTick100Hz(void)
-{
-    if (app::can_rx::BMS_State_get() == BmsState::BMS_DRIVE_STATE)
+    static void runOnEntry(void)
     {
-        app::StateMachine::set_next_state(&pcmOn_state);
+        app::can_tx::VC_State_set(VCState::VC_BMS_ON_STATE);
     }
-}
 
-static void runOnExit(void) {}
+    static void runOnTick100Hz(void)
+    {
+        if (app::can_rx::BMS_State_get() == BmsState::BMS_DRIVE_STATE)
+        {
+            app::StateMachine::set_next_state(&pcmOn_state);
+        }
+    }
+
+    static void runOnExit(void) {}
 } // namespace bmsOnStates
-
 
 State bmsOn_state = { .name              = "BMS ON",
                       .run_on_entry      = bmsOnStates::runOnEntry,

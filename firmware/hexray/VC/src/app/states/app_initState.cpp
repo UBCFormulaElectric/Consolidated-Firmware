@@ -12,22 +12,22 @@ namespace app::states
 
 namespace initState
 {
-static void runOnEntry(void)
-{
-    app::can_tx::VC_State_set(VCState::VC_INIT_STATE);
-}
-
-static void runOnTick100Hz(void)
-{
-    const ContactorState air_minus_closed = app::can_rx::BMS_IrPositive_get();
-    if (air_minus_closed == ContactorState::CONTACTOR_STATE_CLOSED)
+    static void runOnEntry(void)
     {
-        app::StateMachine::set_next_state(&inverterOn_state);
+        app::can_tx::VC_State_set(VCState::VC_INIT_STATE);
     }
-}
 
-static void runOnExit(void) {}
-}
+    static void runOnTick100Hz(void)
+    {
+        const ContactorState air_minus_closed = app::can_rx::BMS_IrPositive_get();
+        if (air_minus_closed == ContactorState::CONTACTOR_STATE_CLOSED)
+        {
+            app::StateMachine::set_next_state(&inverterOn_state);
+        }
+    }
+
+    static void runOnExit(void) {}
+} // namespace initState
 
 State init_state = { .name              = "INIT",
                      .run_on_entry      = initState::runOnEntry,

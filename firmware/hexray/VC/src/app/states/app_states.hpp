@@ -18,4 +18,4 @@ extern State fault_state;
 extern State drive_state;
 extern State inverter_fault_handling_state;
 
-}
+} // namespace app::states
