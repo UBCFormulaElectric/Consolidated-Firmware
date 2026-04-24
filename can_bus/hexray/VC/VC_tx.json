@@ -60,171 +60,175 @@
             }
         }
     },
-    "Imu1LinearData": {
+    "IMU1": {
         "msg_id": 505,
         "cycle_time": 10,
-        "description": "Linear Acceleration x, y and z direction from the first IMU",
+        "description": "IMU1 data",
         "signals": {
-            "Imu1AccelerationX": {
-                "resolution": 0.001,
-                "signed": true,
-                "min": -50,
-                "max": 50,
+            "Imu1AccelX": {
+                "resolution": 0.1,
+                "min": -20,
+                "max": 20,
                 "unit": "m/s^2"
             },
-            "Imu1AccelerationY": {
-                "resolution": 0.001,
-                "signed": true,
-                "min": -50,
-                "max": 50,
+            "Imu1AccelY": {
+                "resolution": 0.1,
+                "min": -20,
+                "max": 20,
                 "unit": "m/s^2"
             },
-            "Imu1AccelerationZ": {
-                "resolution": 0.001,
-                "signed": true,
-                "min": -50,
-                "max": 50,
+            "Imu1AccelZ": {
+                "resolution": 0.1,
+                "min": -20,
+                "max": 20,
                 "unit": "m/s^2"
+            },
+            "Imu1GyroX": {
+                "resolution": 0.1,
+                "min": -20,
+                "max": 20,
+                "unit": "deg/s^2"
+            },
+            "Imu1GyroY": {
+                "resolution": 0.1,
+                "min": -20,
+                "max": 20,
+                "unit": "deg/s^2"
+            },
+            "Imu1GyroZ": {
+                "resolution": 0.1,
+                "min": -20,
+                "max": 20,
+                "unit": "deg/s^2"
             }
         }
     },
-    "Imu2LinearData": {
+    "IMU2": {
         "msg_id": 510,
         "cycle_time": 10,
-        "description": "Linear Acceleration x, y and z direction from the second IMU",
+        "description": "IMU2 data",
         "signals": {
-            "Imu2AccelerationX": {
-                "resolution": 0.001,
-                "signed": true,
-                "min": -50,
-                "max": 50,
+            "Imu2AccelX": {
+                "resolution": 0.1,
+                "min": -20,
+                "max": 20,
                 "unit": "m/s^2"
             },
-            "Imu2AccelerationY": {
-                "resolution": 0.001,
-                "signed": true,
-                "min": -50,
-                "max": 50,
+            "Imu2AccelY": {
+                "resolution": 0.1,
+                "min": -20,
+                "max": 20,
                 "unit": "m/s^2"
             },
-            "Imu2AccelerationZ": {
-                "resolution": 0.001,
-                "signed": true,
-                "min": -50,
-                "max": 50,
+            "Imu2AccelZ": {
+                "resolution": 0.1,
+                "min": -20,
+                "max": 20,
                 "unit": "m/s^2"
+            },
+            "Imu2GyroX": {
+                "resolution": 0.1,
+                "min": -20,
+                "max": 20,
+                "unit": "deg/s^2"
+            },
+            "Imu2GyroY": {
+                "resolution": 0.1,
+                "min": -20,
+                "max": 20,
+                "unit": "deg/s^2"
+            },
+            "Imu2GyroZ": {
+                "resolution": 0.1,
+                "min": -20,
+                "max": 20,
+                "unit": "deg/s^2"
             }
         }
     },
-    "Imu3LinearData": {
+    "IMU3": {
         "msg_id": 515,
         "cycle_time": 10,
-        "description": "Linear Acceleration x, y and z direction from the third IMU ",
+        "description": "IMU3 data",
         "signals": {
-            "Imu3AccelerationX": {
-                "resolution": 0.001,
-                "signed": true,
-                "min": -50,
-                "max": 50,
+            "Imu3AccelX": {
+                "resolution": 0.1,
+                "min": -20,
+                "max": 20,
                 "unit": "m/s^2"
             },
-            "Imu3AccelerationY": {
-                "resolution": 0.001,
-                "signed": true,
-                "min": -50,
-                "max": 50,
+            "Imu3AccelY": {
+                "resolution": 0.1,
+                "min": -20,
+                "max": 20,
                 "unit": "m/s^2"
             },
-            "Imu3AccelerationZ": {
-                "resolution": 0.001,
-                "signed": true,
-                "min": -50,
-                "max": 50,
+            "Imu3AccelZ": {
+                "resolution": 0.1,
+                "min": -20,
+                "max": 20,
                 "unit": "m/s^2"
+            },
+            "Imu3GyroX": {
+                "resolution": 0.1,
+                "min": -20,
+                "max": 20,
+                "unit": "deg/s^2"
+            },
+            "Imu3GyroY": {
+                "resolution": 0.1,
+                "min": -20,
+                "max": 20,
+                "unit": "deg/s^2"
+            },
+            "Imu3GyroZ": {
+                "resolution": 0.1,
+                "min": -20,
+                "max": 20,
+                "unit": "deg/s^2"
             }
         }
     },
-    "Imu1AngularData": {
+    "IMUFiltered": {
         "msg_id": 520,
         "cycle_time": 10,
-        "description": "Angular Velocity in x, y and z direction from the first IMU",
+        "description": "IMU Filtered data",
         "signals": {
-            "Imu1AngularVelocityRoll": {
+            "ImuFilteredAccelX": {
                 "resolution": 0.1,
-                "signed": true,
-                "min": -360,
-                "max": 360,
-                "unit": "deg/s"
+                "min": -20,
+                "max": 20,
+                "unit": "m/s^2"
             },
-            "Imu1AngularVelocityPitch": {
+            "ImuFilteredAccelY": {
                 "resolution": 0.1,
-                "signed": true,
-                "min": -360,
-                "max": 360,
-                "unit": "deg/s"
+                "min": -20,
+                "max": 20,
+                "unit": "m/s^2"
             },
-            "Imu1AngularVelocityYaw": {
+            "ImuFilteredAccelZ": {
                 "resolution": 0.1,
-                "signed": true,
-                "min": -360,
-                "max": 360,
-                "unit": "deg/s"
-            }
-        }
-    },
-    "Imu2AngularData": {
-        "msg_id": 525,
-        "cycle_time": 10,
-        "description": "Angular Velocity in x, y and z direction from the second IMU",
-        "signals": {
-            "Imu2AngularVelocityRoll": {
-                "resolution": 0.1,
-                "signed": true,
-                "min": -360,
-                "max": 360,
-                "unit": "deg/s"
+                "min": -20,
+                "max": 20,
+                "unit": "m/s^2"
             },
-            "Imu2AngularVelocityPitch": {
+            "ImuFilteredGyroX": {
                 "resolution": 0.1,
-                "signed": true,
-                "min": -360,
-                "max": 360,
-                "unit": "deg/s"
+                "min": -20,
+                "max": 20,
+                "unit": "deg/s^2"
             },
-            "Imu2AngularVelocityYaw": {
+            "ImuFilteredGyroY": {
                 "resolution": 0.1,
-                "signed": true,
-                "min": -360,
-                "max": 360,
-                "unit": "deg/s"
-            }
-        }
-    },
-    "Imu3AngularData": {
-        "msg_id": 530,
-        "cycle_time": 10,
-        "description": "Angular Velocity in x, y and z direction from the third IMU",
-        "signals": {
-            "Imu3AngularVelocityRoll": {
-                "resolution": 0.1,
-                "signed": true,
-                "min": -360,
-                "max": 360,
-                "unit": "deg/s"
+                "min": -20,
+                "max": 20,
+                "unit": "deg/s^2"
             },
-            "Imu3AngularVelocityPitch": {
+            "ImuFilteredGyroZ": {
                 "resolution": 0.1,
-                "signed": true,
-                "min": -360,
-                "max": 360,
-                "unit": "deg/s"
-            },
-            "Imu3AngularVelocityYaw": {
-                "resolution": 0.1,
-                "signed": true,
-                "min": -360,
-                "max": 360,
-                "unit": "deg/s"
+                "min": -20,
+                "max": 20,
+                "unit": "deg/s^2"
             }
         }
     },

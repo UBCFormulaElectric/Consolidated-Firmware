@@ -17,9 +17,9 @@ struct SensorStatus
 
 struct Inputs
 {
-    float apps = 0.0f;
-    float steering = 0.0f;
-    SwitchState regen_sw = SwitchState::SWITCH_OFF;
+    float       apps      = 0.0f;
+    float       steering  = 0.0f;
+    SwitchState regen_sw  = SwitchState::SWITCH_OFF;
     SwitchState launch_sw = SwitchState::SWITCH_OFF;
     // Various data
 };

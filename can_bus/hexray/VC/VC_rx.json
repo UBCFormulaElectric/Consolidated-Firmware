@@ -24,12 +24,6 @@
         "INVRL_RLInverterInfo2",
         "INVRR_RRInverterInfo2",
         "BMS_LatchStatus",
-        "VC_Imu1LinearData",
-        "VC_Imu2LinearData",
-        "VC_Imu3LinearData",
-        "VC_Imu1AngularData",
-        "VC_Imu2AngularData",
-        "VC_Imu3AngularData",
         "CRIT_Switches"
     ]
 }
