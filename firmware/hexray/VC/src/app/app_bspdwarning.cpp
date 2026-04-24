@@ -7,8 +7,7 @@ namespace app::bspdWarning
 static constexpr uint32_t app_brake_diagreement_time_to_fault = 10u;
 static constexpr uint32_t app_brake_diagreement_time_to_clear = 10u;
 // or should inline this?
-app::Signal apps_brake_disagreement_state{ app_brake_diagreement_time_to_fault,
-                                                 app_brake_diagreement_time_to_clear };
+app::Signal apps_brake_disagreement_state{ app_brake_diagreement_time_to_fault, app_brake_diagreement_time_to_clear };
 
 // TODO: integrate with warnings (will have to make compatible with regen)
 bool checkSoftwareBspd(float papps_pedal_percentage)
@@ -18,7 +17,8 @@ bool checkSoftwareBspd(float papps_pedal_percentage)
     const bool apps_less_than_5_percent = (papps_pedal_percentage < 0.05f);
 
     const bool apps_brake_disagreement_active =
-        (apps_brake_disagreement_state.get_updated_state(apps_brakes_conflict, apps_less_than_5_percent) == app::Signal::SignalState::ACTIVE);
+        (apps_brake_disagreement_state.get_updated_state(apps_brakes_conflict, apps_less_than_5_percent) ==
+         app::Signal::SignalState::ACTIVE);
 
     app::can_tx::VC_Warning_SoftwareBspd_set(apps_brake_disagreement_active);
 

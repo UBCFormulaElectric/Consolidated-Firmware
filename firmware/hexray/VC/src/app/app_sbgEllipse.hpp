@@ -17,7 +17,7 @@ void broadcast(void);
 float getVehicleVelocity(io::sbgEllipse::VelocityData *VelData);
 
 /*
- * Check if the Sbg Ellipsed Initialized properly 
+ * Check if the Sbg Ellipsed Initialized properly
  */
 bool sbgInitOk();
 

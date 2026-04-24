@@ -11,7 +11,7 @@
 
 using namespace app::can_utils;
 
-static volatile float       apps          = 0.0f;
+static volatile float apps = 0.0f;
 
 // TODO: add power manager
 
@@ -19,13 +19,13 @@ namespace app::states
 {
 static bool driveStatePassPreCheck()
 {
-// TODO:
-// check inverter warnings  
-    
-// check board warnings
+    // TODO:
+    // check inverter warnings
+
+    // check board warnings
     if (app::can_alerts::AnyBoardHasWarning())
         return false;
-// check possibly other faults 
+    // check possibly other faults
 
     // TODO: Should this be done at FSM?
     bool papps_ocsc = app::can_rx::FSM_Warning_PappsOCSC_get();
@@ -51,8 +51,8 @@ static bool driveStatePassPreCheck()
 
 static void driveStateRunOnEntry()
 {
-// TODO:
-// enable inverters
+    // TODO:
+    // enable inverters
     app::can_tx::VC_State_set(VCState::VC_DRIVE_STATE);
 
     // Ensure inverters are enabled
@@ -66,8 +66,8 @@ static void driveStateRunOnEntry()
 
 static void driveStateRunOnTick100Hz(void)
 {
-// TODO:
-    if (!driveStatePassPreCheck()) 
+    // TODO:
+    if (!driveStatePassPreCheck())
     {
         send_torque(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
         // TODO: set speed requests to 0 as well
@@ -79,8 +79,8 @@ static void driveStateRunOnTick100Hz(void)
 
 static void driveStateRunOnExit(void)
 {
-// TODO:
-// disable inverters
+    // TODO:
+    // disable inverters
     inverter_enable_toggle(false, false, false, false);
     set_torque_limit_negative(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
     set_torque_limit_positive(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
@@ -91,4 +91,4 @@ app::State drive_state = { .name              = "DRIVE",
                            .run_on_tick_1Hz   = nullptr,
                            .run_on_tick_100Hz = driveStateRunOnTick100Hz,
                            .run_on_exit       = driveStateRunOnExit };
-}
+} // namespace app::states
