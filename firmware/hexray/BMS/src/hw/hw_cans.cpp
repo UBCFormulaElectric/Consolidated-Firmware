@@ -12,7 +12,8 @@ namespace hw::can
 static void canRxCallback(const CanMsg &msg)
 {
     io::bootHandler::processBootRequest(msg, board_highbits);
-    LOG_IF_ERR(can_rx_queue.push(io::CanMsg{ msg.std_id, msg.dlc, msg.data, true, app::can_utils::BusEnum::Bus_FDCAN }));
+    LOG_IF_ERR(
+        can_rx_queue.push(io::CanMsg{ msg.std_id, msg.dlc, msg.data, true, app::can_utils::BusEnum::Bus_FDCAN }));
 }
 
 constexpr fdcan fdcan1{ hfdcan1, canRxCallback };
