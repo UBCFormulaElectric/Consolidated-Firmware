@@ -4,6 +4,7 @@
 #include "io_canQueues.hpp"
 #include "io_bootHandler.hpp"
 #include "app_canUtils.hpp"
+#include "bootloader_h5.hpp"
 
 #include <cassert>
 
