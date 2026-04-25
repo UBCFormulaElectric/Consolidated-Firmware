@@ -3,7 +3,7 @@
 #include "io_bootHandler.hpp"
 #include "bootloader_BMS.hpp"
 #include "io_canQueues.hpp"
-#include "app_jsonCan.hpp"
+#include "app_jsoncan.hpp"
 
 #include <cassert>
 
