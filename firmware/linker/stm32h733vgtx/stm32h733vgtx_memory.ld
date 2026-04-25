@@ -3,9 +3,9 @@ MEMORY
   DTCMRAM (xrw)    : ORIGIN = 0x20000000,   LENGTH = 128K
   ram           (xrw) : ORIGIN = 0x24000000, LENGTH = 0x4FFF0
   boot_request_ram (xrw) : ORIGIN = 0x2404FFF0, LENGTH = 0x10
-  boot_code     (rx)  : ORIGIN = 0x08000000, LENGTH = 128K
-  app_metadata  (rx)  : ORIGIN = 0x08020000, LENGTH = 1K
-  app_code      (rx)  : ORIGIN = 0x08020400, LENGTH = 895K
+  boot_code     (rx)  : ORIGIN = 0x08000000, LENGTH = 256K
+  app_metadata  (rx)  : ORIGIN = 0x08040000, LENGTH = 1K
+  app_code      (rx)  : ORIGIN = 0x08040400, LENGTH = 767K
 }
 
 SECTIONS

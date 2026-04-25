@@ -215,6 +215,7 @@ function(stm32h5_boot_binary
             "cm33"
     )
 
+    target_compile_options("${BOOT_NAME}.elf" PRIVATE -fno-sanitize=undefined)
     target_link_libraries("${BOOT_NAME}.elf" PRIVATE "${BOOT_NAME}_stm32")
     target_compile_definitions("${BOOT_NAME}.elf" PRIVATE "${CONFIG_DEFINE}")
 endfunction()
@@ -289,6 +290,7 @@ function(stm32h7_boot_binary_c
             "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_boot.ld"
             "cm7"
     )
+    target_compile_options("${BOOT_NAME}.elf" PRIVATE -fno-sanitize=undefined)
     target_link_libraries("${BOOT_NAME}.elf" PRIVATE "${BOOT_NAME}_stm32")
     target_compile_definitions("${BOOT_NAME}.elf" PRIVATE "${CONFIG_DEFINE}")
 endfunction()
