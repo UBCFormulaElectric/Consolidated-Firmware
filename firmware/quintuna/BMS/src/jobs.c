@@ -189,6 +189,7 @@ void jobs_initLTCVoltages(void)
         io_ltc6813_wakeup();
         LOG_IF_ERR(app_segments_configSync());
     }
+
     io_semaphore_give(&isospi_bus_access_lock);
 }
 
@@ -261,7 +262,7 @@ void jobs_initLTCDiagnostics(void)
         LOG_IF_ERR(app_segments_configSync());
 
         LOG_IF_ERR(app_segments_runAdcAccuracyTest());
-        LOG_IF_ERR(app_segments_runVoltageSelfTest());
+        LOG_IF_ERR(app_segments_runVolt ageSelfTest());
         LOG_IF_ERR(app_segments_runAuxSelfTest());
         LOG_IF_ERR(app_segments_runStatusSelfTest());
         LOG_IF_ERR(app_segments_runOpenWireCheck());

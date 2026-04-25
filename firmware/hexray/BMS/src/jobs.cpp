@@ -1,4 +1,9 @@
 #include "jobs.hpp"
+#include "app_canUtils.hpp"
+#include "app_jsoncan.hpp"
+#include "app_segments.hpp"
+#include "io/io_adbms.hpp"
+#include "io_canMsg.hpp"
 
 // app
 #include "app_canTx.hpp"
@@ -7,7 +12,7 @@
 
 #include "states/app_states.hpp"
 #include "app_precharge.hpp"
-// #include "app_segments.hpp"
+#include "app_segments.hpp"
 #include "app_timer.hpp"
 #include "app_imd.hpp"
 #include "app_powerLimit.hpp"
@@ -20,24 +25,29 @@
 #include <app_canUtils.hpp>
 
 // io
-extern "C"
-{
-#include "io_semaphore.h"
-#include "app_commitInfo.h"
-}
-
 #include "io_canMsg.hpp"
 #include "io_canQueues.hpp"
 #include "io_canMsg.hpp"
 #include "io_irs.hpp"
 #include "io_time.hpp"
+#include "io_semaphore.hpp"
+#include "util_errorCodes.hpp"
 #include "io_bspdTest.hpp"
 #include "io_charger.hpp"
 #include "io_fans.hpp"
 #include "io_faultLatch.hpp"
 #include <io_canTx.hpp>
+#include "io_adbms.hpp"
 
-#include <util_errorCodes.hpp>
+extern "C"
+{
+#include "app_commitInfo.h"
+}
+
+// static array<io::adbms::StatusGroups, io::NUM_SEGMENTS> stat_reg;
+static array<expected<void, ErrorCode>, io::NUM_SEGMENTS> stat_regs_success;
+static io::semaphore                                      spi_bus_lock(true);
+static io::semaphore                                      adbms_app_lock(true);
 
 // TODO: Uncomment when segments are added
 // static Semaphore isospi_bus_access_lock;
@@ -125,9 +135,8 @@ void jobs_run100Hz_tick()
 #ifdef TARGET_HV_SUPPLY
     const bool acc_fault = false;
 #else
-    // segments::checkWarnings();
-    // const bool acc_fault = segments::checkFaults();
-    const bool acc_fault = false;
+    segments::checkWarnings();
+    const bool acc_fault = segments::checkFaults();
 #endif
     using namespace io::faultLatch;
 
@@ -166,4 +175,87 @@ void jobs_run100Hz_tick()
 void jobs_run1kHz_tick()
 {
     io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
+}
+
+void jobs_adbms_init()
+{
+    app::segments::setDefaultConfig();
+    LOG_IF_ERR(io::adbms::wakeup());
+    LOG_IF_ERR(io::adbms::clearCellVoltageReg());
+    LOG_IF_ERR(io::adbms::clearFilteredCellVoltageReg());
+    LOG_IF_ERR(io::adbms::clearCellTempReg());
+    LOG_IF_ERR(app::segments::configSync());
+}
+
+void jobs_runAdbmsVoltages_tick()
+{
+    const bool balancing_enabled = false;
+
+    spi_bus_lock.take(io::MAX_TIMEOUT);
+
+    LOG_IF_ERR(io::adbms::wakeup());
+    LOG_IF_ERR(app::segments::configSync());
+    LOG_IF_ERR(app::segments::runVoltageConversion());
+    app::segments::balancingTick(balancing_enabled);
+
+    spi_bus_lock.give();
+
+    adbms_app_lock.take(io::MAX_TIMEOUT);
+
+    app::segments::broadcastCellVoltages();
+
+    adbms_app_lock.give();
+}
+
+void jobs_runAdbmsFilteredVoltages_tick()
+{
+    spi_bus_lock.take(io::MAX_TIMEOUT);
+
+    LOG_IF_ERR(io::adbms::wakeup());
+    LOG_IF_ERR(app::segments::configSync());
+    LOG_IF_ERR(app::segments::runFilteredVoltageConversion());
+
+    spi_bus_lock.give();
+
+    adbms_app_lock.take(io::MAX_TIMEOUT);
+
+    app::segments::broadcastFilteredCellVoltages();
+
+    adbms_app_lock.give();
+}
+
+void jobs_runAdbmsTemperatures_tick()
+{
+    spi_bus_lock.take(io::MAX_TIMEOUT);
+
+    LOG_IF_ERR(io::adbms::wakeup());
+    LOG_IF_ERR(app::segments::configSync());
+    LOG_IF_ERR(app::segments::runAuxConversion());
+
+    spi_bus_lock.give();
+
+    adbms_app_lock.take(io::MAX_TIMEOUT);
+
+    app::segments::broadcastCellTemps();
+
+    adbms_app_lock.give();
+}
+
+void jobs_runAdbmsDiagnostics_tick()
+{
+    spi_bus_lock.take(io::MAX_TIMEOUT);
+
+    LOG_IF_ERR(io::adbms::wakeup());
+    LOG_IF_ERR(app::segments::configSync());
+    LOG_IF_ERR(app::segments::runStatusConversion());
+    LOG_IF_ERR(app::segments::runCellOpenWireCheck());
+
+    spi_bus_lock.give();
+
+    adbms_app_lock.take(io::MAX_TIMEOUT);
+
+    app::segments::broadcastStatus();
+    app::segments::broadcastCellOpenWireCheck();
+
+    adbms_app_lock.give();
 }

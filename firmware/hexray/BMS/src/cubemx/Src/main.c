@@ -22,7 +22,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
-#include "hw_error.hpp"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -100,7 +99,7 @@ static void MX_USB_OTG_HS_PCD_Init(void);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-    tasks_preInit();
+
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -563,7 +562,7 @@ static void MX_IWDG1_Init(void)
     /* USER CODE END IWDG1_Init 0 */
 
     /* USER CODE BEGIN IWDG1_Init 1 */
-#ifndef WATCHDOG_DISABLED
+
     /* USER CODE END IWDG1_Init 1 */
     hiwdg1.Instance       = IWDG1;
     hiwdg1.Init.Prescaler = IWDG_PRESCALER_4;
@@ -574,7 +573,7 @@ static void MX_IWDG1_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN IWDG1_Init 2 */
-#endif
+
     /* USER CODE END IWDG1_Init 2 */
 }
 
@@ -590,7 +589,7 @@ static void MX_SDMMC1_SD_Init(void)
     /* USER CODE END SDMMC1_Init 0 */
 
     /* USER CODE BEGIN SDMMC1_Init 1 */
-#ifdef false
+
     /* USER CODE END SDMMC1_Init 1 */
     hsd1.Instance                 = SDMMC1;
     hsd1.Init.ClockEdge           = SDMMC_CLOCK_EDGE_RISING;
@@ -603,7 +602,7 @@ static void MX_SDMMC1_SD_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN SDMMC1_Init 2 */
-#endif
+
     /* USER CODE END SDMMC1_Init 2 */
 }
 

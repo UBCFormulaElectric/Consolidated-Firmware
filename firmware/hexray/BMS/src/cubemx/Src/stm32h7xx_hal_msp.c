@@ -173,6 +173,9 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
 
         __HAL_LINKDMA(hadc, DMA_Handle, hdma_adc3);
 
+        /* ADC3 interrupt Init */
+        HAL_NVIC_SetPriority(ADC3_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(ADC3_IRQn);
         /* USER CODE BEGIN ADC3_MspInit 1 */
 
         /* USER CODE END ADC3_MspInit 1 */
@@ -225,6 +228,9 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
 
         /* ADC3 DMA DeInit */
         HAL_DMA_DeInit(hadc->DMA_Handle);
+
+        /* ADC3 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(ADC3_IRQn);
         /* USER CODE BEGIN ADC3_MspDeInit 1 */
 
         /* USER CODE END ADC3_MspDeInit 1 */
@@ -309,9 +315,9 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
         HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
         /* FDCAN1 interrupt Init */
-        HAL_NVIC_SetPriority(FDCAN1_IT0_IRQn, 0, 0);
+        HAL_NVIC_SetPriority(FDCAN1_IT0_IRQn, 5, 0);
         HAL_NVIC_EnableIRQ(FDCAN1_IT0_IRQn);
-        HAL_NVIC_SetPriority(FDCAN1_IT1_IRQn, 0, 0);
+        HAL_NVIC_SetPriority(FDCAN1_IT1_IRQn, 5, 0);
         HAL_NVIC_EnableIRQ(FDCAN1_IT1_IRQn);
         /* USER CODE BEGIN FDCAN1_MspInit 1 */
 
@@ -342,9 +348,9 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
         HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
         /* FDCAN2 interrupt Init */
-        HAL_NVIC_SetPriority(FDCAN2_IT0_IRQn, 0, 0);
+        HAL_NVIC_SetPriority(FDCAN2_IT0_IRQn, 5, 0);
         HAL_NVIC_EnableIRQ(FDCAN2_IT0_IRQn);
-        HAL_NVIC_SetPriority(FDCAN2_IT1_IRQn, 0, 0);
+        HAL_NVIC_SetPriority(FDCAN2_IT1_IRQn, 5, 0);
         HAL_NVIC_EnableIRQ(FDCAN2_IT1_IRQn);
         /* USER CODE BEGIN FDCAN2_MspInit 1 */
 
@@ -558,7 +564,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
         HAL_GPIO_Init(SPI_MISO_GPIO_Port, &GPIO_InitStruct);
 
         /* SPI4 interrupt Init */
-        HAL_NVIC_SetPriority(SPI4_IRQn, 0, 0);
+        HAL_NVIC_SetPriority(SPI4_IRQn, 5, 0);
         HAL_NVIC_EnableIRQ(SPI4_IRQn);
         /* USER CODE BEGIN SPI4_MspInit 1 */
 
@@ -640,7 +646,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim_base)
         /* Peripheral clock enable */
         __HAL_RCC_TIM3_CLK_ENABLE();
         /* TIM3 interrupt Init */
-        HAL_NVIC_SetPriority(TIM3_IRQn, 0, 0);
+        HAL_NVIC_SetPriority(TIM3_IRQn, 5, 0);
         HAL_NVIC_EnableIRQ(TIM3_IRQn);
         /* USER CODE BEGIN TIM3_MspInit 1 */
 
@@ -677,7 +683,7 @@ void HAL_TIM_IC_MspInit(TIM_HandleTypeDef *htim_ic)
         HAL_GPIO_Init(nEVSE_I_LIM_PWM_GPIO_Port, &GPIO_InitStruct);
 
         /* TIM5 interrupt Init */
-        HAL_NVIC_SetPriority(TIM5_IRQn, 0, 0);
+        HAL_NVIC_SetPriority(TIM5_IRQn, 5, 0);
         HAL_NVIC_EnableIRQ(TIM5_IRQn);
         /* USER CODE BEGIN TIM5_MspInit 1 */
 

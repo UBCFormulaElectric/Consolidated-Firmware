@@ -1,6 +1,6 @@
 #pragma once
-#include "util_utils.hpp"
 
+#include "util_utils.hpp"
 typedef enum
 {
     TASK_INDEX_1HZ = 0,
@@ -9,6 +9,9 @@ typedef enum
     TASK_INDEX_CANTX,
     TASK_INDEX_CANRX,
     TASK_INDEX_CHIMERA,
+    TASK_INDEX_ADBMSVOLTAGES,
+    TASK_INDEX_ADBMSTEMPERATURES,
+    TASK_INDEX_ADBMSDIAGNOSTICS,
     TASK_INDEX_COUNT
 } TaskIndex_e;
 

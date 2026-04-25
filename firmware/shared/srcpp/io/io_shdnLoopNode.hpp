@@ -8,14 +8,16 @@ namespace io::shdn
 
 class node
 {
-    void (*const can_broadcast)(bool);
 #ifdef TARGET_EMBEDDED
-  private:
     const hw::Gpio &pin;
+#endif
+    bool status                 = false;
+    void (*can_broadcast)(bool) = nullptr;
 
   public:
+#ifdef TARGET_EMBEDDED
     explicit node(const hw::Gpio &in_pin_in, void (*in_can_broadcast)(bool))
-      : can_broadcast(in_can_broadcast), pin(in_pin_in)
+      : pin(in_pin_in), can_broadcast(in_can_broadcast)
     {
     }
 #elif TARGET_TEST

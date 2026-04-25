@@ -58,6 +58,7 @@
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef   hdma_adc1;
 extern DMA_HandleTypeDef   hdma_adc3;
+extern ADC_HandleTypeDef   hadc3;
 extern FDCAN_HandleTypeDef hfdcan1;
 extern FDCAN_HandleTypeDef hfdcan2;
 extern SD_HandleTypeDef    hsd1;
@@ -378,6 +379,20 @@ void SPI4_IRQHandler(void)
     /* USER CODE BEGIN SPI4_IRQn 1 */
 
     /* USER CODE END SPI4_IRQn 1 */
+}
+
+/**
+ * @brief This function handles ADC3 global interrupt.
+ */
+void ADC3_IRQHandler(void)
+{
+    /* USER CODE BEGIN ADC3_IRQn 0 */
+
+    /* USER CODE END ADC3_IRQn 0 */
+    HAL_ADC_IRQHandler(&hadc3);
+    /* USER CODE BEGIN ADC3_IRQn 1 */
+
+    /* USER CODE END ADC3_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
