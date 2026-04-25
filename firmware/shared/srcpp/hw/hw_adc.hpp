@@ -69,7 +69,8 @@ template <size_t NUM_ADC_CHANNELS> class AdcChip
     void init(bool start_timer = true) const
     {
         assert(HAL_ADC_Start_DMA(hadc, (uint32_t *)raw_adc_values.data(), hadc->Init.NbrOfConversion) == HAL_OK);
-        if (start_timer) {
+        if (start_timer)
+        {
             assert(HAL_TIM_Base_Start(htim) == HAL_OK);
         }
     }
