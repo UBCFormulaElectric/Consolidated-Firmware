@@ -1,7 +1,7 @@
 #pragma once
 
 #include "io_switch.hpp"
-#include "hw_gpios.hpp"
+
 namespace io::switches
 {
 extern Switch torque_vectoring_sw;
