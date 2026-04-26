@@ -14,24 +14,15 @@ namespace hvInitState
 {
     static VCInverterState current_inverter_state;
     constexpr uint32_t     INV_QUIT_TIMEOUT_MS = 10 * 1000;
-    constexpr uint8_t      NO_TORQUE           = 0.0f;
 
     static Timer start_up_timer{ INV_QUIT_TIMEOUT_MS };
 
     static void reset_inverter_power_requests(void)
     {
-        app::can_tx::VC_INVFLbInverterOn_set(false);
-        app::can_tx::VC_INVFRbInverterOn_set(false);
-        app::can_tx::VC_INVRRbInverterOn_set(false);
-        app::can_tx::VC_INVRLbInverterOn_set(false);
-        app::can_tx::VC_INVFLbEnable_set(false);
-        app::can_tx::VC_INVFRbEnable_set(false);
-        app::can_tx::VC_INVRLbEnable_set(false);
-        app::can_tx::VC_INVRRbEnable_set(false);
-        app::can_tx::VC_INVFLbDcOn_set(false);
-        app::can_tx::VC_INVFRbDcOn_set(false);
-        app::can_tx::VC_INVRRbDcOn_set(false);
-        app::can_tx::VC_INVRLbDcOn_set(false);
+        // FL FR RL RR
+        inverter_on_toggle(false, false, false, false);
+        inverter_enable_toggle(false, false, false, false);
+        inverter_dc_toggle(false, false, false, false);
     }
 
     static void runOnEntry(void)
@@ -40,20 +31,10 @@ namespace hvInitState
 
         reset_inverter_power_requests();
 
-        app::can_tx::VC_INVFRTorqueSetpoint_set(NO_TORQUE);
-        app::can_tx::VC_INVFLTorqueSetpoint_set(NO_TORQUE);
-        app::can_tx::VC_INVRRTorqueSetpoint_set(NO_TORQUE);
-        app::can_tx::VC_INVRLTorqueSetpoint_set(NO_TORQUE);
-
-        app::can_tx::VC_INVFRTorqueLimitNegative_set(NO_TORQUE);
-        app::can_tx::VC_INVFLTorqueLimitNegative_set(NO_TORQUE);
-        app::can_tx::VC_INVRRTorqueLimitNegative_set(NO_TORQUE);
-        app::can_tx::VC_INVRLTorqueLimitNegative_set(NO_TORQUE);
-
-        app::can_tx::VC_INVFRTorqueLimitPositive_set(NO_TORQUE);
-        app::can_tx::VC_INVFLTorqueLimitPositive_set(NO_TORQUE);
-        app::can_tx::VC_INVRRTorqueLimitPositive_set(NO_TORQUE);
-        app::can_tx::VC_INVRLTorqueLimitPositive_set(NO_TORQUE);
+        // FL FR RL RR
+        send_torque(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
+        set_torque_limit_negative(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
+        set_torque_limit_positive(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
     }
 
     static void runOnTick100Hz(void)
@@ -83,10 +64,7 @@ namespace hvInitState
                         start_up_timer.stop();
 
                         // Error reset should be set to false cause we were successful
-                        app::can_tx::VC_INVFLbErrorReset_set(false);
-                        app::can_tx::VC_INVFRbErrorReset_set(false);
-                        app::can_tx::VC_INVRLbErrorReset_set(false);
-                        app::can_tx::VC_INVRRbErrorReset_set(false);
+                        inverter_bError_reset_set(false, false, false, false);
                     }
                     // else if (app_canAlerts_VC_Info_InverterRetry_get())
                     // {
@@ -174,22 +152,13 @@ namespace hvInitState
         switch (current_inverter_state)
         {
             case VCInverterState::INV_INVERTER_ON:
-                app::can_tx::VC_INVFLbInverterOn_set(true);
-                app::can_tx::VC_INVFRbInverterOn_set(true);
-                app::can_tx::VC_INVRRbInverterOn_set(true);
-                app::can_tx::VC_INVRLbInverterOn_set(true);
+                inverter_on_toggle(true, true, true, true);
                 __attribute__((fallthrough));
             case VCInverterState::INV_ENABLE:
-                app::can_tx::VC_INVFLbEnable_set(true);
-                app::can_tx::VC_INVFRbEnable_set(true);
-                app::can_tx::VC_INVRLbEnable_set(true);
-                app::can_tx::VC_INVRRbEnable_set(true);
+                inverter_enable_toggle(true, true, true, true);
                 __attribute__((fallthrough));
             case VCInverterState::INV_DC_ON:
-                app::can_tx::VC_INVFLbDcOn_set(true);
-                app::can_tx::VC_INVFRbDcOn_set(true);
-                app::can_tx::VC_INVRRbDcOn_set(true);
-                app::can_tx::VC_INVRLbDcOn_set(true);
+                inverter_dc_toggle(true, true, true, true);
                 break;
             case VCInverterState::INV_READY_FOR_DRIVE:
                 app::StateMachine::set_next_state(&hv_state);
