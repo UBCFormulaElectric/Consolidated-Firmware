@@ -20,7 +20,7 @@ Adc aux_tsns = Adc{ adc3.getChannel(0) };
 void chipsInit(void)
 {
     adc1.init();
-    adc3.init();
+    adc3.init(false);
 }
 
 extern "C" void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)

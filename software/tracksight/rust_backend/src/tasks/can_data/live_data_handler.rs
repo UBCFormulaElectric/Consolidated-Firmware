@@ -45,6 +45,7 @@ pub async fn run_live_data_handler(
                             "name": signal.name,
                             "value": signal.value,
                             "timestamp": signal.timestamp,
+                            "signal_type": format!("{:?}", signal.signal_type),
                         })
                     ) {
                         Ok(_) => {}

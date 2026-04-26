@@ -30,11 +30,17 @@ struct SignalMetadata {
     min_val: f64,
     max_val: f64,
     unit: Option<String>,
-    enum_type: Option<String>,
+    enum_signal: Option<SignalMetadataEnumSignal>,
     tx_node: String,
     cycle_time_ms: Option<u32>,
     id: u32,
     msg_name: String,
+}
+
+#[derive(Debug, Serialize)]
+struct SignalMetadataEnumSignal {
+    enum_name: String,
+    enum_values: HashMap<String, u32>,
 }
 
 /**
@@ -53,13 +59,24 @@ async fn metadata(Query(mut param): Query<SignalNameParam>, State(state): State<
     let flat_map = | msg: &CanMessage | {
         return msg.signals.iter().map(
             | signal | {
+                let can_enum: Option<SignalMetadataEnumSignal> = 
+                    if let Some(enum_name) = &signal.enum_name && 
+                    let Some(can_enum) = 
+                    state.can_db.get_enum(enum_name) {
+                        Some(SignalMetadataEnumSignal {
+                            enum_name: can_enum.name.clone(),
+                            enum_values: can_enum.values.clone()
+                        })
+                    } else {
+                        None
+                    };
                 (signal.name.clone(),
                 SignalMetadata {
                     name: signal.name.clone(),
                     min_val: signal.min,
                     max_val: signal.max,
                     unit: signal.unit.clone(),
-                    enum_type: signal.enum_name.clone(),
+                    enum_signal: can_enum,
                     tx_node: msg.tx_node_name.clone(),
                     cycle_time_ms: msg.cycle_time.clone(),
                     id: msg.id,

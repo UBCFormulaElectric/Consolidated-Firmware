@@ -1384,6 +1384,7 @@ dependencies = [
 [[package]]
 name = "jsoncan_rust"
 version = "0.1.1"
+source = "git+https://github.com/UBCFormulaElectric/Consolidated-Firmware.git?branch=master#39d2928796bb62e06a43e82d917063765f6c2e68"
 dependencies = [
  "askama",
  "clap",
