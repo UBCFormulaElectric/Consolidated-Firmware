@@ -201,7 +201,7 @@ _Noreturn void tasks_runTelem(void)
 
         // Start timing for measuring transmission speeds
         SEGGER_SYSVIEW_MarkStart(0);
-        LOG_IF_ERR(hw_uart_transmit(&_900k_uart, (uint8_t *)&can_msg, full_msg_size));
+        // LOG_IF_ERR(hw_uart_transmit(&_900k_uart, (uint8_t *)&can_msg, full_msg_size));
         SEGGER_SYSVIEW_MarkStop(0);
     }
 }

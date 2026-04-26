@@ -80,4 +80,15 @@ size_t TelemCanMsg::wireSize() const
     return sizeof(Header) + header.payload_size;
 }
 
+NTPMsg::NTPMsg()
+{
+    identifier = static_cast<uint8_t>(TelemMessageIds::NTP);
+    header     = Header(reinterpret_cast<const uint8_t *>(&identifier), static_cast<uint8_t>(sizeof(identifier)));
+}
+
+size_t NTPMsg::wireSize() const
+{
+    return sizeof(Header) + header.payload_size;
+}
+
 } // namespace io::telemMessage

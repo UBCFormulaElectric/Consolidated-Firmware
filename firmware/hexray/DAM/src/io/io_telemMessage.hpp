@@ -59,4 +59,12 @@ struct [[gnu::packed]] TelemCanMsg
     [[nodiscard]] size_t wireSize() const;
 };
 
+struct [[gnu::packed]] NTPMsg
+{
+    Header  header;
+    uint8_t identifier;
+    NTPMsg();
+    [[nodiscard]] size_t wireSize() const;
+};
+
 } // namespace io::telemMessage

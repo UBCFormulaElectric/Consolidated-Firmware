@@ -3,6 +3,7 @@
 #include "io_canQueues.hpp"
 #include "io_log.hpp"
 #include "io_telemMessage.hpp"
+#include "io_telemRx.hpp"
 #include "io_telemUart.hpp"
 #include "io_queue.hpp"
 #include "io_telemQueue.hpp"
@@ -28,7 +29,11 @@ void jobs_init()
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
     telem_tx_queue.init();
 }
-void jobs_run1Hz_tick() {}
+void jobs_run1Hz_tick()
+{
+    // call transmitNTPStartMsg from io_telemRx.cpp
+    transmitNTPStartMsg();
+}
 void jobs_run100Hz_tick()
 {
     io::can_tx::enqueue100HzMsgs();
@@ -50,7 +55,7 @@ void jobs_runTelem_tick()
 
     const auto &msg = result.value();
     const auto  tx_result =
-        io::telemUart::transmit(std::span<const uint8_t>{ reinterpret_cast<const uint8_t *>(&msg), msg.wireSize() });
+        io::telemUart::transmitIt(std::span<const uint8_t>{ reinterpret_cast<const uint8_t *>(&msg), msg.wireSize() });
     if (not tx_result)
     {
         LOG_ERROR("Failed to transmit telem message: %d", static_cast<int>(tx_result.error()));
