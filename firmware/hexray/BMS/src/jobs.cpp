@@ -16,6 +16,7 @@
 #include "app_irs.hpp"
 #include "app_heartbeatMonitors.hpp"
 #include "app_heartbeatMonitor.hpp"
+#include "app_soc.hpp"
 #include "app_jsoncan.hpp"
 #include <app_canUtils.hpp>
 
@@ -79,6 +80,7 @@ void jobs_init()
     can_tx::BMS_Clean_set(GIT_COMMIT_CLEAN);
     can_tx::BMS_Heartbeat_set(true);
 
+    soc::init();
     precharge::init();
 
 #ifndef TARGET_HV_SUPPLY
@@ -91,6 +93,7 @@ void jobs_init()
 void jobs_run1Hz_tick()
 {
     io::can_tx::enqueue1HzMsgs();
+    soc::saveToSd();
 }
 
 void jobs_run100Hz_tick()
@@ -166,4 +169,22 @@ void jobs_run100Hz_tick()
 void jobs_run1kHz_tick()
 {
     io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
+    soc::broadcast();
+}
+
+void jobs_runSdCard_tick()
+{
+    uint32_t rounded_soc;
+    uint32_t last_written_soc;
+
+    if (xTaskNotifyWait(0, ULONG_MAX, &rounded_soc, 0) == pdTRUE)
+    {
+        last_written_soc = app::soc::getLastWrittenSocTenths();
+        if (last_written_soc != UINT32_MAX && last_written_soc == rounded_soc)
+        {
+            return;
+        }
+
+        app::soc::writeSocToSd((float)rounded_soc / 10.0f);
+    }
 }

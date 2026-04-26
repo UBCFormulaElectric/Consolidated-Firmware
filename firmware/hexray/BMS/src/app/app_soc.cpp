@@ -64,13 +64,6 @@ constexpr std::array<float, V_TO_SOC_LUT_SIZE> ocv_soc_lut = {
 namespace app::soc
 {
 
-#ifndef TARGET_EMBEDDED
-void setPrevCurrent(const float current)
-{
-    soc_prev_current_A = current;
-}
-#endif
-
 float getSocFromOcv(const float voltage)
 {
     uint32_t lut_index = 0U;
@@ -205,6 +198,7 @@ uint32_t getLastWrittenSocTenths()
 
 void broadcast()
 {
+    app::can_tx::BMS_Soc_set(getMinSocPercent());
     if (io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED &&
         io::irs::positiveState() == app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED)
     {
@@ -217,7 +211,8 @@ void saveToSd()
     const float min_soc_percent = getMinSocPercent();
     if (IS_IN_RANGE(0.0f, 100.0f, min_soc_percent))
     {
-        (void)writeSocToSd(min_soc_percent);
+        uint32_t min_soc_tenths = socPercentToTenths(min_soc_percent);
+        xTaskNotify(TaskSdCard.getHandle(), min_soc_tenths, eSetValueWithOverwrite);
     }
 }
 

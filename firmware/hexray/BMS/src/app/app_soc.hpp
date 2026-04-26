@@ -10,13 +10,6 @@ inline constexpr float STATE_OF_HEALTH             = 1.0f;
 // TODO: Replace with cell capacity and cells in parallel constants in app_segments once that's finished
 inline constexpr float SERIES_ELEMENT_FULL_CHARGE_C = 3.0f * AH_TO_COULOMBS * 4.0f * STATE_OF_HEALTH;
 
-#ifndef TARGET_EMBEDDED
-/**
- * @brief Testing-only helper to set the previously used current sample.
- */
-void setPrevCurrent(float current);
-#endif
-
 /**
  * @brief Get SoC estimate from open-circuit voltage.
  */

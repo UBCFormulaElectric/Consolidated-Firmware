@@ -9,6 +9,7 @@ typedef enum
     TASK_INDEX_CANTX,
     TASK_INDEX_CANRX,
     TASK_INDEX_CHIMERA,
+    TASK_INDEX_SD_CARD,
     TASK_INDEX_COUNT
 } TaskIndex_e;
 
