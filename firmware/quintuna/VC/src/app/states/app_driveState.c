@@ -11,6 +11,7 @@
 #include "app_regen.h"
 #include "app_vehicleDynamicsConstants.h"
 #include "app_torqueVectoring.h"
+#include "app_powerLimiting.h"
 #include "app_vehicleDynamics.h"
 #include "app_torqueDistribution.h"
 #include "app_driveHandling.h"
@@ -159,6 +160,7 @@ static void driveStateRunOnEntry()
     app_enable_inv();
     app_switchInit();
     app_reset_torqueToMotors(&torqueOutputToMotors);
+    app_pwer_limiting_TestRun_OverCurrent_Timer_Init();
     app_torqueVectoring_init();
 }
 

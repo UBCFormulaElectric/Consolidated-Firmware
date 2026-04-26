@@ -13,4 +13,7 @@ float getMaxMotorTemp(void);
 
 void app_powerLimiting_torqueReduction(PowerLimitingInputs *inputs);
 
+void app_power_limiting_TestRun_Torque_Reduction(PowerLimitingInputs *inputs);
+app_pwer_limiting_TestRun_OverCurrent_Timer_Init(void);
+
 float app_totalPower(TorqueAllocationOutputs *torques);
