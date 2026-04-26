@@ -61,7 +61,6 @@ extern DMA_HandleTypeDef   hdma_adc1;
 extern DMA_HandleTypeDef   hdma_adc3;
 extern FDCAN_HandleTypeDef hfdcan1;
 extern FDCAN_HandleTypeDef hfdcan2;
-extern SD_HandleTypeDef    hsd1;
 extern SPI_HandleTypeDef   hspi4;
 extern TIM_HandleTypeDef   htim1;
 extern TIM_HandleTypeDef   htim3;
@@ -294,20 +293,6 @@ void TIM3_IRQHandler(void)
     /* USER CODE BEGIN TIM3_IRQn 1 */
 
     /* USER CODE END TIM3_IRQn 1 */
-}
-
-/**
- * @brief This function handles SDMMC1 global interrupt.
- */
-void SDMMC1_IRQHandler(void)
-{
-    /* USER CODE BEGIN SDMMC1_IRQn 0 */
-
-    /* USER CODE END SDMMC1_IRQn 0 */
-    HAL_SD_IRQHandler(&hsd1);
-    /* USER CODE BEGIN SDMMC1_IRQn 1 */
-
-    /* USER CODE END SDMMC1_IRQn 1 */
 }
 
 /**

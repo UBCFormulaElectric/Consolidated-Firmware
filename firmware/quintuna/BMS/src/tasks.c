@@ -9,6 +9,7 @@
 
 #include "io_log.h"
 #include "io_canQueue.h"
+#include "io_socStorage.h"
 #include "io_canRx.h"
 #include "io_canTx.h"
 #include "io_canMsg.h"
@@ -104,6 +105,7 @@ void tasks_init(void)
 
     // Shutdown loop power comes from a load switch on the BMS.
     hw_gpio_writePin(&shdn_en_pin, true);
+    io_socStorage_init();
 
     jobs_init();
 
@@ -263,4 +265,15 @@ void tasks_runLtcDiagnostics(void)
         osDelayUntil(start_ticks + period_ms);
     }
 #endif
+}
+
+void tasks_runSdCard(void)
+{
+    static const TickType_t period_ms = 1000U; // Every 1s
+    for (;;)
+    {
+        const uint32_t start_ticks = osKernelGetTickCount();
+        jobs_runSdCard_tick();
+        osDelayUntil(start_ticks + period_ms);
+    }
 }

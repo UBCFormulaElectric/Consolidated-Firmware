@@ -4,7 +4,7 @@
 #include "app_canTx.h"
 #include "app_tractiveSystem.h"
 #include "app_canUtils.h"
-// #include "app_soc.h"
+#include "app_soc.h"
 
 #include "io_charger.h"
 #include "io_irs.h"
@@ -27,15 +27,15 @@ static void initStateRunOnTick100Hz(void)
     const bool irs_negative_closed = io_irs_negativeState() == CONTACTOR_STATE_CLOSED;
     const bool ts_discharged       = app_tractiveSystem_getVoltage() < TS_DISCHARGED_THRESHOLD_V;
 
-    // ONLY RUN THIS WHEN CELLS HAVE HAD TIME TO SETTLE
-    // if (app_canRx_Debug_ResetSoc_MinCellV_get())
-    // {
-    //     app_soc_resetSocFromVoltage();
-    // }
-    // else if (app_canRx_Debug_ResetSoc_CustomEnable_get())
-    // {
-    //     app_soc_resetSocCustomValue(app_canRx_Debug_ResetSoc_CustomVal_get());
-    // }
+    if (app_canRx_Debug_ResetSoc_MinCellV_get())
+    {
+        // ONLY RUN THIS WHEN CELLS HAVE HAD TIME TO SETTLE
+        app_soc_resetSocFromVoltage();
+    }
+    else if (app_canRx_Debug_ResetSoc_CustomEnable_get())
+    {
+        app_soc_resetSocCustomValue(app_canRx_Debug_ResetSoc_CustomVal_get());
+    }
 
     if (irs_negative_closed && ts_discharged)
     {

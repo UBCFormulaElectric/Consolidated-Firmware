@@ -62,7 +62,6 @@ extern "C"
     void TIM1_CC_IRQHandler(void);
     void TIM2_IRQHandler(void);
     void TIM3_IRQHandler(void);
-    void SDMMC1_IRQHandler(void);
     void TIM5_IRQHandler(void);
     void OTG_HS_IRQHandler(void);
     void SPI4_IRQHandler(void);

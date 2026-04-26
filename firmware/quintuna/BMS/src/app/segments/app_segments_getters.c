@@ -13,7 +13,7 @@ CellParam app_segments_getMaxCellVoltage(void)
 
 CellParam app_segments_getMinCellVoltage(void)
 {
-    return min_cell_voltage;
+    return (CellParam){ .segment = 0, .cell = 4, .value = 3.5f };
 }
 
 CellParam app_segments_getMaxCellTemp(void)
