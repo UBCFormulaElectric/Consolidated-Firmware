@@ -13,6 +13,7 @@ message("🐍 Python Configuration")
 find_package(Python3 3.10.0...3.13.7 COMPONENTS Interpreter REQUIRED)
 message("  ℹ️ Found Python ${Python3_VERSION}")
 set(PYTHON_COMMAND ${Python3_EXECUTABLE})
+message(" ${Python3_EXECUTABLE}")
 
 find_program(PIPENV_COMMAND pipenv)
 IF (PIPENV_COMMAND)
