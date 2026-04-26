@@ -9,6 +9,129 @@
       }
     }
   },
+  "CPUDataLogInfo" :{
+    "msg_id" : 607,
+    "cycle_time" : 100,
+    "description" : "RSM cpu and stack information",
+    "signals" : {
+      "CoreCpuUsageMax" : {
+        "resolution" : 0.1,
+        "min": 0,
+        "max" : 100,
+        "unit" : "%"
+      },
+      "CoreCpuUsage" : {
+        "resolution" : 0.1,
+        "min": 0,
+        "max" : 100,
+        "unit" : "%"
+      },
+      "TaskRun1HzCpuUsageMax" : {
+        "resolution" : 0.1,
+        "min": 0,
+        "max" : 100,
+        "unit" : "%"
+      },
+      "TaskRun1HzCpuUsage" : {
+        "resolution" : 0.1,
+        "min": 0,
+        "max" : 100,
+        "unit" : "%"
+      },
+      "TaskRun1HzStackUsage" : {
+        "resolution" : 0.1,
+        "min": 0,
+        "max" : 100,
+        "unit" : "%"
+      }
+    }
+  },
+  "CPUDataLogInfo2" :{
+    "msg_id" : 616,
+    "cycle_time" : 100,
+    "description" : "RSM cpu and stack information",
+    "signals" : {
+      "TaskRun100HzCpuUsageMax" : {
+        "resolution" : 0.1,
+        "min": 0,
+        "max" : 100,
+        "unit" : "%"
+      },
+      "TaskRun100HzCpuUsage" : {
+        "resolution" : 0.1,
+        "min": 0,
+        "max" : 100,
+        "unit" : "%"
+      },
+      "TaskRun100HzStackUsage" : {
+        "resolution" : 0.1,
+        "min": 0,
+        "max" : 100,
+        "unit" : "%"
+      },
+      "TaskRun1kHzCpuUsageMax" : {
+        "resolution" : 0.1,
+        "min": 0,
+        "max" : 100,
+        "unit" : "%"
+      },
+      "TaskRun1kHzCpuUsage" : {
+        "resolution" : 0.1,
+        "min": 0,
+        "max" : 100,
+        "unit" : "%"
+      },
+      "TaskRun1kHzStackUsage" : {
+        "resolution" : 0.1,
+        "min": 0,
+        "max" : 100,
+        "unit" : "%"
+      }
+    }
+  },
+  "CPUDataLogInfo3" :{
+    "msg_id" : 617,
+    "cycle_time" : 100,
+    "description" : "RSM cpu and stack information",
+    "signals" : {
+      "TaskRunCanTxCpuUsageMax" : {
+        "resolution" : 0.1,
+        "min": 0,
+        "max" : 100,
+        "unit" : "%"
+      },
+      "TaskRunCanTxCpuUsage" : {
+        "resolution" : 0.1,
+        "min": 0,
+        "max" : 100,
+        "unit" : "%"
+      },
+      "TaskRunCanTxStackUsage" : {
+        "resolution" : 0.1,
+        "min": 0,
+        "max" : 100,
+        "unit" : "%"
+      },
+      "TaskRunCanRxCpuUsageMax" : {
+        "resolution" : 0.1,
+        "min": 0,
+        "max" : 100,
+        "unit" : "%"
+      },
+      "TaskRunCanRxCpuUsage" : {
+        "resolution" : 0.1,
+        "min": 0,
+        "max" : 100,
+        "unit" : "%"
+      },
+      "TaskRunCanRxStackUsage" : {
+        "resolution" : 0.1,
+        "min": 0,
+        "max" : 100,
+        "unit" : "%"
+      }
+    }
+  },
   "Debug": {
     "msg_id": 608,
     "cycle_time": 1000,

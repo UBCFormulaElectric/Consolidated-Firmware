@@ -25,11 +25,13 @@
 // hw
 #include "hw_bootup.h"
 #include "hw_hardFaultHandler.h"
+#include "hw_runTimeStat.h"
 #include "hw_cans.h"
 #include "hw_adcs.h"
 #include "hw_resetReason.h"
 #include "hw_usb.h"
 #include "hw_gpios.h"
+#include "hw_runTimeStat.h"
 
 void tasks_preInit(void)
 {
@@ -47,6 +49,8 @@ void tasks_init(void)
     hw_adcs_chipsInit();
     hw_can_init(&can2);
     ASSERT_EXIT_OK(hw_usb_init());
+
+    hw_runTimeStat_init(&htim7);
 
     const ResetReason reset_reason = hw_resetReason_get();
     app_canTx_RSM_ResetReason_set((CanResetReason)reset_reason);
@@ -79,6 +83,10 @@ void tasks_init(void)
         boot_request.context_value = 0;
         hw_bootup_setBootRequest(boot_request);
     }
+    CpuRunTimeStats cpu_info = { .cpu_usage_max_setter = app_canTx_RSM_CoreCpuUsage_set,
+                                 .cpu_usage_setter     = app_canTx_RSM_CoreCpuUsageMax_set };
+
+    hw_runtimeStat_registerCpu(&cpu_info);
 
     jobs_init();
 
@@ -96,6 +104,12 @@ _Noreturn void tasks_run1Hz(void)
     const uint32_t  watchdog_grace_period_ms = 50U;
     WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
 
+    TaskRuntimeStats task_run1hz = { .task_index             = TASK_RUN1HZ,
+                                     .cpu_usage_max_setter   = app_canTx_RSM_TaskRun1HzCpuUsageMax_set,
+                                     .cpu_usage_setter       = app_canTx_RSM_TaskRun1HzCpuUsage_set,
+                                     .stack_usage_max_setter = app_canTx_RSM_TaskRun1HzStackUsage_set };
+
+    hw_runTimeStat_registerTask(&task_run1hz);
     uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
     {
@@ -117,6 +131,13 @@ _Noreturn void tasks_run100Hz(void)
     const uint32_t  period_ms                = 10U;
     const uint32_t  watchdog_grace_period_ms = 2U;
     WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
+
+    TaskRuntimeStats task_run100hz = { .task_index             = TASK_RUN100HZ,
+                                       .cpu_usage_max_setter   = app_canTx_RSM_TaskRun100HzCpuUsageMax_set,
+                                       .cpu_usage_setter       = app_canTx_RSM_TaskRun100HzCpuUsage_set,
+                                       .stack_usage_max_setter = app_canTx_RSM_TaskRun100HzStackUsage_set };
+
+    hw_runTimeStat_registerTask(&task_run100hz);
 
     uint32_t start_ticks = osKernelGetTickCount();
 
@@ -142,6 +163,13 @@ _Noreturn void tasks_run1kHz(void)
     const uint32_t  watchdog_grace_period_ms = 1U;
     WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
 
+    TaskRuntimeStats task_run1khz = { .task_index             = TASK_RUN1KHZ,
+                                      .cpu_usage_max_setter   = app_canTx_RSM_TaskRun1kHzCpuUsageMax_set,
+                                      .cpu_usage_setter       = app_canTx_RSM_TaskRun1kHzCpuUsage_set,
+                                      .stack_usage_max_setter = app_canTx_RSM_TaskRun1kHzStackUsage_set };
+
+    hw_runTimeStat_registerTask(&task_run1khz);
+
     uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
     {
@@ -163,10 +191,22 @@ _Noreturn void tasks_run1kHz(void)
 void tasks_runCanTx(void)
 {
     // Setup tasks.
+
+    TaskRuntimeStats task_runcantx = { .task_index             = TASK_RUNCANTX,
+                                       .cpu_usage_max_setter   = app_canTx_RSM_TaskRunCanTxCpuUsageMax_set,
+                                       .cpu_usage_setter       = app_canTx_RSM_TaskRunCanTxCpuUsage_set,
+                                       .stack_usage_max_setter = app_canTx_RSM_TaskRunCanTxStackUsage_set };
+
+    hw_runTimeStat_registerTask(&task_runcantx);
+
+    const uint32_t period_ms   = 1U;
+    uint32_t       start_ticks = osKernelGetTickCount();
     for (;;)
     {
         CanMsg msg = io_canQueue_popTx(&can_tx_queue);
         LOG_IF_ERR(hw_can_transmit(&can2, &msg));
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
     }
 }
 
@@ -182,6 +222,12 @@ void tasks_runCanRxCallback(const CanMsg *msg)
 
 _Noreturn void tasks_runCanRx(void)
 {
+    TaskRuntimeStats task_runcanrx = { .task_index             = TASK_RUNCANTX,
+                                       .cpu_usage_max_setter   = app_canTx_RSM_TaskRunCanRxCpuUsageMax_set,
+                                       .cpu_usage_setter       = app_canTx_RSM_TaskRunCanRxCpuUsage_set,
+                                       .stack_usage_max_setter = app_canTx_RSM_TaskRunCanRxStackUsage_set };
+
+    hw_runTimeStat_registerTask(&task_runcanrx);
     for (;;)
     {
         const CanMsg rx_msg   = io_canQueue_popRx();
