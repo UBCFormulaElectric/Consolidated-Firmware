@@ -21,10 +21,10 @@
     "cycle_time": 100,
     "description": "State of buttons and switches on the CRIT",
     "signals": {
-      "StartButton": { "bits": 1 },
-      "RegenSwitch": { "bits": 1 },
-      "LaunchControlSwitch": { "bits": 1 },
-      "TorqueVectoringSwitch": { "bits": 1 },
+      "StartButton": { "enum": "SwitchState" },
+      "RegenSwitch": { "enum": "SwitchState" },
+      "LaunchControlSwitch": { "enum": "SwitchState" },
+      "TorqueVectoringSwitch": { "enum": "SwitchState" },
       "DriveMode": { "enum": "DriveMode" }
     }
   },
