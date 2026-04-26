@@ -1,20 +1,19 @@
 use std::{fs, path::Path, sync::Arc};
 
-use logfs::{LogFsOpenFlags_LOGFS_OPEN_RD_WR, logfs::*};
+use logfs::{LogFsOpenFlags_LOGFS_OPEN_CREATE, LogFsOpenFlags_LOGFS_OPEN_RD_WR, logfs::*};
 
 fn main() {
     // test 1: check for sd card ✅
     let drives = find_detachable_drives();
     println!("Found drives: {:?}", drives);
 
-    // test 2: format sd card with logfs
+    // test 2: format sd card with logfs ✅
     let sd_card_dir = "/dev/sdb";
     let disk = Arc::new(LogFsUnixDisk::new(512, 1024 * 1024 * 15, Path::new(sd_card_dir)).unwrap());
     let mut logfs: LogFs = LogFs::new(512, 1024 * 1024 * 15, disk, 0, false);
-
     logfs.format().unwrap();
     logfs.mount().unwrap();
-    let mut file = logfs.open("/.txt", LogFsOpenFlags_LOGFS_OPEN_RD_WR).unwrap();
+    let mut file = logfs.open("/.txt", LogFsOpenFlags_LOGFS_OPEN_RD_WR | LogFsOpenFlags_LOGFS_OPEN_CREATE).unwrap();
     file.write(b"bruh").unwrap();
 
     let read = file.read(None).unwrap();
