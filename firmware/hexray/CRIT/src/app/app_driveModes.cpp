@@ -35,4 +35,4 @@ void broadcast()
 {
     app::can_tx::CRIT_DriveMode_set(static_cast<DriveMode>(drive_mode_num));
 }
-} // namespace app::driveModesP
+} // namespace app::driveModes
