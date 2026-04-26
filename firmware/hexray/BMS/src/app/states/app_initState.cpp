@@ -2,6 +2,7 @@
 
 #include "app_states.hpp"
 #include "app_tractiveSystem.hpp"
+#include "app_soc.hpp"
 #include "io_irs.hpp"
 #include "io_charger.hpp"
 #include "app_canRx.hpp"
@@ -32,14 +33,14 @@ namespace initState
         const bool ts_discharged = (app::ts::getVoltage() < TS_DISCHARGED_THRESHOLD_V);
 
         // ONLY RUN THIS WHEN CELLS HAVE HAD TIME TO SETTLE
-        // if (app_canRx_Debug_ResetSoc_MinCellV_get())
-        // {
-        //     app_soc_resetSocFromVoltage();
-        // }
-        // else if (app_canRx_Debug_ResetSoc_CustomEnable_get())
-        // {
-        //     app_soc_resetSocCustomValue(app_canRx_Debug_ResetSoc_CustomVal_get());
-        // }
+        if (app::can_rx::Debug_ResetSoc_MinCellV_get())
+        {
+            app::soc::resetSocFromVoltage();
+        }
+        else if (app::can_rx::Debug_ResetSoc_CustomEnable_get())
+        {
+            app::soc::resetSocCustomValue(app::can_rx::Debug_ResetSoc_CustomVal_get());
+        }
 
         if (irs_negative_closed && ts_discharged)
         {

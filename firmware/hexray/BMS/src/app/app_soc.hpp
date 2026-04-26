@@ -81,8 +81,8 @@ uint32_t getLastWrittenSocTenths();
 void broadcast();
 
 /**
- * @brief Save SoC to SD when the value is valid.
+ * @brief Get the SoC value to save to SD in tenths of a percent when valid.
  */
-void saveToSd();
+bool getSocToSave(uint32_t &soc_tenths);
 
 } // namespace app::soc

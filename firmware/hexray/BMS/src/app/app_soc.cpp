@@ -36,7 +36,7 @@ uint32_t soc_last_saved_tenths = SOC_TENTHS_UNAVAILABLE;
 uint32_t soc_prev_update_ms    = 0U;
 
 // index 0 represents 0.0% SoC, final index represents 100%. 0.5% increments.
-constexpr std::array<float, V_TO_SOC_LUT_SIZE> ocv_soc_lut = {
+constexpr std::array<float, V_TO_SOC_LUT_SIZE> ocv_soc_lut = {{
     2.478484f, 2.548948f, 2.555629f, 2.636801f, 2.717973f, 2.795096f, 2.845899f, 2.896701f, 2.947503f, 2.979689f,
     3.009237f, 3.038785f, 3.062674f, 3.083212f, 3.103750f, 3.124092f, 3.144124f, 3.164156f, 3.183431f, 3.197409f,
     3.211386f, 3.225364f, 3.240896f, 3.256680f, 3.272465f, 3.284931f, 3.295543f, 3.306156f, 3.304352f, 3.317410f,
@@ -58,7 +58,7 @@ constexpr std::array<float, V_TO_SOC_LUT_SIZE> ocv_soc_lut = {
     4.075540f, 4.077227f, 4.079082f, 4.080939f, 4.082910f, 4.085239f, 4.087742f, 4.090254f, 4.093629f, 4.097167f,
     4.100969f, 4.105953f, 4.111315f, 4.117198f, 4.124902f, 4.134033f, 4.143165f, 4.155217f, 4.171970f, 4.188723f,
     4.205476f,
-};
+}};
 } // namespace
 
 namespace app::soc
@@ -206,14 +206,16 @@ void broadcast()
     }
 }
 
-void saveToSd()
+bool getSocToSave(uint32_t &soc_tenths)
 {
     const float min_soc_percent = getMinSocPercent();
-    if (IS_IN_RANGE(0.0f, 100.0f, min_soc_percent))
+    if (!IS_IN_RANGE(0.0f, 100.0f, min_soc_percent))
     {
-        uint32_t min_soc_tenths = socPercentToTenths(min_soc_percent);
-        xTaskNotify(TaskSdCard.getHandle(), min_soc_tenths, eSetValueWithOverwrite);
+        return false;
     }
+
+    soc_tenths = socPercentToTenths(min_soc_percent);
+    return true;
 }
 
 } // namespace app::soc
