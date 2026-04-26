@@ -18,49 +18,85 @@ class TireModel
         Rear
     };
 
-    // note that these only exist for float, dual
+    // note that these only exist for float, double, dual
     template <DecimalOrDual T> [[nodiscard]] T computeCombinedFx_N(float fz_N, float alpha_rad, const T &kappa) const;
     template <DecimalOrDual T> [[nodiscard]] T computeCombinedFy_N(float fz_N, float alpha_rad, const T &kappa) const;
 
     struct TireFitPureParamFy
     {
-        float cy_1;
-        float dy_1;
-        float dy_2;
-        float dy_3;
-        float ey_1;
-        float ey_2;
-        float ey_3;
-        float ey_4;
-        float ky_1;
-        float ky_2;
-        float ky_3;
-        float hy_1;
-        float hy_2;
-        float hy_3;
-        float vy_1;
-        float vy_2;
-        float vy_3;
-        float vy_4;
+        float p_Cy1;
+        float p_Dy1;
+        float p_Dy2;
+        float p_Dy3;
+        float p_Ey1;
+        float p_Ey2;
+        float p_Ey3;
+        float p_Ey4;
+        float p_Ey5;
+        float p_Ky1;
+        float p_Ky2;
+        float p_Ky3;
+        float p_Ky4;
+        float p_Ky5;
+        float p_Ky6;
+        float p_Ky7;
+        float p_Hy1;
+        float p_Hy2;
+        float p_Vy1;
+        float p_Vy2;
+        float p_Vy3;
+        float p_Vy4;
+        float p_py1;
+        float p_py2;
+        float p_py3;
+        float p_py4;
+        float p_py5;
     };
 
     struct TireFitPureParamFx
     {
-        float cx_1;
-        float dx_1;
-        float dx_2;
-        float dx_3;
-        float ex_1;
-        float ex_2;
-        float ex_3;
-        float ex_4;
-        float kx_1;
-        float kx_2;
-        float kx_3;
-        float hx_1;
-        float hx_2;
-        float vx_1;
-        float vx_2;
+        float p_Cx1;
+        float p_Dx1;
+        float p_Dx2;
+        float p_Dx3;
+        float p_Ex1;
+        float p_Ex2;
+        float p_Ex3;
+        float p_Ex4;
+        float p_Kx1;
+        float p_Kx2;
+        float p_Kx3;
+        float p_Hx1;
+        float p_Hx2;
+        float p_Vx1;
+        float p_Vx2;
+        float p_px1;
+        float p_px2;
+        float p_px3;
+        float p_px4;
+    };
+
+    struct TireScalingFactors
+    {
+        float LFZ0;
+        float LCX;
+        float LMUX;
+        float LEX;
+        float LKX;
+        float LHX;
+        float LVX;
+        float LGAX;
+        float LXAL;
+        float LCY;
+        float LMUY;
+        float LEY;
+        float LKY;
+        float LKYG;
+        float LHY;
+        float LVY;
+        float LGAY;
+        float LYKA;
+        float LVYKA;
     };
 
     struct TireFitCombParamFx
@@ -100,8 +136,13 @@ class TireModel
         const TireFitPureParamFx &fit_pure_fx,
         const TireFitPureParamFy &fit_pure_fy,
         const TireFitCombParamFx &fit_comb_fx,
-        const TireFitCombParamFy &fit_comb_fy)
-      : fit_pure_fx_(fit_pure_fx), fit_pure_fy_(fit_pure_fy), fit_comb_fx_(fit_comb_fx), fit_comb_fy_(fit_comb_fy)
+        const TireFitCombParamFy &fit_comb_fy,
+        const TireScalingFactors &scaling_factors)
+      : fit_pure_fx_(fit_pure_fx),
+        fit_pure_fy_(fit_pure_fy),
+        fit_comb_fx_(fit_comb_fx),
+        fit_comb_fy_(fit_comb_fy),
+        scaling_factors_(scaling_factors)
     {
     }
 
@@ -152,15 +193,18 @@ class TireModel
         T g_yk    = T(0.0f);
     };
 
-    static constexpr float NOMINAL_FZ_N = 750.0f;
+    static constexpr float FZ0 = 890.0f;
+    static constexpr float R0  = 0.230885999f;
+    static constexpr float P0  = 82737.12f;
     //-------------------------------------------------------------------- Class Helpers
     //----------------------------------------------------------------------//
-    [[nodiscard]] static float normalizedLoadDelta(float normal_load_N);
-    // Reduced-model assumptions for combined slip in this pass:
-    // gamma* = 0, lambda_xa = 1, lambda_yk = 1, lambda_vyk = 1, zeta_2 = 1.
-    // Pressure dependence is captured by the fixed 12_PSI fitted parameter row.
-    //-------------------------------------------------------------------- Pure Pacejka 5.2 Helpers
+    [[nodiscard]] float normalizedLoadDelta(float normal_load_N) const;
+    [[nodiscard]] float referenceNormalLoad_N() const;
+    // Reduced MF 6.2 assumptions in this implementation:
+    // gamma = 0, dpi = 0, zeta_0..zeta_4 = 1, and the scaling factors below come from the fixed Hoosier fit row.
+    //-------------------------------------------------------------------- Pure Pacejka MF 6.2 Helpers
     //----------------------------------------------------------------------//
+    [[nodiscard]] static constexpr float       pacejkaSlipAngle(float slip_angle_rad);
     [[nodiscard]] constexpr float              pureFx_Sh(float normalized_load_delta) const;
     template <DecimalOrDual T> [[nodiscard]] T pureFx_Kappa(float normalized_load_delta, const T &slip_ratio) const;
     [[nodiscard]] constexpr float              pureFx_C() const;
@@ -183,7 +227,7 @@ class TireModel
     [[nodiscard]] PureFxMagicFormulaCoefficients<T>
         pureFxMagicFormulaCoefficients(float normal_load_N, const T &slip_ratio) const;
     [[nodiscard]] PureFyMagicFormulaCoefficients pureFyMagicFormulaCoefficients(float fz, float alpha) const;
-    //-------------------------------------------------------------------- Combined Pacejka 5.2 Helpers
+    //-------------------------------------------------------------------- Combined Pacejka MF 6.2 Helpers
     //----------------------------------------------------------------------//
     [[nodiscard]] constexpr float              combinedFx_SHxa() const;
     [[nodiscard]] constexpr float              combinedFx_Alpha_s(float alpha) const;
@@ -220,6 +264,7 @@ class TireModel
     const TireFitPureParamFy &fit_pure_fy_;
     const TireFitCombParamFx &fit_comb_fx_;
     const TireFitCombParamFy &fit_comb_fy_;
+    const TireScalingFactors &scaling_factors_;
 };
 
 class HoosierTireModel : public TireModel
@@ -229,43 +274,105 @@ class HoosierTireModel : public TireModel
     If pressure becomes a runtime input later, add pressure interpolation or a refit against the raw tire data.
     */
     static constexpr TireFitPureParamFx HOOSIER_FIT_PURE_FX_12_PSI = {
-        0.008656294312f, 366.1925838f,     -57.2826791f,      8.208916842f,   1.134744942f,
-        0.04728092792f,  -0.02191230313f,  -0.01799018414f,   62.46585932f,   1.390484252f,
-        -0.3909753489f,  0.0005429909716f, -0.0007019708842f, 0.01286770906f, 0.004135955934f,
+        .p_Cx1 = 1.4779238369371919f,
+        .p_Dx1 = 2.181045396988853f,
+        .p_Dx2 = 0.07001659216024461f,
+        .p_Dx3 = 4.097157624686553f,
+        .p_Ex1 = 0.24999999999999986f,
+        .p_Ex2 = -0.4935998299083556f,
+        .p_Ex3 = 0.062308987383295614f,
+        .p_Ex4 = 0.49999999999999994f,
+        .p_Kx1 = 44.40869215364958f,
+        .p_Kx2 = -0.11467697610242364f,
+        .p_Kx3 = 0.005123300455879327f,
+        .p_Hx1 = 0.00028611316090635194f,
+        .p_Hx2 = -0.001728319335508632f,
+        .p_Vx1 = 0.004999999999999999f,
+        .p_Vx2 = 0.00477148979863604f,
+        .p_px1 = 5.985592437722123e-20f,
+        .p_px2 = -1.4999999999999998f,
+        .p_px3 = -0.45857497477578263f,
+        .p_px4 = -0.43069292241848617f,
     };
 
     static constexpr TireFitPureParamFy HOOSIER_FIT_PURE_FY_12_PSI = {
-        0.90721342f,     -3.824114982f,  -0.4280518359f, 15.56383821f,    1.218066219f, 0.3097318297f,
-        -0.02930740966f, 0.2068388689f,  -54.60640233f,  2.122730258f,    1.671281037f, -0.004171875264f,
-        -0.00360720284f, -0.0787609381f, -0.1057253032f, -0.02043816084f, 0.83972231f,  1.494231303f,
+        .p_Cy1 = 1.1204027009158741f,
+        .p_Dy1 = 2.5264849720779265f,
+        .p_Dy2 = -0.32531957059268557f,
+        .p_Dy3 = 8.961207772979192f,
+        .p_Ey1 = -0.3535685826026044f,
+        .p_Ey2 = 0.49999999999999994f,
+        .p_Ey3 = 0.49999999999999994f,
+        .p_Ey4 = -4.3346742910317335e-12f,
+        .p_Ey5 = -9.999999999996396f,
+        .p_Ky1 = -58.87561425961986f,
+        .p_Ky2 = 2.6000000000000005f,
+        .p_Ky3 = 0.8244703642222122f,
+        .p_Ky4 = 1.7352802106825729f,
+        .p_Ky5 = 0.24677855458172623f,
+        .p_Ky6 = -4.063776528205966f,
+        .p_Ky7 = -1.9999999999999838f,
+        .p_Hy1 = 0.0018254580526529563f,
+        .p_Hy2 = 0.000636192957410061f,
+        .p_Vy1 = 0.049999999999999996f,
+        .p_Vy2 = -0.0036551964003752914f,
+        .p_Vy3 = 0.09833213814504116f,
+        .p_Vy4 = 0.046585547800409376f,
+        .p_py1 = 0.5693120879649871f,
+        .p_py2 = 0.9999999999962573f,
+        .p_py3 = -0.15182658503935315f,
+        .p_py4 = -1.6963735361954737e-22f,
+        .p_py5 = -0.9999999999931753f,
     };
 
     static constexpr TireFitCombParamFx HOOSIER_FIT_COMB_FX_12_PSI = {
-        .rBx1 = 13.046f,
-        .rBx2 = 9.718f,
-        .rBx3 = 0.0f,
-        .rCx1 = 0.9995f,
-        .rEx1 = -0.4403f,
-        .rEx2 = -0.4663f,
-        .rHx1 = -0.0001f,
+        .rBx1 = 7.480599472060266f,
+        .rBx2 = 10.358691627632123f,
+        .rBx3 = 29.999999999999996f,
+        .rCx1 = 1.399999999995603f,
+        .rEx1 = -1.1134570691694545f,
+        .rEx2 = -0.5558333477828554f,
+        .rHx1 = -9.999999999999997e-07f,
     };
 
     static constexpr TireFitCombParamFy HOOSIER_FIT_COMB_FY_12_PSI = {
-        .rBy1 = 10.622f,
-        .rBy2 = 7.82f,
-        .rBy3 = 0.00204f,
-        .rBy4 = 0.0f,
-        .rCy1 = 1.0587f,
-        .rEy1 = 0.3148f,
-        .rEy2 = 0.00487f,
-        .rHy1 = 0.00947f,
-        .rHy2 = 0.00975f,
-        .rVy1 = 0.05187f,
-        .rVy2 = 0.00049f,
-        .rVy3 = 0.0f,
-        .rVy4 = 94.63f,
-        .rVy5 = 1.8914f,
-        .rVy6 = 23.8f,
+        .rBy1 = 20.05591682759158f,
+        .rBy2 = 19.99972340129322f,
+        .rBy3 = 9.403590493232056e-07f,
+        .rBy4 = -10.995639456729068f,
+        .rCy1 = 0.9048173729141128f,
+        .rEy1 = -0.7096982445643287f,
+        .rEy2 = 0.55848931432607f,
+        .rHy1 = 9.999999999999997e-07f,
+        .rHy2 = 9.999999999999784e-07f,
+        .rVy1 = 0.0009999999999999998f,
+        .rVy2 = 0.001999999999999954f,
+        .rVy3 = 0.049999999999999996f,
+        .rVy4 = -1.9999999999999998f,
+        .rVy5 = 2.4544048158091005f,
+        .rVy6 = 5.900331527230952f,
+    };
+
+    static constexpr TireScalingFactors HOOSIER_SCALING_FACTORS = {
+        .LFZ0  = 1.0f,
+        .LCX   = 1.0f,
+        .LMUX  = 0.65f,
+        .LEX   = 1.0f,
+        .LKX   = 1.0f,
+        .LHX   = 1.0f,
+        .LVX   = 1.0f,
+        .LGAX  = 1.0f,
+        .LXAL  = 1.0f,
+        .LCY   = 1.0f,
+        .LMUY  = 0.65f,
+        .LEY   = 1.0f,
+        .LKY   = 1.0f,
+        .LKYG  = 1.0f,
+        .LHY   = 1.0f,
+        .LVY   = 1.0f,
+        .LGAY  = 1.0f,
+        .LYKA  = 1.0f,
+        .LVYKA = 1.0f,
     };
 
   public:
@@ -274,7 +381,8 @@ class HoosierTireModel : public TireModel
             HOOSIER_FIT_PURE_FX_12_PSI,
             HOOSIER_FIT_PURE_FY_12_PSI,
             HOOSIER_FIT_COMB_FX_12_PSI,
-            HOOSIER_FIT_COMB_FY_12_PSI)
+            HOOSIER_FIT_COMB_FY_12_PSI,
+            HOOSIER_SCALING_FACTORS)
     {
     }
 };
