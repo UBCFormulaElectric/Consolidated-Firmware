@@ -2,20 +2,15 @@ name: tracksight-docker
 services:
   influx:
     extends:
-      file: common.yml
+      file: ../common.yml
       service: influx
   backend:
     extends:
-      file: common.yml
+      file: ../common.yml
       service: backend
-    command:
-      [
-        "python3",
-        "app/app.py"
-      ]
   frontend:
     extends:
-      file: common.yml
+      file: ../common.yml
       service: frontend
     command:
       [
