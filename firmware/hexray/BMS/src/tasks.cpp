@@ -69,7 +69,7 @@ static TaskHandle_t TaskSdCardHandle = nullptr;
     hw::watchdog::WatchdogInstance watchdog_1khz =
         hw::watchdog::WatchdogInstance(TASK_INDEX_1KHZ, period_ms + watchdog_grace_period_ms);
     uint32_t start_ticks = osKernelGetTickCount();
-    
+
     forever
     {
         jobs_run1kHz_tick();
@@ -124,12 +124,12 @@ static TaskHandle_t TaskSdCardHandle = nullptr;
 
 [[noreturn]] static void tasks_runSdCard(void *arg)
 {
-    const uint32_t period_ms = 1000U;
-    const uint32_t watchdog_grace_period_ms = 50U;
+    const uint32_t                 period_ms                = 1000U;
+    const uint32_t                 watchdog_grace_period_ms = 50U;
     hw::watchdog::WatchdogInstance watchdog_sdCard =
         hw::watchdog::WatchdogInstance(TASK_INDEX_SD_CARD, period_ms + watchdog_grace_period_ms);
     uint32_t start_ticks = osKernelGetTickCount();
-        
+
     forever
     {
         uint32_t rounded_soc = 0U;

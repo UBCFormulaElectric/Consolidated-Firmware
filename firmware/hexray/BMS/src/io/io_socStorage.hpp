@@ -28,4 +28,3 @@ bool read(float &saved_soc_percent);
 bool write(float soc_percent);
 
 } // namespace io::socStorage
-
