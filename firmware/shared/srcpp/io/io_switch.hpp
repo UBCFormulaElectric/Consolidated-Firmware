@@ -1,8 +1,10 @@
 #pragma once
 
 #include <cstdint>
-#include "hw_gpio.hpp"
 
+#ifdef TARGET_EMBEDDED
+#include "hw_gpio.hpp"
+#endif
 namespace io
 {
 class Switch
@@ -22,15 +24,26 @@ class Switch
     bool           last_state_raw = false;
     bool           state          = false;
 
-  public:
+#ifdef TARGET_EMBEDDED
     const hw::Gpio &pin;
+#endif
 
+  public:
+#ifdef TARGET_EMBEDDED
     explicit Switch(const uint16_t debounce_ticks_in, const hw::Gpio &pin_in)
       : debounce_ticks(debounce_ticks_in), pin(pin_in)
     {
         last_state_raw = pin.readPin();
         state          = last_state_raw;
     }
+#else
+    explicit Switch(const uint16_t debounce_ticks_in) : debounce_ticks(debounce_ticks_in) {}
+#endif
+
     [[nodiscard]] bool isClosed();
+
+#ifdef TARGET_TEST
+    void setState(const bool state);
+#endif
 };
 } // namespace io
