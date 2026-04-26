@@ -4,6 +4,7 @@
 #include "app_commitInfo.h"
 #include "app_jsoncan.hpp"
 #include "app_switches.hpp"
+#include "app_driveModes.hpp"
 #include "screens/app_screens.hpp"
 #include "app_heartbeatMonitors.hpp"
 
@@ -63,6 +64,7 @@ void jobs_run100Hz_tick()
     // io::power_gauge::update({});
 
     app::switches::broadcast();
+    app::driveModes::broadcast();
 
     // TODO debounce and find rising edge
     // if (const bool has_rising_edge = io::switches::telem_mark_get(); has_rising_edge)
