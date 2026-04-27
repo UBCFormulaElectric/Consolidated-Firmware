@@ -154,10 +154,10 @@ if ("${TARGET}" STREQUAL "binary")
                 "vc"
                 "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/vc_boot.ioc"
         )
-        target_link_libraries("hexray_VC_boot.elf" PRIVATE "vc_commit_info")
+        target_link_libraries("hexray_VC_boot.elf" PRIVATE "hexray_VC_commit_info")
         # Creating the combined result of the boot and the app
         embedded_image(
-                "VC"
+                "hexray_VC"
                 "hexray_VC_app.hex"
                 "${CMAKE_CURRENT_BINARY_DIR}/hexray_VC_app.hex"
                 "hexray_VC_boot.hex"
