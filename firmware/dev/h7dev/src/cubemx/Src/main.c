@@ -26,11 +26,6 @@
 
 #include "hw_bootup.h"
 #include "hw_uart.h"
-#include "hw_fdcan.h"
-#include "io_canQueue.h"
-#include "io_canLogging.h"
-#include "io_fileSystem.h"
-#include "hw_gpio.h"
 #include "hw_sd.h"
 #include "io_log.h"
 /* USER CODE END Includes */
