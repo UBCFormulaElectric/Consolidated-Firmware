@@ -71,34 +71,16 @@ template <size_t NODE_COUNT> class monitor
     }
 
     /**
-     * @return Whether the heartbeat monitor for the current board has detected any fault
-     */
-    [[nodiscard]] bool isSendingMissingHeartbeatFault() const
-    {
-        if (block_faults)
-        {
-            return false;
-        }
-
-        for (const auto node : heartbeat_nodes)
-        {
-            if (node.fault_getter())
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
      * Blocks faults from being reported in app_heartbeatMonitor_isSendingMissingHeartbeatFault
-     * @param block_faults Whether to block faults
+     * @param new_block_faults Whether to block faults
      */
-    void setBlockFaults(bool new_block_faults) { block_faults = new_block_faults; }
+    void setBlockFaults(const bool new_block_faults) { block_faults = new_block_faults; }
 
+#ifdef TARGET_TEST
     /**
      * Resets faults as to report as false, useful for test environments
      */
     void clearFaults() const {}
+#endif
 };
 } // namespace app::heartbeat
