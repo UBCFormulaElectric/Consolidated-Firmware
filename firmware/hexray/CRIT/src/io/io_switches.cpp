@@ -10,4 +10,13 @@ Switch launch_control_sw(SW_DEBOUNCE_TICKS, launch_control_sig);
 Switch regen_sw(SW_DEBOUNCE_TICKS, regen_sig);
 Switch start_sw(SW_DEBOUNCE_TICKS, push_drive_sig);
 Switch telem_sw(SW_DEBOUNCE_TICKS, telem_sig);
+
+void init()
+{
+    start_sw.init();
+    torque_vectoring_sw.init();
+    regen_sw.init();
+    telem_sw.init();
+    launch_control_sw.init();
+}
 } // namespace io::switches

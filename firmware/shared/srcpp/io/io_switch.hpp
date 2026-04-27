@@ -33,13 +33,12 @@ class Switch
     explicit Switch(const uint16_t debounce_ticks_in, const hw::Gpio &pin_in)
       : debounce_ticks(debounce_ticks_in), pin(pin_in)
     {
-        last_state_raw = pin.readPin();
-        state          = last_state_raw;
     }
 #else
     explicit Switch(const uint16_t debounce_ticks_in) : debounce_ticks(debounce_ticks_in) {}
 #endif
 
+    void               init();
     [[nodiscard]] bool isClosed();
 
 #ifdef TARGET_TEST
