@@ -2,18 +2,18 @@
 #include "torque_vectoring/shared_datatypes/wheel_set.hpp"
 #include "torque_vectoring/shared_datatypes/constants.hpp"
 #include "torque_vectoring/shared_datatypes/decimal_dual.hpp"
+#include "torque_vectoring/shared_datatypes/pair.hpp"
 
 namespace app::tv::shared_datatypes
 {
 template <Decimal T> struct VehicleState
 {
     // state variables
-    T            v_x_mps        = 0.0f;
-    T            v_y_mps        = 0.0f;
-    T            yaw_rate_radps = 0.0f;
-    T            a_x_mps2       = 0.0f;
-    T            a_y_mps2       = 0.0f;
-    T            apps           = 0.0f;
+
+    Pair<T>      v_body_mps;
+    T            yaw_rate_rads = 0.0f;
+    Pair<T>      a_body_mps2;
+    T            apps = 0.0f;
     wheel_set<T> delta{};
 
     /**
@@ -23,20 +23,20 @@ template <Decimal T> struct VehicleState
     {
         wheel_set<Pair<T>> v = {
             {
-                v_x_mps - yaw_rate_radps * vd_constants::HALF_TRACK_M,
-                v_y_mps + yaw_rate_radps * vd_constants::DIST_FRONT_AXLE_CG_m,
+                v_body_mps.x - yaw_rate_rads * vd_constants::HALF_TRACK_m,
+                v_body_mps.y + yaw_rate_rads * vd_constants::DIST_FRONT_AXLE_CG_m,
             },
             {
-                v_x_mps - yaw_rate_radps * -vd_constants::HALF_TRACK_M,
-                v_y_mps + yaw_rate_radps * vd_constants::DIST_FRONT_AXLE_CG_m,
+                v_body_mps.x - yaw_rate_rads * -vd_constants::HALF_TRACK_m,
+                v_body_mps.y + yaw_rate_rads * vd_constants::DIST_FRONT_AXLE_CG_m,
             },
             {
-                v_x_mps - yaw_rate_radps * vd_constants::HALF_TRACK_M,
-                v_y_mps + yaw_rate_radps * -vd_constants::DIST_FRONT_AXLE_CG_m,
+                v_body_mps.x - yaw_rate_rads * vd_constants::HALF_TRACK_m,
+                v_body_mps.y + yaw_rate_rads * -vd_constants::DIST_FRONT_AXLE_CG_m,
             },
             {
-                v_x_mps - yaw_rate_radps * -vd_constants::HALF_TRACK_M,
-                v_y_mps + yaw_rate_radps * -vd_constants::DIST_FRONT_AXLE_CG_m,
+                v_body_mps.x - yaw_rate_rads * -vd_constants::HALF_TRACK_m,
+                v_body_mps.y + yaw_rate_rads * -vd_constants::DIST_FRONT_AXLE_CG_m,
             },
         };
         v.rotate(delta);
@@ -64,12 +64,12 @@ template <Decimal T> struct VehicleState
     [[nodiscard]] constexpr T est_dragFx_N() const
     {
         return 0.5f * vd_constants::AIR_DENSITY_KGPM3 * vd_constants::FRONTAL_AREA_M2 * vd_constants::DRAG_COEFF *
-               v_x_mps * v_x_mps;
+               v_body_mps.x * v_body_mps.x;
     }
     [[nodiscard]] constexpr T est_downforceFz_N() const
     {
         return 0.5f * vd_constants::AIR_DENSITY_KGPM3 * vd_constants::FRONTAL_AREA_M2 * vd_constants::LIFT_COEFF *
-               v_x_mps * v_x_mps;
+               v_body_mps.x * v_body_mps.x;
     }
 
     // =============================================================================
@@ -84,7 +84,7 @@ template <Decimal T> struct VehicleState
      */
     [[nodiscard]] constexpr T LONG_ACCEL_TERM_VERTICAL_FORCE() const
     {
-        return (vd_constants::CAR_MASS_AT_CG_KG * a_x_mps2 * vd_constants::DIST_HEIGHT_CG_m) /
+        return (vd_constants::CAR_MASS_AT_CG_KG * a_body_mps2.x * vd_constants::DIST_HEIGHT_CG_m) /
                vd_constants::WHEELBASE_m;
     }
     /**
@@ -94,7 +94,7 @@ template <Decimal T> struct VehicleState
      */
     [[nodiscard]] constexpr T LAT_ACCEL_TERM_VERTICAL_FORCE() const
     {
-        return (vd_constants::CAR_MASS_AT_CG_KG * a_y_mps2 * vd_constants::DIST_HEIGHT_CG_m) /
+        return (vd_constants::CAR_MASS_AT_CG_KG * a_body_mps2.y * vd_constants::DIST_HEIGHT_CG_m) /
                (2.0f * vd_constants::TRACK_WIDTH_m);
     }
 
@@ -137,7 +137,7 @@ template <Decimal T> struct VehicleState
      * Get body slip
      * @return
      */
-    [[nodiscard]] T est_beta_rad() const { return std::atan2(v_y_mps, safe_vx(v_x_mps)); }
+    [[nodiscard]] T est_beta_rad() const { return std::atan2(v_body_mps.y, safe_vx(v_body_mps.x)); }
 
     /**
      * @param tires_F_N tire forces
@@ -148,13 +148,13 @@ template <Decimal T> struct VehicleState
         // TODO aligning moment contributions to the yaw moment equation
         tires_F_N.rotate(delta);
         const F fl_moment =
-            (vd_constants::DIST_FRONT_AXLE_CG_m * tires_F_N.fl.y) - (vd_constants::HALF_TRACK_M * tires_F_N.fl.x);
+            (vd_constants::DIST_FRONT_AXLE_CG_m * tires_F_N.fl.y) - (vd_constants::HALF_TRACK_m * tires_F_N.fl.x);
         const F fr_moment =
-            (vd_constants::DIST_FRONT_AXLE_CG_m * tires_F_N.fr.y) + (vd_constants::HALF_TRACK_M * tires_F_N.fr.x);
+            (vd_constants::DIST_FRONT_AXLE_CG_m * tires_F_N.fr.y) + (vd_constants::HALF_TRACK_m * tires_F_N.fr.x);
         const F rl_moment =
-            (-vd_constants::DIST_REAR_AXLE_CG_m * tires_F_N.rl.y) - (vd_constants::HALF_TRACK_M * tires_F_N.rl.x);
+            (-vd_constants::DIST_REAR_AXLE_CG_m * tires_F_N.rl.y) - (vd_constants::HALF_TRACK_m * tires_F_N.rl.x);
         const F rr_moment =
-            (-vd_constants::DIST_REAR_AXLE_CG_m * tires_F_N.rr.y) + (vd_constants::HALF_TRACK_M * tires_F_N.rr.x);
+            (-vd_constants::DIST_REAR_AXLE_CG_m * tires_F_N.rr.y) + (vd_constants::HALF_TRACK_m * tires_F_N.rr.x);
         return fl_moment + fr_moment + rl_moment + rr_moment;
     }
 
@@ -165,7 +165,8 @@ template <Decimal T> struct VehicleState
      */
     [[nodiscard]] constexpr T ACCELERATION_TERM_KMZ() const
     {
-        return vd_constants::DIST_FRONT_AXLE_CG_m + (a_x_mps2 * vd_constants::DIST_HEIGHT_CG_m) / vd_constants::GRAVITY;
+        return vd_constants::DIST_FRONT_AXLE_CG_m +
+               (a_body_mps2.x * vd_constants::DIST_HEIGHT_CG_m) / vd_constants::GRAVITY;
     }
     [[nodiscard]] constexpr T KMZ() const
     {

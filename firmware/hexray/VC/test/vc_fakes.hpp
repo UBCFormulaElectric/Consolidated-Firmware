@@ -1,4 +1,5 @@
 #pragma once
+
 #include "util_errorCodes.hpp"
 #include "io_imu.hpp"
 
@@ -22,7 +23,7 @@ namespace pumpController
     void pumps_enabled(bool enabled);
 } // namespace pumpController
 
-namespace sbgEllipses
+namespace sbgEllipse
 {
     struct Attitude
     {
@@ -40,11 +41,11 @@ namespace sbgEllipses
         float    east_std_dev;
         float    down_std_dev;
     };
-
     void setAttitude(float roll, float pitch, float yaw);
     void setAngularVelocity(float roll_rate, float pitch_rate, float yaw_rate);
     void setLinearAcceleration(float x_accel, float y_accel, float z_accel);
-} // namespace sbgEllipses
+    void setEkfSolutionMode(uint32_t ekf_sol_mode_);
+} // namespace sbgEllipse
 
 namespace shdnLoop
 {
