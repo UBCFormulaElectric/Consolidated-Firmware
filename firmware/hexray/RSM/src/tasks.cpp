@@ -121,11 +121,10 @@ void tasks_init()
             LOG_WARN("Detected stack overflow on the previous boot cycle!");
         }
 
-        const_cast<hw::bootup::BootRequest &> (boot_request).context = hw::bootup::BootContext::BOOT_CONTEXT_NONE;
-        const_cast<hw::bootup::BootRequest &> (boot_request).context_value = 0;
+        const_cast<hw::bootup::BootRequest &>(boot_request).context       = hw::bootup::BootContext::BOOT_CONTEXT_NONE;
+        const_cast<hw::bootup::BootRequest &>(boot_request).context_value = 0;
         hw::bootup::setBootRequest(boot_request);
     }
-    
 
     jobs_init();
     osKernelInitialize();

@@ -27,7 +27,13 @@ namespace hw::cans
 fdcan fdcan1(hfdcan1, [](const hw::CanMsg &msg) { (void)boot_can_rx_queue.push(msg); });
 }
 
-bootloader::config RSM_boot_config(hw::cans::fdcan1, boot_can_tx_queue, boot_can_rx_queue, board_highbits, git_commit_hash_val, git_commit_clean_val);
+bootloader::config RSM_boot_config(
+    hw::cans::fdcan1,
+    boot_can_tx_queue,
+    boot_can_rx_queue,
+    board_highbits,
+    git_commit_hash_val,
+    git_commit_clean_val);
 
 void bootloader_preInit()
 {
