@@ -82,39 +82,45 @@
     "signals": {
       "AccelX": {
         "resolution": 0.1,
+        "signed": true,
         "min": -20,
         "max": 20,
         "unit": "m/s^2"
       },
       "AccelY": {
         "resolution": 0.1,
+        "signed": true,
         "min": -20,
         "max": 20,
         "unit": "m/s^2"
       },
       "AccelZ": {
         "resolution": 0.1,
+        "signed": true,
         "min": -20,
         "max": 20,
         "unit": "m/s^2"
       },
       "GyroX": {
         "resolution": 0.1,
+        "signed": true,
         "min": -20,
         "max": 20,
-        "unit": "deg/s^2"
+        "unit": "deg/s"
       },
       "GyroY": {
         "resolution": 0.1,
+        "signed": true,
         "min": -20,
         "max": 20,
-        "unit": "deg/s^2"
+        "unit": "deg/s"
       },
       "GyroZ": {
         "resolution": 0.1,
+        "signed": true,
         "min": -20,
         "max": 20,
-        "unit": "deg/s^2"
+        "unit": "deg/s"
       }
     }
   },
