@@ -82,9 +82,9 @@ void io_canLogging_init(const IoRtcTime *boot_time)
     strcat(current_path, "_");
     // Append zero-padded bootcount (3 digits)
     char bootcount_str[4];
-    bootcount_str[0] = (current_bootcount / 100) % 10 + '0';
-    bootcount_str[1] = (current_bootcount / 10) % 10 + '0';
-    bootcount_str[2] = current_bootcount % 10 + '0';
+    bootcount_str[0] = (char)((current_bootcount / 100) % 10) + '0';
+    bootcount_str[1] = (char)((current_bootcount / 10) % 10) + '0';
+    bootcount_str[2] = (char)(current_bootcount % 10) + '0';
     bootcount_str[3] = '\0';
     strcat(current_path, bootcount_str);
     strcat(current_path, ".txt");
