@@ -9,4 +9,6 @@ extern Switch launch_control_sw;
 extern Switch regen_sw;
 extern Switch start_sw;
 extern Switch telem_sw;
+
+void init(void);
 } // namespace io::switches

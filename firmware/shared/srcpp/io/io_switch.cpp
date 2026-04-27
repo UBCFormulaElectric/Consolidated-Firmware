@@ -2,6 +2,12 @@
 
 namespace io
 {
+void Switch::init()
+{
+    last_state_raw = pin.readPin();
+    state          = last_state_raw;
+}
+
 bool Switch::isClosed()
 {
     const bool raw       = pin.readPin();

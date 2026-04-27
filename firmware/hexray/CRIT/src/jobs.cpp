@@ -10,6 +10,7 @@
 #include "io_canTx.hpp"
 #include "io_time.hpp"
 #include "io_leds.hpp"
+#include "io_switches.hpp"
 #include "io_powerGauge.hpp"
 #include <io_canTx.hpp>
 #include "io_canQueues.hpp"
@@ -25,6 +26,7 @@ void jobs_init()
             LOG_IF_ERR(can_tx_queue.push(msg));
         });
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
+    io::switches::init();
 
     app::can_tx::CRIT_Hash_set(GIT_COMMIT_HASH);
     app::can_tx::CRIT_Clean_set(GIT_COMMIT_CLEAN);
