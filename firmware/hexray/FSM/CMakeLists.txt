@@ -51,6 +51,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmInput.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_assert.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_fmac.cpp"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -95,6 +96,7 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h5xx_hal_tim.c"
             "stm32h5xx_hal_tim_ex.c"
             "stm32h5xx_ll_usb.c"
+            "stm32h5xx_hal_fmac.c"
     )
     stm32h562xx_cube_library(
             "hexray_FSM_stm32"
@@ -129,7 +131,9 @@ elseif ("${TARGET}" STREQUAL "test")
             "${SHARED_FAKES_DIR_CPP}/io_imu.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
     )
-    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
+    set(TEST_APP_SRCS ${APP_SRCS})
+    list(REMOVE_ITEM TEST_APP_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/app_fmacTest.cpp")
+    set(SRCS ${TEST_APP_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
     set(INCLUDE_DIRS
             # "${CMAKE_CURRENT_SOURCE_DIR}/test"
             ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS}
