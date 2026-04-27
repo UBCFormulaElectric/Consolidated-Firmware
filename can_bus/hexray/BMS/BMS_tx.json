@@ -191,19 +191,19 @@
       }
     }
   },
-  "HvBatteryProperties": {
-    "msg_id": 455,
-    "cycle_time": 1000,
-    "description": "HV Battery Properties",
+  "VoltageAndChargeStats": {
+    "msg_id": 458,
+    "cycle_time": 100,
+    "description": "BMS Cell Voltage readings",
     "signals": {
-      "HvBatterySoc": {
-        "start_bit": 0,
-        "bits": 8,
+      "Soc": {
+        "resolution": 0.1,
         "min": 0,
         "max": 100,
-        "scale": 1,
-        "offset": 0,
         "unit": "%"
+      },
+      "SocCorrupt": {
+        "bits": 1
       }
     }
   },

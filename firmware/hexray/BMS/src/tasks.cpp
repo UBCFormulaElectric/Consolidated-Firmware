@@ -1,6 +1,7 @@
 #include "tasks.h"
 
 #include "app_jsoncan.hpp"
+#include "app_soc.hpp"
 
 #include "jobs.hpp"
 #include "io_time.hpp"
@@ -14,6 +15,11 @@
 #include "hw_rtosTaskHandler.hpp"
 #include "io_canQueues.hpp"
 #include <stm32h7xx_hal.h>
+#include <task.h>
+
+#include <climits>
+
+static TaskHandle_t TaskSdCardHandle = nullptr;
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
@@ -26,6 +32,13 @@
     forever
     {
         jobs_run1Hz_tick();
+
+        uint32_t soc_tenths = 0U;
+        if (app::soc::getSocToSave(soc_tenths))
+        {
+            xTaskNotify(TaskSdCardHandle, soc_tenths, eSetValueWithOverwrite);
+        }
+
         watchdog_1hz.checkIn();
         start_ticks += period_ms;
         io::time::delayUntil(start_ticks);
@@ -56,6 +69,7 @@
     hw::watchdog::WatchdogInstance watchdog_1khz =
         hw::watchdog::WatchdogInstance(TASK_INDEX_1KHZ, period_ms + watchdog_grace_period_ms);
     uint32_t start_ticks = osKernelGetTickCount();
+
     forever
     {
         jobs_run1kHz_tick();
@@ -108,12 +122,34 @@
     }
 }
 
+[[noreturn]] static void tasks_runSdCard(void *arg)
+{
+    const uint32_t                 period_ms                = 1000U;
+    const uint32_t                 watchdog_grace_period_ms = 50U;
+    hw::watchdog::WatchdogInstance watchdog_sdCard =
+        hw::watchdog::WatchdogInstance(TASK_INDEX_SD_CARD, period_ms + watchdog_grace_period_ms);
+    uint32_t start_ticks = osKernelGetTickCount();
+
+    forever
+    {
+        uint32_t rounded_soc = 0U;
+        if (xTaskNotifyWait(0, ULONG_MAX, &rounded_soc, 0) == pdTRUE)
+        {
+            jobs_runSdCard_tick(rounded_soc);
+        }
+        watchdog_sdCard.checkIn();
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
+}
+
 // Define the task with StaticTask template class
 static hw::rtos::StaticTask<512> Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz);
 static hw::rtos::StaticTask<512> Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz);
 static hw::rtos::StaticTask<512> Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz);
 static hw::rtos::StaticTask<512> TaskCanRx(osPriorityBelowNormal, "TaskCanRx", tasks_runCanRx);
 static hw::rtos::StaticTask<512> TaskCanTx(osPriorityBelowNormal, "TaskCanTx", tasks_runCanTx);
+static hw::rtos::StaticTask<128> TaskSdCard(osPriorityLow, "TaskSdCard", tasks_runSdCard);
 
 void BMS_StartAllTasks()
 {
@@ -122,6 +158,7 @@ void BMS_StartAllTasks()
     Task100Hz.start();
     TaskCanRx.start();
     TaskCanTx.start();
+    TaskSdCardHandle = static_cast<TaskHandle_t>(TaskSdCard.start());
 }
 
 void tasks_preInit()
