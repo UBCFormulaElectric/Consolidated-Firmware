@@ -27,7 +27,7 @@
     "tailwind-merge": "^3.5.0",
     "tailwindcss": "^4.2.0",
     "tailwindcss-animate": "^1.0.7",
-    "uuid": "^13.0.0"
+    "uuid": "^14.0.0"
   },
   "devDependencies": {
     "@types/chroma-js": "^3.1.2",
