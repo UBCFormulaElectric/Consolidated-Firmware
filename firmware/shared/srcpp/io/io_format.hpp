@@ -3,7 +3,8 @@
 #include "io_log.hpp"
 #include <cstdint>
 
-namespace io {
+namespace io
+{
 
 /**
  * Lightweight formatting without linking svfprintf
@@ -33,4 +34,3 @@ inline void log_path_info(const char *prefix, uint32_t bootcount)
 }
 
 } // namespace io
-
