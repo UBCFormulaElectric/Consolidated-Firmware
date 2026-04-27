@@ -2,6 +2,10 @@
   "messages": [
     "Elcon_Vitals",
     "VC_Vitals",
+    "CRIT_Vitals",
+    "DAM_Vitals",
+    "FSM_Vitals",
+    "RSM_Vitals",
     "Debug_CanMode",
     "Debug_Charging",
     "Debug_SetBSPDTestCurrent",
