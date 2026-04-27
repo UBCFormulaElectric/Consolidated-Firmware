@@ -1,7 +1,9 @@
 #include <array>
+#include <cstddef>
 
 #include "io_imu.hpp"
-
+#include "io_time.hpp"
+#include "util_utils.hpp"
 namespace io
 {
 // Register 25: SMPLRT_DIV
@@ -256,7 +258,7 @@ static constexpr float gyro_sensitivity = []()
 
 inline constexpr float TEMP_SCALE = 326.8f;
 
-static float translateData(const uint8_t data_h, const uint8_t data_l)
+static float translateAccelData(const uint8_t data_h, const uint8_t data_l)
 {
     const auto raw = static_cast<int16_t>(data_h << 8 | data_l);
     return static_cast<float>(raw) / accel_sensitivity;
@@ -274,6 +276,7 @@ static float translateTempData(const uint8_t data_h, const uint8_t data_l)
     return static_cast<float>(raw) / TEMP_SCALE + 25.0f;
 }
 
+// Accelerometer takes 6 MS to start up
 std::expected<void, ErrorCode> Imu::init() const
 {
     // Check if we are able to communicate to the IMU
@@ -284,6 +287,37 @@ std::expected<void, ErrorCode> Imu::init() const
 
     if (not exit.has_value() || rx[0] != WHO_AM_I_VAL)
         return exit;
+
+    // Reset IMU and wait for DEVICE_RESET to self-clear.
+    PwrMgmt1 pwr_mgmt_reset{};
+    pwr_mgmt_reset.DEVICE_RESET           = 1;
+    std::array<const uint8_t, 2> tx_reset = { { WRITE_IMU_REG(PWR_MGMT_1), std::bit_cast<uint8_t>(pwr_mgmt_reset) } };
+
+    exit = imu_spi_handle.transmit(tx_reset);
+    if (not exit.has_value())
+        return exit;
+
+    std::array<const uint8_t, 1> tx_pwr_mgmt_1 = { { READ_IMU_REG(PWR_MGMT_1) } };
+    bool                         reset_done    = false;
+    for (uint8_t attempt = 0; attempt < 10U; attempt++)
+    {
+        exit = imu_spi_handle.transmitThenReceive(tx_pwr_mgmt_1, rx);
+        if (exit.has_value() && READ_BITS<uint8_t>(rx[0], 7U, 1U) == 0U)
+        {
+            reset_done = true;
+            break;
+        }
+    }
+
+    if (not reset_done)
+        return std::unexpected(ErrorCode::TIMEOUT);
+
+    // PwrMgmt1                     pwr_mgmt_wake{};
+    // std::array<const uint8_t, 2> tx_wake = { { WRITE_IMU_REG(PWR_MGMT_1), std::bit_cast<uint8_t>(pwr_mgmt_wake) } };
+
+    // exit = imu_spi_handle.transmit(tx_wake);
+    // if (not exit.has_value())
+    //     return exit;
 
     // Send configs to IMU
     uint8_t      smplrt_div;
@@ -296,7 +330,6 @@ std::expected<void, ErrorCode> Imu::init() const
     FifoEn       fifo_en{};
     IntEnable    int_enable{};
     UserCtrl     user_ctrl{};
-    PwrMgmt1     pwr_mgmt1{};
     PwrMgmt2     pwr_mgmt2{};
 
     // Filter Config
@@ -335,7 +368,9 @@ std::expected<void, ErrorCode> Imu::init() const
     //     int_enable.FIFO_OFLOW_INT_EN = static_cast<uint8_t>(fifo_config.fifo_overflow_int_enable) & 0x01;
     // }
 
-    std::array<const uint8_t, 24> tx_config = { { WRITE_IMU_REG(SMPLRT_DIV),     std::bit_cast<uint8_t>(smplrt_div),
+    std::array<const uint8_t, 22> tx_config = { { WRITE_IMU_REG(PWR_MGMT_2),     std::bit_cast<uint8_t>(pwr_mgmt2),
+                                                  WRITE_IMU_REG(INT_ENABLE),     std::bit_cast<uint8_t>(int_enable),
+                                                  WRITE_IMU_REG(SMPLRT_DIV),     std::bit_cast<uint8_t>(smplrt_div),
                                                   WRITE_IMU_REG(CONFIG),         std::bit_cast<uint8_t>(config),
                                                   WRITE_IMU_REG(GYRO_CONFIG),    std::bit_cast<uint8_t>(gyro_config),
                                                   WRITE_IMU_REG(ACCEL_CONFIG),   std::bit_cast<uint8_t>(accel_config),
@@ -343,14 +378,19 @@ std::expected<void, ErrorCode> Imu::init() const
                                                   WRITE_IMU_REG(LP_MODE_CONFIG), std::bit_cast<uint8_t>(lp_mode_config),
                                                   WRITE_IMU_REG(INT_PIN_CONFIG), std::bit_cast<uint8_t>(int_pin_config),
                                                   WRITE_IMU_REG(FIFO_EN),        std::bit_cast<uint8_t>(fifo_en),
-                                                  WRITE_IMU_REG(INT_ENABLE),     std::bit_cast<uint8_t>(int_enable),
-                                                  WRITE_IMU_REG(USER_CTRL),      std::bit_cast<uint8_t>(user_ctrl),
-                                                  WRITE_IMU_REG(PWR_MGMT_1),     std::bit_cast<uint8_t>(pwr_mgmt1),
-                                                  WRITE_IMU_REG(PWR_MGMT_2),     std::bit_cast<uint8_t>(pwr_mgmt2) } };
+                                                  WRITE_IMU_REG(USER_CTRL),      std::bit_cast<uint8_t>(user_ctrl) } };
 
-    exit         = imu_spi_handle.transmit(tx_config);
-    is_imu_ready = exit.has_value();
+    for (std::size_t i = 0; i < tx_config.size(); i += 2)
+    {
+        std::array<const uint8_t, 2> tx = { { tx_config[i], tx_config[i + 1] } };
+        exit                            = imu_spi_handle.transmit(tx);
+        if (not exit.has_value())
+        {
+            return exit;
+        }
+    }
 
+    is_imu_ready = true;
     return exit;
 }
 
@@ -379,7 +419,7 @@ std::expected<float, ErrorCode> Imu::getAccelX() const
 
     const auto exit = imu_spi_handle.transmitThenReceive(tx, rx);
     RETURN_IF_ERR_SILENT(exit);
-    return translateData(rx[0], rx[1]);
+    return translateAccelData(rx[0], rx[1]);
 }
 
 std::expected<float, ErrorCode> Imu::getAccelY() const
@@ -393,7 +433,7 @@ std::expected<float, ErrorCode> Imu::getAccelY() const
     const auto exit = imu_spi_handle.transmitThenReceive(tx, rx);
     RETURN_IF_ERR_SILENT(exit);
 
-    return translateData(rx[0], rx[1]);
+    return translateAccelData(rx[0], rx[1]);
 }
 
 std::expected<float, ErrorCode> Imu::getAccelZ() const
@@ -407,7 +447,7 @@ std::expected<float, ErrorCode> Imu::getAccelZ() const
     const auto exit = imu_spi_handle.transmitThenReceive(tx, rx);
     RETURN_IF_ERR_SILENT(exit);
 
-    return translateData(rx[0], rx[1]);
+    return translateAccelData(rx[0], rx[1]);
 }
 
 std::expected<float, ErrorCode> Imu::getGyroX() const
@@ -478,9 +518,9 @@ std::expected<Imu::AccelData, ErrorCode> Imu::getAccelAll() const
     RETURN_IF_ERR_SILENT(exit);
 
     return AccelData{
-        translateData(rx[0], rx[1]),
-        translateData(rx[2], rx[3]),
-        translateData(rx[4], rx[5]),
+        translateAccelData(rx[0], rx[1]),
+        translateAccelData(rx[2], rx[3]),
+        translateAccelData(rx[4], rx[5]),
     };
 }
 
@@ -496,9 +536,9 @@ std::expected<Imu::GyroData, ErrorCode> Imu::getGyroAll() const
     RETURN_IF_ERR_SILENT(exit);
 
     return GyroData{
-        translateData(rx[0], rx[1]),
-        translateData(rx[2], rx[3]),
-        translateData(rx[4], rx[5]),
+        translateGyroData(rx[0], rx[1]),
+        translateGyroData(rx[2], rx[3]),
+        translateGyroData(rx[4], rx[5]),
     };
 }
 
