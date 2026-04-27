@@ -219,7 +219,7 @@ class TireModel
     [[nodiscard]] constexpr float              pureFy_C() const;
     [[nodiscard]] constexpr float              pureFy_mu(float normalized_load_delta) const;
     [[nodiscard]] constexpr float              pureFy_D(float normal_load_N, float normalized_load_delta) const;
-    [[nodiscard]] constexpr float              pureFy_E(float normalized_load_delta, float alpha_y) const;
+    [[nodiscard]] float                        pureFy_E(float normalized_load_delta, float alpha_y) const;
     [[nodiscard]] float                        pureFy_K(float normal_load_N) const;
     [[nodiscard]] static float    pureFy_B(float cornering_stiffness, float shape_factor, float peak_factor);
     [[nodiscard]] constexpr float pureFy_Sv(float normal_load_N, float normalized_load_delta) const;

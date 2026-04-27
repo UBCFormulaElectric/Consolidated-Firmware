@@ -349,8 +349,7 @@ template <DecimalOrDual T> T TireModel::combinedFy_Svyk(const T &d_vyk, const T 
 {
     using std::sin, std::atan;
     // MF 6.2 combined-slip lateral offset S_vykappa.
-    return d_vyk * sin(T(fit_comb_fy_.rVy5) * atan(T(fit_comb_fy_.rVy6) * slip_ratio)) *
-           T(scaling_factors_.LVYKA);
+    return d_vyk * sin(T(fit_comb_fy_.rVy5) * atan(T(fit_comb_fy_.rVy6) * slip_ratio)) * T(scaling_factors_.LVYKA);
 }
 
 template <DecimalOrDual T> T TireModel::combinedFy_Gyko(const CombinedFyMagicFormulaCoefficients<T> &coefficients) const
@@ -455,8 +454,8 @@ template <DecimalOrDual T> T TireModel::pureFx_E(const float normalized_load_del
 {
     // MF 6.2 pure-slip curvature E_x with the reduced gamma = 0, dpi = 0 form and E <= 1 clamp.
     const float normalized_load_delta_squared = normalized_load_delta * normalized_load_delta;
-    const T     e_x = (T(fit_pure_fx_.p_Ex1 + fit_pure_fx_.p_Ex2 * normalized_load_delta +
-                         fit_pure_fx_.p_Ex3 * normalized_load_delta_squared) *
+    const T     e_x                           = (T(fit_pure_fx_.p_Ex1 + fit_pure_fx_.p_Ex2 * normalized_load_delta +
+                                                   fit_pure_fx_.p_Ex3 * normalized_load_delta_squared) *
                    (T(1.0f) - T(fit_pure_fx_.p_Ex4) * sign(kappa_x))) *
                   T(scaling_factors_.LEX);
 
@@ -513,7 +512,7 @@ constexpr float TireModel::pureFy_D(const float normal_load_N, const float norma
     return pureFy_mu(normalized_load_delta) * normal_load_N;
 }
 
-constexpr float TireModel::pureFy_E(const float normalized_load_delta, const float alpha_y) const
+float TireModel::pureFy_E(const float normalized_load_delta, const float alpha_y) const
 {
     // MF 6.2 pure-slip curvature E_y with gamma = 0 and E <= 1 clamp.
     const float e_y = (fit_pure_fy_.p_Ey1 + fit_pure_fy_.p_Ey2 * normalized_load_delta) *
@@ -531,8 +530,8 @@ float TireModel::pureFy_K(const float normal_load_N) const
     const float reference_normal_load_N = referenceNormalLoad_N();
     const float denominator             = safeSignedDenominator(fit_pure_fy_.p_Ky2 * reference_normal_load_N);
 
-    return fit_pure_fy_.p_Ky1 * reference_normal_load_N *
-           sin(fit_pure_fy_.p_Ky4 * atan(normal_load_N / denominator)) * scaling_factors_.LKY;
+    return fit_pure_fy_.p_Ky1 * reference_normal_load_N * sin(fit_pure_fy_.p_Ky4 * atan(normal_load_N / denominator)) *
+           scaling_factors_.LKY;
 }
 
 float TireModel::pureFy_B(const float cornering_stiffness, const float shape_factor, const float peak_factor)
