@@ -1,17 +1,19 @@
 #include "bootloader.hpp"
 #include "bootloader_RSM.hpp"
-#include "io_canQueues.hpp"
 #include "bootloader.h"
 #include "main.h"
+#include "io_log.hpp"
 
 void tx_overflow_callback(const uint32_t overflow_count)
 {
     UNUSED(overflow_count);
+    LOG_WARN("CAN TX queue overflow");
 }
 
 void rx_overflow_callback(const uint32_t overflow_count)
 {
     UNUSED(overflow_count);
+    LOG_WARN("CAN RX queue overflow");
 }
 
 void tx_overflow_clear_callback(){};
