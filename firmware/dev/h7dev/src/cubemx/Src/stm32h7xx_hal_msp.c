@@ -438,6 +438,71 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
     }
 }
 
+/**
+ * @brief PCD MSP Initialization
+ * This function configures the hardware resources used in this example
+ * @param hpcd: PCD handle pointer
+ * @retval None
+ */
+void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
+{
+    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
+    if (hpcd->Instance == USB_OTG_HS)
+    {
+        /* USER CODE BEGIN USB_OTG_HS_MspInit 0 */
+
+        /* USER CODE END USB_OTG_HS_MspInit 0 */
+
+        /** Initializes the peripherals clock
+         */
+        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USB;
+        PeriphClkInitStruct.PLL3.PLL3M           = 2;
+        PeriphClkInitStruct.PLL3.PLL3N           = 60;
+        PeriphClkInitStruct.PLL3.PLL3P           = 2;
+        PeriphClkInitStruct.PLL3.PLL3Q           = 2;
+        PeriphClkInitStruct.PLL3.PLL3R           = 2;
+        PeriphClkInitStruct.PLL3.PLL3RGE         = RCC_PLL3VCIRANGE_2;
+        PeriphClkInitStruct.PLL3.PLL3VCOSEL      = RCC_PLL3VCOWIDE;
+        PeriphClkInitStruct.PLL3.PLL3FRACN       = 0;
+        PeriphClkInitStruct.UsbClockSelection    = RCC_USBCLKSOURCE_PLL3;
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+        {
+            Error_Handler();
+        }
+
+        /** Enable USB Voltage detector
+         */
+        HAL_PWREx_EnableUSBVoltageDetector();
+
+        /* Peripheral clock enable */
+        __HAL_RCC_USB_OTG_HS_CLK_ENABLE();
+        /* USER CODE BEGIN USB_OTG_HS_MspInit 1 */
+
+        /* USER CODE END USB_OTG_HS_MspInit 1 */
+    }
+}
+
+/**
+ * @brief PCD MSP De-Initialization
+ * This function freeze the hardware resources used in this example
+ * @param hpcd: PCD handle pointer
+ * @retval None
+ */
+void HAL_PCD_MspDeInit(PCD_HandleTypeDef *hpcd)
+{
+    if (hpcd->Instance == USB_OTG_HS)
+    {
+        /* USER CODE BEGIN USB_OTG_HS_MspDeInit 0 */
+
+        /* USER CODE END USB_OTG_HS_MspDeInit 0 */
+        /* Peripheral clock disable */
+        __HAL_RCC_USB_OTG_HS_CLK_DISABLE();
+        /* USER CODE BEGIN USB_OTG_HS_MspDeInit 1 */
+
+        /* USER CODE END USB_OTG_HS_MspDeInit 1 */
+    }
+}
+
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */
