@@ -16,7 +16,6 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "cmsis_os.h"
 #include "usb_device.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -27,17 +26,11 @@
 
 #include "hw_bootup.h"
 #include "hw_uart.h"
-#include "hw_fdcan.h"
-#include "io_canQueue.h"
-#include "io_canLogging.h"
-#include "io_fileSystem.h"
-#include "hw_gpio.h"
 #include "hw_sd.h"
 #include "io_log.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
-typedef StaticTask_t osStaticThreadDef_t;
 /* USER CODE BEGIN PTD */
 
 /* USER CODE END PTD */
@@ -63,42 +56,6 @@ SD_HandleTypeDef hsd1;
 
 UART_HandleTypeDef huart9;
 
-/* Definitions for defaultTask */
-osThreadId_t         defaultTaskHandle;
-uint32_t             defaultTaskBuffer[512];
-osStaticThreadDef_t  defaultTaskControlBlock;
-const osThreadAttr_t defaultTask_attributes = {
-    .name       = "defaultTask",
-    .cb_mem     = &defaultTaskControlBlock,
-    .cb_size    = sizeof(defaultTaskControlBlock),
-    .stack_mem  = &defaultTaskBuffer[0],
-    .stack_size = sizeof(defaultTaskBuffer),
-    .priority   = (osPriority_t)osPriorityNormal,
-};
-/* Definitions for canTxTask */
-osThreadId_t         canTxTaskHandle;
-uint32_t             canTxTaskBuffer[512];
-osStaticThreadDef_t  canTxTaskControlBlock;
-const osThreadAttr_t canTxTask_attributes = {
-    .name       = "canTxTask",
-    .cb_mem     = &canTxTaskControlBlock,
-    .cb_size    = sizeof(canTxTaskControlBlock),
-    .stack_mem  = &canTxTaskBuffer[0],
-    .stack_size = sizeof(canTxTaskBuffer),
-    .priority   = (osPriority_t)osPriorityBelowNormal,
-};
-/* Definitions for canRxTask */
-osThreadId_t         canRxTaskHandle;
-uint32_t             canRxTaskBuffer[512];
-osStaticThreadDef_t  canRxTaskControlBlock;
-const osThreadAttr_t canRxTask_attributes = {
-    .name       = "canRxTask",
-    .cb_mem     = &canRxTaskControlBlock,
-    .cb_size    = sizeof(canRxTaskControlBlock),
-    .stack_mem  = &canRxTaskBuffer[0],
-    .stack_size = sizeof(canRxTaskBuffer),
-    .priority   = (osPriority_t)osPriorityBelowNormal,
-};
 /* USER CODE BEGIN PV */
 
 int write_num    = 0;
@@ -121,10 +78,6 @@ static void MX_SDMMC1_SD_Init(void);
 static void MX_FDCAN1_Init(void);
 static void MX_UART9_Init(void);
 static void MX_RTC_Init(void);
-void        runDefaultTask(void *argument);
-void        runCanTxTask(void *argument);
-void        runCanRxTask(void *argument);
-
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -208,6 +161,7 @@ int main(void)
     MX_FDCAN1_Init();
     MX_UART9_Init();
     MX_RTC_Init();
+    MX_USB_DEVICE_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
     // __HAL_DBGMCU_FREEZE_IWDG();
@@ -225,50 +179,6 @@ int main(void)
     // SEGGER_SYSVIEW_Conf();
     // LOG_INFO("h7dev reset!");
     /* USER CODE END 2 */
-
-    /* Init scheduler */
-    osKernelInitialize();
-
-    /* USER CODE BEGIN RTOS_MUTEX */
-    // TODO: standby mode testing code
-    // Use to fire interrupt
-
-    /* USER CODE END RTOS_MUTEX */
-
-    /* USER CODE BEGIN RTOS_SEMAPHORES */
-    /* add semaphores, ... */
-    /* USER CODE END RTOS_SEMAPHORES */
-
-    /* USER CODE BEGIN RTOS_TIMERS */
-    /* start timers, add new ones, ... */
-    /* USER CODE END RTOS_TIMERS */
-
-    /* USER CODE BEGIN RTOS_QUEUES */
-    /* add queues, ... */
-    /* USER CODE END RTOS_QUEUES */
-
-    /* Create the thread(s) */
-    /* creation of defaultTask */
-    defaultTaskHandle = osThreadNew(runDefaultTask, NULL, &defaultTask_attributes);
-
-    /* creation of canTxTask */
-    canTxTaskHandle = osThreadNew(runCanTxTask, NULL, &canTxTask_attributes);
-
-    /* creation of canRxTask */
-    canRxTaskHandle = osThreadNew(runCanRxTask, NULL, &canRxTask_attributes);
-
-    /* USER CODE BEGIN RTOS_THREADS */
-    /* add threads, ... */
-    /* USER CODE END RTOS_THREADS */
-
-    /* USER CODE BEGIN RTOS_EVENTS */
-    /* add events, ... */
-    /* USER CODE END RTOS_EVENTS */
-
-    /* Start scheduler */
-    osKernelStart();
-
-    /* We should never get here as control is now taken by the scheduler */
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
@@ -651,7 +561,7 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     /* EXTI interrupt init*/
-    HAL_NVIC_SetPriority(EXTI0_IRQn, 5, 0);
+    HAL_NVIC_SetPriority(EXTI0_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(EXTI0_IRQn);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
@@ -661,50 +571,6 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
-
-/* USER CODE BEGIN Header_runDefaultTask */
-/**
- * @brief  Function implementing the defaultTask thread.
- * @param  argument: Not used
- * @retval None
- */
-/* USER CODE END Header_runDefaultTask */
-void runDefaultTask(void *argument)
-{
-    /* init code for USB_DEVICE */
-    MX_USB_DEVICE_Init();
-    /* USER CODE BEGIN 5 */
-    tasks_default();
-    /* USER CODE END 5 */
-}
-
-/* USER CODE BEGIN Header_runCanTxTask */
-/**
- * @brief Function implementing the canTxTask thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_runCanTxTask */
-void runCanTxTask(void *argument)
-{
-    /* USER CODE BEGIN runCanTxTask */
-    tasks_canTx();
-    /* USER CODE END runCanTxTask */
-}
-
-/* USER CODE BEGIN Header_runCanRxTask */
-/**
- * @brief Function implementing the canRxTask thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_runCanRxTask */
-void runCanRxTask(void *argument)
-{
-    /* USER CODE BEGIN runCanRxTask */
-    tasks_canRx();
-    /* USER CODE END runCanRxTask */
-}
 
 /**
  * @brief  Period elapsed callback in non blocking mode

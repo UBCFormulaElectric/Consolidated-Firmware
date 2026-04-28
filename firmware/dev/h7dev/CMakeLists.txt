@@ -113,10 +113,10 @@ IF ("${TARGET}" STREQUAL "binary")
     target_link_libraries("h7dev_app.elf" PRIVATE "h7dev_stm32" "protobuf_library" "logfs_cm7" "dev_H7_jsoncan")
 
     # Bootloader files.
-    file(GLOB BOOT_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c")
+    file(GLOB BOOT_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.c" "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.cpp")
     file(GLOB BOOT_CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
     set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot/" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
-    stm32h7_boot_binary_c(
+    stm32h7_boot_binary(
             "h7dev_boot"
             "${BOOT_SRCS}"
             "${BOOT_CUBEMX_SRCS}"
