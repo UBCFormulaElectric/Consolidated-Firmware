@@ -1,10 +1,14 @@
 #pragma once
 
+#include "io_switch.hpp"
+
 namespace io::switches
 {
-[[nodiscard]] bool torque_vectoring_get();
-[[nodiscard]] bool launch_control_get();
-[[nodiscard]] bool regen_get();
-[[nodiscard]] bool start_get();
-[[nodiscard]] bool telem_mark_get();
+extern Switch torque_vectoring_sw;
+extern Switch launch_control_sw;
+extern Switch regen_sw;
+extern Switch start_sw;
+extern Switch telem_sw;
+
+void init(void);
 } // namespace io::switches

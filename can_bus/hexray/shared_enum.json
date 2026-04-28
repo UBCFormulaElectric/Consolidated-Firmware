@@ -1,7 +1,7 @@
 {
   "SwitchState": {
-    "SWITCH_OFF": 0,
-    "SWITCH_ON": 1
+    "OFF": 0,
+    "ON": 1
   },
   "CanResetReason": {
     "CAN_RESET_REASON_UNKNOWN": 0,
@@ -30,9 +30,9 @@
     "SHDN_OK": 15
   },
   "DriveMode": {
-    "DRIVE_MODE_POWER": 0,
-    "DRIVE_MODE_POWER_AND_ACTIVE": 1,
-    "DRIVE_MODE_TV": 2,
-    "DRIVE_MODE_COUNT": 3
+    "VANILLA": 0,
+    "TV": 1,
+    "LAUNCH": 2,
+    "COUNT": 3
   }
 }

@@ -1,16 +1,10 @@
 #include "io_switch.hpp"
 
-namespace io
-{
-void Switch::init()
-{
-    last_state_raw = pin.readPin();
-    state          = last_state_raw;
-}
+using namespace io;
 
-bool Switch::isClosed()
+[[nodiscard]] bool Switch::isClosed()
 {
-    const bool raw       = pin.readPin();
+    const bool raw       = last_state_raw;
     const bool debounced = last_state_raw == raw;
     last_state_raw       = raw;
 
@@ -30,4 +24,8 @@ bool Switch::isClosed()
 
     return state;
 }
-} // namespace io
+
+void Switch::setState(const bool state)
+{
+    last_state_raw = state;
+}
