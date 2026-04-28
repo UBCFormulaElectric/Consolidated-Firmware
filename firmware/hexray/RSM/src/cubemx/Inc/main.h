@@ -61,6 +61,7 @@ extern "C"
     extern TIM_HandleTypeDef   htim1;
     extern TIM_HandleTypeDef   htim3;
     extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
+    extern IWDG_HandleTypeDef  hiwdg;
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
@@ -69,8 +70,11 @@ extern "C"
 #define TIM3_ARR (TIMx_FREQUENCY / TIM3_PRESCALER / TIM3_FREQUENCY)
 #define TIM3_FREQUENCY 10000
 #define TIM1_ARR (TIMx_FREQUENCY / TIM1_PRESCALER / TIM1_FREQUENCY)
+#define LSI_FREQUENCY 32000
 #define TIM1_PRESCALER 250
 #define TIMx_FREQUENCY 250000000
+#define IWDG_RESET_FREQUENCY 5
+#define IWDG_PRESCALER 4
 #define BPS_R_3V3_Pin GPIO_PIN_2
 #define BPS_R_3V3_GPIO_Port GPIOC
 #define LC3_OUT_Pin GPIO_PIN_0
