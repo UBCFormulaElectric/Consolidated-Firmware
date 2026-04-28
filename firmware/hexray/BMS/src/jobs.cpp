@@ -17,7 +17,7 @@
 #include "app_heartbeatMonitors.hpp"
 #include "app_heartbeatMonitor.hpp"
 #include "app_jsoncan.hpp"
-#include <app_canUtils.hpp>
+#include "app_canUtils.hpp"
 
 // io
 extern "C"
@@ -35,7 +35,7 @@ extern "C"
 #include "io_charger.hpp"
 #include "io_fans.hpp"
 #include "io_faultLatch.hpp"
-#include <io_canTx.hpp>
+#include "io_canTx.hpp"
 
 #include <util_errorCodes.hpp>
 
@@ -43,11 +43,19 @@ extern "C"
 // static Semaphore isospi_bus_access_lock;
 // static Semaphore adbms_app_data_lock;
 
-using namespace app;
+static void jsoncan_transmit_func(const JsonCanMsg &tx_msg)
+{
+    const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
+    (void)can_tx_queue.push(msg);
+}
+
+static void charger_transmit_func(const JsonCanMsg &tx_msg)
+{
+    UNUSED(tx_msg);
+}
+
 void jobs_init()
 {
-    can_tx_queue.init();
-    can_rx_queue.init();
     // TODO: Uncomment semaphores when segments are added (also if there's a semaphore.cpp update).
     // isospi_bus_access_lock guards access to the ISOSPI bus, to guarantee an ADuM SPI transaction doesn't get
     // interrupted by another task. It's just a regular semaphore (no priority inheritance) since it depends on
@@ -59,33 +67,24 @@ void jobs_init()
     // on hardware.
     // io_semaphore_create(&adbms_app_data_lock, true);
 
-    io::can_tx::init(
-        [](const JsonCanMsg &tx_msg)
-        {
-            const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
-            (void)can_tx_queue.push(msg);
-            // LOG_IF_ERR();
-        },
-        [](const JsonCanMsg &tx_msg)
-        {
-            UNUSED(tx_msg);
-            // const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
-            // LOG_IF_ERR(can_tx_queue.push(msg));
-        });
+    io::can_tx::init(jsoncan_transmit_func, charger_transmit_func);
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
     io::can_tx::enableMode_charger(app::can_utils::chargerMode::CHARGER_MODE_DEFAULT, true);
 
-    can_tx::BMS_Hash_set(GIT_COMMIT_HASH);
-    can_tx::BMS_Clean_set(GIT_COMMIT_CLEAN);
-    can_tx::BMS_Heartbeat_set(true);
+    can_rx_queue.init();
+    can_tx_queue.init();
 
-    precharge::init();
+    app::can_tx::BMS_Hash_set(GIT_COMMIT_HASH);
+    app::can_tx::BMS_Clean_set(GIT_COMMIT_CLEAN);
+    app::can_tx::BMS_Heartbeat_set(true);
+
+    app::precharge::init();
 
 #ifndef TARGET_HV_SUPPLY
     // TODO segments init and tests
 #endif
 
-    StateMachine::init(&states::init_state);
+    app::StateMachine::init(&app::states::init_state);
 }
 
 void jobs_run1Hz_tick()
@@ -98,15 +97,15 @@ void jobs_run100Hz_tick()
     // TODO: Uncomment when segments are added
     // io_semaphore_take(&adbms_app_data_lock, MAX_TIMEOUT);
 
-    StateMachine::tick100Hz();
+    app::StateMachine::tick100Hz();
 
     const bool debug_mode_enabled = app::can_rx::Debug_EnableDebugMode_get();
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEBUG, debug_mode_enabled);
 
-    ts::broadcast();
-    imd::broadcast();
-    shdn::bms_shdnLoop.broadcast();
-    plim::broadcast();
+    app::ts::broadcast();
+    app::imd::broadcast();
+    app::shdn::bms_shdnLoop.broadcast();
+    app::plim::broadcast();
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
 
@@ -144,19 +143,17 @@ void jobs_run100Hz_tick()
     app::can_tx::BMS_BSPDBrakePressureThresholdExceeded_set(io::bspdtest::isBrakePressureThresholdExceeded());
     app::can_tx::BMS_BSPDAccelBrakeOk_set(io::bspdtest::isAccelBrakeOk());
 
-    using namespace app;
-
-    const bool ir_negative_opened_debounced = irs::negativeOpenedDebounced();
+    const bool ir_negative_opened_debounced = app::irs::negativeOpenedDebounced();
     if (ir_negative_opened_debounced)
     {
-        StateMachine::set_next_state(&states::init_state);
+        app::StateMachine::set_next_state(&app::states::init_state);
     }
-    if (can_alerts::AnyBoardHasFault())
+    if (app::can_alerts::AnyBoardHasFault())
     {
-        StateMachine::set_next_state(&states::fault_state);
+        app::StateMachine::set_next_state(&app::states::fault_state);
     }
 
-    irs::broadcast();
+    app::irs::broadcast();
 
     io::can_tx::enqueue100HzMsgs();
     // TODO: Uncomment when segments are added
