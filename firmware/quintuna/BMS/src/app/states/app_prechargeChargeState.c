@@ -22,10 +22,10 @@ static void app_prechargeChargeStateRunOnTick100Hz(void)
     switch (app_precharge_poll(false))
     {
         case PRECHARGE_STATE_RUNNING:
-            io_irs_setPrecharge(CONTACTOR_STATE_OPEN);
+            io_irs_setPrecharge(CONTACTOR_STATE_CLOSED);
             break;
         case PRECHARGE_STATE_COOLDOWN:
-            io_irs_setPrecharge(CONTACTOR_STATE_CLOSED);
+            io_irs_setPrecharge(CONTACTOR_STATE_OPEN);
             break;
         case PRECHARGE_STATE_FAILED_CRITICAL: // precharge failed multiple times
             io_irs_setPrecharge(CONTACTOR_STATE_OPEN);

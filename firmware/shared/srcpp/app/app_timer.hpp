@@ -30,13 +30,17 @@ class Timer
      * @param timer The timer in question
      * @param duration_ms The duration of this timer, in milliseconds
      */
+#ifdef TARGET_EMBEDDED
     explicit Timer(const uint32_t in_duration_ms)
       : duration_ms(in_duration_ms), state(TimerState::EXPIRED), start_time_ms(0){};
-
-    /**
-     * Restart a timer, i.e. set the elapsed time back to 0. Leaves the timer in TIMER_STATE_RUNNING.
-     * @param timer The timer in question
-     */
+#elif defined(TARGET_TEST)
+    constexpr explicit Timer() : duration_ms(0), state(TimerState::IDLE), start_time_ms(0){};
+    constexpr explicit Timer(uint32_t in_duration_ms)
+      : duration_ms(in_duration_ms), state(TimerState::IDLE), start_time_ms(0){};
+#endif /**                                                                                               \
+        * Restart a timer, i.e. set the elapsed time back to 0. Leaves the timer in TIMER_STATE_RUNNING. \
+        * @param timer The timer in question                                                             \
+        */
     void restart();
 
     /**

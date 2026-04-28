@@ -1,14 +1,142 @@
 {
-  "faults_id": 502,
-  "faults_counts_id": 504,
+  "faults_id": 561,
+  "faults_counts_id": 562,
   "faults": {
+    "InvLockoutFault": {
+      "id": 563,
+      "description": "One of the inverters has a critical fault impacting VC."
+    },
+    "VcBoardFaulted": {
+      "id": 564,
+      "description": "VC board is faulted."
+    }
   },
-  "warnings_id": 501,
-  "warnings_counts_id": 503,
+  "warnings_id": 565,
+  "warnings_counts_id": 566,
   "warnings": {
+    "Imu1InitFailed": {
+      "id": 511,
+      "description": "IMU initialization failed"
+    },
+    "Imu2InitFailed": {
+      "id": 512,
+      "description": "IMU initialization failed"
+    },
+    "Imu3InitFailed": {
+      "id": 513,
+      "description": "IMU initialization failed"
+    },
+    "PcmLvOvercurrentFault": {
+      "id": 567,
+      "description": "LV rail from the HV DCDC was overcurrent."
+    },
+    "SoftwareBspd": {
+      "id": 568,
+      "description": "Brakes and apps are active at same time."
+    },
+    "MissingCRITHeartbeat": {
+      "id": 569,
+      "description": "Missing heartbeat signal from the CRIT."
+    },
+    "MissingBMSHeartbeat": {
+      "id": 570,
+      "description": "Missing heartbeat signal from the BMS."
+    },
+    "MissingFSMHeartbeat": {
+      "id": 571,
+      "description": "Missing heartbeat signal from the FSM."
+    },
+    "FrontLeftInverterFault": {
+      "id": 572,
+      "description": "Left inverter entered fault state."
+    },
+    "FrontRightInverterFault": {
+      "id": 573,
+      "description": "Front right inverter entered fault state."
+    },
+    "RearLeftInverterFault": {
+      "id": 574,
+      "description": "Rear left inverter entered fault state."
+    },
+    "RearRightInverterFault": {
+      "id": 575,
+      "description": "Right inverter entered fault state."
+    }
   },
-  "info_id": 505,
-  "info_counts_id": 506,
+  "info_id": 578,
+  "info_counts_id": 579,
   "info": {
+    "MissingRSMHeartbeat": {
+      "id": 580,
+      "description": "Missing heartbeat signal from the RSM."
+    },
+    "MissingDAMHeartbeat": {
+      "id": 581,
+      "description": "Missing heartbeat signal from the VC"
+    },
+    "InverterRetry": {
+      "id": 582,
+      "description": "Inverter fault occured in drive state"
+    },
+    "StackOverflow": {
+      "id": 583,
+      "description": "An RTOS task stack overflowed on the previous boot cycle."
+    },
+    "LvChargeFault": {
+      "id": 584,
+      "description": "LV battery charger has faulted."
+    },
+    "BoostControllerFault": {
+      "id": 585,
+      "description": "Boost controller has faulted."
+    },
+    "FlowRateInputOutOfRange": {
+      "id": 587,
+      "description": "Input to app_pumpControl_setFlowRate out of range"
+    },
+    "BatteryRailOvercurrentFault": {
+      "id": 588,
+      "description": "LV rail from the 18650 batteries was overcurrent."
+    },
+    "WatchdogTimeout": {
+      "id": 589,
+      "description": "Watchdog timeout detected."
+    },
+    "TxOverflow": {
+      "id": 590,
+      "description": "CAN TX queue has overflowed."
+    },
+    "RxOverflow": {
+      "id": 591,
+      "description": "CAN RX queue has overflowed."
+    },
+    "RegenNotAvailable": {
+      "id": 592,
+      "description": "Regen is not currently available."
+    },
+    "SbgInitFailed": {
+      "id": 593,
+      "description": "Initializing the SBG Ellipse GPS failed"
+    },
+    "PcmUnderVoltage": {
+      "id": 594,
+      "description": "PCM voltage under 18 volts"
+    },
+    "DriveModeOverride": {
+      "id": 595,
+      "description": "Override requested drive mode to vanilla if sensor fails"
+    },
+    "Imu1Fault": {
+      "id": 551,
+      "description": "IMU1 has faulted (due to failed init or transaction)."
+    },
+    "Imu2Fault": {
+      "id": 552,
+      "description": "IMU2 has faulted (due to failed init or transaction)."
+    },
+    "Imu3Fault": {
+      "id": 553,
+      "description": "IMU3 has faulted (due to failed init or transaction)."
+    }
   }
 }

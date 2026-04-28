@@ -11,7 +11,7 @@ extern const hw::Gpio n_high_current_bspd;
 extern const hw::Gpio msd_shdn_sns;
 extern const hw::Gpio hv_p_intlck_sns;
 extern const hw::Gpio hv_n_intlck_sns;
-extern const hw::Gpio imd_latch;
+extern const hw::Gpio n_imd_latch_status;
 extern const hw::Gpio diag_ts;
 extern const hw::Gpio sd_cd;
 extern const hw::Gpio led_r;

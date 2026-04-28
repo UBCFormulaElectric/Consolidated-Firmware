@@ -49,5 +49,13 @@ namespace StateMachine
      * @param state_machine The state machine to tick
      */
     void tick100Hz();
+
+#ifdef TARGET_TEST
+    /**
+     * Set the current state of the state machine (for testing purposes only)
+     * @param state The state to set as the current state
+     */
+    void set_current_state(const State *state);
+#endif
 } // namespace StateMachine
 } // namespace app

@@ -7,7 +7,7 @@
 #include <array>
 #include <functional>
 
-constexpr int NUM_EFUSE_CHANNELS = 10; // change to 11 with misc fuse
+constexpr inline size_t                                                  NUM_EFUSE_CHANNELS = 10;
 extern std::array<std::reference_wrapper<io::Efuse>, NUM_EFUSE_CHANNELS> efuses;
 
 extern io::TI_TPS28_Efuse f_inv_efuse;
