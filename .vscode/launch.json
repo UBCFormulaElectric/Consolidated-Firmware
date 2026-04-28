@@ -317,9 +317,10 @@
     {
       "name": "Debug Embedded: VC (Hexray)",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/hexray/VC/hexray_VC_app.elf",
+      "executable": "build_fw_dev/firmware/hexray/VC/hexray_VC.elf",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/hexray/VC/hexray_VC_boot.elf",
         "build_fw_dev/firmware/hexray/VC/hexray_VC_app.elf"
       ],
       "preLaunchTask": "Build Embedded: VC (Hexray)",
