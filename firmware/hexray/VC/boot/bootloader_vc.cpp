@@ -35,10 +35,16 @@ const hw::fdcan &hw::fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
 class VCBootConfig : public bootloader::config
 {
   public:
-    VCBootConfig(): bootloader::config(
-        hw::cans::fdcan1, boot_can_tx_queue,
-        boot_can_rx_queue, board_highbits,
-        git_commit_has_val, git_commit_clean_val){}
+    VCBootConfig()
+      : bootloader::config(
+            hw::cans::fdcan1,
+            boot_can_tx_queue,
+            boot_can_rx_queue,
+            board_highbits,
+            git_commit_has_val,
+            git_commit_clean_val)
+    {
+    }
 } vcboot_config;
 
 CFUNC void bootloader_preinit()
@@ -46,10 +52,8 @@ CFUNC void bootloader_preinit()
     bootloader::preInit();
 }
 
-static hw::rtos::StaticTask<1024> bootInterfaceTask(
-    osPriorityRealtime,
-    "BootIntf",
-    [](void *) { bootloader::runInterfaceTask(vcboot_config); });
+static hw::rtos::StaticTask<1024>
+    bootInterfaceTask(osPriorityRealtime, "BootIntf", [](void *) { bootloader::runInterfaceTask(vcboot_config); });
 static hw::rtos::StaticTask<1024>
     bootTickTask(osPriorityRealtime, "BootTick", [](void *) { bootloader::runTickTask(vcboot_config); });
 static hw::rtos::StaticTask<1024>
