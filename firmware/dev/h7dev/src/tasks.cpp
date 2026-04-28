@@ -14,7 +14,7 @@
 #include <cmsis_os2.h>
 #include <io_canMsg.hpp>
 
-[[noreturn]]static void tasks_default(void *args)
+[[noreturn]] static void tasks_default(void *args)
 {
     forever
     {
@@ -37,10 +37,10 @@
     {
         const io::CanMsg msg = can_tx_queue.pop().value();
         hw::can::fdcan1.can_transmit(hw::CanMsg{
-                        msg.std_id,
-                        msg.dlc,
-                        msg.data,
-                    });
+            msg.std_id,
+            msg.dlc,
+            msg.data,
+        });
     }
 }
 

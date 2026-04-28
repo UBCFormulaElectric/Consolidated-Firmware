@@ -5,7 +5,7 @@
 #include "hw_rtosTaskHandler.hpp"
 #include "bootloader_h7.hpp"
 
-    extern "C"
+extern "C"
 {
 #include <app_commitInfo.h>
 }
