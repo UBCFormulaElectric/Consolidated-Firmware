@@ -4,7 +4,7 @@
 
 namespace io::ntpButton
 {
-bool wasJustPressed()
+[[nodiscard]] bool wasJustPressed()
 {
     static bool     prev_pressed = false;
     static uint32_t last_edge_ms = 0;
