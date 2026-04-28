@@ -131,6 +131,8 @@ void tasks_preInit()
 
 void tasks_init()
 {
+    SEGGER_SYSVIEW_Conf();
+
     __HAL_DBGMCU_FREEZE_IWDG1();
     hw::adc::chipsInit();
     hw::can::fdcan1.init();

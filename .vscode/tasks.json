@@ -152,15 +152,6 @@
       ]
     },
     {
-      "label": "Build Embedded: f4dev",
-      "group": "build",
-      "type": "cmake",
-      "command": "build",
-      "targets": [
-        "f4dev.hex"
-      ]
-    },
-    {
       "label": "Build Embedded: h7dev",
       "group": "build",
       "type": "cmake",
