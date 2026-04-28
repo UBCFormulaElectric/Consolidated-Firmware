@@ -13,6 +13,8 @@ struct SensorStatus
     bool imu_ok      = false;
     bool steering_ok = false;
     bool gps_ok      = false;
+
+    bool allSensorsOk() { return imu_ok && steering_ok && gps_ok; }
 };
 
 struct Inputs

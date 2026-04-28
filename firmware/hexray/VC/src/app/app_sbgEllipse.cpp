@@ -9,14 +9,14 @@
 
 namespace app::sbgEllipse
 {
-static app::can_utils::VcEkfStatus    ekf_solution_mode;
+static can_utils::VcEkfStatus         ekf_solution_mode = can_utils::VcEkfStatus::UNINITIALIZED;
 static constexpr int                  NUM_VC_EKF_STATUS_CHOICES{ 5 };
 static std::expected<void, ErrorCode> sbg_init_ok = std::unexpected(ErrorCode::ERROR);
 
 void init()
 {
     sbg_init_ok = io::sbgEllipse::init();
-    // can_alerts::warnings::SbgInitFailed_set(not sbg_init_ok.has_value());
+    can_alerts::infos::SbgInitFailed_set(not sbg_init_ok.has_value());
 }
 
 void broadcast()
@@ -25,13 +25,13 @@ void broadcast()
        CAN messages because another message in the signal is being used */
 
     // Status msg
-    app::can_tx::VC_EllipseGeneralStatusBitmask_set(io::sbgEllipse::getGeneralStatus());
-    app::can_tx::VC_EllipseComStatusBitmask_set(io::sbgEllipse::getComStatus());
-    app::can_tx::VC_EllipseQueueOverflowCount_set(io::sbgEllipse::getOverflowCount());
+    can_tx::VC_EllipseGeneralStatusBitmask_set(io::sbgEllipse::getGeneralStatus());
+    can_tx::VC_EllipseComStatusBitmask_set(io::sbgEllipse::getComStatus());
+    can_tx::VC_EllipseQueueOverflowCount_set(io::sbgEllipse::getOverflowCount());
 
     // Time msg
     uint32_t timestamp_us = io::sbgEllipse::getTimestampUs();
-    app::can_tx::VC_EllipseTimestamp_set(timestamp_us);
+    can_tx::VC_EllipseTimestamp_set(timestamp_us);
 
     // EKF
     const static io::sbgEllipse::VelocityData VelData            = io::sbgEllipse::getEkfNavVelocityData();
@@ -42,20 +42,20 @@ void broadcast()
     const float                               ekf_vel_E_accuracy = VelData.east_std_dev;
     const float                               ekf_vel_D_accuracy = VelData.down_std_dev;
 
-    app::can_tx::VC_VelocityNorth_set(ekf_vel_N);
-    app::can_tx::VC_VelocityEast_set(ekf_vel_E);
-    app::can_tx::VC_VelocityDown_set(ekf_vel_D);
+    can_tx::VC_VelocityNorth_set(ekf_vel_N);
+    can_tx::VC_VelocityEast_set(ekf_vel_E);
+    can_tx::VC_VelocityDown_set(ekf_vel_D);
 
-    app::can_tx::VC_VelocityNorthAccuracy_set(ekf_vel_N_accuracy);
-    app::can_tx::VC_VelocityEastAccuracy_set(ekf_vel_E_accuracy);
-    app::can_tx::VC_VelocityDownAccuracy_set(ekf_vel_D_accuracy);
+    can_tx::VC_VelocityNorthAccuracy_set(ekf_vel_N_accuracy);
+    can_tx::VC_VelocityEastAccuracy_set(ekf_vel_E_accuracy);
+    can_tx::VC_VelocityDownAccuracy_set(ekf_vel_D_accuracy);
 
     // Velocity
-    ekf_solution_mode = (app::can_utils::VcEkfStatus)io::sbgEllipse::getEkfSolutionMode();
+    ekf_solution_mode = (can_utils::VcEkfStatus)io::sbgEllipse::getEkfSolutionMode();
 
     if (static_cast<int>(ekf_solution_mode) < NUM_VC_EKF_STATUS_CHOICES)
     {
-        app::can_tx::VC_EkfSolutionMode_set(ekf_solution_mode);
+        can_tx::VC_EkfSolutionMode_set(ekf_solution_mode);
     }
 
     const io::sbgEllipse::Attitude euler_angles = io::sbgEllipse::getEkfEulerAngles();
@@ -63,9 +63,9 @@ void broadcast()
     const float                    euler_pitch  = euler_angles.pitch;
     const float                    euler_yaw    = euler_angles.yaw;
 
-    app::can_tx::VC_EulerAnglesRoll_set(euler_roll);
-    app::can_tx::VC_EulerAnglesPitch_set(euler_pitch);
-    app::can_tx::VC_EulerAnglesYaw_set(euler_yaw);
+    can_tx::VC_EulerAnglesRoll_set(euler_roll);
+    can_tx::VC_EulerAnglesPitch_set(euler_pitch);
+    can_tx::VC_EulerAnglesYaw_set(euler_yaw);
 }
 
 float getVehicleVelocity(io::sbgEllipse::VelocityData &VelData)
@@ -78,7 +78,7 @@ bool sbgInitOk()
     return sbg_init_ok.has_value();
 }
 
-app::can_utils::VcEkfStatus getEkfSolutionMode(void)
+can_utils::VcEkfStatus getEkfSolutionMode(void)
 {
     return ekf_solution_mode;
 }
