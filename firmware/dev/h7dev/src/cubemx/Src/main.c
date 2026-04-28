@@ -24,10 +24,6 @@
 #include <string.h>
 #include "tasks.h"
 
-#include "hw_bootup.h"
-#include "hw_uart.h"
-#include "hw_sd.h"
-#include "io_log.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -96,7 +92,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
         HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PIN2); // use PA2 as wakeup pin
         HAL_PWR_EnterSTANDBYMode();               // enter standby mode
 
-        LOG_ERROR("Should not reach here!");
+        // LOG_ERROR("Should not reach here!");
     }
 }
 
@@ -109,7 +105,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-    hw_bootup_enableInterruptsForApp();
     /* USER CODE END 1 */
 
     /* Enable the CPU Cache */
@@ -138,20 +133,20 @@ int main(void)
     // __HAL_RCC_PWR_CLK_ENABLE();
     if (__HAL_PWR_GET_FLAG(PWR_FLAG_SB) != RESET)
     {
-        LOG_INFO("System resumed from standby mode");
-        __HAL_PWR_CLEAR_FLAG(PWR_FLAG_SB);
+        // LOG_INFO("System resumed from standby mode");
+        // __HAL_PWR_CLEAR_FLAG(PWR_FLAG_SB);
     }
     else
     {
-        LOG_INFO("System started from reset");
+        // LOG_INFO("System started from reset");
     }
 
     __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
-    LOG_INFO("Entering standby");
+    // LOG_INFO("Entering standby");
     HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PIN2); // use PA2 as wakeup pin
     HAL_PWR_EnterSTANDBYMode();               // enter standby mode
 
-    LOG_ERROR("Should not reach here!");
+    // LOG_ERROR("Should not reach here!");
     /* USER CODE END SysInit */
 
     /* Initialize all configured peripherals */
@@ -449,11 +444,6 @@ static void MX_RTC_Init(void)
 static void MX_SDMMC1_SD_Init(void)
 {
     /* USER CODE BEGIN SDMMC1_Init 0 */
-    if (!hw_sd_present())
-    {
-        return;
-    }
-
     /* USER CODE END SDMMC1_Init 0 */
 
     /* USER CODE BEGIN SDMMC1_Init 1 */
