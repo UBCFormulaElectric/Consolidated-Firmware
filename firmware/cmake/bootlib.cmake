@@ -96,7 +96,6 @@ function(stm32h7_boot_binary
             "${SHARED_HW_INCLUDE_DIR_CPP}/hw_flash.cpp"
             "${SHARED_HW_INCLUDE_DIR_CPP}/hw_gpio.cpp"
             "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
-            "${SHARED_HW_INCLUDE_DIR_CPP}/hw_assert.cpp"
             "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
             "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
             "${SHARED_HW_INCLUDE_DIR_CPP}/hw_bootup.cpp"
@@ -168,7 +167,6 @@ function(stm32h5_boot_binary
             "${SHARED_HW_INCLUDE_DIR_CPP}/hw_flash.cpp"
             "${SHARED_HW_INCLUDE_DIR_CPP}/hw_gpio.cpp"
             "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
-            "${SHARED_HW_INCLUDE_DIR_CPP}/hw_assert.cpp"
             "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
             "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
             "${SHARED_HW_INCLUDE_DIR_CPP}/hw_bootup.cpp"
@@ -218,7 +216,6 @@ function(stm32h5_boot_binary
     target_link_libraries("${BOOT_NAME}.elf" PRIVATE "${BOOT_NAME}_stm32")
     target_compile_definitions("${BOOT_NAME}.elf" PRIVATE "${CONFIG_DEFINE}")
 endfunction()
-
 
 
 message("  🔃 Registered stm32h7_boot_binary_c() function")
