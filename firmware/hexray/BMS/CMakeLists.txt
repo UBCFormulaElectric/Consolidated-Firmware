@@ -42,8 +42,6 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmInput.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmOutput.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_assert.cpp"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_freeRtosConfigs.cpp"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -133,9 +131,9 @@ if ("${TARGET}" STREQUAL "binary")
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(FAKE_SRCS
-        #     "${SHARED_FAKES_DIR_CPP}/io_canQueue.cpp"
-        #     "${SHARED_FAKES_DIR_CPP}/io_semaphore.cpp"
-        #     "${SHARED_FAKES_DIR_CPP}/io_timer.cpp"
+            #     "${SHARED_FAKES_DIR_CPP}/io_canQueue.cpp"
+            #     "${SHARED_FAKES_DIR_CPP}/io_semaphore.cpp"
+            #     "${SHARED_FAKES_DIR_CPP}/io_timer.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_shdnLoopNode.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
     )

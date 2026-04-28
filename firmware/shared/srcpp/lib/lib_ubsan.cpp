@@ -1,7 +1,7 @@
 #include <cstdint>
 #include "io_log.hpp"
-#include "../lib/hw_error.hpp"
-#include "../lib/hw_ubsan.hpp"
+#include "hw_error.hpp"
+#include "lib_ubsan.hpp"
 
 #include <algorithm>
 
