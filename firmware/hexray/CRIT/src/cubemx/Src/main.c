@@ -277,7 +277,7 @@ static void MX_IWDG_Init(void)
     /* USER CODE END IWDG_Init 0 */
 
     /* USER CODE BEGIN IWDG_Init 1 */
-
+#ifndef WATCHDOG_DISABLED
     /* USER CODE END IWDG_Init 1 */
     hiwdg.Instance       = IWDG;
     hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
@@ -289,7 +289,7 @@ static void MX_IWDG_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN IWDG_Init 2 */
-
+#endif
     /* USER CODE END IWDG_Init 2 */
 }
 

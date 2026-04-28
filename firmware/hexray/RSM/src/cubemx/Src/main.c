@@ -76,9 +76,7 @@ static void MX_SPI3_Init(void);
 static void MX_USB_PCD_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM3_Init(void);
-#ifdef TARGET_EMBEDDED
 static void MX_IWDG_Init(void);
-#endif
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -407,7 +405,6 @@ static void MX_I2C2_Init(void)
  * @param None
  * @retval None
  */
-#ifdef TARGET_EMBEDDED
 static void MX_IWDG_Init(void)
 {
     /* USER CODE BEGIN IWDG_Init 0 */
@@ -426,12 +423,11 @@ static void MX_IWDG_Init(void)
     {
         Error_Handler();
     }
-#endif
     /* USER CODE BEGIN IWDG_Init 2 */
-
+#endif
     /* USER CODE END IWDG_Init 2 */
 }
-#endif
+
 /**
  * @brief SPI3 Initialization Function
  * @param None
