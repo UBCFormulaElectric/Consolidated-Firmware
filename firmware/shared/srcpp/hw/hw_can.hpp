@@ -25,8 +25,8 @@ struct CanMsg
 
     explicit CanMsg() = default;
 
-    uint32_t                                       std_id = 0;
-    uint32_t                                       dlc    = 0;
+    uint32_t std_id = 0;
+    uint32_t dlc    = 0;
 
     alignas(8) mutable std::array<uint8_t, CAN_PAYLOAD_BYTES> data{};
 
