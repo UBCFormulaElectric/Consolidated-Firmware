@@ -69,7 +69,7 @@ int main(void)
 {
     /* USER CODE BEGIN 1 */
     // Turn on boot LED
-    bootloader_preInit();
+    bootloader_preinit();
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
