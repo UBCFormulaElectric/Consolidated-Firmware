@@ -9,7 +9,7 @@
 #include "hw_adcs.hpp"
 #include "hw_watchdog.hpp"
 #include "hw_cans.hpp"
-#include "hw_error.hpp"
+#include "../../../shared/srcpp/lib/hw_error.hpp"
 #include "hw_hardFaultHandler.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "io_canQueues.hpp"

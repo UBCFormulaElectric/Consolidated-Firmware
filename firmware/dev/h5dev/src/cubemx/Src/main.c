@@ -23,7 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
 #include "hw_usb.h"
-#include "hw_error.hpp"
+#include "../../../../../shared/srcpp/lib/hw_error.hpp"
 #include "SEGGER_SYSVIEW.h"
 /* USER CODE END Includes */
 

@@ -1,6 +1,6 @@
 #include "io_log.hpp"
-#include "hw_error.hpp"
-#include "hw_utils.hpp"
+#include "../hw/hw_error.hpp"
+#include "../hw/hw_utils.hpp"
 #include <cstdio>
 
 static char buffer[100];

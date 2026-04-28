@@ -1,5 +1,5 @@
-#include "hw_bootup.hpp"
-#include "hw_utils.hpp"
+#include "../hw/hw_bootup.hpp"
+#include "../hw/hw_utils.hpp"
 #include "io_log.hpp"
 #include <cmsis_os.h>
 #include <projdefs.h>
