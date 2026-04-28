@@ -100,14 +100,14 @@ void run(float apps)
             run_vanilla(inputs);
             break;
         case DriveMode::TV:
-            if (sc.gps_ok && sc.imu_ok && sc.steering_ok)
+            if (sc.allSensorsOk())
             {
                 run_optimal_tv(inputs);
                 break;
             }
             [[fallthrough]];
         case DriveMode::LAUNCH:
-            if (sc.gps_ok && sc.imu_ok && sc.steering_ok)
+            if (sc.allSensorsOk())
             {
                 run_launch(inputs);
                 break;

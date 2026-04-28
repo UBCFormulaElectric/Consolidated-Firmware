@@ -24,21 +24,9 @@ static bool driveStatePassPreCheck()
     // check board warnings
     if (app::can_alerts::AnyBoardHasWarning())
         return false;
+
     // check possibly other faults
-
-    // TODO: Should this be done at FSM?
-    bool papps_ocsc = app::can_rx::FSM_Warning_PappsOCSC_get();
-    bool sapps_ocsc = app::can_rx::FSM_Warning_SappsOCSC_get();
-
-    // throttle pedal position is unreliable, do not drive
-    if (app::can_rx::FSM_Warning_AppsDisagreement_get() || (papps_ocsc && sapps_ocsc))
-        return false;
-
-    // if primary apps is unreliable, use secondary, else use primary
-    if (papps_ocsc)
-        apps = app::can_rx::FSM_SappsMappedPedalPercentage_get();
-    else
-        apps = app::can_rx::FSM_PappsMappedPedalPercentage_get();
+    apps = app::can_rx::FSM_PappsMappedPedalPercentage_get();
 
     if (app::bspdWarning::checkSoftwareBspd(apps))
         return false;
