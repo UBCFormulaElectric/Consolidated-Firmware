@@ -182,6 +182,7 @@ void tasks_preInit()
 void tasks_init()
 {
     // __HAL_DBGMCU_FREEZE_IWDG();
+    SEGGER_SYSVIEW_Conf();
     hw::can::fdcan1.init();
     ResetReason reason = hw::resetReason::get();
     if (reason == RESET_REASON_WATCHDOG)

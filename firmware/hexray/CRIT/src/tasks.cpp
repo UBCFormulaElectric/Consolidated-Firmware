@@ -131,6 +131,7 @@ void tasks_preInit()
 void tasks_init()
 {
     // __HAL_DBGMCU_FREEZE_IWDG();
+    SEGGER_SYSVIEW_Conf();
     hw::can::fdcan1.init();
     led_dimming.start();
     led_dimming.setDutyCycle(95);

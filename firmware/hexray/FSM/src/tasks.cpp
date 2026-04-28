@@ -134,6 +134,7 @@ void tasks_preInit()
 [[noreturn]] void tasks_init()
 {
     // __HAL_DBGMCU_FREEZE_IWDG();
+    SEGGER_SYSVIEW_Conf();
     hw::can::fdcan1.init();
     hw::adcs::chipsInit();
     ResetReason reason = hw::resetReason::get();

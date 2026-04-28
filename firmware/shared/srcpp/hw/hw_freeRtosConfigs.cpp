@@ -1,7 +1,6 @@
 #include "hw_bootup.hpp"
 #include "hw_utils.hpp"
 #include "io_log.hpp"
-#include <cassert>
 #include <cmsis_os.h>
 #include <projdefs.h>
 
