@@ -131,6 +131,7 @@ void ingest(std::span<const uint8_t> bytes, uint64_t rx_time_ms)
     }
 }
 
+// Read bytes from the ring buffer until end of valid message
 void drain()
 {
     while (tryParseFrame())

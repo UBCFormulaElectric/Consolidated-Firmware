@@ -4,7 +4,6 @@
 #include <span>
 
 #include "hw_mutexGuard.hpp"
-#include "hw_uart.hpp"
 #include "hw_uarts.hpp"
 #include "io_log.hpp"
 #include "io_rtc.hpp"
@@ -26,7 +25,7 @@ std::expected<io::rtc::Time, ErrorCode> io::telemRx::transmitNTPStartMsg()
     }
 
     const io::telemMessage::NTPMsg ntp_msg{};
-    const auto                     tx_result = _900k_uart.transmit(ntp_msg.asBytes());
+    const auto                     tx_result = _900k_uart.transmit(ntp_msg.asBytes(), 9);
     if (!tx_result)
     {
         LOG_ERROR("Failed to transmit NTP message");
