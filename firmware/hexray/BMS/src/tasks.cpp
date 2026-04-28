@@ -71,33 +71,36 @@
 {
     forever
     {
-#ifdef CHARGER_CAN
         // Elcon only supports regular CAN but we have some debug messages that are >8 bytes long. Use FDCAN for those
         // (they won't get seen by the charger, but they'll show up on CANoe).
         // TODO: Bit-rate-switching wasn't working for me when the BMS was connected to the charger, so the FD
         // peripheral is configured without BRS. Figure out why it wasn't working?
 
         const auto msg = can_tx_queue.pop();
-        LOG_INFO("message popped");
         if (not msg)
             continue;
-        if (const auto &m = msg.value(); m.bus == app::can_utils::BusEnum::Bus_FDCAN)
+
+        const auto &m       = msg.value();
+        auto        can_msg = hw::CanMsg{ m.std_id, m.dlc, m.data };
+
+        if (m.bus == app::can_utils::BusEnum::Bus_charger)
         {
-            const auto res = hw::can::fdcan2.fdcan_transmit(hw::CanMsg{
-                m.std_id,
-                m.dlc,
-                m.data,
-            });
+            std::expected<void, ErrorCode> res;
+            if (can_msg.dlc > 8)
+                res = hw::can::fdcan1.fdcan_transmit(can_msg);
+            else
+                res = hw::can::fdcan1.can_transmit(can_msg);
+            LOG_IF_ERR(res);
+        }
+        else if (m.bus == app::can_utils::BusEnum::Bus_FDCAN)
+        {
+            const auto res = hw::can::fdcan2.fdcan_transmit(can_msg);
             LOG_IF_ERR(res);
         }
         else
         {
             LOG_ERROR("INVALID BUS %d", m.bus);
         }
-
-#else
-
-#endif
     }
 }
 [[noreturn]] static void tasks_runCanRx(void *arg)
