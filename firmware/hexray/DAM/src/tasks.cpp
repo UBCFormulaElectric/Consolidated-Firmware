@@ -171,7 +171,7 @@ static hw::rtos::StaticTask<512 * 4> TaskCanRx(osPriorityHigh, "TaskCanRx", task
 static hw::rtos::StaticTask<512>     Task1kHz(osPriorityBelowNormal, "Task1kHz", tasks_run1kHz);
 static hw::rtos::StaticTask<1024>    Task1Hz(osPriorityHigh, "Task1Hz", tasks_run1Hz);
 static hw::rtos::StaticTask<1024>    TaskLogging(osPriorityHigh, "TaskLogging", tasks_runLogging);
-static hw::rtos::StaticTask<512>     TaskTelem(osPriorityHigh, "TaskTelemTx", tasks_runTelemTx);
+static hw::rtos::StaticTask<512>     TaskTelemTx(osPriorityHigh, "TaskTelemTx", tasks_runTelemTx);
 static hw::rtos::StaticTask<1024>    TaskTelemRx(osPriorityHigh, "TaskTelemRx", tasks_runTelemRx);
 
 void DAM_StartAllTasks()
