@@ -14,7 +14,7 @@ using namespace hw;
 using namespace io;
 
 const Gpio                          efuse_en{ EFUSE_EN_GPIO_Port, EFUSE_EN_Pin };
-const Gpio                                                    efuse_pgood{ EFUSE_PGOOD_GPIO_Port, EFUSE_PGOOD_Pin };
+const Gpio                          efuse_pgood{ EFUSE_PGOOD_GPIO_Port, EFUSE_PGOOD_Pin };
 constexpr size_t                    NUM_ADC_CHANNELS = 1U;
 constexpr AdcChip<NUM_ADC_CHANNELS> adc1{ hadc1, htim3 };
 constexpr Adc                       efuse_i_sns(adc1.getChannel(0));
