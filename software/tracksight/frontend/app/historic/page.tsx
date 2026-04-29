@@ -1,50 +1,26 @@
-"use client"
+"use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { WidgetAdder } from "@/app/live/WidgetAdder";
 import DataDashboard from "@/components/DataDashboard";
 import CalendarDropdown from "@/components/icons/CalendarDropdown";
+import SessionDropdown from "@/components/icons/SessionDropdown";
 import { DisplayControlProvider } from "@/components/PausePlayControl";
 import SyncedGraphContainer, { TimeRange } from "@/components/SyncedGraphContainer";
 import { WidgetManager, useWidgetManager } from "@/components/widgets/WidgetManagerContext";
-import { WidgetAdder } from "@/app/live/WidgetAdder";
 import { HistoricalSignalStoreProvider } from "@/lib/contexts/signalStores/HistoricalSignalStoreContext";
+import { useHistoricalSessions } from "@/lib/hooks/useHistoricalSessions";
 
 const HISTORIC_WIDGET_STORAGE_KEY = "tracksight_historic_widgets_config_v1";
 const HISTORIC_VIEWPORT_LOCK_STORAGE_KEY = "tracksight_historic_viewport_lock_state_v1";
 
-// TOOO: KEEP TRACK OF LOADED TIME RANGE AND ALLOW USER TO LOAD MORE DATA BUT DIFF THE TIMESTAMPS
+const toDateKey = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
 
-const getFixedWidthRangeFromNow = (width: number): TimeRange => {
-    const d = new Date();
-    return {
-        min: getUtcFromIsoDate(d.toISOString()) - width * 1000,
-        max: getUtcFromIsoDate(d.toISOString()) + width * 1000
-    }
-}
-
-const getUtcFromIsoDate = (isoDate: string): number => {
-    const date = new Date(isoDate);
-    return Date.UTC(
-        date.getUTCFullYear(),
-        date.getUTCMonth(),
-        date.getUTCDate(),
-        date.getUTCHours(),
-        date.getUTCMinutes(),
-        date.getUTCSeconds(),
-        date.getUTCMilliseconds()
-    );
-};
-
-const getUtcDayRange = (date: Date) => {
-    const year = date.getUTCFullYear();
-    const month = date.getUTCMonth();
-    const day = date.getUTCDate();
-
-    const min = Date.UTC(year, month, day, 0, 0, 0, 0);
-    const max = Date.UTC(year, month, day + 1, 0, 0, 0, 0);
-
-    return { min, max } satisfies TimeRange;
+    return `${year}-${month}-${day}`;
 };
 
 const expandViewportFetchRange = (range: TimeRange, bounds: TimeRange): TimeRange => {
@@ -57,7 +33,7 @@ const expandViewportFetchRange = (range: TimeRange, bounds: TimeRange): TimeRang
     };
 };
 
-function HistoricContent(props: { selectedRange: { min: number; max: number }; }) {
+function HistoricContent(props: { selectedRange: { min: number; max: number } }) {
     const { selectedRange } = props;
     const { widgets } = useWidgetManager();
     const [fetchRange, setFetchRange] = useState<TimeRange>(selectedRange);
@@ -66,30 +42,19 @@ function HistoricContent(props: { selectedRange: { min: number; max: number }; }
         setFetchRange(selectedRange);
     }, [selectedRange]);
 
-    const handleViewportSettled = useCallback((viewportRange: TimeRange) => {
-        const nextFetchRange = expandViewportFetchRange(viewportRange, selectedRange);
+    const handleViewportSettled = useCallback(
+        (viewportRange: TimeRange) => {
+            const nextFetchRange = expandViewportFetchRange(viewportRange, selectedRange);
 
-        setFetchRange((currentFetchRange) => (
-            currentFetchRange.min === nextFetchRange.min && currentFetchRange.max === nextFetchRange.max
-                ? currentFetchRange
-                : nextFetchRange
-        ));
-    }, [selectedRange]);
+            setFetchRange((currentFetchRange) => (currentFetchRange.min === nextFetchRange.min && currentFetchRange.max === nextFetchRange.max ? currentFetchRange : nextFetchRange));
+        },
+        [selectedRange]
+    );
 
     return (
         <SyncedGraphContainer initialTimeRange={selectedRange} onViewportSettled={handleViewportSettled}>
-            <HistoricalSignalStoreProvider
-                startUtcMs={fetchRange.min}
-                endUtcMs={fetchRange.max}
-                selectedRange={selectedRange}
-            >
-                {widgets.length === 0 ? (
-                    <div className="grid h-full place-items-center text-gray-500">
-                        Select signals by adding a widget and choosing signals.
-                    </div>
-                ) : (
-                    <DataDashboard />
-                )}
+            <HistoricalSignalStoreProvider startUtcMs={fetchRange.min} endUtcMs={fetchRange.max} selectedRange={selectedRange}>
+                {widgets.length === 0 ? <div className="grid h-full place-items-center text-gray-500">Select signals by adding a widget and choosing signals.</div> : <DataDashboard />}
                 <WidgetAdder />
             </HistoricalSignalStoreProvider>
         </SyncedGraphContainer>
@@ -98,25 +63,37 @@ function HistoricContent(props: { selectedRange: { min: number; max: number }; }
 
 export default function Historic() {
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-    const selectedRange = useMemo(() => getUtcDayRange(selectedDate), [selectedDate]);
+    const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
+    const selectedDateKey = useMemo(() => toDateKey(selectedDate), [selectedDate]);
+    const sessionsQuery = useHistoricalSessions(selectedDateKey);
+    const sessions = useMemo(() => sessionsQuery.data ?? [], [sessionsQuery.data]);
+
+    useEffect(() => {
+        setSelectedSessionId(null);
+    }, [selectedDateKey]);
+
+    useEffect(() => {
+        if (sessions.length === 0) {
+            return;
+        }
+
+        setSelectedSessionId((currentSessionId) => (sessions.some((session) => session.id === currentSessionId) ? currentSessionId : sessions[0].id));
+    }, [sessions]);
+
+    const selectedSession = useMemo(() => sessions.find((session) => session.id === selectedSessionId) ?? null, [selectedSessionId, sessions]);
+    const selectedRange = useMemo(() => (selectedSession ? { min: selectedSession.startUtcMs, max: selectedSession.endUtcMs } : null), [selectedSession]);
 
     return (
-        <DisplayControlProvider
-            defaultViewportLocked={false}
-            viewportLockStorageKey={HISTORIC_VIEWPORT_LOCK_STORAGE_KEY}
-        >
+        <DisplayControlProvider defaultViewportLocked={false} viewportLockStorageKey={HISTORIC_VIEWPORT_LOCK_STORAGE_KEY}>
             <div className="h-[calc(100vh-72px)] bg">
-                <div className="mx-4 mb-4 flex items-center gap-4">
+                <div className="mx-4 mb-4 flex flex-wrap items-center gap-4">
                     <CalendarDropdown selectedDate={selectedDate} onDateSelect={setSelectedDate} />
+                    <SessionDropdown sessions={sessions} selectedSessionId={selectedSessionId} isLoading={sessionsQuery.isPending} error={sessionsQuery.error} onSessionSelect={setSelectedSessionId} />
                 </div>
 
-                <div className="mx-4 mb-3 text-sm font-medium text-gray-600">
-                    Time axis shown in UTC!! ts aint pst.
-                </div>
+                <div className="mx-4 mb-3 text-sm font-medium text-gray-600">Time axis shown in UTC!! ts aint pst.</div>
 
-                <WidgetManager storageKey={HISTORIC_WIDGET_STORAGE_KEY}>
-                    <HistoricContent selectedRange={selectedRange} />
-                </WidgetManager>
+                <WidgetManager storageKey={HISTORIC_WIDGET_STORAGE_KEY}>{selectedRange ? <HistoricContent selectedRange={selectedRange} /> : <div className="mx-4 grid h-full place-items-center text-gray-500">{sessionsQuery.isPending ? "Loading sessions..." : "No historical session selected."}</div>}</WidgetManager>
             </div>
         </DisplayControlProvider>
     );

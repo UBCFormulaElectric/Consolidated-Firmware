@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 
-import { useWidgetManager } from "@/components/widgets/WidgetManagerContext";
 import { useSyncedGraph } from "@/components/SyncedGraphContainer";
+import { useWidgetManager } from "@/components/widgets/WidgetManagerContext";
 import { fetchHistoricalSignal } from "@/lib/api/historicalSignals";
 import { SignalDataStoreProvider } from "@/lib/contexts/signalStores/SignalStoreContext";
 import HistoricalSignalStore from "@/lib/signals/HistoricalSignalStore";
@@ -77,18 +77,10 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
                 signalStoreRef.current.hydrateSignal(result.value.signal, result.value.points);
             });
 
-            const allTimestamps = successes
-                .flatMap((result) => result.value.points)
-                .map((point) => point.timestampMs);
-
-            if (allTimestamps.length > 0) {
-                const minTimestamp = Math.min(...allTimestamps);
-                const maxTimestamp = Math.max(...allTimestamps);
-                const shouldFitViewport = initializedSelectedRangeKeyRef.current !== selectedRangeKey;
-                if (shouldFitViewport) {
-                    setTimeRange({ min: minTimestamp, max: maxTimestamp }, true);
-                    initializedSelectedRangeKeyRef.current = selectedRangeKey;
-                }
+            const shouldFitViewport = initializedSelectedRangeKeyRef.current !== selectedRangeKey;
+            if (shouldFitViewport) {
+                setTimeRange(selectedRange, true);
+                initializedSelectedRangeKeyRef.current = selectedRangeKey;
             }
 
             if (failures.length > 0) {
@@ -108,7 +100,7 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
         return () => {
             isCancelled = true;
         };
-    }, [endUtcMs, selectedRangeKey, selectedSignals, setTimeRange, startUtcMs]);
+    }, [endUtcMs, selectedRange, selectedRangeKey, selectedSignals, setTimeRange, startUtcMs]);
 
     return (
         <SignalDataStoreProvider signalStore={signalStoreRef}>
@@ -118,13 +110,11 @@ export const HistoricalSignalStoreProvider = memo(function HistoricalSignalStore
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce" />
                     <span className="text-sm font-medium text-gray-600">Syncing historical data...</span>
                 </div>
-            ) :
-                (!error ?
-                    <div className="mx-4 mb-3 flex items-center gap-3 px-3 py-2 bg-green-100 border border-gray-200 rounded-lg ">
-                        <span className="text-sm font-medium text-gray-600">Data Synced</span>
-                    </div>
-                    : null)
-            }
+            ) : !error ? (
+                <div className="mx-4 mb-3 flex items-center gap-3 px-3 py-2 bg-green-100 border border-gray-200 rounded-lg ">
+                    <span className="text-sm font-medium text-gray-600">Data Synced</span>
+                </div>
+            ) : null}
             {children}
         </SignalDataStoreProvider>
     );
