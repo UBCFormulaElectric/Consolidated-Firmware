@@ -6,7 +6,7 @@ namespace io::coolant
 {
 void init()
 {
-    hw::pwm::flow_meter_config.init();
+    LOG_IF_ERR(hw::pwm::flow_meter_config.init());
 }
 
 float getFlowRate()
@@ -15,7 +15,7 @@ float getFlowRate()
     return frequency * FREQ_TO_LITERS_PER_MINUTE;
 }
 
-bool checkIfFlowMeterActive()
+std::expected<void, ErrorCode> checkIfFlowMeterActive()
 {
     return hw::pwm::flow_meter_config.pwm_isActive();
 }

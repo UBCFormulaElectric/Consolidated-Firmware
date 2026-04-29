@@ -109,7 +109,7 @@ void tasks_init()
 {
     SEGGER_SYSVIEW_Conf();
 
-    hw::adcs::chipsInit();
+    adcchipsInit();
     hw::can::can1.init();
 
     jobs_init();
