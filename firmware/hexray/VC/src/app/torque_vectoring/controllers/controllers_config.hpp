@@ -1,3 +1,4 @@
+#pragma once
 #include "app_pid.hpp"
 
 namespace app::tv::controllers::dyrc

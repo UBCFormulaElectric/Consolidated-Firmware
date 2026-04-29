@@ -2,6 +2,7 @@
 #include "hw_adcs.hpp"
 #include "util_utils.hpp"
 #include <cmath>
+#include <algorithm>
 
 //=====
 // Geometry and ADC Constants for Pedal Sensors -> PAPPS = primary apps, SAPPS = secondary apps (same as liam's
@@ -71,7 +72,7 @@ static float calcAppsAngle(const float cos_law_coefficient, const float pot_len,
     // Calculate the cosine law expression: (a^2 + b^2 - c^2) / (2ab)
     const float value = cos_law_coefficient - pot_len * pot_len / cos_law_denominator;
     const float acos_input =
-        CLAMP(value, -1.0f, 1.0f); // where c is represented indirectly via the measured length (pot_len)
+        std::clamp(value, -1.0f, 1.0f); // where c is represented indirectly via the measured length (pot_len)
     return acos(acos_input);
 }
 
@@ -110,7 +111,7 @@ float getPrimary(void)
 
     // Scale the percentage to account for the dead zone.
     const float pedal_percentage = (100.0f / (100.0f - DEAD_ZONE_PERCENT)) * (pedal_percentage_raw - DEAD_ZONE_PERCENT);
-    return CLAMP(pedal_percentage, 0.0f, 100.0f);
+    return std::clamp(pedal_percentage, 0.0f, 100.0f);
 }
 
 bool isPrimaryOCSC(void)
@@ -139,7 +140,7 @@ float getSecondary(void)
 
     // Scale the percentage to account for the dead zone.
     const float pedal_percentage = (100.0f / (100.0f - DEAD_ZONE_PERCENT)) * (pedal_percentage_raw - DEAD_ZONE_PERCENT);
-    return CLAMP(pedal_percentage, 0.0f, 100.0f);
+    return std::clamp(pedal_percentage, 0.0f, 100.0f);
 }
 
 bool isSecondaryOCSC(void)
