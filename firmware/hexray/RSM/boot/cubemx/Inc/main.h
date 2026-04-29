@@ -41,34 +41,42 @@ extern "C"
                           Inc /
                           main.h
 
-                          /* Private includes ----------------------------------------------------------*/
-                          /* USER CODE BEGIN Includes */
+        /* Private includes ----------------------------------------------------------*/
+        /* USER CODE BEGIN Includes */
 
-                          /* USER CODE END Includes */
+        /* USER CODE END Includes */
 
-                          /* Exported types ------------------------------------------------------------*/
-                          /* USER CODE BEGIN ET */
+        /* Exported types ------------------------------------------------------------*/
+        /* USER CODE BEGIN ET */
 
-                          /* USER CODE END ET */
+        /* USER CODE END ET */
 
-                          /* Exported constants --------------------------------------------------------*/
-                          /* USER CODE BEGIN EC */
-                          extern FDCAN_HandleTypeDef hfdcan1;
-    /* USER CODE END EC */
+        /* Exported constants --------------------------------------------------------*/
+        /* USER CODE BEGIN EC */
+        < < < < < < < <
+        HEAD : firmware / hexray / RSM / boot / cubemx / Inc / main.h extern FDCAN_HandleTypeDef hfdcan1;
+    == == == ==
 
-    /* Exported macro ------------------------------------------------------------*/
-    /* USER CODE BEGIN EM */
+        >>>>>>>> master : firmware / hexray / BMS / boot / cubemx / Inc /
+                          main.h
+                          /* USER CODE END EC */
 
-    /* USER CODE END EM */
+                          /* Exported macro ------------------------------------------------------------*/
+                          /* USER CODE BEGIN EM */
 
-    /* Exported functions prototypes ---------------------------------------------*/
-    void Error_Handler(void);
+                          /* USER CODE END EM */
+
+                          /* Exported functions prototypes ---------------------------------------------*/
+                          void
+                          Error_Handler(void);
 
     /* USER CODE BEGIN EFP */
     extern FDCAN_HandleTypeDef hfdcan2;
-/* USER CODE END EFP */
+    /* USER CODE END EFP */
 
-/* Private defines -----------------------------------------------------------*/
+    /* Private defines -----------------------------------------------------------*/
+    <<<<<<<<
+        HEAD : firmware / hexray / RSM / boot / cubemx / Inc / main.h
 #define SWDIO_Pin GPIO_PIN_13
 #define SWDIO_GPIO_Port GPIOA
 #define SWCLK_Pin GPIO_PIN_14
@@ -83,8 +91,16 @@ extern "C"
 #define CANTX_GPIO_Port GPIOB
 #define CANRX_Pin GPIO_PIN_8
 #define CANRX_GPIO_Port GPIOB
+        == == == ==
 #define LED_B_Pin GPIO_PIN_0
 #define LED_B_GPIO_Port GPIOA
+        >>>>>>>> master : firmware /
+                          hexray /
+                          BMS /
+                          boot /
+                          cubemx /
+                          Inc /
+                          main.h
 
     /* USER CODE BEGIN Private defines */
 
