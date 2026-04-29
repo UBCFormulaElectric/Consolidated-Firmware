@@ -12,13 +12,26 @@ void setPushCallback(void (*)()) {}
 #include "io_switches.hpp"
 namespace io::switches
 {
-static constexpr uint8_t SW_DEBOUNCE_TICKS = 5;
-
-Switch torque_vectoring_sw(SW_DEBOUNCE_TICKS);
-Switch launch_control_sw(SW_DEBOUNCE_TICKS);
-Switch regen_sw(SW_DEBOUNCE_TICKS);
-Switch start_sw(SW_DEBOUNCE_TICKS);
-Switch telem_sw(SW_DEBOUNCE_TICKS);
+bool torque_vectoring_get()
+{
+    return false;
+}
+bool launch_control_get()
+{
+    return false;
+}
+bool regen_get()
+{
+    return false;
+}
+bool start_get()
+{
+    return false;
+}
+bool telem_mark_get()
+{
+    return false;
+}
 } // namespace io::switches
 
 #include "io_leds.hpp"
