@@ -53,17 +53,20 @@ impl TelemetryIncomingMessage {
     pub payload: Vec<u8>,
 }
 
+#[derive(Clone, Debug)]
 pub enum TelemetryOutgoingMessage {
+    NtpTrigger, // No body needed, just send an empty message to trigger NTP sync on DAM
     // payload should be t1 and t2, each being 64 bits
-    NTP {
+    NtpResponse {
         // Only pack t1 in outgoing message
         // let the handler actually send the appropriate t2 when sending packet
         t1: Duration
-    }
+    },
 }
 
 impl TelemetryOutgoingMessage {
     pub const MAGIC: [u8; 2] = [0xcc, 0x33];
 
-    pub const NTP_BYTE: u8 = 0x01;
+    pub const NTP_TRIGGER_BYTE: u8 = 0x00;
+    pub const NTP_RESPONSE_BYTE: u8 = 0x01;
 }

@@ -2,7 +2,7 @@ use std::sync::Arc;
 use axum::Router;
 use moka::future::Cache;
 use tokio::select;
-use tokio::sync::RwLock;
+use tokio::sync::{RwLock, broadcast};
 use tokio::net::TcpListener;
 use socketioxide::{SocketIo, extract::SocketRef};
 use jsoncan_rust::can_database::CanDatabase;
@@ -10,6 +10,8 @@ use tower_http::cors::{CorsLayer, Any};
 use mdns_sd::{ServiceDaemon, ServiceInfo};
 
 use crate::tasks::client_api::signal_tile::LRU_CACHE_CAPACITY;
+use crate::tasks::client_api::transmit_handler::get_transmit_router;
+use crate::tasks::telem_message::TelemetryOutgoingMessage;
 use crate::utils::yellow;
 use crate::config::CONFIG;
 use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, ResultExt, ShutdownReceiver, Task};
@@ -24,7 +26,8 @@ pub async fn run_api_handler(
     mut shutdown_rx: ShutdownReceiver, 
     health_check_tx: HealthCheckSender, 
     clients: Arc<RwLock<Clients>>, 
-    can_db: Arc<CanDatabase>
+    can_db: Arc<CanDatabase>,
+    client_out_msg_tx: broadcast::Sender<TelemetryOutgoingMessage>
 ) {
     vprintln!("{}", yellow("API handler task started."));
     
@@ -64,6 +67,7 @@ pub async fn run_api_handler(
             &CONFIG.influxdb_org,
             &CONFIG.influxdb_token
         )),
+        client_out_msg_tx: client_out_msg_tx,
 
         signal_tile_cache: Cache::builder()
             .max_capacity(LRU_CACHE_CAPACITY) // max number of tiles in cache, adjust as needed
@@ -93,6 +97,7 @@ pub async fn run_api_handler(
         .nest("/api/v1/", get_subtable_router())
         .nest("/api/v1/", get_signal_router())
         .nest("/api/v1/", get_sd_router())
+        .nest("/api/v1/", get_transmit_router())
         .with_state(app_state)
         .layer(cors)
         .into_make_service();
