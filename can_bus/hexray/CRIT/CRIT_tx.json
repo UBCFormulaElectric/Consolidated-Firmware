@@ -28,16 +28,16 @@
         "description": "State of buttons and switches on the CRIT",
         "signals": {
             "StartButton": {
-                "bits": 1
+                "enum": "SwitchState"
             },
             "RegenSwitch": {
-                "bits": 1
+                "enum": "SwitchState"
             },
             "LaunchControlSwitch": {
-                "bits": 1
+                "enum": "SwitchState"
             },
             "TorqueVectoringSwitch": {
-                "bits": 1
+                "enum": "SwitchState"
             },
             "DriveMode": {
                 "enum": "DriveMode"
@@ -49,15 +49,5 @@
         "cycle_time": null,
         "description": "Marks an event in the telemetry data. Can be used to mark the start of a run, or any other significant event.",
         "signals": {}
-    },
-    "Switches": {
-        "msg_id": 920,
-        "cycle_time": 100,
-        "description": "States of the switches on the CRIT.",
-        "signals": {
-            "StartSwitch": {
-                "enum": "SwitchState"
-            }
-        }
     }
 }
