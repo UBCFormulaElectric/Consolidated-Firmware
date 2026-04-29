@@ -26,4 +26,6 @@ extern const Adc emeter_tsns;
 extern const Adc ts_isense_400a;
 extern const Adc ts_isense_50a;
 extern const Adc aux_tsns;
+
+void chipsInit();
 } // namespace hw::adc

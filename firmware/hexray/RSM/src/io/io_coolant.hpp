@@ -1,9 +1,7 @@
 #pragma once
 
 #include <expected>
-#ifdef TARGET_EMBEDDED
-#include "hw_pwms.hpp"
-#endif
+#include <util_errorCodes.hpp>
 
 namespace io::coolant
 {
