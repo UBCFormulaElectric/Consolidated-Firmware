@@ -5,7 +5,6 @@
 #include "io_log.hpp"
 
 #include "io_canQueues.hpp"
-#include "io_queue.hpp"
 #include "io_telemQueue.hpp"
 #include "app_jsoncan.hpp"
 #include <app_canUtils.hpp>

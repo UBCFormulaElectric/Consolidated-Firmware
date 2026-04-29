@@ -21,12 +21,6 @@
 #include "io_telemQueue.hpp"
 
 #include <array>
-#include <span>
-
-extern "C"
-{
-#include "io_rtc.h"
-}
 
 // static IoRtcTime boot_time{};
 #include "hw_cans.hpp"

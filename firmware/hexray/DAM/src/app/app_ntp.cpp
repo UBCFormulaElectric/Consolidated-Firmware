@@ -1,6 +1,5 @@
 #include "app_ntp.hpp"
 
-#include <cstdint>
 #include <cstring>
 
 static constexpr uint32_t PREDIV_S      = 999;

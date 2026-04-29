@@ -1,7 +1,6 @@
 #include "app_telemRx.hpp"
 
 #include <array>
-#include <cstring>
 
 #include "app_ntp.hpp"
 #include "io_crc.hpp"
