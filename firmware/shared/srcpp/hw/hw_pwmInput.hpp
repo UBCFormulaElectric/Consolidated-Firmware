@@ -147,7 +147,7 @@ class PwmInput
      * @note This function should be called in the timer overflow interrupt
      *       for the PWM signal
      */
-    [[nodiscard]] std::expected<void, ErrorCode> pwm_isActive()
+    [[nodiscard]] std::expected<void, ErrorCode> pwm_isActive() const
     {
         // If the timer overflows twice without a rising edge, the PWM signal is
         // likely inactive (i.e. DC signal) and its frequency can't be computed

@@ -47,7 +47,6 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_spi.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmOutput.cpp"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmInput.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_assert.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_freeRtosConfigs.cpp"
