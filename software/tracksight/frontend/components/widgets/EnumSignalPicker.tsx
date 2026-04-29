@@ -114,7 +114,7 @@ export const EnumSignalPicker = memo(function EnumSignalPicker(props: { query: s
                                 : `${visibleSignals.length} matching signals`}
                 </div>
                 {error ? (
-                    <p className="px-3 py-3 text-sm text-red-600">Failed to load available signals. Perhaps the backend isn't running?</p>
+                    <p className="px-3 py-3 text-sm text-red-600">Failed to load available signals. Perhaps the backend is not running?</p>
                 ) : isListOpen ? (
                     <div className="max-h-64 overflow-y-auto py-1">
                         {visibleSignals.length === 0 ? (
