@@ -57,9 +57,7 @@ class FileSystem
     }
 
     /**
-     * init the file system
-     * config the file system
-     * mount the file system
+     * init, config, and mount the file system
      * @return success of operation
      */
     FileSystemError init();

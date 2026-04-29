@@ -218,9 +218,7 @@ std::expected<void, FileSystemError> FileSystem::getBootCount(uint32_t *bootcoun
         return std::unexpected(logfsErrorToFsError(logfs_err));
 
     if (num_read != sizeof(*bootcount))
-    {
         *bootcount = 0;
-    }
 
     (*bootcount)++;
     FileSystemError err = logfsErrorToFsError(logfs_writeMetadata(&fs, &bootcount_file, bootcount, sizeof(*bootcount)));
