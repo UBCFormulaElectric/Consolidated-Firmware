@@ -14,6 +14,7 @@
 
 namespace hw::adcs
 {
+void                    chipsInit();
 extern const AdcChip<6> adc1;
 extern const Adc        susp_fl;
 extern const Adc        susp_fr;

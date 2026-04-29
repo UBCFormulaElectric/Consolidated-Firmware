@@ -64,13 +64,13 @@ class RSMChimeraConfig : public chimera_v2::config
         switch (ann->name.rsm_net_name)
         {
             case rsm_AdcNetName_ADC_LC3_OUT:
-                return std::cref(hw::adcs::lc3_out);
+                return std::cref(lc3_out);
             case rsm_AdcNetName_ADC_SUSP_TRAVEL_RL_3V3:
-                return std::cref(hw::adcs::susp_travel_rl_3v3);
+                return std::cref(susp_travel_rl_3v3);
             case rsm_AdcNetName_ADC_SUSP_TRAVEL_RR_3V3:
-                return std::cref(hw::adcs::susp_travel_rr_3v3);
+                return std::cref(susp_travel_rr_3v3);
             case rsm_AdcNetName_ADC_BPS_3V3:
-                return std::cref(hw::adcs::bps_3v3);
+                return std::cref(bps_3v3);
             default:
             case rsm_AdcNetName_ADC_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified ADC net name");
@@ -87,7 +87,7 @@ class RSMChimeraConfig : public chimera_v2::config
         switch (inn->name.rsm_net_name)
         {
             case rsm_I2cNetName_I2C_R_PUMP:
-                return std::cref(hw::i2c::r_pump);
+                return std::cref(r_pump);
             default:
             case rsm_I2cNetName_I2C_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified I2C net name");
@@ -139,7 +139,7 @@ char USBD_PRODUCT_STRING_FS[] = "rsm";
 [[noreturn]] void tasks_init()
 {
     hw_hardFaultHandler_init();
-    hw::adcs::chipsInit();
+    adcchipsInit();
     assert(hw::usb::init());
     hw::gpio::d_p_pullup.writePin(true); // enable USB D+ pullup
     osKernelInitialize();

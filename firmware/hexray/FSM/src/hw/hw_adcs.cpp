@@ -4,6 +4,10 @@
 namespace hw::adcs
 {
 constexpr AdcChip<6> adc1{ hadc1, htim2 };
+void                 chipsInit()
+{
+    LOG_IF_ERR(adc1.init());
+}
 
 constexpr Adc susp_fl   = adc1.getChannel(0);
 constexpr Adc susp_fr   = adc1.getChannel(1);

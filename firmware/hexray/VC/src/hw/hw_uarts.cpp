@@ -1,5 +1,6 @@
 #include "hw_uarts.hpp"
 #include "main.h"
+#include <cassert>
 
 namespace hw
 {

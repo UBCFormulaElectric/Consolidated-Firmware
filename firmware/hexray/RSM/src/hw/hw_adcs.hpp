@@ -1,5 +1,3 @@
-#include "hw_adc.hpp"
-
 #pragma once
 #include "hw_adc.hpp"
 
@@ -9,3 +7,5 @@ extern const hw::Adc        susp_travel_rl_3v3;
 extern const hw::Adc        susp_travel_rr_3v3;
 extern const hw::Adc        bps_3v3;
 extern const hw::Adc        nBSPD_brake_pressed;
+
+void adcchipsInit();

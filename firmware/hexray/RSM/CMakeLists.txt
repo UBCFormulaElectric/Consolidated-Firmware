@@ -39,7 +39,6 @@ set(IO_INCLUDE_DIRS
 
 file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp")
 list(APPEND HW_SRCS
-        # "${SHARED_HW_INCLUDE_DIR_CPP}/hw_adc.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_i2c.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_spi.cpp"
@@ -58,7 +57,6 @@ set(HW_INCLUDE_DIRS
 # chimera sources
 set(CHIMERA_SRCS ${HW_SRCS} "${CMAKE_CURRENT_SOURCE_DIR}/src/chimera.cpp")
 set(CHIMERA_INCLUDE_DIRS ${HW_INCLUDE_DIRS})
-
 
 
 if ("${TARGET}" STREQUAL "binary")
@@ -131,7 +129,7 @@ elseif ("${TARGET}" STREQUAL "test")
     )
     set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
     set(INCLUDE_DIRS
-        #     "${CMAKE_CURRENT_SOURCE_DIR}/test"
+            #     "${CMAKE_CURRENT_SOURCE_DIR}/test"
             ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR} ${SHARED_UTIL_INCLUDE_DIR_CPP}
             ${SHARED_FAKES_DIR} ${SHARED_FAKES_DIR_CPP} ${SHARED_TEST_INCLUDE_DIR}
     )
