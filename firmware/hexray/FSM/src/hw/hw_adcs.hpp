@@ -12,14 +12,16 @@
 // determines the order in which the DMA writes data to our raw_adc_values
 // buffer.
 
-namespace hw::adcs
+extern const hw::AdcChip<6> adc1;
+
+inline void adcChipsInit()
 {
-void                    chipsInit();
-extern const AdcChip<6> adc1;
-extern const Adc        susp_fl;
-extern const Adc        susp_fr;
-extern const Adc        apps2;
-extern const Adc        bps_f;
-extern const Adc        str_angle;
-extern const Adc        apps1;
-} // namespace hw::adcs
+    LOG_IF_ERR(adc1.init());
+}
+
+extern const hw::Adc susp_fl;
+extern const hw::Adc susp_fr;
+extern const hw::Adc apps2;
+extern const hw::Adc bps_f;
+extern const hw::Adc str_angle;
+extern const hw::Adc apps1;

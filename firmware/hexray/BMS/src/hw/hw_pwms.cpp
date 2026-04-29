@@ -29,12 +29,6 @@ constexpr PwmInput evse_pwm_input(
     TIM_CHANNEL_4, // Rising Edge (Direct)
     TIM_CHANNEL_3, // Falling Edge (Indirect)
     TIM5_AUTO_RELOAD_REG);
-
-void init()
-{
-    LOG_IF_ERR(imd_pwm_input.init());
-    LOG_IF_ERR(evse_pwm_input.init());
-}
 } // namespace hw::pwm
 
 // HAL Interrupt Callback

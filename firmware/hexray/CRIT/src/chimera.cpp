@@ -17,7 +17,7 @@ class CRITChimeraConfig : public chimera_v2::config
 {
   public:
     ~CRITChimeraConfig() override = default;
-    std::optional<std::reference_wrapper<const hw::Gpio>> id_to_gpio(const _GpioNetName *gnn) const override
+    std::optional<std::reference_wrapper<const hw::gpio>> id_to_gpio(const _GpioNetName *gnn) const override
     {
         if (gnn->which_name != gpio_net_name_tag)
         {
@@ -56,7 +56,7 @@ class CRITChimeraConfig : public chimera_v2::config
                 return std::nullopt;
         }
     }
-    std::optional<std::reference_wrapper<const hw::spi::SpiDevice>> id_to_spi(const _SpiNetName *snn) const override
+    std::optional<std::reference_wrapper<const hw::spi::device>> id_to_spi(const _SpiNetName *snn) const override
     {
         if (snn->which_name != spi_net_name_tag)
         {

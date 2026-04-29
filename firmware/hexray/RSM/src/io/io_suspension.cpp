@@ -23,11 +23,11 @@ float getRRTravel()
 
 bool RR_OCSC()
 {
-    return hw::gpio::susp_travel_rr_ocsc.readPin();
+    return susp_travel_rr_ocsc.readPin();
 }
 
 bool RL_OCSC()
 {
-    return hw::gpio::susp_travel_rl_ocsc.readPin();
+    return susp_travel_rl_ocsc.readPin();
 }
 } // namespace io::suspension

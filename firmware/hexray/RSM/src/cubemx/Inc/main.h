@@ -55,6 +55,9 @@ extern "C"
 
     /* USER CODE BEGIN EFP */
     extern ADC_HandleTypeDef   hadc1;
+    extern DMA_NodeTypeDef     Node_GPDMA1_Channel0;
+    extern DMA_QListTypeDef    List_GPDMA1_Channel0;
+    extern DMA_HandleTypeDef   handle_GPDMA1_Channel0;
     extern FDCAN_HandleTypeDef hfdcan1;
     extern I2C_HandleTypeDef   hi2c2;
     extern SPI_HandleTypeDef   hspi3;

@@ -22,7 +22,7 @@ class VCChimeraConfig : public chimera_v2::config
   public:
     ~VCChimeraConfig() override = default;
 
-    std::optional<std::reference_wrapper<const hw::Gpio>> id_to_gpio(const _GpioNetName *gnn) const override
+    std::optional<std::reference_wrapper<const hw::gpio>> id_to_gpio(const _GpioNetName *gnn) const override
     {
         if (gnn->which_name != gpio_net_name_tag)
         {
@@ -167,7 +167,7 @@ class VCChimeraConfig : public chimera_v2::config
         }
     }
 
-    std::optional<std::reference_wrapper<const hw::spi::SpiDevice>> id_to_spi(const _SpiNetName *snn) const override
+    std::optional<std::reference_wrapper<const hw::spi::device>> id_to_spi(const _SpiNetName *snn) const override
     {
         if (snn->which_name != spi_net_name_tag)
         {

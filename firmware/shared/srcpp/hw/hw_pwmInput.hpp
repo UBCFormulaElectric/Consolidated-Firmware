@@ -181,18 +181,18 @@ class PwmInput
 
             curr_rising_edge = HAL_TIM_ReadCapturedValue(&htim, rising_edge_tim_channel);
 
-            uint32_t rising_edge_detlta;
+            uint32_t rising_edge_delta;
 
             if (curr_rising_edge > prev_rising_edge)
             {
-                rising_edge_detlta = curr_rising_edge - prev_rising_edge;
-                setFrequency(tim_frequency_hz / static_cast<float>(rising_edge_detlta));
+                rising_edge_delta = curr_rising_edge - prev_rising_edge;
+                setFrequency(tim_frequency_hz / static_cast<float>(rising_edge_delta));
             }
             else if (curr_rising_edge < prev_rising_edge)
             {
                 // Occurs when the counter rolls over
-                rising_edge_detlta = tim_auto_reload_reg - prev_rising_edge + curr_rising_edge;
-                setFrequency(tim_frequency_hz / static_cast<float>(rising_edge_detlta));
+                rising_edge_delta = tim_auto_reload_reg - prev_rising_edge + curr_rising_edge;
+                setFrequency(tim_frequency_hz / static_cast<float>(rising_edge_delta));
             }
             else
             {

@@ -13,19 +13,20 @@
 // determines the order in which the DMA writes data to our raw_adc_values
 // buffer.
 
-namespace hw::adc
+extern const hw::AdcChip<7> adc1;
+extern const hw::AdcChip<1> adc3;
+
+extern const hw::Adc fan_isns;
+extern const hw::Adc ts_vsense_p;
+extern const hw::Adc ts_vsense_n;
+extern const hw::Adc shdn_sns;
+extern const hw::Adc emeter_tsns;
+extern const hw::Adc ts_isense_400a;
+extern const hw::Adc ts_isense_50a;
+extern const hw::Adc aux_tsns;
+
+inline void adcChipsInit()
 {
-extern const AdcChip<7> adc1;
-extern const AdcChip<1> adc3;
-
-extern const Adc fan_isns;
-extern const Adc ts_vsense_p;
-extern const Adc ts_vsense_n;
-extern const Adc shdn_sns;
-extern const Adc emeter_tsns;
-extern const Adc ts_isense_400a;
-extern const Adc ts_isense_50a;
-extern const Adc aux_tsns;
-
-void chipsInit();
-} // namespace hw::adc
+    LOG_IF_ERR(adc1.init());
+    LOG_IF_ERR(adc3.init(false));
+}

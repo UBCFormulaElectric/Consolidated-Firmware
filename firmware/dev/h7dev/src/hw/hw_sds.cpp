@@ -3,7 +3,7 @@
 #include "main.h"
 #include <cassert>
 
-static const hw::Gpio sd_present{ GPIOA, GPIO_PIN_8 };
+static const hw::gpio sd_present{ GPIOA, GPIO_PIN_8 };
 hw::SdCard            sd{ &hsd1, 0xFFFFFFFFU, sd_present };
 
 const hw::SdCard &hw::getSdFromHandle(SD_HandleTypeDef *hsd)

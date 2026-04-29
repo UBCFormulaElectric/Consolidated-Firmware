@@ -5,7 +5,7 @@
 #include "io_log.hpp"
 #include "cmsis_os2.h"
 
-/* --------------------------------------------- d_bus ------------------------------------------------ */
+/* --------------------------------------------- bus ------------------------------------------------ */
 void hw::i2c::bus::onTransactionCompleteFromISR() const
 {
     assert(taskInProgress != nullptr);

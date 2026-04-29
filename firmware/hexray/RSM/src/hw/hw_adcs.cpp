@@ -2,22 +2,17 @@
 #include "main.h"
 #include <cassert>
 
-constexpr hw::AdcChip<5> Adc_Chip{ hadc1, htim3 };
-constexpr hw::Adc        lc3_out            = Adc_Chip.getChannel(0);
-constexpr hw::Adc        susp_travel_rl_3v3 = Adc_Chip.getChannel(1);
-constexpr hw::Adc        susp_travel_rr_3v3 = Adc_Chip.getChannel(2);
-constexpr hw::Adc        bps_3v3            = Adc_Chip.getChannel(3);
-
-void adcchipsInit()
-{
-    LOG_IF_ERR(Adc_Chip.init());
-}
+constexpr hw::AdcChip<5> adc1{ hadc1, htim3 };
+constexpr hw::Adc        lc3_out            = adc1.getChannel(0);
+constexpr hw::Adc        susp_travel_rl_3v3 = adc1.getChannel(1);
+constexpr hw::Adc        susp_travel_rr_3v3 = adc1.getChannel(2);
+constexpr hw::Adc        bps_3v3            = adc1.getChannel(3);
 
 extern "C"
 {
     void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
     {
-        assert(hadc == &Adc_Chip.gethadc());
-        Adc_Chip.update_callback();
+        assert(hadc == &adc1.gethadc());
+        adc1.update_callback();
     }
 }

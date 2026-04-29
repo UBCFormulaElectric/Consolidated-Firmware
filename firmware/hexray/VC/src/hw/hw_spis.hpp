@@ -4,10 +4,10 @@
 
 namespace hw::spi
 {
-extern SpiBus spi1;
-extern SpiBus spi2;
+extern bus spi1;
+extern bus spi2;
 
-extern SpiDevice imu1;
-extern SpiDevice imu2;
-extern SpiDevice imu3;
+extern device imu1;
+extern device imu2;
+extern device imu3;
 } // namespace hw::spi

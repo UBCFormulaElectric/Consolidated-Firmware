@@ -25,6 +25,6 @@ float getRearPressurePsi()
 
 bool OCSC()
 {
-    return !hw::gpio::brake_ocsc_ok.readPin();
+    return !brake_ocsc_ok.readPin();
 }
 } // namespace io::brake
