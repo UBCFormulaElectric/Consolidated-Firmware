@@ -43,7 +43,7 @@ void device::disableNss() const
 std::expected<void, ErrorCode> device::waitForNotification() const
 {
     const uint32_t num_notifications = ulTaskNotifyTake(pdTRUE, timeoutMs);
-    parent_bus.taskInProgress               = nullptr;
+    parent_bus.taskInProgress        = nullptr;
 
     if (const bool transaction_timed_out = num_notifications; transaction_timed_out == 0)
     {
@@ -115,8 +115,8 @@ std::expected<void, ErrorCode> device::receive(std::span<uint8_t> rx) const
 
     enableNss();
 
-    std::expected<void, ErrorCode> exit =
-        hw::utils::convertHalStatus(HAL_SPI_Receive_IT(&parent_bus.handle, rx.data(), static_cast<uint16_t>(rx.size())));
+    std::expected<void, ErrorCode> exit = hw::utils::convertHalStatus(
+        HAL_SPI_Receive_IT(&parent_bus.handle, rx.data(), static_cast<uint16_t>(rx.size())));
     if (not exit.has_value())
     {
         // Mark this transaction as no longer in progress.
@@ -153,8 +153,8 @@ std::expected<void, ErrorCode> device::receive(std::span<uint8_t> rx) const
     {
         // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
         enableNss();
-        const std::expected<void, ErrorCode> exit =
-            hw::utils::convertHalStatus(HAL_SPI_TransmitReceive(&parent_bus.handle, paddedTx, paddedRx, combined, timeoutMs));
+        const std::expected<void, ErrorCode> exit = hw::utils::convertHalStatus(
+            HAL_SPI_TransmitReceive(&parent_bus.handle, paddedTx, paddedRx, combined, timeoutMs));
         disableNss();
 
         // Data will not be returned over SPI until command has finished, so data in first tx_buffer_size bytes not
