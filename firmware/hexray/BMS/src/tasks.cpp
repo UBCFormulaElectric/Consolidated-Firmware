@@ -225,7 +225,11 @@ void BMS_StartAllTasks()
 
 void tasks_preInit()
 {
-    hw::bootup::enableInterruptsForApp();
+#ifdef BOOTLOAD
+    // hw::bootup::enableInterruptsForApp();
+#else
+    __enable_irq();
+#endif
     hw_hardFaultHandler_init();
 }
 

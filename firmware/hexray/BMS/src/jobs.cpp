@@ -186,7 +186,7 @@ void jobs_adbms_init()
 
 void jobs_runAdbmsVoltages_tick()
 {
-    const bool balancing_enabled = false;
+    const bool balancing_enabled = true;
 
     spi_bus_lock.take(io::MAX_TIMEOUT);
 

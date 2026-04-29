@@ -99,7 +99,7 @@ static void MX_USB_OTG_HS_PCD_Init(void);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
+    tasks_preInit();
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -127,7 +127,7 @@ int main(void)
     MX_ADC1_Init();
     MX_FDCAN1_Init();
     MX_FDCAN2_Init();
-    MX_SDMMC1_SD_Init();
+    // MX_SDMMC1_SD_Init();
     MX_SPI4_Init();
     MX_ADC3_Init();
     MX_CRC_Init();
@@ -1004,7 +1004,7 @@ static void MX_GPIO_Init(void)
 
 /**
  * @brief  Period elapsed callback in non blocking mode
- * @note   This function is called  when TIM2 interrupt took place, inside
+ * @note   This function is called  when TIM6 interrupt took place, inside
  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
  * a global variable "uwTick" used as application time base.
  * @param  htim : TIM handle
@@ -1015,7 +1015,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     /* USER CODE BEGIN Callback 0 */
 
     /* USER CODE END Callback 0 */
-    if (htim->Instance == TIM2)
+    if (htim->Instance == TIM6)
     {
         HAL_IncTick();
     }

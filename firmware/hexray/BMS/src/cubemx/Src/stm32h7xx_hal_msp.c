@@ -72,6 +72,10 @@ void HAL_MspInit(void)
     __HAL_RCC_SYSCFG_CLK_ENABLE();
 
     /* System interrupt init*/
+    /* SVCall_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(SVCall_IRQn, 15, 0);
+    /* PendSV_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(PendSV_IRQn, 15, 0);
 
     /* USER CODE BEGIN MspInit 1 */
 
@@ -471,7 +475,7 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd)
         HAL_GPIO_Init(SD_CMD_GPIO_Port, &GPIO_InitStruct);
 
         /* SDMMC1 interrupt Init */
-        HAL_NVIC_SetPriority(SDMMC1_IRQn, 0, 0);
+        HAL_NVIC_SetPriority(SDMMC1_IRQn, 5, 0);
         HAL_NVIC_EnableIRQ(SDMMC1_IRQn);
         /* USER CODE BEGIN SDMMC1_MspInit 1 */
 
@@ -632,7 +636,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim_base)
         HAL_GPIO_Init(IMD_M_HS_3V3_GPIO_Port, &GPIO_InitStruct);
 
         /* TIM1 interrupt Init */
-        HAL_NVIC_SetPriority(TIM1_CC_IRQn, 0, 0);
+        HAL_NVIC_SetPriority(TIM1_CC_IRQn, 5, 0);
         HAL_NVIC_EnableIRQ(TIM1_CC_IRQn);
         /* USER CODE BEGIN TIM1_MspInit 1 */
 
