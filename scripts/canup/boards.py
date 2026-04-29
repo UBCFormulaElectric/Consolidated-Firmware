@@ -109,7 +109,7 @@ STM32H733_MCU = Microcontroller(
             write_protect=write_protect,
         )
         for sector_id, base, size_kb, write_protect in [
-            # Sectors 0 is taken up by bootloader code, so mark it as write-protect.
+            # Sectors 0 are taken up by bootloader code, so mark them as write-protect.
             (0, 0x08000000, 128, True),  # Sector 0
             (1, 0x08020000, 128, False),  # Sector 1
             (2, 0x08040000, 128, False),  # Sector 2
@@ -181,6 +181,14 @@ h5dev = Board(
     path=os.path.join("firmware", "dev", "h5dev", "h5dev_app_metadata.hex")
 )
 
+hexray_BMS = Board(
+    name="BMS",
+    boot_id_range_start=0x04000000,
+    app_id_range_start=400,
+    mcu=STM32H733_MCU,
+    path=os.path.join("firmware", "hexray", "BMS", "hexray_BMS_app_metadata.hex"),
+)
+
 CONFIGS = {
     "hexray_FSM": [hexray_FSM],
     "hexray_RSM": [hexray_RSM],
@@ -193,4 +201,5 @@ CONFIGS = {
     "hexray" : [hexray_RSM, hexray_BMS, hexray_CRIT, hexray_DAM, hexray_CRIT, hexray_FSM, hexray_VC],
     "h7dev": [h7dev],
     "h5dev": [h5dev],
+    "hexray_BMS" : [hexray_BMS],
 }

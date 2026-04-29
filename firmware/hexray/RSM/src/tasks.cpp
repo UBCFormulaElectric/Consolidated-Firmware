@@ -110,9 +110,12 @@ void tasks_preInit()
 
 void tasks_init()
 {
+    SEGGER_SYSVIEW_Conf();
+
     hw::adcs::chipsInit();
     hw::can::can1.init();
 
+<<<<<<< HEAD
     hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
     if (boot_request.context != hw::bootup::BootContext::BOOT_CONTEXT_NONE)
     {
@@ -126,6 +129,8 @@ void tasks_init()
         hw::bootup::setBootRequest(boot_request);
     }
 
+=======
+>>>>>>> master
     jobs_init();
     osKernelInitialize();
     RSM_StartAllTasks();

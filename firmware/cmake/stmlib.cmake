@@ -124,7 +124,7 @@ function(stm32f412rx_cube_library
             "${FREERTOS_DIR}/*.c"
             "${FREERTOS_DIR}/CMSIS_RTOS_V2/cmsis_os2.c"
             "${FREERTOS_DIR}/portable/GCC/ARM_CM4F/port.c"
-            "${FREERTOS_DIR}/portable/MemMang/heap_4.c"
+            #            "${FREERTOS_DIR}/portable/MemMang/heap_4.c"
     )
 
     # SEGGER SystemView sources.
@@ -234,7 +234,7 @@ function(stm32h733xx_cube_library
             "${FREERTOS_DIR}/*.c"
             "${FREERTOS_DIR}/CMSIS_RTOS_V2/cmsis_os2.c"
             "${FREERTOS_DIR}/portable/GCC/ARM_CM7/r0p1/port.c"
-            "${FREERTOS_DIR}/portable/MemMang/heap_4.c"
+            #            "${FREERTOS_DIR}/portable/MemMang/heap_4.c"
     )
 
     # SEGGER SystemView sources.
@@ -340,7 +340,7 @@ function(stm32h562xx_cube_library
             "${FREERTOS_DIR}/CMSIS_RTOS_V2/cmsis_os2.c"
             "${FREERTOS_DIR}/portable/GCC/ARM_CM33_NTZ/non_secure/port.c"
             "${FREERTOS_DIR}/portable/GCC/ARM_CM33_NTZ/non_secure/portasm.c"
-            "${FREERTOS_DIR}/portable/MemMang/heap_4.c"
+            #            "${FREERTOS_DIR}/portable/MemMang/heap_4.c"
     )
 
     # SEGGER SystemView sources.

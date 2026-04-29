@@ -51,7 +51,7 @@ void hw::fdcan::init() const
     filter.FilterID2    = 0x1FFFFFFF; // Mask bits for Extended CAN ID
 
 // Fields only enabled for H7
-#if defined(STM32H753xx)
+#if defined(STM32H733xx)
     filter.IsCalibrationMsg = 0;
     filter.RxBufferIndex    = 0;
 #endif
@@ -84,7 +84,7 @@ std::expected<void, ErrorCode> hw::fdcan::can_transmit(const CanMsg &msg) const
     tx_header.Identifier  = msg.std_id;
     tx_header.IdType      = (msg.std_id > MAX_11_BITS_VALUE) ? FDCAN_EXTENDED_ID : FDCAN_STANDARD_ID;
     tx_header.TxFrameType = FDCAN_DATA_FRAME;
-#if defined(STM32H753xx)
+#if defined(STM32H733xx)
     tx_header.DataLength = msg.dlc << 16; // Data length code needs to be shifted by 16 bits.
 #elif defined(STM32H562xx)
     tx_header.DataLength = msg.dlc; // Data length code
@@ -104,7 +104,7 @@ std::expected<void, ErrorCode> hw::fdcan::fdcan_transmit(const CanMsg &msg) cons
     uint32_t dlc = 0;
     if (msg.dlc <= 8)
     {
-#if defined(STM32H753xx)
+#if defined(STM32H733xx)
         dlc = msg.dlc << 16; // Data length code needs to be shifted by 16 bits.
 #elif defined(STM32H562xx)
         dlc = msg.dlc;
