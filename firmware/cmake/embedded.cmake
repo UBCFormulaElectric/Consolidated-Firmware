@@ -27,19 +27,15 @@ set(SHARED_COMPILER_FLAGS
         -nostdlib
         -nodefaultlibs
         $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti -fno-exceptions>
+        -g3
 )
 
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    list(APPEND SHARED_COMPILER_FLAGS
-            -O0 # previously O0, idk why this breaks bootloader??
-            -g3
-    )
+    list(APPEND SHARED_COMPILER_FLAGS -O0)
 else ()
-    list(APPEND SHARED_COMPILER_FLAGS
-            -Os
-            -g0
-    )
+    list(APPEND SHARED_COMPILER_FLAGS -Os)
 endif ()
+
 set(SHARED_LINKER_FLAGS
         -Wl,-gc-sections,--print-memory-usage
         -L${FIRMWARE_DIR}/linker

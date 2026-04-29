@@ -107,8 +107,11 @@ void tasks_preInit()
 
 [[noreturn]] void tasks_init()
 {
+    SEGGER_SYSVIEW_Conf();
+
     hw::can::fdcan1.init();
     hw::adcs::chipsInit();
+
     jobs_init();
     osKernelInitialize();
     FSM_StartAllTasks();

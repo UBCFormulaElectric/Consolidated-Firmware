@@ -66,10 +66,13 @@ template <size_t NUM_ADC_CHANNELS> class AdcChip
     explicit AdcChip(ADC_HandleTypeDef *const in_hadc, TIM_HandleTypeDef *const in_htim)
       : hadc(in_hadc), htim(in_htim){};
 
-    void init() const
+    void init(bool start_timer = true) const
     {
         assert(HAL_ADC_Start_DMA(hadc, (uint32_t *)raw_adc_values.data(), hadc->Init.NbrOfConversion) == HAL_OK);
-        assert(HAL_TIM_Base_Start(htim) == HAL_OK);
+        if (start_timer)
+        {
+            assert(HAL_TIM_Base_Start(htim) == HAL_OK);
+        }
     }
 
     void update_callback() const
