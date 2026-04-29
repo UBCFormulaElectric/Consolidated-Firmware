@@ -23,65 +23,73 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-<<<<<<<< HEAD:firmware/hexray/RSM/boot/cubemx/Src/stm32h5xx_it.c
+<<<<<<<<
+    HEAD : firmware / hexray / RSM / boot / cubemx / Src / stm32h5xx_it.c
 #include "stm32h5xx_it.h"
-========
+    == == == ==
 #include "stm32h7xx_it.h"
->>>>>>>> master:firmware/hexray/BMS/boot/cubemx/Src/stm32h7xx_it.c
+    >>>>>>>> master : firmware /
+                      hexray /
+                      BMS /
+                      boot /
+                      cubemx /
+                      Src /
+                      stm32h7xx_it.c
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "hw_hardFaultHandler.hpp"
-/* USER CODE END Includes */
+    /* USER CODE END Includes */
 
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN TD */
+    /* Private typedef -----------------------------------------------------------*/
+    /* USER CODE BEGIN TD */
 
-/* USER CODE END TD */
+    /* USER CODE END TD */
 
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
+    /* Private define ------------------------------------------------------------*/
+    /* USER CODE BEGIN PD */
 
-/* USER CODE END PD */
+    /* USER CODE END PD */
 
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
+    /* Private macro -------------------------------------------------------------*/
+    /* USER CODE BEGIN PM */
 
-/* USER CODE END PM */
+    /* USER CODE END PM */
 
-/* Private variables ---------------------------------------------------------*/
-/* USER CODE BEGIN PV */
+    /* Private variables ---------------------------------------------------------*/
+    /* USER CODE BEGIN PV */
 
-/* USER CODE END PV */
+    /* USER CODE END PV */
 
-/* Private function prototypes -----------------------------------------------*/
-/* USER CODE BEGIN PFP */
+    /* Private function prototypes -----------------------------------------------*/
+    /* USER CODE BEGIN PFP */
 
-/* USER CODE END PFP */
+    /* USER CODE END PFP */
 
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
+    /* Private user code ---------------------------------------------------------*/
+    /* USER CODE BEGIN 0 */
 
-/* USER CODE END 0 */
+    /* USER CODE END 0 */
 
-/* External variables --------------------------------------------------------*/
-<<<<<<<< HEAD:firmware/hexray/RSM/boot/cubemx/Src/stm32h5xx_it.c
-extern FDCAN_HandleTypeDef hfdcan1;
-========
-extern FDCAN_HandleTypeDef hfdcan2;
-extern TIM_HandleTypeDef   htim6;
+    /* External variables --------------------------------------------------------*/
+    < < < < < < < <
+    HEAD : firmware / hexray / RSM / boot / cubemx / Src / stm32h5xx_it.c extern FDCAN_HandleTypeDef hfdcan1;
+== == == == extern FDCAN_HandleTypeDef                                                               hfdcan2;
+extern TIM_HandleTypeDef                                                                             htim6;
 
->>>>>>>> master:firmware/hexray/BMS/boot/cubemx/Src/stm32h7xx_it.c
-/* USER CODE BEGIN EV */
+>>>>>>>> master : firmware / hexray / BMS / boot / cubemx / Src /
+                  stm32h7xx_it.c
+                  /* USER CODE BEGIN EV */
 
-/* USER CODE END EV */
+                  /* USER CODE END EV */
 
-/******************************************************************************/
-/*           Cortex Processor Interruption and Exception Handlers          */
-/******************************************************************************/
-/**
- * @brief This function handles Non maskable interrupt.
- */
-void NMI_Handler(void)
+                  /******************************************************************************/
+                  /*           Cortex Processor Interruption and Exception Handlers          */
+                  /******************************************************************************/
+                  /**
+                   * @brief This function handles Non maskable interrupt.
+                   */
+                  void
+                  NMI_Handler(void)
 {
     /* USER CODE BEGIN NonMaskableInt_IRQn 0 */
 
@@ -156,8 +164,7 @@ void UsageFault_Handler(void)
 /**
  * @brief This function handles Debug monitor.
  */
-void DebugMon_Handler(void)
-{
+void DebugMon_Handler(void){
     /* USER CODE BEGIN DebugMonitor_IRQn 0 */
 
     /* USER CODE END DebugMonitor_IRQn 0 */
@@ -166,18 +173,19 @@ void DebugMon_Handler(void)
     /* USER CODE END DebugMonitor_IRQn 1 */
 }
 
-/******************************************************************************/
-<<<<<<<< HEAD:firmware/hexray/RSM/boot/cubemx/Src/stm32h5xx_it.c
-/* STM32H5xx Peripheral Interrupt Handlers                                    */
-/* Add here the Interrupt Handlers for the used peripherals.                  */
-/* For the available peripheral interrupt handler names,                      */
-/* please refer to the startup file (startup_stm32h5xx.s).                    */
-/******************************************************************************/
+    /******************************************************************************/
+    < < < < < < < < HEAD : firmware / hexray / RSM / boot / cubemx / Src /
+                           stm32h5xx_it.c
+                           /* STM32H5xx Peripheral Interrupt Handlers                                    */
+                           /* Add here the Interrupt Handlers for the used peripherals.                  */
+                           /* For the available peripheral interrupt handler names,                      */
+                           /* please refer to the startup file (startup_stm32h5xx.s).                    */
+                           /******************************************************************************/
 
-/**
- * @brief This function handles RCC non-secure global interrupt.
- */
-void RCC_IRQHandler(void)
+                           /**
+                            * @brief This function handles RCC non-secure global interrupt.
+                            */
+                           void RCC_IRQHandler(void)
 {
     /* USER CODE BEGIN RCC_IRQn 0 */
 
@@ -213,56 +221,56 @@ void FDCAN1_IT1_IRQHandler(void)
     /* USER CODE BEGIN FDCAN1_IT1_IRQn 1 */
 
     /* USER CODE END FDCAN1_IT1_IRQn 1 */
-========
-/* STM32H7xx Peripheral Interrupt Handlers                                    */
-/* Add here the Interrupt Handlers for the used peripherals.                  */
-/* For the available peripheral interrupt handler names,                      */
-/* please refer to the startup file (startup_stm32h7xx.s).                    */
-/******************************************************************************/
+    == == == ==
+        /* STM32H7xx Peripheral Interrupt Handlers                                    */
+        /* Add here the Interrupt Handlers for the used peripherals.                  */
+        /* For the available peripheral interrupt handler names,                      */
+        /* please refer to the startup file (startup_stm32h7xx.s).                    */
+        /******************************************************************************/
 
-/**
- * @brief This function handles FDCAN2 interrupt 0.
- */
-void FDCAN2_IT0_IRQHandler(void)
-{
-    /* USER CODE BEGIN FDCAN2_IT0_IRQn 0 */
+        /**
+         * @brief This function handles FDCAN2 interrupt 0.
+         */
+        void FDCAN2_IT0_IRQHandler(void)
+    {
+        /* USER CODE BEGIN FDCAN2_IT0_IRQn 0 */
 
-    /* USER CODE END FDCAN2_IT0_IRQn 0 */
-    HAL_FDCAN_IRQHandler(&hfdcan2);
-    /* USER CODE BEGIN FDCAN2_IT0_IRQn 1 */
+        /* USER CODE END FDCAN2_IT0_IRQn 0 */
+        HAL_FDCAN_IRQHandler(&hfdcan2);
+        /* USER CODE BEGIN FDCAN2_IT0_IRQn 1 */
 
-    /* USER CODE END FDCAN2_IT0_IRQn 1 */
-}
+        /* USER CODE END FDCAN2_IT0_IRQn 1 */
+    }
 
-/**
- * @brief This function handles FDCAN2 interrupt 1.
- */
-void FDCAN2_IT1_IRQHandler(void)
-{
-    /* USER CODE BEGIN FDCAN2_IT1_IRQn 0 */
+    /**
+     * @brief This function handles FDCAN2 interrupt 1.
+     */
+    void FDCAN2_IT1_IRQHandler(void)
+    {
+        /* USER CODE BEGIN FDCAN2_IT1_IRQn 0 */
 
-    /* USER CODE END FDCAN2_IT1_IRQn 0 */
-    HAL_FDCAN_IRQHandler(&hfdcan2);
-    /* USER CODE BEGIN FDCAN2_IT1_IRQn 1 */
+        /* USER CODE END FDCAN2_IT1_IRQn 0 */
+        HAL_FDCAN_IRQHandler(&hfdcan2);
+        /* USER CODE BEGIN FDCAN2_IT1_IRQn 1 */
 
-    /* USER CODE END FDCAN2_IT1_IRQn 1 */
-}
+        /* USER CODE END FDCAN2_IT1_IRQn 1 */
+    }
 
-/**
- * @brief This function handles TIM6 global interrupt, DAC1_CH1 and DAC1_CH2 underrun error interrupts.
- */
-void TIM6_DAC_IRQHandler(void)
-{
-    /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
+    /**
+     * @brief This function handles TIM6 global interrupt, DAC1_CH1 and DAC1_CH2 underrun error interrupts.
+     */
+    void TIM6_DAC_IRQHandler(void)
+    {
+        /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
 
-    /* USER CODE END TIM6_DAC_IRQn 0 */
-    HAL_TIM_IRQHandler(&htim6);
-    /* USER CODE BEGIN TIM6_DAC_IRQn 1 */
+        /* USER CODE END TIM6_DAC_IRQn 0 */
+        HAL_TIM_IRQHandler(&htim6);
+        /* USER CODE BEGIN TIM6_DAC_IRQn 1 */
 
-    /* USER CODE END TIM6_DAC_IRQn 1 */
->>>>>>>> master:firmware/hexray/BMS/boot/cubemx/Src/stm32h7xx_it.c
-}
+        /* USER CODE END TIM6_DAC_IRQn 1 */
+        >>>>>>>> master : firmware / hexray / BMS / boot / cubemx / Src / stm32h7xx_it.c
+    }
 
-/* USER CODE BEGIN 1 */
+    /* USER CODE BEGIN 1 */
 
-/* USER CODE END 1 */
+    /* USER CODE END 1 */

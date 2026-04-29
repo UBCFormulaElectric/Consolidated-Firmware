@@ -22,16 +22,23 @@
 /* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-<<<<<<<< HEAD:firmware/hexray/RSM/boot/cubemx/Inc/stm32h5xx_it.h
+<<<<<<<<
+    HEAD : firmware / hexray / RSM / boot / cubemx / Inc / stm32h5xx_it.h
 #ifndef __STM32H5xx_IT_H
 #define __STM32H5xx_IT_H
-========
+    == == == ==
 #ifndef __STM32H7xx_IT_H
 #define __STM32H7xx_IT_H
->>>>>>>> master:firmware/hexray/BMS/boot/cubemx/Inc/stm32h7xx_it.h
+    >>>>>>>> master : firmware /
+                      hexray /
+                      BMS /
+                      boot /
+                      cubemx /
+                      Inc /
+                      stm32h7xx_it.h
 
 #ifdef __cplusplus
-extern "C"
+                      extern "C"
 {
 #endif
 
@@ -56,21 +63,19 @@ extern "C"
     /* USER CODE END EM */
 
     /* Exported functions prototypes ---------------------------------------------*/
-    void NMI_Handler(void);
-    void HardFault_Handler(void);
-    void MemManage_Handler(void);
-    void BusFault_Handler(void);
-    void UsageFault_Handler(void);
-    void DebugMon_Handler(void);
-<<<<<<<< HEAD:firmware/hexray/RSM/boot/cubemx/Inc/stm32h5xx_it.h
-    void RCC_IRQHandler(void);
-    void FDCAN1_IT0_IRQHandler(void);
-    void FDCAN1_IT1_IRQHandler(void);
-========
-    void FDCAN2_IT0_IRQHandler(void);
-    void FDCAN2_IT1_IRQHandler(void);
-    void TIM6_DAC_IRQHandler(void);
->>>>>>>> master:firmware/hexray/BMS/boot/cubemx/Inc/stm32h7xx_it.h
+    void                                                                                       NMI_Handler(void);
+    void                                                                                       HardFault_Handler(void);
+    void                                                                                       MemManage_Handler(void);
+    void                                                                                       BusFault_Handler(void);
+    void                                                                                       UsageFault_Handler(void);
+    void                                                                                       DebugMon_Handler(void);
+    < < < < < < < < HEAD : firmware / hexray / RSM / boot / cubemx / Inc / stm32h5xx_it.h void RCC_IRQHandler(void);
+    void             FDCAN1_IT0_IRQHandler(void);
+    void             FDCAN1_IT1_IRQHandler(void);
+    == == == == void FDCAN2_IT0_IRQHandler(void);
+    void             FDCAN2_IT1_IRQHandler(void);
+    void             TIM6_DAC_IRQHandler(void);
+    >>>>>>>> master : firmware / hexray / BMS / boot / cubemx / Inc / stm32h7xx_it.h
     /* USER CODE BEGIN EFP */
 
     /* USER CODE END EFP */
@@ -79,8 +84,15 @@ extern "C"
 }
 #endif
 
-<<<<<<<< HEAD:firmware/hexray/RSM/boot/cubemx/Inc/stm32h5xx_it.h
+<<<<<<<<
+    HEAD : firmware / hexray / RSM / boot / cubemx / Inc / stm32h5xx_it.h
 #endif /* __STM32H5xx_IT_H */
-========
+    == == == ==
 #endif /* __STM32H7xx_IT_H */
->>>>>>>> master:firmware/hexray/BMS/boot/cubemx/Inc/stm32h7xx_it.h
+    >>>>>>>> master : firmware /
+                      hexray /
+                      BMS /
+                      boot /
+                      cubemx /
+                      Inc /
+                      stm32h7xx_it.h

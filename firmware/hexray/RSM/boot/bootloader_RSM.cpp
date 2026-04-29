@@ -21,7 +21,6 @@ void rx_overflow_callback(const uint32_t overflow_count)
 void tx_overflow_clear_callback(){};
 void rx_overflow_clear_callback(){};
 
-
 static_assert(sizeof(hw::CanMsg) == 72);
 io::queue<hw::CanMsg, 256> boot_can_tx_queue{ "CanTxQueue", tx_overflow_callback, tx_overflow_clear_callback };
 io::queue<hw::CanMsg, 256> boot_can_rx_queue{ "CanRxQueue", rx_overflow_callback, rx_overflow_clear_callback };
@@ -45,7 +44,6 @@ bootloader::config RSM_boot_config(
     git_commit_hash_val,
     git_commit_clean_val);
 
-
 static hw::rtos::StaticTask<1024>
     bootInterfaceTask(osPriorityRealtime, "BootIntf", [](void *) { bootloader::runInterfaceTask(RSM_boot_config); });
 static hw::rtos::StaticTask<1024>
@@ -67,5 +65,5 @@ CFUNC void bootloader_preInit()
     bootTickTask.start();
     bootCanTxTask.start();
     osKernelStart();
-    forever {};
+    forever{};
 }
