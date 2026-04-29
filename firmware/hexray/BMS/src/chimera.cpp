@@ -5,7 +5,7 @@
 #include "hw_hardFaultHandler.hpp"
 #include "hw_spis.hpp"
 #include "hw_usb.hpp"
-#include "hw_i2cs.hpp"
+// #include "hw_i2cs.hpp"
 #include <bms.pb.h>
 #include "hw_rtosTaskHandler.hpp"
 
@@ -146,12 +146,6 @@ class BMSChimeraConfig final : public chimera_v2::config
                 LOG_INFO("Chimera: Unspecified SPI net name");
                 return std::nullopt;
         }
-    }
-
-    std::optional<std::reference_wrapper<const hw::i2c::device>> id_to_i2c(const _I2cNetName *inn) const override
-    {
-        UNUSED(inn);
-        return std::nullopt;
     }
 
     std::optional<std::reference_wrapper<const hw::PwmOutput>> id_to_pwm(const _PwmNetName *pnn) const override
