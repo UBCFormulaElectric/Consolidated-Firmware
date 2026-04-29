@@ -26,7 +26,6 @@ void jobs_init()
             LOG_IF_ERR(can_tx_queue.push(msg));
         });
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
-    io::switches::init();
 
     app::can_tx::CRIT_Hash_set(GIT_COMMIT_HASH);
     app::can_tx::CRIT_Clean_set(GIT_COMMIT_CLEAN);
@@ -67,7 +66,7 @@ void jobs_run100Hz_tick()
     app::switches::broadcast();
     app::driveModes::broadcast();
 
-    // TODO debounce and find rising edge
+    // TODO find rising edge
     // if (const bool has_rising_edge = io::switches::telem_mark_get(); has_rising_edge)
     // {
     //     io::can_tx::CRIT_TelemMarkEvent_sendAperiodic();
