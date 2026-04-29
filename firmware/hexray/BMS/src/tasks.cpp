@@ -225,7 +225,7 @@ void tasks_preInit()
 void tasks_init()
 {
     __HAL_DBGMCU_FREEZE_IWDG1();
-    hw::adc::chipsInit();
+    //hw::adc::chipsInit();
     hw::can::fdcan1.init();
     hw::can::fdcan2.init();
 

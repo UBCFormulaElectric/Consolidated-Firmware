@@ -49,7 +49,6 @@ constexpr const char *error_code_to_string(const ErrorCode code)
     {                                                                          \
         if (const auto res = err_expr; not res)                                \
         {                                                                      \
-            LOG_ERROR(#err_expr " exited with an error, returning: %d", exit); \
             return std::unexpected(res.error());                               \
         }                                                                      \
     }
