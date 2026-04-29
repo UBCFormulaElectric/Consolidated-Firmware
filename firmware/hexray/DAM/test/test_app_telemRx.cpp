@@ -7,6 +7,16 @@
 #include <vector>
 
 #include "app_ntp.hpp"
+#include "io_rtc.hpp"
+
+// Test-only spies on the fake RTC, defined in fake_io_rtc.cpp.
+namespace fakes::rtc
+{
+void          setNow(const io::rtc::Time &t);
+io::rtc::Time lastSetTime();
+bool          wasSetCalled();
+void          reset();
+} // namespace fakes::rtc
 
 namespace
 {
@@ -35,8 +45,65 @@ void feed(const std::vector<uint8_t> &bytes, uint64_t rx_time_ms = 0)
 class TelemRxTest : public ::testing::Test
 {
   protected:
-    void SetUp() override { app::telemRx::reset(); }
+    void SetUp() override
+    {
+        app::telemRx::reset();
+        fakes::rtc::reset();
+    }
 };
+
+TEST_F(TelemRxTest, SlewsRtcToNextSecondBoundary)
+{
+    // Seed the RTC to 0:0:0.000 (subseconds=999 means "0 ms into this second").
+    io::rtc::Time start{};
+    start.hours      = 0;
+    start.minutes    = 0;
+    start.seconds    = 0;
+    start.subseconds = 999;
+    fakes::rtc::setNow(start);
+
+    // t0 captured "before transmit" = 0 ms.
+    app::ntp::recordT0(0);
+
+    // Frame: t1 = 750, t2 = 750. We claim t3 = 0 at receive.
+    // theta    = ((750 - 0) + (750 - 0)) / 2 = 750
+    // new_ms   = current_rtc_ms (0) + theta (750) = 750
+    // round up to next 1000-ms boundary -> 1000 ms = 0:0:1.000
+    // msToRtcTime(1000) -> hours=0, minutes=0, seconds=1, subseconds=999
+    feed(buildNtpFrame(/*t1=*/750, /*t2=*/750), /*rx_time_ms=*/0);
+
+    EXPECT_TRUE(fakes::rtc::wasSetCalled());
+    const auto last = fakes::rtc::lastSetTime();
+    EXPECT_EQ(last.hours, 0u);
+    EXPECT_EQ(last.minutes, 0u);
+    EXPECT_EQ(last.seconds, 1u);
+    EXPECT_EQ(last.subseconds, 999u); // PREDIV_S => "0 ms into this second"
+}
+
+TEST_F(TelemRxTest, SlewSetsRtcExactlyOnBoundaryWhenAlreadyAligned)
+{
+    // RTC at 12:00:00.000 (43_200_000 ms-of-day).
+    io::rtc::Time start{};
+    start.hours      = 12;
+    start.minutes    = 0;
+    start.seconds    = 0;
+    start.subseconds = 999;
+    fakes::rtc::setNow(start);
+
+    // Pick t0/t1/t2/t3 so theta is an exact-second multiple.
+    // theta = ((t1 - t0) + (t2 - t3)) / 2 = ((1000 - 0) + (1000 - 0)) / 2 = 1000
+    app::ntp::recordT0(0);
+    feed(buildNtpFrame(/*t1=*/1000, /*t2=*/1000), /*rx_time_ms=*/0);
+
+    // new_ms = 43_200_000 + 1000 = 43_201_000  (already on a second boundary)
+    // -> hours=12, minutes=0, seconds=1, subseconds=999
+    EXPECT_TRUE(fakes::rtc::wasSetCalled());
+    const auto last = fakes::rtc::lastSetTime();
+    EXPECT_EQ(last.hours, 12u);
+    EXPECT_EQ(last.minutes, 0u);
+    EXPECT_EQ(last.seconds, 1u);
+    EXPECT_EQ(last.subseconds, 999u);
+}
 
 TEST_F(TelemRxTest, ConsumesValidFrameAndUpdatesTimestamps)
 {
