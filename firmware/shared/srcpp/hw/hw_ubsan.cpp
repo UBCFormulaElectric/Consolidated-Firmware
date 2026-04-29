@@ -20,6 +20,7 @@ extern "C"
     void __ubsan_handle_vla_bound_not_positive(void *_data, void *bound);        // NOLINT(*-reserved-identifier)
     void __ubsan_handle_pointer_overflow(void *_data, void *base, void *result); // NOLINT(*-reserved-identifier)
     void __ubsan_handle_divrem_overflow(void *_data, void *lhs, void *rhs);      // NOLINT(*-reserved-identifier)
+    void __ubsan_handle_builtin_unreachable(void *_data);                        // NOLINT(*-reserved-identifier)
 } // extern "C"
 
 #define VALUE_LENGTH 40
