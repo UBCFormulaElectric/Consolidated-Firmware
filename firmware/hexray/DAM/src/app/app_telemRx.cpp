@@ -38,7 +38,7 @@ namespace
 
         switch (static_cast<MessageId>(body[0]))
         {
-            case MessageId::Ntp:
+            case MessageId::NTP:
             {
                 io::rtc::Time now{};
                 const auto    t = io::rtc::get_time(now);
@@ -64,6 +64,25 @@ namespace
                 LOG_INFO(
                     "Tuned RTC! New Time: %02u:%02u:%02u.%03lu", tuned.hours, tuned.minutes, tuned.seconds,
                     static_cast<unsigned long>(999 - tuned.subseconds));
+                break;
+            }
+            // Remote trigger of transmitNTP when dam is enclosed (button is inaccesible)
+            case MessageId::Remote_NTP:
+            {
+                const auto ntp_result = io::telemRx::transmitNTPStartMsg();
+                if (!ntp_result)
+                {
+                    LOG_ERROR("telemRx: Remote NTP transmit failed");
+                    return;
+                }
+                else
+                {
+                    app::ntp::recordT0(app::ntp::rtcTimeToMs(*ntp_result));
+                    LOG_INFO("telemRx: Remote NTP transmit successful");
+                    LOG_INFO(
+                        "Remote NTP Msg! at time: %02u:%02u:%02u.%03lu", ntp_result->hours, ntp_result->minutes,
+                        ntp_result->seconds, static_cast<unsigned long>(999 - ntp_result->subseconds));
+                }
                 break;
             }
             default:

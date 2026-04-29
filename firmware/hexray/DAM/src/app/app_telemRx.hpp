@@ -17,7 +17,8 @@ inline constexpr std::size_t kHeaderSize = 7; // magic(2) + size(1) + crc(4)
 
 enum class MessageId : uint8_t
 {
-    Ntp = 1,
+    NTP        = 1,
+    Remote_NTP = 2,
 };
 
 // PRECONDITION: ingest() and drain() are called from a SINGLE task
