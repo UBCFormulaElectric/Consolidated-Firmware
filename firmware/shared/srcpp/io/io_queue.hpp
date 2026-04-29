@@ -35,9 +35,8 @@ template <typename T, size_t QUEUE_SIZE> class queue
 
   public:
     explicit queue([[maybe_unused]] const char *name)
-      :
 #ifdef TARGET_EMBEDDED
-        queue_attr({
+      : queue_attr({
             .name      = name,
             .attr_bits = 0,
             .cb_mem    = &this->queue_control_block,
