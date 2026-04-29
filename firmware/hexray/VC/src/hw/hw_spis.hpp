@@ -1,13 +1,9 @@
 #pragma once
-
 #include "hw_spi.hpp"
 
-namespace hw::spi
-{
-extern bus spi1;
-extern bus spi2;
+extern const hw::spi::bus spi1;
+extern const hw::spi::bus spi2;
 
-extern device imu1;
-extern device imu2;
-extern device imu3;
-} // namespace hw::spi
+extern const hw::spi::device imu1;
+extern const hw::spi::device imu2;
+extern const hw::spi::device imu3;

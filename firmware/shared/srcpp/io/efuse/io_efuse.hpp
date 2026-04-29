@@ -28,7 +28,7 @@ class Efuse
      *
      * @param enabled
      */
-    void setChannel(bool enabled) { enable_gpio.writePin(enabled); }
+    void setChannel(const bool enabled) const { enable_gpio.writePin(enabled); }
 
     /**
      * @brief Check if efuse is enabled
@@ -42,7 +42,7 @@ class Efuse
      *
      * @return current flowing through efuse
      */
-    [[nodiscard]] virtual float getChannelCurrent() = 0;
+    [[nodiscard]] virtual float getChannelCurrent() const = 0;
 
     /**
      * @brief Reset the efuse
@@ -54,7 +54,7 @@ class Efuse
      *
      * @return true if efuse is ok, false if faulted
      */
-    [[nodiscard]] virtual bool ok() = 0;
+    [[nodiscard]] virtual bool ok() const = 0;
 #else
     explicit constexpr Efuse() {}
     bool  enabled = false;

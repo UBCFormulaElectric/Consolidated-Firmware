@@ -24,7 +24,7 @@ class TI_TPS28_Efuse final : public Efuse
 #ifdef TARGET_EMBEDDED
     const hw::gpio &pgood_gpio;
 #endif
-    TPS28_Faults faults{};
+    mutable TPS28_Faults faults{};
 
   public:
 #ifdef TARGET_EMBEDDED
@@ -35,9 +35,9 @@ class TI_TPS28_Efuse final : public Efuse
       : Efuse(in_enable_gpio, in_sns_adc_channel), pgood_gpio(in_pgood_gpio)
     {
     }
-    [[nodiscard]] float getChannelCurrent() override final;
+    [[nodiscard]] float getChannelCurrent() const override final;
     void                reset() override final;
-    [[nodiscard]] bool  ok() override final;
+    [[nodiscard]] bool  ok() const override final;
 
     /**
      * @brief Read the specific faults of the efuse

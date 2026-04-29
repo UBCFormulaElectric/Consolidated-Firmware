@@ -1,21 +1,20 @@
 #include "hw_i2cs.hpp"
 #include "main.h"
+#include <cassert>
 
-namespace hw::i2c
-{
-bus i2c_bus_4(hi2c4);
-bus i2c_bus_5(hi2c5);
+constexpr hw::i2c::bus i2c_bus_4(hi2c4);
+constexpr hw::i2c::bus i2c_bus_5(hi2c5);
 
-device bat_mon(i2c_bus_4, 0x10, 100);
-device pwr_pump(i2c_bus_5, 0x10, 100);
+const hw::i2c::device bat_mon(i2c_bus_4, 0x10, 100);
+const hw::i2c::device pwr_pump(i2c_bus_5, 0x10, 100);
 
-const bus &getBusFromHandle(const I2C_HandleTypeDef *handle)
+const hw::i2c::bus &getBusFromHandle(const I2C_HandleTypeDef *handle)
 {
     if (handle == &hi2c4)
     {
         return i2c_bus_4;
     }
-    else if (handle == &hi2c5)
+    if (handle == &hi2c5)
     {
         return i2c_bus_5;
     }
@@ -23,4 +22,3 @@ const bus &getBusFromHandle(const I2C_HandleTypeDef *handle)
     assert(false);
     return i2c_bus_4;
 }
-} // namespace hw::i2c

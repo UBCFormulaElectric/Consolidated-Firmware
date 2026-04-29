@@ -13,7 +13,7 @@ class Pump
 {
   public:
 #ifdef TARGET_EMBEDDED
-    constexpr explicit Pump(const Potentiometer &pot, bool invert, Efuse &efuse)
+    constexpr explicit Pump(const Potentiometer &pot, bool invert, const Efuse &efuse)
       : pot_{ pot }, invert_{ invert }, efuse_{ efuse }
     {
     }
@@ -42,7 +42,7 @@ class Pump
 #ifdef TARGET_EMBEDDED
     const Potentiometer &pot_;
     bool                 invert_;
-    Efuse               &efuse_;
+    const Efuse         &efuse_;
 #endif
 };
 } // namespace io

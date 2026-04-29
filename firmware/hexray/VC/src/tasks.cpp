@@ -60,7 +60,7 @@
             continue;
         if (const auto &m = msg.value(); m.bus == app::can_utils::BusEnum::Bus_FDCAN)
         {
-            const auto res = hw::can::fdcan1.fdcan_transmit(hw::CanMsg{
+            const auto res = fdcan1.fdcan_transmit(hw::CanMsg{
                 m.std_id,
                 m.dlc,
                 m.data,
@@ -82,7 +82,7 @@
             continue;
         if (const auto &m = msg.value(); m.bus == app::can_utils::BusEnum::Bus_FDCAN)
         {
-            const auto res = hw::can::invcan.can_transmit(hw::CanMsg{
+            const auto res = invcan.can_transmit(hw::CanMsg{
                 m.std_id,
                 m.dlc,
                 m.data,
@@ -134,8 +134,8 @@ void tasks_init()
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("VC Reset!");
 
-    hw::can::fdcan1.init();
-    hw::can::invcan.init();
+    fdcan1.init();
+    invcan.init();
 
     dam_en.writePin(true);
     rsm_en.writePin(true);
