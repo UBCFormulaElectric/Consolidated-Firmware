@@ -18,10 +18,8 @@ void rx_overflow_clear_callback(){};
 void tx_overflow_clear_callback(){};
 
 static_assert(sizeof(hw::CanMsg) == 72);
-io::queue<hw::CanMsg, 256> boot_can_tx_queue{ "CanTxQueue", tx_overflow_callback, tx_overflow_clear_callback };
-static_assert(sizeof(boot_can_tx_queue) == 18556);
-io::queue<hw::CanMsg, 256> boot_can_rx_queue{ "CanRxQueue", rx_overflow_callback, rx_overflow_clear_callback };
-static_assert(sizeof(boot_can_rx_queue) == 18556);
+io::queue<hw::CanMsg, 256> boot_can_tx_queue{ "CanTxQueue" };
+io::queue<hw::CanMsg, 256> boot_can_rx_queue{ "CanRxQueue" };
 
 namespace hw::cans
 {

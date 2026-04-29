@@ -5,6 +5,7 @@
 #include "hw_hal.hpp"
 
 #include <array>
+#include <expected>
 #include <span>
 
 namespace hw
