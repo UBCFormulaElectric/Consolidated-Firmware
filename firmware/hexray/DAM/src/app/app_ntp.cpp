@@ -56,9 +56,7 @@ bool parseNTPPacketBody(std::span<const uint8_t> body, Timestamps &ts)
     if (body.size() < MIN_NTP_PACKET_SIZE)
         return false;
 
-    if (body[0] != 1) // message id
-        return false;
-
+    // Wire format is little endian
     uint64_t t1;
     uint64_t t2;
     std::memcpy(&t1, &body[1], sizeof(uint64_t));

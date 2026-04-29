@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <span>
 #include "io_canMsg.hpp"
+#include <cstddef>
 
 namespace io::telemMessage
 {
@@ -23,6 +24,12 @@ struct [[gnu::packed]] Header
     Header() = default;
     Header(const uint8_t *payload, uint8_t payload_length);
 };
+
+// Enforce incase packed ever gets ignored/messed up. Sanity
+static_assert(sizeof(Header) == 7, "Header must be 7 bytes on the wire");
+static_assert(offsetof(Header, magic) == 0, "magic at offset 0");
+static_assert(offsetof(Header, payload_size) == 2, "payload_size at offset 2");
+static_assert(offsetof(Header, crc) == 3, "crc at offset 3");
 
 struct [[gnu::packed]] CanMsgBody
 {

@@ -29,7 +29,7 @@ std::expected<io::rtc::Time, ErrorCode> io::telemRx::transmitNTPStartMsg()
     if (!tx_result)
     {
         LOG_ERROR("Failed to transmit NTP message");
-        return std::unexpected(ErrorCode::ERROR);
+        return std::unexpected(tx_result.error());
     }
 
     LOG_INFO(

@@ -29,9 +29,7 @@ void recordT0(uint64_t t0_ms);
 // Read the most recently recorded timestamps. Used by tests and diagnostics.
 const Timestamps &timestamps();
 
-// Pure: parse an NTP body, combine with the previously recorded t0 and the
-// supplied t3, and return the RTC value (in ms-of-day) that the caller
-// should program in. Returns nullopt on parse failure. Does NOT touch RTC.
+// parse into g_ts and compute the new ms time based on the current RTC time
 std::optional<uint64_t> handleFrame(std::span<const uint8_t> body, uint64_t t3_ms, uint64_t current_rtc_ms);
 
 } // namespace app::ntp
