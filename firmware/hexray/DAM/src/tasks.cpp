@@ -59,7 +59,6 @@ extern "C"
 
 [[noreturn]] static void tasks_runLogging(void *arg)
 {
-    osDelayUntil(osWaitForever);
     forever
     {
         jobs_runLogging_tick();

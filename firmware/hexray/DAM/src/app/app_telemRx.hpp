@@ -20,6 +20,9 @@ enum class MessageId : uint8_t
     Ntp = 1,
 };
 
+// PRECONDITION: ingest() and drain() are called from a SINGLE task
+// (currently TaskTelemRx). The rx_time_ms global association is only
+// safe under strict ingest->drain ordering on one thread.
 // Push freshly-received bytes into the centralized ring buffer.
 // rx_time_ms is the RTC time captured immediately after this chunk landed;
 // it is associated with any frame whose last byte falls inside this chunk.
