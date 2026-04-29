@@ -67,10 +67,14 @@ void HAL_MspInit(void)
     /* USER CODE END MspInit 0 */
 
     /* System interrupt init*/
+    /* SVCall_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(SVCall_IRQn, 15, 0);
+    /* PendSV_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(PendSV_IRQn, 15, 0);
 
     /* Peripheral interrupt init */
     /* RCC_IRQn interrupt configuration */
-    HAL_NVIC_SetPriority(RCC_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(RCC_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(RCC_IRQn);
 
     /* USER CODE BEGIN MspInit 1 */
@@ -119,9 +123,9 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
         HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
         /* FDCAN1 interrupt Init */
-        HAL_NVIC_SetPriority(FDCAN1_IT0_IRQn, 0, 0);
+        HAL_NVIC_SetPriority(FDCAN1_IT0_IRQn, 5, 0);
         HAL_NVIC_EnableIRQ(FDCAN1_IT0_IRQn);
-        HAL_NVIC_SetPriority(FDCAN1_IT1_IRQn, 0, 0);
+        HAL_NVIC_SetPriority(FDCAN1_IT1_IRQn, 5, 0);
         HAL_NVIC_EnableIRQ(FDCAN1_IT1_IRQn);
         /* USER CODE BEGIN FDCAN1_MspInit 1 */
 

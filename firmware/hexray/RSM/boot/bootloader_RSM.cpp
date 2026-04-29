@@ -44,3 +44,8 @@ void bootloader_init()
 {
     bootloader::init(RSM_boot_config);
 }
+
+const hw::fdcan &hw::fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
+{
+    return hw::cans::fdcan1;
+}

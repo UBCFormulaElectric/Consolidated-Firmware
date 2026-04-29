@@ -42,7 +42,7 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
-    FDCAN_HandleTypeDef hfdcan1;
+    extern FDCAN_HandleTypeDef hfdcan1;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/
