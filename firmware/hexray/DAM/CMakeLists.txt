@@ -6,6 +6,7 @@ set(CUBEMX_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc")
 
 set(JOBS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/jobs.cpp")
 set(TASKS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.cpp")
+set(LOGFS_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/firmware/logfs/src")
 set(SYSTEM_SRCS ${JOBS_SRC} ${TASKS_SRC})
 set(SYSTEM_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src"
@@ -27,6 +28,7 @@ file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS
 )
 list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_filesystem.cpp"
 )
 set(IO_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
@@ -63,7 +65,7 @@ if ("${TARGET}" STREQUAL "binary")
     set(ARM_CORE "cm33")
     set(LINKER_SCRIPT "${LINKER_DIR}/stm32h562ritx/stm32h562ritx_app_only.ld")
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS})
-    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
+    set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS} ${LOGFS_INCLUDE_DIR})
 
     embedded_binary(
             "hexray_DAM_app"
@@ -119,7 +121,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    target_link_libraries("hexray_DAM_app.elf" PRIVATE "hexray_DAM_stm32" "hexray_DAM_commit_info" "hexray_DAM_jsoncan" "m")
+    target_link_libraries("hexray_DAM_app.elf" PRIVATE "hexray_DAM_stm32" "hexray_DAM_commit_info" "hexray_DAM_jsoncan" "m" "logfs_cm7")
     target_compile_definitions("hexray_DAM_app.elf" PRIVATE DAM)
 
     add_chimera_stm32h5("hexray_DAM_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}" "hexray_chimera_v2_proto_cm33")
@@ -136,7 +138,7 @@ elseif ("${TARGET}" STREQUAL "test")
     set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_IO_SRCS} ${TEST_SRCS} ${FAKE_SRCS})
     set(INCLUDE_DIRS
             # "${CMAKE_CURRENT_SOURCE_DIR}/test"
-            ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP}
+            ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP} ${LOGFS_INCLUDE_DIR}
     )
     compile_gtest_executable(
             "hexray_DAM_test"
