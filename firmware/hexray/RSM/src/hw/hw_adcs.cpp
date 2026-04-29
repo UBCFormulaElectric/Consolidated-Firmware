@@ -1,27 +1,23 @@
 #include "hw_adcs.hpp"
 #include "main.h"
+#include <cassert>
 
-namespace hw::adcs
-{
-constexpr int             NUM_ADC_CHANNELS = 4;
-AdcChip<NUM_ADC_CHANNELS> Adc_Chip(&hadc1, &htim3);
+constexpr hw::AdcChip<5> Adc_Chip{ hadc1, htim3 };
+constexpr hw::Adc        lc3_out            = Adc_Chip.getChannel(0);
+constexpr hw::Adc        susp_travel_rl_3v3 = Adc_Chip.getChannel(1);
+constexpr hw::Adc        susp_travel_rr_3v3 = Adc_Chip.getChannel(2);
+constexpr hw::Adc        bps_3v3            = Adc_Chip.getChannel(3);
 
 void chipsInit()
 {
-    Adc_Chip.init();
+    LOG_IF_ERR(Adc_Chip.init());
 }
-
-Adc lc3_out{ Adc_Chip.getChannel(0) };
-Adc susp_travel_rl_3v3{ Adc_Chip.getChannel(1) };
-Adc susp_travel_rr_3v3{ Adc_Chip.getChannel(2) };
-Adc bps_3v3{ Adc_Chip.getChannel(3) };
-
-} // namespace hw::adcs
 
 extern "C"
 {
     void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
     {
-        hw::adcs::Adc_Chip.update_callback();
+        assert(hadc == &Adc_Chip.gethadc());
+        Adc_Chip.update_callback();
     }
 }

@@ -7,6 +7,6 @@
 
 namespace hw::i2c
 {
-extern I2CDevice bat_mon;
-extern I2CDevice pwr_pump;
+extern device bat_mon;
+extern device pwr_pump;
 } // namespace hw::i2c

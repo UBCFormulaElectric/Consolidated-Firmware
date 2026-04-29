@@ -4,12 +4,12 @@
 
 std::expected<void, ErrorCode> hw::PwmOutput::start() const
 {
-    return hw_utils_convertHalStatus(HAL_TIM_PWM_Start(htim, pwm_channel));
+    return hw::utils::convertHalStatus(HAL_TIM_PWM_Start(htim, pwm_channel));
 }
 
 std::expected<void, ErrorCode> hw::PwmOutput::stop() const
 {
-    return hw_utils_convertHalStatus(HAL_TIM_PWM_Stop(htim, pwm_channel));
+    return hw::utils::convertHalStatus(HAL_TIM_PWM_Stop(htim, pwm_channel));
 }
 
 std::expected<void, ErrorCode> hw::PwmOutput::setDutyCycle(const float duty_cycle_in) const

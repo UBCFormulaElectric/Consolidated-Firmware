@@ -2,9 +2,6 @@
 
 #include "hw_adc.hpp"
 
-#define NUM_ADC1_CHANNELS 7
-#define NUM_ADC3_CHANNELS 1
-
 // In STM32 terminology, each ADC pin corresponds to an ADC channel (See:
 // ADCEx_channels). If there are multiple ADC channels being measured, the ADC
 // measures them based on "rank" (See: ADCEx_regular_rank). The rank starts
@@ -18,15 +15,15 @@
 
 namespace hw::adc
 {
-extern Adc fan_isns;
-extern Adc ts_vsense_p;
-extern Adc ts_vsense_n;
-extern Adc shdn_sns;
-extern Adc emeter_tsns;
-extern Adc ts_isense_400a;
-extern Adc ts_isense_50a;
+extern const AdcChip<7> adc1;
+extern const AdcChip<1> adc3;
 
-extern Adc aux_tsns;
-
-void chipsInit(void);
+extern const Adc fan_isns;
+extern const Adc ts_vsense_p;
+extern const Adc ts_vsense_n;
+extern const Adc shdn_sns;
+extern const Adc emeter_tsns;
+extern const Adc ts_isense_400a;
+extern const Adc ts_isense_50a;
+extern const Adc aux_tsns;
 } // namespace hw::adc

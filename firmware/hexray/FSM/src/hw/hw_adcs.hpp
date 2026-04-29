@@ -14,12 +14,11 @@
 
 namespace hw::adcs
 {
-void chipsInit();
-
-extern Adc susp_fl;
-extern Adc susp_fr;
-extern Adc apps2;
-extern Adc bps_f;
-extern Adc str_angle;
-extern Adc apps1;
+extern const AdcChip<6> adc1;
+extern const Adc        susp_fl;
+extern const Adc        susp_fr;
+extern const Adc        apps2;
+extern const Adc        bps_f;
+extern const Adc        str_angle;
+extern const Adc        apps1;
 } // namespace hw::adcs

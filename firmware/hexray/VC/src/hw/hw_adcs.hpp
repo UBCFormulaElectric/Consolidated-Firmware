@@ -4,7 +4,9 @@
 
 namespace hw::adcs
 {
-void             chipsInit();
+extern const AdcChip<6> Adc_Chip1;
+extern const AdcChip<5> Adc_Chip2;
+
 extern const Adc adc_front;
 extern const Adc adc_r_inv;
 extern const Adc adc_bms;
