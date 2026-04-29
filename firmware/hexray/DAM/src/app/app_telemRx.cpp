@@ -7,6 +7,7 @@
 #include "io_crc.hpp"
 #include "io_log.hpp"
 #include "io_rtc.hpp"
+#include "io_telemRx.hpp"
 #include "util_ringBuffer.hpp"
 #include "io_time.hpp"
 
