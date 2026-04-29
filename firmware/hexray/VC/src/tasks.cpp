@@ -7,7 +7,6 @@
 #include "io_canQueues.hpp"
 #include <hw_can.hpp>
 #include <io_canRx.hpp>
-#include <io_canTx.hpp>
 
 #include "hw_cans.hpp"
 #include "hw_gpios.hpp"
@@ -16,7 +15,7 @@
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
-    const uint32_t period_ms = 1000U;
+    constexpr uint32_t period_ms = 1000U;
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -29,7 +28,7 @@
 }
 [[noreturn]] static void tasks_run100Hz(void *arg)
 {
-    const uint32_t period_ms = 10U;
+    constexpr uint32_t period_ms = 10U;
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -41,7 +40,7 @@
 }
 [[noreturn]] static void tasks_run1kHz(void *arg)
 {
-    const uint32_t period_ms = 1U;
+    constexpr uint32_t period_ms = 1U;
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -133,6 +132,7 @@ void tasks_preInit()
 void tasks_init()
 {
     SEGGER_SYSVIEW_Conf();
+    LOG_INFO("VC Reset!");
 
     hw::can::fdcan1.init();
     hw::can::invcan.init();

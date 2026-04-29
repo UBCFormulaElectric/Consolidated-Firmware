@@ -35,8 +35,7 @@ std::expected<void, ErrorCode> hw::fdcan::tx(FDCAN_TxHeaderTypeDef &tx_header, c
         UNUSED(num_notifs);
         transmit_task = nullptr;
     }
-    return hw_utils_convertHalStatus(
-        HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &tx_header, const_cast<uint8_t *>(msg.data.data())));
+    return hw_utils_convertHalStatus(HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &tx_header, msg.data.data()));
 }
 void hw::fdcan::init() const
 {
