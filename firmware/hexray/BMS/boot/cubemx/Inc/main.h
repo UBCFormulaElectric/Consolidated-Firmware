@@ -46,11 +46,7 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
-<<<<<<<< HEAD:firmware/hexray/RSM/boot/cubemx/Inc/main.h
     extern FDCAN_HandleTypeDef hfdcan1;
-========
-
->>>>>>>> master:firmware/hexray/BMS/boot/cubemx/Inc/main.h
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/
@@ -66,7 +62,6 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-<<<<<<<< HEAD:firmware/hexray/RSM/boot/cubemx/Inc/main.h
 #define SWDIO_Pin GPIO_PIN_13
 #define SWDIO_GPIO_Port GPIOA
 #define SWCLK_Pin GPIO_PIN_14
@@ -81,10 +76,8 @@ extern "C"
 #define CANTX_GPIO_Port GPIOB
 #define CANRX_Pin GPIO_PIN_8
 #define CANRX_GPIO_Port GPIOB
-========
 #define LED_B_Pin GPIO_PIN_0
 #define LED_B_GPIO_Port GPIOA
->>>>>>>> master:firmware/hexray/BMS/boot/cubemx/Inc/main.h
 
     /* USER CODE BEGIN Private defines */
 
