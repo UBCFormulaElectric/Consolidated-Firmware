@@ -9,9 +9,6 @@
 
 constexpr uint8_t MAX_RETRIES = 5;
 
-static std::expected<void, ErrorCode>
-    programFlashRetry(const uint32_t address, const std::span<const std::byte> buffer);
-
 static std::expected<void, ErrorCode> eraseSectorRetry(const uint8_t sector);
 
 #if defined(STM32H733xx)
@@ -41,11 +38,6 @@ std::expected<void, ErrorCode> hw::flash::eraseSector(const uint8_t sector)
     return eraseSectorRetry(sector);
 }
 
-std::expected<void, ErrorCode> hw::flash::programFlash(uint32_t address, std::span<const std::byte> buffer)
-{
-    return programFlashRetry(address, buffer);
-}
-
 static std::expected<void, ErrorCode> eraseSectorRetry(const uint8_t sector)
 {
 #if defined(STM32H562xx)
@@ -70,7 +62,7 @@ static std::expected<void, ErrorCode> eraseSectorRetry(const uint8_t sector)
     return status;
 }
 
-static std::expected<void, ErrorCode> programFlashRetry(const uint32_t address, const std::span<const std::byte> buffer)
+std::expected<void, ErrorCode> hw::flash::programFlashRetry(const uint32_t address, std::span<const std::byte> buffer)
 {
     HAL_FLASH_Unlock();
     for (uint8_t attempt = 0; attempt < MAX_RETRIES; attempt++)
