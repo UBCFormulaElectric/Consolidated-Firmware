@@ -42,7 +42,6 @@ void jobs_run100Hz_tick()
         }
         else
         {
-            // TODO: enqueue to some ntp output queue, this will overwrite the t0 value
             app::ntp::recordT0(app::ntp::rtcTimeToMs(*ntp_result));
         }
     }

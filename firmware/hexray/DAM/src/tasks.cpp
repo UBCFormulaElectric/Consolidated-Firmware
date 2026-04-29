@@ -30,27 +30,6 @@ extern "C"
 // static IoRtcTime boot_time{};
 #include "hw_cans.hpp"
 
-[[noreturn]] static void tasks_run1Hz(void *arg)
-{
-    const uint32_t period_ms = 1000U;
-
-    uint32_t start_ticks = osKernelGetTickCount();
-    forever
-    {
-        const auto ntp_result = io::telemRx::transmitNTPStartMsg();
-        if (!ntp_result)
-        {
-            LOG_ERROR("transmitNTPStartMsg() failed with error: %d", static_cast<int>(ntp_result.error()));
-        }
-        else
-        {
-            app::ntp::recordT0(app::ntp::rtcTimeToMs(*ntp_result));
-        }
-        start_ticks += period_ms;
-        io::time::delayUntil(start_ticks);
-        osDelayUntil(start_ticks);
-    }
-}
 [[noreturn]] static void tasks_run100Hz(void *arg)
 {
     const uint32_t period_ms = 10U;
@@ -109,8 +88,6 @@ extern "C"
 }
 [[noreturn]] static void tasks_runTelemRx(void *arg)
 {
-    // maybe move into jobs
-    osDelayUntil(osWaitForever); // del this for final build
     std::array<uint8_t, app::telemRx::kChunkSize> scratch{};
     forever
     {
@@ -169,7 +146,6 @@ static hw::rtos::StaticTask<8096>    Task100Hz(osPriorityRealtime, "Task100Hz", 
 static hw::rtos::StaticTask<512>     TaskCanTx(osPriorityAboveNormal, "TaskCanTx", tasks_runCanTx);
 static hw::rtos::StaticTask<512 * 4> TaskCanRx(osPriorityHigh, "TaskCanRx", tasks_runCanRx);
 static hw::rtos::StaticTask<512>     Task1kHz(osPriorityBelowNormal, "Task1kHz", tasks_run1kHz);
-static hw::rtos::StaticTask<1024>    Task1Hz(osPriorityHigh, "Task1Hz", tasks_run1Hz);
 static hw::rtos::StaticTask<1024>    TaskLogging(osPriorityHigh, "TaskLogging", tasks_runLogging);
 static hw::rtos::StaticTask<512>     TaskTelemTx(osPriorityHigh, "TaskTelemTx", tasks_runTelemTx);
 static hw::rtos::StaticTask<1024>    TaskTelemRx(osPriorityHigh, "TaskTelemRx", tasks_runTelemRx);
@@ -180,7 +156,6 @@ void DAM_StartAllTasks()
     TaskCanTx.start();
     TaskCanRx.start();
     Task1kHz.start();
-    Task1Hz.start();
     TaskLogging.start();
     TaskTelemTx.start();
     TaskTelemRx.start();
