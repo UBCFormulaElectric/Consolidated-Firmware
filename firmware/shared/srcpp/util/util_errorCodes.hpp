@@ -45,12 +45,12 @@ constexpr const char *error_code_to_string(const ErrorCode code)
     }
 }
 
-#define RETURN_IF_ERR(err_expr)                                                \
-    {                                                                          \
-        if (const auto res = err_expr; not res)                                \
-        {                                                                      \
-            return std::unexpected(res.error());                               \
-        }                                                                      \
+#define RETURN_IF_ERR(err_expr)                  \
+    {                                            \
+        if (const auto res = err_expr; not res)  \
+        {                                        \
+            return std::unexpected(res.error()); \
+        }                                        \
     }
 
 #define RETURN_IF_ERR_SILENT(err_expr)           \

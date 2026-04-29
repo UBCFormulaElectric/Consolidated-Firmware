@@ -127,15 +127,15 @@ int main(void)
     MX_ADC1_Init();
     MX_FDCAN1_Init();
     MX_FDCAN2_Init();
-    //MX_SDMMC1_SD_Init();
+    MX_SDMMC1_SD_Init();
     MX_SPI4_Init();
     MX_ADC3_Init();
     MX_CRC_Init();
-    //MX_IWDG1_Init();
+    MX_IWDG1_Init();
     MX_TIM1_Init();
     MX_TIM3_Init();
     MX_TIM5_Init();
-    //MX_USB_OTG_HS_PCD_Init();
+    MX_USB_OTG_HS_PCD_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
     /* USER CODE END 2 */

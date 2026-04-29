@@ -134,8 +134,8 @@ void jobs_run100Hz_tick()
 #ifdef TARGET_HV_SUPPLY
     const bool acc_fault = false;
 #else
-    segments::checkWarnings();
-    const bool acc_fault = segments::checkFaults();
+    app::segments::checkWarnings();
+    const bool acc_fault = app::segments::checkFaults();
 #endif
     using namespace io::faultLatch;
 
