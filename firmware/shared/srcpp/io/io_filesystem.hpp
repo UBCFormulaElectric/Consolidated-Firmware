@@ -4,6 +4,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <expected>
 
 extern "C"
 {
@@ -17,14 +18,14 @@ namespace io
 {
 enum class FileSystemError
 {
-    FILE_OK            = 0,
-    FILE_ERROR         = -1, // general error
-    FILE_CORRUPTED     = -2, // file system corrupted
-    FILE_NOT_FOUND     = -3, // file not found
-    FILE_NO_SPACE      = -4, // no space left
-    FILE_ERROR_IO      = -5, // io error
-    FILE_ERROR_BAD_ARG = -6, // Invalid argument passed in
-    FILE_MOUNT_FAILED  = -7  // Initial mount failed so filesystem is unavailable for this boot cycle
+    OK            = 0,
+    ERROR         = -1, // general error
+    CORRUPTED     = -2, // file system corrupted
+    NOT_FOUND     = -3, // file not found
+    NO_SPACE      = -4, // no space left
+    ERROR_IO      = -5, // io error
+    ERROR_BAD_ARG = -6, // Invalid argument passed in
+    MOUNT_FAILED  = -7  // Initial mount failed so filesystem is unavailable for this boot cycle
 };
 
 class FileSystem
@@ -69,52 +70,53 @@ class FileSystem
      * @param path path in question
      * @return a file descriptor
      */
-    FileSystemError open(const char *path, uint32_t *fd);
+    std::expected<void, FileSystemError> open(const char *path, uint32_t *fd);
 
     /**
      * reads from file descriptor for some size into the buffer
      * @param fd file descriptor in question
      * @param buf buffer in question
-     * @param size size in questino
-     * @return success of operation
+     * @param size size in question
+     * @return FileSystemError status
      */
-    FileSystemError read(uint32_t fd, void *buf, std::size_t size);
+    std::expected<void, FileSystemError> read(uint32_t fd, void *buf, std::size_t size);
 
     /**
      * writes to file descriptor for some size into the buffer
      * @param fd file descriptor in question
      * @param buf buffer in question
-     * @param size size in questino
-     * @return
+     * @param size size in question
+     * @return FileSystemError status
      */
-    FileSystemError write(uint32_t fd, const void *buf, std::size_t size);
+    std::expected<void, FileSystemError> write(uint32_t fd, const void *buf, std::size_t size);
     /**
      * writes to file descriptor for some metadata
      * @param fd file descriptor in question
      * @param buf buffer in question
-     * @param size size in questino
-     * @return
+     * @param size size in question
+     * @return FileSystemError status
      */
-    FileSystemError writeMetadata(uint32_t fd, const void *buf, std::size_t size);
+    std::expected<void, FileSystemError> writeMetadata(uint32_t fd, const void *buf, std::size_t size);
 
     /**
-     * @return The bootcount of a given file system
+     * Get the bootcount of a given file system
+     * @return bootcount
      */
-    FileSystemError getBootCount(uint32_t *bootcount);
+    std::expected<void, FileSystemError> getBootCount(uint32_t *bootcount);
 
     /**
      * Closes file given file descriptor
      * @param fd file descriptor in question
-     * @return success of operation
+     * @return FileSystemError status
      */
-    FileSystemError close(uint32_t fd);
+    std::expected<void, FileSystemError> close(uint32_t fd);
 
     /**
-     * do the concrete write operation to the hardware
+     * Do the concrete write operation to the hardware
      * @param fd on this file descriptor
-     * @return success of operation
+     * @return FileSystemError status
      */
-    FileSystemError sync(uint32_t fd);
+    std::expected<void, FileSystemError> sync(uint32_t fd);
 
     /**
      * Checks if the SD card is present.
