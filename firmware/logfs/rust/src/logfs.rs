@@ -85,6 +85,15 @@ impl LogFsFile {
         }
     }
 
+    pub fn sync(&mut self) -> Result<(), LogFsErr> {
+        let err = unsafe { logfs_sync(self.fs, &mut self.file) };
+        if err == LogFsErr_LOGFS_ERR_OK {
+            Ok(())
+        } else {
+            Err(err)
+        }
+    }
+
     pub fn read(&mut self, size: Option<u32>) -> Result<Vec<u8>, LogFsErr> {
         let size = size.unwrap_or(self.block_size);
         let mut buf = vec![0u8; size as usize];
@@ -194,28 +203,63 @@ impl LogFs {
         }
     }
 
-    pub fn cat(&mut self, path: &str, decode: Option<&str>) {
+    pub fn cat(&mut self, path: &str, decode: Option<&str>) -> Result<Vec<u8>, LogFsErr> {
         match self.open(path, LogFsOpenFlags_LOGFS_OPEN_RD_ONLY) {
             Ok(mut file) => {
                 // Read metadata
                 // TODO: Implement metadata read
                 let data = file.read(None);
-                match data {
-                    Ok(data) => {
-                        println!("Data: {:?}", data);
-                    }
-                    Err(e) => {
-                        println!("Read error: {:?}", e);
-                    }
-                }
+                println!("bruh: {:?}", data);
                 if let Some("can") = decode {
                     // TODO: Implement CAN decode branch
                     println!("TODO: decode == 'can' branch");
                 }
+
+                match data {
+                    Ok(data) => {
+                        return Ok(data);
+                    }
+                    Err(e) => {
+                        return Err(e);
+                    }
+                }
+                return Ok(Vec::new());
             }
             Err(e) => {
                 println!("Open error: {:?}", e);
+                Err(e)
             }
         }
+    }
+
+    pub fn ls(&mut self, dir: &str) -> Result<Vec<String>, LogFsErr> {
+        let mut path = unsafe { std::mem::zeroed::<bindings::LogFsPath>() };
+        let mut files = Vec::new();
+
+        let err = unsafe { logfs_firstPath(&mut *self.fs, &mut path) };
+        if err != LogFsErr_LOGFS_ERR_OK {
+            return Err(err);
+        }
+
+        loop {
+            let name = unsafe {
+                std::ffi::CStr::from_ptr(path.path.as_ptr())
+                    .to_string_lossy()
+                    .into_owned()
+            };
+
+            if name.starts_with(dir) {
+                files.push(name);
+            }
+
+            let err = unsafe { logfs_nextPath(&mut *self.fs, &mut path) };
+            if err == LogFsErr_LOGFS_ERR_NO_MORE_FILES {
+                break;
+            } else if err != LogFsErr_LOGFS_ERR_OK {
+                return Err(err);
+            }
+        }
+
+        Ok(files)
     }
 }
