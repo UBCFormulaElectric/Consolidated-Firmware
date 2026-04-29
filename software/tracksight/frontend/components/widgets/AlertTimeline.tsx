@@ -4,7 +4,7 @@ import { useAlertDataStores } from "@/lib/contexts/signalStores/SignalStoreConte
 import { RefObject, useEffect, useRef } from "react";
 import { AlertSeries } from "./CanvasChartTypes";
 import { useSyncedGraph } from "../SyncedGraphContainer";
-import { CHART_PADDING, render_tooltip } from "./render";
+import { render_tooltip } from "./render";
 
 const INITIAL_SLIP_STREAM_LANES = 5;
 const MAX_SLIP_STREAM_LANES = 5;
@@ -289,10 +289,9 @@ function AlertTimeline() {
 
   const {
     globalTimeRangeRef,
-    scalePxPerSecRef,
     XToTime,
     timeToX,
-    hoverTimestampRef: externalHoverTimestampRef,
+    hoverXRef: contextHoverXRef,
   } = useSyncedGraph();
 
   const XToTimeRef = useRef(XToTime);
@@ -344,8 +343,8 @@ function AlertTimeline() {
         renderState.current,
         rect.width,
         rect.height,
-        leftEdge - CHART_PADDING.left / scalePxPerSecRef.current,
-        rightEdge - CHART_PADDING.right / scalePxPerSecRef.current,
+        leftEdge,
+        rightEdge,
         liveTime,
         slipStreamLanes.current,
         ctx,
@@ -360,35 +359,29 @@ function AlertTimeline() {
         renderState.current,
         rect.width,
         rect.height,
-        leftEdge - CHART_PADDING.left / scalePxPerSecRef.current,
-        rightEdge - CHART_PADDING.right / scalePxPerSecRef.current,
+        leftEdge,
+        rightEdge,
         bottom,
         liveTime,
         slipStreamLanes.current,
         hoverInfo.current,
       );
 
-      if (!externalHoverTimestampRef.current) {
-        animationFrame.current = requestAnimationFrame(renderSlipStream);
-        return;
+      if (contextHoverXRef.current !== null) {
+        // Derive the hover timestamp fresh from raw screen-x each frame so the
+        // crosshair tracks the cursor correctly even when the chart is auto-scrolling.
+        const hoverTime = XToTimeRef.current(contextHoverXRef.current);
+        render_tooltip(
+          ctx,
+          rect.width,
+          rect.height,
+          hoverTime,
+          [],
+          timeToXRef.current,
+          wrapperRef.current?.scrollTop ?? 0,
+          false
+        );
       }
-
-      const visibleStart = XToTimeRef.current(0);
-      const visibleEnd = XToTimeRef.current(rect.width);
-      const chartWidth = rect.width - CHART_PADDING.left - CHART_PADDING.right;
-      const timeRange = Math.max(1, visibleEnd - visibleStart);
-      const localTimeToX = (t: number) => CHART_PADDING.left + ((t - visibleStart) / timeRange) * chartWidth;
-
-      render_tooltip(
-        ctx,
-        rect.width,
-        rect.height,
-        externalHoverTimestampRef.current!,
-        [],
-        localTimeToX,
-        wrapperRef.current?.scrollTop ?? 0,
-        false
-      );
 
       animationFrame.current = requestAnimationFrame(renderSlipStream);
     };
