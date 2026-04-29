@@ -1,9 +1,10 @@
 #pragma once
 
-extern "C"
-{
-#include "io_led.h"
-}
+#include "io_led.hpp"
+#include "hw_gpios.hpp"
 
-extern const BinaryLed brake_light;
-extern const BinaryLed led;
+namespace io
+{
+extern const binary_led led;
+extern const binary_led brake_light;
+} // namespace io

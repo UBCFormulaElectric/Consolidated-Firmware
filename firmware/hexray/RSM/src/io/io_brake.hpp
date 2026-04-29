@@ -1,5 +1,10 @@
 #pragma once
 
+#ifdef TARGET_EMBEDDED
+#include "hw_adcs.hpp"
+#include "hw_gpios.hpp"
+#endif
+
 namespace io::brake
 {
 /*

@@ -35,8 +35,7 @@ std::expected<void, ErrorCode> hw::fdcan::tx(FDCAN_TxHeaderTypeDef &tx_header, c
         UNUSED(num_notifs);
         transmit_task = nullptr;
     }
-    return hw::utils::convertHalStatus(
-        HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &tx_header, const_cast<uint8_t *>(msg.data.data())));
+    return hw::utils::convertHalStatus(HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &tx_header, msg.data.data()));
 }
 void hw::fdcan::init() const
 {
@@ -51,7 +50,7 @@ void hw::fdcan::init() const
     filter.FilterID2    = 0x1FFFFFFF; // Mask bits for Extended CAN ID
 
 // Fields only enabled for H7
-#if defined(STM32H753xx)
+#if defined(STM32H733xx)
     filter.IsCalibrationMsg = 0;
     filter.RxBufferIndex    = 0;
 #endif
@@ -81,10 +80,14 @@ std::expected<void, ErrorCode> hw::fdcan::can_transmit(const CanMsg &msg) const
 {
     assert(ready);
     FDCAN_TxHeaderTypeDef tx_header;
-    tx_header.Identifier          = msg.std_id;
-    tx_header.IdType              = (msg.std_id > MAX_11_BITS_VALUE) ? FDCAN_EXTENDED_ID : FDCAN_STANDARD_ID;
-    tx_header.TxFrameType         = FDCAN_DATA_FRAME;
-    tx_header.DataLength          = msg.dlc << 16; // Data length code needs to be shifted by 16 bits.
+    tx_header.Identifier  = msg.std_id;
+    tx_header.IdType      = (msg.std_id > MAX_11_BITS_VALUE) ? FDCAN_EXTENDED_ID : FDCAN_STANDARD_ID;
+    tx_header.TxFrameType = FDCAN_DATA_FRAME;
+#if defined(STM32H733xx)
+    tx_header.DataLength = msg.dlc << 16; // Data length code needs to be shifted by 16 bits.
+#elif defined(STM32H562xx)
+    tx_header.DataLength = msg.dlc; // Data length code
+#endif
     tx_header.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
     tx_header.BitRateSwitch       = FDCAN_BRS_OFF;
     tx_header.FDFormat            = FDCAN_CLASSIC_CAN;
@@ -97,10 +100,14 @@ std::expected<void, ErrorCode> hw::fdcan::fdcan_transmit(const CanMsg &msg) cons
 {
     assert(ready);
 
-    uint32_t dlc;
+    uint32_t dlc = 0;
     if (msg.dlc <= 8)
     {
+#if defined(STM32H733xx)
         dlc = msg.dlc << 16; // Data length code needs to be shifted by 16 bits.
+#elif defined(STM32H562xx)
+        dlc = msg.dlc;
+#endif
     }
     else if (msg.dlc <= 12)
     {

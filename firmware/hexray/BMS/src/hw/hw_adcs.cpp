@@ -15,6 +15,12 @@ constexpr Adc ts_isense_400a = adc1.getChannel(5);
 constexpr Adc ts_isense_50a  = adc1.getChannel(6);
 constexpr Adc aux_tsns       = adc3.getChannel(0);
 
+void chipsInit()
+{
+    LOG_IF_ERR(adc1.init());
+    LOG_IF_ERR(adc3.init(false));
+}
+
 extern "C" void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
     if (hadc == &hadc1)

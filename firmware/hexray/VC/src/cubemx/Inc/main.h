@@ -189,6 +189,10 @@ extern "C"
 #define CAN_VEH_RX_GPIO_Port GPIOD
 #define CAN_VEH_TX_Pin GPIO_PIN_1
 #define CAN_VEH_TX_GPIO_Port GPIOD
+#define MISC_FUSE_PG_Pin GPIO_PIN_2
+#define MISC_FUSE_PG_GPIO_Port GPIOD
+#define MISC_FUSE_EN_Pin GPIO_PIN_3
+#define MISC_FUSE_EN_GPIO_Port GPIOD
 #define L_RAD_FAN_PG_Pin GPIO_PIN_4
 #define L_RAD_FAN_PG_GPIO_Port GPIOD
 #define R_RAD_FAN_EN_Pin GPIO_PIN_5

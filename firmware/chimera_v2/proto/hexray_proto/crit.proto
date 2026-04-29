@@ -14,6 +14,8 @@ enum GpioNetName {
   GPIO_LAUNCH_CONTROL_SIG = 8;
   GPIO_TORQUE_VECTORING_SIG = 9;
   GPIO_REGEN_SIG = 10;
+  GPIO_LED_RCK = 11;
+  GPIO_SEVEN_SEG_RCK = 12;
 }
 
 enum SpiNetName{

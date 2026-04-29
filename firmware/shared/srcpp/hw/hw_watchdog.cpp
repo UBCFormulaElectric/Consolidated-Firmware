@@ -7,7 +7,7 @@
 namespace hw::watchdog::monitor
 {
 #define MAX_WATCHDOG_INSTANCES 10
-std::array<WatchdogInstance *, MAX_WATCHDOG_INSTANCES> watchdogs{ nullptr };
+std::array<WatchdogInstance *, MAX_WATCHDOG_INSTANCES> watchdogs{};
 bool                                                   timeout_detected = false;
 
 void registerWatchdogInstance(WatchdogInstance *watchdog_instance)

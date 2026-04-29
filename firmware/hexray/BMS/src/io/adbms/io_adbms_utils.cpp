@@ -1,0 +1,30 @@
+#include "io_adbms.hpp"
+#include "io_adbms_internal.hpp"
+
+namespace io::adbms
+{
+constexpr uint16_t MAX_NUM_ADC_COMPLETE_CHECKS = 10;
+constexpr uint8_t  ADC_CONV_INCOMPLETE         = 0xFF;
+
+ExitCode pollAdcConversions(void)
+{
+    for (uint32_t num_attempts = 0U; num_attempts < MAX_NUM_ADC_COMPLETE_CHECKS; num_attempts++)
+    {
+        uint8_t rx_data;
+        RETURN_IF_ERR(poll(io::adbms::PLADC, &rx_data, sizeof(rx_data)));
+
+        if (rx_data != ADC_CONV_INCOMPLETE)
+        {
+            return EXIT_CODE_OK;
+        }
+    }
+
+    return EXIT_CODE_TIMEOUT;
+}
+
+void wakeup(void)
+{
+    sendCommand(io::adbms::RDCFGA);
+}
+
+} // namespace io::adbms

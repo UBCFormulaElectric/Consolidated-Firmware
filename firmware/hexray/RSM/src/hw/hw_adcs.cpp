@@ -7,7 +7,12 @@ constexpr hw::Adc        lc3_out             = Adc_Chip.getChannel(0);
 constexpr hw::Adc        susp_travel_rl_3v3  = Adc_Chip.getChannel(1);
 constexpr hw::Adc        susp_travel_rr_3v3  = Adc_Chip.getChannel(2);
 constexpr hw::Adc        bps_3v3             = Adc_Chip.getChannel(3);
-constexpr hw::Adc        nBSPD_brake_pressed = Adc_Chip.getChannel(4);
+
+
+void chipsInit()
+{
+    LOG_IF_ERR(Adc_Chip.init());
+}
 
 extern "C"
 {

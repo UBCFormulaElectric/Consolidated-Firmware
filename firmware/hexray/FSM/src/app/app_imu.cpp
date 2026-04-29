@@ -5,7 +5,9 @@
 #include "app_canTx.hpp"
 #include "app_canAlerts.hpp"
 
-using namespace io::imus;
+#ifdef TARGET_TEST
+io::Imu imu_config;
+#endif // TARGET_TEST
 namespace app::imu
 {
 static FSMImuResults imu_results = { .accel_x_res = std::unexpected(ErrorCode::ERROR),
@@ -23,8 +25,8 @@ void init()
 
 void broadcast()
 {
-    imu_results = { imu_front.getAccelX(), imu_front.getAccelY(), imu_front.getAccelZ(),
-                    imu_front.getGyroX(),  imu_front.getGyroY(),  imu_front.getGyroZ() };
+    imu_results = { io::imus::imu_front.getAccelX(), io::imus::imu_front.getAccelY(), io::imus::imu_front.getAccelZ(),
+                    io::imus::imu_front.getGyroX(),  io::imus::imu_front.getGyroY(),  io::imus::imu_front.getGyroZ() };
 
     can_tx::FSM_AccelX_set(imu_results.accel_x_res.value_or(0.0f));
     can_tx::FSM_AccelY_set(imu_results.accel_y_res.value_or(0.0f));
@@ -32,7 +34,5 @@ void broadcast()
     can_tx::FSM_GyroX_set(imu_results.gyro_x_res.value_or(0.0f));
     can_tx::FSM_GyroY_set(imu_results.gyro_y_res.value_or(0.0f));
     can_tx::FSM_GyroZ_set(imu_results.gyro_z_res.value_or(0.0f));
-
-    can_alerts::warnings::ImuDataBad_set(imu_results.hasFault());
 }
 } // namespace app::imu

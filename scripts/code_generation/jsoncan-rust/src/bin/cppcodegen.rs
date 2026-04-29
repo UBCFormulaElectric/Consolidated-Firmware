@@ -9,8 +9,8 @@ use jsoncan_rust::parsing::JsonCanParser;
 use jsoncan_rust::reroute::resolve_tx_rx_reroute;
 
 use clap::Parser;
-use std::path::Path;
 use jsoncan_rust::can_database::error::CanDBError;
+use std::path::Path;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]

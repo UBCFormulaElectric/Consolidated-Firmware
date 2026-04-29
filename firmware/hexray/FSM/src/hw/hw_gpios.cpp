@@ -13,3 +13,4 @@ const hw::Gpio debug_led{ DEBUG_LED_GPIO_Port, DEBUG_LED_Pin };
 const hw::Gpio nstr_angle_ocsc{ nSTR_ANGLE_OCSC_GPIO_Port, nSTR_ANGLE_OCSC_Pin };
 const hw::Gpio nbps_f_ocsc{ nBPS_F_OCSC_GPIO_Port, nBPS_F_OCSC_Pin };
 const hw::Gpio boot_led{ BOOT_LED_GPIO_Port, BOOT_LED_Pin };
+const hw::Gpio d_p_pullup(D_P_PULLUP_GPIO_Port, D_P_PULLUP_Pin);

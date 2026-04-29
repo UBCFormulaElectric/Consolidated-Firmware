@@ -8,6 +8,7 @@
 #include "hw_usb.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include <cassert>
+#include "hw_pwmOutputs.hpp"
 
 #include <optional>
 #include <functional>
@@ -45,6 +46,10 @@ class CRITChimeraConfig : public chimera_v2::config
                 return std::cref(torque_vectoring_sig);
             case crit_GpioNetName_GPIO_REGEN_SIG:
                 return std::cref(regen_sig);
+            case crit_GpioNetName_GPIO_LED_RCK:
+                return std::cref(led_rck);
+            case crit_GpioNetName_GPIO_SEVEN_SEG_RCK:
+                return std::cref(seven_seg_rck);
             default:
             case crit_GpioNetName_GPIO_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified GPIO net name");
@@ -62,11 +67,11 @@ class CRITChimeraConfig : public chimera_v2::config
         switch (snn->name.crit_net_name)
         {
             case crit_SpiNetName_LED:
-                return std::cref(leds_device);
+                return std::cref(hw::spi::leds_device);
             case crit_SpiNetName_SEVEN_SEG:
-                return std::cref(seven_seg_device);
+                return std::cref(hw::spi::seven_seg_device);
             case crit_SpiNetName_PWR_CHG:
-                return std::cref(pwr_chg_device);
+                return std::cref(hw::spi::pwr_chg_device);
             default:
             case crit_SpiNetName_SPI_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified SPI net name");
@@ -101,6 +106,7 @@ class CRITChimeraConfig : public chimera_v2::config
     {
         gpio_net_name_tag = GpioNetName_crit_net_name_tag;
         spi_net_name_tag  = SpiNetName_crit_net_name_tag;
+        pwm_net_name_tag  = PwmNetName_crit_net_name_tag;
     }
 } crit_config;
 
@@ -113,6 +119,10 @@ char USBD_PRODUCT_STRING_FS[] = "crit";
 [[noreturn]] void tasks_init()
 {
     assert(hw::usb::init());
+    (void)led_dimming.start();
+    (void)led_dimming.setDutyCycle(0.0f);
+    (void)seven_seg_dimming.start();
+    (void)seven_seg_dimming.setDutyCycle(0.0f);
     osKernelInitialize();
     TaskChimera.start();
     osKernelStart();

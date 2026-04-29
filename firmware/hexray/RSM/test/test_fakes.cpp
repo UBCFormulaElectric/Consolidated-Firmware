@@ -4,6 +4,9 @@
 #include "io_suspension.hpp"
 #include "io_tireTemp.hpp"
 #include "io_imus.hpp"
+#include "io_rsmShdn.hpp"
+#include "app_canTx.hpp"
+#include "io_canQueues.hpp"
 
 namespace fakes::io
 {
@@ -117,7 +120,7 @@ namespace suspension
 
 namespace rPump
 {
-    std::expected<void, ErrorCode> setPercentage(float value)
+    std::expected<void, ErrorCode> setPercentage(uint8_t value)
     {
         return {};
     }
@@ -131,3 +134,8 @@ namespace tireTemp
     }
 } // namespace tireTemp
 } // namespace io
+
+const io::shdn::node rl_int_3v3_sens(true, app::can_tx::RSM_RearLeftMotorInterlock_set);
+
+io::queue<io::CanMsg, 128> can_tx_queue{ "" };
+io::queue<io::CanMsg, 128> can_rx_queue{ "" };

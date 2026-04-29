@@ -21,6 +21,8 @@ class RouterProvider extends ChangeNotifier {
 }
 
 class RouterPanel extends StatelessWidget {
+  const RouterPanel({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Container(

@@ -41,6 +41,8 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_assert.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_freeRtosConfigs.cpp"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -152,4 +154,5 @@ elseif ("${TARGET}" STREQUAL "test")
     )
 
     target_link_libraries("hexray_CRIT_test" PRIVATE "hexray_CRIT_fakes" "hexray_CRIT_commit_info" "hexray_CRIT_jsoncan")
+    target_compile_definitions("hexray_CRIT_test" PRIVATE STM32H562xx)
 endif ()

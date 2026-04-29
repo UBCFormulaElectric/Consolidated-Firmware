@@ -16,7 +16,7 @@ constexpr size_t OUT_BUFFER_SIZE = 0xfff;
 static pb_byte_t out_buffer[OUT_BUFFER_SIZE];
 
 constexpr size_t                      QUEUE_SIZE = 100;
-static io::queue<uint8_t, QUEUE_SIZE> usb_queue{ "USBQueue", [](uint32_t) {}, [] {} };
+static io::queue<uint8_t, QUEUE_SIZE> usb_queue{ "USBQueue" };
 
 constexpr size_t MAX_PAYLOAD_SIZE = 64;
 
@@ -329,7 +329,7 @@ static bool evaluateRequest(const config &c, const ChimeraV2Request &request, Ch
             response.payload.uart_transmit.success =
                 device.value()
                     .get()
-                    .transmitPoll({ reinterpret_cast<const uint8_t *>(&payload.data.bytes), payload.data.size }, 1000)
+                    .transmit({ reinterpret_cast<const uint8_t *>(&payload.data.bytes), payload.data.size }, 1000)
                     .has_value();
             return true;
         }
@@ -350,7 +350,7 @@ static bool evaluateRequest(const config &c, const ChimeraV2Request &request, Ch
             }
 
             const std::span data_span = { rx_buffer.data(), payload.length };
-            if (const auto r = device.value().get().receivePoll(data_span, 1000); not r.has_value())
+            if (const auto r = device.value().get().receive(data_span, 1000); not r.has_value())
             {
                 LOG_ERROR("Chimera: Error receiving UART data.");
                 return false;

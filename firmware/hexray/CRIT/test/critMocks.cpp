@@ -65,3 +65,7 @@ std::expected<void, ErrorCode> write(std::array<digit, DIGITS> &data)
     return {};
 }
 } // namespace io::seven_seg
+
+#include "io_canQueues.hpp"
+io::queue<io::CanMsg, 128> can_tx_queue{ "" };
+io::queue<io::CanMsg, 128> can_rx_queue{ "" };

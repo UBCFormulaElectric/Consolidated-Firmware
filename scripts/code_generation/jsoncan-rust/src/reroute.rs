@@ -3,14 +3,12 @@ use std::collections::{HashMap, HashSet};
 
 pub struct CanRxConfig {
     map_by_bus: HashMap<String, Vec<u32>>,
-    // map_by_msg: HashMap<u32, String>,
 }
 
 impl CanRxConfig {
     pub fn new() -> Self {
         CanRxConfig {
             map_by_bus: HashMap::new(),
-            // map_by_msg: HashMap::new(),
         }
     }
 
@@ -52,8 +50,9 @@ impl CanRxConfig {
     }
 }
 
+#[derive(Debug)]
 pub struct CanTxConfig {
-    map_by_bus: HashMap<String, Vec<u32>>,
+    map_by_bus: HashMap<String, HashSet<u32>>,
 }
 
 impl CanTxConfig {
@@ -66,8 +65,8 @@ impl CanTxConfig {
     pub fn add_bus_to_msg(self: &mut Self, msg_id: u32, bus_name: &String) {
         self.map_by_bus
             .entry(bus_name.clone())
-            .or_insert(Vec::new())
-            .push(msg_id);
+            .or_insert(HashSet::new())
+            .insert(msg_id);
     }
 
     pub fn get_all(self: &Self) -> Vec<(u32, Vec<String>)> {
@@ -205,8 +204,10 @@ fn register_rx_msg(
     // initial_node_tx_bus, final_node_rx_bus, rerouter_nodes = _fast_fourier_transform_stochastic_gradient_descent(
     //     adj_list, tx_node, rx_node);
     let (initial_node_tx_bus, final_node_rx_bus, reroute_node) =
-        route_msg(can_db, &tx_node.name, &rx_node.name)
-            .expect("Could not find a route between TX and RX nodes.");
+        route_msg(can_db, &tx_node.name, &rx_node.name).expect(&format!(
+            "Could not find a route between TX node {} and RX node {}.",
+            tx_node.name, rx_node.name
+        ));
 
     // process the calculation
     if let Some(rerouter) = reroute_node {
@@ -260,7 +261,7 @@ pub fn resolve_tx_rx_reroute(
     for rx_node in &can_db.nodes {
         match &rx_node.rx_msgs_names {
             RxMsgs::All => {
-                for msg_id in can_db.get_allrx_for(&rx_node.name) {
+                for msg_id in can_db.get_all_rx_msgs_for(&rx_node.name).unwrap() {
                     register_rx_msg(
                         can_db,
                         rx_node,

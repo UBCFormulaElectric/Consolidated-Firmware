@@ -8,7 +8,7 @@ namespace io::seven_seg
 std::expected<void, ErrorCode> write(std::array<digit, DIGITS> &data)
 {
     std::ranges::reverse(data);
-    return seven_seg_device.transmit(std::span{ reinterpret_cast<uint8_t *>(data.data()), data.size() });
+    return hw::spi::seven_seg_device.transmit(std::span{ reinterpret_cast<uint8_t *>(data.data()), data.size() });
 }
 
 std::expected<void, ErrorCode> setBrightness(const float brightness)

@@ -1,5 +1,8 @@
 #pragma once
-#include "hw_fdcan.hpp"
+#include "hw_can.hpp"
 
-extern hw::cans::CanHandle can1;
-extern hw::cans::CanHandle can2;
+namespace hw::can
+{
+extern const fdcan fdcan1;
+extern const fdcan fdcan2;
+} // namespace hw::can

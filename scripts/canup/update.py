@@ -157,9 +157,9 @@ def erase(configs: List[boards.Board]) -> None:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--bus", type=str, default="pcan", help="python-can bus type")
+    parser.add_argument("--bus", type=str, default="vector", help="python-can bus type")
     parser.add_argument(
-        "--channel", type=str, default="PCAN_USBBUS1", help="python-can channel"
+        "--channel", type=str, default="0", help="python-can channel"
     )
     parser.add_argument(
         "--bit_rate", type=int, default=1000000, help="CAN bus bit rate"
@@ -180,7 +180,7 @@ if __name__ == "__main__":
     parser.add_argument("--erase", action="store_true", help="Erase app code")
     parser.add_argument("--fd", action="store_true", help="Use FD mode")
     parser.add_argument(
-        "--data_bitrate", type=int, default=4000000, help="CAN FD data bitrate"
+        "--data_bitrate", type=int, default=1000000, help="CAN FD data bitrate"
     )
     args = parser.parse_args()
 
@@ -198,11 +198,12 @@ if __name__ == "__main__":
         "tseg1_abr": 59,
         "tseg2_abr": 20,
         "sam_abr": 1,
-        "sjw_dbr": 20,
-        "tseg1_dbr": 59,
-        "tseg2_dbr": 20,
-        "output_mode": 0,
+        "sjw_dbr": 2,
+        "tseg1_dbr": 27,
+        "tseg2_dbr": 12,
+        "output_mode": 1,
     }
+    
     with can.interface.Bus(
         interface=args.bus,
         channel=args.channel,

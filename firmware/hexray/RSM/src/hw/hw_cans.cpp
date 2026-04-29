@@ -3,13 +3,13 @@
 
 #include <cassert>
 
-namespace hw::cans
+namespace hw::can
 {
-const fdcan fdcan1(hfdcan1, [](const CanMsg &msg) { UNUSED(msg); });
-} // namespace hw::cans
+constexpr fdcan can1(hfdcan1, [](const CanMsg &msg) { UNUSED(msg); });
+} // namespace hw::can
 
 const hw::fdcan &hw::fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
 {
-    assert(hfdcan == hw::cans::fdcan1.getHfdcan());
-    return cans::fdcan1;
+    assert(hfdcan == hw::can::can1.getHfdcan());
+    return hw::can::can1;
 }

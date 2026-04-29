@@ -2,12 +2,16 @@
 
 #include <span>
 #include <stddef.h>
+#include <expected>
 #include "hw_utils.hpp"
+#include "util_errorCodes.hpp"
 
+namespace hw::flash
+{
 #if defined(STM32H733xx)
-constexpr size_t WORD_BYTES = 8U * sizeof(uint32_t); // 32B
+inline constexpr size_t WORD_BYTES = 8U * sizeof(uint32_t); // 32B
 #elif defined(STM32H562xx)
-constexpr size_t WORD_BYTES = 4U * sizeof(uint32_t); // 16B
+inline constexpr size_t WORD_BYTES = 4U * sizeof(uint32_t); // 16B
 #endif
 
 namespace hw::flash

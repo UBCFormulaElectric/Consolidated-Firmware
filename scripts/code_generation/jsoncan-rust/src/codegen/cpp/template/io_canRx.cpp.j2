@@ -19,7 +19,7 @@ bool filterMessageId_{{bus_name}}(const uint32_t std_id)
     {
         {%- if messages.len() > 0 %}
         {%- for msg in messages %}
-        case app::can_utils::{{msg.id_macro()}}:
+        case app::can_utils::{{msg.name}}_Signals::MSG_ID:
         {%- endfor %}
             return true;
         {%- endif %}
@@ -40,7 +40,7 @@ void updateRxTableWithMessage(const JsonCanMsg& msg)
     {
         {%- for (bus_name, messages) in messages_on_busses %}
         {%- for msg in messages %}
-        case app::can_utils::{{msg.id_macro()}}:
+        case app::can_utils::{{msg.name}}_Signals::MSG_ID:
             {% if msg.signals.len() > 0 -%}
             app::can_rx::{{ msg.name }}_getData() = app::can_utils::{{ msg.c_type() }} {msg.data};
             {%- else -%}

@@ -605,3 +605,14 @@ class CRIT(_Board):
             net_name_tag="crit_net_name",
             board_module=proto_autogen_hex.crit_pb2,
         )
+        
+class FSM(_Board):
+    def __init__(self):
+        """Create an interface to an CRIT board."""
+
+        super().__init__(
+            usb_device=_UsbDevice(product="fsm"),
+            net_name_tag="fsm_net_name",
+            board_module=proto_autogen_hex.fsm_pb2,
+        )
+

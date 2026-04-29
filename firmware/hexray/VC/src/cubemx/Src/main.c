@@ -171,8 +171,9 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI48 | RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
+    RCC_OscInitStruct.HSI48State     = RCC_HSI48_ON;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 1;
@@ -216,16 +217,18 @@ void PeriphCommonClock_Config(void)
 
     /** Initializes the peripherals clock
      */
-    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_ADC | RCC_PERIPHCLK_SPI2 | RCC_PERIPHCLK_SPI1;
+    PeriphClkInitStruct.PeriphClockSelection =
+        RCC_PERIPHCLK_ADC | RCC_PERIPHCLK_SPI2 | RCC_PERIPHCLK_SPI1 | RCC_PERIPHCLK_FDCAN;
     PeriphClkInitStruct.PLL2.PLL2M           = 1;
-    PeriphClkInitStruct.PLL2.PLL2N           = 60;
-    PeriphClkInitStruct.PLL2.PLL2P           = 4;
+    PeriphClkInitStruct.PLL2.PLL2N           = 24;
+    PeriphClkInitStruct.PLL2.PLL2P           = 2;
     PeriphClkInitStruct.PLL2.PLL2Q           = 2;
     PeriphClkInitStruct.PLL2.PLL2R           = 2;
     PeriphClkInitStruct.PLL2.PLL2RGE         = RCC_PLL2VCIRANGE_3;
     PeriphClkInitStruct.PLL2.PLL2VCOSEL      = RCC_PLL2VCOWIDE;
     PeriphClkInitStruct.PLL2.PLL2FRACN       = 0;
     PeriphClkInitStruct.Spi123ClockSelection = RCC_SPI123CLKSOURCE_PLL2;
+    PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_PLL2;
     PeriphClkInitStruct.AdcClockSelection    = RCC_ADCCLKSOURCE_PLL2;
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
     {
@@ -454,33 +457,33 @@ static void MX_FDCAN1_Init(void)
 
     /* USER CODE END FDCAN1_Init 1 */
     hfdcan1.Instance                  = FDCAN1;
-    hfdcan1.Init.FrameFormat          = FDCAN_FRAME_CLASSIC;
+    hfdcan1.Init.FrameFormat          = FDCAN_FRAME_FD_NO_BRS;
     hfdcan1.Init.Mode                 = FDCAN_MODE_NORMAL;
-    hfdcan1.Init.AutoRetransmission   = DISABLE;
+    hfdcan1.Init.AutoRetransmission   = ENABLE;
     hfdcan1.Init.TransmitPause        = DISABLE;
     hfdcan1.Init.ProtocolException    = DISABLE;
-    hfdcan1.Init.NominalPrescaler     = 16;
-    hfdcan1.Init.NominalSyncJumpWidth = 1;
-    hfdcan1.Init.NominalTimeSeg1      = 1;
-    hfdcan1.Init.NominalTimeSeg2      = 1;
-    hfdcan1.Init.DataPrescaler        = 1;
-    hfdcan1.Init.DataSyncJumpWidth    = 1;
-    hfdcan1.Init.DataTimeSeg1         = 1;
-    hfdcan1.Init.DataTimeSeg2         = 1;
+    hfdcan1.Init.NominalPrescaler     = 6;
+    hfdcan1.Init.NominalSyncJumpWidth = 2;
+    hfdcan1.Init.NominalTimeSeg1      = 13;
+    hfdcan1.Init.NominalTimeSeg2      = 2;
+    hfdcan1.Init.DataPrescaler        = 3;
+    hfdcan1.Init.DataSyncJumpWidth    = 2;
+    hfdcan1.Init.DataTimeSeg1         = 5;
+    hfdcan1.Init.DataTimeSeg2         = 2;
     hfdcan1.Init.MessageRAMOffset     = 0;
-    hfdcan1.Init.StdFiltersNbr        = 0;
-    hfdcan1.Init.ExtFiltersNbr        = 0;
-    hfdcan1.Init.RxFifo0ElmtsNbr      = 0;
-    hfdcan1.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
+    hfdcan1.Init.StdFiltersNbr        = 1;
+    hfdcan1.Init.ExtFiltersNbr        = 1;
+    hfdcan1.Init.RxFifo0ElmtsNbr      = 32;
+    hfdcan1.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_64;
     hfdcan1.Init.RxFifo1ElmtsNbr      = 0;
-    hfdcan1.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_8;
+    hfdcan1.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_64;
     hfdcan1.Init.RxBuffersNbr         = 0;
-    hfdcan1.Init.RxBufferSize         = FDCAN_DATA_BYTES_8;
+    hfdcan1.Init.RxBufferSize         = FDCAN_DATA_BYTES_64;
     hfdcan1.Init.TxEventsNbr          = 0;
     hfdcan1.Init.TxBuffersNbr         = 0;
-    hfdcan1.Init.TxFifoQueueElmtsNbr  = 0;
+    hfdcan1.Init.TxFifoQueueElmtsNbr  = 32;
     hfdcan1.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
-    hfdcan1.Init.TxElmtSize           = FDCAN_DATA_BYTES_8;
+    hfdcan1.Init.TxElmtSize           = FDCAN_DATA_BYTES_64;
     if (HAL_FDCAN_Init(&hfdcan1) != HAL_OK)
     {
         Error_Handler();
@@ -881,7 +884,9 @@ static void MX_GPIO_Init(void)
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
-        GPIOD, F_INV_EN_Pin | SB_SHDN_3V3_OUT_Pin | RSM_EN_Pin | R_INV_EN_Pin | R_RAD_FAN_EN_Pin | L_RAD_FAN_EN_Pin,
+        GPIOD,
+        F_INV_EN_Pin | SB_SHDN_3V3_OUT_Pin | RSM_EN_Pin | R_INV_EN_Pin | MISC_FUSE_EN_Pin | R_RAD_FAN_EN_Pin |
+            L_RAD_FAN_EN_Pin,
         GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
@@ -911,9 +916,8 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(IMU_INT3_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : TSMS_3V3_OUT_Pin BAT_CHRG_nSHDN_Pin BMS_EN_Pin FRONT_EN_Pin
-                             RL_PUMP_EN_Pin */
-    GPIO_InitStruct.Pin   = TSMS_3V3_OUT_Pin | BAT_CHRG_nSHDN_Pin | BMS_EN_Pin | FRONT_EN_Pin | RL_PUMP_EN_Pin;
+    /*Configure GPIO pins : TSMS_3V3_OUT_Pin BAT_CHRG_nSHDN_Pin BMS_EN_Pin FRONT_EN_Pin */
+    GPIO_InitStruct.Pin   = TSMS_3V3_OUT_Pin | BAT_CHRG_nSHDN_Pin | BMS_EN_Pin | FRONT_EN_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -932,16 +936,17 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : R_INV_PG_Pin F_INV_PG_Pin L_RAD_FAN_PG_Pin R_RAD_FAN_PG_Pin */
-    GPIO_InitStruct.Pin  = R_INV_PG_Pin | F_INV_PG_Pin | L_RAD_FAN_PG_Pin | R_RAD_FAN_PG_Pin;
+    /*Configure GPIO pins : R_INV_PG_Pin F_INV_PG_Pin MISC_FUSE_PG_Pin L_RAD_FAN_PG_Pin
+                             R_RAD_FAN_PG_Pin */
+    GPIO_InitStruct.Pin  = R_INV_PG_Pin | F_INV_PG_Pin | MISC_FUSE_PG_Pin | L_RAD_FAN_PG_Pin | R_RAD_FAN_PG_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
     /*Configure GPIO pins : F_INV_EN_Pin SB_SHDN_3V3_OUT_Pin RSM_EN_Pin R_INV_EN_Pin
-                             R_RAD_FAN_EN_Pin L_RAD_FAN_EN_Pin */
-    GPIO_InitStruct.Pin =
-        F_INV_EN_Pin | SB_SHDN_3V3_OUT_Pin | RSM_EN_Pin | R_INV_EN_Pin | R_RAD_FAN_EN_Pin | L_RAD_FAN_EN_Pin;
+                             MISC_FUSE_EN_Pin R_RAD_FAN_EN_Pin L_RAD_FAN_EN_Pin */
+    GPIO_InitStruct.Pin = F_INV_EN_Pin | SB_SHDN_3V3_OUT_Pin | RSM_EN_Pin | R_INV_EN_Pin | MISC_FUSE_EN_Pin |
+                          R_RAD_FAN_EN_Pin | L_RAD_FAN_EN_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -962,7 +967,7 @@ static void MX_GPIO_Init(void)
 
     /*Configure GPIO pin : RR_PUMP_EN_Pin */
     GPIO_InitStruct.Pin   = RR_PUMP_EN_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_OD;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(RR_PUMP_EN_GPIO_Port, &GPIO_InitStruct);
@@ -972,6 +977,13 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(RR_PUMP_PGOOD_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : RL_PUMP_EN_Pin */
+    GPIO_InitStruct.Pin   = RL_PUMP_EN_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_OD;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(RL_PUMP_EN_GPIO_Port, &GPIO_InitStruct);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
 

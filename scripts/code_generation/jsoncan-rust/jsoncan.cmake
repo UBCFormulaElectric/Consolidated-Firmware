@@ -20,6 +20,7 @@ ELSE ()
     set(JSONCAN_EXECUTABLE cppcodegen${EXECUTABLE_SUFFIX})
     set(JSONCAN_EXECUTABLE_BUILD_TARGET "")
 ENDIF ()
+message("  📚 [jsoncan.cmake] JSONCAN executable set to ${JSONCAN_EXECUTABLE} with build target ${JSONCAN_EXECUTABLE_BUILD_TARGET}")
 
 # Inputs
 # JSONCAN_PY_BOARD - Python board name
@@ -54,7 +55,7 @@ function(jsoncan_sources_cpp JSONCAN_PY_BOARD OUTPUT_DIR USE_IO DBC_OUTPUT CAN_J
     file(GLOB_RECURSE CAN_JSON_SRCS ${CAN_JSON_DIR}/*.json)
 
     IF (${JSONCAN_BINARY_GENERATE})
-        set(JSONCAN_DEPS ${CAN_JSON_SRCS} ${JSONCAN_EXECUTABLE_OUTPUT})
+        set(JSONCAN_DEPS ${CAN_JSON_SRCS} ${JSONCAN_EXECUTABLE_BUILD_TARGET})
     ELSE ()
         set(JSONCAN_DEPS ${CAN_JSON_SRCS})
     ENDIF ()

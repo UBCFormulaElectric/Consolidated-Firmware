@@ -1,3 +1,5 @@
+#include "hw_adc.hpp"
+
 #pragma once
 #include "hw_adc.hpp"
 

@@ -1,0 +1,34 @@
+[package]
+name = "backend"
+version = "0.1.1"
+edition = "2024"
+
+[features]
+verbose = []
+debug = ["verbose"]
+
+[dependencies]
+jsoncan_rust = { git = "https://github.com/UBCFormulaElectric/Consolidated-Firmware.git", branch = "master" }
+
+serialport = "4.0"
+ctrlc = "3.5"
+tokio = { version = "1", features = ["full"] }
+tokio-serial = "5"
+tokio-tungstenite = "0.28.0"
+axum = { version = "0.8.8", features = ["ws", "macros"] }
+socketioxide = "0.18.1"
+influxdb2 = "0.5"
+influxdb2-structmap = "0.2"
+dotenv = "0.15"
+crc = "3.0.0"
+serde = "1.0.228"
+serde_json = "1.0.145"
+regex = "1.12.2"
+tower-http = { version = "0.5", features = ["cors"] }
+futures = "0.3.32"
+mdns-sd = "0.18.1"
+if-addrs = "0.15.0"
+moka = { version = "0.12.15", features=["future"] }
+chrono = "0.4.44"
+num-traits = "0.2.19"
+

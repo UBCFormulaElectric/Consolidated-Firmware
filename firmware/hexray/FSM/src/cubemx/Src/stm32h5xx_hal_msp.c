@@ -118,17 +118,17 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         PB0     ------> ADC1_INP9
         PB1     ------> ADC1_INP5
         */
-        GPIO_InitStruct.Pin  = GPIO_PIN_0 | GPIO_PIN_1;
+        GPIO_InitStruct.Pin  = SUSP_FR_3V3_Pin | SUSP_FL_3V3_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-        GPIO_InitStruct.Pin  = GPIO_PIN_4 | GPIO_PIN_5;
+        GPIO_InitStruct.Pin  = STR_ANGLE_3V3_Pin | BPS_F_3V3_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-        GPIO_InitStruct.Pin  = GPIO_PIN_0 | GPIO_PIN_1;
+        GPIO_InitStruct.Pin  = APPS1_3V3_Pin | APPS2_3V3_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
@@ -140,12 +140,12 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         NodeConfig.Init.BlkHWRequest                = DMA_BREQ_SINGLE_BURST;
         NodeConfig.Init.Direction                   = DMA_PERIPH_TO_MEMORY;
         NodeConfig.Init.SrcInc                      = DMA_SINC_FIXED;
-        NodeConfig.Init.DestInc                     = DMA_DINC_FIXED;
-        NodeConfig.Init.SrcDataWidth                = DMA_SRC_DATAWIDTH_BYTE;
-        NodeConfig.Init.DestDataWidth               = DMA_DEST_DATAWIDTH_BYTE;
+        NodeConfig.Init.DestInc                     = DMA_DINC_INCREMENTED;
+        NodeConfig.Init.SrcDataWidth                = DMA_SRC_DATAWIDTH_HALFWORD;
+        NodeConfig.Init.DestDataWidth               = DMA_DEST_DATAWIDTH_HALFWORD;
         NodeConfig.Init.SrcBurstLength              = 1;
         NodeConfig.Init.DestBurstLength             = 1;
-        NodeConfig.Init.TransferAllocatedPort       = DMA_SRC_ALLOCATED_PORT0 | DMA_DEST_ALLOCATED_PORT1;
+        NodeConfig.Init.TransferAllocatedPort       = DMA_SRC_ALLOCATED_PORT0 | DMA_DEST_ALLOCATED_PORT0;
         NodeConfig.Init.TransferEventMode           = DMA_TCEM_BLOCK_TRANSFER;
         NodeConfig.Init.Mode                        = DMA_NORMAL;
         NodeConfig.TriggerConfig.TriggerPolarity    = DMA_TRIG_POLARITY_MASKED;
@@ -190,7 +190,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         }
 
         /* ADC1 interrupt Init */
-        HAL_NVIC_SetPriority(ADC1_IRQn, 0, 0);
+        HAL_NVIC_SetPriority(ADC1_IRQn, 5, 0);
         HAL_NVIC_EnableIRQ(ADC1_IRQn);
         /* USER CODE BEGIN ADC1_MspInit 1 */
 
@@ -222,11 +222,11 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
         PB0     ------> ADC1_INP9
         PB1     ------> ADC1_INP5
         */
-        HAL_GPIO_DeInit(GPIOA, GPIO_PIN_0 | GPIO_PIN_1);
+        HAL_GPIO_DeInit(GPIOA, SUSP_FR_3V3_Pin | SUSP_FL_3V3_Pin);
 
-        HAL_GPIO_DeInit(GPIOC, GPIO_PIN_4 | GPIO_PIN_5);
+        HAL_GPIO_DeInit(GPIOC, STR_ANGLE_3V3_Pin | BPS_F_3V3_Pin);
 
-        HAL_GPIO_DeInit(GPIOB, GPIO_PIN_0 | GPIO_PIN_1);
+        HAL_GPIO_DeInit(GPIOB, APPS1_3V3_Pin | APPS2_3V3_Pin);
 
         /* ADC1 DMA DeInit */
         HAL_DMA_DeInit(hadc->DMA_Handle);
@@ -279,6 +279,11 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
         GPIO_InitStruct.Alternate = GPIO_AF9_FDCAN1;
         HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+        /* FDCAN1 interrupt Init */
+        HAL_NVIC_SetPriority(FDCAN1_IT0_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(FDCAN1_IT0_IRQn);
+        HAL_NVIC_SetPriority(FDCAN1_IT1_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(FDCAN1_IT1_IRQn);
         /* USER CODE BEGIN FDCAN1_MspInit 1 */
 
         /* USER CODE END FDCAN1_MspInit 1 */
@@ -307,6 +312,9 @@ void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef *hfdcan)
         */
         HAL_GPIO_DeInit(GPIOB, GPIO_PIN_7 | GPIO_PIN_8);
 
+        /* FDCAN1 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(FDCAN1_IT0_IRQn);
+        HAL_NVIC_DisableIRQ(FDCAN1_IT1_IRQn);
         /* USER CODE BEGIN FDCAN1_MspDeInit 1 */
 
         /* USER CODE END FDCAN1_MspDeInit 1 */
@@ -348,7 +356,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
         PA6     ------> SPI1_MISO
         PA7     ------> SPI1_MOSI
         */
-        GPIO_InitStruct.Pin       = IMU_CS_Pin | IMU_CSA5_Pin | IMU_SDI_Pin | IMU_SDO_Pin;
+        GPIO_InitStruct.Pin       = IMU_CS_Pin | IMU_SPC_Pin | IMU_SDI_Pin | IMU_SDO_Pin;
         GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
         GPIO_InitStruct.Pull      = GPIO_NOPULL;
         GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
@@ -383,7 +391,7 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
         PA6     ------> SPI1_MISO
         PA7     ------> SPI1_MOSI
         */
-        HAL_GPIO_DeInit(GPIOA, IMU_CS_Pin | IMU_CSA5_Pin | IMU_SDI_Pin | IMU_SDO_Pin);
+        HAL_GPIO_DeInit(GPIOA, IMU_CS_Pin | IMU_SPC_Pin | IMU_SDI_Pin | IMU_SDO_Pin);
 
         /* USER CODE BEGIN SPI1_MspDeInit 1 */
 
@@ -406,6 +414,9 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim_base)
         /* USER CODE END TIM2_MspInit 0 */
         /* Peripheral clock enable */
         __HAL_RCC_TIM2_CLK_ENABLE();
+        /* TIM2 interrupt Init */
+        HAL_NVIC_SetPriority(TIM2_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(TIM2_IRQn);
         /* USER CODE BEGIN TIM2_MspInit 1 */
 
         /* USER CODE END TIM2_MspInit 1 */
@@ -427,6 +438,9 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef *htim_base)
         /* USER CODE END TIM2_MspDeInit 0 */
         /* Peripheral clock disable */
         __HAL_RCC_TIM2_CLK_DISABLE();
+
+        /* TIM2 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(TIM2_IRQn);
         /* USER CODE BEGIN TIM2_MspDeInit 1 */
 
         /* USER CODE END TIM2_MspDeInit 1 */
@@ -461,6 +475,9 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
         HAL_PWREx_EnableVddUSB();
         /* Peripheral clock enable */
         __HAL_RCC_USB_CLK_ENABLE();
+        /* USB_DRD_FS interrupt Init */
+        HAL_NVIC_SetPriority(USB_DRD_FS_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(USB_DRD_FS_IRQn);
         /* USER CODE BEGIN USB_DRD_FS_MspInit 1 */
 
         /* USER CODE END USB_DRD_FS_MspInit 1 */
@@ -482,6 +499,9 @@ void HAL_PCD_MspDeInit(PCD_HandleTypeDef *hpcd)
         /* USER CODE END USB_DRD_FS_MspDeInit 0 */
         /* Peripheral clock disable */
         __HAL_RCC_USB_CLK_DISABLE();
+
+        /* USB_DRD_FS interrupt DeInit */
+        HAL_NVIC_DisableIRQ(USB_DRD_FS_IRQn);
         /* USER CODE BEGIN USB_DRD_FS_MspDeInit 1 */
 
         /* USER CODE END USB_DRD_FS_MspDeInit 1 */

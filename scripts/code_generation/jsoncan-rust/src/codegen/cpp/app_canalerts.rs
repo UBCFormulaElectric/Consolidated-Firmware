@@ -7,7 +7,7 @@ use crate::{
 
 #[derive(Template)]
 #[template(path = "app_canAlerts.cpp.j2")]
-struct AppCanAlertsModuleSource<'a>{
+struct AppCanAlertsModuleSource<'a> {
     board_alerts: &'a NodeAlerts,
     all_node_name_and_alerts: &'a Vec<(String, &'a NodeAlerts)>,
     node_name: &'a String,
@@ -27,14 +27,14 @@ pub struct AppCanAlertsModule<'a> {
 
 impl AppCanAlertsModule<'_> {
     pub fn new<'a>(can_db: &'a CanDatabase, node_name: &'a String) -> AppCanAlertsModule<'a> {
-        let self_alerts= &can_db
-                .nodes
-                .iter()
-                .find(|n| n.name == *node_name)
-                .unwrap()
-                .alerts;
+        let self_alerts = &can_db
+            .nodes
+            .iter()
+            .find(|n| n.name == *node_name)
+            .unwrap()
+            .alerts;
         if self_alerts.is_none() {
-             return AppCanAlertsModule {
+            return AppCanAlertsModule {
                 node_name,
                 all_node_name_and_alerts: Vec::new(),
             };

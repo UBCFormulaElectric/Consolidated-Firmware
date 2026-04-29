@@ -1,11 +1,17 @@
+mod can_alert_gen;
 pub mod error;
 mod from_jsonparser;
 mod queries;
+mod signal_parse;
 mod types;
 
 use error::CanDBError;
-use rusqlite::Connection;
+use r2d2::{Pool, PooledConnection};
+use r2d2_sqlite::SqliteConnectionManager;
 pub use types::*;
+use uuid::Uuid;
+
+const IN_MEMORY_PATH: &str = "can_db";
 
 impl CanNode {
     pub fn add_rx_msg(&mut self, rx_msg: &CanMessage) -> Result<(), CanDBError> {
@@ -54,7 +60,7 @@ impl CanNode {
 }
 
 pub struct CanDatabase {
-    conn: Connection,
+    pool: Pool<SqliteConnectionManager>,
     pub nodes: Vec<CanNode>,
     pub buses: Vec<CanBus>,
     pub forwarding: Vec<BusForwarder>,
@@ -62,61 +68,67 @@ pub struct CanDatabase {
 }
 
 impl CanDatabase {
-    pub fn new(
+    /**
+     * Note that this function will return a CanDatabase object which is still INVALID
+     * Additional validity checks are required by seperate constructors.
+     */
+    fn construct(
         buses: Vec<CanBus>,
         forwarding: Vec<BusForwarder>,
         shared_enums: Vec<CanEnum>,
     ) -> Result<Self, CanDBError> {
-        let conn = Connection::open_in_memory().unwrap();
-        match conn.execute(
-            "CREATE TABLE messages (
-				name TEXT UNIQUE NOT NULL,
-				id INTEGER PRIMARY KEY NOT NULL,
-				description TEXT,
-				cycle_time INTEGER,
-				log_cycle_time INTEGER,
-				telem_cycle_time INTEGER,
-				tx_node_name TEXT NOT NULL,
-				modes TEXT NOT NULL
-			)",
-            [],
-        ) {
-            Ok(_) => {}
-            Err(e) => {
-                return Err(CanDBError::SqlLiteError(e));
-            }
-        }
+        let manager = SqliteConnectionManager::file(format!(
+            "file:{}-{}?mode=memory&cache=shared",
+            IN_MEMORY_PATH,
+            Uuid::new_v4()
+        ))
+        .with_init(|conn| {
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS messages (
+                    name TEXT UNIQUE NOT NULL,
+                    id INTEGER PRIMARY KEY NOT NULL,
+                    description TEXT,
+                    cycle_time INTEGER,
+                    log_cycle_time INTEGER,
+                    telem_cycle_time INTEGER,
+                    tx_node_name TEXT NOT NULL,
+                    modes TEXT NOT NULL
+			        )",
+                [],
+            )?;
 
-        // create table for signals
-        match conn.execute(
-            "CREATE TABLE signals (
-				name TEXT NOT NULL,
-				message_id INTEGER NOT NULL,
-				start_bit INTEGER NOT NULL,
-				bits INTEGER NOT NULL,
-				scale REAL NOT NULL,
-				offset REAL NOT NULL,
-				min REAL NOT NULL,
-				max REAL NOT NULL,
-				start_val REAL NOT NULL,
-				enum_name TEXT,
-				unit TEXT,
-				signed INTEGER NOT NULL,
-				description TEXT,
-				big_endian INTEGER NOT NULL,
-				signal_type INTEGER NOT NULL,
-				FOREIGN KEY(message_id) REFERENCES messages(id)
-			)",
-            [],
-        ) {
-            Ok(_) => {}
-            Err(e) => {
-                return Err(CanDBError::SqlLiteError(e));
-            }
-        }
+            conn.execute(
+                "CREATE TABLE IF NOT EXISTS signals (
+                    name TEXT NOT NULL,
+                    message_id INTEGER NOT NULL,
+                    start_bit INTEGER NOT NULL,
+                    bits INTEGER NOT NULL,
+                    scale REAL NOT NULL,
+                    offset REAL NOT NULL,
+                    min REAL NOT NULL,
+                    max REAL NOT NULL,
+                    start_val REAL NOT NULL,
+                    enum_name TEXT,
+                    unit TEXT,
+                    signed INTEGER NOT NULL,
+                    description TEXT,
+                    big_endian INTEGER NOT NULL,
+                    signal_type INTEGER NOT NULL,
+                    FOREIGN KEY(message_id) REFERENCES messages(id),
+                    UNIQUE(name, message_id)
+                    )",
+                [],
+            )?;
+            return Ok(());
+        });
+
+        let pool = Pool::builder()
+            .max_size(8)
+            .build(manager)
+            .map_err(|e| CanDBError::PoolConnectionError(e))?;
 
         Ok(CanDatabase {
-            conn,
+            pool,
             buses,
             nodes: Vec::new(),
             forwarding,
@@ -134,33 +146,6 @@ impl CanDatabase {
         // 3. adds all the signals into the global dump of signals (self._signals_to_msgs)
         // Note this function expects a valid CanMessage object
 
-        // Check if this message name is a duplicate
-        // TODO move this
-        // if let Some(dup_msg) = msgs.iter().find(|m| m.name == msg.name) {
-        //     return Err(ParseError::DuplicateTxMsgName {
-        //         tx_node_name_1: tx_node_name.clone(),
-        //         tx_node_name_2: dup_msg.tx_node_name.clone(),
-        //         tx_msg_name: msg.name.clone(),
-        //     });
-        // }
-
-        // TODO move this
-        // if let Some(dup_msg) = msgs.iter().find(|m| m.id == msg.id) {
-        //     return Err(ParseError::DuplicateTxMsgID {
-        //         tx_msg_name: msg.name.clone(),
-        //         tx_node_name_1: tx_node_name.clone(),
-        //         tx_node_name_2: dup_msg.tx_node_name.clone(),
-        //     });
-        // }
-
-        // TODO determine if a message is FD compatible when it is routed
-        // if msg.requires_fd() && !tx_node.fd {
-        //     return Err(ParseError::TxFDUnsupported {
-        //         fd_msg_name: msg.name.clone(),
-        //         non_fd_node_name: tx_node_name.clone(),
-        //     });
-        // }
-
         // register the message with the database of all messages
 
         // TODO figure out how to find conflicting signal names across messages
@@ -177,7 +162,8 @@ impl CanDatabase {
         // signal_name_to_msgs.insert(signal.name.clone(), msgs.get(&msg.name).unwrap());
         // }
 
-        match self.conn.execute(
+        self.get_connection()?
+            .execute(
             "INSERT INTO messages (name, id, description, cycle_time, log_cycle_time, telem_cycle_time, tx_node_name, modes) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
             rusqlite::params![
                 msg.name,
@@ -187,14 +173,42 @@ impl CanDatabase {
                 msg.log_cycle_time,
                 msg.telem_cycle_time,
                 msg.tx_node_name,
-                serde_json::to_string(&msg.modes).unwrap()
+                match &msg.modes {
+                    CanBusModes::Some(modes) => serde_json::to_string(modes).unwrap(),
+                    CanBusModes::All => "".to_string(),
+                }
             ],
-        ) {
-            Ok(_) => {}
-            Err(e) => {
-                return Err(CanDBError::SqlLiteError(e));
+        ).map_err(
+            |e| {
+                match e {
+                    rusqlite::Error::SqliteFailure(err, Some(err_msg))
+                    if err.code == rusqlite::ErrorCode::ConstraintViolation && err_msg.contains("UNIQUE constraint failed: messages.name") => {
+                        CanDBError::DuplicateTxMsgName {
+                            tx_node_name_1: msg.tx_node_name,
+                            tx_node_name_2: self.get_connection().unwrap().query_row(
+                                "SELECT tx_node_name FROM messages WHERE name = ?1",
+                                rusqlite::params![msg.name],
+                                |row| row.get::<_, String>(0),
+                            ).expect("Failed to query for duplicate message name"),
+                            tx_msg_name: msg.name.clone(),
+                        }
+                    },
+                    rusqlite::Error::SqliteFailure(err, Some(err_msg))
+                    if err.code == rusqlite::ErrorCode::ConstraintViolation && err_msg.contains("UNIQUE constraint failed: messages.id") => {
+                        CanDBError::DuplicateTxMsgID {
+                            tx_node_name_1: msg.tx_node_name,
+                            tx_node_name_2: self.get_connection().unwrap().query_row(
+                                "SELECT tx_node_name FROM messages WHERE id = ?1",
+                                rusqlite::params![msg.id],
+                                |row| row.get::<_, String>(0),
+                            ).expect("Failed to query for duplicate message ID"),
+                            tx_msg_name: msg.name.clone(),
+                        }
+                    }
+                    _ => CanDBError::SqlLiteError(e)
+                }
             }
-        }
+        )?;
 
         let msg_id = msg.id;
         for signal in msg.signals.iter() {
@@ -205,7 +219,7 @@ impl CanDatabase {
     }
 
     pub fn add_signal(self: &mut Self, msg_id: &u32, signal: &CanSignal) -> Result<(), CanDBError> {
-        match self.conn.execute(
+        self.get_connection()?.execute(
             "INSERT INTO signals (name, message_id, start_bit, bits, scale, offset, min, max, start_val, enum_name, unit, signed, description, big_endian, signal_type) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)",
             rusqlite::params![
                 signal.name,
@@ -224,11 +238,22 @@ impl CanDatabase {
                 if signal.big_endian { 1 } else { 0 },
                 signal.signal_type.clone() as u32,
             ],
-        )
-    {
-            Ok(_) => Ok(()),
-            Err(e) => Err(CanDBError::SqlLiteError(e)),
-        }
+        ).map_err(
+            |e| {
+                match e {
+                    rusqlite::Error::SqliteFailure(err, Some(err_msg))
+                    if err.code == rusqlite::ErrorCode::ConstraintViolation && err_msg.contains("UNIQUE constraint failed: signals.name, signals.message_id") => {
+                        CanDBError::DuplicateTxSignalName {
+                            signal_name: signal.name.clone(),
+                            tx_msg_name: self.get_message_by_id(*msg_id).unwrap().name.clone(),
+                        }
+                    },
+                    _ => CanDBError::SqlLiteError(e)
+                }
+            }
+        )?;
+
+        Ok(())
     }
 
     pub fn get_enum(self: &Self, enum_name: &str) -> Option<CanEnum> {
@@ -241,7 +266,30 @@ impl CanDatabase {
     }
 
     pub fn add_node(self: &mut Self, node: CanNode) -> &CanNode {
-       self.nodes.push(node);
-         self.nodes.last().unwrap()
+        if self.nodes.iter().any(|n| n.name == node.name) {
+            panic!("Node with name '{}' already exists", node.name);
+        }
+        self.nodes.push(node);
+        self.nodes.last().unwrap()
     }
+
+    /**
+     * Gets a connection from the connection pool
+     * Wrapper to just convert error into CanDBError
+     */
+    fn get_connection(&self) -> Result<PooledConnection<SqliteConnectionManager>, CanDBError> {
+        self.pool
+            .get()
+            .map_err(|e| CanDBError::PoolConnectionError(e))
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct DecodedSignal {
+    pub name: String,
+    pub value: f64,
+    pub timestamp: Option<u64>,
+    pub label: Option<String>,
+    pub unit: Option<String>,
+    pub signal_type: CanSignalType,
 }
