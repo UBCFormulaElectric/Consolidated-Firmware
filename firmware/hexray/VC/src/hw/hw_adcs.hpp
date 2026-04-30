@@ -16,3 +16,9 @@ extern const hw::adc adc_r_rad_fan;
 extern const hw::adc adc_misc_fuse;
 extern const hw::adc adc_f_inv;
 extern const hw::adc adc_rsm;
+
+inline void adcChipsInit()
+{
+    LOG_IF_ERR(Adc_Chip1.init());
+    LOG_IF_ERR(Adc_Chip2.init());
+}

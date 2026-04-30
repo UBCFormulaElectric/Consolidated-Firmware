@@ -12,6 +12,7 @@
 #include "hw_gpios.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_hardFaultHandler.hpp"
+#include "hw_adcs.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
@@ -136,6 +137,8 @@ void tasks_init()
 
     fdcan1.init();
     invcan.init();
+
+    adcChipsInit();
 
     dam_en.writePin(true);
     rsm_en.writePin(true);
