@@ -16,7 +16,7 @@ float getFlowRate()
     return frequency * FREQ_TO_LITERS_PER_MINUTE;
 }
 
-std::expected<void, ErrorCode> checkIfFlowMeterActive()
+bool checkIfFlowMeterActive()
 {
     return flow_meter_config.pwm_isActive();
 }
