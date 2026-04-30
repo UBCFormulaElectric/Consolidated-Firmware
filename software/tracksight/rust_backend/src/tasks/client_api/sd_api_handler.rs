@@ -1,4 +1,4 @@
-use axum::{Json, Router, http::StatusCode, response::IntoResponse, routing::{get, post}};
+use axum::{Json, Router, extract::Query, http::StatusCode, response::IntoResponse, routing::{get, post}};
 use serde::Deserialize;
 
 use crate::tasks::client_api::{AppState, sd_utils::{find_detachable_drives, get_logfs, ls_deep}};
@@ -17,8 +17,9 @@ struct SdShowPayload {
 
 /**
  * Show nested directory structure of the drive
+ * Pass drive in `drive` parameter, e.g. `/sd/show?drive=/dev/sdb`
  */
-async fn sd_show(Json(SdShowPayload{drive}): Json<SdShowPayload>) -> impl IntoResponse {
+async fn sd_show(Query(SdShowPayload{drive}): Query<SdShowPayload>) -> impl IntoResponse {
     let logfs = match get_logfs(drive.clone()) {
         Ok(logfs) => logfs,
         Err(_) => return (StatusCode::BAD_REQUEST, format!("Failed to mount {drive}")),
@@ -33,9 +34,14 @@ async fn sd_show(Json(SdShowPayload{drive}): Json<SdShowPayload>) -> impl IntoRe
 struct SdDumpPayload {
     drive: String,
     file: String,
+    overwrite: Option<bool>,
 }
 
-async fn sd_dump(Json(SdDumpPayload{drive, file}): Json<SdDumpPayload>) -> impl IntoResponse {
+/**
+ * Parses file, reads the entire file, parses, then pushes to database as separate category for SD card.
+ * If file already exists in database, overwrite if `overwrite` is true, otherwise returns code 409.
+ */
+async fn sd_dump(Json(SdDumpPayload{drive, file, overwrite}): Json<SdDumpPayload>) -> impl IntoResponse {
     return (StatusCode::OK, format!("Dump {file} from drive {drive}"));
 }
 
@@ -54,7 +60,7 @@ async fn sd_list_mock() -> impl IntoResponse {
     return (StatusCode::OK, serde_json::to_string(&vec!["/dev/sdb", "/dev/sdc"]).unwrap());
 }
 
-async fn sd_show_mock(Json(SdShowPayload{drive}): Json<SdShowPayload>) -> impl IntoResponse {
+async fn sd_show_mock(Query(SdShowPayload{drive}): Query<SdShowPayload>) -> impl IntoResponse {
     let files = match drive.as_str() {
         "/dev/sdb" => vec![
             "/file1.txt".to_string(),
@@ -73,7 +79,7 @@ async fn sd_show_mock(Json(SdShowPayload{drive}): Json<SdShowPayload>) -> impl I
     return (StatusCode::OK, serde_json::to_string(&files).unwrap());
 }
 
-async fn sd_dump_mock(Json(SdDumpPayload{drive, file}): Json<SdDumpPayload>) -> impl IntoResponse {
+async fn sd_dump_mock(Json(SdDumpPayload{drive, file, overwrite}): Json<SdDumpPayload>) -> impl IntoResponse {
     match drive.as_str() {
         "/dev/sdb" => {
             match file.as_str() {
@@ -85,13 +91,16 @@ async fn sd_dump_mock(Json(SdDumpPayload{drive, file}): Json<SdDumpPayload>) -> 
             }
         },
         "/dev/sdc" => {
-            match file.as_str() {
-                "/file5.txt" => (),
-                "/dir3/file6.txt" => (),
-                "/dir3/file7.txt" => (),
-                "/dir4/file8.txt" => (),
-                _ => return (StatusCode::BAD_REQUEST, format!("File {file} not found on drive {drive}")),
+            if overwrite == Some(true) {
+                match file.as_str() {
+                    "/file5.txt" => (),
+                    "/dir3/file6.txt" => (),
+                    "/dir3/file7.txt" => (),
+                    "/dir4/file8.txt" => (),
+                    _ => return (StatusCode::BAD_REQUEST, format!("File {file} not found on drive {drive}")),
+                }
             }
+            return (StatusCode::CONFLICT, format!("File {file} already exists on drive {drive}, overwrite by passing overwrite=true in the request body."));
         },
         _ => return (StatusCode::BAD_REQUEST, format!("Drive {drive} not found")),
     };
