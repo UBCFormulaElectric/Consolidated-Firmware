@@ -114,23 +114,7 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
     }, [updateGraphWidth])
 
     const updateLeftScroll = useCallback((e: UIEvent<HTMLDivElement>) => {
-        const container = e.target as HTMLDivElement;
-
-        if (isViewportLockedRef.current) {
-            // scrollLeftRef is owned by updateGraphWidth when locked — don't overwrite it here.
-            // Just snap the DOM back to the right edge if something moved it (e.g. a touch swipe).
-            const latestScrollLeft = Math.max(container.scrollWidth - container.clientWidth, 0);
-            if (container.scrollLeft !== latestScrollLeft) {
-                container.scrollLeft = latestScrollLeft;
-            }
-            return;
-        }
-
-        const clamped = Math.max(container.scrollLeft, 0);
-        scrollLeftRef.current = clamped;
-        if (container.scrollLeft !== clamped) {
-            container.scrollLeft = clamped;
-        }
+        scrollLeftRef.current = (e.target as HTMLDivElement).scrollLeft;
     }, [scrollLeftRef]);
 
     useEffect(() => {

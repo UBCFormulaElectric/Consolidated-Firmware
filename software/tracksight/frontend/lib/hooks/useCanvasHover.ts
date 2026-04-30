@@ -15,14 +15,12 @@ export function useCanvasHover(
   hoverXRef: RefObject<number | null>,
   onHoverXChange?: (x: number | null) => void
 ) {
-  const { isViewportLocked } = useDisplayControlContext();
-
   const handleMouseMove = useCallback(
     (event: MouseEvent_React<HTMLCanvasElement, MouseEvent>) => {
       const canvas = canvasRef.current;
       if (!canvas) return;
       const rect = canvas.getBoundingClientRect();
-      const x = event.clientX - rect.left + (isViewportLocked ? (rect.left === 0 ? 15 : 10) : 0)
+      const x = event.clientX - rect.left
       hoverXRef.current = x;
       onHoverXChange?.(x);
     },
