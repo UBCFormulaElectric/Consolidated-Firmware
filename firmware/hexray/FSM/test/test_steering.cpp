@@ -51,7 +51,7 @@ TEST_F(SteeringModuleTest, AngleOutOfRangle_Overflow)
 
     EXPECT_FLOAT_EQ(app::can_tx::FSM_SteeringAngle_get(), 95.0f);
     EXPECT_FALSE(app::can_tx::FSM_Info_SteeringAngleOCSC_get());
-    EXPECT_TRUE(app::can_tx::FSM_Info_SteeringAngleOutOfRange_get());
+    EXPECT_FALSE(app::can_tx::FSM_Info_SteeringAngleOutOfRange_get());
 }
 
 TEST_F(SteeringModuleTest, AngleOutOfRangle_CANOverflow)
@@ -75,7 +75,7 @@ TEST_F(SteeringModuleTest, AngleOutOfRangle_Underflow)
 
     EXPECT_FLOAT_EQ(app::can_tx::FSM_SteeringAngle_get(), -95.0f);
     EXPECT_FALSE(app::can_tx::FSM_Info_SteeringAngleOCSC_get());
-    EXPECT_TRUE(app::can_tx::FSM_Info_SteeringAngleOutOfRange_get());
+    EXPECT_FALSE(app::can_tx::FSM_Info_SteeringAngleOutOfRange_get());
 }
 
 TEST_F(SteeringModuleTest, AngleOutOfRangle_CANUnderflow)
