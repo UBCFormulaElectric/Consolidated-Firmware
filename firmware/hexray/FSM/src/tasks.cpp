@@ -124,13 +124,11 @@ void tasks_preInit()
         {
             LOG_WARN("Detected stack overflow on the previous boot cycle!");
             app::can_alerts::infos::StackOverflow_set(true);
-            // app::can_tx::FSM_StackOverflowTask_set(boot_request.context_value);
         }
         else if (boot_request.context == hw::bootup::BootContext::BOOT_CONTEXT_WATCHDOG_TIMEOUT)
         {
             // If the software driver detected a watchdog timeout the context should be set.
             app::can_alerts::infos::WatchdogTimeout_set(true);
-            // app::can_tx::FSM_WatchdogTimeoutTask_set(boot_request.context_value);
         }
 
         // Clear stack overflow bootup.
