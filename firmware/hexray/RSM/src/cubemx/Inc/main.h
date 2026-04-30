@@ -55,6 +55,9 @@ extern "C"
 
     /* USER CODE BEGIN EFP */
     extern ADC_HandleTypeDef   hadc1;
+    extern DMA_NodeTypeDef     Node_GPDMA1_Channel0;
+    extern DMA_QListTypeDef    List_GPDMA1_Channel0;
+    extern DMA_HandleTypeDef   handle_GPDMA1_Channel0;
     extern FDCAN_HandleTypeDef hfdcan1;
     extern I2C_HandleTypeDef   hi2c2;
     extern SPI_HandleTypeDef   hspi3;
@@ -75,8 +78,8 @@ extern "C"
 #define BPS_R_3V3_GPIO_Port GPIOC
 #define LC3_OUT_Pin GPIO_PIN_0
 #define LC3_OUT_GPIO_Port GPIOA
-#define nBSPD_BRAKE_PRESSED_3V3_Pin GPIO_PIN_2
-#define nBSPD_BRAKE_PRESSED_3V3_GPIO_Port GPIOA
+#define NBSPD_BRAKE_PRESSED_3V3_Pin GPIO_PIN_2
+#define NBSPD_BRAKE_PRESSED_3V3_GPIO_Port GPIOA
 #define BRAKE_OCSC_OK_3V3_Pin GPIO_PIN_3
 #define BRAKE_OCSC_OK_3V3_GPIO_Port GPIOA
 #define RL_INT_3V3_SENS_Pin GPIO_PIN_4

@@ -5,7 +5,7 @@
 #include "app_jsoncan.hpp"
 
 #include "io_time.hpp"
-#include <io_canRx.hpp>
+#include "io_canRx.hpp"
 #include "io_canQueues.hpp"
 
 #include "hw_hardFaultHandler.hpp"
@@ -58,7 +58,7 @@
             continue;
         if (const auto &m = msg.value(); m.bus == app::can_utils::BusEnum::Bus_FDCAN)
         {
-            const auto res = hw::can::fdcan1.fdcan_transmit(hw::CanMsg{
+            const auto res = fdcan1.fdcan_transmit(hw::CanMsg{
                 m.std_id,
                 m.dlc,
                 m.data,
@@ -104,9 +104,12 @@ void tasks_preInit()
 
 void tasks_init()
 {
-    hw::can::fdcan1.init();
-    led_dimming.start();
-    led_dimming.setDutyCycle(95);
+    SEGGER_SYSVIEW_Conf();
+
+    fdcan1.init();
+    LOG_IF_ERR(led_dimming.start());
+    LOG_IF_ERR(led_dimming.setDutyCycle(95));
+
     jobs_init();
     osKernelInitialize();
     CRIT_StartAllTasks();

@@ -7,26 +7,16 @@
 #include "io_time.hpp"
 #include "io_telemMessage.hpp"
 #include "io_canQueues.hpp"
-#include "io_canQueues.hpp"
-#include <io_canRx.hpp>
+#include "io_canRx.hpp"
+#include "io_telemQueue.hpp"
 
 #include "hw_hardFaultHandler.hpp"
 #include "hw_rtosTaskHandler.hpp"
-#include "io_telemQueue.hpp"
-
-#include <span>
-
-extern "C"
-{
-#include "io_rtc.h"
-}
-
-// static IoRtcTime boot_time{};
 #include "hw_cans.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
-    const uint32_t period_ms = 1000U;
+    constexpr uint32_t period_ms = 1000U;
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -39,7 +29,7 @@ extern "C"
 }
 [[noreturn]] static void tasks_run100Hz(void *arg)
 {
-    const uint32_t period_ms = 10U;
+    constexpr uint32_t period_ms = 10U;
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -51,12 +41,14 @@ extern "C"
 }
 [[noreturn]] static void tasks_run1kHz(void *arg)
 {
-    const uint32_t period_ms = 1U;
+    constexpr uint32_t period_ms = 1U;
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
+#ifndef WATCHDOG_DISABLED
         HAL_IWDG_Refresh(&hiwdg);
+#endif
         jobs_run1kHz_tick();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -100,15 +92,12 @@ extern "C"
             continue;
         if (const auto &m = msg.value(); m.bus == app::can_utils::BusEnum::Bus_FDCAN)
         {
-            const auto res = hw::can::fdcan1.fdcan_transmit(hw::CanMsg{
+            const auto res = fdcan1.fdcan_transmit(hw::CanMsg{
                 m.std_id,
                 m.dlc,
                 m.data,
             });
-            if (not res)
-            {
-                LOG_ERROR("fdcan1.fdcan_transmit(...) exited with an error: %d", static_cast<int>(res.error()));
-            }
+            LOG_IF_ERR(res);
         }
         else
         {
@@ -156,7 +145,10 @@ void tasks_preInit()
 
 void tasks_init()
 {
-    hw::can::fdcan1.init();
+    SEGGER_SYSVIEW_Conf();
+
+    fdcan1.init();
+
     osKernelInitialize();
     jobs_init();
     DAM_StartAllTasks();

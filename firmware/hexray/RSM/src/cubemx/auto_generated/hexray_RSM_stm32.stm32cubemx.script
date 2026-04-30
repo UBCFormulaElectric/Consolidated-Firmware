@@ -5,13 +5,13 @@
 #       invoked, rather than relative to where this .script file is.
 ###############################################################################
 # Load the project-specific config file (.ioc)
-config load C:/Users/amtaj/Consolidated-Firmware/firmware/hexray/RSM/src/cubemx/RSM.ioc
+config load /Users/rijwalsangey/Documents/Consolidated-Firmware/firmware/hexray/RSM/src/cubemx/RSM.ioc
 
 # Generate the peripheral initializations in main.c
 project couplefilesbyip 0
 
 # Generate code in the project directory
-generate code C:/Users/amtaj/Consolidated-Firmware/firmware/hexray/RSM/src/cubemx
+generate code /Users/rijwalsangey/Documents/Consolidated-Firmware/firmware/hexray/RSM/src/cubemx
 
 # Exit the program
 exit

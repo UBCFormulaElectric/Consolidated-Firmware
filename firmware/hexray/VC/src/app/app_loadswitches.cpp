@@ -12,31 +12,31 @@ namespace app::loadswitches
 {
 struct EfuseCanMsg
 {
-    io::Efuse &efuse;
+    const io::Efuse &efuse;
     void (*can_setter_enabled)(bool);
     void (*can_setter_current)(float);
 };
 // one array for all the setter CAN signals
-EfuseCanMsg efuse_channel_setters[NUM_EFUSE_CHANNELS] = {
-    { f_inv_efuse, app::can_tx::VC_FrontInvertersStatus_set, app::can_tx::VC_FrontInvertersCurrent_set },
-    { r_inv_efuse, app::can_tx::VC_RSMStatus_set, app::can_tx::VC_RSMCurrent_set },
-    { bms_efuse, app::can_tx::VC_BMSStatus_set, app::can_tx::VC_BMSCurrent_set },
-    { rsm_efuse, app::can_tx::VC_RearInvertersStatus_set, app::can_tx::VC_RearInvertersCurrent_set },
-    { dam_efuse, app::can_tx::VC_DAMStatus_set, app::can_tx::VC_DAMCurrent_set },
-    { front_efuse, app::can_tx::VC_FrontStatus_set, app::can_tx::VC_FrontCurrent_set },
-    { l_rad_fan_efuse, app::can_tx::VC_RearLeftPumpStatus_set, app::can_tx::VC_RearLeftPumpCurrent_set },
-    { r_rad_fan_efuse, app::can_tx::VC_RightRadiatorFanStatus_set, app::can_tx::VC_RightRadiatorFanCurrent_set },
-    { rr_pump_efuse, app::can_tx::VC_RearRightPumpStatus_set, app::can_tx::VC_RearRightPumpCurrent_set },
-    { rl_pump_efuse, app::can_tx::VC_LeftRadiatorFanStatus_set, app::can_tx::VC_LeftRadiatorFanCurrent_set },
-};
+std::array<EfuseCanMsg, NUM_EFUSE_CHANNELS> efuse_channel_setters{ {
+    { f_inv_efuse, can_tx::VC_FrontInvertersStatus_set, can_tx::VC_FrontInvertersCurrent_set },
+    { r_inv_efuse, can_tx::VC_RSMStatus_set, can_tx::VC_RSMCurrent_set },
+    { bms_efuse, can_tx::VC_BMSStatus_set, can_tx::VC_BMSCurrent_set },
+    { rsm_efuse, can_tx::VC_RearInvertersStatus_set, can_tx::VC_RearInvertersCurrent_set },
+    { dam_efuse, can_tx::VC_DAMStatus_set, can_tx::VC_DAMCurrent_set },
+    { front_efuse, can_tx::VC_FrontStatus_set, can_tx::VC_FrontCurrent_set },
+    { l_rad_fan_efuse, can_tx::VC_RearLeftPumpStatus_set, can_tx::VC_RearLeftPumpCurrent_set },
+    { r_rad_fan_efuse, can_tx::VC_RightRadiatorFanStatus_set, can_tx::VC_RightRadiatorFanCurrent_set },
+    { rr_pump_efuse, can_tx::VC_RearRightPumpStatus_set, can_tx::VC_RearRightPumpCurrent_set },
+    { rl_pump_efuse, can_tx::VC_LeftRadiatorFanStatus_set, can_tx::VC_LeftRadiatorFanCurrent_set },
+} };
 
 void efuse_broadcast()
 {
     // run through each efuse, and broadcast the channel status and current
-    for (auto &efuse : efuse_channel_setters)
+    for (auto &[efuse, can_setter_enabled, can_setter_current] : efuse_channel_setters)
     {
-        efuse.can_setter_enabled(efuse.efuse.isChannelEnabled());
-        efuse.can_setter_current(efuse.efuse.getChannelCurrent());
+        can_setter_enabled(efuse.isChannelEnabled());
+        can_setter_current(efuse.getChannelCurrent());
     }
 }
 } // namespace app::loadswitches
