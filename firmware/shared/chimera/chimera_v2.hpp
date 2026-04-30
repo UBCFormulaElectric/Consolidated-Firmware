@@ -61,7 +61,7 @@ class config
 
   public:
     // A table of Protobuf-generated net names to ADC peripherals.
-    virtual std::optional<std::reference_wrapper<const hw::Adc>> id_to_adc(const _AdcNetName *ann) const = 0;
+    virtual std::optional<std::reference_wrapper<const hw::adc>> id_to_adc(const _AdcNetName *ann) const = 0;
 #endif
 
 #ifdef HAL_I2C_MODULE_ENABLED

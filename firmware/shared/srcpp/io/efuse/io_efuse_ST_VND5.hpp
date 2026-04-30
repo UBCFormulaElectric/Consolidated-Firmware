@@ -33,7 +33,7 @@ class ST_VND5_Efuse final : public Efuse
 #ifdef TARGET_EMBEDDED
     explicit constexpr ST_VND5_Efuse(
         const hw::gpio &in_enable_gpio,
-        const hw::Adc  &in_sns_adc_channel,
+        const hw::adc  &in_sns_adc_channel,
         const hw::gpio &in_stby_reset_gpio)
       : Efuse(in_enable_gpio, in_sns_adc_channel), stby_reset_gpio(in_stby_reset_gpio)
     {

@@ -19,9 +19,9 @@ inline void adcChipsInit()
     LOG_IF_ERR(adc1.init());
 }
 
-extern const hw::Adc susp_fl;
-extern const hw::Adc susp_fr;
-extern const hw::Adc apps2;
-extern const hw::Adc bps_f;
-extern const hw::Adc str_angle;
-extern const hw::Adc apps1;
+extern const hw::adc susp_fl;
+extern const hw::adc susp_fr;
+extern const hw::adc apps2;
+extern const hw::adc bps_f;
+extern const hw::adc str_angle;
+extern const hw::adc apps1;

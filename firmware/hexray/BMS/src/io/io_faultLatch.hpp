@@ -21,8 +21,8 @@ enum class FaultLatchState : std::uint8_t
 
 struct FaultLatch
 {
-    const hw::gpio *current_status_gpio;
-    const hw::gpio *latch_status_gpio;
+    const hw::gpio &current_status_gpio;
+    const hw::gpio &latch_status_gpio;
     bool            current_inverted;
     bool            latch_inverted;
     const bool      read_only; // Certain fault latches can only be read from.

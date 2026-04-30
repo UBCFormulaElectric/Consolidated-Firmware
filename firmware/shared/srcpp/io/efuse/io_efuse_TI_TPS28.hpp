@@ -30,7 +30,7 @@ class TI_TPS28_Efuse final : public Efuse
 #ifdef TARGET_EMBEDDED
     explicit constexpr TI_TPS28_Efuse(
         const hw::gpio &in_enable_gpio,
-        const hw::Adc  &in_sns_adc_channel,
+        const hw::adc  &in_sns_adc_channel,
         const hw::gpio &in_pgood_gpio)
       : Efuse(in_enable_gpio, in_sns_adc_channel), pgood_gpio(in_pgood_gpio)
     {

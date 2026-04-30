@@ -60,7 +60,7 @@ class FSMChimeraConfig : public chimera_v2::config
         }
     }
 
-    std::optional<std::reference_wrapper<const hw::Adc>> id_to_adc(const _AdcNetName *snn) const override
+    std::optional<std::reference_wrapper<const hw::adc>> id_to_adc(const _AdcNetName *snn) const override
     {
         if (snn->which_name != adc_net_name_tag)
         {

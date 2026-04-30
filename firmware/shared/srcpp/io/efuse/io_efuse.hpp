@@ -13,12 +13,12 @@ class Efuse
   protected:
 #ifdef TARGET_EMBEDDED
     const hw::gpio &enable_gpio;
-    const hw::Adc  &sns_adc_channel;
+    const hw::adc  &sns_adc_channel;
 #endif
 
   public:
 #ifdef TARGET_EMBEDDED
-    explicit constexpr Efuse(const hw::gpio &in_enable_gpio, const hw::Adc &in_sns_adc_channel)
+    explicit constexpr Efuse(const hw::gpio &in_enable_gpio, const hw::adc &in_sns_adc_channel)
       : enable_gpio(in_enable_gpio), sns_adc_channel(in_sns_adc_channel)
     {
     }
