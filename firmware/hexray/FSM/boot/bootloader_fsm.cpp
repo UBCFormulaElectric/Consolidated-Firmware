@@ -54,7 +54,7 @@ static hw::rtos::StaticTask<1024>
 static hw::rtos::StaticTask<1024>
     TaskRunCanTx(osPriorityRealtime, "TaskRunCanTx", [](void *) { bootloader::runCanTxTask(fsm_boot_config); });
 
-[[noreturn]] void bootloader_init(void)
+[[noreturn]] void bootloader_init()
 {
     HAL_GPIO_WritePin(BOOT_LED_GPIO_Port, BOOT_LED_Pin, GPIO_PIN_SET);
     bootloader::init(fsm_boot_config);

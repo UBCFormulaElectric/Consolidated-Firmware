@@ -39,9 +39,8 @@ enum class BootStatus : uint8_t
     BOOT_STATUS_NO_APP
 };
 
-static bool       update_in_progress;
-static BootStatus boot_status;
-static uint32_t   current_address;
+static bool     update_in_progress;
+static uint32_t current_address;
 
 [[noreturn]] static void modifyStackPointerAndStartApp(const uint32_t *address)
 {
@@ -95,34 +94,39 @@ static uint32_t   current_address;
 
 static BootStatus verifyAppCodeChecksum()
 {
+    static auto boot_status = BootStatus::BOOT_STATUS_APP_INVALID;
+
+    // TODO add some mechanism to check if any memory operation has been made
     // ReSharper disable once CppRedundantDereferencingAndTakingAddress
     if (*&__app_code_start__ == 0xFFFFFFFF)
     {
         // If app initial stack pointer is all 0xFF, assume app is not present
-        return BootStatus::BOOT_STATUS_NO_APP;
+        boot_status = BootStatus::BOOT_STATUS_NO_APP;
+        return boot_status;
     }
 
     const Metadata *metadata = &__app_metadata_start__;
     if (metadata->size_bytes > reinterpret_cast<uint32_t>(&__app_code_size__))
     {
         // App binary size field is invalid
-        return BootStatus::BOOT_STATUS_APP_INVALID;
+        boot_status = BootStatus::BOOT_STATUS_APP_INVALID;
+        return boot_status;
     }
 
     const uint32_t calculated_checksum =
         app::crc32::finalize(app::crc32::update(app::crc32::init(), &__app_code_start__, metadata->size_bytes));
-    return calculated_checksum == metadata->checksum ? BootStatus::BOOT_STATUS_APP_VALID
-                                                     : BootStatus::BOOT_STATUS_APP_INVALID;
+    boot_status = calculated_checksum == metadata->checksum ? BootStatus::BOOT_STATUS_APP_VALID
+                                                            : BootStatus::BOOT_STATUS_APP_INVALID;
+    return boot_status;
 }
 
 void bootloader::preInit()
 {
     hw_hardFaultHandler_init();
 
-    verifyAppCodeChecksum();
-
     // verify checksum place holder
-    if (boot_status == BootStatus::BOOT_STATUS_APP_VALID &&
+    if (const BootStatus boot_status = verifyAppCodeChecksum();
+        boot_status == BootStatus::BOOT_STATUS_APP_VALID &&
         hw::bootup::getBootRequest().target == hw::bootup::BootTarget::BOOT_TARGET_APP)
     {
         // Jump to app
@@ -201,7 +205,8 @@ void bootloader::init(config &boot_config)
             // Program 64 bits at the current address.
             // No reply for program command to reduce latency.
             const uint64_t command_packet = command.getDataAsQWords()[0];
-            if (const auto status = boot_config.boardSpecific_program(current_address, command_packet); not status)
+            if (const auto status = boot_config.boardSpecific_program(current_address, command_packet);
+                not status and status.error() != ErrorCode::ERROR_INDETERMINATE)
             {
                 // program failed meaning we need to stop and tell the application that program has failed
                 // and stop the bootloader
@@ -214,14 +219,13 @@ void bootloader::init(config &boot_config)
             }
             current_address += sizeof(uint64_t);
         }
-        else if (command.std_id == (boot_config.BOARD_HIGHBITS | VERIFY_ID_LOWBITS) && update_in_progress)
+        else if (command.std_id == (boot_config.BOARD_HIGHBITS | VERIFY_ID_LOWBITS))
         {
             // Verify received checksum matches the one saved in flash.
             hw::CanMsg reply{};
-            reply.std_id = boot_config.BOARD_HIGHBITS | APP_VALIDITY_ID_LOWBITS;
-            reply.dlc    = 1;
-            verifyAppCodeChecksum();
-            reply.data[0] = static_cast<uint8_t>(boot_status);
+            reply.std_id  = boot_config.BOARD_HIGHBITS | APP_VALIDITY_ID_LOWBITS;
+            reply.dlc     = 1;
+            reply.data[0] = static_cast<uint8_t>(verifyAppCodeChecksum());
             LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
 
             // Verify command doubles as exit programming state command.
@@ -251,7 +255,8 @@ void bootloader::init(config &boot_config)
 [[noreturn]] void bootloader::runTickTask(config &boot_config)
 {
     uint32_t start_ticks = osKernelGetTickCount();
-
+    bool     dirty       = true;
+    auto     boot_status = BootStatus::BOOT_STATUS_APP_INVALID;
     for (;;)
     {
         if (!update_in_progress)
@@ -261,9 +266,18 @@ void bootloader::init(config &boot_config)
             status_msg.std_id               = boot_config.BOARD_HIGHBITS | STATUS_10HZ_ID_LOWBITS;
             status_msg.dlc                  = 5;
             status_msg.getDataAsDWords()[0] = boot_config.GIT_COMMIT_HASH;
+            if (dirty)
+            {
+                boot_status = verifyAppCodeChecksum();
+                dirty       = false;
+            }
             status_msg.data[4] =
                 static_cast<uint8_t>(static_cast<uint8_t>(boot_status) << 1) | boot_config.GIT_COMMIT_CLEAN;
             LOG_IF_ERR(boot_config.can_tx_queue.push(status_msg));
+        }
+        else
+        {
+            dirty = true;
         }
 
         boot_config.boardSpecific_tick();
@@ -286,6 +300,10 @@ void bootloader::init(config &boot_config)
                 boot_config.can_handle.can_transmit(tx_msg.value());
 #endif
             LOG_IF_ERR(res);
+        }
+        else
+        {
+            LOG_ERROR("What %d", tx_msg.error());
         }
     }
 }
