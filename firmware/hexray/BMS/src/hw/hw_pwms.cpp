@@ -1,15 +1,12 @@
 #include "hw_pwms.hpp"
 #include "main.h"
 
-// Note: A few PWM still need to be configured.
-namespace hw::pwm
-{
 /* * IMD PWM Input
  * Pin: IMD_M_HS_3V3_Pin (PA8) -> TIM1_CH1
  * Mode: PWM Input on TI1
  * Trigger: TI1FP1 (Rising)
  */
-constexpr PwmInput imd_pwm_input(
+constexpr hw::PwmInput imd_pwm_input(
     htim1,
     HAL_TIM_ACTIVE_CHANNEL_1,
     TIMx_FREQUENCY / TIM1_PRESCALER,
@@ -22,24 +19,23 @@ constexpr PwmInput imd_pwm_input(
  * Mode: PWM Input on TI4
  * Trigger: TI4FP4 (Rising)
  */
-constexpr PwmInput evse_pwm_input(
+constexpr hw::PwmInput evse_pwm_input(
     htim5,
     HAL_TIM_ACTIVE_CHANNEL_4,
     TIMx_FREQUENCY / TIM5_PRESCALER,
     TIM_CHANNEL_4, // Rising Edge (Direct)
     TIM_CHANNEL_3, // Falling Edge (Indirect)
     TIM5_AUTO_RELOAD_REG);
-} // namespace hw::pwm
 
 // HAL Interrupt Callback
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
-    if (htim == &hw::pwm::imd_pwm_input.get_timer_handle())
+    if (htim == &imd_pwm_input.get_timer_handle())
     {
-        hw::pwm::imd_pwm_input.tick();
+        imd_pwm_input.tick();
     }
-    else if (htim == &hw::pwm::evse_pwm_input.get_timer_handle())
+    else if (htim == &evse_pwm_input.get_timer_handle())
     {
-        hw::pwm::evse_pwm_input.tick();
+        evse_pwm_input.tick();
     }
 }

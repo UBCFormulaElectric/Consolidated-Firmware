@@ -147,7 +147,7 @@ void tasks_init()
 #endif
 
     adcChipsInit();
-    hw::pwm::init();
+    pwms_init();
     fdcan1.init();
     fdcan2.init();
 

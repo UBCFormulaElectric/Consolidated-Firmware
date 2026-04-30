@@ -57,9 +57,9 @@ class Efuse
     [[nodiscard]] virtual bool ok() const = 0;
 #else
     explicit constexpr Efuse() {}
-    bool  enabled = false;
-    bool  fault   = false;
-    float current = 0.0f;
+    mutable bool enabled = false;
+    bool         fault   = false;
+    float        current = 0.0f;
 
     void setChannelCurrent(float fake_current) { current = fake_current; }
 
@@ -73,7 +73,7 @@ class Efuse
 
     void reset() { return; }
 
-    [[nodiscard]] bool ok() { return !fault; }
+    [[nodiscard]] bool ok() const { return !fault; }
 #endif
 
     virtual ~Efuse() = default;
