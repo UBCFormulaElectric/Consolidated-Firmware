@@ -209,7 +209,6 @@ impl LogFs {
                 // Read metadata
                 // TODO: Implement metadata read
                 let data = file.read(None);
-                println!("bruh: {:?}", data);
                 if let Some("can") = decode {
                     // TODO: Implement CAN decode branch
                     println!("TODO: decode == 'can' branch");
@@ -223,7 +222,6 @@ impl LogFs {
                         return Err(e);
                     }
                 }
-                return Ok(Vec::new());
             }
             Err(e) => {
                 println!("Open error: {:?}", e);
@@ -241,6 +239,9 @@ impl LogFs {
             return Err(err);
         }
 
+        // Normalize to always have exactly one trailing slash
+        let prefix = format!("{}/", dir.trim_end_matches('/'));
+
         loop {
             let name = unsafe {
                 std::ffi::CStr::from_ptr(path.path.as_ptr())
@@ -248,8 +249,16 @@ impl LogFs {
                     .into_owned()
             };
 
-            if name.starts_with(dir) {
-                files.push(name);
+            if let Some(relative) = name.strip_prefix(&prefix) {
+                if relative.is_empty() {
+                    // skip exact prefix match
+                } else {
+                    // Take only the first path segment after the prefix
+                    let entry = relative.split('/').next().unwrap();
+                    if !entry.is_empty() && !files.contains(&entry.to_string()) {
+                        files.push(entry.to_string());
+                    }
+                }
             }
 
             let err = unsafe { logfs_nextPath(&mut *self.fs, &mut path) };
