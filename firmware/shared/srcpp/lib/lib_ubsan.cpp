@@ -14,6 +14,7 @@ extern "C"
     void __ubsan_handle_type_mismatch_v1(void *_data, void *ptr);                // NOLINT(*-reserved-identifier)
     void __ubsan_handle_out_of_bounds(void *_data, void *index);                 // NOLINT(*-reserved-identifier)
     void __ubsan_handle_shift_out_of_bounds(void *_data, void *lhs, void *rhs);  // NOLINT(*-reserved-identifier)
+    void __ubsan_handle_builtin_unreachable(void *_data);                        // NOLINT(*-reserved-identifier)
     void __ubsan_handle_load_invalid_value(void *_data, void *val);              // NOLINT(*-reserved-identifier)
     void __ubsan_handle_nonnull_arg(void *_data);                                // NOLINT(*-reserved-identifier)
     void __ubsan_handle_vla_bound_not_positive(void *_data, void *bound);        // NOLINT(*-reserved-identifier)
@@ -357,7 +358,17 @@ void __ubsan_handle_shift_out_of_bounds(void *_data, void *lhs, void *rhs)
     }
     hw_error(data->location.file_name, static_cast<int>(data->location.row_col.line), "shift-out-of-bounds");
 }
-// void __ubsan_handle_builtin_unreachable(void *_data);
+void __ubsan_handle_builtin_unreachable(void *_data)
+{
+    auto *data = static_cast<unreachable_data *>(_data);
+    if (suppress_report(&data->location))
+    {
+        return;
+    }
+    ubsan_prologue(&data->location, "builtin-unreachable");
+    hw_error(data->location.file_name, static_cast<int>(data->location.row_col.line), "builtin-unreachable");
+}
+
 void __ubsan_handle_load_invalid_value(void *_data, void *val)
 {
     auto *data = static_cast<invalid_value_data *>(_data);

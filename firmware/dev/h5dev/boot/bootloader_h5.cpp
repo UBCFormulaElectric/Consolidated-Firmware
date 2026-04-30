@@ -5,26 +5,11 @@
 #include "hw_rtosTaskHandler.hpp"
 #include "bootloader_h5.hpp"
 
-extern "C"
-{
-#include <app_commitInfo.h>
-}
-
-void tx_overflow_callback(const uint32_t overflow_count)
-{
-    UNUSED(overflow_count);
-}
-
-void rx_overflow_callback(const uint32_t overflow_count)
-{
-    UNUSED(overflow_count);
-}
-
-void tx_overflow_clear_callback(){};
-void rx_overflow_clear_callback(){};
-
-io::queue<hw::CanMsg, 256> boot_can_tx_queue{ "CanTxQueue", tx_overflow_callback, tx_overflow_clear_callback };
-io::queue<hw::CanMsg, 256> boot_can_rx_queue{ "CanRxQueue", rx_overflow_callback, rx_overflow_clear_callback };
+static_assert(sizeof(hw::CanMsg) == 72);
+io::queue<hw::CanMsg, 256> boot_can_tx_queue{ "CanTxQueue" };
+static_assert(sizeof(boot_can_tx_queue) == 18544);
+io::queue<hw::CanMsg, 256> boot_can_rx_queue{ "CanRxQueue" };
+static_assert(sizeof(boot_can_rx_queue) == 18544);
 
 namespace hw::cans
 {
