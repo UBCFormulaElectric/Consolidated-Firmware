@@ -41,7 +41,6 @@ std::expected<void, ErrorCode> hw::flash::eraseSector(const uint8_t sector)
 static std::expected<void, ErrorCode> eraseSectorRetry(const uint8_t sector)
 {
 #if defined(STM32H562xx)
-    assert(sector < static_cast<uint8_t>(BANK_SECTOR_SIZE * 2));
     eraseStruct.Banks = (sector < BANK_SECTOR_SIZE) ? FLASH_BANK_1 : FLASH_BANK_2; // [0, 127] Bank 1, [128, 255] Bank 2
     eraseStruct.Sector = sector % BANK_SECTOR_SIZE;
 #elif defined(STM32H733xx)
@@ -64,6 +63,7 @@ static std::expected<void, ErrorCode> eraseSectorRetry(const uint8_t sector)
 
 std::expected<void, ErrorCode> hw::flash::programFlashRetry(const uint32_t address, std::span<const std::byte> buffer)
 {
+    std::expected<void, ErrorCode> status;
     HAL_FLASH_Unlock();
     for (uint8_t attempt = 0; attempt < MAX_RETRIES; attempt++)
     {
@@ -71,7 +71,7 @@ std::expected<void, ErrorCode> hw::flash::programFlashRetry(const uint32_t addre
         {
             __HAL_FLASH_CLEAR_FLAG(ERROR_FLAGS);
         }
-        if (const auto status = hw::utils::convertHalStatus(
+        if (status = utils::convertHalStatus(
                 HAL_FLASH_Program(PROGRAM_TYPE, address, reinterpret_cast<uint32_t>(buffer.data())));
             status and std::memcmp(reinterpret_cast<const void *>(address), buffer.data(), buffer.size()) == 0)
         {
@@ -79,5 +79,5 @@ std::expected<void, ErrorCode> hw::flash::programFlashRetry(const uint32_t addre
         }
     }
     HAL_FLASH_Lock();
-    return std::unexpected(ErrorCode::BUSY);
+    return status;
 }
