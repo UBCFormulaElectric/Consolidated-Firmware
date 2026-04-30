@@ -142,7 +142,7 @@ void tasks_init()
 
     adcChipsInit();
 
-     hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
+    hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
     if (boot_request.context != hw::bootup::BootContext::BOOT_CONTEXT_NONE)
     {
         if (boot_request.context == hw::bootup::BootContext::BOOT_CONTEXT_STACK_OVERFLOW)
