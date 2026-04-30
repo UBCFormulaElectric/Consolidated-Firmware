@@ -5,6 +5,7 @@
 #include "hw_hal.hpp"
 
 #include <array>
+#include <expected>
 #include <span>
 
 namespace hw
@@ -25,9 +26,10 @@ struct CanMsg
 
     explicit CanMsg() = default;
 
-    uint32_t                                       std_id = 0;
-    uint32_t                                       dlc    = 0;
-    mutable std::array<uint8_t, CAN_PAYLOAD_BYTES> data{};
+    uint32_t std_id = 0;
+    uint32_t dlc    = 0;
+
+    alignas(8) mutable std::array<uint8_t, CAN_PAYLOAD_BYTES> data{};
 
     [[nodiscard]] std::span<uint16_t, CAN_PAYLOAD_BYTES / 2> getDataAsWords()
     {
