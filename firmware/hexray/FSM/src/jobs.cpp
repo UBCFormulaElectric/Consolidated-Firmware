@@ -14,8 +14,9 @@
 #include "io_time.hpp"
 #include "io_canMsg.hpp"
 #include "io_canTx.hpp"
-#include "io_time.hpp"
-// #include "app_shdnLoopNode.hpp"
+#include "io_bootHandler.hpp"
+
+#include "bootloader_fsm.hpp"
 
 void jobs_init()
 {
@@ -53,4 +54,10 @@ void jobs_run100Hz_tick()
 void jobs_run1kHz_tick()
 {
     io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
+}
+
+void jobs_runCanRxCallback(const hw::CanMsg &msg)
+{
+    io::bootHandler::processBootRequest(msg, board_highbits);
+    LOG_IF_ERR(can_rx_queue.push({ msg.std_id, msg.dlc, msg.data, true, app::can_utils::BusEnum::Bus_FDCAN }));
 }

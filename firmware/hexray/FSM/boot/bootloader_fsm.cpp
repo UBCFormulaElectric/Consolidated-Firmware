@@ -4,6 +4,10 @@
 #include "hw_can.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "bootloader_fsm.hpp"
+extern "C"
+{
+#include "app_commitInfo.h"
+}
 
 #include <cassert>
 
@@ -14,7 +18,7 @@ io::queue<hw::CanMsg, 256> boot_can_rx_queue{ "CanRxQueue" };
 namespace hw::cans
 {
 // no tasks_runCanRxCallback yet in tasks.c (need bootloader stuff)
-fdcan fdcan1(hfdcan1, [](const hw::CanMsg &msg) { (void)boot_can_tx_queue.push(msg); });
+fdcan fdcan1(hfdcan1, [](const CanMsg &msg) { LOG_IF_ERR(boot_can_rx_queue.push(msg)); });
 } // namespace hw::cans
 
 const hw::fdcan &hw::fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
@@ -32,8 +36,8 @@ class FSMBootConfig : public bootloader::config
             boot_can_tx_queue,
             boot_can_rx_queue,
             board_highbits,
-            git_commit_has_val,
-            git_commit_clean_val){};
+            GIT_COMMIT_HASH,
+            GIT_COMMIT_CLEAN){};
 } fsm_boot_config;
 
 CFUNC void bootloader_preInit(void)

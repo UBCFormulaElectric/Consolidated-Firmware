@@ -112,12 +112,13 @@ void tasks_preInit()
 [[noreturn]] void tasks_init()
 {
     SEGGER_SYSVIEW_Conf();
+    LOG_INFO("FSM Reset!");
 
     hw::can::fdcan1.init();
     adcChipsInit();
 
-    hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
-    if (boot_request.context != hw::bootup::BootContext::BOOT_CONTEXT_NONE)
+    if (hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
+        boot_request.context != hw::bootup::BootContext::BOOT_CONTEXT_NONE)
     {
         // Check for stack overflow on a previous boot cycle and populate CAN alert.
         if (boot_request.context == hw::bootup::BootContext::BOOT_CONTEXT_STACK_OVERFLOW)

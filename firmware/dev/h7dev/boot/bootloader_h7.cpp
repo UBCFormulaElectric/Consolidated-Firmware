@@ -50,7 +50,7 @@ class H7DevBootConfig : public bootloader::config
             boot_can_tx_queue,
             boot_can_rx_queue,
             board_highbits,
-            git_commit_has_val,
+            git_commit_hash_val,
             git_commit_clean_val){};
 } h7devboot_config;
 

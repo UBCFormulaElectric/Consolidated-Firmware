@@ -1,10 +1,18 @@
 #include "hw_cans.hpp"
 #include <cassert>
 #include "main.h"
+#ifndef USE_CHIMERA
+#include "jobs.hpp"
+#endif
 
 namespace hw::can
 {
-const fdcan fdcan1{ hfdcan1, [](const CanMsg &msg) { UNUSED(msg); } }; // define callback func in io
+const fdcan fdcan1{ hfdcan1, [](const CanMsg &msg)
+                    {
+#ifndef USE_CHIMERA
+                        jobs_runCanRxCallback(msg);
+#endif
+                    } }; // define callback func in io
 } // namespace hw::can
 
 namespace hw
