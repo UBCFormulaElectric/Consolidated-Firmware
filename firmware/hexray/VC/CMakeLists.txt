@@ -59,7 +59,6 @@ set(CHIMERA_SRCS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/chimera.cpp"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
 )
-list(FILTER CHIMERA_SRCS EXCLUDE REGEX ".*(hw_cans|hw_can_hx)\\.cpp")
 set(CHIMERA_INCLUDE_DIRS
         ${HW_INCLUDE_DIRS}
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"

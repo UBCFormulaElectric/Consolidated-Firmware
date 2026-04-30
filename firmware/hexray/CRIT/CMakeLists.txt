@@ -51,7 +51,6 @@ set(HW_INCLUDE_DIRS
 
 # chimera sources
 set(CHIMERA_SRCS ${HW_SRCS} ${IO_SRCS} "${CMAKE_CURRENT_SOURCE_DIR}/src/chimera.cpp")
-list(FILTER CHIMERA_SRCS EXCLUDE REGEX ".*(hw_cans|hw_can_hx)\\.cpp")
 set(CHIMERA_INCLUDE_DIRS ${HW_INCLUDE_DIRS} ${IO_INCLUDE_SRCS})
 
 if ("${TARGET}" STREQUAL "binary")
