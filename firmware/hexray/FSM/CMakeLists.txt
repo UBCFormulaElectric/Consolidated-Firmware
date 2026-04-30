@@ -6,6 +6,7 @@ set(CUBEMX_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src"
         "${SHARED_HW_INCLUDE_DIR_CPP}"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot"
 )
 
 set(JOBS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/jobs.cpp")
@@ -52,6 +53,8 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_assert.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_freeRtosConfigs.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_bootup.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_resetReason.cpp"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -65,7 +68,7 @@ set(CHIMERA_INCLUDE_DIRS ${HW_INCLUDE_DIRS} ${IO_INCLUDE_DIRS})
 
 if ("${TARGET}" STREQUAL "binary")
     set(ARM_CORE "cm33")
-    set(LINKER_SCRIPT "${LINKER_DIR}/stm32h562ritx/stm32h562ritx_app_only.ld")
+    set(LINKER_SCRIPT "${LINKER_DIR}/stm32h562ritx/stm32h562ritx_app.ld")
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
 

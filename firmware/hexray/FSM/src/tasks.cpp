@@ -3,11 +3,14 @@
 #include "jobs.hpp"
 
 #include "app_jsoncan.hpp"
+#include "app_canTx.hpp"
+#include "app_canAlerts.hpp"
 
 #include <io_canRx.hpp>
 #include "io_canQueues.hpp"
 #include "io_time.hpp"
 
+#include "hw_bootup.hpp"
 #include "hw_hardFaultHandler.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_cans.hpp"
@@ -102,6 +105,7 @@ static void FSM_StartAllTasks()
 
 void tasks_preInit()
 {
+    hw::bootup::enableInterruptsForApp();
     hw_hardFaultHandler_init();
 }
 
@@ -111,6 +115,29 @@ void tasks_preInit()
 
     hw::can::fdcan1.init();
     hw::adcs::chipsInit();
+
+    hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
+    if (boot_request.context != hw::bootup::BootContext::BOOT_CONTEXT_NONE)
+    {
+        // Check for stack overflow on a previous boot cycle and populate CAN alert.
+        if (boot_request.context == hw::bootup::BootContext::BOOT_CONTEXT_STACK_OVERFLOW)
+        {
+            LOG_WARN("Detected stack overflow on the previous boot cycle!");
+            app::can_alerts::infos::StackOverflow_set(true);
+            // app::can_tx::FSM_StackOverflowTask_set(boot_request.context_value);
+        }
+        else if (boot_request.context == hw::bootup::BootContext::BOOT_CONTEXT_WATCHDOG_TIMEOUT)
+        {
+            // If the software driver detected a watchdog timeout the context should be set.
+            app::can_alerts::infos::WatchdogTimeout_set(true);
+            // app::can_tx::FSM_WatchdogTimeoutTask_set(boot_request.context_value);
+        }
+
+        // Clear stack overflow bootup.
+        boot_request.context       = hw::bootup::BootContext::BOOT_CONTEXT_NONE;
+        boot_request.context_value = 0;
+        hw::bootup::setBootRequest(boot_request);
+    }
 
     jobs_init();
     osKernelInitialize();

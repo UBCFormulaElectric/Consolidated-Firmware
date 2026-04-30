@@ -1,14 +1,10 @@
 #include "bootloader.hpp"
 #include "bootloader.h"
 #include "main.h"
-#include <hw_can.hpp>
+#include "hw_can.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "bootloader_fsm.hpp"
-
-extern "C"
-{
-#include <app_commitInfo.h>
-}
+#include <cassert>
 
 void tx_overflow_callback(const uint32_t overflow_count)
 {
@@ -23,6 +19,7 @@ void rx_overflow_callback(const uint32_t overflow_count)
 void tx_overflow_clear_callback(){};
 void rx_overflow_clear_callback(){};
 
+static_assert(sizeof(hw::CanMsg) == 72);
 io::queue<hw::CanMsg, 256> boot_can_tx_queue{ "CanTxQueue", tx_overflow_callback, tx_overflow_clear_callback };
 io::queue<hw::CanMsg, 256> boot_can_rx_queue{ "CanRxQueue", rx_overflow_callback, rx_overflow_clear_callback };
 
@@ -51,7 +48,7 @@ class FSMBootConfig : public bootloader::config
             git_commit_clean_val){};
 } fsm_boot_config;
 
-void bootloader_preInit(void)
+CFUNC void bootloader_preInit(void)
 {
     bootloader::preInit();
 }
