@@ -11,8 +11,7 @@ const hw::Gpio msd_shdn_sns(MSD_SHDN_SNS_GPIO_Port, MSD_SHDN_SNS_Pin);
 const hw::Gpio hv_p_intlck_sns(HV_P_INTLCK_SNS_GPIO_Port, HV_P_INTLCK_SNS_Pin);
 const hw::Gpio hv_n_intlck_sns(HV_N_INTLCK_SNS_GPIO_Port, HV_N_INTLCK_SNS_Pin);
 
-// Update: IMD_LATCH changed to nIMD_LATCH in new design
-const hw::Gpio imd_latch(nIMD_LATCH_GPIO_Port, nIMD_LATCH_Pin);
+const hw::Gpio n_imd_latch_status(nIMD_LATCH_GPIO_Port, nIMD_LATCH_Pin);
 
 const hw::Gpio diag_ts(DIAG_GPIO_Port, DIAG_Pin);
 const hw::Gpio sd_cd(SD_CD_GPIO_Port, SD_CD_Pin);

@@ -20,6 +20,7 @@ ELSE ()
     set(JSONCAN_EXECUTABLE cppcodegen${EXECUTABLE_SUFFIX})
     set(JSONCAN_EXECUTABLE_BUILD_TARGET "")
 ENDIF ()
+message("  📚 [jsoncan.cmake] JSONCAN executable set to ${JSONCAN_EXECUTABLE} with build target ${JSONCAN_EXECUTABLE_BUILD_TARGET}")
 
 # Inputs
 # JSONCAN_PY_BOARD - Python board name

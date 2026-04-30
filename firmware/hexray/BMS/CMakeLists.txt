@@ -11,16 +11,20 @@ set(SYSTEM_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp")
 list(APPEND APP_SRCS
-        # "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
+        "${SHARED_APP_INCLUDE_DIR_CPP}/app_timer.cpp"
+        "${SHARED_APP_INCLUDE_DIR_CPP}/app_stateMachine.cpp"
+        "${SHARED_APP_INCLUDE_DIR_CPP}/app_math.cpp"
 )
 set(APP_INCLUDE_DIRS
-        # "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
         "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR_CPP}"
 )
 
 file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.cpp")
+
 list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_shdnLoopNode.cpp"
 )
 set(IO_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
@@ -50,6 +54,8 @@ set(CHIMERA_SRCS ${HW_SRCS} "${CMAKE_CURRENT_SOURCE_DIR}/src/chimera.cpp")
 set(CHIMERA_INCLUDE_DIRS ${HW_INCLUDE_DIRS})
 
 if ("${TARGET}" STREQUAL "binary")
+    # TODO: Remove once ADBMS + Segments are merged
+    list(FILTER IO_SRCS EXCLUDE REGEX ".*adbms.*") # Exclude ADBMS-specific IO files
     set(ARM_CORE "cm7")
     set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app_only.ld")
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS})
@@ -126,12 +132,16 @@ if ("${TARGET}" STREQUAL "binary")
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(FAKE_SRCS
+        #     "${SHARED_FAKES_DIR_CPP}/io_canQueue.cpp"
+        #     "${SHARED_FAKES_DIR_CPP}/io_semaphore.cpp"
+        #     "${SHARED_FAKES_DIR_CPP}/io_timer.cpp"
+            "${SHARED_FAKES_DIR_CPP}/io_shdnLoopNode.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
     )
     set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
     set(INCLUDE_DIRS
-            # "${CMAKE_CURRENT_SOURCE_DIR}/test"
-            ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP}
+            "${CMAKE_CURRENT_SOURCE_DIR}/test"
+            ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP} ${SHARED_FAKES_DIR}
     )
     compile_gtest_executable(
             "hexray_BMS_test"
@@ -151,6 +161,14 @@ elseif ("${TARGET}" STREQUAL "test")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    target_link_libraries("hexray_BMS_test" PRIVATE "hexray_BMS_commit_info" "hexray_BMS_jsoncan")
+    # FakeIO
+    set(HEADERS_TO_FAKE
+    )
+    create_fake_library(
+            "hexray_BMS_fakes"
+            "${HEADERS_TO_FAKE}"
+    )
+
+    target_link_libraries("hexray_BMS_test" PRIVATE "hexray_BMS_jsoncan" "hexray_BMS_fakes" "hexray_BMS_commit_info")
     target_compile_definitions("hexray_BMS_test" PRIVATE STM32H733xx)
 endif ()

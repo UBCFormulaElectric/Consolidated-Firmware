@@ -12,10 +12,10 @@ function DataDashboard() {
 
   return (
     <div
-      className="w-full h-fit overflow-x-scroll scrollbar-hidden overscroll-x-none"
+      className="w-full h-fit"
     >
       <div
-        className="flex h-full min-w-[200vw] flex-col gap-16"
+        className="flex h-full min-w-full flex-col gap-16"
       >
         {widgets.map((widget, index) => (
           <div key={widget.id} className="sticky left-0 w-screen" style={{ zIndex: widgets.length - index }}>

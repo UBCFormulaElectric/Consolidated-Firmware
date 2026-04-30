@@ -1,10 +1,10 @@
 use std::time::Duration;
 
-use crc::{CRC_32_ISO_HDLC, Crc};
+use crc::{CRC_32_MPEG_2, Crc};
 
 // calc is short for calculator for those new to the chat
-pub const CRC32_CALC: Crc<u32> = Crc::<u32>::new(&CRC_32_ISO_HDLC);
-
+pub const CRC32_CALC: Crc<u32> = Crc::<u32>::new(&CRC_32_MPEG_2);
+    
 
 /*
  * Telem packet bytes in the form of
@@ -53,17 +53,20 @@ impl TelemetryIncomingMessage {
     pub payload: Vec<u8>,
 }
 
+#[derive(Clone, Debug)]
 pub enum TelemetryOutgoingMessage {
+    NtpTrigger, // No body needed, just send an empty message to trigger NTP sync on DAM
     // payload should be t1 and t2, each being 64 bits
-    NTP {
+    NtpResponse {
         // Only pack t1 in outgoing message
         // let the handler actually send the appropriate t2 when sending packet
         t1: Duration
-    }
+    },
 }
 
 impl TelemetryOutgoingMessage {
     pub const MAGIC: [u8; 2] = [0xcc, 0x33];
 
-    pub const NTP_BYTE: u8 = 0x01;
+    pub const NTP_TRIGGER_BYTE: u8 = 0x00;
+    pub const NTP_RESPONSE_BYTE: u8 = 0x01;
 }

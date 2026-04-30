@@ -160,7 +160,7 @@ void app_segments_broadcastTempStats(void);
 
 #define MAX_CELL_VOLTAGE_WARNING_V (4.17f)
 #define MIN_CELL_VOLTAGE_WARNING_V (2.7f)
-#define MAX_CELL_TEMP_WARNING_V (59.0f)
+#define MAX_CELL_TEMP_WARNING_C (59.0f)
 
 #define OVER_VOLTAGE_DEBOUNCE_WARNING_MS (1000)
 #define UNDER_VOLTAGE_DEBOUNCE_WARNING_MS (1000)
@@ -169,7 +169,7 @@ void app_segments_broadcastTempStats(void);
 
 #define MAX_CELL_VOLTAGE_FAULT_V (4.2f)
 #define MIN_CELL_VOLTAGE_FAULT_V (2.5f)
-#define MAX_CELL_TEMP_FAULT_V (60.0f)
+#define MAX_CELL_TEMP_FAULT_C (60.0f)
 
 #define OVER_VOLTAGE_DEBOUNCE_FAULT_MS (3000)
 #define UNDER_VOLTAGE_DEBOUNCE_FAULT_MS (3000)

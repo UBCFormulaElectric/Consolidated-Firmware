@@ -4,7 +4,6 @@ use std::{f64::consts::{TAU}, sync::Arc, time::{SystemTime, UNIX_EPOCH}};
 use jsoncan_rust::can_database::{CanDatabase, CanSignalType, DecodedSignal};
 use tokio::{select, sync::broadcast};
 
-#[allow(unused_imports)]
 use crate::utils::yellow;
 use crate::{tasks::{HealthCheckSender, HealthCheckSenderExt, Task}, tasks::telem_message::CanPayload, vprintln};
 
@@ -52,9 +51,8 @@ pub async fn run_mock_task(
                     payload: payload,
                     can_timestamp: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis() as u64,
                 };
-                if !can_queue_tx.send(mock_payload).is_ok() {
-                    eprintln!("Channel has closed");
-                    return;
+                if let Err(e) = can_queue_tx.send(mock_payload) {
+                    panic!("can_queue_tx send error: {}", e);
                 }
                 tokio::time::sleep(tokio::time::Duration::from_millis(20)).await;
             } => {}
