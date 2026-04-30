@@ -63,7 +63,7 @@ template <typename T, size_t QUEUE_SIZE> class queue
     }
 
     /**
-     * Enqueue a CAN msg to be transmitted on the bus.
+     * Enqueue a CAN msg to be transmitted on the d_bus.
      * Does not block, calls `overflow_callback` if queue is full.
      * @param msg CAN msg to be TXed.
      */

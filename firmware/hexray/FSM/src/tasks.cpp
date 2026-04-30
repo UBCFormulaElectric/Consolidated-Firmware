@@ -4,7 +4,7 @@
 
 #include "app_jsoncan.hpp"
 
-#include <io_canRx.hpp>
+#include "io_canRx.hpp"
 #include "io_canQueues.hpp"
 #include "io_time.hpp"
 
@@ -14,7 +14,7 @@
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
-    const uint32_t period_ms = 1000U;
+    constexpr uint32_t period_ms = 1000U;
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -27,12 +27,12 @@
 }
 [[noreturn]] static void tasks_run100Hz(void *arg)
 {
-    const uint32_t period_ms = 10U;
+    constexpr uint32_t period_ms = 10U;
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
-        float voltage = hw::adcs::susp_fl.getVoltage();
+        float voltage = susp_fl.getVoltage();
         jobs_run100Hz_tick();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -40,7 +40,7 @@
 }
 [[noreturn]] static void tasks_run1kHz(void *arg)
 {
-    const uint32_t period_ms = 1U;
+    constexpr uint32_t period_ms = 1U;
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -110,7 +110,7 @@ void tasks_preInit()
     SEGGER_SYSVIEW_Conf();
 
     hw::can::fdcan1.init();
-    hw::adcs::chipsInit();
+    adcChipsInit();
 
     jobs_init();
     osKernelInitialize();

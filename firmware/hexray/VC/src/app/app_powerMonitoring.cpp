@@ -13,7 +13,7 @@ constexpr uint8_t CH2 = 2u; // V
 constexpr uint8_t CH3 = 3u; // V
 constexpr uint8_t CH4 = 4u; // V
 
-void update()
+std::expected<void, ErrorCode> update()
 {
     static bool init_done = false;
 
@@ -24,13 +24,10 @@ void update()
     if (not init_done)
     {
         // error handle
-        return;
+        return std::unexpected(ErrorCode::ERROR);
     }
 
-    if (!io::powerMonitoring::refresh().has_value())
-    {
-        return;
-    }
+    RETURN_IF_ERR(io::powerMonitoring::refresh());
 
     if (io::powerMonitoring::is_alert_asserted())
     {
@@ -70,7 +67,7 @@ void update()
         !ch1_current.has_value() || !ch2_current.has_value() || !ch3_current.has_value() || !ch4_current.has_value() ||
         !ch1_power.has_value() || !ch2_power.has_value() || !ch3_power.has_value() || !ch4_power.has_value())
     {
-        return;
+        return std::unexpected(ErrorCode::ERROR);
     }
 
     app::can_tx::VC_ChannelOneVoltage_set(ch1_voltage.value());
@@ -87,6 +84,7 @@ void update()
     app::can_tx::VC_ChannelTwoPower_set(ch2_power.value());
     app::can_tx::VC_ChannelThreePower_set(ch3_power.value());
     app::can_tx::VC_ChannelFourPower_set(ch4_power.value());
-}
 
+    return {};
+}
 } // namespace app::powerMonitoring

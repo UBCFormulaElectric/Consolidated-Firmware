@@ -17,7 +17,7 @@ namespace io::powerMonitoring
 {
 static std::expected<void, ErrorCode> read_register(uint16_t reg, std::span<uint8_t> data)
 {
-    RETURN_IF_ERR_SILENT(hw::i2c::pwr_pump.memoryRead(reg, data));
+    RETURN_IF_ERR_SILENT(pwr_pump.memoryRead(reg, data));
     return {};
 }
 
@@ -32,14 +32,14 @@ static std::expected<void, ErrorCode> write_register(uint16_t reg, std::span<con
     memcpy(&buf[1], data, len);
     return (hw_i2c_memoryWrite(&pwr_mtr, reg, buf, len + 1) == EXIT_CODE_OK); */
 
-    RETURN_IF_ERR(hw::i2c::pwr_pump.memoryWrite(reg, data));
+    RETURN_IF_ERR(pwr_pump.memoryWrite(reg, data));
     return {};
 }
 
 std::expected<void, ErrorCode> refresh(void)
 {
     const uint8_t cmd = REG_REFRESH;
-    LOG_IF_ERR(hw::i2c::pwr_pump.transmit((std::span{ &cmd, 1 })));
+    LOG_IF_ERR(pwr_pump.transmit((std::span{ &cmd, 1 })));
     io::time::delay(1);
     return {};
 }
@@ -47,7 +47,7 @@ std::expected<void, ErrorCode> refresh(void)
 std::expected<void, ErrorCode> init(void)
 {
     // 1) Check if peripheral is ready
-    RETURN_IF_ERR(hw::i2c::pwr_pump.isTargetReady());
+    RETURN_IF_ERR(pwr_pump.isTargetReady());
 
     // 2) Config: CTRL: 1024 SPS continuous, all CH enabled, ALERT1 enabled.
     uint16_t                     ctrl       = 0x0000; // 0b0000000000000000
