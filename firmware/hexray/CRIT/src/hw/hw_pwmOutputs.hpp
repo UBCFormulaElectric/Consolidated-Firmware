@@ -2,5 +2,5 @@
 
 #include "hw_pwmOutput.hpp"
 
-extern hw::PwmOutput led_dimming;
-extern hw::PwmOutput seven_seg_dimming;
+extern const hw::PwmOutput led_dimming;
+extern const hw::PwmOutput seven_seg_dimming;
