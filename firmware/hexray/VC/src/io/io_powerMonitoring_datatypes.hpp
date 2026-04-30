@@ -1,9 +1,9 @@
-#pragma once 
+#pragma once
 #include <cstdint>
 
-constexpr uint8_t CHANNEL_NUM =4;
+constexpr uint8_t CHANNEL_NUM = 4;
 // commands
-constexpr uint8_t REG_REFRESH      = 0x00;
+constexpr uint8_t REG_REFRESH = 0x00;
 
 // register addresses (pg 38.)
 constexpr uint16_t REG_CTRL         = 0x01;
@@ -17,7 +17,7 @@ constexpr uint16_t REG_ACCUM_CONFIG = 0x25;
 constexpr uint16_t REG_PROTECTION_OV = 0x3C;
 constexpr uint16_t REG_PROTECTION_UV = 0x40;
 constexpr uint16_t ALERT_EN          = 0x49;
-constexpr uint16_t REG_ALERT_STATUS      = 0x26;
+constexpr uint16_t REG_ALERT_STATUS  = 0x26;
 constexpr uint16_t REG_SLOW_ALERT1   = 0x27;
 
 // bitmask: OV (bits 0,1, 2, 3), UV (bits 4, 5, 6, 7)

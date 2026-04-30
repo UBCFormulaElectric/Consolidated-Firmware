@@ -59,14 +59,15 @@ void update()
     const auto ch2_current_res = io::powerMonitoring::read_current(CH2);
     const auto ch3_current_res = io::powerMonitoring::read_current(CH3);
     const auto ch4_current_res = io::powerMonitoring::read_current(CH4);
-    const auto ch1_power_res = io::powerMonitoring::read_power(CH1);
-    const auto ch2_power_res = io::powerMonitoring::read_power(CH2);
-    const auto ch3_power_res = io::powerMonitoring::read_power(CH3);
-    const auto ch4_power_res = io::powerMonitoring::read_power(CH4);
+    const auto ch1_power_res   = io::powerMonitoring::read_power(CH1);
+    const auto ch2_power_res   = io::powerMonitoring::read_power(CH2);
+    const auto ch3_power_res   = io::powerMonitoring::read_power(CH3);
+    const auto ch4_power_res   = io::powerMonitoring::read_power(CH4);
 
-    if (!ch1_voltage_res.has_value() || !ch2_voltage_res.has_value() || !ch3_voltage_res.has_value() || !ch4_voltage_res.has_value() ||
-        !ch1_current_res.has_value() || !ch2_current_res.has_value() || !ch3_current_res.has_value() || !ch4_current_res.has_value() ||
-        !ch1_power_res.has_value() || !ch2_power_res.has_value() || !ch3_power_res.has_value() || !ch4_power_res.has_value())
+    if (!ch1_voltage_res.has_value() || !ch2_voltage_res.has_value() || !ch3_voltage_res.has_value() ||
+        !ch4_voltage_res.has_value() || !ch1_current_res.has_value() || !ch2_current_res.has_value() ||
+        !ch3_current_res.has_value() || !ch4_current_res.has_value() || !ch1_power_res.has_value() ||
+        !ch2_power_res.has_value() || !ch3_power_res.has_value() || !ch4_power_res.has_value())
     {
         return;
     }
@@ -79,10 +80,10 @@ void update()
     const float ch2_current = ch2_current_res.value();
     const float ch3_current = ch3_current_res.value();
     const float ch4_current = ch4_current_res.value();
-    const float ch1_power = ch1_power_res.value();
-    const float ch2_power = ch2_power_res.value();
-    const float ch3_power = ch3_power_res.value();
-    const float ch4_power = ch4_power_res.value();
+    const float ch1_power   = ch1_power_res.value();
+    const float ch2_power   = ch2_power_res.value();
+    const float ch3_power   = ch3_power_res.value();
+    const float ch4_power   = ch4_power_res.value();
 
     app::can_tx::VC_ChannelOneVoltage_set(ch1_voltage);
     app::can_tx::VC_ChannelTwoVoltage_set(ch2_voltage);
