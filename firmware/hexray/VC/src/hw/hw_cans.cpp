@@ -1,12 +1,16 @@
 #include "hw_cans.hpp"
 #include "main.h"
 #include <cassert>
+#ifndef USE_CHIMERA
 #include "io_canQueues.hpp"
+#include "app_canUtils.hpp"
+#endif
 
-const fdcan fdcan1(
+const hw::fdcan fdcan1(
     hfdcan1,
-    [](const CanMsg &msg)
+    [](const hw::CanMsg &msg)
     {
+#ifndef USE_CHIMERA
         LOG_IF_ERR(can_rx_queue.push({
             msg.std_id,
             msg.dlc,
@@ -14,11 +18,15 @@ const fdcan fdcan1(
             true,
             app::can_utils::BusEnum::Bus_FDCAN,
         }));
+#else
+        UNUSED(msg);
+#endif
     });
-const fdcan invcan(
+const hw::fdcan invcan(
     hfdcan3,
-    [](const CanMsg &msg)
+    [](const hw::CanMsg &msg)
     {
+#ifndef USE_CHIMERA
         LOG_IF_ERR(can_rx_queue.push({
             msg.std_id,
             msg.dlc,
@@ -26,6 +34,9 @@ const fdcan invcan(
             false,
             app::can_utils::BusEnum::Bus_FDCAN,
         }));
+#else
+        UNUSED(msg);
+#endif
     });
 
 const hw::fdcan &hw::fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
