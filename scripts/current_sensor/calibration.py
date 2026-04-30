@@ -8,6 +8,7 @@ data to current_calibration_both.csv.
 
 from __future__ import annotations
 import csv
+import math
 from numpy.polynomial import Polynomial
 from dataclasses import dataclass
 import chimera_v2
@@ -15,6 +16,7 @@ import chimera_v2
 
 MIN_POINTS = 2
 CSV_PATH = "current_calibration_both.csv"
+EPSILON = 1e-9
 
 
 @dataclass(frozen=True)
@@ -37,7 +39,23 @@ SENSORS: list[SensorConfig] = [
 
 def linear_fit(x_vals: list[float], y_vals: list[float]) -> tuple[float, float]:
     fit = Polynomial.fit(x_vals, y_vals, 1)
-    return tuple(fit.convert().coef)
+    coef = tuple(fit.convert().coef)
+    if len(coef) != 2:
+        raise ValueError(
+            "Could not compute a valid linear fit. Input data is likely constant or poorly conditioned."
+        )
+    return coef
+
+
+def validate_fit_inputs(x_vals: list[float], sensor_name: str) -> None:
+    if len(x_vals) < MIN_POINTS:
+        raise ValueError(f"Need at least {MIN_POINTS} points to fit calibration data for {sensor_name}.")
+
+    if math.isclose(max(x_vals), min(x_vals), rel_tol=0.0, abs_tol=EPSILON):
+        raise ValueError(
+            f"Cannot calibrate {sensor_name}: all ADC readings are identical "
+            f"({x_vals[0]:.6f} V). Check ADC sampling before fitting."
+        )
 
 
 def prompt_effective_current(point_index: int) -> float | None:
@@ -80,6 +98,7 @@ def save_and_print_results(rows: list[CalibrationPoint]) -> None:
     print("\nCalibration results")
     for sensor in SENSORS:
         adc_voltages = [row.adc_voltage_by_sensor[sensor.name] for row in rows]
+        validate_fit_inputs(adc_voltages, sensor.name)
         current_from_adc_slope, current_from_adc_intercept = linear_fit(adc_voltages, measured_currents)
         adc_from_current_slope, adc_from_current_intercept = linear_fit(measured_currents, adc_voltages)
 
@@ -94,7 +113,7 @@ def save_and_print_results(rows: list[CalibrationPoint]) -> None:
             f"adc_voltage_v = {adc_from_current_slope:.8f} * current_a "
             f"+ {adc_from_current_intercept:.8f}"
         )
-    print(f"Saved raw data to {CSV_PATH}")
+    print(f"\nSaved raw data to {CSV_PATH}")
 
 
 def run_calibration(bms: chimera_v2.BMS) -> None:
@@ -124,7 +143,10 @@ def run_calibration(bms: chimera_v2.BMS) -> None:
 
 def main() -> None:
     bms = chimera_v2.BMS()
-    run_calibration(bms)
+    try:
+        run_calibration(bms)
+    except ValueError as exc:
+        print(f"Calibration failed: {exc}")
 
 
 if __name__ == "__main__":
