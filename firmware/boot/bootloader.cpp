@@ -118,7 +118,7 @@ static void verifyAppCodeChecksum(void)
                                                             : BootStatus::BOOT_STATUS_APP_INVALID;
 }
 
-void bootloader::preInit(void)
+void bootloader::preInit()
 {
     hw_hardFaultHandler_init();
 
@@ -251,7 +251,7 @@ void bootloader::init(config &boot_config)
         }
         else
         {
-            LOG_ERROR("got stdid %X", command.std_id);
+            // LOG_ERROR("got stdid %X", command.std_id);
         }
     }
 }
@@ -284,11 +284,7 @@ void bootloader::init(config &boot_config)
 {
     for (;;)
     {
-        const auto tx_msg = boot_config.can_tx_queue.pop();
-
-        if (not tx_msg)
-            continue;
-        else
+        if (const auto tx_msg = boot_config.can_tx_queue.pop())
         {
             const auto res =
 #if defined(STM32H733xx) || defined(STM32H562xx)

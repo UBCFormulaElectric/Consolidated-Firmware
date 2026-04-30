@@ -4,6 +4,7 @@
 #include "hw_can.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "bootloader_fsm.hpp"
+
 #include <cassert>
 
 static_assert(sizeof(hw::CanMsg) == 72);
@@ -13,7 +14,7 @@ io::queue<hw::CanMsg, 256> boot_can_rx_queue{ "CanRxQueue" };
 namespace hw::cans
 {
 // no tasks_runCanRxCallback yet in tasks.c (need bootloader stuff)
-fdcan fdcan1(hfdcan1, [](const hw::CanMsg &msg) { (void)boot_can_rx_queue.push(msg); });
+fdcan fdcan1(hfdcan1, [](const hw::CanMsg &msg) { (void)boot_can_tx_queue.push(msg); });
 } // namespace hw::cans
 
 const hw::fdcan &hw::fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
@@ -51,7 +52,7 @@ static hw::rtos::StaticTask<1024>
 
 [[noreturn]] void bootloader_init(void)
 {
-    HAL_GPIO_WritePin(DEBUG_LED_GPIO_Port, DEBUG_LED_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(BOOT_LED_GPIO_Port, BOOT_LED_Pin, GPIO_PIN_SET);
     bootloader::init(fsm_boot_config);
     osKernelInitialize();
     TaskRunInterface.start();
