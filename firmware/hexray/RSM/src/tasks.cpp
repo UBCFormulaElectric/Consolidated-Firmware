@@ -6,8 +6,8 @@
 
 #include "io_time.hpp"
 #include "io_canQueues.hpp"
-#include <io_canRx.hpp>
-#include <io_canTx.hpp>
+#include "io_canRx.hpp"
+#include "io_canTx.hpp"
 
 #include "hw_hardFaultHandler.hpp"
 #include "hw_rtosTaskHandler.hpp"
@@ -62,7 +62,7 @@
             continue;
         if (const auto &m = msg.value(); m.bus == app::can_utils::BusEnum::Bus_FDCAN)
         {
-            const auto res = hw::can::can1.fdcan_transmit(hw::CanMsg{
+            const auto res = can1.fdcan_transmit(hw::CanMsg{
                 m.std_id,
                 m.dlc,
                 m.data,
@@ -112,8 +112,8 @@ void tasks_init()
 {
     SEGGER_SYSVIEW_Conf();
 
-    hw::adcs::chipsInit();
-    hw::can::can1.init();
+    adcchipsInit();
+    can1.init();
 
     hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
     if (boot_request.context != hw::bootup::BootContext::BOOT_CONTEXT_NONE)
