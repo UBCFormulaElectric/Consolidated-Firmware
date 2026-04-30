@@ -2,17 +2,24 @@
 #include <cassert>
 #include "main.h"
 #ifndef USE_CHIMERA
-#include "jobs.hpp"
+#include "io_canQueues.hpp"
+#include "io_bootHandler.hpp"
+#include "bootloader_fsm.hpp"
 #endif
 
 namespace hw::can
 {
-const fdcan fdcan1{ hfdcan1, [](const CanMsg &msg)
-                    {
+const fdcan fdcan1{
+    hfdcan1,
+    [](const CanMsg &msg)
+
+    {
 #ifndef USE_CHIMERA
-                        jobs_runCanRxCallback(msg);
+        io::bootHandler::processBootRequest(msg, board_highbits);
+        LOG_IF_ERR(can_rx_queue.push({ msg.std_id, msg.dlc, msg.data, true, app::can_utils::BusEnum::Bus_FDCAN }));
 #endif
-                    } }; // define callback func in io
+    }
+}; // define callback func in io
 } // namespace hw::can
 
 namespace hw

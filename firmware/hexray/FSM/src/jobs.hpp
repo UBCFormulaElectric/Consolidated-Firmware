@@ -1,5 +1,4 @@
 #pragma once
-#include "hw_can.hpp"
 
 /**
  * Anything that needs to be initialized for unit testing must be put here
@@ -15,4 +14,3 @@ void jobs_run1kHz_tick();
 void jobs_runCanTx_tick();
 void jobs_runCanRx_tick();
 void jobs_runChimera_tick();
-void jobs_runCanRxCallback(const hw::CanMsg &msg);
