@@ -19,7 +19,7 @@ void handleCallback(const hw::CanMsg &hw_rx_msg)
     io::can_reroute::reroute_InvCAN(json_can_msg);
     io::can_reroute::reroute_FDCAN(json_can_msg);
 
-    can_rx_queue.push(io_rx_msg);
+    LOG_IF_ERR(can_rx_queue.push(io_rx_msg));
 }
 #endif
 

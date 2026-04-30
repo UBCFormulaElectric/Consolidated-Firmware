@@ -16,13 +16,13 @@
 static void fdcan_tx(const JsonCanMsg &tx_msg)
 {
     const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
-    fdcan_tx_queue.push(msg);
+    LOG_IF_ERR(fdcan_tx_queue.push(msg));
 }
 
 static void invcan_tx(const JsonCanMsg &tx_msg)
 {
     const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
-    invcan_tx_queue.push(msg);
+    LOG_IF_ERR(invcan_tx_queue.push(msg));
 }
 
 void jobs_init()
@@ -31,17 +31,7 @@ void jobs_init()
     invcan_tx_queue.init();
     can_rx_queue.init();
 
-    io::can_tx::init(
-        [](const JsonCanMsg &tx_msg)
-        {
-            const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
-            UNUSED(fdcan_tx_queue.push(msg));
-        },
-        [](const JsonCanMsg &tx_msg)
-        {
-            const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
-            UNUSED(invcan_tx_queue.push(msg));
-        });
+    io::can_tx::init(fdcan_tx,invcan_tx);
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
     io::can_tx::enableMode_InvCAN(app::can_utils::InvCANMode::INVCAN_MODE_DEFAULT, true);
 
