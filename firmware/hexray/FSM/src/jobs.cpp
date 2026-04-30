@@ -8,6 +8,7 @@
 #include "app_suspension.hpp"
 #include "app_canUtils.hpp"
 #include "app_canTx.hpp"
+#include "app_heartbeatMonitors.hpp"
 
 #include "io_canQueues.hpp"
 #include "io_time.hpp"
@@ -44,6 +45,9 @@ void jobs_run1Hz_tick()
 }
 void jobs_run100Hz_tick()
 {
+    hb_monitor.checkIn();
+    hb_monitor.broadcastFaults();
+
     io::can_tx::enqueue100HzMsgs();
 }
 void jobs_run1kHz_tick()

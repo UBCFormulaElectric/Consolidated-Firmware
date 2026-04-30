@@ -4,6 +4,7 @@
 #include "app_commitInfo.h"
 #include "app_jsoncan.hpp"
 #include "screens/app_screens.hpp"
+#include "app_heartbeatMonitors.hpp"
 
 #include "io_canTx.hpp"
 #include "io_switches.hpp"
@@ -71,6 +72,9 @@ void jobs_run100Hz_tick()
     // {
     //     io::can_tx::CRIT_TelemMarkEvent_sendAperiodic();
     // }
+
+    hb_monitor.checkIn();
+    hb_monitor.broadcastFaults();
 
     // enqueue can messages
     io::can_tx::enqueue100HzMsgs();
