@@ -72,7 +72,7 @@ namespace io
 {
 namespace imus
 {
-    Imu imu_rear;
+    imu imu_rear;
 
     std::expected<void, ErrorCode> init()
     {
@@ -135,9 +135,7 @@ namespace tireTemp
 } // namespace tireTemp
 } // namespace io
 
-static void          overflow_callback() {}
-static void          overflow_callback(uint32_t) {}
 const io::shdn::node rl_int_3v3_sens(true, app::can_tx::RSM_RearLeftMotorInterlock_set);
 
-io::queue<io::CanMsg, 128> can_tx_queue{ "", overflow_callback, overflow_callback };
-io::queue<io::CanMsg, 128> can_rx_queue{ "", overflow_callback, overflow_callback };
+io::queue<io::CanMsg, 128> can_tx_queue{ "" };
+io::queue<io::CanMsg, 128> can_rx_queue{ "" };
