@@ -26,46 +26,6 @@ progress = Progress(
     DownloadColumn(),
 )
 
-
-def all_goto_bootloader(live: Live, bootloaders: List[bootloader.Bootloader]):
-    live.console.log("Putting all boards into bootloader mode")
-    # first put everybody into bootloader mode
-    bootload_task = progress.add_task("Jump to Bootloader")
-    for b_idx, bootload_board in enumerate(bootloaders):
-        progress.update(
-            task_id=bootload_task,
-            total=len(bootloaders),
-            completed=b_idx,
-            description=f"Putting {bootload_board.board.name} into bootloader mode",
-        )
-        if not bootload_board.goto_bootloader():
-            raise TimeoutError(
-                f"Failed to send bootloader command to {bootload_board.board.name}"
-            )
-    progress.remove_task(bootload_task)
-    live.console.log(f"[bold green]All boards pushed into bootloader mode successfully")
-
-
-def all_goto_app(live: Live, bootloaders: List[bootloader.Bootloader]):
-    live.console.log("Pushing all boards out of bootloader mode")
-    app_task = progress.add_task("Jump to App")
-    for b_idx, bootload_board in enumerate(bootloaders):
-        progress.update(
-            task_id=app_task,
-            total=len(bootloaders),
-            completed=b_idx,
-            description=f"Putting {bootload_board.board.name} into application mode",
-        )
-        if not bootload_board.goto_app():
-            raise TimeoutError(
-                "Failed to send application command to {bootload_board.board.name}"
-            )
-    progress.remove_task(app_task)
-    live.console.log(
-        f"[bold green]All boards pushed out of bootloader mode successfully"
-    )
-
-
 def update(configs: List[boards.Board], build_dir: str, is_fd: bool) -> None:
     """Update and handle UI."""
     num_boards = len(configs)
@@ -89,7 +49,6 @@ def update(configs: List[boards.Board], build_dir: str, is_fd: bool) -> None:
     # push all boards into bootloader
     with Live(Group(status, progress), transient=True) as live:
         # push all boards into bootloader
-        all_goto_bootloader(live, bootloaders)
         live.console.log(
             f"Updating firmware for boards: [blue bold]{', '.join(board.name for board in configs)}"
         )
@@ -110,8 +69,6 @@ def update(configs: List[boards.Board], build_dir: str, is_fd: bool) -> None:
         live.console.log(
             f"[bold green]Firmware update successfully ({num_boards} board{'s' if num_boards > 1 else ''} updated)"
         )
-        # push all boards out of bootloader
-        all_goto_app(live, bootloaders)
 
 
 def erase(configs: List[boards.Board]) -> None:

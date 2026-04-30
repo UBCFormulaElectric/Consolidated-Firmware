@@ -177,7 +177,7 @@ void bootloader::init(config &boot_config)
             hw::CanMsg reply{};
             reply.std_id = boot_config.BOARD_HIGHBITS | UPDATE_ACK_ID_LOWBITS;
             reply.dlc    = 0;
-            boot_config.can_tx_queue.push(reply);
+            LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
         }
         else if (command.std_id == (boot_config.BOARD_HIGHBITS | ERASE_SECTOR_ID_LOWBITS) && update_in_progress)
         {
@@ -192,14 +192,14 @@ void bootloader::init(config &boot_config)
                 // bootloader and indicate that we have failed
                 reply.std_id = (boot_config.BOARD_HIGHBITS | ERASE_SECTOR_FAILED_ID_LOWBITS);
                 reply.dlc    = 0;
-                boot_config.can_tx_queue.push(reply);
+                LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
                 update_in_progress = false;
                 continue;
             }
             // Erasing sectors takes a while, so reply when finished.
             reply.std_id = (boot_config.BOARD_HIGHBITS | ERASE_SECTOR_COMPLETE_ID_LOWBITS);
             reply.dlc    = 0;
-            boot_config.can_tx_queue.push(reply);
+           LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
         }
         else if (command.std_id == (boot_config.BOARD_HIGHBITS | PROGRAM_ID_LOWBITS) && update_in_progress)
         {
@@ -215,7 +215,7 @@ void bootloader::init(config &boot_config)
                 hw::CanMsg reply{};
                 reply.std_id = { boot_config.BOARD_HIGHBITS | PROGRAM_ID_FAILED_LOWBITS };
                 reply.dlc    = 0;
-                boot_config.can_tx_queue.push(reply);
+                LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
                 update_in_progress = false;
                 continue;
             }
@@ -229,7 +229,7 @@ void bootloader::init(config &boot_config)
             reply.dlc    = 1;
             verifyAppCodeChecksum();
             reply.data[0] = static_cast<uint8_t>(boot_status);
-            boot_config.can_tx_queue.push(reply);
+            LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
 
             // Verify command doubles as exit programming state command.
             update_in_progress = false;
@@ -270,7 +270,7 @@ void bootloader::init(config &boot_config)
             status_msg.dlc                         = 5;
             status_msg.getDataAsDWords().data()[0] = boot_config.GIT_COMMIT_HASH;
             status_msg.data[4] = (uint8_t)(static_cast<uint8_t>(boot_status) << 1) | boot_config.GIT_COMMIT_CLEAN;
-            boot_config.can_tx_queue.push(status_msg);
+            LOG_IF_ERR(boot_config.can_tx_queue.push(status_msg));
         }
 
         boot_config.boardSpecific_tick();

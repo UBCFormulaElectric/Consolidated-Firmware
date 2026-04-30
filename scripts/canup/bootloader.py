@@ -81,7 +81,6 @@ class Bootloader:
             ),
             timeout=10,
         )
-        # TODO add retry protocol
         return (
             self._await_can_msg(
                 lambda msg: msg.arbitration_id
@@ -101,7 +100,6 @@ class Bootloader:
             ),
             timeout=10,
         )
-        # TODO add retry protocol
         return (
             self._await_can_msg(
                 lambda msg: msg.arbitration_id == self.board.app_id_range_start + 0,
@@ -272,6 +270,9 @@ class Bootloader:
         Run the update procedure for this bootloader.
 
         """
+        self.goto_bootloader()
+
+        time.sleep(0.1)
 
         def _intersect(a_min, a_max, b_min, b_max):
             """1-D intersection to check if an app's hex and a flash sector share any addresses."""
@@ -318,13 +319,22 @@ class Bootloader:
             )
 
         self.ui_callback("Verifying programming", self.size_bytes(), self.size_bytes())
+        
         time.sleep(0.5)
+        
+        self.goto_app()
+
 
     def erase(self) -> None:
         """
         Erase this bootloader's application.
 
         """
+        
+        self.goto_bootloader()
+
+        time.sleep(0.1)
+        
         if not self.start_update():
             raise RuntimeError(
                 f"Bootloader for {self.board.name} did not respond to erase command."
@@ -357,6 +367,8 @@ class Bootloader:
 
         self.ui_callback("Verifying erase", erase_size, erase_size)
         time.sleep(0.5)
+        
+        self.goto_app()
 
     def _await_can_msg(
         self, validator=Callable[[can.Message], Optional[bool]], timeout: int = 5
