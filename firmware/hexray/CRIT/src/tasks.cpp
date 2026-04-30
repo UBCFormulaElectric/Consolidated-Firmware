@@ -58,7 +58,7 @@
             continue;
         if (const auto &m = msg.value(); m.bus == app::can_utils::BusEnum::Bus_FDCAN)
         {
-            const auto res = hw::can::fdcan1.fdcan_transmit(hw::CanMsg{
+            const auto res = fdcan1.fdcan_transmit(hw::CanMsg{
                 m.std_id,
                 m.dlc,
                 m.data,
@@ -106,9 +106,9 @@ void tasks_init()
 {
     SEGGER_SYSVIEW_Conf();
 
-    hw::can::fdcan1.init();
-    led_dimming.start();
-    led_dimming.setDutyCycle(95);
+    fdcan1.init();
+    LOG_IF_ERR(led_dimming.start());
+    LOG_IF_ERR(led_dimming.setDutyCycle(95));
 
     jobs_init();
     osKernelInitialize();

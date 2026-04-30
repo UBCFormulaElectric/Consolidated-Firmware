@@ -92,7 +92,7 @@
             continue;
         if (const auto &m = msg.value(); m.bus == app::can_utils::BusEnum::Bus_FDCAN)
         {
-            const auto res = hw::can::fdcan1.fdcan_transmit(hw::CanMsg{
+            const auto res = fdcan1.fdcan_transmit(hw::CanMsg{
                 m.std_id,
                 m.dlc,
                 m.data,
@@ -147,7 +147,7 @@ void tasks_init()
 {
     SEGGER_SYSVIEW_Conf();
 
-    hw::can::fdcan1.init();
+    fdcan1.init();
 
     osKernelInitialize();
     jobs_init();

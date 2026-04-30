@@ -3,9 +3,7 @@
 #include <cassert>
 #include "io_canQueues.hpp"
 
-namespace hw::can
-{
-fdcan fdcan1(
+const fdcan fdcan1(
     hfdcan1,
     [](const CanMsg &msg)
     {
@@ -17,7 +15,7 @@ fdcan fdcan1(
             app::can_utils::BusEnum::Bus_FDCAN,
         }));
     });
-fdcan invcan(
+const fdcan invcan(
     hfdcan3,
     [](const CanMsg &msg)
     {
@@ -29,14 +27,13 @@ fdcan invcan(
             app::can_utils::BusEnum::Bus_FDCAN,
         }));
     });
-} // namespace hw::can
 
 const hw::fdcan &hw::fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
 {
-    assert(hfdcan == hw::can::fdcan1.getHfdcan() || hfdcan == hw::can::invcan.getHfdcan());
-    if (hfdcan == hw::can::fdcan1.getHfdcan())
+    assert(hfdcan == fdcan1.getHfdcan() || hfdcan == invcan.getHfdcan());
+    if (hfdcan == fdcan1.getHfdcan())
     {
-        return hw::can::fdcan1;
+        return fdcan1;
     }
-    return can::invcan;
+    return invcan;
 }
