@@ -2,6 +2,7 @@
 #include "io_powerMonitoring_datatypes.hpp"
 
 #include "hw_i2cs.hpp"
+#include "hw_gpios.hpp"
 #include "io_log.hpp"
 #include "io_time.hpp"
 #include "util_errorCodes.hpp"
@@ -137,5 +138,10 @@ std::expected<uint8_t, ErrorCode> read_alert_status()
 
     uint8_t OV_UV_mask = status[1];
     return OV_UV_mask;
+}
+
+bool is_alert_asserted()
+{
+    return !pwr_mtr_nalert.readPin();
 }
 } // namespace io::powerMonitoring

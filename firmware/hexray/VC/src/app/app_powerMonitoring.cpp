@@ -2,7 +2,6 @@
 #include "io_powerMonitoring.hpp"
 #include "io_powerMonitoring_datatypes.hpp"
 #include "app_canTx.hpp"
-#include "hw_gpios.hpp"
 
 // Power manager:
 //  we have a power pump I2C pins and a Battery monitor I2C
@@ -33,9 +32,9 @@ void update()
         return;
     }
 
-    if (!pwr_mtr_nalert.readPin())
+    if (io::powerMonitoring::is_alert_asserted())
     {
-        const auto alert_status = io::powerMonitoring::read_alert_status();
+        std::expected<uint8_t, ErrorCode> alert_status = io::powerMonitoring::read_alert_status();
         if (alert_status.has_value())
         {
             const uint8_t OV_UV_mask = alert_status.value();
@@ -44,6 +43,7 @@ void update()
             app::can_tx::VC_AlertOVChannel2_set((OV_UV_mask & ALERT_OV_CH2) != 0u);
             app::can_tx::VC_AlertOVChannel3_set((OV_UV_mask & ALERT_OV_CH3) != 0u);
             app::can_tx::VC_AlertOVChannel4_set((OV_UV_mask & ALERT_OV_CH4) != 0u);
+
             app::can_tx::VC_AlertUVChannel1_set((OV_UV_mask & ALERT_UV_CH1) != 0u);
             app::can_tx::VC_AlertUVChannel2_set((OV_UV_mask & ALERT_UV_CH2) != 0u);
             app::can_tx::VC_AlertUVChannel3_set((OV_UV_mask & ALERT_UV_CH3) != 0u);
