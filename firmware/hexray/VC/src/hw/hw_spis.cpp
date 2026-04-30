@@ -4,8 +4,8 @@
 
 #include <cassert>
 
-const hw::spi::bus spi1(hspi1);
-const hw::spi::bus spi2(hspi2);
+static constexpr hw::spi::bus spi1(hspi1);
+static constexpr hw::spi::bus spi2(hspi2);
 
 // timeouts??
 const hw::spi::device imu1(spi1, imu_cs1, 10);
