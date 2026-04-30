@@ -72,7 +72,7 @@ namespace io
 {
 namespace imus
 {
-    Imu imu_rear;
+    imu imu_rear;
 
     std::expected<void, ErrorCode> init()
     {
