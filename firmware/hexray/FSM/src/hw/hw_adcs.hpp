@@ -12,7 +12,7 @@
 // determines the order in which the DMA writes data to our raw_adc_values
 // buffer.
 
-extern const hw::AdcChip<6> adc1;
+extern const hw::adcchip<6> adc1;
 
 inline void adcChipsInit()
 {

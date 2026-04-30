@@ -1,8 +1,8 @@
 #include "hw_adcs.hpp"
 #include "main.h"
 
-constexpr hw::AdcChip<7> adc1{ hadc1, htim3 };
-constexpr hw::AdcChip<1> adc3{ hadc3, htim3 };
+constexpr hw::adcchip<7> adc1{ hadc1, htim3 };
+constexpr hw::adcchip<1> adc3{ hadc3, htim3 };
 
 constexpr hw::Adc fan_isns       = adc1.getChannel(0);
 constexpr hw::Adc ts_vsense_p    = adc1.getChannel(1);

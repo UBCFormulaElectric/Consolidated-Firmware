@@ -1,7 +1,7 @@
 #include "hw_adcs.hpp"
 #include "main.h"
 
-constexpr hw::AdcChip<6> adc1{ hadc1, htim2 };
+constexpr hw::adcchip<6> adc1{ hadc1, htim2 };
 constexpr hw::Adc        susp_fl   = adc1.getChannel(0);
 constexpr hw::Adc        susp_fr   = adc1.getChannel(1);
 constexpr hw::Adc        apps2     = adc1.getChannel(2);

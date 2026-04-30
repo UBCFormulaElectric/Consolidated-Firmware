@@ -2,8 +2,8 @@
 
 #include "hw_adc.hpp"
 
-extern const hw::AdcChip<6> Adc_Chip1;
-extern const hw::AdcChip<5> Adc_Chip2;
+extern const hw::adcchip<6> Adc_Chip1;
+extern const hw::adcchip<5> Adc_Chip2;
 
 extern const hw::Adc adc_front;
 extern const hw::Adc adc_r_inv;

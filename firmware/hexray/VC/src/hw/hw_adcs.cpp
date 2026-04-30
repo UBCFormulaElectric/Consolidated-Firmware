@@ -1,8 +1,8 @@
 #include "hw_adcs.hpp"
 #include "main.h"
 
-constexpr hw::AdcChip<6> Adc_Chip1{ hadc1, htim3 };
-constexpr hw::AdcChip<5> Adc_Chip2{ hadc2, htim3 };
+constexpr hw::adcchip<6> Adc_Chip1{ hadc1, htim3 };
+constexpr hw::adcchip<5> Adc_Chip2{ hadc2, htim3 };
 
 constexpr hw::Adc adc_front     = Adc_Chip1.getChannel(0);
 constexpr hw::Adc adc_r_inv     = Adc_Chip1.getChannel(1);

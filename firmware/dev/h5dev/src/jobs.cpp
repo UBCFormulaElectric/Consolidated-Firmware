@@ -16,7 +16,7 @@ using namespace io;
 const gpio                          efuse_en{ EFUSE_EN_GPIO_Port, EFUSE_EN_Pin };
 const gpio                          efuse_pgood{ EFUSE_PGOOD_GPIO_Port, EFUSE_PGOOD_Pin };
 constexpr size_t                    NUM_ADC_CHANNELS = 1U;
-constexpr AdcChip<NUM_ADC_CHANNELS> adc1{ hadc1, htim3 };
+constexpr adcchip<NUM_ADC_CHANNELS> adc1{ hadc1, htim3 };
 constexpr Adc                       efuse_i_sns(adc1.getChannel(0));
 TI_TPS28_Efuse                      efuse(efuse_en, efuse_i_sns, efuse_pgood);
 

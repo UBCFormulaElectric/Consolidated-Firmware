@@ -11,19 +11,19 @@
 
 namespace hw
 {
-template <size_t NUM_ADC_CHANNELS> class AdcChip;
+template <size_t NUM_ADC_CHANNELS> class adcchip;
 
-class Adc
+class adc
 {
     const volatile float &voltage_source;
-    consteval explicit Adc(const volatile float &in_voltage_source) : voltage_source(in_voltage_source){};
+    consteval explicit adc(const volatile float &in_voltage_source) : voltage_source(in_voltage_source){};
 
   public:
     [[nodiscard]] float getVoltage() const { return voltage_source; }
-    template <size_t> friend class AdcChip;
+    template <size_t> friend class adcchip;
 };
 
-template <size_t NUM_ADC_CHANNELS> class AdcChip
+template <size_t NUM_ADC_CHANNELS> class adcchip
 {
     static constexpr float SINGLE_ENDED_ADC_V_SCALE = 3.3f;
     static constexpr float DIFFERENTIAL_ADC_V_SCALE = 6.6f;
@@ -75,7 +75,7 @@ template <size_t NUM_ADC_CHANNELS> class AdcChip
     mutable std::array<uint16_t, NUM_ADC_CHANNELS> raw_adc_values{};
 
   public:
-    consteval explicit AdcChip(ADC_HandleTypeDef &in_hadc, TIM_HandleTypeDef &in_htim) : hadc(in_hadc), htim(in_htim){};
+    consteval explicit adcchip(ADC_HandleTypeDef &in_hadc, TIM_HandleTypeDef &in_htim) : hadc(in_hadc), htim(in_htim){};
 
     [[nodiscard]] std::expected<void, ErrorCode> init(const bool start_timer = true) const
     {
@@ -91,7 +91,7 @@ template <size_t NUM_ADC_CHANNELS> class AdcChip
         for (uint16_t ch = 0; ch < NUM_ADC_CHANNELS; ch++)
             adc_voltages[ch] = rawAdcValueToVoltage(false, raw_adc_values[ch]);
     }
-    [[nodiscard]] consteval Adc getChannel(uint32_t channel) const { return Adc{ adc_voltages[channel] }; }
+    [[nodiscard]] consteval adc getChannel(uint32_t channel) const { return adc{ adc_voltages[channel] }; }
     [[nodiscard]] constexpr ADC_HandleTypeDef &gethadc() const { return hadc; }
 };
 } // namespace hw
