@@ -2,10 +2,6 @@
 #include "io_canReroutes.hpp"
 #include "main.h"
 #include <cassert>
-#ifndef USE_CHIMERA
-#include "io_canQueues.hpp"
-#include "app_canUtils.hpp"
-#endif
 
 const hw::fdcan fdcan1(hfdcan1, io::canReroute::handleCallback);
 const hw::fdcan invcan(hfdcan3, io::canReroute::handleCallback);
