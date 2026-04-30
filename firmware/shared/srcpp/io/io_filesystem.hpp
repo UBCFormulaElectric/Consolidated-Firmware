@@ -1,9 +1,11 @@
 #pragma once
 
 #include "hw_sd.hpp"
+#include "app_filesystem.hpp"
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <expected>
 
 extern "C"
@@ -42,7 +44,7 @@ class FileSystem
     const hw::SdCard &sdCard; // sd card instance
 
     /* Constructor*/
-    FileSystem(const hw::SdCard &sd_card) : sdCard(sd_card)
+    FileSystem(const hw::SdCard &sd_card, app::filesystem::FileSystemContext &ctx) : sdCard(sd_card), fs_context(ctx)
     {
         fs_cfg = LogFsCfg{
             .context      = this,
@@ -122,26 +124,15 @@ class FileSystem
     bool isSdPresent() const;
 
   private:
-    bool mount_failed = false;
-
-    std::array<uint8_t, HW_DEVICE_SECTOR_SIZE>                           cache{};
-    std::array<LogFsFileCfg, MAX_FILE_NUMBER>                            files_cfg{};
-    std::array<LogFsFile, MAX_FILE_NUMBER>                               files{};
-    std::array<std::array<char, HW_DEVICE_SECTOR_SIZE>, MAX_FILE_NUMBER> files_cache{};
-    std::array<bool, MAX_FILE_NUMBER>                                    files_opened{}; // true if file opened
-
-    LogFsFile                                  bootcount_file{};
-    std::array<uint8_t, HW_DEVICE_SECTOR_SIZE> bootcount_cache{};
-    LogFsFileCfg                               bootcount_cfg = {
-                                      .path  = "/bootcount.txt",
-                                      .cache = bootcount_cache.data(),
-    };
+    bool                                       mount_failed = false;
+    app::filesystem::FileSystemContext        &fs_context;
+    std::array<uint8_t, HW_DEVICE_SECTOR_SIZE> cache{};
 
     /**
      * Checks the file descriptor to make sure it's valid
      * @param fd file descriptor in question
      */
-    bool checkFileDescriptor(uint32_t fd) const { return (fd < MAX_FILE_NUMBER && files_opened[fd]); }
+    bool checkFileDescriptor(uint32_t fd) const { return (fd < MAX_FILE_NUMBER && fs_context.files_opened[fd]); }
 
     /**
      * Checks if the filesystem has been mounted successfully.
