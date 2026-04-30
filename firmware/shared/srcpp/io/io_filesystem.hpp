@@ -33,10 +33,10 @@ enum class FileSystemError
 class FileSystem
 {
   public:
-    static constexpr std::size_t MAX_FILE_NUMBER    = 3;
     static constexpr int         NUM_MOUNT_ATTEMPTS = 3;
     static constexpr int         RETRY_COUNT        = 3;
     static constexpr uint32_t    MAX_WRITE_CYCLES   = 1000;
+    static constexpr std::size_t MAX_FILE_NUMBER    = app::filesystem::FileSystemContext::MAX_FILE_NUMBER;
 
     LogFsCfg fs_cfg;
     LogFs    fs;
