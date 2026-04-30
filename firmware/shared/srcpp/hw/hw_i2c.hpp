@@ -7,17 +7,17 @@
 
 namespace hw::i2c
 {
-class I2CDevice;
+class device;
 
-class I2CBus
+class bus
 {
   public:
-    constexpr explicit I2CBus(I2C_HandleTypeDef &handle_in) : handle(handle_in), taskInProgress(nullptr){};
+    consteval explicit bus(I2C_HandleTypeDef &handle_in) : handle(handle_in), taskInProgress(nullptr) {}
 
     /**
      * @brief Deinitialize the I2C bus.
      */
-    void deinit() const;
+    void deinit() const { HAL_I2C_DeInit(&handle); }
 
     /**
      * @brief Notify the task waiting on an I2C transaction from an ISR.
@@ -26,23 +26,34 @@ class I2CBus
     void onTransactionCompleteFromISR() const;
 
   private:
-    friend class I2CDevice;
+    friend class device;
 
-    I2C_HandleTypeDef &handle;
-    TaskHandle_t       taskInProgress;
+    I2C_HandleTypeDef   &handle;
+    mutable TaskHandle_t taskInProgress;
 };
 
-class I2CDevice
+class device
 {
-  public:
-    constexpr explicit I2CDevice(I2CBus &bus_in, const uint8_t targetAddr_in, const uint32_t timeoutMs_in)
-      : bus(bus_in), targetAddress(targetAddr_in), timeoutMs(timeoutMs_in){};
+    const bus     &d_bus;
+    const uint8_t  targetAddress;
+    const uint32_t timeoutMs;
 
+    [[nodiscard]] std::expected<void, ErrorCode> waitForNotification() const;
+
+  public:
+    consteval explicit device(const i2c::bus &bus_in, const uint8_t targetAddr_in, const uint32_t timeoutMs_in)
+      : d_bus(bus_in), targetAddress(targetAddr_in), timeoutMs(timeoutMs_in){};
+
+    static constexpr uint8_t NUM_DEVICE_READY_TRIALS = 5;
     /**
      * @brief Check if device connected to the given I2C interface is ready for communication.
      * @return EXIT_CODE_OK if connected device is ready to communicate over I2C.
      */
-    [[nodiscard]] std::expected<void, ErrorCode> isTargetReady() const;
+    [[nodiscard]] std::expected<void, ErrorCode> isTargetReady() const
+    {
+        return utils::convertHalStatus(HAL_I2C_IsDeviceReady(
+            &d_bus.handle, static_cast<uint16_t>(targetAddress << 1), NUM_DEVICE_READY_TRIALS, timeoutMs));
+    }
 
     /**
      * @brief Receive data from the device connected to the given I2C interface.
@@ -77,13 +88,6 @@ class I2CDevice
      */
     [[nodiscard]] std::expected<void, ErrorCode>
         memoryWrite(uint16_t mem_addr, std::span<const uint8_t> tx_buffer) const;
-
-  private:
-    I2CBus  &bus;
-    uint8_t  targetAddress;
-    uint32_t timeoutMs;
-
-    [[nodiscard]] std::expected<void, ErrorCode> waitForNotification() const;
 };
 
 /**
@@ -91,5 +95,5 @@ class I2CDevice
  * @param handle Pointer to a HAL I2C handle.
  * @return Reference to the I2CBus corresponding to the handle.
  */
-[[nodiscard]] I2CBus &getBusFromHandle(const I2C_HandleTypeDef *handle);
+[[nodiscard]] const bus &getBusFromHandle(const I2C_HandleTypeDef *handle);
 } // namespace hw::i2c

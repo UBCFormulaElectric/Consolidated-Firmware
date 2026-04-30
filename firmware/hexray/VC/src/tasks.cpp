@@ -5,18 +5,19 @@
 
 #include "io_time.hpp"
 #include "io_canQueues.hpp"
-#include <hw_can.hpp>
-#include <io_canRx.hpp>
-#include <io_canTx.hpp>
+#include "hw_can.hpp"
+#include "io_canRx.hpp"
 
 #include "hw_cans.hpp"
 #include "hw_gpios.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_hardFaultHandler.hpp"
+#include "hw_adcs.hpp"
+#include "hw_bootup.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
-    const uint32_t period_ms = 1000U;
+    constexpr uint32_t period_ms = 1000U;
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -29,7 +30,7 @@
 }
 [[noreturn]] static void tasks_run100Hz(void *arg)
 {
-    const uint32_t period_ms = 10U;
+    constexpr uint32_t period_ms = 10U;
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -41,7 +42,7 @@
 }
 [[noreturn]] static void tasks_run1kHz(void *arg)
 {
-    const uint32_t period_ms = 1U;
+    constexpr uint32_t period_ms = 1U;
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -61,7 +62,7 @@
             continue;
         if (const auto &m = msg.value(); m.bus == app::can_utils::BusEnum::Bus_FDCAN)
         {
-            const auto res = hw::can::fdcan1.fdcan_transmit(hw::CanMsg{
+            const auto res = fdcan1.fdcan_transmit(hw::CanMsg{
                 m.std_id,
                 m.dlc,
                 m.data,
@@ -83,7 +84,7 @@
             continue;
         if (const auto &m = msg.value(); m.bus == app::can_utils::BusEnum::Bus_FDCAN)
         {
-            const auto res = hw::can::invcan.can_transmit(hw::CanMsg{
+            const auto res = invcan.can_transmit(hw::CanMsg{
                 m.std_id,
                 m.dlc,
                 m.data,
@@ -128,12 +129,31 @@ static void VC_StartAllTasks()
 void tasks_preInit()
 {
     hw_hardFaultHandler_init();
+    hw::bootup::enableInterruptsForApp();
 }
 
 void tasks_init()
 {
-    hw::can::fdcan1.init();
-    hw::can::invcan.init();
+    SEGGER_SYSVIEW_Conf();
+    LOG_INFO("VC Reset!");
+
+    fdcan1.init();
+    invcan.init();
+
+    adcChipsInit();
+
+     hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
+    if (boot_request.context != hw::bootup::BootContext::BOOT_CONTEXT_NONE)
+    {
+        if (boot_request.context == hw::bootup::BootContext::BOOT_CONTEXT_STACK_OVERFLOW)
+        {
+            LOG_WARN("Detected stack overflow on the previous boot cycle!");
+        }
+
+        const_cast<hw::bootup::BootRequest &>(boot_request).context       = hw::bootup::BootContext::BOOT_CONTEXT_NONE;
+        const_cast<hw::bootup::BootRequest &>(boot_request).context_value = 0;
+        hw::bootup::setBootRequest(boot_request);
+    }
 
     dam_en.writePin(true);
     rsm_en.writePin(true);
