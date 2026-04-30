@@ -75,7 +75,19 @@ void io_canLogging_init(const IoRtcTime *boot_time)
         boot_time_string, "20%02d-%02d-%02dT%02d-%02d-%02d", boot_time->year, boot_time->month, boot_time->day,
         boot_time->hours, boot_time->minutes, boot_time->seconds);
     LOG_INFO("Booted up at: %s", boot_time_string);
-    snprintf(current_path, sizeof(current_path), "/%s_%03lu.txt", boot_time_string, current_bootcount);
+
+    // Build path without snprintf: "/{boot_time}_{bootcount:03d}.txt"
+    strcpy(current_path, "/");
+    strcat(current_path, boot_time_string);
+    strcat(current_path, "_");
+    // Append zero-padded bootcount (3 digits)
+    char bootcount_str[4];
+    bootcount_str[0] = (char)((current_bootcount / 100) % 10) + '0';
+    bootcount_str[1] = (char)((current_bootcount / 10) % 10) + '0';
+    bootcount_str[2] = (char)(current_bootcount % 10) + '0';
+    bootcount_str[3] = '\0';
+    strcat(current_path, bootcount_str);
+    strcat(current_path, ".txt");
 
     // Open the log file
     CHECK_ERR_CRITICAL(io_fileSystem_open(current_path, &log_fd) == FILE_OK);
