@@ -13,7 +13,7 @@ class pump
 {
   public:
 #ifdef TARGET_EMBEDDED
-    constexpr explicit Pump(const Potentiometer &pot, bool invert, const Efuse &efuse)
+    constexpr explicit pump(const Potentiometer &pot, bool invert, const Efuse &efuse)
       : pot_{ pot }, invert_{ invert }, efuse_{ efuse }
     {
     }
