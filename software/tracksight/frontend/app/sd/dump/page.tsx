@@ -300,11 +300,13 @@ const SDCardFileNavigator = (props: { sdCard: string | null }) => {
 type SDCardPickerProps = {
   selected: string | null;
   onSelect: (sdCard: string) => void;
+  sdCards: string[] | undefined;
+  isLoading: boolean;
+  error: unknown;
 };
 
 const SDCardPicker = (props: SDCardPickerProps) => {
-  const { selected, onSelect } = props;
-  const { data: sdCards, isLoading, error } = useListSDCards();
+  const { selected, onSelect, sdCards, isLoading, error } = props;
 
   if (isLoading) {
     return <div className="text-sm text-gray-400">Loading SD cards...</div>;
@@ -340,12 +342,23 @@ const SDCardPicker = (props: SDCardPickerProps) => {
 
 export default function HomePage() {
   const [selectedSDCard, setSelectedSDCard] = useState<string | null>(null);
+  const { data: sdCards, isLoading, error } = useListSDCards();
+
+  useEffect(() => {
+    if (!sdCards || sdCards.length === 0) {
+      return;
+    }
+
+    if (!selectedSDCard || !sdCards.includes(selectedSDCard)) {
+      setSelectedSDCard(sdCards[0]);
+    }
+  }, [sdCards, selectedSDCard]);
 
   return (
     <div className="px-14 gap-8 min-h-screen flex flex-col pb-20 overflow-hidden" style={{ height: "100vh" }}>
       <div className="pt-20 w-screen" />
       <span className="text-3xl font-bold">Dump SD Card</span>
-      <SDCardPicker selected={selectedSDCard} onSelect={setSelectedSDCard} />
+      <SDCardPicker selected={selectedSDCard} onSelect={setSelectedSDCard} sdCards={sdCards} isLoading={isLoading} error={error} />
       <div className="flex-1 flex h-full" style={{ height: "100%" }}>
         <SDCardFileNavigator sdCard={selectedSDCard} />
       </div>
