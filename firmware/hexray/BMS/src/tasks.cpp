@@ -132,7 +132,9 @@ void BMS_StartAllTasks()
 
 void tasks_preInit()
 {
+#ifdef BOOTLOAD
     hw::bootup::enableInterruptsForApp();
+#endif
     hw_hardFaultHandler_init();
 }
 
