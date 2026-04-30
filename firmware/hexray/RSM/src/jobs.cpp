@@ -16,7 +16,7 @@
 #include "io_canMsg.hpp"
 #include "io_canTx.hpp"
 
-void jobs_init()
+void jobs_init()`
 {
     can_tx_queue.init();
     can_rx_queue.init();

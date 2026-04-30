@@ -31,7 +31,7 @@ void jobs_init()
     invcan_tx_queue.init();
     can_rx_queue.init();
 
-    io::can_tx::init(fdcan_tx,invcan_tx);
+    io::can_tx::init(fdcan_tx, invcan_tx);
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
     io::can_tx::enableMode_InvCAN(app::can_utils::InvCANMode::INVCAN_MODE_DEFAULT, true);
 

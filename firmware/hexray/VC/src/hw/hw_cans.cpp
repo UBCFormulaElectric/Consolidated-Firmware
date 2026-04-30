@@ -23,21 +23,23 @@ void handleCallback(const hw::CanMsg &hw_rx_msg)
 }
 #endif
 
-//Chimera cannot interact with app and io layer
-const hw::fdcan fdcan1(hfdcan1, 
+// Chimera cannot interact with app and io layer
+const hw::fdcan fdcan1(
+    hfdcan1,
 
 #ifndef USE_CHIMERA
     handleCallback
 #else
-[](const hw::CanMsg &msg) { UNUSED(msg); } 
+    [](const hw::CanMsg &msg) { UNUSED(msg); }
 #endif
 );
 
-const hw::fdcan invcan(hfdcan3, 
+const hw::fdcan invcan(
+    hfdcan3,
 #ifndef USE_CHIMERA
     handleCallback
 #else
-[](const hw::CanMsg &msg) { UNUSED(msg); } 
+    [](const hw::CanMsg &msg) { UNUSED(msg); }
 #endif
 );
 
