@@ -4,7 +4,7 @@
 
 #include "app_jsoncan.hpp"
 
-#include <io_canRx.hpp>
+#include "io_canRx.hpp"
 #include "io_canQueues.hpp"
 #include "io_time.hpp"
 

@@ -8,7 +8,7 @@
 #include "efuse/io_efuse_TI_TPS28.hpp"
 #include "hw_gpio.hpp"
 #include "hw_adc.hpp"
-#include <io_canMsg.hpp>
+#include "io_canMsg.hpp"
 #include <util_errorCodes.hpp>
 #include "main.h"
 

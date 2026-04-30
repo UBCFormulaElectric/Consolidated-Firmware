@@ -12,7 +12,7 @@
 #include "main.h"
 #include <assert.h>
 #include <cmsis_os2.h>
-#include <io_canMsg.hpp>
+#include "io_canMsg.hpp"
 
 [[noreturn]] static void tasks_default(void *args)
 {

@@ -18,6 +18,7 @@
 #include "app_heartbeatMonitor.hpp"
 #include "app_jsoncan.hpp"
 #include "app_canUtils.hpp"
+#include "app_canTx.hpp"
 
 // io
 extern "C"
@@ -46,7 +47,7 @@ extern "C"
 static void jsoncan_transmit_func(const JsonCanMsg &tx_msg)
 {
     const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
-    (void)can_tx_queue.push(msg);
+    UNUSED(can_tx_queue.push(msg));
 }
 
 static void charger_transmit_func(const JsonCanMsg &tx_msg)
@@ -85,6 +86,8 @@ void jobs_init()
 #endif
 
     app::StateMachine::init(&app::states::init_state);
+
+    app::can_tx::BMS_Heartbeat_set(true);
 }
 
 void jobs_run1Hz_tick()

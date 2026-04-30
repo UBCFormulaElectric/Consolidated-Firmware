@@ -11,7 +11,7 @@
 #include "hw_hardFaultHandler.hpp"
 
 #include <cassert>
-#include <hw_pwmOutput.hpp>
+#include "hw_pwmOutput.hpp"
 #include <vc.pb.h>
 
 #include <optional>

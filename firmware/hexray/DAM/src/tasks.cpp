@@ -7,26 +7,16 @@
 #include "io_time.hpp"
 #include "io_telemMessage.hpp"
 #include "io_canQueues.hpp"
-#include "io_canQueues.hpp"
-#include <io_canRx.hpp>
+#include "io_canRx.hpp"
+#include "io_telemQueue.hpp"
 
 #include "hw_hardFaultHandler.hpp"
 #include "hw_rtosTaskHandler.hpp"
-#include "io_telemQueue.hpp"
-
-#include <span>
-
-extern "C"
-{
-#include "io_rtc.h"
-}
-
-// static IoRtcTime boot_time{};
 #include "hw_cans.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
-    const uint32_t period_ms = 1000U;
+    constexpr uint32_t period_ms = 1000U;
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -39,7 +29,7 @@ extern "C"
 }
 [[noreturn]] static void tasks_run100Hz(void *arg)
 {
-    const uint32_t period_ms = 10U;
+    constexpr uint32_t period_ms = 10U;
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -51,7 +41,7 @@ extern "C"
 }
 [[noreturn]] static void tasks_run1kHz(void *arg)
 {
-    const uint32_t period_ms = 1U;
+    constexpr uint32_t period_ms = 1U;
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -107,10 +97,7 @@ extern "C"
                 m.dlc,
                 m.data,
             });
-            if (not res)
-            {
-                LOG_ERROR("fdcan1.fdcan_transmit(...) exited with an error: %d", static_cast<int>(res.error()));
-            }
+            LOG_IF_ERR(res);
         }
         else
         {

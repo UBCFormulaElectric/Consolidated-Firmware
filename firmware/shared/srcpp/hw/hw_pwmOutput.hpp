@@ -1,7 +1,7 @@
 #pragma once
 
 #include "hw_hal.hpp"
-#include <hw_pwmOutput.h>
+#include "hw_pwmOutput.h"
 #include <cstdint>
 #include "util_errorCodes.hpp"
 

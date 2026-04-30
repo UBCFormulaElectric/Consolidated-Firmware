@@ -1,13 +1,13 @@
 #include "bootloader.hpp"
 #include "bootloader.h"
 #include "main.h"
-#include <hw_can.hpp>
+#include "hw_can.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "bootloader_h7.hpp"
 
 extern "C"
 {
-#include <app_commitInfo.h>
+#include "app_commitInfo.h"
 }
 
 void tx_overflow_callback(const uint32_t overflow_count)

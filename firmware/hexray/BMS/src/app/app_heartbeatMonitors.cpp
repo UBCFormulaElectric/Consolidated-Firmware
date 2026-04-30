@@ -46,7 +46,7 @@ static io::heartbeat::node rsm_heartbeat_node(
             app::can_rx::clear_board_rx_table(app::can_utils::CanNode::RSM_NODE);
     });
 
-static std::array<std::reference_wrapper<io::heartbeat::node>, 5> hb_nodes{
+static constexpr std::array<std::reference_wrapper<io::heartbeat::node>, 5> hb_nodes{
     { vc_heartbeat_node, crit_heartbeat_node, dam_heartbeat_node, fsm_heartbeat_node, rsm_heartbeat_node }
 };
 const app::heartbeat::monitor<5> hb_monitor(app::can_tx::BMS_Heartbeat_set, hb_nodes);

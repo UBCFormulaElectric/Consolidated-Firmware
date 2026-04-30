@@ -5,7 +5,7 @@
 #include "app_jsoncan.hpp"
 
 #include "io_time.hpp"
-#include <io_canRx.hpp>
+#include "io_canRx.hpp"
 #include "io_canQueues.hpp"
 
 #include "hw_hardFaultHandler.hpp"

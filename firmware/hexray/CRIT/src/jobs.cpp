@@ -10,7 +10,7 @@
 #include "io_time.hpp"
 #include "io_leds.hpp"
 #include "io_powerGauge.hpp"
-#include <io_canTx.hpp>
+#include "io_canTx.hpp"
 #include "io_canQueues.hpp"
 
 void jobs_init()

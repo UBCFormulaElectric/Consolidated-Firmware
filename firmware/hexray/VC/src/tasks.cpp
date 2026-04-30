@@ -5,8 +5,8 @@
 
 #include "io_time.hpp"
 #include "io_canQueues.hpp"
-#include <hw_can.hpp>
-#include <io_canRx.hpp>
+#include "hw_can.hpp"
+#include "io_canRx.hpp"
 
 #include "hw_cans.hpp"
 #include "hw_gpios.hpp"

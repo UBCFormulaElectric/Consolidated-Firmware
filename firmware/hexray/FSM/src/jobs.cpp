@@ -6,13 +6,14 @@
 #include "app_jsoncan.hpp"
 #include "app_steering.hpp"
 #include "app_suspension.hpp"
-#include <app_canUtils.hpp>
+#include "app_canUtils.hpp"
+#include "app_canTx.hpp"
 
 #include "io_canQueues.hpp"
 #include "io_time.hpp"
-#include <io_canMsg.hpp>
-#include <io_canTx.hpp>
-#include <io_time.hpp>
+#include "io_canMsg.hpp"
+#include "io_canTx.hpp"
+#include "io_time.hpp"
 // #include "app_shdnLoopNode.hpp"
 
 void jobs_init()
@@ -29,6 +30,8 @@ void jobs_init()
 
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
     app::imu::init();
+
+    app::can_tx::FSM_Heartbeat_set(true);
 }
 void jobs_run1Hz_tick()
 {

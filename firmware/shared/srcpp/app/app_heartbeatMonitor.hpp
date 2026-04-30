@@ -12,7 +12,7 @@ namespace app::heartbeat
 // constexpr unsigned int HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS = 200U;
 template <size_t NODE_COUNT> class monitor
 {
-    const std::array<std::reference_wrapper<io::heartbeat::node>, NODE_COUNT> &heartbeat_nodes{};
+    const std::array<std::reference_wrapper<io::heartbeat::node>, NODE_COUNT> &heartbeat_nodes;
     void (*const checkin_self)(bool);
     bool block_faults;
 

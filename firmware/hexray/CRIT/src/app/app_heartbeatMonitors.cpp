@@ -46,7 +46,7 @@ static io::heartbeat::node vc_heartbeat_node(
         app::can_alerts::infos::MissingVCHeartbeat_set(fault);
     });
 
-static std::array<std::reference_wrapper<io::heartbeat::node>, 5> hb_nodes{
+static constexpr std::array<std::reference_wrapper<io::heartbeat::node>, 5> hb_nodes{
     { bms_heartbeat_node, dam_heartbeat_node, fsm_heartbeat_node, rsm_heartbeat_node, vc_heartbeat_node }
 };
 const app::heartbeat::monitor<5> hb_monitor(app::can_tx::CRIT_Heartbeat_set, hb_nodes);
