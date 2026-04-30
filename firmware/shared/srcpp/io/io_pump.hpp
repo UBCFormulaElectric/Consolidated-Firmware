@@ -9,7 +9,7 @@
 
 namespace io
 {
-class Pump
+class pump
 {
   public:
 #ifdef TARGET_EMBEDDED
@@ -18,7 +18,7 @@ class Pump
     {
     }
 #elif defined(TARGET_TEST)
-    constexpr explicit Pump() {}
+    constexpr explicit pump() {}
 #endif
 
     std::expected<void, ErrorCode>    setPercentage(uint8_t percentage) const;

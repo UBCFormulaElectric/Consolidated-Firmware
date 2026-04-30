@@ -162,7 +162,7 @@ struct ImuFifoConfig
 
 namespace io
 {
-class Imu
+class imu
 {
   public:
     struct AccelData
@@ -187,14 +187,14 @@ class Imu
 
   public:
 #ifdef TARGET_EMBEDDED
-    constexpr explicit Imu(
+    constexpr explicit imu(
         const hw::spi::device &in_imu_spi_handle,
         const ImuFilterConfig &in_filter_config = ImuFilterConfig{})
       : imu_spi_handle(in_imu_spi_handle), filter_config(in_filter_config)
     {
     }
 #elif TARGET_TEST
-    constexpr explicit Imu() {}
+    constexpr explicit imu() {}
 #endif
 
     [[nodiscard]] std::expected<void, ErrorCode> init() const;

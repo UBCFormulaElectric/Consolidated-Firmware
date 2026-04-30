@@ -8,11 +8,11 @@
 #include "io_efuse_TI_TPS25.hpp"
 #include "io_efuse_TI_TPS28.hpp"
 
-io::Imu                  IMU1;
-io::Imu                  IMU2;
-io::Imu                  IMU3;
-const io::Pump           rr_pump;
-const io::Pump           rl_pump;
+io::imu                  IMU1;
+io::imu                  IMU2;
+io::imu                  IMU3;
+const io::pump           rr_pump;
+const io::pump           rl_pump;
 const io::TI_TPS28_Efuse f_inv_efuse;
 const io::TI_TPS28_Efuse r_inv_efuse;
 const io::TI_TPS28_Efuse bms_efuse;
