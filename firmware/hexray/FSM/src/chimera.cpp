@@ -71,17 +71,17 @@ class FSMChimeraConfig : public chimera_v2::config
         switch (snn->name.fsm_net_name)
         {
             case fsm_AdcNetName_ADC_SUSP_FL:
-                return std::cref(hw::adcs::susp_fl);
+                return std::cref(susp_fl);
             case fsm_AdcNetName_ADC_SUSP_FR:
-                return std::cref(hw::adcs::susp_fr);
+                return std::cref(susp_fr);
             case fsm_AdcNetName_ADC_APPS2:
-                return std::cref(hw::adcs::apps2);
+                return std::cref(apps2);
             case fsm_AdcNetName_ADC_BPS_F:
-                return std::cref(hw::adcs::bps_f);
+                return std::cref(bps_f);
             case fsm_AdcNetName_ADC_STR_ANGLE:
-                return std::cref(hw::adcs::str_angle);
+                return std::cref(str_angle);
             case fsm_AdcNetName_ADC_APPS1:
-                return std::cref(hw::adcs::apps1);
+                return std::cref(apps1);
             default:
             case fsm_AdcNetName_ADC_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified ADC net name");
@@ -138,7 +138,7 @@ char USBD_PRODUCT_STRING_FS[] = "fsm";
 
 [[noreturn]] void tasks_init()
 {
-    hw::adcs::chipsInit();
+    adcChipsInit();
     assert(hw::usb::init());
     osKernelInitialize();
     TaskChimera.start();

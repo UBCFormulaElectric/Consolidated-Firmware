@@ -27,27 +27,27 @@ class RSMChimeraConfig : public chimera_v2::config
         switch (gnn->name.rsm_net_name)
         {
             case rsm_GpioNetName_GPIO_LED:
-                return std::cref(hw::gpio::led);
+                return std::cref(led_pin);
             case rsm_GpioNetName_GPIO_BRAKE_LIGHT_EN:
-                return std::cref(hw::gpio::brake_light_en);
+                return std::cref(brake_light_en);
             case rsm_GpioNetName_GPIO_RL_INT:
-                return std::cref(hw::gpio::rl_int);
+                return std::cref(rl_int);
             case rsm_GpioNetName_GPIO_IMU_CS:
-                return std::cref(hw::gpio::imu_cs);
+                return std::cref(imu_cs);
             case rsm_GpioNetName_GPIO_IMU_INT:
-                return std::cref(hw::gpio::imu_int);
+                return std::cref(imu_int);
             case rsm_GpioNetName_GPIO_IMU_FSYNC:
-                return std::cref(hw::gpio::imu_fsync);
+                return std::cref(imu_fsync);
             case rsm_GpioNetName_GPIO_SUSP_TRAVEL_RR_OCSC:
-                return std::cref(hw::gpio::susp_travel_rr_ocsc);
+                return std::cref(susp_travel_rr_ocsc);
             case rsm_GpioNetName_GPIO_SUSP_TRAVEL_RL_OCSC:
-                return std::cref(hw::gpio::susp_travel_rl_ocsc);
+                return std::cref(susp_travel_rl_ocsc);
             case rsm_GpioNetName_GPIO_NBSPD_BRAKE_PRESSED:
-                return std::cref(hw::gpio::nbspd_brake_pressed_3v3);
+                return std::cref(nbspd_brake_pressed_3v3);
             case rsm_GpioNetName_GPIO_BRAKE_OCSC_OK:
-                return std::cref(hw::gpio::brake_ocsc_ok);
+                return std::cref(brake_ocsc_ok);
             case rsm_GpioNetName_GPIO_D_P_PULLUP:
-                return std::cref(hw::gpio::d_p_pullup);
+                return std::cref(d_p_pullup);
             default:
             case rsm_GpioNetName_GPIO_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified GPIO net name");
@@ -141,7 +141,7 @@ char USBD_PRODUCT_STRING_FS[] = "rsm";
     hw_hardFaultHandler_init();
     adcchipsInit();
     assert(hw::usb::init());
-    hw::gpio::d_p_pullup.writePin(true); // enable USB D+ pullup
+    d_p_pullup.writePin(true); // enable USB D+ pullup
     osKernelInitialize();
     TaskChimera.start();
     osKernelStart();

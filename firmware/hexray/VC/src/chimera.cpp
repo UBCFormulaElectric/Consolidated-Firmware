@@ -118,27 +118,27 @@ class VCChimeraConfig : public chimera_v2::config
         switch (ann->name.vc_net_name)
         {
             case vc_AdcNetName_ADC_RR_PUMP:
-                return std::cref(hw::adcs::adc_rr_pump);
+                return std::cref(adc_rr_pump);
             case vc_AdcNetName_ADC_DAM:
-                return std::cref(hw::adcs::adc_dam);
+                return std::cref(adc_dam);
             case vc_AdcNetName_ADC_L_RAD_FAN:
-                return std::cref(hw::adcs::adc_l_rad_fan);
+                return std::cref(adc_l_rad_fan);
             case vc_AdcNetName_ADC_R_RAD_FAN:
-                return std::cref(hw::adcs::adc_r_rad_fan);
+                return std::cref(adc_r_rad_fan);
             case vc_AdcNetName_ADC_RL_PUMP:
-                return std::cref(hw::adcs::adc_rl_pump);
+                return std::cref(adc_rl_pump);
             case vc_AdcNetName_ADC_F_INV:
-                return std::cref(hw::adcs::adc_f_inv);
+                return std::cref(adc_f_inv);
             case vc_AdcNetName_ADC_R_INV:
-                return std::cref(hw::adcs::adc_r_inv);
+                return std::cref(adc_r_inv);
             case vc_AdcNetName_ADC_BMS:
-                return std::cref(hw::adcs::adc_bms);
+                return std::cref(adc_bms);
             case vc_AdcNetName_ADC_FRONT:
-                return std::cref(hw::adcs::adc_front);
+                return std::cref(adc_front);
             case vc_AdcNetName_ADC_RSM:
-                return std::cref(hw::adcs::adc_rsm);
+                return std::cref(adc_rsm);
             case vc_AdcNetName_ADC_MISC_FUSE:
-                return std::cref(hw::adcs::adc_misc_fuse);
+                return std::cref(adc_misc_fuse);
             default:
             case vc_AdcNetName_ADC_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified ADC net name");
@@ -157,9 +157,9 @@ class VCChimeraConfig : public chimera_v2::config
         switch (inn->name.vc_net_name)
         {
             case vc_I2cNetName_I2C_BAT_MON:
-                return std::cref(hw::i2c::bat_mon);
+                return std::cref(bat_mon);
             case vc_I2cNetName_I2C_PWR_PUMP:
-                return std::cref(hw::i2c::pwr_pump);
+                return std::cref(pwr_pump);
             default:
             case vc_I2cNetName_I2C_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified I2C net name");
@@ -175,18 +175,17 @@ class VCChimeraConfig : public chimera_v2::config
             return std::nullopt;
         }
 
-        switch (snn->name.crit_net_name)
+        switch (snn->name.vc_net_name)
         {
             case vc_SpiNetName_IMU1:
-                return std::cref(hw::spi::imu1);
+                return std::cref(imu1);
             case vc_SpiNetName_IMU2:
-                return std::cref(hw::spi::imu2);
+                return std::cref(imu2);
             case vc_SpiNetName_IMU3:
-                return std::cref(hw::spi::imu3);
-            // case vc_SpiNetName_RPI:
-            // return std::cref(RPI);
-            default:
+                return std::cref(imu3);
+            case vc_SpiNetName_RPI:
             case vc_SpiNetName_SPI_NET_NAME_UNSPECIFIED:
+            default:
                 LOG_INFO("Chimera: Unspecified SPI net name");
                 return std::nullopt;
         }

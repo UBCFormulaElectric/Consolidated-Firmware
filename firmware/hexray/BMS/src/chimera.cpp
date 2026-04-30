@@ -108,19 +108,19 @@ class BMSChimeraConfig final : public chimera_v2::config
         switch (ann->name.bms_net_name)
         {
             case bms_AdcNetName_ADC_FAN_ISNS:
-                return std::cref(hw::adc::fan_isns);
+                return std::cref(fan_isns);
             case bms_AdcNetName_ADC_TS_VSENSE_P:
-                return std::cref(hw::adc::ts_vsense_p);
+                return std::cref(ts_vsense_p);
             case bms_AdcNetName_ADC_TS_VSENSE_N:
-                return std::cref(hw::adc::ts_vsense_n);
+                return std::cref(ts_vsense_n);
             case bms_AdcNetName_ADC_SHDN_SNS:
-                return std::cref(hw::adc::shdn_sns);
+                return std::cref(shdn_sns);
             case bms_AdcNetName_ADC_EMETER_THERM_SNS:
-                return std::cref(hw::adc::emeter_tsns);
+                return std::cref(emeter_tsns);
             case bms_AdcNetName_ADC_TS_ISENSE_400A:
-                return std::cref(hw::adc::ts_isense_400a);
+                return std::cref(ts_isense_400a);
             case bms_AdcNetName_ADC_TS_ISENSE_50A:
-                return std::cref(hw::adc::ts_isense_50a);
+                return std::cref(ts_isense_50a);
             default:
             case bms_AdcNetName_ADC_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified ADC net name");

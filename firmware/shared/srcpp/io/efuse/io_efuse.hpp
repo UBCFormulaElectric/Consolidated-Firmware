@@ -65,11 +65,11 @@ class Efuse
 
     void setFault(bool fake_fault) { fault = fake_fault; }
 
-    void setChannel(bool fake_enabled) { enabled = fake_enabled; }
+    void setChannel(bool fake_enabled) const { enabled = fake_enabled; }
 
     [[nodiscard]] bool isChannelEnabled() const { return enabled; }
 
-    [[nodiscard]] float getChannelCurrent() { return current; }
+    [[nodiscard]] float getChannelCurrent() const { return current; }
 
     void reset() { return; }
 
