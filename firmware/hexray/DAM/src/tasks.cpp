@@ -26,7 +26,7 @@ extern "C"
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
-    const uint32_t period_ms = 1000U;
+    constexpr uint32_t period_ms = 1000U;
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -39,7 +39,7 @@ extern "C"
 }
 [[noreturn]] static void tasks_run100Hz(void *arg)
 {
-    const uint32_t period_ms = 10U;
+    constexpr uint32_t period_ms = 10U;
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -51,7 +51,7 @@ extern "C"
 }
 [[noreturn]] static void tasks_run1kHz(void *arg)
 {
-    const uint32_t period_ms = 1U;
+    constexpr uint32_t period_ms = 1U;
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -100,7 +100,7 @@ extern "C"
             continue;
         if (const auto &m = msg.value(); m.bus == app::can_utils::BusEnum::Bus_FDCAN)
         {
-            const auto res = hw::can::fdcan1.fdcan_transmit(hw::CanMsg{
+            const auto res = fdcan1.fdcan_transmit(hw::CanMsg{
                 m.std_id,
                 m.dlc,
                 m.data,
@@ -158,7 +158,7 @@ void tasks_init()
 {
     SEGGER_SYSVIEW_Conf();
 
-    hw::can::fdcan1.init();
+    fdcan1.init();
 
     osKernelInitialize();
     jobs_init();

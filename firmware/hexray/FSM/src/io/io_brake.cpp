@@ -28,7 +28,7 @@ bool isActuated()
 
 float getFrontPressurePsi()
 {
-    return pressureFromVoltage(hw::adcs::bps_f.getVoltage());
+    return pressureFromVoltage(bps_f.getVoltage());
 }
 
 bool OCSC()

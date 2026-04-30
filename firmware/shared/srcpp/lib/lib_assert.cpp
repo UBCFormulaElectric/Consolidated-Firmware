@@ -2,7 +2,8 @@
 #include "io_log.hpp"
 #include "util_utils.hpp"
 
-extern "C" [[noreturn]] void __assert_func(const char *file, int line, const char *func, const char *failedexpr)
+extern "C" [[noreturn]] void
+    __assert_func(const char *file, int line, const char *func, const char *failedexpr) // NOLINT(*-reserved-identifier)
 {
     // Log directly through RTT without heavy snprintf
     LOG_ERROR("Assertion failed: %s at %s:%d in %s", failedexpr, __BASENAME__(file), line, func);
