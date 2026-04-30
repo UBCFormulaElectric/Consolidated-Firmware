@@ -1,3 +1,7 @@
-#include "io_leds.hpp"
+#pragma once
 
-extern 
+namespace app::leds
+{
+void init();
+void setLeds();
+} // namespace app::leds

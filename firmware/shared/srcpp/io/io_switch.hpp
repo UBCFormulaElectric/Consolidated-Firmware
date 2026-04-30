@@ -9,9 +9,9 @@ class Switch
 {
 #ifdef TARGET_EMBEDDED
   public:
-    const hw::Gpio &pin;
+    const hw::gpio &pin;
 
-    explicit Switch(const hw::Gpio &pin_in) : pin(pin_in) {}
+    explicit Switch(const hw::gpio &pin_in) : pin(pin_in) {}
 #endif
 
   public:

@@ -4,6 +4,7 @@
 #include "app_commitInfo.h"
 #include "app_jsoncan.hpp"
 #include "app_switches.hpp"
+#include "app_leds.hpp"
 #include "app_driveModes.hpp"
 #include "screens/app_screens.hpp"
 #include "app_heartbeatMonitors.hpp"
@@ -33,6 +34,7 @@ void jobs_init()
     app::can_tx::CRIT_Heartbeat_set(true);
 
     app::screens::init();
+    app::leds::init();
 }
 
 void jobs_run1Hz_tick()
@@ -41,25 +43,7 @@ void jobs_run1Hz_tick()
 }
 void jobs_run100Hz_tick()
 {
-    // TODO move this to app_leds
-    io::leds::update({
-        io::leds::color::OFF,
-        io::leds::color::OFF,
-        io::leds::color::OFF,
-        io::leds::color::OFF,
-        io::leds::color::OFF,
-        io::leds::color::OFF,
-        io::leds::color::OFF,
-        io::leds::color::OFF,
-        io::leds::color::OFF,
-        false,
-        false,
-        false,
-        false,
-        false,
-    });
-    io::leds::setBrightness(1.0);
-
+    app::leds::setLeds();
     app::screens::tick();
 
     // io::power_gauge::update({});
