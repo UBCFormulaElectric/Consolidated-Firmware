@@ -24,7 +24,7 @@ namespace detail
      */
     template <typename Mat> auto symmetrize(const Mat &matrix) -> Mat
     {
-        return (matrix + matrix.transpose()) * static_cast<typename Mat::Scalar>(0.5);
+        return (matrix + matrix.transpose()) * static_cast<Mat::Scalar>(0.5);
     }
 
     /**
@@ -34,7 +34,7 @@ namespace detail
      * in constructors before the filter is used.
      */
     template <typename Mat>
-    auto is_symmetric(const Mat &matrix, typename Mat::Scalar tol = static_cast<typename Mat::Scalar>(1e-6)) -> bool
+    auto is_symmetric(const Mat &matrix, typename Mat::Scalar tol = static_cast<Mat::Scalar>(1e-6)) -> bool
     {
         return matrix.isApprox(matrix.transpose(), tol);
     }
@@ -47,8 +47,7 @@ namespace detail
      * a small negative tolerance to handle numerical round-off.
      */
     template <typename Mat>
-    auto is_positive_semidefinite(const Mat &matrix, typename Mat::Scalar tol = static_cast<typename Mat::Scalar>(1e-8))
-        -> bool
+    auto is_positive_semidefinite(const Mat &matrix, typename Mat::Scalar tol = static_cast<Mat::Scalar>(1e-8)) -> bool
     {
         const Mat        symmetric = symmetrize(matrix);
         Eigen::LDLT<Mat> ldlt(symmetric);
@@ -152,7 +151,7 @@ template <typename T, std::size_t STATES, std::size_t MEASUREMENTS, std::size_t 
     const N_1 &state() const { return x_; }
     const N_N &covariance() const { return P_; }
 
-    const N_1 estimated_states(const U_1 &inputs, const M_1 &measurements)
+    N_1 estimated_states(const U_1 &inputs, const M_1 &measurements)
     {
         predict(inputs);
         update(measurements);
@@ -255,7 +254,7 @@ template <typename T, std::size_t STATES, std::size_t MEASUREMENTS, std::size_t 
     const N_N &covariance() const { return P_; }
 
     // estimate functions
-    const N_1 estimated_states(U_1 &inputs, M_1 &measurements)
+    N_1 estimated_states(const U_1 &inputs, const M_1 &measurements)
     {
         predict(inputs);
         update(measurements);
@@ -347,7 +346,7 @@ template <typename T, std::size_t STATES, std::size_t MEASUREMENTS, std::size_t 
      *   x = f(x)
      *   P = F*P*F^T + Q
      */
-    void predict(U_1 &u)
+    void predict(const U_1 &u)
     {
         compute_F_eval_states(u); // already evaluates the state vector at the prev instance... that is part of autodiff
         P_ = F_ * P_ * F_.transpose() + Q_;
