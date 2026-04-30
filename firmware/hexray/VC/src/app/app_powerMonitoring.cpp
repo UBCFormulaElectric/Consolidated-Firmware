@@ -24,7 +24,7 @@ std::expected<void, ErrorCode> update()
     if (not init_done)
     {
         // error handle
-        LOG_ERROR("Power monitoring initialization failed");
+        // LOG_ERROR("Power monitoring initialization failed");
         return std::unexpected(ErrorCode::ERROR);
     }
 
