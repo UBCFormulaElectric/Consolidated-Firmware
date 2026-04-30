@@ -63,7 +63,7 @@ std::expected<void, ErrorCode> can::tx(const CAN_TxHeaderTypeDef &tx_header, con
 
     // Indicates the mailbox used for transmission, not currently used.
     uint32_t mailbox = 0;
-    return hw_utils_convertHalStatus(HAL_CAN_AddTxMessage(hcan, &tx_header, msg.data.data(), &mailbox));
+    return hw::utils::convertHalStatus(HAL_CAN_AddTxMessage(hcan, &tx_header, msg.data.data(), &mailbox));
 }
 
 void can::init() const
@@ -135,7 +135,7 @@ std::expected<CanMsg, ErrorCode> can::receive(const uint32_t rx_fifo) const
     CAN_RxHeaderTypeDef header;
 
     CanMsg msg;
-    RETURN_IF_ERR(hw_utils_convertHalStatus(HAL_CAN_GetRxMessage(hcan, rx_fifo, &header, msg.data.data())));
+    RETURN_IF_ERR(hw::utils::convertHalStatus(HAL_CAN_GetRxMessage(hcan, rx_fifo, &header, msg.data.data())));
 
     // Copy metadata from HAL's CAN message struct into our custom CAN
     // message struct

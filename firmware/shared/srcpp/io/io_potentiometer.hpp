@@ -25,7 +25,7 @@ class Potentiometer
 {
   private:
 #ifdef TARGET_EMBEDDED
-    const hw::i2c::I2CDevice  device;
+    const hw::i2c::device     device;
     const POTENTIOMETER_WIPER wiper;
 
     enum class POTENTIOMETER_CMD : uint8_t
@@ -64,7 +64,7 @@ class Potentiometer
 
   public:
 #ifdef TARGET_EMBEDDED
-    constexpr explicit Potentiometer(hw::i2c::I2CDevice device_in, POTENTIOMETER_WIPER wiper_in)
+    constexpr explicit Potentiometer(const hw::i2c::device &device_in, const POTENTIOMETER_WIPER wiper_in)
       : device(device_in), wiper(wiper_in){};
 #elif TARGET_TEST
     constexpr explicit Potentiometer(){};
