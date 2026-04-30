@@ -1,5 +1,7 @@
 "use client";
 
+import { useDisplayControlContext } from "@/components/PausePlayControl";
+import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { MouseEvent as MouseEvent_React, RefObject, useCallback } from "react";
 
 /**
@@ -13,13 +15,14 @@ export function useCanvasHover(
   hoverXRef: RefObject<number | null>,
   onHoverXChange?: (x: number | null) => void
 ) {
+  const { isViewportLocked } = useDisplayControlContext();
+
   const handleMouseMove = useCallback(
     (event: MouseEvent_React<HTMLCanvasElement, MouseEvent>) => {
       const canvas = canvasRef.current;
       if (!canvas) return;
       const rect = canvas.getBoundingClientRect();
-      console.log(rect.left)
-      const x = event.clientX - rect.left + (rect.left === 0 ? 15 : 10)
+      const x = event.clientX - rect.left + (isViewportLocked ? (rect.left === 0 ? 15 : 10) : 0)
       hoverXRef.current = x;
       onHoverXChange?.(x);
     },
