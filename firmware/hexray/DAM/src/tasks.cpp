@@ -56,7 +56,9 @@ extern "C"
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
+#ifndef WATCHDOG_DISABLED
         HAL_IWDG_Refresh(&hiwdg);
+#endif
         jobs_run1kHz_tick();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
