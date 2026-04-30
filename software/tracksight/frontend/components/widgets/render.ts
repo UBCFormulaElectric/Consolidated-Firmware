@@ -259,7 +259,7 @@ function render_numerical(context: CanvasRenderingContext2D, width: number, char
         for (let i = left - 1; i <= right + 1; i++) {
             const time = lod.timestamps[i];
             const value = lod.data.get(i);
-            const x = timeToX(time);
+            const x = timeToX(time)
             const y = numericalTop + chartHeight - ((value - all_series_min) / (all_series_max - all_series_min)) * chartHeight;
 
             if (!initialMove) {
@@ -327,7 +327,9 @@ export function render_tooltip(
     topOffset = 0,
     includeTopPaddingInOffset = true
 ) {
-    if (timeToX(hoverTime) < CHART_PADDING.left || timeToX(hoverTime) > width - CHART_PADDING.right) {
+    const xPosition = timeToX(hoverTime);
+
+    if (xPosition < CHART_PADDING.left ||xPosition > width - CHART_PADDING.right) {
         return;
     }
 
@@ -340,8 +342,8 @@ export function render_tooltip(
     context.strokeStyle = "rgba(0,0,0,0.6)";
     context.lineWidth = 1;
     context.beginPath();
-    context.moveTo(timeToX(hoverTime), includeTopPaddingInOffset ? CHART_PADDING.top : 0);
-    context.lineTo(timeToX(hoverTime), includeTopPaddingInOffset ? height - CHART_PADDING.bottom : height); 
+    context.moveTo(xPosition, includeTopPaddingInOffset ? CHART_PADDING.top : 0);
+    context.lineTo(xPosition, includeTopPaddingInOffset ? height - CHART_PADDING.bottom : height); 
     context.stroke();
     context.setLineDash([]);
 
@@ -357,9 +359,9 @@ export function render_tooltip(
     tooltipWidth += horizontalPadding * 2;
     const tooltipHeight = tooltip_lines.length * lineHeight + verticalPadding;
 
-    let tooltipX = timeToX(hoverTime) + 10;
+    let tooltipX = xPosition + 10;
     if (tooltipX + tooltipWidth > width - CHART_PADDING.right) {
-        tooltipX = timeToX(hoverTime) - 10 - tooltipWidth;
+        tooltipX = xPosition - 10 - tooltipWidth;
     }
 
     // determine tooltip Y

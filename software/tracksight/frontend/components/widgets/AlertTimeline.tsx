@@ -4,7 +4,7 @@ import { useAlertDataStores } from "@/lib/contexts/signalStores/SignalStoreConte
 import { RefObject, useEffect, useRef } from "react";
 import { AlertSeries } from "./CanvasChartTypes";
 import { useSyncedGraph } from "../SyncedGraphContainer";
-import { render_tooltip } from "./render";
+import { render_tooltip, CHART_PADDING } from "./render";
 
 const INITIAL_SLIP_STREAM_LANES = 5;
 const MAX_SLIP_STREAM_LANES = 5;

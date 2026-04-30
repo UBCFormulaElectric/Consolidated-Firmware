@@ -18,7 +18,8 @@ export function useCanvasHover(
       const canvas = canvasRef.current;
       if (!canvas) return;
       const rect = canvas.getBoundingClientRect();
-      const x = event.clientX - rect.left;
+      console.log(rect.left)
+      const x = event.clientX - rect.left + (rect.left === 0 ? 15 : 10)
       hoverXRef.current = x;
       onHoverXChange?.(x);
     },

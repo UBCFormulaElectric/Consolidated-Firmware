@@ -31,7 +31,7 @@ export function useSyncedGraph() {
 }
 
 const RIGHT_PAD = 10;
-const LEFT_PAD = CHART_PADDING.left;
+const LEFT_PAD = CHART_PADDING.left; // pixel offset of the chart data area from the canvas left edge
 const MIN_SCALE_PX_PER_SEC = 0.001;
 const MAX_SCALE_PX_PER_SEC = 10000;
 
@@ -82,19 +82,21 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
         const container = scrollContainerRef.current;
         if (contentRef.current && global_tr && container) {
             const container_width = scalePxPerSecRef.current * (global_tr.max - global_tr.min);
-            contentRef.current.style.width = `${container_width + RIGHT_PAD}px`;
+            // Content width includes LEFT_PAD so that timeToX(min) lands at x=LEFT_PAD when scrollLeft=0.
+            contentRef.current.style.width = `${container_width + LEFT_PAD + RIGHT_PAD}px`;
 
             if (isViewportLockedRef.current) {
-                // When locked, scroll to show the rightmost data at the right edge of the viewport
-                const lockedScrollLeft = Math.max(Math.max(container_width + RIGHT_PAD - container.clientWidth, 0), LEFT_PAD);
+                // Anchor latest data at the right edge: timeToX(max) = clientWidth
+                // → scrollLeft = container_width + LEFT_PAD - clientWidth
+                const lockedScrollLeft = Math.max(container_width + LEFT_PAD - container.clientWidth, 0);
                 scrollLeftRef.current = lockedScrollLeft;
                 container.scrollLeft = lockedScrollLeft;
                 return;
             }
 
-            // When unlocked, just clamp to valid bounds
-            const maxScrollLeft = Math.max(container_width + RIGHT_PAD - container.clientWidth, 0);
-            const clampedScrollLeft = Math.max(Math.min(scrollLeftRef.current, maxScrollLeft), LEFT_PAD);
+            // When unlocked, just clamp to valid bounds (min scrollLeft is 0).
+            const maxScrollLeft = Math.max(container_width + LEFT_PAD + RIGHT_PAD - container.clientWidth, 0);
+            const clampedScrollLeft = Math.max(Math.min(scrollLeftRef.current, maxScrollLeft), 0);
             scrollLeftRef.current = clampedScrollLeft;
             if (container.scrollLeft !== clampedScrollLeft) {
                 container.scrollLeft = clampedScrollLeft;
@@ -124,7 +126,7 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
             return;
         }
 
-        const clamped = Math.max(container.scrollLeft, LEFT_PAD);
+        const clamped = Math.max(container.scrollLeft, 0);
         scrollLeftRef.current = clamped;
         if (container.scrollLeft !== clamped) {
             container.scrollLeft = clamped;
@@ -153,13 +155,14 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
                 return;
             }
 
-            // Anchor zoom to center of viewport when unlocked
+            // Anchor zoom to center of viewport when unlocked.
+            // The data-space offset of the viewport center is (scrollLeft + clientWidth/2 - LEFT_PAD).
+            // Preserve that offset across the scale change then solve for the new scrollLeft.
             if (!isViewportLockedRef.current) {
                 const viewportCenter = scrollLeftRef.current + container.clientWidth / 2;
-                const centerTime = viewportCenter / prevScale;
-                const newCenterPos = centerTime * nextScale;
-                const newScrollLeft = newCenterPos - container.clientWidth / 2;
-                scrollLeftRef.current = Math.max(LEFT_PAD, newScrollLeft);
+                const centerDataOffset = (viewportCenter - LEFT_PAD) / prevScale;
+                const newScrollLeft = centerDataOffset * nextScale + LEFT_PAD - container.clientWidth / 2;
+                scrollLeftRef.current = Math.max(0, newScrollLeft);
             }
 
             scalePxPerSecRef.current = nextScale;
@@ -181,22 +184,23 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
     }, [isViewportLocked, updateGraphWidth]);
     // screen space conversions
     /**
-     * given a screen space x, gets the time associated with it based on the current zoom and scroll
+     * given a screen space x, gets the time associated with it based on the current zoom and scroll.
+     * At scrollLeft=0, XToTime(LEFT_PAD) === globalTimeRangeRef.current.min (data starts at the chart area left edge).
      */
     const XToTime = useCallback((x: number) =>
-        (x + scrollLeftRef.current) / scalePxPerSecRef.current + globalTimeRangeRef.current!.min
+        (x - LEFT_PAD + scrollLeftRef.current) / scalePxPerSecRef.current + globalTimeRangeRef.current!.min 
         , [scrollLeftRef, scalePxPerSecRef, globalTimeRangeRef]);
     /**
-     * given a time, gets the screen space x associated with it based on the current zoom and scroll
+     * given a time, gets the screen space x associated with it based on the current zoom and scroll.
+     * At scrollLeft=0, timeToX(globalTimeRangeRef.current.min) === LEFT_PAD (data starts at the chart area left edge).
      */
     const timeToX = useCallback((t: number) =>
-        (t - globalTimeRangeRef.current!.min) * scalePxPerSecRef.current - scrollLeftRef.current
+        (t - globalTimeRangeRef.current!.min) * scalePxPerSecRef.current - scrollLeftRef.current + LEFT_PAD
         , [scrollLeftRef, scalePxPerSecRef, globalTimeRangeRef]);
 
     useEffect(() => {
         let rafId: number;
         const loop = () => {
-            console.log("scrollLeft:", scrollContainerRef.current?.scrollLeft);
             rafId = requestAnimationFrame(loop);
         };
         rafId = requestAnimationFrame(loop);
