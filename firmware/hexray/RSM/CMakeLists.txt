@@ -122,7 +122,7 @@ if ("${TARGET}" STREQUAL "binary")
     target_link_libraries("hexray_RSM_chimera.elf" PRIVATE "hexray_RSM_stm32")
     target_compile_definitions("hexray_RSM_chimera.elf" PRIVATE "HAL_SPI_MODULE_ENABLED")
 
-if ("${BOOTLOAD}" STREQUAL "ON")
+    if ("${BOOTLOAD}" STREQUAL "ON")
         # Bootloader files.
         file(GLOB BOOT_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.cpp")
         file(GLOB BOOT_CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
@@ -144,8 +144,7 @@ if ("${BOOTLOAD}" STREQUAL "ON")
                 "hexray_RSM_boot.hex"
                 "${CMAKE_CURRENT_BINARY_DIR}/hexray_RSM_boot.hex"
         )
-endif ()
-        
+    endif ()
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(FAKE_SRCS
