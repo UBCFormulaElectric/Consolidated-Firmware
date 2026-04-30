@@ -1,7 +1,7 @@
 #include "hw_spis.hpp"
 #include <cassert>
-#include <hw_gpio.hpp>
-#include <hw_spi.hpp>
+#include "hw_gpio.hpp"
+#include "hw_spi.hpp"
 
 #define TIMEOUT (100U)
 

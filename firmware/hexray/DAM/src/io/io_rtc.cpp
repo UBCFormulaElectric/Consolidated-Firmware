@@ -1,5 +1,5 @@
 #include "io_rtc.hpp"
-#include "io_log.h"
+#include "io_log.hpp"
 #include "hw_utils.hpp"
 #include "main.h"
 
