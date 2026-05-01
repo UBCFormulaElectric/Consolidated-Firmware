@@ -13,6 +13,7 @@
 #include "hw_hardFaultHandler.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_cans.hpp"
+#include "hw_bootup.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
@@ -140,6 +141,7 @@ void DAM_StartAllTasks()
 
 void tasks_preInit()
 {
+    hw::bootup::enableInterruptsForApp();
     hw_hardFaultHandler_init();
 }
 
