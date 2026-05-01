@@ -3,7 +3,7 @@
 #include "main.h"
 #include <cassert>
 
-const hw::Uart _900k_uart(huart2);
+constexpr hw::Uart _900k_uart{ huart2 };
 
 // Because of NTP needing the h
 static StaticSemaphore_t _900k_uart_tx_mutex_storage;
