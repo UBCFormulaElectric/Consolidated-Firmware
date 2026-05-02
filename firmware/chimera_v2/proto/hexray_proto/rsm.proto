@@ -14,6 +14,7 @@ enum GpioNetName {
   GPIO_SUSP_TRAVEL_RL_OCSC = 8;
   GPIO_BRAKE_OCSC_OK = 9;
   GPIO_D_P_PULLUP = 10;
+  GPIO_NBSPD_BRAKE_PRESSED = 11;
 }
 
 enum AdcNetName {

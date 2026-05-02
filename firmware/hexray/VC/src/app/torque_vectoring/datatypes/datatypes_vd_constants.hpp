@@ -1,5 +1,6 @@
 #pragma once
 
+#include "torque_limits.hpp"
 #include "util_units.hpp"
 
 namespace app::tv::datatypes::vd_constants
@@ -43,9 +44,6 @@ inline constexpr float FRONT_WEIGHT_DISTRIBUTION = WEIGHT_ACROSS_BODY * DIST_FRO
 // =============================================================================
 
 // AMK DD5-14-10-POW Motor Specifications
-inline constexpr float MAX_TORQUE_REQUEST_NM     = 20.5f;  // Safety limit (actual max is 21 Nm)
-inline constexpr float NOMINAL_TORQUE_REQUEST_NM = 9.8f;   // Nominal continuous torque
-inline constexpr float MAX_REGEN_Nm              = -15.0f; // Maximum regenerative braking torque
 
 inline constexpr uint16_t POWER_TO_TORQUE_CONVERSION_FACTOR = 9550; // 60/(2*pi)*1000 for T = P/ω
 
@@ -87,19 +85,6 @@ inline constexpr float APPROX_STEERING_TO_WHEEL_ANGLE =
 // =============================================================================
 // UTILITY FUNCTIONS & CONVERSION HELPERS
 // =============================================================================
-
-/**
- * Motor Torque Command Conversion
- *
- * DD5-14-10-POW motors accept percentage of nominal torque (not absolute torque).
- * 100% = 9.8 Nm (nominal), but motors can output up to 21 Nm (not sustained).
- * Input: torque in Nm
- * Output: int16_t representing (torque/nominal) * 1000
- */
-[[nodiscard]] inline constexpr int16_t MOTOR_TORQUE_REQUEST(const float torque)
-{
-    return static_cast<int16_t>((torque / NOMINAL_TORQUE_REQUEST_NM) * 1000.0f);
-}
 
 /**
  * Convert torque and RPM to power (kW)
