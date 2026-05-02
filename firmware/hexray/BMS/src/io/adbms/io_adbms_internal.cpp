@@ -117,13 +117,13 @@ array<expected<void, ErrorCode>, NUM_SEGMENTS>      shared_reg_group_success;
 expected<void, ErrorCode> sendCmd(const uint16_t cmd)
 {
     const TxCmd tx_cmd{ cmd };
-    return hw::spi::adbms_spi_ls.transmit({ reinterpret_cast<const uint8_t *>(&tx_cmd), sizeof(tx_cmd) });
+    return adbms_spi_ls.transmit({ reinterpret_cast<const uint8_t *>(&tx_cmd), sizeof(tx_cmd) });
 }
 
 expected<void, ErrorCode> poll(const uint16_t cmd, span<uint8_t> poll_buf)
 {
     const TxCmd tx_cmd{ cmd };
-    return hw::spi::adbms_spi_ls.transmitThenReceive(
+    return adbms_spi_ls.transmitThenReceive(
         { reinterpret_cast<const uint8_t *>(&tx_cmd), sizeof(tx_cmd) }, poll_buf);
 }
 
@@ -135,7 +135,7 @@ void readRegGroup(
     const TxCmd                          tx_cmd{ cmd };
     array<RegGroupPayload, NUM_SEGMENTS> rx_buffer{};
 
-    const auto tx_status = hw::spi::adbms_spi_ls.transmitThenReceive(
+    const auto tx_status = adbms_spi_ls.transmitThenReceive(
         { reinterpret_cast<const uint8_t *>(&tx_cmd), sizeof(tx_cmd) },
         { reinterpret_cast<uint8_t *>(rx_buffer.data()), sizeof(rx_buffer) });
 
@@ -177,7 +177,7 @@ expected<void, ErrorCode>
         payload.pec10 = static_cast<uint16_t>(swapEndianness(calculatePec10(payload.data, 0U) & 0x03FFU));
     }
 
-    return hw::spi::adbms_spi_ls.transmit({ reinterpret_cast<const uint8_t *>(&tx_buffer), sizeof(tx_buffer) });
+    return adbms_spi_ls.transmit({ reinterpret_cast<const uint8_t *>(&tx_buffer), sizeof(tx_buffer) });
 }
 
 } // namespace io::adbms
