@@ -1,20 +1,18 @@
-// #include <gtest/gtest.h>
-// #include "test_fakes.hpp"
-// #include "test_RSMBase.hpp"
-// #include "util_errorCodes.hpp"
+#include <app_canTx.hpp>
+#include <gtest/gtest.h>
+#include "test_fakes.hpp"
+#include "test_RSMBase.hpp"
+#include "util_errorCodes.hpp"
 
-// class RSMPumpTest : public RSMBaseTest
-// {};
+class RSMPumpTest : public RSMBaseTest
+{
+};
 
-// TEST_F(RSMPumpTest, TestMonitoring)
-// {
-//     fakes::io::rPump::setStatus(ExitCode::EXIT_CODE_OK);
+TEST_F(RSMPumpTest, PumpPercentageTest)
+{
+    fakes::io::rPump::set_readPercentage(80);
 
-//     // EXPECT_EXIT(app::pumpControl::monitorPumps(), ::testing::ExitedWithCode(0), "");
-//     EXPECT_EQ(, ExitCode::EXIT_CODE_OK);
+    LetTimePass(100);
 
-//     if(IS_EXIT_OK()))
-//     {
-
-//     }
-// }
+    EXPECT_EQ(80, app::can_tx::RSM_RPumpPercentage_get());
+}

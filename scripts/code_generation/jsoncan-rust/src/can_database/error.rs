@@ -61,6 +61,7 @@ pub enum CanDBError {
         bus_name: String,
     },
     PoolConnectionError(r2d2::Error),
+    MessageNotFound {msg_name: String}
 }
 
 impl Debug for CanDBError {
@@ -179,6 +180,13 @@ impl Debug for CanDBError {
                 forwarder_name, bus_name
             ),
             CanDBError::PoolConnectionError(error) => write!(f, "Pool connection error: {}", error),
+            CanDBError::MessageNotFound { msg_name } => {
+                write!(
+                    f,
+                    "Message '{}' not found in database. Make sure it is correctly defined in the TX JSON.",
+                    msg_name
+                )
+            }
         }
     }
 }

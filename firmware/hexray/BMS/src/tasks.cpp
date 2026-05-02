@@ -20,8 +20,8 @@
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
-    const uint32_t                 period_ms                = 1000U;
-    const uint32_t                 watchdog_grace_period_ms = 50U;
+    constexpr uint32_t             period_ms                = 1000U;
+    constexpr uint32_t             watchdog_grace_period_ms = 50U;
     hw::watchdog::WatchdogInstance watchdog_1hz =
         hw::watchdog::WatchdogInstance(TASK_INDEX_1HZ, period_ms + watchdog_grace_period_ms);
     uint32_t start_ticks = osKernelGetTickCount();
@@ -38,11 +38,10 @@
 
 [[noreturn]] static void tasks_run100Hz(void *arg)
 {
-    const uint32_t                 period_ms                = 10U;
-    const uint32_t                 watchdog_grace_period_ms = 2U;
-    hw::watchdog::WatchdogInstance watchdog_100hz =
-        hw::watchdog::WatchdogInstance(TASK_INDEX_100HZ, period_ms + watchdog_grace_period_ms);
-    uint32_t start_ticks = osKernelGetTickCount();
+    constexpr uint32_t             period_ms                = 10U;
+    constexpr uint32_t             watchdog_grace_period_ms = 2U;
+    hw::watchdog::WatchdogInstance watchdog_100hz(TASK_INDEX_100HZ, period_ms + watchdog_grace_period_ms);
+    uint32_t                       start_ticks = osKernelGetTickCount();
 
     forever
     {
@@ -54,8 +53,8 @@
 }
 [[noreturn]] static void tasks_run1kHz(void *arg)
 {
-    const uint32_t                 period_ms                = 1U;
-    const uint32_t                 watchdog_grace_period_ms = 1U;
+    constexpr uint32_t             period_ms                = 1U;
+    constexpr uint32_t             watchdog_grace_period_ms = 1U;
     hw::watchdog::WatchdogInstance watchdog_1khz =
         hw::watchdog::WatchdogInstance(TASK_INDEX_1KHZ, period_ms + watchdog_grace_period_ms);
     uint32_t start_ticks = osKernelGetTickCount();
@@ -87,14 +86,14 @@
         {
             std::expected<void, ErrorCode> res;
             if (can_msg.dlc > 8)
-                res = hw::can::fdcan1.fdcan_transmit(can_msg);
+                res = fdcan1.fdcan_transmit(can_msg);
             else
-                res = hw::can::fdcan1.can_transmit(can_msg);
+                res = fdcan1.can_transmit(can_msg);
             LOG_IF_ERR(res);
         }
         else if (m.bus == app::can_utils::BusEnum::Bus_FDCAN)
         {
-            const auto res = hw::can::fdcan2.fdcan_transmit(can_msg);
+            const auto res = fdcan2.fdcan_transmit(can_msg);
             LOG_IF_ERR(res);
         }
         else
@@ -132,7 +131,9 @@ void BMS_StartAllTasks()
 
 void tasks_preInit()
 {
+#ifdef BOOTLOAD
     hw::bootup::enableInterruptsForApp();
+#endif
     hw_hardFaultHandler_init();
 }
 
@@ -145,10 +146,10 @@ void tasks_init()
     __HAL_DBGMCU_FREEZE_IWDG1();
 #endif
 
-    hw::adc::chipsInit();
-    hw::pwm::init();
-    hw::can::fdcan1.init();
-    hw::can::fdcan2.init();
+    adcChipsInit();
+    pwms_init();
+    fdcan1.init();
+    fdcan2.init();
 
     const ResetReason reset_reason = hw::resetReason::get();
     app::can_tx::BMS_ResetReason_set(static_cast<app::can_utils::CanResetReason>(reset_reason));
