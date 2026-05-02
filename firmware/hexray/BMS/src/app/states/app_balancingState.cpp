@@ -3,7 +3,7 @@
 #include "io_irs.hpp"
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
-
+#include "app_segments.hpp"
 namespace app::states
 {
 
@@ -13,6 +13,8 @@ namespace balancingState
     static void balancingStateRunOnEntry()
     {
         app::can_tx::BMS_State_set(app::can_utils::BmsState::BMS_BALANCING_STATE);
+        app::segments::balancingInit();
+
     }
 
     static void balancingStateRunOnTick100Hz()
@@ -23,6 +25,7 @@ namespace balancingState
         {
             app::StateMachine::set_next_state(&app::states::init_state);
         }
+        app::segments::
     }
 
     static void balancingStateRunOnExit()

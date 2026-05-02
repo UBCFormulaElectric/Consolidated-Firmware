@@ -102,6 +102,7 @@ void jobs_init()
 
 void jobs_run1Hz_tick()
 {
+    app::StateMachine::tick1Hz();
     io::can_tx::enqueue1HzMsgs();
 }
 

@@ -2,7 +2,7 @@
 
 #include "app_states.hpp"
 #include "app_precharge.hpp"
-// #include "app_segments.hpp"
+#include "app_segments.hpp"
 #include "io_irs.hpp"
 #include "io_faultLatch.hpp"
 #include "app_canTx.hpp"
@@ -25,17 +25,15 @@ namespace faultState
 #ifdef TARGET_HV_SUPPLY
         const bool acc_fault_cleared = true;
 #else
-        // TODO: Change back if we ever get to segments again
-        // const bool acc_fault_cleared = !app::segments::checkFaults();
-        const bool acc_fault_cleared = true;
+        const bool acc_fault_cleared = !app::segments::checkFaults();
 #endif
 
-        // const bool precharge_ok = !app_precharge_limitExceeded(); // Optional condition
+        const bool precharge_ok = !app::precharge::limitExceeded(); // Optional condition
 
         const bool bms_fault_cleared =
             (io::faultLatch::getLatchedStatus(&io::faultLatch::bms_ok_latch) == io::faultLatch::FaultLatchState::OK);
 
-        if (acc_fault_cleared && bms_fault_cleared)
+        if (acc_fault_cleared && bms_fault_cleared && precharge_ok)
         {
             app::StateMachine::set_next_state(&init_state);
         }
