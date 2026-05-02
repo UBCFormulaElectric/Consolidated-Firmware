@@ -46,6 +46,8 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmOutput.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_watchdog.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_resetReason.cpp"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -92,6 +94,7 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h5xx_hal_pcd.c"
             "stm32h5xx_hal_pcd_ex.c"
             "stm32h5xx_ll_usb.c"
+            "stm32h5xx_hal_iwdg.c"
     )
     stm32h562xx_cube_library(
             "hexray_RSM_stm32"
