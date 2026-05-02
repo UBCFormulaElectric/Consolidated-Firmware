@@ -358,9 +358,10 @@
     {
       "name": "Debug Embedded: BMS (Hexray)",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/hexray/BMS/hexray_BMS_app.elf",
+      "executable": "build_fw_dev/firmware/hexray/BMS/hexray_BMS.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/hexray/BMS/hexray_BMS_boot.elf",
         "build_fw_dev/firmware/hexray/BMS/hexray_BMS_app.elf"
       ],
       "preLaunchTask": "Build Embedded: BMS (Hexray)",
@@ -399,9 +400,10 @@
     {
       "name": "Debug Embedded: FSM (Hexray)",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/hexray/FSM/hexray_FSM_app.elf",
+      "executable": "build_fw_dev/firmware/hexray/FSM/hexray_FSM.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/hexray/FSM/hexray_FSM_boot.elf",
         "build_fw_dev/firmware/hexray/FSM/hexray_FSM_app.elf"
       ],
       "preLaunchTask": "Build Embedded: FSM (Hexray)",

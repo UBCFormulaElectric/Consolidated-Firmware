@@ -14,13 +14,11 @@ namespace hw
 {
 class Uart
 {
-#ifdef TARGET_EMBEDDED
-  private:
     mutable TaskHandle_t taskInProgress;
     UART_HandleTypeDef  &handle; // pointer to structure containing UART module configuration information
   public:
     explicit consteval Uart(UART_HandleTypeDef &in_handle) : taskInProgress(nullptr), handle(in_handle) {}
-#endif
+
   private:
     /**
      * @param timeoutMs
@@ -49,19 +47,6 @@ class Uart
      */
     std::expected<void, ErrorCode>
         receive(std::span<uint8_t> rx, uint32_t timeout = std::numeric_limits<uint32_t>::max()) const;
-
-    // TODO
-    /**
-     * Transmits an amount of data in DMA mode (non-blocking).
-     * @param tx_data Span of data to transmit.
-     */
-    std::expected<void, ErrorCode> transmitDma(std::span<const uint8_t> tx_data) const;
-
-    /**
-     * Receives an amount of data in DMA mode (non-blocking).
-     * @param rx_data Span to store received data.
-     */
-    std::expected<void, ErrorCode> receiveDma(std::span<uint8_t> rx_data) const;
 
     void deinit() const;
 

@@ -5,7 +5,7 @@
 #include "app_jsoncan.hpp"
 
 #include "io_time.hpp"
-#include <io_canRx.hpp>
+#include "io_canRx.hpp"
 #include "io_canQueues.hpp"
 
 #include "hw_hardFaultHandler.hpp"
@@ -18,8 +18,8 @@
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
-    const uint32_t                 period_ms                = 1000U;
-    const uint32_t                 watchdog_grace_period_ms = 50U;
+    constexpr uint32_t                 period_ms                = 1000U;
+    constexpr uint32_t                 watchdog_grace_period_ms = 50U;
     hw::watchdog::WatchdogInstance watchdog1hz{ period_ms + watchdog_grace_period_ms };
     hw::watchdog::monitor          monitor1hz{ &watchdog1hz, hiwdg, HAL_IWDG_Refresh };
     monitor1hz.registerWatchdogInstance();
@@ -38,8 +38,8 @@
 }
 [[noreturn]] static void tasks_run100Hz(void *arg)
 {
-    const uint32_t                 period_ms                = 10U;
-    const uint32_t                 watchdog_grace_period_ms = 2U;
+    constexpr uint32_t                 period_ms                = 10U;
+    constexpr uint32_t                 watchdog_grace_period_ms = 2U;
     hw::watchdog::WatchdogInstance watchdog100hz{ period_ms + watchdog_grace_period_ms };
     hw::watchdog::monitor          monitor100hz{ &watchdog100hz, hiwdg, HAL_IWDG_Refresh };
     monitor100hz.registerWatchdogInstance();
@@ -57,8 +57,8 @@
 }
 [[noreturn]] static void tasks_run1kHz(void *arg)
 {
-    const uint32_t                 period_ms                = 1U;
-    const uint32_t                 watchdog_grace_period_ms = 1U;
+    constexpr uint32_t                 period_ms                = 1U;
+    constexpr uint32_t                 watchdog_grace_period_ms = 1U;
     hw::watchdog::WatchdogInstance watchdog1khz{ period_ms + watchdog_grace_period_ms };
     hw::watchdog::monitor          monitor1khz{ &watchdog1khz, hiwdg, HAL_IWDG_Refresh };
     monitor1khz.registerWatchdogInstance();
@@ -84,7 +84,7 @@
             continue;
         if (const auto &m = msg.value(); m.bus == app::can_utils::BusEnum::Bus_FDCAN)
         {
-            const auto res = hw::can::fdcan1.fdcan_transmit(hw::CanMsg{
+            const auto res = fdcan1.fdcan_transmit(hw::CanMsg{
                 m.std_id,
                 m.dlc,
                 m.data,
@@ -132,15 +132,16 @@ void tasks_init()
 {
     // __HAL_DBGMCU_FREEZE_IWDG();
     SEGGER_SYSVIEW_Conf();
-    hw::can::fdcan1.init();
-    led_dimming.start();
-    led_dimming.setDutyCycle(95);
+    fdcan1.init();
+    LOG_IF_ERR(led_dimming.start());
+    LOG_IF_ERR(led_dimming.setDutyCycle(95));
     ResetReason reason = hw::resetReason::get();
     if (reason == RESET_REASON_WATCHDOG)
     {
         LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
         app::can_alerts::infos::WatchdogTimeout_set(true);
     }
+
     jobs_init();
     osKernelInitialize();
     CRIT_StartAllTasks();

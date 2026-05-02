@@ -194,13 +194,13 @@ if __name__ == "__main__":
     )
 
     fdcan_args = {
-        "sjw_abr": 20,
-        "tseg1_abr": 59,
-        "tseg2_abr": 20,
+        "sjw_abr": 10,
+        "tseg1_abr": 29,
+        "tseg2_abr": 10,
         "sam_abr": 1,
-        "sjw_dbr": 2,
-        "tseg1_dbr": 27,
-        "tseg2_dbr": 12,
+        "sjw_dbr": 10,
+        "tseg1_dbr": 29,
+        "tseg2_dbr": 10,
         "output_mode": 1,
     }
     
