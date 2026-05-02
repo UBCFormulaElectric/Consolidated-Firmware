@@ -5,10 +5,10 @@
 #include <cstdlib>
 
 
-namespace app
+namespace app::inverter
 {
 
-enum InverterFaultHandler : uint8_t
+enum FaultHandlerState : uint8_t
 {
     INV_FAULT_RETRY,
     INV_FAULT_LOCKOUT,
@@ -16,7 +16,7 @@ enum InverterFaultHandler : uint8_t
 };
 
 
-struct InverterHandle
+struct Handle
 {
     void (*can_enable_inv)(bool);
     void (*can_invOn)(bool);
@@ -26,7 +26,7 @@ struct InverterHandle
     bool (*can_error_bit)(void);
     void (*can_inv_warning)(bool);
 
-    consteval explicit InverterHandle(
+    consteval explicit Handle(
         void (*can_enable_inv_in)(bool),
         void (*can_invOn_in)(bool),
         void (*can_dcOn_in)(bool),
@@ -43,13 +43,9 @@ struct InverterHandle
         can_inv_warning(can_inv_warning_in){}
 };
     
-namespace inverter
-{
 void FaultCheck(void);
 
-bool lockout(void);
+FaultHandlerState FaultHandler(void);
 
-InverterFaultHandler FaultHandler(void);
-} // namespace inverter
-
-} // namespace app
+State *recovery_state(void);
+} // namespace app::inverter
