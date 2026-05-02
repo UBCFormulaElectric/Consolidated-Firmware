@@ -15,4 +15,3 @@ const hw::spi::bus &hw::spi::getBusFromHandle(const SPI_HandleTypeDef *handle)
     assert(handle == &isospi_bus.getHandle());
     return isospi_bus;
 }
-

@@ -8,7 +8,7 @@ namespace io::shdn
 
 class node
 {
-  void (*const can_broadcast)(bool);
+    void (*const can_broadcast)(bool);
 #ifdef TARGET_EMBEDDED
   private:
     const hw::gpio &pin;

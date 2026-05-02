@@ -123,8 +123,7 @@ expected<void, ErrorCode> sendCmd(const uint16_t cmd)
 expected<void, ErrorCode> poll(const uint16_t cmd, span<uint8_t> poll_buf)
 {
     const TxCmd tx_cmd{ cmd };
-    return adbms_spi_ls.transmitThenReceive(
-        { reinterpret_cast<const uint8_t *>(&tx_cmd), sizeof(tx_cmd) }, poll_buf);
+    return adbms_spi_ls.transmitThenReceive({ reinterpret_cast<const uint8_t *>(&tx_cmd), sizeof(tx_cmd) }, poll_buf);
 }
 
 void readRegGroup(
