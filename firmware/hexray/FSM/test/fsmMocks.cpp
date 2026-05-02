@@ -99,7 +99,7 @@ namespace io // Define the mocked functions here
 {
 namespace imus
 {
-    Imu imu_front;
+    imu imu_front;
 
     std::expected<void, ErrorCode> init()
     {

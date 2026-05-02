@@ -9,15 +9,12 @@ namespace io::shdn
 class node
 {
 #ifdef TARGET_EMBEDDED
-    const hw::Gpio &pin;
-#endif
-    bool status                 = false;
-    void (*can_broadcast)(bool) = nullptr;
+  private:
+    const hw::gpio &pin;
 
   public:
-#ifdef TARGET_EMBEDDED
-    explicit node(const hw::Gpio &in_pin_in, void (*in_can_broadcast)(bool))
-      : pin(in_pin_in), can_broadcast(in_can_broadcast)
+    explicit node(const hw::gpio &in_pin_in, void (*in_can_broadcast)(bool))
+      : can_broadcast(in_can_broadcast), pin(in_pin_in)
     {
     }
 #elif TARGET_TEST
@@ -25,7 +22,8 @@ class node
     bool status;
 
   public:
-    explicit node(bool in_status, void (*in_can_broadcast)(bool)) : can_broadcast(in_can_broadcast), status(in_status)
+    explicit node(const bool in_status, void (*in_can_broadcast)(bool))
+      : can_broadcast(in_can_broadcast), status(in_status)
     {
     }
     void set_status(bool in_status);

@@ -106,11 +106,11 @@ Condition getCondition()
             {
                 if (pwm_duty_cycle >= 5.0f && pwm_duty_cycle <= 10.0f)
                 {
-                    condition.speed_start_status = Sst::GOOD;
+                    condition.speed_start_status = app::can_utils::ImdSstState::IMD_SST_GOOD;
                 }
                 else if (pwm_duty_cycle >= 90.0f && pwm_duty_cycle <= 95.0f)
                 {
-                    condition.speed_start_status = Sst::BAD;
+                    condition.speed_start_status = app::can_utils::ImdSstState::IMD_SST_BAD;
                 }
             }
         }
@@ -169,7 +169,7 @@ void broadcast()
         {
             if (condition.speed_start_status.has_value())
             {
-                app::can_tx::BMS_ImdSpeedStartStatus30Hz_set(static_cast<float>(*condition.speed_start_status));
+                app::can_tx::BMS_ImdSpeedStartStatus30Hz_set(*condition.speed_start_status);
             }
             app::can_tx::BMS_ImdActiveFrequency_set(app::can_utils::ImdActiveFrequency::IMD_30Hz);
         }

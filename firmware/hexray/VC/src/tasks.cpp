@@ -5,22 +5,33 @@
 
 #include "io_time.hpp"
 #include "io_canQueues.hpp"
-#include <hw_can.hpp>
-#include <io_canRx.hpp>
-
+#include "hw_can.hpp"
+#include "hw_gpio.hpp"
+#include "io_canRx.hpp"
+#include "io_canTx.hpp"
+#include "hw_adcs.hpp"
 #include "hw_cans.hpp"
 #include "hw_gpios.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_hardFaultHandler.hpp"
+#include "hw_watchdog.hpp"
+#include "hw_resetReason.hpp"
+#include "main.h"
+#include "app_canAlerts.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
-    constexpr uint32_t period_ms = 1000U;
+    constexpr uint32_t             period_ms                = 1000U;
+    constexpr uint32_t             watchdog_grace_period_ms = 50U;
+    hw::watchdog::WatchdogInstance watchdog1hz{ period_ms + watchdog_grace_period_ms };
+    hw::watchdog::monitor          monitor1hz{ &watchdog1hz, hiwdg1, HAL_IWDG_Refresh };
+    monitor1hz.registerWatchdogInstance();
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
         jobs_run1Hz_tick();
+        watchdog1hz.checkIn();
         start_ticks += period_ms;
         io::time::delayUntil(start_ticks);
         osDelayUntil(start_ticks);
@@ -28,24 +39,35 @@
 }
 [[noreturn]] static void tasks_run100Hz(void *arg)
 {
-    constexpr uint32_t period_ms = 10U;
+    constexpr uint32_t             period_ms                = 10U;
+    constexpr uint32_t             watchdog_grace_period_ms = 2U;
+    hw::watchdog::WatchdogInstance watchdog100hz{ period_ms + watchdog_grace_period_ms };
+    hw::watchdog::monitor          monitor100hz{ &watchdog100hz, hiwdg1, HAL_IWDG_Refresh };
+    monitor100hz.registerWatchdogInstance();
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
         jobs_run100Hz_tick();
+        watchdog100hz.checkIn();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
 }
 [[noreturn]] static void tasks_run1kHz(void *arg)
 {
-    constexpr uint32_t period_ms = 1U;
+    constexpr uint32_t             period_ms                = 1U;
+    constexpr uint32_t             watchdog_grace_period_ms = 1U;
+    hw::watchdog::WatchdogInstance watchdog1khz{ period_ms + watchdog_grace_period_ms };
+    hw::watchdog::monitor          monitor1khz{ &watchdog1khz, hiwdg1, HAL_IWDG_Refresh };
+    monitor1khz.registerWatchdogInstance();
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
         jobs_run1kHz_tick();
+        monitor1khz.checkForTimeouts();
+        watchdog1khz.checkIn();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -60,7 +82,7 @@
             continue;
         if (const auto &m = msg.value(); m.bus == app::can_utils::BusEnum::Bus_FDCAN)
         {
-            const auto res = hw::can::fdcan1.fdcan_transmit(hw::CanMsg{
+            const auto res = fdcan1.fdcan_transmit(hw::CanMsg{
                 m.std_id,
                 m.dlc,
                 m.data,
@@ -82,7 +104,7 @@
             continue;
         if (const auto &m = msg.value(); m.bus == app::can_utils::BusEnum::Bus_FDCAN)
         {
-            const auto res = hw::can::invcan.can_transmit(hw::CanMsg{
+            const auto res = invcan.can_transmit(hw::CanMsg{
                 m.std_id,
                 m.dlc,
                 m.data,
@@ -131,16 +153,25 @@ void tasks_preInit()
 
 void tasks_init()
 {
+    // __HAL_DBGMCU_FREEZE_IWDG();
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("VC Reset!");
 
-    hw::can::fdcan1.init();
-    hw::can::invcan.init();
+    fdcan1.init();
+    invcan.init();
+
+    adcChipsInit();
 
     dam_en.writePin(true);
     rsm_en.writePin(true);
     front_en.writePin(true);
     bms_en.writePin(true);
+    ResetReason reason = hw::resetReason::get();
+    if (reason == RESET_REASON_WATCHDOG)
+    {
+        LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
+        app::can_alerts::infos::WatchdogTimeout_set(true);
+    }
     jobs_init();
     osKernelInitialize();
     VC_StartAllTasks();
