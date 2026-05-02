@@ -93,6 +93,7 @@ class config
 
         if (buffer_idx + sizeof(uint64_t) != hw::flash::WORD_BYTES)
         {
+            //Indeterminate error here is used to indicate that we are not flashing yet
             return std::unexpected(ErrorCode::ERROR_INDETERMINATE);
         }
         return hw::flash::programFlash(address / hw::flash::WORD_BYTES * hw::flash::WORD_BYTES, program_buffer);

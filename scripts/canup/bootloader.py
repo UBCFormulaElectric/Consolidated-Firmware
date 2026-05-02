@@ -10,7 +10,7 @@ import math
 import can
 import time
 import intelhex
-
+from enum import Enum
 import boards
 
 # Keep CAN protocol in sync with:
@@ -27,6 +27,8 @@ PROGRAM_CAN_ID_LOWBITS = 0x6
 VERIFY_CAN_ID_LOWBITS = 0x7
 APP_VALIDITY_CAN_ID_LOWBITS = 0x8
 GO_TO_BOOT_CAN_ID_LOWBITS = 0x9
+ERASE_SECTOR_FAILED_ID_LOWBITS = 0xA
+PROGRAM_ID_FAILED_LOWBITS = 0xB
 
 # Verify response options.
 # Keep in sync with:
@@ -38,6 +40,11 @@ BOOT_STATUS_NO_APP = 2
 # The minimum amount of data the microcontroller can program at a time.
 MIN_PROG_SIZE_BYTES = 32
 
+
+class Status(Enum):
+    TIMEOUT = 0
+    FAILED = 1
+    SUCCESS = 2
 
 class Bootloader:
     bus: can.Bus
@@ -153,35 +160,40 @@ class Bootloader:
 
         def _validator(msg: can.Message):
             """Validate that we've received the "erase complete" msg."""
-            return (
-                True
-                if msg.arbitration_id
-                == self.board.boot_id_range_start | ERASE_SECTOR_COMPLETE_CAN_ID_LOWBITS
-                else None
-            )
+            
+            if msg.arbitration_id == self.board.boot_id_range_start | ERASE_SECTOR_COMPLETE_CAN_ID_LOWBITS:
+                return Status.SUCCESS
+            elif msg.arbitration_id == self.board.boot_id_range_start | ERASE_SECTOR_FAILED_ID_LOWBITS:
+                return Status.FAILED
+            else:
+                return None
 
         erase_size = sum([sector.size for sector in sectors])
         erase_progress = 0
-
-        for sector in sectors:
+        sector = 0
+        
+        while sector < len(sectors):
             if self.ui_callback:
                 self.ui_callback("Erasing FLASH sectors", erase_size, erase_progress)
 
-            if sector.write_protect:
+            if sectors[sector].write_protect:
                 raise RuntimeError(f"Attempted to write to a readonly memory sector!{sectors}")
 
             self.bus.send(
                 can.Message(
                     arbitration_id=self.board.boot_id_range_start
                     | ERASE_SECTOR_CAN_ID_LOWBITS,
-                    data=[sector.id],
+                    data=[sectors[sector].id],
                     is_extended_id=True,
                     is_fd=self.is_fd,
                 )
             )
-            if not self._await_can_msg(validator=_validator, timeout=self.timeout):
-                return False
-
+            rx_msg, status = self._await_can_msg(validator=_validator, timeout=self.timeout)
+            if status != Status.SUCCESS:
+                if self.ui_callback:
+                    self.ui_callback(f"Erasing FLASH Sector {sectors[sector].id} Failed. Retrying...!")
+                    continue 
+                
             erase_progress += sector.size
 
         if self.ui_callback:
@@ -242,7 +254,7 @@ class Bootloader:
         def _validator(msg: can.Message):
             """Validate that we've received the "app validity" msg, and the app is valid."""
             return (
-                True
+                Status.SUCCESS
                 if msg.arbitration_id
                 == self.board.boot_id_range_start | APP_VALIDITY_CAN_ID_LOWBITS
                 else None
@@ -385,8 +397,10 @@ class Bootloader:
             if rx_msg is None:
                 continue
             if validator(rx_msg):
-                return rx_msg
-        return None
+                return (rx_msg, Status.SUCCESS)
+            else:
+                return (None, Status.FAILED)
+        return (None, Status.TIMEOUT)
 
     def size_bytes(self) -> int:
         """

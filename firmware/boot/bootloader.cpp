@@ -205,8 +205,9 @@ void bootloader::init(config &boot_config)
             // Program 64 bits at the current address.
             // No reply for program command to reduce latency.
             const uint64_t command_packet = command.getDataAsQWords()[0];
-            if (const auto status = boot_config.boardSpecific_program(current_address, command_packet);
-                not status and status.error() != ErrorCode::ERROR_INDETERMINATE)
+            const auto status = boot_config.boardSpecific_program(current_address, command_packet);
+            
+            if (not status and status.error() != ErrorCode::ERROR_INDETERMINATE)
             {
                 // program failed meaning we need to stop and tell the application that program has failed
                 // and stop the bootloader
