@@ -9,14 +9,24 @@ typedef enum
     CURRENT
 } Measurement;
 
+enum CellReading : uint8_t {
+    CELL1 = 0x14,
+    CELL2 = 0x16,
+    CELL3 = 0x18,
+    CELL4 = 0x1A,
+    CELL5 = 0x1C
+};
+
+enum SystemReading : uint8_t {
+    PACK_V  = 0x36;
+    LOAD_V  = 0x38;  
+};
+
 typedef enum
 {
-    CELL1 = 1,
-    CELL2 = 2,
-    CELL3 = 3,
-    CELL4 = 4,
-    CELL5 = 5
-} CellNum;
+    PACK = 0,
+    LOAD = 1       
+} SystemReading; // V
 
 // Security
 
@@ -26,14 +36,6 @@ enum class SecurityState : uint8_t
     UNSEALED    = 0x2,
     SEALED      = 0x3,
 };
-
-constexpr uint16_t CELL1_MV = 0x14;
-constexpr uint16_t CELL2_MV = 0x16;
-constexpr uint16_t CELL3_MV = 0x18;
-constexpr uint16_t CELL4_MV = 0x1A;
-constexpr uint16_t CELL5_MV = 0x1C;
-constexpr uint16_t PACK_MV  = 0x36;
-constexpr uint16_t LOAD_MV  = 0x38;
 
 // Internal regulator adresses
 constexpr uint16_t REG0_CONFIG = 0x9237;
@@ -58,6 +60,7 @@ constexpr uint16_t REG_DATALENGTH   = 0x61;
 constexpr uint16_t REG_ALARM_STATUS = 0x62;
 
 constexpr uint8_t SUBCOMMAND_BYTES = 4; // account for the 0x3E/0x3F and 0x61 and 0x60
+constexpr uint32_t SUBCOMMAND_READY_RETRIES = 20;
 
 // DEEPSLEEP/SLEEP Checks
 constexpr uint16_t CMD_CONTROL_STATUS    = 0x00;

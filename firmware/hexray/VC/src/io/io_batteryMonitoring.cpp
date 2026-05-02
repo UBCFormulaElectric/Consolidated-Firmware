@@ -1,7 +1,6 @@
 /*
 DATASHEET:
 https://www.zotero.org/groups/5938751/ubc_formula_electric_firmware/collections/E4HTL2J2/items/HK2Z6JZS/reader
-TODO: could perchance add a fucntion that differs from subcommands vs direct commands...
 */
 
 #include "hw_i2cs.hpp"
@@ -12,34 +11,67 @@ TODO: could perchance add a fucntion that differs from subcommands vs direct com
 
 namespace io::batteryMonitoring
 {
-constexpr uint32_t SUBCOMMAND_READY_RETRIES = 100u;
-constexpr uint32_t CFGUPDATE_RETRIES        = 100u;
-
-// Debug-only snapshots for live inspection in debugger.
-volatile uint32_t debug_tick_stage               = 0u;
-volatile int32_t  debug_tick_last_error          = -1;
-volatile uint8_t  debug_tick_probe_reg_lower_raw = 0u;
-volatile uint16_t debug_tick_control_status_raw  = 0u;
-
-// Helper Funcrtions
-static std::expected<void, ErrorCode> write_data_memory(uint16_t addr, std::span<const uint8_t> data);
-
-static std::expected<void, ErrorCode> write_register_byte(const uint16_t reg, const uint8_t value)
+// Helpers
+static std::expected<void, ErrorCode> read_register(uint16_t reg, std::span<uint8_t> data)
 {
-    return bat_mon.memoryWrite(reg, std::span<const uint8_t>(&value, 1));
-}
-
-static std::expected<void, ErrorCode> read_register_byte(const uint16_t reg, uint8_t &value)
-{
-    return bat_mon.memoryRead(reg, std::span<uint8_t>(&value, 1));
-}
-
-static std::expected<void, ErrorCode> read_register_word(const uint16_t reg, uint16_t &value)
-{
-    std::array<uint8_t, 2> buf;
-    RETURN_IF_ERR_SILENT(bat_mon.memoryRead(reg, buf));
-    value = (uint16_t)((buf[1] << 8) | buf[0]);
+    RETURN_IF_ERR_SILENT(bat_mon.memoryRead(reg, data));
     return {};
+}
+static std::expected<void, ErrorCode> write_register(uint16_t reg, std::span<uint8_t> data)
+{
+    RETURN_IF_ERR_SILENT(bat_mon.memoryWrite(reg, data));
+    return {};
+}
+
+// Command Helpers
+static std::expected<uint8_t, ErrorCode> command_read_byte(uint8_t command_addr)
+{
+    uint8_t data = 0;
+    RETURN_IF_ERR_SILENT(read_register(command_addr, std::span(&data, 1)));
+    return data;
+}
+static std::expected<void, ErrorCode> command_write_byte(uint8_t command_addr, uint8_t data)
+{
+    RETURN_IF_ERR_SILENT(write_register(command_addr, std::span(&data, 1)));
+    return {};
+}
+static std::expected<uint16_t, ErrorCode> command_read_2byte(uint8_t command_addr)
+{
+    uint8_t rx_buffer[2] = {0, 0};
+    RETURN_IF_ERR_SILENT(read_register(command_addr, std::span(rx_buffer, 2)));
+    return static_cast<uint16_t>((rx_buffer[1] << 8) | rx_buffer[0]);
+}
+static std::expected<void, ErrorCode> command_write_2byte(uint8_t command_addr, uint16_t data)
+{
+    uint8_t tx_buffer[2];
+    tx_buffer[0] = static_cast<uint8_t>(data & 0xFF);
+    tx_buffer[1] = static_cast<uint8_t>((data >> 8) & 0xFF);
+    RETURN_IF_ERR_SILENT(write_register(command_addr, std::span(tx_buffer, 2)));
+    return {};
+}
+static std::expected<void, ErrorCode> read_subcommand(uint)
+
+/**
+ * @brief Gets the cell voltage
+ * @param CellReading The command used to read the voltage
+ * @return The voltage on success, erorcode if messed up
+ */
+std::expected<uint16_t, ErrorCode> get_voltage_cell(CellReading cell)
+{
+    uint16_t voltage_mV = 0;
+    RETURN_IF_ERR(read_register_word(cell, voltage_mV));
+    return voltage_mV;
+}
+/**
+ * @brief Gets the system voltage
+ * @param SystemReading The command used to read the voltage
+ * @return The voltage on success, erorcode if messed up
+ */
+std::expected<uint16_t, ErrorCode> get_voltage_system(SystemReading system)
+{
+    uint16_t voltage_mV = 0;
+    RETURN_IF_ERR(read_register_word(system, voltage_mV));
+    return voltage_mV * 10; //  The units for TOS, PACK, and LD voltages are reported in cV (10mV LSB) by default
 }
 
 static std::expected<void, ErrorCode> protectionInit(void)
@@ -114,7 +146,7 @@ static std::expected<void, ErrorCode> write_transfer(uint16_t sub_cmd, std::span
     until it returns what was written originally */
     uint8_t low_status   = 0xFF;
     uint8_t high_status  = 0xFF;
-    bool    subcmd_ready = false;
+    bool subcmd_ready = false;
     for (uint32_t attempt = 0; attempt < SUBCOMMAND_READY_RETRIES; attempt++)
     {
         RETURN_IF_ERR(read_register_byte(REG_LOWER, low_status));
@@ -140,24 +172,28 @@ static std::expected<void, ErrorCode> write_transfer(uint16_t sub_cmd, std::span
     }
 
     // 5. Read buffer starting at 0x40 for the expected length
-    uint8_t buffer_len = (uint8_t)(total_len - SUBCOMMAND_BYTES);
+    uint8_t buffer_len = total_len - SUBCOMMAND_BYTES;
     if (buffer_len > data.size())
     {
         return std::unexpected(ErrorCode::OUT_OF_RANGE);
     }
-    RETURN_IF_ERR(bat_mon.memoryRead(REG_DATA, data.first(buffer_len)));
+    if (buffer_len > 0) 
+    {
+        RETURN_IF_ERR(read_register(REG_DATA, data.first(buffer_len)));
+    }
 
     // 6. Read the checksum at 0x60 and verify it matches the data read.
     uint8_t received_checksum = 0;
     RETURN_IF_ERR(read_register_byte(REG_CHECKSUM, received_checksum));
-
+    
     uint16_t sum = low_byte + high_byte;
     for (uint8_t byte : data.first(buffer_len))
     {
         sum += byte;
     }
 
-    uint8_t expected_checksum = static_cast<uint8_t>(0xFFu - (sum & 0x00FFu));
+    uint8_t expected_checksum = ~sum;
+
     if (received_checksum != expected_checksum)
     {
         return std::unexpected(ErrorCode::CHECKSUM_FAIL);
@@ -166,61 +202,45 @@ static std::expected<void, ErrorCode> write_transfer(uint16_t sub_cmd, std::span
     return {};
 }
 
-static std::expected<void, ErrorCode> read_data_memory(uint16_t addr, std::span<uint8_t> data)
+static std::expected<void, ErrorCode> write_subcommand(uint16_t sub_cmd, std::span<const uint8_t> data)
 {
+    // The transfer buffer is 32 bytes max
     if (data.size() > 32u)
     {
         return std::unexpected(ErrorCode::OUT_OF_RANGE);
     }
 
-    uint8_t high_byte = static_cast<uint8_t>(addr >> 8);
-    uint8_t low_byte  = static_cast<uint8_t>(addr & 0x00FF);
+    uint8_t high_byte = static_cast<uint8_t>(sub_cmd >> 8);
+    uint8_t low_byte  = static_cast<uint8_t>(sub_cmd & 0x00FF);
 
+    // 1. Write the 16-bit subcommand address to 0x3E and 0x3F
     RETURN_IF_ERR(write_register_byte(REG_LOWER, low_byte));
     RETURN_IF_ERR(write_register_byte(REG_UPPER, high_byte));
 
-    uint8_t total_len = 0;
-    RETURN_IF_ERR(read_register_byte(REG_DATALENGTH, total_len));
-    if (total_len < SUBCOMMAND_BYTES)
+    // 2. Write the payload data to the transfer buffer starting at 0x40
+    if (data.size() > 0)
     {
-        return std::unexpected(ErrorCode::OUT_OF_RANGE);
+        RETURN_IF_ERR(write_register(REG_DATA, data));
     }
 
-    uint8_t buffer_len = static_cast<uint8_t>(total_len - SUBCOMMAND_BYTES);
-    if (buffer_len > data.size())
-    {
-        return std::unexpected(ErrorCode::OUT_OF_RANGE);
-    }
-
-    RETURN_IF_ERR(bat_mon.memoryRead(REG_DATA, data.first(buffer_len)));
-
-    uint8_t received_checksum = 0;
-    RETURN_IF_ERR(read_register_byte(REG_CHECKSUM, received_checksum));
-
-    uint16_t sum = low_byte + high_byte;
-    for (uint8_t byte : data.first(buffer_len))
+    // 3. Calculate Checksum, 8-bit sum of subcommand bytes + data bytes
+    uint8_t sum = low_byte + high_byte;
+    for (uint8_t byte : data)
     {
         sum += byte;
     }
+    uint8_t checksum = ~sum; // Bitwise invert the 8-bit sum
 
-    uint8_t expected_checksum = static_cast<uint8_t>(0xFFu - (sum & 0xFFu));
-    if (received_checksum != expected_checksum)
-    {
-        return std::unexpected(ErrorCode::CHECKSUM_FAIL);
-    }
+    // 4. Calculate Data Length, length = data payload bytes + 4 (for 0x3E, 0x3F, 0x60, 0x61)
+    uint8_t total_len = static_cast<uint8_t>(data.size() + 4);
+
+    // 5. Combine Checksum and Length into a single 16-bit word, checksum goes to 0x60 (lower byte), length goes to 0x61 (upper byte)
+    uint16_t check_and_len = static_cast<uint16_t>((total_len << 8) | checksum);
+
+    // writing length to 0x61 forces the chip to verify the checksum and save the data
+    RETURN_IF_ERR(write_command_2byte(REG_CHECKSUM, check_and_len));
 
     return {};
-}
-
-// Wrappers for simplicity
-static std::expected<void, ErrorCode> write_subcommand(uint16_t sub_cmd, std::span<const uint8_t> data)
-{
-    return write_transfer(sub_cmd, data);
-}
-
-static std::expected<void, ErrorCode> write_data_memory(uint16_t addr, std::span<const uint8_t> data)
-{
-    return write_transfer(addr, data);
 }
 
 static std::expected<void, ErrorCode> fetsInit(void)
@@ -393,46 +413,6 @@ std::expected<void, ErrorCode> init(void)
     return {};
 }
 
-/**
- * @brief Gets the cell voltage or the entire stack voltage
- * @param CellNum The command used to read the voltage
- * @return The voltage on success, erorcode if messed up
- */
-std::expected<uint16_t, ErrorCode> get_voltage(CellNum cell)
-{
-    uint16_t voltage_cmd = 0;
-
-    switch (cell)
-    {
-        case CELL1:
-            voltage_cmd = CELL1_MV;
-            break;
-        case CELL2:
-            voltage_cmd = CELL2_MV;
-            break;
-        case CELL3:
-            voltage_cmd = CELL3_MV; // Should read 0
-            break;
-        case CELL4:
-            voltage_cmd = CELL4_MV;
-            break;
-        case CELL5:
-            voltage_cmd = CELL5_MV;
-            break;
-        default:
-            return std::unexpected(ErrorCode::OUT_OF_RANGE);
-    }
-
-    uint16_t voltage = 0;
-    RETURN_IF_ERR(read_register_word(voltage_cmd, voltage));
-    return voltage;
-}
-
-/**
- * @brief Gets the raw ADCs for the current and volatge
- * @param CellNum The subcommand
- * @return The ADC voltage/current on success, erorcode if messed up
- */
 std::expected<uint32_t, ErrorCode> raw_voltages_and_currents(CellNum cell, Measurement measurement_type)
 {
     uint16_t subcmd = 0;
