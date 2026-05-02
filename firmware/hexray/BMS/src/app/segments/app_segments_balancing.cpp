@@ -86,29 +86,26 @@ void balancingInit()
     state = BalancingState::BALANCING_DISABLED;
 }
 
-void balancingTick(bool enable)
+void balancingDisable() {
+    disableBalance();
+    state = BalancingState::BALANCING_DISABLED;
+    LOG_INFO("Disabling");
+}
+
+void balancingEnable()
 {
     switch (state)
     {
         case BalancingState::BALANCING_DISABLED:
         {
-            if (enable)
-            {
-                settle_timer.restart();
-                state = BalancingState::BALANCING_SETTLE;
-                LOG_INFO("Settling");
-            }
+            settle_timer.restart();
+            state = BalancingState::BALANCING_SETTLE;
+            LOG_INFO("Settling");
             break;
         }
         case BalancingState::BALANCING_SETTLE:
         {
-            if (!enable)
-            {
-                disableBalance();
-                state = BalancingState::BALANCING_DISABLED;
-                LOG_INFO("Disabling");
-            }
-            else if (settle_timer.updateAndGetState() == Timer::TimerState::EXPIRED)
+            if (settle_timer.updateAndGetState() == Timer::TimerState::EXPIRED)
             {
                 updateCellsToBalance();
                 io::adbms::sendBalanceCmd();
@@ -120,13 +117,7 @@ void balancingTick(bool enable)
         }
         case BalancingState::BALANCING_BALANCE:
         {
-            if (!enable)
-            {
-                disableBalance();
-                state = BalancingState::BALANCING_DISABLED;
-                LOG_INFO("Disabling");
-            }
-            else if (balance_timer.updateAndGetState() == Timer::TimerState::EXPIRED)
+            if (balance_timer.updateAndGetState() == Timer::TimerState::EXPIRED)
             {
                 io::adbms::sendStopBalanceCmd();
                 settle_timer.restart();

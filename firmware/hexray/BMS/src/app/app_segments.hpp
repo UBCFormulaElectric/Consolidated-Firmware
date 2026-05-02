@@ -38,7 +38,8 @@ expected<void, ErrorCode> writeConfig();
 
 // Balancing state machine.
 void balancingInit();
-void balancingTick(bool enable);
+void balancingEnable();
+void balancingDisable();
 
 // Broadcast and fault evaluation.
 void broadcastCellVoltages();

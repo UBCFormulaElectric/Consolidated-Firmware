@@ -25,12 +25,12 @@ namespace balancingState
         {
             app::StateMachine::set_next_state(&app::states::init_state);
         }
-        app::segments::balancingTick(balancing_enabled);
+        app::segments::balancingEnable();
     }
 
     static void balancingStateRunOnExit()
     {
-        app::can_rx::Debug_CellBalancingRequest_update(false);
+        app::segments::balancingDisable();
     }
 } // namespace balancingState
 

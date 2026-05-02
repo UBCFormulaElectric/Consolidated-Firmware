@@ -56,7 +56,6 @@ using namespace hw::watchdog;
 
     forever
     {
-        // const uint32_t start_time = io::time::getCurrentMs();
         jobs_run100Hz_tick();
         watchdog100hz.checkIn();
         start_ticks += period_ms;
@@ -74,10 +73,9 @@ using namespace hw::watchdog;
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
-        const uint32_t start_time = io::time::getCurrentMs();
         jobs_run1kHz_tick();
-        monitor1khz.checkForTimeouts();
         watchdog1khz.checkIn();
+        monitor1khz.checkForTimeouts();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -133,16 +131,16 @@ using namespace hw::watchdog;
 {
     const uint32_t period_ms                = 500U;
     const uint32_t watchdog_grace_period_ms = 25U;
-    // WatchdogInstance watchdog = WatchdogInstance(TaskIndex_e::TASK_INDEX_ADBMSVOLTAGES, period_ms +
-    // watchdog_grace_period_ms);
-
+    hw::watchdog::WatchdogInstance watchdogVoltages{ period_ms + watchdog_grace_period_ms };
+    hw::watchdog::monitor          monitorVoltages{ &watchdogVoltages, hiwdg1, HAL_IWDG_Refresh };
+    monitorVoltages.registerWatchdogInstance();
     uint32_t start_ticks = osKernelGetTickCount();
+
     forever
     {
-        const uint32_t start_time = io::time::getCurrentMs();
         jobs_runAdbmsVoltages_tick();
-
-        // watchdog.checkIn();
+        watchdogVoltages.checkIn();
+        monitorVoltages.checkForTimeouts();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -152,16 +150,16 @@ using namespace hw::watchdog;
 {
     const uint32_t period_ms                = 500U;
     const uint32_t watchdog_grace_period_ms = 25U;
-    // WatchdogInstance watchdog = WatchdogInstance(TaskIndex_e::TASK_INDEX_ADBMSVOLTAGES, period_ms +
-    // watchdog_grace_period_ms);
-
+    hw::watchdog::WatchdogInstance watchdogFilteredVoltages{ period_ms + watchdog_grace_period_ms };
+    hw::watchdog::monitor          monitorFilteredVoltages{ &watchdogFilteredVoltages, hiwdg1, HAL_IWDG_Refresh };
+    monitorFilteredVoltages.registerWatchdogInstance();
     uint32_t start_ticks = osKernelGetTickCount();
+
     forever
     {
-        const uint32_t start_time = io::time::getCurrentMs();
         jobs_runAdbmsFilteredVoltages_tick();
-
-        // watchdog.checkIn();
+        watchdogFilteredVoltages.checkIn();
+        monitorFilteredVoltages.checkForTimeouts();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -171,16 +169,16 @@ using namespace hw::watchdog;
 {
     const uint32_t period_ms                = 500U;
     const uint32_t watchdog_grace_period_ms = 25U;
-    // WatchdogInstance watchdog = WatchdogInstance(TaskIndex_e::TASK_INDEX_ADBMSTEMPERATURES, period_ms +
-    // watchdog_grace_period_ms);
-
+    hw::watchdog::WatchdogInstance watchdogTemperatures{ period_ms + watchdog_grace_period_ms };
+    hw::watchdog::monitor          monitorTemperatures{ &watchdogTemperatures, hiwdg1, HAL_IWDG_Refresh };
+    monitorTemperatures.registerWatchdogInstance();
     uint32_t start_ticks = osKernelGetTickCount();
+
     forever
     {
-        const uint32_t start_time = io::time::getCurrentMs();
         jobs_runAdbmsTemperatures_tick();
-
-        // watchdog.checkIn();
+        watchdogTemperatures.checkIn();
+        monitorTemperatures.checkForTimeouts();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -190,16 +188,16 @@ using namespace hw::watchdog;
 {
     const uint32_t period_ms                = 500U;
     const uint32_t watchdog_grace_period_ms = 25U;
-    // WatchdogInstance watchdog = WatchdogInstance(TaskIndex_e::TASK_INDEX_ADBMSDIAGNOSTICS, period_ms +
-    // watchdog_grace_period_ms);
-
+    hw::watchdog::WatchdogInstance watchdogDiagnostics{ period_ms + watchdog_grace_period_ms };
+    hw::watchdog::monitor          monitorDiagnostics{ &watchdogDiagnostics, hiwdg1, HAL_IWDG_Refresh };
+    monitorDiagnostics.registerWatchdogInstance();
     uint32_t start_ticks = osKernelGetTickCount();
+
     forever
     {
-        // const uint32_t start_time = io::time::getCurrentMs();
         jobs_runAdbmsDiagnostics_tick();
-
-        // watchdog.checkIn();
+        watchdogDiagnostics.checkIn();
+        monitorDiagnostics.checkForTimeouts();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -242,8 +240,6 @@ void tasks_preInit()
 
 void tasks_init()
 {
-    // __HAL_DBGMCU_FREEZE_IWDG1();
-    // hw::adc::chipsInit();
     SEGGER_SYSVIEW_Conf();
 
 #ifndef WATCHDOG_DISABLED

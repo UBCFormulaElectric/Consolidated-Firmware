@@ -1,4 +1,8 @@
 #pragma once
+#include "io_semaphore.hpp"
+
+extern io::semaphore spi_bus_lock;
+extern io::semaphore adbms_app_lock;
 
 void jobs_init(void);
 void jobs_adbms_init(void);
