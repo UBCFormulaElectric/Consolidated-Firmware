@@ -28,32 +28,22 @@ extern "C"
 #endif
 
     /* Includes ------------------------------------------------------------------*/
-    <<<<<<<<
-        HEAD : firmware / hexray / RSM / boot / cubemx / Inc / main.h
-#include "stm32h5xx_hal.h"
-        == == == ==
+
 #include "stm32h7xx_hal.h"
-        >>>>>>>> master : firmware /
-                          hexray /
-                          BMS /
-                          boot /
-                          cubemx /
-                          Inc /
-                          main.h
 
-                          /* Private includes ----------------------------------------------------------*/
-                          /* USER CODE BEGIN Includes */
+    /* Private includes ----------------------------------------------------------*/
+    /* USER CODE BEGIN Includes */
 
-                          /* USER CODE END Includes */
+    /* USER CODE END Includes */
 
-                          /* Exported types ------------------------------------------------------------*/
-                          /* USER CODE BEGIN ET */
+    /* Exported types ------------------------------------------------------------*/
+    /* USER CODE BEGIN ET */
 
-                          /* USER CODE END ET */
+    /* USER CODE END ET */
 
-                          /* Exported constants --------------------------------------------------------*/
-                          /* USER CODE BEGIN EC */
-                          extern FDCAN_HandleTypeDef hfdcan1;
+    /* Exported constants --------------------------------------------------------*/
+    /* USER CODE BEGIN EC */
+    extern FDCAN_HandleTypeDef hfdcan1;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/

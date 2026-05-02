@@ -20,10 +20,8 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_uart.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_sd.cpp"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_gpio.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_freeRtosConfigs.cpp"
 )
 
 file(GLOB CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Src/*.c")

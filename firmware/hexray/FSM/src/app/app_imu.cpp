@@ -6,7 +6,7 @@
 #include "app_canAlerts.hpp"
 
 #ifdef TARGET_TEST
-io::Imu imu_config;
+io::imu imu_config;
 #endif // TARGET_TEST
 namespace app::imu
 {
