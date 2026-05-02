@@ -2,28 +2,14 @@
 #include "bootloader_RSM.hpp"
 #include "bootloader.h"
 #include "main.h"
-#include "io_log.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include <cassert>
 
-void tx_overflow_callback(const uint32_t overflow_count)
-{
-    UNUSED(overflow_count);
-    LOG_WARN("CAN TX queue overflow");
-}
-
-void rx_overflow_callback(const uint32_t overflow_count)
-{
-    UNUSED(overflow_count);
-    LOG_WARN("CAN RX queue overflow");
-}
-
-void tx_overflow_clear_callback(){};
-void rx_overflow_clear_callback(){};
-
 static_assert(sizeof(hw::CanMsg) == 72);
-io::queue<hw::CanMsg, 256> boot_can_tx_queue{ "CanTxQueue", tx_overflow_callback, tx_overflow_clear_callback };
-io::queue<hw::CanMsg, 256> boot_can_rx_queue{ "CanRxQueue", rx_overflow_callback, rx_overflow_clear_callback };
+io::queue<hw::CanMsg, 256> boot_can_tx_queue{ "CanTxQueue" };
+static_assert(sizeof(boot_can_tx_queue) == 18544);
+io::queue<hw::CanMsg, 256> boot_can_rx_queue{ "CanRxQueue" };
+static_assert(sizeof(boot_can_rx_queue) == 18544);
 
 namespace hw::cans
 {
@@ -36,13 +22,8 @@ const hw::fdcan &hw::fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
     return hw::cans::fdcan1;
 }
 
-bootloader::config RSM_boot_config(
-    hw::cans::fdcan1,
-    boot_can_tx_queue,
-    boot_can_rx_queue,
-    board_highbits,
-    git_commit_hash_val,
-    git_commit_clean_val);
+bootloader::config RSM_boot_config{ hw::cans::fdcan1, boot_can_tx_queue,   boot_can_rx_queue,
+                                    board_highbits,   git_commit_hash_val, git_commit_clean_val };
 
 static hw::rtos::StaticTask<1024>
     bootInterfaceTask(osPriorityRealtime, "BootIntf", [](void *) { bootloader::runInterfaceTask(RSM_boot_config); });
