@@ -7,7 +7,7 @@
 
 #include "io_time.hpp"
 #include "io_canQueues.hpp"
-#include "app_canAlerts.hppexpr"
+#include "app_canAlerts.hpp"
 #include "stm32h5xx_hal.h"
 #include "io_canRx.hpp"
 #include "io_canTx.hpp"

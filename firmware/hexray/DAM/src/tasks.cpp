@@ -8,7 +8,7 @@
 #include "io_telemMessage.hpp"
 #include "io_canQueues.hpp"
 #include "io_canRx.hpp"
-#include "io_telemQueue.hpp" expr
+#include "io_telemQueue.hpp"
 #include "hw_hardFaultHandler.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_cans.hpp"
