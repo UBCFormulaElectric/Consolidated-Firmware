@@ -7,7 +7,6 @@
 // See "RCC reset status register (RCC_RSR)", section 11.8.46, page 536.
 
 // Must be kept up to date with `CanResetReason` in `shared_enum.json`!!!
-
 typedef enum
 {
     // No specific reset cause identified. Take a look at RCC_RSR/RCC_CSR for

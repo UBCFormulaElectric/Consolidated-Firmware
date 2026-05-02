@@ -49,6 +49,8 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmOutput.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_watchdog.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_resetReason.cpp"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -106,6 +108,7 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_hal_spi.c"
             "stm32h7xx_hal_tim_ex.c"
             "stm32h7xx_hal_gpio.c"
+            "stm32h7xx_hal_iwdg.c"
     )
     stm32h733xx_cube_library(
             "hexray_VC_stm32"
