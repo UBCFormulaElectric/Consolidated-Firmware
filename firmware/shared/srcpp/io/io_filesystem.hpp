@@ -93,24 +93,24 @@ class FileSystem
     std::expected<void, FileSystemError> write(uint32_t fd, std::span<uint8_t> buf, std::size_t size);
 
     /**
-     * Reads metadata from a logfs file object (non-fd based, operates on a persistent logfs file object).
-     * @param file logfs file handle
+     * Reads metadata from a file
+     * @param fd file descriptor
      * @param buf destination buffer
      * @param size number of bytes to read
      * @param num_read actual bytes read
      * @return FileSystemError status
      */
     std::expected<void, FileSystemError>
-        readMetadata(LogFsFile &file, std::span<uint8_t> buf, size_t size, uint32_t &num_read);
+        readMetadata(uint32_t fd, std::span<uint8_t> buf, size_t size, uint32_t &num_read);
 
     /**
-     * Writes metadata to a logfs file object (non-fd based, operates on a persistent logfs file object).
-     * @param file logfs file handle
+     * Writes metadata to a file
+     * @param fd file descriptor
      * @param buf source buffer
      * @param size number of bytes to write
      * @return FileSystemError status
      */
-    std::expected<void, FileSystemError> writeMetadata(LogFsFile &file, std::span<uint8_t> buf, size_t size);
+    std::expected<void, FileSystemError> writeMetadata(uint32_t fd, std::span<uint8_t> buf, size_t size);
 
     /**
      * Closes file given file descriptor

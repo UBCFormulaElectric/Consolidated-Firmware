@@ -168,12 +168,12 @@ std::expected<void, FileSystemError> FileSystem::write(uint32_t fd, std::span<ui
 }
 
 std::expected<void, FileSystemError>
-    FileSystem::readMetadata(LogFsFile &file, std::span<uint8_t> buf, size_t size, uint32_t &num_read)
+    FileSystem::readMetadata(uint32_t fd, std::span<uint8_t> buf, size_t size, uint32_t &num_read)
 {
     if (!checkMount())
         return std::unexpected(FileSystemError::MOUNT_FAILED);
 
-    auto err = logfs_readMetadata(&fs, &file, buf.data(), size, &num_read);
+    auto err = logfs_readMetadata(&fs, &files[fd], buf.data(), size, &num_read);
 
     if (err != LOGFS_ERR_OK)
         return std::unexpected(logfsErrorToFsError(err));
@@ -181,12 +181,12 @@ std::expected<void, FileSystemError>
     return {};
 }
 
-std::expected<void, FileSystemError> FileSystem::writeMetadata(LogFsFile &file, std::span<uint8_t> buf, size_t size)
+std::expected<void, FileSystemError> FileSystem::writeMetadata(uint32_t fd, std::span<uint8_t> buf, size_t size)
 {
     if (!checkMount())
         return std::unexpected(FileSystemError::MOUNT_FAILED);
 
-    auto err = logfs_writeMetadata(&fs, &file, buf.data(), size);
+    auto err = logfs_writeMetadata(&fs, &files[fd], buf.data(), size);
 
     if (err != LOGFS_ERR_OK)
         return std::unexpected(logfsErrorToFsError(err));

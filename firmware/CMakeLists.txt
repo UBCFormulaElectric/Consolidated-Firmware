@@ -4,8 +4,8 @@ include(cmake/eigenlib.cmake)
 include(cmake/autodiff.cmake)
 
 IF ("${TARGET}" STREQUAL "binary")
-    option(BOOTLOAD "Build the bootloader" OFF)
-    option(WATCHDOG "Enable watchdog" OFF)
+    option(BOOTLOAD "Build the bootloader" ON) # DONT PUSH THIS 
+    option(WATCHDOG "Enable watchdog" )
     include(cmake/embedded.cmake)
     include(cmake/embedded_libs.cmake)
     include(cmake/stmlib.cmake)
