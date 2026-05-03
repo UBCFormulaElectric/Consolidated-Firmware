@@ -99,7 +99,7 @@ namespace io // Define the mocked functions here
 {
 namespace imus
 {
-    Imu imu_front;
+    imu imu_front;
 
     std::expected<void, ErrorCode> init()
     {
@@ -203,7 +203,5 @@ void broadcast() {}
 } // namespace app::fmac_test
 
 #include "io_canQueues.hpp"
-static void                overflow_callback() {}
-static void                overflow_callback(uint32_t) {}
-io::queue<io::CanMsg, 128> can_tx_queue{ "", overflow_callback, overflow_callback };
-io::queue<io::CanMsg, 128> can_rx_queue{ "", overflow_callback, overflow_callback };
+io::queue<io::CanMsg, 128> can_tx_queue{ "" };
+io::queue<io::CanMsg, 128> can_rx_queue{ "" };

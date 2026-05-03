@@ -55,12 +55,16 @@ extern "C"
 
     /* USER CODE BEGIN EFP */
     extern ADC_HandleTypeDef   hadc1;
+    extern DMA_NodeTypeDef     Node_GPDMA1_Channel0;
+    extern DMA_QListTypeDef    List_GPDMA1_Channel0;
+    extern DMA_HandleTypeDef   handle_GPDMA1_Channel0;
     extern FDCAN_HandleTypeDef hfdcan1;
     extern I2C_HandleTypeDef   hi2c2;
     extern SPI_HandleTypeDef   hspi3;
     extern TIM_HandleTypeDef   htim1;
     extern TIM_HandleTypeDef   htim3;
     extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
+    extern IWDG_HandleTypeDef  hiwdg;
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
@@ -69,14 +73,17 @@ extern "C"
 #define TIM3_ARR (TIMx_FREQUENCY / TIM3_PRESCALER / TIM3_FREQUENCY)
 #define TIM3_FREQUENCY 10000
 #define TIM1_ARR (TIMx_FREQUENCY / TIM1_PRESCALER / TIM1_FREQUENCY)
+#define LSI_FREQUENCY 32000
 #define TIM1_PRESCALER 250
 #define TIMx_FREQUENCY 250000000
+#define IWDG_RESET_FREQUENCY 5
+#define IWDG_PRESCALER 4
 #define BPS_R_3V3_Pin GPIO_PIN_2
 #define BPS_R_3V3_GPIO_Port GPIOC
 #define LC3_OUT_Pin GPIO_PIN_0
 #define LC3_OUT_GPIO_Port GPIOA
-#define nBSPD_BRAKE_PRESSED_3V3_Pin GPIO_PIN_2
-#define nBSPD_BRAKE_PRESSED_3V3_GPIO_Port GPIOA
+#define NBSPD_BRAKE_PRESSED_3V3_Pin GPIO_PIN_2
+#define NBSPD_BRAKE_PRESSED_3V3_GPIO_Port GPIOA
 #define BRAKE_OCSC_OK_3V3_Pin GPIO_PIN_3
 #define BRAKE_OCSC_OK_3V3_GPIO_Port GPIOA
 #define RL_INT_3V3_SENS_Pin GPIO_PIN_4

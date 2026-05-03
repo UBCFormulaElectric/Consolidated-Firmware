@@ -48,7 +48,7 @@ GPIO_TORQUE_VECTORING_SIG: GpioNetName.ValueType
 GPIO_REGEN_SIG: GpioNetName.ValueType
 GPIO_LED_RCK: GpioNetName.ValueType
 GPIO_SEVEN_SEG_RCK: GpioNetName.ValueType
-global___GpioNetName = GpioNetName
+Global___GpioNetName: typing_extensions.TypeAlias = GpioNetName
 
 class _SpiNetName:
     ValueType = typing.NewType('ValueType', builtins.int)
@@ -67,7 +67,7 @@ SPI_NET_NAME_UNSPECIFIED: SpiNetName.ValueType
 LED: SpiNetName.ValueType
 SEVEN_SEG: SpiNetName.ValueType
 PWR_CHG: SpiNetName.ValueType
-global___SpiNetName = SpiNetName
+Global___SpiNetName: typing_extensions.TypeAlias = SpiNetName
 
 class _PwmNetName:
     ValueType = typing.NewType('ValueType', builtins.int)
@@ -84,4 +84,4 @@ class PwmNetName(_PwmNetName, metaclass=_PwmNetNameEnumTypeWrapper):
 PWM_NET_NAME_UNSPECIFIED: PwmNetName.ValueType
 PWM_LED: PwmNetName.ValueType
 PWM_SEVEN_SEG: PwmNetName.ValueType
-global___PwmNetName = PwmNetName
+Global___PwmNetName: typing_extensions.TypeAlias = PwmNetName

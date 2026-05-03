@@ -1,5 +1,6 @@
 #include "app_steering.hpp"
 #include "app_canTx.hpp"
+#include "app_canAlerts.hpp"
 extern "C"
 {
 #include "app_rangeCheck.h"
@@ -23,10 +24,9 @@ void broadcast()
 {
     const float steering_angle       = io::steering::getAngleDegrees();
     const bool  steering_sensor_ocsc = io::steering::sensorOCSC();
-    can_tx::FSM_SteeringAngle_set(steering_angle);
-    can_tx::FSM_Info_SteeringAngleOCSC_set(steering_sensor_ocsc);
+    can_alerts::infos::SteeringAngleOCSC_set(steering_sensor_ocsc);
     const auto [status, clamped_value] = app_rangeCheck_getValue(&steering_angle_in_range_check, steering_angle);
-    can_tx::FSM_SteeringAngle_set(steering_angle);
-    can_tx::FSM_Info_SteeringAngleOutOfRange_set(status != VALUE_IN_RANGE);
+    can_tx::FSM_SteeringAngle_set(clamped_value);
+    can_alerts::infos::SteeringAngleOutOfRange_set(status != VALUE_IN_RANGE);
 }
 } // namespace app::steering

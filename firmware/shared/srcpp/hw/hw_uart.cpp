@@ -42,7 +42,7 @@ std::expected<void, ErrorCode> hw::Uart::transmit(const std::span<const uint8_t>
     {
         // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
         const std::expected<void, ErrorCode> st =
-            hw_utils_convertHalStatus(HAL_UART_Transmit(&handle, tx.data(), static_cast<uint16_t>(tx.size()), timeout));
+            utils::convertHalStatus(HAL_UART_Transmit(&handle, tx.data(), static_cast<uint16_t>(tx.size()), timeout));
         return st;
     }
 
@@ -55,7 +55,7 @@ std::expected<void, ErrorCode> hw::Uart::transmit(const std::span<const uint8_t>
     // Save current task before starting a UART transaction.
     taskInProgress = xTaskGetCurrentTaskHandle();
 
-    auto exit = hw_utils_convertHalStatus(HAL_UART_Transmit_IT(&handle, tx.data(), static_cast<uint16_t>(tx.size())));
+    auto exit = utils::convertHalStatus(HAL_UART_Transmit_IT(&handle, tx.data(), static_cast<uint16_t>(tx.size())));
     if (not exit.has_value())
     {
         // Mark this transaction as no longer in progress.
@@ -79,14 +79,14 @@ std::expected<void, ErrorCode> hw::Uart::receive(std::span<uint8_t> rx, const ui
     {
         // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
         const std::expected<void, ErrorCode> exit =
-            hw_utils_convertHalStatus(HAL_UART_Receive(&handle, rx.data(), static_cast<uint16_t>(rx.size()), timeout));
+            utils::convertHalStatus(HAL_UART_Receive(&handle, rx.data(), static_cast<uint16_t>(rx.size()), timeout));
         return exit;
     }
 
     taskInProgress = xTaskGetCurrentTaskHandle();
 
     std::expected<void, ErrorCode> exit =
-        hw_utils_convertHalStatus(HAL_UART_Receive_IT(&handle, rx.data(), static_cast<uint16_t>(rx.size())));
+        utils::convertHalStatus(HAL_UART_Receive_IT(&handle, rx.data(), static_cast<uint16_t>(rx.size())));
     if (not exit.has_value())
     {
         // Mark this transaction as no longer in progress.

@@ -4,6 +4,7 @@
 #include "app_precharge.hpp"
 #include "app_irs.hpp"
 #include "io_time.hpp"
+#include "io_irs.hpp"
 // #include "app.segments.hpp"
 #include "app_canAlerts.hpp"
 
