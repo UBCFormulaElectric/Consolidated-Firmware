@@ -145,11 +145,13 @@ elseif ("${TARGET}" STREQUAL "test")
             "${SHARED_FAKES_DIR_CPP}/io_imu.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_pump.cpp"
+            "${SHARED_FAKES_DIR_CPP}/hw_fmac.cpp"
             "${SHARED_APP_INCLUDE_DIR_CPP}/app_timer.cpp"
     )
     set(INCLUDE_DIRS
             "${CMAKE_CURRENT_SOURCE_DIR}/test"
-            ${APP_INCLUDE_DIRS} ${SHARED_FAKES_DIR_CPP} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP}
+            ${APP_INCLUDE_DIRS} ${SHARED_FAKES_DIR_CPP} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS}
+            ${SHARED_UTIL_INCLUDE_DIR_CPP} ${SHARED_HW_INCLUDE_DIR_CPP}
     )
     compile_gtest_executable(
             "hexray_VC_test"
