@@ -128,6 +128,22 @@ class BMSChimeraConfig final : public chimera_v2::config
         }
     }
 
+    std::optional<std::reference_wrapper<const hw::i2c::device>> id_to_i2c(const _I2cNetName *inn) const override
+    {
+        if (inn->which_name != i2c_net_name_tag)
+        {
+            LOG_ERROR("Chimera: Expected I2C net name with tag %d, got %d", i2c_net_name_tag, inn->which_name);
+            return std::nullopt;
+        }
+        switch (inn->name.bms_net_name)
+        {
+            default:
+            case bms_I2cNetName_I2C_NET_NAME_UNSPECIFIED:
+                LOG_INFO("Chimera: Unspecified I2C net name");
+                return std::nullopt;
+        }
+    }
+
     std::optional<std::reference_wrapper<const hw::spi::device>> id_to_spi(const _SpiNetName *snn) const override
     {
         if (snn->which_name != spi_net_name_tag)
@@ -161,7 +177,7 @@ class BMSChimeraConfig final : public chimera_v2::config
         gpio_net_name_tag = GpioNetName_bms_net_name_tag;
         adc_net_name_tag  = AdcNetName_bms_net_name_tag;
         spi_net_name_tag  = SpiNetName_bms_net_name_tag;
-        // i2c_net_name_tag  = I2cNetName_bms_net_name_tag;
+        i2c_net_name_tag  = I2cNetName_bms_net_name_tag;
     }
 } bms_config;
 

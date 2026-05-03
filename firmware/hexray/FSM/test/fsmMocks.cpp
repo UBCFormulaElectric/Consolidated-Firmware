@@ -195,13 +195,6 @@ const io::shdn::node bots_node(true, app::can_tx::FSM_BOTSOKStatus_set);
 const io::shdn::node fl_shdn_ok_node(true, app::can_tx::FSM_FrontLeftILCKInertiaOKStatus_set);
 const io::shdn::node fr_shdn_ok_node(true, app::can_tx::FSM_FrontRightILCKOKStatus_set);
 
-#include "app_fmacTest.hpp"
-namespace app::fmac_test
-{
-void init() {}
-void broadcast() {}
-} // namespace app::fmac_test
-
 #include "io_canQueues.hpp"
 io::queue<io::CanMsg, 128> can_tx_queue{ "" };
 io::queue<io::CanMsg, 128> can_rx_queue{ "" };
