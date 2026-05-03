@@ -98,7 +98,7 @@ IF ("${TARGET}" STREQUAL "binary")
     )
 
     # JSONCAN
-    jsoncan_embedded_library_cpp(H5 dev "${CMAKE_CURRENT_BINARY_DIR}")
+    jsoncan_embedded_library_cpp(H5 dev "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
 
     embedded_binary(
             "h5dev_app"
