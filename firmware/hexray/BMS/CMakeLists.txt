@@ -53,6 +53,9 @@ set(HW_INCLUDE_DIRS
 # chimera sources
 set(CHIMERA_SRCS ${HW_SRCS} "${CMAKE_CURRENT_SOURCE_DIR}/src/chimera.cpp")
 list(FILTER CHIMERA_SRCS EXCLUDE REGEX ".*(hw_cans|hw_can_hx)\\.cpp")
+# HAL I2C callbacks in shared hw_i2c.cpp call hw::i2c::getBusFromHandle — must link board hw_i2cs.cpp
+list(APPEND CHIMERA_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/hw_i2cs.cpp")
+list(REMOVE_DUPLICATES CHIMERA_SRCS)
 set(CHIMERA_INCLUDE_DIRS ${HW_INCLUDE_DIRS})
 
 if ("${TARGET}" STREQUAL "binary")

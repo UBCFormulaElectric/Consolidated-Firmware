@@ -128,6 +128,7 @@ class BMSChimeraConfig final : public chimera_v2::config
         }
     }
 
+    // shared.proto I2cNetName only has rsm_net_name / vc_net_name (no bms arm). BMS Chimera does not expose I2C nets.
     std::optional<std::reference_wrapper<const hw::i2c::device>> id_to_i2c(const _I2cNetName *inn) const override
     {
         UNUSED(inn);
