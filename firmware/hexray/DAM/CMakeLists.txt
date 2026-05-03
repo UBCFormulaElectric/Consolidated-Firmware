@@ -139,6 +139,7 @@ elseif ("${TARGET}" STREQUAL "test")
     set(INCLUDE_DIRS
             # "${CMAKE_CURRENT_SOURCE_DIR}/test"
             ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP}
+            ${CUBEMX_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS_}
     )
     compile_gtest_executable(
             "hexray_DAM_test"
@@ -158,6 +159,6 @@ elseif ("${TARGET}" STREQUAL "test")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    target_link_libraries("hexray_DAM_test" PRIVATE "hexray_DAM_commit_info" "hexray_DAM_jsoncan")
+    target_link_libraries("hexray_DAM_test" PRIVATE "hexray_DAM_commit_info" "hexray_DAM_jsoncan" "hexray_DAM_stm32")
     target_compile_definitions("hexray_DAM_test" PRIVATE STM32H562xx)
 endif ()
