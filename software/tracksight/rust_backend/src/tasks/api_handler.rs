@@ -1,5 +1,6 @@
 use std::sync::Arc;
 use axum::Router;
+use moka::future::Cache;
 use tokio::select;
 use tokio::sync::RwLock;
 use tokio::net::TcpListener;
@@ -8,12 +9,13 @@ use jsoncan_rust::can_database::CanDatabase;
 use tower_http::cors::{CorsLayer, Any};
 use mdns_sd::{ServiceDaemon, ServiceInfo};
 
+use crate::tasks::client_api::signal_tile::LRU_CACHE_CAPACITY;
 #[allow(unused_imports)]
 use crate::utils::yellow;
 use crate::config::CONFIG;
 use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, ResultExt, ShutdownReceiver, Task};
 use crate::tasks::client_api::AppState;
-use crate::tasks::client_api::clients::Clients;
+use crate::tasks::client_api::subtable_clients::Clients;
 use crate::tasks::client_api::signal_api_handler::get_signal_router;
 use crate::tasks::client_api::subtable_api_handler::get_subtable_router;
 use crate::vprintln;
@@ -55,8 +57,17 @@ pub async fn run_api_handler(
     let (socket_layer, io) = SocketIo::new_layer();
 
     let app_state = AppState {
-        can_db,
+        can_db: can_db,
         clients: clients.clone(),
+        influx_client: Arc::new(influxdb2::Client::new(
+            &CONFIG.influxdb_url,
+            &CONFIG.influxdb_org,
+            &CONFIG.influxdb_token
+        )),
+
+        signal_tile_cache: Cache::builder()
+            .max_capacity(LRU_CACHE_CAPACITY) // max number of tiles in cache, adjust as needed
+            .build(),
     };
 
     let cors = CorsLayer::new()

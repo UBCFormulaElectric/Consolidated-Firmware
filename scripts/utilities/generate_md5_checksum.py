@@ -9,9 +9,8 @@ import os
 
 def generate_md5_checksum(file_name) -> str:
     # Calculate MD5 checksum for intput file
-    with open(file_name, 'r', encoding='utf-8') as f:
-        md5_returned = hashlib.md5(f.read().encode('utf-8')).hexdigest()
-        f.close()
+    with open(file_name, 'rb') as f:
+        md5_returned = hashlib.md5(f.read()).hexdigest()
     return md5_returned
 
 

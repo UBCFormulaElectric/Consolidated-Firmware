@@ -24,7 +24,7 @@ static SensorData    sensor_data;                       // Struct of all sensor 
 static StaticStreamBuffer_t uart_sbuf_ctrl;
 static uint8_t              uart_sbuf_data[QUEUE_MAX_SIZE * UART_RX_PACKET_SIZE];
 static StreamBufferHandle_t uart_sbuf_handle;
-static uint32_t             sbg_queue_overflow_count;
+static uint8_t              sbg_queue_overflow_count;
 
 static void         createSerialInterface(SbgInterface *interface);
 static SbgErrorCode read(SbgInterface *interface, void *buffer, size_t *read_bytes, size_t bytes_to_read);
@@ -218,7 +218,7 @@ std::expected<void, ErrorCode> init()
     assert(uart_sbuf_handle != NULL);
 
     // Start waiting for UART packets
-    RETURN_IF_ERR(sbg_ellipse_uart.receiveDma(std::span<uint8_t>{ uart_dma_buf }));
+    RETURN_IF_ERR(sbg_ellipse_uart.receive(std::span<uint8_t>{ uart_dma_buf }));
     return {};
 }
 
@@ -258,7 +258,7 @@ uint32_t getComStatus(void)
     return sensor_data.status_data.com_status;
 }
 
-uint32_t getOverflowCount(void)
+uint8_t getOverflowCount(void)
 {
     return sbg_queue_overflow_count;
 }
@@ -268,29 +268,29 @@ uint32_t getEkfSolutionMode(void)
     return sensor_data.ekf_solution_status;
 }
 
-Vector3 *getImuAccelerations(void)
+const Vector3 getImuAccelerations(void)
 {
-    return &sensor_data.imu_data.acceleration;
+    return sensor_data.imu_data.acceleration;
 }
 
-Attitude *getImuAngularVelocities(void)
+const Attitude getImuAngularVelocities(void)
 {
-    return &sensor_data.imu_data.angular_velocity;
+    return sensor_data.imu_data.angular_velocity;
 }
 
-Attitude *getEkfEulerAngles(void)
+const Attitude getEkfEulerAngles(void)
 {
-    return &sensor_data.ekf_euler_data.euler_angles;
+    return sensor_data.ekf_euler_data.euler_angles;
 }
 
-VelocityData *getEkfNavVelocityData(void)
+const VelocityData getEkfNavVelocityData(void)
 {
-    return &sensor_data.ekf_nav_data.velocity;
+    return sensor_data.ekf_nav_data.velocity;
 }
 
-PositionData *getEkfNavPositionData(void)
+const PositionData getEkfNavPositionData(void)
 {
-    return &sensor_data.ekf_nav_data.position;
+    return sensor_data.ekf_nav_data.position;
 }
 
 void msgRxCallback(void)

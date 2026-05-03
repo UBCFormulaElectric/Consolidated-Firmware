@@ -31,8 +31,14 @@
       }
     }
   },
+  "Bootup": {
+    "msg_id": 799,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
+  },
   "CommitInfo": {
-    "msg_id": 709,
+    "msg_id": 708,
     "cycle_time": 100,
     "description": "RSM Commit Info",
     "signals": {
@@ -45,7 +51,7 @@
     }
   },
   "Coolant": {
-    "msg_id": 710,
+    "msg_id": 709,
     "cycle_time": 1000,
     "signals": {
       "CoolantFlowRate": {
@@ -57,7 +63,7 @@
     }
   },
   "SuspensionTravel": {
-    "msg_id": 711,
+    "msg_id": 710,
     "cycle_time": 1000,
     "description": "Suspension travel",
     "signals": {
@@ -76,7 +82,7 @@
     }
   },
   "IMU": {
-    "msg_id": 712,
+    "msg_id": 711,
     "cycle_time": 10,
     "description": "IMU data",
     "signals": {
@@ -119,7 +125,7 @@
     }
   },
   "Brakes": {
-    "msg_id": 713,
+    "msg_id": 712,
     "cycle_time": 1000,
     "description": "Front and rear brake pressures",
     "signals": {
@@ -135,7 +141,7 @@
     }
   },
   "ShdnNodeStatus": {
-    "msg_id": 714,
+    "msg_id": 713,
     "cycle_time": 10,
     "description": "RSM shutdown nodes",
     "signals": {
@@ -144,14 +150,21 @@
       }
     }
   },
-  "Bootup": {
-    "msg_id": 799,
-    "cycle_time": null,
-    "description": "Async bootup message!",
-    "signals": {}
+  "RearPumpPercentage" : {
+    "msg_id": 714, 
+    "cycle_time": 1000,
+    "description": "Rear pump information",
+    "signals" : {
+      "RPumpPercentage" : {
+        "resolution": 1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      }
+    }
   },
   "TireSensor" : {
-    "msg_id": 715,
+    "msg_id": 798,
     "cycle_time" : 100,
     "description" :" Tire sensor information",
     "signals" : {

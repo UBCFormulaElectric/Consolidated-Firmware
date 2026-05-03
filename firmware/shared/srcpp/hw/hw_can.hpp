@@ -5,6 +5,7 @@
 #include "hw_hal.hpp"
 
 #include <array>
+#include <expected>
 #include <span>
 
 namespace hw
@@ -25,9 +26,10 @@ struct CanMsg
 
     explicit CanMsg() = default;
 
-    uint32_t                                       std_id = 0;
-    uint32_t                                       dlc    = 0;
-    mutable std::array<uint8_t, CAN_PAYLOAD_BYTES> data{};
+    uint32_t std_id = 0;
+    uint32_t dlc    = 0;
+
+    alignas(8) mutable std::array<uint8_t, CAN_PAYLOAD_BYTES> data{};
 
     [[nodiscard]] std::span<uint16_t, CAN_PAYLOAD_BYTES / 2> getDataAsWords()
     {
@@ -149,11 +151,11 @@ class fdcan final : public BaseCan
 
     void deinit() const override;
 
-    std::expected<void, ErrorCode> can_transmit(const CanMsg &msg) const override;
+    [[nodiscard]] std::expected<void, ErrorCode> can_transmit(const CanMsg &msg) const override;
 
-    std::expected<void, ErrorCode> fdcan_transmit(const CanMsg &msg) const;
+    [[nodiscard]] std::expected<void, ErrorCode> fdcan_transmit(const CanMsg &msg) const;
 
-    std::expected<CanMsg, ErrorCode> receive(uint32_t rx_fifo) const override;
+    [[nodiscard]] std::expected<CanMsg, ErrorCode> receive(uint32_t rx_fifo) const override;
 };
 
 const fdcan &fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan);

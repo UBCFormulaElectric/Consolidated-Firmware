@@ -24,7 +24,7 @@ namespace io::powerMonitoring
 {
 std::expected<void, ErrorCode> read_register(uint16_t reg, std::span<uint8_t> data)
 {
-    RETURN_IF_ERR_SILENT(hw::i2c::pwr_pump.memoryRead(reg, data));
+    RETURN_IF_ERR_SILENT(pwr_pump.memoryRead(reg, data));
     return {};
 }
 
@@ -39,21 +39,21 @@ std::expected<void, ErrorCode> write_register(uint16_t reg, std::span<const uint
     memcpy(&buf[1], data, len);
     return (hw_i2c_memoryWrite(&pwr_mtr, reg, buf, len + 1) == EXIT_CODE_OK); */
 
-    RETURN_IF_ERR(hw::i2c::pwr_pump.memoryWrite(reg, data));
+    RETURN_IF_ERR(pwr_pump.memoryWrite(reg, data));
     return {};
 }
 
-void io_power_monitoring_refresh(void)
+void refresh()
 {
-    const uint8_t cmd = 0x00;
-    LOG_IF_ERR(hw::i2c::pwr_pump.transmit((std::span{ &cmd, 1 })));
+    constexpr uint8_t cmd = 0x00;
+    LOG_IF_ERR(pwr_pump.transmit((std::span{ &cmd, 1 })));
     io::time::delay(1);
 }
 
-bool io_powerMonitoring_init(void)
+bool init()
 {
     // 1) Check if peripheral is ready
-    if (!hw::i2c::pwr_pump.isTargetReady())
+    if (!pwr_pump.isTargetReady())
     {
         return false;
     }
@@ -90,7 +90,7 @@ bool io_powerMonitoring_init(void)
     return true;
 }
 
-void read_voltage(uint8_t ch, float *voltage)
+float read_voltage(uint8_t ch)
 {
     std::array<uint8_t, 2> buf;
     uint8_t                reg = (uint8_t)(REG_VBUS + (ch - 1));
@@ -98,10 +98,10 @@ void read_voltage(uint8_t ch, float *voltage)
 
     // msb first
     uint16_t raw = (uint16_t)((buf[0] << 8) | buf[1]);
-    *voltage     = raw * VBUS_LSB;
+    return (raw * VBUS_LSB);
 }
 
-void read_current(uint8_t ch, float *current)
+float read_current(uint8_t ch)
 {
     std::array<uint8_t, 2> buf;
     uint8_t                reg = (uint8_t)(REG_VSENSE + (ch - 1));
@@ -109,10 +109,10 @@ void read_current(uint8_t ch, float *current)
 
     // MSB first
     uint16_t raw = (uint16_t)((buf[0] << 8) | buf[1]);
-    *current     = raw * VSENSE_LSB;
+    return (raw * VSENSE_LSB);
 }
 
-void read_power(uint8_t ch, float *power)
+float read_power(uint8_t ch)
 {
     std::array<uint8_t, 4> buf;
     uint8_t                reg = (uint8_t)(REG_VPOWERN + (ch - 1));
@@ -126,7 +126,7 @@ void read_power(uint8_t ch, float *power)
     // unimplemented first two bits
     raw30 &= 0xFFFFFFF3U;
 
-    *power = (float)raw30 * POWER_LSB;
+    return ((float)raw30 * POWER_LSB);
 }
 
 } // namespace io::powerMonitoring

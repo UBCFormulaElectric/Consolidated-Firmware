@@ -1,13 +1,14 @@
 #include "hw_uarts.hpp"
 #include "main.h"
+#include <cassert>
 
 namespace hw
 {
-Uart sbg_ellipse_uart(huart8);
+constexpr Uart sbg_ellipse_uart{ huart8 };
 
 const Uart &getUartFromHandle(const UART_HandleTypeDef *handle)
 {
-    UNUSED(handle);
+    assert(handle == &huart8);
     return sbg_ellipse_uart;
 }
 } // namespace hw

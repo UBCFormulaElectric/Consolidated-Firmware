@@ -2,7 +2,7 @@ use askama::Template;
 
 use crate::{
     can_database::{CanBus, CanDatabase},
-    codegen::cpp::{CPPGenerator, id_macro},
+    codegen::cpp::CPPGenerator,
     reroute::CanForward,
 };
 
@@ -14,9 +14,11 @@ struct IoCanRerouteModuleSource<'a> {
     reroutes: &'a CanForward,
 }
 impl IoCanRerouteModuleSource<'_> {
-    fn id_macro(self: &Self, msg_id: &u32) -> String {
-        let name = self.can_db.get_message_name_by_id(*msg_id).unwrap();
-        id_macro(&name)
+    fn msg_name_from_id(self: &Self, msg_id: &u32) -> String {
+        self.can_db
+            .get_message_name_by_id(*msg_id)
+            .unwrap()
+            .to_string()
     }
 }
 

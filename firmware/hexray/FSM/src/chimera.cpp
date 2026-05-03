@@ -19,7 +19,7 @@ class FSMChimeraConfig : public chimera_v2::config
 {
   public:
     ~FSMChimeraConfig() override = default;
-    std::optional<std::reference_wrapper<const hw::Gpio>> id_to_gpio(const _GpioNetName *gnn) const override
+    std::optional<std::reference_wrapper<const hw::gpio>> id_to_gpio(const _GpioNetName *gnn) const override
     {
         if (gnn->which_name != gpio_net_name_tag)
         {
@@ -29,7 +29,7 @@ class FSMChimeraConfig : public chimera_v2::config
         switch (gnn->name.fsm_net_name)
         {
             case fsm_GpioNetName_GPIO_BOTS_3v3:
-                return std::cref(boot_led);
+                return std::cref(bots_3v3);
             case fsm_GpioNetName_GPIO_COCKPIT_SHDN_3v3:
                 return std::cref(cockpit_shdn_3v3);
             case fsm_GpioNetName_GPIO_IMU_NSS:
@@ -60,7 +60,7 @@ class FSMChimeraConfig : public chimera_v2::config
         }
     }
 
-    std::optional<std::reference_wrapper<const hw::Adc>> id_to_adc(const _AdcNetName *snn) const override
+    std::optional<std::reference_wrapper<const hw::adc>> id_to_adc(const _AdcNetName *snn) const override
     {
         if (snn->which_name != adc_net_name_tag)
         {
@@ -71,17 +71,17 @@ class FSMChimeraConfig : public chimera_v2::config
         switch (snn->name.fsm_net_name)
         {
             case fsm_AdcNetName_ADC_SUSP_FL:
-                return std::cref(hw::adcs::susp_fl);
+                return std::cref(susp_fl);
             case fsm_AdcNetName_ADC_SUSP_FR:
-                return std::cref(hw::adcs::susp_fr);
+                return std::cref(susp_fr);
             case fsm_AdcNetName_ADC_APPS2:
-                return std::cref(hw::adcs::apps2);
+                return std::cref(apps2);
             case fsm_AdcNetName_ADC_BPS_F:
-                return std::cref(hw::adcs::bps_f);
+                return std::cref(bps_f);
             case fsm_AdcNetName_ADC_STR_ANGLE:
-                return std::cref(hw::adcs::str_angle);
+                return std::cref(str_angle);
             case fsm_AdcNetName_ADC_APPS1:
-                return std::cref(hw::adcs::apps1);
+                return std::cref(apps1);
             default:
             case fsm_AdcNetName_ADC_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified ADC net name");
@@ -90,7 +90,7 @@ class FSMChimeraConfig : public chimera_v2::config
         return std::nullopt;
     }
 
-    std::optional<std::reference_wrapper<const hw::spi::SpiDevice>> id_to_spi(const _SpiNetName *snn) const override
+    std::optional<std::reference_wrapper<const hw::spi::device>> id_to_spi(const _SpiNetName *snn) const override
     {
         if (snn->which_name != spi_net_name_tag)
         {
@@ -138,7 +138,7 @@ char USBD_PRODUCT_STRING_FS[] = "fsm";
 
 [[noreturn]] void tasks_init()
 {
-    hw::adcs::chipsInit();
+    adcChipsInit();
     assert(hw::usb::init());
     osKernelInitialize();
     TaskChimera.start();
