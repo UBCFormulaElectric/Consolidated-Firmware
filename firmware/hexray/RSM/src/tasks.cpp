@@ -74,10 +74,10 @@
     forever
     {
         jobs_run1kHz_tick();
-
-        monitor1khz.checkForTimeouts();
         watchdog1khz.checkIn();
-
+#ifndef WATCHDOG_DISABLED
+        monitor1khz.checkForTimeouts();
+#endif
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -139,8 +139,12 @@ void tasks_preInit()
 
 void tasks_init()
 {
-    // __HAL_DBGMCU_FREEZE_IWDG();
+#ifndef WATCHDOG_DISABLED
+    __HAL_DBGMCU_FREEZE_IWDG();
+#endif
     SEGGER_SYSVIEW_Conf();
+    LOG_INFO("RSM Reset!");
+
     adcchipsInit();
     can1.init();
     ResetReason reason = hw::resetReason::get();

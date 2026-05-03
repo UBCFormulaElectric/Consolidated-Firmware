@@ -39,7 +39,7 @@ CFUNC void bootloader_preInit()
 
 [[noreturn]] void bootloader_init()
 {
-    HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(BOOT_GPIO_Port, BOOT_Pin, GPIO_PIN_SET);
     osKernelInitialize();
     bootloader::init(RSM_boot_config);
     bootInterfaceTask.start();

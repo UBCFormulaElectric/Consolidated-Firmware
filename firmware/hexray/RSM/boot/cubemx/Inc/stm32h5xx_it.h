@@ -60,7 +60,7 @@ extern "C"
     void RCC_IRQHandler(void);
     void FDCAN1_IT0_IRQHandler(void);
     void FDCAN1_IT1_IRQHandler(void);
-
+    void TIM6_IRQHandler(void);
     /* USER CODE BEGIN EFP */
 
     /* USER CODE END EFP */
@@ -68,4 +68,5 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
+
 #endif /* __STM32H5xx_IT_H */

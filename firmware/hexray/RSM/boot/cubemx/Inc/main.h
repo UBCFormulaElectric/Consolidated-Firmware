@@ -27,7 +27,7 @@ extern "C"
 {
 #endif
 
-    /* Includes ------------------------------------------------------------------*/
+/* Includes ------------------------------------------------------------------*/
 #include "stm32h5xx_hal.h"
 
     /* Private includes ----------------------------------------------------------*/
@@ -57,9 +57,11 @@ extern "C"
 
     /* USER CODE BEGIN EFP */
     extern FDCAN_HandleTypeDef hfdcan2;
-    /* USER CODE END EFP */
+/* USER CODE END EFP */
 
-    /* Private defines -----------------------------------------------------------*/
+/* Private defines -----------------------------------------------------------*/
+#define BRAKE_LIGHT_EN_3V3_Pin GPIO_PIN_9
+#define BRAKE_LIGHT_EN_3V3_GPIO_Port GPIOA
 #define SWDIO_Pin GPIO_PIN_13
 #define SWDIO_GPIO_Port GPIOA
 #define SWCLK_Pin GPIO_PIN_14

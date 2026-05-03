@@ -209,6 +209,4 @@ CONFIGS = {
     "hexray" : [hexray_RSM, hexray_BMS, hexray_CRIT, hexray_DAM, hexray_CRIT, hexray_FSM, hexray_VC],
     "h7dev": [h7dev],
     "h5dev": [h5dev],
-    "hexray_BMS" : [hexray_BMS],
-    "hexray_FSM" : [hexray_FSM],
 }

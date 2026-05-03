@@ -41,7 +41,7 @@ void jobs_run100Hz_tick()
     app::suspension::broadcast();
     app::tireTemp::broadcast();
     app::coolant::broadcast();
-    app::pumpControl::broadcast();
+    // app::pumpControl::broadcast();
 
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
