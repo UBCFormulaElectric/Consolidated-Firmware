@@ -1,3 +1,9 @@
 {
-  "messages": []
+  "messages": [
+    "BMS_Vitals",
+    "CRIT_Vitals",
+    "DAM_Vitals",
+    "RSM_Vitals",
+    "VC_Vitals"
+  ]
 }

@@ -31,8 +31,6 @@ list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/efuse/io_efuse_TI_TPS25.cpp"
         "${SHARED_IO_INCLUDE_DIR_CPP}/util/"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
-        "${SHARED_IO_INCLUDE_DIR_CPP}/efuse/io_efuse_TI_TPS28.cpp"
-        "${SHARED_IO_INCLUDE_DIR_CPP}/efuse/io_efuse_TI_TPS25.cpp"
 )
 set(IO_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
@@ -43,7 +41,6 @@ set(IO_INCLUDE_DIRS
 file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp")
 list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_gpio.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_adc.hpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_i2c.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_uart.cpp"
@@ -52,7 +49,8 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmOutput.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_assert.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_watchdog.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_resetReason.cpp"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -110,6 +108,7 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_hal_spi.c"
             "stm32h7xx_hal_tim_ex.c"
             "stm32h7xx_hal_gpio.c"
+            "stm32h7xx_hal_iwdg.c"
     )
     stm32h733xx_cube_library(
             "hexray_VC_stm32"

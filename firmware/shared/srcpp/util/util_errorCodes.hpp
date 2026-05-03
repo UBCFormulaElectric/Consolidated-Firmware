@@ -24,7 +24,7 @@ constexpr const char *error_code_to_string(const ErrorCode code)
         case ErrorCode::INVALID_ARGS:
             return "Invalid arguments";
         case ErrorCode::OUT_OF_RANGE:
-            return "Out of range";
+            return "Out of range / Overflow";
         case ErrorCode::TIMEOUT:
             return "Timeout";
         case ErrorCode::ERROR:
@@ -45,13 +45,13 @@ constexpr const char *error_code_to_string(const ErrorCode code)
     }
 }
 
-#define RETURN_IF_ERR(err_expr)                                                \
-    {                                                                          \
-        if (const auto res = err_expr; not res)                                \
-        {                                                                      \
-            LOG_ERROR(#err_expr " exited with an error, returning: %d", exit); \
-            return std::unexpected(res.error());                               \
-        }                                                                      \
+#define RETURN_IF_ERR(err_expr)                                                       \
+    {                                                                                 \
+        if (const auto res = err_expr; not res)                                       \
+        {                                                                             \
+            LOG_ERROR(#err_expr " exited with an error, returning: %d", res.error()); \
+            return std::unexpected(res.error());                                      \
+        }                                                                             \
     }
 
 #define RETURN_IF_ERR_SILENT(err_expr)           \

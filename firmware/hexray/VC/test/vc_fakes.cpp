@@ -2,36 +2,29 @@
 #include "app_canTx.hpp"
 #include "io_imus.hpp"
 #include "io_pumpControl.hpp"
-#include "io_efuses.hpp"
 #include "io_sbgEllipse.hpp"
 #include "io_powerMonitoring.hpp"
-#include "io_vcShdn.hpp"
 #include "io_shdnLoopNode.hpp"
 #include "io_efuse_TI_TPS25.hpp"
 #include "io_efuse_TI_TPS28.hpp"
 
-io::Imu            IMU1;
-io::Imu            IMU2;
-io::Imu            IMU3;
-io::Pump           rr_pump;
-io::Pump           rl_pump;
+io::imu                  IMU1;
+io::imu                  IMU2;
+io::imu                  IMU3;
+const io::pump           rr_pump;
+const io::pump           rl_pump;
+const io::TI_TPS28_Efuse f_inv_efuse;
+const io::TI_TPS28_Efuse r_inv_efuse;
+const io::TI_TPS28_Efuse bms_efuse;
+const io::TI_TPS28_Efuse rsm_efuse;
+// app::Timer         timer{};
 
-io::TI_TPS28_Efuse f_inv_efuse;
-io::TI_TPS28_Efuse r_inv_efuse;
-io::TI_TPS28_Efuse bms_efuse;
-io::TI_TPS28_Efuse rsm_efuse;
-io::TI_TPS28_Efuse dam_efuse;
-io::TI_TPS28_Efuse front_efuse;
-io::TI_TPS28_Efuse l_rad_fan_efuse;
-io::TI_TPS28_Efuse r_rad_fan_efuse;
-io::TI_TPS25_Efuse rl_pump_efuse;
-io::TI_TPS25_Efuse rr_pump_efuse;
-
-std::array<std::reference_wrapper<io::Efuse>, NUM_EFUSE_CHANNELS> efuses = {
-    { f_inv_efuse, r_inv_efuse, bms_efuse, rsm_efuse, dam_efuse, front_efuse, l_rad_fan_efuse, r_rad_fan_efuse,
-      rl_pump_efuse, rr_pump_efuse }
-};
-
+const io::TI_TPS28_Efuse dam_efuse;
+const io::TI_TPS28_Efuse front_efuse;
+const io::TI_TPS28_Efuse l_rad_fan_efuse;
+const io::TI_TPS28_Efuse r_rad_fan_efuse;
+const io::TI_TPS25_Efuse rl_pump_efuse;
+const io::TI_TPS25_Efuse rr_pump_efuse;
 
 
 const io::shdn::node tsms_node(false, app::can_tx::VC_TSMSOKStatus_set);
