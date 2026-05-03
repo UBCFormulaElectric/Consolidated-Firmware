@@ -2,8 +2,7 @@
 #include "io_log.hpp"
 #include "util_utils.hpp"
 
-// Override libstdc++'s internal assert to prevent it pulling in fprintf/vfprintf
-// (~17 KB) and the locale/unicode cascade it drags in.
+// Override libstdc++'s internal assert
 namespace std
 {
 [[noreturn]] void
