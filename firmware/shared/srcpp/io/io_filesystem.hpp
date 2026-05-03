@@ -1,11 +1,13 @@
 #pragma once
 
-#include "hw_sd.hpp"
 #include <array>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
 #include <expected>
+#include <span>
+
+#include "hw_sd.hpp"
 
 extern "C"
 {
