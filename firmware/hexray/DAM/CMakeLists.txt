@@ -64,7 +64,7 @@ set(CHIMERA_INCLUDE_DIRS ${HW_INCLUDE_DIRS} ${IO_INCLUDE_DIRS})
 if ("${TARGET}" STREQUAL "binary")
     set(ARM_CORE "cm33")
     set(LINKER_SCRIPT "${LINKER_DIR}/stm32h562ritx/stm32h562ritx_app_only.ld")
-    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS})
+    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS} ${HW_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
 
     embedded_binary(
@@ -135,10 +135,10 @@ elseif ("${TARGET}" STREQUAL "test")
             "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/test/fake_io_crc.cpp"
     )
-    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_IO_SRCS} ${TEST_SRCS} ${FAKE_SRCS})
+    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_IO_SRCS} ${TEST_SRCS} ${FAKE_SRCS} ${HW_SRCS})
     set(INCLUDE_DIRS
             # "${CMAKE_CURRENT_SOURCE_DIR}/test"
-            ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP}
+            ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP}
     )
     compile_gtest_executable(
             "hexray_DAM_test"
