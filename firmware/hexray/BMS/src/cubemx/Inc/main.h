@@ -52,6 +52,7 @@ extern "C"
     extern TIM_HandleTypeDef   htim3;
     extern TIM_HandleTypeDef   htim5;
     extern SD_HandleTypeDef    hsd1;
+    extern IWDG_HandleTypeDef  hiwdg1;
     extern PCD_HandleTypeDef   hpcd_USB_OTG_HS;
     /* USER CODE END EC */
 
@@ -201,8 +202,8 @@ extern "C"
 #define SHDN_FAULT_GPIO_Port GPIOB
 #define PGOOD_3V3_Pin GPIO_PIN_9
 #define PGOOD_3V3_GPIO_Port GPIOB
-#define BMS_OK_Pin GPIO_PIN_0
-#define BMS_OK_GPIO_Port GPIOE
+#define nBMS_OK_Pin GPIO_PIN_0
+#define nBMS_OK_GPIO_Port GPIOE
 #define nEVSE_I_LIM_GPIO_Pin GPIO_PIN_1
 #define nEVSE_I_LIM_GPIO_GPIO_Port GPIOE
 

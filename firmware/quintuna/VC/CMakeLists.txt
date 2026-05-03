@@ -19,6 +19,7 @@ list(APPEND APP_SRCS
         "${SHARED_APP_INCLUDE_DIR}/app_signal.c"
         "${SHARED_APP_INCLUDE_DIR}/app_jsoncan.c"
         "${SHARED_APP_INCLUDE_DIR}/app_sensor_filter.c"
+        "${SHARED_APP_INCLUDE_DIR}/app_pid.c"
 )
 set(APP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/app" "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_QUINTUNA_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/src/app/vehicle_dynamics")
 
@@ -29,12 +30,21 @@ list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_canLogging.c"
         "${SHARED_IO_INCLUDE_DIR}/io_led.c"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
-        "${SHARED_IO_INCLUDE_DIR}/io_loadswitch.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_efuse/io_efuse.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_efuse/io_efuse_ST_VND5/io_efuse_ST_VND5.c"
+        "${SHARED_IO_INCLUDE_DIR}/io_efuse/io_efuse_TI_TPS25/io_efuse_TI_TPS25.c"
         "${SHARED_IO_INCLUDE_DIR}/io_potentiometer.c"
         "${SHARED_IO_INCLUDE_DIR}/io_bootHandler.c"
         "${SHARED_IO_INCLUDE_DIR}/io_imu.c"
 )
-set(IO_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/io" "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_QUINTUNA_DIR}")
+set(IO_INCLUDE_DIRS 
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io" 
+        "${SHARED_IO_INCLUDE_DIR}" 
+        "${SHARED_IO_INCLUDE_DIR}/io_efuse" 
+        "${SHARED_IO_INCLUDE_DIR}/io_efuse/io_efuse_TI_TPS25" 
+        "${SHARED_IO_INCLUDE_DIR}/io_efuse/io_efuse_ST_VND5" 
+        "${SHARED_IO_INCLUDE_QUINTUNA_DIR}"
+)
 
 file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.c")
 list(APPEND HW_SRCS
@@ -152,7 +162,7 @@ if ("${TARGET}" STREQUAL "binary")
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(FAKE_SRCS
-            "${SHARED_FAKES_DIR}/io_imuQuintuna.cpp"
+            "${SHARED_FAKES_DIR}/io_imu.cpp"
             "${SHARED_FAKES_DIR}/io_loadswitch.cpp"
             "${SHARED_FAKES_DIR}/io_canQueue.cpp"
             "${SHARED_FAKES_DIR}/io_bootHandler.cpp"

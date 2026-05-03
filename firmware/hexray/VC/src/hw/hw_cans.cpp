@@ -1,22 +1,50 @@
 #include "hw_cans.hpp"
 #include "main.h"
+#include <cassert>
+#ifndef USE_CHIMERA
+#include "io_canQueues.hpp"
+#include "app_canUtils.hpp"
+#endif
 
-namespace hw::cans
-{
-fdcan fdcan1(hfdcan1, 0, [](const io::CanMsg &msg) { UNUSED(msg); });
-fdcan fdcan3(hfdcan3, 0, [](const io::CanMsg &msg) { UNUSED(msg); });
-} // namespace hw::cans
+const hw::fdcan fdcan1(
+    hfdcan1,
+    [](const hw::CanMsg &msg)
+    {
+#ifndef USE_CHIMERA
+        LOG_IF_ERR(can_rx_queue.push({
+            msg.std_id,
+            msg.dlc,
+            msg.data,
+            true,
+            app::can_utils::BusEnum::Bus_FDCAN,
+        }));
+#else
+        UNUSED(msg);
+#endif
+    });
+const hw::fdcan invcan(
+    hfdcan3,
+    [](const hw::CanMsg &msg)
+    {
+#ifndef USE_CHIMERA
+        LOG_IF_ERR(can_rx_queue.push({
+            msg.std_id,
+            msg.dlc,
+            msg.data,
+            false,
+            app::can_utils::BusEnum::Bus_FDCAN,
+        }));
+#else
+        UNUSED(msg);
+#endif
+    });
 
 const hw::fdcan &hw::fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
 {
-    if (hfdcan == hw::cans::fdcan1.getHfdcan())
+    assert(hfdcan == fdcan1.getHfdcan() || hfdcan == invcan.getHfdcan());
+    if (hfdcan == fdcan1.getHfdcan())
     {
-        return hw::cans::fdcan1;
+        return fdcan1;
     }
-    if (hfdcan == hw::cans::fdcan3.getHfdcan())
-    {
-        return cans::fdcan3;
-    }
-    // fallback
-    return cans::fdcan1;
+    return invcan;
 }

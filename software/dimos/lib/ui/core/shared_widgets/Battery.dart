@@ -9,6 +9,8 @@ import 'dart:math';
 // TODO: turn stateful widgets into stateless ones
 
 class Battery extends StatelessWidget {
+  const Battery({super.key});
+
   @override
   Widget build(BuildContext context) {
     final double soc = context.watch<StateOfCharge>().soc;

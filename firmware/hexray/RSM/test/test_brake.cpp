@@ -1,11 +1,7 @@
 #include <gtest/gtest.h>
 #include "test_fakes.hpp"
 #include "test_RSMBase.hpp"
-
-extern "C"
-{
-#include "app_canTx.h"
-}
+#include "app_canTx.hpp"
 
 class RSMBrakeTest : public RSMBaseTest
 {
@@ -17,9 +13,9 @@ TEST_F(RSMBrakeTest, BrakeIsActuated)
 
     LetTimePass(100);
 
-    EXPECT_EQ(300, app_canTx_RSM_RearBrakePressure_get());
-    EXPECT_TRUE(app_canTx_RSM_BrakeActuated_get());
-    EXPECT_FALSE(app_canTx_RSM_Info_RearBrakePressureOutOfRange_get());
+    EXPECT_EQ(300, app::can_tx::RSM_RearBrakePressure_get());
+    EXPECT_TRUE(app::can_tx::RSM_BrakeActuated_get());
+    EXPECT_FALSE(app::can_tx::RSM_Info_RearBrakePressureOutOfRange_get());
 }
 
 // setting brakepoints

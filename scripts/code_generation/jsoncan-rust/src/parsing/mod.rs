@@ -4,17 +4,17 @@ mod parse_enum;
 mod parse_rx;
 mod parse_tx;
 
-use crate::can_database::{BusForwarder, CanBus, CanEnum, RxMsgNames};
+use crate::can_database::{BusForwarder, CanBus, CanEnum};
 
+pub use crate::parsing::parse_rx::JsonRxMsgNames;
 pub use parse_alert::JsonAlerts;
+pub use parse_tx::{JsonCanBusMode, JsonCanMessage, JsonCanSignal};
+
 use parse_alert::parse_alert_data;
 use parse_bus::parse_bus_data;
 use parse_enum::{parse_node_enum_data, parse_shared_enums};
 use parse_rx::parse_json_rx_data;
-pub use parse_tx::JsonTxSignal;
-use parse_tx::{JsonCanMessage, parse_tx_data};
-
-pub static DEFAULT_BUS_MODE: &str = "default";
+use parse_tx::parse_tx_data;
 
 pub struct JsonNode {
     pub name: String,
@@ -22,7 +22,7 @@ pub struct JsonNode {
     pub enums: Vec<CanEnum>,
     pub alerts: Option<JsonAlerts>,
     pub tx_msgs: Vec<JsonCanMessage>,
-    pub rx_msgs: RxMsgNames,
+    pub rx_msgs: JsonRxMsgNames,
 }
 
 //  A few notes about this class
@@ -42,7 +42,8 @@ pub struct JsonCanParser {
 fn list_nodes_from_folders(can_data_dir: &String) -> Vec<String> {
     let mut node_names: Vec<String> = Vec::new();
 
-    let entries = std::fs::read_dir(can_data_dir).unwrap();
+    let entries =
+        std::fs::read_dir(can_data_dir).expect(&format!("Unable to read dir {can_data_dir}"));
     for entry in entries {
         let entry = entry.expect("Failed to read entry"); // surely??
         let path = entry.path();
@@ -68,14 +69,20 @@ impl JsonCanParser {
      */
     pub fn new(can_data_dir: String) -> Self {
         let node_names: Vec<String> = list_nodes_from_folders(&can_data_dir);
-        let (buses, forwarding, loggers) = parse_bus_data(&can_data_dir, &node_names);
+        let (buses, forwarding, loggers) = parse_bus_data(&can_data_dir);
+
+        for logger in &loggers {
+            if !node_names.contains(logger) {
+                panic!("Logger '{}' is not defined in the node JSON.", logger);
+            }
+        }
 
         // create node objects for each node
         let nodes: Vec<JsonNode> = node_names
-            .iter()
+            .into_iter()
             .map(|node_name| {
                 let bus_names_with_node = buses.iter().filter_map(|bus| {
-                    if bus.node_names.contains(node_name) {
+                    if bus.node_names.contains(&node_name) {
                         Some(&bus.name)
                     } else {
                         None
@@ -88,12 +95,12 @@ impl JsonCanParser {
                 );
 
                 return JsonNode {
-                    name: node_name.clone(),
-                    collects_data: loggers.contains(node_name),
+                    collects_data: loggers.contains(&node_name),
                     enums: parse_node_enum_data(&can_data_dir, &node_name),
                     alerts: parse_alert_data(&can_data_dir, &node_name),
                     rx_msgs: parse_json_rx_data(&can_data_dir, &node_name),
                     tx_msgs: parse_tx_data(&can_data_dir, &node_name),
+                    name: node_name,
                 };
             })
             .collect();

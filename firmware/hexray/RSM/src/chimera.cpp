@@ -17,7 +17,7 @@ class RSMChimeraConfig : public chimera_v2::config
 {
   public:
     ~RSMChimeraConfig() override = default;
-    std::optional<std::reference_wrapper<const hw::Gpio>> id_to_gpio(const _GpioNetName *gnn) const override
+    std::optional<std::reference_wrapper<const hw::gpio>> id_to_gpio(const _GpioNetName *gnn) const override
     {
         if (gnn->which_name != gpio_net_name_tag)
         {
@@ -27,32 +27,34 @@ class RSMChimeraConfig : public chimera_v2::config
         switch (gnn->name.rsm_net_name)
         {
             case rsm_GpioNetName_GPIO_LED:
-                return std::cref(hw::gpio::led);
+                return std::cref(led_pin);
             case rsm_GpioNetName_GPIO_BRAKE_LIGHT_EN:
-                return std::cref(hw::gpio::brake_light_en);
+                return std::cref(brake_light_en);
             case rsm_GpioNetName_GPIO_RL_INT:
-                return std::cref(hw::gpio::rl_int);
+                return std::cref(rl_int);
             case rsm_GpioNetName_GPIO_IMU_CS:
-                return std::cref(hw::gpio::imu_cs);
+                return std::cref(imu_cs);
             case rsm_GpioNetName_GPIO_IMU_INT:
-                return std::cref(hw::gpio::imu_int);
+                return std::cref(imu_int);
             case rsm_GpioNetName_GPIO_IMU_FSYNC:
-                return std::cref(hw::gpio::imu_fsync);
+                return std::cref(imu_fsync);
             case rsm_GpioNetName_GPIO_SUSP_TRAVEL_RR_OCSC:
-                return std::cref(hw::gpio::susp_travel_rr_ocsc);
+                return std::cref(susp_travel_rr_ocsc);
             case rsm_GpioNetName_GPIO_SUSP_TRAVEL_RL_OCSC:
-                return std::cref(hw::gpio::susp_travel_rl_ocsc);
+                return std::cref(susp_travel_rl_ocsc);
+            case rsm_GpioNetName_GPIO_NBSPD_BRAKE_PRESSED:
+                return std::cref(nbspd_brake_pressed_3v3);
             case rsm_GpioNetName_GPIO_BRAKE_OCSC_OK:
-                return std::cref(hw::gpio::brake_ocsc_ok);
+                return std::cref(brake_ocsc_ok);
             case rsm_GpioNetName_GPIO_D_P_PULLUP:
-                return std::cref(hw::gpio::d_p_pullup);
+                return std::cref(d_p_pullup);
             default:
             case rsm_GpioNetName_GPIO_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified GPIO net name");
                 return std::nullopt;
         }
     }
-    std::optional<std::reference_wrapper<const hw::Adc>> id_to_adc(const _AdcNetName *ann) const override
+    std::optional<std::reference_wrapper<const hw::adc>> id_to_adc(const _AdcNetName *ann) const override
     {
         if (ann->which_name != adc_net_name_tag)
         {
@@ -62,22 +64,20 @@ class RSMChimeraConfig : public chimera_v2::config
         switch (ann->name.rsm_net_name)
         {
             case rsm_AdcNetName_ADC_LC3_OUT:
-                return std::cref(hw::adcs::lc3_out);
+                return std::cref(lc3_out);
             case rsm_AdcNetName_ADC_SUSP_TRAVEL_RL_3V3:
-                return std::cref(hw::adcs::susp_travel_rl_3v3);
+                return std::cref(susp_travel_rl_3v3);
             case rsm_AdcNetName_ADC_SUSP_TRAVEL_RR_3V3:
-                return std::cref(hw::adcs::susp_travel_rr_3v3);
+                return std::cref(susp_travel_rr_3v3);
             case rsm_AdcNetName_ADC_BPS_3V3:
-                return std::cref(hw::adcs::bps_3v3);
-            case rsm_AdcNetName_ADC_nBSPD_BRAKE_PRESSED:
-                return std::cref(hw::adcs::nBSPD_brake_pressed);
+                return std::cref(bps_3v3);
             default:
             case rsm_AdcNetName_ADC_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified ADC net name");
                 return std::nullopt;
         }
     }
-    std::optional<std::reference_wrapper<const hw::i2c::I2CDevice>> id_to_i2c(const _I2cNetName *inn) const override
+    std::optional<std::reference_wrapper<const hw::i2c::device>> id_to_i2c(const _I2cNetName *inn) const override
     {
         if (inn->which_name != i2c_net_name_tag)
         {
@@ -87,14 +87,14 @@ class RSMChimeraConfig : public chimera_v2::config
         switch (inn->name.rsm_net_name)
         {
             case rsm_I2cNetName_I2C_R_PUMP:
-                return std::cref(hw::i2c::r_pump);
+                return std::cref(r_pump);
             default:
             case rsm_I2cNetName_I2C_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified I2C net name");
                 return std::nullopt;
         }
     }
-    std::optional<std::reference_wrapper<const hw::spi::SpiDevice>> id_to_spi(const _SpiNetName *snn) const override
+    std::optional<std::reference_wrapper<const hw::spi::device>> id_to_spi(const _SpiNetName *snn) const override
     {
         if (snn->which_name != spi_net_name_tag)
         {
@@ -104,12 +104,21 @@ class RSMChimeraConfig : public chimera_v2::config
         switch (snn->name.rsm_net_name)
         {
             case rsm_SpiNetName_SPI_IMU:
-                return std::cref(hw::spi::imu);
+                return std::cref(hw::spi::imu_sd);
             default:
             case rsm_SpiNetName_SPI_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified SPI net name");
                 return std::nullopt;
         }
+    }
+    std::optional<std::reference_wrapper<const hw::PwmOutput>> id_to_pwm(const _PwmNetName *pnn) const override
+    {
+        if (pnn->which_name != pwm_net_name_tag)
+        {
+            LOG_ERROR("Chimera: Expected PWM netname with tag %d, got %d", pwm_net_name_tag, pnn->which_name);
+            return std::nullopt;
+        }
+        return std::nullopt;
     }
     RSMChimeraConfig()
     {
@@ -117,6 +126,7 @@ class RSMChimeraConfig : public chimera_v2::config
         adc_net_name_tag  = AdcNetName_rsm_net_name_tag;
         i2c_net_name_tag  = I2cNetName_rsm_net_name_tag;
         spi_net_name_tag  = SpiNetName_rsm_net_name_tag;
+        pwm_net_name_tag  = 0;
     }
 } rsm_config;
 
@@ -129,13 +139,11 @@ char USBD_PRODUCT_STRING_FS[] = "rsm";
 [[noreturn]] void tasks_init()
 {
     hw_hardFaultHandler_init();
+    adcchipsInit();
     assert(hw::usb::init());
-    hw::gpio::d_p_pullup.writePin(true); // enable USB D+ pullup
+    d_p_pullup.writePin(true); // enable USB D+ pullup
     osKernelInitialize();
     TaskChimera.start();
     osKernelStart();
     forever {}
 }
-
-// what is a protobuf generated tags
-// how does this system actually work with python

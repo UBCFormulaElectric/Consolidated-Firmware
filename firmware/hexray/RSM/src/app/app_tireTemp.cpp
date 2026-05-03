@@ -1,10 +1,6 @@
 #include "app_tireTemp.hpp"
 #include "io_tireTemp.hpp"
-
-extern "C"
-{
-#include "app_canTx.h"
-}
+#include "app_canTx.hpp"
 
 constexpr float MIN_TIRE_TEMPERATURE_CELSIUS = -20.0f;
 constexpr float MAX_TIRE_TEMPERATURE_CELSIUS = 200.0f;
@@ -17,7 +13,7 @@ void broadcast()
 
     const bool outOfRange =
         (temperature >= MAX_TIRE_TEMPERATURE_CELSIUS) || (temperature <= MIN_TIRE_TEMPERATURE_CELSIUS);
-    app_canTx_RSM_Info_TireTemperatureOutOfRange_set(outOfRange);
-    app_canTx_RSM_TireTemperature_set(outOfRange ? 0 : temperature);
+    can_tx::RSM_Info_TireTemperatureOutOfRange_set(outOfRange);
+    can_tx::RSM_TireTemperature_set(outOfRange ? 0 : temperature);
 }
 } // namespace app::tireTemp

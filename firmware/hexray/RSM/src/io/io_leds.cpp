@@ -1,4 +1,8 @@
 #include "io_leds.hpp"
-// #include "hw_gpios.hpp"
+#include "hw_gpios.hpp"
 
-// const Binary brake_light = { .gpio = &brake_light_en_pin } const Binary led = { .gpio = &led_pin }
+namespace io
+{
+const binary_led debug_led(led_pin);
+const binary_led brake_light(brake_light_en);
+} // namespace io

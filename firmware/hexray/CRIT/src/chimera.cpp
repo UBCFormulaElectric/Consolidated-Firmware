@@ -3,10 +3,12 @@
 #include "tasks.h"
 #include "hw_gpios.hpp"
 #include "hw_spis.hpp"
+#include "hw_pwmOutputs.hpp"
 #include <crit.pb.h>
 #include "hw_usb.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include <cassert>
+#include "hw_pwmOutputs.hpp"
 
 #include <optional>
 #include <functional>
@@ -15,7 +17,7 @@ class CRITChimeraConfig : public chimera_v2::config
 {
   public:
     ~CRITChimeraConfig() override = default;
-    std::optional<std::reference_wrapper<const hw::Gpio>> id_to_gpio(const _GpioNetName *gnn) const override
+    std::optional<std::reference_wrapper<const hw::gpio>> id_to_gpio(const _GpioNetName *gnn) const override
     {
         if (gnn->which_name != gpio_net_name_tag)
         {
@@ -44,13 +46,17 @@ class CRITChimeraConfig : public chimera_v2::config
                 return std::cref(torque_vectoring_sig);
             case crit_GpioNetName_GPIO_REGEN_SIG:
                 return std::cref(regen_sig);
+            case crit_GpioNetName_GPIO_LED_RCK:
+                return std::cref(led_rck);
+            case crit_GpioNetName_GPIO_SEVEN_SEG_RCK:
+                return std::cref(seven_seg_rck);
             default:
             case crit_GpioNetName_GPIO_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified GPIO net name");
                 return std::nullopt;
         }
     }
-    std::optional<std::reference_wrapper<const hw::spi::SpiDevice>> id_to_spi(const _SpiNetName *snn) const override
+    std::optional<std::reference_wrapper<const hw::spi::device>> id_to_spi(const _SpiNetName *snn) const override
     {
         if (snn->which_name != spi_net_name_tag)
         {
@@ -74,11 +80,33 @@ class CRITChimeraConfig : public chimera_v2::config
         return std::nullopt;
     }
 
+    std::optional<std::reference_wrapper<const hw::PwmOutput>> id_to_pwm(const _PwmNetName *pnn) const override
+    {
+        if (pnn->which_name != pwm_net_name_tag)
+        {
+            LOG_ERROR("Chimera: Expected PWM net name with tag %d, got %d", pwm_net_name_tag, pnn->which_name);
+            return std::nullopt;
+        }
+        switch (pnn->name.crit_net_name)
+        {
+            case crit_PwmNetName_PWM_LED:
+                return std::cref(led_dimming);
+            case crit_PwmNetName_PWM_SEVEN_SEG:
+                return std::cref(seven_seg_dimming);
+            default:
+            case crit_PwmNetName_PWM_NET_NAME_UNSPECIFIED:
+                LOG_INFO("Chimera: Unspecified PWM net name");
+                return std::nullopt;
+        }
+        return std::nullopt;
+    }
+
   public:
     CRITChimeraConfig()
     {
         gpio_net_name_tag = GpioNetName_crit_net_name_tag;
         spi_net_name_tag  = SpiNetName_crit_net_name_tag;
+        pwm_net_name_tag  = PwmNetName_crit_net_name_tag;
     }
 } crit_config;
 
@@ -91,6 +119,10 @@ char USBD_PRODUCT_STRING_FS[] = "crit";
 [[noreturn]] void tasks_init()
 {
     assert(hw::usb::init());
+    (void)led_dimming.start();
+    (void)led_dimming.setDutyCycle(0.0f);
+    (void)seven_seg_dimming.start();
+    (void)seven_seg_dimming.setDutyCycle(0.0f);
     osKernelInitialize();
     TaskChimera.start();
     osKernelStart();

@@ -21,7 +21,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "tasks.h"
+#include "hw_error.hpp"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -42,6 +43,8 @@
 /* Private variables ---------------------------------------------------------*/
 
 FDCAN_HandleTypeDef hfdcan1;
+
+IWDG_HandleTypeDef hiwdg;
 
 SPI_HandleTypeDef hspi1;
 SPI_HandleTypeDef hspi2;
@@ -67,6 +70,7 @@ static void MX_SPI3_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_USB_PCD_Init(void);
+static void MX_IWDG_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -83,7 +87,7 @@ static void MX_USB_PCD_Init(void);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
+    tasks_preInit();
     /* USER CODE END 1 */
 
     /* MCU Configuration--------------------------------------------------------*/
@@ -114,8 +118,9 @@ int main(void)
     MX_TIM3_Init();
     MX_TIM4_Init();
     MX_USB_PCD_Init();
+    MX_IWDG_Init();
     /* USER CODE BEGIN 2 */
-
+    tasks_init();
     /* USER CODE END 2 */
 
     /* Infinite loop */
@@ -149,8 +154,9 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
+    RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLL1_SOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM       = 1;
@@ -196,20 +202,22 @@ void PeriphCommonClock_Config(void)
 
     /** Initializes the peripherals clock
      */
-    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SPI1 | RCC_PERIPHCLK_SPI2 | RCC_PERIPHCLK_SPI3;
-    PeriphClkInitStruct.PLL2.PLL2Source      = RCC_PLL2_SOURCE_HSE;
-    PeriphClkInitStruct.PLL2.PLL2M           = 2;
-    PeriphClkInitStruct.PLL2.PLL2N           = 125;
-    PeriphClkInitStruct.PLL2.PLL2P           = 4;
-    PeriphClkInitStruct.PLL2.PLL2Q           = 2;
-    PeriphClkInitStruct.PLL2.PLL2R           = 2;
-    PeriphClkInitStruct.PLL2.PLL2RGE         = RCC_PLL2_VCIRANGE_2;
-    PeriphClkInitStruct.PLL2.PLL2VCOSEL      = RCC_PLL2_VCORANGE_WIDE;
-    PeriphClkInitStruct.PLL2.PLL2FRACN       = 0;
-    PeriphClkInitStruct.PLL2.PLL2ClockOut    = RCC_PLL2_DIVP;
-    PeriphClkInitStruct.Spi1ClockSelection   = RCC_SPI1CLKSOURCE_PLL2P;
-    PeriphClkInitStruct.Spi2ClockSelection   = RCC_SPI2CLKSOURCE_PLL2P;
-    PeriphClkInitStruct.Spi3ClockSelection   = RCC_SPI3CLKSOURCE_PLL2P;
+    PeriphClkInitStruct.PeriphClockSelection =
+        RCC_PERIPHCLK_FDCAN | RCC_PERIPHCLK_SPI1 | RCC_PERIPHCLK_SPI2 | RCC_PERIPHCLK_SPI3;
+    PeriphClkInitStruct.PLL2.PLL2Source     = RCC_PLL2_SOURCE_HSE;
+    PeriphClkInitStruct.PLL2.PLL2M          = 1;
+    PeriphClkInitStruct.PLL2.PLL2N          = 24;
+    PeriphClkInitStruct.PLL2.PLL2P          = 20;
+    PeriphClkInitStruct.PLL2.PLL2Q          = 2;
+    PeriphClkInitStruct.PLL2.PLL2R          = 2;
+    PeriphClkInitStruct.PLL2.PLL2RGE        = RCC_PLL2_VCIRANGE_3;
+    PeriphClkInitStruct.PLL2.PLL2VCOSEL     = RCC_PLL2_VCORANGE_WIDE;
+    PeriphClkInitStruct.PLL2.PLL2FRACN      = 0;
+    PeriphClkInitStruct.PLL2.PLL2ClockOut   = RCC_PLL2_DIVP | RCC_PLL2_DIVQ;
+    PeriphClkInitStruct.FdcanClockSelection = RCC_FDCANCLKSOURCE_PLL2Q;
+    PeriphClkInitStruct.Spi1ClockSelection  = RCC_SPI1CLKSOURCE_PLL2P;
+    PeriphClkInitStruct.Spi2ClockSelection  = RCC_SPI2CLKSOURCE_PLL2P;
+    PeriphClkInitStruct.Spi3ClockSelection  = RCC_SPI3CLKSOURCE_PLL2P;
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
     {
         Error_Handler();
@@ -232,21 +240,21 @@ static void MX_FDCAN1_Init(void)
     /* USER CODE END FDCAN1_Init 1 */
     hfdcan1.Instance                  = FDCAN1;
     hfdcan1.Init.ClockDivider         = FDCAN_CLOCK_DIV1;
-    hfdcan1.Init.FrameFormat          = FDCAN_FRAME_CLASSIC;
+    hfdcan1.Init.FrameFormat          = FDCAN_FRAME_FD_NO_BRS;
     hfdcan1.Init.Mode                 = FDCAN_MODE_NORMAL;
-    hfdcan1.Init.AutoRetransmission   = DISABLE;
+    hfdcan1.Init.AutoRetransmission   = ENABLE;
     hfdcan1.Init.TransmitPause        = DISABLE;
     hfdcan1.Init.ProtocolException    = DISABLE;
-    hfdcan1.Init.NominalPrescaler     = 16;
-    hfdcan1.Init.NominalSyncJumpWidth = 1;
-    hfdcan1.Init.NominalTimeSeg1      = 1;
-    hfdcan1.Init.NominalTimeSeg2      = 1;
-    hfdcan1.Init.DataPrescaler        = 1;
-    hfdcan1.Init.DataSyncJumpWidth    = 1;
-    hfdcan1.Init.DataTimeSeg1         = 1;
-    hfdcan1.Init.DataTimeSeg2         = 1;
-    hfdcan1.Init.StdFiltersNbr        = 0;
-    hfdcan1.Init.ExtFiltersNbr        = 0;
+    hfdcan1.Init.NominalPrescaler     = 6;
+    hfdcan1.Init.NominalSyncJumpWidth = 2;
+    hfdcan1.Init.NominalTimeSeg1      = 13;
+    hfdcan1.Init.NominalTimeSeg2      = 2;
+    hfdcan1.Init.DataPrescaler        = 3;
+    hfdcan1.Init.DataSyncJumpWidth    = 2;
+    hfdcan1.Init.DataTimeSeg1         = 5;
+    hfdcan1.Init.DataTimeSeg2         = 2;
+    hfdcan1.Init.StdFiltersNbr        = 1;
+    hfdcan1.Init.ExtFiltersNbr        = 1;
     hfdcan1.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
     if (HAL_FDCAN_Init(&hfdcan1) != HAL_OK)
     {
@@ -255,6 +263,34 @@ static void MX_FDCAN1_Init(void)
     /* USER CODE BEGIN FDCAN1_Init 2 */
 
     /* USER CODE END FDCAN1_Init 2 */
+}
+
+/**
+ * @brief IWDG Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_IWDG_Init(void)
+{
+    /* USER CODE BEGIN IWDG_Init 0 */
+
+    /* USER CODE END IWDG_Init 0 */
+
+    /* USER CODE BEGIN IWDG_Init 1 */
+#ifndef WATCHDOG_DISABLED
+    /* USER CODE END IWDG_Init 1 */
+    hiwdg.Instance       = IWDG;
+    hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
+    hiwdg.Init.Window    = 4095;
+    hiwdg.Init.Reload    = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
+    hiwdg.Init.EWI       = 0;
+    if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN IWDG_Init 2 */
+#endif
+    /* USER CODE END IWDG_Init 2 */
 }
 
 /**
@@ -275,11 +311,11 @@ static void MX_SPI1_Init(void)
     hspi1.Instance                     = SPI1;
     hspi1.Init.Mode                    = SPI_MODE_MASTER;
     hspi1.Init.Direction               = SPI_DIRECTION_2LINES_TXONLY;
-    hspi1.Init.DataSize                = SPI_DATASIZE_4BIT;
+    hspi1.Init.DataSize                = SPI_DATASIZE_8BIT;
     hspi1.Init.CLKPolarity             = SPI_POLARITY_LOW;
     hspi1.Init.CLKPhase                = SPI_PHASE_1EDGE;
     hspi1.Init.NSS                     = SPI_NSS_SOFT;
-    hspi1.Init.BaudRatePrescaler       = SPI_BAUDRATEPRESCALER_2;
+    hspi1.Init.BaudRatePrescaler       = SPI_BAUDRATEPRESCALER_256;
     hspi1.Init.FirstBit                = SPI_FIRSTBIT_MSB;
     hspi1.Init.TIMode                  = SPI_TIMODE_DISABLE;
     hspi1.Init.CRCCalculation          = SPI_CRCCALCULATION_DISABLE;
@@ -321,11 +357,11 @@ static void MX_SPI2_Init(void)
     hspi2.Instance                     = SPI2;
     hspi2.Init.Mode                    = SPI_MODE_MASTER;
     hspi2.Init.Direction               = SPI_DIRECTION_2LINES_TXONLY;
-    hspi2.Init.DataSize                = SPI_DATASIZE_4BIT;
+    hspi2.Init.DataSize                = SPI_DATASIZE_16BIT;
     hspi2.Init.CLKPolarity             = SPI_POLARITY_LOW;
     hspi2.Init.CLKPhase                = SPI_PHASE_1EDGE;
-    hspi2.Init.NSS                     = SPI_NSS_HARD_INPUT;
-    hspi2.Init.BaudRatePrescaler       = SPI_BAUDRATEPRESCALER_2;
+    hspi2.Init.NSS                     = SPI_NSS_SOFT;
+    hspi2.Init.BaudRatePrescaler       = SPI_BAUDRATEPRESCALER_256;
     hspi2.Init.FirstBit                = SPI_FIRSTBIT_MSB;
     hspi2.Init.TIMode                  = SPI_TIMODE_DISABLE;
     hspi2.Init.CRCCalculation          = SPI_CRCCALCULATION_DISABLE;
@@ -367,11 +403,11 @@ static void MX_SPI3_Init(void)
     hspi3.Instance                     = SPI3;
     hspi3.Init.Mode                    = SPI_MODE_MASTER;
     hspi3.Init.Direction               = SPI_DIRECTION_2LINES_TXONLY;
-    hspi3.Init.DataSize                = SPI_DATASIZE_4BIT;
+    hspi3.Init.DataSize                = SPI_DATASIZE_16BIT;
     hspi3.Init.CLKPolarity             = SPI_POLARITY_LOW;
     hspi3.Init.CLKPhase                = SPI_PHASE_1EDGE;
-    hspi3.Init.NSS                     = SPI_NSS_HARD_INPUT;
-    hspi3.Init.BaudRatePrescaler       = SPI_BAUDRATEPRESCALER_2;
+    hspi3.Init.NSS                     = SPI_NSS_SOFT;
+    hspi3.Init.BaudRatePrescaler       = SPI_BAUDRATEPRESCALER_256;
     hspi3.Init.FirstBit                = SPI_FIRSTBIT_MSB;
     hspi3.Init.TIMode                  = SPI_TIMODE_DISABLE;
     hspi3.Init.CRCCalculation          = SPI_CRCCALCULATION_DISABLE;
@@ -544,12 +580,22 @@ static void MX_GPIO_Init(void)
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOC, BOOT_Pin | LED_Pin, GPIO_PIN_RESET);
 
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(GPIOA, LED_RCK_Pin | _7SEG_RCK_Pin, GPIO_PIN_RESET);
+
     /*Configure GPIO pins : BOOT_Pin LED_Pin */
     GPIO_InitStruct.Pin   = BOOT_Pin | LED_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : LED_RCK_Pin _7SEG_RCK_Pin */
+    GPIO_InitStruct.Pin   = LED_RCK_Pin | _7SEG_RCK_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     /*Configure GPIO pins : PUSH_DRIVE_SIG_Pin TELEM_SIG_Pin */
     GPIO_InitStruct.Pin  = PUSH_DRIVE_SIG_Pin | TELEM_SIG_Pin;

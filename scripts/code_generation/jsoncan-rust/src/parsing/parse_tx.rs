@@ -1,11 +1,9 @@
+use indexmap::IndexMap;
 use serde::Deserialize;
-use std::collections::HashMap;
 
-use crate::parsing::DEFAULT_BUS_MODE;
-
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 #[serde(untagged)]
-pub enum JsonTxSignal {
+pub enum JsonCanSignal {
     ScaleOffsetBits {
         min: f64,
         max: f64,
@@ -92,7 +90,7 @@ struct JsonDataCapture {
 #[derive(Deserialize)]
 struct JsonTxMsg {
     msg_id: u32, // todo extra validity checks
-    signals: HashMap<String, JsonTxSignal>,
+    signals: IndexMap<String, JsonCanSignal>,
     cycle_time: Option<u32>, // todo extra validity checks
     disabled: Option<bool>,
     description: Option<String>,
@@ -100,15 +98,20 @@ struct JsonTxMsg {
     data_capture: Option<JsonDataCapture>,
 }
 
+pub enum JsonCanBusMode {
+    All,
+    Some(Vec<String>),
+}
+
 pub struct JsonCanMessage {
     pub name: String,
     pub id: u32,
-    pub signals: HashMap<String, JsonTxSignal>,
+    pub signals: IndexMap<String, JsonCanSignal>,
     pub cycle_time: Option<u32>,
     pub description: Option<String>,
     pub log_cycle_time: Option<u32>,
     pub telem_cycle_time: Option<u32>,
-    pub modes: Vec<String>,
+    pub modes: JsonCanBusMode,
 }
 
 pub fn parse_tx_data(can_data_dir: &String, tx_node_name: &String) -> Vec<JsonCanMessage> {
@@ -119,7 +122,7 @@ pub fn parse_tx_data(can_data_dir: &String, tx_node_name: &String) -> Vec<JsonCa
         tx_node_name
     ));
 
-    let json_tx_msgs: HashMap<String, JsonTxMsg> = match serde_json::from_str(&file_content) {
+    let json_tx_msgs: IndexMap<String, JsonTxMsg> = match serde_json::from_str(&file_content) {
         Ok(data) => data,
         Err(e) => panic!(
             "Failed to parse TX JSON file for node {}: {}",
@@ -151,9 +154,9 @@ pub fn parse_tx_data(can_data_dir: &String, tx_node_name: &String) -> Vec<JsonCa
                     Some(data_capture) => data_capture.telem_cycle_time,
                     None => None,
                 },
-                modes: match &msg.allowed_modes {
-                    Some(modes) => modes.clone(),
-                    None => vec![DEFAULT_BUS_MODE.to_string()] // TODO revisit default behaviour?
+                modes: match msg.allowed_modes {
+                    Some(modes) => JsonCanBusMode::Some(modes),
+                    None => JsonCanBusMode::All,
                 },
             }
         })

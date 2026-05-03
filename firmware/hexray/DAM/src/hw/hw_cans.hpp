@@ -1,7 +1,4 @@
 #pragma once
 #include "hw_can.hpp"
 
-namespace hw::cans
-{
-extern const fdcan fdcan1;
-}
+extern const hw::fdcan fdcan1;

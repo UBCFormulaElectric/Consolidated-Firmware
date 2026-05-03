@@ -10,7 +10,7 @@ extern "C"
 // TODO: This test is pretty much useless, and only here to demonstrate using
 // fakegen. Delete this once fakegen is validated on other systems.
 
-class TestLed : public testing::Test
+class TestLog : public testing::Test
 {
   protected:
     void SetUp() override { fake_io_led_enable_reset(); }
@@ -18,7 +18,7 @@ class TestLed : public testing::Test
     BinaryLed led = {};
 };
 
-TEST_F(TestLed, toggle_led)
+TEST_F(TestLog, toggle_led)
 {
     io_led_enable(&led, false);
     ASSERT_EQ(0, fake_io_led_enable_callCountForArgs(&led, true));

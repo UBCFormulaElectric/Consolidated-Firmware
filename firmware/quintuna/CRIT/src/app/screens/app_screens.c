@@ -88,6 +88,6 @@ static void app_screens_next(void)
     if (vc_state == VC_DRIVE_STATE)
     {
         current_screen = (uint8_t)((current_screen + 1) % NUM_OF_DRIVE_SCREENS);
-        app_screens_update();
+        app_screens_tick();
     }
 }

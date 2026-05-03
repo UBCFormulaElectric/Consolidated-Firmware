@@ -1,22 +1,15 @@
 #pragma once
-extern "C"
-{
-#include "main.h"
-}
 #include "hw_gpio.hpp"
 
-namespace hw::gpios
-{
-extern const Gpio bots_3v3;
-extern const Gpio cockpit_shdn_3v3;
-extern const Gpio imu_nss;
-extern const Gpio imu_fsync;
-extern const Gpio nsusp_fl_ocsc;
-extern const Gpio nsusp_fr_ocsc;
-extern const Gpio fr_int_3v3;
-extern const Gpio fl_int_3v3;
-extern const Gpio debug_led;
-extern const Gpio nstr_angle_ocsc;
-extern const Gpio nbps_f_ocsc;
-extern const Gpio boot_led;
-} // namespace hw::gpios
+extern const hw::gpio bots_3v3;
+extern const hw::gpio cockpit_shdn_3v3;
+extern const hw::gpio imu_nss;
+extern const hw::gpio imu_fsync;
+extern const hw::gpio nsusp_fl_ocsc;
+extern const hw::gpio nsusp_fr_ocsc;
+extern const hw::gpio fr_int_3v3;
+extern const hw::gpio fl_int_3v3;
+extern const hw::gpio debug_led;
+extern const hw::gpio nstr_angle_ocsc;
+extern const hw::gpio nbps_f_ocsc;
+extern const hw::gpio boot_led;

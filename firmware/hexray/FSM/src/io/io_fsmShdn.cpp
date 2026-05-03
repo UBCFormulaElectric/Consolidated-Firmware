@@ -1,25 +1,9 @@
 #include "io_fsmShdn.hpp"
+
 #include "hw_gpios.hpp"
+#include "app_canTx.hpp"
 
-namespace io::fsmShdn
-{
-bool COCKPIT_SHDN_OK_get(void)
-{
-    return hw::gpios::cockpit_shdn_3v3.readPin();
-}
-
-bool BOTS_SHDN_OK_get(void)
-{
-    return hw::gpios::bots_3v3.readPin();
-}
-
-bool FL_SHDN_OK_get(void)
-{
-    return hw::gpios::fl_int_3v3.readPin();
-}
-
-bool FR_SHDN_OK_get(void)
-{
-    return hw::gpios::fr_int_3v3.readPin();
-}
-} // namespace io::fsmShdn
+const io::shdn::node cockpit_node{ cockpit_shdn_3v3, app::can_tx::FSM_COCKPITOKStatus_set };
+const io::shdn::node bots_node{ bots_3v3, app::can_tx::FSM_BOTSOKStatus_set };
+const io::shdn::node fl_shdn_ok_node{ fl_int_3v3, app::can_tx::FSM_FrontLeftILCKInertiaOKStatus_set };
+const io::shdn::node fr_shdn_ok_node{ fr_int_3v3, app::can_tx::FSM_FrontRightILCKOKStatus_set };

@@ -4,8 +4,8 @@ type ChipLegendProps = {
 };
 
 type ChipLegendItemProps = {
-    content: string;
-    color: string;
+  content: string;
+  color: string;
 };
 
 function ChipLegendItem(props: ChipLegendItemProps) {
@@ -13,7 +13,7 @@ function ChipLegendItem(props: ChipLegendItemProps) {
 
   return (
     <div
-      className="relative flex w-min items-center gap-2 overflow-clip rounded-full border-1 px-2 py-1"
+      className="relative flex w-min items-center gap-2 overflow-clip rounded-full border px-2 py-1"
       style={{
         borderColor: color,
       }}

@@ -1,0 +1,46 @@
+// TODO: Reset precharge limit exceeded
+
+#include <cstddef>
+
+#include "app_states.hpp"
+#include "app_timer.hpp"
+#include "app_canTx.hpp"
+#include "app_precharge.hpp"
+
+namespace app::states
+{
+
+namespace prechargeLatchState
+{
+
+    static app::Timer precharge_latch_timer{ app::precharge::PRECHARGE_LATCH_TIMEOUT_MS };
+
+    static void runOnEntry()
+    {
+        app::can_tx::BMS_State_set(app::can_utils::BmsState::BMS_PRECHARGE_LATCH_STATE);
+        precharge_latch_timer.restart();
+    }
+
+    static void runOnTick100Hz()
+    {
+        if (precharge_latch_timer.updateAndGetState() == Timer::TimerState::EXPIRED)
+        {
+            app::StateMachine::set_next_state(&init_state);
+        }
+    }
+
+    static void runOnExit()
+    {
+        // Nothing to do here yet
+    }
+
+} // namespace prechargeLatchState
+
+const ::app::State precharge_latch_state = {
+    .name              = "PRECHARGE LATCH",
+    .run_on_entry      = prechargeLatchState::runOnEntry,
+    .run_on_tick_1Hz   = nullptr,
+    .run_on_tick_100Hz = prechargeLatchState::runOnTick100Hz,
+    .run_on_exit       = prechargeLatchState::runOnExit,
+};
+} // namespace app::states

@@ -5,38 +5,32 @@
 #include <cassert>
 #include <array>
 #include <cstddef>
+#include <functional>
 
 namespace app::heartbeat
 {
 // constexpr unsigned int HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS = 200U;
 template <size_t NODE_COUNT> class monitor
 {
-    const std::array<io::heartbeat::node *const, NODE_COUNT> heartbeat_nodes{};
+    const std::array<std::reference_wrapper<io::heartbeat::node>, NODE_COUNT> &heartbeat_nodes;
     void (*const checkin_self)(bool);
-    bool block_faults = false;
+    bool block_faults;
 
-    void init()
+    void init() const
     {
-        assert(checkin_self != NULL);
-        for (io::heartbeat::node *const node : heartbeat_nodes)
+        assert(checkin_self != nullptr);
+        for (const auto node : heartbeat_nodes)
         {
-            node->fault_setter(true);
+            node.get().fault_setter(true);
         }
     }
 
   public:
-    explicit monitor(
+    constexpr monitor(
         void (*const in_checkin_self)(bool),
-        const std::array<io::heartbeat::node *const, NODE_COUNT> in_heartbeat_nodes)
-      : heartbeat_nodes(std::move(in_heartbeat_nodes)), checkin_self(in_checkin_self)
-    {
-        init();
-    }
-    explicit monitor(
-        void (*const in_checkin_self)(bool),
-        const std::array<io::heartbeat::node *const, NODE_COUNT> in_heartbeat_nodes,
-        bool                                                     in_block_faults)
-      : block_faults(in_block_faults), heartbeat_nodes(std::move(in_heartbeat_nodes)), checkin_self(in_checkin_self)
+        const std::array<std::reference_wrapper<io::heartbeat::node>, NODE_COUNT> &in_heartbeat_nodes,
+        const bool                                                                 in_block_faults = false)
+      : heartbeat_nodes(in_heartbeat_nodes), checkin_self(in_checkin_self), block_faults(in_block_faults)
     {
         init();
     }
@@ -49,15 +43,15 @@ template <size_t NODE_COUNT> class monitor
         // check in current heartbeat
         checkin_self(true);
 
-        for (io::heartbeat::node *const node : heartbeat_nodes)
+        for (auto node : heartbeat_nodes)
         {
             // check in, and reset board on local CAN table
-            const bool              board_status_good = node->getter();
-            const Timer::TimerState state             = node->timer.runIfCondition(!board_status_good);
+            const bool              board_status_good = node.get().getter();
+            const Timer::TimerState state             = node.get().timer.runIfCondition(!board_status_good);
 
-            node->heartbeats_checked_in = board_status_good;
-            node->status                = board_status_good || state == Timer::TimerState::RUNNING;
-            node->resetter(false);
+            node.get().heartbeats_checked_in = board_status_good;
+            node.get().status                = board_status_good || state == Timer::TimerState::RUNNING;
+            node.get().resetter(false);
         }
     }
 
@@ -69,42 +63,24 @@ template <size_t NODE_COUNT> class monitor
         if (block_faults)
             return;
 
-        for (const io::heartbeat::node *const node : heartbeat_nodes)
+        for (const auto node : heartbeat_nodes)
         {
-            const bool board_has_fault = !node->status;
-            node->fault_setter(board_has_fault);
+            const bool board_has_fault = !node.get().status;
+            node.get().fault_setter(board_has_fault);
         }
-    }
-
-    /**
-     * @return Whether the heartbeat monitor for the current board has detected any fault
-     */
-    [[nodiscard]] bool isSendingMissingHeartbeatFault() const
-    {
-        if (block_faults)
-        {
-            return false;
-        }
-
-        for (io::heartbeat::node *const node : heartbeat_nodes)
-        {
-            if (node->fault_getter())
-            {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
      * Blocks faults from being reported in app_heartbeatMonitor_isSendingMissingHeartbeatFault
-     * @param block_faults Whether to block faults
+     * @param new_block_faults Whether to block faults
      */
-    void setBlockFaults(bool new_block_faults) { block_faults = new_block_faults; }
+    void setBlockFaults(const bool new_block_faults) { block_faults = new_block_faults; }
 
+#ifdef TARGET_TEST
     /**
      * Resets faults as to report as false, useful for test environments
      */
     void clearFaults() const {}
+#endif
 };
 } // namespace app::heartbeat

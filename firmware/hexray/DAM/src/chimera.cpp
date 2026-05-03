@@ -19,7 +19,7 @@ class DAMChimeraConfig final : public chimera_v2::config
   public:
     ~DAMChimeraConfig() override = default;
 
-    std::optional<std::reference_wrapper<const hw::Gpio>> id_to_gpio(const _GpioNetName *gnn) const override
+    std::optional<std::reference_wrapper<const hw::gpio>> id_to_gpio(const _GpioNetName *gnn) const override
     {
         if (gnn->which_name != gpio_net_name_tag)
         {
@@ -72,6 +72,10 @@ class DAMChimeraConfig final : public chimera_v2::config
                 LOG_INFO("Chimera: Unknown UART net name");
                 return std::nullopt;
         }
+    }
+    std::optional<std::reference_wrapper<const hw::PwmOutput>> id_to_pwm(const _PwmNetName *) const override
+    {
+        return std::nullopt;
     }
 
     consteval DAMChimeraConfig()

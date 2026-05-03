@@ -12,5 +12,6 @@
     // "--compile-commands-dir=build_fw_test",
     "--query-driver=/usr/local/bin/arm-none-eabi-gcc"
   ],
-  "cortex-debug.variableUseNaturalFormat": false,
+  "C_Cpp.default.cppStandard": "c++23",
+  "cortex-debug.variableUseNaturalFormat": false
 }

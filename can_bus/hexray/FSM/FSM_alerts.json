@@ -1,64 +1,72 @@
 {
-  "warnings_id": 601,
-  "faults_id": 602,
-  "warnings_counts_id": 603,
-  "faults_counts_id": 604,
-  "info_id": 605,
-  "info_counts_id": 606,
+  "warnings_id": 616,
+  "faults_id": 617,
+  "warnings_counts_id": 618,
+  "faults_counts_id": 619,
+  "info_id": 620,
+  "info_counts_id": 621,
   "info": {
     "WatchdogTimeout": {
-      "id": 600,
+      "id": 622,
       "description": "Watchdog timed out."
     },
     "TxOverflow": {
-      "id": 601,
+      "id": 623,
       "description": "CanTx queue overflowed."
     },
     "RxOverflow": {
-      "id": 602,
+      "id": 624,
       "description": "CanRx queue overflowed."
     },
     "SteeringAngleOCSC": {
-      "id": 603,
+      "id": 625,
       "description": "Steering sensor voltage out of acceptable range (OCSC)."
     },
     "SteeringAngleOutOfRange": {
-      "id": 604,
+      "id": 626,
       "description": "Steering angle out of range."
     },
     "FrontBrakePressureOCSC": {
-      "id": 605,
+      "id": 627,
       "description": "Front brake pressure sensor voltage out of acceptable range (OCSC)."
     },
     "LeftSuspensionOCSC": {
-      "id": 606,
+      "id": 628,
       "description": "Left suspension sensor voltage out of acceptable range (OCSC)."
     },
     "RightSuspensionOCSC": {
-      "id": 607,
+      "id": 629,
       "description": "Right suspension sensor voltage out of acceptable range (OCSC)."
     },
     "StackOverflow": {
-      "id": 650,
+      "id": 630,
       "description": "An RTOS task stack overflowed on the previous boot cycle."
     },
     "FrontBrakePressureOutOfRange": {
-      "id": 611,
+      "id": 631,
       "description": "Front brake pressure out of range."
     }
   },
   "warnings": {
     "AppsDisagreement": {
-      "id": 610,
+      "id": 632,
       "description": "Conflict between primary and secondary accelerator pedals."
     },
     "PappsOCSC": {
-      "id": 608,
+      "id": 633,
       "description": "Primary accelerator pedal voltage out of acceptable range (OCSC)."
     },
     "SappsOCSC": {
-      "id": 609,
+      "id": 634,
       "description": "Secondary accelerator pedal voltage out of acceptable range (OCSC)."
+    },
+    "ImuInitFailed": {
+      "id": 635,
+      "description": "IMU initialization failed"
+    },
+    "ImuDataBad": {
+      "id": 636,
+      "description": "IMU data is bad"
     }
   },
   "faults": {}
