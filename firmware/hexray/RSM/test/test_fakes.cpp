@@ -57,6 +57,15 @@ namespace suspension
     }
 } // namespace suspension
 
+namespace rPump
+{
+    static uint8_t percentage = 0;
+
+    void set_readPercentage(const uint8_t value)
+    {
+        percentage = value;
+    }
+} // namespace rPump
 namespace tireTemp
 {
     static float temperature = 0.0f;
@@ -122,6 +131,12 @@ namespace rPump
 {
     std::expected<void, ErrorCode> setPercentage(uint8_t value)
     {
+        return {};
+    }
+
+    std::expected<void, ErrorCode> readPercentage(uint8_t &dest)
+    {
+        dest = fakes::io::rPump::percentage;
         return {};
     }
 } // namespace rPump

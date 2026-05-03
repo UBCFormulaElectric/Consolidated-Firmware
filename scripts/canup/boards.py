@@ -189,6 +189,14 @@ hexray_BMS = Board(
     path=os.path.join("firmware", "hexray", "BMS", "hexray_BMS_app_metadata.hex"),
 )
 
+hexray_FSM = Board(
+    name="FSM",
+    boot_id_range_start=0x10000000,
+    app_id_range_start=600,
+    mcu=STM32H562_MCU,
+    path=os.path.join("firmware", "hexray", "FSM", "hexray_FSM_app_metadata.hex"),
+)
+
 CONFIGS = {
     "quintuna_FSM": [quintuna_FSM],
     "quintuna_RSM": [quintuna_RSM],
@@ -202,4 +210,5 @@ CONFIGS = {
     "h7dev": [h7dev],
     "h5dev": [h5dev],
     "hexray_BMS" : [hexray_BMS],
+    "hexray_FSM" : [hexray_FSM],
 }

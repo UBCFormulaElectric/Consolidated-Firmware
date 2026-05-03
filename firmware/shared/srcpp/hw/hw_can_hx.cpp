@@ -169,7 +169,14 @@ std::expected<hw::CanMsg, ErrorCode> hw::fdcan::receive(const uint32_t rx_fifo) 
 
 CFUNC void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, const uint32_t ErrorStatusITs)
 {
-    LOG_INFO("FDCAN error detected: %x", ErrorStatusITs);
+    if ((ErrorStatusITs & FDCAN_IT_ERROR_PASSIVE) != RESET)
+    {
+        LOG_INFO("FDCAN is in error passive state!");
+    }
+    if ((ErrorStatusITs & FDCAN_IT_ERROR_WARNING) != RESET)
+    {
+        LOG_WARN("FDCAN is in error warning state!");
+    }
     if ((ErrorStatusITs & FDCAN_IT_BUS_OFF) != RESET)
     {
         FDCAN_ProtocolStatusTypeDef protocolStatus;

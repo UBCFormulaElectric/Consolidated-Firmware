@@ -292,7 +292,7 @@
       "type": "cmake",
       "command": "build",
       "targets": [
-        "hexray_FSM_app.hex"
+        "hexray_FSM.hex"
       ]
     },
     {
