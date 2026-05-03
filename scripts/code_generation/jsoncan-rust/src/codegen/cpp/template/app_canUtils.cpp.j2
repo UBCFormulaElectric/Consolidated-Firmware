@@ -45,10 +45,14 @@ static uint32_t unpackShiftRight(const uint8_t input, const uint8_t shift, const
 
 /* ----------------------- Encoding/Decoding Macros ----------------------- */
 
+template<typename T>
+concept UnsignedOrEnum = std::is_unsigned_v<T> || std::is_enum_v<T>;
+
 /**
  * Encode real signal value to payload representation, w/ scale and offset (unsigned).
  */
-static uint32_t CAN_ENCODE(const auto input, const auto scale, const auto offset)
+template<UnsignedOrEnum T>
+static uint32_t CAN_ENCODE(const T input, const uint64_t scale, const uint64_t offset)
 {
     // uint8_t, uint16_t, uint32_t, enum overload
     return static_cast<uint32_t>((static_cast<uint32_t>(input) - offset) / scale);
@@ -71,11 +75,6 @@ static uint64_t CAN_ENCODE(const double input, const double scale, const double 
 static int32_t CAN_ENCODE(const int32_t input, const int32_t scale, const int32_t offset)
 {
     // int32_t overload
-    return (input - offset) / scale;
-}
-static uint64_t CAN_ENCODE(const uint64_t input, const uint64_t scale, const uint64_t offset)
-{
-    // uint64_t overload
     return (input - offset) / scale;
 }
 static int64_t CAN_ENCODE(const int64_t input, const int64_t scale, const int64_t offset)
