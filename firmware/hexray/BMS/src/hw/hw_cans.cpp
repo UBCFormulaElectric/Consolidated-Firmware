@@ -3,7 +3,7 @@
 
 #include <cassert>
 
-#ifndef USER_CHIMERA
+#ifndef USE_CHIMERA
 #include "app_jsoncan.hpp"
 
 #include "io_bootHandler.hpp"
