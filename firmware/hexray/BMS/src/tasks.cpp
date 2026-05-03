@@ -284,7 +284,6 @@ void tasks_init()
     }
 
     jobs_init();
-    jobs_adbms_init();
     osKernelInitialize();
     BMS_StartAllTasks();
     osKernelStart();

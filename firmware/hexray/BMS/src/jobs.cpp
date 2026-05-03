@@ -1,16 +1,11 @@
 #include "jobs.hpp"
-#include "app_canUtils.hpp"
-#include "app_jsoncan.hpp"
-#include "app_segments.hpp"
-#include "io/io_adbms.hpp"
-#include "io_canMsg.hpp"
+#include "util_errorCodes.hpp"
 
 // app
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
 #include "app_canAlerts.hpp"
-
-#include "states/app_states.hpp"
+#include "app_states.hpp"
 #include "app_precharge.hpp"
 #include "app_segments.hpp"
 #include "app_timer.hpp"
@@ -23,16 +18,14 @@
 #include "app_heartbeatMonitor.hpp"
 #include "app_jsoncan.hpp"
 #include "app_canUtils.hpp"
-#include "app_canTx.hpp"
+
 
 // io
-#include "io_canMsg.hpp"
 #include "io_canQueues.hpp"
 #include "io_canMsg.hpp"
 #include "io_irs.hpp"
 #include "io_time.hpp"
 #include "io_semaphore.hpp"
-#include "util_errorCodes.hpp"
 #include "io_bspdTest.hpp"
 #include "io_charger.hpp"
 #include "io_fans.hpp"
@@ -43,7 +36,7 @@
 extern "C"
 {
 #include "app_commitInfo.h"
-}
+}   
 
 io::semaphore                                      spi_bus_lock(true);
 io::semaphore                                      adbms_app_lock(true);
@@ -61,16 +54,6 @@ static void charger_transmit_func(const JsonCanMsg &tx_msg)
 
 void jobs_init()
 {
-    // TODO: Uncomment semaphores when segments are added (also if there's a semaphore.cpp update).
-    // isospi_bus_access_lock guards access to the ISOSPI bus, to guarantee an ADuM SPI transaction doesn't get
-    // interrupted by another task. It's just a regular semaphore (no priority inheritance) since it depends on
-    // hardware.
-    // io_semaphore_create(&isospi_bus_access_lock, false);
-
-    // adbms_app_data_lock guards access to any ADuM app data that may be written to by the ADuM tasks and read from
-    // other tick functions. It's a mutex (yes priority inheritance) since it's guarding shared data and doesn't depend
-    // on hardware.
-    // io_semaphore_create(&adbms_app_data_lock, true);
 
     io::can_tx::init(jsoncan_transmit_func, charger_transmit_func);
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
@@ -86,11 +69,16 @@ void jobs_init()
     app::precharge::init();
 
 #ifndef TARGET_HV_SUPPLY
-    // TODO segments init and tests
+    app::segments::setDefaultConfig();
+    LOG_IF_ERR(io::adbms::wakeup());
+    LOG_IF_ERR(io::adbms::clearCellVoltageReg());
+    LOG_IF_ERR(io::adbms::clearFilteredCellVoltageReg());
+    LOG_IF_ERR(io::adbms::clearCellTempReg());
+    LOG_IF_ERR(app::segments::configSync());
+    LOG_INFO("Segment Initialization Done");
 #endif
 
     app::StateMachine::init(&app::states::init_state);
-
     app::can_tx::BMS_Heartbeat_set(true);
 }
 
@@ -102,16 +90,13 @@ void jobs_run1Hz_tick()
 
 void jobs_run100Hz_tick()
 {
-    // TODO: Uncomment when segments are added
-    // io_semaphore_take(&adbms_app_data_lock, MAX_TIMEOUT);
-
     app::StateMachine::tick100Hz();
 
     const bool debug_mode_enabled = app::can_rx::Debug_EnableDebugMode_get();
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEBUG, debug_mode_enabled);
 
     app::ts::broadcast();
-    app::imd::broadcast();
+    //app::imd::broadcast();
     app::shdn::bms_shdnLoop.broadcast();
     app::plim::broadcast();
     hb_monitor.checkIn();
@@ -132,8 +117,10 @@ void jobs_run100Hz_tick()
 #ifdef TARGET_HV_SUPPLY
     const bool acc_fault = false;
 #else
+    adbms_app_lock.take(io::MAX_TIMEOUT);
     app::segments::checkWarnings();
     const bool acc_fault = app::segments::checkFaults();
+    adbms_app_lock.give();
 #endif
     using namespace io::faultLatch;
 
@@ -150,21 +137,20 @@ void jobs_run100Hz_tick()
     app::can_tx::BMS_BSPDBrakePressureThresholdExceeded_set(io::bspdtest::isBrakePressureThresholdExceeded());
     app::can_tx::BMS_BSPDAccelBrakeOk_set(io::bspdtest::isAccelBrakeOk());
 
-    const bool ir_negative_opened_debounced = app::irs::negativeOpenedDebounced();
-    if (ir_negative_opened_debounced)
-    {
-        app::StateMachine::set_next_state(&app::states::init_state);
-    }
-    if (app::can_alerts::AnyBoardHasFault())
-    {
+    const bool ir_negative_opened_debounced = false;
+    const bool balancing_enabled = true;
+    
+    if (app::can_alerts::AnyBoardHasFault()){
         app::StateMachine::set_next_state(&app::states::fault_state);
+    } else if (ir_negative_opened_debounced) {
+        app::StateMachine::set_next_state(&app::states::init_state);
+    } else if (balancing_enabled) {
+        app::StateMachine::set_next_state(&app::states::balancing_state);
     }
 
     app::irs::broadcast();
 
     io::can_tx::enqueue100HzMsgs();
-    // TODO: Uncomment when segments are added
-    // io_semaphore_give(&adbms_app_data_lock);
 }
 
 void jobs_run1kHz_tick()
@@ -172,21 +158,12 @@ void jobs_run1kHz_tick()
     io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
 }
 
-void jobs_adbms_init()
-{
-    app::segments::setDefaultConfig();
-    LOG_IF_ERR(io::adbms::wakeup());
-    LOG_IF_ERR(io::adbms::clearCellVoltageReg());
-    LOG_IF_ERR(io::adbms::clearFilteredCellVoltageReg());
-    LOG_IF_ERR(io::adbms::clearCellTempReg());
-    LOG_IF_ERR(app::segments::configSync());
-}
-
 void jobs_runAdbmsVoltages_tick()
 {
     spi_bus_lock.take(io::MAX_TIMEOUT);
 
     LOG_IF_ERR(io::adbms::wakeup());
+    LOG_INFO("WAKEUP");
     LOG_IF_ERR(app::segments::configSync());
     LOG_IF_ERR(app::segments::runVoltageConversion());
 
@@ -204,6 +181,8 @@ void jobs_runAdbmsFilteredVoltages_tick()
     spi_bus_lock.take(io::MAX_TIMEOUT);
 
     LOG_IF_ERR(io::adbms::wakeup());
+    LOG_INFO("WAKEUP");
+
     LOG_IF_ERR(app::segments::configSync());
     LOG_IF_ERR(app::segments::runFilteredVoltageConversion());
 
@@ -238,6 +217,8 @@ void jobs_runAdbmsDiagnostics_tick()
     spi_bus_lock.take(io::MAX_TIMEOUT);
 
     LOG_IF_ERR(io::adbms::wakeup());
+    LOG_INFO("WAKEUP");
+
     LOG_IF_ERR(app::segments::configSync());
     LOG_IF_ERR(app::segments::runStatusConversion());
     LOG_IF_ERR(app::segments::runCellOpenWireCheck());
@@ -246,7 +227,7 @@ void jobs_runAdbmsDiagnostics_tick()
 
     adbms_app_lock.take(io::MAX_TIMEOUT);
 
-    app::segments::broadcastStatus();
+    //app::segments::broadcastStatus();
     app::segments::broadcastCellOpenWireCheck();
 
     adbms_app_lock.give();

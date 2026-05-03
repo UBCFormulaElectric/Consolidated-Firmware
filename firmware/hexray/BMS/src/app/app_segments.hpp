@@ -45,7 +45,7 @@ void balancingDisable();
 void broadcastCellVoltages();
 void broadcastFilteredCellVoltages();
 void broadcastCellTemps();
-void broadcastStatus();
+//void broadcastStatus();
 void broadcastCellOpenWireCheck();
 void initFaults();
 bool checkWarnings();

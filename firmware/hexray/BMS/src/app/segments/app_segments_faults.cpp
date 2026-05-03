@@ -4,7 +4,7 @@
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
 #include "app_stateMachine.hpp"
-#include "states/app_states.hpp"
+#include "app_states.hpp"
 
 using namespace app;
 
@@ -99,7 +99,7 @@ template <typename Setters> class FaultProfile
 
         for (size_t seg = 0; seg < io::NUM_SEGMENTS; ++seg)
         {
-            comm_err = comm_err || !app::segments::stat_success[seg];
+            //comm_err = comm_err || !app::segments::stat_success[seg];
 
             for (size_t cell = 0; cell < io::CELLS_PER_SEGMENT; ++cell)
             {
@@ -165,12 +165,24 @@ void initFaults()
 
     for (auto &segment_cell_owc : cell_owc_ok)
     {
-        segment_cell_owc.fill(true);
+        segment_cell_owc.fill(false);
     }
 
     for (auto &segment_therm_owc : therm_owc_ok)
     {
-        segment_therm_owc.fill(true);
+        segment_therm_owc.fill(false);
+    }
+
+    for (auto &segment_cell_temps : cell_temps) {
+        segment_cell_temps.fill(0.0f);
+    }
+
+    for (auto &segment_filtered_cell_voltages : filtered_cell_voltages) {
+        segment_filtered_cell_voltages.fill(0.0f);
+    }
+
+    for (auto &segment_cell_voltages : cell_voltages) {
+        segment_cell_voltages.fill(0.0f);
     }
 }
 

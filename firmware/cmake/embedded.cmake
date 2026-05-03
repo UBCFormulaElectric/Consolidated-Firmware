@@ -130,6 +130,9 @@ function(embedded_binary
         LINKER_SCRIPT
         ARM_CORE
 )
+    set(options SIZE_OPTIMIZED)
+    cmake_parse_arguments(EMBEDDED_BINARY "${options}" "" "" ${ARGN})
+
     message("  ➕ [embedded.cmake, embedded_binary()] Creating Embedded Target for ${BIN_NAME}")
     set(ELF_NAME "${BIN_NAME}.elf")
     add_executable(${ELF_NAME} ${BIN_SRCS})
@@ -144,7 +147,7 @@ function(embedded_binary
             ${SHARED_COMPILER_FLAGS}
             ${SHARED_GNU_COMPILER_CHECKS_STRICT}
     )
-    IF (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    IF (${CMAKE_BUILD_TYPE} STREQUAL "Debug" AND NOT EMBEDDED_BINARY_SIZE_OPTIMIZED)
         target_compile_options(${ELF_NAME} PRIVATE -fsanitize=undefined)
         set_property(SOURCE "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_ubsan.cpp" APPEND PROPERTY COMPILE_OPTIONS
                 -fno-sanitize=undefined
@@ -153,6 +156,11 @@ function(embedded_binary
         )
         target_sources(${ELF_NAME} PRIVATE "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_ubsan.cpp")
     ENDIF ()
+
+    if (EMBEDDED_BINARY_SIZE_OPTIMIZED)
+        target_compile_options(${ELF_NAME} PRIVATE -Os -g1 -DNDEBUG -fno-sanitize=undefined)
+        target_link_options(${ELF_NAME} PRIVATE -Os)
+    endif ()
 
     if (${BOOTLOAD})
         target_compile_definitions(${ELF_NAME} PRIVATE -DBOOTLOAD)

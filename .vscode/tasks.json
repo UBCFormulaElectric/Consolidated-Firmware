@@ -59,6 +59,7 @@
         "hexray_DAM_app.hex",
         "hexray_FSM_app.hex",
         "hexray_RSM_app.hex",
+        "hexray_BMS_app.hex",
       ]
     },
     {
