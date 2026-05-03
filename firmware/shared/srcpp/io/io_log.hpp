@@ -82,28 +82,29 @@ struct LogContext
     }
 };
 
-template <typename... Args> void LOG(const std::string_view level, const LogContext &ctx, Args &&...args)
+template <typename... Args>
+[[gnu::always_inline]] void LOG(const std::string_view level, const LogContext &ctx, Args &&...args)
 {
     _LOG_PRINTF("[%s] %s:%u: ", level.data(), __BASENAME__(ctx.loc.file_name()), ctx.loc.line());
     _LOG_PRINTF(ctx.fmt, std::forward<Args>(args)...);
     _LOG_PRINTF("\r\n");
 }
 
-template <typename... Args> void LOG_INFO(const LogContext ctx, Args &&...args)
+template <typename... Args> [[gnu::always_inline]] void LOG_INFO(const LogContext ctx, Args &&...args)
 {
     static constexpr std::string_view level      = "INFO";
     static constexpr std::string_view full_level = join_v<ANSI_BOLD_GREEN, level, ANSI_RESET>;
     LOG(full_level, ctx, std::forward<Args>(args)...);
 }
 
-template <typename... Args> void LOG_WARN(const LogContext ctx, Args &&...args)
+template <typename... Args> [[gnu::always_inline]] void LOG_WARN(const LogContext ctx, Args &&...args)
 {
     static constexpr std::string_view level      = "WARN";
     static constexpr std::string_view full_level = join_v<ANSI_BOLD_YELLOW, level, ANSI_RESET>;
     LOG(full_level, ctx, std::forward<Args>(args)...);
 }
 
-template <typename... Args> void LOG_ERROR(const LogContext ctx, Args &&...args)
+template <typename... Args> [[gnu::always_inline]] void LOG_ERROR(const LogContext ctx, Args &&...args)
 {
     static constexpr std::string_view level      = "ERROR";
     static constexpr std::string_view full_level = join_v<ANSI_BOLD_RED, level, ANSI_RESET>;

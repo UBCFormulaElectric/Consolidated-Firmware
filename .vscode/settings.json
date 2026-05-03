@@ -13,5 +13,5 @@
     "--query-driver=/usr/local/bin/arm-none-eabi-gcc"
   ],
   "C_Cpp.default.cppStandard": "c++23",
-  "cortex-debug.variableUseNaturalFormat": true
+  "cortex-debug.variableUseNaturalFormat": false
 }

@@ -13,7 +13,6 @@ file(GLOB EMBEDDED_SRCS CONFIGURE_DEPENDS
 )
 list(APPEND EMBEDDED_SRCS
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_freeRtosConfigs.cpp"
         "${SHARED_IO_INCLUDE_DIR_CPP}/efuse/io_efuse_TI_TPS28.cpp"
         "${SHARED_IO_INCLUDE_DIR_CPP}/efuse/io_efuse_TI_TPS25.cpp"
         "${SHARED_IO_INCLUDE_DIR_CPP}/efuse/io_efuse_ST_VND5.cpp"
@@ -21,7 +20,6 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_gpio.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_cordic.cpp"
         "${SHARED_HW_INCLUDE_DIR}/hw_bootup.c"
-        "${SHARED_HW_INCLUDE_DIR}/hw_freeRtosConfigs.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
@@ -53,7 +51,7 @@ set(EMBEDDED_INCLUDE_DIRS
 IF ("${TARGET}" STREQUAL "binary")
     if ("${BOOTLOAD}" STREQUAL "ON")
         set(LINKER_SCRIPT "${LINKER_DIR}/stm32h562ritx/stm32h562ritx_app.ld")
-    else()
+    else ()
         set(LINKER_SCRIPT "${LINKER_DIR}/stm32h562ritx/stm32h562ritx_app_only.ld")
     endif ()
 
@@ -106,7 +104,7 @@ IF ("${TARGET}" STREQUAL "binary")
     )
 
     # JSONCAN
-    jsoncan_embedded_library_cpp(H5 dev "${CMAKE_CURRENT_BINARY_DIR}")
+    jsoncan_embedded_library_cpp(H5 dev "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
 
     embedded_binary(
             "h5dev_app"
@@ -146,5 +144,5 @@ IF ("${TARGET}" STREQUAL "binary")
                 "h5dev_boot.hex"
                 "${CMAKE_CURRENT_BINARY_DIR}/h5dev_boot.hex"
         )
-    endif()
+    endif ()
 ENDIF ()

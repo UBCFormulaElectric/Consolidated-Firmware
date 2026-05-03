@@ -3,12 +3,10 @@
 #include "app_jsoncan.hpp"
 #include "io_canQueues.hpp"
 #include "io_canTx.hpp"
-#include "io_canRx.hpp"
-#include "io_log.hpp"
 #include "efuse/io_efuse_TI_TPS28.hpp"
 #include "hw_gpio.hpp"
 #include "hw_adc.hpp"
-#include <io_canMsg.hpp>
+#include "io_canMsg.hpp"
 #include <util_errorCodes.hpp>
 #include "io_math.hpp"
 #include <cmath>
@@ -23,12 +21,12 @@ extern "C"
 using namespace hw;
 using namespace io;
 
-const Gpio                      efuse_en{ EFUSE_EN_GPIO_Port, EFUSE_EN_Pin };
-const Gpio                      efuse_pgood{ EFUSE_PGOOD_GPIO_Port, EFUSE_PGOOD_Pin };
-const size_t                    NUM_ADC_CHANNELS = 1U;
-const AdcChip<NUM_ADC_CHANNELS> adc1{ &hadc1, &htim3 };
-const Adc                       efuse_i_sns(adc1.getChannel(0));
-TI_TPS28_Efuse                  efuse(efuse_en, efuse_i_sns, efuse_pgood);
+const gpio                          efuse_en{ EFUSE_EN_GPIO_Port, EFUSE_EN_Pin };
+const gpio                          efuse_pgood{ EFUSE_PGOOD_GPIO_Port, EFUSE_PGOOD_Pin };
+constexpr size_t                    NUM_ADC_CHANNELS = 1U;
+constexpr adcchip<NUM_ADC_CHANNELS> adc1{ hadc1, htim3 };
+constexpr adc                       efuse_i_sns(adc1.getChannel(0));
+TI_TPS28_Efuse                      efuse(efuse_en, efuse_i_sns, efuse_pgood);
 
 static float angle = 0.0f;
 
