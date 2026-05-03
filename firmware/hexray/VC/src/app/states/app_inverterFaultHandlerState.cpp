@@ -16,6 +16,7 @@ namespace inverterFaultHandler
     static void runOnEntry(void)
     {
         app::can_tx::VC_State_set(VCState::VC_INVERTER_FAULT_HANDELER);
+        app::can_alerts::infos::InverterRetry_set(true);
     }
 
     static void runOnTick100Hz(void) 
@@ -41,7 +42,7 @@ namespace inverterFaultHandler
 
     static void runOnExit(void)
     {
-        return;
+        app::can_alerts::infos::InverterRetry_set(false);
     }
     
 } // namespace InverterFaultHandler

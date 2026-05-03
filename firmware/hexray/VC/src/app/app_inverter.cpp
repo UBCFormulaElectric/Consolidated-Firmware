@@ -9,6 +9,7 @@
 
 static app::State *state_to_recover_after_fault;
 static app::Timer retry_timer{1000u};
+static uint8_t retry_limit = 3;
 
 
 constexpr app::inverter::Handle inverter_handle_FL{
@@ -18,7 +19,7 @@ constexpr app::inverter::Handle inverter_handle_FL{
     app::can_rx::INVFL_ErrorInfo_get,
     app::can_tx::VC_INVFLbErrorReset_set,
     app::can_rx::INVFL_bError_get,
-    app::can_tx::VC_Warning_FrontLeftInverterFault_set,
+    app::can_alerts::warnings::FrontRightInverterFault_set,
 };
 
 constexpr app::inverter::Handle inverter_handle_FR{
@@ -28,7 +29,7 @@ constexpr app::inverter::Handle inverter_handle_FR{
     app::can_rx::INVFR_ErrorInfo_get,
     app::can_tx::VC_INVFRbErrorReset_set,
     app::can_rx::INVFR_bError_get, 
-    app::can_tx::VC_Warning_FrontRightInverterFault_set,
+    app::can_alerts::warnings::FrontRightInverterFault_set,
 };
 constexpr app::inverter::Handle inverter_handle_RL{
     app::can_tx::VC_INVRLbEnable_set,
@@ -37,7 +38,7 @@ constexpr app::inverter::Handle inverter_handle_RL{
     app::can_rx::INVRL_ErrorInfo_get,
     app::can_tx::VC_INVRLbErrorReset_set,
     app::can_rx::INVRL_bError_get,
-    app::can_tx::VC_Warning_RearLeftInverterFault_set,
+    app::can_alerts::warnings::RearLeftInverterFault_set,
 };
 
 constexpr app::inverter::Handle inverter_handle_RR{
@@ -47,7 +48,7 @@ constexpr app::inverter::Handle inverter_handle_RR{
     app::can_rx::INVRR_ErrorInfo_get,
     app::can_tx::VC_INVRRbErrorReset_set,
     app::can_rx::INVRR_bError_get, 
-    app::can_tx::VC_Warning_RearRightInverterFault_set,
+    app::can_alerts::warnings::RearRightInverterFault_set,
 };
 
 static bool inverter_status(void)
@@ -56,11 +57,6 @@ static bool inverter_status(void)
     const bool invrl_error = inverter_handle_RL.can_error_bit() == true;
     const bool invfl_error = inverter_handle_FL.can_error_bit() == true;
     const bool invfr_error = inverter_handle_FR.can_error_bit() == true;
-
-    // app::can_alerts::VC_Warning_RearLeftInverterFault_set(invrl_error);
-    // app::can_alerts::VC_Warning_FrontRightInverterFault_set(invfr_error);
-    // app::can_alerts::VC_Warning_FrontLeftInverterFault_set(invfl_error);
-    // app::can_alerts::VC_Warning_RearRightInverterFault_set(invrr_error);
 
     return invfl_error || invrl_error || invrr_error || invfr_error;
 }
