@@ -11,7 +11,23 @@ https://www.zotero.org/groups/5938751/ubc_formula_electric_firmware/collections/
 
 namespace io::batteryMonitoring
 {
-// Helpers
+
+// Static function declarations
+static std::expected<void, ErrorCode> read_register(uint16_t reg, std::span<uint8_t> data);
+static std::expected<void, ErrorCode> write_register(uint16_t reg, std::span<uint8_t> data);
+
+static std::expected<void, ErrorCode> command_read_byte(uint8_t command_addr, uint8_t* data);
+static std::expected<void, ErrorCode> command_write_byte(uint8_t command_addr, uint8_t data);
+static std::expected<void, ErrorCode> command_read_2byte(uint8_t command_addr, uint16_t* data);
+static std::expected<void, ErrorCode> command_write_2byte(uint8_t command_addr, uint16_t data);
+
+static std::expected<void, ErrorCode> read_subcommand(uint16_t sub_cmd, std::span<uint8_t> data);
+static std::expected<void, ErrorCode> write_subcommand(uint16_t sub_cmd, std::span<uint8_t> data);
+static std::expected<void, ErrorCode> execute_subcommand(uint16_t sub_cmd);
+
+static std::expected<void, ErrorCode> fetsInit(void);
+
+/* -------------------- Helpers ------------------------- */
 static std::expected<void, ErrorCode> read_register(uint16_t reg, std::span<uint8_t> data)
 {
     RETURN_IF_ERR_SILENT(bat_mon.memoryRead(reg, data));
@@ -23,23 +39,24 @@ static std::expected<void, ErrorCode> write_register(uint16_t reg, std::span<uin
     return {};
 }
 
-// Command Helpers
-static std::expected<uint8_t, ErrorCode> command_read_byte(uint8_t command_addr)
+/* -------------------- Commands ------------------------- */
+[[maybe_unused]] static std::expected<void, ErrorCode> command_read_byte(uint8_t command_addr, uint8_t* data)
 {
-    uint8_t data = 0;
-    RETURN_IF_ERR_SILENT(read_register(command_addr, std::span(&data, 1)));
-    return data;
+    *data = 0;
+    RETURN_IF_ERR_SILENT(read_register(command_addr, std::span(data, 1)));
+    return {};
 }
-static std::expected<void, ErrorCode> command_write_byte(uint8_t command_addr, uint8_t data)
+[[maybe_unused]] static std::expected<void, ErrorCode> command_write_byte(uint8_t command_addr, uint8_t data)
 {
     RETURN_IF_ERR_SILENT(write_register(command_addr, std::span(&data, 1)));
     return {};
 }
-static std::expected<uint16_t, ErrorCode> command_read_2byte(uint8_t command_addr)
+static std::expected<void, ErrorCode> command_read_2byte(uint8_t command_addr, uint16_t* data)
 {
     uint8_t rx_buffer[2] = {0, 0};
-    RETURN_IF_ERR_SILENT(read_register(command_addr, std::span(rx_buffer, 2)));
-    return static_cast<uint16_t>((rx_buffer[1] << 8) | rx_buffer[0]);
+    RETURN_IF_ERR(read_register(command_addr, std::span(rx_buffer, 2)));
+    *data = static_cast<uint16_t>((rx_buffer[1] << 8) | rx_buffer[0]);
+    return {};
 }
 static std::expected<void, ErrorCode> command_write_2byte(uint8_t command_addr, uint16_t data)
 {
@@ -49,84 +66,10 @@ static std::expected<void, ErrorCode> command_write_2byte(uint8_t command_addr, 
     RETURN_IF_ERR_SILENT(write_register(command_addr, std::span(tx_buffer, 2)));
     return {};
 }
-static std::expected<void, ErrorCode> read_subcommand(uint)
 
-/**
- * @brief Gets the cell voltage
- * @param CellReading The command used to read the voltage
- * @return The voltage on success, erorcode if messed up
- */
-std::expected<uint16_t, ErrorCode> get_voltage_cell(CellReading cell)
-{
-    uint16_t voltage_mV = 0;
-    RETURN_IF_ERR(read_register_word(cell, voltage_mV));
-    return voltage_mV;
-}
-/**
- * @brief Gets the system voltage
- * @param SystemReading The command used to read the voltage
- * @return The voltage on success, erorcode if messed up
- */
-std::expected<uint16_t, ErrorCode> get_voltage_system(SystemReading system)
-{
-    uint16_t voltage_mV = 0;
-    RETURN_IF_ERR(read_register_word(system, voltage_mV));
-    return voltage_mV * 10; //  The units for TOS, PACK, and LD voltages are reported in cV (10mV LSB) by default
-}
-
-static std::expected<void, ErrorCode> protectionInit(void)
-{
-    /*uint8_t manual_protection = 0x10; // 00010000
-    RETURN_IF_ERR(write_data_memory(MFG_STATUS_INIT, std::span<const uint8_t>(&autonomous_protection, 1))); */
-
-    uint8_t sleep_chg = 0x02;
-    RETURN_IF_ERR(write_data_memory(FET_FET_OPTION, std::span<const uint8_t>(&sleep_chg, 1)));
-
-    return {};
-}
-
-// Writes to a command code, which tells the chip to do something
-static std::expected<void, ErrorCode> write_transfer(uint16_t sub_cmd, std::span<const uint8_t> data)
-{
-    if (data.size() > 32u)
-    {
-        return std::unexpected(ErrorCode::OUT_OF_RANGE);
-    }
-
-    uint8_t high_byte = (uint8_t)(sub_cmd >> 8);
-    uint8_t low_byte  = (uint8_t)(sub_cmd & 0x00FF);
-
-    // total length: subcommand bytes + transfer-buffer bytes + checksum/length bytes.
-    uint8_t length = static_cast<uint8_t>(data.size() + SUBCOMMAND_BYTES);
-
-    // checksum = inverted 8-bit sum of subcommand bytes and transfer-buffer data bytes.
-    uint16_t sum = low_byte + high_byte;
-    for (uint8_t byte : data)
-    {
-        sum += byte;
-    }
-    uint8_t checksum = static_cast<uint8_t>(0xFFu - (sum & 0x00FFu));
-    ;
-
-    RETURN_IF_ERR(write_register_byte(REG_LOWER, low_byte));
-    RETURN_IF_ERR(write_register_byte(REG_UPPER, high_byte));
-
-    // action only subcommands require only 0x3E/0x3F writes.
-    if (data.empty())
-    {
-        return {};
-    }
-
-    // 0x60 = checksum, 0x61 = length and write together.
-    std::array<uint8_t, 2> checksum_and_length = { { checksum, length } };
-    RETURN_IF_ERR(bat_mon.memoryWrite(REG_DATA, data));
-    RETURN_IF_ERR(bat_mon.memoryWrite(REG_CHECKSUM, checksum_and_length));
-
-    return {};
-}
-
-// Tells the chip to do something and reads response
-[[maybe_unused]] static std::expected<void, ErrorCode> read_subcommand(uint16_t sub_cmd, std::span<uint8_t> data)
+/* -------------------- Subcommands ------------------------- */
+// NOTE: Data memory access is conducted in a similar fashion to subcommands, use these helpers for data memory
+[[maybe_unused]] std::expected<void, ErrorCode> read_subcommand(uint16_t sub_cmd, std::span<uint8_t> data)
 {
     if (data.size() > 32u)
     {
@@ -137,9 +80,9 @@ static std::expected<void, ErrorCode> write_transfer(uint16_t sub_cmd, std::span
     uint8_t low_byte  = (uint8_t)(sub_cmd & 0x00FF);
 
     // 1. Write lower byte of subcommand to 0x3E
-    RETURN_IF_ERR(write_register_byte(REG_LOWER, low_byte));
+    RETURN_IF_ERR(write_register(REG_LOWER, std::span<uint8_t>(&low_byte, 1)));
     // 2. Write upper byte of subcommand to 0x3F
-    RETURN_IF_ERR(write_register_byte(REG_UPPER, high_byte));
+    RETURN_IF_ERR(write_register(REG_UPPER,std::span<uint8_t>(&high_byte, 1)));
 
     /* 3. Read 0x3E and 0x3F. If this returns 0xFF, this indicates the subcommand has not completed operation  yet. When
     the subcommand has completed, the readback will return what was originally written. Continue reading 0x3E and 0x3F
@@ -147,10 +90,10 @@ static std::expected<void, ErrorCode> write_transfer(uint16_t sub_cmd, std::span
     uint8_t low_status   = 0xFF;
     uint8_t high_status  = 0xFF;
     bool subcmd_ready = false;
-    for (uint32_t attempt = 0; attempt < SUBCOMMAND_READY_RETRIES; attempt++)
+    for (uint32_t attempt = 0; attempt < RETRIES; attempt++)
     {
-        RETURN_IF_ERR(read_register_byte(REG_LOWER, low_status));
-        RETURN_IF_ERR(read_register_byte(REG_UPPER, high_status));
+        RETURN_IF_ERR(read_register(REG_LOWER, std::span<uint8_t>(&low_status, 1)));
+        RETURN_IF_ERR(read_register(REG_UPPER, std::span<uint8_t>(&high_status, 1)));
         if ((low_status == low_byte) && (high_status == high_byte))
         {
             subcmd_ready = true;
@@ -165,7 +108,7 @@ static std::expected<void, ErrorCode> write_transfer(uint16_t sub_cmd, std::span
 
     // 4. Read the length of response from 0x61
     uint8_t total_len = 0;
-    RETURN_IF_ERR(read_register_byte(REG_DATALENGTH, total_len));
+    RETURN_IF_ERR(read_register(REG_DATALENGTH, std::span<uint8_t>(&total_len, 1)));
     if (total_len < SUBCOMMAND_BYTES)
     {
         return std::unexpected(ErrorCode::OUT_OF_RANGE);
@@ -184,7 +127,7 @@ static std::expected<void, ErrorCode> write_transfer(uint16_t sub_cmd, std::span
 
     // 6. Read the checksum at 0x60 and verify it matches the data read.
     uint8_t received_checksum = 0;
-    RETURN_IF_ERR(read_register_byte(REG_CHECKSUM, received_checksum));
+    RETURN_IF_ERR(read_register(REG_CHECKSUM, std::span<uint8_t>(&received_checksum, 1)));
     
     uint16_t sum = low_byte + high_byte;
     for (uint8_t byte : data.first(buffer_len))
@@ -192,7 +135,7 @@ static std::expected<void, ErrorCode> write_transfer(uint16_t sub_cmd, std::span
         sum += byte;
     }
 
-    uint8_t expected_checksum = ~sum;
+    uint8_t expected_checksum = static_cast<uint8_t>(~sum);
 
     if (received_checksum != expected_checksum)
     {
@@ -201,8 +144,7 @@ static std::expected<void, ErrorCode> write_transfer(uint16_t sub_cmd, std::span
 
     return {};
 }
-
-static std::expected<void, ErrorCode> write_subcommand(uint16_t sub_cmd, std::span<const uint8_t> data)
+static std::expected<void, ErrorCode> write_subcommand(uint16_t sub_cmd, std::span<uint8_t> data)
 {
     // The transfer buffer is 32 bytes max
     if (data.size() > 32u)
@@ -214,8 +156,8 @@ static std::expected<void, ErrorCode> write_subcommand(uint16_t sub_cmd, std::sp
     uint8_t low_byte  = static_cast<uint8_t>(sub_cmd & 0x00FF);
 
     // 1. Write the 16-bit subcommand address to 0x3E and 0x3F
-    RETURN_IF_ERR(write_register_byte(REG_LOWER, low_byte));
-    RETURN_IF_ERR(write_register_byte(REG_UPPER, high_byte));
+    RETURN_IF_ERR(write_register(REG_LOWER, std::span<uint8_t>(&low_byte, 1)));
+    RETURN_IF_ERR(write_register(REG_UPPER, std::span<uint8_t>(&high_byte, 1)));
 
     // 2. Write the payload data to the transfer buffer starting at 0x40
     if (data.size() > 0)
@@ -238,181 +180,136 @@ static std::expected<void, ErrorCode> write_subcommand(uint16_t sub_cmd, std::sp
     uint16_t check_and_len = static_cast<uint16_t>((total_len << 8) | checksum);
 
     // writing length to 0x61 forces the chip to verify the checksum and save the data
-    RETURN_IF_ERR(write_command_2byte(REG_CHECKSUM, check_and_len));
+    RETURN_IF_ERR(command_write_2byte(REG_CHECKSUM, check_and_len));
+
+    return {};
+}
+static std::expected<void, ErrorCode> execute_subcommand(uint16_t sub_cmd)
+{
+    uint8_t low_byte  = static_cast<uint8_t>(sub_cmd & 0x00FF);
+    uint8_t high_byte = static_cast<uint8_t>(sub_cmd >> 8);
+    RETURN_IF_ERR(write_register(REG_LOWER, std::span<uint8_t>(&low_byte, 1)));
+    RETURN_IF_ERR(write_register(REG_UPPER, std::span<uint8_t>(&high_byte, 1)));
+    return {};
+}
+
+/* -------------------- Voltage and Current Readings ------------------------- */
+/**
+ * @brief Gets the cell voltage
+ * @param CellReading The command used to read the voltage
+ * @return The voltage on success, erorcode if messed up
+ */
+std::expected<uint16_t, ErrorCode> get_voltage_cell(CellReading cell)
+{
+    uint16_t cell_voltage = 0;
+    RETURN_IF_ERR(command_read_2byte(cell, &cell_voltage));
+    return static_cast<uint16_t>(cell_voltage);
+}
+/**
+ * @brief Gets the system voltage
+ * @param SystemReading The command used to read the voltage
+ * @return The voltage on success, erorcode if messed up
+ */
+std::expected<uint16_t, ErrorCode> get_voltage_system(SystemReading system)
+{
+    uint16_t cv_voltage = 0;
+    RETURN_IF_ERR(command_read_2byte(system, &cv_voltage));
+    return static_cast<uint16_t>(cv_voltage * 10); //  The units for TOS, PACK, and LD voltages are reported in cV (10mV LSB) by default
+}
+
+[[maybe_unused]] static std::expected<void, ErrorCode> protectionInit(void)
+{
+    /*uint8_t manual_protection = 0x10; // 00010000
+    RETURN_IF_ERR(write_data_memory(MFG_STATUS_INIT, std::span<const uint8_t>(&autonomous_protection, 1))); */
+
+    uint8_t sleep_chg = 0x02;
+    RETURN_IF_ERR(write_subcommand(FET_FET_OPTION, std::span<uint8_t>(&sleep_chg, 1)));
 
     return {};
 }
 
 static std::expected<void, ErrorCode> fetsInit(void)
 {
-    RETURN_IF_ERR(write_subcommand(CMD_ALL_FETS_ON, {})); // 0x0096
+    RETURN_IF_ERR(execute_subcommand(SUBCMD_ALL_FETS_ON)); // 0x0096
     LOG_INFO("FETs enabled");
-    return {};
-}
-
-std::expected<void, ErrorCode> tick(void)
-{
-
-    debug_tick_stage      = 0u;
-    debug_tick_last_error = -1;
-
-    auto ready = bat_mon.isTargetReady();
-    if (!ready)
-    {
-        debug_tick_last_error = static_cast<int32_t>(ready.error());
-        return ready;
-    }
-    debug_tick_stage = 2u;
-
-    uint8_t lower_reg = 0u;
-    RETURN_IF_ERR(read_register_byte(REG_LOWER, lower_reg));
-
-    uint16_t control_status = 0u;
-    RETURN_IF_ERR(read_register_word(CMD_CONTROL_STATUS, control_status));
-
     return {};
 }
 
 std::expected<void, ErrorCode> init(void)
 {
+    // 1. Is chip responsive 
+    RETURN_IF_ERR(bat_mon.isTargetReady());
 
-    // The device exits SHUTDOWN when it detects a charger, a load detect (our batteries), changing volatge on TS pins?
-    // or wake pin.
-    // io::time::delay(300);
-    RETURN_IF_ERR(bat_mon.isTargetReady()); // does not CONFIRM the device is out of SHUTDOWN
-
-    // Check for deepsleep & wakeup if neccesary
+    // 2.0 Check to see if chip is in DEEPSLEEP
     uint16_t control_status = 0;
-    RETURN_IF_ERR(read_register_word(CMD_CONTROL_STATUS, control_status));
-    if (control_status & CTRL_STATUS_DEEPSLEEP) // the 2nd bit (DEEPSLEEP)
+    RETURN_IF_ERR(command_read_2byte(CMD_CONTROL_STATUS, &control_status));
+    while (control_status & CTRL_STATUS_DEEPSLEEP)
     {
-        LOG_INFO("Battery in deepsleep mode");
-        RETURN_IF_ERR(write_subcommand(CMD_WAKE_DEEPSLEEP, {})); // send the SET_CFGUPDATE()
-        // io::time::delay(300);
+        LOG_INFO("Device in deepsleep mode");
+        RETURN_IF_ERR(execute_subcommand(SUBCMD_WAKE_DEEPSLEEP));
     }
+    LOG_INFO("Device is out of deepsleep mode");
 
-    // Check for regular sleep & wakeup if neccesary
+    // 2.1 Check to see if the device is in SLEEP
     uint16_t battery_status = 0;
-    RETURN_IF_ERR(read_register_word(CMD_BATTERY_STATUS, battery_status));
-    if (battery_status & BAT_STATUS_SLEEP) // the MSB
+    RETURN_IF_ERR(command_read_2byte(CMD_BATTERY_STATUS, &battery_status));
+    while (battery_status & BAT_STATUS_SLEEP)
     {
-        LOG_INFO("Battery in sleep mode");
-        RETURN_IF_ERR(write_subcommand(CMD_WAKE_SLEEP, {}));
-        // io::time::delay(300);
+        LOG_INFO("Device in sleep mode");
+        RETURN_IF_ERR(execute_subcommand(SUBCMD_WAKE_SLEEP));
+        LOG_INFO("Device is out of sleep mode");
     }
-    // io::time::delay(10); // Wake up delay
+    
+    // 3. Put the device into CONFIG_UPDATE mode
+    RETURN_IF_ERR(execute_subcommand(SUBCMD_SET_CFGUPDATE));
+    constexpr uint16_t BAT_STATUS_CFGUPDATE = (1 << 0);
 
-    /*SECURITY MODES*/
-    uint16_t security_state_unfiltered = 0;
-    RETURN_IF_ERR(read_register_word(CMD_BATTERY_STATUS, security_state_unfiltered));
-    SecurityState security_state = static_cast<SecurityState>((security_state_unfiltered & 0x0300u) >> 8u);
-
-    /* uint16_t full_access = 0x1100; //idk anything but 0xFFFF
-    std::array<uint8_t, 2> full_access_bytes = {{static_cast<uint8_t>(full_access & 0x00FF),
-    static_cast<uint8_t>((full_access >> 8) & 0x00FF)}};
-
-    RETURN_IF_ERR(write_data_memory(FULL_ACCESS_EDIT, full_access_bytes)); */
-
-    /* Lowkey might be unneccesary due to the fact that there is no direct mention of how the chip boots up, but it does
-    give the option to transsniton to sealed mode, so ig the assumption can be made that we begin in FULL ACCESS mode*/
-    if (security_state == SecurityState::SEALED)
-    {
-        RETURN_IF_ERR(write_register_byte(REG_LOWER, static_cast<uint8_t>(SECURITY_UNSEAL_FIRST)));
-        RETURN_IF_ERR(write_register_byte(REG_UPPER, static_cast<uint8_t>(SECURITY_UNSEAL_FIRST >> 8)));
-        RETURN_IF_ERR(write_register_byte(REG_LOWER, static_cast<uint8_t>(SECURITY_UNSEAL_SECOND)));
-        RETURN_IF_ERR(write_register_byte(REG_UPPER, static_cast<uint8_t>(SECURITY_UNSEAL_SECOND >> 8)));
-        // io::time::delay(10);
-
-        RETURN_IF_ERR(read_register_word(CMD_BATTERY_STATUS, security_state_unfiltered));
-        security_state = static_cast<SecurityState>((security_state_unfiltered & 0x0300u) >> 8u);
-        if (security_state == SecurityState::SEALED)
-        {
-            return std::unexpected(ErrorCode::ERROR);
-        }
-    }
-
-    else if (security_state == SecurityState::UNSEALED)
-    {
-        /* This is very suspicious way of doing this, prior to OTP ensure to review because the security codes cannot be
-         the default 0xFFFF. If tests work and I check via debugging that the shit jumps straight into FULL ACESS on
-         boot, I can js get rid of this and edit the data memory in init() and js boot at FULL ACESSS alwats */
-        RETURN_IF_ERR(write_register_byte(REG_LOWER, static_cast<uint8_t>(SECURITY_FULLACESS)));
-        RETURN_IF_ERR(write_register_byte(REG_UPPER, static_cast<uint8_t>(SECURITY_FULLACESS >> 8)));
-        RETURN_IF_ERR(write_register_byte(REG_LOWER, static_cast<uint8_t>(SECURITY_FULLACESS)));
-        RETURN_IF_ERR(write_register_byte(REG_UPPER, static_cast<uint8_t>(SECURITY_FULLACESS >> 8)));
-        // RETURN_IF_ERR(write_subcommand(full_access, {}));
-        // io::time::delay(10);
-
-        RETURN_IF_ERR(read_register_word(CMD_BATTERY_STATUS, security_state_unfiltered));
-        security_state = static_cast<SecurityState>((security_state_unfiltered & 0x0300u) >> 8u);
-        if (security_state != SecurityState::FULL_ACCESS)
-        {
-            return std::unexpected(ErrorCode::ERROR);
-        }
-    }
-
-    /*CONFIG UPDATE MODE*/
-    // 1. Put device into configuration mode
-    RETURN_IF_ERR(write_subcommand(SET_CFGUPDATE, {}));
-
-    // 2. Wait for the 0x12 Battery Status()[CFGUPDATE] flag to set.
-    uint16_t cfgupdate_flag  = 0;
+    uint16_t cfgupdate       = 0;
     bool     cfgupdate_ready = false;
-    for (uint32_t attempt = 0; attempt < CFGUPDATE_RETRIES; attempt++)
+
+    for (uint32_t attempt = 0; attempt < RETRIES; attempt++)
     {
-        RETURN_IF_ERR(read_register_word(CMD_BATTERY_STATUS, cfgupdate_flag));
-        if ((cfgupdate_flag & CFGUPDATE_STATUS) != 0u)
+        if (command_read_2byte(CMD_BATTERY_STATUS, &cfgupdate).has_value())
         {
-            cfgupdate_ready = true;
-            break;
+            if ((cfgupdate & BAT_STATUS_CFGUPDATE) != 0)
+            {
+                cfgupdate_ready = true;
+                LOG_INFO("Entered CONFIG_UPDATE");
+                break;
+            }
         }
-        // io::time::delay(1);
+        io::time::delay(1);
     }
     if (!cfgupdate_ready)
     {
+        LOG_ERROR("Failed to enter CONFIG_UPDATE");
         return std::unexpected(ErrorCode::TIMEOUT);
     }
 
-    // 3. Modify settings
-    // TODO:
-    /* CALIBRATION (TESTING PHASE) */
-
-    /* CONFIGURATION */
-    // REG0 needs to feed REG1, confugure first because we don't have external supply for REGIN 5V
-    uint8_t reg0;
-    RETURN_IF_ERR(read_data_memory(REG0_CONFIG, std::span<uint8_t>(&reg0, 1))); // 0000000_(RSVD)_(EN)
-    reg0 |= 0x1;
-    RETURN_IF_ERR(write_data_memory(REG0_CONFIG, std::span<const uint8_t>(&reg0, 1)));
-
-    // Modify REG1 to be 3V3
-    uint8_t reg1 = 0x0D; // 00001101
-    RETURN_IF_ERR(write_data_memory(REG1_CONFIG, std::span<const uint8_t>(&reg1, 1)));
-
-    // I2C Address
-    uint8_t i2c_addy = 0x10;
-    RETURN_IF_ERR(write_data_memory(I2C_ADDY, std::span<const uint8_t>(&i2c_addy, 1)));
+    // 4. Modify settings
 
     // ALERT
-    uint8_t alert = 0x2A; // 00101010
-    RETURN_IF_ERR(write_data_memory(ALERT, std::span<const uint8_t>(&alert, 1)));
+    uint8_t alert = 0x02; // Could potentially also be 0x2A (for now I assumed high impedance)
+    RETURN_IF_ERR(write_subcommand(ALERT, std::span<uint8_t>(&alert, 1)));
 
     // VCELL mode
-    uint8_t vcell_mode = 0x1B; // 00011011
-    RETURN_IF_ERR(write_data_memory(VCELL_MODE, std::span<const uint8_t>(&vcell_mode, 1)));
+    uint8_t vcell_mode = 0x1B;
+    RETURN_IF_ERR(write_subcommand(VCELL_MODE, std::span<uint8_t>(&vcell_mode, 1)));
 
-    /* PROTECTION */
-    RETURN_IF_ERR(protectionInit());
+    // PROTECTION
+    // RETURN_IF_ERR(protectionInit());
 
     // Add one that edits the security registers (OTP SHIT)
 
     // 4. Take device out of configuration mode
-    RETURN_IF_ERR(write_subcommand(EXIT_CFGUPDATE, {}));
+    RETURN_IF_ERR(execute_subcommand(EXIT_CFGUPDATE));
 
     fetsInit();
 
     return {};
 }
 
+/*
 std::expected<uint32_t, ErrorCode> raw_voltages_and_currents(CellNum cell, Measurement measurement_type)
 {
     uint16_t subcmd = 0;
@@ -580,4 +477,59 @@ std::expected<void, ErrorCode> OTP(void)
     return {};
 }
 
+*/
+
 } // namespace io::batteryMonitoring
+
+
+
+
+    /*SECURITY MODES (for OTP)
+    uint16_t security_state_unfiltered = 0;
+    RETURN_IF_ERR(read_register_word(CMD_BATTERY_STATUS, security_state_unfiltered));
+    SecurityState security_state = static_cast<SecurityState>((security_state_unfiltered & 0x0300u) >> 8u);
+
+     uint16_t full_access = 0x1100; idk anything but 0xFFFF
+    std::array<uint8_t, 2> full_access_bytes = {{static_cast<uint8_t>(full_access & 0x00FF),
+    static_cast<uint8_t>((full_access >> 8) & 0x00FF)}};
+
+    RETURN_IF_ERR(write_data_memory(FULL_ACCESS_EDIT, full_access_bytes));
+
+    Lowkey might be unneccesary due to the fact that there is no direct mention of how the chip boots up, but it does
+    give the option to transsniton to sealed mode, so ig the assumption can be made that we begin in FULL ACCESS mode
+    if (security_state == SecurityState::SEALED)
+    {
+        RETURN_IF_ERR(write_register_byte(REG_LOWER, static_cast<uint8_t>(SECURITY_UNSEAL_FIRST)));
+        RETURN_IF_ERR(write_register_byte(REG_UPPER, static_cast<uint8_t>(SECURITY_UNSEAL_FIRST >> 8)));
+        RETURN_IF_ERR(write_register_byte(REG_LOWER, static_cast<uint8_t>(SECURITY_UNSEAL_SECOND)));
+        RETURN_IF_ERR(write_register_byte(REG_UPPER, static_cast<uint8_t>(SECURITY_UNSEAL_SECOND >> 8)));
+        // io::time::delay(10);
+
+        RETURN_IF_ERR(read_register_word(CMD_BATTERY_STATUS, security_state_unfiltered));
+        security_state = static_cast<SecurityState>((security_state_unfiltered & 0x0300u) >> 8u);
+        if (security_state == SecurityState::SEALED)
+        {
+            return std::unexpected(ErrorCode::ERROR);
+        }
+    }
+
+    else if (security_state == SecurityState::UNSEALED)
+    {
+        This is very suspicious way of doing this, prior to OTP ensure to review because the security codes cannot be
+         the default 0xFFFF. If tests work and I check via debugging that the shit jumps straight into FULL ACESS on
+         boot, I can js get rid of this and edit the data memory in init() and js boot at FULL ACESSS alwats
+        RETURN_IF_ERR(write_register_byte(REG_LOWER, static_cast<uint8_t>(SECURITY_FULLACESS)));
+        RETURN_IF_ERR(write_register_byte(REG_UPPER, static_cast<uint8_t>(SECURITY_FULLACESS >> 8)));
+        RETURN_IF_ERR(write_register_byte(REG_LOWER, static_cast<uint8_t>(SECURITY_FULLACESS)));
+        RETURN_IF_ERR(write_register_byte(REG_UPPER, static_cast<uint8_t>(SECURITY_FULLACESS >> 8)));
+        RETURN_IF_ERR(write_subcommand(full_access, {}));
+        io::time::delay(10);
+
+        RETURN_IF_ERR(read_register_word(CMD_BATTERY_STATUS, security_state_unfiltered));
+        security_state = static_cast<SecurityState>((security_state_unfiltered & 0x0300u) >> 8u);
+        if (security_state != SecurityState::FULL_ACCESS)
+        {
+            return std::unexpected(ErrorCode::ERROR);
+        }
+    } */
+    

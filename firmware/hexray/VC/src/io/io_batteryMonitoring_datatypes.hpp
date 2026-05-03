@@ -18,23 +18,8 @@ enum CellReading : uint8_t {
 };
 
 enum SystemReading : uint8_t {
-    PACK_V  = 0x36;
-    LOAD_V  = 0x38;  
-};
-
-typedef enum
-{
-    PACK = 0,
-    LOAD = 1       
-} SystemReading; // V
-
-// Security
-
-enum class SecurityState : uint8_t
-{
-    FULL_ACCESS = 0x1,
-    UNSEALED    = 0x2,
-    SEALED      = 0x3,
+    PACK_V = 0x36,
+    LOAD_V = 0x38
 };
 
 // Internal regulator adresses
@@ -46,7 +31,6 @@ constexpr uint16_t ALERT = 0x92FC;
 
 // I2C
 constexpr uint16_t COMM_TYPE = 0x9239;
-constexpr uint16_t I2C_ADDY  = 0x923A;
 
 // Vcell Mode
 constexpr uint16_t VCELL_MODE = 0x9304;
@@ -60,29 +44,20 @@ constexpr uint16_t REG_DATALENGTH   = 0x61;
 constexpr uint16_t REG_ALARM_STATUS = 0x62;
 
 constexpr uint8_t SUBCOMMAND_BYTES = 4; // account for the 0x3E/0x3F and 0x61 and 0x60
-constexpr uint32_t SUBCOMMAND_READY_RETRIES = 20;
+constexpr uint32_t RETRIES = 20;
 
 // DEEPSLEEP/SLEEP Checks
 constexpr uint16_t CMD_CONTROL_STATUS    = 0x00;
-constexpr uint16_t CMD_BATTERY_STATUS    = 0x12;
 constexpr uint8_t  CTRL_STATUS_DEEPSLEEP = (1 << 2);
+constexpr uint16_t SUBCMD_WAKE_DEEPSLEEP = 0x000E;
+
+constexpr uint16_t CMD_BATTERY_STATUS    = 0x12;
 constexpr uint16_t BAT_STATUS_SLEEP      = (1 << 15);
+constexpr uint16_t SUBCMD_WAKE_SLEEP     = 0x009A;
 
-// Security stuff
-constexpr uint16_t SECURITY_UNSEAL_FIRST  = 0x0414;
-constexpr uint16_t SECURITY_UNSEAL_SECOND = 0x3672;
-constexpr uint16_t FULL_ACCESS_EDIT       = 0x925D;
-constexpr uint16_t SECURITY_FULLACESS     = 0xFFFF;
-
-// CFG Check
+// CONFIG_UPDATE
+constexpr uint16_t SUBCMD_SET_CFGUPDATE  = 0x0090;
 constexpr uint8_t CFGUPDATE_STATUS = (1 << 0);
-
-// wake commands
-constexpr uint16_t CMD_WAKE_SLEEP     = 0x009A;
-constexpr uint16_t CMD_WAKE_DEEPSLEEP = 0x000E;
-
-// Firmware Operation
-constexpr uint16_t SET_CFGUPDATE  = 0x0090;
 constexpr uint16_t EXIT_CFGUPDATE = 0x0092;
 
 // OTP
@@ -132,4 +107,18 @@ constexpr uint8_t SAFETY_C_HWDF = (1u << 1);
 
 // FET stuff
 constexpr uint16_t FET_FET_OPTION  = 0x9308;
-constexpr uint16_t CMD_ALL_FETS_ON = 0x0096;
+constexpr uint16_t SUBCMD_ALL_FETS_ON = 0x0096;
+
+
+// OTP Security
+enum class SecurityState : uint8_t
+{
+    FULL_ACCESS = 0x1,
+    UNSEALED    = 0x2,
+    SEALED      = 0x3,
+};
+
+constexpr uint16_t SECURITY_UNSEAL_FIRST  = 0x0414;
+constexpr uint16_t SECURITY_UNSEAL_SECOND = 0x3672;
+constexpr uint16_t FULL_ACCESS_EDIT       = 0x925D;
+constexpr uint16_t SECURITY_FULLACESS     = 0xFFFF;
