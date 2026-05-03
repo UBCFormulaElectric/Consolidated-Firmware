@@ -45,6 +45,7 @@ namespace pcmOnState
         pcm_prev_voltage = 0.0f;
         pcm_retries      = 0;
         pcm_retry_states = PCM_ON_STATE;
+        app::can_alerts::infos::PcmUnderVoltage_set(false);
     }
 
     static void runOnTick100Hz(void)
@@ -69,6 +70,7 @@ namespace pcmOnState
                     case app::Timer::TimerState::EXPIRED:
                         pcm_retry_states = PCM_COOLDOWN_STATE;
                         pcm_retries++;
+                        app::can_tx::VC_PcmRetryCount_set(pcm_retries);
                         pcm_timer.stop();
                         break;
                     default:
@@ -100,6 +102,7 @@ namespace pcmOnState
         pcm_prev_voltage = pcm_curr_voltage;
         if (pcm_retries >= PCM_MAX_RETRIES)
         {
+            app::can_alerts::infos::PcmUnderVoltage_set(true);
             app::StateMachine::set_next_state(&fault_state);
         }
     }
