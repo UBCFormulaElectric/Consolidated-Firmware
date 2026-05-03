@@ -22,7 +22,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "bootloader.h"
-#include "hw_error.hpp"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -156,6 +155,7 @@ void SystemClock_Config(void)
     {
         Error_Handler();
     }
+    HAL_RCC_ConfigAttributes(RCC_ALL, RCC_NSEC_PRIV);
 
     /** Configure the programming delay
      */
@@ -178,7 +178,7 @@ static void MX_FDCAN1_Init(void)
     /* USER CODE END FDCAN1_Init 1 */
     hfdcan1.Instance                  = FDCAN1;
     hfdcan1.Init.ClockDivider         = FDCAN_CLOCK_DIV1;
-    hfdcan1.Init.FrameFormat          = FDCAN_FRAME_FD_BRS;
+    hfdcan1.Init.FrameFormat          = FDCAN_FRAME_FD_NO_BRS;
     hfdcan1.Init.Mode                 = FDCAN_MODE_NORMAL;
     hfdcan1.Init.AutoRetransmission   = ENABLE;
     hfdcan1.Init.TransmitPause        = DISABLE;
@@ -189,7 +189,7 @@ static void MX_FDCAN1_Init(void)
     hfdcan1.Init.NominalTimeSeg2      = 2;
     hfdcan1.Init.DataPrescaler        = 3;
     hfdcan1.Init.DataSyncJumpWidth    = 2;
-    hfdcan1.Init.DataTimeSeg1         = 5;
+    hfdcan1.Init.DataTimeSeg1         = 13;
     hfdcan1.Init.DataTimeSeg2         = 2;
     hfdcan1.Init.StdFiltersNbr        = 1;
     hfdcan1.Init.ExtFiltersNbr        = 1;
@@ -221,10 +221,20 @@ static void MX_GPIO_Init(void)
     __HAL_RCC_GPIOB_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOB, DEBUG_LED_Pin | BOOT_LED_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(BRAKE_LIGHT_EN_3V3_GPIO_Port, BRAKE_LIGHT_EN_3V3_Pin, GPIO_PIN_RESET);
 
-    /*Configure GPIO pins : DEBUG_LED_Pin BOOT_LED_Pin */
-    GPIO_InitStruct.Pin   = DEBUG_LED_Pin | BOOT_LED_Pin;
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(GPIOB, LED_Pin | BOOT_Pin, GPIO_PIN_RESET);
+
+    /*Configure GPIO pin : BRAKE_LIGHT_EN_3V3_Pin */
+    GPIO_InitStruct.Pin   = BRAKE_LIGHT_EN_3V3_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(BRAKE_LIGHT_EN_3V3_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : LED_Pin BOOT_Pin */
+    GPIO_InitStruct.Pin   = LED_Pin | BOOT_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
