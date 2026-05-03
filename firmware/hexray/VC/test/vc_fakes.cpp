@@ -26,110 +26,112 @@ const io::TI_TPS28_Efuse r_rad_fan_efuse;
 const io::TI_TPS25_Efuse rl_pump_efuse;
 const io::TI_TPS25_Efuse rr_pump_efuse;
 
-
 const io::shdn::node tsms_node(false, app::can_tx::VC_TSMSOKStatus_set);
 const io::shdn::node inertia_stop_node(false, app::can_tx::VC_InertiaSwitch_set);
 const io::shdn::node rear_right_motor_interlock_node(false, app::can_tx::VC_RearRightMotorInterlock_set);
 const io::shdn::node splitter_box_interlock_node(false, app::can_tx::VC_MSDOrEMeterOKStatus_set);
 
-
 namespace fakes
 {
 namespace io
 {
-namespace pcm
-{
-    static bool enable_pin;
-}
-namespace powerMonitoring{
-
-    enum : uint8_t
+    namespace pcm
     {
-        CH1, 
-        CH2,
-        CH3, 
-        CH4
-    };
-
-    static float power_ch1 = 0.0f;
-    static float current_ch1 = 0.0f;
-    static float voltage_ch1 = 0.0f;
-
-    static float power_ch2 = 0.0f;
-    static float current_ch2 = 0.0f;
-    static float voltage_ch2 = 0.0f;
-
-    static float power_ch3 = 0.0f;
-    static float current_ch3 = 0.0f;
-    static float voltage_ch3 = 0.0f;
-
-    static float power_ch4 = 0.0f;
-    static float current_ch4 = 0.0f;
-    static float voltage_ch4 = 0.0f;
-
-    void setPower(float power, uint8_t ch)
-    {
-        switch (ch){
-            case CH1:
-                power_ch1 = power;
-                break;
-            case CH2: 
-                power_ch2 = power;
-                break;
-            case CH3:
-                power_ch3 = power;
-                break;
-            case CH4: 
-                power_ch4 = power;
-                break;
-            default:
-                break;
-        }
+        static bool enable_pin;
     }
-
-    void setCurrent(float current, uint8_t ch)
+    namespace powerMonitoring
     {
-        switch (ch){
-            case CH1:
-                current_ch1 = current;
-                break;
-            case CH2: 
-                current_ch2 = current;
-                break;
-            case CH3:
-                current_ch3 = current;
-                break;
-            case CH4: 
-                current_ch4 = current;
-                break;
-            default:
-                break;
-        }
-    }
-    void setVoltage(float voltage, uint8_t ch)
-    {
-        switch (ch){
-            case CH1:
-                voltage_ch1 = voltage;
-                break;
-            case CH2: 
-                voltage_ch2 = voltage;
-                break;
-            case CH3:
-                voltage_ch3 = voltage;
-                break;
-            case CH4: 
-                voltage_ch4 = voltage;
-                break;
-            default:
-                break;
-        }
-    }
 
-} // namespace powerMonitoring
+        enum : uint8_t
+        {
+            CH1,
+            CH2,
+            CH3,
+            CH4
+        };
+
+        static float power_ch1   = 0.0f;
+        static float current_ch1 = 0.0f;
+        static float voltage_ch1 = 0.0f;
+
+        static float power_ch2   = 0.0f;
+        static float current_ch2 = 0.0f;
+        static float voltage_ch2 = 0.0f;
+
+        static float power_ch3   = 0.0f;
+        static float current_ch3 = 0.0f;
+        static float voltage_ch3 = 0.0f;
+
+        static float power_ch4   = 0.0f;
+        static float current_ch4 = 0.0f;
+        static float voltage_ch4 = 0.0f;
+
+        void setPower(float power, uint8_t ch)
+        {
+            switch (ch)
+            {
+                case CH1:
+                    power_ch1 = power;
+                    break;
+                case CH2:
+                    power_ch2 = power;
+                    break;
+                case CH3:
+                    power_ch3 = power;
+                    break;
+                case CH4:
+                    power_ch4 = power;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        void setCurrent(float current, uint8_t ch)
+        {
+            switch (ch)
+            {
+                case CH1:
+                    current_ch1 = current;
+                    break;
+                case CH2:
+                    current_ch2 = current;
+                    break;
+                case CH3:
+                    current_ch3 = current;
+                    break;
+                case CH4:
+                    current_ch4 = current;
+                    break;
+                default:
+                    break;
+            }
+        }
+        void setVoltage(float voltage, uint8_t ch)
+        {
+            switch (ch)
+            {
+                case CH1:
+                    voltage_ch1 = voltage;
+                    break;
+                case CH2:
+                    voltage_ch2 = voltage;
+                    break;
+                case CH3:
+                    voltage_ch3 = voltage;
+                    break;
+                case CH4:
+                    voltage_ch4 = voltage;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+    } // namespace powerMonitoring
 
 } // namespace io
-    
+
 } // namespace fakes
 
 namespace io // Define the mocked functions here
@@ -145,7 +147,7 @@ namespace pcm
     {
         return fakes::io::pcm::enable_pin;
     }
-}
+} // namespace pcm
 namespace imus
 {
     std::expected<void, ErrorCode> initAll()
@@ -202,7 +204,8 @@ namespace powerMonitoring
 {
     float read_power(uint8_t ch)
     {
-        switch (ch){
+        switch (ch)
+        {
             case fakes::io::powerMonitoring::CH1:
                 return fakes::io::powerMonitoring::power_ch1;
             case fakes::io::powerMonitoring::CH2:
@@ -210,7 +213,7 @@ namespace powerMonitoring
             case fakes::io::powerMonitoring::CH3:
                 return fakes::io::powerMonitoring::power_ch3;
             case fakes::io::powerMonitoring::CH4:
-                return fakes::io::powerMonitoring::power_ch4; 
+                return fakes::io::powerMonitoring::power_ch4;
             default:
                 break;
         }
@@ -218,7 +221,8 @@ namespace powerMonitoring
     }
     float read_current(uint8_t ch)
     {
-        switch (ch){
+        switch (ch)
+        {
             case fakes::io::powerMonitoring::CH1:
                 return fakes::io::powerMonitoring::current_ch1;
             case fakes::io::powerMonitoring::CH2:
@@ -226,7 +230,7 @@ namespace powerMonitoring
             case fakes::io::powerMonitoring::CH3:
                 return fakes::io::powerMonitoring::current_ch3;
             case fakes::io::powerMonitoring::CH4:
-                return fakes::io::powerMonitoring::current_ch4; 
+                return fakes::io::powerMonitoring::current_ch4;
             default:
                 break;
         }
@@ -234,7 +238,8 @@ namespace powerMonitoring
     }
     float read_voltage(uint8_t ch)
     {
-        switch (ch){
+        switch (ch)
+        {
             case fakes::io::powerMonitoring::CH1:
                 return fakes::io::powerMonitoring::voltage_ch1;
             case fakes::io::powerMonitoring::CH2:
@@ -242,11 +247,11 @@ namespace powerMonitoring
             case fakes::io::powerMonitoring::CH3:
                 return fakes::io::powerMonitoring::voltage_ch3;
             case fakes::io::powerMonitoring::CH4:
-                return fakes::io::powerMonitoring::voltage_ch4; 
+                return fakes::io::powerMonitoring::voltage_ch4;
             default:
                 break;
         }
-        return 0.0f;    
+        return 0.0f;
     }
     void refresh() {}
     bool init()

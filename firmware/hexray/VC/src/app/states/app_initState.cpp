@@ -19,7 +19,7 @@ namespace initState
         app::can_tx::VC_State_set(VCState::VC_INIT_STATE);
 
         app::can_alerts::infos::InverterRetry_set(false);
-        
+
         app::can_tx::VC_INVFLTorqueSetpoint_set(torque_limits::NO_TORQUE_Nm);
         app::can_tx::VC_INVFRTorqueSetpoint_set(torque_limits::NO_TORQUE_Nm);
         app::can_tx::VC_INVRLTorqueSetpoint_set(torque_limits::NO_TORQUE_Nm);

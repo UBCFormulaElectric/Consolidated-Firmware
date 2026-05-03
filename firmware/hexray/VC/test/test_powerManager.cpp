@@ -36,20 +36,19 @@ struct efuse_expected_state
     ASSERT_EQ(rr_pump_efuse.isChannelEnabled(), rr_pump_expected);                                              \
     ASSERT_EQ(rl_pump_efuse.isChannelEnabled(), rl_pump_expected);                                              \
     ASSERT_EQ(l_rad_fan_efuse.isChannelEnabled(), l_rad_fan_expected);                                          \
-    ASSERT_EQ(r_rad_fan_efuse.isChannelEnabled(), r_rad_fan_expected);                                          \
-
+    ASSERT_EQ(r_rad_fan_efuse.isChannelEnabled(), r_rad_fan_expected);
 
 using namespace app::can_utils;
-    
+
 TEST_F(VCPowerManagerTest, test_sequencingStateMachine)
 {
-    //this tests that the efuse sequencing happens
+    // this tests that the efuse sequencing happens
     ASSERT_EQ(app::StateMachine::get_current_state(), &app::states::init_state)
         << app::StateMachine::get_current_state()->name << " != init_state";
     LetTimePass(10);
     check_efuses(false, true, true, false, true, true, false, false, false, false);
 
-    //close ir negative
+    // close ir negative
     app::can_rx::BMS_IrNegative_update(ContactorState::CONTACTOR_STATE_CLOSED);
     LetTimePass(10);
     ASSERT_EQ(app::StateMachine::get_current_state(), &app::states::inverterOn_state)
@@ -79,7 +78,3 @@ TEST_F(VCPowerManagerTest, test_sequencingStateMachine)
     ASSERT_EQ(app::StateMachine::get_current_state(), &app::states::hvInit_state)
         << app::StateMachine::get_current_state()->name << " != hvInit_state";
 }
-
-
-
-

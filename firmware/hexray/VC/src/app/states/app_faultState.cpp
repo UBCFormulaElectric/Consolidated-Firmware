@@ -13,21 +13,15 @@ namespace app::states
 namespace faultState
 {
 
-    static void runOnEntry(void)
-    {
-    }
+    static void runOnEntry(void) {}
 
-    static void runOnTick100Hz(void) 
-    {
-    }
+    static void runOnTick100Hz(void) {}
 
-    static void runOnExit(void)
-    {
-    }
-    
-} // namespace fault
+    static void runOnExit(void) {}
 
-State fault_state = { .name = "Fault State",
+} // namespace faultState
+
+State fault_state = { .name              = "Fault State",
                       .run_on_entry      = faultState::runOnEntry,
                       .run_on_tick_1Hz   = nullptr,
                       .run_on_tick_100Hz = faultState::runOnTick100Hz,

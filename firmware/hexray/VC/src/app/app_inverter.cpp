@@ -7,11 +7,10 @@
 #include "app_canAlerts.hpp"
 #include "io_log.hpp"
 
-static app::State *state_to_recover_after_fault;
-static app::Timer retry_timer{1000u};
+static app::State       *state_to_recover_after_fault;
+static app::Timer        retry_timer{ 1000u };
 static constexpr uint8_t RETRY_LIMIT = 3;
-static uint8_t retry_count = 0;
-
+static uint8_t           retry_count = 0;
 
 constexpr app::inverter::Handle inverter_handle_FL{
     app::can_tx::VC_INVFLbEnable_set,
@@ -29,7 +28,7 @@ constexpr app::inverter::Handle inverter_handle_FR{
     app::can_tx::VC_INVFRbDcOn_set,
     app::can_rx::INVFR_ErrorInfo_get,
     app::can_tx::VC_INVFRbErrorReset_set,
-    app::can_rx::INVFR_bError_get, 
+    app::can_rx::INVFR_bError_get,
     app::can_alerts::warnings::FrontRightInverterFault_set,
 };
 constexpr app::inverter::Handle inverter_handle_RL{
@@ -48,7 +47,7 @@ constexpr app::inverter::Handle inverter_handle_RR{
     app::can_tx::VC_INVRRbDcOn_set,
     app::can_rx::INVRR_ErrorInfo_get,
     app::can_tx::VC_INVRRbErrorReset_set,
-    app::can_rx::INVRR_bError_get, 
+    app::can_rx::INVRR_bError_get,
     app::can_alerts::warnings::RearRightInverterFault_set,
 };
 
@@ -94,10 +93,9 @@ static bool lockout(void)
 {
     // Lockout check, if ANY lockout, stop retrying and remain faulted.
     // This is the most safety critical check so it has highest priority
-    const bool any_lockout = is_lockout_code(inverter_handle_FL.can_error_info()) ||
-                                is_lockout_code(inverter_handle_FR.can_error_info()) ||
-                                is_lockout_code(inverter_handle_RL.can_error_info()) ||
-                                is_lockout_code(inverter_handle_RR.can_error_info());
+    const bool any_lockout =
+        is_lockout_code(inverter_handle_FL.can_error_info()) || is_lockout_code(inverter_handle_FR.can_error_info()) ||
+        is_lockout_code(inverter_handle_RL.can_error_info()) || is_lockout_code(inverter_handle_RR.can_error_info());
 
     if (any_lockout)
     {
@@ -149,7 +147,7 @@ app::inverter::FaultHandlerState app::inverter::FaultHandler(void)
         inverter_start_retry_routine(inverter_handle_RL);
     if (rr_fault)
         inverter_start_retry_routine(inverter_handle_RR);
-    
+
     if (state == app::Timer::TimerState::EXPIRED)
     {
         // First end the retry cycle so we can reset it again
@@ -166,7 +164,6 @@ app::inverter::FaultHandlerState app::inverter::FaultHandler(void)
 
     return app::inverter::FaultHandlerState::INV_FAULT_RETRY;
 }
-
 
 void app::inverter::FaultCheck(void)
 {

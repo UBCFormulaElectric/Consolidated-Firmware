@@ -19,9 +19,9 @@ namespace bmsOnStates
     static void runOnTick100Hz(void)
     {
         // Once we have succesfully transitioned here, the BMS will read the state of the VC based on the associated CAN
-        // message and then transition to the appropriate stage Note that if the BMS transitons to drive state we transition
-        // to PCM_ON state
-        
+        // message and then transition to the appropriate stage Note that if the BMS transitons to drive state we
+        // transition to PCM_ON state
+
         if (app::can_rx::BMS_State_get() == BmsState::BMS_DRIVE_STATE)
         {
             app::StateMachine::set_next_state(&pcmOn_state);
