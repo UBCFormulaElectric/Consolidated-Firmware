@@ -22,7 +22,6 @@ struct PowerManagerConfig
     std::array<EfuseConfig, NUM_EFUSE_CHANNELS> efuse_configs{};
 };
 
-void init();
 void updateConfig(const PowerManagerConfig &new_cfg);
 void efuseProtocolTick_100Hz();
 

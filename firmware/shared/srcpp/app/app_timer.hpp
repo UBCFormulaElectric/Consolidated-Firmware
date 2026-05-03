@@ -37,15 +37,15 @@ class Timer
     constexpr explicit Timer() : duration_ms(0), state(TimerState::IDLE), start_time_ms(0){};
     constexpr explicit Timer(uint32_t in_duration_ms)
       : duration_ms(in_duration_ms), state(TimerState::IDLE), start_time_ms(0){};
-#endif /**                                                                                               \
-        * Restart a timer, i.e. set the elapsed time back to 0. Leaves the timer in TIMER_STATE_RUNNING. \
-        * @param timer The timer in question                                                             \
-        */
+#endif
+
+    /**                                                                                               \
+     * Restart a timer, i.e. set the elapsed time back to 0. Leaves the timer in TIMER_STATE_RUNNING. \
+     */
     void restart();
 
     /**
      * Stop a timer. Leaves the timer in TIMER_STATE_IDLE.
-     * @param timer The timer in question
      */
     void stop();
 
@@ -55,7 +55,6 @@ class Timer
      * TIMER_STATE_RUNNING: Timer is running, but its duration hasn't elapsed yet.
      * TIMER_STATE_EXPIRED: Timer ran, and has completed its duration. This is typically when your code will decide to
      * do something.
-     * @param timer The timer in question
      * @return The updated state of the timer
      */
     TimerState updateAndGetState();
@@ -63,7 +62,6 @@ class Timer
     /**
      * If condition is true and timer isn't running, restart the timer. If condition is true and timer
      * is already running, allow the timer to continue running. If condition is false, stop the timer.
-     * @param timer The timer in question
      * @param condition Whether or not to run timer
      * @return The updated state of the timer
      */
@@ -72,7 +70,6 @@ class Timer
     /**
      * Get the elapsed time since timer started, in milliseconds. Note that if timer is TIMER_STATE_IDLE, the elapsed
      * time is zero, and if the timer is TIMER_STATE_EXPIRED, the elapsed time is the timer's duration.
-     * @param timer The timer in question
      * @return Elapsed time
      */
     [[nodiscard]] uint32_t getElapsedTime() const;

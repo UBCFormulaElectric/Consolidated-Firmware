@@ -1,25 +1,30 @@
 #include "vc_fakes.hpp"
 #include "app_canTx.hpp"
-// IMUs
-io::Imu IMU1;
-io::Imu IMU2;
-io::Imu IMU3;
+#include "io_imus.hpp"
+#include "io_pumpControl.hpp"
+#include "io_sbgEllipse.hpp"
+#include "io_powerMonitoring.hpp"
+#include "io_shdnLoopNode.hpp"
+#include "io_efuse_TI_TPS25.hpp"
+#include "io_efuse_TI_TPS28.hpp"
 
-// Pumps
-io::Pump rr_pump;
-io::Pump rl_pump;
+io::imu                  IMU1;
+io::imu                  IMU2;
+io::imu                  IMU3;
+const io::pump           rr_pump;
+const io::pump           rl_pump;
+const io::TI_TPS28_Efuse f_inv_efuse;
+const io::TI_TPS28_Efuse r_inv_efuse;
+const io::TI_TPS28_Efuse bms_efuse;
+const io::TI_TPS28_Efuse rsm_efuse;
+// app::Timer         timer{};
 
-// Efuses
-io::TI_TPS28_Efuse f_inv_efuse;
-io::TI_TPS28_Efuse r_inv_efuse;
-io::TI_TPS28_Efuse bms_efuse;
-io::TI_TPS28_Efuse rsm_efuse;
-io::TI_TPS28_Efuse dam_efuse;
-io::TI_TPS28_Efuse front_efuse;
-io::TI_TPS28_Efuse l_rad_fan_efuse;
-io::TI_TPS28_Efuse r_rad_fan_efuse;
-io::TI_TPS25_Efuse rl_pump_efuse;
-io::TI_TPS25_Efuse rr_pump_efuse;
+const io::TI_TPS28_Efuse dam_efuse;
+const io::TI_TPS28_Efuse front_efuse;
+const io::TI_TPS28_Efuse l_rad_fan_efuse;
+const io::TI_TPS28_Efuse r_rad_fan_efuse;
+const io::TI_TPS25_Efuse rl_pump_efuse;
+const io::TI_TPS25_Efuse rr_pump_efuse;
 
 // Shutdown loop nodes
 const io::shdn::node tsms_node(false, app::can_tx::VC_TSMSOKStatus_set);
