@@ -23,8 +23,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "stm32h7xx_it.h"
-
+#include "stm32h5xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "hw_hardFaultHandler.hpp"
@@ -61,7 +60,7 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-extern FDCAN_HandleTypeDef hfdcan2;
+extern FDCAN_HandleTypeDef hfdcan1;
 extern TIM_HandleTypeDef   htim6;
 
 /* USER CODE BEGIN EV */
@@ -160,52 +159,65 @@ void DebugMon_Handler(void)
 }
 
 /******************************************************************************/
-/* STM32H7xx Peripheral Interrupt Handlers                                    */
+/* STM32H5xx Peripheral Interrupt Handlers                                    */
 /* Add here the Interrupt Handlers for the used peripherals.                  */
 /* For the available peripheral interrupt handler names,                      */
-/* please refer to the startup file (startup_stm32h7xx.s).                    */
+/* please refer to the startup file (startup_stm32h5xx.s).                    */
 /******************************************************************************/
 
 /**
- * @brief This function handles FDCAN2 interrupt 0.
+ * @brief This function handles RCC non-secure global interrupt.
  */
-void FDCAN2_IT0_IRQHandler(void)
+void RCC_IRQHandler(void)
 {
-    /* USER CODE BEGIN FDCAN2_IT0_IRQn 0 */
+    /* USER CODE BEGIN RCC_IRQn 0 */
 
-    /* USER CODE END FDCAN2_IT0_IRQn 0 */
-    HAL_FDCAN_IRQHandler(&hfdcan2);
-    /* USER CODE BEGIN FDCAN2_IT0_IRQn 1 */
+    /* USER CODE END RCC_IRQn 0 */
+    /* USER CODE BEGIN RCC_IRQn 1 */
 
-    /* USER CODE END FDCAN2_IT0_IRQn 1 */
+    /* USER CODE END RCC_IRQn 1 */
 }
 
 /**
- * @brief This function handles FDCAN2 interrupt 1.
+ * @brief This function handles FDCAN1 interrupt 0.
  */
-void FDCAN2_IT1_IRQHandler(void)
+void FDCAN1_IT0_IRQHandler(void)
 {
-    /* USER CODE BEGIN FDCAN2_IT1_IRQn 0 */
+    /* USER CODE BEGIN FDCAN1_IT0_IRQn 0 */
 
-    /* USER CODE END FDCAN2_IT1_IRQn 0 */
-    HAL_FDCAN_IRQHandler(&hfdcan2);
-    /* USER CODE BEGIN FDCAN2_IT1_IRQn 1 */
+    /* USER CODE END FDCAN1_IT0_IRQn 0 */
+    HAL_FDCAN_IRQHandler(&hfdcan1);
+    /* USER CODE BEGIN FDCAN1_IT0_IRQn 1 */
 
-    /* USER CODE END FDCAN2_IT1_IRQn 1 */
+    /* USER CODE END FDCAN1_IT0_IRQn 1 */
 }
 
 /**
- * @brief This function handles TIM6 global interrupt, DAC1_CH1 and DAC1_CH2 underrun error interrupts.
+ * @brief This function handles FDCAN1 interrupt 1.
  */
-void TIM6_DAC_IRQHandler(void)
+void FDCAN1_IT1_IRQHandler(void)
 {
-    /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
+    /* USER CODE BEGIN FDCAN1_IT1_IRQn 0 */
 
-    /* USER CODE END TIM6_DAC_IRQn 0 */
+    /* USER CODE END FDCAN1_IT1_IRQn 0 */
+    HAL_FDCAN_IRQHandler(&hfdcan1);
+    /* USER CODE BEGIN FDCAN1_IT1_IRQn 1 */
+
+    /* USER CODE END FDCAN1_IT1_IRQn 1 */
+}
+
+/**
+ * @brief This function handles TIM6 global interrupt.
+ */
+void TIM6_IRQHandler(void)
+{
+    /* USER CODE BEGIN TIM6_IRQn 0 */
+
+    /* USER CODE END TIM6_IRQn 0 */
     HAL_TIM_IRQHandler(&htim6);
-    /* USER CODE BEGIN TIM6_DAC_IRQn 1 */
+    /* USER CODE BEGIN TIM6_IRQn 1 */
 
-    /* USER CODE END TIM6_DAC_IRQn 1 */
+    /* USER CODE END TIM6_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
