@@ -6,8 +6,8 @@
 // (~17 KB) and the locale/unicode cascade it drags in.
 namespace std
 {
-[[noreturn]] void __glibcxx_assert_fail(
-    const char * /*file*/, int /*line*/, const char * /*func*/, const char * /*cond*/) noexcept
+[[noreturn]] void
+    __glibcxx_assert_fail(const char * /*file*/, int /*line*/, const char * /*func*/, const char * /*cond*/) noexcept
 {
     BREAK_IF_DEBUGGER_CONNECTED();
     for (;;)
