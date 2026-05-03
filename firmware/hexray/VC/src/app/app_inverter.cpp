@@ -9,7 +9,8 @@
 
 static app::State *state_to_recover_after_fault;
 static app::Timer retry_timer{1000u};
-static uint8_t retry_limit = 3;
+static constexpr uint8_t RETRY_LIMIT = 3;
+static uint8_t retry_count = 0;
 
 
 constexpr app::inverter::Handle inverter_handle_FL{
@@ -133,6 +134,7 @@ app::inverter::FaultHandlerState app::inverter::FaultHandler(void)
     if (!inverter_fault)
     {
         LOG_INFO("retry -> all inverter errors cleared");
+        retry_count = 0u;
         return app::inverter::FaultHandlerState::INV_FAULT_RECOVERED;
     }
 
@@ -155,7 +157,14 @@ app::inverter::FaultHandlerState app::inverter::FaultHandler(void)
         inverter_handle_FR.error_reset(false);
         inverter_handle_RL.error_reset(false);
         inverter_handle_RR.error_reset(false);
+        if (retry_count == RETRY_LIMIT)
+        {
+            return app::inverter::FaultHandlerState::INV_FAULT_LOCKOUT;
+        }
+        retry_count++;
     }
+
+
 
     return app::inverter::FaultHandlerState::INV_FAULT_RETRY;
 }

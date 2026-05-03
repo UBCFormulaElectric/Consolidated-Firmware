@@ -48,7 +48,7 @@ namespace
     }
 } // namespace
 
-void init()
+constexpr void init()
 {
     static const std::array<io::Efuse *, NUM_EFUSE_CHANNELS> &efuses = { {
         &rr_pump_efuse,
@@ -66,8 +66,9 @@ void init()
     for (auto *e : efuses)
     {
         assert(e != nullptr);
-        efuses_ = efuses;
     }
+
+    efuses_ = efuses;
 }
 
 void updateConfig(const PowerManagerConfig &new_cfg)
