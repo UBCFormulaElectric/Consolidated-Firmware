@@ -164,8 +164,6 @@ app::inverter::FaultHandlerState app::inverter::FaultHandler(void)
         retry_count++;
     }
 
-
-
     return app::inverter::FaultHandlerState::INV_FAULT_RETRY;
 }
 

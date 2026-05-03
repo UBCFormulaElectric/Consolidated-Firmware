@@ -16,8 +16,6 @@ io::Imu            IMU3;
 io::Pump           rr_pump;
 io::Pump           rl_pump;
 
-constexpr inline NUM_EFUSE_CHANNELS = 10;
-
 io::TI_TPS28_Efuse f_inv_efuse;
 io::TI_TPS28_Efuse r_inv_efuse;
 io::TI_TPS28_Efuse bms_efuse;
@@ -46,6 +44,10 @@ namespace fakes
 {
 namespace io
 {
+namespace pcm
+{
+    static bool enable_pin;
+}
 namespace powerMonitoring{
 
     enum : uint8_t
@@ -54,7 +56,7 @@ namespace powerMonitoring{
         CH2,
         CH3, 
         CH4
-    }
+    };
 
     static float power_ch1 = 0.0f;
     static float current_ch1 = 0.0f;
@@ -139,6 +141,18 @@ namespace powerMonitoring{
 
 namespace io // Define the mocked functions here
 {
+namespace pcm
+{
+    void set(const bool enable)
+    {
+        fakes::io::pcm::enable_pin = true;
+    }
+
+    bool enabled()
+    {
+        return fakes::io::pcm::enable_pin;
+    }
+}
 namespace imus
 {
     std::expected<void, ErrorCode> initAll()

@@ -48,9 +48,9 @@ namespace inverterFaultHandler
 } // namespace InverterFaultHandler
 
 State inverter_fault_handling_state = { .name = "INVERTER FAULT HANDLER STATE",
-                           .run_on_entry      = inverterFaultHandler::runOnEntry,
-                           .run_on_tick_1Hz   = nullptr,
-                           .run_on_tick_100Hz = inverterFaultHandler::runOnTick100Hz,
-                           .run_on_exit       = inverterFaultHandler::runOnExit };
+                                        .run_on_entry      = inverterFaultHandler::runOnEntry,
+                                        .run_on_tick_1Hz   = nullptr,
+                                        .run_on_tick_100Hz = inverterFaultHandler::runOnTick100Hz,
+                                        .run_on_exit       = inverterFaultHandler::runOnExit };
 
 } // namespace app::states
