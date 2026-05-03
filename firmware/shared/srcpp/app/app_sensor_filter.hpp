@@ -60,7 +60,7 @@ class SensorFilter
  *
  * Implements y[n] = alpha * x[n] + (1 - alpha) * y[n-1].
  *
- * Two construction modes are supported, exposed as named factory methods:
+ * Two construction modes are supported, exposed as named methods:
  *   - `withAlpha`            : Provide alpha directly in [0, 1].
  *   - `withCutoffFrequency`  : Compute alpha from a cutoff and sample rate.
  *
