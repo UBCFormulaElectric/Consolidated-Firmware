@@ -71,7 +71,6 @@ function(stm32f4_boot_binary
             "${INCLUDE_DIRS}"
             "${LINKER_DIR}/stm32f412rgtx/stm32f412rgtx_boot.ld"
             "cm4"
-            SIZE_OPTIMIZED
     )
     target_link_libraries("${BOOT_NAME}.elf" PRIVATE "${BOOT_NAME}_stm32")
     target_compile_definitions("${BOOT_NAME}.elf" PRIVATE "${CONFIG_DEFINE}")
@@ -120,7 +119,6 @@ function(stm32h7_boot_binary
             "stm32h7xx_hal_pwr_ex.c"
             "stm32h7xx_hal_rcc_ex.c"
             "stm32h7xx_hal_rcc.c"
-            "stm32h7xx_hal_tim_ex.c"
             "stm32h7xx_hal_tim.c"
             "stm32h7xx_hal.c"
     )
@@ -141,7 +139,6 @@ function(stm32h7_boot_binary
             "${INCLUDE_DIRS}"
             "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_boot.ld"
             "cm7"
-            SIZE_OPTIMIZED
     )
     target_link_libraries("${BOOT_NAME}.elf" PRIVATE "${BOOT_NAME}_stm32")
     target_compile_definitions("${BOOT_NAME}.elf" PRIVATE "${CONFIG_DEFINE}")
@@ -211,7 +208,6 @@ function(stm32h5_boot_binary
             "${INCLUDE_DIRS}"
             "${LINKER_DIR}/stm32h562ritx/stm32h562ritx_boot.ld"
             "cm33"
-            SIZE_OPTIMIZED
     )
 
     target_compile_options("${BOOT_NAME}.elf" PRIVATE -fno-sanitize=undefined)

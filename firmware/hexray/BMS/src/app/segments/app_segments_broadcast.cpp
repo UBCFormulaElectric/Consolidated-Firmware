@@ -74,6 +74,7 @@ void broadcastCellVoltages()
     min_cell_voltage = candidate_min_cell_voltage;
 }
 
+
 void broadcastFilteredCellVoltages()
 {
     for (size_t seg = 0U; seg < io::NUM_SEGMENTS; seg++)
@@ -157,79 +158,79 @@ void broadcastCellTemps()
     min_cell_temp = candidate_min_cell_temp;
 }
 
-// void broadcastStatus()
-// {
-    // for (size_t seg = 0U; seg < io::NUM_SEGMENTS; seg++)
-    // {
-        // if (!stat_success[seg])
-        // {
+void broadcastStatus()
+{
+    for (size_t seg = 0U; seg < io::NUM_SEGMENTS; seg++)
+    {
+        if (!stat_success[seg])
+        {
             //STATA
-            // segment_vref2_setters[seg](-0.1f);
-            // segment_itmp_setters[seg](-0.1f);
+            segment_vref2_setters[seg](-0.1f);
+            segment_itmp_setters[seg](-0.1f);
             //STATB
-            // segment_vd_setters[seg](-0.1f);
-            // segment_va_setters[seg](-0.1f);
-            // segment_vres_setters[seg](-0.1f);
+            segment_vd_setters[seg](-0.1f);
+            segment_va_setters[seg](-0.1f);
+            segment_vres_setters[seg](-0.1f);
             //STATC
-            // segment_va_ov_setters[seg](true);
-            // segment_va_uv_setters[seg](true);
-            // segment_vd_ov_setters[seg](true);
-            // segment_vd_uv_setters[seg](true);
-            // segment_ced_setters[seg](true);
-            // segment_cmed_setters[seg](true);
-            // segment_sed_setters[seg](true);
-            // segment_smed_setters[seg](true);
-            // segment_vde_setters[seg](true);
-            // segment_vdel_setters[seg](true);
-            // segment_thsd_setters[seg](true);
-            // segment_tmodchk_setters[seg](true);
-            // segment_oscchk_setters[seg](true);
+            segment_va_ov_setters[seg](true);
+            segment_va_uv_setters[seg](true);
+            segment_vd_ov_setters[seg](true);
+            segment_vd_uv_setters[seg](true);
+            segment_ced_setters[seg](true);
+            segment_cmed_setters[seg](true);
+            segment_sed_setters[seg](true);
+            segment_smed_setters[seg](true);
+            segment_vde_setters[seg](true);
+            segment_vdel_setters[seg](true);
+            segment_thsd_setters[seg](true);
+            segment_tmodchk_setters[seg](true);
+            segment_oscchk_setters[seg](true);
             //STATD
-            // for (size_t cell = 0U; cell < io::CELLS_PER_SEGMENT; cell++)
-            // {
-                // cell_ov_setters[seg][cell](true);
-                // cell_uv_setters[seg][cell](true);
-            // }
-            // continue;
-        // }
-// 
-        // const auto &stat_a = stat_regs[seg].stat_a;
-        // const auto &stat_b = stat_regs[seg].stat_b;
-        // const auto &stat_c = stat_regs[seg].stat_c;
-        // const auto &stat_d = stat_regs[seg].stat_d;
-// 
+            for (size_t cell = 0U; cell < io::CELLS_PER_SEGMENT; cell++)
+            {
+                cell_ov_setters[seg][cell](true);
+                cell_uv_setters[seg][cell](true);
+            }
+            continue;
+        }
+
+        const auto &stat_a = stat_regs[seg].stat_a;
+        const auto &stat_b = stat_regs[seg].stat_b;
+        const auto &stat_c = stat_regs[seg].stat_c;
+        const auto &stat_d = stat_regs[seg].stat_d;
+
         //STATA
-        // segment_vref2_setters[seg](convertRegToVoltage(stat_a.vref2));
-        // segment_itmp_setters[seg](convertRegToVoltage(stat_a.itmp));
-// 
+        segment_vref2_setters[seg](convertRegToVoltage(stat_a.vref2));
+        segment_itmp_setters[seg](convertRegToVoltage(stat_a.itmp));
+
         //STATB
-        // segment_vd_setters[seg](convertRegToVoltage(stat_b.vd));
-        // segment_va_setters[seg](convertRegToVoltage(stat_b.va));
-        // segment_vres_setters[seg](convertRegToVoltage(stat_b.vres));
-// 
+        segment_vd_setters[seg](convertRegToVoltage(stat_b.vd));
+        segment_va_setters[seg](convertRegToVoltage(stat_b.va));
+        segment_vres_setters[seg](convertRegToVoltage(stat_b.vres));
+
         //STATC
-        // segment_va_ov_setters[seg](stat_c.va_ov);
-        // segment_va_uv_setters[seg](stat_c.va_uv);
-        // segment_vd_ov_setters[seg](stat_c.vd_ov);
-        // segment_vd_uv_setters[seg](stat_c.vd_uv);
-        // segment_ced_setters[seg](stat_c.ced);
-        // segment_cmed_setters[seg](stat_c.cmed);
-        // segment_sed_setters[seg](stat_c.sed);
-        // segment_smed_setters[seg](stat_c.smed);
-        // segment_vde_setters[seg](stat_c.vde);
-        // segment_vdel_setters[seg](stat_c.vdel);
-        // segment_thsd_setters[seg](stat_c.thsd);
-        // segment_tmodchk_setters[seg](stat_c.tmodchk);
-        // segment_oscchk_setters[seg](stat_c.oscchk);
-// 
+        segment_va_ov_setters[seg](stat_c.va_ov);
+        segment_va_uv_setters[seg](stat_c.va_uv);
+        segment_vd_ov_setters[seg](stat_c.vd_ov);
+        segment_vd_uv_setters[seg](stat_c.vd_uv);
+        segment_ced_setters[seg](stat_c.ced);
+        segment_cmed_setters[seg](stat_c.cmed);
+        segment_sed_setters[seg](stat_c.sed);
+        segment_smed_setters[seg](stat_c.smed);
+        segment_vde_setters[seg](stat_c.vde);
+        segment_vdel_setters[seg](stat_c.vdel);
+        segment_thsd_setters[seg](stat_c.thsd);
+        segment_tmodchk_setters[seg](stat_c.tmodchk);
+        segment_oscchk_setters[seg](stat_c.oscchk);
+
         //STATD
-        // for (size_t cell = 0U; cell < io::CELLS_PER_SEGMENT; cell++)
-        // {
-            // cell_ov_setters[seg][cell](static_cast<bool>((stat_d.covuv >> (16U + cell)) & 1U));
-            // cell_uv_setters[seg][cell](static_cast<bool>((stat_d.covuv >> cell) & 1U));
-        // }
-    // }
-// }
+        for (size_t cell = 0U; cell < io::CELLS_PER_SEGMENT; cell++)
+        {
+            cell_ov_setters[seg][cell](static_cast<bool>((stat_d.covuv >> (16U + cell)) & 1U));
+            cell_uv_setters[seg][cell](static_cast<bool>((stat_d.covuv >> cell) & 1U));
+        }
+    }
+}
 
 
 void broadcastCellOpenWireCheck()

@@ -137,6 +137,9 @@ void jobs_run100Hz_tick()
     app::can_tx::BMS_BSPDBrakePressureThresholdExceeded_set(io::bspdtest::isBrakePressureThresholdExceeded());
     app::can_tx::BMS_BSPDAccelBrakeOk_set(io::bspdtest::isAccelBrakeOk());
 
+    //commnet back in
+    // const bool ir_negative_opened_debounced = app::irs::negativeOpenedDebounced();
+    // const bool balancing_enabled = app::can_rx::Debug_CellBalancingRequest_get();
     const bool ir_negative_opened_debounced = false;
     const bool balancing_enabled = true;
     

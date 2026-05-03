@@ -1,6 +1,6 @@
 #include "app_stateMachine.hpp"
 #include "app_states.hpp"
-#include "io_irs.hpp"
+#include "app_irs.hpp"
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
 #include "app_segments.hpp"
@@ -19,9 +19,13 @@ namespace balancingState
 
     static void balancingStateRunOnTick100Hz()
     {
-        const bool air_negative_open = io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN;
-        const bool balancing_enabled = app::can_rx::Debug_CellBalancingRequest_get();
-        if (air_negative_open || !balancing_enabled)
+        //comment back in
+        // const bool ir_negative_opened_debounced = app::irs::negativeOpenedDebounced();
+        // const bool balancing_enabled = app::can_rx::Debug_CellBalancingRequest_get();
+        const bool ir_negative_opened_debounced = false;
+        const bool balancing_enabled = true;
+
+        if (ir_negative_opened_debounced || !balancing_enabled)
         {
             app::StateMachine::set_next_state(&app::states::init_state);
         }
