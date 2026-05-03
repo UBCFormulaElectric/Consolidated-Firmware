@@ -454,7 +454,7 @@
     },
     "MainBoardEfuse": {
         "msg_id": 559,
-        "cycle_time": 1,
+        "cycle_time": 100,
         "description": "Efuse info for shdn/LV/pump/aux/INVR/INVL efuses.",
         "signals": {
             "FrontInvertersCurrent": {
@@ -614,13 +614,32 @@
     "EMeterTeamMessage2": {
         "msg_id": 782,
         "cycle_time": null,
-        "description": "EMeter Team Message 1",
+        "description": "EMeter Team Message 2",
         "signals": {
             "TeamSignal3": {
                 "bits": 32
             },
             "TeamSignal4": {
                 "bits": 32
+            }
+        }
+    },
+    "FmacDebug": {
+        "msg_id": 235,
+        "cycle_time": 10,
+        "description": "FMAC filter debug: raw vs filtered yaw rate for CANoe plotting",
+        "signals": {
+            "RawYawRate": {
+                "resolution": 0.1,
+                "min": -20,
+                "max": 20,
+                "unit": "deg/s"
+            },
+            "FilteredYawRate": {
+                "resolution": 0.1,
+                "min": -20,
+                "max": 20,
+                "unit": "deg/s"
             }
         }
     }

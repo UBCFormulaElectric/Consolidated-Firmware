@@ -70,41 +70,38 @@ std::expected<void, ErrorCode>
         .R                 = gainExponent,
     };
 
-    RETURN_IF_ERR(hw_utils_convertHalStatus(HAL_FMAC_FilterConfig(&m_handle, &filterConfig)));
-    RETURN_IF_ERR(hw_utils_convertHalStatus(HAL_FMAC_FilterPreload(
+    RETURN_IF_ERR(hw::utils::convertHalStatus(HAL_FMAC_FilterConfig(&m_handle, &filterConfig)));
+    RETURN_IF_ERR(hw::utils::convertHalStatus(HAL_FMAC_FilterPreload(
         &m_handle, const_cast<int16_t *>(coefB.data()), numBTaps, const_cast<int16_t *>(coefA.data()), numATaps)));
-    RETURN_IF_ERR(hw_utils_convertHalStatus(HAL_FMAC_FilterStart(&m_handle, &m_outputSample, &m_outputSize)));
+    RETURN_IF_ERR(hw::utils::convertHalStatus(HAL_FMAC_FilterStart(&m_handle, &m_outputSample, &m_outputSize)));
     return {};
 }
 
 std::expected<void, ErrorCode> FmacIir::pushSample(int16_t sample_q15)
 {
     uint16_t size = 1;
-    return hw_utils_convertHalStatus(HAL_FMAC_AppendFilterData(&m_handle, &sample_q15, &size));
+    return hw::utils::convertHalStatus(HAL_FMAC_AppendFilterData(&m_handle, &sample_q15, &size));
 }
 
 std::expected<int16_t, ErrorCode> FmacIir::popSample()
 {
-    RETURN_IF_ERR(hw_utils_convertHalStatus(HAL_FMAC_PollFilterData(&m_handle, kPollFilterDataTimeoutMs)));
+    RETURN_IF_ERR(hw::utils::convertHalStatus(HAL_FMAC_PollFilterData(&m_handle, kPollFilterDataTimeoutMs)));
     return m_outputSample;
 }
 
-ErrorCode FmacIir::process(const float sample, float *output)
+std::expected<void, ErrorCode> FmacIir::process(const float sample, float *output)
 {
-    auto err = pushSample(floatToQ1Point5(sample));
-    if (!err)
-        return err.error();
+    RETURN_IF_ERR(pushSample(floatToQ1Point5(sample)));
     auto out_q15 = popSample();
     if (!out_q15)
-        return out_q15.error();
+        return std::unexpected(out_q15.error());
     *output = q1Point5ToFloat(out_q15.value());
-    return ErrorCode::OK;
+    return {};
 }
 
-ErrorCode FmacIir::stop()
+std::expected<void, ErrorCode> FmacIir::stop()
 {
-    auto result = hw_utils_convertHalStatus(HAL_FMAC_FilterStop(&m_handle));
-    return result ? ErrorCode::OK : result.error();
+    return hw::utils::convertHalStatus(HAL_FMAC_FilterStop(&m_handle));
 }
 
 } // namespace hw::fmac
