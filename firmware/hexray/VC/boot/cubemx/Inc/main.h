@@ -62,8 +62,6 @@ extern "C"
 #define LED_GPIO_Port GPIOE
 #define BOOT_Pin GPIO_PIN_10
 #define BOOT_GPIO_Port GPIOE
-#define FDCAN1_RX_Pin GPIO_PIN_0
-#define FDCAN1_RX_GPIO_Port GPIOD
 
     /* USER CODE BEGIN Private defines */
 
