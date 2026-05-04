@@ -17,19 +17,24 @@
 #include "hw_bootup.hpp"
 #include "hw_pwms.hpp"
 #include <stm32h7xx_hal.h>
+#include "main.h"
+#include "hw_resetReason.hpp"
+#include "app_canAlerts.hpp"
+#include "hw_gpios.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
     constexpr uint32_t             period_ms                = 1000U;
     constexpr uint32_t             watchdog_grace_period_ms = 50U;
-    hw::watchdog::WatchdogInstance watchdog_1hz =
-        hw::watchdog::WatchdogInstance(TASK_INDEX_1HZ, period_ms + watchdog_grace_period_ms);
+    hw::watchdog::WatchdogInstance watchdog1hz{ period_ms + watchdog_grace_period_ms };
+    hw::watchdog::monitor          monitor1hz{ &watchdog1hz, hiwdg1, HAL_IWDG_Refresh };
+    monitor1hz.registerWatchdogInstance();
     uint32_t start_ticks = osKernelGetTickCount();
 
     forever
     {
         jobs_run1Hz_tick();
-        watchdog_1hz.checkIn();
+        watchdog1hz.checkIn();
         start_ticks += period_ms;
         io::time::delayUntil(start_ticks);
         osDelayUntil(start_ticks);
@@ -40,13 +45,15 @@
 {
     constexpr uint32_t             period_ms                = 10U;
     constexpr uint32_t             watchdog_grace_period_ms = 2U;
-    hw::watchdog::WatchdogInstance watchdog_100hz(TASK_INDEX_100HZ, period_ms + watchdog_grace_period_ms);
-    uint32_t                       start_ticks = osKernelGetTickCount();
+    hw::watchdog::WatchdogInstance watchdog100hz{ period_ms + watchdog_grace_period_ms };
+    hw::watchdog::monitor          monitor100hz{ &watchdog100hz, hiwdg1, HAL_IWDG_Refresh };
+    monitor100hz.registerWatchdogInstance();
+    uint32_t start_ticks = osKernelGetTickCount();
 
     forever
     {
         jobs_run100Hz_tick();
-        watchdog_100hz.checkIn();
+        watchdog100hz.checkIn();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -55,13 +62,16 @@
 {
     constexpr uint32_t             period_ms                = 1U;
     constexpr uint32_t             watchdog_grace_period_ms = 1U;
-    hw::watchdog::WatchdogInstance watchdog_1khz =
-        hw::watchdog::WatchdogInstance(TASK_INDEX_1KHZ, period_ms + watchdog_grace_period_ms);
+    hw::watchdog::WatchdogInstance watchdog1khz{ period_ms + watchdog_grace_period_ms };
+    hw::watchdog::monitor          monitor1khz{ &watchdog1khz, hiwdg1, HAL_IWDG_Refresh };
+    monitor1khz.registerWatchdogInstance();
+
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
         jobs_run1kHz_tick();
-        watchdog_1khz.checkIn();
+        monitor1khz.checkForTimeouts();
+        watchdog1khz.checkIn();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -139,8 +149,9 @@ void tasks_preInit()
 
 void tasks_init()
 {
+    // __HAL_DBGMCU_FREEZE_IWDG1();
+    // hw::adc::chipsInit();
     SEGGER_SYSVIEW_Conf();
-    LOG_INFO("BMS reset!");
 
 #ifndef WATCHDOG_DISABLED
     __HAL_DBGMCU_FREEZE_IWDG1();
