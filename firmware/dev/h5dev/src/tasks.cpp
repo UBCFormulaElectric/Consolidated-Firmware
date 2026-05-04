@@ -99,7 +99,9 @@ static hw::rtos::StaticTask<512> Task100Hz(osPriorityAboveNormal, "Task100Hz", t
 
 void tasks_preInit()
 {
+#ifdef BOOTLOAD
     hw::bootup::enableInterruptsForApp();
+#endif
 }
 
 void tasks_init()

@@ -40,10 +40,10 @@
         "enum": "CanResetReason"
       },
       "StackOverflowTask": {
-        "bits": 8
+        "bits": 32
       },
       "WatchdogTimeoutTask": {
-        "bits": 8
+        "bits": 32
       }
     }
   },
@@ -212,9 +212,6 @@
     "cycle_time": 10,
     "description": "BMS IMD Messages",
     "signals": {
-      "ImdOkHs": {
-        "bits": 1
-      },
       "ImdTimeSincePowerOn": {
         "min": 0,
         "resolution": 1,
@@ -263,9 +260,7 @@
         "unit": "kOhm"
       },
       "ImdSpeedStartStatus30Hz": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 65535
+        "enum": "ImdSstState"
       }
     }
   },

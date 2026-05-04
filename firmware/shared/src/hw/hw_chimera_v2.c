@@ -34,9 +34,6 @@ static const Gpio *hw_chimera_v2_getGpio(const hw_chimera_v2_Config *config, con
             "Chimera: Expected GPIO net name with tag %d, got %d", config->gpio_net_name_tag, net_name->which_name);
         return NULL;
     }
-
-    if (net_name->which_name == GpioNetName_f4dev_net_name_tag)
-        return config->id_to_gpio[net_name->name.f4dev_net_name];
     if (net_name->which_name == GpioNetName_ssm_net_name_tag)
         return config->id_to_gpio[net_name->name.ssm_net_name];
     if (net_name->which_name == GpioNetName_crit_net_name_tag)

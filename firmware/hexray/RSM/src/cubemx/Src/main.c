@@ -52,6 +52,8 @@ FDCAN_HandleTypeDef hfdcan1;
 
 I2C_HandleTypeDef hi2c2;
 
+IWDG_HandleTypeDef hiwdg;
+
 SPI_HandleTypeDef hspi3;
 
 TIM_HandleTypeDef htim1;
@@ -74,6 +76,7 @@ static void MX_SPI3_Init(void);
 static void MX_USB_PCD_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM3_Init(void);
+static void MX_IWDG_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -119,6 +122,7 @@ int main(void)
     MX_USB_PCD_Init();
     MX_TIM1_Init();
     MX_TIM3_Init();
+    MX_IWDG_Init();
     /* USER CODE BEGIN 2 */
     HAL_GPIO_WritePin(BRAKE_LIGHT_EN_3V3_GPIO_Port, BRAKE_LIGHT_EN_3V3_Pin, GPIO_PIN_RESET);
     ;
@@ -156,8 +160,10 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI48 | RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_CSI;
+    RCC_OscInitStruct.OscillatorType =
+        RCC_OSCILLATORTYPE_HSI48 | RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_CSI;
     RCC_OscInitStruct.HSEState            = RCC_HSE_ON;
+    RCC_OscInitStruct.LSIState            = RCC_LSI_ON;
     RCC_OscInitStruct.HSI48State          = RCC_HSI48_ON;
     RCC_OscInitStruct.CSIState            = RCC_CSI_ON;
     RCC_OscInitStruct.CSICalibrationValue = RCC_CSICALIBRATION_DEFAULT;
@@ -395,6 +401,34 @@ static void MX_I2C2_Init(void)
 }
 
 /**
+ * @brief IWDG Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_IWDG_Init(void)
+{
+    /* USER CODE BEGIN IWDG_Init 0 */
+
+    /* USER CODE END IWDG_Init 0 */
+
+    /* USER CODE BEGIN IWDG_Init 1 */
+#ifndef WATCHDOG_DISABLED
+    /* USER CODE END IWDG_Init 1 */
+    hiwdg.Instance       = IWDG;
+    hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
+    hiwdg.Init.Window    = 4095;
+    hiwdg.Init.Reload    = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
+    hiwdg.Init.EWI       = 0;
+    if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN IWDG_Init 2 */
+#endif
+    /* USER CODE END IWDG_Init 2 */
+}
+
+/**
  * @brief SPI3 Initialization Function
  * @param None
  * @retval None
@@ -610,10 +644,10 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_WritePin(D_P_PULLUP_GPIO_Port, D_P_PULLUP_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOB, LED_Pin | BOOT_LED_Pin, GPIO_PIN_RESET);
 
-    /*Configure GPIO pins : BRAKE_OCSC_OK_3V3_Pin SUSP_TRAVEL_RL_OCSC_Pin */
-    GPIO_InitStruct.Pin  = BRAKE_OCSC_OK_3V3_Pin | SUSP_TRAVEL_RL_OCSC_Pin;
+    /*Configure GPIO pins : NBSPD_BRAKE_PRESSED_3V3_Pin BRAKE_OCSC_OK_3V3_Pin SUSP_TRAVEL_RL_OCSC_Pin */
+    GPIO_InitStruct.Pin  = NBSPD_BRAKE_PRESSED_3V3_Pin | BRAKE_OCSC_OK_3V3_Pin | SUSP_TRAVEL_RL_OCSC_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -657,12 +691,12 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(D_P_PULLUP_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : LED_Pin */
-    GPIO_InitStruct.Pin   = LED_Pin;
+    /*Configure GPIO pins : LED_Pin BOOT_LED_Pin */
+    GPIO_InitStruct.Pin   = LED_Pin | BOOT_LED_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
 

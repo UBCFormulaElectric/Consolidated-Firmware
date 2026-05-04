@@ -30,6 +30,7 @@ class _GpioNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._En
     GPIO_SUSP_TRAVEL_RL_OCSC: _GpioNetName.ValueType
     GPIO_BRAKE_OCSC_OK: _GpioNetName.ValueType
     GPIO_D_P_PULLUP: _GpioNetName.ValueType
+    GPIO_NBSPD_BRAKE_PRESSED: _GpioNetName.ValueType
 
 class GpioNetName(_GpioNetName, metaclass=_GpioNetNameEnumTypeWrapper):
     ...
@@ -44,6 +45,7 @@ GPIO_SUSP_TRAVEL_RR_OCSC: GpioNetName.ValueType
 GPIO_SUSP_TRAVEL_RL_OCSC: GpioNetName.ValueType
 GPIO_BRAKE_OCSC_OK: GpioNetName.ValueType
 GPIO_D_P_PULLUP: GpioNetName.ValueType
+GPIO_NBSPD_BRAKE_PRESSED: GpioNetName.ValueType
 Global___GpioNetName: typing_extensions.TypeAlias = GpioNetName
 
 class _AdcNetName:

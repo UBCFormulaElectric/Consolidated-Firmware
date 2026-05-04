@@ -30,7 +30,7 @@ void hw_can_init(CanHandle *can_handle)
     filter.FilterID2    = 0x1FFFFFFF; // Mask bits for Extended CAN ID
 
 // Fields only enabled for H7
-#if defined(STM32H753xx)
+#if defined(STM32H733xx)
     filter.IsCalibrationMsg = 0;
     filter.RxBufferIndex    = 0;
 #endif

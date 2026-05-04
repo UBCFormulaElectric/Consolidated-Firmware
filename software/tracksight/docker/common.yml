@@ -4,7 +4,7 @@ services:
     ports:
       # InfluxDB port is always 8086 internally
       - "${INFLUXDB_PORT}:8086"
-    env_file: influx.env
+    env_file: envs/influx.env
     healthcheck:
       # Ping server every 30s in case something breaks.
       test: [ "CMD", "curl", "-f", "http://localhost:8086/health" ]
@@ -17,7 +17,7 @@ services:
   backend:
     build:
       context: ../../../
-      dockerfile: software/tracksight/backend/Dockerfile
+      dockerfile: software/tracksight/rust_backend/Dockerfile
     # Expose port from container
     ports:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
@@ -25,21 +25,22 @@ services:
     environment:
       BACKEND_PORT: ${BACKEND_PORT}
       INFLUXDB_PORT: ${INFLUXDB_PORT}
-    env_file: backend.env
+    env_file: envs/backend.env
     # Privileged provides access to all serial ports, not need to pass serial port through
     privileged: true
     volumes:
       - /dev:/dev
-      - ../backend:/backend
-    healthcheck:
-      # Ping server every 30s in case something breaks.
-      test: [ "CMD", "curl", "-f", "http://localhost:${BACKEND_PORT}/api/health" ]
-      interval: 30s
-      timeout: 5s
-      retries: 3
+      # - ../rust_backend:/backend
+      # TODO with live health check
+    # healthcheck:
+    #   # Ping server every 30s in case something breaks.
+    #   test: [ "CMD", "curl", "-f", "http://localhost:${BACKEND_PORT}/api/health" ]
+    #   interval: 30s
+    #   timeout: 5s
+    #   retries: 3
       # Ping at higher frequency at startup since dependant containers don't start until this one passes health check.
-      start_period: 10s
-      start_interval: 1s
+      # start_period: 10s
+      # start_interval: 1s
     depends_on:
       influx:
         condition: service_healthy
