@@ -12,3 +12,4 @@ extern const hw::gpio imu_cs;
 extern const hw::gpio imu_int;
 extern const hw::gpio imu_fsync;
 extern const hw::gpio d_p_pullup;
+extern const hw::gpio boot_led;

@@ -1,6 +1,5 @@
 #include "tasks.h"
 #include "hw_adcs.hpp"
-#include "hw_gpios.hpp"
 #include "jobs.hpp"
 
 #include "app_jsoncan.hpp"
@@ -16,7 +15,6 @@
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_cans.hpp"
 #include "main.h"
-#include <optional>
 #include "hw_watchdog.hpp"
 #include "hw_resetReason.hpp"
 
