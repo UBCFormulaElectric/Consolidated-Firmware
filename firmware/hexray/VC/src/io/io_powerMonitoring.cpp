@@ -7,6 +7,8 @@
 #include "io_time.hpp"
 #include "util_errorCodes.hpp"
 
+#include <string>
+
 // lsb scaling
 constexpr float VBUS_LSB = 4.88e-4f;
 constexpr float VSENSE_LSB(1.5259e-6f / 0.003f);
@@ -40,7 +42,6 @@ std::expected<void, ErrorCode> refresh(void)
 {
     const uint8_t cmd = REG_REFRESH;
     LOG_IF_ERR(pwr_pump.transmit((std::span{ &cmd, 1 })));
-    io::time::delay(1);
     return {};
 }
 
@@ -50,7 +51,7 @@ std::expected<void, ErrorCode> init(void)
     RETURN_IF_ERR(pwr_pump.isTargetReady());
 
     // 2) Config: CTRL: 1024 SPS continuous, all CH enabled, ALERT1 enabled.
-    uint16_t                     ctrl       = 0x0000; // 0b0000000000000000
+    uint16_t                     ctrl       = 0x0001; // 0b0000000000000000
     std::array<const uint8_t, 2> ctrl_bytes = { { (uint8_t)(ctrl >> 8), (uint8_t)(ctrl & 0xFF) } };
     RETURN_IF_ERR(write_register(REG_CTRL, ctrl_bytes));
 
@@ -85,12 +86,26 @@ std::expected<void, ErrorCode> init(void)
         0xFF, // bits 15:8, OV/UV enabled all channels
         0x00  // bits 7:0, OP/ACC/CC disabled
     } };
+
     RETURN_IF_ERR(write_register(ALERT_EN, alert_enable_bytes));
 
-    // RETURN_IF_ERR(refresh());
+    RETURN_IF_ERR(refresh());
+    
+    std::array<uint8_t, 2> ctrl_read{};
+    RETURN_IF_ERR(read_register(REG_CTRL, ctrl_read));
+
+    std::array<uint8_t, 2> ctrl_act_read{};
+    RETURN_IF_ERR(read_register(0x21, ctrl_act_read));
+
+    std::array<uint8_t, 1> slow_read{};
+    RETURN_IF_ERR(read_register(0x20, slow_read));
+
+    RETURN_IF_ERR(refresh());
+    // io::time::delay(2);
 
     return {};
 }
+
 
 std::expected<float, ErrorCode> read_voltage(uint8_t ch)
 {
@@ -142,6 +157,7 @@ std::expected<uint8_t, ErrorCode> read_alert_status()
 
 bool is_alert_asserted()
 {
-    return !pwr_mtr_nalert.readPin();
+    bool status = !pwr_mtr_nalert.readPin();
+    return status;
 }
 } // namespace io::powerMonitoring

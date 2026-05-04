@@ -152,20 +152,15 @@ void tasks_init()
 {
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("VC Reset!");
-
+    osKernelInitialize();
+    jobs_init();
     fdcan1.init();
     invcan.init();
-
-    adcChipsInit();
-
-    /*
     dam_en.writePin(true);
     rsm_en.writePin(true);
     front_en.writePin(true);
     bms_en.writePin(true);
-    */
-    jobs_init();
-    osKernelInitialize();
+    adcChipsInit();
     VC_StartAllTasks();
     osKernelStart();
     forever {}
