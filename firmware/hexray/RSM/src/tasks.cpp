@@ -1,6 +1,5 @@
 #include "tasks.h"
 #include "hw_adcs.hpp"
-#include "hw_gpios.hpp"
 #include "jobs.hpp"
 
 #include "app_jsoncan.hpp"
@@ -16,9 +15,10 @@
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_cans.hpp"
 #include "main.h"
-#include <optional>
 #include "hw_watchdog.hpp"
 #include "hw_resetReason.hpp"
+
+#include "hw_bootup.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
@@ -72,10 +72,10 @@
     forever
     {
         jobs_run1kHz_tick();
-
-        monitor1khz.checkForTimeouts();
         watchdog1khz.checkIn();
-
+#ifndef WATCHDOG_DISABLED
+        monitor1khz.checkForTimeouts();
+#endif
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -131,13 +131,18 @@ static void RSM_StartAllTasks()
 
 void tasks_preInit()
 {
+    hw::bootup::enableInterruptsForApp();
     hw_hardFaultHandler_init();
 }
 
 void tasks_init()
 {
-    // __HAL_DBGMCU_FREEZE_IWDG();
+#ifndef WATCHDOG_DISABLED
+    __HAL_DBGMCU_FREEZE_IWDG();
+#endif
     SEGGER_SYSVIEW_Conf();
+    LOG_INFO("RSM Reset!");
+
     adcchipsInit();
     can1.init();
     ResetReason reason = hw::resetReason::get();
@@ -145,6 +150,19 @@ void tasks_init()
     {
         LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
         app::can_alerts::infos::WatchdogTimeout_set(true);
+    }
+
+    hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
+    if (boot_request.context != hw::bootup::BootContext::BOOT_CONTEXT_NONE)
+    {
+        if (boot_request.context == hw::bootup::BootContext::BOOT_CONTEXT_STACK_OVERFLOW)
+        {
+            LOG_WARN("Detected stack overflow on the previous boot cycle!");
+        }
+
+        const_cast<hw::bootup::BootRequest &>(boot_request).context       = hw::bootup::BootContext::BOOT_CONTEXT_NONE;
+        const_cast<hw::bootup::BootRequest &>(boot_request).context_value = 0;
+        hw::bootup::setBootRequest(boot_request);
     }
 
     jobs_init();

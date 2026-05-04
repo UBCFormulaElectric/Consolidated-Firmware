@@ -120,6 +120,8 @@ extern "C"
 #define D_P_PULLUP_GPIO_Port GPIOD
 #define LED_Pin GPIO_PIN_4
 #define LED_GPIO_Port GPIOB
+#define BOOT_LED_Pin GPIO_PIN_5
+#define BOOT_LED_GPIO_Port GPIOB
 #define CANTX_Pin GPIO_PIN_7
 #define CANTX_GPIO_Port GPIOB
 #define CANRX_Pin GPIO_PIN_8
