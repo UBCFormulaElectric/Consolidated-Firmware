@@ -12,7 +12,7 @@ set(TASKS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.cpp")
 set(SYSTEM_SRCS ${JOBS_SRC} ${TASKS_SRC})
 set(SYSTEM_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src"
-        #        "${CMAKE_CURRENT_SOURCE_DIR}/boot"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot"
 )
 
 file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp")
@@ -69,12 +69,11 @@ set(CHIMERA_INCLUDE_DIRS
 )
 
 if ("${TARGET}" STREQUAL "binary")
-    
     if ("${BOOTLOAD}" STREQUAL "ON")
         set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
-    else()
+    else ()
         set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app_only.ld")
-    endif () 
+    endif ()
 
     set(ARM_CORE "cm7")
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS})
@@ -163,7 +162,7 @@ if ("${TARGET}" STREQUAL "binary")
                 "hexray_VC_boot.hex"
                 "${CMAKE_CURRENT_BINARY_DIR}/hexray_VC_boot.hex"
         )
-    endif()
+    endif ()
 
     add_chimera_stm32h7("hexray_VC_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}" "hexray_chimera_v2_proto_cm7")
     target_link_libraries("hexray_VC_chimera.elf" PRIVATE "hexray_VC_stm32")

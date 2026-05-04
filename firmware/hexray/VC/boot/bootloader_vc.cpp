@@ -11,7 +11,7 @@ io::queue<hw::CanMsg, 256> boot_can_rx_queue("CanRxQueue");
 
 namespace hw::cans
 {
-fdcan fdcan1(hfdcan1, [](const hw::CanMsg &msg) { (void)boot_can_rx_queue.push(msg); }); // Lambda fucntion freaky
+fdcan fdcan1(hfdcan1, [](const hw::CanMsg &msg) { LOG_IF_ERR(boot_can_rx_queue.push(msg)); }); // Lambda fucntion freaky
 }
 
 const hw::fdcan &hw::fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
