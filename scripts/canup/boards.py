@@ -122,47 +122,47 @@ STM32H733_MCU = Microcontroller(
     ],
 )
 
-quintuna_FSM = Board(
+hexray_FSM = Board(
     name="FSM",
     boot_id_range_start=0x10000000,
     app_id_range_start=600,
-    mcu=STM32F412_MCU,
-    path=os.path.join("firmware", "quintuna", "FSM", "quintuna_FSM_app_metadata.hex"),
+    mcu=STM32H562_MCU,
+    path=os.path.join("firmware", "hexray", "FSM", "hexray_FSM_app_metadata.hex"),
 )
-quintuna_RSM = Board(
+hexray_RSM = Board(
     name="RSM",
     boot_id_range_start=0x14000000,
     app_id_range_start=700,
-    mcu=STM32F412_MCU,
-    path=os.path.join("firmware", "quintuna", "RSM", "quintuna_RSM_app_metadata.hex"),
+    mcu=STM32H562_MCU,
+    path=os.path.join("firmware", "hexray", "RSM", "hexray_RSM_app_metadata.hex"),
 )
-quintuna_CRIT = Board(
+hexray_CRIT = Board(
     name="CRIT",
     boot_id_range_start=0x18000000,
     app_id_range_start=900,
-    mcu=STM32F412_MCU,
-    path=os.path.join("firmware", "quintuna", "CRIT", "quintuna_CRIT_app_metadata.hex"),
+    mcu=STM32H562_MCU,
+    path=os.path.join("firmware", "hexray", "CRIT", "hexray_CRIT_app_metadata.hex"),
 )
-quintuna_DAM = Board(
+hexray_DAM = Board(
     name="DAM",
     boot_id_range_start=0x0C000000,
     app_id_range_start=800,
-    mcu=STM32H733_MCU,
-    path=os.path.join("firmware", "quintuna", "DAM", "quintuna_DAM_app_metadata.hex"),
+    mcu=STM32H562_MCU,
+    path=os.path.join("firmware", "hexray", "DAM", "hexray_DAM_app_metadata.hex"),
 )
-quintuna_VC = Board(
+hexray_VC = Board(
     name="VC",
     boot_id_range_start=0x08000000,
     app_id_range_start=500,
     mcu=STM32H733_MCU,
-    path=os.path.join("firmware", "quintuna", "VC", "quintuna_VC_app_metadata.hex"),
+    path=os.path.join("firmware", "hexray", "VC", "hexray_VC_app_metadata.hex"),
 )
-quintuna_BMS = Board(
+hexray_BMS = Board(
     name="BMS",
     boot_id_range_start=0x04000000,
     app_id_range_start=400,
     mcu=STM32H733_MCU,
-    path=os.path.join("firmware", "quintuna", "BMS", "quintuna_BMS_app_metadata.hex"),
+    path=os.path.join("firmware", "hexray", "BMS", "hexray_BMS_app_metadata.hex"),
 )
 
 h7dev = Board(
@@ -189,17 +189,24 @@ hexray_BMS = Board(
     path=os.path.join("firmware", "hexray", "BMS", "hexray_BMS_app_metadata.hex"),
 )
 
+hexray_FSM = Board(
+    name="FSM",
+    boot_id_range_start=0x10000000,
+    app_id_range_start=600,
+    mcu=STM32H562_MCU,
+    path=os.path.join("firmware", "hexray", "FSM", "hexray_FSM_app_metadata.hex"),
+)
+
 CONFIGS = {
-    "quintuna_FSM": [quintuna_FSM],
-    "quintuna_RSM": [quintuna_RSM],
-    "quintuna_CRIT": [quintuna_CRIT],
-    "quintuna_DAM": [quintuna_DAM],
-    "quintuna_BMS": [quintuna_BMS],
-    "quintuna_VC" : [quintuna_VC],
-    "quintuna_FD": [quintuna_DAM, quintuna_VC, quintuna_BMS],
-    "quintuna_Sx" : [quintuna_CRIT, quintuna_FSM, quintuna_RSM],
-    "quintuna" : [quintuna_RSM, quintuna_BMS, quintuna_CRIT, quintuna_DAM, quintuna_CRIT, quintuna_FSM, quintuna_VC],
+    "hexray_FSM": [hexray_FSM],
+    "hexray_RSM": [hexray_RSM],
+    "hexray_CRIT": [hexray_CRIT],
+    "hexray_DAM": [hexray_DAM],
+    "hexray_BMS": [hexray_BMS],
+    "hexray_VC" : [hexray_VC],
+    "hexray_FD": [hexray_DAM, hexray_VC, hexray_BMS],
+    "hexray_Sx" : [hexray_CRIT, hexray_FSM, hexray_RSM],
+    "hexray" : [hexray_RSM, hexray_BMS, hexray_CRIT, hexray_DAM, hexray_CRIT, hexray_FSM, hexray_VC],
     "h7dev": [h7dev],
     "h5dev": [h5dev],
-    "hexray_BMS" : [hexray_BMS],
 }

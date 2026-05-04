@@ -145,6 +145,7 @@ function(stm32f412rx_cube_library
     # lib srcs
     set(LIB_SRCS
             "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_assert.cpp"
+            "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_terminate.cpp"
             "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_freeRtosConfigs.cpp"
     )
 
@@ -263,6 +264,7 @@ function(stm32h733xx_cube_library
     # lib srcs
     set(LIB_SRCS
             "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_assert.cpp"
+            "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_terminate.cpp"
             "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_freeRtosConfigs.cpp"
     )
 
@@ -377,6 +379,7 @@ function(stm32h562xx_cube_library
     # lib srcs
     set(LIB_SRCS
             "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_assert.cpp"
+            "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_terminate.cpp"
             "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_freeRtosConfigs.cpp"
     )
 
