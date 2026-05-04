@@ -87,7 +87,7 @@ std::expected<void, ErrorCode> init(void)
     } };
     RETURN_IF_ERR(write_register(ALERT_EN, alert_enable_bytes));
 
-    RETURN_IF_ERR(refresh());
+    // RETURN_IF_ERR(refresh());
 
     return {};
 }

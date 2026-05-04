@@ -5,6 +5,7 @@
 
 #include "io_time.hpp"
 #include "io_canQueues.hpp"
+#include "io_powerMonitoring.hpp"
 #include "hw_can.hpp"
 #include "io_canRx.hpp"
 
@@ -157,10 +158,12 @@ void tasks_init()
 
     adcChipsInit();
 
+    /*
     dam_en.writePin(true);
     rsm_en.writePin(true);
     front_en.writePin(true);
     bms_en.writePin(true);
+    */
     jobs_init();
     osKernelInitialize();
     VC_StartAllTasks();
