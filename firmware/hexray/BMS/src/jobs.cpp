@@ -230,7 +230,7 @@ void jobs_runAdbmsDiagnostics_tick()
 
     adbms_app_lock.take(io::MAX_TIMEOUT);
 
-    //app::segments::broadcastStatus();
+    app::segments::broadcastStatus();
     app::segments::broadcastCellOpenWireCheck();
 
     adbms_app_lock.give();

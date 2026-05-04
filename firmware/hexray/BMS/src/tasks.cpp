@@ -99,16 +99,18 @@ using namespace hw::watchdog;
         if (m.bus == app::can_utils::BusEnum::Bus_charger)
         {
             std::expected<void, ErrorCode> res;
-            if (can_msg.dlc > 8)
+            if (can_msg.dlc > 8) {
                 res = fdcan1.fdcan_transmit(can_msg);
-            else
+            } else {
                 res = fdcan1.can_transmit(can_msg);
+            }
             LOG_IF_ERR(res);
         }
         else if (m.bus == app::can_utils::BusEnum::Bus_FDCAN)
         {
             const auto res = fdcan2.fdcan_transmit(can_msg);
             LOG_IF_ERR(res);
+            LOG_INFO("TRANSMIT");
         }
         else
         {

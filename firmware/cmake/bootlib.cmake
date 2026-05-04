@@ -119,6 +119,7 @@ function(stm32h7_boot_binary
             "stm32h7xx_hal_pwr_ex.c"
             "stm32h7xx_hal_rcc_ex.c"
             "stm32h7xx_hal_rcc.c"
+            "stm32h7xx_hal_tim_ex.c"
             "stm32h7xx_hal_tim.c"
             "stm32h7xx_hal.c"
     )
