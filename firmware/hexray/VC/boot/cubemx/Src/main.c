@@ -184,22 +184,22 @@ static void MX_FDCAN1_Init(void)
 
     /* USER CODE END FDCAN1_Init 1 */
     hfdcan1.Instance                  = FDCAN1;
-    hfdcan1.Init.FrameFormat          = FDCAN_FRAME_FD_BRS;
+    hfdcan1.Init.FrameFormat          = FDCAN_FRAME_CLASSIC;
     hfdcan1.Init.Mode                 = FDCAN_MODE_NORMAL;
     hfdcan1.Init.AutoRetransmission   = DISABLE;
     hfdcan1.Init.TransmitPause        = DISABLE;
     hfdcan1.Init.ProtocolException    = DISABLE;
-    hfdcan1.Init.NominalPrescaler     = 6;
-    hfdcan1.Init.NominalSyncJumpWidth = 2;
-    hfdcan1.Init.NominalTimeSeg1      = 13;
-    hfdcan1.Init.NominalTimeSeg2      = 2;
-    hfdcan1.Init.DataPrescaler        = 3;
-    hfdcan1.Init.DataSyncJumpWidth    = 2;
-    hfdcan1.Init.DataTimeSeg1         = 5;
-    hfdcan1.Init.DataTimeSeg2         = 2;
+    hfdcan1.Init.NominalPrescaler     = 16;
+    hfdcan1.Init.NominalSyncJumpWidth = 1;
+    hfdcan1.Init.NominalTimeSeg1      = 1;
+    hfdcan1.Init.NominalTimeSeg2      = 1;
+    hfdcan1.Init.DataPrescaler        = 1;
+    hfdcan1.Init.DataSyncJumpWidth    = 1;
+    hfdcan1.Init.DataTimeSeg1         = 1;
+    hfdcan1.Init.DataTimeSeg2         = 1;
     hfdcan1.Init.MessageRAMOffset     = 0;
-    hfdcan1.Init.StdFiltersNbr        = 1;
-    hfdcan1.Init.ExtFiltersNbr        = 1;
+    hfdcan1.Init.StdFiltersNbr        = 0;
+    hfdcan1.Init.ExtFiltersNbr        = 0;
     hfdcan1.Init.RxFifo0ElmtsNbr      = 0;
     hfdcan1.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
     hfdcan1.Init.RxFifo1ElmtsNbr      = 0;
@@ -236,6 +236,7 @@ static void MX_GPIO_Init(void)
     __HAL_RCC_GPIOH_CLK_ENABLE();
     __HAL_RCC_GPIOE_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOD_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
