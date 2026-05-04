@@ -42,13 +42,12 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
-    extern FDCAN_HandleTypeDef hfdcan1;
 
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/
     /* USER CODE BEGIN EM */
-
+    extern FDCAN_HandleTypeDef hfdcan1;
     /* USER CODE END EM */
 
     /* Exported functions prototypes ---------------------------------------------*/
@@ -63,6 +62,8 @@ extern "C"
 #define LED_GPIO_Port GPIOE
 #define BOOT_Pin GPIO_PIN_10
 #define BOOT_GPIO_Port GPIOE
+#define FDCAN1_RX_Pin GPIO_PIN_0
+#define FDCAN1_RX_GPIO_Port GPIOD
 
     /* USER CODE BEGIN Private defines */
 

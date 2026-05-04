@@ -17,6 +17,7 @@
  ******************************************************************************
  */
 /* USER CODE END Header */
+
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 /* USER CODE BEGIN Includes */
@@ -120,7 +121,7 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
         PD0     ------> FDCAN1_RX
         PD1     ------> FDCAN1_TX
         */
-        GPIO_InitStruct.Pin       = GPIO_PIN_0 | GPIO_PIN_1;
+        GPIO_InitStruct.Pin       = FDCAN1_RX_Pin | GPIO_PIN_1;
         GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
         GPIO_InitStruct.Pull      = GPIO_NOPULL;
         GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
@@ -158,7 +159,7 @@ void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef *hfdcan)
         PD0     ------> FDCAN1_RX
         PD1     ------> FDCAN1_TX
         */
-        HAL_GPIO_DeInit(GPIOD, GPIO_PIN_0 | GPIO_PIN_1);
+        HAL_GPIO_DeInit(GPIOD, FDCAN1_RX_Pin | GPIO_PIN_1);
 
         /* FDCAN1 interrupt DeInit */
         HAL_NVIC_DisableIRQ(FDCAN1_IT0_IRQn);
