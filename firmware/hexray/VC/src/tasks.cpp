@@ -19,6 +19,8 @@
 #include "main.h"
 #include "app_canAlerts.hpp"
 
+#include "hw_runTimeStat.hpp"
+
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
     constexpr uint32_t             period_ms                = 1000U;
