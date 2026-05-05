@@ -19,7 +19,6 @@
 #include "app_jsoncan.hpp"
 #include "app_canUtils.hpp"
 
-
 // io
 #include "io_canQueues.hpp"
 #include "io_canMsg.hpp"
@@ -36,10 +35,10 @@
 extern "C"
 {
 #include "app_commitInfo.h"
-}   
+}
 
-io::semaphore                                      spi_bus_lock(true);
-io::semaphore                                      adbms_app_lock(true);
+io::semaphore spi_bus_lock(true);
+io::semaphore adbms_app_lock(true);
 
 static void jsoncan_transmit_func(const JsonCanMsg &tx_msg)
 {
@@ -54,7 +53,6 @@ static void charger_transmit_func(const JsonCanMsg &tx_msg)
 
 void jobs_init()
 {
-
     io::can_tx::init(jsoncan_transmit_func, charger_transmit_func);
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
     io::can_tx::enableMode_charger(app::can_utils::chargerMode::CHARGER_MODE_DEFAULT, true);
@@ -96,7 +94,7 @@ void jobs_run100Hz_tick()
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEBUG, debug_mode_enabled);
 
     app::ts::broadcast();
-    //app::imd::broadcast();
+    // app::imd::broadcast();
     app::shdn::bms_shdnLoop.broadcast();
     app::plim::broadcast();
     hb_monitor.checkIn();
@@ -137,17 +135,22 @@ void jobs_run100Hz_tick()
     app::can_tx::BMS_BSPDBrakePressureThresholdExceeded_set(io::bspdtest::isBrakePressureThresholdExceeded());
     app::can_tx::BMS_BSPDAccelBrakeOk_set(io::bspdtest::isAccelBrakeOk());
 
-    //commnet back in
-    // const bool ir_negative_opened_debounced = app::irs::negativeOpenedDebounced();
-    // const bool balancing_enabled = app::can_rx::Debug_CellBalancingRequest_get();
+    // commnet back in
+    //  const bool ir_negative_opened_debounced = app::irs::negativeOpenedDebounced();
+    //  const bool balancing_enabled = app::can_rx::Debug_CellBalancingRequest_get();
     const bool ir_negative_opened_debounced = false;
-    const bool balancing_enabled = true;
-    
-    if (app::can_alerts::AnyBoardHasFault()){
+    const bool balancing_enabled            = false;
+
+    if (app::can_alerts::AnyBoardHasFault())
+    {
         app::StateMachine::set_next_state(&app::states::fault_state);
-    } else if (ir_negative_opened_debounced) {
+    }
+    else if (ir_negative_opened_debounced)
+    {
         app::StateMachine::set_next_state(&app::states::init_state);
-    } else if (balancing_enabled) {
+    }
+    else if (balancing_enabled)
+    {
         app::StateMachine::set_next_state(&app::states::balancing_state);
     }
 
