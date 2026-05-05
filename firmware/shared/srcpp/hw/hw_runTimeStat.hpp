@@ -5,7 +5,10 @@
 #include <cmsis_os.h>
 #include <optional>
 #include "hw_rtosTaskHandler.hpp"
-#include "../../../../../../../../../../mingw64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/c++/algorithm"
+#include <algorithm>
+#if configUSE_TRACE_FACILITY != 1
+#error "configUSE_TRACE_FACILITY must be set to 1 in FreeRTOSConfig.h to use runTimeStat"
+#endif
 
 #ifdef STM32F412Rx
 #include "stm32f4xx_hal_tim.h"
@@ -121,9 +124,10 @@ template <size_t TaskCount> class runTimeStat
         assert(strcmp(idleTaskStatus.pcTaskName, "IDLE") == 0);
         uint32_t idle_counter = idleTaskStatus.ulRunTimeCounter;
         // Calculate total current cpu usage and max cpu usage
-        const float usage = (1.0f - static_cast<float>(idle_counter) / static_cast<float>(ulTotalRunTime)) * 100;
-        _cpu_info.cpu_usage_setter(usage);
-        max_cpu_usage = std::max(max_cpu_usage, usage);
+        const float cpu_usage = (1.0f - static_cast<float>(idle_counter) / static_cast<float>(ulTotalRunTime)) * 100;
+        assert(cpu_usage != NAN);
+        _cpu_info.cpu_usage_setter(cpu_usage);
+        max_cpu_usage = std::max(max_cpu_usage, cpu_usage);
         _cpu_info.cpu_usage_max_setter(max_cpu_usage);
 
         for (uint32_t task = 0; task < NUM_TOTAL_TASKS - NUM_FT_TASKS; task++)
@@ -132,19 +136,22 @@ template <size_t TaskCount> class runTimeStat
             if (idle_counter + runTimeStats[task].ulRunTimeCounter != 0)
             {
                 // Calculate current cpu usage
-                const float usage = static_cast<float>(runTimeStats[task].ulRunTimeCounter) /
-                                    static_cast<float>(idle_counter + runTimeStats[task].ulRunTimeCounter) * 100;
-                _tasks_info[task].cpu_usage_setter(usage);
+                const float task_cpu_usage = static_cast<float>(runTimeStats[task].ulRunTimeCounter) /
+                                             static_cast<float>(idle_counter + runTimeStats[task].ulRunTimeCounter) *
+                                             100;
+                assert(task_cpu_usage != NAN);
+                _tasks_info[task].cpu_usage_setter(task_cpu_usage);
 
                 // Calculate the max cpu usage
-                _tasks_data[task].max_cpu_usage = std::max(_tasks_data[task].max_cpu_usage, usage);
+                _tasks_data[task].max_cpu_usage = std::max(_tasks_data[task].max_cpu_usage, task_cpu_usage);
                 _tasks_info[task].cpu_usage_max_setter(_tasks_data[task].max_cpu_usage);
             }
 
             // Calculate max stack usage
-            _tasks_info[task].stack_usage_max_setter(
-                static_cast<float>(runTimeStats[task].usStackHighWaterMark) /
-                static_cast<float>(_tasks_info[task].t->stackSize()) * 100);
+            const float max_stack_usage = static_cast<float>(runTimeStats[task].usStackHighWaterMark) /
+                                          static_cast<float>(_tasks_info[task].t->stackSize()) * 100;
+            assert(max_stack_usage != NAN);
+            _tasks_info[task].stack_usage_max_setter(max_stack_usage);
         }
     }
 };
