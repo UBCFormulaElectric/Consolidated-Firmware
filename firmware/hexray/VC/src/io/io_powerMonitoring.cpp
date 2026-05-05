@@ -51,7 +51,7 @@ std::expected<void, ErrorCode> init(void)
     RETURN_IF_ERR(pwr_pump.isTargetReady());
 
     // 2) Config: CTRL: 1024 SPS continuous, all CH enabled, ALERT1 enabled.
-    uint16_t                     ctrl       = 0x0001; // 0b0000000000000000
+    uint16_t ctrl = 0x0001; // 0b0000000000000000
     std::array<const uint8_t, 2> ctrl_bytes = { { (uint8_t)(ctrl >> 8), (uint8_t)(ctrl & 0xFF) } };
     RETURN_IF_ERR(write_register(REG_CTRL, ctrl_bytes));
 
@@ -66,11 +66,10 @@ std::expected<void, ErrorCode> init(void)
 
     // 5) OV and UV Protections
     /* OV = 24 × 1.15 = 27.6 V, UV = 24 × 0.85 = 20.4 V */
-    uint16_t                     overvoltage       = 0xDCED;
-    uint16_t                     undervoltage      = 0xA343;
+    uint16_t overvoltage = 0xA343; //0xDCED;
+    uint16_t undervoltage = 0xA343;
     std::array<const uint8_t, 2> overvoltage_bytes = { { (uint8_t)(overvoltage >> 8), (uint8_t)(overvoltage & 0xFF) } };
-    std::array<const uint8_t, 2> undervoltage_bytes = { { (uint8_t)(undervoltage >> 8),
-                                                          (uint8_t)(undervoltage & 0xFF) } };
+    std::array<const uint8_t, 2> undervoltage_bytes = { { (uint8_t)(undervoltage >> 8), (uint8_t)(undervoltage & 0xFF) } };
 
     for (uint8_t i = 0; i < CHANNEL_NUM; i++)
     {
@@ -80,6 +79,7 @@ std::expected<void, ErrorCode> init(void)
     {
         RETURN_IF_ERR(write_register(REG_PROTECTION_UV + i, undervoltage_bytes));
     }
+
     // 6) Ensure ALERT if OV/UV conditions are met
     std::array<uint8_t, 3> alert_enable_bytes = { {
         0x00, // bits 23:16, OC/UC disabled
