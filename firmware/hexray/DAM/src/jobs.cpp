@@ -16,7 +16,6 @@
 #include "io_queue.hpp"
 #include "io_telemMessage.hpp"
 #include "io_telemQueue.hpp"
-#include "io_telemUart.hpp"
 #include "io_time.hpp"
 
 #include "util_errorCodes.hpp"
