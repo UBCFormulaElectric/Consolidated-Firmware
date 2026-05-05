@@ -141,11 +141,11 @@ class MockSignalStore extends SignalStore {
 
         propagateHaar(
           this.lodBuffers.get(signal.name) as HaarLodBuffer[] || [],
-          0,
+          1,
           timestamp,
           value,
           (level, intervalMs, timestamp, value) => {
-            this.addDataPointAtLOD(signal.name, level - 1, intervalMs, timestamp, value);
+            this.addDataPointAtLOD(signal.name, level, intervalMs, timestamp, value);
           },
           NUM_LOD_LEVELS
         );
@@ -158,7 +158,7 @@ class MockSignalStore extends SignalStore {
 
         propagateMode(
           this.lodBuffers.get(signal.name) as ModeLodBuffer[] || [],
-          0,
+          1,
           now,
           { [value.idx]: 1 },
           (level, intervalMs, timestamp, value) => {
@@ -177,11 +177,11 @@ class MockSignalStore extends SignalStore {
 
         propagateMode(
           this.lodBuffers.get(signal.name) as ModeLodBuffer[] || [],
-          0,
+          1,
           timestamp,
           { [value.idx]: 1 },
           (level, intervalMs, timestamp, value) => {
-            this.addDataPointAtLOD(signal.name, level - 1, intervalMs, timestamp, value);
+            this.addDataPointAtLOD(signal.name, level, intervalMs, timestamp, value);
           },
           NUM_LOD_LEVELS
         );
