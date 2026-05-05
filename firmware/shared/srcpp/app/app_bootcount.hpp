@@ -16,7 +16,7 @@ class BootCounter
 {
   public:
     /* Constructor */
-    BootCounter();
+    BootCounter() = default;
 
     /**
      * Opens/creates the bootcount file
@@ -30,19 +30,17 @@ class BootCounter
      * @param fs initialized filesystem instance
      * @return current boot count on success, error otherwise
      */
-    std::expected<uint32_t, io::FileSystemError> read(io::FileSystem &fs);
+    std::expected<uint32_t, io::FileSystemError> read(io::FileSystem &fs) const;
 
     /**
      * Increments the bootcount and writes it back to the file
      * @param fs initialized filesystem instance
      * @return updated bootcount on success, error otherwise
      */
-    std::expected<uint32_t, io::FileSystemError> increment(io::FileSystem &fs);
+    std::expected<uint32_t, io::FileSystemError> increment(io::FileSystem &fs) const;
 
   private:
-    uint32_t                                   bootcount_fd     = 0;
-    bool                                       bootcount_inited = false;
-    LogFsFileCfg                               cfg{};
-    std::array<uint8_t, HW_DEVICE_SECTOR_SIZE> cache{};
+    uint32_t bootcount_fd     = 0;
+    bool     bootcount_inited = false;
 };
 } // namespace app::bootcount

@@ -7,7 +7,9 @@
 #include <expected>
 #include <span>
 
+#ifdef TARGET_EMBEDDED
 #include "hw_sd.hpp"
+#endif
 
 extern "C"
 {
@@ -41,25 +43,30 @@ class FileSystem
     static constexpr uint32_t    MAX_WRITE_CYCLES   = 1000;
     static constexpr std::size_t MAX_FILE_NUMBER    = 3;
 
-    LogFsCfg fs_cfg;
-    LogFs    fs;
+    LogFsCfg fs_cfg{
+        .context = this,
+#ifdef TARGET_EMBEDDED
+        .block_size = HW_DEVICE_SECTOR_SIZE,
+#else
+        .block_size = 512,
+#endif
+        .block_count  = 1024 * 1024 * 15, // ~7.5 GB
+        .read         = logfsCfgRead,
+        .write        = logfsCfgWrite,
+        .cache        = cache.data(),
+        .write_cycles = MAX_WRITE_CYCLES,
+        .rd_only      = false,
+    };
+    LogFs fs;
 
+#ifdef TARGET_EMBEDDED
     const hw::SdCard &sdCard; // sd card instance
-
     /* Constructor*/
-    FileSystem(const hw::SdCard &sd_card) : sdCard(sd_card)
-    {
-        fs_cfg = LogFsCfg{
-            .context      = this,
-            .block_size   = HW_DEVICE_SECTOR_SIZE,
-            .block_count  = 1024 * 1024 * 15, // ~7.5 GB
-            .read         = logfsCfgRead,
-            .write        = logfsCfgWrite,
-            .cache        = cache.data(),
-            .write_cycles = MAX_WRITE_CYCLES,
-            .rd_only      = false,
-        };
-    }
+    explicit FileSystem(const hw::SdCard &sd_card) : fs(), sdCard(sd_card) {}
+#else
+    /* Constructor for non-embedded targets, just to make testing easier. */
+    FileSystem() = default;
+#endif
 
     /**
      * init, config, and mount the file system.
@@ -136,17 +143,21 @@ class FileSystem
   private:
     bool mount_failed = false;
 
+#ifdef TARGET_EMBEDDED
     std::array<uint8_t, HW_DEVICE_SECTOR_SIZE>                           cache{};
     std::array<LogFsFileCfg, MAX_FILE_NUMBER>                            files_cfg{};
     std::array<LogFsFile, MAX_FILE_NUMBER>                               files{};
     std::array<std::array<char, HW_DEVICE_SECTOR_SIZE>, MAX_FILE_NUMBER> files_cache{};
-    std::array<bool, MAX_FILE_NUMBER>                                    files_opened{};
+#else
+    std::array<uint8_t, 512> cache{};
+#endif
+    std::array<bool, MAX_FILE_NUMBER> files_opened{};
 
     /**
      * Checks the file descriptor to make sure it's valid
      * @param fd file descriptor in question
      */
-    bool checkFileDescriptor(uint32_t fd) const { return (fd < MAX_FILE_NUMBER && files_opened[fd]); }
+    bool checkFileDescriptor(const uint32_t fd) const { return fd < MAX_FILE_NUMBER and files_opened[fd]; }
 
     /**
      * Checks if the filesystem has been mounted successfully.

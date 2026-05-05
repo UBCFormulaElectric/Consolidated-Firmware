@@ -2,20 +2,12 @@
 
 namespace app::bootcount
 {
-BootCounter::BootCounter()
-{
-    cfg = LogFsFileCfg{
-        .path  = "/bootcount.txt",
-        .cache = cache.data(),
-    };
-}
-
 std::expected<uint32_t, io::FileSystemError> BootCounter::init(io::FileSystem &fs)
 {
     if (bootcount_inited == true)
         return std::unexpected(io::FileSystemError::ERROR_BAD_ARG);
 
-    auto result = fs.open(cfg.path);
+    auto result = fs.open("/bootcount.txt");
     if (!result)
         return std::unexpected(result.error());
 
@@ -25,7 +17,7 @@ std::expected<uint32_t, io::FileSystemError> BootCounter::init(io::FileSystem &f
     return bootcount_fd;
 }
 
-std::expected<uint32_t, io::FileSystemError> BootCounter::read(io::FileSystem &fs)
+std::expected<uint32_t, io::FileSystemError> BootCounter::read(io::FileSystem &fs) const
 {
     if (!bootcount_inited)
         return std::unexpected(io::FileSystemError::ERROR_BAD_ARG);
@@ -34,7 +26,7 @@ std::expected<uint32_t, io::FileSystemError> BootCounter::read(io::FileSystem &f
     uint32_t num_read = 0;
 
     auto err = fs.readMetadata(
-        bootcount_fd, std::span<uint8_t>(reinterpret_cast<uint8_t *>(&value), sizeof(value)), sizeof(value), num_read);
+        bootcount_fd, std::span(reinterpret_cast<uint8_t *>(&value), sizeof(value)), sizeof(value), num_read);
     if (!err)
         return std::unexpected(err.error());
 
@@ -44,7 +36,7 @@ std::expected<uint32_t, io::FileSystemError> BootCounter::read(io::FileSystem &f
     return value;
 }
 
-std::expected<uint32_t, io::FileSystemError> BootCounter::increment(io::FileSystem &fs)
+std::expected<uint32_t, io::FileSystemError> BootCounter::increment(io::FileSystem &fs) const
 {
     if (!bootcount_inited)
         return std::unexpected(io::FileSystemError::ERROR_BAD_ARG);
@@ -55,8 +47,8 @@ std::expected<uint32_t, io::FileSystemError> BootCounter::increment(io::FileSyst
 
     uint32_t next = *current + 1;
 
-    auto err = fs.writeMetadata(
-        bootcount_fd, std::span<uint8_t>(reinterpret_cast<uint8_t *>(&next), sizeof(next)), sizeof(next));
+    auto err =
+        fs.writeMetadata(bootcount_fd, std::span(reinterpret_cast<uint8_t *>(&next), sizeof(next)), sizeof(next));
     if (!err)
         return std::unexpected(err.error());
 
