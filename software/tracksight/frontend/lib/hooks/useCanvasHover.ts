@@ -5,10 +5,8 @@ import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { MouseEvent as MouseEvent_React, RefObject, useCallback } from "react";
 
 /**
- * Tracks the cursor's CSS-pixel x within the canvas. The hook stores the raw x
- * (not a time) so each render frame can convert it through the latest XToTime
- * and avoid cross-frame staleness when scrollLeft drifts between mouse events
- * and render frames.
+ * Converts mouse events on a canvas into time-domain hover values using the
+ * chart layout written by the render function.
  */
 export function useCanvasHover(
   canvasRef: RefObject<HTMLCanvasElement | null>,
