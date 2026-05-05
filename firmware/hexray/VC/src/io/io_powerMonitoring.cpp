@@ -53,7 +53,7 @@ std::expected<void, ErrorCode> init(void)
     RETURN_IF_ERR(pwr_pump.isTargetReady());
 
     // 2) Config: CTRL: 1024 SPS continuous, all CH enabled, ALERT1 enabled.
-    uint16_t ctrl = 0x0000; // 0b0000000000000000
+    uint16_t               ctrl       = 0x0000; // 0b0000000000000000
     std::array<uint8_t, 2> ctrl_bytes = { { (uint8_t)(ctrl >> 8), (uint8_t)(ctrl & 0xFF) } };
     RETURN_IF_ERR(write_register(REG_CTRL, ctrl_bytes));
 
@@ -72,11 +72,12 @@ std::expected<void, ErrorCode> init(void)
     uint8_t alert_disable = 0x00;
     RETURN_IF_ERR(write_register(ALERT_EN, std::span{ &alert_disable, 1 }));
 
-    uint16_t overvoltage = 0x6E66;
+    uint16_t overvoltage  = 0x6E66;
     uint16_t undervoltage = 0x519A;
 
     std::array<const uint8_t, 2> overvoltage_bytes = { { (uint8_t)(overvoltage >> 8), (uint8_t)(overvoltage & 0xFF) } };
-    std::array<const uint8_t, 2> undervoltage_bytes = { { (uint8_t)(undervoltage >> 8), (uint8_t)(undervoltage & 0xFF) } };
+    std::array<const uint8_t, 2> undervoltage_bytes = { { (uint8_t)(undervoltage >> 8),
+                                                          (uint8_t)(undervoltage & 0xFF) } };
 
     for (uint8_t i = 0; i < CHANNEL_NUM; i++)
     {
@@ -107,7 +108,7 @@ std::expected<void, ErrorCode> init(void)
 std::expected<float, ErrorCode> read_voltage(uint8_t ch)
 {
     std::array<uint8_t, 2> buf;
-    uint8_t reg = (uint8_t)(REG_VBUS + (ch - 1));
+    uint8_t                reg = (uint8_t)(REG_VBUS + (ch - 1));
     RETURN_IF_ERR(read_register(reg, buf));
 
     // msb first
@@ -118,7 +119,7 @@ std::expected<float, ErrorCode> read_voltage(uint8_t ch)
 std::expected<float, ErrorCode> read_current(uint8_t ch)
 {
     std::array<uint8_t, 2> buf;
-    uint8_t reg = (uint8_t)(REG_VSENSE + (ch - 1));
+    uint8_t                reg = (uint8_t)(REG_VSENSE + (ch - 1));
     RETURN_IF_ERR(read_register(reg, buf));
 
     // MSB first
@@ -129,7 +130,7 @@ std::expected<float, ErrorCode> read_current(uint8_t ch)
 std::expected<float, ErrorCode> read_power(uint8_t ch)
 {
     std::array<uint8_t, 4> buf;
-    uint8_t reg = (uint8_t)(REG_VPOWERN + (ch - 1));
+    uint8_t                reg = (uint8_t)(REG_VPOWERN + (ch - 1));
 
     RETURN_IF_ERR(read_register(reg, buf));
 
@@ -156,7 +157,7 @@ std::expected<uint8_t, ErrorCode> read_alert_status()
  * @brief Bootleg function to configure in the IC register which power source we are using
  * @param void
  * @return NA
-*/
+ */
 std::expected<void, ErrorCode> monitor_power_inputs()
 {
     RETURN_IF_ERR(refresh());
@@ -164,17 +165,19 @@ std::expected<void, ErrorCode> monitor_power_inputs()
     for (uint8_t ch = 1; ch <= CHANNEL_NUM; ch++)
     {
         auto v = read_voltage(ch);
-        if (!v.has_value()) { return std::unexpected(v.error()); }
-        if (v.value() > CH_ON_MINV) { uv_active_mask |= static_cast<uint8_t>(1u << (CHANNEL_NUM - ch)); }
+        if (!v.has_value())
+        {
+            return std::unexpected(v.error());
+        }
+        if (v.value() > CH_ON_MINV)
+        {
+            uv_active_mask |= static_cast<uint8_t>(1u << (CHANNEL_NUM - ch));
+        }
     }
 
     // OV all channels, UV only active channel
-    uint8_t ov_uv_mask = static_cast<uint8_t>(0xF0 | uv_active_mask);
-    std::array<uint8_t, 3> alert_bytes = {{
-        0x00,
-        ov_uv_mask,
-        0x00
-    }};
+    uint8_t                ov_uv_mask  = static_cast<uint8_t>(0xF0 | uv_active_mask);
+    std::array<uint8_t, 3> alert_bytes = { { 0x00, ov_uv_mask, 0x00 } };
 
     RETURN_IF_ERR(write_register(ALERT_EN, alert_bytes));
     RETURN_IF_ERR(refresh());

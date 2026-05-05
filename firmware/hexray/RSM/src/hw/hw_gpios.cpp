@@ -13,3 +13,4 @@ const hw::gpio imu_cs(IMU_CS_GPIO_Port, IMU_CS_Pin);
 const hw::gpio imu_int(IMU_INT_GPIO_Port, IMU_INT_Pin);
 const hw::gpio imu_fsync(IMU_FSYNC_GPIO_Port, IMU_FSYNC_Pin);
 const hw::gpio d_p_pullup(D_P_PULLUP_GPIO_Port, D_P_PULLUP_Pin);
+const hw::gpio boot_led(BOOT_LED_GPIO_Port, BOOT_LED_Pin);

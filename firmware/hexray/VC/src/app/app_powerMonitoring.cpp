@@ -65,9 +65,12 @@ std::expected<void, ErrorCode> update()
     app::can_tx::VC_ChannelThreePower_set(ch3_power.value());
     app::can_tx::VC_ChannelFourPower_set(ch4_power.value());
 
-    uint8_t OV_UV_mask = 0u;
+    uint8_t    OV_UV_mask   = 0u;
     const auto alert_status = io::powerMonitoring::read_alert_status();
-    if (alert_status.has_value()) { OV_UV_mask = alert_status.value(); }
+    if (alert_status.has_value())
+    {
+        OV_UV_mask = alert_status.value();
+    }
 
     app::can_tx::VC_Alert_OV_Channel1_set((OV_UV_mask & ALERT_OV_CH1) != 0u);
     app::can_tx::VC_Alert_OV_Channel2_set((OV_UV_mask & ALERT_OV_CH2) != 0u);
