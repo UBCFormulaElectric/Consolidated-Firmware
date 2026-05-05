@@ -40,8 +40,14 @@ class LiveSignalStore extends SignalStore {
       this.addDataPoint(signalName, ts, value);
 
       if (this.storage[signalName].storeType === SignalType.NUMERICAL) {
+        const waveletBuffer = this.waveletBuffers.get(signalName);
+
+        if (!waveletBuffer) {
+          throw new Error(`Received data for signal ${signalName} which is not initialized in waveletBuffers`);
+        }
+
         propagateHaar(
-          this.waveletBuffers.get(signalName) || [],
+          waveletBuffer,
           0,
           ts,
           value,
