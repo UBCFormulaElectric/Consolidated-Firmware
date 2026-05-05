@@ -320,7 +320,7 @@
       "type": "cmake",
       "command": "build",
       "targets": [
-        "hexray_RSM_app.hex"
+        "hexray_RSM.hex"
       ]
     },
     {
@@ -347,7 +347,7 @@
       "type": "cmake",
       "command": "build",
       "targets": [
-        "hexray_VC_app.hex"
+        "hexray_VC.hex"
       ]
     },
     {
