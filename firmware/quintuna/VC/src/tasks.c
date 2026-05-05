@@ -105,7 +105,7 @@ _Noreturn void tasks_run1Hz(void)
                                      .cpu_usage_max_setter   = app_canTx_VC_TaskRun1HzCpuUsageMax_set,
                                      .cpu_usage_setter       = app_canTx_VC_TaskRun1HzCpuUsage_set,
                                      .stack_usage_max_setter = app_canTx_VC_TaskRun1HzStackUsage_set };
-    
+
     hw_runTimeStat_registerTask(&task_run1Hz);
     uint32_t start_ticks = osKernelGetTickCount();
 
@@ -166,7 +166,7 @@ _Noreturn void tasks_run1kHz(void)
                                       .stack_usage_max_setter = app_canTx_VC_TaskRun1kHzStackUsage_set };
 
     hw_runTimeStat_registerTask(&task_run1kHz);
-    uint32_t         start_ticks  = osKernelGetTickCount();
+    uint32_t start_ticks = osKernelGetTickCount();
 
     for (;;)
     {
@@ -284,7 +284,7 @@ _Noreturn void tasks_powerMonitoring(void)
                                                   app_canTx_VC_TaskRunPowerMonitorStackUsage_set };
     hw_runTimeStat_registerTask(&task_runpowermonitor);
 
-    start_ticks                           = osKernelGetTickCount();
+    start_ticks = osKernelGetTickCount();
 
     for (;;)
     {

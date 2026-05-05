@@ -129,7 +129,7 @@ void tasks_run1Hz(void)
                                      .stack_usage_max_setter = app_canTx_BMS_TaskRun1HzStackUsage_set };
     hw_runTimeStat_registerTask(&task_run1Hz);
 
-    uint32_t         start_ticks = osKernelGetTickCount();
+    uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
     {
         if (!hw_chimera_v2_enabled)
@@ -158,7 +158,7 @@ void tasks_run100Hz(void)
                                        .stack_usage_max_setter = app_canTx_BMS_TaskRun100HzStackUsage_set };
     hw_runTimeStat_registerTask(&task_run100Hz);
 
-    uint32_t         start_ticks   = osKernelGetTickCount();
+    uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
     {
         if (!hw_chimera_v2_enabled)
@@ -187,7 +187,7 @@ void tasks_run1kHz(void)
                                       .stack_usage_max_setter = app_canTx_BMS_TaskRun1kHzStackUsage_set };
     hw_runTimeStat_registerTask(&task_run1kHz);
 
-    uint32_t         start_ticks  = osKernelGetTickCount();
+    uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
     {
         hw_watchdog_checkForTimeouts();

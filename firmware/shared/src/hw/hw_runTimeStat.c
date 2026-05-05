@@ -84,7 +84,8 @@ void hw_runTimeStat_hookCallBack(void)
 
     uint32_t arraySize = uxTaskGetSystemState(runTimeStats, (UBaseType_t)NUM_TOTAL_TASKS, NULL);
 
-    if (arraySize == 0){
+    if (arraySize == 0)
+    {
         LOG_ERROR("TaskGetSystemState failed");
     }
 
@@ -128,7 +129,8 @@ void hw_runTimeStat_hookCallBack(void)
             tasks_runtime_stat[task]->stack_usage_max =
                 (float)runTimeStats[task].usStackHighWaterMark / (float)tasks_runtime_stat[task]->stack_size;
         }
-        else{
+        else
+        {
             LOG_WARN("Task #%d not initalized task", task);
         }
     }
