@@ -18,8 +18,12 @@
 
 #define configRECORD_STACK_HIGH_ADDRESS 1
 
+#ifdef PROFILING_ENABLED
 // tracing shit
+void          configureTimerForRunTimeStats();
+unsigned long getRunTimeCounterValue();
 #define configUSE_TRACE_FACILITY 1
 #define configGENERATE_RUN_TIME_STATS 1
-#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() configureRunTime()
-#define portGET_RUN_TIME_COUNTER_VALUE() getRunTimeCounter()
+#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS configureTimerForRunTimeStats
+#define portGET_RUN_TIME_COUNTER_VALUE getRunTimeCounterValue
+#endif

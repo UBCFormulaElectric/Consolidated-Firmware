@@ -1,6 +1,8 @@
 #pragma once
 #include "cmsis_os2.h"
 #include "FreeRTOS.h"
+#include <string_view>
+
 namespace hw::rtos
 {
 class StaticTask

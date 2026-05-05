@@ -38,7 +38,7 @@ static const hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", task
 static const hw::rtos::StaticTask TaskCanTx(osPriorityNormal, "TaskCanTx", tasks_runCanTx, stackCanTx);
 static const hw::rtos::StaticTask TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_runCanRx, stackCanRx);
 
-static const hw::runTimeStat<5> task_monitor{
+static const hw::runtimeStat::monitor<5> task_monitor{
     { app::can_tx::FSM_CoreCpuUsage_set, app::can_tx::FSM_CoreCpuUsageMax_set },
     { { {
             Task1kHz,
