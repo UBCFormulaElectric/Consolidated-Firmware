@@ -9,6 +9,7 @@
 #include "io_canTx.hpp"
 #include "io_canQueues.hpp"
 #include "io_time.hpp"
+#include "io_batteryMonitoring.hpp"
 
 void jobs_init()
 {
@@ -29,15 +30,19 @@ void jobs_init()
         });
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
     io::can_tx::enableMode_InvCAN(app::can_utils::InvCANMode::INVCAN_MODE_DEFAULT, true);
+
+    // io::batteryMonitoring::init();
 }
-void jobs_run1Hz_tick() {}
+void jobs_run1Hz_tick() {
+    io::batteryMonitoring::random();
+}
 void jobs_run100Hz_tick()
 {
-    io::can_tx::enqueue100HzMsgs();
-    const uint32_t k = app::can_rx::BMS_ChargePowerLimit_get();
-    LOG_INFO("%d", k);
-    hb_monitor.checkIn();
-    hb_monitor.broadcastFaults();
+   // io::can_tx::enqueue100HzMsgs();
+   // const uint32_t k = app::can_rx::BMS_ChargePowerLimit_get();
+   // LOG_INFO("%d", k);
+   // hb_monitor.checkIn();
+   // hb_monitor.broadcastFaults();
 }
 void jobs_run1kHz_tick()
 {

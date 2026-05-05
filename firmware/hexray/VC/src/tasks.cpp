@@ -7,7 +7,7 @@
 #include "io_canQueues.hpp"
 #include "hw_can.hpp"
 #include "io_canRx.hpp"
-
+#include "io_batteryMonitoring.hpp"
 #include "hw_cans.hpp"
 #include "hw_gpios.hpp"
 #include "hw_rtosTaskHandler.hpp"
@@ -135,17 +135,15 @@ void tasks_init()
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("VC Reset!");
 
-    fdcan1.init();
-    invcan.init();
-
-    adcChipsInit();
-
     dam_en.writePin(true);
     rsm_en.writePin(true);
     front_en.writePin(true);
     bms_en.writePin(true);
     jobs_init();
     osKernelInitialize();
+    fdcan1.init();
+    invcan.init();
+    adcChipsInit();
     VC_StartAllTasks();
     osKernelStart();
     forever {}

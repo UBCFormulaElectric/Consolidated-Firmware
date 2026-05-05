@@ -235,10 +235,15 @@ static std::expected<void, ErrorCode> fetsInit(void)
     return {};
 }
 
+void random(void)
+{
+    
+}
+
 std::expected<void, ErrorCode> init(void)
 {
     // 1. Is chip responsive 
-    RETURN_IF_ERR(bat_mon.isTargetReady());
+    // RETURN_IF_ERR(bat_mon.isTargetReady());
 
     // 2.0 Check to see if chip is in DEEPSLEEP
     uint16_t control_status = 0;
