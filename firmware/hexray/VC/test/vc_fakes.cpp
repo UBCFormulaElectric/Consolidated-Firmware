@@ -110,7 +110,7 @@ namespace powerMonitoring
     {
         return 0u;
     }
-    bool is_alert_asserted()
+    std::expected<bool, ErrorCode> is_alert_asserted()
     {
         return false;
     }
