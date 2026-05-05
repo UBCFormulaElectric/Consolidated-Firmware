@@ -16,5 +16,10 @@
 #define INCLUDE_vTaskDelayUntil 1
 #define configCHECK_FOR_STACK_OVERFLOW 2
 
-#define configUSE_TRACE_FACILITY 1
 #define configRECORD_STACK_HIGH_ADDRESS 1
+
+// tracing shit
+#define configUSE_TRACE_FACILITY 1
+#define configGENERATE_RUN_TIME_STATS 1
+#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() configureRunTime()
+#define portGET_RUN_TIME_COUNTER_VALUE() getRunTimeCounter()
