@@ -106,6 +106,10 @@ namespace powerMonitoring
     {
         return {};
     }
+    std::expected<void, ErrorCode> monitor_power_inputs()
+    {
+        return {};
+    }
     std::expected<uint8_t, ErrorCode> read_alert_status()
     {
         return 0u;

@@ -95,7 +95,7 @@ std::expected<void, ErrorCode> init(void)
         0x00  // bits 7:0, OP/ACC/CC disabled
     } };
 
-    RETURN_IF_ERR(write_register(ALERT_EN, alert_enable_bytes))
+    RETURN_IF_ERR(write_register(ALERT_EN, alert_enable_bytes));
     RETURN_IF_ERR(write_register(REG_SLOW_ALERT1, alert_enable_bytes));
 
     RETURN_IF_ERR(refresh());
