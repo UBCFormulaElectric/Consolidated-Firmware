@@ -49,6 +49,7 @@ template <size_t TaskCount> class runTimeStat
         float max_cpu_usage = 0.0f;
     };
     std::array<TaskData, NUM_TOTAL_TASKS> _tasks_data{};
+    float                                 max_cpu_usage = 0.0f;
 
   public:
     runTimeStat(TIM_HandleTypeDef &htim, const CpuInfoBroadcasters c, const std::array<TaskInfo, TaskCount> tasks)
@@ -79,25 +80,21 @@ template <size_t TaskCount> class runTimeStat
      */
     void checkin()
     {
-        TaskStatus_t runTimeStats[NUM_TOTAL_TASKS];
-
         /* Get the task IDLE handle for processing the time spend outside of idle task*/
-        const TaskHandle_t idleHandle = xTaskGetIdleTaskHandle();
-
+        TaskStatus_t   runTimeStats[NUM_TOTAL_TASKS];
         const uint32_t arraySize =
             uxTaskGetSystemState(runTimeStats, static_cast<UBaseType_t>(NUM_TOTAL_TASKS), nullptr);
-
         if (arraySize == 0)
         {
             LOG_ERROR("TaskGetSystemState failed");
         }
 
         /*
-         * Given each task that we get from the following getsystemstate call we are gonna calcualte the
+         * Given each task that we get from the following getsystemstate call we are gonna calculate the
          * cpu usage and stack usage
          */
-
-        uint32_t idle_counter = 0;
+        uint32_t           idle_counter = 0;
+        const TaskHandle_t idleHandle   = xTaskGetIdleTaskHandle();
         // update just the idle task?
         for (uint32_t task = 0; task < arraySize; task++)
         {
@@ -106,11 +103,11 @@ template <size_t TaskCount> class runTimeStat
                 idle_counter = runTimeStats[task].ulRunTimeCounter;
 
                 // Calculate total current cpu usage and max cpu usage
-                cpu_runtime_stat->cpu_curr_usage =
-                    1.0f - (static_cast<float>(idle_counter) / static_cast<float>(ulHighFrequencyTimerTick));
-
-                cpu_runtime_stat->cpu_max_usage =
-                    MAX(cpu_runtime_stat->cpu_curr_usage, cpu_runtime_stat->cpu_max_usage);
+                const float usage =
+                    1.0f - static_cast<float>(idle_counter) / static_cast<float>(ulHighFrequencyTimerTick);
+                _cpu_info.cpu_usage_setter(usage);
+                max_cpu_usage = std::max(max_cpu_usage, usage);
+                _cpu_info.cpu_usage_max_setter(max_cpu_usage);
                 break;
             }
         }
