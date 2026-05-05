@@ -1,6 +1,11 @@
 #pragma once
 
+#include "hw_utils.hpp"
 #include "util_errorCodes.hpp"
+
+#include <cassert>
+#include <cstring>
+#include <cmsis_os.h>
 
 #ifdef STM32F412Rx
 #include "stm32f4xx_hal_tim.h"
@@ -10,81 +15,126 @@
 
 extern volatile unsigned long ulHighFrequencyTimerTick;
 
-namespace hw::runtimeStat
+namespace hw
 {
-// Task instance for runtimestats
-struct TaskRuntimeStats
+template <size_t TaskCount> class runTimeStat
 {
-    /*
-     * CPU usage
-     */
-    float cpu_curr_usage;
+  public:
+    struct TaskInfo
+    {
+        void (*cpu_usage_setter)(float);
+        void (*stack_usage_max_setter)(float);
+        void (*cpu_usage_max_setter)(float);
+    };
 
-    /*
-     * Max CPU usage
-     */
-    float cpu_max_usage;
+    struct CpuInfoBroadcasters
+    {
+        void (*cpu_usage_setter)(float);
+        void (*cpu_usage_max_setter)(float);
+    };
 
-    /*
-     * Max stack usage
-     */
-    float stack_usage_max;
+  private:
+    static constexpr size_t IDLE_TASK_INDEX = 0U;
+    static constexpr size_t TMR_SVC_INDEX   = 1U;
+    static constexpr size_t NUM_FT_TASKS    = 2U;
+    static constexpr size_t NUM_TOTAL_TASKS = NUM_FT_TASKS + TaskCount;
 
-    /*
-     * Task Index
-     */
-    uint16_t task_index;
+    TIM_HandleTypeDef                    &runTimeCounter;
+    std::array<TaskInfo, NUM_TOTAL_TASKS> _tasks_info{};
+    CpuInfoBroadcasters                   _cpu_info;
+    volatile unsigned long                ulHighFrequencyTimerTick = 0;
 
-    /*
-     * Stack Size
-     */
-    uint16_t stack_size;
+    struct TaskData
+    {
+        float max_cpu_usage = 0.0f;
+    };
+    std::array<TaskData, NUM_TOTAL_TASKS> _tasks_data{};
 
-    // Setter function pointers
+  public:
+    runTimeStat(TIM_HandleTypeDef &htim, const CpuInfoBroadcasters c, const std::array<TaskInfo, TaskCount> tasks)
+      : runTimeCounter(htim), _cpu_info(c)
+    {
+        // mi bombo
+        _tasks_info[IDLE_TASK_INDEX] = {};
+        _tasks_info[TMR_SVC_INDEX]   = {};
 
-    /*
-     * CPU usage can setter function
-     */
-    void (*cpu_usage_setter)(float);
+        assert(c.cpu_usage_max_setter != nullptr);
+        assert(c.cpu_usage_setter != nullptr);
+        for (size_t i = 0; i < TaskCount; ++i)
+        {
+            assert(tasks[i].cpu_usage_max_setter != nullptr);
+            assert(tasks[i].cpu_usage_setter != nullptr);
+            assert(tasks[i].stack_usage_max_setter != nullptr);
+            _tasks_info[i + NUM_FT_TASKS] = tasks[i];
+        }
+    };
 
-    /*
-     * Max stack usage can setter function
-     */
-    void (*stack_usage_max_setter)(float);
+    [[nodiscard]] std::expected<void, ErrorCode> init() const
+    {
+        return utils::convertHalStatus(HAL_TIM_Base_Start_IT(&runTimeCounter));
+    }
 
-    /*
-     * Max CPU usage can setter function
+    /**
+     * use this function to update the runtime statistics
      */
-    void (*cpu_usage_max_setter)(float);
+    void checkin()
+    {
+        TaskStatus_t runTimeStats[NUM_TOTAL_TASKS];
+
+        /* Get the task IDLE handle for processing the time spend outside of idle task*/
+        const TaskHandle_t idleHandle = xTaskGetIdleTaskHandle();
+
+        const uint32_t arraySize =
+            uxTaskGetSystemState(runTimeStats, static_cast<UBaseType_t>(NUM_TOTAL_TASKS), nullptr);
+
+        if (arraySize == 0)
+        {
+            LOG_ERROR("TaskGetSystemState failed");
+        }
+
+        /*
+         * Given each task that we get from the following getsystemstate call we are gonna calcualte the
+         * cpu usage and stack usage
+         */
+
+        uint32_t idle_counter = 0;
+        // update just the idle task?
+        for (uint32_t task = 0; task < arraySize; task++)
+        {
+            if (runTimeStats[task].xHandle == idleHandle)
+            {
+                idle_counter = runTimeStats[task].ulRunTimeCounter;
+
+                // Calculate total current cpu usage and max cpu usage
+                cpu_runtime_stat->cpu_curr_usage =
+                    1.0f - (static_cast<float>(idle_counter) / static_cast<float>(ulHighFrequencyTimerTick));
+
+                cpu_runtime_stat->cpu_max_usage =
+                    MAX(cpu_runtime_stat->cpu_curr_usage, cpu_runtime_stat->cpu_max_usage);
+                break;
+            }
+        }
+
+        for (uint32_t task = 0; task < arraySize; task++)
+        {
+            // get the idle time that we need to calculate the cpu usage associated
+            if (idle_counter + runTimeStats[task].ulRunTimeCounter != 0)
+            {
+                // Calculate current cpu usage
+                const float usage = static_cast<float>(runTimeStats[task].ulRunTimeCounter) /
+                                    static_cast<float>(idle_counter + runTimeStats[task].ulRunTimeCounter);
+                _tasks_info[task].cpu_usage_setter(usage);
+
+                // Calculate the max cpu usage
+                _tasks_data[task].max_cpu_usage = std::max(_tasks_data[task].max_cpu_usage, usage);
+                _tasks_info[task].cpu_usage_max_setter(_tasks_data[task].max_cpu_usage);
+            }
+
+            // Calculate max stack usage
+            _tasks_info[task].stack_usage_max_setter(
+                static_cast<float>(runTimeStats[task].usStackHighWaterMark) /
+                static_cast<float>(_tasks_info[task]->stack_size));
+        }
+    }
 };
-
-struct CpuRunTimeStats
-{
-    /*
-     * CPU usage
-     */
-    float cpu_curr_usage;
-
-    /*
-     * Max CPU usage
-     */
-    float cpu_max_usage;
-
-    // Setter function pointers
-    /*
-     * CPU usage can setter function
-     */
-    void (*cpu_usage_setter)(float);
-
-    /*
-     * Max CPU usage can setter function
-     */
-    void (*cpu_usage_max_setter)(float);
-};
-
-[[nodiscard]] std::expected<void, ErrorCode> init(TIM_HandleTypeDef &htim);
-[[nodiscard]] std::expected<void, ErrorCode> registerTask(TaskRuntimeStats &task_info);
-[[nodiscard]] std::expected<void, ErrorCode> registerCpu(CpuRunTimeStats &cpu_info);
-
-void hookCallBack();
-} // namespace hw::runtimeStat
+} // namespace hw
