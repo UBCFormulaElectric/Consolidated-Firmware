@@ -3,7 +3,7 @@
 
 namespace io::imus
 {
-Imu imu_front(hw::spi::imu_spi);
+imu imu_front(hw::spi::imu_spi);
 
 std::expected<void, ErrorCode> init()
 {

@@ -317,9 +317,10 @@
     {
       "name": "Debug Embedded: VC (Hexray)",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/hexray/VC/hexray_VC_app.elf",
+      "executable": "build_fw_dev/firmware/hexray/VC/hexray_VC.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/hexray/VC/hexray_VC_boot.elf",
         "build_fw_dev/firmware/hexray/VC/hexray_VC_app.elf"
       ],
       "preLaunchTask": "Build Embedded: VC (Hexray)",
@@ -400,9 +401,10 @@
     {
       "name": "Debug Embedded: FSM (Hexray)",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/hexray/FSM/hexray_FSM_app.elf",
+      "executable": "build_fw_dev/firmware/hexray/FSM/hexray_FSM.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/hexray/FSM/hexray_FSM_boot.elf",
         "build_fw_dev/firmware/hexray/FSM/hexray_FSM_app.elf"
       ],
       "preLaunchTask": "Build Embedded: FSM (Hexray)",
@@ -482,9 +484,10 @@
     {
       "name": "Debug Embedded: RSM (Hexray)",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/hexray/RSM/hexray_RSM_app.elf",
+      "executable": "build_fw_dev/firmware/hexray/RSM/hexray_RSM.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/hexray/RSM/hexray_RSM_boot.elf"
         "build_fw_dev/firmware/hexray/RSM/hexray_RSM_app.elf"
       ],
       "preLaunchTask": "Build Embedded: RSM (Hexray)",

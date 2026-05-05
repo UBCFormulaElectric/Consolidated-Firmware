@@ -1,13 +1,13 @@
 #include "bootloader.hpp"
 #include "bootloader.h"
 #include "main.h"
-#include <hw_can.hpp>
+#include "hw_can.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "bootloader_h7.hpp"
 
 extern "C"
 {
-#include <app_commitInfo.h>
+#include "app_commitInfo.h"
 }
 
 void tx_overflow_callback(const uint32_t overflow_count)
@@ -50,7 +50,7 @@ class H7DevBootConfig : public bootloader::config
             boot_can_tx_queue,
             boot_can_rx_queue,
             board_highbits,
-            git_commit_has_val,
+            git_commit_hash_val,
             git_commit_clean_val){};
 } h7devboot_config;
 

@@ -18,7 +18,7 @@ void broadcast()
     can_tx::FSM_BrakeActuated_set(brake_pressed);
     can_tx::FSM_FrontBrakePressure_set(static_cast<uint16_t>(roundf(front_pressure)));
     can_alerts::infos::FrontBrakePressureOCSC_set(front_brake_pressure_ocsc);
-    can_tx::FSM_Info_FrontBrakePressureOutOfRange_set(
+    can_alerts::infos::FrontBrakePressureOutOfRange_set(
         front_pressure >= MAX_BRAKE_PRESSURE_PSI || front_pressure < MIN_BRAKE_PRESSURE_PSI);
 }
 } // namespace app::brake

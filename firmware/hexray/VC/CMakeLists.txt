@@ -12,11 +12,13 @@ set(TASKS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.cpp")
 set(SYSTEM_SRCS ${JOBS_SRC} ${TASKS_SRC})
 set(SYSTEM_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src"
-        #        "${CMAKE_CURRENT_SOURCE_DIR}/boot"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot"
 )
 
 file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp")
-list(APPEND APP_SRCS)
+list(APPEND APP_SRCS
+        "${SHARED_APP_INCLUDE_DIR_CPP}/app_timer.cpp"
+)
 set(APP_INCLUDE_DIRS
         "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR_CPP}" "${CMAKE_CURRENT_SOURCE_DIR}/src/app/"
 )
@@ -27,8 +29,6 @@ list(APPEND IO_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/efuse/io_efuse_TI_TPS25.cpp"
         "${SHARED_IO_INCLUDE_DIR_CPP}/util/"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
-        "${SHARED_IO_INCLUDE_DIR_CPP}/efuse/io_efuse_TI_TPS28.cpp"
-        "${SHARED_IO_INCLUDE_DIR_CPP}/efuse/io_efuse_TI_TPS25.cpp"
 )
 set(IO_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
@@ -39,7 +39,6 @@ set(IO_INCLUDE_DIRS
 file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp")
 list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_gpio.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_adc.hpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_i2c.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_uart.cpp"
@@ -48,8 +47,10 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmOutput.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_assert.cpp"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_freeRtosConfigs.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_flash.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_bootup.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_watchdog.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_resetReason.cpp"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -68,8 +69,13 @@ set(CHIMERA_INCLUDE_DIRS
 )
 
 if ("${TARGET}" STREQUAL "binary")
+    if ("${BOOTLOAD}" STREQUAL "ON")
+        set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app.ld")
+    else ()
+        set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app_only.ld")
+    endif ()
+
     set(ARM_CORE "cm7")
-    set(LINKER_SCRIPT "${LINKER_DIR}/stm32h733vgtx/stm32h733vgtx_app_only.ld")
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
 
@@ -107,6 +113,7 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_hal_spi.c"
             "stm32h7xx_hal_tim_ex.c"
             "stm32h7xx_hal_gpio.c"
+            "stm32h7xx_hal_iwdg.c"
     )
     stm32h733xx_cube_library(
             "hexray_VC_stm32"
@@ -131,6 +138,31 @@ if ("${TARGET}" STREQUAL "binary")
 
     target_link_libraries("hexray_VC_app.elf" PRIVATE "hexray_VC_stm32" "hexray_VC_commit_info" "hexray_VC_jsoncan" "m" "sbg_ecom_${ARM_CORE}")
     target_compile_definitions("hexray_VC_app.elf" PRIVATE VC)
+
+    if ("${BOOTLOAD}" STREQUAL "ON")
+        # Bootloader files.
+        file(GLOB BOOT_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.cpp")
+        file(GLOB BOOT_CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
+        set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
+        # Creates the hex file for the bootloader
+        stm32h7_boot_binary(
+                "hexray_VC_boot"
+                "${BOOT_SRCS}"
+                "${BOOT_CUBEMX_SRCS}"
+                "${BOOT_INCLUDE_DIRS}"
+                "vc"
+                "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/vc_boot.ioc"
+        )
+        target_link_libraries("hexray_VC_boot.elf" PRIVATE "hexray_VC_commit_info")
+        # Creating the combined result of the boot and the app
+        embedded_image(
+                "hexray_VC"
+                "hexray_VC_app.hex"
+                "${CMAKE_CURRENT_BINARY_DIR}/hexray_VC_app.hex"
+                "hexray_VC_boot.hex"
+                "${CMAKE_CURRENT_BINARY_DIR}/hexray_VC_boot.hex"
+        )
+    endif ()
 
     add_chimera_stm32h7("hexray_VC_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}" "hexray_chimera_v2_proto_cm7")
     target_link_libraries("hexray_VC_chimera.elf" PRIVATE "hexray_VC_stm32")
@@ -164,6 +196,7 @@ elseif ("${TARGET}" STREQUAL "test")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    target_link_libraries("hexray_VC_test" PRIVATE "hexray_VC_commit_info" "hexray_VC_jsoncan")
+    target_link_libraries("hexray_VC_test" PRIVATE "hexray_VC_commit_info" "hexray_VC_jsoncan" "m")
     target_compile_definitions("hexray_VC_test" PRIVATE STM32H733xx)
+
 endif ()

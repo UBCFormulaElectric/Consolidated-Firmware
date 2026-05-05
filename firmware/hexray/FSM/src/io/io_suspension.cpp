@@ -7,13 +7,13 @@ namespace io::suspension
 float getLeftTravel()
 {
     // Return left suspension travel based on the ADC voltage.
-    return hw::adcs::susp_fl.getVoltage();
+    return susp_fl.getVoltage();
 }
 
 float getRightTravel()
 {
     // Return right suspension travel based on the ADC voltage.
-    return hw::adcs::susp_fr.getVoltage();
+    return susp_fr.getVoltage();
 }
 
 bool leftSensorOCSC()

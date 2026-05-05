@@ -141,7 +141,15 @@ function(stm32f412rx_cube_library
 
     # Startup assembly script.
     set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f412rx.s")
-    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${CUBEMX_SRCS})
+
+    # lib srcs
+    set(LIB_SRCS
+            "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_assert.cpp"
+            "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_terminate.cpp"
+            "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_freeRtosConfigs.cpp"
+    )
+
+    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${CUBEMX_SRCS} ${LIB_SRCS})
 
     if (USB_ENABLED)
         set(USB_MIDDLEWARE_DIR "${STM32CUBEF4_SOURCE_DIR}/Middlewares/ST/STM32_USB_Device_Library")
@@ -156,6 +164,7 @@ function(stm32f412rx_cube_library
         list(APPEND STM32CUBE_INCLUDE_DIRS
                 "${USB_MIDDLEWARE_DIR}/Core/Inc"
                 "${USB_MIDDLEWARE_DIR}/Class/CDC/Inc"
+                "${THIRD_PARTY_DIR}/STM32_USBD"
         )
     endif ()
 
@@ -251,7 +260,15 @@ function(stm32h733xx_cube_library
 
     # Startup assembly script.
     set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H7xx/Source/Templates/gcc/startup_stm32h733xx.s")
-    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${CUBEMX_SRCS})
+
+    # lib srcs
+    set(LIB_SRCS
+            "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_assert.cpp"
+            "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_terminate.cpp"
+            "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_freeRtosConfigs.cpp"
+    )
+
+    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${CUBEMX_SRCS} ${LIB_SRCS})
 
     # Handle usb srcs and include directories.
     # Currently, all our USB devices are of the Communications Device Class (CDC).
@@ -268,6 +285,7 @@ function(stm32h733xx_cube_library
         list(APPEND STM32CUBE_INCLUDE_DIRS
                 "${USB_MIDDLEWARE_DIR}/Core/Inc"
                 "${USB_MIDDLEWARE_DIR}/Class/CDC/Inc"
+                "${THIRD_PARTY_DIR}/STM32_USBD"
         )
     endif ()
 
@@ -357,7 +375,15 @@ function(stm32h562xx_cube_library
 
     # Startup assembly script.
     set(STARTUP_SRC "${DRIVERS_DIR}/CMSIS/Device/ST/STM32H5xx/Source/Templates/gcc/startup_stm32h562xx.s")
-    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${CUBEMX_SRCS})
+
+    # lib srcs
+    set(LIB_SRCS
+            "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_assert.cpp"
+            "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_terminate.cpp"
+            "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_freeRtosConfigs.cpp"
+    )
+
+    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${CUBEMX_SRCS} ${LIB_SRCS})
 
     # Handle usb srcs and include directories.
     # Currently, all our USB devices are of the Communications Device Class (CDC).
@@ -374,6 +400,7 @@ function(stm32h562xx_cube_library
         list(APPEND STM32CUBE_INCLUDE_DIRS
                 "${USB_MIDDLEWARE_DIR}/Core/Inc"
                 "${USB_MIDDLEWARE_DIR}/Class/CDC/Inc"
+                "${THIRD_PARTY_DIR}/STM32_USBD"
         )
     endif ()
 
