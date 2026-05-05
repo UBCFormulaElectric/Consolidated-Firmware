@@ -28,18 +28,6 @@ tower-http = { version = "0.5", features = ["cors"] }
 futures = "0.3.32"
 mdns-sd = "0.18.1"
 if-addrs = "0.15.0"
-<<<<<<< HEAD
 moka = { version = "0.12.15", features=["future"] }
 chrono = "0.4.44"
 num-traits = "0.2.19"
-
-=======
-
-jsoncan_rust = { path = "../../../scripts/code_generation/jsoncan-rust" }
-<<<<<<< Updated upstream
-chrono = "0.4.44"
-num-traits = "0.2.19"
-=======
-rand = "0.10.0"
->>>>>>> Stashed changes
->>>>>>> eccfaf926 (fix left axis offset)
