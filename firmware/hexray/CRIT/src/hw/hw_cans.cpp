@@ -9,13 +9,14 @@
 #include "bootloader_CRIT.hpp"
 #endif
 
-
-static void canRxCallback(const hw::CanMsg &msg) {
+static void canRxCallback(const hw::CanMsg &msg)
+{
 #ifndef USE_CHIMERA
     io::bootHandler::processBootRequest(msg, board_highbits);
-    LOG_IF_ERR(can_rx_queue.push(io::CanMsg{ msg.std_id, msg.dlc, msg.data, true, app::can_utils::BusEnum::Bus_FDCAN }));
+    LOG_IF_ERR(
+        can_rx_queue.push(io::CanMsg{ msg.std_id, msg.dlc, msg.data, true, app::can_utils::BusEnum::Bus_FDCAN }));
 #else
-    UNUSED(msg); 
+    UNUSED(msg);
 #endif
 }
 

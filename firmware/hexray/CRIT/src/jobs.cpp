@@ -16,7 +16,6 @@
 
 #include "hw_pwmOutputs.hpp"
 
-
 void jobs_init()
 {
     can_tx_queue.init();

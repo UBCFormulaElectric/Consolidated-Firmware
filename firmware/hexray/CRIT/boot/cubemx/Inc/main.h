@@ -53,8 +53,8 @@ extern "C"
     /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler(void);
 
-/* USER CODE BEGIN EFP */
-extern FDCAN_HandleTypeDef hfdcan1;
+    /* USER CODE BEGIN EFP */
+    extern FDCAN_HandleTypeDef hfdcan1;
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
