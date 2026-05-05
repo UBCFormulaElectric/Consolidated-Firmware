@@ -158,7 +158,7 @@ class MockSignalStore extends SignalStore {
 
         propagateMode(
           this.lodBuffers.get(signal.name) as ModeLodBuffer[] || [],
-          1,
+          0,
           now,
           { [value.idx]: 1 },
           (level, intervalMs, timestamp, value) => {
