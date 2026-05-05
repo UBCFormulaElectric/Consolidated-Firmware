@@ -1,7 +1,7 @@
 #include "app_loadswitches.hpp"
 #include "app_canTx.hpp"
-#include "io_efuse.hpp"
 #include "io_efuses.hpp"
+#include "io_efuse.hpp"
 #include <array>
 
 /*
@@ -16,6 +16,7 @@ struct EfuseCanMsg
     void (*can_setter_enabled)(bool);
     void (*can_setter_current)(float);
 };
+
 // one array for all the setter CAN signals
 std::array<EfuseCanMsg, NUM_EFUSE_CHANNELS> efuse_channel_setters{ {
     { f_inv_efuse, can_tx::VC_FrontInvertersStatus_set, can_tx::VC_FrontInvertersCurrent_set },

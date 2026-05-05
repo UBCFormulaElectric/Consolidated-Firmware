@@ -7,6 +7,10 @@ void imu::reset_init()
 {
     initialized = false;
 }
+void Imu::imu_status_set(bool status)
+{
+    init_status = status ? std::expected<void, ErrorCode>{} : std::unexpected(ErrorCode::TIMEOUT);
+}
 
 bool imu::get_init() const
 {
@@ -44,8 +48,15 @@ void imu::set_GyroYaw(const float gyro_z_fake) const
 
 std::expected<void, ErrorCode> imu::init() const
 {
-    initialized = true;
-    return {};
+    if (init_status.has_value())
+    {
+        initialized = true;
+        return {};
+    }
+    else
+    {
+        return std::unexpected(init_status.error());
+    }
 }
 std::expected<float, ErrorCode> imu::getAccelX() const
 {
