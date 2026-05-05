@@ -39,8 +39,10 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_spi.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmOutput.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_watchdog.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_bootup.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_resetReason.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_bootup.cpp"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -49,7 +51,6 @@ set(HW_INCLUDE_DIRS
 
 # chimera sources
 set(CHIMERA_SRCS ${HW_SRCS} "${CMAKE_CURRENT_SOURCE_DIR}/src/chimera.cpp")
-list(FILTER CHIMERA_SRCS EXCLUDE REGEX ".*(hw_cans|hw_can_hx)\\.cpp")
 set(CHIMERA_INCLUDE_DIRS ${HW_INCLUDE_DIRS})
 
 if ("${TARGET}" STREQUAL "binary")
