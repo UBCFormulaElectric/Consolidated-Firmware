@@ -21,6 +21,7 @@ class Uart
     UART_HandleTypeDef &handle; // pointer to structure containing UART module configuration information
   public:
     explicit consteval Uart(UART_HandleTypeDef &in_handle) : handle(in_handle) {}
+
   private:
     /**
      * @param timeoutMs
