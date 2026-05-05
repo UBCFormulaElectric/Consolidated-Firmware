@@ -346,7 +346,7 @@
       "type": "cmake",
       "command": "build",
       "targets": [
-        "hexray_VC_app.hex"
+        "hexray_VC.hex"
       ]
     },
     {
