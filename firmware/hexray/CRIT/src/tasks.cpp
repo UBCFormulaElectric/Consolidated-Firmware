@@ -3,6 +3,8 @@
 #include "jobs.hpp"
 
 #include "app_jsoncan.hpp"
+#include "app_canAlerts.hpp"
+#include "app_canTx.hpp"
 
 #include "io_time.hpp"
 #include "io_canRx.hpp"
@@ -14,7 +16,6 @@
 #include "hw_watchdog.hpp"
 #include "hw_resetReason.hpp"
 #include "main.h"
-#include "app_canAlerts.hpp"
 #include "hw_bootup.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
@@ -141,8 +142,7 @@ void tasks_init()
 #endif
 
     fdcan1.init();
-    LOG_IF_ERR(led_dimming.start());
-    LOG_IF_ERR(led_dimming.setDutyCycle(95));
+
     ResetReason reason = hw::resetReason::get();
     if (reason == RESET_REASON_WATCHDOG)
     {
@@ -150,7 +150,7 @@ void tasks_init()
         app::can_alerts::infos::WatchdogTimeout_set(true);
     }
 
-    hw::bootup::BootRequest boot_request = hw::bootup::boot_request();
+    hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
     if (boot_request.context != hw::bootup::BootContext::BOOT_CONTEXT_NONE) {
         if (boot_request.context == hw::bootup::BootContext::BOOT_CONTEXT_STACK_OVERFLOW) {
             LOG_WARN("Detected stack overflow on the previous boot cycle!");
@@ -159,14 +159,15 @@ void tasks_init()
         } else if (boot_request.context == hw::bootup::BootContext::BOOT_CONTEXT_WATCHDOG_TIMEOUT) {
             LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
             app::can_alerts::infos::WatchdogTimeout_set(true);
-            app::can_tx::CRIT_WatchdogTimeoutTask_set(boot_request.contect_value);
-        }
+            app::can_tx::CRIT_Info_WatchdogTimeout_set(boot_request.context_value);
         }
     }
+    
 
     jobs_init();
     osKernelInitialize();
     CRIT_StartAllTasks();
     osKernelStart();
     forever {}
+
 }
