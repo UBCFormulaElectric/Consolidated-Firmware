@@ -33,8 +33,6 @@ void jobs_init()
         });
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
     io::can_tx::enableMode_InvCAN(app::can_utils::InvCANMode::INVCAN_MODE_DEFAULT, true);
-
-    io::powerMonitoring::init();
 }
 void jobs_run1Hz_tick() {}
 void jobs_run100Hz_tick()

@@ -12,5 +12,6 @@ std::expected<float, ErrorCode>   read_voltage(uint8_t ch);
 std::expected<float, ErrorCode>   read_current(uint8_t ch);
 std::expected<float, ErrorCode>   read_power(uint8_t ch);
 std::expected<uint8_t, ErrorCode> read_alert_status();
-bool                              is_alert_asserted();
+std::expected<bool, ErrorCode>    is_alert_asserted();
+std::expected<void, ErrorCode>    monitor_power_inputs();
 } // namespace io::powerMonitoring

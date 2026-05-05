@@ -590,28 +590,28 @@
                 "max": 800.0,
                 "unit": "W"
             },
-            "AlertOVChannel1": {
+            "Alert_OV_Channel1": {
                 "bits": 1
             },
-            "AlertOVChannel2": {
+            "Alert_OV_Channel2": {
                 "bits": 1
             },
-            "AlertOVChannel3": {
+            "Alert_OV_Channel3": {
                 "bits": 1
             },
-            "AlertOVChannel4": {
+            "Alert_OV_Channel4": {
                 "bits": 1
             },
-            "AlertUVChannel1": {
+            "Alert_UV_Channel1": {
                 "bits": 1
             },
-            "AlertUVChannel2": {
+            "Alert_UV_Channel2": {
                 "bits": 1
             },
-            "AlertUVChannel3": {
+            "Alert_UV_Channel3": {
                 "bits": 1
             },
-            "AlertUVChannel4": {
+            "Alert_UV_Channel4": {
                 "bits": 1
             }
         }
