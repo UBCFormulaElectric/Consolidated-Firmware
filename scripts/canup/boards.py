@@ -186,7 +186,7 @@ hexray_CRIT = Board(
     boot_id_range_start=0x18000000,
     app_id_range_start=900,
     mcu=STM32H562_MCU,
-    path=os.path.join("firmware", "hexray", "CRIT", "quintuna_CRIT_app_metadata.hex"),
+    path=os.path.join("firmware", "hexray", "CRIT", "hexray_CRIT_app_metadata.hex"),
 )
 
 hexray_BMS = Board(
@@ -206,23 +206,6 @@ hexray_FSM = Board(
 )
 
 CONFIGS = {
-    "quintuna_FSM": [quintuna_FSM],
-    "quintuna_RSM": [quintuna_RSM],
-    "quintuna_CRIT": [quintuna_CRIT],
-    "quintuna_DAM": [quintuna_DAM],
-    "quintuna_BMS": [quintuna_BMS],
-    "quintuna_VC": [quintuna_VC],
-    "quintuna_FD": [quintuna_DAM, quintuna_VC, quintuna_BMS],
-    "quintuna_Sx": [quintuna_CRIT, quintuna_FSM, quintuna_RSM],
-    "quintuna": [
-        quintuna_RSM,
-        quintuna_BMS,
-        quintuna_CRIT,
-        quintuna_DAM,
-        quintuna_CRIT,
-        quintuna_FSM,
-        quintuna_VC,
-    ],
     "h7dev": [h7dev],
     "h5dev": [h5dev],
     "hexray_FSM": [hexray_FSM],
