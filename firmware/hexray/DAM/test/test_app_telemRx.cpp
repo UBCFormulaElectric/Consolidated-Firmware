@@ -40,8 +40,8 @@ std::vector<uint8_t> buildNtpFrame(uint64_t t1, uint64_t t2)
     uint32_t crc = computeCrc(body);
 
     std::vector<uint8_t> frame{ 0xCC, 0x33, static_cast<uint8_t>(body.size()) };
-    frame.push_back(static_cast<uint8_t>(crc >>  0));
-    frame.push_back(static_cast<uint8_t>(crc >>  8));
+    frame.push_back(static_cast<uint8_t>(crc >> 0));
+    frame.push_back(static_cast<uint8_t>(crc >> 8));
     frame.push_back(static_cast<uint8_t>(crc >> 16));
     frame.push_back(static_cast<uint8_t>(crc >> 24));
     frame.insert(frame.end(), body.begin(), body.end());
