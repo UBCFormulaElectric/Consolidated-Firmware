@@ -5,7 +5,7 @@ use influxdb2::models::DataPoint;
 use jsoncan_rust::can_database::CanDatabase;
 use logfs::{LogFsErr, logfs::{LogFs, LogFsUnixDisk}};
 
-use crate::{tasks::{can_data::influx_util::{MAX_BATCH_CAPACITY, build_data_point, flush_buffer}}, utils::yellow, vprintln};
+use crate::{tasks::can_data::influx_util::{InfluxSignalSource, MAX_BATCH_CAPACITY, build_data_point, flush_buffer}, utils::yellow, vprintln};
 
 
 /**
@@ -122,7 +122,7 @@ pub async fn dump_sd_file(can_db: Arc<CanDatabase>, influxdb_client: Arc<influxd
         //temp log
         println!("ID: {id}, Timestamp: {timestamp}, Data: {:02X?}, Decoded Signals: {:?}", data, decoded_signals);
 
-        influx_write_queue.extend(decoded_signals.into_iter().filter_map(|x| match build_data_point(x) {
+        influx_write_queue.extend(decoded_signals.into_iter().filter_map(|x| match build_data_point(x, InfluxSignalSource::SdCard) {
             Ok(dp) => Some(dp),
             Err(e) => {
                 vprintln!("Error building data point: {}, skipping signal", e);
