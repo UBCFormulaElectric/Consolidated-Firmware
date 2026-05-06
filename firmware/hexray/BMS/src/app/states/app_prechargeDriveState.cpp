@@ -2,7 +2,7 @@
 #include "app_precharge.hpp"
 #include "io_irs.hpp"
 #include "app_stateMachine.hpp"
-#include "states/app_states.hpp"
+#include "app_states.hpp"
 #include "io_log.hpp"
 #include "app_stateMachine.hpp"
 #include "app_canTx.hpp"

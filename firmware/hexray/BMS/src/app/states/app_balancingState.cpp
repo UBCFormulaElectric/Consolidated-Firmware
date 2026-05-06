@@ -1,9 +1,9 @@
 #include "app_stateMachine.hpp"
 #include "app_states.hpp"
-#include "io_irs.hpp"
+#include "app_irs.hpp"
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
-
+#include "app_segments.hpp"
 namespace app::states
 {
 
@@ -13,21 +13,28 @@ namespace balancingState
     static void balancingStateRunOnEntry()
     {
         app::can_tx::BMS_State_set(app::can_utils::BmsState::BMS_BALANCING_STATE);
+        app::segments::balancingInit();
+
     }
 
     static void balancingStateRunOnTick100Hz()
     {
-        const bool air_negative_open = io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN;
-        const bool stopped_requesting_balance = !app::can_rx::Debug_CellBalancingRequest_get();
-        if (air_negative_open || stopped_requesting_balance)
+        //comment back in
+        // const bool ir_negative_opened_debounced = app::irs::negativeOpenedDebounced();
+        // const bool balancing_enabled = app::can_rx::Debug_CellBalancingRequest_get();
+        const bool ir_negative_opened_debounced = false;
+        const bool balancing_enabled = true;
+
+        if (ir_negative_opened_debounced || !balancing_enabled)
         {
             app::StateMachine::set_next_state(&app::states::init_state);
         }
+        app::segments::balancingEnable();
     }
 
     static void balancingStateRunOnExit()
     {
-        app::can_rx::Debug_CellBalancingRequest_update(false);
+        app::segments::balancingDisable();
     }
 } // namespace balancingState
 

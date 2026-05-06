@@ -148,7 +148,7 @@ function(embedded_binary
     else ()
         target_compile_options(${ELF_NAME} PRIVATE -Os)
     endif ()
-    IF (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    IF (${CMAKE_BUILD_TYPE} STREQUAL "Debug" AND NOT "${BIN_NAME}" MATCHES ".*_boot$")
         target_compile_options(${ELF_NAME} PRIVATE -fsanitize=undefined)
         set_property(SOURCE "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_ubsan.cpp" APPEND PROPERTY COMPILE_OPTIONS
                 -fno-sanitize=undefined
@@ -157,6 +157,10 @@ function(embedded_binary
         )
         target_sources(${ELF_NAME} PRIVATE "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_ubsan.cpp")
     ENDIF ()
+
+    if (${BOOTLOAD})
+        target_compile_definitions(${ELF_NAME} PRIVATE -DBOOTLOAD)
+    endif ()
 
     target_link_options(${ELF_NAME} PRIVATE
             ${SHARED_LINKER_FLAGS}

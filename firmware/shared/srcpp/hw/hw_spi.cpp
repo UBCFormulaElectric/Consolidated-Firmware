@@ -185,7 +185,7 @@ std::expected<void, ErrorCode> device::receive(std::span<uint8_t> rx) const
 
     exit = waitForNotification();
     disableNss();
-    if (not exit.has_value())
+    if (not exit)
     {
         return exit;
     }

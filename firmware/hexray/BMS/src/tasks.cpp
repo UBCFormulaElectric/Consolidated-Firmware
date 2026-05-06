@@ -22,6 +22,10 @@
 #include "app_canAlerts.hpp"
 #include "hw_gpios.hpp"
 
+#include "hw_watchdog.hpp"
+
+using namespace hw::watchdog;
+
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
     constexpr uint32_t             period_ms                = 1000U;
@@ -70,8 +74,8 @@
     forever
     {
         jobs_run1kHz_tick();
-        monitor1khz.checkForTimeouts();
         watchdog1khz.checkIn();
+        monitor1khz.checkForTimeouts();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -95,16 +99,18 @@
         if (m.bus == app::can_utils::BusEnum::Bus_charger)
         {
             std::expected<void, ErrorCode> res;
-            if (can_msg.dlc > 8)
+            if (can_msg.dlc > 8) {
                 res = fdcan1.fdcan_transmit(can_msg);
-            else
+            } else {
                 res = fdcan1.can_transmit(can_msg);
+            }
             LOG_IF_ERR(res);
         }
         else if (m.bus == app::can_utils::BusEnum::Bus_FDCAN)
         {
             const auto res = fdcan2.fdcan_transmit(can_msg);
             LOG_IF_ERR(res);
+            LOG_INFO("TRANSMIT");
         }
         else
         {
@@ -123,12 +129,95 @@
     }
 }
 
+[[noreturn]] static void tasks_runAdbmsVoltages(void *arg)
+{
+    const uint32_t period_ms                = 500U;
+    const uint32_t watchdog_grace_period_ms = 25U;
+    hw::watchdog::WatchdogInstance watchdogVoltages{ period_ms + watchdog_grace_period_ms };
+    hw::watchdog::monitor          monitorVoltages{ &watchdogVoltages, hiwdg1, HAL_IWDG_Refresh };
+    monitorVoltages.registerWatchdogInstance();
+    uint32_t start_ticks = osKernelGetTickCount();
+
+    forever
+    {
+        jobs_runAdbmsVoltages_tick();
+        watchdogVoltages.checkIn();
+        monitorVoltages.checkForTimeouts();
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
+}
+
+[[noreturn]] static void tasks_runAdbmsFilteredVoltages(void *arg)
+{
+    const uint32_t period_ms                = 500U;
+    const uint32_t watchdog_grace_period_ms = 25U;
+    hw::watchdog::WatchdogInstance watchdogFilteredVoltages{ period_ms + watchdog_grace_period_ms };
+    hw::watchdog::monitor          monitorFilteredVoltages{ &watchdogFilteredVoltages, hiwdg1, HAL_IWDG_Refresh };
+    monitorFilteredVoltages.registerWatchdogInstance();
+    uint32_t start_ticks = osKernelGetTickCount();
+
+    forever
+    {
+        jobs_runAdbmsFilteredVoltages_tick();
+        watchdogFilteredVoltages.checkIn();
+        monitorFilteredVoltages.checkForTimeouts();
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
+}
+
+[[noreturn]] static void tasks_runAdbmsTemperatures(void *arg)
+{
+    const uint32_t period_ms                = 500U;
+    const uint32_t watchdog_grace_period_ms = 25U;
+    hw::watchdog::WatchdogInstance watchdogTemperatures{ period_ms + watchdog_grace_period_ms };
+    hw::watchdog::monitor          monitorTemperatures{ &watchdogTemperatures, hiwdg1, HAL_IWDG_Refresh };
+    monitorTemperatures.registerWatchdogInstance();
+    uint32_t start_ticks = osKernelGetTickCount();
+
+    forever
+    {
+        jobs_runAdbmsTemperatures_tick();
+        watchdogTemperatures.checkIn();
+        monitorTemperatures.checkForTimeouts();
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
+}
+
+[[noreturn]] static void tasks_runAdbmsDiagnostics(void *arg)
+{
+    const uint32_t period_ms                = 500U;
+    const uint32_t watchdog_grace_period_ms = 25U;
+    hw::watchdog::WatchdogInstance watchdogDiagnostics{ period_ms + watchdog_grace_period_ms };
+    hw::watchdog::monitor          monitorDiagnostics{ &watchdogDiagnostics, hiwdg1, HAL_IWDG_Refresh };
+    monitorDiagnostics.registerWatchdogInstance();
+    uint32_t start_ticks = osKernelGetTickCount();
+
+    forever
+    {
+        jobs_runAdbmsDiagnostics_tick();
+        watchdogDiagnostics.checkIn();
+        monitorDiagnostics.checkForTimeouts();
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
+}
+
 // Define the task with StaticTask template class
-static hw::rtos::StaticTask<512> Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz);
+static hw::rtos::StaticTask<1024> Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz);
 static hw::rtos::StaticTask<512> Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz);
 static hw::rtos::StaticTask<512> Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz);
 static hw::rtos::StaticTask<512> TaskCanRx(osPriorityBelowNormal, "TaskCanRx", tasks_runCanRx);
 static hw::rtos::StaticTask<512> TaskCanTx(osPriorityBelowNormal, "TaskCanTx", tasks_runCanTx);
+static hw::rtos::StaticTask<512> TaskAdbmsVoltages(osPriorityNormal, "TaskAdbmsVoltages", tasks_runAdbmsVoltages);
+static hw::rtos::StaticTask<512>
+    TaskAdbmsFilteredVoltages(osPriorityNormal, "TaskAdbmsFilteredVoltages", tasks_runAdbmsFilteredVoltages);
+static hw::rtos::StaticTask<512>
+    TaskAdbmsTemperatures(osPriorityNormal, "TaskAdbmsTemperatures", tasks_runAdbmsTemperatures);
+static hw::rtos::StaticTask<512>
+    TaskAdbmsDiagnostics(osPriorityNormal, "TaskAdbmsDiagnostics", tasks_runAdbmsDiagnostics);
 
 void BMS_StartAllTasks()
 {
@@ -137,6 +226,10 @@ void BMS_StartAllTasks()
     Task100Hz.start();
     TaskCanRx.start();
     TaskCanTx.start();
+    TaskAdbmsVoltages.start();
+    TaskAdbmsFilteredVoltages.start();
+    TaskAdbmsTemperatures.start();
+    TaskAdbmsDiagnostics.start();
 }
 
 void tasks_preInit()
@@ -149,8 +242,6 @@ void tasks_preInit()
 
 void tasks_init()
 {
-    // __HAL_DBGMCU_FREEZE_IWDG1();
-    // hw::adc::chipsInit();
     SEGGER_SYSVIEW_Conf();
 
 #ifndef WATCHDOG_DISABLED

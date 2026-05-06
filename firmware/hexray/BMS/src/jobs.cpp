@@ -1,13 +1,13 @@
 #include "jobs.hpp"
+#include "util_errorCodes.hpp"
 
 // app
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
 #include "app_canAlerts.hpp"
-
-#include "states/app_states.hpp"
+#include "app_states.hpp"
 #include "app_precharge.hpp"
-// #include "app_segments.hpp"
+#include "app_segments.hpp"
 #include "app_timer.hpp"
 #include "app_imd.hpp"
 #include "app_powerLimit.hpp"
@@ -18,31 +18,27 @@
 #include "app_heartbeatMonitor.hpp"
 #include "app_jsoncan.hpp"
 #include "app_canUtils.hpp"
-#include "app_canTx.hpp"
 
 // io
-extern "C"
-{
-#include "io_semaphore.h"
-#include "app_commitInfo.h"
-}
-
-#include "io_canMsg.hpp"
 #include "io_canQueues.hpp"
 #include "io_canMsg.hpp"
 #include "io_irs.hpp"
 #include "io_time.hpp"
+#include "io_semaphore.hpp"
 #include "io_bspdTest.hpp"
 #include "io_charger.hpp"
 #include "io_fans.hpp"
 #include "io_faultLatch.hpp"
 #include "io_canTx.hpp"
+#include "io_adbms.hpp"
 
-#include <util_errorCodes.hpp>
+extern "C"
+{
+#include "app_commitInfo.h"
+}
 
-// TODO: Uncomment when segments are added
-// static Semaphore isospi_bus_access_lock;
-// static Semaphore adbms_app_data_lock;
+io::semaphore spi_bus_lock(true);
+io::semaphore adbms_app_lock(true);
 
 static void jsoncan_transmit_func(const JsonCanMsg &tx_msg)
 {
@@ -57,17 +53,6 @@ static void charger_transmit_func(const JsonCanMsg &tx_msg)
 
 void jobs_init()
 {
-    // TODO: Uncomment semaphores when segments are added (also if there's a semaphore.cpp update).
-    // isospi_bus_access_lock guards access to the ISOSPI bus, to guarantee an ADuM SPI transaction doesn't get
-    // interrupted by another task. It's just a regular semaphore (no priority inheritance) since it depends on
-    // hardware.
-    // io_semaphore_create(&isospi_bus_access_lock, false);
-
-    // adbms_app_data_lock guards access to any ADuM app data that may be written to by the ADuM tasks and read from
-    // other tick functions. It's a mutex (yes priority inheritance) since it's guarding shared data and doesn't depend
-    // on hardware.
-    // io_semaphore_create(&adbms_app_data_lock, true);
-
     io::can_tx::init(jsoncan_transmit_func, charger_transmit_func);
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
     io::can_tx::enableMode_charger(app::can_utils::chargerMode::CHARGER_MODE_DEFAULT, true);
@@ -82,31 +67,34 @@ void jobs_init()
     app::precharge::init();
 
 #ifndef TARGET_HV_SUPPLY
-    // TODO segments init and tests
+    app::segments::setDefaultConfig();
+    LOG_IF_ERR(io::adbms::wakeup());
+    LOG_IF_ERR(io::adbms::clearCellVoltageReg());
+    LOG_IF_ERR(io::adbms::clearFilteredCellVoltageReg());
+    LOG_IF_ERR(io::adbms::clearCellAuxReg());
+    LOG_IF_ERR(app::segments::configSync());
+    LOG_INFO("Segment Initialization Done");
 #endif
 
     app::StateMachine::init(&app::states::init_state);
-
     app::can_tx::BMS_Heartbeat_set(true);
 }
 
 void jobs_run1Hz_tick()
 {
+    app::StateMachine::tick1Hz();
     io::can_tx::enqueue1HzMsgs();
 }
 
 void jobs_run100Hz_tick()
 {
-    // TODO: Uncomment when segments are added
-    // io_semaphore_take(&adbms_app_data_lock, MAX_TIMEOUT);
-
     app::StateMachine::tick100Hz();
 
     const bool debug_mode_enabled = app::can_rx::Debug_EnableDebugMode_get();
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEBUG, debug_mode_enabled);
 
     app::ts::broadcast();
-    app::imd::broadcast();
+    // app::imd::broadcast();
     app::shdn::bms_shdnLoop.broadcast();
     app::plim::broadcast();
     hb_monitor.checkIn();
@@ -127,9 +115,10 @@ void jobs_run100Hz_tick()
 #ifdef TARGET_HV_SUPPLY
     const bool acc_fault = false;
 #else
-    // segments::checkWarnings();
-    // const bool acc_fault = segments::checkFaults();
-    const bool acc_fault = false;
+    adbms_app_lock.take(io::MAX_TIMEOUT);
+    app::segments::checkWarnings();
+    const bool acc_fault = app::segments::checkFaults();
+    adbms_app_lock.give();
 #endif
     using namespace io::faultLatch;
 
@@ -146,24 +135,101 @@ void jobs_run100Hz_tick()
     app::can_tx::BMS_BSPDBrakePressureThresholdExceeded_set(io::bspdtest::isBrakePressureThresholdExceeded());
     app::can_tx::BMS_BSPDAccelBrakeOk_set(io::bspdtest::isAccelBrakeOk());
 
-    const bool ir_negative_opened_debounced = app::irs::negativeOpenedDebounced();
-    if (ir_negative_opened_debounced)
-    {
-        app::StateMachine::set_next_state(&app::states::init_state);
-    }
+    // commnet back in
+    //  const bool ir_negative_opened_debounced = app::irs::negativeOpenedDebounced();
+    //  const bool balancing_enabled = app::can_rx::Debug_CellBalancingRequest_get();
+    const bool ir_negative_opened_debounced = false;
+    const bool balancing_enabled            = false;
+
     if (app::can_alerts::AnyBoardHasFault())
     {
         app::StateMachine::set_next_state(&app::states::fault_state);
+    }
+    else if (ir_negative_opened_debounced)
+    {
+        app::StateMachine::set_next_state(&app::states::init_state);
+    }
+    else if (balancing_enabled)
+    {
+        app::StateMachine::set_next_state(&app::states::balancing_state);
     }
 
     app::irs::broadcast();
 
     io::can_tx::enqueue100HzMsgs();
-    // TODO: Uncomment when segments are added
-    // io_semaphore_give(&adbms_app_data_lock);
 }
 
 void jobs_run1kHz_tick()
 {
     io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
+}
+
+void jobs_runAdbmsVoltages_tick()
+{
+    array<array<float, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> voltages;
+    app::segments::CellVoltageSuccess                            success;
+
+    spi_bus_lock.take(io::MAX_TIMEOUT);
+    LOG_IF_ERR(app::segments::runVoltageConversion(voltages, success));
+    spi_bus_lock.give();
+
+    adbms_app_lock.take(io::MAX_TIMEOUT);
+    app::segments::broadcastCellVoltages(voltages, success);
+    adbms_app_lock.give();
+}
+
+void jobs_runAdbmsFilteredVoltages_tick()
+{
+    array<array<float, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> voltages;
+    app::segments::CellVoltageSuccess                            success;
+
+    spi_bus_lock.take(io::MAX_TIMEOUT);
+
+    LOG_IF_ERR(io::adbms::wakeup());
+    LOG_INFO("WAKEUP");
+
+    LOG_IF_ERR(app::segments::configSync());
+    LOG_IF_ERR(app::segments::runFilteredVoltageConversion(voltages, success));
+
+    spi_bus_lock.give();
+
+    adbms_app_lock.take(io::MAX_TIMEOUT);
+    app::segments::broadcastFilteredCellVoltages(voltages, success);
+    adbms_app_lock.give();
+}
+
+void jobs_runAdbmsTemperatures_tick()
+{
+    spi_bus_lock.take(io::MAX_TIMEOUT);
+
+    LOG_IF_ERR(io::adbms::wakeup());
+    LOG_IF_ERR(app::segments::configSync());
+    LOG_IF_ERR(app::segments::runAuxConversion());
+
+    spi_bus_lock.give();
+
+    adbms_app_lock.take(io::MAX_TIMEOUT);
+    app::segments::broadcastCellTemps();
+    adbms_app_lock.give();
+}
+
+void jobs_runAdbmsDiagnostics_tick()
+{
+    app::segments::CellOwcOk owc_ok;
+
+    spi_bus_lock.take(io::MAX_TIMEOUT);
+
+    LOG_IF_ERR(io::adbms::wakeup());
+    LOG_INFO("WAKEUP");
+
+    LOG_IF_ERR(app::segments::configSync());
+    LOG_IF_ERR(app::segments::runStatusConversion());
+    LOG_IF_ERR(app::segments::runCellOpenWireCheck(owc_ok));
+
+    spi_bus_lock.give();
+
+    adbms_app_lock.take(io::MAX_TIMEOUT);
+    app::segments::broadcastStatus();
+    app::segments::broadcastCellOpenWireCheck(owc_ok);
+    adbms_app_lock.give();
 }

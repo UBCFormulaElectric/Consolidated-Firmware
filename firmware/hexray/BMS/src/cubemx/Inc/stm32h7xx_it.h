@@ -60,14 +60,15 @@ extern "C"
     void FDCAN1_IT1_IRQHandler(void);
     void FDCAN2_IT1_IRQHandler(void);
     void TIM1_CC_IRQHandler(void);
-    void TIM2_IRQHandler(void);
     void TIM3_IRQHandler(void);
     void SDMMC1_IRQHandler(void);
     void TIM5_IRQHandler(void);
+    void TIM6_DAC_IRQHandler(void);
     void OTG_HS_EP1_OUT_IRQHandler(void);
     void OTG_HS_EP1_IN_IRQHandler(void);
     void OTG_HS_IRQHandler(void);
     void SPI4_IRQHandler(void);
+    void ADC3_IRQHandler(void);
     /* USER CODE BEGIN EFP */
 
     /* USER CODE END EFP */
