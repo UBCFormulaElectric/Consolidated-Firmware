@@ -7,10 +7,16 @@
 #include "io_time.hpp"
 #include "io_telemMessage.hpp"
 #include "io_canQueues.hpp"
+#include "io_log.hpp"
+#include "io_telemRx.hpp"
+#include "app_ntp.hpp"
+#include "app_telemRx.hpp"
 #include "io_canRx.hpp"
 #include "io_telemQueue.hpp"
 #include "hw_hardFaultHandler.hpp"
+#include "hw_mutexGuard.hpp"
 #include "hw_rtosTaskHandler.hpp"
+#include "hw_uarts.hpp"
 #include "hw_cans.hpp"
 #include "hw_watchdog.hpp"
 #include "hw_resetReason.hpp"
@@ -37,6 +43,7 @@
         osDelayUntil(start_ticks);
     }
 }
+
 [[noreturn]] static void tasks_run100Hz(void *arg)
 {
     constexpr uint32_t             period_ms                = 10U;
@@ -81,29 +88,47 @@
 
 [[noreturn]] static void tasks_runLogging(void *arg)
 {
-    osDelayUntil(osWaitForever);
     forever
     {
         jobs_runLogging_tick();
     }
 }
-[[noreturn]] static void tasks_runTelem(void *arg)
+[[noreturn]] static void tasks_runTelemTx(void *arg)
 {
-    // const io::telemMessage::BaseTimeRegMsg base_time_msg(boot_time);
-    // LOG_IF_ERR(_900k_uart.transmitPoll(
-    //     std::span<const uint8_t>{ reinterpret_cast<const uint8_t *>(&base_time_msg), sizeof(base_time_msg) }));
-
     forever
     {
-        jobs_runTelem_tick();
+        const auto result = telem_tx_queue.pop();
+        if (not result)
+        {
+            LOG_ERROR("Failed to pop telem TX message: %d", static_cast<int>(result.error()));
+            continue;
+        }
+
+        const auto &msg = result.value();
+        {
+            hw::MutexGuard g{ _900k_uart_tx_mutex };
+            const auto     tx_result = _900k_uart.transmit(msg.asBytes());
+            if (not tx_result)
+            {
+                LOG_ERROR("Failed to transmit telem message: %d", static_cast<int>(tx_result.error()));
+            }
+        }
     }
 }
 [[noreturn]] static void tasks_runTelemRx(void *arg)
 {
-    osDelayUntil(osWaitForever);
+    constexpr auto                        telemRxChunkSize = 1U;
+    std::array<uint8_t, telemRxChunkSize> scratch{};
     forever
     {
-        jobs_runTelemRx();
+        const auto rx_result = io::telemRx::read(scratch);
+        if (!rx_result)
+        {
+            LOG_ERROR("read() failed with error: %d", static_cast<int>(rx_result.error()));
+            continue;
+        }
+        app::telemRx::ingest(rx_result->bytes, app::ntp::rtcTimeToMs(rx_result->rx_time));
+        app::telemRx::drain();
     }
 }
 
@@ -136,19 +161,22 @@
         const auto msg = can_rx_queue.pop();
         if (not msg)
             continue;
-        io::can_rx::updateRxTableWithMessage(app::jsoncan::copyFromCanMsg(msg.value()));
+        const auto &can_msg = msg.value();
+        (void)telem_tx_queue.push(
+            io::telemMessage::TelemCanMsg(can_msg, static_cast<uint64_t>(io::time::getCurrentMs())));
+        io::can_rx::updateRxTableWithMessage(app::jsoncan::copyFromCanMsg(can_msg));
     }
 }
 
 // Define the task with StaticTask Class
-static hw::rtos::StaticTask<8096> Task100Hz(osPriorityRealtime, "Task100Hz", tasks_run100Hz);
-static hw::rtos::StaticTask<512>  TaskCanTx(osPriorityAboveNormal, "TaskCanTx", tasks_runCanTx);
-static hw::rtos::StaticTask<512>  TaskCanRx(osPriorityHigh, "TaskCanRx", tasks_runCanRx);
-static hw::rtos::StaticTask<512>  Task1kHz(osPriorityBelowNormal, "Task1kHz", tasks_run1kHz);
-static hw::rtos::StaticTask<512>  Task1Hz(osPriorityBelowNormal, "Task1Hz", tasks_run1Hz);
-static hw::rtos::StaticTask<1024> TaskLogging(osPriorityHigh, "TaskLogging", tasks_runLogging);
-static hw::rtos::StaticTask<512>  TaskTelem(osPriorityHigh, "TaskTelem", tasks_runTelem);
-static hw::rtos::StaticTask<512>  TaskTelemRx(osPriorityHigh, "TaskTelemRx", tasks_runTelemRx);
+static hw::rtos::StaticTask<8096>    Task100Hz(osPriorityRealtime, "Task100Hz", tasks_run100Hz);
+static hw::rtos::StaticTask<512>     TaskCanTx(osPriorityAboveNormal, "TaskCanTx", tasks_runCanTx);
+static hw::rtos::StaticTask<512 * 4> TaskCanRx(osPriorityHigh, "TaskCanRx", tasks_runCanRx);
+static hw::rtos::StaticTask<512>     Task1kHz(osPriorityBelowNormal, "Task1kHz", tasks_run1kHz);
+static hw::rtos::StaticTask<512>     Task1Hz(osPriorityBelowNormal, "Task1Hz", tasks_run1Hz);
+static hw::rtos::StaticTask<1024>    TaskLogging(osPriorityHigh, "TaskLogging", tasks_runLogging);
+static hw::rtos::StaticTask<512>     TaskTelemTx(osPriorityHigh, "TaskTelemTx", tasks_runTelemTx);
+static hw::rtos::StaticTask<1024>    TaskTelemRx(osPriorityHigh, "TaskTelemRx", tasks_runTelemRx);
 
 void DAM_StartAllTasks()
 {
@@ -157,9 +185,9 @@ void DAM_StartAllTasks()
     TaskCanRx.start();
     Task1kHz.start();
     Task1Hz.start();
-    // TaskLogging.start();
-    // TaskTelem.start();
-    // TaskTelemRx.start();
+    TaskLogging.start();
+    TaskTelemTx.start();
+    TaskTelemRx.start();
 }
 
 void tasks_preInit()
@@ -181,6 +209,7 @@ void tasks_init()
     }
 
     osKernelInitialize();
+    hw_uarts_init();
     jobs_init();
     DAM_StartAllTasks();
     osKernelStart();
