@@ -59,5 +59,33 @@
                 "enum": "SwitchState"
             }
         }
+    },
+    "Bootup": {
+        "msg_id": 921,
+        "cycle_time": null,
+        "description": "Async bootup message!",
+        "signals": {}
+  },
+    "Debug": {
+      "msg_id": 922,
+      "cycle_time": 1000,
+      "description": "CRIT Debug Signals",
+      "signals": {
+        "TxOverflowCount": {
+          "bits": 16
+        },
+        "RxOverflowCount": {
+          "bits": 16
+        },
+        "ResetReason": {
+          "enum": "CanResetReason"
+        },
+        "StackOverflowTask": {
+          "bits": 32
+        },
+        "WatchdogTimeoutTask": {
+          "bits": 32
+        }
+      }
     }
 }

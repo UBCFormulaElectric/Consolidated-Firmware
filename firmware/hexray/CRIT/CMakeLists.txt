@@ -13,7 +13,7 @@ set(TASKS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.cpp")
 set(SYSTEM_SRCS ${JOBS_SRC} ${TASKS_SRC})
 set(SYSTEM_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src"
-        #        "${CMAKE_CURRENT_SOURCE_DIR}/boot"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot"
 )
 
 file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp")
@@ -45,6 +45,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_watchdog.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_resetReason.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_bootup.cpp"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -57,7 +58,11 @@ set(CHIMERA_INCLUDE_DIRS ${HW_INCLUDE_DIRS} ${IO_INCLUDE_SRCS})
 
 if ("${TARGET}" STREQUAL "binary")
     set(ARM_CORE "cm33")
-    set(LINKER_SCRIPT "${LINKER_DIR}/stm32h562ritx/stm32h562ritx_app_only.ld")
+    if ("${BOOTLOAD}" STREQUAL "ON")
+        set(LINKER_SCRIPT "${LINKER_DIR}/stm32h562ritx/stm32h562ritx_app.ld")
+    else()
+        set(LINKER_SCRIPT "${LINKER_DIR}/stm32h562ritx/stm32h562ritx_app_only.ld")
+    endif()
     set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
 
@@ -117,6 +122,30 @@ if ("${TARGET}" STREQUAL "binary")
     add_chimera_stm32h5("hexray_CRIT_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}" "hexray_chimera_v2_proto_cm33")
     target_link_libraries("hexray_CRIT_chimera.elf" PRIVATE "hexray_CRIT_stm32" "hexray_CRIT_jsoncan")
     target_compile_definitions("hexray_CRIT_chimera.elf" PRIVATE "HAL_SPI_MODULE_ENABLED")
+
+    if ("${BOOTLOAD}" STREQUAL "ON")
+        add_compile_definitions(BOOTLOAD)
+        file(GLOB BOOT_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.cpp")
+        file(GLOB BOOT_CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
+        set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
+        no_checks("${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/syscalls.c")
+        stm32h5_boot_binary(
+                "hexray_CRIT_boot"
+                "${BOOT_SRCS}"
+                "${BOOT_CUBEMX_SRCS}"
+                "${BOOT_INCLUDE_DIRS}"
+                "hexray_CRIT"
+                "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/CRIT_boot.ioc"
+        )
+        target_link_libraries("hexray_CRIT_boot.elf" PRIVATE "hexray_CRIT_commit_info")
+        embedded_image(
+                "hexray_CRIT"
+                "hexray_CRIT_app.hex"
+                "${CMAKE_CURRENT_BINARY_DIR}/hexray_CRIT_app.hex"
+                "hexray_CRIT_boot.hex"
+                "${CMAKE_CURRENT_BINARY_DIR}/hexray_CRIT_boot.hex"
+        )
+    endif()
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(FAKE_SRCS
