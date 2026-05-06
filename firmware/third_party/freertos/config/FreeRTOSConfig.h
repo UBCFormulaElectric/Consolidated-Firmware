@@ -20,8 +20,15 @@
 
 #ifdef PROFILING_ENABLED
 // tracing shit
-void          configureTimerForRunTimeStats();
-unsigned long getRunTimeCounterValue();
+#if __cplusplus
+extern "C"
+{
+#endif
+    void          configureTimerForRunTimeStats();
+    unsigned long getRunTimeCounterValue();
+#if __cplusplus
+}
+#endif
 #define configUSE_TRACE_FACILITY 1
 #define configGENERATE_RUN_TIME_STATS 1
 #define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS configureTimerForRunTimeStats

@@ -20,15 +20,12 @@ void hw_runTimeStat_inc()
     ulHighFrequencyTimerTick++;
 }
 
-extern "C"
+void configureTimerForRunTimeStats()
 {
-    inline void configureTimerForRunTimeStats()
-    {
-        assert(runTimeCounter.has_value());
-        HAL_TIM_Base_Start_IT(&runTimeCounter.value().get());
-    }
-    inline unsigned long getRunTimeCounterValue()
-    {
-        return ulHighFrequencyTimerTick;
-    }
+    assert(runTimeCounter.has_value());
+    HAL_TIM_Base_Start_IT(&runTimeCounter.value().get());
+}
+unsigned long getRunTimeCounterValue()
+{
+    return ulHighFrequencyTimerTick;
 }

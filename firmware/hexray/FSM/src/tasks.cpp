@@ -189,6 +189,8 @@ void tasks_preInit()
     SEGGER_SYSVIEW_Conf();
     hw::can::fdcan1.init();
     adcChipsInit();
+
+    hw::runtimeStat::init(htim7);
     if (const ResetReason reason = hw::resetReason::get(); reason == RESET_REASON_WATCHDOG)
     {
         LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
