@@ -155,6 +155,7 @@ void SystemClock_Config(void)
     {
         Error_Handler();
     }
+    HAL_RCC_ConfigAttributes(RCC_ALL, RCC_NSEC_PRIV);
 
     /** Configure the programming delay
      */
