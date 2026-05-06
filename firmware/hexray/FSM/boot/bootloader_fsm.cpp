@@ -45,23 +45,34 @@ CFUNC void bootloader_preInit(void)
     bootloader::preInit();
 }
 
-static hw::rtos::StaticTask<1024> TaskRunInterface(
+static hw::rtos::StaticTask::StaticTaskStack<1024> stackRunInterface;
+static hw::rtos::StaticTask::StaticTaskStack<1024> stackRunTickTask;
+static hw::rtos::StaticTask::StaticTaskStack<1024> stackRunCanTx;
+
+static hw::rtos::StaticTask TaskRunInterface(
     osPriorityRealtime,
     "TaskRunInterface",
-    [](void *) { bootloader::runInterfaceTask(fsm_boot_config); });
-static hw::rtos::StaticTask<1024>
-    TaskRunTickTask(osPriorityRealtime, "TaskRunTickTask", [](void *) { bootloader::runTickTask(fsm_boot_config); });
-static hw::rtos::StaticTask<1024>
-    TaskRunCanTx(osPriorityRealtime, "TaskRunCanTx", [](void *) { bootloader::runCanTxTask(fsm_boot_config); });
+    [](void *) { bootloader::runInterfaceTask(fsm_boot_config); },
+    stackRunInterface);
+static hw::rtos::StaticTask TaskRunTickTask(
+    osPriorityRealtime,
+    "TaskRunTickTask",
+    [](void *) { bootloader::runTickTask(fsm_boot_config); },
+    stackRunTickTask);
+static hw::rtos::StaticTask TaskRunCanTx(
+    osPriorityRealtime,
+    "TaskRunCanTx",
+    [](void *) { bootloader::runCanTxTask(fsm_boot_config); },
+    stackRunCanTx);
 
 [[noreturn]] void bootloader_init()
 {
     HAL_GPIO_WritePin(BOOT_LED_GPIO_Port, BOOT_LED_Pin, GPIO_PIN_SET);
     bootloader::init(fsm_boot_config);
     osKernelInitialize();
-    TaskRunInterface.start();
-    TaskRunTickTask.start();
-    TaskRunCanTx.start();
+    UNUSED(TaskRunInterface.start());
+    UNUSED(TaskRunTickTask.start());
+    UNUSED(TaskRunCanTx.start());
     osKernelStart();
     forever {}
 }

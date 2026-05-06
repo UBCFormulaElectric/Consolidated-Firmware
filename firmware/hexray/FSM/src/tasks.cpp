@@ -1,6 +1,6 @@
 #include "tasks.h"
-#include "hw_adcs.hpp"
 #include "jobs.hpp"
+#include "main.h"
 
 #include "app_jsoncan.hpp"
 #include "app_canTx.hpp"
@@ -16,10 +16,63 @@
 #include "hw_cans.hpp"
 #include "hw_watchdog.hpp"
 #include "hw_resetReason.hpp"
-#include "app_canAlerts.hpp"
-#include "main.h"
+#include "hw_adcs.hpp"
+#include "hw_runTimeStat.hpp"
 
-[[noreturn]] static void tasks_run1Hz(void *arg)
+[[noreturn]] static void tasks_run1Hz(void *arg);
+[[noreturn]] static void tasks_run100Hz(void *arg);
+[[noreturn]] static void tasks_run1kHz(void *arg);
+[[noreturn]] static void tasks_runCanTx(void *arg);
+[[noreturn]] static void tasks_runCanRx(void *arg);
+
+// Define the task with StaticTask template class
+static hw::rtos::StaticTask::StaticTaskStack<512> Task1kHzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512> Task100HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512> Task1HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512> TaskCanTxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512> TaskCanRxStack;
+
+static hw::rtos::StaticTask Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz, Task1kHzStack);
+static hw::rtos::StaticTask Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz, Task100HzStack);
+static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
+static hw::rtos::StaticTask TaskCanTx(osPriorityNormal, "TaskCanTx", tasks_runCanTx, TaskCanTxStack);
+static hw::rtos::StaticTask TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
+
+static const hw::runtimeStat::monitor<5> task_monitor{
+    { app::can_tx::FSM_CoreCpuUsage_set, app::can_tx::FSM_CoreCpuUsageMax_set },
+    { { {
+            Task1kHz,
+            app::can_tx::FSM_TaskRun1kHzCpuUsage_set,
+            app::can_tx::FSM_TaskRun1kHzCpuUsageMax_set,
+            app::can_tx::FSM_TaskRun1kHzStackUsage_set,
+        },
+        {
+            Task100Hz,
+            app::can_tx::FSM_TaskRun100HzCpuUsage_set,
+            app::can_tx::FSM_TaskRun100HzCpuUsageMax_set,
+            app::can_tx::FSM_TaskRun100HzStackUsage_set,
+        },
+        {
+            Task1Hz,
+            app::can_tx::FSM_TaskRun1HzCpuUsage_set,
+            app::can_tx::FSM_TaskRun1HzCpuUsageMax_set,
+            app::can_tx::FSM_TaskRun1HzStackUsage_set,
+        },
+        {
+            TaskCanTx,
+            app::can_tx::FSM_TaskRunCanTxCpuUsage_set,
+            app::can_tx::FSM_TaskRunCanTxCpuUsageMax_set,
+            app::can_tx::FSM_TaskRunCanTxStackUsage_set,
+        },
+        {
+            TaskCanRx,
+            app::can_tx::FSM_TaskRunCanRxCpuUsage_set,
+            app::can_tx::FSM_TaskRunCanRxCpuUsageMax_set,
+            app::can_tx::FSM_TaskRunCanRxStackUsage_set,
+        } } },
+};
+
+void tasks_run1Hz(void *arg)
 {
     constexpr uint32_t             period_ms                = 1000U;
     constexpr uint32_t             watchdog_grace_period_ms = 50U;
@@ -33,13 +86,14 @@
         jobs_run1Hz_tick();
 
         watchdog1hz.checkIn();
+        task_monitor.checkin();
 
         start_ticks += period_ms;
         io::time::delayUntil(start_ticks);
         osDelayUntil(start_ticks);
     }
 }
-[[noreturn]] static void tasks_run100Hz(void *arg)
+void tasks_run100Hz(void *arg)
 {
     constexpr uint32_t             period_ms                = 10U;
     constexpr uint32_t             watchdog_grace_period_ms = 2U;
@@ -59,7 +113,7 @@
         osDelayUntil(start_ticks);
     }
 }
-[[noreturn]] static void tasks_run1kHz(void *arg)
+void tasks_run1kHz(void *arg)
 {
     constexpr uint32_t             period_ms                = 1U;
     constexpr uint32_t             watchdog_grace_period_ms = 1U;
@@ -72,14 +126,16 @@
     {
         jobs_run1kHz_tick();
 
-        monitor1khz.checkForTimeouts();
         watchdog1khz.checkIn();
+#ifndef WATCHDOG_DISABLED
+        monitor1khz.checkForTimeouts();
+#endif
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
 }
-[[noreturn]] static void tasks_runCanTx(void *arg)
+void tasks_runCanTx(void *arg)
 {
     forever
     {
@@ -101,7 +157,7 @@
         }
     }
 }
-[[noreturn]] static void tasks_runCanRx(void *arg)
+void tasks_runCanRx(void *arg)
 {
     forever
     {
@@ -112,21 +168,13 @@
     }
 }
 
-// Define the task with StaticTask template class
-static hw::rtos::StaticTask<512> Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz);
-static hw::rtos::StaticTask<512> Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz);
-static hw::rtos::StaticTask<512> Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz);
-static hw::rtos::StaticTask<512> TaskCanTx(osPriorityNormal, "TaskCanTx", tasks_runCanTx);
-static hw::rtos::StaticTask<512> TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_runCanRx);
-
-// CFUNC void FSM_StartAllTasks(void)
 static void FSM_StartAllTasks()
 {
-    Task1kHz.start();
-    Task100Hz.start();
-    Task1Hz.start();
-    TaskCanTx.start();
-    TaskCanRx.start();
+    UNUSED(Task1kHz.start());
+    UNUSED(Task100Hz.start());
+    UNUSED(Task1Hz.start());
+    UNUSED(TaskCanTx.start());
+    UNUSED(TaskCanRx.start());
 }
 
 void tasks_preInit()
@@ -141,8 +189,9 @@ void tasks_preInit()
     SEGGER_SYSVIEW_Conf();
     hw::can::fdcan1.init();
     adcChipsInit();
-    ResetReason reason = hw::resetReason::get();
-    if (reason == RESET_REASON_WATCHDOG)
+
+    hw::runtimeStat::init(htim7);
+    if (const ResetReason reason = hw::resetReason::get(); reason == RESET_REASON_WATCHDOG)
     {
         LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
         app::can_alerts::infos::WatchdogTimeout_set(true);

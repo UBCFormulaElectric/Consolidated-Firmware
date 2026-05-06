@@ -52,6 +52,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_watchdog.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_resetReason.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_bootup.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_runTimeStat.cpp"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -120,7 +121,8 @@ if ("${TARGET}" STREQUAL "binary")
 
     target_link_libraries("hexray_FSM_app.elf" PRIVATE "hexray_FSM_stm32" "hexray_FSM_commit_info"
             "hexray_FSM_jsoncan" "m")
-    target_compile_definitions("hexray_FSM_app.elf" PRIVATE FSM)
+    target_compile_definitions("hexray_FSM_app.elf" PRIVATE FSM PROFILING_ENABLED)
+    target_compile_definitions("hexray_FSM_stm32" PRIVATE PROFILING_ENABLED)
 
     add_chimera_stm32h5("hexray_FSM_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}" "hexray_chimera_v2_proto_cm33")
     target_link_libraries("hexray_FSM_chimera.elf" PRIVATE "hexray_FSM_stm32")
@@ -147,7 +149,7 @@ if ("${TARGET}" STREQUAL "binary")
                 "hexray_FSM_boot.hex"
                 "${CMAKE_CURRENT_BINARY_DIR}/hexray_FSM_boot.hex"
         )
-    endif()
+    endif ()
 
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")

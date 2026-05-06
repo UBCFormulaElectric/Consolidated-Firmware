@@ -21,6 +21,8 @@
 #include "hw_resetReason.hpp"
 #include "app_canAlerts.hpp"
 
+#include "hw_runTimeStat.hpp"
+
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
     constexpr uint32_t             period_ms                = 1000U;
@@ -131,21 +133,28 @@
 }
 
 // Define the task with StaticTask Class
-static hw::rtos::StaticTask<8096> Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz);
-static hw::rtos::StaticTask<512>  Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz);
-static hw::rtos::StaticTask<512>  Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz);
-static hw::rtos::StaticTask<512>  TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_runCanRx);
-static hw::rtos::StaticTask<512>  TaskCan1Tx(osPriorityNormal, "TaskCanTx", tasks_runCan1Tx);
-static hw::rtos::StaticTask<512>  TaskCan2Tx(osPriorityNormal, "TaskCanTx", tasks_runCan2Tx);
+static hw::rtos::StaticTask::StaticTaskStack<8096> Task100HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  Task1kHzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  Task1HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCanRxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCan1TxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCan2TxStack;
+
+static hw::rtos::StaticTask Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz, Task100HzStack);
+static hw::rtos::StaticTask Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz, Task1kHzStack);
+static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
+static hw::rtos::StaticTask TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
+static hw::rtos::StaticTask TaskCan1Tx(osPriorityNormal, "TaskCanTx", tasks_runCan1Tx, TaskCan1TxStack);
+static hw::rtos::StaticTask TaskCan2Tx(osPriorityNormal, "TaskCanTx", tasks_runCan2Tx, TaskCan2TxStack);
 
 static void VC_StartAllTasks()
 {
-    Task100Hz.start();
-    Task1kHz.start();
-    Task1Hz.start();
-    TaskCanRx.start();
-    TaskCan1Tx.start();
-    TaskCan2Tx.start();
+    UNUSED(Task100Hz.start());
+    UNUSED(Task1kHz.start());
+    UNUSED(Task1Hz.start());
+    UNUSED(TaskCanRx.start());
+    UNUSED(TaskCan1Tx.start());
+    UNUSED(TaskCan2Tx.start());
 }
 
 void tasks_preInit()

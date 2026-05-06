@@ -49,6 +49,7 @@ extern "C"
     extern FDCAN_HandleTypeDef hfdcan1;
     extern SPI_HandleTypeDef   hspi1;
     extern TIM_HandleTypeDef   htim2;
+    extern TIM_HandleTypeDef   htim7;
     extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
     extern IWDG_HandleTypeDef  hiwdg;
     /* USER CODE END EC */

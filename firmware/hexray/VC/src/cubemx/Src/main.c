@@ -57,6 +57,7 @@ SPI_HandleTypeDef hspi1;
 SPI_HandleTypeDef hspi2;
 
 TIM_HandleTypeDef htim3;
+TIM_HandleTypeDef htim7;
 
 UART_HandleTypeDef huart8;
 
@@ -82,6 +83,7 @@ static void MX_I2C5_Init(void);
 static void MX_UART8_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_IWDG1_Init(void);
+static void MX_TIM7_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -134,6 +136,7 @@ int main(void)
     MX_UART8_Init();
     MX_TIM3_Init();
     MX_IWDG1_Init();
+    MX_TIM7_Init();
     /* USER CODE BEGIN 2 */
     HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
     ;
@@ -803,6 +806,42 @@ static void MX_TIM3_Init(void)
     /* USER CODE BEGIN TIM3_Init 2 */
 
     /* USER CODE END TIM3_Init 2 */
+}
+
+/**
+ * @brief TIM7 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_TIM7_Init(void)
+{
+    /* USER CODE BEGIN TIM7_Init 0 */
+
+    /* USER CODE END TIM7_Init 0 */
+
+    TIM_MasterConfigTypeDef sMasterConfig = { 0 };
+
+    /* USER CODE BEGIN TIM7_Init 1 */
+
+    /* USER CODE END TIM7_Init 1 */
+    htim7.Instance               = TIM7;
+    htim7.Init.Prescaler         = 10 - 1;
+    htim7.Init.CounterMode       = TIM_COUNTERMODE_UP;
+    htim7.Init.Period            = 960 - 1;
+    htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+    sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim7, &sMasterConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN TIM7_Init 2 */
+
+    /* USER CODE END TIM7_Init 2 */
 }
 
 /**

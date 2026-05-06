@@ -174,6 +174,12 @@ extern "C"
         struct source_location location;
     };
 
+    struct invalid_builtin_data
+    {
+        struct source_location location;
+        unsigned char          kind;
+    };
+
 #ifdef __cplusplus
 }
 #endif

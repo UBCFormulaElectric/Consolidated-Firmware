@@ -114,19 +114,25 @@
 }
 
 // Define the task with StaticTask Template Class
-static hw::rtos::StaticTask<512> Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz);
-static hw::rtos::StaticTask<512> Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz);
-static hw::rtos::StaticTask<512> Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz);
-static hw::rtos::StaticTask<512> TaskCanTx(osPriorityNormal, "TaskCanTx", tasks_runCanTx);
-static hw::rtos::StaticTask<512> TaskCanRx(osPriorityLow, "TaskCanRx", tasks_runCanRx);
+static hw::rtos::StaticTask::StaticTaskStack<512> Task1kHzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512> Task100HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512> Task1HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512> TaskCanTxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512> TaskCanRxStack;
+
+static hw::rtos::StaticTask Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz, Task1kHzStack);
+static hw::rtos::StaticTask Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz, Task100HzStack);
+static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
+static hw::rtos::StaticTask TaskCanTx(osPriorityNormal, "TaskCanTx", tasks_runCanTx, TaskCanTxStack);
+static hw::rtos::StaticTask TaskCanRx(osPriorityLow, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
 
 static void RSM_StartAllTasks()
 {
-    Task1kHz.start();
-    Task100Hz.start();
-    TaskCanTx.start();
-    TaskCanRx.start();
-    Task1Hz.start();
+    UNUSED(Task1kHz.start());
+    UNUSED(Task100Hz.start());
+    UNUSED(TaskCanTx.start());
+    UNUSED(TaskCanRx.start());
+    UNUSED(Task1Hz.start());
 }
 
 void tasks_preInit()
