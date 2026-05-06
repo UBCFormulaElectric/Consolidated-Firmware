@@ -2,11 +2,13 @@ use std::{collections::HashMap, mem, time::{Duration, SystemTime}};
 
 use axum::{Json, Router, extract::{Path, Query, State}, http::StatusCode, response::IntoResponse, routing::get};
 use jsoncan_rust::can_database::CanMessage;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use regex::Regex;
+use serde_json::from_str;
 use tokio::{select, time::sleep};
 
-use crate::{config::CONFIG, dprintln, tasks::client_api::{AppState, signal_tile::{SignalRow, get_signals}}, utils::{rfc3339_to_utc, rfc3339_to_utc_str}};
+use crate::{config::CONFIG, dprintln, tasks::{can_data::influx_util::InfluxSignalSource, client_api::{AppState, signal_tile::{InfluxSignalRow, get_signals}}}, utils::{rfc3339_to_utc, rfc3339_to_utc_str}};
+use crate::tasks::client_api::INFLUX_QUERY_TIMEOUT_MS;
 
 /**
  * Gets the list of all nodes (str) in the current parser.
@@ -17,11 +19,6 @@ async fn nodes(State(state): State<AppState>) -> impl IntoResponse {
         .collect::<Vec<_>>();
 
     return (StatusCode::OK, Json(nodes));
-}
-
-#[derive(Debug, Deserialize)]
-struct SignalNameParam {
-    name: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -48,8 +45,8 @@ struct SignalMetadataEnumSignal {
  * Pass signal names (regex) in `name` parameter.
  * E.g. `/signal/metadata?name=INVFR_bError`
  */
-async fn metadata(Query(mut param): Query<SignalNameParam>, State(state): State<AppState>) -> impl IntoResponse {
-    let regex = match Regex::new(param.name.get_or_insert(".*".to_string())) {
+async fn metadata(Query((mut name,)): Query<(Option<String>,)>, State(state): State<AppState>) -> impl IntoResponse {
+    let regex = match Regex::new(name.get_or_insert(".*".to_string())) {
         Ok(regex) => regex,
         Err(_) => {
             return (StatusCode::BAD_REQUEST, Json::default());
@@ -104,7 +101,11 @@ async fn metadata(Query(mut param): Query<SignalNameParam>, State(state): State<
  * E.g. `/signal/{start}/{end}/{res}?name=BMS_TractiveSystemVoltage`
  */
 #[deprecated(note = "Use signal_tiles instead")]
- async fn signal_time_range(Path((start, end, res)): Path<(String, String, String)>, Query(param): Query<SignalNameParam>, State(state): State<AppState>) -> impl IntoResponse {
+ async fn signal_time_range(
+    Path((start, end, res)): Path<(String, String, String)>, 
+    Query((name,)): Query<(Option<String>,)>, 
+    State(state): State<AppState>
+) -> impl IntoResponse {
     // check RFC3339 format
     let (start_utc, end_utc) = 
         if let (Some(s), Some(e)) = 
@@ -125,9 +126,10 @@ async fn metadata(Query(mut param): Query<SignalNameParam>, State(state): State<
     |> range(start: {start_utc}, stop: {end_utc})
     |> aggregateWindow(every: {res}, fn: mean, createEmpty: false)
     |> filter(fn: (r) => r["_measurement"] == "{}")
-    "#, &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement_radio);
+    |> filter(fn: (r) => r["source"] == "radio")
+    "#, &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement);
     
-    if let Some(signal) = param.name {
+    if let Some(signal) = name {
         let _ = match Regex::new(&signal) {
             Ok(_) => {},
             Err(_) => {
@@ -141,10 +143,10 @@ async fn metadata(Query(mut param): Query<SignalNameParam>, State(state): State<
     }
 
     let req: Result<Vec<_>, influxdb2::RequestError> = select! {
-        val = state.influx_client.query::<SignalRow>(
+        val = state.influx_client.query::<InfluxSignalRow>(
             Some(influxdb2::models::Query::new(date_query))
         ) => val,
-        _ = sleep(Duration::from_secs(3)) => {
+        _ = sleep(Duration::from_millis(INFLUX_QUERY_TIMEOUT_MS)) => {
             return (StatusCode::REQUEST_TIMEOUT, "InfluxDB query timed out, try smaller query!".to_string());
         }
     };
@@ -164,9 +166,11 @@ async fn metadata(Query(mut param): Query<SignalNameParam>, State(state): State<
  * Gets signal values, timestamp, and name.
  * Format date as RFC3339 (i.e. YYYY-MM-DDTHH:mm:ssZ or YYYY-MM-DDTHH:mm:ss[+-]OO:oo)
  * E.g. `/signal/tiles/BMS_TractiveSystemVoltage/2026-04-02T00:00:00Z/2026-04-02T01:00:00Z`
+ * By default, fetches from radio source, but specify source in query parameter (e.g. `?source=sd_card`) to fetch from sd card source or `radio` source explicitly
  */
 async fn signal_tiles(
     Path((signal, start, end)): Path<(String, String, String)>, 
+    Query((source,)): Query<(Option<String>,)>,
     State(state): State<AppState>
 ) -> impl IntoResponse {
     // todo optionally check if signal name is valid
@@ -180,8 +184,18 @@ async fn signal_tiles(
             return (StatusCode::BAD_REQUEST, "Bad date format, should be RFC3339 format".to_string());
         };
     
+    let source_enum = match source {
+        Some(s) => {
+            if let Ok(e) = from_str(&s) {
+                e
+            } else {
+                return (StatusCode::BAD_REQUEST, "Bad source!".to_string());
+            }
+        }
+        _ => InfluxSignalSource::Radio,
+    };
     
-    match get_signals(state.influx_client, state.signal_tile_cache.clone(), signal, start_utc, end_utc).await {
+    match get_signals(state.influx_client, source_enum, state.signal_tile_cache.clone(), signal, start_utc, end_utc).await {
         Ok(res) => {
             dprintln!("Querying signals took {}ms", start_time.elapsed().unwrap().as_millis());
             let total_size: usize = state.signal_tile_cache.iter().map(|(key, value)| {

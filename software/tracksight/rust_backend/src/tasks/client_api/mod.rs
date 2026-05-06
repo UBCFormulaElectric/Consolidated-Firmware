@@ -21,3 +21,5 @@ pub struct AppState {
 
     pub signal_tile_cache: SignalTileCache,
 }
+
+pub const INFLUX_QUERY_TIMEOUT_MS: u64 = 5000;

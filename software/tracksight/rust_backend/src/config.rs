@@ -14,8 +14,7 @@ pub struct Config {
     pub influxdb_org: String,
     pub influxdb_token: String,
     pub influxdb_bucket: String,
-    pub influxdb_measurement_radio: String,
-    pub influxdb_measurement_sd: String,
+    pub influxdb_measurement: String,
     pub jsoncan_config_path: String,
     pub backend_port: u16,
     pub mdns_local_ip: String,
@@ -59,8 +58,7 @@ fn load_env_file() -> Config {
 
     let car_name: String = get_var::<String>("CAR_NAME").unwrap();
 
-    let influxdb_measurement_radio: String = format!("{car_name}_radio");
-    let influxdb_measurement_sd: String = format!("{car_name}_sd");
+    let influxdb_measurement: String = format!("{car_name}_radio");
 
     // i love hardcoding
     let jsoncan_config_path: String = if docker {
@@ -104,8 +102,7 @@ fn load_env_file() -> Config {
         influxdb_org: influxdb_org,
         influxdb_token: influxdb_token,
         influxdb_bucket: influxdb_bucket,
-        influxdb_measurement_radio: influxdb_measurement_radio,
-        influxdb_measurement_sd: influxdb_measurement_sd,
+        influxdb_measurement: influxdb_measurement,
         jsoncan_config_path: jsoncan_config_path,
         backend_port: backend_port,
         mdns_local_ip: mdns_local_ip
