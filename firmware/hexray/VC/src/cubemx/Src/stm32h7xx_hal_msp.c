@@ -396,6 +396,48 @@ void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef *hfdcan)
 }
 
 /**
+ * @brief FMAC MSP Initialization
+ * This function configures the hardware resources used in this example
+ * @param hfmac: FMAC handle pointer
+ * @retval None
+ */
+void HAL_FMAC_MspInit(FMAC_HandleTypeDef *hfmac)
+{
+    if (hfmac->Instance == FMAC)
+    {
+        /* USER CODE BEGIN FMAC_MspInit 0 */
+
+        /* USER CODE END FMAC_MspInit 0 */
+        /* Peripheral clock enable */
+        __HAL_RCC_FMAC_CLK_ENABLE();
+        /* USER CODE BEGIN FMAC_MspInit 1 */
+
+        /* USER CODE END FMAC_MspInit 1 */
+    }
+}
+
+/**
+ * @brief FMAC MSP De-Initialization
+ * This function freeze the hardware resources used in this example
+ * @param hfmac: FMAC handle pointer
+ * @retval None
+ */
+void HAL_FMAC_MspDeInit(FMAC_HandleTypeDef *hfmac)
+{
+    if (hfmac->Instance == FMAC)
+    {
+        /* USER CODE BEGIN FMAC_MspDeInit 0 */
+
+        /* USER CODE END FMAC_MspDeInit 0 */
+        /* Peripheral clock disable */
+        __HAL_RCC_FMAC_CLK_DISABLE();
+        /* USER CODE BEGIN FMAC_MspDeInit 1 */
+
+        /* USER CODE END FMAC_MspDeInit 1 */
+    }
+}
+
+/**
  * @brief I2C MSP Initialization
  * This function configures the hardware resources used in this example
  * @param hi2c: I2C handle pointer
@@ -553,6 +595,9 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
         GPIO_InitStruct.Alternate = GPIO_AF5_SPI1;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+        /* SPI1 interrupt Init */
+        HAL_NVIC_SetPriority(SPI1_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(SPI1_IRQn);
         /* USER CODE BEGIN SPI1_MspInit 1 */
 
         /* USER CODE END SPI1_MspInit 1 */
@@ -607,6 +652,8 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
         */
         HAL_GPIO_DeInit(GPIOA, IMU_SPC_Pin | IMU_MISO_Pin | IMU_MOSI_Pin);
 
+        /* SPI1 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(SPI1_IRQn);
         /* USER CODE BEGIN SPI1_MspDeInit 1 */
 
         /* USER CODE END SPI1_MspDeInit 1 */

@@ -59,6 +59,7 @@
 extern ADC_HandleTypeDef   hadc1;
 extern ADC_HandleTypeDef   hadc2;
 extern FDCAN_HandleTypeDef hfdcan1;
+extern SPI_HandleTypeDef   hspi1;
 extern PCD_HandleTypeDef   hpcd_USB_OTG_HS;
 extern TIM_HandleTypeDef   htim6;
 
@@ -205,6 +206,20 @@ void FDCAN1_IT1_IRQHandler(void)
     /* USER CODE BEGIN FDCAN1_IT1_IRQn 1 */
 
     /* USER CODE END FDCAN1_IT1_IRQn 1 */
+}
+
+/**
+ * @brief This function handles SPI1 global interrupt.
+ */
+void SPI1_IRQHandler(void)
+{
+    /* USER CODE BEGIN SPI1_IRQn 0 */
+
+    /* USER CODE END SPI1_IRQn 0 */
+    HAL_SPI_IRQHandler(&hspi1);
+    /* USER CODE BEGIN SPI1_IRQn 1 */
+
+    /* USER CODE END SPI1_IRQn 1 */
 }
 
 /**

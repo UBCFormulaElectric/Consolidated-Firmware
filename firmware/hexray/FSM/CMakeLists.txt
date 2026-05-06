@@ -49,6 +49,7 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmOutput.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_fmac.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_watchdog.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_resetReason.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_bootup.cpp"
@@ -96,6 +97,7 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h5xx_hal_tim.c"
             "stm32h5xx_hal_tim_ex.c"
             "stm32h5xx_ll_usb.c"
+            "stm32h5xx_hal_fmac.c"
             "stm32h5xx_hal_iwdg.c"
     )
     stm32h562xx_cube_library(
@@ -155,6 +157,7 @@ elseif ("${TARGET}" STREQUAL "test")
             #"${SHARED_FAKES_DIR}/io_imuQuintuna.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_imu.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
+            "${SHARED_FAKES_DIR_CPP}/hw_fmac.cpp"
     )
     set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
     set(INCLUDE_DIRS
@@ -162,6 +165,7 @@ elseif ("${TARGET}" STREQUAL "test")
             ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS}
             ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP}
             ${SHARED_UTIL_INCLUDE_DIR} ${SHARED_FAKES_DIR} ${SHARED_FAKES_DIR_CPP}
+            ${SHARED_HW_INCLUDE_DIR_CPP}
     )
     compile_gtest_executable(
             "hexray_FSM_test"

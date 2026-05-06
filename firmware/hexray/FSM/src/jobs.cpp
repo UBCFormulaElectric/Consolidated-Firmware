@@ -2,6 +2,7 @@
 
 #include "app_apps.hpp"
 #include "app_brake.hpp"
+#include "app_fmacTest.hpp"
 #include "app_imu.hpp"
 #include "app_jsoncan.hpp"
 #include "app_steering.hpp"
@@ -28,7 +29,9 @@ void jobs_init()
         });
 
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
+
     app::imu::init();
+    app::fmac_test::init();
 
     app::can_tx::FSM_Heartbeat_set(true);
 }
@@ -43,6 +46,7 @@ void jobs_run1Hz_tick()
 }
 void jobs_run100Hz_tick()
 {
+    app::fmac_test::broadcast();
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
 

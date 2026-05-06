@@ -5,7 +5,7 @@
 
 enum class ErrorCode
 {
-    INVALID_ARGS = 0,
+    INVALID_ARGS,
     OUT_OF_RANGE,
     TIMEOUT,
     ERROR,

@@ -48,6 +48,8 @@ ADC_HandleTypeDef hadc2;
 FDCAN_HandleTypeDef hfdcan1;
 FDCAN_HandleTypeDef hfdcan3;
 
+FMAC_HandleTypeDef hfmac;
+
 I2C_HandleTypeDef hi2c4;
 I2C_HandleTypeDef hi2c5;
 
@@ -81,6 +83,7 @@ static void MX_SPI2_Init(void);
 static void MX_I2C5_Init(void);
 static void MX_UART8_Init(void);
 static void MX_TIM3_Init(void);
+static void MX_FMAC_Init(void);
 static void MX_IWDG1_Init(void);
 /* USER CODE BEGIN PFP */
 
@@ -133,6 +136,7 @@ int main(void)
     MX_I2C5_Init();
     MX_UART8_Init();
     MX_TIM3_Init();
+    MX_FMAC_Init();
     MX_IWDG1_Init();
     /* USER CODE BEGIN 2 */
     HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
@@ -226,7 +230,7 @@ void PeriphCommonClock_Config(void)
         RCC_PERIPHCLK_ADC | RCC_PERIPHCLK_SPI2 | RCC_PERIPHCLK_SPI1 | RCC_PERIPHCLK_FDCAN;
     PeriphClkInitStruct.PLL2.PLL2M           = 1;
     PeriphClkInitStruct.PLL2.PLL2N           = 24;
-    PeriphClkInitStruct.PLL2.PLL2P           = 2;
+    PeriphClkInitStruct.PLL2.PLL2P           = 24;
     PeriphClkInitStruct.PLL2.PLL2Q           = 2;
     PeriphClkInitStruct.PLL2.PLL2R           = 2;
     PeriphClkInitStruct.PLL2.PLL2RGE         = RCC_PLL2VCIRANGE_3;
@@ -550,6 +554,30 @@ static void MX_FDCAN3_Init(void)
 }
 
 /**
+ * @brief FMAC Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_FMAC_Init(void)
+{
+    /* USER CODE BEGIN FMAC_Init 0 */
+
+    /* USER CODE END FMAC_Init 0 */
+
+    /* USER CODE BEGIN FMAC_Init 1 */
+
+    /* USER CODE END FMAC_Init 1 */
+    hfmac.Instance = FMAC;
+    if (HAL_FMAC_Init(&hfmac) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN FMAC_Init 2 */
+
+    /* USER CODE END FMAC_Init 2 */
+}
+
+/**
  * @brief I2C4 Initialization Function
  * @param None
  * @retval None
@@ -686,7 +714,7 @@ static void MX_SPI1_Init(void)
     hspi1.Instance                        = SPI1;
     hspi1.Init.Mode                       = SPI_MODE_MASTER;
     hspi1.Init.Direction                  = SPI_DIRECTION_2LINES;
-    hspi1.Init.DataSize                   = SPI_DATASIZE_4BIT;
+    hspi1.Init.DataSize                   = SPI_DATASIZE_8BIT;
     hspi1.Init.CLKPolarity                = SPI_POLARITY_LOW;
     hspi1.Init.CLKPhase                   = SPI_PHASE_1EDGE;
     hspi1.Init.NSS                        = SPI_NSS_SOFT;
