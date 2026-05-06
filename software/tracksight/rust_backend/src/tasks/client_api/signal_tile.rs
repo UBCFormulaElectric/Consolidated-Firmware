@@ -138,7 +138,7 @@ pub async fn get_signals(
         |> aggregateWindow(every: {resolution_ms}ms, fn: mean, createEmpty: false)
         |> filter(fn: (r) => r["_measurement"] == "{}")
         |> filter(fn: (r) => r["signal_name"] == "{signal}")"#
-        , &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement)
+        , &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement_radio)
     };
     
     // track current time in ms to prevent caching currently written tiles
@@ -172,7 +172,7 @@ pub async fn get_signals(
                     Some(SignalRow {
                         time: time_utc?.into(),
                         value: point.value,
-                        measurement: CONFIG.influxdb_measurement.clone(),
+                        measurement: CONFIG.influxdb_measurement_radio.clone(),
                         signal_name: signal.clone(),
                     })
                 }).collect::<Vec<SignalRow>>();

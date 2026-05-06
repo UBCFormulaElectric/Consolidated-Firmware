@@ -94,25 +94,80 @@ impl LogFsFile {
         }
     }
 
+    const READ_ITER_CHUNK_SIZE: u32 = 1024 * 1024; // 1MB
+
     pub fn read(&mut self, size: Option<u32>) -> Result<Vec<u8>, LogFsErr> {
-        let size = size.unwrap_or(self.block_size);
-        let mut buf = vec![0u8; size as usize];
-        let mut num_read: u32 = 0;
-        let err = unsafe {
-            logfs_read(
-                self.fs,
-                &mut self.file,
-                buf.as_mut_ptr() as *mut _,
-                size,
-                LogFsReadFlags_LOGFS_READ_END,
-                &mut num_read,
-            )
-        };
-        if err == LogFsErr_LOGFS_ERR_OK {
-            buf.truncate(num_read as usize);
-            Ok(buf)
-        } else {
-            Err(err)
+        match size {
+            Some(size) => {
+                // Read last `size` bytes from end
+                let mut buf = vec![0u8; size as usize];
+                let mut num_read: u32 = 0;
+                let err = unsafe {
+                    logfs_read(
+                        self.fs,
+                        &mut self.file,
+                        buf.as_mut_ptr() as *mut _,
+                        size,
+                        LogFsReadFlags_LOGFS_READ_END,
+                        &mut num_read,
+                    )
+                };
+                if err == LogFsErr_LOGFS_ERR_OK {
+                    buf.truncate(num_read as usize);
+                    Ok(buf)
+                } else {
+                    Err(err)
+                }
+            }
+            None => {
+                // Reset the iterator by reading 0 bytes from end
+                let mut num_read: u32 = 0;
+                let err = unsafe {
+                    logfs_read(
+                        self.fs,
+                        &mut self.file,
+                        std::ptr::null_mut(),
+                        0,
+                        LogFsReadFlags_LOGFS_READ_END,
+                        &mut num_read,
+                    )
+                };
+                if err != LogFsErr_LOGFS_ERR_OK {
+                    return Err(err);
+                }
+
+                // Iteratively read chunks, prepending each since blocks are
+                // traversed backwards via prev_data_addr chain
+                let mut file_data: Vec<u8> = Vec::new();
+                loop {
+                    let mut chunk = vec![0u8; READ_ITER_CHUNK_SIZE as usize];
+                    let mut num_read: u32 = 0;
+                    let err = unsafe {
+                        logfs_read(
+                            self.fs,
+                            &mut self.file,
+                            chunk.as_mut_ptr() as *mut _,
+                            READ_ITER_CHUNK_SIZE,
+                            LogFsReadFlags_LOGFS_READ_ITER,
+                            &mut num_read,
+                        )
+                    };
+                    if err != LogFsErr_LOGFS_ERR_OK {
+                        return Err(err);
+                    }
+                    if num_read == 0 {
+                        // Reached end of file
+                        break;
+                    }
+
+                    // Prepend chunk to file_data since we're reading backwards
+                    chunk.truncate(num_read as usize);
+                    chunk.extend_from_slice(&file_data);
+                    file_data = chunk;
+                }
+
+                Ok(file_data)
+            }
         }
     }
 
