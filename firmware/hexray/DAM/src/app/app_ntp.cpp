@@ -11,7 +11,7 @@ static constexpr uint64_t MS_PER_HOUR   = 3600000ULL;
 static constexpr uint64_t MS_PER_MINUTE = 60000ULL;
 static constexpr uint64_t MS_PER_SECOND = 1000ULL;
 
-static constexpr uint8_t MIN_NTP_PACKET_SIZE = 17;
+static constexpr uint8_t MIN_NTP_PACKET_SIZE  = 17;
 static constexpr uint8_t RTC_SET_MAX_ATTEMPTS = 3;
 
 namespace app::ntp
@@ -121,7 +121,7 @@ bool handleFrameAndTuneRtc(std::span<const uint8_t> body, uint64_t t3_ms)
         io::time::delay(wait_ms);
     }
 
-    io::rtc::Time tuned = msToRtcTime(*new_ms + wait_ms);
+    io::rtc::Time tuned  = msToRtcTime(*new_ms + wait_ms);
     bool          set_ok = false;
     for (uint8_t attempt = 0; attempt < RTC_SET_MAX_ATTEMPTS; ++attempt)
     {
