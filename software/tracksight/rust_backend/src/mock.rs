@@ -4,7 +4,6 @@ use std::{f64::consts::{TAU}, sync::Arc, time::{SystemTime, UNIX_EPOCH}};
 use jsoncan_rust::can_database::{CanDatabase, CanSignalType, DecodedSignal};
 use tokio::{select, sync::broadcast};
 
-#[allow(unused_imports)]
 use crate::utils::yellow;
 use crate::{tasks::{HealthCheckSender, HealthCheckSenderExt, Task}, tasks::telem_message::CanPayload, vprintln};
 

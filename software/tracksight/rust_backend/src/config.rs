@@ -23,6 +23,12 @@ pub struct Config {
 pub static CONFIG: LazyLock<Config> = LazyLock::new(|| load_env_file());
 
 const DEFAULT_BACKEND_ENV_FILE: &str = "backend.env";
+
+/**
+ * Loads the environment variables specified in `DEFAULT_BACKEND_ENV_FILE`
+ * If any required variables are missing, the `unwrap()` will panick and prevent backend from running
+ * Optional variables are handled appropriately by defaults and whatnot
+ */
 fn load_env_file() -> Config {
     dotenv().ok();
     let docker: bool = get_var::<bool>("DOCKER").unwrap_or(false);
@@ -52,7 +58,7 @@ fn load_env_file() -> Config {
 
     let car_name: String = get_var::<String>("CAR_NAME").unwrap();
 
-    let influxdb_measurement: String = format!("{car_name}_live");
+    let influxdb_measurement: String = format!("{car_name}_radio");
 
     // i love hardcoding
     let jsoncan_config_path: String = if docker {
