@@ -42,6 +42,19 @@ template <typename T, std::size_t N> class RingBuffer
     // Read T at logical offset from head without consuming.
     [[nodiscard]] T peek(std::size_t offset) const { return buf_[(head_ + offset) % N]; }
 
+    // Read a little-endian uint32_t at logical offset from head without consuming.
+    [[nodiscard]] uint32_t peekU32Le(std::size_t offset) const noexcept
+    {
+        static_assert(sizeof(T) == 1, "peekU32Le requires byte-sized element type");
+
+        uint32_t v = 0;
+        v |= static_cast<uint32_t>(peek(offset + 0)) << 0;
+        v |= static_cast<uint32_t>(peek(offset + 1)) << 8;
+        v |= static_cast<uint32_t>(peek(offset + 2)) << 16;
+        v |= static_cast<uint32_t>(peek(offset + 3)) << 24;
+        return v;
+    }
+
     // Copy out a contiguous logical run starting at offset, without consuming.
     [[nodiscard]] std::expected<void, ErrorCode> copyOut(std::size_t offset, std::span<T> dst) const noexcept
     {

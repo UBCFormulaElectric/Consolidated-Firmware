@@ -18,21 +18,24 @@ namespace app::telemRx
 
 namespace
 {
-    util::RingBuffer<uint8_t, kRingCapacity> g_ring{};
+    constexpr std::size_t ringCapacity = 512;
+    constexpr std::size_t maxBodySize  = 100;
+
+    constexpr uint8_t     magic0     = 0xCC;
+    constexpr uint8_t     magic1     = 0x33;
+    constexpr std::size_t headerSize = 7; // magic(2) + size(1) + crc(4)
+
+    enum class MessageId : uint8_t
+    {
+        NTP        = 1,
+        Remote_NTP = 2,
+    };
+
+    util::RingBuffer<uint8_t, ringCapacity> g_ring{};
 
     // t3 captured by IO immediately after the most recent chunk landed.
     // Associated with any frame extracted on the next drain() pass.
     uint64_t g_last_rx_time_ms = 0;
-
-    uint32_t readU32Le(std::size_t offset)
-    {
-        uint32_t v = 0;
-        v |= static_cast<uint32_t>(g_ring.peek(offset + 0)) << 0;
-        v |= static_cast<uint32_t>(g_ring.peek(offset + 1)) << 8;
-        v |= static_cast<uint32_t>(g_ring.peek(offset + 2)) << 16;
-        v |= static_cast<uint32_t>(g_ring.peek(offset + 3)) << 24;
-        return v;
-    }
 
     // Dispatch the frame to the appropriate handler based on the message id
     void dispatchFrame(std::span<const uint8_t> body, uint64_t rx_time_ms)
@@ -116,28 +119,28 @@ namespace
         // Hunt for magic.
         while (g_ring.size() >= 2)
         {
-            if (g_ring.peek(0) == kMagic0 && g_ring.peek(1) == kMagic1)
+            if (g_ring.peek(0) == magic0 && g_ring.peek(1) == magic1)
                 break;
             g_ring.discard(1);
         }
-        if (g_ring.size() < kHeaderSize)
+        if (g_ring.size() < headerSize)
             return false;
 
         const uint8_t  body_size    = g_ring.peek(2);
-        const uint32_t expected_crc = readU32Le(3);
+        const uint32_t expected_crc = g_ring.peekU32Le(3);
 
-        if (body_size == 0 || static_cast<std::size_t>(body_size) > kMaxBodySize)
+        if (body_size == 0 || static_cast<std::size_t>(body_size) > maxBodySize)
         {
             g_ring.discard(1); // bad header: slide one byte and try again
             return true;
         }
 
-        if (g_ring.size() < kHeaderSize + body_size)
+        if (g_ring.size() < headerSize + body_size)
             return false; // wait for more bytes
 
-        std::array<uint8_t, kMaxBodySize> body_buf{};
-        std::span<uint8_t>                body{ body_buf.data(), body_size };
-        if (!g_ring.copyOut(kHeaderSize, body))
+        std::array<uint8_t, maxBodySize> body_buf{};
+        std::span<uint8_t>               body{ body_buf.data(), body_size };
+        if (!g_ring.copyOut(headerSize, body))
             return false;
 
         if (io::crc::calculatePayloadCrc(body) != expected_crc)
@@ -147,7 +150,7 @@ namespace
             return true;
         }
 
-        g_ring.discard(kHeaderSize + body_size);
+        g_ring.discard(headerSize + body_size);
         dispatchFrame(body, g_last_rx_time_ms);
         return true;
     }
