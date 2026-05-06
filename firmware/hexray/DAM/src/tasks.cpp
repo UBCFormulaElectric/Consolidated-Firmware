@@ -183,6 +183,7 @@ void DAM_StartAllTasks()
     TaskCanTx.start();
     TaskCanRx.start();
     Task1kHz.start();
+    Task1Hz.start();
     TaskLogging.start();
     TaskTelemTx.start();
     TaskTelemRx.start();
