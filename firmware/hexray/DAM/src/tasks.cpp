@@ -14,8 +14,8 @@
 #include "hw_cans.hpp"
 #include "hw_watchdog.hpp"
 #include "hw_resetReason.hpp"
-#include "main.h"
 #include "app_canAlerts.hpp"
+#include "hw_bootup.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
@@ -69,8 +69,10 @@
     {
         jobs_run1kHz_tick();
 
-        monitor1khz.checkForTimeouts();
         watchdog1khz.checkIn();
+#ifndef WATCHDOG_DISABLED
+        monitor1khz.checkForTimeouts();
+#endif
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -171,6 +173,7 @@ static void DAM_StartAllTasks()
 
 void tasks_preInit()
 {
+    hw::bootup::enableInterruptsForApp();
     hw_hardFaultHandler_init();
 }
 

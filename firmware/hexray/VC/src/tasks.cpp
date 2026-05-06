@@ -1,5 +1,6 @@
 #include "tasks.h"
 #include "jobs.hpp"
+#include "main.h"
 
 #include "app_jsoncan.hpp"
 
@@ -14,9 +15,10 @@
 #include "hw_gpios.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_hardFaultHandler.hpp"
+#include "hw_adcs.hpp"
+#include "hw_bootup.hpp"
 #include "hw_watchdog.hpp"
 #include "hw_resetReason.hpp"
-#include "main.h"
 #include "app_canAlerts.hpp"
 
 #include "hw_runTimeStat.hpp"
@@ -158,6 +160,7 @@ static void VC_StartAllTasks()
 void tasks_preInit()
 {
     hw_hardFaultHandler_init();
+    hw::bootup::enableInterruptsForApp();
 }
 
 void tasks_init()
@@ -170,6 +173,19 @@ void tasks_init()
     invcan.init();
 
     adcChipsInit();
+
+    hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
+    if (boot_request.context != hw::bootup::BootContext::BOOT_CONTEXT_NONE)
+    {
+        if (boot_request.context == hw::bootup::BootContext::BOOT_CONTEXT_STACK_OVERFLOW)
+        {
+            LOG_WARN("Detected stack overflow on the previous boot cycle!");
+        }
+
+        const_cast<hw::bootup::BootRequest &>(boot_request).context       = hw::bootup::BootContext::BOOT_CONTEXT_NONE;
+        const_cast<hw::bootup::BootRequest &>(boot_request).context_value = 0;
+        hw::bootup::setBootRequest(boot_request);
+    }
 
     dam_en.writePin(true);
     rsm_en.writePin(true);
