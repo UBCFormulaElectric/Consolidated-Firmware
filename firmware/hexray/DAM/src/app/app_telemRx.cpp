@@ -104,13 +104,15 @@ namespace
         if (g_ring.size() < headerSize + body_size)
             return false; // wait for more bytes
 
-        std::array<uint8_t, maxBodySize> body_buf{};
-        std::span<uint8_t>               body{ body_buf.data(), body_size };
-        if (!g_ring.copyOut(headerSize, body))
+        // CRC directly against ring memory so a bad frame costs no body copy.
+        const auto [s1, s2] = g_ring.contiguousRange(headerSize, body_size);
+        if (s1.size() + s2.size() != body_size)
             return false;
 
         uint32_t c = app::crc32::init();
-        c          = app::crc32::update(c, body.data(), body.size());
+        c          = app::crc32::update(c, s1.data(), s1.size());
+        if (!s2.empty())
+            c = app::crc32::update(c, s2.data(), s2.size());
 
         if (app::crc32::finalize(c) != expected_crc)
         {
@@ -118,6 +120,10 @@ namespace
             g_ring.discard(1); // resync one byte at a time
             return true;
         }
+
+        std::array<uint8_t, maxBodySize> body_buf{};
+        std::span<uint8_t>               body{ body_buf.data(), body_size };
+        (void)g_ring.copyOut(headerSize, body);
 
         g_ring.discard(headerSize + body_size);
         dispatchFrame(body, g_last_rx_time_ms);

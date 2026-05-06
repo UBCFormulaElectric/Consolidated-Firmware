@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <expected>
 #include <span>
+#include <utility>
 
 #include "util_errorCodes.hpp"
 
@@ -53,6 +54,23 @@ template <typename T, std::size_t N> class RingBuffer
         v |= static_cast<uint32_t>(peek(offset + 2)) << 16;
         v |= static_cast<uint32_t>(peek(offset + 3)) << 24;
         return v;
+    }
+
+    // Returns up to two contiguous spans covering the logical range [offset, offset+len).
+    // Second span is empty if the range does not wrap. On out-of-bounds, both spans are empty.
+    [[nodiscard]] std::pair<std::span<const T>, std::span<const T>>
+        contiguousRange(std::size_t offset, std::size_t len) const noexcept
+    {
+        if (offset + len > size_)
+            return { {}, {} };
+
+        const std::size_t start = (head_ + offset) % N;
+        if (start + len <= N)
+            return { std::span<const T>{ buf_.data() + start, len }, std::span<const T>{} };
+
+        const std::size_t first = N - start;
+        return { std::span<const T>{ buf_.data() + start, first },
+                 std::span<const T>{ buf_.data(), len - first } };
     }
 
     // Copy out a contiguous logical run starting at offset, without consuming.
