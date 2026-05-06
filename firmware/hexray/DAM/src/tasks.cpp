@@ -14,8 +14,8 @@
 #include "hw_cans.hpp"
 #include "hw_watchdog.hpp"
 #include "hw_resetReason.hpp"
-#include "main.h"
 #include "app_canAlerts.hpp"
+#include "hw_bootup.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {

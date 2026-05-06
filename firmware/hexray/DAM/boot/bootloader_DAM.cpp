@@ -6,19 +6,8 @@
 #include "hw_rtosTaskHandler.hpp"
 #include <cassert>
 
-static void tx_overflow_callback(const uint32_t overflow_count)
-{
-    UNUSED(overflow_count);
-}
-static void rx_overflow_callback(const uint32_t overflow_count) a
-{
-    UNUSED(overflow_count);
-}
-static void rx_overflow_clear_callback(){};
-static void tx_overflow_clear_callback(){};
-
-io::queue<hw::CanMsg, 256> boot_can_tx_queue("CanTxQueue", tx_overflow_callback, tx_overflow_clear_callback);
-io::queue<hw::CanMsg, 256> boot_can_rx_queue("CanRxQueue", rx_overflow_callback, rx_overflow_clear_callback);
+io::queue<hw::CanMsg, 256> boot_can_tx_queue{ "CanTxQueue" };
+io::queue<hw::CanMsg, 256> boot_can_rx_queue{ "CanRxQueue" };
 
 namespace hw::cans
 {
@@ -61,12 +50,12 @@ static hw::rtos::StaticTask<1024>
 
 [[noreturn]] void bootloader_init()
 {
-    HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(BOOT_LED_GPIO_Port, BOOT_LED_Pin, GPIO_PIN_SET);
     osKernelInitialize();
     bootloader::init(dam_boot_config);
     bootInterfaceTask.start();
     bootTickTask.start();
     bootCanTxTask.start();
     osKernelStart();
-    forever {}
+    forever {};
 }
