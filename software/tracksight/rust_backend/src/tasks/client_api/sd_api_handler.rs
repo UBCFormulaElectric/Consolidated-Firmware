@@ -1,7 +1,7 @@
-use axum::{Json, Router, extract::Query, http::StatusCode, response::IntoResponse, routing::{get, post}};
+use axum::{Json, Router, extract::{Query, State}, http::StatusCode, response::IntoResponse, routing::{get, post}};
 use serde::Deserialize;
 
-use crate::tasks::client_api::{AppState, sd_utils::{find_detachable_drives, get_logfs, ls_deep}};
+use crate::tasks::client_api::{AppState, sd_utils::{dump_sd_file, find_detachable_drives, get_logfs, ls_deep}};
 
 /**
  * Mainly supported for Ubuntu, not guaranteed on anything else
@@ -41,7 +41,13 @@ struct SdDumpPayload {
  * Parses file, reads the entire file, parses, then pushes to database as separate category for SD card.
  * If file already exists in database, overwrite if `overwrite` is true, otherwise returns code 409.
  */
-async fn sd_dump(Json(SdDumpPayload{drive, file, overwrite}): Json<SdDumpPayload>) -> impl IntoResponse {
+async fn sd_dump(State(state): State<AppState>, Json(SdDumpPayload{drive, file, overwrite}): Json<SdDumpPayload>) -> impl IntoResponse {
+    // TODO some way to check database if file already dumped
+    // TODO mutex, make sure the same file is not dumped multiple times concurrently
+    if dump_sd_file(state.can_db, state.influx_client, &drive, &file).await.is_err() {
+        return (StatusCode::BAD_REQUEST, format!("Failed to read file {file} from drive {drive}"));
+    }
+    
     return (StatusCode::OK, format!("Dump {file} from drive {drive}"));
 }
 

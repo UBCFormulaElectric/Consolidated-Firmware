@@ -125,7 +125,7 @@ async fn metadata(Query(mut param): Query<SignalNameParam>, State(state): State<
     |> range(start: {start_utc}, stop: {end_utc})
     |> aggregateWindow(every: {res}, fn: mean, createEmpty: false)
     |> filter(fn: (r) => r["_measurement"] == "{}")
-    "#, &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement);
+    "#, &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement_radio);
     
     if let Some(signal) = param.name {
         let _ = match Regex::new(&signal) {
