@@ -7,6 +7,7 @@ function Navbar() {
         <Link href="/">Home</Link>
         <Link href="/live">Live Data</Link>
         <Link href="/historical">Historical Data</Link>
+        <Link href="/sd/dump">SD Card Dump</Link>
       </div>
     </nav>
   );

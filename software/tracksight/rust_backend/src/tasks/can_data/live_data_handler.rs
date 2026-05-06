@@ -3,7 +3,6 @@ use std::sync::Arc;
 use socketioxide::extract::SocketRef;
 use tokio::sync::{RwLock, broadcast::Receiver};
 
-#[allow(unused_imports)]
 use crate::utils::yellow;
 use crate::{error_println, tasks::{HealthCheckSender, HealthCheckSenderExt, Task, client_api::subtable_clients::Clients}, vprintln};
 

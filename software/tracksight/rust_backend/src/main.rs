@@ -9,6 +9,7 @@ use tokio::sync::broadcast;
 use tokio::task::{JoinError, JoinSet};
 
 use crate::config::CONFIG;
+use crate::tasks::telem_message::TelemetryOutgoingMessage;
 use crate::tasks::{HealthCheckError, Task};
 use crate::tasks::can_data::load_can_database;
 use crate::utils::{green};
@@ -27,7 +28,6 @@ use tasks::client_api::subtable_clients::Clients;
 use tasks::serial_handler::run_serial_task;
 use tasks::telem_message::CanPayload;
 use utils::red;
-#[allow(unused_imports)]
 use utils::yellow;
 
 #[tokio::main]
@@ -55,10 +55,14 @@ async fn main() {
     // setup task manager
     let mut tasks: JoinSet<(Task, Result<(), JoinError>)> = JoinSet::new();
 
+    // below are channels and objects that are used among the different tasks
+
     // this is equivalent to queue in old backend
     // use broadcast instead of mpsc, probably only one serial source but multiple consumers
     // TODO figure out buffer size
     let (can_queue_tx, can_queue_rx) = broadcast::channel::<CanPayload>(32);
+    // used for the frontend to send messages to DAM
+    let (client_out_msg_tx, client_out_msg_rx) = broadcast::channel::<TelemetryOutgoingMessage>(32);
 
     // track which clients subscribe to which signals
     // maps signal name to client ids
@@ -67,6 +71,7 @@ async fn main() {
     // load CAN database
     let can_db = Arc::new(load_can_database().expect("Could not init Can db"));
 
+    // health check
     let health_check = HealthCheck::new();
     
     // start tasks
@@ -78,6 +83,7 @@ async fn main() {
             health_check.hc_tx.clone(),
             clients.clone(),
             can_db.clone(),
+            client_out_msg_tx
         )
     );
     spawn_task(
@@ -106,6 +112,7 @@ async fn main() {
             let hc_tx_clone = base_hc_tx.clone();
             let can_queue_tx_clone = base_can_queue_tx.clone();
             let can_db_clone = base_can_db.clone();
+            let client_out_msg_rx_clone = client_out_msg_rx.resubscribe();
 
             if CONFIG.mock {
                 spawn_task(
@@ -126,6 +133,7 @@ async fn main() {
                         shutdown_rx_clone,
                         hc_tx_clone,
                         can_queue_tx_clone,
+                        client_out_msg_rx_clone
                     ),
                 );
             }
