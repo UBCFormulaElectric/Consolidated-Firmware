@@ -42,11 +42,20 @@ void balancingEnable();
 void balancingDisable();
 
 // Broadcast and fault evaluation.
-void broadcastCellVoltages();
-void broadcastFilteredCellVoltages();
+// Each broadcast function accepts the freshly-converted data so the caller
+// can commit it to the shared globals atomically under adbms_app_lock.
+using CellVoltageSuccess         = array<array<expected<void, ErrorCode>, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>;
+using CellOwcOk                  = array<array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>;
+
+void broadcastCellVoltages(
+    const array<array<float, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>& voltages,
+    const CellVoltageSuccess&                                            success);
+void broadcastFilteredCellVoltages(
+    const array<array<float, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>& voltages,
+    const CellVoltageSuccess&                                            success);
 void broadcastCellTemps();
 void broadcastStatus();
-void broadcastCellOpenWireCheck();
+void broadcastCellOpenWireCheck(const CellOwcOk& owc_ok);
 void initFaults();
 bool checkWarnings();
 bool checkFaults();
@@ -59,10 +68,16 @@ CellParam getMaxCellTemp();
 CellParam getMinCellTemp();
 
 // Conversion and diagnostics.
-expected<void, ErrorCode> runVoltageConversion();
-expected<void, ErrorCode> runFilteredVoltageConversion();
+// Output params receive the results so the caller can hold them on the stack
+// until they are committed to the shared globals under adbms_app_lock.
+expected<void, ErrorCode> runVoltageConversion(
+    array<array<float, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>& out_voltages,
+    CellVoltageSuccess&                                            out_success);
+expected<void, ErrorCode> runFilteredVoltageConversion(
+    array<array<float, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>& out_voltages,
+    CellVoltageSuccess&                                            out_success);
 expected<void, ErrorCode> runAuxConversion();
 expected<void, ErrorCode> runStatusConversion();
-expected<void, ErrorCode> runCellOpenWireCheck();
+expected<void, ErrorCode> runCellOpenWireCheck(CellOwcOk& out_owc_ok);
 
 } // namespace app::segments

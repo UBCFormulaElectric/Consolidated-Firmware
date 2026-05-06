@@ -16,7 +16,7 @@ static const array<uint16_t, io::adbms::NUM_TEMP_REG_GROUPS> reg_groups{ {
 
 namespace io::adbms
 {
-expected<void, ErrorCode> clearCellTempReg()
+expected<void, ErrorCode> clearCellAuxReg()
 {
     return sendCmd(CLRAUX);
 }
@@ -26,9 +26,13 @@ expected<void, ErrorCode> startTempAdcConversion()
     return sendCmd(ADAX_BASE);
 }
 
-expected<void, ErrorCode> pollTempAdcConversion()
+expected<void, ErrorCode> startSegAdcConversion() {
+    return sendCmd(ADAX_BASE|CH4|CH2);
+}
+
+expected<void, ErrorCode> pollAuxAdcConversion()
 {
-    for (uint8_t attempt = 0U; attempt < MAX_NUM_ATTEMPTS; attempt++)
+    for (size_t attempt = 0U; attempt < MAX_NUM_ATTEMPTS; attempt++)
     {
         uint32_t rx_data;
         RETURN_IF_ERR(poll(PLAUX, { reinterpret_cast<uint8_t *>(&rx_data), sizeof(rx_data) }));
@@ -44,7 +48,7 @@ void readCellTempReg(
     array<array<uint16_t, THERM_GPIOS_PER_SEGMENT>, NUM_SEGMENTS>                  &cell_temp_regs,
     array<array<expected<void, ErrorCode>, THERM_GPIOS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success)
 {
-    const expected<void, ErrorCode> poll_ok = pollTempAdcConversion();
+    const expected<void, ErrorCode> poll_ok = pollAuxAdcConversion();
 
     if (!poll_ok)
     {
@@ -88,7 +92,48 @@ void readCellTempReg(
                     comm_success[seg][gpio]   = {};
                 }
             }
+
+
         }
     }
+}
+
+void readSegVoltageReg(
+    array<uint16_t, NUM_SEGMENTS> &segment_voltage_regs, 
+    array<expected<void,ErrorCode>, NUM_SEGMENTS> &comm_success) 
+{
+    const expected<void,ErrorCode> poll_ok = pollAuxAdcConversion();
+
+    if (!poll_ok) {
+        for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
+        {
+            comm_success[seg] = poll_ok;
+        }
+        return;
+    }
+
+    readRegGroup(RDAUXD, shared_reg_group, shared_reg_group_success);
+    for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++) {
+
+        if (!shared_reg_group_success[seg]) {
+            segment_voltage_regs[seg] = 0U;
+            comm_success[seg] = shared_reg_group_success[seg];
+            continue;
+        }
+
+        const uint8_t  low     = shared_reg_group[seg][4U];
+        const uint8_t  high    = shared_reg_group[seg][5U];
+        const uint16_t voltage = static_cast<uint16_t>(low) | (static_cast<uint16_t>(high) << 8U);
+
+        if (voltage == 0xFFFF || voltage == 0x8000)
+        {
+            segment_voltage_regs[seg]       = 0U;
+            comm_success[seg]               = std::unexpected(ErrorCode::ERROR);
+            continue;
+        }
+        segment_voltage_regs[seg] = voltage;
+        comm_success[seg]         = {};
+    }
+
 }
 } // namespace io::adbms

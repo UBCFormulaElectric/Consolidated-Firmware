@@ -15,6 +15,7 @@ extern app::segments::CellParam min_cell_temp;
 
 extern array<array<float, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>       cell_voltages;
 extern array<array<float, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>       filtered_cell_voltages;
+extern array<float, io::NUM_SEGMENTS>                                     segment_voltages;
 extern array<array<float, io::THERMISTORS_PER_SEGMENT>, io::NUM_SEGMENTS> cell_temps;
 extern array<array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>        cell_owc_ok;
 extern array<array<bool, io::THERMISTORS_PER_SEGMENT>, io::NUM_SEGMENTS>  therm_owc_ok;

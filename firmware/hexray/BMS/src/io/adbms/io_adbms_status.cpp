@@ -28,13 +28,14 @@ void readStatusReg(
     array<StatusGroups, NUM_SEGMENTS>              &stat_regs,
     array<expected<void, ErrorCode>, NUM_SEGMENTS> &stat_regs_success)
 {
+    //TODO: TEST (Unsure if this poll is needed) 
     if (const auto ok = pollCellsAdcConversion(); !ok)
     {
         stat_regs_success.fill(ok);
         return;
     }
 
-    if (const auto ok = pollTempAdcConversion(); !ok)
+    if (const auto ok = pollAuxAdcConversion(); !ok)
     {
         stat_regs_success.fill(ok);
         return;

@@ -5,7 +5,13 @@
 #include "app_segments.hpp"
 #include "app_canTx.hpp"
 
-static constexpr float OW_THERM_THRESHOLD = -80.0f; // calibrate
+static constexpr float V_REF2              = 3.0f;
+static constexpr float R_SERIES            = 10e3f; // Fixed resistor
+static constexpr float R_NOMINAL           = 10e3f; // Thermistor at 25C
+static constexpr float T_NOMINAL           = 298.15f; 
+static constexpr float BETA_COEFF          = 3610.0f;
+static constexpr float KELVIN_OFFSET       = 273.15f;
+static constexpr float OW_THERM_THRESHOLD = -80.0f; //TODO: need to calibrate
 
 static constexpr float convertRegToVoltage(uint16_t reg)
 {
@@ -14,10 +20,11 @@ static constexpr float convertRegToVoltage(uint16_t reg)
 
 static constexpr float convertRegToTemp(uint16_t reg)
 {
-    float voltage    = convertRegToVoltage(reg);
-    float resistance = 10e3f * (voltage / (3.0f - voltage));
-    float inv_temp   = (1.0f / 298.15f) + (1.0f / 3610.0f) * std::log(resistance / 10e3f);
-    return (1.0f / inv_temp) - 273.15f;
+    const float voltage    = convertRegToVoltage(reg);
+    const float resistance = R_SERIES * (voltage / (V_REF2 - voltage));
+    const float inv_temp_k = (1.0f / T_NOMINAL) + (1.0f / BETA_COEFF) * std::log(resistance / R_NOMINAL);
+    
+    return (1.0f / inv_temp_k) - KELVIN_OFFSET;
 }
 namespace app::segments
 {
@@ -30,12 +37,19 @@ CellParam min_cell_temp;
 
 array<array<float, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>       cell_voltages;
 array<array<float, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>       filtered_cell_voltages;
+array<float, io::NUM_SEGMENTS>                                     segment_voltages;
 array<array<float, io::THERMISTORS_PER_SEGMENT>, io::NUM_SEGMENTS> cell_temps;
 array<array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>        cell_owc_ok;
 array<array<bool, io::THERMISTORS_PER_SEGMENT>, io::NUM_SEGMENTS>  therm_owc_ok;
+array<io::adbms::StatusGroups, io::NUM_SEGMENTS>   stat_regs;
 
-void broadcastCellVoltages()
+void broadcastCellVoltages(
+    const array<array<float, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>& voltages,
+    const CellVoltageSuccess&                                            success)
 {
+    cell_voltages         = voltages;
+    cell_voltage_success  = success;
+
     CellParam candidate_max_cell_voltage = { .segment = 0, .cell = 0, .voltage = __FLT_MIN__, .temp = 0.0f };
     CellParam candidate_min_cell_voltage = { .segment = 0, .cell = 0, .voltage = __FLT_MAX__, .temp = 0.0f };
 
@@ -75,19 +89,26 @@ void broadcastCellVoltages()
 }
 
 
-void broadcastFilteredCellVoltages()
+void broadcastFilteredCellVoltages(
+    const array<array<float, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>& voltages,
+    const CellVoltageSuccess&                                            success)
 {
+    filtered_cell_voltages        = voltages;
+    filtered_cell_voltage_success = success;
+
     for (size_t seg = 0U; seg < io::NUM_SEGMENTS; seg++)
     {
         bool seg_ok = false;
+        float seg_voltage = 0.0f;
         for (size_t cell = 0U; cell < io::CELLS_PER_SEGMENT; cell++)
         {
             const float voltage = filtered_cell_voltages[seg][cell];
-            //filtered_cell_voltage_setters[seg][cell](voltage);
+            filtered_cell_voltage_setters[seg][cell](voltage);
 
             if (!filtered_cell_voltage_success[seg][cell])
                 continue;
 
+            
             seg_ok = true;
         }
 
@@ -233,8 +254,10 @@ void broadcastStatus()
 }
 
 
-void broadcastCellOpenWireCheck()
+void broadcastCellOpenWireCheck(const CellOwcOk& owc_ok)
 {
+    cell_owc_ok = owc_ok;
+
     for (size_t seg = 0U; seg < io::NUM_SEGMENTS; seg++)
     {
         for (size_t cell = 0U; cell < io::CELLS_PER_SEGMENT; cell++)

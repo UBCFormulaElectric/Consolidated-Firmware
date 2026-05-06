@@ -23,9 +23,10 @@ static const array<uint16_t, io::adbms::NUM_VOLT_REG_GROUPS> filtered_reg_groups
     io::adbms::RDFCE,
 } };
 
+
+
 namespace io::adbms
 {
-
 expected<void, ErrorCode> clearCellVoltageReg()
 {
     return sendCmd(CLRCELL);

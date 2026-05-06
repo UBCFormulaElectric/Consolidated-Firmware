@@ -111,10 +111,10 @@ inline constexpr uint16_t CH2 = (1U << 2);
 inline constexpr uint16_t CH1 = (1U << 1);
 inline constexpr uint16_t CH0 = (1U << 0);
 
-// Poll commands return a packed readiness bitmap.
+// Poll commands return a packed readiness bitmap
 inline constexpr uint32_t POLL_STATUS_READY = __builtin_bswap32(0xFFFFFFFFU >> (2 * NUM_SEGMENTS));
 
-// Raw command helpers.
+// Raw command helpers
 expected<void, ErrorCode> sendCmd(uint16_t cmd);
 expected<void, ErrorCode> poll(uint16_t cmd, span<uint8_t> poll_buf);
 void                      readRegGroup(
@@ -122,5 +122,8 @@ void                      readRegGroup(
                          array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs,
                          array<expected<void, ErrorCode>, NUM_SEGMENTS>      &comm_success);
 expected<void, ErrorCode> writeRegGroup(uint16_t cmd, const array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs);
-expected<void, ErrorCode> pollTempAdcConversion();
+
+// STAT regs use same poll 
+expected<void, ErrorCode> pollAuxAdcConversion();
+expected<void, ErrorCode> pollCellsAdcConversion();
 } // namespace io::adbms

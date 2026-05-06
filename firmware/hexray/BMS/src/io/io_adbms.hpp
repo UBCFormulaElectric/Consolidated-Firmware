@@ -197,6 +197,9 @@ namespace adbms
     void readCellTempReg(
         std::array<std::array<uint16_t, THERM_GPIOS_PER_SEGMENT>, NUM_SEGMENTS>                       &cell_temp_regs,
         std::array<std::array<std::expected<void, ErrorCode>, THERM_GPIOS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success);
+    void readSegVoltageReg(
+        std::array<uint16_t, NUM_SEGMENTS>                 &segment_voltage_regs, 
+        std::array<std::expected<void,ErrorCode>, NUM_SEGMENTS> &comm_success);
     void readStatusReg(
         std::array<StatusGroups, NUM_SEGMENTS>                   &stat_regs,
         std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS> &stat_regs_success);
@@ -209,14 +212,13 @@ namespace adbms
     // Conversion control.
     std::expected<void, ErrorCode> startCellsAdcConversion();
     std::expected<void, ErrorCode> startTempAdcConversion();
-    std::expected<void, ErrorCode> pollCellsAdcConversion();
-    std::expected<void, ErrorCode> pollAdcConversions();
+    std::expected<void, ErrorCode> startSegAdcConversion();
     std::expected<void, ErrorCode> sendBalanceCmd();
     std::expected<void, ErrorCode> sendStopBalanceCmd();
     std::expected<void, ErrorCode> wakeup();
 
     // Register clear helpers.
-    std::expected<void, ErrorCode> clearCellTempReg();
+    std::expected<void, ErrorCode> clearCellAuxReg();
     std::expected<void, ErrorCode> clearCellVoltageReg();
     std::expected<void, ErrorCode> clearFilteredCellVoltageReg();
 } // namespace adbms
