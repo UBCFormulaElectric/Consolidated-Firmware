@@ -116,13 +116,14 @@
 }
 [[noreturn]] static void tasks_runTelemRx(void *arg)
 {
-    std::array<uint8_t, app::telemRx::kChunkSize> scratch{};
+    constexpr auto                         kTelemRxChunkSize = 1U;
+    std::array<uint8_t, kTelemRxChunkSize> scratch{};
     forever
     {
-        const auto rx_result = io::telemRx::pumpOnce(scratch);
+        const auto rx_result = io::telemRx::read(scratch);
         if (!rx_result)
         {
-            LOG_ERROR("pumpOnce() failed with error: %d", static_cast<int>(rx_result.error()));
+            LOG_ERROR("read() failed with error: %d", static_cast<int>(rx_result.error()));
             continue;
         }
         app::telemRx::ingest(rx_result->bytes, app::ntp::rtcTimeToMs(rx_result->rx_time));
@@ -171,6 +172,7 @@ static hw::rtos::StaticTask<8096>    Task100Hz(osPriorityRealtime, "Task100Hz", 
 static hw::rtos::StaticTask<512>     TaskCanTx(osPriorityAboveNormal, "TaskCanTx", tasks_runCanTx);
 static hw::rtos::StaticTask<512 * 4> TaskCanRx(osPriorityHigh, "TaskCanRx", tasks_runCanRx);
 static hw::rtos::StaticTask<512>     Task1kHz(osPriorityBelowNormal, "Task1kHz", tasks_run1kHz);
+static hw::rtos::StaticTask<512>     Task1Hz(osPriorityBelowNormal, "Task1Hz", tasks_run1Hz);
 static hw::rtos::StaticTask<1024>    TaskLogging(osPriorityHigh, "TaskLogging", tasks_runLogging);
 static hw::rtos::StaticTask<512>     TaskTelemTx(osPriorityHigh, "TaskTelemTx", tasks_runTelemTx);
 static hw::rtos::StaticTask<1024>    TaskTelemRx(osPriorityHigh, "TaskTelemRx", tasks_runTelemRx);

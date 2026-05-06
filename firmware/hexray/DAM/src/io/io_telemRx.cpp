@@ -40,7 +40,7 @@ std::expected<io::rtc::Time, ErrorCode> io::telemRx::transmitNTPStartMsg()
 
 // TODO: replace blocking chunk read with UART-IDLE / DMA driven ingestion so
 // rx_time is captured at the byte-arrival instant rather than at chunk end.
-std::expected<io::telemRx::RxChunk, ErrorCode> io::telemRx::pumpOnce(std::span<uint8_t> scratch)
+std::expected<io::telemRx::RxChunk, ErrorCode> io::telemRx::read(std::span<uint8_t> scratch)
 {
     const auto rx_result = _900k_uart.receive(scratch);
     if (!rx_result)

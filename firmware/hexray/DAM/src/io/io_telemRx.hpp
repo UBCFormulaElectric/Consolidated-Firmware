@@ -21,5 +21,5 @@ std::expected<io::rtc::Time, ErrorCode> transmitNTPStartMsg();
 // RX side: block on the radio UART, fill `scratch`, and return the chunk +
 // receive timestamp. Caller owns `scratch` and forwards the result to whatever
 // consumer wants it (no app coupling here).
-std::expected<RxChunk, ErrorCode> pumpOnce(std::span<uint8_t> scratch);
+std::expected<RxChunk, ErrorCode> read(std::span<uint8_t> scratch);
 } // namespace io::telemRx

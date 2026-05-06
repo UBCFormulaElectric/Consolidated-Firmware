@@ -16,7 +16,7 @@ std::expected<io::rtc::Time, ErrorCode> io::telemRx::transmitNTPStartMsg()
     return io::rtc::Time{};
 }
 
-std::expected<io::telemRx::RxChunk, ErrorCode> io::telemRx::pumpOnce(std::span<uint8_t>)
+std::expected<io::telemRx::RxChunk, ErrorCode> io::telemRx::read(std::span<uint8_t>)
 {
     return RxChunk{ {}, io::rtc::Time{} };
 }

@@ -32,4 +32,8 @@ const Timestamps &timestamps();
 // parse into g_ts and compute the new ms time based on the current RTC time
 std::optional<uint64_t> handleFrame(std::span<const uint8_t> body, uint64_t t3_ms, uint64_t current_rtc_ms);
 
+// Parse an NTP frame and apply the resulting correction directly to the RTC.
+// Returns false if any stage fails.
+bool handleFrameAndTuneRtc(std::span<const uint8_t> body, uint64_t t3_ms);
+
 } // namespace app::ntp

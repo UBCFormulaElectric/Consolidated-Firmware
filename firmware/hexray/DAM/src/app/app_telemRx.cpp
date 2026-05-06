@@ -5,13 +5,8 @@
 #include "app_ntp.hpp"
 #include "io_crc.hpp"
 #include "io_log.hpp"
-#include "io_rtc.hpp"
 #include "io_telemRx.hpp"
 #include "util_ringBuffer.hpp"
-#include "io_time.hpp"
-
-static constexpr uint32_t PREDIV_S      = 999;
-static constexpr uint64_t MS_PER_SECOND = 1000ULL;
 
 namespace app::telemRx
 {
@@ -47,40 +42,11 @@ namespace
         {
             case MessageId::NTP:
             {
-                io::rtc::Time now{};
-                const auto    t = io::rtc::get_time(now);
-                if (!t)
+                if (!app::ntp::handleFrameAndTuneRtc(body, rx_time_ms))
                 {
-                    LOG_ERROR("telemRx: RTC get_time failed");
+                    LOG_ERROR("telemRx: NTP handleFrameAndTuneRtc failed");
                     return;
                 }
-                const auto new_ms = app::ntp::handleFrame(body, rx_time_ms, app::ntp::rtcTimeToMs(now));
-                if (!new_ms)
-                {
-                    LOG_ERROR("telemRx: NTP body parse failed");
-                    return;
-                }
-
-                // Sleep out the sub-second remainder so the RTC write lands on a whole-
-                // second boundary. msToRtcTime then produces subseconds = PREDIV_S, which
-                // is the correct "0 ms into this second" value — do NOT overwrite it.
-                const uint32_t remainder_ms = static_cast<uint32_t>(*new_ms % MS_PER_SECOND);
-                const uint32_t wait_ms = (remainder_ms == 0) ? 0U : static_cast<uint32_t>(MS_PER_SECOND) - remainder_ms;
-                if (wait_ms > 0)
-                {
-                    io::time::delay(wait_ms);
-                }
-
-                io::rtc::Time tuned   = app::ntp::msToRtcTime(*new_ms + wait_ms);
-                const auto    set_res = io::rtc::set_time(tuned);
-                if (!set_res)
-                {
-                    LOG_ERROR("telemRx: RTC set_time failed");
-                    return;
-                }
-                LOG_INFO(
-                    "Tuned RTC! New Time: %02u:%02u:%02u.%03lu", tuned.hours, tuned.minutes, tuned.seconds,
-                    static_cast<unsigned long>(PREDIV_S - tuned.subseconds));
                 break;
             }
             // Remote trigger of transmitNTP when dam is enclosed (button is inaccesible)

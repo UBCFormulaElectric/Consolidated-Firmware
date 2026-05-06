@@ -2,6 +2,9 @@
 
 #include <cstring>
 
+#include "io_log.hpp"
+#include "io_time.hpp"
+
 static constexpr uint32_t PREDIV_S      = 999;
 static constexpr uint64_t MS_PER_DAY    = 86400000ULL;
 static constexpr uint64_t MS_PER_HOUR   = 3600000ULL;
@@ -9,6 +12,7 @@ static constexpr uint64_t MS_PER_MINUTE = 60000ULL;
 static constexpr uint64_t MS_PER_SECOND = 1000ULL;
 
 static constexpr uint8_t MIN_NTP_PACKET_SIZE = 17;
+static constexpr uint8_t RTC_SET_MAX_ATTEMPTS = 3;
 
 namespace app::ntp
 {
@@ -88,6 +92,56 @@ std::optional<uint64_t> handleFrame(std::span<const uint8_t> body, uint64_t t3_m
     if (new_ms < 0)
         new_ms = 0;
     return static_cast<uint64_t>(new_ms);
+}
+
+bool handleFrameAndTuneRtc(std::span<const uint8_t> body, uint64_t t3_ms)
+{
+    io::rtc::Time now{};
+    const auto    get_res = io::rtc::get_time(now);
+    if (!get_res)
+    {
+        LOG_ERROR("ntp: RTC get_time failed");
+        return false;
+    }
+
+    const auto new_ms = handleFrame(body, t3_ms, rtcTimeToMs(now));
+    if (!new_ms)
+    {
+        LOG_ERROR("ntp: NTP body parse failed");
+        return false;
+    }
+
+    // Sleep out the sub-second remainder so the RTC write lands on a whole-
+    // second boundary. msToRtcTime then produces subseconds = PREDIV_S, which
+    // is the correct "0 ms into this second" value — do NOT overwrite it.
+    const uint32_t remainder_ms = static_cast<uint32_t>(*new_ms % MS_PER_SECOND);
+    const uint32_t wait_ms      = (remainder_ms == 0) ? 0U : static_cast<uint32_t>(MS_PER_SECOND) - remainder_ms;
+    if (wait_ms > 0)
+    {
+        io::time::delay(wait_ms);
+    }
+
+    io::rtc::Time tuned = msToRtcTime(*new_ms + wait_ms);
+    bool          set_ok = false;
+    for (uint8_t attempt = 0; attempt < RTC_SET_MAX_ATTEMPTS; ++attempt)
+    {
+        if (io::rtc::set_time(tuned))
+        {
+            set_ok = true;
+            break;
+        }
+    }
+
+    if (!set_ok)
+    {
+        LOG_ERROR("ntp: RTC set_time failed");
+        return false;
+    }
+
+    LOG_INFO(
+        "Tuned RTC! New Time: %02u:%02u:%02u.%03lu", tuned.hours, tuned.minutes, tuned.seconds,
+        static_cast<unsigned long>(PREDIV_S - tuned.subseconds));
+    return true;
 }
 
 } // namespace app::ntp
