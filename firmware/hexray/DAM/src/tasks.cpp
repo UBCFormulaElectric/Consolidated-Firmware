@@ -116,8 +116,8 @@
 }
 [[noreturn]] static void tasks_runTelemRx(void *arg)
 {
-    constexpr auto                         kTelemRxChunkSize = 1U;
-    std::array<uint8_t, kTelemRxChunkSize> scratch{};
+    constexpr auto                        telemRxChunkSize = 1U;
+    std::array<uint8_t, telemRxChunkSize> scratch{};
     forever
     {
         const auto rx_result = io::telemRx::read(scratch);
