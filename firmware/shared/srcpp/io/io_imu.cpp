@@ -274,7 +274,7 @@ static float translateTempData(const uint8_t data_h, const uint8_t data_l)
     return static_cast<float>(raw) / TEMP_SCALE + 25.0f;
 }
 
-std::expected<void, ErrorCode> Imu::init() const
+std::expected<void, ErrorCode> imu::init() const
 {
     // Check if we are able to communicate to the IMU
     std::array<const uint8_t, 1> tx_check = { { READ_IMU_REG(WHO_AM_I) } };
@@ -369,7 +369,7 @@ std::expected<void, ErrorCode> Imu::init() const
 //     return exit;
 // }
 
-std::expected<float, ErrorCode> Imu::getAccelX() const
+std::expected<float, ErrorCode> imu::getAccelX() const
 {
     if (is_imu_ready == false)
         return std::unexpected(ErrorCode::ERROR);
@@ -382,7 +382,7 @@ std::expected<float, ErrorCode> Imu::getAccelX() const
     return translateData(rx[0], rx[1]);
 }
 
-std::expected<float, ErrorCode> Imu::getAccelY() const
+std::expected<float, ErrorCode> imu::getAccelY() const
 {
     if (is_imu_ready == false)
         return std::unexpected(ErrorCode::ERROR);
@@ -396,7 +396,7 @@ std::expected<float, ErrorCode> Imu::getAccelY() const
     return translateData(rx[0], rx[1]);
 }
 
-std::expected<float, ErrorCode> Imu::getAccelZ() const
+std::expected<float, ErrorCode> imu::getAccelZ() const
 {
     if (is_imu_ready == false)
         return std::unexpected(ErrorCode::ERROR);
@@ -410,7 +410,7 @@ std::expected<float, ErrorCode> Imu::getAccelZ() const
     return translateData(rx[0], rx[1]);
 }
 
-std::expected<float, ErrorCode> Imu::getGyroX() const
+std::expected<float, ErrorCode> imu::getGyroX() const
 {
     if (is_imu_ready == false)
         return std::unexpected(ErrorCode::ERROR);
@@ -424,7 +424,7 @@ std::expected<float, ErrorCode> Imu::getGyroX() const
     return translateGyroData(rx[0], rx[1]);
 }
 
-std::expected<float, ErrorCode> Imu::getGyroY() const
+std::expected<float, ErrorCode> imu::getGyroY() const
 {
     if (is_imu_ready == false)
         return std::unexpected(ErrorCode::ERROR);
@@ -438,7 +438,7 @@ std::expected<float, ErrorCode> Imu::getGyroY() const
     return translateGyroData(rx[0], rx[1]);
 }
 
-std::expected<float, ErrorCode> Imu::getGyroZ() const
+std::expected<float, ErrorCode> imu::getGyroZ() const
 {
     if (is_imu_ready == false)
         return std::unexpected(ErrorCode::ERROR);
@@ -452,7 +452,7 @@ std::expected<float, ErrorCode> Imu::getGyroZ() const
     return translateGyroData(rx[0], rx[1]);
 }
 
-std::expected<float, ErrorCode> Imu::getTemp() const
+std::expected<float, ErrorCode> imu::getTemp() const
 {
     if (is_imu_ready == false)
         return std::unexpected(ErrorCode::ERROR);
@@ -466,7 +466,7 @@ std::expected<float, ErrorCode> Imu::getTemp() const
     return translateTempData(rx[0], rx[1]);
 }
 
-std::expected<Imu::AccelData, ErrorCode> Imu::getAccelAll() const
+std::expected<imu::AccelData, ErrorCode> imu::getAccelAll() const
 {
     if (is_imu_ready == false)
         return std::unexpected(ErrorCode::ERROR);
@@ -484,7 +484,7 @@ std::expected<Imu::AccelData, ErrorCode> Imu::getAccelAll() const
     };
 }
 
-std::expected<Imu::GyroData, ErrorCode> Imu::getGyroAll() const
+std::expected<imu::GyroData, ErrorCode> imu::getGyroAll() const
 {
     if (is_imu_ready == false)
         return std::unexpected(ErrorCode::ERROR);

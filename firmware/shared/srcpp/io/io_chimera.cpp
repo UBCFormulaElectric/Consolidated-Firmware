@@ -13,7 +13,7 @@
 #include "hw_adc.hpp"
 
 extern const hw::Gpio *id_to_gpio(uint32_t net_name);
-extern const hw::Adc  *id_to_adc(uint32_t net_name);
+extern const hw::adc  *id_to_adc(uint32_t net_name);
 static const hw::Gpio *io_chimera_parseNetLabelGpio(const GpioNetName *net_name)
 {
     switch (net_name->which_name)
@@ -28,7 +28,7 @@ static const hw::Gpio *io_chimera_parseNetLabelGpio(const GpioNetName *net_name)
             return NULL;
     }
 }
-static const hw::Adc *io_chimera_parseNetLabelAdc(const AdcNetName *net_name)
+static const hw::adc *io_chimera_parseNetLabelAdc(const AdcNetName *net_name)
 {
     switch (net_name->which_name)
     {
@@ -115,7 +115,7 @@ void msgRxCallback()
             {
                 // ADC read message.
                 assert(msg.payload.adc.net_name.which_name == net_name_adc);
-                const hw::Adc *adc_channel = io_chimera_parseNetLabelAdc(&msg.payload.adc.net_name);
+                const hw::adc *adc_channel = io_chimera_parseNetLabelAdc(&msg.payload.adc.net_name);
                 msg.payload.adc.value      = adc_channel->getVoltage();
                 break;
             }

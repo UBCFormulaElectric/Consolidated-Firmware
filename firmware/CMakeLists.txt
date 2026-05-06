@@ -1,6 +1,6 @@
 include(cmake/dependencies.cmake)
 include(../scripts/code_generation/commit_info_gen/commit_info.cmake)
-include(cmake/eigenlib.cmake)   
+include(cmake/eigenlib.cmake)
 include(cmake/autodiff.cmake)
 
 IF ("${TARGET}" STREQUAL "binary")
@@ -41,5 +41,4 @@ add_subdirectory(logfs)
 
 # board binaries
 add_subdirectory(dev)
-add_subdirectory(quintuna)
 add_subdirectory(hexray)

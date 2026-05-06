@@ -37,6 +37,7 @@ extern "C"
 
     /* Exported types ------------------------------------------------------------*/
     /* USER CODE BEGIN ET */
+    extern FDCAN_HandleTypeDef hfdcan2;
 
     /* USER CODE END ET */
 

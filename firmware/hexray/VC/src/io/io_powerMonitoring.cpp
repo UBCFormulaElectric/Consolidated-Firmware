@@ -24,7 +24,7 @@ namespace io::powerMonitoring
 {
 std::expected<void, ErrorCode> read_register(uint16_t reg, std::span<uint8_t> data)
 {
-    RETURN_IF_ERR_SILENT(hw::i2c::pwr_pump.memoryRead(reg, data));
+    RETURN_IF_ERR_SILENT(pwr_pump.memoryRead(reg, data));
     return {};
 }
 
@@ -39,21 +39,21 @@ std::expected<void, ErrorCode> write_register(uint16_t reg, std::span<const uint
     memcpy(&buf[1], data, len);
     return (hw_i2c_memoryWrite(&pwr_mtr, reg, buf, len + 1) == EXIT_CODE_OK); */
 
-    RETURN_IF_ERR(hw::i2c::pwr_pump.memoryWrite(reg, data));
+    RETURN_IF_ERR(pwr_pump.memoryWrite(reg, data));
     return {};
 }
 
-void refresh(void)
+void refresh()
 {
-    const uint8_t cmd = 0x00;
-    LOG_IF_ERR(hw::i2c::pwr_pump.transmit((std::span{ &cmd, 1 })));
+    constexpr uint8_t cmd = 0x00;
+    LOG_IF_ERR(pwr_pump.transmit((std::span{ &cmd, 1 })));
     io::time::delay(1);
 }
 
-bool init(void)
+bool init()
 {
     // 1) Check if peripheral is ready
-    if (!hw::i2c::pwr_pump.isTargetReady())
+    if (!pwr_pump.isTargetReady())
     {
         return false;
     }

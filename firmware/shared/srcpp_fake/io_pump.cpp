@@ -2,34 +2,34 @@
 
 namespace io
 {
-std::expected<void, ErrorCode> Pump::setPercentage(uint8_t percentage) const
+std::expected<void, ErrorCode> pump::setPercentage(uint8_t percentage) const
 {
     (void)percentage;
     return {};
 }
 
-std::expected<uint8_t, ErrorCode> Pump::getPercentage() const
+std::expected<uint8_t, ErrorCode> pump::getPercentage() const
 {
     return 0;
 }
 
-std::expected<void, ErrorCode> Pump::enable(bool enable) const
+std::expected<void, ErrorCode> pump::enable(bool enable) const
 {
     (void)enable;
     return {};
 }
 
-std::expected<bool, ErrorCode> Pump::isEnabled() const
+std::expected<bool, ErrorCode> pump::isEnabled() const
 {
     return true;
 }
 
-std::expected<bool, ErrorCode> Pump::ok() const
+std::expected<bool, ErrorCode> pump::ok() const
 {
     return true;
 }
 
-std::expected<bool, ErrorCode> Pump::isReady() const
+std::expected<bool, ErrorCode> pump::isReady() const
 {
     return true;
 }

@@ -14,7 +14,7 @@ constexpr float DEGREE_PER_VOLT               = 360.0f / (MAX_STEERING_VOLTAGE -
 
 float getAngleDegrees()
 {
-    const float steering_voltage = hw::adcs::str_angle.getVoltage(); // Get the ADC voltage for the steering sensor.
+    const float steering_voltage = str_angle.getVoltage(); // Get the ADC voltage for the steering sensor.
     return DEGREE_PER_VOLT *
            (steering_voltage - STEERING_ANGLE_VOLTAGE_OFFSET); // Calculate and return the steering angle in degrees.
 }

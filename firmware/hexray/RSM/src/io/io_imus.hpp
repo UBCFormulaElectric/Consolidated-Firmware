@@ -8,7 +8,7 @@
 
 namespace io::imus
 {
-extern Imu imu_rear;
+extern imu imu_rear;
 
 std::expected<void, ErrorCode> init();
 } // namespace io::imus

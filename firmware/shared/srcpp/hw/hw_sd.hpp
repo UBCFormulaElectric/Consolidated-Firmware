@@ -22,7 +22,7 @@ class SdCard
   private:
     SD_HandleTypeDef *const _hsd;          /* HAL SD handle that holds the state of the SD card */
     uint32_t                _timeout;      /* the timeout for the SD card operations */
-    const Gpio             &_present_gpio; /* gpio for sd_cd */
+    const gpio             &_present_gpio; /* gpio for sd_cd */
     mutable volatile bool   dma_tx_completed = true;
     mutable volatile bool   dma_rx_completed = true;
 
@@ -41,7 +41,7 @@ class SdCard
 
   public:
     /* Constructor */
-    consteval explicit SdCard(SD_HandleTypeDef *const hsd, const uint32_t timeout, const Gpio &present_gpio)
+    consteval explicit SdCard(SD_HandleTypeDef *const hsd, const uint32_t timeout, const gpio &present_gpio)
       : _hsd(hsd), _timeout(timeout), _present_gpio(present_gpio)
     {
     }
@@ -51,7 +51,7 @@ class SdCard
 
     uint32_t getTimeout() const { return _timeout; }
 
-    const Gpio &getPresentGpio() const { return _present_gpio; }
+    const gpio &getPresentGpio() const { return _present_gpio; }
 
     /* Setters for private fields */
     void setDmaTxCompleted(const bool value) const

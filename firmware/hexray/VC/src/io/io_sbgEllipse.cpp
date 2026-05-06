@@ -218,7 +218,7 @@ std::expected<void, ErrorCode> init()
     assert(uart_sbuf_handle != NULL);
 
     // Start waiting for UART packets
-    RETURN_IF_ERR(sbg_ellipse_uart.receiveDma(std::span<uint8_t>{ uart_dma_buf }));
+    RETURN_IF_ERR(sbg_ellipse_uart.receive(std::span<uint8_t>{ uart_dma_buf }));
     return {};
 }
 

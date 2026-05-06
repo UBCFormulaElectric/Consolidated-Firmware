@@ -5,12 +5,21 @@
 #include <gtest/gtest.h>
 #include <cmath>
 
-#include "util_errorCodes.hpp"
-#include "util_utils.hpp"
+#include "io_bmsShdn.hpp"
+#include "io_bspdTest.hpp"
+#include "io_canTx.hpp"
+#include "io_charger.hpp"
+#include "io_fans.hpp"
+#include "io_imd.hpp"
+#include "io_shdnLoopNode.hpp"
+#include "io_tractiveSystem.hpp"
 #include "io_time.hpp"
 
-using namespace app::can_utils;
+#include "util_errorCodes.hpp"
+#include "util_utils.hpp"
 
+using namespace app::can_utils;
+using namespace app::can_tx;
 struct FaultLatchParams
 {
     io::faultLatch::FaultLatch     *arg0;
@@ -195,7 +204,6 @@ extern "C"
     //         return;
     //     }
 
-#include "io_canTx.hpp"
     void io_canTx_init(
         void (*transmit_can1_msg_func)(const JsonCanMsg *),
         void (*transmit_charger_msg_func)(const JsonCanMsg *))
@@ -210,7 +218,6 @@ extern "C"
 // continue to use `fakes::*` helpers to mutate this state.
 namespace io
 {
-#include "io_irs.hpp"
 namespace irs
 {
     static ContactorState positive_state  = ContactorState::CONTACTOR_STATE_OPEN;
@@ -239,7 +246,6 @@ namespace irs
     }
 } // namespace irs
 
-#include "io_tractiveSystem.hpp"
 namespace ts
 {
     static float voltage               = 0.0f;
@@ -270,7 +276,6 @@ namespace ts
     }
 } // namespace ts
 
-#include "io_imd.hpp"
 namespace imd
 {
     static float   frequency   = 0.0f;
@@ -294,7 +299,6 @@ namespace imd
     }
 } // namespace imd
 
-#include "io_faultLatch.hpp"
 namespace faultLatch
 {
     // The unit test faultlatchg logic here is agnostic to whether the latch and current status are inverted
@@ -317,7 +321,6 @@ namespace faultLatch
     }
 } // namespace faultLatch
 
-#include "io_charger.hpp"
 namespace charger
 {
     static ChargerConnectedType connectionStatus = ChargerConnectedType::CHARGER_DISCONNECTED;
@@ -333,28 +336,12 @@ namespace charger
     }
 } // namespace charger
 
-#include "io_bmsShdn.hpp"
 namespace shdn
 {
-    static bool msd_shdn_sns    = false;
-    static bool hv_p_intlck_sns = false;
-    static bool hv_n_intlck_sns = false;
-
-    bool msd_shdn_sns_pin_get()
-    {
-        return msd_shdn_sns;
-    }
-    bool hv_p_intlck_sns_pin_get()
-    {
-        return hv_p_intlck_sns;
-    }
-    bool hv_n_intlck_sns_pin_get()
-    {
-        return hv_n_intlck_sns;
-    }
+    io::shdn::node hv_p_ok_node(true, app::can_tx::BMS_HVPShdnOKStatus_set);
+    io::shdn::node hv_n_ok_node(true, app::can_tx::BMS_HVNShdnOKStatus_set);
 } // namespace shdn
 
-#include "io_fans.hpp"
 namespace fans
 {
     void tick(const bool enable)
@@ -363,7 +350,6 @@ namespace fans
     }
 } // namespace fans
 
-#include "io_bspdTest.hpp"
 namespace bspdtest
 {
     void enable(const bool enable)

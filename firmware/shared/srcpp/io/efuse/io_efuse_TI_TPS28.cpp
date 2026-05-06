@@ -37,7 +37,7 @@ static constexpr float R_SNS = 1000.0f;
 static constexpr float VSNS_FAULT_MIN = 3.0f;
 static constexpr float VSNS_FAULT_MAX = 3.3f;
 
-[[nodiscard]] float TI_TPS28_Efuse::getChannelCurrent()
+[[nodiscard]] float TI_TPS28_Efuse::getChannelCurrent() const
 {
     // I_SNS = V_SNS / R_SNS * K_SNS
     return this->sns_adc_channel.getVoltage() / R_SNS * K_SNS;
@@ -51,7 +51,7 @@ void TI_TPS28_Efuse::reset()
     this->enable_gpio.writePin(false);
 }
 
-[[nodiscard]] bool TI_TPS28_Efuse::ok()
+[[nodiscard]] bool TI_TPS28_Efuse::ok() const
 {
     const bool  channel_enabled = this->isChannelEnabled();
     const float Isns_voltage    = this->sns_adc_channel.getVoltage();

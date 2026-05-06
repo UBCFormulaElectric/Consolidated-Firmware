@@ -34,10 +34,10 @@ class config
     io::queue<hw::CanMsg, 256> &can_tx_queue;
     io::queue<hw::CanMsg, 256> &can_rx_queue;
 
-    uint32_t  BOARD_HIGHBITS{ 0 };
-    uint32_t  GIT_COMMIT_HASH{ 0 };
-    bool      GIT_COMMIT_CLEAN{ false };
-    std::byte program_buffer[hw::flash::WORD_BYTES];
+    uint32_t                                     BOARD_HIGHBITS{ 0 };
+    uint32_t                                     GIT_COMMIT_HASH{ 0 };
+    bool                                         GIT_COMMIT_CLEAN{ false };
+    std::array<std::byte, hw::flash::WORD_BYTES> program_buffer{};
 
 #if defined(STM32H733xx) || defined(STM32H562xx)
     hw::fdcan &fdcan_handle;
@@ -45,9 +45,9 @@ class config
         hw::fdcan                  &fdcan_handle_in,
         io::queue<hw::CanMsg, 256> &tx_queue,
         io::queue<hw::CanMsg, 256> &rx_queue,
-        uint32_t                    board_highbits,
-        uint32_t                    git_commit_hash,
-        bool                        git_commit_clean)
+        const uint32_t              board_highbits,
+        const uint32_t              git_commit_hash,
+        const bool                  git_commit_clean)
       : can_tx_queue(tx_queue),
         can_rx_queue(rx_queue),
         BOARD_HIGHBITS(board_highbits),
@@ -73,14 +73,13 @@ class config
 
     virtual ~config() = default;
 
-    virtual void boardSpecific_init(void){};
+    virtual void boardSpecific_init(){};
 
-    virtual void boardSpecific_tick(void){};
+    virtual void boardSpecific_tick(){};
 
-    virtual std::expected<void, ErrorCode> boardSpecific_program(uint32_t address, uint64_t data)
+    virtual std::expected<void, ErrorCode> boardSpecific_program(const uint32_t address, const uint64_t data)
     {
-        std::expected<void, ErrorCode> status;
-        uint32_t                       buffer_idx = address % hw::flash::WORD_BYTES;
+        const uint32_t buffer_idx = address % hw::flash::WORD_BYTES;
         std::memcpy(&program_buffer[buffer_idx], &data, sizeof(data));
 
         // On the STM32H733xx microcontroller, the smallest amount of memory you can
@@ -92,16 +91,15 @@ class config
         // write the entire flash word. This implementation only works if the binary size is a multiple of 32 bytes, or
         // the buffer won't fill up for the last few bytes so won't be written into flash. This is guaranteed by canup.
 
-        if (buffer_idx + sizeof(uint64_t) == hw::flash::WORD_BYTES)
+        if (buffer_idx + sizeof(uint64_t) != hw::flash::WORD_BYTES)
         {
-            status = hw::flash::programFlash(address / hw::flash::WORD_BYTES * hw::flash::WORD_BYTES, program_buffer);
+            return std::unexpected(ErrorCode::ERROR_INDETERMINATE);
         }
-
-        return status;
-    };
+        return hw::flash::programFlash(address / hw::flash::WORD_BYTES * hw::flash::WORD_BYTES, program_buffer);
+    }
 };
 
-void              preInit(void);
+void              preInit();
 void              init(config &boot_config);
 [[noreturn]] void runInterfaceTask(config &boot_config);
 [[noreturn]] void runTickTask(config &boot_config);

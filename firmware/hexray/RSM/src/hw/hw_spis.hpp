@@ -3,5 +3,5 @@
 
 namespace hw::spi
 {
-extern const SpiDevice imu_sd;
+extern const device imu_sd;
 } // namespace hw::spi

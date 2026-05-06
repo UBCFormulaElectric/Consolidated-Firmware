@@ -17,7 +17,7 @@ class CRITChimeraConfig : public chimera_v2::config
 {
   public:
     ~CRITChimeraConfig() override = default;
-    std::optional<std::reference_wrapper<const hw::Gpio>> id_to_gpio(const _GpioNetName *gnn) const override
+    std::optional<std::reference_wrapper<const hw::gpio>> id_to_gpio(const _GpioNetName *gnn) const override
     {
         if (gnn->which_name != gpio_net_name_tag)
         {
@@ -56,7 +56,7 @@ class CRITChimeraConfig : public chimera_v2::config
                 return std::nullopt;
         }
     }
-    std::optional<std::reference_wrapper<const hw::spi::SpiDevice>> id_to_spi(const _SpiNetName *snn) const override
+    std::optional<std::reference_wrapper<const hw::spi::device>> id_to_spi(const _SpiNetName *snn) const override
     {
         if (snn->which_name != spi_net_name_tag)
         {
@@ -67,11 +67,11 @@ class CRITChimeraConfig : public chimera_v2::config
         switch (snn->name.crit_net_name)
         {
             case crit_SpiNetName_LED:
-                return std::cref(hw::spi::leds_device);
+                return std::cref(leds_device);
             case crit_SpiNetName_SEVEN_SEG:
-                return std::cref(hw::spi::seven_seg_device);
+                return std::cref(seven_seg_device);
             case crit_SpiNetName_PWR_CHG:
-                return std::cref(hw::spi::pwr_chg_device);
+                return std::cref(pwr_chg_device);
             default:
             case crit_SpiNetName_SPI_NET_NAME_UNSPECIFIED:
                 LOG_INFO("Chimera: Unspecified SPI net name");

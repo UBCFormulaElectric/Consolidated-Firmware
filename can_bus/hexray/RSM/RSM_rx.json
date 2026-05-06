@@ -1,6 +1,10 @@
 {
   "messages": [
-    "FSM_Vitals", 
+    "BMS_Vitals",
+    "CRIT_Vitals",
+    "DAM_Vitals",
+    "FSM_Vitals",
+    "VC_Vitals",
     "FSM_Brake",
     "VC_ConnectorBoardEfuse",
     "VC_PumpStatus"

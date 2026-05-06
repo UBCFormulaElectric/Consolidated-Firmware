@@ -26,6 +26,7 @@
         "VC_Imu2AngularData",
         "VC_Imu3AngularData",
         "FSM_Brake",
-        "CRIT_Switches"
+        "CRIT_Switches",
+        "BMS_PowerLimit"
     ]
 }
