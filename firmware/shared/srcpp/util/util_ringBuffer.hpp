@@ -69,8 +69,7 @@ template <typename T, std::size_t N> class RingBuffer
             return { std::span<const T>{ buf_.data() + start, len }, std::span<const T>{} };
 
         const std::size_t first = N - start;
-        return { std::span<const T>{ buf_.data() + start, first },
-                 std::span<const T>{ buf_.data(), len - first } };
+        return { std::span<const T>{ buf_.data() + start, first }, std::span<const T>{ buf_.data(), len - first } };
     }
 
     // Copy out a contiguous logical run starting at offset, without consuming.
