@@ -587,7 +587,7 @@
         }
     },
     "EllipseEkfNavVelocity": {
-        "msg_id": 218,
+        "msg_id": 558,
         "cycle_time": 100,
         "description": "Car Velocity info",
         "signals": {
@@ -773,10 +773,21 @@
         }
     },
     "Bootup": {
-        "msg_id": 234,
+        "msg_id": 502,
         "cycle_time": null,
         "description": "Async bootup message!",
         "signals": {}
+    },
+    "PCM": {
+        "msg_id": 503,
+        "cycle_time": 100,
+        "signals": {
+            "PcmRetryCount": {
+                "min": 0,
+                "max": 5,
+                "resolution": 1
+            }
+        }
     },
     "EMeterTeamMessage1": {
         "msg_id": 781,
