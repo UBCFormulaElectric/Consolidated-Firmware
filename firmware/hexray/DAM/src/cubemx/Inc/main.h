@@ -43,7 +43,7 @@ extern "C"
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
     extern CRC_HandleTypeDef   hcrc;
-    extern FDCAN_HandleTypeDef hfdcan1; 
+    extern FDCAN_HandleTypeDef hfdcan1;
     extern IWDG_HandleTypeDef  hiwdg;
     extern RTC_HandleTypeDef   hrtc;
     extern SD_HandleTypeDef    hsd1;

@@ -36,7 +36,7 @@ class DAMBootConfig : public bootloader::config
     }
 } dam_boot_config;
 
-CFUNC void bootloader_preinit()
+CFUNC void bootloader_preInit()
 {
     bootloader::preInit();
 }
@@ -57,5 +57,5 @@ static hw::rtos::StaticTask<1024>
     bootTickTask.start();
     bootCanTxTask.start();
     osKernelStart();
-    forever {};
+    forever{};
 }

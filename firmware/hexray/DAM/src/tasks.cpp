@@ -69,8 +69,10 @@
     {
         jobs_run1kHz_tick();
 
-        monitor1khz.checkForTimeouts();
         watchdog1khz.checkIn();
+#ifndef WATCHDOG_DISABLED
+        monitor1khz.checkForTimeouts();
+#endif
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
