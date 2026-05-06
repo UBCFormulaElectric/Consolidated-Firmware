@@ -14,7 +14,9 @@
 #include "io_canTx.hpp"
 #include "io_canQueues.hpp"
 
+#ifdef TARGET_EMBEDDED
 #include "hw_pwmOutputs.hpp"
+#endif
 
 void jobs_init()
 {
@@ -32,8 +34,10 @@ void jobs_init()
     app::can_tx::CRIT_Clean_set(GIT_COMMIT_CLEAN);
     app::can_tx::CRIT_Heartbeat_set(true);
 
+#ifdef TARGET_EMBEDDED
     LOG_IF_ERR(led_dimming.start());
     LOG_IF_ERR(led_dimming.setDutyCycle(100));
+#endif
 
     app::screens::init();
 }
