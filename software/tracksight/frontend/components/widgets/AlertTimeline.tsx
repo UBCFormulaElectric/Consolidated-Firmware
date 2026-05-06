@@ -4,6 +4,7 @@ import { useAlertDataStores } from "@/lib/contexts/signalStores/SignalStoreConte
 import { RefObject, useEffect, useRef } from "react";
 import { AlertSeries } from "./CanvasChartTypes";
 import { useSyncedGraph } from "../SyncedGraphContainer";
+import { render_tooltip, CHART_PADDING } from "./render";
 
 const INITIAL_SLIP_STREAM_LANES = 5;
 const MAX_SLIP_STREAM_LANES = 5;
@@ -288,12 +289,15 @@ function AlertTimeline() {
 
   const {
     globalTimeRangeRef,
-    scalePxPerSecRef,
     XToTime,
+    timeToX,
+    hoverXRef: contextHoverXRef,
   } = useSyncedGraph();
 
   const XToTimeRef = useRef(XToTime);
   XToTimeRef.current = XToTime;
+  const timeToXRef = useRef(timeToX);
+  timeToXRef.current = timeToX;
 
   const cursorIndices = useRef<CursorIndices>({});
   const slipStreamLanes = useRef(INITIAL_SLIP_STREAM_LANES);
@@ -332,7 +336,7 @@ function AlertTimeline() {
 
       const leftEdge = XToTimeRef.current(0);
       const rightEdge = XToTimeRef.current(rect.width);
-      const liveTime = globalTimeRangeRef.current!.max;;
+      const liveTime = globalTimeRangeRef.current!.max;
 
       hoverInfo.current = hitTestAlerts(
         mousePos.current,
@@ -340,7 +344,7 @@ function AlertTimeline() {
         rect.width,
         rect.height,
         leftEdge,
-        rightEdge - 15 / scalePxPerSecRef.current,
+        rightEdge,
         liveTime,
         slipStreamLanes.current,
         ctx,
@@ -356,12 +360,28 @@ function AlertTimeline() {
         rect.width,
         rect.height,
         leftEdge,
-        rightEdge - 15 / scalePxPerSecRef.current,
+        rightEdge,
         bottom,
         liveTime,
         slipStreamLanes.current,
         hoverInfo.current,
       );
+
+      if (contextHoverXRef.current !== null) {
+        // Derive the hover timestamp fresh from raw screen-x each frame so the
+        // crosshair tracks the cursor correctly even when the chart is auto-scrolling.
+        const hoverTime = XToTimeRef.current(contextHoverXRef.current);
+        render_tooltip(
+          ctx,
+          rect.width,
+          rect.height,
+          hoverTime,
+          [],
+          timeToXRef.current,
+          wrapperRef.current?.scrollTop ?? 0,
+          false
+        );
+      }
 
       animationFrame.current = requestAnimationFrame(renderSlipStream);
     };

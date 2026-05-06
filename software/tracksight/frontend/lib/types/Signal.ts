@@ -13,10 +13,7 @@ export enum SignalType {
 
 export type EnumSignalMetadata = CommonSignalMetadata & {
   type: SignalType.ENUM;
-  enum: {
-    items: Record<number, string>;
-    name: string;
-  };
+  enum_type: string;
   min_val: number;
   max_val: number;
   cycle_time_ms: number | null;

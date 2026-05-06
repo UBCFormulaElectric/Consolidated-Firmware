@@ -1,6 +1,7 @@
 import SignalStore from "@/lib/signals/SignalStore";
 import socket from "@/lib/realtime/socket";
-import { SignalMetadata } from "../types/Signal";
+import { SignalMetadata, SignalType } from "../types/Signal";
+import propagateHaar from "../utils/propagateHaar";
 
 type SignalSubscriptionCallbacks = {
   onSuccess?: () => void;
@@ -9,9 +10,15 @@ type SignalSubscriptionCallbacks = {
 
 type SignalMutationFunction = (signalName: string, callbacks?: SignalSubscriptionCallbacks) => void;
 
+const NUM_LOD_LEVELS = 10;
+
 class LiveSignalStore extends SignalStore {
   private subscribeToSignal: SignalMutationFunction;
   private unsubscribeFromSignal: SignalMutationFunction;
+  private waveletBuffers: Map<string, Array<{
+    timestamp: number;
+    value: number;
+  }[] | null>>;
 
   constructor(
     updateWithTimestamp: (timestamp: number) => void,
@@ -22,13 +29,34 @@ class LiveSignalStore extends SignalStore {
 
     this.subscribeToSignal = subscribeToSignal;
     this.unsubscribeFromSignal = unsubscribeFromSignal;
+    this.waveletBuffers = new Map();
 
     socket.on("data", (payload) => {
       const { name: signalName, timestamp, value } = payload;
 
       if (!this.storage[signalName]) return;
 
-      this.addDataPoint(signalName, new Date(timestamp).getTime(), value);
+      const ts = new Date(timestamp).getTime();
+      this.addDataPoint(signalName, ts, value);
+
+      if (this.storage[signalName].storeType === SignalType.NUMERICAL) {
+        const waveletBuffer = this.waveletBuffers.get(signalName);
+
+        if (!waveletBuffer) {
+          throw new Error(`Received data for signal ${signalName} which is not initialized in waveletBuffers`);
+        }
+
+        propagateHaar(
+          waveletBuffer,
+          0,
+          ts,
+          value,
+          (level, intervalMs, timestamp, value) => {
+            this.addDataPointAtLOD(signalName, level, intervalMs, timestamp, value);
+          },
+          NUM_LOD_LEVELS
+        )
+      }
     });
 
     socket.on("connect", () => {
@@ -50,6 +78,10 @@ class LiveSignalStore extends SignalStore {
 
     if (this.getSubscriberCount(signal.name) !== 1) return signalData.data as any;
 
+    if (signal.type === SignalType.NUMERICAL) {
+      this.waveletBuffers.set(signal.name, new Array(NUM_LOD_LEVELS).fill(null));
+    }
+
     this.subscribeToSignal(signal.name, {
       onError: (error) => {
         this.setError(signal.name, error);
@@ -65,6 +97,7 @@ class LiveSignalStore extends SignalStore {
     if (!shouldCleanup) return;
 
     this.markAsUnsubscribed(signal.name);
+    this.waveletBuffers.delete(signal.name);
 
     this.unsubscribeFromSignal(signal.name, {
       onSuccess: () => {
