@@ -4,12 +4,14 @@
 #include "app_jsoncan.hpp"
 #include "app_heartbeatMonitors.hpp"
 #include "app_canRx.hpp"
+#include "app_powerMonitoring.hpp"
 
 #include "io_canMsg.hpp"
 #include "io_canTx.hpp"
 #include "io_canQueues.hpp"
 #include "io_time.hpp"
 #include "io_canReroute.hpp"
+#include "io_powerMonitoring.hpp"
 
 #include <util_errorCodes.hpp>
 
@@ -49,4 +51,8 @@ void jobs_run100Hz_tick()
 void jobs_run1kHz_tick()
 {
     io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
+}
+void jobs_runPowerMonitoring_tick()
+{
+    app::powerMonitoring::update();
 }

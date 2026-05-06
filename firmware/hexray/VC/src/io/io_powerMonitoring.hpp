@@ -1,19 +1,17 @@
 #pragma once
-
 #include <cstdint>
 #include <expected>
 #include <span>
-
 #include "util_errorCodes.hpp"
 
 namespace io::powerMonitoring
 {
-std::expected<void, ErrorCode> read_register(std::uint16_t reg, std::span<uint8_t> data);
-std::expected<void, ErrorCode> write_register(std::uint16_t reg, std::span<const uint8_t> data);
-
-void  refresh(void);
-bool  init(void);
-float read_voltage(uint8_t ch);
-float read_current(uint8_t ch);
-float read_power(uint8_t ch);
+std::expected<void, ErrorCode>    refresh(void);
+std::expected<void, ErrorCode>    init(void);
+std::expected<float, ErrorCode>   read_voltage(uint8_t ch);
+std::expected<float, ErrorCode>   read_current(uint8_t ch);
+std::expected<float, ErrorCode>   read_power(uint8_t ch);
+std::expected<uint8_t, ErrorCode> read_alert_status();
+std::expected<bool, ErrorCode>    is_alert_asserted();
+std::expected<void, ErrorCode>    monitor_power_inputs();
 } // namespace io::powerMonitoring

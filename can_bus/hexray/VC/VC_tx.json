@@ -769,6 +769,30 @@
                 "min": 0.0,
                 "max": 800.0,
                 "unit": "W"
+            },
+            "Alert_OV_Channel1": {
+                "bits": 1
+            },
+            "Alert_OV_Channel2": {
+                "bits": 1
+            },
+            "Alert_OV_Channel3": {
+                "bits": 1
+            },
+            "Alert_OV_Channel4": {
+                "bits": 1
+            },
+            "Alert_UV_Channel1": {
+                "bits": 1
+            },
+            "Alert_UV_Channel2": {
+                "bits": 1
+            },
+            "Alert_UV_Channel3": {
+                "bits": 1
+            },
+            "Alert_UV_Channel4": {
+                "bits": 1
             }
         }
     },

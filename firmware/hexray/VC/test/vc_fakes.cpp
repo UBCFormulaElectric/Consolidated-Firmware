@@ -86,22 +86,37 @@ namespace sbgEllipse
 
 namespace powerMonitoring
 {
-    float read_power(unsigned char)
+    std::expected<float, ErrorCode> read_power(uint8_t)
     {
         return 0.0f;
     }
-    float read_current(unsigned char)
+    std::expected<float, ErrorCode> read_current(uint8_t)
     {
         return 0.0f;
     }
-    float read_voltage(unsigned char)
+    std::expected<float, ErrorCode> read_voltage(uint8_t)
     {
         return 0.0f;
     }
-    void refresh() {}
-    bool init()
+    std::expected<void, ErrorCode> refresh()
     {
-        return true;
+        return {};
+    }
+    std::expected<void, ErrorCode> init()
+    {
+        return {};
+    }
+    std::expected<void, ErrorCode> monitor_power_inputs()
+    {
+        return {};
+    }
+    std::expected<uint8_t, ErrorCode> read_alert_status()
+    {
+        return 0u;
+    }
+    std::expected<bool, ErrorCode> is_alert_asserted()
+    {
+        return false;
     }
 } // namespace powerMonitoring
 namespace imus

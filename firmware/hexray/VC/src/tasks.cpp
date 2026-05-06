@@ -6,6 +6,7 @@
 
 #include "io_time.hpp"
 #include "io_canQueues.hpp"
+#include "io_powerMonitoring.hpp"
 #include "hw_can.hpp"
 #include "hw_gpio.hpp"
 #include "io_canRx.hpp"
@@ -130,6 +131,21 @@
     }
 }
 
+// lowk js copied from last years task
+[[noreturn]] static void tasks_powerMonitoring(void *arg)
+{
+    static const TickType_t period_ms   = 10;
+    static uint32_t         start_ticks = 0;
+    start_ticks                         = osKernelGetTickCount();
+
+    for (;;)
+    {
+        jobs_runPowerMonitoring_tick();
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
+}
+
 // Define the task with StaticTask Class
 static hw::rtos::StaticTask<8096> Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz);
 static hw::rtos::StaticTask<512>  Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz);
@@ -137,6 +153,7 @@ static hw::rtos::StaticTask<512>  Task1Hz(osPriorityAboveNormal, "Task1Hz", task
 static hw::rtos::StaticTask<512>  TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_runCanRx);
 static hw::rtos::StaticTask<512>  TaskCan1Tx(osPriorityNormal, "TaskCanTx", tasks_runCan1Tx);
 static hw::rtos::StaticTask<512>  TaskCan2Tx(osPriorityNormal, "TaskCanTx", tasks_runCan2Tx);
+static hw::rtos::StaticTask<512>  TaskPowerMonitoring(osPriorityNormal, "TaskPowerMonitoring", tasks_powerMonitoring);
 
 static void VC_StartAllTasks()
 {
@@ -146,6 +163,7 @@ static void VC_StartAllTasks()
     TaskCanRx.start();
     TaskCan1Tx.start();
     TaskCan2Tx.start();
+    TaskPowerMonitoring.start();
 }
 
 void tasks_preInit()
@@ -159,7 +177,8 @@ void tasks_init()
     // __HAL_DBGMCU_FREEZE_IWDG();
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("VC Reset!");
-
+    osKernelInitialize();
+    jobs_init();
     fdcan1.init();
     invcan.init();
 
