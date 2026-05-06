@@ -204,6 +204,7 @@ void bootloader::init(config &boot_config)
         {
             // Program 64 bits at the current address.
             // No reply for program command to reduce latency.
+            // TODO: Change to parse FDCAN frame
             const uint64_t command_packet = command.getDataAsQWords()[0];
             if (const auto status = boot_config.boardSpecific_program(current_address, command_packet);
                 not status and status.error() != ErrorCode::ERROR_INDETERMINATE)

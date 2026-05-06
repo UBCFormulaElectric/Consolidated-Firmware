@@ -77,6 +77,7 @@ class config
 
     virtual void boardSpecific_tick(){};
 
+    // TODO: Change data to be a span of uint64_t, split into 16 or 32 byte chunks, and flash
     virtual std::expected<void, ErrorCode> boardSpecific_program(const uint32_t address, const uint64_t data)
     {
         const uint32_t buffer_idx = address % hw::flash::WORD_BYTES;
