@@ -265,7 +265,7 @@
       "type": "cmake",
       "command": "build",
       "targets": [
-        "hexray_DAM_app.hex"
+        "hexray_DAM.hex"
       ]
     },
     {
