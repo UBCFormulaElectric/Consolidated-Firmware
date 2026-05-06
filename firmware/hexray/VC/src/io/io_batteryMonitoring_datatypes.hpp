@@ -2,14 +2,15 @@
 #pragma once
 #include <cstdint>
 
-// MVolateg Measurement
+// Voltage Measurement
 typedef enum
 {
     VOLTAGE,
     CURRENT
 } Measurement;
 
-enum CellReading : uint8_t {
+enum CellReading : uint8_t
+{
     CELL1 = 0x14,
     CELL2 = 0x16,
     CELL3 = 0x18,
@@ -17,7 +18,8 @@ enum CellReading : uint8_t {
     CELL5 = 0x1C
 };
 
-enum SystemReading : uint8_t {
+enum SystemReading : uint8_t
+{
     PACK_V = 0x36,
     LOAD_V = 0x38
 };
@@ -43,22 +45,22 @@ constexpr uint16_t REG_CHECKSUM     = 0x60;
 constexpr uint16_t REG_DATALENGTH   = 0x61;
 constexpr uint16_t REG_ALARM_STATUS = 0x62;
 
-constexpr uint8_t SUBCOMMAND_BYTES = 4; // account for the 0x3E/0x3F and 0x61 and 0x60
-constexpr uint32_t RETRIES = 20;
+constexpr uint8_t  SUBCOMMAND_BYTES = 4; // account for the 0x3E/0x3F and 0x61 and 0x60
+constexpr uint32_t RETRIES          = 20;
 
 // DEEPSLEEP/SLEEP Checks
 constexpr uint16_t CMD_CONTROL_STATUS    = 0x00;
 constexpr uint8_t  CTRL_STATUS_DEEPSLEEP = (1 << 2);
 constexpr uint16_t SUBCMD_WAKE_DEEPSLEEP = 0x000E;
 
-constexpr uint16_t CMD_BATTERY_STATUS    = 0x12;
-constexpr uint16_t BAT_STATUS_SLEEP      = (1 << 15);
-constexpr uint16_t SUBCMD_WAKE_SLEEP     = 0x009A;
+constexpr uint16_t CMD_BATTERY_STATUS = 0x12;
+constexpr uint16_t BAT_STATUS_SLEEP   = (1 << 15);
+constexpr uint16_t SUBCMD_WAKE_SLEEP  = 0x009A;
 
 // CONFIG_UPDATE
-constexpr uint16_t SUBCMD_SET_CFGUPDATE  = 0x0090;
-constexpr uint8_t CFGUPDATE_STATUS = (1 << 0);
-constexpr uint16_t EXIT_CFGUPDATE = 0x0092;
+constexpr uint16_t SUBCMD_SET_CFGUPDATE = 0x0090;
+constexpr uint8_t  CFGUPDATE_STATUS     = (1 << 0);
+constexpr uint16_t EXIT_CFGUPDATE       = 0x0092;
 
 // OTP
 constexpr uint16_t OTP_WR_CHECK = 0x00A0;
@@ -106,9 +108,8 @@ constexpr uint8_t SAFETY_C_PTO  = (1u << 2);
 constexpr uint8_t SAFETY_C_HWDF = (1u << 1);
 
 // FET stuff
-constexpr uint16_t FET_FET_OPTION  = 0x9308;
+constexpr uint16_t FET_FET_OPTION     = 0x9308;
 constexpr uint16_t SUBCMD_ALL_FETS_ON = 0x0096;
-
 
 // OTP Security
 enum class SecurityState : uint8_t

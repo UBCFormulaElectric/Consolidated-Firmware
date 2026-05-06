@@ -16,9 +16,9 @@ namespace io::batteryMonitoring
 static std::expected<void, ErrorCode> read_register(uint16_t reg, std::span<uint8_t> data);
 static std::expected<void, ErrorCode> write_register(uint16_t reg, std::span<uint8_t> data);
 
-static std::expected<void, ErrorCode> command_read_byte(uint8_t command_addr, uint8_t* data);
+static std::expected<void, ErrorCode> command_read_byte(uint8_t command_addr, uint8_t *data);
 static std::expected<void, ErrorCode> command_write_byte(uint8_t command_addr, uint8_t data);
-static std::expected<void, ErrorCode> command_read_2byte(uint8_t command_addr, uint16_t* data);
+static std::expected<void, ErrorCode> command_read_2byte(uint8_t command_addr, uint16_t *data);
 static std::expected<void, ErrorCode> command_write_2byte(uint8_t command_addr, uint16_t data);
 
 static std::expected<void, ErrorCode> read_subcommand(uint16_t sub_cmd, std::span<uint8_t> data);
@@ -40,7 +40,7 @@ static std::expected<void, ErrorCode> write_register(uint16_t reg, std::span<uin
 }
 
 /* -------------------- Commands ------------------------- */
-[[maybe_unused]] static std::expected<void, ErrorCode> command_read_byte(uint8_t command_addr, uint8_t* data)
+[[maybe_unused]] static std::expected<void, ErrorCode> command_read_byte(uint8_t command_addr, uint8_t *data)
 {
     *data = 0;
     RETURN_IF_ERR_SILENT(read_register(command_addr, std::span(data, 1)));
@@ -51,9 +51,9 @@ static std::expected<void, ErrorCode> write_register(uint16_t reg, std::span<uin
     RETURN_IF_ERR_SILENT(write_register(command_addr, std::span(&data, 1)));
     return {};
 }
-static std::expected<void, ErrorCode> command_read_2byte(uint8_t command_addr, uint16_t* data)
+static std::expected<void, ErrorCode> command_read_2byte(uint8_t command_addr, uint16_t *data)
 {
-    uint8_t rx_buffer[2] = {0, 0};
+    uint8_t rx_buffer[2] = { 0, 0 };
     RETURN_IF_ERR(read_register(command_addr, std::span(rx_buffer, 2)));
     *data = static_cast<uint16_t>((rx_buffer[1] << 8) | rx_buffer[0]);
     return {};
@@ -82,14 +82,14 @@ static std::expected<void, ErrorCode> command_write_2byte(uint8_t command_addr, 
     // 1. Write lower byte of subcommand to 0x3E
     RETURN_IF_ERR(write_register(REG_LOWER, std::span<uint8_t>(&low_byte, 1)));
     // 2. Write upper byte of subcommand to 0x3F
-    RETURN_IF_ERR(write_register(REG_UPPER,std::span<uint8_t>(&high_byte, 1)));
+    RETURN_IF_ERR(write_register(REG_UPPER, std::span<uint8_t>(&high_byte, 1)));
 
     /* 3. Read 0x3E and 0x3F. If this returns 0xFF, this indicates the subcommand has not completed operation  yet. When
     the subcommand has completed, the readback will return what was originally written. Continue reading 0x3E and 0x3F
     until it returns what was written originally */
     uint8_t low_status   = 0xFF;
     uint8_t high_status  = 0xFF;
-    bool subcmd_ready = false;
+    bool    subcmd_ready = false;
     for (uint32_t attempt = 0; attempt < RETRIES; attempt++)
     {
         RETURN_IF_ERR(read_register(REG_LOWER, std::span<uint8_t>(&low_status, 1)));
@@ -120,7 +120,7 @@ static std::expected<void, ErrorCode> command_write_2byte(uint8_t command_addr, 
     {
         return std::unexpected(ErrorCode::OUT_OF_RANGE);
     }
-    if (buffer_len > 0) 
+    if (buffer_len > 0)
     {
         RETURN_IF_ERR(read_register(REG_DATA, data.first(buffer_len)));
     }
@@ -128,7 +128,7 @@ static std::expected<void, ErrorCode> command_write_2byte(uint8_t command_addr, 
     // 6. Read the checksum at 0x60 and verify it matches the data read.
     uint8_t received_checksum = 0;
     RETURN_IF_ERR(read_register(REG_CHECKSUM, std::span<uint8_t>(&received_checksum, 1)));
-    
+
     uint16_t sum = low_byte + high_byte;
     for (uint8_t byte : data.first(buffer_len))
     {
@@ -176,7 +176,8 @@ static std::expected<void, ErrorCode> write_subcommand(uint16_t sub_cmd, std::sp
     // 4. Calculate Data Length, length = data payload bytes + 4 (for 0x3E, 0x3F, 0x60, 0x61)
     uint8_t total_len = static_cast<uint8_t>(data.size() + 4);
 
-    // 5. Combine Checksum and Length into a single 16-bit word, checksum goes to 0x60 (lower byte), length goes to 0x61 (upper byte)
+    // 5. Combine Checksum and Length into a single 16-bit word, checksum goes to 0x60 (lower byte), length goes to 0x61
+    // (upper byte)
     uint16_t check_and_len = static_cast<uint16_t>((total_len << 8) | checksum);
 
     // writing length to 0x61 forces the chip to verify the checksum and save the data
@@ -214,7 +215,8 @@ std::expected<uint16_t, ErrorCode> get_voltage_system(SystemReading system)
 {
     uint16_t cv_voltage = 0;
     RETURN_IF_ERR(command_read_2byte(system, &cv_voltage));
-    return static_cast<uint16_t>(cv_voltage * 10); //  The units for TOS, PACK, and LD voltages are reported in cV (10mV LSB) by default
+    return static_cast<uint16_t>(
+        cv_voltage * 10); //  The units for TOS, PACK, and LD voltages are reported in cV (10mV LSB) by default
 }
 
 [[maybe_unused]] static std::expected<void, ErrorCode> protectionInit(void)
@@ -235,14 +237,18 @@ static std::expected<void, ErrorCode> fetsInit(void)
     return {};
 }
 
-void random(void)
+std::expected<void, ErrorCode> random(void)
 {
-    
+    // RETURN_IF_ERR(bat_mon.isTargetReady());
+    uint16_t control_status = 0;
+    RETURN_IF_ERR(command_read_2byte(CMD_CONTROL_STATUS, &control_status));
+    LOG_INFO("pass");
+    return {};
 }
 
 std::expected<void, ErrorCode> init(void)
 {
-    // 1. Is chip responsive 
+    // 1. Is chip responsive
     // RETURN_IF_ERR(bat_mon.isTargetReady());
 
     // 2.0 Check to see if chip is in DEEPSLEEP
@@ -264,7 +270,7 @@ std::expected<void, ErrorCode> init(void)
         RETURN_IF_ERR(execute_subcommand(SUBCMD_WAKE_SLEEP));
         LOG_INFO("Device is out of sleep mode");
     }
-    
+
     // 3. Put the device into CONFIG_UPDATE mode
     RETURN_IF_ERR(execute_subcommand(SUBCMD_SET_CFGUPDATE));
     constexpr uint16_t BAT_STATUS_CFGUPDATE = (1 << 0);
@@ -486,55 +492,51 @@ std::expected<void, ErrorCode> OTP(void)
 
 } // namespace io::batteryMonitoring
 
+/*SECURITY MODES (for OTP)
+uint16_t security_state_unfiltered = 0;
+RETURN_IF_ERR(read_register_word(CMD_BATTERY_STATUS, security_state_unfiltered));
+SecurityState security_state = static_cast<SecurityState>((security_state_unfiltered & 0x0300u) >> 8u);
 
+ uint16_t full_access = 0x1100; idk anything but 0xFFFF
+std::array<uint8_t, 2> full_access_bytes = {{static_cast<uint8_t>(full_access & 0x00FF),
+static_cast<uint8_t>((full_access >> 8) & 0x00FF)}};
 
+RETURN_IF_ERR(write_data_memory(FULL_ACCESS_EDIT, full_access_bytes));
 
-    /*SECURITY MODES (for OTP)
-    uint16_t security_state_unfiltered = 0;
+Lowkey might be unneccesary due to the fact that there is no direct mention of how the chip boots up, but it does
+give the option to transsniton to sealed mode, so ig the assumption can be made that we begin in FULL ACCESS mode
+if (security_state == SecurityState::SEALED)
+{
+    RETURN_IF_ERR(write_register_byte(REG_LOWER, static_cast<uint8_t>(SECURITY_UNSEAL_FIRST)));
+    RETURN_IF_ERR(write_register_byte(REG_UPPER, static_cast<uint8_t>(SECURITY_UNSEAL_FIRST >> 8)));
+    RETURN_IF_ERR(write_register_byte(REG_LOWER, static_cast<uint8_t>(SECURITY_UNSEAL_SECOND)));
+    RETURN_IF_ERR(write_register_byte(REG_UPPER, static_cast<uint8_t>(SECURITY_UNSEAL_SECOND >> 8)));
+    // io::time::delay(10);
+
     RETURN_IF_ERR(read_register_word(CMD_BATTERY_STATUS, security_state_unfiltered));
-    SecurityState security_state = static_cast<SecurityState>((security_state_unfiltered & 0x0300u) >> 8u);
-
-     uint16_t full_access = 0x1100; idk anything but 0xFFFF
-    std::array<uint8_t, 2> full_access_bytes = {{static_cast<uint8_t>(full_access & 0x00FF),
-    static_cast<uint8_t>((full_access >> 8) & 0x00FF)}};
-
-    RETURN_IF_ERR(write_data_memory(FULL_ACCESS_EDIT, full_access_bytes));
-
-    Lowkey might be unneccesary due to the fact that there is no direct mention of how the chip boots up, but it does
-    give the option to transsniton to sealed mode, so ig the assumption can be made that we begin in FULL ACCESS mode
+    security_state = static_cast<SecurityState>((security_state_unfiltered & 0x0300u) >> 8u);
     if (security_state == SecurityState::SEALED)
     {
-        RETURN_IF_ERR(write_register_byte(REG_LOWER, static_cast<uint8_t>(SECURITY_UNSEAL_FIRST)));
-        RETURN_IF_ERR(write_register_byte(REG_UPPER, static_cast<uint8_t>(SECURITY_UNSEAL_FIRST >> 8)));
-        RETURN_IF_ERR(write_register_byte(REG_LOWER, static_cast<uint8_t>(SECURITY_UNSEAL_SECOND)));
-        RETURN_IF_ERR(write_register_byte(REG_UPPER, static_cast<uint8_t>(SECURITY_UNSEAL_SECOND >> 8)));
-        // io::time::delay(10);
-
-        RETURN_IF_ERR(read_register_word(CMD_BATTERY_STATUS, security_state_unfiltered));
-        security_state = static_cast<SecurityState>((security_state_unfiltered & 0x0300u) >> 8u);
-        if (security_state == SecurityState::SEALED)
-        {
-            return std::unexpected(ErrorCode::ERROR);
-        }
+        return std::unexpected(ErrorCode::ERROR);
     }
+}
 
-    else if (security_state == SecurityState::UNSEALED)
+else if (security_state == SecurityState::UNSEALED)
+{
+    This is very suspicious way of doing this, prior to OTP ensure to review because the security codes cannot be
+     the default 0xFFFF. If tests work and I check via debugging that the shit jumps straight into FULL ACESS on
+     boot, I can js get rid of this and edit the data memory in init() and js boot at FULL ACESSS alwats
+    RETURN_IF_ERR(write_register_byte(REG_LOWER, static_cast<uint8_t>(SECURITY_FULLACESS)));
+    RETURN_IF_ERR(write_register_byte(REG_UPPER, static_cast<uint8_t>(SECURITY_FULLACESS >> 8)));
+    RETURN_IF_ERR(write_register_byte(REG_LOWER, static_cast<uint8_t>(SECURITY_FULLACESS)));
+    RETURN_IF_ERR(write_register_byte(REG_UPPER, static_cast<uint8_t>(SECURITY_FULLACESS >> 8)));
+    RETURN_IF_ERR(write_subcommand(full_access, {}));
+    io::time::delay(10);
+
+    RETURN_IF_ERR(read_register_word(CMD_BATTERY_STATUS, security_state_unfiltered));
+    security_state = static_cast<SecurityState>((security_state_unfiltered & 0x0300u) >> 8u);
+    if (security_state != SecurityState::FULL_ACCESS)
     {
-        This is very suspicious way of doing this, prior to OTP ensure to review because the security codes cannot be
-         the default 0xFFFF. If tests work and I check via debugging that the shit jumps straight into FULL ACESS on
-         boot, I can js get rid of this and edit the data memory in init() and js boot at FULL ACESSS alwats
-        RETURN_IF_ERR(write_register_byte(REG_LOWER, static_cast<uint8_t>(SECURITY_FULLACESS)));
-        RETURN_IF_ERR(write_register_byte(REG_UPPER, static_cast<uint8_t>(SECURITY_FULLACESS >> 8)));
-        RETURN_IF_ERR(write_register_byte(REG_LOWER, static_cast<uint8_t>(SECURITY_FULLACESS)));
-        RETURN_IF_ERR(write_register_byte(REG_UPPER, static_cast<uint8_t>(SECURITY_FULLACESS >> 8)));
-        RETURN_IF_ERR(write_subcommand(full_access, {}));
-        io::time::delay(10);
-
-        RETURN_IF_ERR(read_register_word(CMD_BATTERY_STATUS, security_state_unfiltered));
-        security_state = static_cast<SecurityState>((security_state_unfiltered & 0x0300u) >> 8u);
-        if (security_state != SecurityState::FULL_ACCESS)
-        {
-            return std::unexpected(ErrorCode::ERROR);
-        }
-    } */
-    
+        return std::unexpected(ErrorCode::ERROR);
+    }
+} */
