@@ -24,7 +24,6 @@
 #include "hw_bootup.h"
 #include "hw_gpios.h"
 #include "hw_resetReason.h"
-#include "hw_runTimeStat.h"
 
 // chimera
 #include "hw_chimeraConfig_v2.h"
@@ -106,11 +105,6 @@ void tasks_init(void)
     // Shutdown loop power comes from a load switch on the BMS.
     hw_gpio_writePin(&shdn_en_pin, true);
 
-    CpuRunTimeStats cpu_info = { .cpu_usage_max_setter = app_canTx_BMS_CoreCpuUsage_set,
-                                 .cpu_usage_setter     = app_canTx_BMS_CoreCpuUsageMax_set };
-
-    hw_runtimeStat_registerCpu(&cpu_info);
-
     jobs_init();
 
     io_canTx_BMS_Bootup_sendAperiodic(); // TODO do this in jobs_init
@@ -121,13 +115,6 @@ void tasks_run1Hz(void)
     const uint32_t  period_ms                = 1000U;
     const uint32_t  watchdog_grace_period_ms = 50U;
     WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
-
-    TaskRuntimeStats task_run1Hz = { .task_index             = TASK_RUN1HZ,
-                                     .stack_size             = 512,
-                                     .cpu_usage_max_setter   = app_canTx_BMS_TaskRun1HzCpuUsageMax_set,
-                                     .cpu_usage_setter       = app_canTx_BMS_TaskRun1HzCpuUsage_set,
-                                     .stack_usage_max_setter = app_canTx_BMS_TaskRun1HzStackUsage_set };
-    hw_runTimeStat_registerTask(&task_run1Hz);
 
     uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
@@ -151,13 +138,6 @@ void tasks_run100Hz(void)
     const uint32_t  watchdog_grace_period_ms = 2U;
     WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
 
-    TaskRuntimeStats task_run100Hz = { .task_index             = TASK_RUN100HZ,
-                                       .stack_size             = 512,
-                                       .cpu_usage_max_setter   = app_canTx_BMS_TaskRun100HzCpuUsageMax_set,
-                                       .cpu_usage_setter       = app_canTx_BMS_TaskRun100HzCpuUsage_set,
-                                       .stack_usage_max_setter = app_canTx_BMS_TaskRun100HzStackUsage_set };
-    hw_runTimeStat_registerTask(&task_run100Hz);
-
     uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
     {
@@ -180,13 +160,6 @@ void tasks_run1kHz(void)
     const uint32_t  watchdog_grace_period_ms = 1U;
     WatchdogHandle *watchdog                 = hw_watchdog_initTask(period_ms + watchdog_grace_period_ms);
 
-    TaskRuntimeStats task_run1kHz = { .task_index             = TASK_RUN1KHZ,
-                                      .stack_size             = 512,
-                                      .cpu_usage_max_setter   = app_canTx_BMS_TaskRun1kHzCpuUsageMax_set,
-                                      .cpu_usage_setter       = app_canTx_BMS_TaskRun1kHzCpuUsage_set,
-                                      .stack_usage_max_setter = app_canTx_BMS_TaskRun1kHzStackUsage_set };
-    hw_runTimeStat_registerTask(&task_run1kHz);
-
     uint32_t start_ticks = osKernelGetTickCount();
     for (;;)
     {
@@ -204,14 +177,6 @@ void tasks_run1kHz(void)
 
 void tasks_runCanTx(void)
 {
-    TaskRuntimeStats task_runcantx = { .task_index             = TASK_RUNCANTX,
-                                       .stack_size             = 512,
-                                       .cpu_usage_max_setter   = app_canTx_BMS_TaskRunCanTxCpuUsageMax_set,
-                                       .cpu_usage_setter       = app_canTx_BMS_TaskRunCanTxCpuUsage_set,
-                                       .stack_usage_max_setter = app_canTx_BMS_TaskRunCanTxStackUsage_set };
-
-    hw_runTimeStat_registerTask(&task_runcantx);
-
     for (;;)
     {
         CanMsg tx_msg = io_canQueue_popTx(&can_tx_queue);
@@ -237,14 +202,6 @@ void tasks_runCanTx(void)
 
 void tasks_runCanRx(void)
 {
-    TaskRuntimeStats task_runcanrx = { .task_index             = TASK_RUNCANRX,
-                                       .stack_size             = 512,
-                                       .cpu_usage_max_setter   = app_canTx_BMS_TaskRunCanRxCpuUsageMax_set,
-                                       .cpu_usage_setter       = app_canTx_BMS_TaskRunCanRxCpuUsage_set,
-                                       .stack_usage_max_setter = app_canTx_BMS_TaskRunCanRxStackUsage_set };
-
-    hw_runTimeStat_registerTask(&task_runcanrx);
-
     for (;;)
     {
         const CanMsg rx_msg       = io_canQueue_popRx();
@@ -257,15 +214,6 @@ void tasks_runCanRx(void)
 
 void tasks_runLtcVoltages(void)
 {
-    TaskRuntimeStats tasks_runLtcVoltages = { .task_index           = TASK_RUNLTCVOLTAGES,
-                                              .stack_size           = 512,
-                                              .cpu_usage_max_setter = app_canTx_BMS_TaskRunLtcVoltagesCpuUsageMax_set,
-                                              .cpu_usage_setter     = app_canTx_BMS_TaskRunLtcVoltagesCpuUsage_set,
-                                              .stack_usage_max_setter =
-                                                  app_canTx_BMS_TaskRunLtcVoltagesStackUsage_set };
-
-    hw_runTimeStat_registerTask(&tasks_runLtcVoltages);
-
 #ifdef TARGET_HV_SUPPLY
     for (;;)
         osDelay(osWaitForever);
@@ -284,14 +232,6 @@ void tasks_runLtcVoltages(void)
 
 void tasks_runLtcTemps(void)
 {
-    TaskRuntimeStats tasks_runLtcTemps = { .task_index             = TASK_RUNLTCTEMPS,
-                                           .stack_size             = 512,
-                                           .cpu_usage_max_setter   = app_canTx_BMS_TaskRunLtcTempCpuUsageMax_set,
-                                           .cpu_usage_setter       = app_canTx_BMS_TaskRunLtcTempCpuUsage_set,
-                                           .stack_usage_max_setter = app_canTx_BMS_TaskRunLtcTempStackUsage_set };
-
-    hw_runTimeStat_registerTask(&tasks_runLtcTemps);
-
 #ifdef TARGET_HV_SUPPLY
     for (;;)
         osDelay(osWaitForever);
@@ -310,16 +250,6 @@ void tasks_runLtcTemps(void)
 
 void tasks_runLtcDiagnostics(void)
 {
-    TaskRuntimeStats tasks_runLtcDiagnostics = { .task_index = TASK_RUNLTCDIAGNOSTICS,
-                                                 .stack_size = 512,
-                                                 .cpu_usage_max_setter =
-                                                     app_canTx_BMS_TaskRunLtcDiagnosticsCpuUsageMax_set,
-                                                 .cpu_usage_setter = app_canTx_BMS_TaskRunLtcDiagnosticsCpuUsage_set,
-                                                 .stack_usage_max_setter =
-                                                     app_canTx_BMS_TaskRunLtcDiagnosticsStackUsage_set };
-
-    hw_runTimeStat_registerTask(&tasks_runLtcDiagnostics);
-
 #ifdef TARGET_HV_SUPPLY
     for (;;)
         osDelay(osWaitForever);
