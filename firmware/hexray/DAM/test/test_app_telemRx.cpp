@@ -6,6 +6,7 @@
 #include <gtest/gtest.h>
 #include <vector>
 
+#include "app_crc32.hpp"
 #include "app_ntp.hpp"
 #include "io_rtc.hpp"
 
@@ -20,9 +21,15 @@ void          reset();
 
 namespace
 {
+uint32_t computeCrc(const std::vector<uint8_t> &data)
+{
+    uint32_t c = app::crc32::init();
+    c          = app::crc32::update(c, data.data(), data.size());
+    return app::crc32::finalize(c);
+}
+
 // Build a frame with the codebase wire format:
 //   [0xCC][0x33][body_size][crc:4 LE][body...]
-// fake_io_crc returns 0, so all expected_crc fields are 0.
 std::vector<uint8_t> buildNtpFrame(uint64_t t1, uint64_t t2)
 {
     std::vector<uint8_t> body(17, 0);
@@ -30,7 +37,13 @@ std::vector<uint8_t> buildNtpFrame(uint64_t t1, uint64_t t2)
     std::memcpy(&body[1], &t1, sizeof(uint64_t));
     std::memcpy(&body[9], &t2, sizeof(uint64_t));
 
-    std::vector<uint8_t> frame{ 0xCC, 0x33, static_cast<uint8_t>(body.size()), 0, 0, 0, 0 };
+    uint32_t crc = computeCrc(body);
+
+    std::vector<uint8_t> frame{ 0xCC, 0x33, static_cast<uint8_t>(body.size()) };
+    frame.push_back(static_cast<uint8_t>(crc >>  0));
+    frame.push_back(static_cast<uint8_t>(crc >>  8));
+    frame.push_back(static_cast<uint8_t>(crc >> 16));
+    frame.push_back(static_cast<uint8_t>(crc >> 24));
     frame.insert(frame.end(), body.begin(), body.end());
     return frame;
 }

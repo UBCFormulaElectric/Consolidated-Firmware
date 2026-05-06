@@ -23,6 +23,7 @@ file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS
 )
 list(APPEND APP_SRCS
         "${SHARED_APP_INCLUDE_DIR_CPP}/app_timer.cpp"
+        "${SHARED_APP_INCLUDE_DIR_CPP}/app_crc32.cpp"
 )
 set(APP_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
@@ -160,7 +161,6 @@ elseif ("${TARGET}" STREQUAL "test")
     )
     set(FAKE_SRCS
             "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/test/fake_io_crc.cpp"
     )
     set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_IO_SRCS} ${TEST_SRCS} ${FAKE_SRCS})
     set(INCLUDE_DIRS

@@ -3,7 +3,7 @@
 #include <span>
 
 #include "io_telemMessage.hpp"
-#include "io_crc.hpp"
+#include "app_crc32.hpp"
 
 namespace
 {
@@ -45,7 +45,9 @@ namespace io::telemMessage
 Header::Header(const uint8_t *payload, uint8_t payload_length)
   : magic{ MAGIC_HIGH, MAGIC_LOW }, payload_size(payload_length), crc(0)
 {
-    crc = io::crc::calculatePayloadCrc(std::span<const uint8_t>{ payload, payload_length });
+    uint32_t c = app::crc32::init();
+    c          = app::crc32::update(c, payload, payload_length);
+    crc        = app::crc32::finalize(c);
 }
 
 TelemCanMsg::TelemCanMsg(const io::CanMsg &rx_msg, uint64_t time_offset)

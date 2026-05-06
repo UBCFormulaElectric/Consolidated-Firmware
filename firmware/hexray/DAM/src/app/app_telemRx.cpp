@@ -3,7 +3,7 @@
 #include <array>
 
 #include "app_ntp.hpp"
-#include "io_crc.hpp"
+#include "app_crc32.hpp"
 #include "io_log.hpp"
 #include "io_telemRx.hpp"
 #include "util_ringBuffer.hpp"
@@ -109,7 +109,10 @@ namespace
         if (!g_ring.copyOut(headerSize, body))
             return false;
 
-        if (io::crc::calculatePayloadCrc(body) != expected_crc)
+        uint32_t c = app::crc32::init();
+        c          = app::crc32::update(c, body.data(), body.size());
+
+        if (app::crc32::finalize(c) != expected_crc)
         {
             LOG_ERROR("telemRx: CRC mismatch, resyncing");
             g_ring.discard(1); // resync one byte at a time

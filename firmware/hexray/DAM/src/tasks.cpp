@@ -4,7 +4,6 @@
 
 #include "app_jsoncan.hpp"
 
-#include "io_crc.hpp"
 #include "io_time.hpp"
 #include "io_telemMessage.hpp"
 #include "io_canQueues.hpp"
@@ -211,7 +210,6 @@ void tasks_init()
 
     osKernelInitialize();
     hw_uarts_init();
-    io::crc::init();
     jobs_init();
     DAM_StartAllTasks();
     osKernelStart();

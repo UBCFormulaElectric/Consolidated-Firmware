@@ -1,9 +1,9 @@
 use std::time::Duration;
 
-use crc::{Crc, CRC_32_MPEG_2};
+use crc::{Crc, CRC_32_ISO_HDLC};
 
 // calc is short for calculator for those new to the chat
-pub const CRC32_CALC: Crc<u32> = Crc::<u32>::new(&CRC_32_MPEG_2);
+pub const CRC32_CALC: Crc<u32> = Crc::<u32>::new(&CRC_32_ISO_HDLC);
 
 /*
  * Telem packet bytes in the form of
