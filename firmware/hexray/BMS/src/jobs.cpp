@@ -167,16 +167,5 @@ void jobs_run100Hz_tick()
 void jobs_run1kHz_tick()
 {
     io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
-    soc::broadcast();
-}
-
-void jobs_runSdCard_tick(const uint32_t rounded_soc)
-{
-    const uint32_t last_written_soc = app::soc::getLastWrittenSocTenths();
-    if (last_written_soc != UINT32_MAX && last_written_soc == rounded_soc)
-    {
-        return;
-    }
-
-    app::soc::writeSocToSd((float)rounded_soc / 10.0f);
+    app::soc::broadcast();
 }

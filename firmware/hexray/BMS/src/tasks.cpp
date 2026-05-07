@@ -2,6 +2,7 @@
 
 #include "jobs.hpp"
 #include "app_soc.hpp"
+#include "app_socStorage.hpp"
 #include "app_jsoncan.hpp"
 #include "app_canTx.hpp"
 #include "app_canUtils.hpp"
@@ -24,8 +25,6 @@
 #include <task.h>
 #include <climits>
 
-static TaskHandle_t TaskSdCardHandle = nullptr;
-
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
     constexpr uint32_t             period_ms                = 1000U;
@@ -40,9 +39,9 @@ static TaskHandle_t TaskSdCardHandle = nullptr;
         jobs_run1Hz_tick();
 
         uint32_t soc_tenths = 0U;
-        if (app::soc::getSocToSave(soc_tenths))
+        if (app::socStorage::convertSocToTenths(app::soc::getMinSocPercent(), soc_tenths))
         {
-            xTaskNotify(TaskSdCardHandle, soc_tenths, eSetValueWithOverwrite);
+            xTaskNotify(TaskSdCard.id(), soc_tenths, eSetValueWithOverwrite);
         }
 
         watchdog_1hz.checkIn();
@@ -138,9 +137,6 @@ static TaskHandle_t TaskSdCardHandle = nullptr;
 [[noreturn]] static void tasks_runSdCard(void *arg)
 {
     const uint32_t                 period_ms                = 1000U;
-    const uint32_t                 watchdog_grace_period_ms = 50U;
-    hw::watchdog::WatchdogInstance watchdog_sdCard =
-        hw::watchdog::WatchdogInstance(TASK_INDEX_SD_CARD, period_ms + watchdog_grace_period_ms);
     uint32_t start_ticks = osKernelGetTickCount();
 
     forever
@@ -148,9 +144,13 @@ static TaskHandle_t TaskSdCardHandle = nullptr;
         uint32_t rounded_soc = 0U;
         if (xTaskNotifyWait(0, ULONG_MAX, &rounded_soc, 0) == pdTRUE)
         {
-            jobs_runSdCard_tick(rounded_soc);
+            const uint32_t last_written_soc     = app::socStorage::getLastWrittenSocTenths();
+            const bool soc_storage_available    = app::socStorage::isAvailable();
+            if (soc_storage_available && last_written_soc != rounded_soc)
+            {
+                app::socStorage::writeSocToSd((float)rounded_soc / 10.0f);
+            }
         }
-        watchdog_sdCard.checkIn();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -171,7 +171,7 @@ void BMS_StartAllTasks()
     Task100Hz.start();
     TaskCanRx.start();
     TaskCanTx.start();
-    TaskSdCardHandle = static_cast<TaskHandle_t>(TaskSdCard.start());
+    TaskSdCard.start();
 }
 
 void tasks_preInit()

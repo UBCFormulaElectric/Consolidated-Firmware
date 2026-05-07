@@ -11,24 +11,14 @@ inline constexpr float    STATE_OF_HEALTH = 1.0f;
 inline constexpr float SERIES_ELEMENT_FULL_CHARGE_C = 3.0f * AH_TO_COULOMBS * 4.0f * STATE_OF_HEALTH;
 
 /**
- * @brief Get SoC estimate from open-circuit voltage.
- */
-float getSocFromOcv(float voltage);
-
-/**
- * @brief Get open-circuit voltage estimate from SoC.
- */
-float getOcvFromSoc(float soc_percent);
-
-/**
  * @brief Initialize the SOC module.
  */
 void init();
 
 /**
- * @brief Return whether startup SoC read was corrupt/unavailable.
+ * @brief Return whether the SoC estimate is dirty and needs to be updated.
  */
-bool getCorrupt();
+bool getDirty();
 
 /**
  * @brief Integrate current over time to update SoC charge estimate.
@@ -61,28 +51,8 @@ void resetSocFromVoltage();
 void resetSocCustomValue(float soc_percent);
 
 /**
- * @brief Read SoC value from SD storage.
- */
-bool readSocFromSd(float &saved_soc_percent);
-
-/**
- * @brief Write SoC value to SD storage.
- */
-bool writeSocToSd(float soc_percent);
-
-/**
- * @brief Get the last SoC value written to SD card in tenths of a percent.
- */
-uint32_t getLastWrittenSocTenths();
-
-/**
  * @brief Broadcast SOC related CAN signals.
  */
 void broadcast();
-
-/**
- * @brief Get the SoC value to save to SD in tenths of a percent when valid.
- */
-bool getSocToSave(uint32_t &soc_tenths);
 
 } // namespace app::soc

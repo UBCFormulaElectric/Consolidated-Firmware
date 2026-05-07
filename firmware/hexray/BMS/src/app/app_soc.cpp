@@ -1,9 +1,9 @@
 #include "app_soc.hpp"
 #include "app_canTx.hpp"
 #include "app_math.hpp"
+#include "app_socStorage.hpp"
 #include "app_tractiveSystem.hpp"
 #include "io_irs.hpp"
-#include "io_socStorage.hpp"
 #include "io_time.hpp"
 
 #include <array>
@@ -14,14 +14,8 @@ namespace
 {
 constexpr double MS_TO_S = 0.001;
 
-constexpr uint32_t V_TO_SOC_LUT_SIZE      = 201U;
-constexpr float    LUT_BASE_SOC           = 0.0f;
-constexpr uint32_t SOC_TENTHS_UNAVAILABLE = UINT32_MAX;
-
-constexpr uint32_t socPercentToTenths(const float soc_percent)
-{
-    return static_cast<uint32_t>(soc_percent * 10.0f + 0.5f);
-}
+constexpr uint32_t V_TO_SOC_LUT_SIZE = 201U;
+constexpr float    LUT_BASE_SOC      = 0.0f;
 
 // Charge in cell in coulombs.
 double soc_charge_c = -1.0;
@@ -29,11 +23,10 @@ double soc_charge_c = -1.0;
 // Charge loss at time t-1.
 float soc_prev_current_A = 0.0f;
 
-// Indicates if SOC from SD was corrupt at startup.
-bool soc_is_corrupt = true;
+// Indicates if SOC from SD was invalid at startup.
+bool soc_is_dirty = true;
 
-uint32_t soc_last_saved_tenths = SOC_TENTHS_UNAVAILABLE;
-uint32_t soc_prev_update_ms    = 0U;
+uint32_t soc_prev_update_ms = 0U;
 
 // index 0 represents 0.0% SoC, final index represents 100%. 0.5% increments.
 constexpr std::array<float, V_TO_SOC_LUT_SIZE> ocv_soc_lut = { {
@@ -59,26 +52,37 @@ constexpr std::array<float, V_TO_SOC_LUT_SIZE> ocv_soc_lut = { {
     4.100969f, 4.105953f, 4.111315f, 4.117198f, 4.124902f, 4.134033f, 4.143165f, 4.155217f, 4.171970f, 4.188723f,
     4.205476f,
 } };
-} // namespace
-
-namespace app::soc
-{
 
 float getSocFromOcv(const float voltage)
 {
-    uint32_t lut_index = 0U;
-
-    while ((lut_index < V_TO_SOC_LUT_SIZE) && (voltage > ocv_soc_lut[lut_index]))
+    if (!std::isfinite(voltage) || (voltage <= ocv_soc_lut[0U]))
     {
-        ++lut_index;
+        return LUT_BASE_SOC;
     }
 
-    if (lut_index == V_TO_SOC_LUT_SIZE)
+    if (voltage > ocv_soc_lut[V_TO_SOC_LUT_SIZE - 1U])
     {
-        lut_index = V_TO_SOC_LUT_SIZE - 1U;
+        return LUT_BASE_SOC + static_cast<float>(V_TO_SOC_LUT_SIZE - 1U) * 0.5f;
     }
 
-    return LUT_BASE_SOC + static_cast<float>(lut_index) * 0.5f;
+    uint32_t lower_index = 0U;
+    uint32_t upper_index = V_TO_SOC_LUT_SIZE - 1U;
+
+    while (lower_index < upper_index)
+    {
+        const uint32_t mid_index = lower_index + (upper_index - lower_index) / 2U;
+
+        if (voltage > ocv_soc_lut[mid_index])
+        {
+            lower_index = mid_index + 1U;
+        }
+        else
+        {
+            upper_index = mid_index;
+        }
+    }
+
+    return LUT_BASE_SOC + static_cast<float>(lower_index) * 0.5f;
 }
 
 float getOcvFromSoc(const float soc_percent)
@@ -98,28 +102,31 @@ float getOcvFromSoc(const float soc_percent)
     return ocv_soc_lut[lut_index];
 }
 
+} // namespace
+
+namespace app::soc
+{
 void init()
 {
-    soc_prev_current_A = 0.0f;
-    soc_is_corrupt     = true;
-    soc_charge_c       = -1.0;
-
-    soc_last_saved_tenths = SOC_TENTHS_UNAVAILABLE;
-
     float saved_soc_percent = -1.0f;
-    if (readSocFromSd(saved_soc_percent) && IS_IN_RANGE(0.0f, 100.0f, saved_soc_percent))
+    if (app::socStorage::readSocFromSd(saved_soc_percent) && IS_IN_RANGE(0.0f, 100.0f, saved_soc_percent))
     {
-        soc_charge_c          = static_cast<double>(saved_soc_percent / 100.0f * SERIES_ELEMENT_FULL_CHARGE_C);
-        soc_is_corrupt        = false;
-        soc_last_saved_tenths = socPercentToTenths(saved_soc_percent);
+        soc_charge_c  = static_cast<double>(saved_soc_percent / 100.0f * SERIES_ELEMENT_FULL_CHARGE_C);
+        soc_is_dirty = false;
+    }
+    else
+    {
+        soc_prev_current_A = 0.0f;
+        soc_is_dirty     = true;
+        soc_charge_c       = -1.0;
     }
 
     soc_prev_update_ms = io::time::getCurrentMs();
 }
 
-bool getCorrupt()
+bool getDirty()
 {
-    return soc_is_corrupt;
+    return soc_is_dirty;
 }
 
 void updateSocStats()
@@ -153,47 +160,14 @@ float getMinOcvFromSoc()
 void resetSocFromVoltage()
 {
     // TODO: Use minimum cell voltage once app::segments is migrated in Hexray BMS.
-    soc_is_corrupt = true;
+    soc_is_dirty = true;
 }
 
 void resetSocCustomValue(const float soc_percent)
 {
     soc_charge_c = static_cast<double>(soc_percent / 100.0f * SERIES_ELEMENT_FULL_CHARGE_C);
 
-    soc_is_corrupt = true;
-}
-
-bool readSocFromSd(float &saved_soc_percent)
-{
-    return io::socStorage::read(saved_soc_percent);
-}
-
-bool writeSocToSd(const float soc_percent)
-{
-    const bool write_success = io::socStorage::write(soc_percent);
-    if (write_success && IS_IN_RANGE(0.0f, 100.0f, soc_percent))
-    {
-        soc_last_saved_tenths = socPercentToTenths(soc_percent);
-    }
-
-    return write_success;
-}
-
-uint32_t getLastWrittenSocTenths()
-{
-    if (soc_last_saved_tenths != SOC_TENTHS_UNAVAILABLE)
-    {
-        return soc_last_saved_tenths;
-    }
-
-    float saved_soc_percent = -1.0f;
-    if (readSocFromSd(saved_soc_percent) && IS_IN_RANGE(0.0f, 100.0f, saved_soc_percent))
-    {
-        soc_last_saved_tenths = socPercentToTenths(saved_soc_percent);
-        return soc_last_saved_tenths;
-    }
-
-    return SOC_TENTHS_UNAVAILABLE;
+    soc_is_dirty = true;
 }
 
 void broadcast()
@@ -204,18 +178,6 @@ void broadcast()
     {
         updateSocStats();
     }
-}
-
-bool getSocToSave(uint32_t &soc_tenths)
-{
-    const float min_soc_percent = getMinSocPercent();
-    if (!IS_IN_RANGE(0.0f, 100.0f, min_soc_percent))
-    {
-        return false;
-    }
-
-    soc_tenths = socPercentToTenths(min_soc_percent);
-    return true;
 }
 
 } // namespace app::soc
