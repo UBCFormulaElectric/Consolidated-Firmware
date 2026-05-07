@@ -147,6 +147,7 @@ template <size_t TaskCount> class monitor
             // get the idle time that we need to calculate the cpu usage associated
             if (idle_counter + runTimeStats[task].ulRunTimeCounter != 0)
             {
+                assert(_tasks_info[task].t->id() == runTimeStats[task].xHandle);
                 // Calculate current cpu usage
                 const float task_cpu_usage = static_cast<float>(runTimeStats[task].ulRunTimeCounter) /
                                              static_cast<float>(idle_counter + runTimeStats[task].ulRunTimeCounter) *
