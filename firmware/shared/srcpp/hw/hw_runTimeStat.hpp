@@ -5,6 +5,9 @@
 #include <cmsis_os.h>
 #include <algorithm>
 
+#if PROFILING_ENABLED != 1
+#error "PROFILING_ENABLED must be set to 1 in FreeRTOSConfig.h to use runTimeStat"
+#endif
 #if configUSE_TRACE_FACILITY != 1
 #error "configUSE_TRACE_FACILITY must be set to 1 in FreeRTOSConfig.h to use runTimeStat"
 #endif
@@ -83,6 +86,9 @@ template <size_t TaskCount> class monitor
                 .stack_usage_max_setter = tasks[i].stack_usage_max_setter,
             };
         }
+        std::sort(
+            _tasks_info.begin(), _tasks_info.begin() + TaskCount,
+            [](const TaskInfoInternal &a, const TaskInfoInternal &b) { return a.t->id() < b.t->id(); });
 
         // mi bombo
         _tasks_info[IDLE_TASK_INDEX] = {

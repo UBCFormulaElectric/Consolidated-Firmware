@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include "tasks.h"
 #include "hw_error.hpp"
+#include "hw_runTimeStat_helpers.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -681,7 +682,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         HAL_IncTick();
     }
     /* USER CODE BEGIN Callback 1 */
-
+    if (htim->Instance == TIM7)
+    {
+        hw_runTimeStat_inc();
+    }
     /* USER CODE END Callback 1 */
 }
 

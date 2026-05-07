@@ -21,7 +21,7 @@
         }
     },
     "VehicleDynamics": {
-        "msg_id": 501,
+        "msg_id": 510,
         "cycle_time": 100,
         "description": "Vehicle dynamics info",
         "signals": {
@@ -61,7 +61,7 @@
         }
     },
     "Imu1LinearData": {
-        "msg_id": 505,
+        "msg_id": 511,
         "cycle_time": 10,
         "description": "Linear Acceleration x, y and z direction from the first IMU",
         "signals": {
@@ -89,7 +89,7 @@
         }
     },
     "Imu2LinearData": {
-        "msg_id": 510,
+        "msg_id": 512,
         "cycle_time": 10,
         "description": "Linear Acceleration x, y and z direction from the second IMU",
         "signals": {

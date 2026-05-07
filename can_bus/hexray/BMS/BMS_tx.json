@@ -1247,7 +1247,17 @@
         "min": 2,
         "max": 5,
         "unit": "V"
-      },
+      }
+    }
+  },
+  "CellVoltages_Seg8_Seg9": {
+    "msg_id": 462,
+    "cycle_time": 1000,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Cell voltages: Segment 8-9",
+    "signals": {
       "Seg8_Cell0_Voltage": {
         "resolution": 0.01,
         "min": 2,
@@ -2107,7 +2117,17 @@
         "min": 10,
         "max": 70,
         "unit": "degC"
-      },
+      }
+    }
+  },
+  "CellTemps_Seg8_Seg9": {
+    "msg_id": 472,
+    "cycle_time": 1000,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "BMS Temps: Segments 8-9",
+    "signals": {
       "Seg8_Cell0_Temp": {
         "resolution": 0.2,
         "min": 10,
