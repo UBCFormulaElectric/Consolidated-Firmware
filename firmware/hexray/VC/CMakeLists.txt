@@ -176,11 +176,10 @@ if ("${TARGET}" STREQUAL "binary")
     target_link_libraries("hexray_VC_chimera.elf" PRIVATE "hexray_VC_stm32")
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
-    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS}
+    set(SRCS ${APP_SRCS} ${APP_SHARED_SRCS} ${JOBS_SRC} ${TEST_SRCS}
             "${SHARED_FAKES_DIR_CPP}/io_imu.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_pump.cpp"
-            "${SHARED_APP_INCLUDE_DIR_CPP}/app_timer.cpp"
     )
     set(INCLUDE_DIRS
             "${CMAKE_CURRENT_SOURCE_DIR}/test"
