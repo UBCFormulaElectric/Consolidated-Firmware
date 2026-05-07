@@ -1,5 +1,6 @@
 #pragma once
 #include "util_utils.hpp"
+#include "hw_hal.hpp"
 #include "stm32h5xx_hal_tim.h"
 
 CFUNC void       tasks_preInit(void);
