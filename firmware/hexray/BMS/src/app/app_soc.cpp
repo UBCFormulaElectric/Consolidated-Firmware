@@ -111,13 +111,13 @@ void init()
     float saved_soc_percent = -1.0f;
     if (app::socStorage::readSocFromSd(saved_soc_percent) && IS_IN_RANGE(0.0f, 100.0f, saved_soc_percent))
     {
-        soc_charge_c  = static_cast<double>(saved_soc_percent / 100.0f * SERIES_ELEMENT_FULL_CHARGE_C);
+        soc_charge_c = static_cast<double>(saved_soc_percent / 100.0f * SERIES_ELEMENT_FULL_CHARGE_C);
         soc_is_dirty = false;
     }
     else
     {
         soc_prev_current_A = 0.0f;
-        soc_is_dirty     = true;
+        soc_is_dirty       = true;
         soc_charge_c       = -1.0;
     }
 
@@ -160,6 +160,7 @@ float getMinOcvFromSoc()
 void resetSocFromVoltage()
 {
     // TODO: Use minimum cell voltage once app::segments is migrated in Hexray BMS.
+    (void)getSocFromOcv(0.0f);
     soc_is_dirty = true;
 }
 

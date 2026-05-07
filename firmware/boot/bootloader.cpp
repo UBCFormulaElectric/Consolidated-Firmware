@@ -261,7 +261,7 @@ void bootloader::init(config &boot_config)
     {
         if (!update_in_progress)
         {
-            // Broadcast a message at 1Hz so we can check status over CAN.
+            // Broadcast a message at 10Hz so we can check status over CAN.
             hw::CanMsg status_msg{};
             status_msg.std_id               = boot_config.BOARD_HIGHBITS | STATUS_10HZ_ID_LOWBITS;
             status_msg.dlc                  = 5;

@@ -1,5 +1,6 @@
 #include "app_socStorage.hpp"
 #include "io_log.hpp"
+#include "hw_sds.hpp"
 
 extern "C"
 {
@@ -11,7 +12,7 @@ extern "C"
 
 namespace
 {
-constexpr const char *SOC_STORAGE_PATH        = "/soc.txt";
+constexpr const char *SOC_STORAGE_PATH       = "/soc.txt";
 constexpr uint32_t    SOC_TENTHS_UNAVAILABLE = UINT32_MAX;
 
 FileSystemError soc_storage_status    = FILE_MOUNT_FAILED;
@@ -91,7 +92,8 @@ void init()
 {
     soc_storage_ready = false;
 
-    if (!io_fileSystem_present())
+    // TODO: Replace once cpp version of filesystem is implemented
+    if (!sd1.sdPresent())
     {
         (void)recordStatus(FILE_MOUNT_FAILED);
         LOG_ERROR("SoC storage unavailable: SD card not present");
@@ -132,7 +134,8 @@ void init()
 
 bool isAvailable()
 {
-    return io_fileSystem_present() && soc_storage_ready;
+    // TODO replace once cpp version of filesystem is implemented
+    return sd1.sdPresent() && soc_storage_ready;
 }
 
 FileSystemError getStatus()
@@ -194,6 +197,5 @@ bool convertSocToTenths(const float soc_percent, uint32_t &soc_tenths)
     soc_tenths = socPercentToTenths(soc_percent);
     return true;
 }
-
 
 } // namespace app::socStorage

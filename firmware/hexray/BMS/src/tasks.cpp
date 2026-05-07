@@ -25,6 +25,21 @@
 #include <task.h>
 #include <climits>
 
+[[noreturn]] static void tasks_run1kHz(void *arg);
+[[noreturn]] static void tasks_run1Hz(void *arg);
+[[noreturn]] static void tasks_run100Hz(void *arg);
+[[noreturn]] static void tasks_runCanRx(void *arg);
+[[noreturn]] static void tasks_runCanTx(void *arg);
+[[noreturn]] static void tasks_runSdCard(void *arg);
+
+// Define the task with StaticTask template class
+static hw::rtos::StaticTask<512> Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz);
+static hw::rtos::StaticTask<512> Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz);
+static hw::rtos::StaticTask<512> Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz);
+static hw::rtos::StaticTask<512> TaskCanRx(osPriorityBelowNormal, "TaskCanRx", tasks_runCanRx);
+static hw::rtos::StaticTask<512> TaskCanTx(osPriorityBelowNormal, "TaskCanTx", tasks_runCanTx);
+static hw::rtos::StaticTask<128> TaskSdCard(osPriorityLow, "TaskSdCard", tasks_runSdCard);
+
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
     constexpr uint32_t             period_ms                = 1000U;
@@ -37,14 +52,13 @@
     forever
     {
         jobs_run1Hz_tick();
-
         uint32_t soc_tenths = 0U;
         if (app::socStorage::convertSocToTenths(app::soc::getMinSocPercent(), soc_tenths))
         {
-            xTaskNotify(TaskSdCard.id(), soc_tenths, eSetValueWithOverwrite);
+            xTaskNotify((TaskHandle_t)TaskSdCard.id(), soc_tenths, eSetValueWithOverwrite);
         }
 
-        watchdog_1hz.checkIn();
+        watchdog1hz.checkIn();
         start_ticks += period_ms;
         io::time::delayUntil(start_ticks);
         osDelayUntil(start_ticks);
@@ -136,16 +150,16 @@
 
 [[noreturn]] static void tasks_runSdCard(void *arg)
 {
-    const uint32_t                 period_ms                = 1000U;
-    uint32_t start_ticks = osKernelGetTickCount();
+    const uint32_t period_ms   = 1000U;
+    uint32_t       start_ticks = osKernelGetTickCount();
 
     forever
     {
         uint32_t rounded_soc = 0U;
         if (xTaskNotifyWait(0, ULONG_MAX, &rounded_soc, 0) == pdTRUE)
         {
-            const uint32_t last_written_soc     = app::socStorage::getLastWrittenSocTenths();
-            const bool soc_storage_available    = app::socStorage::isAvailable();
+            const uint32_t last_written_soc      = app::socStorage::getLastWrittenSocTenths();
+            const bool     soc_storage_available = app::socStorage::isAvailable();
             if (soc_storage_available && last_written_soc != rounded_soc)
             {
                 app::socStorage::writeSocToSd((float)rounded_soc / 10.0f);
@@ -155,14 +169,6 @@
         osDelayUntil(start_ticks);
     }
 }
-
-// Define the task with StaticTask template class
-static hw::rtos::StaticTask<512> Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz);
-static hw::rtos::StaticTask<512> Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz);
-static hw::rtos::StaticTask<512> Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz);
-static hw::rtos::StaticTask<512> TaskCanRx(osPriorityBelowNormal, "TaskCanRx", tasks_runCanRx);
-static hw::rtos::StaticTask<512> TaskCanTx(osPriorityBelowNormal, "TaskCanTx", tasks_runCanTx);
-static hw::rtos::StaticTask<128> TaskSdCard(osPriorityLow, "TaskSdCard", tasks_runSdCard);
 
 void BMS_StartAllTasks()
 {
