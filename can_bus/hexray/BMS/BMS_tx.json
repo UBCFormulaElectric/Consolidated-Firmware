@@ -1247,17 +1247,7 @@
         "min": 2,
         "max": 5,
         "unit": "V"
-      }
-    }
-  },
-  "CellVoltages_Seg8_Seg9": {
-    "msg_id": 462,
-    "cycle_time": 1000,
-    "allowed_modes": [
-      "DEBUG"
-    ],
-    "description": "Cell voltages: Segment 8-9",
-    "signals": {
+      },
       "Seg8_Cell0_Voltage": {
         "resolution": 0.01,
         "min": 2,
@@ -2117,17 +2107,7 @@
         "min": 10,
         "max": 70,
         "unit": "degC"
-      }
-    }
-  },
-  "CellTemps_Seg8_Seg9": {
-    "msg_id": 472,
-    "cycle_time": 1000,
-    "allowed_modes": [
-      "DEBUG"
-    ],
-    "description": "BMS Temps: Segments 8-9",
-    "signals": {
+      },
       "Seg8_Cell0_Temp": {
         "resolution": 0.2,
         "min": 10,
@@ -2778,6 +2758,115 @@
     "signals": {
       "OpenWireCheckStatus": {
         "bits": 1
+      }
+    }
+  },
+  "CPUDataLogInfo": {
+    "msg_id": 416,
+    "cycle_time": 100,
+    "description": "BMS cpu and stack information",
+    "signals": {
+      "CoreCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "CoreCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun1HzCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun1HzCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun1HzStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun100HzCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun100HzCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun100HzStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun1kHzCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun1kHzCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun1kHzStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCanTxCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCanTxCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCanTxStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCanRxCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCanRxCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCanRxStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
       }
     }
   },
