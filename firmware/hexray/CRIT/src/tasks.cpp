@@ -3,8 +3,8 @@
 #include "main.h"
 
 #include "app_jsoncan.hpp"
-#include "app_canAlerts.hpp"
 #include "app_canTx.hpp"
+#include "app_canAlerts.hpp"
 
 #include "io_time.hpp"
 #include "io_canRx.hpp"
@@ -37,7 +37,7 @@ static hw::rtos::StaticTask Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100H
 static hw::rtos::StaticTask TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
 static hw::rtos::StaticTask TaskCanTx(osPriorityNormal, "TaskCanTx", tasks_runCanTx, TaskCanTxStack);
 
-static hw::runtimeStat::monitor<5> runtime_monitor(
+static hw::runtimeStat::monitor<5> runtimeMonitor(
     {
         app::can_tx::CRIT_CoreCpuUsage_set,
         app::can_tx::CRIT_CoreCpuUsageMax_set,
@@ -87,7 +87,7 @@ void tasks_run1Hz(void *arg)
     forever
     {
         jobs_run1Hz_tick();
-        runtime_monitor.checkin();
+        runtimeMonitor.checkin();
 
         watchdog1hz.checkIn();
 

@@ -3,6 +3,8 @@
 #include "jobs.hpp"
 
 #include "app_jsoncan.hpp"
+#include "app_canTx.hpp"
+#include "app_canAlerts.hpp"
 
 #include "io_time.hpp"
 #include "io_telemMessage.hpp"
@@ -14,10 +16,38 @@
 #include "hw_cans.hpp"
 #include "hw_watchdog.hpp"
 #include "hw_resetReason.hpp"
-#include "app_canAlerts.hpp"
 #include "hw_bootup.hpp"
+#include "hw_runTimeStat.hpp"
 
-[[noreturn]] static void tasks_run1Hz(void *arg)
+[[noreturn]] static void tasks_run1Hz(void *arg);
+[[noreturn]] static void tasks_run100Hz(void *arg);
+[[noreturn]] static void tasks_run1kHz(void *arg);
+[[noreturn]] static void tasks_runLogging(void *arg);
+[[noreturn]] static void tasks_runTelem(void *arg);
+[[noreturn]] static void tasks_runTelemRx(void *arg);
+[[noreturn]] static void tasks_runCanTx(void *arg);
+[[noreturn]] static void tasks_runCanRx(void *arg);
+
+// Define the task with StaticTask Class
+static hw::rtos::StaticTask::StaticTaskStack<8096> Task100HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCanTxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCanRxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  Task1kHzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  Task1HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024> TaskLoggingStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskTelemStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskTelemRxStack;
+
+static hw::rtos::StaticTask Task100Hz(osPriorityRealtime, "Task100Hz", tasks_run100Hz, Task100HzStack);
+static hw::rtos::StaticTask TaskCanTx(osPriorityAboveNormal, "TaskCanTx", tasks_runCanTx, TaskCanTxStack);
+static hw::rtos::StaticTask TaskCanRx(osPriorityHigh, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
+static hw::rtos::StaticTask Task1kHz(osPriorityBelowNormal, "Task1kHz", tasks_run1kHz, Task1kHzStack);
+static hw::rtos::StaticTask Task1Hz(osPriorityBelowNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
+static hw::rtos::StaticTask TaskLogging(osPriorityHigh, "TaskLogging", tasks_runLogging, TaskLoggingStack);
+static hw::rtos::StaticTask TaskTelem(osPriorityHigh, "TaskTelem", tasks_runTelem, TaskTelemStack);
+static hw::rtos::StaticTask TaskTelemRx(osPriorityHigh, "TaskTelemRx", tasks_runTelemRx, TaskTelemRxStack);
+
+void tasks_run1Hz(void *arg)
 {
     constexpr uint32_t             period_ms                = 1000U;
     constexpr uint32_t             watchdog_grace_period_ms = 50U;
@@ -37,7 +67,7 @@
         osDelayUntil(start_ticks);
     }
 }
-[[noreturn]] static void tasks_run100Hz(void *arg)
+void tasks_run100Hz(void *arg)
 {
     constexpr uint32_t             period_ms                = 10U;
     constexpr uint32_t             watchdog_grace_period_ms = 2U;
@@ -56,7 +86,7 @@
         osDelayUntil(start_ticks);
     }
 }
-[[noreturn]] static void tasks_run1kHz(void *arg)
+void tasks_run1kHz(void *arg)
 {
     constexpr uint32_t             period_ms                = 1U;
     constexpr uint32_t             watchdog_grace_period_ms = 1U;
@@ -79,7 +109,7 @@
     }
 }
 
-[[noreturn]] static void tasks_runLogging(void *arg)
+void tasks_runLogging(void *arg)
 {
     osDelayUntil(osWaitForever);
     forever
@@ -87,7 +117,7 @@
         jobs_runLogging_tick();
     }
 }
-[[noreturn]] static void tasks_runTelem(void *arg)
+void tasks_runTelem(void *arg)
 {
     // const io::telemMessage::BaseTimeRegMsg base_time_msg(boot_time);
     // LOG_IF_ERR(_900k_uart.transmitPoll(
@@ -98,7 +128,7 @@
         jobs_runTelem_tick();
     }
 }
-[[noreturn]] static void tasks_runTelemRx(void *arg)
+void tasks_runTelemRx(void *arg)
 {
     osDelayUntil(osWaitForever);
     forever
@@ -107,7 +137,7 @@
     }
 }
 
-[[noreturn]] static void tasks_runCanTx(void *arg)
+void tasks_runCanTx(void *arg)
 {
     forever
     {
@@ -129,7 +159,7 @@
         }
     }
 }
-[[noreturn]] static void tasks_runCanRx(void *arg)
+void tasks_runCanRx(void *arg)
 {
     forever
     {
@@ -139,25 +169,6 @@
         io::can_rx::updateRxTableWithMessage(app::jsoncan::copyFromCanMsg(msg.value()));
     }
 }
-
-// Define the task with StaticTask Class
-static hw::rtos::StaticTask::StaticTaskStack<8096> Task100HzStack;
-static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCanTxStack;
-static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCanRxStack;
-static hw::rtos::StaticTask::StaticTaskStack<512>  Task1kHzStack;
-static hw::rtos::StaticTask::StaticTaskStack<512>  Task1HzStack;
-static hw::rtos::StaticTask::StaticTaskStack<1024> TaskLoggingStack;
-static hw::rtos::StaticTask::StaticTaskStack<512>  TaskTelemStack;
-static hw::rtos::StaticTask::StaticTaskStack<512>  TaskTelemRxStack;
-
-static hw::rtos::StaticTask Task100Hz(osPriorityRealtime, "Task100Hz", tasks_run100Hz, Task100HzStack);
-static hw::rtos::StaticTask TaskCanTx(osPriorityAboveNormal, "TaskCanTx", tasks_runCanTx, TaskCanTxStack);
-static hw::rtos::StaticTask TaskCanRx(osPriorityHigh, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
-static hw::rtos::StaticTask Task1kHz(osPriorityBelowNormal, "Task1kHz", tasks_run1kHz, Task1kHzStack);
-static hw::rtos::StaticTask Task1Hz(osPriorityBelowNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
-static hw::rtos::StaticTask TaskLogging(osPriorityHigh, "TaskLogging", tasks_runLogging, TaskLoggingStack);
-static hw::rtos::StaticTask TaskTelem(osPriorityHigh, "TaskTelem", tasks_runTelem, TaskTelemStack);
-static hw::rtos::StaticTask TaskTelemRx(osPriorityHigh, "TaskTelemRx", tasks_runTelemRx, TaskTelemRxStack);
 
 static void DAM_StartAllTasks()
 {
@@ -182,8 +193,7 @@ void tasks_init()
     // __HAL_DBGMCU_FREEZE_IWDG();
     SEGGER_SYSVIEW_Conf();
     fdcan1.init();
-    ResetReason reason = hw::resetReason::get();
-    if (reason == RESET_REASON_WATCHDOG)
+    if (const ResetReason reason = hw::resetReason::get(); reason == RESET_REASON_WATCHDOG)
     {
         LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
         app::can_alerts::infos::WatchdogTimeout_set(true);

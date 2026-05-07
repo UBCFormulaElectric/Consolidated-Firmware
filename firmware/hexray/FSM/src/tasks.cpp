@@ -38,7 +38,7 @@ static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1
 static hw::rtos::StaticTask TaskCanTx(osPriorityNormal, "TaskCanTx", tasks_runCanTx, TaskCanTxStack);
 static hw::rtos::StaticTask TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
 
-static const hw::runtimeStat::monitor<5> task_monitor{
+static hw::runtimeStat::monitor<5> runtimeMonitor{
     { app::can_tx::FSM_CoreCpuUsage_set, app::can_tx::FSM_CoreCpuUsageMax_set },
     { { {
             Task1kHz,
@@ -86,7 +86,7 @@ void tasks_run1Hz(void *arg)
         jobs_run1Hz_tick();
 
         watchdog1hz.checkIn();
-        task_monitor.checkin();
+        runtimeMonitor.checkin();
 
         start_ticks += period_ms;
         io::time::delayUntil(start_ticks);
@@ -171,10 +171,6 @@ void tasks_runCanRx(void *arg)
 static void FSM_StartAllTasks()
 {
     Task1kHz.start();
-    Task100Hz.start();
-    Task1Hz.start();
-    TaskCanTx.start();
-    TaskCanRx.start();
 }
 
 void tasks_preInit()
