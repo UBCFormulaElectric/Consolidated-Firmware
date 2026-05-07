@@ -147,6 +147,7 @@ function(stm32f412rx_cube_library
             "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_assert.cpp"
             "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_terminate.cpp"
             "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_freeRtosConfigs.cpp"
+            "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_freertosProfiling.cpp"
     )
 
     set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${CUBEMX_SRCS} ${LIB_SRCS})
@@ -266,6 +267,7 @@ function(stm32h733xx_cube_library
             "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_assert.cpp"
             "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_terminate.cpp"
             "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_freeRtosConfigs.cpp"
+            "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_freertosProfiling.cpp"
     )
 
     set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${CUBEMX_SRCS} ${LIB_SRCS})
@@ -381,6 +383,7 @@ function(stm32h562xx_cube_library
             "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_assert.cpp"
             "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_terminate.cpp"
             "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_freeRtosConfigs.cpp"
+            "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_freertosProfiling.cpp"
     )
 
     set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${CUBEMX_SRCS} ${LIB_SRCS})

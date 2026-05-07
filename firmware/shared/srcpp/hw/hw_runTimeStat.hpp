@@ -5,9 +5,6 @@
 #include <cmsis_os.h>
 #include <algorithm>
 
-#if PROFILING_ENABLED != 1
-#error "PROFILING_ENABLED must be set to 1 in FreeRTOSConfig.h to use runTimeStat"
-#endif
 #if configUSE_TRACE_FACILITY != 1
 #error "configUSE_TRACE_FACILITY must be set to 1 in FreeRTOSConfig.h to use runTimeStat"
 #endif
@@ -26,6 +23,7 @@
 namespace hw::runtimeStat
 {
 void init(TIM_HandleTypeDef &htim);
+void inc();
 
 template <size_t TaskCount> class monitor
 {

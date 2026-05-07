@@ -18,7 +18,6 @@
 
 #define configRECORD_STACK_HIGH_ADDRESS 1
 
-#ifdef PROFILING_ENABLED
 // tracing shit
 #if __cplusplus
 extern "C"
@@ -33,4 +32,3 @@ extern "C"
 #define configGENERATE_RUN_TIME_STATS 1
 #define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS configureTimerForRunTimeStats
 #define portGET_RUN_TIME_COUNTER_VALUE getRunTimeCounterValue
-#endif

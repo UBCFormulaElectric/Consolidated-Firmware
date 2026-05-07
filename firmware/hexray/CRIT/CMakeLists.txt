@@ -17,7 +17,7 @@ set(SYSTEM_INCLUDE_DIRS
 )
 
 file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp")
-list(APPEND APP_SRCS
+set(APP_SHARED_SRCS
         "${SHARED_APP_INCLUDE_DIR_CPP}/app_timer.cpp"
 )
 set(APP_INCLUDE_DIRS
@@ -26,7 +26,7 @@ set(APP_INCLUDE_DIRS
 )
 
 file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.cpp")
-list(APPEND IO_SRCS
+set(IO_SHARED_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
 )
 
@@ -36,7 +36,7 @@ set(IO_INCLUDE_DIRS
 )
 
 file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp")
-list(APPEND HW_SRCS
+set(HW_SHARED_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_spi.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmOutput.cpp"
@@ -54,8 +54,16 @@ set(HW_INCLUDE_DIRS
 )
 
 # chimera sources
-set(CHIMERA_SRCS ${HW_SRCS} ${IO_SRCS} "${CMAKE_CURRENT_SOURCE_DIR}/src/chimera.cpp")
-set(CHIMERA_INCLUDE_DIRS ${HW_INCLUDE_DIRS} ${IO_INCLUDE_SRCS})
+set(CHIMERA_SRCS
+        ${HW_SRCS}
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_spi.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmOutput.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/chimera.cpp")
+set(CHIMERA_INCLUDE_DIRS ${HW_INCLUDE_DIRS})
 
 if ("${TARGET}" STREQUAL "binary")
     set(ARM_CORE "cm33")
@@ -64,7 +72,7 @@ if ("${TARGET}" STREQUAL "binary")
     else ()
         set(LINKER_SCRIPT "${LINKER_DIR}/stm32h562ritx/stm32h562ritx_app_only.ld")
     endif ()
-    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS})
+    set(SRCS ${APP_SRCS} ${APP_SHARED_SRCS} ${IO_SRCS} ${IO_SHARED_SRCS} ${HW_SRCS} ${HW_SHARED_SRCS} ${SYSTEM_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
 
     embedded_binary(
@@ -118,8 +126,7 @@ if ("${TARGET}" STREQUAL "binary")
     )
 
     target_link_libraries("hexray_CRIT_app.elf" PRIVATE "hexray_CRIT_stm32" "hexray_CRIT_commit_info" "hexray_CRIT_jsoncan" "m")
-    target_compile_definitions("hexray_CRIT_app.elf" PRIVATE CRIT PROFILING_ENABLED)
-    target_compile_definitions("hexray_CRIT_stm32" PRIVATE PROFILING_ENABLED)
+    target_compile_definitions("hexray_CRIT_app.elf" PRIVATE CRIT)
 
     add_chimera_stm32h5("hexray_CRIT_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}" "hexray_chimera_v2_proto_cm33")
     target_link_libraries("hexray_CRIT_chimera.elf" PRIVATE "hexray_CRIT_stm32" "hexray_CRIT_jsoncan")

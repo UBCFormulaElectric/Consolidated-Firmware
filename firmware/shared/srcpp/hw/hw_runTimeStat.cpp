@@ -1,13 +1,12 @@
 #include "hw_runTimeStat.hpp"
-#include "hw_runTimeStat_helpers.h"
-#include "FreeRTOSConfig.h"
+#include <cassert>
 #include <optional>
 #include <functional>
 
 namespace
 {
-std::optional<std::reference_wrapper<TIM_HandleTypeDef>> runTimeCounter           = std::nullopt;
 unsigned long                                            ulHighFrequencyTimerTick = 0;
+std::optional<std::reference_wrapper<TIM_HandleTypeDef>> runTimeCounter           = std::nullopt;
 } // namespace
 
 void hw::runtimeStat::init(TIM_HandleTypeDef &htim)
@@ -15,7 +14,7 @@ void hw::runtimeStat::init(TIM_HandleTypeDef &htim)
     runTimeCounter = htim;
 }
 
-void hw_runTimeStat_inc()
+void hw::runtimeStat::inc()
 {
     ulHighFrequencyTimerTick++;
 }
