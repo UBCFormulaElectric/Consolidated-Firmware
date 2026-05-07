@@ -132,3 +132,5 @@ char USBD_PRODUCT_STRING_FS[] = "crit";
     osKernelStart();
     forever {}
 }
+
+void tasks_tim_callback(const TIM_HandleTypeDef *htim) {}

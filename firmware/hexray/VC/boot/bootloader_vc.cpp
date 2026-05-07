@@ -66,9 +66,9 @@ static hw::rtos::StaticTask bootCanTxTask(
     HAL_GPIO_WritePin(BOOT_GPIO_Port, BOOT_Pin, GPIO_PIN_SET);
     osKernelInitialize();
     bootloader::init(vcboot_config);
-    UNUSED(bootInterfaceTask.start());
-    UNUSED(bootTickTask.start());
-    UNUSED(bootCanTxTask.start());
+    bootInterfaceTask.start();
+    bootTickTask.start();
+    bootCanTxTask.start();
     osKernelStart();
     forever {}
 }

@@ -149,12 +149,12 @@ static hw::rtos::StaticTask TaskCan2Tx(osPriorityNormal, "TaskCanTx", tasks_runC
 
 static void VC_StartAllTasks()
 {
-    UNUSED(Task100Hz.start());
-    UNUSED(Task1kHz.start());
-    UNUSED(Task1Hz.start());
-    UNUSED(TaskCanRx.start());
-    UNUSED(TaskCan1Tx.start());
-    UNUSED(TaskCan2Tx.start());
+    Task100Hz.start();
+    Task1kHz.start();
+    Task1Hz.start();
+    TaskCanRx.start();
+    TaskCan1Tx.start();
+    TaskCan2Tx.start();
 }
 
 void tasks_preInit()

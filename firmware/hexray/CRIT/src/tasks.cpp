@@ -172,11 +172,11 @@ void tasks_runCanRx(void *arg)
 
 static void CRIT_StartAllTasks()
 {
-    UNUSED(Task1kHz.start());
-    UNUSED(Task1Hz.start());
-    UNUSED(Task100Hz.start());
-    UNUSED(TaskCanRx.start());
-    UNUSED(TaskCanTx.start());
+    Task1kHz.start();
+    Task1Hz.start();
+    Task100Hz.start();
+    TaskCanRx.start();
+    TaskCanTx.start();
 }
 
 void tasks_preInit()
@@ -198,15 +198,14 @@ void tasks_init()
     fdcan1.init();
     hw::runtimeStat::init(htim7);
 
-    ResetReason reason = hw::resetReason::get();
-    if (reason == RESET_REASON_WATCHDOG)
+    if (const ResetReason reason = hw::resetReason::get(); reason == RESET_REASON_WATCHDOG)
     {
         LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
         app::can_alerts::infos::WatchdogTimeout_set(true);
     }
 
-    hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
-    if (boot_request.context != hw::bootup::BootContext::BOOT_CONTEXT_NONE)
+    if (const hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
+        boot_request.context != hw::bootup::BootContext::BOOT_CONTEXT_NONE)
     {
         if (boot_request.context == hw::bootup::BootContext::BOOT_CONTEXT_STACK_OVERFLOW)
         {
@@ -227,4 +226,12 @@ void tasks_init()
     CRIT_StartAllTasks();
     osKernelStart();
     forever {}
+}
+
+void tasks_tim_callback(const TIM_HandleTypeDef *htim)
+{
+    if (htim == &htim7)
+    {
+        hw::runtimeStat::inc();
+    }
 }

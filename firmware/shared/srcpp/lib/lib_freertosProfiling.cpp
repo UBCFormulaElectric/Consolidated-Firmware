@@ -1,13 +1,8 @@
-#include <cassert>
-
 extern "C"
 {
-    __weak void configureTimerForRunTimeStats()
-    {
-        assert(false);
-    };
+    __weak void          configureTimerForRunTimeStats(){};
     __weak unsigned long getRunTimeCounterValue()
     {
-        assert(false);
+        return 0;
     };
 }

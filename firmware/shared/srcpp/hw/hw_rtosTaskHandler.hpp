@@ -58,11 +58,7 @@ class StaticTask
         attr_.priority   = prio_;
     }
 
-    osThreadId_t start() const
-    {
-        id_ = osThreadNew(fn_, argument_, &attr_);
-        return id_;
-    }
+    void         start() const { id_ = osThreadNew(fn_, argument_, &attr_); }
     osThreadId_t id() const { return id_; }
     size_t       stackSize() const { return stack_.size; }
 

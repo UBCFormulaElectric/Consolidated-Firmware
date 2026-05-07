@@ -161,11 +161,11 @@ static hw::rtos::StaticTask TaskTelemRx(osPriorityHigh, "TaskTelemRx", tasks_run
 
 static void DAM_StartAllTasks()
 {
-    UNUSED(Task100Hz.start());
-    UNUSED(TaskCanTx.start());
-    UNUSED(TaskCanRx.start());
-    UNUSED(Task1kHz.start());
-    UNUSED(Task1Hz.start());
+    Task100Hz.start();
+    TaskCanTx.start();
+    TaskCanRx.start();
+    Task1kHz.start();
+    Task1Hz.start();
     // TaskLogging.start();
     // TaskTelem.start();
     // TaskTelemRx.start();

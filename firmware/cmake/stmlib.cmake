@@ -41,10 +41,7 @@ if (NOT EXISTS ${LOG4J_PROPERTIES})
 endif ()
 message("  📝 log4j.properties generated at ${LOG4J_PROPERTIES}")
 
-file(GLOB_RECURSE NEWLIB_SRCS "${THIRD_PARTY_DIR}/newlib_freertos_patch/*.c")
-
 # ==== STM32CubeMX functions ====
-
 message("  🔃 Registered generate_stm32cube_code() function")
 # Adds a custom command which generates new code when the IOC file changes.
 # MD5_LOCATION is included into the GENERATED_SRCS list to ensure that dependent targets
@@ -124,7 +121,6 @@ function(stm32f412rx_cube_library
             "${FREERTOS_DIR}/*.c"
             "${FREERTOS_DIR}/CMSIS_RTOS_V2/cmsis_os2.c"
             "${FREERTOS_DIR}/portable/GCC/ARM_CM4F/port.c"
-            #            "${FREERTOS_DIR}/portable/MemMang/heap_4.c"
     )
 
     # SEGGER SystemView sources.
@@ -150,7 +146,10 @@ function(stm32f412rx_cube_library
             "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_freertosProfiling.cpp"
     )
 
-    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${CUBEMX_SRCS} ${LIB_SRCS})
+    # ioc generation
+    generate_stm32cube_code("${IOC_PATH}" "${HAL_LIB_NAME}")
+
+    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${CUBEMX_SRCS} ${LIB_SRCS} ${MD5_LOCATION})
 
     if (USB_ENABLED)
         set(USB_MIDDLEWARE_DIR "${STM32CUBEF4_SOURCE_DIR}/Middlewares/ST/STM32_USB_Device_Library")
@@ -169,8 +168,6 @@ function(stm32f412rx_cube_library
         )
     endif ()
 
-    generate_stm32cube_code("${IOC_PATH}" "${HAL_LIB_NAME}")
-    list(APPEND STM32CUBE_SRCS ${MD5_LOCATION})
     embedded_object_library(
             "${HAL_LIB_NAME}"
             "${STM32CUBE_SRCS}"
@@ -244,7 +241,6 @@ function(stm32h733xx_cube_library
             "${FREERTOS_DIR}/*.c"
             "${FREERTOS_DIR}/CMSIS_RTOS_V2/cmsis_os2.c"
             "${FREERTOS_DIR}/portable/GCC/ARM_CM7/r0p1/port.c"
-            #            "${FREERTOS_DIR}/portable/MemMang/heap_4.c"
     )
 
     # SEGGER SystemView sources.
@@ -270,7 +266,10 @@ function(stm32h733xx_cube_library
             "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_freertosProfiling.cpp"
     )
 
-    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${CUBEMX_SRCS} ${LIB_SRCS})
+    # ioc generation
+    generate_stm32cube_code("${IOC_PATH}" "${HAL_LIB_NAME}")
+
+    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${CUBEMX_SRCS} ${LIB_SRCS} ${MD5_LOCATION})
 
     # Handle usb srcs and include directories.
     # Currently, all our USB devices are of the Communications Device Class (CDC).
@@ -291,8 +290,6 @@ function(stm32h733xx_cube_library
         )
     endif ()
 
-    generate_stm32cube_code("${IOC_PATH}" "${HAL_LIB_NAME}")
-    list(APPEND STM32CUBE_SRCS ${MD5_LOCATION})
     embedded_object_library(
             "${HAL_LIB_NAME}"
             "${STM32CUBE_SRCS}"
@@ -360,7 +357,6 @@ function(stm32h562xx_cube_library
             "${FREERTOS_DIR}/CMSIS_RTOS_V2/cmsis_os2.c"
             "${FREERTOS_DIR}/portable/GCC/ARM_CM33_NTZ/non_secure/port.c"
             "${FREERTOS_DIR}/portable/GCC/ARM_CM33_NTZ/non_secure/portasm.c"
-            #            "${FREERTOS_DIR}/portable/MemMang/heap_4.c"
     )
 
     # SEGGER SystemView sources.
@@ -386,7 +382,10 @@ function(stm32h562xx_cube_library
             "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_freertosProfiling.cpp"
     )
 
-    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${CUBEMX_SRCS} ${LIB_SRCS})
+    # ioc regeneration
+    generate_stm32cube_code("${IOC_PATH}" "${HAL_LIB_NAME}")
+
+    set(STM32CUBE_SRCS ${STM32_HAL_SRCS} ${RTOS_SRCS} ${SYSTEMVIEW_SRCS} ${IOC_CHECKSUM} ${STARTUP_SRC} ${CUBEMX_SRCS} ${LIB_SRCS} ${MD5_LOCATION})
 
     # Handle usb srcs and include directories.
     # Currently, all our USB devices are of the Communications Device Class (CDC).
@@ -407,8 +406,6 @@ function(stm32h562xx_cube_library
         )
     endif ()
 
-    generate_stm32cube_code("${IOC_PATH}" "${HAL_LIB_NAME}")
-    list(APPEND STM32CUBE_SRCS ${MD5_LOCATION})
     embedded_object_library(
             "${HAL_LIB_NAME}"
             "${STM32CUBE_SRCS}"

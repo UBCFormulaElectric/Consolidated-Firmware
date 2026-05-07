@@ -78,9 +78,9 @@ static hw::rtos::StaticTask bootCanTxTask(
     HAL_GPIO_WritePin(LED_B_GPIO_Port, LED_B_Pin, GPIO_PIN_SET);
     osKernelInitialize();
     bootloader::init(hexray_bms_boot_config);
-    UNUSED(bootInterfaceTask.start());
-    UNUSED(bootTickTask.start());
-    UNUSED(bootCanTxTask.start());
+    bootInterfaceTask.start();
+    bootTickTask.start();
+    bootCanTxTask.start();
     osKernelStart();
     forever {}
 }

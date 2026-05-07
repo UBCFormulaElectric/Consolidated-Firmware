@@ -170,11 +170,11 @@ void tasks_runCanRx(void *arg)
 
 static void FSM_StartAllTasks()
 {
-    UNUSED(Task1kHz.start());
-    UNUSED(Task100Hz.start());
-    UNUSED(Task1Hz.start());
-    UNUSED(TaskCanTx.start());
-    UNUSED(TaskCanRx.start());
+    Task1kHz.start();
+    Task100Hz.start();
+    Task1Hz.start();
+    TaskCanTx.start();
+    TaskCanRx.start();
 }
 
 void tasks_preInit()

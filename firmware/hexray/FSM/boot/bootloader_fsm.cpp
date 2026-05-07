@@ -70,9 +70,9 @@ static hw::rtos::StaticTask TaskRunCanTx(
     HAL_GPIO_WritePin(BOOT_LED_GPIO_Port, BOOT_LED_Pin, GPIO_PIN_SET);
     bootloader::init(fsm_boot_config);
     osKernelInitialize();
-    UNUSED(TaskRunInterface.start());
-    UNUSED(TaskRunTickTask.start());
-    UNUSED(TaskRunCanTx.start());
+    TaskRunInterface.start();
+    TaskRunTickTask.start();
+    TaskRunCanTx.start();
     osKernelStart();
     forever {}
 }

@@ -128,11 +128,11 @@ static hw::rtos::StaticTask TaskCanRx(osPriorityLow, "TaskCanRx", tasks_runCanRx
 
 static void RSM_StartAllTasks()
 {
-    UNUSED(Task1kHz.start());
-    UNUSED(Task100Hz.start());
-    UNUSED(TaskCanTx.start());
-    UNUSED(TaskCanRx.start());
-    UNUSED(Task1Hz.start());
+    Task1kHz.start();
+    Task100Hz.start();
+    TaskCanTx.start();
+    TaskCanRx.start();
+    Task1Hz.start();
 }
 
 void tasks_preInit()
