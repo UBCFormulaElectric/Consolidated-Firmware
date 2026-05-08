@@ -22,6 +22,7 @@
 #include "hw_resetReason.hpp"
 #include "app_canAlerts.hpp"
 #include "hw_bootup.hpp"
+#include "app_canDataCapture.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg)
 {
@@ -173,10 +174,15 @@
         const auto msg = can_rx_queue.pop();
         if (not msg)
             continue;
-        const auto &can_msg = msg.value();
-        (void)telem_tx_queue.push(io::telemMessage::TelemQueueEntry(
-            io::telemMessage::TelemCanMsg(can_msg, static_cast<uint64_t>(io::time::getCurrentMs()))));
+        const auto    &can_msg = msg.value();
+        const uint32_t now_ms  = io::time::getCurrentMs();
+
         io::can_rx::updateRxTableWithMessage(app::jsoncan::copyFromCanMsg(can_msg));
+        if (app::can_data_capture::needsTelem(can_msg.std_id, now_ms))
+        {
+            (void)telem_tx_queue.push(io::telemMessage::TelemQueueEntry(
+                io::telemMessage::TelemCanMsg(can_msg, static_cast<uint64_t>(now_ms))));
+        }
     }
 }
 

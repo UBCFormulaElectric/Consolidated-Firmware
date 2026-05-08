@@ -10,10 +10,8 @@ namespace io::telemMessage
 
 enum class TelemMessageIds : uint8_t
 {
-    CAN     = 1,
-    NTP     = 2,
-    NTPDate = 3,
-    // BaseTimeReg = 4, deprecated see quintuna for previous definitions. delete later
+    CAN = 1,
+    NTP = 2,
 };
 
 struct [[gnu::packed]] Header
@@ -83,8 +81,6 @@ struct TelemQueueEntry
                 return can;
             case TelemMessageIds::NTP:
                 return ntp;
-            case TelemMessageIds::NTPDate:
-                return ntp; // just to handle it right now
             default:
                 __builtin_unreachable();
         }
