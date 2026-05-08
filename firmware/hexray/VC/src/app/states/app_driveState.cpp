@@ -6,19 +6,37 @@
 #include "io_log.hpp"
 #include "app_canUtils.hpp"
 #include "app_canAlerts.hpp"
+#include "app_inverter.hpp"
+#include "app_powerManager.hpp"
+#include "torque_vectoring/datatypes/torque_limits.hpp"
 
 using namespace app::can_utils;
+using namespace app::inverter;
+using namespace app::powerManager;
+using namespace app::tv::datatypes::torque_limits;
+
+// TODO: Why does this need to be a struct??? we can just pass the reference of the array
+static PowerManagerConfig pwr_mgr_cfg{ .efuse_configs = { {
+                                           EfuseConfig{ .efuse_enable = true, .timeout = 0, .max_retry = 5 },
+                                           EfuseConfig{ .efuse_enable = true, .timeout = 0, .max_retry = 5 },
+                                           EfuseConfig{ .efuse_enable = true, .timeout = 0, .max_retry = 5 },
+                                           EfuseConfig{ .efuse_enable = true, .timeout = 0, .max_retry = 5 },
+                                           EfuseConfig{ .efuse_enable = true, .timeout = 0, .max_retry = 5 },
+                                           EfuseConfig{ .efuse_enable = true, .timeout = 0, .max_retry = 5 },
+                                           EfuseConfig{ .efuse_enable = true, .timeout = 0, .max_retry = 5 },
+                                           EfuseConfig{ .efuse_enable = true, .timeout = 0, .max_retry = 5 },
+                                           EfuseConfig{ .efuse_enable = true, .timeout = 200, .max_retry = 5 },
+                                           EfuseConfig{ .efuse_enable = true, .timeout = 200, .max_retry = 5 },
+                                       } } };
 
 static volatile float apps = 0.0f;
-
-// TODO: add power manager
 
 namespace app::states
 {
 static bool driveStatePassPreCheck()
 {
-    // TODO:
     // check inverter warnings
+    app::inverter::FaultCheck();
 
     // check board warnings
     if (app::can_alerts::AnyBoardHasWarning())
@@ -37,9 +55,9 @@ static bool driveStatePassPreCheck()
 
 static void driveStateRunOnEntry()
 {
-    // TODO:
     // enable inverters
     app::can_tx::VC_State_set(VCState::VC_DRIVE_STATE);
+    updateConfig(pwr_mgr_cfg);
 
     // Ensure inverters are enabled
     inverter_enable_toggle(true, true, true, true);
@@ -52,7 +70,8 @@ static void driveStateRunOnEntry()
 
 static void driveStateRunOnTick100Hz(void)
 {
-    // TODO:
+    efuseProtocolTick_100Hz();
+
     if (!driveStatePassPreCheck())
     {
         send_torque(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);
@@ -65,7 +84,6 @@ static void driveStateRunOnTick100Hz(void)
 
 static void driveStateRunOnExit(void)
 {
-    // TODO:
     // disable inverters
     inverter_enable_toggle(false, false, false, false);
     set_torque_limit_negative(NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm, NO_TORQUE_Nm);

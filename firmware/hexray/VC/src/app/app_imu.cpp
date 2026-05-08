@@ -123,12 +123,12 @@ void broadcast()
     if (!accel3 || !gyro3)
         infos::Imu3Fault_set(true);
 
-    const auto accel1_data    = accel1.value_or(io::Imu::AccelData{ 0.0f, 0.0f, 0.0f });
-    const auto accel2_data    = accel2.value_or(io::Imu::AccelData{ 0.0f, 0.0f, 0.0f });
-    const auto accel3_data    = accel3.value_or(io::Imu::AccelData{ 0.0f, 0.0f, 0.0f });
-    const auto gyro1_data     = gyro1.value_or(io::Imu::GyroData{ 0.0f, 0.0f, 0.0f });
-    const auto gyro2_data     = gyro2.value_or(io::Imu::GyroData{ 0.0f, 0.0f, 0.0f });
-    const auto gyro3_data     = gyro3.value_or(io::Imu::GyroData{ 0.0f, 0.0f, 0.0f });
+    const auto accel1_data    = accel1.value_or(io::imu::AccelData{ 0.0f, 0.0f, 0.0f });
+    const auto accel2_data    = accel2.value_or(io::imu::AccelData{ 0.0f, 0.0f, 0.0f });
+    const auto accel3_data    = accel3.value_or(io::imu::AccelData{ 0.0f, 0.0f, 0.0f });
+    const auto gyro1_data     = gyro1.value_or(io::imu::GyroData{ 0.0f, 0.0f, 0.0f });
+    const auto gyro2_data     = gyro2.value_or(io::imu::GyroData{ 0.0f, 0.0f, 0.0f });
+    const auto gyro3_data     = gyro3.value_or(io::imu::GyroData{ 0.0f, 0.0f, 0.0f });
     const auto accel_filtered = medianAxes(splitAxes(accel1), splitAxes(accel2), splitAxes(accel3));
     const auto gyro_filtered  = medianAxes(splitAxes(gyro1), splitAxes(gyro2), splitAxes(gyro3));
 
