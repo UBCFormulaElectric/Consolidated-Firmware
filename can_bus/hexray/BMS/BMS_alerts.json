@@ -1,81 +1,77 @@
 {
-  "warnings_id": 421,
-  "faults_id": 422,
-  "warnings_counts_id": 423,
-  "faults_counts_id": 424,
+  "warnings_id": 439,
+  "warnings_counts_id": 440,
   "warnings": {
     "CellUndervoltage": {
-      "id": 425,
-      "description": "Cell is undervoltage"
-    },
-    "CellOvervoltage": {
-      "id": 426,
-      "description": "Cell is overvoltage"
-    },
-    "CellOvertemp": {
-      "id": 427,
-      "description": "Cell is overtemp"
-    },
-    "ModuleCommunicationError": {
-      "id": 428,
-      "description": "Failed to communicate with ADBMS modules"
-    },
-    "CellOpenWire": {
-      "id": 429,
-      "description": "Open wire detected on cell voltage sense line"
-    },
-    "ThermistorOpenWire": {
-      "id": 430,
-      "description": "Open wire detected on thermistor sense line"
-    }, 
-    "TsOvercurrent": {
-      "id": 431,
-      "description": "Tractive system overcurrent detected"
-    }
-  },
-  "faults": {
-    "CellUndervoltage": {
-      "id": 432,
+      "id": 441,
       "description": "Cell is critically undervoltage"
     },
     "CellOvervoltage": {
-      "id": 433,
+      "id": 442,
       "description": "Cell is critically overvoltage"
     },
     "CellOvertemp": {
-      "id": 434,
+      "id": 443,
       "description": "Cell is critically overtemp"
     },
-    "ModuleCommunicationError": {
-      "id": 435,
-      "description": "Failed to communicate with ADBMS modules."
-    },
     "CellOpenWire": {
-      "id": 436,
+      "id": 444,
       "description": "Open wire detected on cell voltage sense line"
     },
+    "ModuleCommunicationError": {
+      "id": 445,
+      "description": "Failed to communicate with ADBMS modules."
+    },
+    "TsOvercurrent": {
+      "id": 446,
+      "description": "Tractive system overcurrent detected"
+    }
+  },
+  "faults_id": 447,
+  "faults_counts_id": 448,
+  "faults": {
+    "CellUndervoltage": {
+      "id": 449,
+      "description": "Cell is undervoltage"
+    },
+    "CellOvervoltage": {
+      "id": 450,
+      "description": "Cell is overvoltage"
+    },
+    "CellOvertemp": {
+      "id": 451,
+      "description": "Cell is overtemp"
+    },
+    "CellOpenWire": {
+      "id": 452,
+      "description": "Open wire detected on cell voltage sense line"
+    },
+    "ModuleCommunicationError": {
+      "id": 453,
+      "description": "Failed to communicate with ADBMS modules."
+    },
     "TESTFAULT": {
-      "id": 437,
+      "id": 454,
       "description": "FOR UNIT TESTING ONLY DO NOT EVER EVER THROW"
     }
   },
-  "info_id": 438,
-  "info_counts_id": 439,
+  "info_id": 455,
+  "info_counts_id": 456,
   "info": {
     "StackOverflow": {
-      "id": 440,
+      "id": 457,
       "description": "An RTOS task stack overflowed on the previous boot cycle"
     },
     "CriticalPrechargeFailure": {
-      "id": 441,
+      "id": 458,
       "description": "Precharge failed >3x"
     },
     "WatchdogTimeout": {
-      "id": 442,
+      "id": 459,
       "description": "Watchdog timeout detected"
     },
     "MissingVCHeartbeat": {
-      "id": 443,
+      "id": 460,
       "description": "Missing VC heartbeat signal"
     }
   }

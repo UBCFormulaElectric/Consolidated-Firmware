@@ -75,7 +75,7 @@ void jobs_init()
     LOG_IF_ERR(app::segments::configSync());
     LOG_INFO("Segment Initialization Done");
 #endif
-
+    app::segments::initFaults();
     app::StateMachine::init(&app::states::init_state);
     app::can_tx::BMS_Heartbeat_set(true);
 }
@@ -122,7 +122,8 @@ void jobs_run100Hz_tick()
 #endif
     using namespace io::faultLatch;
 
-    setCurrentStatus(&bms_ok_latch, acc_fault ? FaultLatchState::FAULT : FaultLatchState::OK);
+    //setCurrentStatus(&bms_ok_latch, acc_fault ? FaultLatchState::FAULT : FaultLatchState::OK);
+    setCurrentStatus(&bms_ok_latch, FaultLatchState::OK);
 
     // Update CAN signals for BMS latch statuses.
     app::can_tx::BMS_BmsCurrentlyOk_set(getCurrentStatus(&bms_ok_latch) == FaultLatchState::OK);

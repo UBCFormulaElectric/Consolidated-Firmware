@@ -6,8 +6,6 @@
 using namespace std;
 
 inline constexpr uint8_t  NUM_CONFIG_SYNC_TRIES = 5;
-inline constexpr uint16_t VUV                   = 0x800; // VUV × 16 × 150 μV + 1.5 V (TO DO)
-inline constexpr uint16_t VOV                   = 0x7FF; // VOV × 16 × 150 μV + 1.5 V (TO DO)
 
 static array<io::adbms::SegmentConfig, io::NUM_SEGMENTS> segment_config;
 static array<io::adbms::PWMConfig, io::NUM_SEGMENTS>     segment_pwm_config;

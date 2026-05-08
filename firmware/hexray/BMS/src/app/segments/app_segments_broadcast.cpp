@@ -11,7 +11,7 @@ static constexpr float R_NOMINAL           = 10e3f; // Thermistor at 25C
 static constexpr float T_NOMINAL           = 298.15f; 
 static constexpr float BETA_COEFF          = 3610.0f;
 static constexpr float KELVIN_OFFSET       = 273.15f;
-static constexpr float OW_THERM_THRESHOLD = -80.0f; //TODO: need to calibrate
+static constexpr float OW_THERM_THRESHOLD = 0.0f; //TODO: need to calibrate
 
 static constexpr float convertRegToVoltage(uint16_t reg)
 {
@@ -108,7 +108,6 @@ void broadcastFilteredCellVoltages(
             if (!filtered_cell_voltage_success[seg][cell])
                 continue;
 
-            
             seg_ok = true;
         }
 

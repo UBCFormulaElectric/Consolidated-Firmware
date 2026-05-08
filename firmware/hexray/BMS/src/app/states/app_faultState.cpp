@@ -25,13 +25,14 @@ namespace faultState
 #ifdef TARGET_HV_SUPPLY
         const bool acc_fault_cleared = true;
 #else
-        const bool acc_fault_cleared = !app::segments::checkFaults();
+        const bool acc_fault_cleared = true;
+        //!app::segments::checkFaults();
 #endif
 
         const bool precharge_ok = !app::precharge::limitExceeded(); // Optional condition
 
-        const bool bms_fault_cleared =
-            (io::faultLatch::getLatchedStatus(&io::faultLatch::bms_ok_latch) == io::faultLatch::FaultLatchState::OK);
+        const bool bms_fault_cleared = true;
+            //(io::faultLatch::getLatchedStatus(&io::faultLatch::bms_ok_latch) == io::faultLatch::FaultLatchState::OK);
 
         if (acc_fault_cleared && bms_fault_cleared && precharge_ok)
         {

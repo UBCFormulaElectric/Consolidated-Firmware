@@ -3,15 +3,18 @@
 #include "app_segments.hpp"
 
 inline constexpr uint8_t MAX_NUM_SEGMENTS = 10U;
+inline constexpr uint16_t VUV                   = 0x800; // VUV × 16 × 150 μV + 1.5 V (TO DO)
+inline constexpr uint16_t VOV                   = 0x7FF; // VOV × 16 × 150 μV + 1.5 V (TO DO)
 
 namespace app::segments
 {
+
 // Shared aggregate values and measurement buffers.
 extern float                    pack_voltage;
-extern app::segments::CellParam max_cell_voltage;
-extern app::segments::CellParam min_cell_voltage;
-extern app::segments::CellParam max_cell_temp;
-extern app::segments::CellParam min_cell_temp;
+extern CellParam max_cell_voltage;
+extern CellParam min_cell_voltage;
+extern CellParam max_cell_temp;
+extern CellParam min_cell_temp;
 
 extern array<array<float, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>       cell_voltages;
 extern array<array<float, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>       filtered_cell_voltages;

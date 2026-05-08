@@ -63,5 +63,4 @@ void readPwmReg(array<PWMConfig, NUM_SEGMENTS> &configs, array<expected<void, Er
         success[seg] = {};
     }
 }
-
 } // namespace io::adbms

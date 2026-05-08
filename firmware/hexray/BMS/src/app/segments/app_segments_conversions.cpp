@@ -33,6 +33,7 @@ namespace app::segments
 array<array<expected<void, ErrorCode>, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> cell_voltage_success;
 array<array<expected<void, ErrorCode>, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> filtered_cell_voltage_success;
 array<expected<void, ErrorCode>, io::NUM_SEGMENTS> segment_voltage_success;
+array<array<array<uint16_t, io::adbms::THERM_GPIOS_PER_SEGMENT>, io::NUM_SEGMENTS>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)> cell_temp_regs;
 array<array<array<expected<void, ErrorCode>, io::adbms::THERM_GPIOS_PER_SEGMENT>, io::NUM_SEGMENTS>,static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)> cell_temp_success;
 array<expected<void, ErrorCode>, io::NUM_SEGMENTS> stat_success;
 

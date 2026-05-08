@@ -38,6 +38,13 @@ static void updateCellsToBalance()
     // {
     //     for (uint8_t cell = 0; cell < io::CELLS_PER_SEGMENT; cell++)
     //     {
+    //         // Skip cells with failed voltage reads
+    //         if (!cell_voltage_success[seg][cell])
+    //         {
+    //             discharge_enabled[seg][cell] = false;
+    //             continue;
+    //         }
+
     //         // Never discharge the leader cell
     //         if (seg == min_cell_voltage.segment && cell == min_cell_voltage.cell)
     //         {
@@ -45,9 +52,8 @@ static void updateCellsToBalance()
     //             continue;
     //         }
 
-    //         // Skip cells with failed voltage reads
-    //         if (!cell_voltage_success[seg][cell])
-    //         {
+    //         // Never discharge below minimum allowed voltage
+    //         if (cell_voltages[seg][cell] <= VUV) {
     //             discharge_enabled[seg][cell] = false;
     //             continue;
     //         }
