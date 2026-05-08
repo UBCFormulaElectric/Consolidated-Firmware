@@ -204,21 +204,23 @@ void bootloader::init(config &boot_config)
         {
             // Program 64 bits at the current address.
             // No reply for program command to reduce latency.
-            // TODO: Change to parse FDCAN frame
-            const uint64_t command_packet = command.getDataAsQWords()[0];
-            if (const auto status = boot_config.boardSpecific_program(current_address, command_packet);
-                not status and status.error() != ErrorCode::ERROR_INDETERMINATE)
+            for (uint8_t i = 0; i < command.dlc / 8; i++)
             {
-                // program failed meaning we need to stop and tell the application that program has failed
-                // and stop the bootloader
-                hw::CanMsg reply{};
-                reply.std_id = { boot_config.BOARD_HIGHBITS | PROGRAM_ID_FAILED_LOWBITS };
-                reply.dlc    = 0;
-                LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
-                update_in_progress = false;
-                continue;
+                const uint64_t command_packet = command.getDataAsQWords()[i];
+                if (const auto status = boot_config.boardSpecific_program(current_address, command_packet);
+                    not status and status.error() != ErrorCode::ERROR_INDETERMINATE)
+                {
+                    // program failed meaning we need to stop and tell the application that program has failed
+                    // and stop the bootloader
+                    hw::CanMsg reply{};
+                    reply.std_id = { boot_config.BOARD_HIGHBITS | PROGRAM_ID_FAILED_LOWBITS };
+                    reply.dlc    = 0;
+                    LOG_IF_ERR(boot_config.can_tx_queue.push(reply));
+                    update_in_progress = false;
+                    continue;
+                }
+                current_address += sizeof(uint64_t);
             }
-            current_address += sizeof(uint64_t);
         }
         else if (command.std_id == (boot_config.BOARD_HIGHBITS | VERIFY_ID_LOWBITS))
         {
