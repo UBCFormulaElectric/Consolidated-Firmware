@@ -165,8 +165,12 @@ class BMSChimeraConfig final : public chimera_v2::config
     }
 } bms_config;
 
-static hw::rtos::StaticTask<8096>
-    TaskChimera(osPriorityRealtime, "TaskChimera", [](void *) { chimera_v2::task(bms_config); });
+static hw::rtos::StaticTask::StaticTaskStack<8096> chimeraStack;
+static hw::rtos::StaticTask                        TaskChimera(
+    osPriorityRealtime,
+    "TaskChimera",
+    [](void *) { chimera_v2::task(bms_config); },
+    chimeraStack);
 
 void tasks_preInit()
 {

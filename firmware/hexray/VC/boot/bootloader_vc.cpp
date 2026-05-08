@@ -41,12 +41,25 @@ CFUNC void bootloader_preinit()
     bootloader::preInit();
 }
 
-static hw::rtos::StaticTask<1024>
-    bootInterfaceTask(osPriorityRealtime, "BootIntf", [](void *) { bootloader::runInterfaceTask(vcboot_config); });
-static hw::rtos::StaticTask<1024>
-    bootTickTask(osPriorityRealtime, "BootTick", [](void *) { bootloader::runTickTask(vcboot_config); });
-static hw::rtos::StaticTask<1024>
-    bootCanTxTask(osPriorityRealtime, "BootCanTx", [](void *) { bootloader::runCanTxTask(vcboot_config); });
+static hw::rtos::StaticTask::StaticTaskStack<1024> bootInterfaceStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024> bootTickStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024> bootCanTxStack;
+
+static hw::rtos::StaticTask bootInterfaceTask(
+    osPriorityRealtime,
+    "BootIntf",
+    [](void *) { bootloader::runInterfaceTask(vcboot_config); },
+    bootInterfaceStack);
+static hw::rtos::StaticTask bootTickTask(
+    osPriorityRealtime,
+    "BootTick",
+    [](void *) { bootloader::runTickTask(vcboot_config); },
+    bootTickStack);
+static hw::rtos::StaticTask bootCanTxTask(
+    osPriorityRealtime,
+    "BootCanTx",
+    [](void *) { bootloader::runCanTxTask(vcboot_config); },
+    bootCanTxStack);
 
 [[noreturn]] void bootloader_init()
 {
