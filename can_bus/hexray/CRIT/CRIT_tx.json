@@ -87,5 +87,36 @@
           "bits": 32
         }
       }
+    },
+    "TestCordic": {
+        "msg_id": 923,
+        "cycle_time": 10,
+        "description": "Test cordic peripheral",
+        "signals": {
+            "Cordic_Cos": {
+                "min": -2,
+                "max": 2,
+                "resolution": 0.0001,
+                "signed": true
+            },
+            "stdlib_Cos": {
+                "min": -2,
+                "max": 2,
+                "resolution": 0.0001,
+                "signed": true
+            },
+            "Cordic_Atan": {
+                "min": -2,
+                "max": 2,
+                "resolution": 0.0001,
+                "signed": true
+            },
+            "stdlib_Atan": {
+                "min": -2,
+                "max": 2,
+                "resolution": 0.0001,
+                "signed": true
+            }
+        }
     }
 }

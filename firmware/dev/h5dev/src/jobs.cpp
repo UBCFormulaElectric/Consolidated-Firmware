@@ -1,5 +1,6 @@
 #include "jobs.hpp"
 
+#include "app_canTx.hpp"
 #include "app_jsoncan.hpp"
 #include "io_canQueues.hpp"
 #include "io_canTx.hpp"
@@ -54,9 +55,11 @@ void jobs_run100Hz_tick()
     // LOG_INFO("CURRENT: %d", (int)(current * 100000));
     SEGGER_SYSVIEW_MarkStart(1U);
     auto ccos_result = io::math::ccos(angle);
+    app::can_tx::H5_Cordic_Cos_set(ccos_result.value_or(0.0f));
     SEGGER_SYSVIEW_MarkStop(1U);
     SEGGER_SYSVIEW_MarkStart(2U);
     float libc_cos_result = std::cosf(angle);
+    app::can_tx::H5_stdlib_Cos_set(libc_cos_result);
     SEGGER_SYSVIEW_MarkStop(2U);
     float cos_diff = std::abs(ccos_result.value_or(0.0f) - libc_cos_result);
 
@@ -64,7 +67,7 @@ void jobs_run100Hz_tick()
     float libc_sin_result = std::sinf(angle);
     float sin_diff        = std::abs(csin_result.value_or(0.0f) - libc_sin_result);
 
-    angle += M_PI_F / 6.0f;
+    angle += M_PI_F / 180.0f;
 }
 
 void jobs_run1kHz_tick() {}

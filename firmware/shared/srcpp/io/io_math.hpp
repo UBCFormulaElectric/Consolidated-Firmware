@@ -1,3 +1,4 @@
+#include <cmath>
 #include <array>
 
 #include "hw_cordic.hpp"
@@ -18,6 +19,71 @@
  */
 
 using namespace hw::cordic;
+
+namespace
+{
+inline constexpr float CONVERSION     = static_cast<float>(1U << 31);
+inline constexpr float CONVERSION_INV = 1.0f / CONVERSION;
+inline constexpr float M_PI_F_INV     = 1.0f / M_PI_F;
+
+inline int32_t convertAngleToFixedPoint(float angle)
+{
+    constexpr float M_PI_INV = 1.0f / M_PI_F;
+
+    // TODO: can we optimize fmodf?
+    float mod = std::fmodf(angle, M_2PI_F);
+    if (mod > M_PI_F)
+    {
+        mod -= M_2PI_F;
+    }
+    else if (mod < -M_PI_F)
+    {
+        mod += M_2PI_F;
+    }
+
+    return static_cast<int32_t>(mod * M_PI_INV * CONVERSION);
+}
+
+inline float convertToFloat(int32_t fixed_point)
+{
+    return static_cast<float>(fixed_point) * CONVERSION_INV;
+}
+
+inline int32_t convertToFixedPoint(float x)
+{
+    return static_cast<int32_t>(x * CONVERSION);
+}
+
+inline float calcScale(float x, uint32_t &scale)
+{
+    float scaled_x = x;
+    scale = 0U;
+
+    while (std::abs(scaled_x) >= 1.0f && scale < 7U)
+    {
+        scaled_x *= 0.5f;
+        scale++;
+    }
+
+    return scaled_x;
+}
+
+inline uint32_t cordicScale(uint32_t scale)
+{
+    switch (scale)
+    {
+        case 0: return CORDIC_SCALE_0;
+        case 1: return CORDIC_SCALE_1;
+        case 2: return CORDIC_SCALE_2;
+        case 3: return CORDIC_SCALE_3;
+        case 4: return CORDIC_SCALE_4;
+        case 5: return CORDIC_SCALE_5;
+        case 6: return CORDIC_SCALE_6;
+        case 7: return CORDIC_SCALE_7;
+        default: return CORDIC_SCALE_7;
+    }
+}
+}
 
 namespace io::math
 {
@@ -45,6 +111,36 @@ std::expected<float, ErrorCode> ccos(float angle)
     return convertToFloat(result[0]);
 }
 
+std::expected<float, ErrorCode> atan(float x)
+{
+    if (not std::isfinite(x))
+    {
+        return std::unexpected(ErrorCode::OUT_OF_RANGE);
+    }
+
+    uint32_t scale = 0U;
+    float scaled_x = calcScale(x, scale);
+
+    if (not std::isfinite(scaled_x) || std::abs(scaled_x) >= 1.0f)
+    {
+        return std::unexpected(ErrorCode::OUT_OF_RANGE);
+    }
+
+    std::array<const int32_t, 1> args{ convertToFixedPoint(scaled_x) };
+    std::array<int32_t, 1> result{};
+
+    RETURN_IF_ERR(configure(
+        CORDIC_FUNCTION_ARCTANGENT,
+        cordicScale(scale),
+        CORDIC_NBWRITE_1
+    ));
+
+    RETURN_IF_ERR(calculate(1U, args, result));
+
+    float y = convertToFloat(result[0]);
+
+    return y * static_cast<float>(1U << scale) * M_PI_F;
+}
 // inline float phase(float x, float y) {}
 // inline float mod(float x, float y) {}
 // inline float atan(float x) {}

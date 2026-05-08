@@ -41,6 +41,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+CORDIC_HandleTypeDef hcordic;
 
 FDCAN_HandleTypeDef hfdcan1;
 
@@ -71,6 +72,7 @@ static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_USB_PCD_Init(void);
 static void MX_IWDG_Init(void);
+static void MX_CORDIC_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -119,6 +121,7 @@ int main(void)
     MX_TIM4_Init();
     MX_USB_PCD_Init();
     MX_IWDG_Init();
+    MX_CORDIC_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
     /* USER CODE END 2 */
@@ -222,6 +225,30 @@ void PeriphCommonClock_Config(void)
     {
         Error_Handler();
     }
+}
+
+/**
+ * @brief CORDIC Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_CORDIC_Init(void)
+{
+    /* USER CODE BEGIN CORDIC_Init 0 */
+
+    /* USER CODE END CORDIC_Init 0 */
+
+    /* USER CODE BEGIN CORDIC_Init 1 */
+
+    /* USER CODE END CORDIC_Init 1 */
+    hcordic.Instance = CORDIC;
+    if (HAL_CORDIC_Init(&hcordic) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN CORDIC_Init 2 */
+
+    /* USER CODE END CORDIC_Init 2 */
 }
 
 /**

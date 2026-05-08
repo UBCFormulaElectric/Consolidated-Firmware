@@ -28,32 +28,6 @@
 
 namespace hw::cordic
 {
-inline constexpr float CONVERSION     = static_cast<float>(1U << 31);
-inline constexpr float CONVERSION_INV = 1.0f / CONVERSION;
-
-inline int32_t convertAngleToFixedPoint(float angle)
-{
-    constexpr float M_PI_INV = 1.0f / M_PI_F;
-
-    // TODO: can we optimize fmodf?
-    float mod = std::fmodf(angle, M_2PI_F);
-    if (mod > M_PI_F)
-    {
-        mod -= M_2PI_F;
-    }
-    else if (mod < -M_PI_F)
-    {
-        mod += M_2PI_F;
-    }
-
-    return static_cast<int32_t>(mod * M_PI_INV * CONVERSION);
-}
-
-inline float convertToFloat(int32_t fixed_point)
-{
-    return static_cast<float>(fixed_point) * CONVERSION_INV;
-}
-
 /**
  * @brief Configure the CORDIC peripheral to:
  * - Perform the desired math operation
