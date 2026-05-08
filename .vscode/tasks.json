@@ -238,7 +238,7 @@
       "type": "cmake",
       "command": "build",
       "targets": [
-        "hexray_CRIT_app.hex"
+        "hexray_CRIT.hex"
       ]
     },
     {

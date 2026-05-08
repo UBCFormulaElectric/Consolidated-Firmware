@@ -276,9 +276,10 @@
     {
       "name": "Debug Embedded: CRIT (Hexray)",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/hexray/CRIT/hexray_CRIT_app.elf",
+      "executable": "build_fw_dev/firmware/hexray/CRIT/hexray_CRIT.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/hexray/CRIT/hexray_CRIT_boot.elf",
         "build_fw_dev/firmware/hexray/CRIT/hexray_CRIT_app.elf"
       ],
       "preLaunchTask": "Build Embedded: CRIT (Hexray)",
