@@ -204,6 +204,7 @@ void bootloader::init(config &boot_config)
         {
             // Program 64 bits at the current address.
             // No reply for program command to reduce latency.
+            // TODO: Seems kinda fragile
             for (uint8_t i = 0; i < command.dlc / 8; i++)
             {
                 const uint64_t command_packet = command.getDataAsQWords()[i];
