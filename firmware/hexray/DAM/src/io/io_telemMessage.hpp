@@ -79,8 +79,10 @@ struct TelemQueueEntry
     {
         switch (tag)
         {
-            case TelemMessageIds::NTP: return ntp;
-            default:                   return can;
+            case TelemMessageIds::NTP:
+                return ntp;
+            default:
+                return can;
         }
     }
 };

@@ -52,8 +52,7 @@ void jobs_run100Hz_tick()
         else
         {
             app::ntp::setNtpInProgress();
-            const auto push_result =
-                telem_tx_queue.push(io::telemMessage::TelemQueueEntry(io::telemMessage::NTPMsg{}));
+            const auto push_result = telem_tx_queue.push(io::telemMessage::TelemQueueEntry(io::telemMessage::NTPMsg{}));
             if (!push_result)
             {
                 LOG_ERROR("Failed to enqueue NTP message: %d", static_cast<int>(push_result.error()));

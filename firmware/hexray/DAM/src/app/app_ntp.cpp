@@ -20,9 +20,9 @@ namespace app::ntp
 
 namespace
 {
-    Timestamps         g_ts{};
-    std::atomic<bool>  g_ntp_in_progress{ false };
-}
+    Timestamps        g_ts{};
+    std::atomic<bool> g_ntp_in_progress{ false };
+} // namespace
 
 uint64_t rtcTimeToMs(const io::rtc::Time &t)
 {
