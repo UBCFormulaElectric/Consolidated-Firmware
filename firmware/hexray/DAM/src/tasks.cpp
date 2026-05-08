@@ -44,6 +44,7 @@ static hw::rtos::StaticTask::StaticTaskStack<512>  Task1HzStack;
 static hw::rtos::StaticTask::StaticTaskStack<1024> TaskLoggingStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskTelemStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskTelemRxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskTelemTxStack;
 
 static hw::rtos::StaticTask Task100Hz(osPriorityRealtime, "Task100Hz", tasks_run100Hz, Task100HzStack);
 static hw::rtos::StaticTask TaskCanTx(osPriorityAboveNormal, "TaskCanTx", tasks_runCanTx, TaskCanTxStack);
@@ -53,6 +54,7 @@ static hw::rtos::StaticTask Task1Hz(osPriorityBelowNormal, "Task1Hz", tasks_run1
 static hw::rtos::StaticTask TaskLogging(osPriorityHigh, "TaskLogging", tasks_runLogging, TaskLoggingStack);
 static hw::rtos::StaticTask TaskTelem(osPriorityHigh, "TaskTelem", tasks_runTelem, TaskTelemStack);
 static hw::rtos::StaticTask TaskTelemRx(osPriorityHigh, "TaskTelemRx", tasks_runTelemRx, TaskTelemRxStack);
+static hw::rtos::StaticTask TaskTelemTx(osPriorityHigh, "TaskTelemTx", tasks_runTelemRx, TaskTelemTxStack);
 
 void tasks_run1Hz(void *arg)
 {
