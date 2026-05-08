@@ -10,13 +10,13 @@
 #include "io_semaphore.hpp"
 #include "util_errorCodes.hpp"
 
-//temp
-#include "io_adbms.hpp" 
+// temp
+#include "io_adbms.hpp"
 
-static array<io::adbms::StatusGroups, io::NUM_SEGMENTS> stat_reg; 
+static array<io::adbms::StatusGroups, io::NUM_SEGMENTS>   stat_reg;
 static array<expected<void, ErrorCode>, io::NUM_SEGMENTS> stat_regs_success;
-static io::semaphore spi_bus_lock(true);
-static io::semaphore adbms_app_lock(true);
+static io::semaphore                                      spi_bus_lock(true);
+static io::semaphore                                      adbms_app_lock(true);
 
 void jobs_init()
 {
@@ -52,29 +52,28 @@ void jobs_run1kHz_tick()
     io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
 }
 
-void jobs_adbms_init() {
+void jobs_adbms_init()
+{
     app::segments::setDefaultConfig();
 }
 
 void jobs_runAdbmsVoltages_tick()
 {
     spi_bus_lock.take(io::MAX_TIMEOUT);
-    //const bool balancing_enabled = false;
+    // const bool balancing_enabled = false;
     LOG_IF_ERR(io::adbms::wakeup());
     LOG_IF_ERR(app::segments::configSync());
 
-    LOG_IF_ERR(app::segments::runVoltageConversion());  
+    LOG_IF_ERR(app::segments::runVoltageConversion());
     app::segments::broadcastCellVoltages();
     // app::segments::balancingTick(balancing_enabled);
 
-    //io::adbms::readStatusReg(stat_reg, stat_regs_success);
-    
+    // io::adbms::readStatusReg(stat_reg, stat_regs_success);
 
-    //LOG_IF_ERR(app::segments::runAuxConversion());
-    //app::segments::broadcastCellTemps();
+    // LOG_IF_ERR(app::segments::runAuxConversion());
+    // app::segments::broadcastCellTemps();
     LOG_IF_ERR(app::segments::configSync());
 
-    
     LOG_INFO("good shi");
     spi_bus_lock.give();
 }

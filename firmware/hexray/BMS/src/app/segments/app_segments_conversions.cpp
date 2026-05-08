@@ -18,9 +18,15 @@ array<array<uint16_t, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>                 
 array<array<expected<void, ErrorCode>, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> cell_voltage_success;
 array<array<float, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>                     cell_voltages;
 
-array<array<array<uint16_t, io::adbms::THERM_GPIOS_PER_SEGMENT>, io::NUM_SEGMENTS>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>                  cell_temp_regs;
-array<array<array<expected<void, ErrorCode>, io::adbms::THERM_GPIOS_PER_SEGMENT>, io::NUM_SEGMENTS>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)> cell_temp_success;
-array<array<float, io::THERMISTORS_PER_SEGMENT>, io::NUM_SEGMENTS>                                cell_temps;
+array<
+    array<array<uint16_t, io::adbms::THERM_GPIOS_PER_SEGMENT>, io::NUM_SEGMENTS>,
+    static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
+    cell_temp_regs;
+array<
+    array<array<expected<void, ErrorCode>, io::adbms::THERM_GPIOS_PER_SEGMENT>, io::NUM_SEGMENTS>,
+    static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
+                                                                   cell_temp_success;
+array<array<float, io::THERMISTORS_PER_SEGMENT>, io::NUM_SEGMENTS> cell_temps;
 
 array<array<uint16_t, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>                  cell_owc_odd_regs;
 array<array<expected<void, ErrorCode>, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> cell_owc_odd_success;

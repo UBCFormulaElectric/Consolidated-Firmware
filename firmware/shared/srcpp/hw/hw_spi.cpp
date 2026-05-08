@@ -340,8 +340,8 @@ std::expected<void, ErrorCode> SpiDevice::receiveDma(const std::span<uint8_t> rx
         return exit;
     }
 
-    /* Data will not be returned over SPI until command has finished, so data in first tx_buffer_size bytes not relevant.
-    Copy entries at the end of dma_rx_buf back into rx_buffer. */
+    /* Data will not be returned over SPI until command has finished, so data in first tx_buffer_size bytes not
+    relevant. Copy entries at the end of dma_rx_buf back into rx_buffer. */
     std::memcpy(rx.data(), dma_rx_buf + tx.size(), rx.size());
 
     return {};

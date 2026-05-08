@@ -37,24 +37,27 @@ static void updateCellsToBalance()
         for (uint8_t cell = 0; cell < io::CELLS_PER_SEGMENT; cell++)
         {
             // Never discharge the leader cell
-            if (seg == min_cell_voltage.segment && cell == min_cell_voltage.cell) {
+            if (seg == min_cell_voltage.segment && cell == min_cell_voltage.cell)
+            {
                 discharge_enabled[seg][cell] = false;
                 continue;
             }
 
             // Skip cells with failed voltage reads
-            if (!cell_voltage_success[seg][cell]) {
+            if (!cell_voltage_success[seg][cell])
+            {
                 discharge_enabled[seg][cell] = false;
                 continue;
             }
 
             const float delta = cell_voltages[seg][cell] - min_cell_voltage.voltage;
             // Don't dischange below threshold
-            if (delta < DISCHARGE_THRESHOLD_V) {
+            if (delta < DISCHARGE_THRESHOLD_V)
+            {
                 discharge_enabled[seg][cell] = false;
                 continue;
             }
-            
+
             const float raw_duty         = (delta / BALANCE_FULL_RANGE_V) * 15.0f;
             discharge_enabled[seg][cell] = true;
             pwm_duty[seg][cell]          = static_cast<uint8_t>(clamp(raw_duty, 1.0f, 15.0f));
