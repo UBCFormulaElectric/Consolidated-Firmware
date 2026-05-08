@@ -1,25 +1,50 @@
 #include "tasks.h"
 #include "jobs.hpp"
+#include "main.h"
 
 #include "app_jsoncan.hpp"
+#include "app_canTx.hpp"
+#include "app_canAlerts.hpp"
 
 #include "io_time.hpp"
 #include "io_canQueues.hpp"
 #include "hw_can.hpp"
 #include "hw_gpio.hpp"
 #include "io_canRx.hpp"
-#include "io_canTx.hpp"
+
 #include "hw_adcs.hpp"
 #include "hw_cans.hpp"
 #include "hw_gpios.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_hardFaultHandler.hpp"
+#include "hw_bootup.hpp"
 #include "hw_watchdog.hpp"
 #include "hw_resetReason.hpp"
-#include "main.h"
-#include "app_canAlerts.hpp"
+#include "hw_runTimeStat.hpp"
 
-[[noreturn]] static void tasks_run1Hz(void *arg)
+[[noreturn]] static void tasks_run1Hz(void *arg);
+[[noreturn]] static void tasks_run100Hz(void *arg);
+[[noreturn]] static void tasks_run1kHz(void *arg);
+[[noreturn]] static void tasks_runCan1Tx(void *arg);
+[[noreturn]] static void tasks_runCan2Tx(void *arg);
+[[noreturn]] static void tasks_runCanRx(void *arg);
+
+// Define the task with StaticTask Class
+static hw::rtos::StaticTask::StaticTaskStack<8096> Task100HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  Task1kHzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  Task1HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCanRxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCan1TxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCan2TxStack;
+
+static hw::rtos::StaticTask Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz, Task100HzStack);
+static hw::rtos::StaticTask Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz, Task1kHzStack);
+static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
+static hw::rtos::StaticTask TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
+static hw::rtos::StaticTask TaskCan1Tx(osPriorityNormal, "TaskCanTx", tasks_runCan1Tx, TaskCan1TxStack);
+static hw::rtos::StaticTask TaskCan2Tx(osPriorityNormal, "TaskCanTx", tasks_runCan2Tx, TaskCan2TxStack);
+
+void tasks_run1Hz(void *arg)
 {
     constexpr uint32_t             period_ms                = 1000U;
     constexpr uint32_t             watchdog_grace_period_ms = 50U;
@@ -37,7 +62,7 @@
         osDelayUntil(start_ticks);
     }
 }
-[[noreturn]] static void tasks_run100Hz(void *arg)
+void tasks_run100Hz(void *arg)
 {
     constexpr uint32_t             period_ms                = 10U;
     constexpr uint32_t             watchdog_grace_period_ms = 2U;
@@ -54,7 +79,7 @@
         osDelayUntil(start_ticks);
     }
 }
-[[noreturn]] static void tasks_run1kHz(void *arg)
+void tasks_run1kHz(void *arg)
 {
     constexpr uint32_t             period_ms                = 1U;
     constexpr uint32_t             watchdog_grace_period_ms = 1U;
@@ -73,7 +98,7 @@
     }
 }
 
-[[noreturn]] static void tasks_runCan1Tx(void *arg)
+void tasks_runCan1Tx(void *arg)
 {
     forever
     {
@@ -95,7 +120,7 @@
         }
     }
 }
-[[noreturn]] static void tasks_runCan2Tx(void *arg)
+void tasks_runCan2Tx(void *arg)
 {
     forever
     {
@@ -117,7 +142,7 @@
         }
     }
 }
-[[noreturn]] static void tasks_runCanRx(void *arg)
+void tasks_runCanRx(void *arg)
 {
     forever
     {
@@ -127,14 +152,6 @@
         io::can_rx::updateRxTableWithMessage(app::jsoncan::copyFromCanMsg(msg.value()));
     }
 }
-
-// Define the task with StaticTask Class
-static hw::rtos::StaticTask<8096> Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz);
-static hw::rtos::StaticTask<512>  Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz);
-static hw::rtos::StaticTask<512>  Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz);
-static hw::rtos::StaticTask<512>  TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_runCanRx);
-static hw::rtos::StaticTask<512>  TaskCan1Tx(osPriorityNormal, "TaskCanTx", tasks_runCan1Tx);
-static hw::rtos::StaticTask<512>  TaskCan2Tx(osPriorityNormal, "TaskCanTx", tasks_runCan2Tx);
 
 static void VC_StartAllTasks()
 {
@@ -149,6 +166,7 @@ static void VC_StartAllTasks()
 void tasks_preInit()
 {
     hw_hardFaultHandler_init();
+    hw::bootup::enableInterruptsForApp();
 }
 
 void tasks_init()
@@ -161,6 +179,19 @@ void tasks_init()
     invcan.init();
 
     adcChipsInit();
+
+    hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
+    if (boot_request.context != hw::bootup::BootContext::BOOT_CONTEXT_NONE)
+    {
+        if (boot_request.context == hw::bootup::BootContext::BOOT_CONTEXT_STACK_OVERFLOW)
+        {
+            LOG_WARN("Detected stack overflow on the previous boot cycle!");
+        }
+
+        const_cast<hw::bootup::BootRequest &>(boot_request).context       = hw::bootup::BootContext::BOOT_CONTEXT_NONE;
+        const_cast<hw::bootup::BootRequest &>(boot_request).context_value = 0;
+        hw::bootup::setBootRequest(boot_request);
+    }
 
     dam_en.writePin(true);
     rsm_en.writePin(true);

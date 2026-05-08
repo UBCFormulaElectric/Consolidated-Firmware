@@ -8,8 +8,8 @@ add_subdirectory(VC)
 if ("${TARGET}" STREQUAL "binary")
     add_custom_target(hexray_hexes)
     add_dependencies(hexray_hexes
-            hexray_BMS_app.hex
-            hexray_CRIT_app.hex
+            hexray_BMS.hex
+            hexray_CRIT.hex
             hexray_DAM_app.hex
             hexray_FSM_app.hex
             hexray_RSM_app.hex

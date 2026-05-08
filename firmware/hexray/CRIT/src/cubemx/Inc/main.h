@@ -43,6 +43,7 @@ extern "C"
     extern SPI_HandleTypeDef   hspi3;
     extern TIM_HandleTypeDef   htim3;
     extern TIM_HandleTypeDef   htim4;
+    extern TIM_HandleTypeDef   htim7;
     extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
     extern IWDG_HandleTypeDef  hiwdg;
 
