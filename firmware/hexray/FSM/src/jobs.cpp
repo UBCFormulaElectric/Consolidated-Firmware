@@ -40,6 +40,7 @@ void jobs_run1Hz_tick()
     // app::shdnLoop::broadcast();
     app::steering::broadcast();
     app::suspension::broadcast();
+    io::can_tx::enqueue1HzMsgs();
 }
 void jobs_run100Hz_tick()
 {

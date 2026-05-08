@@ -31,7 +31,6 @@
     forever
     {
         jobs_run1Hz_tick();
-
         watchdog1hz.checkIn();
 
         start_ticks += period_ms;
@@ -72,8 +71,10 @@
     {
         jobs_run1kHz_tick();
 
-        monitor1khz.checkForTimeouts();
         watchdog1khz.checkIn();
+#ifndef WATCHDOG_DISABLED
+        monitor1khz.checkForTimeouts();
+#endif
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -141,7 +142,10 @@ void tasks_preInit()
     SEGGER_SYSVIEW_Conf();
     hw::can::fdcan1.init();
     adcChipsInit();
-    ResetReason reason = hw::resetReason::get();
+
+    const ResetReason reason = hw::resetReason::get();
+    app::can_tx::FSM_ResetReason_set(static_cast<app::can_utils::CanResetReason>(reason));
+
     if (reason == RESET_REASON_WATCHDOG)
     {
         LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
