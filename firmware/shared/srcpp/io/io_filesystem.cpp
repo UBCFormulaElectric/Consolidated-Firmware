@@ -1,37 +1,58 @@
 #include "io_filesystem.hpp"
 
+namespace
+{
+/**
+ * If mount fails we assume the filesystem is corrupted or not present, so we format it which wipes everything. Try
+ * 3x to mount to make sure its not a random failure (such as from the SD card jiggling in its slot).
+ */
+LogFsErr tryMount(LogFs &fs, const LogFsCfg &fs_cfg)
+{
+    LogFsErr err;
+    for (int i = 0; i < io::FileSystem::NUM_MOUNT_ATTEMPTS; i++)
+    {
+        err = logfs_mount(&fs, &fs_cfg);
+        if (err == LOGFS_ERR_OK)
+            return err;
+    }
+    // ReSharper disable once CppLocalVariableMightNotBeInitialized
+    return err;
+}
+} // namespace
+
 // Note: this code assumes that sd card is either in at the start (removable later)
 // or never in at all. Furthermore, if the sd card is removed, this cannot be recovered.
 namespace io
 {
-LogFsErr logfsCfgRead(const LogFsCfg *cfg, uint32_t block, void *buf)
+LogFsErr FileSystem::logfsCfgRead(const LogFsCfg *cfg, const uint32_t block, void *buf)
 {
-    auto *self = static_cast<io::FileSystem *>(cfg->context);
+    const auto *self = static_cast<FileSystem *>(cfg->context);
+    const auto  span = std::span(static_cast<uint8_t *>(buf), HW_DEVICE_SECTOR_SIZE);
 
-    auto span = std::span<uint8_t>(static_cast<uint8_t *>(buf), HW_DEVICE_SECTOR_SIZE);
-
-    for (int i = 0; i < io::FileSystem::RETRY_COUNT; i++)
+    for (int i = 0; i < RETRY_COUNT; i++)
     {
-        if (self->sdCard.read(span, block).has_value())
+        if (self->sd.read(span, block).has_value())
             return LOGFS_ERR_OK;
-
-        self->sdCard.abort();
+        if (const auto err = self->sd.abort();
+            !err) // If abort fails, it's likely the SD card was removed during the read, so we can stop trying.
+            break;
     }
     return LOGFS_ERR_IO;
 }
 
-LogFsErr logfsCfgWrite(const LogFsCfg *cfg, uint32_t block, void *buf)
+LogFsErr FileSystem::logfsCfgWrite(const LogFsCfg *cfg, const uint32_t block, void *buf)
 {
-    auto *self = static_cast<io::FileSystem *>(cfg->context);
+    const auto *self = static_cast<FileSystem *>(cfg->context);
+    const auto  span = std::span(static_cast<uint8_t *>(buf), HW_DEVICE_SECTOR_SIZE);
 
-    auto span = std::span<uint8_t>(static_cast<uint8_t *>(buf), HW_DEVICE_SECTOR_SIZE);
-
-    for (int i = 0; i < io::FileSystem::RETRY_COUNT; i++)
+    for (int i = 0; i < RETRY_COUNT; i++)
     {
-        if (self->sdCard.write(span, block).has_value())
+        if (self->sd.write(span, block).has_value())
             return LOGFS_ERR_OK;
 
-        self->sdCard.abort();
+        if (const auto err = self->sd.abort();
+            !err) // If abort fails, it's likely the SD card was removed during the write, so we can stop trying.
+            break;
     }
     return LOGFS_ERR_IO;
 }
@@ -61,16 +82,15 @@ FileSystemError logfsErrorToFsError(const LogFsErr err)
         case LOGFS_ERR_RD_ONLY:
         case LOGFS_ERR_WR_ONLY:
         case LOGFS_ERR_NO_MORE_FILES:
-            return FileSystemError::ERROR;
         default:
             return FileSystemError::ERROR;
     }
 }
 
-std::expected<void, FileSystemError> FileSystem::init(void)
+std::expected<void, FileSystemError> FileSystem::init()
 {
     mount_failed = false;
-    LogFsErr err = tryMount();
+    LogFsErr err = tryMount(fs, fs_cfg);
 
     if (err == LOGFS_ERR_IO)
     {
@@ -87,7 +107,7 @@ std::expected<void, FileSystemError> FileSystem::init(void)
             return std::unexpected(logfsErrorToFsError(err));
         }
 
-        err = tryMount();
+        err = tryMount(fs, fs_cfg);
         if (err != LOGFS_ERR_OK)
         {
             mount_failed = true;
@@ -97,7 +117,7 @@ std::expected<void, FileSystemError> FileSystem::init(void)
 
     // Setup caches.
     files_opened.fill(false);
-    for (size_t i = 0; i < FileSystem::MAX_FILE_NUMBER; i++)
+    for (size_t i = 0; i < MAX_FILE_NUMBER; i++)
     {
         files_cfg[i].cache = files_cache[i].data();
     }
@@ -110,8 +130,8 @@ std::expected<uint32_t, FileSystemError> FileSystem::open(const char *path)
     if (!checkMount())
         return std::unexpected(FileSystemError::MOUNT_FAILED);
 
-    uint32_t fd = FileSystem::MAX_FILE_NUMBER;
-    for (uint32_t i = 0; i < FileSystem::MAX_FILE_NUMBER; i++)
+    uint32_t fd = MAX_FILE_NUMBER;
+    for (uint32_t i = 0; i < MAX_FILE_NUMBER; i++)
     {
         if (!files_opened[i])
         {
@@ -120,22 +140,22 @@ std::expected<uint32_t, FileSystemError> FileSystem::open(const char *path)
         }
     }
 
-    if (fd == FileSystem::MAX_FILE_NUMBER)
+    if (fd == MAX_FILE_NUMBER)
     {
         // Couldn't find a new slot for the file.
-        return std::unexpected(io::FileSystemError::NOT_FOUND);
+        return std::unexpected(FileSystemError::NOT_FOUND);
     }
 
     files_cfg[fd].path = path;
-    auto err           = logfs_open(&fs, &files[fd], &files_cfg[fd], LOGFS_OPEN_RD_WR | LOGFS_OPEN_CREATE);
-    if (err != LOGFS_ERR_OK)
+    if (const auto err = logfs_open(&fs, &files[fd], &files_cfg[fd], LOGFS_OPEN_RD_WR | LOGFS_OPEN_CREATE);
+        err != LOGFS_ERR_OK)
         return std::unexpected(logfsErrorToFsError(err));
 
     files_opened[fd] = true;
     return fd;
 }
 
-std::expected<void, FileSystemError> FileSystem::read(uint32_t fd, std::span<uint8_t> buf, const size_t size)
+std::expected<void, FileSystemError> FileSystem::read(const uint32_t fd, std::span<uint8_t> buf, const size_t size)
 {
     if (!checkMount())
         return std::unexpected(FileSystemError::MOUNT_FAILED);
@@ -143,88 +163,79 @@ std::expected<void, FileSystemError> FileSystem::read(uint32_t fd, std::span<uin
         return std::unexpected(FileSystemError::ERROR);
 
     uint32_t num_read;
-    auto     err = logfs_read(&fs, &files[fd], buf.data(), size, LOGFS_READ_END, &num_read);
-    if (err != LOGFS_ERR_OK)
+    if (const LogFsErr err = logfs_read(&fs, &files[fd], buf.data(), size, LOGFS_READ_END, &num_read);
+        err != LOGFS_ERR_OK)
         return std::unexpected(logfsErrorToFsError(err));
 
     if (num_read != size)
-        return std::unexpected(io::FileSystemError::ERROR);
+        return std::unexpected(FileSystemError::ERROR);
 
     return {};
 }
 
-std::expected<void, FileSystemError> FileSystem::write(uint32_t fd, std::span<uint8_t> buf, const size_t size)
+std::expected<void, FileSystemError>
+    FileSystem::write(const uint32_t fd, const std::span<uint8_t> buf, const size_t size)
 {
     if (!checkMount())
         return std::unexpected(FileSystemError::MOUNT_FAILED);
     if (!checkFileDescriptor(fd))
         return std::unexpected(FileSystemError::ERROR);
 
-    FileSystemError err = logfsErrorToFsError(logfs_write(&fs, &files[fd], buf.data(), size));
-    if (err != FileSystemError::OK)
+    if (const FileSystemError err = logfsErrorToFsError(logfs_write(&fs, &files[fd], buf.data(), size));
+        err != FileSystemError::OK)
         return std::unexpected(err);
 
     return {};
 }
 
 std::expected<void, FileSystemError>
-    FileSystem::readMetadata(uint32_t fd, std::span<uint8_t> buf, size_t size, uint32_t &num_read)
+    FileSystem::readMetadata(const uint32_t fd, std::span<uint8_t> buf, const size_t size, uint32_t &num_read)
 {
     if (!checkMount())
         return std::unexpected(FileSystemError::MOUNT_FAILED);
 
-    auto err = logfs_readMetadata(&fs, &files[fd], buf.data(), size, &num_read);
-
-    if (err != LOGFS_ERR_OK)
+    if (const LogFsErr err = logfs_readMetadata(&fs, &files[fd], buf.data(), size, &num_read); err != LOGFS_ERR_OK)
         return std::unexpected(logfsErrorToFsError(err));
 
     return {};
 }
 
-std::expected<void, FileSystemError> FileSystem::writeMetadata(uint32_t fd, std::span<uint8_t> buf, size_t size)
+std::expected<void, FileSystemError>
+    FileSystem::writeMetadata(const uint32_t fd, const std::span<uint8_t> buf, const size_t size)
 {
     if (!checkMount())
         return std::unexpected(FileSystemError::MOUNT_FAILED);
 
-    auto err = logfs_writeMetadata(&fs, &files[fd], buf.data(), size);
-
-    if (err != LOGFS_ERR_OK)
+    if (const LogFsErr err = logfs_writeMetadata(&fs, &files[fd], buf.data(), size); err != LOGFS_ERR_OK)
         return std::unexpected(logfsErrorToFsError(err));
 
     return {};
 }
 
-std::expected<void, FileSystemError> FileSystem::close(uint32_t fd)
+std::expected<void, FileSystemError> FileSystem::close(const uint32_t fd)
 {
     if (!checkMount())
         return std::unexpected(FileSystemError::MOUNT_FAILED);
     if (!checkFileDescriptor(fd))
         return std::unexpected(FileSystemError::ERROR);
 
-    auto err = logfs_close(&fs, &files[fd]);
-    if (err != LOGFS_ERR_OK)
+    if (const LogFsErr err = logfs_close(&fs, &files[fd]); err != LOGFS_ERR_OK)
         return std::unexpected(logfsErrorToFsError(err));
 
     files_opened[fd] = false;
     return {};
 }
 
-std::expected<void, FileSystemError> FileSystem::sync(uint32_t fd)
+std::expected<void, FileSystemError> FileSystem::sync(const uint32_t fd)
 {
     if (!checkMount())
         return std::unexpected(FileSystemError::MOUNT_FAILED);
     if (!checkFileDescriptor(fd))
         return std::unexpected(FileSystemError::ERROR);
 
-    FileSystemError err = logfsErrorToFsError(logfs_sync(&fs, &files[fd]));
-    if (err != FileSystemError::OK)
+    if (const FileSystemError err = logfsErrorToFsError(logfs_sync(&fs, &files[fd])); err != FileSystemError::OK)
         return std::unexpected(err);
 
     return {};
-}
-
-bool FileSystem::isSdPresent() const
-{
-    return sdCard.sdPresent();
 }
 } // namespace io

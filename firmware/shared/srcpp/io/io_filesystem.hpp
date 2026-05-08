@@ -9,15 +9,8 @@
 
 #ifdef TARGET_EMBEDDED
 #include "hw_sd.hpp"
-#endif
-
-extern "C"
-{
 #include "logfs.h"
-}
-
-LogFsErr logfsCfgRead(const LogFsCfg *cfg, uint32_t block, void *buf);
-LogFsErr logfsCfgWrite(const LogFsCfg *cfg, uint32_t block, void *buf);
+#endif
 
 namespace io
 {
@@ -43,26 +36,24 @@ class FileSystem
     static constexpr uint32_t    MAX_WRITE_CYCLES   = 1000;
     static constexpr std::size_t MAX_FILE_NUMBER    = 3;
 
-    LogFsCfg fs_cfg{
-        .context = this,
 #ifdef TARGET_EMBEDDED
-        .block_size = HW_DEVICE_SECTOR_SIZE,
-#else
-        .block_size = 512,
-#endif
-        .block_count  = 1024 * 1024 * 15, // ~7.5 GB
-        .read         = logfsCfgRead,
-        .write        = logfsCfgWrite,
-        .cache        = cache.data(),
-        .write_cycles = MAX_WRITE_CYCLES,
-        .rd_only      = false,
+    static LogFsErr logfsCfgRead(const LogFsCfg *cfg, uint32_t block, void *buf);
+    static LogFsErr logfsCfgWrite(const LogFsCfg *cfg, uint32_t block, void *buf);
+    LogFsCfg        fs_cfg{
+               .context      = this,
+               .block_size   = HW_DEVICE_SECTOR_SIZE,
+               .block_count  = 1024 * 1024 * 15, // ~7.5 GB
+               .read         = logfsCfgRead,
+               .write        = logfsCfgWrite,
+               .cache        = cache.data(),
+               .write_cycles = MAX_WRITE_CYCLES,
+               .rd_only      = false,
     };
     LogFs fs;
 
-#ifdef TARGET_EMBEDDED
-    const hw::SdCard &sdCard; // sd card instance
+    const hw::SdCard &sd; // sd card instance
     /* Constructor*/
-    explicit FileSystem(const hw::SdCard &sd_card) : fs(), sdCard(sd_card) {}
+    explicit FileSystem(const hw::SdCard &sd_card) : fs(), sd(sd_card) {}
 #else
     /* Constructor for non-embedded targets, just to make testing easier. */
     FileSystem() = default;
@@ -135,11 +126,6 @@ class FileSystem
      */
     std::expected<void, FileSystemError> sync(uint32_t fd);
 
-    /**
-     * Checks if the SD card is present.
-     */
-    bool isSdPresent() const;
-
   private:
     bool mount_failed = false;
 
@@ -148,8 +134,6 @@ class FileSystem
     std::array<LogFsFileCfg, MAX_FILE_NUMBER>                            files_cfg{};
     std::array<LogFsFile, MAX_FILE_NUMBER>                               files{};
     std::array<std::array<char, HW_DEVICE_SECTOR_SIZE>, MAX_FILE_NUMBER> files_cache{};
-#else
-    std::array<uint8_t, 512> cache{};
 #endif
     std::array<bool, MAX_FILE_NUMBER> files_opened{};
 
@@ -163,22 +147,5 @@ class FileSystem
      * Checks if the filesystem has been mounted successfully.
      */
     bool checkMount() const { return !mount_failed; }
-
-    /**
-     * If mount fails we assume the filesystem is corrupted or not present, so we format it which wipes everything. Try
-     * 3x to mount to make sure its not a random failure (such as from the SD card jiggling in its slot).
-     */
-    LogFsErr tryMount()
-    {
-        LogFsErr err;
-        for (int i = 0; i < NUM_MOUNT_ATTEMPTS; i++)
-        {
-            err = logfs_mount(&fs, &fs_cfg);
-            if (err == LOGFS_ERR_OK)
-                return err;
-        }
-        return err;
-    }
-
 }; // class FileSystem
 } // namespace io
