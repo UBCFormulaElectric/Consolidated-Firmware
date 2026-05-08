@@ -48,8 +48,6 @@ static bool driveStatePassPreCheck()
     if (app::bspdWarning::checkSoftwareBspd(apps))
         return false;
 
-    // handle state transitions away from drive state
-    // is this really needed ngl this could be consolidated into 100Hz tick
     return true;
 }
 
