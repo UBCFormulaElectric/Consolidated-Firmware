@@ -1,18 +1,5 @@
 #include <span>
 
-#include "hw_hal.hpp"
-
-#ifdef STM32H562xx
-#include "stm32h5xx_hal_cordic.h"
-#elif STM32H733xx
-#include "stm32h7xx_hal_cordic.h"
-#endif
-
-#include "main.h"
-#ifndef HAL_CORDIC_MODULE_ENABLED
-#error "HAL_CORDIC_MODULE_ENABLED must be defined and set to 1"
-#endif
-
 #include "hw_utils.hpp"
 #include "util_errorCodes.hpp"
 #include "util_units.hpp"
@@ -77,6 +64,5 @@ inline float convertToFloat(int32_t fixed_point)
  */
 std::expected<void, ErrorCode> configure(uint32_t func, uint32_t scale, uint32_t nbwrite);
 
-std::expected<void, ErrorCode>
-    calculate(uint32_t nbwrite, std::span<const int32_t> args, std::span<int32_t> result);
+std::expected<void, ErrorCode> calculate(uint32_t nbwrite, std::span<const int32_t> args, std::span<int32_t> result);
 }; // namespace hw::cordic

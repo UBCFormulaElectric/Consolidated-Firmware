@@ -11,10 +11,7 @@
 #include "io_math.hpp"
 #include <cmath>
 
-extern "C"
-{
 #include "main.h"
-}
 
 #include "SEGGER_SYSVIEW.h"
 

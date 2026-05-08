@@ -1,5 +1,17 @@
 #include "hw_cordic.hpp"
-#include "hw_utils.hpp"
+
+#ifdef STM32H562xx
+#include "stm32h5xx_hal_cordic.h"
+#elif STM32H733xx
+#include "stm32h7xx_hal_cordic.h"
+#endif
+
+#include "hw_hal.hpp"
+
+#include "main.h"
+#ifndef HAL_CORDIC_MODULE_ENABLED
+#error "HAL_CORDIC_MODULE_ENABLED must be defined and set to 1"
+#endif
 
 /**
  * STM32 CORDIC co-processor driver
@@ -46,14 +58,13 @@ std::expected<void, ErrorCode> configure(uint32_t func, uint32_t scale, uint32_t
     config.NbWrite   = nbwrite;
     config.Precision = CORDIC_PRECISION_15CYCLES;
 
-    RETURN_IF_ERR(hw_utils_convertHalStatus(HAL_CORDIC_Configure(&hcordic, &config)));
+    RETURN_IF_ERR(hw::utils::convertHalStatus(HAL_CORDIC_Configure(&hcordic, &config)));
     return {};
 }
 
-std::expected<void, ErrorCode>
-    calculate(uint32_t nbwrite, std::span<const int32_t> args, std::span<int32_t> result)
+std::expected<void, ErrorCode> calculate(uint32_t nbwrite, std::span<const int32_t> args, std::span<int32_t> result)
 {
-    RETURN_IF_ERR(hw_utils_convertHalStatus(
+    RETURN_IF_ERR(hw::utils::convertHalStatus(
         HAL_CORDIC_CalculateZO(&hcordic, args.data(), result.data(), nbwrite, CORDIC_TIMEOUT)));
     return {};
 }
