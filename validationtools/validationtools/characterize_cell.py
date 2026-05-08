@@ -12,7 +12,9 @@ import time
 #########################################################################
 
 NOMINAL_CELL_VOLTAGE = 3.5
-DEFAULT_POWER_SUPPLY_CHANNEL = 2
+# By default we want to use channel one of the psu because it offers (I think) less inaccuracy of setting
+# current, only downside is that it's limited to 1A of charge, so charge portion of test is slightly different than discharge
+DEFAULT_POWER_SUPPLY_CHANNEL = 1
 
 totalCellCapacity = 3.000 # Ah From datasheet on google drive
 
@@ -31,13 +33,14 @@ activeStatusCheckIntervalSeconds = 5
 firstPortionCutoffSoc = 12
 # This is used for charging portion of test ONLY since we want to
 # mitigate high current prematurely causing overvoltage of cell.
-secondPortionCutoffSoc = 88
+secondPortionCutoffSoc = 94
 cRateAmps = totalCellCapacity
 base1CActiveTime = 60 # Discharge time for 1C rate, this is the smallest unit of the test step
 
 # Accoding to datasheet, cell has a peak charging voltage of 4.2V and a cutoff voltage of 2.5V
 
 socVoltageEstimationMap = {socTOC: 4.2, socBOC: 2.5}
+chargeVoltageBuffer = 0.12 # Voltage delta to add on top of the toc voltage for the psu
 dataPath = r"C:\Users\Formula Electric\Documents\consolitdated_firm\Consolidated-Firmware\validationtools\validationtools\CellCharacterizationData"
 
 
@@ -73,13 +76,15 @@ def sleepWithStatusChecks(
 def checkDischargeStatus(loadBank: LoadBank) -> None:
     voltage = loadBank.measure_voltage()
     current = loadBank.measure_current()
-    print(f"Active discharge check -> V: {round(voltage, 4)} V, I: {round(current, 4)} A")
+    if voltage < socVoltageEstimationMap[socBOC]:
+        print(f"Active discharge check -> V: {round(voltage, 4)} V, I: {round(current, 4)} A")
 
 
 def checkChargeStatus(powerSupply: PowerSupply) -> None:
     voltage = powerSupply.measure_voltage(powerSupplyChannel)
     current = powerSupply.measure_current(powerSupplyChannel)
-    print(f"Active charge check -> V: {round(voltage, 4)} V, I: {round(current, 4)} A")
+    if voltage > socVoltageEstimationMap[socTOC]:
+        print(f"Active charge check -> V: {round(voltage, 4)} V, I: {round(current, 4)} A")
 
 
 def getChargingRow(logger: Logger, powerSupply: PowerSupply):
@@ -121,8 +126,8 @@ def getDischargingRow(logger: Logger, loadBank: LoadBank):
 def main() -> None:
     #########################################################################
     # UNCOMMENT THE MODE YOU WANT TO RUN, ADJUST TEST VARIABLES ACCORDINGLY #
-    mode = "discharge"                                                      #
-    # mode = "charge"                                                       #
+    # mode = "discharge"                                                    #
+    mode = "charge"                                                       #
     #########################################################################
 
     psuChannel = DEFAULT_POWER_SUPPLY_CHANNEL
@@ -244,7 +249,10 @@ def chargeCharacterization(powerSupply: PowerSupply, logger: Logger, soc: float)
     chargingRate = cRateAmps / 16  # 0.0625C rate for the cell
     activeTimeSeconds = base1CActiveTime * cRateAmps / chargingRate
     restingTimeSeconds = 7200
-    powerSupply.set_voltage(socVoltageEstimationMap[100], powerSupplyChannel) # Set voltage to 4.2V max according to datasheet to avoid overvoltage from high current at low soc
+    # We have to set the output to zero initially and enable it so that the psu can get a voltage reading
+    powerSupply.set_current(0, powerSupplyChannel)
+    powerSupply.enable_output(powerSupplyChannel)
+    powerSupply.set_voltage(socVoltageEstimationMap[100] + chargeVoltageBuffer, powerSupplyChannel) # Set voltage to 4.2V max according to datasheet to avoid overvoltage from high current at low soc
     while(soc < firstPortionCutoffSoc and powerSupply.measure_voltage(powerSupplyChannel) < socVoltageEstimationMap[100]):
         row = getChargingRow(logger, powerSupply)
         logger.storeRow(row)
@@ -254,12 +262,12 @@ def chargeCharacterization(powerSupply: PowerSupply, logger: Logger, soc: float)
         sleepWithStatusChecks(activeTimeSeconds, lambda: checkChargeStatus(powerSupply))
         row = getChargingRow(logger, powerSupply)
         logger.storeRow(row)
-        powerSupply.disable_output(powerSupplyChannel)
+        powerSupply.set_current(0, powerSupplyChannel)
 
         time.sleep(restingTimeSeconds)
         soc = row[-1]
 
-    chargingRate = cRateAmps / 2   # 0.5C Rate in amps
+    chargingRate = cRateAmps / 3   # 0.33C Rate in amps
     activeTimeSeconds = base1CActiveTime * cRateAmps / chargingRate
     restingTimeSeconds = minRestingTimeBOC
     deltaRestTime = (minRestingTimeTOC - minRestingTimeBOC) / (socTOC - firstPortionCutoffSoc) # Slope to linearly interpolate rest time (BoC need more rest time than ToC)
@@ -273,13 +281,13 @@ def chargeCharacterization(powerSupply: PowerSupply, logger: Logger, soc: float)
         sleepWithStatusChecks(activeTimeSeconds, lambda: checkChargeStatus(powerSupply))
         row = getChargingRow(logger, powerSupply)
         logger.storeRow(row)
-        powerSupply.disable_output(powerSupplyChannel)
+        powerSupply.set_current(0, powerSupplyChannel)
         time.sleep(restingTimeSeconds)
         soc = row[-1]
 
     chargingRate = cRateAmps / 16  # 0.0625C rate for the cell, trying to get close to constant voltage charging
     activeTimeSeconds = base1CActiveTime * cRateAmps / chargingRate
-    restingTimeSeconds = 1200 # Since we are at TOC the cell settles faster, we just want to give the cell extra time to recover not go over 4.2V cutoff
+    restingTimeSeconds = 7200 # Since we are at TOC the cell settles faster, we just want to give the cell extra time to recover not go over 4.2V cutoff
     while(powerSupply.measure_voltage(powerSupplyChannel) < socVoltageEstimationMap[100]):
         row = getChargingRow(logger, powerSupply)
         logger.storeRow(row)
@@ -289,10 +297,10 @@ def chargeCharacterization(powerSupply: PowerSupply, logger: Logger, soc: float)
         sleepWithStatusChecks(activeTimeSeconds, lambda: checkChargeStatus(powerSupply))
         row = getChargingRow(logger, powerSupply)
         logger.storeRow(row)
-        powerSupply.disable_output(powerSupplyChannel)
+        powerSupply.set_current(0, powerSupplyChannel)
         time.sleep(restingTimeSeconds)
 
-    powerSupply.disable_output(powerSupplyChannel)
+    powerSupply.set_current(0, powerSupplyChannel)
     row = getChargingRow(logger, powerSupply)
     logger.storeRow(row)
 
