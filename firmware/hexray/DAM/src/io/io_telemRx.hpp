@@ -14,10 +14,6 @@ struct RxChunk
     io::rtc::Time            rx_time; // captured immediately after the chunk landed
 };
 
-// TX side: transmit the NTP start message and return the RTC time captured
-// just before transmission (this is the t0 the APP layer needs).
-std::expected<io::rtc::Time, ErrorCode> transmitNTPStartMsg();
-
 // RX side: block on the radio UART, fill `scratch`, and return the chunk +
 // receive timestamp. Caller owns `scratch` and forwards the result to whatever
 // consumer wants it (no app coupling here).

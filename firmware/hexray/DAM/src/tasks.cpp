@@ -14,7 +14,7 @@
 #include "io_canRx.hpp"
 #include "io_telemQueue.hpp"
 #include "hw_hardFaultHandler.hpp"
-#include "hw_mutexGuard.hpp"
+#include "io_rtc.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_uarts.hpp"
 #include "hw_cans.hpp"
@@ -104,14 +104,26 @@
             continue;
         }
 
-        const auto &msg = result.value();
+        const auto &entry = result.value();
+
+        if (entry.tag == io::telemMessage::TelemMessageIds::NTP)
         {
-            hw::MutexGuard g{ _900k_uart_tx_mutex };
-            const auto     tx_result = _900k_uart.transmit(msg.asBytes());
-            if (not tx_result)
+            // can probably move all the t0 handling to the app_ntp code
+            io::rtc::Time t0{};
+            const auto    t0_result = io::rtc::get_time(t0);
+            if (!t0_result)
             {
-                LOG_ERROR("Failed to transmit telem message: %d", static_cast<int>(tx_result.error()));
+                LOG_ERROR("NTP: could not capture T0");
+                app::ntp::clearNtpInProgress();
+                continue;
             }
+            app::ntp::recordT0(app::ntp::rtcTimeToMs(t0));
+        }
+
+        const auto tx_result = _900k_uart.transmit(entry.message().asBytes());
+        if (not tx_result)
+        {
+            LOG_ERROR("Failed to transmit telem message: %d", static_cast<int>(tx_result.error()));
         }
     }
 }
@@ -162,8 +174,8 @@
         if (not msg)
             continue;
         const auto &can_msg = msg.value();
-        (void)telem_tx_queue.push(
-            io::telemMessage::TelemCanMsg(can_msg, static_cast<uint64_t>(io::time::getCurrentMs())));
+        (void)telem_tx_queue.push(io::telemMessage::TelemQueueEntry(
+            io::telemMessage::TelemCanMsg(can_msg, static_cast<uint64_t>(io::time::getCurrentMs()))));
         io::can_rx::updateRxTableWithMessage(app::jsoncan::copyFromCanMsg(can_msg));
     }
 }

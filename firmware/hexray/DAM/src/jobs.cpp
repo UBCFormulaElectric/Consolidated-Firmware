@@ -1,7 +1,6 @@
 #include "jobs.hpp"
 #include "app_ntp.hpp"
 #include "io_ntpButton.hpp"
-#include "io_telemRx.hpp"
 #include "io_log.hpp"
 
 #include "app_canTx.hpp"
@@ -33,8 +32,8 @@ void jobs_init()
             auto             result = can_tx_queue.push(msg);
             if (not result)
                 LOG_ERROR("Failed to push TX CAN message: %d", static_cast<int>(result.error()));
-            (void)telem_tx_queue.push(
-                io::telemMessage::TelemCanMsg(msg, static_cast<uint64_t>(io::time::getCurrentMs())));
+            (void)telem_tx_queue.push(io::telemMessage::TelemQueueEntry(
+                io::telemMessage::TelemCanMsg(msg, static_cast<uint64_t>(io::time::getCurrentMs()))));
         });
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
     telem_tx_queue.init();
@@ -46,14 +45,20 @@ void jobs_run100Hz_tick()
 {
     if (io::ntpButton::wasJustPressed())
     {
-        const auto ntp_result = io::telemRx::transmitNTPStartMsg();
-        if (!ntp_result)
+        if (app::ntp::isNtpInProgress())
         {
-            LOG_ERROR("transmitNTPStartMsg() failed with error: %d", static_cast<int>(ntp_result.error()));
+            LOG_WARN("NTP already in progress, ignoring button press");
         }
         else
         {
-            app::ntp::recordT0(app::ntp::rtcTimeToMs(*ntp_result));
+            app::ntp::setNtpInProgress();
+            const auto push_result =
+                telem_tx_queue.push(io::telemMessage::TelemQueueEntry(io::telemMessage::NTPMsg{}));
+            if (!push_result)
+            {
+                LOG_ERROR("Failed to enqueue NTP message: %d", static_cast<int>(push_result.error()));
+                app::ntp::clearNtpInProgress();
+            }
         }
     }
     hb_monitor.checkIn();

@@ -1,5 +1,6 @@
 #include "app_ntp.hpp"
 
+#include <atomic>
 #include <cstring>
 
 #include "io_log.hpp"
@@ -19,7 +20,8 @@ namespace app::ntp
 
 namespace
 {
-    Timestamps g_ts{};
+    Timestamps         g_ts{};
+    std::atomic<bool>  g_ntp_in_progress{ false };
 }
 
 uint64_t rtcTimeToMs(const io::rtc::Time &t)
@@ -101,6 +103,7 @@ bool handleFrameAndTuneRtc(std::span<const uint8_t> body, uint64_t t3_ms)
     if (!get_res)
     {
         LOG_ERROR("ntp: RTC get_time failed");
+        clearNtpInProgress();
         return false;
     }
 
@@ -108,6 +111,7 @@ bool handleFrameAndTuneRtc(std::span<const uint8_t> body, uint64_t t3_ms)
     if (!new_ms)
     {
         LOG_ERROR("ntp: NTP body parse failed");
+        clearNtpInProgress();
         return false;
     }
 
@@ -135,13 +139,30 @@ bool handleFrameAndTuneRtc(std::span<const uint8_t> body, uint64_t t3_ms)
     if (!set_ok)
     {
         LOG_ERROR("ntp: RTC set_time failed");
+        clearNtpInProgress();
         return false;
     }
 
     LOG_INFO(
         "Tuned RTC! New Time: %02u:%02u:%02u.%03lu", tuned.hours, tuned.minutes, tuned.seconds,
         static_cast<unsigned long>(PREDIV_S - tuned.subseconds));
+    clearNtpInProgress();
     return true;
+}
+
+bool isNtpInProgress()
+{
+    return g_ntp_in_progress.load();
+}
+
+void setNtpInProgress()
+{
+    g_ntp_in_progress.store(true);
+}
+
+void clearNtpInProgress()
+{
+    g_ntp_in_progress.store(false);
 }
 
 } // namespace app::ntp

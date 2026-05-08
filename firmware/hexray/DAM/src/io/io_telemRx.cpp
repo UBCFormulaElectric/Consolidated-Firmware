@@ -3,40 +3,9 @@
 #include <cstdint>
 #include <span>
 
-#include "hw_mutexGuard.hpp"
 #include "hw_uarts.hpp"
 #include "io_log.hpp"
 #include "io_rtc.hpp"
-#include "io_telemMessage.hpp"
-
-// Send NTP request to backend and return the RTC time captured at send.
-std::expected<io::rtc::Time, ErrorCode> io::telemRx::transmitNTPStartMsg()
-{
-    // Take the UART lock first so any wait for an in-flight transmit happens
-    // *before* we capture t0.
-    hw::MutexGuard g{ _900k_uart_tx_mutex };
-
-    io::rtc::Time t0;
-    const auto    t0_result = io::rtc::get_time(t0);
-    if (!t0_result)
-    {
-        LOG_ERROR("Could not get RTC time");
-        return std::unexpected(t0_result.error());
-    }
-
-    const io::telemMessage::NTPMsg ntp_msg{};
-    const auto                     tx_result = _900k_uart.transmit(ntp_msg.asBytes(), 9);
-    if (!tx_result)
-    {
-        LOG_ERROR("Failed to transmit NTP message");
-        return std::unexpected(tx_result.error());
-    }
-
-    LOG_INFO(
-        "Sent NTP Msg! at time: %02u:%02u:%02u.%03lu", t0.hours, t0.minutes, t0.seconds,
-        static_cast<unsigned long>(999 - t0.subseconds));
-    return t0;
-}
 
 // TODO: replace blocking chunk read with UART-IDLE / DMA driven ingestion so
 // rx_time is captured at the byte-arrival instant rather than at chunk end.

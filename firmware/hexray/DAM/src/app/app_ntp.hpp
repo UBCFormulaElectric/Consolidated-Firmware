@@ -36,4 +36,8 @@ std::optional<uint64_t> handleFrame(std::span<const uint8_t> body, uint64_t t3_m
 // Returns false if any stage fails.
 bool handleFrameAndTuneRtc(std::span<const uint8_t> body, uint64_t t3_ms);
 
+bool isNtpInProgress();
+void setNtpInProgress();
+void clearNtpInProgress();
+
 } // namespace app::ntp

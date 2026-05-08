@@ -5,7 +5,8 @@
 #include "app_ntp.hpp"
 #include "app_crc32.hpp"
 #include "io_log.hpp"
-#include "io_telemRx.hpp"
+#include "io_telemMessage.hpp"
+#include "io_telemQueue.hpp"
 #include "util_ringBuffer.hpp"
 
 namespace app::telemRx
@@ -49,26 +50,23 @@ namespace
                 }
                 break;
             }
-            // Remote trigger of transmitNTP when dam is enclosed (button is inaccesible)
             case MessageId::Remote_NTP:
             {
-                // Synchronously transmits on the RX task. Safe because the backend's NTP
-                // response can't arrive until after this transmit completes (request/response
-                // protocol), and Remote_NTP / button NTP are mutually exclusive by policy.
-                const auto ntp_result = io::telemRx::transmitNTPStartMsg();
-                if (!ntp_result)
+                if (app::ntp::isNtpInProgress())
                 {
-                    LOG_ERROR("telemRx: Remote NTP transmit failed");
+                    LOG_WARN("telemRx: NTP already in progress, ignoring Remote_NTP");
                     return;
                 }
-                else
+                app::ntp::setNtpInProgress();
+                const auto push_result =
+                    telem_tx_queue.push(io::telemMessage::TelemQueueEntry(io::telemMessage::NTPMsg{}));
+                if (!push_result)
                 {
-                    app::ntp::recordT0(app::ntp::rtcTimeToMs(*ntp_result));
-                    LOG_INFO("telemRx: Remote NTP transmit successful");
-                    LOG_INFO(
-                        "Remote NTP Msg! at time: %02u:%02u:%02u.%03lu", ntp_result->hours, ntp_result->minutes,
-                        ntp_result->seconds, static_cast<unsigned long>(999 - ntp_result->subseconds));
+                    LOG_ERROR("telemRx: Failed to enqueue Remote NTP: %d", static_cast<int>(push_result.error()));
+                    app::ntp::clearNtpInProgress();
+                    return;
                 }
+                LOG_INFO("telemRx: Remote NTP enqueued");
                 break;
             }
             default:

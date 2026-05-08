@@ -62,4 +62,27 @@ struct [[gnu::packed]] NTPMsg : TelemMessage
     NTPMsg();
 };
 
+struct TelemQueueEntry
+{
+    TelemMessageIds tag;
+    union
+    {
+        TelemCanMsg can;
+        NTPMsg      ntp;
+    };
+
+    explicit TelemQueueEntry(const TelemCanMsg &m) : tag(TelemMessageIds::CAN), can(m) {}
+    explicit TelemQueueEntry(const NTPMsg &m) : tag(TelemMessageIds::NTP), ntp(m) {}
+    TelemQueueEntry() : tag(TelemMessageIds::CAN), can() {}
+
+    [[nodiscard]] const TelemMessage &message() const
+    {
+        switch (tag)
+        {
+            case TelemMessageIds::NTP: return ntp;
+            default:                   return can;
+        }
+    }
+};
+
 } // namespace io::telemMessage

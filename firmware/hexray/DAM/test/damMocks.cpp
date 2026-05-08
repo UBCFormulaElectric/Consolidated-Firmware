@@ -11,11 +11,6 @@ bool                       io::ntpButton::wasJustPressed()
     return false;
 }
 
-std::expected<io::rtc::Time, ErrorCode> io::telemRx::transmitNTPStartMsg()
-{
-    return io::rtc::Time{};
-}
-
 std::expected<io::telemRx::RxChunk, ErrorCode> io::telemRx::read(std::span<uint8_t>)
 {
     return RxChunk{ {}, io::rtc::Time{} };
