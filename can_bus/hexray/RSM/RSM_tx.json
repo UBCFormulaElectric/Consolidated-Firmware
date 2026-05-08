@@ -12,7 +12,7 @@
   "Debug": {
     "msg_id": 707,
     "cycle_time": 1000,
-    "description": "VC Debug Signals",
+    "description": "RSM Debug Signals",
     "signals": {
       "TxOverflowCount": {
         "bits": 16

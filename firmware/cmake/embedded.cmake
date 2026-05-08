@@ -104,7 +104,7 @@ function(embedded_object_library
                 PUBLIC
                 ${LIB_INCLUDE_DIRS}
         )
-        target_compile_options(${LIB_NAME} PRIVATE ${SHARED_GNU_COMPILER_CHECKS} -Os)
+        target_compile_options(${LIB_NAME} PRIVATE ${SHARED_GNU_COMPILER_CHECKS} -O0)
     ELSE ()
         target_include_directories(${LIB_NAME} PUBLIC ${LIB_INCLUDE_DIRS})
         target_compile_options(${LIB_NAME} PRIVATE ${SHARED_GNU_COMPILER_CHECKS_STRICT})
