@@ -79,10 +79,14 @@ struct TelemQueueEntry
     {
         switch (tag)
         {
+            case TelemMessageIds::CAN:
+                return can;
             case TelemMessageIds::NTP:
                 return ntp;
+            case TelemMessageIds::NTPDate:
+                return ntp; // just to handle it right now
             default:
-                return can;
+                __builtin_unreachable();
         }
     }
 };
