@@ -1,7 +1,5 @@
 #include "app_states.hpp"
 #include "app_bspdwarning.hpp"
-#include "torque_vectoring/driving_algorithm.hpp"
-#include "app_bspdWarning.hpp"
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
 #include "app_canAlerts.hpp"
@@ -62,7 +60,7 @@ static void driveStateRunOnTick100Hz(void)
         return;
     }
 
-    app::tv::algo::run(apps);
+    // TODO: add driving algorithm handling here
 }
 
 static void driveStateRunOnExit(void)
