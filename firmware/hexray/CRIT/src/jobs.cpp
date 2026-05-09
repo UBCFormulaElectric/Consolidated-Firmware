@@ -70,28 +70,6 @@ void jobs_run100Hz_tick()
 
     app::screens::tick();
 
-    static float angle = 0.0f;
-
-    auto ccos_result = io::math::csin(angle);
-    app::can_tx::CRIT_Cordic_Cos_set(ccos_result.value_or(0.0f));
-    float libc_cos_result = std::sinf(angle);
-    app::can_tx::CRIT_stdlib_Cos_set(libc_cos_result);
-    float cos_diff = std::abs(ccos_result.value_or(0.0f) - libc_cos_result);
-
-    angle += M_PI_F / 180.0f;    
-
-    static float atan_input = -2.0f;
-
-    auto atan_result = io::math::atan(atan_input);
-    app::can_tx::CRIT_Cordic_Atan_set(atan_result.value_or(0.0f));
-    app::can_tx::CRIT_stdlib_Atan_set(std::atanf(atan_input));
-
-    atan_input += 0.01f;
-    if (atan_input > 2.0f)
-    {
-        atan_input = -2.0f;
-    }
-
     // io::power_gauge::update({});
 
     // update the state from the switches
