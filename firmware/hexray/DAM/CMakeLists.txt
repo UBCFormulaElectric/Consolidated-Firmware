@@ -169,9 +169,9 @@ elseif ("${TARGET}" STREQUAL "test")
     )
     set(SRCS ${APP_SRCS} ${APP_SHARED_SRCS} ${JOBS_SRC} ${TEST_IO_SRCS} ${TEST_SRCS} ${FAKE_SRCS})
     set(INCLUDE_DIRS
-            # "${CMAKE_CURRENT_SOURCE_DIR}/test"
-            ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP}
-            ${CUBEMX_INCLUDE_DIRS}
+            ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS}
+            ${SHARED_FAKES_DIR_CPP} ${SYSTEM_INCLUDE_DIRS}
+            ${SHARED_UTIL_INCLUDE_DIR_CPP} ${CUBEMX_INCLUDE_DIRS}
     )
     compile_gtest_executable(
             "hexray_DAM_test"
