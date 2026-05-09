@@ -57,6 +57,7 @@ extern "C"
     void FDCAN1_IT0_IRQHandler(void);
     void FDCAN1_IT1_IRQHandler(void);
     void TIM6_DAC_IRQHandler(void);
+    void TIM7_IRQHandler(void);
     void OTG_HS_EP1_OUT_IRQHandler(void);
     void OTG_HS_EP1_IN_IRQHandler(void);
     void OTG_HS_IRQHandler(void);
