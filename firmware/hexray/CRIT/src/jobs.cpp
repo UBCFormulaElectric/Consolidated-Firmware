@@ -13,7 +13,6 @@
 #include "io_powerGauge.hpp"
 #include "io_canTx.hpp"
 #include "io_canQueues.hpp"
-#include "io_math.hpp"
 
 #ifdef TARGET_EMBEDDED
 #include "hw_pwmOutputs.hpp"

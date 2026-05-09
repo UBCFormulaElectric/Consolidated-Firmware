@@ -41,7 +41,6 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-CORDIC_HandleTypeDef hcordic;
 
 FDCAN_HandleTypeDef hfdcan1;
 
@@ -226,30 +225,6 @@ void PeriphCommonClock_Config(void)
     {
         Error_Handler();
     }
-}
-
-/**
- * @brief CORDIC Initialization Function
- * @param None
- * @retval None
- */
-static void MX_CORDIC_Init(void)
-{
-    /* USER CODE BEGIN CORDIC_Init 0 */
-
-    /* USER CODE END CORDIC_Init 0 */
-
-    /* USER CODE BEGIN CORDIC_Init 1 */
-
-    /* USER CODE END CORDIC_Init 1 */
-    hcordic.Instance = CORDIC;
-    if (HAL_CORDIC_Init(&hcordic) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN CORDIC_Init 2 */
-
-    /* USER CODE END CORDIC_Init 2 */
 }
 
 /**
