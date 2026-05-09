@@ -81,10 +81,6 @@ else ()
         add_custom_target(install_python_logfs
                 COMMAND ${PYTHON_COMMAND} -m pip install -e "${CMAKE_CURRENT_SOURCE_DIR}/python"
                 DEPENDS logfs_src)
-
-        # LOGFS for unit tests
-        add_library("logfs_test" STATIC ${LOGFS_SRCS})
-        target_include_directories("logfs_test" PUBLIC "${LOGFS_INCLUDE_DIRS}")
     endif ()
 endif ()
 

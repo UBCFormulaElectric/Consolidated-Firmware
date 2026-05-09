@@ -191,6 +191,6 @@ elseif ("${TARGET}" STREQUAL "test")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    target_link_libraries("hexray_DAM_test" PRIVATE "hexray_DAM_commit_info" "hexray_DAM_jsoncan" "logfs_test")
+    target_link_libraries("hexray_DAM_test" PRIVATE "hexray_DAM_commit_info" "hexray_DAM_jsoncan")
     target_compile_definitions("hexray_DAM_test" PRIVATE STM32H562xx)
 endif ()
