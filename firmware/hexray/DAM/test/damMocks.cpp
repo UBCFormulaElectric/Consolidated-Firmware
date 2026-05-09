@@ -5,7 +5,9 @@
 io::queue<io::CanMsg, 128> can_tx_queue{ "" };
 io::queue<io::CanMsg, 128> can_rx_queue{ "" };
 
-#include "io_filesystem.hpp"
+#include "io_fileSystems.hpp"
+io::FileSystem fs{};
+
 std::expected<uint32_t, io::FileSystem::FileSystemError> io::FileSystem::open(const char *path)
 {
     if (open_file_names.contains(path))
