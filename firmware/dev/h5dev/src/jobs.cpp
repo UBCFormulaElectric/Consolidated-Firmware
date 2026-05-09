@@ -55,11 +55,9 @@ void jobs_run100Hz_tick()
     // LOG_INFO("CURRENT: %d", (int)(current * 100000));
     SEGGER_SYSVIEW_MarkStart(1U);
     auto ccos_result = io::math::ccos(angle);
-    app::can_tx::H5_Cordic_Cos_set(ccos_result.value_or(0.0f));
     SEGGER_SYSVIEW_MarkStop(1U);
     SEGGER_SYSVIEW_MarkStart(2U);
     float libc_cos_result = std::cosf(angle);
-    app::can_tx::H5_stdlib_Cos_set(libc_cos_result);
     SEGGER_SYSVIEW_MarkStop(2U);
     float cos_diff = std::abs(ccos_result.value_or(0.0f) - libc_cos_result);
 
