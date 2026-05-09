@@ -10,6 +10,9 @@
 #ifdef TARGET_EMBEDDED
 #include "hw_sd.hpp"
 #include "logfs.h"
+#elif TARGET_TEST
+#include <unordered_map>
+#include <unordered_set>
 #endif
 
 namespace io
@@ -35,21 +38,6 @@ class FileSystem
     };
 
 #ifdef TARGET_EMBEDDED
-    static LogFsErr logfsCfgRead(const LogFsCfg *cfg, uint32_t block, void *buf);
-    static LogFsErr logfsCfgWrite(const LogFsCfg *cfg, uint32_t block, void *buf);
-    LogFsCfg        fs_cfg{
-               .context      = this,
-               .block_size   = HW_DEVICE_SECTOR_SIZE,
-               .block_count  = 1024 * 1024 * 15, // ~7.5 GB
-               .read         = logfsCfgRead,
-               .write        = logfsCfgWrite,
-               .cache        = cache.data(),
-               .write_cycles = MAX_WRITE_CYCLES,
-               .rd_only      = false,
-    };
-    LogFs fs;
-
-    const hw::SdCard &sd; // sd card instance
     /* Constructor*/
     explicit FileSystem(const hw::SdCard &sd_card) : fs(), sd(sd_card) {}
 #else
@@ -97,7 +85,7 @@ class FileSystem
      * @param num_read actual bytes read
      * @return FileSystemError status
      */
-    std::expected<void, FileSystemError> readMetadata(uint32_t fd, std::span<uint8_t> buf, uint32_t &num_read);
+    std::expected<void, FileSystemError> readMetadata(uint32_t fd, std::span<uint8_t> buf, size_t &num_read);
 
     /**
      * Writes metadata to a file
@@ -125,10 +113,28 @@ class FileSystem
     bool mount_failed = false;
 
 #ifdef TARGET_EMBEDDED
+    static LogFsErr logfsCfgRead(const LogFsCfg *cfg, uint32_t block, void *buf);
+    static LogFsErr logfsCfgWrite(const LogFsCfg *cfg, uint32_t block, void *buf);
+    LogFsCfg        fs_cfg{
+               .context      = this,
+               .block_size   = HW_DEVICE_SECTOR_SIZE,
+               .block_count  = 1024 * 1024 * 15, // ~7.5 GB
+               .read         = logfsCfgRead,
+               .write        = logfsCfgWrite,
+               .cache        = cache.data(),
+               .write_cycles = MAX_WRITE_CYCLES,
+               .rd_only      = false,
+    };
+    LogFs fs;
+
+    const hw::SdCard                                                    &sd; // sd card instance
     std::array<uint8_t, HW_DEVICE_SECTOR_SIZE>                           cache{};
     std::array<LogFsFileCfg, MAX_FILE_NUMBER>                            files_cfg{};
     std::array<LogFsFile, MAX_FILE_NUMBER>                               files{};
     std::array<std::array<char, HW_DEVICE_SECTOR_SIZE>, MAX_FILE_NUMBER> files_cache{};
+#else
+    std::unordered_map<size_t, std::fstream> files;
+    std::unordered_set<std::string>          open_file_names;
 #endif
     std::array<bool, MAX_FILE_NUMBER> files_opened{};
 
