@@ -85,7 +85,7 @@ class FileSystem
      * @param num_read actual bytes read
      * @return FileSystemError status
      */
-    std::expected<void, FileSystemError> readMetadata(uint32_t fd, std::span<uint8_t> buf, size_t &num_read);
+    std::expected<void, FileSystemError> readMetadata(uint32_t fd, std::span<uint8_t> buf, uint32_t &num_read);
 
     /**
      * Writes metadata to a file

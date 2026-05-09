@@ -38,7 +38,7 @@ std::expected<uint32_t, io::FileSystem::FileSystemError> io::FileSystem::open(co
     }
 }
 std::expected<void, io::FileSystem::FileSystemError>
-    io::FileSystem::readMetadata(uint32_t fd, std::span<uint8_t> buf, size_t &num_read)
+    io::FileSystem::readMetadata(uint32_t fd, std::span<uint8_t> buf, uint32_t &num_read)
 {
     // get file with fd
     const auto it = std::ranges::find_if(files, [fd](const auto &pair) { return pair.first == fd; });
@@ -53,7 +53,7 @@ std::expected<void, io::FileSystem::FileSystemError>
     }
     // read file into buf as much as possible
     file.read(reinterpret_cast<char *>(buf.data()), static_cast<std::streamsize>(buf.size()));
-    num_read = static_cast<size_t>(file.gcount());
+    num_read = static_cast<uint32_t>(file.gcount());
     return {};
 }
 std::expected<void, io::FileSystem::FileSystemError>
