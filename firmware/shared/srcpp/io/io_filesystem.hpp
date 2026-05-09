@@ -14,19 +14,6 @@
 
 namespace io
 {
-enum class FileSystemError
-{
-    OK            = 0,
-    ERROR         = -1, // general error
-    CORRUPTED     = -2, // file system corrupted
-    NOT_FOUND     = -3, // file not found
-    NO_SPACE      = -4, // no space left
-    ERROR_IO      = -5, // io error
-    ERROR_BAD_ARG = -6, // Invalid argument passed in
-    MOUNT_FAILED  = -7  // Initial mount failed so filesystem is unavailable for this boot cycle
-};
-
-FileSystemError logfsErrorToFsError(LogFsErr err);
 
 class FileSystem
 {
@@ -35,6 +22,17 @@ class FileSystem
     static constexpr int         RETRY_COUNT        = 3;
     static constexpr uint32_t    MAX_WRITE_CYCLES   = 1000;
     static constexpr std::size_t MAX_FILE_NUMBER    = 3;
+    enum class FileSystemError
+    {
+        OK            = 0,
+        ERROR         = -1, // general error
+        CORRUPTED     = -2, // file system corrupted
+        NOT_FOUND     = -3, // file not found
+        NO_SPACE      = -4, // no space left
+        ERROR_IO      = -5, // io error
+        ERROR_BAD_ARG = -6, // Invalid argument passed in
+        MOUNT_FAILED  = -7  // Initial mount failed so filesystem is unavailable for this boot cycle
+    };
 
 #ifdef TARGET_EMBEDDED
     static LogFsErr logfsCfgRead(const LogFsCfg *cfg, uint32_t block, void *buf);
@@ -96,21 +94,18 @@ class FileSystem
      * Reads metadata from a file
      * @param fd file descriptor
      * @param buf destination buffer
-     * @param size number of bytes to read
      * @param num_read actual bytes read
      * @return FileSystemError status
      */
-    std::expected<void, FileSystemError>
-        readMetadata(uint32_t fd, std::span<uint8_t> buf, size_t size, uint32_t &num_read);
+    std::expected<void, FileSystemError> readMetadata(uint32_t fd, std::span<uint8_t> buf, uint32_t &num_read);
 
     /**
      * Writes metadata to a file
      * @param fd file descriptor
      * @param buf source buffer
-     * @param size number of bytes to write
      * @return FileSystemError status
      */
-    std::expected<void, FileSystemError> writeMetadata(uint32_t fd, std::span<uint8_t> buf, size_t size);
+    std::expected<void, FileSystemError> writeMetadata(uint32_t fd, std::span<const uint8_t> buf);
 
     /**
      * Closes file given file descriptor

@@ -2,57 +2,29 @@
 
 namespace app::bootcount
 {
-std::expected<uint32_t, io::FileSystemError> BootCounter::init(io::FileSystem &fs)
+std::expected<void, io::FileSystem::FileSystemError> update(io::FileSystem &fs)
 {
-    if (bootcount_inited == true)
-        return std::unexpected(io::FileSystemError::ERROR_BAD_ARG);
-
     auto result = fs.open("/bootcount.txt");
     if (!result)
         return std::unexpected(result.error());
+    const uint32_t bootcount_fd = result.value();
 
-    bootcount_fd     = *result;
-    bootcount_inited = true;
+    uint32_t               num_read;
+    std::array<uint8_t, 4> bootcount_buf{};
 
-    return bootcount_fd;
-}
-
-std::expected<uint32_t, io::FileSystemError> BootCounter::read(io::FileSystem &fs) const
-{
-    if (!bootcount_inited)
-        return std::unexpected(io::FileSystemError::ERROR_BAD_ARG);
-
-    uint32_t value    = 0;
-    uint32_t num_read = 0;
-
-    auto err = fs.readMetadata(
-        bootcount_fd, std::span(reinterpret_cast<uint8_t *>(&value), sizeof(value)), sizeof(value), num_read);
-    if (!err)
+    if (const auto err = fs.readMetadata(bootcount_fd, bootcount_buf, num_read); !err)
         return std::unexpected(err.error());
 
-    if (num_read != sizeof(value))
-        value = 0;
+    // in particular read 0 bytes, which means the file is empty and we should initialize it to 1
+    const uint32_t current_bootcount =
+        num_read == sizeof(uint32_t) ? *reinterpret_cast<uint32_t *>(bootcount_buf.data()) : 0;
 
-    return value;
-}
+    // populate the next_bootcount_buf
+    *reinterpret_cast<uint32_t *>(bootcount_buf.data()) = current_bootcount + 1;
 
-std::expected<uint32_t, io::FileSystemError> BootCounter::increment(io::FileSystem &fs) const
-{
-    if (!bootcount_inited)
-        return std::unexpected(io::FileSystemError::ERROR_BAD_ARG);
-
-    auto current = read(fs);
-    if (!current)
-        return std::unexpected(current.error());
-
-    uint32_t next = *current + 1;
-
-    auto err =
-        fs.writeMetadata(bootcount_fd, std::span(reinterpret_cast<uint8_t *>(&next), sizeof(next)), sizeof(next));
-    if (!err)
+    if (const auto err = fs.writeMetadata(bootcount_fd, bootcount_buf); !err)
         return std::unexpected(err.error());
 
-    return next;
+    return {};
 }
-
 } // namespace app::bootcount

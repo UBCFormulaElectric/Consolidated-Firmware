@@ -18,6 +18,36 @@ LogFsErr tryMount(LogFs &fs, const LogFsCfg &fs_cfg)
     // ReSharper disable once CppLocalVariableMightNotBeInitialized
     return err;
 }
+
+/**
+ * Converts logfs errors to firmware filesystem error
+ */
+io::FileSystem::FileSystemError logfsErrorToFsError(const LogFsErr err)
+{
+    switch (err)
+    {
+        case LOGFS_ERR_OK:
+            return io::FileSystem::FileSystemError::OK;
+        case LOGFS_ERR_IO:
+            return io::FileSystem::FileSystemError::ERROR_IO;
+        case LOGFS_ERR_CORRUPT:
+            return io::FileSystem::FileSystemError::CORRUPTED;
+        case LOGFS_ERR_DNE:
+            return io::FileSystem::FileSystemError::NOT_FOUND;
+        case LOGFS_ERR_NOMEM:
+            return io::FileSystem::FileSystemError::NO_SPACE;
+        case LOGFS_ERR_INVALID_ARG:
+        case LOGFS_ERR_INVALID_PATH:
+        case LOGFS_ERR_NOT_OPEN:
+            return io::FileSystem::FileSystemError::ERROR_BAD_ARG;
+        case LOGFS_ERR_UNMOUNTED:
+        case LOGFS_ERR_RD_ONLY:
+        case LOGFS_ERR_WR_ONLY:
+        case LOGFS_ERR_NO_MORE_FILES:
+        default:
+            return io::FileSystem::FileSystemError::ERROR;
+    }
+}
 } // namespace
 
 // Note: this code assumes that sd card is either in at the start (removable later)
@@ -57,37 +87,7 @@ LogFsErr FileSystem::logfsCfgWrite(const LogFsCfg *cfg, const uint32_t block, vo
     return LOGFS_ERR_IO;
 }
 
-/**
- * Converts logfs errors to firmware filesystem error
- */
-FileSystemError logfsErrorToFsError(const LogFsErr err)
-{
-    switch (err)
-    {
-        case LOGFS_ERR_OK:
-            return FileSystemError::OK;
-        case LOGFS_ERR_IO:
-            return FileSystemError::ERROR_IO;
-        case LOGFS_ERR_CORRUPT:
-            return FileSystemError::CORRUPTED;
-        case LOGFS_ERR_DNE:
-            return FileSystemError::NOT_FOUND;
-        case LOGFS_ERR_NOMEM:
-            return FileSystemError::NO_SPACE;
-        case LOGFS_ERR_INVALID_ARG:
-        case LOGFS_ERR_INVALID_PATH:
-        case LOGFS_ERR_NOT_OPEN:
-            return FileSystemError::ERROR_BAD_ARG;
-        case LOGFS_ERR_UNMOUNTED:
-        case LOGFS_ERR_RD_ONLY:
-        case LOGFS_ERR_WR_ONLY:
-        case LOGFS_ERR_NO_MORE_FILES:
-        default:
-            return FileSystemError::ERROR;
-    }
-}
-
-std::expected<void, FileSystemError> FileSystem::init()
+std::expected<void, FileSystem::FileSystemError> FileSystem::init()
 {
     mount_failed = false;
     LogFsErr err = tryMount(fs, fs_cfg);
@@ -125,7 +125,7 @@ std::expected<void, FileSystemError> FileSystem::init()
     return {};
 }
 
-std::expected<uint32_t, FileSystemError> FileSystem::open(const char *path)
+std::expected<uint32_t, FileSystem::FileSystemError> FileSystem::open(const char *path)
 {
     if (!checkMount())
         return std::unexpected(FileSystemError::MOUNT_FAILED);
@@ -155,7 +155,8 @@ std::expected<uint32_t, FileSystemError> FileSystem::open(const char *path)
     return fd;
 }
 
-std::expected<void, FileSystemError> FileSystem::read(const uint32_t fd, std::span<uint8_t> buf, const size_t size)
+std::expected<void, FileSystem::FileSystemError>
+    FileSystem::read(const uint32_t fd, std::span<uint8_t> buf, const size_t size)
 {
     if (!checkMount())
         return std::unexpected(FileSystemError::MOUNT_FAILED);
@@ -173,7 +174,7 @@ std::expected<void, FileSystemError> FileSystem::read(const uint32_t fd, std::sp
     return {};
 }
 
-std::expected<void, FileSystemError>
+std::expected<void, FileSystem::FileSystemError>
     FileSystem::write(const uint32_t fd, const std::span<uint8_t> buf, const size_t size)
 {
     if (!checkMount())
@@ -188,31 +189,32 @@ std::expected<void, FileSystemError>
     return {};
 }
 
-std::expected<void, FileSystemError>
-    FileSystem::readMetadata(const uint32_t fd, std::span<uint8_t> buf, const size_t size, uint32_t &num_read)
+std::expected<void, FileSystem::FileSystemError>
+    FileSystem::readMetadata(const uint32_t fd, std::span<uint8_t> buf, uint32_t &num_read)
 {
     if (!checkMount())
         return std::unexpected(FileSystemError::MOUNT_FAILED);
 
-    if (const LogFsErr err = logfs_readMetadata(&fs, &files[fd], buf.data(), size, &num_read); err != LOGFS_ERR_OK)
+    if (const LogFsErr err = logfs_readMetadata(&fs, &files[fd], buf.data(), buf.size_bytes(), &num_read);
+        err != LOGFS_ERR_OK)
         return std::unexpected(logfsErrorToFsError(err));
 
     return {};
 }
 
-std::expected<void, FileSystemError>
-    FileSystem::writeMetadata(const uint32_t fd, const std::span<uint8_t> buf, const size_t size)
+std::expected<void, FileSystem::FileSystemError>
+    FileSystem::writeMetadata(const uint32_t fd, const std::span<const uint8_t> buf)
 {
     if (!checkMount())
         return std::unexpected(FileSystemError::MOUNT_FAILED);
 
-    if (const LogFsErr err = logfs_writeMetadata(&fs, &files[fd], buf.data(), size); err != LOGFS_ERR_OK)
+    if (const LogFsErr err = logfs_writeMetadata(&fs, &files[fd], buf.data(), buf.size_bytes()); err != LOGFS_ERR_OK)
         return std::unexpected(logfsErrorToFsError(err));
 
     return {};
 }
 
-std::expected<void, FileSystemError> FileSystem::close(const uint32_t fd)
+std::expected<void, FileSystem::FileSystemError> FileSystem::close(const uint32_t fd)
 {
     if (!checkMount())
         return std::unexpected(FileSystemError::MOUNT_FAILED);
@@ -226,7 +228,7 @@ std::expected<void, FileSystemError> FileSystem::close(const uint32_t fd)
     return {};
 }
 
-std::expected<void, FileSystemError> FileSystem::sync(const uint32_t fd)
+std::expected<void, FileSystem::FileSystemError> FileSystem::sync(const uint32_t fd)
 {
     if (!checkMount())
         return std::unexpected(FileSystemError::MOUNT_FAILED);
