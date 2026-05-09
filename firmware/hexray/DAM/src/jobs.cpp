@@ -1,6 +1,6 @@
 #include "jobs.hpp"
 #include "app_ntp.hpp"
-#include "io_ntpButton.hpp"
+#include "app_button.hpp"
 #include "io_log.hpp"
 
 #include "app_canTx.hpp"
@@ -43,7 +43,7 @@ void jobs_init()
 void jobs_run1Hz_tick() {}
 void jobs_run100Hz_tick()
 {
-    if (io::ntpButton::wasJustPressed())
+    if (app::button::ntpWasJustPressed())
     {
         if (app::ntp::isNtpInProgress())
         {

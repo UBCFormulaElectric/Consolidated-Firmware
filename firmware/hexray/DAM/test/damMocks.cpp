@@ -6,7 +6,7 @@
 
 io::queue<io::CanMsg, 128> can_tx_queue{ "" };
 io::queue<io::CanMsg, 128> can_rx_queue{ "" };
-bool                       io::ntpButton::wasJustPressed()
+bool                       io::ntpButton::isPressed()
 {
     return false;
 }
