@@ -239,10 +239,8 @@ static std::expected<void, ErrorCode> fetsInit(void)
 
 std::expected<void, ErrorCode> random(void)
 {
-    // RETURN_IF_ERR(bat_mon.isTargetReady());
-    uint16_t control_status = 0;
-    RETURN_IF_ERR(command_read_2byte(CMD_CONTROL_STATUS, &control_status));
-    LOG_INFO("pass");
+    RETURN_IF_ERR(bat_mon.isTargetReady());
+    LOG_INFO("found");
     return {};
 }
 

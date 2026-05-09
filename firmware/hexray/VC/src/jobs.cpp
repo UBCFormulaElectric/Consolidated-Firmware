@@ -31,12 +31,13 @@ void jobs_init()
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
     io::can_tx::enableMode_InvCAN(app::can_utils::InvCANMode::INVCAN_MODE_DEFAULT, true);
 
-    // io::batteryMonitoring::init();
+    io::batteryMonitoring::random();
 }
 void jobs_run1Hz_tick()
 {
-    io::batteryMonitoring::random();
+   //io::batteryMonitoring::random();
 }
+
 void jobs_run100Hz_tick()
 {
     // io::can_tx::enqueue100HzMsgs();
