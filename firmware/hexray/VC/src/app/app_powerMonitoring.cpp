@@ -1,6 +1,5 @@
 #include "app_powerMonitoring.hpp"
 #include "io_powerMonitoring.hpp"
-#include "io_powerMonitoring_datatypes.hpp"
 #include "app_canTx.hpp"
 
 namespace app::powerMonitoring
@@ -21,7 +20,7 @@ std::expected<void, ErrorCode> update()
     if (not init_done)
     {
         // error handle
-        // LOG_ERROR("Power monitoring initialization failed");
+        LOG_ERROR("Power monitoring initialization failed");
         return std::unexpected(ErrorCode::ERROR);
     }
 
@@ -43,12 +42,18 @@ std::expected<void, ErrorCode> update()
     const auto ch3_power = io::powerMonitoring::read_power(CH3);
     const auto ch4_power = io::powerMonitoring::read_power(CH4);
 
-    if (!ch1_voltage.has_value() || !ch2_voltage.has_value() || !ch3_voltage.has_value() || !ch4_voltage.has_value() ||
-        !ch1_current.has_value() || !ch2_current.has_value() || !ch3_current.has_value() || !ch4_current.has_value() ||
-        !ch1_power.has_value() || !ch2_power.has_value() || !ch3_power.has_value() || !ch4_power.has_value())
-    {
-        return std::unexpected(ErrorCode::ERROR);
-    }
+    if (!ch1_voltage.has_value()) return std::unexpected(ErrorCode::ERROR);
+    if (!ch2_voltage.has_value()) return std::unexpected(ErrorCode::ERROR);
+    if (!ch3_voltage.has_value()) return std::unexpected(ErrorCode::ERROR);
+    if (!ch4_voltage.has_value()) return std::unexpected(ErrorCode::ERROR);
+    if (!ch1_current.has_value()) return std::unexpected(ErrorCode::ERROR);
+    if (!ch2_current.has_value()) return std::unexpected(ErrorCode::ERROR);
+    if (!ch3_current.has_value()) return std::unexpected(ErrorCode::ERROR);
+    if (!ch4_current.has_value()) return std::unexpected(ErrorCode::ERROR);
+    if (!ch1_power.has_value()) return std::unexpected(ErrorCode::ERROR);
+    if (!ch2_power.has_value()) return std::unexpected(ErrorCode::ERROR);
+    if (!ch3_power.has_value()) return std::unexpected(ErrorCode::ERROR);
+    if (!ch4_power.has_value()) return std::unexpected(ErrorCode::ERROR);
 
     app::can_tx::VC_ChannelOneVoltage_set(ch1_voltage.value());
     app::can_tx::VC_ChannelTwoVoltage_set(ch2_voltage.value());
@@ -72,15 +77,15 @@ std::expected<void, ErrorCode> update()
         OV_UV_mask = alert_status.value();
     }
 
-    app::can_tx::VC_Alert_OV_Channel1_set((OV_UV_mask & ALERT_OV_CH1) != 0u);
-    app::can_tx::VC_Alert_OV_Channel2_set((OV_UV_mask & ALERT_OV_CH2) != 0u);
-    app::can_tx::VC_Alert_OV_Channel3_set((OV_UV_mask & ALERT_OV_CH3) != 0u);
-    app::can_tx::VC_Alert_OV_Channel4_set((OV_UV_mask & ALERT_OV_CH4) != 0u);
+    app::can_tx::VC_CHANNEL1_OV_set((OV_UV_mask & ALERT_OV_CH1) != 0u);
+    app::can_tx::VC_CHANNEL2_OV_set((OV_UV_mask & ALERT_OV_CH2) != 0u);
+    app::can_tx::VC_CHANNEL3_OV_set((OV_UV_mask & ALERT_OV_CH3) != 0u);
+    app::can_tx::VC_CHANNEL4_OV_set((OV_UV_mask & ALERT_OV_CH4) != 0u);
 
-    app::can_tx::VC_Alert_UV_Channel1_set((OV_UV_mask & ALERT_UV_CH1) != 0u);
-    app::can_tx::VC_Alert_UV_Channel2_set((OV_UV_mask & ALERT_UV_CH2) != 0u);
-    app::can_tx::VC_Alert_UV_Channel3_set((OV_UV_mask & ALERT_UV_CH3) != 0u);
-    app::can_tx::VC_Alert_UV_Channel4_set((OV_UV_mask & ALERT_UV_CH4) != 0u);
+    app::can_tx::VC_CHANNEL1_UV_set((OV_UV_mask & ALERT_UV_CH1) != 0u);
+    app::can_tx::VC_CHANNEL2_UV_set((OV_UV_mask & ALERT_UV_CH2) != 0u);
+    app::can_tx::VC_CHANNEL3_UV_set((OV_UV_mask & ALERT_UV_CH3) != 0u);
+    app::can_tx::VC_CHANNEL4_UV_set((OV_UV_mask & ALERT_UV_CH4) != 0u);
 
     return {};
 }

@@ -53,16 +53,23 @@ extern "C"
     void BusFault_Handler(void);
     void UsageFault_Handler(void);
     void DebugMon_Handler(void);
+    void ADC_IRQHandler(void);
     void FDCAN1_IT0_IRQHandler(void);
     void FDCAN1_IT1_IRQHandler(void);
+    void EXTI9_5_IRQHandler(void);
+    void EXTI15_10_IRQHandler(void);
     void TIM6_DAC_IRQHandler(void);
+    void TIM7_IRQHandler(void);
     void OTG_HS_EP1_OUT_IRQHandler(void);
     void OTG_HS_EP1_IN_IRQHandler(void);
     void OTG_HS_IRQHandler(void);
+    void UART8_IRQHandler(void);
     void I2C4_EV_IRQHandler(void);
     void I2C4_ER_IRQHandler(void);
     void I2C5_EV_IRQHandler(void);
     void I2C5_ER_IRQHandler(void);
+    void FDCAN3_IT0_IRQHandler(void);
+    void FDCAN3_IT1_IRQHandler(void);
     /* USER CODE BEGIN EFP */
 
     /* USER CODE END EFP */

@@ -11,7 +11,6 @@
 #include "io_canQueues.hpp"
 #include "io_time.hpp"
 #include "io_canReroute.hpp"
-#include "io_powerMonitoring.hpp"
 
 #include <util_errorCodes.hpp>
 

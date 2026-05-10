@@ -56,9 +56,14 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern ADC_HandleTypeDef   hadc1;
+extern ADC_HandleTypeDef   hadc2;
 extern FDCAN_HandleTypeDef hfdcan1;
+extern FDCAN_HandleTypeDef hfdcan3;
 extern I2C_HandleTypeDef   hi2c4;
 extern I2C_HandleTypeDef   hi2c5;
+extern TIM_HandleTypeDef   htim7;
+extern UART_HandleTypeDef  huart8;
 extern PCD_HandleTypeDef   hpcd_USB_OTG_HS;
 extern TIM_HandleTypeDef   htim6;
 
@@ -165,6 +170,21 @@ void DebugMon_Handler(void)
 /******************************************************************************/
 
 /**
+ * @brief This function handles ADC1 and ADC2 global interrupts.
+ */
+void ADC_IRQHandler(void)
+{
+    /* USER CODE BEGIN ADC_IRQn 0 */
+
+    /* USER CODE END ADC_IRQn 0 */
+    HAL_ADC_IRQHandler(&hadc1);
+    HAL_ADC_IRQHandler(&hadc2);
+    /* USER CODE BEGIN ADC_IRQn 1 */
+
+    /* USER CODE END ADC_IRQn 1 */
+}
+
+/**
  * @brief This function handles FDCAN1 interrupt 0.
  */
 void FDCAN1_IT0_IRQHandler(void)
@@ -193,6 +213,35 @@ void FDCAN1_IT1_IRQHandler(void)
 }
 
 /**
+ * @brief This function handles EXTI line[9:5] interrupts.
+ */
+void EXTI9_5_IRQHandler(void)
+{
+    /* USER CODE BEGIN EXTI9_5_IRQn 0 */
+
+    /* USER CODE END EXTI9_5_IRQn 0 */
+    HAL_GPIO_EXTI_IRQHandler(IMU_INT1_Pin);
+    HAL_GPIO_EXTI_IRQHandler(IMU_INT2_Pin);
+    /* USER CODE BEGIN EXTI9_5_IRQn 1 */
+
+    /* USER CODE END EXTI9_5_IRQn 1 */
+}
+
+/**
+ * @brief This function handles EXTI line[15:10] interrupts.
+ */
+void EXTI15_10_IRQHandler(void)
+{
+    /* USER CODE BEGIN EXTI15_10_IRQn 0 */
+
+    /* USER CODE END EXTI15_10_IRQn 0 */
+    HAL_GPIO_EXTI_IRQHandler(IMU_INT3_Pin);
+    /* USER CODE BEGIN EXTI15_10_IRQn 1 */
+
+    /* USER CODE END EXTI15_10_IRQn 1 */
+}
+
+/**
  * @brief This function handles TIM6 global interrupt, DAC1_CH1 and DAC1_CH2 underrun error interrupts.
  */
 void TIM6_DAC_IRQHandler(void)
@@ -204,6 +253,20 @@ void TIM6_DAC_IRQHandler(void)
     /* USER CODE BEGIN TIM6_DAC_IRQn 1 */
 
     /* USER CODE END TIM6_DAC_IRQn 1 */
+}
+
+/**
+ * @brief This function handles TIM7 global interrupt.
+ */
+void TIM7_IRQHandler(void)
+{
+    /* USER CODE BEGIN TIM7_IRQn 0 */
+
+    /* USER CODE END TIM7_IRQn 0 */
+    HAL_TIM_IRQHandler(&htim7);
+    /* USER CODE BEGIN TIM7_IRQn 1 */
+
+    /* USER CODE END TIM7_IRQn 1 */
 }
 
 /**
@@ -246,6 +309,20 @@ void OTG_HS_IRQHandler(void)
     /* USER CODE BEGIN OTG_HS_IRQn 1 */
 
     /* USER CODE END OTG_HS_IRQn 1 */
+}
+
+/**
+ * @brief This function handles UART8 global interrupt.
+ */
+void UART8_IRQHandler(void)
+{
+    /* USER CODE BEGIN UART8_IRQn 0 */
+
+    /* USER CODE END UART8_IRQn 0 */
+    HAL_UART_IRQHandler(&huart8);
+    /* USER CODE BEGIN UART8_IRQn 1 */
+
+    /* USER CODE END UART8_IRQn 1 */
 }
 
 /**
@@ -302,6 +379,34 @@ void I2C5_ER_IRQHandler(void)
     /* USER CODE BEGIN I2C5_ER_IRQn 1 */
 
     /* USER CODE END I2C5_ER_IRQn 1 */
+}
+
+/**
+ * @brief This function handles FDCAN3 interrupt 0.
+ */
+void FDCAN3_IT0_IRQHandler(void)
+{
+    /* USER CODE BEGIN FDCAN3_IT0_IRQn 0 */
+
+    /* USER CODE END FDCAN3_IT0_IRQn 0 */
+    HAL_FDCAN_IRQHandler(&hfdcan3);
+    /* USER CODE BEGIN FDCAN3_IT0_IRQn 1 */
+
+    /* USER CODE END FDCAN3_IT0_IRQn 1 */
+}
+
+/**
+ * @brief This function handles FDCAN3 interrupt 1.
+ */
+void FDCAN3_IT1_IRQHandler(void)
+{
+    /* USER CODE BEGIN FDCAN3_IT1_IRQn 0 */
+
+    /* USER CODE END FDCAN3_IT1_IRQn 0 */
+    HAL_FDCAN_IRQHandler(&hfdcan3);
+    /* USER CODE BEGIN FDCAN3_IT1_IRQn 1 */
+
+    /* USER CODE END FDCAN3_IT1_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

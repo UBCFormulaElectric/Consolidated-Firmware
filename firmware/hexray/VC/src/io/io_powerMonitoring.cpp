@@ -1,5 +1,4 @@
 #include "io_powerMonitoring.hpp"
-#include "io_powerMonitoring_datatypes.hpp"
 
 #include "hw_i2cs.hpp"
 #include "hw_gpios.hpp"
@@ -7,8 +6,26 @@
 #include "io_time.hpp"
 #include "util_errorCodes.hpp"
 
-#include <string>
+constexpr uint8_t CHANNEL_NUM = 4;
+// commands
+constexpr uint8_t REG_REFRESH = 0x00;
 
+// register addresses (pg 38.)
+constexpr uint16_t REG_CTRL         = 0x01;
+constexpr uint16_t REG_VBUS         = 0x07;
+constexpr uint16_t REG_VSENSE       = 0x0B;
+constexpr uint16_t REG_VPOWERN      = 0x17;
+constexpr uint16_t REG_NEG_PWR_FSR  = 0x1D;
+constexpr uint16_t REG_ACCUM_CONFIG = 0x25;
+
+// protection addresses
+constexpr uint16_t REG_PROTECTION_OV = 0x3C;
+constexpr uint16_t REG_PROTECTION_UV = 0x40;
+constexpr uint16_t ALERT_EN          = 0x49;
+constexpr uint16_t REG_ALERT_STATUS  = 0x26;
+constexpr uint16_t REG_SLOW_ALERT1   = 0x27;
+
+// channels 
 constexpr float CH_ON_MINV = 5;
 
 // lsb scaling
@@ -40,14 +57,14 @@ static std::expected<void, ErrorCode> write_register(uint16_t reg, std::span<con
     return {};
 }
 
-std::expected<void, ErrorCode> refresh(void)
+std::expected<void, ErrorCode> refresh()
 {
     const uint8_t cmd = REG_REFRESH;
     LOG_IF_ERR(pwr_pump.transmit((std::span{ &cmd, 1 })));
     return {};
 }
 
-std::expected<void, ErrorCode> init(void)
+std::expected<void, ErrorCode> init()
 {
     // 1) Check if peripheral is ready
     RETURN_IF_ERR(pwr_pump.isTargetReady());
