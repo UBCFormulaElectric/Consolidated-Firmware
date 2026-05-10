@@ -19,6 +19,7 @@ set(SYSTEM_INCLUDE_DIRS
 
 file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp")
 set(APP_SHARED_SRCS
+        "${SHARED_APP_INCLUDE_DIR_CPP}/app_bootcount.cpp"
         "${SHARED_APP_INCLUDE_DIR_CPP}/app_timer.cpp"
 )
 set(APP_INCLUDE_DIRS
@@ -29,6 +30,7 @@ set(APP_INCLUDE_DIRS
 file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.cpp")
 set(IO_SHARED_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_filesystem.cpp"
 )
 set(IO_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
@@ -127,7 +129,7 @@ if ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    target_link_libraries("hexray_DAM_app.elf" PRIVATE "hexray_DAM_stm32" "hexray_DAM_commit_info" "hexray_DAM_jsoncan" "m")
+    target_link_libraries("hexray_DAM_app.elf" PRIVATE "hexray_DAM_stm32" "hexray_DAM_commit_info" "hexray_DAM_jsoncan" "m" "logfs_cm7")
     target_compile_definitions("hexray_DAM_app.elf" PRIVATE DAM)
 
     add_chimera_stm32h5("hexray_DAM_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}" "hexray_chimera_v2_proto_cm33")
@@ -167,8 +169,9 @@ elseif ("${TARGET}" STREQUAL "test")
     )
     set(SRCS ${APP_SRCS} ${APP_SHARED_SRCS} ${JOBS_SRC} ${TEST_IO_SRCS} ${TEST_SRCS} ${FAKE_SRCS})
     set(INCLUDE_DIRS
-            # "${CMAKE_CURRENT_SOURCE_DIR}/test"
-            ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP}
+            ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS}
+            ${SHARED_FAKES_DIR_CPP} ${SYSTEM_INCLUDE_DIRS}
+            ${SHARED_UTIL_INCLUDE_DIR_CPP} ${CUBEMX_INCLUDE_DIRS}
     )
     compile_gtest_executable(
             "hexray_DAM_test"
