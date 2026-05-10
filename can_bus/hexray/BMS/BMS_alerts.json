@@ -42,13 +42,13 @@
       "id": 432,
       "description": "Failed to communicate with ADBMS6830 modules."
     },
-    "ImdNotOk": {
+    "ImdLatched": {
       "id": 433,
-      "description": "IMD fault detected."
+      "description": "IMD fault latch captured a fault."
     },
-    "HardwareBspd": {
+    "HardwareBspdLatched": {
       "id": 434,
-      "description": "Hardware brake system plausibility device fault."
+      "description": "Hardware brake system plausibility device fault latched."
     },
     "TESTFAULT": {
       "id": 436,
