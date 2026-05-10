@@ -1,7 +1,9 @@
 #include <cmath>
 #include <array>
 
+#ifdef TARGET_EMBEDDED
 #include "hw_cordic.hpp"
+#endif
 #include "util_errorCodes.hpp"
 #include "util_units.hpp"
 
@@ -18,10 +20,11 @@
  * the cordic driver.
  */
 
-using namespace hw::cordic;
-
+#ifdef TARGET_EMBEDDED
 namespace
 {
+using namespace hw::cordic;
+
 inline constexpr float CONVERSION     = static_cast<float>(1U << 31);
 inline constexpr float CONVERSION_INV = 1.0f / CONVERSION;
 inline constexpr float M_PI_F_INV     = 1.0f / M_PI_F;
@@ -93,6 +96,7 @@ inline uint32_t cordicScale(uint32_t scale)
     }
 }
 } // namespace
+#endif
 
 namespace io::math
 {
@@ -101,50 +105,73 @@ namespace io::math
 // TODO: Extend to support vector operations
 std::expected<float, ErrorCode> csin(float angle)
 {
+#ifdef TARGET_EMBEDDED
     std::array<const int32_t, 1> args{ convertAngleToFixedPoint(angle) };
     std::array<int32_t, 1>       result{};
 
-    RETURN_IF_ERR(configure(CORDIC_FUNCTION_SINE, CORDIC_SCALE_0, CORDIC_NBWRITE_1));
-    RETURN_IF_ERR(calculate(1U, args, result));
+    const auto configure_result = configure(CORDIC_FUNCTION_SINE, CORDIC_SCALE_0, CORDIC_NBWRITE_1);
+    if (not configure_result.has_value())
+        return std::sin(angle);
+
+    const auto calculate_result = calculate(1U, args, result);
+    if (not calculate_result.has_value())
+        return std::sin(angle);
 
     return convertToFloat(result[0]);
+#else
+    return std::sin(angle);
+#endif
 }
+
 std::expected<float, ErrorCode> ccos(float angle)
 {
+#ifdef TARGET_EMBEDDED
     std::array<const int32_t, 1> args{ convertAngleToFixedPoint(angle) };
     std::array<int32_t, 1>       result{};
 
-    RETURN_IF_ERR(configure(CORDIC_FUNCTION_COSINE, CORDIC_SCALE_0, CORDIC_NBWRITE_1));
-    RETURN_IF_ERR(calculate(1U, args, result));
+    const auto configure_result = configure(CORDIC_FUNCTION_COSINE, CORDIC_SCALE_0, CORDIC_NBWRITE_1);
+    if (not configure_result.has_value())
+        return std::cos(angle);
+
+    const auto calculate_result = calculate(1U, args, result);
+    if (not calculate_result.has_value())
+        return std::cos(angle);
 
     return convertToFloat(result[0]);
+#else
+    return std::cos(angle);
+#endif
 }
 
 std::expected<float, ErrorCode> atan(float x)
 {
+#ifdef TARGET_EMBEDDED
     if (not std::isfinite(x))
-    {
         return std::unexpected(ErrorCode::OUT_OF_RANGE);
-    }
 
     uint32_t scale    = 0U;
     float    scaled_x = calcScale(x, scale);
 
     if (not std::isfinite(scaled_x) || std::abs(scaled_x) >= 1.0f)
-    {
-        return std::unexpected(ErrorCode::OUT_OF_RANGE);
-    }
+        return std::atan(x);
 
     std::array<const int32_t, 1> args{ convertToFixedPoint(scaled_x) };
     std::array<int32_t, 1>       result{};
 
-    RETURN_IF_ERR(configure(CORDIC_FUNCTION_ARCTANGENT, cordicScale(scale), CORDIC_NBWRITE_1));
+    const auto configure_result = configure(CORDIC_FUNCTION_ARCTANGENT, cordicScale(scale), CORDIC_NBWRITE_1);
+    if (not configure_result.has_value())
+        return std::atan(x);
 
-    RETURN_IF_ERR(calculate(1U, args, result));
+    const auto calculate_result = calculate(1U, args, result);
+    if (not calculate_result.has_value())
+        return std::atan(x);
 
     float y = convertToFloat(result[0]);
 
     return y * static_cast<float>(1U << scale) * M_PI_F;
+#else
+    return std::atan(x);
+#endif
 }
 // inline float phase(float x, float y) {}
 // inline float mod(float x, float y) {}
