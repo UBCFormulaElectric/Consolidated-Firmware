@@ -100,9 +100,6 @@ inline uint32_t cordicScale(uint32_t scale)
 
 namespace io::math
 {
-// TODO: is it annoying for usability to have std::expected here? default to standard library implementation or arm math
-// implementation?
-// TODO: Extend to support vector operations
 std::expected<float, ErrorCode> csin(float angle)
 {
 #ifdef TARGET_EMBEDDED
