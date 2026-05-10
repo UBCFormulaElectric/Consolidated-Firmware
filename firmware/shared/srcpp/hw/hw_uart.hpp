@@ -16,8 +16,18 @@ class Uart
 {
     mutable TaskHandle_t taskInProgress;
     UART_HandleTypeDef  &handle; // pointer to structure containing UART module configuration information
+    bool                 callback_dma;
+    mutable bool         rx_pending = false;
+    void (*receive_callback)(void);
+
   public:
-    explicit consteval Uart(UART_HandleTypeDef &in_handle) : taskInProgress(nullptr), handle(in_handle) {}
+    explicit consteval Uart(
+        UART_HandleTypeDef &in_handle,
+        bool                in_callback_dma = false,
+        void (*in_receive_callback)(void)   = nullptr)
+      : taskInProgress(nullptr), handle(in_handle), callback_dma(in_callback_dma), receive_callback(in_receive_callback)
+    {
+    }
 
   private:
     /**
@@ -47,6 +57,12 @@ class Uart
      */
     std::expected<void, ErrorCode>
         receive(std::span<uint8_t> rx, uint32_t timeout = std::numeric_limits<uint32_t>::max()) const;
+
+    /**
+     * Receives an amount of data in non-blocking mode. Will fire the configured RX callback when complete.
+     * @param rx Pointer to data buffer.
+     */
+    std::expected<void, ErrorCode> receiveCallback(std::span<uint8_t> rx) const;
 
     void deinit() const;
 

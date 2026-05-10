@@ -7,8 +7,14 @@
 
 namespace app::sbgEllipse
 {
-static app::can_utils::VcEkfStatus ekf_solution_mode;
+static app::can_utils::VcEkfStatus ekf_solution_mode = app::can_utils::VcEkfStatus::UNINITIALIZED;
 static constexpr int               NUM_VC_EKF_STATUS_CHOICES{ 5 };
+
+void init()
+{
+    auto ec = io::sbgEllipse::init();
+    app::can_tx::VC_Info_SbgInitFailed_set(not ec.has_value());
+}
 
 void broadcast()
 {

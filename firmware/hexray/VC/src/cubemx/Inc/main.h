@@ -71,9 +71,10 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define LSI_FREQUENCY 32000
 #define IWDG_RESET_FREQUENCY 5
 #define IWDG_PRESCALER 4
+#define LSI_FREQUENCY 32000
+#define SBG_ELLIPSE_GPS_BAUD_RATE 460800
 #define IMU_CS1_Pin GPIO_PIN_2
 #define IMU_CS1_GPIO_Port GPIOE
 #define IMU_CS2_Pin GPIO_PIN_3

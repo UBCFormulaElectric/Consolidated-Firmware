@@ -62,6 +62,7 @@ TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim7;
 
 UART_HandleTypeDef huart8;
+DMA_HandleTypeDef  hdma_uart8_rx;
 
 PCD_HandleTypeDef hpcd_USB_OTG_HS;
 
@@ -73,6 +74,7 @@ PCD_HandleTypeDef hpcd_USB_OTG_HS;
 void        SystemClock_Config(void);
 void        PeriphCommonClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_USB_OTG_HS_PCD_Init(void);
 static void MX_ADC2_Init(void);
@@ -127,6 +129,7 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
+    MX_DMA_Init();
     MX_ADC1_Init();
     MX_USB_OTG_HS_PCD_Init();
     MX_ADC2_Init();
@@ -886,7 +889,7 @@ static void MX_UART8_Init(void)
 
     /* USER CODE END UART8_Init 1 */
     huart8.Instance                    = UART8;
-    huart8.Init.BaudRate               = 115200;
+    huart8.Init.BaudRate               = SBG_ELLIPSE_GPS_BAUD_RATE;
     huart8.Init.WordLength             = UART_WORDLENGTH_8B;
     huart8.Init.StopBits               = UART_STOPBITS_1;
     huart8.Init.Parity                 = UART_PARITY_NONE;
@@ -949,6 +952,20 @@ static void MX_USB_OTG_HS_PCD_Init(void)
     /* USER CODE BEGIN USB_OTG_HS_Init 2 */
 
     /* USER CODE END USB_OTG_HS_Init 2 */
+}
+
+/**
+ * Enable DMA controller clock
+ */
+static void MX_DMA_Init(void)
+{
+    /* DMA controller clock enable */
+    __HAL_RCC_DMA1_CLK_ENABLE();
+
+    /* DMA interrupt init */
+    /* DMA1_Stream0_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA1_Stream0_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(DMA1_Stream0_IRQn);
 }
 
 /**
