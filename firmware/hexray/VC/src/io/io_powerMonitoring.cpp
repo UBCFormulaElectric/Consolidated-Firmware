@@ -174,7 +174,7 @@ std::expected<void, ErrorCode> monitor_power_inputs()
     for (uint8_t ch = 1; ch <= CHANNEL_NUM; ch++)
     {
         Channel channel = static_cast<Channel>(ch);
-        auto v = read_voltage(channel);
+        auto    v       = read_voltage(channel);
         if (!v.has_value())
         {
             return std::unexpected(v.error());

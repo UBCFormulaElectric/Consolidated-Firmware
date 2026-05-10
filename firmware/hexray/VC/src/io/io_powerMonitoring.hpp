@@ -16,7 +16,7 @@ enum AlertOvUvBits : uint8_t
     ALERT_UV_CH4 = (1u << 7),
 };
 
-enum Channel : uint8_t 
+enum Channel : uint8_t
 {
     CH1,
     CH2,
