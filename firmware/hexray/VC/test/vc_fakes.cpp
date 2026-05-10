@@ -86,15 +86,15 @@ namespace sbgEllipse
 
 namespace powerMonitoring
 {
-    std::expected<float, ErrorCode> read_power(uint8_t)
+    std::expected<float, ErrorCode> read_power(Channel)
     {
         return 0.0f;
     }
-    std::expected<float, ErrorCode> read_current(uint8_t)
+    std::expected<float, ErrorCode> read_current(Channel)
     {
         return 0.0f;
     }
-    std::expected<float, ErrorCode> read_voltage(uint8_t)
+    std::expected<float, ErrorCode> read_voltage(Channel)
     {
         return 0.0f;
     }
