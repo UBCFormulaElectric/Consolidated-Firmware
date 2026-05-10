@@ -336,7 +336,7 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_no_fa
 TEST_F(BmsStateMachineTest, imd_fault_latches_then_reset_to_init_state)
 {
     app::StateMachine::set_current_state(&drive_state);
-    fakes::faultLatch::resetFaultLatch(&io::faultLatch::imd_ok_latch);
+    fakes::faultLatch::resetFaultLatch(&imd_ok_latch);
     fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_CLOSED);
     LetTimePass(10);
 
@@ -344,7 +344,7 @@ TEST_F(BmsStateMachineTest, imd_fault_latches_then_reset_to_init_state)
     ASSERT_TRUE(app::can_tx::BMS_ImdLatchOk_get());
     ASSERT_STATE_EQ(drive_state);
 
-    fakes::faultLatch::updateFaultLatch(&io::faultLatch::imd_ok_latch, io::faultLatch::FaultLatchState::FAULT);
+    fakes::faultLatch::updateFaultLatch(&imd_ok_latch, io::FaultLatch::FaultLatchState::FAULT);
     fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_OPEN);
     LetTimePass(10);
     for (int i = 0; i < 30; i++)
@@ -354,7 +354,7 @@ TEST_F(BmsStateMachineTest, imd_fault_latches_then_reset_to_init_state)
         ASSERT_TRUE(app::can_tx::BMS_Fault_ImdLatched_get());
         ASSERT_FALSE(app::can_tx::BMS_ImdLatchOk_get());
     }
-    fakes::faultLatch::updateFaultLatch(&io::faultLatch::imd_ok_latch, io::faultLatch::FaultLatchState::OK);
+    fakes::faultLatch::updateFaultLatch(&imd_ok_latch, io::FaultLatch::FaultLatchState::OK);
     for (int i = 0; i < 30; i++)
     {
         LetTimePass(10);
@@ -362,7 +362,7 @@ TEST_F(BmsStateMachineTest, imd_fault_latches_then_reset_to_init_state)
         ASSERT_TRUE(app::can_tx::BMS_Fault_ImdLatched_get());
         ASSERT_FALSE(app::can_tx::BMS_ImdLatchOk_get());
     }
-    fakes::faultLatch::resetFaultLatch(&io::faultLatch::imd_ok_latch);
+    fakes::faultLatch::resetFaultLatch(&imd_ok_latch);
     LetTimePass(20); // Need to wait for 100Hz task to run twice since jobs100hz runs after statemachine
     for (int i = 0; i < 30; i++)
     {
@@ -378,7 +378,7 @@ TEST_F(BmsStateMachineTest, imd_fault_latches_then_reset_to_init_state)
 // TEST_F(BmsStateMachineTest, bms_fault_cleared_to_init_state_and_broadcasts_latch)
 // {
 //     app::StateMachine::set_current_state(&drive_state);
-//     fakes::faultLatch::resetFaultLatch(&io::faultLatch::bms_ok_latch);
+//     fakes::faultLatch::resetFaultLatch(&bms_ok_latch);
 //     fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_CLOSED);
 //     LetTimePass(10);
 
@@ -386,7 +386,7 @@ TEST_F(BmsStateMachineTest, imd_fault_latches_then_reset_to_init_state)
 //     ASSERT_TRUE(app::can_tx::BMS_BmsLatchOk_get());
 //     ASSERT_STATE_EQ(drive_state);
 
-//     fakes::faultLatch::updateFaultLatch(&io::faultLatch::bms_ok_latch, io::faultLatch::FaultLatchState::FAULT);
+//     fakes::faultLatch::updateFaultLatch(&bms_ok_latch, io::FaultLatch::FaultLatchState::FAULT);
 //     fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_OPEN);
 //     LetTimePass(10);
 //     for (int i = 0; i < 30; i++)
@@ -396,7 +396,7 @@ TEST_F(BmsStateMachineTest, imd_fault_latches_then_reset_to_init_state)
 //         ASSERT_TRUE(app::can_tx::BMS_Fault_BmsFault_get());
 //         ASSERT_FALSE(app::can_tx::BMS_BmsLatchOk_get());
 //     }
-//     fakes::faultLatch::updateFaultLatch(&io::faultLatch::bms_ok_latch, io::faultLatch::FaultLatchState::OK);
+//     fakes::faultLatch::updateFaultLatch(&bms_ok_latch, io::FaultLatch::FaultLatchState::OK);
 //     LetTimePass(20); // Need to wait for 100Hz task to run twice since jobs100hz runs after statemachine
 //     for (int i = 0; i < 30; i++)
 //     {
@@ -410,7 +410,7 @@ TEST_F(BmsStateMachineTest, imd_fault_latches_then_reset_to_init_state)
 TEST_F(BmsStateMachineTest, bspd_fault_latches_then_reset_to_init_state)
 {
     app::StateMachine::set_current_state(&drive_state);
-    fakes::faultLatch::resetFaultLatch(&io::faultLatch::bspd_ok_latch);
+    fakes::faultLatch::resetFaultLatch(&bspd_ok_latch);
     fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_CLOSED);
     LetTimePass(10);
 
@@ -418,7 +418,7 @@ TEST_F(BmsStateMachineTest, bspd_fault_latches_then_reset_to_init_state)
     ASSERT_TRUE(app::can_tx::BMS_BspdLatchOk_get());
     ASSERT_STATE_EQ(drive_state);
 
-    fakes::faultLatch::updateFaultLatch(&io::faultLatch::bspd_ok_latch, io::faultLatch::FaultLatchState::FAULT);
+    fakes::faultLatch::updateFaultLatch(&bspd_ok_latch, io::FaultLatch::FaultLatchState::FAULT);
     fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_OPEN);
     LetTimePass(10);
     for (int i = 0; i < 30; i++)
@@ -428,7 +428,7 @@ TEST_F(BmsStateMachineTest, bspd_fault_latches_then_reset_to_init_state)
         ASSERT_TRUE(app::can_tx::BMS_Fault_HardwareBspdLatched_get());
         ASSERT_FALSE(app::can_tx::BMS_BspdLatchOk_get());
     }
-    fakes::faultLatch::updateFaultLatch(&io::faultLatch::bspd_ok_latch, io::faultLatch::FaultLatchState::OK);
+    fakes::faultLatch::updateFaultLatch(&bspd_ok_latch, io::FaultLatch::FaultLatchState::OK);
     for (int i = 0; i < 30; i++)
     {
         LetTimePass(10);
@@ -436,7 +436,7 @@ TEST_F(BmsStateMachineTest, bspd_fault_latches_then_reset_to_init_state)
         ASSERT_TRUE(app::can_tx::BMS_Fault_HardwareBspdLatched_get());
         ASSERT_FALSE(app::can_tx::BMS_BspdLatchOk_get());
     }
-    fakes::faultLatch::resetFaultLatch(&io::faultLatch::bspd_ok_latch);
+    fakes::faultLatch::resetFaultLatch(&bspd_ok_latch);
     LetTimePass(20); // Need to wait for 100Hz task to run twice since jobs100hz runs after statemachine
     for (int i = 0; i < 30; i++)
     {
