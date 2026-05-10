@@ -69,8 +69,8 @@ void jobs_init()
     // io_semaphore_create(&adbms_app_data_lock, true);
 
     io::can_tx::init(jsoncan_transmit_func, charger_transmit_func);
-    io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
-    io::can_tx::enableMode_charger(app::can_utils::chargerMode::CHARGER_MODE_DEFAULT, true);
+    io::can_tx::enableMode_FDCAN(FDCANMode::FDCAN_MODE_DEFAULT, true);
+    io::can_tx::enableMode_charger(chargerMode::CHARGER_MODE_DEFAULT, true);
 
     can_rx_queue.init();
     can_tx_queue.init();
@@ -103,7 +103,7 @@ void jobs_run100Hz_tick()
     app::StateMachine::tick100Hz();
 
     const bool debug_mode_enabled = app::can_rx::Debug_EnableDebugMode_get();
-    io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEBUG, debug_mode_enabled);
+    io::can_tx::enableMode_FDCAN(FDCANMode::FDCAN_MODE_DEBUG, debug_mode_enabled);
 
     app::ts::broadcast();
     app::imd::broadcast();
@@ -131,14 +131,14 @@ void jobs_run100Hz_tick()
     // const bool acc_fault = segments::checkFaults();
     const bool acc_fault = false;
 #endif
-    using namespace io::faultLatch;
+    using FaultLatchState = io::FaultLatch::FaultLatchState;
 
-    setCurrentStatus(&bms_ok_latch, acc_fault ? FaultLatchState::FAULT : FaultLatchState::OK);
+    bms_ok_latch.setCurrentStatus(acc_fault ? FaultLatchState::FAULT : FaultLatchState::OK);
 
     // Update CAN signals for BMS latch statuses.
-    const bool imd_latch_curr_ok  = getCurrentStatus(&imd_ok_latch) == FaultLatchState::OK;
-    const bool bspd_latch_curr_ok = getCurrentStatus(&bspd_ok_latch) == FaultLatchState::OK;
-    const bool bms_latch_curr_ok  = getCurrentStatus(&bms_ok_latch) == FaultLatchState::OK;
+    const bool imd_latch_curr_ok  = imd_ok_latch.getCurrentStatus() == FaultLatchState::OK;
+    const bool bspd_latch_curr_ok = bspd_ok_latch.getCurrentStatus() == FaultLatchState::OK;
+    const bool bms_latch_curr_ok  = bms_ok_latch.getCurrentStatus() == FaultLatchState::OK;
 
     app::can_alerts::faults::ImdNotOk_set(not imd_latch_curr_ok);
     app::can_alerts::faults::HardwareBspd_set(not bspd_latch_curr_ok);
@@ -146,9 +146,9 @@ void jobs_run100Hz_tick()
     app::can_tx::BMS_BmsCurrentlyOk_set(bms_latch_curr_ok);
     app::can_tx::BMS_ImdCurrentlyOk_set(imd_latch_curr_ok);
     app::can_tx::BMS_BspdCurrentlyOk_set(bspd_latch_curr_ok);
-    app::can_tx::BMS_BmsLatchOk_set(getLatchedStatus(&bms_ok_latch) == FaultLatchState::OK);
-    app::can_tx::BMS_ImdLatchOk_set(getLatchedStatus(&imd_ok_latch) == FaultLatchState::OK);
-    app::can_tx::BMS_BspdLatchOk_set(getLatchedStatus(&bspd_ok_latch) == FaultLatchState::OK);
+    app::can_tx::BMS_BmsLatchOk_set(bms_ok_latch.getLatchedStatus() == FaultLatchState::OK);
+    app::can_tx::BMS_ImdLatchOk_set(imd_ok_latch.getLatchedStatus() == FaultLatchState::OK);
+    app::can_tx::BMS_BspdLatchOk_set(bspd_ok_latch.getLatchedStatus() == FaultLatchState::OK);
 
     app::can_tx::BMS_BSPDBrakePressureThresholdExceeded_set(io::bspdtest::isBrakePressureThresholdExceeded());
     app::can_tx::BMS_BSPDAccelBrakeOk_set(io::bspdtest::isAccelBrakeOk());
