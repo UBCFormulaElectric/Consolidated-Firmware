@@ -136,9 +136,16 @@ void jobs_run100Hz_tick()
     setCurrentStatus(&bms_ok_latch, acc_fault ? FaultLatchState::FAULT : FaultLatchState::OK);
 
     // Update CAN signals for BMS latch statuses.
-    app::can_tx::BMS_BmsCurrentlyOk_set(getCurrentStatus(&bms_ok_latch) == FaultLatchState::OK);
-    app::can_tx::BMS_ImdCurrentlyOk_set(getCurrentStatus(&imd_ok_latch) == FaultLatchState::OK);
-    app::can_tx::BMS_BspdCurrentlyOk_set(getCurrentStatus(&bspd_ok_latch) == FaultLatchState::OK);
+    const bool imd_latch_curr_ok  = getCurrentStatus(&imd_ok_latch) == FaultLatchState::OK;
+    const bool bspd_latch_curr_ok = getCurrentStatus(&bspd_ok_latch) == FaultLatchState::OK;
+    const bool bms_latch_curr_ok  = getCurrentStatus(&bms_ok_latch) == FaultLatchState::OK;
+
+    app::can_alerts::faults::ImdNotOk_set(not imd_latch_curr_ok);
+    app::can_alerts::faults::HardwareBspd_set(not bspd_latch_curr_ok);
+
+    app::can_tx::BMS_BmsCurrentlyOk_set(bms_latch_curr_ok);
+    app::can_tx::BMS_ImdCurrentlyOk_set(imd_latch_curr_ok);
+    app::can_tx::BMS_BspdCurrentlyOk_set(bspd_latch_curr_ok);
     app::can_tx::BMS_BmsLatchOk_set(getLatchedStatus(&bms_ok_latch) == FaultLatchState::OK);
     app::can_tx::BMS_ImdLatchOk_set(getLatchedStatus(&imd_ok_latch) == FaultLatchState::OK);
     app::can_tx::BMS_BspdLatchOk_set(getLatchedStatus(&bspd_ok_latch) == FaultLatchState::OK);
@@ -147,13 +154,13 @@ void jobs_run100Hz_tick()
     app::can_tx::BMS_BSPDAccelBrakeOk_set(io::bspdtest::isAccelBrakeOk());
 
     const bool ir_negative_opened_debounced = app::irs::negativeOpenedDebounced();
-    if (ir_negative_opened_debounced)
-    {
-        app::StateMachine::set_next_state(&app::states::init_state);
-    }
     if (app::can_alerts::AnyBoardHasFault())
     {
         app::StateMachine::set_next_state(&app::states::fault_state);
+    }
+    if (ir_negative_opened_debounced && not app::can_alerts::AnyBoardHasFault())
+    {
+        app::StateMachine::set_next_state(&app::states::init_state);
     }
 
     app::irs::broadcast();

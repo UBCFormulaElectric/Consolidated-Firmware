@@ -333,64 +333,102 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_no_fa
 }
 
 // Faultlatch StateMachine Tests
-TEST_F(BmsStateMachineTest, goes_to_init_state_and_broadcasts_imd_latch)
+TEST_F(BmsStateMachineTest, imd_fault_cleared_to_init_state_and_broadcasts_latch)
 {
     app::StateMachine::set_current_state(&drive_state);
     fakes::faultLatch::resetFaultLatch(&io::faultLatch::imd_ok_latch);
     fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_CLOSED);
     LetTimePass(10);
 
-    ASSERT_TRUE(app::can_tx::BMS_ImdCurrentlyOk_get());
+    ASSERT_FALSE(app::can_tx::BMS_Fault_ImdNotOk_get());
     ASSERT_TRUE(app::can_tx::BMS_ImdLatchOk_get());
     ASSERT_EQ(app::StateMachine::get_current_state(), &drive_state);
 
     fakes::faultLatch::updateFaultLatch(&io::faultLatch::imd_ok_latch, io::faultLatch::FaultLatchState::FAULT);
     fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_OPEN);
-    LetTimePass(300);
-
-    ASSERT_EQ(app::StateMachine::get_current_state(), &init_state);
-    ASSERT_FALSE(app::can_tx::BMS_ImdCurrentlyOk_get());
-    ASSERT_FALSE(app::can_tx::BMS_ImdLatchOk_get());
-}
-
-TEST_F(BmsStateMachineTest, goes_to_init_state_and_broadcasts_bmsok_latch)
-{
-    app::StateMachine::set_current_state(&drive_state);
-    fakes::faultLatch::resetFaultLatch(&io::faultLatch::bms_ok_latch);
-    fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_CLOSED);
     LetTimePass(10);
-
-    ASSERT_TRUE(app::can_tx::BMS_BmsCurrentlyOk_get());
-    ASSERT_TRUE(app::can_tx::BMS_BmsLatchOk_get());
-    ASSERT_EQ(app::StateMachine::get_current_state(), &drive_state);
-
-    fakes::faultLatch::updateFaultLatch(&io::faultLatch::bms_ok_latch, io::faultLatch::FaultLatchState::FAULT);
-    fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_OPEN);
-    LetTimePass(300);
-
-    ASSERT_EQ(app::StateMachine::get_current_state(), &init_state);
-    ASSERT_TRUE(app::can_tx::BMS_BmsCurrentlyOk_get());
-    ASSERT_FALSE(app::can_tx::BMS_BmsLatchOk_get());
+    for (int i = 0; i < 30; i++)
+    {
+        LetTimePass(10);
+        ASSERT_EQ(app::StateMachine::get_current_state(), &fault_state);
+        ASSERT_TRUE(app::can_tx::BMS_Fault_ImdNotOk_get());
+        ASSERT_FALSE(app::can_tx::BMS_ImdLatchOk_get());
+    }
+    fakes::faultLatch::updateFaultLatch(&io::faultLatch::imd_ok_latch, io::faultLatch::FaultLatchState::OK);
+    LetTimePass(20); // Need to wait for 100Hz task to run twice since jobs100hz runs after statemachine
+    for (int i = 0; i < 30; i++)
+    {
+        LetTimePass(10);
+        ASSERT_EQ(app::StateMachine::get_current_state(), &init_state);
+        ASSERT_FALSE(app::can_tx::BMS_Fault_ImdNotOk_get());
+        ASSERT_FALSE(app::can_tx::BMS_ImdLatchOk_get());
+    }
 }
 
-TEST_F(BmsStateMachineTest, goes_to_init_state_and_broadcasts_bspd_latch)
+// TODO: Uncomment once app segments gives us a latched bms fault we can set
+// Right now it's setting the faultlatch and instantly clearing cause there's no acc_fault
+// TEST_F(BmsStateMachineTest, bms_fault_cleared_to_init_state_and_broadcasts_latch)
+// {
+//     app::StateMachine::set_current_state(&drive_state);
+//     fakes::faultLatch::resetFaultLatch(&io::faultLatch::bms_ok_latch);
+//     fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_CLOSED);
+//     LetTimePass(10);
+
+//     ASSERT_FALSE(app::can_tx::BMS_Fault_BmsFault_get());
+//     ASSERT_TRUE(app::can_tx::BMS_BmsLatchOk_get());
+//     ASSERT_EQ(app::StateMachine::get_current_state(), &drive_state);
+
+//     fakes::faultLatch::updateFaultLatch(&io::faultLatch::bms_ok_latch, io::faultLatch::FaultLatchState::FAULT);
+//     fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_OPEN);
+//     LetTimePass(10);
+//     for (int i = 0; i < 30; i++)
+//     {
+//         LetTimePass(10);
+//         ASSERT_EQ(app::StateMachine::get_current_state(), &fault_state);
+//         ASSERT_TRUE(app::can_tx::BMS_Fault_BmsFault_get());
+//         ASSERT_FALSE(app::can_tx::BMS_BmsLatchOk_get());
+//     }
+//     fakes::faultLatch::updateFaultLatch(&io::faultLatch::bms_ok_latch, io::faultLatch::FaultLatchState::OK);
+//     LetTimePass(20); // Need to wait for 100Hz task to run twice since jobs100hz runs after statemachine
+//     for (int i = 0; i < 30; i++)
+//     {
+//         LetTimePass(10);
+//         ASSERT_EQ(app::StateMachine::get_current_state(), &init_state);
+//         ASSERT_FALSE(app::can_tx::BMS_Fault_BmsFault_get());
+//         ASSERT_FALSE(app::can_tx::BMS_BmsLatchOk_get());
+//     }
+// }
+
+TEST_F(BmsStateMachineTest, bspd_fault_cleared_to_init_state_and_broadcasts_latch)
 {
     app::StateMachine::set_current_state(&drive_state);
     fakes::faultLatch::resetFaultLatch(&io::faultLatch::bspd_ok_latch);
     fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_CLOSED);
     LetTimePass(10);
 
-    ASSERT_TRUE(app::can_tx::BMS_BspdCurrentlyOk_get());
+    ASSERT_FALSE(app::can_tx::BMS_Fault_HardwareBspd_get());
     ASSERT_TRUE(app::can_tx::BMS_BspdLatchOk_get());
     ASSERT_EQ(app::StateMachine::get_current_state(), &drive_state);
 
     fakes::faultLatch::updateFaultLatch(&io::faultLatch::bspd_ok_latch, io::faultLatch::FaultLatchState::FAULT);
     fakes::irs::setNegativeState(ContactorState::CONTACTOR_STATE_OPEN);
-    LetTimePass(300);
-
-    ASSERT_EQ(app::StateMachine::get_current_state(), &init_state);
-    ASSERT_FALSE(app::can_tx::BMS_BspdCurrentlyOk_get());
-    ASSERT_FALSE(app::can_tx::BMS_BspdLatchOk_get());
+    LetTimePass(10);
+    for (int i = 0; i < 30; i++)
+    {
+        LetTimePass(10);
+        ASSERT_EQ(app::StateMachine::get_current_state(), &fault_state);
+        ASSERT_TRUE(app::can_tx::BMS_Fault_HardwareBspd_get());
+        ASSERT_FALSE(app::can_tx::BMS_BspdLatchOk_get());
+    }
+    fakes::faultLatch::updateFaultLatch(&io::faultLatch::bspd_ok_latch, io::faultLatch::FaultLatchState::OK);
+    LetTimePass(20); // Need to wait for 100Hz task to run twice since jobs100hz runs after statemachine
+    for (int i = 0; i < 30; i++)
+    {
+        LetTimePass(10);
+        ASSERT_EQ(app::StateMachine::get_current_state(), &init_state);
+        ASSERT_FALSE(app::can_tx::BMS_Fault_HardwareBspd_get());
+        ASSERT_FALSE(app::can_tx::BMS_BspdLatchOk_get());
+    }
 }
 
 TEST_F(BmsStateMachineTest, check_contactors_open_in_inert_states)
@@ -404,7 +442,6 @@ TEST_F(BmsStateMachineTest, check_contactors_open_in_inert_states)
     ASSERT_EQ(io::irs::positiveState(), ContactorState::CONTACTOR_STATE_OPEN);
 }
 
-// bspd
 // overtemp
 // TODO: Uncomment once segments is added AND add a test case for charge state overtemp
 // TEST_F(BmsStateMachineTest, drive_to_fault_on_overtemp)
