@@ -1,6 +1,5 @@
 #pragma once
 #include <expected>
-#include <functional>
 #include <cstdint>
 
 namespace util
@@ -13,17 +12,6 @@ template <typename T, typename E> struct expected_traits<std::expected<T, E>>
     using value_type = T;
     using error_type = E;
 };
-
-// template <typename T, typename E>
-// std::expected<T, E> retry(std::function<std::expected<T, E>()> k, const uint32_t retry_count)
-// {
-// }
-//
-// template <typename E>
-// std::expected<void, E> retry(std::function<std::expected<void, E>()> k, const uint32_t retry_count)
-// {
-//     return retry<void, E>(k, retry_count);
-// }
 
 // Overload that deduces T and E from callable return type
 template <typename Callable> auto retry(Callable &&k, const uint32_t retry_count) -> decltype(k())
