@@ -1,7 +1,11 @@
 /* USER CODE BEGIN Header */
 /**
  ******************************************************************************
+<<<<<<<< HEAD:firmware/hexray/RSM/boot/cubemx/Inc/stm32h5xx_it.h
+ * @file    stm32h5xx_it.h
+========
  * @file    stm32h7xx_it.h
+>>>>>>>> master:firmware/hexray/BMS/boot/cubemx/Inc/stm32h7xx_it.h
  * @brief   This file contains the headers of the interrupt handlers.
  ******************************************************************************
  * @attention
@@ -47,12 +51,6 @@ extern "C"
     /* USER CODE END EM */
 
     /* Exported functions prototypes ---------------------------------------------*/
-    void NMI_Handler(void);
-    void HardFault_Handler(void);
-    void MemManage_Handler(void);
-    void BusFault_Handler(void);
-    void UsageFault_Handler(void);
-    void DebugMon_Handler(void);
     void FDCAN2_IT0_IRQHandler(void);
     void FDCAN2_IT1_IRQHandler(void);
     void TIM6_DAC_IRQHandler(void);

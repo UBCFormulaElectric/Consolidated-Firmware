@@ -3,59 +3,113 @@
 #include "jobs.hpp"
 
 #include "app_jsoncan.hpp"
+#include "app_canTx.hpp"
+#include "app_canAlerts.hpp"
 
 #include "io_time.hpp"
 #include "io_telemMessage.hpp"
 #include "io_canQueues.hpp"
 #include "io_canRx.hpp"
 #include "io_telemQueue.hpp"
-
 #include "hw_hardFaultHandler.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_cans.hpp"
+#include "hw_watchdog.hpp"
+#include "hw_resetReason.hpp"
+#include "hw_bootup.hpp"
+#include "hw_runTimeStat.hpp"
 
-[[noreturn]] static void tasks_run1Hz(void *arg)
+[[noreturn]] static void tasks_run1Hz(void *arg);
+[[noreturn]] static void tasks_run100Hz(void *arg);
+[[noreturn]] static void tasks_run1kHz(void *arg);
+[[noreturn]] static void tasks_runLogging(void *arg);
+[[noreturn]] static void tasks_runTelem(void *arg);
+[[noreturn]] static void tasks_runTelemRx(void *arg);
+[[noreturn]] static void tasks_runCanTx(void *arg);
+[[noreturn]] static void tasks_runCanRx(void *arg);
+
+// Define the task with StaticTask Class
+static hw::rtos::StaticTask::StaticTaskStack<8096> Task100HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCanTxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCanRxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  Task1kHzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  Task1HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024> TaskLoggingStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskTelemStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskTelemRxStack;
+
+static hw::rtos::StaticTask Task100Hz(osPriorityRealtime, "Task100Hz", tasks_run100Hz, Task100HzStack);
+static hw::rtos::StaticTask TaskCanTx(osPriorityAboveNormal, "TaskCanTx", tasks_runCanTx, TaskCanTxStack);
+static hw::rtos::StaticTask TaskCanRx(osPriorityHigh, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
+static hw::rtos::StaticTask Task1kHz(osPriorityBelowNormal, "Task1kHz", tasks_run1kHz, Task1kHzStack);
+static hw::rtos::StaticTask Task1Hz(osPriorityBelowNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
+static hw::rtos::StaticTask TaskLogging(osPriorityHigh, "TaskLogging", tasks_runLogging, TaskLoggingStack);
+static hw::rtos::StaticTask TaskTelem(osPriorityHigh, "TaskTelem", tasks_runTelem, TaskTelemStack);
+static hw::rtos::StaticTask TaskTelemRx(osPriorityHigh, "TaskTelemRx", tasks_runTelemRx, TaskTelemRxStack);
+
+void tasks_run1Hz(void *arg)
 {
-    constexpr uint32_t period_ms = 1000U;
+    constexpr uint32_t             period_ms                = 1000U;
+    constexpr uint32_t             watchdog_grace_period_ms = 50U;
+    hw::watchdog::WatchdogInstance watchdog1hz{ period_ms + watchdog_grace_period_ms };
+    hw::watchdog::monitor          monitor1hz{ &watchdog1hz, hiwdg, HAL_IWDG_Refresh };
+    monitor1hz.registerWatchdogInstance();
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
         jobs_run1Hz_tick();
+
+        watchdog1hz.checkIn();
+
         start_ticks += period_ms;
         io::time::delayUntil(start_ticks);
         osDelayUntil(start_ticks);
     }
 }
-[[noreturn]] static void tasks_run100Hz(void *arg)
+void tasks_run100Hz(void *arg)
 {
-    constexpr uint32_t period_ms = 10U;
+    constexpr uint32_t             period_ms                = 10U;
+    constexpr uint32_t             watchdog_grace_period_ms = 2U;
+    hw::watchdog::WatchdogInstance watchdog100hz{ period_ms + watchdog_grace_period_ms };
+    hw::watchdog::monitor          monitor100hz{ &watchdog100hz, hiwdg, HAL_IWDG_Refresh };
+    monitor100hz.registerWatchdogInstance();
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
         jobs_run100Hz_tick();
+
+        watchdog100hz.checkIn();
+
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
 }
-[[noreturn]] static void tasks_run1kHz(void *arg)
+void tasks_run1kHz(void *arg)
 {
-    constexpr uint32_t period_ms = 1U;
+    constexpr uint32_t             period_ms                = 1U;
+    constexpr uint32_t             watchdog_grace_period_ms = 1U;
+    hw::watchdog::WatchdogInstance watchdog1khz{ period_ms + watchdog_grace_period_ms };
+    hw::watchdog::monitor          monitor1khz{ &watchdog1khz, hiwdg, HAL_IWDG_Refresh };
+    monitor1khz.registerWatchdogInstance();
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
-#ifndef WATCHDOG_DISABLED
-        HAL_IWDG_Refresh(&hiwdg);
-#endif
         jobs_run1kHz_tick();
+
+        watchdog1khz.checkIn();
+#ifndef WATCHDOG_DISABLED
+        monitor1khz.checkForTimeouts();
+#endif
+
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
 }
 
-[[noreturn]] static void tasks_runLogging(void *arg)
+void tasks_runLogging(void *arg)
 {
     osDelayUntil(osWaitForever);
     forever
@@ -63,7 +117,7 @@
         jobs_runLogging_tick();
     }
 }
-[[noreturn]] static void tasks_runTelem(void *arg)
+void tasks_runTelem(void *arg)
 {
     // const io::telemMessage::BaseTimeRegMsg base_time_msg(boot_time);
     // LOG_IF_ERR(_900k_uart.transmitPoll(
@@ -74,7 +128,7 @@
         jobs_runTelem_tick();
     }
 }
-[[noreturn]] static void tasks_runTelemRx(void *arg)
+void tasks_runTelemRx(void *arg)
 {
     osDelayUntil(osWaitForever);
     forever
@@ -83,7 +137,7 @@
     }
 }
 
-[[noreturn]] static void tasks_runCanTx(void *arg)
+void tasks_runCanTx(void *arg)
 {
     forever
     {
@@ -105,7 +159,7 @@
         }
     }
 }
-[[noreturn]] static void tasks_runCanRx(void *arg)
+void tasks_runCanRx(void *arg)
 {
     forever
     {
@@ -116,17 +170,7 @@
     }
 }
 
-// Define the task with StaticTask Class
-static hw::rtos::StaticTask<8096> Task100Hz(osPriorityRealtime, "Task100Hz", tasks_run100Hz);
-static hw::rtos::StaticTask<512>  TaskCanTx(osPriorityAboveNormal, "TaskCanTx", tasks_runCanTx);
-static hw::rtos::StaticTask<512>  TaskCanRx(osPriorityHigh, "TaskCanRx", tasks_runCanRx);
-static hw::rtos::StaticTask<512>  Task1kHz(osPriorityBelowNormal, "Task1kHz", tasks_run1kHz);
-static hw::rtos::StaticTask<512>  Task1Hz(osPriorityBelowNormal, "Task1Hz", tasks_run1Hz);
-static hw::rtos::StaticTask<1024> TaskLogging(osPriorityHigh, "TaskLogging", tasks_runLogging);
-static hw::rtos::StaticTask<512>  TaskTelem(osPriorityHigh, "TaskTelem", tasks_runTelem);
-static hw::rtos::StaticTask<512>  TaskTelemRx(osPriorityHigh, "TaskTelemRx", tasks_runTelemRx);
-
-void DAM_StartAllTasks()
+static void DAM_StartAllTasks()
 {
     Task100Hz.start();
     TaskCanTx.start();
@@ -140,14 +184,20 @@ void DAM_StartAllTasks()
 
 void tasks_preInit()
 {
+    hw::bootup::enableInterruptsForApp();
     hw_hardFaultHandler_init();
 }
 
 void tasks_init()
 {
+    // __HAL_DBGMCU_FREEZE_IWDG();
     SEGGER_SYSVIEW_Conf();
-
     fdcan1.init();
+    if (const ResetReason reason = hw::resetReason::get(); reason == RESET_REASON_WATCHDOG)
+    {
+        LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
+        app::can_alerts::infos::WatchdogTimeout_set(true);
+    }
 
     osKernelInitialize();
     jobs_init();

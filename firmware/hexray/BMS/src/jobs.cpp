@@ -47,7 +47,7 @@ extern "C"
 static void jsoncan_transmit_func(const JsonCanMsg &tx_msg)
 {
     const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
-    UNUSED(can_tx_queue.push(msg));
+    LOG_IF_ERR(can_tx_queue.push(msg));
 }
 
 static void charger_transmit_func(const JsonCanMsg &tx_msg)

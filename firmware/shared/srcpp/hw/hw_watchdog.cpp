@@ -1,16 +1,10 @@
 #include "hw_watchdog.hpp"
-#include "io_log.hpp"
-#include "cmsis_os.h"
 
-#include <array>
+std::array<hw::watchdog::WatchdogInstance *, hw::watchdog::monitor::MAX_WATCHDOG_INSTANCES>
+     hw::watchdog::monitor::watchdogs{};
+bool hw::watchdog::monitor::timeout_detected = false;
 
-namespace hw::watchdog::monitor
-{
-#define MAX_WATCHDOG_INSTANCES 10
-std::array<WatchdogInstance *, MAX_WATCHDOG_INSTANCES> watchdogs{};
-bool                                                   timeout_detected = false;
-
-void registerWatchdogInstance(WatchdogInstance *watchdog_instance)
+void hw::watchdog::monitor::registerWatchdogInstance()
 {
     for (WatchdogInstance *&instance : watchdogs)
     {
@@ -22,7 +16,6 @@ void registerWatchdogInstance(WatchdogInstance *watchdog_instance)
     }
     LOG_ERROR("Failed to register watchdog instance. Maximum number of watchdog instances reached.");
 }
-
 /**
  * Check if any software watchdog has expired.
  * @note  If no software watchdog has expired, the hardware watchdog is
@@ -31,37 +24,49 @@ void registerWatchdogInstance(WatchdogInstance *watchdog_instance)
  * @note  This function must be called periodically. It is good practice to call
  *        it from the system tick handler.
  */
-void checkForTimeouts()
+void hw::watchdog::monitor::checkForTimeouts()
 {
     // If a timeout is detected, let the hardware watchdog timeout reset the
     // system. We don't reboot immediately because we need some time to log
     // information for further debugging.
-    for (WatchdogInstance *watchdog_instance : watchdogs)
+    if (timeout_detected)
     {
-        // Only check for timeout if the watchdog has been initialized
-        if (!watchdog_instance->initialized)
+        return;
+    }
+
+    for (WatchdogInstance *instance : watchdogs)
+    {
+        if (instance == nullptr)
             continue;
 
-        if (osKernelGetTickCount() >= watchdog_instance->deadline)
+        // Only check for timeout if the watchdog has been initialized
+        if (!instance->initialized)
+            continue;
+
+        if (osKernelGetTickCount() >= instance->deadline)
         {
             // Check if the check-in status is set
-            if (watchdog_instance->check_in_status)
+            if (instance->check_in_status)
             {
                 // Clear the check-in status
-                watchdog_instance->check_in_status = false;
+                instance->check_in_status = false;
 
                 // Update deadline
-                watchdog_instance->deadline += watchdog_instance->period;
+                instance->deadline += instance->period;
 
-                hw::watchdogConfig::refresh_hardware_watchdog();
+                refresh_hardware_watchdog();
             }
             else
             {
-                hw::watchdogConfig::timeout_callback(watchdog_instance);
                 timeout_detected = true;
-                break;
+                if (timeout_callback != nullptr)
+                {
+                    timeout_callback(instance);
+                }
+                return;
             }
         }
     }
 }
-} // namespace hw::watchdog::monitor
+
+// namespace hw::watchdog

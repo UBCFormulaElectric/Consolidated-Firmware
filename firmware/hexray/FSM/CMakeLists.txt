@@ -6,6 +6,7 @@ set(CUBEMX_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src"
         "${SHARED_HW_INCLUDE_DIR_CPP}"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot"
 )
 
 set(JOBS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/jobs.cpp")
@@ -13,11 +14,11 @@ set(TASKS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/tasks.cpp")
 set(SYSTEM_SRCS ${JOBS_SRC} ${TASKS_SRC})
 set(SYSTEM_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src"
-        #"${CMAKE_CURRENT_SOURCE_DIR}/boot"
+        "${CMAKE_CURRENT_SOURCE_DIR}/boot"
 )
 
 file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp")
-list(APPEND APP_SRCS
+set(APP_SHARED_SRCS
         "${SHARED_APP_INCLUDE_DIR}/app_shdnLoopNode.c"
         "${SHARED_APP_INCLUDE_DIR_CPP}/app_timer.cpp"
         "${SHARED_APP_INCLUDE_DIR}/app_rangeCheck.c"
@@ -29,7 +30,7 @@ set(APP_INCLUDE_DIRS
 )
 
 file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.cpp")
-list(APPEND IO_SRCS
+set(IO_SHARED_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
         "${SHARED_IO_INCLUDE_DIR}/io_time.c"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_imu.cpp"
@@ -41,13 +42,17 @@ set(IO_INCLUDE_DIRS
 )
 
 file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp")
-list(APPEND HW_SRCS
+set(HW_SHARED_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_spi.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmOutput.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_watchdog.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_resetReason.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_bootup.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_runTimeStat.cpp"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -56,13 +61,22 @@ set(HW_INCLUDE_DIRS
 )
 
 # chimera sources
-set(CHIMERA_SRCS ${HW_SRCS} "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/src/chimera.cpp")
+set(CHIMERA_SRCS
+        ${HW_SRCS}
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_spi.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmOutput.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/chimera.cpp"
+)
 set(CHIMERA_INCLUDE_DIRS ${HW_INCLUDE_DIRS} ${IO_INCLUDE_DIRS})
 
 if ("${TARGET}" STREQUAL "binary")
     set(ARM_CORE "cm33")
-    set(LINKER_SCRIPT "${LINKER_DIR}/stm32h562ritx/stm32h562ritx_app_only.ld")
-    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS})
+    set(LINKER_SCRIPT "${LINKER_DIR}/stm32h562ritx/stm32h562ritx_app.ld")
+    set(SRCS ${APP_SRCS} ${APP_SHARED_SRCS} ${IO_SRCS} ${IO_SHARED_SRCS} ${HW_SRCS} ${HW_SHARED_SRCS} ${SYSTEM_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
 
     embedded_binary(
@@ -92,6 +106,7 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h5xx_hal_tim.c"
             "stm32h5xx_hal_tim_ex.c"
             "stm32h5xx_ll_usb.c"
+            "stm32h5xx_hal_iwdg.c"
     )
     stm32h562xx_cube_library(
             "hexray_FSM_stm32"
@@ -113,12 +128,36 @@ if ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    target_link_libraries("hexray_FSM_app.elf" PRIVATE "hexray_FSM_stm32" "hexray_FSM_commit_info"
-            "hexray_FSM_jsoncan" "m")
+    target_link_libraries("hexray_FSM_app.elf" PRIVATE "hexray_FSM_stm32" "hexray_FSM_commit_info" "hexray_FSM_jsoncan" "m")
     target_compile_definitions("hexray_FSM_app.elf" PRIVATE FSM)
 
     add_chimera_stm32h5("hexray_FSM_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}" "hexray_chimera_v2_proto_cm33")
     target_link_libraries("hexray_FSM_chimera.elf" PRIVATE "hexray_FSM_stm32")
+
+    if ("${BOOTLOAD}" STREQUAL "ON")
+        # Bootloader files.
+        file(GLOB BOOT_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.cpp")
+        file(GLOB BOOT_CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
+        set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
+        stm32h5_boot_binary(
+                "hexray_FSM_boot"
+                "${BOOT_SRCS}"
+                "${BOOT_CUBEMX_SRCS}"
+                "${BOOT_INCLUDE_DIRS}"
+                "hexray_FSM"
+                "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/FSM_boot.ioc"
+        )
+        target_link_libraries("hexray_FSM_boot.elf" PRIVATE "hexray_FSM_commit_info")
+
+        embedded_image(
+                "hexray_FSM"
+                "hexray_FSM_app.hex"
+                "${CMAKE_CURRENT_BINARY_DIR}/hexray_FSM_app.hex"
+                "hexray_FSM_boot.hex"
+                "${CMAKE_CURRENT_BINARY_DIR}/hexray_FSM_boot.hex"
+        )
+    endif ()
+
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
     set(FAKE_SRCS
@@ -126,7 +165,7 @@ elseif ("${TARGET}" STREQUAL "test")
             "${SHARED_FAKES_DIR_CPP}/io_imu.cpp"
             "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
     )
-    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
+    set(SRCS ${APP_SRCS} ${APP_SHARED_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
     set(INCLUDE_DIRS
             # "${CMAKE_CURRENT_SOURCE_DIR}/test"
             ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS}

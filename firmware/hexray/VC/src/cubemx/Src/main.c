@@ -51,10 +51,13 @@ FDCAN_HandleTypeDef hfdcan3;
 I2C_HandleTypeDef hi2c4;
 I2C_HandleTypeDef hi2c5;
 
+IWDG_HandleTypeDef hiwdg1;
+
 SPI_HandleTypeDef hspi1;
 SPI_HandleTypeDef hspi2;
 
 TIM_HandleTypeDef htim3;
+TIM_HandleTypeDef htim7;
 
 UART_HandleTypeDef huart8;
 
@@ -79,6 +82,8 @@ static void MX_SPI2_Init(void);
 static void MX_I2C5_Init(void);
 static void MX_UART8_Init(void);
 static void MX_TIM3_Init(void);
+static void MX_IWDG1_Init(void);
+static void MX_TIM7_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -130,6 +135,8 @@ int main(void)
     MX_I2C5_Init();
     MX_UART8_Init();
     MX_TIM3_Init();
+    MX_IWDG1_Init();
+    MX_TIM7_Init();
     /* USER CODE BEGIN 2 */
     HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
     ;
@@ -171,8 +178,9 @@ void SystemClock_Config(void)
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI48 | RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI48 | RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
+    RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
     RCC_OscInitStruct.HSI48State     = RCC_HSI48_ON;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
@@ -510,21 +518,21 @@ static void MX_FDCAN3_Init(void)
     hfdcan3.Instance                  = FDCAN3;
     hfdcan3.Init.FrameFormat          = FDCAN_FRAME_CLASSIC;
     hfdcan3.Init.Mode                 = FDCAN_MODE_NORMAL;
-    hfdcan3.Init.AutoRetransmission   = DISABLE;
+    hfdcan3.Init.AutoRetransmission   = ENABLE;
     hfdcan3.Init.TransmitPause        = DISABLE;
     hfdcan3.Init.ProtocolException    = DISABLE;
-    hfdcan3.Init.NominalPrescaler     = 16;
-    hfdcan3.Init.NominalSyncJumpWidth = 1;
-    hfdcan3.Init.NominalTimeSeg1      = 1;
-    hfdcan3.Init.NominalTimeSeg2      = 1;
+    hfdcan3.Init.NominalPrescaler     = 6;
+    hfdcan3.Init.NominalSyncJumpWidth = 3;
+    hfdcan3.Init.NominalTimeSeg1      = 12;
+    hfdcan3.Init.NominalTimeSeg2      = 3;
     hfdcan3.Init.DataPrescaler        = 1;
     hfdcan3.Init.DataSyncJumpWidth    = 1;
     hfdcan3.Init.DataTimeSeg1         = 1;
     hfdcan3.Init.DataTimeSeg2         = 1;
-    hfdcan3.Init.MessageRAMOffset     = 0;
-    hfdcan3.Init.StdFiltersNbr        = 0;
-    hfdcan3.Init.ExtFiltersNbr        = 0;
-    hfdcan3.Init.RxFifo0ElmtsNbr      = 0;
+    hfdcan3.Init.MessageRAMOffset     = 1920;
+    hfdcan3.Init.StdFiltersNbr        = 1;
+    hfdcan3.Init.ExtFiltersNbr        = 1;
+    hfdcan3.Init.RxFifo0ElmtsNbr      = 32;
     hfdcan3.Init.RxFifo0ElmtSize      = FDCAN_DATA_BYTES_8;
     hfdcan3.Init.RxFifo1ElmtsNbr      = 0;
     hfdcan3.Init.RxFifo1ElmtSize      = FDCAN_DATA_BYTES_8;
@@ -532,7 +540,7 @@ static void MX_FDCAN3_Init(void)
     hfdcan3.Init.RxBufferSize         = FDCAN_DATA_BYTES_8;
     hfdcan3.Init.TxEventsNbr          = 0;
     hfdcan3.Init.TxBuffersNbr         = 0;
-    hfdcan3.Init.TxFifoQueueElmtsNbr  = 0;
+    hfdcan3.Init.TxFifoQueueElmtsNbr  = 32;
     hfdcan3.Init.TxFifoQueueMode      = FDCAN_TX_FIFO_OPERATION;
     hfdcan3.Init.TxElmtSize           = FDCAN_DATA_BYTES_8;
     if (HAL_FDCAN_Init(&hfdcan3) != HAL_OK)
@@ -634,6 +642,33 @@ static void MX_I2C5_Init(void)
     /* USER CODE BEGIN I2C5_Init 2 */
 
     /* USER CODE END I2C5_Init 2 */
+}
+
+/**
+ * @brief IWDG1 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_IWDG1_Init(void)
+{
+    /* USER CODE BEGIN IWDG1_Init 0 */
+
+    /* USER CODE END IWDG1_Init 0 */
+
+    /* USER CODE BEGIN IWDG1_Init 1 */
+#ifndef WATCHDOG_DISABLED
+    /* USER CODE END IWDG1_Init 1 */
+    hiwdg1.Instance       = IWDG1;
+    hiwdg1.Init.Prescaler = IWDG_PRESCALER_4;
+    hiwdg1.Init.Window    = 4095;
+    hiwdg1.Init.Reload    = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
+    if (HAL_IWDG_Init(&hiwdg1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN IWDG1_Init 2 */
+#endif
+    /* USER CODE END IWDG1_Init 2 */
 }
 
 /**
@@ -771,6 +806,42 @@ static void MX_TIM3_Init(void)
     /* USER CODE BEGIN TIM3_Init 2 */
 
     /* USER CODE END TIM3_Init 2 */
+}
+
+/**
+ * @brief TIM7 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_TIM7_Init(void)
+{
+    /* USER CODE BEGIN TIM7_Init 0 */
+
+    /* USER CODE END TIM7_Init 0 */
+
+    TIM_MasterConfigTypeDef sMasterConfig = { 0 };
+
+    /* USER CODE BEGIN TIM7_Init 1 */
+
+    /* USER CODE END TIM7_Init 1 */
+    htim7.Instance               = TIM7;
+    htim7.Init.Prescaler         = 10 - 1;
+    htim7.Init.CounterMode       = TIM_COUNTERMODE_UP;
+    htim7.Init.Period            = 960 - 1;
+    htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+    sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim7, &sMasterConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN TIM7_Init 2 */
+
+    /* USER CODE END TIM7_Init 2 */
 }
 
 /**
@@ -984,6 +1055,13 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(RL_PUMP_EN_GPIO_Port, &GPIO_InitStruct);
+
+    /* EXTI interrupt init*/
+    HAL_NVIC_SetPriority(IMU_INT1_EXTI_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(IMU_INT1_EXTI_IRQn);
+
+    HAL_NVIC_SetPriority(IMU_INT3_EXTI_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(IMU_INT3_EXTI_IRQn);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
 

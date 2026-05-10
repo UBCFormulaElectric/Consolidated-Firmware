@@ -1,10 +1,10 @@
 #pragma once
 
+#include "util_errorCodes.hpp"
+
 #include <span>
 #include <stddef.h>
 #include <expected>
-#include "hw_utils.hpp"
-#include "util_errorCodes.hpp"
 
 namespace hw::flash
 {

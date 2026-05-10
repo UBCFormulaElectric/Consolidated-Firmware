@@ -25,91 +25,110 @@ enum SystemReading : uint8_t
 };
 
 // Internal regulator adresses
-constexpr uint16_t REG0_CONFIG = 0x9237;
-constexpr uint16_t REG1_CONFIG = 0x9236;
+inline constexpr uint16_t REG0_CONFIG = 0x9237;
+inline constexpr uint16_t REG1_CONFIG = 0x9236;
 
 // Multifunction Pin Controls
-constexpr uint16_t ALERT = 0x92FC;
+inline constexpr uint16_t ALERT = 0x92FC;
 
 // I2C
-constexpr uint16_t COMM_TYPE = 0x9239;
+inline constexpr uint16_t COMM_TYPE = 0x9239;
 
 // Vcell Mode
-constexpr uint16_t VCELL_MODE = 0x9304;
+inline constexpr uint16_t VCELL_MODE = 0x9304;
 
 // command/subcommand addresses
-constexpr uint16_t REG_LOWER        = 0x3E;
-constexpr uint16_t REG_UPPER        = 0x3F;
-constexpr uint16_t REG_DATA         = 0x40;
-constexpr uint16_t REG_CHECKSUM     = 0x60;
-constexpr uint16_t REG_DATALENGTH   = 0x61;
-constexpr uint16_t REG_ALARM_STATUS = 0x62;
+inline constexpr uint16_t REG_LOWER        = 0x3E;
+inline constexpr uint16_t REG_UPPER        = 0x3F;
+inline constexpr uint16_t REG_DATA         = 0x40;
+inline constexpr uint16_t REG_CHECKSUM     = 0x60;
+inline constexpr uint16_t REG_DATALENGTH   = 0x61;
+inline constexpr uint16_t REG_ALARM_STATUS = 0x62;
 
-constexpr uint8_t  SUBCOMMAND_BYTES = 4; // account for the 0x3E/0x3F and 0x61 and 0x60
-constexpr uint32_t RETRIES          = 20;
+inline constexpr uint8_t  SUBCOMMAND_BYTES = 4; // account for the 0x3E/0x3F and 0x61 and 0x60
+inline constexpr uint32_t RETRIES          = 20;
 
 // DEEPSLEEP/SLEEP Checks
-constexpr uint16_t CMD_CONTROL_STATUS    = 0x00;
-constexpr uint8_t  CTRL_STATUS_DEEPSLEEP = (1 << 2);
-constexpr uint16_t SUBCMD_WAKE_DEEPSLEEP = 0x000E;
+inline constexpr uint16_t CMD_CONTROL_STATUS    = 0x00;
+inline constexpr uint8_t  CTRL_STATUS_DEEPSLEEP = (1 << 2);
+inline constexpr uint16_t SUBCMD_WAKE_DEEPSLEEP = 0x000E;
 
-constexpr uint16_t CMD_BATTERY_STATUS = 0x12;
-constexpr uint16_t BAT_STATUS_SLEEP   = (1 << 15);
-constexpr uint16_t SUBCMD_WAKE_SLEEP  = 0x009A;
+inline constexpr uint16_t CMD_BATTERY_STATUS = 0x12;
+inline constexpr uint16_t BAT_STATUS_SLEEP   = (1 << 15);
+inline constexpr uint16_t SUBCMD_WAKE_SLEEP  = 0x009A;
 
 // CONFIG_UPDATE
-constexpr uint16_t SUBCMD_SET_CFGUPDATE = 0x0090;
-constexpr uint8_t  CFGUPDATE_STATUS     = (1 << 0);
-constexpr uint16_t EXIT_CFGUPDATE       = 0x0092;
+inline constexpr uint16_t SUBCMD_SET_CFGUPDATE = 0x0090;
+inline constexpr uint8_t  CFGUPDATE_STATUS     = (1 << 0);
+inline constexpr uint16_t EXIT_CFGUPDATE       = 0x0092;
+
+// CC and Digital Filters
+inline constexpr uint16_t SUBCMD_RESETCHARGEACCUM = 0x0082;
+
+// Current 
+inline constexpr uint16_t CMD_GETCURRENT = 0x3A;
+
+// Charge 
+inline constexpr uint16_t SUBCMD_GET_INEGRATED_CHARGE = 0x0076;
+
+// Cell Balancing 
+inline constexpr uint16_t CMD_TEMPERATURE_IC = 0x68;
+inline constexpr uint16_t BALANCE_CFG = 0x9335;
+inline constexpr uint16_t MIN_CELL_TEMP = 0x9336;
+inline constexpr uint16_t MAX_CELL_TEMP = 0x9337;
+inline constexpr uint16_t MAX_IC_TEMP = 0x9338;
+inline constexpr uint16_t CELL_BALANCE_INTERVAL = 0x9339; // 20 seconds default
+inline constexpr uint16_t MAX_CELLS_BALANCING = 0x933A;
+inline constexpr uint16_t CELL_BALANCE_MIN_V = 0x933F;
 
 // OTP
-constexpr uint16_t OTP_WR_CHECK = 0x00A0;
-constexpr uint16_t OTP_WRITE    = 0x00A1;
+inline constexpr uint16_t OTP_WR_CHECK = 0x00A0;
+inline constexpr uint16_t OTP_WRITE    = 0x00A1;
 
 // Synchronous voltage and current
-constexpr uint16_t CMD_V_C_COUNT1 = 0x0071; // cell 1, 2, 3, 4
-constexpr uint16_t CMD_V_C_COUNT2 = 0x0072; // cell 5
+inline constexpr uint16_t CMD_V_C_COUNT1 = 0x0071; // cell 1, 2, 3, 4
+inline constexpr uint16_t CMD_V_C_COUNT2 = 0x0072; // cell 5
 
 // Protections
-constexpr uint16_t MFG_STATUS_INIT = 0x9343;
+inline constexpr uint16_t MFG_STATUS_INIT = 0x9343;
 
 // Seafty commands
-constexpr uint16_t SAFETY_A_A = 0x02;
-constexpr uint16_t SAFETY_S_A = 0x03;
-constexpr uint16_t SAFETY_A_B = 0x04;
-constexpr uint16_t SAFETY_S_B = 0x05;
-constexpr uint16_t SAFETY_A_C = 0x06;
-constexpr uint16_t SAFETY_S_C = 0x07;
+inline constexpr uint16_t SAFETY_A_A = 0x02;
+inline constexpr uint16_t SAFETY_S_A = 0x03;
+inline constexpr uint16_t SAFETY_A_B = 0x04;
+inline constexpr uint16_t SAFETY_S_B = 0x05;
+inline constexpr uint16_t SAFETY_A_C = 0x06;
+inline constexpr uint16_t SAFETY_S_C = 0x07;
 
 // Safety Alert/Status A
-constexpr uint8_t SAFETY_A_SCD  = (1u << 7);
-constexpr uint8_t SAFETY_A_OCD2 = (1u << 6);
-constexpr uint8_t SAFETY_A_OCD1 = (1u << 5);
-constexpr uint8_t SAFETY_A_OCC  = (1u << 4);
-constexpr uint8_t SAFETY_A_COV  = (1u << 3);
-constexpr uint8_t SAFETY_A_CUV  = (1u << 2);
+inline constexpr uint8_t SAFETY_A_SCD  = (1u << 7);
+inline constexpr uint8_t SAFETY_A_OCD2 = (1u << 6);
+inline constexpr uint8_t SAFETY_A_OCD1 = (1u << 5);
+inline constexpr uint8_t SAFETY_A_OCC  = (1u << 4);
+inline constexpr uint8_t SAFETY_A_COV  = (1u << 3);
+inline constexpr uint8_t SAFETY_A_CUV  = (1u << 2);
 
 // Safety Alert/Status B
-constexpr uint8_t SAFETY_B_OTF   = (1u << 7);
-constexpr uint8_t SAFETY_B_OTINT = (1u << 6);
-constexpr uint8_t SAFETY_B_OTD   = (1u << 5);
-constexpr uint8_t SAFETY_B_OTC   = (1u << 4);
-constexpr uint8_t SAFETY_B_UTD   = (1u << 1);
-constexpr uint8_t SAFETY_B_UTC   = (1u << 0);
+inline constexpr uint8_t SAFETY_B_OTF   = (1u << 7);
+inline constexpr uint8_t SAFETY_B_OTINT = (1u << 6);
+inline constexpr uint8_t SAFETY_B_OTD   = (1u << 5);
+inline constexpr uint8_t SAFETY_B_OTC   = (1u << 4);
+inline constexpr uint8_t SAFETY_B_UTD   = (1u << 1);
+inline constexpr uint8_t SAFETY_B_UTC   = (1u << 0);
 
 // Safety Alert/Status C
-constexpr uint8_t SAFETY_C_OCD3 = (1u << 7);
-constexpr uint8_t SAFETY_C_SCDL = (1u << 6);
-constexpr uint8_t SAFETY_C_OCDL = (1u << 5);
-constexpr uint8_t SAFETY_C_COVL = (1u << 4);
-constexpr uint8_t SAFETY_C_PTOS = (1u << 3);
+inline constexpr uint8_t SAFETY_C_OCD3 = (1u << 7);
+inline constexpr uint8_t SAFETY_C_SCDL = (1u << 6);
+inline constexpr uint8_t SAFETY_C_OCDL = (1u << 5);
+inline constexpr uint8_t SAFETY_C_COVL = (1u << 4);
+inline constexpr uint8_t SAFETY_C_PTOS = (1u << 3);
 // Status C only
-constexpr uint8_t SAFETY_C_PTO  = (1u << 2);
-constexpr uint8_t SAFETY_C_HWDF = (1u << 1);
+inline constexpr uint8_t SAFETY_C_PTO  = (1u << 2);
+inline constexpr uint8_t SAFETY_C_HWDF = (1u << 1);
 
 // FET stuff
-constexpr uint16_t FET_FET_OPTION     = 0x9308;
-constexpr uint16_t SUBCMD_ALL_FETS_ON = 0x0096;
+inline constexpr uint16_t FET_FET_OPTION     = 0x9308;
+inline constexpr uint16_t SUBCMD_ALL_FETS_ON = 0x0096;
 
 // OTP Security
 enum class SecurityState : uint8_t
@@ -119,7 +138,7 @@ enum class SecurityState : uint8_t
     SEALED      = 0x3,
 };
 
-constexpr uint16_t SECURITY_UNSEAL_FIRST  = 0x0414;
-constexpr uint16_t SECURITY_UNSEAL_SECOND = 0x3672;
-constexpr uint16_t FULL_ACCESS_EDIT       = 0x925D;
-constexpr uint16_t SECURITY_FULLACESS     = 0xFFFF;
+inline constexpr uint16_t SECURITY_UNSEAL_FIRST  = 0x0414;
+inline constexpr uint16_t SECURITY_UNSEAL_SECOND = 0x3672;
+inline constexpr uint16_t FULL_ACCESS_EDIT       = 0x925D;
+inline constexpr uint16_t SECURITY_FULLACESS     = 0xFFFF;

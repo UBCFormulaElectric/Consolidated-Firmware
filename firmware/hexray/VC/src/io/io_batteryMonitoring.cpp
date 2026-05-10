@@ -194,29 +194,76 @@ static std::expected<void, ErrorCode> execute_subcommand(uint16_t sub_cmd)
     return {};
 }
 
-/* -------------------- Voltage and Current Readings ------------------------- */
+/* -------------------- Voltage Readings ------------------------- */
 /**
  * @brief Gets the cell voltage
- * @param CellReading The command used to read the voltage
+ * @param CellReading The cell you want to read (ie: CellReading::CELL1)
  * @return The voltage on success, erorcode if messed up
  */
-std::expected<uint16_t, ErrorCode> get_voltage_cell(CellReading cell)
+std::expected<float, ErrorCode> get_voltage_cell(CellReading cell)
 {
     uint16_t cell_voltage = 0;
     RETURN_IF_ERR(command_read_2byte(cell, &cell_voltage));
-    return static_cast<uint16_t>(cell_voltage);
+    return static_cast<float>(cell_voltage) / 1000.0f;
 }
 /**
  * @brief Gets the system voltage
- * @param SystemReading The command used to read the voltage
+ * @param SystemReading The thing u want to read (ie: SystemReding::Pack)
  * @return The voltage on success, erorcode if messed up
  */
-std::expected<uint16_t, ErrorCode> get_voltage_system(SystemReading system)
+std::expected<float, ErrorCode> get_voltage_system(SystemReading system)
 {
-    uint16_t cv_voltage = 0;
-    RETURN_IF_ERR(command_read_2byte(system, &cv_voltage));
-    return static_cast<uint16_t>(
-        cv_voltage * 10); //  The units for TOS, PACK, and LD voltages are reported in cV (10mV LSB) by default
+    uint16_t system_voltage = 0;
+    RETURN_IF_ERR(command_read_2byte(system, &system_voltage));
+    return static_cast<float>(system_voltage) / 100.0f; //  The units for TOS, PACK, and LD voltages are reported in cV (10mV LSB) by default
+}
+/* -------------------- Current Readings ------------------------- */
+/**
+ * @brief Gets the current through sense
+ * @param void 
+ * @return float value of current 
+ */
+std::expected<float, ErrorCode> get_current(void)
+{
+    uint16_t raw_current = 0;
+    RETURN_IF_ERR(command_read_2byte(CMD_GETCURRENT, &raw_current));
+    int16_t signed_current = static_cast<int16_t>(raw_current);
+    return static_cast<float>(signed_current) / 1000.0f; 
+}
+
+/* -------------------- Charge Readings ------------------------- */
+// I'm not 100% sure about the purpose of this yet, ik its important for SOC but idk past that
+std::expected<uint64_t, ErrorCode> get_integrated_charge(void)
+{
+    std::array<uint8_t, 8> integrated_charge;
+    RETURN_IF_ERR(read_subcommand(SUBCMD_GET_INEGRATED_CHARGE, integrated_charge));
+    uint64_t reading = 0;
+    std::memcpy(&reading, integrated_charge.data(), sizeof(reading));
+    return reading;
+}
+
+// Cell Balancing Functions
+/**
+ * @brief Gets the temperature of the die because we will be using autonomous balancing
+ * @param void 
+ * @return float value of current 
+ */
+std::expected<float, ErrorCode> get_temperatureIC(void)
+{
+    uint16_t raw_temp = 0;
+    RETURN_IF_ERR(command_read_2byte(CMD_TEMPERATURE_IC, &raw_temp));
+    float temp_kelvin = static_cast<float>(raw_temp) / 10.0f;
+    float temp_celsius = temp_kelvin - 273.15f;
+    return temp_celsius;
+}
+/**
+ * @brief initialization of cell balancing
+ * @param void 
+ * @return no
+ */
+std::expected<void, ErrorCode> balancing_init(void)
+{
+    return {};
 }
 
 [[maybe_unused]] static std::expected<void, ErrorCode> protectionInit(void)
@@ -229,33 +276,26 @@ std::expected<uint16_t, ErrorCode> get_voltage_system(SystemReading system)
 
     return {};
 }
-
-static std::expected<void, ErrorCode> fetsInit(void)
+[[maybe_unused]] std::expected<void, ErrorCode> fetsInit(void)
 {
     RETURN_IF_ERR(execute_subcommand(SUBCMD_ALL_FETS_ON)); // 0x0096
     LOG_INFO("FETs enabled");
     return {};
 }
 
-std::expected<void, ErrorCode> random(void)
-{
-    RETURN_IF_ERR(bat_mon.isTargetReady());
-    LOG_INFO("found");
-    return {};
-}
-
 std::expected<void, ErrorCode> init(void)
 {
     // 1. Is chip responsive
-    // RETURN_IF_ERR(bat_mon.isTargetReady());
+    RETURN_IF_ERR(bat_mon.isTargetReady());
 
     // 2.0 Check to see if chip is in DEEPSLEEP
     uint16_t control_status = 0;
     RETURN_IF_ERR(command_read_2byte(CMD_CONTROL_STATUS, &control_status));
     while (control_status & CTRL_STATUS_DEEPSLEEP)
     {
-        LOG_INFO("Device in deepsleep mode");
+        LOG_WARN("Device in deepsleep mode");
         RETURN_IF_ERR(execute_subcommand(SUBCMD_WAKE_DEEPSLEEP));
+        RETURN_IF_ERR(command_read_2byte(CMD_CONTROL_STATUS, &control_status));
     }
     LOG_INFO("Device is out of deepsleep mode");
 
@@ -264,10 +304,11 @@ std::expected<void, ErrorCode> init(void)
     RETURN_IF_ERR(command_read_2byte(CMD_BATTERY_STATUS, &battery_status));
     while (battery_status & BAT_STATUS_SLEEP)
     {
-        LOG_INFO("Device in sleep mode");
+        LOG_WARN("Device in sleep mode");
         RETURN_IF_ERR(execute_subcommand(SUBCMD_WAKE_SLEEP));
-        LOG_INFO("Device is out of sleep mode");
+        RETURN_IF_ERR(command_read_2byte(CMD_BATTERY_STATUS, &battery_status));
     }
+    LOG_INFO("Device is out of sleep mode");
 
     // 3. Put the device into CONFIG_UPDATE mode
     RETURN_IF_ERR(execute_subcommand(SUBCMD_SET_CFGUPDATE));
@@ -287,7 +328,6 @@ std::expected<void, ErrorCode> init(void)
                 break;
             }
         }
-        io::time::delay(1);
     }
     if (!cfgupdate_ready)
     {
@@ -313,7 +353,10 @@ std::expected<void, ErrorCode> init(void)
     // 4. Take device out of configuration mode
     RETURN_IF_ERR(execute_subcommand(EXIT_CFGUPDATE));
 
-    fetsInit();
+    // 5. Must do this because init will need to be called whenever GLVMS has been switched off
+    RETURN_IF_ERR(execute_subcommand(SUBCMD_RESETCHARGEACCUM));
+
+    // fetsInit();
 
     return {};
 }

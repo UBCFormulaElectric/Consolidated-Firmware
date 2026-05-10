@@ -43,7 +43,9 @@ extern "C"
     extern SPI_HandleTypeDef   hspi3;
     extern TIM_HandleTypeDef   htim3;
     extern TIM_HandleTypeDef   htim4;
+    extern TIM_HandleTypeDef   htim7;
     extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
+    extern IWDG_HandleTypeDef  hiwdg;
 
     /* USER CODE END ET */
 
@@ -68,9 +70,12 @@ extern "C"
 
 /* Private defines -----------------------------------------------------------*/
 #define PWM_TIMER_FREQUENCY 4000
-#define PWM_TIMER_CLK 250000000
 #define PWM_TIMER_PSC 250
 #define PWM_TIMER_ARR PWM_TIMER_CLK / (PWM_TIMER_FREQUENCY * PWM_TIMER_PSC)
+#define PWM_TIMER_CLK 250000000
+#define IWDG_RESET_FREQUENCY 5
+#define IWDG_PRESCALER 4
+#define LSI_FREQUENCY 32000
 #define BOOT_Pin GPIO_PIN_13
 #define BOOT_GPIO_Port GPIOC
 #define LED_Pin GPIO_PIN_14

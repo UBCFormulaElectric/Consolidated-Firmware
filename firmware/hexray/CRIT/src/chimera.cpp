@@ -110,8 +110,12 @@ class CRITChimeraConfig : public chimera_v2::config
     }
 } crit_config;
 
-static hw::rtos::StaticTask<8096>
-    TaskChimera(osPriorityRealtime, "TaskChimera", [](void *) { chimera_v2::task(crit_config); });
+static hw::rtos::StaticTask::StaticTaskStack<8096> chimeraStack;
+static hw::rtos::StaticTask                        TaskChimera(
+    osPriorityRealtime,
+    "TaskChimera",
+    [](void *) { chimera_v2::task(crit_config); },
+    chimeraStack);
 
 void tasks_preInit() {}
 char USBD_PRODUCT_STRING_FS[] = "crit";
@@ -128,3 +132,5 @@ char USBD_PRODUCT_STRING_FS[] = "crit";
     osKernelStart();
     forever {}
 }
+
+void tasks_tim_callback(const TIM_HandleTypeDef *htim) {}

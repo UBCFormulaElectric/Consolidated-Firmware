@@ -14,8 +14,6 @@
 #include "io_time.hpp"
 #include "io_canMsg.hpp"
 #include "io_canTx.hpp"
-#include "io_time.hpp"
-// #include "app_shdnLoopNode.hpp"
 
 void jobs_init()
 {
