@@ -114,7 +114,7 @@ std::expected<void, ErrorCode> init()
     return {};
 }
 
-std::expected<float, ErrorCode> read_voltage(uint8_t ch)
+std::expected<float, ErrorCode> read_voltage(Channel ch)
 {
     std::array<uint8_t, 2> buf;
     uint8_t                reg = (uint8_t)(REG_VBUS + (ch - 1));
@@ -125,7 +125,7 @@ std::expected<float, ErrorCode> read_voltage(uint8_t ch)
     return (raw * VBUS_LSB);
 }
 
-std::expected<float, ErrorCode> read_current(uint8_t ch)
+std::expected<float, ErrorCode> read_current(Channel ch)
 {
     std::array<uint8_t, 2> buf;
     uint8_t                reg = (uint8_t)(REG_VSENSE + (ch - 1));
@@ -136,7 +136,7 @@ std::expected<float, ErrorCode> read_current(uint8_t ch)
     return (raw * VSENSE_LSB);
 }
 
-std::expected<float, ErrorCode> read_power(uint8_t ch)
+std::expected<float, ErrorCode> read_power(Channel ch)
 {
     std::array<uint8_t, 4> buf;
     uint8_t                reg = (uint8_t)(REG_VPOWERN + (ch - 1));
@@ -173,7 +173,8 @@ std::expected<void, ErrorCode> monitor_power_inputs()
     uint8_t uv_active_mask = 0;
     for (uint8_t ch = 1; ch <= CHANNEL_NUM; ch++)
     {
-        auto v = read_voltage(ch);
+        Channel channel = static_cast<Channel>(ch);
+        auto v = read_voltage(channel);
         if (!v.has_value())
         {
             return std::unexpected(v.error());
