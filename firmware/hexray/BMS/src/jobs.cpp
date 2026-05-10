@@ -4,11 +4,9 @@
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
 #include "app_canAlerts.hpp"
-
+#include "app_canUtils.hpp"
 #include "states/app_states.hpp"
 #include "app_precharge.hpp"
-// #include "app_segments.hpp"
-#include "app_timer.hpp"
 #include "app_imd.hpp"
 #include "app_powerLimit.hpp"
 #include "app_bmsShdnLoop.hpp"
@@ -17,20 +15,14 @@
 #include "app_heartbeatMonitors.hpp"
 #include "app_heartbeatMonitor.hpp"
 #include "app_jsoncan.hpp"
-#include "app_canUtils.hpp"
-#include "app_canTx.hpp"
-
-// io
 extern "C"
 {
-#include "io_semaphore.h"
 #include "app_commitInfo.h"
 }
 
+// io
 #include "io_canMsg.hpp"
 #include "io_canQueues.hpp"
-#include "io_canMsg.hpp"
-#include "io_irs.hpp"
 #include "io_time.hpp"
 #include "io_bspdTest.hpp"
 #include "io_charger.hpp"
@@ -38,7 +30,7 @@ extern "C"
 #include "io_faultLatch.hpp"
 #include "io_canTx.hpp"
 
-#include <util_errorCodes.hpp>
+#include "util_errorCodes.hpp"
 
 // TODO: Uncomment when segments are added
 // static Semaphore isospi_bus_access_lock;
@@ -69,8 +61,8 @@ void jobs_init()
     // io_semaphore_create(&adbms_app_data_lock, true);
 
     io::can_tx::init(jsoncan_transmit_func, charger_transmit_func);
-    io::can_tx::enableMode_FDCAN(FDCANMode::FDCAN_MODE_DEFAULT, true);
-    io::can_tx::enableMode_charger(chargerMode::CHARGER_MODE_DEFAULT, true);
+    io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
+    io::can_tx::enableMode_charger(app::can_utils::chargerMode::CHARGER_MODE_DEFAULT, true);
 
     can_rx_queue.init();
     can_tx_queue.init();
@@ -103,7 +95,7 @@ void jobs_run100Hz_tick()
     app::StateMachine::tick100Hz();
 
     const bool debug_mode_enabled = app::can_rx::Debug_EnableDebugMode_get();
-    io::can_tx::enableMode_FDCAN(FDCANMode::FDCAN_MODE_DEBUG, debug_mode_enabled);
+    io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEBUG, debug_mode_enabled);
 
     app::ts::broadcast();
     app::imd::broadcast();
