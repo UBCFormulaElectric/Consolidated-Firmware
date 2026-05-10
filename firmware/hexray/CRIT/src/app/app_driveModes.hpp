@@ -4,5 +4,6 @@
 
 namespace app::driveModes
 {
+void init();
 void broadcast(void);
-}
+} // namespace app::driveModes

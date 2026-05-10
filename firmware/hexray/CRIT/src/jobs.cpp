@@ -44,6 +44,7 @@ void jobs_init()
 
     app::screens::init();
     app::leds::init();
+    app::driveModes::init();
 }
 
 void jobs_run1Hz_tick()

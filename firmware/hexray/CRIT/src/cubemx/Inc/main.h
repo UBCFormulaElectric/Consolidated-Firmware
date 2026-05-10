@@ -110,10 +110,13 @@ extern "C"
 #define LAUNCH_CONTROL_SIG_GPIO_Port GPIOC
 #define ROT_S_Pin GPIO_PIN_8
 #define ROT_S_GPIO_Port GPIOA
+#define ROT_S_EXTI_IRQn EXTI8_IRQn
 #define ROT_B_Pin GPIO_PIN_9
 #define ROT_B_GPIO_Port GPIOA
+#define ROT_B_EXTI_IRQn EXTI9_IRQn
 #define ROT_A_Pin GPIO_PIN_10
 #define ROT_A_GPIO_Port GPIOA
+#define ROT_A_EXTI_IRQn EXTI10_IRQn
 #define USB_D_N_Pin GPIO_PIN_11
 #define USB_D_N_GPIO_Port GPIOA
 #define USB_D_P_Pin GPIO_PIN_12

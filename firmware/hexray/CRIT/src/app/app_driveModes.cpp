@@ -1,3 +1,4 @@
+#include "app_driveModes.hpp"
 #include "app_canTx.hpp"
 #include "app_canUtils.hpp"
 #include "io_rotary.hpp"
