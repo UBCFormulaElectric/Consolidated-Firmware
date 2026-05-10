@@ -5,9 +5,6 @@
 #include <cassert>
 #include <optional>
 
-namespace hw::spi
-{
-
 static constexpr uint32_t SPI_TIMEOUT = 100U;
 
 static constexpr hw::spi::bus spi1(hspi1);
@@ -18,7 +15,7 @@ const hw::spi::device imu1(spi1, imu_cs1, SPI_TIMEOUT);
 const hw::spi::device imu2(spi1, imu_cs2, SPI_TIMEOUT);
 const hw::spi::device imu3(spi1, imu_cs3, SPI_TIMEOUT);
 
-[[nodiscard]] const hw::spi::bus &getBusFromHandle(const SPI_HandleTypeDef *handle)
+[[nodiscard]] const hw::spi::bus &hw::spi::getBusFromHandle(const SPI_HandleTypeDef *handle)
 {
     assert(handle == &spi1.handle || handle == &spi2.handle);
 
@@ -32,4 +29,3 @@ const hw::spi::device imu3(spi1, imu_cs3, SPI_TIMEOUT);
     }
     return spi1;
 }
-} // namespace hw::spi
