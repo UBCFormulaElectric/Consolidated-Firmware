@@ -5,6 +5,7 @@
 #include "io_log.hpp"
 #include "io_time.hpp"
 #include "util_errorCodes.hpp"
+#include "util_retry.hpp"
 
 constexpr uint8_t CHANNEL_NUM = 4;
 // commands
@@ -25,7 +26,7 @@ constexpr uint16_t ALERT_EN          = 0x49;
 constexpr uint16_t REG_ALERT_STATUS  = 0x26;
 constexpr uint16_t REG_SLOW_ALERT1   = 0x27;
 
-// channels 
+// channels
 constexpr float CH_ON_MINV = 5;
 
 // lsb scaling
@@ -38,36 +39,27 @@ namespace io::powerMonitoring
 {
 static std::expected<void, ErrorCode> read_register(uint16_t reg, std::span<uint8_t> data)
 {
-    RETURN_IF_ERR_SILENT(pwr_pump.memoryRead(reg, data));
-    return {};
+    auto result = util::retry([&]() { return pwr_pump.memoryRead(reg, data); }, 5);
+    return result;
 }
 
 static std::expected<void, ErrorCode> write_register(uint16_t reg, std::span<const uint8_t> data)
 {
-    /*no need for this stuff i reviewed the functions the i2c trasnmit both BLOCKING and NONBLOCK functions store the
-    register in the first byte when called, so what we are doing here in the c code was unnecesary: ive left it below to
-    confirm*/
-
-    /* uint8_t buf[1 + len];
-    buf[0] = reg;
-    memcpy(&buf[1], data, len);
-    return (hw_i2c_memoryWrite(&pwr_mtr, reg, buf, len + 1) == EXIT_CODE_OK); */
-
-    RETURN_IF_ERR(pwr_pump.memoryWrite(reg, data));
-    return {};
+    auto result = util::retry([&]() { return pwr_pump.memoryWrite(reg, data); }, 5);
+    return result;
 }
 
 std::expected<void, ErrorCode> refresh()
 {
-    const uint8_t cmd = REG_REFRESH;
-    LOG_IF_ERR(pwr_pump.transmit((std::span{ &cmd, 1 })));
-    return {};
+    const uint8_t cmd    = REG_REFRESH;
+    auto          result = util::retry([&]() { return pwr_pump.transmit(std::span{ &cmd, 1 }); }, 3);
+    return result;
 }
 
 std::expected<void, ErrorCode> init()
 {
     // 1) Check if peripheral is ready
-    RETURN_IF_ERR(pwr_pump.isTargetReady());
+    RETURN_IF_ERR(util::retry([&]() { return pwr_pump.isTargetReady(); }, 5));
 
     // 2) Config: CTRL: 1024 SPS continuous, all CH enabled, ALERT1 enabled.
     uint16_t               ctrl       = 0x0000; // 0b0000000000000000

@@ -57,6 +57,8 @@ extern "C"
     void FDCAN1_IT0_IRQHandler(void);
     void FDCAN1_IT1_IRQHandler(void);
     void EXTI9_5_IRQHandler(void);
+    void SPI1_IRQHandler(void);
+    void SPI2_IRQHandler(void);
     void EXTI15_10_IRQHandler(void);
     void TIM6_DAC_IRQHandler(void);
     void TIM7_IRQHandler(void);

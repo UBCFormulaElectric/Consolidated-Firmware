@@ -1,5 +1,6 @@
 #include "jobs.hpp"
 
+#include "app_bootcount.hpp"
 #include "app_canTx.hpp"
 #include "app_canUtils.hpp"
 #include "app_jsoncan.hpp"
@@ -14,6 +15,7 @@
 #include "io_telemQueue.hpp"
 #include "io_telemUart.hpp"
 #include "io_time.hpp"
+#include "io_fileSystems.hpp"
 
 #include "util_errorCodes.hpp"
 
@@ -33,6 +35,11 @@ void jobs_init()
     telem_tx_queue.init();
 
     app::can_tx::DAM_Heartbeat_set(true);
+
+    if (const auto err = app::bootcount::update(fs); !err)
+    {
+        LOG_ERROR("Failed to update bootcount: %d", static_cast<int>(err.error()));
+    };
 }
 void jobs_run1Hz_tick() {}
 void jobs_run100Hz_tick()

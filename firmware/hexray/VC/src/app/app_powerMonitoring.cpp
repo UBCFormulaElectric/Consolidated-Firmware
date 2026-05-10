@@ -42,18 +42,30 @@ std::expected<void, ErrorCode> update()
     const auto ch3_power = io::powerMonitoring::read_power(CH3);
     const auto ch4_power = io::powerMonitoring::read_power(CH4);
 
-    if (!ch1_voltage.has_value()) return std::unexpected(ErrorCode::ERROR);
-    if (!ch2_voltage.has_value()) return std::unexpected(ErrorCode::ERROR);
-    if (!ch3_voltage.has_value()) return std::unexpected(ErrorCode::ERROR);
-    if (!ch4_voltage.has_value()) return std::unexpected(ErrorCode::ERROR);
-    if (!ch1_current.has_value()) return std::unexpected(ErrorCode::ERROR);
-    if (!ch2_current.has_value()) return std::unexpected(ErrorCode::ERROR);
-    if (!ch3_current.has_value()) return std::unexpected(ErrorCode::ERROR);
-    if (!ch4_current.has_value()) return std::unexpected(ErrorCode::ERROR);
-    if (!ch1_power.has_value()) return std::unexpected(ErrorCode::ERROR);
-    if (!ch2_power.has_value()) return std::unexpected(ErrorCode::ERROR);
-    if (!ch3_power.has_value()) return std::unexpected(ErrorCode::ERROR);
-    if (!ch4_power.has_value()) return std::unexpected(ErrorCode::ERROR);
+    if (!ch1_voltage.has_value())
+        return std::unexpected(ErrorCode::ERROR);
+    if (!ch2_voltage.has_value())
+        return std::unexpected(ErrorCode::ERROR);
+    if (!ch3_voltage.has_value())
+        return std::unexpected(ErrorCode::ERROR);
+    if (!ch4_voltage.has_value())
+        return std::unexpected(ErrorCode::ERROR);
+    if (!ch1_current.has_value())
+        return std::unexpected(ErrorCode::ERROR);
+    if (!ch2_current.has_value())
+        return std::unexpected(ErrorCode::ERROR);
+    if (!ch3_current.has_value())
+        return std::unexpected(ErrorCode::ERROR);
+    if (!ch4_current.has_value())
+        return std::unexpected(ErrorCode::ERROR);
+    if (!ch1_power.has_value())
+        return std::unexpected(ErrorCode::ERROR);
+    if (!ch2_power.has_value())
+        return std::unexpected(ErrorCode::ERROR);
+    if (!ch3_power.has_value())
+        return std::unexpected(ErrorCode::ERROR);
+    if (!ch4_power.has_value())
+        return std::unexpected(ErrorCode::ERROR);
 
     app::can_tx::VC_ChannelOneVoltage_set(ch1_voltage.value());
     app::can_tx::VC_ChannelTwoVoltage_set(ch2_voltage.value());

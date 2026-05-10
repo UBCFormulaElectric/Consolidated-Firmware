@@ -21,7 +21,7 @@
         }
     },
     "VehicleDynamics": {
-        "msg_id": 501,
+        "msg_id": 510,
         "cycle_time": 100,
         "description": "Vehicle dynamics info",
         "signals": {
@@ -61,7 +61,7 @@
         }
     },
     "Imu1LinearData": {
-        "msg_id": 505,
+        "msg_id": 511,
         "cycle_time": 10,
         "description": "Linear Acceleration x, y and z direction from the first IMU",
         "signals": {
@@ -89,7 +89,7 @@
         }
     },
     "Imu2LinearData": {
-        "msg_id": 510,
+        "msg_id": 512,
         "cycle_time": 10,
         "description": "Linear Acceleration x, y and z direction from the second IMU",
         "signals": {
@@ -825,6 +825,115 @@
             },
             "TeamSignal4": {
                 "bits": 32
+            }
+        }
+    },
+    "CPUDataLogInfo": {
+        "msg_id": 561,
+        "cycle_time": 100,
+        "description": "VC cpu and stack information",
+        "signals": {
+            "CoreCpuUsageMax": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "CoreCpuUsage": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "TaskRun1HzCpuUsageMax": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "TaskRun1HzCpuUsage": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "TaskRun1HzStackUsage": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "TaskRun100HzCpuUsageMax": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "TaskRun100HzCpuUsage": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "TaskRun100HzStackUsage": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "TaskRun1kHzCpuUsageMax": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "TaskRun1kHzCpuUsage": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "TaskRun1kHzStackUsage": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "TaskRunCanTxCpuUsageMax": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "TaskRunCanTxCpuUsage": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "TaskRunCanTxStackUsage": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "TaskRunCanRxCpuUsageMax": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "TaskRunCanRxCpuUsage": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "TaskRunCanRxStackUsage": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
             }
         }
     }

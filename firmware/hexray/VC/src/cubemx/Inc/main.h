@@ -150,6 +150,7 @@ extern "C"
 #define BMS_EN_GPIO_Port GPIOB
 #define BAT_MTR_nALERT_Pin GPIO_PIN_12
 #define BAT_MTR_nALERT_GPIO_Port GPIOB
+#define BAT_MTR_nALERT_EXTI_IRQn EXTI15_10_IRQn
 #define RPI_SCLK_Pin GPIO_PIN_13
 #define RPI_SCLK_GPIO_Port GPIOB
 #define RPI_MISO_Pin GPIO_PIN_14

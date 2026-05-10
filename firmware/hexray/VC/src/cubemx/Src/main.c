@@ -225,8 +225,7 @@ void PeriphCommonClock_Config(void)
 
     /** Initializes the peripherals clock
      */
-    PeriphClkInitStruct.PeriphClockSelection =
-        RCC_PERIPHCLK_ADC | RCC_PERIPHCLK_SPI2 | RCC_PERIPHCLK_SPI1 | RCC_PERIPHCLK_FDCAN;
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_ADC | RCC_PERIPHCLK_FDCAN | RCC_PERIPHCLK_CKPER;
     PeriphClkInitStruct.PLL2.PLL2M           = 1;
     PeriphClkInitStruct.PLL2.PLL2N           = 24;
     PeriphClkInitStruct.PLL2.PLL2P           = 2;
@@ -235,7 +234,7 @@ void PeriphCommonClock_Config(void)
     PeriphClkInitStruct.PLL2.PLL2RGE         = RCC_PLL2VCIRANGE_3;
     PeriphClkInitStruct.PLL2.PLL2VCOSEL      = RCC_PLL2VCOWIDE;
     PeriphClkInitStruct.PLL2.PLL2FRACN       = 0;
-    PeriphClkInitStruct.Spi123ClockSelection = RCC_SPI123CLKSOURCE_PLL2;
+    PeriphClkInitStruct.CkperClockSelection  = RCC_CLKPSOURCE_HSE;
     PeriphClkInitStruct.FdcanClockSelection  = RCC_FDCANCLKSOURCE_PLL2;
     PeriphClkInitStruct.AdcClockSelection    = RCC_ADCCLKSOURCE_PLL2;
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
@@ -1001,11 +1000,11 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : BAT_MTR_nALERT_Pin FRONT_PG_Pin RL_PUMP_PGOOD_Pin */
-    GPIO_InitStruct.Pin  = BAT_MTR_nALERT_Pin | FRONT_PG_Pin | RL_PUMP_PGOOD_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    /*Configure GPIO pin : BAT_MTR_nALERT_Pin */
+    GPIO_InitStruct.Pin  = BAT_MTR_nALERT_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    HAL_GPIO_Init(BAT_MTR_nALERT_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pins : R_INV_PG_Pin F_INV_PG_Pin MISC_FUSE_PG_Pin L_RAD_FAN_PG_Pin
                              R_RAD_FAN_PG_Pin */
@@ -1049,6 +1048,12 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(RR_PUMP_PGOOD_GPIO_Port, &GPIO_InitStruct);
 
+    /*Configure GPIO pins : FRONT_PG_Pin RL_PUMP_PGOOD_Pin */
+    GPIO_InitStruct.Pin  = FRONT_PG_Pin | RL_PUMP_PGOOD_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
     /*Configure GPIO pin : RL_PUMP_EN_Pin */
     GPIO_InitStruct.Pin   = RL_PUMP_EN_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_OD;
@@ -1060,8 +1065,8 @@ static void MX_GPIO_Init(void)
     HAL_NVIC_SetPriority(IMU_INT1_EXTI_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(IMU_INT1_EXTI_IRQn);
 
-    HAL_NVIC_SetPriority(IMU_INT3_EXTI_IRQn, 5, 0);
-    HAL_NVIC_EnableIRQ(IMU_INT3_EXTI_IRQn);
+    HAL_NVIC_SetPriority(BAT_MTR_nALERT_EXTI_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(BAT_MTR_nALERT_EXTI_IRQn);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
 
