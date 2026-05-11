@@ -1,6 +1,6 @@
 {
-  "warnings_id": 440,
-  "warnings_counts_id": 441,
+  "warnings_id": 401,
+  "warnings_counts_id": 403,
   "warnings": {
     "CellUndervoltage": {
       "id": 442,
@@ -27,8 +27,8 @@
       "description": "Tractive system overcurrent detected"
     }
   },
-  "faults_id": 448,
-  "faults_counts_id": 449,
+  "faults_id": 402,
+  "faults_counts_id": 404,
   "faults": {
     "CellUndervoltage": {
       "id": 450,
@@ -55,8 +55,8 @@
       "description": "FOR UNIT TESTING ONLY DO NOT EVER EVER THROW"
     }
   },
-  "info_id": 456,
-  "info_counts_id": 457,
+  "info_id": 405,
+  "info_counts_id": 406,
   "info": {
     "StackOverflow": {
       "id": 458,
