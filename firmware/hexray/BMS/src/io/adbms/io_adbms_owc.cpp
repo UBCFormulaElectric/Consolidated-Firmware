@@ -4,7 +4,7 @@
 
 namespace io::adbms
 {
-std::expected<void, ErrorCode> baselineCells()
+std::expected<void, ErrorCode> startCellsBaseAdcConversion()
 {
     return sendCmd(ADCV_BASE);
 }

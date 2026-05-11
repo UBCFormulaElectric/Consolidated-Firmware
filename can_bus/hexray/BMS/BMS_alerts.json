@@ -1,77 +1,77 @@
 {
-  "warnings_id": 439,
-  "warnings_counts_id": 440,
+  "warnings_id": 440,
+  "warnings_counts_id": 441,
   "warnings": {
     "CellUndervoltage": {
-      "id": 441,
+      "id": 442,
       "description": "Cell is critically undervoltage"
     },
     "CellOvervoltage": {
-      "id": 442,
+      "id": 443,
       "description": "Cell is critically overvoltage"
     },
     "CellOvertemp": {
-      "id": 443,
+      "id": 444,
       "description": "Cell is critically overtemp"
     },
     "CellOpenWire": {
-      "id": 444,
+      "id": 445,
       "description": "Open wire detected on cell voltage sense line"
     },
     "ModuleCommunicationError": {
-      "id": 445,
+      "id": 446,
       "description": "Failed to communicate with ADBMS modules."
     },
     "TsOvercurrent": {
-      "id": 446,
+      "id": 447,
       "description": "Tractive system overcurrent detected"
     }
   },
-  "faults_id": 447,
-  "faults_counts_id": 448,
+  "faults_id": 448,
+  "faults_counts_id": 449,
   "faults": {
     "CellUndervoltage": {
-      "id": 449,
+      "id": 450,
       "description": "Cell is undervoltage"
     },
     "CellOvervoltage": {
-      "id": 450,
+      "id": 451,
       "description": "Cell is overvoltage"
     },
     "CellOvertemp": {
-      "id": 451,
+      "id": 452,
       "description": "Cell is overtemp"
     },
     "CellOpenWire": {
-      "id": 452,
+      "id": 453,
       "description": "Open wire detected on cell voltage sense line"
     },
     "ModuleCommunicationError": {
-      "id": 453,
+      "id": 454,
       "description": "Failed to communicate with ADBMS modules."
     },
     "TESTFAULT": {
-      "id": 454,
+      "id": 455,
       "description": "FOR UNIT TESTING ONLY DO NOT EVER EVER THROW"
     }
   },
-  "info_id": 455,
-  "info_counts_id": 456,
+  "info_id": 456,
+  "info_counts_id": 457,
   "info": {
     "StackOverflow": {
-      "id": 457,
+      "id": 458,
       "description": "An RTOS task stack overflowed on the previous boot cycle"
     },
     "CriticalPrechargeFailure": {
-      "id": 458,
+      "id": 459,
       "description": "Precharge failed >3x"
     },
     "WatchdogTimeout": {
-      "id": 459,
+      "id": 460,
       "description": "Watchdog timeout detected"
     },
     "MissingVCHeartbeat": {
-      "id": 460,
+      "id": 461,
       "description": "Missing VC heartbeat signal"
     }
   }

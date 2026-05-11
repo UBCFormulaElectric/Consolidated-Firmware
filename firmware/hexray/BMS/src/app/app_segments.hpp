@@ -41,43 +41,63 @@ void balancingInit();
 void balancingEnable();
 void balancingDisable();
 
-// Broadcast and fault evaluation.
-// Each broadcast function accepts the freshly-converted data so the caller
-// can commit it to the shared globals atomically under adbms_app_lock.
-using CellVoltageSuccess         = array<array<expected<void, ErrorCode>, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>;
-using CellOwcOk                  = array<array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>;
+// Broadcast over CAN. 
+using Cell = array<array<float, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>;
+using Therm = array<array<float, io::THERMISTORS_PER_SEGMENT>, io::NUM_SEGMENTS>;
+using Segment = array<float, io::NUM_SEGMENTS>;
+using Status = array<io::adbms::StatusGroups, io::NUM_SEGMENTS>;
+using Owc = array<array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>;
+using CellSuccess = array<array<expected<void, ErrorCode>, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>;
+using ThermSuccess = array<array<expected<void, ErrorCode>, io::THERMISTORS_PER_SEGMENT>, io::NUM_SEGMENTS>;
+using SegmentSuccess = array<expected<void, ErrorCode>, io::NUM_SEGMENTS>;
 
 void broadcastCellVoltages(
-    const array<array<float, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>& voltages,
-    const CellVoltageSuccess&                                            success);
+    const Cell& voltages,
+    const CellSuccess& voltages_success);
 void broadcastFilteredCellVoltages(
-    const array<array<float, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>& voltages,
-    const CellVoltageSuccess&                                            success);
-void broadcastCellTemps();
-void broadcastStatus();
-void broadcastCellOpenWireCheck(const CellOwcOk& owc_ok);
+    const Cell& voltages,
+    const CellSuccess& voltages_success);
+void broadcastAux(
+    const Therm& temps,
+    const ThermSuccess& temps_success);
+void broadcastTemps(
+    const Therm& seg_voltages,
+    const ThermSuccess& seg_voltages_success);
+void broadcastSegVoltages(
+    const Segment& seg_voltages,
+    const SegmentSuccess& seg_voltages_success);
+void broadcastStatus(
+    const Status& status,
+    const SegmentSuccess& status_success);
+void broadcastCellOpenWireCheck(
+    const Owc& owc_ok,
+    const CellSuccess owc_ok_success);
+void broadcastInfo();
+
+
+// Fault evaluation.
 void initFaults();
 bool checkWarnings();
 bool checkFaults();
 
-// Aggregated pack measurements.
-float     getPackVoltage();
-CellParam getMaxCellVoltage();
-CellParam getMinCellVoltage();
-CellParam getMaxCellTemp();
-CellParam getMinCellTemp();
-
 // Conversion and diagnostics.
-// Output params receive the results so the caller can hold them on the stack
-// until they are committed to the shared globals under adbms_app_lock.
 expected<void, ErrorCode> runVoltageConversion(
-    array<array<float, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>& out_voltages,
-    CellVoltageSuccess&                                            out_success);
+    Cell& out_voltages,
+    CellSuccess& out_success);
 expected<void, ErrorCode> runFilteredVoltageConversion(
-    array<array<float, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>& out_voltages,
-    CellVoltageSuccess&                                            out_success);
-expected<void, ErrorCode> runAuxConversion();
-expected<void, ErrorCode> runStatusConversion();
-expected<void, ErrorCode> runCellOpenWireCheck(CellOwcOk& out_owc_ok);
+    Cell& out_voltages,
+    CellSuccess& out_success);
+expected<void, ErrorCode> runTempConversion(
+    Therm& out_temps,
+    ThermSuccess& out_success);
+expected<void, ErrorCode> runSegVoltageConversion(
+    Segment& out_seg_voltages,
+    SegmentSuccess& out_seg_success);
+expected<void, ErrorCode> runStatusConversion(
+    Status& out_status,
+    SegmentSuccess& out_success);
+expected<void, ErrorCode> runCellOpenWireCheck(
+    Owc& out_owc,
+    CellSuccess &out_success);
 
 } // namespace app::segments

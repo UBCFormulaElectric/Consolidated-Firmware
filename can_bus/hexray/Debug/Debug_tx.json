@@ -30,30 +30,24 @@
     "cycle_time": 1000,
     "description": "Signals related to BMS cell balancing.",
     "signals": {
-      "CellBalancingRequest": {
+      "CellBalancing_Request": {
         "bits": 1
       },
-      "CellBalancingOverrideTarget": {
+      "CellBalancing_OverrideValue": {
         "bits": 1
       },
-      "CellBalancingOverrideTargetValue": {
-        "resolution": 0.0001,
-        "min": 3,
+      "CellBalancing_TargetValue": {
+        "resolution": 0.1,
+        "min": 2.5,
         "max": 4.2,
         "unit": "V"
       },
-      "CellBalancingOverridePWM": {
+      "CellBalancing_OverrideDutyCycle": {
         "bits": 1
       },
-      "CellBalancingOverridePWMFrequency": {
+      "CellBalancing_TargetDutyCycle": {
         "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "Hz"
-      },
-      "CellBalancingOverridePWMDuty": {
-        "resolution": 1,
-        "min": 0,
+        "min": 6.6,
         "max": 100,
         "unit": "%"
       }

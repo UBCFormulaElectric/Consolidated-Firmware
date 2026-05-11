@@ -53,12 +53,12 @@ inline constexpr uint16_t RDAUXA  = 0x0019U;
 inline constexpr uint16_t RDAUXB  = 0x001AU;
 inline constexpr uint16_t RDAUXC  = 0x001BU;
 inline constexpr uint16_t RDAUXD  = 0x001FU;
-inline constexpr uint16_t RDSTATA = 0x0018U;
-inline constexpr uint16_t RDSTATB = 0x0019U;
-inline constexpr uint16_t RDSTATC = 0x001AU;
-inline constexpr uint16_t RDSTATD = 0x001BU;
-inline constexpr uint16_t RDSTATE = 0x001CU;
-inline constexpr uint16_t RDASALL = 0x001DU;
+inline constexpr uint16_t RDSTATA = 0x0030U;
+inline constexpr uint16_t RDSTATB = 0x0031U;
+inline constexpr uint16_t RDSTATC = 0x0032U;
+inline constexpr uint16_t RDSTATD = 0x0033U;
+inline constexpr uint16_t RDSTATE = 0x0034U;
+inline constexpr uint16_t RDASALL = 0x0035U;
 
 // PWM
 inline constexpr uint16_t WRPWMA = 0x0020U;
@@ -69,9 +69,9 @@ inline constexpr uint16_t RDPWMB = 0x0023U;
 // Clear
 inline constexpr uint16_t CLRCELL = 0x0711U;
 inline constexpr uint16_t CLRAUX  = 0x0712U;
-inline constexpr uint16_t CLRFLAG = 0x747U;
-inline constexpr uint16_t CLOVUV  = 0x547U;
-inline constexpr uint16_t CLRFC   = 0x714U;
+inline constexpr uint16_t CLRFLAG = 0x0717U;
+inline constexpr uint16_t CLOVUV  = 0x0715U;
+inline constexpr uint16_t CLRFC   = 0x0714U;
 
 // Poll
 inline constexpr uint16_t PLADC  = 0x0718U;

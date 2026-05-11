@@ -5581,8 +5581,78 @@
       }
     }
   },
-  "Bootup": {
+  "SegmentVoltages": {
     "msg_id": 438,
+    "cycle_time": 100,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Segment voltage",
+    "signals": {
+      "Seg0_Voltage": {
+        "resolution": 1,
+        "min": -0.1,
+        "max": 65,
+        "unit": "V"
+      },
+      "Seg1_Voltage": {
+        "resolution": 1,
+        "min": -0.1,
+        "max": 65,
+        "unit": "V"
+      },
+      "Seg2_Voltage": {
+        "resolution": 1,
+        "min": -0.1,
+        "max": 65,
+        "unit": "V"
+      },
+      "Seg3_Voltage": {
+        "resolution": 1,
+        "min": -0.1,
+        "max": 65,
+        "unit": "V"
+      },
+      "Seg4_Voltage": {
+        "resolution": 1,
+        "min": -0.1,
+        "max": 65,
+        "unit": "V"
+      },
+      "Seg5_Voltage": {
+        "resolution": 1,
+        "min": -0.1,
+        "max": 65,
+        "unit": "V"
+      },
+      "Seg6_Voltage": {
+        "resolution": 1,
+        "min": -0.1,
+        "max": 65,
+        "unit": "V"
+      },
+      "Seg7_Voltage": {
+        "resolution": 1,
+        "min": -0.1,
+        "max": 65,
+        "unit": "V"
+      },
+      "Seg8_Voltage": {
+        "resolution": 1,
+        "min": -0.1,
+        "max": 65,
+        "unit": "V"
+      },
+      "Seg9_Voltage": {
+        "resolution": 1,
+        "min": -0.1,
+        "max": 65,
+        "unit": "V"
+      }
+    }
+  },
+  "Bootup": {
+    "msg_id": 439,
     "cycle_time": null,
     "description": "Async bootup message!",
     "signals": {}

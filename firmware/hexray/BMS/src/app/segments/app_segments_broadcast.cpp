@@ -4,67 +4,46 @@
 #include "app_segments_internal.hpp"
 #include "app_segments.hpp"
 #include "app_canTx.hpp"
-
-static constexpr float V_REF2              = 3.0f;
-static constexpr float R_SERIES            = 10e3f; // Fixed resistor
-static constexpr float R_NOMINAL           = 10e3f; // Thermistor at 25C
-static constexpr float T_NOMINAL           = 298.15f; 
-static constexpr float BETA_COEFF          = 3610.0f;
-static constexpr float KELVIN_OFFSET       = 273.15f;
-static constexpr float OW_THERM_THRESHOLD = 0.0f; //TODO: need to calibrate
-
-static constexpr float convertRegToVoltage(uint16_t reg)
-{
-    return (static_cast<float>(static_cast<int16_t>(reg)) * 150e-6f) + 1.5f;
-}
-
-static constexpr float convertRegToTemp(uint16_t reg)
-{
-    const float voltage    = convertRegToVoltage(reg);
-    const float resistance = R_SERIES * (voltage / (V_REF2 - voltage));
-    const float inv_temp_k = (1.0f / T_NOMINAL) + (1.0f / BETA_COEFF) * std::log(resistance / R_NOMINAL);
-    
-    return (1.0f / inv_temp_k) - KELVIN_OFFSET;
-}
 namespace app::segments
 {
 
-float     pack_voltage;
+float pack_voltage;
 CellParam max_cell_voltage;
 CellParam min_cell_voltage;
 CellParam max_cell_temp;
 CellParam min_cell_temp;
 
-array<array<float, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>       cell_voltages;
-array<array<float, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>       filtered_cell_voltages;
-array<float, io::NUM_SEGMENTS>                                     segment_voltages;
-array<array<float, io::THERMISTORS_PER_SEGMENT>, io::NUM_SEGMENTS> cell_temps;
-array<array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>        cell_owc_ok;
-array<array<bool, io::THERMISTORS_PER_SEGMENT>, io::NUM_SEGMENTS>  therm_owc_ok;
-array<io::adbms::StatusGroups, io::NUM_SEGMENTS>   stat_regs;
+Cell cell_voltages;
+CellSuccess cell_voltage_success;
+Cell filtered_cell_voltages;
+CellSuccess filtered_cell_voltage_success;
+Therm cell_temps;
+Owc cell_owc_ok;
+Owc therm_owc_ok;
+Segment seg_comm_ok;
 
 void broadcastCellVoltages(
-    const array<array<float, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>& voltages,
-    const CellVoltageSuccess&                                            success)
+    const Cell& voltages,
+    const CellSuccess& voltages_success)
 {
-    cell_voltages         = voltages;
-    cell_voltage_success  = success;
+    cell_voltages = voltages;
+    cell_voltage_success = voltages_success;
 
     CellParam candidate_max_cell_voltage = { .segment = 0, .cell = 0, .voltage = __FLT_MIN__, .temp = 0.0f };
     CellParam candidate_min_cell_voltage = { .segment = 0, .cell = 0, .voltage = __FLT_MAX__, .temp = 0.0f };
 
     for (size_t seg = 0U; seg < io::NUM_SEGMENTS; seg++)
     {
-        bool seg_ok = false;
+        bool seg_ok = true;
         for (size_t cell = 0U; cell < io::CELLS_PER_SEGMENT; cell++)
         {
             const float voltage = cell_voltages[seg][cell];
             cell_voltage_setters[seg][cell](voltage);
 
-            if (!cell_voltage_success[seg][cell])
+            if (!voltages_success[seg][cell]) {
+                seg_ok = false;
                 continue;
-
-            seg_ok = true;
+            }
 
             if (voltage > candidate_max_cell_voltage.voltage)
             {
@@ -81,6 +60,7 @@ void broadcastCellVoltages(
                 candidate_min_cell_voltage.temp    = cell_temps[seg][cell];
             }
         }
+        seg_comm_ok[seg] = seg_ok;
         segment_comm_ok_setters[seg](seg_ok);
     }
 
@@ -90,99 +70,127 @@ void broadcastCellVoltages(
 
 
 void broadcastFilteredCellVoltages(
-    const array<array<float, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>& voltages,
-    const CellVoltageSuccess&                                            success)
+    const Cell& voltages,
+    const CellSuccess& voltages_success)
 {
-    filtered_cell_voltages        = voltages;
-    filtered_cell_voltage_success = success;
+    filtered_cell_voltages = voltages;
+    filtered_cell_voltage_success = voltages_success;
+    for (size_t seg = 0U; seg < io::NUM_SEGMENTS; seg++) {
+        bool seg_ok = true;
 
-    for (size_t seg = 0U; seg < io::NUM_SEGMENTS; seg++)
-    {
-        bool seg_ok = false;
-        float seg_voltage = 0.0f;
-        for (size_t cell = 0U; cell < io::CELLS_PER_SEGMENT; cell++)
-        {
-            const float voltage = filtered_cell_voltages[seg][cell];
-            filtered_cell_voltage_setters[seg][cell](voltage);
+        for (size_t cell = 0U; cell < io::CELLS_PER_SEGMENT; cell++) {
+            filtered_cell_voltage_setters[seg][cell](voltages[seg][cell]);
 
-            if (!filtered_cell_voltage_success[seg][cell])
-                continue;
-
-            seg_ok = true;
+            if (!voltages_success[seg][cell]) {
+                seg_ok = false;
+            }
         }
-
+        seg_comm_ok[seg] = seg_ok;
         segment_comm_ok_setters[seg](seg_ok);
     }
 }
 
-void broadcastCellTemps()
+void broadcastTemps(
+    const Therm& temps,
+    const ThermSuccess& temps_success)
 {
     CellParam candidate_max_cell_temp = { .segment = 0, .cell = 0, .voltage = 0.0f, .temp = __FLT_MIN__ };
     CellParam candidate_min_cell_temp = { .segment = 0, .cell = 0, .voltage = 0.0f, .temp = __FLT_MAX__ };
 
-    for (size_t seg = 0U; seg < io::NUM_SEGMENTS; seg++)
-    {
-        bool segment_comm_ok = false;
-        for (size_t mux = 0U; mux < static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT); mux++)
-        {
-            for (size_t gpio = 0U; gpio < io::adbms::THERM_GPIOS_PER_SEGMENT; gpio++)
-            {
-                size_t cell = gpio + mux * io::adbms::THERM_GPIOS_PER_SEGMENT;
-                if (cell >= io::CELLS_PER_SEGMENT)
-                {
-                    continue;
-                }
+    for (size_t seg = 0U; seg < io::NUM_SEGMENTS; seg++) {
+        bool seg_ok = true;
+        for (size_t therm = 0U; therm < io::THERMISTORS_PER_SEGMENT; therm++) {
+            
+            const float temperature = temps[seg][therm];
+            cell_temperature_setters[seg][therm](temperature);
 
-                if (!cell_temp_success[mux][seg][gpio])
-                {
-                    cell_temps[seg][cell] = -0.1f;
-                    cell_temperature_setters[seg][cell](-0.1f);
-                    continue;
-                }
-                segment_comm_ok = true;
-
-                const float temperature = convertRegToTemp(cell_temp_regs[mux][seg][gpio]);
-                cell_temps[seg][cell]   = temperature;
-                cell_temperature_setters[seg][cell](temperature);
-
-                if (temperature < OW_THERM_THRESHOLD)
-                {
-                    therm_owc_ok[seg][cell] = false;
-                    therm_owc_setters[seg][cell](false);
-                }
-                else
-                {
-                    therm_owc_ok[seg][cell] = true;
-                    therm_owc_setters[seg][cell](true);
-                }
-
-                if (temperature > candidate_max_cell_temp.temp)
-                {
-                    candidate_max_cell_temp.segment = static_cast<uint8_t>(seg);
-                    candidate_max_cell_temp.cell    = static_cast<uint8_t>(cell);
-                    candidate_max_cell_temp.voltage = cell_voltages[seg][cell];
-                    candidate_max_cell_temp.temp    = temperature;
-                }
-                if (temperature < candidate_min_cell_temp.temp)
-                {
-                    candidate_min_cell_temp.segment = static_cast<uint8_t>(seg);
-                    candidate_min_cell_temp.cell    = static_cast<uint8_t>(cell);
-                    candidate_min_cell_temp.voltage = cell_voltages[seg][cell];
-                    candidate_min_cell_temp.temp    = temperature;
-                }
+            if (!temps_success[seg][therm]) {
+                seg_ok = false;
+                therm_owc_ok[seg][therm] = false;
+                therm_owc_setters[seg][therm](false);
+                continue;
             }
+            
+            if (temperature < OW_THERM_THRESHOLD)
+            {
+                therm_owc_ok[seg][therm] = false;
+                therm_owc_setters[seg][therm](false);
+            }
+            else
+            {
+                therm_owc_ok[seg][therm] = true;
+                therm_owc_setters[seg][therm](true);
+            }
+
+            if (temperature > candidate_max_cell_temp.temp)
+            {
+                candidate_max_cell_temp.segment = static_cast<uint8_t>(seg);
+                candidate_max_cell_temp.cell    = static_cast<uint8_t>(therm);
+                candidate_max_cell_temp.voltage = cell_voltages[seg][therm];
+                candidate_max_cell_temp.temp    = temperature;
+            }
+            if (temperature < candidate_min_cell_temp.temp)
+            {
+                candidate_min_cell_temp.segment = static_cast<uint8_t>(seg);
+                candidate_min_cell_temp.cell    = static_cast<uint8_t>(therm);
+                candidate_min_cell_temp.voltage = cell_voltages[seg][therm];
+                candidate_min_cell_temp.temp    = temperature;
+            }
+            
         }
-        segment_comm_ok_setters[seg](segment_comm_ok);
+        seg_comm_ok[seg] = seg_ok;
+        segment_comm_ok_setters[seg](seg_ok);
     }
     max_cell_temp = candidate_max_cell_temp;
     min_cell_temp = candidate_min_cell_temp;
 }
+ 
 
-void broadcastStatus()
+void broadcastSegVoltages(
+    const Segment& seg_voltages,
+    const SegmentSuccess& seg_voltages_success)
+{
+    float max_voltage = __FLT_MIN__;
+    float min_voltage = __FLT_MAX__;
+    uint8_t max_seg = 0;
+    uint8_t min_seg = 0;
+    pack_voltage = 0.0f;
+
+    for (size_t seg = 0U; seg < io::NUM_SEGMENTS; seg++) {
+        bool seg_ok = static_cast<bool>(seg_voltages_success[seg]);
+        seg_comm_ok[seg] = seg_ok;
+        segment_comm_ok_setters[seg](seg_ok);
+        
+        segment_voltages_setters[seg](seg_voltages[seg]);
+
+        if (!seg_ok) continue;
+
+        pack_voltage += seg_voltages[seg];
+
+        if (seg_voltages[seg] > max_voltage) {
+            max_voltage = seg_voltages[seg];
+            max_seg = static_cast<uint8_t>(seg);
+        }
+        if (seg_voltages[seg] < min_voltage) {
+            min_voltage = seg_voltages[seg];
+            min_seg = static_cast<uint8_t>(seg);
+        }
+    }
+
+    app::can_tx::BMS_PackVoltage_set(pack_voltage);
+    app::can_tx::BMS_MaxSegmentVoltage_Segment_set(max_seg);
+    app::can_tx::BMS_MaxSegmentVoltage_Voltage_set(max_voltage);
+    app::can_tx::BMS_MinSegmentVoltage_Segment_set(min_seg);
+    app::can_tx::BMS_MinSegmentVoltage_Voltage_set(min_voltage);
+}
+
+void broadcastStatus(
+    const Status& status,
+    const SegmentSuccess& status_success)
 {
     for (size_t seg = 0U; seg < io::NUM_SEGMENTS; seg++)
     {
-        if (!stat_success[seg])
+        if (!status_success[seg])
         {
             //STATA
             segment_vref2_setters[seg](-0.1f);
@@ -192,32 +200,32 @@ void broadcastStatus()
             segment_va_setters[seg](-0.1f);
             segment_vres_setters[seg](-0.1f);
             //STATC
-            segment_va_ov_setters[seg](true);
-            segment_va_uv_setters[seg](true);
-            segment_vd_ov_setters[seg](true);
-            segment_vd_uv_setters[seg](true);
-            segment_ced_setters[seg](true);
-            segment_cmed_setters[seg](true);
-            segment_sed_setters[seg](true);
-            segment_smed_setters[seg](true);
-            segment_vde_setters[seg](true);
-            segment_vdel_setters[seg](true);
-            segment_thsd_setters[seg](true);
-            segment_tmodchk_setters[seg](true);
-            segment_oscchk_setters[seg](true);
+            segment_va_ov_setters[seg](false);
+            segment_va_uv_setters[seg](false);
+            segment_vd_ov_setters[seg](false);
+            segment_vd_uv_setters[seg](false);
+            segment_ced_setters[seg](false);
+            segment_cmed_setters[seg](false);
+            segment_sed_setters[seg](false);
+            segment_smed_setters[seg](false);
+            segment_vde_setters[seg](false);
+            segment_vdel_setters[seg](false);
+            segment_thsd_setters[seg](false);
+            segment_tmodchk_setters[seg](false);
+            segment_oscchk_setters[seg](false);
             //STATD
             for (size_t cell = 0U; cell < io::CELLS_PER_SEGMENT; cell++)
             {
-                cell_ov_setters[seg][cell](true);
-                cell_uv_setters[seg][cell](true);
+                cell_ov_setters[seg][cell](false);
+                cell_uv_setters[seg][cell](false);
             }
             continue;
         }
 
-        const auto &stat_a = stat_regs[seg].stat_a;
-        const auto &stat_b = stat_regs[seg].stat_b;
-        const auto &stat_c = stat_regs[seg].stat_c;
-        const auto &stat_d = stat_regs[seg].stat_d;
+        const auto &stat_a = status[seg].stat_a;
+        const auto &stat_b = status[seg].stat_b;
+        const auto &stat_c = status[seg].stat_c;
+        const auto &stat_d = status[seg].stat_d;
 
         //STATA
         segment_vref2_setters[seg](convertRegToVoltage(stat_a.vref2));
@@ -253,16 +261,48 @@ void broadcastStatus()
 }
 
 
-void broadcastCellOpenWireCheck(const CellOwcOk& owc_ok)
+void broadcastCellOpenWireCheck(
+    const Owc& owc_ok,
+    const CellSuccess owc_ok_success)
 {
     cell_owc_ok = owc_ok;
 
-    for (size_t seg = 0U; seg < io::NUM_SEGMENTS; seg++)
-    {
-        for (size_t cell = 0U; cell < io::CELLS_PER_SEGMENT; cell++)
-        {
+    for (size_t seg = 0U; seg < io::NUM_SEGMENTS; seg++) {
+        bool seg_ok = true;
+        for (size_t cell = 0U; cell < io::CELLS_PER_SEGMENT; cell++) {
             cell_owc_setters[seg][cell](cell_owc_ok[seg][cell]);
+
+            if (!owc_ok_success[seg][cell]) {
+                continue;
+            }
+            seg_ok = false;
         }
+        seg_comm_ok[seg] = seg_ok;
+        segment_comm_ok_setters[seg](seg_ok);
     }
+    
+}
+
+void broadcastInfo()
+{
+    app::can_tx::BMS_MinCellVoltage_Voltage_set(min_cell_voltage.voltage);
+    app::can_tx::BMS_MinCellVoltage_Temperature_set(min_cell_voltage.temp);
+    app::can_tx::BMS_MinCellVoltage_Segment_set(min_cell_voltage.segment);
+    app::can_tx::BMS_MinCellVoltage_Cell_set(min_cell_voltage.cell);
+
+    app::can_tx::BMS_MaxCellVoltage_Voltage_set(max_cell_voltage.voltage);
+    app::can_tx::BMS_MaxCellVoltage_Temperature_set(max_cell_voltage.temp);
+    app::can_tx::BMS_MaxCellVoltage_Segment_set(max_cell_voltage.segment);
+    app::can_tx::BMS_MaxCellVoltage_Cell_set(max_cell_voltage.cell);
+
+    app::can_tx::BMS_MinCellTemperature_Voltage_set(min_cell_temp.voltage);
+    app::can_tx::BMS_MinCellTemperature_Temperature_set(min_cell_temp.temp);
+    app::can_tx::BMS_MinCellTemperature_Segment_set(min_cell_temp.segment);
+    app::can_tx::BMS_MinCellTemperature_Cell_set(min_cell_temp.cell);
+
+    app::can_tx::BMS_MaxCellTemperature_Voltage_set(max_cell_temp.voltage);
+    app::can_tx::BMS_MaxCellTemperature_Temperature_set(max_cell_temp.temp);
+    app::can_tx::BMS_MaxCellTemperature_Segment_set(max_cell_temp.segment);
+    app::can_tx::BMS_MaxCellTemperature_Cell_set(max_cell_temp.cell);
 }
 } // namespace app::segments

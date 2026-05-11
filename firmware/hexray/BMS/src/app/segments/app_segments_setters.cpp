@@ -33,6 +33,8 @@ using SegmentOscchkSetters       = void (*)(bool);
 using CellOvSetters              = void (*)(bool);
 using CellUvSetters              = void (*)(bool);
 
+
+
 CellVoltageSetters cell_voltage_setters[MAX_NUM_SEGMENTS][io::CELLS_PER_SEGMENT] = {
     // Seg 0
     { &BMS_Seg0_Cell0_Voltage_set, &BMS_Seg0_Cell1_Voltage_set, &BMS_Seg0_Cell2_Voltage_set,
@@ -316,6 +318,11 @@ ThermOwcSetters therm_owc_setters[MAX_NUM_SEGMENTS][io::THERMISTORS_PER_SEGMENT]
       &BMS_Seg9_Cell4_ThermOwcOk_set, &BMS_Seg9_Cell5_ThermOwcOk_set, &BMS_Seg9_Cell6_ThermOwcOk_set, &BMS_Seg9_Cell7_ThermOwcOk_set,
       &BMS_Seg9_Cell8_ThermOwcOk_set, &BMS_Seg9_Cell9_ThermOwcOk_set, &BMS_Seg9_Cell10_ThermOwcOk_set, &BMS_Seg9_Cell11_ThermOwcOk_set,
       &BMS_Seg9_Cell12_ThermOwcOk_set, &BMS_Seg9_Cell13_ThermOwcOk_set },
+};
+
+SegmentVoltageSetters segment_voltages_setters[MAX_NUM_SEGMENTS] = {
+    &BMS_Seg0_Voltage_set, &BMS_Seg1_Voltage_set, &BMS_Seg2_Voltage_set, &BMS_Seg3_Voltage_set, &BMS_Seg4_Voltage_set,
+    &BMS_Seg5_Voltage_set, &BMS_Seg6_Voltage_set, &BMS_Seg7_Voltage_set, &BMS_Seg8_Voltage_set, &BMS_Seg9_Voltage_set,
 };
 
 SegmentCommOkSetters segment_comm_ok_setters[MAX_NUM_SEGMENTS] = {

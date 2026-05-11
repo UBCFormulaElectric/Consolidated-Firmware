@@ -44,7 +44,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "JLinkGDBServer"
+        "serverpath": "/usr/local/bin/JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -85,7 +85,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "JLinkGDBServer"
+        "serverpath": "/usr/local/bin/JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -126,7 +126,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "JLinkGDBServer"
+        "serverpath": "/usr/local/bin/JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -167,7 +167,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "JLinkGDBServer"
+        "serverpath": "/usr/local/bin/JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -208,7 +208,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "JLinkGDBServer"
+        "serverpath": "/usr/local/bin/JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -249,7 +249,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "JLinkGDBServer"
+        "serverpath": "/usr/local/bin/JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -290,7 +290,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "JLinkGDBServer"
+        "serverpath": "/usr/local/bin/JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -332,7 +332,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "JLinkGDBServer"
+        "serverpath": "/usr/local/bin/JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -374,7 +374,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "JLinkGDBServer"
+        "serverpath": "/usr/local/bin/JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -416,7 +416,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "JLinkGDBServer"
+        "serverpath": "/usr/local/bin/JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -457,7 +457,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "JLinkGDBServer"
+        "serverpath": "/usr/local/bin/JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -499,7 +499,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "JLinkGDBServer"
+        "serverpath": "/usr/local/bin/JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -541,7 +541,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "JLinkGDBServer"
+        "serverpath": "/usr/local/bin/JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -583,7 +583,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "JLinkGDBServer"
+        "serverpath": "/usr/local/bin/JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -625,7 +625,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "JLinkGDBServer"
+        "serverpath": "/usr/local/bin/JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -667,7 +667,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "JLinkGDBServer"
+        "serverpath": "/usr/local/bin/JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -710,7 +710,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "JLinkGDBServer"
+        "serverpath": "/usr/local/bin/JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -752,7 +752,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "JLinkGDBServer"
+        "serverpath": "/usr/local/bin/JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -793,7 +793,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "JLinkGDBServer"
+        "serverpath": "/usr/local/bin/JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -830,7 +830,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "JLinkGDBServer"
+        "serverpath": "/usr/local/bin/JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -871,7 +871,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "JLinkGDBServer"
+        "serverpath": "/usr/local/bin/JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -912,7 +912,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "JLinkGDBServer"
+        "serverpath": "/usr/local/bin/JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -953,7 +953,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "JLinkGDBServer"
+        "serverpath": "/usr/local/bin/JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -994,7 +994,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "JLinkGDBServer"
+        "serverpath": "/usr/local/bin/JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"

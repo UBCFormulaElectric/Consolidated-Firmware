@@ -21,9 +21,8 @@ namespace balancingState
     {
         //comment back in
         // const bool ir_negative_opened_debounced = app::irs::negativeOpenedDebounced();
-        // const bool balancing_enabled = app::can_rx::Debug_CellBalancingRequest_get();
+        const bool balancing_enabled = app::can_rx::Debug_CellBalancing_Request_get();
         const bool ir_negative_opened_debounced = false;
-        const bool balancing_enabled = true;
 
         if (ir_negative_opened_debounced || !balancing_enabled)
         {

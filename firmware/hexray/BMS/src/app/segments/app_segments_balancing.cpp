@@ -1,76 +1,76 @@
 #include "app_segments_internal.hpp"
 #include "app_segments.hpp"
 #include "app_canTx.hpp"
+#include "app_canRx.hpp"
 #include "app_canUtils.hpp"
 #include "io_adbms.hpp"
 #include "app_timer.hpp"
 #include "jobs.hpp"
 #include <algorithm>
 #include <cstring>
+#include <cmath>
 
 using namespace std;
 using namespace app::can_tx;
 using namespace app::can_utils;
 using namespace app::segments;
-using app::Timer;
 
-// Minimum voltage delta to begin discharging a cell (10 mV)
 static constexpr float DISCHARGE_THRESHOLD_V = 10e-3f;
-// Delta at which PWM reaches full duty cycle (100 mV → duty = 15)
-static constexpr float BALANCE_FULL_RANGE_V = 100e-3f;
-
 static constexpr uint32_t SETTLE_TIME_MS  = 5 * 1000;
 static constexpr uint32_t BALANCE_TIME_MS = 5 * 1000;
 
 static BalancingState                                                 state;
 static array<array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>    discharge_enabled;
 static array<array<uint8_t, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> pwm_duty;
-static Timer                                                          settle_timer(SETTLE_TIME_MS);
-static Timer                                                          balance_timer(BALANCE_TIME_MS);
+static app::Timer                                                          settle_timer(SETTLE_TIME_MS);
+static app::Timer                                                          balance_timer(BALANCE_TIME_MS);
 
 static void updateCellsToBalance()
 {
     adbms_app_lock.take(io::MAX_TIMEOUT);
-    memset(&discharge_enabled, 1, sizeof(discharge_enabled));
+    memset(&discharge_enabled, 0, sizeof(discharge_enabled));
     memset(&pwm_duty, 0, sizeof(pwm_duty));
 
-    // for (uint8_t seg = 0; seg < io::NUM_SEGMENTS; seg++)
-    // {
-    //     for (uint8_t cell = 0; cell < io::CELLS_PER_SEGMENT; cell++)
-    //     {
-    //         // Skip cells with failed voltage reads
-    //         if (!cell_voltage_success[seg][cell])
-    //         {
-    //             discharge_enabled[seg][cell] = false;
-    //             continue;
-    //         }
+    for (uint8_t seg = 0; seg < io::NUM_SEGMENTS; seg++)
+    {
+        for (uint8_t cell = 0; cell < io::CELLS_PER_SEGMENT; cell++)
+        {
+            // Skip cells with failed voltage reads
+            if (!cell_voltage_success[seg][cell])
+            {
+                discharge_enabled[seg][cell] = false;
+                continue;
+            }
 
-    //         // Never discharge the leader cell
-    //         if (seg == min_cell_voltage.segment && cell == min_cell_voltage.cell)
-    //         {
-    //             discharge_enabled[seg][cell] = false;
-    //             continue;
-    //         }
+            // Never discharge the leader cell unless balancing to target voltage
+            if (seg == min_cell_voltage.segment && cell == min_cell_voltage.cell && !app::can_rx::Debug_CellBalancing_OverrideValue_get())
+            {
+                discharge_enabled[seg][cell] = false;
+                continue;
+            }
 
-    //         // Never discharge below minimum allowed voltage
-    //         if (cell_voltages[seg][cell] <= VUV) {
-    //             discharge_enabled[seg][cell] = false;
-    //             continue;
-    //         }
+            // Never discharge below minimum allowed voltage
+            if (cell_voltages[seg][cell] <= convertUVOVToFloat(VUV)) {
+                discharge_enabled[seg][cell] = false;
+                continue;
+            }
 
-    //         const float delta = cell_voltages[seg][cell] - min_cell_voltage.voltage;
-    //         // Don't dischange below threshold
-    //         if (delta < DISCHARGE_THRESHOLD_V)
-    //         {
-    //             discharge_enabled[seg][cell] = false;
-    //             continue;
-    //         }
+            const float delta = cell_voltages[seg][cell] - (app::can_rx::Debug_CellBalancing_OverrideValue_get() ? app::can_rx::Debug_CellBalancing_TargetValue_get() : min_cell_voltage.voltage);
 
-    //         const float raw_duty         = (delta / BALANCE_FULL_RANGE_V) * 15.0f;
-    //         discharge_enabled[seg][cell] = true;
-    //         pwm_duty[seg][cell]          = static_cast<uint8_t>(clamp(raw_duty, 1.0f, 15.0f));
-    //     }
-    // }
+            // Don't dischange below threshold
+            if (delta < DISCHARGE_THRESHOLD_V)
+            {
+                discharge_enabled[seg][cell] = false;
+                continue;
+            }
+
+            const float raw_duty = app::can_rx::Debug_CellBalancing_OverrideDutyCycle_get() ? app::can_rx::Debug_CellBalancing_TargetDutyCycle_get() : 0.0f;
+
+            pwm_duty[seg][cell] = (uint8_t) roundf(raw_duty / 100.0f * 15.0f);
+            discharge_enabled[seg][cell] = true;
+            
+        }
+    }
 
     app::segments::setBalanceConfig(discharge_enabled, true);
     app::segments::setPwmConfig(pwm_duty);

@@ -1,46 +1,61 @@
 #pragma once
 
+#include <cmath>
 #include "app_segments.hpp"
 
+
 inline constexpr uint8_t MAX_NUM_SEGMENTS = 10U;
-inline constexpr uint16_t VUV                   = 0x800; // VUV × 16 × 150 μV + 1.5 V (TO DO)
-inline constexpr uint16_t VOV                   = 0x7FF; // VOV × 16 × 150 μV + 1.5 V (TO DO)
+inline constexpr uint16_t VUV             = 0x01A1; // 2.5V
+inline constexpr uint16_t VOV             = 0x0465; // 4.2V
+
+inline constexpr uint8_t VOLT_CONV_TIME_MS          = 2U;// check later
+inline constexpr uint8_t AUX_CONV_TIME_MS           = 10U;// check later
+inline constexpr uint8_t OWC_CONVERSION_TIME_MS     = 8U;// check later
+inline constexpr float   OW_CELL_RELATIVE_THRESHOLD = 0.7f;
+inline constexpr float   OW_CELL_ABSOLUTE_THRESHOLD = 0.5f;
+
+inline constexpr float V_REF2              = 3.0f;
+inline constexpr float R_SERIES            = 10e3f; // Fixed resistor
+inline constexpr float R_NOMINAL           = 10e3f; // Thermistor at 25C
+inline constexpr float T_NOMINAL           = 298.15f; 
+inline constexpr float BETA_COEFF          = 3610.0f;
+inline constexpr float KELVIN_OFFSET       = 273.15f;
+inline constexpr float OW_THERM_THRESHOLD = 0.0f; //TODO: need to calibrate
 
 namespace app::segments
 {
 
-// Shared aggregate values and measurement buffers.
-extern float                    pack_voltage;
-extern CellParam max_cell_voltage;
-extern CellParam min_cell_voltage;
-extern CellParam max_cell_temp;
-extern CellParam min_cell_temp;
+constexpr float convertUVOVToFloat(uint16_t hex) { 
+    return (hex * 16 * 150e-6f + 1.5f); 
+}
 
-extern array<array<float, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>       cell_voltages;
-extern array<array<float, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>       filtered_cell_voltages;
-extern array<float, io::NUM_SEGMENTS>                                     segment_voltages;
-extern array<array<float, io::THERMISTORS_PER_SEGMENT>, io::NUM_SEGMENTS> cell_temps;
-extern array<array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>        cell_owc_ok;
-extern array<array<bool, io::THERMISTORS_PER_SEGMENT>, io::NUM_SEGMENTS>  therm_owc_ok;
+constexpr float convertRegToVoltage(uint16_t reg) {
+    return (static_cast<float>(static_cast<int16_t>(reg)) * 150e-6f) + 1.5f;
+}
 
-// Conversion result/status buffers.
-extern array<array<expected<void, ErrorCode>, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> cell_voltage_success;
-extern array<array<expected<void, ErrorCode>, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> filtered_cell_voltage_success;
-extern array<
-    array<array<uint16_t, io::adbms::THERM_GPIOS_PER_SEGMENT>, io::NUM_SEGMENTS>,
-    static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
-    cell_temp_regs;
-extern array<
-    array<array<expected<void, ErrorCode>, io::adbms::THERM_GPIOS_PER_SEGMENT>, io::NUM_SEGMENTS>,
-    static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)>
-                                                          cell_temp_success;
-extern array<io::adbms::StatusGroups, io::NUM_SEGMENTS>   stat_regs;
-extern array<expected<void, ErrorCode>, io::NUM_SEGMENTS> stat_success;
+static constexpr bool checkCellOwcOk(float baselineVoltage, float owcVoltage)
+{
+    if (owcVoltage < baselineVoltage * OW_CELL_RELATIVE_THRESHOLD)
+        return false;
+    if (owcVoltage < OW_CELL_ABSOLUTE_THRESHOLD)
+        return false;
+    return true;
+}
+
+constexpr float convertRegToTemp(uint16_t reg)
+{
+    const float voltage    = convertRegToVoltage(reg);
+    const float resistance = R_SERIES * (voltage / (V_REF2 - voltage));
+    const float inv_temp_k = (1.0f / T_NOMINAL) + (1.0f / BETA_COEFF) * std::log(resistance / R_NOMINAL);
+    
+    return (1.0f / inv_temp_k) - KELVIN_OFFSET;
+}
 
 // CAN setter tables.
 using CellVoltageSetters         = void (*)(float);
 using FilteredCellVoltageSetters = void (*)(float);
 using CellTemperatureSetters     = void (*)(float);
+using SegmentVoltageSetters      = void (*)(float);
 using CellOwcSetters             = void (*)(bool);
 using ThermOwcSetters            = void (*)(bool);
 using SegmentCommOkSetters       = void (*)(bool);
@@ -65,9 +80,23 @@ using SegmentOscchkSetters       = void (*)(bool);
 using CellOvSetters              = void (*)(bool);
 using CellUvSetters              = void (*)(bool);
 
+extern Cell          cell_voltages;
+extern CellSuccess   cell_voltage_success;
+extern Cell          filtered_cell_voltages;
+extern CellSuccess   filtered_cell_voltage_success;
+extern Therm         cell_temps;
+extern Owc           cell_owc_ok;
+extern Owc           therm_owc_ok;
+
+extern CellParam max_cell_voltage;
+extern CellParam min_cell_voltage;
+extern CellParam max_cell_temp;
+extern CellParam min_cell_temp;
+
 extern CellVoltageSetters         cell_voltage_setters[MAX_NUM_SEGMENTS][io::CELLS_PER_SEGMENT];
 extern CellTemperatureSetters     cell_temperature_setters[MAX_NUM_SEGMENTS][io::THERMISTORS_PER_SEGMENT];
 extern FilteredCellVoltageSetters filtered_cell_voltage_setters[MAX_NUM_SEGMENTS][io::THERMISTORS_PER_SEGMENT];
+extern SegmentVoltageSetters      segment_voltages_setters[MAX_NUM_SEGMENTS];
 extern CellOwcSetters             cell_owc_setters[MAX_NUM_SEGMENTS][io::CELLS_PER_SEGMENT];
 extern ThermOwcSetters            therm_owc_setters[MAX_NUM_SEGMENTS][io::THERMISTORS_PER_SEGMENT];
 extern SegmentCommOkSetters       segment_comm_ok_setters[MAX_NUM_SEGMENTS];

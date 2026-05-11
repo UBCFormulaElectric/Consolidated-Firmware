@@ -1,5 +1,6 @@
 #include "io_adbms_internal.hpp"
 #include "io_adbms.hpp"
+#include "io_log.hpp"
 #include "util_errorCodes.hpp"
 #include "hw_spis.hpp"
 #include <cstring>
@@ -137,6 +138,10 @@ void readRegGroup(
     const auto tx_status = adbms_spi_ls.transmitThenReceive(
         { reinterpret_cast<const uint8_t *>(&tx_cmd), sizeof(tx_cmd) },
         { reinterpret_cast<uint8_t *>(rx_buffer.data()), sizeof(rx_buffer) });
+
+    if (cmd ==  io::adbms::RDSTATA || cmd == io::adbms::RDSTATB || cmd == io::adbms::RDSTATC || cmd == io::adbms::RDSTATD || cmd == io::adbms::RDSTATE) {
+        LOG_INFO("stat cmd");
+    }
 
     if (!tx_status)
     {

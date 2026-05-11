@@ -205,7 +205,7 @@ namespace adbms
         std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS> &stat_regs_success);
 
     // Open-wire diagnostics.
-    std::expected<void, ErrorCode> baselineCells();
+    std::expected<void, ErrorCode> startCellsBaseAdcConversion();
     std::expected<void, ErrorCode> owcCells(OpenWireSwitch owcSwitch);
     std::expected<void, ErrorCode> owcTherms(OpenWireSwitch owcSwitch);
 
@@ -219,6 +219,7 @@ namespace adbms
 
     // Register clear helpers.
     std::expected<void, ErrorCode> clearCellAuxReg();
+    std::expected<void, ErrorCode> clearStatReg();
     std::expected<void, ErrorCode> clearCellVoltageReg();
     std::expected<void, ErrorCode> clearFilteredCellVoltageReg();
 } // namespace adbms
