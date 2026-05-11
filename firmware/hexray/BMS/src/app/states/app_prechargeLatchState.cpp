@@ -1,7 +1,5 @@
 // TODO: Reset precharge limit exceeded
 
-#include <cstddef>
-
 #include "app_states.hpp"
 #include "app_timer.hpp"
 #include "app_canTx.hpp"

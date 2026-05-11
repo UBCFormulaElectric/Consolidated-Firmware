@@ -9,8 +9,6 @@
 #include "app_states.hpp"
 #include "app_precharge.hpp"
 #include "app_segments.hpp"
-#include "app_timer.hpp"
-#include "app_imd.hpp"
 #include "app_powerLimit.hpp"
 #include "app_bmsShdnLoop.hpp"
 #include "app_tractiveSystem.hpp"
@@ -23,7 +21,6 @@
 // io
 #include "io_canQueues.hpp"
 #include "io_canMsg.hpp"
-#include "io_irs.hpp"
 #include "io_time.hpp"
 #include "io_semaphore.hpp"
 #include "io_bspdTest.hpp"
@@ -31,7 +28,6 @@
 #include "io_fans.hpp"
 #include "io_faultLatch.hpp"
 #include "io_canTx.hpp"
-#include "io_adbms.hpp"
 
 extern "C"
 {
@@ -138,7 +134,7 @@ void jobs_run100Hz_tick()
 
     // commnet back in
     const bool ir_negative_opened_debounced = app::irs::negativeOpenedDebounced();
-    const bool balancing_enabled            = app::can_rx::Debug_CellBalancingRequest_get();
+    const bool balancing_enabled            = app::can_rx::Debug_CellBalancing_Request_get();
 
     if (app::can_alerts::AnyBoardHasFault())
     {

@@ -1,6 +1,3 @@
-#include <cstdint>
-#include <cmath>
-
 #include "io_charger.hpp"
 
 namespace app::charger

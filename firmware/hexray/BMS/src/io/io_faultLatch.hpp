@@ -11,7 +11,7 @@
 namespace io::faultLatch
 {
 
-enum class FaultLatchState : std::uint8_t
+enum class FaultLatchState : uint8_t
 {
     FAULT = 0,
     OK    = 1,

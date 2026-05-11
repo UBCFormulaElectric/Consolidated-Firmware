@@ -1,12 +1,14 @@
 #include "app_segments_internal.hpp"
 #include "app_segments.hpp"
+
+#include "jobs.hpp"
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
 #include "app_canUtils.hpp"
-#include "io_adbms.hpp"
 #include "app_timer.hpp"
-#include "jobs.hpp"
-#include <algorithm>
+
+#include "io_adbms.hpp"
+
 #include <cstring>
 #include <cmath>
 
@@ -27,7 +29,6 @@ static app::Timer                                                     balance_ti
 
 static void updateCellsToBalance()
 {
-    adbms_app_lock.take(io::MAX_TIMEOUT);
     memset(&discharge_enabled, 0, sizeof(discharge_enabled));
     memset(&pwm_duty, 0, sizeof(pwm_duty));
 
@@ -72,32 +73,36 @@ static void updateCellsToBalance()
                                        ? app::can_rx::Debug_CellBalancing_TargetDutyCycle_get()
                                        : 0.0f;
 
-            pwm_duty[seg][cell]          = (uint8_t)roundf(raw_duty / 100.0f * 15.0f);
+            pwm_duty[seg][cell]          = static_cast<uint8_t>(roundf(raw_duty / 100.0f * 15.0f));
             discharge_enabled[seg][cell] = true;
         }
     }
 
-    app::segments::setBalanceConfig(discharge_enabled, true);
-    app::segments::setPwmConfig(pwm_duty);
-    adbms_app_lock.give();
-
-    spi_bus_lock.take(io::MAX_TIMEOUT);
-    app::segments::writeConfig();
-    spi_bus_lock.give();
+    {
+        const io::unique_semaphore s{ adbms_app_lock };
+        setBalanceConfig(discharge_enabled, true);
+        setPwmConfig(pwm_duty);
+    }
+    {
+        const io::unique_semaphore s{ spi_bus_lock };
+        LOG_IF_ERR(writeConfig());
+    }
 }
 
 static void disableBalance()
 {
-    adbms_app_lock.take(io::MAX_TIMEOUT);
     memset(&discharge_enabled, 0, sizeof(discharge_enabled));
     memset(&pwm_duty, 0, sizeof(pwm_duty));
-    app::segments::setBalanceConfig(discharge_enabled, false);
-    app::segments::setPwmConfig(pwm_duty);
-    adbms_app_lock.give();
+    {
+        const io::unique_semaphore s{ adbms_app_lock };
+        setBalanceConfig(discharge_enabled, false);
+        setPwmConfig(pwm_duty);
+    }
 
-    spi_bus_lock.take(io::MAX_TIMEOUT);
-    app::segments::writeConfig();
-    spi_bus_lock.give();
+    {
+        const io::unique_semaphore s{ spi_bus_lock };
+        LOG_IF_ERR(writeConfig());
+    }
 }
 
 namespace app::segments
@@ -131,7 +136,7 @@ void balancingEnable()
             if (settle_timer.updateAndGetState() == Timer::TimerState::EXPIRED)
             {
                 updateCellsToBalance();
-                io::adbms::sendBalanceCmd();
+                LOG_IF_ERR(io::adbms::sendBalanceCmd());
                 balance_timer.restart();
                 state = BalancingState::BALANCING_BALANCE;
                 LOG_INFO("Balancing");
@@ -142,7 +147,7 @@ void balancingEnable()
         {
             if (balance_timer.updateAndGetState() == Timer::TimerState::EXPIRED)
             {
-                io::adbms::sendStopBalanceCmd();
+                LOG_IF_ERR(io::adbms::sendStopBalanceCmd());
                 settle_timer.restart();
                 state = BalancingState::BALANCING_SETTLE;
                 LOG_INFO("Settling");

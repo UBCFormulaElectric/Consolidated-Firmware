@@ -1,11 +1,6 @@
-#include <cstddef>
-#include <cstdint>
-
 #include "app_states.hpp"
 #include "app_timer.hpp"
 #include "io_irs.hpp"
-#include "io_charger.hpp"
-#include "app_charger.hpp"
 // #include "app_segments.hpp"
 #include "app_canUtils.hpp"
 #include "app_canRx.hpp"

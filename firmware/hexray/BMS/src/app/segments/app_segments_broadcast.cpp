@@ -1,4 +1,3 @@
-#include <cfloat>
 #include <cmath>
 
 #include "app_segments_internal.hpp"

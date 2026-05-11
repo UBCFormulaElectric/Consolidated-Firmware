@@ -1,10 +1,6 @@
-#include <cstddef>
-
 #include "app_states.hpp"
 #include "app_precharge.hpp"
-#include "app_segments.hpp"
 #include "io_irs.hpp"
-#include "io_faultLatch.hpp"
 #include "app_canTx.hpp"
 
 namespace app::states

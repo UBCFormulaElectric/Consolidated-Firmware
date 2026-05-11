@@ -1,6 +1,5 @@
 #include "app_stateMachine.hpp"
 #include "app_states.hpp"
-#include "app_irs.hpp"
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
 #include "app_segments.hpp"

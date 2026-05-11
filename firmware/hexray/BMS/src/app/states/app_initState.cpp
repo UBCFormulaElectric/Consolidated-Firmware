@@ -1,7 +1,4 @@
-#include <cstddef>
-
 #include "app_states.hpp"
-#include "app_tractiveSystem.hpp"
 #include "io_irs.hpp"
 #include "io_charger.hpp"
 #include "app_canRx.hpp"
