@@ -32,7 +32,7 @@ static_assert(sizeof(boot_can_rx_queue) == 18544);
 namespace hw::cans
 {
 // no tasks_runCanRxCallback yet in tasks.c (need bootloader stuff)
-fdcan fdcan1(hfdcan2, [](const hw::CanMsg &msg) { (void)boot_can_rx_queue.push(msg); });
+fdcan fdcan1(hfdcan2, [](const hw::CanMsg &msg) { UNUSED(boot_can_rx_queue.push(msg)); });
 } // namespace hw::cans
 
 const hw::fdcan &hw::fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
@@ -54,19 +54,32 @@ class H7DevBootConfig : public bootloader::config
             git_commit_clean_val){};
 } h7devboot_config;
 
-void bootloader_preInit(void)
+void bootloader_preInit()
 {
     bootloader::preInit();
 }
 
-static hw::rtos::StaticTask<1024>
-    TaskRunInterface(osPriorityRealtime, "bootinf", [](void *) { bootloader::runInterfaceTask(h7devboot_config); });
-static hw::rtos::StaticTask<1024>
-    TaskRunTickTask(osPriorityRealtime, "boottick", [](void *) { bootloader::runTickTask(h7devboot_config); });
-static hw::rtos::StaticTask<1024>
-    TaskRunCanTx(osPriorityRealtime, "boottx", [](void *) { bootloader::runCanTxTask(h7devboot_config); });
+static hw::rtos::StaticTask::StaticTaskStack<1024> TaskRunInterfaceStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024> TaskRunTickTaskStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024> TaskRunCanTxStack;
 
-[[noreturn]] void bootloader_init(void)
+static hw::rtos::StaticTask TaskRunInterface(
+    osPriorityRealtime,
+    "bootinf",
+    [](void *) { bootloader::runInterfaceTask(h7devboot_config); },
+    TaskRunInterfaceStack);
+static hw::rtos::StaticTask TaskRunTickTask(
+    osPriorityRealtime,
+    "boottick",
+    [](void *) { bootloader::runTickTask(h7devboot_config); },
+    TaskRunTickTaskStack);
+static hw::rtos::StaticTask TaskRunCanTx(
+    osPriorityRealtime,
+    "boottx",
+    [](void *) { bootloader::runCanTxTask(h7devboot_config); },
+    TaskRunCanTxStack);
+
+[[noreturn]] void bootloader_init()
 {
     HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
     bootloader::init(h7devboot_config);
