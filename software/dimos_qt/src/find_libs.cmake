@@ -2,16 +2,16 @@
 # - REQUIRED_LIBRARIES -> list of libraries to link
 
 # libgpiod
-IF("${TARGET}" STREQUAL "deploy")
+IF ("${TARGET}" STREQUAL "deploy")
     find_library(GPIOD_LIBRARY NAMES libgpiod gpiod)
-    IF(NOT GPIOD_LIBRARY)
+    IF (NOT GPIOD_LIBRARY)
         message("${GPIOD_LIBRARY}")
         message(FATAL_ERROR "❌ gpiod library not found. Install sudo apt install libgpiod-dev")
-    ENDIF()
+    ENDIF ()
     list(APPEND REQUIRED_LIBRARIES "gpiod")
     list(APPEND REQUIRED_LIBRARIES "gpiodcxx")
     message("📚✔️ Added gpiod library")
-ENDIF()
+ENDIF ()
 
 # jsoncan
 jsoncan_sources(dimos "${CMAKE_CURRENT_BINARY_DIR}/jsoncan" TRUE "quadruna")
@@ -23,6 +23,7 @@ message("📚✔️ Added JsonCAN library")
 
 # commit_info
 commit_info_generate_sources(${EXECUTABLE_NAME} "${CMAKE_CURRENT_BINARY_DIR}/commit_info")
-target_include_directories(dimos_commit_info PUBLIC ${COMMIT_INFO_INCLUDE_DIR})
+add_library(dimos_commit_info INTERFACE)
+target_include_directories(dimos_commit_info INTERFACE ${COMMIT_INFO_INCLUDE_DIR})
 list(APPEND REQUIRED_LIBRARIES "dimos_commit_info")
 message("📚✔️ Added commit_info library")
