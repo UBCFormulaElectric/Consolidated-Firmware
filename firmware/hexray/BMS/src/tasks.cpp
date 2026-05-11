@@ -133,7 +133,9 @@ void tasks_run1kHz(void *arg)
     {
         jobs_run1kHz_tick();
         watchdog1khz.checkIn();
+#ifndef WATCHDOG_DISABLED
         monitor1khz.checkForTimeouts();
+#endif
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -172,7 +174,6 @@ void tasks_runCanTx(void *arg)
         {
             const auto res = fdcan2.fdcan_transmit(can_msg);
             LOG_IF_ERR(res);
-            LOG_INFO("TRANSMIT");
         }
         else
         {
