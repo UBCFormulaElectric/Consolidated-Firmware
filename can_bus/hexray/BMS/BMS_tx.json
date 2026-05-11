@@ -12,21 +12,8 @@
       }
     }
   },
-  "CommitInfo": {
-    "msg_id": 401,
-    "cycle_time": 100,
-    "description": "BMS Commit Info",
-    "signals": {
-      "Hash": {
-        "bits": 32
-      },
-      "Clean": {
-        "bits": 1
-      }
-    }
-  },
   "Debug": {
-    "msg_id": 402,
+    "msg_id": 407,
     "cycle_time": 1000,
     "description": "BMS Debug Signals",
     "signals": {
@@ -47,8 +34,27 @@
       }
     }
   },
+  "Bootup": {
+    "msg_id": 408,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
+  },
+  "CommitInfo": {
+    "msg_id": 409,
+    "cycle_time": 100,
+    "description": "BMS Commit Info",
+    "signals": {
+      "Hash": {
+        "bits": 32
+      },
+      "Clean": {
+        "bits": 1
+      }
+    }
+  },
   "LatchStatus": {
-    "msg_id": 403,
+    "msg_id": 410,
     "cycle_time": 10,
     "description": "Latched faults for the BMS",
     "signals": {
@@ -73,7 +79,7 @@
     }
   },
   "Contactors": {
-    "msg_id": 404,
+    "msg_id": 411,
     "cycle_time": 10,
     "description": "BMS IR state statuses",
     "signals": {
@@ -89,7 +95,7 @@
     }
   },
   "Charger": {
-    "msg_id": 405,
+    "msg_id": 412,
     "cycle_time": 100,
     "description": "Charger infomation for the BMS to broadcast to other boards",
     "signals": {
@@ -105,7 +111,7 @@
     }
   },
   "TractiveSystem": {
-    "msg_id": 406,
+    "msg_id": 413,
     "cycle_time": 10,
     "description": "BMS Tractive System Data",
     "signals": {
@@ -144,7 +150,7 @@
     }
   },
   "BSPDStatus": {
-    "msg_id": 407,
+    "msg_id": 414,
     "cycle_time": 10,
     "description": "BSPD Status",
     "signals": {
@@ -192,7 +198,7 @@
     }
   },
   "HvBatteryProperties": {
-    "msg_id": 408,
+    "msg_id": 415,
     "cycle_time": 1000,
     "description": "HV Battery Properties",
     "signals": {
@@ -208,7 +214,7 @@
     }
   },
   "ImdStatus": {
-    "msg_id": 409,
+    "msg_id": 416,
     "cycle_time": 10,
     "description": "BMS IMD Messages",
     "signals": {
@@ -239,7 +245,7 @@
     }
   },
   "ImdData": {
-    "msg_id": 410,
+    "msg_id": 417,
     "cycle_time": 1000,
     "description": "BMS IMD Measurement Data Values",
     "signals": {
@@ -264,7 +270,7 @@
     }
   },
   "PowerLimit": {
-    "msg_id": 411,
+    "msg_id": 418,
     "cycle_time": 10,
     "description": "BMS Power Limit",
     "signals": {
@@ -289,7 +295,7 @@
     }
   },
   "SegmentStats": {
-    "msg_id": 412,
+    "msg_id": 419,
     "cycle_time": 1000,
     "description": "Segment stats",
     "signals": {
@@ -324,7 +330,7 @@
     }
   },
   "CellVoltageStats": {
-    "msg_id": 413,
+    "msg_id": 420,
     "cycle_time": 1000,
     "description": "BMS minimum/maximum cell voltage stats",
     "signals": {
@@ -375,7 +381,7 @@
     }
   },
   "CellTemperatureStats": {
-    "msg_id": 414,
+    "msg_id": 421,
     "cycle_time": 1000,
     "description": "BMS minimum/maximum cell temperature stats",
     "signals": {
@@ -426,7 +432,7 @@
     }
   },
   "CellVoltages_Seg0_Seg3": {
-    "msg_id": 415,
+    "msg_id": 422,
     "cycle_time": 1000,
     "allowed_modes": [
       "DEBUG"
@@ -772,7 +778,7 @@
     }
   },
   "CellVoltages_Seg4_Seg7": {
-    "msg_id": 416,
+    "msg_id": 423,
     "cycle_time": 1000,
     "allowed_modes": [
       "DEBUG"
@@ -1118,7 +1124,7 @@
     }
   },
   "CellVoltages_Seg8_Seg9": {
-    "msg_id": 417,
+    "msg_id": 424,
     "cycle_time": 1000,
     "allowed_modes": [
       "DEBUG"
@@ -1296,7 +1302,7 @@
     }
   },
   "FilteredCellVoltages_Seg0_Seg3": {
-    "msg_id": 418,
+    "msg_id": 425,
     "cycle_time": 1000,
     "allowed_modes": [
       "DEBUG"
@@ -1642,7 +1648,7 @@
     }
   },
   "FilteredCellVoltages_Seg4_Seg7": {
-    "msg_id": 419,
+    "msg_id": 426,
     "cycle_time": 1000,
     "allowed_modes": [
       "DEBUG"
@@ -1988,7 +1994,7 @@
     }
   },
   "FilteredCellVoltages_Seg8_Seg9": {
-    "msg_id": 420,
+    "msg_id": 427,
     "cycle_time": 1000,
     "allowed_modes": [
       "DEBUG"
@@ -2166,7 +2172,7 @@
     }
   },
   "CellTemps_Seg0_Seg3": {
-    "msg_id": 421,
+    "msg_id": 428,
     "cycle_time": 1000,
     "description": "BMS Temps: Segments 0-3",
     "allowed_modes": [
@@ -2512,7 +2518,7 @@
     }
   },
   "CellTemps_Seg4_Seg7": {
-    "msg_id": 422,
+    "msg_id": 429,
     "cycle_time": 1000,
     "allowed_modes": [
       "DEBUG"
@@ -2858,7 +2864,7 @@
     }
   },
   "CellTemps_Seg8_Seg9": {
-    "msg_id": 423,
+    "msg_id": 430,
     "cycle_time": 1000,
     "allowed_modes": [
       "DEBUG"
@@ -3036,7 +3042,7 @@
     }
   },
   "CellOpenWireCheck": {
-    "msg_id": 424,
+    "msg_id": 431,
     "cycle_time": 1000,
     "allowed_modes": [
       "DEBUG"
@@ -3466,7 +3472,7 @@
     }
   },
   "ThermistorOpenWireCheck": {
-    "msg_id": 425,
+    "msg_id": 432,
     "cycle_time": 1000,
     "allowed_modes": [
       "DEBUG"
@@ -3896,7 +3902,7 @@
     }
   },
   "BMSShdnNodeStatus": {
-    "msg_id": 426,
+    "msg_id": 433,
     "cycle_time": 100,
     "allowed_modes": [
       "DEBUG"
@@ -3912,7 +3918,7 @@
     }
   },
   "SegmentCommOk": {
-    "msg_id": 427,
+    "msg_id": 434,
     "cycle_time": 100,
     "allowed_modes": [
       "DEBUG"
@@ -3952,7 +3958,7 @@
     }
   },
   "SegmentVref2": {
-    "msg_id": 428,
+    "msg_id": 435,
     "cycle_time": 100,
     "allowed_modes": [
       "DEBUG"
@@ -4022,7 +4028,7 @@
     }
   },
   "SegmentITMP": {
-    "msg_id": 429,
+    "msg_id": 436,
     "cycle_time": 100,
     "allowed_modes": [
       "DEBUG"
@@ -4092,7 +4098,7 @@
     }
   },
   "SegmentVD": {
-    "msg_id": 430,
+    "msg_id": 437,
     "cycle_time": 100,
     "allowed_modes": [
       "DEBUG"
@@ -4162,7 +4168,7 @@
     }
   },
   "SegmentVA": {
-    "msg_id": 431,
+    "msg_id": 438,
     "cycle_time": 100,
     "allowed_modes": [
       "DEBUG"
@@ -4232,7 +4238,7 @@
     }
   },
   "SegmentVRES": {
-    "msg_id": 432,
+    "msg_id": 439,
     "cycle_time": 100,
     "allowed_modes": [
       "DEBUG"
@@ -4302,7 +4308,7 @@
     }
   },
   "SegmentSupplyFaults": {
-    "msg_id": 433,
+    "msg_id": 440,
     "cycle_time": 100,
     "allowed_modes": [
       "DEBUG"
@@ -4432,7 +4438,7 @@
     }
   },
   "SegmentDiagFaults": {
-    "msg_id": 434,
+    "msg_id": 441,
     "cycle_time": 100,
     "allowed_modes": [
       "DEBUG"
@@ -4622,7 +4628,7 @@
     }
   },
   "SegmentMiscFaults": {
-    "msg_id": 435,
+    "msg_id": 442,
     "cycle_time": 100,
     "allowed_modes": [
       "DEBUG"
@@ -4722,7 +4728,7 @@
     }
   },
   "CellOvervoltage": {
-    "msg_id": 436,
+    "msg_id": 443,
     "cycle_time": 100,
     "allowed_modes": [
       "DEBUG"
@@ -5152,7 +5158,7 @@
     }
   },
   "CellUnderVoltage": {
-    "msg_id": 437,
+    "msg_id": 444,
     "cycle_time": 100,
     "allowed_modes": [
       "DEBUG"
@@ -5582,7 +5588,7 @@
     }
   },
   "SegmentVoltages": {
-    "msg_id": 438,
+    "msg_id": 445,
     "cycle_time": 100,
     "allowed_modes": [
       "DEBUG"
@@ -5650,11 +5656,5 @@
         "unit": "V"
       }
     }
-  },
-  "Bootup": {
-    "msg_id": 439,
-    "cycle_time": null,
-    "description": "Async bootup message!",
-    "signals": {}
   }
 }
