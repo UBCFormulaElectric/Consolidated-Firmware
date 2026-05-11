@@ -4,6 +4,7 @@
 #include "hw_can.hpp"
 #include "main.h"
 #include "hw_rtosTaskHandler.hpp"
+#include "app_commitInfo.hpp"
 #include <cassert>
 
 io::queue<hw::CanMsg, 256> boot_can_tx_queue("CanTxQueue");
@@ -30,8 +31,8 @@ class VCBootConfig : public bootloader::config
             boot_can_tx_queue,
             boot_can_rx_queue,
             board_highbits,
-            git_commit_has_val,
-            git_commit_clean_val)
+            GIT_COMMIT_HASH,
+            GIT_COMMIT_CLEAN)
     {
     }
 } vcboot_config;
