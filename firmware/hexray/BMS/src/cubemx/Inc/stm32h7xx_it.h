@@ -64,6 +64,7 @@ extern "C"
     void SDMMC1_IRQHandler(void);
     void TIM5_IRQHandler(void);
     void TIM6_DAC_IRQHandler(void);
+    void TIM7_IRQHandler(void);
     void OTG_HS_EP1_OUT_IRQHandler(void);
     void OTG_HS_EP1_IN_IRQHandler(void);
     void OTG_HS_IRQHandler(void);

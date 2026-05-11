@@ -3,27 +3,29 @@
 #include "hw_gpios.hpp"
 
 #include <cassert>
+#include <optional>
+
+static constexpr uint32_t SPI_TIMEOUT = 100U;
 
 static constexpr hw::spi::bus spi1(hspi1);
 static constexpr hw::spi::bus spi2(hspi2);
 
 // timeouts??
-const hw::spi::device imu1(spi1, imu_cs1, 10);
-const hw::spi::device imu2(spi1, imu_cs2, 10);
-const hw::spi::device imu3(spi1, imu_cs3, 10);
-// constexpr SpiDevice rpi(spi2, gpio::rpi_cs, 10); fix this after spi driver is changed
+const hw::spi::device imu1(spi1, imu_cs1, SPI_TIMEOUT);
+const hw::spi::device imu2(spi1, imu_cs2, SPI_TIMEOUT);
+const hw::spi::device imu3(spi1, imu_cs3, SPI_TIMEOUT);
 
-const hw::spi::bus &getBusFromHandle(const SPI_HandleTypeDef *handle)
+[[nodiscard]] const hw::spi::bus &hw::spi::getBusFromHandle(const SPI_HandleTypeDef *handle)
 {
-    if (handle == &hspi1)
+    assert(handle == &spi1.handle || handle == &spi2.handle);
+
+    if (handle == &spi1.handle)
     {
         return spi1;
     }
-    if (handle == &hspi2)
+    if (handle == &spi2.handle)
     {
         return spi2;
     }
-    // fallback
-    assert(false);
     return spi1;
 }

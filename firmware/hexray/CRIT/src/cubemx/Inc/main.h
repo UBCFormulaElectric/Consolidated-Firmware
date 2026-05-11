@@ -43,6 +43,7 @@ extern "C"
     extern SPI_HandleTypeDef   hspi3;
     extern TIM_HandleTypeDef   htim3;
     extern TIM_HandleTypeDef   htim4;
+    extern TIM_HandleTypeDef   htim7;
     extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
     extern IWDG_HandleTypeDef  hiwdg;
 
@@ -83,6 +84,8 @@ extern "C"
 #define LED_DATA_GPIO_Port GPIOC
 #define LED_DIMMING_Pin GPIO_PIN_2
 #define LED_DIMMING_GPIO_Port GPIOC
+#define D_P_PULLUP_Pin GPIO_PIN_2
+#define D_P_PULLUP_GPIO_Port GPIOA
 #define LED_RCK_Pin GPIO_PIN_3
 #define LED_RCK_GPIO_Port GPIOA
 #define _7SEG_RCK_Pin GPIO_PIN_4
