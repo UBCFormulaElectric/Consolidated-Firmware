@@ -4,10 +4,6 @@
 #include "hw_can.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "bootloader_fsm.hpp"
-extern "C"
-{
-#include "app_commitInfo.h"
-}
 
 #include <cassert>
 

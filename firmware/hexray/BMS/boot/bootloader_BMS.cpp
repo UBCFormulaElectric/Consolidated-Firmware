@@ -5,6 +5,7 @@
 #include "main.h"
 #include "hw_rtosTaskHandler.hpp"
 #include <cassert>
+#include "app_commitInfo.hpp"
 
 void tx_overflow_callback(const uint32_t overflow_count)
 {
@@ -42,8 +43,8 @@ class HexrayBMSBootConfig final : public bootloader::config
             boot_can_tx_queue,
             boot_can_rx_queue,
             board_highbits,
-            git_commit_hash_val,
-            git_commit_clean_val)
+            GIT_COMMIT_HASH,
+            GIT_COMMIT_CLEAN)
     {
     }
 } hexray_bms_boot_config;
