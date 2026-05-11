@@ -44,7 +44,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "/usr/local/bin/JLinkGDBServer"
+        "serverpath": "JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -85,7 +85,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "/usr/local/bin/JLinkGDBServer"
+        "serverpath": "JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -126,7 +126,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "/usr/local/bin/JLinkGDBServer"
+        "serverpath": "JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -167,7 +167,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "/usr/local/bin/JLinkGDBServer"
+        "serverpath": "JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -208,7 +208,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "/usr/local/bin/JLinkGDBServer"
+        "serverpath": "JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -249,7 +249,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "/usr/local/bin/JLinkGDBServer"
+        "serverpath": "JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -276,9 +276,10 @@
     {
       "name": "Debug Embedded: CRIT (Hexray)",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/hexray/CRIT/hexray_CRIT_app.elf",
+      "executable": "build_fw_dev/firmware/hexray/CRIT/hexray_CRIT.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/hexray/CRIT/hexray_CRIT_boot.elf",
         "build_fw_dev/firmware/hexray/CRIT/hexray_CRIT_app.elf"
       ],
       "preLaunchTask": "Build Embedded: CRIT (Hexray)",
@@ -290,7 +291,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "/usr/local/bin/JLinkGDBServer"
+        "serverpath": "JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -332,7 +333,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "/usr/local/bin/JLinkGDBServer"
+        "serverpath": "JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -374,7 +375,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "/usr/local/bin/JLinkGDBServer"
+        "serverpath": "JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -416,7 +417,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "/usr/local/bin/JLinkGDBServer"
+        "serverpath": "JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -443,9 +444,10 @@
     {
       "name": "Debug Embedded: DAM (Hexray)",
       "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/hexray/DAM/hexray_DAM_app.elf",
+      "executable": "build_fw_dev/firmware/hexray/DAM/hexray_DAM.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
+        "build_fw_dev/firmware/hexray/DAM/hexray_DAM_boot.elf",
         "build_fw_dev/firmware/hexray/DAM/hexray_DAM_app.elf"
       ],
       "preLaunchTask": "Build Embedded: DAM (Hexray)",
@@ -457,7 +459,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "/usr/local/bin/JLinkGDBServer"
+        "serverpath": "JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -487,7 +489,7 @@
       "executable": "build_fw_dev/firmware/hexray/RSM/hexray_RSM.hex",
       "symbolFiles": [
         // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_dev/firmware/hexray/RSM/hexray_RSM_boot.elf"
+        "build_fw_dev/firmware/hexray/RSM/hexray_RSM_boot.elf",
         "build_fw_dev/firmware/hexray/RSM/hexray_RSM_app.elf"
       ],
       "preLaunchTask": "Build Embedded: RSM (Hexray)",
@@ -499,7 +501,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "/usr/local/bin/JLinkGDBServer"
+        "serverpath": "JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -541,7 +543,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "/usr/local/bin/JLinkGDBServer"
+        "serverpath": "JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -583,7 +585,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "/usr/local/bin/JLinkGDBServer"
+        "serverpath": "JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -625,7 +627,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "/usr/local/bin/JLinkGDBServer"
+        "serverpath": "JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -667,7 +669,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "/usr/local/bin/JLinkGDBServer"
+        "serverpath": "JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -710,7 +712,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "/usr/local/bin/JLinkGDBServer"
+        "serverpath": "JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -752,7 +754,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "/usr/local/bin/JLinkGDBServer"
+        "serverpath": "JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -793,7 +795,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "/usr/local/bin/JLinkGDBServer"
+        "serverpath": "JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -830,7 +832,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "/usr/local/bin/JLinkGDBServer"
+        "serverpath": "JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -854,47 +856,6 @@
         ]
       }
     },
-        {
-      "name": "Debug Embedded: RSM (Hexray)",
-      "cwd": "${workspaceRoot}",
-      "executable": "build_fw_dev/firmware/hexray/RSM/hexray_RSM_app.elf",
-      "symbolFiles": [
-        // This order matters, or RTT won't work! (app has to be last)
-        "build_fw_dev/firmware/hexray/RSM/hexray_RSM_app.elf"
-      ],
-      "preLaunchTask": "Build Embedded: RSM (Hexray)",
-      // cortex configurations
-      "request": "launch",
-      "type": "cortex-debug",
-      "servertype": "jlink",
-      "linux": {
-        "serverpath": "JLinkGDBServerCLExe"
-      },
-      "osx": {
-        "serverpath": "/usr/local/bin/JLinkGDBServer"
-      },
-      "windows": {
-        "serverpath": "JLinkGDBServerCL"
-      },
-      "serverArgs": [
-        "-speed",
-        "4000"
-      ],
-      "device": "STM32H562RI",
-      "interface": "swd",
-      "showDevDebugOutput": "none",
-      "rttConfig": {
-        "enabled": true,
-        "address": "auto",
-        "decoders": [
-          {
-            "label": "Debug logs: RSM",
-            "port": 0,
-            "type": "console"
-          }
-        ]
-      }
-    },
     {
       "name": "Debug Embedded: SSM",
       "cwd": "${workspaceRoot}",
@@ -912,7 +873,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "/usr/local/bin/JLinkGDBServer"
+        "serverpath": "JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -953,7 +914,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "/usr/local/bin/JLinkGDBServer"
+        "serverpath": "JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
@@ -994,7 +955,7 @@
         "serverpath": "JLinkGDBServerCLExe"
       },
       "osx": {
-        "serverpath": "/usr/local/bin/JLinkGDBServer"
+        "serverpath": "JLinkGDBServer"
       },
       "windows": {
         "serverpath": "JLinkGDBServerCL"
