@@ -7,6 +7,9 @@ namespace app::charger
 {
 float getAvailableCurrent()
 {
+    // It is not directly related to this module, but we do not expect to ever exceed 16A from the 
+    // AC circuit at competition due to breaker limits + cell constraints + charger limits. 
+    // As a result, we do not expect to exceed ~35% duty cycle on evse under any circumstance.
     const float evseDutyCycle = io::charger::getCPDutyCycle();
 
     if (evseDutyCycle >= 0.1f && evseDutyCycle <= 0.85f)
