@@ -117,10 +117,8 @@ void jobs_run100Hz_tick()
 #ifdef TARGET_HV_SUPPLY
     const bool acc_fault = false;
 #else
-    adbms_app_lock.take(io::MAX_TIMEOUT);
     // app::segments::checkWarnings();
     // const bool acc_fault = app::segments::checkFaults();
-    adbms_app_lock.give();
 #endif
     using namespace io::faultLatch;
 
@@ -139,10 +137,8 @@ void jobs_run100Hz_tick()
     app::can_tx::BMS_BSPDAccelBrakeOk_set(io::bspdtest::isAccelBrakeOk());
 
     // commnet back in
-    //  const bool ir_negative_opened_debounced = app::irs::negativeOpenedDebounced();
-    //  const bool balancing_enabled = app::can_rx::Debug_CellBalancingRequest_get();
-    const bool ir_negative_opened_debounced = false;
-    const bool balancing_enabled            = false;
+    const bool ir_negative_opened_debounced = app::irs::negativeOpenedDebounced();
+    const bool balancing_enabled            = app::can_rx::Debug_CellBalancingRequest_get();
 
     if (app::can_alerts::AnyBoardHasFault())
     {
@@ -172,15 +168,16 @@ void jobs_runAdbmsVoltages_tick()
     app::segments::Cell        voltages;
     app::segments::CellSuccess voltages_success;
 
-    spi_bus_lock.take(io::MAX_TIMEOUT);
-    LOG_IF_ERR(io::adbms::wakeup());
-    LOG_IF_ERR(app::segments::configSync());
-    LOG_IF_ERR(app::segments::runVoltageConversion(voltages, voltages_success));
-    spi_bus_lock.give();
-
-    adbms_app_lock.take(io::MAX_TIMEOUT);
-    app::segments::broadcastCellVoltages(voltages, voltages_success);
-    adbms_app_lock.give();
+    {
+        const io::unique_semaphore s{ spi_bus_lock };
+        LOG_IF_ERR(io::adbms::wakeup());
+        LOG_IF_ERR(app::segments::configSync());
+        LOG_IF_ERR(app::segments::runVoltageConversion(voltages, voltages_success));
+    }
+    {
+        const io::unique_semaphore s{ adbms_app_lock };
+        app::segments::broadcastCellVoltages(voltages, voltages_success);
+    }
 }
 
 void jobs_runAdbmsFilteredVoltages_tick()
@@ -188,11 +185,12 @@ void jobs_runAdbmsFilteredVoltages_tick()
     app::segments::Cell        voltages;
     app::segments::CellSuccess voltages_success;
 
-    spi_bus_lock.take(io::MAX_TIMEOUT);
-    LOG_IF_ERR(io::adbms::wakeup());
-    LOG_IF_ERR(app::segments::configSync());
-    LOG_IF_ERR(app::segments::runFilteredVoltageConversion(voltages, voltages_success));
-    spi_bus_lock.give();
+    {
+        const io::unique_semaphore s{ spi_bus_lock };
+        LOG_IF_ERR(io::adbms::wakeup());
+        LOG_IF_ERR(app::segments::configSync());
+        LOG_IF_ERR(app::segments::runFilteredVoltageConversion(voltages, voltages_success));
+    }
 
     app::segments::broadcastFilteredCellVoltages(voltages, voltages_success);
 }
@@ -204,16 +202,17 @@ void jobs_runAdbmsTemperatures_tick()
     app::segments::Segment        seg_voltages;
     app::segments::SegmentSuccess seg_voltages_success;
 
-    spi_bus_lock.take(io::MAX_TIMEOUT);
-    LOG_IF_ERR(io::adbms::wakeup());
-    LOG_IF_ERR(app::segments::configSync());
-    LOG_IF_ERR(app::segments::runTempConversion(temps, temp_success));
-    LOG_IF_ERR(app::segments::runSegVoltageConversion(seg_voltages, seg_voltages_success));
-    spi_bus_lock.give();
-
-    adbms_app_lock.take(io::MAX_TIMEOUT);
-    app::segments::broadcastTemps(temps, temp_success);
-    adbms_app_lock.give();
+    {
+        const io::unique_semaphore s{ spi_bus_lock };
+        LOG_IF_ERR(io::adbms::wakeup());
+        LOG_IF_ERR(app::segments::configSync());
+        LOG_IF_ERR(app::segments::runTempConversion(temps, temp_success));
+        LOG_IF_ERR(app::segments::runSegVoltageConversion(seg_voltages, seg_voltages_success));
+    }
+    {
+        const io::unique_semaphore s{ adbms_app_lock };
+        app::segments::broadcastTemps(temps, temp_success);
+    }
     app::segments::broadcastSegVoltages(seg_voltages, seg_voltages_success);
 }
 
@@ -224,16 +223,17 @@ void jobs_runAdbmsDiagnostics_tick()
     app::segments::Owc            owc;
     app::segments::CellSuccess    owc_success;
 
-    spi_bus_lock.take(io::MAX_TIMEOUT);
-    LOG_IF_ERR(io::adbms::wakeup());
-    LOG_IF_ERR(app::segments::configSync());
-    LOG_IF_ERR(app::segments::runStatusConversion(status, status_success));
-    LOG_IF_ERR(app::segments::runCellOpenWireCheck(owc, owc_success));
-    spi_bus_lock.give();
-
-    adbms_app_lock.take(io::MAX_TIMEOUT);
-    app::segments::broadcastCellOpenWireCheck(owc, owc_success);
-    app::segments::broadcastInfo();
-    adbms_app_lock.give();
+    {
+        const io::unique_semaphore s{ spi_bus_lock };
+        LOG_IF_ERR(io::adbms::wakeup());
+        LOG_IF_ERR(app::segments::configSync());
+        LOG_IF_ERR(app::segments::runStatusConversion(status, status_success));
+        LOG_IF_ERR(app::segments::runCellOpenWireCheck(owc, owc_success));
+    }
+    {
+        const io::unique_semaphore s{ adbms_app_lock };
+        app::segments::broadcastCellOpenWireCheck(owc, owc_success);
+        app::segments::broadcastInfo();
+    }
     app::segments::broadcastStatus(status, status_success);
 }

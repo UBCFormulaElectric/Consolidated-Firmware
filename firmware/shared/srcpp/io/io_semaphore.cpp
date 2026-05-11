@@ -1,5 +1,5 @@
 #include "io_semaphore.hpp"
-#include <assert.h>
+#include <cassert>
 
 #ifdef TARGET_EMBEDDED
 

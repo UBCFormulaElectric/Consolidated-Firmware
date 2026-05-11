@@ -1,5 +1,6 @@
 #pragma once
 
+#include <limits>
 #include <cstdint>
 
 #ifdef TARGET_EMBEDDED
@@ -10,27 +11,33 @@
 
 namespace io
 {
-
 class semaphore
 {
   public:
     explicit semaphore(bool priority_inheritance_protocol_on);
 
-    void take(uint32_t timeout) const;
+    void take(uint32_t timeout = std::numeric_limits<uint32_t>::max()) const;
     void give() const;
 
   private:
 #ifdef TARGET_EMBEDDED
-    StaticSemaphore_t freertos_semaphore_buf_;
+    StaticSemaphore_t freertos_semaphore_buf_{};
     SemaphoreHandle_t freertos_semaphore_;
 #else
     bool created_;
 #endif
 };
 
-#ifdef TARGET_EMBEDDED
-constexpr uint32_t MAX_TIMEOUT = portMAX_DELAY;
-#else
-constexpr uint32_t MAX_TIMEOUT = UINT32_MAX;
-#endif
+class unique_semaphore
+{
+    const semaphore &_sem;
+
+  public:
+    explicit unique_semaphore(const semaphore &sem, const uint32_t timeout = std::numeric_limits<uint32_t>::max())
+      : _sem(sem)
+    {
+        _sem.take(timeout);
+    }
+    ~unique_semaphore() { _sem.give(); }
+};
 } // namespace io
