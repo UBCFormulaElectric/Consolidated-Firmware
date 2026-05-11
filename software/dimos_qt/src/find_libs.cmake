@@ -23,7 +23,6 @@ message("📚✔️ Added JsonCAN library")
 
 # commit_info
 commit_info_generate_sources(${EXECUTABLE_NAME} "${CMAKE_CURRENT_BINARY_DIR}/commit_info")
-add_library(dimos_commit_info STATIC ${COMMIT_INFO_SRC})
 target_include_directories(dimos_commit_info PUBLIC ${COMMIT_INFO_INCLUDE_DIR})
 list(APPEND REQUIRED_LIBRARIES "dimos_commit_info")
 message("📚✔️ Added commit_info library")
