@@ -17,21 +17,7 @@
 #include "app_heartbeatMonitor.hpp"
 #include "app_jsoncan.hpp"
 #include "app_canUtils.hpp"
-<<<<<<< pranayo/ADBMS_testing
 
-// io
-=======
-#include "app_canTx.hpp"
-#include "app_commitInfo.hpp"
-
-// io
-extern "C"
-{
-#include "io_semaphore.h"
-}
-
-#include "io_canMsg.hpp"
->>>>>>> master
 #include "io_canQueues.hpp"
 #include "io_canMsg.hpp"
 #include "io_time.hpp"
