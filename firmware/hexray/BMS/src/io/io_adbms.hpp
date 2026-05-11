@@ -198,8 +198,8 @@ namespace adbms
         std::array<std::array<uint16_t, THERM_GPIOS_PER_SEGMENT>, NUM_SEGMENTS>                       &cell_temp_regs,
         std::array<std::array<std::expected<void, ErrorCode>, THERM_GPIOS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success);
     void readSegVoltageReg(
-        std::array<uint16_t, NUM_SEGMENTS>                 &segment_voltage_regs, 
-        std::array<std::expected<void,ErrorCode>, NUM_SEGMENTS> &comm_success);
+        std::array<uint16_t, NUM_SEGMENTS>                       &segment_voltage_regs,
+        std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS> &comm_success);
     void readStatusReg(
         std::array<StatusGroups, NUM_SEGMENTS>                   &stat_regs,
         std::array<std::expected<void, ErrorCode>, NUM_SEGMENTS> &stat_regs_success);

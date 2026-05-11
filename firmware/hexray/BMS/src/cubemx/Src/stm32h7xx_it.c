@@ -271,6 +271,20 @@ void TIM1_CC_IRQHandler(void)
 }
 
 /**
+ * @brief This function handles TIM2 global interrupt.
+ */
+void TIM2_IRQHandler(void)
+{
+    /* USER CODE BEGIN TIM2_IRQn 0 */
+
+    /* USER CODE END TIM2_IRQn 0 */
+    HAL_TIM_IRQHandler(&htim6);
+    /* USER CODE BEGIN TIM2_IRQn 1 */
+
+    /* USER CODE END TIM2_IRQn 1 */
+}
+
+/**
  * @brief This function handles TIM3 global interrupt.
  */
 void TIM3_IRQHandler(void)
@@ -310,20 +324,6 @@ void TIM5_IRQHandler(void)
     /* USER CODE BEGIN TIM5_IRQn 1 */
 
     /* USER CODE END TIM5_IRQn 1 */
-}
-
-/**
- * @brief This function handles TIM6 global interrupt, DAC1_CH1 and DAC1_CH2 underrun error interrupts.
- */
-void TIM6_DAC_IRQHandler(void)
-{
-    /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
-
-    /* USER CODE END TIM6_DAC_IRQn 0 */
-    HAL_TIM_IRQHandler(&htim6);
-    /* USER CODE BEGIN TIM6_DAC_IRQn 1 */
-
-    /* USER CODE END TIM6_DAC_IRQn 1 */
 }
 
 /**

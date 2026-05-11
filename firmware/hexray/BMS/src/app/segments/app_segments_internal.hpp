@@ -3,33 +3,34 @@
 #include <cmath>
 #include "app_segments.hpp"
 
+inline constexpr uint8_t  MAX_NUM_SEGMENTS = 10U;
+inline constexpr uint16_t VUV              = 0x01A1; // 2.5V
+inline constexpr uint16_t VOV              = 0x0465; // 4.2V
 
-inline constexpr uint8_t MAX_NUM_SEGMENTS = 10U;
-inline constexpr uint16_t VUV             = 0x01A1; // 2.5V
-inline constexpr uint16_t VOV             = 0x0465; // 4.2V
-
-inline constexpr uint8_t VOLT_CONV_TIME_MS          = 2U;// check later
-inline constexpr uint8_t AUX_CONV_TIME_MS           = 10U;// check later
-inline constexpr uint8_t OWC_CONVERSION_TIME_MS     = 8U;// check later
+inline constexpr uint8_t VOLT_CONV_TIME_MS          = 2U;  // check later
+inline constexpr uint8_t AUX_CONV_TIME_MS           = 10U; // check later
+inline constexpr uint8_t OWC_CONVERSION_TIME_MS     = 8U;  // check later
 inline constexpr float   OW_CELL_RELATIVE_THRESHOLD = 0.7f;
 inline constexpr float   OW_CELL_ABSOLUTE_THRESHOLD = 0.5f;
 
-inline constexpr float V_REF2              = 3.0f;
-inline constexpr float R_SERIES            = 10e3f; // Fixed resistor
-inline constexpr float R_NOMINAL           = 10e3f; // Thermistor at 25C
-inline constexpr float T_NOMINAL           = 298.15f; 
-inline constexpr float BETA_COEFF          = 3610.0f;
-inline constexpr float KELVIN_OFFSET       = 273.15f;
-inline constexpr float OW_THERM_THRESHOLD = 0.0f; //TODO: need to calibrate
+inline constexpr float V_REF2             = 3.0f;
+inline constexpr float R_SERIES           = 10e3f; // Fixed resistor
+inline constexpr float R_NOMINAL          = 10e3f; // Thermistor at 25C
+inline constexpr float T_NOMINAL          = 298.15f;
+inline constexpr float BETA_COEFF         = 3610.0f;
+inline constexpr float KELVIN_OFFSET      = 273.15f;
+inline constexpr float OW_THERM_THRESHOLD = 0.0f; // TODO: need to calibrate
 
 namespace app::segments
 {
 
-constexpr float convertUVOVToFloat(uint16_t hex) { 
-    return (hex * 16 * 150e-6f + 1.5f); 
+constexpr float convertUVOVToFloat(uint16_t hex)
+{
+    return (hex * 16 * 150e-6f + 1.5f);
 }
 
-constexpr float convertRegToVoltage(uint16_t reg) {
+constexpr float convertRegToVoltage(uint16_t reg)
+{
     return (static_cast<float>(static_cast<int16_t>(reg)) * 150e-6f) + 1.5f;
 }
 
@@ -47,7 +48,7 @@ constexpr float convertRegToTemp(uint16_t reg)
     const float voltage    = convertRegToVoltage(reg);
     const float resistance = R_SERIES * (voltage / (V_REF2 - voltage));
     const float inv_temp_k = (1.0f / T_NOMINAL) + (1.0f / BETA_COEFF) * std::log(resistance / R_NOMINAL);
-    
+
     return (1.0f / inv_temp_k) - KELVIN_OFFSET;
 }
 
@@ -80,13 +81,13 @@ using SegmentOscchkSetters       = void (*)(bool);
 using CellOvSetters              = void (*)(bool);
 using CellUvSetters              = void (*)(bool);
 
-extern Cell          cell_voltages;
-extern CellSuccess   cell_voltage_success;
-extern Cell          filtered_cell_voltages;
-extern CellSuccess   filtered_cell_voltage_success;
-extern Therm         cell_temps;
-extern Owc           cell_owc_ok;
-extern Owc           therm_owc_ok;
+extern Cell        cell_voltages;
+extern CellSuccess cell_voltage_success;
+extern Cell        filtered_cell_voltages;
+extern CellSuccess filtered_cell_voltage_success;
+extern Therm       cell_temps;
+extern Owc         cell_owc_ok;
+extern Owc         therm_owc_ok;
 
 extern CellParam max_cell_voltage;
 extern CellParam min_cell_voltage;

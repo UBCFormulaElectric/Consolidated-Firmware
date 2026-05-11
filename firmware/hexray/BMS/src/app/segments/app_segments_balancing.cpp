@@ -15,15 +15,15 @@ using namespace app::can_tx;
 using namespace app::can_utils;
 using namespace app::segments;
 
-static constexpr float DISCHARGE_THRESHOLD_V = 10e-3f;
-static constexpr uint32_t SETTLE_TIME_MS  = 5 * 1000;
-static constexpr uint32_t BALANCE_TIME_MS = 5 * 1000;
+static constexpr float    DISCHARGE_THRESHOLD_V = 10e-3f;
+static constexpr uint32_t SETTLE_TIME_MS        = 5 * 1000;
+static constexpr uint32_t BALANCE_TIME_MS       = 5 * 1000;
 
 static BalancingState                                                 state;
 static array<array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>    discharge_enabled;
 static array<array<uint8_t, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> pwm_duty;
-static app::Timer                                                          settle_timer(SETTLE_TIME_MS);
-static app::Timer                                                          balance_timer(BALANCE_TIME_MS);
+static app::Timer                                                     settle_timer(SETTLE_TIME_MS);
+static app::Timer                                                     balance_timer(BALANCE_TIME_MS);
 
 static void updateCellsToBalance()
 {
@@ -43,19 +43,23 @@ static void updateCellsToBalance()
             }
 
             // Never discharge the leader cell unless balancing to target voltage
-            if (seg == min_cell_voltage.segment && cell == min_cell_voltage.cell && !app::can_rx::Debug_CellBalancing_OverrideValue_get())
+            if (seg == min_cell_voltage.segment && cell == min_cell_voltage.cell &&
+                !app::can_rx::Debug_CellBalancing_OverrideValue_get())
             {
                 discharge_enabled[seg][cell] = false;
                 continue;
             }
 
             // Never discharge below minimum allowed voltage
-            if (cell_voltages[seg][cell] <= convertUVOVToFloat(VUV)) {
+            if (cell_voltages[seg][cell] <= convertUVOVToFloat(VUV))
+            {
                 discharge_enabled[seg][cell] = false;
                 continue;
             }
 
-            const float delta = cell_voltages[seg][cell] - (app::can_rx::Debug_CellBalancing_OverrideValue_get() ? app::can_rx::Debug_CellBalancing_TargetValue_get() : min_cell_voltage.voltage);
+            const float delta = cell_voltages[seg][cell] - (app::can_rx::Debug_CellBalancing_OverrideValue_get()
+                                                                ? app::can_rx::Debug_CellBalancing_TargetValue_get()
+                                                                : min_cell_voltage.voltage);
 
             // Don't dischange below threshold
             if (delta < DISCHARGE_THRESHOLD_V)
@@ -64,11 +68,12 @@ static void updateCellsToBalance()
                 continue;
             }
 
-            const float raw_duty = app::can_rx::Debug_CellBalancing_OverrideDutyCycle_get() ? app::can_rx::Debug_CellBalancing_TargetDutyCycle_get() : 0.0f;
+            const float raw_duty = app::can_rx::Debug_CellBalancing_OverrideDutyCycle_get()
+                                       ? app::can_rx::Debug_CellBalancing_TargetDutyCycle_get()
+                                       : 0.0f;
 
-            pwm_duty[seg][cell] = (uint8_t) roundf(raw_duty / 100.0f * 15.0f);
+            pwm_duty[seg][cell]          = (uint8_t)roundf(raw_duty / 100.0f * 15.0f);
             discharge_enabled[seg][cell] = true;
-            
         }
     }
 
@@ -103,7 +108,8 @@ void balancingInit()
     state = BalancingState::BALANCING_DISABLED;
 }
 
-void balancingDisable() {
+void balancingDisable()
+{
     disableBalance();
     state = BalancingState::BALANCING_DISABLED;
     LOG_INFO("Disabling");

@@ -129,13 +129,11 @@ int main(void)
     MX_ADC1_Init();
     MX_FDCAN1_Init();
     MX_FDCAN2_Init();
-    // MX_SDMMC1_SD_Init();
+    MX_SDMMC1_SD_Init();
     MX_SPI4_Init();
     MX_ADC3_Init();
     MX_CRC_Init();
-#ifndef WATCHDOG_DISABLED
     MX_IWDG1_Init();
-#endif
     MX_TIM1_Init();
     MX_TIM3_Init();
     MX_TIM5_Init();
@@ -567,7 +565,7 @@ static void MX_IWDG1_Init(void)
     /* USER CODE END IWDG1_Init 0 */
 
     /* USER CODE BEGIN IWDG1_Init 1 */
-    
+
     /* USER CODE END IWDG1_Init 1 */
     hiwdg1.Instance       = IWDG1;
     hiwdg1.Init.Prescaler = IWDG_PRESCALER_4;

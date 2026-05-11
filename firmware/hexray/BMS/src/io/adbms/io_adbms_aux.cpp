@@ -26,8 +26,9 @@ expected<void, ErrorCode> startTempAdcConversion()
     return sendCmd(ADAX_BASE);
 }
 
-expected<void, ErrorCode> startSegAdcConversion() {
-    return sendCmd(ADAX_BASE|CH4|CH2);
+expected<void, ErrorCode> startSegAdcConversion()
+{
+    return sendCmd(ADAX_BASE | CH4 | CH2);
 }
 
 expected<void, ErrorCode> pollAuxAdcConversion()
@@ -92,19 +93,18 @@ void readCellTempReg(
                     comm_success[seg][gpio]   = {};
                 }
             }
-
-
         }
     }
 }
 
 void readSegVoltageReg(
-    array<uint16_t, NUM_SEGMENTS> &segment_voltage_regs, 
-    array<expected<void,ErrorCode>, NUM_SEGMENTS> &comm_success) 
+    array<uint16_t, NUM_SEGMENTS>                  &segment_voltage_regs,
+    array<expected<void, ErrorCode>, NUM_SEGMENTS> &comm_success)
 {
-    const expected<void,ErrorCode> poll_ok = pollAuxAdcConversion();
+    const expected<void, ErrorCode> poll_ok = pollAuxAdcConversion();
 
-    if (!poll_ok) {
+    if (!poll_ok)
+    {
         for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
         {
             comm_success[seg] = poll_ok;
@@ -113,11 +113,12 @@ void readSegVoltageReg(
     }
 
     readRegGroup(RDAUXD, shared_reg_group, shared_reg_group_success);
-    for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++) {
-
-        if (!shared_reg_group_success[seg]) {
+    for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
+    {
+        if (!shared_reg_group_success[seg])
+        {
             segment_voltage_regs[seg] = 0U;
-            comm_success[seg] = shared_reg_group_success[seg];
+            comm_success[seg]         = shared_reg_group_success[seg];
             continue;
         }
 
@@ -127,13 +128,12 @@ void readSegVoltageReg(
 
         if (voltage == 0xFFFF || voltage == 0x8000)
         {
-            segment_voltage_regs[seg]       = 0U;
-            comm_success[seg]               = std::unexpected(ErrorCode::ERROR);
+            segment_voltage_regs[seg] = 0U;
+            comm_success[seg]         = std::unexpected(ErrorCode::ERROR);
             continue;
         }
         segment_voltage_regs[seg] = voltage;
         comm_success[seg]         = {};
     }
-
 }
 } // namespace io::adbms

@@ -14,14 +14,13 @@ namespace balancingState
     {
         app::can_tx::BMS_State_set(app::can_utils::BmsState::BMS_BALANCING_STATE);
         app::segments::balancingInit();
-
     }
 
     static void balancingStateRunOnTick100Hz()
     {
-        //comment back in
-        // const bool ir_negative_opened_debounced = app::irs::negativeOpenedDebounced();
-        const bool balancing_enabled = app::can_rx::Debug_CellBalancing_Request_get();
+        // comment back in
+        //  const bool ir_negative_opened_debounced = app::irs::negativeOpenedDebounced();
+        const bool balancing_enabled            = app::can_rx::Debug_CellBalancing_Request_get();
         const bool ir_negative_opened_debounced = false;
 
         if (ir_negative_opened_debounced || !balancing_enabled)

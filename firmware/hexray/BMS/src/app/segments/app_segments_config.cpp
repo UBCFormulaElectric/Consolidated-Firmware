@@ -5,7 +5,7 @@
 
 using namespace std;
 
-inline constexpr uint8_t  NUM_CONFIG_SYNC_TRIES = 5;
+inline constexpr uint8_t NUM_CONFIG_SYNC_TRIES = 5;
 
 static array<io::adbms::SegmentConfig, io::NUM_SEGMENTS> segment_config;
 static array<io::adbms::PWMConfig, io::NUM_SEGMENTS>     segment_pwm_config;

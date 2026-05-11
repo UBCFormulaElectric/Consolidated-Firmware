@@ -188,7 +188,7 @@ impl CanDatabase {
                             tx_node_name_2: self.get_connection().unwrap().query_row(
                                 "SELECT tx_node_name FROM messages WHERE name = ?1",
                                 rusqlite::params![msg.name],
-                                |row| (row.get::<_, String>(0)),
+                                |row| row.get::<_, String>(0),
                             ).expect("Failed to query for duplicate message name"),
                             tx_msg_name: msg.name.clone(),
                         }

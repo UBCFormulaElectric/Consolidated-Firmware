@@ -28,7 +28,7 @@ void readStatusReg(
     array<StatusGroups, NUM_SEGMENTS>              &stat_regs,
     array<expected<void, ErrorCode>, NUM_SEGMENTS> &stat_regs_success)
 {
-    //TODO: TEST (Unsure if this poll is needed) 
+    // TODO: TEST (Unsure if this poll is needed)
     if (const auto ok = pollCellsAdcConversion(); !ok)
     {
         stat_regs_success.fill(ok);

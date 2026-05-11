@@ -109,7 +109,8 @@
 //         const bool ot =
 //             over_temp_timer_.runIfCondition(over_temp_condition) == Timer::TimerState::EXPIRED && blanking_expired;
 //         const bool ce  = comm_err_timer_.runIfCondition(comm_err) == Timer::TimerState::EXPIRED && blanking_expired;
-//         const bool cow = cell_owc_timer_.runIfCondition(any_cell_owc) == Timer::TimerState::EXPIRED && blanking_expired;
+//         const bool cow = cell_owc_timer_.runIfCondition(any_cell_owc) == Timer::TimerState::EXPIRED &&
+//         blanking_expired;
 
 //         Setters::set_undervoltage(uv);
 //         Setters::set_overvoltage(ov);

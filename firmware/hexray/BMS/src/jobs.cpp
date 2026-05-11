@@ -77,7 +77,7 @@ void jobs_init()
     LOG_IF_ERR(app::segments::configSync());
     LOG_INFO("Segment Initialization Done");
 #endif
-    //app::segments::initFaults();
+    // app::segments::initFaults();
     app::StateMachine::init(&app::states::init_state);
     app::can_tx::BMS_Heartbeat_set(true);
 }
@@ -118,13 +118,13 @@ void jobs_run100Hz_tick()
     const bool acc_fault = false;
 #else
     adbms_app_lock.take(io::MAX_TIMEOUT);
-    //app::segments::checkWarnings();
-    //const bool acc_fault = app::segments::checkFaults();
+    // app::segments::checkWarnings();
+    // const bool acc_fault = app::segments::checkFaults();
     adbms_app_lock.give();
 #endif
     using namespace io::faultLatch;
 
-    //setCurrentStatus(&bms_ok_latch, acc_fault ? FaultLatchState::FAULT : FaultLatchState::OK);
+    // setCurrentStatus(&bms_ok_latch, acc_fault ? FaultLatchState::FAULT : FaultLatchState::OK);
     setCurrentStatus(&bms_ok_latch, FaultLatchState::OK);
 
     // Update CAN signals for BMS latch statuses.
@@ -169,7 +169,7 @@ void jobs_run1kHz_tick()
 
 void jobs_runAdbmsVoltages_tick()
 {
-    app::segments::Cell voltages;
+    app::segments::Cell        voltages;
     app::segments::CellSuccess voltages_success;
 
     spi_bus_lock.take(io::MAX_TIMEOUT);
@@ -185,7 +185,7 @@ void jobs_runAdbmsVoltages_tick()
 
 void jobs_runAdbmsFilteredVoltages_tick()
 {
-    app::segments::Cell voltages;
+    app::segments::Cell        voltages;
     app::segments::CellSuccess voltages_success;
 
     spi_bus_lock.take(io::MAX_TIMEOUT);
@@ -199,9 +199,9 @@ void jobs_runAdbmsFilteredVoltages_tick()
 
 void jobs_runAdbmsTemperatures_tick()
 {
-    app::segments::Therm temps;
-    app::segments::ThermSuccess temp_success;
-    app::segments::Segment seg_voltages;
+    app::segments::Therm          temps;
+    app::segments::ThermSuccess   temp_success;
+    app::segments::Segment        seg_voltages;
     app::segments::SegmentSuccess seg_voltages_success;
 
     spi_bus_lock.take(io::MAX_TIMEOUT);
@@ -219,11 +219,10 @@ void jobs_runAdbmsTemperatures_tick()
 
 void jobs_runAdbmsDiagnostics_tick()
 {
-    app::segments::Status status;
+    app::segments::Status         status;
     app::segments::SegmentSuccess status_success;
-    app::segments::Owc owc;
-    app::segments::CellSuccess owc_success;
-
+    app::segments::Owc            owc;
+    app::segments::CellSuccess    owc_success;
 
     spi_bus_lock.take(io::MAX_TIMEOUT);
     LOG_IF_ERR(io::adbms::wakeup());

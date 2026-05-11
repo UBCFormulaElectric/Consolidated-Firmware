@@ -27,27 +27,44 @@
 [[noreturn]] static void tasks_run1kHz(void *arg);
 [[noreturn]] static void tasks_runCanTx(void *arg);
 [[noreturn]] static void tasks_runCanRx(void *arg);
+[[noreturn]] static void tasks_runAdbmsVoltages(void *arg);
+[[noreturn]] static void tasks_runAdbmsFilteredVoltages(void *arg);
+[[noreturn]] static void tasks_runAdbmsTemperatures(void *arg);
+[[noreturn]] static void tasks_runAdbmsDiagnostics(void *arg);
 
 // Define the task with StaticTask template class
-static hw::rtos::StaticTask::StaticTaskStack<512> Task1kHzStack;
-static hw::rtos::StaticTask::StaticTaskStack<512> Task1HzStack;
-static hw::rtos::StaticTask::StaticTaskStack<512> Task100HzStack;
-static hw::rtos::StaticTask::StaticTaskStack<512> TaskCanRxStack;
-static hw::rtos::StaticTask::StaticTaskStack<512> TaskCanTxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  Task1kHzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  Task1HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  Task100HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCanRxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCanTxStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024> TaskAdbmsVoltagesStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024> TaskAdbmsFilteredVoltagesStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024> TaskAdbmsTemperaturesStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024> TaskAdbmsDiagnosticsStack;
 
 static hw::rtos::StaticTask Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz, Task1kHzStack);
 static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
 static hw::rtos::StaticTask Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz, Task100HzStack);
 static hw::rtos::StaticTask TaskCanRx(osPriorityBelowNormal, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
 static hw::rtos::StaticTask TaskCanTx(osPriorityBelowNormal, "TaskCanTx", tasks_runCanTx, TaskCanTxStack);
-static hw::rtos::StaticTask<1024> TaskAdbmsVoltages(osPriorityNormal, "TaskAdbmsVoltages", tasks_runAdbmsVoltages);
-static hw::rtos::StaticTask<1024>
-    TaskAdbmsFilteredVoltages(osPriorityNormal, "TaskAdbmsFilteredVoltages", tasks_runAdbmsFilteredVoltages);
-static hw::rtos::StaticTask<1024>
-    TaskAdbmsTemperatures(osPriorityNormal, "TaskAdbmsTemperatures", tasks_runAdbmsTemperatures);
-static hw::rtos::StaticTask<1024>
-    TaskAdbmsDiagnostics(osPriorityNormal, "TaskAdbmsDiagnostics", tasks_runAdbmsDiagnostics);
-
+static hw::rtos::StaticTask
+    TaskAdbmsVoltages(osPriorityNormal, "TaskAdbmsVoltages", tasks_runAdbmsVoltages, TaskAdbmsVoltagesStack);
+static hw::rtos::StaticTask TaskAdbmsFilteredVoltages(
+    osPriorityNormal,
+    "TaskAdbmsFilteredVoltages",
+    tasks_runAdbmsFilteredVoltages,
+    TaskAdbmsFilteredVoltagesStack);
+static hw::rtos::StaticTask TaskAdbmsTemperatures(
+    osPriorityNormal,
+    "TaskAdbmsTemperatures",
+    tasks_runAdbmsTemperatures,
+    TaskAdbmsTemperaturesStack);
+static hw::rtos::StaticTask TaskAdbmsDiagnostics(
+    osPriorityNormal,
+    "TaskAdbmsDiagnostics",
+    tasks_runAdbmsDiagnostics,
+    TaskAdbmsDiagnosticsStack);
 
 static hw::runtimeStat::monitor<5> runtimeMonitor{
     { app::can_tx::BMS_CoreCpuUsage_set, app::can_tx::BMS_CoreCpuUsageMax_set },
@@ -65,7 +82,7 @@ static hw::runtimeStat::monitor<5> runtimeMonitor{
     },
 };
 
-[[noreturn]] static void tasks_run1Hz(void *arg)
+void tasks_run1Hz(void *arg)
 {
     constexpr uint32_t             period_ms                = 1000U;
     constexpr uint32_t             watchdog_grace_period_ms = 50U;
@@ -141,9 +158,12 @@ void tasks_runCanTx(void *arg)
         if (m.bus == app::can_utils::BusEnum::Bus_charger)
         {
             std::expected<void, ErrorCode> res;
-            if (can_msg.dlc > 8) {
+            if (can_msg.dlc > 8)
+            {
                 res = fdcan1.fdcan_transmit(can_msg);
-            } else {
+            }
+            else
+            {
                 res = fdcan1.can_transmit(can_msg);
             }
             LOG_IF_ERR(res);
@@ -171,10 +191,10 @@ void tasks_runCanRx(void *arg)
     }
 }
 
-[[noreturn]] static void tasks_runAdbmsVoltages(void *arg)
+void tasks_runAdbmsVoltages(void *arg)
 {
-    const uint32_t period_ms                = 500U;
-    const uint32_t watchdog_grace_period_ms = 25U;
+    const uint32_t                 period_ms                = 500U;
+    const uint32_t                 watchdog_grace_period_ms = 25U;
     hw::watchdog::WatchdogInstance watchdogVoltages{ period_ms + watchdog_grace_period_ms };
     hw::watchdog::monitor          monitorVoltages{ &watchdogVoltages, hiwdg1, HAL_IWDG_Refresh };
     monitorVoltages.registerWatchdogInstance();
@@ -190,10 +210,10 @@ void tasks_runCanRx(void *arg)
     }
 }
 
-[[noreturn]] static void tasks_runAdbmsFilteredVoltages(void *arg)
+void tasks_runAdbmsFilteredVoltages(void *arg)
 {
-    const uint32_t period_ms                = 500U;
-    const uint32_t watchdog_grace_period_ms = 25U;
+    const uint32_t                 period_ms                = 500U;
+    const uint32_t                 watchdog_grace_period_ms = 25U;
     hw::watchdog::WatchdogInstance watchdogFilteredVoltages{ period_ms + watchdog_grace_period_ms };
     hw::watchdog::monitor          monitorFilteredVoltages{ &watchdogFilteredVoltages, hiwdg1, HAL_IWDG_Refresh };
     monitorFilteredVoltages.registerWatchdogInstance();
@@ -209,10 +229,10 @@ void tasks_runCanRx(void *arg)
     }
 }
 
-[[noreturn]] static void tasks_runAdbmsTemperatures(void *arg)
+void tasks_runAdbmsTemperatures(void *arg)
 {
-    const uint32_t period_ms                = 500U;
-    const uint32_t watchdog_grace_period_ms = 25U;
+    const uint32_t                 period_ms                = 500U;
+    const uint32_t                 watchdog_grace_period_ms = 25U;
     hw::watchdog::WatchdogInstance watchdogTemperatures{ period_ms + watchdog_grace_period_ms };
     hw::watchdog::monitor          monitorTemperatures{ &watchdogTemperatures, hiwdg1, HAL_IWDG_Refresh };
     monitorTemperatures.registerWatchdogInstance();
@@ -228,10 +248,10 @@ void tasks_runCanRx(void *arg)
     }
 }
 
-[[noreturn]] static void tasks_runAdbmsDiagnostics(void *arg)
+void tasks_runAdbmsDiagnostics(void *arg)
 {
-    const uint32_t period_ms                = 500U;
-    const uint32_t watchdog_grace_period_ms = 25U;
+    const uint32_t                 period_ms                = 500U;
+    const uint32_t                 watchdog_grace_period_ms = 25U;
     hw::watchdog::WatchdogInstance watchdogDiagnostics{ period_ms + watchdog_grace_period_ms };
     hw::watchdog::monitor          monitorDiagnostics{ &watchdogDiagnostics, hiwdg1, HAL_IWDG_Refresh };
     monitorDiagnostics.registerWatchdogInstance();

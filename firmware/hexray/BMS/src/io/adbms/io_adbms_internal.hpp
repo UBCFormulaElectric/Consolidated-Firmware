@@ -123,7 +123,7 @@ void                      readRegGroup(
                          array<expected<void, ErrorCode>, NUM_SEGMENTS>      &comm_success);
 expected<void, ErrorCode> writeRegGroup(uint16_t cmd, const array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs);
 
-// STAT regs use same poll 
+// STAT regs use same poll
 expected<void, ErrorCode> pollAuxAdcConversion();
 expected<void, ErrorCode> pollCellsAdcConversion();
 } // namespace io::adbms
