@@ -50,6 +50,10 @@
       "id": 434,
       "description": "Hardware brake system plausibility device fault latched."
     },
+    "BmsLatched": {
+      "id": 435,
+      "description": "BMS fault latched."
+    },
     "TESTFAULT": {
       "id": 436,
       "description": "FOR UNIT TESTING ONLY DO NOT EVER EVER THROW"
