@@ -65,21 +65,21 @@ inline constexpr uint16_t EXIT_CFGUPDATE       = 0x0092;
 // CC and Digital Filters
 inline constexpr uint16_t SUBCMD_RESETCHARGEACCUM = 0x0082;
 
-// Current 
+// Current
 inline constexpr uint16_t CMD_GETCURRENT = 0x3A;
 
-// Charge 
+// Charge
 inline constexpr uint16_t SUBCMD_GET_INEGRATED_CHARGE = 0x0076;
 
-// Cell Balancing 
-inline constexpr uint16_t CMD_TEMPERATURE_IC = 0x68;
-inline constexpr uint16_t BALANCE_CFG = 0x9335;
-inline constexpr uint16_t MIN_CELL_TEMP = 0x9336;
-inline constexpr uint16_t MAX_CELL_TEMP = 0x9337;
-inline constexpr uint16_t MAX_IC_TEMP = 0x9338;
+// Cell Balancing
+inline constexpr uint16_t CMD_TEMPERATURE_IC    = 0x68;
+inline constexpr uint16_t BALANCE_CFG           = 0x9335;
+inline constexpr uint16_t MIN_CELL_TEMP         = 0x9336;
+inline constexpr uint16_t MAX_CELL_TEMP         = 0x9337;
+inline constexpr uint16_t MAX_IC_TEMP           = 0x9338;
 inline constexpr uint16_t CELL_BALANCE_INTERVAL = 0x9339; // 20 seconds default
-inline constexpr uint16_t MAX_CELLS_BALANCING = 0x933A;
-inline constexpr uint16_t CELL_BALANCE_MIN_V = 0x933F;
+inline constexpr uint16_t MAX_CELLS_BALANCING   = 0x933A;
+inline constexpr uint16_t CELL_BALANCE_MIN_V    = 0x933F;
 
 // OTP
 inline constexpr uint16_t OTP_WR_CHECK = 0x00A0;

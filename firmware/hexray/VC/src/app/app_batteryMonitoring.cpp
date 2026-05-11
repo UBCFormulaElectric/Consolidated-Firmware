@@ -26,7 +26,7 @@ std::expected<void, ErrorCode> update()
     const auto cell4_voltage = io::batteryMonitoring::get_voltage_cell(CellReading::CELL4);
     const auto cell5_voltage = io::batteryMonitoring::get_voltage_cell(CellReading::CELL5);
 
-    // System 
+    // System
     const auto pack_voltage = io::batteryMonitoring::get_voltage_system(SystemReading::PACK_V);
     const auto load_voltage = io::batteryMonitoring::get_voltage_system(SystemReading::LOAD_V);
 
@@ -36,7 +36,6 @@ std::expected<void, ErrorCode> update()
     // Integrated Charge
     const auto integrated_charge = io::batteryMonitoring::get_integrated_charge();
 
-
     return {};
 }
-}
+} // namespace app::batteryMonitoring

@@ -1,6 +1,9 @@
 #pragma once
+#include <expected>
+#include <cstdint>
+#include "util_errorCodes.hpp"
 
 namespace app::powerMonitoring
 {
-void update();
+std::expected<void, ErrorCode> update();
 }

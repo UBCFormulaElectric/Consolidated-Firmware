@@ -5,6 +5,7 @@
 #include "app_heartbeatMonitors.hpp"
 #include "app_canRx.hpp"
 #include "app_batteryMonitoring.hpp"
+#include "app_powerMonitoring.hpp"
 
 #include "io_canMsg.hpp"
 #include "io_canTx.hpp"
@@ -41,24 +42,24 @@ void jobs_init()
     io::batteryMonitoring::init();
     LOG_INFO("Initialized");
 }
-
 void jobs_run1Hz_tick() {}
-
-
 void jobs_run100Hz_tick()
 {
     /*io::can_tx::enqueue100HzMsgs();
     const uint32_t k = app::can_rx::BMS_ChargePowerLimit_get();
     LOG_INFO("%d", k);*/
     hb_monitor.checkIn();
-    hb_monitor.broadcastFaults(); 
+    hb_monitor.broadcastFaults();
 }
 void jobs_run1kHz_tick()
 {
     // io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
 }
-
 void jobs_runBatteryMonitoring_tick()
 {
     app::batteryMonitoring::update();
+}
+void jobs_runPowerMonitoring_tick()
+{
+    app::powerMonitoring::update();
 }

@@ -215,20 +215,21 @@ std::expected<float, ErrorCode> get_voltage_system(SystemReading system)
 {
     uint16_t system_voltage = 0;
     RETURN_IF_ERR(command_read_2byte(system, &system_voltage));
-    return static_cast<float>(system_voltage) / 100.0f; //  The units for TOS, PACK, and LD voltages are reported in cV (10mV LSB) by default
+    return static_cast<float>(system_voltage) /
+           100.0f; //  The units for TOS, PACK, and LD voltages are reported in cV (10mV LSB) by default
 }
 /* -------------------- Current Readings ------------------------- */
 /**
  * @brief Gets the current through sense
- * @param void 
- * @return float value of current 
+ * @param void
+ * @return float value of current
  */
 std::expected<float, ErrorCode> get_current(void)
 {
     uint16_t raw_current = 0;
     RETURN_IF_ERR(command_read_2byte(CMD_GETCURRENT, &raw_current));
     int16_t signed_current = static_cast<int16_t>(raw_current);
-    return static_cast<float>(signed_current) / 1000.0f; 
+    return static_cast<float>(signed_current) / 1000.0f;
 }
 
 /* -------------------- Charge Readings ------------------------- */
@@ -245,20 +246,20 @@ std::expected<uint64_t, ErrorCode> get_integrated_charge(void)
 // Cell Balancing Functions
 /**
  * @brief Gets the temperature of the die because we will be using autonomous balancing
- * @param void 
- * @return float value of current 
+ * @param void
+ * @return float value of current
  */
 std::expected<float, ErrorCode> get_temperatureIC(void)
 {
     uint16_t raw_temp = 0;
     RETURN_IF_ERR(command_read_2byte(CMD_TEMPERATURE_IC, &raw_temp));
-    float temp_kelvin = static_cast<float>(raw_temp) / 10.0f;
+    float temp_kelvin  = static_cast<float>(raw_temp) / 10.0f;
     float temp_celsius = temp_kelvin - 273.15f;
     return temp_celsius;
 }
 /**
  * @brief initialization of cell balancing
- * @param void 
+ * @param void
  * @return no
  */
 std::expected<void, ErrorCode> balancing_init(void)
