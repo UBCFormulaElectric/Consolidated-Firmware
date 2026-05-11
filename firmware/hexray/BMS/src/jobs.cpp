@@ -17,6 +17,7 @@
 #include "app_heartbeatMonitor.hpp"
 #include "app_jsoncan.hpp"
 #include "app_canUtils.hpp"
+#include "app_commitInfo.hpp"
 
 #include "io_canQueues.hpp"
 #include "io_canMsg.hpp"
@@ -27,11 +28,6 @@
 #include "io_fans.hpp"
 #include "io_faultLatch.hpp"
 #include "io_canTx.hpp"
-
-extern "C"
-{
-#include "app_commitInfo.h"
-}
 
 io::semaphore spi_bus_lock(true);
 io::semaphore adbms_app_lock(true);
