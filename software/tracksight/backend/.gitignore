@@ -1,9 +1,0 @@
-
-logs
-bus_configs
-*.db
-*.db-shm
-*.db-wal
-
-*.env
-!*.template.env
