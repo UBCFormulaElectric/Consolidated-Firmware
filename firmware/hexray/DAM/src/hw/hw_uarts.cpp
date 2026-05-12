@@ -5,8 +5,6 @@
 
 constexpr hw::Uart _900k_uart{ huart2 };
 
-void hw_uarts_init() {}
-
 const hw::Uart &hw::getUartFromHandle(const UART_HandleTypeDef *handle)
 {
     assert(handle == &_900k_uart.getHandle());

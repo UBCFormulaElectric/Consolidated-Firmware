@@ -3,4 +3,4 @@
 
 extern const hw::Uart _900k_uart;
 
-void hw_uarts_init();
+inline void hw_uarts_init() {}
