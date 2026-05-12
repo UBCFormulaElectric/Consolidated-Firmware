@@ -3,35 +3,35 @@
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
 #include "app_segments.hpp"
+#include "app_irs.hpp"
+
 namespace app::states
 {
-
 namespace balancingState
 {
 
     static void balancingStateRunOnEntry()
     {
         app::can_tx::BMS_State_set(app::can_utils::BmsState::BMS_BALANCING_STATE);
-        app::segments::balancingInit();
+        app::segments::balancing::init();
     }
 
     static void balancingStateRunOnTick100Hz()
     {
         // comment back in
-        //  const bool ir_negative_opened_debounced = app::irs::negativeOpenedDebounced();
+        const bool ir_negative_opened_debounced = app::irs::negativeOpenedDebounced();
         const bool balancing_enabled            = app::can_rx::Debug_CellBalancing_Request_get();
-        const bool ir_negative_opened_debounced = false;
 
         if (ir_negative_opened_debounced || !balancing_enabled)
         {
             app::StateMachine::set_next_state(&app::states::init_state);
         }
-        app::segments::balancingEnable();
+        app::segments::balancing::enable();
     }
 
     static void balancingStateRunOnExit()
     {
-        app::segments::balancingDisable();
+        app::segments::balancing::disable();
     }
 } // namespace balancingState
 

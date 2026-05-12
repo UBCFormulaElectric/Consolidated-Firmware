@@ -17,7 +17,7 @@ expected<void, ErrorCode> sendStopBalanceCmd()
     return sendCmd(MUTE);
 }
 
-expected<void, ErrorCode> writePwmReg(array<PWMConfig, NUM_SEGMENTS> &pwm_config)
+expected<void, ErrorCode> writePwmReg(const array<PWMConfig, NUM_SEGMENTS> &pwm_config)
 {
     array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> pwma_regs{};
     array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> pwmb_regs{};
@@ -35,32 +35,28 @@ expected<void, ErrorCode> writePwmReg(array<PWMConfig, NUM_SEGMENTS> &pwm_config
     return {};
 }
 
-void readPwmReg(array<PWMConfig, NUM_SEGMENTS> &configs, array<expected<void, ErrorCode>, NUM_SEGMENTS> &success)
+Segments<expected<PWMConfig, ErrorCode>> readPwmReg()
 {
-    array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> regs_a{};
-    array<expected<void, ErrorCode>, NUM_SEGMENTS>      success_a{};
-    array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> regs_b{};
-    array<expected<void, ErrorCode>, NUM_SEGMENTS>      success_b{};
+    Segments<expected<PWMConfig, ErrorCode>> configs;
 
-    readRegGroup(RDPWMA, regs_a, success_a);
-    readRegGroup(RDPWMB, regs_b, success_b);
+    const auto regs_a = readRegGroup(RDPWMA);
+    const auto regs_b = readRegGroup(RDPWMB);
 
     for (size_t seg = 0U; seg < NUM_SEGMENTS; ++seg)
     {
-        if (!success_a[seg])
+        if (!regs_a[seg])
         {
-            success[seg] = success_a[seg];
+            configs[seg] = unexpected(regs_a[seg].error());
             continue;
         }
-        if (!success_b[seg])
+        if (!regs_b[seg])
         {
-            success[seg] = success_b[seg];
+            configs[seg] = unexpected(regs_b[seg].error());
             continue;
         }
-
-        memcpy(&configs[seg].reg_a, regs_a[seg].data(), sizeof(PWMA));
-        memcpy(&configs[seg].reg_b, regs_b[seg].data(), sizeof(PWMB));
-        success[seg] = {};
+        configs[seg]->reg_a = *reinterpret_cast<const PWMA *>(regs_a[seg]->data());
+        configs[seg]->reg_b = *reinterpret_cast<const PWMB *>(regs_b[seg]->data());
     }
+    return configs;
 }
 } // namespace io::adbms

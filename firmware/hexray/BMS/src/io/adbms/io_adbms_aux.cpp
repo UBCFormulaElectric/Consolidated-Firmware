@@ -4,19 +4,21 @@
 
 using namespace std;
 
-static constexpr uint8_t MAX_NUM_ATTEMPTS = 10U;
-static constexpr uint8_t GPIOS_PER_GROUP  = 3U;
-
-static const array<uint16_t, io::adbms::NUM_TEMP_REG_GROUPS> reg_groups{ {
+namespace
+{
+constexpr uint8_t                              MAX_NUM_ATTEMPTS = 10U;
+constexpr uint8_t                              GPIOS_PER_GROUP  = 3U;
+constexpr array<uint16_t, NUM_TEMP_REG_GROUPS> reg_groups{ {
     io::adbms::RDAUXA,
     io::adbms::RDAUXB,
     io::adbms::RDAUXC,
     io::adbms::RDAUXD,
 } };
+} // namespace
 
 namespace io::adbms
 {
-expected<void, ErrorCode> clearCellAuxReg()
+expected<void, ErrorCode> clear::CellAuxReg()
 {
     return sendCmd(CLRAUX);
 }
@@ -45,95 +47,85 @@ expected<void, ErrorCode> pollAuxAdcConversion()
     return unexpected(ErrorCode::TIMEOUT);
 }
 
-void readCellTempReg(
-    array<array<uint16_t, THERM_GPIOS_PER_SEGMENT>, NUM_SEGMENTS>                  &cell_temp_regs,
-    array<array<expected<void, ErrorCode>, THERM_GPIOS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success)
+Therms<std::expected<uint16_t, ErrorCode>> readCellTempReg()
 {
-    const expected<void, ErrorCode> poll_ok = pollAuxAdcConversion();
+    Therms<std::expected<uint16_t, ErrorCode>> cell_temp_regs;
 
-    if (!poll_ok)
+    if (const expected<void, ErrorCode> poll_ok = pollAuxAdcConversion(); !poll_ok)
     {
         for (uint8_t seg = 0U; seg < NUM_SEGMENTS; seg++)
         {
-            comm_success[seg].fill(poll_ok);
+            cell_temp_regs[seg].fill(unexpected(poll_ok.error()));
         }
-        return;
+        return cell_temp_regs;
     }
 
     for (size_t group = 0U; group < NUM_TEMP_REG_GROUPS; group++)
     {
-        readRegGroup(reg_groups[group], shared_reg_group, shared_reg_group_success);
+        const auto out = readRegGroup(reg_groups[group]);
 
         for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
         {
-            if (!shared_reg_group_success[seg])
+            if (!out[seg])
             {
-                cell_temp_regs[seg].fill(0U);
-                comm_success[seg].fill(shared_reg_group_success[seg]);
+                cell_temp_regs[seg].fill(unexpected(out[seg].error()));
                 continue;
             }
 
             for (size_t gpio_in_group = 0U; gpio_in_group < GPIOS_PER_GROUP; gpio_in_group++)
             {
-                const size_t gpio = group * GPIOS_PER_GROUP + gpio_in_group;
-                if (gpio < THERM_GPIOS_PER_SEGMENT)
+                if (const size_t gpio = group * GPIOS_PER_GROUP + gpio_in_group; gpio < THERM_GPIOS_PER_SEGMENT)
                 {
-                    const uint16_t low         = shared_reg_group[seg][gpio_in_group * 2U];
-                    const uint16_t high        = shared_reg_group[seg][gpio_in_group * 2U + 1U];
-                    const uint16_t temperature = static_cast<uint16_t>(low) | (static_cast<uint16_t>(high) << 8U);
+                    const uint16_t low  = out[seg].value()[gpio_in_group * 2U];
+                    const uint16_t high = out[seg].value()[gpio_in_group * 2U + 1U];
+                    const auto     temperature =
+                        static_cast<uint16_t>(static_cast<uint16_t>(low) | static_cast<uint16_t>(high) << 8U);
 
                     if (temperature == 0xFFFF || temperature == 0x8000)
                     {
-                        cell_temp_regs[seg][gpio] = 0U;
-                        comm_success[seg][gpio]   = std::unexpected(ErrorCode::ERROR);
+                        cell_temp_regs[seg][gpio] = std::unexpected(ErrorCode::ERROR);
                         continue;
                     }
-
                     cell_temp_regs[seg][gpio] = temperature;
-                    comm_success[seg][gpio]   = {};
                 }
             }
         }
     }
+    return cell_temp_regs;
 }
 
-void readSegVoltageReg(
-    array<uint16_t, NUM_SEGMENTS>                  &segment_voltage_regs,
-    array<expected<void, ErrorCode>, NUM_SEGMENTS> &comm_success)
+Segments<std::expected<uint16_t, ErrorCode>> readSegVoltageReg()
 {
-    const expected<void, ErrorCode> poll_ok = pollAuxAdcConversion();
-
-    if (!poll_ok)
+    Segments<std::expected<uint16_t, ErrorCode>> segment_voltage_regs;
+    if (const expected<void, ErrorCode> poll_ok = pollAuxAdcConversion(); !poll_ok)
     {
         for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
         {
-            comm_success[seg] = poll_ok;
+            segment_voltage_regs[seg] = unexpected(poll_ok.error());
         }
-        return;
+        return segment_voltage_regs;
     }
 
-    readRegGroup(RDAUXD, shared_reg_group, shared_reg_group_success);
+    const auto out = readRegGroup(RDAUXD);
     for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
     {
-        if (!shared_reg_group_success[seg])
+        if (!out[seg])
         {
-            segment_voltage_regs[seg] = 0U;
-            comm_success[seg]         = shared_reg_group_success[seg];
+            segment_voltage_regs[seg] = std::unexpected(out[seg].error());
             continue;
         }
 
-        const uint8_t  low     = shared_reg_group[seg][4U];
-        const uint8_t  high    = shared_reg_group[seg][5U];
-        const uint16_t voltage = static_cast<uint16_t>(low) | (static_cast<uint16_t>(high) << 8U);
+        const uint8_t low     = out[seg].value()[4U];
+        const uint8_t high    = out[seg].value()[5U];
+        const auto    voltage = static_cast<uint16_t>(static_cast<uint16_t>(low) | static_cast<uint16_t>(high) << 8U);
 
         if (voltage == 0xFFFF || voltage == 0x8000)
         {
-            segment_voltage_regs[seg] = 0U;
-            comm_success[seg]         = std::unexpected(ErrorCode::ERROR);
+            segment_voltage_regs[seg] = std::unexpected(ErrorCode::ERROR);
             continue;
         }
         segment_voltage_regs[seg] = voltage;
-        comm_success[seg]         = {};
     }
+    return segment_voltage_regs;
 }
 } // namespace io::adbms

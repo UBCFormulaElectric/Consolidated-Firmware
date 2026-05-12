@@ -33,7 +33,7 @@ using SegmentOscchkSetters       = void (*)(bool);
 using CellOvSetters              = void (*)(bool);
 using CellUvSetters              = void (*)(bool);
 
-CellVoltageSetters cell_voltage_setters[MAX_NUM_SEGMENTS][io::CELLS_PER_SEGMENT] = {
+CellVoltageSetters cell_voltage_setters[MAX_NUM_SEGMENTS][CELLS_PER_SEGMENT] = {
     // Seg 0
     { &BMS_Seg0_Cell0_Voltage_set, &BMS_Seg0_Cell1_Voltage_set, &BMS_Seg0_Cell2_Voltage_set,
       &BMS_Seg0_Cell3_Voltage_set, &BMS_Seg0_Cell4_Voltage_set, &BMS_Seg0_Cell5_Voltage_set,
@@ -96,7 +96,7 @@ CellVoltageSetters cell_voltage_setters[MAX_NUM_SEGMENTS][io::CELLS_PER_SEGMENT]
       &BMS_Seg9_Cell12_Voltage_set, &BMS_Seg9_Cell13_Voltage_set },
 };
 
-FilteredCellVoltageSetters filtered_cell_voltage_setters[MAX_NUM_SEGMENTS][io::CELLS_PER_SEGMENT] = {
+FilteredCellVoltageSetters filtered_cell_voltage_setters[MAX_NUM_SEGMENTS][CELLS_PER_SEGMENT] = {
     // Seg 0
     { &BMS_Seg0_Cell0_FilteredVoltage_set, &BMS_Seg0_Cell1_FilteredVoltage_set, &BMS_Seg0_Cell2_FilteredVoltage_set,
       &BMS_Seg0_Cell3_FilteredVoltage_set, &BMS_Seg0_Cell4_FilteredVoltage_set, &BMS_Seg0_Cell5_FilteredVoltage_set,
@@ -159,7 +159,7 @@ FilteredCellVoltageSetters filtered_cell_voltage_setters[MAX_NUM_SEGMENTS][io::C
       &BMS_Seg9_Cell12_FilteredVoltage_set, &BMS_Seg9_Cell13_FilteredVoltage_set },
 };
 
-CellTemperatureSetters cell_temperature_setters[MAX_NUM_SEGMENTS][io::THERMISTORS_PER_SEGMENT] = {
+CellTemperatureSetters cell_temperature_setters[MAX_NUM_SEGMENTS][THERMISTORS_PER_SEGMENT] = {
     // Seg 0
     { &BMS_Seg0_Cell0_Temp_set, &BMS_Seg0_Cell1_Temp_set, &BMS_Seg0_Cell2_Temp_set, &BMS_Seg0_Cell3_Temp_set,
       &BMS_Seg0_Cell4_Temp_set, &BMS_Seg0_Cell5_Temp_set, &BMS_Seg0_Cell6_Temp_set, &BMS_Seg0_Cell7_Temp_set,
@@ -212,7 +212,7 @@ CellTemperatureSetters cell_temperature_setters[MAX_NUM_SEGMENTS][io::THERMISTOR
       &BMS_Seg9_Cell12_Temp_set, &BMS_Seg9_Cell13_Temp_set },
 };
 
-CellOwcSetters cell_owc_setters[MAX_NUM_SEGMENTS][io::CELLS_PER_SEGMENT] = {
+CellOwcSetters cell_owc_setters[MAX_NUM_SEGMENTS][CELLS_PER_SEGMENT] = {
     // Seg 0
     { &BMS_Seg0_Cell0_CellOwcOk_set, &BMS_Seg0_Cell1_CellOwcOk_set, &BMS_Seg0_Cell2_CellOwcOk_set,
       &BMS_Seg0_Cell3_CellOwcOk_set, &BMS_Seg0_Cell4_CellOwcOk_set, &BMS_Seg0_Cell5_CellOwcOk_set,
@@ -275,7 +275,7 @@ CellOwcSetters cell_owc_setters[MAX_NUM_SEGMENTS][io::CELLS_PER_SEGMENT] = {
       &BMS_Seg9_Cell12_CellOwcOk_set, &BMS_Seg9_Cell13_CellOwcOk_set },
 };
 
-ThermOwcSetters therm_owc_setters[MAX_NUM_SEGMENTS][io::THERMISTORS_PER_SEGMENT] = {
+ThermOwcSetters therm_owc_setters[MAX_NUM_SEGMENTS][THERMISTORS_PER_SEGMENT] = {
     // Seg 0
     { &BMS_Seg0_Cell0_ThermOwcOk_set, &BMS_Seg0_Cell1_ThermOwcOk_set, &BMS_Seg0_Cell2_ThermOwcOk_set,
       &BMS_Seg0_Cell3_ThermOwcOk_set, &BMS_Seg0_Cell4_ThermOwcOk_set, &BMS_Seg0_Cell5_ThermOwcOk_set,
@@ -438,7 +438,7 @@ SegmentOscchkSetters segment_oscchk_setters[MAX_NUM_SEGMENTS] = {
     &BMS_Seg5_OSCCHK_set, &BMS_Seg6_OSCCHK_set, &BMS_Seg7_OSCCHK_set, &BMS_Seg8_OSCCHK_set, &BMS_Seg9_OSCCHK_set,
 };
 
-CellOvSetters cell_ov_setters[MAX_NUM_SEGMENTS][io::CELLS_PER_SEGMENT] = {
+CellOvSetters cell_ov_setters[MAX_NUM_SEGMENTS][CELLS_PER_SEGMENT] = {
     // Seg 0
     { &BMS_Seg0_Cell0_OV_set, &BMS_Seg0_Cell1_OV_set, &BMS_Seg0_Cell2_OV_set, &BMS_Seg0_Cell3_OV_set,
       &BMS_Seg0_Cell4_OV_set, &BMS_Seg0_Cell5_OV_set, &BMS_Seg0_Cell6_OV_set, &BMS_Seg0_Cell7_OV_set,
@@ -491,7 +491,7 @@ CellOvSetters cell_ov_setters[MAX_NUM_SEGMENTS][io::CELLS_PER_SEGMENT] = {
       &BMS_Seg9_Cell12_OV_set, &BMS_Seg9_Cell13_OV_set },
 };
 
-CellUvSetters cell_uv_setters[MAX_NUM_SEGMENTS][io::CELLS_PER_SEGMENT] = {
+CellUvSetters cell_uv_setters[MAX_NUM_SEGMENTS][CELLS_PER_SEGMENT] = {
     // Seg 0
     { &BMS_Seg0_Cell0_UV_set, &BMS_Seg0_Cell1_UV_set, &BMS_Seg0_Cell2_UV_set, &BMS_Seg0_Cell3_UV_set,
       &BMS_Seg0_Cell4_UV_set, &BMS_Seg0_Cell5_UV_set, &BMS_Seg0_Cell6_UV_set, &BMS_Seg0_Cell7_UV_set,

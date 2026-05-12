@@ -1,14 +1,11 @@
 #include "io_adbms.hpp"
 #include "io_adbms_internal.hpp"
 #include "util_errorCodes.hpp"
-
 #include <cstring>
-
-using namespace std;
 
 namespace io::adbms
 {
-expected<void, ErrorCode> writeConfigReg(array<SegmentConfig, NUM_SEGMENTS> &config)
+expected<void, ErrorCode> writeConfigReg(const array<SegmentConfig, NUM_SEGMENTS> &config)
 {
     array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> cfga_regs{};
     array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> cfgb_regs{};
@@ -26,32 +23,29 @@ expected<void, ErrorCode> writeConfigReg(array<SegmentConfig, NUM_SEGMENTS> &con
     return {};
 }
 
-void readConfigReg(array<SegmentConfig, NUM_SEGMENTS> &configs, array<expected<void, ErrorCode>, NUM_SEGMENTS> &success)
+Segments<expected<SegmentConfig, ErrorCode>> readConfigReg()
 {
-    array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> regs_a{};
-    array<expected<void, ErrorCode>, NUM_SEGMENTS>      success_a{};
-    array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> regs_b{};
-    array<expected<void, ErrorCode>, NUM_SEGMENTS>      success_b{};
+    const auto a_regs = readRegGroup(RDCFGA);
+    const auto b_regs = readRegGroup(RDCFGB);
 
-    readRegGroup(RDCFGA, regs_a, success_a);
-    readRegGroup(RDCFGB, regs_b, success_b);
-
+    Segments<expected<SegmentConfig, ErrorCode>> read_configs;
     for (size_t seg = 0U; seg < NUM_SEGMENTS; ++seg)
     {
-        if (!success_a[seg])
+        if (!a_regs[seg])
         {
-            success[seg] = success_a[seg];
+            read_configs[seg] = unexpected(a_regs[seg].error());
             continue;
         }
-        if (!success_b[seg])
+        if (!b_regs[seg])
         {
-            success[seg] = success_b[seg];
+            read_configs[seg] = unexpected(b_regs[seg].error());
             continue;
         }
-
-        memcpy(&configs[seg].reg_a, regs_a[seg].data(), sizeof(CFGA));
-        memcpy(&configs[seg].reg_b, regs_b[seg].data(), sizeof(CFGB));
-        success[seg] = {};
+        read_configs[seg] = SegmentConfig{
+            .reg_a = *reinterpret_cast<const CFGA *>(a_regs[seg]->data()),
+            .reg_b = *reinterpret_cast<const CFGB *>(b_regs[seg]->data()),
+        };
     }
+    return read_configs;
 }
 } // namespace io::adbms

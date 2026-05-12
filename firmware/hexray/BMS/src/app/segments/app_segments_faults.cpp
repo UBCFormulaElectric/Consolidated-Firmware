@@ -86,11 +86,11 @@
 //         bool comm_err      = false;
 //         bool any_cell_owc  = false;
 
-//         for (size_t seg = 0; seg < io::NUM_SEGMENTS; ++seg)
+//         for (size_t seg = 0; seg < NUM_SEGMENTS; ++seg)
 //         {
 //             //comm_err = comm_err || !app::segments::stat_success[seg];
 
-//             for (size_t cell = 0; cell < io::CELLS_PER_SEGMENT; ++cell)
+//             for (size_t cell = 0; cell < CELLS_PER_SEGMENT; ++cell)
 //             {
 //                 comm_err = comm_err || !app::segments::cell_voltage_success[seg][cell] ||
 //                            !app::segments::filtered_cell_voltage_success[seg][cell];

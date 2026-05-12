@@ -1,74 +1,64 @@
 #pragma once
-
-#include "io_adbms.hpp"
-
-#include <array>
 #include <expected>
+
+#include "util_errorCodes.hpp"
+#include "io_adbms.hpp"
 
 namespace app::segments
 {
 // Thermistor bank selected during AUX conversions.
-enum class ThermistorMux
+enum class ThermistorMux : size_t
 {
     THERMISTOR_MUX_0_7,
     THERMISTOR_MUX_8_13,
     THERMISTOR_MUX_COUNT,
 };
 
-// Identifies one cell and its latest measured values.
-struct CellParam
-{
-    uint8_t segment;
-    uint8_t cell;
-    float   voltage;
-    float   temp;
-};
-
 // app_segments_config.hpp
-void setBalanceConfig(
-    const std::array<std::array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> &balance_config,
-    bool                                                                         balancing_enabled);
-void setPwmConfig(const std::array<std::array<uint8_t, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> &pwm_duty);
-void setThermistorConfig(ThermistorMux mux);
-std::expected<void, ErrorCode> configSync();
-std::expected<void, ErrorCode> writeConfig();
+namespace config
+{
+    void                           setBalanceConfig(const Cells<bool> &balance_config, bool balancing_enabled);
+    void                           setPwmConfig(const Cells<uint8_t> &pwm_duty);
+    void                           setThermistorConfig(ThermistorMux mux);
+    std::expected<void, ErrorCode> configSync();
+    std::expected<void, ErrorCode> upload();
+}; // namespace config
 
-// Balancing state machine.
-void balancingInit();
-void balancingEnable();
-void balancingDisable();
+// app_segments_balancing.cpp
+namespace balancing
+{
+    void init();
+    void enable();
+    void disable();
+} // namespace balancing
 
-// Broadcast over CAN.
-using Cell        = std::array<std::array<float, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>;
-using Therm       = std::array<std::array<float, io::THERMISTORS_PER_SEGMENT>, io::NUM_SEGMENTS>;
-using Segment     = std::array<float, io::NUM_SEGMENTS>;
-using Status      = std::array<io::adbms::StatusGroups, io::NUM_SEGMENTS>;
-using Owc         = std::array<std::array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>;
-using CellSuccess = std::array<std::array<std::expected<void, ErrorCode>, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>;
-using ThermSuccess =
-    std::array<std::array<std::expected<void, ErrorCode>, io::THERMISTORS_PER_SEGMENT>, io::NUM_SEGMENTS>;
-using SegmentSuccess = std::array<std::expected<void, ErrorCode>, io::NUM_SEGMENTS>;
+// app_segments_broadcast.cpp
+namespace broadcast
+{
+    void cellVoltages(const Cells<float> &voltages, const CellSuccess &voltages_success);
+    void filteredCellVoltages(const Cells<float> &voltages, const CellSuccess &voltages_success);
+    void aux(const Therms<float> &temps, const ThermSuccess &temps_success);
+    void temps(const Therms<float> &temps, const ThermSuccess &temps_success);
+    void segVoltages(const Segments<float> &seg_voltages, const SegmentSuccess &seg_voltages_success);
+    void status(const Status &status, const SegmentSuccess &status_success);
+    void owc(const Owc &owc_ok, const CellSuccess &owc_ok_success);
+    void info();
+} // namespace broadcast
 
-void broadcastCellVoltages(const Cell &voltages, const CellSuccess &voltages_success);
-void broadcastFilteredCellVoltages(const Cell &voltages, const CellSuccess &voltages_success);
-void broadcastAux(const Therm &temps, const ThermSuccess &temps_success);
-void broadcastTemps(const Therm &seg_voltages, const ThermSuccess &seg_voltages_success);
-void broadcastSegVoltages(const Segment &seg_voltages, const SegmentSuccess &seg_voltages_success);
-void broadcastStatus(const Status &status, const SegmentSuccess &status_success);
-void broadcastCellOpenWireCheck(const Owc &owc_ok, CellSuccess owc_ok_success);
-void broadcastInfo();
+// aapp_segments_faults.cpp
+namespace faults
+{
+    void init();
+    bool checkWarnings();
+    bool checkFaults();
+} // namespace faults
 
-// Fault evaluation.
-void initFaults();
-bool checkWarnings();
-bool checkFaults();
-
-// Conversion and diagnostics.
-std::expected<void, ErrorCode> runVoltageConversion(Cell &out_voltages, CellSuccess &out_success);
-std::expected<void, ErrorCode> runFilteredVoltageConversion(Cell &out_voltages, CellSuccess &out_success);
-std::expected<void, ErrorCode> runTempConversion(Therm &out_temps, ThermSuccess &out_success);
-std::expected<void, ErrorCode> runSegVoltageConversion(Segment &out_seg_voltages, SegmentSuccess &out_seg_success);
+// app_segments_conversions.cpp
+std::expected<void, ErrorCode> runVoltageConversion(Cells<float> &out_voltages, CellSuccess &out_success);
+std::expected<void, ErrorCode> runFilteredVoltageConversion(Cells<float> &out_voltages, CellSuccess &out_success);
+std::expected<void, ErrorCode> runTempConversion(Therms<float> &out_temps, ThermSuccess &out_success);
+std::expected<void, ErrorCode>
+    runSegVoltageConversion(Segments<float> &out_seg_voltages, SegmentSuccess &out_seg_success);
 std::expected<void, ErrorCode> runStatusConversion(Status &out_status, SegmentSuccess &out_success);
-std::expected<void, ErrorCode> runCellOpenWireCheck(Owc &out_owc, CellSuccess &out_success);
-
+std::expected<void, ErrorCode> runCellOpenWireCheck(Owc &out_owc_ok, CellSuccess &out_success);
 } // namespace app::segments

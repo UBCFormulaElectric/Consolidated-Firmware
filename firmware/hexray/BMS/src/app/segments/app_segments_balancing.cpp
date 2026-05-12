@@ -17,24 +17,26 @@ using namespace app::can_tx;
 using namespace app::can_utils;
 using namespace app::segments;
 
-static constexpr float    DISCHARGE_THRESHOLD_V = 10e-3f;
-static constexpr uint32_t SETTLE_TIME_MS        = 5 * 1000;
-static constexpr uint32_t BALANCE_TIME_MS       = 5 * 1000;
+namespace
+{
+constexpr float    DISCHARGE_THRESHOLD_V = 10e-3f;
+constexpr uint32_t SETTLE_TIME_MS        = 5 * 1000;
+constexpr uint32_t BALANCE_TIME_MS       = 5 * 1000;
 
-static BalancingState                                                 state;
-static array<array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>    discharge_enabled;
-static array<array<uint8_t, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> pwm_duty;
-static app::Timer                                                     settle_timer(SETTLE_TIME_MS);
-static app::Timer                                                     balance_timer(BALANCE_TIME_MS);
+BalancingState                                                    state;
+array<array<bool, CELLS_PER_SEGMENT>, NUM_SEGMENTS>    discharge_enabled;
+array<array<uint8_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS> pwm_duty;
+app::Timer                                                        settle_timer(SETTLE_TIME_MS);
+app::Timer                                                        balance_timer(BALANCE_TIME_MS);
 
-static void updateCellsToBalance()
+void updateCellsToBalance()
 {
     memset(&discharge_enabled, 0, sizeof(discharge_enabled));
     memset(&pwm_duty, 0, sizeof(pwm_duty));
 
-    for (uint8_t seg = 0; seg < io::NUM_SEGMENTS; seg++)
+    for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
-        for (uint8_t cell = 0; cell < io::CELLS_PER_SEGMENT; cell++)
+        for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
         {
             // Skip cells with failed voltage reads
             if (!cell_voltage_success[seg][cell])
@@ -78,49 +80,42 @@ static void updateCellsToBalance()
         }
     }
 
-    {
-        const io::unique_semaphore s{ adbms_app_lock };
-        setBalanceConfig(discharge_enabled, true);
-        setPwmConfig(pwm_duty);
-    }
-    {
-        const io::unique_semaphore s{ spi_bus_lock };
-        LOG_IF_ERR(writeConfig());
-    }
+    config::setBalanceConfig(discharge_enabled, true);
+    config::setPwmConfig(pwm_duty);
 }
 
-static void disableBalance()
+void disableBalance()
 {
     memset(&discharge_enabled, 0, sizeof(discharge_enabled));
     memset(&pwm_duty, 0, sizeof(pwm_duty));
     {
         const io::unique_semaphore s{ adbms_app_lock };
-        setBalanceConfig(discharge_enabled, false);
-        setPwmConfig(pwm_duty);
+        config::setBalanceConfig(discharge_enabled, false);
+        config::setPwmConfig(pwm_duty);
     }
 
     {
         const io::unique_semaphore s{ spi_bus_lock };
-        LOG_IF_ERR(writeConfig());
+        LOG_IF_ERR(config::upload());
     }
 }
+} // namespace
 
-namespace app::segments
+namespace app::segments::balancing
 {
-void balancingInit()
+void init()
 {
-    disableBalance();
-    state = BalancingState::BALANCING_DISABLED;
+    disable();
 }
 
-void balancingDisable()
+void disable()
 {
     disableBalance();
     state = BalancingState::BALANCING_DISABLED;
     LOG_INFO("Disabling");
 }
 
-void balancingEnable()
+void enable()
 {
     switch (state)
     {
@@ -158,4 +153,4 @@ void balancingEnable()
             break;
     }
 }
-} // namespace app::segments
+} // namespace app::segments::balancing

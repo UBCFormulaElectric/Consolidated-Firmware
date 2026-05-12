@@ -60,11 +60,11 @@ void jobs_init()
 
 #ifndef TARGET_HV_SUPPLY
     LOG_IF_ERR(io::adbms::wakeup());
-    LOG_IF_ERR(io::adbms::clearCellVoltageReg());
-    LOG_IF_ERR(io::adbms::clearFilteredCellVoltageReg());
-    LOG_IF_ERR(io::adbms::clearCellAuxReg());
-    LOG_IF_ERR(io::adbms::clearStatReg());
-    LOG_IF_ERR(app::segments::configSync());
+    LOG_IF_ERR(io::adbms::clear::CellVoltageReg());
+    LOG_IF_ERR(io::adbms::clear::FilteredCellVoltageReg());
+    LOG_IF_ERR(io::adbms::clear::CellAuxReg());
+    LOG_IF_ERR(io::adbms::clear::StatReg());
+    LOG_IF_ERR(app::segments::config::configSync());
     LOG_INFO("Segment Initialization Done");
 #endif
     // app::segments::initFaults();
@@ -155,75 +155,75 @@ void jobs_run1kHz_tick()
 
 void jobs_runAdbmsVoltages_tick()
 {
-    app::segments::Cell        voltages;
-    app::segments::CellSuccess voltages_success;
+    Cells<float> voltages;
+    CellSuccess  voltages_success;
 
     {
         const io::unique_semaphore s{ spi_bus_lock };
         LOG_IF_ERR(io::adbms::wakeup());
-        LOG_IF_ERR(app::segments::configSync());
+        LOG_IF_ERR(app::segments::config::upload());
         LOG_IF_ERR(app::segments::runVoltageConversion(voltages, voltages_success));
     }
     {
         const io::unique_semaphore s{ adbms_app_lock };
-        app::segments::broadcastCellVoltages(voltages, voltages_success);
+        app::segments::broadcast::cellVoltages(voltages, voltages_success);
     }
 }
 
 void jobs_runAdbmsFilteredVoltages_tick()
 {
-    app::segments::Cell        voltages;
-    app::segments::CellSuccess voltages_success;
+    Cells<float> voltages;
+    CellSuccess  voltages_success;
 
     {
         const io::unique_semaphore s{ spi_bus_lock };
         LOG_IF_ERR(io::adbms::wakeup());
-        LOG_IF_ERR(app::segments::configSync());
+        LOG_IF_ERR(app::segments::config::upload());
         LOG_IF_ERR(app::segments::runFilteredVoltageConversion(voltages, voltages_success));
     }
 
-    app::segments::broadcastFilteredCellVoltages(voltages, voltages_success);
+    app::segments::broadcast::filteredCellVoltages(voltages, voltages_success);
 }
 
 void jobs_runAdbmsTemperatures_tick()
 {
-    app::segments::Therm          temps;
-    app::segments::ThermSuccess   temp_success;
-    app::segments::Segment        seg_voltages;
-    app::segments::SegmentSuccess seg_voltages_success;
+    Therms<float>   temps;
+    ThermSuccess    temp_success;
+    Segments<float> seg_voltages;
+    SegmentSuccess  seg_voltages_success;
 
     {
         const io::unique_semaphore s{ spi_bus_lock };
         LOG_IF_ERR(io::adbms::wakeup());
-        LOG_IF_ERR(app::segments::configSync());
+        LOG_IF_ERR(app::segments::config::upload());
         LOG_IF_ERR(app::segments::runTempConversion(temps, temp_success));
         LOG_IF_ERR(app::segments::runSegVoltageConversion(seg_voltages, seg_voltages_success));
     }
     {
         const io::unique_semaphore s{ adbms_app_lock };
-        app::segments::broadcastTemps(temps, temp_success);
+        app::segments::broadcast::temps(temps, temp_success);
     }
-    app::segments::broadcastSegVoltages(seg_voltages, seg_voltages_success);
+    app::segments::broadcast::segVoltages(seg_voltages, seg_voltages_success);
 }
 
 void jobs_runAdbmsDiagnostics_tick()
 {
-    app::segments::Status         status;
-    app::segments::SegmentSuccess status_success;
-    app::segments::Owc            owc;
-    app::segments::CellSuccess    owc_success;
+    Status         status;
+    SegmentSuccess status_success;
+    Owc            owc;
+    CellSuccess    owc_success;
 
     {
         const io::unique_semaphore s{ spi_bus_lock };
         LOG_IF_ERR(io::adbms::wakeup());
-        LOG_IF_ERR(app::segments::configSync());
+        LOG_IF_ERR(app::segments::config::upload());
         LOG_IF_ERR(app::segments::runStatusConversion(status, status_success));
         LOG_IF_ERR(app::segments::runCellOpenWireCheck(owc, owc_success));
     }
     {
         const io::unique_semaphore s{ adbms_app_lock };
-        app::segments::broadcastCellOpenWireCheck(owc, owc_success);
-        app::segments::broadcastInfo();
+        app::segments::broadcast::owc(owc, owc_success);
+        app::segments::broadcast::info();
     }
-    app::segments::broadcastStatus(status, status_success);
+    app::segments::broadcast::status(status, status_success);
 }

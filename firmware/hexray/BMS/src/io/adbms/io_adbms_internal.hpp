@@ -11,8 +11,8 @@ using namespace std;
 namespace io::adbms
 {
 // Shared scratch buffers used by low-level register transactions.
-extern array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> shared_reg_group;
-extern array<expected<void, ErrorCode>, NUM_SEGMENTS>      shared_reg_group_success;
+// extern array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> shared_reg_group;
+// extern array<expected<void, ErrorCode>, NUM_SEGMENTS>      shared_reg_group_success;
 
 // Transaction framing constants.
 inline constexpr uint8_t CMD_BYTES = 2;
@@ -115,15 +115,13 @@ inline constexpr uint16_t CH0 = (1U << 0);
 inline constexpr uint32_t POLL_STATUS_READY = __builtin_bswap32(0xFFFFFFFFU >> (2 * NUM_SEGMENTS));
 
 // Raw command helpers
-expected<void, ErrorCode> sendCmd(uint16_t cmd);
-expected<void, ErrorCode> poll(uint16_t cmd, span<uint8_t> poll_buf);
-void                      readRegGroup(
-                         uint16_t                                             cmd,
-                         array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs,
-                         array<expected<void, ErrorCode>, NUM_SEGMENTS>      &comm_success);
-expected<void, ErrorCode> writeRegGroup(uint16_t cmd, const array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs);
+[[nodiscard]] expected<void, ErrorCode>                    sendCmd(uint16_t cmd);
+[[nodiscard]] expected<void, ErrorCode>                    poll(uint16_t cmd, span<uint8_t> poll_buf);
+[[nodiscard]] Segments<expected<Regs<uint8_t>, ErrorCode>> readRegGroup(uint16_t cmd);
+[[nodiscard]] expected<void, ErrorCode>
+    writeRegGroup(uint16_t cmd, const array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs);
 
 // STAT regs use same poll
-expected<void, ErrorCode> pollAuxAdcConversion();
-expected<void, ErrorCode> pollCellsAdcConversion();
+[[nodiscard]] expected<void, ErrorCode> pollAuxAdcConversion();
+[[nodiscard]] expected<void, ErrorCode> pollCellsAdcConversion();
 } // namespace io::adbms

@@ -3,34 +3,20 @@
 #include <cstdint>
 
 using namespace std;
-
-static constexpr uint8_t MAX_NUM_ATTEMPTS = 10U;
-static constexpr uint8_t CELLS_PER_GROUP  = 3U;
-
-static const array<uint16_t, io::adbms::NUM_VOLT_REG_GROUPS> reg_groups{ {
-    io::adbms::RDCVA,
-    io::adbms::RDCVB,
-    io::adbms::RDCVC,
-    io::adbms::RDCVD,
-    io::adbms::RDCVE,
-} };
-
-static const array<uint16_t, io::adbms::NUM_VOLT_REG_GROUPS> filtered_reg_groups{ {
-    io::adbms::RDFCA,
-    io::adbms::RDFCB,
-    io::adbms::RDFCC,
-    io::adbms::RDFCD,
-    io::adbms::RDFCE,
-} };
+namespace
+{
+constexpr uint8_t MAX_NUM_ATTEMPTS = 10U;
+constexpr uint8_t CELLS_PER_GROUP  = 3U;
+} // namespace
 
 namespace io::adbms
 {
-expected<void, ErrorCode> clearCellVoltageReg()
+expected<void, ErrorCode> clear::CellVoltageReg()
 {
     return sendCmd(CLRCELL);
 }
 
-expected<void, ErrorCode> clearFilteredCellVoltageReg()
+expected<void, ErrorCode> clear::FilteredCellVoltageReg()
 {
     return sendCmd(CLRFC);
 }
@@ -54,108 +40,100 @@ expected<void, ErrorCode> pollCellsAdcConversion()
     return unexpected(ErrorCode::TIMEOUT);
 }
 
-void readCellVoltageReg(
-    array<array<uint16_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS>                  &cell_voltage_regs,
-    array<array<expected<void, ErrorCode>, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success)
+Cells<expected<uint16_t, ErrorCode>> readCellVoltageReg()
 {
-    const auto poll_ok = pollCellsAdcConversion();
+    static constexpr array<uint16_t, NUM_VOLT_REG_GROUPS> cell_voltage_reg_groups{ { RDCVA, RDCVB, RDCVC, RDCVD,
+                                                                                     RDCVE } };
 
-    if (!poll_ok)
+    Cells<expected<uint16_t, ErrorCode>> cell_voltage_regs;
+    if (const auto poll_ok = pollCellsAdcConversion(); !poll_ok)
     {
         for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
         {
-            comm_success[seg].fill(poll_ok);
+            cell_voltage_regs[seg].fill(unexpected(poll_ok.error()));
         }
-        return;
+        return cell_voltage_regs;
     }
 
     for (size_t group = 0U; group < NUM_VOLT_REG_GROUPS; group++)
     {
-        readRegGroup(reg_groups[group], shared_reg_group, shared_reg_group_success);
+        const auto out = readRegGroup(cell_voltage_reg_groups[group]);
 
         for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
         {
-            if (!shared_reg_group_success[seg])
+            if (!out[seg])
             {
-                cell_voltage_regs[seg].fill(0U);
-                comm_success[seg].fill(shared_reg_group_success[seg]);
+                cell_voltage_regs[seg].fill(std::unexpected(out[seg].error()));
                 continue;
             }
-
             for (size_t cell_in_group = 0U; cell_in_group < CELLS_PER_GROUP; cell_in_group++)
             {
-                const size_t cell = group * CELLS_PER_GROUP + cell_in_group;
-                if (cell < CELLS_PER_SEGMENT)
+                if (const size_t cell = group * CELLS_PER_GROUP + cell_in_group; cell < CELLS_PER_SEGMENT)
                 {
-                    const uint8_t  low     = shared_reg_group[seg][cell_in_group * 2U];
-                    const uint8_t  high    = shared_reg_group[seg][cell_in_group * 2U + 1U];
-                    const uint16_t voltage = static_cast<uint16_t>(low) | (static_cast<uint16_t>(high) << 8U);
-
+                    const uint8_t low  = out[seg].value()[cell_in_group * 2U];
+                    const uint8_t high = out[seg].value()[cell_in_group * 2U + 1U];
+                    const auto    voltage =
+                        static_cast<uint16_t>(static_cast<uint16_t>(low) | static_cast<uint16_t>(high) << 8U);
                     if (voltage == 0xFFFF || voltage == 0x8000)
                     {
-                        cell_voltage_regs[seg][cell] = 0U;
-                        comm_success[seg][cell]      = std::unexpected(ErrorCode::ERROR);
+                        cell_voltage_regs[seg][cell] = std::unexpected(ErrorCode::ERROR);
                         continue;
                     }
-
                     cell_voltage_regs[seg][cell] = voltage;
-                    comm_success[seg][cell]      = {};
                 }
             }
         }
     }
+    return cell_voltage_regs;
 }
 
-void readFilteredCellVoltageReg(
-    array<array<uint16_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS>                  &filtered_cell_voltage_regs,
-    array<array<expected<void, ErrorCode>, CELLS_PER_SEGMENT>, NUM_SEGMENTS> &comm_success)
+Cells<expected<uint16_t, ErrorCode>> readFilteredCellVoltageReg()
 {
-    const auto poll_ok = pollCellsAdcConversion();
+    static constexpr array<uint16_t, NUM_VOLT_REG_GROUPS> filtered_reg_groups{ { RDFCA, RDFCB, RDFCC, RDFCD, RDFCE } };
 
-    if (!poll_ok)
+    Cells<expected<uint16_t, ErrorCode>> filtered_cell_voltage_regs;
+    if (const auto poll_ok = pollCellsAdcConversion(); !poll_ok)
     {
+        // TODO if this fails, then it should
         for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
         {
-            comm_success[seg].fill(poll_ok);
+            filtered_cell_voltage_regs[seg].fill(std::unexpected(poll_ok.error()));
         }
-        return;
+        return filtered_cell_voltage_regs;
     }
 
     for (size_t group = 0U; group < NUM_VOLT_REG_GROUPS; group++)
     {
-        readRegGroup(filtered_reg_groups[group], shared_reg_group, shared_reg_group_success);
+        const auto out = readRegGroup(filtered_reg_groups[group]);
 
         for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
         {
-            if (!shared_reg_group_success[seg])
+            if (!out[seg])
             {
-                filtered_cell_voltage_regs[seg].fill(0U);
-                comm_success[seg].fill(shared_reg_group_success[seg]);
+                filtered_cell_voltage_regs[seg].fill(std::unexpected(out[seg].error()));
                 continue;
             }
 
             for (size_t cell_in_group = 0U; cell_in_group < CELLS_PER_GROUP; cell_in_group++)
             {
-                const size_t cell = group * CELLS_PER_GROUP + cell_in_group;
-                if (cell < CELLS_PER_SEGMENT)
+                if (const size_t cell = group * CELLS_PER_GROUP + cell_in_group; cell < CELLS_PER_SEGMENT)
                 {
-                    const uint8_t  low     = shared_reg_group[seg][cell_in_group * 2U];
-                    const uint8_t  high    = shared_reg_group[seg][cell_in_group * 2U + 1U];
-                    const uint16_t voltage = static_cast<uint16_t>(low) | (static_cast<uint16_t>(high) << 8U);
+                    const uint8_t low  = out[seg].value()[cell_in_group * 2U];
+                    const uint8_t high = out[seg].value()[cell_in_group * 2U + 1U];
+                    const auto    voltage =
+                        static_cast<uint16_t>(static_cast<uint16_t>(low) | static_cast<uint16_t>(high) << 8U);
 
                     if (voltage == 0xFFFF || voltage == 0x8000)
                     {
-                        filtered_cell_voltage_regs[seg][cell] = 0U;
-                        comm_success[seg][cell]               = std::unexpected(ErrorCode::ERROR);
+                        filtered_cell_voltage_regs[seg][cell] = std::unexpected(ErrorCode::ERROR);
                         continue;
                     }
-
                     filtered_cell_voltage_regs[seg][cell] = voltage;
-                    comm_success[seg][cell]               = {};
                 }
             }
         }
     }
+    return filtered_cell_voltage_regs;
 }
 
 } // namespace io::adbms
