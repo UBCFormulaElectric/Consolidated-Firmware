@@ -1,6 +1,7 @@
 use std::{collections::HashMap, mem, time::{Duration, SystemTime}};
 
 use axum::{Json, Router, extract::{Path, Query, State}, http::StatusCode, response::IntoResponse, routing::get};
+use influxdb2::FromDataPoint;
 use jsoncan_rust::can_database::CanMessage;
 use serde::Serialize;
 use regex::Regex;
@@ -216,11 +217,52 @@ async fn signal_csv() -> impl IntoResponse {
     return (StatusCode::OK, Json(()));
 }
 
+#[derive(Debug, FromDataPoint, Default)]
+struct SessionStarts {
+    pub value: String,
+}
+
+/**
+ * Returns list of paired times as `YYYY-MM-DDTHH:mm:ssZ` based on when car turns on
+ * Currently implemented as simple two pair of times between car on signal
+ */
+async fn signal_sessions(State(state): State<AppState>) -> impl IntoResponse {
+
+    // TODO get start on signal name
+    let car_on_query = format!(r#"
+        from(bucket: "{}")
+        |> filter(fn: (r) => r["_measurement"] == "{}")
+        |> filter(fn: (r) => r["signal_name"] == "CAR_ON_TODO")
+        |> keep(columns: ["_time"])
+        |> sort(columns: ["_time"])
+        |> map(fn: (r) => ({{r with _value: string(v: r._time)}}))
+        "#, &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement);
+
+    let req: Result<Vec<_>, influxdb2::RequestError> = select! {
+        val = state.influx_client.query::<SessionStarts>(
+            Some(influxdb2::models::Query::new(car_on_query))
+        ) => val,
+        _ = sleep(Duration::from_millis(INFLUX_QUERY_TIMEOUT_MS)) => {
+            return (StatusCode::REQUEST_TIMEOUT, "InfluxDB query timed out".to_string());
+        }
+    };
+
+    let time_bigram: Vec<(String, String)> = match req {
+        Ok(starts) => starts.windows(2)
+            .map(|w| (w[0].value.clone(), w[1].value.clone()))
+            .collect(),
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, "Error occurred while fetching session starts".to_string()),
+    };
+
+    return (StatusCode::OK, serde_json::to_string(&time_bigram).unwrap());
+}
+
 pub fn get_signal_router() -> Router<AppState> {
     return Router::new()
         .route("/signal/nodes", get(nodes))
         .route("/signal/metadata", get(metadata))
         .route("/signal/{start}/{end}/{res}", get(signal_time_range))
         .route("/signal/csv", get(signal_csv))
-        .route("/signal/tiles/{signal}/{start}/{end}", get(signal_tiles));
+        .route("/signal/tiles/{signal}/{start}/{end}", get(signal_tiles))
+        .route("/signal/sessions", get(signal_sessions));
 }
