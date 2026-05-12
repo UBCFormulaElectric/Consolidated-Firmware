@@ -19,7 +19,7 @@
 #include "io_canRx.hpp"
 #include "io_telemQueue.hpp"
 #include "hw_hardFaultHandler.hpp"
-#include "io_rtc.hpp"
+#include "app_epochClock.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_uarts.hpp"
 #include "hw_cans.hpp"
@@ -148,16 +148,11 @@ void tasks_runLogging(void *arg)
 
         if (entry.tag == io::telemMessage::TelemMessageIds::NTP)
         {
-            // can probably move all the t0 handling to the app_ntp code
-            io::rtc::Time t0{};
-            const auto    t0_result = io::rtc::get_time(t0);
-            if (!t0_result)
+            if (!app::ntp::tryBeginAndCaptureT0())
             {
-                LOG_ERROR("NTP: could not capture T0");
-                app::ntp::clearNtpInProgress();
+                LOG_WARN("NTP: dismissing TX, already in progress or RTC unavailable");
                 continue;
             }
-            app::ntp::recordT0(app::ntp::rtcTimeToMs(t0));
         }
 
         const auto tx_result = _900k_uart.transmit(entry.message().asBytes());
@@ -229,8 +224,11 @@ void tasks_runCanRx(void *arg)
         io::can_rx::updateRxTableWithMessage(app::jsoncan::copyFromCanMsg(can_msg));
         if (app::can_data_capture::needsTelem(can_msg.std_id, now_ms))
         {
-            (void)telem_tx_queue.push(io::telemMessage::TelemQueueEntry(
-                io::telemMessage::TelemCanMsg(can_msg, static_cast<uint64_t>(now_ms))));
+            // Telem timestamps go straight into InfluxDB as Unix epoch ms,
+            // so they must come from the RTC, not the boot-monotonic clock.
+            const uint64_t epoch_ms = app::epochClock::getEpochMs().value_or(0);
+            (void)telem_tx_queue.push(
+                io::telemMessage::TelemQueueEntry(io::telemMessage::TelemCanMsg(can_msg, epoch_ms)));
         }
     }
 }

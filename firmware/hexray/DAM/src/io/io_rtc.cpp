@@ -43,7 +43,7 @@ std::expected<void, ErrorCode> set_date(const Date &date)
     return {};
 }
 
-std::expected<Time, ErrorCode> get_time(Time &time)
+std::expected<Time, ErrorCode> get_time()
 {
     RTC_TimeTypeDef rtcTime{};
     RTC_DateTypeDef rtcDate{};
@@ -59,15 +59,11 @@ std::expected<Time, ErrorCode> get_time(Time &time)
     if (!status)
         return std::unexpected(status.error());
 
-    time.hours      = bcd_to_bin(rtcTime.Hours);
-    time.minutes    = bcd_to_bin(rtcTime.Minutes);
-    time.seconds    = bcd_to_bin(rtcTime.Seconds);
-    time.subseconds = rtcTime.SubSeconds;
-
-    return time;
+    return Time(
+        bcd_to_bin(rtcTime.Hours), bcd_to_bin(rtcTime.Minutes), bcd_to_bin(rtcTime.Seconds), rtcTime.SubSeconds);
 }
 
-std::expected<Date, ErrorCode> get_date(Date &date)
+std::expected<Date, ErrorCode> get_date()
 {
     RTC_TimeTypeDef dummy{};
     RTC_DateTypeDef rtcDate{};
@@ -82,12 +78,7 @@ std::expected<Date, ErrorCode> get_date(Date &date)
     if (!status)
         return std::unexpected(status.error());
 
-    date.weekday = rtcDate.WeekDay;
-    date.month   = rtcDate.Month;
-    date.day     = bcd_to_bin(rtcDate.Date);
-    date.year    = bcd_to_bin(rtcDate.Year);
-
-    return date;
+    return Date(rtcDate.WeekDay, rtcDate.Month, bcd_to_bin(rtcDate.Date), bcd_to_bin(rtcDate.Year));
 }
 
 uint8_t bcd_to_bin(uint8_t bcd)

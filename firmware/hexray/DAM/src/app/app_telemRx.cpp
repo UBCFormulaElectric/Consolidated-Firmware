@@ -6,7 +6,7 @@
 #include "app_ntp.hpp"
 #include "app_crc32.hpp"
 #include "io_log.hpp"
-#include "io_rtc.hpp"
+#include "app_epochClock.hpp"
 #include "io_telemMessage.hpp"
 #include "io_telemQueue.hpp"
 #include "util_ringBuffer.hpp"
@@ -21,17 +21,38 @@ namespace
     constexpr std::size_t ringCapacity         = maxIncomingFrameSize * 22; // 528 bytes
     constexpr std::size_t maxBodySize          = 100;
 
-    constexpr uint8_t     magic0     = 0xCC;
-    constexpr uint8_t     magic1     = 0x33;
-    constexpr std::size_t headerSize = 7; // magic(2) + size(1) + crc(4)
-    constexpr std::size_t ntpBodySize = 17; // id(1) + t1(8) + t2(8)
-    constexpr std::size_t remoteNtpBodySize = 1; // id(1)
+    constexpr uint8_t     magic0            = 0xCC;
+    constexpr uint8_t     magic1            = 0x33;
+    constexpr std::size_t headerSize        = 7;  // magic(2) + size(1) + crc(4)
+    constexpr std::size_t ntpBodySize       = 17; // id(1) + t1(8) + t2(8)
+    constexpr std::size_t remoteNtpBodySize = 1;  // id(1)
 
     enum class MessageId : uint8_t
     {
         NTP        = 1,
         Remote_NTP = 2,
     };
+
+    struct NtpReply
+    {
+        uint64_t t1;
+        uint64_t t2;
+    };
+
+    struct NtpReplyWire
+    {
+        uint8_t  id;
+        uint64_t t1;
+        uint64_t t2;
+    } __attribute__((packed));
+
+    static_assert(sizeof(NtpReplyWire) == ntpBodySize);
+
+    NtpReply parseNtpReply(std::span<const uint8_t> body)
+    {
+        const auto *wire = reinterpret_cast<const NtpReplyWire *>(body.data());
+        return NtpReply{ wire->t1, wire->t2 };
+    }
 
     // TaskTelemRx is the only producer (via ingest); TaskTelemParse is
     // the only consumer (via drain). Overflow policy is drop-incoming, so the
@@ -54,7 +75,8 @@ namespace
                     LOG_WARN("telemRx: invalid NTP body size %u", static_cast<unsigned>(body.size()));
                     return;
                 }
-                if (!app::ntp::handleFrameAndTuneRtc(body, rx_time_ms))
+                const NtpReply reply = parseNtpReply(body);
+                if (!app::ntp::handleFrameAndTuneRtc(reply.t1, reply.t2, rx_time_ms))
                 {
                     LOG_ERROR("telemRx: NTP handleFrameAndTuneRtc failed");
                     return;
@@ -69,18 +91,11 @@ namespace
                     LOG_WARN("telemRx: invalid Remote_NTP body size %u", static_cast<unsigned>(body.size()));
                     return;
                 }
-                if (app::ntp::isNtpInProgress())
-                {
-                    LOG_WARN("telemRx: NTP already in progress, ignoring Remote_NTP");
-                    return;
-                }
-                app::ntp::setNtpInProgress();
                 const auto push_result =
                     telem_tx_queue.push(io::telemMessage::TelemQueueEntry(io::telemMessage::NTPMsg{}));
                 if (!push_result)
                 {
                     LOG_ERROR("telemRx: Failed to enqueue Remote NTP: %d", static_cast<int>(push_result.error()));
-                    app::ntp::clearNtpInProgress();
                     return;
                 }
                 LOG_INFO("telemRx: Remote NTP enqueued");
@@ -139,8 +154,8 @@ namespace
         // validated message from here
         std::array<uint8_t, maxBodySize> body_buf{};
         std::span<uint8_t>               body{ body_buf.data(), body_size };
-        const bool copied = g_ring.copyOut(headerSize, body);
-        assert(copied);
+        const auto                       copied = g_ring.copyOut(headerSize, body);
+        assert(copied.has_value());
         if (!copied)
         {
             LOG_ERROR("telemRx: copyOut failed despite validated frame");
@@ -152,15 +167,15 @@ namespace
         // Capture t3 once we know we have a real frame. This adds parser-
         // scheduling latency to t3, but avoids any producer/consumer sharing
         // of the timestamp.
-        io::rtc::Time t3_now{};
-        uint64_t      t3_ms = 0;
-        if (io::rtc::get_time(t3_now))
+        uint64_t   t3_ms = 0;
+        const auto t3    = app::epochClock::getEpochMs();
+        if (t3)
         {
-            t3_ms = app::ntp::rtcTimeToMs(t3_now);
+            t3_ms = *t3;
         }
         else
         {
-            LOG_ERROR("telemRx: RTC get_time failed while capturing t3");
+            LOG_ERROR("telemRx: RTC getEpochMs failed while capturing t3");
         }
 
         dispatchFrame(body, t3_ms);

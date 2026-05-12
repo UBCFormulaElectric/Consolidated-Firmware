@@ -1,18 +1,11 @@
 #include "app_ntp.hpp"
 
 #include <atomic>
-#include <cstring>
 
+#include "app_epochClock.hpp"
 #include "io_log.hpp"
 #include "io_time.hpp"
 
-static constexpr uint32_t PREDIV_S      = 999;
-static constexpr uint64_t MS_PER_DAY    = 86400000ULL;
-static constexpr uint64_t MS_PER_HOUR   = 3600000ULL;
-static constexpr uint64_t MS_PER_MINUTE = 60000ULL;
-static constexpr uint64_t MS_PER_SECOND = 1000ULL;
-
-static constexpr uint8_t MIN_NTP_PACKET_SIZE  = 17;
 static constexpr uint8_t RTC_SET_MAX_ATTEMPTS = 3;
 static constexpr uint8_t RTC_GET_MAX_ATTEMPTS = 3;
 
@@ -23,123 +16,76 @@ namespace
 {
     Timestamps        g_ts{};
     std::atomic<bool> g_ntp_in_progress{ false };
+
+    void clearInProgress()
+    {
+        g_ntp_in_progress.store(false);
+    }
+
+    int64_t computeOffset(const Timestamps &ts)
+    {
+        return ((int64_t)(ts.t1 - ts.t0) + (int64_t)(ts.t2 - ts.t3)) / 2;
+    }
+
+    void recordT0(uint64_t t0_ms)
+    {
+        g_ts.t0 = t0_ms;
+    }
+
+    uint64_t handleFrame(uint64_t t1, uint64_t t2, uint64_t t3_ms, uint64_t current_rtc_ms)
+    {
+        g_ts.t1 = t1;
+        g_ts.t2 = t2;
+        g_ts.t3 = t3_ms;
+
+        const int64_t theta  = computeOffset(g_ts);
+        int64_t       new_ms = static_cast<int64_t>(current_rtc_ms) + theta;
+        if (new_ms < 0)
+            new_ms = 0;
+        return static_cast<uint64_t>(new_ms);
+    }
 } // namespace
 
-uint64_t rtcTimeToMs(const io::rtc::Time &t)
-{
-    const uint32_t clamped_subseconds = (t.subseconds > PREDIV_S) ? PREDIV_S : t.subseconds;
-    const uint32_t ms_part            = PREDIV_S - clamped_subseconds;
-
-    return static_cast<uint64_t>(t.hours) * MS_PER_HOUR + static_cast<uint64_t>(t.minutes) * MS_PER_MINUTE +
-           static_cast<uint64_t>(t.seconds) * MS_PER_SECOND + static_cast<uint64_t>(ms_part);
-}
-
-io::rtc::Time msToRtcTime(const uint64_t &ms)
-{
-    io::rtc::Time t{};
-    uint64_t      remaining_ms = ms % MS_PER_DAY;
-
-    t.hours = static_cast<uint8_t>(remaining_ms / MS_PER_HOUR);
-    remaining_ms %= MS_PER_HOUR;
-
-    t.minutes = static_cast<uint8_t>(remaining_ms / MS_PER_MINUTE);
-    remaining_ms %= MS_PER_MINUTE;
-
-    t.seconds = static_cast<uint8_t>(remaining_ms / MS_PER_SECOND);
-
-    const uint32_t ms_remainder = static_cast<uint32_t>(remaining_ms % MS_PER_SECOND);
-    t.subseconds                = PREDIV_S - ms_remainder;
-    return t;
-}
-
-static int64_t computeOffset(const Timestamps &ts)
-{
-    return ((int64_t)(ts.t1 - ts.t0) + (int64_t)(ts.t2 - ts.t3)) / 2;
-}
-
-bool parseNTPPacketBody(std::span<const uint8_t> body, Timestamps &ts)
-{
-    if (body.size() < MIN_NTP_PACKET_SIZE)
-        return false;
-
-    // Wire format is little endian
-    uint64_t t1;
-    uint64_t t2;
-    std::memcpy(&t1, &body[1], sizeof(uint64_t));
-    std::memcpy(&t2, &body[9], sizeof(uint64_t));
-
-    ts.t1 = t1 % MS_PER_DAY;
-    ts.t2 = t2 % MS_PER_DAY;
-    return true;
-}
-
-void recordT0(uint64_t t0_ms)
-{
-    g_ts.t0 = t0_ms;
-}
-
+#ifdef TARGET_TEST
 const Timestamps &timestamps()
 {
     return g_ts;
 }
+#endif
 
-std::optional<uint64_t> handleFrame(std::span<const uint8_t> body, uint64_t t3_ms, uint64_t current_rtc_ms)
+bool handleFrameAndTuneRtc(uint64_t t1, uint64_t t2, uint64_t t3_ms)
 {
-    if (!parseNTPPacketBody(body, g_ts))
-        return std::nullopt;
-
-    g_ts.t3 = t3_ms;
-
-    const int64_t theta  = computeOffset(g_ts);
-    int64_t       new_ms = static_cast<int64_t>(current_rtc_ms) + theta;
-    if (new_ms < 0)
-        new_ms = 0;
-    return static_cast<uint64_t>(new_ms);
-}
-
-bool handleFrameAndTuneRtc(std::span<const uint8_t> body, uint64_t t3_ms)
-{
-    io::rtc::Time now{};
-    const auto    get_res  = io::rtc::get_time(now);
-    bool          got_time = false;
+    std::expected<uint64_t, ErrorCode> current_epoch_ms = std::unexpected(ErrorCode{});
     for (uint8_t attempt = 0; attempt < RTC_GET_MAX_ATTEMPTS; ++attempt)
     {
-        if (io::rtc::get_time(now))
-        {
-            got_time = true;
+        current_epoch_ms = app::epochClock::getEpochMs();
+        if (current_epoch_ms)
             break;
-        }
     }
-    if (!got_time)
+    if (!current_epoch_ms)
     {
-        LOG_ERROR("ntp: RTC get_time failed");
-        clearNtpInProgress();
+        LOG_ERROR("ntp: RTC getEpochMs failed");
+        clearInProgress();
         return false;
     }
 
-    const auto new_ms = handleFrame(body, t3_ms, rtcTimeToMs(now));
-    if (!new_ms)
-    {
-        LOG_ERROR("ntp: NTP body parse failed");
-        clearNtpInProgress();
-        return false;
-    }
+    const uint64_t new_ms = handleFrame(t1, t2, t3_ms, *current_epoch_ms);
 
     // Sleep out the sub-second remainder so the RTC write lands on a whole-
-    // second boundary. msToRtcTime then produces subseconds = PREDIV_S, which
-    // is the correct "0 ms into this second" value — do NOT overwrite it.
-    const uint32_t remainder_ms = static_cast<uint32_t>(*new_ms % MS_PER_SECOND);
-    const uint32_t wait_ms      = (remainder_ms == 0) ? 0U : static_cast<uint32_t>(MS_PER_SECOND) - remainder_ms;
+    // second boundary.
+    const uint32_t remainder_ms = static_cast<uint32_t>(new_ms % app::epochClock::MS_PER_SECOND);
+    const uint32_t wait_ms =
+        (remainder_ms == 0) ? 0U : static_cast<uint32_t>(app::epochClock::MS_PER_SECOND) - remainder_ms;
     if (wait_ms > 0)
     {
         io::time::delay(wait_ms);
     }
 
-    io::rtc::Time tuned  = msToRtcTime(*new_ms + wait_ms);
-    bool          set_ok = false;
+    const uint64_t tuned_epoch_ms = new_ms + wait_ms;
+    bool           set_ok         = false;
     for (uint8_t attempt = 0; attempt < RTC_SET_MAX_ATTEMPTS; ++attempt)
     {
-        if (io::rtc::set_time(tuned))
+        if (app::epochClock::setEpochMs(tuned_epoch_ms))
         {
             set_ok = true;
             break;
@@ -148,31 +94,34 @@ bool handleFrameAndTuneRtc(std::span<const uint8_t> body, uint64_t t3_ms)
 
     if (!set_ok)
     {
-        LOG_ERROR("ntp: RTC set_time failed");
-        clearNtpInProgress();
+        LOG_ERROR("ntp: RTC setEpochMs failed");
+        clearInProgress();
         return false;
     }
 
-    LOG_INFO(
-        "Tuned RTC! New Time: %02u:%02u:%02u.%03lu", tuned.hours, tuned.minutes, tuned.seconds,
-        static_cast<unsigned long>(PREDIV_S - tuned.subseconds));
-    clearNtpInProgress();
+    LOG_INFO("Tuned RTC! New epoch ms: %llu", static_cast<unsigned long long>(tuned_epoch_ms));
+    clearInProgress();
     return true;
 }
 
-bool isNtpInProgress()
+bool tryBeginAndCaptureT0()
 {
-    return g_ntp_in_progress.load();
-}
+    bool expected = false;
+    if (!g_ntp_in_progress.compare_exchange_strong(expected, true))
+        return false;
 
-void setNtpInProgress()
-{
-    g_ntp_in_progress.store(true);
-}
-
-void clearNtpInProgress()
-{
-    g_ntp_in_progress.store(false);
+    for (uint8_t attempt = 0; attempt < RTC_GET_MAX_ATTEMPTS; ++attempt)
+    {
+        const auto t0 = app::epochClock::getEpochMs();
+        if (t0)
+        {
+            recordT0(*t0);
+            return true;
+        }
+    }
+    LOG_ERROR("ntp: RTC getEpochMs failed capturing T0");
+    clearInProgress();
+    return false;
 }
 
 } // namespace app::ntp
