@@ -8,21 +8,22 @@ namespace app::batteryMonitoring
 std::expected<void, ErrorCode> update()
 {
     static bool init_done = false;
-
-    for (int tries = 0; not init_done and tries < 10; tries++)
-    {
-        init_done = io::batteryMonitoring::init().has_value();
-    }
+    
     if (!init_done)
     {
-        // Error handle
-        std::unexpected(ErrorCode::ERROR);
+        for (int tries = 0; tries < 10 && !init_done; tries++)
+            init_done = io::batteryMonitoring::init().has_value();
+        if (!init_done)
+            return std::unexpected(ErrorCode::ERROR);
+        LOG_INFO("Battery monitor initialized");
     }
+
+    bool gang = io::batteryMonitoring::is_balancing_active().has_value();
 
     // Cells
     const auto cell1_voltage = io::batteryMonitoring::get_voltage_cell(CellReading::CELL1);
     const auto cell2_voltage = io::batteryMonitoring::get_voltage_cell(CellReading::CELL2);
-    const auto cell3_voltage = io::batteryMonitoring::get_voltage_cell(CellReading::CELL3);
+    const auto cell3_voltage = io::batteryMonitoring::get_voltage_cell(CellReading::CELL3); // will read 0
     const auto cell4_voltage = io::batteryMonitoring::get_voltage_cell(CellReading::CELL4);
     const auto cell5_voltage = io::batteryMonitoring::get_voltage_cell(CellReading::CELL5);
 
@@ -34,7 +35,7 @@ std::expected<void, ErrorCode> update()
     const auto current = io::batteryMonitoring::get_current();
 
     // Integrated Charge
-    const auto integrated_charge = io::batteryMonitoring::get_integrated_charge();
+    // const auto integrated_charge = io::batteryMonitoring::get_integrated_charge();
 
     return {};
 }

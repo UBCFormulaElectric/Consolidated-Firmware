@@ -25,7 +25,7 @@ static std::expected<void, ErrorCode> read_subcommand(uint16_t sub_cmd, std::spa
 static std::expected<void, ErrorCode> write_subcommand(uint16_t sub_cmd, std::span<uint8_t> data);
 static std::expected<void, ErrorCode> execute_subcommand(uint16_t sub_cmd);
 
-static std::expected<void, ErrorCode> fetsInit(void);
+static std::expected<void, ErrorCode> fetsInit();
 
 /* -------------------- Helpers ------------------------- */
 static std::expected<void, ErrorCode> read_register(uint16_t reg, std::span<uint8_t> data)
@@ -224,7 +224,7 @@ std::expected<float, ErrorCode> get_voltage_system(SystemReading system)
  * @param void
  * @return float value of current
  */
-std::expected<float, ErrorCode> get_current(void)
+std::expected<float, ErrorCode> get_current()
 {
     uint16_t raw_current = 0;
     RETURN_IF_ERR(command_read_2byte(CMD_GETCURRENT, &raw_current));
@@ -234,7 +234,7 @@ std::expected<float, ErrorCode> get_current(void)
 
 /* -------------------- Charge Readings ------------------------- */
 // I'm not 100% sure about the purpose of this yet, ik its important for SOC but idk past that
-std::expected<uint64_t, ErrorCode> get_integrated_charge(void)
+std::expected<uint64_t, ErrorCode> get_integrated_charge()
 {
     std::array<uint8_t, 8> integrated_charge;
     RETURN_IF_ERR(read_subcommand(SUBCMD_GET_INEGRATED_CHARGE, integrated_charge));
@@ -243,13 +243,13 @@ std::expected<uint64_t, ErrorCode> get_integrated_charge(void)
     return reading;
 }
 
-// Cell Balancing Functions
+/* -------------------- Cell Balancing ------------------------- */
 /**
  * @brief Gets the temperature of the die because we will be using autonomous balancing
  * @param void
  * @return float value of current
  */
-std::expected<float, ErrorCode> get_temperatureIC(void)
+std::expected<float, ErrorCode> get_temperatureIC()
 {
     uint16_t raw_temp = 0;
     RETURN_IF_ERR(command_read_2byte(CMD_TEMPERATURE_IC, &raw_temp));
@@ -262,12 +262,53 @@ std::expected<float, ErrorCode> get_temperatureIC(void)
  * @param void
  * @return no
  */
-std::expected<void, ErrorCode> balancing_init(void)
+std::expected<void, ErrorCode> balancing_init()
 {
+    // 1. Configure device to handle balancing itself
+    uint8_t cell_balancing = 0x1F;
+    RETURN_IF_ERR(write_subcommand(BALANCE_CFG, std::span<uint8_t>(&cell_balancing, 1)));
+
+    // 2. Die internal temperature 
+    uint8_t max_internal_temp = 70;
+    RETURN_IF_ERR(write_subcommand(MAX_IC_TEMP, std::span<uint8_t>(&max_internal_temp, 1)));
+
+    // 3. Balance time
+    uint8_t balance_interval = 20;
+    RETURN_IF_ERR(write_subcommand(CELL_BALANCE_INTERVAL, std::span<uint8_t>(&balance_interval, 1)));
+
+    uint8_t max_cells = 1;
+    RETURN_IF_ERR(write_subcommand(MAX_CELLS_BALANCING, std::span<uint8_t>(&max_cells, 1)));
+
+    // 2. Min/Max voltage 
+    std::array<uint8_t, 2> min_voltage = {{0x10, 0x0C}}; //0x0C10
+    RETURN_IF_ERR(write_subcommand(CELL_BALANCE_MIN_V, min_voltage));
+
     return {};
 }
 
-[[maybe_unused]] static std::expected<void, ErrorCode> protectionInit(void)
+std::expected<bool, ErrorCode> is_balancing_active()
+{
+    uint16_t alarm_status = 0;
+    RETURN_IF_ERR(command_read_2byte(0x62, &alarm_status));
+
+    bool cb_alarm = (alarm_status & 0x0004) != 0;
+
+    std::array<uint8_t, 2> buf{};
+    RETURN_IF_ERR(read_subcommand(CB_ACTIVE_CELLS, buf));
+
+    bool balancing_active = ((buf[0] | (buf[1] << 8)) != 0);
+
+    LOG_INFO("AlarmStatus=0x%04X, CB bit=%s, CB_ACTIVE_CELLS=[0x%02X 0x%02X], active=%s",
+             alarm_status,
+             cb_alarm ? "true" : "false",
+             buf[0],
+             buf[1],
+             balancing_active ? "true" : "false");
+
+    return balancing_active;
+}
+
+[[maybe_unused]] static std::expected<void, ErrorCode> protectionInit()
 {
     /*uint8_t manual_protection = 0x10; // 00010000
     RETURN_IF_ERR(write_data_memory(MFG_STATUS_INIT, std::span<const uint8_t>(&autonomous_protection, 1))); */
@@ -277,14 +318,14 @@ std::expected<void, ErrorCode> balancing_init(void)
 
     return {};
 }
-[[maybe_unused]] std::expected<void, ErrorCode> fetsInit(void)
+[[maybe_unused]] std::expected<void, ErrorCode> fetsInit()
 {
     RETURN_IF_ERR(execute_subcommand(SUBCMD_ALL_FETS_ON)); // 0x0096
     LOG_INFO("FETs enabled");
     return {};
 }
 
-std::expected<void, ErrorCode> init(void)
+std::expected<void, ErrorCode> init()
 {
     // 1. Is chip responsive
     RETURN_IF_ERR(bat_mon.isTargetReady());
@@ -345,6 +386,9 @@ std::expected<void, ErrorCode> init(void)
     // VCELL mode
     uint8_t vcell_mode = 0x1B;
     RETURN_IF_ERR(write_subcommand(VCELL_MODE, std::span<uint8_t>(&vcell_mode, 1)));
+
+    // Balancing
+    balancing_init();
 
     // PROTECTION
     // RETURN_IF_ERR(protectionInit());

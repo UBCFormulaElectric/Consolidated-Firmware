@@ -74,12 +74,15 @@ inline constexpr uint16_t SUBCMD_GET_INEGRATED_CHARGE = 0x0076;
 // Cell Balancing
 inline constexpr uint16_t CMD_TEMPERATURE_IC    = 0x68;
 inline constexpr uint16_t BALANCE_CFG           = 0x9335;
-inline constexpr uint16_t MIN_CELL_TEMP         = 0x9336;
-inline constexpr uint16_t MAX_CELL_TEMP         = 0x9337;
 inline constexpr uint16_t MAX_IC_TEMP           = 0x9338;
 inline constexpr uint16_t CELL_BALANCE_INTERVAL = 0x9339; // 20 seconds default
 inline constexpr uint16_t MAX_CELLS_BALANCING   = 0x933A;
 inline constexpr uint16_t CELL_BALANCE_MIN_V    = 0x933F;
+inline constexpr uint16_t CELL_BALANCE_MIN_DELTA = 0x9341;
+inline constexpr uint16_t CELL_BALANCE_STOP_V    = 0x9342;
+inline constexpr uint16_t CB_ACTIVE_CELLS = 0x0083;
+inline constexpr uint16_t CBSTATUS1       = 0x0085;
+inline constexpr uint16_t CBSTATUS2       = 0x0086;
 
 // OTP
 inline constexpr uint16_t OTP_WR_CHECK = 0x00A0;
