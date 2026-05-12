@@ -2,6 +2,7 @@
 #include "hw_hal.hpp"
 #include "hw_utils.hpp"
 #include "util_errorCodes.hpp"
+#include "app_timer.hpp"
 
 #include <cstdint>
 #include <cassert>
@@ -28,6 +29,9 @@
  * the PWM input
  */
 
+constexpr uint32_t MIN_ACTIVE_TIMER_DURATION_MS = 1U;
+constexpr uint32_t MAX_ACTIVE_TIMER_DURATION_MS = 10000U;
+
 namespace hw
 {
 
@@ -48,6 +52,7 @@ class PwmInput
     uint32_t              falling_edge_tim_channel;
     uint32_t              tim_auto_reload_reg;
 
+    mutable bool pwm_active = false;
     mutable bool first_tick = false;
 
     /* Calculaing frequency based of rising edge*/
@@ -57,9 +62,36 @@ class PwmInput
     /*Outputs of PWM input*/
     mutable float  duty_cycle         = 0;
     mutable float  frequency_hz       = 0;
-    mutable size_t tim_overflow_count = 0;
 
     PwmMode mode;
+    mutable app::Timer            active_timer;
+
+    [[nodiscard]] static consteval uint32_t clampActiveTimerDuration(const uint32_t duration_ms)
+    {
+        if (duration_ms < MIN_ACTIVE_TIMER_DURATION_MS)
+        {
+            return MIN_ACTIVE_TIMER_DURATION_MS;
+        }
+
+        if (duration_ms > MAX_ACTIVE_TIMER_DURATION_MS)
+        {
+            return MAX_ACTIVE_TIMER_DURATION_MS;
+        }
+
+        return duration_ms;
+    }
+
+    [[nodiscard]] static consteval uint32_t getActiveTimerDurationFromPeriod(const uint32_t max_expected_period_ms)
+    {
+        return clampActiveTimerDuration(max_expected_period_ms * 2U);
+    }
+
+    [[nodiscard]] static consteval uint32_t getActiveTimerDurationFromFrequency(
+        const float min_expected_frequency_hz)
+    {
+        return clampActiveTimerDuration(
+            static_cast<uint32_t>((1.0f / min_expected_frequency_hz) * 2000.0f));
+    }
 
     /**
      * Set the frequency for the given PWM input
@@ -79,16 +111,17 @@ class PwmInput
         const float                 tim_frequency_hz_in,
         const uint32_t              rising_edge_tim_channel_in,
         const uint32_t              falling_edge_tim_channel_in,
-        const uint32_t              tim_auto_reload_reg_in)
+        const uint32_t              tim_auto_reload_reg_in,
+        const uint32_t              max_expected_period_ms)
       : htim(htim_in),
         tim_active_channel(tim_active_channel_in),
         tim_frequency_hz(tim_frequency_hz_in),
         rising_edge_tim_channel(rising_edge_tim_channel_in),
         falling_edge_tim_channel(falling_edge_tim_channel_in),
         tim_auto_reload_reg(tim_auto_reload_reg_in),
-        mode(PwmMode::PWMINPUT)
-    {
-    }
+        mode(PwmMode::PWMINPUT),
+        active_timer(getActiveTimerDurationFromPeriod(max_expected_period_ms))
+    {}
 
     /* Frequency only PWM Input Constructor */
     consteval explicit PwmInput(
@@ -96,16 +129,17 @@ class PwmInput
         const HAL_TIM_ActiveChannel tim_active_channel_in,
         const float                 tim_frequency_hz_in,
         const uint32_t              rising_edge_tim_channel_in,
-        const uint32_t              tim_auto_reload_reg_in)
+        const uint32_t              tim_auto_reload_reg_in,
+        const float                 min_expected_frequency_hz)
       : htim(htim_in),
         tim_active_channel(tim_active_channel_in),
         tim_frequency_hz(tim_frequency_hz_in),
         rising_edge_tim_channel(rising_edge_tim_channel_in),
         falling_edge_tim_channel(0),
         tim_auto_reload_reg(tim_auto_reload_reg_in),
-        mode(PwmMode::PWMFREQONLY)
-    {
-    }
+        mode(PwmMode::PWMFREQONLY),
+        active_timer(getActiveTimerDurationFromFrequency(min_expected_frequency_hz))
+    {}
 
     PwmInput() = delete;
 
@@ -119,6 +153,7 @@ class PwmInput
         RETURN_IF_ERR_SILENT(hw::utils::convertHalStatus(HAL_TIM_IC_Start_IT(&htim, rising_edge_tim_channel)));
         RETURN_IF_ERR_SILENT(hw::utils::convertHalStatus(HAL_TIM_IC_Start_IT(&htim, falling_edge_tim_channel)));
         RETURN_IF_ERR_SILENT(hw::utils::convertHalStatus(HAL_TIM_Base_Start_IT(&htim)));
+        this->active_timer.restart();
         return {};
     }
 
@@ -149,23 +184,18 @@ class PwmInput
      */
     [[nodiscard]] bool pwm_isActive() const
     {
-        // If the timer overflows twice without a rising edge, the PWM signal is
-        // likely inactive (i.e. DC signal) and its frequency can't be computed
-        if (++tim_overflow_count == 2U)
-        {
-            setFrequency(0);
-            return false;
-        }
-        return true;
+        // If for two periods of the minimum expected frequency, 
+        // we haven't detected a rising edge, we can conclude that the PWM signal is inactive
+        this->pwm_active = (this->active_timer.updateAndGetState()) != app::Timer::TimerState::EXPIRED;
+        return this->pwm_active;
     }
 
     /**
      * Update the frequency and duty cycle for the given PWM input
      */
     void tick() const
-    {
-        // Reset the timer overflow count to indicate that the PWM signal is active
-        tim_overflow_count = 0;
+    {   
+        this->active_timer.restart();
 
         // We store the counter values captured during two most recent rising edges.
         // The difference between these two counter values is used to compute the

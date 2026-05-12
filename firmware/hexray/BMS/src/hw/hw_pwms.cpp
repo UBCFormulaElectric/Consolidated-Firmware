@@ -1,6 +1,9 @@
 #include "hw_pwms.hpp"
 #include "main.h"
 
+constexpr uint32_t MAX_IMD_PERIOD_MS = 100U;
+constexpr uint32_t MAX_EVSE_PWM_PERIOD_MS = 1U;
+
 /* * IMD PWM Input
  * Pin: IMD_M_HS_3V3_Pin (PA8) -> TIM1_CH1
  * Mode: PWM Input on TI1
@@ -12,7 +15,8 @@ constexpr hw::PwmInput imd_pwm_input(
     TIMx_FREQUENCY / TIM1_PRESCALER,
     TIM_CHANNEL_1, // Rising Edge (Direct)
     TIM_CHANNEL_2, // Falling Edge (Indirect)
-    TIM1_AUTO_RELOAD_REG);
+    TIM1_AUTO_RELOAD_REG,
+    MAX_IMD_PERIOD_MS);
 
 /* * EVSE PWM Input
  * Pin: nEVSE_I_LIM_PWM_Pin (PA3) -> TIM5_CH4
@@ -25,7 +29,8 @@ constexpr hw::PwmInput evse_pwm_input(
     TIMx_FREQUENCY / TIM5_PRESCALER,
     TIM_CHANNEL_4, // Rising Edge (Direct)
     TIM_CHANNEL_3, // Falling Edge (Indirect)
-    TIM5_AUTO_RELOAD_REG);
+    TIM5_AUTO_RELOAD_REG,
+    MAX_EVSE_PWM_PERIOD_MS);
 
 // HAL Interrupt Callback
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
