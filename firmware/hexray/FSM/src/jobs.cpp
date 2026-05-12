@@ -34,16 +34,16 @@ void jobs_init()
 }
 void jobs_run1Hz_tick()
 {
-    app::apps::broadcast();
-    app::brake::broadcast();
-    app::imu::broadcast();
-    // app::shdnLoop::broadcast();
-    app::steering::broadcast();
-    app::suspension::broadcast();
     io::can_tx::enqueue1HzMsgs();
 }
 void jobs_run100Hz_tick()
 {
+    app::apps::broadcast();
+    app::brake::broadcast();
+    app::imu::broadcast();
+    app::steering::broadcast();
+    app::suspension::broadcast();
+
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
 
