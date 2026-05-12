@@ -130,8 +130,12 @@ class RSMChimeraConfig : public chimera_v2::config
     }
 } rsm_config;
 
-static hw::rtos::StaticTask<8096>
-    TaskChimera(osPriorityRealtime, "TaskChimera", [](void *) { chimera_v2::task(rsm_config); });
+static hw::rtos::StaticTask::StaticTaskStack<8096> chimeraStack;
+static hw::rtos::StaticTask                        TaskChimera(
+    osPriorityRealtime,
+    "TaskChimera",
+    [](void *) { chimera_v2::task(rsm_config); },
+    chimeraStack);
 
 void tasks_preInit() {}
 char USBD_PRODUCT_STRING_FS[] = "rsm";

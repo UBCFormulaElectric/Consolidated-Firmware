@@ -5,6 +5,7 @@
 #include "main.h"
 #include "hw_rtosTaskHandler.hpp"
 #include <cassert>
+#include "app_commitInfo.hpp"
 
 void tx_overflow_callback(const uint32_t overflow_count)
 {
@@ -42,8 +43,8 @@ class HexrayCRITBootConfig final : public bootloader::config
             boot_can_tx_queue,
             boot_can_rx_queue,
             board_highbits,
-            git_commit_hash_val,
-            git_commit_clean_val)
+            GIT_COMMIT_HASH,
+            GIT_COMMIT_CLEAN)
     {
     }
 } hexray_CRIT_boot_config;
@@ -53,14 +54,25 @@ CFUNC void bootloader_preinit()
     bootloader::preInit();
 }
 
-static hw::rtos::StaticTask<1024> bootInterfaceTask(
+static hw::rtos::StaticTask::StaticTaskStack<1024> bootInterfaceStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024> bootTickStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024> bootCanTxStack;
+
+static hw::rtos::StaticTask bootInterfaceTask(
     osPriorityRealtime,
     "BootIntf",
-    [](void *) { bootloader::runInterfaceTask(hexray_CRIT_boot_config); });
-static hw::rtos::StaticTask<1024>
-    bootTickTask(osPriorityRealtime, "BootTick", [](void *) { bootloader::runTickTask(hexray_CRIT_boot_config); });
-static hw::rtos::StaticTask<1024>
-    bootCanTxTask(osPriorityRealtime, "BootCanTx", [](void *) { bootloader::runCanTxTask(hexray_CRIT_boot_config); });
+    [](void *) { bootloader::runInterfaceTask(hexray_CRIT_boot_config); },
+    bootInterfaceStack);
+static hw::rtos::StaticTask bootTickTask(
+    osPriorityRealtime,
+    "BootTick",
+    [](void *) { bootloader::runTickTask(hexray_CRIT_boot_config); },
+    bootTickStack);
+static hw::rtos::StaticTask bootCanTxTask(
+    osPriorityRealtime,
+    "BootCanTx",
+    [](void *) { bootloader::runCanTxTask(hexray_CRIT_boot_config); },
+    bootCanTxStack);
 
 [[noreturn]] void bootloader_init()
 {
