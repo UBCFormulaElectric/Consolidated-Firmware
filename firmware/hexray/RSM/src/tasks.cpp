@@ -159,7 +159,7 @@ void tasks_init()
     adcchipsInit();
     can1.init();
     const ResetReason reset_reason = hw::resetReason::get();
-    app::can_tx::FSM_ResetReason_set(static_cast<app::can_utils::CanResetReason>(reset_reason));
+    app::can_tx::RSM_ResetReason_set(static_cast<app::can_utils::CanResetReason>(reset_reason));
     if (reset_reason == RESET_REASON_WATCHDOG)
     {
         LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
