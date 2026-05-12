@@ -11,7 +11,7 @@ bool                       io::ntpButton::isPressed()
     return false;
 }
 
-std::expected<io::telemRx::RxChunk, ErrorCode> io::telemRx::read(std::span<uint8_t>)
+std::expected<std::span<const uint8_t>, ErrorCode> io::telemRx::read(std::span<uint8_t>)
 {
-    return RxChunk{ {}, io::rtc::Time{} };
+    return std::span<const uint8_t>{};
 }

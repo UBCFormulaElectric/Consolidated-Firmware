@@ -2,6 +2,9 @@
 #include "main.h"
 #include "jobs.hpp"
 
+#include "FreeRTOS.h"
+#include "task.h"
+
 #include "app_jsoncan.hpp"
 #include "app_canTx.hpp"
 #include "app_canAlerts.hpp"
@@ -32,6 +35,7 @@
 [[noreturn]] static void tasks_runLogging(void *arg);
 [[noreturn]] static void tasks_runTelemTx(void *arg);
 [[noreturn]] static void tasks_runTelemRx(void *arg);
+[[noreturn]] static void tasks_runTelemParse(void *arg);
 [[noreturn]] static void tasks_runCanTx(void *arg);
 [[noreturn]] static void tasks_runCanRx(void *arg);
 
@@ -44,6 +48,7 @@ static hw::rtos::StaticTask::StaticTaskStack<512>  Task1HzStack;
 static hw::rtos::StaticTask::StaticTaskStack<1024> TaskLoggingStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskTelemStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskTelemRxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskTelemParseStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskTelemTxStack;
 
 static hw::rtos::StaticTask Task100Hz(osPriorityRealtime, "Task100Hz", tasks_run100Hz, Task100HzStack);
@@ -54,6 +59,8 @@ static hw::rtos::StaticTask Task1Hz(osPriorityBelowNormal, "Task1Hz", tasks_run1
 static hw::rtos::StaticTask TaskLogging(osPriorityHigh, "TaskLogging", tasks_runLogging, TaskLoggingStack);
 static hw::rtos::StaticTask TaskTelem(osPriorityHigh, "TaskTelem", tasks_runTelemTx, TaskTelemStack);
 static hw::rtos::StaticTask TaskTelemRx(osPriorityHigh, "TaskTelemRx", tasks_runTelemRx, TaskTelemRxStack);
+static hw::rtos::StaticTask
+    TaskTelemParse(osPriorityBelowNormal, "TaskTelemParse", tasks_runTelemParse, TaskTelemParseStack);
 static hw::rtos::StaticTask TaskTelemTx(osPriorityHigh, "TaskTelemTx", tasks_runTelemTx, TaskTelemTxStack);
 
 void tasks_run1Hz(void *arg)
@@ -172,7 +179,17 @@ void tasks_runTelemRx(void *arg)
             LOG_ERROR("read() failed with error: %d", static_cast<int>(rx_result.error()));
             continue;
         }
-        app::telemRx::ingest(rx_result->bytes, app::ntp::rtcTimeToMs(rx_result->rx_time));
+        app::telemRx::ingest(*rx_result);
+        xTaskNotifyGive(static_cast<TaskHandle_t>(TaskTelemParse.id()));
+    }
+}
+
+void tasks_runTelemParse(void *arg)
+{
+    forever
+    {
+        // Block until TaskTelemRx pushes new bytes into the ring. pdTRUE
+        (void)ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
         app::telemRx::drain();
     }
 }
@@ -228,6 +245,7 @@ static void DAM_StartAllTasks()
     TaskLogging.start();
     TaskTelemTx.start();
     TaskTelemRx.start();
+    TaskTelemParse.start();
 }
 
 void tasks_preInit()

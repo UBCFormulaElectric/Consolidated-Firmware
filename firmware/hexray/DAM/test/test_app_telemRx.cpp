@@ -48,10 +48,17 @@ std::vector<uint8_t> buildNtpFrame(uint64_t t1, uint64_t t2)
     return frame;
 }
 
-void feed(const std::vector<uint8_t> &bytes, uint64_t rx_time_ms = 0)
+void feed(const std::vector<uint8_t> &bytes)
 {
-    app::telemRx::ingest(std::span<const uint8_t>{ bytes.data(), bytes.size() }, rx_time_ms);
+    app::telemRx::ingest(std::span<const uint8_t>{ bytes.data(), bytes.size() });
     app::telemRx::drain();
+}
+
+// t3 is now captured by the parser from the RTC at frame-completion time,
+// so tests that care about a specific t3 seed the fake RTC accordingly.
+void setRtcMs(uint64_t ms)
+{
+    fakes::rtc::setNow(app::ntp::msToRtcTime(ms));
 }
 } // namespace
 
@@ -78,12 +85,12 @@ TEST_F(TelemRxTest, SlewsRtcToNextSecondBoundary)
     // t0 captured "before transmit" = 0 ms.
     app::ntp::recordT0(0);
 
-    // Frame: t1 = 750, t2 = 750. We claim t3 = 0 at receive.
+    // Frame: t1 = 750, t2 = 750. RTC reads t3 = 0 at parse-completion.
     // theta    = ((750 - 0) + (750 - 0)) / 2 = 750
     // new_ms   = current_rtc_ms (0) + theta (750) = 750
     // round up to next 1000-ms boundary -> 1000 ms = 0:0:1.000
     // msToRtcTime(1000) -> hours=0, minutes=0, seconds=1, subseconds=999
-    feed(buildNtpFrame(/*t1=*/750, /*t2=*/750), /*rx_time_ms=*/0);
+    feed(buildNtpFrame(/*t1=*/750, /*t2=*/750));
 
     EXPECT_TRUE(fakes::rtc::wasSetCalled());
     const auto last = fakes::rtc::lastSetTime();
@@ -103,10 +110,13 @@ TEST_F(TelemRxTest, SlewSetsRtcExactlyOnBoundaryWhenAlreadyAligned)
     start.subseconds = 999;
     fakes::rtc::setNow(start);
 
-    // Pick t0/t1/t2/t3 so theta is an exact-second multiple.
-    // theta = ((t1 - t0) + (t2 - t3)) / 2 = ((1000 - 0) + (1000 - 0)) / 2 = 1000
-    app::ntp::recordT0(0);
-    feed(buildNtpFrame(/*t1=*/1000, /*t2=*/1000), /*rx_time_ms=*/0);
+    // Pick t0/t1/t2 so theta is an exact-second multiple. The RTC was just
+    // seeded to 12:00:00.000, so the parser will capture t3 = 43_200_000.
+    // theta = ((t1 - t0) + (t2 - t3)) / 2
+    //       = ((43_201_000 - 43_200_000) + (43_201_000 - 43_200_000)) / 2 = 1000
+    constexpr uint64_t noon_ms = 43'200'000ULL;
+    app::ntp::recordT0(noon_ms);
+    feed(buildNtpFrame(/*t1=*/noon_ms + 1000, /*t2=*/noon_ms + 1000));
 
     // new_ms = 43_200_000 + 1000 = 43_201_000  (already on a second boundary)
     // -> hours=12, minutes=0, seconds=1, subseconds=999
@@ -120,8 +130,9 @@ TEST_F(TelemRxTest, SlewSetsRtcExactlyOnBoundaryWhenAlreadyAligned)
 
 TEST_F(TelemRxTest, ConsumesValidFrameAndUpdatesTimestamps)
 {
+    setRtcMs(300); // parser will capture t3 = 300 from the RTC
     app::ntp::recordT0(100);
-    feed(buildNtpFrame(/*t1=*/200, /*t2=*/250), /*rx_time_ms=*/300);
+    feed(buildNtpFrame(/*t1=*/200, /*t2=*/250));
 
     const auto &ts = app::ntp::timestamps();
     EXPECT_EQ(ts.t0, 100u);
@@ -143,7 +154,7 @@ TEST_F(TelemRxTest, JunkBeforeAndBetweenValidFrames)
     auto f2 = buildNtpFrame(21, 22);
     stream.insert(stream.end(), f2.begin(), f2.end());
 
-    feed(stream, /*rx_time_ms=*/999);
+    feed(stream);
     const auto &ts = app::ntp::timestamps();
     EXPECT_EQ(ts.t1, 21u); // last frame wins
     EXPECT_EQ(ts.t2, 22u);
@@ -159,14 +170,16 @@ TEST_F(TelemRxTest, FrameSplitAcrossTwoIngests)
     std::vector<uint8_t> first(frame.begin(), frame.begin() + mid);
     std::vector<uint8_t> second(frame.begin() + mid, frame.end());
 
-    feed(first, /*rx_time_ms=*/1);
+    setRtcMs(1);
+    feed(first);
     EXPECT_GT(app::telemRx::ringSize(), 0u); // partial frame still buffered
 
-    feed(second, /*rx_time_ms=*/2);
+    setRtcMs(2); // RTC at the moment the frame completes
+    feed(second);
     const auto &ts = app::ntp::timestamps();
     EXPECT_EQ(ts.t1, 7u);
     EXPECT_EQ(ts.t2, 8u);
-    EXPECT_EQ(ts.t3, 2u); // t3 from the chunk that completed the frame
+    EXPECT_EQ(ts.t3, 2u); // t3 captured by the parser when the frame finished
     EXPECT_EQ(app::telemRx::ringSize(), 0u);
 }
 
@@ -177,7 +190,7 @@ TEST_F(TelemRxTest, ZeroBodySizeHeaderIsResynced)
     auto                 good = buildNtpFrame(33, 44);
     bad.insert(bad.end(), good.begin(), good.end());
 
-    feed(bad, /*rx_time_ms=*/5);
+    feed(bad);
     const auto &ts = app::ntp::timestamps();
     EXPECT_EQ(ts.t1, 33u);
     EXPECT_EQ(ts.t2, 44u);

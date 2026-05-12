@@ -5,6 +5,7 @@
 #include "app_ntp.hpp"
 #include "app_crc32.hpp"
 #include "io_log.hpp"
+#include "io_rtc.hpp"
 #include "io_telemMessage.hpp"
 #include "io_telemQueue.hpp"
 #include "util_ringBuffer.hpp"
@@ -14,8 +15,10 @@ namespace app::telemRx
 
 namespace
 {
-    constexpr std::size_t ringCapacity = 512;
-    constexpr std::size_t maxBodySize  = 100;
+    // Largest incoming telem frame from the Rust backend (NTP): 7B header + 17B body.
+    constexpr std::size_t maxIncomingFrameSize = 24;
+    constexpr std::size_t ringCapacity         = maxIncomingFrameSize * 22; // 528 bytes
+    constexpr std::size_t maxBodySize          = 100;
 
     constexpr uint8_t     magic0     = 0xCC;
     constexpr uint8_t     magic1     = 0x33;
@@ -27,11 +30,10 @@ namespace
         Remote_NTP = 2,
     };
 
+    // TaskTelemRx is the only producer (via ingest); TaskTelemParse is
+    // the only consumer (via drain). Overflow policy is drop-incoming, so the
+    // producer never touches queued data.
     util::RingBuffer<uint8_t, ringCapacity> g_ring{};
-
-    // t3 captured by IO immediately after the most recent chunk landed.
-    // Associated with any frame extracted on the next drain() pass.
-    uint64_t g_last_rx_time_ms = 0;
 
     // Dispatch the frame to the appropriate handler based on the message id
     void dispatchFrame(std::span<const uint8_t> body, uint64_t rx_time_ms)
@@ -103,9 +105,9 @@ namespace
             return false; // wait for more bytes
 
         // CRC directly against ring memory so a bad frame costs no body copy.
+        // Drop-incoming overflow means the producer never moves head_, so the
+        // size() check above guarantees this range is fully populated.
         const auto [s1, s2] = g_ring.contiguousRange(headerSize, body_size);
-        if (s1.size() + s2.size() != body_size)
-            return false;
 
         uint32_t c = app::crc32::init();
         c          = app::crc32::update(c, s1.data(), s1.size());
@@ -119,27 +121,36 @@ namespace
             return true;
         }
 
+        // validated message from here
         std::array<uint8_t, maxBodySize> body_buf{};
         std::span<uint8_t>               body{ body_buf.data(), body_size };
         (void)g_ring.copyOut(headerSize, body);
-
         g_ring.discard(headerSize + body_size);
-        dispatchFrame(body, g_last_rx_time_ms);
+
+        // Capture t3 once we know we have a real frame. This adds parser-
+        // scheduling latency to t3, but avoids any producer/consumer sharing
+        // of the timestamp.
+        io::rtc::Time t3_now{};
+        uint64_t      t3_ms = 0;
+        if (io::rtc::get_time(t3_now))
+        {
+            t3_ms = app::ntp::rtcTimeToMs(t3_now);
+        }
+        else
+        {
+            LOG_ERROR("telemRx: RTC get_time failed while capturing t3");
+        }
+
+        dispatchFrame(body, t3_ms);
         return true;
     }
 } // namespace
 
-void ingest(std::span<const uint8_t> bytes, uint64_t rx_time_ms)
+void ingest(std::span<const uint8_t> bytes)
 {
-    g_last_rx_time_ms = rx_time_ms;
     if (!g_ring.push(bytes))
     {
-        // Ring overflow: drop oldest bytes to make room. Better than silent
-        // truncation of the new chunk — newer data is more useful for resync.
-        const std::size_t need = bytes.size() > g_ring.free() ? bytes.size() - g_ring.free() : 0;
-        g_ring.discard(need);
-        (void)g_ring.push(bytes);
-        LOG_WARN("telemRx: ring overflow, dropped %u bytes", static_cast<unsigned>(need));
+        LOG_WARN("telemRx: ring full, dropped %u incoming bytes", static_cast<unsigned>(bytes.size()));
     }
 }
 
@@ -159,7 +170,6 @@ std::size_t ringSize()
 void reset()
 {
     g_ring.clear();
-    g_last_rx_time_ms = 0;
 }
 
 } // namespace app::telemRx
