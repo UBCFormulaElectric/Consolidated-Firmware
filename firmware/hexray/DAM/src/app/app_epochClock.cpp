@@ -1,5 +1,7 @@
 #include "app_epochClock.hpp"
 
+#include "io_rtc.hpp"
+
 namespace app::epochClock
 {
 
@@ -7,6 +9,14 @@ namespace
 {
     // STM32 RTC stores year as [0, 99] representing 2000..2099.
     constexpr int RTC_YEAR_BASE = 2000;
+
+    // RTC subseconds prescaler — STM32 HAL hardware detail, kept private.
+    constexpr uint32_t PREDIV_S = 999;
+
+    // ms conversion constants — only used internally by the day/time split helpers.
+    constexpr uint64_t MS_PER_DAY    = 86'400'000ULL;
+    constexpr uint64_t MS_PER_HOUR   = 3'600'000ULL;
+    constexpr uint64_t MS_PER_MINUTE = 60'000ULL;
 
     // Howard Hinnant's days_from_civil — days since 1970-01-01 for (y, m, d).
     // y is the full Gregorian year (e.g. 2026), m in [1,12], d in [1,31].
