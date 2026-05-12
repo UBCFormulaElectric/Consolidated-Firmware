@@ -51,8 +51,9 @@ class PwmInput
     uint32_t              rising_edge_tim_channel;
     uint32_t              falling_edge_tim_channel;
     uint32_t              tim_auto_reload_reg;
+    bool                  reset_mode;
 
-    mutable bool pwm_active = false;
+    mutable bool pwm_active = true;
     mutable bool first_tick = false;
 
     /* Calculaing frequency based of rising edge*/
@@ -112,6 +113,7 @@ class PwmInput
         const uint32_t              rising_edge_tim_channel_in,
         const uint32_t              falling_edge_tim_channel_in,
         const uint32_t              tim_auto_reload_reg_in,
+        const bool                  reset_mode_in,
         const uint32_t              max_expected_period_ms)
       : htim(htim_in),
         tim_active_channel(tim_active_channel_in),
@@ -119,6 +121,7 @@ class PwmInput
         rising_edge_tim_channel(rising_edge_tim_channel_in),
         falling_edge_tim_channel(falling_edge_tim_channel_in),
         tim_auto_reload_reg(tim_auto_reload_reg_in),
+        reset_mode(reset_mode_in),
         mode(PwmMode::PWMINPUT),
         active_timer(getActiveTimerDurationFromPeriod(max_expected_period_ms))
     {}
@@ -130,6 +133,7 @@ class PwmInput
         const float                 tim_frequency_hz_in,
         const uint32_t              rising_edge_tim_channel_in,
         const uint32_t              tim_auto_reload_reg_in,
+        const bool                  reset_mode_in,
         const float                 min_expected_frequency_hz)
       : htim(htim_in),
         tim_active_channel(tim_active_channel_in),
@@ -137,6 +141,7 @@ class PwmInput
         rising_edge_tim_channel(rising_edge_tim_channel_in),
         falling_edge_tim_channel(0),
         tim_auto_reload_reg(tim_auto_reload_reg_in),
+        reset_mode(reset_mode_in),
         mode(PwmMode::PWMFREQONLY),
         active_timer(getActiveTimerDurationFromFrequency(min_expected_frequency_hz))
     {}
@@ -151,7 +156,7 @@ class PwmInput
     [[nodiscard]] std::expected<void, ErrorCode> init() const
     {
         RETURN_IF_ERR_SILENT(hw::utils::convertHalStatus(HAL_TIM_IC_Start_IT(&htim, rising_edge_tim_channel)));
-        RETURN_IF_ERR_SILENT(hw::utils::convertHalStatus(HAL_TIM_IC_Start_IT(&htim, falling_edge_tim_channel)));
+        RETURN_IF_ERR_SILENT(hw::utils::convertHalStatus(HAL_TIM_IC_Start(&htim, falling_edge_tim_channel)));
         RETURN_IF_ERR_SILENT(hw::utils::convertHalStatus(HAL_TIM_Base_Start_IT(&htim)));
         this->active_timer.restart();
         return {};
@@ -213,15 +218,23 @@ class PwmInput
 
             uint32_t rising_edge_delta;
 
-            if (curr_rising_edge > prev_rising_edge)
+            if (reset_mode)
+            {
+                // In reset mode, the timer counter is reset on every rising edge, captured value gives the period.
+                 rising_edge_delta = curr_rising_edge;
+            }
+            else if (curr_rising_edge > prev_rising_edge)
             {
                 rising_edge_delta = curr_rising_edge - prev_rising_edge;
-                setFrequency(tim_frequency_hz / static_cast<float>(rising_edge_delta));
             }
             else if (curr_rising_edge < prev_rising_edge)
             {
                 // Occurs when the counter rolls over
                 rising_edge_delta = tim_auto_reload_reg - prev_rising_edge + curr_rising_edge;
+            }
+
+            if (rising_edge_delta != 0)
+            {
                 setFrequency(tim_frequency_hz / static_cast<float>(rising_edge_delta));
             }
             else
