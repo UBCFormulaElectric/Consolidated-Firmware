@@ -59,7 +59,6 @@ void jobs_init()
     app::precharge::init();
 
 #ifndef TARGET_HV_SUPPLY
-    app::segments::setDefaultConfig();
     LOG_IF_ERR(io::adbms::wakeup());
     LOG_IF_ERR(io::adbms::clearCellVoltageReg());
     LOG_IF_ERR(io::adbms::clearFilteredCellVoltageReg());

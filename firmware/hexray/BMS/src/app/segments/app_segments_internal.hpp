@@ -24,17 +24,17 @@ inline constexpr float OW_THERM_THRESHOLD = 0.0f; // TODO: need to calibrate
 namespace app::segments
 {
 
-constexpr float convertUVOVToFloat(uint16_t hex)
+constexpr float convertUVOVToFloat(const uint16_t hex)
 {
     return (hex * 16 * 150e-6f + 1.5f);
 }
 
-constexpr float convertRegToVoltage(uint16_t reg)
+constexpr float convertRegToVoltage(const uint16_t reg)
 {
     return (static_cast<float>(static_cast<int16_t>(reg)) * 150e-6f) + 1.5f;
 }
 
-static constexpr bool checkCellOwcOk(float baselineVoltage, float owcVoltage)
+static constexpr bool checkCellOwcOk(const float baselineVoltage, const float owcVoltage)
 {
     if (owcVoltage < baselineVoltage * OW_CELL_RELATIVE_THRESHOLD)
         return false;
@@ -43,7 +43,7 @@ static constexpr bool checkCellOwcOk(float baselineVoltage, float owcVoltage)
     return true;
 }
 
-constexpr float convertRegToTemp(uint16_t reg)
+constexpr float convertRegToTemp(const uint16_t reg)
 {
     const float voltage    = convertRegToVoltage(reg);
     const float resistance = R_SERIES * (voltage / (V_REF2 - voltage));

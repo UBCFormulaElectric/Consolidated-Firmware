@@ -7,14 +7,12 @@ using namespace std;
 
 inline constexpr uint8_t NUM_CONFIG_SYNC_TRIES = 5;
 
-static array<io::adbms::SegmentConfig, io::NUM_SEGMENTS> segment_config;
-static array<io::adbms::PWMConfig, io::NUM_SEGMENTS>     segment_pwm_config;
-
-namespace app::segments
+namespace
 {
-void setDefaultConfig()
+constexpr array<io::adbms::SegmentConfig, io::NUM_SEGMENTS> createDefaultSegmentConfig()
 {
-    for (auto &[reg_a, reg_b] : segment_config)
+    array<io::adbms::SegmentConfig, io::NUM_SEGMENTS> out{};
+    for (auto &[reg_a, reg_b] : out)
     {
         reg_a.cth       = 0x01;
         reg_a.ref_on    = 0x01;
@@ -27,11 +25,18 @@ void setDefaultConfig()
         reg_b.vov_0_3  = static_cast<uint8_t>(VOV & 0x0F);
         reg_b.vov_4_11 = static_cast<uint8_t>(VOV >> 4 & 0xFF);
     }
+    return out;
 }
+} // namespace
 
+static array<io::adbms::SegmentConfig, io::NUM_SEGMENTS> segment_config = createDefaultSegmentConfig();
+static array<io::adbms::PWMConfig, io::NUM_SEGMENTS>     segment_pwm_config;
+
+namespace app::segments
+{
 void setBalanceConfig(
-    array<array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> &balance_config,
-    bool                                                         balancing_enabled)
+    const array<array<bool, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> &balance_config,
+    const bool                                                         balancing_enabled)
 {
     for (uint8_t seg = 0; seg < io::NUM_SEGMENTS; seg++)
     {
@@ -57,7 +62,7 @@ void setBalanceConfig(
     }
 }
 
-void setPwmConfig(array<array<uint8_t, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> &pwm_duty)
+void setPwmConfig(const array<array<uint8_t, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS> &pwm_duty)
 {
     for (uint8_t seg = 0; seg < io::NUM_SEGMENTS; seg++)
     {
@@ -74,7 +79,7 @@ void setPwmConfig(array<array<uint8_t, io::CELLS_PER_SEGMENT>, io::NUM_SEGMENTS>
     }
 }
 
-void setThermistorConfig(ThermistorMux mux)
+void setThermistorConfig(const ThermistorMux mux)
 {
     for (auto &[reg_a, reg_b] : segment_config)
     {
@@ -95,7 +100,7 @@ void setThermistorConfig(ThermistorMux mux)
 
 static expected<void, ErrorCode> isConfigEqual()
 {
-    array<io::adbms::SegmentConfig, io::NUM_SEGMENTS>  segment_config_buf;
+    array<io::adbms::SegmentConfig, io::NUM_SEGMENTS>  segment_config_buf{};
     array<expected<void, ErrorCode>, io::NUM_SEGMENTS> segment_success_buf;
 
     io::adbms::readConfigReg(segment_config_buf, segment_success_buf);
@@ -121,19 +126,16 @@ expected<void, ErrorCode> configSync()
 {
     for (uint8_t tries = 0; tries < NUM_CONFIG_SYNC_TRIES; tries++)
     {
-        const auto write_ok = io::adbms::writeConfigReg(segment_config);
-        if (!write_ok)
+        if (const auto write_ok = io::adbms::writeConfigReg(segment_config); !write_ok)
         {
             continue;
         }
-        else
+        const auto equal = isConfigEqual();
+        if (equal)
         {
-            const auto equal = isConfigEqual();
-            if (equal)
-            {
-                return {};
-            }
+            return {};
         }
+        LOG_IF_ERR(equal);
     }
     return unexpected(ErrorCode::RETRY_FAILED);
 }
