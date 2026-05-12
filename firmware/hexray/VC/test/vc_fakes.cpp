@@ -67,7 +67,7 @@ namespace pumpController
 
 namespace powerMonitoring
 {
-    namespace
+    std::expected<float, ErrorCode> read_power(Channel)
     {
         constexpr int NUM_CHANNELS = 5;
         float         voltages[NUM_CHANNELS]{};
@@ -79,18 +79,33 @@ namespace powerMonitoring
     {
         return powers[static_cast<int>(channel)];
     }
-    float read_current(uint8_t channel)
+    std::expected<float, ErrorCode> read_current(Channel)
     {
         return currents[static_cast<int>(channel)];
     }
-    float read_voltage(uint8_t channel)
+    std::expected<float, ErrorCode> read_voltage(Channel)
     {
         return voltages[static_cast<int>(channel)];
     }
-    void refresh() {}
-    bool init()
+    std::expected<void, ErrorCode> refresh()
     {
-        return true;
+        return {};
+    }
+    std::expected<void, ErrorCode> init()
+    {
+        return {};
+    }
+    std::expected<void, ErrorCode> monitor_power_inputs()
+    {
+        return {};
+    }
+    std::expected<uint8_t, ErrorCode> read_alert_status()
+    {
+        return 0u;
+    }
+    std::expected<bool, ErrorCode> is_alert_asserted()
+    {
+        return false;
     }
     void set_reading_voltage(uint8_t channel, float voltage)
     {

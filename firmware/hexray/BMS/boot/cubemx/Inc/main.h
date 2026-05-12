@@ -27,7 +27,8 @@ extern "C"
 {
 #endif
 
-/* Includes ------------------------------------------------------------------*/
+    /* Includes ------------------------------------------------------------------*/
+
 #include "stm32h7xx_hal.h"
 
     /* Private includes ----------------------------------------------------------*/
@@ -42,7 +43,7 @@ extern "C"
 
     /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
-
+    extern FDCAN_HandleTypeDef hfdcan1;
     /* USER CODE END EC */
 
     /* Exported macro ------------------------------------------------------------*/
@@ -58,6 +59,20 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define SWDIO_Pin GPIO_PIN_13
+#define SWDIO_GPIO_Port GPIOA
+#define SWCLK_Pin GPIO_PIN_14
+#define SWCLK_GPIO_Port GPIOA
+#define SWO_Pin GPIO_PIN_3
+#define SWO_GPIO_Port GPIOB
+#define LED_Pin GPIO_PIN_4
+#define LED_GPIO_Port GPIOB
+#define BOOT_Pin GPIO_PIN_5
+#define BOOT_GPIO_Port GPIOB
+#define CANTX_Pin GPIO_PIN_7
+#define CANTX_GPIO_Port GPIOB
+#define CANRX_Pin GPIO_PIN_8
+#define CANRX_GPIO_Port GPIOB
 #define LED_B_Pin GPIO_PIN_0
 #define LED_B_GPIO_Port GPIOA
 

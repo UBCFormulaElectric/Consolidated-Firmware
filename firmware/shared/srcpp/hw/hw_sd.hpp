@@ -1,6 +1,4 @@
 #pragma once
-
-#include "hw_hal.hpp"
 #include "hw_gpio.hpp"
 #include "hw_utils.hpp"
 

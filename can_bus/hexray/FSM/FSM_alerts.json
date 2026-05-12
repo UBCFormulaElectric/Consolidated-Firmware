@@ -1,10 +1,10 @@
 {
-  "warnings_id": 616,
-  "faults_id": 617,
-  "warnings_counts_id": 618,
-  "faults_counts_id": 619,
-  "info_id": 620,
-  "info_counts_id": 621,
+  "warnings_id": 601,
+  "faults_id": 602,
+  "warnings_counts_id": 603,
+  "faults_counts_id": 604,
+  "info_id": 605,
+  "info_counts_id": 606,
   "info": {
     "WatchdogTimeout": {
       "id": 622,

@@ -21,7 +21,7 @@
         }
     },
     "VehicleDynamics": {
-        "msg_id": 501,
+        "msg_id": 510,
         "cycle_time": 100,
         "description": "Vehicle dynamics info",
         "signals": {
@@ -61,7 +61,7 @@
         }
     },
     "Imu1LinearData": {
-        "msg_id": 505,
+        "msg_id": 511,
         "cycle_time": 10,
         "description": "Linear Acceleration x, y and z direction from the first IMU",
         "signals": {
@@ -89,7 +89,7 @@
         }
     },
     "Imu2LinearData": {
-        "msg_id": 510,
+        "msg_id": 512,
         "cycle_time": 10,
         "description": "Linear Acceleration x, y and z direction from the second IMU",
         "signals": {
@@ -297,6 +297,186 @@
             },
             "RightRadiatorFanStatus": {
                 "bits": 1
+            }
+        }
+    },
+    "INVFLSetPoints": {
+        "msg_id": 388,
+        "cycle_time": 5,
+        "signals": {
+            "INVFLReserve1": {
+                "start_bit": 0,
+                "bits": 8
+            },
+            "INVFLbInverterOn": {
+                "start_bit": 8,
+                "bits": 1
+            },
+            "INVFLbDcOn": {
+                "start_bit": 9,
+                "bits": 1
+            },
+            "INVFLbEnable": {
+                "start_bit": 10,
+                "bits": 1
+            },
+            "INVFLbErrorReset": {
+                "start_bit": 11,
+                "bits": 1
+            },
+            "INVFLbReserve2": {
+                "start_bit": 12,
+                "bits": 4
+            },
+            "INVFLTorqueSetpoint": {
+                "start_bit": 16,
+                "bits": 16,
+                "signed": true
+            },
+            "INVFLTorqueLimitPositive": {
+                "start_bit": 32,
+                "bits": 16,
+                "signed": true
+            },
+            "INVFLTorqueLimitNegative": {
+                "start_bit": 48,
+                "bits": 16,
+                "signed": true
+            }
+        }
+    },
+    "INVFRSetPoints": {
+        "msg_id": 389,
+        "cycle_time": 5,
+        "signals": {
+            "INVFRReserve1": {
+                "start_bit": 0,
+                "bits": 8
+            },
+            "INVFRbInverterOn": {
+                "start_bit": 8,
+                "bits": 1
+            },
+            "INVFRbDcOn": {
+                "start_bit": 9,
+                "bits": 1
+            },
+            "INVFRbEnable": {
+                "start_bit": 10,
+                "bits": 1
+            },
+            "INVFRbErrorReset": {
+                "start_bit": 11,
+                "bits": 1
+            },
+            "INVFRbReserve2": {
+                "start_bit": 12,
+                "bits": 4
+            },
+            "INVFRTorqueSetpoint": {
+                "start_bit": 16,
+                "bits": 16,
+                "signed": true
+            },
+            "INVFRTorqueLimitPositive": {
+                "start_bit": 32,
+                "bits": 16,
+                "signed": true
+            },
+            "INVFRTorqueLimitNegative": {
+                "start_bit": 48,
+                "bits": 16,
+                "signed": true
+            }
+        }
+    },
+    "INVRLSetPoints": {
+        "msg_id": 392,
+        "cycle_time": 5,
+        "signals": {
+            "INVRLbReserve1": {
+                "start_bit": 0,
+                "bits": 8
+            },
+            "INVRLbInverterOn": {
+                "start_bit": 8,
+                "bits": 1
+            },
+            "INVRLbDcOn": {
+                "start_bit": 9,
+                "bits": 1
+            },
+            "INVRLbEnable": {
+                "start_bit": 10,
+                "bits": 1
+            },
+            "INVRLbErrorReset": {
+                "start_bit": 11,
+                "bits": 1
+            },
+            "INVRLbReserve2": {
+                "start_bit": 12,
+                "bits": 4
+            },
+            "INVRLTorqueSetpoint": {
+                "start_bit": 16,
+                "bits": 16,
+                "signed": true
+            },
+            "INVRLTorqueLimitPositive": {
+                "start_bit": 32,
+                "bits": 16,
+                "signed": true
+            },
+            "INVRLTorqueLimitNegative": {
+                "start_bit": 48,
+                "bits": 16,
+                "signed": true
+            }
+        }
+    },
+    "INVRRSetPoints": {
+        "msg_id": 393,
+        "cycle_time": 5,
+        "signals": {
+            "INVRRbReserve1": {
+                "start_bit": 0,
+                "bits": 8
+            },
+            "INVRRbInverterOn": {
+                "start_bit": 8,
+                "bits": 1
+            },
+            "INVRRbDcOn": {
+                "start_bit": 9,
+                "bits": 1
+            },
+            "INVRRbEnable": {
+                "start_bit": 10,
+                "bits": 1
+            },
+            "INVRRbErrorReset": {
+                "start_bit": 11,
+                "bits": 1
+            },
+            "INVRRbReserve2": {
+                "start_bit": 12,
+                "bits": 4
+            },
+            "INVRRTorqueSetpoint": {
+                "start_bit": 16,
+                "bits": 16,
+                "signed": true
+            },
+            "INVRRTorqueLimitPositive": {
+                "start_bit": 32,
+                "bits": 16,
+                "signed": true
+            },
+            "INVRRTorqueLimitNegative": {
+                "start_bit": 48,
+                "bits": 16,
+                "signed": true
             }
         }
     },
@@ -589,6 +769,78 @@
                 "min": 0.0,
                 "max": 800.0,
                 "unit": "W"
+            },
+            "CHANNEL1_OV": {
+                "bits": 1
+            },
+            "CHANNEL2_OV": {
+                "bits": 1
+            },
+            "CHANNEL3_OV": {
+                "bits": 1
+            },
+            "CHANNEL4_OV": {
+                "bits": 1
+            },
+            "CHANNEL1_UV": {
+                "bits": 1
+            },
+            "CHANNEL2_UV": {
+                "bits": 1
+            },
+            "CHANNEL3_UV": {
+                "bits": 1
+            },
+            "CHANNEL4_UV": {
+                "bits": 1
+            },
+            "CHANNEL1_VOLTAGE_VALID": 
+            {
+                "bits": 1 
+            },
+            "CHANNEL2_VOLTAGE_VALID": 
+            {
+                "bits": 1 
+            },
+            "CHANNEL3_VOLTAGE_VALID": 
+            {
+                "bits": 1 
+            },
+            "CHANNEL4_VOLTAGE_VALID": 
+            {
+                "bits": 1 
+            },
+            "CHANNEL1_CURRENT_VALID": 
+            {
+                "bits": 1 
+            },
+            "CHANNEL2_CURRENT_VALID": 
+            {
+                "bits": 1 
+            },
+            "CHANNEL3_CURRENT_VALID": 
+            {
+                "bits": 1 
+            },
+            "CHANNEL4_CURRENT_VALID": 
+            {
+                "bits": 1 
+            },
+            "CHANNEL1_POWER_VALID": 
+            {
+                "bits": 1 
+            },
+            "CHANNEL2_POWER_VALID": 
+            {
+                "bits": 1 
+            },
+            "CHANNEL3_POWER_VALID": 
+            {
+                "bits": 1 
+            },
+            "CHANNEL4_POWER_VALID": 
+            {
+                "bits": 1 
             }
         }
     },
@@ -621,6 +873,115 @@
             },
             "TeamSignal4": {
                 "bits": 32
+            }
+        }
+    },
+    "CPUDataLogInfo": {
+        "msg_id": 561,
+        "cycle_time": 100,
+        "description": "VC cpu and stack information",
+        "signals": {
+            "CoreCpuUsageMax": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "CoreCpuUsage": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "TaskRun1HzCpuUsageMax": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "TaskRun1HzCpuUsage": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "TaskRun1HzStackUsage": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "TaskRun100HzCpuUsageMax": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "TaskRun100HzCpuUsage": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "TaskRun100HzStackUsage": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "TaskRun1kHzCpuUsageMax": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "TaskRun1kHzCpuUsage": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "TaskRun1kHzStackUsage": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "TaskRunCanTxCpuUsageMax": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "TaskRunCanTxCpuUsage": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "TaskRunCanTxStackUsage": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "TaskRunCanRxCpuUsageMax": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "TaskRunCanRxCpuUsage": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
+            },
+            "TaskRunCanRxStackUsage": {
+                "resolution": 0.1,
+                "min": 0,
+                "max": 100,
+                "unit": "%"
             }
         }
     }

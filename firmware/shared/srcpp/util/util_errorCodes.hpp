@@ -24,7 +24,7 @@ constexpr const char *error_code_to_string(const ErrorCode code)
         case ErrorCode::INVALID_ARGS:
             return "Invalid arguments";
         case ErrorCode::OUT_OF_RANGE:
-            return "Out of range";
+            return "Out of range / Overflow";
         case ErrorCode::TIMEOUT:
             return "Timeout";
         case ErrorCode::ERROR:

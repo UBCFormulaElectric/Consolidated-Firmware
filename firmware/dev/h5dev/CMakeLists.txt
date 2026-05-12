@@ -86,6 +86,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
             "${CMAKE_CURRENT_SOURCE_DIR}/src"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
+            "${CMAKE_CURRENT_SOURCE_DIR}/boot"
     )
     stm32h562xx_cube_library(
             "h5dev_stm32"
