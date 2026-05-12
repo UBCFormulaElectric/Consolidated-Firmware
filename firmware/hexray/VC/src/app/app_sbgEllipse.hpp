@@ -14,8 +14,7 @@ void broadcast(void);
 /*
  * Get vehicle velocity
  */
-float getVehicleVelocity(io::sbgEllipse::VelocityData *VelData);
-
+float getVehicleVelocity(io::sbgEllipse::VelocityData &VelData);
 /*
  * Get vehicle velocity
  */

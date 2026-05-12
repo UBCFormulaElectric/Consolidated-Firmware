@@ -29,6 +29,10 @@
     "WatchdogTimeout": {
       "id": 955,
       "description": "Watchdog timeout detected."
+    },
+    "StackOverflow": {
+      "id": 956,
+      "description": "An RTOS task stack overflowed on the previous boot cycle."
     }
 },
   "warnings": {},

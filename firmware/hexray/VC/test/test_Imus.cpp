@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "test/test_VCBase.hpp"
-#include "io_imus.hpp"
+// #include "io_imus.hpp"
 #include "io_imu.hpp"
 #include "app_imu.hpp"
 
@@ -83,17 +83,17 @@ TEST_F(VCImuTest, Imu3_Accel_Gyro_Test)
 }
 
 // ERROR
+TEST_F(VCImuTest, Imu1_Accel_Error_Returns_Early)
+{
+    IMU1.imu_status_set(false);
+    IMU2.imu_status_set(true);
+    IMU3.imu_status_set(true);
+    LetTimePass(1);
+    app::imus::init();
+    LetTimePass(1);
 
-// TEST_F(VCImuTest, Imu1_Accel_Error_Returns_Early)
-// {
-//     app::can_rx::RSM_Warning_ImuInitFailed_Count_update(1);
-
-//     LetTimePass(1);
-//     app::imus::init();
-//     LetTimePass(1);
-
-//     // CAN values should remain at default (0.0f)
-//     ASSERT_FLOAT_EQ(0.0f, app::can_tx::VC_Imu1AccelerationX_get());
-//     ASSERT_FLOAT_EQ(0.0f, app::can_tx::VC_Imu1AccelerationY_get());
-//     ASSERT_FLOAT_EQ(0.0f, app::can_tx::VC_Imu1AccelerationZ_get());
-// }
+    // CAN values should remain at default (0.0f)
+    ASSERT_FLOAT_EQ(0.0f, app::can_tx::VC_Warning_Imu1InitFailed_get());
+    ASSERT_FLOAT_EQ(0.0f, app::can_tx::VC_Warning_Imu2InitFailed_get());
+    ASSERT_FLOAT_EQ(0.0f, app::can_tx::VC_Warning_Imu3InitFailed_get());
+}
