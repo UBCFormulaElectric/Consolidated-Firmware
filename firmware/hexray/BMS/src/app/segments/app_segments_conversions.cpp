@@ -9,28 +9,30 @@ using namespace std;
 
 namespace app::segments
 {
-expected<void, ErrorCode> runVoltageConversion(Cells<float> &out_voltages, CellSuccess &out_success)
+expected<Cells<expected<float, ErrorCode>>, ErrorCode> runVoltageConversion()
 {
     RETURN_IF_ERR(io::adbms::startCellsAdcConversion());
     io::time::delay(VOLT_CONV_TIME_MS);
     const auto regs = io::adbms::readCellVoltageReg();
 
+    Cells<expected<float, ErrorCode>> out;
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
         for (size_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
-            out_voltages[seg][cell] = convertRegToVoltage(regs[seg][cell].value());
+            out[seg][cell] = regs[seg][cell].transform(convertRegToVoltage);
     return {};
 }
 
-expected<void, ErrorCode> runFilteredVoltageConversion(Cells<float> &out_voltages, CellSuccess &out_success)
+expected<Cells<expected<float, ErrorCode>>, ErrorCode> runFilteredVoltageConversion()
 {
     RETURN_IF_ERR(io::adbms::startCellsAdcConversion());
     io::time::delay(VOLT_CONV_TIME_MS);
     const auto regs = io::adbms::readFilteredCellVoltageReg();
 
+    Cells<expected<float, ErrorCode>> out;
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
         for (size_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
-            out_voltages[seg][cell] = out_success[seg][cell] ? convertRegToVoltage(regs[seg][cell]) : -0.1f;
-    return {};
+            out[seg][cell] = regs[seg][cell].transform(convertRegToVoltage);
+    return out;
 }
 
 expected<Therms<expected<float, ErrorCode>>, ErrorCode> runTempConversion()
@@ -56,8 +58,7 @@ expected<Therms<expected<float, ErrorCode>>, ErrorCode> runTempConversion()
                 // what the fuck
                 if (const size_t therm = gpio + mux * THERM_GPIOS_PER_SEGMENT; therm < THERMISTORS_PER_SEGMENT)
                 {
-                    out_temps[seg][therm] = regs[mux][seg][gpio].transform(
-                        [](const uint16_t reg) -> float { return convertRegToTemp(reg); });
+                    out_temps[seg][therm] = regs[mux][seg][gpio].transform(convertRegToTemp);
                 }
             }
         }
@@ -73,7 +74,7 @@ expected<Segments<expected<float, ErrorCode>>, ErrorCode> runSegVoltageConversio
     Segments<expected<float, ErrorCode>> out_seg_voltages;
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
-        out_seg_voltages[seg] = seg_regs[seg].transform([](const uint16_t reg) { return convertRegToVoltage(reg); });
+        out_seg_voltages[seg] = seg_regs[seg].transform(convertRegToVoltage);
     }
     return out_seg_voltages;
 }
@@ -87,7 +88,7 @@ expected<Segments<expected<io::adbms::StatusGroups, ErrorCode>>, ErrorCode> runS
     return io::adbms::readStatusReg();
 }
 
-expected<void, ErrorCode> runCellOpenWireCheck(Owc &out_owc_ok, CellSuccess &out_success)
+expected<Cells<expected<bool, ErrorCode>>, ErrorCode> runCellOpenWireCheck()
 {
     RETURN_IF_ERR(io::adbms::startCellsBaseAdcConversion());
     io::time::delay(OWC_CONVERSION_TIME_MS);
@@ -101,36 +102,33 @@ expected<void, ErrorCode> runCellOpenWireCheck(Owc &out_owc_ok, CellSuccess &out
     io::time::delay(OWC_CONVERSION_TIME_MS);
     const auto owc_even_regs = io::adbms::readCellVoltageReg();
 
+    Cells<expected<bool, ErrorCode>> out;
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
         for (size_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
         {
-            if (!baseline_success[seg][cell])
+            if (!baseline_regs[seg][cell])
             {
-                out_success[seg][cell] = baseline_success[seg][cell];
-                out_owc_ok[seg][cell]  = false;
+                out[seg][cell] = unexpected(baseline_regs[seg][cell].error());
                 continue;
             }
-            if (!owc_odd_success[seg][cell])
+            if (!owc_odd_regs[seg][cell])
             {
-                out_success[seg][cell] = owc_odd_success[seg][cell];
-                out_owc_ok[seg][cell]  = false;
+                out[seg][cell] = unexpected(owc_odd_regs[seg][cell].error());
                 continue;
             }
-            if (!owc_even_success[seg][cell])
+            if (!owc_even_regs[seg][cell])
             {
-                out_success[seg][cell] = owc_even_success[seg][cell];
-                out_owc_ok[seg][cell]  = false;
+                out[seg][cell] = unexpected(owc_even_regs[seg][cell].error());
                 continue;
             }
 
-            const float baseline_v = convertRegToVoltage(baseline_regs[seg][cell]);
-            const float owc_v      = (cell % 2 == 0) ? convertRegToVoltage(owc_odd_regs[seg][cell])
-                                                     : convertRegToVoltage(owc_even_regs[seg][cell]);
-            out_owc_ok[seg][cell]  = checkCellOwcOk(baseline_v, owc_v);
-            out_success[seg][cell] = {};
+            const float baseline_v = convertRegToVoltage(baseline_regs[seg][cell].value());
+            const float owc_v      = (cell % 2 == 0) ? convertRegToVoltage(owc_odd_regs[seg][cell].value())
+                                                     : convertRegToVoltage(owc_even_regs[seg][cell].value());
+            out[seg][cell]         = checkCellOwcOk(baseline_v, owc_v);
         }
     }
-    return {};
+    return out;
 }
 } // namespace app::segments

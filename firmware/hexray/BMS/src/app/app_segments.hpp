@@ -54,11 +54,12 @@ namespace faults
 } // namespace faults
 
 // app_segments_conversions.cpp
-std::expected<void, ErrorCode> runVoltageConversion(Cells<float> &out_voltages, CellSuccess &out_success);
-std::expected<void, ErrorCode> runFilteredVoltageConversion(Cells<float> &out_voltages, CellSuccess &out_success);
-std::expected<void, ErrorCode> runTempConversion(Therms<float> &out_temps, ThermSuccess &out_success);
-std::expected<void, ErrorCode>
-    runSegVoltageConversion(Segments<float> &out_seg_voltages, SegmentSuccess &out_seg_success);
-std::expected<void, ErrorCode> runStatusConversion(Status &out_status, SegmentSuccess &out_success);
-std::expected<void, ErrorCode> runCellOpenWireCheck(Owc &out_owc_ok, CellSuccess &out_success);
+// note that the first expected wrap tells you if the request for the command succeeded
+// subseqeunt errors are
+std::expected<Cells<std::expected<float, ErrorCode>>, ErrorCode>                      runVoltageConversion();
+std::expected<Cells<std::expected<float, ErrorCode>>, ErrorCode>                      runFilteredVoltageConversion();
+std::expected<Therms<std::expected<float, ErrorCode>>, ErrorCode>                     runTempConversion();
+std::expected<Segments<std::expected<float, ErrorCode>>, ErrorCode>                   runSegVoltageConversion();
+std::expected<Segments<std::expected<io::adbms::StatusGroups, ErrorCode>>, ErrorCode> runStatusConversion();
+std::expected<Cells<std::expected<bool, ErrorCode>>, ErrorCode>                       runCellOpenWireCheck();
 } // namespace app::segments
