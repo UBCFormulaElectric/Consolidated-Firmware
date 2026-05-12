@@ -83,7 +83,7 @@ IF ("${PLATFORM}" STREQUAL "firmware")
         ENDIF ()
     ELSEIF ("${TARGET}" STREQUAL "test")
         # Override AppleClang with Homebrew GCC for gcov support on macOS.
-        IF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin" AND ${CMAKE_CXX_COMPILER} STREQUAL "")
+        IF (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin" AND "${CMAKE_CXX_COMPILER}" STREQUAL "")
             message("📌 Searching for latest Homebrew GCC for host-based unit tests")
 
             file(GLOB HOMEBREW_GCC_CANDIDATES
