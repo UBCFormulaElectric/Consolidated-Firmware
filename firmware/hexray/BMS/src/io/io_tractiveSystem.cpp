@@ -1,12 +1,6 @@
 #include "io_tractiveSystem.hpp"
 #include "hw_adcs.hpp"
 #include "hw_gpios.hpp"
-#include "hw_hal.hpp"
-
-#include <cassert>
-#include <cmath>
-
-using namespace hw::adc;
 
 // Percent error used to compensate for resistor errors. Determined from testing with the HW
 // TODO: Test with HW to determine compensation
@@ -46,7 +40,7 @@ constexpr float OUTPUT2_DISCHARGING_ERROR_OFFSET = 2.3634f;
 constexpr float OUTPUT2_CHARGING_ERROR_SLOPE     = 0.2324f;
 constexpr float OUTPUT2_CHARGING_ERROR_OFFSET    = 2.4038f;
 
-float getVoltage(void)
+float getVoltage()
 {
     // The tractive system voltage is divided down by several resistors, then fed through an amplifier.
     //
@@ -78,9 +72,8 @@ float getVoltage(void)
     // TODO: Test differential ADC for voltage measurement
     const float ts_vsense_P = ts_vsense_p.getVoltage();
     const float ts_vsense_N = ts_vsense_n.getVoltage();
-    const float ts_vsense   = ts_vsense_P - ts_vsense_N;
 
-    if (ts_vsense < 0.0f)
+    if (const float ts_vsense = ts_vsense_P - ts_vsense_N; ts_vsense < 0.0f)
     {
         return 0.0f;
     }
@@ -91,7 +84,7 @@ float getVoltage(void)
     }
 }
 
-float getCurrentHighResolution(void)
+float getCurrentHighResolution()
 {
     float adc_voltage = ts_isense_50a.getVoltage();
 
@@ -142,7 +135,7 @@ float getCurrentHighResolution(void)
     return -(high_res_current + high_res_curr_calibration);
 }
 
-float getCurrentLowResolution(void)
+float getCurrentLowResolution()
 {
     float adc_voltage = ts_isense_400a.getVoltage();
 
@@ -192,12 +185,12 @@ float getCurrentLowResolution(void)
     return -(low_res_current + low_res_curr_calibration);
 }
 
-bool getVoltageSnsDiagState(void)
+bool getVoltageSnsDiagState()
 {
     return diag_ts.readPin();
 }
 
-bool getCurrentSnsDiagState(void)
+bool getCurrentSnsDiagState()
 {
     return ts_isense_ocsc_ok.readPin();
 }

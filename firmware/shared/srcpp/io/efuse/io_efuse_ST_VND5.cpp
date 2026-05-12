@@ -21,7 +21,7 @@ static constexpr uint8_t H_H = 0x03U;
 
 static constexpr float ADC_VOLTAGE_TO_CURRENT_A = 1.720f;
 
-[[nodiscard]] float ST_VND5_Efuse::getChannelCurrent()
+[[nodiscard]] float ST_VND5_Efuse::getChannelCurrent() const
 {
     return this->sns_adc_channel.getVoltage() * ADC_VOLTAGE_TO_CURRENT_A;
 }
@@ -39,7 +39,7 @@ void ST_VND5_Efuse::resetSet(const bool set)
 }
 
 // specific faults
-[[nodiscard]] bool ST_VND5_Efuse::ok()
+[[nodiscard]] bool ST_VND5_Efuse::ok() const
 {
     const float   voltage          = this->getChannelCurrent() / ADC_VOLTAGE_TO_CURRENT_A;
     const bool    channel_enabled  = this->isChannelEnabled();

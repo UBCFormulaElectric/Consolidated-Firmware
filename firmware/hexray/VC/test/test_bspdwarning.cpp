@@ -13,23 +13,41 @@ class VCbspdTest : public VCBaseTest
 // brake disagreement warning active test
 TEST_F(VCbspdTest, bspd_warning_active)
 {
-    //app::can_rx::FSM_BrakeActuated_get();
-    fakes::io::bspdWarning::set_BrakeActuated_state(true);
-    app::bspdWarning::checkSoftwareBspd(0.50f, app::bspdWarning::apps_brake_disagreement_state);
+    // takes at least 10 ms for the signal to activate
+    for (int i = 0; i < 11; i++)
+    {
+        app::can_rx::FSM_BrakeActuated_update(true);
+        app::bspdWarning::checkSoftwareBspd(0.50f);
+        LetTimePass(1);
+    }
     ASSERT_TRUE(app::can_tx::VC_Warning_SoftwareBspd_get());
+    app::bspdWarning::reset();
 }
 
 // brake disagreement warning inactive test
 TEST_F(VCbspdTest, bspd_warning_inactive)
 {
-    fakes::io::bspdWarning::set_BrakeActuated_state(false);
-    app::bspdWarning::checkSoftwareBspd(0.50f, app::bspdWarning::apps_brake_disagreement_state);
+    app::can_rx::FSM_BrakeActuated_update(false);
+    app::bspdWarning::checkSoftwareBspd(0.50f);
+    LetTimePass(1);
     ASSERT_FALSE(app::can_tx::VC_Warning_SoftwareBspd_get());
+    app::bspdWarning::reset();
 }
 
 TEST_F(VCbspdTest, bspd_warning_inactive_no_brake_actuation)
 {
-    fakes::io::bspdWarning::set_BrakeActuated_state(true);
-    app::bspdWarning::checkSoftwareBspd(0.00f, app::bspdWarning::apps_brake_disagreement_state);
+    app::can_rx::FSM_BrakeActuated_update(true);
+    app::bspdWarning::checkSoftwareBspd(0.00f);
+    LetTimePass(1);
     ASSERT_FALSE(app::can_tx::VC_Warning_SoftwareBspd_get());
+    app::bspdWarning::reset();
+}
+
+TEST_F(VCbspdTest, bspd_warning_inactive_no_brake_no_papps)
+{
+    app::can_rx::FSM_BrakeActuated_update(false);
+    app::bspdWarning::checkSoftwareBspd(0.00f);
+    LetTimePass(1);
+    ASSERT_FALSE(app::can_tx::VC_Warning_SoftwareBspd_get());
+    app::bspdWarning::reset();
 }

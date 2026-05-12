@@ -12,13 +12,13 @@ class Efuse
 {
   protected:
 #ifdef TARGET_EMBEDDED
-    const hw::Gpio &enable_gpio;
-    const hw::Adc  &sns_adc_channel;
+    const hw::gpio &enable_gpio;
+    const hw::adc  &sns_adc_channel;
 #endif
 
   public:
 #ifdef TARGET_EMBEDDED
-    explicit constexpr Efuse(const hw::Gpio &in_enable_gpio, const hw::Adc &in_sns_adc_channel)
+    explicit constexpr Efuse(const hw::gpio &in_enable_gpio, const hw::adc &in_sns_adc_channel)
       : enable_gpio(in_enable_gpio), sns_adc_channel(in_sns_adc_channel)
     {
     }
@@ -28,7 +28,7 @@ class Efuse
      *
      * @param enabled
      */
-    void setChannel(bool enabled) { enable_gpio.writePin(enabled); }
+    void setChannel(const bool enabled) const { enable_gpio.writePin(enabled); }
 
     /**
      * @brief Check if efuse is enabled
@@ -42,7 +42,7 @@ class Efuse
      *
      * @return current flowing through efuse
      */
-    [[nodiscard]] virtual float getChannelCurrent() = 0;
+    [[nodiscard]] virtual float getChannelCurrent() const = 0;
 
     /**
      * @brief Reset the efuse
@@ -54,26 +54,26 @@ class Efuse
      *
      * @return true if efuse is ok, false if faulted
      */
-    [[nodiscard]] virtual bool ok() = 0;
+    [[nodiscard]] virtual bool ok() const = 0;
 #else
     explicit constexpr Efuse() {}
-    bool  enabled = false;
-    bool  fault   = false;
-    float current = 0.0f;
+    mutable bool enabled = false;
+    bool         fault   = false;
+    float        current = 0.0f;
 
     void setChannelCurrent(float fake_current) { current = fake_current; }
 
     void setFault(bool fake_fault) { fault = fake_fault; }
 
-    void setChannel(bool fake_enabled) { enabled = fake_enabled; }
+    void setChannel(bool fake_enabled) const { enabled = fake_enabled; }
 
     [[nodiscard]] bool isChannelEnabled() const { return enabled; }
 
-    [[nodiscard]] float getChannelCurrent() { return current; }
+    [[nodiscard]] float getChannelCurrent() const { return current; }
 
     void reset() { return; }
 
-    [[nodiscard]] bool ok() { return !fault; }
+    [[nodiscard]] bool ok() const { return !fault; }
 #endif
 
     virtual ~Efuse() = default;

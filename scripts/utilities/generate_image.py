@@ -15,7 +15,7 @@ import struct
 import binascii
 
 
-APP_METADATA_START = 0x8020000
+APP_METADATA_SIZE = 0x400
 
 
 if __name__ == "__main__":
@@ -29,6 +29,7 @@ if __name__ == "__main__":
     app_hex = intelhex.IntelHex(args.app_hex)
     boot_hex = intelhex.IntelHex(args.boot_hex)
 
+    app_metadata_start = app_hex.minaddr() - APP_METADATA_SIZE
     app_size_bytes = app_hex.maxaddr() - app_hex.minaddr()
     app_code = bytes([app_hex[i] for i in range(app_hex.minaddr(), app_hex.maxaddr())])
     checksum = binascii.crc32(app_code)
@@ -36,7 +37,7 @@ if __name__ == "__main__":
     # Add checksum and app size (in bytes) to the app's metadata region.
     # Keep update to date with the "Metadata" struct in firmware/boot/shared/bootloader.c.
     metadata_bytes = struct.pack("<LL", checksum, app_size_bytes)
-    app_hex[APP_METADATA_START : APP_METADATA_START + len(metadata_bytes)] = list(metadata_bytes)
+    app_hex[app_metadata_start : app_metadata_start + len(metadata_bytes)] = list(metadata_bytes)
 
     # Write app with metadata to filesystem.
     with open(args.app_metadata_hex_out, "w") as file:

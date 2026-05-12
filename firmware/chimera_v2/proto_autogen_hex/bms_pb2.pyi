@@ -92,7 +92,7 @@ GPIO_PGOOD_3V3: GpioNetName.ValueType
 GPIO_PGOOD_5V: GpioNetName.ValueType
 GPIO_SHDN_DIAG_EN: GpioNetName.ValueType
 GPIO_SHDN_FAULT: GpioNetName.ValueType
-global___GpioNetName = GpioNetName
+Global___GpioNetName: typing_extensions.TypeAlias = GpioNetName
 
 class _AdcNetName:
     ValueType = typing.NewType('ValueType', builtins.int)
@@ -119,7 +119,7 @@ ADC_SHDN_SNS: AdcNetName.ValueType
 ADC_EMETER_THERM_SNS: AdcNetName.ValueType
 ADC_TS_ISENSE_400A: AdcNetName.ValueType
 ADC_TS_ISENSE_50A: AdcNetName.ValueType
-global___AdcNetName = AdcNetName
+Global___AdcNetName: typing_extensions.TypeAlias = AdcNetName
 
 class _SpiNetName:
     ValueType = typing.NewType('ValueType', builtins.int)
@@ -136,7 +136,7 @@ class SpiNetName(_SpiNetName, metaclass=_SpiNetNameEnumTypeWrapper):
 SPI_NET_NAME_UNSPECIFIED: SpiNetName.ValueType
 SPI_LTC6813_LS: SpiNetName.ValueType
 SPI_LTC6813_HS: SpiNetName.ValueType
-global___SpiNetName = SpiNetName
+Global___SpiNetName: typing_extensions.TypeAlias = SpiNetName
 
 class _I2cNetName:
     ValueType = typing.NewType('ValueType', builtins.int)
@@ -149,4 +149,4 @@ class _I2cNetNameEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._Enu
 class I2cNetName(_I2cNetName, metaclass=_I2cNetNameEnumTypeWrapper):
     ...
 I2C_NET_NAME_UNSPECIFIED: I2cNetName.ValueType
-global___I2cNetName = I2cNetName
+Global___I2cNetName: typing_extensions.TypeAlias = I2cNetName

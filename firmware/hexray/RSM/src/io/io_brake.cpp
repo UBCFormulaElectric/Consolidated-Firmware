@@ -20,11 +20,11 @@ namespace io::brake
 {
 float getRearPressurePsi()
 {
-    return pressureFromVoltage(hw::adcs::bps_3v3.getVoltage());
+    return pressureFromVoltage(bps_3v3.getVoltage());
 }
 
 bool OCSC()
 {
-    return !hw::gpio::brake_ocsc_ok.readPin();
+    return !brake_ocsc_ok.readPin();
 }
 } // namespace io::brake

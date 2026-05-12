@@ -13,7 +13,7 @@ std::expected<void, ErrorCode> SdCard::read(std::span<uint8_t> pdata, const uint
     CHECK_SD_PRESENT();
     while (HAL_SD_GetCardState(_hsd) != HAL_SD_CARD_TRANSFER)
         ;
-    return hw_utils_convertHalStatus(
+    return hw::utils::convertHalStatus(
         HAL_SD_ReadBlocks(_hsd, pdata.data(), block_addr, pdata.size() / HW_DEVICE_SECTOR_SIZE, _timeout));
 }
 
@@ -33,7 +33,7 @@ std::expected<void, ErrorCode> SdCard::write(const std::span<uint8_t> pdata, con
 
     while (HAL_SD_GetCardState(_hsd) != HAL_SD_CARD_TRANSFER)
         ;
-    return hw_utils_convertHalStatus(
+    return hw::utils::convertHalStatus(
         HAL_SD_WriteBlocks(_hsd, pdata.data(), block_addr, pdata.size() / HW_DEVICE_SECTOR_SIZE, _timeout));
 }
 
@@ -54,7 +54,7 @@ std::expected<void, ErrorCode> SdCard::erase(const uint32_t start_addr, const ui
     CHECK_SD_PRESENT();
     while (HAL_SD_GetCardState(_hsd) != HAL_SD_CARD_TRANSFER)
         ;
-    return hw_utils_convertHalStatus(HAL_SD_Erase(_hsd, start_addr, end_addr));
+    return hw::utils::convertHalStatus(HAL_SD_Erase(_hsd, start_addr, end_addr));
 }
 
 std::expected<void, ErrorCode> SdCard::writeDma(const std::span<uint8_t> pdata, const uint32_t block_addr) const
@@ -69,7 +69,7 @@ std::expected<void, ErrorCode> SdCard::writeDma(const std::span<uint8_t> pdata, 
         ;
 
     dma_tx_completed = false;
-    return hw_utils_convertHalStatus(
+    return hw::utils::convertHalStatus(
         HAL_SD_WriteBlocks_DMA(_hsd, pdata.data(), block_addr, pdata.size() / HW_DEVICE_SECTOR_SIZE));
 }
 
@@ -83,7 +83,7 @@ bool SdCard::sdPresent() const
 std::expected<void, ErrorCode> SdCard::abort() const
 {
     CHECK_SD_PRESENT();
-    return hw_utils_convertHalStatus(HAL_SD_Abort(_hsd));
+    return hw::utils::convertHalStatus(HAL_SD_Abort(_hsd));
 }
 } // namespace hw
 

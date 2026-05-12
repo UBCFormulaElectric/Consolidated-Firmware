@@ -10,37 +10,57 @@ class VCPumpControlTest : public VCBaseTest
 {
 };
 
-// Testing when rl pumps not ready
-TEST_F(VCPumpControlTest, test_rl_pump_not_ready) {
-    rl_pump.pumps_ok(false);
-    app::rl_pump.update();
-    ASSERT_FALSE(app::can_tx::VC_PumpsReady_get());
+TEST_F(VCPumpControlTest, pump_failure_when_pumps_not_ready)
+{
+    app::pumpControl::reset();
+    io::pumpController::pumps_ok(false);
+    io::pumpController::pumps_enabled(true);
+    app::pumpControl::MonitorPumps();
+    ASSERT_TRUE(app::can_tx::VC_PumpFailure_get());
+    ASSERT_FALSE(app::can_tx::VC_RsmTurnOnPump_get());
 }
 
-// Testing when rr pumps not ready
-TEST_F(VCPumpControlTest, test_rr_pump_not_ready) {
-    rr_pump.pumps_ok(false);
-    app::rr_pump.update();
-    ASSERT_FALSE(app::can_tx::VC_PumpsReady_get());
+TEST_F(VCPumpControlTest, no_failure_when_pumps_ready)
+{
+    app::pumpControl::reset();
+    io::pumpController::pumps_ok(true);
+    io::pumpController::pumps_enabled(true);
+    app::pumpControl::MonitorPumps();
+    ASSERT_FALSE(app::can_tx::VC_PumpFailure_get());
+    ASSERT_TRUE(app::can_tx::VC_RsmTurnOnPump_get());
 }
 
-// Testing when rampup percentage is at 50%
-TEST_F(VCPumpControlTest, test_rampup_percentage_50) {
-    rr_pump.pumps_ok(false);
-    rr_pump.update();
-    ASSERT_FALSE(app::can_tx::VC_PumpsReady_get());
+TEST_F(VCPumpControlTest, rampup_setpoint_starts_at_five_percent)
+{
+    app::pumpControl::reset();
+    io::pumpController::pumps_ok(true);
+    io::pumpController::pumps_enabled(true);
+    app::pumpControl::MonitorPumps();
+    ASSERT_FLOAT_EQ(5.0f, app::can_tx::VC_PumpRampUpSetPoint_get());
 }
 
-// Testing when rampup percentage is at 95%
-TEST_F(VCPumpControlTest, test_rampup_percentage_95) {
-    rr_pump::rampUpPercentage(0.95f);
-    app::rampUp();
-    ASSERT_FALSE(app::can_tx::VC_PumpsReady_get());
+TEST_F(VCPumpControlTest, rampup_completes_without_failure)
+{
+    app::pumpControl::reset();
+    io::pumpController::pumps_ok(true);
+    io::pumpController::pumps_enabled(true);
+    for (int i = 0; i < 19; ++i)
+    {
+        app::pumpControl::MonitorPumps();
+    }
+    ASSERT_FALSE(app::can_tx::VC_PumpFailure_get());
+    ASSERT_TRUE(app::can_tx::VC_RsmTurnOnPump_get());
 }
 
-// Testing when pumpFailure is true
-TEST_F(VCPumpControlTest, test_pumpFailure_true) {
-    rr_pump::pumps_ok(false);
-    app::rr_pump::update();
+TEST_F(VCPumpControlTest, pump_failure_resets_rampup)
+{
+    app::pumpControl::reset();
+    io::pumpController::pumps_ok(true);
+    io::pumpController::pumps_enabled(true);
+    app::pumpControl::MonitorPumps();
+
+    io::pumpController::pumps_ok(false);
+    app::pumpControl::MonitorPumps();
+
     ASSERT_TRUE(app::can_tx::VC_PumpFailure_get());
 }

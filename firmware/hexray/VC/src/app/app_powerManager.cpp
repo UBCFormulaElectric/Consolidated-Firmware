@@ -7,24 +7,34 @@ namespace app::powerManager
 {
 namespace
 {
-    PowerManagerConfig                          state_{};
-    app::Timer                                  sequencing_timer_{ 0 };
-    std::array<io::Efuse *, NUM_EFUSE_CHANNELS> efuses_{};
-    std::array<uint8_t, NUM_EFUSE_CHANNELS>     retries_{};
+    PowerManagerConfig                                          state_{};
+    Timer                                                       sequencing_timer_{ 0 };
+    constexpr std::array<const io::Efuse *, NUM_EFUSE_CHANNELS> efuses = { {
+        &rr_pump_efuse,
+        &rl_pump_efuse,
+        &r_rad_fan_efuse,
+        &l_rad_fan_efuse,
+        &f_inv_efuse,
+        &r_inv_efuse,
+        &rsm_efuse,
+        &bms_efuse,
+        &dam_efuse,
+        &front_efuse,
+    } };
+    std::array<uint8_t, NUM_EFUSE_CHANNELS>                     retries_{};
 
     void sequenceWhileIdle()
     {
         for (size_t ch = 0; ch < NUM_EFUSE_CHANNELS; ch++)
         {
-            if (sequencing_timer_.updateAndGetState() != app::Timer::TimerState::IDLE)
+            if (sequencing_timer_.updateAndGetState() != Timer::TimerState::IDLE)
                 break;
-            io::Efuse *efuse = efuses_[ch];
+            const io::Efuse *efuse = efuses[ch];
             assert(efuse != nullptr);
 
             const bool desired = state_.efuse_configs[ch].efuse_enable;
-            const bool actual  = efuse->isChannelEnabled();
 
-            if (actual == desired)
+            if (const bool actual = efuse->isChannelEnabled(); actual == desired)
                 continue;
 
             if (retries_[ch] > state_.efuse_configs[ch].max_retry)
@@ -39,41 +49,18 @@ namespace
             if (!efuse->ok())
                 ++retries_[ch];
 
-            const uint8_t timeout = state_.efuse_configs[ch].timeout;
-            if (timeout != 0)
-                sequencing_timer_ = app::Timer(timeout);
+            if (const uint8_t timeout = state_.efuse_configs[ch].timeout; timeout != 0)
+                sequencing_timer_ = Timer(timeout);
 
             efuse->setChannel(true);
         }
     }
 } // namespace
 
-void init()
-{
-    static const std::array<io::Efuse *, NUM_EFUSE_CHANNELS> &efuses = { {
-        &rr_pump_efuse,
-        &rl_pump_efuse,
-        &r_rad_fan_efuse,
-        &l_rad_fan_efuse,
-        &f_inv_efuse,
-        &r_inv_efuse,
-        &rsm_efuse,
-        &bms_efuse,
-        &dam_efuse,
-        &front_efuse,
-    } };
-
-    for (auto *e : efuses)
-    {
-        assert(e != nullptr);
-        efuses_ = efuses;
-    }
-}
-
 void updateConfig(const PowerManagerConfig &new_cfg)
 {
     state_                               = new_cfg;
-    const bool under_v                   = app::can_tx::VC_Info_PcmUnderVoltage_get();
+    const bool under_v                   = can_tx::VC_Info_PcmUnderVoltage_get();
     state_.efuse_configs[0].efuse_enable = !under_v;
     state_.efuse_configs[2].efuse_enable = !under_v;
     state_.efuse_configs[1].efuse_enable = !under_v;
@@ -83,15 +70,15 @@ void efuseProtocolTick_100Hz()
 {
     switch (sequencing_timer_.updateAndGetState())
     {
-        case app::Timer::TimerState::RUNNING:
+        case Timer::TimerState::RUNNING:
         default:
             return;
 
-        case app::Timer::TimerState::EXPIRED:
+        case Timer::TimerState::EXPIRED:
             sequencing_timer_.stop();
             // fallthrough so we can start the next sequence right after
             [[fallthrough]];
-        case app::Timer::TimerState::IDLE:
+        case Timer::TimerState::IDLE:
             sequenceWhileIdle();
             return;
     }

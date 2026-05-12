@@ -162,7 +162,7 @@ struct ImuFifoConfig
 
 namespace io
 {
-class Imu
+class imu
 {
   public:
     struct AccelData
@@ -176,7 +176,7 @@ class Imu
 
   private:
 #ifdef TARGET_EMBEDDED
-    const hw::spi::SpiDevice &imu_spi_handle;
+    const hw::spi::device &imu_spi_handle;
 #endif
 
     ImuFilterConfig filter_config;
@@ -187,14 +187,14 @@ class Imu
 
   public:
 #ifdef TARGET_EMBEDDED
-    constexpr explicit Imu(
-        const hw::spi::SpiDevice &in_imu_spi_handle,
-        const ImuFilterConfig    &in_filter_config = ImuFilterConfig{})
+    constexpr explicit imu(
+        const hw::spi::device &in_imu_spi_handle,
+        const ImuFilterConfig &in_filter_config = ImuFilterConfig{})
       : imu_spi_handle(in_imu_spi_handle), filter_config(in_filter_config)
     {
     }
 #elif TARGET_TEST
-    constexpr explicit Imu() {}
+    constexpr explicit imu() {}
 #endif
 
     [[nodiscard]] std::expected<void, ErrorCode> init() const;
@@ -216,6 +216,7 @@ class Imu
     mutable bool  initialized   = false;
     mutable float _accel_x_fake = 0.0f, _accel_y_fake = 0.0f, _accel_z_fake = 0.0f, _gyro_x_fake = 0.0f,
                   _gyro_y_fake = 0.0f, _gyro_z_fake = 0.0f;
+    mutable std::expected<void, ErrorCode> init_status = {};
 
     void reset_init();
     bool get_init() const;
@@ -225,6 +226,7 @@ class Imu
     void set_GyroRoll(float gyro_x_fake) const;
     void set_GyroPitch(float gyro_y_fake) const;
     void set_GyroYaw(float gyro_z_fake) const;
+    void imu_status_set(bool status);
 #endif
 };
 } // namespace io

@@ -1,8 +1,8 @@
 #pragma once
+#include "io_shdnLoopNode.hpp"
 
 namespace io::shdn
 {
-bool msd_shdn_sns_pin_get(void);
-bool hv_p_intlck_sns_pin_get(void);
-bool hv_n_intlck_sns_pin_get(void);
+extern node hv_p_ok_node;
+extern node hv_n_ok_node;
 } // namespace io::shdn

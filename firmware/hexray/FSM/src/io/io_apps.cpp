@@ -41,7 +41,7 @@ constexpr float SAPPS_COS_LAW_COEFFICIENT = (SAPPS_LEN_A * SAPPS_LEN_A + LEN_B *
 // Conversion factor from voltage to change in length (mm per volt)
 constexpr float APPS_VOLTAGE_PER_MM = (MAX_POT_LENGTH - MIN_POT_LENGTH) / MAX_POT_V;
 // Convert a raw voltage reading to a potentiometer length (in mm)
-float RAW_VOLTAGE_TO_LEN_MM(float voltage)
+float RAW_VOLTAGE_TO_LEN_MM(const float voltage)
 {
     return MAX_POT_LENGTH - ((voltage)*APPS_VOLTAGE_PER_MM);
 }
@@ -90,10 +90,10 @@ void init()
         calcAppsAngle(SAPPS_COS_LAW_COEFFICIENT, SAPPS_LENGTH_FULLY_PRESSED_MM, SAPPS_COS_LAW_DENOMINATOR);
 }
 
-float getPrimary(void)
+float getPrimary()
 {
     // Read the primary sensor voltage.
-    const float pedal_voltage = hw::adcs::apps1.getVoltage();
+    const float pedal_voltage = apps1.getVoltage();
     // Convert voltage reading to a potentiometer length (in mm).
     const float pot_len_mm = RAW_VOLTAGE_TO_LEN_MM(pedal_voltage);
     // Compute the angle difference from the rest (unpressed) position.
@@ -113,16 +113,16 @@ float getPrimary(void)
     return CLAMP(pedal_percentage, 0.0f, 100.0f);
 }
 
-bool isPrimaryOCSC(void)
+bool isPrimaryOCSC()
 {
-    const float pedal_voltage = hw::adcs::apps1.getVoltage();
+    const float pedal_voltage = apps1.getVoltage();
     return !(PAPPS_MIN_V <= pedal_voltage && pedal_voltage <= PAPPS_MAX_V);
 }
 
-float getSecondary(void)
+float getSecondary()
 {
     // Read the secondary sensor voltage.
-    const float pedal_voltage = hw::adcs::apps2.getVoltage();
+    const float pedal_voltage = apps2.getVoltage();
     // Convert voltage reading to a potentiometer length (in mm).
     const float pot_len_mm = RAW_VOLTAGE_TO_LEN_MM(pedal_voltage);
     // Compute the angle difference from the rest (unpressed) position.
@@ -142,9 +142,9 @@ float getSecondary(void)
     return CLAMP(pedal_percentage, 0.0f, 100.0f);
 }
 
-bool isSecondaryOCSC(void)
+bool isSecondaryOCSC()
 {
-    const float pedal_voltage = hw::adcs::apps2.getVoltage();
+    const float pedal_voltage = apps2.getVoltage();
     return !(SAPPS_MIN_V <= pedal_voltage && pedal_voltage <= SAPPS_MAX_V);
 }
 } // namespace io::apps

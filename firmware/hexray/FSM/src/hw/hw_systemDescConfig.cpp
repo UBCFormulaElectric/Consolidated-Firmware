@@ -1,16 +1,8 @@
-extern "C"
-{
 #include "SEGGER_SYSVIEW.h"
-}
 
-namespace hw::sysviewConfig
+// I# = IRQn + 16 for peripheral IRQs, check stm32h562xx.h for IRQ enum
+extern "C" void hw_sysviewConfig_sendSystemDesc()
 {
-void sendSystemDesc(void)
-{
-    SEGGER_SYSVIEW_SendSysDesc("N=FSM,C=Cortex-M33,O=FreeRTOS,D=STM32H562");
-    SEGGER_SYSVIEW_SendSysDesc("I#15=SysTick,I#72=DMA2_Stream0");
-
-    // CONFIGURE INTERRUPTS HERE
-    SEGGER_SYSVIEW_SendSysDesc("");
+    SEGGER_SYSVIEW_SendSysDesc("N=FSM,O=FreeRTOS,D=STM32H562RI,C=Cortex-M33");
+    SEGGER_SYSVIEW_SendSysDesc("I#15=SysTick");
 }
-} // namespace hw::sysviewConfig

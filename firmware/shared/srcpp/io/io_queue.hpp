@@ -30,33 +30,26 @@ template <typename T, size_t QUEUE_SIZE> class queue
     std::queue<T> q{};
 #endif
 
-    void (*const overflow_callback)(uint32_t){};
-    void (*const overflow_clear_callback)(){};
+    // void (*const overflow_callback)(uint32_t){};
+    // void (*const overflow_clear_callback)(){};
 
   public:
-    explicit queue(
-        [[maybe_unused]] const char *name,
-        void (*const in_overflow_callback)(uint32_t),
-        void (*const in_overflow_clear_callback)())
-      :
+    explicit queue([[maybe_unused]] const char *name)
 #ifdef TARGET_EMBEDDED
-        queue_attr({
+      : queue_attr({
             .name      = name,
             .attr_bits = 0,
             .cb_mem    = &this->queue_control_block,
             .cb_size   = sizeof(StaticQueue_t),
             .mq_mem    = this->queue_buf.data(),
             .mq_size   = QUEUE_SIZE_BYTES,
-        }),
+        })
 #endif
-        overflow_callback(in_overflow_callback),
-        overflow_clear_callback(in_overflow_clear_callback)
     {
     }
 
     // private vars
     uint32_t overflow_count = 0;
-    bool     overflow_flag  = false;
 
     /**
      * Initialize and start the CAN peripheral.
@@ -70,7 +63,7 @@ template <typename T, size_t QUEUE_SIZE> class queue
     }
 
     /**
-     * Enqueue a CAN msg to be transmitted on the bus.
+     * Enqueue a CAN msg to be transmitted on the d_bus.
      * Does not block, calls `overflow_callback` if queue is full.
      * @param msg CAN msg to be TXed.
      */
@@ -80,16 +73,9 @@ template <typename T, size_t QUEUE_SIZE> class queue
         assert(queue_id != nullptr);
         if (const osStatus_t s = osMessageQueuePut(this->queue_id, &msg, 0, 0); s != osOK)
         {
-            if (!this->overflow_flag)
-            {
-                LOG_WARN("%s overflow: %d", this->queue_attr.name, s);
-                this->overflow_flag = true;
-            }
-            this->overflow_callback(++this->overflow_count);
-            return std::unexpected(ErrorCode::ERROR);
+            ++this->overflow_count;
+            return std::unexpected(ErrorCode::OUT_OF_RANGE);
         }
-        this->overflow_clear_callback();
-        this->overflow_flag = false;
 #elif TARGET_TEST
         q.push(msg);
 #endif
@@ -116,5 +102,7 @@ template <typename T, size_t QUEUE_SIZE> class queue
         return out;
 #endif
     }
+
+    uint32_t get_overflowCount() const { return this->overflow_count; }
 };
 } // namespace io

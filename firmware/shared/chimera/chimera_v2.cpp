@@ -16,7 +16,7 @@ constexpr size_t OUT_BUFFER_SIZE = 0xfff;
 static pb_byte_t out_buffer[OUT_BUFFER_SIZE];
 
 constexpr size_t                      QUEUE_SIZE = 100;
-static io::queue<uint8_t, QUEUE_SIZE> usb_queue{ "USBQueue", [](uint32_t) {}, [] {} };
+static io::queue<uint8_t, QUEUE_SIZE> usb_queue{ "USBQueue" };
 
 constexpr size_t MAX_PAYLOAD_SIZE = 64;
 

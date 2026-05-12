@@ -17,7 +17,6 @@ variables, so the following changes are made:
 
 import "nanopb.proto";
 import "rsm.proto";
-import "f4dev.proto";
 import "ssm.proto";
 import "crit.proto";
 import "bms.proto";
@@ -28,14 +27,13 @@ import "vc.proto";
 /* GPIOs */
 message GpioNetName {
     oneof name {
-        f4dev.GpioNetName f4dev_net_name = 1;
-        ssm.GpioNetName ssm_net_name = 2;
-        crit.GpioNetName crit_net_name = 3;
-        dam.GpioNetName dam_net_name = 4;
-        rsm.GpioNetName rsm_net_name = 5;
-        fsm.GpioNetName fsm_net_name = 6;
-        bms.GpioNetName bms_net_name = 7;
-        vc.GpioNetName vc_net_name = 8;
+        ssm.GpioNetName ssm_net_name = 1;
+        crit.GpioNetName crit_net_name = 2;
+        dam.GpioNetName dam_net_name = 3;
+        rsm.GpioNetName rsm_net_name = 4;
+        fsm.GpioNetName fsm_net_name = 5;
+        bms.GpioNetName bms_net_name = 6;
+        vc.GpioNetName vc_net_name = 7;
     }
 }
 

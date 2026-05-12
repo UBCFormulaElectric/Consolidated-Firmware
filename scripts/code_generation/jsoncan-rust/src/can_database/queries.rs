@@ -148,7 +148,14 @@ impl CanDatabase {
 
         match s.query_row([message_name], |row| row.get(0)) {
             Ok(msg_id) => Ok(msg_id),
-            Err(e) => Err(CanDBError::SqlLiteError(e)),
+            Err(e) => {
+                match e {
+                    rusqlite::Error::QueryReturnedNoRows => {
+                        Err(CanDBError::MessageNotFound {msg_name: message_name.into()})
+                    },
+                    _ => Err(CanDBError::SqlLiteError(e))
+                }
+            },
         }
     }
 
@@ -329,7 +336,7 @@ impl CanDatabase {
             let decoded = DecodedSignal {
                 name: signal.name,
                 value: scaled_value,
-                timestamp: timestamp,
+                timestamp,
                 unit: signal.unit,
                 label: signal.enum_name.as_deref().and_then(|enum_name| {
                     self.get_enum(enum_name).and_then(|can_enum| {
