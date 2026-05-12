@@ -9,6 +9,28 @@
             }
         }
     },
+    "Debug": {
+      "msg_id": 907,
+      "cycle_time": 1000,
+      "description": "CRIT Debug Signals",
+      "signals": {
+        "TxOverflowCount": {
+          "bits": 16
+        },
+        "RxOverflowCount": {
+          "bits": 16
+        },
+        "ResetReason": {
+          "enum": "CanResetReason"
+        },
+        "StackOverflowTask": {
+          "bits": 32
+        },
+        "WatchdogTimeoutTask": {
+          "bits": 32
+        }
+      }
+    },
     "CommitInfo": {
         "msg_id": 909,
         "cycle_time": 100,
@@ -66,28 +88,6 @@
         "description": "Async bootup message!",
         "signals": {}
   },
-    "Debug": {
-      "msg_id": 922,
-      "cycle_time": 1000,
-      "description": "CRIT Debug Signals",
-      "signals": {
-        "TxOverflowCount": {
-          "bits": 16
-        },
-        "RxOverflowCount": {
-          "bits": 16
-        },
-        "ResetReason": {
-          "enum": "CanResetReason"
-        },
-        "StackOverflowTask": {
-          "bits": 32
-        },
-        "WatchdogTimeoutTask": {
-          "bits": 32
-        }
-      }
-    },
     "CPUDataLogInfo": {
      "msg_id": 923,
      "cycle_time": 100,

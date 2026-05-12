@@ -193,7 +193,9 @@ void tasks_init()
     // __HAL_DBGMCU_FREEZE_IWDG();
     SEGGER_SYSVIEW_Conf();
     fdcan1.init();
-    if (const ResetReason reason = hw::resetReason::get(); reason == RESET_REASON_WATCHDOG)
+    const ResetReason reset_reason = hw::resetReason::get();
+    app::can_tx::DAM_ResetReason_set(static_cast<app::can_utils::CanResetReason>(reset_reason));
+    if (reset_reason == RESET_REASON_WATCHDOG)
     {
         LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
         app::can_alerts::infos::WatchdogTimeout_set(true);

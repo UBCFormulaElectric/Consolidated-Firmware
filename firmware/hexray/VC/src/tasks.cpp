@@ -201,6 +201,14 @@ void tasks_init()
 
     adcChipsInit();
 
+    const ResetReason reset_reason = hw::resetReason::get();
+    app::can_tx::VC_ResetReason_set(static_cast<app::can_utils::CanResetReason>(reset_reason));
+    if (reset_reason == RESET_REASON_WATCHDOG)
+    {
+        LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
+        app::can_alerts::infos::WatchdogTimeout_set(true);
+    }
+
     hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
     if (boot_request.context != hw::bootup::BootContext::BOOT_CONTEXT_NONE)
     {
@@ -218,12 +226,6 @@ void tasks_init()
     rsm_en.writePin(true);
     front_en.writePin(true);
     bms_en.writePin(true);
-    ResetReason reason = hw::resetReason::get();
-    if (reason == RESET_REASON_WATCHDOG)
-    {
-        LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
-        app::can_alerts::infos::WatchdogTimeout_set(true);
-    }
     jobs_init();
     osKernelInitialize();
     VC_StartAllTasks();

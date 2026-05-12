@@ -41,7 +41,10 @@ void jobs_init()
         LOG_ERROR("Failed to update bootcount: %d", static_cast<int>(err.error()));
     };
 }
-void jobs_run1Hz_tick() {}
+void jobs_run1Hz_tick()
+{
+    io::can_tx::enqueue1HzMsgs();
+}
 void jobs_run100Hz_tick()
 {
     hb_monitor.checkIn();

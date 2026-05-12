@@ -38,7 +38,10 @@ void jobs_init()
 
     io::can_reroute::init(fdcan_tx, invcan_tx);
 }
-void jobs_run1Hz_tick() {}
+void jobs_run1Hz_tick()
+{
+    io::can_tx::enqueue1HzMsgs();
+}
 void jobs_run100Hz_tick()
 {
     io::can_tx::enqueue100HzMsgs();

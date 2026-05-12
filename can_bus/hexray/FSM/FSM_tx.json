@@ -188,7 +188,7 @@
     "CPUDataLogInfo" :{
     "msg_id" : 616,
     "cycle_time" : 100,
-    "description" : "RSM cpu and stack information",
+    "description" : "FSM cpu and stack information",
     "signals" : {
       "CoreCpuUsageMax" : {
         "resolution" : 0.1,

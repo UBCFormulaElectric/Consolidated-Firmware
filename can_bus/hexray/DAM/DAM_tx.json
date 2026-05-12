@@ -9,6 +9,28 @@
             }
         }
     },
+    "Debug": {
+    "msg_id": 807,
+    "cycle_time": 1000,
+    "description": "DAM Debug Signals",
+    "signals": {
+      "TxOverflowCount": {
+        "bits": 16
+      },
+      "RxOverflowCount": {
+        "bits": 16
+      },
+      "ResetReason": {
+        "enum": "CanResetReason"
+      },
+      "StackOverflowTask": {
+        "bits": 32
+      },
+      "WatchdogTimeoutTask": {
+        "bits": 32
+      }
+    }
+  },
    "ShdnNodeStatus": {
         "msg_id": 810,
         "cycle_time": 10,
