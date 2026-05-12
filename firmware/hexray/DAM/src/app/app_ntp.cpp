@@ -14,6 +14,7 @@ static constexpr uint64_t MS_PER_SECOND = 1000ULL;
 
 static constexpr uint8_t MIN_NTP_PACKET_SIZE  = 17;
 static constexpr uint8_t RTC_SET_MAX_ATTEMPTS = 3;
+static constexpr uint8_t RTC_GET_MAX_ATTEMPTS = 3;
 
 namespace app::ntp
 {
@@ -51,7 +52,7 @@ io::rtc::Time msToRtcTime(const uint64_t &ms)
     return t;
 }
 
-int64_t computeOffset(const Timestamps &ts)
+static int64_t computeOffset(const Timestamps &ts)
 {
     return ((int64_t)(ts.t1 - ts.t0) + (int64_t)(ts.t2 - ts.t3)) / 2;
 }
@@ -99,8 +100,17 @@ std::optional<uint64_t> handleFrame(std::span<const uint8_t> body, uint64_t t3_m
 bool handleFrameAndTuneRtc(std::span<const uint8_t> body, uint64_t t3_ms)
 {
     io::rtc::Time now{};
-    const auto    get_res = io::rtc::get_time(now);
-    if (!get_res)
+    const auto    get_res  = io::rtc::get_time(now);
+    bool          got_time = false;
+    for (uint8_t attempt = 0; attempt < RTC_GET_MAX_ATTEMPTS; ++attempt)
+    {
+        if (io::rtc::get_time(now))
+        {
+            got_time = true;
+            break;
+        }
+    }
+    if (!got_time)
     {
         LOG_ERROR("ntp: RTC get_time failed");
         clearNtpInProgress();

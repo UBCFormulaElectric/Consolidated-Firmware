@@ -17,10 +17,10 @@ struct Timestamps
     uint64_t t3;
 };
 
-uint64_t      rtcTimeToMs(const io::rtc::Time &t);
-io::rtc::Time msToRtcTime(const uint64_t &ms);
-int64_t       computeOffset(const Timestamps &ts);
-bool          parseNTPPacketBody(std::span<const uint8_t> body, Timestamps &ts);
+uint64_t       rtcTimeToMs(const io::rtc::Time &t);
+io::rtc::Time  msToRtcTime(const uint64_t &ms);
+static int64_t computeOffset(const Timestamps &ts);
+bool           parseNTPPacketBody(std::span<const uint8_t> body, Timestamps &ts);
 
 // Stash t0 (TX-side timestamp) so the RX-side handler can pair it with the
 // t1/t2 carried in the response and the t3 captured at receive.

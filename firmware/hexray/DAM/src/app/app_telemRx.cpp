@@ -1,6 +1,7 @@
 #include "app_telemRx.hpp"
 
 #include <array>
+#include <cassert>
 
 #include "app_ntp.hpp"
 #include "app_crc32.hpp"
@@ -23,6 +24,8 @@ namespace
     constexpr uint8_t     magic0     = 0xCC;
     constexpr uint8_t     magic1     = 0x33;
     constexpr std::size_t headerSize = 7; // magic(2) + size(1) + crc(4)
+    constexpr std::size_t ntpBodySize = 17; // id(1) + t1(8) + t2(8)
+    constexpr std::size_t remoteNtpBodySize = 1; // id(1)
 
     enum class MessageId : uint8_t
     {
@@ -45,6 +48,12 @@ namespace
         {
             case MessageId::NTP:
             {
+                assert(body.size() == ntpBodySize);
+                if (body.size() != ntpBodySize)
+                {
+                    LOG_WARN("telemRx: invalid NTP body size %u", static_cast<unsigned>(body.size()));
+                    return;
+                }
                 if (!app::ntp::handleFrameAndTuneRtc(body, rx_time_ms))
                 {
                     LOG_ERROR("telemRx: NTP handleFrameAndTuneRtc failed");
@@ -54,6 +63,12 @@ namespace
             }
             case MessageId::Remote_NTP:
             {
+                assert(body.size() == remoteNtpBodySize);
+                if (body.size() != remoteNtpBodySize)
+                {
+                    LOG_WARN("telemRx: invalid Remote_NTP body size %u", static_cast<unsigned>(body.size()));
+                    return;
+                }
                 if (app::ntp::isNtpInProgress())
                 {
                     LOG_WARN("telemRx: NTP already in progress, ignoring Remote_NTP");
@@ -124,7 +139,14 @@ namespace
         // validated message from here
         std::array<uint8_t, maxBodySize> body_buf{};
         std::span<uint8_t>               body{ body_buf.data(), body_size };
-        (void)g_ring.copyOut(headerSize, body);
+        const bool copied = g_ring.copyOut(headerSize, body);
+        assert(copied);
+        if (!copied)
+        {
+            LOG_ERROR("telemRx: copyOut failed despite validated frame");
+            g_ring.discard(1);
+            return true;
+        }
         g_ring.discard(headerSize + body_size);
 
         // Capture t3 once we know we have a real frame. This adds parser-
