@@ -138,6 +138,7 @@ struct __attribute__((packed)) STATE
     uint8_t : 2;
     uint8_t rev : 4;
 };
+static_assert(sizeof(STATE) == REG_GROUP_SIZE);
 
 struct StatusGroups
 {
@@ -164,6 +165,7 @@ struct __attribute__((packed)) PWMA
     uint8_t pwm11 : 4;
     uint8_t pwm12 : 4;
 };
+static_assert(sizeof(PWMA) == REG_GROUP_SIZE);
 
 // PWM Register Group B: per-cell duty cycle for cells 12–13
 struct __attribute__((packed)) PWMB
@@ -174,6 +176,7 @@ struct __attribute__((packed)) PWMB
     uint8_t pwm16 : 4;
     uint32_t : 32;
 };
+static_assert(sizeof(PWMB) == REG_GROUP_SIZE);
 
 struct PWMConfig
 {
