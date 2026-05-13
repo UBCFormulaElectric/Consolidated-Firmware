@@ -17,22 +17,17 @@ namespace
     Timestamps        g_ts{};
     std::atomic<bool> g_ntp_in_progress{ false };
 
-    void clearInProgress()
-    {
-        g_ntp_in_progress.store(false);
-    }
-
     int64_t computeOffset(const Timestamps &ts)
     {
         return ((int64_t)(ts.t1 - ts.t0) + (int64_t)(ts.t2 - ts.t3)) / 2;
     }
 
-    void recordT0(uint64_t t0_ms)
+    void recordT0(const uint64_t t0_ms)
     {
         g_ts.t0 = t0_ms;
     }
 
-    uint64_t handleFrame(uint64_t t1, uint64_t t2, uint64_t t3_ms, uint64_t current_rtc_ms)
+    uint64_t handleFrame(const uint64_t t1, const uint64_t t2, const uint64_t t3_ms, const uint64_t current_rtc_ms)
     {
         g_ts.t1 = t1;
         g_ts.t2 = t2;
@@ -53,9 +48,9 @@ const Timestamps &timestamps()
 }
 #endif
 
-bool handleFrameAndTuneRtc(uint64_t t1, uint64_t t2, uint64_t t3_ms)
+bool handleFrameAndTuneRtc(const uint64_t t1, const uint64_t t2, const uint64_t t3_ms)
 {
-    std::expected<uint64_t, ErrorCode> current_epoch_ms = std::unexpected(ErrorCode{});
+    std::expected<uint64_t, ErrorCode> current_epoch_ms = std::unexpected(ErrorCode::ERROR);
     for (uint8_t attempt = 0; attempt < RTC_GET_MAX_ATTEMPTS; ++attempt)
     {
         current_epoch_ms = app::epochClock::getEpochMs();
@@ -65,11 +60,11 @@ bool handleFrameAndTuneRtc(uint64_t t1, uint64_t t2, uint64_t t3_ms)
     if (!current_epoch_ms)
     {
         LOG_ERROR("ntp: RTC getEpochMs failed");
-        clearInProgress();
+        g_ntp_in_progress.store(false);
         return false;
     }
 
-    const uint64_t new_ms = handleFrame(t1, t2, t3_ms, *current_epoch_ms);
+    const uint64_t new_ms = handleFrame(t1, t2, t3_ms, current_epoch_ms.value());
 
     // Sleep out the sub-second remainder so the RTC write lands on a whole-
     // second boundary.
@@ -95,12 +90,12 @@ bool handleFrameAndTuneRtc(uint64_t t1, uint64_t t2, uint64_t t3_ms)
     if (!set_ok)
     {
         LOG_ERROR("ntp: RTC setEpochMs failed");
-        clearInProgress();
+        g_ntp_in_progress.store(false);
         return false;
     }
 
     LOG_INFO("Tuned RTC! New epoch ms: %llu", static_cast<unsigned long long>(tuned_epoch_ms));
-    clearInProgress();
+    g_ntp_in_progress.store(false);
     return true;
 }
 
@@ -120,7 +115,7 @@ bool tryBeginAndCaptureT0()
         }
     }
     LOG_ERROR("ntp: RTC getEpochMs failed capturing T0");
-    clearInProgress();
+    g_ntp_in_progress.store(false);
     return false;
 }
 

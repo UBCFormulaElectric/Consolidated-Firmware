@@ -37,6 +37,8 @@ namespace
     {
         uint64_t t1;
         uint64_t t2;
+
+        constexpr NtpReply(uint64_t t1_in, uint64_t t2_in) : t1(t1_in), t2(t2_in) {}
     };
 
     struct NtpReplyWire
@@ -51,7 +53,7 @@ namespace
     NtpReply parseNtpReply(std::span<const uint8_t> body)
     {
         const auto *wire = reinterpret_cast<const NtpReplyWire *>(body.data());
-        return NtpReply{ wire->t1, wire->t2 };
+        return NtpReply(wire->t1, wire->t2);
     }
 
     // TaskTelemRx is the only producer (via ingest); TaskTelemParse is

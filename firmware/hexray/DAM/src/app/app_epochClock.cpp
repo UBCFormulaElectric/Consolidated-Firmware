@@ -49,7 +49,7 @@ namespace
         const unsigned mp  = (5 * doy + 2) / 153;
         const unsigned d   = doy - (153 * mp + 2) / 5 + 1;
         const unsigned m   = mp < 10 ? mp + 3 : mp - 9;
-        return { y + (m <= 2 ? 1 : 0), m, d };
+        return YMD{ y + (m <= 2 ? 1 : 0), m, d };
     }
 
     // ISO weekday: Mon=1..Sun=7. 1970-01-01 was a Thursday (= 4).
