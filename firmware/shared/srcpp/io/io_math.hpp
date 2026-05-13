@@ -2,6 +2,7 @@
 #include <array>
 
 #ifdef TARGET_EMBEDDED
+#include "hw_hal.hpp"
 #include "hw_cordic.hpp"
 #endif
 #include "util_errorCodes.hpp"
@@ -104,17 +105,12 @@ std::expected<float, ErrorCode> csin(float angle)
 {
 #ifdef TARGET_EMBEDDED
     std::array<const int32_t, 1> args{ convertAngleToFixedPoint(angle) };
-    std::array<int32_t, 1>       result{};
 
-    const auto configure_result = configure(CORDIC_FUNCTION_SINE, CORDIC_SCALE_0, CORDIC_NBWRITE_1);
-    if (not configure_result.has_value())
-        return std::sin(angle);
-
-    const auto calculate_result = calculate(1U, args, result);
+    const auto calculate_result = calculate(CORDIC_FUNCTION_SINE, CORDIC_SCALE_0, args);
     if (not calculate_result.has_value())
         return std::sin(angle);
 
-    return convertToFloat(result[0]);
+    return convertToFloat(calculate_result.value());
 #else
     return std::sin(angle);
 #endif
@@ -124,17 +120,12 @@ std::expected<float, ErrorCode> ccos(float angle)
 {
 #ifdef TARGET_EMBEDDED
     std::array<const int32_t, 1> args{ convertAngleToFixedPoint(angle) };
-    std::array<int32_t, 1>       result{};
 
-    const auto configure_result = configure(CORDIC_FUNCTION_COSINE, CORDIC_SCALE_0, CORDIC_NBWRITE_1);
-    if (not configure_result.has_value())
-        return std::cos(angle);
-
-    const auto calculate_result = calculate(1U, args, result);
+    const auto calculate_result = calculate(CORDIC_FUNCTION_COSINE, CORDIC_SCALE_0, args);
     if (not calculate_result.has_value())
         return std::cos(angle);
 
-    return convertToFloat(result[0]);
+    return convertToFloat(calculate_result.value());
 #else
     return std::cos(angle);
 #endif
@@ -153,17 +144,12 @@ std::expected<float, ErrorCode> atan(float x)
         return std::atan(x);
 
     std::array<const int32_t, 1> args{ convertToFixedPoint(scaled_x) };
-    std::array<int32_t, 1>       result{};
 
-    const auto configure_result = configure(CORDIC_FUNCTION_ARCTANGENT, cordicScale(scale), CORDIC_NBWRITE_1);
-    if (not configure_result.has_value())
-        return std::atan(x);
-
-    const auto calculate_result = calculate(1U, args, result);
+    const auto calculate_result = calculate(CORDIC_FUNCTION_ARCTANGENT, cordicScale(scale), args);
     if (not calculate_result.has_value())
         return std::atan(x);
 
-    float y = convertToFloat(result[0]);
+    float y = convertToFloat(calculate_result.value());
 
     return y * static_cast<float>(1U << scale) * M_PI_F;
 #else

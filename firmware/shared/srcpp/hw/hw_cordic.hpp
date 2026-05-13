@@ -1,8 +1,7 @@
+#include <cstdint>
 #include <span>
 
-#include "hw_utils.hpp"
 #include "util_errorCodes.hpp"
-#include "util_units.hpp"
 
 /**
  * STM32 CORDIC co-processor driver
@@ -28,15 +27,5 @@
 
 namespace hw::cordic
 {
-/**
- * @brief Configure the CORDIC peripheral to:
- * - Perform the desired math operation
- * - Scaling factor
- * - Width of input and output data
- * - Number of 32 bit R/W expected before and after calculation
- * - Precision: 1 - 15 cycles (Higher -> More Precision)
- */
-std::expected<void, ErrorCode> configure(uint32_t func, uint32_t scale, uint32_t nbwrite);
-
-std::expected<void, ErrorCode> calculate(uint32_t nbwrite, std::span<const int32_t> args, std::span<int32_t> result);
+std::expected<int32_t, ErrorCode> calculate(uint32_t func, uint32_t scale, std::span<const int32_t> args);
 }; // namespace hw::cordic

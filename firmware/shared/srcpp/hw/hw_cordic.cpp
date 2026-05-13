@@ -1,10 +1,6 @@
 #include "hw_cordic.hpp"
 
-#ifdef STM32H562xx
-#include "stm32h5xx_hal_cordic.h"
-#elif STM32H733xx
-#include "stm32h7xx_hal_cordic.h"
-#endif
+#include <cstddef>
 
 #include "hw_hal.hpp"
 
@@ -12,6 +8,8 @@
 #ifndef HAL_CORDIC_MODULE_ENABLED
 #error "HAL_CORDIC_MODULE_ENABLED must be defined and set to 1"
 #endif
+
+#include "hw_utils.hpp"
 
 /**
  * STM32 CORDIC co-processor driver
@@ -37,35 +35,44 @@
 
 namespace hw::cordic
 {
-static CORDIC_ConfigTypeDef config;
-static constexpr uint32_t   CORDIC_TIMEOUT = 10;
+static constexpr uint32_t CORDIC_TIMEOUT = 10;
 
-/**
- * @brief Configure the CORDIC peripheral to:
- * - Perform the desired math operation
- * - Scaling factor
- * - Width of input and output data
- * - Number of 32 bit R/W expected before and after calculation
- * - Precision: 1 - 15 cycles (Higher -> More Precision)
- */
-std::expected<void, ErrorCode> configure(uint32_t func, uint32_t scale, uint32_t nbwrite)
+static std::expected<uint32_t, ErrorCode> nbWriteFromInputSize(const std::size_t input_size)
 {
+    switch (input_size)
+    {
+        case 1:
+            return CORDIC_NBWRITE_1;
+        case 2:
+            return CORDIC_NBWRITE_2;
+        default:
+            return std::unexpected(ErrorCode::INVALID_ARGS);
+    }
+}
+
+std::expected<int32_t, ErrorCode> calculate(const uint32_t func, const uint32_t scale, std::span<const int32_t> args)
+{
+    const auto nbwrite = nbWriteFromInputSize(args.size());
+    if (not nbwrite)
+    {
+        return std::unexpected(nbwrite.error());
+    }
+
+    CORDIC_ConfigTypeDef config;
+
     config.Function  = func;
     config.Scale     = scale;
     config.InSize    = CORDIC_INSIZE_32BITS;
     config.OutSize   = CORDIC_OUTSIZE_32BITS;
     config.NbRead    = CORDIC_NBREAD_1;
-    config.NbWrite   = nbwrite;
+    config.NbWrite   = nbwrite.value();
     config.Precision = CORDIC_PRECISION_15CYCLES;
 
     RETURN_IF_ERR(hw::utils::convertHalStatus(HAL_CORDIC_Configure(&hcordic, &config)));
-    return {};
-}
 
-std::expected<void, ErrorCode> calculate(uint32_t nbwrite, std::span<const int32_t> args, std::span<int32_t> result)
-{
-    RETURN_IF_ERR(hw::utils::convertHalStatus(
-        HAL_CORDIC_CalculateZO(&hcordic, args.data(), result.data(), nbwrite, CORDIC_TIMEOUT)));
-    return {};
+    int32_t result = 0;
+    RETURN_IF_ERR(
+        hw::utils::convertHalStatus(HAL_CORDIC_CalculateZO(&hcordic, args.data(), &result, 1, CORDIC_TIMEOUT)));
+    return result;
 }
 }; // namespace hw::cordic
