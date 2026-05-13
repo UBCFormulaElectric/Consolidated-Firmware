@@ -14,7 +14,6 @@ function(commit_info_library
 )
     commit_info_generate_sources(${BIND_TARGET} ${OUTPUT_PATH})
     add_library(${LIB_NAME} INTERFACE)
-    target_sources(${LIB_NAME} INTERFACE ${COMMIT_INFO_SRC})
     target_include_directories(${LIB_NAME} INTERFACE ${COMMIT_INFO_INCLUDE_DIR})
 endfunction()
 

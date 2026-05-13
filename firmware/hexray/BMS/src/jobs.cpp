@@ -19,12 +19,12 @@
 #include "app_jsoncan.hpp"
 #include "app_canUtils.hpp"
 #include "app_canTx.hpp"
+#include "app_commitInfo.hpp"
 
 // io
 extern "C"
 {
 #include "io_semaphore.h"
-#include "app_commitInfo.h"
 }
 
 #include "io_canMsg.hpp"

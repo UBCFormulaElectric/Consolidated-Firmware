@@ -5,6 +5,7 @@
 #include "main.h"
 #include "hw_rtosTaskHandler.hpp"
 #include <cassert>
+#include "app_commitInfo.hpp"
 
 io::queue<hw::CanMsg, 256> boot_can_tx_queue{ "CanTxQueue" };
 io::queue<hw::CanMsg, 256> boot_can_rx_queue{ "CanRxQueue" };
@@ -30,8 +31,8 @@ class DAMBootConfig : public bootloader::config
             boot_can_tx_queue,
             boot_can_rx_queue,
             board_highbits,
-            git_commit_has_val,
-            git_commit_clean_val)
+            GIT_COMMIT_HASH,
+            GIT_COMMIT_CLEAN)
     {
     }
 } dam_boot_config;
