@@ -45,7 +45,7 @@ std::array<uint8_t, 24> buildNtpFrame(uint64_t t1, uint64_t t2)
 
     const uint32_t crc = app::crc32::finalize(app::crc32::update(app::crc32::init(), body.data(), body.size()));
 
-    std::array<uint8_t, 24> frame{
+    std::array<uint8_t, 24> frame{ {
         0xCC,
         0x33,
         static_cast<uint8_t>(body.size()),
@@ -53,7 +53,7 @@ std::array<uint8_t, 24> buildNtpFrame(uint64_t t1, uint64_t t2)
         static_cast<uint8_t>(crc >> 8),
         static_cast<uint8_t>(crc >> 16),
         static_cast<uint8_t>(crc >> 24),
-    };
+    } };
     std::memcpy(&frame[7], body.data(), body.size());
     return frame;
 }
@@ -63,10 +63,10 @@ std::array<uint8_t, 24> buildNtpFrame(uint64_t t1, uint64_t t2)
 // body shape.
 std::array<uint8_t, 8> buildSingleByteFrame(uint8_t id)
 {
-    const std::array<uint8_t, 1> body{ id };
+    const std::array<uint8_t, 1> body{ { id } };
     const uint32_t crc = app::crc32::finalize(app::crc32::update(app::crc32::init(), body.data(), body.size()));
 
-    return std::array<uint8_t, 8>{
+    return std::array<uint8_t, 8>{ {
         0xCC,
         0x33,
         static_cast<uint8_t>(body.size()),
@@ -75,7 +75,7 @@ std::array<uint8_t, 8> buildSingleByteFrame(uint8_t id)
         static_cast<uint8_t>(crc >> 16),
         static_cast<uint8_t>(crc >> 24),
         id,
-    };
+    } };
 }
 
 void feed(std::span<const uint8_t> bytes)
