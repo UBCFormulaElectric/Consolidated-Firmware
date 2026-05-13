@@ -3,7 +3,7 @@ use std::{collections::HashMap, mem, time::{Duration, SystemTime}};
 use axum::{Json, Router, extract::{Path, Query, State}, http::StatusCode, response::IntoResponse, routing::get};
 use influxdb2::FromDataPoint;
 use jsoncan_rust::can_database::CanMessage;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use regex::Regex;
 use serde_json::from_str;
 use tokio::{select, time::sleep};
@@ -41,12 +41,17 @@ struct SignalMetadataEnumSignal {
     enum_values: HashMap<String, u32>,
 }
 
+#[derive(Debug, Deserialize)]
+struct SignalNameParam {
+    name: Option<String>,
+}
+
 /**
  * Gets metadata of the signal of the current parser.
  * Pass signal names (regex) in `name` parameter.
  * E.g. `/signal/metadata?name=INVFR_bError`
  */
-async fn metadata(Query((mut name,)): Query<(Option<String>,)>, State(state): State<AppState>) -> impl IntoResponse {
+async fn metadata(Query(SignalNameParam { mut name } ): Query<SignalNameParam>, State(state): State<AppState>) -> impl IntoResponse {
     let regex = match Regex::new(name.get_or_insert(".*".to_string())) {
         Ok(regex) => regex,
         Err(_) => {
