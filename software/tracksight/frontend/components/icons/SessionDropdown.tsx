@@ -48,7 +48,7 @@ const SessionDropdown = ({ sessions, selectedSessionId, isLoading = false, error
                         return (
                             <button key={session.id} type="button" className={cn("flex items-center justify-between rounded-xl px-4 py-3 text-left transition-colors", isSelected && "bg-blue-600 text-white shadow-[0_8px_18px_rgba(37,99,235,0.28)]", !isSelected && "text-gray-800 hover:bg-gray-100")} onClick={() => handleSessionSelect(session.id)}>
                                 <span className="text-base font-semibold">{session.label}</span>
-                                <span className={cn("text-xs font-semibold uppercase tracking-[0.16em]", isSelected ? "text-blue-100" : "text-gray-400")}>UTC</span>
+                                <span className={cn("text-xs font-semibold uppercase tracking-[0.16em]", isSelected ? "text-blue-100" : "text-gray-400")}>{session.timeZoneLabel}</span>
                             </button>
                         );
                     })}
