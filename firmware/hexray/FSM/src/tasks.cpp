@@ -207,6 +207,7 @@ void tasks_preInit()
         {
             // If the software driver detected a watchdog timeout the context should be set.
             app::can_alerts::infos::WatchdogTimeout_set(true);
+            app::can_tx::FSM_WatchdogTimeoutTask_set(boot_request.context_value);
         }
 
         // Clear stack overflow bootup.
