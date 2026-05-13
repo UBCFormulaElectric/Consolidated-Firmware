@@ -168,7 +168,7 @@ class MockSignalStore extends SignalStore {
         );
       }, 1) as unknown as number;
       this.signalSubscriptionInterval.set(signal.name, intervalId);
-      this.lodBuffers.set(signal.name, new Array(NUM_LOD_LEVELS).fill([]));
+      this.lodBuffers.set(signal.name, new Array(NUM_LOD_LEVELS).fill(null));
 
       for (let i = 0; i < INITIAL_DATA_POINTS; i++) {
         const timestamp = Date.now() - (INITIAL_DATA_POINTS - i);
