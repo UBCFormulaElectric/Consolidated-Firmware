@@ -31,7 +31,7 @@ app::Timer                                                       balance_timer(B
 
 void updateCellsToBalance(
     const Cells<std::expected<float, ErrorCode>> &cell_voltages,
-    const app::segments::CellParam               &min_cell_voltage)
+    const app::segments::CellParam<float>        &min_cell_voltage)
 {
     memset(&discharge_enabled, 0, sizeof(discharge_enabled));
     memset(&pwm_duty, 0, sizeof(pwm_duty));
@@ -65,7 +65,7 @@ void updateCellsToBalance(
             const float delta =
                 cell_voltages[seg][cell].value() - (app::can_rx::Debug_CellBalancing_OverrideValue_get()
                                                         ? app::can_rx::Debug_CellBalancing_TargetValue_get()
-                                                        : min_cell_voltage.voltage);
+                                                        : min_cell_voltage.value);
 
             // Don't dischange below threshold
             if (delta < DISCHARGE_THRESHOLD_V)
@@ -108,7 +108,7 @@ void disable()
     LOG_INFO("Disabling");
 }
 
-void tick(const Cells<std::expected<float, ErrorCode>> &cell_voltages, const CellParam &min_cell_voltage)
+void tick(const Cells<std::expected<float, ErrorCode>> &cell_voltages, const CellParam<float> &min_cell_voltage)
 {
     switch (state)
     {

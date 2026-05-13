@@ -189,24 +189,24 @@ void temps(const Therms<float> &temps, const ThermSuccess &temps_success)
             const float temperature              = temps[seg][therm];
             cell_temperature_setters[seg][therm] = temperature;
 
-            if (!temps_success[seg][therm])
-            {
-                seg_ok                   = false;
-                therm_owc_ok[seg][therm] = false;
-                therm_owc_setters[seg][therm](false);
-                continue;
-            }
-
-            if (temperature < OW_THERM_THRESHOLD)
-            {
-                therm_owc_ok[seg][therm] = false;
-                therm_owc_setters[seg][therm](false);
-            }
-            else
-            {
-                therm_owc_ok[seg][therm] = true;
-                therm_owc_setters[seg][therm](true);
-            }
+            // if (!temps_success[seg][therm])
+            // {
+            //     seg_ok                   = false;
+            //     therm_owc_ok[seg][therm] = false;
+            //     therm_owc_setters[seg][therm](false);
+            //     continue;
+            // }
+            //
+            // if (temperature < OW_THERM_THRESHOLD)
+            // {
+            //     therm_owc_ok[seg][therm] = false;
+            //     therm_owc_setters[seg][therm](false);
+            // }
+            // else
+            // {
+            //     therm_owc_ok[seg][therm] = true;
+            //     therm_owc_setters[seg][therm](true);
+            // }
             const CellParam current_cell_temp{
                 .segment = static_cast<uint8_t>(seg),
                 .cell    = static_cast<uint8_t>(therm),
@@ -271,24 +271,24 @@ void status(const Status &status, const SegmentSuccess &status_success)
             segment_va_buffer[seg]   = -0.1f;
             segment_vres_buffer[seg] = -0.1f;
             // STATC
-            segment_va_ov_buffer[seg]   = false;
-            segment_va_uv_buffer[seg]   = false;
-            segment_vd_ov_buffer[seg]   = false;
-            segment_vd_uv_buffer[seg]   = false;
-            segment_ced_buffer[seg]     = false;
-            segment_cmed_buffer[seg]    = false;
-            segment_sed_buffer[seg]     = false;
-            segment_smed_buffer[seg]    = false;
-            segment_vde_buffer[seg]     = false;
-            segment_vdel_buffer[seg]    = false;
-            segment_thsd_buffer[seg]    = false;
-            segment_tmodchk_buffer[seg] = false;
-            segment_oscchk_buffer[seg]  = false;
+            // segment_va_ov_buffer[seg]   = false;
+            // segment_va_uv_buffer[seg]   = false;
+            // segment_vd_ov_buffer[seg]   = false;
+            // segment_vd_uv_buffer[seg]   = false;
+            // segment_ced_buffer[seg]     = false;
+            // segment_cmed_buffer[seg]    = false;
+            // segment_sed_buffer[seg]     = false;
+            // segment_smed_buffer[seg]    = false;
+            // segment_vde_buffer[seg]     = false;
+            // segment_vdel_buffer[seg]    = false;
+            // segment_thsd_buffer[seg]    = false;
+            // segment_tmodchk_buffer[seg] = false;
+            // segment_oscchk_buffer[seg]  = false;
             // STATD
             for (size_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
             {
-                cell_ov_buffer[seg][cell] = false;
-                cell_uv_buffer[seg][cell] = false;
+                // cell_ov_buffer[seg][cell] = false;
+                // cell_uv_buffer[seg][cell] = false;
             }
             continue;
         }
@@ -299,80 +299,80 @@ void status(const Status &status, const SegmentSuccess &status_success)
         const auto &stat_d = status[seg].stat_d;
 
         // STATA
-        segment_vref2_setters[seg](convertRegToVoltage(stat_a.vref2));
-        segment_itmp_setters[seg](convertRegToVoltage(stat_a.itmp));
+        // segment_vref2_setters[seg](convertRegToVoltage(stat_a.vref2));
+        // segment_itmp_setters[seg](convertRegToVoltage(stat_a.itmp));
 
         // STATB
-        segment_vd_setters[seg](convertRegToVoltage(stat_b.vd));
-        segment_va_setters[seg](convertRegToVoltage(stat_b.va));
-        segment_vres_setters[seg](convertRegToVoltage(stat_b.vres));
+        // segment_vd_setters[seg](convertRegToVoltage(stat_b.vd));
+        // segment_va_setters[seg](convertRegToVoltage(stat_b.va));
+        // segment_vres_setters[seg](convertRegToVoltage(stat_b.vres));
 
         // STATC
-        segment_va_ov_setters[seg](stat_c.va_ov);
-        segment_va_uv_setters[seg](stat_c.va_uv);
-        segment_vd_ov_setters[seg](stat_c.vd_ov);
-        segment_vd_uv_setters[seg](stat_c.vd_uv);
-        segment_ced_setters[seg](stat_c.ced);
-        segment_cmed_setters[seg](stat_c.cmed);
-        segment_sed_setters[seg](stat_c.sed);
-        segment_smed_setters[seg](stat_c.smed);
-        segment_vde_setters[seg](stat_c.vde);
-        segment_vdel_setters[seg](stat_c.vdel);
-        segment_thsd_setters[seg](stat_c.thsd);
-        segment_tmodchk_setters[seg](stat_c.tmodchk);
-        segment_oscchk_setters[seg](stat_c.oscchk);
+        // segment_va_ov_setters[seg](stat_c.va_ov);
+        // segment_va_uv_setters[seg](stat_c.va_uv);
+        // segment_vd_ov_setters[seg](stat_c.vd_ov);
+        // segment_vd_uv_setters[seg](stat_c.vd_uv);
+        // segment_ced_setters[seg](stat_c.ced);
+        // segment_cmed_setters[seg](stat_c.cmed);
+        // segment_sed_setters[seg](stat_c.sed);
+        // segment_smed_setters[seg](stat_c.smed);
+        // segment_vde_setters[seg](stat_c.vde);
+        // segment_vdel_setters[seg](stat_c.vdel);
+        // segment_thsd_setters[seg](stat_c.thsd);
+        // segment_tmodchk_setters[seg](stat_c.tmodchk);
+        // segment_oscchk_setters[seg](stat_c.oscchk);
 
         // STATD
         for (size_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
         {
-            cell_ov_setters[seg][cell](static_cast<bool>((stat_d.covuv >> (16U + cell)) & 1U));
-            cell_uv_setters[seg][cell](static_cast<bool>((stat_d.covuv >> cell) & 1U));
+            // cell_ov_setters[seg][cell](static_cast<bool>((stat_d.covuv >> (16U + cell)) & 1U));
+            // cell_uv_setters[seg][cell](static_cast<bool>((stat_d.covuv >> cell) & 1U));
         }
     }
 }
 
 void owc(const Owc &owc_ok, const CellSuccess &owc_ok_success)
 {
-    cell_owc_ok = owc_ok;
+    // cell_owc_ok = owc_ok;
 
     for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
     {
-        bool seg_ok = true;
+        // bool seg_ok = true;
         for (size_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
         {
-            cell_owc_setters[seg][cell](cell_owc_ok[seg][cell]);
+            // cell_owc_setters[seg][cell](cell_owc_ok[seg][cell]);
 
             if (!owc_ok_success[seg][cell])
             {
                 continue;
             }
-            seg_ok = false;
+            // seg_ok = false;
         }
-        seg_comm_ok[seg] = seg_ok;
-        segment_comm_ok_setters[seg](seg_ok);
+        // seg_comm_ok[seg] = seg_ok;
+        // segment_comm_ok_setters[seg](seg_ok);
     }
 }
 
 void info()
 {
-    app::can_tx::BMS_MinCellVoltage_Voltage_set(min_cell_voltage.voltage);
-    app::can_tx::BMS_MinCellVoltage_Temperature_set(min_cell_voltage.temp);
-    app::can_tx::BMS_MinCellVoltage_Segment_set(min_cell_voltage.segment);
-    app::can_tx::BMS_MinCellVoltage_Cell_set(min_cell_voltage.cell);
-
-    app::can_tx::BMS_MaxCellVoltage_Voltage_set(max_cell_voltage.voltage);
-    app::can_tx::BMS_MaxCellVoltage_Temperature_set(max_cell_voltage.temp);
-    app::can_tx::BMS_MaxCellVoltage_Segment_set(max_cell_voltage.segment);
-    app::can_tx::BMS_MaxCellVoltage_Cell_set(max_cell_voltage.cell);
-
-    app::can_tx::BMS_MinCellTemperature_Voltage_set(min_cell_temp.voltage);
-    app::can_tx::BMS_MinCellTemperature_Temperature_set(min_cell_temp.temp);
-    app::can_tx::BMS_MinCellTemperature_Segment_set(min_cell_temp.segment);
-    app::can_tx::BMS_MinCellTemperature_Cell_set(min_cell_temp.cell);
-
-    app::can_tx::BMS_MaxCellTemperature_Voltage_set(max_cell_temp.voltage);
-    app::can_tx::BMS_MaxCellTemperature_Temperature_set(max_cell_temp.temp);
-    app::can_tx::BMS_MaxCellTemperature_Segment_set(max_cell_temp.segment);
-    app::can_tx::BMS_MaxCellTemperature_Cell_set(max_cell_temp.cell);
+    // app::can_tx::BMS_MinCellVoltage_Voltage_set(min_cell_voltage.voltage);
+    // app::can_tx::BMS_MinCellVoltage_Temperature_set(min_cell_voltage.temp);
+    // app::can_tx::BMS_MinCellVoltage_Segment_set(min_cell_voltage.segment);
+    // app::can_tx::BMS_MinCellVoltage_Cell_set(min_cell_voltage.cell);
+    //
+    // app::can_tx::BMS_MaxCellVoltage_Voltage_set(max_cell_voltage.voltage);
+    // app::can_tx::BMS_MaxCellVoltage_Temperature_set(max_cell_voltage.temp);
+    // app::can_tx::BMS_MaxCellVoltage_Segment_set(max_cell_voltage.segment);
+    // app::can_tx::BMS_MaxCellVoltage_Cell_set(max_cell_voltage.cell);
+    //
+    // app::can_tx::BMS_MinCellTemperature_Voltage_set(min_cell_temp.voltage);
+    // app::can_tx::BMS_MinCellTemperature_Temperature_set(min_cell_temp.temp);
+    // app::can_tx::BMS_MinCellTemperature_Segment_set(min_cell_temp.segment);
+    // app::can_tx::BMS_MinCellTemperature_Cell_set(min_cell_temp.cell);
+    //
+    // app::can_tx::BMS_MaxCellTemperature_Voltage_set(max_cell_temp.voltage);
+    // app::can_tx::BMS_MaxCellTemperature_Temperature_set(max_cell_temp.temp);
+    // app::can_tx::BMS_MaxCellTemperature_Segment_set(max_cell_temp.segment);
+    // app::can_tx::BMS_MaxCellTemperature_Cell_set(max_cell_temp.cell);
 }
 } // namespace app::segments::broadcast

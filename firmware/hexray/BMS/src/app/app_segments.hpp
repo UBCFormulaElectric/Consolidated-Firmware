@@ -37,9 +37,7 @@ namespace config
 namespace balancing
 {
     void init();
-    void tick(
-        const Cells<std::expected<float, ErrorCode>> &cell_voltages,
-        const app::segments::CellParam               &min_cell_voltage);
+    void tick(const Cells<std::expected<float, ErrorCode>> &cell_voltages, const CellParam<float> &min_cell_voltage);
     void disable();
 } // namespace balancing
 
