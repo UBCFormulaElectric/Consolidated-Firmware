@@ -4,12 +4,15 @@
 #include <cstdint>
 #include <cstring>
 #include <gtest/gtest.h>
+#include <variant>
 #include <vector>
 
 #include "app_crc32.hpp"
 #include "app_ntp.hpp"
 #include "app_epochClock.hpp"
 #include "io_rtc.hpp"
+#include "io_telemMessage.hpp"
+#include "io_telemQueue.hpp"
 
 // Test-only spies on the fake RTC, defined in fake_io_rtc.cpp.
 namespace fakes::rtc
@@ -26,6 +29,10 @@ namespace
 // Whole-midnight Unix epoch anchor used to keep time-of-day assertions
 // simple (time-of-day(kAnchor) = 00:00:00.000). 2000-01-01 00:00:00 UTC.
 constexpr uint64_t kAnchor = 946'684'800'000ULL;
+
+// Mirrors the private ringCapacity in app_telemRx.cpp; kept in sync by hand
+// since it isn't exported. 22 * 24-byte frames = 528.
+constexpr std::size_t kRingCapacity = 528;
 
 // Build a frame with the codebase wire format:
 //   [0xCC][0x33][body_size][crc:4 LE][body...]
@@ -49,6 +56,26 @@ std::array<uint8_t, 24> buildNtpFrame(uint64_t t1, uint64_t t2)
     };
     std::memcpy(&frame[7], body.data(), body.size());
     return frame;
+}
+
+// Build a minimal valid frame with a custom 1-byte body. Used to exercise
+// dispatch branches (unknown ids, Remote_NTP) without depending on the NTP
+// body shape.
+std::array<uint8_t, 8> buildSingleByteFrame(uint8_t id)
+{
+    const std::array<uint8_t, 1> body{ id };
+    const uint32_t crc = app::crc32::finalize(app::crc32::update(app::crc32::init(), body.data(), body.size()));
+
+    return std::array<uint8_t, 8>{
+        0xCC,
+        0x33,
+        static_cast<uint8_t>(body.size()),
+        static_cast<uint8_t>(crc >> 0),
+        static_cast<uint8_t>(crc >> 8),
+        static_cast<uint8_t>(crc >> 16),
+        static_cast<uint8_t>(crc >> 24),
+        id,
+    };
 }
 
 void feed(std::span<const uint8_t> bytes)
@@ -181,4 +208,83 @@ TEST_F(TelemRxTest, ZeroBodySizeHeaderIsResynced)
     const auto &ts = app::ntp::timestamps();
     EXPECT_EQ(ts.t1, kAnchor + 33);
     EXPECT_EQ(ts.t2, kAnchor + 44);
+}
+
+TEST_F(TelemRxTest, CrcMismatchResyncsAndRecovers)
+{
+    setRtcEpoch(kAnchor);
+    ASSERT_TRUE(app::ntp::tryBeginAndCaptureT0());
+
+    auto bad = buildNtpFrame(kAnchor + 1, kAnchor + 2);
+    bad[10] ^= 0xFF; // corrupt one body byte; CRC will fail
+    auto good = buildNtpFrame(kAnchor + 55, kAnchor + 66);
+
+    std::vector<uint8_t> stream(bad.begin(), bad.end());
+    stream.insert(stream.end(), good.begin(), good.end());
+
+    feed(stream);
+    const auto &ts = app::ntp::timestamps();
+    EXPECT_EQ(ts.t1, kAnchor + 55);
+    EXPECT_EQ(ts.t2, kAnchor + 66);
+    EXPECT_EQ(app::telemRx::ringSize(), 0u);
+}
+
+TEST_F(TelemRxTest, OversizedBodyHeaderIsResynced)
+{
+    setRtcEpoch(kAnchor);
+    ASSERT_TRUE(app::ntp::tryBeginAndCaptureT0());
+    // body_size = 0xFF exceeds maxBodySize (100). Parser must slide one byte
+    // and keep hunting, eventually consuming the good frame.
+    std::vector<uint8_t> bad{ 0xCC, 0x33, 0xFF, 0, 0, 0, 0 };
+    auto                 good = buildNtpFrame(kAnchor + 77, kAnchor + 88);
+    bad.insert(bad.end(), good.begin(), good.end());
+
+    feed(bad);
+    const auto &ts = app::ntp::timestamps();
+    EXPECT_EQ(ts.t1, kAnchor + 77);
+    EXPECT_EQ(ts.t2, kAnchor + 88);
+    EXPECT_EQ(app::telemRx::ringSize(), 0u);
+}
+
+TEST_F(TelemRxTest, UnknownMessageIdIsDropped)
+{
+    setRtcEpoch(kAnchor);
+    auto frame = buildSingleByteFrame(0x7F); // not a real MessageId
+
+    feed(frame);
+    EXPECT_FALSE(fakes::rtc::wasSetCalled());
+    EXPECT_EQ(app::telemRx::ringSize(), 0u);
+}
+
+TEST_F(TelemRxTest, RemoteNtpEnqueuesTxMessage)
+{
+    // None of the tests above push to telem_tx_queue, so it is empty here.
+    setRtcEpoch(kAnchor);
+    auto frame = buildSingleByteFrame(0x02); // MessageId::Remote_NTP
+
+    feed(frame);
+    auto entry = telem_tx_queue.pop();
+    ASSERT_TRUE(entry.has_value());
+    EXPECT_TRUE(std::holds_alternative<io::telemMessage::NTPMsg>(*entry));
+    EXPECT_FALSE(fakes::rtc::wasSetCalled()); // remote-NTP doesn't touch the RTC
+}
+
+TEST_F(TelemRxTest, IngestOverflowDropsIncomingBytes)
+{
+    // Single push larger than the ring; RingBuffer::push rejects the whole
+    // span, so ringSize stays at 0.
+    std::vector<uint8_t> junk(kRingCapacity + 1, 0x00);
+    app::telemRx::ingest(junk);
+    EXPECT_EQ(app::telemRx::ringSize(), 0u);
+}
+
+TEST_F(TelemRxTest, TryBeginAndCaptureT0ReentryReturnsFalse)
+{
+    setRtcEpoch(kAnchor);
+    ASSERT_TRUE(app::ntp::tryBeginAndCaptureT0());
+    // No frame consumed yet, so the in-progress flag is still set.
+    EXPECT_FALSE(app::ntp::tryBeginAndCaptureT0());
+    // Finish the exchange so the module's in-progress flag is clear for
+    // subsequent tests (no per-test reset hook exists for app::ntp).
+    feed(buildNtpFrame(kAnchor, kAnchor));
 }
