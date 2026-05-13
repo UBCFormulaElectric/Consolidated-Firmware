@@ -36,8 +36,7 @@ std::array<uint8_t, 24> buildNtpFrame(uint64_t t1, uint64_t t2)
     std::memcpy(&body[1], &t1, sizeof(uint64_t));
     std::memcpy(&body[9], &t2, sizeof(uint64_t));
 
-    const uint32_t crc = app::crc32::finalize(
-        app::crc32::update(app::crc32::init(), body.data(), body.size()));
+    const uint32_t crc = app::crc32::finalize(app::crc32::update(app::crc32::init(), body.data(), body.size()));
 
     std::array<uint8_t, 24> frame{
         0xCC,
@@ -153,8 +152,8 @@ TEST_F(TelemRxTest, FrameSplitAcrossTwoIngests)
 {
     setRtcEpoch(kAnchor);
     ASSERT_TRUE(app::ntp::tryBeginAndCaptureT0());
-    auto       frame = buildNtpFrame(kAnchor + 7, kAnchor + 8);
-    const auto mid   = frame.size() / 2;
+    auto                     frame = buildNtpFrame(kAnchor + 7, kAnchor + 8);
+    const auto               mid   = frame.size() / 2;
     std::span<const uint8_t> bytes{ frame };
 
     setRtcEpoch(kAnchor + 1);
