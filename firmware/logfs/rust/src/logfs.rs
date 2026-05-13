@@ -140,14 +140,14 @@ impl LogFsFile {
                 // traversed backwards via prev_data_addr chain
                 let mut file_data: Vec<u8> = Vec::new();
                 loop {
-                    let mut chunk = vec![0u8; READ_ITER_CHUNK_SIZE as usize];
+                    let mut chunk = vec![0u8; Self::READ_ITER_CHUNK_SIZE as usize];
                     let mut num_read: u32 = 0;
                     let err = unsafe {
                         logfs_read(
                             self.fs,
                             &mut self.file,
                             chunk.as_mut_ptr() as *mut _,
-                            READ_ITER_CHUNK_SIZE,
+                            Self::READ_ITER_CHUNK_SIZE,
                             LogFsReadFlags_LOGFS_READ_ITER,
                             &mut num_read,
                         )
