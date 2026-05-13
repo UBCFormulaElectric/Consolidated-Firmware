@@ -146,7 +146,7 @@ void tasks_runLogging(void *arg)
 
         const auto &entry = result.value();
 
-        if (entry.tag == io::telemMessage::TelemMessageIds::NTP)
+        if (std::holds_alternative<io::telemMessage::NTPMsg>(entry))
         {
             if (!app::ntp::tryBeginAndCaptureT0())
             {
@@ -155,7 +155,8 @@ void tasks_runLogging(void *arg)
             }
         }
 
-        const auto tx_result = _900k_uart.transmit(entry.message().asBytes());
+        const auto bytes     = std::visit([](const auto &m) { return m.asBytes(); }, entry);
+        const auto tx_result = _900k_uart.transmit(bytes);
         if (not tx_result)
         {
             LOG_ERROR("Failed to transmit telem message: %d", static_cast<int>(tx_result.error()));
@@ -227,8 +228,7 @@ void tasks_runCanRx(void *arg)
             // Telem timestamps go straight into InfluxDB as Unix epoch ms,
             // so they must come from the RTC, not the boot-monotonic clock.
             const uint64_t epoch_ms = app::epochClock::getEpochMs().value_or(0);
-            (void)telem_tx_queue.push(
-                io::telemMessage::TelemQueueEntry(io::telemMessage::TelemCanMsg(can_msg, epoch_ms)));
+            (void)telem_tx_queue.push(io::telemMessage::TelemCanMsg(can_msg, epoch_ms));
         }
     }
 }

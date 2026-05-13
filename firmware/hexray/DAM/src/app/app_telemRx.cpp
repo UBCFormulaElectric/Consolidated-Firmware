@@ -91,8 +91,7 @@ namespace
                     LOG_WARN("telemRx: invalid Remote_NTP body size %u", static_cast<unsigned>(body.size()));
                     return;
                 }
-                const auto push_result =
-                    telem_tx_queue.push(io::telemMessage::TelemQueueEntry(io::telemMessage::NTPMsg{}));
+                const auto push_result = telem_tx_queue.push(io::telemMessage::NTPMsg{});
                 if (!push_result)
                 {
                     LOG_ERROR("telemRx: Failed to enqueue Remote NTP: %d", static_cast<int>(push_result.error()));
