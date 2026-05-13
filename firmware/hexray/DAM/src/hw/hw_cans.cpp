@@ -5,6 +5,7 @@
 #ifndef USE_CHIMERA
 #include "io_bootHandler.hpp"
 #include "bootloader_DAM.hpp"
+#include "io_canQueues.hpp"
 #endif
 
 constexpr hw::fdcan fdcan1(
@@ -13,6 +14,7 @@ constexpr hw::fdcan fdcan1(
     {
 #ifndef USE_CHIMERA
         io::bootHandler::processBootRequest(msg, board_highbits);
+        (void)can_rx_queue.push(io::CanMsg{ msg.std_id, msg.dlc, msg.data, true, app::can_utils::BusEnum::Bus_FDCAN });
 #endif
     });
 
