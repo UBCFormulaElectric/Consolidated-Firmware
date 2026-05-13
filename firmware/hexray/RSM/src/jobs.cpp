@@ -26,7 +26,7 @@ void jobs_init()
         [](const JsonCanMsg &tx_msg)
         {
             const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
-            LOG_IF_ERR(can_tx_queue.push(msg));
+            UNUSED(can_tx_queue.push(msg));
         });
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
     app::imu::init();
@@ -42,6 +42,7 @@ void jobs_run100Hz_tick()
     app::tireTemp::broadcast();
     app::coolant::broadcast();
     app::pumpControl::broadcast();
+    app::pumpControl::monitorPumps();
 
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
