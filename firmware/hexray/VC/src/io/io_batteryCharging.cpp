@@ -1,5 +1,5 @@
 /*
-INPUTS: NSHDN (from battery monitoring chip )
+INPUTS: NSHDN (from MCU, controlled based on status of bat alert pin...)
 OUTPUTS: BAT_CHRG_MODE (to MCU)
         - high is voltage regulation (const voltage)
         - low is current regulation (const current)
@@ -13,14 +13,12 @@ OUTPUTS: BAT_CHRG_MODE (to MCU)
 
 namespace io::batteryCharging
 {
-
 void chargerEnable(void)
 {
-    bat_chrg_nSHDN.writePin(HIGH);
+    bat_chrg_nSHDN.writePin(enable::HIGH);
 }
-
 void chargerDisable(void)
 {
-    bat_chrg_nSHDN.writePin(LOW);
+    bat_chrg_nSHDN.writePin(enable::LOW);
 }
 } // namespace io::batteryCharging

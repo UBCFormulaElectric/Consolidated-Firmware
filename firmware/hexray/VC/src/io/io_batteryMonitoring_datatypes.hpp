@@ -24,6 +24,12 @@ enum SystemReading : uint8_t
     LOAD_V = 0x38
 };
 
+struct ProtectionStatus
+{
+    bool overvoltage = false;
+    bool undervoltage = false;
+};
+
 // Internal regulator adresses
 inline constexpr uint16_t REG0_CONFIG = 0x9237;
 inline constexpr uint16_t REG1_CONFIG = 0x9236;
@@ -84,6 +90,13 @@ inline constexpr uint16_t CB_ACTIVE_CELLS = 0x0083;
 inline constexpr uint16_t CBSTATUS1       = 0x0085;
 inline constexpr uint16_t CBSTATUS2       = 0x0086;
 
+//Protections
+inline constexpr uint16_t REG_PROTECTIONS_A = 0x9261;
+inline constexpr uint16_t REG_PROTECTIONS_B = 0x9262;
+inline constexpr uint16_t REG_PROTECTIONS_CUV = 0x9275;
+inline constexpr uint16_t REG_PROTECTIONS_COV = 0x9278;
+inline constexpr uint16_t REG_SF_ALERT_MASK_A = 0x926F;
+
 // OTP
 inline constexpr uint16_t OTP_WR_CHECK = 0x00A0;
 inline constexpr uint16_t OTP_WRITE    = 0x00A1;
@@ -96,12 +109,8 @@ inline constexpr uint16_t CMD_V_C_COUNT2 = 0x0072; // cell 5
 inline constexpr uint16_t MFG_STATUS_INIT = 0x9343;
 
 // Seafty commands
-inline constexpr uint16_t SAFETY_A_A = 0x02;
-inline constexpr uint16_t SAFETY_S_A = 0x03;
-inline constexpr uint16_t SAFETY_A_B = 0x04;
-inline constexpr uint16_t SAFETY_S_B = 0x05;
-inline constexpr uint16_t SAFETY_A_C = 0x06;
-inline constexpr uint16_t SAFETY_S_C = 0x07;
+inline constexpr uint16_t CMD_SAFETY_ALERT_A  = 0x02;
+inline constexpr uint16_t CMD_SAFETY_STATUS_A = 0x03;
 
 // Safety Alert/Status A
 inline constexpr uint8_t SAFETY_A_SCD  = (1u << 7);
@@ -110,6 +119,13 @@ inline constexpr uint8_t SAFETY_A_OCD1 = (1u << 5);
 inline constexpr uint8_t SAFETY_A_OCC  = (1u << 4);
 inline constexpr uint8_t SAFETY_A_COV  = (1u << 3);
 inline constexpr uint8_t SAFETY_A_CUV  = (1u << 2);
+
+inline constexpr uint8_t SAFETY_S_SCD  = 1u << 7;
+inline constexpr uint8_t SAFETY_S_OCD2 = 1u << 6;
+inline constexpr uint8_t SAFETY_S_OCD1 = 1u << 5;
+inline constexpr uint8_t SAFETY_S_OCC  = 1u << 4;
+inline constexpr uint8_t SAFETY_S_COV  = 1u << 3;
+inline constexpr uint8_t SAFETY_S_CUV  = 1u << 2;
 
 // Safety Alert/Status B
 inline constexpr uint8_t SAFETY_B_OTF   = (1u << 7);

@@ -8,6 +8,7 @@ https://www.zotero.org/groups/5938751/ubc_formula_electric_firmware/collections/
 #include "io_time.hpp"
 #include "io_batteryMonitoring.hpp"
 #include "io_batteryMonitoring_datatypes.hpp"
+#include "io_batteryCharging.hpp"
 
 namespace io::batteryMonitoring
 {
@@ -25,6 +26,8 @@ static std::expected<void, ErrorCode> read_subcommand(uint16_t sub_cmd, std::spa
 static std::expected<void, ErrorCode> write_subcommand(uint16_t sub_cmd, std::span<uint8_t> data);
 static std::expected<void, ErrorCode> execute_subcommand(uint16_t sub_cmd);
 
+static std::expected<void, ErrorCode> balancing_init();
+static std::expected<void, ErrorCode> protection_init();
 static std::expected<void, ErrorCode> fetsInit();
 
 /* -------------------- Helpers ------------------------- */
@@ -262,10 +265,10 @@ std::expected<float, ErrorCode> get_temperatureIC()
  * @param void
  * @return no
  */
-std::expected<void, ErrorCode> balancing_init()
+[[maybe_unused]] static std::expected<void, ErrorCode> balancing_init()
 {
     // 1. Configure device to handle balancing itself
-    uint8_t cell_balancing = 0x1F;
+    uint8_t cell_balancing = 0x13;
     RETURN_IF_ERR(write_subcommand(BALANCE_CFG, std::span<uint8_t>(&cell_balancing, 1)));
 
     // 2. Die internal temperature 
@@ -304,20 +307,84 @@ std::expected<bool, ErrorCode> is_balancing_active()
              buf[0],
              buf[1],
              balancing_active ? "true" : "false");
+    
+    std::array<uint8_t, 1> readback{};
+    read_subcommand(BALANCE_CFG, readback);
+    LOG_INFO("BALANCE_CFG readback: 0x%02X", readback[0]);
 
     return balancing_active;
 }
 
-[[maybe_unused]] static std::expected<void, ErrorCode> protectionInit()
+/* -------------------- Protections ------------------------- */
+/**
+ * @brief Init OV/UV protections
+ * @param void
+ * @return 
+ */
+[[maybe_unused]]static std::expected<void, ErrorCode> protection_init()
 {
-    /*uint8_t manual_protection = 0x10; // 00010000
-    RETURN_IF_ERR(write_data_memory(MFG_STATUS_INIT, std::span<const uint8_t>(&autonomous_protection, 1))); */
+    // 1. Initialize what protections
+    uint8_t protectionsA = 0x0C;
+    uint8_t protectionsB = 0x20;
+    RETURN_IF_ERR(write_subcommand(REG_PROTECTIONS_A, std::span<uint8_t>(&protectionsA, 1)));
+    RETURN_IF_ERR(write_subcommand(REG_PROTECTIONS_B, std::span<uint8_t>(&protectionsB, 1)));
 
-    uint8_t sleep_chg = 0x02;
-    RETURN_IF_ERR(write_subcommand(FET_FET_OPTION, std::span<uint8_t>(&sleep_chg, 1)));
+    // 2. Write OV/UV
+    uint8_t overvoltage = 0x53;
+    uint8_t undervoltage = 0x31;
+    RETURN_IF_ERR(write_subcommand(REG_PROTECTIONS_COV, std::span<uint8_t>(&overvoltage, 1)));
+    RETURN_IF_ERR(write_subcommand(REG_PROTECTIONS_CUV, std::span<uint8_t>(&undervoltage, 1)));
+
+    // 3. Soft alerts
+    uint8_t sfAlertMaskA = 0x0C;
+    RETURN_IF_ERR(write_subcommand(REG_SF_ALERT_MASK_A, std::span<uint8_t>(&sfAlertMaskA, 1)));
 
     return {};
 }
+
+/**
+ * @brief Gets Safety Alert A register
+ * @param void
+ * @return uint8_t value of safety alert A
+ */
+std::expected<uint8_t, ErrorCode> get_safety_alert_a()
+{
+    uint8_t reading = 0;
+    RETURN_IF_ERR(command_read_byte(CMD_SAFETY_ALERT_A, &reading));
+    return reading;
+}
+
+/**
+ * @brief Gets Safety Status A register
+ * @param void
+ * @return uint8_t value of safety status A
+ */
+std::expected<uint8_t, ErrorCode> get_safety_status_a()
+{
+    uint8_t reading = 0;
+    RETURN_IF_ERR(command_read_byte(CMD_SAFETY_STATUS_A, &reading));
+    return reading;
+}
+
+/**
+ * @brief Checks whether cell overvoltage or undervoltage fault is active
+ * @param void
+ * @return true if OV or UV fault is active, false otherwise
+ */
+std::expected<bool, ErrorCode> is_cell_ov_uv_fault_active()
+{
+    uint8_t safety_alert_a  = 0;
+    uint8_t safety_status_a = 0;
+
+    RETURN_IF_ERR(command_read_byte(CMD_SAFETY_ALERT_A, &safety_alert_a));
+    RETURN_IF_ERR(command_read_byte(CMD_SAFETY_STATUS_A, &safety_status_a));
+
+    bool ov_fault = ((safety_alert_a & SAFETY_A_COV) != 0u) || ((safety_status_a & SAFETY_S_COV) != 0u);
+    bool uv_fault = ((safety_alert_a & SAFETY_A_CUV) != 0u) || ((safety_status_a & SAFETY_S_CUV) != 0u);
+
+    return (ov_fault || uv_fault);
+}
+
 [[maybe_unused]] std::expected<void, ErrorCode> fetsInit()
 {
     RETURN_IF_ERR(execute_subcommand(SUBCMD_ALL_FETS_ON)); // 0x0096
@@ -379,19 +446,19 @@ std::expected<void, ErrorCode> init()
 
     // 4. Modify settings
 
+    // Protections 
+    //RETURN_IF_ERR(protection_init());
+
     // ALERT
-    uint8_t alert = 0x02; // Could potentially also be 0x2A (for now I assumed high impedance)
+    uint8_t alert = 0x82; //maybe 0x02
     RETURN_IF_ERR(write_subcommand(ALERT, std::span<uint8_t>(&alert, 1)));
 
     // VCELL mode
-    uint8_t vcell_mode = 0x1B;
-    RETURN_IF_ERR(write_subcommand(VCELL_MODE, std::span<uint8_t>(&vcell_mode, 1)));
+    std::array <uint8_t, 2> vcell_mode = {{0x1B, 0x00}};
+    RETURN_IF_ERR(write_subcommand(VCELL_MODE, vcell_mode));
 
     // Balancing
-    balancing_init();
-
-    // PROTECTION
-    // RETURN_IF_ERR(protectionInit());
+    // RETURN_IF_ERR(balancing_init());
 
     // Add one that edits the security registers (OTP SHIT)
 
