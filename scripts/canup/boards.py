@@ -78,10 +78,10 @@ STM32F412_MCU = Microcontroller(
     ],
 )
 
-#The h5 has 127 sectors for each bank (fuck me I guess) so we need to approach this a little differently 
-#Each sector size is 8KB which is 0x20000
-#Bootloader occupies the first 16 sectors meaning sector 0-15
-#Base bootloader address is 0x08000000
+# The h5 has 127 sectors for each bank (fuck me I guess) so we need to approach this a little differently
+# Each sector size is 8KB which is 0x20000
+# Bootloader occupies the first 16 sectors meaning sector 0-15
+# Base bootloader address is 0x08000000
 STM32H562_MCU = Microcontroller(
     name="STM32H562xx",
     # Referenced from ST RM0402.
@@ -181,6 +181,14 @@ h5dev = Board(
     path=os.path.join("firmware", "dev", "h5dev", "h5dev_app_metadata.hex")
 )
 
+hexray_CRIT = Board(
+    name="CRIT",
+    boot_id_range_start=0x18000000,
+    app_id_range_start=900,
+    mcu=STM32H562_MCU,
+    path=os.path.join("firmware", "hexray", "CRIT", "hexray_CRIT_app_metadata.hex"),
+)
+
 hexray_BMS = Board(
     name="BMS",
     boot_id_range_start=0x04000000,
@@ -198,6 +206,8 @@ hexray_FSM = Board(
 )
 
 CONFIGS = {
+    "h7dev": [h7dev],
+    "h5dev": [h5dev],
     "hexray_FSM": [hexray_FSM],
     "hexray_RSM": [hexray_RSM],
     "hexray_CRIT": [hexray_CRIT],
@@ -207,6 +217,4 @@ CONFIGS = {
     "hexray_FD": [hexray_DAM, hexray_VC, hexray_BMS],
     "hexray_Sx" : [hexray_CRIT, hexray_FSM, hexray_RSM],
     "hexray" : [hexray_RSM, hexray_BMS, hexray_CRIT, hexray_DAM, hexray_CRIT, hexray_FSM, hexray_VC],
-    "h7dev": [h7dev],
-    "h5dev": [h5dev],
 }

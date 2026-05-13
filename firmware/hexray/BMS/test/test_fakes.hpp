@@ -44,12 +44,10 @@ namespace ts
 
 namespace faultLatch
 {
-    void     resetFaultLatch(const io::faultLatch::FaultLatch *latch);
-    void     updateFaultLatch(io::faultLatch::FaultLatch *latch, io::faultLatch::FaultLatchState status);
+    void     resetFaultLatch(const io::FaultLatch *latch);
+    void     updateFaultLatch(io::FaultLatch *latch, io::FaultLatch::FaultLatchState status);
     void     setCurrentStatus_resetCallCounts();
-    uint32_t setCurrentStatus_getCallsWithArgs(
-        const io::faultLatch::FaultLatch *latch,
-        io::faultLatch::FaultLatchState   status);
+    uint32_t setCurrentStatus_getCallsWithArgs(const io::FaultLatch *latch, io::FaultLatch::FaultLatchState status);
 } // namespace faultLatch
 
 namespace imd

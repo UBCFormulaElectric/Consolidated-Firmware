@@ -4,6 +4,7 @@
 #include "main.h"
 #include "hw_rtosTaskHandler.hpp"
 #include <cassert>
+#include "app_commitInfo.hpp"
 
 static_assert(sizeof(hw::CanMsg) == 72);
 io::queue<hw::CanMsg, 256> boot_can_tx_queue{ "CanTxQueue" };
@@ -13,7 +14,7 @@ static_assert(sizeof(boot_can_rx_queue) == 18544);
 
 namespace hw::cans
 {
-fdcan fdcan1(hfdcan1, [](const hw::CanMsg &msg) { (void)boot_can_rx_queue.push(msg); });
+fdcan fdcan1(hfdcan1, [](const CanMsg &msg) { LOG_IF_ERR(boot_can_rx_queue.push(msg)); });
 }
 
 const hw::fdcan &hw::fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
@@ -22,15 +23,28 @@ const hw::fdcan &hw::fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
     return hw::cans::fdcan1;
 }
 
-bootloader::config RSM_boot_config{ hw::cans::fdcan1, boot_can_tx_queue,   boot_can_rx_queue,
-                                    board_highbits,   git_commit_hash_val, git_commit_clean_val };
+bootloader::config RSM_boot_config{ hw::cans::fdcan1, boot_can_tx_queue, boot_can_rx_queue,
+                                    board_highbits,   GIT_COMMIT_HASH,   GIT_COMMIT_CLEAN };
 
-static hw::rtos::StaticTask<1024>
-    bootInterfaceTask(osPriorityRealtime, "BootIntf", [](void *) { bootloader::runInterfaceTask(RSM_boot_config); });
-static hw::rtos::StaticTask<1024>
-    bootTickTask(osPriorityRealtime, "BootTick", [](void *) { bootloader::runTickTask(RSM_boot_config); });
-static hw::rtos::StaticTask<1024>
-    bootCanTxTask(osPriorityRealtime, "BootCanTxTask", [](void *) { bootloader::runCanTxTask(RSM_boot_config); });
+static hw::rtos::StaticTask::StaticTaskStack<1024> bootInterfaceStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024> bootTickStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024> bootCanTxStack;
+
+static hw::rtos::StaticTask bootInterfaceTask(
+    osPriorityRealtime,
+    "BootIntf",
+    [](void *) { bootloader::runInterfaceTask(RSM_boot_config); },
+    bootInterfaceStack);
+static hw::rtos::StaticTask bootTickTask(
+    osPriorityRealtime,
+    "BootTick",
+    [](void *) { bootloader::runTickTask(RSM_boot_config); },
+    bootTickStack);
+static hw::rtos::StaticTask bootCanTxTask(
+    osPriorityRealtime,
+    "BootCanTxTask",
+    [](void *) { bootloader::runCanTxTask(RSM_boot_config); },
+    bootCanTxStack);
 
 CFUNC void bootloader_preInit()
 {
