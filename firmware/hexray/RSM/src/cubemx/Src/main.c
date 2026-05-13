@@ -79,6 +79,7 @@ static void MX_TIM1_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_IWDG_Init(void);
 static void MX_TIM7_Init(void);
+static void MX_ICACHE_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -126,6 +127,7 @@ int main(void)
     MX_TIM3_Init();
     MX_IWDG_Init();
     MX_TIM7_Init();
+    MX_ICACHE_Init();
     /* USER CODE BEGIN 2 */
     HAL_GPIO_WritePin(BRAKE_LIGHT_EN_3V3_GPIO_Port, BRAKE_LIGHT_EN_3V3_Pin, GPIO_PIN_RESET);
     ;
@@ -401,6 +403,32 @@ static void MX_I2C2_Init(void)
     /* USER CODE BEGIN I2C2_Init 2 */
 
     /* USER CODE END I2C2_Init 2 */
+}
+
+/**
+ * @brief ICACHE Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_ICACHE_Init(void)
+{
+    /* USER CODE BEGIN ICACHE_Init 0 */
+
+    /* USER CODE END ICACHE_Init 0 */
+
+    /* USER CODE BEGIN ICACHE_Init 1 */
+
+    /* USER CODE END ICACHE_Init 1 */
+
+    /** Enable instruction cache (default 2-ways set associative cache)
+     */
+    if (HAL_ICACHE_Enable() != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN ICACHE_Init 2 */
+
+    /* USER CODE END ICACHE_Init 2 */
 }
 
 /**
