@@ -15,9 +15,14 @@
 #include "app_heartbeatMonitors.hpp"
 #include "app_heartbeatMonitor.hpp"
 #include "app_jsoncan.hpp"
+#include "app_canUtils.hpp"
+#include "app_canTx.hpp"
+#include "app_commitInfo.hpp"
+
+// io
 extern "C"
 {
-#include "app_commitInfo.h"
+#include "io_semaphore.h"
 }
 
 // io

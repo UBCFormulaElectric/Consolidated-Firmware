@@ -7,7 +7,7 @@ namespace io
 {
 void FaultLatch::setCurrentStatus(const FaultLatchState status) const
 {
-    assert(latch->read_only == false);
+    assert(read_only == false);
     current_status_gpio.writePin((status == FaultLatchState::OK) ^ current_inverted);
 }
 
