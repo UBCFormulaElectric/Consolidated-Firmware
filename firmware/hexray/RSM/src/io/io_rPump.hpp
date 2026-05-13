@@ -1,7 +1,6 @@
 #pragma once
 
 #include "io_potentiometer.hpp"
-#include <cstdint>
 
 namespace io::rPump
 {
@@ -20,5 +19,5 @@ std::expected<void, ErrorCode> setPercentage(uint8_t percentage);
 /*
  * Reads the percentage the wiper is at
  */
-std::expected<void, ErrorCode> readPercentage(uint8_t &dest);
+std::expected<uint8_t, ErrorCode> readPercentage();
 } // namespace io::rPump

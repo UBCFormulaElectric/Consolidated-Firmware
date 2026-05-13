@@ -4,20 +4,20 @@
 
 namespace io::rPump
 {
-const Potentiometer rPump{ r_pump, io::POTENTIOMETER_WIPER::WIPER0 };
+const Potentiometer rPump{ r_pump, POTENTIOMETER_WIPER::WIPER0 };
 
 std::expected<void, ErrorCode> isPumpReady()
 {
     return r_pump.isTargetReady();
 }
 
-std::expected<void, ErrorCode> setPercentage(uint8_t percentage)
+std::expected<void, ErrorCode> setPercentage(const uint8_t percentage)
 {
     return rPump.writePercentage(percentage);
 }
 
-std::expected<void, ErrorCode> readPercentage(uint8_t &dest)
+std::expected<uint8_t, ErrorCode> readPercentage()
 {
-    return rPump.readPercentage(dest);
+    return rPump.readPercentage();
 }
 } // namespace io::rPump

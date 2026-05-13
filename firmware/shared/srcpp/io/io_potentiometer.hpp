@@ -3,11 +3,7 @@
 #include <cstdint>
 #include <array>
 #include "util_errorCodes.hpp"
-
-constexpr float   MAX_WIPER_VALUE     = 256.0f;
-constexpr float   MIN_WIPER_VALUE     = 0.0f;
-constexpr uint8_t POT_WIPER0_REGISTER = 0x0;
-constexpr uint8_t POT_WIPER1_REGISTER = 0x1;
+#include <cassert>
 
 #ifdef TARGET_EMBEDDED
 #include "hw_i2c.hpp"
@@ -23,7 +19,10 @@ enum class POTENTIOMETER_WIPER : uint8_t
 
 class Potentiometer
 {
-  private:
+    static constexpr float   MAX_WIPER_VALUE     = 256.0f;
+    static constexpr float   MIN_WIPER_VALUE     = 0.0f;
+    static constexpr uint8_t POT_WIPER0_REGISTER = 0x0;
+    static constexpr uint8_t POT_WIPER1_REGISTER = 0x1;
 #ifdef TARGET_EMBEDDED
     const hw::i2c::device     device;
     const POTENTIOMETER_WIPER wiper;
@@ -41,9 +40,9 @@ class Potentiometer
         return ((wiper == POTENTIOMETER_WIPER::WIPER0) ? POT_WIPER0_REGISTER : POT_WIPER1_REGISTER);
     }
 
-    [[nodiscard]] static constexpr uint8_t buildHeader(uint8_t address, POTENTIOMETER_CMD cmd)
+    [[nodiscard]] static constexpr uint8_t buildHeader(const uint8_t address, POTENTIOMETER_CMD cmd)
     {
-        return static_cast<uint8_t>((static_cast<uint8_t>(address) << 4 | static_cast<uint8_t>(cmd) << 2) & 0xFC);
+        return static_cast<uint8_t>((static_cast<uint8_t>(address << 4) | static_cast<uint8_t>(cmd) << 2) & 0xFC);
     }
 
     [[nodiscard]] std::expected<void, ErrorCode> readWiper(std::array<uint8_t, 2> &dest) const
@@ -54,9 +53,10 @@ class Potentiometer
         return {};
     }
 
-    [[nodiscard]] std::expected<void, ErrorCode> writeWiper(uint8_t data) const
+    [[nodiscard]] std::expected<void, ErrorCode> writeWiper(const uint8_t data) const
     {
         const std::array<uint8_t, 2> tx_cmd{ { buildHeader(wiperRegister(), POTENTIOMETER_CMD::WRITE), data } };
+        assert(device.isTargetReady());
         RETURN_IF_ERR(device.transmit(tx_cmd));
         return {};
     }
@@ -70,16 +70,15 @@ class Potentiometer
     constexpr explicit Potentiometer(){};
 #endif
 
-    [[nodiscard]] std::expected<void, ErrorCode> readPercentage(uint8_t &dest) const
+    [[nodiscard]] std::expected<uint8_t, ErrorCode> readPercentage() const
     {
 #ifdef TARGET_EMBEDDED
-        std::array<uint8_t, 2> data{ { 0 } };
+        std::array<uint8_t, 2> data{};
         RETURN_IF_ERR(readWiper(data));
         const uint16_t read_data{ static_cast<uint16_t>(data[0] << 8 | data[1]) };
-        dest = static_cast<uint8_t>((read_data * 100.0f) / MAX_WIPER_VALUE);
-        return {};
-#elif TARGET_TEST
-        return {};
+        return static_cast<uint8_t>(read_data * 100.0f / MAX_WIPER_VALUE);
+#elif
+        return 0;
 #endif
     }
     [[nodiscard]] std::expected<void, ErrorCode> writePercentage(uint8_t percentage) const
