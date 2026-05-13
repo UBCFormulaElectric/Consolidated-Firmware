@@ -269,14 +269,14 @@ void bootloader::init(config &boot_config)
             hw::CanMsg status_msg{};
             status_msg.std_id               = boot_config.BOARD_HIGHBITS | STATUS_10HZ_ID_LOWBITS;
             status_msg.dlc                  = 5;
-            status_msg.getDataAsDWords()[0] = boot_config.GIT_COMMIT_HASH;
+            status_msg.getDataAsDWords()[0] = boot_config._GIT_COMMIT_HASH;
             if (dirty)
             {
                 boot_status = verifyAppCodeChecksum();
                 dirty       = false;
             }
             status_msg.data[4] =
-                static_cast<uint8_t>(static_cast<uint8_t>(boot_status) << 1) | boot_config.GIT_COMMIT_CLEAN;
+                static_cast<uint8_t>(static_cast<uint8_t>(boot_status) << 1) | boot_config._GIT_COMMIT_CLEAN;
             LOG_IF_ERR(boot_config.can_tx_queue.push(status_msg));
         }
         else
