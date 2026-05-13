@@ -14,6 +14,15 @@ enum class ThermistorMux : size_t
     THERMISTOR_MUX_COUNT,
 };
 
+// Identifies one cell and its latest measured values.
+template <typename T> struct CellParam
+{
+    uint8_t segment;
+    uint8_t cell;
+    T       value;
+    auto    operator<=>(const CellParam &other) const { return value <=> other.value; };
+};
+
 // app_segments_config.hpp
 namespace config
 {
@@ -28,7 +37,9 @@ namespace config
 namespace balancing
 {
     void init();
-    void enable();
+    void tick(
+        const Cells<std::expected<float, ErrorCode>> &cell_voltages,
+        const app::segments::CellParam               &min_cell_voltage);
     void disable();
 } // namespace balancing
 

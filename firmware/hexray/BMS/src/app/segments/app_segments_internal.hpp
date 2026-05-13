@@ -23,16 +23,6 @@ inline constexpr float OW_THERM_THRESHOLD = 0.0f; // TODO: need to calibrate
 
 namespace app::segments
 {
-
-// Identifies one cell and its latest measured values.
-struct CellParam
-{
-    uint8_t segment;
-    uint8_t cell;
-    float   voltage;
-    float   temp;
-};
-
 constexpr float convertUVOVToFloat(const uint16_t hex)
 {
     return (hex * 16 * 150e-6f + 1.5f);
@@ -60,76 +50,4 @@ constexpr float convertRegToTemp(const uint16_t reg)
 
     return (1.0f / inv_temp_k) - KELVIN_OFFSET;
 }
-
-// CAN setter tables.
-// using CellVoltageSetters         = void (*)(float);
-// using FilteredCellVoltageSetters = void (*)(float);
-// using CellTemperatureSetters     = void (*)(float);
-// using SegmentVoltageSetters      = void (*)(float);
-// using CellOwcSetters             = void (*)(bool);
-// using ThermOwcSetters            = void (*)(bool);
-// using SegmentCommOkSetters       = void (*)(bool);
-// using SegmentVref2Setters        = void (*)(float);
-// using SegmentITMPSetters         = void (*)(float);
-// using SegmentVDSetters           = void (*)(float);
-// using SegmentVASetters           = void (*)(float);
-// using SegmentVRESSetters         = void (*)(float);
-// using SegmentVaOvSetters         = void (*)(bool);
-// using SegmentVaUvSetters         = void (*)(bool);
-// using SegmentVdOvSetters         = void (*)(bool);
-// using SegmentVdUvSetters         = void (*)(bool);
-// using SegmentCedSetters          = void (*)(bool);
-// using SegmentCmedSetters         = void (*)(bool);
-// using SegmentSedSetters          = void (*)(bool);
-// using SegmentSmedSetters         = void (*)(bool);
-// using SegmentVdeSetters          = void (*)(bool);
-// using SegmentVdelSetters         = void (*)(bool);
-// using SegmentThsdSetters         = void (*)(bool);
-// using SegmentTmodchkSetters      = void (*)(bool);
-// using SegmentOscchkSetters       = void (*)(bool);
-// using CellOvSetters              = void (*)(bool);
-// using CellUvSetters              = void (*)(bool);
-
-// idk why any of this has to exist
-// extern Cells<float>  cell_voltages;
-// extern CellSuccess   cell_voltage_success;
-// extern Cells<float>  filtered_cell_voltages;
-// extern CellSuccess   filtered_cell_voltage_success;
-// extern Therms<float> cell_temps;
-// extern Owc           cell_owc_ok;
-// extern Owc           therm_owc_ok;
-//
-// extern CellParam max_cell_voltage;
-// extern CellParam min_cell_voltage;
-// extern CellParam max_cell_temp;
-// extern CellParam min_cell_temp;
-
-// this needs to be replaced
-// extern CellVoltageSetters         cell_voltage_setters[MAX_NUM_SEGMENTS][CELLS_PER_SEGMENT];
-// extern CellTemperatureSetters     cell_temperature_setters[MAX_NUM_SEGMENTS][THERMISTORS_PER_SEGMENT];
-// extern FilteredCellVoltageSetters filtered_cell_voltage_setters[MAX_NUM_SEGMENTS][THERMISTORS_PER_SEGMENT];
-// extern SegmentVoltageSetters      segment_voltages_setters[MAX_NUM_SEGMENTS];
-// extern CellOwcSetters             cell_owc_setters[MAX_NUM_SEGMENTS][CELLS_PER_SEGMENT];
-// extern ThermOwcSetters            therm_owc_setters[MAX_NUM_SEGMENTS][THERMISTORS_PER_SEGMENT];
-// extern SegmentCommOkSetters       segment_comm_ok_setters[MAX_NUM_SEGMENTS];
-// extern SegmentVref2Setters        segment_vref2_setters[MAX_NUM_SEGMENTS];
-// extern SegmentITMPSetters         segment_itmp_setters[MAX_NUM_SEGMENTS];
-// extern SegmentVDSetters           segment_vd_setters[MAX_NUM_SEGMENTS];
-// extern SegmentVASetters           segment_va_setters[MAX_NUM_SEGMENTS];
-// extern SegmentVRESSetters         segment_vres_setters[MAX_NUM_SEGMENTS];
-// extern SegmentVaOvSetters         segment_va_ov_setters[MAX_NUM_SEGMENTS];
-// extern SegmentVaUvSetters         segment_va_uv_setters[MAX_NUM_SEGMENTS];
-// extern SegmentVdOvSetters         segment_vd_ov_setters[MAX_NUM_SEGMENTS];
-// extern SegmentVdUvSetters         segment_vd_uv_setters[MAX_NUM_SEGMENTS];
-// extern SegmentCedSetters          segment_ced_setters[MAX_NUM_SEGMENTS];
-// extern SegmentCmedSetters         segment_cmed_setters[MAX_NUM_SEGMENTS];
-// extern SegmentSedSetters          segment_sed_setters[MAX_NUM_SEGMENTS];
-// extern SegmentSmedSetters         segment_smed_setters[MAX_NUM_SEGMENTS];
-// extern SegmentVdeSetters          segment_vde_setters[MAX_NUM_SEGMENTS];
-// extern SegmentVdelSetters         segment_vdel_setters[MAX_NUM_SEGMENTS];
-// extern SegmentThsdSetters         segment_thsd_setters[MAX_NUM_SEGMENTS];
-// extern SegmentTmodchkSetters      segment_tmodchk_setters[MAX_NUM_SEGMENTS];
-// extern SegmentOscchkSetters       segment_oscchk_setters[MAX_NUM_SEGMENTS];
-// extern CellOvSetters              cell_ov_setters[MAX_NUM_SEGMENTS][CELLS_PER_SEGMENT];
-// extern CellUvSetters              cell_uv_setters[MAX_NUM_SEGMENTS][CELLS_PER_SEGMENT];
 } // namespace app::segments

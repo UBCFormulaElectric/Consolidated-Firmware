@@ -7,6 +7,7 @@
 #include "util_errorCodes.hpp"
 
 #include <array>
+#include <cstdint>
 
 // Physical daisy-chain dimensions for this ECU.
 inline constexpr uint8_t NUM_SEGMENTS            = 1;
@@ -48,6 +49,7 @@ struct __attribute__((packed)) CFGA
     uint8_t : 2;
     bool operator==(const CFGA &cfga) const = default;
 };
+static_assert(sizeof(CFGA) == REG_GROUP_SIZE);
 
 // Configuration Register Group B (Table 56 and 103)
 struct __attribute__((packed)) CFGB
@@ -68,6 +70,7 @@ struct __attribute__((packed)) CFGB
     uint8_t dcc_9_16; // discharge cell x
     bool    operator==(const CFGB &cfgb) const = default;
 };
+static_assert(sizeof(CFGB) == REG_GROUP_SIZE);
 
 struct SegmentConfig
 {
@@ -82,6 +85,7 @@ struct __attribute__((packed)) STATA
     uint16_t itmp;
     uint16_t reserved;
 };
+static_assert(sizeof(STATA) == REG_GROUP_SIZE);
 
 struct __attribute__((packed)) STATB
 {
@@ -89,6 +93,7 @@ struct __attribute__((packed)) STATB
     uint16_t va;
     uint16_t vres;
 };
+static_assert(sizeof(STATB) == REG_GROUP_SIZE);
 
 struct __attribute__((packed)) STATC
 {
@@ -116,6 +121,7 @@ struct __attribute__((packed)) STATC
     uint8_t tmodchk : 1;
     uint8_t oscchk : 1;
 };
+static_assert(sizeof(STATC) == REG_GROUP_SIZE);
 
 struct __attribute__((packed)) STATD
 {
@@ -123,6 +129,7 @@ struct __attribute__((packed)) STATD
     uint8_t : 8;
     uint8_t oc_cntr;
 };
+static_assert(sizeof(STATD) == REG_GROUP_SIZE);
 
 struct __attribute__((packed)) STATE
 {

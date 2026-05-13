@@ -26,7 +26,7 @@ namespace balancingState
         {
             app::StateMachine::set_next_state(&app::states::init_state);
         }
-        app::segments::balancing::enable();
+        app::segments::balancing::tick();
     }
 
     static void balancingStateRunOnExit()
