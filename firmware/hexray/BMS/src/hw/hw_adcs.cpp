@@ -12,8 +12,8 @@ Adc ts_vsense_p    = Adc{ adc1.getChannel(1) };
 Adc ts_vsense_n    = Adc{ adc1.getChannel(2) };
 Adc shdn_sns       = Adc{ adc1.getChannel(3) };
 Adc emeter_tsns    = Adc{ adc1.getChannel(4) };
-Adc ts_isense_400a = Adc{ adc1.getChannel(5) };
-Adc ts_isense_50a  = Adc{ adc1.getChannel(6) };
+Adc ts_isense_500a = Adc{ adc1.getChannel(5) };
+Adc ts_isense_75a  = Adc{ adc1.getChannel(6) };
 
 Adc aux_tsns = Adc{ adc3.getChannel(0) };
 

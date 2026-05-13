@@ -5,7 +5,7 @@
 #include "app_canTx.hpp"
 #include "app_canAlerts.hpp"
 
-#define HIGH_RES_MAX_CURRENT_READING 50.0f
+#define HIGH_RES_MAX_CURRENT_READING 70.0f
 #define W_TO_KW 1.0e-3f
 
 namespace app::ts

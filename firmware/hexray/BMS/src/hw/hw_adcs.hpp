@@ -23,9 +23,8 @@ extern Adc ts_vsense_p;
 extern Adc ts_vsense_n;
 extern Adc shdn_sns;
 extern Adc emeter_tsns;
-extern Adc ts_isense_400a;
-extern Adc ts_isense_50a;
-
+extern Adc ts_isense_500a;
+extern Adc ts_isense_75a;
 extern Adc aux_tsns;
 
 void chipsInit(void);
