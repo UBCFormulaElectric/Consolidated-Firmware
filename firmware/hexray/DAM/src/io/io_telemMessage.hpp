@@ -31,7 +31,6 @@ static_assert(offsetof(Header, crc) == 3, "crc at offset 3");
 
 struct [[gnu::packed]] CanMsgBody
 {
-    uint8_t  identifier;
     uint32_t can_id;
     uint64_t time_offset;
     uint8_t  payload[64]; // payload at end so we can truncate
@@ -39,7 +38,11 @@ struct [[gnu::packed]] CanMsgBody
 
 struct [[gnu::packed]] TelemMessage
 {
-    Header                                 header;
+    Header          header;
+    TelemMessageIds identifier;
+
+    explicit TelemMessage(TelemMessageIds id) : header(), identifier(id) {}
+
     [[nodiscard]] size_t                   wireSize() const { return sizeof(Header) + header.payload_size; }
     [[nodiscard]] std::span<const uint8_t> asBytes() const
     {
@@ -50,13 +53,12 @@ struct [[gnu::packed]] TelemMessage
 struct [[gnu::packed]] TelemCanMsg : TelemMessage
 {
     CanMsgBody msg;
-    TelemCanMsg() = default;
+    TelemCanMsg() : TelemMessage(TelemMessageIds::CAN) {}
     explicit TelemCanMsg(const io::CanMsg &rx_msg, uint64_t time_offset);
 };
 
 struct [[gnu::packed]] NTPMsg : TelemMessage
 {
-    uint8_t identifier;
     NTPMsg();
 };
 

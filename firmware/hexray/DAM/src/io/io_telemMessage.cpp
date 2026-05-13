@@ -50,25 +50,24 @@ Header::Header(const uint8_t *payload, uint8_t payload_length)
     crc        = app::crc32::finalize(c);
 }
 
-TelemCanMsg::TelemCanMsg(const io::CanMsg &rx_msg, uint64_t time_offset)
+TelemCanMsg::TelemCanMsg(const io::CanMsg &rx_msg, uint64_t time_offset) : TelemMessage(TelemMessageIds::CAN)
 {
     const uint32_t can_payload_size = payloadSizeFromDlc(rx_msg.dlc);
 
     memset(msg.payload, 0, sizeof(msg.payload));
     memcpy(msg.payload, rx_msg.data.data(), can_payload_size);
 
-    msg.identifier  = static_cast<uint8_t>(TelemMessageIds::CAN);
     msg.can_id      = rx_msg.std_id;
     msg.time_offset = time_offset;
 
-    const uint8_t payload_size = static_cast<uint8_t>(sizeof(msg) - sizeof(msg.payload) + can_payload_size);
-    header                     = Header(reinterpret_cast<const uint8_t *>(&msg), payload_size);
+    const uint8_t payload_size =
+        static_cast<uint8_t>(sizeof(identifier) + sizeof(msg) - sizeof(msg.payload) + can_payload_size);
+    header = Header(reinterpret_cast<const uint8_t *>(&identifier), payload_size);
 }
 
-NTPMsg::NTPMsg()
+NTPMsg::NTPMsg() : TelemMessage(TelemMessageIds::NTP)
 {
-    identifier = static_cast<uint8_t>(TelemMessageIds::NTP);
-    header     = Header(reinterpret_cast<const uint8_t *>(&identifier), static_cast<uint8_t>(sizeof(identifier)));
+    header = Header(reinterpret_cast<const uint8_t *>(&identifier), static_cast<uint8_t>(sizeof(identifier)));
 }
 
 } // namespace io::telemMessage
