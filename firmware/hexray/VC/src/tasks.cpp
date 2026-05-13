@@ -28,6 +28,7 @@
 [[noreturn]] static void tasks_runCan1Tx(void *arg);
 [[noreturn]] static void tasks_runCan2Tx(void *arg);
 [[noreturn]] static void tasks_runCanRx(void *arg);
+[[noreturn]] static void tasks_powerMonitoring(void *arg);
 
 // Define the task with StaticTask Class
 static hw::rtos::StaticTask::StaticTaskStack<8096> Task100HzStack;
@@ -36,6 +37,7 @@ static hw::rtos::StaticTask::StaticTaskStack<512>  Task1HzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCanRxStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCan1TxStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCan2TxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskPowerMonitoringStack;
 
 static hw::rtos::StaticTask Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz, Task100HzStack);
 static hw::rtos::StaticTask Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz, Task1kHzStack);
@@ -43,6 +45,8 @@ static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1
 static hw::rtos::StaticTask TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
 static hw::rtos::StaticTask TaskCan1Tx(osPriorityNormal, "TaskCanTx", tasks_runCan1Tx, TaskCan1TxStack);
 static hw::rtos::StaticTask TaskCan2Tx(osPriorityNormal, "TaskCanTx", tasks_runCan2Tx, TaskCan2TxStack);
+static hw::rtos::StaticTask
+    TaskPowerMonitoring(osPriorityNormal, "TaskPowerMonitoring", tasks_powerMonitoring, TaskPowerMonitoringStack);
 
 void tasks_run1Hz(void *arg)
 {
@@ -153,6 +157,21 @@ void tasks_runCanRx(void *arg)
     }
 }
 
+// lowk js copied from last years task
+[[noreturn]] static void tasks_powerMonitoring(void *arg)
+{
+    static const TickType_t period_ms   = 10;
+    static uint32_t         start_ticks = 0;
+    start_ticks                         = osKernelGetTickCount();
+
+    for (;;)
+    {
+        jobs_runPowerMonitoring_tick();
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
+}
+
 static void VC_StartAllTasks()
 {
     Task100Hz.start();
@@ -161,6 +180,7 @@ static void VC_StartAllTasks()
     TaskCanRx.start();
     TaskCan1Tx.start();
     TaskCan2Tx.start();
+    TaskPowerMonitoring.start();
 }
 
 void tasks_preInit()
@@ -174,7 +194,8 @@ void tasks_init()
     // __HAL_DBGMCU_FREEZE_IWDG();
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("VC Reset!");
-
+    osKernelInitialize();
+    jobs_init();
     fdcan1.init();
     invcan.init();
 

@@ -4,6 +4,7 @@
 #include "hw_can.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "bootloader_h5.hpp"
+#include "app_commitInfo.hpp"
 
 static_assert(sizeof(hw::CanMsg) == 72);
 io::queue<hw::CanMsg, 256> boot_can_tx_queue{ "CanTxQueue" };
@@ -32,8 +33,8 @@ class H5DevBootConfig : public bootloader::config
             boot_can_tx_queue,
             boot_can_rx_queue,
             board_highbits,
-            git_commit_hash_val,
-            git_commit_clean_val){};
+            GIT_COMMIT_HASH,
+            GIT_COMMIT_CLEAN){};
 } h5devboot_config;
 
 void bootloader_preInit()

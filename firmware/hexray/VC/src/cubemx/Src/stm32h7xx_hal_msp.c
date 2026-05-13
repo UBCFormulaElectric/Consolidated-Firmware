@@ -336,6 +336,11 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef *hfdcan)
         GPIO_InitStruct.Alternate = GPIO_AF5_FDCAN3;
         HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
+        /* FDCAN3 interrupt Init */
+        HAL_NVIC_SetPriority(FDCAN3_IT0_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(FDCAN3_IT0_IRQn);
+        HAL_NVIC_SetPriority(FDCAN3_IT1_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(FDCAN3_IT1_IRQn);
         /* USER CODE BEGIN FDCAN3_MspInit 1 */
 
         /* USER CODE END FDCAN3_MspInit 1 */
@@ -393,6 +398,9 @@ void HAL_FDCAN_MspDeInit(FDCAN_HandleTypeDef *hfdcan)
         */
         HAL_GPIO_DeInit(GPIOD, CAN_INV_RX_Pin | CAN_INV_TX_Pin);
 
+        /* FDCAN3 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(FDCAN3_IT0_IRQn);
+        HAL_NVIC_DisableIRQ(FDCAN3_IT1_IRQn);
         /* USER CODE BEGIN FDCAN3_MspDeInit 1 */
 
         /* USER CODE END FDCAN3_MspDeInit 1 */
@@ -438,6 +446,11 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
 
         /* Peripheral clock enable */
         __HAL_RCC_I2C4_CLK_ENABLE();
+        /* I2C4 interrupt Init */
+        HAL_NVIC_SetPriority(I2C4_EV_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(I2C4_EV_IRQn);
+        HAL_NVIC_SetPriority(I2C4_ER_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(I2C4_ER_IRQn);
         /* USER CODE BEGIN I2C4_MspInit 1 */
 
         /* USER CODE END I2C4_MspInit 1 */
@@ -471,6 +484,11 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
 
         /* Peripheral clock enable */
         __HAL_RCC_I2C5_CLK_ENABLE();
+        /* I2C5 interrupt Init */
+        HAL_NVIC_SetPriority(I2C5_EV_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(I2C5_EV_IRQn);
+        HAL_NVIC_SetPriority(I2C5_ER_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(I2C5_ER_IRQn);
         /* USER CODE BEGIN I2C5_MspInit 1 */
 
         /* USER CODE END I2C5_MspInit 1 */
@@ -501,6 +519,9 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef *hi2c)
 
         HAL_GPIO_DeInit(PWR_PUMP_SDA_GPIO_Port, PWR_PUMP_SDA_Pin);
 
+        /* I2C4 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(I2C4_EV_IRQn);
+        HAL_NVIC_DisableIRQ(I2C4_ER_IRQn);
         /* USER CODE BEGIN I2C4_MspDeInit 1 */
 
         /* USER CODE END I2C4_MspDeInit 1 */
@@ -521,6 +542,9 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef *hi2c)
 
         HAL_GPIO_DeInit(BAT_MON_SCL_GPIO_Port, BAT_MON_SCL_Pin);
 
+        /* I2C5 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(I2C5_EV_IRQn);
+        HAL_NVIC_DisableIRQ(I2C5_ER_IRQn);
         /* USER CODE BEGIN I2C5_MspDeInit 1 */
 
         /* USER CODE END I2C5_MspDeInit 1 */
@@ -535,12 +559,23 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef *hi2c)
  */
 void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
 {
-    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
+    GPIO_InitTypeDef         GPIO_InitStruct     = { 0 };
+    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
     if (hspi->Instance == SPI1)
     {
         /* USER CODE BEGIN SPI1_MspInit 0 */
 
         /* USER CODE END SPI1_MspInit 0 */
+
+        /** Initializes the peripherals clock
+         */
+        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SPI1;
+        PeriphClkInitStruct.Spi123ClockSelection = RCC_SPI123CLKSOURCE_CLKP;
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+        {
+            Error_Handler();
+        }
+
         /* Peripheral clock enable */
         __HAL_RCC_SPI1_CLK_ENABLE();
 
@@ -557,6 +592,9 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
         GPIO_InitStruct.Alternate = GPIO_AF5_SPI1;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+        /* SPI1 interrupt Init */
+        HAL_NVIC_SetPriority(SPI1_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(SPI1_IRQn);
         /* USER CODE BEGIN SPI1_MspInit 1 */
 
         /* USER CODE END SPI1_MspInit 1 */
@@ -566,6 +604,16 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
         /* USER CODE BEGIN SPI2_MspInit 0 */
 
         /* USER CODE END SPI2_MspInit 0 */
+
+        /** Initializes the peripherals clock
+         */
+        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SPI2;
+        PeriphClkInitStruct.Spi123ClockSelection = RCC_SPI123CLKSOURCE_CLKP;
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+        {
+            Error_Handler();
+        }
+
         /* Peripheral clock enable */
         __HAL_RCC_SPI2_CLK_ENABLE();
 
@@ -582,6 +630,9 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
         GPIO_InitStruct.Alternate = GPIO_AF5_SPI2;
         HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+        /* SPI2 interrupt Init */
+        HAL_NVIC_SetPriority(SPI2_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(SPI2_IRQn);
         /* USER CODE BEGIN SPI2_MspInit 1 */
 
         /* USER CODE END SPI2_MspInit 1 */
@@ -611,6 +662,8 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
         */
         HAL_GPIO_DeInit(GPIOA, IMU_SPC_Pin | IMU_MISO_Pin | IMU_MOSI_Pin);
 
+        /* SPI1 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(SPI1_IRQn);
         /* USER CODE BEGIN SPI1_MspDeInit 1 */
 
         /* USER CODE END SPI1_MspDeInit 1 */
@@ -630,6 +683,8 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
         */
         HAL_GPIO_DeInit(GPIOB, RPI_SCLK_Pin | RPI_MISO_Pin | RPI_MOSI_Pin);
 
+        /* SPI2 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(SPI2_IRQn);
         /* USER CODE BEGIN SPI2_MspDeInit 1 */
 
         /* USER CODE END SPI2_MspDeInit 1 */
@@ -766,6 +821,9 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
         GPIO_InitStruct.Alternate = GPIO_AF8_UART8;
         HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
+        /* UART8 interrupt Init */
+        HAL_NVIC_SetPriority(UART8_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(UART8_IRQn);
         /* USER CODE BEGIN UART8_MspInit 1 */
 
         /* USER CODE END UART8_MspInit 1 */
@@ -794,6 +852,8 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
         */
         HAL_GPIO_DeInit(GPIOE, FROM_GPS_TX_Pin | TO_CPU_TX_Pin);
 
+        /* UART8 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(UART8_IRQn);
         /* USER CODE BEGIN UART8_MspDeInit 1 */
 
         /* USER CODE END UART8_MspDeInit 1 */
