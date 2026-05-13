@@ -86,6 +86,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
             "${CMAKE_CURRENT_SOURCE_DIR}/src"
             "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
+            "${CMAKE_CURRENT_SOURCE_DIR}/boot"
     )
     stm32h562xx_cube_library(
             "h5dev_stm32"
@@ -98,7 +99,7 @@ IF ("${TARGET}" STREQUAL "binary")
     )
 
     # JSONCAN
-    jsoncan_embedded_library_cpp(H5 dev "${CMAKE_CURRENT_BINARY_DIR}")
+    jsoncan_embedded_library_cpp(H5 dev "${CMAKE_CURRENT_BINARY_DIR}" ${ARM_CORE})
 
     embedded_binary(
             "h5dev_app"

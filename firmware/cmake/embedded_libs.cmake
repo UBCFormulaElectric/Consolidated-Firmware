@@ -14,7 +14,6 @@ function(commit_info_library
 )
     commit_info_generate_sources(${BIND_TARGET} ${OUTPUT_PATH})
     add_library(${LIB_NAME} INTERFACE)
-    target_sources(${LIB_NAME} INTERFACE ${COMMIT_INFO_SRC})
     target_include_directories(${LIB_NAME} INTERFACE ${COMMIT_INFO_INCLUDE_DIR})
 endfunction()
 
@@ -36,7 +35,7 @@ function(jsoncan_embedded_library BOARD CAR JSONCAN_DIR)
 endfunction()
 
 message("  🔃 Registered jsoncan_embedded_library_cpp() function")
-function(jsoncan_embedded_library_cpp BOARD CAR JSONCAN_DIR)
+function(jsoncan_embedded_library_cpp BOARD CAR JSONCAN_DIR ARM_CORE)
     jsoncan_sources_cpp(
             ${BOARD}
             ${JSONCAN_DIR}
@@ -44,11 +43,14 @@ function(jsoncan_embedded_library_cpp BOARD CAR JSONCAN_DIR)
             "${CAN_DIR}/dbcs/${CAR}.dbc"
             "${CAN_DIR}/${CAR}"
     )
-    add_library("${CAR}_${BOARD}_jsoncan" INTERFACE)
-    target_sources("${CAR}_${BOARD}_jsoncan" INTERFACE ${CAN_SRCS})
+    embedded_object_library(
+            "${CAR}_${BOARD}_jsoncan"
+            "${CAN_SRCS}"
+            "${CAN_INCLUDE_DIRS}"
+            TRUE
+            "${ARM_CORE}"
+    )
     no_checks("${CAN_SRCS}")
-
-    target_include_directories("${CAR}_${BOARD}_jsoncan" SYSTEM INTERFACE ${CAN_INCLUDE_DIRS})
 endfunction()
 # ubsan is treated like a third party library
 #message("  🔃 Register ubsan file")

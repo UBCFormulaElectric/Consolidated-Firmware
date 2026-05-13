@@ -1,8 +1,10 @@
 #include "app_screens.hpp"
 #include "io_sevenSeg.hpp"
 #include "app_canAlerts.hpp"
+#include "util_retry.hpp"
 
 #include <algorithm>
+#include <cassert>
 
 static int     alert_index = 0;
 static uint8_t alert_count = 0;
@@ -14,7 +16,7 @@ static void update()
           io::seven_seg::dot, io::seven_seg::dot, io::seven_seg::dot, io::seven_seg::dot }
     };
 
-    std::array<app::can_alerts::Alert_Info, 20> buf;
+    std::array<app::can_alerts::Alert_Info, 20> buf{};
 
     if (const uint8_t fault_count = app::can_alerts::FaultInfo(buf); fault_count > 0)
     {
@@ -38,7 +40,8 @@ static void update()
     return;
 
 write:
-    LOG_IF_ERR(io::seven_seg::write(screen_buf));
+    const auto screen_write_result = util::retry([&] { return io::seven_seg::write(screen_buf); }, 3);
+    assert(screen_write_result.has_value());
 }
 
 constexpr app::screens::Screen app::screens::alerts_screen = {

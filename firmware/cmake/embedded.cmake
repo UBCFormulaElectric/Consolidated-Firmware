@@ -30,12 +30,6 @@ set(SHARED_COMPILER_FLAGS
         -g3
 )
 
-if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-    list(APPEND SHARED_COMPILER_FLAGS -O0)
-else ()
-    list(APPEND SHARED_COMPILER_FLAGS -Os)
-endif ()
-
 set(SHARED_LINKER_FLAGS
         -Wl,-gc-sections,--print-memory-usage
         -L${FIRMWARE_DIR}/linker
@@ -90,7 +84,7 @@ function(embedded_library
     ENDIF ()
 
     target_compile_definitions(${LIB_NAME} PRIVATE ${SHARED_COMPILER_DEFINES})
-    target_compile_options(${LIB_NAME} PRIVATE ${SHARED_COMPILER_FLAGS})
+    target_compile_options(${LIB_NAME} PRIVATE ${SHARED_COMPILER_FLAGS} -Os)
     target_link_options(${LIB_NAME} PRIVATE ${SHARED_LINKER_FLAGS})
     embedded_arm_core_flags(${LIB_NAME} ${ARM_CORE})
 endfunction()
@@ -110,10 +104,15 @@ function(embedded_object_library
                 PUBLIC
                 ${LIB_INCLUDE_DIRS}
         )
-        target_compile_options(${LIB_NAME} PRIVATE ${SHARED_GNU_COMPILER_CHECKS})
+        target_compile_options(${LIB_NAME} PRIVATE ${SHARED_GNU_COMPILER_CHECKS} -O0)
     ELSE ()
         target_include_directories(${LIB_NAME} PUBLIC ${LIB_INCLUDE_DIRS})
         target_compile_options(${LIB_NAME} PRIVATE ${SHARED_GNU_COMPILER_CHECKS_STRICT})
+        if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+            target_compile_options(${ELF_NAME} PRIVATE -O0)
+        else ()
+            target_compile_options(${ELF_NAME} PRIVATE -Os)
+        endif ()
     ENDIF ()
 
     target_compile_definitions(${LIB_NAME} PRIVATE ${SHARED_COMPILER_DEFINES})
@@ -144,6 +143,11 @@ function(embedded_binary
             ${SHARED_COMPILER_FLAGS}
             ${SHARED_GNU_COMPILER_CHECKS_STRICT}
     )
+    if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+        target_compile_options(${ELF_NAME} PRIVATE -O0)
+    else ()
+        target_compile_options(${ELF_NAME} PRIVATE -Os)
+    endif ()
     IF (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
         target_compile_options(${ELF_NAME} PRIVATE -fsanitize=undefined)
         set_property(SOURCE "${SHARED_LIB_INCLUDE_DIR_CPP}/lib_ubsan.cpp" APPEND PROPERTY COMPILE_OPTIONS

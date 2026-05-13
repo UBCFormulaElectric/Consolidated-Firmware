@@ -1,19 +1,37 @@
 #pragma once
-
 #include <cstdint>
 #include <expected>
 #include <span>
-
 #include "util_errorCodes.hpp"
 
+enum AlertOvUvBits : uint8_t
+{
+    ALERT_OV_CH1 = (1u << 0),
+    ALERT_OV_CH2 = (1u << 1),
+    ALERT_OV_CH3 = (1u << 2),
+    ALERT_OV_CH4 = (1u << 3),
+    ALERT_UV_CH1 = (1u << 4),
+    ALERT_UV_CH2 = (1u << 5),
+    ALERT_UV_CH3 = (1u << 6),
+    ALERT_UV_CH4 = (1u << 7),
+};
+
+enum Channel : uint8_t
+{
+    CH1,
+    CH2,
+    CH3,
+    CH4
+};
 namespace io::powerMonitoring
 {
-std::expected<void, ErrorCode> read_register(std::uint16_t reg, std::span<uint8_t> data);
-std::expected<void, ErrorCode> write_register(std::uint16_t reg, std::span<const uint8_t> data);
-
-void  refresh(void);
-bool  init(void);
-float read_voltage(uint8_t ch);
-float read_current(uint8_t ch);
-float read_power(uint8_t ch);
+// bitmask: OV (bits 0,1, 2, 3), UV (bits 4, 5, 6, 7)
+std::expected<void, ErrorCode>    refresh();
+std::expected<void, ErrorCode>    init();
+std::expected<float, ErrorCode>   read_voltage(Channel ch);
+std::expected<float, ErrorCode>   read_current(Channel ch);
+std::expected<float, ErrorCode>   read_power(Channel ch);
+std::expected<uint8_t, ErrorCode> read_alert_status();
+std::expected<bool, ErrorCode>    is_alert_asserted();
+std::expected<void, ErrorCode>    monitor_power_inputs();
 } // namespace io::powerMonitoring
