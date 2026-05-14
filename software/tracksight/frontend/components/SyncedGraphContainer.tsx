@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, RefObject, ReactNode, UIEvent } from "react";
 import { useDisplayControlContext } from "./PausePlayControl";
+import { CHART_PADDING } from "./widgets/render";
 
 export interface TimeRange {
     min: number;
@@ -9,6 +10,7 @@ export type SyncedGraphContext_t = {
     // internal
     scalePxPerSecRef: RefObject<number>; // a measure of zoom
     hoverTimestampRef: RefObject<number | null>; // TODO maybe not here?
+    hoverXRef: RefObject<number | null>; // raw CSS-pixel x of the hover cursor, set by whichever chart owns the hover
     globalTimeRangeRef: RefObject<TimeRange | null>;
     scrollLeftRef: RefObject<number>;
 
@@ -29,6 +31,7 @@ export function useSyncedGraph() {
 }
 
 const RIGHT_PAD = 10;
+const LEFT_PAD = CHART_PADDING.left;
 const MIN_SCALE_PX_PER_SEC = 0.001;
 const MAX_SCALE_PX_PER_SEC = 10000;
 
@@ -79,19 +82,19 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
         const container = scrollContainerRef.current;
         if (contentRef.current && global_tr && container) {
             const container_width = scalePxPerSecRef.current * (global_tr.max - global_tr.min);
-            contentRef.current.style.width = `${container_width + RIGHT_PAD}px`;
+            contentRef.current.style.width = `${container_width + LEFT_PAD + RIGHT_PAD}px`;
 
             if (isViewportLockedRef.current) {
                 // When locked, scroll to show the rightmost data at the right edge of the viewport
-                const lockedScrollLeft = Math.max(container_width - container.clientWidth, 0);
+                const lockedScrollLeft = Math.max(container_width + LEFT_PAD - container.clientWidth, 0);
                 scrollLeftRef.current = lockedScrollLeft;
                 container.scrollLeft = lockedScrollLeft;
                 return;
             }
 
-            // When unlocked, just clamp to valid bounds
-            const maxScrollLeft = Math.max(container_width + RIGHT_PAD - container.clientWidth, 0);
-            const clampedScrollLeft = Math.min(scrollLeftRef.current, maxScrollLeft);
+            // When unlocked, just clamp to valid bounds.
+            const maxScrollLeft = Math.max(container_width + LEFT_PAD + RIGHT_PAD - container.clientWidth, 0);
+            const clampedScrollLeft = Math.max(Math.min(scrollLeftRef.current, maxScrollLeft), 0);
             scrollLeftRef.current = clampedScrollLeft;
             if (container.scrollLeft !== clampedScrollLeft) {
                 container.scrollLeft = clampedScrollLeft;
@@ -109,18 +112,7 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
     }, [updateGraphWidth])
 
     const updateLeftScroll = useCallback((e: UIEvent<HTMLDivElement>) => {
-        const container = e.target as HTMLDivElement;
-
-        if (isViewportLockedRef.current) {
-            const latestScrollLeft = Math.max(container.scrollWidth - container.clientWidth, 0);
-            if (container.scrollLeft !== latestScrollLeft) {
-                container.scrollLeft = latestScrollLeft;
-            }
-            scrollLeftRef.current = latestScrollLeft;
-            return;
-        }
-
-        scrollLeftRef.current = container.scrollLeft;
+        scrollLeftRef.current = (e.target as HTMLDivElement).scrollLeft;
     }, [scrollLeftRef]);
 
     useEffect(() => {
@@ -145,12 +137,11 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
                 return;
             }
 
-            // Anchor zoom to center of viewport when unlocked
+            // Anchor zoom to center of viewport when unlocked.
             if (!isViewportLockedRef.current) {
                 const viewportCenter = scrollLeftRef.current + container.clientWidth / 2;
-                const centerTime = viewportCenter / prevScale;
-                const newCenterPos = centerTime * nextScale;
-                const newScrollLeft = newCenterPos - container.clientWidth / 2;
+                const centerDataOffset = (viewportCenter - LEFT_PAD) / prevScale;
+                const newScrollLeft = centerDataOffset * nextScale + LEFT_PAD - container.clientWidth / 2;
                 scrollLeftRef.current = Math.max(0, newScrollLeft);
             }
 
@@ -173,31 +164,33 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
     }, [isViewportLocked, updateGraphWidth]);
     // screen space conversions
     /**
-     * given a screen space x, gets the time associated with it based on the current zoom and scroll
+     * given a screen space x, gets the time associated with it based on the current zoom and scroll.
      */
     const XToTime = useCallback((x: number) =>
-        (x + scrollLeftRef.current) / scalePxPerSecRef.current + globalTimeRangeRef.current!.min
+        (x - LEFT_PAD + scrollLeftRef.current) / scalePxPerSecRef.current + globalTimeRangeRef.current!.min 
         , [scrollLeftRef, scalePxPerSecRef, globalTimeRangeRef]);
     /**
-     * given a time, gets the screen space x associated with it based on the current zoom and scroll
+     * given a time, gets the screen space x associated with it based on the current zoom and scroll.
      */
     const timeToX = useCallback((t: number) =>
-        (t - globalTimeRangeRef.current!.min) * scalePxPerSecRef.current - scrollLeftRef.current
+        (t - globalTimeRangeRef.current!.min) * scalePxPerSecRef.current - scrollLeftRef.current + LEFT_PAD
         , [scrollLeftRef, scalePxPerSecRef, globalTimeRangeRef]);
 
     // hover
     const hoverTimestampRef = useRef<number | null>(null);
+    const hoverXRef = useRef<number | null>(null);
 
     // context
     const CTXVAL = useMemo<SyncedGraphContext_t>(() => ({
         scalePxPerSecRef,
         hoverTimestampRef,
+        hoverXRef,
         globalTimeRangeRef,
         updateWithTimestamp,
         scrollLeftRef,
         timeToX,
         XToTime
-    }), [scalePxPerSecRef, hoverTimestampRef, globalTimeRangeRef, updateWithTimestamp, scrollLeftRef, timeToX, XToTime]);
+    }), [scalePxPerSecRef, hoverTimestampRef, hoverXRef, globalTimeRangeRef, updateWithTimestamp, scrollLeftRef, timeToX, XToTime]);
 
     return (
         <SyncedGraphContext.Provider value={CTXVAL}>
@@ -212,7 +205,7 @@ export default function SyncedGraphContainer({ children }: { children: ReactNode
                 <div ref={contentRef} className="min-w-full relative">
                     <div className="sticky left-0"
                         style={{
-                            width: `calc(100vw - 18px)` // this is the set width of the scrollbar (global.css)
+                            width: `calc(100vw)`
                         }}
                     >
                         {children}
