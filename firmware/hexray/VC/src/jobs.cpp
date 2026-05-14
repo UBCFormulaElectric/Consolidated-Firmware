@@ -4,7 +4,7 @@
 #include "app_jsoncan.hpp"
 #include "app_heartbeatMonitors.hpp"
 #include "app_canRx.hpp"
-#include "app_batteryMonitoring.hpp"
+#include "app_lowVoltageBattery.hpp"
 #include "app_powerMonitoring.hpp"
 
 #include "io_canMsg.hpp"

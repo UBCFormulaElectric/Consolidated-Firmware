@@ -844,6 +844,77 @@
             }
         }
     },
+    "BatteryMonitoring": {
+        "msg_id": 561,
+        "cycle_time": 100,
+        "description": "Battery monitoring chip and balancing",
+        "signals": {
+            "CELL1_Voltage": {
+                "resolution": 0.001,
+                "min": 0.0,
+                "max": 4.5,
+                "unit": "V"
+            },
+            "CELL2_Voltage": {
+                "resolution": 0.001,
+                "min": 0.0,
+                "max": 4.5,
+                "unit": "V"
+            },
+            "CELL3_Voltage": {
+                "resolution": 0.001,
+                "min": 0.0,
+                "max": 4.5,
+                "unit": "V"
+            }, 
+            "CELL4_Voltage": {
+                "resolution": 0.001,
+                "min": 0.0,
+                "max": 4.5,
+                "unit": "V"
+            },
+            "PACK_Voltage": {
+                "resolution": 0.001,
+                "min": 0.0,
+                "max": 17.0,
+                "unit": "V"
+            },
+            "LOAD_Voltage": {
+                "resolution": 0.001,
+                "min": 0.0,
+                "max": 17.0,
+                "unit": "V"
+            },
+            "ShuntCurrent": {
+                "resolution": 0.001,
+                "min": 0.0,
+                "max": 0.1,
+                "unit": "A"
+            },
+            "BalancingState": {
+                "resolution": 1,
+                "min": 0,
+                "max": 2,
+                "description": "0=DISABLED, 1=SETTLE, 2=BALANCE"
+            },
+            "ImbalanceMagnitude": {
+            "resolution": 0.001,
+            "min": 0,
+            "max": 1,
+            "unit": "V"
+            },
+            "BalancingLeader": {
+            "resolution": 1,
+            "min": 0,
+            "max": 3
+            },
+            "BalancingCell": {
+            "resolution": 1,
+            "min": 0,
+            "max": 15
+            }
+        }
+    },
     "Bootup": {
         "msg_id": 234,
         "cycle_time": null,
@@ -877,7 +948,7 @@
         }
     },
     "CPUDataLogInfo": {
-        "msg_id": 561,
+        "msg_id": 562,
         "cycle_time": 100,
         "description": "VC cpu and stack information",
         "signals": {

@@ -345,7 +345,7 @@ std::expected<bool, ErrorCode> is_balancing_active()
 
     // 2. Write OV/UV
     uint8_t overvoltage = 0x53;
-    uint8_t undervoltage = 0x31;
+    uint8_t undervoltage = 0x32;
     RETURN_IF_ERR(write_subcommand(REG_PROTECTIONS_COV, std::span<uint8_t>(&overvoltage, 1)));
     RETURN_IF_ERR(write_subcommand(REG_PROTECTIONS_CUV, std::span<uint8_t>(&undervoltage, 1)));
 
