@@ -6,6 +6,10 @@
   "info_id": 805,
   "info_counts_id": 806,
   "info": {
+    "StackOverflow": {
+      "id": 850,
+      "description": "An RTOS task stack overflowed on the previous boot cycle."
+    },
     "WatchdogTimeout": {
       "id": 882,
       "description": "Watchdog timeout detected."
