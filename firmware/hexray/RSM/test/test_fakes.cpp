@@ -134,10 +134,9 @@ namespace rPump
         return {};
     }
 
-    std::expected<void, ErrorCode> readPercentage(uint8_t &dest)
+    std::expected<uint8_t, ErrorCode> readPercentage()
     {
-        dest = fakes::io::rPump::percentage;
-        return {};
+        return fakes::io::rPump::percentage;
     }
 } // namespace rPump
 
