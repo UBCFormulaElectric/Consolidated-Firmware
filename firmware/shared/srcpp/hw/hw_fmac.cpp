@@ -1,7 +1,5 @@
 #include "hw_fmac.hpp"
 
-#if defined(TARGET_EMBEDDED)
-
 #include "main.h"
 #ifndef HAL_FMAC_MODULE_ENABLED
 #error "HAL_FMAC_MODULE_ENABLED must be defined and set to 1"
@@ -96,14 +94,13 @@ std::expected<int16_t, ErrorCode> FmacIir::popSample()
     return m_outputSample;
 }
 
-std::expected<void, ErrorCode> FmacIir::process(const float sample, float *output)
+std::expected<float, ErrorCode> FmacIir::process(const float sample)
 {
     RETURN_IF_ERR(pushSample(floatToQ1Point5(sample)));
     auto out_q15 = popSample();
     if (!out_q15)
         return std::unexpected(out_q15.error());
-    *output = q1Point5ToFloat(out_q15.value());
-    return {};
+    return q1Point5ToFloat(out_q15.value());
 }
 
 std::expected<void, ErrorCode> FmacIir::stop()
@@ -112,27 +109,3 @@ std::expected<void, ErrorCode> FmacIir::stop()
 }
 
 } // namespace hw::fmac
-
-#elif defined(TARGET_TEST)
-
-namespace hw::fmac
-{
-
-std::expected<void, ErrorCode> FmacIir::init(std::span<const int16_t>, std::span<const int16_t>, uint8_t)
-{
-    return std::unexpected(ErrorCode::UNIMPLEMENTED);
-}
-
-std::expected<void, ErrorCode> FmacIir::process(const float, float *)
-{
-    return std::unexpected(ErrorCode::UNIMPLEMENTED);
-}
-
-std::expected<void, ErrorCode> FmacIir::stop()
-{
-    return std::unexpected(ErrorCode::UNIMPLEMENTED);
-}
-
-} // namespace hw::fmac
-
-#endif

@@ -14,15 +14,14 @@
  *   HAL_FMAC_FilterStart, HAL_FMAC_AppendFilterData, HAL_FMAC_PollFilterData, HAL_FMAC_FilterStop.
  */
 
-#ifdef TARGET_EMBEDDED
 extern "C"
 {
 #include "hw_hal.hpp"
 #ifndef HAL_FMAC_MODULE_ENABLED
-#error "HAL_FMAC_MODULE_ENABLED must be defined when building hw_fmac for embedded targets"
+#error "HAL_FMAC_MODULE_ENABLED must be defined when building targets that use hw_fmac"
 #endif
-}
-#endif
+} /* gracefully handle the case where the module is not enabled, but fail to compile if it is not defined (prevents
+ future linker errors if silently ignoring the error) */
 
 #include "util_errorCodes.hpp"
 #include <span>
@@ -33,25 +32,20 @@ namespace hw::fmac
 class FmacIir
 {
   public:
-#ifdef TARGET_EMBEDDED
     explicit FmacIir(FMAC_HandleTypeDef &handle) : m_handle(handle) {}
-#elif defined(TARGET_TEST)
-    constexpr explicit FmacIir() {}
-#endif
+
     std::expected<void, ErrorCode>
         init(std::span<const int16_t> coefB, std::span<const int16_t> coefA, uint8_t gainExponent);
-    /** Process one sample: float in → FMAC (Q1.15) → float out. On success, result is written to *output. */
-    std::expected<void, ErrorCode> process(const float sample, float *output);
-    std::expected<void, ErrorCode> stop();
+    /** Process one sample: float in → FMAC (Q1.15) → float out in the success value. */
+    std::expected<float, ErrorCode> process(const float sample);
+    std::expected<void, ErrorCode>  stop();
 
-#ifdef TARGET_EMBEDDED
   private:
     FMAC_HandleTypeDef               &m_handle;
     int16_t                           m_outputSample = 0;
     uint16_t                          m_outputSize   = 1;
     std::expected<void, ErrorCode>    pushSample(int16_t sample_q15);
     std::expected<int16_t, ErrorCode> popSample();
-#endif
 };
 
 } // namespace hw::fmac
