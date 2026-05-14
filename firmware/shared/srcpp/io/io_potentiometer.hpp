@@ -82,7 +82,7 @@ class Potentiometer
         RETURN_IF_ERR(readWiper(data));
         const uint16_t read_data{ static_cast<uint16_t>(data[0] << 8 | data[1]) };
         return read_data * 100 / MAX_WIPER_VALUE;
-#elif
+#elif TARGET_TEST
         return 0;
 #endif
     }
