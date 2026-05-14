@@ -18,6 +18,7 @@
 #include "app_telemRx.hpp"
 #include "io_canRx.hpp"
 #include "io_telemQueue.hpp"
+#include "io_logQueue.hpp"
 #include "hw_hardFaultHandler.hpp"
 #include "app_epochClock.hpp"
 #include "hw_rtosTaskHandler.hpp"
@@ -224,13 +225,18 @@ void tasks_runCanRx(void *arg)
         const uint32_t now_ms  = io::time::getCurrentMs();
 
         io::can_rx::updateRxTableWithMessage(app::jsoncan::copyFromCanMsg(can_msg));
+        const uint64_t epoch_ms = app::epochClock::getEpochMs().value_or(0);
         if (app::can_data_capture::needsTelem(can_msg.std_id, now_ms))
         {
             // Telem timestamps go straight into InfluxDB as Unix epoch ms,
             // so they must come from the RTC, not the boot-monotonic clock.
-            const uint64_t epoch_ms = app::epochClock::getEpochMs().value_or(0);
 
             (void)telem_tx_queue.push(io::telemMessage::TelemCanMsg(can_msg, epoch_ms));
+        }
+        if (app::can_data_capture::needsLog(can_msg.std_id, now_ms))
+        {
+            // Add Telem Message to our logging queue following the wire format of the TelemMessage
+            (void)log_queue.push(io::telemMessage::TelemCanMsg(can_msg, epoch_ms));
         }
     }
 }

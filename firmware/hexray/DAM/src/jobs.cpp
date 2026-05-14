@@ -16,12 +16,20 @@
 #include "io_queue.hpp"
 #include "io_telemMessage.hpp"
 #include "io_telemQueue.hpp"
+#include "io_logQueue.hpp"
 #include "io_time.hpp"
 #include "io_fileSystems.hpp"
 
 #include "util_errorCodes.hpp"
 
 #include <span>
+// priv namespace for the logfs vars
+namespace
+{
+constexpr const char *LOG_PATH = "/log.bin";
+uint32_t              log_fd   = 0;
+bool                  log_open = false;
+} // namespace
 
 void jobs_init()
 {
@@ -39,6 +47,16 @@ void jobs_init()
         });
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
     telem_tx_queue.init();
+    log_queue.init();
+    if (const auto r = fs.open(LOG_PATH); r)
+    {
+        log_fd   = r.value();
+        log_open = true;
+    }
+    else
+    {
+        LOG_ERROR("Failed to open %s: %d", LOG_PATH, static_cast<int>(r.error()));
+    }
 
     app::can_tx::DAM_Heartbeat_set(true);
 
@@ -47,7 +65,16 @@ void jobs_init()
         LOG_ERROR("Failed to update bootcount: %d", static_cast<int>(err.error()));
     };
 }
-void jobs_run1Hz_tick() {}
+void jobs_run1Hz_tick()
+{
+    if (log_open)
+    {
+        if (const auto err = fs.sync(log_fd); !err)
+        {
+            LOG_ERROR("Log sync failed: %d", static_cast<int>(err.error()));
+        }
+    }
+}
 void jobs_run100Hz_tick()
 {
     if (app::button::ntpWasJustPressed())
@@ -56,6 +83,11 @@ void jobs_run100Hz_tick()
         if (!push_result)
         {
             LOG_ERROR("Failed to enqueue NTP message: %d", static_cast<int>(push_result.error()));
+        }
+        const auto log_result = log_queue.push(io::telemMessage::NTPMsg{});
+        if (!log_result)
+        {
+            LOG_ERROR("Failed to log NTP message: %d", static_cast<int>(log_result.error()));
         }
     }
     hb_monitor.checkIn();
@@ -67,7 +99,21 @@ void jobs_run1kHz_tick()
 {
     io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
 }
-void jobs_runLogging_tick() {}
+void jobs_runLogging_tick()
+{
+    const auto msg = log_queue.pop();
+    if (!msg || !log_open)
+        return;
+
+    // Serialize exactly like tasks_runTelemTx does for UART, so the SD log is
+    // byte-identical to the telem wire stream and the same backend parser decodes both.
+    const auto         wire = std::visit([](const auto &m) { return m.asBytes(); }, msg.value());
+    std::span<uint8_t> bytes{ const_cast<uint8_t *>(wire.data()), wire.size() };
+    if (const auto err = fs.write(log_fd, bytes, wire.size()); !err)
+    {
+        LOG_ERROR("Log write failed: %d", static_cast<int>(err.error()));
+    }
+}
 
 void jobs_runTelem_tick() {}
 
