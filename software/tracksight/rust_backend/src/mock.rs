@@ -35,16 +35,7 @@ pub async fn run_mock_task(
                 // Simulate sending mock CAN payloads
                 i += 1;
                 let value = (i as f64 * TAU/100.0).sin() * 10.0 + 10.0;
-
-                // compute a small rotating enum value for demonstration
-                let enum_value = (i % 3) as f64;
-                let enum_label = Some(match enum_value as u32 {
-                    0 => "1".to_string(),
-                    1 => "2".to_string(),
-                    2 => "3".to_string(),
-                    _ => "UNKNOWN".to_string(),
-                });
-
+                
                 let signals = vec![
                     DecodedSignal {
                         name: "BMS_TractiveSystemVoltage".to_string(),
@@ -56,9 +47,9 @@ pub async fn run_mock_task(
                     },
                     DecodedSignal {
                         name: "BMS_BalancingState".to_string(),
-                        value: enum_value,
+                        value: value % 3.0,
                         timestamp: None,
-                        label: enum_label,  
+                        label: None,
                         unit: None,
                         signal_type: CanSignalType::Enum
                     },
