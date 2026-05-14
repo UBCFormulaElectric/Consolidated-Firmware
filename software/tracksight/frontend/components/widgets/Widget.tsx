@@ -14,7 +14,8 @@ import { EnumSignalMetadata, NumericalSignalMetadata, SignalMetadata } from "@/l
 import { EnumTimelineWidgetData, NumericalGraphWidgetData, WidgetData } from "@/lib/types/Widget";
 
 function buildEnumPalette(signal: EnumSignalMetadata): { color: Color; enumValueColors: Record<number, Color> } {
-  const enumValues = Object.keys(signal.enum.items)
+  // FIXME(evan): This needs to be populated from the backend once the enum metadata is fixed
+  const enumValues = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
     .map((value) => Number(value))
     .sort((left, right) => left - right);
   const startingHue = Math.random() * 360;
