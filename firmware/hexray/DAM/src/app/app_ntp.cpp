@@ -103,8 +103,10 @@ bool tryBeginAndCaptureT0()
 {
     bool expected = false;
     if (!g_ntp_in_progress.compare_exchange_strong(expected, true))
+    {
+        LOG_WARN("NTP in progress flag is true, expected: %d", expected);
         return false;
-
+    }
     for (uint8_t attempt = 0; attempt < RTC_GET_MAX_ATTEMPTS; ++attempt)
     {
         const auto t0 = app::epochClock::getEpochMs();

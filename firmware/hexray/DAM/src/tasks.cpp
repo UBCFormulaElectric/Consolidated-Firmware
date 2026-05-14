@@ -163,6 +163,7 @@ void tasks_runLogging(void *arg)
         {
             LOG_ERROR("Failed to transmit telem message: %d", static_cast<int>(tx_result.error()));
         }
+        LOG_INFO("NTP Sent!");
     }
 }
 void tasks_runTelemRx(void *arg)
