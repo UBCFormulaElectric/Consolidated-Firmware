@@ -18,6 +18,7 @@
 #include "hw_resetReason.hpp"
 #include "hw_bootup.hpp"
 #include "hw_runTimeStat.hpp"
+#include "hw_sds.hpp"
 
 [[noreturn]] static void tasks_run1Hz(void *arg);
 [[noreturn]] static void tasks_run100Hz(void *arg);
@@ -69,6 +70,19 @@ void tasks_run1Hz(void *arg)
 }
 void tasks_run100Hz(void *arg)
 {
+    const auto                                 start = io::time::getCurrentMs();
+    std::array<uint8_t, HW_DEVICE_SECTOR_SIZE> buffer{};
+    buffer.fill(0xFF);
+    for (size_t i = 0; i < 100; ++i)
+    {
+        LOG_INFO("writing %d", i);
+        const auto out = sd1.write(buffer, i * HW_DEVICE_SECTOR_SIZE);
+        LOG_IF_ERR(out);
+    }
+    const auto end = io::time::getCurrentMs();
+    LOG_INFO("DONE IN %d ms", end - start);
+
+    osDelay(osWaitForever);
     constexpr uint32_t             period_ms                = 10U;
     constexpr uint32_t             watchdog_grace_period_ms = 2U;
     hw::watchdog::WatchdogInstance watchdog100hz{ period_ms + watchdog_grace_period_ms };
@@ -173,10 +187,10 @@ void tasks_runCanRx(void *arg)
 static void DAM_StartAllTasks()
 {
     Task100Hz.start();
-    TaskCanTx.start();
-    TaskCanRx.start();
-    Task1kHz.start();
-    Task1Hz.start();
+    // TaskCanTx.start();
+    // TaskCanRx.start();
+    // Task1kHz.start();
+    // Task1Hz.start();
     // TaskLogging.start();
     // TaskTelem.start();
     // TaskTelemRx.start();
@@ -200,7 +214,7 @@ void tasks_init()
     }
 
     osKernelInitialize();
-    jobs_init();
+    // jobs_init();
     DAM_StartAllTasks();
     osKernelStart();
     forever {}
