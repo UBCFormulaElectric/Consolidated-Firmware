@@ -43,7 +43,7 @@ pub async fn run_mock_task(
                         timestamp: None,
                         label: None,
                         unit: None,
-                        signal_type: CanSignalType::Alert
+                        signal_type: CanSignalType::Numerical
                     },
                     DecodedSignal {
                         name: "BMS_BalancingState".to_string(),
