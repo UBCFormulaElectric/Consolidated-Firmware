@@ -1,4 +1,3 @@
-#include <cassert>
 #include <cstring>
 #include <span>
 
@@ -9,32 +8,6 @@ namespace
 {
 constexpr uint8_t MAGIC_HIGH = 0xAA;
 constexpr uint8_t MAGIC_LOW  = 0x55;
-
-static uint32_t payloadSizeFromDlc(uint32_t dlc)
-{
-    if (dlc <= 8)
-    {
-        return dlc;
-    }
-    if (dlc <= 12)
-    {
-        return (dlc - 6) * 4;
-    }
-    if (dlc == 13)
-    {
-        return 32;
-    }
-    if (dlc == 14)
-    {
-        return 48;
-    }
-    if (dlc == 15)
-    {
-        return 64;
-    }
-    assert(false);
-    return 0;
-}
 
 } // namespace
 
@@ -52,7 +25,7 @@ Header::Header(const uint8_t *payload, uint8_t payload_length)
 
 TelemCanMsg::TelemCanMsg(const io::CanMsg &rx_msg, uint64_t time_offset) : TelemMessage(TelemMessageIds::CAN)
 {
-    const uint32_t can_payload_size = payloadSizeFromDlc(rx_msg.dlc);
+    const uint32_t can_payload_size = rx_msg.dlc; // This is actually the payload length
 
     memset(msg.payload, 0, sizeof(msg.payload));
     memcpy(msg.payload, rx_msg.data.data(), can_payload_size);

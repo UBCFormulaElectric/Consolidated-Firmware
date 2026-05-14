@@ -1,6 +1,8 @@
 #pragma once
 
 #include <array>
+#include <cassert>
+#include <cstdint>
 #include <span>
 #include "app_canUtils.hpp"
 
@@ -15,6 +17,33 @@ inline constexpr size_t CAN_PAYLOAD_BYTES = 64;
 #else
 #error "Please define what MCU is used."
 #endif
+
+[[nodiscard]] inline uint32_t payloadSizeFromDlc(const uint32_t dlc)
+{
+    if (dlc <= 8)
+    {
+        return dlc;
+    }
+    if (dlc <= 12)
+    {
+        return (dlc - 6) * 4;
+    }
+    if (dlc == 13)
+    {
+        return 32;
+    }
+    if (dlc == 14)
+    {
+        return 48;
+    }
+    if (dlc == 15)
+    {
+        return 64;
+    }
+    assert(false);
+    return 0;
+}
+
 struct CanMsg
 {
     uint32_t                               std_id;
@@ -52,4 +81,5 @@ struct CanMsg
                                                                  CAN_PAYLOAD_BYTES / 8 };
     }
 };
+
 } // namespace io

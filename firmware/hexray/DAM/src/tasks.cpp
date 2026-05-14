@@ -229,7 +229,11 @@ void tasks_runCanRx(void *arg)
             // Telem timestamps go straight into InfluxDB as Unix epoch ms,
             // so they must come from the RTC, not the boot-monotonic clock.
             const uint64_t epoch_ms = app::epochClock::getEpochMs().value_or(0);
-            (void)telem_tx_queue.push(io::telemMessage::TelemCanMsg(can_msg, epoch_ms));
+
+            // RX path stores the raw 4-bit DLC code in dlc; TelemCanMsg expects a byte count.
+            io::CanMsg telem_msg = can_msg;
+            telem_msg.dlc        = io::payloadSizeFromDlc(can_msg.dlc);
+            (void)telem_tx_queue.push(io::telemMessage::TelemCanMsg(telem_msg, epoch_ms));
         }
     }
 }
