@@ -18,6 +18,8 @@ std::expected<void, ErrorCode> update()
         LOG_INFO("Battery monitor initialized");
     }
 
+    auto val = io::batteryMonitoring::is_balancing_active();
+
     // Cells
     const auto cell1_voltage = io::batteryMonitoring::get_voltage_cell(CellReading::CELL1);
     const auto cell2_voltage = io::batteryMonitoring::get_voltage_cell(CellReading::CELL2);

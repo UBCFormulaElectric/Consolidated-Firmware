@@ -53,7 +53,7 @@ void jobs_run1kHz_tick()
 {
     // io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
 }
-void jobs_runBatteryMonitoring_txick()
+void jobs_runBatteryMonitoring_tick()
 {
     app::batteryMonitoring::update();
 }

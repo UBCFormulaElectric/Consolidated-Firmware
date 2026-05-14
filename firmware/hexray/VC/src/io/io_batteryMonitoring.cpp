@@ -458,7 +458,7 @@ std::expected<void, ErrorCode> init()
     RETURN_IF_ERR(write_subcommand(VCELL_MODE, vcell_mode));
 
     // Balancing
-    // RETURN_IF_ERR(balancing_init());
+    RETURN_IF_ERR(balancing_init());
 
     // Add one that edits the security registers (OTP SHIT)
 
