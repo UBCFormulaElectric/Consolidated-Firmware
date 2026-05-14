@@ -14,9 +14,14 @@ void monitorPumps()
 
 void broadcast()
 {
-    uint8_t percentage;
-    io::rPump::readPercentage(percentage);
-    can_tx::RSM_RPumpPercentage_set(percentage);
+    if (const auto percentage = io::rPump::readPercentage())
+    {
+        can_tx::RSM_RPumpPercentage_set(percentage.value());
+    }
+    else
+    {
+        can_tx::RSM_RPumpPercentage_set(255);
+    }
 }
 
 } // namespace app::pumpControl

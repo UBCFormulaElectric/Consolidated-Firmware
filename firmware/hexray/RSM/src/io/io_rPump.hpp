@@ -4,12 +4,10 @@
 
 namespace io::rPump
 {
-extern const Potentiometer rPump;
-
 /*
  * Checks rPump is communicating over I2C
  */
-std::expected<void, ErrorCode> isPumpReady();
+std::expected<void, ErrorCode> ready();
 
 /*
  * Sends the percentage the wiper should be at

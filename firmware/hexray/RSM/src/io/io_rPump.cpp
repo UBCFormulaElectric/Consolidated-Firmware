@@ -6,7 +6,7 @@ namespace io::rPump
 {
 const Potentiometer rPump{ r_pump, POTENTIOMETER_WIPER::WIPER0 };
 
-std::expected<void, ErrorCode> isPumpReady()
+std::expected<void, ErrorCode> ready()
 {
     return r_pump.isTargetReady();
 }
