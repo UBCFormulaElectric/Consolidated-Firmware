@@ -32,14 +32,30 @@ class LiveSignalStore extends SignalStore {
     this.waveletBuffers = new Map();
 
     socket.on("data", (payload) => {
-      const { name: signalName, timestamp, value } = payload;
+      const { name: signalName, timestamp, value, signal_type } = payload as {
+        name: string;
+        timestamp: number;
+        value: number;
+        signal_type: "Numerical" | "Alert" | "Enum";
+      };
 
-      if (!this.storage[signalName]) return;
+      if (!this.storage[signalName] && signal_type !== "Alert") return;
 
       const ts = new Date(timestamp).getTime();
+      
+      if (signal_type === "Alert") {
+        this.addAlertDataPoint(
+          signalName,
+          ts,
+          value
+        );
+
+        return;
+      }
+
       this.addDataPoint(signalName, ts, value);
 
-      if (this.storage[signalName].storeType === SignalType.NUMERICAL) {
+      if (signal_type === "Numerical") {
         const waveletBuffer = this.waveletBuffers.get(signalName);
 
         if (!waveletBuffer) {

@@ -1,4 +1,4 @@
-const backendPort = process.env.NEXT_PUBLIC_BACKEND_PORT || "5001";
+const backendPort = process.env.NEXT_PUBLIC_BACKEND_PORT || "5000";
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || (
     typeof window !== "undefined"
         ? `http://${window.location.hostname}:${backendPort}`
