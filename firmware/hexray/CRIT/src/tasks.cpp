@@ -206,7 +206,7 @@ void tasks_init()
         app::can_alerts::infos::WatchdogTimeout_set(true);
     }
 
-    if (const hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
+    if (hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
         boot_request.context != hw::bootup::BootContext::BOOT_CONTEXT_NONE)
     {
         if (boot_request.context == hw::bootup::BootContext::BOOT_CONTEXT_STACK_OVERFLOW)
