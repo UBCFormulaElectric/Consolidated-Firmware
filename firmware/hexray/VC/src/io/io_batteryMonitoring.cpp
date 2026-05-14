@@ -289,16 +289,18 @@ std::expected<float, ErrorCode> get_temperatureIC()
     return {};
 }
 
-[[maybe_unused]] std::expected<void, ErrorCode> send_balancing_subcommand(CellBalance_BitMask cell)
+std::expected<void, ErrorCode> send_balancing_subcommand(CellBalance_BitMask cell)
 {
-    std::array<uint8_t, 2> cell_to_balance= {{uint8_t((uint16_t)cell >> 0x08), ((uint8_t)cell && 0xFF)}};
+    std::array<uint8_t, 2> cell_to_balance= {{(uint8_t)((uint16_t)cell & 0xFF), (uint8_t)((uint16_t)cell >> 8)}};
     write_subcommand(CB_ACTIVE_CELLS, cell_to_balance);
     return {};
 }
 
-ExitCode sendStopBalanceCommand(void)
+std::expected<void, ErrorCode> stop_balancing_subcommand()
 {
-    return io::adbms::sendCommand(MUTE);
+    std::array<uint8_t, 2> cell_to_balance= {{0x00, 0x00}};
+    write_subcommand(CB_ACTIVE_CELLS, cell_to_balance);
+    return {};
 }
 
 std::expected<bool, ErrorCode> is_balancing_active()
@@ -306,7 +308,7 @@ std::expected<bool, ErrorCode> is_balancing_active()
     uint16_t alarm_status = 0;
     RETURN_IF_ERR(command_read_2byte(0x62, &alarm_status));
 
-    bool cb_alarm = (alarm_status & 0x0004) != 0;
+    bool cb_alarm = (alarm_status & 0x0004);
 
     std::array<uint8_t, 2> buf{};
     RETURN_IF_ERR(read_subcommand(CB_ACTIVE_CELLS, buf));

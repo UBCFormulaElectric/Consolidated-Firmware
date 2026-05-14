@@ -18,6 +18,7 @@ std::expected<void, ErrorCode> update()
         LOG_INFO("Battery monitor initialized");
     }
 
+    io::batteryMonitoring::send_balancing_subcommand(CellBalance_BitMask::CELL2);
     auto val = io::batteryMonitoring::is_balancing_active();
 
     // Cells

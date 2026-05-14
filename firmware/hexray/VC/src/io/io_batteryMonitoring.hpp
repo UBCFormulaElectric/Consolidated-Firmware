@@ -16,6 +16,8 @@ std::expected<bool, ErrorCode> is_balancing_active();
 std::expected<uint8_t, ErrorCode> get_safety_alert_a();
 std::expected<uint8_t, ErrorCode> get_safety_status_a();
 std::expected<bool, ErrorCode> is_cell_ov_uv_fault_active();
+std::expected<void, ErrorCode> send_balancing_subcommand(CellBalance_BitMask cell);
+std::expected<void, ErrorCode> stop_balancing_subcommand();
 
 // std::expected<uint32_t, ErrorCode> raw_voltages_and_currents(CellNum cell, Measurement measurement_type);
 // std::expected<void, ErrorCode>     OTP(void);
