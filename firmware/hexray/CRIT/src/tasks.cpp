@@ -221,6 +221,10 @@ void tasks_init()
             app::can_alerts::infos::WatchdogTimeout_set(true);
             app::can_tx::CRIT_Info_WatchdogTimeout_set(boot_request.context_value);
         }
+        // Clear stack overflow bootup.
+        boot_request.context       = hw::bootup::BootContext::BOOT_CONTEXT_NONE;
+        boot_request.context_value = 0;
+        hw::bootup::setBootRequest(boot_request);
     }
 
     jobs_init();

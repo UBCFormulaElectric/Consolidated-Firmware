@@ -215,6 +215,7 @@ void tasks_init()
         else if (boot_request.context == hw::bootup::BootContext::BOOT_CONTEXT_WATCHDOG_TIMEOUT)
         {
             // If the software driver detected a watchdog timeout the context should be set.
+            LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
             app::can_alerts::infos::WatchdogTimeout_set(true);
             app::can_tx::BMS_WatchdogTimeoutTask_set(boot_request.context_value);
         }

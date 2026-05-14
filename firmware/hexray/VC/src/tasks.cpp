@@ -215,6 +215,14 @@ void tasks_init()
         if (boot_request.context == hw::bootup::BootContext::BOOT_CONTEXT_STACK_OVERFLOW)
         {
             LOG_WARN("Detected stack overflow on the previous boot cycle!");
+            app::can_alerts::infos::StackOverflow_set(true);
+            app::can_tx::VC_StackOverflowTask_set(boot_request.context_value);
+        }
+        else if (boot_request.context == hw::bootup::BootContext::BOOT_CONTEXT_WATCHDOG_TIMEOUT)
+        {
+            LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
+            app::can_alerts::infos::WatchdogTimeout_set(true);
+            app::can_tx::VC_WatchdogTimeoutTask_set(boot_request.context_value);
         }
 
         const_cast<hw::bootup::BootRequest &>(boot_request).context       = hw::bootup::BootContext::BOOT_CONTEXT_NONE;
