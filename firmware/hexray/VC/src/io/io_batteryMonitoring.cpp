@@ -206,7 +206,7 @@ static std::expected<void, ErrorCode> execute_subcommand(uint16_t sub_cmd)
 std::expected<float, ErrorCode> get_voltage_cell(CellReading cell)
 {
     uint16_t cell_voltage = 0;
-    RETURN_IF_ERR(command_read_2byte(cell, &cell_voltage));
+    RETURN_IF_ERR(command_read_2byte((uint8_t)cell, &cell_voltage));
     return static_cast<float>(cell_voltage) / 1000.0f;
 }
 /**
@@ -268,7 +268,7 @@ std::expected<float, ErrorCode> get_temperatureIC()
 [[maybe_unused]] static std::expected<void, ErrorCode> balancing_init()
 {
     // 1. Configure device to handle balancing itself
-    uint8_t cell_balancing = 0x13;
+    uint8_t cell_balancing = 0x03;
     RETURN_IF_ERR(write_subcommand(BALANCE_CFG, std::span<uint8_t>(&cell_balancing, 1)));
 
     // 2. Die internal temperature 
@@ -282,11 +282,23 @@ std::expected<float, ErrorCode> get_temperatureIC()
     uint8_t max_cells = 1;
     RETURN_IF_ERR(write_subcommand(MAX_CELLS_BALANCING, std::span<uint8_t>(&max_cells, 1)));
 
-    // 2. Min/Max voltage 
+    // 2. Min/Max voltage
     std::array<uint8_t, 2> min_voltage = {{0x10, 0x0C}}; //0x0C10
     RETURN_IF_ERR(write_subcommand(CELL_BALANCE_MIN_V, min_voltage));
 
     return {};
+}
+
+[[maybe_unused]] std::expected<void, ErrorCode> send_balancing_subcommand(CellBalance_BitMask cell)
+{
+    std::array<uint8_t, 2> cell_to_balance= {{uint8_t((uint16_t)cell >> 0x08), ((uint8_t)cell && 0xFF)}};
+    write_subcommand(CB_ACTIVE_CELLS, cell_to_balance);
+    return {};
+}
+
+ExitCode sendStopBalanceCommand(void)
+{
+    return io::adbms::sendCommand(MUTE);
 }
 
 std::expected<bool, ErrorCode> is_balancing_active()

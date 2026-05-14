@@ -9,19 +9,26 @@ typedef enum
     CURRENT
 } Measurement;
 
-enum CellReading : uint8_t
+enum class CellReading : uint8_t
 {
     CELL1 = 0x14,
     CELL2 = 0x16,
-    CELL3 = 0x18,
-    CELL4 = 0x1A,
-    CELL5 = 0x1C
+    CELL3 = 0x1A,
+    CELL4 = 0x1C
 };
 
 enum SystemReading : uint8_t
 {
     PACK_V = 0x36,
     LOAD_V = 0x38
+};
+
+enum class CellBalance_BitMask : uint16_t
+{
+    CELL1 = 0x0001,
+    CELL2 = 0x0002,
+    CELL3 = 0x0004,
+    CELL4 = 0x0005
 };
 
 struct ProtectionStatus

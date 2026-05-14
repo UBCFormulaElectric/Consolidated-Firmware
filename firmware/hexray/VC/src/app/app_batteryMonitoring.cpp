@@ -23,9 +23,8 @@ std::expected<void, ErrorCode> update()
     // Cells
     const auto cell1_voltage = io::batteryMonitoring::get_voltage_cell(CellReading::CELL1);
     const auto cell2_voltage = io::batteryMonitoring::get_voltage_cell(CellReading::CELL2);
-    const auto cell3_voltage = io::batteryMonitoring::get_voltage_cell(CellReading::CELL3); // will read 0
+    const auto cell3_voltage = io::batteryMonitoring::get_voltage_cell(CellReading::CELL3);
     const auto cell4_voltage = io::batteryMonitoring::get_voltage_cell(CellReading::CELL4);
-    const auto cell5_voltage = io::batteryMonitoring::get_voltage_cell(CellReading::CELL5);
 
     // System
     const auto pack_voltage = io::batteryMonitoring::get_voltage_system(SystemReading::PACK_V);
