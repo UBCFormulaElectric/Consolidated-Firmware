@@ -5763,6 +5763,78 @@
         "min": 0,
         "max": 100,
         "unit": "%"
+      },
+      "TaskRunAdbmsVoltagesCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunAdbmsVoltagesCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunAdbmsVoltagesStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunAdbmsTemperaturesCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunAdbmsTemperaturesCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunAdbmsTemperaturesStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunAdbmsConfigsCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunAdbmsConfigsCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunAdbmsConfigsStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunAdbmsDiagnosticsCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunAdbmsDiagnosticsCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunAdbmsDiagnosticsStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
       }
     }
   }

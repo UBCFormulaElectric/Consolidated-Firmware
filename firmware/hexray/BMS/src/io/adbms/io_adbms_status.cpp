@@ -10,7 +10,11 @@ namespace io::adbms
 
 expected<void, ErrorCode> clearStatReg()
 {
+    array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> clr_regs{};
+    
     RETURN_IF_ERR(sendCmd(CLRAUX));
+
+
     RETURN_IF_ERR(sendCmd(CLRFLAG));
     RETURN_IF_ERR(sendCmd(CLOVUV));
     return {};

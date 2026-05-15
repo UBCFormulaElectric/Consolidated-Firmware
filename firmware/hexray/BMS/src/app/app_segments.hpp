@@ -62,6 +62,11 @@ namespace faults
     bool checkFaults();
 } // namespace faults
 
+namespace config 
+{
+        
+}
+
 // app_segments_conversions.cpp
 // note that the first expected wrap tells you if the request for the command succeeded
 // subseqeunt errors are

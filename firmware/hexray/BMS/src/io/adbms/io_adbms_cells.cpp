@@ -23,7 +23,7 @@ expected<void, ErrorCode> clear::FilteredCellVoltageReg()
 
 expected<void, ErrorCode> startCellsAdcConversion()
 {
-    return sendCmd(ADCV_BASE | RD);
+    return sendCmd(ADCV_BASE);
 }
 
 expected<void, ErrorCode> pollCellsAdcConversion()
@@ -72,8 +72,7 @@ Cells<expected<uint16_t, ErrorCode>> readCellVoltageReg()
                 {
                     const uint8_t low  = out[seg].value()[cell_in_group * 2U];
                     const uint8_t high = out[seg].value()[cell_in_group * 2U + 1U];
-                    const auto    voltage =
-                        static_cast<uint16_t>(static_cast<uint16_t>(low) | static_cast<uint16_t>(high) << 8U);
+                    const auto    voltage = static_cast<uint16_t>(static_cast<uint16_t>(low) | static_cast<uint16_t>(high) << 8U);
                     if (voltage == 0xFFFF || voltage == 0x8000)
                     {
                         cell_voltage_regs[seg][cell] = std::unexpected(ErrorCode::ERROR);

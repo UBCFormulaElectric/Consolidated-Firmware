@@ -170,19 +170,9 @@ void jobs_runAdbmsVoltages_tick()
     }
 }
 
-void jobs_runAdbmsFilteredVoltages_tick()
+void jobs_runAdbmsConfigs_tick()
 {
-    Cells<float> voltages;
-    CellSuccess  voltages_success;
-
-    {
-        const io::unique_semaphore s{ spi_bus_lock };
-        LOG_IF_ERR(io::adbms::wakeup());
-        LOG_IF_ERR(app::segments::config::upload());
-        LOG_IF_ERR(app::segments::runFilteredVoltageConversion(voltages, voltages_success));
-    }
-
-    app::segments::broadcast::filteredCellVoltages(voltages, voltages_success);
+    
 }
 
 void jobs_runAdbmsTemperatures_tick()

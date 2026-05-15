@@ -28,7 +28,7 @@ constexpr std::array<io::adbms::SegmentConfig, NUM_SEGMENTS> createSegmentConfig
 }
 std::array<io::adbms::SegmentConfig, NUM_SEGMENTS> segment_config = createSegmentConfig();
 std::array<io::adbms::PWMConfig, NUM_SEGMENTS>     pwm_config{};
-expected<bool, ErrorCode>                          isConfigEqual()
+expected<bool, ErrorCode>                          isConfigEqual(configa, configb)
 {
     const auto segment_config_buf = io::adbms::readConfigReg();
 

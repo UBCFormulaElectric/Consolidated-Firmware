@@ -28,47 +28,33 @@
 [[noreturn]] static void tasks_runCanTx(void *arg);
 [[noreturn]] static void tasks_runCanRx(void *arg);
 [[noreturn]] static void tasks_runAdbmsVoltages(void *arg);
-[[noreturn]] static void tasks_runAdbmsFilteredVoltages(void *arg);
+[[noreturn]] static void tasks_runAdbmsConfigs(void *arg);
 [[noreturn]] static void tasks_runAdbmsTemperatures(void *arg);
 [[noreturn]] static void tasks_runAdbmsDiagnostics(void *arg);
 
-// Define the task with StaticTask template class
 static hw::rtos::StaticTask::StaticTaskStack<512>  Task1kHzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  Task1HzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  Task100HzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCanRxStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCanTxStack;
-static hw::rtos::StaticTask::StaticTaskStack<1024> TaskAdbmsVoltagesStack;
-static hw::rtos::StaticTask::StaticTaskStack<1024> TaskAdbmsFilteredVoltagesStack;
-static hw::rtos::StaticTask::StaticTaskStack<1024> TaskAdbmsTemperaturesStack;
-static hw::rtos::StaticTask::StaticTaskStack<1024> TaskAdbmsDiagnosticsStack;
+static hw::rtos::StaticTask::StaticTaskStack<512> TaskAdbmsVoltagesStack;
+static hw::rtos::StaticTask::StaticTaskStack<512> TaskAdbmsConfigsStack;
+static hw::rtos::StaticTask::StaticTaskStack<512> TaskAdbmsTemperaturesStack;
+static hw::rtos::StaticTask::StaticTaskStack<512> TaskAdbmsDiagnosticsStack;
 
 static hw::rtos::StaticTask Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz, Task1kHzStack);
 static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
 static hw::rtos::StaticTask Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz, Task100HzStack);
 static hw::rtos::StaticTask TaskCanRx(osPriorityBelowNormal, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
 static hw::rtos::StaticTask TaskCanTx(osPriorityBelowNormal, "TaskCanTx", tasks_runCanTx, TaskCanTxStack);
-static hw::rtos::StaticTask
-    TaskAdbmsVoltages(osPriorityNormal, "TaskAdbmsVoltages", tasks_runAdbmsVoltages, TaskAdbmsVoltagesStack);
-static hw::rtos::StaticTask TaskAdbmsFilteredVoltages(
-    osPriorityNormal,
-    "TaskAdbmsFilteredVoltages",
-    tasks_runAdbmsFilteredVoltages,
-    TaskAdbmsFilteredVoltagesStack);
-static hw::rtos::StaticTask TaskAdbmsTemperatures(
-    osPriorityNormal,
-    "TaskAdbmsTemperatures",
-    tasks_runAdbmsTemperatures,
-    TaskAdbmsTemperaturesStack);
-static hw::rtos::StaticTask TaskAdbmsDiagnostics(
-    osPriorityNormal,
-    "TaskAdbmsDiagnostics",
-    tasks_runAdbmsDiagnostics,
-    TaskAdbmsDiagnosticsStack);
-
-static hw::runtimeStat::monitor<5> runtimeMonitor{
+static hw::rtos::StaticTask TaskAdbmsVoltages(osPriorityNormal, "TaskAdbmsVoltages", tasks_runAdbmsVoltages, TaskAdbmsVoltagesStack);
+static hw::rtos::StaticTask TaskAdbmsConfigs(osPriorityNormal, "TaskAdbmsConfigs", tasks_runAdbmsConfigs, TaskAdbmsConfigsStack);
+static hw::rtos::StaticTask TaskAdbmsTemperatures(osPriorityNormal, "TaskAdbmsTemperatures", tasks_runAdbmsTemperatures, TaskAdbmsTemperaturesStack);
+static hw::rtos::StaticTask TaskAdbmsDiagnostics(osPriorityNormal, "TaskAdbmsDiagnostics", tasks_runAdbmsDiagnostics, TaskAdbmsDiagnosticsStack);
+ 
+static hw::runtimeStat::monitor<9> runtimeMonitor{
     { app::can_tx::BMS_CoreCpuUsage_set, app::can_tx::BMS_CoreCpuUsageMax_set },
-    {
+        {
         { { Task1kHz, app::can_tx::BMS_TaskRun1kHzCpuUsage_set, app::can_tx::BMS_TaskRun1kHzCpuUsageMax_set,
             app::can_tx::BMS_TaskRun1kHzStackUsage_set },
           { Task1Hz, app::can_tx::BMS_TaskRun1HzCpuUsage_set, app::can_tx::BMS_TaskRun1HzCpuUsageMax_set,
@@ -78,8 +64,18 @@ static hw::runtimeStat::monitor<5> runtimeMonitor{
           { TaskCanRx, app::can_tx::BMS_TaskRunCanRxCpuUsage_set, app::can_tx::BMS_TaskRunCanRxCpuUsageMax_set,
             app::can_tx::BMS_TaskRunCanRxStackUsage_set },
           { TaskCanTx, app::can_tx::BMS_TaskRunCanTxCpuUsage_set, app::can_tx::BMS_TaskRunCanTxCpuUsageMax_set,
-            app::can_tx::BMS_TaskRunCanTxStackUsage_set } },
-    },
+            app::can_tx::BMS_TaskRunCanTxStackUsage_set },
+          { TaskAdbmsVoltages, app::can_tx::BMS_TaskRunAdbmsVoltagesCpuUsage_set, app::can_tx::BMS_TaskRunAdbmsVoltagesCpuUsageMax_set,
+            app::can_tx::BMS_TaskRunAdbmsVoltagesStackUsage_set},
+          { TaskAdbmsTemperatures, app::can_tx::BMS_TaskRunAdbmsTemperaturesCpuUsage_set, app::can_tx::BMS_TaskRunAdbmsTemperaturesCpuUsageMax_set,
+            app::can_tx::BMS_TaskRunAdbmsTemperaturesStackUsage_set},
+          { TaskAdbmsConfigs, app::can_tx::BMS_TaskRunAdbmsConfigsCpuUsage_set, app::can_tx::BMS_TaskRunAdbmsConfigsCpuUsageMax_set,
+            app::can_tx::BMS_TaskRunAdbmsConfigsStackUsage_set},
+          { TaskAdbmsDiagnostics, app::can_tx::BMS_TaskRunAdbmsDiagnosticsCpuUsage_set, app::can_tx::BMS_TaskRunAdbmsDiagnosticsCpuUsageMax_set,
+            app::can_tx::BMS_TaskRunAdbmsDiagnosticsStackUsage_set}
+          }
+        },
+    }, 
 };
 
 void tasks_run1Hz(void *arg)
@@ -211,7 +207,7 @@ void tasks_runAdbmsVoltages(void *arg)
     }
 }
 
-void tasks_runAdbmsFilteredVoltages(void *arg)
+void tasks_runAdbmsConfigs(void *arg)
 {
     const uint32_t                 period_ms                = 500U;
     const uint32_t                 watchdog_grace_period_ms = 25U;
@@ -222,7 +218,7 @@ void tasks_runAdbmsFilteredVoltages(void *arg)
 
     forever
     {
-        jobs_runAdbmsFilteredVoltages_tick();
+        jobs_runAdbmsConfigs_tick();
         watchdogFilteredVoltages.checkIn();
         monitorFilteredVoltages.checkForTimeouts();
         start_ticks += period_ms;
@@ -271,13 +267,12 @@ void tasks_runAdbmsDiagnostics(void *arg)
 void BMS_StartAllTasks()
 {
     Task1kHz.start();
-
     Task1Hz.start();
     Task100Hz.start();
     TaskCanRx.start();
     TaskCanTx.start();
     TaskAdbmsVoltages.start();
-    TaskAdbmsFilteredVoltages.start();
+    TaskAdbmsConfigs.start();
     TaskAdbmsTemperatures.start();
     TaskAdbmsDiagnostics.start();
 }

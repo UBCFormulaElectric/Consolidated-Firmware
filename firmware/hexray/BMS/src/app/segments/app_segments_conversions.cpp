@@ -5,7 +5,6 @@
 #include "util_errorCodes.hpp"
 
 using namespace std;
-// using namespace app::segments;
 
 namespace app::segments
 {
@@ -14,19 +13,6 @@ expected<Cells<expected<float, ErrorCode>>, ErrorCode> runVoltageConversion()
     RETURN_IF_ERR(io::adbms::startCellsAdcConversion());
     io::time::delay(VOLT_CONV_TIME_MS);
     const auto regs = io::adbms::readCellVoltageReg();
-
-    Cells<expected<float, ErrorCode>> out;
-    for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
-        for (size_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
-            out[seg][cell] = regs[seg][cell].transform(convertRegToVoltage);
-    return {};
-}
-
-expected<Cells<expected<float, ErrorCode>>, ErrorCode> runFilteredVoltageConversion()
-{
-    RETURN_IF_ERR(io::adbms::startCellsAdcConversion());
-    io::time::delay(VOLT_CONV_TIME_MS);
-    const auto regs = io::adbms::readFilteredCellVoltageReg();
 
     Cells<expected<float, ErrorCode>> out;
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
@@ -63,7 +49,7 @@ expected<Therms<expected<float, ErrorCode>>, ErrorCode> runTempConversion()
             }
         }
     }
-    return { out_temps };
+    return out_temps;
 }
 
 expected<Segments<expected<float, ErrorCode>>, ErrorCode> runSegVoltageConversion()

@@ -184,6 +184,16 @@ struct PWMConfig
     PWMB reg_b;
 };
 
+struct __attribute__((packed)) CLOVUV 
+{
+    STATD clovuv = {};
+};
+
+struct __attribute__((packed)) CLFLAG
+{
+    STATC clflag = {};
+};
+
 enum class OpenWireSwitch
 {
     OddChannels,

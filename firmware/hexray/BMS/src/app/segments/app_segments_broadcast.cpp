@@ -154,28 +154,6 @@ void cellVoltages(const Cells<std::expected<float, ErrorCode>> &voltages)
     // min_cell_voltage = candidate_min_cell_voltage;
 }
 
-void filteredCellVoltages(const Cells<std::expected<float, ErrorCode>> &filtered_voltages)
-{
-    // filtered_cell_voltages        = voltages;
-    // filtered_cell_voltage_success = voltages_success;
-    for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
-    {
-        bool seg_ok = true;
-
-        for (size_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
-        {
-            if (!filtered_voltages[seg][cell])
-            {
-                seg_ok                           = false;
-                cell_fvoltage_setters[seg][cell] = 0.0f; // Set to 0 or some sentinel value to indicate failure
-                continue;
-            }
-            cell_fvoltage_setters[seg][cell] = filtered_voltages[seg][cell].value();
-        }
-        seg_ok_buffer[seg] = seg_ok;
-    }
-}
-
 void temps(const Therms<float> &temps, const ThermSuccess &temps_success)
 {
     CellParam candidate_max_cell_temp = { .segment = 0, .cell = 0, .value = __FLT_MIN__ };
