@@ -4,6 +4,8 @@
 #include "io_telemMessage.hpp"
 #include "app_crc32.hpp"
 
+#include "hw_error.hpp"
+
 namespace
 {
 constexpr uint8_t MAGIC_HIGH = 0xAA;

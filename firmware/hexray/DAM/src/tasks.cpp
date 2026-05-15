@@ -29,7 +29,9 @@
 #include "hw_bootup.hpp"
 #include "hw_runTimeStat.hpp"
 #include "app_canDataCapture.hpp"
+#include "hw_sds.hpp"
 
+constexpr size_t         TASK_COUNT = 8;
 [[noreturn]] static void tasks_run1Hz(void *arg);
 [[noreturn]] static void tasks_run100Hz(void *arg);
 [[noreturn]] static void tasks_run1kHz(void *arg);
@@ -65,13 +67,16 @@ static hw::rtos::StaticTask
     TaskTelemParse(osPriorityBelowNormal, "TaskTelemParse", tasks_runTelemParse, TaskTelemParseStack);
 static hw::rtos::StaticTask TaskTelemTx(osPriorityHigh, "TaskTelemTx", tasks_runTelemTx, TaskTelemTxStack);
 
+static hw::watchdog::monitor<TASK_COUNT> monitor{
+    hiwdg,
+    [](const hw::watchdog::instance &i) { LOG_ERROR("Watchdog timeout detected in task %d", i.task_id); },
+};
+
 void tasks_run1Hz(void *arg)
 {
-    constexpr uint32_t             period_ms                = 1000U;
-    constexpr uint32_t             watchdog_grace_period_ms = 50U;
-    hw::watchdog::WatchdogInstance watchdog1hz{ period_ms + watchdog_grace_period_ms };
-    hw::watchdog::monitor          monitor1hz{ &watchdog1hz, hiwdg, HAL_IWDG_Refresh };
-    monitor1hz.registerWatchdogInstance();
+    constexpr uint32_t      period_ms                = 1000U;
+    constexpr uint32_t      watchdog_grace_period_ms = 50U;
+    hw::watchdog::instance &watchdog1hz              = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -88,11 +93,9 @@ void tasks_run1Hz(void *arg)
 
 [[noreturn]] static void tasks_run100Hz(void *arg)
 {
-    constexpr uint32_t             period_ms                = 10U;
-    constexpr uint32_t             watchdog_grace_period_ms = 2U;
-    hw::watchdog::WatchdogInstance watchdog100hz{ period_ms + watchdog_grace_period_ms };
-    hw::watchdog::monitor          monitor100hz{ &watchdog100hz, hiwdg, HAL_IWDG_Refresh };
-    monitor100hz.registerWatchdogInstance();
+    constexpr uint32_t      period_ms                = 10U;
+    constexpr uint32_t      watchdog_grace_period_ms = 2U;
+    hw::watchdog::instance &watchdog100hz            = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -107,11 +110,9 @@ void tasks_run1Hz(void *arg)
 }
 void tasks_run1kHz(void *arg)
 {
-    constexpr uint32_t             period_ms                = 1U;
-    constexpr uint32_t             watchdog_grace_period_ms = 1U;
-    hw::watchdog::WatchdogInstance watchdog1khz{ period_ms + watchdog_grace_period_ms };
-    hw::watchdog::monitor          monitor1khz{ &watchdog1khz, hiwdg, HAL_IWDG_Refresh };
-    monitor1khz.registerWatchdogInstance();
+    constexpr uint32_t      period_ms                = 1U;
+    constexpr uint32_t      watchdog_grace_period_ms = 1U;
+    hw::watchdog::instance &watchdog1khz             = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -119,9 +120,7 @@ void tasks_run1kHz(void *arg)
         jobs_run1kHz_tick();
 
         watchdog1khz.checkIn();
-#ifndef WATCHDOG_DISABLED
-        monitor1khz.checkForTimeouts();
-#endif
+        monitor.checkForTimeouts();
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -269,8 +268,12 @@ void tasks_preInit()
 
 void tasks_init()
 {
-    //__HAL_DBGMCU_FREEZE_IWDG();
     SEGGER_SYSVIEW_Conf();
+
+#ifndef WATCHDOG_DISABLED
+    __HAL_DBGMCU_FREEZE_IWDG();
+#endif
+
     fdcan1.init();
     if (const ResetReason reason = hw::resetReason::get(); reason == RESET_REASON_WATCHDOG)
     {
