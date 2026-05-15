@@ -142,7 +142,8 @@ class PwmInput
     {
         // 1. Assert PWM isn't too fast (Ensure we get enough ticks for resolution)
         // e.g. We want AT LEAST 100 ticks per PWM period to measure it passably
-        if ((tim_frequency_hz_in / static_cast<float>(pwm_min_frequency_hz_in)) < 100.0f) {
+        if ((tim_frequency_hz_in / static_cast<float>(pwm_min_frequency_hz_in)) < 100.0f)
+        {
             ERROR_PWM_TIMER_FREQUENCY_TOO_LOW_FOR_RESOLUTION();
         }
     }
@@ -168,7 +169,8 @@ class PwmInput
     {
         // 1. Assert PWM isn't too fast (Ensure we get enough ticks for resolution)
         // e.g. We want AT LEAST 100 ticks per PWM period to measure it passably
-        if ((tim_frequency_hz_in / static_cast<float>(pwm_min_frequency_hz_in)) < 100.0f) {
+        if ((tim_frequency_hz_in / static_cast<float>(pwm_min_frequency_hz_in)) < 100.0f)
+        {
             ERROR_PWM_TIMER_FREQUENCY_TOO_LOW_FOR_RESOLUTION();
         }
     }
