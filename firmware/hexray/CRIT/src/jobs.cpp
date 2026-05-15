@@ -1,7 +1,7 @@
 #include "jobs.hpp"
 
 #include "app_canTx.hpp"
-#include "app_commitInfo.h"
+#include "app_commitInfo.hpp"
 #include "app_jsoncan.hpp"
 #include "app_switches.hpp"
 #include "app_leds.hpp"

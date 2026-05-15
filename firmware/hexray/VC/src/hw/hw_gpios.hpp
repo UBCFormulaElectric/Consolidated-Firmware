@@ -39,3 +39,4 @@ extern const hw::gpio imu_cs3;
 extern const hw::gpio inertia_3v3_out;
 extern const hw::gpio misc_fuse_en;
 extern const hw::gpio misc_fuse_pg;
+extern const hw::gpio bat_mtr_nalert;

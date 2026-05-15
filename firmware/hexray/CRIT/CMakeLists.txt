@@ -103,6 +103,7 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h5xx_hal_pcd.c"
             "stm32h5xx_hal_pcd_ex.c"
             "stm32h5xx_hal_fdcan.c"
+            "stm32h5xx_hal_cordic.c"
             "stm32h5xx_hal_pcd.c"
             "stm32h5xx_hal_pcd_ex.c"
             "stm32h5xx_ll_usb.c"
