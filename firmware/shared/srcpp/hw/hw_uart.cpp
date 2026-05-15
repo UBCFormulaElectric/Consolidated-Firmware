@@ -160,8 +160,8 @@ std::expected<std::size_t, ErrorCode> hw::Uart::receiveToIdle(std::span<uint8_t>
     {
         // Pre-kernel: blocking polling fallback. Not used in flight.
         uint16_t                             actual = 0;
-        const std::expected<void, ErrorCode> exit   = utils::convertHalStatus(HAL_UARTEx_ReceiveToIdle(
-            &handle, rx.data(), static_cast<uint16_t>(rx.size()), &actual, timeout));
+        const std::expected<void, ErrorCode> exit   = utils::convertHalStatus(
+            HAL_UARTEx_ReceiveToIdle(&handle, rx.data(), static_cast<uint16_t>(rx.size()), &actual, timeout));
         if (!exit)
             return std::unexpected(exit.error());
         return static_cast<std::size_t>(actual);
@@ -171,8 +171,8 @@ std::expected<std::size_t, ErrorCode> hw::Uart::receiveToIdle(std::span<uint8_t>
     last_read_fault  = false;
     last_rx_size     = 0;
 
-    std::expected<void, ErrorCode> armed = utils::convertHalStatus(
-        HAL_UARTEx_ReceiveToIdle_IT(&handle, rx.data(), static_cast<uint16_t>(rx.size())));
+    std::expected<void, ErrorCode> armed =
+        utils::convertHalStatus(HAL_UARTEx_ReceiveToIdle_IT(&handle, rx.data(), static_cast<uint16_t>(rx.size())));
     if (not armed.has_value())
     {
         rxTaskInProgress = nullptr;
