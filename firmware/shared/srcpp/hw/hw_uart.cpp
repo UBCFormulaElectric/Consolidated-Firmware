@@ -149,10 +149,57 @@ std::expected<void, ErrorCode> hw::Uart::receive(std::span<uint8_t> rx, const ui
     return exit;
 }
 
+std::expected<std::size_t, ErrorCode> hw::Uart::receiveToIdle(std::span<uint8_t> rx, const uint32_t timeout) const
+{
+    if (rxTaskInProgress != nullptr || xPortIsInsideInterrupt())
+    {
+        return std::unexpected(ErrorCode::BUSY);
+    }
+
+    if (osKernelGetState() != taskSCHEDULER_RUNNING)
+    {
+        // Pre-kernel: blocking polling fallback. Not used in flight.
+        uint16_t                             actual = 0;
+        const std::expected<void, ErrorCode> exit   = utils::convertHalStatus(HAL_UARTEx_ReceiveToIdle(
+            &handle, rx.data(), static_cast<uint16_t>(rx.size()), &actual, timeout));
+        if (!exit)
+            return std::unexpected(exit.error());
+        return static_cast<std::size_t>(actual);
+    }
+
+    rxTaskInProgress = xTaskGetCurrentTaskHandle();
+    last_read_fault  = false;
+    last_rx_size     = 0;
+
+    std::expected<void, ErrorCode> armed = utils::convertHalStatus(
+        HAL_UARTEx_ReceiveToIdle_IT(&handle, rx.data(), static_cast<uint16_t>(rx.size())));
+    if (not armed.has_value())
+    {
+        rxTaskInProgress = nullptr;
+        return std::unexpected(armed.error());
+    }
+
+    const std::expected<void, ErrorCode> waited = waitForRxNotification(timeout);
+    if (!waited)
+        return std::unexpected(waited.error());
+
+    return static_cast<std::size_t>(last_rx_size);
+}
+
 /* ---------------------------- HAL callbacks --------------------------- */
 extern "C" void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
     const hw::Uart &bus = hw::getUartFromHandle(huart);
+    bus.onRxTransactionCompleteFromISR();
+}
+
+extern "C" void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t size)
+{
+    // Fires on idle line, half-buffer, or full-buffer when armed via
+    // HAL_UARTEx_ReceiveToIdle_IT/DMA. `size` is the total bytes written into
+    // the rx buffer so far for this transaction.
+    const hw::Uart &bus = hw::getUartFromHandle(huart);
+    bus.setLastRxSizeFromISR(size);
     bus.onRxTransactionCompleteFromISR();
 }
 
@@ -186,6 +233,14 @@ static const char *uart_error_to_name(const uint32_t err)
 extern "C" void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
     LOG_ERROR("UART error: %s", uart_error_to_name(HAL_UART_GetError(huart)));
+
+    // Clear sticky receive error flags so the next receive call isn't stuck on
+    // ORE/NE/FE left over from this fault. Without this the peripheral keeps
+    // signalling the same error and we stay deaf.
+    __HAL_UART_CLEAR_OREFLAG(huart);
+    __HAL_UART_CLEAR_NEFLAG(huart);
+    __HAL_UART_CLEAR_FEFLAG(huart);
+
     const hw::Uart &bus = hw::getUartFromHandle(huart);
     bus.onErrorFromISR();
 }

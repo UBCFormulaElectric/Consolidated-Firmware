@@ -94,7 +94,17 @@ bool handleFrameAndTuneRtc(const uint64_t t1, const uint64_t t2, const uint64_t 
         return false;
     }
 
-    LOG_INFO("Tuned RTC! New epoch ms: %llu", static_cast<unsigned long long>(tuned_epoch_ms));
+    // SEGGER_RTT_printf only supports 32-bit %u (no %llu), so print as two
+    // 32-bit halves to avoid the printf eating the wrong bytes off varargs.
+    LOG_INFO(
+        "Tuned RTC! New epoch ms: 0x%08x%08x", static_cast<uint32_t>(tuned_epoch_ms >> 32),
+        static_cast<uint32_t>(tuned_epoch_ms & 0xFFFFFFFFu));
+
+    // Log the current RTC time (epoch ms) after tuning
+    LOG_INFO(
+        "Current RTC time (epoch ms): 0x%08x%08x",
+        static_cast<uint32_t>((app::epochClock::getEpochMs().value_or(0)) >> 32),
+        static_cast<uint32_t>(app::epochClock::getEpochMs().value_or(0) & 0xFFFFFFFFu));
     g_ntp_in_progress.store(false);
     return true;
 }
@@ -104,7 +114,7 @@ bool tryBeginAndCaptureT0()
     bool expected = false;
     if (!g_ntp_in_progress.compare_exchange_strong(expected, true))
     {
-        LOG_WARN("NTP in progress flag is true, expected: %d", expected);
+        // LOG_WARN("NTP in progress flag is true, expected: %d", expected);
         return false;
     }
     for (uint8_t attempt = 0; attempt < RTC_GET_MAX_ATTEMPTS; ++attempt)

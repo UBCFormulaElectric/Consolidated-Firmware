@@ -82,10 +82,17 @@ pub async fn run_serial_task(
                         };
                     },
                     TelemetryIncomingMessage::NTP => {
-                        println!("ntp request");
                         let t1 = SystemTime::now()
                             .duration_since(UNIX_EPOCH)
                             .unwrap();
+                        // DEBUG: show the host system clock at the moment of t1
+                        // capture. If this is small (< 1e12 ms), the backend
+                        // machine's wall clock is wrong, not the DAM's parser.
+                        println!(
+                            "NTP request: t1_capture={} ms ({})",
+                            t1.as_millis(),
+                            format_unix_ms(t1.as_millis() as u64),
+                        );
                         if !out_packet_tx.send(TelemetryOutgoingMessage::NTP { t1 }).await.is_ok() {
                             eprintln!("Channel has closed");
                             break;
@@ -255,16 +262,30 @@ fn generate_packet(message: TelemetryOutgoingMessage) -> Vec<u8> {
         TelemetryOutgoingMessage::NTP{ t1 } => {
             payload.push(TelemetryOutgoingMessage::NTP_BYTE);
 
-            let t1_millis = (t1.as_millis() as u64).to_le_bytes();
+            let t1_u64 = t1.as_millis() as u64;
+            let t1_millis = t1_u64.to_le_bytes();
             payload.extend_from_slice(&t1_millis);
 
             // t2 handled here to more accurately reflect time difference between received and sent
-            let t2_millis = (SystemTime::now()
+            let t2_u64 = SystemTime::now()
                 .duration_since(UNIX_EPOCH)
                 .unwrap()
-                .as_millis() as u64)
-                .to_le_bytes();
+                .as_millis() as u64;
+            let t2_millis = t2_u64.to_le_bytes();
             payload.extend_from_slice(&t2_millis);
+
+            // DEBUG: log what we're actually sending so we can compare against
+            // what the firmware reads. Expect both to be ~1.747e12 in 2026; if
+            // they look small, the host system clock is wrong.
+            println!(
+                "NTP reply: t1={} ms ({}) t2={} ms ({}) | t1_bytes_le={:02x?} t2_bytes_le={:02x?}",
+                t1_u64,
+                format_unix_ms(t1_u64),
+                t2_u64,
+                format_unix_ms(t2_u64),
+                t1_millis,
+                t2_millis,
+            );
         }
     }
 
@@ -276,6 +297,32 @@ fn generate_packet(message: TelemetryOutgoingMessage) -> Vec<u8> {
     packet.extend_from_slice(&length);
     packet.extend_from_slice(&checksum);
     packet.extend_from_slice(&payload);
-    
+
     return packet;
+}
+
+/// Format a Unix-epoch milliseconds value as a rough "Y-M-D h:m:s UTC" string
+/// using day/time arithmetic only — no chrono dependency required. Good enough
+/// for sanity-checking that a timestamp is in the right ballpark.
+fn format_unix_ms(ms: u64) -> String {
+    let secs = ms / 1000;
+    let days = secs / 86_400;
+    let sod  = secs % 86_400;
+    let h    = sod / 3600;
+    let m    = (sod % 3600) / 60;
+    let s    = sod % 60;
+
+    // Howard Hinnant civil_from_days, inlined.
+    let z = days as i64 + 719_468;
+    let era = if z >= 0 { z / 146_097 } else { (z - 146_096) / 146_097 };
+    let doe = (z - era * 146_097) as u64;
+    let yoe = (doe - doe / 1460 + doe / 36524 - doe / 146_096) / 365;
+    let y_civil = yoe as i64 + era * 400;
+    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+    let mp = (5 * doy + 2) / 153;
+    let d = doy - (153 * mp + 2) / 5 + 1;
+    let mo = if mp < 10 { mp + 3 } else { mp - 9 };
+    let y = if mo <= 2 { y_civil + 1 } else { y_civil };
+
+    format!("{:04}-{:02}-{:02} {:02}:{:02}:{:02} UTC", y, mo, d, h, m, s)
 }

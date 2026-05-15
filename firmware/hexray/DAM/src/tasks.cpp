@@ -168,7 +168,12 @@ void tasks_runLogging(void *arg)
 }
 void tasks_runTelemRx(void *arg)
 {
-    constexpr auto                        telemRxChunkSize = 1U;
+    // ReceiveToIdle arms the peripheral for the whole buffer in one HAL call,
+    // then returns whatever bytes arrived once the line idles (or the buffer
+    // fills / half-fills). 64 bytes is several frames worth of headroom at
+    // 57600 baud without delaying ingest — a single idle gap of ~1 byte time
+    // (~174 us) already wakes the task.
+    constexpr auto                        telemRxChunkSize = 64U;
     std::array<uint8_t, telemRxChunkSize> scratch{};
     forever
     {
@@ -249,7 +254,7 @@ static void DAM_StartAllTasks()
     TaskCanRx.start();
     Task1kHz.start();
     Task1Hz.start();
-    // TaskLogging.start();
+    TaskLogging.start();
     TaskTelemTx.start();
     TaskTelemRx.start();
     TaskTelemParse.start();

@@ -78,6 +78,16 @@ namespace
                     return;
                 }
                 const NtpReply reply = parseNtpReply(body);
+                // SEGGER_RTT_printf only supports 32-bit %u (no %llu / no length
+                // modifiers), so print each u64 as hi:lo 32-bit halves. The
+                // earlier %llu version was eating wrong bytes off the varargs
+                // stack and made it look like t2 was tiny.
+                LOG_INFO(
+                    "NTP backend t1=0x%08x%08x t2=0x%08x%08x",
+                    static_cast<uint32_t>(reply.t1 >> 32),
+                    static_cast<uint32_t>(reply.t1 & 0xFFFFFFFFu),
+                    static_cast<uint32_t>(reply.t2 >> 32),
+                    static_cast<uint32_t>(reply.t2 & 0xFFFFFFFFu));
                 if (!app::ntp::handleFrameAndTuneRtc(reply.t1, reply.t2, rx_time_ms))
                 {
                     LOG_ERROR("telemRx: NTP handleFrameAndTuneRtc failed");

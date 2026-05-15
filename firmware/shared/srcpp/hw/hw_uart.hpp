@@ -33,6 +33,13 @@ class Uart
     mutable bool last_read_fault  = false;
     mutable bool last_write_fault = false;
 
+    // Bytes delivered by the most recent HAL_UARTEx_RxEventCallback (idle/half/full).
+    // Written from ISR, read by the task after it wakes from waitForRxNotification.
+    // No `volatile` needed: the FreeRTOS task-notify pair (vTaskNotifyGiveFromISR ->
+    // ulTaskNotifyTake) provides the memory barrier between writer and reader.
+    // `volatile` would also break the class's literal-type requirement for constexpr.
+    mutable uint16_t last_rx_size = 0;
+
   public:
     /**
      *
@@ -57,6 +64,22 @@ class Uart
      */
     std::expected<void, ErrorCode>
         receive(std::span<uint8_t> rx, uint32_t timeout = std::numeric_limits<uint32_t>::max()) const;
+
+    /**
+     * Receives up to rx.size() bytes using HAL_UARTEx_ReceiveToIdle_IT. Returns
+     * the number of bytes actually received when the line idles, the buffer
+     * fills, or the half-buffer point is hit — whichever comes first. Unlike
+     * receive(), the peripheral is armed for the whole buffer in a single HAL
+     * call, so there is no inter-byte re-arm gap that can cause an overrun.
+     * @param rx Span to store received data.
+     * @param timeout Timeout duration.
+     */
+    std::expected<std::size_t, ErrorCode>
+        receiveToIdle(std::span<uint8_t> rx, uint32_t timeout = std::numeric_limits<uint32_t>::max()) const;
+
+    /// Bytes carried out of the RxEvent ISR for the last receiveToIdle() call.
+    [[nodiscard]] uint16_t lastRxSize() const { return last_rx_size; }
+    void                   setLastRxSizeFromISR(uint16_t size) const { last_rx_size = size; }
 
     void deinit() const;
 
