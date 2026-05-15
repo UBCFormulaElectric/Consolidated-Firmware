@@ -2,6 +2,7 @@
 #include "test/test_VCBase.hpp"
 #include "app_loadswitches.hpp"
 #include "vc_fakes.hpp"
+#include "io_efuses.hpp"
 #include "util_errorCodes.hpp"
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"

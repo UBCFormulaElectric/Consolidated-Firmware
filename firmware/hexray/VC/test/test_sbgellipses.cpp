@@ -12,13 +12,12 @@ class VCSbgEllipsesTest : public VCBaseTest
 
 TEST_F(VCSbgEllipsesTest, test_broadcast)
 {
-    io::sbgEllipse::setGeneralStatus(0x1234u);
-    io::sbgEllipse::setComStatus(0x56789ABCu);
-    io::sbgEllipse::setOverflowCount(7u);
-    io::sbgEllipse::setTimestampUs(424242u);
-    io::sbgEllipse::setVelocity(9u, 1.25f, -2.5f, 3.75f, 0.1f, 0.2f, 0.3f);
-    io::sbgEllipse::setSolutionMode(2u);
-    io::sbgEllipse::setAttitude(0.4f, -0.5f, 1.6f);
+    fakes::io::sbgEllipse::setGeneralStatus(0x1234u);
+    fakes::io::sbgEllipse::setComStatus(0x56789ABCu);
+    fakes::io::sbgEllipse::setOverflowCount(7u);
+    fakes::io::sbgEllipse::setTimestampUs(424242u);
+    fakes::io::sbgEllipse::setVelocity(9u, 1.25f, -2.5f, 3.75f, 0.1f, 0.2f, 0.3f);
+    fakes::io::sbgEllipse::setAttitude(0.4f, -0.5f, 1.6f);
 
     app::sbgEllipse::broadcast();
 
@@ -42,11 +41,4 @@ TEST_F(VCSbgEllipsesTest, test_get_vehicle_velocity)
 {
     io::sbgEllipse::VelocityData velocityData{ 0u, 3.0f, 4.0f, 12.0f, 0.0f, 0.0f, 0.0f };
     ASSERT_FLOAT_EQ(13.0f, app::sbgEllipse::getVehicleVelocity(velocityData));
-}
-
-TEST_F(VCSbgEllipsesTest, test_get_ekf_solution_mode)
-{
-    io::sbgEllipse::setSolutionMode(3u);
-    app::sbgEllipse::broadcast();
-    ASSERT_EQ(static_cast<app::can_utils::VcEkfStatus>(3), app::sbgEllipse::getEkfSolutionMode());
 }

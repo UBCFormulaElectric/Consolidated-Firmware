@@ -1,30 +1,27 @@
 #include "vc_fakes.hpp"
 #include "app_canTx.hpp"
-#include "io_imus.hpp"
-#include "io_pumpControl.hpp"
-#include "io_sbgEllipse.hpp"
-#include "io_powerMonitoring.hpp"
+#include "io_pump.hpp"
 #include "io_shdnLoopNode.hpp"
 #include "io_efuse_TI_TPS25.hpp"
 #include "io_efuse_TI_TPS28.hpp"
 
-io::imu                  IMU1;
-io::imu                  IMU2;
-io::imu                  IMU3;
-const io::pump           rr_pump;
-const io::pump           rl_pump;
-const io::TI_TPS28_Efuse f_inv_efuse;
-const io::TI_TPS28_Efuse r_inv_efuse;
-const io::TI_TPS28_Efuse bms_efuse;
-const io::TI_TPS28_Efuse rsm_efuse;
+io::imu            IMU1;
+io::imu            IMU2;
+io::imu            IMU3;
+io::pump           rr_pump;
+io::pump           rl_pump;
+io::TI_TPS28_Efuse f_inv_efuse;
+io::TI_TPS28_Efuse r_inv_efuse;
+io::TI_TPS28_Efuse bms_efuse;
+io::TI_TPS28_Efuse rsm_efuse;
 // app::Timer         timer{};
 
-const io::TI_TPS28_Efuse dam_efuse;
-const io::TI_TPS28_Efuse front_efuse;
-const io::TI_TPS28_Efuse l_rad_fan_efuse;
-const io::TI_TPS28_Efuse r_rad_fan_efuse;
-const io::TI_TPS25_Efuse rl_pump_efuse;
-const io::TI_TPS25_Efuse rr_pump_efuse;
+io::TI_TPS28_Efuse dam_efuse;
+io::TI_TPS28_Efuse front_efuse;
+io::TI_TPS28_Efuse l_rad_fan_efuse;
+io::TI_TPS28_Efuse r_rad_fan_efuse;
+io::TI_TPS25_Efuse rl_pump_efuse;
+io::TI_TPS25_Efuse rr_pump_efuse;
 
 // Shutdown loop nodes
 const io::shdn::node tsms_node(false, app::can_tx::VC_TSMSOKStatus_set);
@@ -131,6 +128,53 @@ namespace io
 
     } // namespace powerMonitoring
 
+    namespace sbgEllipse
+    {
+        Attitude     attitude{ 0.0f, 0.0f, 0.0f };
+        VelocityData velocity{ 0u, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+        uint32_t     solution_mode  = 0;
+        uint32_t     timestamp_us   = 0;
+        uint8_t      overflow_count = 0;
+        uint32_t     com_status     = 0;
+        uint16_t     general_status = 0;
+
+        void setAttitude(float roll, float pitch, float yaw)
+        {
+            attitude = Attitude{ roll, pitch, yaw };
+        }
+        void setVelocity(
+            uint32_t status,
+            float    north,
+            float    east,
+            float    down,
+            float    north_std_dev,
+            float    east_std_dev,
+            float    down_std_dev)
+        {
+            velocity = VelocityData{ status, north, east, down, north_std_dev, east_std_dev, down_std_dev };
+        }
+        void setSolutionMode(uint32_t mode)
+        {
+            solution_mode = mode;
+        }
+        void setTimestampUs(uint32_t timestamp)
+        {
+            timestamp_us = timestamp;
+        }
+        void setOverflowCount(uint8_t overflow)
+        {
+            overflow_count = overflow;
+        }
+        void setComStatus(uint32_t status)
+        {
+            com_status = status;
+        }
+        void setGeneralStatus(uint16_t status)
+        {
+            general_status = status;
+        }
+    } // namespace sbgEllipse
+
 } // namespace io
 
 } // namespace fakes
@@ -161,7 +205,7 @@ namespace imus
     {
         brake_actuation_state = actuated;
     }
-} // namespace bspdWarning
+} // namespace imus
 
 namespace pumpController
 {
@@ -253,95 +297,97 @@ namespace powerMonitoring
     {
         return false;
     }
-    void set_reading_voltage(uint8_t channel, float voltage)
+    void set_reading_voltage(uint8_t ch, float voltage)
     {
-        voltages[channel] = voltage;
+        switch (ch)
+        {
+            case fakes::io::powerMonitoring::CH1:
+                fakes::io::powerMonitoring::voltage_ch1 = voltage;
+                break;
+            case fakes::io::powerMonitoring::CH2:
+                fakes::io::powerMonitoring::voltage_ch2 = voltage;
+                break;
+            case fakes::io::powerMonitoring::CH3:
+                fakes::io::powerMonitoring::voltage_ch3 = voltage;
+                break;
+            case fakes::io::powerMonitoring::CH4:
+                fakes::io::powerMonitoring::voltage_ch4 = voltage;
+                break;
+            default:
+                break;
+        }
     }
-    void set_reading_current(uint8_t channel, float current)
+    void set_reading_current(uint8_t ch, float current)
     {
-        currents[channel] = current;
+        switch (ch)
+        {
+            case fakes::io::powerMonitoring::CH1:
+                fakes::io::powerMonitoring::current_ch1 = current;
+                break;
+            case fakes::io::powerMonitoring::CH2:
+                fakes::io::powerMonitoring::current_ch2 = current;
+                break;
+            case fakes::io::powerMonitoring::CH3:
+                fakes::io::powerMonitoring::current_ch3 = current;
+                break;
+            case fakes::io::powerMonitoring::CH4:
+                fakes::io::powerMonitoring::current_ch4 = current;
+                break;
+            default:
+                break;
+        }
     }
-    void set_reading_power(uint8_t channel, float power)
+    void set_reading_power(uint8_t ch, float power)
     {
-        powers[channel] = power;
+        switch (ch)
+        {
+            case fakes::io::powerMonitoring::CH1:
+                fakes::io::powerMonitoring::power_ch1 = power;
+                break;
+            case fakes::io::powerMonitoring::CH2:
+                fakes::io::powerMonitoring::power_ch2 = power;
+                break;
+            case fakes::io::powerMonitoring::CH3:
+                fakes::io::powerMonitoring::power_ch3 = power;
+                break;
+            case fakes::io::powerMonitoring::CH4:
+                fakes::io::powerMonitoring::power_ch4 = power;
+                break;
+            default:
+                break;
+        }
     }
 } // namespace powerMonitoring
 
 namespace sbgEllipse
 {
-    namespace
+    io::sbgEllipse::Attitude getEkfEulerAngles()
     {
-        io::sbgEllipse::Attitude     attitude{ 0.0f, 0.0f, 0.0f };
-        io::sbgEllipse::VelocityData velocity{ 0u, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
-        uint32_t                     solution_mode  = 0;
-        uint32_t                     timestamp_us   = 0;
-        uint8_t                      overflow_count = 0;
-        uint32_t                     com_status     = 0;
-        uint16_t                     general_status = 0;
-    } // namespace
-
-    const io::sbgEllipse::Attitude getEkfEulerAngles()
-    {
-        return attitude;
+        return fakes::io::sbgEllipse::attitude;
     }
     uint32_t getEkfSolutionMode()
     {
-        return solution_mode;
+        return fakes::io::sbgEllipse::solution_mode;
     }
-    const io::sbgEllipse::VelocityData getEkfNavVelocityData()
+    io::sbgEllipse::VelocityData getEkfNavVelocityData()
     {
-        return velocity;
+        return fakes::io::sbgEllipse::velocity;
     }
     uint32_t getTimestampUs()
     {
-        return timestamp_us;
+        return fakes::io::sbgEllipse::timestamp_us;
     }
     uint8_t getOverflowCount()
     {
-        return overflow_count;
+        return fakes::io::sbgEllipse::overflow_count;
     }
     uint32_t getComStatus()
     {
-        return com_status;
+        return fakes::io::sbgEllipse::com_status;
     }
     uint16_t getGeneralStatus()
     {
-        return general_status;
-    }
-    void setAttitude(float roll, float pitch, float yaw)
-    {
-        attitude = io::sbgEllipse::Attitude{ roll, pitch, yaw };
-    }
-    void setVelocity(
-        uint32_t status,
-        float    north,
-        float    east,
-        float    down,
-        float    north_std_dev,
-        float    east_std_dev,
-        float    down_std_dev)
-    {
-        velocity = io::sbgEllipse::VelocityData{ status, north, east, down, north_std_dev, east_std_dev, down_std_dev };
-    }
-    void setSolutionMode(uint32_t mode)
-    {
-        solution_mode = mode;
-    }
-    void setTimestampUs(uint32_t timestamp)
-    {
-        timestamp_us = timestamp;
-    }
-    void setOverflowCount(uint8_t overflow)
-    {
-        overflow_count = overflow;
-    }
-    void setComStatus(uint32_t status)
-    {
-        com_status = status;
-    }
-    void setGeneralStatus(uint16_t status)
-    {
-        general_status = status;
+        return fakes::io::sbgEllipse::general_status;
     }
 } // namespace sbgEllipse
 

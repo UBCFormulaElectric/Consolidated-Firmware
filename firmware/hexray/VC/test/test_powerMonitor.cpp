@@ -12,18 +12,18 @@ class VCPowerMonitorTest : public VCBaseTest
 
 TEST_F(VCPowerMonitorTest, updating_test)
 {
-    io::powerMonitoring::set_reading_voltage(1, 5.0f);
-    io::powerMonitoring::set_reading_current(1, 2.0f);
-    io::powerMonitoring::set_reading_power(1, 10.0f);
-    io::powerMonitoring::set_reading_voltage(2, 6.0f);
-    io::powerMonitoring::set_reading_current(2, 3.0f);
-    io::powerMonitoring::set_reading_power(2, 18.0f);
-    io::powerMonitoring::set_reading_voltage(3, 7.0f);
-    io::powerMonitoring::set_reading_current(3, 4.0f);
-    io::powerMonitoring::set_reading_power(3, 28.0f);
-    io::powerMonitoring::set_reading_voltage(4, 8.0f);
-    io::powerMonitoring::set_reading_current(4, 5.0f);
-    io::powerMonitoring::set_reading_power(4, 40.0f);
+    fakes::io::powerMonitoring::set_reading_voltage(1, 5.0f);
+    fakes::io::powerMonitoring::set_reading_current(1, 2.0f);
+    fakes::io::powerMonitoring::set_reading_power(1, 10.0f);
+    fakes::io::powerMonitoring::set_reading_voltage(2, 6.0f);
+    fakes::io::powerMonitoring::set_reading_current(2, 3.0f);
+    fakes::io::powerMonitoring::set_reading_power(2, 18.0f);
+    fakes::io::powerMonitoring::set_reading_voltage(3, 7.0f);
+    fakes::io::powerMonitoring::set_reading_current(3, 4.0f);
+    fakes::io::powerMonitoring::set_reading_power(3, 28.0f);
+    fakes::io::powerMonitoring::set_reading_voltage(4, 8.0f);
+    fakes::io::powerMonitoring::set_reading_current(4, 5.0f);
+    fakes::io::powerMonitoring::set_reading_power(4, 40.0f);
 
     app::powerMonitoring::update();
 

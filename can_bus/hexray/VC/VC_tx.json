@@ -845,13 +845,13 @@
         }
     },
     "Bootup": {
-        "msg_id": 502,
+        "msg_id": 552,
         "cycle_time": null,
         "description": "Async bootup message!",
         "signals": {}
     },
     "PCM": {
-        "msg_id": 503,
+        "msg_id": 553,
         "cycle_time": 100,
         "signals": {
             "PcmRetryCount": {

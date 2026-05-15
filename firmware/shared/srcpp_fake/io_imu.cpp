@@ -7,7 +7,7 @@ void imu::reset_init()
 {
     initialized = false;
 }
-void Imu::imu_status_set(bool status)
+void imu::imu_status_set(bool status)
 {
     init_status = status ? std::expected<void, ErrorCode>{} : std::unexpected(ErrorCode::TIMEOUT);
 }
