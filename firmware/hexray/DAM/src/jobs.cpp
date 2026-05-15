@@ -19,6 +19,7 @@
 #include "io_logQueue.hpp"
 #include "io_time.hpp"
 #include "io_fileSystems.hpp"
+#include "hw_sds.hpp"
 
 #include "util_errorCodes.hpp"
 
@@ -48,6 +49,23 @@ void jobs_init()
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
     telem_tx_queue.init();
     log_queue.init();
+
+    app::can_tx::DAM_Heartbeat_set(true);
+}
+
+void jobs_initLogFs()
+{
+    LOG_INFO("sd present: %d", sd1.sdPresent());
+    LOG_INFO("hsd1 state: %lu", (unsigned long)HAL_SD_GetCardState(sd1.getHsd()));
+
+    if (const auto err = fs.init(); !err)
+    {
+        LOG_ERROR("Failed to init filesystem: %d", static_cast<int>(err.error()));
+    }
+    else
+    {
+        LOG_INFO("we init fine");
+    }
     if (const auto r = fs.open(LOG_PATH); r)
     {
         log_fd   = r.value();
@@ -57,8 +75,6 @@ void jobs_init()
     {
         LOG_ERROR("Failed to open %s: %d", LOG_PATH, static_cast<int>(r.error()));
     }
-
-    app::can_tx::DAM_Heartbeat_set(true);
 
     if (const auto err = app::bootcount::update(fs); !err)
     {
@@ -93,11 +109,11 @@ void jobs_run100Hz_tick()
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
 
-    io::can_tx::enqueue100HzMsgs();
+    // io::can_tx::enqueue100HzMsgs();
 }
 void jobs_run1kHz_tick()
 {
-    io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
+    // io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
 }
 void jobs_runLogging_tick()
 {
@@ -112,6 +128,10 @@ void jobs_runLogging_tick()
     if (const auto err = fs.write(log_fd, bytes, wire.size()); !err)
     {
         LOG_ERROR("Log write failed: %d", static_cast<int>(err.error()));
+    }
+    else
+    {
+        LOG_INFO("Logged message of %zu bytes", wire.size());
     }
 }
 

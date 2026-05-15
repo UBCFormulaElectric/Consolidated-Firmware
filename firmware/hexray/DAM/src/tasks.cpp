@@ -130,6 +130,7 @@ void tasks_run1kHz(void *arg)
 
 void tasks_runLogging(void *arg)
 {
+    jobs_initLogFs();
     forever
     {
         jobs_runLogging_tick();
@@ -250,7 +251,7 @@ void tasks_runCanRx(void *arg)
 static void DAM_StartAllTasks()
 {
     Task100Hz.start();
-    TaskCanTx.start();
+    // TaskCanTx.start();
     TaskCanRx.start();
     Task1kHz.start();
     Task1Hz.start();
@@ -268,7 +269,7 @@ void tasks_preInit()
 
 void tasks_init()
 {
-    // __HAL_DBGMCU_FREEZE_IWDG();
+    //__HAL_DBGMCU_FREEZE_IWDG();
     SEGGER_SYSVIEW_Conf();
     fdcan1.init();
     if (const ResetReason reason = hw::resetReason::get(); reason == RESET_REASON_WATCHDOG)
