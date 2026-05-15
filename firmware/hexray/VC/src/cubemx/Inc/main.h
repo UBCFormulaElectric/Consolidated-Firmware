@@ -54,6 +54,7 @@ extern "C"
     extern UART_HandleTypeDef  huart8;
     extern PCD_HandleTypeDef   hpcd_USB_OTG_HS;
     extern IWDG_HandleTypeDef  hiwdg1;
+    extern FMAC_HandleTypeDef  hfmac;
 
     /* USER CODE END EC */
 

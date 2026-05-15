@@ -19,9 +19,9 @@ class BMSBaseTest : public EcuTestBase
   protected:
     void board_setup() override
     {
-        fakes::faultLatch::resetFaultLatch(&io::faultLatch::bms_ok_latch);
-        fakes::faultLatch::resetFaultLatch(&io::faultLatch::imd_ok_latch);
-        fakes::faultLatch::resetFaultLatch(&io::faultLatch::bspd_ok_latch);
+        fakes::faultLatch::resetFaultLatch(&bms_ok_latch);
+        fakes::faultLatch::resetFaultLatch(&imd_ok_latch);
+        fakes::faultLatch::resetFaultLatch(&bspd_ok_latch);
         fakes::faultLatch::setCurrentStatus_resetCallCounts();
         fakes::charger::setConnectionStatus(ChargerConnectedType::CHARGER_DISCONNECTED);
 
