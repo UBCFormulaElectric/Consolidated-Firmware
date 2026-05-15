@@ -61,8 +61,8 @@ std::expected<void, ErrorCode> device::transmit(std::span<const uint8_t> tx) con
     {
         // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
         enableNss();
-        const std::expected<void, ErrorCode> st = hw::utils::convertHalStatus(HAL_SPI_Transmit(
-            &parent_bus.handle, const_cast<uint8_t *>(tx.data()), static_cast<uint16_t>(tx.size()), timeoutMs));
+        const std::expected<void, ErrorCode> st = utils::convertHalStatus(
+            HAL_SPI_Transmit(&parent_bus.handle, tx.data(), static_cast<uint16_t>(tx.size()), timeoutMs));
         disableNss();
         return st;
     }
@@ -78,8 +78,8 @@ std::expected<void, ErrorCode> device::transmit(std::span<const uint8_t> tx) con
 
     enableNss();
 
-    auto exit = hw::utils::convertHalStatus(
-        HAL_SPI_Transmit_IT(&parent_bus.handle, const_cast<uint8_t *>(tx.data()), static_cast<uint16_t>(tx.size())));
+    auto exit =
+        utils::convertHalStatus(HAL_SPI_Transmit_IT(&parent_bus.handle, tx.data(), static_cast<uint16_t>(tx.size())));
     if (not exit.has_value())
     {
         // Mark this transaction as no longer in progress.

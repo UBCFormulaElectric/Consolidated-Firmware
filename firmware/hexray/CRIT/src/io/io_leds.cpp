@@ -13,7 +13,7 @@ static uint8_t color_bits(const color c)
     return static_cast<uint8_t>(c) & 0b111;
 }
 
-static void clock_rck(void)
+static void clock_rck()
 {
     led_rck.writePin(true);
     led_rck.writePin(false);
@@ -37,17 +37,20 @@ std::expected<void, ErrorCode> update(const config &c)
     led_data[3] = static_cast<uint8_t>(dam_g << 7) | static_cast<uint8_t>(color_bits(c.vc) << 4) |
                   static_cast<uint8_t>(dam_r << 3) | color_bits(c.shdn);
 
-    auto exit = leds_device.transmit(led_data);
-    if (exit.has_value())
-    {
-        clock_rck();
-    }
-    return exit;
+    if (auto exit = leds_device.transmit(led_data); not exit)
+        return exit;
+    clock_rck();
+    return {};
 }
 
 std::expected<void, ErrorCode> setBrightness(const float brightness)
 {
-    RETURN_IF_ERR_SILENT(led_dimming.start());
+    static bool started = false;
+    if (not started)
+    {
+        RETURN_IF_ERR_SILENT(led_dimming.start());
+        started = true;
+    }
     RETURN_IF_ERR_SILENT(led_dimming.setDutyCycle(brightness));
     return {};
 }

@@ -12,7 +12,6 @@ static io::leds::color boolToColor(const bool condition)
 
 void init()
 {
-    // TODO move this to app_leds
     std::expected<void, ErrorCode> ec = io::leds::update(io::leds::config{
         io::leds::color::OFF,
         io::leds::color::OFF,
@@ -32,7 +31,7 @@ void init()
 
     LOG_IF_ERR(ec);
 
-    ec = io::leds::setBrightness(1.0);
+    ec = io::leds::setBrightness(0.01f);
 
     LOG_IF_ERR(ec);
 }

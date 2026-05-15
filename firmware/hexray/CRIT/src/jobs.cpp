@@ -12,10 +12,7 @@
 #include "io_canTx.hpp"
 #include "io_time.hpp"
 #include "io_canQueues.hpp"
-
-#ifdef TARGET_EMBEDDED
-#include "hw_pwmOutputs.hpp"
-#endif
+#include "io_leds.hpp"
 
 void jobs_init()
 {
@@ -24,8 +21,9 @@ void jobs_init()
     io::can_tx::init(
         [](const JsonCanMsg &tx_msg)
         {
-            const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
-            LOG_IF_ERR(can_tx_queue.push(msg));
+            UNUSED(tx_msg);
+            // const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
+            // LOG_IF_ERR(can_tx_queue.push(msg));
         });
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
 
@@ -33,10 +31,7 @@ void jobs_init()
     app::can_tx::CRIT_Clean_set(GIT_COMMIT_CLEAN);
     app::can_tx::CRIT_Heartbeat_set(true);
 
-#ifdef TARGET_EMBEDDED
-    LOG_IF_ERR(led_dimming.start());
-    LOG_IF_ERR(led_dimming.setDutyCycle(100));
-#endif
+    LOG_IF_ERR(io::leds::setBrightness(1.0f));
 
     app::screens::init();
     app::leds::init();
