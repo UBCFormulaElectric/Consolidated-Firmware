@@ -188,8 +188,12 @@ void tasks_preInit()
 
 void tasks_init()
 {
-    // __HAL_DBGMCU_FREEZE_IWDG();
     SEGGER_SYSVIEW_Conf();
+
+#ifndef WATCHDOG_DISABLED
+    __HAL_DBGMCU_FREEZE_IWDG();
+#endif
+
     fdcan1.init();
     if (const ResetReason reason = hw::resetReason::get(); reason == RESET_REASON_WATCHDOG)
     {

@@ -127,9 +127,7 @@ void tasks_run1kHz(void *arg)
         jobs_run1kHz_tick();
 
         watchdog1khz.checkIn();
-#ifndef WATCHDOG_DISABLED
         monitor.checkForTimeouts();
-#endif
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -181,8 +179,12 @@ void tasks_preInit()
 
 [[noreturn]] void tasks_init()
 {
-    // __HAL_DBGMCU_FREEZE_IWDG();
     SEGGER_SYSVIEW_Conf();
+
+#ifndef WATCHDOG_DISABLED
+    __HAL_DBGMCU_FREEZE_IWDG();
+#endif
+
     hw::can::fdcan1.init();
     adcChipsInit();
 

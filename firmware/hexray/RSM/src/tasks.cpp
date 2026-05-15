@@ -92,10 +92,10 @@ void tasks_run1kHz(void *arg)
     forever
     {
         jobs_run1kHz_tick();
+
         watchdog1khz.checkIn();
-#ifndef WATCHDOG_DISABLED
         monitor.checkForTimeouts();
-#endif
+
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "util_utils.hpp"
 // This is a "hack" taken from the ST forum to do the following:
 //
 // - Replace "Error_Handler(void)" with "Error_Handler(void)" (no effect)

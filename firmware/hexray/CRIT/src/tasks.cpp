@@ -127,9 +127,7 @@ void tasks_run1kHz(void *arg)
         jobs_run1kHz_tick();
 
         watchdog1khz.checkIn();
-#ifndef WATCHDOG_DISABLED
-        monitor1khz.checkForTimeouts();
-#endif
+        monitor.checkForTimeouts();
 
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
@@ -189,7 +187,7 @@ void tasks_init()
 {
     SEGGER_SYSVIEW_Conf();
 
-#ifdef WATCHDOG_DISABLED
+#ifndef WATCHDOG_DISABLED
     __HAL_DBGMCU_FREEZE_IWDG();
 #endif
 
