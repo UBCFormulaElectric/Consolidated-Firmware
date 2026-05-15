@@ -29,6 +29,7 @@
  *         IWDG has a frequency of 5Hz, or a period of 200ms.
  */
 #include "io_log.hpp"
+#include "hw_error.hpp"
 
 #include <cassert>
 #include <cmsis_os.h>
@@ -94,7 +95,7 @@ template <size_t WATCHDOG_INSTANCES> class monitor
             }
         }
         LOG_ERROR("Failed to register watchdog instance. Maximum number of watchdog instances reached.");
-        assert(false);
+        Error_Handler();
     }
 
     /**
