@@ -68,7 +68,7 @@ void tasks_run1Hz(void *arg)
     constexpr uint32_t      period_ms                = 1000U;
     constexpr uint32_t      watchdog_grace_period_ms = 50U;
     hw::watchdog::instance &watchdog1hz              = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
-    uint32_t               start_ticks              = osKernelGetTickCount();
+    uint32_t                start_ticks              = osKernelGetTickCount();
 
     forever
     {
@@ -86,7 +86,7 @@ void tasks_run100Hz(void *arg)
     constexpr uint32_t      period_ms                = 10U;
     constexpr uint32_t      watchdog_grace_period_ms = 2U;
     hw::watchdog::instance &watchdog100hz            = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
-    uint32_t               start_ticks              = osKernelGetTickCount();
+    uint32_t                start_ticks              = osKernelGetTickCount();
 
     forever
     {
