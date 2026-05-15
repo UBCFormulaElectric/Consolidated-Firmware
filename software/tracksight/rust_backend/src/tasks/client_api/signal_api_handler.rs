@@ -1,6 +1,7 @@
 use std::{collections::HashMap, mem, time::{Duration, SystemTime}};
 
 use axum::{Json, Router, extract::{Path, Query, State}, http::StatusCode, response::IntoResponse, routing::get};
+use chrono::{DateTime, FixedOffset};
 use influxdb2::FromDataPoint;
 use jsoncan_rust::can_database::CanMessage;
 use serde::{Deserialize, Serialize};
@@ -129,7 +130,7 @@ async fn metadata(Query(SignalNameParam { mut name } ): Query<SignalNameParam>, 
 
     let mut date_query = format!(r#"
     from(bucket: "{}")
-    |> range(start: {start_utc}, stop: {end_utc})
+    |> range(start: time(v: "{start_utc}"), stop: time(v: "{end_utc}"))
     |> aggregateWindow(every: {res}, fn: mean, createEmpty: false)
     |> filter(fn: (r) => r["_measurement"] == "{}")
     |> filter(fn: (r) => r["source"] == "radio")
@@ -224,23 +225,33 @@ async fn signal_csv() -> impl IntoResponse {
 
 #[derive(Debug, FromDataPoint, Default)]
 struct SessionStarts {
-    pub value: String,
+    pub time: DateTime<FixedOffset>,
 }
 
 /**
- * Returns list of paired times as `YYYY-MM-DDTHH:mm:ssZ` based on when car turns on
+ * Returns list of paired times as milliseconds since UNIX time based on when car turns on
+ * Takes start and end time of search range as RFC3339 format
  * Currently implemented as simple two pair of times between car on signal
  */
-async fn signal_sessions(State(state): State<AppState>) -> impl IntoResponse {
-
+async fn signal_sessions(
+    Path((start, end)): Path<(String, String)>,
+    State(state): State<AppState>
+) -> impl IntoResponse {
+    let (start_utc, end_utc) = 
+        if let (Some(s), Some(e)) = 
+        (rfc3339_to_utc_str(&start), rfc3339_to_utc_str(&end)) {
+            (s, e)
+        } else {
+            return (StatusCode::BAD_REQUEST, "Bad date format, should be RFC3339 format".to_string());
+        };
     // TODO get start on signal name
+    todo!("waiting for DAM signal name");
     let car_on_query = format!(r#"
         from(bucket: "{}")
+        |> range(start: time(v: "{start_utc}"), stop: time(v: "{end_utc}"))
         |> filter(fn: (r) => r["_measurement"] == "{}")
-        |> filter(fn: (r) => r["signal_name"] == "CAR_ON_TODO")
-        |> keep(columns: ["_time"])
+        |> filter(fn: (r) => r["signal_name"] == "TO BE FILLED IN")
         |> sort(columns: ["_time"])
-        |> map(fn: (r) => ({{r with _value: string(v: r._time)}}))
         "#, &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement);
 
     let req: Result<Vec<_>, influxdb2::RequestError> = select! {
@@ -254,9 +265,14 @@ async fn signal_sessions(State(state): State<AppState>) -> impl IntoResponse {
 
     let time_bigram: Vec<(String, String)> = match req {
         Ok(starts) => starts.windows(2)
-            .map(|w| (w[0].value.clone(), w[1].value.clone()))
+            .map(|w| 
+                (
+                    w[0].time.to_rfc3339_opts(chrono::SecondsFormat::Millis, true), 
+                    w[1].time.to_rfc3339_opts(chrono::SecondsFormat::Millis, true)
+                )
+            )
             .collect(),
-        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, "Error occurred while fetching session starts".to_string()),
+        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Error occurred while fetching session starts: {}", e)),
     };
 
     return (StatusCode::OK, serde_json::to_string(&time_bigram).unwrap());
@@ -269,5 +285,5 @@ pub fn get_signal_router() -> Router<AppState> {
         .route("/signal/{start}/{end}/{res}", get(signal_time_range))
         .route("/signal/csv", get(signal_csv))
         .route("/signal/tiles/{signal}/{start}/{end}", get(signal_tiles))
-        .route("/signal/sessions", get(signal_sessions));
+        .route("/signal/sessions/{start}/{end}", get(signal_sessions));
 }

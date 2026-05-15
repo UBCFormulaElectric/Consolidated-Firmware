@@ -58,7 +58,7 @@ fn load_env_file() -> Config {
 
     let car_name: String = get_var::<String>("CAR_NAME").unwrap();
 
-    let influxdb_measurement: String = format!("{car_name}_radio");
+    let influxdb_measurement: String = format!("{car_name}_live");
 
     // i love hardcoding
     let jsoncan_config_path: String = if docker {
