@@ -6,7 +6,7 @@
 use std::{pin::Pin, sync::Arc, time::{Duration, SystemTime, UNIX_EPOCH}};
 
 use axum::http::StatusCode;
-use chrono::{DateTime, FixedOffset, Utc};
+use chrono::{DateTime, FixedOffset, TimeDelta, Utc};
 use futures::future::{ready, try_join_all};
 use influxdb2::{FromDataPoint, RequestError, models::Query};
 use moka::future::Cache;
@@ -84,17 +84,17 @@ pub struct SignalTilePoint {
  */
 const RESOLUTIONS_MS: [u64; 8] = [10, 100, 500, 1000, 10000, 60000, 600000, 3600000];
 fn round_resolution_ms(res_ms: f64) -> u64 {
-    if res_ms < RESOLUTIONS_MS[0] as f64 {
-        return RESOLUTIONS_MS[0];
-    }
-
-    for i in 1..RESOLUTIONS_MS.len() {
+    for i in 0..RESOLUTIONS_MS.len() {
         if res_ms < RESOLUTIONS_MS[i] as f64 {
-            return RESOLUTIONS_MS[i-1];
+            return RESOLUTIONS_MS[i];
         }
     }
 
     return RESOLUTIONS_MS[RESOLUTIONS_MS.len() - 1];
+}
+
+fn get_resolution_ms(window: TimeDelta) -> u64 {
+    return round_resolution_ms(window.as_seconds_f64() * 1000.0 / (WINDOW_SIZE as f64));
 }
 
 /**
@@ -109,7 +109,7 @@ pub async fn get_signals(
     end: DateTime<Utc>
 ) -> Result<Vec<SignalRow>, (StatusCode, String)> {
     // resolution in seconds
-    let resolution_ms = round_resolution_ms((end - start).as_seconds_f64() * 1000.0 / (WINDOW_SIZE as f64));
+    let resolution_ms = get_resolution_ms(end - start);
     let tile_duration_ms = TILE_SIZE * resolution_ms;
     
     // get tiles
