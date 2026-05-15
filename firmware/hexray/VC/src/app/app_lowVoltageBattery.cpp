@@ -17,11 +17,19 @@ constexpr float CHARGE_STOP_V  = 16.0f;
 BalancingState balance_state = BalancingState::DISABLED;
 BalancingPhase balance_phase = BalancingPhase::ODD;
 ChargeState charge_state = ChargeState::STOPPED;
+uint16_t active_balance_mask = 0x0000;
 
 app::Timer settle_timer(SETTLE_TIME_MS);
 app::Timer balance_timer(BALANCE_TIME_MS);
 
 constexpr uint8_t NUM_CELLS = 4;
+
+constexpr std::array<CellBalance_BitMask, NUM_CELLS> CELL_BALANCE_MAP = {{
+    CellBalance_BitMask::CELL1,
+    CellBalance_BitMask::CELL2,
+    CellBalance_BitMask::CELL3,
+    CellBalance_BitMask::CELL4
+}};
 
 /**
  * @brief Determines the minimum cell amount from the 4 cells 
@@ -32,10 +40,10 @@ MinCell get_min(const std::array<std::expected<float, ErrorCode>, NUM_CELLS> &vo
 {
     MinCell min = { 0, std::numeric_limits<float>::max() };
 
-    for (uint8_t i = 0; i < NUM_CELLS; i++)
+    for (int i = 0; i < NUM_CELLS; i++)
     {
         if (voltages[i] && voltages[i].value() < min.value)
-            min = { i, voltages[i].value() };
+            min = { (uint8_t) (i + 1), voltages[i].value() };
     }
     return min;
 }
@@ -43,10 +51,10 @@ MaxCell get_max(const std::array<std::expected<float, ErrorCode>, NUM_CELLS> &vo
 {
     MaxCell max = { 0, 0.0f };
 
-    for (uint8_t i = 0; i < NUM_CELLS; i++)
+    for (int i = 0; i < NUM_CELLS; i++)
     {
         if (voltages[i] && voltages[i].value() > max.value)
-            max = { i, voltages[i].value() };
+            max = { (uint8_t) (i + 1), voltages[i].value() };
     }
 
     return max;
@@ -57,12 +65,13 @@ MaxCell get_max(const std::array<std::expected<float, ErrorCode>, NUM_CELLS> &vo
  * @param voltages, min_cell, phase
  * @return uint16_t: the bit mask
  */
-CellBalance_BitMask get_balance_mask(
+uint16_t get_balance_mask(
     const std::array<std::expected<float, ErrorCode>, NUM_CELLS> &voltages,
     const MinCell &min_cell,
     BalancingPhase phase)
 {
     uint16_t mask = 0x0000;
+
     for (uint8_t i = 0; i < NUM_CELLS; i++)
     {
         const bool is_odd = (i % 2 == 0);
@@ -70,13 +79,14 @@ CellBalance_BitMask get_balance_mask(
         if (phase == BalancingPhase::EVEN &&  is_odd) continue;
 
         if (!voltages[i]) continue;
-        if (i == min_cell.index) continue;
+        if ((i + 1) == min_cell.index) continue;
         if (voltages[i].value() <= VUV) continue;
         if (voltages[i].value() - min_cell.value < DISCHARGE_THRESHOLD_V) continue;
 
-        mask |= (uint16_t)(1u << i);
+        mask |= static_cast<uint16_t>(CELL_BALANCE_MAP[i]);
     }
-    return (CellBalance_BitMask)mask;
+
+    return mask;
 }
 
 /**
@@ -106,7 +116,7 @@ bool should_charge(float pack_voltage)
     return charge_state == ChargeState::CHARGING;
 }
 
-std::expected<void, ErrorCode> balancing_tick(
+[[maybe_unused]] std::expected<void, ErrorCode> balancing_tick(
     const std::array<std::expected<float, ErrorCode>, NUM_CELLS> &voltages,
     const MinCell &min_cell)
 {
@@ -122,10 +132,12 @@ std::expected<void, ErrorCode> balancing_tick(
         {
             if (settle_timer.updateAndGetState() == app::Timer::TimerState::EXPIRED)
             {
-                const CellBalance_BitMask mask = get_balance_mask(voltages, min_cell, balance_phase);
+                const uint16_t mask = get_balance_mask(voltages, min_cell, balance_phase);
                 balance_phase = (balance_phase == BalancingPhase::ODD)
                                     ? BalancingPhase::EVEN : BalancingPhase::ODD;
-                RETURN_IF_ERR(io::batteryMonitoring::send_balancing_subcommand(mask));
+                RETURN_IF_ERR(io::batteryMonitoring::send_balancing_subcommand(
+                    static_cast<CellBalance_BitMask>(mask)));
+                active_balance_mask = mask;
                 LOG_INFO("Balancing");
                 balance_timer.restart();
                 balance_state = BalancingState::BALANCE;
@@ -138,6 +150,7 @@ std::expected<void, ErrorCode> balancing_tick(
             if (balance_timer.updateAndGetState() == app::Timer::TimerState::EXPIRED)
             {
                 LOG_IF_ERR(io::batteryMonitoring::stop_balancing_subcommand());
+                active_balance_mask = 0x0000;
                 settle_timer.restart();
                 balance_state = BalancingState::SETTLE;
                 LOG_INFO("Settling");
@@ -187,8 +200,9 @@ std::expected<void, ErrorCode> update()
     const MinCell min_cell = get_min(cell_voltages);
     const MaxCell max_cell = get_max(cell_voltages);
     const float imbalance_magnitude = max_cell.value - min_cell.value;
-    const auto mask = get_balance_mask(cell_voltages, min_cell, balance_phase);
-    balancing_tick(cell_voltages, min_cell);
+    // balancing_tick(cell_voltages, min_cell);
+    auto gang = io::batteryMonitoring::send_balancing_subcommand(CellBalance_BitMask::CELL1);
+    auto mask = io::batteryMonitoring::read_balancing_subcommand();
 
     // 4. Charging 
     if (pack_voltage)
@@ -214,7 +228,7 @@ std::expected<void, ErrorCode> update()
     app::can_tx::VC_BalancingState_set(static_cast<uint8_t>(balance_state));
     app::can_tx::VC_ImbalanceMagnitude_set(imbalance_magnitude);
     app::can_tx::VC_BalancingLeader_set(min_cell.index); 
-    app::can_tx::VC_BalancingCell_set(static_cast<uint16_t>(mask));
+    app::can_tx::VC_BalancingCell_set(static_cast<uint8_t>(active_balance_mask));
 
     return {};
 }

@@ -296,6 +296,27 @@ std::expected<void, ErrorCode> send_balancing_subcommand(CellBalance_BitMask cel
     return {};
 }
 
+std::expected<uint16_t, ErrorCode> read_balancing_subcommand()
+{
+    std::array<uint8_t, 2> buf = {{0, 0}};
+    const auto err = read_subcommand(CB_ACTIVE_CELLS, buf);
+    if (!err) return std::unexpected(err.error());
+
+    const uint16_t mask = static_cast<uint16_t>(static_cast<uint16_t>(buf[0]) | (static_cast<uint16_t>(buf[1]) << 8));
+
+    return mask;
+}
+
+std::expected<void, ErrorCode> send_random(uint16_t threshold_mV)
+{
+    std::array<uint8_t, 2> payload = {{
+        static_cast<uint8_t>(threshold_mV & 0xFF),
+        static_cast<uint8_t>((threshold_mV >> 8) & 0xFF)
+    }};
+
+    RETURN_IF_ERR(write_subcommand(0x0084, payload));
+    return {};
+}
 std::expected<void, ErrorCode> stop_balancing_subcommand()
 {
     std::array<uint8_t, 2> cell_to_balance= {{0x00, 0x00}};
@@ -472,7 +493,7 @@ std::expected<void, ErrorCode> init()
     RETURN_IF_ERR(write_subcommand(VCELL_MODE, vcell_mode));
 
     // Balancing
-    RETURN_IF_ERR(balancing_init());
+    // RETURN_IF_ERR(balancing_init());
 
     // Add one that edits the security registers (OTP SHIT)
 

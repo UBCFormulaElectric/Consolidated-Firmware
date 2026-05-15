@@ -25,10 +25,10 @@ enum SystemReading : uint8_t
 
 enum class CellBalance_BitMask : uint16_t
 {
-    CELL1 = 0x0001,
-    CELL2 = 0x0002,
-    CELL3 = 0x0004,
-    CELL4 = 0x0005
+    CELL1 = 0x0001, //0001
+    CELL2 = 0x0002, //0010
+    CELL3 = 0x0008, //1000
+    CELL4 = 0x0010, //00010000
 };
 
 struct ProtectionStatus
@@ -96,6 +96,7 @@ inline constexpr uint16_t CELL_BALANCE_STOP_V    = 0x9342;
 inline constexpr uint16_t CB_ACTIVE_CELLS = 0x0083;
 inline constexpr uint16_t CBSTATUS1       = 0x0085;
 inline constexpr uint16_t CBSTATUS2       = 0x0086;
+inline constexpr uint16_t CB_SET_LVL      = 0x0084;
 
 //Protections
 inline constexpr uint16_t REG_PROTECTIONS_A = 0x9261;
