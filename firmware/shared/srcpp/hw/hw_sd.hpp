@@ -140,6 +140,6 @@ class SdCard
  * @param   hsd  the SD handle
  * @return  the SdCard instance as a reference
  */
-const SdCard &getSdFromHandle(SD_HandleTypeDef *hsd);
+const SdCard &getSdFromHandle(const SD_HandleTypeDef *hsd);
 
 } // namespace hw

@@ -70,13 +70,13 @@ void tasks_run1Hz(void *arg)
 }
 void tasks_run100Hz(void *arg)
 {
-    const auto                                 start = io::time::getCurrentMs();
-    std::array<uint8_t, HW_DEVICE_SECTOR_SIZE> buffer{};
+    const auto                                              start = io::time::getCurrentMs();
+    static std::array<uint8_t, HW_DEVICE_SECTOR_SIZE * 100> buffer{};
     buffer.fill(0xFF);
     for (size_t i = 0; i < 100; ++i)
     {
         LOG_INFO("writing %d", i);
-        const auto out = sd1.write(buffer, i * HW_DEVICE_SECTOR_SIZE);
+        const auto out = sd1.write(buffer, 100 * i * HW_DEVICE_SECTOR_SIZE);
         LOG_IF_ERR(out);
     }
     const auto end = io::time::getCurrentMs();
