@@ -147,11 +147,14 @@ void jobs_run100Hz_tick()
     app::can_tx::BMS_BSPDAccelBrakeOk_set(io::bspdtest::isAccelBrakeOk());
 
     const bool ir_negative_opened_debounced = app::irs::negativeOpenedDebounced();
-    if (ir_negative_opened_debounced)
+    app::can_rx::Debug_StartCharging_update(true);
+    // if (ir_negative_opened_debounced)
+    if (false)
     {
         app::StateMachine::set_next_state(&app::states::init_state);
     }
-    if (app::can_alerts::AnyBoardHasFault())
+    // if (app::can_alerts::AnyBoardHasFault())
+    if (false)
     {
         app::StateMachine::set_next_state(&app::states::fault_state);
     }

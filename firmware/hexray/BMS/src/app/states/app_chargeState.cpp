@@ -26,8 +26,9 @@ constexpr float MAX_DC_CURRENT = 12.0f; // A – 1C standard limit of DC input c
 // TODO: Double-check these constants, refer to FIRM-175 I think the receptacle is 208V and max amperage is 20A
 constexpr float VAC_MIN = 208.0f; // V – lower end of typical North American grid
 constexpr float VAC_MAX = 240.0f; // V – upper end of typical North American grid
-constexpr float CAC_MAX = 20.0f;  // A – max current available off of the ac breaker at competition. 
-constexpr float CIRC_EFF = 0.8f;   // 80% - estimated efficiency of the entire charging circuit (charger + wiring losses etc)
+constexpr float CAC_MAX = 20.0f;  // A – max current available off of the ac breaker at competition.
+constexpr float CIRC_EFF =
+    0.8f; // 80% - estimated efficiency of the entire charging circuit (charger + wiring losses etc)
 
 constexpr uint32_t ELCON_ERR_DEBOUNCE_MS = 3000U; // 3 seconds
 } // namespace
@@ -116,15 +117,18 @@ namespace chargeState
     // // Compute conservative DC current range from AC limits (kept commented until wiring ready)
     static DCRange_t calc_dc_current_range(float iac_max)
     {
-        DCRange_t range{};
+        DCRange_t   range{};
         const float pin_min  = VAC_MIN * iac_max;
         const float pin_max  = VAC_MAX * iac_max;
         const float pout_min = pin_min * CHARGER_EFFICIENCY;
         const float pout_max = pin_max * CHARGER_EFFICIENCY;
-        range.idc_min        = pout_min / PACK_VOLTAGE_DC;
-        range.idc_max        = pout_max / PACK_VOLTAGE_DC;
-        if (range.idc_min > MAX_DC_CURRENT) range.idc_min = MAX_DC_CURRENT;
-        if (range.idc_max > MAX_DC_CURRENT) range.idc_max = MAX_DC_CURRENT;
+        // TODO: Why are we assuming we are always at peak voltage? Change
+        range.idc_min = pout_min / PACK_VOLTAGE_DC;
+        range.idc_max = pout_max / PACK_VOLTAGE_DC;
+        if (range.idc_min > MAX_DC_CURRENT)
+            range.idc_min = MAX_DC_CURRENT;
+        if (range.idc_max > MAX_DC_CURRENT)
+            range.idc_max = MAX_DC_CURRENT;
         return range;
     }
 
@@ -149,10 +153,9 @@ namespace chargeState
         // TODO: Fix charger connection status reading
         const ChargerConnectedType charger_connection_status = io::charger::getConnectionStatus();
         const bool extShutdown = (io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
-        const bool chargerConn = (
-            charger_connection_status == ChargerConnectedType::CHARGER_CONNECTED_EVSE || 
-            charger_connection_status == ChargerConnectedType::CHARGER_CONNECTED_WALL
-        );
+        const bool chargerConn =
+            (charger_connection_status == ChargerConnectedType::CHARGER_CONNECTED_EVSE ||
+             charger_connection_status == ChargerConnectedType::CHARGER_CONNECTED_WALL);
 
         const bool userEnable = app::can_rx::Debug_StartCharging_get();
 
@@ -163,7 +166,8 @@ namespace chargeState
 
         const bool fault_latched = (elcon_err_debounce.runIfCondition(fault) == app::Timer::TimerState::EXPIRED);
 
-        if (fault_latched || !userEnable)
+        // if (fault_latched || !userEnable)
+        if (false)
         {
             app::can_tx::BMS_ChargingFaulted_set(fault);
             app::StateMachine::set_next_state(&init_state);
@@ -174,22 +178,29 @@ namespace chargeState
         DCRange_t idc_range;
         if (charger_connection_status == ChargerConnectedType::CHARGER_CONNECTED_EVSE)
         {
-            const float evse_iac = app::charger::getAvailableCurrent();
-            const float clamped_evse_iac = (evse_iac > CAC_MAX * CIRC_EFF) ? CAC_MAX * CIRC_EFF : evse_iac; 
-            idc_range            = calc_dc_current_range(clamped_evse_iac);
+            const float evse_iac         = app::charger::getAvailableCurrent();
+            const float clamped_evse_iac = (evse_iac > CAC_MAX * CIRC_EFF) ? CAC_MAX * CIRC_EFF : evse_iac;
+            idc_range                    = calc_dc_current_range(clamped_evse_iac);
         }
         else // wall charger is connected
         {
-            const float wall_iac = CAC_MAX * CIRC_EFF; // assume max current available from wall charger, adjusted for circuit efficiency
-            idc_range            = calc_dc_current_range(wall_iac);
+            const float wall_iac =
+                CAC_MAX * CIRC_EFF; // assume max current available from wall charger, adjusted for circuit efficiency
+            idc_range = calc_dc_current_range(wall_iac);
         }
 
         // For now, command nominal pack voltage and a debug-selected current
+        // const ElconTx tx{
+        //     .maxVoltage_V = PACK_VOLTAGE_DC, // cap voltage of pack
+        //     // .maxCurrent_A = idc_range.idc_min,                 // conservative min DC current (when enabled)
+        //     .maxCurrent_A = app::can_rx::Debug_ChargingCurrent_get(), // debug-controlled current
+        //     .stopCharging = !userEnable,
+        // };
         const ElconTx tx{
-            .maxVoltage_V = PACK_VOLTAGE_DC, // cap voltage of pack
+            .maxVoltage_V = 0.0f, // cap voltage of pack
             // .maxCurrent_A = idc_range.idc_min,                 // conservative min DC current (when enabled)
-            .maxCurrent_A = app::can_rx::Debug_ChargingCurrent_get(), // debug-controlled current
-            .stopCharging = !userEnable,
+            .maxCurrent_A = 0.0f, // debug-controlled current
+            .stopCharging = true,
         };
         buildTxFrame(tx);
 
@@ -229,4 +240,4 @@ const ::app::State charge_state = {
     .run_on_exit       = chargeState::runOnExit,
 };
 
-}
+} // namespace app::states
