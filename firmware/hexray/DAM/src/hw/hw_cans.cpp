@@ -7,7 +7,6 @@
 #include "io_bootHandler.hpp"
 #include "bootloader_DAM.hpp"
 #include "io_canQueues.hpp"
-#endif
 
 namespace
 {
@@ -37,6 +36,7 @@ namespace
     return 0;
 }
 } // namespace
+#endif
 
 constexpr hw::fdcan fdcan1(
     hfdcan1,

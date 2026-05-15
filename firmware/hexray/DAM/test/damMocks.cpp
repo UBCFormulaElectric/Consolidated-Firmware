@@ -103,6 +103,40 @@ std::expected<void, io::FileSystem::FileSystemError>
     file.flush();
     return {};
 }
+std::expected<void, io::FileSystem::FileSystemError>
+    io::FileSystem::write(uint32_t fd, std::span<uint8_t> buf, std::size_t size)
+{
+    const auto it = std::ranges::find_if(files, [fd](const auto &pair) { return pair.first == fd; });
+    if (it == files.end())
+    {
+        return std::unexpected(FileSystemError::NOT_FOUND);
+    }
+    auto &file = it->second;
+    if (!file.is_open())
+    {
+        return std::unexpected(FileSystemError::ERROR);
+    }
+    const auto n = std::min(size, buf.size());
+    file.write(reinterpret_cast<const char *>(buf.data()), static_cast<std::streamsize>(n));
+    return {};
+}
+
+std::expected<void, io::FileSystem::FileSystemError> io::FileSystem::sync(uint32_t fd)
+{
+    const auto it = std::ranges::find_if(files, [fd](const auto &pair) { return pair.first == fd; });
+    if (it == files.end())
+    {
+        return std::unexpected(FileSystemError::NOT_FOUND);
+    }
+    auto &file = it->second;
+    if (!file.is_open())
+    {
+        return std::unexpected(FileSystemError::ERROR);
+    }
+    file.flush();
+    return {};
+}
+
 bool io::ntpButton::isPressed()
 {
     return false;
