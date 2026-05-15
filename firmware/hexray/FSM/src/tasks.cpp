@@ -76,7 +76,7 @@ void tasks_run1Hz(void *arg)
 {
     constexpr uint32_t             period_ms                = 1000U;
     constexpr uint32_t             watchdog_grace_period_ms = 50U;
-    hw::watchdog::WatchdogInstance watchdog1hz{ period_ms + watchdog_grace_period_ms };
+    hw::watchdog::instance watchdog1hz{ period_ms + watchdog_grace_period_ms };
     hw::watchdog::monitor          monitor1hz{ &watchdog1hz, hiwdg, HAL_IWDG_Refresh };
     monitor1hz.registerWatchdogInstance();
 
@@ -97,7 +97,7 @@ void tasks_run100Hz(void *arg)
 {
     constexpr uint32_t             period_ms                = 10U;
     constexpr uint32_t             watchdog_grace_period_ms = 2U;
-    hw::watchdog::WatchdogInstance watchdog100hz{ period_ms + watchdog_grace_period_ms };
+    hw::watchdog::instance watchdog100hz{ period_ms + watchdog_grace_period_ms };
     hw::watchdog::monitor          monitor100hz{ &watchdog100hz, hiwdg, HAL_IWDG_Refresh };
     monitor100hz.registerWatchdogInstance();
 
@@ -117,7 +117,7 @@ void tasks_run1kHz(void *arg)
 {
     constexpr uint32_t             period_ms                = 1U;
     constexpr uint32_t             watchdog_grace_period_ms = 1U;
-    hw::watchdog::WatchdogInstance watchdog1khz{ period_ms + watchdog_grace_period_ms };
+    hw::watchdog::instance watchdog1khz{ period_ms + watchdog_grace_period_ms };
     hw::watchdog::monitor          monitor1khz{ &watchdog1khz, hiwdg, HAL_IWDG_Refresh };
     monitor1khz.registerWatchdogInstance();
 
