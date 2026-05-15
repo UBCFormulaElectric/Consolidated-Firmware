@@ -65,12 +65,13 @@ void jobs_runTelem_tick()
     }
 
     const auto &msg = result.value();
-    const auto  tx_result =
-        io::telemUart::transmit(std::span<const uint8_t>{ reinterpret_cast<const uint8_t *>(&msg), msg.wireSize() });
-    if (not tx_result)
-    {
-        LOG_ERROR("Failed to transmit telem message: %d", static_cast<int>(tx_result.error()));
-    }
+    // TODO refactor so that it does not have an io dependency here (because I don't think you want to write mocks for
+    // this) const auto  tx_result =
+    //     io::telemUart::transmit(std::span<const uint8_t>{ reinterpret_cast<const uint8_t *>(&msg), msg.wireSize() });
+    // if (not tx_result)
+    // {
+    //     LOG_ERROR("Failed to transmit telem message: %d", static_cast<int>(tx_result.error()));
+    // }
 }
 
 void jobs_runTelemRx()
