@@ -42,10 +42,10 @@ static hw::rtos::StaticTask TaskCanRx(osPriorityLow, "TaskCanRx", tasks_runCanRx
 
 void tasks_run1Hz(void *arg)
 {
-    constexpr uint32_t             period_ms                = 1000U;
-    constexpr uint32_t             watchdog_grace_period_ms = 50U;
+    constexpr uint32_t     period_ms                = 1000U;
+    constexpr uint32_t     watchdog_grace_period_ms = 50U;
     hw::watchdog::instance watchdog1hz{ period_ms + watchdog_grace_period_ms };
-    hw::watchdog::monitor          monitor1hz{ &watchdog1hz, hiwdg, HAL_IWDG_Refresh };
+    hw::watchdog::monitor  monitor1hz{ &watchdog1hz, hiwdg, HAL_IWDG_Refresh };
     monitor1hz.registerWatchdogInstance();
 
     uint32_t start_ticks = osKernelGetTickCount();
@@ -62,10 +62,10 @@ void tasks_run1Hz(void *arg)
 }
 void tasks_run100Hz(void *arg)
 {
-    constexpr uint32_t             period_ms                = 10U;
-    constexpr uint32_t             watchdog_grace_period_ms = 2U;
+    constexpr uint32_t     period_ms                = 10U;
+    constexpr uint32_t     watchdog_grace_period_ms = 2U;
     hw::watchdog::instance watchdog100hz{ period_ms + watchdog_grace_period_ms };
-    hw::watchdog::monitor          monitor100hz{ &watchdog100hz, hiwdg, HAL_IWDG_Refresh };
+    hw::watchdog::monitor  monitor100hz{ &watchdog100hz, hiwdg, HAL_IWDG_Refresh };
     monitor100hz.registerWatchdogInstance();
 
     uint32_t start_ticks = osKernelGetTickCount();
@@ -82,10 +82,10 @@ void tasks_run100Hz(void *arg)
 }
 void tasks_run1kHz(void *arg)
 {
-    constexpr uint32_t             period_ms                = 1U;
-    constexpr uint32_t             watchdog_grace_period_ms = 1U;
+    constexpr uint32_t     period_ms                = 1U;
+    constexpr uint32_t     watchdog_grace_period_ms = 1U;
     hw::watchdog::instance watchdog1khz{ period_ms + watchdog_grace_period_ms };
-    hw::watchdog::monitor          monitor1khz{ &watchdog1khz, hiwdg, HAL_IWDG_Refresh };
+    hw::watchdog::monitor  monitor1khz{ &watchdog1khz, hiwdg, HAL_IWDG_Refresh };
     monitor1khz.registerWatchdogInstance();
 
     uint32_t start_ticks = osKernelGetTickCount();

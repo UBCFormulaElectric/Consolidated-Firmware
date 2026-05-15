@@ -130,8 +130,9 @@ template <size_t WATCHDOG_INSTANCES> class monitor
 
                     // Update deadline
                     instance->deadline += instance->period;
-
+#ifndef WATCHDOG_DISABLED
                     HAL_IWDG_Refresh(&handle);
+#endif
                 }
                 else
                 {
