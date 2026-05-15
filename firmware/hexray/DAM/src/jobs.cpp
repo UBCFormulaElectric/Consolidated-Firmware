@@ -20,6 +20,8 @@
 #include "io_time.hpp"
 #include "io_fileSystems.hpp"
 #include "hw_sds.hpp"
+#include "hw_gpios.hpp"
+#include "main.h"
 
 #include "util_errorCodes.hpp"
 
@@ -55,8 +57,33 @@ void jobs_init()
 
 void jobs_initLogFs()
 {
+    const GPIO_PinState raw_cd = HAL_GPIO_ReadPin(SD_CD_GPIO_Port, SD_CD_Pin);
+    LOG_INFO("SD_CD raw GPIO (PC7): %d (%s)", (int)raw_cd, raw_cd == GPIO_PIN_SET ? "HIGH" : "LOW");
+    LOG_INFO("SD_CD via hw::gpio.readPin(): %d", (int)sd_present.readPin());
     LOG_INFO("sd present: %d", sd1.sdPresent());
-    LOG_INFO("hsd1 state: %lu", (unsigned long)HAL_SD_GetCardState(sd1.getHsd()));
+    LOG_INFO("hsd1 state: %lu", (unsigned long)HAL_SD_GetCardState(&sd1.getHsd()));
+
+    // --- Raw single-block read test of block 0 ---
+    {
+        static uint8_t          block0[512] __attribute__((aligned(4)));
+        SD_HandleTypeDef       *hsd   = &sd1.getHsd();
+        const uint32_t          t0    = HAL_GetTick();
+        uint32_t                waits = 0;
+        while (HAL_SD_GetCardState(hsd) != HAL_SD_CARD_TRANSFER && (HAL_GetTick() - t0) < 1000)
+            waits++;
+        const uint32_t          state_before = HAL_SD_GetCardState(hsd);
+        const HAL_StatusTypeDef st           = HAL_SD_ReadBlocks(hsd, block0, 0, 1, 1000);
+        const uint32_t          hal_err      = HAL_SD_GetError(hsd);
+        const uint32_t          state_after  = HAL_SD_GetCardState(hsd);
+        LOG_INFO(
+            "raw read blk0: HAL_Status=%d state_before=%lu state_after=%lu HAL_SD_GetError=0x%08lX waits=%lu", (int)st,
+            (unsigned long)state_before, (unsigned long)state_after, (unsigned long)hal_err, (unsigned long)waits);
+        LOG_INFO(
+            "blk0 first 16: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X", block0[0],
+            block0[1], block0[2], block0[3], block0[4], block0[5], block0[6], block0[7], block0[8], block0[9],
+            block0[10], block0[11], block0[12], block0[13], block0[14], block0[15]);
+        LOG_INFO("blk0 sig (should be 55 AA): %02X %02X", block0[510], block0[511]);
+    }
 
     if (const auto err = fs.init(); !err)
     {
