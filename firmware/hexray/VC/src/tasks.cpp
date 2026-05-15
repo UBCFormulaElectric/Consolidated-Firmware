@@ -31,6 +31,7 @@
 [[noreturn]] static void tasks_powerMonitoring(void *arg);
 
 // Define the task with StaticTask Class
+constexpr size_t                                   TASK_COUNT = 7;
 static hw::rtos::StaticTask::StaticTaskStack<8096> Task100HzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  Task1kHzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  Task1HzStack;
@@ -48,13 +49,16 @@ static hw::rtos::StaticTask TaskCan2Tx(osPriorityNormal, "TaskCanTx", tasks_runC
 static hw::rtos::StaticTask
     TaskPowerMonitoring(osPriorityNormal, "TaskPowerMonitoring", tasks_powerMonitoring, TaskPowerMonitoringStack);
 
+static hw::watchdog::monitor<TASK_COUNT> monitor{
+    hiwdg1,
+    [](const hw::watchdog::instance &i) { LOG_INFO("Software watchdog timeout for task %d", i.task_id); },
+};
+
 void tasks_run1Hz(void *arg)
 {
-    constexpr uint32_t     period_ms                = 1000U;
-    constexpr uint32_t     watchdog_grace_period_ms = 50U;
-    hw::watchdog::instance watchdog1hz{ period_ms + watchdog_grace_period_ms };
-    hw::watchdog::monitor  monitor1hz{ &watchdog1hz, hiwdg1, HAL_IWDG_Refresh };
-    monitor1hz.registerWatchdogInstance();
+    constexpr uint32_t      period_ms                = 1000U;
+    constexpr uint32_t      watchdog_grace_period_ms = 50U;
+    hw::watchdog::instance &watchdog1hz              = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -70,9 +74,7 @@ void tasks_run100Hz(void *arg)
 {
     constexpr uint32_t     period_ms                = 10U;
     constexpr uint32_t     watchdog_grace_period_ms = 2U;
-    hw::watchdog::instance watchdog100hz{ period_ms + watchdog_grace_period_ms };
-    hw::watchdog::monitor  monitor100hz{ &watchdog100hz, hiwdg1, HAL_IWDG_Refresh };
-    monitor100hz.registerWatchdogInstance();
+    hw::watchdog::instance watchdog100hz            = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -87,15 +89,13 @@ void tasks_run1kHz(void *arg)
 {
     constexpr uint32_t     period_ms                = 1U;
     constexpr uint32_t     watchdog_grace_period_ms = 1U;
-    hw::watchdog::instance watchdog1khz{ period_ms + watchdog_grace_period_ms };
-    hw::watchdog::monitor  monitor1khz{ &watchdog1khz, hiwdg1, HAL_IWDG_Refresh };
-    monitor1khz.registerWatchdogInstance();
+    hw::watchdog::instance watchdog1khz             = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
         jobs_run1kHz_tick();
-        monitor1khz.checkForTimeouts();
+        monitor.checkForTimeouts();
         watchdog1khz.checkIn();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
