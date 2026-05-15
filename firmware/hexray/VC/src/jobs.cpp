@@ -47,6 +47,8 @@ void jobs_run100Hz_tick()
     io::can_tx::enqueue100HzMsgs();
     const uint32_t k = app::can_rx::BMS_ChargePowerLimit_get();
     LOG_INFO("%d", k);
+
+    app::sbgEllipse::broadcast();
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
 }
