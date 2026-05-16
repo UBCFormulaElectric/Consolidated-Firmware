@@ -83,8 +83,7 @@ void updateCellsToBalance(
         }
     }
 
-    app::segments::config::setBalanceConfig(discharge_enabled, true);
-    app::segments::config::setPwmConfig(pwm_duty);
+    app::segments::config::setBalanceConfig(discharge_enabled,pwm_duty,true);
 }
 } // namespace
 
@@ -94,21 +93,12 @@ void disable()
 {
     discharge_enabled.fill({});
     pwm_duty.fill({});
-    {
-        const io::unique_semaphore s{ adbms_app_lock };
-        config::setBalanceConfig(discharge_enabled, false);
-        config::setPwmConfig(pwm_duty);
-    }
-    // TODO do we need to do this?
-    {
-        const io::unique_semaphore s{ spi_bus_lock };
-        LOG_IF_ERR(app::segments::config::upload());
-    }
+    config::setBalanceConfig(discharge_enabled, pwm_duty, false);
     state = can_utils::BalancingState::BALANCING_DISABLED;
     LOG_INFO("Disabling");
 }
 
-void tick(const Cells<std::expected<float, ErrorCode>> &cell_voltages, const CellParam<float> &min_cell_voltage)
+void tick()
 {
     switch (state)
     {
@@ -123,7 +113,7 @@ void tick(const Cells<std::expected<float, ErrorCode>> &cell_voltages, const Cel
         {
             if (settle_timer.updateAndGetState() == Timer::TimerState::EXPIRED)
             {
-                updateCellsToBalance(cell_voltages, min_cell_voltage);
+                updateCellsToBalance(broadcast::getLatestVoltages(), broadcast::getMinCellVoltage());
                 LOG_IF_ERR(io::adbms::sendBalanceCmd());
                 balance_timer.restart();
                 state = can_utils::BalancingState::BALANCING_BALANCE;
