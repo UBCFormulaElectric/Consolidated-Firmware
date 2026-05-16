@@ -329,108 +329,6 @@
       }
     }
   },
-  "CellVoltageStats": {
-    "msg_id": 420,
-    "cycle_time": 1000,
-    "description": "BMS minimum/maximum cell voltage stats",
-    "signals": {
-      "MinCellVoltage_Voltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "MinCellVoltage_Temperature": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 80,
-        "unit": "degC"
-      },
-      "MinCellVoltage_Segment": {
-        "resolution": 1,
-        "min": 0,
-        "max": 9
-      },
-      "MinCellVoltage_Cell": {
-        "resolution": 1,
-        "min": 0,
-        "max": 13
-      },
-      "MaxCellVoltage_Voltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "MaxCellVoltage_Temperature": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 80,
-        "unit": "degC"
-      },
-      "MaxCellVoltage_Segment": {
-        "resolution": 1,
-        "min": 0,
-        "max": 9
-      },
-      "MaxCellVoltage_Cell": {
-        "resolution": 1,
-        "min": 0,
-        "max": 13
-      }
-    }
-  },
-  "CellTemperatureStats": {
-    "msg_id": 421,
-    "cycle_time": 1000,
-    "description": "BMS minimum/maximum cell temperature stats",
-    "signals": {
-      "MinCellTemperature_Voltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "MinCellTemperature_Temperature": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 80,
-        "unit": "degC"
-      },
-      "MinCellTemperature_Segment": {
-        "resolution": 1,
-        "min": 0,
-        "max": 9
-      },
-      "MinCellTemperature_Cell": {
-        "resolution": 1,
-        "min": 0,
-        "max": 13
-      },
-      "MaxCellTemperature_Voltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "MaxCellTemperature_Temperature": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 80,
-        "unit": "degC"
-      },
-      "MaxCellTemperature_Segment": {
-        "resolution": 1,
-        "min": 0,
-        "max": 9
-      },
-      "MaxCellTemperature_Cell": {
-        "resolution": 1,
-        "min": 0,
-        "max": 13
-      }
-    }
-  },
   "CellVoltages_Seg0_Seg3": {
     "msg_id": 422,
     "cycle_time": 1000,
@@ -1294,876 +1192,6 @@
         "unit": "V"
       },
       "Seg9_Cell13_Voltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      }
-    }
-  },
-  "FilteredCellVoltages_Seg0_Seg3": {
-    "msg_id": 425,
-    "cycle_time": 1000,
-    "allowed_modes": [
-      "DEBUG"
-    ],
-    "description": "Filtered cell voltages: Segment 0-3",
-    "signals": {
-      "Seg0_Cell0_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg0_Cell1_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg0_Cell2_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg0_Cell3_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg0_Cell4_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg0_Cell5_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg0_Cell6_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg0_Cell7_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg0_Cell8_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg0_Cell9_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg0_Cell10_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg0_Cell11_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg0_Cell12_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg0_Cell13_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg1_Cell0_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg1_Cell1_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg1_Cell2_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg1_Cell3_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg1_Cell4_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg1_Cell5_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg1_Cell6_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg1_Cell7_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg1_Cell8_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg1_Cell9_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg1_Cell10_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg1_Cell11_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg1_Cell12_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg1_Cell13_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg2_Cell0_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg2_Cell1_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg2_Cell2_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg2_Cell3_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg2_Cell4_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg2_Cell5_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg2_Cell6_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg2_Cell7_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg2_Cell8_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg2_Cell9_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg2_Cell10_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg2_Cell11_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg2_Cell12_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg2_Cell13_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg3_Cell0_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg3_Cell1_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg3_Cell2_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg3_Cell3_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg3_Cell4_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg3_Cell5_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg3_Cell6_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg3_Cell7_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg3_Cell8_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg3_Cell9_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg3_Cell10_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg3_Cell11_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg3_Cell12_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg3_Cell13_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      }
-    }
-  },
-  "FilteredCellVoltages_Seg4_Seg7": {
-    "msg_id": 426,
-    "cycle_time": 1000,
-    "allowed_modes": [
-      "DEBUG"
-    ],
-    "description": "Filtered cell voltages: Segment 4-7",
-    "signals": {
-      "Seg4_Cell0_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg4_Cell1_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg4_Cell2_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg4_Cell3_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg4_Cell4_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg4_Cell5_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg4_Cell6_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg4_Cell7_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg4_Cell8_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg4_Cell9_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg4_Cell10_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg4_Cell11_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg4_Cell12_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg4_Cell13_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg5_Cell0_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg5_Cell1_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg5_Cell2_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg5_Cell3_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg5_Cell4_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg5_Cell5_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg5_Cell6_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg5_Cell7_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg5_Cell8_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg5_Cell9_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg5_Cell10_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg5_Cell11_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg5_Cell12_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg5_Cell13_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg6_Cell0_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg6_Cell1_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg6_Cell2_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg6_Cell3_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg6_Cell4_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg6_Cell5_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg6_Cell6_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg6_Cell7_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg6_Cell8_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg6_Cell9_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg6_Cell10_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg6_Cell11_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg6_Cell12_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg6_Cell13_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg7_Cell0_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg7_Cell1_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg7_Cell2_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg7_Cell3_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg7_Cell4_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg7_Cell5_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg7_Cell6_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg7_Cell7_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg7_Cell8_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg7_Cell9_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg7_Cell10_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg7_Cell11_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg7_Cell12_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg7_Cell13_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      }
-    }
-  },
-  "FilteredCellVoltages_Seg8_Seg9": {
-    "msg_id": 427,
-    "cycle_time": 1000,
-    "allowed_modes": [
-      "DEBUG"
-    ],
-    "description": "Filtered cell voltages: Segment 8-9",
-    "signals": {
-      "Seg8_Cell0_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg8_Cell1_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg8_Cell2_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg8_Cell3_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg8_Cell4_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg8_Cell5_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg8_Cell6_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg8_Cell7_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg8_Cell8_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg8_Cell9_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg8_Cell10_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg8_Cell11_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg8_Cell12_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg8_Cell13_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg9_Cell0_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg9_Cell1_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg9_Cell2_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg9_Cell3_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg9_Cell4_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg9_Cell5_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg9_Cell6_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg9_Cell7_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg9_Cell8_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg9_Cell9_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg9_Cell10_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg9_Cell11_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg9_Cell12_FilteredVoltage": {
-        "resolution": 0.01,
-        "min": -0.1,
-        "max": 5,
-        "unit": "V"
-      },
-      "Seg9_Cell13_FilteredVoltage": {
         "resolution": 0.01,
         "min": -0.1,
         "max": 5,
@@ -4307,427 +3335,7 @@
       }
     }
   },
-  "SegmentSupplyFaults": {
-    "msg_id": 440,
-    "cycle_time": 100,
-    "allowed_modes": [
-      "DEBUG"
-    ],
-    "description": "Supply rail OV/UV flags for all segments",
-    "signals": {
-      "Seg0_VA_OV": {
-        "bits": 1
-      },
-      "Seg1_VA_OV": {
-        "bits": 1
-      },
-      "Seg2_VA_OV": {
-        "bits": 1
-      },
-      "Seg3_VA_OV": {
-        "bits": 1
-      },
-      "Seg4_VA_OV": {
-        "bits": 1
-      },
-      "Seg5_VA_OV": {
-        "bits": 1
-      },
-      "Seg6_VA_OV": {
-        "bits": 1
-      },
-      "Seg7_VA_OV": {
-        "bits": 1
-      },
-      "Seg8_VA_OV": {
-        "bits": 1
-      },
-      "Seg9_VA_OV": {
-        "bits": 1
-      },
-      "Seg0_VA_UV": {
-        "bits": 1
-      },
-      "Seg1_VA_UV": {
-        "bits": 1
-      },
-      "Seg2_VA_UV": {
-        "bits": 1
-      },
-      "Seg3_VA_UV": {
-        "bits": 1
-      },
-      "Seg4_VA_UV": {
-        "bits": 1
-      },
-      "Seg5_VA_UV": {
-        "bits": 1
-      },
-      "Seg6_VA_UV": {
-        "bits": 1
-      },
-      "Seg7_VA_UV": {
-        "bits": 1
-      },
-      "Seg8_VA_UV": {
-        "bits": 1
-      },
-      "Seg9_VA_UV": {
-        "bits": 1
-      },
-      "Seg0_VD_OV": {
-        "bits": 1
-      },
-      "Seg1_VD_OV": {
-        "bits": 1
-      },
-      "Seg2_VD_OV": {
-        "bits": 1
-      },
-      "Seg3_VD_OV": {
-        "bits": 1
-      },
-      "Seg4_VD_OV": {
-        "bits": 1
-      },
-      "Seg5_VD_OV": {
-        "bits": 1
-      },
-      "Seg6_VD_OV": {
-        "bits": 1
-      },
-      "Seg7_VD_OV": {
-        "bits": 1
-      },
-      "Seg8_VD_OV": {
-        "bits": 1
-      },
-      "Seg9_VD_OV": {
-        "bits": 1
-      },
-      "Seg0_VD_UV": {
-        "bits": 1
-      },
-      "Seg1_VD_UV": {
-        "bits": 1
-      },
-      "Seg2_VD_UV": {
-        "bits": 1
-      },
-      "Seg3_VD_UV": {
-        "bits": 1
-      },
-      "Seg4_VD_UV": {
-        "bits": 1
-      },
-      "Seg5_VD_UV": {
-        "bits": 1
-      },
-      "Seg6_VD_UV": {
-        "bits": 1
-      },
-      "Seg7_VD_UV": {
-        "bits": 1
-      },
-      "Seg8_VD_UV": {
-        "bits": 1
-      },
-      "Seg9_VD_UV": {
-        "bits": 1
-      }
-    }
-  },
-  "SegmentDiagFaults": {
-    "msg_id": 441,
-    "cycle_time": 100,
-    "allowed_modes": [
-      "DEBUG"
-    ],
-    "description": "Trim error flags for all segments",
-    "signals": {
-      "Seg0_CED": {
-        "bits": 1
-      },
-      "Seg1_CED": {
-        "bits": 1
-      },
-      "Seg2_CED": {
-        "bits": 1
-      },
-      "Seg3_CED": {
-        "bits": 1
-      },
-      "Seg4_CED": {
-        "bits": 1
-      },
-      "Seg5_CED": {
-        "bits": 1
-      },
-      "Seg6_CED": {
-        "bits": 1
-      },
-      "Seg7_CED": {
-        "bits": 1
-      },
-      "Seg8_CED": {
-        "bits": 1
-      },
-      "Seg9_CED": {
-        "bits": 1
-      },
-      "Seg0_CMED": {
-        "bits": 1
-      },
-      "Seg1_CMED": {
-        "bits": 1
-      },
-      "Seg2_CMED": {
-        "bits": 1
-      },
-      "Seg3_CMED": {
-        "bits": 1
-      },
-      "Seg4_CMED": {
-        "bits": 1
-      },
-      "Seg5_CMED": {
-        "bits": 1
-      },
-      "Seg6_CMED": {
-        "bits": 1
-      },
-      "Seg7_CMED": {
-        "bits": 1
-      },
-      "Seg8_CMED": {
-        "bits": 1
-      },
-      "Seg9_CMED": {
-        "bits": 1
-      },
-      "Seg0_SED": {
-        "bits": 1
-      },
-      "Seg1_SED": {
-        "bits": 1
-      },
-      "Seg2_SED": {
-        "bits": 1
-      },
-      "Seg3_SED": {
-        "bits": 1
-      },
-      "Seg4_SED": {
-        "bits": 1
-      },
-      "Seg5_SED": {
-        "bits": 1
-      },
-      "Seg6_SED": {
-        "bits": 1
-      },
-      "Seg7_SED": {
-        "bits": 1
-      },
-      "Seg8_SED": {
-        "bits": 1
-      },
-      "Seg9_SED": {
-        "bits": 1
-      },
-      "Seg0_SMED": {
-        "bits": 1
-      },
-      "Seg1_SMED": {
-        "bits": 1
-      },
-      "Seg2_SMED": {
-        "bits": 1
-      },
-      "Seg3_SMED": {
-        "bits": 1
-      },
-      "Seg4_SMED": {
-        "bits": 1
-      },
-      "Seg5_SMED": {
-        "bits": 1
-      },
-      "Seg6_SMED": {
-        "bits": 1
-      },
-      "Seg7_SMED": {
-        "bits": 1
-      },
-      "Seg8_SMED": {
-        "bits": 1
-      },
-      "Seg9_SMED": {
-        "bits": 1
-      },
-      "Seg0_VDE": {
-        "bits": 1
-      },
-      "Seg1_VDE": {
-        "bits": 1
-      },
-      "Seg2_VDE": {
-        "bits": 1
-      },
-      "Seg3_VDE": {
-        "bits": 1
-      },
-      "Seg4_VDE": {
-        "bits": 1
-      },
-      "Seg5_VDE": {
-        "bits": 1
-      },
-      "Seg6_VDE": {
-        "bits": 1
-      },
-      "Seg7_VDE": {
-        "bits": 1
-      },
-      "Seg8_VDE": {
-        "bits": 1
-      },
-      "Seg9_VDE": {
-        "bits": 1
-      },
-      "Seg0_VDEL": {
-        "bits": 1
-      },
-      "Seg1_VDEL": {
-        "bits": 1
-      },
-      "Seg2_VDEL": {
-        "bits": 1
-      },
-      "Seg3_VDEL": {
-        "bits": 1
-      },
-      "Seg4_VDEL": {
-        "bits": 1
-      },
-      "Seg5_VDEL": {
-        "bits": 1
-      },
-      "Seg6_VDEL": {
-        "bits": 1
-      },
-      "Seg7_VDEL": {
-        "bits": 1
-      },
-      "Seg8_VDEL": {
-        "bits": 1
-      },
-      "Seg9_VDEL": {
-        "bits": 1
-      }
-    }
-  },
-  "SegmentMiscFaults": {
-    "msg_id": 442,
-    "cycle_time": 100,
-    "allowed_modes": [
-      "DEBUG"
-    ],
-    "description": "Misc flags for all segments",
-    "signals": {
-      "Seg0_THSD": {
-        "bits": 1
-      },
-      "Seg1_THSD": {
-        "bits": 1
-      },
-      "Seg2_THSD": {
-        "bits": 1
-      },
-      "Seg3_THSD": {
-        "bits": 1
-      },
-      "Seg4_THSD": {
-        "bits": 1
-      },
-      "Seg5_THSD": {
-        "bits": 1
-      },
-      "Seg6_THSD": {
-        "bits": 1
-      },
-      "Seg7_THSD": {
-        "bits": 1
-      },
-      "Seg8_THSD": {
-        "bits": 1
-      },
-      "Seg9_THSD": {
-        "bits": 1
-      },
-      "Seg0_TMODCHK": {
-        "bits": 1
-      },
-      "Seg1_TMODCHK": {
-        "bits": 1
-      },
-      "Seg2_TMODCHK": {
-        "bits": 1
-      },
-      "Seg3_TMODCHK": {
-        "bits": 1
-      },
-      "Seg4_TMODCHK": {
-        "bits": 1
-      },
-      "Seg5_TMODCHK": {
-        "bits": 1
-      },
-      "Seg6_TMODCHK": {
-        "bits": 1
-      },
-      "Seg7_TMODCHK": {
-        "bits": 1
-      },
-      "Seg8_TMODCHK": {
-        "bits": 1
-      },
-      "Seg9_TMODCHK": {
-        "bits": 1
-      },
-      "Seg0_OSCCHK": {
-        "bits": 1
-      },
-      "Seg1_OSCCHK": {
-        "bits": 1
-      },
-      "Seg2_OSCCHK": {
-        "bits": 1
-      },
-      "Seg3_OSCCHK": {
-        "bits": 1
-      },
-      "Seg4_OSCCHK": {
-        "bits": 1
-      },
-      "Seg5_OSCCHK": {
-        "bits": 1
-      },
-      "Seg6_OSCCHK": {
-        "bits": 1
-      },
-      "Seg7_OSCCHK": {
-        "bits": 1
-      },
-      "Seg8_OSCCHK": {
-        "bits": 1
-      },
-      "Seg9_OSCCHK": {
-        "bits": 1
-      }
-    }
-  },
-  "CellOvervoltage": {
+  "CellOverVoltage": {
     "msg_id": 443,
     "cycle_time": 100,
     "allowed_modes": [
@@ -5835,6 +4443,526 @@
         "min": 0,
         "max": 100,
         "unit": "%"
+      }
+    }
+  },
+  "SegmentVA_OV": {
+    "msg_id": 440,
+    "cycle_time": 100,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Analog supply OV flags for all segments",
+    "signals": {
+      "Seg0_VA_OV": {
+        "bits": 1
+      },
+      "Seg1_VA_OV": {
+        "bits": 1
+      },
+      "Seg2_VA_OV": {
+        "bits": 1
+      },
+      "Seg3_VA_OV": {
+        "bits": 1
+      },
+      "Seg4_VA_OV": {
+        "bits": 1
+      },
+      "Seg5_VA_OV": {
+        "bits": 1
+      },
+      "Seg6_VA_OV": {
+        "bits": 1
+      },
+      "Seg7_VA_OV": {
+        "bits": 1
+      },
+      "Seg8_VA_OV": {
+        "bits": 1
+      },
+      "Seg9_VA_OV": {
+        "bits": 1
+      }
+    }
+  },
+  "SegmentVA_UV": {
+    "msg_id": 441,
+    "cycle_time": 100,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Analog supply UV flags for all segments",
+    "signals": {
+      "Seg0_VA_UV": {
+        "bits": 1
+      },
+      "Seg1_VA_UV": {
+        "bits": 1
+      },
+      "Seg2_VA_UV": {
+        "bits": 1
+      },
+      "Seg3_VA_UV": {
+        "bits": 1
+      },
+      "Seg4_VA_UV": {
+        "bits": 1
+      },
+      "Seg5_VA_UV": {
+        "bits": 1
+      },
+      "Seg6_VA_UV": {
+        "bits": 1
+      },
+      "Seg7_VA_UV": {
+        "bits": 1
+      },
+      "Seg8_VA_UV": {
+        "bits": 1
+      },
+      "Seg9_VA_UV": {
+        "bits": 1
+      }
+    }
+  },
+  "SegmentVD_OV": {
+    "msg_id": 442,
+    "cycle_time": 100,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Digital supply OV flags for all segments",
+    "signals": {
+      "Seg0_VD_OV": {
+        "bits": 1
+      },
+      "Seg1_VD_OV": {
+        "bits": 1
+      },
+      "Seg2_VD_OV": {
+        "bits": 1
+      },
+      "Seg3_VD_OV": {
+        "bits": 1
+      },
+      "Seg4_VD_OV": {
+        "bits": 1
+      },
+      "Seg5_VD_OV": {
+        "bits": 1
+      },
+      "Seg6_VD_OV": {
+        "bits": 1
+      },
+      "Seg7_VD_OV": {
+        "bits": 1
+      },
+      "Seg8_VD_OV": {
+        "bits": 1
+      },
+      "Seg9_VD_OV": {
+        "bits": 1
+      }
+    }
+  },
+  "SegmentVD_UV": {
+    "msg_id": 447,
+    "cycle_time": 100,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Digital supply UV flags for all segments",
+    "signals": {
+      "Seg0_VD_UV": {
+        "bits": 1
+      },
+      "Seg1_VD_UV": {
+        "bits": 1
+      },
+      "Seg2_VD_UV": {
+        "bits": 1
+      },
+      "Seg3_VD_UV": {
+        "bits": 1
+      },
+      "Seg4_VD_UV": {
+        "bits": 1
+      },
+      "Seg5_VD_UV": {
+        "bits": 1
+      },
+      "Seg6_VD_UV": {
+        "bits": 1
+      },
+      "Seg7_VD_UV": {
+        "bits": 1
+      },
+      "Seg8_VD_UV": {
+        "bits": 1
+      },
+      "Seg9_VD_UV": {
+        "bits": 1
+      }
+    }
+  },
+  "SegmentCED": {
+    "msg_id": 448,
+    "cycle_time": 100,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Cell error detection flags for all segments",
+    "signals": {
+      "Seg0_CED": {
+        "bits": 1
+      },
+      "Seg1_CED": {
+        "bits": 1
+      },
+      "Seg2_CED": {
+        "bits": 1
+      },
+      "Seg3_CED": {
+        "bits": 1
+      },
+      "Seg4_CED": {
+        "bits": 1
+      },
+      "Seg5_CED": {
+        "bits": 1
+      },
+      "Seg6_CED": {
+        "bits": 1
+      },
+      "Seg7_CED": {
+        "bits": 1
+      },
+      "Seg8_CED": {
+        "bits": 1
+      },
+      "Seg9_CED": {
+        "bits": 1
+      }
+    }
+  },
+  "SegmentCMED": {
+    "msg_id": 449,
+    "cycle_time": 100,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Cell mux error detection flags for all segments",
+    "signals": {
+      "Seg0_CMED": {
+        "bits": 1
+      },
+      "Seg1_CMED": {
+        "bits": 1
+      },
+      "Seg2_CMED": {
+        "bits": 1
+      },
+      "Seg3_CMED": {
+        "bits": 1
+      },
+      "Seg4_CMED": {
+        "bits": 1
+      },
+      "Seg5_CMED": {
+        "bits": 1
+      },
+      "Seg6_CMED": {
+        "bits": 1
+      },
+      "Seg7_CMED": {
+        "bits": 1
+      },
+      "Seg8_CMED": {
+        "bits": 1
+      },
+      "Seg9_CMED": {
+        "bits": 1
+      }
+    }
+  },
+  "SegmentSED": {
+    "msg_id": 450,
+    "cycle_time": 100,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Supply error detection flags for all segments",
+    "signals": {
+      "Seg0_SED": {
+        "bits": 1
+      },
+      "Seg1_SED": {
+        "bits": 1
+      },
+      "Seg2_SED": {
+        "bits": 1
+      },
+      "Seg3_SED": {
+        "bits": 1
+      },
+      "Seg4_SED": {
+        "bits": 1
+      },
+      "Seg5_SED": {
+        "bits": 1
+      },
+      "Seg6_SED": {
+        "bits": 1
+      },
+      "Seg7_SED": {
+        "bits": 1
+      },
+      "Seg8_SED": {
+        "bits": 1
+      },
+      "Seg9_SED": {
+        "bits": 1
+      }
+    }
+  },
+  "SegmentSMED": {
+    "msg_id": 451,
+    "cycle_time": 100,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Supply mux error detection flags for all segments",
+    "signals": {
+      "Seg0_SMED": {
+        "bits": 1
+      },
+      "Seg1_SMED": {
+        "bits": 1
+      },
+      "Seg2_SMED": {
+        "bits": 1
+      },
+      "Seg3_SMED": {
+        "bits": 1
+      },
+      "Seg4_SMED": {
+        "bits": 1
+      },
+      "Seg5_SMED": {
+        "bits": 1
+      },
+      "Seg6_SMED": {
+        "bits": 1
+      },
+      "Seg7_SMED": {
+        "bits": 1
+      },
+      "Seg8_SMED": {
+        "bits": 1
+      },
+      "Seg9_SMED": {
+        "bits": 1
+      }
+    }
+  },
+  "SegmentVDE": {
+    "msg_id": 452,
+    "cycle_time": 100,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "VD error flags for all segments",
+    "signals": {
+      "Seg0_VDE": {
+        "bits": 1
+      },
+      "Seg1_VDE": {
+        "bits": 1
+      },
+      "Seg2_VDE": {
+        "bits": 1
+      },
+      "Seg3_VDE": {
+        "bits": 1
+      },
+      "Seg4_VDE": {
+        "bits": 1
+      },
+      "Seg5_VDE": {
+        "bits": 1
+      },
+      "Seg6_VDE": {
+        "bits": 1
+      },
+      "Seg7_VDE": {
+        "bits": 1
+      },
+      "Seg8_VDE": {
+        "bits": 1
+      },
+      "Seg9_VDE": {
+        "bits": 1
+      }
+    }
+  },
+  "SegmentVDEL": {
+    "msg_id": 453,
+    "cycle_time": 100,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "VD error latched flags for all segments",
+    "signals": {
+      "Seg0_VDEL": {
+        "bits": 1
+      },
+      "Seg1_VDEL": {
+        "bits": 1
+      },
+      "Seg2_VDEL": {
+        "bits": 1
+      },
+      "Seg3_VDEL": {
+        "bits": 1
+      },
+      "Seg4_VDEL": {
+        "bits": 1
+      },
+      "Seg5_VDEL": {
+        "bits": 1
+      },
+      "Seg6_VDEL": {
+        "bits": 1
+      },
+      "Seg7_VDEL": {
+        "bits": 1
+      },
+      "Seg8_VDEL": {
+        "bits": 1
+      },
+      "Seg9_VDEL": {
+        "bits": 1
+      }
+    }
+  },
+  "SegmentTHSD": {
+    "msg_id": 454,
+    "cycle_time": 100,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Thermal shutdown flags for all segments",
+    "signals": {
+      "Seg0_THSD": {
+        "bits": 1
+      },
+      "Seg1_THSD": {
+        "bits": 1
+      },
+      "Seg2_THSD": {
+        "bits": 1
+      },
+      "Seg3_THSD": {
+        "bits": 1
+      },
+      "Seg4_THSD": {
+        "bits": 1
+      },
+      "Seg5_THSD": {
+        "bits": 1
+      },
+      "Seg6_THSD": {
+        "bits": 1
+      },
+      "Seg7_THSD": {
+        "bits": 1
+      },
+      "Seg8_THSD": {
+        "bits": 1
+      },
+      "Seg9_THSD": {
+        "bits": 1
+      }
+    }
+  },
+  "SegmentTMODCHK": {
+    "msg_id": 455,
+    "cycle_time": 100,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Thermal model check flags for all segments",
+    "signals": {
+      "Seg0_TMODCHK": {
+        "bits": 1
+      },
+      "Seg1_TMODCHK": {
+        "bits": 1
+      },
+      "Seg2_TMODCHK": {
+        "bits": 1
+      },
+      "Seg3_TMODCHK": {
+        "bits": 1
+      },
+      "Seg4_TMODCHK": {
+        "bits": 1
+      },
+      "Seg5_TMODCHK": {
+        "bits": 1
+      },
+      "Seg6_TMODCHK": {
+        "bits": 1
+      },
+      "Seg7_TMODCHK": {
+        "bits": 1
+      },
+      "Seg8_TMODCHK": {
+        "bits": 1
+      },
+      "Seg9_TMODCHK": {
+        "bits": 1
+      }
+    }
+  },
+  "SegmentOSCCHK": {
+    "msg_id": 456,
+    "cycle_time": 100,
+    "allowed_modes": [
+      "DEBUG"
+    ],
+    "description": "Oscillator check flags for all segments",
+    "signals": {
+      "Seg0_OSCCHK": {
+        "bits": 1
+      },
+      "Seg1_OSCCHK": {
+        "bits": 1
+      },
+      "Seg2_OSCCHK": {
+        "bits": 1
+      },
+      "Seg3_OSCCHK": {
+        "bits": 1
+      },
+      "Seg4_OSCCHK": {
+        "bits": 1
+      },
+      "Seg5_OSCCHK": {
+        "bits": 1
+      },
+      "Seg6_OSCCHK": {
+        "bits": 1
+      },
+      "Seg7_OSCCHK": {
+        "bits": 1
+      },
+      "Seg8_OSCCHK": {
+        "bits": 1
+      },
+      "Seg9_OSCCHK": {
+        "bits": 1
       }
     }
   }
