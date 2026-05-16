@@ -143,17 +143,6 @@ static void init_update()
             break;
     }
 
-    // data_buffer.fill(io::seven_seg::eight);
-    data_buffer[0] = io::seven_seg::six;
-    data_buffer[1] = io::seven_seg::seven;
-    data_buffer[2] = io::seven_seg::dot;
-    data_buffer[3] = io::seven_seg::six;
-    data_buffer[4] = io::seven_seg::seven;
-    data_buffer[5] = io::seven_seg::six;
-    data_buffer[6] = io::seven_seg::seven;
-    data_buffer[7] = io::seven_seg::six;
-    data_buffer[8] = io::seven_seg::seven;
-
     LOG_IF_ERR(io::seven_seg::write(data_buffer));
 }
 
