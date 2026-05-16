@@ -12,7 +12,6 @@ constexpr array<uint16_t, NUM_TEMP_REG_GROUPS> reg_groups{ {
     io::adbms::RDAUXA,
     io::adbms::RDAUXB,
     io::adbms::RDAUXC,
-    io::adbms::RDAUXD,
 } };
 } // namespace
 
@@ -47,17 +46,13 @@ expected<void, ErrorCode> pollAuxAdcConversion()
     return unexpected(ErrorCode::TIMEOUT);
 }
 
-Therms<std::expected<uint16_t, ErrorCode>> readCellTempReg()
+expected<Therms<expected<uint16_t, ErrorCode>>, ErrorCode>  readCellTempReg()
 {
     Therms<std::expected<uint16_t, ErrorCode>> cell_temp_regs;
 
     if (const expected<void, ErrorCode> poll_ok = pollAuxAdcConversion(); !poll_ok)
     {
-        for (uint8_t seg = 0U; seg < NUM_SEGMENTS; seg++)
-        {
-            cell_temp_regs[seg].fill(unexpected(poll_ok.error()));
-        }
-        return cell_temp_regs;
+        return unexpected(poll_ok.error());
     }
 
     for (size_t group = 0U; group < NUM_TEMP_REG_GROUPS; group++)
@@ -66,16 +61,15 @@ Therms<std::expected<uint16_t, ErrorCode>> readCellTempReg()
 
         for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
         {
-            if (!out[seg])
-            {
-                cell_temp_regs[seg].fill(unexpected(out[seg].error()));
-                continue;
-            }
-
             for (size_t gpio_in_group = 0U; gpio_in_group < GPIOS_PER_GROUP; gpio_in_group++)
             {
                 if (const size_t gpio = group * GPIOS_PER_GROUP + gpio_in_group; gpio < THERM_GPIOS_PER_SEGMENT)
                 {
+                    if (!out[seg])
+                    {
+                        cell_temp_regs[seg][gpio] = unexpected(out[seg].error());
+                        continue;
+                    }
                     const uint16_t low  = out[seg].value()[gpio_in_group * 2U];
                     const uint16_t high = out[seg].value()[gpio_in_group * 2U + 1U];
                     const auto     temperature =
@@ -94,16 +88,12 @@ Therms<std::expected<uint16_t, ErrorCode>> readCellTempReg()
     return cell_temp_regs;
 }
 
-Segments<std::expected<uint16_t, ErrorCode>> readSegVoltageReg()
+expected<Segments<expected<uint16_t, ErrorCode>>, ErrorCode> readSegVoltageReg()
 {
     Segments<std::expected<uint16_t, ErrorCode>> segment_voltage_regs;
     if (const expected<void, ErrorCode> poll_ok = pollAuxAdcConversion(); !poll_ok)
     {
-        for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
-        {
-            segment_voltage_regs[seg] = unexpected(poll_ok.error());
-        }
-        return segment_voltage_regs;
+        return unexpected(poll_ok.error());
     }
 
     const auto out = readRegGroup(RDAUXD);
@@ -111,8 +101,7 @@ Segments<std::expected<uint16_t, ErrorCode>> readSegVoltageReg()
     {
         if (!out[seg])
         {
-            segment_voltage_regs[seg] = std::unexpected(out[seg].error());
-            continue;
+            return unexpected(out[seg].error());
         }
 
         const uint8_t low     = out[seg].value()[4U];

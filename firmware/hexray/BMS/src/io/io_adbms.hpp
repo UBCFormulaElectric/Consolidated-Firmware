@@ -8,6 +8,8 @@
 
 #include <array>
 #include <cstdint>
+#include <cstring>
+#include <expected>
 
 // Physical daisy-chain dimensions for this ECU.
 inline constexpr uint8_t NUM_SEGMENTS            = 1;
@@ -142,11 +144,17 @@ static_assert(sizeof(STATE) == REG_GROUP_SIZE);
 
 struct StatusGroups
 {
-    STATA stat_a;
-    STATB stat_b;
-    STATC stat_c;
-    STATD stat_d;
-    STATE stat_e;
+    std::expected<STATA, ErrorCode> stat_a;
+    std::expected<STATB, ErrorCode> stat_b;
+    std::expected<STATC, ErrorCode> stat_c;
+    std::expected<STATD, ErrorCode> stat_d;
+    std::expected<STATE, ErrorCode> stat_e;
+
+    static StatusGroups makeError(ErrorCode e)
+    {
+        return { std::unexpected(e), std::unexpected(e), std::unexpected(e),
+                 std::unexpected(e), std::unexpected(e) };
+    }
 };
 
 // PWM Register Group A: per-cell duty cycle for cells 0–11
@@ -164,6 +172,7 @@ struct __attribute__((packed)) PWMA
     uint8_t pwm10 : 4;
     uint8_t pwm11 : 4;
     uint8_t pwm12 : 4;
+    bool operator==(const PWMA &other) const { return std::memcmp(this, &other, sizeof(PWMA)) == 0; }
 };
 static_assert(sizeof(PWMA) == REG_GROUP_SIZE);
 
@@ -175,6 +184,7 @@ struct __attribute__((packed)) PWMB
     uint8_t pwm15 : 4;
     uint8_t pwm16 : 4;
     uint32_t : 32;
+    bool operator==(const PWMB &other) const { return std::memcmp(this, &other, sizeof(PWMB)) == 0; }
 };
 static_assert(sizeof(PWMB) == REG_GROUP_SIZE);
 
@@ -182,6 +192,7 @@ struct PWMConfig
 {
     PWMA reg_a;
     PWMB reg_b;
+    bool operator==(const PWMConfig &) const = default;
 };
 
 struct __attribute__((packed)) CLOVUV 
@@ -217,20 +228,18 @@ using SegmentSuccess = Segments<std::expected<void, ErrorCode>>;
 // FUNCTIONS
 namespace io::adbms
 {
-// Configuration and PWM access.
+// Configuration, balance and PWM access.
 [[nodiscard]] std::expected<void, ErrorCode> writeConfigReg(const std::array<SegmentConfig, NUM_SEGMENTS> &config);
 [[nodiscard]] Segments<std::expected<SegmentConfig, ErrorCode>> readConfigReg();
-
-// balance
 [[nodiscard]] std::expected<void, ErrorCode> writePwmReg(const std::array<PWMConfig, NUM_SEGMENTS> &pwm_config);
 [[nodiscard]] Segments<std::expected<PWMConfig, ErrorCode>> readPwmReg();
 
 // Measurement reads.
-[[nodiscard]] Cells<std::expected<uint16_t, ErrorCode>>        readCellVoltageReg();
-[[nodiscard]] Cells<std::expected<uint16_t, ErrorCode>>        readFilteredCellVoltageReg();
-[[nodiscard]] Therms<std::expected<uint16_t, ErrorCode>>       readCellTempReg();
-[[nodiscard]] Segments<std::expected<uint16_t, ErrorCode>>     readSegVoltageReg();
-[[nodiscard]] Segments<std::expected<StatusGroups, ErrorCode>> readStatusReg();
+[[nodiscard]] std::expected<Cells<std::expected<uint16_t, ErrorCode>>, ErrorCode>        readCellVoltageReg();
+[[nodiscard]] std::expected<Cells<std::expected<uint16_t, ErrorCode>>, ErrorCode>        readFilteredCellVoltageReg();
+[[nodiscard]] std::expected<Therms<std::expected<uint16_t, ErrorCode>>, ErrorCode>       readCellTempReg();
+[[nodiscard]] std::expected<Segments<std::expected<uint16_t, ErrorCode>>, ErrorCode>     readSegVoltageReg();
+[[nodiscard]] std::expected<Segments<StatusGroups>, ErrorCode> readStatusReg();
 
 // Open-wire diagnostics.
 [[nodiscard]] std::expected<void, ErrorCode> startCellsBaseAdcConversion();
