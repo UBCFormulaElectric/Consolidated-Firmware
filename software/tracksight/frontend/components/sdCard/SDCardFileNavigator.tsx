@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import useSDCardFiles from "@/lib/hooks/useSDCardFiles";
 import useDumpSDCardFile, { DumpSDCardFileError } from "@/lib/mutations/useDumpSDCardFile";
@@ -36,6 +36,12 @@ const SDCardFileNavigator = (props: SDCardFileNavigatorProps) => {
     fileName: string;
     remainingFiles: SDCardFile[];
   } | null>(null);
+
+  useEffect(() => {
+    setSelectedFiles([]);
+    setDumpError(null);
+    setPendingDump(null);
+  }, [sdCard]);
 
   const handleToggleFile = (file: SDCardFile) => {
     setSelectedFiles((prev) => {
