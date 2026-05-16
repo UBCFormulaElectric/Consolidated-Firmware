@@ -1,5 +1,7 @@
 #include "app_segments.hpp"
 #include "app_segments_internal.hpp"
+#include "hw_notify.hpp"
+#include "io_semaphore.hpp"
 
 #include <cstring>
 
@@ -28,55 +30,63 @@ constexpr std::array<io::adbms::SegmentConfig, NUM_SEGMENTS> createSegmentConfig
 }
 std::array<io::adbms::SegmentConfig, NUM_SEGMENTS> segment_config = createSegmentConfig();
 std::array<io::adbms::PWMConfig, NUM_SEGMENTS>     pwm_config{};
-expected<bool, ErrorCode>                          isConfigEqual(configa, configb)
+hw::notify::Notifier                               config_sync_notifier{};
+io::semaphore                                      config_data_lock{ true };
+
+expected<bool, ErrorCode> isConfigEqual()
 {
     const auto segment_config_buf = io::adbms::readConfigReg();
+    const auto pwm_config_buf     = io::adbms::readPwmReg();
 
+    const io::unique_semaphore lock{ config_data_lock };
     for (uint8_t seg = 0U; seg < NUM_SEGMENTS; seg++)
     {
         if (!segment_config_buf[seg])
-        {
             return unexpected(segment_config_buf[seg].error());
-        }
+        if (!pwm_config_buf[seg])
+            return unexpected(pwm_config_buf[seg].error());
         if (segment_config_buf[seg].value() != segment_config[seg])
-        {
             return false;
-        }
+        if (pwm_config_buf[seg].value() != pwm_config[seg])
+            return false;
     }
     return true;
 }
+
+expected<void, ErrorCode> upload()
+{
+    const io::unique_semaphore lock{ config_data_lock };
+    RETURN_IF_ERR(io::adbms::writeConfigReg(segment_config));
+    RETURN_IF_ERR(io::adbms::writePwmReg(pwm_config));
+    return {};
+}
+
 } // namespace
 
 namespace app::segments::config
 {
-void setBalanceConfig(const Cells<bool> &balance_config, const bool balancing_enabled)
+void setBalanceConfig(const Cells<bool> &balance_config, const Cells<uint8_t> &pwm_duty, const bool balancing_enabled)
 {
+    const io::unique_semaphore lock{ config_data_lock };
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
         auto &[reg_a, reg_b] = segment_config[seg];
-        uint16_t dcc_bits    = 0U;
 
+        uint16_t dcc_bits = 0U;
         for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
-        {
-            dcc_bits |= static_cast<uint16_t>((balance_config[seg][cell] ? 1U : 0U) << cell);
-        }
-        reg_a.mute_st  = balancing_enabled;
-        reg_b.dcc_1_8  = static_cast<uint8_t>(dcc_bits & 0xFF);
-        reg_b.dcc_9_16 = static_cast<uint8_t>(dcc_bits >> 8 & 0xFF);
-    }
-}
+            dcc_bits |= static_cast<uint16_t>(static_cast<uint16_t>(balance_config[seg][cell]) << cell);
 
-void setPwmConfig(const Cells<uint8_t> &pwm_duty)
-{
-    for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
-    {
+        reg_a.mute_st  = balancing_enabled;
+        reg_b.dcc_1_8  = static_cast<uint8_t>(dcc_bits);
+        reg_b.dcc_9_16 = static_cast<uint8_t>(dcc_bits >> 8);
+
         const auto &d   = pwm_duty[seg];
         pwm_config[seg] = {
-            .reg_a = { static_cast<uint8_t>(d[0] & 0x0F), static_cast<uint8_t>(d[1] & 0x0F),
-                       static_cast<uint8_t>(d[2] & 0x0F), static_cast<uint8_t>(d[3] & 0x0F),
-                       static_cast<uint8_t>(d[4] & 0x0F), static_cast<uint8_t>(d[5] & 0x0F),
-                       static_cast<uint8_t>(d[6] & 0x0F), static_cast<uint8_t>(d[7] & 0x0F),
-                       static_cast<uint8_t>(d[8] & 0x0F), static_cast<uint8_t>(d[9] & 0x0F),
+            .reg_a = { static_cast<uint8_t>(d[0]  & 0x0F), static_cast<uint8_t>(d[1]  & 0x0F),
+                       static_cast<uint8_t>(d[2]  & 0x0F), static_cast<uint8_t>(d[3]  & 0x0F),
+                       static_cast<uint8_t>(d[4]  & 0x0F), static_cast<uint8_t>(d[5]  & 0x0F),
+                       static_cast<uint8_t>(d[6]  & 0x0F), static_cast<uint8_t>(d[7]  & 0x0F),
+                       static_cast<uint8_t>(d[8]  & 0x0F), static_cast<uint8_t>(d[9]  & 0x0F),
                        static_cast<uint8_t>(d[10] & 0x0F), static_cast<uint8_t>(d[11] & 0x0F) },
             .reg_b = { static_cast<uint8_t>(d[12] & 0x0F), static_cast<uint8_t>(d[13] & 0x0F), 0, 0 },
         };
@@ -85,44 +95,39 @@ void setPwmConfig(const Cells<uint8_t> &pwm_duty)
 
 void setThermistorConfig(const ThermistorMux mux)
 {
-    for (auto &[reg_a, _reg_b] : segment_config)
     {
-        UNUSED(_reg_b);
-        if (mux == ThermistorMux::THERMISTOR_MUX_0_7)
+        const io::unique_semaphore lock{ config_data_lock };
+        for (auto &cfg : segment_config)
         {
-            reg_a.gpio_1_8  = 0xFF;
-            reg_a.gpio_9_10 = 0x02;
-        }
-        else
-        {
-            reg_a.gpio_1_8  = 0xFF;
-            reg_a.gpio_9_10 = 0x03;
+            cfg.reg_a.gpio_1_8  = 0xFF;
+            cfg.reg_a.gpio_9_10 = (mux == ThermistorMux::THERMISTOR_MUX_0_7) ? 0x02 : 0x03;
         }
     }
+    config_sync_notifier.wait();
 }
 
 expected<void, ErrorCode> configSync()
 {
+    const auto already_equal = isConfigEqual();
+    RETURN_IF_ERR(already_equal);
+    if (already_equal.value())
+    {
+        config_sync_notifier.notifyIfWaiting();
+        return {};
+    }
+
     for (uint8_t tries = 0; tries < NUM_CONFIG_SYNC_TRIES; tries++)
     {
-        if (const auto write_ok = io::adbms::writeConfigReg(segment_config); !write_ok)
-        {
-            continue;
-        }
+        RETURN_IF_ERR(upload());
         const auto equal = isConfigEqual();
-        if (equal)
+        RETURN_IF_ERR(equal);
+        if (equal.value())
         {
+            config_sync_notifier.notifyIfWaiting();
             return {};
         }
-        LOG_IF_ERR(equal);
     }
     return unexpected(ErrorCode::RETRY_FAILED);
 }
 
-expected<void, ErrorCode> upload()
-{
-    RETURN_IF_ERR(io::adbms::writeConfigReg(segment_config));
-    RETURN_IF_ERR(io::adbms::writePwmReg(pwm_config));
-    return {};
-}
 } // namespace app::segments::config
