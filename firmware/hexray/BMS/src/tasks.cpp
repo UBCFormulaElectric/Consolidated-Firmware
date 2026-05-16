@@ -190,18 +190,12 @@ void tasks_runCanRx(void *arg)
 
 void tasks_runAdbmsVoltages(void *arg)
 {
-    const uint32_t                 period_ms                = 500U;
-    const uint32_t                 watchdog_grace_period_ms = 25U;
-    hw::watchdog::WatchdogInstance watchdogVoltages{ period_ms + watchdog_grace_period_ms };
-    hw::watchdog::monitor          monitorVoltages{ &watchdogVoltages, hiwdg1, HAL_IWDG_Refresh };
-    monitorVoltages.registerWatchdogInstance();
-    uint32_t start_ticks = osKernelGetTickCount();
+    const uint32_t period_ms    = 500U;
+    uint32_t       start_ticks  = osKernelGetTickCount();
 
     forever
     {
         jobs_runAdbmsVoltages_tick();
-        watchdogVoltages.checkIn();
-        monitorVoltages.checkForTimeouts();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -209,18 +203,12 @@ void tasks_runAdbmsVoltages(void *arg)
 
 void tasks_runAdbmsConfigs(void *arg)
 {
-    const uint32_t                 period_ms                = 500U;
-    const uint32_t                 watchdog_grace_period_ms = 25U;
-    hw::watchdog::WatchdogInstance watchdogFilteredVoltages{ period_ms + watchdog_grace_period_ms };
-    hw::watchdog::monitor          monitorFilteredVoltages{ &watchdogFilteredVoltages, hiwdg1, HAL_IWDG_Refresh };
-    monitorFilteredVoltages.registerWatchdogInstance();
-    uint32_t start_ticks = osKernelGetTickCount();
+    const uint32_t period_ms   = 500U;
+    uint32_t       start_ticks = osKernelGetTickCount();
 
     forever
     {
         jobs_runAdbmsConfigs_tick();
-        watchdogFilteredVoltages.checkIn();
-        monitorFilteredVoltages.checkForTimeouts();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -228,18 +216,12 @@ void tasks_runAdbmsConfigs(void *arg)
 
 void tasks_runAdbmsTemperatures(void *arg)
 {
-    const uint32_t                 period_ms                = 500U;
-    const uint32_t                 watchdog_grace_period_ms = 25U;
-    hw::watchdog::WatchdogInstance watchdogTemperatures{ period_ms + watchdog_grace_period_ms };
-    hw::watchdog::monitor          monitorTemperatures{ &watchdogTemperatures, hiwdg1, HAL_IWDG_Refresh };
-    monitorTemperatures.registerWatchdogInstance();
-    uint32_t start_ticks = osKernelGetTickCount();
+    const uint32_t period_ms   = 500U;
+    uint32_t       start_ticks = osKernelGetTickCount();
 
     forever
     {
         jobs_runAdbmsTemperatures_tick();
-        watchdogTemperatures.checkIn();
-        monitorTemperatures.checkForTimeouts();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -247,18 +229,12 @@ void tasks_runAdbmsTemperatures(void *arg)
 
 void tasks_runAdbmsDiagnostics(void *arg)
 {
-    const uint32_t                 period_ms                = 500U;
-    const uint32_t                 watchdog_grace_period_ms = 25U;
-    hw::watchdog::WatchdogInstance watchdogDiagnostics{ period_ms + watchdog_grace_period_ms };
-    hw::watchdog::monitor          monitorDiagnostics{ &watchdogDiagnostics, hiwdg1, HAL_IWDG_Refresh };
-    monitorDiagnostics.registerWatchdogInstance();
-    uint32_t start_ticks = osKernelGetTickCount();
+    const uint32_t period_ms   = 500U;
+    uint32_t       start_ticks = osKernelGetTickCount();
 
     forever
     {
         jobs_runAdbmsDiagnostics_tick();
-        watchdogDiagnostics.checkIn();
-        monitorDiagnostics.checkForTimeouts();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
