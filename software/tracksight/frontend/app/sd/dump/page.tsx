@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import useListSDCards from "@/lib/hooks/useListSDCards";
 import useSDCardFiles from "@/lib/hooks/useSDCardFiles";
 import useDumpSDCardFile, { DumpSDCardFileError } from "@/lib/mutations/useDumpSDCardFile";
+import { CardSim, Database, FileDigitIcon, FileIcon, FileUp } from "lucide-react";
 
 type SDCardFile = string;
 
@@ -75,36 +76,67 @@ const SDCardDumpErrorModal = (props: SDCardDumpErrorModalProps) => {
   );
 }
 
-const SDCardFileInfo = (props: SDCardFileInfoPropsMulti) => {
+const SDCardFileInfoContent = (props: SDCardFileInfoPropsMulti) => {
   const { selectedFiles, onDump, onClear } = props;
 
   if (!selectedFiles || selectedFiles.length === 0) {
     return (
-      <div className="bg-black/5 p-4 h-full" style={{ flexBasis: "33.3333%", width: "33.3333%" }}>
-        No files selected.
-        Select files from the list to dump their contents to the database.
+      <div className="h-full flex flex-col items-center gap-4 justify-center">
+          <FileIcon className="size-12 text-gray-300 mt-20" />
+          <div className="flex flex-col items-center gap-2">
+            <span className="text-gray-500 max-w-48 text-center text-lg">No files selected.</span>
+            <span className="text-gray-500 max-w-48 text-center opacity-75">Click on files from the list on the left to see details and dump options.</span>
+          </div>
       </div>
-    );
+    )
   }
 
   return (
-    <div className="bg-black/5 p-4 h-full flex flex-col gap-2" style={{ flexBasis: "33.3333%", width: "33.3333%" }}>
-      <span className="font-bold text-2xl">Selected Files:</span>
-      <ul className="mb-2">
+    <div className="flex flex-col gap-2 h-full">
+      <ul className="mb-2 flex flex-col gap-2 max-h-96 h-full overflow-y-scroll scrollbar-hidden">
         {selectedFiles.map((file) => (
-          <li key={file} className="flex flex-col">
-            File Name: {file} <br />
-            <hr className="my-2" />
+          <li key={file} className="flex gap-2 items-center bg-gray-100 p-2 rounded">
+            <FileUp className="mb-1 size-6 text-gray-500" />
+            <div className="flex justify-between flex-col">
+              <span>{file.split("/").pop()}</span>
+            </div>
           </li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+const SDCardFileInfo = (props: SDCardFileInfoPropsMulti) => {
+  const { selectedFiles, onDump, onClear } = props;
+
+  const hasFiles = selectedFiles && selectedFiles.length > 0;
+
+  return (
+    <div className="border border-black rounded h-full flex flex-col overflow-hidden" style={{ flexBasis: "33.3333%", width: "33.3333%" }}>
+      <span className="font-bold text-lg border-b flex flex-row justify-between border-black w-full p-4 bg-gray-100">
+        Selected Files
+      </span>
+      <div className="p-4 h-full">
+        <SDCardFileInfoContent selectedFiles={selectedFiles} onDump={onDump} onClear={onClear} />
+      </div>
       <div className="my-auto h-full" />
-      <div className="flex gap-2">
-        <button className="bg-gray-300 w-full text-black px-4 py-2 rounded hover:bg-gray-400 hover:cursor-pointer mr-2" onClick={onClear}>
-          Clear Selection
-        </button>
-        <button className="bg-blue-500 w-full text-white px-4 py-2 rounded hover:bg-blue-600 hover:cursor-pointer" onClick={onDump}>
+      <div className="border-t border-black w-full" />
+      <div className="flex gap-2 flex-col p-4">
+        <button
+          className="border-blue-500 border bg-blue-200/50 w-full flex items-center justify-center gap-2 p-4 hover:bg-blue-200/70 rounded hover:cursor-pointer disabled:cursor-not-allowed disabled:bg-blue-100/50 disabled:border-blue-300 disabled:text-gray-600"
+          onClick={onDump}
+          disabled={!hasFiles}
+        >
+          <Database className="size-6" />
           Dump to Database
+        </button>
+        <button
+          className="border-gray-500 border bg-gray-200/50 w-full flex items-center justify-center gap-2 p-4 hover:bg-gray-200/70 rounded hover:cursor-pointer disabled:cursor-not-allowed disabled:bg-gray-100/50 disabled:border-gray-300 disabled:text-gray-600"
+          onClick={onClear}
+          disabled={!hasFiles}
+        >
+          Clear Selection
         </button>
       </div>
     </div>
@@ -146,22 +178,25 @@ const SDCardFileList = (props: SDCardFileListPropsMulti) => {
   }
 
   return (
-    <div className="bg-black/5 p-4 h-full flex flex-col" style={{ flexBasis: "66.6667%", width: "66.6667%" }}>
-      <span className="font-bold text-2xl">
+    <div className="border border-black rounded h-full flex flex-col overflow-y-scroll scrollbar-hidden" style={{ flexBasis: "66.6667%", width: "66.6667%" }}>
+      <span className="font-bold text-lg border-b border-black w-full p-4 bg-gray-100">
         Files
       </span>
-      <div className="mt-4 grid grid-cols-2 gap-4">
+      <div className="flex flex-col">
         {files.map((file) => {
           const isSelected = selectedFiles.includes(file);
 
           return (
             <div
               key={file}
-              className={`h-min p-4 select-none w-full rounded bg-black/5 hover:cursor-pointer ${isSelected ? "bg-blue-500 text-white" : "hover:bg-gray-200"}`}
+              className={`h-min p-4 select-none border-b flex flex-row items-center gap-4 border-black w-full hover:cursor-pointer ${isSelected ? "bg-blue-100" : "hover:bg-blue-100/50"}`}
               onClick={() => onToggleFile(file)}
             >
-              <div className="flex justify-between">
-                <span>{file}</span>
+              <input type="checkbox" checked={isSelected} readOnly className="accent-blue-500" />
+              <FileDigitIcon className={`mb-1 size-8 ${isSelected ? "text-blue-500" : "opacity-75"}`} />
+              <div className="flex justify-between flex-col">
+                <span>{file.split("/").pop()}</span>
+                <span className="text-xs text-gray-500 font-mono">{file.split("/").slice(0, -1).join("/") || "/"}</span>
               </div>
             </div>
           );
@@ -247,8 +282,8 @@ const SDCardFileNavigator = (props: { sdCard: string | null }) => {
   const files = !sdCard
     ? null
     : availableFiles.error
-    ? null
-    : (availableFiles.data ?? null);
+      ? null
+      : (availableFiles.data ?? null);
 
   return (
     <div className="w-full h-full flex flex-row gap-8" style={{ height: "100%" }}>
@@ -265,30 +300,30 @@ const SDCardFileNavigator = (props: { sdCard: string | null }) => {
           options={
             dumpError.statusCode === 409 && pendingDump
               ? [
-                  {
-                    label: "Ignore and Proceed",
-                    onClick: () => {
-                      const filesToContinue = pendingDump.remainingFiles;
+                {
+                  label: "Ignore and Proceed",
+                  onClick: () => {
+                    const filesToContinue = pendingDump.remainingFiles;
 
-                      setDumpError(null);
-                      setSelectedFiles((currentSelectedFiles) =>
-                        currentSelectedFiles.filter((selectedFile) => selectedFile !== pendingDump.fileName)
-                      );
-                      setPendingDump(null);
-                      void handleDump(filesToContinue, false);
-                    },
+                    setDumpError(null);
+                    setSelectedFiles((currentSelectedFiles) =>
+                      currentSelectedFiles.filter((selectedFile) => selectedFile !== pendingDump.fileName)
+                    );
+                    setPendingDump(null);
+                    void handleDump(filesToContinue, false);
                   },
-                  {
-                    label: "Proceed",
-                    onClick: () => {
-                      const filesToContinue = [pendingDump.fileName, ...pendingDump.remainingFiles];
+                },
+                {
+                  label: "Proceed",
+                  onClick: () => {
+                    const filesToContinue = [pendingDump.fileName, ...pendingDump.remainingFiles];
 
-                      setDumpError(null);
-                      setPendingDump(null);
-                      void handleDump(filesToContinue, true);
-                    },
+                    setDumpError(null);
+                    setPendingDump(null);
+                    void handleDump(filesToContinue, true);
                   },
-                ]
+                },
+              ]
               : []
           }
         />
@@ -326,14 +361,16 @@ const SDCardPicker = (props: SDCardPickerProps) => {
         <button
           key={sdCard}
           onClick={() => onSelect(sdCard)}
-          className={`rounded px-4 py-2 text-left flex flex-col transition-colors hover:cursor-pointer ${
-            selected === sdCard
-              ? "bg-blue-500 text-white"
-              : "bg-black/5 hover:bg-black/10"
-          }`}
+          className={`rounded px-4 py-4 text-left flex gap-2 items-center transition-colors hover:cursor-pointer ${selected === sdCard
+              ? "border-blue-500 border bg-blue-100"
+              : "border-black hover:border-black/75 border"
+            }`}
         >
-          <span className="font-semibold text-sm">SD Card</span>
-          <span className={`text-xs font-mono ${selected === sdCard ? "text-blue-100" : "text-gray-500"}`}>{sdCard}</span>
+          <CardSim className={`mb-1 ${selected === sdCard ? "text-blue-500" : ""}`} />
+          <div className="flex flex-col leading-4">
+            <span className="font-semibold text-sm">SD Card</span>
+            <span className={`text-xs font-mono`}>{sdCard}</span>
+          </div>
         </button>
       ))}
     </div>
@@ -358,6 +395,7 @@ export default function HomePage() {
     <div className="px-14 gap-8 min-h-screen flex flex-col pb-20 overflow-hidden" style={{ height: "100vh" }}>
       <div className="pt-20 w-screen" />
       <span className="text-3xl font-bold">Dump SD Card</span>
+      <span className="text-sm text-gray-500">Select an SD card and files to dump their contents to the database.</span>
       <SDCardPicker selected={selectedSDCard} onSelect={setSelectedSDCard} sdCards={sdCards} isLoading={isLoading} error={error} />
       <div className="flex-1 flex h-full" style={{ height: "100%" }}>
         <SDCardFileNavigator sdCard={selectedSDCard} />
