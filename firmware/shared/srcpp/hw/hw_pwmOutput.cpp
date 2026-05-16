@@ -24,7 +24,7 @@ std::expected<void, ErrorCode> hw::PwmOutput::setDutyCycle(const float duty_cycl
     // Get current ARR value
     const uint32_t arr = __HAL_TIM_GET_AUTORELOAD(htim);
     // Calculate CCR value
-    const auto ccr_value = static_cast<uint32_t>((duty_cycle / 100.0f) * (static_cast<float>(arr + 1)));
+    const auto ccr_value = static_cast<uint32_t>(((100 - duty_cycle) / 100.0f) * (static_cast<float>(arr + 1)));
 
     // Set duty cycle
     // TODO what to do with x?

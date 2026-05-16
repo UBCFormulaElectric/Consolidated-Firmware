@@ -30,7 +30,7 @@ std::expected<void, ErrorCode> update(const config &c)
 
     led_data[0] = static_cast<uint8_t>(c.tv << 7) | static_cast<uint8_t>(color_bits(c.launch_control) << 4) |
                   static_cast<uint8_t>(color_bits(c.push_drive) << 1) | c.bspd;
-    led_data[1] = static_cast<uint8_t>(color_bits(c.rsm) << 5) | static_cast<uint8_t>(c.imd << 4) |
+    led_data[1] = static_cast<uint8_t>(color_bits(c.rsm) << 5) | static_cast<uint8_t>(c.regen << 4) |
                   static_cast<uint8_t>(c.ams << 3) | color_bits(c.bms);
     led_data[2] = static_cast<uint8_t>(dam_b << 7) | static_cast<uint8_t>(color_bits(c.fsm) << 4) |
                   static_cast<uint8_t>(c.imd << 3) | color_bits(c.crit);

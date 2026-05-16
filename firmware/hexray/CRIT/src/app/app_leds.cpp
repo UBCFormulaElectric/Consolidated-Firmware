@@ -2,13 +2,22 @@
 #include "app_switches.hpp"
 #include "app_leds.hpp"
 #include "io_leds.hpp"
+#include "app_canAlerts.hpp"
+#include "io_switches.hpp"
+#include "hw_gpios.hpp"
 
 namespace app::leds
 {
-// static io::leds::color boolToColor(const bool condition)
-// {
-//     return condition ? io::leds::color::GREEN : io::leds::color::RED;
-// }
+static io::leds::color board_status(const bool fault, const bool warning, const bool heartbeat)
+{
+    if (not heartbeat)
+        return io::leds::color::OFF;
+    if (warning)
+        return io::leds::color::YELLOW;
+    if (fault)
+        return io::leds::color::RED;
+    return io::leds::color::GREEN;
+}
 
 void init()
 {
@@ -52,25 +61,37 @@ void setLeds()
      * ready condition based on pedal percentage
      */
     std::expected<void, ErrorCode> ec = io::leds::update(io::leds::config{
+        board_status(
+            can_alerts::BoardHasFault(can_utils::CanNode::RSM_NODE),
+            can_alerts::BoardHasWarning(can_utils::CanNode::RSM_NODE), can_rx::RSM_Heartbeat_get()),
+        board_status(
+            can_alerts::BoardHasFault(can_utils::CanNode::BMS_NODE),
+            can_alerts::BoardHasWarning(can_utils::CanNode::BMS_NODE), can_rx::BMS_Heartbeat_get()),
+        board_status(
+            can_alerts::BoardHasFault(can_utils::CanNode::VC_NODE),
+            can_alerts::BoardHasWarning(can_utils::CanNode::VC_NODE), can_rx::VC_Heartbeat_get()),
+        board_status(
+            can_alerts::BoardHasFault(can_utils::CanNode::FSM_NODE),
+            can_alerts::BoardHasWarning(can_utils::CanNode::FSM_NODE), can_rx::FSM_Heartbeat_get()),
         io::leds::color::GREEN,
-        io::leds::color::GREEN,
-        io::leds::color::GREEN,
-        io::leds::color::GREEN,
-        io::leds::color::GREEN,
-        io::leds::color::GREEN,
-        io::leds::color::GREEN,
-        io::leds::color::GREEN,
-        io::leds::color::GREEN,
-        true,
-        true,
-        true,
-        true,
-        true,
+        board_status(
+            can_alerts::BoardHasFault(can_utils::CanNode::DAM_NODE),
+            can_alerts::BoardHasWarning(can_utils::CanNode::DAM_NODE), can_rx::DAM_Heartbeat_get()),
+        switches::launch_control_get() ? io::leds::color::GREEN : io::leds::color::OFF,
+        switches::start_get() ? io::leds::color::GREEN : io::leds::color::OFF,
+        can_rx::VC_FirstFaultNode_get() == can_utils::ShutdownNode::OK ? io::leds::color::OFF : io::leds::color::RED,
+        switches::regen_get(),
+        switches::torque_vectoring_get(),
+        !can_rx::BMS_ImdCurrentlyOk_get(),
+        false,
+        !can_rx::BMS_BspdCurrentlyOk_get(),
     });
+
+    const bool regen = regen_sig.getPin();
 
     LOG_IF_ERR(ec);
 
-    ec = io::leds::setBrightness(0.01f);
+    ec = io::leds::setBrightness(0.5f);
 
     LOG_IF_ERR(ec);
 }

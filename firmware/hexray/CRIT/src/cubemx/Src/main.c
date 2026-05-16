@@ -210,7 +210,7 @@ void PeriphCommonClock_Config(void)
     PeriphClkInitStruct.PLL2.PLL2Source     = RCC_PLL2_SOURCE_HSE;
     PeriphClkInitStruct.PLL2.PLL2M          = 1;
     PeriphClkInitStruct.PLL2.PLL2N          = 24;
-    PeriphClkInitStruct.PLL2.PLL2P          = 20;
+    PeriphClkInitStruct.PLL2.PLL2P          = 128;
     PeriphClkInitStruct.PLL2.PLL2Q          = 2;
     PeriphClkInitStruct.PLL2.PLL2R          = 2;
     PeriphClkInitStruct.PLL2.PLL2RGE        = RCC_PLL2_VCIRANGE_3;
@@ -360,7 +360,7 @@ static void MX_SPI2_Init(void)
     hspi2.Instance                     = SPI2;
     hspi2.Init.Mode                    = SPI_MODE_MASTER;
     hspi2.Init.Direction               = SPI_DIRECTION_2LINES_TXONLY;
-    hspi2.Init.DataSize                = SPI_DATASIZE_16BIT;
+    hspi2.Init.DataSize                = SPI_DATASIZE_8BIT;
     hspi2.Init.CLKPolarity             = SPI_POLARITY_LOW;
     hspi2.Init.CLKPhase                = SPI_PHASE_1EDGE;
     hspi2.Init.NSS                     = SPI_NSS_SOFT;
@@ -406,7 +406,7 @@ static void MX_SPI3_Init(void)
     hspi3.Instance                     = SPI3;
     hspi3.Init.Mode                    = SPI_MODE_MASTER;
     hspi3.Init.Direction               = SPI_DIRECTION_2LINES_TXONLY;
-    hspi3.Init.DataSize                = SPI_DATASIZE_16BIT;
+    hspi3.Init.DataSize                = SPI_DATASIZE_8BIT;
     hspi3.Init.CLKPolarity             = SPI_POLARITY_LOW;
     hspi3.Init.CLKPhase                = SPI_PHASE_1EDGE;
     hspi3.Init.NSS                     = SPI_NSS_SOFT;
