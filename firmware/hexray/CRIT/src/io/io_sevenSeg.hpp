@@ -10,14 +10,14 @@ inline constexpr size_t DIGITS = 9;
 
 __attribute__((packed)) struct digit
 {
-    bool c : 1   = false;
-    bool dot : 1 = false;
-    bool b : 1   = false;
-    bool a : 1   = false;
-    bool f : 1   = false;
-    bool g : 1   = false;
-    bool e : 1   = false;
     bool d : 1   = false;
+    bool e : 1   = false;
+    bool g : 1   = false;
+    bool f : 1   = false;
+    bool a : 1   = false;
+    bool b : 1   = false;
+    bool dot : 1 = false;
+    bool c : 1   = false;
     constexpr explicit digit(
         const bool _a,
         const bool _b,
@@ -27,7 +27,7 @@ __attribute__((packed)) struct digit
         const bool _f,
         const bool _g,
         const bool _dot)
-      : c(_c), dot(_dot), b(_b), a(_a), f(_f), g(_g), e(_e), d(_d)
+      : d(_d), e(_e), g(_g), f(_f), a(_a), b(_b), dot(_dot), c(_c)
     {
     }
 

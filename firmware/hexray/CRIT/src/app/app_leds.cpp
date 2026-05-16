@@ -87,8 +87,6 @@ void setLeds()
         !can_rx::BMS_BspdCurrentlyOk_get(),
     });
 
-    const bool regen = regen_sig.getPin();
-
     LOG_IF_ERR(ec);
 
     ec = io::leds::setBrightness(0.5f);
