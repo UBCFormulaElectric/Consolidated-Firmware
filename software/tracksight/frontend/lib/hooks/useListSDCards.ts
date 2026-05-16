@@ -1,9 +1,11 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
 
-import { API_BASE_URL } from "@/lib/constants";
+import { API_BASE_URL, IS_MOCK } from "@/lib/constants";
+
+const SD_CARD_API_VERSION = IS_MOCK ? "mock" : "v1";
 
 const fetchSDCards = async () => {
-    const response = await fetch(`${API_BASE_URL}/api/mock/sd/list`);
+    const response = await fetch(`${API_BASE_URL}/api/${SD_CARD_API_VERSION}/sd/list`);
 
     if (!response.ok) {
         throw new Error(`Failed to fetch sd cards: ${response.statusText}`);

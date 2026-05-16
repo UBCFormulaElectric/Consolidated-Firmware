@@ -1,9 +1,11 @@
 import { queryOptions, skipToken, useQuery } from "@tanstack/react-query";
 
-import { API_BASE_URL } from "@/lib/constants";
+import { API_BASE_URL, IS_MOCK } from "@/lib/constants";
+
+const SD_CARD_API_VERSION = IS_MOCK ? "mock" : "v1";
 
 const fetchSDCardFiles = async (drive: string) => {
-    const response = await fetch(`${API_BASE_URL}/api/mock/sd/show?drive=${drive}`);
+    const response = await fetch(`${API_BASE_URL}/api/${SD_CARD_API_VERSION}/sd/show?drive=${drive}`);
 
     if (!response.ok) {
         throw new Error(`Failed to fetch sd card files: ${response.statusText}`);
