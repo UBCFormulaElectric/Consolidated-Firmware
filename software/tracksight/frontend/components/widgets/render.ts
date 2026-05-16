@@ -115,10 +115,10 @@ function render_enum(
 
     let currentStripY = CHART_PADDING.top + LEGEND_HEIGHT;
     for (let series_idx = 0; series_idx < widgetConfig.signals.length; series_idx++) {
-        const signalMetadata = widgetConfig.signals[series_idx];
         const series = widgetConfig.data[series_idx];
         const selectedLOD = series.lods[selectLOD(series, visibleEndTime - visibleStartTime, width)];
         const { data: seriesData, timestamps: seriesTimestamps } = selectedLOD;
+        const signalMetadata = signalConfigByName.get(series.label);
         const isHovered = hoveredSignal?.current === series.label;
 
         context.fillStyle = "#000000";
@@ -175,11 +175,11 @@ function render_enum(
 
             const value = seriesData[closestIdx];
             hoverValues.push({
-                name: signalMetadata.name,
-                value: value !== null ? Object.entries(signalMetadata.enum_signal.enum_values).find(([_, v]) => v === value)?.[0] ?? "N/A" : "N/A",
+                name: signalMetadata?.name || "Unknown Signal",
+                value: value !== null ? Object.entries(signalMetadata?.enum_signal?.enum_values || {}).find(([_, v]) => v === value)?.[0] ?? "N/A" : "N/A",
             });
         } else {
-            hoverValues.push({ name: signalMetadata.name, value: "N/A" });
+            hoverValues.push({ name: signalMetadata?.name || "N/A", value: "N/A" });
         }
 
         // move to the next strip
