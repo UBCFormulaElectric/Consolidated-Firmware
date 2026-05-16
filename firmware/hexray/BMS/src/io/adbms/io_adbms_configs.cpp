@@ -16,10 +16,9 @@ expected<void, ErrorCode> writeConfigReg(const array<SegmentConfig, NUM_SEGMENTS
         memcpy(cfgb_regs[seg].data(), &config[seg].reg_b, sizeof(CFGB));
     }
 
-    if (const auto err = writeRegGroup(WRCFGA, cfga_regs); not err)
-        return err;
-    if (const auto err = writeRegGroup(WRCFGB, cfgb_regs); not err)
-        return err;
+    RETURN_IF_ERR(writeRegGroup(WRCFGA, cfga_regs));
+    RETURN_IF_ERR(writeRegGroup(WRCFGB, cfgb_regs));
+
     return {};
 }
 

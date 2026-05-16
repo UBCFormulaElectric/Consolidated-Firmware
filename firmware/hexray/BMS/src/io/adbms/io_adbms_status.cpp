@@ -11,13 +11,11 @@ namespace io::adbms
 expected<void, ErrorCode> clearStatReg()
 {
     array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> clr_regs{};
-    
+
     RETURN_IF_ERR(sendCmd(CLRAUX));
-
-
-    RETURN_IF_ERR(sendCmd(CLRFLAG));
-    RETURN_IF_ERR(sendCmd(CLOVUV));
-    return {};
+    RETURN_IF_ERR(writeRegGroup(CLRFLAG, clr_regs));
+    RETURN_IF_ERR(writeRegGroup(CLOVUV, clr_regs));
+    return {}
 }
 
 Segments<std::expected<StatusGroups, ErrorCode>> readStatusReg()
