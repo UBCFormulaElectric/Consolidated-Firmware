@@ -251,13 +251,13 @@ static void DAM_StartAllTasks()
 {
     Task100Hz.start();
     // TaskCanTx.start();
-    TaskCanRx.start();
+    // TaskCanRx.start();
     Task1kHz.start();
     Task1Hz.start();
     TaskLogging.start();
-    TaskTelemTx.start();
-    TaskTelemRx.start();
-    TaskTelemParse.start();
+    // TaskTelemTx.start();
+    // TaskTelemRx.start();
+    // TaskTelemParse.start();
 }
 
 void tasks_preInit()
@@ -282,7 +282,6 @@ void tasks_init()
     }
 
     osKernelInitialize();
-    hw_uarts_init();
     jobs_init();
     DAM_StartAllTasks();
     osKernelStart();
