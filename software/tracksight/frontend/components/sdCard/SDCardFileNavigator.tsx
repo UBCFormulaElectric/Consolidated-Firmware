@@ -91,9 +91,7 @@ const SDCardFileNavigator = (props: SDCardFileNavigatorProps) => {
 
         setDumpError({
           message:
-            statusCode === 409
-              ? SD_CARD_ERROR_MESSAGES[409].replace("{{fileName}}", file)
-              : message,
+            SD_CARD_ERROR_MESSAGES[statusCode]?.replace("{{fileName}}", file) ?? message,
           statusCode,
           fileName: file,
         });

@@ -6,6 +6,7 @@ const SD_CARD_API_VERSION = IS_MOCK ? "mock" : "v1";
 const ERROR_CODES = {
     CONFLICT: "Could not dump file as doing so would overwrite an existing file",
     MALFORMED: "Could not dump file as it doesn't exists",
+    SERVER_ERROR: "Could not dump file due to a server error while reading from the SD card",
 };
 
 export class DumpSDCardFileError extends Error {
@@ -36,6 +37,10 @@ const useDumpSDCardFile = () => {
 
             if (response.status === 400) {
                 throw new DumpSDCardFileError(response.status, ERROR_CODES.MALFORMED);
+            }
+
+            if (response.status === 500) {
+                throw new DumpSDCardFileError(response.status, ERROR_CODES.SERVER_ERROR);
             }
 
             if (!response.ok) {
