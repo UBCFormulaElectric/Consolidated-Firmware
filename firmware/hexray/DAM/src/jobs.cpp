@@ -54,9 +54,11 @@ void jobs_init()
 
 void jobs_initLogFs()
 {
-    LOG_INFO("SD_CD via hw::gpio.readPin(): %d", static_cast<int>(sd_present.readPin()));
-    LOG_INFO("sd present: %d", sd1.sdPresent());
-    LOG_INFO("hsd1 state: %lu", HAL_SD_GetCardState(&sd1.getHsd()));
+    LOG_INFO("hsd1 state: %lu", sd1.getCardState());
+    // LOG_IF_ERR(sd1.upgrade_buswidth());
+    // LOG_INFO("upgraded buswidth");
+    LOG_IF_ERR(sd1.update_speed());
+    LOG_INFO("upgraded speed");
 
     // --- Raw single-block read test of block 0 ---
     {
@@ -85,20 +87,20 @@ void jobs_initLogFs()
         LOG_INFO("we init fine");
     }
 
-    if (const auto r = fs.open(LOG_PATH); r)
-    {
-        log_fd   = r.value();
-        log_open = true;
-    }
-    else
-    {
-        LOG_ERROR("Failed to open %s: %d", LOG_PATH, static_cast<int>(r.error()));
-    }
-
-    if (const auto err = app::bootcount::update(fs); !err)
-    {
-        LOG_ERROR("Failed to update bootcount: %d", static_cast<int>(err.error()));
-    };
+    // if (const auto r = fs.open(LOG_PATH); r)
+    // {
+    //     log_fd   = r.value();
+    //     log_open = true;
+    // }
+    // else
+    // {
+    //     LOG_ERROR("Failed to open %s: %d", LOG_PATH, static_cast<int>(r.error()));
+    // }
+    //
+    // if (const auto err = app::bootcount::update(fs); !err)
+    // {
+    //     LOG_ERROR("Failed to update bootcount: %d", static_cast<int>(err.error()));
+    // };
 }
 void jobs_run1Hz_tick()
 {

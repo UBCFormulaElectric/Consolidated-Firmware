@@ -141,6 +141,16 @@ class SdCard
         }
     }
 
+    std::expected<void, ErrorCode> upgrade_buswidth() const
+    {
+        return utils::convertHalStatus(HAL_SD_ConfigWideBusOperation(&_hsd, SDMMC_BUS_WIDE_4B));
+    }
+
+    std::expected<void, ErrorCode> update_speed() const
+    {
+        return utils::convertHalStatus(HAL_SD_ConfigSpeedBusOperation(&_hsd, SDMMC_SPEED_MODE_HIGH));
+    }
+
     /**
      * @brief   Read from sd card.
      * @param   pdata the span where the read data is stored;
