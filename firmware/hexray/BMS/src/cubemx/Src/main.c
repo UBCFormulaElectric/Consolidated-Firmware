@@ -801,7 +801,7 @@ static void MX_TIM5_Init(void)
     }
     sConfigIC.ICPolarity  = TIM_INPUTCHANNELPOLARITY_FALLING;
     sConfigIC.ICSelection = TIM_ICSELECTION_INDIRECTTI;
-    sConfigIC.ICPrescaler = TIM_ICPSC_DIV1;
+    sConfigIC.ICPrescaler = TIM_ICPSC_DIV8;
     sConfigIC.ICFilter    = 0;
     if (HAL_TIM_IC_ConfigChannel(&htim5, &sConfigIC, TIM_CHANNEL_3) != HAL_OK)
     {

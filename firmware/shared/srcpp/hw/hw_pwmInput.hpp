@@ -55,7 +55,12 @@ class PwmInput
     uint32_t              rising_edge_tim_channel;
     uint32_t              falling_edge_tim_channel;
     uint32_t              tim_auto_reload_reg;
-    bool                  reset_mode;
+
+    // Keeping ic_prescaler the same for both channels,
+    // Don't see why you would want to have unique for each channel.
+    // Verify in cubemx that both channels match.
+    uint32_t ic_prescaler;
+    bool     reset_mode;
 
     mutable bool pwm_active = true;
     mutable bool first_tick = false;
@@ -129,7 +134,8 @@ class PwmInput
         const uint32_t              falling_edge_tim_channel_in,
         const uint32_t              tim_auto_reload_reg_in,
         const bool                  reset_mode_in,
-        const uint32_t              pwm_min_frequency_hz_in)
+        const uint32_t              pwm_min_frequency_hz_in,
+        const uint32_t              ic_prescaler_in = 1U)
       : htim(htim_in),
         tim_active_channel(tim_active_channel_in),
         tim_frequency_hz(tim_frequency_hz_in),
@@ -138,11 +144,13 @@ class PwmInput
         tim_auto_reload_reg(tim_auto_reload_reg_in),
         reset_mode(reset_mode_in),
         mode(PwmMode::PWMINPUT),
-        active_timer(getActiveTimerDurationFromFrequency(pwm_min_frequency_hz_in))
+        ic_prescaler(ic_prescaler_in),
+        active_timer(getActiveTimerDurationFromFrequency(pwm_min_frequency_hz_in) * ic_prescaler_in)
     {
         // 1. Assert PWM isn't too fast (Ensure we get enough ticks for resolution)
         // e.g. We want AT LEAST 100 ticks per PWM period to measure it passably
-        if ((tim_frequency_hz_in / static_cast<float>(pwm_min_frequency_hz_in)) < 100.0f)
+        if ((tim_frequency_hz_in / static_cast<float>(pwm_min_frequency_hz_in) * static_cast<float>(ic_prescaler_in)) <
+            100.0f)
         {
             ERROR_PWM_TIMER_FREQUENCY_TOO_LOW_FOR_RESOLUTION();
         }
@@ -156,7 +164,8 @@ class PwmInput
         const uint32_t              rising_edge_tim_channel_in,
         const uint32_t              tim_auto_reload_reg_in,
         const bool                  reset_mode_in,
-        const float                 pwm_min_frequency_hz_in)
+        const float                 pwm_min_frequency_hz_in,
+        const uint32_t              ic_prescaler_in = 1U)
       : htim(htim_in),
         tim_active_channel(tim_active_channel_in),
         tim_frequency_hz(tim_frequency_hz_in),
@@ -165,11 +174,13 @@ class PwmInput
         tim_auto_reload_reg(tim_auto_reload_reg_in),
         reset_mode(reset_mode_in),
         mode(PwmMode::PWMFREQONLY),
-        active_timer(getActiveTimerDurationFromFrequency(pwm_min_frequency_hz_in))
+        ic_prescaler(ic_prescaler_in),
+        active_timer(getActiveTimerDurationFromFrequency(pwm_min_frequency_hz_in) * ic_prescaler_in)
     {
         // 1. Assert PWM isn't too fast (Ensure we get enough ticks for resolution)
         // e.g. We want AT LEAST 100 ticks per PWM period to measure it passably
-        if ((tim_frequency_hz_in / static_cast<float>(pwm_min_frequency_hz_in)) < 100.0f)
+        if ((tim_frequency_hz_in / static_cast<float>(pwm_min_frequency_hz_in) * static_cast<float>(ic_prescaler_in)) <
+            100.0f)
         {
             ERROR_PWM_TIMER_FREQUENCY_TOO_LOW_FOR_RESOLUTION();
         }

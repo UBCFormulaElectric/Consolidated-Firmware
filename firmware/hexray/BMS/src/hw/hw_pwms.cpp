@@ -32,7 +32,8 @@ constexpr hw::PwmInput evse_pwm_input(
     TIM_CHANNEL_3, // Falling Edge (Indirect)
     TIM5_AUTO_RELOAD_REG,
     TIM5_RESET_MODE,
-    TIM5_PWM_MIN_FREQUENCY);
+    TIM5_PWM_MIN_FREQUENCY,
+    TIM5_IC_PRESCALER);
 
 // HAL Interrupt Callback
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
