@@ -4,10 +4,6 @@
 
 namespace io::adbms
 {
-std::expected<void, ErrorCode> startCellsBaseAdcConversion()
-{
-    return sendCmd(ADCV_BASE);
-}
 
 std::expected<void, ErrorCode> owcCells(const OpenWireSwitch owcSwitch)
 {
