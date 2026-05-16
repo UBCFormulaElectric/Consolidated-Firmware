@@ -65,10 +65,10 @@ void jobs_initLogFs()
 
     // --- Raw single-block read test of block 0 ---
     {
-        static uint8_t          block0[512] __attribute__((aligned(4)));
-        SD_HandleTypeDef       *hsd   = &sd1.getHsd();
-        const uint32_t          t0    = HAL_GetTick();
-        uint32_t                waits = 0;
+        static uint8_t    block0[512] __attribute__((aligned(4)));
+        SD_HandleTypeDef *hsd   = &sd1.getHsd();
+        const uint32_t    t0    = HAL_GetTick();
+        uint32_t          waits = 0;
         while (HAL_SD_GetCardState(hsd) != HAL_SD_CARD_TRANSFER && (HAL_GetTick() - t0) < 1000)
             waits++;
         const uint32_t          state_before = HAL_SD_GetCardState(hsd);
