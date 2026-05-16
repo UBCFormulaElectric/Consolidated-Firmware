@@ -5,10 +5,10 @@
 
 namespace app::leds
 {
-static io::leds::color boolToColor(const bool condition)
-{
-    return condition ? io::leds::color::GREEN : io::leds::color::RED;
-}
+// static io::leds::color boolToColor(const bool condition)
+// {
+//     return condition ? io::leds::color::GREEN : io::leds::color::RED;
+// }
 
 void init()
 {
@@ -31,7 +31,7 @@ void init()
 
     LOG_IF_ERR(ec);
 
-    ec = io::leds::setBrightness(0.01f);
+    ec = io::leds::setBrightness(1);
 
     LOG_IF_ERR(ec);
 }
@@ -52,25 +52,25 @@ void setLeds()
      * ready condition based on pedal percentage
      */
     std::expected<void, ErrorCode> ec = io::leds::update(io::leds::config{
-        boolToColor(app::can_rx::RSM_Heartbeat_get()),
-        boolToColor(app::can_rx::BMS_Heartbeat_get()),
-        boolToColor(app::can_rx::VC_Heartbeat_get()),
-        boolToColor(app::can_rx::FSM_Heartbeat_get()),
         io::leds::color::GREEN,
-        boolToColor(app::can_rx::DAM_Heartbeat_get()),
-        boolToColor(switches::launch_control_get()),
-        boolToColor(switches::start_get()),
-        boolToColor(app::can_rx::VC_FirstFaultNode_get() == app::can_utils::ShutdownNode::OK),
-        switches::regen_get(),
-        switches::torque_vectoring_get(),
-        !app::can_rx::BMS_ImdCurrentlyOk_get(),
-        false,
-        !app::can_rx::BMS_BspdCurrentlyOk_get(),
+        io::leds::color::GREEN,
+        io::leds::color::GREEN,
+        io::leds::color::GREEN,
+        io::leds::color::GREEN,
+        io::leds::color::GREEN,
+        io::leds::color::GREEN,
+        io::leds::color::GREEN,
+        io::leds::color::GREEN,
+        true,
+        true,
+        true,
+        true,
+        true,
     });
 
     LOG_IF_ERR(ec);
 
-    ec = io::leds::setBrightness(1.0);
+    ec = io::leds::setBrightness(0.01f);
 
     LOG_IF_ERR(ec);
 }

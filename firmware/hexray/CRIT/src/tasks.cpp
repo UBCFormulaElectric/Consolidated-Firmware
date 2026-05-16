@@ -190,6 +190,7 @@ void tasks_preInit()
 void tasks_init()
 {
     SEGGER_SYSVIEW_Conf();
+    LOG_INFO("CRIT Reset!");
 
 #ifdef WATCHDOG_DISABLED
     __HAL_DBGMCU_FREEZE_IWDG();
