@@ -7,8 +7,14 @@ import useListSDCards from "@/lib/hooks/useListSDCards";
 import SDCardFileNavigator from "./SDCardFileNavigator";
 import SDCardPicker from "./SDCardPicker";
 
-const SDCardDumpPage = () => {
-  const [selectedSDCard, setSelectedSDCard] = useState<string | null>(null);
+type SDCardDumpPageProps = {
+  initialSelectedSDCard?: string | null;
+};
+
+const SDCardDumpPage = (props: SDCardDumpPageProps) => {
+  const { initialSelectedSDCard = null } = props;
+
+  const [selectedSDCard, setSelectedSDCard] = useState<string | null>(initialSelectedSDCard);
   const { data: sdCards, isLoading, error } = useListSDCards();
 
   useEffect(() => {

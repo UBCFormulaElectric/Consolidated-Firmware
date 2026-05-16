@@ -1,6 +1,21 @@
-import SDCardDumpPage from "../../../components/sdCard/SDCardDumpPage";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 
-export default function HomePage() {
+import SDCardDumpPage from "@/components/sdCard/SDCardDumpPage";
+import { getQueryClient } from "@/lib/contexts/getQueryClient";
+import { listSDCardsQueryOptions } from "@/lib/hooks/useListSDCards";
+import { sdCardFilesQueryOptions } from "@/lib/hooks/useSDCardFiles";
+
+export default async function HomePage() {
+  const queryClient = getQueryClient();
+
+  const sdCards = await queryClient.fetchQuery(listSDCardsQueryOptions()).catch(() => null);
+
+  if (sdCards && sdCards.length > 0) {
+    await Promise.all(
+      sdCards.map((card) => queryClient.prefetchQuery(sdCardFilesQueryOptions(card)))
+    );
+  }
+
   return (
     <div
       className="px-14 gap-8 min-h-screen flex flex-col pb-20 overflow-hidden"
@@ -12,7 +27,9 @@ export default function HomePage() {
         Select an SD card and files to dump their contents to the database.
       </span>
 
-      <SDCardDumpPage />
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <SDCardDumpPage initialSelectedSDCard={sdCards?.[0] ?? null} />
+      </HydrationBoundary>
     </div>
   );
 }
