@@ -16,6 +16,9 @@ list(APPEND EMBEDDED_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/efuse/io_efuse_TI_TPS28.cpp"
         "${SHARED_IO_INCLUDE_DIR_CPP}/efuse/io_efuse_TI_TPS25.cpp"
         "${SHARED_IO_INCLUDE_DIR_CPP}/efuse/io_efuse_ST_VND5.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_math.hpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_gpio.hpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_cordic.cpp"
         "${SHARED_HW_INCLUDE_DIR}/hw_utils.c"
         "${SHARED_HW_INCLUDE_DIR}/hw_error.c"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
@@ -36,6 +39,7 @@ set(EMBEDDED_INCLUDE_DIRS
         "${SHARED_IO_INCLUDE_DIR_CPP}"
         "${SHARED_HW_INCLUDE_DIR}"
         "${SHARED_HW_INCLUDE_DIR_CPP}"
+        "${SHARED_UTIL_INCLUDE_DIR_CPP}"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/cubemx/Inc"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
@@ -80,6 +84,7 @@ IF ("${TARGET}" STREQUAL "binary")
             "stm32h5xx_hal_pwr_ex.c"
             "stm32h5xx_hal_flash.c"
             "stm32h5xx_hal_spi.c"
+            "stm32h5xx_hal_cordic.c"
     )
 
     set(CUBEMX_INCLUDE_DIRS
@@ -119,6 +124,7 @@ IF ("${TARGET}" STREQUAL "binary")
 
     if ("${BOOTLOAD}" STREQUAL "ON")
         # Bootloader files.
+        add_compile_definitions(BOOTLOAD)
         file(GLOB BOOT_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.cpp")
         file(GLOB BOOT_CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
         set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")

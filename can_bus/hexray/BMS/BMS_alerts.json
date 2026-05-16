@@ -50,8 +50,20 @@
       "id": 456,
       "description": "Failed to communicate with ADBMS modules."
     },
-    "TESTFAULT": {
+    "ImdLatched": {
       "id": 457,
+      "description": "IMD fault latch captured a fault."
+    },
+    "HardwareBspdLatched": {
+      "id": 458,
+      "description": "Hardware brake system plausibility device fault latched."
+    },
+    "BmsLatched": {
+      "id": 459,
+      "description": "BMS fault latched."
+    },
+    "TESTFAULT": {
+      "id": 460,
       "description": "FOR UNIT TESTING ONLY DO NOT EVER EVER THROW"
     }
   },
@@ -59,19 +71,19 @@
   "info_counts_id": 406,
   "info": {
     "StackOverflow": {
-      "id": 458,
+      "id": 461,
       "description": "An RTOS task stack overflowed on the previous boot cycle"
     },
     "CriticalPrechargeFailure": {
-      "id": 459,
+      "id": 462,
       "description": "Precharge failed >3x"
     },
     "WatchdogTimeout": {
-      "id": 460,
+      "id": 463,
       "description": "Watchdog timeout detected"
     },
     "MissingVCHeartbeat": {
-      "id": 461,
+      "id": 464,
       "description": "Missing VC heartbeat signal"
     }
   }

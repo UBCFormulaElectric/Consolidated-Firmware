@@ -47,7 +47,6 @@ set(HW_SHARED_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_uart.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmOutput.cpp"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_watchdog.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_resetReason.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_bootup.cpp"
 )
@@ -160,14 +159,11 @@ if ("${TARGET}" STREQUAL "binary")
 
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
-    set(TEST_IO_SRCS
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_telemMessage.cpp"
-    )
     set(FAKE_SRCS
             "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/test/fake_io_crc.cpp"
     )
-    set(SRCS ${APP_SRCS} ${APP_SHARED_SRCS} ${JOBS_SRC} ${TEST_IO_SRCS} ${TEST_SRCS} ${FAKE_SRCS})
+    set(SRCS ${APP_SRCS} ${APP_SHARED_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
     set(INCLUDE_DIRS
             ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS}
             ${SHARED_FAKES_DIR_CPP} ${SYSTEM_INCLUDE_DIRS}

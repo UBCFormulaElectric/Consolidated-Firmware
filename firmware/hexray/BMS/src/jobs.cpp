@@ -3,32 +3,32 @@
 #include "util_errorCodes.hpp"
 
 // app
-#include "app_canTx.hpp"
-#include "app_canRx.hpp"
-#include "app_canAlerts.hpp"
-#include "app_states.hpp"
-#include "app_precharge.hpp"
-#include "app_segments.hpp"
-#include "app_segments_internal.hpp"
-#include "app_powerLimit.hpp"
 #include "app_bmsShdnLoop.hpp"
-#include "app_tractiveSystem.hpp"
-#include "app_irs.hpp"
-#include "app_heartbeatMonitors.hpp"
-#include "app_heartbeatMonitor.hpp"
-#include "app_jsoncan.hpp"
+#include "app_canAlerts.hpp"
+#include "app_canRx.hpp"
+#include "app_canTx.hpp"
 #include "app_canUtils.hpp"
 #include "app_commitInfo.hpp"
+#include "app_heartbeatMonitor.hpp"
+#include "app_heartbeatMonitors.hpp"
+#include "app_irs.hpp"
+#include "app_jsoncan.hpp"
+#include "app_powerLimit.hpp"
+#include "app_precharge.hpp"
+#include "app_segments.hpp"
+#include "app_states.hpp"
+#include "app_tractiveSystem.hpp"
 
-#include "io_canQueues.hpp"
-#include "io_canMsg.hpp"
-#include "io_time.hpp"
-#include "io_semaphore.hpp"
+// io
 #include "io_bspdTest.hpp"
+#include "io_canMsg.hpp"
+#include "io_canQueues.hpp"
+#include "io_canTx.hpp"
 #include "io_charger.hpp"
 #include "io_fans.hpp"
 #include "io_faultLatch.hpp"
-#include "io_canTx.hpp"
+#include "io_semaphore.hpp"
+#include "io_time.hpp"
 
 io::semaphore spi_bus_lock(true);
 
@@ -66,7 +66,6 @@ void jobs_init()
     LOG_IF_ERR(io::adbms::clear::StatReg());
     LOG_INFO("Segment Initialization Done");
 #endif
-    // app::segments::initFaults();
     app::StateMachine::init(&app::states::init_state);
     app::can_tx::BMS_Heartbeat_set(true);
 }
@@ -85,47 +84,48 @@ void jobs_run100Hz_tick()
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEBUG, debug_mode_enabled);
 
     app::ts::broadcast();
-    // app::imd::broadcast();
     app::shdn::bms_shdnLoop.broadcast();
     app::plim::broadcast();
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
 
     // TODO: Enable fans for endurance when contactors are closed.
-    // const bool hv_up = io_irs_isNegativeClosed() && io_irs_isPositiveClosed();
-    // io::fans::tick(hv_up);
     io::fans::tick(false);
 
     io::bspdtest::enable(app::can_rx::Debug_EnableTestCurrent_get());
     app::can_tx::BMS_BSPDCurrentThresholdExceeded_set(io::bspdtest::isCurrentThresholdExceeded());
 
-    // If charge state has not placed a lock on broadcasting
-    // if the charger is charger is connected
     app::can_tx::BMS_ChargerConnectedType_set(io::charger::getConnectionStatus());
+
+    using FaultLatchState = io::FaultLatch::FaultLatchState;
 
 #ifdef TARGET_HV_SUPPLY
     const bool acc_fault = false;
 #else
-    // app::segments::checkWarnings();
-    // const bool acc_fault = app::segments::checkFaults();
+    // TODO: Re-enable segment fault integration once the new segment fault path is complete.
+    const bool acc_fault = false;
 #endif
-    using namespace io::faultLatch;
 
-    // setCurrentStatus(&bms_ok_latch, acc_fault ? FaultLatchState::FAULT : FaultLatchState::OK);
-    setCurrentStatus(&bms_ok_latch, FaultLatchState::OK);
+    bms_ok_latch.setCurrentStatus(acc_fault ? FaultLatchState::FAULT : FaultLatchState::OK);
 
-    // Update CAN signals for BMS latch statuses.
-    app::can_tx::BMS_BmsCurrentlyOk_set(getCurrentStatus(&bms_ok_latch) == FaultLatchState::OK);
-    app::can_tx::BMS_ImdCurrentlyOk_set(getCurrentStatus(&imd_ok_latch) == FaultLatchState::OK);
-    app::can_tx::BMS_BspdCurrentlyOk_set(getCurrentStatus(&bspd_ok_latch) == FaultLatchState::OK);
-    app::can_tx::BMS_BmsLatchOk_set(getLatchedStatus(&bms_ok_latch) == FaultLatchState::OK);
-    app::can_tx::BMS_ImdLatchOk_set(getLatchedStatus(&imd_ok_latch) == FaultLatchState::OK);
-    app::can_tx::BMS_BspdLatchOk_set(getLatchedStatus(&bspd_ok_latch) == FaultLatchState::OK);
+    const bool imd_latched_ok  = imd_ok_latch.getLatchedStatus() == FaultLatchState::OK;
+    const bool bspd_latched_ok = bspd_ok_latch.getLatchedStatus() == FaultLatchState::OK;
+    const bool bms_latched_ok  = bms_ok_latch.getLatchedStatus() == FaultLatchState::OK;
+
+    app::can_alerts::faults::ImdLatched_set(not imd_latched_ok);
+    app::can_alerts::faults::HardwareBspdLatched_set(not bspd_latched_ok);
+    app::can_alerts::faults::BmsLatched_set(not bms_latched_ok);
+
+    app::can_tx::BMS_BmsCurrentlyOk_set(bms_ok_latch.getLatchedStatus() == FaultLatchState::OK);
+    app::can_tx::BMS_ImdCurrentlyOk_set(imd_ok_latch.getLatchedStatus() == FaultLatchState::OK);
+    app::can_tx::BMS_BspdCurrentlyOk_set(bspd_ok_latch.getLatchedStatus() == FaultLatchState::OK);
+    app::can_tx::BMS_BmsLatchOk_set(bms_latched_ok);
+    app::can_tx::BMS_ImdLatchOk_set(imd_latched_ok);
+    app::can_tx::BMS_BspdLatchOk_set(bspd_latched_ok);
 
     app::can_tx::BMS_BSPDBrakePressureThresholdExceeded_set(io::bspdtest::isBrakePressureThresholdExceeded());
     app::can_tx::BMS_BSPDAccelBrakeOk_set(io::bspdtest::isAccelBrakeOk());
 
-    // commnet back in
     const bool ir_negative_opened_debounced = app::irs::negativeOpenedDebounced();
     const bool balancing_enabled            = app::can_rx::Debug_CellBalancing_Request_get();
 
