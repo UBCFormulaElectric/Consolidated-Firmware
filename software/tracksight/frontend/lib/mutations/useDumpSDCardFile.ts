@@ -1,5 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
-import { API_BASE_URL } from "../constants";
+import { API_BASE_URL, IS_MOCK } from "../constants";
+
+const SD_CARD_API_VERSION = IS_MOCK ? "mock" : "v1";
 
 const ERROR_CODES = {
     CONFLICT: "Could not dump file as doing so would overwrite an existing file",
@@ -20,7 +22,7 @@ const useDumpSDCardFile = () => {
   return useMutation({
         mutationFn: async (body: { drive: string; file: string; overwrite?: boolean }) => {
             console.log(body);
-            const response = await fetch(`${API_BASE_URL}/api/mock/sd/dump`, {
+            const response = await fetch(`${API_BASE_URL}/api/${SD_CARD_API_VERSION}/sd/dump`, {
                 body: JSON.stringify(body),
                 headers: {
                     "Content-Type": "application/json",
