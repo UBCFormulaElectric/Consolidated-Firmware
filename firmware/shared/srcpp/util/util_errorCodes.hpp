@@ -13,6 +13,7 @@ enum class ErrorCode
     UNIMPLEMENTED,
     RETRY_FAILED,
     CHECKSUM_FAIL,
+    CMD_COUNT_MISMATCH, // ADBMS6830B command counter (idk if this should be here)
     ERROR_INDETERMINATE, // use this for when you don't know what the exit code is YET
     NUM_EXIT_CODES,
 };
@@ -37,6 +38,8 @@ constexpr const char *error_code_to_string(const ErrorCode code)
             return "Retry failed";
         case ErrorCode::CHECKSUM_FAIL:
             return "Checksum fail";
+        case ErrorCode::CMD_COUNT_MISMATCH:
+            return "Command counter mismatch";
         case ErrorCode::ERROR_INDETERMINATE:
             return "Indeterminate error";
         case ErrorCode::NUM_EXIT_CODES:

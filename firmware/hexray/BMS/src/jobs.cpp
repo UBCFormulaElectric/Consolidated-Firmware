@@ -9,6 +9,7 @@
 #include "app_states.hpp"
 #include "app_precharge.hpp"
 #include "app_segments.hpp"
+#include "app_segments_internal.hpp"
 #include "app_powerLimit.hpp"
 #include "app_bmsShdnLoop.hpp"
 #include "app_tractiveSystem.hpp"
@@ -30,7 +31,6 @@
 #include "io_canTx.hpp"
 
 io::semaphore spi_bus_lock(true);
-io::semaphore adbms_app_lock(true);
 
 static void jsoncan_transmit_func(const JsonCanMsg &tx_msg)
 {
@@ -64,7 +64,6 @@ void jobs_init()
     LOG_IF_ERR(io::adbms::clear::FilteredCellVoltageReg());
     LOG_IF_ERR(io::adbms::clear::CellAuxReg());
     LOG_IF_ERR(io::adbms::clear::StatReg());
-    LOG_IF_ERR(app::segments::config::configSync());
     LOG_INFO("Segment Initialization Done");
 #endif
     // app::segments::initFaults();
@@ -155,65 +154,99 @@ void jobs_run1kHz_tick()
 
 void jobs_runAdbmsVoltages_tick()
 {
-    Cells<float> voltages;
-    CellSuccess  voltages_success;
+    app::segments::health::resetAll(app::segments::health::Bit::Voltage);
 
+    std::expected<Cells<std::expected<float, ErrorCode>>, ErrorCode> volt_r;
+    std::expected<Cells<std::expected<bool, ErrorCode>>, ErrorCode>  owc_r;
     {
         const io::unique_semaphore s{ spi_bus_lock };
-        LOG_IF_ERR(io::adbms::wakeup());
-        LOG_IF_ERR(app::segments::config::upload());
-        LOG_IF_ERR(app::segments::runVoltageConversion(voltages, voltages_success));
+        volt_r = app::segments::runVoltageConversion();
+        owc_r  = app::segments::runCellOpenWireCheck();
     }
+
+    Cells<std::expected<float, ErrorCode>> voltages{};
+    if (volt_r)
     {
-        const io::unique_semaphore s{ adbms_app_lock };
-        app::segments::broadcast::cellVoltages(voltages, voltages_success);
+        voltages = volt_r.value();
+        app::segments::health::setAll(app::segments::health::Bit::Voltage);
     }
+
+    Cells<std::expected<bool, ErrorCode>> owc{};
+    if (owc_r)
+        owc = owc_r.value();
+
+    app::segments::broadcast::cellVoltages(voltages);
+    app::segments::broadcast::owc(owc);
 }
 
 void jobs_runAdbmsConfigs_tick()
 {
-    
+    app::segments::health::resetAll(app::segments::health::Bit::Config);
+
+    std::expected<void, ErrorCode> sync_result;
+    {
+        const io::unique_semaphore s{ spi_bus_lock };
+        sync_result = app::segments::config::configSync();
+    }
+    if (sync_result)
+        app::segments::health::setAll(app::segments::health::Bit::Config);
 }
 
 void jobs_runAdbmsTemperatures_tick()
 {
-    Therms<float>   temps;
-    ThermSuccess    temp_success;
-    Segments<float> seg_voltages;
-    SegmentSuccess  seg_voltages_success;
+    app::segments::health::resetAll(app::segments::health::Bit::Temp);
 
+    std::expected<Therms<std::expected<float, ErrorCode>>, ErrorCode>   temp_r;
+    std::expected<Segments<std::expected<float, ErrorCode>>, ErrorCode> seg_r;
     {
         const io::unique_semaphore s{ spi_bus_lock };
-        LOG_IF_ERR(io::adbms::wakeup());
-        LOG_IF_ERR(app::segments::config::upload());
-        LOG_IF_ERR(app::segments::runTempConversion(temps, temp_success));
-        LOG_IF_ERR(app::segments::runSegVoltageConversion(seg_voltages, seg_voltages_success));
+        temp_r = app::segments::runTempConversion();
+        seg_r  = app::segments::runSegVoltageConversion();
     }
+
+    Therms<std::expected<float, ErrorCode>> temp_results{};
+    if (temp_r)
     {
-        const io::unique_semaphore s{ adbms_app_lock };
-        app::segments::broadcast::temps(temps, temp_success);
+        temp_results = temp_r.value();
+        app::segments::health::setAll(app::segments::health::Bit::Temp);
     }
-    app::segments::broadcast::segVoltages(seg_voltages, seg_voltages_success);
+    else
+    {
+        for (auto &seg : temp_results)
+            seg.fill(std::unexpected(temp_r.error()));
+    }
+
+    Segments<std::expected<float, ErrorCode>> seg_voltage_results{};
+    if (seg_r)
+        seg_voltage_results = seg_r.value();
+    else
+        seg_voltage_results.fill(std::unexpected(seg_r.error()));
+
+    app::segments::broadcast::temps(temp_results);
+    app::segments::broadcast::segVoltages(seg_voltage_results);
 }
 
 void jobs_runAdbmsDiagnostics_tick()
 {
-    Status         status;
-    SegmentSuccess status_success;
-    Owc            owc;
-    CellSuccess    owc_success;
+    app::segments::health::resetAll(app::segments::health::Bit::Status);
 
+    std::expected<Segments<io::adbms::StatusGroups>, ErrorCode> stat_r;
     {
         const io::unique_semaphore s{ spi_bus_lock };
-        LOG_IF_ERR(io::adbms::wakeup());
-        LOG_IF_ERR(app::segments::config::upload());
-        LOG_IF_ERR(app::segments::runStatusConversion(status, status_success));
-        LOG_IF_ERR(app::segments::runCellOpenWireCheck(owc, owc_success));
+        stat_r = app::segments::runStatusConversion();
     }
+
+    Status status{};
+    if (stat_r)
     {
-        const io::unique_semaphore s{ adbms_app_lock };
-        app::segments::broadcast::owc(owc, owc_success);
-        app::segments::broadcast::info();
+        status = stat_r.value();
+        app::segments::health::setAll(app::segments::health::Bit::Status);
     }
-    app::segments::broadcast::status(status, status_success);
+    else
+    {
+        for (auto &sg : status)
+            sg = io::adbms::StatusGroups::makeError(stat_r.error());
+    }
+
+    app::segments::broadcast::status(status);
 }

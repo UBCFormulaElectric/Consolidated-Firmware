@@ -4,6 +4,10 @@
 #include "util_errorCodes.hpp"
 #include "io_adbms.hpp"
 
+inline constexpr uint8_t VOLT_CONV_TIME_MS          = 2U;  // check later
+inline constexpr uint8_t AUX_CONV_TIME_MS           = 10U; // check later
+inline constexpr uint8_t OWC_CONVERSION_TIME_MS     = 8U;  // check later
+
 namespace app::segments
 {
 // Thermistor bank selected during AUX conversions.
@@ -26,33 +30,41 @@ template <typename T> struct CellParam
 // app_segments_config.hpp
 namespace config
 {
-    void                           setBalanceConfig(const Cells<bool> &balance_config, bool balancing_enabled);
-    void                           setPwmConfig(const Cells<uint8_t> &pwm_duty);
-    void                           setThermistorConfig(ThermistorMux mux);
+    void                           setBalanceConfig(const Cells<bool> &balance_config, const Cells<uint8_t> &pwm_duty, bool balancing_enabled);
+    std::expected<void, ErrorCode> setThermistorConfig(ThermistorMux mux);
     std::expected<void, ErrorCode> configSync();
-    std::expected<void, ErrorCode> upload();
 }; // namespace config
 
 // app_segments_balancing.cpp
 namespace balancing
 {
     void init();
-    void tick(const Cells<std::expected<float, ErrorCode>> &cell_voltages, const CellParam<float> &min_cell_voltage);
+    void tick();
     void disable();
 } // namespace balancing
 
 // app_segments_broadcast.cpp
 namespace broadcast
 {
-    void cellVoltages(const Cells<float> &voltages, const CellSuccess &voltages_success);
-    void filteredCellVoltages(const Cells<float> &voltages, const CellSuccess &voltages_success);
-    void aux(const Therms<float> &temps, const ThermSuccess &temps_success);
-    void temps(const Therms<float> &temps, const ThermSuccess &temps_success);
-    void segVoltages(const Segments<float> &seg_voltages, const SegmentSuccess &seg_voltages_success);
-    void status(const Status &status, const SegmentSuccess &status_success);
-    void owc(const Owc &owc_ok, const CellSuccess &owc_ok_success);
-    void info();
+    void             cellVoltages(const Cells<std::expected<float, ErrorCode>> &voltages);
+    void             temps(const Therms<std::expected<float, ErrorCode>> &temps);
+    void             segVoltages(const Segments<std::expected<float, ErrorCode>> &seg_voltages);
+    void             status(const Status &status);
+    void             owc(const Cells<std::expected<bool, ErrorCode>> &owc_results);
+    Cells<std::expected<float, ErrorCode>> getLatestVoltages();
+    CellParam<float>                       getMinCellVoltage();
 } // namespace broadcast
+
+// app_segments_health.cpp
+namespace health
+{
+    enum class Bit : size_t { Voltage = 0, Temp = 1, Status = 2, Config = 3 };
+    void reset(size_t seg, Bit bit);
+    void resetAll(Bit bit);
+    void set(size_t seg, Bit bit);
+    void setAll(Bit bit);
+    bool isOk(size_t seg);
+} // namespace health
 
 // aapp_segments_faults.cpp
 namespace faults
@@ -62,18 +74,12 @@ namespace faults
     bool checkFaults();
 } // namespace faults
 
-namespace config 
-{
-        
-}
-
 // app_segments_conversions.cpp
 // note that the first expected wrap tells you if the request for the command succeeded
 // subseqeunt errors are
 std::expected<Cells<std::expected<float, ErrorCode>>, ErrorCode>                      runVoltageConversion();
-std::expected<Cells<std::expected<float, ErrorCode>>, ErrorCode>                      runFilteredVoltageConversion();
 std::expected<Therms<std::expected<float, ErrorCode>>, ErrorCode>                     runTempConversion();
 std::expected<Segments<std::expected<float, ErrorCode>>, ErrorCode>                   runSegVoltageConversion();
-std::expected<Segments<std::expected<io::adbms::StatusGroups, ErrorCode>>, ErrorCode> runStatusConversion();
+std::expected<Segments<io::adbms::StatusGroups>, ErrorCode>                           runStatusConversion();
 std::expected<Cells<std::expected<bool, ErrorCode>>, ErrorCode>                       runCellOpenWireCheck();
 } // namespace app::segments

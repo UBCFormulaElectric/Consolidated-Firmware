@@ -195,16 +195,6 @@ struct PWMConfig
     bool operator==(const PWMConfig &) const = default;
 };
 
-struct __attribute__((packed)) CLOVUV 
-{
-    STATD clovuv = {};
-};
-
-struct __attribute__((packed)) CLFLAG
-{
-    STATC clflag = {};
-};
-
 enum class OpenWireSwitch
 {
     OddChannels,
@@ -219,11 +209,7 @@ template <typename T> using Segments = std::array<T, NUM_SEGMENTS>;
 template <typename T> using Regs     = std::array<T, REG_GROUP_SIZE>;
 
 // derived types
-using Status         = Segments<io::adbms::StatusGroups>;
-using Owc            = Cells<bool>;
-using CellSuccess    = Cells<std::expected<void, ErrorCode>>;
-using ThermSuccess   = Therms<std::expected<void, ErrorCode>>;
-using SegmentSuccess = Segments<std::expected<void, ErrorCode>>;
+using Status = Segments<io::adbms::StatusGroups>;
 
 // FUNCTIONS
 namespace io::adbms
@@ -242,7 +228,6 @@ namespace io::adbms
 [[nodiscard]] std::expected<Segments<StatusGroups>, ErrorCode> readStatusReg();
 
 // Open-wire diagnostics.
-[[nodiscard]] std::expected<void, ErrorCode> startCellsBaseAdcConversion();
 [[nodiscard]] std::expected<void, ErrorCode> owcCells(OpenWireSwitch owcSwitch);
 [[nodiscard]] std::expected<void, ErrorCode> owcTherms(OpenWireSwitch owcSwitch);
 

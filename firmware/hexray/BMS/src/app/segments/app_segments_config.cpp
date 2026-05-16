@@ -1,7 +1,7 @@
 #include "app_segments.hpp"
 #include "app_segments_internal.hpp"
-#include "hw_notify.hpp"
 #include "io_semaphore.hpp"
+#include "util_retry.hpp"
 
 #include <cstring>
 
@@ -9,7 +9,8 @@ using namespace std;
 
 namespace
 {
-constexpr uint8_t                                            NUM_CONFIG_SYNC_TRIES = 5;
+constexpr uint8_t NUM_CONFIG_SYNC_TRIES = 5;
+
 constexpr std::array<io::adbms::SegmentConfig, NUM_SEGMENTS> createSegmentConfig()
 {
     std::array<io::adbms::SegmentConfig, NUM_SEGMENTS> config{};
@@ -28,17 +29,20 @@ constexpr std::array<io::adbms::SegmentConfig, NUM_SEGMENTS> createSegmentConfig
     }
     return config;
 }
+
 std::array<io::adbms::SegmentConfig, NUM_SEGMENTS> segment_config = createSegmentConfig();
 std::array<io::adbms::PWMConfig, NUM_SEGMENTS>     pwm_config{};
-hw::notify::Notifier                               config_sync_notifier{};
-io::semaphore                                      config_data_lock{ true };
+// config_data_lock protects segment_config / pwm_config (in-memory copy).
+// Held across the whole configSync() body so a setBalanceConfig() or setThermistorConfig()
+// cannot mutate state between the read-back compare and the upload.
+io::semaphore config_data_lock{ true };
 
-expected<bool, ErrorCode> isConfigEqual()
+// Caller must hold config_data_lock.
+expected<bool, ErrorCode> isConfigEqual_locked()
 {
     const auto segment_config_buf = io::adbms::readConfigReg();
     const auto pwm_config_buf     = io::adbms::readPwmReg();
 
-    const io::unique_semaphore lock{ config_data_lock };
     for (uint8_t seg = 0U; seg < NUM_SEGMENTS; seg++)
     {
         if (!segment_config_buf[seg])
@@ -53,9 +57,9 @@ expected<bool, ErrorCode> isConfigEqual()
     return true;
 }
 
-expected<void, ErrorCode> upload()
+// Caller must hold config_data_lock.
+expected<void, ErrorCode> upload_locked()
 {
-    const io::unique_semaphore lock{ config_data_lock };
     RETURN_IF_ERR(io::adbms::writeConfigReg(segment_config));
     RETURN_IF_ERR(io::adbms::writePwmReg(pwm_config));
     return {};
@@ -93,41 +97,37 @@ void setBalanceConfig(const Cells<bool> &balance_config, const Cells<uint8_t> &p
     }
 }
 
-void setThermistorConfig(const ThermistorMux mux)
+// Caller must hold spi_bus_lock (this writes to the chip directly). Updates the in-memory
+// segment_config and immediately pushes it so the Configs task's next sync sees no diff.
+expected<void, ErrorCode> setThermistorConfig(const ThermistorMux mux)
 {
+    const io::unique_semaphore lock{ config_data_lock };
+    for (auto &cfg : segment_config)
     {
-        const io::unique_semaphore lock{ config_data_lock };
-        for (auto &cfg : segment_config)
-        {
-            cfg.reg_a.gpio_1_8  = 0xFF;
-            cfg.reg_a.gpio_9_10 = (mux == ThermistorMux::THERMISTOR_MUX_0_7) ? 0x02 : 0x03;
-        }
+        cfg.reg_a.gpio_1_8  = 0xFF;
+        cfg.reg_a.gpio_9_10 = (mux == ThermistorMux::THERMISTOR_MUX_0_7) ? 0x02 : 0x03;
     }
-    config_sync_notifier.wait();
+    return io::adbms::writeConfigReg(segment_config);
 }
 
 expected<void, ErrorCode> configSync()
 {
-    const auto already_equal = isConfigEqual();
+    const io::unique_semaphore lock{ config_data_lock };
+
+    const auto already_equal = isConfigEqual_locked();
     RETURN_IF_ERR(already_equal);
     if (already_equal.value())
-    {
-        config_sync_notifier.notifyIfWaiting();
         return {};
-    }
 
-    for (uint8_t tries = 0; tries < NUM_CONFIG_SYNC_TRIES; tries++)
-    {
-        RETURN_IF_ERR(upload());
-        const auto equal = isConfigEqual();
-        RETURN_IF_ERR(equal);
-        if (equal.value())
+    return util::retry(
+        []() -> expected<void, ErrorCode>
         {
-            config_sync_notifier.notifyIfWaiting();
-            return {};
-        }
-    }
-    return unexpected(ErrorCode::RETRY_FAILED);
+            RETURN_IF_ERR(upload_locked());
+            const auto equal = isConfigEqual_locked();
+            RETURN_IF_ERR(equal);
+            return equal.value() ? expected<void, ErrorCode>{} : unexpected(ErrorCode::RETRY_FAILED);
+        },
+        NUM_CONFIG_SYNC_TRIES);
 }
 
 } // namespace app::segments::config

@@ -12,7 +12,10 @@ expected<Cells<expected<float, ErrorCode>>, ErrorCode> runVoltageConversion()
 {
     RETURN_IF_ERR(io::adbms::startCellsAdcConversion());
     io::time::delay(VOLT_CONV_TIME_MS);
-    const auto regs = io::adbms::readCellVoltageReg();
+
+    const auto regs_result = io::adbms::readCellVoltageReg();
+    RETURN_IF_ERR(regs_result);
+    const auto &regs = regs_result.value();
 
     Cells<expected<float, ErrorCode>> out;
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
@@ -28,11 +31,12 @@ expected<Therms<expected<float, ErrorCode>>, ErrorCode> runTempConversion()
     Therms<expected<float, ErrorCode>> out_temps;
     for (size_t mux = 0U; mux < static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT); mux++)
     {
-        config::setThermistorConfig(static_cast<ThermistorMux>(mux));
-        RETURN_IF_ERR_SILENT(config::configSync());
-        RETURN_IF_ERR_SILENT(io::adbms::startTempAdcConversion());
+        RETURN_IF_ERR(config::setThermistorConfig(static_cast<ThermistorMux>(mux)));
+        RETURN_IF_ERR(io::adbms::startTempAdcConversion());
         io::time::delay(AUX_CONV_TIME_MS);
-        regs[mux] = io::adbms::readCellTempReg();
+        auto temp_result = io::adbms::readCellTempReg();
+        RETURN_IF_ERR(temp_result);
+        regs[mux] = temp_result.value();
     }
 
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
@@ -56,16 +60,18 @@ expected<Segments<expected<float, ErrorCode>>, ErrorCode> runSegVoltageConversio
 {
     RETURN_IF_ERR(io::adbms::startSegAdcConversion());
     io::time::delay(AUX_CONV_TIME_MS);
-    const auto                           seg_regs = io::adbms::readSegVoltageReg();
-    Segments<expected<float, ErrorCode>> out_seg_voltages;
+
+    const auto seg_regs_result = io::adbms::readSegVoltageReg();
+    RETURN_IF_ERR(seg_regs_result);
+    const auto &seg_regs = seg_regs_result.value();
+
+    Segments<expected<float, ErrorCode>> out;
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
-    {
-        out_seg_voltages[seg] = seg_regs[seg].transform(convertRegToVoltage);
-    }
-    return out_seg_voltages;
+        out[seg] = seg_regs[seg].transform(convertRegToVoltage);
+    return out;
 }
 
-expected<Segments<expected<io::adbms::StatusGroups, ErrorCode>>, ErrorCode> runStatusConversion()
+expected<Segments<io::adbms::StatusGroups>, ErrorCode> runStatusConversion()
 {
     RETURN_IF_ERR(io::adbms::clear::StatReg());
     RETURN_IF_ERR(io::adbms::startCellsAdcConversion());
@@ -76,17 +82,23 @@ expected<Segments<expected<io::adbms::StatusGroups, ErrorCode>>, ErrorCode> runS
 
 expected<Cells<expected<bool, ErrorCode>>, ErrorCode> runCellOpenWireCheck()
 {
-    RETURN_IF_ERR(io::adbms::startCellsBaseAdcConversion());
+    RETURN_IF_ERR(io::adbms::startCellsAdcConversion());
     io::time::delay(OWC_CONVERSION_TIME_MS);
-    const auto baseline_regs = io::adbms::readCellVoltageReg();
+    const auto baseline_result = io::adbms::readCellVoltageReg();
+    RETURN_IF_ERR(baseline_result);
+    const auto &baseline_regs = baseline_result.value();
 
     RETURN_IF_ERR(io::adbms::owcCells(io::adbms::OpenWireSwitch::OddChannels));
     io::time::delay(OWC_CONVERSION_TIME_MS);
-    const auto owc_odd_regs = io::adbms::readCellVoltageReg();
+    const auto owc_odd_result = io::adbms::readCellVoltageReg();
+    RETURN_IF_ERR(owc_odd_result);
+    const auto &owc_odd_regs = owc_odd_result.value();
 
     RETURN_IF_ERR(io::adbms::owcCells(io::adbms::OpenWireSwitch::EvenChannels));
     io::time::delay(OWC_CONVERSION_TIME_MS);
-    const auto owc_even_regs = io::adbms::readCellVoltageReg();
+    const auto owc_even_result = io::adbms::readCellVoltageReg();
+    RETURN_IF_ERR(owc_even_result);
+    const auto &owc_even_regs = owc_even_result.value();
 
     Cells<expected<bool, ErrorCode>> out;
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)

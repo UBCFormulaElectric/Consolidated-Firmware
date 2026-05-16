@@ -3,22 +3,10 @@
 #include "app_segments_internal.hpp"
 #include "app_segments.hpp"
 #include "app_canTx.hpp"
+#include "io_semaphore.hpp"
 
 namespace
 {
-// float                    pack_voltage;
-// app::segments::CellParam max_cell_voltage;
-// app::segments::CellParam min_cell_voltage;
-// app::segments::CellParam max_cell_temp;
-// app::segments::CellParam min_cell_temp;
-// Cells<float>  cell_voltages;
-// CellSuccess   cell_voltage_success;
-// Cells<float>  filtered_cell_voltages;
-// CellSuccess   filtered_cell_voltage_success;
-// Therms<float> cell_temps;
-// Owc           cell_owc_ok;
-// Owc           therm_owc_ok;
-// Segments      seg_comm_ok;
 
 template <typename T> class CellBroadcaster
 {
@@ -63,24 +51,29 @@ template <typename S, typename CanMsg> constexpr std::span<S, MAX_NUM_SEGMENTS> 
     return std::span<S, MAX_NUM_SEGMENTS>{ reinterpret_cast<S *>(&can_msg), MAX_NUM_SEGMENTS };
 }
 
+template <typename S, typename CanMsg>
+constexpr std::span<S, MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT> CellBroadcastBuffer(CanMsg &can_msg)
+{
+    static_assert(sizeof(can_msg) == MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT * sizeof(S));
+    return std::span<S, MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT>{ reinterpret_cast<S *>(&can_msg),
+                                                               MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT };
+}
+
 CellBroadcaster<float> cell_voltage_setters(
     app::can_tx::BMS_CellVoltages_Seg0_Seg3_getData(),
     app::can_tx::BMS_CellVoltages_Seg4_Seg7_getData(),
     app::can_tx::BMS_CellVoltages_Seg8_Seg9_getData());
-CellBroadcaster<float> cell_fvoltage_setters(
-    app::can_tx::BMS_FilteredCellVoltages_Seg0_Seg3_getData(),
-    app::can_tx::BMS_FilteredCellVoltages_Seg4_Seg7_getData(),
-    app::can_tx::BMS_FilteredCellVoltages_Seg8_Seg9_getData());
 CellBroadcaster<float> cell_temperature_setters(
     app::can_tx::BMS_CellTemps_Seg0_Seg3_getData(),
     app::can_tx::BMS_CellTemps_Seg4_Seg7_getData(),
     app::can_tx::BMS_CellTemps_Seg8_Seg9_getData());
 
-const std::span<bool, MAX_NUM_SEGMENTS> seg_ok_buffer =
+
+const std::span<bool, MAX_NUM_SEGMENTS> comm_ok_buffer = 
     SegmentBroadcastBuffer<bool>(app::can_tx::BMS_SegmentCommOk_getData());
-const std::span<float, MAX_NUM_SEGMENTS> seg_voltage_buffer =
+const std::span<float, MAX_NUM_SEGMENTS> segment_voltage_buffer =
     SegmentBroadcastBuffer<float>(app::can_tx::BMS_SegmentVoltages_getData());
-const std::span<float, MAX_NUM_SEGMENTS> seg_vref2_buffer =
+const std::span<float, MAX_NUM_SEGMENTS> segment_vref2_buffer =
     SegmentBroadcastBuffer<float>(app::can_tx::BMS_SegmentVref2_getData());
 const std::span<float, MAX_NUM_SEGMENTS> segment_itmp_buffer =
     SegmentBroadcastBuffer<float>(app::can_tx::BMS_SegmentITMP_getData());
@@ -90,37 +83,46 @@ const std::span<float, MAX_NUM_SEGMENTS> segment_va_buffer =
     SegmentBroadcastBuffer<float>(app::can_tx::BMS_SegmentVA_getData());
 const std::span<float, MAX_NUM_SEGMENTS> segment_vres_buffer =
     SegmentBroadcastBuffer<float>(app::can_tx::BMS_SegmentVRES_getData());
-// const std::span<bool, MAX_NUM_SEGMENTS> segment_va_ov_buffer =
-//     SegmentBroadcastBuffer<bool>(app::can_tx::BMS_SegmentVAStatus_getData());
-// const std::span<bool, MAX_NUM_SEGMENTS> segment_va_uv_buffer =
-//     SegmentBroadcastBuffer<bool>(app::can_tx::BMS_SegmentVAStatus_getData());
-// const std::span<bool, MAX_NUM_SEGMENTS> segment_vd_ov_buffer =
-//     SegmentBroadcastBuffer<bool>(app::can_tx::BMS_SegmentVDStatus_getData());
-// const std::span<bool, MAX_NUM_SEGMENTS> segment_vd_uv_buffer =
-//     SegmentBroadcastBuffer<bool>(app::can_tx::BMS_SegmentVDStatus_getData());
-// const std::span<bool, MAX_NUM_SEGMENTS> segment_ced_buffer =
-//     SegmentBroadcastBuffer<bool>(app::can_tx::BMS_SegmentDiagFaults_getData());
-// const std::span<bool, MAX_NUM_SEGMENTS> segment_cmed_buffer =
-//     SegmentBroadcastBuffer<bool>(app::can_tx::BMS_SegmentDiagFaults_getData());
-// const std::span<bool, MAX_NUM_SEGMENTS> segment_sed_buffer =
-//     SegmentBroadcastBuffer<bool>(app::can_tx::BMS_SegmentDiagFaults_getData());
-// const std::span<bool, MAX_NUM_SEGMENTS> segment_smed_buffer =
-//     SegmentBroadcastBuffer<bool>(app::can_tx::BMS_SegmentDiagFaults_getData());
-// const std::span<bool, MAX_NUM_SEGMENTS> segment_vde_buffer =
-//     SegmentBroadcastBuffer<bool>(app::can_tx::BMS_SegmentDiagFaults_getData());
-// const std::span<bool, MAX_NUM_SEGMENTS> segment_vdel_buffer =
-//     SegmentBroadcastBuffer<bool>(app::can_tx::BMS_SegmentDiagFaults_getData());
-// const std::span<bool, MAX_NUM_SEGMENTS> segment_thsd_buffer =
-//     SegmentBroadcastBuffer<bool>(app::can_tx::BMS_SegmentMiscFaults_getData());
-// const std::span<bool, MAX_NUM_SEGMENTS> segment_tmodchk_buffer =
-//     SegmentBroadcastBuffer<bool>(app::can_tx::BMS_SegmentMiscFaults_getData());
-// const std::span<bool, MAX_NUM_SEGMENTS> segment_oscchk_buffer =
-//     SegmentBroadcastBuffer<bool>(app::can_tx::BMS_SegmentMiscFaults_getData());
+const std::span<bool, MAX_NUM_SEGMENTS> segment_va_ov_buffer =
+    SegmentBroadcastBuffer<bool>(app::can_tx::BMS_SegmentVA_OV_getData());
+const std::span<bool, MAX_NUM_SEGMENTS> segment_va_uv_buffer =
+    SegmentBroadcastBuffer<bool>(app::can_tx::BMS_SegmentVA_UV_getData());
+const std::span<bool, MAX_NUM_SEGMENTS> segment_vd_ov_buffer =
+    SegmentBroadcastBuffer<bool>(app::can_tx::BMS_SegmentVD_OV_getData());
+const std::span<bool, MAX_NUM_SEGMENTS> segment_vd_uv_buffer =
+    SegmentBroadcastBuffer<bool>(app::can_tx::BMS_SegmentVD_UV_getData());
+const std::span<bool, MAX_NUM_SEGMENTS> segment_ced_buffer =
+    SegmentBroadcastBuffer<bool>(app::can_tx::BMS_SegmentCED_getData());
+const std::span<bool, MAX_NUM_SEGMENTS> segment_cmed_buffer =
+    SegmentBroadcastBuffer<bool>(app::can_tx::BMS_SegmentCMED_getData());
+const std::span<bool, MAX_NUM_SEGMENTS> segment_sed_buffer =
+    SegmentBroadcastBuffer<bool>(app::can_tx::BMS_SegmentSED_getData());
+const std::span<bool, MAX_NUM_SEGMENTS> segment_smed_buffer =
+    SegmentBroadcastBuffer<bool>(app::can_tx::BMS_SegmentSMED_getData());
+const std::span<bool, MAX_NUM_SEGMENTS> segment_vde_buffer =
+    SegmentBroadcastBuffer<bool>(app::can_tx::BMS_SegmentVDE_getData());
+const std::span<bool, MAX_NUM_SEGMENTS> segment_vdel_buffer =
+    SegmentBroadcastBuffer<bool>(app::can_tx::BMS_SegmentVDEL_getData());
+const std::span<bool, MAX_NUM_SEGMENTS> segment_thsd_buffer =
+    SegmentBroadcastBuffer<bool>(app::can_tx::BMS_SegmentTHSD_getData());
+const std::span<bool, MAX_NUM_SEGMENTS> segment_tmodchk_buffer =
+    SegmentBroadcastBuffer<bool>(app::can_tx::BMS_SegmentTMODCHK_getData());
+const std::span<bool, MAX_NUM_SEGMENTS> segment_oscchk_buffer =
+    SegmentBroadcastBuffer<bool>(app::can_tx::BMS_SegmentOSCCHK_getData());
+const std::span<bool, MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT> cell_ov_buffer =
+    CellBroadcastBuffer<bool>(app::can_tx::BMS_CellOverVoltage_getData());
+const std::span<bool, MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT> cell_uv_buffer =
+    CellBroadcastBuffer<bool>(app::can_tx::BMS_CellUnderVoltage_getData());
+const std::span<bool, MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT> cell_owc_ok_buffer =
+    CellBroadcastBuffer<bool>(app::can_tx::BMS_CellOpenWireCheck_getData());
+
+Cells<std::expected<float, ErrorCode>> latest_voltages{};
+app::segments::CellParam<float>        latest_min_cell_voltage{ .segment = 0, .cell = 0, .value = 0.0f };
+io::semaphore                          voltage_cache_lock{ true };
 } // namespace
 
 namespace app::segments::broadcast
 {
-// void cellVoltages(const Cells<float> &voltages, const CellSuccess &voltages_success)
 void cellVoltages(const Cells<std::expected<float, ErrorCode>> &voltages)
 {
     CellParam candidate_max_cell_voltage = { .segment = 0, .cell = 0, .value = __FLT_MIN__ };
@@ -128,13 +130,11 @@ void cellVoltages(const Cells<std::expected<float, ErrorCode>> &voltages)
 
     for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
     {
-        bool seg_ok = true;
         for (size_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
         {
             if (!voltages[seg][cell])
             {
-                seg_ok                          = false;
-                cell_voltage_setters[seg][cell] = 0.0f; // Set to 0 or some sentinel value to indicate failure
+                cell_voltage_setters[seg][cell] = 0.0f;
                 continue;
             }
             const float voltage             = voltages[seg][cell].value();
@@ -147,57 +147,42 @@ void cellVoltages(const Cells<std::expected<float, ErrorCode>> &voltages)
             candidate_max_cell_voltage = std::max(candidate_max_cell_voltage, current_cell_voltage);
             candidate_min_cell_voltage = std::min(candidate_min_cell_voltage, current_cell_voltage);
         }
-        seg_ok_buffer[seg] = seg_ok;
+        comm_ok_buffer[seg] = health::isOk(seg);
     }
-    // TODO work this one out
-    // max_cell_voltage = candidate_max_cell_voltage;
-    // min_cell_voltage = candidate_min_cell_voltage;
+
+    {
+        const io::unique_semaphore lock{ voltage_cache_lock };
+        latest_voltages         = voltages;
+        latest_min_cell_voltage = candidate_min_cell_voltage;
+    }
 }
 
-void temps(const Therms<float> &temps, const ThermSuccess &temps_success)
+void temps(const Therms<std::expected<float, ErrorCode>> &temps)
 {
     CellParam candidate_max_cell_temp = { .segment = 0, .cell = 0, .value = __FLT_MIN__ };
     CellParam candidate_min_cell_temp = { .segment = 0, .cell = 0, .value = __FLT_MAX__ };
 
     for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
     {
-        bool seg_ok = true;
         for (size_t therm = 0U; therm < THERMISTORS_PER_SEGMENT; therm++)
         {
-            const float temperature              = temps[seg][therm];
-            cell_temperature_setters[seg][therm] = temperature;
-
-            // if (!temps_success[seg][therm])
-            // {
-            //     seg_ok                   = false;
-            //     therm_owc_ok[seg][therm] = false;
-            //     therm_owc_setters[seg][therm](false);
-            //     continue;
-            // }
-            //
-            // if (temperature < OW_THERM_THRESHOLD)
-            // {
-            //     therm_owc_ok[seg][therm] = false;
-            //     therm_owc_setters[seg][therm](false);
-            // }
-            // else
-            // {
-            //     therm_owc_ok[seg][therm] = true;
-            //     therm_owc_setters[seg][therm](true);
-            // }
+            const auto &r = temps[seg][therm];
+            cell_temperature_setters[seg][therm] = r.value_or(0.0f);
+            if (!r)
+                continue;
             const CellParam current_cell_temp{
                 .segment = static_cast<uint8_t>(seg),
                 .cell    = static_cast<uint8_t>(therm),
-                .value   = temperature,
+                .value   = r.value(),
             };
             candidate_max_cell_temp = std::max(candidate_max_cell_temp, current_cell_temp);
             candidate_min_cell_temp = std::min(candidate_min_cell_temp, current_cell_temp);
         }
-        seg_ok_buffer[seg] = seg_ok;
+        comm_ok_buffer[seg] = health::isOk(seg);
     }
 }
 
-void segVoltages(const Segments<float> &seg_voltages, const SegmentSuccess &seg_voltages_success)
+void segVoltages(const Segments<std::expected<float, ErrorCode>> &seg_voltages)
 {
     float   max_voltage  = std::numeric_limits<float>::lowest();
     float   min_voltage  = std::numeric_limits<float>::max();
@@ -207,23 +192,23 @@ void segVoltages(const Segments<float> &seg_voltages, const SegmentSuccess &seg_
 
     for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
     {
-        const bool seg_ok       = static_cast<bool>(seg_voltages_success[seg]);
-        seg_ok_buffer[seg]      = seg_ok;
-        seg_voltage_buffer[seg] = seg_voltages[seg];
+        const auto &r               = seg_voltages[seg];
+        comm_ok_buffer[seg]         = r.has_value();
+        segment_voltage_buffer[seg] = r.value_or(0.0f);
 
-        if (!seg_ok)
+        if (!r)
             continue;
 
-        pack_voltage += seg_voltages[seg];
+        pack_voltage += r.value();
 
-        if (seg_voltages[seg] > max_voltage)
+        if (r.value() > max_voltage)
         {
-            max_voltage = seg_voltages[seg];
+            max_voltage = r.value();
             max_seg     = static_cast<uint8_t>(seg);
         }
-        if (seg_voltages[seg] < min_voltage)
+        if (r.value() < min_voltage)
         {
-            min_voltage = seg_voltages[seg];
+            min_voltage = r.value();
             min_seg     = static_cast<uint8_t>(seg);
         }
     }
@@ -235,122 +220,68 @@ void segVoltages(const Segments<float> &seg_voltages, const SegmentSuccess &seg_
     app::can_tx::BMS_MinSegmentVoltage_Voltage_set(min_voltage);
 }
 
-void status(const Status &status, const SegmentSuccess &status_success)
+void status(const Status &status)
 {
     for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
     {
-        if (!status_success[seg])
-        {
-            // STATA
-            seg_vref2_buffer[seg]    = -0.1f;
-            segment_itmp_buffer[seg] = -0.1f;
-            // STATB
-            segment_vd_buffer[seg]   = -0.1f;
-            segment_va_buffer[seg]   = -0.1f;
-            segment_vres_buffer[seg] = -0.1f;
-            // STATC
-            // segment_va_ov_buffer[seg]   = false;
-            // segment_va_uv_buffer[seg]   = false;
-            // segment_vd_ov_buffer[seg]   = false;
-            // segment_vd_uv_buffer[seg]   = false;
-            // segment_ced_buffer[seg]     = false;
-            // segment_cmed_buffer[seg]    = false;
-            // segment_sed_buffer[seg]     = false;
-            // segment_smed_buffer[seg]    = false;
-            // segment_vde_buffer[seg]     = false;
-            // segment_vdel_buffer[seg]    = false;
-            // segment_thsd_buffer[seg]    = false;
-            // segment_tmodchk_buffer[seg] = false;
-            // segment_oscchk_buffer[seg]  = false;
-            // STATD
-            for (size_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
-            {
-                // cell_ov_buffer[seg][cell] = false;
-                // cell_uv_buffer[seg][cell] = false;
-            }
-            continue;
-        }
-
         const auto &stat_a = status[seg].stat_a;
         const auto &stat_b = status[seg].stat_b;
         const auto &stat_c = status[seg].stat_c;
         const auto &stat_d = status[seg].stat_d;
 
         // STATA
-        // segment_vref2_setters[seg](convertRegToVoltage(stat_a.vref2));
-        // segment_itmp_setters[seg](convertRegToVoltage(stat_a.itmp));
+        segment_vref2_buffer[seg] = stat_a ? convertRegToVoltage(stat_a->vref2) : -0.1f;
+        segment_itmp_buffer[seg]  = stat_a ? convertRegToVoltage(stat_a->itmp)  : -0.1f;
 
         // STATB
-        // segment_vd_setters[seg](convertRegToVoltage(stat_b.vd));
-        // segment_va_setters[seg](convertRegToVoltage(stat_b.va));
-        // segment_vres_setters[seg](convertRegToVoltage(stat_b.vres));
+        segment_vd_buffer[seg]   = stat_b ? convertRegToVoltage(stat_b->vd)   : -0.1f;
+        segment_va_buffer[seg]   = stat_b ? convertRegToVoltage(stat_b->va)   : -0.1f;
+        segment_vres_buffer[seg] = stat_b ? convertRegToVoltage(stat_b->vres) : -0.1f;
 
         // STATC
-        // segment_va_ov_setters[seg](stat_c.va_ov);
-        // segment_va_uv_setters[seg](stat_c.va_uv);
-        // segment_vd_ov_setters[seg](stat_c.vd_ov);
-        // segment_vd_uv_setters[seg](stat_c.vd_uv);
-        // segment_ced_setters[seg](stat_c.ced);
-        // segment_cmed_setters[seg](stat_c.cmed);
-        // segment_sed_setters[seg](stat_c.sed);
-        // segment_smed_setters[seg](stat_c.smed);
-        // segment_vde_setters[seg](stat_c.vde);
-        // segment_vdel_setters[seg](stat_c.vdel);
-        // segment_thsd_setters[seg](stat_c.thsd);
-        // segment_tmodchk_setters[seg](stat_c.tmodchk);
-        // segment_oscchk_setters[seg](stat_c.oscchk);
+        segment_va_ov_buffer[seg]   = stat_c && stat_c->va_ov;
+        segment_va_uv_buffer[seg]   = stat_c && stat_c->va_uv;
+        segment_vd_ov_buffer[seg]   = stat_c && stat_c->vd_ov;
+        segment_vd_uv_buffer[seg]   = stat_c && stat_c->vd_uv;
+        segment_ced_buffer[seg]     = stat_c && stat_c->ced;
+        segment_cmed_buffer[seg]    = stat_c && stat_c->cmed;
+        segment_sed_buffer[seg]     = stat_c && stat_c->sed;
+        segment_smed_buffer[seg]    = stat_c && stat_c->smed;
+        segment_vde_buffer[seg]     = stat_c && stat_c->vde;
+        segment_vdel_buffer[seg]    = stat_c && stat_c->vdel;
+        segment_thsd_buffer[seg]    = stat_c && stat_c->thsd;
+        segment_tmodchk_buffer[seg] = stat_c && stat_c->tmodchk;
+        segment_oscchk_buffer[seg]  = stat_c && stat_c->oscchk;
 
-        // STATD
+        // STATD — cell N UV at bit 2*(N-1), OV at bit 2*(N-1)+1
         for (size_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
         {
-            // cell_ov_setters[seg][cell](static_cast<bool>((stat_d.covuv >> (16U + cell)) & 1U));
-            // cell_uv_setters[seg][cell](static_cast<bool>((stat_d.covuv >> cell) & 1U));
+            cell_uv_buffer[seg * CELLS_PER_SEGMENT + cell] = stat_d && static_cast<bool>((stat_d->covuv >> (2U * cell))      & 1U);
+            cell_ov_buffer[seg * CELLS_PER_SEGMENT + cell] = stat_d && static_cast<bool>((stat_d->covuv >> (2U * cell + 1U)) & 1U);
         }
     }
 }
 
-void owc(const Owc &owc_ok, const CellSuccess &owc_ok_success)
+Cells<std::expected<float, ErrorCode>> getLatestVoltages()
 {
-    // cell_owc_ok = owc_ok;
+    const io::unique_semaphore lock{ voltage_cache_lock };
+    return latest_voltages;
+}
 
+CellParam<float> getMinCellVoltage()
+{
+    const io::unique_semaphore lock{ voltage_cache_lock };
+    return latest_min_cell_voltage;
+}
+
+void owc(const Cells<std::expected<bool, ErrorCode>> &owc_results)
+{
     for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
     {
-        // bool seg_ok = true;
         for (size_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
         {
-            // cell_owc_setters[seg][cell](cell_owc_ok[seg][cell]);
-
-            if (!owc_ok_success[seg][cell])
-            {
-                continue;
-            }
-            // seg_ok = false;
+            cell_owc_ok_buffer[seg * CELLS_PER_SEGMENT + cell] = owc_results[seg][cell].value_or(false);
         }
-        // seg_comm_ok[seg] = seg_ok;
-        // segment_comm_ok_setters[seg](seg_ok);
     }
-}
-
-void info()
-{
-    // app::can_tx::BMS_MinCellVoltage_Voltage_set(min_cell_voltage.voltage);
-    // app::can_tx::BMS_MinCellVoltage_Temperature_set(min_cell_voltage.temp);
-    // app::can_tx::BMS_MinCellVoltage_Segment_set(min_cell_voltage.segment);
-    // app::can_tx::BMS_MinCellVoltage_Cell_set(min_cell_voltage.cell);
-    //
-    // app::can_tx::BMS_MaxCellVoltage_Voltage_set(max_cell_voltage.voltage);
-    // app::can_tx::BMS_MaxCellVoltage_Temperature_set(max_cell_voltage.temp);
-    // app::can_tx::BMS_MaxCellVoltage_Segment_set(max_cell_voltage.segment);
-    // app::can_tx::BMS_MaxCellVoltage_Cell_set(max_cell_voltage.cell);
-    //
-    // app::can_tx::BMS_MinCellTemperature_Voltage_set(min_cell_temp.voltage);
-    // app::can_tx::BMS_MinCellTemperature_Temperature_set(min_cell_temp.temp);
-    // app::can_tx::BMS_MinCellTemperature_Segment_set(min_cell_temp.segment);
-    // app::can_tx::BMS_MinCellTemperature_Cell_set(min_cell_temp.cell);
-    //
-    // app::can_tx::BMS_MaxCellTemperature_Voltage_set(max_cell_temp.voltage);
-    // app::can_tx::BMS_MaxCellTemperature_Temperature_set(max_cell_temp.temp);
-    // app::can_tx::BMS_MaxCellTemperature_Segment_set(max_cell_temp.segment);
-    // app::can_tx::BMS_MaxCellTemperature_Cell_set(max_cell_temp.cell);
 }
 } // namespace app::segments::broadcast

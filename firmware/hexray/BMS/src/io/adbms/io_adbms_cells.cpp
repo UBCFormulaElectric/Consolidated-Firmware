@@ -45,7 +45,7 @@ expected<Cells<expected<uint16_t, ErrorCode>>, ErrorCode> readCellVoltageReg()
     static constexpr array<uint16_t, NUM_VOLT_REG_GROUPS> cell_voltage_reg_groups{ { RDCVA, RDCVB, RDCVC, RDCVD,
                                                                                      RDCVE } };
 
-    Cells<expected<uint16_t, ErrorCode>> cell_voltage_regs;
+    Cells<expected<uint16_t, ErrorCode>> cell_voltage_regs{};
     if (const auto poll_ok = pollCellsAdcConversion(); !poll_ok)
     {
         return unexpected(poll_ok.error());
@@ -86,7 +86,7 @@ expected<Cells<expected<uint16_t, ErrorCode>>, ErrorCode> readFilteredCellVoltag
 {
     static constexpr array<uint16_t, NUM_VOLT_REG_GROUPS> filtered_reg_groups{ { RDFCA, RDFCB, RDFCC, RDFCD, RDFCE } };
 
-    Cells<expected<uint16_t, ErrorCode>> filtered_cell_voltage_regs;
+    Cells<expected<uint16_t, ErrorCode>> filtered_cell_voltage_regs{};
     if (const auto poll_ok = pollCellsAdcConversion(); !poll_ok)
     {
         return unexpected(poll_ok.error());

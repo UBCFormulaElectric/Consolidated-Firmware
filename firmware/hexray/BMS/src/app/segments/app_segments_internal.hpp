@@ -1,15 +1,15 @@
 #pragma once
 
+#include <algorithm>
 #include <cmath>
+#include <cstddef>
+#include <expected>
 #include "app_segments.hpp"
+#include "util_errorCodes.hpp"
 
 inline constexpr uint8_t  MAX_NUM_SEGMENTS = 10U;
 inline constexpr uint16_t VUV              = 0x01A1; // 2.5V
 inline constexpr uint16_t VOV              = 0x0465; // 4.2V
-
-inline constexpr uint8_t VOLT_CONV_TIME_MS          = 2U;  // check later
-inline constexpr uint8_t AUX_CONV_TIME_MS           = 10U; // check later
-inline constexpr uint8_t OWC_CONVERSION_TIME_MS     = 8U;  // check later
 inline constexpr float   OW_CELL_RELATIVE_THRESHOLD = 0.7f;
 inline constexpr float   OW_CELL_ABSOLUTE_THRESHOLD = 0.5f;
 
@@ -51,3 +51,4 @@ constexpr float convertRegToTemp(const uint16_t reg)
     return (1.0f / inv_temp_k) - KELVIN_OFFSET;
 }
 } // namespace app::segments
+

@@ -120,19 +120,92 @@ struct __attribute__((packed)) TxCmdPayload
 namespace io::adbms
 {
 
-array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> shared_reg_group;
-array<expected<void, ErrorCode>, NUM_SEGMENTS>      shared_reg_group_success;
+namespace
+{
+
+Segments<uint8_t> expected_cmd_count{};
+
+bool commandIncrements(const uint16_t cmd)
+{
+    // Mask covers only the bits that are constant in BASE
+    if ((cmd & 0x0668U) == (ADCV_BASE & 0x0668U)) return true;
+    if ((cmd & 0x076CU) == (ADSV_BASE & 0x076CU)) return true;
+    if ((cmd & 0x0630U) == (ADAX_BASE & 0x0630U)) return true;
+    if ((cmd & 0x07F0U) == ADAX2_BASE) return true;
+
+    switch (cmd)
+    {
+        // Writes
+        case WRCFGA:
+        case WRCFGB:
+        case WRPWMA:
+        case WRPWMB:
+        // Clears
+        case CLRCELL:
+        case CLRFC:
+        case CLRAUX:
+        case CLRFLAG:
+        case CLOVUV:
+        // Polls
+        case PLADC:
+        case PLCADC:
+        case PLSADC:
+        case PLAUX:
+        case PLAUX2:
+        // Discharge / snapshot
+        case MUTE:
+        case UNMUTE:
+        case SNAP:
+        case UNSNAP:
+            return true;
+        default:
+            return false;
+    }
+}
+
+void postTxUpdateCmdCount(const uint16_t cmd)
+{
+    if (cmd == SRST || cmd == RSTCC)
+    {
+        expected_cmd_count.fill(0);
+        return;
+    }
+    if (!commandIncrements(cmd))
+        return;
+    for (auto &cc : expected_cmd_count)
+    {
+        cc = (cc == 63U) ? 1U : static_cast<uint8_t>(cc + 1U);
+    }
+}
+} // namespace
+
+void resetExpectedCmdCount()
+{
+    expected_cmd_count.fill(0);
+}
+
+Segments<uint8_t> getExpectedCmdCount()
+{
+    return expected_cmd_count;
+}
 
 expected<void, ErrorCode> sendCmd(const uint16_t cmd)
 {
     const TxCmd tx_cmd{ cmd };
-    return adbms_spi_ls.transmit(tx_cmd.into_span());
+    const auto  status = adbms_spi_ls.transmit(tx_cmd.into_span());
+    if (status)
+        postTxUpdateCmdCount(cmd);
+    return status;
 }
 
 expected<void, ErrorCode> poll(const uint16_t cmd, const span<uint8_t> poll_buf)
 {
     const TxCmd tx_cmd{ cmd };
-    return adbms_spi_ls.transmitThenReceive({ reinterpret_cast<const uint8_t *>(&tx_cmd), sizeof(tx_cmd) }, poll_buf);
+    const auto  status =
+        adbms_spi_ls.transmitThenReceive({ reinterpret_cast<const uint8_t *>(&tx_cmd), sizeof(tx_cmd) }, poll_buf);
+    if (status)
+        postTxUpdateCmdCount(cmd);
+    return status;
 }
 
 array<expected<array<uint8_t, REG_GROUP_SIZE>, ErrorCode>, NUM_SEGMENTS> readRegGroup(const uint16_t cmd)
@@ -155,14 +228,22 @@ array<expected<array<uint8_t, REG_GROUP_SIZE>, ErrorCode>, NUM_SEGMENTS> readReg
         const auto cmd_count                      = static_cast<uint16_t>(swapEndianness(payload_pec10) >> 10U);
 
         if (const auto expected_pec = static_cast<uint16_t>(payload_pec10 & 0xFF03U);
-            checkDataPec(payload_data, cmd_count, expected_pec))
-        {
-            regs[segment] = payload_data;
-        }
-        else
+            !checkDataPec(payload_data, cmd_count, expected_pec))
         {
             regs[segment] = unexpected(ErrorCode::CHECKSUM_FAIL);
+            continue;
         }
+
+        const auto cc_byte = static_cast<uint8_t>(cmd_count & 0x3FU);
+        if (cc_byte != expected_cmd_count[segment])
+        {
+            // Resync so a single dropped/replayed command doesn't cascade.
+            expected_cmd_count[segment] = cc_byte;
+            regs[segment]               = unexpected(ErrorCode::CMD_COUNT_MISMATCH);
+            continue;
+        }
+
+        regs[segment] = payload_data;
     }
     return regs;
 }
@@ -179,7 +260,10 @@ expected<void, ErrorCode>
         pec10               = swapEndianness(calculatePec10(data, 0U) & 0x03FFU);
     }
 
-    return adbms_spi_ls.transmit(tx_buffer.into_span());
+    const auto status = adbms_spi_ls.transmit(tx_buffer.into_span());
+    if (status)
+        postTxUpdateCmdCount(cmd);
+    return status;
 }
 
 } // namespace io::adbms

@@ -48,7 +48,7 @@ expected<void, ErrorCode> pollAuxAdcConversion()
 
 expected<Therms<expected<uint16_t, ErrorCode>>, ErrorCode>  readCellTempReg()
 {
-    Therms<std::expected<uint16_t, ErrorCode>> cell_temp_regs;
+    Therms<std::expected<uint16_t, ErrorCode>> cell_temp_regs{};
 
     if (const expected<void, ErrorCode> poll_ok = pollAuxAdcConversion(); !poll_ok)
     {
@@ -90,7 +90,7 @@ expected<Therms<expected<uint16_t, ErrorCode>>, ErrorCode>  readCellTempReg()
 
 expected<Segments<expected<uint16_t, ErrorCode>>, ErrorCode> readSegVoltageReg()
 {
-    Segments<std::expected<uint16_t, ErrorCode>> segment_voltage_regs;
+    Segments<std::expected<uint16_t, ErrorCode>> segment_voltage_regs{};
     if (const expected<void, ErrorCode> poll_ok = pollAuxAdcConversion(); !poll_ok)
     {
         return unexpected(poll_ok.error());
@@ -101,7 +101,8 @@ expected<Segments<expected<uint16_t, ErrorCode>>, ErrorCode> readSegVoltageReg()
     {
         if (!out[seg])
         {
-            return unexpected(out[seg].error());
+            segment_voltage_regs[seg] = unexpected(out[seg].error());
+            continue;
         }
 
         const uint8_t low     = out[seg].value()[4U];

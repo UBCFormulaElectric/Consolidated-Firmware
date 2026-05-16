@@ -89,6 +89,15 @@ void updateCellsToBalance(
 
 namespace app::segments::balancing
 {
+void init()
+{
+    discharge_enabled.fill({});
+    pwm_duty.fill({});
+    settle_timer.restart();
+    balance_timer.restart();
+    state = can_utils::BalancingState::BALANCING_DISABLED;
+}
+
 void disable()
 {
     discharge_enabled.fill({});
