@@ -293,40 +293,39 @@
       }
     }
   },
-  "MinCellVoltageStats": {
+  "CellVoltageStats_1": {
     "msg_id": 459,
     "cycle_time": 1000,
-    "description": "BMS minimum cell voltage stats",
+    "description": "BMS cell voltage stats",
     "signals": {
-      "CellVoltage": {
+      "AvgCellVoltage": {
         "resolution": 0.001,
-        "min": -1,
+        "min": 0,
         "max": 5,
         "unit": "V"
       },
-      "CellTemperature": {
+      "MinCellVoltage": {
         "resolution": 0.001,
-        "min": -1,
+        "min": 0,
         "max": 5,
         "unit": "V"
       },
-      "CellSegment": {
+      "MinCellVoltageSegment": {
         "resolution": 1,
         "min": 0,
         "max": 9
       },
-      "CellIdx": {
+      "MinCellVoltageIdx": {
         "resolution": 1,
         "min": 0,
         "max": 13
       }
-
     }
   },
   "CellVoltageStats_2": {
     "msg_id": 469,
     "cycle_time": 1000,
-    "description": "BMS maximum cell voltage stats",
+    "description": "BMS cell voltage stats",
     "signals": {
       "PackVoltage": {
         "resolution": 0.01,
@@ -540,9 +539,6 @@
   "Balancing": {
     "msg_id": 466,
     "cycle_time": 1000,
-    "allowed_modes": [
-      "DEBUG"
-    ],
     "description": "Info about balancing",
     "signals": {
       "BalancingState": {
@@ -3339,9 +3335,6 @@
   "BMSShdnNodeStatus": {
     "msg_id": 454,
     "cycle_time": 100,
-    "allowed_modes": [
-      "DEBUG"
-    ],
     "description": "BMS Shutdown Nodes Status",
     "signals": {
       "HVPShdnOKStatus": {
@@ -3355,9 +3348,6 @@
   "OpenWireCheck": {
     "msg_id": 477,
     "cycle_time": 100,
-    "allowed_modes": [
-      "DEBUG"
-    ],
     "description": "Open wire check status",
     "signals": {
       "OpenWireCheckStatus": {
