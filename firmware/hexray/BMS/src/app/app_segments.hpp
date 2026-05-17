@@ -56,7 +56,7 @@ namespace broadcast
     void owc(const Cells<std::expected<bool, ErrorCode>> &owc_results);
 } // namespace broadcast
 
-// app_segments_state.cpp — shared state guarded by mutexes (segment health + cached aggregates)
+// app_segments_state.cpp
 namespace state
 {
     enum class Bit : size_t
@@ -96,8 +96,6 @@ namespace faults
 } // namespace faults
 
 // app_segments_conversions.cpp
-// note that the first expected wrap tells you if the request for the command succeeded
-// subseqeunt errors are
 std::expected<Cells<std::expected<float, ErrorCode>>, ErrorCode> runVoltageConversion();
 std::expected<
     std::pair<Therms<std::expected<float, ErrorCode>>, Therms<std::expected<bool, ErrorCode>>>,

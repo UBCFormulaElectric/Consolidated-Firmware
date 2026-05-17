@@ -13,11 +13,6 @@
 #include <cstring>
 #include <cmath>
 
-// using namespace std;
-// using namespace app::can_tx;
-// using namespace app::can_utils;
-// using namespace app::segments;
-
 namespace
 {
 constexpr float    DISCHARGE_THRESHOLD_V = 10e-3f;
