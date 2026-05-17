@@ -129,7 +129,7 @@ int main(void)
     MX_ADC1_Init();
     MX_FDCAN1_Init();
     MX_FDCAN2_Init();
-    MX_SDMMC1_SD_Init();
+    //MX_SDMMC1_SD_Init();
     MX_SPI4_Init();
     MX_ADC3_Init();
     MX_CRC_Init();
