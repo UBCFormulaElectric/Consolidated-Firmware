@@ -1,14 +1,17 @@
 #include "io_adbms_internal.hpp"
 #include "io_adbms.hpp"
+#include "io_time.hpp"
 #include "util_errorCodes.hpp"
 
 using namespace std;
 
 namespace
 {
-constexpr uint8_t                              MAX_NUM_ATTEMPTS = 10U;
-constexpr uint8_t                              GPIOS_PER_GROUP  = 3U;
-constexpr array<uint16_t, NUM_TEMP_REG_GROUPS> reg_groups{ {
+constexpr uint8_t                  MAX_NUM_ATTEMPTS     = 20U;
+constexpr uint8_t                  POLL_RETRY_DELAY_MS  = 1U;
+constexpr uint8_t                  GPIOS_PER_GROUP      = 3U;
+constexpr uint8_t                  NUM_THERM_REG_GROUPS = 3U;
+constexpr array<uint16_t, NUM_THERM_REG_GROUPS> reg_groups{ {
     io::adbms::RDAUXA,
     io::adbms::RDAUXB,
     io::adbms::RDAUXC,
@@ -42,6 +45,7 @@ expected<void, ErrorCode> pollAuxAdcConversion()
         {
             return {};
         }
+        io::time::delay(POLL_RETRY_DELAY_MS);
     }
     return unexpected(ErrorCode::TIMEOUT);
 }
@@ -55,7 +59,7 @@ expected<Therms<expected<uint16_t, ErrorCode>>, ErrorCode> readCellTempReg()
         return unexpected(poll_ok.error());
     }
 
-    for (size_t group = 0U; group < NUM_TEMP_REG_GROUPS; group++)
+    for (size_t group = 0U; group < NUM_THERM_REG_GROUPS; group++)
     {
         const auto out = readRegGroup(reg_groups[group]);
 
@@ -77,7 +81,7 @@ expected<Therms<expected<uint16_t, ErrorCode>>, ErrorCode> readCellTempReg()
 
                     if (temperature == 0xFFFF || temperature == 0x8000)
                     {
-                        cell_temp_regs[seg][gpio] = std::unexpected(ErrorCode::ERROR);
+                        cell_temp_regs[seg][gpio] = std::unexpected(ErrorCode::INVALID_READING);
                         continue;
                     }
                     cell_temp_regs[seg][gpio] = temperature;
@@ -111,7 +115,7 @@ expected<Segments<expected<uint16_t, ErrorCode>>, ErrorCode> readSegVoltageReg()
 
         if (voltage == 0xFFFF || voltage == 0x8000)
         {
-            segment_voltage_regs[seg] = std::unexpected(ErrorCode::ERROR);
+            segment_voltage_regs[seg] = std::unexpected(ErrorCode::INVALID_READING);
             continue;
         }
         segment_voltage_regs[seg] = voltage;

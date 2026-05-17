@@ -15,6 +15,8 @@
 
 namespace
 {
+using io::adbms::Cells;
+
 constexpr float    DISCHARGE_THRESHOLD_V = 10e-3f;
 constexpr uint32_t SETTLE_TIME_MS        = 5 * 1000;
 constexpr uint32_t BALANCE_TIME_MS       = 5 * 1000;

@@ -30,6 +30,11 @@
 #include "io_semaphore.hpp"
 #include "io_time.hpp"
 
+using io::adbms::Cells;
+using io::adbms::Therms;
+using io::adbms::Segments;
+using io::adbms::Status;
+
 io::semaphore spi_bus_lock(true);
 
 static void jsoncan_transmit_func(const JsonCanMsg &tx_msg)

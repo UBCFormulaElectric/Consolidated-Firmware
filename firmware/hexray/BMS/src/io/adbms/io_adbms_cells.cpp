@@ -1,12 +1,14 @@
 #include "io_adbms.hpp"
 #include "io_adbms_internal.hpp"
+#include "io_time.hpp"
 #include <cstdint>
 
 using namespace std;
 namespace
 {
-constexpr uint8_t MAX_NUM_ATTEMPTS = 10U;
-constexpr uint8_t CELLS_PER_GROUP  = 3U;
+constexpr uint8_t MAX_NUM_ATTEMPTS    = 20U;
+constexpr uint8_t POLL_RETRY_DELAY_MS = 1U;
+constexpr uint8_t CELLS_PER_GROUP     = 3U;
 } // namespace
 
 namespace io::adbms
@@ -36,6 +38,7 @@ expected<void, ErrorCode> pollCellsAdcConversion()
         {
             return {};
         }
+        io::time::delay(POLL_RETRY_DELAY_MS);
     }
     return unexpected(ErrorCode::TIMEOUT);
 }
@@ -72,7 +75,7 @@ expected<Cells<expected<uint16_t, ErrorCode>>, ErrorCode> readCellVoltageReg()
                         static_cast<uint16_t>(static_cast<uint16_t>(low) | static_cast<uint16_t>(high) << 8U);
                     if (voltage == 0xFFFF || voltage == 0x8000)
                     {
-                        cell_voltage_regs[seg][cell] = std::unexpected(ErrorCode::ERROR);
+                        cell_voltage_regs[seg][cell] = std::unexpected(ErrorCode::INVALID_READING);
                         continue;
                     }
                     cell_voltage_regs[seg][cell] = voltage;
@@ -115,7 +118,7 @@ expected<Cells<expected<uint16_t, ErrorCode>>, ErrorCode> readFilteredCellVoltag
 
                     if (voltage == 0xFFFF || voltage == 0x8000)
                     {
-                        filtered_cell_voltage_regs[seg][cell] = std::unexpected(ErrorCode::ERROR);
+                        filtered_cell_voltage_regs[seg][cell] = std::unexpected(ErrorCode::INVALID_READING);
                         continue;
                     }
                     filtered_cell_voltage_regs[seg][cell] = voltage;

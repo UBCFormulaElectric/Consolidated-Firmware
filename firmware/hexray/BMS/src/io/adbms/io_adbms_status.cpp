@@ -20,6 +20,7 @@ expected<void, ErrorCode> clear::StatReg()
 
 expected<Segments<StatusGroups>, ErrorCode> readStatusReg()
 {
+    static_assert(NUM_STAT_REG_GROUPS == 5);
     static constexpr array<uint16_t, NUM_STAT_REG_GROUPS> reg_groups{ { RDSTATA, RDSTATB, RDSTATC, RDSTATD, RDSTATE } };
     Segments<StatusGroups>                                stat_regs;
     // TODO: TEST (Unsure if this poll is needed)

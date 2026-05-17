@@ -28,10 +28,8 @@ expected<void, ErrorCode> writePwmReg(const array<PWMConfig, NUM_SEGMENTS> &pwm_
         memcpy(pwmb_regs[seg].data(), &pwm_config[seg].reg_b, sizeof(PWMB));
     }
 
-    if (const auto err = writeRegGroup(WRPWMA, pwma_regs); !err)
-        return err;
-    if (const auto err = writeRegGroup(WRPWMB, pwmb_regs); !err)
-        return err;
+    RETURN_IF_ERR(writeRegGroup(WRPWMA, pwma_regs));
+    RETURN_IF_ERR(writeRegGroup(WRPWMB, pwmb_regs));
     return {};
 }
 
@@ -54,8 +52,11 @@ Segments<expected<PWMConfig, ErrorCode>> readPwmReg()
             configs[seg] = unexpected(regs_b[seg].error());
             continue;
         }
-        configs[seg]->reg_a = *reinterpret_cast<const PWMA *>(regs_a[seg]->data());
-        configs[seg]->reg_b = *reinterpret_cast<const PWMB *>(regs_b[seg]->data());
+        PWMConfig cfg{
+            .reg_a = *reinterpret_cast<const PWMA *>(regs_a[seg]->data()),
+            .reg_b = *reinterpret_cast<const PWMB *>(regs_b[seg]->data()),
+        };
+        configs[seg] = cfg;
     }
     return configs;
 }

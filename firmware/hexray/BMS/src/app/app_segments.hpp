@@ -5,12 +5,22 @@
 #include "util_errorCodes.hpp"
 #include "io_adbms.hpp"
 
-inline constexpr uint8_t VOLT_CONV_TIME_MS      = 2U;  // check later
-inline constexpr uint8_t AUX_CONV_TIME_MS       = 10U; // check later
-inline constexpr uint8_t OWC_CONVERSION_TIME_MS = 8U;  // check later
+// Minimum conversion times
+inline constexpr uint8_t VOLT_CONV_TIME_MS      = 1U;
+inline constexpr uint8_t AUX_CONV_TIME_MS       = 1U;
+inline constexpr uint8_t OWC_CONVERSION_TIME_MS = 8U; // includes OW soak time, not just ADC
 
 namespace app::segments
 {
+// Re-export ADBMS array aliases inside this namespace so app code can use them unqualified.
+using io::adbms::Cells;
+using io::adbms::Therms;
+using io::adbms::Segments;
+using io::adbms::Status;
+using io::adbms::PerCell;
+using io::adbms::PerTherm;
+using io::adbms::PerSegment;
+
 // Thermistor bank selected during AUX conversions.
 enum class ThermistorMux : size_t
 {
@@ -96,12 +106,9 @@ namespace faults
 } // namespace faults
 
 // app_segments_conversions.cpp
-std::expected<Cells<std::expected<float, ErrorCode>>, ErrorCode> runVoltageConversion();
-std::expected<
-    std::pair<Therms<std::expected<float, ErrorCode>>, Therms<std::expected<bool, ErrorCode>>>,
-    ErrorCode>
-                                                                    runTempConversion();
-std::expected<Segments<std::expected<float, ErrorCode>>, ErrorCode> runSegVoltageConversion();
-std::expected<Segments<io::adbms::StatusGroups>, ErrorCode>         runStatusConversion();
-std::expected<Cells<std::expected<bool, ErrorCode>>, ErrorCode>     runCellOpenWireCheck();
+std::expected<PerCell<float>, ErrorCode>                              runVoltageConversion();
+std::expected<std::pair<PerTherm<float>, PerTherm<bool>>, ErrorCode>  runTempConversion();
+std::expected<PerSegment<float>, ErrorCode>                           runSegVoltageConversion();
+std::expected<Segments<io::adbms::StatusGroups>, ErrorCode>           runStatusConversion();
+std::expected<PerCell<bool>, ErrorCode>                               runCellOpenWireCheck();
 } // namespace app::segments

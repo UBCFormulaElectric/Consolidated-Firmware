@@ -199,32 +199,33 @@ enum class OpenWireSwitch
     OddChannels,
     EvenChannels
 };
-} // namespace io::adbms
 
-// base array types
+// Base array types. Kept inside io::adbms so generic names don't collide at global scope.
 template <typename T> using Cells    = std::array<std::array<T, CELLS_PER_SEGMENT>, NUM_SEGMENTS>;
 template <typename T> using Therms   = std::array<std::array<T, THERMISTORS_PER_SEGMENT>, NUM_SEGMENTS>;
 template <typename T> using Segments = std::array<T, NUM_SEGMENTS>;
 template <typename T> using Regs     = std::array<T, REG_GROUP_SIZE>;
 
-// derived types
-using Status = Segments<io::adbms::StatusGroups>;
+// Derived type
+using Status = Segments<StatusGroups>;
+
+template <typename T> using PerCell    = Cells<std::expected<T, ErrorCode>>;
+template <typename T> using PerTherm   = Therms<std::expected<T, ErrorCode>>;
+template <typename T> using PerSegment = Segments<std::expected<T, ErrorCode>>;
 
 // FUNCTIONS
-namespace io::adbms
-{
 // Configuration, balance and PWM access.
 [[nodiscard]] std::expected<void, ErrorCode> writeConfigReg(const std::array<SegmentConfig, NUM_SEGMENTS> &config);
-[[nodiscard]] Segments<std::expected<SegmentConfig, ErrorCode>> readConfigReg();
+[[nodiscard]] PerSegment<SegmentConfig>      readConfigReg();
 [[nodiscard]] std::expected<void, ErrorCode> writePwmReg(const std::array<PWMConfig, NUM_SEGMENTS> &pwm_config);
-[[nodiscard]] Segments<std::expected<PWMConfig, ErrorCode>> readPwmReg();
+[[nodiscard]] PerSegment<PWMConfig>          readPwmReg();
 
 // Measurement reads.
-[[nodiscard]] std::expected<Cells<std::expected<uint16_t, ErrorCode>>, ErrorCode>    readCellVoltageReg();
-[[nodiscard]] std::expected<Cells<std::expected<uint16_t, ErrorCode>>, ErrorCode>    readFilteredCellVoltageReg();
-[[nodiscard]] std::expected<Therms<std::expected<uint16_t, ErrorCode>>, ErrorCode>   readCellTempReg();
-[[nodiscard]] std::expected<Segments<std::expected<uint16_t, ErrorCode>>, ErrorCode> readSegVoltageReg();
-[[nodiscard]] std::expected<Segments<StatusGroups>, ErrorCode>                       readStatusReg();
+[[nodiscard]] std::expected<PerCell<uint16_t>, ErrorCode>    readCellVoltageReg();
+[[nodiscard]] std::expected<PerCell<uint16_t>, ErrorCode>    readFilteredCellVoltageReg();
+[[nodiscard]] std::expected<PerTherm<uint16_t>, ErrorCode>   readCellTempReg();
+[[nodiscard]] std::expected<PerSegment<uint16_t>, ErrorCode> readSegVoltageReg();
+[[nodiscard]] std::expected<Segments<StatusGroups>, ErrorCode> readStatusReg();
 
 // Open-wire diagnostics.
 [[nodiscard]] std::expected<void, ErrorCode> owcCells(OpenWireSwitch owcSwitch);

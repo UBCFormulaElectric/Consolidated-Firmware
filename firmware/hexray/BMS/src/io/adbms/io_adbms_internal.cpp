@@ -127,13 +127,16 @@ namespace
 
     bool commandIncrements(const uint16_t cmd)
     {
-        // Mask covers only the bits that are constant in BASE
+        // ADCV_BASE = 0x0260, bits 9+6+5 constant; bits 8(RD), 7(CONT), 4(DCP), 2(RSTF), 1-0(OW) vary.
         if ((cmd & 0x0668U) == (ADCV_BASE & 0x0668U))
             return true;
+        // ADSV_BASE = 0x0168, bits 8+6+5+3 constant; bits 7(CONT), 4(DCP), 1-0(OW) vary.
         if ((cmd & 0x076CU) == (ADSV_BASE & 0x076CU))
             return true;
+        // ADAX_BASE = 0x0410, bits 10+4 constant; bits 8(OW), 7(PUP), 6(CH4), 3-0(CH3..CH0) vary.
         if ((cmd & 0x0630U) == (ADAX_BASE & 0x0630U))
             return true;
+        // ADAX2_BASE = 0x0400, bits 10+9..4 all constant; only CH[3:0] (bits 3-0) vary.
         if ((cmd & 0x07F0U) == ADAX2_BASE)
             return true;
 
@@ -183,15 +186,13 @@ namespace
     }
 } // namespace
 
-// Forward decl so the post-error resync helper can use it.
-array<expected<array<uint8_t, REG_GROUP_SIZE>, ErrorCode>, NUM_SEGMENTS> readRegGroup(uint16_t cmd);
-
 namespace
 {
     // After a failed transmit on an incrementing command we don't know whether the
     // chip actually parsed it (and bumped its cc) or never saw it. Trigger one cheap
     // read so readRegGroup's existing cc-resync snaps expected_cmd_count[] back to
     // whatever the chip reports. RDCFGA is non-incrementing and harmless to issue.
+    // readRegGroup is declared in io_adbms_internal.hpp.
     void resyncFromChip()
     {
         (void)readRegGroup(RDCFGA);

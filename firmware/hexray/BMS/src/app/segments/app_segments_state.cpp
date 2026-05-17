@@ -6,6 +6,8 @@
 
 namespace
 {
+using io::adbms::Cells;
+
 std::array<std::bitset<4>, MAX_NUM_SEGMENTS> segment_health{};
 io::semaphore                                health_mutex{ true };
 
