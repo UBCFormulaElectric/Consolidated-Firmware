@@ -8,6 +8,7 @@
 #include "app_timer.hpp"
 
 #include "io_adbms.hpp"
+#include "io_semaphore.hpp"
 
 #include <cstring>
 #include <cmath>
@@ -23,7 +24,7 @@ constexpr float    DISCHARGE_THRESHOLD_V = 10e-3f;
 constexpr uint32_t SETTLE_TIME_MS        = 5 * 1000;
 constexpr uint32_t BALANCE_TIME_MS       = 5 * 1000;
 
-auto state = app::can_utils::BalancingState::BALANCING_DISABLED;
+auto balancing_state = app::can_utils::BalancingState::BALANCING_DISABLED;
 std::array<std::array<bool, CELLS_PER_SEGMENT>, NUM_SEGMENTS>    discharge_enabled;
 std::array<std::array<uint8_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS> pwm_duty;
 app::Timer                                                       settle_timer(SETTLE_TIME_MS);
@@ -95,7 +96,7 @@ void init()
     pwm_duty.fill({});
     settle_timer.restart();
     balance_timer.restart();
-    state = can_utils::BalancingState::BALANCING_DISABLED;
+    balancing_state = can_utils::BalancingState::BALANCING_DISABLED;
 }
 
 void disable()
@@ -103,18 +104,18 @@ void disable()
     discharge_enabled.fill({});
     pwm_duty.fill({});
     config::setBalanceConfig(discharge_enabled, pwm_duty, false);
-    state = can_utils::BalancingState::BALANCING_DISABLED;
+    balancing_state = can_utils::BalancingState::BALANCING_DISABLED;
     LOG_INFO("Disabling");
 }
 
 void tick()
 {
-    switch (state)
+    switch (balancing_state)
     {
         case can_utils::BalancingState::BALANCING_DISABLED:
         {
             settle_timer.restart();
-            state = can_utils::BalancingState::BALANCING_SETTLE;
+            balancing_state = can_utils::BalancingState::BALANCING_SETTLE;
             LOG_INFO("Settling");
             break;
         }
@@ -122,10 +123,13 @@ void tick()
         {
             if (settle_timer.updateAndGetState() == Timer::TimerState::EXPIRED)
             {
-                updateCellsToBalance(broadcast::getLatestVoltages(), broadcast::getMinCellVoltage());
-                LOG_IF_ERR(io::adbms::sendBalanceCmd());
+                updateCellsToBalance(state::getLatestVoltages(), state::getMinCellVoltage());
+                {
+                    const io::unique_semaphore s{ spi_bus_lock };
+                    LOG_IF_ERR(io::adbms::sendBalanceCmd());
+                }
                 balance_timer.restart();
-                state = can_utils::BalancingState::BALANCING_BALANCE;
+                balancing_state = can_utils::BalancingState::BALANCING_BALANCE;
                 LOG_INFO("Balancing");
             }
             break;
@@ -134,9 +138,12 @@ void tick()
         {
             if (balance_timer.updateAndGetState() == Timer::TimerState::EXPIRED)
             {
-                LOG_IF_ERR(io::adbms::sendStopBalanceCmd());
+                {
+                    const io::unique_semaphore s{ spi_bus_lock };
+                    LOG_IF_ERR(io::adbms::sendStopBalanceCmd());
+                }
                 settle_timer.restart();
-                state = can_utils::BalancingState::BALANCING_SETTLE;
+                balancing_state = can_utils::BalancingState::BALANCING_SETTLE;
                 LOG_INFO("Settling");
             }
             break;

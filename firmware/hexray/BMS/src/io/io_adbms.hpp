@@ -228,7 +228,6 @@ namespace io::adbms
 
 // Open-wire diagnostics.
 [[nodiscard]] std::expected<void, ErrorCode> owcCells(OpenWireSwitch owcSwitch);
-[[nodiscard]] std::expected<void, ErrorCode> owcTherms(OpenWireSwitch owcSwitch);
 
 // Conversion control.
 [[nodiscard]] std::expected<void, ErrorCode> startCellsAdcConversion();

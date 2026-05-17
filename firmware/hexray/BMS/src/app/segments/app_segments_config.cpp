@@ -95,8 +95,6 @@ void setBalanceConfig(const Cells<bool> &balance_config, const Cells<uint8_t> &p
     }
 }
 
-// Caller must hold spi_bus_lock (this writes to the chip directly). Updates the in-memory
-// segment_config and immediately pushes it so the Configs task's next sync sees no diff.
 expected<void, ErrorCode> setThermistorConfig(const ThermistorMux mux)
 {
     const io::unique_semaphore lock{ config_data_lock };

@@ -183,6 +183,21 @@ namespace
     }
 } // namespace
 
+// Forward decl so the post-error resync helper can use it.
+array<expected<array<uint8_t, REG_GROUP_SIZE>, ErrorCode>, NUM_SEGMENTS> readRegGroup(uint16_t cmd);
+
+namespace
+{
+    // After a failed transmit on an incrementing command we don't know whether the
+    // chip actually parsed it (and bumped its cc) or never saw it. Trigger one cheap
+    // read so readRegGroup's existing cc-resync snaps expected_cmd_count[] back to
+    // whatever the chip reports. RDCFGA is non-incrementing and harmless to issue.
+    void resyncFromChip()
+    {
+        (void)readRegGroup(RDCFGA);
+    }
+} // namespace
+
 void resetExpectedCmdCount()
 {
     expected_cmd_count.fill(0);
@@ -198,7 +213,13 @@ expected<void, ErrorCode> sendCmd(const uint16_t cmd)
     const TxCmd tx_cmd{ cmd };
     const auto  status = adbms_spi_ls.transmit(tx_cmd.into_span());
     if (status)
+    {
         postTxUpdateCmdCount(cmd);
+    }
+    else if (cmd == SRST || cmd == RSTCC || commandIncrements(cmd))
+    {
+        resyncFromChip();
+    }
     return status;
 }
 
@@ -208,7 +229,13 @@ expected<void, ErrorCode> poll(const uint16_t cmd, const span<uint8_t> poll_buf)
     const auto  status =
         adbms_spi_ls.transmitThenReceive({ reinterpret_cast<const uint8_t *>(&tx_cmd), sizeof(tx_cmd) }, poll_buf);
     if (status)
+    {
         postTxUpdateCmdCount(cmd);
+    }
+    else if (cmd == SRST || cmd == RSTCC || commandIncrements(cmd))
+    {
+        resyncFromChip();
+    }
     return status;
 }
 
@@ -266,7 +293,13 @@ expected<void, ErrorCode>
 
     const auto status = adbms_spi_ls.transmit(tx_buffer.into_span());
     if (status)
+    {
         postTxUpdateCmdCount(cmd);
+    }
+    else if (commandIncrements(cmd))
+    {
+        resyncFromChip();
+    }
     return status;
 }
 

@@ -24,11 +24,10 @@ expected<Cells<expected<float, ErrorCode>>, ErrorCode> runVoltageConversion()
     return out;
 }
 
-expected<Therms<expected<float, ErrorCode>>, ErrorCode> runTempConversion()
+expected<pair<Therms<expected<float, ErrorCode>>, Therms<expected<bool, ErrorCode>>>, ErrorCode> runTempConversion()
 {
     array<Therms<expected<uint16_t, ErrorCode>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)> regs{};
 
-    Therms<expected<float, ErrorCode>> out_temps;
     for (size_t mux = 0U; mux < static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT); mux++)
     {
         RETURN_IF_ERR(config::setThermistorConfig(static_cast<ThermistorMux>(mux)));
@@ -39,21 +38,23 @@ expected<Therms<expected<float, ErrorCode>>, ErrorCode> runTempConversion()
         regs[mux] = temp_result.value();
     }
 
+    Therms<expected<float, ErrorCode>> out_temps;
+    Therms<expected<bool, ErrorCode>>  out_owc;
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
         for (size_t mux = 0U; mux < static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT); mux++)
         {
             for (size_t gpio = 0U; gpio < THERM_GPIOS_PER_SEGMENT; gpio++)
             {
-                // what the fuck
                 if (const size_t therm = gpio + mux * THERM_GPIOS_PER_SEGMENT; therm < THERMISTORS_PER_SEGMENT)
                 {
                     out_temps[seg][therm] = regs[mux][seg][gpio].transform(convertRegToTemp);
+                    out_owc[seg][therm]   = regs[mux][seg][gpio].transform(checkThermOwcOk);
                 }
             }
         }
     }
-    return out_temps;
+    return pair{ out_temps, out_owc };
 }
 
 expected<Segments<expected<float, ErrorCode>>, ErrorCode> runSegVoltageConversion()

@@ -154,7 +154,7 @@ void jobs_run1kHz_tick()
 
 void jobs_runAdbmsVoltages_tick()
 {
-    app::segments::health::resetAll(app::segments::health::Bit::Voltage);
+    app::segments::state::resetAll(app::segments::state::Bit::Voltage);
 
     std::expected<Cells<std::expected<float, ErrorCode>>, ErrorCode> volt_r;
     std::expected<Cells<std::expected<bool, ErrorCode>>, ErrorCode>  owc_r;
@@ -168,7 +168,7 @@ void jobs_runAdbmsVoltages_tick()
     if (volt_r)
     {
         voltages = volt_r.value();
-        app::segments::health::setAll(app::segments::health::Bit::Voltage);
+        app::segments::state::setAll(app::segments::state::Bit::Voltage);
     }
 
     Cells<std::expected<bool, ErrorCode>> owc{};
@@ -181,7 +181,7 @@ void jobs_runAdbmsVoltages_tick()
 
 void jobs_runAdbmsConfigs_tick()
 {
-    app::segments::health::resetAll(app::segments::health::Bit::Config);
+    app::segments::state::resetAll(app::segments::state::Bit::Config);
 
     std::expected<void, ErrorCode> sync_result;
     {
@@ -189,14 +189,17 @@ void jobs_runAdbmsConfigs_tick()
         sync_result = app::segments::config::configSync();
     }
     if (sync_result)
-        app::segments::health::setAll(app::segments::health::Bit::Config);
+        app::segments::state::setAll(app::segments::state::Bit::Config);
 }
 
 void jobs_runAdbmsTemperatures_tick()
 {
-    app::segments::health::resetAll(app::segments::health::Bit::Temp);
+    app::segments::state::resetAll(app::segments::state::Bit::Temp);
 
-    std::expected<Therms<std::expected<float, ErrorCode>>, ErrorCode>   temp_r;
+    std::expected<
+        std::pair<Therms<std::expected<float, ErrorCode>>, Therms<std::expected<bool, ErrorCode>>>,
+        ErrorCode>
+                                                                        temp_r;
     std::expected<Segments<std::expected<float, ErrorCode>>, ErrorCode> seg_r;
     {
         const io::unique_semaphore s{ spi_bus_lock };
@@ -205,14 +208,18 @@ void jobs_runAdbmsTemperatures_tick()
     }
 
     Therms<std::expected<float, ErrorCode>> temp_results{};
+    Therms<std::expected<bool, ErrorCode>>  therm_owc_results{};
     if (temp_r)
     {
-        temp_results = temp_r.value();
-        app::segments::health::setAll(app::segments::health::Bit::Temp);
+        temp_results      = temp_r.value().first;
+        therm_owc_results = temp_r.value().second;
+        app::segments::state::setAll(app::segments::state::Bit::Temp);
     }
     else
     {
         for (auto &seg : temp_results)
+            seg.fill(std::unexpected(temp_r.error()));
+        for (auto &seg : therm_owc_results)
             seg.fill(std::unexpected(temp_r.error()));
     }
 
@@ -222,13 +229,13 @@ void jobs_runAdbmsTemperatures_tick()
     else
         seg_voltage_results.fill(std::unexpected(seg_r.error()));
 
-    app::segments::broadcast::temps(temp_results);
+    app::segments::broadcast::temps(temp_results, therm_owc_results);
     app::segments::broadcast::segVoltages(seg_voltage_results);
 }
 
 void jobs_runAdbmsDiagnostics_tick()
 {
-    app::segments::health::resetAll(app::segments::health::Bit::Status);
+    app::segments::state::resetAll(app::segments::state::Bit::Status);
 
     std::expected<Segments<io::adbms::StatusGroups>, ErrorCode> stat_r;
     {
@@ -240,7 +247,7 @@ void jobs_runAdbmsDiagnostics_tick()
     if (stat_r)
     {
         status = stat_r.value();
-        app::segments::health::setAll(app::segments::health::Bit::Status);
+        app::segments::state::setAll(app::segments::state::Bit::Status);
     }
     else
     {

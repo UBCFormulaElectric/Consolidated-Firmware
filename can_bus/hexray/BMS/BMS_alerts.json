@@ -25,6 +25,10 @@
     "TsOvercurrent": {
       "id": 451,
       "description": "Tractive system overcurrent detected"
+    },
+    "ThermOpenWire": {
+      "id": 957,
+      "description": "Open wire detected on a thermistor sense line"
     }
   },
   "faults_id": 402,

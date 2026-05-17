@@ -1,5 +1,6 @@
 #pragma once
 #include <expected>
+#include <utility>
 
 #include "util_errorCodes.hpp"
 #include "io_adbms.hpp"
@@ -46,18 +47,17 @@ namespace balancing
 // app_segments_broadcast.cpp
 namespace broadcast
 {
-    void                                   cellVoltages(const Cells<std::expected<float, ErrorCode>> &voltages);
-    void                                   temps(const Therms<std::expected<float, ErrorCode>> &temps);
-    void                                   segVoltages(const Segments<std::expected<float, ErrorCode>> &seg_voltages);
-    void                                   status(const Status &status);
-    void                                   owc(const Cells<std::expected<bool, ErrorCode>> &owc_results);
-    Cells<std::expected<float, ErrorCode>> getLatestVoltages();
-    CellParam<float>                       getMinCellVoltage();
-    CellParam<float>                       getMaxCellVoltage()
+    void cellVoltages(const Cells<std::expected<float, ErrorCode>> &voltages);
+    void temps(
+        const Therms<std::expected<float, ErrorCode>> &temps,
+        const Therms<std::expected<bool, ErrorCode>>  &therm_owc);
+    void segVoltages(const Segments<std::expected<float, ErrorCode>> &seg_voltages);
+    void status(const Status &status);
+    void owc(const Cells<std::expected<bool, ErrorCode>> &owc_results);
 } // namespace broadcast
 
-// app_segments_health.cpp
-namespace health
+// app_segments_state.cpp — shared state guarded by mutexes (segment health + cached aggregates)
+namespace state
 {
     enum class Bit : size_t
     {
@@ -71,12 +71,26 @@ namespace health
     void set(size_t seg, Bit bit);
     void setAll(Bit bit);
     bool isOk(size_t seg);
-} // namespace health
+    bool allOk();
+
+    Cells<std::expected<float, ErrorCode>> getLatestVoltages();
+    CellParam<float>                       getMinCellVoltage();
+    CellParam<float>                       getMaxCellVoltage();
+    CellParam<float>                       getMaxCellTemperature();
+    bool                                   getCellOwc();
+    bool                                   getThermOwc();
+
+    void setVoltageStats(
+        const Cells<std::expected<float, ErrorCode>> &latest,
+        CellParam<float>                              min,
+        CellParam<float>                              max);
+    void setTempStats(CellParam<float> max_temp, bool any_therm_owc);
+    void setCellOwc(bool any_cell_owc);
+} // namespace state
 
 // aapp_segments_faults.cpp
 namespace faults
 {
-    void init();
     bool checkWarnings();
     bool checkFaults();
 } // namespace faults
@@ -84,8 +98,11 @@ namespace faults
 // app_segments_conversions.cpp
 // note that the first expected wrap tells you if the request for the command succeeded
 // subseqeunt errors are
-std::expected<Cells<std::expected<float, ErrorCode>>, ErrorCode>    runVoltageConversion();
-std::expected<Therms<std::expected<float, ErrorCode>>, ErrorCode>   runTempConversion();
+std::expected<Cells<std::expected<float, ErrorCode>>, ErrorCode> runVoltageConversion();
+std::expected<
+    std::pair<Therms<std::expected<float, ErrorCode>>, Therms<std::expected<bool, ErrorCode>>>,
+    ErrorCode>
+                                                                    runTempConversion();
 std::expected<Segments<std::expected<float, ErrorCode>>, ErrorCode> runSegVoltageConversion();
 std::expected<Segments<io::adbms::StatusGroups>, ErrorCode>         runStatusConversion();
 std::expected<Cells<std::expected<bool, ErrorCode>>, ErrorCode>     runCellOpenWireCheck();

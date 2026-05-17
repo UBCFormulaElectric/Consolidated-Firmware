@@ -115,10 +115,6 @@ const std::span<bool, MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT> cell_uv_buffer =
 const std::span<bool, MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT> cell_owc_ok_buffer =
     CellBroadcastBuffer<bool>(app::can_tx::BMS_CellOpenWireCheck_getData());
 
-Cells<std::expected<float, ErrorCode>> latest_voltages{};
-app::segments::CellParam<float>        latest_min_cell_voltage{ .segment = 0, .cell = 0, .value = 0.0f };
-app::segments::CellParam<float>        latest_max_cell_voltage{ .segment = 0, .cell = 0, .value = 0.0f };
-io::semaphore                          voltage_cache_lock{ true };
 } // namespace
 
 namespace app::segments::broadcast
@@ -147,21 +143,19 @@ void cellVoltages(const Cells<std::expected<float, ErrorCode>> &voltages)
             candidate_max_cell_voltage = std::max(candidate_max_cell_voltage, current_cell_voltage);
             candidate_min_cell_voltage = std::min(candidate_min_cell_voltage, current_cell_voltage);
         }
-        comm_ok_buffer[seg] = health::isOk(seg);
+        comm_ok_buffer[seg] = state::isOk(seg);
     }
 
-    {
-        const io::unique_semaphore lock{ voltage_cache_lock };
-        latest_voltages         = voltages;
-        latest_min_cell_voltage = candidate_min_cell_voltage;
-        latest_max_cell_voltage = candidate_max_cell_voltage;
-    }
+    state::setVoltageStats(voltages, candidate_min_cell_voltage, candidate_max_cell_voltage);
 }
 
-void temps(const Therms<std::expected<float, ErrorCode>> &temps)
+void temps(
+    const Therms<std::expected<float, ErrorCode>> &temps,
+    const Therms<std::expected<bool, ErrorCode>>  &therm_owc)
 {
     CellParam candidate_max_cell_temp = { .segment = 0, .cell = 0, .value = __FLT_MIN__ };
     CellParam candidate_min_cell_temp = { .segment = 0, .cell = 0, .value = __FLT_MAX__ };
+    bool      candidate_therm_owc     = false;
 
     for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
     {
@@ -169,18 +163,23 @@ void temps(const Therms<std::expected<float, ErrorCode>> &temps)
         {
             const auto &r                        = temps[seg][therm];
             cell_temperature_setters[seg][therm] = r.value_or(0.0f);
-            if (!r)
-                continue;
-            const CellParam current_cell_temp{
-                .segment = static_cast<uint8_t>(seg),
-                .cell    = static_cast<uint8_t>(therm),
-                .value   = r.value(),
-            };
-            candidate_max_cell_temp = std::max(candidate_max_cell_temp, current_cell_temp);
-            candidate_min_cell_temp = std::min(candidate_min_cell_temp, current_cell_temp);
+            if (r)
+            {
+                const CellParam current_cell_temp{
+                    .segment = static_cast<uint8_t>(seg),
+                    .cell    = static_cast<uint8_t>(therm),
+                    .value   = r.value(),
+                };
+                candidate_max_cell_temp = std::max(candidate_max_cell_temp, current_cell_temp);
+                candidate_min_cell_temp = std::min(candidate_min_cell_temp, current_cell_temp);
+            }
+            if (!therm_owc[seg][therm].value_or(true))
+                candidate_therm_owc = true;
         }
-        comm_ok_buffer[seg] = health::isOk(seg);
+        comm_ok_buffer[seg] = state::isOk(seg);
     }
+
+    state::setTempStats(candidate_max_cell_temp, candidate_therm_owc);
 }
 
 void segVoltages(const Segments<std::expected<float, ErrorCode>> &seg_voltages)
@@ -265,32 +264,20 @@ void status(const Status &status)
     }
 }
 
-Cells<std::expected<float, ErrorCode>> getLatestVoltages()
-{
-    const io::unique_semaphore lock{ voltage_cache_lock };
-    return latest_voltages;
-}
-
-CellParam<float> getMinCellVoltage()
-{
-    const io::unique_semaphore lock{ voltage_cache_lock };
-    return latest_min_cell_voltage;
-}
-
-CellParam<float> getMaxCellVoltage()
-{
-    const io::unique_semaphore lock{ voltage_cache_lock };
-    return latest_min_cell_voltage;
-}
-
 void owc(const Cells<std::expected<bool, ErrorCode>> &owc_results)
 {
+    bool candidate_cell_owc = false;
+
     for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
     {
         for (size_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
         {
             cell_owc_ok_buffer[seg * CELLS_PER_SEGMENT + cell] = owc_results[seg][cell].value_or(false);
+            if (!owc_results[seg][cell].value_or(false))
+                candidate_cell_owc = true;
         }
     }
+
+    state::setCellOwc(candidate_cell_owc);
 }
 } // namespace app::segments::broadcast

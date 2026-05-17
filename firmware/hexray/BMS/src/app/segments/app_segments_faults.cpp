@@ -12,157 +12,137 @@ namespace
 {
 constexpr float MAX_CELL_CHARGE_TEMP_DEGC = 45.0f;
 
-// Makes sure segments do not fault during init (idk if ts is needed)
 constexpr uint32_t STARTUP_BLANKING_MS = 1000;
 Timer              startup_blanking_timer(STARTUP_BLANKING_MS);
 
+struct Signal
+{
+    void (*set)(bool);
+    bool     reportable;
+    uint32_t debounce_ms;
+};
+
 struct Profile
 {
-    float    min_voltage;
-    float    max_voltage;
-    float    max_temp;
-    uint32_t under_voltage_debounce_ms;
-    uint32_t over_voltage_debounce_ms;
-    uint32_t over_temp_debounce_ms;
-    uint32_t comm_err_debounce_ms;
-    uint32_t cell_owc_debounce_ms;
-    void (*undervoltage_setter)(bool);
-    void (*overvoltage_setter)(bool);
-    void (*overtemp_setter)(bool);
-    void (*comm_err_setter)(bool);
-    void (*cell_owc_setter)(bool);
+    float  min_voltage;
+    float  max_voltage;
+    float  max_temp;
+    Signal undervoltage;
+    Signal overvoltage;
+    Signal overtemp;
+    Signal comm_err;
+    Signal cell_owc;
+    Signal therm_owc;
 };
 
 constexpr Profile WARNING = {
-    .min_voltage               = 2.7f,
-    .max_voltage               = 4.17f,
-    .max_temp                  = 55.0f,
-    .under_voltage_debounce_ms = 1000,
-    .over_voltage_debounce_ms  = 1000,
-    .over_temp_debounce_ms     = 1000,
-    .comm_err_debounce_ms      = 1000,
-    .cell_owc_debounce_ms      = 1000,
-    .undervoltage_setter = &app::can_tx::BMS_Warning_CellUndervoltage_set,
-    .overvoltage_setter  = &app::can_tx::BMS_Warning_CellOvervoltage_set,
-    .overtemp_setter     = &app::can_tx::BMS_Warning_CellOvertemp_set,
-    .comm_err_setter     = &app::can_tx::BMS_Warning_ModuleCommunicationError_set,
-    .cell_owc_setter     = &app::can_tx::BMS_Warning_CellOpenWire_set,
+    .min_voltage  = 2.7f,
+    .max_voltage  = 4.17f,
+    .max_temp     = 55.0f,
+    .undervoltage = { &app::can_tx::BMS_Warning_CellUndervoltage_set, true, 1000 },
+    .overvoltage  = { &app::can_tx::BMS_Warning_CellOvervoltage_set, true, 1000 },
+    .overtemp     = { &app::can_tx::BMS_Warning_CellOvertemp_set, true, 1000 },
+    .comm_err     = { nullptr, false, 0 },
+    .cell_owc     = { nullptr, false, 0 },
+    .therm_owc    = { &app::can_tx::BMS_Warning_ThermOpenWire_set, true, 1000 },
 };
 
 constexpr Profile FAULT = {
-    .min_voltage               = convertUVOVToFloat(VUV),
-    .max_voltage               = convertUVOVToFloat(VOV),
-    .max_temp                  = 60.0f,
-    .under_voltage_debounce_ms = 5000,
-    .over_voltage_debounce_ms  = 5000,
-    .over_temp_debounce_ms     = 5000,
-    .comm_err_debounce_ms      = 5000,
-    .cell_owc_debounce_ms      = 5000,
-    .undervoltage_setter = &app::can_tx::BMS_Fault_CellUndervoltage_set,
-    .overvoltage_setter  = &app::can_tx::BMS_Fault_CellOvervoltage_set,
-    .overtemp_setter     = &app::can_tx::BMS_Fault_CellOvertemp_set,
-    .comm_err_setter     = &app::can_tx::BMS_Fault_ModuleCommunicationError_set,
-    .cell_owc_setter     = &app::can_tx::BMS_Fault_CellOpenWire_set,
+    .min_voltage  = app::segments::convertUVOVToFloat(VUV),
+    .max_voltage  = app::segments::convertUVOVToFloat(VOV),
+    .max_temp     = 60.0f,
+    .undervoltage = { &app::can_tx::BMS_Fault_CellUndervoltage_set, true, 5000 },
+    .overvoltage  = { &app::can_tx::BMS_Fault_CellOvervoltage_set, true, 5000 },
+    .overtemp     = { &app::can_tx::BMS_Fault_CellOvertemp_set, true, 5000 },
+    .comm_err     = { &app::can_tx::BMS_Fault_ModuleCommunicationError_set, true, 5000 },
+    .cell_owc     = { &app::can_tx::BMS_Fault_CellOpenWire_set, true, 5000 },
+    .therm_owc    = { nullptr, false, 0 },
 };
 
-template <typename Setters> class FaultProfile
+class Checker
 {
   public:
-    explicit FaultProfile(const FaultThresholds &thresholds)
-      : thresholds_(thresholds),
-        under_voltage_timer_(thresholds.under_voltage_debounce_ms),
-        over_voltage_timer_(thresholds.over_voltage_debounce_ms),
-        over_temp_timer_(thresholds.over_temp_debounce_ms),
-        comm_err_timer_(thresholds.comm_err_debounce_ms),
-        cell_owc_timer_(thresholds.cell_owc_debounce_ms)
+    explicit Checker(const Profile &profile)
+      : profile_(profile),
+        uv_timer_(profile.undervoltage.debounce_ms),
+        ov_timer_(profile.overvoltage.debounce_ms),
+        ot_timer_(profile.overtemp.debounce_ms),
+        comm_timer_(profile.comm_err.debounce_ms),
+        cell_owc_timer_(profile.cell_owc.debounce_ms),
+        therm_owc_timer_(profile.therm_owc.debounce_ms)
     {
     }
 
     bool check(bool blanking_expired)
     {
-        const bool  is_charging       = app::StateMachine::get_current_state() == &app::states::charge_state;
-        const float max_temp          = is_charging ? MAX_CELL_CHARGE_TEMP_DEGC : thresholds_.max_temp;
+        if (!blanking_expired)
+        {
+            clear(profile_.undervoltage);
+            clear(profile_.overvoltage);
+            clear(profile_.overtemp);
+            clear(profile_.comm_err);
+            clear(profile_.cell_owc);
+            clear(profile_.therm_owc);
+            return false;
+        }
 
-        bool comm_err      = false;
-        bool any_cell_owc  = false;
+        const bool  is_charging = app::StateMachine::get_current_state() == &app::states::charge_state;
+        const float max_temp =
+            is_charging ? std::min(profile_.max_temp, MAX_CELL_CHARGE_TEMP_DEGC) : profile_.max_temp;
 
-
-        const bool under_voltage_condition = app::segments::broadcast::getMinCellVoltage().value < thresholds_.min_voltage;
-        const bool over_voltage_condition  = app::segments::broadcast::getMaxCellVoltage().value > thresholds_.max_voltage;
-
-
-        const bool over_temp_condition     = app::segments::max_cell_temp.temp > max_temp;
-
-        const bool uv = under_voltage_timer_.runIfCondition(under_voltage_condition) == Timer::TimerState::EXPIRED &&
-                        blanking_expired;
-        const bool ov = over_voltage_timer_.runIfCondition(over_voltage_condition) == Timer::TimerState::EXPIRED &&
-                        blanking_expired;
-        const bool ot =
-            over_temp_timer_.runIfCondition(over_temp_condition) == Timer::TimerState::EXPIRED && blanking_expired;
-        const bool ce  = comm_err_timer_.runIfCondition(comm_err) == Timer::TimerState::EXPIRED && blanking_expired;
-        const bool cow = cell_owc_timer_.runIfCondition(any_cell_owc) == Timer::TimerState::EXPIRED &&
-        blanking_expired;
-
-        Setters::set_undervoltage(uv);
-        Setters::set_overvoltage(ov);
-        Setters::set_overtemp(ot);
-        Setters::set_comm_err(ce);
-        Setters::set_cell_owc(cow);
-
-        return uv || ov || ot || ce || cow;
+        bool any = false;
+        any |= evaluate(profile_.undervoltage, uv_timer_,
+                        app::segments::state::getMinCellVoltage().value < profile_.min_voltage);
+        any |= evaluate(profile_.overvoltage, ov_timer_,
+                        app::segments::state::getMaxCellVoltage().value > profile_.max_voltage);
+        any |= evaluate(profile_.overtemp, ot_timer_,
+                        app::segments::state::getMaxCellTemperature().value > max_temp);
+        any |= evaluate(profile_.comm_err, comm_timer_, !app::segments::state::allOk());
+        any |= evaluate(profile_.cell_owc, cell_owc_timer_, app::segments::state::getCellOwc());
+        any |= evaluate(profile_.therm_owc, therm_owc_timer_, app::segments::state::getThermOwc());
+        return any;
     }
 
   private:
-    const FaultThresholds &thresholds_;
-    Timer                  under_voltage_timer_;
-    Timer                  over_voltage_timer_;
-    Timer                  over_temp_timer_;
-    Timer                  comm_err_timer_;
-    Timer                  cell_owc_timer_;
+    static void clear(const Signal &s)
+    {
+        if (s.set)
+            s.set(false);
+    }
+
+    static bool evaluate(const Signal &s, Timer &timer, bool cond)
+    {
+        const bool fired = timer.runIfCondition(cond) == Timer::TimerState::EXPIRED;
+        if (s.set)
+            s.set(fired);
+        return s.reportable && fired;
+    }
+
+    const Profile &profile_;
+    Timer          uv_timer_;
+    Timer          ov_timer_;
+    Timer          ot_timer_;
+    Timer          comm_timer_;
+    Timer          cell_owc_timer_;
+    Timer          therm_owc_timer_;
 };
 
-FaultProfile<WarningSetters> warning_profile(WARNING_THRESHOLDS);
-FaultProfile<FaultSetters>   fault_profile(FAULT_THRESHOLDS);
+Checker warning_checker(WARNING);
+Checker fault_checker(FAULT);
 } // namespace
 
 namespace app::segments::faults
 {
-void initFaults()
-{
-    startup_blanking_timer.restart();
-
-    for (auto &segment_cell_owc : cell_owc_ok)
-    {
-        segment_cell_owc.fill(false);
-    }
-
-    for (auto &segment_therm_owc : therm_owc_ok)
-    {
-        segment_therm_owc.fill(false);
-    }
-
-    for (auto &segment_cell_temps : cell_temps) {
-        segment_cell_temps.fill(0.0f);
-    }
-
-    for (auto &segment_filtered_cell_voltages : filtered_cell_voltages) {
-        segment_filtered_cell_voltages.fill(0.0f);
-    }
-
-    for (auto &segment_cell_voltages : cell_voltages) {
-        segment_cell_voltages.fill(0.0f);
-    }
-}
 
 bool checkWarnings()
 {
     const bool settled = startup_blanking_timer.updateAndGetState() == Timer::TimerState::EXPIRED;
-    return warning_profile.check(settled);
+    return warning_checker.check(settled);
 }
 
 bool checkFaults()
 {
     const bool settled = startup_blanking_timer.updateAndGetState() == Timer::TimerState::EXPIRED;
-    return fault_profile.check(settled);
+    return fault_checker.check(settled);
 }
-} // namespace app::segments
+} // namespace app::segments::faults

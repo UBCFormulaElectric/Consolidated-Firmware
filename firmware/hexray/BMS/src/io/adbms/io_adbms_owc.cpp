@@ -11,9 +11,4 @@ std::expected<void, ErrorCode> owcCells(const OpenWireSwitch owcSwitch)
     return sendCmd(cmd);
 }
 
-std::expected<void, ErrorCode> owcTherms(const OpenWireSwitch owcSwitch)
-{
-    const uint16_t cmd = (owcSwitch == OpenWireSwitch::EvenChannels) ? (ADAX_BASE | OW) : (ADAX_BASE | OW | PUP);
-    return sendCmd(cmd);
-}
 }; // namespace io::adbms

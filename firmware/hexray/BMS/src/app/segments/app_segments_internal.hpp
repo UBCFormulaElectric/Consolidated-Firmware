@@ -19,7 +19,7 @@ inline constexpr float R_NOMINAL          = 10e3f; // Thermistor at 25C
 inline constexpr float T_NOMINAL          = 298.15f;
 inline constexpr float BETA_COEFF         = 3610.0f;
 inline constexpr float KELVIN_OFFSET      = 273.15f;
-inline constexpr float OW_THERM_THRESHOLD = 0.0f; // TODO: need to calibrate
+inline constexpr float OW_THERM_THRESHOLD = 2.8f; // TODO: need to calibrate
 
 namespace app::segments
 {
@@ -49,5 +49,10 @@ constexpr float convertRegToTemp(const uint16_t reg)
     const float inv_temp_k = (1.0f / T_NOMINAL) + (1.0f / BETA_COEFF) * std::log(resistance / R_NOMINAL);
 
     return (1.0f / inv_temp_k) - KELVIN_OFFSET;
+}
+
+constexpr bool checkThermOwcOk(const uint16_t reg)
+{
+    return convertRegToVoltage(reg) > OW_THERM_THRESHOLD;
 }
 } // namespace app::segments
