@@ -206,13 +206,13 @@ class PwmInput
      * Get the frequency for the given PWM input
      * @return The frequency for the given PWM input
      */
-    [[nodiscard]] float get_frequency() const { return this->pwm_active ? frequency_hz : 0.0f; }
+    [[nodiscard]] float get_frequency() const { return this->pwm_isActive() ? frequency_hz : 0.0f; }
 
     /**
      * Get the duty cycle for the given PWM input
      * @return The duty cycle for the given PWM input
      */
-    [[nodiscard]] float get_dutyCycle() const { return this->pwm_active ? duty_cycle : 0.0f; }
+    [[nodiscard]] float get_dutyCycle() const { return this->pwm_isActive() ? duty_cycle : 0.0f; }
 
     /**
      * Get the timer handle for the given PWM input
@@ -280,7 +280,8 @@ class PwmInput
 
             if (rising_edge_delta != 0)
             {
-                setFrequency(tim_frequency_hz / static_cast<float>(rising_edge_delta));
+                setFrequency(
+                    tim_frequency_hz / static_cast<float>(rising_edge_delta) * static_cast<float>(ic_prescaler));
             }
             else
             {
@@ -310,7 +311,9 @@ class PwmInput
                     {
                         high_time = falling_edge - prev_rising_edge;
                     }
-                    setDutyCycle(100.0f * static_cast<float>(high_time) / static_cast<float>(rising_edge_delta));
+                    setDutyCycle(
+                        100.0f * static_cast<float>(high_time) * static_cast<float>(ic_prescaler) /
+                        static_cast<float>(rising_edge_delta));
                 }
             }
         }
