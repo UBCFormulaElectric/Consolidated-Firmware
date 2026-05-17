@@ -1,11 +1,9 @@
 #pragma once
 
-#include <cstdint>
-
 namespace app::irs
 {
 // Strictly externally linked for unit testing purposes
-constexpr uint32_t N_DEBOUNCE_PERIOD_MS = 200;
+constexpr uint8_t N_DEBOUNCE_PERIOD_MS = 200;
 
 /**
  * @brief Checks if the negative contactor has been opened for at least the debounce period.

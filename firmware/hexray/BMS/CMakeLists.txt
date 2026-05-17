@@ -17,7 +17,6 @@ set(APP_SHARED_SRCS
 )
 set(APP_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
-         "${CMAKE_CURRENT_SOURCE_DIR}/src/app/segments"
         "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR_CPP}"
 )
 
@@ -29,7 +28,6 @@ set(IO_SHARED_SRCS
 )
 set(IO_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/adbms"
         "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_DIR_CPP}"
 )
 
