@@ -83,7 +83,7 @@ void setLeds()
         switches::regen_get(),
         switches::torque_vectoring_get(),
         !can_rx::BMS_ImdCurrentlyOk_get(),
-        false,
+        io::switches::telem_mark_get(),
         !can_rx::BMS_BspdCurrentlyOk_get(),
     });
 

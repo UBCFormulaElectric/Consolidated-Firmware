@@ -17,7 +17,7 @@ bool regen_get()
 }
 bool start_get()
 {
-    return not push_drive_sig.readPin();
+    return push_drive_sig.readPin();
 }
 bool telem_mark_get()
 {
