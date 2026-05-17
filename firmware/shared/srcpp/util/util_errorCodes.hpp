@@ -13,7 +13,7 @@ enum class ErrorCode
     UNIMPLEMENTED,
     RETRY_FAILED,
     CHECKSUM_FAIL,
-    CMD_COUNT_MISMATCH, // ADBMS6830B command counter (idk if this should be here)
+    CMD_COUNT_MISMATCH,  // ADBMS6830B command counter (idk if this should be here)
     ERROR_INDETERMINATE, // use this for when you don't know what the exit code is YET
     NUM_EXIT_CODES,
 };

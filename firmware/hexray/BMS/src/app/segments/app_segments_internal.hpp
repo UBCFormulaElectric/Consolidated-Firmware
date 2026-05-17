@@ -7,11 +7,11 @@
 #include "app_segments.hpp"
 #include "util_errorCodes.hpp"
 
-inline constexpr uint8_t  MAX_NUM_SEGMENTS = 10U;
-inline constexpr uint16_t VUV              = 0x01A1; // 2.5V
-inline constexpr uint16_t VOV              = 0x0465; // 4.2V
-inline constexpr float   OW_CELL_RELATIVE_THRESHOLD = 0.7f;
-inline constexpr float   OW_CELL_ABSOLUTE_THRESHOLD = 0.5f;
+inline constexpr uint8_t  MAX_NUM_SEGMENTS           = 10U;
+inline constexpr uint16_t VUV                        = 0x01A1; // 2.5V
+inline constexpr uint16_t VOV                        = 0x0465; // 4.2V
+inline constexpr float    OW_CELL_RELATIVE_THRESHOLD = 0.7f;
+inline constexpr float    OW_CELL_ABSOLUTE_THRESHOLD = 0.5f;
 
 inline constexpr float V_REF2             = 3.0f;
 inline constexpr float R_SERIES           = 10e3f; // Fixed resistor
@@ -51,4 +51,3 @@ constexpr float convertRegToTemp(const uint16_t reg)
     return (1.0f / inv_temp_k) - KELVIN_OFFSET;
 }
 } // namespace app::segments
-

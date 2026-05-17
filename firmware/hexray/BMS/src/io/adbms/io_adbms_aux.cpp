@@ -46,7 +46,7 @@ expected<void, ErrorCode> pollAuxAdcConversion()
     return unexpected(ErrorCode::TIMEOUT);
 }
 
-expected<Therms<expected<uint16_t, ErrorCode>>, ErrorCode>  readCellTempReg()
+expected<Therms<expected<uint16_t, ErrorCode>>, ErrorCode> readCellTempReg()
 {
     Therms<std::expected<uint16_t, ErrorCode>> cell_temp_regs{};
 

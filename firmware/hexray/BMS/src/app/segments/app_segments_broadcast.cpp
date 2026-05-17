@@ -68,8 +68,7 @@ CellBroadcaster<float> cell_temperature_setters(
     app::can_tx::BMS_CellTemps_Seg4_Seg7_getData(),
     app::can_tx::BMS_CellTemps_Seg8_Seg9_getData());
 
-
-const std::span<bool, MAX_NUM_SEGMENTS> comm_ok_buffer = 
+const std::span<bool, MAX_NUM_SEGMENTS> comm_ok_buffer =
     SegmentBroadcastBuffer<bool>(app::can_tx::BMS_SegmentCommOk_getData());
 const std::span<float, MAX_NUM_SEGMENTS> segment_voltage_buffer =
     SegmentBroadcastBuffer<float>(app::can_tx::BMS_SegmentVoltages_getData());
@@ -166,7 +165,7 @@ void temps(const Therms<std::expected<float, ErrorCode>> &temps)
     {
         for (size_t therm = 0U; therm < THERMISTORS_PER_SEGMENT; therm++)
         {
-            const auto &r = temps[seg][therm];
+            const auto &r                        = temps[seg][therm];
             cell_temperature_setters[seg][therm] = r.value_or(0.0f);
             if (!r)
                 continue;
@@ -231,11 +230,11 @@ void status(const Status &status)
 
         // STATA
         segment_vref2_buffer[seg] = stat_a ? convertRegToVoltage(stat_a->vref2) : -0.1f;
-        segment_itmp_buffer[seg]  = stat_a ? convertRegToVoltage(stat_a->itmp)  : -0.1f;
+        segment_itmp_buffer[seg]  = stat_a ? convertRegToVoltage(stat_a->itmp) : -0.1f;
 
         // STATB
-        segment_vd_buffer[seg]   = stat_b ? convertRegToVoltage(stat_b->vd)   : -0.1f;
-        segment_va_buffer[seg]   = stat_b ? convertRegToVoltage(stat_b->va)   : -0.1f;
+        segment_vd_buffer[seg]   = stat_b ? convertRegToVoltage(stat_b->vd) : -0.1f;
+        segment_va_buffer[seg]   = stat_b ? convertRegToVoltage(stat_b->va) : -0.1f;
         segment_vres_buffer[seg] = stat_b ? convertRegToVoltage(stat_b->vres) : -0.1f;
 
         // STATC
@@ -256,8 +255,10 @@ void status(const Status &status)
         // STATD — cell N UV at bit 2*(N-1), OV at bit 2*(N-1)+1
         for (size_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
         {
-            cell_uv_buffer[seg * CELLS_PER_SEGMENT + cell] = stat_d && static_cast<bool>((stat_d->covuv >> (2U * cell))      & 1U);
-            cell_ov_buffer[seg * CELLS_PER_SEGMENT + cell] = stat_d && static_cast<bool>((stat_d->covuv >> (2U * cell + 1U)) & 1U);
+            cell_uv_buffer[seg * CELLS_PER_SEGMENT + cell] =
+                stat_d && static_cast<bool>((stat_d->covuv >> (2U * cell)) & 1U);
+            cell_ov_buffer[seg * CELLS_PER_SEGMENT + cell] =
+                stat_d && static_cast<bool>((stat_d->covuv >> (2U * cell + 1U)) & 1U);
         }
     }
 }

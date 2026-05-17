@@ -66,9 +66,10 @@ expected<Cells<expected<uint16_t, ErrorCode>>, ErrorCode> readCellVoltageReg()
                         cell_voltage_regs[seg][cell] = unexpected(out[seg].error());
                         continue;
                     }
-                    const uint8_t low     = out[seg].value()[cell_in_group * 2U];
-                    const uint8_t high    = out[seg].value()[cell_in_group * 2U + 1U];
-                    const auto    voltage = static_cast<uint16_t>(static_cast<uint16_t>(low) | static_cast<uint16_t>(high) << 8U);
+                    const uint8_t low  = out[seg].value()[cell_in_group * 2U];
+                    const uint8_t high = out[seg].value()[cell_in_group * 2U + 1U];
+                    const auto    voltage =
+                        static_cast<uint16_t>(static_cast<uint16_t>(low) | static_cast<uint16_t>(high) << 8U);
                     if (voltage == 0xFFFF || voltage == 0x8000)
                     {
                         cell_voltage_regs[seg][cell] = std::unexpected(ErrorCode::ERROR);
@@ -107,9 +108,10 @@ expected<Cells<expected<uint16_t, ErrorCode>>, ErrorCode> readFilteredCellVoltag
                         filtered_cell_voltage_regs[seg][cell] = unexpected(out[seg].error());
                         continue;
                     }
-                    const uint8_t low     = out[seg].value()[cell_in_group * 2U];
-                    const uint8_t high    = out[seg].value()[cell_in_group * 2U + 1U];
-                    const auto    voltage = static_cast<uint16_t>(static_cast<uint16_t>(low) | static_cast<uint16_t>(high) << 8U);
+                    const uint8_t low  = out[seg].value()[cell_in_group * 2U];
+                    const uint8_t high = out[seg].value()[cell_in_group * 2U + 1U];
+                    const auto    voltage =
+                        static_cast<uint16_t>(static_cast<uint16_t>(low) | static_cast<uint16_t>(high) << 8U);
 
                     if (voltage == 0xFFFF || voltage == 0x8000)
                     {

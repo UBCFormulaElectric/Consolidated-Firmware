@@ -125,6 +125,6 @@ inline constexpr uint32_t POLL_STATUS_READY = __builtin_bswap32(0xFFFFFFFFU >> (
 [[nodiscard]] expected<void, ErrorCode> pollCellsAdcConversion();
 
 // Command counter tracking.
-void               resetExpectedCmdCount();
-Segments<uint8_t>  getExpectedCmdCount();
+void              resetExpectedCmdCount();
+Segments<uint8_t> getExpectedCmdCount();
 } // namespace io::adbms

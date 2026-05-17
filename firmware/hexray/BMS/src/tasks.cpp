@@ -33,11 +33,11 @@ constexpr size_t         TASK_COUNT = 9;
 [[noreturn]] static void tasks_runAdbmsTemperatures(void *arg);
 [[noreturn]] static void tasks_runAdbmsDiagnostics(void *arg);
 
-static hw::rtos::StaticTask::StaticTaskStack<512>  Task1kHzStack;
-static hw::rtos::StaticTask::StaticTaskStack<512>  Task1HzStack;
-static hw::rtos::StaticTask::StaticTaskStack<512>  Task100HzStack;
-static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCanRxStack;
-static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCanTxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512> Task1kHzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512> Task1HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512> Task100HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512> TaskCanRxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512> TaskCanTxStack;
 static hw::rtos::StaticTask::StaticTaskStack<512> TaskAdbmsVoltagesStack;
 static hw::rtos::StaticTask::StaticTaskStack<512> TaskAdbmsConfigsStack;
 static hw::rtos::StaticTask::StaticTaskStack<512> TaskAdbmsTemperaturesStack;
@@ -48,10 +48,20 @@ static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1
 static hw::rtos::StaticTask Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz, Task100HzStack);
 static hw::rtos::StaticTask TaskCanRx(osPriorityBelowNormal, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
 static hw::rtos::StaticTask TaskCanTx(osPriorityBelowNormal, "TaskCanTx", tasks_runCanTx, TaskCanTxStack);
-static hw::rtos::StaticTask TaskAdbmsVoltages(osPriorityNormal, "TaskAdbmsVoltages", tasks_runAdbmsVoltages, TaskAdbmsVoltagesStack);
-static hw::rtos::StaticTask TaskAdbmsConfigs(osPriorityNormal, "TaskAdbmsConfigs", tasks_runAdbmsConfigs, TaskAdbmsConfigsStack);
-static hw::rtos::StaticTask TaskAdbmsTemperatures(osPriorityNormal, "TaskAdbmsTemperatures", tasks_runAdbmsTemperatures, TaskAdbmsTemperaturesStack);
-static hw::rtos::StaticTask TaskAdbmsDiagnostics(osPriorityNormal, "TaskAdbmsDiagnostics", tasks_runAdbmsDiagnostics, TaskAdbmsDiagnosticsStack);
+static hw::rtos::StaticTask
+    TaskAdbmsVoltages(osPriorityNormal, "TaskAdbmsVoltages", tasks_runAdbmsVoltages, TaskAdbmsVoltagesStack);
+static hw::rtos::StaticTask
+    TaskAdbmsConfigs(osPriorityNormal, "TaskAdbmsConfigs", tasks_runAdbmsConfigs, TaskAdbmsConfigsStack);
+static hw::rtos::StaticTask TaskAdbmsTemperatures(
+    osPriorityNormal,
+    "TaskAdbmsTemperatures",
+    tasks_runAdbmsTemperatures,
+    TaskAdbmsTemperaturesStack);
+static hw::rtos::StaticTask TaskAdbmsDiagnostics(
+    osPriorityNormal,
+    "TaskAdbmsDiagnostics",
+    tasks_runAdbmsDiagnostics,
+    TaskAdbmsDiagnosticsStack);
 
 static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor(
     {
@@ -224,8 +234,8 @@ void tasks_runCanRx(void *arg)
 
 void tasks_runAdbmsVoltages(void *arg)
 {
-    const uint32_t period_ms    = 500U;
-    uint32_t       start_ticks  = osKernelGetTickCount();
+    const uint32_t period_ms   = 500U;
+    uint32_t       start_ticks = osKernelGetTickCount();
 
     forever
     {

@@ -86,11 +86,11 @@ void setBalanceConfig(const Cells<bool> &balance_config, const Cells<uint8_t> &p
 
         const auto &d   = pwm_duty[seg];
         pwm_config[seg] = {
-            .reg_a = { static_cast<uint8_t>(d[0]  & 0x0F), static_cast<uint8_t>(d[1]  & 0x0F),
-                       static_cast<uint8_t>(d[2]  & 0x0F), static_cast<uint8_t>(d[3]  & 0x0F),
-                       static_cast<uint8_t>(d[4]  & 0x0F), static_cast<uint8_t>(d[5]  & 0x0F),
-                       static_cast<uint8_t>(d[6]  & 0x0F), static_cast<uint8_t>(d[7]  & 0x0F),
-                       static_cast<uint8_t>(d[8]  & 0x0F), static_cast<uint8_t>(d[9]  & 0x0F),
+            .reg_a = { static_cast<uint8_t>(d[0] & 0x0F), static_cast<uint8_t>(d[1] & 0x0F),
+                       static_cast<uint8_t>(d[2] & 0x0F), static_cast<uint8_t>(d[3] & 0x0F),
+                       static_cast<uint8_t>(d[4] & 0x0F), static_cast<uint8_t>(d[5] & 0x0F),
+                       static_cast<uint8_t>(d[6] & 0x0F), static_cast<uint8_t>(d[7] & 0x0F),
+                       static_cast<uint8_t>(d[8] & 0x0F), static_cast<uint8_t>(d[9] & 0x0F),
                        static_cast<uint8_t>(d[10] & 0x0F), static_cast<uint8_t>(d[11] & 0x0F) },
             .reg_b = { static_cast<uint8_t>(d[12] & 0x0F), static_cast<uint8_t>(d[13] & 0x0F), 0, 0 },
         };

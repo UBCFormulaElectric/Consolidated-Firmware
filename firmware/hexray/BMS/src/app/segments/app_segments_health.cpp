@@ -7,7 +7,7 @@
 namespace
 {
 std::array<std::bitset<4>, MAX_NUM_SEGMENTS> segment_health{};
-io::semaphore                                        health_mutex{ true };
+io::semaphore                                health_mutex{ true };
 } // namespace
 
 namespace app::segments::health

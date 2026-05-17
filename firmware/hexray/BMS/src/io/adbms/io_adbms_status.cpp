@@ -21,7 +21,7 @@ expected<void, ErrorCode> clear::StatReg()
 expected<Segments<StatusGroups>, ErrorCode> readStatusReg()
 {
     static constexpr array<uint16_t, NUM_STAT_REG_GROUPS> reg_groups{ { RDSTATA, RDSTATB, RDSTATC, RDSTATD, RDSTATE } };
-    Segments<StatusGroups> stat_regs;
+    Segments<StatusGroups>                                stat_regs;
     // TODO: TEST (Unsure if this poll is needed)
     if (const auto poll_ok = pollCellsAdcConversion(); !poll_ok)
         return unexpected(poll_ok.error());

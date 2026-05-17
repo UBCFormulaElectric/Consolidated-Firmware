@@ -83,7 +83,7 @@ void updateCellsToBalance(
         }
     }
 
-    app::segments::config::setBalanceConfig(discharge_enabled,pwm_duty,true);
+    app::segments::config::setBalanceConfig(discharge_enabled, pwm_duty, true);
 }
 } // namespace
 

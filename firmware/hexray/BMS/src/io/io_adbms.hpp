@@ -152,8 +152,7 @@ struct StatusGroups
 
     static StatusGroups makeError(ErrorCode e)
     {
-        return { std::unexpected(e), std::unexpected(e), std::unexpected(e),
-                 std::unexpected(e), std::unexpected(e) };
+        return { std::unexpected(e), std::unexpected(e), std::unexpected(e), std::unexpected(e), std::unexpected(e) };
     }
 };
 
@@ -172,7 +171,7 @@ struct __attribute__((packed)) PWMA
     uint8_t pwm10 : 4;
     uint8_t pwm11 : 4;
     uint8_t pwm12 : 4;
-    bool operator==(const PWMA &other) const { return std::memcmp(this, &other, sizeof(PWMA)) == 0; }
+    bool    operator==(const PWMA &other) const { return std::memcmp(this, &other, sizeof(PWMA)) == 0; }
 };
 static_assert(sizeof(PWMA) == REG_GROUP_SIZE);
 
@@ -221,11 +220,11 @@ namespace io::adbms
 [[nodiscard]] Segments<std::expected<PWMConfig, ErrorCode>> readPwmReg();
 
 // Measurement reads.
-[[nodiscard]] std::expected<Cells<std::expected<uint16_t, ErrorCode>>, ErrorCode>        readCellVoltageReg();
-[[nodiscard]] std::expected<Cells<std::expected<uint16_t, ErrorCode>>, ErrorCode>        readFilteredCellVoltageReg();
-[[nodiscard]] std::expected<Therms<std::expected<uint16_t, ErrorCode>>, ErrorCode>       readCellTempReg();
-[[nodiscard]] std::expected<Segments<std::expected<uint16_t, ErrorCode>>, ErrorCode>     readSegVoltageReg();
-[[nodiscard]] std::expected<Segments<StatusGroups>, ErrorCode> readStatusReg();
+[[nodiscard]] std::expected<Cells<std::expected<uint16_t, ErrorCode>>, ErrorCode>    readCellVoltageReg();
+[[nodiscard]] std::expected<Cells<std::expected<uint16_t, ErrorCode>>, ErrorCode>    readFilteredCellVoltageReg();
+[[nodiscard]] std::expected<Therms<std::expected<uint16_t, ErrorCode>>, ErrorCode>   readCellTempReg();
+[[nodiscard]] std::expected<Segments<std::expected<uint16_t, ErrorCode>>, ErrorCode> readSegVoltageReg();
+[[nodiscard]] std::expected<Segments<StatusGroups>, ErrorCode>                       readStatusReg();
 
 // Open-wire diagnostics.
 [[nodiscard]] std::expected<void, ErrorCode> owcCells(OpenWireSwitch owcSwitch);

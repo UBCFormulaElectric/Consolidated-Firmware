@@ -20,11 +20,12 @@ namespace balancingState
     {
         const bool ir_negative_opened_debounced = app::irs::negativeOpenedDebounced();
         const bool balancing_enabled            = app::can_rx::Debug_CellBalancing_Request_get();
-        
-        if (balancing_enabled) {
+
+        if (balancing_enabled)
+        {
             app::segments::balancing::tick();
         }
-        
+
         if (ir_negative_opened_debounced || !balancing_enabled)
         {
             app::StateMachine::set_next_state(&app::states::init_state);
