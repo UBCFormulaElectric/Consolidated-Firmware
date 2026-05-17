@@ -218,7 +218,7 @@ array<expected<array<uint8_t, REG_GROUP_SIZE>, ErrorCode>, NUM_SEGMENTS> readReg
     const TxCmd                                                              tx_cmd{ cmd };
     array<RegGroupPayload, NUM_SEGMENTS>                                     rx_buffer{};
 
-    const auto comm_status = adbms_spi_ls.transmitThenReceive(
+    const auto comm_status = adbms_spi_ls.transmitThenReceiveDma(
         tx_cmd.into_span(), { reinterpret_cast<uint8_t *>(rx_buffer.data()), sizeof(rx_buffer) });
     if (!comm_status)
     {
