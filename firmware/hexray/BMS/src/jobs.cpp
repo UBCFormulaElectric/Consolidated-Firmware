@@ -102,8 +102,8 @@ void jobs_run100Hz_tick()
 #ifdef TARGET_HV_SUPPLY
     const bool acc_fault = false;
 #else
-    // TODO: Re-enable segment fault integration once the new segment fault path is complete.
-    const bool acc_fault = false;
+    app::segments::faults::checkWarnings();
+    const bool acc_fault = app::segments::faults::checkFaults();
 #endif
 
     bms_ok_latch.setCurrentStatus(acc_fault ? FaultLatchState::FAULT : FaultLatchState::OK);

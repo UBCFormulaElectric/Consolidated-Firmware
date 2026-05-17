@@ -53,6 +53,7 @@ namespace broadcast
     void                                   owc(const Cells<std::expected<bool, ErrorCode>> &owc_results);
     Cells<std::expected<float, ErrorCode>> getLatestVoltages();
     CellParam<float>                       getMinCellVoltage();
+    CellParam<float>                       getMaxCellVoltage()
 } // namespace broadcast
 
 // app_segments_health.cpp

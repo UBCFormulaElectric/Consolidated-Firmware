@@ -117,6 +117,7 @@ const std::span<bool, MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT> cell_owc_ok_buffer =
 
 Cells<std::expected<float, ErrorCode>> latest_voltages{};
 app::segments::CellParam<float>        latest_min_cell_voltage{ .segment = 0, .cell = 0, .value = 0.0f };
+app::segments::CellParam<float>        latest_max_cell_voltage{ .segment = 0, .cell = 0, .value = 0.0f };
 io::semaphore                          voltage_cache_lock{ true };
 } // namespace
 
@@ -153,6 +154,7 @@ void cellVoltages(const Cells<std::expected<float, ErrorCode>> &voltages)
         const io::unique_semaphore lock{ voltage_cache_lock };
         latest_voltages         = voltages;
         latest_min_cell_voltage = candidate_min_cell_voltage;
+        latest_max_cell_voltage = candidate_max_cell_voltage;
     }
 }
 
@@ -270,6 +272,12 @@ Cells<std::expected<float, ErrorCode>> getLatestVoltages()
 }
 
 CellParam<float> getMinCellVoltage()
+{
+    const io::unique_semaphore lock{ voltage_cache_lock };
+    return latest_min_cell_voltage;
+}
+
+CellParam<float> getMaxCellVoltage()
 {
     const io::unique_semaphore lock{ voltage_cache_lock };
     return latest_min_cell_voltage;

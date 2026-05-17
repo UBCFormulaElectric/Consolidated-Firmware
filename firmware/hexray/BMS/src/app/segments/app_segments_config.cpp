@@ -32,9 +32,7 @@ constexpr std::array<io::adbms::SegmentConfig, NUM_SEGMENTS> createSegmentConfig
 
 std::array<io::adbms::SegmentConfig, NUM_SEGMENTS> segment_config = createSegmentConfig();
 std::array<io::adbms::PWMConfig, NUM_SEGMENTS>     pwm_config{};
-// config_data_lock protects segment_config / pwm_config (in-memory copy).
-// Held across the whole configSync() body so a setBalanceConfig() or setThermistorConfig()
-// cannot mutate state between the read-back compare and the upload.
+
 io::semaphore config_data_lock{ true };
 
 // Caller must hold config_data_lock.
