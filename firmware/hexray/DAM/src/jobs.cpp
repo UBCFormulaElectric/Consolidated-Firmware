@@ -54,27 +54,37 @@ void jobs_init()
 
 void jobs_initLogFs()
 {
-    LOG_INFO("hsd1 state: %lu", sd1.getCardState());
-    // LOG_IF_ERR(sd1.upgrade_buswidth());
-    // LOG_INFO("upgraded buswidth");
-    LOG_IF_ERR(sd1.update_speed());
-    LOG_INFO("upgraded speed");
+    LOG_INFO("hsd1 state: %s", sd1.getCardStateString());
+    LOG_IF_ERR(sd1.upgrade_buswidth());
+    LOG_INFO("upgraded buswidth");
+    // LOG_IF_ERR(sd1.update_speed());
+    // LOG_INFO("upgraded speed");
+
+    std::array<uint8_t, 512 * 2> wblk0{};
+    wblk0.fill(0xfa);
+    wblk0[510] = 0x55;
+    wblk0[511] = 0xAA;
+    LOG_IF_ERR(sd1.write(wblk0, 16));
+    LOG_INFO("write done");
 
     // --- Raw single-block read test of block 0 ---
+    while (1)
     {
-        static uint8_t block0[512] __attribute__((aligned(4)));
-        if (const auto res = sd1.read(std::span(block0, 512), 100))
+        static uint8_t block0[512 * 2] __attribute__((aligned(4)));
+        LOG_INFO("attempting read");
+        if (const auto res = sd1.read(std::span(block0, 512 * 2), 32))
         {
             LOG_INFO(
                 "blk0 first 16: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X",
                 block0[0], block0[1], block0[2], block0[3], block0[4], block0[5], block0[6], block0[7], block0[8],
                 block0[9], block0[10], block0[11], block0[12], block0[13], block0[14], block0[15]);
             LOG_INFO("blk0 sig (should be 55 AA): %02X %02X", block0[510], block0[511]);
+            break;
         }
         else
         {
             LOG_ERROR("SD Read Failed: %s", error_code_to_string(res.error()));
-            LOG_ERROR("SD Error State: %s", sd1.getErrorString());
+            LOG_INFO("Card state: %s", sd1.getCardStateString());
         }
     }
 

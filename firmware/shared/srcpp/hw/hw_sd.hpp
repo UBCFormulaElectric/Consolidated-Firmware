@@ -49,8 +49,7 @@ class SdCard
     std::expected<void, ErrorCode> waitForNotification(uint32_t timeoutMs) const;
 
   public:
-    void onTxTransactionCompleteFromISR() const;
-    void onRxTransactionCompleteFromISR() const;
+    void onTransactionCompleteFromISR() const;
 
     /* Constructor */
     consteval explicit SdCard(SD_HandleTypeDef &hsd, const uint32_t timeout, const gpio &present_gpio)
@@ -65,8 +64,33 @@ class SdCard
 
     // const gpio &getPresentGpio() const { return _present_gpio; }
 
-    [[nodiscard]] HAL_SD_CardStateTypeDef getCardState() const { return HAL_SD_GetCardState(&_hsd); }
-    [[nodiscard]] const char             *getErrorString() const
+    [[nodiscard]] const char *getCardStateString() const
+    {
+        switch (HAL_SD_GetCardState(&_hsd))
+        {
+            case HAL_SD_CARD_READY:
+                return "Card state is ready";
+            case HAL_SD_CARD_IDENTIFICATION:
+                return "Card is in identification state";
+            case HAL_SD_CARD_STANDBY:
+                return "Card is in standby state";
+            case HAL_SD_CARD_TRANSFER:
+                return "Card is in transfer state";
+            case HAL_SD_CARD_SENDING:
+                return "Card is sending an operation";
+            case HAL_SD_CARD_RECEIVING:
+                return "Card is receiving operation information";
+            case HAL_SD_CARD_PROGRAMMING:
+                return "Card is in programming state";
+            case HAL_SD_CARD_DISCONNECTED:
+                return "Card is disconnected";
+            case HAL_SD_CARD_ERROR:
+                return "Card response Error";
+            default:
+                return "Unknown card state";
+        }
+    }
+    [[nodiscard]] const char *getErrorString() const
     {
         switch (HAL_SD_GetError(&_hsd))
         {
@@ -143,7 +167,8 @@ class SdCard
 
     std::expected<void, ErrorCode> upgrade_buswidth() const
     {
-        return utils::convertHalStatus(HAL_SD_ConfigWideBusOperation(&_hsd, SDMMC_BUS_WIDE_4B));
+        const auto res = utils::convertHalStatus(HAL_SD_ConfigWideBusOperation(&_hsd, SDMMC_BUS_WIDE_4B));
+        return res;
     }
 
     std::expected<void, ErrorCode> update_speed() const
