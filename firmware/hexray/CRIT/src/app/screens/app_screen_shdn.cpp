@@ -144,7 +144,7 @@ static void init_update()
     }
 
     LOG_IF_ERR(io::seven_seg::write(data_buffer));
-    LOG_IF_ERR(io::seven_seg::setBrightness(0.0));
+    LOG_IF_ERR(io::seven_seg::setBrightness(100.0));
 }
 
 namespace app::screens

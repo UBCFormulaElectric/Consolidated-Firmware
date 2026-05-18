@@ -189,6 +189,7 @@ void tasks_preInit()
 
 void tasks_init()
 {
+    HAL_PWREx_DisableUCPDDeadBattery();
     SEGGER_SYSVIEW_Conf();
     LOG_INFO("CRIT Reset!");
 
