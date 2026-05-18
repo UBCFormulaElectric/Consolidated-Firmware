@@ -228,6 +228,11 @@ struct SessionStarts {
     pub time: DateTime<FixedOffset>,
 }
 
+#[derive(Debug, Deserialize)]
+struct SessionQuery {
+    pub source: Option<String>,
+}
+
 /**
  * Returns list of paired times as milliseconds since UNIX time based on when car turns on
  * Takes start and end time of search range as RFC3339 format
@@ -235,7 +240,7 @@ struct SessionStarts {
  */
 async fn signal_sessions(
     Path((start, end)): Path<(String, String)>,
-    Query((source,)): Query<(Option<String>,)>,
+    Query(SessionQuery { source }): Query<SessionQuery>,
     State(state): State<AppState>
 ) -> impl IntoResponse {
     let (start_utc, end_utc) = 
@@ -259,13 +264,13 @@ async fn signal_sessions(
     };
 
     // TODO get start on signal name
-    todo!("waiting for DAM signal name");
+    // todo!("waiting for DAM signal name");
+        // |> filter(fn: (r) => r["source"] == "{source_str}")
     let car_on_query = format!(r#"
         from(bucket: "{}")
         |> range(start: time(v: "{start_utc}"), stop: time(v: "{end_utc}"))
         |> filter(fn: (r) => r["_measurement"] == "{}")
-        |> filter(fn: (r) => r["source"] == "{source_str}")
-        |> filter(fn: (r) => r["signal_name"] == "TO BE FILLED IN")
+        |> filter(fn: (r) => r["signal_name"] == "BMS_TractiveSystemCurrent")
         |> sort(columns: ["_time"])
         "#, &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement);
 
