@@ -20,7 +20,7 @@ namespace powerMonitoring
     void set_reading_voltage(Channel channel, float voltage);
     void set_reading_current(Channel channel, float current);
     void set_reading_power(Channel channel, float power);
-} // namespace powerMonitoringpumpController
+} // namespace powerMonitoring
 
 namespace sbgEllipse
 {

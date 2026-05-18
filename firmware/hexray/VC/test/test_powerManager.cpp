@@ -26,9 +26,8 @@ struct efuse_expected_state
 };
 
 #define check_efuses(                                                                                           \
-    rr_pump_expected, rl_pump_expected, l_rad_fan_expected,                                                     \
-    r_rad_fan_expected, f_inv_expected, r_inv_expected, rsm_expected,                                           \
-    bms_expected, dam_expected, front_expected)                                                                 \
+    rr_pump_expected, rl_pump_expected, l_rad_fan_expected, r_rad_fan_expected, f_inv_expected, r_inv_expected, \
+    rsm_expected, bms_expected, dam_expected, front_expected)                                                   \
     ASSERT_EQ(rr_pump_efuse.isChannelEnabled(), rr_pump_expected);                                              \
     ASSERT_EQ(rl_pump_efuse.isChannelEnabled(), rl_pump_expected);                                              \
     ASSERT_EQ(l_rad_fan_efuse.isChannelEnabled(), l_rad_fan_expected);                                          \
@@ -38,10 +37,9 @@ struct efuse_expected_state
     ASSERT_EQ(rsm_efuse.isChannelEnabled(), rsm_expected);                                                      \
     ASSERT_EQ(bms_efuse.isChannelEnabled(), bms_expected);                                                      \
     ASSERT_EQ(dam_efuse.isChannelEnabled(), dam_expected);                                                      \
-    ASSERT_EQ(front_efuse.isChannelEnabled(), front_expected);                                                  \
+    ASSERT_EQ(front_efuse.isChannelEnabled(), front_expected);
 
 using namespace app::can_utils;
-
 
 // Helper to set state and invoke its entry action
 static void SetStateWithEntry(const app::State *s)
@@ -87,6 +85,4 @@ TEST_F(VCPowerManagerTest, test_sequencingStateMachine)
     LetTimePass(1000);
     ASSERT_STATE_EQ(app::states::hvInit_state);
     check_efuses(true, true, true, true, true, true, true, true, true, true);
-
-
 }

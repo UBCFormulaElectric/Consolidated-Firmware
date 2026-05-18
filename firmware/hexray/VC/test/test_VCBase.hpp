@@ -12,7 +12,6 @@ class VCBaseTest : public EcuTestBase
         register_task(jobs_run1kHz_tick, 1);
 
         jobs_init();
-
     }
     void board_teardown() override {}
 };

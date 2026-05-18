@@ -38,20 +38,18 @@ namespace hvInitState
 
     static void runOnEntry(void)
     {
-        static const app::powerManager::PowerManagerConfig power_manager_state = {
-            .efuse_configs = {{
-                { true, 200, 5 }, // rr_pump
-                { true, 200, 5 }, // rl_pump
-                { true, 200, 5 }, // r_rad_fan
-                { true, 200, 5 }, // l_rad_fan
-                { true, 0, 5 },   // f_inv
-                { true, 0, 5 },   // r_inv
-                { true, 0, 5 },   // rsm
-                { true, 0, 5 },   // bms
-                { true, 0, 5 },   // dam
-                { true, 0, 5 },   // front
-            }}
-        };
+        static const app::powerManager::PowerManagerConfig power_manager_state = { .efuse_configs = { {
+                                                                                       { true, 200, 5 }, // rr_pump
+                                                                                       { true, 200, 5 }, // rl_pump
+                                                                                       { true, 200, 5 }, // r_rad_fan
+                                                                                       { true, 200, 5 }, // l_rad_fan
+                                                                                       { true, 0, 5 },   // f_inv
+                                                                                       { true, 0, 5 },   // r_inv
+                                                                                       { true, 0, 5 },   // rsm
+                                                                                       { true, 0, 5 },   // bms
+                                                                                       { true, 0, 5 },   // dam
+                                                                                       { true, 0, 5 },   // front
+                                                                                   } } };
         app::powerManager::updateConfig(power_manager_state);
 
         app::can_tx::VC_State_set(VCState::VC_HV_INIT_STATE);

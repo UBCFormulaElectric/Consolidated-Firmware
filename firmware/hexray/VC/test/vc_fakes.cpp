@@ -125,11 +125,11 @@ namespace io
     {
         ::io::sbgEllipse::Attitude     attitude{ 0.0f, 0.0f, 0.0f };
         ::io::sbgEllipse::VelocityData velocity{ 0u, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
-        uint32_t     solution_mode  = 0;
-        uint32_t     timestamp_us   = 0;
-        uint8_t      overflow_count = 0;
-        uint32_t     com_status     = 0;
-        uint16_t     general_status = 0;
+        uint32_t                       solution_mode  = 0;
+        uint32_t                       timestamp_us   = 0;
+        uint8_t                        overflow_count = 0;
+        uint32_t                       com_status     = 0;
+        uint16_t                       general_status = 0;
 
         void setAttitude(float roll, float pitch, float yaw)
         {
@@ -144,7 +144,8 @@ namespace io
             float    east_std_dev,
             float    down_std_dev)
         {
-            velocity = ::io::sbgEllipse::VelocityData{ status, north, east, down, north_std_dev, east_std_dev, down_std_dev };
+            velocity =
+                ::io::sbgEllipse::VelocityData{ status, north, east, down, north_std_dev, east_std_dev, down_std_dev };
         }
         void setSolutionMode(uint32_t mode)
         {
@@ -204,7 +205,7 @@ namespace powerMonitoring
 {
     std::expected<float, ErrorCode> read_power(Channel ch)
     {
-        std::expected<float, ErrorCode> result{std::unexpected(ErrorCode::INVALID_ARGS)};
+        std::expected<float, ErrorCode> result{ std::unexpected(ErrorCode::INVALID_ARGS) };
         switch (ch)
         {
             case CH1:
@@ -222,7 +223,7 @@ namespace powerMonitoring
     }
     std::expected<float, ErrorCode> read_current(Channel ch)
     {
-        std::expected<float, ErrorCode> result{std::unexpected(ErrorCode::INVALID_ARGS)};
+        std::expected<float, ErrorCode> result{ std::unexpected(ErrorCode::INVALID_ARGS) };
         switch (ch)
         {
             case CH1:
@@ -240,7 +241,7 @@ namespace powerMonitoring
     }
     std::expected<float, ErrorCode> read_voltage(Channel ch)
     {
-        std::expected<float, ErrorCode> result{std::unexpected(ErrorCode::INVALID_ARGS)};
+        std::expected<float, ErrorCode> result{ std::unexpected(ErrorCode::INVALID_ARGS) };
         switch (ch)
         {
             case CH1:
