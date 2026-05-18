@@ -17,10 +17,10 @@ namespace initState
 {
     static const app::powerManager::PowerManagerConfig power_manager_state = {
         .efuse_configs = {{
-            { false, 0, 5 }, // rr_pump
-            { false, 0, 5 }, // rl_pump
-            { false, 0, 5 }, // r_rad_fan
-            { false, 0, 5 }, // l_rad_fan
+            { false, 200, 5 }, // rr_pump
+            { false, 200, 5 }, // rl_pump
+            { false, 200, 5 }, // r_rad_fan
+            { false, 200, 5 }, // l_rad_fan
             { false, 0, 5 }, // f_inv
             { false, 0, 5 }, // r_inv
             { true, 0, 5 },  // rsm
@@ -54,7 +54,7 @@ namespace initState
 
     static void runOnTick100Hz(void)
     {
-        const ContactorState air_minus_closed = app::can_rx::BMS_IrPositive_get();
+        const ContactorState air_minus_closed = app::can_rx::BMS_IrNegative_get();
         if (air_minus_closed == ContactorState::CONTACTOR_STATE_CLOSED)
         {
             app::StateMachine::set_next_state(&inverterOn_state);

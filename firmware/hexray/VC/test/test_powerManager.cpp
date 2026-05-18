@@ -5,6 +5,7 @@
 #include "io_efuses.hpp"
 #include "app_canUtils.hpp"
 #include "vc_fakes.hpp"
+#include <app_canTx.hpp>
 
 class VCPowerManagerTest : public VCBaseTest
 {
@@ -82,7 +83,8 @@ TEST_F(VCPowerManagerTest, test_sequencingStateMachine)
     check_efuses(false, false, false, false, true, true, true, true, true, true);
 
     // todo whatever gets us out of PCM on state
-    LetTimePass(100);
+    app::can_tx::VC_ChannelOneVoltage_set(24.0f);
+    LetTimePass(1000);
     ASSERT_STATE_EQ(app::states::hvInit_state);
     check_efuses(true, true, true, true, true, true, true, true, true, true);
 
