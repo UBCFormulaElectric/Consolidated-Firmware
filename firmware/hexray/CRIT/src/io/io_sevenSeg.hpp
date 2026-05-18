@@ -78,7 +78,7 @@ inline constexpr digit q{ true, true, true, false, false, true, true, false };
 inline constexpr digit r{ false, false, false, false, true, false, true, false };
 inline constexpr digit s{ true, false, true, true, false, true, true, false };
 inline constexpr digit t{ false, false, false, true, true, true, true, false };
-inline constexpr digit u{ false, false, true, true, true, false, false, false };
+inline constexpr digit u{ false, true, true, true, true, true, false, false };
 inline constexpr digit v{ false, true, false, true, false, true, false, false };
 inline constexpr digit y{ false, true, true, true, false, true, true, false };
 inline constexpr digit dot{ false, false, false, false, false, false, false, true };

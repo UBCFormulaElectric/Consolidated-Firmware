@@ -4,7 +4,12 @@
 
 std::expected<void, ErrorCode> hw::PwmOutput::start() const
 {
-    return utils::convertHalStatus(HAL_TIM_PWM_Start(htim, pwm_channel));
+    if (not started)
+    {
+        RETURN_IF_ERR_SILENT(utils::convertHalStatus(HAL_TIM_PWM_Start(htim, pwm_channel)));
+        started = true;
+    }
+    return {};
 }
 
 std::expected<void, ErrorCode> hw::PwmOutput::stop() const

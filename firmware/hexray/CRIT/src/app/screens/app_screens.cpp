@@ -7,14 +7,15 @@
 namespace app::screens
 {
 /************************* Global Variables ***************************/
-inline constexpr size_t NUM_DEVICE_SCREENS = 2u;
-inline constexpr size_t LV_MAX             = 2u;
-inline constexpr size_t HV_MAX             = 2u;
+inline constexpr size_t NUM_DEVICE_SCREENS = 3u;
+inline constexpr size_t LV_MAX             = 3u;
+inline constexpr size_t HV_MAX             = 3u;
 static size_t           current_screen     = 0;
 
 static std::array<const Screen *, NUM_DEVICE_SCREENS> drive_screens = { {
     &shdn_screen,
     &brightness_screen,
+    &drive_modes_screen,
 } };
 
 /*********************** Function Definitions ***************************/

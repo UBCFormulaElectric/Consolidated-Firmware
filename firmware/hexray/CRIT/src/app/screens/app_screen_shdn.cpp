@@ -1,7 +1,7 @@
+#include "app_brightness.hpp"
 #include "app_screens.hpp"
 #include "io_sevenSeg.hpp"
 #include "app_canRx.hpp"
-#include "io_sevenSeg.hpp"
 
 // /*********************** Function Definitions ***************************/
 static void init_update()
@@ -144,7 +144,6 @@ static void init_update()
     }
 
     LOG_IF_ERR(io::seven_seg::write(data_buffer));
-    LOG_IF_ERR(io::seven_seg::setBrightness(100.0));
 }
 
 namespace app::screens
