@@ -60,8 +60,8 @@ void jobs_initLogFs()
     // LOG_IF_ERR(sd1.update_speed());
     // LOG_INFO("upgraded speed");
 
-    std::array<uint8_t, 512 * 2> wblk0{};
-    wblk0.fill(0xfa);
+    std::array<uint8_t, 512> wblk0{};
+    wblk0.fill(0xff);
     wblk0[510] = 0x55;
     wblk0[511] = 0xAA;
     LOG_IF_ERR(sd1.write(wblk0, 16));
@@ -70,9 +70,9 @@ void jobs_initLogFs()
     // --- Raw single-block read test of block 0 ---
     while (1)
     {
-        static uint8_t block0[512 * 2] __attribute__((aligned(4)));
+        static uint8_t block0[512] __attribute__((aligned(4)));
         LOG_INFO("attempting read");
-        if (const auto res = sd1.read(std::span(block0, 512 * 2), 32))
+        if (const auto res = sd1.read(std::span(block0, 512), 16))
         {
             LOG_INFO(
                 "blk0 first 16: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X",
