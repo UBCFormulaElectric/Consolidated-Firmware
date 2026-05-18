@@ -3,6 +3,7 @@
 #include <bit>
 
 #include "io_imu.hpp"
+#include "io_time.hpp"
 #include "util_utils.hpp"
 #include "util_retry.hpp"
 namespace io
@@ -11,8 +12,8 @@ namespace io
 // Divides the internal sample rate (see CONFIG) to generate the sample
 // rate that controls sensor data output rate (ODR), FIFO sample rate.
 // ODR = INTERNAL_SAMPLE_RATE / (1 + SMPLRT_DIV)
-// Note: does not do anything if DLPFs for Accel and Gyro are disabled (disabled via FCHOICE_B in GyroConfig and
-// AccelConfig2) Set directly in init as it has a single bitfield
+// Note: For gyro, this only applies when FCHOICE_B=00 and DLPF_CFG is 1..6.
+// Set directly in init as it has a single bitfield.
 
 // Register 26: CONFIG
 struct __attribute__((packed)) Config
@@ -299,7 +300,7 @@ std::expected<void, ErrorCode> imu::init() const
         return rx[0];
     };
 
-    // delay POWER_UP_REGISTER_ACCESS_DELAY_MS
+    io::time::delay(POWER_UP_REGISTER_ACCESS_DELAY_MS);
 
     // Soft-reset the IMU; DEVICE_RESET self-clears when the reset is complete.
     RETURN_IF_ERR_SILENT(write_reg(PWR_MGMT_1, std::bit_cast<uint8_t>(PwrMgmt1{ .DEVICE_RESET = 1 })));
@@ -307,7 +308,7 @@ std::expected<void, ErrorCode> imu::init() const
     const auto reset_done = util::retry(
         [&] -> std::expected<void, ErrorCode>
         {
-            // delay RESET_POLL_DELAY_MS 
+            io::time::delay(RESET_POLL_DELAY_MS);
             const auto pwr_mgmt_1 = read_reg(PWR_MGMT_1);
             RETURN_IF_ERR_SILENT(pwr_mgmt_1);
 
@@ -323,7 +324,7 @@ std::expected<void, ErrorCode> imu::init() const
     // Wake the IMU from sleep and select the gyro clock source.
     RETURN_IF_ERR_SILENT(write_reg(PWR_MGMT_1, std::bit_cast<uint8_t>(PwrMgmt1{})));
 
-    // delay WAKE_REGISTER_ACCESS_DELAY_MS
+    io::time::delay(WAKE_REGISTER_ACCESS_DELAY_MS);
 
     const auto pwr_mgmt_1 = read_reg(PWR_MGMT_1);
     if (not pwr_mgmt_1.has_value())
@@ -511,7 +512,7 @@ std::expected<float, ErrorCode> imu::getTemp() const
     if (is_imu_ready == false)
         return std::unexpected(ErrorCode::ERROR);
 
-    std::array<const uint8_t, 1> tx = { { READ_IMU_REG(GYRO_ZOUT_H) } };
+    std::array<const uint8_t, 1> tx = { { READ_IMU_REG(TEMP_OUT_H) } };
     std::array<uint8_t, 2>       rx{};
 
     const auto exit = imu_spi_handle.transmitThenReceive(tx, rx);
