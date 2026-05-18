@@ -3,6 +3,7 @@
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
 #include "app_canUtils.hpp"
+#include "app_powerManager.hpp"
 
 using namespace app::can_utils;
 
@@ -13,6 +14,22 @@ namespace bmsOnStates
 
     static void runOnEntry(void)
     {
+        static const app::powerManager::PowerManagerConfig power_manager_state = {
+            .efuse_configs = {{
+                { false, 0, 5 }, // rr_pump
+                { false, 0, 5 }, // rl_pump
+                { false, 0, 5 }, // r_rad_fan
+                { false, 0, 5 }, // l_rad_fan
+                { true, 0, 5 },  // f_inv
+                { true, 0, 5 },  // r_inv
+                { true, 0, 5 },  // rsm
+                { true, 0, 5 },  // bms
+                { true, 0, 5 },  // dam
+                { true, 0, 5 },  // front
+            }}
+        };
+        app::powerManager::updateConfig(power_manager_state);
+
         app::can_tx::VC_State_set(VCState::VC_BMS_ON_STATE);
     }
 

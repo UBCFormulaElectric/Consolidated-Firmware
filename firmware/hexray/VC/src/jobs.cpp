@@ -1,5 +1,6 @@
 #include "jobs.hpp"
 
+#include "app/app_powerManager.hpp"
 #include "app_canUtils.hpp"
 #include "app_jsoncan.hpp"
 #include "app_heartbeatMonitors.hpp"
@@ -41,6 +42,7 @@ void jobs_init()
 void jobs_run1Hz_tick() {}
 void jobs_run100Hz_tick()
 {
+    app::powerManager::efuseProtocolTick_100Hz();
     io::can_tx::enqueue100HzMsgs();
     const uint32_t k = app::can_rx::BMS_ChargePowerLimit_get();
     LOG_INFO("%d", k);

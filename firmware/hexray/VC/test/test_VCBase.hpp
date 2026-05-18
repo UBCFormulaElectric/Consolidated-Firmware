@@ -7,13 +7,12 @@ class VCBaseTest : public EcuTestBase
 {
     void board_setup() override
     {
-        jobs_init();
-        register_task(jobs_run1Hz_tick, 10);
+        register_task(jobs_run1Hz_tick, 1000);
         register_task(jobs_run100Hz_tick, 10);
-        register_task(jobs_run1kHz_tick, 10);
+        register_task(jobs_run1kHz_tick, 1);
+
+        jobs_init();
+
     }
     void board_teardown() override {}
-    void tick_100hz() {}
-    void tick_1hz() {}
-    void tick_1khz() {}
 };
