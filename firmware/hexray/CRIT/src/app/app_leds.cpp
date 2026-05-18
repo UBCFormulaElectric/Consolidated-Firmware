@@ -1,6 +1,8 @@
 #include "app_canRx.hpp"
 #include "app_switches.hpp"
 #include "app_leds.hpp"
+
+#include "app_brightness.hpp"
 #include "io_leds.hpp"
 #include "app_canAlerts.hpp"
 #include "io_switches.hpp"
@@ -60,7 +62,7 @@ void setLeds()
      * off when pressed off to actually launch the vehicle
      * ready condition based on pedal percentage
      */
-    std::expected<void, ErrorCode> ec = io::leds::update(io::leds::config{
+    LOG_IF_ERR(io::leds::update(io::leds::config{
         board_status(
             can_alerts::BoardHasFault(can_utils::CanNode::RSM_NODE),
             can_alerts::BoardHasWarning(can_utils::CanNode::RSM_NODE), can_rx::RSM_Heartbeat_get()),
@@ -85,12 +87,7 @@ void setLeds()
         !can_rx::BMS_ImdCurrentlyOk_get(),
         io::switches::telem_mark_get(),
         !can_rx::BMS_BspdCurrentlyOk_get(),
-    });
-
-    LOG_IF_ERR(ec);
-
-    ec = io::leds::setBrightness(0.5f);
-
-    LOG_IF_ERR(ec);
+    }));
+    LOG_IF_ERR(io::leds::setBrightness(app::brightness));
 }
 } // namespace app::leds
