@@ -2,6 +2,7 @@
 #include "io_powerMonitoring.hpp"
 #include "app_canTx.hpp"
 
+
 namespace app::powerMonitoring
 {
 

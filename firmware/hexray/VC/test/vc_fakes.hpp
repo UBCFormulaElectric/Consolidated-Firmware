@@ -1,6 +1,7 @@
 #pragma once
 #include "util_errorCodes.hpp"
 #include "io_imus.hpp"
+#include "io_powerMonitoring.hpp"
 #include "io_vcShdn.hpp"
 #include "io_sbgEllipse.hpp"
 #include "ecuTestBase.hpp"
@@ -16,15 +17,10 @@ namespace loadswitches
 
 namespace powerMonitoring
 {
-    void  set_reading_voltage(int channel, float voltage);
-    float set_reading_current(int channel, float current);
-    float set_reading_power(int channel, float power);
-} // namespace powerMonitoring
-namespace pumpController
-{
-    void pumps_ok(bool ok);
-    void pumps_enabled(bool enabled);
-} // namespace pumpController
+    void set_reading_voltage(Channel channel, float voltage);
+    void set_reading_current(Channel channel, float current);
+    void set_reading_power(Channel channel, float power);
+} // namespace powerMonitoringpumpController
 
 namespace sbgEllipse
 {

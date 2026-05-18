@@ -1,9 +1,12 @@
 #include "vc_fakes.hpp"
 #include "app_canTx.hpp"
+#include "io_powerMonitoring.hpp"
 #include "io_pump.hpp"
+#include "io_sbgEllipse.hpp"
 #include "io_shdnLoopNode.hpp"
 #include "io_efuse_TI_TPS25.hpp"
 #include "io_efuse_TI_TPS28.hpp"
+#include <util_errorCodes.hpp>
 
 io::imu            IMU1;
 io::imu            IMU2;
@@ -39,15 +42,6 @@ namespace io
     }
     namespace powerMonitoring
     {
-
-        enum : uint8_t
-        {
-            CH1,
-            CH2,
-            CH3,
-            CH4
-        };
-
         static float power_ch1   = 0.0f;
         static float current_ch1 = 0.0f;
         static float voltage_ch1 = 0.0f;
@@ -64,62 +58,61 @@ namespace io
         static float current_ch4 = 0.0f;
         static float voltage_ch4 = 0.0f;
 
-        void setPower(float power, uint8_t ch)
+        void set_reading_voltage(Channel channel, float voltage)
         {
-            switch (ch)
+            switch (channel)
             {
                 case CH1:
-                    power_ch1 = power;
+                    fakes::io::powerMonitoring::voltage_ch1 = voltage;
                     break;
                 case CH2:
-                    power_ch2 = power;
+                    fakes::io::powerMonitoring::voltage_ch2 = voltage;
                     break;
                 case CH3:
-                    power_ch3 = power;
+                    fakes::io::powerMonitoring::voltage_ch3 = voltage;
                     break;
                 case CH4:
-                    power_ch4 = power;
+                    fakes::io::powerMonitoring::voltage_ch4 = voltage;
                     break;
                 default:
                     break;
             }
         }
-
-        void setCurrent(float current, uint8_t ch)
+        void set_reading_current(Channel channel, float current)
         {
-            switch (ch)
+            switch (channel)
             {
                 case CH1:
-                    current_ch1 = current;
+                    fakes::io::powerMonitoring::current_ch1 = current;
                     break;
                 case CH2:
-                    current_ch2 = current;
+                    fakes::io::powerMonitoring::current_ch2 = current;
                     break;
                 case CH3:
-                    current_ch3 = current;
+                    fakes::io::powerMonitoring::current_ch3 = current;
                     break;
                 case CH4:
-                    current_ch4 = current;
+                    fakes::io::powerMonitoring::current_ch4 = current;
                     break;
                 default:
                     break;
             }
         }
-        void setVoltage(float voltage, uint8_t ch)
+        void set_reading_power(Channel channel, float power)
         {
-            switch (ch)
+            switch (channel)
             {
                 case CH1:
-                    voltage_ch1 = voltage;
+                    fakes::io::powerMonitoring::power_ch1 = power;
                     break;
                 case CH2:
-                    voltage_ch2 = voltage;
+                    fakes::io::powerMonitoring::power_ch2 = power;
                     break;
                 case CH3:
-                    voltage_ch3 = voltage;
+                    fakes::io::powerMonitoring::power_ch3 = power;
                     break;
                 case CH4:
-                    voltage_ch4 = voltage;
+                    fakes::io::powerMonitoring::power_ch4 = power;
                     break;
                 default:
                     break;
@@ -130,8 +123,8 @@ namespace io
 
     namespace sbgEllipse
     {
-        Attitude     attitude{ 0.0f, 0.0f, 0.0f };
-        VelocityData velocity{ 0u, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+        ::io::sbgEllipse::Attitude     attitude{ 0.0f, 0.0f, 0.0f };
+        ::io::sbgEllipse::VelocityData velocity{ 0u, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
         uint32_t     solution_mode  = 0;
         uint32_t     timestamp_us   = 0;
         uint8_t      overflow_count = 0;
@@ -140,7 +133,7 @@ namespace io
 
         void setAttitude(float roll, float pitch, float yaw)
         {
-            attitude = Attitude{ roll, pitch, yaw };
+            attitude = ::io::sbgEllipse::Attitude{ roll, pitch, yaw };
         }
         void setVelocity(
             uint32_t status,
@@ -151,7 +144,7 @@ namespace io
             float    east_std_dev,
             float    down_std_dev)
         {
-            velocity = VelocityData{ status, north, east, down, north_std_dev, east_std_dev, down_std_dev };
+            velocity = ::io::sbgEllipse::VelocityData{ status, north, east, down, north_std_dev, east_std_dev, down_std_dev };
         }
         void setSolutionMode(uint32_t mode)
         {
@@ -207,75 +200,61 @@ namespace imus
     }
 } // namespace imus
 
-namespace pumpController
-{
-    bool    pumps_ok_state      = true;
-    bool    pumps_enabled_state = true;
-    uint8_t pump_percentage     = 0;
-
-    void pumps_ok(bool ok)
-    {
-        pumps_ok_state = ok;
-    }
-
-    void pumps_enabled(bool enabled)
-    {
-        pumps_enabled_state = enabled;
-    }
-} // namespace pumpController
-
 namespace powerMonitoring
 {
-    float read_power(uint8_t ch)
+    std::expected<float, ErrorCode> read_power(Channel ch)
     {
+        std::expected<float, ErrorCode> result{std::unexpected(ErrorCode::INVALID_ARGS)};
         switch (ch)
         {
-            case fakes::io::powerMonitoring::CH1:
+            case CH1:
                 return fakes::io::powerMonitoring::power_ch1;
-            case fakes::io::powerMonitoring::CH2:
+            case CH2:
                 return fakes::io::powerMonitoring::power_ch2;
-            case fakes::io::powerMonitoring::CH3:
+            case CH3:
                 return fakes::io::powerMonitoring::power_ch3;
-            case fakes::io::powerMonitoring::CH4:
+            case CH4:
                 return fakes::io::powerMonitoring::power_ch4;
             default:
                 break;
         }
-        return 0.0f;
+        return result;
     }
-    float read_current(uint8_t ch)
+    std::expected<float, ErrorCode> read_current(Channel ch)
     {
+        std::expected<float, ErrorCode> result{std::unexpected(ErrorCode::INVALID_ARGS)};
         switch (ch)
         {
-            case fakes::io::powerMonitoring::CH1:
+            case CH1:
                 return fakes::io::powerMonitoring::current_ch1;
-            case fakes::io::powerMonitoring::CH2:
+            case CH2:
                 return fakes::io::powerMonitoring::current_ch2;
-            case fakes::io::powerMonitoring::CH3:
+            case CH3:
                 return fakes::io::powerMonitoring::current_ch3;
-            case fakes::io::powerMonitoring::CH4:
+            case CH4:
                 return fakes::io::powerMonitoring::current_ch4;
             default:
                 break;
         }
-        return 0.0f;
+        return result;
     }
-    float read_voltage(uint8_t ch)
+    std::expected<float, ErrorCode> read_voltage(Channel ch)
     {
+        std::expected<float, ErrorCode> result{std::unexpected(ErrorCode::INVALID_ARGS)};
         switch (ch)
         {
-            case fakes::io::powerMonitoring::CH1:
+            case CH1:
                 return fakes::io::powerMonitoring::voltage_ch1;
-            case fakes::io::powerMonitoring::CH2:
+            case CH2:
                 return fakes::io::powerMonitoring::voltage_ch2;
-            case fakes::io::powerMonitoring::CH3:
+            case CH3:
                 return fakes::io::powerMonitoring::voltage_ch3;
-            case fakes::io::powerMonitoring::CH4:
+            case CH4:
                 return fakes::io::powerMonitoring::voltage_ch4;
             default:
                 break;
         }
-        return 0.0f;
+        return result;
     }
     std::expected<void, ErrorCode> refresh()
     {
@@ -297,71 +276,11 @@ namespace powerMonitoring
     {
         return false;
     }
-    void set_reading_voltage(uint8_t ch, float voltage)
-    {
-        switch (ch)
-        {
-            case fakes::io::powerMonitoring::CH1:
-                fakes::io::powerMonitoring::voltage_ch1 = voltage;
-                break;
-            case fakes::io::powerMonitoring::CH2:
-                fakes::io::powerMonitoring::voltage_ch2 = voltage;
-                break;
-            case fakes::io::powerMonitoring::CH3:
-                fakes::io::powerMonitoring::voltage_ch3 = voltage;
-                break;
-            case fakes::io::powerMonitoring::CH4:
-                fakes::io::powerMonitoring::voltage_ch4 = voltage;
-                break;
-            default:
-                break;
-        }
-    }
-    void set_reading_current(uint8_t ch, float current)
-    {
-        switch (ch)
-        {
-            case fakes::io::powerMonitoring::CH1:
-                fakes::io::powerMonitoring::current_ch1 = current;
-                break;
-            case fakes::io::powerMonitoring::CH2:
-                fakes::io::powerMonitoring::current_ch2 = current;
-                break;
-            case fakes::io::powerMonitoring::CH3:
-                fakes::io::powerMonitoring::current_ch3 = current;
-                break;
-            case fakes::io::powerMonitoring::CH4:
-                fakes::io::powerMonitoring::current_ch4 = current;
-                break;
-            default:
-                break;
-        }
-    }
-    void set_reading_power(uint8_t ch, float power)
-    {
-        switch (ch)
-        {
-            case fakes::io::powerMonitoring::CH1:
-                fakes::io::powerMonitoring::power_ch1 = power;
-                break;
-            case fakes::io::powerMonitoring::CH2:
-                fakes::io::powerMonitoring::power_ch2 = power;
-                break;
-            case fakes::io::powerMonitoring::CH3:
-                fakes::io::powerMonitoring::power_ch3 = power;
-                break;
-            case fakes::io::powerMonitoring::CH4:
-                fakes::io::powerMonitoring::power_ch4 = power;
-                break;
-            default:
-                break;
-        }
-    }
 } // namespace powerMonitoring
 
 namespace sbgEllipse
 {
-    io::sbgEllipse::Attitude getEkfEulerAngles()
+    const io::sbgEllipse::Attitude getEkfEulerAngles()
     {
         return fakes::io::sbgEllipse::attitude;
     }
@@ -369,7 +288,7 @@ namespace sbgEllipse
     {
         return fakes::io::sbgEllipse::solution_mode;
     }
-    io::sbgEllipse::VelocityData getEkfNavVelocityData()
+    const io::sbgEllipse::VelocityData getEkfNavVelocityData()
     {
         return fakes::io::sbgEllipse::velocity;
     }
