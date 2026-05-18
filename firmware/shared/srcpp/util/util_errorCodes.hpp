@@ -17,42 +17,35 @@ enum class ErrorCode
     NUM_EXIT_CODES,
 };
 
-template <typename T> class Result : public std::expected<T, ErrorCode>
-{
-    static constexpr const char *error_code_to_string(const ErrorCode code)
-    {
-        switch (code)
-        {
-            case ErrorCode::INVALID_ARGS:
-                return "Invalid arguments";
-            case ErrorCode::OUT_OF_RANGE:
-                return "Out of range / Overflow";
-            case ErrorCode::TIMEOUT:
-                return "Timeout";
-            case ErrorCode::ERROR:
-                return "Error";
-            case ErrorCode::BUSY:
-                return "Busy";
-            case ErrorCode::UNIMPLEMENTED:
-                return "Unimplemented";
-            case ErrorCode::RETRY_FAILED:
-                return "Retry failed";
-            case ErrorCode::CHECKSUM_FAIL:
-                return "Checksum fail";
-            case ErrorCode::ERROR_INDETERMINATE:
-                return "Indeterminate error";
-            case ErrorCode::NUM_EXIT_CODES:
-            default:
-                return "Unknown error code";
-        }
-    }
+template <typename T> using result = std::expected<T, ErrorCode>;
 
-  public:
-    // ReSharper disable once CppNonExplicitConversionOperator
-    operator const char *() { return error_code_to_string(this->error()); }
-    // ReSharper disable once CppNonExplicitConversionOperator
-    operator const char *() const { return error_code_to_string(this->error()); }
-};
+constexpr const char *error_code_to_string(const ErrorCode code)
+{
+    switch (code)
+    {
+        case ErrorCode::INVALID_ARGS:
+            return "Invalid arguments";
+        case ErrorCode::OUT_OF_RANGE:
+            return "Out of range / Overflow";
+        case ErrorCode::TIMEOUT:
+            return "Timeout";
+        case ErrorCode::ERROR:
+            return "Error";
+        case ErrorCode::BUSY:
+            return "Busy";
+        case ErrorCode::UNIMPLEMENTED:
+            return "Unimplemented";
+        case ErrorCode::RETRY_FAILED:
+            return "Retry failed";
+        case ErrorCode::CHECKSUM_FAIL:
+            return "Checksum fail";
+        case ErrorCode::ERROR_INDETERMINATE:
+            return "Indeterminate error";
+        case ErrorCode::NUM_EXIT_CODES:
+        default:
+            return "Unknown error code";
+    }
+}
 
 #define RETURN_IF_ERR(err_expr)                                                       \
     {                                                                                 \
