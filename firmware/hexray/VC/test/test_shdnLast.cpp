@@ -5,6 +5,7 @@
 #include "util_errorCodes.hpp"
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
+#include "app_canUtils.hpp"
 
 class VCShdnLastTest : public VCBaseTest
 {
@@ -30,20 +31,20 @@ TEST_F(VCShdnLastTest, test_latch_not_ok_in_order)
 
     app::can_tx::VC_TSMSOKStatus_set(false);
     app::shdnLast::broadcast();
-    ASSERT_EQ(app::can_utils::ShutdownNode::SHDN_TSMS, app::can_tx::VC_FirstFaultNode_get());
+    ASSERT_EQ(app::can_utils::ShutdownNode::TSMS, app::can_tx::VC_FirstFaultNode_get());
 
     app::can_tx::VC_TSMSOKStatus_set(true);
     app::can_rx::FSM_FrontRightILCKOKStatus_update(false);
     app::shdnLast::broadcast();
-    ASSERT_EQ(app::can_utils::ShutdownNode::SHDN_FR_ILCK, app::can_tx::VC_FirstFaultNode_get());
+    ASSERT_EQ(app::can_utils::ShutdownNode::FR_ILCK, app::can_tx::VC_FirstFaultNode_get());
 
     app::can_rx::FSM_FrontRightILCKOKStatus_update(true);
     app::can_tx::VC_RearRightMotorInterlock_set(false);
     app::shdnLast::broadcast();
-    ASSERT_EQ(app::can_utils::ShutdownNode::SHDN_RR_ILCK, app::can_tx::VC_FirstFaultNode_get());
+    ASSERT_EQ(app::can_utils::ShutdownNode::RR_ILCK, app::can_tx::VC_FirstFaultNode_get());
 
     app::can_tx::VC_RearRightMotorInterlock_set(true);
     app::can_tx::VC_MSDOrEMeterOKStatus_set(false);
     app::shdnLast::broadcast();
-    ASSERT_EQ(app::can_utils::ShutdownNode::SHDN_MSD_EMETER_ILCK, app::can_tx::VC_FirstFaultNode_get());
+    ASSERT_EQ(app::can_utils::ShutdownNode::MSD_EMETER_ILCK, app::can_tx::VC_FirstFaultNode_get());
 }

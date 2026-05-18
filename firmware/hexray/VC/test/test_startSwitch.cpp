@@ -5,6 +5,7 @@
 #include "util_errorCodes.hpp"
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
+#include "app_canUtils.hpp"
 
 class VCStartSwitchTest : public VCBaseTest
 {
@@ -14,13 +15,13 @@ class VCStartSwitchTest : public VCBaseTest
 TEST_F(VCStartSwitchTest, test_rising_edge_from_off_to_on)
 {
     ASSERT_FALSE(app::startSwitch::hasRisingEdge());
-    app::can_rx::CRIT_StartSwitch_update(app::can_utils::SwitchState::SWITCH_ON);
+    app::can_rx::CRIT_StartButton_update(app::can_utils::SwitchState::ON);
     ASSERT_TRUE(app::startSwitch::hasRisingEdge());
 }
 
 // Testing when theres not a rising edge from off to on
 TEST_F(VCStartSwitchTest, test_no_rising_edge)
 {
-    app::can_rx::CRIT_StartSwitch_update(app::can_utils::SwitchState::SWITCH_ON);
+    app::can_rx::CRIT_StartButton_update(app::can_utils::SwitchState::ON);
     ASSERT_FALSE(app::startSwitch::hasRisingEdge());
 }
