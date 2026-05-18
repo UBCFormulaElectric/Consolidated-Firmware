@@ -10,5 +10,5 @@ namespace app::bootcount
  * If the file doesn't exist, it will be created and initialized to 1.
  * @param fs initialized filesystem instance
  */
-std::expected<void, io::FileSystem::FileSystemError> update(io::FileSystem &fs);
+result<void> update(io::FileSystem &fs);
 } // namespace app::bootcount

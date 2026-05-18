@@ -67,7 +67,7 @@ template <typename T, size_t QUEUE_SIZE> class queue
      * Does not block, calls `overflow_callback` if queue is full.
      * @param msg CAN msg to be TXed.
      */
-    [[nodiscard]] std::expected<void, ErrorCode> push(const T &msg)
+    [[nodiscard]] result<void> push(const T &msg)
     {
 #ifdef TARGET_EMBEDDED
         assert(queue_id != nullptr);
@@ -85,7 +85,7 @@ template <typename T, size_t QUEUE_SIZE> class queue
     /**
      * Pops a CAN msg from the queue. Blocks until a msg exists in the queue.
      */
-    [[nodiscard]] std::expected<T, ErrorCode> pop(const uint32_t timeout = std::numeric_limits<uint32_t>::max())
+    [[nodiscard]] result<T>::max())
     {
 #ifdef TARGET_EMBEDDED
         assert(queue_id != nullptr);

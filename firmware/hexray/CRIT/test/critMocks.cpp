@@ -37,12 +37,12 @@ bool telem_mark_get()
 #include "io_leds.hpp"
 namespace io::leds
 {
-std::expected<void, ErrorCode> update(const config &c)
+result<void> update(const config &c)
 {
     UNUSED(c);
     return {};
 }
-std::expected<void, ErrorCode> setBrightness(const float brightness)
+result<void> setBrightness(const float brightness)
 {
     UNUSED(brightness);
     return {};
@@ -52,14 +52,14 @@ std::expected<void, ErrorCode> setBrightness(const float brightness)
 #include "io_sevenSeg.hpp"
 namespace io::seven_seg
 {
-std::expected<void, ErrorCode> setBrightness(const float brightness)
+result<void> setBrightness(const float brightness)
 {
     UNUSED(brightness);
     return {};
 }
 static std::array<digit, DIGITS> display;
 // ReSharper disable once CppParameterMayBeConstPtrOrRef
-std::expected<void, ErrorCode> write(std::array<digit, DIGITS> &data)
+result<void, ErrorCode> write(std::array<digit> &data)
 {
     display = data;
     return {};

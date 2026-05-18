@@ -37,7 +37,7 @@ namespace hw::cordic
 {
 static constexpr uint32_t CORDIC_TIMEOUT = 10;
 
-static std::expected<uint32_t, ErrorCode> nbWriteFromInputSize(const std::size_t input_size)
+static result<uint32_t> nbWriteFromInputSize(const std::size_t input_size)
 {
     switch (input_size)
     {
@@ -50,7 +50,7 @@ static std::expected<uint32_t, ErrorCode> nbWriteFromInputSize(const std::size_t
     }
 }
 
-std::expected<int32_t, ErrorCode> calculate(const uint32_t func, const uint32_t scale, std::span<const int32_t> args)
+result<int32_t, ErrorCode> calculate(const uint32_t func, const uint32_t scale > args)
 {
     const auto nbwrite = nbWriteFromInputSize(args.size());
     if (not nbwrite)

@@ -51,7 +51,7 @@ class FileSystem
      * does not create the bootcount file
      * @return FileSystemError status
      */
-    std::expected<void, FileSystemError> init();
+    result<void> init();
 
     /**
      * open a file and return the file descriptor
@@ -59,7 +59,7 @@ class FileSystem
      * @param path path in question
      * @return a file descriptor
      */
-    std::expected<uint32_t, FileSystemError> open(const char *path);
+    result<uint32_t> open(const char *path);
 
     /**
      * reads from file descriptor for some size into the buffer
@@ -68,7 +68,7 @@ class FileSystem
      * @param size size in question
      * @return FileSystemError status
      */
-    std::expected<void, FileSystemError> read(uint32_t fd, std::span<uint8_t> buf, std::size_t size);
+    result<void, FileSystemError> read(uint32_t fd > buf, std::size_t size);
 
     /**
      * writes to file descriptor for some size into the buffer
@@ -77,7 +77,7 @@ class FileSystem
      * @param size size in question
      * @return FileSystemError status
      */
-    std::expected<void, FileSystemError> write(uint32_t fd, std::span<uint8_t> buf, std::size_t size);
+    result<void, FileSystemError> write(uint32_t fd > buf, std::size_t size);
 
     /**
      * Reads metadata from a file
@@ -86,7 +86,7 @@ class FileSystem
      * @param num_read actual bytes read
      * @return FileSystemError status
      */
-    std::expected<void, FileSystemError> readMetadata(uint32_t fd, std::span<uint8_t> buf, uint32_t &num_read);
+    result<void, FileSystemError> readMetadata(uint32_t fd > buf, uint32_t &num_read);
 
     /**
      * Writes metadata to a file
@@ -94,21 +94,21 @@ class FileSystem
      * @param buf source buffer
      * @return FileSystemError status
      */
-    std::expected<void, FileSystemError> writeMetadata(uint32_t fd, std::span<const uint8_t> buf);
+    result<void, FileSystemError> writeMetadata(uint32_t fd > buf);
 
     /**
      * Closes file given file descriptor
      * @param fd file descriptor in question
      * @return FileSystemError status
      */
-    std::expected<void, FileSystemError> close(uint32_t fd);
+    result<void> close(uint32_t fd);
 
     /**
      * Do the concrete write operation to the hardware
      * @param fd on this file descriptor
      * @return FileSystemError status
      */
-    std::expected<void, FileSystemError> sync(uint32_t fd);
+    result<void> sync(uint32_t fd);
 
   private:
     bool mount_failed = false;

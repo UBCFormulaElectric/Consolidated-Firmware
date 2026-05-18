@@ -8,7 +8,7 @@ io::queue<io::CanMsg, 128> can_rx_queue{ "" };
 #include <algorithm>
 io::FileSystem fs{};
 
-std::expected<uint32_t, io::FileSystem::FileSystemError> io::FileSystem::open(const char *path)
+result<uint32_t> io::FileSystem::open(const char *path)
 {
     // add dot before path
     if (path[0] != '/')
@@ -57,8 +57,7 @@ std::expected<uint32_t, io::FileSystem::FileSystemError> io::FileSystem::open(co
     }
 }
 
-std::expected<void, io::FileSystem::FileSystemError>
-    io::FileSystem::readMetadata(uint32_t fd, std::span<uint8_t> buf, uint32_t &num_read)
+result<void> io::FileSystem::readMetadata(uint32_t fd, std::span<uint8_t> buf, uint32_t &num_read)
 {
     // get file with fd
     const auto it = std::ranges::find_if(files, [fd](const auto &pair) { return pair.first == fd; });
@@ -77,8 +76,7 @@ std::expected<void, io::FileSystem::FileSystemError>
     return {};
 }
 
-std::expected<void, io::FileSystem::FileSystemError>
-    io::FileSystem::writeMetadata(uint32_t fd, const std::span<const uint8_t> buf)
+result<void> io::FileSystem::writeMetadata(uint32_t fd, const std::span<const uint8_t> buf)
 {
     // get file with fd
     const auto it = std::ranges::find_if(files, [fd](const auto &pair) { return pair.first == fd; });

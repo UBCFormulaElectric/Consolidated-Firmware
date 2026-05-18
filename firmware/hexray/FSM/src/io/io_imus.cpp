@@ -5,7 +5,7 @@ namespace io::imus
 {
 imu imu_front(hw::spi::imu_spi);
 
-std::expected<void, ErrorCode> init()
+result<void> init()
 {
     return imu_front.init();
 }

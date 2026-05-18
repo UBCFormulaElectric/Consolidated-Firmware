@@ -4,10 +4,10 @@
 
 namespace util
 {
-// Helper template to extract T and E from std::expected<T, E>
+// Helper template to extract T and E from result<T>
 template <typename T> struct expected_traits;
 
-template <typename T, typename E> struct expected_traits<std::expected<T, E>>
+template <typename T, typename E> struct expected_traits < result<T>
 {
     using value_type = T;
     using error_type = E;
@@ -21,7 +21,7 @@ template <typename Callable> auto retry(Callable &&k, const uint32_t retry_count
     using T           = traits::value_type;
     using E           = traits::error_type;
 
-    std::expected<T, E> result;
+    result<T> result;
     for (uint32_t i = 0; i < retry_count; i++)
     {
         result = k();

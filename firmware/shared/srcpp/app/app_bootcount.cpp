@@ -2,7 +2,7 @@
 
 namespace app::bootcount
 {
-std::expected<void, io::FileSystem::FileSystemError> update(io::FileSystem &fs)
+result<void> update(io::FileSystem &fs)
 {
     auto result = fs.open("/bootcount.txt");
     if (!result)

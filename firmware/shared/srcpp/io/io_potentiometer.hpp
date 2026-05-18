@@ -46,7 +46,7 @@ class Potentiometer
         return static_cast<uint8_t>((static_cast<uint8_t>(address) << 4 | static_cast<uint8_t>(cmd) << 2) & 0xFC);
     }
 
-    [[nodiscard]] std::expected<void, ErrorCode> readWiper(std::array<uint8_t, 2> &dest) const
+    [[nodiscard]] result<void, ErrorCode> readWiper(std::array<uint8_t> &dest) const
     {
         std::array<uint8_t, 1> read_cmd{ { buildHeader(wiperRegister(), POTENTIOMETER_CMD::READ) } };
         RETURN_IF_ERR(device.transmit(read_cmd));
@@ -54,7 +54,7 @@ class Potentiometer
         return {};
     }
 
-    [[nodiscard]] std::expected<void, ErrorCode> writeWiper(uint8_t data) const
+    [[nodiscard]] result<void> writeWiper(uint8_t data) const
     {
         const std::array<uint8_t, 2> tx_cmd{ { buildHeader(wiperRegister(), POTENTIOMETER_CMD::WRITE), data } };
         RETURN_IF_ERR(device.transmit(tx_cmd));
@@ -70,7 +70,7 @@ class Potentiometer
     constexpr explicit Potentiometer(){};
 #endif
 
-    [[nodiscard]] std::expected<void, ErrorCode> readPercentage(uint8_t &dest) const
+    [[nodiscard]] result<void> readPercentage(uint8_t &dest) const
     {
 #ifdef TARGET_EMBEDDED
         std::array<uint8_t, 2> data{ { 0 } };
@@ -82,7 +82,7 @@ class Potentiometer
         return {};
 #endif
     }
-    [[nodiscard]] std::expected<void, ErrorCode> writePercentage(uint8_t percentage) const
+    [[nodiscard]] result<void> writePercentage(uint8_t percentage) const
     {
 #ifdef TARGET_EMBEDDED
         return (writeWiper(static_cast<uint8_t>(percentage / 100.0f * MAX_WIPER_VALUE)));
