@@ -235,6 +235,7 @@ struct SessionStarts {
  */
 async fn signal_sessions(
     Path((start, end)): Path<(String, String)>,
+    Query((source,)): Query<(Option<String>,)>,
     State(state): State<AppState>
 ) -> impl IntoResponse {
     let (start_utc, end_utc) = 
@@ -244,12 +245,26 @@ async fn signal_sessions(
         } else {
             return (StatusCode::BAD_REQUEST, "Bad date format, should be RFC3339 format".to_string());
         };
+
+
+    let source_str = match source {
+        Some(s) => {
+            if let Ok(e) = from_str::<InfluxSignalSource>(&s) {
+                s
+            } else {
+                return (StatusCode::BAD_REQUEST, "Bad source!".to_string());
+            }
+        }
+        _ => "radio".to_string(),
+    };
+
     // TODO get start on signal name
     todo!("waiting for DAM signal name");
     let car_on_query = format!(r#"
         from(bucket: "{}")
         |> range(start: time(v: "{start_utc}"), stop: time(v: "{end_utc}"))
         |> filter(fn: (r) => r["_measurement"] == "{}")
+        |> filter(fn: (r) => r["source"] == "{source_str}")
         |> filter(fn: (r) => r["signal_name"] == "TO BE FILLED IN")
         |> sort(columns: ["_time"])
         "#, &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement);
