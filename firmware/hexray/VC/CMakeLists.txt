@@ -50,8 +50,8 @@ set(HW_SHARED_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmOutput.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_bootup.cpp"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_watchdog.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_resetReason.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_fmac.cpp"
 )
 set(HW_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/hw"
@@ -70,6 +70,7 @@ set(CHIMERA_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmOutput.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_fmac.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/chimera.cpp"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
 )
@@ -105,6 +106,8 @@ if ("${TARGET}" STREQUAL "binary")
             "stm32h7xx_hal_rcc_ex.c"
             "stm32h7xx_hal_pwr_ex.c"
             "stm32h7xx_hal_cortex.c"
+            "stm32h7xx_hal_fmac.c"
+            "stm32h7xx_hal_cordic.c"
             "stm32h7xx_hal_dma_ex.c"
             "stm32h7xx_hal_dma.c"
             "stm32h7xx_hal_exti.c"

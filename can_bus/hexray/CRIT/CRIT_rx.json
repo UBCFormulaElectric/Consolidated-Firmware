@@ -5,6 +5,7 @@
         "FSM_Vitals",
         "RSM_Vitals",
         "DAM_Vitals",
-        "VC_GlobalShdnNodeStatus"
+        "VC_GlobalShdnNodeStatus",
+        "BMS_LatchStatus"
     ]
 }

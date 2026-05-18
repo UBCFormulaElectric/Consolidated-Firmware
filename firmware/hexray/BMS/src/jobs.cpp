@@ -4,11 +4,9 @@
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
 #include "app_canAlerts.hpp"
-
+#include "app_canUtils.hpp"
 #include "states/app_states.hpp"
 #include "app_precharge.hpp"
-// #include "app_segments.hpp"
-#include "app_timer.hpp"
 #include "app_imd.hpp"
 #include "app_powerLimit.hpp"
 #include "app_bmsShdnLoop.hpp"
@@ -27,10 +25,9 @@ extern "C"
 #include "io_semaphore.h"
 }
 
+// io
 #include "io_canMsg.hpp"
 #include "io_canQueues.hpp"
-#include "io_canMsg.hpp"
-#include "io_irs.hpp"
 #include "io_time.hpp"
 #include "io_bspdTest.hpp"
 #include "io_charger.hpp"
@@ -38,7 +35,7 @@ extern "C"
 #include "io_faultLatch.hpp"
 #include "io_canTx.hpp"
 
-#include <util_errorCodes.hpp>
+#include "util_errorCodes.hpp"
 
 // TODO: Uncomment when segments are added
 // static Semaphore isospi_bus_access_lock;
@@ -131,29 +128,37 @@ void jobs_run100Hz_tick()
     // const bool acc_fault = segments::checkFaults();
     const bool acc_fault = false;
 #endif
-    using namespace io::faultLatch;
+    using FaultLatchState = io::FaultLatch::FaultLatchState;
 
-    setCurrentStatus(&bms_ok_latch, acc_fault ? FaultLatchState::FAULT : FaultLatchState::OK);
+    bms_ok_latch.setCurrentStatus(acc_fault ? FaultLatchState::FAULT : FaultLatchState::OK);
 
     // Update CAN signals for BMS latch statuses.
-    app::can_tx::BMS_BmsCurrentlyOk_set(getCurrentStatus(&bms_ok_latch) == FaultLatchState::OK);
-    app::can_tx::BMS_ImdCurrentlyOk_set(getCurrentStatus(&imd_ok_latch) == FaultLatchState::OK);
-    app::can_tx::BMS_BspdCurrentlyOk_set(getCurrentStatus(&bspd_ok_latch) == FaultLatchState::OK);
-    app::can_tx::BMS_BmsLatchOk_set(getLatchedStatus(&bms_ok_latch) == FaultLatchState::OK);
-    app::can_tx::BMS_ImdLatchOk_set(getLatchedStatus(&imd_ok_latch) == FaultLatchState::OK);
-    app::can_tx::BMS_BspdLatchOk_set(getLatchedStatus(&bspd_ok_latch) == FaultLatchState::OK);
+    const bool imd_latched_ok  = imd_ok_latch.getLatchedStatus() == FaultLatchState::OK;
+    const bool bspd_latched_ok = bspd_ok_latch.getLatchedStatus() == FaultLatchState::OK;
+    const bool bms_latched_ok  = bms_ok_latch.getLatchedStatus() == FaultLatchState::OK;
+
+    app::can_alerts::faults::ImdLatched_set(not imd_latched_ok);
+    app::can_alerts::faults::HardwareBspdLatched_set(not bspd_latched_ok);
+    app::can_alerts::faults::BmsLatched_set(not bms_latched_ok);
+
+    app::can_tx::BMS_BmsCurrentlyOk_set(bms_ok_latch.getLatchedStatus() == FaultLatchState::OK);
+    app::can_tx::BMS_ImdCurrentlyOk_set(imd_ok_latch.getLatchedStatus() == FaultLatchState::OK);
+    app::can_tx::BMS_BspdCurrentlyOk_set(bspd_ok_latch.getLatchedStatus() == FaultLatchState::OK);
+    app::can_tx::BMS_BmsLatchOk_set(bms_latched_ok);
+    app::can_tx::BMS_ImdLatchOk_set(imd_latched_ok);
+    app::can_tx::BMS_BspdLatchOk_set(bspd_latched_ok);
 
     app::can_tx::BMS_BSPDBrakePressureThresholdExceeded_set(io::bspdtest::isBrakePressureThresholdExceeded());
     app::can_tx::BMS_BSPDAccelBrakeOk_set(io::bspdtest::isAccelBrakeOk());
 
     const bool ir_negative_opened_debounced = app::irs::negativeOpenedDebounced();
-    if (ir_negative_opened_debounced)
-    {
-        app::StateMachine::set_next_state(&app::states::init_state);
-    }
     if (app::can_alerts::AnyBoardHasFault())
     {
         app::StateMachine::set_next_state(&app::states::fault_state);
+    }
+    else if (ir_negative_opened_debounced && not app::can_alerts::AnyBoardHasFault())
+    {
+        app::StateMachine::set_next_state(&app::states::init_state);
     }
 
     app::irs::broadcast();

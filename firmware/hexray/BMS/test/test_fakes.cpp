@@ -22,8 +22,8 @@ using namespace app::can_utils;
 using namespace app::can_tx;
 struct FaultLatchParams
 {
-    io::faultLatch::FaultLatch     *arg0;
-    io::faultLatch::FaultLatchState arg1;
+    const io::FaultLatch           *arg0;
+    io::FaultLatch::FaultLatchState arg1;
 
     bool operator==(const FaultLatchParams &other) const { return arg0 == other.arg0 && arg1 == other.arg1; }
 };
@@ -31,8 +31,7 @@ template <> struct std::hash<FaultLatchParams>
 {
     std::size_t operator()(const FaultLatchParams &params) const noexcept
     {
-        return hash<const io::faultLatch::FaultLatch *>()(params.arg0) ^
-               hash<io::faultLatch::FaultLatchState>()(params.arg1);
+        return hash<const io::FaultLatch *>()(params.arg0) ^ hash<io::FaultLatch::FaultLatchState>()(params.arg1);
     }
 };
 static std::unordered_map<FaultLatchParams, uint32_t> setCurrentStatus_call_count;
@@ -298,29 +297,6 @@ namespace imd
         return time::getCurrentMs();
     }
 } // namespace imd
-
-namespace faultLatch
-{
-    // The unit test faultlatchg logic here is agnostic to whether the latch and current status are inverted
-    FaultLatch bms_ok_latch{ FaultLatchState::OK, FaultLatchState::OK, false };
-    FaultLatch imd_ok_latch{ FaultLatchState::OK, FaultLatchState::OK, true };
-    FaultLatch bspd_ok_latch{ FaultLatchState::OK, FaultLatchState::OK, true };
-
-    void setCurrentStatus(const FaultLatch *latch, const FaultLatchState status)
-    {
-        assert(!latch->read_only);
-        fakes::faultLatch::updateFaultLatch(const_cast<FaultLatch *>(latch), status);
-    }
-    FaultLatchState getCurrentStatus(const FaultLatch *latch)
-    {
-        return latch->status;
-    }
-    FaultLatchState getLatchedStatus(const FaultLatch *latch)
-    {
-        return latch->latched_state;
-    }
-} // namespace faultLatch
-
 namespace charger
 {
     static ChargerConnectedType connectionStatus = ChargerConnectedType::CHARGER_DISCONNECTED;
@@ -338,8 +314,8 @@ namespace charger
 
 namespace shdn
 {
-    io::shdn::node hv_p_ok_node(true, app::can_tx::BMS_HVPShdnOKStatus_set);
-    io::shdn::node hv_n_ok_node(true, app::can_tx::BMS_HVNShdnOKStatus_set);
+    node hv_p_ok_node(true, app::can_tx::BMS_HVPShdnOKStatus_set);
+    node hv_n_ok_node(true, app::can_tx::BMS_HVNShdnOKStatus_set);
 } // namespace shdn
 
 namespace fans
@@ -421,6 +397,26 @@ namespace adbms
 
 } // namespace io
 
+// Faultlatch
+
+io::FaultLatch bms_ok_latch{ io::FaultLatch::FaultLatchState::OK, io::FaultLatch::FaultLatchState::OK, false };
+io::FaultLatch imd_ok_latch{ io::FaultLatch::FaultLatchState::OK, io::FaultLatch::FaultLatchState::OK, true };
+io::FaultLatch bspd_ok_latch{ io::FaultLatch::FaultLatchState::OK, io::FaultLatch::FaultLatchState::OK, true };
+
+void io::FaultLatch::setCurrentStatus(FaultLatchState new_status) const
+{
+    assert(!this->read_only);
+    fakes::faultLatch::updateFaultLatch(const_cast<io::FaultLatch *>(this), new_status);
+}
+io::FaultLatch::FaultLatchState io::FaultLatch::getCurrentStatus() const
+{
+    return this->status;
+}
+io::FaultLatch::FaultLatchState io::FaultLatch::getLatchedStatus() const
+{
+    return this->latched_state;
+}
+
 namespace fakes
 {
 namespace irs
@@ -457,14 +453,15 @@ namespace ts
 
 namespace faultLatch
 {
-    using namespace io::faultLatch;
+    using io::FaultLatch;
+    using FaultLatchState = FaultLatch::FaultLatchState;
 
     void resetFaultLatch(const FaultLatch *latch)
     {
         const_cast<FaultLatch *>(latch)->status        = FaultLatchState::OK;
         const_cast<FaultLatch *>(latch)->latched_state = FaultLatchState::OK;
     }
-    void updateFaultLatch(FaultLatch *latch, const FaultLatchState status)
+    void updateFaultLatch(FaultLatch *latch, FaultLatchState status)
     {
         if (latch->latched_state == FaultLatchState::OK && status == FaultLatchState::FAULT)
         {
@@ -477,7 +474,7 @@ namespace faultLatch
     {
         setCurrentStatus_call_count = {};
     }
-    uint32_t setCurrentStatus_getCallsWithArgs(const FaultLatch *latch, const FaultLatchState status)
+    uint32_t setCurrentStatus_getCallsWithArgs(const FaultLatch *latch, FaultLatchState status)
     {
         return setCurrentStatus_call_count[FaultLatchParams{ const_cast<FaultLatch *>(latch), status }];
     }
