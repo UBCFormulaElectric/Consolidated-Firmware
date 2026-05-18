@@ -36,7 +36,7 @@ class LiveSignalStore extends SignalStore {
         name: string;
         timestamp: number;
         value: number;
-        signal_type: "Numerical" | "Alert" | "Enum";
+        signal_type: "Numerical" | "Alert" | "Enum" | "Boolean";
       };
 
       if (!this.storage[signalName] && signal_type !== "Alert") return;

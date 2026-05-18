@@ -14,7 +14,7 @@ function normalizeSearchText(value: string): string {
 }
 
 function getSignalSubtitle(signal: EnumSignalMetadata): string {
-  const parts = [signal.msg_name, signal.tx_node, signal.enum_type];
+  const parts = [signal.msg_name, signal.tx_node, signal.enum_signal.enum_name];
 
   if (signal.cycle_time_ms !== null) {
     parts.push(`${signal.cycle_time_ms}ms`);
@@ -42,7 +42,7 @@ export const EnumSignalPicker = memo(function EnumSignalPicker(props: { query: s
   const searchableSignals = useMemo(() => {
     return availableSignals.map((signal) => ({
       signal,
-      searchableText: normalizeSearchText([signal.name, signal.msg_name, signal.tx_node, signal.enum_type].filter(Boolean).join(" ")),
+      searchableText: normalizeSearchText([signal.name, signal.msg_name, signal.tx_node, signal.enum_signal.enum_name].filter(Boolean).join(" ")),
     }));
   }, [availableSignals]);
 
@@ -86,7 +86,7 @@ export const EnumSignalPicker = memo(function EnumSignalPicker(props: { query: s
   };
 
   return (
-    <div ref={containerRef}>
+    <div ref={containerRef} className="w-full max-w-md">
       <label className="block text-sm font-medium text-gray-700 mb-1">Signal Name</label>
       <input
         type="text"
@@ -116,7 +116,7 @@ export const EnumSignalPicker = memo(function EnumSignalPicker(props: { query: s
         {error ? (
           <p className="px-3 py-3 text-sm text-red-600">Failed to load available signals.</p>
         ) : isListOpen ? (
-          <div className="max-h-64 overflow-y-auto py-1">
+          <div className="max-h-64 overflow-y-auto py-1 scrollbar-hidden">
             {visibleSignals.length === 0 ? (
               <p className="px-3 py-3 text-sm text-gray-500">No signals match this search.</p>
             ) : (
@@ -137,9 +137,9 @@ export const EnumSignalPicker = memo(function EnumSignalPicker(props: { query: s
                       className={`w-full px-3 py-2 text-left transition-colors ${isHighlighted ? "bg-blue-200" : "hover:bg-blue-100"} ${isSelected ? "bg-blue-100" : ""}`}
                       style={{ contentVisibility: "auto", containIntrinsicSize: "48px" }}
                     >
-                      <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center justify-between gap-3 w-full">
                         <span className="font-medium text-gray-900">{signal.name}</span>
-                        <span className="shrink-0 text-xs uppercase tracking-wide text-gray-500">{signal.enum_type}</span>
+                        <span className="text-xs uppercase min-w-0 truncate tracking-wide text-gray-500">{signal.enum_signal.enum_name}</span>
                       </div>
                       <p className="mt-1 text-xs text-gray-500">{getSignalSubtitle(signal)}</p>
                     </button>
