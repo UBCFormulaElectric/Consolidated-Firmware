@@ -10,7 +10,7 @@ namespace io::adbms
 
 result<void> clear::StatReg()
 {
-    constexpr Segments<Regs<uint8_t>> clr_regs{};
+    constexpr Segments<RegBuffer> clr_regs{};
     RETURN_IF_ERR(sendCmd(CLRAUX));
     RETURN_IF_ERR(writeRegGroup(CLRFLAG, clr_regs));
     RETURN_IF_ERR(writeRegGroup(CLOVUV, clr_regs));

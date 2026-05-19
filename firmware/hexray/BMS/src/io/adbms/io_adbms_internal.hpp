@@ -136,7 +136,7 @@ inline constexpr uint32_t POLL_STATUS_READY = __builtin_bswap32(0xFFFFFFFFU >> (
  * @return a Segments of results, one per segment, containing either the register values or an error code if the read
  * failed
  */
-[[nodiscard]] Segments<result<Regs<uint8_t>>> readRegGroup(uint16_t cmd);
+[[nodiscard]] Segments<result<RegBuffer>> readRegGroup(uint16_t cmd);
 /**
  * Writes a register group
  * @param cmd the command to write the register group (e.g. WRCFGA)

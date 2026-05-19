@@ -5,10 +5,10 @@
 
 namespace io::adbms
 {
-result<void> writeConfigReg(const array<SegmentConfig, NUM_SEGMENTS> &config)
+result<void> writeConfigReg(const Segments<SegmentConfig> &config)
 {
-    array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> cfga_regs{};
-    array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> cfgb_regs{};
+    Segments<RegBuffer> cfga_regs{};
+    Segments<RegBuffer> cfgb_regs{};
 
     for (size_t seg = 0U; seg < NUM_SEGMENTS; ++seg)
     {
@@ -16,18 +16,18 @@ result<void> writeConfigReg(const array<SegmentConfig, NUM_SEGMENTS> &config)
         memcpy(cfgb_regs[seg].data(), &config[seg].reg_b, sizeof(CFGB));
     }
 
-    RETURN_IF_ERR(writeRegGroup(WRCFGA, cfga_regs));
-    RETURN_IF_ERR(writeRegGroup(WRCFGB, cfgb_regs));
+    RETURN_IF_ERR_SILENT(writeRegGroup(WRCFGA, cfga_regs));
+    RETURN_IF_ERR_SILENT(writeRegGroup(WRCFGB, cfgb_regs));
 
     return {};
 }
 
 SegmentsResult<SegmentConfig> readConfigReg()
 {
-    const auto a_regs = readRegGroup(RDCFGA);
-    const auto b_regs = readRegGroup(RDCFGB);
+    const Segments<result<RegBuffer>> a_regs = readRegGroup(RDCFGA);
+    const Segments<result<RegBuffer>> b_regs = readRegGroup(RDCFGB);
+    Segments<result<SegmentConfig>>   read_configs;
 
-    Segments<result<SegmentConfig>> read_configs;
     for (size_t seg = 0U; seg < NUM_SEGMENTS; ++seg)
     {
         if (!a_regs[seg])

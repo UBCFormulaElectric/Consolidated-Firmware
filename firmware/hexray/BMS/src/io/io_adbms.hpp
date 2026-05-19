@@ -201,11 +201,13 @@ enum class OpenWireSwitch
 };
 
 // Base array types. Kept inside io::adbms so generic names don't collide at global scope.
-template <typename T> using Therms       = std::array<std::array<T, THERMISTORS_PER_SEGMENT>, NUM_SEGMENTS>;
-template <typename T> using Regs         = std::array<T, REG_GROUP_SIZE>;
-template <typename T> using Segments     = std::array<T, NUM_SEGMENTS>;
-template <typename T> using SegmentCells = std::array<T, CELLS_PER_SEGMENT>;
-template <typename T> using Cells        = Segments<SegmentCells<T>>;
+// Represents the bytes of a register group
+using RegBuffer                           = std::array<uint8_t, REG_GROUP_SIZE>;
+template <typename T> using Segments      = std::array<T, NUM_SEGMENTS>;
+template <typename T> using SegmentCells  = std::array<T, CELLS_PER_SEGMENT>;
+template <typename T> using Cells         = Segments<SegmentCells<T>>;
+template <typename T> using SegmentTherms = std::array<T, THERMISTORS_PER_SEGMENT>;
+template <typename T> using Therms        = Segments<SegmentTherms<T>>;
 
 // Derived type
 using Status = Segments<StatusGroups>;
@@ -216,9 +218,14 @@ template <typename T> using SegmentsResult = Segments<result<T>>;
 
 // FUNCTIONS
 // Configuration, balance and PWM access.
-[[nodiscard]] result<void>                  writeConfigReg(const std::array<SegmentConfig, NUM_SEGMENTS> &config);
+[[nodiscard]] result<void> writeConfigReg(const Segments<SegmentConfig> &config);
+/**
+ * @return SegmentsResult<SegmentConfig> containing a result for each segment. If an error is raised in either the CFGA
+ * or CFGB read for a segment, the SegmentConfig result for that segment will be an unexpected containing the error
+ * code. If both reads succeed, the SegmentConfig result will contain the successfully read and parsed configuration.
+ */
 [[nodiscard]] SegmentsResult<SegmentConfig> readConfigReg();
-[[nodiscard]] result<void>                  writePwmReg(const std::array<PWMConfig, NUM_SEGMENTS> &pwm_config);
+[[nodiscard]] result<void>                  writePwmReg(const Segments<PWMConfig> &pwm_config);
 [[nodiscard]] SegmentsResult<PWMConfig>     readPwmReg();
 
 // Measurement reads.

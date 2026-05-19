@@ -247,11 +247,11 @@ result<bitset<32>> poll(const uint16_t cmd)
     return status ? result<std::bitset<32>>{ poll_buf } : unexpected(status.error());
 }
 
-Segments<result<Regs<uint8_t>>> readRegGroup(const uint16_t cmd)
+Segments<result<RegBuffer>> readRegGroup(const uint16_t cmd)
 {
-    Segments<result<Regs<uint8_t>>> regs;
-    const TxCmd                     tx_cmd{ cmd };
-    Segments<RegGroupPayload>       rx_buffer{};
+    Segments<result<RegBuffer>> regs;
+    const TxCmd                 tx_cmd{ cmd };
+    Segments<RegGroupPayload>   rx_buffer{};
 
     if (const auto comm_status = adbms_spi_ls.transmitThenReceiveDma(
             tx_cmd.into_span(), { reinterpret_cast<uint8_t *>(rx_buffer.data()), sizeof(rx_buffer) });
@@ -286,7 +286,7 @@ Segments<result<Regs<uint8_t>>> readRegGroup(const uint16_t cmd)
     return regs;
 }
 
-result<void> writeRegGroup(const uint16_t cmd, const Segments<Regs<uint8_t>> &regs)
+result<void> writeRegGroup(const uint16_t cmd, const Segments<RegBuffer> &regs)
 {
     TxCmdPayload tx_buffer{ TxCmd{ cmd }, {} };
 
