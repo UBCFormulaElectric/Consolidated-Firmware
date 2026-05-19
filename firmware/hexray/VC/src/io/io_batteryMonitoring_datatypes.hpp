@@ -1,7 +1,7 @@
 
 #pragma once
 
-// Commands for voltages 
+// Commands for voltages
 enum class CellReading : uint8_t
 {
     CELL1 = 0x14,
@@ -18,16 +18,16 @@ enum SystemReading : uint8_t
 // Balancing cell bitmask
 enum class CellBalance_BitMask : uint16_t
 {
-    CELL1 = 0x0001, //0001
-    CELL2 = 0x0002, //0010
-    CELL3 = 0x0008, //1000
-    CELL4 = 0x0010, //00010000
+    CELL1 = 0x0001, // 0001
+    CELL2 = 0x0002, // 0010
+    CELL3 = 0x0008, // 1000
+    CELL4 = 0x0010, // 00010000
 };
 
-// TODO: Protection stuff 
+// TODO: Protection stuff
 struct ProtectionStatus
 {
-    bool overvoltage = false;
+    bool overvoltage  = false;
     bool undervoltage = false;
 };
 
@@ -45,11 +45,11 @@ inline constexpr uint16_t COMM_TYPE = 0x9239;
 inline constexpr uint16_t VCELL_MODE = 0x9304;
 
 // command/subcommand addresses
-inline constexpr uint16_t REG_LOWER        = 0x3E;
-inline constexpr uint16_t REG_UPPER        = 0x3F;
-inline constexpr uint16_t REG_DATA         = 0x40;
-inline constexpr uint16_t REG_CHECKSUM     = 0x60;
-inline constexpr uint16_t REG_DATALENGTH   = 0x61;
+inline constexpr uint16_t REG_LOWER      = 0x3E;
+inline constexpr uint16_t REG_UPPER      = 0x3F;
+inline constexpr uint16_t REG_DATA       = 0x40;
+inline constexpr uint16_t REG_CHECKSUM   = 0x60;
+inline constexpr uint16_t REG_DATALENGTH = 0x61;
 
 inline constexpr uint8_t  SUBCOMMAND_BYTES = 4;
 inline constexpr uint32_t RETRIES          = 20;
@@ -75,24 +75,24 @@ inline constexpr uint16_t SUBCMD_RESETCHARGEACCUM = 0x0082;
 inline constexpr uint16_t CMD_GETCURRENT = 0x3A;
 
 // Charge
-inline constexpr uint16_t SUBCMD_DASTATUS5 = 0x0075;
+inline constexpr uint16_t SUBCMD_DASTATUS5            = 0x0075;
 inline constexpr uint16_t SUBCMD_GET_INEGRATED_CHARGE = 0x0076;
 
 // Cell Balancing
-inline constexpr uint16_t CMD_TEMPERATURE_IC    = 0x68;
-inline constexpr uint16_t BALANCE_CFG           = 0x9335;
-inline constexpr uint16_t MAX_IC_TEMP           = 0x9338;
-inline constexpr uint16_t CELL_BALANCE_INTERVAL = 0x9339; // 20 seconds default
-inline constexpr uint16_t MAX_CELLS_BALANCING   = 0x933A;
-inline constexpr uint16_t CELL_BALANCE_MIN_V    = 0x933F;
+inline constexpr uint16_t CMD_TEMPERATURE_IC     = 0x68;
+inline constexpr uint16_t BALANCE_CFG            = 0x9335;
+inline constexpr uint16_t MAX_IC_TEMP            = 0x9338;
+inline constexpr uint16_t CELL_BALANCE_INTERVAL  = 0x9339; // 20 seconds default
+inline constexpr uint16_t MAX_CELLS_BALANCING    = 0x933A;
+inline constexpr uint16_t CELL_BALANCE_MIN_V     = 0x933F;
 inline constexpr uint16_t CELL_BALANCE_MIN_DELTA = 0x9341;
 inline constexpr uint16_t CELL_BALANCE_STOP_V    = 0x9342;
-inline constexpr uint16_t CB_ACTIVE_CELLS = 0x0083;
-inline constexpr uint16_t CBSTATUS1       = 0x0085;
-inline constexpr uint16_t CBSTATUS2       = 0x0086;
-inline constexpr uint16_t CB_SET_LVL      = 0x0084;
+inline constexpr uint16_t CB_ACTIVE_CELLS        = 0x0083;
+inline constexpr uint16_t CBSTATUS1              = 0x0085;
+inline constexpr uint16_t CBSTATUS2              = 0x0086;
+inline constexpr uint16_t CB_SET_LVL             = 0x0084;
 
-//Protections
+// Protections
 inline constexpr uint16_t REG_PROTECTIONS_A = 0x9261;
 // inline constexpr uint16_t REG_PROTECTIONS_B = 0x9262;
 inline constexpr uint16_t REG_PROTECTIONS_CUV = 0x9275;
@@ -114,8 +114,8 @@ inline constexpr uint16_t MFG_STATUS_INIT = 0x9343;
 // Seafty commands
 inline constexpr uint16_t CMD_SAFETY_STATUS_A = 0x02;
 inline constexpr uint16_t CMD_SAFETY_STATUS_B = 0x04;
-inline constexpr uint16_t CMD_ALARM_STATUS = 0x62;
-inline constexpr uint16_t DEFAULT_ALARM = 0x926D;
+inline constexpr uint16_t CMD_ALARM_STATUS    = 0x62;
+inline constexpr uint16_t DEFAULT_ALARM       = 0x926D;
 
 // FET stuff
 inline constexpr uint16_t FET_FET_OPTION     = 0x9308;
@@ -153,7 +153,7 @@ union AlertStatus
         uint16_t MSK_PFALERT : 1;
         uint16_t MSK_SFALERT : 1; // This bit is set when a safety alert is triggered
         uint16_t PF : 1;
-        uint16_t SSA : 1; // This bit is set when a bit is set in Safety Status A().
+        uint16_t SSA : 1;  // This bit is set when a bit is set in Safety Status A().
         uint16_t SSBC : 1; // This bit is set when a bit is set in Safety Status B() or Safety Status C().
     } bits;
     uint16_t raw_value;
@@ -163,16 +163,16 @@ union SafetyStatusA
     struct __attribute__((packed))
     {
         uint8_t RSVD : 2; // Reserved
-        uint8_t CUV : 1; // Cell undervoltage
-        uint8_t COV : 1;   // Cell overvoltage
-        uint8_t OCC : 1;   // Overcurrent in charge
-        uint8_t OCD1 : 1;  // Overcurrent in discharge 1
-        uint8_t OCD2 : 1;  // Overcurrent in discharge 2
-        uint8_t SCD : 1;   // Short Circuit in Discharge
-    } bits; // alerts associated with the battery chip
-    uint8_t raw_status; 
+        uint8_t CUV : 1;  // Cell undervoltage
+        uint8_t COV : 1;  // Cell overvoltage
+        uint8_t OCC : 1;  // Overcurrent in charge
+        uint8_t OCD1 : 1; // Overcurrent in discharge 1
+        uint8_t OCD2 : 1; // Overcurrent in discharge 2
+        uint8_t SCD : 1;  // Short Circuit in Discharge
+    } bits;               // alerts associated with the battery chip
+    uint8_t raw_status;
 };
-union SafetyStatusB 
+union SafetyStatusB
 {
     struct __attribute__((packed))
     {

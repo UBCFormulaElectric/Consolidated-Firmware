@@ -4,12 +4,33 @@
 #include <limits>
 #include "util_errorCodes.hpp"
 
-enum class BalancingState { DISABLED, SETTLE, BALANCE };
-enum class BalancingPhase { ODD, EVEN };
-enum class ChargeState {STOPPED, CHARGING};
+enum class BalancingState
+{
+    DISABLED,
+    SETTLE,
+    BALANCE
+};
+enum class BalancingPhase
+{
+    ODD,
+    EVEN
+};
+enum class ChargeState
+{
+    STOPPED,
+    CHARGING
+};
 
-struct MinCell { uint8_t index; float value; };
-struct MaxCell { uint8_t index; float value; };
+struct MinCell
+{
+    uint8_t index;
+    float   value;
+};
+struct MaxCell
+{
+    uint8_t index;
+    float   value;
+};
 namespace app::batteryMonitoring
 {
 std::expected<void, ErrorCode> update();

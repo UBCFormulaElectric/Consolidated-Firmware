@@ -266,7 +266,7 @@ std::expected<float, ErrorCode> get_temperatureIC()
  * @param void
  */
 static std::expected<void, ErrorCode> balancing_init()
-{ 
+{
     uint8_t cell_balancing = 0x03;
     RETURN_IF_ERR(write_subcommand(BALANCE_CFG, std::span<uint8_t>(&cell_balancing, 1)));
 
@@ -285,13 +285,13 @@ static std::expected<void, ErrorCode> balancing_init()
     uint8_t max_cells = 0x02;
     RETURN_IF_ERR(write_subcommand(MAX_CELLS_BALANCING, std::span<uint8_t>(&max_cells, 1)));
 
-    std::array<uint8_t, 2> min_voltage_charge = {{0x00, 0x00}}; // TODO: set to 0x09C4 = 2500 mV after testing...
+    std::array<uint8_t, 2> min_voltage_charge = { { 0x00, 0x00 } }; // TODO: set to 0x09C4 = 2500 mV after testing...
     RETURN_IF_ERR(write_subcommand(0x933B, min_voltage_charge));
 
-    std::array<uint8_t, 2> min_voltage_delta = {{0x00, 0x00}};
+    std::array<uint8_t, 2> min_voltage_delta = { { 0x00, 0x00 } };
     RETURN_IF_ERR(write_subcommand(0x933D, min_voltage_delta));
 
-    std::array<uint8_t, 2> min_voltage_relax = {{0x00, 0x00}}; // TODO: set to 20mV after testing...
+    std::array<uint8_t, 2> min_voltage_relax = { { 0x00, 0x00 } }; // TODO: set to 20mV after testing...
     RETURN_IF_ERR(write_subcommand(0x933F, min_voltage_relax));
 
     return {};
@@ -302,20 +302,21 @@ static std::expected<void, ErrorCode> balancing_init()
  */
 std::expected<void, ErrorCode> send_balancing_subcommand(CellBalance_BitMask cell)
 {
-    std::array<uint8_t, 2> cell_to_balance= {{(uint8_t)((uint16_t)cell & 0xFF), (uint8_t)((uint16_t)cell >> 8)}};
+    std::array<uint8_t, 2> cell_to_balance = { { (uint8_t)((uint16_t)cell & 0xFF), (uint8_t)((uint16_t)cell >> 8) } };
     RETURN_IF_ERR(write_subcommand(CB_ACTIVE_CELLS, cell_to_balance));
     return {};
 }
 /**
  * @brief Reads what cells are being balanced
- * @param void 
+ * @param void
  * @return uint16_t a mask of the cells that are being balanced.
  */
 std::expected<uint16_t, ErrorCode> read_balancing_subcommand()
 {
-    std::array<uint8_t, 2> buf = {{0, 0}};
-    const auto err = read_subcommand(CB_ACTIVE_CELLS, buf);
-    if (!err) return std::unexpected(err.error());
+    std::array<uint8_t, 2> buf = { { 0, 0 } };
+    const auto             err = read_subcommand(CB_ACTIVE_CELLS, buf);
+    if (!err)
+        return std::unexpected(err.error());
     const uint16_t mask = static_cast<uint16_t>(static_cast<uint16_t>(buf[0]) | (static_cast<uint16_t>(buf[1]) << 8));
     return mask;
 }
@@ -325,16 +326,14 @@ std::expected<uint16_t, ErrorCode> read_balancing_subcommand()
  */
 std::expected<void, ErrorCode> send_balancing_above_threshold(uint16_t threshold_mV)
 {
-    std::array<uint8_t, 2> payload = {{
-        static_cast<uint8_t>(threshold_mV & 0xFF),
-        static_cast<uint8_t>((threshold_mV >> 8) & 0xFF)
-    }};
+    std::array<uint8_t, 2> payload = { { static_cast<uint8_t>(threshold_mV & 0xFF),
+                                         static_cast<uint8_t>((threshold_mV >> 8) & 0xFF) } };
     RETURN_IF_ERR(write_subcommand(0x0084, payload));
     return {};
 }
 std::expected<void, ErrorCode> stop_balancing_subcommand()
 {
-    std::array<uint8_t, 2> cell_to_balance= {{0x00, 0x00}};
+    std::array<uint8_t, 2> cell_to_balance = { { 0x00, 0x00 } };
     RETURN_IF_ERR(write_subcommand(CB_ACTIVE_CELLS, cell_to_balance));
     return {};
 }
@@ -346,16 +345,14 @@ std::expected<int16_t, ErrorCode> read_currentcc1()
     std::array<uint8_t, 32> buf{};
     RETURN_IF_ERR(read_subcommand(0x0075, buf));
 
-    int16_t cc1 = static_cast<int16_t>(
-        static_cast<uint16_t>(buf[22]) |
-        (static_cast<uint16_t>(buf[23]) << 8));
+    int16_t cc1 = static_cast<int16_t>(static_cast<uint16_t>(buf[22]) | (static_cast<uint16_t>(buf[23]) << 8));
 
     return cc1;
 }
 
 std::expected<uint16_t, ErrorCode> read_balacing_time_seconds()
 {
-    std::array<uint8_t, 2> buf = {{0, 0}};
+    std::array<uint8_t, 2> buf = { { 0, 0 } };
     RETURN_IF_ERR(read_subcommand(CBSTATUS1, buf));
     return static_cast<uint16_t>(static_cast<uint16_t>(buf[0]) | (static_cast<uint16_t>(buf[1]) << 8));
 }
@@ -374,11 +371,11 @@ std::expected<AlertStatus, ErrorCode> read_alarm_status()
 static std::expected<void, ErrorCode> protection_init()
 {
     // 1. ALERT Pin Configuration
-    uint8_t alert = 0x82; //maybe 0x02
+    uint8_t alert = 0x82; // maybe 0x02
     RETURN_IF_ERR(write_subcommand(ALERT, std::span<uint8_t>(&alert, 1)));
 
     // 2. Disable all permanent faults
-    std::array<uint8_t, 2> protections = {{0x00, 0x00}};
+    std::array<uint8_t, 2> protections = { { 0x00, 0x00 } };
     RETURN_IF_ERR(write_subcommand(MFG_STATUS_INIT, protections));
     uint8_t PF_protections = 0x00;
     RETURN_IF_ERR(write_subcommand(0x9261, std::span<uint8_t>(&PF_protections, 1)));
@@ -392,24 +389,24 @@ static std::expected<void, ErrorCode> protection_init()
     RETURN_IF_ERR(write_subcommand(REG_SF_ALERT_MASK_B, std::span<uint8_t>(&SF_protectionsB, 1)));
 
     // 4. Write OV/UV
-    uint8_t overvoltage = 0x53;
+    uint8_t overvoltage  = 0x53;
     uint8_t undervoltage = 0x32;
     RETURN_IF_ERR(write_subcommand(REG_PROTECTIONS_COV, std::span<uint8_t>(&overvoltage, 1)));
     RETURN_IF_ERR(write_subcommand(REG_PROTECTIONS_CUV, std::span<uint8_t>(&undervoltage, 1)));
 
     // 5. Configure Default Alarm Mask to map SSA and SSBC to the ALERT pin
-    std::array<uint8_t, 2> alarm_mask = {{0x00, 0x0C}}; 
+    std::array<uint8_t, 2> alarm_mask = { { 0x00, 0x0C } };
     RETURN_IF_ERR(write_subcommand(DEFAULT_ALARM, alarm_mask));
 
     return {};
 }
 
-/* Could use xSemaphoreGiveFromISR and write driver 
+/* Could use xSemaphoreGiveFromISR and write driver
 std::expected<void, ErrorCode> get_status()
 {
     if (!bat_mtr_nalert.readPin())
     {
-       
+
     }
 }
 */
@@ -507,11 +504,11 @@ std::expected<void, ErrorCode> init()
 
     // 4. Modify settings
 
-    // Protections 
+    // Protections
     RETURN_IF_ERR(protection_init());
 
     // VCELL mode
-    std::array <uint8_t, 2> vcell_mode = {{0x1B, 0x00}};
+    std::array<uint8_t, 2> vcell_mode = { { 0x1B, 0x00 } };
     RETURN_IF_ERR(write_subcommand(VCELL_MODE, vcell_mode));
 
     // Balancing

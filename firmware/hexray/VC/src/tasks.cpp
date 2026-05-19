@@ -40,7 +40,7 @@ static hw::rtos::StaticTask::StaticTaskStack<512>  Task1HzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCanRxStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCan1TxStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCan2TxStack;
-static hw::rtos::StaticTask::StaticTaskStack<1024>  BatteryMonitoringStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024> BatteryMonitoringStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskPowerMonitoringStack;
 
 static hw::rtos::StaticTask Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz, Task100HzStack);
