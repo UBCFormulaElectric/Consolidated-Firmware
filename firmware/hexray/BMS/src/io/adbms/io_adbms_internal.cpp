@@ -230,7 +230,7 @@ result<void> sendCmd(const uint16_t cmd)
     return status;
 }
 
-result<void> poll(const uint16_t cmd, const span<uint8_t> poll_buf)
+result<uint32_t> poll(const uint16_t cmd)
 {
     const TxCmd tx_cmd{ cmd };
     const auto  status =
@@ -246,15 +246,15 @@ result<void> poll(const uint16_t cmd, const span<uint8_t> poll_buf)
     return status;
 }
 
-array<result<array<uint8_t, REG_GROUP_SIZE>>, NUM_SEGMENTS> readRegGroup(const uint16_t cmd)
+Segments<result<Regs<uint8_t>>> readRegGroup(const uint16_t cmd)
 {
-    array<result<array<uint8_t, REG_GROUP_SIZE>>, NUM_SEGMENTS> regs;
-    const TxCmd                                                 tx_cmd{ cmd };
-    array<RegGroupPayload, NUM_SEGMENTS>                        rx_buffer{};
+    Segments<result<Regs<uint8_t>>> regs;
+    const TxCmd                     tx_cmd{ cmd };
+    Segments<RegGroupPayload>       rx_buffer{};
 
-    const auto comm_status = adbms_spi_ls.transmitThenReceiveDma(
-        tx_cmd.into_span(), { reinterpret_cast<uint8_t *>(rx_buffer.data()), sizeof(rx_buffer) });
-    if (!comm_status)
+    if (const auto comm_status = adbms_spi_ls.transmitThenReceiveDma(
+            tx_cmd.into_span(), { reinterpret_cast<uint8_t *>(rx_buffer.data()), sizeof(rx_buffer) });
+        !comm_status)
     {
         regs.fill(std::unexpected(comm_status.error()));
         return regs;
@@ -285,7 +285,7 @@ array<result<array<uint8_t, REG_GROUP_SIZE>>, NUM_SEGMENTS> readRegGroup(const u
     return regs;
 }
 
-result<void> writeRegGroup(const uint16_t cmd, const array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs)
+result<void> writeRegGroup(const uint16_t cmd, const Segments<Regs<uint8_t>> &regs)
 {
     TxCmdPayload tx_buffer{ TxCmd{ cmd }, {} };
 

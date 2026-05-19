@@ -14,9 +14,9 @@ namespace app::segments
 {
 // Re-export ADBMS array aliases inside this namespace so app code can use them unqualified.
 using io::adbms::Cells;
-using io::adbms::CellResult;
-using io::adbms::SegmentResult;
-using io::adbms::ThermResult;
+using io::adbms::CellsResult;
+using io::adbms::SegmentsResult;
+using io::adbms::ThermsResult;
 using io::adbms::Segments;
 using io::adbms::Status;
 using io::adbms::Therms;
@@ -101,9 +101,9 @@ namespace faults
 } // namespace faults
 
 // app_segments_conversions.cpp
-result<CellResult<float>>                             runVoltageConversion();
-result<std::pair<ThermResult<float>, ThermResult<bool>>> runTempConversion();
-result<SegmentResult<float>>                          runSegVoltageConversion();
+result<CellsResult<float>>                             runVoltageConversion();
+result<std::pair<ThermsResult<float>, ThermsResult<bool>>> runTempConversion();
+result<SegmentsResult<float>>                          runSegVoltageConversion();
 result<Segments<io::adbms::StatusGroups>>          runStatusConversion();
-result<CellResult<bool>>                              runCellOpenWireCheck();
+result<CellsResult<bool>>                              runCellOpenWireCheck();
 } // namespace app::segments

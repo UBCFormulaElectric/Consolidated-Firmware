@@ -39,9 +39,9 @@ result<void> pollAuxAdcConversion()
 {
     for (size_t attempt = 0U; attempt < MAX_NUM_ATTEMPTS; attempt++)
     {
-        uint32_t rx_data;
-        RETURN_IF_ERR(poll(PLAUX, { reinterpret_cast<uint8_t *>(&rx_data), sizeof(rx_data) }));
-        if (rx_data == POLL_STATUS_READY)
+        const auto rx_res = poll(PLAUX);
+        RETURN_IF_ERR_SILENT(rx_res);
+        if (const uint32_t rx_data = rx_res.value(); rx_data == POLL_STATUS_READY)
         {
             return {};
         }

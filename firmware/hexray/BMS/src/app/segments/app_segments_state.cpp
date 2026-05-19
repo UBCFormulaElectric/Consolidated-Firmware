@@ -63,7 +63,7 @@ bool isOk(const size_t seg)
 bool allOk()
 {
     const io::unique_semaphore lock{ health_mutex };
-    return std::all_of(segment_health.begin(), segment_health.end(), [](const std::bitset<4> &bs) { return bs.all(); });
+    return std::ranges::all_of(segment_health, [](const std::bitset<4> &bs) { return bs.all(); });
 }
 
 Cells<result<float>> getLatestVoltages()

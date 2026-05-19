@@ -22,7 +22,7 @@ result<void> writeConfigReg(const array<SegmentConfig, NUM_SEGMENTS> &config)
     return {};
 }
 
-Segments<result<SegmentConfig>> readConfigReg()
+SegmentsResult<SegmentConfig> readConfigReg()
 {
     const auto a_regs = readRegGroup(RDCFGA);
     const auto b_regs = readRegGroup(RDCFGB);

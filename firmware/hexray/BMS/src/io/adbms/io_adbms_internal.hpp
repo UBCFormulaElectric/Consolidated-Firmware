@@ -4,13 +4,11 @@
 #include "util_errorCodes.hpp"
 
 #include <array>
-#include <span>
 
 using namespace std;
 
 namespace io::adbms
 {
-
 // Transaction framing constants.
 inline constexpr uint8_t CMD_BYTES = 2;
 inline constexpr uint8_t PEC_BYTES = 2;
@@ -94,29 +92,57 @@ inline constexpr uint16_t RSTCC = 0x002EU;
 inline constexpr uint16_t SRST  = 0x0027U;
 
 // ADCV and ADSV
-inline constexpr uint16_t RD   = (1U << 8); // redundant C + S ADC
-inline constexpr uint16_t CONT = (1U << 7); // continuous mode
-inline constexpr uint16_t DCP  = (1U << 4); // discharge during conversion
-inline constexpr uint16_t RSTF = (1U << 2); // reset IIR filters
-inline constexpr uint16_t OW1  = (1U << 1); // open wire
-inline constexpr uint16_t OW0  = (1U << 0);
+inline constexpr uint16_t RD   = 1U << 8; // redundant C + S ADC
+inline constexpr uint16_t CONT = 1U << 7; // continuous mode
+inline constexpr uint16_t DCP  = 1U << 4; // discharge during conversion
+inline constexpr uint16_t RSTF = 1U << 2; // reset IIR filters
+inline constexpr uint16_t OW1  = 1U << 1; // open wire
+inline constexpr uint16_t OW0  = 1U << 0;
 
 // ADAX and ADAX2
-inline constexpr uint16_t OW  = (1U << 8); // open wire
-inline constexpr uint16_t PUP = (1U << 7); // pull up or down current sources
-inline constexpr uint16_t CH4 = (1U << 6); // channel select
-inline constexpr uint16_t CH3 = (1U << 3);
-inline constexpr uint16_t CH2 = (1U << 2);
-inline constexpr uint16_t CH1 = (1U << 1);
-inline constexpr uint16_t CH0 = (1U << 0);
+inline constexpr uint16_t OW  = 1U << 8; // open wire
+inline constexpr uint16_t PUP = 1U << 7; // pull up or down current sources
+inline constexpr uint16_t CH4 = 1U << 6; // channel select
+inline constexpr uint16_t CH3 = 1U << 3;
+inline constexpr uint16_t CH2 = 1U << 2;
+inline constexpr uint16_t CH1 = 1U << 1;
+inline constexpr uint16_t CH0 = 1U << 0;
 
 // Poll commands return a packed readiness bitmap
 inline constexpr uint32_t POLL_STATUS_READY = __builtin_bswap32(0xFFFFFFFFU >> (2 * NUM_SEGMENTS));
 
 // Raw command helpers
-[[nodiscard]] result<void>                    sendCmd(uint16_t cmd);
-[[nodiscard]] result<void>                    poll(uint16_t cmd, span<uint8_t> poll_buf);
+/**
+ * @param cmd Command to send
+ * @return Success if the command was acknowledged by the chip, or an error code if the SPI transaction failed
+ */
+[[nodiscard]] result<void> sendCmd(uint16_t cmd);
+/**
+ * @param cmd Poll command to send (e.g. PLAUX)
+ * @return A bitmap indicating which segments are ready, where bit 0 corresponds to segment A, bit 1 to segment B, etc.;
+ * @note Generally, you will check against POLL_STATUS_READY to see if all segments are ready, but you can also check
+ * individual bits to see which segments are ready
+ */
+[[nodiscard]] result<uint32_t> poll(uint16_t cmd);
+/**
+ * Reads a register group
+ * If the SPI transaction fails, each segment's result will contain the error code
+ * @throws ErrorCode::CHECKSUM_FAIL if the PEC check fails for a segment; that segment's result will contain the error
+ * code
+ * @throws ErrorCode::CMD_COUNT_MISMATCH if the command count byte doesn't match the expected value for a segment; that
+ * segment's result will contain the error code and the expected count will be resynced to the received count
+ * @param cmd the command to read the register group (e.g. RDCVA)
+ * @return a Segments of results, one per segment, containing either the register values or an error code if the read
+ * failed
+ */
 [[nodiscard]] Segments<result<Regs<uint8_t>>> readRegGroup(uint16_t cmd);
+/**
+ * Writes a register group
+ * @param cmd the command to write the register group (e.g. WRCFGA)
+ * @param regs the register values to write, organized by segment; the caller is responsible for ensuring the correct
+ * values are
+ * @return Success if the write was acknowledged by the chip, or an error code if the SPI transaction failed
+ */
 [[nodiscard]] result<void> writeRegGroup(uint16_t cmd, const array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs);
 
 // STAT regs use same poll
