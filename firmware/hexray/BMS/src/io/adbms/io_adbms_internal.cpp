@@ -10,7 +10,7 @@ using namespace std;
 
 namespace
 {
-constexpr std::array<uint16_t, 256> pecTable(const uint16_t poly, const uint16_t size)
+consteval std::array<uint16_t, 256> pecTable(const uint16_t poly, const uint16_t size)
 {
     const auto MSB_SIZE  = static_cast<uint16_t>(1 << (size - 1));
     const auto MASK_SIZE = static_cast<uint16_t>((1 << (size + 1)) - 1);
@@ -36,11 +36,6 @@ constexpr std::array<uint16_t, 256> pecTable(const uint16_t poly, const uint16_t
     return out;
 }
 
-constexpr uint16_t             CRC10_POLY = 0x8F;
-constexpr uint16_t             CRC15_POLY = 0x4599;
-constexpr array<uint16_t, 256> pec10Table = pecTable(CRC10_POLY, 10);
-constexpr array<uint16_t, 256> pec15Table = pecTable(CRC15_POLY, 15);
-
 template <std::integral T> T swapEndianness(const T value)
 {
     T out = 0;
@@ -61,7 +56,9 @@ namespace io::adbms
  */
 class __attribute__((packed)) RegGroupPayload
 {
-    RegBuffer data;
+    static constexpr uint16_t             CRC10_POLY = 0x8F;
+    static constexpr array<uint16_t, 256> pec10Table = pecTable(CRC10_POLY, 10);
+    RegBuffer                             data;
     // when the data is in here, it is in wire order (big endian). Please make sure to swap endianness on read or write
     uint16_t pec10 : 10;
     uint8_t  cmd_count : 6 = 0;
@@ -73,7 +70,7 @@ class __attribute__((packed)) RegGroupPayload
     {
         uint16_t remainder = 16U;
 
-        for (const unsigned char i : data)
+        for (const uint8_t i : data)
         {
             const uint16_t address = (remainder >> 2 ^ i) & 0xFFU;
             remainder              = static_cast<uint16_t>(static_cast<uint16_t>(remainder << 8) ^ pec10Table[address]);
@@ -115,6 +112,9 @@ static_assert(sizeof(RegGroupPayload) == REG_GROUP_SIZE + 2); // 2 bytes for PEC
 
 class __attribute__((packed)) Cmd
 {
+    static constexpr uint16_t             CRC15_POLY = 0x4599;
+    static constexpr array<uint16_t, 256> pec15Table = pecTable(CRC15_POLY, 15);
+
     // note that both are stored in big endian on the wire, so swap endianness when reading and writing
     uint16_t cmd;
     uint16_t pec15;
