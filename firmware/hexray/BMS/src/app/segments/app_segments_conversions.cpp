@@ -24,7 +24,7 @@ result<Cells<result<float>>> runVoltageConversion()
     return out;
 }
 
-result<pair<Therms<result<float, ErrorCode>>, Therms<expected<bool>>>> runTempConversion()
+result<pair<Therms<result<float>>, Therms<result<bool>>>> runTempConversion()
 {
     array<Therms<result<uint16_t>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)> regs{};
 

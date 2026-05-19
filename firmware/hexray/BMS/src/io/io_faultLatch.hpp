@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdint>
-
 #ifdef TARGET_EMBEDDED
 #include "hw_gpios.hpp"
 #endif

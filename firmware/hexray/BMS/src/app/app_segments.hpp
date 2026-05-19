@@ -14,12 +14,9 @@ namespace app::segments
 {
 // Re-export ADBMS array aliases inside this namespace so app code can use them unqualified.
 using io::adbms::Cells;
-using io::adbms::CellsResult;
 using io::adbms::Segments;
-using io::adbms::SegmentsResult;
 using io::adbms::Status;
 using io::adbms::Therms;
-using io::adbms::ThermsResult;
 
 // Thermistor bank selected during AUX conversions.
 enum class ThermistorMux : size_t
@@ -101,9 +98,14 @@ namespace faults
 } // namespace faults
 
 // app_segments_conversions.cpp
-result<CellsResult<float>>                                 runVoltageConversion();
-result<std::pair<ThermsResult<float>, ThermsResult<bool>>> runTempConversion();
-result<SegmentsResult<float>>                              runSegVoltageConversion();
-result<Segments<io::adbms::StatusGroups>>                  runStatusConversion();
-result<CellsResult<bool>>                                  runCellOpenWireCheck();
+result<Cells<result<float>>> runVoltageConversion();
+/**
+ * @return a pair of (temps, thermistor_owc) results. The temps result may contain partial data if some conversions
+ * failed, but the thermistor_owc result will be valid only if all conversions succeeded, since we don't want to report
+ * any thermistor as open wire unless we're sure.
+ */
+result<std::pair<Therms<result<float>>, Therms<result<bool>>>> runTempConversion();
+result<Segments<result<float>>>                                runSegVoltageConversion();
+result<Segments<io::adbms::StatusGroups>>                      runStatusConversion();
+result<Cells<result<bool>>>                                    runCellOpenWireCheck();
 } // namespace app::segments
