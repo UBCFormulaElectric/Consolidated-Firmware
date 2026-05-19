@@ -45,8 +45,8 @@ template <std::integral T> T swapEndianness(const T value)
     T out = 0;
     for (size_t i = 0; i < sizeof(T); ++i)
     {
-        out <<= 8;
-        out |= (value >> (i * 8)) & 0xFFU;
+        out = static_cast<T>(out << 8);
+        out |= static_cast<T>(value >> (i * 8) & 0xFFU);
     }
     return out;
 }

@@ -201,8 +201,8 @@ void jobs_runAdbmsTemperatures_tick()
 {
     app::segments::state::resetAll(app::segments::state::Bit::Temp);
 
-    result<std::pair<Therms<std::result<float, ErrorCode>>, Therms<std::expected<bool>>>> temp_r;
-    result<Segments<std::result<float>>>                                                  seg_r;
+    result<std::pair<Therms<result<float>>, Therms<result<bool>>>> temp_r;
+    result<Segments<result<float>>>                                seg_r;
     {
         const io::unique_semaphore s{ spi_bus_lock };
         temp_r = app::segments::runTempConversion();

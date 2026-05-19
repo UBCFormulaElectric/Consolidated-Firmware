@@ -3,6 +3,7 @@
 #include "io_adbms.hpp"
 #include <array>
 #include <bitset>
+#include <algorithm>
 
 namespace
 {
