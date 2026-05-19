@@ -101,7 +101,7 @@ inline uint32_t cordicScale(uint32_t scale)
 
 namespace io::math
 {
-std::expected<float, ErrorCode> csin(float angle)
+result<float> csin(float angle)
 {
 #ifdef TARGET_EMBEDDED
     std::array<const int32_t, 1> args{ convertAngleToFixedPoint(angle) };
@@ -116,7 +116,7 @@ std::expected<float, ErrorCode> csin(float angle)
 #endif
 }
 
-std::expected<float, ErrorCode> ccos(float angle)
+result<float> ccos(float angle)
 {
 #ifdef TARGET_EMBEDDED
     std::array<const int32_t, 1> args{ convertAngleToFixedPoint(angle) };
@@ -131,7 +131,7 @@ std::expected<float, ErrorCode> ccos(float angle)
 #endif
 }
 
-std::expected<float, ErrorCode> atan(float x)
+result<float> atan(float x)
 {
 #ifdef TARGET_EMBEDDED
     if (not std::isfinite(x))

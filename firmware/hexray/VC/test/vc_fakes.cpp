@@ -34,7 +34,7 @@ namespace io // Define the mocked functions here
 {
 namespace imus
 {
-    std::expected<void, ErrorCode> initAll()
+    result<void> initAll()
     {
         if (auto result = IMU1.init(); not result)
         {
@@ -86,35 +86,35 @@ namespace sbgEllipse
 
 namespace powerMonitoring
 {
-    std::expected<float, ErrorCode> read_power(Channel)
+    result<float> read_power(Channel)
     {
         return 0.0f;
     }
-    std::expected<float, ErrorCode> read_current(Channel)
+    result<float> read_current(Channel)
     {
         return 0.0f;
     }
-    std::expected<float, ErrorCode> read_voltage(Channel)
+    result<float> read_voltage(Channel)
     {
         return 0.0f;
     }
-    std::expected<void, ErrorCode> refresh()
+    result<void> refresh()
     {
         return {};
     }
-    std::expected<void, ErrorCode> init()
+    result<void> init()
     {
         return {};
     }
-    std::expected<void, ErrorCode> monitor_power_inputs()
+    result<void> monitor_power_inputs()
     {
         return {};
     }
-    std::expected<uint8_t, ErrorCode> read_alert_status()
+    result<uint8_t> read_alert_status()
     {
         return 0u;
     }
-    std::expected<bool, ErrorCode> is_alert_asserted()
+    result<bool> is_alert_asserted()
     {
         return false;
     }

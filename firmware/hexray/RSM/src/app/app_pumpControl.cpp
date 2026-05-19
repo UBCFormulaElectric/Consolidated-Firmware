@@ -8,8 +8,7 @@ namespace app::pumpControl
 {
 void monitorPumps()
 {
-    const std::expected<void, ErrorCode> e =
-        io::rPump::setPercentage(static_cast<uint8_t>(can_rx::VC_PumpRampUpSetPoint_get()));
+    const result<void> e = io::rPump::setPercentage(static_cast<uint8_t>(can_rx::VC_PumpRampUpSetPoint_get()));
     UNUSED(e);
 }
 
