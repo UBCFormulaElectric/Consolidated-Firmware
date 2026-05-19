@@ -51,29 +51,6 @@ template <std::integral T> T swapEndianness(const T value)
     return out;
 }
 
-uint16_t calculatePec10(const span<const uint8_t> data, const uint16_t cmdCount)
-{
-    uint16_t remainder = 16U;
-
-    for (const unsigned char i : data)
-    {
-        const uint16_t address = (remainder >> 2 ^ i) & 0xFFU;
-        remainder              = static_cast<uint16_t>(static_cast<uint16_t>(remainder << 8) ^ pec10Table[address]);
-        remainder &= 0x03FFU;
-    }
-
-    remainder ^= static_cast<uint16_t>(cmdCount) << 4;
-    for (int bit = 0; bit < 6; bit++)
-    {
-        if (remainder & 0x0200)
-            remainder = static_cast<uint16_t>((remainder << 1U) ^ CRC10_POLY);
-        else
-            remainder = static_cast<uint16_t>(remainder << 1U);
-        remainder &= 0x03FF;
-    }
-    return remainder;
-}
-
 uint16_t calculatePec15(const span<const uint8_t> data)
 {
     uint16_t remainder = 16U;
@@ -85,17 +62,55 @@ uint16_t calculatePec15(const span<const uint8_t> data)
     }
     return static_cast<uint16_t>(remainder << 1U);
 }
-
-bool checkDataPec(const span<const uint8_t> data, const uint16_t cmdCount, const uint16_t expected)
-{
-    return calculatePec10(data, cmdCount) == swapEndianness(expected);
-}
 } // namespace
 
+/**
+ * This represents the wire representation of a register group read from the chip, which consists of the raw bytes
+ * followed by the PEC10.
+ */
 struct __attribute__((packed)) RegGroupPayload
 {
-    array<uint8_t, REG_GROUP_SIZE> data;
-    uint16_t                       pec10;
+    io::adbms::RegBuffer data;
+    uint16_t             pec10 : 10;
+    uint8_t              cmd_count : 6;
+    // constructor for building reggrouppayloads when sending
+    explicit RegGroupPayload(const array<uint8_t, REG_GROUP_SIZE> &_data)
+      : data(_data), pec10(swapEndianness(static_cast<uint16_t>(calculatePec10() & 0x03FFU))), cmd_count(0)
+    {
+    }
+    // default for recieving
+    RegGroupPayload() : data{}, pec10(0), cmd_count(0) {}
+
+    [[nodiscard]] bool isPecValid() const
+    {
+        // todo is this mask still required with the new bitfields?
+        const auto expected = static_cast<uint16_t>(swapEndianness(pec10) & 0x03FFU);
+        return calculatePec10() == expected;
+    }
+
+  private:
+    [[nodiscard]] uint16_t calculatePec10() const
+    {
+        uint16_t remainder = 16U;
+
+        for (const unsigned char i : data)
+        {
+            const uint16_t address = (remainder >> 2 ^ i) & 0xFFU;
+            remainder              = static_cast<uint16_t>(static_cast<uint16_t>(remainder << 8) ^ pec10Table[address]);
+            remainder &= 0x03FFU; // pec10 keeps only 10 bits
+        }
+
+        remainder ^= static_cast<uint16_t>(cmd_count) << 4;
+        for (int bit = 0; bit < 6; bit++)
+        {
+            if (remainder & 0x0200) // check top bit
+                remainder = static_cast<uint16_t>((remainder << 1U) ^ CRC10_POLY);
+            else
+                remainder = static_cast<uint16_t>(remainder << 1U);
+            remainder &= 0x03FF; // ensure remainder stays 10 bits
+        }
+        return remainder;
+    }
 };
 
 struct __attribute__((packed)) TxCmd
@@ -107,7 +122,6 @@ struct __attribute__((packed)) TxCmd
         cmd   = swapEndianness(_cmd);
         pec15 = swapEndianness(calculatePec15({ reinterpret_cast<const uint8_t *>(&cmd), sizeof(cmd) }));
     }
-    [[nodiscard]] span<uint8_t>       into_span() { return { reinterpret_cast<uint8_t *>(this), sizeof(TxCmd) }; }
     [[nodiscard]] span<const uint8_t> into_span() const
     {
         return { reinterpret_cast<const uint8_t *>(this), sizeof(TxCmd) };
@@ -116,9 +130,16 @@ struct __attribute__((packed)) TxCmd
 
 struct __attribute__((packed)) TxCmdPayload
 {
-    // ReSharper disable once CppDeclaratorNeverUsed
     TxCmd                                tx_cmd;
-    array<RegGroupPayload, NUM_SEGMENTS> payload;
+    io::adbms::Segments<RegGroupPayload> payload;
+
+    explicit TxCmdPayload(const uint16_t cmd, const io::adbms::Segments<io::adbms::RegBuffer> regs) : tx_cmd(cmd)
+    {
+        for (size_t segment = 0U; segment < NUM_SEGMENTS; ++segment)
+        {
+            payload[segment] = RegGroupPayload{ regs[segment] };
+        }
+    }
 
     [[nodiscard]] span<uint8_t> into_span() { return { reinterpret_cast<uint8_t *>(this), sizeof(TxCmdPayload) }; }
 };
@@ -128,7 +149,6 @@ namespace io::adbms
 
 namespace
 {
-
     Segments<uint8_t> expected_cmd_count{};
 
     bool commandIncrements(const uint16_t cmd)
@@ -234,7 +254,8 @@ result<bitset<32>> poll(const uint16_t cmd)
 {
     const TxCmd tx_cmd{ cmd };
     uint32_t    poll_buf;
-    const auto  status = adbms_spi_ls.transmitThenReceive(
+    static_assert(sizeof(poll_buf) == 4);
+    const auto status = adbms_spi_ls.transmitThenReceive(
         tx_cmd.into_span(), { reinterpret_cast<uint8_t *>(&poll_buf), sizeof(poll_buf) });
     if (status)
     {
@@ -251,7 +272,7 @@ Segments<result<RegBuffer>> readRegGroup(const uint16_t cmd)
 {
     Segments<result<RegBuffer>> regs;
     const TxCmd                 tx_cmd{ cmd };
-    Segments<RegGroupPayload>   rx_buffer{};
+    Segments<RegGroupPayload>   rx_buffer;
 
     if (const auto comm_status = adbms_spi_ls.transmitThenReceiveDma(
             tx_cmd.into_span(), { reinterpret_cast<uint8_t *>(rx_buffer.data()), sizeof(rx_buffer) });
@@ -263,41 +284,30 @@ Segments<result<RegBuffer>> readRegGroup(const uint16_t cmd)
 
     for (size_t segment = 0U; segment < NUM_SEGMENTS; ++segment)
     {
-        const auto &[payload_data, payload_pec10] = rx_buffer[segment];
-        const auto cmd_count                      = static_cast<uint16_t>(swapEndianness(payload_pec10) >> 10U);
-
-        if (const auto expected_pec = static_cast<uint16_t>(payload_pec10 & 0xFF03U);
-            !checkDataPec(payload_data, cmd_count, expected_pec))
+        const auto &reg_group = rx_buffer[segment];
+        if (reg_group.isPecValid())
         {
             regs[segment] = unexpected(ErrorCode::CHECKSUM_FAIL);
             continue;
         }
 
-        if (const auto cc_byte = static_cast<uint8_t>(cmd_count & 0x3FU); cc_byte != expected_cmd_count[segment])
+        if (const auto cc_byte = static_cast<uint8_t>(reg_group.cmd_count & 0x3FU);
+            cc_byte != expected_cmd_count[segment])
         {
             // Resync so a single dropped/replayed command doesn't cascade.
             expected_cmd_count[segment] = cc_byte;
             regs[segment]               = unexpected(ErrorCode::CMD_COUNT_MISMATCH);
             continue;
         }
-
-        regs[segment] = payload_data;
+        regs[segment] = reg_group.data;
     }
     return regs;
 }
 
 result<void> writeRegGroup(const uint16_t cmd, const Segments<RegBuffer> &regs)
 {
-    TxCmdPayload tx_buffer{ TxCmd{ cmd }, {} };
-
-    for (size_t segment = 0U; segment < NUM_SEGMENTS; ++segment)
-    {
-        auto &[data, pec10] = tx_buffer.payload[segment];
-        data                = regs[segment];
-        pec10               = swapEndianness(static_cast<uint16_t>(calculatePec10(data, 0U) & 0x03FFU));
-    }
-
-    const auto status = adbms_spi_ls.transmit(tx_buffer.into_span());
+    TxCmdPayload tx_buffer(cmd, regs);
+    const auto   status = adbms_spi_ls.transmit(tx_buffer.into_span());
     if (status)
     {
         postTxUpdateCmdCount(cmd);
