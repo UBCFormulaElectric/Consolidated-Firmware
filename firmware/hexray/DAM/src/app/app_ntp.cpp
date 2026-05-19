@@ -100,11 +100,7 @@ bool handleFrameAndTuneRtc(const uint64_t t1, const uint64_t t2, const uint64_t 
         "Tuned RTC! New epoch ms: 0x%08x%08x", static_cast<uint32_t>(tuned_epoch_ms >> 32),
         static_cast<uint32_t>(tuned_epoch_ms & 0xFFFFFFFFu));
 
-    // Log the current RTC time (epoch ms) after tuning
-    LOG_INFO(
-        "Current RTC time (epoch ms): 0x%08x%08x",
-        static_cast<uint32_t>((app::epochClock::getEpochMs().value_or(0)) >> 32),
-        static_cast<uint32_t>(app::epochClock::getEpochMs().value_or(0) & 0xFFFFFFFFu));
+    app::epochClock::logDateTime("Current RTC time (GMT)");
     g_ntp_in_progress.store(false);
     return true;
 }

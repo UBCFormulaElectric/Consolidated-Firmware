@@ -1,5 +1,6 @@
 #include "app_epochClock.hpp"
 
+#include "io_log.hpp"
 #include "io_rtc.hpp"
 
 namespace app::epochClock
@@ -59,10 +60,15 @@ namespace
         return static_cast<uint8_t>(w + 1);
     }
 
+    uint32_t millisecondsFromSubseconds(uint32_t subseconds)
+    {
+        const uint32_t clamped_subseconds = (subseconds > PREDIV_S) ? PREDIV_S : subseconds;
+        return PREDIV_S - clamped_subseconds;
+    }
+
     uint32_t timeToMsOfDay(const io::rtc::Time &t)
     {
-        const uint32_t clamped_subseconds = (t.subseconds > PREDIV_S) ? PREDIV_S : t.subseconds;
-        const uint32_t ms_part            = PREDIV_S - clamped_subseconds;
+        const uint32_t ms_part = millisecondsFromSubseconds(t.subseconds);
 
         return static_cast<uint32_t>(t.hours) * static_cast<uint32_t>(MS_PER_HOUR) +
                static_cast<uint32_t>(t.minutes) * static_cast<uint32_t>(MS_PER_MINUTE) +
@@ -125,6 +131,44 @@ std::expected<void, ErrorCode> setEpochMs(uint64_t epoch_ms)
     if (!status)
         return std::unexpected(status.error());
     return {};
+}
+
+std::expected<DateTime, ErrorCode> getDateTime()
+{
+    // Order matters: HAL requires get_time before get_date to unlock the
+    // shadow registers.
+    const auto time = io::rtc::get_time();
+    if (!time)
+        return std::unexpected(time.error());
+    const auto date = io::rtc::get_date();
+    if (!date)
+        return std::unexpected(date.error());
+
+    return DateTime{
+        static_cast<uint16_t>(RTC_YEAR_BASE + static_cast<int>(date->year)),
+        date->month,
+        date->day,
+        time->hours,
+        time->minutes,
+        time->seconds,
+        static_cast<uint16_t>(millisecondsFromSubseconds(time->subseconds)),
+    };
+}
+
+void logDateTime(const char *prefix)
+{
+    const auto rtc_datetime = getDateTime();
+    if (!rtc_datetime)
+    {
+        LOG_WARN("%s read failed: %d", prefix, static_cast<int>(rtc_datetime.error()));
+        return;
+    }
+
+    LOG_INFO(
+        "%s: %u-%02u-%02u %02u:%02u:%02u.%03u", prefix, static_cast<unsigned>(rtc_datetime->year),
+        static_cast<unsigned>(rtc_datetime->month), static_cast<unsigned>(rtc_datetime->day),
+        static_cast<unsigned>(rtc_datetime->hours), static_cast<unsigned>(rtc_datetime->minutes),
+        static_cast<unsigned>(rtc_datetime->seconds), static_cast<unsigned>(rtc_datetime->milliseconds));
 }
 
 } // namespace app::epochClock

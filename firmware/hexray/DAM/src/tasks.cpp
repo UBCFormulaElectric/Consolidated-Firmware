@@ -61,8 +61,11 @@ static hw::rtos::StaticTask TaskCanTx(osPriorityAboveNormal, "TaskCanTx", tasks_
 static hw::rtos::StaticTask TaskCanRx(osPriorityHigh, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
 static hw::rtos::StaticTask Task1kHz(osPriorityBelowNormal, "Task1kHz", tasks_run1kHz, Task1kHzStack);
 static hw::rtos::StaticTask Task1Hz(osPriorityBelowNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
-static hw::rtos::StaticTask
-    TaskLogging(osPriorityHigh, "TaskLogging", tasks_runLogging, TaskLoggingStack); // yooooo this prio is too high lmao
+static hw::rtos::StaticTask TaskLogging(
+    osPriorityNormal,
+    "TaskLogging",
+    tasks_runLogging,
+    TaskLoggingStack); // yooooo this prio is too high lmao
 static hw::rtos::StaticTask TaskTelem(osPriorityHigh, "TaskTelem", tasks_runTelemTx, TaskTelemStack);
 static hw::rtos::StaticTask TaskTelemRx(osPriorityHigh, "TaskTelemRx", tasks_runTelemRx, TaskTelemRxStack);
 static hw::rtos::StaticTask
@@ -257,9 +260,9 @@ static void DAM_StartAllTasks()
     Task1kHz.start();
     Task1Hz.start();
     TaskLogging.start();
-    // TaskTelemTx.start();
-    // TaskTelemRx.start();
-    // TaskTelemParse.start();
+    TaskTelemTx.start();
+    TaskTelemRx.start();
+    TaskTelemParse.start();
 }
 
 void tasks_preInit()
@@ -282,6 +285,7 @@ void tasks_init()
         LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
         app::can_alerts::infos::WatchdogTimeout_set(true);
     }
+    app::epochClock::logDateTime("Boot RTC time (GMT)");
 
     osKernelInitialize();
     jobs_init();
