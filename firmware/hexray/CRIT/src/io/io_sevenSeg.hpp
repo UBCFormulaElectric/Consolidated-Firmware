@@ -40,7 +40,7 @@ static_assert(sizeof(digit) == 1);
  * @note that the data will be touched, so please consider the buffer invalidated after use
  * @return success of operation
  */
-[[nodiscard]] result<void, ErrorCode> write(std::array<digit> &data);
+[[nodiscard]] result<void> write(std::array<digit, DIGITS> &data);
 /**
  * Set the brightness of the seven segment display.
  * @param brightness brightness value from 0.0 (off) to 1.0 (max brightness)

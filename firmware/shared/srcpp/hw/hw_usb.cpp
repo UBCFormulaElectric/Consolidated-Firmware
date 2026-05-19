@@ -442,7 +442,7 @@ bool checkConnection()
     return USB_DEVICE_HANDLER.dev_state == USBD_STATE_CONFIGURED;
 }
 
-result<void> msg)
+result<void> transmit(std::span<uint8_t> msg)
 {
     if (USB_DEVICE_HANDLER.pClassData == nullptr)
     {

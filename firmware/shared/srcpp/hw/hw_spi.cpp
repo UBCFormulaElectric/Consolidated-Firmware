@@ -55,7 +55,7 @@ result<void> device::waitForNotification() const
     return {};
 }
 
-result<void> tx) const
+result<void> device::transmit(std::span<const uint8_t> tx) const
 {
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
@@ -93,7 +93,7 @@ result<void> tx) const
     return exit;
 }
 
-result<void> rx) const
+result<void> device::receive(std::span<uint8_t> rx) const
 {
     if (parent_bus.taskInProgress != nullptr || xPortIsInsideInterrupt())
     {

@@ -50,7 +50,7 @@ static result<uint32_t> nbWriteFromInputSize(const std::size_t input_size)
     }
 }
 
-result<int32_t, ErrorCode> calculate(const uint32_t func, const uint32_t scale > args)
+result<int32_t> calculate(const uint32_t func, const uint32_t scale, std::span<const int32_t> args)
 {
     const auto nbwrite = nbWriteFromInputSize(args.size());
     if (not nbwrite)

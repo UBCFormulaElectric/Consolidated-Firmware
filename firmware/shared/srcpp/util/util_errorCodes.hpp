@@ -17,7 +17,7 @@ enum class ErrorCode
     NUM_EXIT_CODES,
 };
 
-template <typename T> using result = std::expected<T, ErrorCode>;
+template <typename T> using result = result<T>;
 
 constexpr const char *error_code_to_string(const ErrorCode code)
 {

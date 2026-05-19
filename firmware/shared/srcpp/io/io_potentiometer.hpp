@@ -46,7 +46,7 @@ class Potentiometer
         return static_cast<uint8_t>((static_cast<uint8_t>(address) << 4 | static_cast<uint8_t>(cmd) << 2) & 0xFC);
     }
 
-    [[nodiscard]] result<void, ErrorCode> readWiper(std::array<uint8_t> &dest) const
+    [[nodiscard]] result<void> readWiper(std::array<uint8_t, 2> &dest) const
     {
         std::array<uint8_t, 1> read_cmd{ { buildHeader(wiperRegister(), POTENTIOMETER_CMD::READ) } };
         RETURN_IF_ERR(device.transmit(read_cmd));

@@ -36,7 +36,7 @@ result<void> hw::Uart::waitForNotification(const uint32_t timeoutMs) const
     return {};
 }
 
-result<void> tx, const uint32_t timeout) const
+result<void> hw::Uart::transmit(const std::span<const uint8_t> tx, const uint32_t timeout) const
 {
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
@@ -67,7 +67,7 @@ result<void> tx, const uint32_t timeout) const
     return exit;
 }
 
-result<void> rx, const uint32_t timeout) const
+result<void> hw::Uart::receive(std::span<uint8_t> rx, const uint32_t timeout) const
 {
     if (taskInProgress != nullptr || xPortIsInsideInterrupt())
     {

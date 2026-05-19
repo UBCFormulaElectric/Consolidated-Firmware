@@ -37,13 +37,13 @@ constexpr float VSENSE_LSB(1.5259e-6f / 0.003f);
 constexpr float POWER_LSB = VBUS_LSB * VSENSE_LSB;
 namespace io::powerMonitoring
 {
-static result<void, ErrorCode> read_register(uint16_t reg > data)
+static result<void> read_register(uint16_t reg, std::span<uint8_t> data)
 {
     auto result = util::retry([&]() { return pwr_pump.memoryRead(reg, data); }, 5);
     return result;
 }
 
-static result<void, ErrorCode> write_register(uint16_t reg > data)
+static result<void> write_register(uint16_t reg, std::span<const uint8_t> data)
 {
     auto result = util::retry([&]() { return pwr_pump.memoryWrite(reg, data); }, 5);
     return result;

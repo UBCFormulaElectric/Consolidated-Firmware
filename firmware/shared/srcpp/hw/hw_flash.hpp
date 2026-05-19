@@ -20,7 +20,7 @@ inline constexpr size_t WORD_BYTES = 4U * sizeof(uint32_t); // 16B
  */
 result<void> eraseSector(uint8_t sector);
 
-result<void, ErrorCode> programFlashRetry(uint32_t address > buffer);
+result<void> programFlashRetry(uint32_t address, std::span<const std::byte> buffer);
 
 /**
  * @brief Write a contiguous buffer to flash.
@@ -30,11 +30,11 @@ result<void, ErrorCode> programFlashRetry(uint32_t address > buffer);
  * @param buffer Data span to program.
  * @return EXIT_CODE_OK if verified, EXIT_CODE_ERROR otherwise.
  */
-inline result<void, ErrorCode> programFlash(const uint32_t address, const std::span<const std::byte> buffer)
+inline result<void> programFlash(const uint32_t address, const std::span<const std::byte, 16> buffer)
 {
     return programFlashRetry(address, buffer);
 }
-inline result<void, ErrorCode> programFlash(const uint32_t address, const std::span<const std::byte> buffer)
+inline result<void> programFlash(const uint32_t address, const std::span<const std::byte, 32> buffer)
 {
     return programFlashRetry(address, buffer);
 }

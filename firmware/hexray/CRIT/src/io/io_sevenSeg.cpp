@@ -5,7 +5,7 @@
 
 namespace io::seven_seg
 {
-result<void, ErrorCode> write(std::array<digit> &data)
+result<void> write(std::array<digit, DIGITS> &data)
 {
     std::ranges::reverse(data);
     return seven_seg_device.transmit(std::span{ reinterpret_cast<uint8_t *>(data.data()), data.size() });

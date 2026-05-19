@@ -18,5 +18,5 @@ struct led_frame
     {
     }
 };
-result<void, ErrorCode> update(std::array<led_frame> data);
+result<void> update(std::array<led_frame, LEDS> data);
 } // namespace io::power_gauge

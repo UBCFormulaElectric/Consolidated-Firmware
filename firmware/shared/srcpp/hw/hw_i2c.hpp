@@ -61,7 +61,7 @@ class device
      * from the device connected to the I2C interface.
      * @return EXIT_CODE_OK if data is transmitted successfully.
      */
-    [[nodiscard]] result<void> rx_buffer) const;
+    [[nodiscard]] result<void> receive(std::span<uint8_t> rx_buffer) const;
 
     /**
      * @brief Transmit data to the device connected to the given I2C interface.
@@ -69,7 +69,7 @@ class device
      * to the device connected to the I2C interface.
      * @return EXIT_CODE_OK if data is transmitted successfully.
      */
-    [[nodiscard]] result<void> tx_buffer) const;
+    [[nodiscard]] result<void> transmit(std::span<const uint8_t> tx_buffer) const;
 
     /**
      * @brief Read an amount of data from a specific memory address
@@ -77,7 +77,7 @@ class device
      * @param rx_buffer A data buffer containing the data transmitted from the device connected to the I2C interface.
      * @return EXIT_CODE_OK if data is transmitted successfully.
      */
-    [[nodiscard]] result<void, ErrorCode> memoryRead(uint16_t mem_addr > rx_buffer) const;
+    [[nodiscard]] result<void> memoryRead(uint16_t mem_addr, std::span<uint8_t> rx_buffer) const;
 
     /**
      * @brief Write an amount of data to a specific memory address

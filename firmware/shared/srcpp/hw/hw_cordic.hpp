@@ -27,5 +27,5 @@
 
 namespace hw::cordic
 {
-result<int32_t, ErrorCode> calculate(uint32_t func, uint32_t scale > args);
+result<int32_t> calculate(uint32_t func, uint32_t scale, std::span<const int32_t> args);
 }; // namespace hw::cordic

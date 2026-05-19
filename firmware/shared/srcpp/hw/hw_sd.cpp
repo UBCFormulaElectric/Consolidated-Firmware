@@ -44,7 +44,7 @@ result<void> SdCard::waitForNotification(const uint32_t timeoutMs) const
     return {};
 }
 
-result<void> pdata, const uint32_t block_addr) const
+result<void> SdCard::read(std::span<uint8_t> pdata, const uint32_t block_addr) const
 {
     if (pdata.size() < HW_DEVICE_SECTOR_SIZE || pdata.size() % HW_DEVICE_SECTOR_SIZE != 0)
         return std::unexpected(ErrorCode::ERROR);
@@ -64,7 +64,7 @@ result<void> SdCard::readOffset(const std::span<uint8_t> pdata, const uint32_t b
     return read(pdata, block_addr + offset / HW_DEVICE_SECTOR_SIZE);
 }
 
-result<void> pdata, const uint32_t block_addr) const
+result<void> SdCard::write(const std::span<uint8_t> pdata, const uint32_t block_addr) const
 {
     if (pdata.size() < HW_DEVICE_SECTOR_SIZE || pdata.size() % HW_DEVICE_SECTOR_SIZE != 0)
         return std::unexpected(ErrorCode::ERROR);
@@ -123,7 +123,7 @@ result<void> SdCard::erase(const uint32_t start_addr, const uint32_t end_addr) c
     return hw::utils::convertHalStatus(HAL_SD_Erase(&_hsd, start_addr, end_addr));
 }
 
-result<void> pdata, const uint32_t block_addr) const
+result<void> SdCard::writeDma(const std::span<uint8_t> pdata, const uint32_t block_addr) const
 {
     if (pdata.size() < HW_DEVICE_SECTOR_SIZE || pdata.size() % HW_DEVICE_SECTOR_SIZE != 0)
         return std::unexpected(ErrorCode::ERROR);

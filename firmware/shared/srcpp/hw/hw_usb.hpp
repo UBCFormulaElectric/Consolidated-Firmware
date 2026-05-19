@@ -24,7 +24,7 @@ bool checkConnection();
  * @param msg A span to the message buffer to send.
  * @return True if data is transmitted successfully, otherwise false.
  */
-result<void> msg);
+result<void> transmit(std::span<uint8_t> msg);
 
 /**
  * @brief Receive data from the usb host.

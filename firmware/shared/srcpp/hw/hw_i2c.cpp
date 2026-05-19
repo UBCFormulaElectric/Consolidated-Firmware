@@ -31,7 +31,7 @@ result<void> hw::i2c::device::waitForNotification() const
     return {};
 }
 
-result<void> rx_buffer) const
+result<void> hw::i2c::device::receive(std::span<uint8_t> rx_buffer) const
 {
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
@@ -58,7 +58,7 @@ result<void> rx_buffer) const
     return waitForNotification();
 }
 
-result<void> tx_buffer) const
+result<void> hw::i2c::device::transmit(std::span<const uint8_t> tx_buffer) const
 {
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
@@ -85,7 +85,7 @@ result<void> tx_buffer) const
     return waitForNotification();
 }
 
-result<void, ErrorCode> hw::i2c::device::memoryRead(const uint16_t mem_addr > rx_buffer) const
+result<void> hw::i2c::device::memoryRead(const uint16_t mem_addr, std::span<uint8_t> rx_buffer) const
 {
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {

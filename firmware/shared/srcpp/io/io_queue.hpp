@@ -85,7 +85,7 @@ template <typename T, size_t QUEUE_SIZE> class queue
     /**
      * Pops a CAN msg from the queue. Blocks until a msg exists in the queue.
      */
-    [[nodiscard]] result<T>::max())
+    [[nodiscard]] result<T> pop(const uint32_t timeout = std::numeric_limits<uint32_t>::max())
     {
 #ifdef TARGET_EMBEDDED
         assert(queue_id != nullptr);

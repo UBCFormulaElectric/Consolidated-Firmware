@@ -61,7 +61,7 @@ static result<void> eraseSectorRetry(const uint8_t sector)
     return status;
 }
 
-result<void, ErrorCode> hw::flash::programFlashRetry(const uint32_t address > buffer)
+result<void> hw::flash::programFlashRetry(const uint32_t address, std::span<const std::byte> buffer)
 {
     result<void> status;
     HAL_FLASH_Unlock();

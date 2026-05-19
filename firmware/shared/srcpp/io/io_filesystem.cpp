@@ -87,7 +87,7 @@ LogFsErr FileSystem::logfsCfgWrite(const LogFsCfg *cfg, const uint32_t block, vo
     return LOGFS_ERR_IO;
 }
 
-result<void> FileSystem::init()
+std::expected<void, FileSystem::FileSystemError> FileSystem::init()
 {
     mount_failed = false;
     LogFsErr err = tryMount(fs, fs_cfg);
@@ -125,7 +125,7 @@ result<void> FileSystem::init()
     return {};
 }
 
-result<uint32_t> FileSystem::open(const char *path)
+std::expected<uint32_t, FileSystem::FileSystemError> FileSystem::open(const char *path)
 {
     if (!checkMount())
         return std::unexpected(FileSystemError::MOUNT_FAILED);
@@ -155,7 +155,8 @@ result<uint32_t> FileSystem::open(const char *path)
     return fd;
 }
 
-result<void> FileSystem::read(const uint32_t fd, std::span<uint8_t> buf, const size_t size)
+std::expected<void, FileSystem::FileSystemError>
+    FileSystem::read(const uint32_t fd, std::span<uint8_t> buf, const size_t size)
 {
     if (!checkMount())
         return std::unexpected(FileSystemError::MOUNT_FAILED);
@@ -173,7 +174,8 @@ result<void> FileSystem::read(const uint32_t fd, std::span<uint8_t> buf, const s
     return {};
 }
 
-result<void> FileSystem::write(const uint32_t fd, const std::span<uint8_t> buf, const size_t size)
+std::expected<void, FileSystem::FileSystemError>
+    FileSystem::write(const uint32_t fd, const std::span<uint8_t> buf, const size_t size)
 {
     if (!checkMount())
         return std::unexpected(FileSystemError::MOUNT_FAILED);
@@ -187,7 +189,8 @@ result<void> FileSystem::write(const uint32_t fd, const std::span<uint8_t> buf, 
     return {};
 }
 
-result<void> FileSystem::readMetadata(const uint32_t fd, std::span<uint8_t> buf, uint32_t &num_read)
+std::expected<void, FileSystem::FileSystemError>
+    FileSystem::readMetadata(const uint32_t fd, std::span<uint8_t> buf, uint32_t &num_read)
 {
     if (!checkMount())
         return std::unexpected(FileSystemError::MOUNT_FAILED);
@@ -199,7 +202,8 @@ result<void> FileSystem::readMetadata(const uint32_t fd, std::span<uint8_t> buf,
     return {};
 }
 
-result<void> FileSystem::writeMetadata(const uint32_t fd, const std::span<const uint8_t> buf)
+std::expected<void, FileSystem::FileSystemError>
+    FileSystem::writeMetadata(const uint32_t fd, const std::span<const uint8_t> buf)
 {
     if (!checkMount())
         return std::unexpected(FileSystemError::MOUNT_FAILED);
@@ -210,7 +214,7 @@ result<void> FileSystem::writeMetadata(const uint32_t fd, const std::span<const 
     return {};
 }
 
-result<void> FileSystem::close(const uint32_t fd)
+std::expected<void, FileSystem::FileSystemError> FileSystem::close(const uint32_t fd)
 {
     if (!checkMount())
         return std::unexpected(FileSystemError::MOUNT_FAILED);
@@ -224,7 +228,7 @@ result<void> FileSystem::close(const uint32_t fd)
     return {};
 }
 
-result<void> FileSystem::sync(const uint32_t fd)
+std::expected<void, FileSystem::FileSystemError> FileSystem::sync(const uint32_t fd)
 {
     if (!checkMount())
         return std::unexpected(FileSystemError::MOUNT_FAILED);

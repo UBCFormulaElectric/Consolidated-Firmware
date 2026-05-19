@@ -59,7 +59,7 @@ result<void> setBrightness(const float brightness)
 }
 static std::array<digit, DIGITS> display;
 // ReSharper disable once CppParameterMayBeConstPtrOrRef
-result<void, ErrorCode> write(std::array<digit> &data)
+result<void> write(std::array<digit, DIGITS> &data)
 {
     display = data;
     return {};

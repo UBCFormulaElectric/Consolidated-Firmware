@@ -73,7 +73,7 @@ class SdCard
      * @return  the ExitCode of the opeation
      *
      */
-    result<void> pdata, uint32_t block_addr) const;
+    result<void> read(std::span<uint8_t> pdata, uint32_t block_addr) const;
 
     /**
      * @brief   Write to the sd card.
@@ -83,8 +83,8 @@ class SdCard
      * @return  the ExitCode of the opeation
      *
      */
-    result<void> pdata, uint32_t block_addr) const;
-    result<void> pdata, uint32_t block_addr) const;
+    result<void> write(std::span<uint8_t> pdata, uint32_t block_addr) const;
+    result<void> writeDma(std::span<uint8_t> pdata, uint32_t block_addr) const;
 
     /**
      * @brief   Read interface with offset and size argument, interface for littlefs
@@ -95,7 +95,7 @@ class SdCard
      * @return  the ExitCode of the opeation
      *
      */
-    result<void> pdata, uint32_t block_addr, uint32_t offset) const;
+    result<void> readOffset(std::span<uint8_t> pdata, uint32_t block_addr, uint32_t offset) const;
 
     /**
      * @brief   Write interface with offset and size, interface for littlefs
@@ -106,7 +106,7 @@ class SdCard
      * @return  the ExitCode of the opeation
      *
      */
-    result<void> pdata, uint32_t block_addr, uint32_t offset) const;
+    result<void> writeOffset(std::span<uint8_t> pdata, uint32_t block_addr, uint32_t offset) const;
 
     /**
      * @brief  Erase data from the sd card [start_addr, end_addr], inclusive
