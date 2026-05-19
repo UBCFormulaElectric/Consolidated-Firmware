@@ -80,6 +80,9 @@ static void driveStateRunOnTick100Hz(void)
     }
 
     // TODO: add driving algorithm handling here
+    // just for spinning wheels
+    const float torque = TORQUE_REQUEST(apps * MAX_TORQUE_REQUEST_Nm);
+    send_torque(torque, torque, torque, torque);
 }
 
 static void driveStateRunOnExit(void)
