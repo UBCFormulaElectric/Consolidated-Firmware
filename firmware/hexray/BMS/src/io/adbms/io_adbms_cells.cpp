@@ -45,15 +45,14 @@ result<void> pollCellsAdcConversion()
 
 result<Cells<result<uint16_t>>> readCellVoltageRegs()
 {
-    static constexpr array<uint16_t, NUM_VOLT_REG_GROUPS> cell_voltage_reg_groups{ { RDCVA, RDCVB, RDCVC, RDCVD,
-                                                                                     RDCVE } };
-
-    Cells<result<uint16_t>> cell_voltage_regs{};
     if (const auto poll_ok = pollCellsAdcConversion(); !poll_ok)
     {
         return unexpected(poll_ok.error());
     }
 
+    Cells<result<uint16_t>>                               cell_voltage_regs{};
+    static constexpr array<uint16_t, NUM_VOLT_REG_GROUPS> cell_voltage_reg_groups{ { RDCVA, RDCVB, RDCVC, RDCVD,
+                                                                                     RDCVE } };
     for (size_t group = 0U; group < NUM_VOLT_REG_GROUPS; group++)
     {
         const Segments<result<RegBuffer>> seg_reg = readRegGroup(cell_voltage_reg_groups[group]);
@@ -91,14 +90,14 @@ result<Cells<result<uint16_t>>> readCellVoltageRegs()
 
 result<Cells<result<uint16_t>>> readFilteredCellVoltageRegs()
 {
-    static constexpr array<uint16_t, NUM_VOLT_REG_GROUPS> filtered_reg_groups{ { RDFCA, RDFCB, RDFCC, RDFCD, RDFCE } };
-
-    Cells<result<uint16_t>> filtered_cell_voltage_regs{};
     if (const auto poll_ok = pollCellsAdcConversion(); !poll_ok)
     {
         return unexpected(poll_ok.error());
     }
 
+    static constexpr array<uint16_t, NUM_VOLT_REG_GROUPS> filtered_reg_groups{ { RDFCA, RDFCB, RDFCC, RDFCD, RDFCE } };
+
+    Cells<result<uint16_t>> filtered_cell_voltage_regs{};
     for (size_t group = 0U; group < NUM_VOLT_REG_GROUPS; group++)
     {
         const Segments<result<RegBuffer>> out = readRegGroup(filtered_reg_groups[group]);
