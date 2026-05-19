@@ -95,9 +95,8 @@ result<Cells<result<uint16_t>>> readFilteredCellVoltageRegs()
         return unexpected(poll_ok.error());
     }
 
+    Cells<result<uint16_t>>                               filtered_cell_voltage_regs{};
     static constexpr array<uint16_t, NUM_VOLT_REG_GROUPS> filtered_reg_groups{ { RDFCA, RDFCB, RDFCC, RDFCD, RDFCE } };
-
-    Cells<result<uint16_t>> filtered_cell_voltage_regs{};
     for (size_t group = 0U; group < NUM_VOLT_REG_GROUPS; group++)
     {
         const Segments<result<RegBuffer>> out = readRegGroup(filtered_reg_groups[group]);
