@@ -2,7 +2,6 @@
 #include "io_adbms.hpp"
 #include "util_errorCodes.hpp"
 #include "hw_spis.hpp"
-#include "../../../../../../../../../../../../mingw64/lib/gcc/x86_64-w64-mingw32/15.2.0/include/c++/ranges"
 
 #include <cstring>
 
@@ -92,7 +91,7 @@ class __attribute__((packed)) RegGroupPayload
   public:
     // constructor for building reggrouppayloads when sending
     explicit RegGroupPayload(const array<uint8_t, REG_GROUP_SIZE> &_data)
-      : data(_data), pec10(swapEndianness(calculatePec10()))
+      : data(_data), pec10(static_cast<uint8_t>(swapEndianness(calculatePec10())))
     {
     }
     // default for recieving
