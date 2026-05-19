@@ -212,10 +212,6 @@ template <typename T> using Therms        = Segments<SegmentTherms<T>>;
 // Derived type
 using Status = Segments<StatusGroups>;
 
-template <typename T> using CellsResult    = Cells<result<T>>;
-template <typename T> using ThermsResult   = Therms<result<T>>;
-template <typename T> using SegmentsResult = Segments<result<T>>;
-
 // FUNCTIONS
 // Configuration, balance and PWM access.
 [[nodiscard]] result<void> writeConfigReg(const Segments<SegmentConfig> &config);
@@ -224,16 +220,16 @@ template <typename T> using SegmentsResult = Segments<result<T>>;
  * or CFGB read for a segment, the SegmentConfig result for that segment will be an unexpected containing the error
  * code. If both reads succeed, the SegmentConfig result will contain the successfully read and parsed configuration.
  */
-[[nodiscard]] SegmentsResult<SegmentConfig> readConfigReg();
-[[nodiscard]] result<void>                  writePwmReg(const Segments<PWMConfig> &pwm_config);
-[[nodiscard]] SegmentsResult<PWMConfig>     readPwmReg();
+[[nodiscard]] Segments<result<SegmentConfig>> readConfigReg();
+[[nodiscard]] result<void>                    writePwmReg(const Segments<PWMConfig> &pwm_config);
+[[nodiscard]] Segments<result<PWMConfig>>     readPwmReg();
 
 // Measurement reads.
-[[nodiscard]] result<CellsResult<uint16_t>>    readCellVoltageReg();
-[[nodiscard]] result<CellsResult<uint16_t>>    readFilteredCellVoltageReg();
-[[nodiscard]] result<ThermsResult<uint16_t>>   readCellTempReg();
-[[nodiscard]] result<SegmentsResult<uint16_t>> readSegVoltageReg();
-[[nodiscard]] result<Segments<StatusGroups>>   readStatusReg();
+[[nodiscard]] result<Cells<result<uint16_t>>>    readCellVoltageRegs();
+[[nodiscard]] result<Cells<result<uint16_t>>>    readFilteredCellVoltageRegs();
+[[nodiscard]] result<Therms<result<uint16_t>>>   readCellTempRegs();
+[[nodiscard]] result<Segments<result<uint16_t>>> readSegVoltageRegs();
+[[nodiscard]] result<Segments<StatusGroups>>     readStatusRegs();
 
 // Open-wire diagnostics.
 [[nodiscard]] result<void> owcCells(OpenWireSwitch owcSwitch);

@@ -22,29 +22,31 @@ result<void> writeConfigReg(const Segments<SegmentConfig> &config)
     return {};
 }
 
-SegmentsResult<SegmentConfig> readConfigReg()
+Segments<result<SegmentConfig>> readConfigReg()
 {
     const Segments<result<RegBuffer>> a_regs = readRegGroup(RDCFGA);
     const Segments<result<RegBuffer>> b_regs = readRegGroup(RDCFGB);
-    Segments<result<SegmentConfig>>   read_configs;
+    static_assert(sizeof(RegBuffer) == sizeof(CFGA));
+    static_assert(sizeof(RegBuffer) == sizeof(CFGB));
 
+    Segments<result<SegmentConfig>> out;
     for (size_t seg = 0U; seg < NUM_SEGMENTS; ++seg)
     {
         if (!a_regs[seg])
         {
-            read_configs[seg] = unexpected(a_regs[seg].error());
+            out[seg] = unexpected(a_regs[seg].error());
             continue;
         }
         if (!b_regs[seg])
         {
-            read_configs[seg] = unexpected(b_regs[seg].error());
+            out[seg] = unexpected(b_regs[seg].error());
             continue;
         }
-        read_configs[seg] = SegmentConfig{
+        out[seg] = SegmentConfig{
             .reg_a = *reinterpret_cast<const CFGA *>(a_regs[seg]->data()),
             .reg_b = *reinterpret_cast<const CFGB *>(b_regs[seg]->data()),
         };
     }
-    return read_configs;
+    return out;
 }
 } // namespace io::adbms

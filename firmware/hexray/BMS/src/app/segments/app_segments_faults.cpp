@@ -86,16 +86,14 @@ class Checker
         }
 
         const bool  is_charging = app::StateMachine::get_current_state() == &app::states::charge_state;
-        const float max_temp =
-            is_charging ? std::min(profile_.max_temp, MAX_CELL_CHARGE_TEMP_DEGC) : profile_.max_temp;
+        const float max_temp = is_charging ? std::min(profile_.max_temp, MAX_CELL_CHARGE_TEMP_DEGC) : profile_.max_temp;
 
         bool any = false;
-        any |= evaluate(profile_.undervoltage, uv_timer_,
-                        app::segments::state::getMinCellVoltage().value < profile_.min_voltage);
-        any |= evaluate(profile_.overvoltage, ov_timer_,
-                        app::segments::state::getMaxCellVoltage().value > profile_.max_voltage);
-        any |= evaluate(profile_.overtemp, ot_timer_,
-                        app::segments::state::getMaxCellTemperature().value > max_temp);
+        any |= evaluate(
+            profile_.undervoltage, uv_timer_, app::segments::state::getMinCellVoltage().value < profile_.min_voltage);
+        any |= evaluate(
+            profile_.overvoltage, ov_timer_, app::segments::state::getMaxCellVoltage().value > profile_.max_voltage);
+        any |= evaluate(profile_.overtemp, ot_timer_, app::segments::state::getMaxCellTemperature().value > max_temp);
         any |= evaluate(profile_.comm_err, comm_timer_, !app::segments::state::allOk());
         any |= evaluate(profile_.cell_owc, cell_owc_timer_, app::segments::state::getCellOwc());
         any |= evaluate(profile_.therm_owc, therm_owc_timer_, app::segments::state::getThermOwc());

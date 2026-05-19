@@ -35,29 +35,28 @@ result<void> writePwmReg(const array<PWMConfig, NUM_SEGMENTS> &pwm_config)
 
 Segments<result<PWMConfig>> readPwmReg()
 {
-    Segments<result<PWMConfig>> configs;
+    Segments<result<PWMConfig>> pwm_configs;
 
-    const auto regs_a = readRegGroup(RDPWMA);
-    const auto regs_b = readRegGroup(RDPWMB);
+    const Segments<result<RegBuffer>> regs_a = readRegGroup(RDPWMA);
+    const Segments<result<RegBuffer>> regs_b = readRegGroup(RDPWMB);
 
     for (size_t seg = 0U; seg < NUM_SEGMENTS; ++seg)
     {
         if (!regs_a[seg])
         {
-            configs[seg] = unexpected(regs_a[seg].error());
+            pwm_configs[seg] = unexpected(regs_a[seg].error());
             continue;
         }
         if (!regs_b[seg])
         {
-            configs[seg] = unexpected(regs_b[seg].error());
+            pwm_configs[seg] = unexpected(regs_b[seg].error());
             continue;
         }
-        PWMConfig cfg{
+        pwm_configs[seg] = {
             .reg_a = *reinterpret_cast<const PWMA *>(regs_a[seg]->data()),
             .reg_b = *reinterpret_cast<const PWMB *>(regs_b[seg]->data()),
         };
-        configs[seg] = cfg;
     }
-    return configs;
+    return pwm_configs;
 }
 } // namespace io::adbms

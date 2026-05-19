@@ -15,11 +15,11 @@ namespace app::segments
 // Re-export ADBMS array aliases inside this namespace so app code can use them unqualified.
 using io::adbms::Cells;
 using io::adbms::CellsResult;
-using io::adbms::SegmentsResult;
-using io::adbms::ThermsResult;
 using io::adbms::Segments;
+using io::adbms::SegmentsResult;
 using io::adbms::Status;
 using io::adbms::Therms;
+using io::adbms::ThermsResult;
 
 // Thermistor bank selected during AUX conversions.
 enum class ThermistorMux : size_t
@@ -101,9 +101,9 @@ namespace faults
 } // namespace faults
 
 // app_segments_conversions.cpp
-result<CellsResult<float>>                             runVoltageConversion();
+result<CellsResult<float>>                                 runVoltageConversion();
 result<std::pair<ThermsResult<float>, ThermsResult<bool>>> runTempConversion();
-result<SegmentsResult<float>>                          runSegVoltageConversion();
-result<Segments<io::adbms::StatusGroups>>          runStatusConversion();
-result<CellsResult<bool>>                              runCellOpenWireCheck();
+result<SegmentsResult<float>>                              runSegVoltageConversion();
+result<Segments<io::adbms::StatusGroups>>                  runStatusConversion();
+result<CellsResult<bool>>                                  runCellOpenWireCheck();
 } // namespace app::segments

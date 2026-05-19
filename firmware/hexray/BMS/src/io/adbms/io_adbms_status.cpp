@@ -17,7 +17,7 @@ result<void> clear::StatReg()
     return {};
 }
 
-result<Segments<StatusGroups>> readStatusReg()
+result<Segments<StatusGroups>> readStatusRegs()
 {
     static constexpr array<uint16_t, NUM_STAT_REG_GROUPS> reg_groups{ { RDSTATA, RDSTATB, RDSTATC, RDSTATD, RDSTATE } };
     Segments<StatusGroups>                                stat_regs;

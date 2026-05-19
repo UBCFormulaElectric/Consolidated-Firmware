@@ -50,18 +50,17 @@ result<void> pollAuxAdcConversion()
     return unexpected(ErrorCode::TIMEOUT);
 }
 
-result<Therms<expected<uint16_t, ErrorCode>>> readCellTempReg()
+result<Therms<result<uint16_t>>> readCellTempRegs()
 {
-    Therms<result<uint16_t>> cell_temp_regs{};
-
     if (const result<void> poll_ok = pollAuxAdcConversion(); !poll_ok)
     {
         return unexpected(poll_ok.error());
     }
 
+    Therms<result<uint16_t>> cell_temp_regs{};
     for (size_t group = 0U; group < NUM_THERM_REG_GROUPS; group++)
     {
-        const auto out = readRegGroup(reg_groups[group]);
+        const Segments<result<RegBuffer>> temp_reg_groups = readRegGroup(reg_groups[group]);
 
         for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
         {
@@ -69,13 +68,13 @@ result<Therms<expected<uint16_t, ErrorCode>>> readCellTempReg()
             {
                 if (const size_t gpio = group * GPIOS_PER_GROUP + gpio_in_group; gpio < THERM_GPIOS_PER_SEGMENT)
                 {
-                    if (!out[seg])
+                    if (!temp_reg_groups[seg])
                     {
-                        cell_temp_regs[seg][gpio] = unexpected(out[seg].error());
+                        cell_temp_regs[seg][gpio] = unexpected(temp_reg_groups[seg].error());
                         continue;
                     }
-                    const uint16_t low  = out[seg].value()[gpio_in_group * 2U];
-                    const uint16_t high = out[seg].value()[gpio_in_group * 2U + 1U];
+                    const uint16_t low  = temp_reg_groups[seg].value()[gpio_in_group * 2U];
+                    const uint16_t high = temp_reg_groups[seg].value()[gpio_in_group * 2U + 1U];
                     const auto     temperature =
                         static_cast<uint16_t>(static_cast<uint16_t>(low) | static_cast<uint16_t>(high) << 8U);
 
@@ -92,25 +91,25 @@ result<Therms<expected<uint16_t, ErrorCode>>> readCellTempReg()
     return cell_temp_regs;
 }
 
-result<Segments<expected<uint16_t, ErrorCode>>> readSegVoltageReg()
+result<Segments<result<uint16_t>>> readSegVoltageRegs()
 {
-    Segments<result<uint16_t>> segment_voltage_regs{};
     if (const result<void> poll_ok = pollAuxAdcConversion(); !poll_ok)
     {
         return unexpected(poll_ok.error());
     }
 
-    const auto out = readRegGroup(RDAUXD);
+    Segments<result<uint16_t>>        segment_voltage_regs{};
+    const Segments<result<RegBuffer>> raw_seg_voltage = readRegGroup(RDAUXD);
     for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
     {
-        if (!out[seg])
+        if (!raw_seg_voltage[seg])
         {
-            segment_voltage_regs[seg] = unexpected(out[seg].error());
+            segment_voltage_regs[seg] = unexpected(raw_seg_voltage[seg].error());
             continue;
         }
 
-        const uint8_t low     = out[seg].value()[4U];
-        const uint8_t high    = out[seg].value()[5U];
+        const uint8_t low     = raw_seg_voltage[seg].value()[4U];
+        const uint8_t high    = raw_seg_voltage[seg].value()[5U];
         const auto    voltage = static_cast<uint16_t>(static_cast<uint16_t>(low) | static_cast<uint16_t>(high) << 8U);
 
         if (voltage == 0xFFFF || voltage == 0x8000)
