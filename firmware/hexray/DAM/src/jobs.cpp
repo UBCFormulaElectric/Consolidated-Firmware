@@ -57,8 +57,8 @@ void jobs_initLogFs()
     LOG_INFO("hsd1 state: %s", sd1.getCardStateString());
     LOG_IF_ERR(sd1.upgrade_buswidth());
     LOG_INFO("upgraded buswidth");
-    // LOG_IF_ERR(sd1.update_speed());
-    // LOG_INFO("upgraded speed");
+    LOG_IF_ERR(sd1.update_speed());
+    LOG_INFO("upgraded speed");
 
     std::array<uint8_t, 512> wblk0{};
     wblk0.fill(0xff);

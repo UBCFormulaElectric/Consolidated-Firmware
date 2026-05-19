@@ -173,7 +173,13 @@ class SdCard
 
     std::expected<void, ErrorCode> update_speed() const
     {
-        return utils::convertHalStatus(HAL_SD_ConfigSpeedBusOperation(&_hsd, SDMMC_SPEED_MODE_HIGH));
+        RETURN_IF_ERR_SILENT(utils::convertHalStatus(HAL_SD_ConfigSpeedBusOperation(&_hsd, SDMMC_SPEED_MODE_HIGH)));
+        __ISB();
+        __DSB();
+        constexpr uint32_t freq = 5'000'000;
+        constexpr uint32_t x    = 250'000'000 / (2 * freq);
+        MODIFY_REG(_hsd.Instance->CLKCR, SDMMC_CLKCR_CLKDIV, (x << SDMMC_CLKCR_CLKDIV_Pos));
+        return {};
     }
 
     /**
