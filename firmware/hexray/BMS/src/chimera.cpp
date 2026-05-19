@@ -5,6 +5,7 @@
 #include "hw_hardFaultHandler.hpp"
 #include "hw_spis.hpp"
 #include "hw_usb.hpp"
+#include "hw_pwms.hpp"
 // #include "hw_i2cs.hpp"
 #include <bms.pb.h>
 #include "hw_rtosTaskHandler.hpp"
@@ -188,4 +189,16 @@ char USBD_PRODUCT_STRING_FS[] = "bms";
     TaskChimera.start();
     osKernelStart();
     forever {}
+}
+
+void tasks_handle_arr_rollover_callback(TIM_HandleTypeDef *htim)
+{
+    if (htim == &imd_pwm_input.get_timer_handle())
+    {
+        imd_pwm_input.increment_arrOverflowCount();
+    }
+    else if (htim == &evse_pwm_input.get_timer_handle())
+    {
+        evse_pwm_input.increment_arrOverflowCount();
+     }
 }
