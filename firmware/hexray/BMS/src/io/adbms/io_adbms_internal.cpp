@@ -61,7 +61,7 @@ namespace io::adbms
  */
 class __attribute__((packed)) RegGroupPayload
 {
-    io::adbms::RegBuffer data;
+    RegBuffer data;
     // when the data is in here, it is in wire order (big endian). Please make sure to swap endianness on read or write
     uint16_t pec10 : 10;
     uint8_t  cmd_count : 6 = 0;
@@ -101,25 +101,25 @@ class __attribute__((packed)) RegGroupPayload
     // default for recieving
     RegGroupPayload() : data{}, pec10(0) {}
 
-    [[nodiscard]] bool isPecValid() const
+    [[nodiscard]] bool checksum() const
     {
         // todo is this mask still required with the new bitfields?
         const auto expected = static_cast<uint16_t>(swapEndianness(pec10) & 0x03FFU);
         return calculatePec10() == expected;
     }
 
-    [[nodiscard]] uint8_t                     getCmdCount() const { return swapEndianness(cmd_count); }
-    [[nodiscard]] const io::adbms::RegBuffer &getData() const { return data; }
+    [[nodiscard]] uint8_t          getCmdCount() const { return swapEndianness(cmd_count); }
+    [[nodiscard]] const RegBuffer &getData() const { return data; }
 };
 static_assert(sizeof(RegGroupPayload) == REG_GROUP_SIZE + 2); // 2 bytes for PEC10 and cmd_count
 
-class __attribute__((packed)) TxCmd
+class __attribute__((packed)) Cmd
 {
     // note that both are stored in big endian on the wire, so swap endianness when reading and writing
     uint16_t cmd;
     uint16_t pec15;
 
-    uint16_t calculatePec15() const
+    [[nodiscard]] uint16_t calculatePec15() const
     {
         uint16_t remainder = 16U;
 
@@ -133,24 +133,24 @@ class __attribute__((packed)) TxCmd
     }
 
   public:
-    explicit TxCmd(const uint16_t _cmd)
+    explicit Cmd(const uint16_t _cmd)
     {
         cmd   = swapEndianness(_cmd);
         pec15 = swapEndianness(calculatePec15());
     }
     [[nodiscard]] span<const uint8_t> into_span() const
     {
-        return { reinterpret_cast<const uint8_t *>(this), sizeof(TxCmd) };
+        return { reinterpret_cast<const uint8_t *>(this), sizeof(Cmd) };
     }
 };
-static_assert(sizeof(TxCmd) == 4); // 2 bytes for cmd and 2 bytes for PEC15
+static_assert(sizeof(Cmd) == 4); // 2 bytes for cmd and 2 bytes for PEC15
 
 struct __attribute__((packed)) WriteCmd
 {
-    TxCmd                                tx_cmd;
-    io::adbms::Segments<RegGroupPayload> payload;
+    Cmd                       tx_cmd;
+    Segments<RegGroupPayload> payload;
 
-    explicit WriteCmd(const uint16_t cmd, const io::adbms::Segments<io::adbms::RegBuffer> regs) : tx_cmd(cmd)
+    explicit WriteCmd(const uint16_t cmd, const Segments<RegBuffer> regs) : tx_cmd(cmd)
     {
         for (size_t segment = 0U; segment < NUM_SEGMENTS; ++segment)
         {
@@ -210,6 +210,10 @@ namespace
         }
     }
 
+    /**
+     * Note that RX commands DO NOT need to increment the expected command counter
+     * @param cmd
+     */
     void postTxUpdateCmdCount(const uint16_t cmd)
     {
         if (cmd == SRST || cmd == RSTCC)
@@ -251,8 +255,8 @@ Segments<uint8_t> getExpectedCmdCount()
 
 result<void> sendCmd(const uint16_t cmd)
 {
-    const TxCmd tx_cmd{ cmd };
-    const auto  status = adbms_spi_ls.transmit(tx_cmd.into_span());
+    const Cmd  tx_cmd{ cmd };
+    const auto status = adbms_spi_ls.transmit(tx_cmd.into_span());
     if (status)
     {
         postTxUpdateCmdCount(cmd);
@@ -266,8 +270,8 @@ result<void> sendCmd(const uint16_t cmd)
 
 result<bitset<32>> poll(const uint16_t cmd)
 {
-    const TxCmd tx_cmd{ cmd };
-    uint32_t    poll_buf;
+    const Cmd tx_cmd{ cmd };
+    uint32_t  poll_buf;
     static_assert(sizeof(poll_buf) == 4);
     const auto status = adbms_spi_ls.transmitThenReceive(
         tx_cmd.into_span(), { reinterpret_cast<uint8_t *>(&poll_buf), sizeof(poll_buf) });
@@ -285,7 +289,7 @@ result<bitset<32>> poll(const uint16_t cmd)
 Segments<result<RegBuffer>> readRegGroup(const uint16_t cmd)
 {
     Segments<result<RegBuffer>> regs;
-    const TxCmd                 tx_cmd{ cmd };
+    const Cmd                   tx_cmd{ cmd };
     Segments<RegGroupPayload>   rx_buffer;
 
     if (const auto comm_status = adbms_spi_ls.transmitThenReceiveDma(
@@ -298,22 +302,21 @@ Segments<result<RegBuffer>> readRegGroup(const uint16_t cmd)
 
     for (size_t segment = 0U; segment < NUM_SEGMENTS; ++segment)
     {
-        const auto &reg_group = rx_buffer[segment];
-        if (reg_group.isPecValid())
+        const auto &segment_reg_group = rx_buffer[segment];
+        if (not segment_reg_group.checksum())
         {
             regs[segment] = unexpected(ErrorCode::CHECKSUM_FAIL);
             continue;
         }
 
-        if (const auto cc_byte = static_cast<uint8_t>(reg_group.getCmdCount() & 0x3FU);
-            cc_byte != expected_cmd_count[segment])
+        if (const uint8_t cc_byte = segment_reg_group.getCmdCount(); cc_byte != expected_cmd_count[segment])
         {
             // Resync so a single dropped/replayed command doesn't cascade.
             expected_cmd_count[segment] = cc_byte;
             regs[segment]               = unexpected(ErrorCode::CMD_COUNT_MISMATCH);
             continue;
         }
-        regs[segment] = reg_group.getData();
+        regs[segment] = segment_reg_group.getData();
     }
     return regs;
 }
