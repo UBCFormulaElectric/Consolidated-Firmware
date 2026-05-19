@@ -24,7 +24,7 @@ class Uart
      * @param timeoutMs
      * @return
      */
-    std::expected<void, ErrorCode> waitForNotification(uint32_t timeoutMs) const;
+    result<void> waitForNotification(uint32_t timeoutMs) const;
 
   public:
     /**
@@ -37,16 +37,14 @@ class Uart
      * @param tx Span of data to transmit.
      * @param timeout Timeout duration
      */
-    std::expected<void, ErrorCode>
-        transmit(std::span<const uint8_t> tx, uint32_t timeout = std::numeric_limits<uint32_t>::max()) const;
+    result<void> transmit(std::span<const uint8_t> tx, uint32_t timeout = std::numeric_limits<uint32_t>::max()) const;
 
     /**
      * Receives an amount of data in polling mode (blocking).
      * @param rx Span to store received data.
      * @param timeout Timeout duration
      */
-    std::expected<void, ErrorCode>
-        receive(std::span<uint8_t> rx, uint32_t timeout = std::numeric_limits<uint32_t>::max()) const;
+    result<void> receive(std::span<uint8_t> rx, uint32_t timeout = std::numeric_limits<uint32_t>::max()) const;
 
     void deinit() const;
 

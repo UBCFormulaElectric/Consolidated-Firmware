@@ -93,7 +93,7 @@ class BaseCan
      * @param msg CAN msg to be TXed.
      * @return Whether or not the transmission was successful.
      */
-    virtual std::expected<void, ErrorCode> can_transmit(const CanMsg &msg) const = 0;
+    virtual result<void> can_transmit(const CanMsg &msg) const = 0;
 
     /**
      * Receive a CAN msg from the bus, returning whether or not a message is available.
@@ -101,7 +101,7 @@ class BaseCan
      * @param rx_fifo Which RX FIFO to receive a message from.
      * @return Whether or not the reception was successful.
      */
-    virtual std::expected<CanMsg, ErrorCode> receive(uint32_t rx_fifo) const = 0;
+    virtual result<CanMsg> receive(uint32_t rx_fifo) const = 0;
 };
 /**
  * @attention THIS MUST BE DEFINED IN YOUR CONFIGURATIONS
@@ -115,7 +115,7 @@ class can final : public BaseCan
     CAN_HandleTypeDef *const hcan;
 
   private:
-    std::expected<void, ErrorCode> tx(const CAN_TxHeaderTypeDef &tx_header, const CanMsg &msg) const;
+    result<void> tx(const CAN_TxHeaderTypeDef &tx_header, const CanMsg &msg) const;
 
   public:
     ~can() override = default;
@@ -128,17 +128,17 @@ class can final : public BaseCan
 
     void deinit() const override;
 
-    std::expected<void, ErrorCode> can_transmit(const CanMsg &msg) const override;
+    result<void> can_transmit(const CanMsg &msg) const override;
 
-    std::expected<CanMsg, ErrorCode> receive(uint32_t rx_fifo) const override;
+    result<CanMsg> receive(uint32_t rx_fifo) const override;
 };
 
 const can &can_getHandle(const CAN_HandleTypeDef *hcan);
 #elif defined(STM32H733xx) or defined(STM32H562xx)
 class fdcan final : public BaseCan
 {
-    FDCAN_HandleTypeDef *const     hfdcan;
-    std::expected<void, ErrorCode> tx(FDCAN_TxHeaderTypeDef &tx_header, const CanMsg &msg) const;
+    FDCAN_HandleTypeDef *const hfdcan;
+    result<void>               tx(FDCAN_TxHeaderTypeDef &tx_header, const CanMsg &msg) const;
 
   public:
     ~fdcan() override = default;
@@ -151,11 +151,11 @@ class fdcan final : public BaseCan
 
     void deinit() const override;
 
-    [[nodiscard]] std::expected<void, ErrorCode> can_transmit(const CanMsg &msg) const override;
+    [[nodiscard]] result<void> can_transmit(const CanMsg &msg) const override;
 
-    [[nodiscard]] std::expected<void, ErrorCode> fdcan_transmit(const CanMsg &msg) const;
+    [[nodiscard]] result<void> fdcan_transmit(const CanMsg &msg) const;
 
-    [[nodiscard]] std::expected<CanMsg, ErrorCode> receive(uint32_t rx_fifo) const override;
+    [[nodiscard]] result<CanMsg> receive(uint32_t rx_fifo) const override;
 };
 
 const fdcan &fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan);

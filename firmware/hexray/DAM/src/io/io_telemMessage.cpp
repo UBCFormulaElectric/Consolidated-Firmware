@@ -5,6 +5,8 @@
 #include "io_telemMessage.hpp"
 #include "io_crc.hpp"
 
+#include "hw_error.hpp"
+
 namespace
 {
 constexpr uint8_t MAGIC_HIGH = 0xAA;
@@ -32,7 +34,7 @@ static uint32_t payloadSizeFromDlc(uint32_t dlc)
     {
         return 64;
     }
-    assert(false);
+    Error_Handler();
     return 0;
 }
 

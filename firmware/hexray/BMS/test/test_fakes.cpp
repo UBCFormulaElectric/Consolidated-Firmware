@@ -22,8 +22,8 @@ using namespace app::can_utils;
 using namespace app::can_tx;
 struct FaultLatchParams
 {
-    io::faultLatch::FaultLatch     *arg0;
-    io::faultLatch::FaultLatchState arg1;
+    const io::FaultLatch           *arg0;
+    io::FaultLatch::FaultLatchState arg1;
 
     bool operator==(const FaultLatchParams &other) const { return arg0 == other.arg0 && arg1 == other.arg1; }
 };
@@ -31,8 +31,7 @@ template <> struct std::hash<FaultLatchParams>
 {
     std::size_t operator()(const FaultLatchParams &params) const noexcept
     {
-        return hash<const io::faultLatch::FaultLatch *>()(params.arg0) ^
-               hash<io::faultLatch::FaultLatchState>()(params.arg1);
+        return hash<const io::FaultLatch *>()(params.arg0) ^ hash<io::FaultLatch::FaultLatchState>()(params.arg1);
     }
 };
 static std::unordered_map<FaultLatchParams, uint32_t> setCurrentStatus_call_count;
@@ -44,7 +43,7 @@ extern "C"
     // #include "io_adbms.h"
     //     static std::array<SegmentConfig, NUM_SEGMENTS> segment_config{};
 
-    //     void io_adbms_readConfigurationRegisters(SegmentConfig configs[NUM_SEGMENTS], std::expected<void, ErrorCode>
+    //     void io_adbms_readConfigurationRegisters(SegmentConfig configs[NUM_SEGMENTS], result<void>
     //     success[NUM_SEGMENTS])
     //     {
     //         for (size_t i = 0; i < NUM_SEGMENTS; i++)
@@ -53,7 +52,7 @@ extern "C"
     //             success[i] = ;
     //         }
     //     }
-    //     std::expected<void, ErrorCode> io_adbms_writeConfigurationRegisters(const SegmentConfig config[NUM_SEGMENTS])
+    //     result<void> io_adbms_writeConfigurationRegisters(const SegmentConfig config[NUM_SEGMENTS])
     //     {
     //         std::ranges::copy_n(config, NUM_SEGMENTS, segment_config.data());
     //         return;
@@ -66,24 +65,24 @@ extern "C"
     static bool     started_self_test_voltages = false;
     static uint16_t expected_self_test_value   = 0x0;
 
-    //     std::expected<void, ErrorCode> io_adbms_startCellsAdcConversion(void)
+    //     result<void> io_adbms_startCellsAdcConversion(void)
     //     {
     //         started_adc_conversion = true;
     //         return;
     //     }
-    //     std::expected<void, ErrorCode> io_adbms_overlapADCTest(void)
+    //     result<void> io_adbms_overlapADCTest(void)
     //     {
     //         started_overlap_test = true;
     //         return;
     //     }
-    //     std::expected<void, ErrorCode> io_adbms_sendSelfTestVoltages(void)
+    //     result<void> io_adbms_sendSelfTestVoltages(void)
     //     {
     //         started_self_test_voltages = true;
     //         return;
     //     }
     //     void io_adbms_readVoltageRegisters(
     //         uint16_t cell_voltage_regs[NUM_SEGMENTS][CELLS_PER_SEGMENT],
-    //         std::expected<void, ErrorCode> comm_success[NUM_SEGMENTS][CELLS_PER_SEGMENT])
+    //         result<void> comm_success[NUM_SEGMENTS][CELLS_PER_SEGMENT])
     //     {
     //         if (started_adc_conversion || started_overlap_test)
     //         {
@@ -121,7 +120,7 @@ extern "C"
 
     //     void io_ltc6813_readAuxRegisters(
     //         uint16_t aux_regs[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT],
-    //         std::expected<void, ErrorCode> comm_success[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT])
+    //         result<void> comm_success[NUM_SEGMENTS][AUX_REGS_PER_SEGMENT])
     //     {
     //         if (started_therm_adc_conversion || started_self_test_aux)
     //         {
@@ -142,47 +141,47 @@ extern "C"
     //         started_therm_adc_conversion = false;
     //     }
 
-    //     std::expected<void, ErrorCode> io_adbms_startThermistorsAdcConversion(void)
+    //     result<void> io_adbms_startThermistorsAdcConversion(void)
     //     {
     //         started_therm_adc_conversion = true;
     //         return;
     //     }
     //     void     io_adbms_wakeup(void) {}
-    //     std::expected<void, ErrorCode> io_adbms_pollAdcConversions(void)
+    //     result<void> io_adbms_pollAdcConversions(void)
     //     {
     //         return;
     //     }
-    //     std::expected<void, ErrorCode> io_adbms_sendBalanceCommand(void)
+    //     result<void> io_adbms_sendBalanceCommand(void)
     //     {
     //         return;
     //     }
-    //     std::expected<void, ErrorCode> io_adbms_sendStopBalanceCommand(void)
+    //     result<void> io_adbms_sendStopBalanceCommand(void)
     //     {
     //         return;
     //     }
-    //     std::expected<void, ErrorCode> io_adbms_owcPull(const PullDirection pull_direction)
+    //     result<void> io_adbms_owcPull(const PullDirection pull_direction)
     //     {
     //         UNUSED(pull_direction);
     //         return;
     //     }
-    //     std::expected<void, ErrorCode> io_adbms_sendSelfTestAux(void)
+    //     result<void> io_adbms_sendSelfTestAux(void)
     //     {
     //         started_self_test_aux = true;
     //         return;
     //     }
-    //     std::expected<void, ErrorCode> io_adbms_sendSelfTestStat(void)
+    //     result<void> io_adbms_sendSelfTestStat(void)
     //     {
     //         return;
     //     }
-    //     std::expected<void, ErrorCode> io_adbms_diagnoseMUX(void)
+    //     result<void> io_adbms_diagnoseMUX(void)
     //     {
     //         return;
     //     }
-    //     std::expected<void, ErrorCode> io_adbms_startInternalADCConversions(void)
+    //     result<void> io_adbms_startInternalADCConversions(void)
     //     {
     //         return;
     //     }
-    //     void io_adbms_getStatus(StatusRegGroups status[NUM_SEGMENTS], std::expected<void, ErrorCode>
+    //     void io_adbms_getStatus(StatusRegGroups status[NUM_SEGMENTS], result<void>
     //     success[NUM_SEGMENTS])
     //     {
     //         UNUSED(status);
@@ -191,15 +190,15 @@ extern "C"
     //             success[i] = ;
     //         }
     //     }
-    //     std::expected<void, ErrorCode> io_adbms_clearCellRegisters(void)
+    //     result<void> io_adbms_clearCellRegisters(void)
     //     {
     //         return;
     //     }
-    //     std::expected<void, ErrorCode> io_adbms_clearAuxRegisters(void)
+    //     result<void> io_adbms_clearAuxRegisters(void)
     //     {
     //         return;
     //     }
-    //     std::expected<void, ErrorCode> io_adbms_clearStatRegisters(void)
+    //     result<void> io_adbms_clearStatRegisters(void)
     //     {
     //         return;
     //     }
@@ -298,29 +297,6 @@ namespace imd
         return time::getCurrentMs();
     }
 } // namespace imd
-
-namespace faultLatch
-{
-    // The unit test faultlatchg logic here is agnostic to whether the latch and current status are inverted
-    FaultLatch bms_ok_latch{ FaultLatchState::OK, FaultLatchState::OK, false };
-    FaultLatch imd_ok_latch{ FaultLatchState::OK, FaultLatchState::OK, true };
-    FaultLatch bspd_ok_latch{ FaultLatchState::OK, FaultLatchState::OK, true };
-
-    void setCurrentStatus(const FaultLatch *latch, const FaultLatchState status)
-    {
-        assert(!latch->read_only);
-        fakes::faultLatch::updateFaultLatch(const_cast<FaultLatch *>(latch), status);
-    }
-    FaultLatchState getCurrentStatus(const FaultLatch *latch)
-    {
-        return latch->status;
-    }
-    FaultLatchState getLatchedStatus(const FaultLatch *latch)
-    {
-        return latch->latched_state;
-    }
-} // namespace faultLatch
-
 namespace charger
 {
     static ChargerConnectedType connectionStatus = ChargerConnectedType::CHARGER_DISCONNECTED;
@@ -338,8 +314,8 @@ namespace charger
 
 namespace shdn
 {
-    io::shdn::node hv_p_ok_node(true, app::can_tx::BMS_HVPShdnOKStatus_set);
-    io::shdn::node hv_n_ok_node(true, app::can_tx::BMS_HVNShdnOKStatus_set);
+    node hv_p_ok_node(true, app::can_tx::BMS_HVPShdnOKStatus_set);
+    node hv_n_ok_node(true, app::can_tx::BMS_HVNShdnOKStatus_set);
 } // namespace shdn
 
 namespace fans
@@ -375,23 +351,21 @@ namespace adbms
     bool started_therm_adc_conversion = false;
     bool started_cell_adc_conversion  = false;
 
-    std::expected<void, ErrorCode> sendCommand(const uint16_t command)
+    result<void> sendCommand(const uint16_t command)
     {
         UNUSED(command);
         return {};
     }
 
-    std::expected<void, ErrorCode> poll(uint16_t cmd, uint8_t *poll_buf, uint16_t poll_buf_len)
+    result<void> poll(uint16_t cmd, uint8_t *poll_buf, uint16_t poll_buf_len)
     {
         UNUSED(cmd);
         std::memset(poll_buf, 0, poll_buf_len);
         return {};
     }
 
-    void readRegGroup(
-        uint16_t                       cmd,
-        uint16_t                       regs[NUM_SEGMENTS][REGS_PER_GROUP],
-        std::expected<void, ErrorCode> comm_success[NUM_SEGMENTS])
+    void
+        readRegGroup(uint16_t cmd, uint16_t regs[NUM_SEGMENTS][REGS_PER_GROUP], result<void> comm_success[NUM_SEGMENTS])
     {
         UNUSED(cmd);
         std::memset(regs, 0, NUM_SEGMENTS * REGS_PER_GROUP * sizeof(uint16_t));
@@ -401,25 +375,45 @@ namespace adbms
         }
     }
 
-    std::expected<void, ErrorCode> writeRegGroup(uint16_t cmd, uint16_t regs[NUM_SEGMENTS][REGS_PER_GROUP])
+    result<void> writeRegGroup(uint16_t cmd, uint16_t regs[NUM_SEGMENTS][REGS_PER_GROUP])
     {
         UNUSED(cmd);
         UNUSED(regs);
         return {};
     }
 
-    std::expected<void, ErrorCode> sendBalanceCommand(void)
+    result<void> sendBalanceCommand(void)
     {
         return {};
     }
 
-    std::expected<void, ErrorCode> sendStopBalanceCommand(void)
+    result<void> sendStopBalanceCommand(void)
     {
         return {};
     }
 } // namespace adbms
 
 } // namespace io
+
+// Faultlatch
+
+io::FaultLatch bms_ok_latch{ io::FaultLatch::FaultLatchState::OK, io::FaultLatch::FaultLatchState::OK, false };
+io::FaultLatch imd_ok_latch{ io::FaultLatch::FaultLatchState::OK, io::FaultLatch::FaultLatchState::OK, true };
+io::FaultLatch bspd_ok_latch{ io::FaultLatch::FaultLatchState::OK, io::FaultLatch::FaultLatchState::OK, true };
+
+void io::FaultLatch::setCurrentStatus(FaultLatchState new_status) const
+{
+    assert(!this->read_only);
+    fakes::faultLatch::updateFaultLatch(const_cast<io::FaultLatch *>(this), new_status);
+}
+io::FaultLatch::FaultLatchState io::FaultLatch::getCurrentStatus() const
+{
+    return this->status;
+}
+io::FaultLatch::FaultLatchState io::FaultLatch::getLatchedStatus() const
+{
+    return this->latched_state;
+}
 
 namespace fakes
 {
@@ -457,14 +451,15 @@ namespace ts
 
 namespace faultLatch
 {
-    using namespace io::faultLatch;
+    using io::FaultLatch;
+    using FaultLatchState = FaultLatch::FaultLatchState;
 
     void resetFaultLatch(const FaultLatch *latch)
     {
         const_cast<FaultLatch *>(latch)->status        = FaultLatchState::OK;
         const_cast<FaultLatch *>(latch)->latched_state = FaultLatchState::OK;
     }
-    void updateFaultLatch(FaultLatch *latch, const FaultLatchState status)
+    void updateFaultLatch(FaultLatch *latch, FaultLatchState status)
     {
         if (latch->latched_state == FaultLatchState::OK && status == FaultLatchState::FAULT)
         {
@@ -477,7 +472,7 @@ namespace faultLatch
     {
         setCurrentStatus_call_count = {};
     }
-    uint32_t setCurrentStatus_getCallsWithArgs(const FaultLatch *latch, const FaultLatchState status)
+    uint32_t setCurrentStatus_getCallsWithArgs(const FaultLatch *latch, FaultLatchState status)
     {
         return setCurrentStatus_call_count[FaultLatchParams{ const_cast<FaultLatch *>(latch), status }];
     }

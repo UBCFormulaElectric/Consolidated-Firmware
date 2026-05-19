@@ -48,6 +48,8 @@ ADC_HandleTypeDef hadc2;
 FDCAN_HandleTypeDef hfdcan1;
 FDCAN_HandleTypeDef hfdcan3;
 
+FMAC_HandleTypeDef hfmac;
+
 I2C_HandleTypeDef hi2c4;
 I2C_HandleTypeDef hi2c5;
 
@@ -84,6 +86,7 @@ static void MX_UART8_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_IWDG1_Init(void);
 static void MX_TIM7_Init(void);
+static void MX_FMAC_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -137,6 +140,7 @@ int main(void)
     MX_TIM3_Init();
     MX_IWDG1_Init();
     MX_TIM7_Init();
+    MX_FMAC_Init();
     /* USER CODE BEGIN 2 */
     HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
     ;
@@ -549,6 +553,30 @@ static void MX_FDCAN3_Init(void)
     /* USER CODE BEGIN FDCAN3_Init 2 */
 
     /* USER CODE END FDCAN3_Init 2 */
+}
+
+/**
+ * @brief FMAC Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_FMAC_Init(void)
+{
+    /* USER CODE BEGIN FMAC_Init 0 */
+
+    /* USER CODE END FMAC_Init 0 */
+
+    /* USER CODE BEGIN FMAC_Init 1 */
+
+    /* USER CODE END FMAC_Init 1 */
+    hfmac.Instance = FMAC;
+    if (HAL_FMAC_Init(&hfmac) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN FMAC_Init 2 */
+
+    /* USER CODE END FMAC_Init 2 */
 }
 
 /**
