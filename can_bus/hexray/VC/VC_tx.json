@@ -60,13 +60,8 @@
             }
         }
     },
-<<<<<<< HEAD
     "IMU1": {
         "msg_id": 505,
-=======
-    "Imu1LinearData": {
-        "msg_id": 511,
->>>>>>> 466f5ce5697b09140f3f2a80142fbf9907d0677c
         "cycle_time": 10,
         "description": "IMU1 data",
         "signals": {
@@ -108,13 +103,8 @@
             }
         }
     },
-<<<<<<< HEAD
     "IMU2": {
         "msg_id": 510,
-=======
-    "Imu2LinearData": {
-        "msg_id": 512,
->>>>>>> 466f5ce5697b09140f3f2a80142fbf9907d0677c
         "cycle_time": 10,
         "description": "IMU2 data",
         "signals": {
