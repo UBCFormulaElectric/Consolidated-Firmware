@@ -67,7 +67,7 @@ class PwmInput
     mutable uint32_t curr_rising_edge   = 0;
     mutable uint32_t prev_rising_edge   = 0;
     mutable uint32_t falling_edge       = 0;
-    mutable uint32_t arr_overflow_count = 0;
+    mutable uint32_t arr_rollover_count = 0;
 
     /*Outputs of PWM input*/
     mutable float duty_cycle   = 0;
@@ -207,12 +207,12 @@ class PwmInput
      */
     [[nodiscard]] bool pwm_isActive() const { return this->pwm_active; }
 
-    [[nodiscard]] void increment_arrOverflowCount() const
+    [[nodiscard]] void increment_arrRolloverCount() const
     {
         if (this->pwm_active)
         {
-            arr_overflow_count++;
-            if (arr_overflow_count > arr_rollover_threshold)
+            arr_rollover_count++;
+            if (arr_rollover_count > arr_rollover_threshold)
             {
                 // If we hit the ARR overflow threshold, we assume that the signal is DC and set frequency to 0Hz.
                 // This is because if the signal was PWM, we should have detected a rising edge by now.
@@ -229,7 +229,7 @@ class PwmInput
      */
     void tick() const
     {
-        arr_overflow_count = 0;    // Reset ARR overflow count on every capture event
+        arr_rollover_count = 0;    // Reset ARR overflow count on every capture event
         pwm_active         = true; // Set signal to active on every capture event
 
         // We store the counter values captured during two most recent rising edges.
