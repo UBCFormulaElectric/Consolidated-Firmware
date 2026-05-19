@@ -19,7 +19,7 @@ static void clock_rck(void)
     led_rck.writePin(false);
 }
 
-std::expected<void, ErrorCode> update(const config &c)
+result<void> update(const config &c)
 {
     const uint8_t dam   = color_bits(c.dam);
     const bool    dam_r = (dam & 0b001) != 0;
@@ -45,7 +45,7 @@ std::expected<void, ErrorCode> update(const config &c)
     return exit;
 }
 
-std::expected<void, ErrorCode> setBrightness(const float brightness)
+result<void> setBrightness(const float brightness)
 {
     RETURN_IF_ERR_SILENT(led_dimming.start());
     RETURN_IF_ERR_SILENT(led_dimming.setDutyCycle(brightness));

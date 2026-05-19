@@ -41,7 +41,7 @@ static constexpr uint32_t MASKMODE_16_BIT_MASK_OPEN = INIT_MASKMODE_16BIT_FiRx(0
 namespace hw
 {
 
-std::expected<void, ErrorCode> can::tx(const CAN_TxHeaderTypeDef &tx_header, const CanMsg &msg) const
+result<void> can::tx(const CAN_TxHeaderTypeDef &tx_header, const CanMsg &msg) const
 {
     // Spin until a TX mailbox becomes available.
     for (uint32_t poll_count = 0; HAL_CAN_GetTxMailboxesFreeLevel(hcan) == 0U;)
@@ -107,7 +107,7 @@ void can::deinit() const
 
 // NOTE this design assumes that there is only one task calling this function
 
-std::expected<void, ErrorCode> can::can_transmit(const CanMsg &msg) const
+result<void> can::can_transmit(const CanMsg &msg) const
 {
     assert(ready);
     CAN_TxHeaderTypeDef tx_header;
@@ -130,7 +130,7 @@ std::expected<void, ErrorCode> can::can_transmit(const CanMsg &msg) const
     return tx(tx_header, msg);
 }
 
-std::expected<CanMsg, ErrorCode> can::receive(const uint32_t rx_fifo) const
+result<CanMsg> can::receive(const uint32_t rx_fifo) const
 {
     assert(ready);
     CAN_RxHeaderTypeDef header;

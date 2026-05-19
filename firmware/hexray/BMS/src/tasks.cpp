@@ -199,7 +199,7 @@ void tasks_runCanTx(void *arg)
 
         if (m.bus == app::can_utils::BusEnum::Bus_charger)
         {
-            std::expected<void, ErrorCode> res;
+            result<void> res;
             if (can_msg.dlc > 8)
             {
                 res = fdcan1.fdcan_transmit(can_msg);

@@ -19,6 +19,8 @@ enum class ErrorCode
     NUM_EXIT_CODES,
 };
 
+template <typename T> using result = std::expected<T, ErrorCode>;
+
 constexpr const char *error_code_to_string(const ErrorCode code)
 {
     switch (code)
@@ -70,9 +72,9 @@ constexpr const char *error_code_to_string(const ErrorCode code)
 
 template <typename T>
 void _log_if_err(
-    const std::expected<T, ErrorCode> out,
-    const char                       *err_expr,
-    const std::source_location        loc = std::source_location::current())
+    const result<T>            out,
+    const char                *err_expr,
+    const std::source_location loc = std::source_location::current())
 {
     if (not out)
     {

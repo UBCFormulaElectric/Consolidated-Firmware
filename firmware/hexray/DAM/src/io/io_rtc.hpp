@@ -30,7 +30,7 @@ struct Date
  * @return std::expected containing the programmed Time on success,
  *         or an ErrorCode if a HAL error occurred.
  */
-std::expected<void, ErrorCode> set_time(const Time &time);
+result<void> set_time(const Time &time);
 
 /**
  * Set the RTC date.
@@ -39,7 +39,7 @@ std::expected<void, ErrorCode> set_time(const Time &time);
  * @return std::expected containing the programmed Date on success,
  *         or an ErrorCode if a HAL error occurred.
  */
-std::expected<void, ErrorCode> set_date(const Date &date);
+result<void> set_date(const Date &date);
 
 /**
  * Get the RTC time.
@@ -48,7 +48,7 @@ std::expected<void, ErrorCode> set_date(const Date &date);
  * @return std::expected containing the current time on success,
  *         or an ErrorCode if a HAL error occurred.
  */
-std::expected<Time, ErrorCode> get_time(Time &time);
+result<Time> get_time(Time &time);
 
 /**
  * Get the RTC date.
@@ -57,7 +57,7 @@ std::expected<Time, ErrorCode> get_time(Time &time);
  * @return std::expected containing the current date on success,
  *         or an ErrorCode if a HAL error occurred.
  */
-std::expected<Date, ErrorCode> get_date(Date &date);
+result<Date> get_date(Date &date);
 
 // Helper functions to convert BCD format to binary.
 uint8_t bcd_to_bin(uint8_t bcd);

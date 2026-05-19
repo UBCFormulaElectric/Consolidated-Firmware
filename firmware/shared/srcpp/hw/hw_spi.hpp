@@ -60,14 +60,14 @@ class device
      * @param tx Buffer containing the data to transmit.
      * @return EXIT_CODE_OK if transmission succeeded, otherwise an error code.
      */
-    [[nodiscard]] std::expected<void, ErrorCode> transmit(std::span<const uint8_t> tx) const;
+    [[nodiscard]] result<void> transmit(std::span<const uint8_t> tx) const;
 
     /**
      * @brief Receive data from the SPI device.
      * @param rx Buffer to store received data.
      * @return EXIT_CODE_OK if reception succeeded, otherwise an error code.
      */
-    [[nodiscard]] std::expected<void, ErrorCode> receive(std::span<uint8_t> rx) const;
+    [[nodiscard]] result<void> receive(std::span<uint8_t> rx) const;
 
     /**
      * @brief Transmit and then receive data over SPI while keeping NSS asserted.
@@ -76,8 +76,7 @@ class device
      * @param rx Buffer to store received data after transmission.
      * @return EXIT_CODE_OK if the operation succeeded, otherwise an error code.
      */
-    [[nodiscard]] std::expected<void, ErrorCode>
-        transmitThenReceive(std::span<const uint8_t> tx, std::span<uint8_t> rx) const;
+    [[nodiscard]] result<void> transmitThenReceive(std::span<const uint8_t> tx, std::span<uint8_t> rx) const;
 
     /**
      * @brief Transmit data over SPI using DMA.
@@ -123,7 +122,7 @@ class device
      * @return EXIT_CODE_OK on a successful notification, TIMEOUT if the wait times out (transfer is also
      *         aborted), ERROR if the wake came from HAL_SPI_ErrorCallback.
      */
-    [[nodiscard]] std::expected<void, ErrorCode> waitForNotification() const;
+    [[nodiscard]] result<void> waitForNotification() const;
 };
 
 /**
