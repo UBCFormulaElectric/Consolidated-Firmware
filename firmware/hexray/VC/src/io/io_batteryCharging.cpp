@@ -1,11 +1,7 @@
 /*
 INPUTS: NSHDN (from MCU, controlled based on status of bat alert pin...)
 OUTPUTS: BAT_CHRG_MODE (to MCU)
-        - high is voltage regulation (const voltage)
-        - low is current regulation (const current)
-        - idk seems pre unnecessary imma ignore for now and not do anything with it.
-        - inshallah BQ IC can give us a better estimate of SOC w coulumb counting rather
-        than a simple CC -> CV transition
+Datasheet: https://www.analog.com/media/en/technical-documentation/data-sheets/MAX745.pdf
 */
 
 #include "io_batteryCharging.hpp"

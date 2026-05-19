@@ -898,21 +898,33 @@
                 "description": "0=DISABLED, 1=SETTLE, 2=BALANCE"
             },
             "ImbalanceMagnitude": {
-            "resolution": 0.001,
-            "min": 0,
-            "max": 1,
-            "unit": "V"
+                "resolution": 0.001,
+                "min": 0,
+                "max": 1,
+                "unit": "V"
             },
             "BalancingLeader": {
-            "resolution": 1,
-            "min": 0,
-            "max": 3
+                "resolution": 1,
+                "min": 0,
+                "max": 3
             },
             "BalancingCell": {
-            "resolution": 1,
-            "min": 0,
-            "max": 32
+                "resolution": 1,
+                "min": 0,
+                "max": 32
+            },
+            "Balancing": {
+                "bits": 1
+            },
+            "SafetyA_Flag": 
+            {
+                "bits": 1
+            },
+            "SafetyBC_Flag": 
+            {
+                "bits": 1
             }
+
         }
     },
     "Bootup": {

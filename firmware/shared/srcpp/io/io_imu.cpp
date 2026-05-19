@@ -103,7 +103,7 @@ struct __attribute__((packed)) UserCtrl
     uint8_t RSVD3 : 1        = 0; // [5]
     uint8_t FIFO_EN : 1      = 0; // [6] Enable FIFO buffer operations
     uint8_t RSVD4 : 1        = 0; // [7]
-};
+}; 
 
 // Register 107: PWR_MGMT_1
 struct __attribute__((packed)) PwrMgmt1
