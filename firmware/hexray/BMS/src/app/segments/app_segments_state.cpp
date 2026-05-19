@@ -11,10 +11,10 @@ using io::adbms::Cells;
 std::array<std::bitset<4>, MAX_NUM_SEGMENTS> segment_health{};
 io::semaphore                                health_mutex{ true };
 
-Cells<std::expected<float, ErrorCode>> latest_voltages{};
-app::segments::CellParam               latest_min_cell_voltage{ .segment = 0, .cell = 0, .value = 0.0f };
-app::segments::CellParam               latest_max_cell_voltage{ .segment = 0, .cell = 0, .value = 0.0f };
-io::semaphore                          voltage_lock{ true };
+Cells<result<float>>     latest_voltages{};
+app::segments::CellParam latest_min_cell_voltage{ .segment = 0, .cell = 0, .value = 0.0f };
+app::segments::CellParam latest_max_cell_voltage{ .segment = 0, .cell = 0, .value = 0.0f };
+io::semaphore            voltage_lock{ true };
 
 app::segments::CellParam latest_max_cell_temperature{ .segment = 0, .cell = 0, .value = 0.0f };
 bool                     latest_therm_owc = false;
@@ -65,7 +65,7 @@ bool allOk()
     return std::all_of(segment_health.begin(), segment_health.end(), [](const std::bitset<4> &bs) { return bs.all(); });
 }
 
-Cells<std::expected<float, ErrorCode>> getLatestVoltages()
+Cells<result<float>> getLatestVoltages()
 {
     const io::unique_semaphore lock{ voltage_lock };
     return latest_voltages;
@@ -101,10 +101,7 @@ bool getThermOwc()
     return latest_therm_owc;
 }
 
-void setVoltageStats(
-    const Cells<std::expected<float, ErrorCode>> &latest,
-    const CellParam<float>                        min,
-    const CellParam<float>                        max)
+void setVoltageStats(const Cells<result<float>> &latest, const CellParam<float> min, const CellParam<float> max)
 {
     const io::unique_semaphore lock{ voltage_lock };
     latest_voltages         = latest;

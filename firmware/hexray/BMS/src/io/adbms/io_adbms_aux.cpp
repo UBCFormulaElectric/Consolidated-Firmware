@@ -7,10 +7,10 @@ using namespace std;
 
 namespace
 {
-constexpr uint8_t                  MAX_NUM_ATTEMPTS     = 20U;
-constexpr uint8_t                  POLL_RETRY_DELAY_MS  = 1U;
-constexpr uint8_t                  GPIOS_PER_GROUP      = 3U;
-constexpr uint8_t                  NUM_THERM_REG_GROUPS = 3U;
+constexpr uint8_t                               MAX_NUM_ATTEMPTS     = 20U;
+constexpr uint8_t                               POLL_RETRY_DELAY_MS  = 1U;
+constexpr uint8_t                               GPIOS_PER_GROUP      = 3U;
+constexpr uint8_t                               NUM_THERM_REG_GROUPS = 3U;
 constexpr array<uint16_t, NUM_THERM_REG_GROUPS> reg_groups{ {
     io::adbms::RDAUXA,
     io::adbms::RDAUXB,
@@ -52,7 +52,7 @@ expected<void, ErrorCode> pollAuxAdcConversion()
 
 expected<Therms<expected<uint16_t, ErrorCode>>, ErrorCode> readCellTempReg()
 {
-    Therms<std::expected<uint16_t, ErrorCode>> cell_temp_regs{};
+    Therms<result<uint16_t>> cell_temp_regs{};
 
     if (const expected<void, ErrorCode> poll_ok = pollAuxAdcConversion(); !poll_ok)
     {
@@ -94,7 +94,7 @@ expected<Therms<expected<uint16_t, ErrorCode>>, ErrorCode> readCellTempReg()
 
 expected<Segments<expected<uint16_t, ErrorCode>>, ErrorCode> readSegVoltageReg()
 {
-    Segments<std::expected<uint16_t, ErrorCode>> segment_voltage_regs{};
+    Segments<result<uint16_t>> segment_voltage_regs{};
     if (const expected<void, ErrorCode> poll_ok = pollAuxAdcConversion(); !poll_ok)
     {
         return unexpected(poll_ok.error());

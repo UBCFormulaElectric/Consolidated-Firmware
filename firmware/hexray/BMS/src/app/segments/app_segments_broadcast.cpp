@@ -119,7 +119,7 @@ const std::span<bool, MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT> cell_owc_ok_buffer =
 
 namespace app::segments::broadcast
 {
-void cellVoltages(const Cells<std::expected<float, ErrorCode>> &voltages)
+void cellVoltages(const Cells<result<float>> &voltages)
 {
     CellParam candidate_max_cell_voltage = { .segment = 0, .cell = 0, .value = __FLT_MIN__ };
     CellParam candidate_min_cell_voltage = { .segment = 0, .cell = 0, .value = __FLT_MAX__ };
@@ -149,9 +149,7 @@ void cellVoltages(const Cells<std::expected<float, ErrorCode>> &voltages)
     state::setVoltageStats(voltages, candidate_min_cell_voltage, candidate_max_cell_voltage);
 }
 
-void temps(
-    const Therms<std::expected<float, ErrorCode>> &temps,
-    const Therms<std::expected<bool, ErrorCode>>  &therm_owc)
+void temps(const Therms<result<float>> &temps, const Therms<result<bool>> &therm_owc)
 {
     CellParam candidate_max_cell_temp = { .segment = 0, .cell = 0, .value = __FLT_MIN__ };
     CellParam candidate_min_cell_temp = { .segment = 0, .cell = 0, .value = __FLT_MAX__ };
@@ -182,7 +180,7 @@ void temps(
     state::setTempStats(candidate_max_cell_temp, candidate_therm_owc);
 }
 
-void segVoltages(const Segments<std::expected<float, ErrorCode>> &seg_voltages)
+void segVoltages(const Segments<result<float>> &seg_voltages)
 {
     float   max_voltage  = std::numeric_limits<float>::lowest();
     float   min_voltage  = std::numeric_limits<float>::max();
@@ -264,7 +262,7 @@ void status(const Status &status)
     }
 }
 
-void owc(const Cells<std::expected<bool, ErrorCode>> &owc_results)
+void owc(const Cells<result<bool>> &owc_results)
 {
     bool candidate_cell_owc = false;
 

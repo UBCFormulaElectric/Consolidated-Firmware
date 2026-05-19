@@ -84,7 +84,7 @@ class device
      * @return EXIT_CODE_OK on success, INVALID_ARGS if tx is too large, BUSY if another transfer is in flight,
      *         TIMEOUT if the transfer does not complete within timeoutMs, ERROR on hardware fault.
      */
-    [[nodiscard]] std::expected<void, ErrorCode> transmitDma(std::span<const uint8_t> tx) const;
+    [[nodiscard]] result<void> transmitDma(std::span<const uint8_t> tx) const;
 
     /**
      * @brief Receive data over SPI using DMA.
@@ -92,7 +92,7 @@ class device
      * @return EXIT_CODE_OK on success, INVALID_ARGS if rx is too large, BUSY if another transfer is in flight,
      *         TIMEOUT if the transfer does not complete within timeoutMs, ERROR on hardware fault.
      */
-    [[nodiscard]] std::expected<void, ErrorCode> receiveDma(std::span<uint8_t> rx) const;
+    [[nodiscard]] result<void> receiveDma(std::span<uint8_t> rx) const;
 
     /**
      * @brief Transmit then receive over SPI using DMA, while keeping NSS asserted.
@@ -101,8 +101,7 @@ class device
      * @return EXIT_CODE_OK on success, INVALID_ARGS if combined size is too large, BUSY if another transfer
      *         is in flight, TIMEOUT if the transfer does not complete within timeoutMs, ERROR on fault.
      */
-    [[nodiscard]] std::expected<void, ErrorCode>
-        transmitThenReceiveDma(std::span<const uint8_t> tx, std::span<uint8_t> rx) const;
+    [[nodiscard]] result<void> transmitThenReceiveDma(std::span<const uint8_t> tx, std::span<uint8_t> rx) const;
 
   private:
     const bus                &parent_bus;

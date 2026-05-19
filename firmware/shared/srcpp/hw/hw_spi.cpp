@@ -208,7 +208,7 @@ result<void> device::receive(std::span<uint8_t> rx) const
 // stages caller data through dma_tx_buf, RX path copies out of dma_rx_buf after completion. The bus's
 // taskInProgress handle still serializes all transfers across all DMA/IT methods on the same bus.
 
-std::expected<void, ErrorCode> device::transmitDma(const std::span<const uint8_t> tx) const
+result<void> device::transmitDma(const std::span<const uint8_t> tx) const
 {
     if (tx.size() > sizeof(dma_tx_buf))
     {
@@ -253,7 +253,7 @@ std::expected<void, ErrorCode> device::transmitDma(const std::span<const uint8_t
     return exit;
 }
 
-std::expected<void, ErrorCode> device::receiveDma(const std::span<uint8_t> rx) const
+result<void> device::receiveDma(const std::span<uint8_t> rx) const
 {
     if (rx.size() > sizeof(dma_rx_buf))
     {
@@ -296,7 +296,7 @@ std::expected<void, ErrorCode> device::receiveDma(const std::span<uint8_t> rx) c
     return exit;
 }
 
-[[nodiscard]] std::expected<void, ErrorCode>
+[[nodiscard]] result<void>
     device::transmitThenReceiveDma(const std::span<const uint8_t> tx, const std::span<uint8_t> rx) const
 {
     // SPI is full-duplex: to clock in rx.size() bytes we must clock out the same number. Build a single
@@ -331,8 +331,8 @@ std::expected<void, ErrorCode> device::receiveDma(const std::span<uint8_t> rx) c
     parent_bus.taskInProgress = xTaskGetCurrentTaskHandle();
 
     enableNss();
-    auto exit = hw::utils::convertHalStatus(
-        HAL_SPI_TransmitReceive_DMA(&parent_bus.handle, dma_tx_buf, dma_rx_buf, combined));
+    auto exit =
+        hw::utils::convertHalStatus(HAL_SPI_TransmitReceive_DMA(&parent_bus.handle, dma_tx_buf, dma_rx_buf, combined));
     if (not exit.has_value())
     {
         parent_bus.taskInProgress = nullptr;

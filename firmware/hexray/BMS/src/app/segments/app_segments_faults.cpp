@@ -2,7 +2,6 @@
 #include "app_segments_internal.hpp"
 #include "app_timer.hpp"
 #include "app_canTx.hpp"
-#include "app_canRx.hpp"
 #include "app_stateMachine.hpp"
 #include "app_states.hpp"
 

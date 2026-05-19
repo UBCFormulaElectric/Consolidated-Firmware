@@ -31,9 +31,9 @@
 #include "io_time.hpp"
 
 using io::adbms::Cells;
-using io::adbms::Therms;
 using io::adbms::Segments;
 using io::adbms::Status;
+using io::adbms::Therms;
 
 io::semaphore spi_bus_lock(true);
 
@@ -161,22 +161,22 @@ void jobs_runAdbmsVoltages_tick()
 {
     app::segments::state::resetAll(app::segments::state::Bit::Voltage);
 
-    std::expected<Cells<std::expected<float, ErrorCode>>, ErrorCode> volt_r;
-    std::expected<Cells<std::expected<bool, ErrorCode>>, ErrorCode>  owc_r;
+    result<Cells<result<float>>> volt_r;
+    result<Cells<result<bool>>>  owc_r;
     {
         const io::unique_semaphore s{ spi_bus_lock };
         volt_r = app::segments::runVoltageConversion();
         owc_r  = app::segments::runCellOpenWireCheck();
     }
 
-    Cells<std::expected<float, ErrorCode>> voltages{};
+    Cells<result<float>> voltages{};
     if (volt_r)
     {
         voltages = volt_r.value();
         app::segments::state::setAll(app::segments::state::Bit::Voltage);
     }
 
-    Cells<std::expected<bool, ErrorCode>> owc{};
+    Cells<result<bool>> owc{};
     if (owc_r)
         owc = owc_r.value();
 
@@ -188,7 +188,7 @@ void jobs_runAdbmsConfigs_tick()
 {
     app::segments::state::resetAll(app::segments::state::Bit::Config);
 
-    std::expected<void, ErrorCode> sync_result;
+    result<void> sync_result;
     {
         const io::unique_semaphore s{ spi_bus_lock };
         sync_result = app::segments::config::configSync();
@@ -201,19 +201,16 @@ void jobs_runAdbmsTemperatures_tick()
 {
     app::segments::state::resetAll(app::segments::state::Bit::Temp);
 
-    std::expected<
-        std::pair<Therms<std::expected<float, ErrorCode>>, Therms<std::expected<bool, ErrorCode>>>,
-        ErrorCode>
-                                                                        temp_r;
-    std::expected<Segments<std::expected<float, ErrorCode>>, ErrorCode> seg_r;
+    result<std::pair<Therms<std::expected<float, ErrorCode>>, Therms<std::expected<bool, ErrorCode>>>> temp_r;
+    result<Segments<std::expected<float, ErrorCode>>>                                                  seg_r;
     {
         const io::unique_semaphore s{ spi_bus_lock };
         temp_r = app::segments::runTempConversion();
         seg_r  = app::segments::runSegVoltageConversion();
     }
 
-    Therms<std::expected<float, ErrorCode>> temp_results{};
-    Therms<std::expected<bool, ErrorCode>>  therm_owc_results{};
+    Therms<result<float>> temp_results{};
+    Therms<result<bool>>  therm_owc_results{};
     if (temp_r)
     {
         temp_results      = temp_r.value().first;
@@ -228,7 +225,7 @@ void jobs_runAdbmsTemperatures_tick()
             seg.fill(std::unexpected(temp_r.error()));
     }
 
-    Segments<std::expected<float, ErrorCode>> seg_voltage_results{};
+    Segments<result<float>> seg_voltage_results{};
     if (seg_r)
         seg_voltage_results = seg_r.value();
     else
@@ -242,7 +239,7 @@ void jobs_runAdbmsDiagnostics_tick()
 {
     app::segments::state::resetAll(app::segments::state::Bit::Status);
 
-    std::expected<Segments<io::adbms::StatusGroups>, ErrorCode> stat_r;
+    result<Segments<io::adbms::StatusGroups>> stat_r;
     {
         const io::unique_semaphore s{ spi_bus_lock };
         stat_r = app::segments::runStatusConversion();

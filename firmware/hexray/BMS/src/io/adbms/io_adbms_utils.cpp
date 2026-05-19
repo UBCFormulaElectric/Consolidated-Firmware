@@ -4,7 +4,7 @@
 
 namespace io::adbms
 {
-std::expected<void, ErrorCode> wakeup()
+result<void> wakeup()
 {
     return sendCmd(RDCFGA);
 }

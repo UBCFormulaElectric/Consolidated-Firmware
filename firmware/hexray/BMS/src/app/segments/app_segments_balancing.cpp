@@ -28,8 +28,8 @@ app::Timer                                                       settle_timer(SE
 app::Timer                                                       balance_timer(BALANCE_TIME_MS);
 
 void updateCellsToBalance(
-    const Cells<std::expected<float, ErrorCode>> &cell_voltages,
-    const app::segments::CellParam<float>        &min_cell_voltage)
+    const Cells<result<float>>            &cell_voltages,
+    const app::segments::CellParam<float> &min_cell_voltage)
 {
     memset(&discharge_enabled, 0, sizeof(discharge_enabled));
     memset(&pwm_duty, 0, sizeof(pwm_duty));

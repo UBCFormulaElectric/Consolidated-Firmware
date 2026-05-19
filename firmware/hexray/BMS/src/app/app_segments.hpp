@@ -14,12 +14,12 @@ namespace app::segments
 {
 // Re-export ADBMS array aliases inside this namespace so app code can use them unqualified.
 using io::adbms::Cells;
-using io::adbms::Therms;
+using io::adbms::PerCell;
+using io::adbms::PerSegment;
+using io::adbms::PerTherm;
 using io::adbms::Segments;
 using io::adbms::Status;
-using io::adbms::PerCell;
-using io::adbms::PerTherm;
-using io::adbms::PerSegment;
+using io::adbms::Therms;
 
 // Thermistor bank selected during AUX conversions.
 enum class ThermistorMux : size_t
@@ -42,8 +42,8 @@ template <typename T> struct CellParam
 namespace config
 {
     void setBalanceConfig(const Cells<bool> &balance_config, const Cells<uint8_t> &pwm_duty, bool balancing_enabled);
-    std::expected<void, ErrorCode> setThermistorConfig(ThermistorMux mux);
-    std::expected<void, ErrorCode> configSync();
+    result<void> setThermistorConfig(ThermistorMux mux);
+    result<void> configSync();
 }; // namespace config
 
 // app_segments_balancing.cpp
@@ -57,13 +57,11 @@ namespace balancing
 // app_segments_broadcast.cpp
 namespace broadcast
 {
-    void cellVoltages(const Cells<std::expected<float, ErrorCode>> &voltages);
-    void temps(
-        const Therms<std::expected<float, ErrorCode>> &temps,
-        const Therms<std::expected<bool, ErrorCode>>  &therm_owc);
-    void segVoltages(const Segments<std::expected<float, ErrorCode>> &seg_voltages);
+    void cellVoltages(const Cells<result<float>> &voltages);
+    void temps(const Therms<result<float>> &temps, const Therms<result<bool>> &therm_owc);
+    void segVoltages(const Segments<result<float>> &seg_voltages);
     void status(const Status &status);
-    void owc(const Cells<std::expected<bool, ErrorCode>> &owc_results);
+    void owc(const Cells<result<bool>> &owc_results);
 } // namespace broadcast
 
 // app_segments_state.cpp
@@ -83,17 +81,14 @@ namespace state
     bool isOk(size_t seg);
     bool allOk();
 
-    Cells<std::expected<float, ErrorCode>> getLatestVoltages();
-    CellParam<float>                       getMinCellVoltage();
-    CellParam<float>                       getMaxCellVoltage();
-    CellParam<float>                       getMaxCellTemperature();
-    bool                                   getCellOwc();
-    bool                                   getThermOwc();
+    Cells<result<float>> getLatestVoltages();
+    CellParam<float>     getMinCellVoltage();
+    CellParam<float>     getMaxCellVoltage();
+    CellParam<float>     getMaxCellTemperature();
+    bool                 getCellOwc();
+    bool                 getThermOwc();
 
-    void setVoltageStats(
-        const Cells<std::expected<float, ErrorCode>> &latest,
-        CellParam<float>                              min,
-        CellParam<float>                              max);
+    void setVoltageStats(const Cells<result<float>> &latest, CellParam<float> min, CellParam<float> max);
     void setTempStats(CellParam<float> max_temp, bool any_therm_owc);
     void setCellOwc(bool any_cell_owc);
 } // namespace state
@@ -106,9 +101,9 @@ namespace faults
 } // namespace faults
 
 // app_segments_conversions.cpp
-std::expected<PerCell<float>, ErrorCode>                              runVoltageConversion();
-std::expected<std::pair<PerTherm<float>, PerTherm<bool>>, ErrorCode>  runTempConversion();
-std::expected<PerSegment<float>, ErrorCode>                           runSegVoltageConversion();
-std::expected<Segments<io::adbms::StatusGroups>, ErrorCode>           runStatusConversion();
-std::expected<PerCell<bool>, ErrorCode>                               runCellOpenWireCheck();
+result<PerCell<float>>                             runVoltageConversion();
+result<std::pair<PerTherm<float>, PerTherm<bool>>> runTempConversion();
+result<PerSegment<float>>                          runSegVoltageConversion();
+result<Segments<io::adbms::StatusGroups>>          runStatusConversion();
+result<PerCell<bool>>                              runCellOpenWireCheck();
 } // namespace app::segments

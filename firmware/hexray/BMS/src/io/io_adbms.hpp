@@ -144,11 +144,11 @@ static_assert(sizeof(STATE) == REG_GROUP_SIZE);
 
 struct StatusGroups
 {
-    std::expected<STATA, ErrorCode> stat_a;
-    std::expected<STATB, ErrorCode> stat_b;
-    std::expected<STATC, ErrorCode> stat_c;
-    std::expected<STATD, ErrorCode> stat_d;
-    std::expected<STATE, ErrorCode> stat_e;
+    result<STATA> stat_a;
+    result<STATB> stat_b;
+    result<STATC> stat_c;
+    result<STATD> stat_d;
+    result<STATE> stat_e;
 
     static StatusGroups makeError(ErrorCode e)
     {
@@ -201,49 +201,50 @@ enum class OpenWireSwitch
 };
 
 // Base array types. Kept inside io::adbms so generic names don't collide at global scope.
-template <typename T> using Cells    = std::array<std::array<T, CELLS_PER_SEGMENT>, NUM_SEGMENTS>;
-template <typename T> using Therms   = std::array<std::array<T, THERMISTORS_PER_SEGMENT>, NUM_SEGMENTS>;
-template <typename T> using Segments = std::array<T, NUM_SEGMENTS>;
-template <typename T> using Regs     = std::array<T, REG_GROUP_SIZE>;
+template <typename T> using Therms       = std::array<std::array<T, THERMISTORS_PER_SEGMENT>, NUM_SEGMENTS>;
+template <typename T> using Regs         = std::array<T, REG_GROUP_SIZE>;
+template <typename T> using Segments     = std::array<T, NUM_SEGMENTS>;
+template <typename T> using SegmentCells = std::array<T, CELLS_PER_SEGMENT>;
+template <typename T> using Cells        = Segments<SegmentCells<T>>;
 
 // Derived type
 using Status = Segments<StatusGroups>;
 
-template <typename T> using PerCell    = Cells<std::expected<T, ErrorCode>>;
-template <typename T> using PerTherm   = Therms<std::expected<T, ErrorCode>>;
-template <typename T> using PerSegment = Segments<std::expected<T, ErrorCode>>;
+template <typename T> using PerCell    = Cells<result<T>>;
+template <typename T> using PerTherm   = Therms<result<T>>;
+template <typename T> using PerSegment = Segments<result<T>>;
 
 // FUNCTIONS
 // Configuration, balance and PWM access.
-[[nodiscard]] std::expected<void, ErrorCode> writeConfigReg(const std::array<SegmentConfig, NUM_SEGMENTS> &config);
-[[nodiscard]] PerSegment<SegmentConfig>      readConfigReg();
-[[nodiscard]] std::expected<void, ErrorCode> writePwmReg(const std::array<PWMConfig, NUM_SEGMENTS> &pwm_config);
-[[nodiscard]] PerSegment<PWMConfig>          readPwmReg();
+[[nodiscard]] result<void>              writeConfigReg(const std::array<SegmentConfig, NUM_SEGMENTS> &config);
+[[nodiscard]] PerSegment<SegmentConfig> readConfigReg();
+[[nodiscard]] result<void>              writePwmReg(const std::array<PWMConfig, NUM_SEGMENTS> &pwm_config);
+[[nodiscard]] PerSegment<PWMConfig>     readPwmReg();
 
 // Measurement reads.
-[[nodiscard]] std::expected<PerCell<uint16_t>, ErrorCode>    readCellVoltageReg();
-[[nodiscard]] std::expected<PerCell<uint16_t>, ErrorCode>    readFilteredCellVoltageReg();
-[[nodiscard]] std::expected<PerTherm<uint16_t>, ErrorCode>   readCellTempReg();
-[[nodiscard]] std::expected<PerSegment<uint16_t>, ErrorCode> readSegVoltageReg();
-[[nodiscard]] std::expected<Segments<StatusGroups>, ErrorCode> readStatusReg();
+[[nodiscard]] result<PerCell<uint16_t>>      readCellVoltageReg();
+[[nodiscard]] result<PerCell<uint16_t>>      readFilteredCellVoltageReg();
+[[nodiscard]] result<PerTherm<uint16_t>>     readCellTempReg();
+[[nodiscard]] result<PerSegment<uint16_t>>   readSegVoltageReg();
+[[nodiscard]] result<Segments<StatusGroups>> readStatusReg();
 
 // Open-wire diagnostics.
-[[nodiscard]] std::expected<void, ErrorCode> owcCells(OpenWireSwitch owcSwitch);
+[[nodiscard]] result<void> owcCells(OpenWireSwitch owcSwitch);
 
 // Conversion control.
-[[nodiscard]] std::expected<void, ErrorCode> startCellsAdcConversion();
-[[nodiscard]] std::expected<void, ErrorCode> startTempAdcConversion();
-[[nodiscard]] std::expected<void, ErrorCode> startSegAdcConversion();
-[[nodiscard]] std::expected<void, ErrorCode> sendBalanceCmd();
-[[nodiscard]] std::expected<void, ErrorCode> sendStopBalanceCmd();
-[[nodiscard]] std::expected<void, ErrorCode> wakeup();
+[[nodiscard]] result<void> startCellsAdcConversion();
+[[nodiscard]] result<void> startTempAdcConversion();
+[[nodiscard]] result<void> startSegAdcConversion();
+[[nodiscard]] result<void> sendBalanceCmd();
+[[nodiscard]] result<void> sendStopBalanceCmd();
+[[nodiscard]] result<void> wakeup();
 
 // Register clear helpers.
 namespace clear
 {
-    [[nodiscard]] std::expected<void, ErrorCode> CellAuxReg();
-    [[nodiscard]] std::expected<void, ErrorCode> StatReg();
-    [[nodiscard]] std::expected<void, ErrorCode> CellVoltageReg();
-    [[nodiscard]] std::expected<void, ErrorCode> FilteredCellVoltageReg();
+    [[nodiscard]] result<void> CellAuxReg();
+    [[nodiscard]] result<void> StatReg();
+    [[nodiscard]] result<void> CellVoltageReg();
+    [[nodiscard]] result<void> FilteredCellVoltageReg();
 } // namespace clear
 } // namespace io::adbms

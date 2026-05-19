@@ -1,11 +1,7 @@
 #pragma once
 
-#include <algorithm>
 #include <cmath>
-#include <cstddef>
-#include <expected>
 #include "app_segments.hpp"
-#include "util_errorCodes.hpp"
 
 inline constexpr uint8_t  MAX_NUM_SEGMENTS           = 10U;
 inline constexpr uint16_t VUV                        = 0x01A1; // 2.5V
