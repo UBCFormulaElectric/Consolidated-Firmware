@@ -8,7 +8,7 @@ using namespace std;
 
 namespace app::segments
 {
-expected<Cells<expected<float, ErrorCode>>, ErrorCode> runVoltageConversion()
+result<Cells<expected<float, ErrorCode>>> runVoltageConversion()
 {
     RETURN_IF_ERR(io::adbms::startCellsAdcConversion());
     io::time::delay(VOLT_CONV_TIME_MS);
@@ -17,16 +17,16 @@ expected<Cells<expected<float, ErrorCode>>, ErrorCode> runVoltageConversion()
     RETURN_IF_ERR(regs_result);
     const auto &regs = regs_result.value();
 
-    Cells<expected<float, ErrorCode>> out;
+    Cells<result<float>> out;
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
         for (size_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
             out[seg][cell] = regs[seg][cell].transform(convertRegToVoltage);
     return out;
 }
 
-expected<pair<Therms<expected<float, ErrorCode>>, Therms<expected<bool, ErrorCode>>>, ErrorCode> runTempConversion()
+result<pair<Therms<expected<float, ErrorCode>>, Therms<expected<bool, ErrorCode>>>> runTempConversion()
 {
-    array<Therms<expected<uint16_t, ErrorCode>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)> regs{};
+    array<Therms<result<uint16_t>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)> regs{};
 
     for (size_t mux = 0U; mux < static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT); mux++)
     {
@@ -38,8 +38,8 @@ expected<pair<Therms<expected<float, ErrorCode>>, Therms<expected<bool, ErrorCod
         regs[mux] = temp_result.value();
     }
 
-    Therms<expected<float, ErrorCode>> out_temps;
-    Therms<expected<bool, ErrorCode>>  out_owc;
+    Therms<result<float>> out_temps;
+    Therms<result<bool>>  out_owc;
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
         for (size_t mux = 0U; mux < static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT); mux++)
@@ -57,7 +57,7 @@ expected<pair<Therms<expected<float, ErrorCode>>, Therms<expected<bool, ErrorCod
     return pair{ out_temps, out_owc };
 }
 
-expected<Segments<expected<float, ErrorCode>>, ErrorCode> runSegVoltageConversion()
+result<Segments<expected<float, ErrorCode>>> runSegVoltageConversion()
 {
     RETURN_IF_ERR(io::adbms::startSegAdcConversion());
     io::time::delay(AUX_CONV_TIME_MS);
@@ -66,13 +66,13 @@ expected<Segments<expected<float, ErrorCode>>, ErrorCode> runSegVoltageConversio
     RETURN_IF_ERR(seg_regs_result);
     const auto &seg_regs = seg_regs_result.value();
 
-    Segments<expected<float, ErrorCode>> out;
+    Segments<result<float>> out;
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
         out[seg] = seg_regs[seg].transform(convertRegToVoltage);
     return out;
 }
 
-expected<Segments<io::adbms::StatusGroups>, ErrorCode> runStatusConversion()
+result<Segments<io::adbms::StatusGroups>> runStatusConversion()
 {
     RETURN_IF_ERR(io::adbms::clear::StatReg());
     RETURN_IF_ERR(io::adbms::startCellsAdcConversion());
@@ -81,7 +81,7 @@ expected<Segments<io::adbms::StatusGroups>, ErrorCode> runStatusConversion()
     return io::adbms::readStatusReg();
 }
 
-expected<Cells<expected<bool, ErrorCode>>, ErrorCode> runCellOpenWireCheck()
+result<Cells<expected<bool, ErrorCode>>> runCellOpenWireCheck()
 {
     RETURN_IF_ERR(io::adbms::startCellsAdcConversion());
     io::time::delay(OWC_CONVERSION_TIME_MS);
@@ -101,7 +101,7 @@ expected<Cells<expected<bool, ErrorCode>>, ErrorCode> runCellOpenWireCheck()
     RETURN_IF_ERR(owc_even_result);
     const auto &owc_even_regs = owc_even_result.value();
 
-    Cells<expected<bool, ErrorCode>> out;
+    Cells<result<bool>> out;
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
         for (size_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)

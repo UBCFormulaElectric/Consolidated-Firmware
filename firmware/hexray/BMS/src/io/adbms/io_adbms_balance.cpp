@@ -7,17 +7,17 @@ using namespace std;
 
 namespace io::adbms
 {
-expected<void, ErrorCode> sendBalanceCmd()
+result<void> sendBalanceCmd()
 {
     return sendCmd(UNMUTE);
 }
 
-expected<void, ErrorCode> sendStopBalanceCmd()
+result<void> sendStopBalanceCmd()
 {
     return sendCmd(MUTE);
 }
 
-expected<void, ErrorCode> writePwmReg(const array<PWMConfig, NUM_SEGMENTS> &pwm_config)
+result<void> writePwmReg(const array<PWMConfig, NUM_SEGMENTS> &pwm_config)
 {
     array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> pwma_regs{};
     array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> pwmb_regs{};
@@ -33,9 +33,9 @@ expected<void, ErrorCode> writePwmReg(const array<PWMConfig, NUM_SEGMENTS> &pwm_
     return {};
 }
 
-Segments<expected<PWMConfig, ErrorCode>> readPwmReg()
+Segments<result<PWMConfig>> readPwmReg()
 {
-    Segments<expected<PWMConfig, ErrorCode>> configs;
+    Segments<result<PWMConfig>> configs;
 
     const auto regs_a = readRegGroup(RDPWMA);
     const auto regs_b = readRegGroup(RDPWMB);

@@ -5,7 +5,7 @@
 
 namespace io::adbms
 {
-expected<void, ErrorCode> writeConfigReg(const array<SegmentConfig, NUM_SEGMENTS> &config)
+result<void> writeConfigReg(const array<SegmentConfig, NUM_SEGMENTS> &config)
 {
     array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> cfga_regs{};
     array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> cfgb_regs{};
@@ -22,12 +22,12 @@ expected<void, ErrorCode> writeConfigReg(const array<SegmentConfig, NUM_SEGMENTS
     return {};
 }
 
-Segments<expected<SegmentConfig, ErrorCode>> readConfigReg()
+Segments<result<SegmentConfig>> readConfigReg()
 {
     const auto a_regs = readRegGroup(RDCFGA);
     const auto b_regs = readRegGroup(RDCFGB);
 
-    Segments<expected<SegmentConfig, ErrorCode>> read_configs;
+    Segments<result<SegmentConfig>> read_configs;
     for (size_t seg = 0U; seg < NUM_SEGMENTS; ++seg)
     {
         if (!a_regs[seg])

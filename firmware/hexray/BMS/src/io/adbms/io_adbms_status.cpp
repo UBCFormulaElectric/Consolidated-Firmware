@@ -8,7 +8,7 @@ using namespace std;
 namespace io::adbms
 {
 
-expected<void, ErrorCode> clear::StatReg()
+result<void> clear::StatReg()
 {
     array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> clr_regs{};
 
@@ -18,7 +18,7 @@ expected<void, ErrorCode> clear::StatReg()
     return {};
 }
 
-expected<Segments<StatusGroups>, ErrorCode> readStatusReg()
+result<Segments<StatusGroups>> readStatusReg()
 {
     static_assert(NUM_STAT_REG_GROUPS == 5);
     static constexpr array<uint16_t, NUM_STAT_REG_GROUPS> reg_groups{ { RDSTATA, RDSTATB, RDSTATC, RDSTATD, RDSTATE } };
@@ -39,23 +39,23 @@ expected<Segments<StatusGroups>, ErrorCode> readStatusReg()
             {
                 case 0U:
                     stat_regs[seg].stat_a = out[seg] ? *reinterpret_cast<const STATA *>(out[seg]->data())
-                                                     : expected<STATA, ErrorCode>{ unexpected(out[seg].error()) };
+                                                     : result<STATA>{ unexpected(out[seg].error()) };
                     break;
                 case 1U:
                     stat_regs[seg].stat_b = out[seg] ? *reinterpret_cast<const STATB *>(out[seg]->data())
-                                                     : expected<STATB, ErrorCode>{ unexpected(out[seg].error()) };
+                                                     : result<STATB>{ unexpected(out[seg].error()) };
                     break;
                 case 2U:
                     stat_regs[seg].stat_c = out[seg] ? *reinterpret_cast<const STATC *>(out[seg]->data())
-                                                     : expected<STATC, ErrorCode>{ unexpected(out[seg].error()) };
+                                                     : result<STATC>{ unexpected(out[seg].error()) };
                     break;
                 case 3U:
                     stat_regs[seg].stat_d = out[seg] ? *reinterpret_cast<const STATD *>(out[seg]->data())
-                                                     : expected<STATD, ErrorCode>{ unexpected(out[seg].error()) };
+                                                     : result<STATD>{ unexpected(out[seg].error()) };
                     break;
                 case 4U:
                     stat_regs[seg].stat_e = out[seg] ? *reinterpret_cast<const STATE *>(out[seg]->data())
-                                                     : expected<STATE, ErrorCode>{ unexpected(out[seg].error()) };
+                                                     : result<STATE>{ unexpected(out[seg].error()) };
                     break;
                 default:
                     break;

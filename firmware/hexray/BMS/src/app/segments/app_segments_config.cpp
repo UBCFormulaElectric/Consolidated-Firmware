@@ -36,7 +36,7 @@ std::array<io::adbms::PWMConfig, NUM_SEGMENTS>     pwm_config{};
 io::semaphore config_data_lock{ true };
 
 // Caller must hold config_data_lock.
-expected<bool, ErrorCode> isConfigEqual_locked()
+result<bool> isConfigEqual_locked()
 {
     const auto segment_config_buf = io::adbms::readConfigReg();
     const auto pwm_config_buf     = io::adbms::readPwmReg();
@@ -56,7 +56,7 @@ expected<bool, ErrorCode> isConfigEqual_locked()
 }
 
 // Caller must hold config_data_lock.
-expected<void, ErrorCode> upload_locked()
+result<void> upload_locked()
 {
     RETURN_IF_ERR(io::adbms::writeConfigReg(segment_config));
     RETURN_IF_ERR(io::adbms::writePwmReg(pwm_config));
@@ -95,7 +95,7 @@ void setBalanceConfig(const Cells<bool> &balance_config, const Cells<uint8_t> &p
     }
 }
 
-expected<void, ErrorCode> setThermistorConfig(const ThermistorMux mux)
+result<void> setThermistorConfig(const ThermistorMux mux)
 {
     const io::unique_semaphore lock{ config_data_lock };
     for (auto &cfg : segment_config)
@@ -106,7 +106,7 @@ expected<void, ErrorCode> setThermistorConfig(const ThermistorMux mux)
     return io::adbms::writeConfigReg(segment_config);
 }
 
-expected<void, ErrorCode> configSync()
+result<void> configSync()
 {
     const io::unique_semaphore lock{ config_data_lock };
 
@@ -116,12 +116,12 @@ expected<void, ErrorCode> configSync()
         return {};
 
     return util::retry(
-        []() -> expected<void, ErrorCode>
+        []() -> result<void>
         {
             RETURN_IF_ERR(upload_locked());
             const auto equal = isConfigEqual_locked();
             RETURN_IF_ERR(equal);
-            return equal.value() ? expected<void, ErrorCode>{} : unexpected(ErrorCode::RETRY_FAILED);
+            return equal.value() ? result<void>{} : unexpected(ErrorCode::RETRY_FAILED);
         },
         NUM_CONFIG_SYNC_TRIES);
 }

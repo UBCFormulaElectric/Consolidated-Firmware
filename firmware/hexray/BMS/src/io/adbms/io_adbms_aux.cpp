@@ -20,22 +20,22 @@ constexpr array<uint16_t, NUM_THERM_REG_GROUPS> reg_groups{ {
 
 namespace io::adbms
 {
-expected<void, ErrorCode> clear::CellAuxReg()
+result<void> clear::CellAuxReg()
 {
     return sendCmd(CLRAUX);
 }
 
-expected<void, ErrorCode> startTempAdcConversion()
+result<void> startTempAdcConversion()
 {
     return sendCmd(ADAX_BASE);
 }
 
-expected<void, ErrorCode> startSegAdcConversion()
+result<void> startSegAdcConversion()
 {
     return sendCmd(ADAX_BASE | CH4 | CH2);
 }
 
-expected<void, ErrorCode> pollAuxAdcConversion()
+result<void> pollAuxAdcConversion()
 {
     for (size_t attempt = 0U; attempt < MAX_NUM_ATTEMPTS; attempt++)
     {
@@ -50,11 +50,11 @@ expected<void, ErrorCode> pollAuxAdcConversion()
     return unexpected(ErrorCode::TIMEOUT);
 }
 
-expected<Therms<expected<uint16_t, ErrorCode>>, ErrorCode> readCellTempReg()
+result<Therms<expected<uint16_t, ErrorCode>>> readCellTempReg()
 {
     Therms<result<uint16_t>> cell_temp_regs{};
 
-    if (const expected<void, ErrorCode> poll_ok = pollAuxAdcConversion(); !poll_ok)
+    if (const result<void> poll_ok = pollAuxAdcConversion(); !poll_ok)
     {
         return unexpected(poll_ok.error());
     }
@@ -92,10 +92,10 @@ expected<Therms<expected<uint16_t, ErrorCode>>, ErrorCode> readCellTempReg()
     return cell_temp_regs;
 }
 
-expected<Segments<expected<uint16_t, ErrorCode>>, ErrorCode> readSegVoltageReg()
+result<Segments<expected<uint16_t, ErrorCode>>> readSegVoltageReg()
 {
     Segments<result<uint16_t>> segment_voltage_regs{};
-    if (const expected<void, ErrorCode> poll_ok = pollAuxAdcConversion(); !poll_ok)
+    if (const result<void> poll_ok = pollAuxAdcConversion(); !poll_ok)
     {
         return unexpected(poll_ok.error());
     }

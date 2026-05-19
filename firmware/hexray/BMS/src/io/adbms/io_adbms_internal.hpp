@@ -114,15 +114,14 @@ inline constexpr uint16_t CH0 = (1U << 0);
 inline constexpr uint32_t POLL_STATUS_READY = __builtin_bswap32(0xFFFFFFFFU >> (2 * NUM_SEGMENTS));
 
 // Raw command helpers
-[[nodiscard]] expected<void, ErrorCode>                    sendCmd(uint16_t cmd);
-[[nodiscard]] expected<void, ErrorCode>                    poll(uint16_t cmd, span<uint8_t> poll_buf);
-[[nodiscard]] Segments<expected<Regs<uint8_t>, ErrorCode>> readRegGroup(uint16_t cmd);
-[[nodiscard]] expected<void, ErrorCode>
-    writeRegGroup(uint16_t cmd, const array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs);
+[[nodiscard]] result<void>                    sendCmd(uint16_t cmd);
+[[nodiscard]] result<void>                    poll(uint16_t cmd, span<uint8_t> poll_buf);
+[[nodiscard]] Segments<result<Regs<uint8_t>>> readRegGroup(uint16_t cmd);
+[[nodiscard]] result<void> writeRegGroup(uint16_t cmd, const array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs);
 
 // STAT regs use same poll
-[[nodiscard]] expected<void, ErrorCode> pollAuxAdcConversion();
-[[nodiscard]] expected<void, ErrorCode> pollCellsAdcConversion();
+[[nodiscard]] result<void> pollAuxAdcConversion();
+[[nodiscard]] result<void> pollCellsAdcConversion();
 
 // Command counter tracking.
 void              resetExpectedCmdCount();

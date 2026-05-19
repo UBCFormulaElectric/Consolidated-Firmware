@@ -209,7 +209,7 @@ Segments<uint8_t> getExpectedCmdCount()
     return expected_cmd_count;
 }
 
-expected<void, ErrorCode> sendCmd(const uint16_t cmd)
+result<void> sendCmd(const uint16_t cmd)
 {
     const TxCmd tx_cmd{ cmd };
     const auto  status = adbms_spi_ls.transmit(tx_cmd.into_span());
@@ -224,7 +224,7 @@ expected<void, ErrorCode> sendCmd(const uint16_t cmd)
     return status;
 }
 
-expected<void, ErrorCode> poll(const uint16_t cmd, const span<uint8_t> poll_buf)
+result<void> poll(const uint16_t cmd, const span<uint8_t> poll_buf)
 {
     const TxCmd tx_cmd{ cmd };
     const auto  status =
@@ -240,11 +240,11 @@ expected<void, ErrorCode> poll(const uint16_t cmd, const span<uint8_t> poll_buf)
     return status;
 }
 
-array<expected<array<uint8_t, REG_GROUP_SIZE>, ErrorCode>, NUM_SEGMENTS> readRegGroup(const uint16_t cmd)
+array<result<array<uint8_t, REG_GROUP_SIZE>>, NUM_SEGMENTS> readRegGroup(const uint16_t cmd)
 {
-    array<expected<array<uint8_t, REG_GROUP_SIZE>, ErrorCode>, NUM_SEGMENTS> regs;
-    const TxCmd                                                              tx_cmd{ cmd };
-    array<RegGroupPayload, NUM_SEGMENTS>                                     rx_buffer{};
+    array<result<array<uint8_t, REG_GROUP_SIZE>>, NUM_SEGMENTS> regs;
+    const TxCmd                                                 tx_cmd{ cmd };
+    array<RegGroupPayload, NUM_SEGMENTS>                        rx_buffer{};
 
     const auto comm_status = adbms_spi_ls.transmitThenReceiveDma(
         tx_cmd.into_span(), { reinterpret_cast<uint8_t *>(rx_buffer.data()), sizeof(rx_buffer) });
@@ -280,8 +280,7 @@ array<expected<array<uint8_t, REG_GROUP_SIZE>, ErrorCode>, NUM_SEGMENTS> readReg
     return regs;
 }
 
-expected<void, ErrorCode>
-    writeRegGroup(const uint16_t cmd, const array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs)
+result<void> writeRegGroup(const uint16_t cmd, const array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs)
 {
     TxCmdPayload tx_buffer{ TxCmd{ cmd }, {} };
 
