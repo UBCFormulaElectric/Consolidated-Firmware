@@ -85,49 +85,49 @@ result<Cells<result<bool>>> runCellOpenWireCheck()
 {
     RETURN_IF_ERR(io::adbms::startCellsAdcConversion());
     io::time::delay(OWC_CONVERSION_TIME_MS);
-    const auto baseline_result = io::adbms::readCellVoltageRegs();
+    const result<Cells<result<uint16_t>>> baseline_result = io::adbms::readCellVoltageRegs();
     RETURN_IF_ERR(baseline_result);
-    const auto &baseline_regs = baseline_result.value();
+    const Cells<result<uint16_t>> &baseline_regs = baseline_result.value();
 
     RETURN_IF_ERR(io::adbms::owcCells(io::adbms::OpenWireSwitch::OddChannels));
     io::time::delay(OWC_CONVERSION_TIME_MS);
-    const auto owc_odd_result = io::adbms::readCellVoltageRegs();
+    const result<Cells<result<uint16_t>>> owc_odd_result = io::adbms::readCellVoltageRegs();
     RETURN_IF_ERR(owc_odd_result);
-    const auto &owc_odd_regs = owc_odd_result.value();
+    const Cells<result<uint16_t>> &owc_odd_regs = owc_odd_result.value();
 
     RETURN_IF_ERR(io::adbms::owcCells(io::adbms::OpenWireSwitch::EvenChannels));
     io::time::delay(OWC_CONVERSION_TIME_MS);
-    const auto owc_even_result = io::adbms::readCellVoltageRegs();
+    const result<Cells<result<uint16_t>>> owc_even_result = io::adbms::readCellVoltageRegs();
     RETURN_IF_ERR(owc_even_result);
-    const auto &owc_even_regs = owc_even_result.value();
+    const Cells<result<uint16_t>> &owc_even_regs = owc_even_result.value();
 
-    Cells<result<bool>> out;
+    Cells<result<bool>> open_wire_cells;
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
         for (size_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
         {
             if (!baseline_regs[seg][cell])
             {
-                out[seg][cell] = unexpected(baseline_regs[seg][cell].error());
+                open_wire_cells[seg][cell] = unexpected(baseline_regs[seg][cell].error());
                 continue;
             }
             if (!owc_odd_regs[seg][cell])
             {
-                out[seg][cell] = unexpected(owc_odd_regs[seg][cell].error());
+                open_wire_cells[seg][cell] = unexpected(owc_odd_regs[seg][cell].error());
                 continue;
             }
             if (!owc_even_regs[seg][cell])
             {
-                out[seg][cell] = unexpected(owc_even_regs[seg][cell].error());
+                open_wire_cells[seg][cell] = unexpected(owc_even_regs[seg][cell].error());
                 continue;
             }
 
-            const float baseline_v = convertRegToVoltage(baseline_regs[seg][cell].value());
-            const float owc_v      = (cell % 2 == 0) ? convertRegToVoltage(owc_odd_regs[seg][cell].value())
-                                                     : convertRegToVoltage(owc_even_regs[seg][cell].value());
-            out[seg][cell]         = checkCellOwcOk(baseline_v, owc_v);
+            const float baseline_v     = convertRegToVoltage(baseline_regs[seg][cell].value());
+            const float owc_v          = (cell % 2 == 0) ? convertRegToVoltage(owc_odd_regs[seg][cell].value())
+                                                         : convertRegToVoltage(owc_even_regs[seg][cell].value());
+            open_wire_cells[seg][cell] = checkCellOwcOk(baseline_v, owc_v);
         }
     }
-    return out;
+    return open_wire_cells;
 }
 } // namespace app::segments

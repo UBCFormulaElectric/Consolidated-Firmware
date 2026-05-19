@@ -10,7 +10,8 @@ namespace
 using io::adbms::Cells;
 
 std::array<std::bitset<4>, MAX_NUM_SEGMENTS> segment_health{};
-io::semaphore                                health_mutex{ true };
+// health mutex protects the segment_health array
+io::semaphore health_mutex{ true };
 
 Cells<result<float>>     latest_voltages{};
 app::segments::CellParam latest_min_cell_voltage{ .segment = 0, .cell = 0, .value = 0.0f };

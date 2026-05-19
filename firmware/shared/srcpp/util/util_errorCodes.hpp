@@ -3,7 +3,7 @@
 #include <expected>
 #include <source_location>
 
-enum class ErrorCode
+enum class ErrorCode : uint8_t
 {
     INVALID_ARGS = 0,
     OUT_OF_RANGE,
