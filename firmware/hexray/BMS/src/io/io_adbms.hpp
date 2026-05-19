@@ -210,23 +210,23 @@ template <typename T> using Cells        = Segments<SegmentCells<T>>;
 // Derived type
 using Status = Segments<StatusGroups>;
 
-template <typename T> using PerCell    = Cells<result<T>>;
-template <typename T> using PerTherm   = Therms<result<T>>;
-template <typename T> using PerSegment = Segments<result<T>>;
+template <typename T> using CellResult    = Cells<result<T>>;
+template <typename T> using ThermResult   = Therms<result<T>>;
+template <typename T> using SegmentResult = Segments<result<T>>;
 
 // FUNCTIONS
 // Configuration, balance and PWM access.
-[[nodiscard]] result<void>              writeConfigReg(const std::array<SegmentConfig, NUM_SEGMENTS> &config);
-[[nodiscard]] PerSegment<SegmentConfig> readConfigReg();
-[[nodiscard]] result<void>              writePwmReg(const std::array<PWMConfig, NUM_SEGMENTS> &pwm_config);
-[[nodiscard]] PerSegment<PWMConfig>     readPwmReg();
+[[nodiscard]] result<void>                 writeConfigReg(const std::array<SegmentConfig, NUM_SEGMENTS> &config);
+[[nodiscard]] SegmentResult<SegmentConfig> readConfigReg();
+[[nodiscard]] result<void>                 writePwmReg(const std::array<PWMConfig, NUM_SEGMENTS> &pwm_config);
+[[nodiscard]] SegmentResult<PWMConfig>     readPwmReg();
 
 // Measurement reads.
-[[nodiscard]] result<PerCell<uint16_t>>      readCellVoltageReg();
-[[nodiscard]] result<PerCell<uint16_t>>      readFilteredCellVoltageReg();
-[[nodiscard]] result<PerTherm<uint16_t>>     readCellTempReg();
-[[nodiscard]] result<PerSegment<uint16_t>>   readSegVoltageReg();
-[[nodiscard]] result<Segments<StatusGroups>> readStatusReg();
+[[nodiscard]] result<CellResult<uint16_t>>    readCellVoltageReg();
+[[nodiscard]] result<CellResult<uint16_t>>    readFilteredCellVoltageReg();
+[[nodiscard]] result<ThermResult<uint16_t>>   readCellTempReg();
+[[nodiscard]] result<SegmentResult<uint16_t>> readSegVoltageReg();
+[[nodiscard]] result<Segments<StatusGroups>>  readStatusReg();
 
 // Open-wire diagnostics.
 [[nodiscard]] result<void> owcCells(OpenWireSwitch owcSwitch);

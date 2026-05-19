@@ -40,9 +40,15 @@ constexpr uint16_t             CRC15_POLY = 0x4599;
 constexpr array<uint16_t, 256> pec10Table = pecTable(CRC10_POLY, 10);
 constexpr array<uint16_t, 256> pec15Table = pecTable(CRC15_POLY, 15);
 
-uint16_t swapEndianness(const uint16_t value)
+template <std::integral T> T swapEndianness(const T value)
 {
-    return static_cast<uint16_t>(value >> 8 | value << 8);
+    T out = 0;
+    for (size_t i = 0; i < sizeof(T); ++i)
+    {
+        out <<= 8;
+        out |= (value >> (i * 8)) & 0xFFU;
+    }
+    return out;
 }
 
 uint16_t calculatePec10(const span<const uint8_t> data, const uint16_t cmdCount)
@@ -266,8 +272,7 @@ array<result<array<uint8_t, REG_GROUP_SIZE>>, NUM_SEGMENTS> readRegGroup(const u
             continue;
         }
 
-        const auto cc_byte = static_cast<uint8_t>(cmd_count & 0x3FU);
-        if (cc_byte != expected_cmd_count[segment])
+        if (const auto cc_byte = static_cast<uint8_t>(cmd_count & 0x3FU); cc_byte != expected_cmd_count[segment])
         {
             // Resync so a single dropped/replayed command doesn't cascade.
             expected_cmd_count[segment] = cc_byte;
@@ -288,7 +293,7 @@ result<void> writeRegGroup(const uint16_t cmd, const array<array<uint8_t, REG_GR
     {
         auto &[data, pec10] = tx_buffer.payload[segment];
         data                = regs[segment];
-        pec10               = swapEndianness(calculatePec10(data, 0U) & 0x03FFU);
+        pec10               = swapEndianness(static_cast<uint16_t>(calculatePec10(data, 0U) & 0x03FFU));
     }
 
     const auto status = adbms_spi_ls.transmit(tx_buffer.into_span());

@@ -10,8 +10,7 @@ namespace io::adbms
 
 result<void> clear::StatReg()
 {
-    array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> clr_regs{};
-
+    constexpr Segments<Regs<uint8_t>> clr_regs{};
     RETURN_IF_ERR(sendCmd(CLRAUX));
     RETURN_IF_ERR(writeRegGroup(CLRFLAG, clr_regs));
     RETURN_IF_ERR(writeRegGroup(CLOVUV, clr_regs));
@@ -20,7 +19,6 @@ result<void> clear::StatReg()
 
 result<Segments<StatusGroups>> readStatusReg()
 {
-    static_assert(NUM_STAT_REG_GROUPS == 5);
     static constexpr array<uint16_t, NUM_STAT_REG_GROUPS> reg_groups{ { RDSTATA, RDSTATB, RDSTATC, RDSTATD, RDSTATE } };
     Segments<StatusGroups>                                stat_regs;
     // TODO: TEST (Unsure if this poll is needed)
