@@ -28,7 +28,7 @@
         "VC_IMU3",
         "VC_IMUFiltered",
         "FSM_Brake",
-        "CRIT_Switches",
-        "BMS_PowerLimit"
+        "BMS_PowerLimit",
+        "CRIT_ButtonsAndSwitches"
     ]
 }

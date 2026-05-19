@@ -51,4 +51,15 @@ void MonitorPumps()
 
     app::can_tx::VC_RsmTurnOnPump_set(ramp_up_rl_pump && ramp_up_rr_pump);
 }
+
+#ifdef TARGET_TEST
+void reset()
+{
+    finished_ramp_up = false;
+    time_ms          = 0;
+    app::can_tx::VC_PumpFailure_set(false);
+    app::can_tx::VC_RsmTurnOnPump_set(false);
+    app::can_tx::VC_PumpRampUpSetPoint_set(0.0f);
+}
+#endif
 } // namespace app::pumpControl

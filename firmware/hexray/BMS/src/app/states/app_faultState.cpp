@@ -6,6 +6,7 @@
 #include "io_irs.hpp"
 #include "io_faultLatch.hpp"
 #include "app_canTx.hpp"
+#include "app_canAlerts.hpp"
 
 namespace app::states
 {
@@ -22,20 +23,8 @@ namespace faultState
 
     static void runOnTick100Hz()
     {
-#ifdef TARGET_HV_SUPPLY
-        const bool acc_fault_cleared = true;
-#else
-        // TODO: Change back if we ever get to segments again
-        // const bool acc_fault_cleared = !app::segments::checkFaults();
-        const bool acc_fault_cleared = true;
-#endif
-
         // const bool precharge_ok = !app_precharge_limitExceeded(); // Optional condition
-
-        const bool bms_fault_cleared =
-            (io::faultLatch::getLatchedStatus(&io::faultLatch::bms_ok_latch) == io::faultLatch::FaultLatchState::OK);
-
-        if (acc_fault_cleared && bms_fault_cleared)
+        if (not app::can_alerts::AnyBoardHasFault())
         {
             app::StateMachine::set_next_state(&init_state);
         }

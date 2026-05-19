@@ -5,6 +5,7 @@
 #include "app_canUtils.hpp"
 #include "app_canAlerts.hpp"
 #include "app_timer.hpp"
+#include "app_powerManager.hpp"
 
 #include "io_pcm.hpp"
 
@@ -41,6 +42,20 @@ namespace pcmOnState
 
     static void runOnEntry(void)
     {
+        static const app::powerManager::PowerManagerConfig power_manager_state = { .efuse_configs = { {
+                                                                                       { false, 200, 5 }, // rr_pump
+                                                                                       { false, 200, 5 }, // rl_pump
+                                                                                       { false, 200, 5 }, // r_rad_fan
+                                                                                       { false, 200, 5 }, // l_rad_fan
+                                                                                       { true, 0, 5 },    // f_inv
+                                                                                       { true, 0, 5 },    // r_inv
+                                                                                       { true, 0, 5 },    // rsm
+                                                                                       { true, 0, 5 },    // bms
+                                                                                       { true, 0, 5 },    // dam
+                                                                                       { true, 0, 5 },    // front
+                                                                                   } } };
+        app::powerManager::updateConfig(power_manager_state);
+
         app::can_tx::VC_State_set(VCState::VC_PCM_ON_STATE);
         pcm_prev_voltage = 0.0f;
         pcm_retries      = 0;

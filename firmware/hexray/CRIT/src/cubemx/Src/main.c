@@ -52,6 +52,7 @@ SPI_HandleTypeDef hspi3;
 
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
+TIM_HandleTypeDef htim7;
 
 PCD_HandleTypeDef hpcd_USB_DRD_FS;
 
@@ -71,6 +72,7 @@ static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_USB_PCD_Init(void);
 static void MX_IWDG_Init(void);
+static void MX_TIM7_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -119,6 +121,7 @@ int main(void)
     MX_TIM4_Init();
     MX_USB_PCD_Init();
     MX_IWDG_Init();
+    MX_TIM7_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
     /* USER CODE END 2 */
@@ -526,6 +529,42 @@ static void MX_TIM4_Init(void)
 }
 
 /**
+ * @brief TIM7 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_TIM7_Init(void)
+{
+    /* USER CODE BEGIN TIM7_Init 0 */
+
+    /* USER CODE END TIM7_Init 0 */
+
+    TIM_MasterConfigTypeDef sMasterConfig = { 0 };
+
+    /* USER CODE BEGIN TIM7_Init 1 */
+
+    /* USER CODE END TIM7_Init 1 */
+    htim7.Instance               = TIM7;
+    htim7.Init.Prescaler         = 10 - 1;
+    htim7.Init.CounterMode       = TIM_COUNTERMODE_UP;
+    htim7.Init.Period            = 959;
+    htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+    sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim7, &sMasterConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN TIM7_Init 2 */
+
+    /* USER CODE END TIM7_Init 2 */
+}
+
+/**
  * @brief USB Initialization Function
  * @param None
  * @retval None
@@ -581,7 +620,7 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_WritePin(GPIOC, BOOT_Pin | LED_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOA, LED_RCK_Pin | _7SEG_RCK_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOA, D_P_PULLUP_Pin | LED_RCK_Pin | _7SEG_RCK_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pins : BOOT_Pin LED_Pin */
     GPIO_InitStruct.Pin   = BOOT_Pin | LED_Pin;
@@ -590,8 +629,8 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : LED_RCK_Pin _7SEG_RCK_Pin */
-    GPIO_InitStruct.Pin   = LED_RCK_Pin | _7SEG_RCK_Pin;
+    /*Configure GPIO pins : D_P_PULLUP_Pin LED_RCK_Pin _7SEG_RCK_Pin */
+    GPIO_InitStruct.Pin   = D_P_PULLUP_Pin | LED_RCK_Pin | _7SEG_RCK_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -609,11 +648,27 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : ROT_S_Pin ROT_B_Pin ROT_A_Pin */
-    GPIO_InitStruct.Pin  = ROT_S_Pin | ROT_B_Pin | ROT_A_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    /*Configure GPIO pin : ROT_S_Pin */
+    GPIO_InitStruct.Pin  = ROT_S_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(ROT_S_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : ROT_B_Pin ROT_A_Pin */
+    GPIO_InitStruct.Pin  = ROT_B_Pin | ROT_A_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    /* EXTI interrupt init*/
+    HAL_NVIC_SetPriority(EXTI8_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(EXTI8_IRQn);
+
+    HAL_NVIC_SetPriority(EXTI9_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(EXTI9_IRQn);
+
+    HAL_NVIC_SetPriority(EXTI10_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(EXTI10_IRQn);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
 
@@ -642,7 +697,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         HAL_IncTick();
     }
     /* USER CODE BEGIN Callback 1 */
-
+    tasks_tim_callback(htim);
     /* USER CODE END Callback 1 */
 }
 

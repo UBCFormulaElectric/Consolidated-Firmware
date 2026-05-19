@@ -5,6 +5,7 @@
 #include <task.h>
 
 #include "hw_utils.hpp"
+#include "hw_error.hpp"
 #include "io_log.hpp"
 #include "io_time.hpp"
 
@@ -148,7 +149,7 @@ std::expected<CanMsg, ErrorCode> can::receive(const uint32_t rx_fifo) const
             msg.std_id = header.ExtId;
             break;
         default:
-            assert(false);
+            Error_Handler();
     }
     msg.dlc = header.DLC;
 

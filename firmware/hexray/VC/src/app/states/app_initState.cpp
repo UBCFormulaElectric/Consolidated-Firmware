@@ -1,5 +1,6 @@
 #include "app_stateMachine.hpp"
 #include "app_states.hpp"
+#include "app_powerManager.hpp"
 #include "app_canTx.hpp"
 #include "app_canRx.hpp"
 #include "app_canUtils.hpp"
@@ -14,8 +15,21 @@ namespace app::states
 
 namespace initState
 {
-    static void runOnEntry(void)
+    static const app::powerManager::PowerManagerConfig power_manager_state = { .efuse_configs = { {
+                                                                                   { false, 200, 5 }, // rr_pump
+                                                                                   { false, 200, 5 }, // rl_pump
+                                                                                   { false, 200, 5 }, // r_rad_fan
+                                                                                   { false, 200, 5 }, // l_rad_fan
+                                                                                   { false, 0, 5 },   // f_inv
+                                                                                   { false, 0, 5 },   // r_inv
+                                                                                   { true, 0, 5 },    // rsm
+                                                                                   { true, 0, 5 },    // bms
+                                                                                   { true, 0, 5 },    // dam
+                                                                                   { true, 0, 5 },    // front
+                                                                               } } };
+    static void                                        runOnEntry(void)
     {
+        app::powerManager::updateConfig(power_manager_state);
         app::can_tx::VC_State_set(VCState::VC_INIT_STATE);
 
         app::can_alerts::infos::InverterRetry_set(false);
@@ -38,7 +52,7 @@ namespace initState
 
     static void runOnTick100Hz(void)
     {
-        const ContactorState air_minus_closed = app::can_rx::BMS_IrPositive_get();
+        const ContactorState air_minus_closed = app::can_rx::BMS_IrNegative_get();
         if (air_minus_closed == ContactorState::CONTACTOR_STATE_CLOSED)
         {
             app::StateMachine::set_next_state(&inverterOn_state);

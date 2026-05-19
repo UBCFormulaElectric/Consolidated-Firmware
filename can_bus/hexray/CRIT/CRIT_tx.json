@@ -28,16 +28,16 @@
         "description": "State of buttons and switches on the CRIT",
         "signals": {
             "StartButton": {
-                "bits": 1
+                "enum": "SwitchState"
             },
             "RegenSwitch": {
-                "bits": 1
+                "enum": "SwitchState"
             },
             "LaunchControlSwitch": {
-                "bits": 1
+                "enum": "SwitchState"
             },
             "TorqueVectoringSwitch": {
-                "bits": 1
+                "enum": "SwitchState"
             },
             "DriveMode": {
                 "enum": "DriveMode"
@@ -50,14 +50,141 @@
         "description": "Marks an event in the telemetry data. Can be used to mark the start of a run, or any other significant event.",
         "signals": {}
     },
-    "Switches": {
-        "msg_id": 920,
-        "cycle_time": 100,
-        "description": "States of the switches on the CRIT.",
-        "signals": {
-            "StartSwitch": {
-                "enum": "SwitchState"
-            }
+    "Bootup": {
+        "msg_id": 921,
+        "cycle_time": null,
+        "description": "Async bootup message!",
+        "signals": {}
+    },
+    "Debug": {
+      "msg_id": 922,
+      "cycle_time": 1000,
+      "description": "CRIT Debug Signals",
+      "signals": {
+        "TxOverflowCount": {
+          "bits": 16
+        },
+        "RxOverflowCount": {
+          "bits": 16
+        },
+        "ResetReason": {
+          "enum": "CanResetReason"
+        },
+        "StackOverflowTask": {
+          "bits": 32
+        },
+        "WatchdogTimeoutTask": {
+          "bits": 32
         }
-    }
+      }
+    },
+    "CPUDataLogInfo": {
+     "msg_id": 923,
+     "cycle_time": 100,
+     "description": "CRIT cpu and stack information",
+     "signals": {
+       "CoreCpuUsageMax": {
+         "resolution": 0.1,
+         "min": 0,
+         "max": 100,
+         "unit": "%"
+       },
+       "CoreCpuUsage": {
+         "resolution": 0.1,
+         "min": 0,
+         "max": 100,
+         "unit": "%"
+       },
+       "TaskRun1HzCpuUsageMax": {
+         "resolution": 0.1,
+         "min": 0,
+         "max": 100,
+         "unit": "%"
+       },
+       "TaskRun1HzCpuUsage": {
+         "resolution": 0.1,
+         "min": 0,
+         "max": 100,
+         "unit": "%"
+       },
+       "TaskRun1HzStackUsage": {
+         "resolution": 0.1,
+         "min": 0,
+         "max": 100,
+         "unit": "%"
+       },
+       "TaskRun100HzCpuUsageMax": {
+         "resolution": 0.1,
+         "min": 0,
+         "max": 100,
+         "unit": "%"
+       },
+       "TaskRun100HzCpuUsage": {
+         "resolution": 0.1,
+         "min": 0,
+         "max": 100,
+         "unit": "%"
+       },
+       "TaskRun100HzStackUsage": {
+         "resolution": 0.1,
+         "min": 0,
+         "max": 100,
+         "unit": "%"
+       },
+       "TaskRun1kHzCpuUsageMax": {
+         "resolution": 0.1,
+         "min": 0,
+         "max": 100,
+         "unit": "%"
+       },
+       "TaskRun1kHzCpuUsage": {
+         "resolution": 0.1,
+         "min": 0,
+         "max": 100,
+         "unit": "%"
+       },
+       "TaskRun1kHzStackUsage": {
+         "resolution": 0.1,
+         "min": 0,
+         "max": 100,
+         "unit": "%"
+       },
+       "TaskRunCanTxCpuUsageMax": {
+         "resolution": 0.1,
+         "min": 0,
+         "max": 100,
+         "unit": "%"
+       },
+       "TaskRunCanTxCpuUsage": {
+         "resolution": 0.1,
+         "min": 0,
+         "max": 100,
+         "unit": "%"
+       },
+       "TaskRunCanTxStackUsage": {
+         "resolution": 0.1,
+         "min": 0,
+         "max": 100,
+         "unit": "%"
+       },
+       "TaskRunCanRxCpuUsageMax": {
+         "resolution": 0.1,
+         "min": 0,
+         "max": 100,
+         "unit": "%"
+       },
+       "TaskRunCanRxCpuUsage": {
+         "resolution": 0.1,
+         "min": 0,
+         "max": 100,
+         "unit": "%"
+       },
+       "TaskRunCanRxStackUsage": {
+         "resolution": 0.1,
+         "min": 0,
+         "max": 100,
+         "unit": "%"
+       }
+     }
+   }
 }

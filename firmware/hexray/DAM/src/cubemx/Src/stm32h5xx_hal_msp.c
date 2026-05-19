@@ -67,6 +67,10 @@ void HAL_MspInit(void)
     /* USER CODE END MspInit 0 */
 
     /* System interrupt init*/
+    /* SVCall_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(SVCall_IRQn, 15, 0);
+    /* PendSV_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(PendSV_IRQn, 15, 0);
 
     /* USER CODE BEGIN MspInit 1 */
 
@@ -303,17 +307,20 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd)
         GPIO_InitStruct.Pin       = GPIO_PIN_2;
         GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
         GPIO_InitStruct.Pull      = GPIO_NOPULL;
-        GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_HIGH;
+        GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
         GPIO_InitStruct.Alternate = GPIO_AF12_SDMMC1;
         HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
         GPIO_InitStruct.Pin       = GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11 | GPIO_PIN_12;
         GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
         GPIO_InitStruct.Pull      = GPIO_NOPULL;
-        GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_HIGH;
+        GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
         GPIO_InitStruct.Alternate = GPIO_AF12_SDMMC1;
         HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
+        /* SDMMC1 interrupt Init */
+        HAL_NVIC_SetPriority(SDMMC1_IRQn, 0, 0);
+        HAL_NVIC_EnableIRQ(SDMMC1_IRQn);
         /* USER CODE BEGIN SDMMC1_MspInit 1 */
 
         /* USER CODE END SDMMC1_MspInit 1 */
@@ -348,9 +355,59 @@ void HAL_SD_MspDeInit(SD_HandleTypeDef *hsd)
 
         HAL_GPIO_DeInit(GPIOC, GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11 | GPIO_PIN_12);
 
+        /* SDMMC1 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(SDMMC1_IRQn);
         /* USER CODE BEGIN SDMMC1_MspDeInit 1 */
 
         /* USER CODE END SDMMC1_MspDeInit 1 */
+    }
+}
+
+/**
+ * @brief TIM_Base MSP Initialization
+ * This function configures the hardware resources used in this example
+ * @param htim_base: TIM_Base handle pointer
+ * @retval None
+ */
+void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim_base)
+{
+    if (htim_base->Instance == TIM7)
+    {
+        /* USER CODE BEGIN TIM7_MspInit 0 */
+
+        /* USER CODE END TIM7_MspInit 0 */
+        /* Peripheral clock enable */
+        __HAL_RCC_TIM7_CLK_ENABLE();
+        /* TIM7 interrupt Init */
+        HAL_NVIC_SetPriority(TIM7_IRQn, 5, 0);
+        HAL_NVIC_EnableIRQ(TIM7_IRQn);
+        /* USER CODE BEGIN TIM7_MspInit 1 */
+
+        /* USER CODE END TIM7_MspInit 1 */
+    }
+}
+
+/**
+ * @brief TIM_Base MSP De-Initialization
+ * This function freeze the hardware resources used in this example
+ * @param htim_base: TIM_Base handle pointer
+ * @retval None
+ */
+void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef *htim_base)
+{
+    if (htim_base->Instance == TIM7)
+    {
+        /* USER CODE BEGIN TIM7_MspDeInit 0 */
+
+        /* USER CODE END TIM7_MspDeInit 0 */
+        /* Peripheral clock disable */
+        __HAL_RCC_TIM7_CLK_DISABLE();
+
+        /* TIM7 interrupt DeInit */
+        HAL_NVIC_DisableIRQ(TIM7_IRQn);
+        /* USER CODE BEGIN TIM7_MspDeInit 1 */
+
+        /* USER CODE END TIM7_MspDeInit 1 */
     }
 }
 
@@ -397,7 +454,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
         /* USART2 interrupt Init */
-        HAL_NVIC_SetPriority(USART2_IRQn, 0, 0);
+        HAL_NVIC_SetPriority(USART2_IRQn, 5, 0);
         HAL_NVIC_EnableIRQ(USART2_IRQn);
         /* USER CODE BEGIN USART2_MspInit 1 */
 
@@ -466,7 +523,7 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
         /* Peripheral clock enable */
         __HAL_RCC_USB_CLK_ENABLE();
         /* USB_DRD_FS interrupt Init */
-        HAL_NVIC_SetPriority(USB_DRD_FS_IRQn, 0, 0);
+        HAL_NVIC_SetPriority(USB_DRD_FS_IRQn, 5, 0);
         HAL_NVIC_EnableIRQ(USB_DRD_FS_IRQn);
         /* USER CODE BEGIN USB_DRD_FS_MspInit 1 */
 

@@ -1,5 +1,6 @@
 #include "jobs.hpp"
 
+#include "app_bootcount.hpp"
 #include "app_canTx.hpp"
 #include "app_canUtils.hpp"
 #include "app_jsoncan.hpp"
@@ -14,6 +15,7 @@
 #include "io_telemQueue.hpp"
 #include "io_telemUart.hpp"
 #include "io_time.hpp"
+#include "io_fileSystems.hpp"
 
 #include "util_errorCodes.hpp"
 
@@ -33,6 +35,11 @@ void jobs_init()
     telem_tx_queue.init();
 
     app::can_tx::DAM_Heartbeat_set(true);
+
+    if (const auto err = app::bootcount::update(fs); !err)
+    {
+        LOG_ERROR("Failed to update bootcount: %d", static_cast<int>(err.error()));
+    };
 }
 void jobs_run1Hz_tick() {}
 void jobs_run100Hz_tick()
@@ -58,12 +65,13 @@ void jobs_runTelem_tick()
     }
 
     const auto &msg = result.value();
-    const auto  tx_result =
-        io::telemUart::transmit(std::span<const uint8_t>{ reinterpret_cast<const uint8_t *>(&msg), msg.wireSize() });
-    if (not tx_result)
-    {
-        LOG_ERROR("Failed to transmit telem message: %d", static_cast<int>(tx_result.error()));
-    }
+    // TODO refactor so that it does not have an io dependency here (because I don't think you want to write mocks for
+    // this) const auto  tx_result =
+    //     io::telemUart::transmit(std::span<const uint8_t>{ reinterpret_cast<const uint8_t *>(&msg), msg.wireSize() });
+    // if (not tx_result)
+    // {
+    //     LOG_ERROR("Failed to transmit telem message: %d", static_cast<int>(tx_result.error()));
+    // }
 }
 
 void jobs_runTelemRx()

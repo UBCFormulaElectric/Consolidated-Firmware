@@ -2,7 +2,6 @@
 #include "app_imu.hpp"
 #include "app_canAlerts.hpp"
 #include "app_canTx.hpp"
-#include "io_imu.hpp"
 
 namespace app::imus
 {

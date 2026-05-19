@@ -198,11 +198,16 @@ class Bootloader:
         by computing a checksum.
 
         """
+        CAN_FRAME_SIZE = 64 if self.is_fd else 8
+
+        # TODO: Check if binary is aligned to 64 bytes and ensure ending bytes are sent
         for i, address in enumerate(
-            range(self.ih.minaddr(), self.ih.minaddr() + self.size_bytes(), 8)
+            range(self.ih.minaddr(), self.ih.minaddr() + self.size_bytes(), CAN_FRAME_SIZE)
         ):
             if self.ui_callback and i % 128 == 0:
-                self.ui_callback("Programming data", self.size_bytes(), i * 8)
+                self.ui_callback(
+                    "Programming data", self.size_bytes(), i * CAN_FRAME_SIZE
+                )
 
             data = [self.ih[address + i] for i in range(0, 8)]
 
@@ -221,8 +226,8 @@ class Bootloader:
                     success = True
                 except can.interfaces.vector.exceptions.VectorOperationError:
                     pass
-                
-            #time.sleep(0.0001)
+
+            # time.sleep(0.0001)
         if self.ui_callback:
             self.ui_callback("Programming data", self.size_bytes(), self.size_bytes())
 
@@ -261,7 +266,7 @@ class Bootloader:
         rx_msg = self._await_can_msg(_validator)
         if rx_msg is None:
             return None
-        
+
         if rx_msg.dlc < 1:
             raise RuntimeError("Zero Message recieved")
 
@@ -295,7 +300,7 @@ class Bootloader:
                 b_max=sector.max_address,
             )
         ]
-        
+
         if not self.erase_sectors(app_flash_sectors):
             raise RuntimeError(
                 f"Bootloader for {self.board.name} did not respond to command to erase flash memory."

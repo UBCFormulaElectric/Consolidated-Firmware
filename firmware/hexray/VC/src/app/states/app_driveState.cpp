@@ -10,24 +10,26 @@
 #include "app_powerManager.hpp"
 #include "torque_vectoring/datatypes/torque_limits.hpp"
 
+#include "app_powerManager.hpp"
+
 using namespace app::can_utils;
 using namespace app::inverter;
 using namespace app::powerManager;
 using namespace app::tv::datatypes::torque_limits;
 
 // TODO: Why does this need to be a struct??? we can just pass the reference of the array
-static PowerManagerConfig pwr_mgr_cfg{ .efuse_configs = { {
-                                           EfuseConfig{ .efuse_enable = true, .timeout = 0, .max_retry = 5 },
-                                           EfuseConfig{ .efuse_enable = true, .timeout = 0, .max_retry = 5 },
-                                           EfuseConfig{ .efuse_enable = true, .timeout = 0, .max_retry = 5 },
-                                           EfuseConfig{ .efuse_enable = true, .timeout = 0, .max_retry = 5 },
-                                           EfuseConfig{ .efuse_enable = true, .timeout = 0, .max_retry = 5 },
-                                           EfuseConfig{ .efuse_enable = true, .timeout = 0, .max_retry = 5 },
-                                           EfuseConfig{ .efuse_enable = true, .timeout = 0, .max_retry = 5 },
-                                           EfuseConfig{ .efuse_enable = true, .timeout = 0, .max_retry = 5 },
-                                           EfuseConfig{ .efuse_enable = true, .timeout = 200, .max_retry = 5 },
-                                           EfuseConfig{ .efuse_enable = true, .timeout = 200, .max_retry = 5 },
-                                       } } };
+static const app::powerManager::PowerManagerConfig power_manager_state = { .efuse_configs = { {
+                                                                                       { true, 200, 5 }, // rr_pump
+                                                                                       { true, 200, 5 }, // rl_pump
+                                                                                       { true, 200, 5 }, // r_rad_fan
+                                                                                       { true, 200, 5 }, // l_rad_fan
+                                                                                       { true, 0, 5 },   // f_inv
+                                                                                       { true, 0, 5 },   // r_inv
+                                                                                       { true, 0, 5 },   // rsm
+                                                                                       { true, 0, 5 },   // bms
+                                                                                       { true, 0, 5 },   // dam
+                                                                                       { true, 0, 5 },   // front
+                                                                                   } } };
 
 static volatile float apps = 0.0f;
 
@@ -55,7 +57,7 @@ static void driveStateRunOnEntry()
 {
     // enable inverters
     app::can_tx::VC_State_set(VCState::VC_DRIVE_STATE);
-    updateConfig(pwr_mgr_cfg);
+    updateConfig(power_manager_state);
 
     // Ensure inverters are enabled
     inverter_enable_toggle(true, true, true, true);

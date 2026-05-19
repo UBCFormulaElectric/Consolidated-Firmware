@@ -1,70 +1,57 @@
 #pragma once
 
-// I have made this compatible with booleans, don't make me regret it
-
 #include <cstdint>
 
 #ifdef TARGET_EMBEDDED
 #include "hw_gpios.hpp"
 #endif
 
-namespace io::faultLatch
+namespace io
 {
-
-enum class FaultLatchState : std::uint8_t
-{
-    FAULT = 0,
-    OK    = 1,
-};
-
-#ifdef TARGET_EMBEDDED
-
 struct FaultLatch
 {
+    enum class FaultLatchState : uint8_t
+    {
+        FAULT = 0,
+        OK    = 1,
+    };
+#ifdef TARGET_EMBEDDED
     const hw::gpio &current_status_gpio;
     const hw::gpio &latch_status_gpio;
     bool            current_inverted;
     bool            latch_inverted;
-    const bool      read_only; // Certain fault latches can only be read from.
-};
-
-extern const FaultLatch bms_ok_latch;
-extern const FaultLatch imd_ok_latch;
-extern const FaultLatch bspd_ok_latch;
-
 #else
-
-struct FaultLatch
-{
     FaultLatchState status;
     FaultLatchState latched_state;
-    const bool      read_only; // Certain fault latches can only be read from.
-};
-
-extern FaultLatch bms_ok_latch;
-extern FaultLatch imd_ok_latch;
-extern FaultLatch bspd_ok_latch;
-
 #endif
+    const bool read_only; // Certain fault latches can only be read from.
 
-/**
- * Write a fault.
- * @param latch Fault latch instance.
- * @param status whether or not to set a fault
- */
-void setCurrentStatus(const FaultLatch *latch, FaultLatchState status);
+    /**
+     * Write a fault.
+     * @param status whether or not to set a fault
+     */
+    void setCurrentStatus(FaultLatchState status) const;
 
-/**
- * Return whether or not there is currently a fault.
- * @param latch Fault latch instance.
- * @returns True = there is currently NOT a fault.
- */
-FaultLatchState getCurrentStatus(const FaultLatch *latch);
+    /**
+     * Return whether or not there is currently a fault.
+     * @returns True = there is currently NOT a fault.
+     */
+    FaultLatchState getCurrentStatus() const;
 
-/**
- * Return whether or not the fault latch is OK.
- * @param latch Fault latch instance.
- * @returns True = fault has NOT been latched.
- */
-FaultLatchState getLatchedStatus(const FaultLatch *latch);
-} // namespace io::faultLatch
+    /**
+     * Return whether or not the fault latch is OK.
+     * @returns True = fault has NOT been latched.
+     */
+    FaultLatchState getLatchedStatus() const;
+};
+} // namespace io
+
+#ifdef TARGET_EMBEDDED
+extern const io::FaultLatch bms_ok_latch;
+extern const io::FaultLatch imd_ok_latch;
+extern const io::FaultLatch bspd_ok_latch;
+#else
+extern io::FaultLatch bms_ok_latch;
+extern io::FaultLatch imd_ok_latch;
+extern io::FaultLatch bspd_ok_latch;
+#endif

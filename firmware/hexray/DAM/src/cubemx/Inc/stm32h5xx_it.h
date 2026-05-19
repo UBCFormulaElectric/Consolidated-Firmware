@@ -56,8 +56,10 @@ extern "C"
     void FDCAN1_IT0_IRQHandler(void);
     void FDCAN1_IT1_IRQHandler(void);
     void TIM2_IRQHandler(void);
+    void TIM7_IRQHandler(void);
     void USART2_IRQHandler(void);
     void USB_DRD_FS_IRQHandler(void);
+    void SDMMC1_IRQHandler(void);
     /* USER CODE BEGIN EFP */
 
     /* USER CODE END EFP */

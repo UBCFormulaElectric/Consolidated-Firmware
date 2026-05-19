@@ -59,12 +59,16 @@ namespace
 
 void updateConfig(const PowerManagerConfig &new_cfg)
 {
-    state_                               = new_cfg;
-    const bool under_v                   = can_tx::VC_Info_PcmUnderVoltage_get();
-    state_.efuse_configs[0].efuse_enable = !under_v;
-    state_.efuse_configs[2].efuse_enable = !under_v;
-    state_.efuse_configs[1].efuse_enable = !under_v;
-    state_.efuse_configs[3].efuse_enable = !under_v;
+    state_             = new_cfg;
+    const bool under_v = can_tx::VC_Info_PcmUnderVoltage_get();
+    state_.efuse_configs[0].efuse_enable =
+        state_.efuse_configs[0].efuse_enable ? !under_v : state_.efuse_configs[0].efuse_enable;
+    state_.efuse_configs[2].efuse_enable =
+        state_.efuse_configs[2].efuse_enable ? !under_v : state_.efuse_configs[2].efuse_enable;
+    state_.efuse_configs[1].efuse_enable =
+        state_.efuse_configs[1].efuse_enable ? !under_v : state_.efuse_configs[1].efuse_enable;
+    state_.efuse_configs[3].efuse_enable =
+        state_.efuse_configs[3].efuse_enable ? !under_v : state_.efuse_configs[3].efuse_enable;
 }
 void efuseProtocolTick_100Hz()
 {

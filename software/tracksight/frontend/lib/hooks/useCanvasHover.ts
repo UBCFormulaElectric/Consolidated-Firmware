@@ -1,6 +1,7 @@
 "use client";
 
-import { ChartLayout } from "@/components/widgets/CanvasChartTypes";
+import { useDisplayControlContext } from "@/components/PausePlayControl";
+import { useSyncedGraph } from "@/components/SyncedGraphContainer";
 import { MouseEvent as MouseEvent_React, RefObject, useCallback } from "react";
 
 /**
@@ -9,31 +10,25 @@ import { MouseEvent as MouseEvent_React, RefObject, useCallback } from "react";
  */
 export function useCanvasHover(
   canvasRef: RefObject<HTMLCanvasElement | null>,
-  layoutRef: RefObject<ChartLayout | null>,
-  hoverTimestampRef: RefObject<number | null>,
-  onHoverTimestampChange?: (timestamp: number | null) => void
+  hoverXRef: RefObject<number | null>,
+  onHoverXChange?: (x: number | null) => void
 ) {
   const handleMouseMove = useCallback(
     (event: MouseEvent_React<HTMLCanvasElement, MouseEvent>) => {
       const canvas = canvasRef.current;
       if (!canvas) return;
       const rect = canvas.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      if (layoutRef.current) {
-        const { minTime, timeRange, chartWidth, paddingLeft } = layoutRef.current;
-        console.assert(chartWidth > 0, "Chart width must be greater than 0");
-        const calculatedTime = minTime + ((x - paddingLeft) / chartWidth) * timeRange;
-        hoverTimestampRef.current = calculatedTime;
-        onHoverTimestampChange?.(calculatedTime);
-      }
+      const x = event.clientX - rect.left
+      hoverXRef.current = x;
+      onHoverXChange?.(x);
     },
-    [canvasRef, layoutRef, hoverTimestampRef, onHoverTimestampChange]
+    [canvasRef, hoverXRef, onHoverXChange]
   );
 
   const handleMouseLeave = useCallback(() => {
-    hoverTimestampRef.current = null;
-    onHoverTimestampChange?.(null);
-  }, [hoverTimestampRef, onHoverTimestampChange]);
+    hoverXRef.current = null;
+    onHoverXChange?.(null);
+  }, [hoverXRef, onHoverXChange]);
 
   return { handleMouseMove, handleMouseLeave };
 }

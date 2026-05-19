@@ -1,30 +1,37 @@
 #pragma once
-
-#include "hw_hal.hpp"
 #include "hw_gpio.hpp"
 #include "hw_utils.hpp"
+
+#include "FreeRTOS.h"
+#include "task.h"
 
 #ifdef STM32H562xx
 #include "stm32h5xx_hal.h"
 #include "stm32h5xx_hal_sd.h"
-#include "stm32h5xx_hal_sd_ex.h"
+// #include "stm32h5xx_hal_sd_ex.h"
+#elifdef STM32H733xx
+#include "stm32h7xx_hal.h"
+#include "stm32h7xx_hal_sd.h"
+// #include "stm32h7xx_hal_sd_ex.h"
 #endif
 
 #include <cstdint>
 #include <span>
 
-constexpr int HW_DEVICE_SECTOR_SIZE = 512;
+inline constexpr int HW_DEVICE_SECTOR_SIZE = 512;
 
 namespace hw
 {
 class SdCard
 {
   private:
-    SD_HandleTypeDef *const _hsd;          /* HAL SD handle that holds the state of the SD card */
-    uint32_t                _timeout;      /* the timeout for the SD card operations */
-    const gpio             &_present_gpio; /* gpio for sd_cd */
-    mutable volatile bool   dma_tx_completed = true;
-    mutable volatile bool   dma_rx_completed = true;
+    SD_HandleTypeDef &_hsd;          /* HAL SD handle that holds the state of the SD card */
+    uint32_t          _timeout;      /* the timeout for the SD card operations */
+    const gpio       &_present_gpio; /* gpio for sd_cd */
+    // mutable volatile bool   dma_tx_completed = true;
+    // mutable volatile bool   dma_rx_completed = true;
+
+    mutable TaskHandle_t taskInProgress = nullptr;
 
     static bool OFFSET_SIZE_VALID(const uint32_t offset, const uint32_t size)
     {
@@ -39,31 +46,24 @@ class SdCard
         }                                             \
     }
 
+    std::expected<void, ErrorCode> waitForNotification(uint32_t timeoutMs) const;
+
   public:
+    void onTxTransactionCompleteFromISR() const;
+    void onRxTransactionCompleteFromISR() const;
+
     /* Constructor */
-    consteval explicit SdCard(SD_HandleTypeDef *const hsd, const uint32_t timeout, const gpio &present_gpio)
+    consteval explicit SdCard(SD_HandleTypeDef &hsd, const uint32_t timeout, const gpio &present_gpio)
       : _hsd(hsd), _timeout(timeout), _present_gpio(present_gpio)
     {
     }
 
     /* Getters for private fields */
-    SD_HandleTypeDef *getHsd() const { return _hsd; }
+    SD_HandleTypeDef &getHsd() const { return _hsd; }
 
     uint32_t getTimeout() const { return _timeout; }
 
     const gpio &getPresentGpio() const { return _present_gpio; }
-
-    /* Setters for private fields */
-    void setDmaTxCompleted(const bool value) const
-    {
-        dma_tx_completed = value;
-        // TODO signaling to blocked here
-    }
-    void setDmaRxCompleted(const bool value) const
-    {
-        dma_rx_completed = value;
-        // TODO signaling to blocked here
-    }
 
     /**
      * @brief   Read from sd card.
@@ -119,14 +119,20 @@ class SdCard
     /**
      * @brief  Detect if the sd card is present.
      * @return True if the card is inserted, false otherwise
+     * @note Based on the hardware design: if the sd card is inserted, the gpio will be shorted to ground. Otherwise it
+     * will be pulled up
      */
-    bool sdPresent() const;
+    bool sdPresent() const { return !_present_gpio.readPin(); }
 
     /**
      * @brief   Abort the current operation
      * @return  the SdCardStatus of the opeation
      */
-    std::expected<void, ErrorCode> abort() const;
+    std::expected<void, ErrorCode> abort() const
+    {
+        CHECK_SD_PRESENT();
+        return utils::convertHalStatus(HAL_SD_Abort(&_hsd));
+    }
 };
 
 /**
@@ -134,6 +140,6 @@ class SdCard
  * @param   hsd  the SD handle
  * @return  the SdCard instance as a reference
  */
-const SdCard &getSdFromHandle(SD_HandleTypeDef *hsd);
+const SdCard &getSdFromHandle(const SD_HandleTypeDef *hsd);
 
 } // namespace hw

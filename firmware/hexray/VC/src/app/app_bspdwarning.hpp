@@ -8,5 +8,7 @@ namespace app::bspdWarning
 // Brakes disagreement is detected if brakes are actuated and apps are past 25% threshold
 // Allowed to exit disagreement only when apps is released (< 5%)
 bool checkSoftwareBspd(float papps_pedal_percentage);
-
+#ifdef TARGET_TEST
+void reset();
+#endif
 } // namespace app::bspdWarning
