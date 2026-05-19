@@ -5,7 +5,7 @@
 
 namespace io::rtc
 {
-std::expected<void, ErrorCode> set_time(const Time &time)
+result<void> set_time(const Time &time)
 {
     RTC_TimeTypeDef rtcTime{};
     rtcTime.Hours   = bin_to_bcd(time.hours);
@@ -15,8 +15,7 @@ std::expected<void, ErrorCode> set_time(const Time &time)
     rtcTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
     rtcTime.StoreOperation = RTC_STOREOPERATION_RESET;
 
-    std::expected<void, ErrorCode> status =
-        hw::utils::convertHalStatus(HAL_RTC_SetTime(&hrtc, &rtcTime, RTC_FORMAT_BCD));
+    result<void> status = hw::utils::convertHalStatus(HAL_RTC_SetTime(&hrtc, &rtcTime, RTC_FORMAT_BCD));
     if (!status)
     {
         LOG_ERROR("Error setting RTC Time");
@@ -25,7 +24,7 @@ std::expected<void, ErrorCode> set_time(const Time &time)
     return {};
 }
 
-std::expected<void, ErrorCode> set_date(const Date &date)
+result<void> set_date(const Date &date)
 {
     RTC_DateTypeDef rtcDate{};
     rtcDate.WeekDay = date.weekday;
@@ -33,8 +32,7 @@ std::expected<void, ErrorCode> set_date(const Date &date)
     rtcDate.Date    = bin_to_bcd(date.day);
     rtcDate.Year    = bin_to_bcd(date.year);
 
-    std::expected<void, ErrorCode> status =
-        hw::utils::convertHalStatus(HAL_RTC_SetDate(&hrtc, &rtcDate, RTC_FORMAT_BCD));
+    result<void> status = hw::utils::convertHalStatus(HAL_RTC_SetDate(&hrtc, &rtcDate, RTC_FORMAT_BCD));
     if (!status)
     {
         LOG_ERROR("Error setting RTC Date");
@@ -43,15 +41,14 @@ std::expected<void, ErrorCode> set_date(const Date &date)
     return {};
 }
 
-std::expected<Time, ErrorCode> get_time(Time &time)
+result<Time> get_time(Time &time)
 {
     RTC_TimeTypeDef rtcTime{};
     RTC_DateTypeDef rtcDate{};
 
     // You must call HAL_RTC_GetDate() after HAL_RTC_GetTime() to unlock the values in the
     // higher-order calendar shadow registers to ensure consistency between the time and date values.
-    std::expected<void, ErrorCode> status =
-        hw::utils::convertHalStatus(HAL_RTC_GetTime(&hrtc, &rtcTime, RTC_FORMAT_BCD));
+    result<void> status = hw::utils::convertHalStatus(HAL_RTC_GetTime(&hrtc, &rtcTime, RTC_FORMAT_BCD));
     if (!status)
         return std::unexpected(status.error());
 
@@ -67,14 +64,14 @@ std::expected<Time, ErrorCode> get_time(Time &time)
     return time;
 }
 
-std::expected<Date, ErrorCode> get_date(Date &date)
+result<Date> get_date(Date &date)
 {
     RTC_TimeTypeDef dummy{};
     RTC_DateTypeDef rtcDate{};
 
     // You must call HAL_RTC_GetDate() after HAL_RTC_GetTime() to unlock the values in the
     // higher-order calendar shadow registers to ensure consistency between the time and date values.
-    std::expected<void, ErrorCode> status = hw::utils::convertHalStatus(HAL_RTC_GetTime(&hrtc, &dummy, RTC_FORMAT_BCD));
+    result<void> status = hw::utils::convertHalStatus(HAL_RTC_GetTime(&hrtc, &dummy, RTC_FORMAT_BCD));
     if (!status)
         return std::unexpected(status.error());
 

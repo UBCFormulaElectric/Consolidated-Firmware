@@ -5,7 +5,7 @@
 namespace app::powerMonitoring
 {
 
-std::expected<void, ErrorCode> update()
+result<void> update()
 {
     static bool init_done = false;
 

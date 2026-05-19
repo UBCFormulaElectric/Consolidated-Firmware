@@ -171,7 +171,7 @@ class PwmInput
      *
      * @note The given timer must be initialized with Input Capture Direct Mode
      */
-    [[nodiscard]] std::expected<void, ErrorCode> init() const
+    [[nodiscard]] result<void> init() const
     {
         RETURN_IF_ERR_SILENT(hw::utils::convertHalStatus(HAL_TIM_IC_Start_IT(&htim, rising_edge_tim_channel)));
         RETURN_IF_ERR_SILENT(hw::utils::convertHalStatus(HAL_TIM_IC_Start(&htim, falling_edge_tim_channel)));
