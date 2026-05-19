@@ -7,7 +7,6 @@ ExitCode sendBalanceCommand(void)
 {
     return io::adbms::sendCommand(io::adbms::UNMUTE);
 }
-
 ExitCode sendStopBalanceCommand(void)
 {
     return io::adbms::sendCommand(MUTE);
