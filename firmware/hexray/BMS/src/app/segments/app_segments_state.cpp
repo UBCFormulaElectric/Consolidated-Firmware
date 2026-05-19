@@ -12,13 +12,13 @@ std::array<std::bitset<4>, MAX_NUM_SEGMENTS> segment_health{};
 io::semaphore                                health_mutex{ true };
 
 Cells<std::expected<float, ErrorCode>> latest_voltages{};
-app::segments::CellParam<float>        latest_min_cell_voltage{ .segment = 0, .cell = 0, .value = 0.0f };
-app::segments::CellParam<float>        latest_max_cell_voltage{ .segment = 0, .cell = 0, .value = 0.0f };
+app::segments::CellParam               latest_min_cell_voltage{ .segment = 0, .cell = 0, .value = 0.0f };
+app::segments::CellParam               latest_max_cell_voltage{ .segment = 0, .cell = 0, .value = 0.0f };
 io::semaphore                          voltage_lock{ true };
 
-app::segments::CellParam<float> latest_max_cell_temperature{ .segment = 0, .cell = 0, .value = 0.0f };
-bool                            latest_therm_owc = false;
-io::semaphore                   temperature_lock{ true };
+app::segments::CellParam latest_max_cell_temperature{ .segment = 0, .cell = 0, .value = 0.0f };
+bool                     latest_therm_owc = false;
+io::semaphore            temperature_lock{ true };
 
 bool          latest_cell_owc = false;
 io::semaphore cell_owc_lock{ true };
@@ -27,7 +27,7 @@ io::semaphore cell_owc_lock{ true };
 namespace app::segments::state
 {
 
-void reset(size_t seg, Bit bit)
+void reset(const size_t seg, Bit bit)
 {
     const io::unique_semaphore lock{ health_mutex };
     segment_health[seg].reset(static_cast<size_t>(bit));
@@ -40,7 +40,7 @@ void resetAll(Bit bit)
         bs.reset(static_cast<size_t>(bit));
 }
 
-void set(size_t seg, Bit bit)
+void set(const size_t seg, Bit bit)
 {
     const io::unique_semaphore lock{ health_mutex };
     segment_health[seg].set(static_cast<size_t>(bit));
@@ -53,7 +53,7 @@ void setAll(Bit bit)
         bs.set(static_cast<size_t>(bit));
 }
 
-bool isOk(size_t seg)
+bool isOk(const size_t seg)
 {
     const io::unique_semaphore lock{ health_mutex };
     return segment_health[seg].all();
@@ -103,8 +103,8 @@ bool getThermOwc()
 
 void setVoltageStats(
     const Cells<std::expected<float, ErrorCode>> &latest,
-    CellParam<float>                              min,
-    CellParam<float>                              max)
+    const CellParam<float>                        min,
+    const CellParam<float>                        max)
 {
     const io::unique_semaphore lock{ voltage_lock };
     latest_voltages         = latest;
@@ -112,14 +112,14 @@ void setVoltageStats(
     latest_max_cell_voltage = max;
 }
 
-void setTempStats(CellParam<float> max_temp, bool any_therm_owc)
+void setTempStats(const CellParam<float> max_temp, const bool any_therm_owc)
 {
     const io::unique_semaphore lock{ temperature_lock };
     latest_max_cell_temperature = max_temp;
     latest_therm_owc            = any_therm_owc;
 }
 
-void setCellOwc(bool any_cell_owc)
+void setCellOwc(const bool any_cell_owc)
 {
     const io::unique_semaphore lock{ cell_owc_lock };
     latest_cell_owc = any_cell_owc;
