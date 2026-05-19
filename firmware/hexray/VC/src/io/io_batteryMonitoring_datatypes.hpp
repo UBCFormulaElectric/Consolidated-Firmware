@@ -117,40 +117,6 @@ inline constexpr uint16_t CMD_SAFETY_STATUS_B = 0x04;
 inline constexpr uint16_t CMD_ALARM_STATUS = 0x62;
 inline constexpr uint16_t DEFAULT_ALARM = 0x926D;
 
-// Safety Alert/Status A
-inline constexpr uint8_t SAFETY_A_SCD  = (1u << 7);
-inline constexpr uint8_t SAFETY_A_OCD2 = (1u << 6);
-inline constexpr uint8_t SAFETY_A_OCD1 = (1u << 5);
-inline constexpr uint8_t SAFETY_A_OCC  = (1u << 4);
-inline constexpr uint8_t SAFETY_A_COV  = (1u << 3);
-inline constexpr uint8_t SAFETY_A_CUV  = (1u << 2);
-
-inline constexpr uint8_t SAFETY_S_SCD  = 1u << 7;
-inline constexpr uint8_t SAFETY_S_OCD2 = 1u << 6;
-inline constexpr uint8_t SAFETY_S_OCD1 = 1u << 5;
-inline constexpr uint8_t SAFETY_S_OCC  = 1u << 4;
-inline constexpr uint8_t SAFETY_S_COV  = 1u << 3;
-inline constexpr uint8_t SAFETY_S_CUV  = 1u << 2;
-
-// Safety Alert/Status B
-inline constexpr uint8_t SAFETY_B_OTF   = (1u << 7);
-inline constexpr uint8_t SAFETY_B_OTINT = (1u << 6);
-inline constexpr uint8_t SAFETY_B_OTD   = (1u << 5);
-inline constexpr uint8_t SAFETY_B_OTC   = (1u << 4);
-inline constexpr uint8_t SAFETY_B_UTD   = (1u << 1);
-inline constexpr uint8_t SAFETY_B_UTC   = (1u << 0);
-
-// Safety Alert/Status C
-inline constexpr uint8_t SAFETY_C_OCD3 = (1u << 7);
-inline constexpr uint8_t SAFETY_C_SCDL = (1u << 6);
-inline constexpr uint8_t SAFETY_C_OCDL = (1u << 5);
-inline constexpr uint8_t SAFETY_C_COVL = (1u << 4);
-inline constexpr uint8_t SAFETY_C_PTOS = (1u << 3);
-
-// Status C only
-inline constexpr uint8_t SAFETY_C_PTO  = (1u << 2);
-inline constexpr uint8_t SAFETY_C_HWDF = (1u << 1);
-
 // FET stuff
 inline constexpr uint16_t FET_FET_OPTION     = 0x9308;
 inline constexpr uint16_t SUBCMD_ALL_FETS_ON = 0x0096;
