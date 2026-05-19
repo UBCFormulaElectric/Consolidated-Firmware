@@ -41,7 +41,7 @@ result<void> pollAuxAdcConversion()
     {
         const auto rx_res = poll(PLAUX);
         RETURN_IF_ERR_SILENT(rx_res);
-        if (const uint32_t rx_data = rx_res.value(); rx_data == POLL_STATUS_READY)
+        if (const std::bitset<32> rx_data = rx_res.value(); rx_data.to_ulong() == POLL_STATUS_READY)
         {
             return {};
         }

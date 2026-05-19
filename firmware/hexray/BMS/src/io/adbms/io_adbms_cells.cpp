@@ -32,9 +32,9 @@ result<void> pollCellsAdcConversion()
 {
     for (uint8_t attempt = 0U; attempt < MAX_NUM_ATTEMPTS; attempt++)
     {
-        uint32_t rx_data;
-        RETURN_IF_ERR(poll(PLCADC, { reinterpret_cast<uint8_t *>(&rx_data), sizeof(rx_data) }));
-        if (rx_data == POLL_STATUS_READY)
+        const auto rx_res = poll(PLCADC);
+        RETURN_IF_ERR_SILENT(rx_res);
+        if (const std::bitset<32> rx_data = rx_res.value(); rx_data.to_ulong() == POLL_STATUS_READY)
         {
             return {};
         }

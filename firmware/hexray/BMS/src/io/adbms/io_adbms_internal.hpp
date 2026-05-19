@@ -4,6 +4,7 @@
 #include "util_errorCodes.hpp"
 
 #include <array>
+#include <bitset>
 
 using namespace std;
 
@@ -123,7 +124,7 @@ inline constexpr uint32_t POLL_STATUS_READY = __builtin_bswap32(0xFFFFFFFFU >> (
  * @note Generally, you will check against POLL_STATUS_READY to see if all segments are ready, but you can also check
  * individual bits to see which segments are ready
  */
-[[nodiscard]] result<uint32_t> poll(uint16_t cmd);
+[[nodiscard]] result<std::bitset<32>> poll(uint16_t cmd);
 /**
  * Reads a register group
  * If the SPI transaction fails, each segment's result will contain the error code

@@ -1,8 +1,8 @@
 #include "io_adbms_internal.hpp"
 #include "io_adbms.hpp"
-#include "io_log.hpp"
 #include "util_errorCodes.hpp"
 #include "hw_spis.hpp"
+
 #include <cstring>
 
 using namespace std;
@@ -230,11 +230,12 @@ result<void> sendCmd(const uint16_t cmd)
     return status;
 }
 
-result<uint32_t> poll(const uint16_t cmd)
+result<bitset<32>> poll(const uint16_t cmd)
 {
     const TxCmd tx_cmd{ cmd };
-    const auto  status =
-        adbms_spi_ls.transmitThenReceive({ reinterpret_cast<const uint8_t *>(&tx_cmd), sizeof(tx_cmd) }, poll_buf);
+    uint32_t    poll_buf;
+    const auto  status = adbms_spi_ls.transmitThenReceive(
+        tx_cmd.into_span(), { reinterpret_cast<uint8_t *>(&poll_buf), sizeof(poll_buf) });
     if (status)
     {
         postTxUpdateCmdCount(cmd);
@@ -243,7 +244,7 @@ result<uint32_t> poll(const uint16_t cmd)
     {
         resyncFromChip();
     }
-    return status;
+    return status ? result<std::bitset<32>>{ poll_buf } : unexpected(status.error());
 }
 
 Segments<result<Regs<uint8_t>>> readRegGroup(const uint16_t cmd)
