@@ -46,8 +46,8 @@ io::semaphore config_data_lock{ true }; // protects the segment_config and pwm_c
 result<bool> isConfigEqual()
 {
     assert(config_data_lock.is_held());
-    const auto segment_config_buf = io::adbms::readConfigReg();
-    const auto pwm_config_buf     = io::adbms::readPwmReg();
+    const auto segment_config_buf = io::adbms::read::configReg();
+    const auto pwm_config_buf     = io::adbms::read::pwmReg();
 
     for (uint8_t seg = 0U; seg < NUM_SEGMENTS; seg++)
     {
@@ -71,8 +71,8 @@ result<bool> isConfigEqual()
 result<void> upload()
 {
     assert(config_data_lock.is_held());
-    RETURN_IF_ERR(io::adbms::writeConfigReg(segment_config));
-    RETURN_IF_ERR(io::adbms::writePwmReg(pwm_config));
+    RETURN_IF_ERR(io::adbms::write::configReg(segment_config));
+    RETURN_IF_ERR(io::adbms::write::pwmReg(pwm_config));
     dirty = false;
     return {};
 }

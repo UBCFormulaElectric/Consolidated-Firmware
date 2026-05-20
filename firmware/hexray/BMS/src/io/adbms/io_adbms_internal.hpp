@@ -145,18 +145,4 @@ inline constexpr uint32_t POLL_STATUS_READY = __builtin_bswap32(0xFFFFFFFFU >> (
  * @return Success if the write was acknowledged by the chip, or an error code if the SPI transaction failed
  */
 [[nodiscard]] result<void> writeRegGroup(uint16_t cmd, const array<array<uint8_t, REG_GROUP_SIZE>, NUM_SEGMENTS> &regs);
-
-// STAT regs use same poll
-/**
- * Polls AUX ADCs
- * @return success if poll command successful and all segments ready, or an error code if the SPI transaction failed or
- * not all segments are ready after max attempts
- */
-[[nodiscard]] result<void> pollAuxAdcConversion();
-/**
- * Polls Cell ADCs
- * @return success if poll command successful and all segments ready, or an error code if the SPI transaction failed or
- * not all segments are ready after max attempts
- */
-[[nodiscard]] result<void> pollCellsAdcConversion();
 } // namespace io::adbms

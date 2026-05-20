@@ -65,11 +65,11 @@ void jobs_init()
     app::precharge::init();
 
 #ifndef TARGET_HV_SUPPLY
-    LOG_IF_ERR(io::adbms::wakeup());
-    LOG_IF_ERR(io::adbms::clear::CellVoltageReg());
-    LOG_IF_ERR(io::adbms::clear::FilteredCellVoltageReg());
-    LOG_IF_ERR(io::adbms::clear::CellAuxReg());
-    LOG_IF_ERR(io::adbms::clear::StatReg());
+    LOG_IF_ERR(io::adbms::command::wakeup());
+    LOG_IF_ERR(io::adbms::clear::cell());
+    LOG_IF_ERR(io::adbms::clear::filteredCell());
+    LOG_IF_ERR(io::adbms::clear::aux());
+    LOG_IF_ERR(io::adbms::clear::stat());
     LOG_INFO("Segment Initialization Done");
 #endif
     app::StateMachine::init(&app::states::init_state);

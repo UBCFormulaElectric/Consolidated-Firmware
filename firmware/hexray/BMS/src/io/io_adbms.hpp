@@ -20,7 +20,6 @@ inline constexpr uint8_t THERMISTORS_PER_SEGMENT = 14;
 inline constexpr uint8_t REG_GROUP_SIZE          = 6; // bytes
 inline constexpr uint8_t NUM_VOLT_REG_GROUPS     = 5; // A..E only (F not used; 14 cells measured)
 inline constexpr uint8_t NUM_TEMP_REG_GROUPS     = 4; // A..D only
-inline constexpr uint8_t NUM_STAT_REG_GROUPS     = 5;
 inline constexpr uint8_t GPIOS_PER_SEGMENT       = 10;
 inline constexpr uint8_t THERM_GPIOS_PER_SEGMENT = 8;
 
@@ -215,15 +214,18 @@ using Status = Segments<StatusGroups>;
 
 // FUNCTIONS
 // Configuration, balance and PWM access.
-[[nodiscard]] result<void> writeConfigReg(const Segments<SegmentConfig> &config);
+
 /**
  * @return SegmentsResult<SegmentConfig> containing a result for each segment. If an error is raised in either the CFGA
  * or CFGB read for a segment, the SegmentConfig result for that segment will be an unexpected containing the error
  * code. If both reads succeed, the SegmentConfig result will contain the successfully read and parsed configuration.
  */
-[[nodiscard]] Segments<result<SegmentConfig>> readConfigReg();
-[[nodiscard]] result<void>                    writePwmReg(const Segments<PWMConfig> &pwm_config);
-[[nodiscard]] Segments<result<PWMConfig>>     readPwmReg();
+
+
+namespace write {
+[[nodiscard]] result<void>                       pwmReg(const Segments<PWMConfig> &pwm_config);
+[[nodiscard]] result<void>                       configReg(const Segments<SegmentConfig> &config);
+}
 
 // Measurement reads.
 [[nodiscard]] result<Cells<result<uint16_t>>>  readCellVoltageRegs();
@@ -236,18 +238,24 @@ using Status = Segments<StatusGroups>;
 [[nodiscard]] result<void> owcCells(OpenWireSwitch owcSwitch);
 
 // Conversion control.
+namespace command {
 [[nodiscard]] result<void> startCellsAdcConversion();
 [[nodiscard]] result<void> startAuxAdcConversion();
+[[nodiscard]] result<void> startSegAdcConversion();
+[[nodiscard]] result<void> pollCellsAdcConversion();
+[[nodiscard]] result<void> pollAuxAdcConversion();
 [[nodiscard]] result<void> sendBalanceCmd();
 [[nodiscard]] result<void> sendStopBalanceCmd();
 [[nodiscard]] result<void> wakeup();
+[[nodiscard]] result<void> owcCells(OpenWireSwitch owcSwitch);
+}
 
 // Register clear helpers.
 namespace clear
 {
-    [[nodiscard]] result<void> CellAuxReg();
-    [[nodiscard]] result<void> StatReg();
-    [[nodiscard]] result<void> CellVoltageReg();
-    [[nodiscard]] result<void> FilteredCellVoltageReg();
+[[nodiscard]] result<void> aux();
+[[nodiscard]] result<void> cell();
+[[nodiscard]] result<void> filteredCell();
+[[nodiscard]] result<void> stat();
 } // namespace clear
 } // namespace io::adbms

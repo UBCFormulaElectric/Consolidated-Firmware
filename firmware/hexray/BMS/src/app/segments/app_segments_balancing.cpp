@@ -123,7 +123,7 @@ void tick()
                 updateCellsToBalance(state::getLatestVoltages(), state::getMinCellVoltage());
                 {
                     const io::unique_semaphore s{ spi_bus_lock };
-                    LOG_IF_ERR(io::adbms::sendBalanceCmd());
+                    LOG_IF_ERR(io::adbms::command::sendBalanceCmd());
                 }
                 balance_timer.restart();
                 balancing_state = can_utils::BalancingState::BALANCING_BALANCE;
@@ -137,7 +137,7 @@ void tick()
             {
                 {
                     const io::unique_semaphore s{ spi_bus_lock };
-                    LOG_IF_ERR(io::adbms::sendStopBalanceCmd());
+                    LOG_IF_ERR(io::adbms::command::sendStopBalanceCmd());
                 }
                 settle_timer.restart();
                 balancing_state = can_utils::BalancingState::BALANCING_SETTLE;
