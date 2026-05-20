@@ -17,7 +17,7 @@
 #include "stm32h5xx_hal_fdcan.h"
 #endif
 
-std::expected<void, ErrorCode> hw::fdcan::tx(FDCAN_TxHeaderTypeDef &tx_header, const CanMsg &msg) const
+result<void> hw::fdcan::tx(FDCAN_TxHeaderTypeDef &tx_header, const CanMsg &msg) const
 {
     for (uint32_t poll = 0; HAL_FDCAN_GetTxFifoFreeLevel(hfdcan) == 0U;)
     {
@@ -76,7 +76,7 @@ void hw::fdcan::deinit() const
     assert(HAL_FDCAN_DeInit(hfdcan) == HAL_OK);
 }
 
-std::expected<void, ErrorCode> hw::fdcan::can_transmit(const CanMsg &msg) const
+result<void> hw::fdcan::can_transmit(const CanMsg &msg) const
 {
     assert(ready);
     FDCAN_TxHeaderTypeDef tx_header;
@@ -96,7 +96,7 @@ std::expected<void, ErrorCode> hw::fdcan::can_transmit(const CanMsg &msg) const
     return tx(tx_header, msg);
 }
 
-std::expected<void, ErrorCode> hw::fdcan::fdcan_transmit(const CanMsg &msg) const
+result<void> hw::fdcan::fdcan_transmit(const CanMsg &msg) const
 {
     assert(ready);
 
@@ -151,7 +151,7 @@ std::expected<void, ErrorCode> hw::fdcan::fdcan_transmit(const CanMsg &msg) cons
     return tx(tx_header, msg);
 }
 
-std::expected<hw::CanMsg, ErrorCode> hw::fdcan::receive(const uint32_t rx_fifo) const
+result<hw::CanMsg> hw::fdcan::receive(const uint32_t rx_fifo) const
 {
     assert(ready);
     FDCAN_RxHeaderTypeDef header;
@@ -189,7 +189,7 @@ CFUNC void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, const uint
     }
 }
 
-static std::expected<void, ErrorCode> handleCallback(const FDCAN_HandleTypeDef *hfdcan, const uint8_t fifo)
+static result<void> handleCallback(const FDCAN_HandleTypeDef *hfdcan, const uint8_t fifo)
 {
     const hw::fdcan &handle = hw::fdcan_getHandle(hfdcan);
 

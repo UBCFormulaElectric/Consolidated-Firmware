@@ -16,7 +16,7 @@ void hw::i2c::bus::onTransactionCompleteFromISR() const
 }
 
 /* --------------------------------------------- device ------------------------------------------------ */
-std::expected<void, ErrorCode> hw::i2c::device::waitForNotification() const
+result<void> hw::i2c::device::waitForNotification() const
 {
     const uint32_t notified = ulTaskNotifyTake(pdTRUE, timeoutMs);
     d_bus.taskInProgress    = nullptr;
@@ -31,7 +31,7 @@ std::expected<void, ErrorCode> hw::i2c::device::waitForNotification() const
     return {};
 }
 
-std::expected<void, ErrorCode> hw::i2c::device::receive(std::span<uint8_t> rx_buffer) const
+result<void> hw::i2c::device::receive(std::span<uint8_t> rx_buffer) const
 {
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
@@ -58,7 +58,7 @@ std::expected<void, ErrorCode> hw::i2c::device::receive(std::span<uint8_t> rx_bu
     return waitForNotification();
 }
 
-std::expected<void, ErrorCode> hw::i2c::device::transmit(std::span<const uint8_t> tx_buffer) const
+result<void> hw::i2c::device::transmit(std::span<const uint8_t> tx_buffer) const
 {
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
@@ -85,7 +85,7 @@ std::expected<void, ErrorCode> hw::i2c::device::transmit(std::span<const uint8_t
     return waitForNotification();
 }
 
-std::expected<void, ErrorCode> hw::i2c::device::memoryRead(const uint16_t mem_addr, std::span<uint8_t> rx_buffer) const
+result<void> hw::i2c::device::memoryRead(const uint16_t mem_addr, std::span<uint8_t> rx_buffer) const
 {
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
@@ -112,8 +112,7 @@ std::expected<void, ErrorCode> hw::i2c::device::memoryRead(const uint16_t mem_ad
     return waitForNotification();
 }
 
-std::expected<void, ErrorCode>
-    hw::i2c::device::memoryWrite(const uint16_t mem_addr, std::span<const uint8_t> tx_buffer) const
+result<void> hw::i2c::device::memoryWrite(const uint16_t mem_addr, std::span<const uint8_t> tx_buffer) const
 {
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
