@@ -218,11 +218,13 @@ void tasks_init()
         hw::bootup::setBootRequest(boot_request);
     }
 
+    // TODO this should surely be managed by the power manager??
     dam_en.writePin(true);
     rsm_en.writePin(true);
     front_en.writePin(true);
     bms_en.writePin(true);
     ResetReason reason = hw::resetReason::get();
+    app::can_tx::VC_ResetReason_set(static_cast<app::can_utils::CanResetReason>(reason));
     if (reason == RESET_REASON_WATCHDOG)
     {
         LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
