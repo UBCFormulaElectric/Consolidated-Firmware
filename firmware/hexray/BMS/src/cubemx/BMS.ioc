@@ -320,6 +320,7 @@ NVIC.SPI4_IRQn=true\:5\:0\:true\:false\:true\:true\:true\:true
 NVIC.SVCall_IRQn=true\:15\:0\:true\:false\:false\:false\:false\:false
 NVIC.SysTick_IRQn=true\:15\:0\:false\:false\:false\:false\:true\:false
 NVIC.TIM1_CC_IRQn=true\:5\:0\:true\:false\:true\:true\:true\:true
+NVIC.TIM1_UP_IRQn=true\:5\:0\:true\:false\:true\:true\:true\:true
 NVIC.TIM2_IRQn=true\:15\:0\:false\:false\:true\:false\:true\:true
 NVIC.TIM3_IRQn=true\:5\:0\:true\:false\:true\:true\:true\:true
 NVIC.TIM5_IRQn=true\:5\:0\:true\:false\:true\:true\:true\:true
