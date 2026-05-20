@@ -22,6 +22,7 @@ set(APP_SHARED_SRCS
         "${SHARED_APP_INCLUDE_DIR_CPP}/app_bootcount.cpp"
         "${SHARED_APP_INCLUDE_DIR_CPP}/app_timer.cpp"
         "${SHARED_APP_INCLUDE_DIR_CPP}/app_crc32.cpp"
+        "${SHARED_APP_INCLUDE_DIR_CPP}/app_crc8.cpp"
 )
 set(APP_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
@@ -32,6 +33,7 @@ file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/
 set(IO_SHARED_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_filesystem.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_canLogging.cpp"
 )
 set(IO_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io"

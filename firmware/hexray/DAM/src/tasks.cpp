@@ -162,15 +162,16 @@ void tasks_runLogging(void *arg)
             }
         }
 
-        const auto bytes     = std::visit([](const auto &m) { return m.asBytes(); }, entry);
-        const auto tx_result = _900k_uart.transmit(bytes);
+        const auto  bytes     = std::visit([](const auto &m) { return m.asBytes(); }, entry);
+        const auto  tx_result = _900k_uart.transmit(bytes);
+        const auto *can_msg   = std::get_if<io::telemMessage::TelemCanMsg>(&entry);
         if (not tx_result)
         {
             LOG_ERROR("Failed to transmit telem message: %d", static_cast<int>(tx_result.error()));
         }
         else if (can_msg != nullptr)
         {
-            LOG_INFO("UART telem sent: type=CAN can_id=0x%03X", can_msg->msg.can_id);
+            LOG_INFO("UART telem sent: type=CAN can_id=0x%03lX", static_cast<unsigned long>(can_msg->msg.can_id));
         }
         else if (std::holds_alternative<io::telemMessage::NTPMsg>(entry))
         {
@@ -253,8 +254,10 @@ void tasks_runCanRx(void *arg)
         }
         if (app::can_data_capture::needsLog(can_msg.std_id, now_ms))
         {
-            // Add Telem Message to our logging queue following the wire format of the TelemMessage
-            (void)log_queue.push(io::telemMessage::TelemCanMsg(can_msg, epoch_ms));
+            // Log the raw CAN frame. Framing/CRC happen in jobs_runLogging_tick
+            // so the on-disk layout matches the shared Quintuna format and can
+            // be decoded by firmware/logfs/python/logfs/can_logger.py.
+            (void)log_queue.push(can_msg);
         }
     }
 }
@@ -262,7 +265,7 @@ void tasks_runCanRx(void *arg)
 static void DAM_StartAllTasks()
 {
     Task100Hz.start();
-    // TaskCanTx.start();
+    TaskCanTx.start();
     // TaskCanRx.start();
     Task1kHz.start();
     Task1Hz.start();

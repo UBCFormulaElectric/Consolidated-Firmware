@@ -22,6 +22,7 @@
 #include "hw_gpios.hpp"
 #include "main.h"
 
+#include "io_canLogging.hpp"
 #include "util_errorCodes.hpp"
 
 #include <span>
@@ -131,10 +132,7 @@ void jobs_run100Hz_tick()
         {
             LOG_ERROR("Failed to enqueue NTP message: %d", static_cast<int>(push_result.error()));
         }
-        if (const auto log_result = log_queue.push(io::telemMessage::NTPMsg{}); !log_result)
-        {
-            LOG_ERROR("Failed to log NTP message: %d", static_cast<int>(log_result.error()));
-        }
+        // NTP markers go over UART only; the SD log is raw CAN frames only.
     }
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
@@ -151,17 +149,12 @@ void jobs_runLogging_tick()
     if (!msg || !log_open)
         return;
 
-    // Serialize exactly like tasks_runTelemTx does for UART, so the SD log is
-    // byte-identical to the telem wire stream.
-    const auto wire = std::visit([](const auto &m) { return m.asBytes(); }, msg.value());
-    if (const auto err = fs.write(log_fd, { const_cast<uint8_t *>(wire.data()), wire.size() }, wire.size()); !err)
+    io::canLogging::EncodeBuf buf;
+    const size_t              n = io::canLogging::encode(msg.value(), buf);
+
+    if (const auto err = fs.write(log_fd, { buf.data(), n }, n); !err)
     {
         LOG_ERROR("Log write failed: %d", static_cast<int>(err.error()));
-    }
-    else
-    {
-        // comment this out later
-        LOG_INFO("Logged message of %u bytes", wire.size());
     }
 }
 
