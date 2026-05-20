@@ -7,6 +7,7 @@ import { ChartLayout, LODAwareNumericalSeries, LODAwareSeries } from "./CanvasCh
 // utils
 import { bisect } from "@/lib/bisect";
 import { EnumTimelineWidgetData, NumericalGraphWidgetData, WidgetData } from "@/lib/types/Widget";
+import { isEnumSignalMetadata } from "@/lib/types/Signal";
 
 // TODO reduce to bisect right
 // first enum index where the enum's end time (timestamps[i+1]) >= targetTime
@@ -174,9 +175,11 @@ function render_enum(
             }
 
             const value = seriesData[closestIdx];
+            const hoverValue = signalMetadata ? (isEnumSignalMetadata(signalMetadata) ? Object.entries(signalMetadata?.enum_signal?.enum_values || {}).find(([_, v]) => v === value)?.[0] : null) : { "false": 0, "true": 1 }[value];
+
             hoverValues.push({
                 name: signalMetadata?.name || "Unknown Signal",
-                value: value !== null ? Object.entries(signalMetadata?.enum_signal?.enum_values || {}).find(([_, v]) => v === value)?.[0] ?? "N/A" : "N/A",
+                value: hoverValue !== null ? String(hoverValue) : "N/A",
             });
         } else {
             hoverValues.push({ name: signalMetadata?.name || "N/A", value: "N/A" });

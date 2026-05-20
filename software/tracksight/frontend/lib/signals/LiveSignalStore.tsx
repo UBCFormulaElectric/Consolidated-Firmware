@@ -55,24 +55,24 @@ class LiveSignalStore extends SignalStore {
 
       this.addDataPoint(signalName, ts, value);
 
-      if (signal_type === "Numerical") {
-        const waveletBuffer = this.waveletBuffers.get(signalName);
+      if (signal_type !== "Numerical") return;
 
-        if (!waveletBuffer) {
-          throw new Error(`Received data for signal ${signalName} which is not initialized in waveletBuffers`);
-        }
+      const waveletBuffer = this.waveletBuffers.get(signalName);
 
-        propagateHaar(
-          waveletBuffer,
-          0,
-          ts,
-          value,
-          (level, intervalMs, timestamp, value) => {
-            this.addDataPointAtLOD(signalName, level, intervalMs, timestamp, value);
-          },
-          NUM_LOD_LEVELS
-        )
+      if (!waveletBuffer) {
+        throw new Error(`Received data for signal ${signalName} which is not initialized in waveletBuffers`);
       }
+
+      propagateHaar(
+        waveletBuffer,
+        0,
+        ts,
+        value,
+        (level, intervalMs, timestamp, value) => {
+          this.addDataPointAtLOD(signalName, level, intervalMs, timestamp, value);
+        },
+        NUM_LOD_LEVELS
+      );
     });
 
     socket.on("connect", () => {
