@@ -5,8 +5,6 @@ export const getSignalType = (signal: Omit<SignalMetadata, "type">): SignalMetad
     return SignalType.ENUM;
   } else if (signal.max_val === 1 && signal.min_val === 0 && signal.bits === 1) {
     return SignalType.BOOLEAN;
-  } else if (signal.max_val === 1 && signal.min_val === 0) {
-    return SignalType.ALERT;
   } else {
     return SignalType.NUMERICAL;
   }
