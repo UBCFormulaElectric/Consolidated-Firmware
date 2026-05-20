@@ -4,7 +4,7 @@
 #include <cmsis_os.h>
 #include <projdefs.h>
 
-_Noreturn void vApplicationStackOverflowHook(TaskHandle_t xTask, signed char *pcTaskName)
+extern "C" _Noreturn void vApplicationStackOverflowHook(TaskHandle_t xTask, signed char *pcTaskName)
 {
     LOG_ERROR("Stack overflow detected in task %s, resetting...", pcTaskName);
 
