@@ -31,12 +31,6 @@
       }
     }
   },
-  "Bootup": {
-    "msg_id": 799,
-    "cycle_time": null,
-    "description": "Async bootup message!",
-    "signals": {}
-  },
   "CommitInfo": {
     "msg_id": 708,
     "cycle_time": 100,
@@ -150,29 +144,16 @@
       }
     }
   },
-  "RearPumpPercentage" : {
-    "msg_id": 714, 
+  "RearPumpPercentage": {
+    "msg_id": 714,
     "cycle_time": 1000,
     "description": "Rear pump information",
-    "signals" : {
-      "RPumpPercentage" : {
+    "signals": {
+      "RPumpPercentage": {
         "resolution": 1,
         "min": 0,
         "max": 100,
         "unit": "%"
-      }
-    }
-  },
-  "TireSensor" : {
-    "msg_id": 798,
-    "cycle_time" : 100,
-    "description" :" Tire sensor information",
-    "signals" : {
-      "TireTemperature" : {
-        "resolution": 0.1,
-        "min": -20,
-        "max": 200,
-        "unit": "°C"
       }
     }
   },
@@ -284,5 +265,24 @@
         "unit": "%"
       }
     }
+  },
+  "TireSensor": {
+    "msg_id": 798,
+    "cycle_time": 100,
+    "description": " Tire sensor information",
+    "signals": {
+      "TireTemperature": {
+        "resolution": 0.1,
+        "min": -20,
+        "max": 200,
+        "unit": "\u00c2\u00b0C"
+      }
+    }
+  },
+  "Bootup": {
+    "msg_id": 799,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
   }
 }

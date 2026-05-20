@@ -1,190 +1,190 @@
 {
-    "Vitals": {
-        "msg_id": 900,
-        "cycle_time": 100,
-        "description": "CRIT vitals message.",
-        "signals": {
-            "Heartbeat": {
-                "bits": 1
-            }
-        }
-    },
-    "CommitInfo": {
-        "msg_id": 909,
-        "cycle_time": 100,
-        "description": "CRIT Current Running Git Commit Info",
-        "signals": {
-            "Hash": {
-                "bits": 32
-            },
-            "Clean": {
-                "bits": 1
-            }
-        }
-    },
-    "ButtonsAndSwitches": {
-        "msg_id": 911,
-        "cycle_time": 100,
-        "description": "State of buttons and switches on the CRIT",
-        "signals": {
-            "StartButton": {
-                "enum": "SwitchState"
-            },
-            "RegenSwitch": {
-                "enum": "SwitchState"
-            },
-            "LaunchControlSwitch": {
-                "enum": "SwitchState"
-            },
-            "TorqueVectoringSwitch": {
-                "enum": "SwitchState"
-            },
-            "DriveMode": {
-                "enum": "DriveMode"
-            }
-        }
-    },
-    "TelemMarkEvent": {
-        "msg_id": 912,
-        "cycle_time": null,
-        "description": "Marks an event in the telemetry data. Can be used to mark the start of a run, or any other significant event.",
-        "signals": {}
-    },
-    "Bootup": {
-        "msg_id": 921,
-        "cycle_time": null,
-        "description": "Async bootup message!",
-        "signals": {}
-    },
-    "Debug": {
-      "msg_id": 922,
-      "cycle_time": 1000,
-      "description": "CRIT Debug Signals",
-      "signals": {
-        "TxOverflowCount": {
-          "bits": 16
-        },
-        "RxOverflowCount": {
-          "bits": 16
-        },
-        "ResetReason": {
-          "enum": "CanResetReason"
-        },
-        "StackOverflowTask": {
-          "bits": 32
-        },
-        "WatchdogTimeoutTask": {
-          "bits": 32
-        }
+  "Vitals": {
+    "msg_id": 900,
+    "cycle_time": 100,
+    "description": "CRIT vitals message.",
+    "signals": {
+      "Heartbeat": {
+        "bits": 1
       }
-    },
-    "CPUDataLogInfo": {
-     "msg_id": 923,
-     "cycle_time": 100,
-     "description": "CRIT cpu and stack information",
-     "signals": {
-       "CoreCpuUsageMax": {
-         "resolution": 0.1,
-         "min": 0,
-         "max": 100,
-         "unit": "%"
-       },
-       "CoreCpuUsage": {
-         "resolution": 0.1,
-         "min": 0,
-         "max": 100,
-         "unit": "%"
-       },
-       "TaskRun1HzCpuUsageMax": {
-         "resolution": 0.1,
-         "min": 0,
-         "max": 100,
-         "unit": "%"
-       },
-       "TaskRun1HzCpuUsage": {
-         "resolution": 0.1,
-         "min": 0,
-         "max": 100,
-         "unit": "%"
-       },
-       "TaskRun1HzStackUsage": {
-         "resolution": 0.1,
-         "min": 0,
-         "max": 100,
-         "unit": "%"
-       },
-       "TaskRun100HzCpuUsageMax": {
-         "resolution": 0.1,
-         "min": 0,
-         "max": 100,
-         "unit": "%"
-       },
-       "TaskRun100HzCpuUsage": {
-         "resolution": 0.1,
-         "min": 0,
-         "max": 100,
-         "unit": "%"
-       },
-       "TaskRun100HzStackUsage": {
-         "resolution": 0.1,
-         "min": 0,
-         "max": 100,
-         "unit": "%"
-       },
-       "TaskRun1kHzCpuUsageMax": {
-         "resolution": 0.1,
-         "min": 0,
-         "max": 100,
-         "unit": "%"
-       },
-       "TaskRun1kHzCpuUsage": {
-         "resolution": 0.1,
-         "min": 0,
-         "max": 100,
-         "unit": "%"
-       },
-       "TaskRun1kHzStackUsage": {
-         "resolution": 0.1,
-         "min": 0,
-         "max": 100,
-         "unit": "%"
-       },
-       "TaskRunCanTxCpuUsageMax": {
-         "resolution": 0.1,
-         "min": 0,
-         "max": 100,
-         "unit": "%"
-       },
-       "TaskRunCanTxCpuUsage": {
-         "resolution": 0.1,
-         "min": 0,
-         "max": 100,
-         "unit": "%"
-       },
-       "TaskRunCanTxStackUsage": {
-         "resolution": 0.1,
-         "min": 0,
-         "max": 100,
-         "unit": "%"
-       },
-       "TaskRunCanRxCpuUsageMax": {
-         "resolution": 0.1,
-         "min": 0,
-         "max": 100,
-         "unit": "%"
-       },
-       "TaskRunCanRxCpuUsage": {
-         "resolution": 0.1,
-         "min": 0,
-         "max": 100,
-         "unit": "%"
-       },
-       "TaskRunCanRxStackUsage": {
-         "resolution": 0.1,
-         "min": 0,
-         "max": 100,
-         "unit": "%"
-       }
-     }
-   }
+    }
+  },
+  "CommitInfo": {
+    "msg_id": 909,
+    "cycle_time": 100,
+    "description": "CRIT Current Running Git Commit Info",
+    "signals": {
+      "Hash": {
+        "bits": 32
+      },
+      "Clean": {
+        "bits": 1
+      }
+    }
+  },
+  "ButtonsAndSwitches": {
+    "msg_id": 911,
+    "cycle_time": 100,
+    "description": "State of buttons and switches on the CRIT",
+    "signals": {
+      "StartButton": {
+        "enum": "SwitchState"
+      },
+      "RegenSwitch": {
+        "enum": "SwitchState"
+      },
+      "LaunchControlSwitch": {
+        "enum": "SwitchState"
+      },
+      "TorqueVectoringSwitch": {
+        "enum": "SwitchState"
+      },
+      "DriveMode": {
+        "enum": "DriveMode"
+      }
+    }
+  },
+  "TelemMarkEvent": {
+    "msg_id": 912,
+    "cycle_time": null,
+    "description": "Marks an event in the telemetry data. Can be used to mark the start of a run, or any other significant event.",
+    "signals": {}
+  },
+  "Bootup": {
+    "msg_id": 921,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
+  },
+  "Debug": {
+    "msg_id": 922,
+    "cycle_time": 1000,
+    "description": "CRIT Debug Signals",
+    "signals": {
+      "TxOverflowCount": {
+        "bits": 16
+      },
+      "RxOverflowCount": {
+        "bits": 16
+      },
+      "ResetReason": {
+        "enum": "CanResetReason"
+      },
+      "StackOverflowTask": {
+        "bits": 32
+      },
+      "WatchdogTimeoutTask": {
+        "bits": 32
+      }
+    }
+  },
+  "CPUDataLogInfo": {
+    "msg_id": 923,
+    "cycle_time": 100,
+    "description": "CRIT cpu and stack information",
+    "signals": {
+      "CoreCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "CoreCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun1HzCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun1HzCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun1HzStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun100HzCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun100HzCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun100HzStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun1kHzCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun1kHzCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRun1kHzStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCanTxCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCanTxCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCanTxStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCanRxCpuUsageMax": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCanRxCpuUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      },
+      "TaskRunCanRxStackUsage": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "%"
+      }
+    }
+  }
 }
