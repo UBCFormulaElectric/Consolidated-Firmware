@@ -2859,7 +2859,7 @@
     }
   },
   "Bootup": {
-    "msg_id": 499,
+    "msg_id": 408,
     "cycle_time": null,
     "description": "Async bootup message!",
     "signals": {}

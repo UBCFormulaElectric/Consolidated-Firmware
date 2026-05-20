@@ -51,13 +51,13 @@
     "signals": {}
   },
   "Bootup": {
-    "msg_id": 921,
+    "msg_id": 908,
     "cycle_time": null,
     "description": "Async bootup message!",
     "signals": {}
   },
   "Debug": {
-    "msg_id": 922,
+    "msg_id": 907,
     "cycle_time": 1000,
     "description": "CRIT Debug Signals",
     "signals": {

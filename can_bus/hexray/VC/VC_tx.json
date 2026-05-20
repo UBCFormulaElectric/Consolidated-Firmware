@@ -1,6 +1,6 @@
 {
   "EllipseEkfNavVelocity": {
-    "msg_id": 218,
+    "msg_id": 501,
     "cycle_time": 100,
     "description": "Car Velocity info",
     "signals": {
@@ -46,13 +46,13 @@
     }
   },
   "Bootup": {
-    "msg_id": 234,
+    "msg_id": 508,
     "cycle_time": null,
     "description": "Async bootup message!",
     "signals": {}
   },
   "INVFLSetPoints": {
-    "msg_id": 388,
+    "msg_id": 502,
     "cycle_time": 5,
     "signals": {
       "INVFLReserve1": {
@@ -97,7 +97,7 @@
     }
   },
   "INVFRSetPoints": {
-    "msg_id": 389,
+    "msg_id": 503,
     "cycle_time": 5,
     "signals": {
       "INVFRReserve1": {
@@ -142,7 +142,7 @@
     }
   },
   "INVRLSetPoints": {
-    "msg_id": 392,
+    "msg_id": 504,
     "cycle_time": 5,
     "signals": {
       "INVRLbReserve1": {
@@ -187,7 +187,7 @@
     }
   },
   "INVRRSetPoints": {
-    "msg_id": 393,
+    "msg_id": 505,
     "cycle_time": 5,
     "signals": {
       "INVRRbReserve1": {
@@ -948,7 +948,7 @@
     }
   },
   "EMeterTeamMessage1": {
-    "msg_id": 781,
+    "msg_id": 506,
     "cycle_time": null,
     "description": "EMeter Team Message 1",
     "signals": {
@@ -961,7 +961,7 @@
     }
   },
   "EMeterTeamMessage2": {
-    "msg_id": 782,
+    "msg_id": 507,
     "cycle_time": null,
     "description": "EMeter Team Message 1",
     "signals": {
