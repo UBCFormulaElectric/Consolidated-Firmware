@@ -2,6 +2,7 @@ export type CommonSignalMetadata = {
   name: string;
   tx_node: string;
   msg_name: string;
+  bits: number;
   id: number;
 };
 
