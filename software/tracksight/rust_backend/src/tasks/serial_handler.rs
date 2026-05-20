@@ -1,16 +1,26 @@
 use tokio::select;
 use tokio::io::{AsyncReadExt, AsyncWriteExt, ReadHalf, WriteHalf};
 use tokio::sync::{broadcast, mpsc};
-use tokio_serial::{SerialPortBuilderExt, SerialStream};
-use std::io::{Error, ErrorKind};
+use tokio::time::sleep;
+use tokio_serial::{Error as SerialOpenError, ErrorKind as SerialOpenErrorKind, SerialPortBuilderExt, SerialStream};
+use std::io::{Error, ErrorKind, ErrorKind as IoErrorKind};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use crate::config::CONFIG;
 use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, ResultExt, Task};
 use crate::tasks::telem_message::{CRC32_CALC, TelemetryOutgoingMessage};
 use crate::utils::yellow;
+use crate::utils::green;
 use crate::vprintln;
 use super::telem_message::{TelemetryIncomingMessage, CanPayload};
+
+const ENXIO_OS_ERROR_CODE: i32 = 6;
+const SERIAL_RECONNECT_DELAY: Duration = Duration::from_millis(1000);
+
+#[derive(Clone, Copy)]
+enum SerialFatalEvent {
+    Disconnect,
+}
 
 /**
  * Handling serial signals from radio. Main task
@@ -23,105 +33,194 @@ pub async fn run_serial_task(
 ) {
     vprintln!("{}", yellow("Serial handler task started."));
 
-    let serial_port = tokio_serial::new(
-        &CONFIG.serial_port,
-        CONFIG.serial_baud_rate
-    )
-    .timeout(Duration::from_millis(1000)) // i love magic numbers
-    .open_native_async()
-    .unwrap_or_fail_health_check(&health_check_tx, Task::SerialHandler).await;
+    let mut health_check_sent = false;
+    let mut should_shutdown = false;
+    let mut reconnect_pending = false;
 
-    // split serial port into respective reads and writes
-    let (serial_read, serial_write) = tokio::io::split(serial_port);
-    
-    // communicate between serial reader and this function
-    let (in_msg_tx, mut in_msg_rx) = mpsc::channel::<TelemetryIncomingMessage>(32);
-    // communicate between this function and serial sender
-    let (out_msg_tx, out_msg_rx) = mpsc::channel::<TelemetryOutgoingMessage>(32);
+    while !should_shutdown {
+        let serial_open_result = tokio_serial::new(
+            &CONFIG.serial_port,
+            CONFIG.serial_baud_rate
+        )
+        .timeout(Duration::from_millis(1000)) // i love magic numbers
+        .open_native_async();
 
-    // spawn blocking packet reader
-    // the reader thread will allow the handler thread to be async
-    let packet_reader = {
-        let shutdown_rx = shutdown_rx.resubscribe();
-        tokio::spawn(packet_reader_handler(shutdown_rx, serial_read, in_msg_tx))
-    };
-    let packet_sender = {
-        let shutdown_rx = shutdown_rx.resubscribe();
-        tokio::spawn(packet_sender_handler(shutdown_rx, serial_write, out_msg_rx, client_out_msg_rx))
-    };
-
-    // no set up involved with packet sender and reader thread, send health check
-    health_check_tx.send_health_check(Task::SerialHandler, true).await;
-
-    // loop select check for shutdown signal
-    // if shutdown signal, select block breaks loop early
-    loop {
-        select! {
-            _ = shutdown_rx.recv() => {
-                vprintln!("Shutting down serial task.");
-                break;
+        let serial_port = match serial_open_result {
+            Ok(port) => {
+                if reconnect_pending {
+                    println!("{}", green("Serial reconnected successfully."));
+                    reconnect_pending = false;
+                }
+                port
             }
-            Some(msg) = in_msg_rx.recv() => {
-                // todo should also probably check for closed channels and close thread
-                // TODO better handling error
-                match msg {
-                    TelemetryIncomingMessage::Can { body } => {
-                        // TODO error handling
-                        if !can_queue_tx.send(body).is_ok() {
-                            eprintln!("Channel has closed");
+            Err(e) if is_enxio_open_error(&e) => {
+                eprintln!("Serial port disconnected while opening ({e}); retrying...");
+                reconnect_pending = true;
+                should_shutdown = wait_for_reconnect_delay_or_shutdown(&mut shutdown_rx).await;
+                continue;
+            }
+            Err(e) => {
+                Err::<SerialStream, _>(e)
+                    .unwrap_or_fail_health_check(&health_check_tx, Task::SerialHandler)
+                    .await
+            }
+        };
+
+        if !health_check_sent {
+            // no set up involved with packet sender and reader thread, send health check once.
+            health_check_tx.send_health_check(Task::SerialHandler, true).await;
+            health_check_sent = true;
+        }
+
+        // split serial port into respective reads and writes
+        let (serial_read, serial_write) = tokio::io::split(serial_port);
+
+        // communicate between serial reader and this function
+        let (in_packet_tx, mut in_packet_rx) = mpsc::channel::<Vec<u8>>(32);
+        // communicate between this function and serial sender
+        let (out_packet_tx, out_packet_rx) = mpsc::channel::<TelemetryOutgoingMessage>(32);
+        // notify main session loop of fatal serial errors
+        let (fatal_event_tx, mut fatal_event_rx) = mpsc::channel::<SerialFatalEvent>(4);
+        // local shutdown for a single serial session
+        let (session_shutdown_tx, _) = broadcast::channel::<()>(1);
+
+        // spawn packet reader and sender
+        let packet_reader = {
+            let shutdown_rx = shutdown_rx.resubscribe();
+            let session_shutdown_rx = session_shutdown_tx.subscribe();
+            let fatal_event_tx = fatal_event_tx.clone();
+            tokio::spawn(packet_reader_handler(
+                shutdown_rx,
+                session_shutdown_rx,
+                serial_read,
+                in_packet_tx,
+                fatal_event_tx
+            ))
+        };
+        let packet_sender = {
+            let shutdown_rx = shutdown_rx.resubscribe();
+            let session_shutdown_rx = session_shutdown_tx.subscribe();
+            tokio::spawn(packet_sender_handler(
+                shutdown_rx,
+                session_shutdown_rx,
+                serial_write,
+                out_packet_rx,
+                fatal_event_tx
+            ))
+        };
+
+        let mut should_reconnect = false;
+        // loop select check for shutdown signal
+        // if shutdown signal, select block breaks loop early
+        loop {
+            select! {
+                _ = shutdown_rx.recv() => {
+                    vprintln!("Shutting down serial task.");
+                    should_shutdown = true;
+                    break;
+                }
+                Some(fatal_event) = fatal_event_rx.recv() => {
+                    match fatal_event {
+                        SerialFatalEvent::Disconnect => {
+                            eprintln!("Serial disconnect detected; restarting serial session.");
+                            should_reconnect = true;
                             break;
-                        };
-                    },
-                    TelemetryIncomingMessage::NTP => {
-                        println!("ntp request");
-                        let t1 = SystemTime::now()
-                            .duration_since(UNIX_EPOCH)
-                            .unwrap();
-                        if !out_msg_tx.send(TelemetryOutgoingMessage::NtpResponse { t1 }).await.is_ok() {
-                            eprintln!("Channel has closed");
-                            break;
-                        };
+                        }
                     }
+                }
+                maybe_packet = in_packet_rx.recv() => {
+                    let packet = match maybe_packet {
+                        Some(packet) => packet,
+                        None => {
+                            // Reader ended unexpectedly; restart the serial session.
+                            eprintln!("Serial reader stopped; restarting serial session.");
+                            should_reconnect = true;
+                            break;
+                        }
+                    };
+
+                    // TODO better handling error
+                    // println!("Received packet: {:x?}", &packet);
+                    let telem_message = match parse_incoming_telem_message(packet) {
+                        Ok(m)   => m,
+                        Err(_)  => {
+                            eprintln!("Failed to parse telemetry message.");
+                            continue;
+                        },
+                    };
+
+                    match telem_message {
+                        TelemetryIncomingMessage::Can { body } => {
+                            // TODO error handling
+                            if !can_queue_tx.send(body).is_ok() {
+                                eprintln!("CAN queue channel has closed.");
+                                should_shutdown = true;
+                                break;
+                            };
+                        },
+                        TelemetryIncomingMessage::NTP => {
+                            let t1 = SystemTime::now()
+                                .duration_since(UNIX_EPOCH)
+                                .unwrap();
+                            // DEBUG: show the host system clock at the moment of t1
+                            // capture. If this is small (< 1e12 ms), the backend
+                            // machine's wall clock is wrong, not the DAM's parser.
+                            // println!(
+                            //     "NTP request: t1_capture={} ms ({})",
+                            //     t1.as_millis(),
+                            //     format_unix_ms(t1.as_millis() as u64),
+                            // );
+                            if !out_packet_tx.send(TelemetryOutgoingMessage::NTP { t1 }).await.is_ok() {
+                                eprintln!("Serial sender channel has closed.");
+                                should_reconnect = true;
+                                break;
+                            };
+                        }
+                    }
+                }
+                else => {
+                    should_reconnect = true;
+                    break;
                 }
             }
         }
+
+        let _ = session_shutdown_tx.send(());
+        drop(out_packet_tx);
+        packet_reader.await.ok();
+        packet_sender.await.ok();
+
+        if should_shutdown {
+            break;
+        }
+
+        if should_reconnect {
+            reconnect_pending = true;
+            should_shutdown = wait_for_reconnect_delay_or_shutdown(&mut shutdown_rx).await;
+        }
     }
-    packet_reader.await.ok();
-    packet_sender.await.ok();
+
     vprintln!("{}", yellow("Serial handler task ended."));
 }
 
-//
-// Serial reading stuff
-//
+fn is_enxio_disconnect(error: &Error) -> bool {
+    error.raw_os_error() == Some(ENXIO_OS_ERROR_CODE)
+}
 
-/**
- * Subhandler that manages packet reading, sends packet bytes to main task
- */
-async fn packet_reader_handler(
-    mut shutdown_flag: broadcast::Receiver<()>, 
-    mut serial_read: ReadHalf<SerialStream>, 
-    in_msg_tx: mpsc::Sender<TelemetryIncomingMessage>
-) {   
-    loop {
-        select! {
-            _ = shutdown_flag.recv() => break,
-            result = read_packet(&mut serial_read) => {
-                match result {
-                    Ok(packet_bytes) =>  {
-                        if let Ok(parsed) = parse_incoming_telem_message(&packet_bytes) {        
-                            match in_msg_tx.send(parsed).await {
-                                Ok(_) => {},
-                                Err(_) => break, // packet receiver closed, exit thread
-                            }
-                        } else {
-                            eprintln!("Failed to parse telemetry message: {:?}", packet_bytes);
-                        }
-                    },
-                    Err(e) => {eprintln!("{e}")}, // failed to read, continue
-                }
-            }
-        }
+fn is_enxio_open_error(error: &SerialOpenError) -> bool {
+    match error.kind() {
+        SerialOpenErrorKind::NoDevice => error.to_string().contains("os error 6"),
+        SerialOpenErrorKind::Io(IoErrorKind::NotFound) => true,
+        _ => false,
+    }
+}
+
+async fn wait_for_reconnect_delay_or_shutdown(
+    shutdown_rx: &mut broadcast::Receiver<()>
+) -> bool {
+    select! {
+        _ = shutdown_rx.recv() => true,
+        _ = sleep(SERIAL_RECONNECT_DELAY) => false,
     }
 }
 
@@ -156,6 +255,41 @@ fn parse_incoming_telem_message(payload: &Vec<u8>) -> Result<TelemetryIncomingMe
     return Ok(parsed_message);
 }
 
+//
+// Serial reading stuff
+//
+
+/**
+ * Subhandler that manages packet reading, sends packet bytes to main task
+ */
+async fn packet_reader_handler(
+    mut shutdown_flag: broadcast::Receiver<()>, 
+    mut session_shutdown_flag: broadcast::Receiver<()>,
+    mut serial_read: ReadHalf<SerialStream>, 
+    packet_tx: mpsc::Sender<Vec<u8>>,
+    fatal_event_tx: mpsc::Sender<SerialFatalEvent>
+) {   
+    loop {
+        select! {
+            _ = shutdown_flag.recv() => break,
+            _ = session_shutdown_flag.recv() => break,
+            result = read_packet(&mut serial_read) => {
+                match result {
+                    Ok(p) => match packet_tx.send(p).await {
+                        Ok(_) => {},
+                        Err(_) => break, // packet receiver closed, exit thread
+                    },
+                    Err(e) if is_enxio_disconnect(&e) => {
+                        let _ = fatal_event_tx.send(SerialFatalEvent::Disconnect).await;
+                        break;
+                    }
+                    Err(e) => {eprintln!("{e}")}, // failed to read, continue
+                }
+            }
+        }
+    }
+}
+
 /**
  * Reading bytes until legitimate packet is formed
  */
@@ -167,6 +301,12 @@ async fn read_packet(serial_read: &mut ReadHalf<SerialStream>) -> Result<Vec<u8>
     loop {
         while index < 2 {
             match serial_read.read(&mut header_buffer[index..]).await {
+                Ok(0) => {
+                    return Err(Error::new(
+                        ErrorKind::UnexpectedEof,
+                        "Serial stream returned EOF",
+                    ));
+                }
                 Ok(n) => index += n,
                 Err(e) => return Err(e)
             }
@@ -223,9 +363,10 @@ async fn read_packet(serial_read: &mut ReadHalf<SerialStream>) -> Result<Vec<u8>
  */
 async fn packet_sender_handler(
     mut shutdown_flag: broadcast::Receiver<()>, 
+    mut session_shutdown_flag: broadcast::Receiver<()>,
     mut serial_write: WriteHalf<SerialStream>, 
-    mut out_msg_rx: mpsc::Receiver<TelemetryOutgoingMessage>,
-    mut client_out_msg_rx: broadcast::Receiver<TelemetryOutgoingMessage>
+    mut out_packet_rx: mpsc::Receiver<TelemetryOutgoingMessage>,
+    fatal_event_tx: mpsc::Sender<SerialFatalEvent>
 ) {
     let mut write_msg_to_serial = async |msg: TelemetryOutgoingMessage| {
         let packet = generate_packet(msg);
@@ -240,11 +381,23 @@ async fn packet_sender_handler(
         select! {
             // TODO select! is pseudo random, so in absolute saturated worst case, one may be starved over another
             _ = shutdown_flag.recv() => break,
-            Ok(client_outgoing) = client_out_msg_rx.recv() => {
-                write_msg_to_serial(client_outgoing).await;
-            },
-            Some(outgoing) = out_msg_rx.recv() => {
-                write_msg_to_serial(outgoing).await;
+            _ = session_shutdown_flag.recv() => break,
+            maybe_outgoing = out_packet_rx.recv() => {
+                let outgoing = match maybe_outgoing {
+                    Some(outgoing) => outgoing,
+                    None => break,
+                };
+                let packet = generate_packet(outgoing);
+                match serial_write.write_all(&packet).await {
+                    Ok(_) => {},
+                    Err(e) if is_enxio_disconnect(&e) => {
+                        let _ = fatal_event_tx.send(SerialFatalEvent::Disconnect).await;
+                        break;
+                    }
+                    Err(e) => {
+                        eprintln!("Failed to send packet: {e}");
+                    }
+                }
             }
         }
     }
@@ -273,6 +426,19 @@ fn generate_packet(message: TelemetryOutgoingMessage) -> Vec<u8> {
                 .as_millis() as u64)
                 .to_le_bytes();
             payload.extend_from_slice(&t2_millis);
+
+            // DEBUG: log what we're actually sending so we can compare against
+            // what the firmware reads. Expect both to be ~1.747e12 in 2026; if
+            // they look small, the host system clock is wrong.
+            println!(
+                "NTP reply: t1={} ms ({}) t2={} ms ({}) | t1_bytes_le={:02x?} t2_bytes_le={:02x?}",
+                t1_u64,
+                format_unix_ms(t1_u64),
+                t2_u64,
+                format_unix_ms(t2_u64),
+                t1_millis,
+                t2_millis,
+            );
         }
     }
 
