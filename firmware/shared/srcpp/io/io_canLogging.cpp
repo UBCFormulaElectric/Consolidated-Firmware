@@ -8,14 +8,14 @@ namespace io::canLogging
 {
 namespace
 {
-struct __attribute__((packed)) Header
-{
-    uint8_t  magic;
-    uint8_t  dlc;
-    uint16_t timestamp;
-    uint32_t id;
-};
-static_assert(sizeof(Header) == HEADER_BYTES, "On-disk header must be 8 bytes");
+    struct __attribute__((packed)) Header
+    {
+        uint8_t  magic;
+        uint8_t  dlc;
+        uint16_t timestamp;
+        uint32_t id;
+    };
+    static_assert(sizeof(Header) == HEADER_BYTES, "On-disk header must be 8 bytes");
 } // namespace
 
 size_t encode(const io::CanMsg &msg, EncodeBuf &out)

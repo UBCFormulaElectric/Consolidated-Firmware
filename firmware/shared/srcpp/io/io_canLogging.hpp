@@ -27,10 +27,9 @@
 
 namespace io::canLogging
 {
-inline constexpr size_t HEADER_BYTES = 8;     // magic + dlc + ts16 + id
-inline constexpr size_t CRC_BYTES    = 1;     // crc8 trailer
-inline constexpr size_t MAX_ENCODED_BYTES =
-    HEADER_BYTES + io::CAN_PAYLOAD_BYTES + CRC_BYTES;
+inline constexpr size_t HEADER_BYTES      = 8; // magic + dlc + ts16 + id
+inline constexpr size_t CRC_BYTES         = 1; // crc8 trailer
+inline constexpr size_t MAX_ENCODED_BYTES = HEADER_BYTES + io::CAN_PAYLOAD_BYTES + CRC_BYTES;
 
 using EncodeBuf = std::array<uint8_t, MAX_ENCODED_BYTES>;
 
