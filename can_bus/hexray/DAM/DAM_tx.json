@@ -31,6 +31,12 @@
       }
     }
   },
+  "Bootup": {
+    "msg_id": 808,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
+  },
   "CommitInfo": {
     "msg_id": 809,
     "cycle_time": 100,
