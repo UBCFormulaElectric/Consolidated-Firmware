@@ -20,7 +20,16 @@ result<Cells<result<float>>> runVoltageConversion()
     Cells<result<float>> out;
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
         for (size_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
-            out[seg][cell] = regs[seg][cell].transform(convertRegToVoltage);
+        {
+            if (!regs[seg][cell])
+            {
+                out[seg][cell] = unexpected(regs[seg][cell].error());
+            }
+            else
+            {
+                out[seg][cell] = convertRegToVoltage(regs[seg][cell].value());
+            }
+        }
     return out;
 }
 
@@ -37,8 +46,8 @@ result<pair<Therms<result<float>>, Therms<result<bool>>>> runAuxConversion()
         aux_regs[mux] = aux.value();
     }
 
-    Therms<result<float>> out_temps;
-    Therms<result<bool>>  out_owc;
+    Therms<result<float>> out_temps{};
+    Therms<result<bool>>  out_owc{};
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
         for (size_t mux = 0U; mux < static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT); mux++)
@@ -47,8 +56,16 @@ result<pair<Therms<result<float>>, Therms<result<bool>>>> runAuxConversion()
             {
                 if (const size_t therm = gpio + mux * THERM_GPIOS_PER_SEGMENT; therm < THERMISTORS_PER_SEGMENT)
                 {
-                    out_temps[seg][therm] = aux_regs[mux][seg][gpio].transform(convertRegToTemp);
-                    out_owc[seg][therm]   = aux_regs[mux][seg][gpio].transform(checkThermOwcOk);
+                    if (const auto &reg_result = aux_regs[mux][seg][gpio]; !reg_result)
+                    {
+                        out_temps[seg][therm] = unexpected(reg_result.error());
+                        out_owc[seg][therm]   = unexpected(reg_result.error());
+                    }
+                    else
+                    {
+                        out_temps[seg][therm] = convertRegToTemp(reg_result.value());
+                        out_owc[seg][therm]   = checkThermOwcOk(reg_result.value());
+                    }
                 }
             }
         }

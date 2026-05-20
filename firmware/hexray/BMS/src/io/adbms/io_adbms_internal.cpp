@@ -59,8 +59,7 @@ class __attribute__((packed)) RegGroupPayload
     static constexpr array<uint16_t, 256> pec10Table = pecTable(CRC10_POLY, 10);
     RegBuffer                             data;
     // when the data is in here, it is in wire order (big endian). Please make sure to swap endianness on read or write
-    uint16_t pec10 : 10;
-    uint8_t  cmd_count : 6 = 0;
+    uint16_t pec10_cmd_count;
 
     /**
      * @return This will return a 10 bit number
@@ -76,7 +75,7 @@ class __attribute__((packed)) RegGroupPayload
             remainder &= 0x03FFU; // pec10 keeps only 10 bits
         }
 
-        remainder ^= static_cast<uint16_t>(cmd_count) << 4;
+        remainder ^= static_cast<uint16_t>(cmd_count() << 4);
         for (int bit = 0; bit < 6; bit++)
         {
             if (remainder & 0x0200) // check top bit
@@ -91,20 +90,30 @@ class __attribute__((packed)) RegGroupPayload
   public:
     // constructor for building reggrouppayloads when sending
     explicit RegGroupPayload(const array<uint8_t, REG_GROUP_SIZE> &_data)
-      : data(_data), pec10(static_cast<uint8_t>(swapEndianness(calculatePec10())))
+      : data(_data), pec10_cmd_count(swapEndianness(calculatePec10()))
     {
     }
     // default for recieving
-    RegGroupPayload() : data{}, pec10(0) {}
+    RegGroupPayload() : data{}, pec10_cmd_count(0) {}
 
     [[nodiscard]] bool checksum() const
     {
         // todo is this mask still required with the new bitfields?
-        const auto expected = static_cast<uint16_t>(swapEndianness(pec10) & 0x03FFU);
-        return calculatePec10() == expected;
+        const auto expected   = pec10();
+        const auto calculated = calculatePec10();
+        return calculated == expected;
     }
 
-    [[nodiscard]] uint8_t          getCmdCount() const { return swapEndianness(cmd_count); }
+    [[nodiscard]] uint16_t pec10() const
+    {
+        // pec10 is stored in the lower 10 bits of the pec10_cmd_count field
+        return static_cast<uint16_t>(swapEndianness(pec10_cmd_count) & 0x03FFU);
+    }
+    [[nodiscard]] uint8_t cmd_count() const
+    {
+        // cmd_count is stored in the upper 6 bits of the pec10_cmd_count field
+        return static_cast<uint8_t>(swapEndianness(pec10_cmd_count) >> 10U);
+    }
     [[nodiscard]] const RegBuffer &getData() const { return data; }
 };
 static_assert(sizeof(RegGroupPayload) == REG_GROUP_SIZE + 2); // 2 bytes for PEC10 and cmd_count
@@ -308,7 +317,7 @@ Segments<result<RegBuffer>> readRegGroup(const uint16_t cmd)
             continue;
         }
 
-        if (const uint8_t cc_byte = segment_reg_group.getCmdCount(); cc_byte != expected_cmd_count[segment])
+        if (const uint8_t cc_byte = segment_reg_group.cmd_count(); cc_byte != expected_cmd_count[segment])
         {
             // Resync so a single dropped/replayed command doesn't cascade.
             expected_cmd_count[segment] = cc_byte;
