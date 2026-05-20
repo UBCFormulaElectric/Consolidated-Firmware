@@ -12,7 +12,12 @@ IF ("${TARGET}" STREQUAL "binary")
     include(cmake/bootlib.cmake)
     include(cmake/sbgecomlib.cmake)
     include(cmake/chimeralib.cmake)
+
+    # compile definitions
     add_compile_definitions(TARGET_EMBEDDED)
+    IF (${BOOTLOAD})
+        add_compile_definitions(BOOTLOAD)
+    ENDIF ()
 ELSEIF ("${TARGET}" STREQUAL "test")
     include(cmake/test_libs.cmake)
     add_subdirectory(test)

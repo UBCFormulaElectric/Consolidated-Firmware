@@ -4,7 +4,7 @@
 
 namespace io::power_gauge
 {
-std::expected<void, ErrorCode> update(std::array<led_frame, LEDS> data)
+result<void> update(std::array<led_frame, LEDS> data)
 {
     std::ranges::reverse(data);
     static constexpr std::array<uint8_t, 4> sof{ { 0, 0, 0, 0 } };

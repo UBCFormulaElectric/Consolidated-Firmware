@@ -21,7 +21,7 @@ void hw::Uart::onTransactionCompleteFromISR() const
     portYIELD_FROM_ISR(higherPriorityTaskWoken);
 }
 
-std::expected<void, ErrorCode> hw::Uart::waitForNotification(const uint32_t timeoutMs) const
+result<void> hw::Uart::waitForNotification(const uint32_t timeoutMs) const
 {
     const uint32_t num_notifications = ulTaskNotifyTake(pdTRUE, timeoutMs);
     taskInProgress                   = nullptr;
@@ -36,12 +36,12 @@ std::expected<void, ErrorCode> hw::Uart::waitForNotification(const uint32_t time
     return {};
 }
 
-std::expected<void, ErrorCode> hw::Uart::transmit(const std::span<const uint8_t> tx, const uint32_t timeout) const
+result<void> hw::Uart::transmit(const std::span<const uint8_t> tx, const uint32_t timeout) const
 {
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
         // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
-        const std::expected<void, ErrorCode> st =
+        const result<void> st =
             utils::convertHalStatus(HAL_UART_Transmit(&handle, tx.data(), static_cast<uint16_t>(tx.size()), timeout));
         return st;
     }
@@ -67,7 +67,7 @@ std::expected<void, ErrorCode> hw::Uart::transmit(const std::span<const uint8_t>
     return exit;
 }
 
-std::expected<void, ErrorCode> hw::Uart::receive(std::span<uint8_t> rx, const uint32_t timeout) const
+result<void> hw::Uart::receive(std::span<uint8_t> rx, const uint32_t timeout) const
 {
     if (taskInProgress != nullptr || xPortIsInsideInterrupt())
     {
@@ -78,14 +78,14 @@ std::expected<void, ErrorCode> hw::Uart::receive(std::span<uint8_t> rx, const ui
     if (osKernelGetState() != taskSCHEDULER_RUNNING)
     {
         // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
-        const std::expected<void, ErrorCode> exit =
+        const result<void> exit =
             utils::convertHalStatus(HAL_UART_Receive(&handle, rx.data(), static_cast<uint16_t>(rx.size()), timeout));
         return exit;
     }
 
     taskInProgress = xTaskGetCurrentTaskHandle();
 
-    std::expected<void, ErrorCode> exit =
+    result<void> exit =
         utils::convertHalStatus(HAL_UART_Receive_IT(&handle, rx.data(), static_cast<uint16_t>(rx.size())));
     if (not exit.has_value())
     {
