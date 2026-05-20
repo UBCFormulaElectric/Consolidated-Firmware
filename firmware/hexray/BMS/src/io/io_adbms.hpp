@@ -236,8 +236,7 @@ using Status = Segments<StatusGroups>;
 
 // Conversion control.
 [[nodiscard]] result<void> startCellsAdcConversion();
-[[nodiscard]] result<void> startTempAdcConversion();
-[[nodiscard]] result<void> startSegAdcConversion();
+[[nodiscard]] result<void> startAuxAdcConversion();
 [[nodiscard]] result<void> sendBalanceCmd();
 [[nodiscard]] result<void> sendStopBalanceCmd();
 [[nodiscard]] result<void> wakeup();

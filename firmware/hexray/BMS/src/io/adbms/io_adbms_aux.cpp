@@ -25,14 +25,9 @@ result<void> clear::CellAuxReg()
     return sendCmd(CLRAUX);
 }
 
-result<void> startTempAdcConversion()
+result<void> startAuxAdcConversion()
 {
     return sendCmd(ADAX_BASE);
-}
-
-result<void> startSegAdcConversion()
-{
-    return sendCmd(ADAX_BASE | CH4 | CH2);
 }
 
 result<void> pollAuxAdcConversion()
@@ -50,11 +45,11 @@ result<void> pollAuxAdcConversion()
     return unexpected(ErrorCode::TIMEOUT);
 }
 
-result<Therms<result<uint16_t>>> readCellTempRegs()
+pair<result<Therms<result<uint16_t>>>,result<Segments<result<uint16_t>>>> readCellTempSegVoltageRegs()
 {
     if (const result<void> poll_ok = pollAuxAdcConversion(); !poll_ok)
     {
-        return unexpected(poll_ok.error());
+        return {unexpected(poll_ok.error()), unexpected(poll_ok.error())};
     }
 
     Therms<result<uint16_t>> cell_temp_regs{};
@@ -86,16 +81,7 @@ result<Therms<result<uint16_t>>> readCellTempRegs()
                     cell_temp_regs[seg][gpio] = temperature;
                 }
             }
-        }
-    }
-    return cell_temp_regs;
-}
-
-result<Segments<result<uint16_t>>> readSegVoltageRegs()
-{
-    if (const result<void> poll_ok = pollAuxAdcConversion(); !poll_ok)
-    {
-        return unexpected(poll_ok.error());
+        } 
     }
 
     Segments<result<uint16_t>>        segment_voltage_regs{};
@@ -119,6 +105,6 @@ result<Segments<result<uint16_t>>> readSegVoltageRegs()
         }
         segment_voltage_regs[seg] = voltage;
     }
-    return segment_voltage_regs;
+    return {cell_temp_regs, segment_voltage_regs};
 }
 } // namespace io::adbms

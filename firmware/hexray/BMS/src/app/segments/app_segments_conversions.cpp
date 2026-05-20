@@ -24,14 +24,14 @@ result<Cells<result<float>>> runVoltageConversion()
     return out;
 }
 
-result<pair<Therms<result<float>>, Therms<result<bool>>>> runTempConversion()
+result<tuple<Therms<result<float>>, Therms<result<bool>>, Segments<result<float>>> runAuxConversion()
 {
     array<Therms<result<uint16_t>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)> regs{};
 
     for (size_t mux = 0U; mux < static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT); mux++)
     {
-        config::setThermistorConfig(static_cast<ThermistorMux>(mux)); // TODO wait until the config has synced??
-        RETURN_IF_ERR(io::adbms::startTempAdcConversion());
+        RETURN_IF_ERR(config::setThermistorConfig(static_cast<ThermistorMux>(mux)));
+        RETURN_IF_ERR(io::adbms::startAuxAdcConversion());
         io::time::delay(AUX_CONV_TIME_MS);
         auto temp_result = io::adbms::readCellTempRegs();
         RETURN_IF_ERR(temp_result);
@@ -54,7 +54,16 @@ result<pair<Therms<result<float>>, Therms<result<bool>>>> runTempConversion()
             }
         }
     }
-    return pair{ out_temps, out_owc };
+
+    const auto seg_regs_result = io::adbms::readSegVoltageRegs();
+    RETURN_IF_ERR(seg_regs_result);
+    
+    Segments<result<float>> out_seg_voltages;
+    for (size_t seg = 0; seg < NUM_SEGMENTS; seg++) {
+        out_seg_voltages[seg] = regs[seg].transform(convertRegToVoltage);
+    }
+
+    return tuple{ out_temps, out_owc, out_seg_voltages};
 }
 
 result<Segments<result<float>>> runSegVoltageConversion()
@@ -62,21 +71,17 @@ result<Segments<result<float>>> runSegVoltageConversion()
     RETURN_IF_ERR(io::adbms::startSegAdcConversion());
     io::time::delay(AUX_CONV_TIME_MS);
 
-    const auto seg_regs_result = io::adbms::readSegVoltageRegs();
-    RETURN_IF_ERR(seg_regs_result);
-    const auto &seg_regs = seg_regs_result.value();
+    
+    
 
-    Segments<result<float>> out;
-    for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
-        out[seg] = seg_regs[seg].transform(convertRegToVoltage);
-    return out;
+
 }
 
 result<Segments<io::adbms::StatusGroups>> runStatusConversion()
 {
     RETURN_IF_ERR(io::adbms::clear::StatReg());
     RETURN_IF_ERR(io::adbms::startCellsAdcConversion());
-    RETURN_IF_ERR(io::adbms::startTempAdcConversion());
+    RETURN_IF_ERR(io::adbms::startAuxAdcConversion());
     io::time::delay(AUX_CONV_TIME_MS);
     return io::adbms::readStatusRegs();
 }
