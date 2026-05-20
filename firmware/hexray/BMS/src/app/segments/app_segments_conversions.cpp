@@ -24,7 +24,7 @@ result<Cells<result<float>>> runVoltageConversion()
     return out;
 }
 
-result<tuple<Therms<result<float>>, Therms<result<bool>>, Segments<result<float>>> runAuxConversion()
+result<tuple<Therms<result<float>>, Therms<result<bool>>, Segments<result<float>>>> runAuxConversion()
 {
     array<Therms<result<uint16_t>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)> regs{};
 
@@ -57,24 +57,21 @@ result<tuple<Therms<result<float>>, Therms<result<bool>>, Segments<result<float>
 
     const auto seg_regs_result = io::adbms::readSegVoltageRegs();
     RETURN_IF_ERR(seg_regs_result);
-    
+
     Segments<result<float>> out_seg_voltages;
-    for (size_t seg = 0; seg < NUM_SEGMENTS; seg++) {
+    for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
+    {
         out_seg_voltages[seg] = regs[seg].transform(convertRegToVoltage);
     }
 
-    return tuple{ out_temps, out_owc, out_seg_voltages};
+    return tuple{ out_temps, out_owc, out_seg_voltages };
 }
 
 result<Segments<result<float>>> runSegVoltageConversion()
 {
-    RETURN_IF_ERR(io::adbms::startSegAdcConversion());
+    // RETURN_IF_ERR(io::adbms::startSegAdcConversion());
     io::time::delay(AUX_CONV_TIME_MS);
-
-    
-    
-
-
+    return {};
 }
 
 result<Segments<io::adbms::StatusGroups>> runStatusConversion()
