@@ -46,6 +46,11 @@ void jobs_init()
             const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
             if (auto result = can_tx_queue.push(msg); not result)
                 LOG_ERROR("Failed to push TX CAN message: %d", static_cast<int>(result.error()));
+            // Mirror DAM bootup TX into SD logging path.
+            if (tx_msg.std_id == app::can_utils::DAM_Bootup_Signals::MSG_ID)
+            {
+                (void)log_queue.push(msg);
+            }
             (void)telem_tx_queue.push(io::telemMessage::TelemCanMsg(msg, io::time::getCurrentMs()));
         });
 
