@@ -151,8 +151,8 @@ template <size_t WATCHDOG_INSTANCES> class monitor
                     const bootup::BootRequest request = {
                         .target        = bootup::BootTarget::APP,
                         .context       = bootup::BootContext::WATCHDOG_TIMEOUT,
-                        .context_value = status.xTaskNumber,
                         ._unused       = 0xffff,
+                        .context_value = status.xTaskNumber,
                     };
                     bootup::setBootRequest(request);
 #endif
