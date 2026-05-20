@@ -14,8 +14,11 @@ namespace app::ntp
 
 namespace
 {
-    Timestamps        g_ts{};
-    std::atomic<bool> g_ntp_in_progress{ false };
+    constexpr uint32_t NTP_REPLY_TIMEOUT_MS = 5000U;
+
+    Timestamps            g_ts{};
+    std::atomic<bool>     g_ntp_in_progress{ false };
+    std::atomic<uint32_t> g_ntp_request_start_ms{ 0U };
 
     int64_t computeOffset(const Timestamps &ts)
     {
@@ -25,6 +28,21 @@ namespace
     void recordT0(const uint64_t t0_ms)
     {
         g_ts.t0 = t0_ms;
+    }
+
+    void clearStaleInProgressIfNeeded()
+    {
+        if (!g_ntp_in_progress.load())
+            return;
+
+        const uint32_t now_ms     = io::time::getCurrentMs();
+        const uint32_t start_ms   = g_ntp_request_start_ms.load();
+        const uint32_t elapsed_ms = now_ms - start_ms;
+        if (elapsed_ms < NTP_REPLY_TIMEOUT_MS)
+            return;
+
+        LOG_WARN("ntp: stale in-progress (%u ms), auto-clearing", static_cast<unsigned>(elapsed_ms));
+        g_ntp_in_progress.store(false);
     }
 
     uint64_t handleFrame(const uint64_t t1, const uint64_t t2, const uint64_t t3_ms, const uint64_t current_rtc_ms)
@@ -107,12 +125,17 @@ bool handleFrameAndTuneRtc(const uint64_t t1, const uint64_t t2, const uint64_t 
 
 bool tryBeginAndCaptureT0()
 {
+    clearStaleInProgressIfNeeded();
+
     bool expected = false;
     if (!g_ntp_in_progress.compare_exchange_strong(expected, true))
     {
         // LOG_WARN("NTP in progress flag is true, expected: %d", expected);
         return false;
     }
+
+    g_ntp_request_start_ms.store(io::time::getCurrentMs());
+
     for (uint8_t attempt = 0; attempt < RTC_GET_MAX_ATTEMPTS; ++attempt)
     {
         const auto t0 = app::epochClock::getEpochMs();

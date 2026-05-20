@@ -88,11 +88,11 @@ pub async fn run_serial_task(
                         // DEBUG: show the host system clock at the moment of t1
                         // capture. If this is small (< 1e12 ms), the backend
                         // machine's wall clock is wrong, not the DAM's parser.
-                        println!(
-                            "NTP request: t1_capture={} ms ({})",
-                            t1.as_millis(),
-                            format_unix_ms(t1.as_millis() as u64),
-                        );
+                        // println!(
+                        //     "NTP request: t1_capture={} ms ({})",
+                        //     t1.as_millis(),
+                        //     format_unix_ms(t1.as_millis() as u64),
+                        // );
                         if !out_packet_tx.send(TelemetryOutgoingMessage::NTP { t1 }).await.is_ok() {
                             eprintln!("Channel has closed");
                             break;
@@ -277,15 +277,15 @@ fn generate_packet(message: TelemetryOutgoingMessage) -> Vec<u8> {
             // DEBUG: log what we're actually sending so we can compare against
             // what the firmware reads. Expect both to be ~1.747e12 in 2026; if
             // they look small, the host system clock is wrong.
-            println!(
-                "NTP reply: t1={} ms ({}) t2={} ms ({}) | t1_bytes_le={:02x?} t2_bytes_le={:02x?}",
-                t1_u64,
-                format_unix_ms(t1_u64),
-                t2_u64,
-                format_unix_ms(t2_u64),
-                t1_millis,
-                t2_millis,
-            );
+            // println!(
+            //     "NTP reply: t1={} ms ({}) t2={} ms ({}) | t1_bytes_le={:02x?} t2_bytes_le={:02x?}",
+            //     t1_u64,
+            //     format_unix_ms(t1_u64),
+            //     t2_u64,
+            //     format_unix_ms(t2_u64),
+            //     t1_millis,
+            //     t2_millis,
+            // );
         }
     }
 
