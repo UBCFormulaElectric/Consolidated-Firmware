@@ -34,6 +34,12 @@
       }
     }
   },
+  "Bootup": {
+    "msg_id": 408,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
+  },
   "CommitInfo": {
     "msg_id": 409,
     "cycle_time": 100,
@@ -2857,12 +2863,6 @@
         "bits": 1
       }
     }
-  },
-  "Bootup": {
-    "msg_id": 408,
-    "cycle_time": null,
-    "description": "Async bootup message!",
-    "signals": {}
   },
   "ElconControls": {
     "msg_id": 403105268,

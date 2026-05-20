@@ -31,6 +31,12 @@
       }
     }
   },
+  "Bootup": {
+    "msg_id": 708,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
+  },
   "CommitInfo": {
     "msg_id": 709,
     "cycle_time": 100,
@@ -41,18 +47,6 @@
       },
       "Clean": {
         "bits": 1
-      }
-    }
-  },
-  "Coolant": {
-    "msg_id": 717,
-    "cycle_time": 1000,
-    "signals": {
-      "CoolantFlowRate": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 100,
-        "unit": "L/min"
       }
     }
   },
@@ -266,6 +260,18 @@
       }
     }
   },
+  "Coolant": {
+    "msg_id": 717,
+    "cycle_time": 1000,
+    "signals": {
+      "CoolantFlowRate": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 100,
+        "unit": "L/min"
+      }
+    }
+  },
   "TireSensor": {
     "msg_id": 798,
     "cycle_time": 100,
@@ -275,14 +281,8 @@
         "resolution": 0.1,
         "min": -20,
         "max": 200,
-        "unit": "\u00c2\u00b0C"
+        "unit": "Â°C"
       }
     }
-  },
-  "Bootup": {
-    "msg_id": 708,
-    "cycle_time": null,
-    "description": "Async bootup message!",
-    "signals": {}
   }
 }

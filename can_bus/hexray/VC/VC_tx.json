@@ -1,58 +1,6 @@
 {
-  "EllipseEkfNavVelocity": {
-    "msg_id": 501,
-    "cycle_time": 100,
-    "description": "Car Velocity info",
-    "signals": {
-      "VelocityNorth": {
-        "resolution": 0.05,
-        "signed": true,
-        "min": -35,
-        "max": 35,
-        "unit": "m/s"
-      },
-      "VelocityNorthAccuracy": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 35,
-        "unit": "m/s"
-      },
-      "VelocityEast": {
-        "resolution": 0.05,
-        "signed": true,
-        "min": -35,
-        "max": 35,
-        "unit": "m/s"
-      },
-      "VelocityEastAccuracy": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 35,
-        "unit": "m/s"
-      },
-      "VelocityDown": {
-        "resolution": 0.05,
-        "signed": true,
-        "min": -35,
-        "max": 35,
-        "unit": "m/s"
-      },
-      "VelocityDownAccuracy": {
-        "resolution": 0.1,
-        "min": 0,
-        "max": 35,
-        "unit": "m/s"
-      }
-    }
-  },
-  "Bootup": {
-    "msg_id": 508,
-    "cycle_time": null,
-    "description": "Async bootup message!",
-    "signals": {}
-  },
   "INVFLSetPoints": {
-    "msg_id": 502,
+    "msg_id": 388,
     "cycle_time": 5,
     "signals": {
       "INVFLReserve1": {
@@ -97,7 +45,7 @@
     }
   },
   "INVFRSetPoints": {
-    "msg_id": 503,
+    "msg_id": 389,
     "cycle_time": 5,
     "signals": {
       "INVFRReserve1": {
@@ -142,7 +90,7 @@
     }
   },
   "INVRLSetPoints": {
-    "msg_id": 504,
+    "msg_id": 392,
     "cycle_time": 5,
     "signals": {
       "INVRLbReserve1": {
@@ -187,7 +135,7 @@
     }
   },
   "INVRRSetPoints": {
-    "msg_id": 505,
+    "msg_id": 393,
     "cycle_time": 5,
     "signals": {
       "INVRRbReserve1": {
@@ -251,6 +199,12 @@
         "enum": "VCInverterState"
       }
     }
+  },
+  "Bootup": {
+    "msg_id": 508,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
   },
   "VehicleDynamics": {
     "msg_id": 510,
@@ -373,6 +327,52 @@
         "min": -50,
         "max": 50,
         "unit": "m/s^2"
+      }
+    }
+  },
+  "EllipseEkfNavVelocity": {
+    "msg_id": 518,
+    "cycle_time": 100,
+    "description": "Car Velocity info",
+    "signals": {
+      "VelocityNorth": {
+        "resolution": 0.05,
+        "signed": true,
+        "min": -35,
+        "max": 35,
+        "unit": "m/s"
+      },
+      "VelocityNorthAccuracy": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 35,
+        "unit": "m/s"
+      },
+      "VelocityEast": {
+        "resolution": 0.05,
+        "signed": true,
+        "min": -35,
+        "max": 35,
+        "unit": "m/s"
+      },
+      "VelocityEastAccuracy": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 35,
+        "unit": "m/s"
+      },
+      "VelocityDown": {
+        "resolution": 0.05,
+        "signed": true,
+        "min": -35,
+        "max": 35,
+        "unit": "m/s"
+      },
+      "VelocityDownAccuracy": {
+        "resolution": 0.1,
+        "min": 0,
+        "max": 35,
+        "unit": "m/s"
       }
     }
   },
@@ -948,7 +948,7 @@
     }
   },
   "EMeterTeamMessage1": {
-    "msg_id": 506,
+    "msg_id": 781,
     "cycle_time": null,
     "description": "EMeter Team Message 1",
     "signals": {
@@ -961,7 +961,7 @@
     }
   },
   "EMeterTeamMessage2": {
-    "msg_id": 507,
+    "msg_id": 782,
     "cycle_time": null,
     "description": "EMeter Team Message 1",
     "signals": {

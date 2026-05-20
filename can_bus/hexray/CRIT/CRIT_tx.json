@@ -9,6 +9,34 @@
       }
     }
   },
+  "Debug": {
+    "msg_id": 907,
+    "cycle_time": 1000,
+    "description": "CRIT Debug Signals",
+    "signals": {
+      "TxOverflowCount": {
+        "bits": 16
+      },
+      "RxOverflowCount": {
+        "bits": 16
+      },
+      "ResetReason": {
+        "enum": "CanResetReason"
+      },
+      "StackOverflowTask": {
+        "bits": 32
+      },
+      "WatchdogTimeoutTask": {
+        "bits": 32
+      }
+    }
+  },
+  "Bootup": {
+    "msg_id": 908,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
+  },
   "CommitInfo": {
     "msg_id": 909,
     "cycle_time": 100,
@@ -49,34 +77,6 @@
     "cycle_time": null,
     "description": "Marks an event in the telemetry data. Can be used to mark the start of a run, or any other significant event.",
     "signals": {}
-  },
-  "Bootup": {
-    "msg_id": 908,
-    "cycle_time": null,
-    "description": "Async bootup message!",
-    "signals": {}
-  },
-  "Debug": {
-    "msg_id": 907,
-    "cycle_time": 1000,
-    "description": "CRIT Debug Signals",
-    "signals": {
-      "TxOverflowCount": {
-        "bits": 16
-      },
-      "RxOverflowCount": {
-        "bits": 16
-      },
-      "ResetReason": {
-        "enum": "CanResetReason"
-      },
-      "StackOverflowTask": {
-        "bits": 32
-      },
-      "WatchdogTimeoutTask": {
-        "bits": 32
-      }
-    }
   },
   "CPUDataLogInfo": {
     "msg_id": 923,
