@@ -215,10 +215,10 @@
         "enum": "CanResetReason"
       },
       "StackOverflowTask": {
-        "bits": 8
+        "bits": 32
       },
       "WatchdogTimeoutTask": {
-        "bits": 8
+        "bits": 32
       }
     }
   },
