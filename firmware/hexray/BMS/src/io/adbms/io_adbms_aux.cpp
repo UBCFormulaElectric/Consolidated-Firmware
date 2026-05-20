@@ -45,11 +45,11 @@ result<void> pollAuxAdcConversion()
     return unexpected(ErrorCode::TIMEOUT);
 }
 
-pair<result<Therms<result<uint16_t>>>,result<Segments<result<uint16_t>>>> readCellTempSegVoltageRegs()
+result<Therms<result<uint16_t>>> readCellTempRegs()
 {
     if (const result<void> poll_ok = pollAuxAdcConversion(); !poll_ok)
     {
-        return {unexpected(poll_ok.error()), unexpected(poll_ok.error())};
+        return unexpected(poll_ok.error());
     }
 
     Therms<result<uint16_t>> cell_temp_regs{};
@@ -81,9 +81,13 @@ pair<result<Therms<result<uint16_t>>>,result<Segments<result<uint16_t>>>> readCe
                     cell_temp_regs[seg][gpio] = temperature;
                 }
             }
-        } 
+        }
     }
+    return cell_temp_regs;
+}
 
+Segments<result<uint16_t>> readSegVoltageRegs()
+{
     Segments<result<uint16_t>>        segment_voltage_regs{};
     const Segments<result<RegBuffer>> raw_seg_voltage = readRegGroup(RDAUXD);
     for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
@@ -94,6 +98,7 @@ pair<result<Therms<result<uint16_t>>>,result<Segments<result<uint16_t>>>> readCe
             continue;
         }
 
+        // we are reading VPV
         const uint8_t low     = raw_seg_voltage[seg].value()[4U];
         const uint8_t high    = raw_seg_voltage[seg].value()[5U];
         const auto    voltage = static_cast<uint16_t>(static_cast<uint16_t>(low) | static_cast<uint16_t>(high) << 8U);
@@ -105,6 +110,6 @@ pair<result<Therms<result<uint16_t>>>,result<Segments<result<uint16_t>>>> readCe
         }
         segment_voltage_regs[seg] = voltage;
     }
-    return {cell_temp_regs, segment_voltage_regs};
+    return segment_voltage_regs;
 }
 } // namespace io::adbms

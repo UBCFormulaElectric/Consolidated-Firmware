@@ -7,6 +7,7 @@
 #include "util_errorCodes.hpp"
 
 #include <array>
+#include <utility>
 #include <cstdint>
 #include <cstring>
 #include <expected>
@@ -225,11 +226,11 @@ using Status = Segments<StatusGroups>;
 [[nodiscard]] Segments<result<PWMConfig>>     readPwmReg();
 
 // Measurement reads.
-[[nodiscard]] result<Cells<result<uint16_t>>>    readCellVoltageRegs();
-[[nodiscard]] result<Cells<result<uint16_t>>>    readFilteredCellVoltageRegs();
-[[nodiscard]] result<Therms<result<uint16_t>>>   readCellTempRegs();
-[[nodiscard]] result<Segments<result<uint16_t>>> readSegVoltageRegs();
-[[nodiscard]] result<Segments<StatusGroups>>     readStatusRegs();
+[[nodiscard]] result<Cells<result<uint16_t>>>  readCellVoltageRegs();
+[[nodiscard]] result<Cells<result<uint16_t>>>  readFilteredCellVoltageRegs();
+[[nodiscard]] Segments<result<uint16_t>>       readSegVoltageRegs();
+[[nodiscard]] result<Therms<result<uint16_t>>> readCellTempRegs();
+[[nodiscard]] result<Segments<StatusGroups>>   readStatusRegs();
 
 // Open-wire diagnostics.
 [[nodiscard]] result<void> owcCells(OpenWireSwitch owcSwitch);

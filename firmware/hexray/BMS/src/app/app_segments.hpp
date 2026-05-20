@@ -1,5 +1,6 @@
 #pragma once
 #include <expected>
+#include <tuple>
 #include <utility>
 
 #include "util_errorCodes.hpp"
@@ -104,7 +105,7 @@ result<Cells<result<float>>> runVoltageConversion();
  * failed, but the thermistor_owc result will be valid only if all conversions succeeded, since we don't want to report
  * any thermistor as open wire unless we're sure.
  */
-result<std::pair<Therms<result<float>>, Therms<result<bool>>>> runTempConversion();
+result<std::pair<Therms<result<float>>, Therms<result<bool>>>> runAuxConversion();
 result<Segments<result<float>>>                                runSegVoltageConversion();
 result<Segments<io::adbms::StatusGroups>>                      runStatusConversion();
 result<Cells<result<bool>>>                                    runCellOpenWireCheck();

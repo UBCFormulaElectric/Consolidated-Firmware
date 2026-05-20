@@ -191,37 +191,25 @@ void jobs_runAdbmsTemperatures_tick()
     result<std::pair<Therms<result<float>>, Therms<result<bool>>>> temp_r;
     {
         const io::unique_semaphore s{ spi_bus_lock };
-        temp_r = app::segments::runTempConversion();
+        temp_r = app::segments::runAuxConversion();
     }
-
     if (temp_r)
     {
-        Therms<result<float>> &temp_results      = temp_r.value().first;
-        Therms<result<bool>>  &therm_owc_results = temp_r.value().second;
+        // Therms<result<float>> &temp_results      = std::get<0>(temp_r.value());
+        // Therms<result<bool>>  &therm_owc_results = std::get<1>(temp_r.value());
         app::segments::state::setAll(app::segments::state::Bit::Temp);
     }
     else
     {
         temp_r = {};
-        for (auto &seg : temp_r.value().first)
+        for (io::adbms::SegmentTherms<result<float>> &seg : std::get<0>(temp_r.value()))
             seg.fill(std::unexpected(temp_r.error()));
-        for (auto &seg : temp_r.value().second)
+        for (io::adbms::SegmentTherms<result<bool>> &seg : std::get<1>(temp_r.value()))
             seg.fill(std::unexpected(temp_r.error()));
+        // std::get<2>(temp_r.value()).fill(std::unexpected(temp_r.error()));
     }
-    app::segments::broadcast::temps(temp_r.value().first, temp_r.value().second);
-
-    // SEGMENT VOLTAGES
-    result<Segments<result<float>>> seg_r;
-    {
-        const io::unique_semaphore s{ spi_bus_lock };
-        seg_r = app::segments::runSegVoltageConversion();
-    }
-    Segments<result<float>> seg_voltage_results{};
-    if (seg_r)
-        seg_voltage_results = seg_r.value();
-    else
-        seg_voltage_results.fill(std::unexpected(seg_r.error()));
-    app::segments::broadcast::segVoltages(seg_voltage_results);
+    app::segments::broadcast::temps(std::get<0>(temp_r.value()), std::get<1>(temp_r.value()));
+    // app::segments::broadcast::segVoltages(std::get<2>(temp_r.value()));
 }
 
 void jobs_runAdbmsDiagnostics_tick()

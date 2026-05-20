@@ -24,18 +24,17 @@ result<Cells<result<float>>> runVoltageConversion()
     return out;
 }
 
-result<tuple<Therms<result<float>>, Therms<result<bool>>, Segments<result<float>>>> runAuxConversion()
+result<pair<Therms<result<float>>, Therms<result<bool>>>> runAuxConversion()
 {
-    array<Therms<result<uint16_t>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)> regs{};
-
+    array<Therms<result<uint16_t>>, static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT)> aux_regs{};
     for (size_t mux = 0U; mux < static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT); mux++)
     {
-        RETURN_IF_ERR(config::setThermistorConfig(static_cast<ThermistorMux>(mux)));
+        config::setThermistorConfig(static_cast<ThermistorMux>(mux));
         RETURN_IF_ERR(io::adbms::startAuxAdcConversion());
         io::time::delay(AUX_CONV_TIME_MS);
-        auto temp_result = io::adbms::readCellTempRegs();
-        RETURN_IF_ERR(temp_result);
-        regs[mux] = temp_result.value();
+        auto aux = io::adbms::readCellTempRegs();
+        RETURN_IF_ERR_SILENT(aux);
+        aux_regs[mux] = aux.value();
     }
 
     Therms<result<float>> out_temps;
@@ -48,23 +47,23 @@ result<tuple<Therms<result<float>>, Therms<result<bool>>, Segments<result<float>
             {
                 if (const size_t therm = gpio + mux * THERM_GPIOS_PER_SEGMENT; therm < THERMISTORS_PER_SEGMENT)
                 {
-                    out_temps[seg][therm] = regs[mux][seg][gpio].transform(convertRegToTemp);
-                    out_owc[seg][therm]   = regs[mux][seg][gpio].transform(checkThermOwcOk);
+                    out_temps[seg][therm] = aux_regs[mux][seg][gpio].transform(convertRegToTemp);
+                    out_owc[seg][therm]   = aux_regs[mux][seg][gpio].transform(checkThermOwcOk);
                 }
             }
         }
     }
 
-    const auto seg_regs_result = io::adbms::readSegVoltageRegs();
-    RETURN_IF_ERR(seg_regs_result);
+    // const auto seg_regs_result = io::adbms::readSegVoltageRegs();
+    // RETURN_IF_ERR(seg_regs_result);
+    // const Segments<result<uint16_t>> &seg_regs = seg_regs_result.value();
+    // Segments<result<float>>           out_seg_voltages;
+    // for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
+    // {
+    //     out_seg_voltages[seg] = seg_regs[seg].transform(convertRegToVoltage);
+    // }
 
-    Segments<result<float>> out_seg_voltages;
-    for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
-    {
-        out_seg_voltages[seg] = regs[seg].transform(convertRegToVoltage);
-    }
-
-    return tuple{ out_temps, out_owc, out_seg_voltages };
+    return pair{ out_temps, out_owc };
 }
 
 result<Segments<result<float>>> runSegVoltageConversion()
