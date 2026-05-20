@@ -221,41 +221,48 @@ using Status = Segments<StatusGroups>;
  * code. If both reads succeed, the SegmentConfig result will contain the successfully read and parsed configuration.
  */
 
-
-namespace write {
-[[nodiscard]] result<void>                       pwmReg(const Segments<PWMConfig> &pwm_config);
-[[nodiscard]] result<void>                       configReg(const Segments<SegmentConfig> &config);
-}
+namespace write
+{
+    [[nodiscard]] result<void> pwmReg(const Segments<PWMConfig> &pwm_config);
+    [[nodiscard]] result<void> configReg(const Segments<SegmentConfig> &config);
+} // namespace write
 
 // Measurement reads.
-[[nodiscard]] result<Cells<result<uint16_t>>>  readCellVoltageRegs();
-[[nodiscard]] result<Cells<result<uint16_t>>>  readFilteredCellVoltageRegs();
-[[nodiscard]] Segments<result<uint16_t>>       readSegVoltageRegs();
-[[nodiscard]] result<Therms<result<uint16_t>>> readCellTempRegs();
-[[nodiscard]] result<Segments<StatusGroups>>   readStatusRegs();
+namespace read
+{
+
+    [[nodiscard]] Segments<result<SegmentConfig>>    configReg();
+    [[nodiscard]] Segments<result<PWMConfig>>        pwmReg();
+    [[nodiscard]] result<Cells<result<uint16_t>>>    cellVoltage();
+    [[nodiscard]] result<Cells<result<uint16_t>>>    filteredCellVoltage();
+    [[nodiscard]] result<Segments<result<uint16_t>>> segVoltage();
+    [[nodiscard]] result<Therms<result<uint16_t>>>   cellTemp();
+    [[nodiscard]] result<Segments<StatusGroups>>     status();
+} // namespace read
 
 // Open-wire diagnostics.
 [[nodiscard]] result<void> owcCells(OpenWireSwitch owcSwitch);
 
 // Conversion control.
-namespace command {
-[[nodiscard]] result<void> startCellsAdcConversion();
-[[nodiscard]] result<void> startAuxAdcConversion();
-[[nodiscard]] result<void> startSegAdcConversion();
-[[nodiscard]] result<void> pollCellsAdcConversion();
-[[nodiscard]] result<void> pollAuxAdcConversion();
-[[nodiscard]] result<void> sendBalanceCmd();
-[[nodiscard]] result<void> sendStopBalanceCmd();
-[[nodiscard]] result<void> wakeup();
-[[nodiscard]] result<void> owcCells(OpenWireSwitch owcSwitch);
-}
+namespace command
+{
+    [[nodiscard]] result<void> startCellsAdcConversion();
+    [[nodiscard]] result<void> startAuxAdcConversion();
+    [[nodiscard]] result<void> startSegAdcConversion();
+    [[nodiscard]] result<void> pollCellsAdcConversion();
+    [[nodiscard]] result<void> pollAuxAdcConversion();
+    [[nodiscard]] result<void> sendBalanceCmd();
+    [[nodiscard]] result<void> sendStopBalanceCmd();
+    [[nodiscard]] result<void> wakeup();
+    [[nodiscard]] result<void> owcCells(OpenWireSwitch owcSwitch);
+} // namespace command
 
 // Register clear helpers.
 namespace clear
 {
-[[nodiscard]] result<void> aux();
-[[nodiscard]] result<void> cell();
-[[nodiscard]] result<void> filteredCell();
-[[nodiscard]] result<void> stat();
+    [[nodiscard]] result<void> aux();
+    [[nodiscard]] result<void> cell();
+    [[nodiscard]] result<void> filteredCell();
+    [[nodiscard]] result<void> stat();
 } // namespace clear
 } // namespace io::adbms

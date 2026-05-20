@@ -7,11 +7,11 @@ using namespace std;
 
 namespace
 {
-constexpr uint8_t                               MAX_NUM_ATTEMPTS     = 5U;
-constexpr uint8_t                               POLL_RETRY_DELAY_MS  = 1U;
-constexpr uint8_t                               GPIOS_PER_GROUP      = 3U;
-constexpr uint8_t                               NUM_THERM_REG_GROUPS = 3U;
-constexpr uint8_t                               NUM_STAT_REG_GROUPS  = 5U;
+constexpr uint8_t MAX_NUM_ATTEMPTS     = 5U;
+constexpr uint8_t POLL_RETRY_DELAY_MS  = 1U;
+constexpr uint8_t GPIOS_PER_GROUP      = 3U;
+constexpr uint8_t NUM_THERM_REG_GROUPS = 3U;
+constexpr uint8_t NUM_STAT_REG_GROUPS  = 5U;
 
 } // namespace
 
@@ -55,26 +55,34 @@ result<void> command::pollAuxAdcConversion()
     return unexpected(ErrorCode::TIMEOUT);
 }
 
-result<Therms<result<uint16_t>>> read::cellTemp() {
-    array<uint16_t, NUM_THERM_REG_GROUPS> reg_groups{{RDAUXA,RDAUXB,RDAUXC}};
-    Therms<result<uint16_t>> cell_temp_regs{};
+result<Therms<result<uint16_t>>> read::cellTemp()
+{
+    constexpr array<uint16_t, NUM_THERM_REG_GROUPS> reg_groups{ { RDAUXA, RDAUXB, RDAUXC } };
+    Therms<result<uint16_t>>                        cell_temp_regs{};
 
-    for (size_t group = 0U; group < NUM_THERM_REG_GROUPS; group++) {
+    for (size_t group = 0U; group < NUM_THERM_REG_GROUPS; group++)
+    {
         const Segments<result<RegBuffer>> temp_reg_groups = readRegGroup(reg_groups[group]);
 
-        for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++) {
-            for (size_t gpio_in_group = 0U; gpio_in_group < GPIOS_PER_GROUP; gpio_in_group++) {
-                if (const size_t gpio = group * GPIOS_PER_GROUP + gpio_in_group; gpio < THERM_GPIOS_PER_SEGMENT) {
-                    if (!temp_reg_groups[seg]) {
+        for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
+        {
+            for (size_t gpio_in_group = 0U; gpio_in_group < GPIOS_PER_GROUP; gpio_in_group++)
+            {
+                if (const size_t gpio = group * GPIOS_PER_GROUP + gpio_in_group; gpio < THERM_GPIOS_PER_SEGMENT)
+                {
+                    if (!temp_reg_groups[seg])
+                    {
                         cell_temp_regs[seg][gpio] = unexpected(temp_reg_groups[seg].error());
                         continue;
                     }
-                    
+
                     const uint16_t low  = temp_reg_groups[seg].value()[gpio_in_group * 2U];
                     const uint16_t high = temp_reg_groups[seg].value()[gpio_in_group * 2U + 1U];
-                    const auto     temperature = static_cast<uint16_t>(static_cast<uint16_t>(low) | static_cast<uint16_t>(high) << 8U);
+                    const auto     temperature =
+                        static_cast<uint16_t>(static_cast<uint16_t>(low) | static_cast<uint16_t>(high) << 8U);
 
-                    if (temperature == 0xFFFF || temperature == 0x8000) {
+                    if (temperature == 0xFFFF || temperature == 0x8000)
+                    {
                         cell_temp_regs[seg][gpio] = std::unexpected(ErrorCode::INVALID_READING);
                         continue;
                     }
@@ -86,7 +94,8 @@ result<Therms<result<uint16_t>>> read::cellTemp() {
     return cell_temp_regs;
 }
 
-result<Segments<result<uint16_t>>> read::segVoltage() {
+result<Segments<result<uint16_t>>> read::segVoltage()
+{
     Segments<result<uint16_t>> segment_voltage_regs{};
 
     const Segments<result<RegBuffer>> raw_seg_voltage = readRegGroup(RDAUXD);
@@ -113,9 +122,10 @@ result<Segments<result<uint16_t>>> read::segVoltage() {
     return segment_voltage_regs;
 }
 
-result<Segments<StatusGroups>> read::status() {
-    array<uint16_t, NUM_STAT_REG_GROUPS> reg_groups{{RDSTATA,RDSTATB,RDSTATC,RDSTATD,RDSTATE}};
-    Segments<StatusGroups>                                stat_regs;
+result<Segments<StatusGroups>> read::status()
+{
+    constexpr array<uint16_t, NUM_STAT_REG_GROUPS> reg_groups{ { RDSTATA, RDSTATB, RDSTATC, RDSTATD, RDSTATE } };
+    Segments<StatusGroups>                         stat_regs;
 
     for (size_t group = 0U; group < NUM_STAT_REG_GROUPS; group++)
     {

@@ -45,19 +45,24 @@ result<void> command::pollCellsAdcConversion()
 
 result<Cells<result<uint16_t>>> read::cellVoltage()
 {
-    Cells<result<uint16_t>> cell_voltage_regs{};
-    array<uint16_t, NUM_VOLT_REG_GROUPS> cell_voltage_reg_groups{ { RDCVA, RDCVB, RDCVC, RDCVD, RDCVE } };
+    Cells<result<uint16_t>>                        cell_voltage_regs{};
+    constexpr array<uint16_t, NUM_VOLT_REG_GROUPS> cell_voltage_reg_groups{ { RDCVA, RDCVB, RDCVC, RDCVD, RDCVE } };
 
-    for (size_t group = 0U; group < NUM_VOLT_REG_GROUPS; group++) {
+    for (size_t group = 0U; group < NUM_VOLT_REG_GROUPS; group++)
+    {
         const Segments<result<RegBuffer>> seg_reg = readRegGroup(cell_voltage_reg_groups[group]);
 
-        for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++) {
-            for (size_t cell_in_group = 0U; cell_in_group < CELLS_PER_GROUP; cell_in_group++) {
+        for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
+        {
+            for (size_t cell_in_group = 0U; cell_in_group < CELLS_PER_GROUP; cell_in_group++)
+            {
                 const size_t cell = group * CELLS_PER_GROUP + cell_in_group;
-                if (cell >= CELLS_PER_SEGMENT) {
+                if (cell >= CELLS_PER_SEGMENT)
+                {
                     continue;
                 }
-                if (!seg_reg[seg]) {
+                if (!seg_reg[seg])
+                {
                     cell_voltage_regs[seg][cell] = unexpected(seg_reg[seg].error());
                     continue;
                 }
@@ -65,7 +70,8 @@ result<Cells<result<uint16_t>>> read::cellVoltage()
                 const uint8_t high = seg_reg[seg].value()[cell_in_group * 2U + 1U];
                 const auto    voltage =
                     static_cast<uint16_t>(static_cast<uint16_t>(low) | static_cast<uint16_t>(high) << 8U);
-                if (voltage == 0xFFFF || voltage == 0x8000) {
+                if (voltage == 0xFFFF || voltage == 0x8000)
+                {
                     cell_voltage_regs[seg][cell] = std::unexpected(ErrorCode::INVALID_READING);
                     continue;
                 }
@@ -78,19 +84,24 @@ result<Cells<result<uint16_t>>> read::cellVoltage()
 
 result<Cells<result<uint16_t>>> read::filteredCellVoltage()
 {
-    Cells<result<uint16_t>> filtered_cell_voltage_regs{};
+    Cells<result<uint16_t>>              filtered_cell_voltage_regs{};
     array<uint16_t, NUM_VOLT_REG_GROUPS> filtered_reg_groups{ { RDFCA, RDFCB, RDFCC, RDFCD, RDFCE } };
 
-    for (size_t group = 0U; group < NUM_VOLT_REG_GROUPS; group++) {
+    for (size_t group = 0U; group < NUM_VOLT_REG_GROUPS; group++)
+    {
         const Segments<result<RegBuffer>> out = readRegGroup(filtered_reg_groups[group]);
 
-        for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++) {
-            for (size_t cell_in_group = 0U; cell_in_group < CELLS_PER_GROUP; cell_in_group++) {
+        for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
+        {
+            for (size_t cell_in_group = 0U; cell_in_group < CELLS_PER_GROUP; cell_in_group++)
+            {
                 const size_t cell = group * CELLS_PER_GROUP + cell_in_group;
-                if (cell >= CELLS_PER_SEGMENT) {
+                if (cell >= CELLS_PER_SEGMENT)
+                {
                     continue;
                 }
-                if (!out[seg]) {
+                if (!out[seg])
+                {
                     filtered_cell_voltage_regs[seg][cell] = unexpected(out[seg].error());
                     continue;
                 }

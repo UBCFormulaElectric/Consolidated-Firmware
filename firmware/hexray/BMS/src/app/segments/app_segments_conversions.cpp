@@ -30,9 +30,9 @@ result<pair<Therms<result<float>>, Therms<result<bool>>>> runAuxConversion()
     for (size_t mux = 0U; mux < static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT); mux++)
     {
         config::setThermistorConfig(static_cast<ThermistorMux>(mux));
-        RETURN_IF_ERR(io::adbms::startAuxAdcConversion());
+        RETURN_IF_ERR(io::adbms::command::startAuxAdcConversion());
         io::time::delay(AUX_CONV_TIME_MS);
-        auto aux = io::adbms::readCellTempRegs();
+        auto aux = io::adbms::read::cellTemp();
         RETURN_IF_ERR_SILENT(aux);
         aux_regs[mux] = aux.value();
     }
