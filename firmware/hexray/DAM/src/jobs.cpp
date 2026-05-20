@@ -35,6 +35,8 @@ bool     log_open = false;
 
 void jobs_init()
 {
+    telem_tx_queue.init();
+    log_queue.init();
     can_tx_queue.init();
     can_rx_queue.init();
     io::can_tx::init(
@@ -45,11 +47,10 @@ void jobs_init()
                 LOG_ERROR("Failed to push TX CAN message: %d", static_cast<int>(result.error()));
             (void)telem_tx_queue.push(io::telemMessage::TelemCanMsg(msg, io::time::getCurrentMs()));
         });
-    io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
-    telem_tx_queue.init();
-    log_queue.init();
 
+    io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
     app::can_tx::DAM_Heartbeat_set(true);
+    io::can_tx::DAM_Bootup_sendAperiodic();
 }
 
 void jobs_initLogFs()

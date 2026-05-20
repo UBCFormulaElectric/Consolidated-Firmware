@@ -130,5 +130,11 @@
          "unit": "%"
        }
      }
-   }
+   },
+  "Bootup": {
+    "msg_id": 899,
+    "cycle_time": null,
+    "description": "Async bootup message!",
+    "signals": {}
+  }
 }

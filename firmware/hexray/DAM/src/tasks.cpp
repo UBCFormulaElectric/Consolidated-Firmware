@@ -168,7 +168,14 @@ void tasks_runLogging(void *arg)
         {
             LOG_ERROR("Failed to transmit telem message: %d", static_cast<int>(tx_result.error()));
         }
-        LOG_INFO("NTP Sent!");
+        else if (can_msg != nullptr)
+        {
+            LOG_INFO("UART telem sent: type=CAN can_id=0x%03X", can_msg->msg.can_id);
+        }
+        else if (std::holds_alternative<io::telemMessage::NTPMsg>(entry))
+        {
+            LOG_INFO("UART telem sent: type=NTP");
+        }
     }
 }
 void tasks_runTelemRx(void *arg)

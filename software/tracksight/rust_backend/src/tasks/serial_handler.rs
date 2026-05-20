@@ -151,6 +151,13 @@ pub async fn run_serial_task(
 
                     match telem_message {
                         TelemetryIncomingMessage::Can { body } => {
+                            println!(
+                                "Backend ingest CAN: id=0x{:03x} ts={} payload_len={} payload={:02x?}",
+                                body.can_id,
+                                body.can_timestamp,
+                                body.payload.len(),
+                                body.payload
+                            );
                             // TODO error handling
                             if !can_queue_tx.send(body).is_ok() {
                                 eprintln!("CAN queue channel has closed.");
@@ -159,6 +166,7 @@ pub async fn run_serial_task(
                             };
                         },
                         TelemetryIncomingMessage::NTP => {
+                            println!("Backend ingest NTP request");
                             let t1 = SystemTime::now()
                                 .duration_since(UNIX_EPOCH)
                                 .unwrap();
