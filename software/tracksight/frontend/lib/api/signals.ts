@@ -3,9 +3,9 @@ import { SignalMetadata, SignalType } from "@/lib/types/Signal";
 export const getSignalType = (signal: Omit<SignalMetadata, "type">): SignalMetadata["type"] => {
   if ("enum_signal" in signal && signal["enum_signal"] !== null) {
     return SignalType.ENUM;
-  } else if (signal.max_val === 1 && signal.min_val === 0 && signal.bits === 1) {
+  } else if (signal.max_val === 1 && signal.min_val === 0) {
     return SignalType.BOOLEAN;
-  } else {
+  } else { 
     return SignalType.NUMERICAL;
   }
 };

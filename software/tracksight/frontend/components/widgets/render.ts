@@ -175,7 +175,11 @@ function render_enum(
             }
 
             const value = seriesData[closestIdx];
-            const hoverValue = signalMetadata ? (isEnumSignalMetadata(signalMetadata) ? Object.entries(signalMetadata?.enum_signal?.enum_values || {}).find(([_, v]) => v === value)?.[0] : null) : { "false": 0, "true": 1 }[value];
+            const hoverValue = signalMetadata ? (
+                isEnumSignalMetadata(signalMetadata)
+                    ? Object.entries(signalMetadata?.enum_signal?.enum_values || {}).find(([_, v]) => v === value)?.[0]
+                    : ["false", "true"][value] || null)
+                : null;
 
             hoverValues.push({
                 name: signalMetadata?.name || "Unknown Signal",
@@ -353,7 +357,7 @@ export function render_tooltip(
 ) {
     const xPosition = timeToX(hoverTime);
 
-    if (xPosition < CHART_PADDING.left ||xPosition > width - CHART_PADDING.right) {
+    if (xPosition < CHART_PADDING.left || xPosition > width - CHART_PADDING.right) {
         return;
     }
 
@@ -367,7 +371,7 @@ export function render_tooltip(
     context.lineWidth = 1;
     context.beginPath();
     context.moveTo(xPosition, includeTopPaddingInOffset ? CHART_PADDING.top : 0);
-    context.lineTo(xPosition, includeTopPaddingInOffset ? height - CHART_PADDING.bottom : height); 
+    context.lineTo(xPosition, includeTopPaddingInOffset ? height - CHART_PADDING.bottom : height);
     context.stroke();
     context.setLineDash([]);
 

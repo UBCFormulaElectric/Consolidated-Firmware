@@ -52,6 +52,10 @@ function generateRandomNumericalValue(time: number, index: number = 0, min: numb
   );
 }
 
+function generateRandomBooleanValue() {
+  return Math.random() < 0.5 ? 0 : 1;
+}
+
 function generateRandomEnumValue() {
   const v = Math.floor(Math.random() * MOCK_STATES.length);
   return {
@@ -150,10 +154,10 @@ class MockSignalStore extends SignalStore {
           NUM_LOD_LEVELS
         );
       }
-    } else if (signal.type === SignalType.ENUM) {
+    } else if (signal.type === SignalType.ENUM || signal.type === SignalType.BOOLEAN) {
       const intervalId = setInterval(() => {
         const now = Date.now();
-        const value = generateRandomEnumValue();
+        const value = signal.type === SignalType.ENUM ? generateRandomEnumValue() : { idx: generateRandomBooleanValue() };
         this.addDataPoint(signal.name, now, value.idx);
 
         propagateMode(
@@ -172,7 +176,7 @@ class MockSignalStore extends SignalStore {
 
       for (let i = 0; i < INITIAL_DATA_POINTS; i++) {
         const timestamp = Date.now() - (INITIAL_DATA_POINTS - i);
-        const value = generateRandomEnumValue();
+        const value = signal.type === SignalType.ENUM ? generateRandomEnumValue() : { idx: generateRandomBooleanValue() };
         this.addDataPointAtLOD(signal.name, 0, 1, timestamp, value.idx);
 
         propagateMode(
