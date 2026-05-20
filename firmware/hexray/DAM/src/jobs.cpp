@@ -38,6 +38,7 @@ void jobs_init()
     app::can_tx::DAM_Hash_set(GIT_COMMIT_HASH);
     app::can_tx::DAM_Clean_set(GIT_COMMIT_CLEAN);
     app::can_tx::DAM_Heartbeat_set(true);
+    io::can_tx::DAM_Bootup_sendAperiodic();
 
     if (const auto err = app::bootcount::update(fs); !err)
     {

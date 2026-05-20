@@ -34,6 +34,7 @@ void jobs_init()
     app::can_tx::FSM_Hash_set(GIT_COMMIT_HASH);
     app::can_tx::FSM_Clean_set(GIT_COMMIT_CLEAN);
     app::can_tx::FSM_Heartbeat_set(true);
+    io::can_tx::FSM_Bootup_sendAperiodic();
 }
 void jobs_run1Hz_tick()
 {
