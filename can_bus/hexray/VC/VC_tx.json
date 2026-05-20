@@ -200,6 +200,28 @@
       }
     }
   },
+  "Debug": {
+    "msg_id": 507,
+    "cycle_time": 1000,
+    "description": "VC Debug Signals",
+    "signals": {
+      "TxOverflowCount": {
+        "bits": 16
+      },
+      "RxOverflowCount": {
+        "bits": 16
+      },
+      "ResetReason": {
+        "enum": "CanResetReason"
+      },
+      "StackOverflowTask": {
+        "bits": 8
+      },
+      "WatchdogTimeoutTask": {
+        "bits": 8
+      }
+    }
+  },
   "Bootup": {
     "msg_id": 508,
     "cycle_time": null,
@@ -957,28 +979,6 @@
         "min": 0,
         "max": 100,
         "unit": "%"
-      }
-    }
-  },
-  "Debug": {
-    "msg_id": 707,
-    "cycle_time": 1000,
-    "description": "VC Debug Signals",
-    "signals": {
-      "TxOverflowCount": {
-        "bits": 16
-      },
-      "RxOverflowCount": {
-        "bits": 16
-      },
-      "ResetReason": {
-        "enum": "CanResetReason"
-      },
-      "StackOverflowTask": {
-        "bits": 8
-      },
-      "WatchdogTimeoutTask": {
-        "bits": 8
       }
     }
   },
