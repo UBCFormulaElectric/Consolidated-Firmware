@@ -83,8 +83,6 @@ void jobs_init()
 #endif
 
     app::StateMachine::init(&app::states::init_state);
-
-    app::can_tx::BMS_Heartbeat_set(true);
 }
 
 void jobs_run1Hz_tick()

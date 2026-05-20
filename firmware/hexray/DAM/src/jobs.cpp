@@ -5,6 +5,7 @@
 #include "app_canUtils.hpp"
 #include "app_jsoncan.hpp"
 #include "app_heartbeatMonitors.hpp"
+#include "app_commitInfo.hpp"
 
 #include "io_canMsg.hpp"
 #include "io_canQueues.hpp"
@@ -34,6 +35,8 @@ void jobs_init()
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
     telem_tx_queue.init();
 
+    app::can_tx::DAM_Hash_set(GIT_COMMIT_HASH);
+    app::can_tx::DAM_Clean_set(GIT_COMMIT_CLEAN);
     app::can_tx::DAM_Heartbeat_set(true);
 
     if (const auto err = app::bootcount::update(fs); !err)
