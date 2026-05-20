@@ -9,6 +9,19 @@
       }
     }
   },
+  "CommitInfo": {
+    "msg_id": 609,
+    "cycle_time": 100,
+    "description": "FSM Commit Info",
+    "signals": {
+      "Hash": {
+        "bits": 32
+      },
+      "Clean": {
+        "bits": 1
+      }
+    }
+  },
   "Steering": {
     "msg_id": 610,
     "cycle_time": 10,

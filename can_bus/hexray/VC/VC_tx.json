@@ -206,6 +206,19 @@
     "description": "Async bootup message!",
     "signals": {}
   },
+  "CommitInfo": {
+    "msg_id": 509,
+    "cycle_time": 100,
+    "description": "VC Commit Info",
+    "signals": {
+      "Hash": {
+        "bits": 32
+      },
+      "Clean": {
+        "bits": 1
+      }
+    }
+  },
   "VehicleDynamics": {
     "msg_id": 510,
     "cycle_time": 100,

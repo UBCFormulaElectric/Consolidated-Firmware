@@ -9,6 +9,19 @@
       }
     }
   },
+  "CommitInfo": {
+    "msg_id": 809,
+    "cycle_time": 100,
+    "description": "DAM Commit Info",
+    "signals": {
+      "Hash": {
+        "bits": 32
+      },
+      "Clean": {
+        "bits": 1
+      }
+    }
+  },
   "ShdnNodeStatus": {
     "msg_id": 810,
     "cycle_time": 10,
