@@ -32,12 +32,12 @@ struct Date
 /**
  * Set the RTC time.
  */
-std::expected<void, ErrorCode> set_time(const Time &time);
+result<void> set_time(const Time &time);
 
 /**
  * Set the RTC date.
  */
-std::expected<void, ErrorCode> set_date(const Date &date);
+result<void> set_date(const Date &date);
 
 /**
  * Get the RTC time. Reading time also unlocks the date shadow register, so

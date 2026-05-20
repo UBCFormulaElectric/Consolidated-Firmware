@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { fetchSignalMetadata } from "@/lib/api/signals";
 import { API_BASE_URL } from "@/lib/constants";
-import { EnumSignalMetadata, isEnumSignalMetadata } from "@/lib/types/Signal";
+import { BooleanSignalMetadata, EnumSignalMetadata, isBooleanSignalMetadata, isEnumSignalMetadata } from "@/lib/types/Signal";
 
 const MAX_RENDERED_SIGNALS = 100;
 
@@ -13,8 +13,12 @@ function normalizeSearchText(value: string): string {
   return value.trim().toLowerCase().replace(/[_-]+/g, " ");
 }
 
-function getSignalSubtitle(signal: EnumSignalMetadata): string {
-  const parts = [signal.msg_name, signal.tx_node, signal.enum_type];
+function getSignalSubtitle(signal: EnumSignalMetadata | BooleanSignalMetadata): string {
+  const parts = [signal.msg_name, signal.tx_node];
+
+  if (isEnumSignalMetadata(signal)) {
+    parts.push(signal.enum_signal.enum_name);
+  }
 
   if (signal.cycle_time_ms !== null) {
     parts.push(`${signal.cycle_time_ms}ms`);
@@ -23,7 +27,7 @@ function getSignalSubtitle(signal: EnumSignalMetadata): string {
   return parts.join(" • ");
 }
 
-export const EnumSignalPicker = memo(function EnumSignalPicker(props: { query: string; selectedSignalName: string | null; onQueryChange: (value: string) => void; onSelectSignal: (signal: EnumSignalMetadata) => void }) {
+export const EnumSignalPicker = memo(function EnumSignalPicker(props: { query: string; selectedSignalName: string | null; onQueryChange: (value: string) => void; onSelectSignal: (signal: EnumSignalMetadata | BooleanSignalMetadata) => void }) {
   const { query, selectedSignalName, onQueryChange, onSelectSignal } = props;
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [isListOpen, setIsListOpen] = useState(false);
@@ -31,7 +35,12 @@ export const EnumSignalPicker = memo(function EnumSignalPicker(props: { query: s
   const { data: availableSignals = [], isLoading, error } = useQuery({
     queryKey: ["available-enum-signals"],
     queryFn: async () => fetchSignalMetadata(API_BASE_URL),
-    select: (signals) => signals.filter(isEnumSignalMetadata).sort((left, right) => left.name.localeCompare(right.name)) as EnumSignalMetadata[],
+    select: (signals) => signals.filter((signal) => {
+      return (
+        isEnumSignalMetadata(signal)
+        || isBooleanSignalMetadata(signal)
+      )
+    }).sort((left, right) => left.name.localeCompare(right.name)) as (EnumSignalMetadata | BooleanSignalMetadata)[],
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
     retry: (failureCount) => failureCount < 2,
@@ -42,7 +51,13 @@ export const EnumSignalPicker = memo(function EnumSignalPicker(props: { query: s
   const searchableSignals = useMemo(() => {
     return availableSignals.map((signal) => ({
       signal,
-      searchableText: normalizeSearchText([signal.name, signal.msg_name, signal.tx_node, signal.enum_type].filter(Boolean).join(" ")),
+      searchableText: (
+        isEnumSignalMetadata(signal)
+          ?normalizeSearchText([signal.name, signal.msg_name, signal.tx_node, signal?.enum_signal?.enum_name].filter(Boolean).join(" "))
+          : isBooleanSignalMetadata(signal)
+            ? normalizeSearchText([signal.name, signal.msg_name, signal.tx_node].filter(Boolean).join(" "))
+            : ""
+      ),
     }));
   }, [availableSignals]);
 
@@ -86,7 +101,7 @@ export const EnumSignalPicker = memo(function EnumSignalPicker(props: { query: s
   };
 
   return (
-    <div ref={containerRef}>
+    <div ref={containerRef} className="w-full max-w-md">
       <label className="block text-sm font-medium text-gray-700 mb-1">Signal Name</label>
       <input
         type="text"
@@ -116,7 +131,7 @@ export const EnumSignalPicker = memo(function EnumSignalPicker(props: { query: s
         {error ? (
           <p className="px-3 py-3 text-sm text-red-600">Failed to load available signals.</p>
         ) : isListOpen ? (
-          <div className="max-h-64 overflow-y-auto py-1">
+          <div className="max-h-64 overflow-y-auto py-1 scrollbar-hidden">
             {visibleSignals.length === 0 ? (
               <p className="px-3 py-3 text-sm text-gray-500">No signals match this search.</p>
             ) : (
@@ -137,9 +152,12 @@ export const EnumSignalPicker = memo(function EnumSignalPicker(props: { query: s
                       className={`w-full px-3 py-2 text-left transition-colors ${isHighlighted ? "bg-blue-200" : "hover:bg-blue-100"} ${isSelected ? "bg-blue-100" : ""}`}
                       style={{ contentVisibility: "auto", containIntrinsicSize: "48px" }}
                     >
-                      <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center justify-between gap-3 w-full">
                         <span className="font-medium text-gray-900">{signal.name}</span>
-                        <span className="shrink-0 text-xs uppercase tracking-wide text-gray-500">{signal.enum_type}</span>
+                        {isEnumSignalMetadata(signal) 
+                          ? <span className="text-xs uppercase min-w-0 truncate tracking-wide text-gray-500">{signal.enum_signal.enum_name}</span>
+                          : <span className="text-xs uppercase min-w-0 truncate tracking-wide text-gray-500">BOOLEAN</span>
+                        }
                       </div>
                       <p className="mt-1 text-xs text-gray-500">{getSignalSubtitle(signal)}</p>
                     </button>

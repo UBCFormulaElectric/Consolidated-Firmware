@@ -101,7 +101,7 @@ namespace imus
 {
     imu imu_front;
 
-    std::expected<void, ErrorCode> init()
+    result<void> init()
     {
         return imu_front.init();
     }

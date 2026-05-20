@@ -32,31 +32,47 @@ class LiveSignalStore extends SignalStore {
     this.waveletBuffers = new Map();
 
     socket.on("data", (payload) => {
-      const { name: signalName, timestamp, value } = payload;
+      const { name: signalName, timestamp, value, signal_type } = payload as {
+        name: string;
+        timestamp: number;
+        value: number;
+        signal_type: "Numerical" | "Alert" | "Enum" | "Boolean";
+      };
 
-      if (!this.storage[signalName]) return;
+      if (!this.storage[signalName] && signal_type !== "Alert") return;
 
       const ts = new Date(timestamp).getTime();
+      
+      if (signal_type === "Alert") {
+        this.addAlertDataPoint(
+          signalName,
+          ts,
+          value
+        );
+
+        return;
+      }
+
       this.addDataPoint(signalName, ts, value);
 
-      if (this.storage[signalName].storeType === SignalType.NUMERICAL) {
-        const waveletBuffer = this.waveletBuffers.get(signalName);
+      if (signal_type !== "Numerical") return;
 
-        if (!waveletBuffer) {
-          throw new Error(`Received data for signal ${signalName} which is not initialized in waveletBuffers`);
-        }
+      const waveletBuffer = this.waveletBuffers.get(signalName);
 
-        propagateHaar(
-          waveletBuffer,
-          0,
-          ts,
-          value,
-          (level, intervalMs, timestamp, value) => {
-            this.addDataPointAtLOD(signalName, level, intervalMs, timestamp, value);
-          },
-          NUM_LOD_LEVELS
-        )
+      if (!waveletBuffer) {
+        throw new Error(`Received data for signal ${signalName} which is not initialized in waveletBuffers`);
       }
+
+      propagateHaar(
+        waveletBuffer,
+        0,
+        ts,
+        value,
+        (level, intervalMs, timestamp, value) => {
+          this.addDataPointAtLOD(signalName, level, intervalMs, timestamp, value);
+        },
+        NUM_LOD_LEVELS
+      );
     });
 
     socket.on("connect", () => {

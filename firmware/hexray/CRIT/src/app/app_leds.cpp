@@ -13,7 +13,7 @@ static io::leds::color boolToColor(const bool condition)
 void init()
 {
     // TODO move this to app_leds
-    std::expected<void, ErrorCode> ec = io::leds::update(io::leds::config{
+    result<void> ec = io::leds::update(io::leds::config{
         io::leds::color::OFF,
         io::leds::color::OFF,
         io::leds::color::OFF,
@@ -52,7 +52,7 @@ void setLeds()
      * off when pressed off to actually launch the vehicle
      * ready condition based on pedal percentage
      */
-    std::expected<void, ErrorCode> ec = io::leds::update(io::leds::config{
+    result<void> ec = io::leds::update(io::leds::config{
         boolToColor(app::can_rx::RSM_Heartbeat_get()),
         boolToColor(app::can_rx::BMS_Heartbeat_get()),
         boolToColor(app::can_rx::VC_Heartbeat_get()),

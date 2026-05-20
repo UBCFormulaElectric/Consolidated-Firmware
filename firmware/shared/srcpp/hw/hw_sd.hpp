@@ -46,7 +46,7 @@ class SdCard
         }                                             \
     }
 
-    std::expected<void, ErrorCode> waitForNotification(uint32_t timeoutMs) const;
+    result<void> waitForNotification(uint32_t timeoutMs) const;
 
   public:
     void onTransactionCompleteFromISR() const;
@@ -190,7 +190,7 @@ class SdCard
      * @return  the ExitCode of the opeation
      *
      */
-    std::expected<void, ErrorCode> read(std::span<uint8_t> pdata, uint32_t block_addr) const;
+    result<void> read(std::span<uint8_t> pdata, uint32_t block_addr) const;
 
     /**
      * @brief   Write to the sd card.
@@ -200,8 +200,8 @@ class SdCard
      * @return  the ExitCode of the opeation
      *
      */
-    std::expected<void, ErrorCode> write(std::span<uint8_t> pdata, uint32_t block_addr) const;
-    std::expected<void, ErrorCode> writeDma(std::span<uint8_t> pdata, uint32_t block_addr) const;
+    result<void> write(std::span<uint8_t> pdata, uint32_t block_addr) const;
+    result<void> writeDma(std::span<uint8_t> pdata, uint32_t block_addr) const;
 
     /**
      * @brief   Read interface with offset and size argument, interface for littlefs
@@ -212,7 +212,7 @@ class SdCard
      * @return  the ExitCode of the opeation
      *
      */
-    std::expected<void, ErrorCode> readOffset(std::span<uint8_t> pdata, uint32_t block_addr, uint32_t offset) const;
+    result<void> readOffset(std::span<uint8_t> pdata, uint32_t block_addr, uint32_t offset) const;
 
     /**
      * @brief   Write interface with offset and size, interface for littlefs
@@ -223,7 +223,7 @@ class SdCard
      * @return  the ExitCode of the opeation
      *
      */
-    std::expected<void, ErrorCode> writeOffset(std::span<uint8_t> pdata, uint32_t block_addr, uint32_t offset) const;
+    result<void> writeOffset(std::span<uint8_t> pdata, uint32_t block_addr, uint32_t offset) const;
 
     /**
      * @brief  Erase data from the sd card [start_addr, end_addr], inclusive
@@ -231,7 +231,7 @@ class SdCard
      * @param  end_addr end of block index
      * @return the ExitCode of the opeation
      */
-    std::expected<void, ErrorCode> erase(uint32_t start_addr, uint32_t end_addr) const;
+    result<void> erase(uint32_t start_addr, uint32_t end_addr) const;
 
     /**
      * @brief  Detect if the sd card is present.
@@ -245,7 +245,7 @@ class SdCard
      * @brief   Abort the current operation
      * @return  the SdCardStatus of the opeation
      */
-    std::expected<void, ErrorCode> abort() const
+    result<void> abort() const
     {
         CHECK_SD_PRESENT();
         return utils::convertHalStatus(HAL_SD_Abort(&_hsd));

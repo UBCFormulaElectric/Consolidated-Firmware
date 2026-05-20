@@ -54,16 +54,14 @@ class Uart
      * @param tx Span of data to transmit.
      * @param timeout Timeout duration
      */
-    std::expected<void, ErrorCode>
-        transmit(std::span<const uint8_t> tx, uint32_t timeout = std::numeric_limits<uint32_t>::max()) const;
+    result<void> transmit(std::span<const uint8_t> tx, uint32_t timeout = std::numeric_limits<uint32_t>::max()) const;
 
     /**
      * Receives an amount of data in polling mode (blocking).
      * @param rx Span to store received data.
      * @param timeout Timeout duration
      */
-    std::expected<void, ErrorCode>
-        receive(std::span<uint8_t> rx, uint32_t timeout = std::numeric_limits<uint32_t>::max()) const;
+    result<void> receive(std::span<uint8_t> rx, uint32_t timeout = std::numeric_limits<uint32_t>::max()) const;
 
     /**
      * Receives up to rx.size() bytes using HAL_UARTEx_ReceiveToIdle_IT. Returns
