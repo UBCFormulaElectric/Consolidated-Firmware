@@ -3,7 +3,9 @@
 #include "io_semaphore.hpp"
 #include "util_retry.hpp"
 
+#include <cassert>
 #include <cstring>
+#include <atomic>
 
 using namespace std;
 
@@ -32,12 +34,18 @@ constexpr std::array<io::adbms::SegmentConfig, NUM_SEGMENTS> createSegmentConfig
 
 std::array<io::adbms::SegmentConfig, NUM_SEGMENTS> segment_config = createSegmentConfig();
 std::array<io::adbms::PWMConfig, NUM_SEGMENTS>     pwm_config{};
+bool                                               dirty = true;
 
-io::semaphore config_data_lock{ true };
+io::semaphore config_data_lock{ true }; // protects the segment_config and pwm_config arrays, and dirty bit
 
-// Caller must hold config_data_lock.
-result<bool> isConfigEqual_locked()
+/**
+ * @return if the config on the ADBMS matches the config_data arrays in this file. If an error occurs while reading the
+ * config from the ADBMS, returns that error.
+ * @note Caller must hold config_data_lock.
+ */
+result<bool> isConfigEqual()
 {
+    assert(config_data_lock.is_held());
     const auto segment_config_buf = io::adbms::readConfigReg();
     const auto pwm_config_buf     = io::adbms::readPwmReg();
 
@@ -55,11 +63,17 @@ result<bool> isConfigEqual_locked()
     return true;
 }
 
-// Caller must hold config_data_lock.
-result<void> upload_locked()
+/**
+ * Writes the config_data arrays in this file to the ADBMS. If an error occurs during writing, returns that error.
+ * @return success of operation
+ * @note Caller must hold config_data_lock.
+ */
+result<void> upload()
 {
+    assert(config_data_lock.is_held());
     RETURN_IF_ERR(io::adbms::writeConfigReg(segment_config));
     RETURN_IF_ERR(io::adbms::writePwmReg(pwm_config));
+    dirty = false;
     return {};
 }
 
@@ -93,33 +107,41 @@ void setBalanceConfig(const Cells<bool> &balance_config, const Cells<uint8_t> &p
             .reg_b = { static_cast<uint8_t>(d[12] & 0x0F), static_cast<uint8_t>(d[13] & 0x0F), 0, 0 },
         };
     }
+    dirty = true;
 }
 
-result<void> setThermistorConfig(const ThermistorMux mux)
+void setThermistorConfig(const ThermistorMux mux)
 {
     const io::unique_semaphore lock{ config_data_lock };
-    for (auto &cfg : segment_config)
+    for (auto &[reg_a, _reg_b] : segment_config)
     {
-        cfg.reg_a.gpio_1_8  = 0xFF;
-        cfg.reg_a.gpio_9_10 = (mux == ThermistorMux::THERMISTOR_MUX_0_7) ? 0x02 : 0x03;
+        reg_a.gpio_1_8  = 0xFF;
+        reg_a.gpio_9_10 = mux == ThermistorMux::THERMISTOR_MUX_0_7 ? 0x02 : 0x03;
     }
-    return io::adbms::writeConfigReg(segment_config);
+    dirty = true;
 }
 
 result<void> configSync()
 {
     const io::unique_semaphore lock{ config_data_lock };
 
-    const auto already_equal = isConfigEqual_locked();
-    RETURN_IF_ERR(already_equal);
-    if (already_equal.value())
+    if (not dirty)
+    {
+        const auto config_equal = isConfigEqual();
+        RETURN_IF_ERR(config_equal);
+        // if (config_equal.value())
+        //     return {};
+        dirty |= !config_equal.value();
+    }
+
+    if (not dirty)
         return {};
 
     return util::retry(
         []() -> result<void>
         {
-            RETURN_IF_ERR(upload_locked());
-            const auto equal = isConfigEqual_locked();
+            RETURN_IF_ERR(upload());
+            const auto equal = isConfigEqual();
             RETURN_IF_ERR(equal);
             return equal.value() ? result<void>{} : unexpected(ErrorCode::RETRY_FAILED);
         },

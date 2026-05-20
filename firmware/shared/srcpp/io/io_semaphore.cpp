@@ -27,6 +27,11 @@ void io::semaphore::take(const uint32_t timeout) const
     xSemaphoreTake(freertos_semaphore_, timeout);
 }
 
+bool io::semaphore::is_held() const
+{
+    return xSemaphoreGetMutexHolder(freertos_semaphore_) == xTaskGetCurrentTaskHandle();
+}
+
 #else
 
 io::semaphore::semaphore(bool) : created_(true) {}

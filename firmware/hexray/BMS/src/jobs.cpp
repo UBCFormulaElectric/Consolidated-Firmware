@@ -149,26 +149,26 @@ void jobs_runAdbmsVoltages_tick()
     app::segments::state::resetAll(app::segments::state::Bit::Voltage);
 
     result<Cells<result<float>>> volt_r;
-    result<Cells<result<bool>>>  owc_r;
     {
         const io::unique_semaphore s{ spi_bus_lock };
         volt_r = app::segments::runVoltageConversion();
-        owc_r  = app::segments::runCellOpenWireCheck();
     }
 
-    Cells<result<float>> voltages{};
     if (volt_r)
     {
-        voltages = volt_r.value();
         app::segments::state::setAll(app::segments::state::Bit::Voltage);
+        app::segments::broadcast::cellVoltages(volt_r.value());
     }
 
-    Cells<result<bool>> owc{};
+    result<Cells<result<bool>>> owc_r;
+    {
+        const io::unique_semaphore s{ spi_bus_lock };
+        owc_r = app::segments::runCellOpenWireCheck();
+    }
     if (owc_r)
-        owc = owc_r.value();
-
-    app::segments::broadcast::cellVoltages(voltages);
-    app::segments::broadcast::owc(owc);
+    {
+        app::segments::broadcast::owc(owc_r.value());
+    }
 }
 
 void jobs_runAdbmsConfigs_tick()
@@ -189,36 +189,38 @@ void jobs_runAdbmsTemperatures_tick()
     app::segments::state::resetAll(app::segments::state::Bit::Temp);
 
     result<std::pair<Therms<result<float>>, Therms<result<bool>>>> temp_r;
-    result<Segments<result<float>>>                                seg_r;
     {
         const io::unique_semaphore s{ spi_bus_lock };
         temp_r = app::segments::runTempConversion();
-        seg_r  = app::segments::runSegVoltageConversion();
     }
 
-    Therms<result<float>> temp_results{};
-    Therms<result<bool>>  therm_owc_results{};
     if (temp_r)
     {
-        temp_results      = temp_r.value().first;
-        therm_owc_results = temp_r.value().second;
+        Therms<result<float>> &temp_results      = temp_r.value().first;
+        Therms<result<bool>>  &therm_owc_results = temp_r.value().second;
         app::segments::state::setAll(app::segments::state::Bit::Temp);
     }
     else
     {
-        for (auto &seg : temp_results)
+        temp_r = {};
+        for (auto &seg : temp_r.value().first)
             seg.fill(std::unexpected(temp_r.error()));
-        for (auto &seg : therm_owc_results)
+        for (auto &seg : temp_r.value().second)
             seg.fill(std::unexpected(temp_r.error()));
     }
+    app::segments::broadcast::temps(temp_r.value().first, temp_r.value().second);
 
+    // SEGMENT VOLTAGES
+    result<Segments<result<float>>> seg_r;
+    {
+        const io::unique_semaphore s{ spi_bus_lock };
+        seg_r = app::segments::runSegVoltageConversion();
+    }
     Segments<result<float>> seg_voltage_results{};
     if (seg_r)
         seg_voltage_results = seg_r.value();
     else
         seg_voltage_results.fill(std::unexpected(seg_r.error()));
-
-    app::segments::broadcast::temps(temp_results, therm_owc_results);
     app::segments::broadcast::segVoltages(seg_voltage_results);
 }
 
@@ -232,17 +234,15 @@ void jobs_runAdbmsDiagnostics_tick()
         stat_r = app::segments::runStatusConversion();
     }
 
-    Status status{};
     if (stat_r)
     {
-        status = stat_r.value();
         app::segments::state::setAll(app::segments::state::Bit::Status);
     }
     else
     {
-        for (auto &sg : status)
+        stat_r = {};
+        for (auto &sg : stat_r.value())
             sg = io::adbms::StatusGroups::makeError(stat_r.error());
     }
-
-    app::segments::broadcast::status(status);
+    app::segments::broadcast::status(stat_r.value());
 }

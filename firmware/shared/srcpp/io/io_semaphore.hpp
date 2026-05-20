@@ -19,6 +19,11 @@ class semaphore
     void take(uint32_t timeout = std::numeric_limits<uint32_t>::max()) const;
     void give() const;
 
+    /**
+     * @return whether the lock is being held by the current task
+     */
+    bool is_held() const;
+
   private:
 #ifdef TARGET_EMBEDDED
     StaticSemaphore_t freertos_semaphore_buf_{};

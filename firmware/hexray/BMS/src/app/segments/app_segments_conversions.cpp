@@ -30,7 +30,7 @@ result<pair<Therms<result<float>>, Therms<result<bool>>>> runTempConversion()
 
     for (size_t mux = 0U; mux < static_cast<size_t>(ThermistorMux::THERMISTOR_MUX_COUNT); mux++)
     {
-        RETURN_IF_ERR(config::setThermistorConfig(static_cast<ThermistorMux>(mux)));
+        config::setThermistorConfig(static_cast<ThermistorMux>(mux)); // TODO wait until the config has synced??
         RETURN_IF_ERR(io::adbms::startTempAdcConversion());
         io::time::delay(AUX_CONV_TIME_MS);
         auto temp_result = io::adbms::readCellTempRegs();

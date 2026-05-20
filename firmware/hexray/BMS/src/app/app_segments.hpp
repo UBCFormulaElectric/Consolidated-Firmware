@@ -39,7 +39,7 @@ template <typename T> struct CellParam
 namespace config
 {
     void setBalanceConfig(const Cells<bool> &balance_config, const Cells<uint8_t> &pwm_duty, bool balancing_enabled);
-    result<void> setThermistorConfig(ThermistorMux mux);
+    void setThermistorConfig(ThermistorMux mux);
     result<void> configSync();
 }; // namespace config
 
