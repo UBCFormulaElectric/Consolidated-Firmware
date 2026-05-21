@@ -65,20 +65,19 @@ namespace read
     [[nodiscard]] Cells<result<uint16_t>>            cellVoltage();
     [[nodiscard]] Cells<result<uint16_t>>            filteredCellVoltage();
     [[nodiscard]] Segments<result<uint16_t>>         segVoltage();
-    [[nodiscard]] Therms<result<uint16_t>>           thermVoltage();
-    [[nodiscard]] Segments<result<StatusGroups>>     status();
+    [[nodiscard]] ThermGpios<result<uint16_t>>       thermVoltage();
+    [[nodiscard]] Segments<StatusGroups>     status();
 } // namespace read
 
 // Conversion control.
 namespace command
 {
-    [[nodiscard]] result<void> startCellsAdcConversion();
-    [[nodiscard]] result<void> startAuxAdcConversion();
-    [[nodiscard]] result<void> startSegAdcConversion();
-    [[nodiscard]] result<void> pollCellsAdcConversion();
-    [[nodiscard]] result<void> pollAuxAdcConversion();
-    [[nodiscard]] result<void> sendBalanceCmd();
-    [[nodiscard]] result<void> sendStopBalanceCmd();
+    [[nodiscard]] result<void> startCellsAdc();
+    [[nodiscard]] result<void> startAuxAdc();
+    [[nodiscard]] result<void> pollCellsAdc();
+    [[nodiscard]] result<void> pollAuxAdc();
+    [[nodiscard]] result<void> startBalance();
+    [[nodiscard]] result<void> stopBalance();
     [[nodiscard]] result<void> wakeup();
     [[nodiscard]] result<void> owcCells(OpenWireSwitch owcSwitch);
 } // namespace command

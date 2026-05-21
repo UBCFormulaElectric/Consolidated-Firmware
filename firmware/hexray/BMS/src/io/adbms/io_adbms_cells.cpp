@@ -23,12 +23,12 @@ result<void> clear::filteredCell()
     return sendCmd(CLRFC);
 }
 
-result<void> command::startCellsAdcConversion()
+result<void> command::startCellsAdc()
 {
     return sendCmd(ADCV_BASE);
 }
 
-result<void> command::pollCellsAdcConversion()
+result<void> command::startAuxAdc()
 {
     for (uint8_t attempt = 0U; attempt < MAX_NUM_ATTEMPTS; attempt++)
     {

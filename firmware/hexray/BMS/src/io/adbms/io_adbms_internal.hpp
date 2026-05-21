@@ -231,11 +231,11 @@ static_assert(sizeof(STATE) == REG_GROUP_SIZE);
 
 struct StatusGroups
 {
-    STATA stat_a;
-    STATB stat_b;
-    STATC stat_c;
-    STATD stat_d;
-    STATE stat_e;
+    result<STATA> stat_a;
+    result<STATB> stat_b;
+    result<STATC> stat_c;
+    result<STATD> stat_d;
+    result<STATE> stat_e;
 };
     
 // PWM Register Group A: per-cell duty cycle for cells 0–11

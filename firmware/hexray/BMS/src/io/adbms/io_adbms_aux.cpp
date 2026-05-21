@@ -35,12 +35,12 @@ result<void> clear::stat()
     return {};
 }
 
-result<void> command::startAuxAdcConversion()
+result<void> command::startAuxAdc()
 {
     return sendCmd(ADAX_BASE);
 }
 
-result<void> command::pollAuxAdcConversion()
+result<void> command::pollAuxAdc()
 {
     for (size_t attempt = 0U; attempt < MAX_NUM_ATTEMPTS; attempt++)
     {
@@ -122,7 +122,7 @@ Segments<result<uint16_t>> read::segVoltage()
     return segment_voltage_regs;
 }
 
-Segments<result<StatusGroups>> read::status()
+Segments<StatusGroups> read::status()
 {
     constexpr array<uint16_t, NUM_STAT_REG_GROUPS> reg_groups{ { RDSTATA, RDSTATB, RDSTATC, RDSTATD, RDSTATE } };
     Segments<StatusGroups>                         stat_regs;
@@ -130,9 +130,8 @@ Segments<result<StatusGroups>> read::status()
     for (size_t group = 0U; group < NUM_STAT_REG_GROUPS; group++)
     {
         const auto out = readRegGroup(reg_groups[group]);
+        for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++) {
 
-        for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
-        {
             switch (group)
             {
                 case 0U:

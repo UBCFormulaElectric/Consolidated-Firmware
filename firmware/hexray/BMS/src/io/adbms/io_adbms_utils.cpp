@@ -9,12 +9,12 @@ result<void> command::wakeup()
     return sendCmd(RDCFGA);
 }
 
-result<void> command::sendBalanceCmd()
+result<void> command::startBalance()
 {
     return sendCmd(UNMUTE);
 }
 
-result<void> command::sendStopBalanceCmd()
+result<void> command::stopBalance()
 {
     return sendCmd(MUTE);
 }
