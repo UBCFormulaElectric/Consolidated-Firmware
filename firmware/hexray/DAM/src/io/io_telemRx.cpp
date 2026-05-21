@@ -6,7 +6,7 @@
 #include "hw_uarts.hpp"
 #include "io_log.hpp"
 
-std::expected<std::span<const uint8_t>, ErrorCode> io::telemRx::read(std::span<uint8_t> scratch)
+result<std::span<const uint8_t>> io::telemRx::read(std::span<uint8_t> scratch)
 {
     // ReceiveToIdle keeps the peripheral armed for the whole scratch buffer in
     // a single HAL call, so there's no inter-byte re-arm gap that can overrun.
