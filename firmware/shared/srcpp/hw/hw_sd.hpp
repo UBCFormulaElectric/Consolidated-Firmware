@@ -49,8 +49,7 @@ class SdCard
     result<void> waitForNotification(uint32_t timeoutMs) const;
 
   public:
-    void onTxTransactionCompleteFromISR() const;
-    void onRxTransactionCompleteFromISR() const;
+    void onTransactionCompleteFromISR() const;
 
     /* Constructor */
     consteval explicit SdCard(SD_HandleTypeDef &hsd, const uint32_t timeout, const gpio &present_gpio)
@@ -63,7 +62,125 @@ class SdCard
 
     uint32_t getTimeout() const { return _timeout; }
 
-    const gpio &getPresentGpio() const { return _present_gpio; }
+    // const gpio &getPresentGpio() const { return _present_gpio; }
+
+    [[nodiscard]] const char *getCardStateString() const
+    {
+        switch (HAL_SD_GetCardState(&_hsd))
+        {
+            case HAL_SD_CARD_READY:
+                return "Card state is ready";
+            case HAL_SD_CARD_IDENTIFICATION:
+                return "Card is in identification state";
+            case HAL_SD_CARD_STANDBY:
+                return "Card is in standby state";
+            case HAL_SD_CARD_TRANSFER:
+                return "Card is in transfer state";
+            case HAL_SD_CARD_SENDING:
+                return "Card is sending an operation";
+            case HAL_SD_CARD_RECEIVING:
+                return "Card is receiving operation information";
+            case HAL_SD_CARD_PROGRAMMING:
+                return "Card is in programming state";
+            case HAL_SD_CARD_DISCONNECTED:
+                return "Card is disconnected";
+            case HAL_SD_CARD_ERROR:
+                return "Card response Error";
+            default:
+                return "Unknown card state";
+        }
+    }
+    [[nodiscard]] const char *getErrorString() const
+    {
+        switch (HAL_SD_GetError(&_hsd))
+        {
+            case SDMMC_ERROR_NONE:
+                return "No error";
+            case SDMMC_ERROR_CMD_CRC_FAIL:
+                return "Command response received (but CRC check failed)";
+            case SDMMC_ERROR_DATA_CRC_FAIL:
+                return "Data block sent/received (CRC check failed)";
+            case SDMMC_ERROR_CMD_RSP_TIMEOUT:
+                return "Command response timeout";
+            case SDMMC_ERROR_DATA_TIMEOUT:
+                return "Data timeout";
+            case SDMMC_ERROR_TX_UNDERRUN:
+                return "Transmit FIFO underrun";
+            case SDMMC_ERROR_RX_OVERRUN:
+                return "Receive FIFO overrun";
+            case SDMMC_ERROR_ADDR_MISALIGNED:
+                return "Misaligned address";
+            case SDMMC_ERROR_BLOCK_LEN_ERR:
+                return "Transferred block length is not allowed for the card";
+            case SDMMC_ERROR_ERASE_SEQ_ERR:
+                return "An error in the sequence of erase command occurs";
+            case SDMMC_ERROR_BAD_ERASE_PARAM:
+                return "An invalid selection for erase groups";
+            case SDMMC_ERROR_WRITE_PROT_VIOLATION:
+                return "Attempt to program a write protect block";
+            case SDMMC_ERROR_LOCK_UNLOCK_FAILED:
+                return "Sequence or password error in unlock command";
+            case SDMMC_ERROR_COM_CRC_FAILED:
+                return "CRC check of the previous command failed";
+            case SDMMC_ERROR_ILLEGAL_CMD:
+                return "Command is not legal for the card state";
+            case SDMMC_ERROR_CARD_ECC_FAILED:
+                return "Card internal ECC was applied but failed to correct the data";
+            case SDMMC_ERROR_CC_ERR:
+                return "Internal card controller error";
+            case SDMMC_ERROR_GENERAL_UNKNOWN_ERR:
+                return "General or unknown error";
+            case SDMMC_ERROR_STREAM_READ_UNDERRUN:
+                return "The card could not sustain data reading in stream mode";
+            case SDMMC_ERROR_STREAM_WRITE_OVERRUN:
+                return "The card could not sustain data programming in stream mode";
+            case SDMMC_ERROR_CID_CSD_OVERWRITE:
+                return "CID/CSD overwrite error";
+            case SDMMC_ERROR_WP_ERASE_SKIP:
+                return "Only partial address space was erased";
+            case SDMMC_ERROR_CARD_ECC_DISABLED:
+                return "Command has been executed without using internal ECC";
+            case SDMMC_ERROR_ERASE_RESET:
+                return "Erase sequence was cleared before executing";
+            case SDMMC_ERROR_AKE_SEQ_ERR:
+                return "Error in sequence of authentication";
+            case SDMMC_ERROR_INVALID_VOLTRANGE:
+                return "Error in case of invalid voltage range";
+            case SDMMC_ERROR_ADDR_OUT_OF_RANGE:
+                return "Error when addressed block is out of range";
+            case SDMMC_ERROR_REQUEST_NOT_APPLICABLE:
+                return "Error when command request is not applicable";
+            case SDMMC_ERROR_INVALID_PARAMETER:
+                return "The used parameter is not valid";
+            case SDMMC_ERROR_UNSUPPORTED_FEATURE:
+                return "Error when feature is not supported";
+            case SDMMC_ERROR_BUSY:
+                return "Error when transfer process is busy";
+            case SDMMC_ERROR_DMA:
+                return "Error while DMA transfer";
+            case SDMMC_ERROR_TIMEOUT:
+                return "Timeout error";
+            default:
+                return "Unknown error";
+        }
+    }
+
+    result<void> upgrade_buswidth() const
+    {
+        const auto res = utils::convertHalStatus(HAL_SD_ConfigWideBusOperation(&_hsd, SDMMC_BUS_WIDE_4B));
+        return res;
+    }
+
+    result<void> update_speed() const
+    {
+        RETURN_IF_ERR_SILENT(utils::convertHalStatus(HAL_SD_ConfigSpeedBusOperation(&_hsd, SDMMC_SPEED_MODE_HIGH)));
+        __ISB();
+        __DSB();
+        constexpr uint32_t freq = 5'000'000;
+        constexpr uint32_t x    = 250'000'000 / (2 * freq);
+        MODIFY_REG(_hsd.Instance->CLKCR, SDMMC_CLKCR_CLKDIV, (x << SDMMC_CLKCR_CLKDIV_Pos));
+        return {};
+    }
 
     /**
      * @brief   Read from sd card.
@@ -122,7 +239,7 @@ class SdCard
      * @note Based on the hardware design: if the sd card is inserted, the gpio will be shorted to ground. Otherwise it
      * will be pulled up
      */
-    bool sdPresent() const { return !_present_gpio.readPin(); }
+    bool sdPresent() const { return _present_gpio.readPin(); }
 
     /**
      * @brief   Abort the current operation
