@@ -39,9 +39,9 @@ template <typename T> struct CellParam
 // app_segments_config.hpp
 namespace config
 {
-    void setBalanceConfig(const Cells<bool> &balance_config, const Cells<uint8_t> &pwm_duty, bool balancing_enabled);
-    void setThermistorConfig(ThermistorMux mux);
-    result<void> configSync();
+    void setBalance(const Cells<bool> &balance_config, const Cells<uint8_t> &pwm_duty, bool balancing_enabled);
+    void setThermistor(ThermistorMux mux);
+    result<void> sync();
 }; // namespace config
 
 // app_segments_balancing.cpp

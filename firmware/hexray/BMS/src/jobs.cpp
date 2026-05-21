@@ -65,10 +65,8 @@ void jobs_init()
     app::precharge::init();
 
 #ifndef TARGET_HV_SUPPLY
-    
     LOG_IF_ERR(io::adbms::command::wakeup());
     LOG_IF_ERR(io::adbms::clear::cell());
-    LOG_IF_ERR(io::adbms::clear::filteredCell());
     LOG_IF_ERR(io::adbms::clear::aux());
     LOG_IF_ERR(io::adbms::clear::stat());
     LOG_INFO("Segment Initialization Done");
@@ -149,10 +147,11 @@ void jobs_runAdbmsVoltages_tick()
 {
     app::segments::state::resetAll(app::segments::state::Bit::Voltage);
 
-    result<Cells<result<float>>> volt_r;
+
     {
         const io::unique_semaphore s{ spi_bus_lock };
-        volt_r = app::segments::runVoltageConversion();
+    
+        app::segments::runVoltageConversion();
     }
 
     if (volt_r)

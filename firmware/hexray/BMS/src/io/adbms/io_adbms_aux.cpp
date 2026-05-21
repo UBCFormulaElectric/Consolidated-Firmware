@@ -55,10 +55,10 @@ result<void> command::pollAuxAdcConversion()
     return unexpected(ErrorCode::TIMEOUT);
 }
 
-Therms<result<uint16_t>> read::cellTemp()
+ThermGpios<result<uint16_t>> read::thermVoltage()
 {
     constexpr array<uint16_t, NUM_THERM_REG_GROUPS> reg_groups{ { RDAUXA, RDAUXB, RDAUXC } };
-    Therms<result<uint16_t>>                        cell_temp_regs{};
+    ThermGpios<result<uint16_t>>                        cell_temp_regs{};
 
     for (size_t group = 0U; group < NUM_THERM_REG_GROUPS; group++)
     {

@@ -9,11 +9,6 @@ result<void> command::wakeup()
     return sendCmd(RDCFGA);
 }
 
-result<void> command::startSegAdcConversion()
-{
-    return sendCmd(ADSV_BASE);
-}
-
 result<void> command::sendBalanceCmd()
 {
     return sendCmd(UNMUTE);

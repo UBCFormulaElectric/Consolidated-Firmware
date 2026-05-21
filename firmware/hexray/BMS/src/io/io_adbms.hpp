@@ -20,7 +20,6 @@ inline constexpr uint8_t THERMISTORS_PER_SEGMENT = 14;
 inline constexpr uint8_t REG_GROUP_SIZE          = 6; // bytes
 inline constexpr uint8_t NUM_VOLT_REG_GROUPS     = 5; // A..E only (F not used; 14 cells measured)
 inline constexpr uint8_t NUM_TEMP_REG_GROUPS     = 4; // A..D only
-inline constexpr uint8_t GPIOS_PER_SEGMENT       = 10;
 inline constexpr uint8_t THERM_GPIOS_PER_SEGMENT = 8;
 
 namespace io::adbms
@@ -35,11 +34,13 @@ enum class OpenWireSwitch
 // Base array types. Kept inside io::adbms so generic names don't collide at global scope.
 // Represents the bytes of a register group
 using RegBuffer     = std::array<uint8_t, REG_GROUP_SIZE>;
-template <typename T> using Segments      = std::array<T, NUM_SEGMENTS>;
-template <typename T> using SegmentCells  = std::array<T, CELLS_PER_SEGMENT>;
-template <typename T> using SegmentTherms = std::array<T, THERMISTORS_PER_SEGMENT>;
-template <typename T> using Cells         = Segments<SegmentCells<T>>;
-template <typename T> using Therms        = Segments<SegmentTherms<T>>;
+template <typename T> using Segments            = std::array<T, NUM_SEGMENTS>;
+template <typename T> using SegmentCells        = std::array<T, CELLS_PER_SEGMENT>;
+template <typename T> using SegmentTherms       = std::array<T, THERMISTORS_PER_SEGMENT>;
+template <typename T> using SegmentThermGpios   = std::array<T, THERM_GPIOS_PER_SEGMENT>;
+template <typename T> using Cells               = Segments<SegmentCells<T>>;
+template <typename T> using Therms              = Segments<SegmentTherms<T>>;
+template <typename T> using ThermGpios          = Segments<SegmentThermGpios<T>>;
 
 //move ts
 /**
@@ -64,7 +65,7 @@ namespace read
     [[nodiscard]] Cells<result<uint16_t>>            cellVoltage();
     [[nodiscard]] Cells<result<uint16_t>>            filteredCellVoltage();
     [[nodiscard]] Segments<result<uint16_t>>         segVoltage();
-    [[nodiscard]] Therms<result<uint16_t>>           cellTemp();
+    [[nodiscard]] Therms<result<uint16_t>>           thermVoltage();
     [[nodiscard]] Segments<result<StatusGroups>>     status();
 } // namespace read
 
