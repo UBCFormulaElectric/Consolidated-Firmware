@@ -6,8 +6,10 @@
 #include "app_bootcount.hpp"
 #include "app_canTx.hpp"
 #include "app_canUtils.hpp"
+#include "app_canDataCapture.hpp"
 #include "app_jsoncan.hpp"
 #include "app_heartbeatMonitors.hpp"
+#include "app_epochClock.hpp"
 
 #include "io_canMsg.hpp"
 #include "io_canQueues.hpp"
@@ -43,7 +45,8 @@ void jobs_init()
     io::can_tx::init(
         [](const JsonCanMsg &tx_msg)
         {
-            const io::CanMsg msg = app::jsoncan::copyToCanMsg(tx_msg);
+            const io::CanMsg msg    = app::jsoncan::copyToCanMsg(tx_msg);
+            const uint32_t   now_ms = io::time::getCurrentMs();
             if (auto result = can_tx_queue.push(msg); not result)
                 LOG_ERROR("Failed to push TX CAN message: %d", static_cast<int>(result.error()));
             // Mirror DAM bootup TX into SD logging path.
@@ -51,22 +54,29 @@ void jobs_init()
             {
                 (void)log_queue.push(msg);
             }
-            (void)telem_tx_queue.push(io::telemMessage::TelemCanMsg(msg, io::time::getCurrentMs()));
+            if (app::can_data_capture::needsTelem(msg.std_id, now_ms))
+            {
+                const auto epoch_ms = app::epochClock::getEpochMs();
+                if (epoch_ms)
+                {
+                    (void)telem_tx_queue.push(io::telemMessage::TelemCanMsg(msg, *epoch_ms));
+                }
+                else
+                {
+                    LOG_WARN(
+                        "telem TX timestamp unavailable, dropping CAN 0x%03lX", static_cast<unsigned long>(msg.std_id));
+                }
+            }
         });
 
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
     app::can_tx::DAM_Heartbeat_set(true);
     io::can_tx::DAM_Bootup_sendAperiodic();
+    app::epochClock::logDateTime("Boot RTC time (GMT)");
 }
 
 void jobs_initLogFs()
 {
-    LOG_INFO("hsd1 state: %s", sd1.getCardStateString());
-    LOG_IF_ERR(sd1.upgrade_buswidth());
-    LOG_INFO("upgraded buswidth");
-    LOG_IF_ERR(sd1.update_speed());
-    LOG_INFO("upgraded speed");
-
     // std::array<uint8_t, 512> wblk0{};
     // wblk0.fill(0xff);
     // wblk0[510] = 0x55;
@@ -103,6 +113,7 @@ void jobs_initLogFs()
     {
         LOG_INFO("we init fine");
     }
+    // TODO Add metadata handling for rtc and ntped time when applicable
 
     if (const auto r = fs.open(LOG_PATH); r)
     {
@@ -142,11 +153,11 @@ void jobs_run100Hz_tick()
     hb_monitor.checkIn();
     hb_monitor.broadcastFaults();
 
-    // io::can_tx::enqueue100HzMsgs();
+    io::can_tx::enqueue100HzMsgs();
 }
 void jobs_run1kHz_tick()
 {
-    // io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
+    io::can_tx::enqueueOtherPeriodicMsgs(io::time::getCurrentMs());
 }
 void jobs_runLogging_tick()
 {
