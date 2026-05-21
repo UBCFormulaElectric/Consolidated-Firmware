@@ -10,6 +10,9 @@ using namespace std;
 
 namespace io::adbms
 {
+
+inline constexpr uint8_t REG_GROUP_SIZE = 6;
+
 // Transaction framing constants.
 inline constexpr uint8_t CMD_BYTES = 2;
 inline constexpr uint8_t PEC_BYTES = 2;

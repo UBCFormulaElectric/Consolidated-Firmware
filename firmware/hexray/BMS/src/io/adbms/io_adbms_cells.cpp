@@ -7,9 +7,8 @@
 using namespace std;
 namespace
 {
-constexpr uint8_t MAX_NUM_ATTEMPTS    = 20U;
-constexpr uint8_t POLL_RETRY_DELAY_MS = 1U;
 constexpr uint8_t CELLS_PER_GROUP     = 3U;
+constexpr uint8_t NUM_VOLT_REG_GROUPS     = 5;
 } // namespace
 
 namespace io::adbms
@@ -46,7 +45,7 @@ result<void> command::pollCellsAdc()
             io::time::delay(POLL_RETRY_DELAY_MS);
             return unexpected(ErrorCode::BUSY);
         },
-        MAX_NUM_ATTEMPTS,
+        POLL_RETRIES,
         ErrorCode::BUSY,
         ErrorCode::TIMEOUT);
 }

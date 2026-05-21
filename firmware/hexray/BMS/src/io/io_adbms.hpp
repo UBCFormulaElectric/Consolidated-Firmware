@@ -14,10 +14,6 @@
 inline constexpr uint8_t NUM_SEGMENTS            = 1;
 inline constexpr uint8_t CELLS_PER_SEGMENT       = 14;
 inline constexpr uint8_t THERMISTORS_PER_SEGMENT = 14;
-// Register layout constants.
-inline constexpr uint8_t REG_GROUP_SIZE          = 6; // bytes
-inline constexpr uint8_t NUM_VOLT_REG_GROUPS     = 5; // A..E only (F not used; 14 cells measured)
-inline constexpr uint8_t NUM_TEMP_REG_GROUPS     = 4; // A..D only
 inline constexpr uint8_t THERM_GPIOS_PER_SEGMENT = 8;
 
 namespace io::adbms

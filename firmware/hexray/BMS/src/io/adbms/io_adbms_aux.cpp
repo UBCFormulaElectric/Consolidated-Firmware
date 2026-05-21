@@ -52,7 +52,7 @@ result<void> command::pollAuxAdc()
             io::time::delay(POLL_RETRY_DELAY_MS);
             return unexpected(ErrorCode::BUSY);
         },
-        MAX_NUM_ATTEMPTS,
+        POLL_RETRIES,
         ErrorCode::BUSY,
         ErrorCode::TIMEOUT);
 }
