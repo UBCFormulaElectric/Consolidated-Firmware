@@ -44,8 +44,15 @@ struct SdDumpPayload {
 async fn sd_dump(State(state): State<AppState>, Json(SdDumpPayload{drive, file, overwrite}): Json<SdDumpPayload>) -> impl IntoResponse {
     // TODO some way to check database if file already dumped
     // TODO mutex, make sure the same file is not dumped multiple times concurrently
-    if dump_sd_file(state.can_db, state.influx_client, &drive, &file).await.is_err() {
-        return (StatusCode::BAD_REQUEST, format!("Failed to read file {file} from drive {drive}"));
+
+    match dump_sd_file(
+        state.can_db, 
+        state.influx_client, 
+        &drive, 
+        &file
+    ).await {
+        Ok(_) => return (StatusCode::OK, format!("Dump {file} from drive {drive}")),
+        Err(e) => return (StatusCode::BAD_REQUEST, format!("Failed to read file {file} from drive {drive}: {e}")),
     }
     
     return (StatusCode::OK, format!("Dump {file} from drive {drive}"));

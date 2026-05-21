@@ -67,21 +67,31 @@ fn ls_recursive(logfs: &mut LogFs, dir: &str, results: &mut Vec<String>) -> Resu
     Ok(())
 }
 
-pub async fn dump_sd_file(can_db: Arc<CanDatabase>, influxdb_client: Arc<influxdb2::Client>, drive: &String, path: &String) -> Result<(), StatusCode> {
+pub enum SdCardDumpError {
+    LogFsError,
+    FileNotFound,
+    FileReadError,
+}
+
+pub async fn dump_sd_file(
+    can_db: Arc<CanDatabase>, 
+    influxdb_client: Arc<influxdb2::Client>, 
+    drive: &String, path: &String
+) -> Result<(), SdCardDumpError> {
     let bytes = {
         let mut logfs = match get_logfs(drive.clone()) {
             Ok(logfs) => logfs,
-            Err(_) => return Err(StatusCode::BAD_REQUEST),
+            Err(_) => return Err(SdCardDumpError::LogFsError),
         };
 
         let mut file = match logfs.open(&path, logfs::LogFsOpenFlags_LOGFS_OPEN_RD_ONLY) {
             Ok(f) => f,
-            Err(err) => return Err(StatusCode::BAD_REQUEST),
+            Err(err) => return Err(SdCardDumpError::FileNotFound),
         };
 
         match file.read(None) {
             Ok(d) => d,
-            Err(err) => return Err(StatusCode::INTERNAL_SERVER_ERROR),
+            Err(err) => return Err(SdCardDumpError::FileReadError),
         }
         // logfs and file are dropped here, before any await
     };
