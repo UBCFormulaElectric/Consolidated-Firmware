@@ -4,6 +4,6 @@
 
 class DAMBaseTest : public EcuTestBase
 {
-    void board_setup() override { jobs_init(); }
+    void board_setup() override {}
     void board_teardown() override {}
 };
