@@ -85,7 +85,7 @@ export default function Historical() {
 
     return (
         <DisplayControlProvider defaultViewportLocked={false} viewportLockStorageKey={HISTORIC_VIEWPORT_LOCK_STORAGE_KEY}>
-            <div className="h-[calc(100vh-72px)] bg">
+            <div className="mt-20 h-[calc(100vh-72px)] bg">
                 <div className="mx-4 mb-4 flex flex-wrap items-center gap-4">
                     <CalendarDropdown selectedDate={selectedDate} onDateSelect={setSelectedDate} />
                     <SessionDropdown sessions={sessions} selectedSessionId={selectedSessionId} isLoading={sessionsQuery.isPending} error={sessionsQuery.error} onSessionSelect={setSelectedSessionId} />
