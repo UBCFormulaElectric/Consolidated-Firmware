@@ -10,7 +10,7 @@ use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, ResultExt, Task};
 use crate::tasks::telem_message::{CRC32_CALC, TelemetryOutgoingMessage};
 #[allow(unused_imports)]
 use crate::utils::yellow;
-use crate::vprintln;
+use crate::{dprintln, vprintln};
 use super::telem_message::{TelemetryIncomingMessage, CanPayload};
 
 /**
@@ -76,13 +76,20 @@ pub async fn run_serial_task(
                 match telem_message {
                     TelemetryIncomingMessage::Can { body } => {
                         // TODO error handling
+                        dprintln!(
+                            "Backend ingest CAN: id=0x{:03x} ts={} payload_len={} payload={:02x?}",
+                            body.can_id,
+                            body.can_timestamp,
+                            body.payload.len(),
+                            body.payload
+                        );
                         if !can_queue_tx.send(body).is_ok() {
                             eprintln!("Channel has closed");
                             break;
                         };
                     },
                     TelemetryIncomingMessage::NTP => {
-                        println!("ntp request");
+                        vprintln!("Backend ingest NTP request");
                         let t1 = SystemTime::now()
                             .duration_since(UNIX_EPOCH)
                             .unwrap();
