@@ -165,7 +165,10 @@ elseif ("${TARGET}" STREQUAL "test")
     set(FAKE_SRCS
             "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
     )
-    set(SRCS ${APP_SRCS} ${APP_SHARED_SRCS} ${JOBS_SRC} ${TEST_SRCS} ${FAKE_SRCS})
+    set(IO_TEST_SRCS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_telemMessage.cpp"
+)
+    set(SRCS ${APP_SRCS} ${APP_SHARED_SRCS} ${TEST_SRCS} ${FAKE_SRCS} ${FAKE_SRCS})
     set(INCLUDE_DIRS
             ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS}
             ${SHARED_FAKES_DIR_CPP} ${SYSTEM_INCLUDE_DIRS}
