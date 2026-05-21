@@ -21,13 +21,13 @@ struct DateTime
 };
 
 // Read both Date and Time from the RTC and return Unix epoch ms.
-std::expected<uint64_t, ErrorCode> getEpochMs();
+result<uint64_t> getEpochMs();
 
 // Split Unix epoch ms into {Date, Time} and program both into the RTC.
-std::expected<void, ErrorCode> setEpochMs(uint64_t epoch_ms);
+result<void> setEpochMs(uint64_t epoch_ms);
 
 // Read RTC date/time into a printable calendar representation.
-std::expected<DateTime, ErrorCode> getDateTime();
+result<DateTime> getDateTime();
 
 // Log current RTC date/time as YYYY-MM-DD HH:MM:SS.mmm.
 void logDateTime(const char *prefix);

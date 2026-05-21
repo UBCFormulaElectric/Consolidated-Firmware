@@ -42,7 +42,7 @@ template <typename T, std::size_t N> class RingBuffer
 
     // Producer-only. Writes bytes then publishes via release-store of tail_,
     // establishing happens-before with the consumer's acquire-load.
-    [[nodiscard]] std::expected<void, ErrorCode> push(std::span<const T> src) noexcept
+    [[nodiscard]] result<void> push(std::span<const T> src) noexcept
     {
         const std::size_t t = tail_.load(std::memory_order_relaxed);
         const std::size_t h = head_.load(std::memory_order_acquire);
@@ -95,7 +95,7 @@ template <typename T, std::size_t N> class RingBuffer
     }
 
     // Consumer-only. Copy out a contiguous logical run starting at offset, without consuming.
-    [[nodiscard]] std::expected<void, ErrorCode> copyOut(std::size_t offset, std::span<T> dst) const noexcept
+    [[nodiscard]] result<void> copyOut(std::size_t offset, std::span<T> dst) const noexcept
     {
         if (offset + dst.size() > size())
             return std::unexpected(ErrorCode::ERROR);

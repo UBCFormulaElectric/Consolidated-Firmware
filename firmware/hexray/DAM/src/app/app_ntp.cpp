@@ -68,7 +68,7 @@ const Timestamps &timestamps()
 
 bool handleFrameAndTuneRtc(const uint64_t t1, const uint64_t t2, const uint64_t t3_ms)
 {
-    std::expected<uint64_t, ErrorCode> current_epoch_ms = std::unexpected(ErrorCode::ERROR);
+    result<uint64_t> current_epoch_ms = std::unexpected(ErrorCode::ERROR);
     for (uint8_t attempt = 0; attempt < RTC_GET_MAX_ATTEMPTS; ++attempt)
     {
         current_epoch_ms = app::epochClock::getEpochMs();

@@ -165,13 +165,13 @@ class SdCard
         }
     }
 
-    std::expected<void, ErrorCode> upgrade_buswidth() const
+    result<void> upgrade_buswidth() const
     {
         const auto res = utils::convertHalStatus(HAL_SD_ConfigWideBusOperation(&_hsd, SDMMC_BUS_WIDE_4B));
         return res;
     }
 
-    std::expected<void, ErrorCode> update_speed() const
+    result<void> update_speed() const
     {
         RETURN_IF_ERR_SILENT(utils::convertHalStatus(HAL_SD_ConfigSpeedBusOperation(&_hsd, SDMMC_SPEED_MODE_HIGH)));
         __ISB();

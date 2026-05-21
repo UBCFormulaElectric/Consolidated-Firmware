@@ -48,7 +48,7 @@ void hw::Uart::onErrorFromISR() const
     portYIELD_FROM_ISR(higherPriorityTaskWoken);
 }
 
-std::expected<void, ErrorCode> hw::Uart::waitForRxNotification(const uint32_t timeoutMs) const
+result<void> hw::Uart::waitForRxNotification(const uint32_t timeoutMs) const
 {
     const uint32_t num_notifications = ulTaskNotifyTake(pdTRUE, timeoutMs);
     rxTaskInProgress                 = nullptr;
@@ -67,7 +67,7 @@ std::expected<void, ErrorCode> hw::Uart::waitForRxNotification(const uint32_t ti
     return {};
 }
 
-std::expected<void, ErrorCode> hw::Uart::waitForTxNotification(const uint32_t timeoutMs) const
+result<void> hw::Uart::waitForTxNotification(const uint32_t timeoutMs) const
 {
     const uint32_t num_notifications = ulTaskNotifyTake(pdTRUE, timeoutMs);
     txTaskInProgress                 = nullptr;
@@ -149,7 +149,7 @@ result<void> hw::Uart::receive(std::span<uint8_t> rx, const uint32_t timeout) co
     return exit;
 }
 
-std::expected<std::size_t, ErrorCode> hw::Uart::receiveToIdle(std::span<uint8_t> rx, const uint32_t timeout) const
+result<std::size_t> hw::Uart::receiveToIdle(std::span<uint8_t> rx, const uint32_t timeout) const
 {
     if (rxTaskInProgress != nullptr || xPortIsInsideInterrupt())
     {
@@ -159,8 +159,8 @@ std::expected<std::size_t, ErrorCode> hw::Uart::receiveToIdle(std::span<uint8_t>
     if (osKernelGetState() != taskSCHEDULER_RUNNING)
     {
         // Pre-kernel: blocking polling fallback. Not used in flight.
-        uint16_t                             actual = 0;
-        const std::expected<void, ErrorCode> exit   = utils::convertHalStatus(
+        uint16_t           actual = 0;
+        const result<void> exit   = utils::convertHalStatus(
             HAL_UARTEx_ReceiveToIdle(&handle, rx.data(), static_cast<uint16_t>(rx.size()), &actual, timeout));
         if (!exit)
             return std::unexpected(exit.error());
@@ -171,7 +171,7 @@ std::expected<std::size_t, ErrorCode> hw::Uart::receiveToIdle(std::span<uint8_t>
     last_read_fault  = false;
     last_rx_size     = 0;
 
-    std::expected<void, ErrorCode> armed =
+    result<void> armed =
         utils::convertHalStatus(HAL_UARTEx_ReceiveToIdle_IT(&handle, rx.data(), static_cast<uint16_t>(rx.size())));
     if (not armed.has_value())
     {
@@ -179,7 +179,7 @@ std::expected<std::size_t, ErrorCode> hw::Uart::receiveToIdle(std::span<uint8_t>
         return std::unexpected(armed.error());
     }
 
-    const std::expected<void, ErrorCode> waited = waitForRxNotification(timeout);
+    const result<void> waited = waitForRxNotification(timeout);
     if (!waited)
         return std::unexpected(waited.error());
 

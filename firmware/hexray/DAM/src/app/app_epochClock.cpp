@@ -91,7 +91,7 @@ namespace
     }
 } // namespace
 
-std::expected<uint64_t, ErrorCode> getEpochMs()
+result<uint64_t> getEpochMs()
 {
     // Order matters: HAL requires get_time before get_date to unlock the
     // shadow registers.
@@ -109,7 +109,7 @@ std::expected<uint64_t, ErrorCode> getEpochMs()
     return static_cast<uint64_t>(days) * MS_PER_DAY + ms_of_day;
 }
 
-std::expected<void, ErrorCode> setEpochMs(uint64_t epoch_ms)
+result<void> setEpochMs(uint64_t epoch_ms)
 {
     const int64_t  days      = static_cast<int64_t>(epoch_ms / MS_PER_DAY);
     const uint32_t ms_of_day = static_cast<uint32_t>(epoch_ms % MS_PER_DAY);
@@ -133,7 +133,7 @@ std::expected<void, ErrorCode> setEpochMs(uint64_t epoch_ms)
     return {};
 }
 
-std::expected<DateTime, ErrorCode> getDateTime()
+result<DateTime> getDateTime()
 {
     // Order matters: HAL requires get_time before get_date to unlock the
     // shadow registers.

@@ -46,7 +46,7 @@ result<void> SdCard::read(std::span<uint8_t> pdata, const uint32_t block_addr) c
     if (osKernelGetState() != taskSCHEDULER_RUNNING || xPortIsInsideInterrupt())
     {
         // If kernel hasn't started, there's no current task to block, so just do a non-async polling transaction.
-        const std::expected<void, ErrorCode> st = utils::convertHalStatus(
+        const result<void> st = utils::convertHalStatus(
             HAL_SD_ReadBlocks(&_hsd, pdata.data(), block_addr, pdata.size() / HW_DEVICE_SECTOR_SIZE, _timeout));
         return st;
     }
@@ -60,7 +60,7 @@ result<void> SdCard::read(std::span<uint8_t> pdata, const uint32_t block_addr) c
     // Save current task before starting a SD transaction.
     taskInProgress = xTaskGetCurrentTaskHandle();
 
-    std::expected<void, ErrorCode> exit = utils::convertHalStatus(
+    result<void> exit = utils::convertHalStatus(
         HAL_SD_ReadBlocks_IT(&_hsd, pdata.data(), block_addr, pdata.size() / HW_DEVICE_SECTOR_SIZE));
     if (not exit.has_value())
     {

@@ -27,8 +27,8 @@ class Uart
      * @param timeoutMs
      * @return
      */
-    std::expected<void, ErrorCode> waitForTxNotification(uint32_t timeoutMs) const;
-    std::expected<void, ErrorCode> waitForRxNotification(uint32_t timeoutMs) const;
+    result<void> waitForTxNotification(uint32_t timeoutMs) const;
+    result<void> waitForRxNotification(uint32_t timeoutMs) const;
 
     mutable bool last_read_fault  = false;
     mutable bool last_write_fault = false;
@@ -72,7 +72,7 @@ class Uart
      * @param rx Span to store received data.
      * @param timeout Timeout duration.
      */
-    std::expected<std::size_t, ErrorCode>
+    result<std::size_t>
         receiveToIdle(std::span<uint8_t> rx, uint32_t timeout = std::numeric_limits<uint32_t>::max()) const;
 
     /// Bytes carried out of the RxEvent ISR for the last receiveToIdle() call.
