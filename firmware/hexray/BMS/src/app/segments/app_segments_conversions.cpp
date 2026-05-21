@@ -13,6 +13,24 @@ result<Cells<result<float>>> runVoltageConversion()
     RETURN_IF_ERR(io::adbms::command::startCellsAdcConversion());
     io::time::delay(VOLT_CONV_TIME_MS);
 
+    bool ready = false;
+    for (int i = 0; i < 5; i++)
+    {
+        const auto pollres = io::adbms::command::pollCellsAdcConversion();
+        if (not pollres)
+        {
+            return unexpected(pollres.error());
+        }
+        if (pollres)
+        {
+            ready = true;
+            break;
+        }
+        io::time::delay(1);
+    }
+    if (not ready)
+        return unexpected(ErrorCode::TIMEOUT);
+
     const auto regs_result = io::adbms::read::cellVoltage();
     RETURN_IF_ERR(regs_result);
     const auto &regs = regs_result.value();

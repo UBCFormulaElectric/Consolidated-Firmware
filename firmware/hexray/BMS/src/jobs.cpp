@@ -159,6 +159,10 @@ void jobs_runAdbmsVoltages_tick()
         app::segments::state::setAll(app::segments::state::Bit::Voltage);
         app::segments::broadcast::cellVoltages(volt_r.value());
     }
+    else
+    {
+        LOG_ERROR("Voltage conversion failed: %d", volt_r.error());
+    }
 
     result<Cells<result<bool>>> owc_r;
     {

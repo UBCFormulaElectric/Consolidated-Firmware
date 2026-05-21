@@ -26,7 +26,7 @@ constexpr float convertUVOVToFloat(const uint16_t hex)
 
 constexpr float convertRegToVoltage(const uint16_t reg)
 {
-    return static_cast<float>(static_cast<int16_t>(reg)) * 150e-6f + 1.5f;
+    return static_cast<float>(reg) * 150e-6f + 1.5f;
 }
 
 constexpr bool checkCellOwcOk(const float baselineVoltage, const float owcVoltage)

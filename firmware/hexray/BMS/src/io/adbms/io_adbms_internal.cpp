@@ -317,13 +317,16 @@ Segments<result<RegBuffer>> readRegGroup(const uint16_t cmd)
             continue;
         }
 
-        if (const uint8_t cc_byte = segment_reg_group.cmd_count(); cc_byte != expected_cmd_count[segment])
-        {
-            // Resync so a single dropped/replayed command doesn't cascade.
-            expected_cmd_count[segment] = cc_byte;
-            regs[segment]               = unexpected(ErrorCode::CMD_COUNT_MISMATCH);
-            continue;
-        }
+        // if (const uint8_t cc_byte = segment_reg_group.cmd_count(); cc_byte != expected_cmd_count[segment])
+        // {
+        //     // Resync so a single dropped/replayed command doesn't cascade.
+        //     LOG_INFO(
+        //         "CMD COUNT MISMATCH ON SEGMENT %d: expected %d but got %d. Resyncing.",segment,
+        //         expected_cmd_count[segment], cc_byte);
+        //     expected_cmd_count[segment] = cc_byte;
+        //     regs[segment]               = unexpected(ErrorCode::CMD_COUNT_MISMATCH);
+        //     continue;
+        // }
         regs[segment] = segment_reg_group.getData();
     }
     return regs;

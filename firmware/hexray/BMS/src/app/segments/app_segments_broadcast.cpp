@@ -16,7 +16,7 @@ template <typename T> class CellBroadcaster
 
   public:
     template <typename seg03, typename seg47, typename seg89>
-    CellBroadcaster(seg03 segments0_3_can, seg47 segments4_7_can, seg89 segments8_9_can)
+    CellBroadcaster(seg03 &segments0_3_can, seg47 &segments4_7_can, seg89 &segments8_9_can)
       : _segments0_3(
             std::span<T, 4 * CELLS_PER_SEGMENT>{ reinterpret_cast<T *>(&segments0_3_can), 4 * CELLS_PER_SEGMENT }),
         _segments4_7(
