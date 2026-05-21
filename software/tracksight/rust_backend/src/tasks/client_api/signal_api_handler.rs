@@ -263,14 +263,12 @@ async fn signal_sessions(
         _ => "radio".to_string(),
     };
 
-    // TODO get start on signal name
-    // todo!("waiting for DAM signal name");
-        // |> filter(fn: (r) => r["source"] == "{source_str}")
     let car_on_query = format!(r#"
         from(bucket: "{}")
         |> range(start: time(v: "{start_utc}"), stop: time(v: "{end_utc}"))
         |> filter(fn: (r) => r["_measurement"] == "{}")
-        |> filter(fn: (r) => r["signal_name"] == "BMS_TractiveSystemCurrent")
+        |> filter(fn: (r) => r["signal_name"] == "Bootup")
+        |> filter(fn: (r) => r["source"] == "{source_str}")
         |> sort(columns: ["_time"])
         "#, &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement);
 
