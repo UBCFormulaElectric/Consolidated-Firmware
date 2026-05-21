@@ -13,7 +13,7 @@ Time g_last_set_time{ 0, 0, 0, 999 };
 Date g_last_set_date{ 4, 1, 1, 0 };
 bool g_last_set_called = false;
 
-std::expected<void, ErrorCode> set_time(const Time &time)
+result<void> set_time(const Time &time)
 {
     g_last_set_time   = time;
     g_last_set_called = true;
@@ -21,19 +21,19 @@ std::expected<void, ErrorCode> set_time(const Time &time)
     return {};
 }
 
-std::expected<void, ErrorCode> set_date(const Date &date)
+result<void> set_date(const Date &date)
 {
     g_last_set_date = date;
     g_date          = date;
     return {};
 }
 
-std::expected<Time, ErrorCode> get_time()
+result<Time> get_time()
 {
     return g_time;
 }
 
-std::expected<Date, ErrorCode> get_date()
+result<Date> get_date()
 {
     return g_date;
 }
