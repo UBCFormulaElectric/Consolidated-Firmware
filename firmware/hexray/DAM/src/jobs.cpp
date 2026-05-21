@@ -20,7 +20,6 @@
 #include "io_logQueue.hpp"
 #include "io_time.hpp"
 #include "io_fileSystems.hpp"
-#include "main.h"
 
 #include "io_canLogging.hpp"
 #include "util_errorCodes.hpp"
