@@ -20,8 +20,6 @@
 #include "io_logQueue.hpp"
 #include "io_time.hpp"
 #include "io_fileSystems.hpp"
-#include "hw_sds.hpp"
-#include "hw_gpios.hpp"
 #include "main.h"
 
 #include "io_canLogging.hpp"
