@@ -43,7 +43,7 @@ result<void> command::pollCellsAdcConversion()
     return unexpected(ErrorCode::TIMEOUT);
 }
 
-result<Cells<result<uint16_t>>> read::cellVoltage()
+Cells<result<uint16_t>> read::cellVoltage()
 {
     Cells<result<uint16_t>>                        cell_voltage_regs{};
     constexpr array<uint16_t, NUM_VOLT_REG_GROUPS> cell_voltage_reg_groups{ { RDCVA, RDCVB, RDCVC, RDCVD, RDCVE } };
@@ -82,7 +82,7 @@ result<Cells<result<uint16_t>>> read::cellVoltage()
     return cell_voltage_regs;
 }
 
-result<Cells<result<uint16_t>>> read::filteredCellVoltage()
+Cells<result<uint16_t>> read::filteredCellVoltage()
 {
     Cells<result<uint16_t>>              filtered_cell_voltage_regs{};
     array<uint16_t, NUM_VOLT_REG_GROUPS> filtered_reg_groups{ { RDFCA, RDFCB, RDFCC, RDFCD, RDFCE } };

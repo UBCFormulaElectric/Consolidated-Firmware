@@ -65,6 +65,7 @@ void jobs_init()
     app::precharge::init();
 
 #ifndef TARGET_HV_SUPPLY
+    
     LOG_IF_ERR(io::adbms::command::wakeup());
     LOG_IF_ERR(io::adbms::clear::cell());
     LOG_IF_ERR(io::adbms::clear::filteredCell());

@@ -55,7 +55,7 @@ result<void> command::pollAuxAdcConversion()
     return unexpected(ErrorCode::TIMEOUT);
 }
 
-result<Therms<result<uint16_t>>> read::cellTemp()
+Therms<result<uint16_t>> read::cellTemp()
 {
     constexpr array<uint16_t, NUM_THERM_REG_GROUPS> reg_groups{ { RDAUXA, RDAUXB, RDAUXC } };
     Therms<result<uint16_t>>                        cell_temp_regs{};
@@ -94,7 +94,7 @@ result<Therms<result<uint16_t>>> read::cellTemp()
     return cell_temp_regs;
 }
 
-result<Segments<result<uint16_t>>> read::segVoltage()
+Segments<result<uint16_t>> read::segVoltage()
 {
     Segments<result<uint16_t>> segment_voltage_regs{};
 
@@ -122,7 +122,7 @@ result<Segments<result<uint16_t>>> read::segVoltage()
     return segment_voltage_regs;
 }
 
-result<Segments<StatusGroups>> read::status()
+Segments<result<StatusGroups>> read::status()
 {
     constexpr array<uint16_t, NUM_STAT_REG_GROUPS> reg_groups{ { RDSTATA, RDSTATB, RDSTATC, RDSTATD, RDSTATE } };
     Segments<StatusGroups>                         stat_regs;

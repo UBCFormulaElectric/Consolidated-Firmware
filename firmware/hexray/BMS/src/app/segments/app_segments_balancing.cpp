@@ -15,7 +15,6 @@
 
 namespace
 {
-using io::adbms::Cells;
 
 constexpr float    DISCHARGE_THRESHOLD_V = 10e-3f;
 constexpr uint32_t SETTLE_TIME_MS        = 5 * 1000;
@@ -27,27 +26,23 @@ std::array<std::array<uint8_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS> pwm_duty;
 app::Timer                                                       settle_timer(SETTLE_TIME_MS);
 app::Timer                                                       balance_timer(BALANCE_TIME_MS);
 
-void updateCellsToBalance(
-    const Cells<result<float>>            &cell_voltages,
-    const app::segments::CellParam<float> &min_cell_voltage)
+result<void> updateCellsToBalance()
 {
-    memset(&discharge_enabled, 0, sizeof(discharge_enabled));
-    memset(&pwm_duty, 0, sizeof(pwm_duty));
-
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
         for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
         {
             // Skip cells with failed voltage reads
-            if (not cell_voltages[seg][cell])
+            app::segments::Cells<result<float>> cell_voltages = app::segments::state::getLatestVoltages();
+            if (!cell_voltages[seg][cell])
             {
                 discharge_enabled[seg][cell] = false;
                 continue;
             }
 
             // Never discharge the leader cell unless balancing to target voltage
-            if (seg == min_cell_voltage.segment && cell == min_cell_voltage.cell &&
-                !app::can_rx::Debug_CellBalancing_OverrideValue_get())
+            app::segments::CellParam<float> min_cell_voltage = app::segments::state::getMinCellVoltage()
+            if (seg == min_cell_voltage.segment && cell == min_cell_voltage.cell && !app::can_rx::Debug_CellBalancing_OverrideValue_get())
             {
                 discharge_enabled[seg][cell] = false;
                 continue;
@@ -81,7 +76,7 @@ void updateCellsToBalance(
         }
     }
 
-    app::segments::config::setBalanceConfig(discharge_enabled, pwm_duty, true);
+    return app::segments::config::setBalanceConfig(discharge_enabled, pwm_duty, true);
 }
 } // namespace
 
@@ -102,7 +97,6 @@ void disable()
     pwm_duty.fill({});
     config::setBalanceConfig(discharge_enabled, pwm_duty, false);
     balancing_state = can_utils::BalancingState::BALANCING_DISABLED;
-    LOG_INFO("Disabling");
 }
 
 void tick()
@@ -120,7 +114,7 @@ void tick()
         {
             if (settle_timer.updateAndGetState() == Timer::TimerState::EXPIRED)
             {
-                updateCellsToBalance(state::getLatestVoltages(), state::getMinCellVoltage());
+                updateCellsToBalance();
                 {
                     const io::unique_semaphore s{ spi_bus_lock };
                     LOG_IF_ERR(io::adbms::command::sendBalanceCmd());
