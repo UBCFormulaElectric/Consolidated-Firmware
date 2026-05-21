@@ -3,8 +3,14 @@
 #include "io_adbms.hpp"
 #include "io_time.hpp"
 #include "util_errorCodes.hpp"
+#include "util_retry.hpp"
 
 using namespace std;
+
+namespace
+{
+inline constexpr uint32_t RETRIES = 5;
+}
 
 namespace app::segments
 {
@@ -13,23 +19,13 @@ result<Cells<result<float>>> runVoltageConversion()
     RETURN_IF_ERR(io::adbms::command::startCellsAdcConversion());
     io::time::delay(VOLT_CONV_TIME_MS);
 
-    bool ready = false;
-    for (int i = 0; i < 5; i++)
-    {
-        const auto pollres = io::adbms::command::pollCellsAdcConversion();
-        if (not pollres)
+    RETURN_IF_ERR(util::retry(
+        []() -> result<void>
         {
-            return unexpected(pollres.error());
-        }
-        if (pollres)
-        {
-            ready = true;
-            break;
-        }
-        io::time::delay(1);
-    }
-    if (not ready)
-        return unexpected(ErrorCode::TIMEOUT);
+            io::time::delay(1);
+            return io::adbms::command::pollCellsAdcConversion();
+        },
+        RETRIES));
 
     const auto regs_result = io::adbms::read::cellVoltage();
     RETURN_IF_ERR(regs_result);
