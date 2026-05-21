@@ -7,9 +7,7 @@
 #include "util_errorCodes.hpp"
 
 #include <array>
-#include <utility>
 #include <cstdint>
-#include <cstring>
 #include <expected>
 
 // Physical daisy-chain dimensions for this ECU.
@@ -33,23 +31,21 @@ enum class OpenWireSwitch
 
 // Base array types. Kept inside io::adbms so generic names don't collide at global scope.
 // Represents the bytes of a register group
-using RegBuffer     = std::array<uint8_t, REG_GROUP_SIZE>;
-template <typename T> using Segments            = std::array<T, NUM_SEGMENTS>;
-template <typename T> using SegmentCells        = std::array<T, CELLS_PER_SEGMENT>;
-template <typename T> using SegmentTherms       = std::array<T, THERMISTORS_PER_SEGMENT>;
-template <typename T> using SegmentThermGpios   = std::array<T, THERM_GPIOS_PER_SEGMENT>;
-template <typename T> using Cells               = Segments<SegmentCells<T>>;
-template <typename T> using Therms              = Segments<SegmentTherms<T>>;
-template <typename T> using ThermGpios          = Segments<SegmentThermGpios<T>>;
+using RegBuffer                               = std::array<uint8_t, REG_GROUP_SIZE>;
+template <typename T> using Segments          = std::array<T, NUM_SEGMENTS>;
+template <typename T> using SegmentCells      = std::array<T, CELLS_PER_SEGMENT>;
+template <typename T> using SegmentTherms     = std::array<T, THERMISTORS_PER_SEGMENT>;
+template <typename T> using SegmentThermGpios = std::array<T, THERM_GPIOS_PER_SEGMENT>;
+template <typename T> using Cells             = Segments<SegmentCells<T>>;
+template <typename T> using Therms            = Segments<SegmentTherms<T>>;
+template <typename T> using ThermGpios        = Segments<SegmentThermGpios<T>>;
 
-//move ts
+// move ts
 /**
  * @return SegmentsResult<SegmentConfig> containing a result for each segment. If an error is raised in either the CFGA
  * or CFGB read for a segment, the SegmentConfig result for that segment will be an unexpected containing the error
  * code. If both reads succeed, the SegmentConfig result will contain the successfully read and parsed configuration.
  */
-
- 
 
 namespace write
 {
@@ -60,13 +56,13 @@ namespace write
 // Measurement reads.
 namespace read
 {
-    [[nodiscard]] Segments<result<SegmentConfig>>    configReg();
-    [[nodiscard]] Segments<result<PWMConfig>>        pwmReg();
-    [[nodiscard]] Cells<result<uint16_t>>            cellVoltage();
-    [[nodiscard]] Cells<result<uint16_t>>            filteredCellVoltage();
-    [[nodiscard]] Segments<result<uint16_t>>         segVoltage();
-    [[nodiscard]] ThermGpios<result<uint16_t>>       thermVoltage();
-    [[nodiscard]] Segments<StatusGroups>     status();
+    [[nodiscard]] Segments<result<SegmentConfig>> configReg();
+    [[nodiscard]] Segments<result<PWMConfig>>     pwmReg();
+    [[nodiscard]] Cells<result<uint16_t>>         cellVoltage();
+    [[nodiscard]] Cells<result<uint16_t>>         filteredCellVoltage();
+    [[nodiscard]] Segments<result<uint16_t>>      segVoltage();
+    [[nodiscard]] ThermGpios<result<uint16_t>>    thermVoltage();
+    [[nodiscard]] Segments<StatusGroups>          status();
 } // namespace read
 
 // Conversion control.
