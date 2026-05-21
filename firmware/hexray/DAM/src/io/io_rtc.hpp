@@ -43,13 +43,13 @@ result<void> set_date(const Date &date);
  * Get the RTC time. Reading time also unlocks the date shadow register, so
  * callers that need both should still read date after this.
  */
-std::expected<Time, ErrorCode> get_time();
+result<Time> get_time();
 
 /**
  * Get the RTC date. Must be called after get_time() if the caller also reads
  * time, to keep the calendar shadow consistent.
  */
-std::expected<Date, ErrorCode> get_date();
+result<Date> get_date();
 
 // Helper functions to convert BCD format to binary.
 uint8_t bcd_to_bin(uint8_t bcd);

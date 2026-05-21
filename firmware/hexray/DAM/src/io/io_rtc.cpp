@@ -41,7 +41,7 @@ result<void> set_date(const Date &date)
     return {};
 }
 
-std::expected<Time, ErrorCode> get_time()
+result<Time> get_time()
 {
     RTC_TimeTypeDef rtcTime{};
     RTC_DateTypeDef rtcDate{};
@@ -60,7 +60,7 @@ std::expected<Time, ErrorCode> get_time()
         bcd_to_bin(rtcTime.Hours), bcd_to_bin(rtcTime.Minutes), bcd_to_bin(rtcTime.Seconds), rtcTime.SubSeconds);
 }
 
-std::expected<Date, ErrorCode> get_date()
+result<Date> get_date()
 {
     RTC_TimeTypeDef dummy{};
     RTC_DateTypeDef rtcDate{};
