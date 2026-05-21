@@ -92,10 +92,10 @@ bool needsTelem(uint32_t msg_id, uint32_t time_ms)
         case app::can_utils::{{ msg.name }}_Signals::MSG_ID:
         {
         {%- if msg.telem_cycle_time != msg.cycle_time %}
-            if (time_ms > {{msg.name}}_next_log_time_ms)
+            if (time_ms > {{msg.name}}_next_telem_time_ms)
             {
                 // Capture msg && increment variable.
-                {{msg.name}}_next_log_time_ms = time_ms + {{msg.name}}_TELEM_CYCLE_TIME;
+                {{msg.name}}_next_telem_time_ms = time_ms + {{msg.name}}_TELEM_CYCLE_TIME;
                 return true;
             }
             else
