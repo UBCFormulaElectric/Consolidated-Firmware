@@ -268,7 +268,7 @@ TEST_F(BmsStateMachineTest, precharge_charge_success_to_charge_init)
     }
     fakes::ts::setVoltage(target_voltage);
     LetTimePass(20);
-    ASSERT_STATE_EQ(charge_init_state);
+    ASSERT_STATE_EQ(charge_state);
     ASSERT_EQ(io::irs::positiveState(), ContactorState::CONTACTOR_STATE_CLOSED);
     ASSERT_EQ(io::irs::prechargeState(), ContactorState::CONTACTOR_STATE_OPEN);
 }

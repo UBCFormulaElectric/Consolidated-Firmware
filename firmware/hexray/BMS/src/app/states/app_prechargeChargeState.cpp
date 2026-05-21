@@ -48,9 +48,9 @@ namespace prechargeChargeState
                 break;
 
             case app::precharge::State::SUCCESS:
-                // Precharge succeeded → close AIR+ and move to charge init
+                // Precharge succeeded → close AIR+ and move to charge state
                 io::irs::setPositive(app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED);
-                app::StateMachine::set_next_state(&charge_init_state);
+                app::StateMachine::set_next_state(&charge_state);
                 break;
 
             default:

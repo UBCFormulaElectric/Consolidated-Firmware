@@ -59,9 +59,8 @@ class BMSBaseTest : public EcuTestBase
 
     std::vector<const app::State *> GetAllStates()
     {
-        return std::vector{ &init_state,        &precharge_drive_state, &precharge_charge_state, &precharge_latch_state,
-                            &drive_state,       &charge_state,          &balancing_state,        &fault_state,
-                            &charge_init_state, &charge_fault_state };
+        return std::vector{ &init_state,  &precharge_drive_state, &precharge_charge_state, &precharge_latch_state,
+                            &drive_state, &charge_state,          &balancing_state,        &fault_state };
     }
     void SetImdCondition(const ImdConditionName condition_name)
     {
@@ -85,7 +84,7 @@ struct StateMetadata
     bool              requires_fault;
 };
 
-constexpr inline std::array<StateMetadata, 10> state_metadata = { {
+constexpr inline std::array<StateMetadata, 8> state_metadata = { {
     { &init_state, BmsState::BMS_INIT_STATE, false, false },
     { &fault_state, BmsState::BMS_FAULT_STATE, false, true },
     { &precharge_drive_state, BmsState::BMS_PRECHARGE_DRIVE_STATE, true, false },
@@ -94,6 +93,4 @@ constexpr inline std::array<StateMetadata, 10> state_metadata = { {
     { &precharge_latch_state, BmsState::BMS_PRECHARGE_LATCH_STATE, true, false },
     { &precharge_charge_state, BmsState::BMS_PRECHARGE_CHARGE_STATE, true, false },
     { &charge_state, BmsState::BMS_CHARGE_STATE, true, false },
-    { &charge_init_state, BmsState::BMS_CHARGE_INIT_STATE, true, false },
-    { &charge_fault_state, BmsState::BMS_CHARGE_FAULT_STATE, true, false },
 } };

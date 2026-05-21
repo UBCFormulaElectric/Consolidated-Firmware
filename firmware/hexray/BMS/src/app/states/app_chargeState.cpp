@@ -6,7 +6,7 @@
 #include "io_irs.hpp"
 #include "io_charger.hpp"
 #include "app_charger.hpp"
-// #include "app_segments.hpp"
+#include "app_segments.hpp"
 #include "app_canUtils.hpp"
 #include "app_canRx.hpp"
 #include "app_canTx.hpp"
@@ -16,19 +16,26 @@
 // Charger/pack constants
 namespace
 {
-// TODO: Change to be in terms of segments constants once segments module is in place
-constexpr float PACK_VOLTAGE_DC =
-    581.0f; // V – the battery pack’s nominal voltage (4.15V per cell * 14 cell per seg *10 seg)
-constexpr float CHARGER_EFFICIENCY = 0.93f; // 93% – average DC-side efficiency of the Elcon
+constexpr uint8_t N_CELLS_SERIES = io::NUM_SEGMENTS * io::CELLS_PER_SEGMENTS;
 
-constexpr float MAX_DC_CURRENT = 12.0f; // A – 1C standard limit of DC input current to the pack
+// Per-cell charge thresholds
+constexpr float CELL_V_TAPER_START   = 4.10f; // V
+constexpr float CELL_V_TERMINATE     = 4.18f; // V
+constexpr float CELL_V_MAX_CHARGE    = 4.20f; // V
+constexpr float CELL_TEMP_MAX_CHARGE = 45.0f; // C
+constexpr float I_TERMINATE_A        = 1.0f;  // A
+
+// Pack-level target commanded to the Elcon
+constexpr float PACK_VOLTAGE_MAX = N_CELLS_SERIES * CELL_V_MAX_CHARGE;
+
+constexpr float CHARGER_EFFICIENCY = 0.93f; // average DC-side efficiency of the Elcon
+constexpr float MAX_DC_CURRENT     = 12.0f; // 1C standard limit of DC input current to the pack
 
 // TODO: Double-check these constants, refer to FIRM-175 I think the receptacle is 208V and max amperage is 20A
-constexpr float VAC_MIN = 208.0f; // V – lower end of typical North American grid
-constexpr float VAC_MAX = 240.0f; // V – upper end of typical North American grid
-constexpr float CAC_MAX = 20.0f;  // A – max current available off of the ac breaker at competition.
-constexpr float CIRC_EFF =
-    0.8f; // 80% - estimated efficiency of the entire charging circuit (charger + wiring losses etc)
+constexpr float VAC_MIN  = 208.0f; // lower end of typical North American grid
+constexpr float VAC_MAX  = 240.0f; // upper end of typical North American grid
+constexpr float CAC_MAX  = 20.0f;  // max current available off of the ac breaker at competition.
+constexpr float CIRC_EFF = 0.8f; // estimated efficiency of the entire charging circuit (charger + wiring losses etc)
 
 constexpr uint32_t ELCON_ERR_DEBOUNCE_MS = 3000U; // 3 seconds
 } // namespace
@@ -64,33 +71,6 @@ namespace chargeState
         float idc_max; // A – DC current at VAC_MAX
     };
 
-    // Optional BE encode/decode helpers (kept commented, C++-ready)
-    // static uint16_t canMsgEndianSwap(uint16_t can_signal)
-    // {
-    //     return static_cast<uint16_t>((can_signal >> 8) | (can_signal << 8));
-    // }
-    //
-    // static uint16_t encodeElconParam(float value)
-    // {
-    //     uint16_t raw = static_cast<uint16_t>(lrintf(value * 10.0f)); // e.g. 540 V -> 5400
-    //     return canMsgEndianSwap(raw);                                 // big-endian
-    // }
-    //
-    // static void encodeMaxVoltageBE(float voltage, uint8_t *high, uint8_t *low)
-    // {
-    //     uint16_t raw = static_cast<uint16_t>(lrintf(voltage * 10.0f)); // 0.1 V resolution
-    //     uint16_t be  = canMsgEndianSwap(raw);
-    //     *high        = static_cast<uint8_t>(be >> 8);
-    //     *low         = static_cast<uint8_t>(be & 0xFF);
-    // }
-    //
-    // static float decodeElconParam(uint8_t high, uint8_t low)
-    // {
-    //     uint16_t raw_be = static_cast<uint16_t>((high << 8) | low);
-    //     uint16_t raw_le = canMsgEndianSwap(raw_be);
-    //     return static_cast<float>(raw_le) / 10.0f;
-    // }
-
     // Read current charger status from CAN→typed struct
     static ElconRx readElconStatus()
     {
@@ -114,7 +94,7 @@ namespace chargeState
         app::can_tx::BMS_StopCharging_set(cmd.stopCharging);
     }
 
-    // // Compute conservative DC current range from AC limits (kept commented until wiring ready)
+    // Compute conservative DC current range from AC limits (kept commented until wiring ready)
     static DCRange_t calc_dc_current_range(float iac_max)
     {
         DCRange_t   range{};
@@ -122,9 +102,9 @@ namespace chargeState
         const float pin_max  = VAC_MAX * iac_max;
         const float pout_min = pin_min * CHARGER_EFFICIENCY;
         const float pout_max = pin_max * CHARGER_EFFICIENCY;
-        // TODO: Why are we assuming we are always at peak voltage? Change
-        range.idc_min = pout_min / PACK_VOLTAGE_DC;
-        range.idc_max = pout_max / PACK_VOLTAGE_DC;
+        // Conservative: dividing by max pack voltage gives the lowest current estimate
+        range.idc_min = pout_min / PACK_VOLTAGE_MAX;
+        range.idc_max = pout_max / PACK_VOLTAGE_MAX;
         if (range.idc_min > MAX_DC_CURRENT)
             range.idc_min = MAX_DC_CURRENT;
         if (range.idc_max > MAX_DC_CURRENT)
@@ -133,8 +113,6 @@ namespace chargeState
     }
 
     static app::Timer elcon_err_debounce(ELCON_ERR_DEBOUNCE_MS);
-
-    // --------------------------------- CHARGE state ---------------------------------------
 
     static void runOnEntry()
     {
@@ -150,31 +128,67 @@ namespace chargeState
 
     static void runOnTick100Hz()
     {
-        // TODO: Fix charger connection status reading
         const ChargerConnectedType charger_connection_status = io::charger::getConnectionStatus();
         const bool extShutdown = (io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_OPEN);
         const bool chargerConn =
             (charger_connection_status == ChargerConnectedType::CHARGER_CONNECTED_EVSE ||
              charger_connection_status == ChargerConnectedType::CHARGER_CONNECTED_WALL);
 
-        const bool userEnable = app::can_rx::Debug_StartCharging_get();
+        const bool    userEnable = app::can_rx::Debug_StartCharging_get();
+        const ElconRx rx         = readElconStatus();
 
-        const ElconRx rx = readElconStatus();
+        const float max_cell_V = app::segments::getMaxCellVoltage(); // placeholder func
+        const float max_cell_T = app::segments::getMaxCellTemp(); // placeholder func
 
-        const bool fault = extShutdown || !chargerConn || rx.hardwareFailure || rx.chargingStateFault ||
-                           rx.overTemperature || rx.inputVoltageFault || rx.commTimeout;
+        // BMS-side guards Elcon can't see (per-cell)
+        // These bypass the debounce timer because a hot or overvoltage cell needs immediate action
+        const bool cell_overvolt   = (max_cell_V >= CELL_V_MAX_CHARGE);
+        const bool cell_overtemp   = (max_cell_T >= CELL_TEMP_MAX_CHARGE);
+        const bool hard_cell_fault = cell_overvolt || cell_overtemp;
 
-        const bool fault_latched = (elcon_err_debounce.runIfCondition(fault) == app::Timer::TimerState::EXPIRED);
+        // Transient faults (charger, shutdown loop, comm blip) get debounced
+        const bool transient_fault = extShutdown || !chargerConn || rx.hardwareFailure ||
+                                     rx.chargingStateFault || rx.overTemperature ||
+                                     rx.inputVoltageFault || rx.commTimeout;
+        const bool transient_latched =
+            (elcon_err_debounce.runIfCondition(transient_fault) == app::Timer::TimerState::EXPIRED);
 
-        // if (fault_latched || !userEnable)
-        if (false)
+        const ElconTx stop{ .maxVoltage_V = 0.0f, .maxCurrent_A = 0.0f, .stopCharging = true };
+
+        if (hard_cell_fault)
         {
-            app::can_tx::BMS_ChargingFaulted_set(fault);
+            app::can_tx::BMS_ChargingFaulted_set(true);
+            buildTxFrame(stop);
+            app::StateMachine::set_next_state(&fault_state);
+            return;
+        }
+
+        if (transient_latched)
+        {
+            app::can_tx::BMS_ChargingFaulted_set(true);
+            buildTxFrame(stop);
             app::StateMachine::set_next_state(&init_state);
             return;
         }
 
-        // TODO: Fix calc_dc_current_range and EVSE available current path
+        if (!userEnable)
+        {
+            buildTxFrame(stop);
+            app::StateMachine::set_next_state(&init_state);
+            return;
+        }
+
+        // Terminate when cells are essentially full AND Elcon has already tapered down
+        // Both conditions required (high V + high I = mid-CV-ramp, low I + low V = idle)
+        if ((max_cell_V >= CELL_V_TERMINATE) && (rx.outputCurrent_A < I_TERMINATE_A))
+        {
+            app::can_tx::BMS_ChargingDone_set(true);
+            buildTxFrame(stop);
+            app::StateMachine::set_next_state(&init_state);
+            return;
+        }
+
+        // Derive DC current limit from AC supply capability. Same code path on wall and EVSE (only difference is the available AC current)
         DCRange_t idc_range;
         if (charger_connection_status == ChargerConnectedType::CHARGER_CONNECTED_EVSE)
         {
@@ -182,39 +196,26 @@ namespace chargeState
             const float clamped_evse_iac = (evse_iac > CAC_MAX * CIRC_EFF) ? CAC_MAX * CIRC_EFF : evse_iac;
             idc_range                    = calc_dc_current_range(clamped_evse_iac);
         }
-        else // wall charger is connected
+        else
         {
-            const float wall_iac =
-                CAC_MAX * CIRC_EFF; // assume max current available from wall charger, adjusted for circuit efficiency
-            idc_range = calc_dc_current_range(wall_iac);
+            idc_range = calc_dc_current_range(CAC_MAX * CIRC_EFF);
         }
 
-        // For now, command nominal pack voltage and a debug-selected current
-        // const ElconTx tx{
-        //     .maxVoltage_V = PACK_VOLTAGE_DC, // cap voltage of pack
-        //     // .maxCurrent_A = idc_range.idc_min,                 // conservative min DC current (when enabled)
-        //     .maxCurrent_A = app::can_rx::Debug_ChargingCurrent_get(), // debug-controlled current
-        //     .stopCharging = !userEnable,
-        // };
+        // CC/CV is implicit given the Elcon needs max V and max I commands
+        // Per cell CC/CV fallback (if pack is unbalanced or not using EVSE)
+        float I_cmd_max = idc_range.idc_min;
+        if (max_cell_V > CELL_V_TAPER_START)
+        {
+            const float frac = (CELL_V_MAX_CHARGE - max_cell_V) / (CELL_V_MAX_CHARGE - CELL_V_TAPER_START);
+            I_cmd_max        = idc_range.idc_min * frac;
+        }
+
         const ElconTx tx{
-            .maxVoltage_V = 0.0f, // cap voltage of pack
-            // .maxCurrent_A = idc_range.idc_min,                 // conservative min DC current (when enabled)
-            .maxCurrent_A = 0.0f, // debug-controlled current
-            .stopCharging = true,
+            .maxVoltage_V = PACK_VOLTAGE_MAX,
+            .maxCurrent_A = I_cmd_max,
+            .stopCharging = false,
         };
         buildTxFrame(tx);
-
-        // TODO: Add charging completion logic based on cell voltages once segments are in place
-        // Charging completion: if any cell reaches cutoff, stop charging
-        // const float max_cell_voltage = app_segments_getMaxCellVoltage().value;
-        const float max_cell_voltage = 3.4f;
-        // TODO: Change back to constant after segments are in place
-        // if (max_cell_voltage >= MAX_CELL_VOLTAGE_WARNING_V)
-        if (max_cell_voltage >= 4.15f)
-        {
-            app::can_tx::BMS_ChargingDone_set(true);
-            app::StateMachine::set_next_state(&init_state);
-        }
     }
 
     static void runOnExit()
