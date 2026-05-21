@@ -1,7 +1,9 @@
 use axum::{Json, Router, extract::{Query, State}, http::StatusCode, response::IntoResponse, routing::{get, post}};
+use futures::stream;
+use influxdb2::{FromDataPoint, models::DataPoint};
 use serde::Deserialize;
 
-use crate::tasks::client_api::{AppState, sd_utils::{dump_sd_file, find_detachable_drives, get_logfs, ls_deep}};
+use crate::{config::CONFIG, tasks::client_api::{AppState, sd_utils::{dump_sd_file, find_detachable_drives, get_logfs, ls_deep}}};
 
 /**
  * Mainly supported for Ubuntu, not guaranteed on anything else
@@ -37,6 +39,12 @@ struct SdDumpPayload {
     overwrite: Option<bool>,
 }
 
+#[derive(Debug, FromDataPoint, Default)]
+struct SdCardDumpRow {
+    file_name: String,
+    dumped: bool,
+}
+
 /**
  * Parses file, reads the entire file, parses, then pushes to database as separate category for SD card.
  * If file already exists in database, overwrite if `overwrite` is true, otherwise returns code 409.
@@ -44,15 +52,40 @@ struct SdDumpPayload {
 async fn sd_dump(State(state): State<AppState>, Json(SdDumpPayload{drive, file, overwrite}): Json<SdDumpPayload>) -> impl IntoResponse {
     // TODO some way to check database if file already dumped
     // TODO mutex, make sure the same file is not dumped multiple times concurrently
+    let query = format!(r#"
+        from(bucket: "{}")
+        |> range(start: 0)
+        |> filter(fn: (r) => r["_measurement"] == "{}")
+        |> filter(fn: (r) => r.file_name == "{}")
+        |> limit(n: 1)
+    "#, &CONFIG.influxdb_bucket, "sd_dumps", file);
 
+    let dumped_res = state.influx_client.query::<SdCardDumpRow>(Some(influxdb2::models::Query::new(query))).await;
+
+    match dumped_res {
+        Ok(vec) => {
+            if vec.len() > 0 {
+                return (StatusCode::CONFLICT, format!("File {file} already exists in database (overwrite not implemented)."));
+            }
+        },
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to query database for existing dumps of file")),
+    };
+
+    
     match dump_sd_file(
         state.can_db, 
-        state.influx_client, 
+        state.influx_client.clone(), 
         &drive, 
         &file
     ).await {
-        Ok(_) => return (StatusCode::OK, format!("Dump {file} from drive {drive}")),
-        Err(e) => return (StatusCode::BAD_REQUEST, format!("Failed to read file {file} from drive {drive}: {e}")),
+        Ok(_) => {
+            let dump_record = DataPoint::builder("processed_files")
+                .tag("file_name", &file)
+                .field("dumped", true)
+                .build().unwrap();
+            let _ = state.influx_client.write(&CONFIG.influxdb_bucket, stream::iter([dump_record])).await;
+        },
+        Err(e) => return (StatusCode::BAD_REQUEST, format!("Failed to read file {file} from drive {drive}: {e:?}")),
     }
     
     return (StatusCode::OK, format!("Dump {file} from drive {drive}"));

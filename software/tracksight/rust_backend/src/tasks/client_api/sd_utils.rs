@@ -67,6 +67,7 @@ fn ls_recursive(logfs: &mut LogFs, dir: &str, results: &mut Vec<String>) -> Resu
     Ok(())
 }
 
+#[derive(Debug)]
 pub enum SdCardDumpError {
     LogFsError,
     FileNotFound,
