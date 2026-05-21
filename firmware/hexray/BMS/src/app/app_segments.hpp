@@ -1,6 +1,5 @@
 #pragma once
 #include <expected>
-#include <tuple>
 #include <utility>
 
 #include "util_errorCodes.hpp"
@@ -16,7 +15,7 @@ namespace app::segments
 // Re-export ADBMS array aliases inside this namespace so app code can use them unqualified.
 using io::adbms::Cells;
 using io::adbms::Segments;
-using io::adbms::Status;
+using io::adbms::ThermGpios;
 using io::adbms::Therms;
 
 // Thermistor bank selected during AUX conversions.
@@ -36,13 +35,13 @@ template <typename T> struct CellParam
     auto    operator<=>(const CellParam &other) const { return value <=> other.value; };
 };
 
-// app_segments_config.hpp
+// app_segments_config.cpp
 namespace config
 {
-    void setBalance(const Cells<bool> &balance_config, const Cells<uint8_t> &pwm_duty, bool balancing_enabled);
-    void setThermistor(ThermistorMux mux);
-    result<void> sync();
-}; // namespace config
+    void setBalanceConfig(const Cells<bool> &balance_config, const Cells<uint8_t> &pwm_duty, bool balancing_enabled);
+    void setThermistorConfig(ThermistorMux mux);
+    result<void> configSync();
+} // namespace config
 
 // app_segments_balancing.cpp
 namespace balancing
@@ -58,7 +57,7 @@ namespace broadcast
     void cellVoltages(const Cells<result<float>> &voltages);
     void temps(const Therms<result<float>> &temps, const Therms<result<bool>> &therm_owc);
     void segVoltages(const Segments<result<float>> &seg_voltages);
-    void status(const Status &status);
+    void status(const Segments<io::adbms::StatusGroups> &status);
     void owc(const Cells<result<bool>> &owc_results);
 } // namespace broadcast
 
@@ -91,7 +90,7 @@ namespace state
     void setCellOwc(bool any_cell_owc);
 } // namespace state
 
-// aapp_segments_faults.cpp
+// app_segments_faults.cpp
 namespace faults
 {
     bool checkWarnings();
@@ -99,14 +98,19 @@ namespace faults
 } // namespace faults
 
 // app_segments_conversions.cpp
-result<Cells<result<float>>> runVoltageConversion();
-/**
- * @return a pair of (temps, thermistor_owc) results. The temps result may contain partial data if some conversions
- * failed, but the thermistor_owc result will be valid only if all conversions succeeded, since we don't want to report
- * any thermistor as open wire unless we're sure.
- */
-result<std::pair<Therms<result<float>>, Therms<result<bool>>>> runAuxConversion();
-result<Segments<result<float>>>                                runSegVoltageConversion();
-result<Segments<io::adbms::StatusGroups>>                      runStatusConversion();
-result<Cells<result<bool>>>                                    runCellOpenWireCheck();
+namespace startPoll
+{
+    [[nodiscard]] result<void> cellOwcAdc(io::adbms::OpenWireSwitch owcSwitch);
+    [[nodiscard]] result<void> cellAdc();
+    [[nodiscard]] result<void> auxAdc(ThermistorMux mux);
+} // namespace startPoll
+
+namespace conversion
+{
+    Cells<result<float>>                                                              cellVoltage();
+    result<std::pair<Therms<result<float>>, Therms<result<bool>>>>                    thermTempOwc();
+    Segments<result<float>>                                                           segVoltage();
+    result<Segments<io::adbms::StatusGroups>>                                         status();
+    result<Cells<result<bool>>>                                                       cellOwc();
+} // namespace conversion
 } // namespace app::segments

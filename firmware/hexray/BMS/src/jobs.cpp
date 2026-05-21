@@ -145,13 +145,16 @@ void jobs_run1kHz_tick()
 
 void jobs_runAdbmsVoltages_tick()
 {
-    app::segments::state::resetAll(app::segments::state::Bit::Voltage);
+    Cells<result<float>> voltages;
 
+    app::segments::state::resetAll(app::segments::state::Bit::Voltage);
 
     {
         const io::unique_semaphore s{ spi_bus_lock };
-    
-        app::segments::runVoltageConversion();
+        const auto ok = app::segments::startPoll::cellAdc() 
+        
+        
+        voltages = app::segments::conversion::cellVoltage();
     }
 
     if (volt_r)

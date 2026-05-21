@@ -5,6 +5,9 @@
 #include "util_errorCodes.hpp"
 #include "util_retry.hpp"
 
+using io::adbms::ThermGpios;
+using std::pair;
+
 namespace app::segments
 {
 result<void> startPoll::cellOwcAdc(io::adbms::OpenWireSwitch owcSwitch) {
@@ -14,32 +17,33 @@ result<void> startPoll::cellOwcAdc(io::adbms::OpenWireSwitch owcSwitch) {
         []() -> result<void>
         {
             io::time::delay(1);
-            return io::adbms::command::pollCellsAdcConversion();
+            return io::adbms::command::pollCellsAdc();
         },
         POLL_RETRIES);
 }
 
 result<void> startPoll::cellAdc() {
-    RETURN_IF_ERR(io::adbms::command::startCellsAdcConversion());
+    RETURN_IF_ERR(io::adbms::command::startCellsAdc());
     io::time::delay(VOLT_CONV_TIME_MS);
     return util::retry(
         []() -> result<void>
         {
             io::time::delay(1);
-            return io::adbms::command::pollCellsAdcConversion();
+            return io::adbms::command::pollCellsAdc();
         },
         POLL_RETRIES);
 }
 
 result<void> startPoll::auxAdc(ThermistorMux mux) {
     config::setThermistorConfig(static_cast<ThermistorMux>(mux));
-    RETURN_IF_ERR(io::adbms::command::startAuxAdcConversion());
+    RETURN_IF_ERR(io::adbms::command::startAuxAdc());
+    
     io::time::delay(AUX_CONV_TIME_MS);
     return util::retry(
         []() -> result<void>
         {
             io::time::delay(1);
-            return io::adbms::command::pollAuxAdcConversion();
+            return io::adbms::command::pollAuxAdc();
         },
         POLL_RETRIES);
 }
@@ -60,23 +64,40 @@ Cells<result<float>> conversion::cellVoltage() {
     return out_voltage;
 }
 
-result<pair<ThermGpios<result<float>>, ThermGpios<result<bool>>>> conversion::thermTempOwc(ThermistorMux mux) {
-    RETURN_IF_ERR(startPoll::auxAdc(mux));
-    const ThermGpios<result<uint16_t>> therm_voltage = io::adbms::read::thermVoltage();
+result<pair<Therms<result<float>>, Therms<result<bool>>>> conversion::thermTempOwc() {
 
-    ThermGpios<result<float>> out_temp;
-    ThermGpios<result<bool>> out_owc;
+    RETURN_IF_ERR(startPoll::auxAdc(ThermistorMux::THERMISTOR_MUX_0_7));
+    ThermGpios<result<uint16_t>> therm_0_7_voltage = io::adbms::read::thermVoltage();
+
+    RETURN_IF_ERR(startPoll::auxAdc(ThermistorMux::THERMISTOR_MUX_8_13));
+    ThermGpios<result<uint16_t>> therm_8_13_voltage = io::adbms::read::thermVoltage();
+
+    Therms<result<float>> out_temp;
+    Therms<result<bool>> out_owc;
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++) {
-        for (size_t thermGpio = 0; thermGpio < THERM_GPIOS_PER_SEGMENT; thermGpio++) {
-            if (const auto &reg_result = aux_regs[mux][seg][gpio]; !reg_result) {
-                out_temps[seg][therm] = std::unexpected(reg_result.error());
-                out_owc[seg][therm]   = std::unexpected(reg_result.error());
+        for (size_t therm = 0; therm < THERMISTORS_PER_SEGMENT; therm++) {
+            size_t therm_gpio = therm % THERM_GPIOS_PER_SEGMENT;
+
+            if (therm < THERM_GPIOS_PER_SEGMENT) {
+                if (!therm_0_7_voltage[seg][therm_gpio]) {
+                out_temp[seg][therm] = std::unexpected(therm_0_7_voltage[seg][therm_gpio].error());
+                out_owc[seg][therm] = std::unexpected(therm_0_7_voltage[seg][therm_gpio].error());
+                } else {
+                out_temp[seg][therm] = convertRegToTemp(therm_0_7_voltage[seg][therm_gpio].value());
+                out_owc[seg][therm] = checkThermOwcOk(therm_0_7_voltage[seg][therm_gpio].value());
+                }
             } else {
-                out_temps[seg][therm] = convertRegToTemp(reg_result.value());
-                out_owc[seg][therm]   = checkThermOwcOk(reg_result.value());
+                if (!therm_8_13_voltage[seg][therm_gpio]) {
+                out_temp[seg][therm] = std::unexpected(therm_8_13_voltage[seg][therm_gpio].error());
+                out_owc[seg][therm] = std::unexpected(therm_8_13_voltage[seg][therm_gpio].error());
+                } else {
+                out_temp[seg][therm] = convertRegToTemp(therm_8_13_voltage[seg][therm_gpio].value());
+                out_owc[seg][therm] = checkThermOwcOk(therm_8_13_voltage[seg][therm_gpio].value());
+                }
             }
         }
     }
+
     return pair{out_temp,out_owc};
 }
 
