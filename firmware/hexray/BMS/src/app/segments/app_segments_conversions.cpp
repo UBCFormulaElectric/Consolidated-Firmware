@@ -3,7 +3,6 @@
 #include "io_adbms.hpp"
 #include "io_time.hpp"
 #include "util_errorCodes.hpp"
-#include "util_retry.hpp"
 
 using io::adbms::ThermGpios;
 using std::pair;
@@ -13,39 +12,21 @@ namespace app::segments
 result<void> startPoll::cellOwcAdc(io::adbms::OpenWireSwitch owcSwitch) {
     RETURN_IF_ERR(io::adbms::command::owcCells(owcSwitch));
     io::time::delay(VOLT_CONV_TIME_MS);
-    return util::retry(
-        []() -> result<void>
-        {
-            io::time::delay(1);
-            return io::adbms::command::pollCellsAdc();
-        },
-        POLL_RETRIES);
+    return io::adbms::command::pollCellsAdc();
 }
 
 result<void> startPoll::cellAdc() {
     RETURN_IF_ERR(io::adbms::command::startCellsAdc());
     io::time::delay(VOLT_CONV_TIME_MS);
-    return util::retry(
-        []() -> result<void>
-        {
-            io::time::delay(1);
-            return io::adbms::command::pollCellsAdc();
-        },
-        POLL_RETRIES);
+    return io::adbms::command::pollCellsAdc();
 }
 
 result<void> startPoll::auxAdc(ThermistorMux mux) {
     config::setThermistorConfig(static_cast<ThermistorMux>(mux));
     RETURN_IF_ERR(io::adbms::command::startAuxAdc());
-    
+
     io::time::delay(AUX_CONV_TIME_MS);
-    return util::retry(
-        []() -> result<void>
-        {
-            io::time::delay(1);
-            return io::adbms::command::pollAuxAdc();
-        },
-        POLL_RETRIES);
+    return io::adbms::command::pollAuxAdc();
 }
 
 Cells<result<float>> conversion::cellVoltage() {

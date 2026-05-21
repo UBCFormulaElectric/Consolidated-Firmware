@@ -18,10 +18,4 @@ result<void> command::stopBalance()
 {
     return sendCmd(MUTE);
 }
-
-result<void> command::owcCells(const OpenWireSwitch owcSwitch)
-{
-    const uint16_t cmd = (owcSwitch == OpenWireSwitch::EvenChannels) ? (ADCV_BASE | OW0) : (ADCV_BASE | OW1);
-    return sendCmd(cmd);
-}
 } // namespace io::adbms

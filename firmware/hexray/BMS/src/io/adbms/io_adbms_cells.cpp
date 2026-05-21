@@ -1,6 +1,7 @@
 #include "io_adbms.hpp"
 #include "io_adbms_internal.hpp"
 #include "io_time.hpp"
+#include "util_retry.hpp"
 #include <cstdint>
 
 using namespace std;
@@ -28,19 +29,26 @@ result<void> command::startCellsAdc()
     return sendCmd(ADCV_BASE);
 }
 
-result<void> command::startAuxAdc()
+result<void> command::owcCells(const OpenWireSwitch owcSwitch)
 {
-    for (uint8_t attempt = 0U; attempt < MAX_NUM_ATTEMPTS; attempt++)
-    {
-        const auto rx_res = poll(PLCADC);
-        RETURN_IF_ERR_SILENT(rx_res);
-        if (const std::bitset<32> rx_data = rx_res.value(); rx_data.to_ulong() == POLL_STATUS_READY)
+    const uint16_t cmd = (owcSwitch == OpenWireSwitch::EvenChannels) ? (ADCV_BASE | OW0) : (ADCV_BASE | OW1);
+    return sendCmd(cmd);
+}
+
+result<void> command::pollCellsAdc()
+{
+    return util::retry(
+        []() -> result<void>
         {
-            return {};
-        }
-        io::time::delay(POLL_RETRY_DELAY_MS);
-    }
-    return unexpected(ErrorCode::TIMEOUT);
+            const auto rx_res = poll(PLCADC);
+            if (!rx_res) return unexpected(rx_res.error());
+            if (rx_res.value().to_ulong() == POLL_STATUS_READY) return {};
+            io::time::delay(POLL_RETRY_DELAY_MS);
+            return unexpected(ErrorCode::BUSY);
+        },
+        MAX_NUM_ATTEMPTS,
+        ErrorCode::BUSY,
+        ErrorCode::TIMEOUT);
 }
 
 Cells<result<uint16_t>> read::cellVoltage()

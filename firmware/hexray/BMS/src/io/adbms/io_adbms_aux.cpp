@@ -2,13 +2,12 @@
 #include "io_adbms.hpp"
 #include "io_time.hpp"
 #include "util_errorCodes.hpp"
+#include "util_retry.hpp"
 
 using namespace std;
 
 namespace
 {
-constexpr uint8_t MAX_NUM_ATTEMPTS     = 5U;
-constexpr uint8_t POLL_RETRY_DELAY_MS  = 1U;
 constexpr uint8_t GPIOS_PER_GROUP      = 3U;
 constexpr uint8_t NUM_THERM_REG_GROUPS = 3U;
 constexpr uint8_t NUM_STAT_REG_GROUPS  = 5U;
@@ -18,6 +17,7 @@ constexpr uint8_t NUM_STAT_REG_GROUPS  = 5U;
 namespace io::adbms
 {
 
+//check this 
 result<void> clear::aux()
 {
     constexpr Segments<RegBuffer> clr_regs{};
@@ -27,6 +27,7 @@ result<void> clear::aux()
     return {};
 }
 
+//check this
 result<void> clear::stat()
 {
     constexpr Segments<RegBuffer> clr_regs{};
@@ -42,20 +43,21 @@ result<void> command::startAuxAdc()
 
 result<void> command::pollAuxAdc()
 {
-    for (size_t attempt = 0U; attempt < MAX_NUM_ATTEMPTS; attempt++)
-    {
-        const auto rx_res = poll(PLAUX);
-        RETURN_IF_ERR_SILENT(rx_res);
-        if (const std::bitset<32> rx_data = rx_res.value(); rx_data.to_ulong() == POLL_STATUS_READY)
+    return util::retry(
+        []() -> result<void>
         {
-            return {};
-        }
-        io::time::delay(POLL_RETRY_DELAY_MS);
-    }
-    return unexpected(ErrorCode::TIMEOUT);
+            const auto rx_res = poll(PLAUX);
+            if (!rx_res) return unexpected(rx_res.error());
+            if (rx_res.value().to_ulong() == POLL_STATUS_READY) return {};
+            io::time::delay(POLL_RETRY_DELAY_MS);
+            return unexpected(ErrorCode::BUSY);
+        },
+        MAX_NUM_ATTEMPTS,
+        ErrorCode::BUSY,
+        ErrorCode::TIMEOUT);
 }
 
-ThermGpios<result<uint16_t>> read::thermVoltage()
+ThermGpios<result<uint16_t>> read::thermGpioVoltage()
 {
     constexpr array<uint16_t, NUM_THERM_REG_GROUPS> reg_groups{ { RDAUXA, RDAUXB, RDAUXC } };
     ThermGpios<result<uint16_t>>                        cell_temp_regs{};

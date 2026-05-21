@@ -61,7 +61,7 @@ namespace read
     [[nodiscard]] Cells<result<uint16_t>>         cellVoltage();
     [[nodiscard]] Cells<result<uint16_t>>         filteredCellVoltage();
     [[nodiscard]] Segments<result<uint16_t>>      segVoltage();
-    [[nodiscard]] ThermGpios<result<uint16_t>>    thermVoltage();
+    [[nodiscard]] ThermGpios<result<uint16_t>>    thermGpioVoltage();
     [[nodiscard]] Segments<StatusGroups>          status();
 } // namespace read
 

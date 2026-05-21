@@ -17,8 +17,6 @@ inline constexpr float BETA_COEFF         = 3610.0f;
 inline constexpr float KELVIN_OFFSET      = 273.15f;
 inline constexpr float OW_THERM_THRESHOLD = 2.8f; // TODO: need to calibrate
 
-inline constexpr uint32_t POLL_RETRIES = 5;
-
 namespace app::segments
 {
 constexpr float convertUVOVToFloat(const uint16_t hex)
