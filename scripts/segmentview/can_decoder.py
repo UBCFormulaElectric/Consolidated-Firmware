@@ -4,6 +4,7 @@ CAN message decoding for BMS data
 
 from pathlib import Path
 from typing import Dict
+import re
 
 import can
 import cantools
@@ -130,7 +131,10 @@ class CanDataThread(QObject):
         self.bitrate = bitrate
         self.bus = None
         self.running = False
-        self.segment_data = {i: SegmentData(i) for i in range(10)}
+        self.segment_data: dict[int, SegmentData] = {i: SegmentData(i) for i in range(10)}
+
+        self.voltage_signal_name_re = re.compile(r"BMS_Seg(\d+)_Cell(\d+)_Voltage")
+        self.temp_signal_name_re = re.compile(r"BMS_Seg(\d+)_Cell(\d+)_Temp")
 
     def run(self):
         """Connect to CAN bus and read messages"""
@@ -209,40 +213,33 @@ class CanDataThread(QObject):
         - BMS_Seg0_Cell0_Voltage
         - BMS_Seg0_Cell0_Temp
         """
-        for signal_name, value in signals.items():
-            try:
+        assert(self.decoder.db is not None)  # Should only be called if DBC is loaded
+        msg_name = self.decoder.db.get_message_by_frame_id(msg_id).name
+
+        if msg_name == "BMS_SegmentStats":
+            pass
+        if msg_name == "BMS_CellOpenWireCheck":
+            pass
+
+        if msg_name == "BMS_CellVoltages_Seg0_Seg3" or msg_name == "BMS_CellVoltages_Seg4_Seg7" or msg_name == "BMS_CellVoltages_Seg8_Seg9":
+            for signal_name, value in signals.items():
                 # Parse cell voltage signals: BMS_SegN_CellM_Voltage
-                if 'Voltage' in signal_name and 'Seg' in signal_name and 'Cell' in signal_name:
-                    # Extract segment index: find "Seg" and get the number after it
-                    seg_start = signal_name.find('Seg') + 3
-                    seg_end = signal_name.find('_', seg_start)
-                    seg_idx = int(signal_name[seg_start:seg_end])
+                res = self.voltage_signal_name_re.match(signal_name)
+                assert res  # Should only match voltage signals
+                seg_idx = int(res.group(1))
+                cell_idx = int(res.group(2))
+                assert(seg_idx < 10 and cell_idx < 16)  # Sanity check for indices
+                self.segment_data[seg_idx].cell_voltages[cell_idx] = float(value)
 
-                    # Extract cell index: find "Cell" and get the number after it
-                    cell_start = signal_name.find('Cell') + 4
-                    cell_end = signal_name.find('_', cell_start)
-                    cell_idx = int(signal_name[cell_start:cell_end])
-
-                    if seg_idx < 10:
-                        self.segment_data[seg_idx].cell_voltages[cell_idx] = float(value)
-
-                # Parse cell temperature signals: BMS_SegN_CellM_Temp
-                elif 'Temp' in signal_name and 'Seg' in signal_name and 'Cell' in signal_name:
-                    # Extract segment index
-                    seg_start = signal_name.find('Seg') + 3
-                    seg_end = signal_name.find('_', seg_start)
-                    seg_idx = int(signal_name[seg_start:seg_end])
-
-                    # Extract cell index
-                    cell_start = signal_name.find('Cell') + 4
-                    cell_end = signal_name.find('_', cell_start)
-                    cell_idx = int(signal_name[cell_start:cell_end])
-
-                    if seg_idx < 10:
-                        self.segment_data[seg_idx].cell_temps[cell_idx] = float(value)
-            except (ValueError, IndexError):
-                # Skip signals that don't match expected pattern
-                pass
+        if msg_name == "BMS_CellTemps_Seg0_Seg3" or msg_name == "BMS_CellTemps_Seg4_Seg7" or msg_name == "BMS_CellTemps_Seg8_Seg9":
+            for signal_name, value in signals.items():
+                res = self.temp_signal_name_re.match(signal_name)
+                assert res  # Should only match temperature signals
+                seg_idx = int(res.group(1))
+                cell_idx = int(res.group(2))
+                assert(seg_idx < 10 and cell_idx < 16)  # Sanity check for indices
+                self.segment_data[seg_idx].cell_temps[cell_idx] = float(value)
+                continue
 
     def stop(self):
         """Stop the CAN reader thread"""
