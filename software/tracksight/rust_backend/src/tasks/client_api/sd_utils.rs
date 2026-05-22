@@ -1,6 +1,5 @@
 use std::{fs, path::Path, sync::Arc};
 
-use axum::http::StatusCode;
 use influxdb2::models::DataPoint;
 use jsoncan_rust::can_database::CanDatabase;
 use logfs::{LogFsErr, logfs::{LogFs, LogFsUnixDisk}};
@@ -87,12 +86,12 @@ pub async fn dump_sd_file(
 
         let mut file = match logfs.open(&path, logfs::LogFsOpenFlags_LOGFS_OPEN_RD_ONLY) {
             Ok(f) => f,
-            Err(err) => return Err(SdCardDumpError::FileNotFound),
+            Err(_) => return Err(SdCardDumpError::FileNotFound),
         };
 
         match file.read(None) {
             Ok(d) => d,
-            Err(err) => return Err(SdCardDumpError::FileReadError),
+            Err(_) => return Err(SdCardDumpError::FileReadError),
         }
         // logfs and file are dropped here, before any await
     };
