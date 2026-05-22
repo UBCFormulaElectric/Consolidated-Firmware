@@ -67,8 +67,8 @@ class SegmentViewUI(QMainWindow):
 
         central_widget.setLayout(main_layout)
 
-        # Initialize CAN data thread
-        self.can_thread = CanDataThread(Path(__file__).parent.parent.parent / "can_bus" / "hexray" / "BMS" / "BMS_tx.json")
+        # Initialize CAN data thread with DBC file
+        self.can_thread = CanDataThread(Path(__file__).parent.parent.parent / "can_bus" / "dbcs" / "hexray.dbc")
         self.can_thread.data_received.connect(self.on_segment_data_received)
         self.can_thread.status_changed.connect(self.on_status_changed)
         self.can_thread.error_occurred.connect(self.on_error_occurred)
