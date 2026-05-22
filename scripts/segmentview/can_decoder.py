@@ -8,7 +8,7 @@ import re
 
 import can
 import cantools
-from PyQt5.QtCore import Qt, pyqtSignal, QObject
+from PyQt5.QtCore import pyqtSignal, QObject
 
 from .segments_model import SegmentData
 
@@ -43,7 +43,7 @@ class CanMessageDecoder:
             msg = self.db.get_message_by_frame_id(channel_msg.arbitration_id)
             decoded = msg.decode(channel_msg.data, allow_truncated=True)
             return decoded
-        except (KeyError, Exception) as e:
+        except (KeyError, Exception):
             # Message ID not found or decode error - return empty dict
             return {}
 
@@ -135,6 +135,29 @@ class CanDataThread(QObject):
 
         self.voltage_signal_name_re = re.compile(r"BMS_Seg(\d+)_Cell(\d+)_Voltage")
         self.temp_signal_name_re = re.compile(r"BMS_Seg(\d+)_Cell(\d+)_Temp")
+        self.owc_signal_name_re = re.compile(r"BMS_Seg(\d+)_Cell(\d+)_CellOwcOk")
+        self.therm_owc_signal_name_re = re.compile(r"BMS_Seg(\d+)_Cell(\d+)_ThermOwcOk")
+        self.seg_comm_ok_re = re.compile(r"BMS_Seg(\d+)_CommOk")
+        self.seg_vref2_re = re.compile(r"BMS_Seg(\d+)_Vref2")
+        self.seg_itmp_re = re.compile(r"BMS_Seg(\d+)_ITMP")
+        self.seg_vd_re = re.compile(r"BMS_Seg(\d+)_VD")
+        self.seg_va_re = re.compile(r"BMS_Seg(\d+)_VA")
+        self.cell_ov_re = re.compile(r"BMS_Seg(\d+)_Cell(\d+)_OV")
+        self.cell_uv_re = re.compile(r"BMS_Seg(\d+)_Cell(\d+)_UV")
+        self.seg_voltage_re = re.compile(r"BMS_Seg(\d+)_Voltage")
+        self.seg_va_ov_re = re.compile(r"BMS_Seg(\d+)_VA_OV")
+        self.seg_va_uv_re = re.compile(r"BMS_Seg(\d+)_VA_UV")
+        self.seg_vd_ov_re = re.compile(r"BMS_Seg(\d+)_VD_OV")
+        self.seg_vd_uv_re = re.compile(r"BMS_Seg(\d+)_VD_UV")
+        self.seg_ced_re = re.compile(r"BMS_Seg(\d+)_CED")
+        self.seg_cmed_re = re.compile(r"BMS_Seg(\d+)_CMED")
+        self.seg_sed_re = re.compile(r"BMS_Seg(\d+)_SED")
+        self.seg_smed_re = re.compile(r"BMS_Seg(\d+)_SMED")
+        self.seg_vde_re = re.compile(r"BMS_Seg(\d+)_VDE")
+        self.seg_vdel_re = re.compile(r"BMS_Seg(\d+)_VDEL")
+        self.seg_thsd_re = re.compile(r"BMS_Seg(\d+)_THSD")
+        self.seg_tmodchk_re = re.compile(r"BMS_Seg(\d+)_TMODCHK")
+        self.seg_oscchk_re = re.compile(r"BMS_Seg(\d+)_OSCCHK")
 
     def run(self):
         """Connect to CAN bus and read messages"""
@@ -218,55 +241,173 @@ class CanDataThread(QObject):
 
         match msg_name:
             case "BMS_SegmentStats":
+                # this one lowkey not too interesting
                 pass
             case "BMS_CellOpenWireCheck":
-                pass
+                for signal_name, value in signals.items():
+                    res = self.owc_signal_name_re.match(signal_name)
+                    assert res  # Should only match voltage signals
+                    seg_idx = int(res.group(1))
+                    cell_idx = int(res.group(2))
+                    assert(seg_idx < 10 and cell_idx < 16)  # Sanity check for indices
+                    self.segment_data[seg_idx].cell_open_wire[cell_idx] = bool(value)
             case "BMS_ThermistorOpenWireCheck":
-                pass
+                for signal_name, value in signals.items():
+                    res = self.therm_owc_signal_name_re.match(signal_name)
+                    assert res  # Should only match voltage signals
+                    seg_idx = int(res.group(1))
+                    cell_idx = int(res.group(2))
+                    assert(seg_idx < 10 and cell_idx < 16)  # Sanity check for indices
+                    self.segment_data[seg_idx].thermistor_open_wire[cell_idx] = bool(value)
             case "BMS_SegmentCommOk":
-                pass
+                for signal_name, value in signals.items():
+                    res = self.seg_comm_ok_re.match(signal_name)
+                    assert res  # Should only match comm ok signals
+                    seg_idx = int(res.group(1))
+                    assert(seg_idx < 10)  # Sanity check for indices
+                    self.segment_data[seg_idx].errors.comm_ok = bool(value)
             case "BMS_SegmentVref2":
-                pass
+                for signal_name, value in signals.items():
+                    res = self.seg_vref2_re.match(signal_name)
+                    assert res  # Should only match Vref2 signals
+                    seg_idx = int(res.group(1))
+                    assert(seg_idx < 10)  # Sanity check for indices
+                    self.segment_data[seg_idx].vref2 = float(value)
             case "BMS_SegmentITMP":
-                pass
+                for signal_name, value in signals.items():
+                    res = self.seg_itmp_re.match(signal_name)
+                    assert res  # Should only match ITMP signals
+                    seg_idx = int(res.group(1))
+                    assert(seg_idx < 10)  # Sanity check for indices
+                    self.segment_data[seg_idx].itmp = float(value)
             case "BMS_SegmentVD":
-                pass
+                for signal_name, value in signals.items():
+                    res = self.seg_vd_re.match(signal_name)
+                    assert res  # Should only match VD signals
+                    seg_idx = int(res.group(1))
+                    assert(seg_idx < 10)  # Sanity check for indices
+                    self.segment_data[seg_idx].vref2 = float(value)
             case "BMS_SegmentVA":
-                pass
-            case "BMS_SegmentVD":
-                pass
+                for signal_name, value in signals.items():
+                    res = self.seg_va_re.match(signal_name)
+                    assert res  # Should only match VA signals
+                    seg_idx = int(res.group(1))
+                    assert(seg_idx < 10)  # Sanity check for indices
+                    self.segment_data[seg_idx].vref2 = float(value)
             case "BMS_CellOverVoltage":
-                pass
+                for signal_name, value in signals.items():
+                    res = self.cell_ov_re.match(signal_name)
+                    assert res  # Should only match overvoltage signals
+                    seg_idx = int(res.group(1))
+                    cell_idx = int(res.group(2))
+                    assert(seg_idx < 10 and cell_idx < 16)  # Sanity check for indices
+                    self.segment_data[seg_idx].cell_overvoltage[cell_idx] = bool(value)
             case "BMS_CellUnderVoltage":
-                pass
+                for signal_name, value in signals.items():
+                    res = self.cell_uv_re.match(signal_name)
+                    assert res  # Should only match undervoltage signals
+                    seg_idx = int(res.group(1))
+                    cell_idx = int(res.group(2))
+                    assert(seg_idx < 10 and cell_idx < 16)  # Sanity check for indices
+                    self.segment_data[seg_idx].cell_undervoltage[cell_idx] = bool(value)
             case "BMS_SegmentVoltages":
-                pass
+                for signal_name, value in signals.items():
+                    res = self.seg_voltage_re.match(signal_name)
+                    assert res  # Should only match segment voltage signals
+                    seg_idx = int(res.group(1))
+                    assert(seg_idx < 10)  # Sanity check for indices
+                    self.segment_data[seg_idx].total_voltage = float(value)
             case "BMS_SegmentVA_OV":
-                pass
+                for signal_name, value in signals.items():
+                    res = self.seg_va_ov_re.match(signal_name)
+                    assert res  # Should only match VA_OV signals
+                    seg_idx = int(res.group(1))
+                    assert(seg_idx < 10)  # Sanity check for indices
+                    self.segment_data[seg_idx].errors.va_ov = bool(value)
             case "BMS_SegmentVA_UV":
-                pass
+                for signal_name, value in signals.items():
+                    res = self.seg_va_uv_re.match(signal_name)
+                    assert res  # Should only match VA_UV signals
+                    seg_idx = int(res.group(1))
+                    assert(seg_idx < 10)  # Sanity check for indices
+                    self.segment_data[seg_idx].errors.va_uv = bool(value)
             case "BMS_SegmentVD_OV":
-                pass
+                for signal_name, value in signals.items():
+                    res = self.seg_vd_ov_re.match(signal_name)
+                    assert res  # Should only match VD_OV signals
+                    seg_idx = int(res.group(1))
+                    assert(seg_idx < 10)  # Sanity check for indices
+                    self.segment_data[seg_idx].errors.vd_ov = bool(value)
             case "BMS_SegmentVD_UV":
-                pass
+                for signal_name, value in signals.items():
+                    res = self.seg_vd_uv_re.match(signal_name)
+                    assert res  # Should only match VD_UV signals
+                    seg_idx = int(res.group(1))
+                    assert(seg_idx < 10)  # Sanity check for indices
+                    self.segment_data[seg_idx].errors.vd_uv = bool(value)
             case "BMS_SegmentCED":
-                pass
+                for signal_name, value in signals.items():
+                    res = self.seg_ced_re.match(signal_name)
+                    assert res  # Should only match CED signals
+                    seg_idx = int(res.group(1))
+                    assert(seg_idx < 10)  # Sanity check for indices
+                    self.segment_data[seg_idx].errors.ced = bool(value)
             case "BMS_SegmentCMED":
-                pass
+                for signal_name, value in signals.items():
+                    res = self.seg_cmed_re.match(signal_name)
+                    assert res  # Should only match CMED signals
+                    seg_idx = int(res.group(1))
+                    assert(seg_idx < 10)  # Sanity check for indices
+                    self.segment_data[seg_idx].errors.cmed = bool(value)
             case "BMS_SegmentSED":
-                pass
+                for signal_name, value in signals.items():
+                    res = self.seg_sed_re.match(signal_name)
+                    assert res  # Should only match SED signals
+                    seg_idx = int(res.group(1))
+                    assert(seg_idx < 10)  # Sanity check for indices
+                    self.segment_data[seg_idx].errors.sed = bool(value)
             case "BMS_SegmentSMED":
-                pass
+                for signal_name, value in signals.items():
+                    res = self.seg_smed_re.match(signal_name)
+                    assert res  # Should only match SMED signals
+                    seg_idx = int(res.group(1))
+                    assert(seg_idx < 10)  # Sanity check for indices
+                    self.segment_data[seg_idx].errors.smed = bool(value)
             case "BMS_SegmentVDE":
-                pass
+                for signal_name, value in signals.items():
+                    res = self.seg_vde_re.match(signal_name)
+                    assert res  # Should only match VDE signals
+                    seg_idx = int(res.group(1))
+                    assert(seg_idx < 10)  # Sanity check for indices
+                    self.segment_data[seg_idx].errors.vde = bool(value)
             case "BMS_SegmentVDEL":
-                pass
+                for signal_name, value in signals.items():
+                    res = self.seg_vdel_re.match(signal_name)
+                    assert res  # Should only match VDEL signals
+                    seg_idx = int(res.group(1))
+                    assert(seg_idx < 10)  # Sanity check for indices
+                    self.segment_data[seg_idx].errors.vdel = bool(value)
             case "BMS_SegmentTHSD":
-                pass
+                for signal_name, value in signals.items():
+                    res = self.seg_thsd_re.match(signal_name)
+                    assert res  # Should only match THSD signals
+                    seg_idx = int(res.group(1))
+                    assert(seg_idx < 10)  # Sanity check for indices
+                    self.segment_data[seg_idx].errors.thsd = bool(value)
             case "BMS_SegmentTMODCHK":
-                pass
+                for signal_name, value in signals.items():
+                    res = self.seg_tmodchk_re.match(signal_name)
+                    assert res  # Should only match TMODCHK signals
+                    seg_idx = int(res.group(1))
+                    assert(seg_idx < 10)  # Sanity check for indices
+                    self.segment_data[seg_idx].errors.tmodchk = bool(value)
             case "BMS_SegmentOSCCHK":
-                pass
+                for signal_name, value in signals.items():
+                    res = self.seg_oscchk_re.match(signal_name)
+                    assert res  # Should only match OSCCHK signals
+                    seg_idx = int(res.group(1))
+                    assert(seg_idx < 10)  # Sanity check for indices
+                    self.segment_data[seg_idx].errors.oscchk = bool(value)
             case "BMS_CellVoltages_Seg0_Seg3" | "BMS_CellVoltages_Seg4_Seg7" | "BMS_CellVoltages_Seg8_Seg9":
                 for signal_name, value in signals.items():
                     # Parse cell voltage signals: BMS_SegN_CellM_Voltage
