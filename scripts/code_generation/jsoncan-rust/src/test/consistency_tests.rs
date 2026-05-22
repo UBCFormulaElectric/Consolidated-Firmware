@@ -37,6 +37,7 @@ fn test_null() {
         buses: vec![],
         shared_enums: Vec::new(),
         forwarding: Vec::new(),
+        data_capture_nodes: Vec::new(),
     };
     let cdb = CanDatabase::from(p);
     assert!(cdb.is_ok());
@@ -63,6 +64,7 @@ fn test_valid_node_on_valid_bus() {
         }],
         shared_enums: Vec::new(),
         forwarding: Vec::new(),
+        data_capture_nodes: Vec::new(),
     };
     let cdb = CanDatabase::from(p);
     assert!(cdb.is_ok());
@@ -82,6 +84,7 @@ fn test_invalid_node_on_valid_bus() {
         }],
         shared_enums: vec![],
         forwarding: vec![],
+        data_capture_nodes: Vec::new(),
     };
     let cdb = CanDatabase::from(p);
     assert!(cdb.is_err());
@@ -108,6 +111,7 @@ fn test_bus_default_mode_invalid() {
         }],
         shared_enums: vec![],
         forwarding: vec![],
+        data_capture_nodes: Vec::new(),
     };
     let cdb = CanDatabase::from(p);
     assert!(cdb.is_err());
@@ -145,6 +149,7 @@ fn test_bus_forwarding_has_invalid_bus() {
             bus2_name: "Bus2".into(),
             forwarder_name: "Forwarder1".into(),
         }],
+        data_capture_nodes: Vec::new(),
     };
     let cdb = CanDatabase::from(p);
     assert!(cdb.is_err());
@@ -179,6 +184,7 @@ fn test_bus_forwarding_has_invalid_bus() {
             bus2_name: "Bus1".into(),
             forwarder_name: "Forwarder1".into(),
         }],
+        data_capture_nodes: Vec::new(),
     };
     let cdb = CanDatabase::from(p);
     assert!(cdb.is_err());
@@ -216,6 +222,7 @@ fn test_bus_forwarding_has_same_bus() {
             bus2_name: "Bus1".into(),
             forwarder_name: "Forwarder1".into(),
         }],
+        data_capture_nodes: Vec::new(),
     };
     let cdb = CanDatabase::from(p);
     assert!(cdb.is_err());
@@ -237,6 +244,7 @@ fn test_buses_consistent() {
         buses: vec![],
         shared_enums: Vec::new(),
         forwarding: Vec::new(),
+        data_capture_nodes: Vec::new(),
     };
     let cdb = CanDatabase::from(p).unwrap();
 
@@ -287,6 +295,7 @@ fn test_bus_name_collision() {
         ],
         shared_enums: Vec::new(),
         forwarding: Vec::new(),
+        data_capture_nodes: Vec::new(),
     };
     let cdb = CanDatabase::from(p);
     assert!(cdb.is_err());
@@ -326,6 +335,7 @@ fn test_enum_name_collision() {
         buses: vec![],
         shared_enums: Vec::new(),
         forwarding: Vec::new(),
+        data_capture_nodes: Vec::new(),
     };
     let cdb = CanDatabase::from(p);
     assert!(cdb.is_err());
@@ -353,6 +363,7 @@ fn test_enum_name_collision() {
             values: HashMap::new(),
         }],
         forwarding: Vec::new(),
+        data_capture_nodes: Vec::new(),
     };
     let cdb = CanDatabase::from(p);
     assert!(cdb.is_err());
@@ -377,6 +388,7 @@ fn test_msg_name_collision() {
         buses: Vec::new(),
         shared_enums: Vec::new(),
         forwarding: Vec::new(),
+        data_capture_nodes: Vec::new(),
     };
     let cdb = CanDatabase::from(p);
     assert!(cdb.is_ok());

@@ -65,6 +65,7 @@ pub struct CanDatabase {
     pub buses: Vec<CanBus>,
     pub forwarding: Vec<BusForwarder>,
     pub shared_enums: Vec<CanEnum>,
+    pub data_capture_nodes: Vec<String>,
 }
 
 impl CanDatabase {
@@ -76,6 +77,7 @@ impl CanDatabase {
         buses: Vec<CanBus>,
         forwarding: Vec<BusForwarder>,
         shared_enums: Vec<CanEnum>,
+        data_capture_nodes: Vec<String>,
     ) -> Result<Self, CanDBError> {
         let manager = SqliteConnectionManager::file(format!(
             "file:{}-{}?mode=memory&cache=shared",
@@ -133,6 +135,7 @@ impl CanDatabase {
             nodes: Vec::new(),
             forwarding,
             shared_enums,
+            data_capture_nodes,
         })
     }
 

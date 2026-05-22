@@ -70,7 +70,12 @@ impl CanDatabase {
         }
 
         // one can check that all fields of parser are used here
-        let mut db = CanDatabase::construct(parser.buses, parser.forwarding, parser.shared_enums)?;
+        let mut db = CanDatabase::construct(
+            parser.buses,
+            parser.forwarding,
+            parser.shared_enums,
+            parser.data_capture_nodes,
+        )?;
 
         // stupid ahh lifetime hacks
         let mut rx_msg_names_to_resolve: Vec<(String, Vec<String>)> = Vec::new();

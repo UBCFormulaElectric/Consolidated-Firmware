@@ -36,6 +36,7 @@ pub struct JsonCanParser {
     pub buses: Vec<CanBus>,
     pub shared_enums: Vec<CanEnum>,
     pub forwarding: Vec<BusForwarder>,
+    pub data_capture_nodes: Vec<String>,
 }
 
 // From a specified directory, creates empty CanNode objects for each represented nodes (from folders)
@@ -69,7 +70,7 @@ impl JsonCanParser {
      */
     pub fn new(can_data_dir: String) -> Self {
         let node_names: Vec<String> = list_nodes_from_folders(&can_data_dir);
-        let (buses, forwarding, loggers) = parse_bus_data(&can_data_dir);
+        let (buses, forwarding, loggers, data_capture_nodes) = parse_bus_data(&can_data_dir);
 
         for logger in &loggers {
             if !node_names.contains(logger) {
@@ -110,6 +111,7 @@ impl JsonCanParser {
             buses,
             shared_enums: parse_shared_enums(&can_data_dir),
             forwarding,
+            data_capture_nodes,
         }
     }
 }

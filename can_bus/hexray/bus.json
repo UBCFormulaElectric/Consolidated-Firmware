@@ -66,5 +66,8 @@
   ],
   "loggers": [
     "DAMLogger"
+  ],
+  "data_capture_nodes": [
+    "DAM"
   ]
 }

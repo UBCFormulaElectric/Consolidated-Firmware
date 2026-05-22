@@ -10,6 +10,7 @@
 #include "app_canUtils.hpp"
 
 namespace app::can_data_capture {
+{%- if enabled %}
 /* -------------------------------- Macros -------------------------------- */
 
 
@@ -49,7 +50,7 @@ void init()
     {{msg.name}}_next_log_time_ms = 0U;
     {%- endif %}
     {%- endfor %}
-    
+
     // Reset next telem capture times.
     {%- for msg in messages %}
     {%- if msg.telem_cycle_time.is_some() && msg.telem_cycle_time != msg.cycle_time %}
@@ -122,4 +123,11 @@ bool needsTelem(uint32_t msg_id, uint32_t time_ms)
     }
     return false;
 }
+{%- else %}
+/* ------------------------- Function Definitions ------------------------- */
+// Data capture is not enabled for this node (see bus.json data_capture_nodes).
+void init() {}
+bool needsLog(uint32_t, uint32_t) { return false; }
+bool needsTelem(uint32_t, uint32_t) { return false; }
+{%- endif %}
 }
