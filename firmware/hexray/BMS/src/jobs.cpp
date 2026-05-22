@@ -103,12 +103,9 @@ void jobs_run100Hz_tick()
 
     // Fault Latches
     using FaultLatchState = io::FaultLatch::FaultLatchState;
-#ifdef TARGET_HV_SUPPLY
+    // app::segments::faults::checkWarnings();
+    // const bool acc_fault = app::segments::faults::checkFaults();
     const bool acc_fault = false;
-#else
-    app::segments::faults::checkWarnings();
-    const bool acc_fault = app::segments::faults::checkFaults();
-#endif
     bms_ok_latch.setCurrentStatus(acc_fault ? FaultLatchState::FAULT : FaultLatchState::OK);
     app::latches::broadcast();
 
@@ -142,7 +139,7 @@ void jobs_run1kHz_tick()
 
 void jobs_runAdbmsVoltages_tick()
 {
-    LOG_IF_ERR(app::segments::config::waitForSync());
+    LOG_IF_ERR(app::segments::config::waitForSync(3000));
 
     Cells<result<float>> voltages;
     Cells<result<bool>> owc;
@@ -154,7 +151,7 @@ void jobs_runAdbmsVoltages_tick()
     }
     
     app::segments::broadcast::cellVoltages(voltages);
-    app::segments::broadcast::owc(owc);
+    app::segments::broadcast::cellOwc(owc);
     
 }
 
@@ -166,7 +163,7 @@ void jobs_runAdbmsConfigs_tick()
 
 void jobs_runAdbmsAux_tick()
 {
-    LOG_IF_ERR(app::segments::config::waitForSync());
+    LOG_IF_ERR(app::segments::config::waitForSync(3000));
 
     std::pair<Therms<result<float>>, Therms<result<bool>>> therm;
     Segments<io::adbms::StatusGroups>  status;
@@ -180,4 +177,8 @@ void jobs_runAdbmsAux_tick()
         seg_voltage = app::segments::conversion::segVoltage();
     }
 
+    app::segments::broadcast::thermTemps(therm.first);
+    app::segments::broadcast::thermOwc(therm.second);
+    app::segments::broadcast::status(status);
+    app::segments::broadcast::segVoltages(seg_voltage);
 }

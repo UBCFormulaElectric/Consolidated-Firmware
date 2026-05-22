@@ -231,7 +231,7 @@ void tasks_runAdbmsVoltages(void *arg)
 
 void tasks_runAdbmsConfigs(void *arg)
 {
-    const uint32_t period_ms   = 500U;
+    const uint32_t period_ms   = 200U;
     uint32_t       start_ticks = osKernelGetTickCount();
 
     forever

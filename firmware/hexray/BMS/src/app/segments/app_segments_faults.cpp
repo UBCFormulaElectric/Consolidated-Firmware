@@ -1,3 +1,4 @@
+#if 0
 #include "app_segments.hpp"
 #include "app_segments_internal.hpp"
 #include "app_timer.hpp"
@@ -143,3 +144,4 @@ bool checkFaults()
     return fault_checker.check(settled);
 }
 } // namespace app::segments::faults
+#endif

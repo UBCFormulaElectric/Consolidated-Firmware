@@ -3,6 +3,7 @@
 #include "app_segments_internal.hpp"
 #include "app_segments.hpp"
 #include "app_canTx.hpp"
+#include "io_canTx.hpp"
 #include "io_semaphore.hpp"
 
 namespace
@@ -114,6 +115,8 @@ const std::span<bool, MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT> cell_uv_buffer =
     CellBroadcastBuffer<bool>(app::can_tx::BMS_CellUnderVoltage_getData());
 const std::span<bool, MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT> cell_owc_ok_buffer =
     CellBroadcastBuffer<bool>(app::can_tx::BMS_CellOpenWireCheck_getData());
+const std::span<bool, MAX_NUM_SEGMENTS * CELLS_PER_SEGMENT> therm_owc_ok_buffer =
+    CellBroadcastBuffer<bool>(app::can_tx::BMS_ThermistorOpenWireCheck_getData());
 
 } // namespace
 
@@ -130,7 +133,7 @@ void cellVoltages(const Cells<result<float>> &voltages)
         {
             if (!voltages[seg][cell])
             {
-                cell_voltage_setters[seg][cell] = 0.0f;
+                cell_voltage_setters[seg][cell] = -0.1f;
                 continue;
             }
             const float voltage             = voltages[seg][cell].value();
@@ -143,24 +146,29 @@ void cellVoltages(const Cells<result<float>> &voltages)
             candidate_max_cell_voltage = std::max(candidate_max_cell_voltage, current_cell_voltage);
             candidate_min_cell_voltage = std::min(candidate_min_cell_voltage, current_cell_voltage);
         }
-        comm_ok_buffer[seg] = state::isOk(seg);
+        comm_ok_buffer[seg] = health::isOk(seg);
     }
 
-    state::setVoltageStats(voltages, candidate_min_cell_voltage, candidate_max_cell_voltage);
+    health::setVoltageStats(voltages, candidate_min_cell_voltage, candidate_max_cell_voltage);
+
+    using namespace io::can_tx;
+    BMS_CellVoltages_Seg0_Seg3_sendAperiodic();
+    BMS_CellVoltages_Seg4_Seg7_sendAperiodic();
+    BMS_CellVoltages_Seg8_Seg9_sendAperiodic();
+    BMS_SegmentCommOk_sendAperiodic();
 }
 
-void temps(const Therms<result<float>> &temps, const Therms<result<bool>> &therm_owc)
+void thermTemps(const Therms<result<float>> &temps)
 {
     CellParam candidate_max_cell_temp = { .segment = 0, .cell = 0, .value = __FLT_MIN__ };
     CellParam candidate_min_cell_temp = { .segment = 0, .cell = 0, .value = __FLT_MAX__ };
-    bool      candidate_therm_owc     = false;
 
     for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
     {
         for (size_t therm = 0U; therm < THERMISTORS_PER_SEGMENT; therm++)
         {
             const auto &r                        = temps[seg][therm];
-            cell_temperature_setters[seg][therm] = r.value_or(0.0f);
+            cell_temperature_setters[seg][therm] = r.value_or(-0.1f);
             if (r)
             {
                 const CellParam current_cell_temp{
@@ -171,13 +179,35 @@ void temps(const Therms<result<float>> &temps, const Therms<result<bool>> &therm
                 candidate_max_cell_temp = std::max(candidate_max_cell_temp, current_cell_temp);
                 candidate_min_cell_temp = std::min(candidate_min_cell_temp, current_cell_temp);
             }
-            if (!therm_owc[seg][therm].value_or(true))
-                candidate_therm_owc = true;
         }
-        comm_ok_buffer[seg] = state::isOk(seg);
+        comm_ok_buffer[seg] = health::isOk(seg);
     }
 
-    state::setTempStats(candidate_max_cell_temp, candidate_therm_owc);
+    health::setMaxCellTemperature(candidate_max_cell_temp);
+
+    using namespace io::can_tx;
+    BMS_CellTemps_Seg0_Seg3_sendAperiodic();
+    BMS_CellTemps_Seg4_Seg7_sendAperiodic();
+    BMS_CellTemps_Seg8_Seg9_sendAperiodic();
+    BMS_SegmentCommOk_sendAperiodic();
+}
+
+void thermOwc(const Therms<result<bool>> &therm_owc)
+{
+    bool candidate_therm_owc = false;
+    for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
+    {
+        for (size_t therm = 0U; therm < THERMISTORS_PER_SEGMENT; therm++)
+        {
+            const bool ok = therm_owc[seg][therm].value_or(true);
+            therm_owc_ok_buffer[seg * CELLS_PER_SEGMENT + therm] = ok;
+            if (!ok)
+                candidate_therm_owc = true;
+        }
+    }
+    health::setThermOwc(candidate_therm_owc);
+
+    io::can_tx::BMS_ThermistorOpenWireCheck_sendAperiodic();
 }
 
 void segVoltages(const Segments<result<float>> &seg_voltages)
@@ -192,7 +222,7 @@ void segVoltages(const Segments<result<float>> &seg_voltages)
     {
         const auto &r               = seg_voltages[seg];
         comm_ok_buffer[seg]         = r.has_value();
-        segment_voltage_buffer[seg] = r.value_or(0.0f);
+        segment_voltage_buffer[seg] = r.value_or(-0.1f);
 
         if (!r)
             continue;
@@ -216,9 +246,13 @@ void segVoltages(const Segments<result<float>> &seg_voltages)
     app::can_tx::BMS_MaxSegmentVoltage_Voltage_set(max_voltage);
     app::can_tx::BMS_MinSegmentVoltage_Segment_set(min_seg);
     app::can_tx::BMS_MinSegmentVoltage_Voltage_set(min_voltage);
+
+    using namespace io::can_tx;
+    BMS_SegmentVoltages_sendAperiodic();
+    BMS_SegmentCommOk_sendAperiodic();
 }
 
-void status(const Status &status)
+void status(const Segments<io::adbms::StatusGroups> &status)
 {
     for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
     {
@@ -260,9 +294,34 @@ void status(const Status &status)
                 stat_d && static_cast<bool>((stat_d->covuv >> (2U * cell + 1U)) & 1U);
         }
     }
+
+    using namespace io::can_tx;
+    // STATA / STATB analog readings
+    BMS_SegmentVref2_sendAperiodic();
+    BMS_SegmentITMP_sendAperiodic();
+    BMS_SegmentVD_sendAperiodic();
+    BMS_SegmentVA_sendAperiodic();
+    BMS_SegmentVRES_sendAperiodic();
+    // STATC fault bits
+    BMS_SegmentVA_OV_sendAperiodic();
+    BMS_SegmentVA_UV_sendAperiodic();
+    BMS_SegmentVD_OV_sendAperiodic();
+    BMS_SegmentVD_UV_sendAperiodic();
+    BMS_SegmentCED_sendAperiodic();
+    BMS_SegmentCMED_sendAperiodic();
+    BMS_SegmentSED_sendAperiodic();
+    BMS_SegmentSMED_sendAperiodic();
+    BMS_SegmentVDE_sendAperiodic();
+    BMS_SegmentVDEL_sendAperiodic();
+    BMS_SegmentTHSD_sendAperiodic();
+    BMS_SegmentTMODCHK_sendAperiodic();
+    BMS_SegmentOSCCHK_sendAperiodic();
+    // STATD per-cell OV/UV
+    BMS_CellOverVoltage_sendAperiodic();
+    BMS_CellUnderVoltage_sendAperiodic();
 }
 
-void owc(const Cells<result<bool>> &owc_results)
+void cellOwc(const Cells<result<bool>> &owc_results)
 {
     bool candidate_cell_owc = false;
 
@@ -270,12 +329,15 @@ void owc(const Cells<result<bool>> &owc_results)
     {
         for (size_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
         {
-            cell_owc_ok_buffer[seg * CELLS_PER_SEGMENT + cell] = owc_results[seg][cell].value_or(false);
-            if (!owc_results[seg][cell].value_or(false))
+            const bool ok = owc_results[seg][cell].value_or(true);
+            cell_owc_ok_buffer[seg * CELLS_PER_SEGMENT + cell] = ok;
+            if (!ok)
                 candidate_cell_owc = true;
         }
     }
 
-    state::setCellOwc(candidate_cell_owc);
+    health::setCellOwc(candidate_cell_owc);
+
+    io::can_tx::BMS_CellOpenWireCheck_sendAperiodic();
 }
 } // namespace app::segments::broadcast

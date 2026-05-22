@@ -119,11 +119,16 @@ void setVoltageStats(const Cells<result<float>> &latest, const CellParam<float> 
     latest_max_cell_voltage = max;
 }
 
-void setTempStats(const CellParam<float> max_temp, const bool any_therm_owc)
+void setMaxCellTemperature(const CellParam<float> max_temp)
 {
     const io::unique_semaphore lock{ temperature_lock };
     latest_max_cell_temperature = max_temp;
-    latest_therm_owc            = any_therm_owc;
+}
+
+void setThermOwc(const bool any_therm_owc)
+{
+    const io::unique_semaphore lock{ temperature_lock };
+    latest_therm_owc = any_therm_owc;
 }
 
 void setCellOwc(const bool any_cell_owc)

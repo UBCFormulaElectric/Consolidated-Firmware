@@ -43,7 +43,7 @@ namespace config
     void setBalanceConfig(const Cells<bool> &balance_config, const Cells<uint8_t> &pwm_duty, bool balancing_enabled);
     void setThermistorConfig(ThermistorMux mux);
     void         configSync();
-    result<void> waitForSync(uint32_t timeout_ms = hw::notify::DEFAULT_NOTIFY_TIMEOUT_MS);
+    result<void> waitForSync(uint32_t timeout_ms);
 } // namespace config
 
 // app_segments_balancing.cpp
@@ -58,10 +58,11 @@ namespace balancing
 namespace broadcast
 {
     void cellVoltages(const Cells<result<float>> &voltages);
-    void temps(const Therms<result<float>> &temps, const Therms<result<bool>> &therm_owc);
+    void thermTemps(const Therms<result<float>> &temps);
+    void thermOwc(const Therms<result<bool>> &therm_owc);
     void segVoltages(const Segments<result<float>> &seg_voltages);
     void status(const Segments<io::adbms::StatusGroups> &status);
-    void owc(const Cells<result<bool>> &owc_results);
+    void cellOwc(const Cells<result<bool>> &owc_results);
 } // namespace broadcast
 
 // app_segments_health.cpp
@@ -98,16 +99,17 @@ namespace health
     bool                 getThermOwc();
 
     void setVoltageStats(const Cells<result<float>> &latest, CellParam<float> min, CellParam<float> max);
-    void setTempStats(CellParam<float> max_temp, bool any_therm_owc);
+    void setMaxCellTemperature(CellParam<float> max_temp);
+    void setThermOwc(bool any_therm_owc);
     void setCellOwc(bool any_cell_owc);
 } // namespace health
 
 // app_segments_faults.cpp
-namespace faults
-{
-    bool checkWarnings();
-    bool checkFaults();
-} // namespace faults
+// namespace faults
+// {
+//     bool checkWarnings();
+//     bool checkFaults();
+// } // namespace faults
 
 // app_segments_conversions.cpp
 namespace startPoll
