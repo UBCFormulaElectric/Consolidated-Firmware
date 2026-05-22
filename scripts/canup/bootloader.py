@@ -230,7 +230,7 @@ class Bootloader:
                     "Programming data", self.size_bytes(), i * CAN_FRAME_SIZE
                 )
 
-            data = [self.ih[address + i] for i in range(0, 8)]
+            data = [self.ih[address + offset] for offset in range(0, CAN_FRAME_SIZE)]
 
             success = False
             while not success:
@@ -423,6 +423,8 @@ class Bootloader:
 
         """
         return int(
-            math.ceil((self.ih.maxaddr() - self.ih.minaddr()) / MIN_PROG_SIZE_BYTES)
+            math.ceil(
+                (self.ih.maxaddr() - self.ih.minaddr() + 1) / MIN_PROG_SIZE_BYTES
+            )
             * MIN_PROG_SIZE_BYTES
         )

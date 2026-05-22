@@ -95,6 +95,7 @@ def update(configs: List[boards.Board], build_dir: str, is_fd: bool) -> None:
                 is_fd=is_fd,
             ),
             ih=intelhex.IntelHex(os.path.join(build_dir, board.path)),
+            is_fd=is_fd,
             inbox=inbox_q,
             send_lock=send_lock,
         )
@@ -162,13 +163,15 @@ def update(configs: List[boards.Board], build_dir: str, is_fd: bool) -> None:
                 f"[bold green]Firmware update successfully ({num_boards} board{'s' if num_boards > 1 else ''} updated)"
             )
 
-        # stop receiver and return boards to application
+        all_goto_app(live, bootloaders)
         stop_event.set()
         receiver.join(timeout=2)
-        all_goto_app(live, bootloaders)
+
+    if exceptions:
+        raise RuntimeError(f"Firmware update failed for {len(exceptions)} board(s)")
 
 
-def erase(configs: List[boards.Board]) -> None:
+def erase(configs: List[boards.Board], is_fd: bool) -> None:
     """Erase and handle UI."""
     # push all boards into bootloader
     num_boards = len(configs)
@@ -183,6 +186,7 @@ def erase(configs: List[boards.Board]) -> None:
                 description=description,
                 completed=completed,
             ),
+            is_fd=is_fd,
         )
         for board in configs
     ]
