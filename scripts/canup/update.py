@@ -8,6 +8,9 @@ Main driver script used to update code over the CAN bus.
 import argparse
 import os
 from typing import List
+import threading
+import queue
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import can
 import intelhex
@@ -58,7 +61,7 @@ def all_goto_app(live: Live, bootloaders: List[bootloader.Bootloader]):
         )
         if not bootload_board.goto_app():
             raise TimeoutError(
-                "Failed to send application command to {bootload_board.board.name}"
+                f"Failed to send application command to {bootload_board.board.name}"
             )
     progress.remove_task(app_task)
     live.console.log(
@@ -70,8 +73,18 @@ def update(configs: List[boards.Board], build_dir: str, is_fd: bool) -> None:
     """Update and handle UI."""
     num_boards = len(configs)
     steps_task = progress.add_task("Steps")
-    bootloaders: List[bootloader.Bootloader] = [
-        bootloader.Bootloader(
+    # Create per-board inboxes and a shared send lock. A single receiver will
+    # route incoming CAN messages to the appropriate inbox so workers can
+    # operate concurrently without stealing each other's replies.
+    send_lock = threading.Lock()
+    inbox_map: dict = {}
+    bootloaders: List[bootloader.Bootloader] = []
+    for board in configs:
+        inbox_q: queue.Queue = queue.Queue()
+        # map both boot and app base IDs to the same inbox
+        inbox_map[board.boot_id_range_start] = inbox_q
+        inbox_map[board.app_id_range_start] = inbox_q
+        b = bootloader.Bootloader(
             bus=bus,
             board=board,
             ui_callback=lambda description, total, completed: progress.update(
@@ -82,35 +95,76 @@ def update(configs: List[boards.Board], build_dir: str, is_fd: bool) -> None:
                 is_fd=is_fd,
             ),
             ih=intelhex.IntelHex(os.path.join(build_dir, board.path)),
+            inbox=inbox_q,
+            send_lock=send_lock,
         )
-        for board in configs
-    ]
+        bootloaders.append(b)
 
-    # push all boards into bootloader
+    # push all boards into bootloader and run updates concurrently
+    stop_event = threading.Event()
+
+    def receiver_thread_fn():
+        while not stop_event.is_set():
+            try:
+                rx = bus.recv(timeout=1)
+            except Exception:
+                continue
+            if rx is None:
+                continue
+            # compute base id by zeroing low 8 bits (protocol uses low 8 bits for command)
+            base = rx.arbitration_id & ~0xFF
+            q = inbox_map.get(base)
+            if q is not None:
+                q.put(rx)
+
+    receiver = threading.Thread(target=receiver_thread_fn, daemon=True)
+
     with Live(Group(status, progress), transient=True) as live:
-        # push all boards into bootloader
+        receiver.start()
+        # put devices into bootloader first (they will respond to the receiver)
         all_goto_bootloader(live, bootloaders)
         live.console.log(
             f"Updating firmware for boards: [blue bold]{', '.join(board.name for board in configs)}"
         )
-        for b_idx, bootload_board in enumerate(bootloaders):
-            # TODO do this in parallel
-            progress.update(
-                task_id=steps_task,
-                total=0,
-                completed=0,
-                description=f"Starting update for {bootload_board.board.name}",
-            )
-            status.update(
-                f"Updating board [yellow]{b_idx + 1}/{num_boards}[/]: [blue bold]{bootload_board.board.name}"
-            )
-            bootload_board.update()
-            live.console.log(f"[green]{bootload_board.board.name} updated successfully")
+
+        exceptions = []
+
+        def worker(bootload_board: bootloader.Bootloader, idx: int) -> None:
+            try:
+                progress.update(
+                    task_id=steps_task,
+                    total=0,
+                    completed=0,
+                    description=f"Starting update for {bootload_board.board.name}",
+                )
+                status.update(
+                    f"Updating board [yellow]{idx + 1}/{num_boards}[/]: [blue bold]{bootload_board.board.name}"
+                )
+                bootload_board.update()
+                live.console.log(f"[green]{bootload_board.board.name} updated successfully")
+            except Exception as e:
+                live.console.log(f"[red]Failed to update {bootload_board.board.name}: {e}")
+                exceptions.append(e)
+
+        with ThreadPoolExecutor(max_workers=len(bootloaders)) as ex:
+            futures = [ex.submit(worker, b, i) for i, b in enumerate(bootloaders)]
+            for f in as_completed(futures):
+                try:
+                    f.result()
+                except Exception:
+                    pass
+
         progress.remove_task(steps_task)
-        live.console.log(
-            f"[bold green]Firmware update successfully ({num_boards} board{'s' if num_boards > 1 else ''} updated)"
-        )
-        # push all boards out of bootloader
+        if exceptions:
+            live.console.log(f"[red]One or more updates failed ({len(exceptions)} errors)")
+        else:
+            live.console.log(
+                f"[bold green]Firmware update successfully ({num_boards} board{'s' if num_boards > 1 else ''} updated)"
+            )
+
+        # stop receiver and return boards to application
+        stop_event.set()
+        receiver.join(timeout=2)
         all_goto_app(live, bootloaders)
 
 

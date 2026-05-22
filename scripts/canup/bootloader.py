@@ -6,6 +6,8 @@ Class used to interface with a embedded CAN bootloader.
 """
 
 from typing import Callable, Optional
+import queue
+import threading
 import math
 import can
 import time
@@ -55,6 +57,8 @@ class Bootloader:
         ih: intelhex.IntelHex = None,
         timeout: int = 1000,
         is_fd: bool = False,
+        inbox: Optional[queue.Queue] = None,
+        send_lock: Optional[threading.Lock] = None,
     ) -> None:
         self.bus: can.Bus = bus
         self.ih: intelhex.IntelHex = ih
@@ -62,6 +66,24 @@ class Bootloader:
         self.timeout: int = timeout
         self.ui_callback: Callable = ui_callback
         self.is_fd = is_fd
+        # Optional inbox for routed messages (used when a receiver/dispatcher is active)
+        self.inbox: Optional[queue.Queue] = inbox
+        # Optional lock to protect bus.send across threads
+        self.send_lock: Optional[threading.Lock] = send_lock
+
+    def _send(self, msg: can.Message, timeout: Optional[float] = None) -> None:
+        if self.send_lock:
+            with self.send_lock:
+                # preserve timeout semantics
+                if timeout is not None:
+                    self.bus.send(msg, timeout=timeout)
+                else:
+                    self.bus.send(msg)
+        else:
+            if timeout is not None:
+                self.bus.send(msg, timeout=timeout)
+            else:
+                self.bus.send(msg)
 
     def goto_bootloader(self) -> bool:
         """
@@ -69,9 +91,8 @@ class Bootloader:
         :throws: TimeoutError if the boards do not respond
         :return: None
         """
-        self.bus.send(
+        self._send(
             can.Message(
-                # arbitration_id=board_config.app_id_range_start + 8,
                 arbitration_id=(
                     self.board.boot_id_range_start | GO_TO_BOOT_CAN_ID_LOWBITS
                 ),
@@ -92,7 +113,7 @@ class Bootloader:
         )
 
     def goto_app(self) -> bool:
-        self.bus.send(
+        self._send(
             can.Message(
                 arbitration_id=self.board.boot_id_range_start | GO_TO_APP_LOWBITS,
                 data=[],
@@ -130,7 +151,7 @@ class Bootloader:
                 else None
             )
 
-        self.bus.send(
+        self._send(
             can.Message(
                 arbitration_id=self.board.boot_id_range_start | START_UPDATE_ID_LOWBITS,
                 data=[],
@@ -172,7 +193,7 @@ class Bootloader:
             if sector.write_protect:
                 raise RuntimeError(f"Attempted to write to a readonly memory sector!{sectors}")
 
-            self.bus.send(
+            self._send(
                 can.Message(
                     arbitration_id=self.board.boot_id_range_start
                     | ERASE_SECTOR_CAN_ID_LOWBITS,
@@ -214,7 +235,7 @@ class Bootloader:
             success = False
             while not success:
                 try:
-                    self.bus.send(
+                    self._send(
                         can.Message(
                             arbitration_id=self.board.boot_id_range_start
                             | PROGRAM_CAN_ID_LOWBITS,
@@ -255,7 +276,7 @@ class Bootloader:
                 else None
             )
 
-        self.bus.send(
+        self._send(
             can.Message(
                 arbitration_id=self.board.boot_id_range_start | VERIFY_CAN_ID_LOWBITS,
                 data=[],
@@ -374,9 +395,18 @@ class Bootloader:
 
         start = time.time()
         while time.time() - start < timeout:
-            rx_msg: can.Message = self.bus.recv(timeout=1)
-            if rx_msg is None:
-                continue
+            # If an inbox is present, read routed messages from it. Otherwise fall back to
+            # reading directly from the bus.
+            if self.inbox is not None:
+                try:
+                    rx_msg: can.Message = self.inbox.get(timeout=1)
+                except queue.Empty:
+                    continue
+            else:
+                rx_msg: can.Message = self.bus.recv(timeout=1)
+                if rx_msg is None:
+                    continue
+
             if validator(rx_msg):
                 return rx_msg
         return None
