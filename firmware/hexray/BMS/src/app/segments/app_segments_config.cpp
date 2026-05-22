@@ -129,8 +129,6 @@ result<void> configSync()
     {
         const auto config_equal = isConfigEqual();
         RETURN_IF_ERR(config_equal);
-        // if (config_equal.value())
-        //     return {};
         dirty |= !config_equal.value();
     }
 

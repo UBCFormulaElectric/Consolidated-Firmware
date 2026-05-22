@@ -45,9 +45,7 @@ result<void> command::pollCellsAdc()
             io::time::delay(POLL_RETRY_DELAY_MS);
             return unexpected(ErrorCode::BUSY);
         },
-        POLL_RETRIES,
-        ErrorCode::BUSY,
-        ErrorCode::TIMEOUT);
+        POLL_RETRIES);
 }
 
 Cells<result<uint16_t>> read::cellVoltage()
