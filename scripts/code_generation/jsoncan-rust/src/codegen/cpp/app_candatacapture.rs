@@ -21,15 +21,9 @@ pub struct AppCanDataCaptureModule {
 
 impl AppCanDataCaptureModule {
     pub fn new(can_db: &CanDatabase, node_name: &str) -> Self {
-        // DAM needs all messages, other boards technically don't need this file but legacy had it included
-        let messages = if node_name == "DAM" {
-            can_db.get_all_msgs().expect("Failed to get all messages")
-        } else {
-            can_db
-                .get_message_by_node(node_name)
-                .expect("Node not found")
-        };
-        Self { messages }
+        Self {
+            messages: can_db.get_all_msgs().expect("Failed to get all messages"),
+        }
     }
 }
 
