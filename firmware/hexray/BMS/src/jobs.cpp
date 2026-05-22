@@ -119,7 +119,6 @@ void jobs_run100Hz_tick()
     app::can_tx::BMS_BSPDAccelBrakeOk_set(io::bspdtest::isAccelBrakeOk());
 
     // STATE TRANSITIONS
-
     if (app::can_rx::Debug_CellBalancing_Request_get())
     {
         app::StateMachine::set_next_state(&app::states::balancing_state);
@@ -143,6 +142,8 @@ void jobs_run1kHz_tick()
 
 void jobs_runAdbmsVoltages_tick()
 {
+    LOG_IF_ERR(app::segments::config::waitForSync());
+
     app::segments::state::resetAll(app::segments::state::Bit::Voltage);
 
     Cells<result<float>> voltages;
@@ -181,6 +182,8 @@ void jobs_runAdbmsConfigs_tick()
 
 void jobs_runAdbmsAux_tick()
 {
+    LOG_IF_ERR(app::segments::config::waitForSync());
+
     app::segments::state::resetAll(app::segments::state::Bit::Temp);
     app::segments::state::resetAll(app::segments::state::Bit::Status);
 

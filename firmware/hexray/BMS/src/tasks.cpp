@@ -218,7 +218,6 @@ void tasks_runCanRx(void *arg)
 
 void tasks_runAdbmsVoltages(void *arg)
 {
-    LOG_IF_ERR(app::segments::config::waitForSync());
     const uint32_t period_ms   = 500U;
     uint32_t       start_ticks = osKernelGetTickCount();
 
@@ -245,7 +244,6 @@ void tasks_runAdbmsConfigs(void *arg)
 
 void tasks_runAdbmsAux(void *arg)
 {
-    LOG_IF_ERR(app::segments::config::waitForSync());
     const uint32_t period_ms   = 500U;
     uint32_t       start_ticks = osKernelGetTickCount();
 
