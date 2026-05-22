@@ -8,7 +8,7 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use crate::config::CONFIG;
 use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, ResultExt, Task};
 use crate::tasks::telem_message::{CRC32_CALC, TelemetryOutgoingMessage};
-use crate::utils::{green, yellow};
+use crate::utils::yellow;
 use crate::{dprintln, vprintln};
 use super::telem_message::{TelemetryIncomingMessage, CanPayload};
 
@@ -20,7 +20,6 @@ pub async fn run_serial_task(
     health_check_tx: HealthCheckSender,
     can_queue_tx: broadcast::Sender<CanPayload>,
     client_out_msg_rx: broadcast::Receiver<TelemetryOutgoingMessage>,
-    is_restart: bool,
 ) {
     vprintln!("{}", yellow("Serial handler task started."));
 
@@ -31,10 +30,6 @@ pub async fn run_serial_task(
     .timeout(Duration::from_millis(1000)) // i love magic numbers
     .open_native_async()
     .unwrap_or_fail_health_check(&health_check_tx, Task::SerialHandler).await;
-
-    if is_restart {
-        println!("{}", green("SerialHandler successfully restarted."));
-    }
 
     // split serial port into respective reads and writes
     let (serial_read, serial_write) = tokio::io::split(serial_port);
