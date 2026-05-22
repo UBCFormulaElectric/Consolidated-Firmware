@@ -31,4 +31,15 @@ void Notifier::notifyIfWaitingFromISR()
     }
 }
 
+result<void> Notifier::waitFor(const uint32_t timeout_ms)
+{
+    xTaskNotifyStateClear(nullptr);
+    waitingTask_ = xTaskGetCurrentTaskHandle();
+    const uint32_t notified = ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(timeout_ms));
+    waitingTask_            = nullptr;
+    if (notified == 0)
+        return std::unexpected(ErrorCode::TIMEOUT);
+    return {};
+}
+
 } // namespace hw::notify

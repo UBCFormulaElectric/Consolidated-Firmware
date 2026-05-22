@@ -4,6 +4,7 @@
 
 #include "util_errorCodes.hpp"
 #include "io_adbms.hpp"
+#include "hw_notify.hpp"
 
 // Minimum conversion times
 inline constexpr uint8_t VOLT_CONV_TIME_MS      = 1U;
@@ -41,6 +42,7 @@ namespace config
     void setBalanceConfig(const Cells<bool> &balance_config, const Cells<uint8_t> &pwm_duty, bool balancing_enabled);
     void setThermistorConfig(ThermistorMux mux);
     result<void> configSync();
+    result<void> waitForSync(uint32_t timeout_ms = hw::notify::DEFAULT_NOTIFY_TIMEOUT_MS);
 } // namespace config
 
 // app_segments_balancing.cpp

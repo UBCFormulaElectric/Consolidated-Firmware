@@ -135,7 +135,10 @@ result<void> configSync()
     }
 
     if (not dirty)
+    {
+        sync_done.notifyIfWaiting();
         return {};
+    }
 
     const auto r = util::retry(
         []() -> result<void>
@@ -150,6 +153,14 @@ result<void> configSync()
         NUM_CONFIG_SYNC_TRIES);
     if (r)
         sync_done.notifyIfWaiting();
+    return r;
+}
+
+result<void> waitForSync(const uint32_t timeout_ms)
+{
+    const auto r = sync_done.waitFor(timeout_ms);
+    if (!r && r.error() == ErrorCode::TIMEOUT)
+        return std::unexpected(ErrorCode::CONFIG_TIMEOUT);
     return r;
 }
 
