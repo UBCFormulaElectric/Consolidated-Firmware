@@ -19,9 +19,8 @@ std::expected<void, ErrorCode>          send_balancing_subcommand(CellBalance_Bi
 std::expected<void, ErrorCode>          stop_balancing_subcommand();
 std::expected<uint16_t, ErrorCode>      read_balancing_subcommand();
 std::expected<uint16_t, ErrorCode>      read_balacing_time_seconds();
-void                                    alert_handler();
-bool                                    is_alert_pending();
-void                                    clear_alert_pending();
+void alert_handler();
+bool consume_alert_pending();
 
 std::expected<void, ErrorCode>        get_Ttemperature();
 std::expected<AlertStatus, ErrorCode> read_alarm_status();

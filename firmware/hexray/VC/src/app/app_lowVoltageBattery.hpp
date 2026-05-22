@@ -20,7 +20,6 @@ enum class ChargeState
     STOPPED,
     CHARGING
 };
-
 struct MinCell
 {
     uint8_t index;

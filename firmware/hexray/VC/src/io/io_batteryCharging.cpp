@@ -9,12 +9,16 @@ Datasheet: https://www.analog.com/media/en/technical-documentation/data-sheets/M
 
 namespace io::batteryCharging
 {
-void chargerEnable(void)
+void charger_enable(void)
 {
     bat_chrg_nSHDN.writePin(enable::HIGH);
 }
-void chargerDisable(void)
+void charger_disable(void)
 {
     bat_chrg_nSHDN.writePin(enable::LOW);
+}
+bool check_status(void)
+{
+    return bat_chrg_nSHDN.readPin(); 
 }
 } // namespace io::batteryCharging

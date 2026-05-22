@@ -16,6 +16,7 @@ https://www.zotero.org/groups/5938751/ubc_formula_electric_firmware/collections/
 namespace io::batteryMonitoring
 {
 static volatile bool alert_pending = false;
+
 // Static function declarations
 static std::expected<void, ErrorCode> read_register(uint16_t reg, std::span<uint8_t> data);
 static std::expected<void, ErrorCode> write_register(uint16_t reg, std::span<uint8_t> data);
@@ -265,9 +266,9 @@ std::expected<float, ErrorCode> get_temperatureIC()
  * (Sections 10.1 and 10.2, pg. 75)
  * @param void
  */
-static std::expected<void, ErrorCode> balancing_init()
+[[maybe_unused]] static std::expected<void, ErrorCode> balancing_init()
 {
-    uint8_t cell_balancing = 0x03;
+    uint8_t cell_balancing = 0x00;
     RETURN_IF_ERR(write_subcommand(BALANCE_CFG, std::span<uint8_t>(&cell_balancing, 1)));
 
     uint8_t min_temprature_cell = 0x80;
@@ -279,7 +280,7 @@ static std::expected<void, ErrorCode> balancing_init()
     uint8_t max_internal_temp = 0x7F;
     RETURN_IF_ERR(write_subcommand(MAX_IC_TEMP, std::span<uint8_t>(&max_internal_temp, 1)));
 
-    uint8_t balance_interval = 0xFF;
+    uint8_t balance_interval = 0x14;
     RETURN_IF_ERR(write_subcommand(CELL_BALANCE_INTERVAL, std::span<uint8_t>(&balance_interval, 1)));
 
     uint8_t max_cells = 0x02;
@@ -368,7 +369,7 @@ std::expected<AlertStatus, ErrorCode> read_alarm_status()
  * @brief Initializing Protections
  * @param void
  */
-static std::expected<void, ErrorCode> protection_init()
+[[unused]] static std::expected<void, ErrorCode> protection_init()
 {
     // 1. ALERT Pin Configuration
     uint8_t alert = 0x82; // maybe 0x02
@@ -401,15 +402,6 @@ static std::expected<void, ErrorCode> protection_init()
     return {};
 }
 
-/* Could use xSemaphoreGiveFromISR and write driver
-std::expected<void, ErrorCode> get_status()
-{
-    if (!bat_mtr_nalert.readPin())
-    {
-
-    }
-}
-*/
 
 /**
  * @brief ISR Handler
@@ -419,15 +411,11 @@ void alert_handler()
 {
     alert_pending = true;
 }
-
-bool is_alert_pending()
+bool consume_alert_pending()
 {
-    return alert_pending;
-}
-
-void clear_alert_pending()
-{
-    alert_pending = false;
+    const bool was_pending = alert_pending;
+    alert_pending          = false;
+    return was_pending;
 }
 
 std::expected<SafetyStatusA, ErrorCode> get_safety_alert_a()

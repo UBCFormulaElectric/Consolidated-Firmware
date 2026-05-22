@@ -916,15 +916,24 @@
             "Balancing": {
                 "bits": 1
             },
-            "SafetyA_Flag": 
-            {
+            "SafetyA_Flag": {
                 "bits": 1
             },
-            "SafetyBC_Flag": 
-            {
+            "SafetyBC_Flag": {
+                "bits": 1
+            },
+            "Safety_COV": {
+                "bits": 1
+            },
+            "Safety_CUV": {
+                "bits": 1
+            },
+            "Safety_OTINT": {
+                "bits": 1
+            },
+            "Charging": {
                 "bits": 1
             }
-
         }
     },
     "Bootup": {
