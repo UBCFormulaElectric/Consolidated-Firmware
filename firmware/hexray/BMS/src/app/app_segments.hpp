@@ -19,6 +19,7 @@ using io::adbms::Segments;
 using io::adbms::ThermGpios;
 using io::adbms::Therms;
 
+
 // Thermistor bank selected during AUX conversions.
 enum class ThermistorMux : size_t
 {
@@ -63,8 +64,8 @@ namespace broadcast
     void owc(const Cells<result<bool>> &owc_results);
 } // namespace broadcast
 
-// app_segments_state.cpp
-namespace state
+// app_segments_health.cpp
+namespace health
 {
     enum class ErrorBit : size_t
     {
@@ -75,14 +76,17 @@ namespace state
         CellOwc=4,
         ThermTemp=5,
         ThermOwc=6,
-        SegVoltage = 8,
-        Status=9,
+        SegVoltage = 7,
+        Status=8,
+        Config = 9,
+        NUM_ERROR_BITS = 10
     };
 
-    void reset(size_t seg, Bit bit);
-    void resetAll(Bit bit);
-    void set(size_t seg, Bit bit);
-    void setAll(Bit bit);
+    void reset(size_t seg, ErrorBit bit);
+    void resetAll(ErrorBit bit);
+    void set(size_t seg, ErrorBit bit);
+    void setAll(ErrorBit bit);
+    void setOrReset(size_t seg, ErrorBit bit, bool has_error);
     bool isOk(size_t seg);
     bool allOk();
 
@@ -96,7 +100,7 @@ namespace state
     void setVoltageStats(const Cells<result<float>> &latest, CellParam<float> min, CellParam<float> max);
     void setTempStats(CellParam<float> max_temp, bool any_therm_owc);
     void setCellOwc(bool any_cell_owc);
-} // namespace state
+} // namespace health
 
 // app_segments_faults.cpp
 namespace faults
@@ -116,9 +120,9 @@ namespace startPoll
 namespace conversion
 {
     Cells<result<float>>                                                              cellVoltage();
-    result<std::pair<Therms<result<float>>, Therms<result<bool>>>>                    thermTempOwc();
+    std::pair<Therms<result<float>>, Therms<result<bool>>>                            thermTempOwc();
     Segments<result<float>>                                                           segVoltage();
     Segments<io::adbms::StatusGroups>                                                 status();
-    result<Cells<result<bool>>>                                                       cellOwc();
+    Cells<result<bool>>                                                               cellOwc();
 } // namespace conversion
 } // namespace app::segments

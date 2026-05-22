@@ -145,26 +145,17 @@ void jobs_runAdbmsVoltages_tick()
     LOG_IF_ERR(app::segments::config::waitForSync());
 
     Cells<result<float>> voltages;
-    {
-        const io::unique_semaphore s{ spi_bus_lock };
-        
-        const auto poll_r = app::segments::startPoll::cellAdc();
-        
-        voltages          = app::segments::conversion::cellVoltage();
-        if (poll_r)
-            app::segments::state::setAll(app::segments::state::Bit::Voltage);
-        else
-            LOG_ERROR("Cell ADC poll failed: %d", poll_r.error());
-    }
-    app::segments::broadcast::cellVoltages(voltages);
+    Cells<result<bool>> owc;
 
-    result<Cells<result<bool>>> owc_r;
-    {
+    {  
         const io::unique_semaphore s{ spi_bus_lock };
-        owc_r = app::segments::conversion::cellOwc();
+        voltages = app::segments::conversion::cellVoltage();
+        owc = app::segments::conversion::cellOwc();
     }
-    if (owc_r)
-        app::segments::broadcast::owc(owc_r.value());
+    
+    app::segments::broadcast::cellVoltages(voltages);
+    app::segments::broadcast::cellOwc(owc);
+    
 }
 
 void jobs_runAdbmsConfigs_tick()

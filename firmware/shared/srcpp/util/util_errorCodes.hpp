@@ -16,6 +16,7 @@ enum class ErrorCode : uint8_t
     CMD_COUNT_MISMATCH,  // ADBMS6830B command counter (idk if this should be here)
     INVALID_READING,     // sensor returned a sentinel/saturation value (bus likely OK)
     ERROR_INDETERMINATE, // use this for when you don't know what the exit code is YET
+    POLL_INVALID,
     CONFIG_TIMEOUT,
     NUM_EXIT_CODES,
 };

@@ -28,8 +28,8 @@ app::Timer                                                       balance_timer(B
 
 void updateCellsToBalance()
 {
-    app::segments::Cells<result<float>> cell_voltages = app::segments::state::getLatestVoltages();
-    app::segments::CellParam<float> min_cell_voltage = app::segments::state::getMinCellVoltage();
+    app::segments::Cells<result<float>> cell_voltages = app::segments::health::getLatestVoltages();
+    app::segments::CellParam<float> min_cell_voltage = app::segments::health::getMinCellVoltage();
 
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
