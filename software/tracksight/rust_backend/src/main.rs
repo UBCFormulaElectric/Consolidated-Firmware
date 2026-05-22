@@ -107,7 +107,7 @@ async fn main() {
         let base_can_queue_tx = can_queue_tx.clone();
         let base_can_db = can_db.clone();
 
-        move |tasks: &mut JoinSet<(Task, Result<(), JoinError>)>| {
+        move |tasks: &mut JoinSet<(Task, Result<(), JoinError>)>, is_restart: bool| {
             let shutdown_rx_clone = base_shutdown_rx.resubscribe();
             let hc_tx_clone = base_hc_tx.clone();
             let can_queue_tx_clone = base_can_queue_tx.clone();
@@ -133,13 +133,14 @@ async fn main() {
                         shutdown_rx_clone,
                         hc_tx_clone,
                         can_queue_tx_clone,
-                        client_out_msg_rx_clone
+                        client_out_msg_rx_clone,
+                        is_restart,
                     ),
                 );
             }
         }
     };
-    serial_spawner(&mut tasks);
+    serial_spawner(&mut tasks, false);
 
     select! {
         hc_res = health_check.wait_for_health_checks() => {
@@ -190,7 +191,7 @@ async fn main() {
                         // also worst case isn't bad, can still force quit
                         println!("Restarting {task:?} in {TASK_RESTART_DELAY_MS}ms...");
                         sleep(Duration::from_millis(TASK_RESTART_DELAY_MS)).await;
-                        serial_spawner(&mut tasks);
+                        serial_spawner(&mut tasks, true);
                     }
                     _ => {}
                 }

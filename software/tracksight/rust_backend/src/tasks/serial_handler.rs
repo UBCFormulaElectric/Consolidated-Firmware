@@ -8,7 +8,7 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use crate::config::CONFIG;
 use crate::tasks::{HealthCheckSender, HealthCheckSenderExt, ResultExt, Task};
 use crate::tasks::telem_message::{CRC32_CALC, TelemetryOutgoingMessage};
-use crate::utils::yellow;
+use crate::utils::{green, yellow};
 use crate::{dprintln, vprintln};
 use super::telem_message::{TelemetryIncomingMessage, CanPayload};
 
@@ -16,10 +16,11 @@ use super::telem_message::{TelemetryIncomingMessage, CanPayload};
  * Handling serial signals from radio. Main task
  */
 pub async fn run_serial_task(
-    mut shutdown_rx: broadcast::Receiver<()>, 
+    mut shutdown_rx: broadcast::Receiver<()>,
     health_check_tx: HealthCheckSender,
     can_queue_tx: broadcast::Sender<CanPayload>,
-    client_out_msg_rx: broadcast::Receiver<TelemetryOutgoingMessage>
+    client_out_msg_rx: broadcast::Receiver<TelemetryOutgoingMessage>,
+    is_restart: bool,
 ) {
     vprintln!("{}", yellow("Serial handler task started."));
 
@@ -31,6 +32,10 @@ pub async fn run_serial_task(
     .open_native_async()
     .unwrap_or_fail_health_check(&health_check_tx, Task::SerialHandler).await;
 
+    if is_restart {
+        println!("{}", green("SerialHandler successfully restarted."));
+    }
+
     // split serial port into respective reads and writes
     let (serial_read, serial_write) = tokio::io::split(serial_port);
     
@@ -41,7 +46,7 @@ pub async fn run_serial_task(
 
     // spawn blocking packet reader
     // the reader thread will allow the handler thread to be async
-    let packet_reader = {
+    let mut packet_reader = {
         let shutdown_rx = shutdown_rx.resubscribe();
         tokio::spawn(packet_reader_handler(shutdown_rx, serial_read, in_msg_tx))
     };
@@ -60,6 +65,9 @@ pub async fn run_serial_task(
             _ = shutdown_rx.recv() => {
                 vprintln!("Shutting down serial task.");
                 break;
+            }
+            res = &mut packet_reader => {
+                panic!("packet_reader exited unexpectedly: {res:?}");
             }
             Some(msg) = in_msg_rx.recv() => {
                 // todo should also probably check for closed channels and close thread
@@ -125,7 +133,17 @@ async fn packet_reader_handler(
                             eprintln!("Failed to parse telemetry message: {:?}", packet_bytes);
                         }
                     },
-                    Err(e) => {eprintln!("{e}")}, // failed to read, continue
+                    Err(e) => {
+                        // InvalidData = parse-level errors from read_packet (bad magic,
+                        // bad length, CRC mismatch). Recoverable — log and keep reading.
+                        // Anything else is a real OS-level I/O failure (e.g. ENXIO/errno 6
+                        // when the serial device is yanked); panic so main.rs restarts us.
+                        if e.kind() == ErrorKind::InvalidData {
+                            eprintln!("{e}");
+                        } else {
+                            panic!("Fatal serial read error: {e}");
+                        }
+                    },
                 }
             }
         }
