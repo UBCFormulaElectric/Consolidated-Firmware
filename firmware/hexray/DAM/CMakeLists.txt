@@ -18,32 +18,30 @@ set(SYSTEM_INCLUDE_DIRS
 )
 
 file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp")
-file(GLOB_RECURSE APP_SRCS CONFIGURE_DEPENDS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/app/*.cpp"
-)
-list(APPEND APP_SRCS
+set(APP_SHARED_SRCS
+        "${SHARED_APP_INCLUDE_DIR_CPP}/app_bootcount.cpp"
         "${SHARED_APP_INCLUDE_DIR_CPP}/app_timer.cpp"
+        "${SHARED_APP_INCLUDE_DIR_CPP}/app_crc32.cpp"
+        "${SHARED_APP_INCLUDE_DIR_CPP}/app_crc8.cpp"
 )
 set(APP_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/app"
         "${SHARED_APP_INCLUDE_DIR}" "${SHARED_APP_INCLUDE_DIR_CPP}"
 )
 
-file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.cpp"
-)
-list(APPEND IO_SRCS
+file(GLOB_RECURSE IO_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.cpp")
+set(IO_SHARED_SRCS
         "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_filesystem.cpp"
+        "${SHARED_IO_INCLUDE_DIR_CPP}/io_canLogging.cpp"
 )
 set(IO_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/io"
         "${SHARED_IO_INCLUDE_DIR}" "${SHARED_IO_INCLUDE_DIR_CPP}"
 )
 
-file(GLOB_RECURSE HW_SRCS
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp"
-)
-list(APPEND HW_SRCS
+file(GLOB_RECURSE HW_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/hw/*.cpp")
+set(HW_SHARED_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_crc.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_sd.cpp"
@@ -52,7 +50,6 @@ list(APPEND HW_SRCS
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_uart.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmOutput.cpp"
-        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_watchdog.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_resetReason.cpp"
         "${SHARED_HW_INCLUDE_DIR_CPP}/hw_bootup.cpp"
 )
@@ -61,13 +58,23 @@ set(HW_INCLUDE_DIRS
         "${SHARED_HW_INCLUDE_DIR}" "${SHARED_HW_INCLUDE_DIR_CPP}"
 )
 # chimera sources
-set(CHIMERA_SRCS ${HW_SRCS} "${SHARED_IO_INCLUDE_DIR_CPP}/io_time.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/src/chimera.cpp")
+set(CHIMERA_SRCS
+        ${HW_SRCS}
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_error.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_sd.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_usb.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_can_hx.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_uart.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_hardFaultHandler.cpp"
+        "${SHARED_HW_INCLUDE_DIR_CPP}/hw_pwmOutput.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/chimera.cpp"
+)
 set(CHIMERA_INCLUDE_DIRS ${HW_INCLUDE_DIRS} ${IO_INCLUDE_DIRS})
 
 if ("${TARGET}" STREQUAL "binary")
     set(ARM_CORE "cm33")
     set(LINKER_SCRIPT "${LINKER_DIR}/stm32h562ritx/stm32h562ritx_app.ld")
-    set(SRCS ${APP_SRCS} ${IO_SRCS} ${HW_SRCS} ${SYSTEM_SRCS})
+    set(SRCS ${APP_SRCS} ${APP_SHARED_SRCS} ${IO_SRCS} ${IO_SHARED_SRCS} ${HW_SRCS} ${HW_SHARED_SRCS} ${SYSTEM_SRCS})
     set(INCLUDE_DIRS ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR} ${SYSTEM_INCLUDE_DIRS} ${CUBEMX_INCLUDE_DIRS})
 
     embedded_binary(
@@ -124,13 +131,13 @@ if ("${TARGET}" STREQUAL "binary")
             "${CMAKE_CURRENT_BINARY_DIR}/app"
     )
 
-    target_link_libraries("hexray_DAM_app.elf" PRIVATE "hexray_DAM_stm32" "hexray_DAM_commit_info" "hexray_DAM_jsoncan" "m")
+    target_link_libraries("hexray_DAM_app.elf" PRIVATE "hexray_DAM_stm32" "hexray_DAM_commit_info" "hexray_DAM_jsoncan" "m" "logfs_cm7")
     target_compile_definitions("hexray_DAM_app.elf" PRIVATE DAM)
 
     add_chimera_stm32h5("hexray_DAM_chimera" "${CHIMERA_SRCS}" "${CHIMERA_INCLUDE_DIRS}" "hexray_chimera_v2_proto_cm33")
     target_link_libraries("hexray_DAM_chimera.elf" PRIVATE "hexray_DAM_stm32")
 
-    if ("${BOOTLOAD}" STREQUAL "ON") 
+    if ("${BOOTLOAD}" STREQUAL "ON")
         file(GLOB BOOT_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/*.cpp")
         file(GLOB BOOT_CUBEMX_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Src/*.c")
         set(BOOT_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boot" "${CMAKE_CURRENT_SOURCE_DIR}/boot/cubemx/Inc")
@@ -155,17 +162,17 @@ if ("${TARGET}" STREQUAL "binary")
 
 elseif ("${TARGET}" STREQUAL "test")
     file(GLOB_RECURSE TEST_SRCS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/test/*.cpp")
-    set(TEST_IO_SRCS
-            "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_telemMessage.cpp"
-    )
     set(FAKE_SRCS
             "${SHARED_FAKES_DIR_CPP}/io_time.cpp"
-            "${CMAKE_CURRENT_SOURCE_DIR}/test/fake_io_crc.cpp"
     )
-    set(SRCS ${APP_SRCS} ${JOBS_SRC} ${TEST_IO_SRCS} ${TEST_SRCS} ${FAKE_SRCS})
+    set(IO_TEST_SRCS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/io/io_telemMessage.cpp"
+)
+    set(SRCS ${APP_SRCS} ${APP_SHARED_SRCS} ${TEST_SRCS} ${FAKE_SRCS} ${IO_TEST_SRCS})
     set(INCLUDE_DIRS
-            # "${CMAKE_CURRENT_SOURCE_DIR}/test"
-            ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${TEST_INCLUDE_DIRS} ${SYSTEM_INCLUDE_DIRS} ${SHARED_UTIL_INCLUDE_DIR_CPP}
+            ${APP_INCLUDE_DIRS} ${IO_INCLUDE_DIRS} ${HW_INCLUDE_DIRS}
+            ${SHARED_FAKES_DIR_CPP} ${SYSTEM_INCLUDE_DIRS}
+            ${SHARED_UTIL_INCLUDE_DIR_CPP} ${CUBEMX_INCLUDE_DIRS}
     )
     compile_gtest_executable(
             "hexray_DAM_test"

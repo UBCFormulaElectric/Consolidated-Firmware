@@ -35,8 +35,8 @@ class config
     io::queue<hw::CanMsg, 256> &can_rx_queue;
 
     uint32_t                                     BOARD_HIGHBITS{ 0 };
-    uint32_t                                     GIT_COMMIT_HASH{ 0 };
-    bool                                         GIT_COMMIT_CLEAN{ false };
+    uint32_t                                     _GIT_COMMIT_HASH{ 0 };
+    bool                                         _GIT_COMMIT_CLEAN{ false };
     std::array<std::byte, hw::flash::WORD_BYTES> program_buffer{};
 
 #if defined(STM32H733xx) || defined(STM32H562xx)
@@ -51,8 +51,8 @@ class config
       : can_tx_queue(tx_queue),
         can_rx_queue(rx_queue),
         BOARD_HIGHBITS(board_highbits),
-        GIT_COMMIT_HASH(git_commit_hash),
-        GIT_COMMIT_CLEAN(git_commit_clean),
+        _GIT_COMMIT_HASH(git_commit_hash),
+        _GIT_COMMIT_CLEAN(git_commit_clean),
         fdcan_handle(fdcan_handle_in){};
 #elif defined(STM32F412Rx)
     hw::can &can_handle;
@@ -77,7 +77,7 @@ class config
 
     virtual void boardSpecific_tick(){};
 
-    virtual std::expected<void, ErrorCode> boardSpecific_program(const uint32_t address, const uint64_t data)
+    virtual result<void> boardSpecific_program(const uint32_t address, const uint64_t data)
     {
         const uint32_t buffer_idx = address % hw::flash::WORD_BYTES;
         std::memcpy(&program_buffer[buffer_idx], &data, sizeof(data));

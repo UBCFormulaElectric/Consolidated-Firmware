@@ -57,6 +57,8 @@
 
 /* External variables --------------------------------------------------------*/
 extern FDCAN_HandleTypeDef hfdcan1;
+extern SD_HandleTypeDef    hsd1;
+extern TIM_HandleTypeDef   htim7;
 extern UART_HandleTypeDef  huart2;
 extern PCD_HandleTypeDef   hpcd_USB_DRD_FS;
 extern TIM_HandleTypeDef   htim2;
@@ -206,6 +208,20 @@ void TIM2_IRQHandler(void)
 }
 
 /**
+ * @brief This function handles TIM7 global interrupt.
+ */
+void TIM7_IRQHandler(void)
+{
+    /* USER CODE BEGIN TIM7_IRQn 0 */
+
+    /* USER CODE END TIM7_IRQn 0 */
+    HAL_TIM_IRQHandler(&htim7);
+    /* USER CODE BEGIN TIM7_IRQn 1 */
+
+    /* USER CODE END TIM7_IRQn 1 */
+}
+
+/**
  * @brief This function handles USART2 global interrupt.
  */
 void USART2_IRQHandler(void)
@@ -231,6 +247,20 @@ void USB_DRD_FS_IRQHandler(void)
     /* USER CODE BEGIN USB_DRD_FS_IRQn 1 */
 
     /* USER CODE END USB_DRD_FS_IRQn 1 */
+}
+
+/**
+ * @brief This function handles SDMMC1 global interrupt.
+ */
+void SDMMC1_IRQHandler(void)
+{
+    /* USER CODE BEGIN SDMMC1_IRQn 0 */
+
+    /* USER CODE END SDMMC1_IRQn 0 */
+    HAL_SD_IRQHandler(&hsd1);
+    /* USER CODE BEGIN SDMMC1_IRQn 1 */
+
+    /* USER CODE END SDMMC1_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

@@ -4,11 +4,7 @@
 #include "hw_can.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "bootloader_h7.hpp"
-
-extern "C"
-{
-#include "app_commitInfo.h"
-}
+#include "app_commitInfo.hpp"
 
 void tx_overflow_callback(const uint32_t overflow_count)
 {
@@ -32,7 +28,7 @@ static_assert(sizeof(boot_can_rx_queue) == 18544);
 namespace hw::cans
 {
 // no tasks_runCanRxCallback yet in tasks.c (need bootloader stuff)
-fdcan fdcan1(hfdcan2, [](const hw::CanMsg &msg) { (void)boot_can_rx_queue.push(msg); });
+fdcan fdcan1(hfdcan2, [](const hw::CanMsg &msg) { UNUSED(boot_can_rx_queue.push(msg)); });
 } // namespace hw::cans
 
 const hw::fdcan &hw::fdcan_getHandle(const FDCAN_HandleTypeDef *hfdcan)
@@ -50,23 +46,36 @@ class H7DevBootConfig : public bootloader::config
             boot_can_tx_queue,
             boot_can_rx_queue,
             board_highbits,
-            git_commit_hash_val,
-            git_commit_clean_val){};
+            GIT_COMMIT_HASH,
+            GIT_COMMIT_CLEAN){};
 } h7devboot_config;
 
-void bootloader_preInit(void)
+void bootloader_preInit()
 {
     bootloader::preInit();
 }
 
-static hw::rtos::StaticTask<1024>
-    TaskRunInterface(osPriorityRealtime, "bootinf", [](void *) { bootloader::runInterfaceTask(h7devboot_config); });
-static hw::rtos::StaticTask<1024>
-    TaskRunTickTask(osPriorityRealtime, "boottick", [](void *) { bootloader::runTickTask(h7devboot_config); });
-static hw::rtos::StaticTask<1024>
-    TaskRunCanTx(osPriorityRealtime, "boottx", [](void *) { bootloader::runCanTxTask(h7devboot_config); });
+static hw::rtos::StaticTask::StaticTaskStack<1024> TaskRunInterfaceStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024> TaskRunTickTaskStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024> TaskRunCanTxStack;
 
-[[noreturn]] void bootloader_init(void)
+static hw::rtos::StaticTask TaskRunInterface(
+    osPriorityRealtime,
+    "bootinf",
+    [](void *) { bootloader::runInterfaceTask(h7devboot_config); },
+    TaskRunInterfaceStack);
+static hw::rtos::StaticTask TaskRunTickTask(
+    osPriorityRealtime,
+    "boottick",
+    [](void *) { bootloader::runTickTask(h7devboot_config); },
+    TaskRunTickTaskStack);
+static hw::rtos::StaticTask TaskRunCanTx(
+    osPriorityRealtime,
+    "boottx",
+    [](void *) { bootloader::runCanTxTask(h7devboot_config); },
+    TaskRunCanTxStack);
+
+[[noreturn]] void bootloader_init()
 {
     HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
     bootloader::init(h7devboot_config);

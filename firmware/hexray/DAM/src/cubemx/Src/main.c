@@ -6,7 +6,7 @@
  ******************************************************************************
  * @attention
  *
- * Copyright (c) 2025 STMicroelectronics.
+ * Copyright (c) 2026 STMicroelectronics.
  * All rights reserved.
  *
  * This software is licensed under terms that can be found in the LICENSE file
@@ -52,6 +52,8 @@ RTC_HandleTypeDef hrtc;
 
 SD_HandleTypeDef hsd1;
 
+TIM_HandleTypeDef htim7;
+
 UART_HandleTypeDef huart2;
 
 PCD_HandleTypeDef hpcd_USB_DRD_FS;
@@ -70,6 +72,7 @@ static void MX_FDCAN1_Init(void);
 static void MX_IWDG_Init(void);
 static void MX_RTC_Init(void);
 static void MX_SDMMC1_SD_Init(void);
+static void MX_TIM7_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -115,7 +118,8 @@ int main(void)
     MX_FDCAN1_Init();
     MX_IWDG_Init();
     MX_RTC_Init();
-    // MX_SDMMC1_SD_Init();
+    MX_SDMMC1_SD_Init();
+    MX_TIM7_Init();
     /* USER CODE BEGIN 2 */
     tasks_init();
     /* USER CODE END 2 */
@@ -333,49 +337,52 @@ static void MX_RTC_Init(void)
         Error_Handler();
     }
 
-    /* USER CODE BEGIN Check_RTC_BKUP */
-
-    /* USER CODE END Check_RTC_BKUP */
-
-    /** Initialize RTC and set the Time and Date
-     */
-    sTime.Hours          = 0x0;
-    sTime.Minutes        = 0x0;
-    sTime.Seconds        = 0x0;
-    sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
-    sTime.StoreOperation = RTC_STOREOPERATION_RESET;
-    if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD) != HAL_OK)
+/* USER CODE BEGIN Check_RTC_BKUP */
+#define RTC_BKP_MAGIC 0xCAFEBABEu
+    if (HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR0) != RTC_BKP_MAGIC)
     {
-        Error_Handler();
-    }
-    sDate.WeekDay = RTC_WEEKDAY_MONDAY;
-    sDate.Month   = RTC_MONTH_JANUARY;
-    sDate.Date    = 0x1;
-    sDate.Year    = 0x0;
+        /* USER CODE END Check_RTC_BKUP */
 
-    if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BCD) != HAL_OK)
-    {
-        Error_Handler();
-    }
+        /** Initialize RTC and set the Time and Date
+         */
+        sTime.Hours          = 0x0;
+        sTime.Minutes        = 0x0;
+        sTime.Seconds        = 0x0;
+        sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+        sTime.StoreOperation = RTC_STOREOPERATION_RESET;
+        if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD) != HAL_OK)
+        {
+            Error_Handler();
+        }
+        sDate.WeekDay = RTC_WEEKDAY_MONDAY;
+        sDate.Month   = RTC_MONTH_JANUARY;
+        sDate.Date    = 0x1;
+        sDate.Year    = 0x0;
 
-    /** Enable the Alarm A
-     */
-    sAlarm.AlarmTime.Hours      = 0x0;
-    sAlarm.AlarmTime.Minutes    = 0x0;
-    sAlarm.AlarmTime.Seconds    = 0x0;
-    sAlarm.AlarmTime.SubSeconds = 0x0;
-    sAlarm.AlarmMask            = RTC_ALARMMASK_DATEWEEKDAY | RTC_ALARMMASK_HOURS | RTC_ALARMMASK_MINUTES;
-    sAlarm.AlarmSubSecondMask   = RTC_ALARMSUBSECONDMASK_ALL;
-    sAlarm.AlarmDateWeekDaySel  = RTC_ALARMDATEWEEKDAYSEL_DATE;
-    sAlarm.AlarmDateWeekDay     = 0x1;
-    sAlarm.Alarm                = RTC_ALARM_A;
-    sAlarm.FlagAutoClr          = ALARM_FLAG_AUTOCLR_ENABLE;
-    if (HAL_RTC_SetAlarm(&hrtc, &sAlarm, RTC_FORMAT_BCD) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN RTC_Init 2 */
+        if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BCD) != HAL_OK)
+        {
+            Error_Handler();
+        }
 
+        /** Enable the Alarm A
+         */
+        sAlarm.AlarmTime.Hours      = 0x0;
+        sAlarm.AlarmTime.Minutes    = 0x0;
+        sAlarm.AlarmTime.Seconds    = 0x0;
+        sAlarm.AlarmTime.SubSeconds = 0x0;
+        sAlarm.AlarmMask            = RTC_ALARMMASK_DATEWEEKDAY | RTC_ALARMMASK_HOURS | RTC_ALARMMASK_MINUTES;
+        sAlarm.AlarmSubSecondMask   = RTC_ALARMSUBSECONDMASK_ALL;
+        sAlarm.AlarmDateWeekDaySel  = RTC_ALARMDATEWEEKDAYSEL_DATE;
+        sAlarm.AlarmDateWeekDay     = 0x1;
+        sAlarm.Alarm                = RTC_ALARM_A;
+        sAlarm.FlagAutoClr          = ALARM_FLAG_AUTOCLR_ENABLE;
+        if (HAL_RTC_SetAlarm(&hrtc, &sAlarm, RTC_FORMAT_BCD) != HAL_OK)
+        {
+            Error_Handler();
+        }
+        /* USER CODE BEGIN RTC_Init 2 */
+        HAL_RTCEx_BKUPWrite(&hrtc, RTC_BKP_DR0, RTC_BKP_MAGIC);
+    }
     /* USER CODE END RTC_Init 2 */
 }
 
@@ -387,25 +394,71 @@ static void MX_RTC_Init(void)
 static void MX_SDMMC1_SD_Init(void)
 {
     /* USER CODE BEGIN SDMMC1_Init 0 */
-
-    /* USER CODE END SDMMC1_Init 0 */
-
-    /* USER CODE BEGIN SDMMC1_Init 1 */
-
-    /* USER CODE END SDMMC1_Init 1 */
     hsd1.Instance                 = SDMMC1;
     hsd1.Init.ClockEdge           = SDMMC_CLOCK_EDGE_RISING;
     hsd1.Init.ClockPowerSave      = SDMMC_CLOCK_POWER_SAVE_DISABLE;
-    hsd1.Init.BusWide             = SDMMC_BUS_WIDE_4B;
-    hsd1.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_ENABLE;
-    hsd1.Init.ClockDiv            = 9;
+    hsd1.Init.BusWide             = SDMMC_BUS_WIDE_1B;
+    hsd1.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE;
+    hsd1.Init.ClockDiv            = 312;
     if (HAL_SD_Init(&hsd1) != HAL_OK)
     {
         Error_Handler();
     }
-    /* USER CODE BEGIN SDMMC1_Init 2 */
+    /* USER CODE END SDMMC1_Init 0 */
 
+    /* USER CODE BEGIN SDMMC1_Init 1 */
+    // TODO copy from here when stm32 regenerates. We are doing this because we must init in 1b mode
+#if false
+  /* USER CODE END SDMMC1_Init 1 */
+  hsd1.Instance = SDMMC1;
+  hsd1.Init.ClockEdge = SDMMC_CLOCK_EDGE_RISING;
+  hsd1.Init.ClockPowerSave = SDMMC_CLOCK_POWER_SAVE_DISABLE;
+  hsd1.Init.BusWide = SDMMC_BUS_WIDE_4B;
+  hsd1.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_ENABLE;
+  hsd1.Init.ClockDiv = 312;
+  if (HAL_SD_Init(&hsd1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN SDMMC1_Init 2 */
+#endif
     /* USER CODE END SDMMC1_Init 2 */
+}
+
+/**
+ * @brief TIM7 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_TIM7_Init(void)
+{
+    /* USER CODE BEGIN TIM7_Init 0 */
+
+    /* USER CODE END TIM7_Init 0 */
+
+    TIM_MasterConfigTypeDef sMasterConfig = { 0 };
+
+    /* USER CODE BEGIN TIM7_Init 1 */
+
+    /* USER CODE END TIM7_Init 1 */
+    htim7.Instance               = TIM7;
+    htim7.Init.Prescaler         = 10 - 1;
+    htim7.Init.CounterMode       = TIM_COUNTERMODE_UP;
+    htim7.Init.Period            = 959;
+    htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+    sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim7, &sMasterConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN TIM7_Init 2 */
+
+    /* USER CODE END TIM7_Init 2 */
 }
 
 /**
@@ -508,7 +561,7 @@ static void MX_GPIO_Init(void)
     __HAL_RCC_GPIOD_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOC, NTP_Pin | LED_Pin | BOOT_Pin | SD_FAIL_Pin | BUZZER_PWR_EN_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOC, LED_Pin | BOOT_Pin | SD_FAIL_Pin | BUZZER_PWR_EN_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(_900M_GPIO_GPIO_Port, _900M_GPIO_Pin, GPIO_PIN_RESET);
@@ -519,9 +572,14 @@ static void MX_GPIO_Init(void)
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOB, nTSIM_GRN_EN_Pin | TSIM_RED_EN_Pin, GPIO_PIN_RESET);
 
-    /*Configure GPIO pins : NTP_Pin LED_Pin BOOT_Pin SD_FAIL_Pin
-                             BUZZER_PWR_EN_Pin */
-    GPIO_InitStruct.Pin   = NTP_Pin | LED_Pin | BOOT_Pin | SD_FAIL_Pin | BUZZER_PWR_EN_Pin;
+    /*Configure GPIO pins : NTP_Pin SD_CD_Pin */
+    GPIO_InitStruct.Pin  = NTP_Pin | SD_CD_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : LED_Pin BOOT_Pin SD_FAIL_Pin BUZZER_PWR_EN_Pin */
+    GPIO_InitStruct.Pin   = LED_Pin | BOOT_Pin | SD_FAIL_Pin | BUZZER_PWR_EN_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -539,12 +597,6 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : SD_CD_Pin */
-    GPIO_InitStruct.Pin  = SD_CD_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(SD_CD_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pin : D_P_PULLUP_Pin */
     GPIO_InitStruct.Pin   = D_P_PULLUP_Pin;

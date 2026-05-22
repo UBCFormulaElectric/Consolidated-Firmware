@@ -3,31 +3,62 @@
 #include "main.h"
 
 #include "app_jsoncan.hpp"
+#include "app_canTx.hpp"
+#include "app_canAlerts.hpp"
 
 #include "io_time.hpp"
 #include "io_canQueues.hpp"
 #include "hw_can.hpp"
 #include "hw_gpio.hpp"
 #include "io_canRx.hpp"
-#include "io_canTx.hpp"
+
 #include "hw_adcs.hpp"
 #include "hw_cans.hpp"
 #include "hw_gpios.hpp"
 #include "hw_rtosTaskHandler.hpp"
 #include "hw_hardFaultHandler.hpp"
-#include "hw_adcs.hpp"
 #include "hw_bootup.hpp"
 #include "hw_watchdog.hpp"
 #include "hw_resetReason.hpp"
-#include "app_canAlerts.hpp"
+#include "hw_runTimeStat.hpp"
 
-[[noreturn]] static void tasks_run1Hz(void *arg)
+[[noreturn]] static void tasks_run1Hz(void *arg);
+[[noreturn]] static void tasks_run100Hz(void *arg);
+[[noreturn]] static void tasks_run1kHz(void *arg);
+[[noreturn]] static void tasks_runCan1Tx(void *arg);
+[[noreturn]] static void tasks_runCan2Tx(void *arg);
+[[noreturn]] static void tasks_runCanRx(void *arg);
+[[noreturn]] static void tasks_powerMonitoring(void *arg);
+
+// Define the task with StaticTask Class
+constexpr size_t                                   TASK_COUNT = 7;
+static hw::rtos::StaticTask::StaticTaskStack<8096> Task100HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  Task1kHzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  Task1HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCanRxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCan1TxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskCan2TxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskPowerMonitoringStack;
+
+static hw::rtos::StaticTask Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz, Task100HzStack);
+static hw::rtos::StaticTask Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz, Task1kHzStack);
+static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
+static hw::rtos::StaticTask TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
+static hw::rtos::StaticTask TaskCan1Tx(osPriorityNormal, "TaskCanTx", tasks_runCan1Tx, TaskCan1TxStack);
+static hw::rtos::StaticTask TaskCan2Tx(osPriorityNormal, "TaskCanTx", tasks_runCan2Tx, TaskCan2TxStack);
+static hw::rtos::StaticTask
+    TaskPowerMonitoring(osPriorityNormal, "TaskPowerMonitoring", tasks_powerMonitoring, TaskPowerMonitoringStack);
+
+static hw::watchdog::monitor<TASK_COUNT> monitor{
+    hiwdg1,
+    [](const hw::watchdog::instance &i) { LOG_INFO("Software watchdog timeout for task %d", i.task_id); },
+};
+
+void tasks_run1Hz(void *arg)
 {
-    constexpr uint32_t             period_ms                = 1000U;
-    constexpr uint32_t             watchdog_grace_period_ms = 50U;
-    hw::watchdog::WatchdogInstance watchdog1hz{ period_ms + watchdog_grace_period_ms };
-    hw::watchdog::monitor          monitor1hz{ &watchdog1hz, hiwdg1, HAL_IWDG_Refresh };
-    monitor1hz.registerWatchdogInstance();
+    constexpr uint32_t      period_ms                = 1000U;
+    constexpr uint32_t      watchdog_grace_period_ms = 50U;
+    hw::watchdog::instance &watchdog1hz              = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -39,13 +70,11 @@
         osDelayUntil(start_ticks);
     }
 }
-[[noreturn]] static void tasks_run100Hz(void *arg)
+void tasks_run100Hz(void *arg)
 {
-    constexpr uint32_t             period_ms                = 10U;
-    constexpr uint32_t             watchdog_grace_period_ms = 2U;
-    hw::watchdog::WatchdogInstance watchdog100hz{ period_ms + watchdog_grace_period_ms };
-    hw::watchdog::monitor          monitor100hz{ &watchdog100hz, hiwdg1, HAL_IWDG_Refresh };
-    monitor100hz.registerWatchdogInstance();
+    constexpr uint32_t      period_ms                = 10U;
+    constexpr uint32_t      watchdog_grace_period_ms = 2U;
+    hw::watchdog::instance &watchdog100hz            = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -56,26 +85,24 @@
         osDelayUntil(start_ticks);
     }
 }
-[[noreturn]] static void tasks_run1kHz(void *arg)
+void tasks_run1kHz(void *arg)
 {
-    constexpr uint32_t             period_ms                = 1U;
-    constexpr uint32_t             watchdog_grace_period_ms = 1U;
-    hw::watchdog::WatchdogInstance watchdog1khz{ period_ms + watchdog_grace_period_ms };
-    hw::watchdog::monitor          monitor1khz{ &watchdog1khz, hiwdg1, HAL_IWDG_Refresh };
-    monitor1khz.registerWatchdogInstance();
+    constexpr uint32_t      period_ms                = 1U;
+    constexpr uint32_t      watchdog_grace_period_ms = 1U;
+    hw::watchdog::instance &watchdog1khz             = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
         jobs_run1kHz_tick();
-        monitor1khz.checkForTimeouts();
+        monitor.checkForTimeouts();
         watchdog1khz.checkIn();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
 }
 
-[[noreturn]] static void tasks_runCan1Tx(void *arg)
+void tasks_runCan1Tx(void *arg)
 {
     forever
     {
@@ -97,7 +124,7 @@
         }
     }
 }
-[[noreturn]] static void tasks_runCan2Tx(void *arg)
+void tasks_runCan2Tx(void *arg)
 {
     forever
     {
@@ -119,7 +146,7 @@
         }
     }
 }
-[[noreturn]] static void tasks_runCanRx(void *arg)
+void tasks_runCanRx(void *arg)
 {
     forever
     {
@@ -130,13 +157,20 @@
     }
 }
 
-// Define the task with StaticTask Class
-static hw::rtos::StaticTask<8096> Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz);
-static hw::rtos::StaticTask<512>  Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz);
-static hw::rtos::StaticTask<512>  Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz);
-static hw::rtos::StaticTask<512>  TaskCanRx(osPriorityNormal, "TaskCanRx", tasks_runCanRx);
-static hw::rtos::StaticTask<512>  TaskCan1Tx(osPriorityNormal, "TaskCanTx", tasks_runCan1Tx);
-static hw::rtos::StaticTask<512>  TaskCan2Tx(osPriorityNormal, "TaskCanTx", tasks_runCan2Tx);
+// lowk js copied from last years task
+[[noreturn]] static void tasks_powerMonitoring(void *arg)
+{
+    static const TickType_t period_ms   = 10;
+    static uint32_t         start_ticks = 0;
+    start_ticks                         = osKernelGetTickCount();
+
+    for (;;)
+    {
+        jobs_runPowerMonitoring_tick();
+        start_ticks += period_ms;
+        osDelayUntil(start_ticks);
+    }
+}
 
 static void VC_StartAllTasks()
 {
@@ -146,6 +180,7 @@ static void VC_StartAllTasks()
     TaskCanRx.start();
     TaskCan1Tx.start();
     TaskCan2Tx.start();
+    TaskPowerMonitoring.start();
 }
 
 void tasks_preInit()
@@ -156,10 +191,15 @@ void tasks_preInit()
 
 void tasks_init()
 {
-    // __HAL_DBGMCU_FREEZE_IWDG();
     SEGGER_SYSVIEW_Conf();
-    LOG_INFO("VC Reset!");
 
+#ifndef WATCHDOG_DISABLED
+    __HAL_DBGMCU_FREEZE_IWDG1();
+#endif
+
+    LOG_INFO("VC Reset!");
+    osKernelInitialize();
+    jobs_init();
     fdcan1.init();
     invcan.init();
 

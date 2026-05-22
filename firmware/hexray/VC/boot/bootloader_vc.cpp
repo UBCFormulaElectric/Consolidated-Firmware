@@ -4,6 +4,7 @@
 #include "hw_can.hpp"
 #include "main.h"
 #include "hw_rtosTaskHandler.hpp"
+#include "app_commitInfo.hpp"
 #include <cassert>
 
 io::queue<hw::CanMsg, 256> boot_can_tx_queue("CanTxQueue");
@@ -30,8 +31,8 @@ class VCBootConfig : public bootloader::config
             boot_can_tx_queue,
             boot_can_rx_queue,
             board_highbits,
-            git_commit_has_val,
-            git_commit_clean_val)
+            GIT_COMMIT_HASH,
+            GIT_COMMIT_CLEAN)
     {
     }
 } vcboot_config;
@@ -41,12 +42,25 @@ CFUNC void bootloader_preinit()
     bootloader::preInit();
 }
 
-static hw::rtos::StaticTask<1024>
-    bootInterfaceTask(osPriorityRealtime, "BootIntf", [](void *) { bootloader::runInterfaceTask(vcboot_config); });
-static hw::rtos::StaticTask<1024>
-    bootTickTask(osPriorityRealtime, "BootTick", [](void *) { bootloader::runTickTask(vcboot_config); });
-static hw::rtos::StaticTask<1024>
-    bootCanTxTask(osPriorityRealtime, "BootCanTx", [](void *) { bootloader::runCanTxTask(vcboot_config); });
+static hw::rtos::StaticTask::StaticTaskStack<1024> bootInterfaceStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024> bootTickStack;
+static hw::rtos::StaticTask::StaticTaskStack<1024> bootCanTxStack;
+
+static hw::rtos::StaticTask bootInterfaceTask(
+    osPriorityRealtime,
+    "BootIntf",
+    [](void *) { bootloader::runInterfaceTask(vcboot_config); },
+    bootInterfaceStack);
+static hw::rtos::StaticTask bootTickTask(
+    osPriorityRealtime,
+    "BootTick",
+    [](void *) { bootloader::runTickTask(vcboot_config); },
+    bootTickStack);
+static hw::rtos::StaticTask bootCanTxTask(
+    osPriorityRealtime,
+    "BootCanTx",
+    [](void *) { bootloader::runCanTxTask(vcboot_config); },
+    bootCanTxStack);
 
 [[noreturn]] void bootloader_init()
 {

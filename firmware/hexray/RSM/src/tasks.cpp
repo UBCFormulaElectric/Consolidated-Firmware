@@ -3,10 +3,11 @@
 #include "jobs.hpp"
 
 #include "app_jsoncan.hpp"
+#include "app_canTx.hpp"
+#include "app_canAlerts.hpp"
 
 #include "io_time.hpp"
 #include "io_canQueues.hpp"
-#include "app_canAlerts.hpp"
 #include "stm32h5xx_hal.h"
 #include "io_canRx.hpp"
 #include "io_canTx.hpp"
@@ -20,13 +21,36 @@
 
 #include "hw_bootup.hpp"
 
-[[noreturn]] static void tasks_run1Hz(void *arg)
+constexpr size_t         TASK_COUNT = 5;
+[[noreturn]] static void tasks_run1Hz(void *arg);
+[[noreturn]] static void tasks_run100Hz(void *arg);
+[[noreturn]] static void tasks_run1kHz(void *arg);
+[[noreturn]] static void tasks_runCanTx(void *arg);
+[[noreturn]] static void tasks_runCanRx(void *arg);
+
+// Define the task with StaticTask Template Class
+static hw::rtos::StaticTask::StaticTaskStack<512> Task1kHzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512> Task100HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512> Task1HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512> TaskCanTxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512> TaskCanRxStack;
+
+static hw::rtos::StaticTask Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz, Task1kHzStack);
+static hw::rtos::StaticTask Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz, Task100HzStack);
+static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
+static hw::rtos::StaticTask TaskCanTx(osPriorityNormal, "TaskCanTx", tasks_runCanTx, TaskCanTxStack);
+static hw::rtos::StaticTask TaskCanRx(osPriorityLow, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
+
+static hw::watchdog::monitor<TASK_COUNT> monitor{
+    hiwdg,
+    [](const hw::watchdog::instance &i) { LOG_INFO("Software watchdog timeout for task %d", i.task_id); },
+};
+
+void tasks_run1Hz(void *arg)
 {
-    constexpr uint32_t             period_ms                = 1000U;
-    constexpr uint32_t             watchdog_grace_period_ms = 50U;
-    hw::watchdog::WatchdogInstance watchdog1hz{ period_ms + watchdog_grace_period_ms };
-    hw::watchdog::monitor          monitor1hz{ &watchdog1hz, hiwdg, HAL_IWDG_Refresh };
-    monitor1hz.registerWatchdogInstance();
+    constexpr uint32_t      period_ms                = 1000U;
+    constexpr uint32_t      watchdog_grace_period_ms = 50U;
+    hw::watchdog::instance &watchdog1hz              = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -40,13 +64,11 @@
         osDelayUntil(start_ticks);
     }
 }
-[[noreturn]] static void tasks_run100Hz(void *arg)
+void tasks_run100Hz(void *arg)
 {
-    constexpr uint32_t             period_ms                = 10U;
-    constexpr uint32_t             watchdog_grace_period_ms = 2U;
-    hw::watchdog::WatchdogInstance watchdog100hz{ period_ms + watchdog_grace_period_ms };
-    hw::watchdog::monitor          monitor100hz{ &watchdog100hz, hiwdg, HAL_IWDG_Refresh };
-    monitor100hz.registerWatchdogInstance();
+    constexpr uint32_t      period_ms                = 10U;
+    constexpr uint32_t      watchdog_grace_period_ms = 2U;
+    hw::watchdog::instance &watchdog100hz            = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
@@ -60,27 +82,25 @@
         osDelayUntil(start_ticks);
     }
 }
-[[noreturn]] static void tasks_run1kHz(void *arg)
+void tasks_run1kHz(void *arg)
 {
-    constexpr uint32_t             period_ms                = 1U;
-    constexpr uint32_t             watchdog_grace_period_ms = 1U;
-    hw::watchdog::WatchdogInstance watchdog1khz{ period_ms + watchdog_grace_period_ms };
-    hw::watchdog::monitor          monitor1khz{ &watchdog1khz, hiwdg, HAL_IWDG_Refresh };
-    monitor1khz.registerWatchdogInstance();
+    constexpr uint32_t      period_ms                = 1U;
+    constexpr uint32_t      watchdog_grace_period_ms = 1U;
+    hw::watchdog::instance &watchdog1khz             = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
     forever
     {
         jobs_run1kHz_tick();
+
         watchdog1khz.checkIn();
-#ifndef WATCHDOG_DISABLED
-        monitor1khz.checkForTimeouts();
-#endif
+        monitor.checkForTimeouts();
+
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
 }
-[[noreturn]] static void tasks_runCanTx(void *arg)
+void tasks_runCanTx(void *arg)
 {
     forever
     {
@@ -102,7 +122,7 @@
         }
     }
 }
-[[noreturn]] static void tasks_runCanRx(void *arg)
+void tasks_runCanRx(void *arg)
 {
     forever
     {
@@ -112,13 +132,6 @@
         io::can_rx::updateRxTableWithMessage(app::jsoncan::copyFromCanMsg(msg.value()));
     }
 }
-
-// Define the task with StaticTask Template Class
-static hw::rtos::StaticTask<512> Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz);
-static hw::rtos::StaticTask<512> Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz);
-static hw::rtos::StaticTask<512> Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz);
-static hw::rtos::StaticTask<512> TaskCanTx(osPriorityNormal, "TaskCanTx", tasks_runCanTx);
-static hw::rtos::StaticTask<512> TaskCanRx(osPriorityLow, "TaskCanRx", tasks_runCanRx);
 
 static void RSM_StartAllTasks()
 {
@@ -145,23 +158,22 @@ void tasks_init()
 
     adcchipsInit();
     can1.init();
-    ResetReason reason = hw::resetReason::get();
-    if (reason == RESET_REASON_WATCHDOG)
+    if (const ResetReason reason = hw::resetReason::get(); reason == RESET_REASON_WATCHDOG)
     {
         LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
         app::can_alerts::infos::WatchdogTimeout_set(true);
     }
 
-    hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
-    if (boot_request.context != hw::bootup::BootContext::BOOT_CONTEXT_NONE)
+    if (hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
+        boot_request.context != hw::bootup::BootContext::BOOT_CONTEXT_NONE)
     {
         if (boot_request.context == hw::bootup::BootContext::BOOT_CONTEXT_STACK_OVERFLOW)
         {
             LOG_WARN("Detected stack overflow on the previous boot cycle!");
         }
 
-        const_cast<hw::bootup::BootRequest &>(boot_request).context       = hw::bootup::BootContext::BOOT_CONTEXT_NONE;
-        const_cast<hw::bootup::BootRequest &>(boot_request).context_value = 0;
+        boot_request.context       = hw::bootup::BootContext::BOOT_CONTEXT_NONE;
+        boot_request.context_value = 0;
         hw::bootup::setBootRequest(boot_request);
     }
 

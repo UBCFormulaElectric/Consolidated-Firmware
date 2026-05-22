@@ -1,15 +1,19 @@
 #include "tasks.h"
 
 #include "jobs.hpp"
+#include "main.h"
+
 #include "app_soc.hpp"
 #include "app_socStorage.hpp"
 #include "app_jsoncan.hpp"
 #include "app_canTx.hpp"
 #include "app_canUtils.hpp"
 #include "app_canAlerts.hpp"
+
 #include "io_canQueues.hpp"
 #include "io_time.hpp"
 #include "io_canRx.hpp"
+
 #include "hw_adcs.hpp"
 #include "hw_watchdog.hpp"
 #include "hw_cans.hpp"
@@ -19,35 +23,58 @@
 #include "hw_resetReason.hpp"
 #include "hw_bootup.hpp"
 #include "hw_pwms.hpp"
-#include "hw_gpios.hpp"
-#include "main.h"
-#include <stm32h7xx_hal.h>
-#include <task.h>
-#include <climits>
+#include "hw_runTimeStat.hpp"
 
-[[noreturn]] static void tasks_run1kHz(void *arg);
+constexpr size_t         TASK_COUNT = 5;
 [[noreturn]] static void tasks_run1Hz(void *arg);
 [[noreturn]] static void tasks_run100Hz(void *arg);
-[[noreturn]] static void tasks_runCanRx(void *arg);
+[[noreturn]] static void tasks_run1kHz(void *arg);
 [[noreturn]] static void tasks_runCanTx(void *arg);
+[[noreturn]] static void tasks_runCanRx(void *arg);
 [[noreturn]] static void tasks_runSdCard(void *arg);
 
 // Define the task with StaticTask template class
-static hw::rtos::StaticTask<512> Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz);
-static hw::rtos::StaticTask<512> Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz);
-static hw::rtos::StaticTask<512> Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz);
-static hw::rtos::StaticTask<512> TaskCanRx(osPriorityBelowNormal, "TaskCanRx", tasks_runCanRx);
-static hw::rtos::StaticTask<512> TaskCanTx(osPriorityBelowNormal, "TaskCanTx", tasks_runCanTx);
-static hw::rtos::StaticTask<128> TaskSdCard(osPriorityLow, "TaskSdCard", tasks_runSdCard);
+static hw::rtos::StaticTask::StaticTaskStack<512> Task1kHzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512> Task1HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512> Task100HzStack;
+static hw::rtos::StaticTask::StaticTaskStack<512> TaskCanRxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512> TaskCanTxStack;
+static hw::rtos::StaticTask::StaticTaskStack<128> TaskSdCardStack;
 
-[[noreturn]] static void tasks_run1Hz(void *arg)
+static hw::rtos::StaticTask Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz, Task1kHzStack);
+static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
+static hw::rtos::StaticTask Task100Hz(osPriorityHigh, "Task100Hz", tasks_run100Hz, Task100HzStack);
+static hw::rtos::StaticTask TaskCanRx(osPriorityBelowNormal, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
+static hw::rtos::StaticTask TaskCanTx(osPriorityBelowNormal, "TaskCanTx", tasks_runCanTx, TaskCanTxStack);
+static hw::rtos::StaticTask TaskSdCard(osPriorityLow, "TaskSdCard", tasks_runSdCard, TaskSdCardStack);
+
+static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor{
+    { app::can_tx::BMS_CoreCpuUsage_set, app::can_tx::BMS_CoreCpuUsageMax_set },
+    {
+        { { Task1kHz, app::can_tx::BMS_TaskRun1kHzCpuUsage_set, app::can_tx::BMS_TaskRun1kHzCpuUsageMax_set,
+            app::can_tx::BMS_TaskRun1kHzStackUsage_set },
+          { Task1Hz, app::can_tx::BMS_TaskRun1HzCpuUsage_set, app::can_tx::BMS_TaskRun1HzCpuUsageMax_set,
+            app::can_tx::BMS_TaskRun1HzStackUsage_set },
+          { Task100Hz, app::can_tx::BMS_TaskRun100HzCpuUsage_set, app::can_tx::BMS_TaskRun100HzCpuUsageMax_set,
+            app::can_tx::BMS_TaskRun100HzStackUsage_set },
+          { TaskCanRx, app::can_tx::BMS_TaskRunCanRxCpuUsage_set, app::can_tx::BMS_TaskRunCanRxCpuUsageMax_set,
+            app::can_tx::BMS_TaskRunCanRxStackUsage_set },
+          { TaskCanTx, app::can_tx::BMS_TaskRunCanTxCpuUsage_set, app::can_tx::BMS_TaskRunCanTxCpuUsageMax_set,
+            app::can_tx::BMS_TaskRunCanTxStackUsage_set } },
+    },
+};
+
+static hw::watchdog::monitor<TASK_COUNT> monitor{
+    hiwdg1,
+    [](const hw::watchdog::instance &i) { LOG_ERROR("Watchdog timeout detected in task %d", i.task_id); },
+};
+
+void tasks_run1Hz(void *arg)
 {
-    constexpr uint32_t             period_ms                = 1000U;
-    constexpr uint32_t             watchdog_grace_period_ms = 50U;
-    hw::watchdog::WatchdogInstance watchdog1hz{ period_ms + watchdog_grace_period_ms };
-    hw::watchdog::monitor          monitor1hz{ &watchdog1hz, hiwdg1, HAL_IWDG_Refresh };
-    monitor1hz.registerWatchdogInstance();
-    uint32_t start_ticks = osKernelGetTickCount();
+    constexpr uint32_t      period_ms                = 1000U;
+    constexpr uint32_t      watchdog_grace_period_ms = 50U;
+    hw::watchdog::instance &watchdog1hz              = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
+    uint32_t                start_ticks              = osKernelGetTickCount();
 
     forever
     {
@@ -59,20 +86,19 @@ static hw::rtos::StaticTask<128> TaskSdCard(osPriorityLow, "TaskSdCard", tasks_r
         }
 
         watchdog1hz.checkIn();
+        runtimeMonitor.checkin();
         start_ticks += period_ms;
         io::time::delayUntil(start_ticks);
         osDelayUntil(start_ticks);
     }
 }
 
-[[noreturn]] static void tasks_run100Hz(void *arg)
+void tasks_run100Hz(void *arg)
 {
-    constexpr uint32_t             period_ms                = 10U;
-    constexpr uint32_t             watchdog_grace_period_ms = 2U;
-    hw::watchdog::WatchdogInstance watchdog100hz{ period_ms + watchdog_grace_period_ms };
-    hw::watchdog::monitor          monitor100hz{ &watchdog100hz, hiwdg1, HAL_IWDG_Refresh };
-    monitor100hz.registerWatchdogInstance();
-    uint32_t start_ticks = osKernelGetTickCount();
+    constexpr uint32_t      period_ms                = 10U;
+    constexpr uint32_t      watchdog_grace_period_ms = 2U;
+    hw::watchdog::instance &watchdog100hz            = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
+    uint32_t                start_ticks              = osKernelGetTickCount();
 
     forever
     {
@@ -82,26 +108,26 @@ static hw::rtos::StaticTask<128> TaskSdCard(osPriorityLow, "TaskSdCard", tasks_r
         osDelayUntil(start_ticks);
     }
 }
-[[noreturn]] static void tasks_run1kHz(void *arg)
+
+void tasks_run1kHz(void *arg)
 {
-    constexpr uint32_t             period_ms                = 1U;
-    constexpr uint32_t             watchdog_grace_period_ms = 1U;
-    hw::watchdog::WatchdogInstance watchdog1khz{ period_ms + watchdog_grace_period_ms };
-    hw::watchdog::monitor          monitor1khz{ &watchdog1khz, hiwdg1, HAL_IWDG_Refresh };
-    monitor1khz.registerWatchdogInstance();
+    constexpr uint32_t      period_ms                = 1U;
+    constexpr uint32_t      watchdog_grace_period_ms = 1U;
+    hw::watchdog::instance &watchdog1khz             = monitor.spawn_instance(period_ms + watchdog_grace_period_ms);
 
     uint32_t start_ticks = osKernelGetTickCount();
 
     forever
     {
         jobs_run1kHz_tick();
-        monitor1khz.checkForTimeouts();
         watchdog1khz.checkIn();
+        monitor.checkForTimeouts();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
 }
-[[noreturn]] static void tasks_runCanTx(void *arg)
+
+void tasks_runCanTx(void *arg)
 {
     forever
     {
@@ -119,7 +145,7 @@ static hw::rtos::StaticTask<128> TaskSdCard(osPriorityLow, "TaskSdCard", tasks_r
 
         if (m.bus == app::can_utils::BusEnum::Bus_charger)
         {
-            std::expected<void, ErrorCode> res;
+            result<void> res;
             if (can_msg.dlc > 8)
                 res = fdcan1.fdcan_transmit(can_msg);
             else
@@ -137,7 +163,7 @@ static hw::rtos::StaticTask<128> TaskSdCard(osPriorityLow, "TaskSdCard", tasks_r
         }
     }
 }
-[[noreturn]] static void tasks_runCanRx(void *arg)
+void tasks_runCanRx(void *arg)
 {
     forever
     {
@@ -170,7 +196,7 @@ static hw::rtos::StaticTask<128> TaskSdCard(osPriorityLow, "TaskSdCard", tasks_r
     }
 }
 
-void BMS_StartAllTasks()
+static void BMS_StartAllTasks()
 {
     Task1kHz.start();
     Task1Hz.start();
@@ -212,8 +238,8 @@ void tasks_init()
         app::can_alerts::infos::WatchdogTimeout_set(true);
     }
 
-    hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
-    if (boot_request.context != hw::bootup::BootContext::BOOT_CONTEXT_NONE)
+    if (hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
+        boot_request.context != hw::bootup::BootContext::BOOT_CONTEXT_NONE)
     {
         // Check for stack overflow on a previous boot cycle and populate CAN alert.
         if (boot_request.context == hw::bootup::BootContext::BOOT_CONTEXT_STACK_OVERFLOW)

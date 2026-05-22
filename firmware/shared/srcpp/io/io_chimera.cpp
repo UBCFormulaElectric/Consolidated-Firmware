@@ -11,6 +11,7 @@
 #include "cmsis_os.h"
 
 #include "hw_adc.hpp"
+#include "hw_error.hpp"
 
 extern const hw::Gpio *id_to_gpio(uint32_t net_name);
 extern const hw::adc  *id_to_adc(uint32_t net_name);
@@ -24,8 +25,7 @@ static const hw::Gpio *io_chimera_parseNetLabelGpio(const GpioNetName *net_name)
         CASERETURN(GpioNetName_rsm_net_name_tag, id_to_gpio(net_name->name.rsm_net_name));
         CASERETURN(GpioNetName_crit_net_name_tag, id_to_gpio(net_name->name.crit_net_name));
         default:
-            assert(false);
-            return NULL;
+            Error_Handler();
     }
 }
 static const hw::adc *io_chimera_parseNetLabelAdc(const AdcNetName *net_name)
@@ -38,7 +38,7 @@ static const hw::adc *io_chimera_parseNetLabelAdc(const AdcNetName *net_name)
         CASERETURN(AdcNetName_rsm_net_name_tag, id_to_adc(net_name->name.rsm_net_name));
         CASERETURN(AdcNetName_crit_net_name_tag, id_to_adc(net_name->name.crit_net_name));
         default:
-            assert(false);
+            Error_Handler();
             return NULL;
     }
 }

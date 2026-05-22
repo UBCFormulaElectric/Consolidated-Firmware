@@ -20,6 +20,7 @@ extern "C"
     void __ubsan_handle_vla_bound_not_positive(void *_data, void *bound);        // NOLINT(*-reserved-identifier)
     void __ubsan_handle_pointer_overflow(void *_data, void *base, void *result); // NOLINT(*-reserved-identifier)
     void __ubsan_handle_divrem_overflow(void *_data, void *lhs, void *rhs);      // NOLINT(*-reserved-identifier)
+    void __ubsan_handle_invalid_builtin(void *_data);                            // NOLINT(*-reserved-identifier)
 } // extern "C"
 
 #define VALUE_LENGTH 40
@@ -218,7 +219,7 @@ static void handle_misaligned_access(const type_mismatch_data_common *data, cons
         return;
     ubsan_prologue(data->location, "misaligned-access");
     LOG_ERROR(
-        "%s misaligned address %p for type %s", type_check_kinds[data->type_check_kind], (void *)ptr,
+        "%s misaligned address %p for type %s", type_check_kinds[data->type_check_kind], reinterpret_cast<void *>(ptr),
         data->type->type_name);
     LOG_ERROR("which requires %ld byte alignment", data->alignment);
     hw_error(data->location->file_name, static_cast<int>(data->location->row_col.line), "misaligned-access");
@@ -228,7 +229,9 @@ static void handle_object_size_mismatch(const type_mismatch_data_common *data, c
     if (suppress_report(data->location))
         return;
     ubsan_prologue(data->location, "object-size-mismatch");
-    LOG_ERROR("%s address %p with insufficient space", type_check_kinds[data->type_check_kind], (void *)ptr);
+    LOG_ERROR(
+        "%s address %p with insufficient space", type_check_kinds[data->type_check_kind],
+        reinterpret_cast<void *>(ptr));
     LOG_ERROR("for an object of type %s", data->type->type_name);
     hw_error(data->location->file_name, static_cast<int>(data->location->row_col.line), "object-size-mismatch");
 }
@@ -459,5 +462,14 @@ void __ubsan_handle_pointer_overflow(void *_data, void *base, void *result)
         LOG_ERROR("pointer index expression with base %X overflowed to %X", base, result);
     }
     hw_error(data->location.file_name, static_cast<int>((data)->location.row_col.line), "pointer-overflow");
+}
+
+void __ubsan_handle_invalid_builtin(void *_data)
+{
+    const auto data = static_cast<invalid_builtin_data *>(_data);
+    if (suppress_report(&data->location))
+        return;
+    ubsan_prologue(&data->location, "invalid-builtin");
+    hw_error(data->location.file_name, static_cast<int>(data->location.row_col.line), "invalid-builtin");
 }
 // NOLINTEND(bugprone-reserved-identifier)

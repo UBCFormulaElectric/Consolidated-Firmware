@@ -10,13 +10,15 @@ import { EnumSignalPicker } from "./EnumSignalPicker";
 import NumericalCanvasChart from "./NumericalCanvasChart";
 import { NumericalSignalPicker } from "./NumericalSignalPicker";
 import { useWidgetManager } from "./WidgetManagerContext";
-import { EnumSignalMetadata, NumericalSignalMetadata, SignalMetadata } from "@/lib/types/Signal";
+import { BooleanSignalMetadata, EnumSignalMetadata, isEnumSignalMetadata, NumericalSignalMetadata, SignalMetadata } from "@/lib/types/Signal";
 import { EnumTimelineWidgetData, NumericalGraphWidgetData, WidgetData } from "@/lib/types/Widget";
 
-function buildEnumPalette(signal: EnumSignalMetadata): { color: Color; enumValueColors: Record<number, Color> } {
-  const enumValues = Object.keys(signal.enum.items)
-    .map((value) => Number(value))
-    .sort((left, right) => left - right);
+function buildEnumPalette(signal: EnumSignalMetadata | BooleanSignalMetadata): { color: Color; enumValueColors: Record<number, Color> } {
+  const enumValues = (
+    isEnumSignalMetadata(signal)
+      ? Object.values(signal.enum_signal.enum_values).sort((left, right) => left - right)
+      : [0, 1]
+  ) 
   const startingHue = Math.random() * 360;
   const hueStep = enumValues.length > 0 ? 360 / enumValues.length : 360;
   const enumValueColors: Record<number, Color> = {};
@@ -193,7 +195,7 @@ function EnumWidgetAddSignalModal(props: { widget: EnumTimelineWidgetData }) {
   const { widget } = props;
   const [modalOpen, setModalOpen] = useState(false);
   const [signalQuery, setSignalQuery] = useState("");
-  const [selectedSignal, setSelectedSignal] = useState<EnumSignalMetadata | null>(null);
+  const [selectedSignal, setSelectedSignal] = useState<EnumSignalMetadata | BooleanSignalMetadata | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { updateWidget } = useWidgetManager();
 
