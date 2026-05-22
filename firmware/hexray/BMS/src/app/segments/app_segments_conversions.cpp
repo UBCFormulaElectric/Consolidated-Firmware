@@ -48,10 +48,10 @@ Cells<result<float>> conversion::cellVoltage() {
 result<pair<Therms<result<float>>, Therms<result<bool>>>> conversion::thermTempOwc() {
 
     RETURN_IF_ERR(startPoll::auxAdc(ThermistorMux::THERMISTOR_MUX_0_7));
-    ThermGpios<result<uint16_t>> therm_0_7_voltage = io::adbms::read::thermVoltage();
+    ThermGpios<result<uint16_t>> therm_0_7_voltage = io::adbms::read::thermGpioVoltage();
 
     RETURN_IF_ERR(startPoll::auxAdc(ThermistorMux::THERMISTOR_MUX_8_13));
-    ThermGpios<result<uint16_t>> therm_8_13_voltage = io::adbms::read::thermVoltage();
+    ThermGpios<result<uint16_t>> therm_8_13_voltage = io::adbms::read::thermGpioVoltage();
 
     Therms<result<float>> out_temp;
     Therms<result<bool>> out_owc;
@@ -83,51 +83,51 @@ result<pair<Therms<result<float>>, Therms<result<bool>>>> conversion::thermTempO
 }
 
 Segments<result<float>> conversion::segVoltage() {
-    const Segment<result<uint16_t>> seg_voltage = io::adbms::read::segVoltage();
+    const Segments<result<uint16_t>> seg_voltage = io::adbms::read::segVoltage();
 
-    Segment<result<float>> out_voltage;
+    Segments<result<float>> out_voltage;
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++) {
         if (!seg_voltage[seg]) {
-            out_voltage[seg] = std::unexpected(cell_voltage[seg].error());
+            out_voltage[seg] = std::unexpected(seg_voltage[seg].error());
         } else {
-            out_voltage[seg] = convertRegToVoltage(cell_voltage[seg].value());
+            out_voltage[seg] = convertRegToVoltage(seg_voltage[seg].value());
         }
     }
         
     return out_voltage;
 }
 
-result<Segment<result<StatusGroups>>> conversion::status() {
+result<Segments<io::adbms::StatusGroups>> conversion::status() {
     RETURN_IF_ERR(io::adbms::clear::stat());
     return io::adbms::read::status();
 }
 
-result<Cell<result<bool>>> conversion::cellOwc() {
+result<Cells<result<bool>>> conversion::cellOwc() {
     RETURN_IF_ERR(startPoll::cellAdc());
-    Cell<result<float>> baseline_voltage = io::adbms::read::cellVoltage();
+    Cells<result<uint16_t>> baseline_voltage = io::adbms::read::cellVoltage();
 
     RETURN_IF_ERR(startPoll::cellOwcAdc(io::adbms::OpenWireSwitch::OddChannels));
-    Cell<result<float>> odd_voltage = io::adbms::read::cellVoltage();
+    Cells<result<uint16_t>> odd_voltage = io::adbms::read::cellVoltage();
 
     RETURN_IF_ERR(startPoll::cellOwcAdc(io::adbms::OpenWireSwitch::EvenChannels));
-    Cell<result<float>> even_voltage = io::adbms::read::cellVoltage();
+    Cells<result<uint16_t>> even_voltage = io::adbms::read::cellVoltage();
     
-    Cell<result<bool>> owc_cell;
+    Cells<result<bool>> owc_cell;
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++) {
         for (size_t cell = 0; cell < CELLS_PER_SEGMENT; cell++) {
             if (!baseline_voltage[seg][cell])
             {
-                owc_cell[seg][cell] = unexpected(baseline_voltage[seg][cell].error());
+                owc_cell[seg][cell] = std::unexpected(baseline_voltage[seg][cell].error());
                 continue;
             }
             if (!odd_voltage[seg][cell])
             {
-                owc_cell[seg][cell] = unexpected(odd_voltage[seg][cell].error());
+                owc_cell[seg][cell] = std::unexpected(odd_voltage[seg][cell].error());
                 continue;
             }
             if (!even_voltage[seg][cell])
             {
-                owc_cell[seg][cell] = unexpected(even_voltage[seg][cell].error());
+                owc_cell[seg][cell] = std::unexpected(even_voltage[seg][cell].error());
                 continue;
             }
             const float baseline_v = convertRegToVoltage(baseline_voltage[seg][cell].value());
