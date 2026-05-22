@@ -2,6 +2,7 @@
 #include "app_segments_internal.hpp"
 #include "io_semaphore.hpp"
 #include "util_retry.hpp"
+#include "hw_notify.hpp"
 
 #include <cassert>
 #include <cstring>
@@ -80,6 +81,8 @@ result<void> upload()
 
 namespace app::segments::config
 {
+hw::notify::Notifier sync_done;
+
 void setBalanceConfig(const Cells<bool> &balance_config, const Cells<uint8_t> &pwm_duty, const bool balancing_enabled)
 {
     const io::unique_semaphore lock{ config_data_lock };
@@ -134,7 +137,7 @@ result<void> configSync()
     if (not dirty)
         return {};
 
-    return util::retry(
+    const auto r = util::retry(
         []() -> result<void>
         {
             RETURN_IF_ERR(upload());
@@ -145,6 +148,9 @@ result<void> configSync()
             return {};
         },
         NUM_CONFIG_SYNC_TRIES);
+    if (r)
+        sync_done.notifyIfWaiting();
+    return r;
 }
 
 } // namespace app::segments::config

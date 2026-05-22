@@ -26,14 +26,16 @@ std::array<std::array<uint8_t, CELLS_PER_SEGMENT>, NUM_SEGMENTS> pwm_duty;
 app::Timer                                                       settle_timer(SETTLE_TIME_MS);
 app::Timer                                                       balance_timer(BALANCE_TIME_MS);
 
-result<void> updateCellsToBalance()
+void updateCellsToBalance()
 {
+    app::segments::Cells<result<float>> cell_voltages = app::segments::state::getLatestVoltages();
+    app::segments::CellParam<float> min_cell_voltage = app::segments::state::getMinCellVoltage();
+
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
         for (uint8_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
         {
             // Skip cells with failed voltage reads
-            app::segments::Cells<result<float>> cell_voltages = app::segments::state::getLatestVoltages();
             if (!cell_voltages[seg][cell])
             {
                 discharge_enabled[seg][cell] = false;
@@ -41,7 +43,6 @@ result<void> updateCellsToBalance()
             }
 
             // Never discharge the leader cell unless balancing to target voltage
-            app::segments::CellParam<float> min_cell_voltage = app::segments::state::getMinCellVoltage()
             if (seg == min_cell_voltage.segment && cell == min_cell_voltage.cell && !app::can_rx::Debug_CellBalancing_OverrideValue_get())
             {
                 discharge_enabled[seg][cell] = false;
@@ -75,8 +76,7 @@ result<void> updateCellsToBalance()
             discharge_enabled[seg][cell] = true;
         }
     }
-
-    return app::segments::config::setBalanceConfig(discharge_enabled, pwm_duty, true);
+    app::segments::config::setBalanceConfig(discharge_enabled, pwm_duty, true);
 }
 } // namespace
 
@@ -96,6 +96,10 @@ void disable()
     discharge_enabled.fill({});
     pwm_duty.fill({});
     config::setBalanceConfig(discharge_enabled, pwm_duty, false);
+    {
+        const io::unique_semaphore s{ spi_bus_lock };
+        LOG_IF_ERR(io::adbms::command::stopBalance());
+    }
     balancing_state = can_utils::BalancingState::BALANCING_DISABLED;
 }
 
@@ -112,26 +116,32 @@ void tick()
         }
         case can_utils::BalancingState::BALANCING_SETTLE:
         {
-            if (settle_timer.updateAndGetState() == Timer::TimerState::EXPIRED)
+            if (settle_timer.updateAndGetState() == app::Timer::TimerState::EXPIRED)
             {
                 updateCellsToBalance();
                 {
                     const io::unique_semaphore s{ spi_bus_lock };
-                    LOG_IF_ERR(io::adbms::command::sendBalanceCmd());
+                    if (const auto r = io::adbms::command::startBalance(); r)
+                    {
+                        balance_timer.restart();
+                        balancing_state = can_utils::BalancingState::BALANCING_BALANCE;
+                        LOG_INFO("Balancing");
+                    }
+                    else
+                    {
+                        LOG_IF_ERR(r);
+                    }
                 }
-                balance_timer.restart();
-                balancing_state = can_utils::BalancingState::BALANCING_BALANCE;
-                LOG_INFO("Balancing");
             }
             break;
         }
         case can_utils::BalancingState::BALANCING_BALANCE:
         {
-            if (balance_timer.updateAndGetState() == Timer::TimerState::EXPIRED)
+            if (balance_timer.updateAndGetState() == app::Timer::TimerState::EXPIRED)
             {
                 {
                     const io::unique_semaphore s{ spi_bus_lock };
-                    LOG_IF_ERR(io::adbms::command::sendStopBalanceCmd());
+                    LOG_IF_ERR(io::adbms::command::stopBalance());
                 }
                 settle_timer.restart();
                 balancing_state = can_utils::BalancingState::BALANCING_SETTLE;

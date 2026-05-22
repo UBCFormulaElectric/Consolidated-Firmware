@@ -119,7 +119,11 @@ void jobs_run100Hz_tick()
     app::can_tx::BMS_BSPDAccelBrakeOk_set(io::bspdtest::isAccelBrakeOk());
 
     // STATE TRANSITIONS
-    if (app::can_alerts::AnyBoardHasFault())
+
+    if (app::can_rx::Debug_CellBalancing_Request_get())
+    {
+        app::StateMachine::set_next_state(&app::states::balancing_state);
+    } else if (app::can_alerts::AnyBoardHasFault())
     {
         app::StateMachine::set_next_state(&app::states::fault_state);
     }
@@ -127,13 +131,8 @@ void jobs_run100Hz_tick()
     {
         app::StateMachine::set_next_state(&app::states::init_state);
     }
-    else if (app::can_rx::Debug_CellBalancing_Request_get())
-    {
-        app::StateMachine::set_next_state(&app::states::balancing_state);
-    }
 
     app::irs::broadcast();
-
     io::can_tx::enqueue100HzMsgs();
 }
 
