@@ -119,10 +119,10 @@ namespace startPoll
 
 namespace conversion
 {
-    Cells<result<float>>                                                              cellVoltage();
-    std::pair<Therms<result<float>>, Therms<result<bool>>>                            thermTempOwc();
-    Segments<result<float>>                                                           segVoltage();
-    Segments<io::adbms::StatusGroups>                                                 status();
-    Cells<result<bool>>                                                               cellOwc();
+    Cells<result<float>>                                    cellVoltage();
+    std::pair<Therms<result<float>>, Therms<result<bool>>>  thermTempOwc();
+    Segments<result<float>>                                 segVoltage();
+    Segments<io::adbms::StatusGroups>                       status();
+    Cells<result<bool>>                                     cellOwc();
 } // namespace conversion
 } // namespace app::segments

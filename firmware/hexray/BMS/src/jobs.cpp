@@ -170,15 +170,16 @@ void jobs_runAdbmsAux_tick()
 {
     LOG_IF_ERR(app::segments::config::waitForSync());
 
-    result<std::pair<Therms<result<float>>, Therms<result<bool>>>> temp_r;
-    Segments<io::adbms::StatusGroups>>                      stat_r;
+    std::pair<Therms<result<float>>, Therms<result<bool>>> therm;
+    Segments<io::adbms::StatusGroups>  status;
+    Segments<result<float>> seg_voltage;
     
     {
         const io::unique_semaphore s{ spi_bus_lock };
         LOG_IF_ERR(io::adbms::clear::stat());
-        temp_r = app::segments::conversion::thermTempOwc();
-        
-        stat_r = app::segments::conversion::status();
+        therm = app::segments::conversion::thermTempOwc();
+        status =  app::segments::conversion::status();
+        seg_voltage = app::segments::conversion::segVoltage();
     }
 
 }

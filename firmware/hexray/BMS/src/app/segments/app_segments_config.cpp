@@ -7,6 +7,7 @@
 #include <cassert>
 #include <cstring>
 #include <atomic>
+#include <optional>
 
 using namespace std;
 
@@ -40,28 +41,34 @@ bool                                               dirty = true;
 io::semaphore config_data_lock{ true }; // protects the segment_config and pwm_config arrays, and dirty bit
 
 /**
- * @return if the config on the ADBMS matches the config_data arrays in this file. If an error occurs while reading the
- * config from the ADBMS, returns that error.
+ * @return per-segment equality status. For each segment: value()==true if the ADBMS config matches
+ * the in-memory config, value()==false if it's mismatched, or an error (e.g., CHECKSUM_FAIL) if we
+ * couldn't read that segment's config.
  * @note Caller must hold config_data_lock.
  */
-result<bool> isConfigEqual()
+io::adbms::Segments<result<bool>> isConfigEqual()
 {
     assert(config_data_lock.is_held());
     const auto segment_config_buf = io::adbms::read::configReg();
     const auto pwm_config_buf     = io::adbms::read::pwmReg();
 
+    io::adbms::Segments<result<bool>> out;
     for (uint8_t seg = 0U; seg < NUM_SEGMENTS; seg++)
     {
         if (!segment_config_buf[seg])
-            return unexpected(segment_config_buf[seg].error());
+        {
+            out[seg] = unexpected(segment_config_buf[seg].error());
+            continue;
+        }
         if (!pwm_config_buf[seg])
-            return unexpected(pwm_config_buf[seg].error());
-        if (segment_config_buf[seg].value() != segment_config[seg])
-            return false;
-        if (pwm_config_buf[seg].value() != pwm_config[seg])
-            return false;
+        {
+            out[seg] = unexpected(pwm_config_buf[seg].error());
+            continue;
+        }
+        out[seg] = (segment_config_buf[seg].value() == segment_config[seg]) &&
+                   (pwm_config_buf[seg].value() == pwm_config[seg]);
     }
-    return true;
+    return out;
 }
 
 /**
@@ -75,6 +82,36 @@ result<void> upload()
     RETURN_IF_ERR(io::adbms::write::configReg(segment_config));
     RETURN_IF_ERR(io::adbms::write::pwmReg(pwm_config));
     return {};
+}
+
+/**
+ * Folds per-segment equality results into the sticky error accumulator and returns whether every
+ * segment is healthy and equal.
+ */
+bool absorbAndCheckAllEqual(
+    const io::adbms::Segments<result<bool>> &per_seg,
+    io::adbms::Segments<bool>               &seg_had_error)
+{
+    bool all_equal = true;
+    for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
+    {
+        if (!per_seg[seg] || !per_seg[seg].value())
+        {
+            seg_had_error[seg] = true;
+            all_equal          = false;
+        }
+    }
+    return all_equal;
+}
+
+/**
+ * Returns the first per-segment read error in @p per_seg, if any.
+ */
+std::optional<ErrorCode> firstReadError(const io::adbms::Segments<result<bool>> &per_seg)
+{
+    for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
+        if (!per_seg[seg]) return per_seg[seg].error();
+    return std::nullopt;
 }
 
 } // namespace
@@ -127,32 +164,55 @@ result<void> configSync()
 {
     const io::unique_semaphore lock{ config_data_lock };
 
+    // Sticky per-segment error accumulator for this sync call: a segment is flagged if it had any
+    // read error (e.g., CHECKSUM_FAIL) or was mismatched at any point during this call.
+    Segments<bool> seg_had_error{};
+
+    const auto writeHealthBits = [&]() {
+        for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
+            health::setOrReset(seg, health::ErrorBit::Config, seg_had_error[seg]);
+    };
+
+    // Fast path: if nothing's marked dirty, double-check the chip still matches in case of a reset.
     if (not dirty)
     {
-        const auto config_equal = isConfigEqual();
-        RETURN_IF_ERR(config_equal);
-        if (!config_equal.value()) dirty = true;
-    }
-
-    if (not dirty)
-    {
-        sync_done.notifyIfWaiting();
-        return {};
-    }
-
-    const auto r = util::retry(
-        []() -> result<void>
+        if (absorbAndCheckAllEqual(isConfigEqual(), seg_had_error))
         {
-            RETURN_IF_ERR(upload());
-            const auto equal = isConfigEqual();
-            RETURN_IF_ERR(equal);
-            if (!equal.value()) return unexpected(ErrorCode::RETRY_FAILED);
-            dirty = false;
+            writeHealthBits();
+            sync_done.notifyIfWaiting();
             return {};
+        }
+        dirty = true;
+    }
+
+    // Slow path: write config to the chip and verify, retrying up to NUM_CONFIG_SYNC_TRIES times.
+    const auto r = util::retry(
+        [&]() -> result<void>
+        {
+            const auto up = upload();
+            if (!up)
+            {
+                // Daisy-chain SPI failure: leaves every segment in an unknown state.
+                for (auto &flag : seg_had_error) flag = true;
+                return unexpected(up.error());
+            }
+
+            const auto per_seg = isConfigEqual();
+            if (absorbAndCheckAllEqual(per_seg, seg_had_error))
+            {
+                dirty = false;
+                return {};
+            }
+
+            // Drive the retry with a meaningful error: prefer the per-segment read error over a
+            // plain mismatch.
+            if (const auto err = firstReadError(per_seg)) return unexpected(*err);
+            return unexpected(ErrorCode::RETRY_FAILED);
         },
         NUM_CONFIG_SYNC_TRIES);
-    if (r)
-        sync_done.notifyIfWaiting();
+
+    writeHealthBits();
+    if (r) sync_done.notifyIfWaiting();
     return r;
 }
 
