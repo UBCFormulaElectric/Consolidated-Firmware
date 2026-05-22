@@ -37,26 +37,26 @@ constexpr float VSENSE_LSB(1.5259e-6f / 0.003f);
 constexpr float POWER_LSB = VBUS_LSB * VSENSE_LSB;
 namespace io::powerMonitoring
 {
-static std::expected<void, ErrorCode> read_register(uint16_t reg, std::span<uint8_t> data)
+static result<void> read_register(uint16_t reg, std::span<uint8_t> data)
 {
     auto result = util::retry([&]() { return pwr_pump.memoryRead(reg, data); }, 5);
     return result;
 }
 
-static std::expected<void, ErrorCode> write_register(uint16_t reg, std::span<const uint8_t> data)
+static result<void> write_register(uint16_t reg, std::span<const uint8_t> data)
 {
     auto result = util::retry([&]() { return pwr_pump.memoryWrite(reg, data); }, 5);
     return result;
 }
 
-std::expected<void, ErrorCode> refresh()
+result<void> refresh()
 {
     const uint8_t cmd    = REG_REFRESH;
     auto          result = util::retry([&]() { return pwr_pump.transmit(std::span{ &cmd, 1 }); }, 3);
     return result;
 }
 
-std::expected<void, ErrorCode> init()
+result<void> init()
 {
     // 1) Check if peripheral is ready
     RETURN_IF_ERR(util::retry([&]() { return pwr_pump.isTargetReady(); }, 5));
@@ -114,7 +114,7 @@ std::expected<void, ErrorCode> init()
     return {};
 }
 
-std::expected<float, ErrorCode> read_voltage(Channel ch)
+result<float> read_voltage(Channel ch)
 {
     std::array<uint8_t, 2> buf;
     uint8_t                reg = (uint8_t)(REG_VBUS + (ch - 1));
@@ -125,7 +125,7 @@ std::expected<float, ErrorCode> read_voltage(Channel ch)
     return (raw * VBUS_LSB);
 }
 
-std::expected<float, ErrorCode> read_current(Channel ch)
+result<float> read_current(Channel ch)
 {
     std::array<uint8_t, 2> buf;
     uint8_t                reg = (uint8_t)(REG_VSENSE + (ch - 1));
@@ -136,7 +136,7 @@ std::expected<float, ErrorCode> read_current(Channel ch)
     return (raw * VSENSE_LSB);
 }
 
-std::expected<float, ErrorCode> read_power(Channel ch)
+result<float> read_power(Channel ch)
 {
     std::array<uint8_t, 4> buf;
     uint8_t                reg = (uint8_t)(REG_VPOWERN + (ch - 1));
@@ -153,7 +153,7 @@ std::expected<float, ErrorCode> read_power(Channel ch)
     return ((float)raw30 * POWER_LSB);
 }
 
-std::expected<uint8_t, ErrorCode> read_alert_status()
+result<uint8_t> read_alert_status()
 {
     std::array<uint8_t, 3> status{};
     RETURN_IF_ERR(read_register(REG_ALERT_STATUS, status));
@@ -167,7 +167,7 @@ std::expected<uint8_t, ErrorCode> read_alert_status()
  * @param void
  * @return NA
  */
-std::expected<void, ErrorCode> monitor_power_inputs()
+result<void> monitor_power_inputs()
 {
     RETURN_IF_ERR(refresh());
     uint8_t uv_active_mask = 0;
@@ -195,7 +195,7 @@ std::expected<void, ErrorCode> monitor_power_inputs()
     return {};
 }
 
-std::expected<bool, ErrorCode> is_alert_asserted()
+result<bool> is_alert_asserted()
 {
     return !pwr_mtr_nalert.readPin();
 }

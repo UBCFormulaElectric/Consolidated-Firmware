@@ -34,18 +34,17 @@ class FmacIir
   public:
     explicit FmacIir(FMAC_HandleTypeDef &handle) : m_handle(handle) {}
 
-    std::expected<void, ErrorCode>
-        init(std::span<const int16_t> coefB, std::span<const int16_t> coefA, uint8_t gainExponent);
+    result<void> init(std::span<const int16_t> coefB, std::span<const int16_t> coefA, uint8_t gainExponent);
     /** Process one sample: float in → FMAC (Q1.15) → float out in the success value. */
-    std::expected<float, ErrorCode> process(const float sample);
-    std::expected<void, ErrorCode>  stop();
+    result<float> process(const float sample);
+    result<void>  stop();
 
   private:
-    FMAC_HandleTypeDef               &m_handle;
-    int16_t                           m_outputSample = 0;
-    uint16_t                          m_outputSize   = 1;
-    std::expected<void, ErrorCode>    pushSample(int16_t sample_q15);
-    std::expected<int16_t, ErrorCode> popSample();
+    FMAC_HandleTypeDef &m_handle;
+    int16_t             m_outputSample = 0;
+    uint16_t            m_outputSize   = 1;
+    result<void>        pushSample(int16_t sample_q15);
+    result<int16_t>     popSample();
 };
 
 } // namespace hw::fmac
