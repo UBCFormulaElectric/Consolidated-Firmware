@@ -44,6 +44,6 @@ uint32_t getLastWrittenSocTenths();
 /**
  * @brief Get the SoC value to save to SD in tenths of a percent when valid.
  */
-bool convertSocToTenths(float soc_percent, uint32_t &soc_tenths);
+std::expected<uint32_t, ErrorCode> convertSocToTenths(float soc_percent);
 
 } // namespace app::socStorage
