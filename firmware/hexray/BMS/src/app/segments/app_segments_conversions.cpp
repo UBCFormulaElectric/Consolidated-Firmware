@@ -18,7 +18,7 @@ void fillWithError(Arr &arr, ErrorCode err)
 
 namespace app::segments
 {
-result<void> startPoll::cellOwcAdc(io::adbms::OpenWireSwitch owcSwitch)
+result<void> startPoll::secondaryCellAdc(io::adbms::OpenWireSwitch owcSwitch)
 {
     const auto start = io::adbms::command::owcCells(owcSwitch);
     if (!start)
@@ -26,8 +26,8 @@ result<void> startPoll::cellOwcAdc(io::adbms::OpenWireSwitch owcSwitch)
         health::setAll(health::ErrorBit::OwcAdcPoll);
         return std::unexpected(start.error());
     }
-    io::time::delay(VOLT_CONV_TIME_MS);
-    const auto poll = io::adbms::command::pollCellsAdc();
+    io::time::delay(SECONDARY_CELL_CONV_TIME_MS);
+    const auto poll = io::adbms::command::pollSecondaryCellsAdc();
     if (!poll)
     {
         health::setAll(health::ErrorBit::OwcAdcPoll);
@@ -45,7 +45,7 @@ result<void> startPoll::cellAdc()
         health::setAll(health::ErrorBit::CellAdcPoll);
         return std::unexpected(start.error());
     }
-    io::time::delay(VOLT_CONV_TIME_MS);
+    io::time::delay(CELL_CONV_TIME_MS);
     const auto poll = io::adbms::command::pollCellsAdc();
     if (!poll)
     {
@@ -211,25 +211,18 @@ Segments<io::adbms::StatusGroups> conversion::status()
     return status;
 }
 
-Cells<result<bool>> conversion::cellOwc()
+Cells<result<bool>> conversion::cellOwc(Cells<result<float>> &voltages)
 {
     Cells<result<bool>> owc_cell;
 
-    if (!startPoll::cellAdc())
-    {
-        fillWithError(owc_cell, ErrorCode::POLL_INVALID);
-        return owc_cell;
-    }
-    Cells<result<uint16_t>> baseline_voltage = io::adbms::read::cellVoltage();
-
-    if (!startPoll::cellOwcAdc(io::adbms::OpenWireSwitch::OddChannels))
+    if (!startPoll::secondaryCellAdc(io::adbms::OpenWireSwitch::OddChannels))
     {
         fillWithError(owc_cell, ErrorCode::POLL_INVALID);
         return owc_cell;
     }
     Cells<result<uint16_t>> odd_voltage = io::adbms::read::cellVoltage();
 
-    if (!startPoll::cellOwcAdc(io::adbms::OpenWireSwitch::EvenChannels))
+    if (!startPoll::secondaryCellAdc(io::adbms::OpenWireSwitch::EvenChannels))
     {
         fillWithError(owc_cell, ErrorCode::POLL_INVALID);
         return owc_cell;
@@ -241,9 +234,9 @@ Cells<result<bool>> conversion::cellOwc()
         bool seg_has_error = false;
         for (size_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
         {
-            if (!baseline_voltage[seg][cell])
+            if (!voltages[seg][cell])
             {
-                owc_cell[seg][cell] = std::unexpected(baseline_voltage[seg][cell].error());
+                owc_cell[seg][cell] = std::unexpected(voltages[seg][cell].error());
                 seg_has_error       = true;
                 continue;
             }
@@ -251,7 +244,6 @@ Cells<result<bool>> conversion::cellOwc()
             {
                 owc_cell[seg][cell] = std::unexpected(odd_voltage[seg][cell].error());
                 seg_has_error       = true;
-
                 continue;
             }
             if (!even_voltage[seg][cell])
@@ -260,9 +252,9 @@ Cells<result<bool>> conversion::cellOwc()
                 seg_has_error       = true;
                 continue;
             }
-            const float baseline_v = convertRegToVoltage(baseline_voltage[seg][cell].value());
-            const float owc_v      = (cell % 2 == 0) ? convertRegToVoltage(odd_voltage[seg][cell].value())
-                                                     : convertRegToVoltage(even_voltage[seg][cell].value());
+            const float baseline_v = voltages[seg][cell].value();
+            const float owc_v      = (cell % 2 == 0) ? convertRegToVoltage(even_voltage[seg][cell].value())
+                                                     : convertRegToVoltage(odd_voltage[seg][cell].value());
             owc_cell[seg][cell]    = checkCellOwcOk(baseline_v, owc_v);
         }
 

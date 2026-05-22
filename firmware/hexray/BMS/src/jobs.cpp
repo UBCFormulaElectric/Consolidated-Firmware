@@ -147,7 +147,7 @@ void jobs_runAdbmsVoltages_tick()
     {  
         const io::unique_semaphore s{ spi_bus_lock };
         voltages = app::segments::conversion::cellVoltage();
-        owc = app::segments::conversion::cellOwc();
+        owc = app::segments::conversion::cellOwc(voltages);
     }
     
     app::segments::broadcast::cellVoltages(voltages);

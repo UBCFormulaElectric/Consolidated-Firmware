@@ -30,7 +30,7 @@ result<void> command::startCellsAdc()
 
 result<void> command::owcCells(const OpenWireSwitch owcSwitch)
 {
-    const uint16_t cmd = (owcSwitch == OpenWireSwitch::EvenChannels) ? (ADCV_BASE | OW0) : (ADCV_BASE | OW1);
+    const uint16_t cmd = (owcSwitch == OpenWireSwitch::EvenChannels) ? (ADSV_BASE | OW0) : (ADSV_BASE | OW1);
     return sendCmd(cmd);
 }
 
@@ -40,6 +40,20 @@ result<void> command::pollCellsAdc()
         []() -> result<void>
         {
             const auto rx_res = poll(PLCADC);
+            if (!rx_res) return unexpected(rx_res.error());
+            if (rx_res.value().to_ulong() == POLL_STATUS_READY) return {};
+            io::time::delay(POLL_RETRY_DELAY_MS);
+            return unexpected(ErrorCode::BUSY);
+        },
+        POLL_RETRIES);
+}
+
+result<void> command::pollSecondaryCellsAdc()
+{
+    return util::retry(
+        []() -> result<void>
+        {
+            const auto rx_res = poll(PLSADC);
             if (!rx_res) return unexpected(rx_res.error());
             if (rx_res.value().to_ulong() == POLL_STATUS_READY) return {};
             io::time::delay(POLL_RETRY_DELAY_MS);

@@ -224,6 +224,7 @@ namespace command
 {
     [[nodiscard]] result<void> startCellsAdc();
     [[nodiscard]] result<void> startAuxAdc();
+    [[nodiscard]] result<void> pollSecondaryCellsAdc();
     [[nodiscard]] result<void> pollCellsAdc();
     [[nodiscard]] result<void> pollAuxAdc();
     [[nodiscard]] result<void> startBalance();

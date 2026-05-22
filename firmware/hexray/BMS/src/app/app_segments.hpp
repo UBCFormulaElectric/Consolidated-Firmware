@@ -7,9 +7,9 @@
 #include "hw_notify.hpp"
 
 // Minimum conversion times
-inline constexpr uint8_t VOLT_CONV_TIME_MS      = 1U;
+inline constexpr uint8_t CELL_CONV_TIME_MS      = 1U;
+inline constexpr uint8_t SECONDARY_CELL_CONV_TIME_MS = 8U;
 inline constexpr uint8_t AUX_CONV_TIME_MS       = 1U;
-inline constexpr uint8_t OWC_CONVERSION_TIME_MS = 8U; // includes OW soak time, not just ADC
 
 namespace app::segments
 {
@@ -114,7 +114,7 @@ namespace health
 // app_segments_conversions.cpp
 namespace startPoll
 {
-    [[nodiscard]] result<void> cellOwcAdc(io::adbms::OpenWireSwitch owcSwitch);
+    [[nodiscard]] result<void> secondaryCellAdc(io::adbms::OpenWireSwitch owcSwitch);
     [[nodiscard]] result<void> cellAdc();
     [[nodiscard]] result<void> auxAdc(ThermistorMux mux);
 } // namespace startPoll
@@ -125,6 +125,6 @@ namespace conversion
     std::pair<Therms<result<float>>, Therms<result<bool>>>  thermTempOwc();
     Segments<result<float>>                                 segVoltage();
     Segments<io::adbms::StatusGroups>                       status();
-    Cells<result<bool>>                                     cellOwc();
+    Cells<result<bool>>                                     cellOwc(Cells<result<float>> &voltages);
 } // namespace conversion
 } // namespace app::segments
