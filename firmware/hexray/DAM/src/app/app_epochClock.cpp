@@ -66,7 +66,10 @@ namespace
     {
         const uint32_t clamped_subseconds = (subseconds > PREDIV_S) ? PREDIV_S : subseconds;
         const uint32_t ticks_into_second  = PREDIV_S - clamped_subseconds;
-        return (ticks_into_second * 1000U) / SUBSEC_TICKS;
+        // Round-half-up. Without rounding, integer truncation here plus the
+        // matching truncation in timeFromMsOfDay drops up to 1 ms per round-trip
+        // for inputs that don't fall on an exact 1024-tick boundary.
+        return (ticks_into_second * 1000U + SUBSEC_TICKS / 2U) / SUBSEC_TICKS;
     }
 
     uint32_t timeToMsOfDay(const io::rtc::Time &t)
@@ -88,7 +91,9 @@ namespace
         remaining                        = remaining % static_cast<uint32_t>(MS_PER_MINUTE);
         const uint8_t  seconds           = static_cast<uint8_t>(remaining / MS_PER_SECOND);
         const uint32_t ms_part           = remaining % static_cast<uint32_t>(MS_PER_SECOND);
-        const uint32_t ticks_into_second = (ms_part * SUBSEC_TICKS) / 1000U;
+        // Round-half-up; symmetric with the rounding in millisecondsFromSubseconds
+        // so set→get round-trips are lossless for every ms in [0, 999].
+        const uint32_t ticks_into_second = (ms_part * SUBSEC_TICKS + 500U) / 1000U;
         const uint32_t subseconds        = PREDIV_S - ticks_into_second;
 
         return io::rtc::Time(hours, minutes, seconds, subseconds);
