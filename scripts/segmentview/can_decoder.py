@@ -216,30 +216,75 @@ class CanDataThread(QObject):
         assert(self.decoder.db is not None)  # Should only be called if DBC is loaded
         msg_name = self.decoder.db.get_message_by_frame_id(msg_id).name
 
-        if msg_name == "BMS_SegmentStats":
-            pass
-        if msg_name == "BMS_CellOpenWireCheck":
-            pass
-
-        if msg_name == "BMS_CellVoltages_Seg0_Seg3" or msg_name == "BMS_CellVoltages_Seg4_Seg7" or msg_name == "BMS_CellVoltages_Seg8_Seg9":
-            for signal_name, value in signals.items():
-                # Parse cell voltage signals: BMS_SegN_CellM_Voltage
-                res = self.voltage_signal_name_re.match(signal_name)
-                assert res  # Should only match voltage signals
-                seg_idx = int(res.group(1))
-                cell_idx = int(res.group(2))
-                assert(seg_idx < 10 and cell_idx < 16)  # Sanity check for indices
-                self.segment_data[seg_idx].cell_voltages[cell_idx] = float(value)
-
-        if msg_name == "BMS_CellTemps_Seg0_Seg3" or msg_name == "BMS_CellTemps_Seg4_Seg7" or msg_name == "BMS_CellTemps_Seg8_Seg9":
-            for signal_name, value in signals.items():
-                res = self.temp_signal_name_re.match(signal_name)
-                assert res  # Should only match temperature signals
-                seg_idx = int(res.group(1))
-                cell_idx = int(res.group(2))
-                assert(seg_idx < 10 and cell_idx < 16)  # Sanity check for indices
-                self.segment_data[seg_idx].cell_temps[cell_idx] = float(value)
-                continue
+        match msg_name:
+            case "BMS_SegmentStats":
+                pass
+            case "BMS_CellOpenWireCheck":
+                pass
+            case "BMS_ThermistorOpenWireCheck":
+                pass
+            case "BMS_SegmentCommOk":
+                pass
+            case "BMS_SegmentVref2":
+                pass
+            case "BMS_SegmentITMP":
+                pass
+            case "BMS_SegmentVD":
+                pass
+            case "BMS_SegmentVA":
+                pass
+            case "BMS_SegmentVD":
+                pass
+            case "BMS_CellOverVoltage":
+                pass
+            case "BMS_CellUnderVoltage":
+                pass
+            case "BMS_SegmentVoltages":
+                pass
+            case "BMS_SegmentVA_OV":
+                pass
+            case "BMS_SegmentVA_UV":
+                pass
+            case "BMS_SegmentVD_OV":
+                pass
+            case "BMS_SegmentVD_UV":
+                pass
+            case "BMS_SegmentCED":
+                pass
+            case "BMS_SegmentCMED":
+                pass
+            case "BMS_SegmentSED":
+                pass
+            case "BMS_SegmentSMED":
+                pass
+            case "BMS_SegmentVDE":
+                pass
+            case "BMS_SegmentVDEL":
+                pass
+            case "BMS_SegmentTHSD":
+                pass
+            case "BMS_SegmentTMODCHK":
+                pass
+            case "BMS_SegmentOSCCHK":
+                pass
+            case "BMS_CellVoltages_Seg0_Seg3" | "BMS_CellVoltages_Seg4_Seg7" | "BMS_CellVoltages_Seg8_Seg9":
+                for signal_name, value in signals.items():
+                    # Parse cell voltage signals: BMS_SegN_CellM_Voltage
+                    res = self.voltage_signal_name_re.match(signal_name)
+                    assert res  # Should only match voltage signals
+                    seg_idx = int(res.group(1))
+                    cell_idx = int(res.group(2))
+                    assert(seg_idx < 10 and cell_idx < 16)  # Sanity check for indices
+                    self.segment_data[seg_idx].cell_voltages[cell_idx] = float(value)
+            case "BMS_CellTemps_Seg0_Seg3" | "BMS_CellTemps_Seg4_Seg7" | "BMS_CellTemps_Seg8_Seg9":
+                for signal_name, value in signals.items():
+                    res = self.temp_signal_name_re.match(signal_name)
+                    assert res  # Should only match temperature signals
+                    seg_idx = int(res.group(1))
+                    cell_idx = int(res.group(2))
+                    assert(seg_idx < 10 and cell_idx < 16)  # Sanity check for indices
+                    self.segment_data[seg_idx].cell_temps[cell_idx] = float(value)
+                    continue
 
     def stop(self):
         """Stop the CAN reader thread"""
