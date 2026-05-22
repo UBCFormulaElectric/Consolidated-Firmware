@@ -205,24 +205,36 @@ void tasks_init()
 
     adcChipsInit();
 
-    hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
-    if (boot_request.context != hw::bootup::BootContext::BOOT_CONTEXT_NONE)
+    if (hw::bootup::BootRequest boot_request = hw::bootup::getBootRequest();
+        boot_request.context != hw::bootup::BootContext::NONE)
     {
-        if (boot_request.context == hw::bootup::BootContext::BOOT_CONTEXT_STACK_OVERFLOW)
+        // Check for stack overflow on a previous boot cycle and populate CAN alert.
+        if (boot_request.context == hw::bootup::BootContext::OVERFLOW)
         {
             LOG_WARN("Detected stack overflow on the previous boot cycle!");
+            app::can_alerts::infos::StackOverflow_set(true);
+            app::can_tx::VC_StackOverflowTask_set(boot_request.context_value);
+        }
+        else if (boot_request.context == hw::bootup::BootContext::WATCHDOG_TIMEOUT)
+        {
+            // If the software driver detected a watchdog timeout the context should be set.
+            app::can_alerts::infos::WatchdogTimeout_set(true);
+            app::can_tx::VC_WatchdogTimeoutTask_set(boot_request.context_value);
         }
 
-        const_cast<hw::bootup::BootRequest &>(boot_request).context       = hw::bootup::BootContext::BOOT_CONTEXT_NONE;
-        const_cast<hw::bootup::BootRequest &>(boot_request).context_value = 0;
+        // Clear stack overflow bootup.
+        boot_request.context       = hw::bootup::BootContext::NONE;
+        boot_request.context_value = 0;
         hw::bootup::setBootRequest(boot_request);
     }
 
+    // TODO this should surely be managed by the power manager??
     dam_en.writePin(true);
     rsm_en.writePin(true);
     front_en.writePin(true);
     bms_en.writePin(true);
     ResetReason reason = hw::resetReason::get();
+    app::can_tx::VC_ResetReason_set(static_cast<app::can_utils::CanResetReason>(reason));
     if (reason == RESET_REASON_WATCHDOG)
     {
         LOG_WARN("Detected watchdog timeout on the previous boot cycle!");
