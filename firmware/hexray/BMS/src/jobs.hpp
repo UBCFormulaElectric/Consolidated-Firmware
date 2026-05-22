@@ -9,5 +9,4 @@ void jobs_run100Hz_tick();
 void jobs_run1kHz_tick();
 void jobs_runAdbmsVoltages_tick();
 void jobs_runAdbmsConfigs_tick();
-void jobs_runAdbmsTemperatures_tick();
-void jobs_runAdbmsDiagnostics_tick();
+void jobs_runAdbmsAux_tick();

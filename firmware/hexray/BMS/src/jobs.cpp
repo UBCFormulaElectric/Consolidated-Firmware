@@ -33,7 +33,6 @@
 
 using io::adbms::Cells;
 using io::adbms::Segments;
-using io::adbms::Status;
 using io::adbms::Therms;
 
 io::semaphore spi_bus_lock(true);
@@ -145,37 +144,27 @@ void jobs_run1kHz_tick()
 
 void jobs_runAdbmsVoltages_tick()
 {
-    Cells<result<float>> voltages;
-
     app::segments::state::resetAll(app::segments::state::Bit::Voltage);
 
+    Cells<result<float>> voltages;
     {
         const io::unique_semaphore s{ spi_bus_lock };
-        const auto ok = app::segments::startPoll::cellAdc() 
-        
-        
-        voltages = app::segments::conversion::cellVoltage();
+        const auto poll_r = app::segments::startPoll::cellAdc();
+        voltages          = app::segments::conversion::cellVoltage();
+        if (poll_r)
+            app::segments::state::setAll(app::segments::state::Bit::Voltage);
+        else
+            LOG_ERROR("Cell ADC poll failed: %d", poll_r.error());
     }
-
-    if (volt_r)
-    {
-        app::segments::state::setAll(app::segments::state::Bit::Voltage);
-        app::segments::broadcast::cellVoltages(volt_r.value());
-    }
-    else
-    {
-        LOG_ERROR("Voltage conversion failed: %d", volt_r.error());
-    }
+    app::segments::broadcast::cellVoltages(voltages);
 
     result<Cells<result<bool>>> owc_r;
     {
         const io::unique_semaphore s{ spi_bus_lock };
-        owc_r = app::segments::runCellOpenWireCheck();
+        owc_r = app::segments::conversion::cellOwc();
     }
     if (owc_r)
-    {
         app::segments::broadcast::owc(owc_r.value());
-    }
 }
 
 void jobs_runAdbmsConfigs_tick()
@@ -191,53 +180,36 @@ void jobs_runAdbmsConfigs_tick()
         app::segments::state::setAll(app::segments::state::Bit::Config);
 }
 
-void jobs_runAdbmsTemperatures_tick()
+void jobs_runAdbmsAux_tick()
 {
     app::segments::state::resetAll(app::segments::state::Bit::Temp);
+    app::segments::state::resetAll(app::segments::state::Bit::Status);
 
     result<std::pair<Therms<result<float>>, Therms<result<bool>>>> temp_r;
+    result<Segments<io::adbms::StatusGroups>>                      stat_r;
     {
         const io::unique_semaphore s{ spi_bus_lock };
-        temp_r = app::segments::runAuxConversion();
+        temp_r = app::segments::conversion::thermTempOwc();
+        stat_r = app::segments::conversion::status();
     }
+
     if (temp_r)
     {
-        // Therms<result<float>> &temp_results      = std::get<0>(temp_r.value());
-        // Therms<result<bool>>  &therm_owc_results = std::get<1>(temp_r.value());
         app::segments::state::setAll(app::segments::state::Bit::Temp);
+        app::segments::broadcast::temps(temp_r.value().first, temp_r.value().second);
     }
     else
     {
-        temp_r = {};
-        for (io::adbms::SegmentTherms<result<float>> &seg : std::get<0>(temp_r.value()))
-            seg.fill(std::unexpected(temp_r.error()));
-        for (io::adbms::SegmentTherms<result<bool>> &seg : std::get<1>(temp_r.value()))
-            seg.fill(std::unexpected(temp_r.error()));
-        // std::get<2>(temp_r.value()).fill(std::unexpected(temp_r.error()));
-    }
-    app::segments::broadcast::temps(std::get<0>(temp_r.value()), std::get<1>(temp_r.value()));
-    // app::segments::broadcast::segVoltages(std::get<2>(temp_r.value()));
-}
-
-void jobs_runAdbmsDiagnostics_tick()
-{
-    app::segments::state::resetAll(app::segments::state::Bit::Status);
-
-    result<Segments<io::adbms::StatusGroups>> stat_r;
-    {
-        const io::unique_semaphore s{ spi_bus_lock };
-        stat_r = app::segments::runStatusConversion();
+        Therms<result<float>> err_temps;
+        Therms<result<bool>>  err_owc;
+        for (auto &seg : err_temps) seg.fill(std::unexpected(temp_r.error()));
+        for (auto &seg : err_owc) seg.fill(std::unexpected(temp_r.error()));
+        app::segments::broadcast::temps(err_temps, err_owc);
     }
 
     if (stat_r)
     {
         app::segments::state::setAll(app::segments::state::Bit::Status);
+        app::segments::broadcast::status(stat_r.value());
     }
-    else
-    {
-        stat_r = {};
-        for (auto &sg : stat_r.value())
-            sg = io::adbms::StatusGroups::makeError(stat_r.error());
-    }
-    app::segments::broadcast::status(stat_r.value());
 }

@@ -22,7 +22,7 @@
 #include "hw_pwms.hpp"
 #include "hw_runTimeStat.hpp"
 
-constexpr size_t         TASK_COUNT = 9;
+constexpr size_t         TASK_COUNT = 8;
 [[noreturn]] static void tasks_run1Hz(void *arg);
 [[noreturn]] static void tasks_run100Hz(void *arg);
 [[noreturn]] static void tasks_run1kHz(void *arg);
@@ -30,8 +30,7 @@ constexpr size_t         TASK_COUNT = 9;
 [[noreturn]] static void tasks_runCanRx(void *arg);
 [[noreturn]] static void tasks_runAdbmsVoltages(void *arg);
 [[noreturn]] static void tasks_runAdbmsConfigs(void *arg);
-[[noreturn]] static void tasks_runAdbmsTemperatures(void *arg);
-[[noreturn]] static void tasks_runAdbmsDiagnostics(void *arg);
+[[noreturn]] static void tasks_runAdbmsAux(void *arg);
 
 static hw::rtos::StaticTask::StaticTaskStack<512>     Task1kHzStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>     Task1HzStack;
@@ -40,8 +39,7 @@ static hw::rtos::StaticTask::StaticTaskStack<512>     TaskCanRxStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>     TaskCanTxStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>     TaskAdbmsVoltagesStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>     TaskAdbmsConfigsStack;
-static hw::rtos::StaticTask::StaticTaskStack<512 * 2> TaskAdbmsTemperaturesStack;
-static hw::rtos::StaticTask::StaticTaskStack<512>     TaskAdbmsDiagnosticsStack;
+static hw::rtos::StaticTask::StaticTaskStack<512 * 2> TaskAdbmsAuxStack;
 
 static hw::rtos::StaticTask Task1kHz(osPriorityRealtime, "Task1kHz", tasks_run1kHz, Task1kHzStack);
 static hw::rtos::StaticTask Task1Hz(osPriorityAboveNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
@@ -52,16 +50,8 @@ static hw::rtos::StaticTask
     TaskAdbmsVoltages(osPriorityNormal, "TaskAdbmsVoltages", tasks_runAdbmsVoltages, TaskAdbmsVoltagesStack);
 static hw::rtos::StaticTask
     TaskAdbmsConfigs(osPriorityNormal, "TaskAdbmsConfigs", tasks_runAdbmsConfigs, TaskAdbmsConfigsStack);
-static hw::rtos::StaticTask TaskAdbmsTemperatures(
-    osPriorityNormal,
-    "TaskAdbmsTemperatures",
-    tasks_runAdbmsTemperatures,
-    TaskAdbmsTemperaturesStack);
-static hw::rtos::StaticTask TaskAdbmsDiagnostics(
-    osPriorityNormal,
-    "TaskAdbmsDiagnostics",
-    tasks_runAdbmsDiagnostics,
-    TaskAdbmsDiagnosticsStack);
+static hw::rtos::StaticTask
+    TaskAdbmsAux(osPriorityNormal, "TaskAdbmsAux", tasks_runAdbmsAux, TaskAdbmsAuxStack);
 
 static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor(
     {
@@ -106,22 +96,16 @@ static hw::runtimeStat::monitor<TASK_COUNT> runtimeMonitor(
             app::can_tx::BMS_TaskRunAdbmsVoltagesStackUsage_set,
         },
         {
-            TaskAdbmsTemperatures,
-            app::can_tx::BMS_TaskRunAdbmsTemperaturesCpuUsage_set,
-            app::can_tx::BMS_TaskRunAdbmsTemperaturesCpuUsageMax_set,
-            app::can_tx::BMS_TaskRunAdbmsTemperaturesStackUsage_set,
-        },
-        {
             TaskAdbmsConfigs,
             app::can_tx::BMS_TaskRunAdbmsConfigsCpuUsage_set,
             app::can_tx::BMS_TaskRunAdbmsConfigsCpuUsageMax_set,
             app::can_tx::BMS_TaskRunAdbmsConfigsStackUsage_set,
         },
         {
-            TaskAdbmsDiagnostics,
-            app::can_tx::BMS_TaskRunAdbmsDiagnosticsCpuUsage_set,
-            app::can_tx::BMS_TaskRunAdbmsDiagnosticsCpuUsageMax_set,
-            app::can_tx::BMS_TaskRunAdbmsDiagnosticsStackUsage_set,
+            TaskAdbmsAux,
+            app::can_tx::BMS_TaskRunAdbmsAuxCpuUsage_set,
+            app::can_tx::BMS_TaskRunAdbmsAuxCpuUsageMax_set,
+            app::can_tx::BMS_TaskRunAdbmsAuxStackUsage_set,
         },
     } });
 
@@ -258,27 +242,14 @@ void tasks_runAdbmsConfigs(void *arg)
     }
 }
 
-void tasks_runAdbmsTemperatures(void *arg)
+void tasks_runAdbmsAux(void *arg)
 {
     const uint32_t period_ms   = 500U;
     uint32_t       start_ticks = osKernelGetTickCount();
 
     forever
     {
-        jobs_runAdbmsTemperatures_tick();
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
-    }
-}
-
-void tasks_runAdbmsDiagnostics(void *arg)
-{
-    const uint32_t period_ms   = 500U;
-    uint32_t       start_ticks = osKernelGetTickCount();
-
-    forever
-    {
-        jobs_runAdbmsDiagnostics_tick();
+        jobs_runAdbmsAux_tick();
         start_ticks += period_ms;
         osDelayUntil(start_ticks);
     }
@@ -293,8 +264,7 @@ void BMS_StartAllTasks()
     TaskCanTx.start();
     TaskAdbmsVoltages.start();
     TaskAdbmsConfigs.start();
-    TaskAdbmsTemperatures.start();
-    TaskAdbmsDiagnostics.start();
+    TaskAdbmsAux.start();
 }
 
 void tasks_preInit()
