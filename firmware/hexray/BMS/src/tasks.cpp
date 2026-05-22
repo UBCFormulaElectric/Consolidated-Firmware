@@ -188,7 +188,7 @@ void tasks_runCanRx(void *arg)
             const bool     soc_storage_available = app::socStorage::isAvailable();
             if (soc_storage_available && last_written_soc != rounded_soc)
             {
-                app::socStorage::writeSocToSd((float)rounded_soc / 10.0f);
+                LOG_IF_ERR(app::socStorage::writeSocToSd((float)rounded_soc / 10.0f));
             }
         }
         start_ticks += period_ms;
