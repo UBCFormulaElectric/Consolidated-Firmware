@@ -127,15 +127,15 @@ void bootloader::preInit()
     // verify checksum place holder
     if (const BootStatus boot_status = verifyAppCodeChecksum();
         boot_status == BootStatus::BOOT_STATUS_APP_VALID &&
-        hw::bootup::getBootRequest().target == hw::bootup::BootTarget::BOOT_TARGET_APP)
+        hw::bootup::getBootRequest().target == hw::bootup::BootTarget::APP)
     {
         // Jump to app
         modifyStackPointerAndStartApp(&__app_code_start__);
     }
 
     // Boot request targetting bootloader. Overwrite it to target app next so we don't get stuck here
-    hw::bootup::setBootRequest({ .target        = hw::bootup::BootTarget::BOOT_TARGET_APP,
-                                 .context       = hw::bootup::BootContext::BOOT_CONTEXT_NONE,
+    hw::bootup::setBootRequest({ .target        = hw::bootup::BootTarget::APP,
+                                 .context       = hw::bootup::BootContext::NONE,
                                  ._unused       = 0xFFFF,
                                  .context_value = 0 });
 }
@@ -237,8 +237,8 @@ void bootloader::init(config &boot_config)
         }
         else if (command.std_id == (boot_config.BOARD_HIGHBITS | GO_TO_APP_LOWBITS) && !update_in_progress)
         {
-            hw::bootup::setBootRequest({ .target        = hw::bootup::BootTarget::BOOT_TARGET_APP,
-                                         .context       = hw::bootup::BootContext::BOOT_CONTEXT_NONE,
+            hw::bootup::setBootRequest({ .target        = hw::bootup::BootTarget::APP,
+                                         .context       = hw::bootup::BootContext::NONE,
                                          ._unused       = 0xFFFF,
                                          .context_value = 0 });
             NVIC_SystemReset();
