@@ -144,12 +144,12 @@ void jobs_runAdbmsVoltages_tick()
 {
     LOG_IF_ERR(app::segments::config::waitForSync());
 
-    app::segments::state::resetAll(app::segments::state::Bit::Voltage);
-
     Cells<result<float>> voltages;
     {
         const io::unique_semaphore s{ spi_bus_lock };
+        
         const auto poll_r = app::segments::startPoll::cellAdc();
+        
         voltages          = app::segments::conversion::cellVoltage();
         if (poll_r)
             app::segments::state::setAll(app::segments::state::Bit::Voltage);
@@ -169,49 +169,25 @@ void jobs_runAdbmsVoltages_tick()
 
 void jobs_runAdbmsConfigs_tick()
 {
-    app::segments::state::resetAll(app::segments::state::Bit::Config);
-
-    result<void> sync_result;
     {
         const io::unique_semaphore s{ spi_bus_lock };
         sync_result = app::segments::config::configSync();
     }
-    if (sync_result)
-        app::segments::state::setAll(app::segments::state::Bit::Config);
 }
 
 void jobs_runAdbmsAux_tick()
 {
     LOG_IF_ERR(app::segments::config::waitForSync());
 
-    app::segments::state::resetAll(app::segments::state::Bit::Temp);
-    app::segments::state::resetAll(app::segments::state::Bit::Status);
-
     result<std::pair<Therms<result<float>>, Therms<result<bool>>>> temp_r;
-    result<Segments<io::adbms::StatusGroups>>                      stat_r;
+    Segments<io::adbms::StatusGroups>>                      stat_r;
+    
     {
         const io::unique_semaphore s{ spi_bus_lock };
+        LOG_IF_ERR(io::adbms::clear::stat());
         temp_r = app::segments::conversion::thermTempOwc();
+        
         stat_r = app::segments::conversion::status();
     }
 
-    if (temp_r)
-    {
-        app::segments::state::setAll(app::segments::state::Bit::Temp);
-        app::segments::broadcast::temps(temp_r.value().first, temp_r.value().second);
-    }
-    else
-    {
-        Therms<result<float>> err_temps;
-        Therms<result<bool>>  err_owc;
-        for (auto &seg : err_temps) seg.fill(std::unexpected(temp_r.error()));
-        for (auto &seg : err_owc) seg.fill(std::unexpected(temp_r.error()));
-        app::segments::broadcast::temps(err_temps, err_owc);
-    }
-
-    if (stat_r)
-    {
-        app::segments::state::setAll(app::segments::state::Bit::Status);
-        app::segments::broadcast::status(stat_r.value());
-    }
 }

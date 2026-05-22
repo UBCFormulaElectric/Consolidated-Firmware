@@ -66,13 +66,19 @@ namespace broadcast
 // app_segments_state.cpp
 namespace state
 {
-    enum class Bit : size_t
+    enum class ErrorBit : size_t
     {
-        Voltage = 0,
-        Temp    = 1,
-        Status  = 2,
-        Config  = 3
+        CellAdcPoll  = 0,
+        AuxAdcPoll   = 1,
+        OwcAdcPoll=2,
+        CellVoltage=3, 
+        CellOwc=4,
+        ThermTemp=5,
+        ThermOwc=6,
+        SegVoltage = 8,
+        Status=9,
     };
+
     void reset(size_t seg, Bit bit);
     void resetAll(Bit bit);
     void set(size_t seg, Bit bit);
@@ -112,7 +118,7 @@ namespace conversion
     Cells<result<float>>                                                              cellVoltage();
     result<std::pair<Therms<result<float>>, Therms<result<bool>>>>                    thermTempOwc();
     Segments<result<float>>                                                           segVoltage();
-    result<Segments<io::adbms::StatusGroups>>                                         status();
+    Segments<io::adbms::StatusGroups>                                                 status();
     result<Cells<result<bool>>>                                                       cellOwc();
 } // namespace conversion
 } // namespace app::segments

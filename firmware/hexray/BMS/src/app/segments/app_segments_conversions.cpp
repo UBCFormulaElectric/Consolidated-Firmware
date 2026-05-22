@@ -10,23 +10,46 @@ using std::pair;
 namespace app::segments
 {
 result<void> startPoll::cellOwcAdc(io::adbms::OpenWireSwitch owcSwitch) {
-    RETURN_IF_ERR(io::adbms::command::owcCells(owcSwitch));
+    if (!io::adbms::command::owcCells(owcSwitch)) {
+        state::setAll(state::ErrorBit::OwcAdcPoll); 
+        return unexpected(start.error());
+    }
     io::time::delay(VOLT_CONV_TIME_MS);
-    return io::adbms::command::pollCellsAdc();
+    if (!io::adbms::command::pollCellsAdc()) {
+        state::setAll(state::ErrorBit::OwcAdcPoll); 
+        return unexpected(poll.error());
+    }
+    state::resetAll(state::ErrorBit::OwcAdcPoll); 
+    return {};
 }
 
 result<void> startPoll::cellAdc() {
-    RETURN_IF_ERR(io::adbms::command::startCellsAdc());
+    if (!io::adbms::command::startCellsAdc()) {
+        state::setAll(state::ErrorBit::CellAdcPoll); 
+        return unexpected(start.error());
+    }
     io::time::delay(VOLT_CONV_TIME_MS);
-    return io::adbms::command::pollCellsAdc();
+    if (!io::adbms::command::pollCellsAdc()) {
+        state::setAll(state::ErrorBit::CellAdcPoll); 
+        return unexpected(poll.error());
+    }
+    state::resetAll(state::ErrorBit::CellAdcPoll); 
+    return {};
 }
 
 result<void> startPoll::auxAdc(ThermistorMux mux) {
     config::setThermistorConfig(static_cast<ThermistorMux>(mux));
-    RETURN_IF_ERR(io::adbms::command::startAuxAdc());
-
+    if (!io::adbms::command::startAuxAdc()) {
+        state::setAll(state::ErrorBit::CellAdcPoll); 
+        return unexpected(start.error());
+    }
     io::time::delay(AUX_CONV_TIME_MS);
-    return io::adbms::command::pollAuxAdc();
+    if (!iio::adbms::command::pollAuxAdc()) {
+        state::setAll(state::ErrorBit::CellAdcPoll); 
+        return unexpected(poll.error());
+    }
+    state::resetAll(state::ErrorBit::AuxAdcPoll); 
+    return {};
 }
 
 Cells<result<float>> conversion::cellVoltage() {
@@ -34,12 +57,20 @@ Cells<result<float>> conversion::cellVoltage() {
 
     Cells<result<float>> out_voltage;
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++) {
+        bool seg_has_error = false;
         for (size_t cell = 0; cell < CELLS_PER_SEGMENT; cell++) {
             if (!cell_voltage[seg][cell]) {
                 out_voltage[seg][cell] = std::unexpected(cell_voltage[seg][cell].error());
+                seg_has_error = true;
             } else {
                 out_voltage[seg][cell] = convertRegToVoltage(cell_voltage[seg][cell].value());
             }
+        }
+
+        if (seg_has_error) {
+            state::set(seg, state::ErrorBit::CellVoltage);
+        } else {
+            state::reset(seg, state::ErrorBit::CellVoltage);
         }
     }
     return out_voltage;
@@ -56,6 +87,7 @@ result<pair<Therms<result<float>>, Therms<result<bool>>>> conversion::thermTempO
     Therms<result<float>> out_temp;
     Therms<result<bool>> out_owc;
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++) {
+        bool seg_has_error = false;
         for (size_t therm = 0; therm < THERMISTORS_PER_SEGMENT; therm++) {
             size_t therm_gpio = therm % THERM_GPIOS_PER_SEGMENT;
 
@@ -63,6 +95,7 @@ result<pair<Therms<result<float>>, Therms<result<bool>>>> conversion::thermTempO
                 if (!therm_0_7_voltage[seg][therm_gpio]) {
                 out_temp[seg][therm] = std::unexpected(therm_0_7_voltage[seg][therm_gpio].error());
                 out_owc[seg][therm] = std::unexpected(therm_0_7_voltage[seg][therm_gpio].error());
+                seg_has_error = true;
                 } else {
                 out_temp[seg][therm] = convertRegToTemp(therm_0_7_voltage[seg][therm_gpio].value());
                 out_owc[seg][therm] = checkThermOwcOk(therm_0_7_voltage[seg][therm_gpio].value());
@@ -71,11 +104,20 @@ result<pair<Therms<result<float>>, Therms<result<bool>>>> conversion::thermTempO
                 if (!therm_8_13_voltage[seg][therm_gpio]) {
                 out_temp[seg][therm] = std::unexpected(therm_8_13_voltage[seg][therm_gpio].error());
                 out_owc[seg][therm] = std::unexpected(therm_8_13_voltage[seg][therm_gpio].error());
+                seg_has_error = true;
                 } else {
                 out_temp[seg][therm] = convertRegToTemp(therm_8_13_voltage[seg][therm_gpio].value());
                 out_owc[seg][therm] = checkThermOwcOk(therm_8_13_voltage[seg][therm_gpio].value());
                 }
             }
+        }
+
+        if (seg_has_error) {
+            state::set(seg, state::ErrorBit::ThermTemp);
+            state::set(seg, state::ErrorBit::ThermOwc);
+        } else {
+            state::reset(seg, state::ErrorBit::ThermTemp);
+            state::reset(seg, state::ErrorBit::ThermOwc);
         }
     }
 
@@ -87,19 +129,41 @@ Segments<result<float>> conversion::segVoltage() {
 
     Segments<result<float>> out_voltage;
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++) {
+        bool seg_has_error = false;
         if (!seg_voltage[seg]) {
             out_voltage[seg] = std::unexpected(seg_voltage[seg].error());
+            seg_has_error = true;
         } else {
             out_voltage[seg] = convertRegToVoltage(seg_voltage[seg].value());
         }
+
+        if (seg_has_error) {
+            state::set(seg, state::ErrorBit::SegVoltage);
+        } else {
+            state::reset(seg, state::ErrorBit::SegVoltage);
+        }
     }
-        
+
     return out_voltage;
 }
 
-result<Segments<io::adbms::StatusGroups>> conversion::status() {
-    RETURN_IF_ERR(io::adbms::clear::stat());
-    return io::adbms::read::status();
+Segments<io::adbms::StatusGroups> conversion::status() {
+    Segments<io::adbms::StatusGroups> status = io::adbms::read::status();
+
+    for (size_t seg = 0; seg < NUM_SEGMENTS; seg++) {
+        const bool seg_has_error = !status[seg].stat_a
+                                || !status[seg].stat_b
+                                || !status[seg].stat_c
+                                || !status[seg].stat_d
+                                || !status[seg].stat_e;
+
+        if (seg_has_error) {
+            state::set(seg, state::ErrorBit::Status);
+        } else {
+            state::reset(seg, state::ErrorBit::Status);
+        }
+    }
+    return status;
 }
 
 result<Cells<result<bool>>> conversion::cellOwc() {
@@ -114,6 +178,7 @@ result<Cells<result<bool>>> conversion::cellOwc() {
     
     Cells<result<bool>> owc_cell;
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++) {
+
         for (size_t cell = 0; cell < CELLS_PER_SEGMENT; cell++) {
             if (!baseline_voltage[seg][cell])
             {

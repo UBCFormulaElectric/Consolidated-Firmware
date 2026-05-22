@@ -26,7 +26,7 @@ bool          latest_cell_owc = false;
 io::semaphore cell_owc_lock{ true };
 } // namespace
 
-namespace app::segments::state
+namespace app::segments::health
 {
 
 void reset(const size_t seg, Bit bit)

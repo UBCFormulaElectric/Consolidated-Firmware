@@ -331,7 +331,7 @@
   },
   "CellVoltages_Seg0_Seg3": {
     "msg_id": 422,
-    "cycle_time": 1000,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -677,7 +677,7 @@
   },
   "CellVoltages_Seg4_Seg7": {
     "msg_id": 423,
-    "cycle_time": 1000,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -1023,7 +1023,7 @@
   },
   "CellVoltages_Seg8_Seg9": {
     "msg_id": 424,
-    "cycle_time": 1000,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -1201,7 +1201,7 @@
   },
   "CellTemps_Seg0_Seg3": {
     "msg_id": 428,
-    "cycle_time": 1000,
+    "cycle_time": null,
     "description": "BMS Temps: Segments 0-3",
     "allowed_modes": [
       "DEBUG"
@@ -1547,7 +1547,7 @@
   },
   "CellTemps_Seg4_Seg7": {
     "msg_id": 429,
-    "cycle_time": 1000,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -1893,7 +1893,7 @@
   },
   "CellTemps_Seg8_Seg9": {
     "msg_id": 430,
-    "cycle_time": 1000,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -2071,7 +2071,7 @@
   },
   "CellOpenWireCheck": {
     "msg_id": 431,
-    "cycle_time": 1000,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -2501,7 +2501,7 @@
   },
   "ThermistorOpenWireCheck": {
     "msg_id": 432,
-    "cycle_time": 1000,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -2947,7 +2947,7 @@
   },
   "SegmentCommOk": {
     "msg_id": 434,
-    "cycle_time": 100,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -2987,7 +2987,7 @@
   },
   "SegmentVref2": {
     "msg_id": 435,
-    "cycle_time": 100,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -3057,7 +3057,7 @@
   },
   "SegmentITMP": {
     "msg_id": 436,
-    "cycle_time": 100,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -3127,7 +3127,7 @@
   },
   "SegmentVD": {
     "msg_id": 437,
-    "cycle_time": 100,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -3197,7 +3197,7 @@
   },
   "SegmentVA": {
     "msg_id": 438,
-    "cycle_time": 100,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -3267,7 +3267,7 @@
   },
   "SegmentVRES": {
     "msg_id": 439,
-    "cycle_time": 100,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -3337,7 +3337,7 @@
   },
   "CellOverVoltage": {
     "msg_id": 443,
-    "cycle_time": 100,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -3767,7 +3767,7 @@
   },
   "CellUnderVoltage": {
     "msg_id": 444,
-    "cycle_time": 100,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -4197,7 +4197,7 @@
   },
   "SegmentVoltages": {
     "msg_id": 445,
-    "cycle_time": 100,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -4430,7 +4430,7 @@
   },
   "SegmentVA_OV": {
     "msg_id": 440,
-    "cycle_time": 100,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -4470,7 +4470,7 @@
   },
   "SegmentVA_UV": {
     "msg_id": 441,
-    "cycle_time": 100,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -4510,7 +4510,7 @@
   },
   "SegmentVD_OV": {
     "msg_id": 442,
-    "cycle_time": 100,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -4550,7 +4550,7 @@
   },
   "SegmentVD_UV": {
     "msg_id": 447,
-    "cycle_time": 100,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -4590,7 +4590,7 @@
   },
   "SegmentCED": {
     "msg_id": 448,
-    "cycle_time": 100,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -4630,7 +4630,7 @@
   },
   "SegmentCMED": {
     "msg_id": 449,
-    "cycle_time": 100,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -4670,7 +4670,7 @@
   },
   "SegmentSED": {
     "msg_id": 450,
-    "cycle_time": 100,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -4710,7 +4710,7 @@
   },
   "SegmentSMED": {
     "msg_id": 451,
-    "cycle_time": 100,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -4750,7 +4750,7 @@
   },
   "SegmentVDE": {
     "msg_id": 452,
-    "cycle_time": 100,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -4790,7 +4790,7 @@
   },
   "SegmentVDEL": {
     "msg_id": 453,
-    "cycle_time": 100,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -4830,7 +4830,7 @@
   },
   "SegmentTHSD": {
     "msg_id": 454,
-    "cycle_time": 100,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -4870,7 +4870,7 @@
   },
   "SegmentTMODCHK": {
     "msg_id": 455,
-    "cycle_time": 100,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
@@ -4910,7 +4910,7 @@
   },
   "SegmentOSCCHK": {
     "msg_id": 456,
-    "cycle_time": 100,
+    "cycle_time": null,
     "allowed_modes": [
       "DEBUG"
     ],
