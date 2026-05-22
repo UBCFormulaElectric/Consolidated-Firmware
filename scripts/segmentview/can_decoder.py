@@ -40,9 +40,9 @@ class CanMessageDecoder:
         try:
             # Decode the message using cantools
             msg = self.db.get_message_by_frame_id(channel_msg.arbitration_id)
-            decoded = msg.decode(channel_msg.data, raw=False, allow_truncated=True)
+            decoded = msg.decode(channel_msg.data, allow_truncated=True)
             return decoded
-        except (KeyError, Exception):
+        except (KeyError, Exception) as e:
             # Message ID not found or decode error - return empty dict
             return {}
 
@@ -122,7 +122,6 @@ class CanDataThread(QObject):
         "BMS_SegmentOSCCHK"
     }
 
-
     def __init__(self, dbc_path: Path, interface='vector', channel='0', bitrate=1_000_000):
         super().__init__()
         self.decoder = CanMessageDecoder(dbc_path)
@@ -139,11 +138,24 @@ class CanDataThread(QObject):
 
         # Try to connect with specified interface
         try:
+            fdcan_args = {
+                "sjw_abr": 10,
+                "tseg1_abr": 29,
+                "tseg2_abr": 10,
+                "sam_abr": 1,
+                "sjw_dbr": 10,
+                "tseg1_dbr": 29,
+                "tseg2_dbr": 10,
+                "output_mode": 1,
+            }
             self.bus = can.interface.Bus(
                 interface=self.interface,
                 channel=self.channel,
+                fd=True,
                 bitrate=self.bitrate,
-                is_fd=False
+                data_bitrate=self.bitrate,
+                app_name=None,
+                **fdcan_args,
             )
         except Exception as connection_err:
             # If PCAN fails, try to get available interfaces
@@ -158,6 +170,14 @@ class CanDataThread(QObject):
         self.running = True
         if self.bus:
             self.status_changed.emit(f"Connected! Listening on {self.interface}")
+
+        # send the Debug_CanMode message to enable debug mode with signal EnableDebugMode
+        try:
+            debug_msg = can.Message(arbitration_id=1001, data=[1], is_extended_id=False)
+            self.bus.send(debug_msg)
+            print("Sent Debug_CanMode message to enable debug mode")
+        except Exception as e:
+            print(f"Failed to send Debug_CanMode message: {e}")
 
         while self.running:
             try:
