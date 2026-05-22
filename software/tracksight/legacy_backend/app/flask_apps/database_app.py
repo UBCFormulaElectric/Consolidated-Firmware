@@ -4,8 +4,19 @@ This module contains the flask app for the database.
 
 import json
 import os
+from functools import wraps
 
 from flask import request, jsonify, Blueprint
+
+
+def require_api_key(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        api_key = os.environ.get("DATABASE_API_KEY")
+        if not api_key or request.headers.get("X-API-Key") != api_key:
+            return jsonify({"error": "Unauthorized"}), 401
+        return f(*args, **kwargs)
+    return decorated
 
 DB_JSON_PATH = "./dashboards.json"
 
@@ -35,6 +46,7 @@ app = Blueprint("database_app", __name__)
 
 
 @app.route("/get-data", methods=["GET"])
+@require_api_key
 def get_data():
     """
 
@@ -47,6 +59,7 @@ def get_data():
 
 
 @app.route("/save-data", methods=["POST"])
+@require_api_key
 def save_data():
     """
 
@@ -63,6 +76,7 @@ def save_data():
 
 
 @app.route("/delete-data", methods=["POST"])
+@require_api_key
 def delete_data():
     """
 
