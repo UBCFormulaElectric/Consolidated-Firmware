@@ -73,7 +73,6 @@ result<void> upload()
     assert(config_data_lock.is_held());
     RETURN_IF_ERR(io::adbms::write::configReg(segment_config));
     RETURN_IF_ERR(io::adbms::write::pwmReg(pwm_config));
-    dirty = false;
     return {};
 }
 
@@ -141,7 +140,9 @@ result<void> configSync()
             RETURN_IF_ERR(upload());
             const auto equal = isConfigEqual();
             RETURN_IF_ERR(equal);
-            return equal.value() ? result<void>{} : unexpected(ErrorCode::RETRY_FAILED);
+            if (!equal.value()) return unexpected(ErrorCode::RETRY_FAILED);
+            dirty = false;
+            return {};
         },
         NUM_CONFIG_SYNC_TRIES);
 }
