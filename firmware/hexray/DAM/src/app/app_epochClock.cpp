@@ -11,8 +11,10 @@ namespace
     // STM32 RTC stores year as [0, 99] representing 2000..2099.
     constexpr int RTC_YEAR_BASE = 2000;
 
-    // RTC subseconds prescaler — STM32 HAL hardware detail, kept private.
-    constexpr uint32_t PREDIV_S = 999;
+    // RTC synchronous prescaler. With LSE @ 32768 Hz and AsynchPrediv=31, the
+    // subsecond counter ticks at 1024 Hz, so PREDIV_S = 1023.
+    constexpr uint32_t PREDIV_S     = 1023;
+    constexpr uint32_t SUBSEC_TICKS = PREDIV_S + 1; // ticks per second (1024)
 
     // ms conversion constants — only used internally by the day/time split helpers.
     constexpr uint64_t MS_PER_DAY    = 86'400'000ULL;
@@ -63,7 +65,8 @@ namespace
     uint32_t millisecondsFromSubseconds(uint32_t subseconds)
     {
         const uint32_t clamped_subseconds = (subseconds > PREDIV_S) ? PREDIV_S : subseconds;
-        return PREDIV_S - clamped_subseconds;
+        const uint32_t ticks_into_second  = PREDIV_S - clamped_subseconds;
+        return (ticks_into_second * 1000U) / SUBSEC_TICKS;
     }
 
     uint32_t timeToMsOfDay(const io::rtc::Time &t)
@@ -79,13 +82,14 @@ namespace
     {
         uint32_t remaining = ms_of_day % static_cast<uint32_t>(MS_PER_DAY);
 
-        const uint8_t hours       = static_cast<uint8_t>(remaining / MS_PER_HOUR);
-        remaining                 = remaining % static_cast<uint32_t>(MS_PER_HOUR);
-        const uint8_t minutes     = static_cast<uint8_t>(remaining / MS_PER_MINUTE);
-        remaining                 = remaining % static_cast<uint32_t>(MS_PER_MINUTE);
-        const uint8_t  seconds    = static_cast<uint8_t>(remaining / MS_PER_SECOND);
-        const uint32_t ms_part    = remaining % static_cast<uint32_t>(MS_PER_SECOND);
-        const uint32_t subseconds = PREDIV_S - ms_part;
+        const uint8_t hours              = static_cast<uint8_t>(remaining / MS_PER_HOUR);
+        remaining                        = remaining % static_cast<uint32_t>(MS_PER_HOUR);
+        const uint8_t minutes            = static_cast<uint8_t>(remaining / MS_PER_MINUTE);
+        remaining                        = remaining % static_cast<uint32_t>(MS_PER_MINUTE);
+        const uint8_t  seconds           = static_cast<uint8_t>(remaining / MS_PER_SECOND);
+        const uint32_t ms_part           = remaining % static_cast<uint32_t>(MS_PER_SECOND);
+        const uint32_t ticks_into_second = (ms_part * SUBSEC_TICKS) / 1000U;
+        const uint32_t subseconds        = PREDIV_S - ticks_into_second;
 
         return io::rtc::Time(hours, minutes, seconds, subseconds);
     }
