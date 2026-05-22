@@ -2,31 +2,45 @@
 #include "main.h"
 #include "jobs.hpp"
 
+#include "FreeRTOS.h"
+#include "task.h"
+
 #include "app_jsoncan.hpp"
 #include "app_canTx.hpp"
 #include "app_canAlerts.hpp"
+#include "app_canDataCapture.hpp"
+#include "app_epochClock.hpp"
+#include "app_ntp.hpp"
+#include "app_telemRx.hpp"
 
-#include "io_time.hpp"
-#include "io_telemMessage.hpp"
 #include "io_canQueues.hpp"
 #include "io_canRx.hpp"
+#include "io_log.hpp"
+#include "io_logQueue.hpp"
+#include "io_telemMessage.hpp"
 #include "io_telemQueue.hpp"
-#include "hw_hardFaultHandler.hpp"
-#include "hw_rtosTaskHandler.hpp"
-#include "hw_cans.hpp"
-#include "hw_watchdog.hpp"
-#include "hw_resetReason.hpp"
+#include "io_telemRx.hpp"
+#include "io_time.hpp"
+
 #include "hw_bootup.hpp"
+#include "hw_cans.hpp"
+#include "hw_gpios.hpp"
+#include "hw_hardFaultHandler.hpp"
+#include "hw_resetReason.hpp"
+#include "hw_rtosTaskHandler.hpp"
 #include "hw_runTimeStat.hpp"
 #include "hw_sds.hpp"
+#include "hw_uarts.hpp"
+#include "hw_watchdog.hpp"
 
 constexpr size_t         TASK_COUNT = 8;
 [[noreturn]] static void tasks_run1Hz(void *arg);
 [[noreturn]] static void tasks_run100Hz(void *arg);
 [[noreturn]] static void tasks_run1kHz(void *arg);
 [[noreturn]] static void tasks_runLogging(void *arg);
-[[noreturn]] static void tasks_runTelem(void *arg);
+[[noreturn]] static void tasks_runTelemTx(void *arg);
 [[noreturn]] static void tasks_runTelemRx(void *arg);
+[[noreturn]] static void tasks_runTelemParse(void *arg);
 [[noreturn]] static void tasks_runCanTx(void *arg);
 [[noreturn]] static void tasks_runCanRx(void *arg);
 
@@ -39,15 +53,23 @@ static hw::rtos::StaticTask::StaticTaskStack<512>  Task1HzStack;
 static hw::rtos::StaticTask::StaticTaskStack<1024> TaskLoggingStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskTelemStack;
 static hw::rtos::StaticTask::StaticTaskStack<512>  TaskTelemRxStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskTelemParseStack;
+static hw::rtos::StaticTask::StaticTaskStack<512>  TaskTelemTxStack;
 
 static hw::rtos::StaticTask Task100Hz(osPriorityRealtime, "Task100Hz", tasks_run100Hz, Task100HzStack);
 static hw::rtos::StaticTask TaskCanTx(osPriorityAboveNormal, "TaskCanTx", tasks_runCanTx, TaskCanTxStack);
 static hw::rtos::StaticTask TaskCanRx(osPriorityHigh, "TaskCanRx", tasks_runCanRx, TaskCanRxStack);
 static hw::rtos::StaticTask Task1kHz(osPriorityBelowNormal, "Task1kHz", tasks_run1kHz, Task1kHzStack);
 static hw::rtos::StaticTask Task1Hz(osPriorityBelowNormal, "Task1Hz", tasks_run1Hz, Task1HzStack);
-static hw::rtos::StaticTask TaskLogging(osPriorityHigh, "TaskLogging", tasks_runLogging, TaskLoggingStack);
-static hw::rtos::StaticTask TaskTelem(osPriorityHigh, "TaskTelem", tasks_runTelem, TaskTelemStack);
+static hw::rtos::StaticTask TaskLogging(
+    osPriorityNormal,
+    "TaskLogging",
+    tasks_runLogging,
+    TaskLoggingStack); // yooooo this prio is too high lmao
 static hw::rtos::StaticTask TaskTelemRx(osPriorityHigh, "TaskTelemRx", tasks_runTelemRx, TaskTelemRxStack);
+static hw::rtos::StaticTask
+    TaskTelemParse(osPriorityBelowNormal, "TaskTelemParse", tasks_runTelemParse, TaskTelemParseStack);
+static hw::rtos::StaticTask TaskTelemTx(osPriorityHigh, "TaskTelemTx", tasks_runTelemTx, TaskTelemTxStack);
 
 static hw::watchdog::monitor<TASK_COUNT> monitor{
     hiwdg,
@@ -72,7 +94,8 @@ void tasks_run1Hz(void *arg)
         osDelayUntil(start_ticks);
     }
 }
-void tasks_run100Hz(void *arg)
+
+[[noreturn]] static void tasks_run100Hz(void *arg)
 {
     constexpr uint32_t      period_ms                = 10U;
     constexpr uint32_t      watchdog_grace_period_ms = 2U;
@@ -110,29 +133,86 @@ void tasks_run1kHz(void *arg)
 
 void tasks_runLogging(void *arg)
 {
-    osDelayUntil(osWaitForever);
+    // Debug but we need these to upgrade to 4b since we need to init in 1b bus width!
+    // LOG_INFO("hsd1 state: %s", sd1.getCardStateString());
+    LOG_IF_ERR(sd1.upgrade_buswidth());
+    // LOG_INFO("upgraded buswidth");
+    LOG_IF_ERR(sd1.update_speed());
+    // LOG_INFO("upgraded speed");
+    jobs_initLogFs();
     forever
     {
         jobs_runLogging_tick();
     }
 }
-void tasks_runTelem(void *arg)
+[[noreturn]] static void tasks_runTelemTx(void *arg)
 {
-    // const io::telemMessage::BaseTimeRegMsg base_time_msg(boot_time);
-    // LOG_IF_ERR(_900k_uart.transmitPoll(
-    //     std::span<const uint8_t>{ reinterpret_cast<const uint8_t *>(&base_time_msg), sizeof(base_time_msg) }));
-
     forever
     {
-        jobs_runTelem_tick();
+        const auto result = telem_tx_queue.pop();
+        if (not result)
+        {
+            LOG_ERROR("Failed to pop telem TX message: %d", static_cast<int>(result.error()));
+            continue;
+        }
+
+        const auto &entry = result.value();
+
+        if (std::holds_alternative<io::telemMessage::NTPMsg>(entry))
+        {
+            if (!app::ntp::tryBeginAndCaptureT0())
+            {
+                LOG_WARN("NTP: dismissing TX, already in progress or RTC unavailable");
+                continue;
+            }
+        }
+
+        const auto  bytes     = std::visit([](const auto &m) { return m.asBytes(); }, entry);
+        const auto  tx_result = _900k_uart.transmit(bytes);
+        const auto *can_msg   = std::get_if<io::telemMessage::TelemCanMsg>(&entry);
+        if (not tx_result)
+        {
+            LOG_ERROR("Failed to transmit telem message: %d", static_cast<int>(tx_result.error()));
+        }
+        else if (can_msg != nullptr)
+        {
+            // LOG_INFO("UART telem sent: type=CAN can_id=0x%03lX", static_cast<unsigned long>(can_msg->msg.can_id));
+        }
+        else if (std::holds_alternative<io::telemMessage::NTPMsg>(entry))
+        {
+            LOG_INFO("UART telem sent: type=NTP");
+        }
     }
 }
 void tasks_runTelemRx(void *arg)
 {
-    osDelayUntil(osWaitForever);
+    // ReceiveToIdle arms the peripheral for the whole buffer in one HAL call,
+    // then returns whatever bytes arrived once the line idles (or the buffer
+    // fills / half-fills). 64 bytes is several frames worth of headroom at
+    // 57600 baud without delaying ingest — a single idle gap of ~1 byte time
+    // (~174 us) already wakes the task.
+    constexpr auto                        telemRxChunkSize = 64U;
+    std::array<uint8_t, telemRxChunkSize> scratch{};
     forever
     {
-        jobs_runTelemRx();
+        const auto rx_result = io::telemRx::read(scratch);
+        if (!rx_result)
+        {
+            LOG_ERROR("read() failed with error: %d", static_cast<int>(rx_result.error()));
+            continue;
+        }
+        app::telemRx::ingest(*rx_result);
+        xTaskNotifyGive(static_cast<TaskHandle_t>(TaskTelemParse.id()));
+    }
+}
+
+void tasks_runTelemParse(void *arg)
+{
+    forever
+    {
+        // Block until TaskTelemRx pushes new bytes into the ring. pdTRUE
+        (void)ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+        app::telemRx::drain();
     }
 }
 
@@ -165,7 +245,39 @@ void tasks_runCanRx(void *arg)
         const auto msg = can_rx_queue.pop();
         if (not msg)
             continue;
-        io::can_rx::updateRxTableWithMessage(app::jsoncan::copyFromCanMsg(msg.value()));
+        const auto    &can_msg = msg.value();
+        const uint32_t now_ms  = io::time::getCurrentMs();
+        // LOG_INFO("Received CAN msg with ID: 0x%03lX", static_cast<unsigned long>(can_msg.std_id));
+        // SKIP THE FILTER WITH THIS CHUNK, TEMPORARY GET RED OF THIS!
+        // const auto e = app::epochClock::getEpochMs();
+        // if (e)
+        // {
+        //     (void)telem_tx_queue.push(io::telemMessage::TelemCanMsg(can_msg, *e));
+        // }
+
+        io::can_rx::updateRxTableWithMessage(app::jsoncan::copyFromCanMsg(can_msg));
+        if (app::can_data_capture::needsTelem(can_msg.std_id, now_ms))
+        {
+            // Telem timestamps go straight into InfluxDB as Unix epoch ms,
+            // so they must come from the RTC, not the boot-monotonic clock.
+            const auto epoch_ms = app::epochClock::getEpochMs();
+            if (epoch_ms)
+            {
+                (void)telem_tx_queue.push(io::telemMessage::TelemCanMsg(can_msg, *epoch_ms));
+            }
+            else
+            {
+                LOG_WARN(
+                    "telem RX timestamp unavailable, dropping CAN 0x%03lX", static_cast<unsigned long>(can_msg.std_id));
+            }
+        }
+        if (app::can_data_capture::needsLog(can_msg.std_id, now_ms))
+        {
+            // Log the raw CAN frame. Framing/CRC happen in jobs_runLogging_tick
+            // so the on-disk layout matches the shared Quintuna format and can
+            // be decoded by firmware/logfs/python/logfs/can_logger.py.
+            (void)log_queue.push(can_msg);
+        }
     }
 }
 
@@ -176,9 +288,10 @@ static void DAM_StartAllTasks()
     TaskCanRx.start();
     Task1kHz.start();
     Task1Hz.start();
-    // TaskLogging.start();
-    // TaskTelem.start();
-    // TaskTelemRx.start();
+    TaskLogging.start();
+    TaskTelemTx.start();
+    TaskTelemRx.start();
+    TaskTelemParse.start();
 }
 
 void tasks_preInit()
