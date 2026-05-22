@@ -198,6 +198,7 @@ Segments<result<float>> conversion::segVoltage()
 
 Segments<io::adbms::StatusGroups> conversion::status()
 {
+    
     Segments<io::adbms::StatusGroups> status = io::adbms::read::status();
 
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)

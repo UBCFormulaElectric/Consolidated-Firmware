@@ -160,7 +160,7 @@ void setThermistorConfig(const ThermistorMux mux)
     dirty = true;
 }
 
-result<void> configSync()
+void configSync()
 {
     const io::unique_semaphore lock{ config_data_lock };
 
@@ -180,12 +180,14 @@ result<void> configSync()
         {
             writeHealthBits();
             sync_done.notifyIfWaiting();
-            return {};
+            return;
         }
         dirty = true;
     }
 
     // Slow path: write config to the chip and verify, retrying up to NUM_CONFIG_SYNC_TRIES times.
+    // The retry result is discarded — per-segment errors are recorded in seg_had_error and
+    // reflected in the Config health bit.
     const auto r = util::retry(
         [&]() -> result<void>
         {
@@ -213,7 +215,6 @@ result<void> configSync()
 
     writeHealthBits();
     if (r) sync_done.notifyIfWaiting();
-    return r;
 }
 
 result<void> waitForSync(const uint32_t timeout_ms)

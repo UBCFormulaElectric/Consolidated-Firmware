@@ -154,16 +154,14 @@ void jobs_runAdbmsVoltages_tick()
     }
     
     app::segments::broadcast::cellVoltages(voltages);
-    app::segments::broadcast::cellOwc(owc);
+    app::segments::broadcast::owc(owc);
     
 }
 
 void jobs_runAdbmsConfigs_tick()
 {
-    {
-        const io::unique_semaphore s{ spi_bus_lock };
-        sync_result = app::segments::config::configSync();
-    }
+    const io::unique_semaphore s{ spi_bus_lock };
+    app::segments::config::configSync();
 }
 
 void jobs_runAdbmsAux_tick()
@@ -176,7 +174,7 @@ void jobs_runAdbmsAux_tick()
     
     {
         const io::unique_semaphore s{ spi_bus_lock };
-        LOG_IF_ERR(io::adbms::clear::stat());
+        LOG_IF_ERR(io::adbms::clear::stat()); //not sure how to handle error for this
         therm = app::segments::conversion::thermTempOwc();
         status =  app::segments::conversion::status();
         seg_voltage = app::segments::conversion::segVoltage();
