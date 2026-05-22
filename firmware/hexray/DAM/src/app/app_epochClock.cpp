@@ -85,12 +85,12 @@ namespace
     {
         uint32_t remaining = ms_of_day % static_cast<uint32_t>(MS_PER_DAY);
 
-        const uint8_t hours              = static_cast<uint8_t>(remaining / MS_PER_HOUR);
-        remaining                        = remaining % static_cast<uint32_t>(MS_PER_HOUR);
-        const uint8_t minutes            = static_cast<uint8_t>(remaining / MS_PER_MINUTE);
-        remaining                        = remaining % static_cast<uint32_t>(MS_PER_MINUTE);
-        const uint8_t  seconds           = static_cast<uint8_t>(remaining / MS_PER_SECOND);
-        const uint32_t ms_part           = remaining % static_cast<uint32_t>(MS_PER_SECOND);
+        const uint8_t hours    = static_cast<uint8_t>(remaining / MS_PER_HOUR);
+        remaining              = remaining % static_cast<uint32_t>(MS_PER_HOUR);
+        const uint8_t minutes  = static_cast<uint8_t>(remaining / MS_PER_MINUTE);
+        remaining              = remaining % static_cast<uint32_t>(MS_PER_MINUTE);
+        const uint8_t  seconds = static_cast<uint8_t>(remaining / MS_PER_SECOND);
+        const uint32_t ms_part = remaining % static_cast<uint32_t>(MS_PER_SECOND);
         // Round-half-up; symmetric with the rounding in millisecondsFromSubseconds
         // so set→get round-trips are lossless for every ms in [0, 999].
         const uint32_t ticks_into_second = (ms_part * SUBSEC_TICKS + 500U) / 1000U;
