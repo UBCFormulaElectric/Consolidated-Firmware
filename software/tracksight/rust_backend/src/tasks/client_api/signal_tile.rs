@@ -131,7 +131,7 @@ pub async fn get_signals(
         tile_starts.push(tile_start_utc);
         tile_start_utc = tile_start_utc + Duration::from_millis(tile_duration_ms);
     }
-    let source_str = serde_json::to_string(&source).unwrap();
+    let source_str = source.to_string();
 
     let get_tile_query = |tile_start: &DateTime<Utc>| -> String {
         let tile_start_str = tile_start.to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
@@ -145,6 +145,7 @@ pub async fn get_signals(
         |> filter(fn: (r) => r["source"] == "{source_str}")"#
         , &CONFIG.influxdb_bucket, &CONFIG.influxdb_measurement)
     };
+    
     
     // track current time in ms to prevent caching currently written tiles
     let curr_time_ms = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis() as i64;
@@ -180,7 +181,7 @@ pub async fn get_signals(
                         value: point.value,
                         measurement: CONFIG.influxdb_measurement.clone(),
                         signal_name: signal.clone(),
-                        source: serde_json::to_string(&source).unwrap()
+                        source: source.to_string()
                     })
                 }).collect::<Vec<InfluxSignalRow>>();
                 tile_queries.push(Box::pin(ready(Ok(signal_rows))));
