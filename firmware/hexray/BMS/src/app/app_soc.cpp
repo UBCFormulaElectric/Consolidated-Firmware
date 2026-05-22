@@ -13,9 +13,14 @@
 namespace
 {
 constexpr double MS_TO_S = 0.001;
+constexpr double AH_TO_COULOMBS  = 3600.0;
 
 constexpr uint32_t V_TO_SOC_LUT_SIZE = 201U;
 constexpr float    LUT_BASE_SOC      = 0.0f;
+
+constexpr double    STATE_OF_HEALTH = 1.0f;
+// TODO: Replace with cell capacity and cells in parallel constants in app_segments once that's finished
+constexpr double SERIES_ELEMENT_FULL_CHARGE_C = 3.0 * AH_TO_COULOMBS * 4.0 * STATE_OF_HEALTH;
 
 // Charge in cell in coulombs.
 double soc_charge_c = -1.0;
@@ -85,21 +90,26 @@ float getSocFromOcv(const float voltage)
     return LUT_BASE_SOC + static_cast<float>(lower_index) * 0.5f;
 }
 
-float getOcvFromSoc(const float soc_percent)
+uint32_t getMinSocCoulombs()
 {
-    uint32_t lut_index = 0U;
-
-    while ((lut_index < V_TO_SOC_LUT_SIZE) && ((LUT_BASE_SOC + static_cast<float>(lut_index) * 0.5f) < soc_percent))
+    if (soc_charge_c < 0.0)
     {
-        ++lut_index;
+        return 0U;
     }
+    return static_cast<uint32_t>(soc_charge_c);
+}
 
-    if (lut_index == V_TO_SOC_LUT_SIZE)
-    {
-        lut_index = V_TO_SOC_LUT_SIZE - 1U;
-    }
+void updateSocStats()
+{
+    const float current = app::ts::getCurrent();
 
-    return ocv_soc_lut[lut_index];
+    const uint32_t current_time_ms = io::time::getCurrentMs();
+    const uint32_t elapsed_time_ms = current_time_ms - soc_prev_update_ms;
+    soc_prev_update_ms             = current_time_ms;
+
+    const double elapsed_time_s = static_cast<double>(elapsed_time_ms) * MS_TO_S;
+
+    app::math::trapezoidalRule(soc_charge_c, soc_prev_current_A, current, elapsed_time_s);
 }
 
 } // namespace
@@ -108,10 +118,9 @@ namespace app::soc
 {
 void init()
 {
-    float saved_soc_percent = -1.0f;
-    if (app::socStorage::readSocFromSd(saved_soc_percent) && IS_IN_RANGE(0.0f, 100.0f, saved_soc_percent))
+    if (const auto saved_soc_percent = app::socStorage::readSocFromSd(); saved_soc_percent && IS_IN_RANGE(0.0f, 100.0f, saved_soc_percent))
     {
-        soc_charge_c = static_cast<double>(saved_soc_percent / 100.0f * SERIES_ELEMENT_FULL_CHARGE_C);
+        soc_charge_c = static_cast<double>(saved_soc_percent) / 100.0 * SERIES_ELEMENT_FULL_CHARGE_C;
         soc_is_dirty = false;
     }
     else
@@ -129,32 +138,9 @@ bool getDirty()
     return soc_is_dirty;
 }
 
-void updateSocStats()
-{
-    const float current = app::ts::getCurrent();
-
-    const uint32_t current_time_ms = io::time::getCurrentMs();
-    const uint32_t elapsed_time_ms = current_time_ms - soc_prev_update_ms;
-    soc_prev_update_ms             = current_time_ms;
-
-    const double elapsed_time_s = static_cast<double>(elapsed_time_ms) * MS_TO_S;
-
-    app::math::trapezoidalRule(soc_charge_c, soc_prev_current_A, current, elapsed_time_s);
-}
-
-float getMinSocCoulombs()
-{
-    return static_cast<float>(soc_charge_c);
-}
-
 float getMinSocPercent()
 {
-    return (static_cast<float>(soc_charge_c) / SERIES_ELEMENT_FULL_CHARGE_C) * 100.0f;
-}
-
-float getMinOcvFromSoc()
-{
-    return getOcvFromSoc(getMinSocPercent());
+    return static_cast<float>(soc_charge_c / SERIES_ELEMENT_FULL_CHARGE_C * 100.0);
 }
 
 void resetSocFromVoltage()
@@ -166,14 +152,16 @@ void resetSocFromVoltage()
 
 void resetSocCustomValue(const float soc_percent)
 {
-    soc_charge_c = static_cast<double>(soc_percent / 100.0f * SERIES_ELEMENT_FULL_CHARGE_C);
+    soc_charge_c = static_cast<double>(soc_percent) / 100.0 * SERIES_ELEMENT_FULL_CHARGE_C;
 
     soc_is_dirty = true;
 }
 
 void broadcast()
 {
-    app::can_tx::BMS_Soc_set(getMinSocPercent());
+    app::can_tx::BMS_SocPercent_set(getMinSocPercent());
+    app::can_tx::BMS_SocCoulombs_set(getMinSocCoulombs());
+    app::can_tx::BMS_SocDirty_set(getDirty());
     if (io::irs::negativeState() == app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED &&
         io::irs::positiveState() == app::can_utils::ContactorState::CONTACTOR_STATE_CLOSED)
     {

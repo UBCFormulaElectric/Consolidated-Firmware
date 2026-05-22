@@ -22,19 +22,14 @@ void init();
 bool isAvailable();
 
 /**
- * Return the result of the latest filesystem operation attempted by SoC storage.
- */
-FileSystemError getStatus();
-
-/**
  * @brief Read SoC value from SD storage.
  */
-bool readSocFromSd(float &saved_soc_percent);
+std::expected<float, FileSystemError> readSocFromSd();
 
 /**
  * @brief Write SoC value to SD storage.
  */
-bool writeSocToSd(float soc_percent);
+std::expected<void, FileSystemError> writeSocToSd(float soc_percent);
 
 /**
  * @brief Get the last SoC value written to SD card in tenths of a percent.

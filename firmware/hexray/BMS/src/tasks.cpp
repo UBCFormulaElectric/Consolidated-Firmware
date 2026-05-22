@@ -13,6 +13,7 @@
 #include "io_canQueues.hpp"
 #include "io_time.hpp"
 #include "io_canRx.hpp"
+#include "io_filesystem.hpp"
 
 #include "hw_adcs.hpp"
 #include "hw_watchdog.hpp"
@@ -79,11 +80,10 @@ void tasks_run1Hz(void *arg)
     forever
     {
         jobs_run1Hz_tick();
-        uint32_t soc_tenths = 0U;
-        if (app::socStorage::convertSocToTenths(app::soc::getMinSocPercent(), soc_tenths))
-        {
-            xTaskNotify((TaskHandle_t)TaskSdCard.id(), soc_tenths, eSetValueWithOverwrite);
-        }
+
+        const float min_soc_percent = app::soc::getMinSocPercent();
+        uint32_t soc_tenths = app::socStorage::convertSocToTenths(min_soc_percent);
+        xTaskNotify((TaskHandle_t)TaskSdCard.id(), soc_tenths, eSetValueWithOverwrite);
 
         watchdog1hz.checkIn();
         runtimeMonitor.checkin();
@@ -176,13 +176,10 @@ void tasks_runCanRx(void *arg)
 
 [[noreturn]] static void tasks_runSdCard(void *arg)
 {
-    const uint32_t period_ms   = 1000U;
-    uint32_t       start_ticks = osKernelGetTickCount();
-
     forever
     {
         uint32_t rounded_soc = 0U;
-        if (xTaskNotifyWait(0, ULONG_MAX, &rounded_soc, 0) == pdTRUE)
+        if (xTaskNotifyWait(0, ULONG_MAX, &rounded_soc, portMAX_DELAY) == pdTRUE)
         {
             const uint32_t last_written_soc      = app::socStorage::getLastWrittenSocTenths();
             const bool     soc_storage_available = app::socStorage::isAvailable();
@@ -191,8 +188,6 @@ void tasks_runCanRx(void *arg)
                 LOG_IF_ERR(app::socStorage::writeSocToSd((float)rounded_soc / 10.0f));
             }
         }
-        start_ticks += period_ms;
-        osDelayUntil(start_ticks);
     }
 }
 
@@ -228,6 +223,11 @@ void tasks_init()
     pwms_init();
     fdcan1.init();
     fdcan2.init();
+
+    if (const auto result = io::FileSystem::init(); !result)
+    {
+        LOG_ERROR("Failed to initialize filesystem");
+    }
 
     const ResetReason reset_reason = hw::resetReason::get();
     app::can_tx::BMS_ResetReason_set(static_cast<app::can_utils::CanResetReason>(reset_reason));

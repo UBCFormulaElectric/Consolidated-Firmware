@@ -1,11 +1,7 @@
 #include "app_socStorage.hpp"
 #include "io_log.hpp"
 #include "hw_sds.hpp"
-
-extern "C"
-{
-#include "io_fileSystem.h"
-}
+#include "io_filesystem.hpp"
 
 #include <cstdint>
 #include <expected>
@@ -15,10 +11,9 @@ namespace
 constexpr const char *SOC_STORAGE_PATH       = "/soc.txt";
 constexpr uint32_t    SOC_TENTHS_UNAVAILABLE = UINT32_MAX;
 
-FileSystemError soc_storage_status    = FILE_MOUNT_FAILED;
-bool            soc_storage_ready     = false;
-uint32_t        soc_fd                = 0U;
-uint32_t        soc_last_saved_tenths = SOC_TENTHS_UNAVAILABLE;
+bool soc_storage_ready          = false;
+std::optional<uint32_t> soc_fd = std::nullopt;
+uint32_t soc_last_saved_tenths = SOC_TENTHS_UNAVAILABLE;
 
 constexpr uint32_t socPercentToTenths(const float soc_percent)
 {
@@ -47,41 +42,24 @@ std::expected<void, FileSystemError> recordStatus(const FileSystemError status)
     return {};
 }
 
-std::expected<void, FileSystemError> requireStorageReady()
+bool requireStorageReady()
 {
-    if (!soc_storage_ready)
-    {
-        return std::unexpected(soc_storage_status);
-    }
-
-    return {};
+    return soc_storage_ready;
 }
 
 std::expected<void, FileSystemError> read(float &saved_soc_percent)
 {
     saved_soc_percent = -1.0f;
 
-    if (auto result = requireStorageReady(); !result)
-    {
-        return result;
-    }
-
-    return recordStatus(io_fileSystem_read(soc_fd, &saved_soc_percent, sizeof(saved_soc_percent)));
+    return RETURN_IF_ERR(io::FileSystem::read(soc_fd, &saved_soc_percent, sizeof(saved_soc_percent)));
 }
 
 std::expected<void, FileSystemError> write(const float soc_percent)
 {
-    if (auto result = requireStorageReady(); !result)
-    {
-        return result;
-    }
 
-    if (auto result = recordStatus(io_fileSystem_write(soc_fd, &soc_percent, sizeof(soc_percent))); !result)
-    {
-        return result;
-    }
+    RETURN_IF_ERR(io::FileSystem::write(soc_fd, &soc_percent, sizeof(soc_percent)))
 
-    return recordStatus(io_fileSystem_sync(soc_fd));
+    return RETURN_IF_ERR(io::FileSystem::sync(soc_fd));
 }
 } // namespace
 
@@ -92,20 +70,12 @@ void init()
 {
     soc_storage_ready = false;
 
-    // TODO: Replace once cpp version of filesystem is implemented
-    if (!sd1.sdPresent())
+    if (!io::FileSystem::checkMount())
     {
-        (void)recordStatus(FILE_MOUNT_FAILED);
-        LOG_ERROR("SoC storage unavailable: SD card not present");
+        LOG_ERROR("SoC storage unavailable: failed to initialize filesystem");
         return;
     }
-
-    if (auto result = recordStatus(io_fileSystem_init()); !result)
-    {
-        LOG_ERROR("SoC storage unavailable: failed to initialize file system");
-        return;
-    }
-    if (auto result = recordStatus(io_fileSystem_open(SOC_STORAGE_PATH, &soc_fd)); !result)
+    if (const auto result = io::FileSystem::open(SOC_STORAGE_PATH, &soc_fd); !result)
     {
         LOG_ERROR("SoC storage unavailable: failed to open file");
         return;
@@ -138,19 +108,14 @@ bool isAvailable()
     return sd1.sdPresent() && soc_storage_ready;
 }
 
-FileSystemError getStatus()
+std::expected<float, ErrorCode> readSocFromSd()
 {
-    return soc_storage_status;
-}
-
-bool readSocFromSd(float &saved_soc_percent)
-{
-    soc_last_saved_tenths = SOC_TENTHS_UNAVAILABLE;
+    float saved_soc_percent = -1.0f;
 
     const auto read_result = read(saved_soc_percent);
     if (!read_result)
     {
-        return false;
+        return std::unexpected(ErrorCode::ERROR_SOC_STORAGE_READ_FAILED);
     }
 
     if (isValidSocPercent(saved_soc_percent))
@@ -158,15 +123,15 @@ bool readSocFromSd(float &saved_soc_percent)
         soc_last_saved_tenths = socPercentToTenths(saved_soc_percent);
     }
 
-    return true;
+    return saved_soc_percent;
 }
 
-bool writeSocToSd(const float soc_percent)
+std::expected<void, ErrorCode> writeSocToSd(const float soc_percent)
 {
     const auto write_result = write(soc_percent);
     if (!write_result)
     {
-        return false;
+        return std::unexpected(ErrorCode::ERROR_SOC_STORAGE_WRITE_FAILED);
     }
 
     if (isValidSocPercent(soc_percent))
@@ -174,7 +139,7 @@ bool writeSocToSd(const float soc_percent)
         soc_last_saved_tenths = socPercentToTenths(soc_percent);
     }
 
-    return true;
+    return {};
 }
 
 uint32_t getLastWrittenSocTenths()
@@ -187,15 +152,15 @@ uint32_t getLastWrittenSocTenths()
     return SOC_TENTHS_UNAVAILABLE;
 }
 
-bool convertSocToTenths(const float soc_percent, uint32_t &soc_tenths)
+std::expected<uint32_t, ErrorCode> convertSocToTenths(const float soc_percent)
 {
     if (!isValidSocPercent(soc_percent))
     {
-        return false;
+        return std::unexpected(ErrorCode::INVALID_ARGS);
     }
 
     soc_tenths = socPercentToTenths(soc_percent);
-    return true;
+    return soc_tenths;
 }
 
 } // namespace app::socStorage
