@@ -30,7 +30,11 @@ result<void> clear::aux()
 //check this
 result<void> clear::stat()
 {
-    constexpr Segments<RegBuffer> clr_regs{};
+    constexpr Segments<RegBuffer> clr_regs = []() {
+        Segments<RegBuffer> r{};
+        for (auto &seg : r) seg.fill(0xFF);
+        return r;
+    }();
     RETURN_IF_ERR(writeRegGroup(CLRFLAG, clr_regs));
     RETURN_IF_ERR(writeRegGroup(CLOVUV, clr_regs));
     return {};
