@@ -32,6 +32,7 @@ void jobs_init()
     app::can_tx::CRIT_Hash_set(GIT_COMMIT_HASH);
     app::can_tx::CRIT_Clean_set(GIT_COMMIT_CLEAN);
     app::can_tx::CRIT_Heartbeat_set(true);
+    io::can_tx::CRIT_Bootup_sendAperiodic();
 
 #ifdef TARGET_EMBEDDED
     LOG_IF_ERR(led_dimming.start());

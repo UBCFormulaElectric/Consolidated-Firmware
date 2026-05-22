@@ -168,6 +168,10 @@ async fn metadata(Query(SignalNameParam { mut name } ): Query<SignalNameParam>, 
     }
 }
 
+#[derive(Debug, Deserialize)]
+struct SourceQuery {
+    pub source: Option<String>,
+}
 
 /**
  * Gets signal values, timestamp, and name.
@@ -177,7 +181,7 @@ async fn metadata(Query(SignalNameParam { mut name } ): Query<SignalNameParam>, 
  */
 async fn signal_tiles(
     Path((signal, start, end)): Path<(String, String, String)>, 
-    Query((source,)): Query<(Option<String>,)>,
+    Query(SourceQuery{ source }): Query<SourceQuery>,
     State(state): State<AppState>
 ) -> impl IntoResponse {
     // todo optionally check if signal name is valid
@@ -228,11 +232,6 @@ struct SessionStarts {
     pub time: DateTime<FixedOffset>,
 }
 
-#[derive(Debug, Deserialize)]
-struct SessionQuery {
-    pub source: Option<String>,
-}
-
 /**
  * Returns list of paired times as milliseconds since UNIX time based on when car turns on
  * Takes start and end time of search range as RFC3339 format
@@ -240,7 +239,7 @@ struct SessionQuery {
  */
 async fn signal_sessions(
     Path((start, end)): Path<(String, String)>,
-    Query(SessionQuery { source }): Query<SessionQuery>,
+    Query(SourceQuery { source }): Query<SourceQuery>,
     State(state): State<AppState>
 ) -> impl IntoResponse {
     let (start_utc, end_utc) = 
@@ -254,7 +253,7 @@ async fn signal_sessions(
 
     let source_str = match source {
         Some(s) => {
-            if let Ok(e) = from_str::<InfluxSignalSource>(&s) {
+            if let Ok(_) = from_str::<InfluxSignalSource>(&s) {
                 s
             } else {
                 return (StatusCode::BAD_REQUEST, "Bad source!".to_string());

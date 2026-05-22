@@ -9,6 +9,7 @@
 #include "app_canDataCapture.hpp"
 #include "app_jsoncan.hpp"
 #include "app_heartbeatMonitors.hpp"
+#include "app_commitInfo.hpp"
 #include "app_epochClock.hpp"
 
 #include "io_canMsg.hpp"
@@ -66,6 +67,8 @@ void jobs_init()
             }
         });
 
+    app::can_tx::DAM_Hash_set(GIT_COMMIT_HASH);
+    app::can_tx::DAM_Clean_set(GIT_COMMIT_CLEAN);
     io::can_tx::enableMode_FDCAN(app::can_utils::FDCANMode::FDCAN_MODE_DEFAULT, true);
     app::can_tx::DAM_Heartbeat_set(true);
     io::can_tx::DAM_Bootup_sendAperiodic();
