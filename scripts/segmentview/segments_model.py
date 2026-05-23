@@ -22,6 +22,11 @@ class SegmentError:
     tmodchk: bool
     oscchk: bool
 
+    def count(self) -> int:
+        return sum(1 for v in self.__dict__.values() if v)
+    def text(self) -> str:
+        return ', '.join(name for name, is_error in self.__dict__.items() if is_error)
+
 @dataclass
 class SegmentData:
     """Data structure for a single segment"""

@@ -167,9 +167,8 @@ class CompactSegmentView(QWidget):
                 max_t_item.setForeground(QColor("green"))
 
         # Check for errors
-        error_count = sum(1 for v in data.errors.values() if v)
-        if error_count > 0:
-            errors_item.setText(f"{error_count}")
+        if data.errors.count() > 0:
+            errors_item.setText(data.errors.text())
             errors_item.setForeground(QColor("red"))
             status_item.setText("⚠")
             status_item.setForeground(QColor("red"))
