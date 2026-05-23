@@ -7,20 +7,20 @@ from typing import Dict
 
 @dataclass
 class SegmentError:
-    comm_ok: bool
-    va_ov: bool
-    va_uv: bool
-    vd_ov: bool
-    vd_uv: bool
-    ced: bool
-    cmed: bool
-    sed: bool
-    smed: bool
-    vde: bool
-    vdel: bool
-    thsd: bool
-    tmodchk: bool
-    oscchk: bool
+    comm_ok: bool = False
+    va_ov: bool = False
+    va_uv: bool = False
+    vd_ov: bool = False
+    vd_uv: bool = False
+    ced: bool = False
+    cmed: bool = False
+    sed: bool = False
+    smed: bool = False
+    vde: bool = False
+    vdel: bool = False
+    thsd: bool = False
+    tmodchk: bool = False
+    oscchk: bool = False
 
     def count(self) -> int:
         return sum(1 for v in self.__dict__.values() if v)
@@ -38,6 +38,6 @@ class SegmentData:
     cell_undervoltage: Dict[int, bool] = field(default_factory=dict)  # {cell_id: is_undervoltage}
     cell_temps: Dict[int, float] = field(default_factory=dict)     # {cell_id: temperature}
     thermistor_open_wire: Dict[int, bool] = field(default_factory=dict)  # {thermistor_id: is_open_wire}
-    errors: SegmentError = field(default_factory=dict)          # {error_name: is_error}
+    errors: SegmentError = field(default_factory=SegmentError)          # {error_name: is_error}
     vref2: float = 0.0
     itmp: float = 0.0

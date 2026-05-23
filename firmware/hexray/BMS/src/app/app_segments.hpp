@@ -42,8 +42,10 @@ namespace config
 {
     void setBalanceConfig(const Cells<bool> &balance_config, const Cells<uint8_t> &pwm_duty, bool balancing_enabled);
     void setThermistorConfig(ThermistorMux mux);
-    void configSync();
-    void waitForSync();
+    /**
+     * Synchronizes the in-memory config with the ADBMS chips.
+     */
+    Segments<result<bool>> sync();
 } // namespace config
 
 // app_segments_balancing.cpp
@@ -128,7 +130,7 @@ namespace conversion
     ThermGpios<result<float>>            thermVoltage(ThermistorMux mux);
     Segments<result<float>>              segVoltage();
     Segments<io::adbms::StatusGroupsRes> status();
-    Cells<result<float>>                  cellOwcVoltages(io::adbms::OpenWireSwitch channel);
+    Cells<result<float>>                 cellOwcVoltages(io::adbms::OpenWireSwitch channel);
 } // namespace conversion
 
 // app_segments_calculation.cpp

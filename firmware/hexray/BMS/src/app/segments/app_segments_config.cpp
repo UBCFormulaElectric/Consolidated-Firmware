@@ -8,6 +8,7 @@
 #include <cstring>
 #include <atomic>
 #include <optional>
+#include <algorithm>
 
 using namespace std;
 
@@ -112,24 +113,10 @@ bool absorbAndCheckAllEqual(const io::adbms::Segments<result<bool>> &per_seg, io
     }
     return all_equal;
 }
-
-/**
- * Returns the first per-segment read error in @p per_seg, if any.
- */
-std::optional<ErrorCode> firstReadError(const io::adbms::Segments<result<bool>> &per_seg)
-{
-    for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
-        if (!per_seg[seg])
-            return per_seg[seg].error();
-    return std::nullopt;
-}
-
 } // namespace
 
 namespace app::segments::config
 {
-hw::notify::Notifier sync_done;
-
 void setBalanceConfig(const Cells<bool> &balance_config, const Cells<uint8_t> &pwm_duty, const bool balancing_enabled)
 {
     const io::unique_semaphore lock{ config_data_lock };
@@ -170,70 +157,55 @@ void setThermistorConfig(const ThermistorMux mux)
     dirty = true;
 }
 
-void configSync()
+Segments<result<bool>> sync()
 {
     const io::unique_semaphore lock{ config_data_lock };
-
-    // Sticky per-segment error accumulator for this sync call: a segment is flagged if it had any
-    // read error (e.g., CHECKSUM_FAIL) or was mismatched at any point during this call.
-    Segments<bool> seg_had_error{};
-
-    const auto writeHealthBits = [&]()
-    {
-        for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
-            health::setOrReset(seg, health::ErrorBit::CONFIG, seg_had_error[seg]);
-    };
 
     // Fast path: if nothing's marked dirty, double-check the chip still matches in case of a reset.
     if (not dirty)
     {
-        if (absorbAndCheckAllEqual(isConfigEqual(), seg_had_error))
+        if (const Segments<result<bool>> seg_configs_equal = isConfigEqual(); ranges::all_of(
+                seg_configs_equal, [](const auto &seg_ok_res) -> bool { return seg_ok_res and seg_ok_res.value(); }))
         {
-            writeHealthBits();
-            sync_done.notify();
-            return;
+            return seg_configs_equal;
         }
         dirty = true;
     }
+    assert(dirty); // hence, we will resync
 
     // Slow path: write config to the chip and verify, retrying up to NUM_CONFIG_SYNC_TRIES times.
     // The retry result is discarded — per-segment errors are recorded in seg_had_error and
     // reflected in the Config health bit.
-    const auto r = util::retry(
-        [&]() -> result<void>
+    const result<Segments<result<bool>>> r = util::retry(
+        [&]() -> result<Segments<result<bool>>>
         {
-            const auto up = upload();
-            if (!up)
+            if (const result<void> up = upload(); !up)
             {
                 // Daisy-chain SPI failure: leaves every segment in an unknown state.
-                for (auto &flag : seg_had_error)
-                    flag = true;
                 return unexpected(up.error());
             }
 
-            const auto per_seg = isConfigEqual();
-            if (absorbAndCheckAllEqual(per_seg, seg_had_error))
+            if (const Segments<result<bool>> per_seg = isConfigEqual(); ranges::any_of(
+                    per_seg,
+                    [](const result<bool> &seg_ok_res) -> bool { return not(seg_ok_res and seg_ok_res.value()); }))
             {
-                dirty = false;
-                return {};
+                // comes here if 1+ segments are not equal, or failed to read back (e.g., due to a CHECKSUM_FAIL)
+                for (size_t seg = 0; seg < NUM_SEGMENTS; seg++) // if there is an error, report that
+                    if (!per_seg[seg])
+                        return std::unexpected(per_seg[seg].error());
+                return unexpected(ErrorCode::RETRY_FAILED); // no error, only 1+ bool = false
             }
-
-            // Drive the retry with a meaningful error: prefer the per-segment read error over a
-            // plain mismatch.
-            if (const auto err = firstReadError(per_seg))
-                return unexpected(*err);
-            return unexpected(ErrorCode::RETRY_FAILED);
+            dirty = false;
+            return {};
         },
         NUM_CONFIG_SYNC_TRIES);
 
-    writeHealthBits();
-    if (r)
-        sync_done.notify();
+    if (not r)
+    {
+        Segments<result<bool>> failed{};
+        failed.fill(unexpected(r.error()));
+        return failed;
+    }
+    return r.value();
 }
-
-void waitForSync()
-{
-    sync_done.wait();
-}
-
 } // namespace app::segments::config
