@@ -139,7 +139,7 @@ void jobs_run1kHz_tick()
 
 void jobs_runAdbmsVoltages_tick()
 {
-    LOG_IF_ERR(app::segments::config::waitForSync(3000));
+    app::segments::config::waitForSync();
 
     Cells<result<float>> voltages;
     Cells<result<bool>> owc;
@@ -147,7 +147,7 @@ void jobs_runAdbmsVoltages_tick()
     {  
         const io::unique_semaphore s{ spi_bus_lock };
         voltages = app::segments::conversion::cellVoltage();
-        owc = app::segments::conversion::cellOwc(voltages);
+        owc = app::segments::conversion::cellOwc();
     }
     
     app::segments::broadcast::cellVoltages(voltages);
@@ -159,26 +159,29 @@ void jobs_runAdbmsConfigs_tick()
 {
     const io::unique_semaphore s{ spi_bus_lock };
     app::segments::config::configSync();
+    LOG_INFO("CONFIG RAN");
 }
 
 void jobs_runAdbmsAux_tick()
 {
-    LOG_IF_ERR(app::segments::config::waitForSync(3000));
+    LOG_INFO("WAITING");
+    app::segments::config::waitForSync();
+    LOG_INFO("RESUME");
 
-    std::pair<Therms<result<float>>, Therms<result<bool>>> therm;
-    Segments<io::adbms::StatusGroups>  status;
-    Segments<result<float>> seg_voltage;
+    // std::pair<Therms<result<float>>, Therms<result<bool>>> therm;
+    // Segments<io::adbms::StatusGroups>  status;
+    // Segments<result<float>> seg_voltage;
     
-    {
-        const io::unique_semaphore s{ spi_bus_lock };
-        LOG_IF_ERR(io::adbms::clear::stat()); //not sure how to handle error for this
-        therm = app::segments::conversion::thermTempOwc();
-        status =  app::segments::conversion::status();
-        seg_voltage = app::segments::conversion::segVoltage();
-    }
+    // {
+    //     const io::unique_semaphore s{ spi_bus_lock };
+    //     LOG_IF_ERR(io::adbms::clear::stat()); //not sure how to handle error for this
+    //     therm = app::segments::conversion::thermTempOwc();
+    //     status =  app::segments::conversion::status();
+    //     seg_voltage = app::segments::conversion::segVoltage();
+    // }
 
-    app::segments::broadcast::thermTemps(therm.first);
-    app::segments::broadcast::thermOwc(therm.second);
-    app::segments::broadcast::status(status);
-    app::segments::broadcast::segVoltages(seg_voltage);
+    // app::segments::broadcast::thermTemps(therm.first);
+    // app::segments::broadcast::thermOwc(therm.second);
+    // app::segments::broadcast::status(status);
+    // app::segments::broadcast::segVoltages(seg_voltage);
 }

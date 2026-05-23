@@ -112,7 +112,7 @@ struct __attribute__((packed)) PWMB
     uint8_t pwm14 : 4;
     uint8_t pwm15 : 4;
     uint8_t pwm16 : 4;
-    uint32_t : 32;
+    uint32_t res  : 32;
     bool operator==(const PWMB &other) const { return std::memcmp(this, &other, sizeof(PWMB)) == 0; }
 };
 static_assert(sizeof(PWMB) == REG_GROUP_SIZE);
@@ -215,6 +215,7 @@ namespace read
     [[nodiscard]] Segments<result<PWMConfig>>     pwmReg();
     [[nodiscard]] Cells<result<uint16_t>>         cellVoltage();
     [[nodiscard]] Cells<result<uint16_t>>         filteredCellVoltage();
+    [[nodiscard]] Cells<result<uint16_t>>         secondaryCellVoltage();
     [[nodiscard]] Segments<result<uint16_t>>      segVoltage();
     [[nodiscard]] ThermGpios<result<uint16_t>>    thermGpioVoltage();
     [[nodiscard]] Segments<StatusGroups>          status();

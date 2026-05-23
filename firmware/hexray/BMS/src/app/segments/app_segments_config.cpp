@@ -34,8 +34,15 @@ constexpr std::array<io::adbms::SegmentConfig, NUM_SEGMENTS> createSegmentConfig
     return config;
 }
 
+constexpr std::array<io::adbms::PWMConfig, NUM_SEGMENTS> createPwmConfig()
+{
+    std::array<io::adbms::PWMConfig, NUM_SEGMENTS> config{};
+    for (auto &[_reg_a, reg_b] : config) reg_b.res = 0xFFFFFFFFu;
+    return config;
+}
+
 std::array<io::adbms::SegmentConfig, NUM_SEGMENTS> segment_config = createSegmentConfig();
-std::array<io::adbms::PWMConfig, NUM_SEGMENTS>     pwm_config{};
+std::array<io::adbms::PWMConfig, NUM_SEGMENTS>     pwm_config    = createPwmConfig();
 bool                                               dirty = true;
 
 io::semaphore config_data_lock{ true }; // protects the segment_config and pwm_config arrays, and dirty bit
@@ -65,8 +72,11 @@ io::adbms::Segments<result<bool>> isConfigEqual()
             out[seg] = unexpected(pwm_config_buf[seg].error());
             continue;
         }
-        out[seg] = (segment_config_buf[seg].value() == segment_config[seg]) &&
-                   (pwm_config_buf[seg].value() == pwm_config[seg]);
+        const auto sc_read = segment_config_buf[seg].value();
+        const auto pc_read = pwm_config_buf[seg].value();
+        const bool sc_eq  = (sc_read == segment_config[seg]);
+        const bool pc_eq  = (pc_read == pwm_config[seg]);
+        out[seg] = sc_eq && pc_eq;
     }
     return out;
 }
@@ -143,7 +153,7 @@ void setBalanceConfig(const Cells<bool> &balance_config, const Cells<uint8_t> &p
                        static_cast<uint8_t>(d[6] & 0x0F), static_cast<uint8_t>(d[7] & 0x0F),
                        static_cast<uint8_t>(d[8] & 0x0F), static_cast<uint8_t>(d[9] & 0x0F),
                        static_cast<uint8_t>(d[10] & 0x0F), static_cast<uint8_t>(d[11] & 0x0F) },
-            .reg_b = { static_cast<uint8_t>(d[12] & 0x0F), static_cast<uint8_t>(d[13] & 0x0F), 0, 0 },
+            .reg_b = { static_cast<uint8_t>(d[12] & 0x0F), static_cast<uint8_t>(d[13] & 0x0F), 0, 0, 0xFFFFFFFFu },
         };
     }
     dirty = true;
@@ -217,12 +227,11 @@ void configSync()
     if (r) sync_done.notifyIfWaiting();
 }
 
-result<void> waitForSync(const uint32_t timeout_ms)
+void waitForSync()
 {
-    const auto r = sync_done.waitFor(timeout_ms);
-    if (!r && r.error() == ErrorCode::TIMEOUT)
-        return std::unexpected(ErrorCode::CONFIG_TIMEOUT);
-    return r;
+    // Block indefinitely. If configSync never completes, dependent tasks (voltage/aux reads)
+    // must not proceed — running them on an unconfigured chip would produce bogus data.
+    sync_done.wait();
 }
 
 } // namespace app::segments::config

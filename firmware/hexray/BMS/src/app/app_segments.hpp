@@ -43,7 +43,7 @@ namespace config
     void setBalanceConfig(const Cells<bool> &balance_config, const Cells<uint8_t> &pwm_duty, bool balancing_enabled);
     void setThermistorConfig(ThermistorMux mux);
     void         configSync();
-    result<void> waitForSync(uint32_t timeout_ms);
+    void waitForSync();
 } // namespace config
 
 // app_segments_balancing.cpp
@@ -125,6 +125,6 @@ namespace conversion
     std::pair<Therms<result<float>>, Therms<result<bool>>>  thermTempOwc();
     Segments<result<float>>                                 segVoltage();
     Segments<io::adbms::StatusGroups>                       status();
-    Cells<result<bool>>                                     cellOwc(Cells<result<float>> &voltages);
+    Cells<result<bool>>                                     cellOwc();
 } // namespace conversion
 } // namespace app::segments

@@ -211,51 +211,102 @@ Segments<io::adbms::StatusGroups> conversion::status()
     return status;
 }
 
-Cells<result<bool>> conversion::cellOwc(Cells<result<float>> &voltages)
+Cells<result<bool>> conversion::cellOwc()
 {
     Cells<result<bool>> owc_cell;
 
-    if (!startPoll::secondaryCellAdc(io::adbms::OpenWireSwitch::OddChannels))
+    if (!startPoll::secondaryCellAdc(io::adbms::OpenWireSwitch::EvenChannels) ||
+        !startPoll::secondaryCellAdc(io::adbms::OpenWireSwitch::EvenChannels))
     {
         fillWithError(owc_cell, ErrorCode::POLL_INVALID);
         return owc_cell;
     }
-    Cells<result<uint16_t>> odd_voltage = io::adbms::read::cellVoltage();
+    const Cells<result<uint16_t>> cellpu_raw = io::adbms::read::secondaryCellVoltage();
 
-    if (!startPoll::secondaryCellAdc(io::adbms::OpenWireSwitch::EvenChannels))
+    if (!startPoll::secondaryCellAdc(io::adbms::OpenWireSwitch::OddChannels) ||
+        !startPoll::secondaryCellAdc(io::adbms::OpenWireSwitch::OddChannels))
     {
         fillWithError(owc_cell, ErrorCode::POLL_INVALID);
         return owc_cell;
     }
-    Cells<result<uint16_t>> even_voltage = io::adbms::read::cellVoltage();
+    const Cells<result<uint16_t>> cellpd_raw = io::adbms::read::secondaryCellVoltage();
+
+    constexpr size_t NUM_C_PINS = CELLS_PER_SEGMENT + 1U;
 
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
-        bool seg_has_error = false;
+        for (size_t cell = 0; cell < CELLS_PER_SEGMENT; cell++) owc_cell[seg][cell] = true;
+
+        bool                                       seg_has_error = false;
+        std::array<float, CELLS_PER_SEGMENT>       cellpu{};
+        std::array<float, CELLS_PER_SEGMENT>       cellpd{};
+        std::array<bool, CELLS_PER_SEGMENT>        delta_valid{};
+
         for (size_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
         {
-            if (!voltages[seg][cell])
+            if (!cellpu_raw[seg][cell])
             {
-                owc_cell[seg][cell] = std::unexpected(voltages[seg][cell].error());
+                owc_cell[seg][cell] = std::unexpected(cellpu_raw[seg][cell].error());
                 seg_has_error       = true;
                 continue;
             }
-            if (!odd_voltage[seg][cell])
+            if (!cellpd_raw[seg][cell])
             {
-                owc_cell[seg][cell] = std::unexpected(odd_voltage[seg][cell].error());
+                owc_cell[seg][cell] = std::unexpected(cellpd_raw[seg][cell].error());
                 seg_has_error       = true;
                 continue;
             }
-            if (!even_voltage[seg][cell])
+            cellpu[cell]      = convertRegToVoltage(cellpu_raw[seg][cell].value());
+            cellpd[cell]      = convertRegToVoltage(cellpd_raw[seg][cell].value());
+            delta_valid[cell] = true;
+        }
+
+        std::array<float, CELLS_PER_SEGMENT> cell_delta{};
+        for (size_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
+        {
+            cell_delta[cell] = cellpu[cell] - cellpd[cell];
+        }
+
+        std::array<bool, NUM_C_PINS> cpin_open{};
+        size_t                       n = 0;
+        while (n + 1U < CELLS_PER_SEGMENT)
+        {
+            if (delta_valid[n] && delta_valid[n + 1U] && cell_delta[n] > OW_CELL_DELTA_THRESHOLD)
             {
-                owc_cell[seg][cell] = std::unexpected(even_voltage[seg][cell].error());
-                seg_has_error       = true;
-                continue;
+                cpin_open[n] = true;
+                while (n + 1U < CELLS_PER_SEGMENT && delta_valid[n] && delta_valid[n + 1U])
+                {
+                    const float diff = cell_delta[n] - cell_delta[n + 1U];
+                    if (diff > -OW_CELL_DELTA_THRESHOLD)
+                    {
+                        cpin_open[n + 1U] = true;
+                        n++;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
             }
-            const float baseline_v = voltages[seg][cell].value();
-            const float owc_v      = (cell % 2 == 0) ? convertRegToVoltage(even_voltage[seg][cell].value())
-                                                     : convertRegToVoltage(odd_voltage[seg][cell].value());
-            owc_cell[seg][cell]    = checkCellOwcOk(baseline_v, owc_v);
+            n++;
+        }
+
+        if (cellpu_raw[seg][0] && cellpu_raw[seg][0].value() == 0U)
+        {
+            cpin_open[0] = true;
+        }
+        if (cellpd_raw[seg][CELLS_PER_SEGMENT - 1U] &&
+            cellpd_raw[seg][CELLS_PER_SEGMENT - 1U].value() == 0U)
+        {
+            cpin_open[CELLS_PER_SEGMENT] = true;
+        }
+
+        for (size_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
+        {
+            if (owc_cell[seg][cell] && (cpin_open[cell] || cpin_open[cell + 1U]))
+            {
+                owc_cell[seg][cell] = false;
+            }
         }
 
         health::setOrReset(seg, health::ErrorBit::CellOwc, seg_has_error);

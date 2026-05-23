@@ -17,7 +17,6 @@ enum class ErrorCode : uint8_t
     INVALID_READING,     // sensor returned a sentinel/saturation value (bus likely OK)
     ERROR_INDETERMINATE, // use this for when you don't know what the exit code is YET
     POLL_INVALID,
-    CONFIG_TIMEOUT,
     NUM_EXIT_CODES,
 };
 
@@ -49,8 +48,6 @@ constexpr const char *error_code_to_string(const ErrorCode code)
             return "Invalid reading (sentinel value)";
         case ErrorCode::ERROR_INDETERMINATE:
             return "Indeterminate error";
-        case ErrorCode::CONFIG_TIMEOUT:
-            return "Config sync timeout";
         case ErrorCode::NUM_EXIT_CODES:
         default:
             return "Unknown error code";

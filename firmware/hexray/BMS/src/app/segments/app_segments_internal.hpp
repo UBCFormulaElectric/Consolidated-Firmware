@@ -6,8 +6,7 @@
 inline constexpr uint8_t  MAX_NUM_SEGMENTS           = 10U;
 inline constexpr uint16_t VUV                        = 0x01A1; // 2.5V
 inline constexpr uint16_t VOV                        = 0x0465; // 4.2V
-inline constexpr float    OW_CELL_RELATIVE_THRESHOLD = 0.7f;
-inline constexpr float    OW_CELL_ABSOLUTE_THRESHOLD = 0.5f;
+inline constexpr float    OW_CELL_DELTA_THRESHOLD    = 0.4f; // 400 mV — ADBMS6830B enhanced OW detection threshold
 
 inline constexpr float V_REF2             = 3.0f;
 inline constexpr float R_SERIES           = 10e3f; // Fixed resistor
@@ -27,15 +26,6 @@ constexpr float convertUVOVToFloat(const uint16_t hex)
 constexpr float convertRegToVoltage(const uint16_t reg)
 {
     return static_cast<float>(reg) * 150e-6f + 1.5f;
-}
-
-constexpr bool checkCellOwcOk(const float baselineVoltage, const float owcVoltage)
-{
-    if (owcVoltage < baselineVoltage * OW_CELL_RELATIVE_THRESHOLD)
-        return false;
-    if (owcVoltage < OW_CELL_ABSOLUTE_THRESHOLD)
-        return false;
-    return true;
 }
 
 constexpr float convertRegToTemp(const uint16_t reg)
