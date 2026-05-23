@@ -119,7 +119,8 @@ void jobs_run100Hz_tick()
     if (app::can_rx::Debug_CellBalancing_Request_get())
     {
         app::StateMachine::set_next_state(&app::states::balancing_state);
-    } else if (app::can_alerts::AnyBoardHasFault())
+    }
+    else if (app::can_alerts::AnyBoardHasFault())
     {
         app::StateMachine::set_next_state(&app::states::fault_state);
     }
@@ -142,17 +143,16 @@ void jobs_runAdbmsVoltages_tick()
     app::segments::config::waitForSync();
 
     Cells<result<float>> voltages;
-    Cells<result<bool>> owc;
+    Cells<result<bool>>  owc;
 
-    {  
+    {
         const io::unique_semaphore s{ spi_bus_lock };
         voltages = app::segments::conversion::cellVoltage();
-        owc = app::segments::conversion::cellOwc();
+        owc      = app::segments::conversion::cellOwc();
     }
-    
+
     app::segments::broadcast::cellVoltages(voltages);
     app::segments::broadcast::cellOwc(owc);
-    
 }
 
 void jobs_runAdbmsConfigs_tick()
@@ -167,14 +167,14 @@ void jobs_runAdbmsAux_tick()
     app::segments::config::waitForSync();
 
     std::pair<Therms<result<float>>, Therms<result<bool>>> therm;
-    Segments<io::adbms::StatusGroups>  status;
-    Segments<result<float>> seg_voltage;
-    
+    Segments<io::adbms::StatusGroupsRes>                   status;
+    Segments<result<float>>                                seg_voltage;
+
     {
         const io::unique_semaphore s{ spi_bus_lock };
-        LOG_IF_ERR(io::adbms::clear::stat()); //not sure how to handle error for this
-        therm = app::segments::conversion::thermTempOwc();
-        status =  app::segments::conversion::status();
+        LOG_IF_ERR(io::adbms::clear::stat()); // not sure how to handle error for this
+        therm       = app::segments::conversion::thermTempOwc();
+        status      = app::segments::conversion::status();
         seg_voltage = app::segments::conversion::segVoltage();
     }
 

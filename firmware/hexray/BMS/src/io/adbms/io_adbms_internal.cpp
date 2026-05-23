@@ -96,13 +96,7 @@ class __attribute__((packed)) RegGroupPayload
     // default for recieving
     RegGroupPayload() : data{}, pec10_cmd_count(0) {}
 
-    [[nodiscard]] bool checksum() const
-    {
-        // todo is this mask still required with the new bitfields?
-        const auto expected   = pec10();
-        const auto calculated = calculatePec10();
-        return calculated == expected;
-    }
+    [[nodiscard]] bool checksum() const { return calculatePec10() == pec10(); }
 
     [[nodiscard]] uint16_t pec10() const
     {
@@ -238,24 +232,6 @@ namespace
     }
 } // namespace
 
-namespace
-{
-    // After a failed transmit on an incrementing command we don't know whether the
-    // chip actually parsed it (and bumped its cc) or never saw it. Trigger one cheap
-    // read so readRegGroup's existing cc-resync snaps expected_cmd_count[] back to
-    // whatever the chip reports. RDCFGA is non-incrementing and harmless to issue.
-    // readRegGroup is declared in io_adbms_internal.hpp.
-    void resyncFromChip()
-    {
-        (void)readRegGroup(RDCFGA);
-    }
-} // namespace
-
-void resetExpectedCmdCount()
-{
-    expected_cmd_count.fill(0);
-}
-
 Segments<uint8_t> getExpectedCmdCount()
 {
     return expected_cmd_count;
@@ -268,10 +244,6 @@ result<void> sendCmd(const uint16_t cmd)
     if (status)
     {
         postTxUpdateCmdCount(cmd);
-    }
-    else if (cmd == SRST || cmd == RSTCC || commandIncrements(cmd))
-    {
-        resyncFromChip();
     }
     return status;
 }
@@ -286,10 +258,6 @@ result<bitset<32>> poll(const uint16_t cmd)
     if (status)
     {
         postTxUpdateCmdCount(cmd);
-    }
-    else if (cmd == SRST || cmd == RSTCC || commandIncrements(cmd))
-    {
-        resyncFromChip();
     }
     return status ? result<std::bitset<32>>{ poll_buf } : unexpected(status.error());
 }
@@ -317,11 +285,12 @@ Segments<result<RegBuffer>> readRegGroup(const uint16_t cmd)
             continue;
         }
 
+        // TODO integrate command count properly
         // if (const uint8_t cc_byte = segment_reg_group.cmd_count(); cc_byte != expected_cmd_count[segment])
         // {
         //     // Resync so a single dropped/replayed command doesn't cascade.
         //     LOG_INFO(
-        //         "CMD COUNT MISMATCH ON SEGMENT %d: expected %d but got %d. Resyncing.",segment,
+        //         "CMD COUNT MISMATCH ON SEGMENT %d: expected %d but got %d. Resyncing.", segment,
         //         expected_cmd_count[segment], cc_byte);
         //     expected_cmd_count[segment] = cc_byte;
         //     regs[segment]               = unexpected(ErrorCode::CMD_COUNT_MISMATCH);
@@ -339,10 +308,6 @@ result<void> writeRegGroup(const uint16_t cmd, const Segments<RegBuffer> &regs)
     if (status)
     {
         postTxUpdateCmdCount(cmd);
-    }
-    else if (commandIncrements(cmd))
-    {
-        resyncFromChip();
     }
     return status;
 }

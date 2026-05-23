@@ -37,13 +37,14 @@ constexpr std::array<io::adbms::SegmentConfig, NUM_SEGMENTS> createSegmentConfig
 constexpr std::array<io::adbms::PWMConfig, NUM_SEGMENTS> createPwmConfig()
 {
     std::array<io::adbms::PWMConfig, NUM_SEGMENTS> config{};
-    for (auto &[_reg_a, reg_b] : config) reg_b.res = 0xFFFFFFFFu;
+    for (auto &[_reg_a, reg_b] : config)
+        reg_b.res = 0xFFFFFFFFu;
     return config;
 }
 
 std::array<io::adbms::SegmentConfig, NUM_SEGMENTS> segment_config = createSegmentConfig();
-std::array<io::adbms::PWMConfig, NUM_SEGMENTS>     pwm_config    = createPwmConfig();
-bool                                               dirty = true;
+std::array<io::adbms::PWMConfig, NUM_SEGMENTS>     pwm_config     = createPwmConfig();
+bool                                               dirty          = true;
 
 io::semaphore config_data_lock{ true }; // protects the segment_config and pwm_config arrays, and dirty bit
 
@@ -74,9 +75,9 @@ io::adbms::Segments<result<bool>> isConfigEqual()
         }
         const auto sc_read = segment_config_buf[seg].value();
         const auto pc_read = pwm_config_buf[seg].value();
-        const bool sc_eq  = (sc_read == segment_config[seg]);
-        const bool pc_eq  = (pc_read == pwm_config[seg]);
-        out[seg] = sc_eq && pc_eq;
+        const bool sc_eq   = (sc_read == segment_config[seg]);
+        const bool pc_eq   = (pc_read == pwm_config[seg]);
+        out[seg]           = sc_eq && pc_eq;
     }
     return out;
 }
@@ -98,9 +99,7 @@ result<void> upload()
  * Folds per-segment equality results into the sticky error accumulator and returns whether every
  * segment is healthy and equal.
  */
-bool absorbAndCheckAllEqual(
-    const io::adbms::Segments<result<bool>> &per_seg,
-    io::adbms::Segments<bool>               &seg_had_error)
+bool absorbAndCheckAllEqual(const io::adbms::Segments<result<bool>> &per_seg, io::adbms::Segments<bool> &seg_had_error)
 {
     bool all_equal = true;
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
@@ -120,7 +119,8 @@ bool absorbAndCheckAllEqual(
 std::optional<ErrorCode> firstReadError(const io::adbms::Segments<result<bool>> &per_seg)
 {
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
-        if (!per_seg[seg]) return per_seg[seg].error();
+        if (!per_seg[seg])
+            return per_seg[seg].error();
     return std::nullopt;
 }
 
@@ -178,7 +178,8 @@ void configSync()
     // read error (e.g., CHECKSUM_FAIL) or was mismatched at any point during this call.
     Segments<bool> seg_had_error{};
 
-    const auto writeHealthBits = [&]() {
+    const auto writeHealthBits = [&]()
+    {
         for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
             health::setOrReset(seg, health::ErrorBit::Config, seg_had_error[seg]);
     };
@@ -205,7 +206,8 @@ void configSync()
             if (!up)
             {
                 // Daisy-chain SPI failure: leaves every segment in an unknown state.
-                for (auto &flag : seg_had_error) flag = true;
+                for (auto &flag : seg_had_error)
+                    flag = true;
                 return unexpected(up.error());
             }
 
@@ -218,13 +220,15 @@ void configSync()
 
             // Drive the retry with a meaningful error: prefer the per-segment read error over a
             // plain mismatch.
-            if (const auto err = firstReadError(per_seg)) return unexpected(*err);
+            if (const auto err = firstReadError(per_seg))
+                return unexpected(*err);
             return unexpected(ErrorCode::RETRY_FAILED);
         },
         NUM_CONFIG_SYNC_TRIES);
 
     writeHealthBits();
-    if (r) sync_done.notify();
+    if (r)
+        sync_done.notify();
 }
 
 void waitForSync()

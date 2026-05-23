@@ -28,8 +28,8 @@ app::Timer                                                       balance_timer(B
 
 void updateCellsToBalance()
 {
-    app::segments::Cells<result<float>> cell_voltages = app::segments::health::getLatestVoltages();
-    app::segments::CellParam<float> min_cell_voltage = app::segments::health::getMinCellVoltage();
+    app::segments::Cells<result<float>> cell_voltages    = app::segments::health::getLatestVoltages();
+    app::segments::CellParam<float>     min_cell_voltage = app::segments::health::getMinCellVoltage();
 
     for (uint8_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
@@ -43,7 +43,8 @@ void updateCellsToBalance()
             }
 
             // Never discharge the leader cell unless balancing to target voltage
-            if (seg == min_cell_voltage.segment && cell == min_cell_voltage.cell && !app::can_rx::Debug_CellBalancing_OverrideValue_get())
+            if (seg == min_cell_voltage.segment && cell == min_cell_voltage.cell &&
+                !app::can_rx::Debug_CellBalancing_OverrideValue_get())
             {
                 discharge_enabled[seg][cell] = false;
                 continue;

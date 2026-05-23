@@ -7,9 +7,9 @@
 #include "hw_notify.hpp"
 
 // Minimum conversion times
-inline constexpr uint8_t CELL_CONV_TIME_MS      = 1U;
+inline constexpr uint8_t CELL_CONV_TIME_MS           = 1U;
 inline constexpr uint8_t SECONDARY_CELL_CONV_TIME_MS = 8U;
-inline constexpr uint8_t AUX_CONV_TIME_MS       = 1U;
+inline constexpr uint8_t AUX_CONV_TIME_MS            = 1U;
 
 namespace app::segments
 {
@@ -18,7 +18,6 @@ using io::adbms::Cells;
 using io::adbms::Segments;
 using io::adbms::ThermGpios;
 using io::adbms::Therms;
-
 
 // Thermistor bank selected during AUX conversions.
 enum class ThermistorMux : size_t
@@ -42,7 +41,7 @@ namespace config
 {
     void setBalanceConfig(const Cells<bool> &balance_config, const Cells<uint8_t> &pwm_duty, bool balancing_enabled);
     void setThermistorConfig(ThermistorMux mux);
-    void         configSync();
+    void configSync();
     void waitForSync();
 } // namespace config
 
@@ -61,7 +60,7 @@ namespace broadcast
     void thermTemps(const Therms<result<float>> &temps);
     void thermOwc(const Therms<result<bool>> &therm_owc);
     void segVoltages(const Segments<result<float>> &seg_voltages);
-    void status(const Segments<io::adbms::StatusGroups> &status);
+    void status(const Segments<io::adbms::StatusGroupsRes> &status);
     void cellOwc(const Cells<result<bool>> &owc_results);
 } // namespace broadcast
 
@@ -70,16 +69,16 @@ namespace health
 {
     enum class ErrorBit : size_t
     {
-        CellAdcPoll  = 0,
-        AuxAdcPoll   = 1,
-        OwcAdcPoll=2,
-        CellVoltage=3, 
-        CellOwc=4,
-        ThermTemp=5,
-        ThermOwc=6,
-        SegVoltage = 7,
-        Status=8,
-        Config = 9,
+        CellAdcPoll    = 0,
+        AuxAdcPoll     = 1,
+        OwcAdcPoll     = 2,
+        CellVoltage    = 3,
+        CellOwc        = 4,
+        ThermTemp      = 5,
+        ThermOwc       = 6,
+        SegVoltage     = 7,
+        Status         = 8,
+        Config         = 9,
         NUM_ERROR_BITS = 10
     };
 
@@ -121,10 +120,10 @@ namespace startPoll
 
 namespace conversion
 {
-    Cells<result<float>>                                    cellVoltage();
-    std::pair<Therms<result<float>>, Therms<result<bool>>>  thermTempOwc();
-    Segments<result<float>>                                 segVoltage();
-    Segments<io::adbms::StatusGroups>                       status();
-    Cells<result<bool>>                                     cellOwc();
+    Cells<result<float>>                                   cellVoltage();
+    std::pair<Therms<result<float>>, Therms<result<bool>>> thermTempOwc();
+    Segments<result<float>>                                segVoltage();
+    Segments<io::adbms::StatusGroupsRes>                   status();
+    Cells<result<bool>>                                    cellOwc();
 } // namespace conversion
 } // namespace app::segments

@@ -15,11 +15,10 @@ class Notifier
   public:
     Notifier();
 
-    void         wait();
-    result<void> waitFor(uint32_t timeout_ms);
+    void wait() const;
 
-    void notify();
-    void notifyFromISR();
+    void notify() const;
+    void notifyFromISR() const;
 
   private:
     StaticEventGroup_t storage_{};

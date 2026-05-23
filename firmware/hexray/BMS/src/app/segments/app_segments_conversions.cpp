@@ -9,10 +9,10 @@ using std::pair;
 
 namespace
 {
-template <typename Arr>
-void fillWithError(Arr &arr, ErrorCode err)
+template <typename Arr> void fillWithError(Arr &arr, ErrorCode err)
 {
-    for (auto &seg : arr) seg.fill(std::unexpected(err));
+    for (auto &seg : arr)
+        seg.fill(std::unexpected(err));
 }
 } // namespace
 
@@ -198,7 +198,6 @@ Segments<result<float>> conversion::segVoltage()
 
 Segments<io::adbms::StatusGroups> conversion::status()
 {
-    
     Segments<io::adbms::StatusGroups> status = io::adbms::read::status();
 
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
@@ -235,12 +234,13 @@ Cells<result<bool>> conversion::cellOwc()
 
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
     {
-        for (size_t cell = 0; cell < CELLS_PER_SEGMENT; cell++) owc_cell[seg][cell] = true;
+        for (size_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
+            owc_cell[seg][cell] = true;
 
-        bool                                       seg_has_error = false;
-        std::array<float, CELLS_PER_SEGMENT>       cellpu{};
-        std::array<float, CELLS_PER_SEGMENT>       cellpd{};
-        std::array<bool, CELLS_PER_SEGMENT>        delta_valid{};
+        bool                                 seg_has_error = false;
+        std::array<float, CELLS_PER_SEGMENT> cellpu{};
+        std::array<float, CELLS_PER_SEGMENT> cellpd{};
+        std::array<bool, CELLS_PER_SEGMENT>  delta_valid{};
 
         for (size_t cell = 0; cell < CELLS_PER_SEGMENT; cell++)
         {
@@ -295,8 +295,7 @@ Cells<result<bool>> conversion::cellOwc()
         {
             cpin_open[0] = true;
         }
-        if (cellpd_raw[seg][CELLS_PER_SEGMENT - 1U] &&
-            cellpd_raw[seg][CELLS_PER_SEGMENT - 1U].value() == 0U)
+        if (cellpd_raw[seg][CELLS_PER_SEGMENT - 1U] && cellpd_raw[seg][CELLS_PER_SEGMENT - 1U].value() == 0U)
         {
             cpin_open[CELLS_PER_SEGMENT] = true;
         }

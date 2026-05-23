@@ -108,12 +108,12 @@ static_assert(sizeof(PWMA) == REG_GROUP_SIZE);
 // PWM Register Group B: per-cell duty cycle for cells 12–13
 struct __attribute__((packed)) PWMB
 {
-    uint8_t pwm13 : 4;
-    uint8_t pwm14 : 4;
-    uint8_t pwm15 : 4;
-    uint8_t pwm16 : 4;
-    uint32_t res  : 32;
-    bool operator==(const PWMB &other) const { return std::memcmp(this, &other, sizeof(PWMB)) == 0; }
+    uint8_t  pwm13 : 4;
+    uint8_t  pwm14 : 4;
+    uint8_t  pwm15 : 4;
+    uint8_t  pwm16 : 4;
+    uint32_t res : 32;
+    bool     operator==(const PWMB &other) const { return std::memcmp(this, &other, sizeof(PWMB)) == 0; }
 };
 static_assert(sizeof(PWMB) == REG_GROUP_SIZE);
 
@@ -185,7 +185,7 @@ struct __attribute__((packed)) STATE
 };
 static_assert(sizeof(STATE) == REG_GROUP_SIZE);
 
-struct StatusGroups
+struct StatusGroupsRes
 {
     result<STATA> stat_a;
     result<STATB> stat_b;
@@ -213,20 +213,45 @@ namespace read
 {
     [[nodiscard]] Segments<result<SegmentConfig>> configReg();
     [[nodiscard]] Segments<result<PWMConfig>>     pwmReg();
-    [[nodiscard]] Cells<result<uint16_t>>         cellVoltage();
-    [[nodiscard]] Cells<result<uint16_t>>         filteredCellVoltage();
-    [[nodiscard]] Cells<result<uint16_t>>         secondaryCellVoltage();
-    [[nodiscard]] Segments<result<uint16_t>>      segVoltage();
-    [[nodiscard]] ThermGpios<result<uint16_t>>    thermGpioVoltage();
-    [[nodiscard]] Segments<StatusGroups>          status();
+    /**
+     * Reads C-ADCs
+     * @return
+     */
+    [[nodiscard]] Cells<result<uint16_t>> cellVoltage();
+    /**
+     * Reads S-ADCs
+     * @return
+     */
+    [[nodiscard]] Cells<result<uint16_t>>      secondaryCellVoltage();
+    [[nodiscard]] Segments<result<uint16_t>>   segVoltage();
+    [[nodiscard]] ThermGpios<result<uint16_t>> thermGpioVoltage();
+    [[nodiscard]] Segments<StatusGroupsRes>    status();
 } // namespace read
 
 namespace command
 {
     [[nodiscard]] result<void> startCellsAdc();
     [[nodiscard]] result<void> startAuxAdc();
+    /**
+     * Polls for ADCs conversion, with retries. If returns successfully, S-ADCs are ready to be read.
+     * @throws ErrorCode poll() errors if poll fails
+     * @throws ErrorCode::POLL_INVALID if ADC is not ready after retries
+     * @return
+     */
     [[nodiscard]] result<void> pollSecondaryCellsAdc();
+    /**
+     * Polls for ADCs conversion, with retries. If returns successfully, C-ADCs are ready to be read.
+     * @throws ErrorCode poll() errors if poll fails
+     * @throws ErrorCode::POLL_INVALID if ADC is not ready after retries
+     * @return
+     */
     [[nodiscard]] result<void> pollCellsAdc();
+    /**
+     * Polls for ADCs conversion, with retries. If returns successfully, Aux ADCs are ready to be read.
+     * @throws ErrorCode poll() errors if poll fails
+     * @throws ErrorCode::POLL_INVALID if ADC is not ready after retries
+     * @return
+     */
     [[nodiscard]] result<void> pollAuxAdc();
     [[nodiscard]] result<void> startBalance();
     [[nodiscard]] result<void> stopBalance();

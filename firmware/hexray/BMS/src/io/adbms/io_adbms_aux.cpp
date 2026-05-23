@@ -17,7 +17,7 @@ constexpr uint8_t NUM_STAT_REG_GROUPS  = 5U;
 namespace io::adbms
 {
 
-//check this 
+// check this
 result<void> clear::aux()
 {
     constexpr Segments<RegBuffer> clr_regs{};
@@ -27,12 +27,14 @@ result<void> clear::aux()
     return {};
 }
 
-//check this
+// check this
 result<void> clear::stat()
 {
-    constexpr Segments<RegBuffer> clr_regs = []() {
+    constexpr Segments<RegBuffer> clr_regs = []()
+    {
         Segments<RegBuffer> r{};
-        for (auto &seg : r) seg.fill(0xFF);
+        for (auto &seg : r)
+            seg.fill(0xFF);
         return r;
     }();
     RETURN_IF_ERR(writeRegGroup(CLRFLAG, clr_regs));
@@ -51,8 +53,10 @@ result<void> command::pollAuxAdc()
         []() -> result<void>
         {
             const auto rx_res = poll(PLAUX);
-            if (!rx_res) return unexpected(rx_res.error());
-            if (rx_res.value().to_ulong() == POLL_STATUS_READY) return {};
+            if (!rx_res)
+                return unexpected(rx_res.error());
+            if (rx_res.value().to_ulong() == POLL_STATUS_READY)
+                return {};
             io::time::delay(POLL_RETRY_DELAY_MS);
             return unexpected(ErrorCode::BUSY);
         },
@@ -62,7 +66,7 @@ result<void> command::pollAuxAdc()
 ThermGpios<result<uint16_t>> read::thermGpioVoltage()
 {
     constexpr array<uint16_t, NUM_THERM_REG_GROUPS> reg_groups{ { RDAUXA, RDAUXB, RDAUXC } };
-    ThermGpios<result<uint16_t>>                        cell_temp_regs{};
+    ThermGpios<result<uint16_t>>                    cell_temp_regs{};
 
     for (size_t group = 0U; group < NUM_THERM_REG_GROUPS; group++)
     {
@@ -82,15 +86,15 @@ ThermGpios<result<uint16_t>> read::thermGpioVoltage()
 
                     const uint16_t low  = temp_reg_groups[seg].value()[gpio_in_group * 2U];
                     const uint16_t high = temp_reg_groups[seg].value()[gpio_in_group * 2U + 1U];
-                    const auto     temperature =
+                    const auto     aux_register_val =
                         static_cast<uint16_t>(static_cast<uint16_t>(low) | static_cast<uint16_t>(high) << 8U);
 
-                    if (temperature == 0xFFFF || temperature == 0x8000)
+                    if (aux_register_val == DEFAULT_REGISTER_VALUE)
                     {
                         cell_temp_regs[seg][gpio] = std::unexpected(ErrorCode::INVALID_READING);
                         continue;
                     }
-                    cell_temp_regs[seg][gpio] = temperature;
+                    cell_temp_regs[seg][gpio] = aux_register_val;
                 }
             }
         }
@@ -112,51 +116,57 @@ Segments<result<uint16_t>> read::segVoltage()
         }
 
         // we are reading VPV
-        const uint8_t low     = raw_seg_voltage[seg].value()[4U];
-        const uint8_t high    = raw_seg_voltage[seg].value()[5U];
-        const auto    voltage = static_cast<uint16_t>(static_cast<uint16_t>(low) | static_cast<uint16_t>(high) << 8U);
+        const uint8_t low  = raw_seg_voltage[seg].value()[4U];
+        const uint8_t high = raw_seg_voltage[seg].value()[5U];
+        const auto    voltage_reg_val =
+            static_cast<uint16_t>(static_cast<uint16_t>(low) | static_cast<uint16_t>(high) << 8U);
 
-        if (voltage == 0xFFFF || voltage == 0x8000)
+        if (voltage_reg_val == DEFAULT_REGISTER_VALUE)
         {
             segment_voltage_regs[seg] = std::unexpected(ErrorCode::INVALID_READING);
             continue;
         }
-        segment_voltage_regs[seg] = voltage;
+        segment_voltage_regs[seg] = voltage_reg_val;
     }
     return segment_voltage_regs;
 }
 
-Segments<StatusGroups> read::status()
+Segments<StatusGroupsRes> read::status()
 {
     constexpr array<uint16_t, NUM_STAT_REG_GROUPS> reg_groups{ { RDSTATA, RDSTATB, RDSTATC, RDSTATD, RDSTATE } };
-    Segments<StatusGroups>                         stat_regs;
+    Segments<StatusGroupsRes>                      stat_regs;
 
     for (size_t group = 0U; group < NUM_STAT_REG_GROUPS; group++)
     {
-        const auto out = readRegGroup(reg_groups[group]);
-        for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++) {
-
+        const Segments<result<RegBuffer>> status_reg_buf = readRegGroup(reg_groups[group]);
+        for (size_t seg = 0U; seg < NUM_SEGMENTS; seg++)
+        {
             switch (group)
             {
                 case 0U:
-                    stat_regs[seg].stat_a = out[seg] ? *reinterpret_cast<const STATA *>(out[seg]->data())
-                                                     : result<STATA>{ unexpected(out[seg].error()) };
+                    stat_regs[seg].stat_a = status_reg_buf[seg]
+                                                ? *reinterpret_cast<const STATA *>(status_reg_buf[seg]->data())
+                                                : result<STATA>{ unexpected(status_reg_buf[seg].error()) };
                     break;
                 case 1U:
-                    stat_regs[seg].stat_b = out[seg] ? *reinterpret_cast<const STATB *>(out[seg]->data())
-                                                     : result<STATB>{ unexpected(out[seg].error()) };
+                    stat_regs[seg].stat_b = status_reg_buf[seg]
+                                                ? *reinterpret_cast<const STATB *>(status_reg_buf[seg]->data())
+                                                : result<STATB>{ unexpected(status_reg_buf[seg].error()) };
                     break;
                 case 2U:
-                    stat_regs[seg].stat_c = out[seg] ? *reinterpret_cast<const STATC *>(out[seg]->data())
-                                                     : result<STATC>{ unexpected(out[seg].error()) };
+                    stat_regs[seg].stat_c = status_reg_buf[seg]
+                                                ? *reinterpret_cast<const STATC *>(status_reg_buf[seg]->data())
+                                                : result<STATC>{ unexpected(status_reg_buf[seg].error()) };
                     break;
                 case 3U:
-                    stat_regs[seg].stat_d = out[seg] ? *reinterpret_cast<const STATD *>(out[seg]->data())
-                                                     : result<STATD>{ unexpected(out[seg].error()) };
+                    stat_regs[seg].stat_d = status_reg_buf[seg]
+                                                ? *reinterpret_cast<const STATD *>(status_reg_buf[seg]->data())
+                                                : result<STATD>{ unexpected(status_reg_buf[seg].error()) };
                     break;
                 case 4U:
-                    stat_regs[seg].stat_e = out[seg] ? *reinterpret_cast<const STATE *>(out[seg]->data())
-                                                     : result<STATE>{ unexpected(out[seg].error()) };
+                    stat_regs[seg].stat_e = status_reg_buf[seg]
+                                                ? *reinterpret_cast<const STATE *>(status_reg_buf[seg]->data())
+                                                : result<STATE>{ unexpected(status_reg_buf[seg].error()) };
                     break;
                 default:
                     break;

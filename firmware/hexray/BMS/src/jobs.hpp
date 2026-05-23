@@ -1,7 +1,4 @@
 #pragma once
-#include "io_semaphore.hpp"
-
-extern io::semaphore spi_bus_lock;
 
 void jobs_init();
 void jobs_run1Hz_tick();

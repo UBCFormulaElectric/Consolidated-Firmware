@@ -2,20 +2,20 @@
 #include "io_adbms_internal.hpp"
 #include "util_errorCodes.hpp"
 
-namespace io::adbms
+namespace io::adbms::command
 {
-result<void> command::wakeup()
+result<void> wakeup()
 {
     return sendCmd(RDCFGA);
 }
 
-result<void> command::startBalance()
+result<void> startBalance()
 {
     return sendCmd(UNMUTE);
 }
 
-result<void> command::stopBalance()
+result<void> stopBalance()
 {
     return sendCmd(MUTE);
 }
-} // namespace io::adbms
+} // namespace io::adbms::command

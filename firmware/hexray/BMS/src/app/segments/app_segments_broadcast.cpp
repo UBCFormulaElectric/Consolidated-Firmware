@@ -199,7 +199,7 @@ void thermOwc(const Therms<result<bool>> &therm_owc)
     {
         for (size_t therm = 0U; therm < THERMISTORS_PER_SEGMENT; therm++)
         {
-            const bool ok = therm_owc[seg][therm].value_or(true);
+            const bool ok                                        = therm_owc[seg][therm].value_or(true);
             therm_owc_ok_buffer[seg * CELLS_PER_SEGMENT + therm] = ok;
             if (!ok)
                 candidate_therm_owc = true;
@@ -329,7 +329,7 @@ void cellOwc(const Cells<result<bool>> &owc_results)
     {
         for (size_t cell = 0U; cell < CELLS_PER_SEGMENT; cell++)
         {
-            const bool ok = owc_results[seg][cell].value_or(true);
+            const bool ok                                      = owc_results[seg][cell].value_or(true);
             cell_owc_ok_buffer[seg * CELLS_PER_SEGMENT + cell] = ok;
             if (!ok)
                 candidate_cell_owc = true;
