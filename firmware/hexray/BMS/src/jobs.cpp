@@ -63,13 +63,6 @@ void jobs_init()
 
     app::precharge::init();
 
-#ifndef TARGET_HV_SUPPLY
-    LOG_IF_ERR(io::adbms::command::wakeup());
-    LOG_IF_ERR(io::adbms::clear::cell());
-    LOG_IF_ERR(io::adbms::clear::aux());
-    LOG_IF_ERR(io::adbms::clear::stat());
-    LOG_INFO("Segment Initialization Done");
-#endif
     app::StateMachine::init(&app::states::init_state);
     app::can_tx::BMS_Heartbeat_set(true);
 }
@@ -142,23 +135,47 @@ void jobs_runAdbmsVoltages_tick()
 {
     app::segments::config::waitForSync();
 
-    Cells<result<float>> voltages;
-    Cells<result<bool>>  owc;
+    result<Cells<result<float>>> voltages;
+    result<Cells<result<bool>>>  owc;
 
     {
         const io::unique_semaphore s{ spi_bus_lock };
-        voltages = app::segments::conversion::cellVoltage();
-        owc      = app::segments::conversion::cellOwc();
+        if (const auto res = app::segments::startPoll::cellAdc(); not res)
+        {
+            voltages = std::unexpected(res.error());
+        }
+        else
+        {
+            voltages = app::segments::conversion::cellVoltage();
+        }
+        owc = app::segments::conversion::cellOwc();
     }
 
-    app::segments::broadcast::cellVoltages(voltages);
-    app::segments::broadcast::cellOwc(owc);
+    if (voltages)
+        app::segments::broadcast::cellVoltages(voltages.value());
+    else
+    {
+        // todo fill
+    }
+    if (owc)
+    {
+        const auto owc_ok = app::segments::owc::calculateOWC();
+        app::segments::broadcast::cellOwc(owc.value());
+    }
+    else
+    {
+        // todo fill
+    }
 }
 
 void jobs_runAdbmsConfigs_tick()
 {
     const io::unique_semaphore s{ spi_bus_lock };
     app::segments::config::configSync();
+    // TODO handle this properly
+    LOG_IF_ERR(io::adbms::clear::cell());
+    LOG_IF_ERR(io::adbms::clear::aux());
+    LOG_IF_ERR(io::adbms::clear::stat());
     LOG_INFO("CONFIG RAN");
 }
 
@@ -172,10 +189,9 @@ void jobs_runAdbmsAux_tick()
 
     {
         const io::unique_semaphore s{ spi_bus_lock };
-        LOG_IF_ERR(io::adbms::clear::stat()); // not sure how to handle error for this
         therm       = app::segments::conversion::thermTempOwc();
-        status      = app::segments::conversion::status();
         seg_voltage = app::segments::conversion::segVoltage();
+        status      = app::segments::conversion::status();
     }
 
     app::segments::broadcast::thermTemps(therm.first);

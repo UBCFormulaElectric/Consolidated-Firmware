@@ -69,17 +69,16 @@ namespace health
 {
     enum class ErrorBit : size_t
     {
-        CellAdcPoll    = 0,
-        AuxAdcPoll     = 1,
-        OwcAdcPoll     = 2,
-        CellVoltage    = 3,
-        CellOwc        = 4,
-        ThermTemp      = 5,
-        ThermOwc       = 6,
-        SegVoltage     = 7,
-        Status         = 8,
-        Config         = 9,
-        NUM_ERROR_BITS = 10
+        CellAdcPoll,
+        AuxAdcPoll,
+        OwcAdcPoll,
+        CellVoltage,
+        CellOwc,
+        ThermTemp,
+        SegVoltage,
+        Status,
+        Config,
+        NUM_ERROR_BITS
     };
 
     void reset(size_t seg, ErrorBit bit);

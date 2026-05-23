@@ -18,17 +18,15 @@ template <typename Arr> void fillWithError(Arr &arr, ErrorCode err)
 
 namespace app::segments
 {
-result<void> startPoll::secondaryCellAdc(io::adbms::OpenWireSwitch owcSwitch)
+result<void> startPoll::secondaryCellAdc(const io::adbms::OpenWireSwitch owcSwitch)
 {
-    const auto start = io::adbms::command::owcCells(owcSwitch);
-    if (!start)
+    if (const auto start = io::adbms::command::owcCells(owcSwitch); !start)
     {
         health::setAll(health::ErrorBit::OwcAdcPoll);
         return std::unexpected(start.error());
     }
     io::time::delay(SECONDARY_CELL_CONV_TIME_MS);
-    const auto poll = io::adbms::command::pollSecondaryCellsAdc();
-    if (!poll)
+    if (const auto poll = io::adbms::command::pollSecondaryCellsAdc(); !poll)
     {
         health::setAll(health::ErrorBit::OwcAdcPoll);
         return std::unexpected(poll.error());
@@ -39,15 +37,13 @@ result<void> startPoll::secondaryCellAdc(io::adbms::OpenWireSwitch owcSwitch)
 
 result<void> startPoll::cellAdc()
 {
-    const auto start = io::adbms::command::startCellsAdc();
-    if (!start)
+    if (const auto start = io::adbms::command::startCellsAdc(); !start)
     {
         health::setAll(health::ErrorBit::CellAdcPoll);
         return std::unexpected(start.error());
     }
     io::time::delay(CELL_CONV_TIME_MS);
-    const auto poll = io::adbms::command::pollCellsAdc();
-    if (!poll)
+    if (const auto poll = io::adbms::command::pollCellsAdc(); !poll)
     {
         health::setAll(health::ErrorBit::CellAdcPoll);
         return std::unexpected(poll.error());
@@ -56,18 +52,16 @@ result<void> startPoll::cellAdc()
     return {};
 }
 
-result<void> startPoll::auxAdc(ThermistorMux mux)
+result<void> startPoll::auxAdc(const ThermistorMux mux)
 {
-    config::setThermistorConfig(static_cast<ThermistorMux>(mux));
-    const auto start = io::adbms::command::startAuxAdc();
-    if (!start)
+    config::setThermistorConfig(mux);
+    if (const auto start = io::adbms::command::startAuxAdc(); !start)
     {
         health::setAll(health::ErrorBit::AuxAdcPoll);
         return std::unexpected(start.error());
     }
     io::time::delay(AUX_CONV_TIME_MS);
-    const auto poll = io::adbms::command::pollAuxAdc();
-    if (!poll)
+    if (const auto poll = io::adbms::command::pollAuxAdc(); !poll)
     {
         health::setAll(health::ErrorBit::AuxAdcPoll);
         return std::unexpected(poll.error());
@@ -78,13 +72,7 @@ result<void> startPoll::auxAdc(ThermistorMux mux)
 
 Cells<result<float>> conversion::cellVoltage()
 {
-    Cells<result<float>> out_voltage;
-    if (!startPoll::cellAdc())
-    {
-        fillWithError(out_voltage, ErrorCode::POLL_INVALID);
-        return out_voltage;
-    }
-
+    Cells<result<float>>          out_voltage;
     const Cells<result<uint16_t>> cell_voltage = io::adbms::read::cellVoltage();
 
     for (size_t seg = 0; seg < NUM_SEGMENTS; seg++)
@@ -134,7 +122,7 @@ pair<Therms<result<float>>, Therms<result<bool>>> conversion::thermTempOwc()
         bool seg_has_error = false;
         for (size_t therm = 0; therm < THERMISTORS_PER_SEGMENT; therm++)
         {
-            size_t therm_gpio = therm % THERM_GPIOS_PER_SEGMENT;
+            const size_t therm_gpio = therm % THERM_GPIOS_PER_SEGMENT;
 
             if (therm < THERM_GPIOS_PER_SEGMENT)
             {
@@ -276,8 +264,7 @@ Cells<result<bool>> conversion::cellOwc()
                 cpin_open[n] = true;
                 while (n + 1U < CELLS_PER_SEGMENT && delta_valid[n] && delta_valid[n + 1U])
                 {
-                    const float diff = cell_delta[n] - cell_delta[n + 1U];
-                    if (diff > -OW_CELL_DELTA_THRESHOLD)
+                    if (const float diff = cell_delta[n] - cell_delta[n + 1U]; diff <= -OW_CELL_DELTA_THRESHOLD)
                     {
                         cpin_open[n + 1U] = true;
                         n++;
