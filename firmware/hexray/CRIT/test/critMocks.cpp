@@ -69,3 +69,13 @@ result<void> write(std::array<digit, DIGITS> &data)
 #include "io_canQueues.hpp"
 io::queue<io::CanMsg, 128> can_tx_queue{ "" };
 io::queue<io::CanMsg, 128> can_rx_queue{ "" };
+
+#include "io_powerGauge.hpp"
+
+namespace io::power_gauge
+{
+result<void> update(std::span<led_frame, LEDS> data)
+{
+    return {};
+}
+} // namespace io::power_gauge

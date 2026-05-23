@@ -12,11 +12,11 @@ struct Screen
 
 /************************* Screens ***************************/
 // extern const Screen main_drive_screen;
-// extern const Screen drive_modes_screen;
 // extern const Screen start_up_screen;
 extern const Screen shdn_screen;
 extern const Screen alerts_screen;
 extern const Screen brightness_screen;
+extern const Screen drive_modes_screen;
 
 /**
  * @brief Initalize all screens, and starting init screen.
