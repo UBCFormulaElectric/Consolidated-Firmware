@@ -6,7 +6,6 @@
 #include "io_leds.hpp"
 #include "app_canAlerts.hpp"
 #include "io_switches.hpp"
-#include "hw_gpios.hpp"
 
 namespace app::leds
 {
